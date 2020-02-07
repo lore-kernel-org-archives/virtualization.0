@@ -1,90 +1,101 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: vhost changes (batched) in linux-next after 12/13 trigger random
- crashes in KVM guests after reboot
-Date: Fri, 7 Feb 2020 09:13:14 +0100
-Message-ID: <97c93d38-ef07-e321-d133-18483d54c0c0@de.ibm.com>
-References: <20200107042401-mutt-send-email-mst@kernel.org>
- <c6795e53-d12c-0709-c2e9-e35d9af1f693@de.ibm.com>
- <20200107065434-mutt-send-email-mst@kernel.org>
- <fe6e7e90-3004-eb7a-9ed8-b53a7667959f@de.ibm.com>
- <20200120012724-mutt-send-email-mst@kernel.org>
- <2a63b15f-8cf5-5868-550c-42e2cfd92c60@de.ibm.com>
- <b6e32f58e5d85ac5cc3141e9155fb140ae5cd580.camel@redhat.com>
- <1ade56b5-083f-bb6f-d3e0-3ddcf78f4d26@de.ibm.com>
- <20200206171349-mutt-send-email-mst@kernel.org>
- <5c860fa1-cef5-b389-4ebf-99a62afa0fe8@de.ibm.com>
- <20200207025806-mutt-send-email-mst@kernel.org>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH 3/6] drm/ast: Use simple encoder
+Date: Fri,  7 Feb 2020 09:41:32 +0100
+Message-ID: <20200207084135.4524-4-tzimmermann@suse.de>
+References: <20200207084135.4524-1-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20200207025806-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-Sender: kvm-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: eperezma@redhat.com, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Stephen Rothwell <sfr@canb.auug.org.au>, Linux Next Mailing List <linux-next@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Halil Pasic <pasic@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200207084135.4524-1-tzimmermann@suse.de>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: airlied@linux.ie, daniel@ffwll.ch, maarten.lankhorst@linux.intel.com, mripard@kernel.org, kraxel@redhat.com, noralf@tronnes.org, sam@ravnborg.org, alexander.deucher@amd.com, emil.velikov@collabora.com
+Cc: spice-devel@lists.freedesktop.org, Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+The ast driver uses an empty implementation for its encoder. Replace
+the code with the generic simple encoder.
 
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+---
+ drivers/gpu/drm/ast/ast_drv.h  |  6 +-----
+ drivers/gpu/drm/ast/ast_mode.c | 25 ++++++++-----------------
+ 2 files changed, 9 insertions(+), 22 deletions(-)
 
-On 07.02.20 08:58, Michael S. Tsirkin wrote:
-> On Fri, Feb 07, 2020 at 08:47:14AM +0100, Christian Borntraeger wrote:
->> Also adding Cornelia.
->>
->>
->> On 06.02.20 23:17, Michael S. Tsirkin wrote:
->>> On Thu, Feb 06, 2020 at 04:12:21PM +0100, Christian Borntraeger wrote:
->>>>
->>>>
->>>> On 06.02.20 15:22, eperezma@redhat.com wrote:
->>>>> Hi Christian.
->>>>>
->>>>> Could you try this patch on top of ("38ced0208491 vhost: use batched version by default")?
->>>>>
->>>>> It will not solve your first random crash but it should help with the lost of network connectivity.
->>>>>
->>>>> Please let me know how does it goes.
->>>>
->>>>
->>>> 38ced0208491 + this seem to be ok.
->>>>
->>>> Not sure if you can make out anything of this (and the previous git bisect log)
->>>
->>> Yes it does - that this is just bad split-up of patches, and there's
->>> still a real bug that caused worse crashes :)
->>>
->>> So I just pushed batch-v4.
->>> I expect that will fail, and bisect to give us
->>>     vhost: batching fetches
->>> Can you try that please?
->>>
->>
->> yes.
->>
->> eccb852f1fe6bede630e2e4f1a121a81e34354ab is the first bad commit
->> commit eccb852f1fe6bede630e2e4f1a121a81e34354ab
->> Author: Michael S. Tsirkin <mst@redhat.com>
->> Date:   Mon Oct 7 06:11:18 2019 -0400
->>
->>     vhost: batching fetches
->>     
->>     With this patch applied, new and old code perform identically.
->>     
->>     Lots of extra optimizations are now possible, e.g.
->>     we can fetch multiple heads with copy_from/to_user now.
->>     We can get rid of maintaining the log array.  Etc etc.
->>     
->>     Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
->>
->>  drivers/vhost/test.c  |  2 +-
->>  drivers/vhost/vhost.c | 39 ++++++++++++++++++++++++++++++++++-----
->>  drivers/vhost/vhost.h |  4 +++-
->>  3 files changed, 38 insertions(+), 7 deletions(-)
->>
-> 
-> 
-> And the symptom is still the same - random crashes
-> after a bit of traffic, right?
-
-random guest crashes after a reboot of the guests. As if vhost would still
-write into now stale buffers.
+diff --git a/drivers/gpu/drm/ast/ast_drv.h b/drivers/gpu/drm/ast/ast_drv.h
+index f5d8780776ae..656d591b154b 100644
+--- a/drivers/gpu/drm/ast/ast_drv.h
++++ b/drivers/gpu/drm/ast/ast_drv.h
+@@ -121,6 +121,7 @@ struct ast_private {
+ 		unsigned int next_index;
+ 	} cursor;
+ 
++	struct drm_encoder encoder;
+ 	struct drm_plane primary_plane;
+ 	struct drm_plane cursor_plane;
+ 
+@@ -238,13 +239,8 @@ struct ast_crtc {
+ 	u8 offset_x, offset_y;
+ };
+ 
+-struct ast_encoder {
+-	struct drm_encoder base;
+-};
+-
+ #define to_ast_crtc(x) container_of(x, struct ast_crtc, base)
+ #define to_ast_connector(x) container_of(x, struct ast_connector, base)
+-#define to_ast_encoder(x) container_of(x, struct ast_encoder, base)
+ 
+ struct ast_vbios_stdtable {
+ 	u8 misc;
+diff --git a/drivers/gpu/drm/ast/ast_mode.c b/drivers/gpu/drm/ast/ast_mode.c
+index 562ea6d9df13..60facaa152ac 100644
+--- a/drivers/gpu/drm/ast/ast_mode.c
++++ b/drivers/gpu/drm/ast/ast_mode.c
+@@ -968,28 +968,19 @@ static int ast_crtc_init(struct drm_device *dev)
+  * Encoder
+  */
+ 
+-static void ast_encoder_destroy(struct drm_encoder *encoder)
+-{
+-	drm_encoder_cleanup(encoder);
+-	kfree(encoder);
+-}
+-
+-static const struct drm_encoder_funcs ast_enc_funcs = {
+-	.destroy = ast_encoder_destroy,
+-};
+-
+ static int ast_encoder_init(struct drm_device *dev)
+ {
+-	struct ast_encoder *ast_encoder;
++	struct ast_private *ast = dev->dev_private;
++	struct drm_encoder *encoder = &ast->encoder;
++	int ret;
+ 
+-	ast_encoder = kzalloc(sizeof(struct ast_encoder), GFP_KERNEL);
+-	if (!ast_encoder)
+-		return -ENOMEM;
++	ret = drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_DAC,
++				      NULL);
++	if (ret)
++		return ret;
+ 
+-	drm_encoder_init(dev, &ast_encoder->base, &ast_enc_funcs,
+-			 DRM_MODE_ENCODER_DAC, NULL);
++	encoder->possible_crtcs = 1;
+ 
+-	ast_encoder->base.possible_crtcs = 1;
+ 	return 0;
+ }
+ 
+-- 
+2.25.0
