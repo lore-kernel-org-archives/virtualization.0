@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v7 30/78] KVM: x86: page track: provide all page tracking hooks with the guest virtual address
-Date: Fri,  7 Feb 2020 20:15:48 +0200
-Message-ID: <20200207181636.1065-31-alazar@bitdefender.com>
+Subject: [RFC PATCH v7 25/78] KVM: x86: add .control_singlestep()
+Date: Fri,  7 Feb 2020 20:15:43 +0200
+Message-ID: <20200207181636.1065-26-alazar@bitdefender.com>
 References: <20200207181636.1065-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -10,184 +10,59 @@ Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200207181636.1065-1-alazar@bitdefender.com>
 Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Mihai Donțu <mdontu@bitdefender.com>
+From: Nicușor Cîțu <ncitu@bitdefender.com>
 
-This is needed because the emulator calls the page tracking code
-irrespective of the current VM-exit reason or available information.
+This function is needed for KVMI_VCPU_CONTROL_SINGLESTEP
+and KVMI_EVENT_SINGLESTEP.
 
-Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
+Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- arch/x86/include/asm/kvm_host.h       |  2 +-
- arch/x86/include/asm/kvm_page_track.h | 10 ++++++----
- arch/x86/kvm/mmu/mmu.c                |  2 +-
- arch/x86/kvm/mmu/page_track.c         |  6 +++---
- arch/x86/kvm/x86.c                    | 16 ++++++++--------
- drivers/gpu/drm/i915/gvt/kvmgt.c      |  2 +-
- 6 files changed, 20 insertions(+), 18 deletions(-)
+ arch/x86/include/asm/kvm_host.h |  1 +
+ arch/x86/kvm/vmx/vmx.c          | 11 +++++++++++
+ 2 files changed, 12 insertions(+)
 
 diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index 77de935979b2..378a094ceb5b 100644
+index e05569a5da10..6927a6044e26 100644
 --- a/arch/x86/include/asm/kvm_host.h
 +++ b/arch/x86/include/asm/kvm_host.h
-@@ -1324,7 +1324,7 @@ void kvm_mmu_change_mmu_pages(struct kvm *kvm, unsigned long kvm_nr_mmu_pages);
- int load_pdptrs(struct kvm_vcpu *vcpu, struct kvm_mmu *mmu, unsigned long cr3);
- bool pdptrs_changed(struct kvm_vcpu *vcpu);
+@@ -1257,6 +1257,7 @@ struct kvm_x86_ops {
+ 	u64 (*fault_gla)(struct kvm_vcpu *vcpu);
+ 	bool (*spt_fault)(struct kvm_vcpu *vcpu);
+ 	bool (*gpt_translation_fault)(struct kvm_vcpu *vcpu);
++	void (*control_singlestep)(struct kvm_vcpu *vcpu, bool enable);
+ };
  
--int emulator_write_phys(struct kvm_vcpu *vcpu, gpa_t gpa,
-+int emulator_write_phys(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
- 			  const void *val, int bytes);
- 
- struct kvm_irq_mask_notifier {
-diff --git a/arch/x86/include/asm/kvm_page_track.h b/arch/x86/include/asm/kvm_page_track.h
-index 172f9749dbb2..e91f5a16e741 100644
---- a/arch/x86/include/asm/kvm_page_track.h
-+++ b/arch/x86/include/asm/kvm_page_track.h
-@@ -28,12 +28,14 @@ struct kvm_page_track_notifier_node {
- 	 *
- 	 * @vcpu: the vcpu where the write access happened.
- 	 * @gpa: the physical address written by guest.
-+	 * @gva: the virtual address written by guest.
- 	 * @new: the data was written to the address.
- 	 * @bytes: the written length.
- 	 * @node: this node
- 	 */
--	void (*track_write)(struct kvm_vcpu *vcpu, gpa_t gpa, const u8 *new,
--			    int bytes, struct kvm_page_track_notifier_node *node);
-+	void (*track_write)(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
-+			    const u8 *new, int bytes,
-+			    struct kvm_page_track_notifier_node *node);
- 	/*
- 	 * It is called when memory slot is being moved or removed
- 	 * users can drop write-protection for the pages in that memory slot
-@@ -69,7 +71,7 @@ kvm_page_track_register_notifier(struct kvm *kvm,
- void
- kvm_page_track_unregister_notifier(struct kvm *kvm,
- 				   struct kvm_page_track_notifier_node *n);
--void kvm_page_track_write(struct kvm_vcpu *vcpu, gpa_t gpa, const u8 *new,
--			  int bytes);
-+void kvm_page_track_write(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
-+			  const u8 *new, int bytes);
- void kvm_page_track_flush_slot(struct kvm *kvm, struct kvm_memory_slot *slot);
- #endif
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index 6f92b40d798c..f2e016dfffe6 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -5412,7 +5412,7 @@ static u64 *get_written_sptes(struct kvm_mmu_page *sp, gpa_t gpa, int *nspte)
- 	return spte;
+ struct kvm_arch_async_pf {
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index 83f047fe6bc1..475f5eb6c4c2 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -7837,6 +7837,16 @@ static bool vmx_gpt_translation_fault(struct kvm_vcpu *vcpu)
+ 	return true;
  }
  
--static void kvm_mmu_pte_write(struct kvm_vcpu *vcpu, gpa_t gpa,
-+static void kvm_mmu_pte_write(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
- 			      const u8 *new, int bytes,
- 			      struct kvm_page_track_notifier_node *node)
- {
-diff --git a/arch/x86/kvm/mmu/page_track.c b/arch/x86/kvm/mmu/page_track.c
-index 3521e2d176f2..dc891d6a2553 100644
---- a/arch/x86/kvm/mmu/page_track.c
-+++ b/arch/x86/kvm/mmu/page_track.c
-@@ -220,8 +220,8 @@ EXPORT_SYMBOL_GPL(kvm_page_track_unregister_notifier);
-  * The node should figure out if the written page is the one that node is
-  * interested in by itself.
-  */
--void kvm_page_track_write(struct kvm_vcpu *vcpu, gpa_t gpa, const u8 *new,
--			  int bytes)
-+void kvm_page_track_write(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
-+			  const u8 *new, int bytes)
- {
- 	struct kvm_page_track_notifier_head *head;
- 	struct kvm_page_track_notifier_node *n;
-@@ -235,7 +235,7 @@ void kvm_page_track_write(struct kvm_vcpu *vcpu, gpa_t gpa, const u8 *new,
- 	idx = srcu_read_lock(&head->track_srcu);
- 	hlist_for_each_entry_rcu(n, &head->track_notifier_list, node)
- 		if (n->track_write)
--			n->track_write(vcpu, gpa, new, bytes, n);
-+			n->track_write(vcpu, gpa, gva, new, bytes, n);
- 	srcu_read_unlock(&head->track_srcu, idx);
- }
++static void vmx_control_singlestep(struct kvm_vcpu *vcpu, bool enable)
++{
++	if (enable)
++		exec_controls_setbit(to_vmx(vcpu),
++			      CPU_BASED_MONITOR_TRAP_FLAG);
++	else
++		exec_controls_clearbit(to_vmx(vcpu),
++				CPU_BASED_MONITOR_TRAP_FLAG);
++}
++
+ static struct kvm_x86_ops vmx_x86_ops __ro_after_init = {
+ 	.cpu_has_kvm_support = cpu_has_kvm_support,
+ 	.disabled_by_bios = vmx_disabled_by_bios,
+@@ -7998,6 +8008,7 @@ static struct kvm_x86_ops vmx_x86_ops __ro_after_init = {
+ 	.fault_gla = vmx_fault_gla,
+ 	.spt_fault = vmx_spt_fault,
+ 	.gpt_translation_fault = vmx_gpt_translation_fault,
++	.control_singlestep = vmx_control_singlestep,
+ };
  
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 4565f3cce201..0dd43cf5d2b1 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -5554,7 +5554,7 @@ static int vcpu_mmio_gva_to_gpa(struct kvm_vcpu *vcpu, unsigned long gva,
- 	return vcpu_is_mmio_gpa(vcpu, gva, *gpa, write);
- }
- 
--int emulator_write_phys(struct kvm_vcpu *vcpu, gpa_t gpa,
-+int emulator_write_phys(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
- 			const void *val, int bytes)
- {
- 	int ret;
-@@ -5562,14 +5562,14 @@ int emulator_write_phys(struct kvm_vcpu *vcpu, gpa_t gpa,
- 	ret = kvm_vcpu_write_guest(vcpu, gpa, val, bytes);
- 	if (ret < 0)
- 		return 0;
--	kvm_page_track_write(vcpu, gpa, val, bytes);
-+	kvm_page_track_write(vcpu, gpa, gva, val, bytes);
- 	return 1;
- }
- 
- struct read_write_emulator_ops {
- 	int (*read_write_prepare)(struct kvm_vcpu *vcpu, void *val,
- 				  int bytes);
--	int (*read_write_emulate)(struct kvm_vcpu *vcpu, gpa_t gpa,
-+	int (*read_write_emulate)(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
- 				  void *val, int bytes);
- 	int (*read_write_mmio)(struct kvm_vcpu *vcpu, gpa_t gpa,
- 			       int bytes, void *val);
-@@ -5590,16 +5590,16 @@ static int read_prepare(struct kvm_vcpu *vcpu, void *val, int bytes)
- 	return 0;
- }
- 
--static int read_emulate(struct kvm_vcpu *vcpu, gpa_t gpa,
-+static int read_emulate(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
- 			void *val, int bytes)
- {
- 	return !kvm_vcpu_read_guest(vcpu, gpa, val, bytes);
- }
- 
--static int write_emulate(struct kvm_vcpu *vcpu, gpa_t gpa,
-+static int write_emulate(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
- 			 void *val, int bytes)
- {
--	return emulator_write_phys(vcpu, gpa, val, bytes);
-+	return emulator_write_phys(vcpu, gpa, gva, val, bytes);
- }
- 
- static int write_mmio(struct kvm_vcpu *vcpu, gpa_t gpa, int bytes, void *val)
-@@ -5668,7 +5668,7 @@ static int emulator_read_write_onepage(unsigned long addr, void *val,
- 			return X86EMUL_PROPAGATE_FAULT;
- 	}
- 
--	if (!ret && ops->read_write_emulate(vcpu, gpa, val, bytes))
-+	if (!ret && ops->read_write_emulate(vcpu, gpa, addr, val, bytes))
- 		return X86EMUL_CONTINUE;
- 
- 	/*
-@@ -5827,7 +5827,7 @@ static int emulator_cmpxchg_emulated(struct x86_emulate_ctxt *ctxt,
- 	if (!exchanged)
- 		return X86EMUL_CMPXCHG_FAILED;
- 
--	kvm_page_track_write(vcpu, gpa, new, bytes);
-+	kvm_page_track_write(vcpu, gpa, addr, new, bytes);
- 
- 	return X86EMUL_CONTINUE;
- 
-diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kvmgt.c
-index 04a5a0d90823..59e2f783c6e9 100644
---- a/drivers/gpu/drm/i915/gvt/kvmgt.c
-+++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
-@@ -1682,7 +1682,7 @@ static int kvmgt_page_track_remove(unsigned long handle, u64 gfn)
- 	return 0;
- }
- 
--static void kvmgt_page_track_write(struct kvm_vcpu *vcpu, gpa_t gpa,
-+static void kvmgt_page_track_write(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
- 		const u8 *val, int len,
- 		struct kvm_page_track_notifier_node *node)
- {
+ static void vmx_cleanup_l1d_flush(void)
