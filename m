@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v7 61/78] KVM: introspection: restore the state of CR3 interception on unhook
-Date: Fri,  7 Feb 2020 20:16:19 +0200
-Message-ID: <20200207181636.1065-62-alazar@bitdefender.com>
+Subject: [RFC PATCH v7 66/78] KVM: introspection: add KVMI_VCPU_GET_MTRR_TYPE
+Date: Fri,  7 Feb 2020 20:16:24 +0200
+Message-ID: <20200207181636.1065-67-alazar@bitdefender.com>
 References: <20200207181636.1065-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -10,178 +10,212 @@ Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200207181636.1065-1-alazar@bitdefender.com>
 Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Nicușor Cîțu <ncitu@bitdefender.com>
+From: Mihai Donțu <mdontu@bitdefender.com>
 
-This commit also ensures that the introspection tool and the userspace
-do not disable each other the CR3-write VM-exit.
+This command returns the memory type for a guest physical address.
 
+Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
+Co-developed-by: Nicușor Cîțu <ncitu@bitdefender.com>
 Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- arch/x86/include/asm/kvmi_host.h |  4 ++
- arch/x86/kvm/kvmi.c              | 64 ++++++++++++++++++++++++++++++--
- arch/x86/kvm/svm.c               |  5 +++
- arch/x86/kvm/vmx/vmx.c           |  5 +++
- 4 files changed, 75 insertions(+), 3 deletions(-)
+ Documentation/virt/kvm/kvmi.rst               | 32 +++++++++++++++++++
+ arch/x86/include/uapi/asm/kvmi.h              |  9 ++++++
+ arch/x86/kvm/kvmi.c                           |  7 ++++
+ include/uapi/linux/kvmi.h                     |  3 +-
+ .../testing/selftests/kvm/x86_64/kvmi_test.c  | 19 +++++++++++
+ virt/kvm/introspection/kvmi_int.h             |  2 ++
+ virt/kvm/introspection/kvmi_msg.c             | 17 ++++++++++
+ 7 files changed, 88 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/kvmi_host.h b/arch/x86/include/asm/kvmi_host.h
-index 4ac209cb4ebf..24f3f8fdee62 100644
---- a/arch/x86/include/asm/kvmi_host.h
-+++ b/arch/x86/include/asm/kvmi_host.h
-@@ -13,6 +13,7 @@ struct kvmi_monitor_interception {
- struct kvmi_interception {
- 	bool restore_interception;
- 	struct kvmi_monitor_interception breakpoint;
-+	struct kvmi_monitor_interception cr3w;
+diff --git a/Documentation/virt/kvm/kvmi.rst b/Documentation/virt/kvm/kvmi.rst
+index 5d2b828f2159..ae8e242c4721 100644
+--- a/Documentation/virt/kvm/kvmi.rst
++++ b/Documentation/virt/kvm/kvmi.rst
+@@ -787,6 +787,38 @@ the buffer size from the message size.
+ * -KVM_EAGAIN - the selected vCPU can't be introspected yet
+ * -KVM_ENOMEM - not enough memory to allocate the reply
+ 
++18. KVMI_VCPU_GET_MTRR_TYPE
++---------------------------
++
++:Architecture: x86
++:Versions: >= 1
++:Parameters:
++
++::
++
++	struct kvmi_vcpu_hdr;
++	struct kvmi_vcpu_get_mtrr_type {
++		__u64 gpa;
++	};
++
++:Returns:
++
++::
++
++	struct kvmi_error_code;
++	struct kvmi_vcpu_get_mtrr_type_reply {
++		__u8 type;
++		__u8 padding[7];
++	};
++
++Returns the guest memory type for a specific physical address.
++
++:Errors:
++
++* -KVM_EINVAL - the selected vCPU is invalid
++* -KVM_EINVAL - padding is not zero
++* -KVM_EAGAIN - the selected vCPU can't be introspected yet
++
+ Events
+ ======
+ 
+diff --git a/arch/x86/include/uapi/asm/kvmi.h b/arch/x86/include/uapi/asm/kvmi.h
+index 68ad3d737d7e..1dc3fc02d3ec 100644
+--- a/arch/x86/include/uapi/asm/kvmi.h
++++ b/arch/x86/include/uapi/asm/kvmi.h
+@@ -101,4 +101,13 @@ struct kvmi_vcpu_get_xsave_reply {
+ 	__u32 region[0];
  };
  
- struct kvm_vcpu_arch_introspection {
-@@ -28,6 +29,7 @@ bool kvmi_monitor_bp_intercept(struct kvm_vcpu *vcpu, u32 dbg);
- bool kvmi_cr_event(struct kvm_vcpu *vcpu, unsigned int cr,
- 		   unsigned long old_value, unsigned long *new_value);
- bool kvmi_cr3_intercepted(struct kvm_vcpu *vcpu);
-+bool kvmi_monitor_cr3w_intercept(struct kvm_vcpu *vcpu, bool enable);
- 
- #else /* CONFIG_KVM_INTROSPECTION */
- 
-@@ -37,6 +39,8 @@ static inline bool kvmi_cr_event(struct kvm_vcpu *vcpu, unsigned int cr,
- 				 unsigned long old_value,
- 				 unsigned long *new_value) { return true; }
- static inline bool kvmi_cr3_intercepted(struct kvm_vcpu *vcpu) { return false; }
-+static inline bool kvmi_monitor_cr3w_intercept(struct kvm_vcpu *vcpu,
-+						bool enable) { return false; }
- 
- #endif /* CONFIG_KVM_INTROSPECTION */
- 
++struct kvmi_vcpu_get_mtrr_type {
++	__u64 gpa;
++};
++
++struct kvmi_vcpu_get_mtrr_type_reply {
++	__u8 type;
++	__u8 padding[7];
++};
++
+ #endif /* _UAPI_ASM_X86_KVMI_H */
 diff --git a/arch/x86/kvm/kvmi.c b/arch/x86/kvm/kvmi.c
-index 9917295e9a56..a522d4b1fa09 100644
+index f8fd8ce140c5..d3cddd34326b 100644
 --- a/arch/x86/kvm/kvmi.c
 +++ b/arch/x86/kvm/kvmi.c
-@@ -258,6 +258,59 @@ static void kvmi_arch_disable_bp_intercept(struct kvm_vcpu *vcpu)
- 	vcpu->arch.kvmi->breakpoint.kvm_intercepted = false;
+@@ -637,3 +637,10 @@ int kvmi_arch_cmd_vcpu_get_xsave(struct kvm_vcpu *vcpu,
+ 
+ 	return 0;
+ }
++
++int kvmi_arch_cmd_vcpu_get_mtrr_type(struct kvm_vcpu *vcpu, u64 gpa, u8 *type)
++{
++	*type = kvm_mtrr_get_guest_memory_type(vcpu, gpa_to_gfn(gpa));
++
++	return 0;
++}
+diff --git a/include/uapi/linux/kvmi.h b/include/uapi/linux/kvmi.h
+index bc63c04a543d..5e911ca7a636 100644
+--- a/include/uapi/linux/kvmi.h
++++ b/include/uapi/linux/kvmi.h
+@@ -37,7 +37,8 @@ enum {
+ 
+ 	KVMI_VM_GET_MAX_GFN = 17,
+ 
+-	KVMI_VCPU_GET_XSAVE = 18,
++	KVMI_VCPU_GET_XSAVE     = 18,
++	KVMI_VCPU_GET_MTRR_TYPE = 19,
+ 
+ 	KVMI_NUM_MESSAGES
+ };
+diff --git a/tools/testing/selftests/kvm/x86_64/kvmi_test.c b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
+index 638491f33138..600d65922bf4 100644
+--- a/tools/testing/selftests/kvm/x86_64/kvmi_test.c
++++ b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
+@@ -1342,6 +1342,24 @@ static void test_cmd_vcpu_get_xsave(struct kvm_vm *vm)
+ 			   &rpl, sizeof(rpl));
  }
  
-+static bool monitor_cr3w_fct_kvmi(struct kvm_vcpu *vcpu, bool enable)
++static void test_cmd_vcpu_get_mtrr_type(struct kvm_vm *vm)
 +{
-+	vcpu->arch.kvmi->cr3w.kvmi_intercepted = enable;
++	struct {
++		struct kvmi_msg_hdr hdr;
++		struct kvmi_vcpu_hdr vcpu_hdr;
++		struct kvmi_vcpu_get_mtrr_type cmd;
++	} req = {};
++	struct kvmi_vcpu_get_mtrr_type_reply rpl;
 +
-+	if (enable)
-+		vcpu->arch.kvmi->cr3w.kvm_intercepted =
-+			kvm_x86_ops->cr3_write_intercepted(vcpu);
-+	else if (vcpu->arch.kvmi->cr3w.kvm_intercepted)
-+		return true;
++	req.cmd.gpa = test_gpa;
 +
-+	return false;
++	test_vcpu0_command(vm, KVMI_VCPU_GET_MTRR_TYPE,
++			   &req.hdr, sizeof(req),
++			   &rpl, sizeof(rpl));
++
++	DEBUG("mtrr_type: gpa 0x%lx type 0x%x\n", test_gpa, rpl.type);
 +}
 +
-+static bool monitor_cr3w_fct_kvm(struct kvm_vcpu *vcpu, bool enable)
-+{
-+	if (!vcpu->arch.kvmi->cr3w.kvmi_intercepted)
-+		return false;
-+
-+	vcpu->arch.kvmi->cr3w.kvm_intercepted = enable;
-+
-+	if (!enable)
-+		return true;
-+
-+	return false;
-+}
-+
-+/*
-+ * Returns true if one side (kvm or kvmi) tries to disable the CR3 write
-+ * interception while the other side is still tracking it.
-+ */
-+bool kvmi_monitor_cr3w_intercept(struct kvm_vcpu *vcpu, bool enable)
-+{
-+	struct kvmi_interception *arch_vcpui = READ_ONCE(vcpu->arch.kvmi);
-+
-+	return (arch_vcpui && arch_vcpui->cr3w.monitor_fct(vcpu, enable));
-+}
-+EXPORT_SYMBOL(kvmi_monitor_cr3w_intercept);
-+
-+static void kvmi_control_cr3w_intercept(struct kvm_vcpu *vcpu, bool enable)
-+{
-+	vcpu->arch.kvmi->cr3w.monitor_fct = monitor_cr3w_fct_kvmi;
-+	kvm_x86_ops->control_cr3_intercept(vcpu, CR_TYPE_W, enable);
-+	vcpu->arch.kvmi->cr3w.monitor_fct = monitor_cr3w_fct_kvm;
-+}
-+
-+static void kvmi_arch_disable_cr3w_intercept(struct kvm_vcpu *vcpu)
-+{
-+	kvmi_control_cr3w_intercept(vcpu, false);
-+
-+	vcpu->arch.kvmi->cr3w.kvmi_intercepted = false;
-+	vcpu->arch.kvmi->cr3w.kvm_intercepted = false;
-+}
-+
- int kvmi_arch_cmd_control_intercept(struct kvm_vcpu *vcpu,
- 				    unsigned int event_id, bool enable)
+ static void test_introspection(struct kvm_vm *vm)
  {
-@@ -302,6 +355,7 @@ bool kvmi_arch_restore_interception(struct kvm_vcpu *vcpu)
- 		return false;
+ 	setup_socket();
+@@ -1368,6 +1386,7 @@ static void test_introspection(struct kvm_vm *vm)
+ 	test_cmd_vm_get_max_gfn();
+ 	test_event_xsetbv(vm);
+ 	test_cmd_vcpu_get_xsave(vm);
++	test_cmd_vcpu_get_mtrr_type(vm);
  
- 	kvmi_arch_disable_bp_intercept(vcpu);
-+	kvmi_arch_disable_cr3w_intercept(vcpu);
- 
- 	return true;
+ 	unhook_introspection(vm);
  }
-@@ -315,8 +369,13 @@ bool kvmi_arch_vcpu_alloc(struct kvm_vcpu *vcpu)
- 		return false;
+diff --git a/virt/kvm/introspection/kvmi_int.h b/virt/kvm/introspection/kvmi_int.h
+index 5e1231f09440..1e28355ea4d7 100644
+--- a/virt/kvm/introspection/kvmi_int.h
++++ b/virt/kvm/introspection/kvmi_int.h
+@@ -46,6 +46,7 @@
+ 			| BIT(KVMI_VCPU_CONTROL_CR) \
+ 			| BIT(KVMI_VCPU_CONTROL_EVENTS) \
+ 			| BIT(KVMI_VCPU_GET_CPUID) \
++			| BIT(KVMI_VCPU_GET_MTRR_TYPE) \
+ 			| BIT(KVMI_VCPU_GET_REGISTERS) \
+ 			| BIT(KVMI_VCPU_GET_XSAVE) \
+ 			| BIT(KVMI_VCPU_INJECT_EXCEPTION) \
+@@ -139,5 +140,6 @@ void kvmi_arch_inject_pending_exception(struct kvm_vcpu *vcpu);
+ int kvmi_arch_cmd_vcpu_get_xsave(struct kvm_vcpu *vcpu,
+ 				 struct kvmi_vcpu_get_xsave_reply **dest,
+ 				 size_t *dest_size);
++int kvmi_arch_cmd_vcpu_get_mtrr_type(struct kvm_vcpu *vcpu, u64 gpa, u8 *type);
  
- 	arch_vcpui->breakpoint.monitor_fct = monitor_bp_fct_kvm;
-+	arch_vcpui->cr3w.monitor_fct = monitor_cr3w_fct_kvm;
+ #endif
+diff --git a/virt/kvm/introspection/kvmi_msg.c b/virt/kvm/introspection/kvmi_msg.c
+index 1639f5eab68b..6f23bc7517aa 100644
+--- a/virt/kvm/introspection/kvmi_msg.c
++++ b/virt/kvm/introspection/kvmi_msg.c
+@@ -30,6 +30,7 @@ static const char *const msg_IDs[] = {
+ 	[KVMI_VCPU_CONTROL_EVENTS]   = "KVMI_VCPU_CONTROL_EVENTS",
+ 	[KVMI_VCPU_GET_CPUID]        = "KVMI_VCPU_GET_CPUID",
+ 	[KVMI_VCPU_GET_INFO]         = "KVMI_VCPU_GET_INFO",
++	[KVMI_VCPU_GET_MTRR_TYPE]    = "KVMI_VCPU_GET_MTRR_TYPE",
+ 	[KVMI_VCPU_GET_REGISTERS]    = "KVMI_VCPU_GET_REGISTERS",
+ 	[KVMI_VCPU_GET_XSAVE]        = "KVMI_VCPU_GET_XSAVE",
+ 	[KVMI_VCPU_INJECT_EXCEPTION] = "KVMI_VCPU_INJECT_EXCEPTION",
+@@ -542,6 +543,21 @@ static int handle_vcpu_get_xsave(const struct kvmi_vcpu_cmd_job *job,
+ 	return err;
+ }
  
--	/* pair with kvmi_monitor_bp_intercept() */
-+	/*
-+	 * paired with:
-+	 *  - kvmi_monitor_bp_intercept()
-+	 *  - kvmi_monitor_cr3w_intercept()
-+	 */
- 	smp_wmb();
- 	WRITE_ONCE(vcpu->arch.kvmi, arch_vcpui);
- 
-@@ -354,8 +413,7 @@ int kvmi_arch_cmd_vcpu_control_cr(struct kvm_vcpu *vcpu,
- 	case 0:
- 		break;
- 	case 3:
--		kvm_x86_ops->control_cr3_intercept(vcpu, CR_TYPE_W,
--						   req->enable);
-+		kvmi_control_cr3w_intercept(vcpu, req->enable);
- 		break;
- 	case 4:
- 		break;
-diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
-index 37b018988d7d..909308711bb7 100644
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -7326,6 +7326,11 @@ static void svm_control_cr3_intercept(struct kvm_vcpu *vcpu, int type,
- {
- 	struct vcpu_svm *svm = to_svm(vcpu);
- 
-+#ifdef CONFIG_KVM_INTROSPECTION
-+	if ((type & CR_TYPE_W) && kvmi_monitor_cr3w_intercept(vcpu, enable))
-+		type &= ~CR_TYPE_W;
-+#endif /* CONFIG_KVM_INTROSPECTION */
++static int handle_vcpu_get_mtrr_type(const struct kvmi_vcpu_cmd_job *job,
++				     const struct kvmi_msg_hdr *msg,
++				     const void *_req)
++{
++	const struct kvmi_vcpu_get_mtrr_type *req = _req;
++	struct kvmi_vcpu_get_mtrr_type_reply rpl;
++	int ec;
 +
- 	if (type & CR_TYPE_R)
- 		enable ? set_cr_intercept(svm, INTERCEPT_CR3_READ) :
- 			 clr_cr_intercept(svm, INTERCEPT_CR3_READ);
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index d3d7908995b5..157dfc3f756a 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -2907,6 +2907,11 @@ static void vmx_control_cr3_intercept(struct kvm_vcpu *vcpu, int type,
- 	struct vcpu_vmx *vmx = to_vmx(vcpu);
- 	u32 cr3_exec_control = 0;
- 
-+#ifdef CONFIG_KVM_INTROSPECTION
-+	if ((type & CR_TYPE_W) && kvmi_monitor_cr3w_intercept(vcpu, enable))
-+		type &= ~CR_TYPE_W;
-+#endif /* CONFIG_KVM_INTROSPECTION */
++	memset(&rpl, 0, sizeof(rpl));
 +
- 	if (type & CR_TYPE_R)
- 		cr3_exec_control |= CPU_BASED_CR3_STORE_EXITING;
- 	if (type & CR_TYPE_W)
++	ec = kvmi_arch_cmd_vcpu_get_mtrr_type(job->vcpu, req->gpa, &rpl.type);
++
++	return kvmi_msg_vcpu_reply(job, msg, ec, &rpl, sizeof(rpl));
++}
++
+ /*
+  * These commands are executed on the vCPU thread. The receiving thread
+  * passes the messages using a newly allocated 'struct kvmi_vcpu_cmd_job'
+@@ -555,6 +571,7 @@ static int(*const msg_vcpu[])(const struct kvmi_vcpu_cmd_job *,
+ 	[KVMI_VCPU_CONTROL_EVENTS]   = handle_vcpu_control_events,
+ 	[KVMI_VCPU_GET_CPUID]        = handle_get_cpuid,
+ 	[KVMI_VCPU_GET_INFO]         = handle_get_vcpu_info,
++	[KVMI_VCPU_GET_MTRR_TYPE]    = handle_vcpu_get_mtrr_type,
+ 	[KVMI_VCPU_GET_REGISTERS]    = handle_get_registers,
+ 	[KVMI_VCPU_GET_XSAVE]        = handle_vcpu_get_xsave,
+ 	[KVMI_VCPU_INJECT_EXCEPTION] = handle_vcpu_inject_exception,
