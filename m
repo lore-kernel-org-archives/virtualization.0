@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v7 35/78] KVM: x86: disable gpa_available optimization for fetch and page-walk NPF/EPT violations
-Date: Fri,  7 Feb 2020 20:15:53 +0200
-Message-ID: <20200207181636.1065-36-alazar@bitdefender.com>
+Subject: [RFC PATCH v7 17/78] KVM: svm: pass struct kvm_vcpu to set_msr_interception()
+Date: Fri,  7 Feb 2020 20:15:35 +0200
+Message-ID: <20200207181636.1065-18-alazar@bitdefender.com>
 References: <20200207181636.1065-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -10,38 +10,96 @@ Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200207181636.1065-1-alazar@bitdefender.com>
 Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Mircea=20C=C3=AErjaliu?= <mcirjaliu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Mircea Cîrjaliu <mcirjaliu@bitdefender.com>
+From: Nicușor Cîțu <ncitu@bitdefender.com>
 
-This change is needed because the introspection tool can write-protect
-guest page tables, exec-protect heap/stack pages and let KVM emulate
-the instruction that caused these violations.
+This is needed in order to handle clients controlling the MSR related
+VM-exits.
 
-Signed-off-by: Mircea Cîrjaliu <mcirjaliu@bitdefender.com>
+Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- arch/x86/kvm/mmu/mmu.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ arch/x86/kvm/svm.c | 27 +++++++++++++++------------
+ 1 file changed, 15 insertions(+), 12 deletions(-)
 
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index 5f0ddc6b67de..d28b7425c4f1 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -5636,8 +5636,13 @@ int kvm_mmu_page_fault(struct kvm_vcpu *vcpu, gva_t cr2, u64 error_code,
- 	int r, emulation_type = 0;
- 	bool direct = vcpu->arch.mmu->direct_map;
+diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
+index 0021d8c2feca..174ced633b60 100644
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -1077,7 +1077,8 @@ static bool msr_write_intercepted(struct kvm_vcpu *vcpu, unsigned msr)
+ 	return !!test_bit(bit_write,  &tmp);
+ }
  
--	/* With shadow page tables, fault_address contains a GVA or nGPA.  */
--	if (vcpu->arch.mmu->direct_map) {
-+	/*
-+	 * With shadow page tables, fault_address contains a GVA or nGPA.
-+	 * On a fetch fault, fault_address contains the instruction pointer.
-+	 */
-+	if (vcpu->arch.mmu->direct_map &&
-+	    likely(!(error_code & PFERR_FETCH_MASK)) &&
-+	    (error_code & PFERR_GUEST_FINAL_MASK)) {
- 		vcpu->arch.gpa_available = true;
- 		vcpu->arch.gpa_val = cr2;
+-static void set_msr_interception(u32 *msrpm, unsigned msr,
++static void set_msr_interception(struct kvm_vcpu *vcpu,
++				 u32 *msrpm, unsigned msr,
+ 				 int type, bool value)
+ {
+ 	u8 bit_read, bit_write;
+@@ -1116,7 +1117,7 @@ static void svm_vcpu_init_msrpm(u32 *msrpm)
+ 		if (!direct_access_msrs[i].always)
+ 			continue;
+ 
+-		set_msr_interception(msrpm, direct_access_msrs[i].index,
++		set_msr_interception(NULL, msrpm, direct_access_msrs[i].index,
+ 				     MSR_TYPE_RW, 1);
  	}
+ }
+@@ -1169,13 +1170,13 @@ static void svm_enable_lbrv(struct vcpu_svm *svm)
+ 	u32 *msrpm = svm->msrpm;
+ 
+ 	svm->vmcb->control.virt_ext |= LBR_CTL_ENABLE_MASK;
+-	set_msr_interception(msrpm, MSR_IA32_LASTBRANCHFROMIP,
++	set_msr_interception(&svm->vcpu, msrpm, MSR_IA32_LASTBRANCHFROMIP,
+ 			     MSR_TYPE_RW, 1);
+-	set_msr_interception(msrpm, MSR_IA32_LASTBRANCHTOIP,
++	set_msr_interception(&svm->vcpu, msrpm, MSR_IA32_LASTBRANCHTOIP,
+ 			     MSR_TYPE_RW, 1);
+-	set_msr_interception(msrpm, MSR_IA32_LASTINTFROMIP,
++	set_msr_interception(&svm->vcpu, msrpm, MSR_IA32_LASTINTFROMIP,
+ 			     MSR_TYPE_RW, 1);
+-	set_msr_interception(msrpm, MSR_IA32_LASTINTTOIP,
++	set_msr_interception(&svm->vcpu, msrpm, MSR_IA32_LASTINTTOIP,
+ 			     MSR_TYPE_RW, 1);
+ }
+ 
+@@ -1184,13 +1185,13 @@ static void svm_disable_lbrv(struct vcpu_svm *svm)
+ 	u32 *msrpm = svm->msrpm;
+ 
+ 	svm->vmcb->control.virt_ext &= ~LBR_CTL_ENABLE_MASK;
+-	set_msr_interception(msrpm, MSR_IA32_LASTBRANCHFROMIP,
++	set_msr_interception(&svm->vcpu, msrpm, MSR_IA32_LASTBRANCHFROMIP,
+ 			     MSR_TYPE_RW, 0);
+-	set_msr_interception(msrpm, MSR_IA32_LASTBRANCHTOIP,
++	set_msr_interception(&svm->vcpu, msrpm, MSR_IA32_LASTBRANCHTOIP,
+ 			     MSR_TYPE_RW, 0);
+-	set_msr_interception(msrpm, MSR_IA32_LASTINTFROMIP,
++	set_msr_interception(&svm->vcpu, msrpm, MSR_IA32_LASTINTFROMIP,
+ 			     MSR_TYPE_RW, 0);
+-	set_msr_interception(msrpm, MSR_IA32_LASTINTTOIP,
++	set_msr_interception(&svm->vcpu, msrpm, MSR_IA32_LASTINTTOIP,
+ 			     MSR_TYPE_RW, 0);
+ }
+ 
+@@ -4327,7 +4328,7 @@ static int svm_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr)
+ 		 * We update the L1 MSR bit as well since it will end up
+ 		 * touching the MSR anyway now.
+ 		 */
+-		set_msr_interception(svm->msrpm, MSR_IA32_SPEC_CTRL,
++		set_msr_interception(vcpu, svm->msrpm, MSR_IA32_SPEC_CTRL,
+ 				     MSR_TYPE_RW, 1);
+ 		break;
+ 	case MSR_IA32_PRED_CMD:
+@@ -4344,7 +4345,9 @@ static int svm_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr)
+ 		wrmsrl(MSR_IA32_PRED_CMD, PRED_CMD_IBPB);
+ 		if (is_guest_mode(vcpu))
+ 			break;
+-		set_msr_interception(svm->msrpm, MSR_IA32_PRED_CMD,
++		set_msr_interception(vcpu, svm->msrpm, MSR_IA32_PRED_CMD,
++				     MSR_TYPE_R, 0);
++		set_msr_interception(vcpu, svm->msrpm, MSR_IA32_PRED_CMD,
+ 				     MSR_TYPE_W, 1);
+ 		break;
+ 	case MSR_AMD64_VIRT_SPEC_CTRL:
