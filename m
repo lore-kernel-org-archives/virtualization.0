@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v7 29/78] KVM: x86: export kvm_vcpu_ioctl_x86_get_xsave()
-Date: Fri,  7 Feb 2020 20:15:47 +0200
-Message-ID: <20200207181636.1065-30-alazar@bitdefender.com>
+Subject: [RFC PATCH v7 12/78] KVM: x86: add .cr3_write_intercepted()
+Date: Fri,  7 Feb 2020 20:15:30 +0200
+Message-ID: <20200207181636.1065-13-alazar@bitdefender.com>
 References: <20200207181636.1065-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -15,40 +15,79 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Nicușor Cîțu <ncitu@bitdefender.com>
 
-This function is needed for the KVMI_VCPU_GET_XSAVE command.
+This function will be used to allow the introspection tool to disable the
+CR3-write interception when it is no longer interested in these events,
+but only if nothing depends on these VM-exits.
 
 Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- arch/x86/kvm/x86.c       | 4 ++--
- include/linux/kvm_host.h | 2 ++
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/kvm_host.h | 1 +
+ arch/x86/kvm/svm.c              | 8 ++++++++
+ arch/x86/kvm/vmx/vmx.c          | 8 ++++++++
+ 3 files changed, 17 insertions(+)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 64b4b6dde347..4565f3cce201 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -3981,8 +3981,8 @@ static void load_xsave(struct kvm_vcpu *vcpu, u8 *src)
- 	}
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index 9032c996ebdb..d2fe08f44084 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1070,6 +1070,7 @@ struct kvm_x86_ops {
+ 	int (*set_cr4)(struct kvm_vcpu *vcpu, unsigned long cr4);
+ 	void (*control_cr3_intercept)(struct kvm_vcpu *vcpu, int type,
+ 				      bool enable);
++	bool (*cr3_write_intercepted)(struct kvm_vcpu *vcpu);
+ 	void (*set_efer)(struct kvm_vcpu *vcpu, u64 efer);
+ 	void (*get_idt)(struct kvm_vcpu *vcpu, struct desc_ptr *dt);
+ 	void (*set_idt)(struct kvm_vcpu *vcpu, struct desc_ptr *dt);
+diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
+index b6081afec926..554ad7c57a0f 100644
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -7256,6 +7256,13 @@ static inline bool svm_bp_intercepted(struct kvm_vcpu *vcpu)
+ 	return get_exception_intercept(svm, BP_VECTOR);
  }
  
--static void kvm_vcpu_ioctl_x86_get_xsave(struct kvm_vcpu *vcpu,
--					 struct kvm_xsave *guest_xsave)
-+void kvm_vcpu_ioctl_x86_get_xsave(struct kvm_vcpu *vcpu,
-+				  struct kvm_xsave *guest_xsave)
++static inline bool svm_cr3_write_intercepted(struct kvm_vcpu *vcpu)
++{
++	struct vcpu_svm *svm = to_svm(vcpu);
++
++	return is_cr_intercept(svm, INTERCEPT_CR3_WRITE);
++}
++
+ static void svm_control_cr3_intercept(struct kvm_vcpu *vcpu, int type,
+ 				      bool enable)
  {
- 	if (boot_cpu_has(X86_FEATURE_XSAVE)) {
- 		memset(guest_xsave, 0, sizeof(struct kvm_xsave));
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index 625f567f6120..d3bc4351344f 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -872,6 +872,8 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
- int kvm_arch_vcpu_set_guest_debug(struct kvm_vcpu *vcpu,
- 				 struct kvm_guest_debug *dbg);
- int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu, struct kvm_run *kvm_run);
-+void kvm_vcpu_ioctl_x86_get_xsave(struct kvm_vcpu *vcpu,
-+				  struct kvm_xsave *guest_xsave);
+@@ -7311,6 +7318,7 @@ static struct kvm_x86_ops svm_x86_ops __ro_after_init = {
+ 	.set_cr3 = svm_set_cr3,
+ 	.set_cr4 = svm_set_cr4,
+ 	.control_cr3_intercept = svm_control_cr3_intercept,
++	.cr3_write_intercepted = svm_cr3_write_intercepted,
+ 	.set_efer = svm_set_efer,
+ 	.get_idt = svm_get_idt,
+ 	.set_idt = svm_set_idt,
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index 4b6edb68e9e0..7cfd25800d89 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -7776,6 +7776,13 @@ static bool vmx_bp_intercepted(struct kvm_vcpu *vcpu)
+ 	return (vmcs_read32(EXCEPTION_BITMAP) & (1u << BP_VECTOR));
+ }
  
- int kvm_arch_init(void *opaque);
- void kvm_arch_exit(void);
++static bool vmx_cr3_write_intercepted(struct kvm_vcpu *vcpu)
++{
++	struct vcpu_vmx *vmx = to_vmx(vcpu);
++
++	return !!(exec_controls_get(vmx) & CPU_BASED_CR3_LOAD_EXITING);
++}
++
+ static struct kvm_x86_ops vmx_x86_ops __ro_after_init = {
+ 	.cpu_has_kvm_support = cpu_has_kvm_support,
+ 	.disabled_by_bios = vmx_disabled_by_bios,
+@@ -7815,6 +7822,7 @@ static struct kvm_x86_ops vmx_x86_ops __ro_after_init = {
+ 	.set_cr3 = vmx_set_cr3,
+ 	.set_cr4 = vmx_set_cr4,
+ 	.control_cr3_intercept = vmx_control_cr3_intercept,
++	.cr3_write_intercepted = vmx_cr3_write_intercepted,
+ 	.set_efer = vmx_set_efer,
+ 	.get_idt = vmx_get_idt,
+ 	.set_idt = vmx_set_idt,
