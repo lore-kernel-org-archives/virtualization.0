@@ -1,114 +1,201 @@
 From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH] drm/qxl: add drm_driver.release callback.
-Date: Fri, 7 Feb 2020 14:44:11 +0100
-Message-ID: <20200207134411.GB43062@phenom.ffwll.local>
-References: <20200207121405.25895-1-kraxel@redhat.com>
+Subject: Re: [PATCH 2/6] drm: Add drm_simple_encoder_{init,create}()
+Date: Fri, 7 Feb 2020 14:37:20 +0100
+Message-ID: <20200207133720.GZ43062@phenom.ffwll.local>
+References: <20200207084135.4524-1-tzimmermann@suse.de>
+ <20200207084135.4524-3-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20200207121405.25895-1-kraxel@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: dri-devel@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, open list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20200207084135.4524-3-tzimmermann@suse.de>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: airlied@linux.ie, dri-devel@lists.freedesktop.org, maarten.lankhorst@linux.intel.com, mripard@kernel.org, virtualization@lists.linux-foundation.org, noralf@tronnes.org, daniel@ffwll.ch, alexander.deucher@amd.com, spice-devel@lists.freedesktop.org, sam@ravnborg.org, emil.velikov@collabora.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Feb 07, 2020 at 01:14:05PM +0100, Gerd Hoffmann wrote:
-> Move final cleanups to qxl_drm_release() callback.
-> Add drm_atomic_helper_shutdown() call to qxl_pci_remove().
+On Fri, Feb 07, 2020 at 09:41:31AM +0100, Thomas Zimmermann wrote:
+> The simple-encoder helpers initialize an encoder with an empty
+> implementation. This covers the requirements of most of the existing
+> DRM drivers. A call to drm_simple_encoder_create() allocates and
+> initializes an encoder instance, a call to drm_simple_encoder_init()
+> initializes a pre-allocated instance.
 > 
-> Reorder calls in qxl_device_fini().  Cleaning up gem & ttm
-> might trigger qxl commands, so we should do that before
-> releaseing command rings.
-> 
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> ---
->  drivers/gpu/drm/qxl/qxl_drv.c | 21 ++++++++++++++-------
->  drivers/gpu/drm/qxl/qxl_kms.c |  8 ++++----
->  2 files changed, 18 insertions(+), 11 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
-> index 1d601f57a6ba..8044363ba0f2 100644
-> --- a/drivers/gpu/drm/qxl/qxl_drv.c
-> +++ b/drivers/gpu/drm/qxl/qxl_drv.c
-> @@ -34,6 +34,7 @@
->  #include <linux/pci.h>
->  
->  #include <drm/drm.h>
-> +#include <drm/drm_atomic_helper.h>
->  #include <drm/drm_drv.h>
->  #include <drm/drm_file.h>
->  #include <drm/drm_modeset_helper.h>
-> @@ -132,21 +133,25 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
->  	return ret;
->  }
->  
-> +static void qxl_drm_release(struct drm_device *dev)
-> +{
-> +	struct qxl_device *qdev = dev->dev_private;
-> +
-> +	qxl_modeset_fini(qdev);
-> +	qxl_device_fini(qdev);
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 
-Same here, there's a few iounmap and io_mapping_free which I think should
-be in the pci_remove hook.
+This has quick a bit midlayer taste to it ... I think having this as a
+helper would be cleaner ...
+
+The other bit is drm_encoder->possible_crtcs. If we do create a helper for
+these, lets at least try to make them not suck too badly :-) Otherwise I
+guess it would be time to officially document what exactly possible_crtcs
+== 0 means from an uabi pov.
 -Daniel
 
-> +	dev->dev_private = NULL;
-> +	kfree(qdev);
+> ---
+>  drivers/gpu/drm/drm_encoder.c | 116 ++++++++++++++++++++++++++++++++++
+>  include/drm/drm_encoder.h     |  10 +++
+>  2 files changed, 126 insertions(+)
+> 
+> diff --git a/drivers/gpu/drm/drm_encoder.c b/drivers/gpu/drm/drm_encoder.c
+> index ffe691a1bf34..1a65cab1f310 100644
+> --- a/drivers/gpu/drm/drm_encoder.c
+> +++ b/drivers/gpu/drm/drm_encoder.c
+> @@ -178,6 +178,122 @@ int drm_encoder_init(struct drm_device *dev,
+>  }
+>  EXPORT_SYMBOL(drm_encoder_init);
+>  
+> +static const struct drm_encoder_funcs drm_simple_encoder_funcs_cleanup = {
+> +	.destroy = drm_encoder_cleanup,
+> +};
+> +
+> +/**
+> + * drm_simple_encoder_init - Init a preallocated encoder
+> + * @dev: drm device
+> + * @funcs: callbacks for this encoder
+> + * @encoder_type: user visible type of the encoder
+> + * @name: printf style format string for the encoder name, or NULL
+> + *        for default name
+> + *
+> + * Initialises a preallocated encoder that has no further functionality. The
+> + * encoder will be released automatically.
+> + *
+> + * Returns:
+> + * Zero on success, error code on failure.
+> + */
+> +int drm_simple_encoder_init(struct drm_device *dev,
+> +			    struct drm_encoder *encoder,
+> +			    int encoder_type, const char *name, ...)
+> +{
+> +	char *namestr = NULL;
+> +	int ret;
+> +
+> +	if (name) {
+> +		va_list ap;
+> +
+> +		va_start(ap, name);
+> +		namestr = kvasprintf(GFP_KERNEL, name, ap);
+> +		va_end(ap);
+> +		if (!namestr)
+> +			return -ENOMEM;
+> +	}
+> +
+> +	ret = __drm_encoder_init(dev, encoder,
+> +				 &drm_simple_encoder_funcs_cleanup,
+> +				 encoder_type, namestr);
+> +	if (ret)
+> +		goto err_kfree;
+> +
+> +	return 0;
+> +
+> +err_kfree:
+> +	if (name)
+> +		kfree(namestr);
+> +	return ret;
+> +}
+> +EXPORT_SYMBOL(drm_simple_encoder_init);
+> +
+> +static void drm_encoder_destroy(struct drm_encoder *encoder)
+> +{
+> +	struct drm_device *dev = encoder->dev;
+> +
+> +	drm_encoder_cleanup(encoder);
+> +	devm_kfree(dev->dev, encoder);
 > +}
 > +
->  static void
->  qxl_pci_remove(struct pci_dev *pdev)
->  {
->  	struct drm_device *dev = pci_get_drvdata(pdev);
-> -	struct qxl_device *qdev = dev->dev_private;
->  
->  	drm_dev_unregister(dev);
-> -
-> -	qxl_modeset_fini(qdev);
-> -	qxl_device_fini(qdev);
-> +	drm_atomic_helper_shutdown(dev);
->  	if (is_vga(pdev))
->  		vga_put(pdev, VGA_RSRC_LEGACY_IO);
-> -
-> -	dev->dev_private = NULL;
-> -	kfree(qdev);
->  	drm_dev_put(dev);
->  }
->  
-> @@ -279,6 +284,8 @@ static struct drm_driver qxl_driver = {
->  	.major = 0,
->  	.minor = 1,
->  	.patchlevel = 0,
+> +static const struct drm_encoder_funcs drm_simple_encoder_funcs_destroy = {
+> +	.destroy = drm_encoder_destroy,
+> +};
 > +
-> +	.release = qxl_drm_release,
->  };
+> +/**
+> + * drm_simple_encoder_create - Allocate and initialize an encoder
+> + * @dev: drm device
+> + * @encoder_type: user visible type of the encoder
+> + * @name: printf style format string for the encoder name, or NULL for
+> + *        default name
+> + *
+> + * Allocates and initialises an encoder that has no further functionality. The
+> + * encoder will be released automatically.
+> + *
+> + * Returns:
+> + * The encoder on success, a pointer-encoder error code on failure.
+> + */
+> +struct drm_encoder *drm_simple_encoder_create(struct drm_device *dev,
+> +					      int encoder_type,
+> +					      const char *name, ...)
+> +{
+> +	char *namestr = NULL;
+> +	struct drm_encoder *encoder;
+> +	int ret;
+> +
+> +	encoder = devm_kzalloc(dev->dev, sizeof(*encoder), GFP_KERNEL);
+> +	if (!encoder)
+> +		return ERR_PTR(-ENOMEM);
+> +
+> +	if (name) {
+> +		va_list ap;
+> +
+> +		va_start(ap, name);
+> +		namestr = kvasprintf(GFP_KERNEL, name, ap);
+> +		va_end(ap);
+> +		if (!namestr) {
+> +			ret = -ENOMEM;
+> +			goto err_devm_kfree;
+> +		}
+> +	}
+> +
+> +	ret = __drm_encoder_init(dev, encoder,
+> +				 &drm_simple_encoder_funcs_destroy,
+> +				 encoder_type, namestr);
+> +	if (ret)
+> +		goto err_kfree;
+> +
+> +	return encoder;
+> +
+> +err_kfree:
+> +	if (name)
+> +		kfree(namestr);
+> +err_devm_kfree:
+> +	devm_kfree(dev->dev, encoder);
+> +	return ERR_PTR(ret);
+> +}
+> +EXPORT_SYMBOL(drm_simple_encoder_create);
+> +
+>  /**
+>   * drm_encoder_cleanup - cleans up an initialised encoder
+>   * @encoder: encoder to cleanup
+> diff --git a/include/drm/drm_encoder.h b/include/drm/drm_encoder.h
+> index 5623994b6e9e..0214f6cf9de6 100644
+> --- a/include/drm/drm_encoder.h
+> +++ b/include/drm/drm_encoder.h
+> @@ -190,6 +190,16 @@ int drm_encoder_init(struct drm_device *dev,
+>  		     const struct drm_encoder_funcs *funcs,
+>  		     int encoder_type, const char *name, ...);
 >  
->  static int __init qxl_init(void)
-> diff --git a/drivers/gpu/drm/qxl/qxl_kms.c b/drivers/gpu/drm/qxl/qxl_kms.c
-> index bfc1631093e9..70b20ee4741a 100644
-> --- a/drivers/gpu/drm/qxl/qxl_kms.c
-> +++ b/drivers/gpu/drm/qxl/qxl_kms.c
-> @@ -299,12 +299,12 @@ void qxl_device_fini(struct qxl_device *qdev)
->  {
->  	qxl_bo_unref(&qdev->current_release_bo[0]);
->  	qxl_bo_unref(&qdev->current_release_bo[1]);
-> -	flush_work(&qdev->gc_work);
-> -	qxl_ring_free(qdev->command_ring);
-> -	qxl_ring_free(qdev->cursor_ring);
-> -	qxl_ring_free(qdev->release_ring);
->  	qxl_gem_fini(qdev);
->  	qxl_bo_fini(qdev);
-> +	flush_work(&qdev->gc_work);
-> +	qxl_ring_free(qdev->command_ring);
-> +	qxl_ring_free(qdev->cursor_ring);
-> +	qxl_ring_free(qdev->release_ring);
->  	io_mapping_free(qdev->surface_mapping);
->  	io_mapping_free(qdev->vram_mapping);
->  	iounmap(qdev->ram_header);
+> +__printf(4, 5)
+> +int drm_simple_encoder_init(struct drm_device *dev,
+> +			    struct drm_encoder *encoder,
+> +			    int encoder_type, const char *name, ...);
+> +
+> +__printf(3, 4)
+> +struct drm_encoder *drm_simple_encoder_create(struct drm_device *dev,
+> +					      int encoder_type,
+> +					      const char *name, ...);
+> +
+>  /**
+>   * drm_encoder_index - find the index of a registered encoder
+>   * @encoder: encoder to find index for
 > -- 
-> 2.18.1
+> 2.25.0
 > 
 
 -- 
