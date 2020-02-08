@@ -1,214 +1,41 @@
-From: Chia-I Wu <olvaffe@gmail.com>
-Subject: Re: [PATCH v2 4/4] drm/virtio: move virtio_gpu_mem_entry
- initialization to new function
-Date: Fri, 7 Feb 2020 14:23:09 -0800
-Message-ID: <CAPaKu7Rc2jerNzDL7P4B1A2_a9z99B8LTHDi3OZnYxdw7+sLcg@mail.gmail.com>
-References: <20200207074638.26386-1-kraxel@redhat.com>
- <20200207074638.26386-5-kraxel@redhat.com>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Subject: Re: [PATCH RFC] virtio_balloon: conservative balloon page shrinking
+Date: Sat, 8 Feb 2020 21:32:54 +0900
+Message-ID: <345addae-0945-2f49-52cf-8e53446e63b2@i-love.sakura.ne.jp>
+References: <1580976107-16013-1-git-send-email-wei.w.wang@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200207074638.26386-5-kraxel@redhat.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, Gurchetan Singh <gurchetansingh@chromium.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1580976107-16013-1-git-send-email-wei.w.wang@intel.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Wei Wang <wei.w.wang@intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: tysand@google.com, mst@redhat.com, david@redhat.com, alexander.h.duyck@linux.intel.com, rientjes@google.com, mhocko@kernel.org, namit@vmware.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 6, 2020 at 11:46 PM Gerd Hoffmann <kraxel@redhat.com> wrote:
->
-> Introduce new virtio_gpu_object_shmem_init() helper function which will
-> create the virtio_gpu_mem_entry array, containing the backing storage
-> information for the host.  For the most path this just moves code from
-> virtio_gpu_object_attach().
->
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> ---
->  drivers/gpu/drm/virtio/virtgpu_drv.h    |  4 +-
->  drivers/gpu/drm/virtio/virtgpu_object.c | 55 ++++++++++++++++++++++++-
->  drivers/gpu/drm/virtio/virtgpu_vq.c     | 51 ++---------------------
->  3 files changed, 60 insertions(+), 50 deletions(-)
->
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> index d37ddd7644f6..6c78c77a2afc 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> @@ -71,6 +71,7 @@ struct virtio_gpu_object {
->
->         struct sg_table *pages;
->         uint32_t mapped;
-> +
->         bool dumb;
->         bool created;
->  };
-> @@ -280,7 +281,8 @@ void virtio_gpu_cmd_set_scanout(struct virtio_gpu_device *vgdev,
->                                 uint32_t x, uint32_t y);
->  int virtio_gpu_object_attach(struct virtio_gpu_device *vgdev,
->                              struct virtio_gpu_object *obj,
-> -                            struct virtio_gpu_fence *fence);
-> +                            struct virtio_gpu_mem_entry *ents,
-> +                            unsigned int nents);
->  int virtio_gpu_attach_status_page(struct virtio_gpu_device *vgdev);
->  int virtio_gpu_detach_status_page(struct virtio_gpu_device *vgdev);
->  void virtio_gpu_cursor_ping(struct virtio_gpu_device *vgdev,
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-> index bce2b3d843fe..8870ee23ff2b 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_object.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-> @@ -121,6 +121,51 @@ struct drm_gem_object *virtio_gpu_create_object(struct drm_device *dev,
->         return &bo->base.base;
->  }
->
-> +static int virtio_gpu_object_shmem_init(struct virtio_gpu_device *vgdev,
-> +                                       struct virtio_gpu_object *bo,
-> +                                       struct virtio_gpu_mem_entry **ents,
-> +                                       unsigned int *nents)
-> +{
-> +       bool use_dma_api = !virtio_has_iommu_quirk(vgdev->vdev);
-> +       struct scatterlist *sg;
-> +       int si, ret;
-> +
-> +       ret = drm_gem_shmem_pin(&bo->base.base);
-> +       if (ret < 0)
-> +               return -EINVAL;
-> +
-> +       bo->pages = drm_gem_shmem_get_sg_table(&bo->base.base);
-> +       if (!bo->pages) {
-> +               drm_gem_shmem_unpin(&bo->base.base);
-> +               return -EINVAL;
-> +       }
-> +
-> +       if (use_dma_api) {
-> +               bo->mapped = dma_map_sg(vgdev->vdev->dev.parent,
-> +                                       bo->pages->sgl, bo->pages->nents,
-> +                                       DMA_TO_DEVICE);
-> +               *nents = bo->mapped;
-> +       } else {
-> +               *nents = bo->pages->nents;
-> +       }
-> +
-> +       *ents = kmalloc_array(*nents, sizeof(struct virtio_gpu_mem_entry),
-> +                             GFP_KERNEL);
-> +       if (!(*ents)) {
-> +               DRM_ERROR("failed to allocate ent list\n");
-> +               return -ENOMEM;
-> +       }
-> +
-> +       for_each_sg(bo->pages->sgl, sg, *nents, si) {
-> +               (*ents)[si].addr = cpu_to_le64(use_dma_api
-> +                                              ? sg_dma_address(sg)
-> +                                              : sg_phys(sg));
-> +               (*ents)[si].length = cpu_to_le32(sg->length);
-> +               (*ents)[si].padding = 0;
-> +       }
-> +       return 0;
-> +}
-> +
->  int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
->                              struct virtio_gpu_object_params *params,
->                              struct virtio_gpu_object **bo_ptr,
-> @@ -129,6 +174,8 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
->         struct virtio_gpu_object_array *objs = NULL;
->         struct drm_gem_shmem_object *shmem_obj;
->         struct virtio_gpu_object *bo;
-> +       struct virtio_gpu_mem_entry *ents;
-> +       unsigned int nents;
->         int ret;
->
->         *bo_ptr = NULL;
-> @@ -165,7 +212,13 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
->                                                objs, fence);
->         }
->
-> -       ret = virtio_gpu_object_attach(vgdev, bo, NULL);
-> +       ret = virtio_gpu_object_shmem_init(vgdev, bo, &ents, &nents);
-> +       if (ret != 0) {
-> +               virtio_gpu_free_object(&shmem_obj->base);
-> +               return ret;
-> +       }
-> +
-> +       ret = virtio_gpu_object_attach(vgdev, bo, ents, nents);
->         if (ret != 0) {
->                 virtio_gpu_free_object(&shmem_obj->base);
->                 return ret;
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> index 87c439156151..8360f7338209 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> @@ -1086,56 +1086,11 @@ void virtio_gpu_cmd_submit(struct virtio_gpu_device *vgdev,
->
->  int virtio_gpu_object_attach(struct virtio_gpu_device *vgdev,
-nit: why do we keep this wrapper function?
-
-Series is
-
-  Reviewed-by: Chia-I Wu <olvaffe@gmail.com>
-
->                              struct virtio_gpu_object *obj,
-> -                            struct virtio_gpu_fence *fence)
-> +                            struct virtio_gpu_mem_entry *ents,
-> +                            unsigned int nents)
+On 2020/02/06 17:01, Wei Wang wrote:
+> There are cases that users want to shrink balloon pages after the
+> pagecache depleted. The conservative_shrinker lets the shrinker
+> shrink balloon pages when all the pagecache has been reclaimed.
+> 
+> @@ -796,6 +800,10 @@ static unsigned long shrink_balloon_pages(struct virtio_balloon *vb,
 >  {
-> -       bool use_dma_api = !virtio_has_iommu_quirk(vgdev->vdev);
-> -       struct virtio_gpu_mem_entry *ents;
-> -       struct scatterlist *sg;
-> -       int si, nents, ret;
-> -
-> -       if (WARN_ON_ONCE(!obj->created))
-> -               return -EINVAL;
-> -       if (WARN_ON_ONCE(obj->pages))
-> -               return -EINVAL;
-> -
-> -       ret = drm_gem_shmem_pin(&obj->base.base);
-> -       if (ret < 0)
-> -               return -EINVAL;
-> -
-> -       obj->pages = drm_gem_shmem_get_sg_table(&obj->base.base);
-> -       if (obj->pages == NULL) {
-> -               drm_gem_shmem_unpin(&obj->base.base);
-> -               return -EINVAL;
-> -       }
-> -
-> -       if (use_dma_api) {
-> -               obj->mapped = dma_map_sg(vgdev->vdev->dev.parent,
-> -                                        obj->pages->sgl, obj->pages->nents,
-> -                                        DMA_TO_DEVICE);
-> -               nents = obj->mapped;
-> -       } else {
-> -               nents = obj->pages->nents;
-> -       }
-> -
-> -       /* gets freed when the ring has consumed it */
-> -       ents = kmalloc_array(nents, sizeof(struct virtio_gpu_mem_entry),
-> -                            GFP_KERNEL);
-> -       if (!ents) {
-> -               DRM_ERROR("failed to allocate ent list\n");
-> -               return -ENOMEM;
-> -       }
-> -
-> -       for_each_sg(obj->pages->sgl, sg, nents, si) {
-> -               ents[si].addr = cpu_to_le64(use_dma_api
-> -                                           ? sg_dma_address(sg)
-> -                                           : sg_phys(sg));
-> -               ents[si].length = cpu_to_le32(sg->length);
-> -               ents[si].padding = 0;
-> -       }
-> -
->         virtio_gpu_cmd_resource_attach_backing(vgdev, obj->hw_res_handle,
-> -                                              ents, nents,
-> -                                              fence);
-> +                                              ents, nents, NULL);
->         return 0;
->  }
->
-> --
-> 2.18.1
->
+>  	unsigned long pages_freed = 0;
+>  
+> +	/* Balloon pages only gets shrunk when the pagecache depleted */
+> +	if (conservative_shrinker && global_node_page_state(NR_FILE_PAGES))
+> +		return 0;
+> +
+
+Is this NUMA aware? Can "node-A's NR_FILE_PAGES is already 0 and node-B's
+NR_FILE_PAGES is not 0, but allocation request which triggered this shrinker
+wants to allocate from only node-B" happen? Can some thread keep this shrinker
+defunctional by keep increasing NR_FILE_PAGES?
+
+Is this patch from "Re: Balloon pressuring page cache" thread? I hope that
+the guest could start reclaiming memory based on host's request (like OOM
+notifier chain) which is issued when host thinks that host is getting close
+to OOM and thus guests should start returning their unused memory to host.
+Maybe "periodically (e.g. 5 minutes)" in addition to "upon close to OOM
+condition" is also possible.
