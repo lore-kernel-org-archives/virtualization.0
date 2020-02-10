@@ -1,90 +1,66 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V2 0/5] vDPA support
-Date: Mon, 10 Feb 2020 11:56:03 +0800
-Message-ID: <20200210035608.10002-1-jasowang@redhat.com>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Subject: RE: [PATCH RFC]
+ =?ISO-2022-JP?B?dmlydGlvX2JhbGxvb246IGNvbnNlcnZhdGl2ZSBi?=
+ =?ISO-2022-JP?B?YWxsb29uIHBhZ2Ugc2hyaW5raW5n?=
+Date: Mon, 10 Feb 2020 12:57:23 +0900
+Message-ID: <202002100357.01A3vNNU089831@www262.sakura.ne.jp>
+References: <345addae-0945-2f49-52cf-8e53446e63b2@i-love.sakura.ne.jp>
+ <286AC319A985734F985F78AFA26841F73E429F32@shsmsx102.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Return-path: <kvm-owner@vger.kernel.org>
-Sender: kvm-owner@vger.kernel.org
-To: mst@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
-Cc: tiwei.bie@intel.com, jgg@mellanox.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jiri@mellanox.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, Jason Wang <jasowang@redhat.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <286AC319A985734F985F78AFA26841F73E429F32@shsmsx102.ccr.corp.intel.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: "Wang, Wei W" <wei.w.wang@intel.com>
+Cc: "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "tysand@google.com" <tysand@google.com>, "namit@vmware.com" <namit@vmware.com>, "rientjes@google.com" <rientjes@google.com>, "alexander.h.duyck@linux.intel.com" <alexander.h.duyck@linux.intel.com>, "mhocko@kernel.org" <mhocko@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi all:
+Wang, Wei W wrote:
+> On Saturday, February 8, 2020 8:33 PM, Tetsuo Handa wrote:
+> > 
+> > Is this NUMA aware? Can "node-A's NR_FILE_PAGES is already 0 and
+> > node-B's NR_FILE_PAGES is not 0, but allocation request which triggered this
+> > shrinker wants to allocate from only node-B" happen? 
+> 
+> No, it's a global counter.
+> 
+> >Can some thread keep
+> > this shrinker defunctional by keep increasing NR_FILE_PAGES?
+> 
+> Yes. Actually it's our intention - as long as there are pagecache pages,
+> balloon pages are avoided to be reclaimed.
 
-This is an updated version of kernel support for vDPA device. Various
-changes were made based on the feedback since last verion. One major
-change is to drop the sysfs API and leave the management interface for
-future development, and introudce the incremental DMA bus
-operations. Please see changelog for more information.
+Then, "node-A's NR_FILE_PAGES is already 0 and node-B's NR_FILE_PAGES is not 0, but
+allocation request which triggered this shrinker wants to allocate from only node-A"
+would be confused by this change, for the pagecache pages for allocating thread's
+interested node are already depleted but the balloon cannot shrink when it should
+because the pagecache pages for allocating thread's uninterested nodes are not yet
+depleted.
 
-The work on vhost, IFCVF (intel VF driver for vDPA) and qemu is
-ongoing.
+> 
+> 
+> > 
+> > Is this patch from "Re: Balloon pressuring page cache" thread? I hope that
+> > the guest could start reclaiming memory based on host's request (like OOM
+> > notifier chain) which is issued when host thinks that host is getting close to
+> > OOM and thus guests should start returning their unused memory to host.
+> > Maybe "periodically (e.g. 5 minutes)" in addition to "upon close to OOM
+> > condition" is also possible.
+> 
+> That's about the host usages. The host side management software decides when to
+> issue a request to balloon (either periodically or event driven), I think there
+> isn't anything we need to do in the balloon driver here.
 
-Please provide feedback.
-
-Thanks
-
-Change from V1:
-
-- drop sysfs API, leave the management interface to future development
-  (Michael)
-- introduce incremental DMA ops (dma_map/dma_unmap) (Michael)
-- introduce dma_device and use it instead of parent device for doing
-  IOMMU or DMA from bus driver (Michael, Jason, Ling Shan, Tiwei)
-- accept parent device and dma device when register vdpa device
-- coding style and compile fixes (Randy)
-- using vdpa_xxx instead of xxx_vdpa (Jason)
-- ove vDPA accessors to header and make it static inline (Jason)
-- split vdp_register_device() into two helpers vdpa_init_device() and
-  vdpa_register_device() which allows intermediate step to be done (Jason=
-)
-- warn on invalidate queue state when fail to creating virtqueue (Jason)
-- make to_virtio_vdpa_device() static (Jason)
-- use kmalloc/kfree instead of devres for virtio vdpa device (Jason)
-- avoid using cast in vdpa bus function (Jason)
-- introduce module_vdpa_driver and fix module refcnt (Jason)
-- fix returning freed address in vdapsim coherent DMA addr allocation (Da=
-n)
-- various other fixes and tweaks
-
-V1: https://lkml.org/lkml/2020/1/16/353
-
-Jason Wang (5):
-  vhost: factor out IOTLB
-  vringh: IOTLB support
-  vDPA: introduce vDPA bus
-  virtio: introduce a vDPA based transport
-  vdpasim: vDPA device simulator
-
- MAINTAINERS                    |   2 +
- drivers/vhost/Kconfig          |   7 +
- drivers/vhost/Kconfig.vringh   |   1 +
- drivers/vhost/Makefile         |   2 +
- drivers/vhost/net.c            |   2 +-
- drivers/vhost/vhost.c          | 221 ++++-------
- drivers/vhost/vhost.h          |  36 +-
- drivers/vhost/vhost_iotlb.c    | 171 +++++++++
- drivers/vhost/vringh.c         | 421 ++++++++++++++++++--
- drivers/virtio/Kconfig         |  15 +
- drivers/virtio/Makefile        |   2 +
- drivers/virtio/vdpa/Kconfig    |  26 ++
- drivers/virtio/vdpa/Makefile   |   3 +
- drivers/virtio/vdpa/vdpa.c     | 160 ++++++++
- drivers/virtio/vdpa/vdpa_sim.c | 678 +++++++++++++++++++++++++++++++++
- drivers/virtio/virtio_vdpa.c   | 392 +++++++++++++++++++
- include/linux/vdpa.h           | 233 +++++++++++
- include/linux/vhost_iotlb.h    |  45 +++
- include/linux/vringh.h         |  36 ++
- 19 files changed, 2249 insertions(+), 204 deletions(-)
- create mode 100644 drivers/vhost/vhost_iotlb.c
- create mode 100644 drivers/virtio/vdpa/Kconfig
- create mode 100644 drivers/virtio/vdpa/Makefile
- create mode 100644 drivers/virtio/vdpa/vdpa.c
- create mode 100644 drivers/virtio/vdpa/vdpa_sim.c
- create mode 100644 drivers/virtio/virtio_vdpa.c
- create mode 100644 include/linux/vdpa.h
- create mode 100644 include/linux/vhost_iotlb.h
-
---=20
-2.19.1
+Well, my comment is rather: "Do not try to reserve guest's memory. In other words,
+do not try to maintain balloons on the guest side. Since host would be able to cache
+file data on the host's cache, guests would be able to quickly fetch file data from
+host's cache via normal I/O requests." ;-)
