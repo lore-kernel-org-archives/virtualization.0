@@ -1,96 +1,118 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v2] drm/cirrus: add drm_driver.release callback.
-Date: Mon, 10 Feb 2020 10:53:10 +0100
-Message-ID: <20200210095310.22082-1-kraxel@redhat.com>
+Subject: [PATCH v2] drm/virtio: add drm_driver.release callback.
+Date: Mon, 10 Feb 2020 11:08:19 +0100
+Message-ID: <20200210100819.29761-1-kraxel@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: dri-devel@lists.freedesktop.org
-Cc: Gerd Hoffmann <kraxel@redhat.com>, Dave Airlie <airlied@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR
-        QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
+Cc: gurchetansingh@chromium.org, olvaffe@gmail.com, Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Move final cleanups from cirrus_pci_remove() to the new callback.
-Add drm_atomic_helper_shutdown() call to cirrus_pci_remove().
-
-Set pointers to NULL after iounmap() and check them before using
-them to make sure we don't touch released hardware.
+Split virtio_gpu_deinit(), move the drm shutdown and release to
+virtio_gpu_release().  Also free vbufs in case we can't queue them.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/cirrus/cirrus.c | 23 +++++++++++++++++++++--
- 1 file changed, 21 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_drv.h     | 1 +
+ drivers/gpu/drm/virtio/virtgpu_display.c | 1 -
+ drivers/gpu/drm/virtio/virtgpu_drv.c     | 4 ++++
+ drivers/gpu/drm/virtio/virtgpu_kms.c     | 5 +++++
+ drivers/gpu/drm/virtio/virtgpu_vq.c      | 9 ++++++++-
+ 5 files changed, 18 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/cirrus/cirrus.c b/drivers/gpu/drm/cirrus/cirrus.c
-index a91fb0d7282c..128db11ed4d3 100644
---- a/drivers/gpu/drm/cirrus/cirrus.c
-+++ b/drivers/gpu/drm/cirrus/cirrus.c
-@@ -154,6 +154,9 @@ static void cirrus_set_start_address(struct cirrus_device *cirrus, u32 offset)
- 	u32 addr;
- 	u8 tmp;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index d278c8c50f39..09a485b001e7 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -217,6 +217,7 @@ extern struct drm_ioctl_desc virtio_gpu_ioctls[DRM_VIRTIO_NUM_IOCTLS];
+ /* virtio_kms.c */
+ int virtio_gpu_init(struct drm_device *dev);
+ void virtio_gpu_deinit(struct drm_device *dev);
++void virtio_gpu_release(struct drm_device *dev);
+ int virtio_gpu_driver_open(struct drm_device *dev, struct drm_file *file);
+ void virtio_gpu_driver_postclose(struct drm_device *dev, struct drm_file *file);
  
-+	if (!cirrus->mmio)
-+		return;
-+
- 	addr = offset >> 2;
- 	wreg_crt(cirrus, 0x0c, (u8)((addr >> 8) & 0xff));
- 	wreg_crt(cirrus, 0x0d, (u8)(addr & 0xff));
-@@ -179,6 +182,9 @@ static int cirrus_mode_set(struct cirrus_device *cirrus,
- 	int tmp;
- 	int sr07 = 0, hdr = 0;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+index 7b0f0643bb2d..af953db4a0c9 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -368,6 +368,5 @@ void virtio_gpu_modeset_fini(struct virtio_gpu_device *vgdev)
  
-+	if (!cirrus->mmio)
-+		return -1;
-+
- 	htotal = mode->htotal / 8;
- 	hsyncend = mode->hsync_end / 8;
- 	hsyncstart = mode->hsync_start / 8;
-@@ -301,6 +307,9 @@ static int cirrus_fb_blit_rect(struct drm_framebuffer *fb,
- 	struct cirrus_device *cirrus = fb->dev->dev_private;
- 	void *vmap;
+ 	for (i = 0 ; i < vgdev->num_scanouts; ++i)
+ 		kfree(vgdev->outputs[i].edid);
+-	drm_atomic_helper_shutdown(vgdev->ddev);
+ 	drm_mode_config_cleanup(vgdev->ddev);
+ }
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+index 8cf27af3ad53..664a741a3b0b 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.c
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+@@ -31,6 +31,7 @@
+ #include <linux/pci.h>
  
-+	if (!cirrus->vram)
-+		return -ENODEV;
-+
- 	vmap = drm_gem_shmem_vmap(fb->obj[0]);
- 	if (!vmap)
- 		return -ENOMEM;
-@@ -502,6 +511,14 @@ static void cirrus_mode_config_init(struct cirrus_device *cirrus)
+ #include <drm/drm.h>
++#include <drm/drm_atomic_helper.h>
+ #include <drm/drm_drv.h>
+ #include <drm/drm_file.h>
  
- /* ------------------------------------------------------------------ */
- 
-+static void cirrus_release(struct drm_device *dev)
-+{
-+	struct cirrus_device *cirrus = dev->dev_private;
-+
-+	drm_mode_config_cleanup(dev);
-+	kfree(cirrus);
-+}
-+
- DEFINE_DRM_GEM_FOPS(cirrus_fops);
- 
- static struct drm_driver cirrus_driver = {
-@@ -515,6 +532,7 @@ static struct drm_driver cirrus_driver = {
- 
- 	.fops		 = &cirrus_fops,
- 	DRM_GEM_SHMEM_DRIVER_OPS,
-+	.release         = cirrus_release,
- };
- 
- static int cirrus_pci_probe(struct pci_dev *pdev,
-@@ -599,11 +617,12 @@ static void cirrus_pci_remove(struct pci_dev *pdev)
- 	struct cirrus_device *cirrus = dev->dev_private;
+@@ -136,6 +137,7 @@ static void virtio_gpu_remove(struct virtio_device *vdev)
+ 	struct drm_device *dev = vdev->priv;
  
  	drm_dev_unregister(dev);
--	drm_mode_config_cleanup(dev);
 +	drm_atomic_helper_shutdown(dev);
- 	iounmap(cirrus->mmio);
-+	cirrus->mmio = NULL;
- 	iounmap(cirrus->vram);
-+	cirrus->vram = NULL;
+ 	virtio_gpu_deinit(dev);
  	drm_dev_put(dev);
--	kfree(cirrus);
- 	pci_release_regions(pdev);
  }
+@@ -214,4 +216,6 @@ static struct drm_driver driver = {
+ 	.major = DRIVER_MAJOR,
+ 	.minor = DRIVER_MINOR,
+ 	.patchlevel = DRIVER_PATCHLEVEL,
++
++	.release = virtio_gpu_release,
+ };
+diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+index c1086df49816..b45d12e3db2a 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_kms.c
++++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+@@ -240,6 +240,11 @@ void virtio_gpu_deinit(struct drm_device *dev)
+ 	flush_work(&vgdev->config_changed_work);
+ 	vgdev->vdev->config->reset(vgdev->vdev);
+ 	vgdev->vdev->config->del_vqs(vgdev->vdev);
++}
++
++void virtio_gpu_release(struct drm_device *dev)
++{
++	struct virtio_gpu_device *vgdev = dev->dev_private;
  
+ 	virtio_gpu_modeset_fini(vgdev);
+ 	virtio_gpu_free_vbufs(vgdev);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index cc02fc4bab2a..cc674b45f904 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -330,6 +330,11 @@ static void virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
+ 	bool notify = false;
+ 	int ret;
+ 
++	if (!vgdev->vqs_ready) {
++		free_vbuf(vgdev, vbuf);
++		return;
++	}
++
+ 	if (vgdev->has_indirect)
+ 		elemcnt = 1;
+ 
+@@ -462,8 +467,10 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
+ 	int ret;
+ 	int outcnt;
+ 
+-	if (!vgdev->vqs_ready)
++	if (!vgdev->vqs_ready) {
++		free_vbuf(vgdev, vbuf);
+ 		return;
++	}
+ 
+ 	sg_init_one(&ccmd, vbuf->buf, vbuf->size);
+ 	sgs[0] = &ccmd;
 -- 
 2.18.1
