@@ -1,46 +1,33 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v2 1/2] drm/qxl: reorder calls in qxl_device_fini().
-Date: Mon, 10 Feb 2020 12:37:51 +0100
-Message-ID: <20200210113753.5614-2-kraxel@redhat.com>
-References: <20200210113753.5614-1-kraxel@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200210113753.5614-1-kraxel@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dri-devel@lists.freedesktop.org
-Cc: Gerd Hoffmann <kraxel@redhat.com>, Dave Airlie <airlied@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR QXL
-        VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, "open list:DRM DRIVER FOR QXL VIRTUAL
-        GPU" <spice-devel@lists.freedesktop.org>, open list <linux-kernel@vger.kernel.org>
+From: Jason Gunthorpe <jgg@mellanox.com>
+Subject: Re: [PATCH V2 4/5] virtio: introduce a vDPA based transport
+Date: Mon, 10 Feb 2020 09:34:42 -0400
+Message-ID: <20200210133442.GS23346@mellanox.com>
+References: <20200210035608.10002-1-jasowang@redhat.com>
+ <20200210035608.10002-5-jasowang@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20200210035608.10002-5-jasowang@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, mst@redhat.com, mhabets@solarflare.com, virtualization@lists.linux-foundation.org, rob.miller@broadcom.com, lulu@redhat.com, hanand@xilinx.com, hch@infradead.org, eperezma@redhat.com, haotian.wang@sifive.com, shahafs@mellanox.com, parav@mellanox.com, jiri@mellanox.com, xiao.w.wang@intel.com, stefanha@redhat.com, zhihong.wang@intel.com, rdunlap@infradead.org, linux-kernel@vger.kernel.org, maxime.coquelin@redhat.com, netdev@vger.kernel.org, lingshan.zhu@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Reorder calls in qxl_device_fini().  Cleaning up gem & ttm
-might trigger qxl commands, so we should do that before
-releaseing command rings.
+On Mon, Feb 10, 2020 at 11:56:07AM +0800, Jason Wang wrote:
+> This patch introduces a vDPA transport for virtio. This is used to
+> use kernel virtio driver to drive the mediated device that is capable
+> of populating virtqueue directly.
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/qxl/qxl_kms.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+Is this comment still right? Is there a mediated device still?
 
-diff --git a/drivers/gpu/drm/qxl/qxl_kms.c b/drivers/gpu/drm/qxl/qxl_kms.c
-index bfc1631093e9..70b20ee4741a 100644
---- a/drivers/gpu/drm/qxl/qxl_kms.c
-+++ b/drivers/gpu/drm/qxl/qxl_kms.c
-@@ -299,12 +299,12 @@ void qxl_device_fini(struct qxl_device *qdev)
- {
- 	qxl_bo_unref(&qdev->current_release_bo[0]);
- 	qxl_bo_unref(&qdev->current_release_bo[1]);
--	flush_work(&qdev->gc_work);
--	qxl_ring_free(qdev->command_ring);
--	qxl_ring_free(qdev->cursor_ring);
--	qxl_ring_free(qdev->release_ring);
- 	qxl_gem_fini(qdev);
- 	qxl_bo_fini(qdev);
-+	flush_work(&qdev->gc_work);
-+	qxl_ring_free(qdev->command_ring);
-+	qxl_ring_free(qdev->cursor_ring);
-+	qxl_ring_free(qdev->release_ring);
- 	io_mapping_free(qdev->surface_mapping);
- 	io_mapping_free(qdev->vram_mapping);
- 	iounmap(qdev->ram_header);
--- 
-2.18.1
+Jason
