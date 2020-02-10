@@ -1,12 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PULL] vhost: cleanups and fixes
-Date: Mon, 10 Feb 2020 01:02:52 -0500
-Message-ID: <20200210010252-mutt-send-email-mst@kernel.org>
+From: "Wang, Wei W" <wei.w.wang@intel.com>
+Subject: RE: [PATCH RFC] virtio_balloon: conservative balloon page shrinking
+Date: Mon, 10 Feb 2020 07:27:25 +0000
+Message-ID: <286AC319A985734F985F78AFA26841F73E42AD6D@shsmsx102.ccr.corp.intel.com>
+References: <345addae-0945-2f49-52cf-8e53446e63b2@i-love.sakura.ne.jp>
+ <286AC319A985734F985F78AFA26841F73E429F32@shsmsx102.ccr.corp.intel.com>
+ <202002100357.01A3vNNU089831@www262.sakura.ne.jp>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <202002100357.01A3vNNU089831@www262.sakura.ne.jp>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,52 +20,34 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, tiny.windzz@gmail.com, netdev@vger.kernel.org, liang.z.li@intel.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mst@redhat.com, "Cc:stable"@vger.kernel.org, hch@lst.de
+To: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc: "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "tysand@google.com" <tysand@google.com>, "namit@vmware.com" <namit@vmware.com>, "rientjes@google.com" <rientjes@google.com>, "alexander.h.duyck@linux.intel.com" <alexander.h.duyck@linux.intel.com>, "mhocko@kernel.org" <mhocko@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit d5226fa6dbae0569ee43ecfc08bdcd6770fc4755:
+On Monday, February 10, 2020 11:57 AM, Tetsuo Handa wrote:
+> Then, "node-A's NR_FILE_PAGES is already 0 and node-B's NR_FILE_PAGES is
+> not 0, but allocation request which triggered this shrinker wants to allocate
+> from only node-A"
+> would be confused by this change, for the pagecache pages for allocating
+> thread's interested node are already depleted but the balloon cannot shrink
+> when it should because the pagecache pages for allocating thread's
+> uninterested nodes are not yet depleted.
 
-  Linux 5.5 (2020-01-26 16:23:03 -0800)
+The existing balloon isn't numa aware. "but the balloon cannot shrink " - even we
+let balloon to shrink, it could shrink pages from the uninterested node.
 
-are available in the Git repository at:
+When we have a numa aware balloon, we could further update the shrinker
+to check with the per node counter , node_page_state(NR_FILE_PAGES).
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+> 
+> >
+> Well, my comment is rather: "Do not try to reserve guest's memory. In other
+> words, do not try to maintain balloons on the guest side. Since host would
+> be able to cache file data on the host's cache, guests would be able to
+> quickly fetch file data from host's cache via normal I/O requests." ;-)
 
-for you to fetch changes up to 1ad6f58ea9364b0a5d8ae06249653ac9304a8578:
+Didn't this one. The discussion was about guest pagecache pages v.s. guest balloon pages.
+Why is host's pagecache here?
 
-  virtio_balloon: Fix memory leaks on errors in virtballoon_probe() (2020-02-06 03:40:27 -0500)
-
-----------------------------------------------------------------
-virtio: fixes, cleanups
-
-Some bug fixes/cleanups.
-Deprecated scsi passthrough for blk removed.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-Christoph Hellwig (1):
-      virtio-blk: remove VIRTIO_BLK_F_SCSI support
-
-Daniel Verkamp (2):
-      virtio-balloon: initialize all vq callbacks
-      virtio-pci: check name when counting MSI-X vectors
-
-David Hildenbrand (2):
-      virtio-balloon: Fix memory leak when unloading while hinting is in progress
-      virtio_balloon: Fix memory leaks on errors in virtballoon_probe()
-
-Michael S. Tsirkin (1):
-      virtio_balloon: prevent pfn array overflow
-
-Yangtao Li (1):
-      virtio-mmio: convert to devm_platform_ioremap_resource
-
- arch/powerpc/configs/guest.config  |   1 -
- drivers/block/Kconfig              |  10 ----
- drivers/block/virtio_blk.c         | 115 +------------------------------------
- drivers/virtio/virtio_balloon.c    |  21 +++++--
- drivers/virtio/virtio_mmio.c       |  15 +----
- drivers/virtio/virtio_pci_common.c |   2 +-
- 6 files changed, 22 insertions(+), 142 deletions(-)
+Best,
+Wei
