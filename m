@@ -1,67 +1,124 @@
-From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Subject: Re: [PATCH] virtio: Work around frames incorrectly marked as gso
-Date: Mon, 10 Feb 2020 16:55:44 +0000
-Message-ID: <57230228-7030-c65f-a24f-910ca52bbe9e@cambridgegreys.com>
-References: <20191209104824.17059-1-anton.ivanov@cambridgegreys.com>
+From: =?UTF-8?Q?Noralf_Tr=c3=b8nnes?= <noralf@tronnes.org>
+Subject: Re: [PATCH v2 2/2] drm/qxl: add drm_driver.release callback.
+Date: Mon, 10 Feb 2020 17:57:41 +0100
+Message-ID: <f83001ab-8017-0576-69fd-d5f62bda84fd@tronnes.org>
+References: <20200210113753.5614-1-kraxel@redhat.com>
+ <20200210113753.5614-3-kraxel@redhat.com>
+ <20200210150633.GS43062@phenom.ffwll.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20191209104824.17059-1-anton.ivanov@cambridgegreys.com>
-Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
-To: netdev@vger.kernel.org
-Cc: linux-um@lists.infradead.org, jasowang@redhat.com, mst@redhat.com, virtualization@lists.linux-foundation.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200210150633.GS43062@phenom.ffwll.local>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Gerd Hoffmann <kraxel@redhat.com>, dri-devel@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>, David Airlie <airlied@linux.ie>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 
-On 09/12/2019 10:48, anton.ivanov@cambridgegreys.com wrote:
-> From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Den 10.02.2020 16.06, skrev Daniel Vetter:
+> On Mon, Feb 10, 2020 at 12:37:52PM +0100, Gerd Hoffmann wrote:
+>> Move final cleanups to qxl_drm_release() callback.
+>> Add drm_atomic_helper_shutdown() call to qxl_pci_remove().
+>>
+>> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+>> ---
+>>  drivers/gpu/drm/qxl/qxl_drv.c | 26 +++++++++++++++++++-------
+>>  1 file changed, 19 insertions(+), 7 deletions(-)
+>>
+>> diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
+>> index 1d601f57a6ba..4fda3f9b29f4 100644
+>> --- a/drivers/gpu/drm/qxl/qxl_drv.c
+>> +++ b/drivers/gpu/drm/qxl/qxl_drv.c
+>> @@ -34,6 +34,7 @@
+>>  #include <linux/pci.h>
+>>  
+>>  #include <drm/drm.h>
+>> +#include <drm/drm_atomic_helper.h>
+>>  #include <drm/drm_drv.h>
+>>  #include <drm/drm_file.h>
+>>  #include <drm/drm_modeset_helper.h>
+>> @@ -132,21 +133,30 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+>>  	return ret;
+>>  }
+>>  
+>> +static void qxl_drm_release(struct drm_device *dev)
+>> +{
+>> +	struct qxl_device *qdev = dev->dev_private;
+>> +
+>> +	/*
+>> +	 * TODO: qxl_device_fini() call should be in qxl_pci_remove(),
+>> +	 * reodering qxl_modeset_fini() + qxl_device_fini() calls is
+>> +	 * non-trivial though.
+>> +	 */
+>> +	qxl_modeset_fini(qdev);
 > 
-> Some of the frames marked as GSO which arrive at
-> virtio_net_hdr_from_skb() have no GSO_TYPE, no
-> fragments (data_len = 0) and length significantly shorter
-> than the MTU (752 in my experiments).
+> So the drm_mode_config_cleanup call in here belongs in ->release, but the
+> qxl_destroy_monitors_object feels like should be perfectly fine in the
+> remove hook. You might need to sprinkle a few drm_dev_enter/exit around to
+> protect code paths thought.
 > 
-> This is observed on raw sockets reading off vEth interfaces
-> in all 4.x and 5.x kernels I tested.
+> Aside from this lgtm, for the series
 > 
-> These frames are reported as invalid while they are in fact
-> gso-less frames.
+> Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 > 
-> This patch marks the vnet header as no-GSO for them instead
-> of reporting it as invalid.
+> And up to you whether you want to fix this or not really.
 > 
-> Signed-off-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-> ---
->   include/linux/virtio_net.h | 8 ++++++--
->   1 file changed, 6 insertions(+), 2 deletions(-)
-> 
-> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-> index 0d1fe9297ac6..d90d5cff1b9a 100644
-> --- a/include/linux/virtio_net.h
-> +++ b/include/linux/virtio_net.h
-> @@ -112,8 +112,12 @@ static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
->   			hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
->   		else if (sinfo->gso_type & SKB_GSO_TCPV6)
->   			hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
-> -		else
-> -			return -EINVAL;
-> +		else {
-> +			if (skb->data_len == 0)
-> +				hdr->gso_type = VIRTIO_NET_HDR_GSO_NONE;
-> +			else
-> +				return -EINVAL;
-> +		}
->   		if (sinfo->gso_type & SKB_GSO_TCP_ECN)
->   			hdr->gso_type |= VIRTIO_NET_HDR_GSO_ECN;
->   	} else
+> Btw for testing all these patches that add a ->release hook I think it'd
+> be good if the drm core checks that drm_device->dev is set to NULL, and
+> that we do this in the remove hook. Since that's guaranteed to be gone at
+> that point, so anything in ->release that still needs the device is
+> broken. Ofc maybe do that check only for drivers which have a ->release
+> hook, and we might need a few fixups.
 > 
 
-ping.
+We take a ref on the parent device in drm_dev_init() and release it in
+drm_dev_fini(). I added this because of the DRM_DEV_* macros we have, to
+protect access to the device struct after it was unregistered. Setting
+drm_device->dev to NULL in drm_dev_unregister() instead will provide the
+same protection I think.
 
--- 
-Anton R. Ivanov
-Cambridgegreys Limited. Registered in England. Company Number 10273661
-https://www.cambridgegreys.com/
+commit 56be6503aab2
+drm/drv: Hold ref on parent device during drm_device lifetime
+
+Noralf.
+
+> Cheers, Daniel
+> 
+>> +	qxl_device_fini(qdev);
+>> +	dev->dev_private = NULL;
+>> +	kfree(qdev);
+>> +}
+>> +
+>>  static void
+>>  qxl_pci_remove(struct pci_dev *pdev)
+>>  {
+>>  	struct drm_device *dev = pci_get_drvdata(pdev);
+>> -	struct qxl_device *qdev = dev->dev_private;
+>>  
+>>  	drm_dev_unregister(dev);
+>> -
+>> -	qxl_modeset_fini(qdev);
+>> -	qxl_device_fini(qdev);
+>> +	drm_atomic_helper_shutdown(dev);
+>>  	if (is_vga(pdev))
+>>  		vga_put(pdev, VGA_RSRC_LEGACY_IO);
+>> -
+>> -	dev->dev_private = NULL;
+>> -	kfree(qdev);
+>>  	drm_dev_put(dev);
+>>  }
+>>  
+>> @@ -279,6 +289,8 @@ static struct drm_driver qxl_driver = {
+>>  	.major = 0,
+>>  	.minor = 1,
+>>  	.patchlevel = 0,
+>> +
+>> +	.release = qxl_drm_release,
+>>  };
+>>  
+>>  static int __init qxl_init(void)
+>> -- 
+>> 2.18.1
+>>
+> 
