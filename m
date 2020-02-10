@@ -1,118 +1,125 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v2] drm/virtio: add drm_driver.release callback.
-Date: Mon, 10 Feb 2020 11:08:19 +0100
-Message-ID: <20200210100819.29761-1-kraxel@redhat.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: vhost changes (batched) in linux-next after 12/13 trigger random
+ crashes in KVM guests after reboot
+Date: Mon, 10 Feb 2020 11:09:55 +0100
+Message-ID: <656663f4-87b5-5efa-07e5-235a0a5d4597@de.ibm.com>
+References: <20200107042401-mutt-send-email-mst@kernel.org>
+ <c6795e53-d12c-0709-c2e9-e35d9af1f693@de.ibm.com>
+ <20200107065434-mutt-send-email-mst@kernel.org>
+ <fe6e7e90-3004-eb7a-9ed8-b53a7667959f@de.ibm.com>
+ <20200120012724-mutt-send-email-mst@kernel.org>
+ <2a63b15f-8cf5-5868-550c-42e2cfd92c60@de.ibm.com>
+ <b6e32f58e5d85ac5cc3141e9155fb140ae5cd580.camel@redhat.com>
+ <1ade56b5-083f-bb6f-d3e0-3ddcf78f4d26@de.ibm.com>
+ <20200206171349-mutt-send-email-mst@kernel.org>
+ <5c860fa1-cef5-b389-4ebf-99a62afa0fe8@de.ibm.com>
+ <20200207025806-mutt-send-email-mst@kernel.org>
+ <97c93d38-ef07-e321-d133-18483d54c0c0@de.ibm.com>
+ <CAJaqyWfngzP4d01B6+Sqt8FXN6jX7kGegjx8ie4no_1Er3igQA@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAJaqyWfngzP4d01B6+Sqt8FXN6jX7kGegjx8ie4no_1Er3igQA@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: dri-devel@lists.freedesktop.org
-Cc: gurchetansingh@chromium.org, olvaffe@gmail.com, Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
+To: Eugenio Perez Martin <eperezma@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Stephen Rothwell <sfr@canb.auug.org.au>, Linux Next Mailing List <linux-next@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Halil Pasic <pasic@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Split virtio_gpu_deinit(), move the drm shutdown and release to
-virtio_gpu_release().  Also free vbufs in case we can't queue them.
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/virtio/virtgpu_drv.h     | 1 +
- drivers/gpu/drm/virtio/virtgpu_display.c | 1 -
- drivers/gpu/drm/virtio/virtgpu_drv.c     | 4 ++++
- drivers/gpu/drm/virtio/virtgpu_kms.c     | 5 +++++
- drivers/gpu/drm/virtio/virtgpu_vq.c      | 9 ++++++++-
- 5 files changed, 18 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index d278c8c50f39..09a485b001e7 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -217,6 +217,7 @@ extern struct drm_ioctl_desc virtio_gpu_ioctls[DRM_VIRTIO_NUM_IOCTLS];
- /* virtio_kms.c */
- int virtio_gpu_init(struct drm_device *dev);
- void virtio_gpu_deinit(struct drm_device *dev);
-+void virtio_gpu_release(struct drm_device *dev);
- int virtio_gpu_driver_open(struct drm_device *dev, struct drm_file *file);
- void virtio_gpu_driver_postclose(struct drm_device *dev, struct drm_file *file);
- 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index 7b0f0643bb2d..af953db4a0c9 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -368,6 +368,5 @@ void virtio_gpu_modeset_fini(struct virtio_gpu_device *vgdev)
- 
- 	for (i = 0 ; i < vgdev->num_scanouts; ++i)
- 		kfree(vgdev->outputs[i].edid);
--	drm_atomic_helper_shutdown(vgdev->ddev);
- 	drm_mode_config_cleanup(vgdev->ddev);
- }
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-index 8cf27af3ad53..664a741a3b0b 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-@@ -31,6 +31,7 @@
- #include <linux/pci.h>
- 
- #include <drm/drm.h>
-+#include <drm/drm_atomic_helper.h>
- #include <drm/drm_drv.h>
- #include <drm/drm_file.h>
- 
-@@ -136,6 +137,7 @@ static void virtio_gpu_remove(struct virtio_device *vdev)
- 	struct drm_device *dev = vdev->priv;
- 
- 	drm_dev_unregister(dev);
-+	drm_atomic_helper_shutdown(dev);
- 	virtio_gpu_deinit(dev);
- 	drm_dev_put(dev);
- }
-@@ -214,4 +216,6 @@ static struct drm_driver driver = {
- 	.major = DRIVER_MAJOR,
- 	.minor = DRIVER_MINOR,
- 	.patchlevel = DRIVER_PATCHLEVEL,
-+
-+	.release = virtio_gpu_release,
- };
-diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index c1086df49816..b45d12e3db2a 100644
---- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -240,6 +240,11 @@ void virtio_gpu_deinit(struct drm_device *dev)
- 	flush_work(&vgdev->config_changed_work);
- 	vgdev->vdev->config->reset(vgdev->vdev);
- 	vgdev->vdev->config->del_vqs(vgdev->vdev);
-+}
-+
-+void virtio_gpu_release(struct drm_device *dev)
-+{
-+	struct virtio_gpu_device *vgdev = dev->dev_private;
- 
- 	virtio_gpu_modeset_fini(vgdev);
- 	virtio_gpu_free_vbufs(vgdev);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index cc02fc4bab2a..cc674b45f904 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -330,6 +330,11 @@ static void virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
- 	bool notify = false;
- 	int ret;
- 
-+	if (!vgdev->vqs_ready) {
-+		free_vbuf(vgdev, vbuf);
-+		return;
-+	}
-+
- 	if (vgdev->has_indirect)
- 		elemcnt = 1;
- 
-@@ -462,8 +467,10 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
- 	int ret;
- 	int outcnt;
- 
--	if (!vgdev->vqs_ready)
-+	if (!vgdev->vqs_ready) {
-+		free_vbuf(vgdev, vbuf);
- 		return;
-+	}
- 
- 	sg_init_one(&ccmd, vbuf->buf, vbuf->size);
- 	sgs[0] = &ccmd;
--- 
-2.18.1
+On 10.02.20 10:40, Eugenio Perez Martin wrote:
+> Hi Christian.
+> 
+> I'm not able to reproduce the failure with eccb852f1fe6bede630e2e4f1a121a81e34354ab commit. Could you add more data? Your configuration (libvirt or qemu line), and host's dmesg output if any?
+
+I do the following in the guest:
+ping -c 200 -f somevalidip; reboot
+sometimes I need to do that multiple times and sometimes I do not get a guest crash but host dmesg like
+
+Guest moved used index from 0 to 292
+
+xml is pretty simple
+
+    <interface type='direct'>
+      <mac address='52:54:00:7c:2c:f3'/>
+      <source dev='encbd00' mode='bridge'/>
+      <model type='virtio'/>
+      <driver name='vhost'/>
+      <address type='ccw' cssid='0xfe' ssid='0x0' devno='0x0001'/>
+    </interface>
+
+
+Reverting this patch seems to make both problems go away.
+
+
+> 
+> Thanks!
+> 
+> On Fri, Feb 7, 2020 at 9:13 AM Christian Borntraeger <borntraeger@de.ibm.com <mailto:borntraeger@de.ibm.com>> wrote:
+> 
+> 
+> 
+>     On 07.02.20 08:58, Michael S. Tsirkin wrote:
+>     > On Fri, Feb 07, 2020 at 08:47:14AM +0100, Christian Borntraeger wrote:
+>     >> Also adding Cornelia.
+>     >>
+>     >>
+>     >> On 06.02.20 23:17, Michael S. Tsirkin wrote:
+>     >>> On Thu, Feb 06, 2020 at 04:12:21PM +0100, Christian Borntraeger wrote:
+>     >>>>
+>     >>>>
+>     >>>> On 06.02.20 15:22, eperezma@redhat.com <mailto:eperezma@redhat.com> wrote:
+>     >>>>> Hi Christian.
+>     >>>>>
+>     >>>>> Could you try this patch on top of ("38ced0208491 vhost: use batched version by default")?
+>     >>>>>
+>     >>>>> It will not solve your first random crash but it should help with the lost of network connectivity.
+>     >>>>>
+>     >>>>> Please let me know how does it goes.
+>     >>>>
+>     >>>>
+>     >>>> 38ced0208491 + this seem to be ok.
+>     >>>>
+>     >>>> Not sure if you can make out anything of this (and the previous git bisect log)
+>     >>>
+>     >>> Yes it does - that this is just bad split-up of patches, and there's
+>     >>> still a real bug that caused worse crashes :)
+>     >>>
+>     >>> So I just pushed batch-v4.
+>     >>> I expect that will fail, and bisect to give us
+>     >>>     vhost: batching fetches
+>     >>> Can you try that please?
+>     >>>
+>     >>
+>     >> yes.
+>     >>
+>     >> eccb852f1fe6bede630e2e4f1a121a81e34354ab is the first bad commit
+>     >> commit eccb852f1fe6bede630e2e4f1a121a81e34354ab
+>     >> Author: Michael S. Tsirkin <mst@redhat.com <mailto:mst@redhat.com>>
+>     >> Date:   Mon Oct 7 06:11:18 2019 -0400
+>     >>
+>     >>     vhost: batching fetches
+>     >>     
+>     >>     With this patch applied, new and old code perform identically.
+>     >>     
+>     >>     Lots of extra optimizations are now possible, e.g.
+>     >>     we can fetch multiple heads with copy_from/to_user now.
+>     >>     We can get rid of maintaining the log array.  Etc etc.
+>     >>     
+>     >>     Signed-off-by: Michael S. Tsirkin <mst@redhat.com <mailto:mst@redhat.com>>
+>     >>
+>     >>  drivers/vhost/test.c  |  2 +-
+>     >>  drivers/vhost/vhost.c | 39 ++++++++++++++++++++++++++++++++++-----
+>     >>  drivers/vhost/vhost.h |  4 +++-
+>     >>  3 files changed, 38 insertions(+), 7 deletions(-)
+>     >>
+>     >
+>     >
+>     > And the symptom is still the same - random crashes
+>     > after a bit of traffic, right?
+> 
+>     random guest crashes after a reboot of the guests. As if vhost would still
+>     write into now stale buffers.
+> 
