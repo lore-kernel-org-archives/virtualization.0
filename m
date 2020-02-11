@@ -1,78 +1,106 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 13/62] x86/boot/compressed/64: Change add_identity_map() to take start and end
-Date: Tue, 11 Feb 2020 14:52:07 +0100
-Message-ID: <20200211135256.24617-14-joro@8bytes.org>
+Subject: [PATCH 02/62] KVM: SVM: Add GHCB Accessor functions
+Date: Tue, 11 Feb 2020 14:51:56 +0100
+Message-ID: <20200211135256.24617-3-joro@8bytes.org>
 References: <20200211135256.24617-1-joro@8bytes.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200211135256.24617-1-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: x86@kernel.org
-Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>
+Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Joerg Roedel <jroedel@suse.de>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Changing the function to take start and end as parameters instead of
-start and size simplifies the callers, which don't need to calculate
-the size if they already have start and end.
+Building a correct GHCB for the hypervisor requires setting valid bits
+in the GHCB. Simplify that process by providing accessor functions to
+set values and to update the valid bitmap.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/compressed/ident_map_64.c | 15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ arch/x86/include/asm/svm.h | 61 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 61 insertions(+)
 
-diff --git a/arch/x86/boot/compressed/ident_map_64.c b/arch/x86/boot/compressed/ident_map_64.c
-index ab7a3d9705c0..ba5b88189220 100644
---- a/arch/x86/boot/compressed/ident_map_64.c
-+++ b/arch/x86/boot/compressed/ident_map_64.c
-@@ -91,10 +91,8 @@ static struct x86_mapping_info mapping_info;
- /*
-  * Adds the specified range to the identity mappings.
-  */
--static void add_identity_map(unsigned long start, unsigned long size)
-+static void add_identity_map(unsigned long start, unsigned long end)
- {
--	unsigned long end = start + size;
--
- 	/* Align boundary to 2M. */
- 	start = round_down(start, PMD_SIZE);
- 	end = round_up(end, PMD_SIZE);
-@@ -109,8 +107,6 @@ static void add_identity_map(unsigned long start, unsigned long size)
- /* Locates and clears a region for a new top level page table. */
- void initialize_identity_maps(void)
- {
--	unsigned long start, size;
--
- 	/* If running as an SEV guest, the encryption mask is required. */
- 	set_sev_encryption_mask();
+diff --git a/arch/x86/include/asm/svm.h b/arch/x86/include/asm/svm.h
+index f36288c659b5..e4e9f6bacfaa 100644
+--- a/arch/x86/include/asm/svm.h
++++ b/arch/x86/include/asm/svm.h
+@@ -333,4 +333,65 @@ struct __attribute__ ((__packed__)) vmcb {
  
-@@ -157,9 +153,7 @@ void initialize_identity_maps(void)
- 	 * New page-table is set up - map the kernel image and load it
- 	 * into cr3.
- 	 */
--	start = (unsigned long)_head;
--	size  = _end - _head;
--	add_identity_map(start, size);
-+	add_identity_map((unsigned long)_head, (unsigned long)_end);
- 	write_cr3(top_level_pgt);
- }
+ #define SVM_CR0_SELECTIVE_MASK (X86_CR0_TS | X86_CR0_MP)
  
-@@ -180,7 +174,8 @@ static void pf_error(unsigned long error_code, unsigned long address,
- 
- void do_boot_page_fault(struct pt_regs *regs)
- {
--	unsigned long address = native_read_cr2();
-+	unsigned long address = native_read_cr2() & PMD_MASK;
-+	unsigned long end = address + PMD_SIZE;
- 	unsigned long error_code = regs->orig_ax;
- 
- 	/*
-@@ -196,5 +191,5 @@ void do_boot_page_fault(struct pt_regs *regs)
- 	 * Error code is sane - now identity map the 2M region around
- 	 * the faulting address.
- 	 */
--	add_identity_map(address & PMD_MASK, PMD_SIZE);
-+	add_identity_map(address, end);
- }
++/* GHCB Accessor functions */
++
++#define DEFINE_GHCB_INDICES(field)					\
++	u16 idx = offsetof(struct vmcb_save_area, field) / 8;		\
++	u16 byte_idx  = idx / 8;					\
++	u16 bit_idx   = idx % 8;					\
++	BUILD_BUG_ON(byte_idx > ARRAY_SIZE(ghcb->save.valid_bitmap));
++
++#define GHCB_SET_VALID(ghcb, field)					\
++	{								\
++		DEFINE_GHCB_INDICES(field)				\
++		(ghcb)->save.valid_bitmap[byte_idx] |= BIT(bit_idx);	\
++	}
++
++#define DEFINE_GHCB_SETTER(field)					\
++	static inline void						\
++	ghcb_set_##field(struct ghcb *ghcb, u64 value)			\
++	{								\
++		GHCB_SET_VALID(ghcb, field)				\
++		(ghcb)->save.field = value;				\
++	}
++
++#define DEFINE_GHCB_ACCESSORS(field)					\
++	static inline bool ghcb_is_valid_##field(const struct ghcb *ghcb)	\
++	{								\
++		DEFINE_GHCB_INDICES(field)				\
++		return !!((ghcb)->save.valid_bitmap[byte_idx]		\
++						& BIT(bit_idx));	\
++	}								\
++									\
++	static inline void						\
++	ghcb_set_##field(struct ghcb *ghcb, u64 value)			\
++	{								\
++		GHCB_SET_VALID(ghcb, field)				\
++		(ghcb)->save.field = value;				\
++	}
++
++DEFINE_GHCB_ACCESSORS(cpl)
++DEFINE_GHCB_ACCESSORS(rip)
++DEFINE_GHCB_ACCESSORS(rsp)
++DEFINE_GHCB_ACCESSORS(rax)
++DEFINE_GHCB_ACCESSORS(rcx)
++DEFINE_GHCB_ACCESSORS(rdx)
++DEFINE_GHCB_ACCESSORS(rbx)
++DEFINE_GHCB_ACCESSORS(rbp)
++DEFINE_GHCB_ACCESSORS(rsi)
++DEFINE_GHCB_ACCESSORS(rdi)
++DEFINE_GHCB_ACCESSORS(r8)
++DEFINE_GHCB_ACCESSORS(r9)
++DEFINE_GHCB_ACCESSORS(r10)
++DEFINE_GHCB_ACCESSORS(r11)
++DEFINE_GHCB_ACCESSORS(r12)
++DEFINE_GHCB_ACCESSORS(r13)
++DEFINE_GHCB_ACCESSORS(r14)
++DEFINE_GHCB_ACCESSORS(r15)
++DEFINE_GHCB_ACCESSORS(sw_exit_code)
++DEFINE_GHCB_ACCESSORS(sw_exit_info_1)
++DEFINE_GHCB_ACCESSORS(sw_exit_info_2)
++DEFINE_GHCB_ACCESSORS(sw_scratch)
++DEFINE_GHCB_ACCESSORS(xcr0)
++
+ #endif
 -- 
 2.17.1
