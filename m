@@ -1,125 +1,143 @@
-From: Jason Gunthorpe <jgg@mellanox.com>
-Subject: Re: [PATCH V2 5/5] vdpasim: vDPA device simulator
-Date: Tue, 11 Feb 2020 09:52:54 -0400
-Message-ID: <20200211135254.GJ4271@mellanox.com>
-References: <20200210035608.10002-1-jasowang@redhat.com>
- <20200210035608.10002-6-jasowang@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH 04/62] x86/traps: Move some definitions to <asm/trap_defs.h>
+Date: Tue, 11 Feb 2020 14:51:58 +0100
+Message-ID: <20200211135256.24617-5-joro@8bytes.org>
+References: <20200211135256.24617-1-joro@8bytes.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200210035608.10002-6-jasowang@redhat.com>
+In-Reply-To: <20200211135256.24617-1-joro@8bytes.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, tiwei.bie@intel.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jiri@mellanox.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com
+To: x86@kernel.org
+Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Feb 10, 2020 at 11:56:08AM +0800, Jason Wang wrote:
-> +
-> +static struct vdpasim *vdpasim_create(void)
-> +{
-> +	struct vdpasim *vdpasim;
-> +	struct virtio_net_config *config;
-> +	struct vdpa_device *vdpa;
-> +	struct device *dev;
-> +	int ret = -ENOMEM;
-> +
-> +	vdpasim = kzalloc(sizeof(*vdpasim), GFP_KERNEL);
-> +	if (!vdpasim)
-> +		goto err_vdpa_alloc;
-> +
-> +	vdpasim->buffer = kmalloc(PAGE_SIZE, GFP_KERNEL);
-> +	if (!vdpasim->buffer)
-> +		goto err_buffer_alloc;
-> +
-> +	vdpasim->iommu = vhost_iotlb_alloc(2048, 0);
-> +	if (!vdpasim->iommu)
-> +		goto err_iotlb;
-> +
-> +	config = &vdpasim->config;
-> +	config->mtu = 1500;
-> +	config->status = VIRTIO_NET_S_LINK_UP;
-> +	eth_random_addr(config->mac);
-> +
-> +	INIT_WORK(&vdpasim->work, vdpasim_work);
-> +	spin_lock_init(&vdpasim->lock);
-> +
-> +	vdpa = &vdpasim->vdpa;
-> +	vdpa->dev.release = vdpasim_release_dev;
+From: Joerg Roedel <jroedel@suse.de>
 
-The driver should not provide the release function.
+Move the definition of x86 trap vector numbers and the page-fault
+error code bits to the new header file asm/trap_defs.h. This makes it
+easier to include them into pre-decompression boot code. No functional
+changes.
 
-Again the safest model is 'vdpa_alloc_device' which combines the
-kzalloc and the vdpa_init_device() and returns something that is
-error unwound with put_device()
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+---
+ arch/x86/include/asm/trap_defs.h | 49 ++++++++++++++++++++++++++++++++
+ arch/x86/include/asm/traps.h     | 44 +---------------------------
+ 2 files changed, 50 insertions(+), 43 deletions(-)
+ create mode 100644 arch/x86/include/asm/trap_defs.h
 
-The subsystem owns the release and does the kfree and other cleanup
-like releasing the IDA.
-
-> +	vringh_set_iotlb(&vdpasim->vqs[0].vring, vdpasim->iommu);
-> +	vringh_set_iotlb(&vdpasim->vqs[1].vring, vdpasim->iommu);
-> +
-> +	dev = &vdpa->dev;
-> +	dev->coherent_dma_mask = DMA_BIT_MASK(64);
-> +	set_dma_ops(dev, &vdpasim_dma_ops);
-> +
-> +	ret = vdpa_init_device(vdpa, &vdpasim_dev->dev, dev,
-> +			       &vdpasim_net_config_ops);
-> +	if (ret)
-> +		goto err_init;
-> +
-> +	ret = vdpa_register_device(vdpa);
-> +	if (ret)
-> +		goto err_register;
-
-See? This error unwind is now all wrong:
-
-> +
-> +	return vdpasim;
-> +
-> +err_register:
-> +	put_device(&vdpa->dev);
-
-Double put_device
-
-> +err_init:
-> +	vhost_iotlb_free(vdpasim->iommu);
-> +err_iotlb:
-> +	kfree(vdpasim->buffer);
-> +err_buffer_alloc:
-> +	kfree(vdpasim);
-
-kfree after vdpa_init_device() is incorrect, as the put_device now
-does kfree via release
-
-> +static int __init vdpasim_dev_init(void)
-> +{
-> +	struct device *dev;
-> +	int ret = 0;
-> +
-> +	vdpasim_dev = kzalloc(sizeof(*vdpasim_dev), GFP_KERNEL);
-> +	if (!vdpasim_dev)
-> +		return -ENOMEM;
-> +
-> +	dev = &vdpasim_dev->dev;
-> +	dev->release = vdpasim_device_release;
-> +	dev_set_name(dev, "%s", VDPASIM_NAME);
-> +
-> +	ret = device_register(&vdpasim_dev->dev);
-> +	if (ret)
-> +		goto err_register;
-> +
-> +	if (!vdpasim_create())
-> +		goto err_register;
-
-Wrong error unwind here too
-
-> +	return 0;
-> +
-> +err_register:
-> +	kfree(vdpasim_dev);
-> +	vdpasim_dev = NULL;
-> +	return ret;
-> +}
-
-Jason
+diff --git a/arch/x86/include/asm/trap_defs.h b/arch/x86/include/asm/trap_defs.h
+new file mode 100644
+index 000000000000..488f82ac36da
+--- /dev/null
++++ b/arch/x86/include/asm/trap_defs.h
+@@ -0,0 +1,49 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _ASM_X86_TRAP_DEFS_H
++#define _ASM_X86_TRAP_DEFS_H
++
++/* Interrupts/Exceptions */
++enum {
++	X86_TRAP_DE = 0,	/*  0, Divide-by-zero */
++	X86_TRAP_DB,		/*  1, Debug */
++	X86_TRAP_NMI,		/*  2, Non-maskable Interrupt */
++	X86_TRAP_BP,		/*  3, Breakpoint */
++	X86_TRAP_OF,		/*  4, Overflow */
++	X86_TRAP_BR,		/*  5, Bound Range Exceeded */
++	X86_TRAP_UD,		/*  6, Invalid Opcode */
++	X86_TRAP_NM,		/*  7, Device Not Available */
++	X86_TRAP_DF,		/*  8, Double Fault */
++	X86_TRAP_OLD_MF,	/*  9, Coprocessor Segment Overrun */
++	X86_TRAP_TS,		/* 10, Invalid TSS */
++	X86_TRAP_NP,		/* 11, Segment Not Present */
++	X86_TRAP_SS,		/* 12, Stack Segment Fault */
++	X86_TRAP_GP,		/* 13, General Protection Fault */
++	X86_TRAP_PF,		/* 14, Page Fault */
++	X86_TRAP_SPURIOUS,	/* 15, Spurious Interrupt */
++	X86_TRAP_MF,		/* 16, x87 Floating-Point Exception */
++	X86_TRAP_AC,		/* 17, Alignment Check */
++	X86_TRAP_MC,		/* 18, Machine Check */
++	X86_TRAP_XF,		/* 19, SIMD Floating-Point Exception */
++	X86_TRAP_IRET = 32,	/* 32, IRET Exception */
++};
++
++/*
++ * Page fault error code bits:
++ *
++ *   bit 0 ==	 0: no page found	1: protection fault
++ *   bit 1 ==	 0: read access		1: write access
++ *   bit 2 ==	 0: kernel-mode access	1: user-mode access
++ *   bit 3 ==				1: use of reserved bit detected
++ *   bit 4 ==				1: fault was an instruction fetch
++ *   bit 5 ==				1: protection keys block access
++ */
++enum x86_pf_error_code {
++	X86_PF_PROT	=		1 << 0,
++	X86_PF_WRITE	=		1 << 1,
++	X86_PF_USER	=		1 << 2,
++	X86_PF_RSVD	=		1 << 3,
++	X86_PF_INSTR	=		1 << 4,
++	X86_PF_PK	=		1 << 5,
++};
++
++#endif /* _ASM_X86_TRAP_DEFS_H */
+diff --git a/arch/x86/include/asm/traps.h b/arch/x86/include/asm/traps.h
+index ffa0dc8a535e..2aa786484bb1 100644
+--- a/arch/x86/include/asm/traps.h
++++ b/arch/x86/include/asm/traps.h
+@@ -5,6 +5,7 @@
+ #include <linux/context_tracking_state.h>
+ #include <linux/kprobes.h>
+ 
++#include <asm/trap_defs.h>
+ #include <asm/debugreg.h>
+ #include <asm/siginfo.h>			/* TRAP_TRACE, ... */
+ 
+@@ -132,47 +133,4 @@ void __noreturn handle_stack_overflow(const char *message,
+ 				      unsigned long fault_address);
+ #endif
+ 
+-/* Interrupts/Exceptions */
+-enum {
+-	X86_TRAP_DE = 0,	/*  0, Divide-by-zero */
+-	X86_TRAP_DB,		/*  1, Debug */
+-	X86_TRAP_NMI,		/*  2, Non-maskable Interrupt */
+-	X86_TRAP_BP,		/*  3, Breakpoint */
+-	X86_TRAP_OF,		/*  4, Overflow */
+-	X86_TRAP_BR,		/*  5, Bound Range Exceeded */
+-	X86_TRAP_UD,		/*  6, Invalid Opcode */
+-	X86_TRAP_NM,		/*  7, Device Not Available */
+-	X86_TRAP_DF,		/*  8, Double Fault */
+-	X86_TRAP_OLD_MF,	/*  9, Coprocessor Segment Overrun */
+-	X86_TRAP_TS,		/* 10, Invalid TSS */
+-	X86_TRAP_NP,		/* 11, Segment Not Present */
+-	X86_TRAP_SS,		/* 12, Stack Segment Fault */
+-	X86_TRAP_GP,		/* 13, General Protection Fault */
+-	X86_TRAP_PF,		/* 14, Page Fault */
+-	X86_TRAP_SPURIOUS,	/* 15, Spurious Interrupt */
+-	X86_TRAP_MF,		/* 16, x87 Floating-Point Exception */
+-	X86_TRAP_AC,		/* 17, Alignment Check */
+-	X86_TRAP_MC,		/* 18, Machine Check */
+-	X86_TRAP_XF,		/* 19, SIMD Floating-Point Exception */
+-	X86_TRAP_IRET = 32,	/* 32, IRET Exception */
+-};
+-
+-/*
+- * Page fault error code bits:
+- *
+- *   bit 0 ==	 0: no page found	1: protection fault
+- *   bit 1 ==	 0: read access		1: write access
+- *   bit 2 ==	 0: kernel-mode access	1: user-mode access
+- *   bit 3 ==				1: use of reserved bit detected
+- *   bit 4 ==				1: fault was an instruction fetch
+- *   bit 5 ==				1: protection keys block access
+- */
+-enum x86_pf_error_code {
+-	X86_PF_PROT	=		1 << 0,
+-	X86_PF_WRITE	=		1 << 1,
+-	X86_PF_USER	=		1 << 2,
+-	X86_PF_RSVD	=		1 << 3,
+-	X86_PF_INSTR	=		1 << 4,
+-	X86_PF_PK	=		1 << 5,
+-};
+ #endif /* _ASM_X86_TRAPS_H */
+-- 
+2.17.1
