@@ -1,138 +1,125 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v4] drm/bochs: add drm_driver.release callback.
-Date: Tue, 11 Feb 2020 14:52:18 +0100
-Message-ID: <20200211135218.22871-1-kraxel@redhat.com>
+From: Jason Gunthorpe <jgg@mellanox.com>
+Subject: Re: [PATCH V2 5/5] vdpasim: vDPA device simulator
+Date: Tue, 11 Feb 2020 09:52:54 -0400
+Message-ID: <20200211135254.GJ4271@mellanox.com>
+References: <20200210035608.10002-1-jasowang@redhat.com>
+ <20200210035608.10002-6-jasowang@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200210035608.10002-6-jasowang@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dri-devel@lists.freedesktop.org
-Cc: daniel@ffwll.ch, Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, "open list:DRM DRIVER FOR
-        BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, tiwei.bie@intel.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jiri@mellanox.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Call bochs_unload via drm_driver.release to make sure we release stuff
-when it is safe to do so.  Use drm_dev_{enter,exit,unplug} to avoid
-touching hardware after device removal.  Tidy up here and there.
+On Mon, Feb 10, 2020 at 11:56:08AM +0800, Jason Wang wrote:
+> +
+> +static struct vdpasim *vdpasim_create(void)
+> +{
+> +	struct vdpasim *vdpasim;
+> +	struct virtio_net_config *config;
+> +	struct vdpa_device *vdpa;
+> +	struct device *dev;
+> +	int ret = -ENOMEM;
+> +
+> +	vdpasim = kzalloc(sizeof(*vdpasim), GFP_KERNEL);
+> +	if (!vdpasim)
+> +		goto err_vdpa_alloc;
+> +
+> +	vdpasim->buffer = kmalloc(PAGE_SIZE, GFP_KERNEL);
+> +	if (!vdpasim->buffer)
+> +		goto err_buffer_alloc;
+> +
+> +	vdpasim->iommu = vhost_iotlb_alloc(2048, 0);
+> +	if (!vdpasim->iommu)
+> +		goto err_iotlb;
+> +
+> +	config = &vdpasim->config;
+> +	config->mtu = 1500;
+> +	config->status = VIRTIO_NET_S_LINK_UP;
+> +	eth_random_addr(config->mac);
+> +
+> +	INIT_WORK(&vdpasim->work, vdpasim_work);
+> +	spin_lock_init(&vdpasim->lock);
+> +
+> +	vdpa = &vdpasim->vdpa;
+> +	vdpa->dev.release = vdpasim_release_dev;
 
-v4: add changelog.
-v3: use drm_dev_*().
-v2: move hardware deinit to pci_remove().
+The driver should not provide the release function.
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/bochs/bochs_drv.c |  6 +++---
- drivers/gpu/drm/bochs/bochs_hw.c  | 24 +++++++++++++++++++++++-
- 2 files changed, 26 insertions(+), 4 deletions(-)
+Again the safest model is 'vdpa_alloc_device' which combines the
+kzalloc and the vdpa_init_device() and returns something that is
+error unwound with put_device()
 
-diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
-index 10460878414e..addb0568c1af 100644
---- a/drivers/gpu/drm/bochs/bochs_drv.c
-+++ b/drivers/gpu/drm/bochs/bochs_drv.c
-@@ -23,7 +23,6 @@ static void bochs_unload(struct drm_device *dev)
- 
- 	bochs_kms_fini(bochs);
- 	bochs_mm_fini(bochs);
--	bochs_hw_fini(dev);
- 	kfree(bochs);
- 	dev->dev_private = NULL;
- }
-@@ -69,6 +68,7 @@ static struct drm_driver bochs_driver = {
- 	.major			= 1,
- 	.minor			= 0,
- 	DRM_GEM_VRAM_DRIVER,
-+	.release                = bochs_unload,
- };
- 
- /* ---------------------------------------------------------------------- */
-@@ -148,9 +148,9 @@ static void bochs_pci_remove(struct pci_dev *pdev)
- {
- 	struct drm_device *dev = pci_get_drvdata(pdev);
- 
-+	drm_dev_unplug(dev);
- 	drm_atomic_helper_shutdown(dev);
--	drm_dev_unregister(dev);
--	bochs_unload(dev);
-+	bochs_hw_fini(dev);
- 	drm_dev_put(dev);
- }
- 
-diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
-index b615b7dfdd9d..952199cc0462 100644
---- a/drivers/gpu/drm/bochs/bochs_hw.c
-+++ b/drivers/gpu/drm/bochs/bochs_hw.c
-@@ -4,6 +4,7 @@
- 
- #include <linux/pci.h>
- 
-+#include <drm/drm_drv.h>
- #include <drm/drm_fourcc.h>
- 
- #include "bochs.h"
-@@ -194,6 +195,8 @@ void bochs_hw_fini(struct drm_device *dev)
- {
- 	struct bochs_device *bochs = dev->dev_private;
- 
-+	/* TODO: shot down existing vram mappings */
-+
- 	if (bochs->mmio)
- 		iounmap(bochs->mmio);
- 	if (bochs->ioports)
-@@ -207,6 +210,11 @@ void bochs_hw_fini(struct drm_device *dev)
- void bochs_hw_setmode(struct bochs_device *bochs,
- 		      struct drm_display_mode *mode)
- {
-+	int idx;
-+
-+	if (!drm_dev_enter(bochs->dev, &idx))
-+		return;
-+
- 	bochs->xres = mode->hdisplay;
- 	bochs->yres = mode->vdisplay;
- 	bochs->bpp = 32;
-@@ -232,11 +240,18 @@ void bochs_hw_setmode(struct bochs_device *bochs,
- 
- 	bochs_dispi_write(bochs, VBE_DISPI_INDEX_ENABLE,
- 			  VBE_DISPI_ENABLED | VBE_DISPI_LFB_ENABLED);
-+
-+	drm_dev_exit(idx);
- }
- 
- void bochs_hw_setformat(struct bochs_device *bochs,
- 			const struct drm_format_info *format)
- {
-+	int idx;
-+
-+	if (!drm_dev_enter(bochs->dev, &idx))
-+		return;
-+
- 	DRM_DEBUG_DRIVER("format %c%c%c%c\n",
- 			 (format->format >>  0) & 0xff,
- 			 (format->format >>  8) & 0xff,
-@@ -256,13 +271,18 @@ void bochs_hw_setformat(struct bochs_device *bochs,
- 			  __func__, format->format);
- 		break;
- 	}
-+
-+	drm_dev_exit(idx);
- }
- 
- void bochs_hw_setbase(struct bochs_device *bochs,
- 		      int x, int y, int stride, u64 addr)
- {
- 	unsigned long offset;
--	unsigned int vx, vy, vwidth;
-+	unsigned int vx, vy, vwidth, idx;
-+
-+	if (!drm_dev_enter(bochs->dev, &idx))
-+		return;
- 
- 	bochs->stride = stride;
- 	offset = (unsigned long)addr +
-@@ -277,4 +297,6 @@ void bochs_hw_setbase(struct bochs_device *bochs,
- 	bochs_dispi_write(bochs, VBE_DISPI_INDEX_VIRT_WIDTH, vwidth);
- 	bochs_dispi_write(bochs, VBE_DISPI_INDEX_X_OFFSET, vx);
- 	bochs_dispi_write(bochs, VBE_DISPI_INDEX_Y_OFFSET, vy);
-+
-+	drm_dev_exit(idx);
- }
--- 
-2.18.2
+The subsystem owns the release and does the kfree and other cleanup
+like releasing the IDA.
+
+> +	vringh_set_iotlb(&vdpasim->vqs[0].vring, vdpasim->iommu);
+> +	vringh_set_iotlb(&vdpasim->vqs[1].vring, vdpasim->iommu);
+> +
+> +	dev = &vdpa->dev;
+> +	dev->coherent_dma_mask = DMA_BIT_MASK(64);
+> +	set_dma_ops(dev, &vdpasim_dma_ops);
+> +
+> +	ret = vdpa_init_device(vdpa, &vdpasim_dev->dev, dev,
+> +			       &vdpasim_net_config_ops);
+> +	if (ret)
+> +		goto err_init;
+> +
+> +	ret = vdpa_register_device(vdpa);
+> +	if (ret)
+> +		goto err_register;
+
+See? This error unwind is now all wrong:
+
+> +
+> +	return vdpasim;
+> +
+> +err_register:
+> +	put_device(&vdpa->dev);
+
+Double put_device
+
+> +err_init:
+> +	vhost_iotlb_free(vdpasim->iommu);
+> +err_iotlb:
+> +	kfree(vdpasim->buffer);
+> +err_buffer_alloc:
+> +	kfree(vdpasim);
+
+kfree after vdpa_init_device() is incorrect, as the put_device now
+does kfree via release
+
+> +static int __init vdpasim_dev_init(void)
+> +{
+> +	struct device *dev;
+> +	int ret = 0;
+> +
+> +	vdpasim_dev = kzalloc(sizeof(*vdpasim_dev), GFP_KERNEL);
+> +	if (!vdpasim_dev)
+> +		return -ENOMEM;
+> +
+> +	dev = &vdpasim_dev->dev;
+> +	dev->release = vdpasim_device_release;
+> +	dev_set_name(dev, "%s", VDPASIM_NAME);
+> +
+> +	ret = device_register(&vdpasim_dev->dev);
+> +	if (ret)
+> +		goto err_register;
+> +
+> +	if (!vdpasim_create())
+> +		goto err_register;
+
+Wrong error unwind here too
+
+> +	return 0;
+> +
+> +err_register:
+> +	kfree(vdpasim_dev);
+> +	vdpasim_dev = NULL;
+> +	return ret;
+> +}
+
+Jason
