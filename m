@@ -1,159 +1,49 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH v4] drm/bochs: add drm_driver.release callback.
-Date: Tue, 11 Feb 2020 15:19:56 +0100
-Message-ID: <20200211141956.GC2363188@phenom.ffwll.local>
-References: <20200211135218.22871-1-kraxel@redhat.com>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Subject: Re: [PATCH RFC] virtio_balloon: conservative balloon page shrinking
+Date: Tue, 11 Feb 2020 23:18:56 +0900
+Message-ID: <51306985-90ac-6e6b-d085-4e076698c48c@i-love.sakura.ne.jp>
+References: <345addae-0945-2f49-52cf-8e53446e63b2@i-love.sakura.ne.jp>
+ <286AC319A985734F985F78AFA26841F73E429F32@shsmsx102.ccr.corp.intel.com>
+ <202002100357.01A3vNNU089831@www262.sakura.ne.jp>
+ <286AC319A985734F985F78AFA26841F73E42AD6D@shsmsx102.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200211135218.22871-1-kraxel@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: dri-devel@lists.freedesktop.org, daniel@ffwll.ch, David Airlie <airlied@linux.ie>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <286AC319A985734F985F78AFA26841F73E42AD6D@shsmsx102.ccr.corp.intel.com>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: "Wang, Wei W" <wei.w.wang@intel.com>
+Cc: "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "tysand@google.com" <tysand@google.com>, "namit@vmware.com" <namit@vmware.com>, "rientjes@google.com" <rientjes@google.com>, "alexander.h.duyck@linux.intel.com" <alexander.h.duyck@linux.intel.com>, "mhocko@kernel.org" <mhocko@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Feb 11, 2020 at 02:52:18PM +0100, Gerd Hoffmann wrote:
-> Call bochs_unload via drm_driver.release to make sure we release stuff
-> when it is safe to do so.  Use drm_dev_{enter,exit,unplug} to avoid
-> touching hardware after device removal.  Tidy up here and there.
+On 2020/02/10 16:27, Wang, Wei W wrote:
+>> Well, my comment is rather: "Do not try to reserve guest's memory. In other
+>> words, do not try to maintain balloons on the guest side. Since host would
+>> be able to cache file data on the host's cache, guests would be able to
+>> quickly fetch file data from host's cache via normal I/O requests." ;-)
 > 
-> v4: add changelog.
-> v3: use drm_dev_*().
-> v2: move hardware deinit to pci_remove().
-> 
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> Didn't this one. The discussion was about guest pagecache pages v.s. guest balloon pages.
+> Why is host's pagecache here?
 
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+I'm expecting a mode: "Guests should try to minimize pagecache pages (and teach
+host to treat reclaimed pages as if POSIX_FADV_DONTNEED) instead of managing
+guest balloon pages". In other words, as if
 
-Btw I checked around whether there's anything else that obviously needs a
-drm_dev_enter/exit, and I spotted the !bochs->mmio check in
-bochs_hw_load_edid. That one looks like cargo-cult, there's a single
-caller in the init path, so either mmio works at that point or this is
-dead code ... slightly confusing.
--Daniel
+  while :; sleep 5; echo 1 > /proc/sys/vm/drop_caches; done
 
-> ---
->  drivers/gpu/drm/bochs/bochs_drv.c |  6 +++---
->  drivers/gpu/drm/bochs/bochs_hw.c  | 24 +++++++++++++++++++++++-
->  2 files changed, 26 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
-> index 10460878414e..addb0568c1af 100644
-> --- a/drivers/gpu/drm/bochs/bochs_drv.c
-> +++ b/drivers/gpu/drm/bochs/bochs_drv.c
-> @@ -23,7 +23,6 @@ static void bochs_unload(struct drm_device *dev)
->  
->  	bochs_kms_fini(bochs);
->  	bochs_mm_fini(bochs);
-> -	bochs_hw_fini(dev);
->  	kfree(bochs);
->  	dev->dev_private = NULL;
->  }
-> @@ -69,6 +68,7 @@ static struct drm_driver bochs_driver = {
->  	.major			= 1,
->  	.minor			= 0,
->  	DRM_GEM_VRAM_DRIVER,
-> +	.release                = bochs_unload,
->  };
->  
->  /* ---------------------------------------------------------------------- */
-> @@ -148,9 +148,9 @@ static void bochs_pci_remove(struct pci_dev *pdev)
->  {
->  	struct drm_device *dev = pci_get_drvdata(pdev);
->  
-> +	drm_dev_unplug(dev);
->  	drm_atomic_helper_shutdown(dev);
-> -	drm_dev_unregister(dev);
-> -	bochs_unload(dev);
-> +	bochs_hw_fini(dev);
->  	drm_dev_put(dev);
->  }
->  
-> diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
-> index b615b7dfdd9d..952199cc0462 100644
-> --- a/drivers/gpu/drm/bochs/bochs_hw.c
-> +++ b/drivers/gpu/drm/bochs/bochs_hw.c
-> @@ -4,6 +4,7 @@
->  
->  #include <linux/pci.h>
->  
-> +#include <drm/drm_drv.h>
->  #include <drm/drm_fourcc.h>
->  
->  #include "bochs.h"
-> @@ -194,6 +195,8 @@ void bochs_hw_fini(struct drm_device *dev)
->  {
->  	struct bochs_device *bochs = dev->dev_private;
->  
-> +	/* TODO: shot down existing vram mappings */
-> +
->  	if (bochs->mmio)
->  		iounmap(bochs->mmio);
->  	if (bochs->ioports)
-> @@ -207,6 +210,11 @@ void bochs_hw_fini(struct drm_device *dev)
->  void bochs_hw_setmode(struct bochs_device *bochs,
->  		      struct drm_display_mode *mode)
->  {
-> +	int idx;
-> +
-> +	if (!drm_dev_enter(bochs->dev, &idx))
-> +		return;
-> +
->  	bochs->xres = mode->hdisplay;
->  	bochs->yres = mode->vdisplay;
->  	bochs->bpp = 32;
-> @@ -232,11 +240,18 @@ void bochs_hw_setmode(struct bochs_device *bochs,
->  
->  	bochs_dispi_write(bochs, VBE_DISPI_INDEX_ENABLE,
->  			  VBE_DISPI_ENABLED | VBE_DISPI_LFB_ENABLED);
-> +
-> +	drm_dev_exit(idx);
->  }
->  
->  void bochs_hw_setformat(struct bochs_device *bochs,
->  			const struct drm_format_info *format)
->  {
-> +	int idx;
-> +
-> +	if (!drm_dev_enter(bochs->dev, &idx))
-> +		return;
-> +
->  	DRM_DEBUG_DRIVER("format %c%c%c%c\n",
->  			 (format->format >>  0) & 0xff,
->  			 (format->format >>  8) & 0xff,
-> @@ -256,13 +271,18 @@ void bochs_hw_setformat(struct bochs_device *bochs,
->  			  __func__, format->format);
->  		break;
->  	}
-> +
-> +	drm_dev_exit(idx);
->  }
->  
->  void bochs_hw_setbase(struct bochs_device *bochs,
->  		      int x, int y, int stride, u64 addr)
->  {
->  	unsigned long offset;
-> -	unsigned int vx, vy, vwidth;
-> +	unsigned int vx, vy, vwidth, idx;
-> +
-> +	if (!drm_dev_enter(bochs->dev, &idx))
-> +		return;
->  
->  	bochs->stride = stride;
->  	offset = (unsigned long)addr +
-> @@ -277,4 +297,6 @@ void bochs_hw_setbase(struct bochs_device *bochs,
->  	bochs_dispi_write(bochs, VBE_DISPI_INDEX_VIRT_WIDTH, vwidth);
->  	bochs_dispi_write(bochs, VBE_DISPI_INDEX_X_OFFSET, vx);
->  	bochs_dispi_write(bochs, VBE_DISPI_INDEX_Y_OFFSET, vy);
-> +
-> +	drm_dev_exit(idx);
->  }
-> -- 
-> 2.18.2
-> 
+is running in the guest's kernel. And as if
 
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+  echo 2 > /proc/sys/vm/drop_caches
+
+is triggered in the guest's kernel when host requested guests to reclaim
+memory. No long-life balloons. Guest balloons do not need to care about
+NUMA. Just leave the management of pagecache pages to the host.
