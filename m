@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 11/62] x86/boot/compressed/64: Always switch to own page-table
-Date: Tue, 11 Feb 2020 14:52:05 +0100
-Message-ID: <20200211135256.24617-12-joro@8bytes.org>
+Subject: [PATCH 32/62] x86/sev-es: Compile early handler code into kernel image
+Date: Tue, 11 Feb 2020 14:52:26 +0100
+Message-ID: <20200211135256.24617-33-joro@8bytes.org>
 References: <20200211135256.24617-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,137 +23,218 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-When booted through startup_64 the kernel keeps running on the EFI
-page-table until the KASLR code sets up its own page-table. Without
-KASLR the pre-decompression boot code never switches off the EFI
-page-table. Change that by unconditionally switching to our own
-page-table once the kernel is relocated.
-
-This makes sure we can make changes to the mapping when necessary, for
-example map pages unencrypted in SEV and SEV-ES guests.
-
-Also remove the debug_putstr() calls in initialize_identity_maps()
-because the function now runs before console_init() is called.
+Setup sev-es.c and include the code from the
+pre-decompression stage to also build it into the image of the running
+kernel. Temporarily add __maybe_unused annotations to avoid build
+warnings until the functions get used.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/compressed/head_64.S      |  3 +-
- arch/x86/boot/compressed/ident_map_64.c | 51 +++++++++++++++----------
- arch/x86/boot/compressed/kaslr.c        |  3 --
- 3 files changed, 32 insertions(+), 25 deletions(-)
+ arch/x86/kernel/Makefile        |  1 +
+ arch/x86/kernel/sev-es-shared.c | 24 ++++----
+ arch/x86/kernel/sev-es.c        | 98 +++++++++++++++++++++++++++++++++
+ 3 files changed, 113 insertions(+), 10 deletions(-)
+ create mode 100644 arch/x86/kernel/sev-es.c
 
-diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
-index d27a9ce1bcb0..5164d2e8631a 100644
---- a/arch/x86/boot/compressed/head_64.S
-+++ b/arch/x86/boot/compressed/head_64.S
-@@ -491,10 +491,11 @@ SYM_FUNC_START_LOCAL_NOALIGN(.Lrelocated)
- 	rep	stosq
+diff --git a/arch/x86/kernel/Makefile b/arch/x86/kernel/Makefile
+index 9b294c13809a..b11bb52e2603 100644
+--- a/arch/x86/kernel/Makefile
++++ b/arch/x86/kernel/Makefile
+@@ -143,6 +143,7 @@ obj-$(CONFIG_UNWINDER_ORC)		+= unwind_orc.o
+ obj-$(CONFIG_UNWINDER_FRAME_POINTER)	+= unwind_frame.o
+ obj-$(CONFIG_UNWINDER_GUESS)		+= unwind_guess.o
  
- /*
-- * Load stage2 IDT
-+ * Load stage2 IDT and switch to our own page-table
++obj-$(CONFIG_AMD_MEM_ENCRYPT)		+= sev-es.o
+ ###
+ # 64 bit specific files
+ ifeq ($(CONFIG_X86_64),y)
+diff --git a/arch/x86/kernel/sev-es-shared.c b/arch/x86/kernel/sev-es-shared.c
+index 14693eff9614..ad2a6c964217 100644
+--- a/arch/x86/kernel/sev-es-shared.c
++++ b/arch/x86/kernel/sev-es-shared.c
+@@ -9,7 +9,7 @@
+  * and is included directly into both code-bases.
   */
- 	pushq	%rsi
- 	call	load_stage2_idt
-+	call	initialize_identity_maps
- 	popq	%rsi
  
- /*
-diff --git a/arch/x86/boot/compressed/ident_map_64.c b/arch/x86/boot/compressed/ident_map_64.c
-index 0865d181b85d..6a3890caaa19 100644
---- a/arch/x86/boot/compressed/ident_map_64.c
-+++ b/arch/x86/boot/compressed/ident_map_64.c
-@@ -88,9 +88,31 @@ phys_addr_t physical_mask = (1ULL << __PHYSICAL_MASK_SHIFT) - 1;
-  */
- static struct x86_mapping_info mapping_info;
- 
-+/*
-+ * Adds the specified range to what will become the new identity mappings.
-+ * Once all ranges have been added, the new mapping is activated by calling
-+ * finalize_identity_maps() below.
-+ */
-+void add_identity_map(unsigned long start, unsigned long size)
-+{
-+	unsigned long end = start + size;
-+
-+	/* Align boundary to 2M. */
-+	start = round_down(start, PMD_SIZE);
-+	end = round_up(end, PMD_SIZE);
-+	if (start >= end)
-+		return;
-+
-+	/* Build the mapping. */
-+	kernel_ident_mapping_init(&mapping_info, (pgd_t *)top_level_pgt,
-+				  start, end);
-+}
-+
- /* Locates and clears a region for a new top level page table. */
- void initialize_identity_maps(void)
+-static void terminate(unsigned int reason)
++static void __maybe_unused terminate(unsigned int reason)
  {
-+	unsigned long start, size;
-+
- 	/* If running as an SEV guest, the encryption mask is required. */
- 	set_sev_encryption_mask();
- 
-@@ -123,37 +145,24 @@ void initialize_identity_maps(void)
- 	 */
- 	top_level_pgt = read_cr3_pa();
- 	if (p4d_offset((pgd_t *)top_level_pgt, 0) == (p4d_t *)_pgtable) {
--		debug_putstr("booted via startup_32()\n");
- 		pgt_data.pgt_buf = _pgtable + BOOT_INIT_PGT_SIZE;
- 		pgt_data.pgt_buf_size = BOOT_PGT_SIZE - BOOT_INIT_PGT_SIZE;
- 		memset(pgt_data.pgt_buf, 0, pgt_data.pgt_buf_size);
- 	} else {
--		debug_putstr("booted via startup_64()\n");
- 		pgt_data.pgt_buf = _pgtable;
- 		pgt_data.pgt_buf_size = BOOT_PGT_SIZE;
- 		memset(pgt_data.pgt_buf, 0, pgt_data.pgt_buf_size);
- 		top_level_pgt = (unsigned long)alloc_pgt_page(&pgt_data);
- 	}
--}
- 
--/*
-- * Adds the specified range to what will become the new identity mappings.
-- * Once all ranges have been added, the new mapping is activated by calling
-- * finalize_identity_maps() below.
-- */
--void add_identity_map(unsigned long start, unsigned long size)
--{
--	unsigned long end = start + size;
--
--	/* Align boundary to 2M. */
--	start = round_down(start, PMD_SIZE);
--	end = round_up(end, PMD_SIZE);
--	if (start >= end)
--		return;
--
--	/* Build the mapping. */
--	kernel_ident_mapping_init(&mapping_info, (pgd_t *)top_level_pgt,
--				  start, end);
-+	/*
-+	 * New page-table is set up - map the kernel image and load it
-+	 * into cr3.
-+	 */
-+	start = (unsigned long)_head;
-+	size  = _end - _head;
-+	add_identity_map(start, size);
-+	write_cr3(top_level_pgt);
+ 	/* Request Guest Termination from Hypvervisor */
+ 	write_ghcb_msr(GHCB_SEV_TERMINATE);
+@@ -19,7 +19,7 @@ static void terminate(unsigned int reason)
+ 		asm volatile("hlt\n" : : : "memory");
  }
  
- /*
-diff --git a/arch/x86/boot/compressed/kaslr.c b/arch/x86/boot/compressed/kaslr.c
-index 7c61a8c5b9cf..856dc1c9bb0d 100644
---- a/arch/x86/boot/compressed/kaslr.c
-+++ b/arch/x86/boot/compressed/kaslr.c
-@@ -903,9 +903,6 @@ void choose_random_location(unsigned long input,
+-static bool sev_es_negotiate_protocol(void)
++static bool __maybe_unused sev_es_negotiate_protocol(void)
+ {
+ 	u64 val;
  
- 	boot_params->hdr.loadflags |= KASLR_FLAG;
+@@ -38,7 +38,7 @@ static bool sev_es_negotiate_protocol(void)
+ 	return true;
+ }
  
--	/* Prepare to add new identity pagetables on demand. */
--	initialize_identity_maps();
--
- 	/* Record the various known unsafe memory ranges. */
- 	mem_avoid_init(input, input_size, *output);
+-static void ghcb_invalidate(struct ghcb *ghcb)
++static void __maybe_unused ghcb_invalidate(struct ghcb *ghcb)
+ {
+ 	memset(ghcb->save.valid_bitmap, 0, sizeof(ghcb->save.valid_bitmap));
+ }
+@@ -80,9 +80,10 @@ static bool decoding_needed(unsigned long exit_code)
+ 		 exit_code <= SVM_EXIT_LAST_EXCP);
+ }
  
+-static enum es_result init_em_ctxt(struct es_em_ctxt *ctxt,
+-				   struct pt_regs *regs,
+-				   unsigned long exit_code)
++static enum es_result __maybe_unused
++init_em_ctxt(struct es_em_ctxt *ctxt,
++	     struct pt_regs *regs,
++	     unsigned long exit_code)
+ {
+ 	enum es_result ret = ES_OK;
+ 
+@@ -95,7 +96,7 @@ static enum es_result init_em_ctxt(struct es_em_ctxt *ctxt,
+ 	return ret;
+ }
+ 
+-static void finish_insn(struct es_em_ctxt *ctxt)
++static void __maybe_unused finish_insn(struct es_em_ctxt *ctxt)
+ {
+ 	ctxt->regs->ip += ctxt->insn.length;
+ }
+@@ -358,7 +359,8 @@ static enum es_result ioio_exitinfo(struct es_em_ctxt *ctxt, u64 *exitinfo)
+ 	return ES_OK;
+ }
+ 
+-static enum es_result handle_ioio(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
++static enum es_result __maybe_unused
++handle_ioio(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
+ {
+ 	struct pt_regs *regs = ctxt->regs;
+ 	u64 exit_info_1, exit_info_2;
+@@ -450,7 +452,8 @@ static enum es_result handle_ioio(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
+ 	return ret;
+ }
+ 
+-static enum es_result handle_cpuid(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
++static enum es_result __maybe_unused
++handle_cpuid(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
+ {
+ 	struct pt_regs *regs = ctxt->regs;
+ 	u32 cr4 = native_read_cr4();
+@@ -656,7 +659,8 @@ static enum es_result handle_mmio_twobyte_ops(struct ghcb *ghcb,
+ 	return ret;
+ }
+ 
+-static enum es_result handle_mmio(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
++static enum es_result __maybe_unused
++handle_mmio(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
+ {
+ 	struct insn *insn = &ctxt->insn;
+ 	unsigned int bytes = 0;
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+new file mode 100644
+index 000000000000..33ab7fe8b6a0
+--- /dev/null
++++ b/arch/x86/kernel/sev-es.c
+@@ -0,0 +1,98 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * AMD Memory Encryption Support
++ *
++ * Copyright (C) 2019 SUSE
++ *
++ * Author: Joerg Roedel <jroedel@suse.de>
++ */
++
++#include <linux/kernel.h>
++#include <linux/mm.h>
++
++#include <asm/trap_defs.h>
++#include <asm/sev-es.h>
++#include <asm/fpu/internal.h>
++#include <asm/processor.h>
++#include <asm/svm.h>
++
++static inline u64 read_ghcb_msr(void)
++{
++	return native_read_msr(MSR_AMD64_SEV_ES_GHCB);
++}
++
++static inline void write_ghcb_msr(u64 val)
++{
++	u32 low, high;
++
++	low  = (u32)(val);
++	high = (u32)(val >> 32);
++
++	native_write_msr(MSR_AMD64_SEV_ES_GHCB, low, high);
++}
++
++static bool check_kernel(struct pt_regs *regs)
++{
++	return regs->cs == __KERNEL_CS;
++}
++
++static enum es_result es_fetch_insn_byte(struct es_em_ctxt *ctxt,
++					 unsigned int offset,
++					 char *buffer)
++{
++	char *rip = (char *)ctxt->regs->ip;
++
++	/* More checks are needed when we boot to user-space */
++	if (!check_kernel(ctxt->regs))
++		return ES_UNSUPPORTED;
++
++	buffer[offset] = rip[offset];
++
++	return ES_OK;
++}
++
++static enum es_result es_write_mem(struct es_em_ctxt *ctxt,
++				   void *dst, char *buf, size_t size)
++{
++	/* More checks are needed when we boot to user-space */
++	if (!check_kernel(ctxt->regs))
++		return ES_UNSUPPORTED;
++
++	memcpy(dst, buf, size);
++
++	return ES_OK;
++}
++
++static enum es_result es_read_mem(struct es_em_ctxt *ctxt,
++				  void *src, char *buf, size_t size)
++{
++	/* More checks are needed when we boot to user-space */
++	if (!check_kernel(ctxt->regs))
++		return ES_UNSUPPORTED;
++
++	memcpy(buf, src, size);
++
++	return ES_OK;
++}
++
++static phys_addr_t es_slow_virt_to_phys(struct ghcb *ghcb, long vaddr)
++{
++	unsigned long va = (unsigned long)vaddr;
++	unsigned int level;
++	phys_addr_t pa;
++	pgd_t *pgd;
++	pte_t *pte;
++
++	pgd = pgd_offset(current->active_mm, va);
++	pte = lookup_address_in_pgd(pgd, va, &level);
++	if (!pte)
++		return 0;
++
++	pa = (phys_addr_t)pte_pfn(*pte) << PAGE_SHIFT;
++	pa |= va & ~page_level_mask(level);
++
++	return pa;
++}
++
++/* Include code shared with pre-decompression boot stage */
++#include "sev-es-shared.c"
 -- 
 2.17.1
