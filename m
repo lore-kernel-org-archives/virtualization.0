@@ -1,193 +1,97 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 17/62] x86/boot/compressed/64: Add function to map a page
- unencrypted
-Date: Tue, 11 Feb 2020 14:52:11 +0100
-Message-ID: <20200211135256.24617-18-joro@8bytes.org>
+Subject: [PATCH 56/62] x86/realmode: Add SEV-ES specific trampoline entry point
+Date: Tue, 11 Feb 2020 14:52:50 +0100
+Message-ID: <20200211135256.24617-57-joro@8bytes.org>
 References: <20200211135256.24617-1-joro@8bytes.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200211135256.24617-1-joro@8bytes.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: x86@kernel.org
-Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Joerg Roedel <jroedel@suse.de>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
+Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-This function is needed to map the GHCB for SEV-ES guests. The GHCB is
-used for communication with the hypervisor, so its content must not be
-encrypted.
+The code at the trampoline entry point is executed in real-mode. In
+real-mode #VC exceptions can't be handled, so anything that might cause
+such an exception must be avoided.
+
+In the standard trampoline entry code this is the WBINVD instruction and
+the call to verify_cpu(), which are both not needed anyway when running
+as an SEV-ES guest.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/compressed/ident_map_64.c | 125 ++++++++++++++++++++++++
- arch/x86/boot/compressed/misc.h         |   1 +
- 2 files changed, 126 insertions(+)
+ arch/x86/include/asm/realmode.h      |  3 +++
+ arch/x86/realmode/rm/header.S        |  3 +++
+ arch/x86/realmode/rm/trampoline_64.S | 20 ++++++++++++++++++++
+ 3 files changed, 26 insertions(+)
 
-diff --git a/arch/x86/boot/compressed/ident_map_64.c b/arch/x86/boot/compressed/ident_map_64.c
-index feb180cced28..04a5ff4bda66 100644
---- a/arch/x86/boot/compressed/ident_map_64.c
-+++ b/arch/x86/boot/compressed/ident_map_64.c
-@@ -26,6 +26,7 @@
- #include <asm/init.h>
- #include <asm/pgtable.h>
- #include <asm/trap_defs.h>
-+#include <asm/cmpxchg.h>
- /* Use the static base for this part of the boot process */
- #undef __PAGE_OFFSET
- #define __PAGE_OFFSET __PAGE_OFFSET_BASE
-@@ -157,6 +158,130 @@ void initialize_identity_maps(void)
- 	write_cr3(top_level_pgt);
- }
- 
-+static pte_t *split_large_pmd(struct x86_mapping_info *info,
-+			      pmd_t *pmdp, unsigned long __address)
-+{
-+	unsigned long page_flags;
-+	unsigned long address;
-+	pte_t *pte;
-+	pmd_t pmd;
-+	int i;
-+
-+	pte = (pte_t *)info->alloc_pgt_page(info->context);
-+	if (!pte)
-+		return NULL;
-+
-+	address     = __address & PMD_MASK;
-+	/* No large page - clear PSE flag */
-+	page_flags  = info->page_flag & ~_PAGE_PSE;
-+
-+	/* Populate the PTEs */
-+	for (i = 0; i < PTRS_PER_PMD; i++) {
-+		set_pte(&pte[i], __pte(address | page_flags));
-+		address += PAGE_SIZE;
-+	}
-+
-+	/*
-+	 * Ideally we need to clear the large PMD first and do a TLB
-+	 * flush before we write the new PMD. But the 2M range of the
-+	 * PMD might contain the code we execute and/or the stack
-+	 * we are on, so we can't do that. But that should be safe here
-+	 * because we are going from large to small mappings and we are
-+	 * also the only user of the page-table, so there is no chance
-+	 * of a TLB multihit.
-+	 */
-+	pmd = __pmd((unsigned long)pte | info->kernpg_flag);
-+	set_pmd(pmdp, pmd);
-+	/* Flush TLB to establish the new PMD */
-+	write_cr3(top_level_pgt);
-+
-+	return pte + pte_index(__address);
-+}
-+
-+static void clflush_page(unsigned long address)
-+{
-+	unsigned int flush_size;
-+	char *cl, *start, *end;
-+
-+	/*
-+	 * Hardcode cl-size to 64 - CPUID can't be used here because that might
-+	 * cause another #VC exception and the GHCB is not ready to use yet.
-+	 */
-+	flush_size = 64;
-+	start      = (char *)(address & PAGE_MASK);
-+	end        = start + PAGE_SIZE;
-+
-+	/*
-+	 * First make sure there are no pending writes on the cache-lines to
-+	 * flush.
-+	 */
-+	asm volatile("mfence" : : : "memory");
-+
-+	for (cl = start; cl != end; cl += flush_size)
-+		clflush(cl);
-+}
-+
-+static int __set_page_decrypted(struct x86_mapping_info *info,
-+				unsigned long address)
-+{
-+	unsigned long scratch, *target;
-+	pgd_t *pgdp = (pgd_t *)top_level_pgt;
-+	p4d_t *p4dp;
-+	pud_t *pudp;
-+	pmd_t *pmdp;
-+	pte_t *ptep, pte;
-+
-+	/*
-+	 * First make sure there is a PMD mapping for 'address'.
-+	 * It should already exist, but keep things generic.
-+	 *
-+	 * To map the page just read from it and fault it in if there is no
-+	 * mapping yet. add_identity_map() can't be called here because that
-+	 * would unconditionally map the address on PMD level, destroying any
-+	 * PTE-level mappings that might already exist.  Also do something
-+	 * useless with 'scratch' so the access won't be optimized away.
-+	 */
-+	target = (unsigned long *)address;
-+	scratch = *target;
-+	arch_cmpxchg(target, scratch, scratch);
-+
-+	/*
-+	 * The page is mapped at least with PMD size - so skip checks and walk
-+	 * directly to the PMD.
-+	 */
-+	p4dp = p4d_offset(pgdp, address);
-+	pudp = pud_offset(p4dp, address);
-+	pmdp = pmd_offset(pudp, address);
-+
-+	if (pmd_large(*pmdp))
-+		ptep = split_large_pmd(info, pmdp, address);
-+	else
-+		ptep = pte_offset_kernel(pmdp, address);
-+
-+	if (!ptep)
-+		return -ENOMEM;
-+
-+	/* Clear encryption flag and write new pte */
-+	pte = pte_clear_flags(*ptep, _PAGE_ENC);
-+	set_pte(ptep, pte);
-+
-+	/* Flush TLB to map the page unencrypted */
-+	write_cr3(top_level_pgt);
-+
-+	/*
-+	 * Changing encryption attributes of a page requires to flush it from
-+	 * the caches.
-+	 */
-+	clflush_page(address);
-+
-+	return 0;
-+}
-+
-+int set_page_decrypted(unsigned long address)
-+{
-+	return __set_page_decrypted(&mapping_info, address);
-+}
-+
- static void pf_error(unsigned long error_code, unsigned long address,
- 		     struct pt_regs *regs)
- {
-diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
-index 0e3508c5c15c..42f68a858a35 100644
---- a/arch/x86/boot/compressed/misc.h
-+++ b/arch/x86/boot/compressed/misc.h
-@@ -98,6 +98,7 @@ static inline void choose_random_location(unsigned long input,
- #endif
- 
+diff --git a/arch/x86/include/asm/realmode.h b/arch/x86/include/asm/realmode.h
+index b35030eeec36..6590394af309 100644
+--- a/arch/x86/include/asm/realmode.h
++++ b/arch/x86/include/asm/realmode.h
+@@ -21,6 +21,9 @@ struct real_mode_header {
+ 	/* SMP trampoline */
+ 	u32	trampoline_start;
+ 	u32	trampoline_header;
++#ifdef CONFIG_AMD_MEM_ENCRYPT
++	u32	sev_es_trampoline_start;
++#endif
  #ifdef CONFIG_X86_64
-+extern int set_page_decrypted(unsigned long address);
- extern unsigned char _pgtable[];
+ 	u32	trampoline_pgd;
  #endif
+diff --git a/arch/x86/realmode/rm/header.S b/arch/x86/realmode/rm/header.S
+index af04512c02d9..8c1db5bf5d78 100644
+--- a/arch/x86/realmode/rm/header.S
++++ b/arch/x86/realmode/rm/header.S
+@@ -20,6 +20,9 @@ SYM_DATA_START(real_mode_header)
+ 	/* SMP trampoline */
+ 	.long	pa_trampoline_start
+ 	.long	pa_trampoline_header
++#ifdef CONFIG_AMD_MEM_ENCRYPT
++	.long	pa_sev_es_trampoline_start
++#endif
+ #ifdef CONFIG_X86_64
+ 	.long	pa_trampoline_pgd;
+ #endif
+diff --git a/arch/x86/realmode/rm/trampoline_64.S b/arch/x86/realmode/rm/trampoline_64.S
+index 251758ed7443..84c5d1b33d10 100644
+--- a/arch/x86/realmode/rm/trampoline_64.S
++++ b/arch/x86/realmode/rm/trampoline_64.S
+@@ -56,6 +56,7 @@ SYM_CODE_START(trampoline_start)
+ 	testl   %eax, %eax		# Check for return code
+ 	jnz	no_longmode
  
++.Lswitch_to_protected:
+ 	/*
+ 	 * GDT tables in non default location kernel can be beyond 16MB and
+ 	 * lgdt will not be able to load the address as in real mode default
+@@ -80,6 +81,25 @@ no_longmode:
+ 	jmp no_longmode
+ SYM_CODE_END(trampoline_start)
+ 
++#ifdef CONFIG_AMD_MEM_ENCRYPT
++/* SEV-ES supports non-zero IP for entry points - no alignment needed */
++SYM_CODE_START(sev_es_trampoline_start)
++	cli			# We should be safe anyway
++
++	LJMPW_RM(1f)
++1:
++	mov	%cs, %ax	# Code and data in the same place
++	mov	%ax, %ds
++	mov	%ax, %es
++	mov	%ax, %ss
++
++	# Setup stack
++	movl	$rm_stack_end, %esp
++
++	jmp	.Lswitch_to_protected
++SYM_CODE_END(sev_es_trampoline_start)
++#endif	/* CONFIG_AMD_MEM_ENCRYPT */
++
+ #include "../kernel/verify_cpu.S"
+ 
+ 	.section ".text32","ax"
 -- 
 2.17.1
