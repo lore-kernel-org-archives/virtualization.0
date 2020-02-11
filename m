@@ -1,95 +1,193 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio: Work around frames incorrectly marked as gso
-Date: Tue, 11 Feb 2020 05:37:50 -0500
-Message-ID: <20200211053502-mutt-send-email-mst@kernel.org>
-References: <20191209104824.17059-1-anton.ivanov@cambridgegreys.com>
- <57230228-7030-c65f-a24f-910ca52bbe9e@cambridgegreys.com>
- <f78bfe6e-2ffc-3734-9618-470f1afea0c6@redhat.com>
- <918222d9-816a-be70-f8af-b8dfcb586240@cambridgegreys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <918222d9-816a-be70-f8af-b8dfcb586240@cambridgegreys.com>
-Sender: netdev-owner@vger.kernel.org
-To: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Cc: Jason Wang <jasowang@redhat.com>, netdev@vger.kernel.org, linux-um@lists.infradead.org, virtualization@lists.linux-foundation.org
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH v3] drm/virtio: add drm_driver.release callback.
+Date: Tue, 11 Feb 2020 11:38:46 +0100
+Message-ID: <20200211103846.22183-1-kraxel@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dri-devel@lists.freedesktop.org
+Cc: gurchetansingh@chromium.org, olvaffe@gmail.com, Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Feb 11, 2020 at 07:42:37AM +0000, Anton Ivanov wrote:
-> On 11/02/2020 02:51, Jason Wang wrote:
-> > 
-> > On 2020/2/11 上午12:55, Anton Ivanov wrote:
-> > > 
-> > > 
-> > > On 09/12/2019 10:48, anton.ivanov@cambridgegreys.com wrote:
-> > > > From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-> > > > 
-> > > > Some of the frames marked as GSO which arrive at
-> > > > virtio_net_hdr_from_skb() have no GSO_TYPE, no
-> > > > fragments (data_len = 0) and length significantly shorter
-> > > > than the MTU (752 in my experiments).
-> > > > 
-> > > > This is observed on raw sockets reading off vEth interfaces
-> > > > in all 4.x and 5.x kernels I tested.
-> > > > 
-> > > > These frames are reported as invalid while they are in fact
-> > > > gso-less frames.
-> > > > 
-> > > > This patch marks the vnet header as no-GSO for them instead
-> > > > of reporting it as invalid.
-> > > > 
-> > > > Signed-off-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-> > > > ---
-> > > >   include/linux/virtio_net.h | 8 ++++++--
-> > > >   1 file changed, 6 insertions(+), 2 deletions(-)
-> > > > 
-> > > > diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-> > > > index 0d1fe9297ac6..d90d5cff1b9a 100644
-> > > > --- a/include/linux/virtio_net.h
-> > > > +++ b/include/linux/virtio_net.h
-> > > > @@ -112,8 +112,12 @@ static inline int
-> > > > virtio_net_hdr_from_skb(const struct sk_buff *skb,
-> > > >               hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
-> > > >           else if (sinfo->gso_type & SKB_GSO_TCPV6)
-> > > >               hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
-> > > > -        else
-> > > > -            return -EINVAL;
-> > > > +        else {
-> > > > +            if (skb->data_len == 0)
-> > > > +                hdr->gso_type = VIRTIO_NET_HDR_GSO_NONE;
-> > > > +            else
-> > > > +                return -EINVAL;
-> > > > +        }
-> > > >           if (sinfo->gso_type & SKB_GSO_TCP_ECN)
-> > > >               hdr->gso_type |= VIRTIO_NET_HDR_GSO_ECN;
-> > > >       } else
-> > > > 
-> > > 
-> > > ping.
-> > > 
-> > 
-> > Do you mean gso_size is set but gso_type is not? Looks like a bug
-> > elsewhere.
-> > 
-> > Thanks
-> > 
-> > 
-> Yes.
-> 
-> I could not trace it where it is coming from.
-> 
-> I see it when doing recvmmsg on raw sockets in the UML vector network
-> drivers.
-> 
+Split virtio_gpu_deinit(), move the drm shutdown and release to
+virtio_gpu_release().  Drop vqs_ready variable, instead use
+drm_dev_{enter,exit,unplug} to avoid touching hardware after
+device removal.  Tidy up here and there.
 
-I think we need to find the culprit and fix it there, lots of other things
-can break otherwise.
-Just printing out skb->dev->name should do the trick, no?
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_drv.h     |  3 ++-
+ drivers/gpu/drm/virtio/virtgpu_display.c |  1 -
+ drivers/gpu/drm/virtio/virtgpu_drv.c     |  6 +++++-
+ drivers/gpu/drm/virtio/virtgpu_kms.c     |  7 ++++--
+ drivers/gpu/drm/virtio/virtgpu_vq.c      | 27 +++++++++++++-----------
+ 5 files changed, 27 insertions(+), 17 deletions(-)
 
-
-> -- 
-> Anton R. Ivanov
-> Cambridgegreys Limited. Registered in England. Company Number 10273661
-> https://www.cambridgegreys.com/
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 7fd8361e1c9e..af9403e1cf78 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -32,6 +32,7 @@
+ #include <linux/virtio_gpu.h>
+ 
+ #include <drm/drm_atomic.h>
++#include <drm/drm_drv.h>
+ #include <drm/drm_encoder.h>
+ #include <drm/drm_fb_helper.h>
+ #include <drm/drm_gem.h>
+@@ -177,7 +178,6 @@ struct virtio_gpu_device {
+ 	struct virtio_gpu_queue ctrlq;
+ 	struct virtio_gpu_queue cursorq;
+ 	struct kmem_cache *vbufs;
+-	bool vqs_ready;
+ 
+ 	bool disable_notify;
+ 	bool pending_notify;
+@@ -219,6 +219,7 @@ extern struct drm_ioctl_desc virtio_gpu_ioctls[DRM_VIRTIO_NUM_IOCTLS];
+ /* virtio_kms.c */
+ int virtio_gpu_init(struct drm_device *dev);
+ void virtio_gpu_deinit(struct drm_device *dev);
++void virtio_gpu_release(struct drm_device *dev);
+ int virtio_gpu_driver_open(struct drm_device *dev, struct drm_file *file);
+ void virtio_gpu_driver_postclose(struct drm_device *dev, struct drm_file *file);
+ 
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+index 7b0f0643bb2d..af953db4a0c9 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -368,6 +368,5 @@ void virtio_gpu_modeset_fini(struct virtio_gpu_device *vgdev)
+ 
+ 	for (i = 0 ; i < vgdev->num_scanouts; ++i)
+ 		kfree(vgdev->outputs[i].edid);
+-	drm_atomic_helper_shutdown(vgdev->ddev);
+ 	drm_mode_config_cleanup(vgdev->ddev);
+ }
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+index 8cf27af3ad53..ab4bed78e656 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.c
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+@@ -31,6 +31,7 @@
+ #include <linux/pci.h>
+ 
+ #include <drm/drm.h>
++#include <drm/drm_atomic_helper.h>
+ #include <drm/drm_drv.h>
+ #include <drm/drm_file.h>
+ 
+@@ -135,7 +136,8 @@ static void virtio_gpu_remove(struct virtio_device *vdev)
+ {
+ 	struct drm_device *dev = vdev->priv;
+ 
+-	drm_dev_unregister(dev);
++	drm_dev_unplug(dev);
++	drm_atomic_helper_shutdown(dev);
+ 	virtio_gpu_deinit(dev);
+ 	drm_dev_put(dev);
+ }
+@@ -214,4 +216,6 @@ static struct drm_driver driver = {
+ 	.major = DRIVER_MAJOR,
+ 	.minor = DRIVER_MINOR,
+ 	.patchlevel = DRIVER_PATCHLEVEL,
++
++	.release = virtio_gpu_release,
+ };
+diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+index c1086df49816..4009c2f97d08 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_kms.c
++++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+@@ -199,7 +199,6 @@ int virtio_gpu_init(struct drm_device *dev)
+ 	virtio_gpu_modeset_init(vgdev);
+ 
+ 	virtio_device_ready(vgdev->vdev);
+-	vgdev->vqs_ready = true;
+ 
+ 	if (num_capsets)
+ 		virtio_gpu_get_capsets(vgdev, num_capsets);
+@@ -234,12 +233,16 @@ void virtio_gpu_deinit(struct drm_device *dev)
+ 	struct virtio_gpu_device *vgdev = dev->dev_private;
+ 
+ 	flush_work(&vgdev->obj_free_work);
+-	vgdev->vqs_ready = false;
+ 	flush_work(&vgdev->ctrlq.dequeue_work);
+ 	flush_work(&vgdev->cursorq.dequeue_work);
+ 	flush_work(&vgdev->config_changed_work);
+ 	vgdev->vdev->config->reset(vgdev->vdev);
+ 	vgdev->vdev->config->del_vqs(vgdev->vdev);
++}
++
++void virtio_gpu_release(struct drm_device *dev)
++{
++	struct virtio_gpu_device *vgdev = dev->dev_private;
+ 
+ 	virtio_gpu_modeset_fini(vgdev);
+ 	virtio_gpu_free_vbufs(vgdev);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index a682c2fcbe9a..cfe9c54f87a3 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -330,7 +330,14 @@ static void virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
+ {
+ 	struct virtqueue *vq = vgdev->ctrlq.vq;
+ 	bool notify = false;
+-	int ret;
++	int ret, idx;
++
++	if (!drm_dev_enter(vgdev->ddev, &idx)) {
++		if (fence && vbuf->objs)
++			virtio_gpu_array_unlock_resv(vbuf->objs);
++		free_vbuf(vgdev, vbuf);
++		return;
++	}
+ 
+ 	if (vgdev->has_indirect)
+ 		elemcnt = 1;
+@@ -338,14 +345,6 @@ static void virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
+ again:
+ 	spin_lock(&vgdev->ctrlq.qlock);
+ 
+-	if (!vgdev->vqs_ready) {
+-		spin_unlock(&vgdev->ctrlq.qlock);
+-
+-		if (fence && vbuf->objs)
+-			virtio_gpu_array_unlock_resv(vbuf->objs);
+-		return;
+-	}
+-
+ 	if (vq->num_free < elemcnt) {
+ 		spin_unlock(&vgdev->ctrlq.qlock);
+ 		wait_event(vgdev->ctrlq.ack_queue, vq->num_free >= elemcnt);
+@@ -379,6 +378,7 @@ static void virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
+ 		else
+ 			virtqueue_notify(vq);
+ 	}
++	drm_dev_exit(idx);
+ }
+ 
+ static void virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
+@@ -460,12 +460,13 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
+ {
+ 	struct virtqueue *vq = vgdev->cursorq.vq;
+ 	struct scatterlist *sgs[1], ccmd;
++	int idx, ret, outcnt;
+ 	bool notify;
+-	int ret;
+-	int outcnt;
+ 
+-	if (!vgdev->vqs_ready)
++	if (!drm_dev_enter(vgdev->ddev, &idx)) {
++		free_vbuf(vgdev, vbuf);
+ 		return;
++	}
+ 
+ 	sg_init_one(&ccmd, vbuf->buf, vbuf->size);
+ 	sgs[0] = &ccmd;
+@@ -490,6 +491,8 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
+ 
+ 	if (notify)
+ 		virtqueue_notify(vq);
++
++	drm_dev_exit(idx);
+ }
+ 
+ /* just create gem objects for userspace and long lived objects,
+-- 
+2.18.2
