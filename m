@@ -1,70 +1,89 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 07/62] x86/boot/compressed/64: Disable red-zone usage
-Date: Tue, 11 Feb 2020 14:52:01 +0100
-Message-ID: <20200211135256.24617-8-joro@8bytes.org>
+Subject: [PATCH 01/62] KVM: SVM: Add GHCB definitions
+Date: Tue, 11 Feb 2020 14:51:55 +0100
+Message-ID: <20200211135256.24617-2-joro@8bytes.org>
 References: <20200211135256.24617-1-joro@8bytes.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200211135256.24617-1-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: x86@kernel.org
-Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>
+Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Joerg Roedel <jroedel@suse.de>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-The x86-64 ABI defines a red-zone on the stack:
+Extend the vmcb_safe_area with SEV-ES fields and add a new
+'struct ghcb' which will be used for guest-hypervisor communication.
 
-  The 128-byte area beyond the location pointed to by %rsp is
-  considered to be reserved and shall not be modified by signal or
-  interrupt handlers. 10 Therefore, functions may use this area for
-  temporary data that is not needed across function calls. In
-  particular, leaf functions may use this area for their entire stack
-  frame, rather than adjusting the stack pointer in the prologue and
-  epilogue. This area is known as the red zone.
-
-This is not compatible with exception handling, so disable it for the
-pre-decompression boot code.
-
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/Makefile            | 2 +-
- arch/x86/boot/compressed/Makefile | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ arch/x86/include/asm/svm.h | 42 ++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 42 insertions(+)
 
-diff --git a/arch/x86/boot/Makefile b/arch/x86/boot/Makefile
-index 012b82fc8617..8f55e4ce1ccc 100644
---- a/arch/x86/boot/Makefile
-+++ b/arch/x86/boot/Makefile
-@@ -65,7 +65,7 @@ clean-files += cpustr.h
+diff --git a/arch/x86/include/asm/svm.h b/arch/x86/include/asm/svm.h
+index 6ece8561ba66..f36288c659b5 100644
+--- a/arch/x86/include/asm/svm.h
++++ b/arch/x86/include/asm/svm.h
+@@ -201,6 +201,48 @@ struct __attribute__ ((__packed__)) vmcb_save_area {
+ 	u64 br_to;
+ 	u64 last_excp_from;
+ 	u64 last_excp_to;
++
++	/*
++	 * The following part of the save area is valid only for
++	 * SEV-ES guests when referenced through the GHCB.
++	 */
++	u8 reserved_7[104];
++	u64 reserved_8;		/* rax already available at 0x01f8 */
++	u64 rcx;
++	u64 rdx;
++	u64 rbx;
++	u64 reserved_9;		/* rsp already available at 0x01d8 */
++	u64 rbp;
++	u64 rsi;
++	u64 rdi;
++	u64 r8;
++	u64 r9;
++	u64 r10;
++	u64 r11;
++	u64 r12;
++	u64 r13;
++	u64 r14;
++	u64 r15;
++	u8 reserved_10[16];
++	u64 sw_exit_code;
++	u64 sw_exit_info_1;
++	u64 sw_exit_info_2;
++	u64 sw_scratch;
++	u8 reserved_11[56];
++	u64 xcr0;
++	u8 valid_bitmap[16];
++	u64 x87_state_gpa;
++	u8 reserved_12[1016];
++};
++
++struct __attribute__ ((__packed__)) ghcb {
++	struct vmcb_save_area save;
++
++	u8 shared_buffer[2032];
++
++	u8 reserved_1[10];
++	u16 protocol_version;	/* negotiated SEV-ES/GHCB protocol version */
++	u32 ghcb_usage;
+ };
  
- # ---------------------------------------------------------------------------
- 
--KBUILD_CFLAGS	:= $(REALMODE_CFLAGS) -D_SETUP
-+KBUILD_CFLAGS	:= $(REALMODE_CFLAGS) -D_SETUP -mno-red-zone
- KBUILD_AFLAGS	:= $(KBUILD_CFLAGS) -D__ASSEMBLY__
- KBUILD_CFLAGS	+= $(call cc-option,-fmacro-prefix-map=$(srctree)/=)
- GCOV_PROFILE := n
-diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
-index 26050ae0b27e..e186cc0b628d 100644
---- a/arch/x86/boot/compressed/Makefile
-+++ b/arch/x86/boot/compressed/Makefile
-@@ -30,7 +30,7 @@ KBUILD_CFLAGS := -m$(BITS) -O2
- KBUILD_CFLAGS += -fno-strict-aliasing $(call cc-option, -fPIE, -fPIC)
- KBUILD_CFLAGS += -DDISABLE_BRANCH_PROFILING
- cflags-$(CONFIG_X86_32) := -march=i386
--cflags-$(CONFIG_X86_64) := -mcmodel=small
-+cflags-$(CONFIG_X86_64) := -mcmodel=small -mno-red-zone
- KBUILD_CFLAGS += $(cflags-y)
- KBUILD_CFLAGS += -mno-mmx -mno-sse
- KBUILD_CFLAGS += $(call cc-option,-ffreestanding)
-@@ -87,7 +87,7 @@ endif
- 
- vmlinux-objs-$(CONFIG_ACPI) += $(obj)/acpi.o
- 
--$(obj)/eboot.o: KBUILD_CFLAGS += -fshort-wchar -mno-red-zone
-+$(obj)/eboot.o: KBUILD_CFLAGS += -fshort-wchar
- 
- vmlinux-objs-$(CONFIG_EFI_STUB) += $(obj)/eboot.o \
- 	$(objtree)/drivers/firmware/efi/libstub/lib.a
+ struct __attribute__ ((__packed__)) vmcb {
 -- 
 2.17.1
