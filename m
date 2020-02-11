@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 25/62] x86/head/64: Install boot GDT
-Date: Tue, 11 Feb 2020 14:52:19 +0100
-Message-ID: <20200211135256.24617-26-joro@8bytes.org>
+Subject: [PATCH 29/62] x86/head/64: Load IDT earlier
+Date: Tue, 11 Feb 2020 14:52:23 +0100
+Message-ID: <20200211135256.24617-30-joro@8bytes.org>
 References: <20200211135256.24617-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,57 +23,111 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Handling exceptions during boot requires a working GDT. The kernel GDT
-is not yet ready for use, so install a temporary boot GDT.
+Load the IDT right after switching to virtual addresses in head_64.S
+so that the kernel can handle #VC exceptions.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/head_64.S | 26 ++++++++++++++++++++++++++
- 1 file changed, 26 insertions(+)
+ arch/x86/include/asm/desc.h |  1 +
+ arch/x86/kernel/head64.c    |  7 +++++++
+ arch/x86/kernel/head_64.S   | 17 +++++++++++++++++
+ arch/x86/kernel/idt.c       | 22 ++++++++++++++++++++++
+ 4 files changed, 47 insertions(+)
 
+diff --git a/arch/x86/include/asm/desc.h b/arch/x86/include/asm/desc.h
+index 68a99d2a5f33..8a4c642ee2b3 100644
+--- a/arch/x86/include/asm/desc.h
++++ b/arch/x86/include/asm/desc.h
+@@ -440,6 +440,7 @@ extern void idt_setup_apic_and_irq_gates(void);
+ extern void idt_setup_early_pf(void);
+ extern void idt_setup_ist_traps(void);
+ extern void idt_setup_debugidt_traps(void);
++extern void setup_early_handlers(gate_desc *idt);
+ #else
+ static inline void idt_setup_early_pf(void) { }
+ static inline void idt_setup_ist_traps(void) { }
+diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
+index 206a4b6144c2..7cdfb7113811 100644
+--- a/arch/x86/kernel/head64.c
++++ b/arch/x86/kernel/head64.c
+@@ -489,3 +489,10 @@ void __init x86_64_start_reservations(char *real_mode_data)
+ 
+ 	start_kernel();
+ }
++
++void __head early_idt_setup_early_handler(unsigned long physaddr)
++{
++	gate_desc *idt = fixup_pointer(idt_table, physaddr);
++
++	setup_early_handlers(idt);
++}
 diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
-index 4bbc770af632..5a3cde971cb7 100644
+index eefd6838b895..0af79f783659 100644
 --- a/arch/x86/kernel/head_64.S
 +++ b/arch/x86/kernel/head_64.S
-@@ -72,6 +72,20 @@ SYM_CODE_START_NOALIGN(startup_64)
- 	/* Set up the stack for verify_cpu(), similar to initial_stack below */
- 	leaq	(__end_init_task - SIZEOF_PTREGS)(%rip), %rsp
- 
-+	/* Setup boot GDT descriptor and load boot GDT */
-+	leaq	boot_gdt(%rip), %rax
-+	movq	%rax, boot_gdt_base(%rip)
-+	lgdt	boot_gdt_descr(%rip)
-+
-+	/* GDT loaded - switch to __KERNEL_CS so IRET works reliably */
-+	pushq	$__KERNEL_CS
-+	leaq	.Lon_kernel_cs(%rip), %rax
+@@ -98,6 +98,20 @@ SYM_CODE_START_NOALIGN(startup_64)
+ 	leaq	_text(%rip), %rdi
+ 	pushq	%rsi
+ 	call	__startup_64
++	/* Save return value */
 +	pushq	%rax
-+	lretq
 +
-+.Lon_kernel_cs:
-+	UNWIND_HINT_EMPTY
++	/*
++	 * Load IDT with early handlers - needed for SEV-ES
++	 * Do this here because this must only happen on the boot CPU
++	 * and the code below is shared with secondary CPU bringup.
++	 */
++	leaq	_text(%rip), %rdi
++	call	early_idt_setup_early_handler
 +
- 	/* Sanitize CPU configuration */
- 	call verify_cpu
++	/* Restore __startup_64 return value*/
++	popq	%rax
++	/* Restore pointer to real_mode_data */
+ 	popq	%rsi
  
-@@ -480,6 +494,18 @@ SYM_DATA_LOCAL(early_gdt_descr_base,	.quad INIT_PER_CPU_VAR(gdt_page))
- SYM_DATA(phys_base, .quad 0x0)
- EXPORT_SYMBOL(phys_base)
+ 	/* Form the CR3 value being sure to include the CR3 modifier */
+@@ -194,6 +208,9 @@ SYM_CODE_START(secondary_startup_64)
+ 	 */
+ 	movq initial_stack(%rip), %rsp
  
-+/* Boot GDT used when kernel addresses are not mapped yet */
-+SYM_DATA_LOCAL(boot_gdt_descr,		.word boot_gdt_end - boot_gdt)
-+SYM_DATA_LOCAL(boot_gdt_base,		.quad 0)
-+SYM_DATA_START(boot_gdt)
-+	.quad	0
-+	.quad   0x00cf9a000000ffff      /* __KERNEL32_CS */
-+	.quad   0x00af9a000000ffff      /* __KERNEL_CS */
-+	.quad   0x00cf92000000ffff      /* __KERNEL_DS */
-+	.quad   0x0080890000000000      /* TS descriptor */
-+	.quad   0x0000000000000000      /* TS continued */
-+SYM_DATA_END_LABEL(boot_gdt, SYM_L_LOCAL, boot_gdt_end)
++	/* Load IDT */
++	lidt	idt_descr(%rip)
 +
- #include "../../x86/xen/xen-head.S"
+ 	/* Check if nx is implemented */
+ 	movl	$0x80000001, %eax
+ 	cpuid
+diff --git a/arch/x86/kernel/idt.c b/arch/x86/kernel/idt.c
+index 7d8fa631dca9..84250c090596 100644
+--- a/arch/x86/kernel/idt.c
++++ b/arch/x86/kernel/idt.c
+@@ -347,6 +347,28 @@ void __init idt_setup_early_handler(void)
+ 	load_idt(&idt_descr);
+ }
  
- 	__PAGE_ALIGNED_BSS
++#ifdef CONFIG_X86_64
++/*
++ * This function does the same as idt_setup_early_handler(), but is
++ * called directly from head_64.S before the kernel switches to virtual
++ * addresses.  PV-ops don't work at that point, so set_intr_gate() can't
++ * be used here.
++ */
++void __init setup_early_handlers(gate_desc *idt)
++{
++	int i;
++
++	for (i = 0; i < NUM_EXCEPTION_VECTORS; i++) {
++		struct idt_data data;
++		gate_desc desc;
++
++		init_idt_data(&data, i, early_idt_handler_array[i]);
++		idt_init_desc(&desc, &data);
++		native_write_idt_entry(idt, i, &desc);
++	}
++}
++#endif
++
+ /**
+  * idt_invalidate - Invalidate interrupt descriptor table
+  * @addr:	The virtual address of the 'invalid' IDT
 -- 
 2.17.1
