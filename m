@@ -1,246 +1,82 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH] drm/virtio: rework batching
-Date: Tue, 11 Feb 2020 13:57:51 +0100
-Message-ID: <20200211125751.7697-1-kraxel@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dri-devel@lists.freedesktop.org
-Cc: gurchetansingh@chromium.org, olvaffe@gmail.com, Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
+From: Eugenio =?ISO-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
+Subject: Re: vhost changes (batched) in linux-next after 12/13 trigger
+ random crashes in KVM guests after reboot
+Date: Tue, 11 Feb 2020 14:04:54 +0100
+Message-ID: <e299afca8e22044916abbf9fbbd0bff6b0ee9e13.camel@redhat.com>
+References: <20200107042401-mutt-send-email-mst@kernel.org>
+         <c6795e53-d12c-0709-c2e9-e35d9af1f693@de.ibm.com>
+         <20200107065434-mutt-send-email-mst@kernel.org>
+         <fe6e7e90-3004-eb7a-9ed8-b53a7667959f@de.ibm.com>
+         <20200120012724-mutt-send-email-mst@kernel.org>
+         <2a63b15f-8cf5-5868-550c-42e2cfd92c60@de.ibm.com>
+         <b6e32f58e5d85ac5cc3141e9155fb140ae5cd580.camel@redhat.com>
+         <1ade56b5-083f-bb6f-d3e0-3ddcf78f4d26@de.ibm.com>
+         <20200206171349-mutt-send-email-mst@kernel.org>
+         <5c860fa1-cef5-b389-4ebf-99a62afa0fe8@de.ibm.com>
+         <20200207025806-mutt-send-email-mst@kernel.org>
+         <97c93d38-ef07-e321-d133-18483d54c0c0@de.ibm.com>
+         <CAJaqyWfngzP4d01B6+Sqt8FXN6jX7kGegjx8ie4no_1Er3igQA@mail.gmail.com>
+         <43a5dbaa-9129-e220-8483-45c60a82c945@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <43a5dbaa-9129-e220-8483-45c60a82c945@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Stephen Rothwell <sfr@canb.auug.org.au>, Linux Next Mailing List <linux-next@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Halil Pasic <pasic@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Drop the virtio_gpu_{disable,enable}_notify().  Add a new
-virtio_gpu_notify() call instead, which must be called whenever
-the driver wants make sure the host is notified needed.
+On Mon, 2020-02-10 at 12:01 +0100, Christian Borntraeger wrote:
+> 
+> On 10.02.20 10:47, Eugenio Perez Martin wrote:
+> > Hi Christian.
+> > 
+> > I'm not able to reproduce the failure with eccb852f1fe6bede630e2e4f1a121a81e34354ab commit. Could you add more data?
+> > Your configuration (libvirt or qemu line), and host's dmesg output if any?
+> > 
+> > Thanks!
+> 
+> If it was not obvious, this is on s390x, a big endian system.
+> 
 
-Drop notification from command submission.  Add virtio_gpu_notify()
-calls everywhere instead.  This results in more batching because we now
-notify only once for a series of commands.  We already had that for page
-flips, now we also batch resource creation (create + attach-backing),
-display updates (edid + display-info) and device initialization.  With
-this in place it is also possible to make notification optional for
-userspace ioctls.
+Hi Christian. Thank you very much for your fast responses.
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Could you try this patch on top of eccb852f1fe6bede630e2e4f1a121a81e34354ab?
+
+Thanks!
+
+From 71d0f9108a18aa894cc0c0c1c7efbad39f465a27 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <
+eperezma@redhat.com>
+Date: Tue, 11 Feb 2020 13:19:10 +0100
+Subject: [PATCH] vhost: fix return value of vhost_get_vq_desc
+
+Before of the batch change, it was the chain's head. Need to keep that
+way or we will not be able to free a chain of descriptors.
+
+Fixes: eccb852f1fe6 ("vhost: batching fetches")
 ---
- drivers/gpu/drm/virtio/virtgpu_drv.h     |  6 ++---
- drivers/gpu/drm/virtio/virtgpu_display.c |  2 ++
- drivers/gpu/drm/virtio/virtgpu_ioctl.c   |  4 +++
- drivers/gpu/drm/virtio/virtgpu_kms.c     |  3 +++
- drivers/gpu/drm/virtio/virtgpu_object.c  |  1 +
- drivers/gpu/drm/virtio/virtgpu_plane.c   |  5 ++--
- drivers/gpu/drm/virtio/virtgpu_vq.c      | 31 +++++++++---------------
- 7 files changed, 26 insertions(+), 26 deletions(-)
+ drivers/vhost/vhost.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 7fd8361e1c9e..28aeac8717e1 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -179,8 +179,7 @@ struct virtio_gpu_device {
- 	struct kmem_cache *vbufs;
- 	bool vqs_ready;
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index b5a51b1f2e79..fc422c3e5c08 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -2409,12 +2409,11 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+ 			*out_num += ret;
+ 		}
  
--	bool disable_notify;
--	bool pending_notify;
-+	atomic_t pending_commands;
- 
- 	struct ida	resource_ida;
- 
-@@ -334,8 +333,7 @@ void virtio_gpu_dequeue_ctrl_func(struct work_struct *work);
- void virtio_gpu_dequeue_cursor_func(struct work_struct *work);
- void virtio_gpu_dequeue_fence_func(struct work_struct *work);
- 
--void virtio_gpu_disable_notify(struct virtio_gpu_device *vgdev);
--void virtio_gpu_enable_notify(struct virtio_gpu_device *vgdev);
-+void virtio_gpu_notify(struct virtio_gpu_device *vgdev);
- 
- /* virtio_gpu_display.c */
- void virtio_gpu_modeset_init(struct virtio_gpu_device *vgdev);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index 7b0f0643bb2d..e95fcfd8d20c 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -90,6 +90,7 @@ static void virtio_gpu_crtc_mode_set_nofb(struct drm_crtc *crtc)
- 	virtio_gpu_cmd_set_scanout(vgdev, output->index, 0,
- 				   crtc->mode.hdisplay,
- 				   crtc->mode.vdisplay, 0, 0);
-+	virtio_gpu_notify(vgdev);
- }
- 
- static void virtio_gpu_crtc_atomic_enable(struct drm_crtc *crtc,
-@@ -108,6 +109,7 @@ static void virtio_gpu_crtc_atomic_disable(struct drm_crtc *crtc,
- 	struct virtio_gpu_output *output = drm_crtc_to_virtio_gpu_output(crtc);
- 
- 	virtio_gpu_cmd_set_scanout(vgdev, output->index, 0, 0, 0, 0, 0);
-+	virtio_gpu_notify(vgdev);
- 	output->enabled = false;
- }
- 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index 205ec4abae2b..75d818d707e6 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -158,6 +158,7 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
- 
- 	virtio_gpu_cmd_submit(vgdev, buf, exbuf->size,
- 			      vfpriv->ctx_id, buflist, out_fence);
-+	virtio_gpu_notify(vgdev);
- 	return 0;
- 
- out_memdup:
-@@ -314,6 +315,7 @@ static int virtio_gpu_transfer_from_host_ioctl(struct drm_device *dev,
- 		(vgdev, vfpriv->ctx_id, offset, args->level,
- 		 &args->box, objs, fence);
- 	dma_fence_put(&fence->f);
-+	virtio_gpu_notify(vgdev);
- 	return 0;
- 
- err_unlock:
-@@ -359,6 +361,7 @@ static int virtio_gpu_transfer_to_host_ioctl(struct drm_device *dev, void *data,
- 			 args->level, &args->box, objs, fence);
- 		dma_fence_put(&fence->f);
- 	}
-+	virtio_gpu_notify(vgdev);
- 	return 0;
- 
- err_unlock:
-@@ -445,6 +448,7 @@ static int virtio_gpu_get_caps_ioctl(struct drm_device *dev,
- 	/* not in cache - need to talk to hw */
- 	virtio_gpu_cmd_get_capset(vgdev, found_valid, args->cap_set_ver,
- 				  &cache_ent);
-+	virtio_gpu_notify(vgdev);
- 
- copy_exit:
- 	ret = wait_event_timeout(vgdev->resp_wq,
-diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index c1086df49816..44e4c07d0162 100644
---- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -44,6 +44,7 @@ static void virtio_gpu_config_changed_work_func(struct work_struct *work)
- 		if (vgdev->has_edid)
- 			virtio_gpu_cmd_get_edids(vgdev);
- 		virtio_gpu_cmd_get_display_info(vgdev);
-+		virtio_gpu_notify(vgdev);
- 		drm_helper_hpd_irq_event(vgdev->ddev);
- 		events_clear |= VIRTIO_GPU_EVENT_DISPLAY;
- 	}
-@@ -92,6 +93,7 @@ static void virtio_gpu_get_capsets(struct virtio_gpu_device *vgdev,
- 	}
- 	for (i = 0; i < num_capsets; i++) {
- 		virtio_gpu_cmd_get_capset_info(vgdev, i);
-+		virtio_gpu_notify(vgdev);
- 		ret = wait_event_timeout(vgdev->resp_wq,
- 					 vgdev->capsets[i].id > 0, 5 * HZ);
- 		if (ret == 0) {
-@@ -206,6 +208,7 @@ int virtio_gpu_init(struct drm_device *dev)
- 	if (vgdev->has_edid)
- 		virtio_gpu_cmd_get_edids(vgdev);
- 	virtio_gpu_cmd_get_display_info(vgdev);
-+	virtio_gpu_notify(vgdev);
- 	wait_event_timeout(vgdev->resp_wq, !vgdev->display_info_pending,
- 			   5 * HZ);
- 	return 0;
-diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-index 8870ee23ff2b..65d6834d3c74 100644
---- a/drivers/gpu/drm/virtio/virtgpu_object.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -224,6 +224,7 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
- 		return ret;
- 	}
- 
-+	virtio_gpu_notify(vgdev);
- 	*bo_ptr = bo;
- 	return 0;
- 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-index ac42c84d2d7f..fd6487fb0855 100644
---- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-@@ -154,8 +154,6 @@ static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
- 	if (!drm_atomic_helper_damage_merged(old_state, plane->state, &rect))
- 		return;
- 
--	virtio_gpu_disable_notify(vgdev);
+-		ret = desc->id;
 -
- 	bo = gem_to_virtio_gpu_obj(plane->state->fb->obj[0]);
- 	if (bo->dumb)
- 		virtio_gpu_update_dumb_bo(vgdev, plane->state, &rect);
-@@ -187,7 +185,7 @@ static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
- 				      rect.x2 - rect.x1,
- 				      rect.y2 - rect.y1);
- 
--	virtio_gpu_enable_notify(vgdev);
-+	virtio_gpu_notify(vgdev);
- }
- 
- static int virtio_gpu_cursor_prepare_fb(struct drm_plane *plane,
-@@ -265,6 +263,7 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
- 			 plane->state->crtc_w,
- 			 plane->state->crtc_h,
- 			 0, 0, objs, vgfb->fence);
-+		virtio_gpu_notify(vgdev);
- 		dma_fence_wait(&vgfb->fence->f, true);
- 		dma_fence_put(&vgfb->fence->f);
- 		vgfb->fence = NULL;
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index a682c2fcbe9a..ccc89b7578a0 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -329,7 +329,6 @@ static void virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
- 				      int incnt)
- {
- 	struct virtqueue *vq = vgdev->ctrlq.vq;
--	bool notify = false;
- 	int ret;
- 
- 	if (vgdev->has_indirect)
-@@ -369,16 +368,9 @@ static void virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
- 
- 	trace_virtio_gpu_cmd_queue(vq, virtio_gpu_vbuf_ctrl_hdr(vbuf));
- 
--	notify = virtqueue_kick_prepare(vq);
-+	atomic_inc(&vgdev->pending_commands);
- 
- 	spin_unlock(&vgdev->ctrlq.qlock);
--
--	if (notify) {
--		if (vgdev->disable_notify)
--			vgdev->pending_notify = true;
--		else
--			virtqueue_notify(vq);
--	}
- }
- 
- static void virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
-@@ -434,19 +426,20 @@ static void virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
+ 		if (!(desc->flags & VRING_DESC_F_NEXT))
+ 			break;
  	}
- }
  
--void virtio_gpu_disable_notify(struct virtio_gpu_device *vgdev)
-+void virtio_gpu_notify(struct virtio_gpu_device *vgdev)
- {
--	vgdev->disable_notify = true;
--}
-+	bool notify;
++	ret = vq->descs[vq->first_desc].id;
+ 	vq->first_desc = i + 1;
  
--void virtio_gpu_enable_notify(struct virtio_gpu_device *vgdev)
--{
--	vgdev->disable_notify = false;
--
--	if (!vgdev->pending_notify)
-+	if (atomic_read(&vgdev->pending_commands) == 0)
- 		return;
--	vgdev->pending_notify = false;
--	virtqueue_notify(vgdev->ctrlq.vq);
-+
-+	spin_lock(&vgdev->ctrlq.qlock);
-+	atomic_set(&vgdev->pending_commands, 0);
-+	notify = virtqueue_kick_prepare(vgdev->ctrlq.vq);
-+	spin_unlock(&vgdev->ctrlq.qlock);
-+
-+	if (notify)
-+		virtqueue_notify(vgdev->ctrlq.vq);
- }
- 
- static void virtio_gpu_queue_ctrl_buffer(struct virtio_gpu_device *vgdev,
+ 	return ret;
 -- 
-2.18.2
+2.18.1
