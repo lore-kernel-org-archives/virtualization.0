@@ -1,82 +1,88 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v2] tools/virtio: option to build an out of tree module
-Date: Tue, 11 Feb 2020 11:19:37 +0800
-Message-ID: <e361e68d-e7c8-1fe0-45c1-21e6be8333d1@redhat.com>
-References: <20200207073327.1205669-1-mst@redhat.com>
+From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Subject: Re: [PATCH] virtio: Work around frames incorrectly marked as gso
+Date: Tue, 11 Feb 2020 07:42:37 +0000
+Message-ID: <918222d9-816a-be70-f8af-b8dfcb586240@cambridgegreys.com>
+References: <20191209104824.17059-1-anton.ivanov@cambridgegreys.com>
+ <57230228-7030-c65f-a24f-910ca52bbe9e@cambridgegreys.com>
+ <f78bfe6e-2ffc-3734-9618-470f1afea0c6@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200207073327.1205669-1-mst@redhat.com>
+Content-Transfer-Encoding: 8bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <f78bfe6e-2ffc-3734-9618-470f1afea0c6@redhat.com>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
+Sender: netdev-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>, netdev@vger.kernel.org
+Cc: linux-um@lists.infradead.org, mst@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On 11/02/2020 02:51, Jason Wang wrote:
+> 
+> On 2020/2/11 上午12:55, Anton Ivanov wrote:
+>>
+>>
+>> On 09/12/2019 10:48, anton.ivanov@cambridgegreys.com wrote:
+>>> From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+>>>
+>>> Some of the frames marked as GSO which arrive at
+>>> virtio_net_hdr_from_skb() have no GSO_TYPE, no
+>>> fragments (data_len = 0) and length significantly shorter
+>>> than the MTU (752 in my experiments).
+>>>
+>>> This is observed on raw sockets reading off vEth interfaces
+>>> in all 4.x and 5.x kernels I tested.
+>>>
+>>> These frames are reported as invalid while they are in fact
+>>> gso-less frames.
+>>>
+>>> This patch marks the vnet header as no-GSO for them instead
+>>> of reporting it as invalid.
+>>>
+>>> Signed-off-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+>>> ---
+>>>   include/linux/virtio_net.h | 8 ++++++--
+>>>   1 file changed, 6 insertions(+), 2 deletions(-)
+>>>
+>>> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+>>> index 0d1fe9297ac6..d90d5cff1b9a 100644
+>>> --- a/include/linux/virtio_net.h
+>>> +++ b/include/linux/virtio_net.h
+>>> @@ -112,8 +112,12 @@ static inline int virtio_net_hdr_from_skb(const 
+>>> struct sk_buff *skb,
+>>>               hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
+>>>           else if (sinfo->gso_type & SKB_GSO_TCPV6)
+>>>               hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
+>>> -        else
+>>> -            return -EINVAL;
+>>> +        else {
+>>> +            if (skb->data_len == 0)
+>>> +                hdr->gso_type = VIRTIO_NET_HDR_GSO_NONE;
+>>> +            else
+>>> +                return -EINVAL;
+>>> +        }
+>>>           if (sinfo->gso_type & SKB_GSO_TCP_ECN)
+>>>               hdr->gso_type |= VIRTIO_NET_HDR_GSO_ECN;
+>>>       } else
+>>>
+>>
+>> ping.
+>>
+> 
+> Do you mean gso_size is set but gso_type is not? Looks like a bug 
+> elsewhere.
+> 
+> Thanks
+> 
+> 
+Yes.
 
-On 2020/2/7 =E4=B8=8B=E5=8D=883:35, Michael S. Tsirkin wrote:
-> Handy for testing with distro kernels.
-> Warn that the resulting module is completely unsupported,
-> and isn't intended for production use.
->
-> Usage:
->          make oot # builds vhost_test.ko, vhost.ko
->          make oot-clean # cleans out files created
->
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->
-> changes from v1:
-> 	lots of refactoring
-> 	disable all modules except vhost by default (more of a chance
-> 						     it'll build)
-> 	oot-clean target
->
->   tools/virtio/Makefile | 27 ++++++++++++++++++++++++++-
->   1 file changed, 26 insertions(+), 1 deletion(-)
->
-> diff --git a/tools/virtio/Makefile b/tools/virtio/Makefile
-> index 8e2a908115c2..f33f32f1d208 100644
-> --- a/tools/virtio/Makefile
-> +++ b/tools/virtio/Makefile
-> @@ -8,7 +8,32 @@ CFLAGS +=3D -g -O2 -Werror -Wall -I. -I../include/ -I =
-../../usr/include/ -Wno-poin
->   vpath %.c ../../drivers/virtio ../../drivers/vhost
->   mod:
->   	${MAKE} -C `pwd`/../.. M=3D`pwd`/vhost_test V=3D${V}
-> -.PHONY: all test mod clean
-> +
-> +#oot: build vhost as an out of tree module for a distro kernel
-> +#no effort is taken to make it actually build or work, but tends to mo=
-stly work
-> +#if the distro kernel is very close to upstream
-> +#unsupported! this is a development tool only, don't use the
-> +#resulting modules in production!
-> +OOT_KSRC=3D/lib/modules/$$(uname -r)/build
-> +OOT_VHOST=3D`pwd`/../../drivers/vhost
-> +#Everyone depends on vhost
-> +#Tweak the below to enable more modules
-> +OOT_CONFIGS=3D\
-> +	CONFIG_VHOST=3Dm \
-> +	CONFIG_VHOST_NET=3Dn \
-> +	CONFIG_VHOST_SCSI=3Dn \
-> +	CONFIG_VHOST_VSOCK=3Dn
-> +OOT_BUILD=3DKCFLAGS=3D"-I "${OOT_VHOST} ${MAKE} -C ${OOT_KSRC} V=3D${V=
-}
-> +oot-build:
-> +	echo "UNSUPPORTED! Don't use the resulting modules in production!"
-> +	${OOT_BUILD} M=3D`pwd`/vhost_test
-> +	${OOT_BUILD} M=3D${OOT_VHOST} ${OOT_CONFIGS}
-> +
-> +oot-clean: oot-build
-> +oot: oot-build
-> +oot-clean: OOT_BUILD+=3Dclean
-> +
-> +.PHONY: all test mod clean vhost oot oot-clean oot-build
->   clean:
->   	${RM} *.o vringh_test virtio_test vhost_test/*.o vhost_test/.*.cmd \
->                 vhost_test/Module.symvers vhost_test/modules.order *.d
+I could not trace it where it is coming from.
+
+I see it when doing recvmmsg on raw sockets in the UML vector network 
+drivers.
 
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+-- 
+Anton R. Ivanov
+Cambridgegreys Limited. Registered in England. Company Number 10273661
+https://www.cambridgegreys.com/
