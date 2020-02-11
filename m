@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 61/62] x86/cpufeature: Add SEV_ES_GUEST CPU Feature
-Date: Tue, 11 Feb 2020 14:52:55 +0100
-Message-ID: <20200211135256.24617-62-joro@8bytes.org>
+Subject: [PATCH 58/62] x86/head/64: Don't call verify_cpu() on starting APs
+Date: Tue, 11 Feb 2020 14:52:52 +0100
+Message-ID: <20200211135256.24617-59-joro@8bytes.org>
 References: <20200211135256.24617-1-joro@8bytes.org>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200211135256.24617-1-joro@8bytes.org>
@@ -12,52 +12,56 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-The feature bit will indicate whether the kernel runs as an SEV-ES
-guest. This can be used to apply alternatives at boot for SEV-ES guests
-and provides a way for user-space to detect whether it runs as an SEV-ES
-guest.
+The APs are not ready to handle exceptions when verify_cpu() is called
+in secondary_startup_64.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/cpufeatures.h | 1 +
- arch/x86/kernel/cpu/amd.c          | 6 +++++-
- 2 files changed, 6 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/realmode.h | 1 +
+ arch/x86/kernel/head_64.S       | 1 +
+ arch/x86/realmode/init.c        | 6 ++++++
+ 3 files changed, 8 insertions(+)
 
-diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
-index 26e4ee209f7b..e864327812e2 100644
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -234,6 +234,7 @@
- #define X86_FEATURE_EPT_AD		( 8*32+17) /* Intel Extended Page Table access-dirty bit */
- #define X86_FEATURE_VMCALL		( 8*32+18) /* "" Hypervisor supports the VMCALL instruction */
- #define X86_FEATURE_VMW_VMMCALL		( 8*32+19) /* "" VMware prefers VMMCALL hypercall instruction */
-+#define X86_FEATURE_SEV_ES_GUEST	( 8*32+20) /* SEV-ES Guest */
+diff --git a/arch/x86/include/asm/realmode.h b/arch/x86/include/asm/realmode.h
+index 6590394af309..5c97807c38a4 100644
+--- a/arch/x86/include/asm/realmode.h
++++ b/arch/x86/include/asm/realmode.h
+@@ -69,6 +69,7 @@ extern unsigned char startup_32_smp[];
+ extern unsigned char boot_gdt[];
+ #else
+ extern unsigned char secondary_startup_64[];
++extern unsigned char secondary_startup_64_no_verify[];
+ #endif
  
- /* Intel-defined CPU features, CPUID level 0x00000007:0 (EBX), word 9 */
- #define X86_FEATURE_FSGSBASE		( 9*32+ 0) /* RDFSBASE, WRFSBASE, RDGSBASE, WRGSBASE instructions*/
-diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
-index aad2223862ef..a1eb39153771 100644
---- a/arch/x86/kernel/cpu/amd.c
-+++ b/arch/x86/kernel/cpu/amd.c
-@@ -484,7 +484,6 @@ static void early_init_amd_mc(struct cpuinfo_x86 *c)
+ static inline size_t real_mode_size_needed(void)
+diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
+index 13ebf7d3af2c..9dd602bd6244 100644
+--- a/arch/x86/kernel/head_64.S
++++ b/arch/x86/kernel/head_64.S
+@@ -144,6 +144,7 @@ SYM_CODE_START(secondary_startup_64)
+ 	/* Sanitize CPU configuration */
+ 	call verify_cpu
  
- static void bsp_init_amd(struct cpuinfo_x86 *c)
- {
--
- #ifdef CONFIG_X86_64
- 	if (c->x86 >= 0xf) {
- 		unsigned long long tseg;
-@@ -614,6 +613,11 @@ static void early_detect_mem_encrypt(struct cpuinfo_x86 *c)
- 		setup_clear_cpu_cap(X86_FEATURE_SEV);
- 		setup_clear_cpu_cap(X86_FEATURE_SEV_ES);
- 	}
++SYM_INNER_LABEL(secondary_startup_64_no_verify, SYM_L_GLOBAL)
+ 	/*
+ 	 * Retrieve the modifier (SME encryption mask if SME is active) to be
+ 	 * added to the initial pgdir entry that will be programmed into CR3.
+diff --git a/arch/x86/realmode/init.c b/arch/x86/realmode/init.c
+index 1c5cbfd102d5..030c38268069 100644
+--- a/arch/x86/realmode/init.c
++++ b/arch/x86/realmode/init.c
+@@ -109,6 +109,12 @@ static void __init setup_real_mode(void)
+ 		trampoline_header->flags |= TH_FLAGS_SME_ACTIVE;
+ 
+ 	if (sev_es_active()) {
++		/*
++		 * Skip the call to verify_cpu() in secondary_startup_64 as it
++		 * will cause #VC exceptions when the AP can't handle them yet.
++		 */
++		trampoline_header->start = (u64) secondary_startup_64_no_verify;
 +
-+	if (!rdmsrl_safe(MSR_AMD64_SEV, &msr)) {
-+		if (msr & MSR_AMD64_SEV_ES_ENABLED)
-+			set_cpu_cap(c, X86_FEATURE_SEV_ES_GUEST);
-+	}
- }
- 
- static void early_init_amd(struct cpuinfo_x86 *c)
+ 		if (sev_es_setup_ap_jump_table(real_mode_header))
+ 			panic("Failed to update SEV-ES AP Jump Table");
+ 	}
 -- 
 2.17.1
