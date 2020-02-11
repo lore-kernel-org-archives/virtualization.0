@@ -1,100 +1,134 @@
-From: Eugenio =?ISO-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
-Subject: Re: vhost changes (batched) in linux-next after 12/13 trigger
- random crashes in KVM guests after reboot
-Date: Tue, 11 Feb 2020 10:33:39 +0100
-Message-ID: <5119e785ed98cc446ad96d893bd2c6efa127f8e1.camel@redhat.com>
-References: <20200107042401-mutt-send-email-mst@kernel.org>
-         <c6795e53-d12c-0709-c2e9-e35d9af1f693@de.ibm.com>
-         <20200107065434-mutt-send-email-mst@kernel.org>
-         <fe6e7e90-3004-eb7a-9ed8-b53a7667959f@de.ibm.com>
-         <20200120012724-mutt-send-email-mst@kernel.org>
-         <2a63b15f-8cf5-5868-550c-42e2cfd92c60@de.ibm.com>
-         <b6e32f58e5d85ac5cc3141e9155fb140ae5cd580.camel@redhat.com>
-         <1ade56b5-083f-bb6f-d3e0-3ddcf78f4d26@de.ibm.com>
-         <20200206171349-mutt-send-email-mst@kernel.org>
-         <5c860fa1-cef5-b389-4ebf-99a62afa0fe8@de.ibm.com>
-         <20200207025806-mutt-send-email-mst@kernel.org>
-         <97c93d38-ef07-e321-d133-18483d54c0c0@de.ibm.com>
-         <CAJaqyWfngzP4d01B6+Sqt8FXN6jX7kGegjx8ie4no_1Er3igQA@mail.gmail.com>
-         <43a5dbaa-9129-e220-8483-45c60a82c945@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <43a5dbaa-9129-e220-8483-45c60a82c945@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Stephen Rothwell <sfr@canb.auug.org.au>, Linux Next Mailing List <linux-next@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Halil Pasic <pasic@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH v3] drm/bochs: add drm_driver.release callback.
+Date: Tue, 11 Feb 2020 10:55:29 +0100
+Message-ID: <20200211095529.30449-1-kraxel@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dri-devel@lists.freedesktop.org
+Cc: daniel@ffwll.ch, Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, "open list:DRM DRIVER FOR
+        BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 2020-02-10 at 12:01 +0100, Christian Borntraeger wrote:
-> 
-> On 10.02.20 10:47, Eugenio Perez Martin wrote:
-> > Hi Christian.
-> > 
-> > I'm not able to reproduce the failure with eccb852f1fe6bede630e2e4f1a121a81e34354ab commit. Could you add more data?
-> > Your configuration (libvirt or qemu line), and host's dmesg output if any?
-> > 
-> > Thanks!
-> 
-> If it was not obvious, this is on s390x, a big endian system.
-> 
+Call bochs_unload via drm_driver.release to make sure we release stuff
+when it is safe to do so.  Use drm_dev_{enter,exit,unplug} to avoid
+touching hardware after device removal.  Tidy up here and there.
 
-Hi Christian. Thank you very much for the hints.
-
-Could we add some debug traces? Something like the inline patch should give us some clues.
-
-Thanks!
-
-From a8d65d5f0ae3d305443ee84b4842b7c712a1ac1d Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
-Date: Tue, 11 Feb 2020 10:29:01 +0100
-Subject: [PATCH] Add some traces
-
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/vhost/vhost.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/bochs/bochs_drv.c |  6 +++---
+ drivers/gpu/drm/bochs/bochs_hw.c  | 24 +++++++++++++++++++++++-
+ 2 files changed, 26 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index b5a51b1f2e79..60c048eebe4d 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -2239,8 +2239,8 @@ static int fetch_buf(struct vhost_virtqueue *vq)
- 		vq->avail_idx = vhost16_to_cpu(vq, avail_idx);
+diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
+index 10460878414e..addb0568c1af 100644
+--- a/drivers/gpu/drm/bochs/bochs_drv.c
++++ b/drivers/gpu/drm/bochs/bochs_drv.c
+@@ -23,7 +23,6 @@ static void bochs_unload(struct drm_device *dev)
  
- 		if (unlikely((u16)(vq->avail_idx - last_avail_idx) > vq->num)) {
--			vq_err(vq, "Guest moved used index from %u to %u",
--				last_avail_idx, vq->avail_idx);
-+			vq_err(vq, "Guest moved vq %p used index from %u to %u",
-+				vq, last_avail_idx, vq->avail_idx);
- 			return -EFAULT;
- 		}
+ 	bochs_kms_fini(bochs);
+ 	bochs_mm_fini(bochs);
+-	bochs_hw_fini(dev);
+ 	kfree(bochs);
+ 	dev->dev_private = NULL;
+ }
+@@ -69,6 +68,7 @@ static struct drm_driver bochs_driver = {
+ 	.major			= 1,
+ 	.minor			= 0,
+ 	DRM_GEM_VRAM_DRIVER,
++	.release                = bochs_unload,
+ };
  
-@@ -2336,6 +2336,8 @@ static int fetch_descs(struct vhost_virtqueue *vq)
- 	while (!ret && vq->ndescs <= vq->batch_descs)
- 		ret = fetch_buf(vq);
+ /* ---------------------------------------------------------------------- */
+@@ -148,9 +148,9 @@ static void bochs_pci_remove(struct pci_dev *pdev)
+ {
+ 	struct drm_device *dev = pci_get_drvdata(pdev);
  
-+	pr_debug("[vq=%p][vq->ndescs=%d]", vq, vq->ndescs);
-+
- 	return vq->ndescs ? 0 : ret;
++	drm_dev_unplug(dev);
+ 	drm_atomic_helper_shutdown(dev);
+-	drm_dev_unregister(dev);
+-	bochs_unload(dev);
++	bochs_hw_fini(dev);
+ 	drm_dev_put(dev);
  }
  
-@@ -2416,6 +2418,8 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
+index b615b7dfdd9d..952199cc0462 100644
+--- a/drivers/gpu/drm/bochs/bochs_hw.c
++++ b/drivers/gpu/drm/bochs/bochs_hw.c
+@@ -4,6 +4,7 @@
+ 
+ #include <linux/pci.h>
+ 
++#include <drm/drm_drv.h>
+ #include <drm/drm_fourcc.h>
+ 
+ #include "bochs.h"
+@@ -194,6 +195,8 @@ void bochs_hw_fini(struct drm_device *dev)
+ {
+ 	struct bochs_device *bochs = dev->dev_private;
+ 
++	/* TODO: shot down existing vram mappings */
++
+ 	if (bochs->mmio)
+ 		iounmap(bochs->mmio);
+ 	if (bochs->ioports)
+@@ -207,6 +210,11 @@ void bochs_hw_fini(struct drm_device *dev)
+ void bochs_hw_setmode(struct bochs_device *bochs,
+ 		      struct drm_display_mode *mode)
+ {
++	int idx;
++
++	if (!drm_dev_enter(bochs->dev, &idx))
++		return;
++
+ 	bochs->xres = mode->hdisplay;
+ 	bochs->yres = mode->vdisplay;
+ 	bochs->bpp = 32;
+@@ -232,11 +240,18 @@ void bochs_hw_setmode(struct bochs_device *bochs,
+ 
+ 	bochs_dispi_write(bochs, VBE_DISPI_INDEX_ENABLE,
+ 			  VBE_DISPI_ENABLED | VBE_DISPI_LFB_ENABLED);
++
++	drm_dev_exit(idx);
+ }
+ 
+ void bochs_hw_setformat(struct bochs_device *bochs,
+ 			const struct drm_format_info *format)
+ {
++	int idx;
++
++	if (!drm_dev_enter(bochs->dev, &idx))
++		return;
++
+ 	DRM_DEBUG_DRIVER("format %c%c%c%c\n",
+ 			 (format->format >>  0) & 0xff,
+ 			 (format->format >>  8) & 0xff,
+@@ -256,13 +271,18 @@ void bochs_hw_setformat(struct bochs_device *bochs,
+ 			  __func__, format->format);
+ 		break;
  	}
++
++	drm_dev_exit(idx);
+ }
  
- 	vq->first_desc = i + 1;
-+	pr_debug("[vq=%p][vq->ndescs=%d][vq->first_desc=%d]", vq, vq->ndescs,
-+		 vq->first_desc);
+ void bochs_hw_setbase(struct bochs_device *bochs,
+ 		      int x, int y, int stride, u64 addr)
+ {
+ 	unsigned long offset;
+-	unsigned int vx, vy, vwidth;
++	unsigned int vx, vy, vwidth, idx;
++
++	if (!drm_dev_enter(bochs->dev, &idx))
++		return;
  
- 	return ret;
- 
-@@ -2459,6 +2463,7 @@ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
- 
- 	start = vq->last_used_idx & (vq->num - 1);
- 	used = vq->used->ring + start;
-+	pr_debug("[vq=%p][start=%d][count=%u]", vq, start, count);
- 	if (vhost_put_used(vq, heads, start, count)) {
- 		vq_err(vq, "Failed to write used");
- 		return -EFAULT;
+ 	bochs->stride = stride;
+ 	offset = (unsigned long)addr +
+@@ -277,4 +297,6 @@ void bochs_hw_setbase(struct bochs_device *bochs,
+ 	bochs_dispi_write(bochs, VBE_DISPI_INDEX_VIRT_WIDTH, vwidth);
+ 	bochs_dispi_write(bochs, VBE_DISPI_INDEX_X_OFFSET, vx);
+ 	bochs_dispi_write(bochs, VBE_DISPI_INDEX_Y_OFFSET, vy);
++
++	drm_dev_exit(idx);
+ }
 -- 
-2.18.1
+2.18.2
