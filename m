@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 58/62] x86/head/64: Don't call verify_cpu() on starting APs
-Date: Tue, 11 Feb 2020 14:52:52 +0100
-Message-ID: <20200211135256.24617-59-joro@8bytes.org>
+Subject: [PATCH 60/62] x86/sev-es: Support CPU offline/online
+Date: Tue, 11 Feb 2020 14:52:54 +0100
+Message-ID: <20200211135256.24617-61-joro@8bytes.org>
 References: <20200211135256.24617-1-joro@8bytes.org>
 Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200211135256.24617-1-joro@8bytes.org>
@@ -12,56 +12,99 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-The APs are not ready to handle exceptions when verify_cpu() is called
-in secondary_startup_64.
+Add a play_dead handler when running under SEV-ES. This is needed
+because the hypervisor can't deliver an SIPI request to restart the AP.
+Instead the kernel has to issue a VMGEXIT to halt the VCPU. When the
+hypervisor would deliver and SIPI is wakes up the VCPU instead.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/realmode.h | 1 +
- arch/x86/kernel/head_64.S       | 1 +
- arch/x86/realmode/init.c        | 6 ++++++
- 3 files changed, 8 insertions(+)
+ arch/x86/include/uapi/asm/svm.h |  1 +
+ arch/x86/kernel/sev-es.c        | 46 +++++++++++++++++++++++++++++++++
+ 2 files changed, 47 insertions(+)
 
-diff --git a/arch/x86/include/asm/realmode.h b/arch/x86/include/asm/realmode.h
-index 6590394af309..5c97807c38a4 100644
---- a/arch/x86/include/asm/realmode.h
-+++ b/arch/x86/include/asm/realmode.h
-@@ -69,6 +69,7 @@ extern unsigned char startup_32_smp[];
- extern unsigned char boot_gdt[];
- #else
- extern unsigned char secondary_startup_64[];
-+extern unsigned char secondary_startup_64_no_verify[];
- #endif
+diff --git a/arch/x86/include/uapi/asm/svm.h b/arch/x86/include/uapi/asm/svm.h
+index a19ce9681ec2..20a05839dd9a 100644
+--- a/arch/x86/include/uapi/asm/svm.h
++++ b/arch/x86/include/uapi/asm/svm.h
+@@ -84,6 +84,7 @@
+ /* SEV-ES software-defined VMGEXIT events */
+ #define SVM_VMGEXIT_MMIO_READ			0x80000001
+ #define SVM_VMGEXIT_MMIO_WRITE			0x80000002
++#define SVM_VMGEXIT_AP_HLT_LOOP			0x80000004
+ #define SVM_VMGEXIT_AP_JUMP_TABLE		0x80000005
+ #define		SVM_VMGEXIT_SET_AP_JUMP_TABLE			0
+ #define		SVM_VMGEXIT_GET_AP_JUMP_TABLE			1
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+index d8193d37ed2b..755708f72824 100644
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -22,6 +22,8 @@
+ #include <asm/processor.h>
+ #include <asm/traps.h>
+ #include <asm/svm.h>
++#include <asm/smp.h>
++#include <asm/cpu.h>
  
- static inline size_t real_mode_size_needed(void)
-diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
-index 13ebf7d3af2c..9dd602bd6244 100644
---- a/arch/x86/kernel/head_64.S
-+++ b/arch/x86/kernel/head_64.S
-@@ -144,6 +144,7 @@ SYM_CODE_START(secondary_startup_64)
- 	/* Sanitize CPU configuration */
- 	call verify_cpu
+ #define DR7_RESET_VALUE        0x400
  
-+SYM_INNER_LABEL(secondary_startup_64_no_verify, SYM_L_GLOBAL)
- 	/*
- 	 * Retrieve the modifier (SME encryption mask if SME is active) to be
- 	 * added to the initial pgdir entry that will be programmed into CR3.
-diff --git a/arch/x86/realmode/init.c b/arch/x86/realmode/init.c
-index 1c5cbfd102d5..030c38268069 100644
---- a/arch/x86/realmode/init.c
-+++ b/arch/x86/realmode/init.c
-@@ -109,6 +109,12 @@ static void __init setup_real_mode(void)
- 		trampoline_header->flags |= TH_FLAGS_SME_ACTIVE;
+@@ -252,6 +254,48 @@ static bool __init setup_ghcb(void)
+ 	return true;
+ }
  
- 	if (sev_es_active()) {
-+		/*
-+		 * Skip the call to verify_cpu() in secondary_startup_64 as it
-+		 * will cause #VC exceptions when the AP can't handle them yet.
-+		 */
-+		trampoline_header->start = (u64) secondary_startup_64_no_verify;
++#ifdef CONFIG_HOTPLUG_CPU
++static void sev_es_ap_hlt_loop(void)
++{
++	struct ghcb *ghcb;
 +
- 		if (sev_es_setup_ap_jump_table(real_mode_header))
- 			panic("Failed to update SEV-ES AP Jump Table");
++	ghcb = this_cpu_ptr(&ghcb_page);
++
++	while (true) {
++		ghcb_invalidate(ghcb);
++		ghcb_set_sw_exit_code(ghcb, SVM_VMGEXIT_AP_HLT_LOOP);
++		ghcb_set_sw_exit_info_1(ghcb, 0);
++		ghcb_set_sw_exit_info_2(ghcb, 0);
++
++		write_ghcb_msr(__pa(ghcb));
++		VMGEXIT();
++
++		/* Wakup Signal? */
++		if (ghcb_is_valid_sw_exit_info_2(ghcb) &&
++		    ghcb->save.sw_exit_info_2 != 0)
++			break;
++	}
++}
++
++void sev_es_play_dead(void)
++{
++	play_dead_common();
++
++	/* IRQs now disabled */
++
++	sev_es_ap_hlt_loop();
++
++	/*
++	 * If we get here, the VCPU was woken up again. Jump to CPU
++	 * startup code to get it back online.
++	 */
++
++	start_cpu();
++}
++#else  /* CONFIG_HOTPLUG_CPU */
++#define sev_es_play_dead	native_play_dead
++#endif /* CONFIG_HOTPLUG_CPU */
++
+ void encrypted_state_init_ghcbs(void)
+ {
+ 	int cpu;
+@@ -267,6 +311,8 @@ void encrypted_state_init_ghcbs(void)
+ 				     sizeof(ghcb_page) >> PAGE_SHIFT);
+ 		memset(ghcb, 0, sizeof(*ghcb));
  	}
++
++	smp_ops.play_dead = sev_es_play_dead;
+ }
+ 
+ static void __init early_forward_exception(struct es_em_ctxt *ctxt)
 -- 
 2.17.1
