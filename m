@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 47/62] x86/sev-es: Handle RDTSCP Events
-Date: Tue, 11 Feb 2020 14:52:41 +0100
-Message-ID: <20200211135256.24617-48-joro@8bytes.org>
+Subject: [PATCH 42/62] x86/sev-es: Handle DR7 read/write events
+Date: Tue, 11 Feb 2020 14:52:36 +0100
+Message-ID: <20200211135256.24617-43-joro@8bytes.org>
 References: <20200211135256.24617-1-joro@8bytes.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200211135256.24617-1-joro@8bytes.org>
@@ -10,56 +10,132 @@ To: x86@kernel.org
 Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-Extend the RDTSC handler to also handle RDTSCP events.
+Add code to handle #VC exceptions on DR7 register reads and writes.
+This is needed early because show_regs() reads DR7 to print it out.
 
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+[ jroedel@suse.de: - Adapt to #VC handling framework
+                   - Support early usage ]
+Co-developed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev-es.c | 14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ arch/x86/kernel/sev-es.c | 69 +++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 65 insertions(+), 4 deletions(-)
 
 diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index 485f5a14c3b4..d5a14f277adb 100644
+index b27d5b0a8ae1..fcd67ab04d2d 100644
 --- a/arch/x86/kernel/sev-es.c
 +++ b/arch/x86/kernel/sev-es.c
-@@ -272,19 +272,24 @@ static enum es_result handle_wbinvd(struct ghcb *ghcb,
- 	return ghcb_hv_call(ghcb, ctxt, SVM_EXIT_WBINVD, 0, 0);
+@@ -22,6 +22,8 @@
+ #include <asm/traps.h>
+ #include <asm/svm.h>
+ 
++#define DR7_RESET_VALUE        0x400
++
+ /* For early boot hypervisor communication in SEV-ES enabled guests */
+ struct ghcb boot_ghcb_page __bss_decrypted __aligned(PAGE_SIZE);
+ 
+@@ -30,6 +32,9 @@ struct ghcb boot_ghcb_page __bss_decrypted __aligned(PAGE_SIZE);
+  * cleared
+  */
+ struct ghcb __initdata *boot_ghcb;
++static DEFINE_PER_CPU(unsigned long, cached_dr7) = DR7_RESET_VALUE;
++/* Needed before per-cpu access is set up */
++static unsigned long early_dr7 = DR7_RESET_VALUE;
+ 
+ /* Runtime GHCBs */
+ static DEFINE_PER_CPU_DECRYPTED(struct ghcb, ghcb_page) __aligned(PAGE_SIZE);
+@@ -212,13 +217,69 @@ static void __init early_forward_exception(struct es_em_ctxt *ctxt)
+ 	early_exception(ctxt->regs, trapnr);
  }
  
--static enum es_result handle_rdtsc(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
-+static enum es_result handle_rdtsc(struct ghcb *ghcb, struct es_em_ctxt *ctxt,
-+				   unsigned long exit_code)
++static enum es_result handle_dr7_write(struct ghcb *ghcb,
++				       struct es_em_ctxt *ctxt,
++				       bool early)
++{
++	u8 rm = X86_MODRM_RM(ctxt->insn.modrm.value);
++	unsigned long *reg;
++	enum es_result ret;
++
++	if (ctxt->insn.rex_prefix.nbytes &&
++	    X86_REX_B(ctxt->insn.rex_prefix.value))
++		rm |= 0x8;
++
++	reg = register_from_idx(ctxt->regs, rm);
++
++	/* Using a value of 0 for ExitInfo1 means RAX holds the value */
++	ghcb_set_rax(ghcb, *reg);
++	ret = ghcb_hv_call(ghcb, ctxt, SVM_EXIT_WRITE_DR7, 0, 0);
++	if (ret != ES_OK)
++		return ret;
++
++	if (early)
++		early_dr7 = *reg;
++	else
++		this_cpu_write(cached_dr7, *reg);
++
++	return ES_OK;
++}
++
++static enum es_result handle_dr7_read(struct ghcb *ghcb,
++				      struct es_em_ctxt *ctxt,
++				      bool early)
++{
++	u8 rm = X86_MODRM_RM(ctxt->insn.modrm.value);
++	unsigned long *reg;
++
++	if (ctxt->insn.rex_prefix.nbytes &&
++	    X86_REX_B(ctxt->insn.rex_prefix.value))
++		rm |= 0x8;
++
++	reg = register_from_idx(ctxt->regs, rm);
++
++	if (early)
++		*reg = early_dr7;
++	else
++		*reg = this_cpu_read(cached_dr7);
++
++	return ES_OK;
++}
++
+ static enum es_result handle_vc_exception(struct es_em_ctxt *ctxt,
+-		struct ghcb *ghcb,
+-		unsigned long exit_code)
++					  struct ghcb *ghcb,
++					  unsigned long exit_code,
++					  bool early)
  {
-+	bool rdtscp = (exit_code == SVM_EXIT_RDTSCP);
- 	enum es_result ret;
+ 	enum es_result result;
  
--	ret = ghcb_hv_call(ghcb, ctxt, SVM_EXIT_RDTSC, 0, 0);
-+	ret = ghcb_hv_call(ghcb, ctxt, exit_code, 0, 0);
- 	if (ret != ES_OK)
- 		return ret;
- 
--	if (!(ghcb_is_valid_rax(ghcb) && ghcb_is_valid_rdx(ghcb)))
-+	if (!(ghcb_is_valid_rax(ghcb) && ghcb_is_valid_rdx(ghcb) &&
-+	     (!rdtscp || ghcb_is_valid_rcx(ghcb))))
- 		return ES_VMM_ERROR;
- 
- 	ctxt->regs->ax = ghcb->save.rax;
- 	ctxt->regs->dx = ghcb->save.rdx;
-+	if (rdtscp)
-+		ctxt->regs->cx = ghcb->save.rcx;
- 
- 	return ES_OK;
- }
-@@ -328,7 +333,8 @@ static enum es_result handle_vc_exception(struct es_em_ctxt *ctxt,
- 		result = handle_dr7_write(ghcb, ctxt, early);
+ 	switch (exit_code) {
++	case SVM_EXIT_READ_DR7:
++		result = handle_dr7_read(ghcb, ctxt, early);
++		break;
++	case SVM_EXIT_WRITE_DR7:
++		result = handle_dr7_write(ghcb, ctxt, early);
++		break;
+ 	case SVM_EXIT_CPUID:
+ 		result = handle_cpuid(ghcb, ctxt);
  		break;
- 	case SVM_EXIT_RDTSC:
--		result = handle_rdtsc(ghcb, ctxt);
-+	case SVM_EXIT_RDTSCP:
-+		result = handle_rdtsc(ghcb, ctxt, exit_code);
- 		break;
- 	case SVM_EXIT_RDPMC:
- 		result = handle_rdpmc(ghcb, ctxt);
+@@ -302,7 +363,7 @@ dotraplinkage void do_vmm_communication(struct pt_regs *regs, unsigned long exit
+ 		result = context_filter(regs, exit_code);
+ 
+ 	if (result == ES_OK)
+-		result = handle_vc_exception(&ctxt, ghcb, exit_code);
++		result = handle_vc_exception(&ctxt, ghcb, exit_code, false);
+ 
+ 	/* Done - now check the result */
+ 	switch (result) {
+@@ -368,7 +429,7 @@ int __init boot_vc_exception(struct pt_regs *regs)
+ 	result = init_em_ctxt(&ctxt, regs, exit_code);
+ 
+ 	if (result == ES_OK)
+-		result = handle_vc_exception(&ctxt, boot_ghcb, exit_code);
++		result = handle_vc_exception(&ctxt, boot_ghcb, exit_code, true);
+ 
+ 	/* Done - now check the result */
+ 	switch (result) {
 -- 
 2.17.1
