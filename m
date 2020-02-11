@@ -1,135 +1,100 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH v2] drm/virtio: add drm_driver.release callback.
-Date: Tue, 11 Feb 2020 09:35:53 +0100
-Message-ID: <20200211083553.GU43062@phenom.ffwll.local>
-References: <20200210100819.29761-1-kraxel@redhat.com>
+From: Eugenio =?ISO-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
+Subject: Re: vhost changes (batched) in linux-next after 12/13 trigger
+ random crashes in KVM guests after reboot
+Date: Tue, 11 Feb 2020 10:33:39 +0100
+Message-ID: <5119e785ed98cc446ad96d893bd2c6efa127f8e1.camel@redhat.com>
+References: <20200107042401-mutt-send-email-mst@kernel.org>
+         <c6795e53-d12c-0709-c2e9-e35d9af1f693@de.ibm.com>
+         <20200107065434-mutt-send-email-mst@kernel.org>
+         <fe6e7e90-3004-eb7a-9ed8-b53a7667959f@de.ibm.com>
+         <20200120012724-mutt-send-email-mst@kernel.org>
+         <2a63b15f-8cf5-5868-550c-42e2cfd92c60@de.ibm.com>
+         <b6e32f58e5d85ac5cc3141e9155fb140ae5cd580.camel@redhat.com>
+         <1ade56b5-083f-bb6f-d3e0-3ddcf78f4d26@de.ibm.com>
+         <20200206171349-mutt-send-email-mst@kernel.org>
+         <5c860fa1-cef5-b389-4ebf-99a62afa0fe8@de.ibm.com>
+         <20200207025806-mutt-send-email-mst@kernel.org>
+         <97c93d38-ef07-e321-d133-18483d54c0c0@de.ibm.com>
+         <CAJaqyWfngzP4d01B6+Sqt8FXN6jX7kGegjx8ie4no_1Er3igQA@mail.gmail.com>
+         <43a5dbaa-9129-e220-8483-45c60a82c945@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200210100819.29761-1-kraxel@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: dri-devel@lists.freedesktop.org, gurchetansingh@chromium.org, olvaffe@gmail.com, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <43a5dbaa-9129-e220-8483-45c60a82c945@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Stephen Rothwell <sfr@canb.auug.org.au>, Linux Next Mailing List <linux-next@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Halil Pasic <pasic@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Feb 10, 2020 at 11:08:19AM +0100, Gerd Hoffmann wrote:
-> Split virtio_gpu_deinit(), move the drm shutdown and release to
-> virtio_gpu_release().  Also free vbufs in case we can't queue them.
+On Mon, 2020-02-10 at 12:01 +0100, Christian Borntraeger wrote:
 > 
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-> ---
->  drivers/gpu/drm/virtio/virtgpu_drv.h     | 1 +
->  drivers/gpu/drm/virtio/virtgpu_display.c | 1 -
->  drivers/gpu/drm/virtio/virtgpu_drv.c     | 4 ++++
->  drivers/gpu/drm/virtio/virtgpu_kms.c     | 5 +++++
->  drivers/gpu/drm/virtio/virtgpu_vq.c      | 9 ++++++++-
->  5 files changed, 18 insertions(+), 2 deletions(-)
+> On 10.02.20 10:47, Eugenio Perez Martin wrote:
+> > Hi Christian.
+> > 
+> > I'm not able to reproduce the failure with eccb852f1fe6bede630e2e4f1a121a81e34354ab commit. Could you add more data?
+> > Your configuration (libvirt or qemu line), and host's dmesg output if any?
+> > 
+> > Thanks!
 > 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> index d278c8c50f39..09a485b001e7 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> @@ -217,6 +217,7 @@ extern struct drm_ioctl_desc virtio_gpu_ioctls[DRM_VIRTIO_NUM_IOCTLS];
->  /* virtio_kms.c */
->  int virtio_gpu_init(struct drm_device *dev);
->  void virtio_gpu_deinit(struct drm_device *dev);
-> +void virtio_gpu_release(struct drm_device *dev);
->  int virtio_gpu_driver_open(struct drm_device *dev, struct drm_file *file);
->  void virtio_gpu_driver_postclose(struct drm_device *dev, struct drm_file *file);
->  
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-> index 7b0f0643bb2d..af953db4a0c9 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_display.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-> @@ -368,6 +368,5 @@ void virtio_gpu_modeset_fini(struct virtio_gpu_device *vgdev)
->  
->  	for (i = 0 ; i < vgdev->num_scanouts; ++i)
->  		kfree(vgdev->outputs[i].edid);
-> -	drm_atomic_helper_shutdown(vgdev->ddev);
->  	drm_mode_config_cleanup(vgdev->ddev);
->  }
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> index 8cf27af3ad53..664a741a3b0b 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> @@ -31,6 +31,7 @@
->  #include <linux/pci.h>
->  
->  #include <drm/drm.h>
-> +#include <drm/drm_atomic_helper.h>
->  #include <drm/drm_drv.h>
->  #include <drm/drm_file.h>
->  
-> @@ -136,6 +137,7 @@ static void virtio_gpu_remove(struct virtio_device *vdev)
->  	struct drm_device *dev = vdev->priv;
->  
->  	drm_dev_unregister(dev);
-> +	drm_atomic_helper_shutdown(dev);
->  	virtio_gpu_deinit(dev);
->  	drm_dev_put(dev);
->  }
-> @@ -214,4 +216,6 @@ static struct drm_driver driver = {
->  	.major = DRIVER_MAJOR,
->  	.minor = DRIVER_MINOR,
->  	.patchlevel = DRIVER_PATCHLEVEL,
-> +
-> +	.release = virtio_gpu_release,
->  };
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-> index c1086df49816..b45d12e3db2a 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-> @@ -240,6 +240,11 @@ void virtio_gpu_deinit(struct drm_device *dev)
->  	flush_work(&vgdev->config_changed_work);
->  	vgdev->vdev->config->reset(vgdev->vdev);
->  	vgdev->vdev->config->del_vqs(vgdev->vdev);
-> +}
-> +
-> +void virtio_gpu_release(struct drm_device *dev)
-
-Split lgtm, but again I think you want drm_dev_enter/exit. And maybe a
-changelog.
--Daniel
-
-> +{
-> +	struct virtio_gpu_device *vgdev = dev->dev_private;
->  
->  	virtio_gpu_modeset_fini(vgdev);
->  	virtio_gpu_free_vbufs(vgdev);
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> index cc02fc4bab2a..cc674b45f904 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> @@ -330,6 +330,11 @@ static void virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
->  	bool notify = false;
->  	int ret;
->  
-> +	if (!vgdev->vqs_ready) {
-> +		free_vbuf(vgdev, vbuf);
-> +		return;
-> +	}
-> +
->  	if (vgdev->has_indirect)
->  		elemcnt = 1;
->  
-> @@ -462,8 +467,10 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
->  	int ret;
->  	int outcnt;
->  
-> -	if (!vgdev->vqs_ready)
-> +	if (!vgdev->vqs_ready) {
-> +		free_vbuf(vgdev, vbuf);
->  		return;
-> +	}
->  
->  	sg_init_one(&ccmd, vbuf->buf, vbuf->size);
->  	sgs[0] = &ccmd;
-> -- 
-> 2.18.1
+> If it was not obvious, this is on s390x, a big endian system.
 > 
 
+Hi Christian. Thank you very much for the hints.
+
+Could we add some debug traces? Something like the inline patch should give us some clues.
+
+Thanks!
+
+From a8d65d5f0ae3d305443ee84b4842b7c712a1ac1d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+Date: Tue, 11 Feb 2020 10:29:01 +0100
+Subject: [PATCH] Add some traces
+
+---
+ drivers/vhost/vhost.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index b5a51b1f2e79..60c048eebe4d 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -2239,8 +2239,8 @@ static int fetch_buf(struct vhost_virtqueue *vq)
+ 		vq->avail_idx = vhost16_to_cpu(vq, avail_idx);
+ 
+ 		if (unlikely((u16)(vq->avail_idx - last_avail_idx) > vq->num)) {
+-			vq_err(vq, "Guest moved used index from %u to %u",
+-				last_avail_idx, vq->avail_idx);
++			vq_err(vq, "Guest moved vq %p used index from %u to %u",
++				vq, last_avail_idx, vq->avail_idx);
+ 			return -EFAULT;
+ 		}
+ 
+@@ -2336,6 +2336,8 @@ static int fetch_descs(struct vhost_virtqueue *vq)
+ 	while (!ret && vq->ndescs <= vq->batch_descs)
+ 		ret = fetch_buf(vq);
+ 
++	pr_debug("[vq=%p][vq->ndescs=%d]", vq, vq->ndescs);
++
+ 	return vq->ndescs ? 0 : ret;
+ }
+ 
+@@ -2416,6 +2418,8 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+ 	}
+ 
+ 	vq->first_desc = i + 1;
++	pr_debug("[vq=%p][vq->ndescs=%d][vq->first_desc=%d]", vq, vq->ndescs,
++		 vq->first_desc);
+ 
+ 	return ret;
+ 
+@@ -2459,6 +2463,7 @@ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
+ 
+ 	start = vq->last_used_idx & (vq->num - 1);
+ 	used = vq->used->ring + start;
++	pr_debug("[vq=%p][start=%d][count=%u]", vq, start, count);
+ 	if (vhost_put_used(vq, heads, start, count)) {
+ 		vq_err(vq, "Failed to write used");
+ 		return -EFAULT;
 -- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+2.18.1
