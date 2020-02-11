@@ -1,55 +1,29 @@
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Subject: [PATCH] char: virtio: Replace zero-length array with flexible-array
- member
-Date: Tue, 11 Feb 2020 16:29:41 -0600
-Message-ID: <20200211222941.GA7657@embeddedor>
+From: Andy Lutomirski <luto@kernel.org>
+Subject: Re: [PATCH 19/62] x86/sev-es: Add support for handling IOIO exceptions
+Date: Tue, 11 Feb 2020 14:28:06 -0800
+Message-ID: <CALCETrWecBK7cqgLTB72mMYRs10R1e+rkZh9mnzRNJc0N=XU2Q@mail.gmail.com>
+References: <20200211135256.24617-1-joro@8bytes.org> <20200211135256.24617-20-joro@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Amit Shah <amit@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20200211135256.24617-20-joro@8bytes.org>
+Sender: kvm-owner@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>
+Cc: X86 ML <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, LKML <linux-kernel@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The current codebase makes use of the zero-length array language
-extension to the C90 standard, but the preferred mechanism to declare
-variable-length types such as these ones is a flexible array member[1][2],
-introduced in C99:
+On Tue, Feb 11, 2020 at 5:53 AM Joerg Roedel <joro@8bytes.org> wrote:
+>
+> From: Tom Lendacky <thomas.lendacky@amd.com>
+>
+> Add support for decoding and handling #VC exceptions for IOIO events.
+>
+> Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+> [ jroedel@suse.de: Adapted code to #VC handling framework ]
+> Co-developed-by: Joerg Roedel <jroedel@suse.de>
+> Signed-off-by: Joerg Roedel <jroedel@suse.de>
 
-struct foo {
-        int stuff;
-        struct boo array[];
-};
+It would be nice if this could reuse the existing in-kernel
+instruction decoder.  Is there some reason it can't?
 
-By making use of the mechanism above, we will get a compiler warning
-in case the flexible array does not occur last in the structure, which
-will help us prevent some kind of undefined behavior bugs from being
-inadvertenly introduced[3] to the codebase from now on.
-
-This issue was found with the help of Coccinelle.
-
-[1] https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html
-[2] https://github.com/KSPP/linux/issues/21
-[3] commit 76497732932f ("cxgb3/l2t: Fix undefined behaviour")
-
-Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
----
- drivers/char/virtio_console.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index fbeb71953526..a136239e4c14 100644
---- a/drivers/char/virtio_console.c
-+++ b/drivers/char/virtio_console.c
-@@ -125,7 +125,7 @@ struct port_buffer {
- 	unsigned int sgpages;
- 
- 	/* sg is used if spages > 0. sg must be the last in is struct */
--	struct scatterlist sg[0];
-+	struct scatterlist sg[];
- };
- 
- /*
--- 
-2.25.0
+--Andy
