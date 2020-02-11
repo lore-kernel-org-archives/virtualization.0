@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 28/62] x86/head/64: Switch to initial stack earlier
-Date: Tue, 11 Feb 2020 14:52:22 +0100
-Message-ID: <20200211135256.24617-29-joro@8bytes.org>
+Subject: [PATCH 25/62] x86/head/64: Install boot GDT
+Date: Tue, 11 Feb 2020 14:52:19 +0100
+Message-ID: <20200211135256.24617-26-joro@8bytes.org>
 References: <20200211135256.24617-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,45 +23,57 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Make sure there is a stack once the kernel runs from virual addresses.
-At this stage any secondary CPU which boots will have lost its stack
-because the kernel switched to a new page-table which does not map the
-real-mode stack anymore.
-
-This is also needed for handling early #VC exceptions caused by
-instructions like CPUID.
+Handling exceptions during boot requires a working GDT. The kernel GDT
+is not yet ready for use, so install a temporary boot GDT.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/head_64.S | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/x86/kernel/head_64.S | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
 diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
-index 36f2f30ad200..eefd6838b895 100644
+index 4bbc770af632..5a3cde971cb7 100644
 --- a/arch/x86/kernel/head_64.S
 +++ b/arch/x86/kernel/head_64.S
-@@ -188,6 +188,12 @@ SYM_CODE_START(secondary_startup_64)
- 	movl	initial_gs+4(%rip),%edx
- 	wrmsr
+@@ -72,6 +72,20 @@ SYM_CODE_START_NOALIGN(startup_64)
+ 	/* Set up the stack for verify_cpu(), similar to initial_stack below */
+ 	leaq	(__end_init_task - SIZEOF_PTREGS)(%rip), %rsp
  
-+	/*
-+	 * Setup a boot time stack - Any secondary CPU will have lost its stack
-+	 * by now because the cr3-switch above unmaps the real-mode stack
-+	 */
-+	movq initial_stack(%rip), %rsp
++	/* Setup boot GDT descriptor and load boot GDT */
++	leaq	boot_gdt(%rip), %rax
++	movq	%rax, boot_gdt_base(%rip)
++	lgdt	boot_gdt_descr(%rip)
 +
- 	/* Check if nx is implemented */
- 	movl	$0x80000001, %eax
- 	cpuid
-@@ -208,9 +214,6 @@ SYM_CODE_START(secondary_startup_64)
- 	/* Make changes effective */
- 	movq	%rax, %cr0
++	/* GDT loaded - switch to __KERNEL_CS so IRET works reliably */
++	pushq	$__KERNEL_CS
++	leaq	.Lon_kernel_cs(%rip), %rax
++	pushq	%rax
++	lretq
++
++.Lon_kernel_cs:
++	UNWIND_HINT_EMPTY
++
+ 	/* Sanitize CPU configuration */
+ 	call verify_cpu
  
--	/* Setup a boot time stack */
--	movq initial_stack(%rip), %rsp
--
- 	/* zero EFLAGS after setting rsp */
- 	pushq $0
- 	popfq
+@@ -480,6 +494,18 @@ SYM_DATA_LOCAL(early_gdt_descr_base,	.quad INIT_PER_CPU_VAR(gdt_page))
+ SYM_DATA(phys_base, .quad 0x0)
+ EXPORT_SYMBOL(phys_base)
+ 
++/* Boot GDT used when kernel addresses are not mapped yet */
++SYM_DATA_LOCAL(boot_gdt_descr,		.word boot_gdt_end - boot_gdt)
++SYM_DATA_LOCAL(boot_gdt_base,		.quad 0)
++SYM_DATA_START(boot_gdt)
++	.quad	0
++	.quad   0x00cf9a000000ffff      /* __KERNEL32_CS */
++	.quad   0x00af9a000000ffff      /* __KERNEL_CS */
++	.quad   0x00cf92000000ffff      /* __KERNEL_DS */
++	.quad   0x0080890000000000      /* TS descriptor */
++	.quad   0x0000000000000000      /* TS continued */
++SYM_DATA_END_LABEL(boot_gdt, SYM_L_LOCAL, boot_gdt_end)
++
+ #include "../../x86/xen/xen-head.S"
+ 
+ 	__PAGE_ALIGNED_BSS
 -- 
 2.17.1
