@@ -1,7 +1,8 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 27/62] x86/head/64: Load segment registers earlier
-Date: Tue, 11 Feb 2020 14:52:21 +0100
-Message-ID: <20200211135256.24617-28-joro@8bytes.org>
+Subject: [PATCH 16/62] x86/boot/compressed/64: Check return value of
+ kernel_ident_mapping_init()
+Date: Tue, 11 Feb 2020 14:52:10 +0100
+Message-ID: <20200211135256.24617-17-joro@8bytes.org>
 References: <20200211135256.24617-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,84 +24,38 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Make sure segments are properly set up before setting up an IDT and
-doing anything that might cause a #VC exception. This is later needed
-for early exception handling.
+The function can fail to create an identity mapping, check for that
+and bail out if it happens.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/head_64.S | 52 +++++++++++++++++++--------------------
- 1 file changed, 26 insertions(+), 26 deletions(-)
+ arch/x86/boot/compressed/ident_map_64.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
-index a3a9383e8dd6..36f2f30ad200 100644
---- a/arch/x86/kernel/head_64.S
-+++ b/arch/x86/kernel/head_64.S
-@@ -162,6 +162,32 @@ SYM_CODE_START(secondary_startup_64)
- 	movq	%rax, boot_gdt_base(%rip)
- 	lgdt	boot_gdt_descr(%rip)
+diff --git a/arch/x86/boot/compressed/ident_map_64.c b/arch/x86/boot/compressed/ident_map_64.c
+index 5b720736a789..feb180cced28 100644
+--- a/arch/x86/boot/compressed/ident_map_64.c
++++ b/arch/x86/boot/compressed/ident_map_64.c
+@@ -93,6 +93,8 @@ static struct x86_mapping_info mapping_info;
+  */
+ static void add_identity_map(unsigned long start, unsigned long end)
+ {
++	int ret;
++
+ 	/* Align boundary to 2M. */
+ 	start = round_down(start, PMD_SIZE);
+ 	end = round_up(end, PMD_SIZE);
+@@ -100,8 +102,9 @@ static void add_identity_map(unsigned long start, unsigned long end)
+ 		return;
  
-+	/* set up data segments */
-+	xorl %eax,%eax
-+	movl %eax,%ds
-+	movl %eax,%ss
-+	movl %eax,%es
-+
-+	/*
-+	 * We don't really need to load %fs or %gs, but load them anyway
-+	 * to kill any stale realmode selectors.  This allows execution
-+	 * under VT hardware.
-+	 */
-+	movl %eax,%fs
-+	movl %eax,%gs
-+
-+	/* Set up %gs.
-+	 *
-+	 * The base of %gs always points to fixed_percpu_data. If the
-+	 * stack protector canary is enabled, it is located at %gs:40.
-+	 * Note that, on SMP, the boot cpu uses init data section until
-+	 * the per cpu areas are set up.
-+	 */
-+	movl	$MSR_GS_BASE,%ecx
-+	movl	initial_gs(%rip),%eax
-+	movl	initial_gs+4(%rip),%edx
-+	wrmsr
-+
- 	/* Check if nx is implemented */
- 	movl	$0x80000001, %eax
- 	cpuid
-@@ -197,32 +223,6 @@ SYM_CODE_START(secondary_startup_64)
- 	 */
- 	lgdt	early_gdt_descr(%rip)
+ 	/* Build the mapping. */
+-	kernel_ident_mapping_init(&mapping_info, (pgd_t *)top_level_pgt,
+-				  start, end);
++	ret = kernel_ident_mapping_init(&mapping_info, (pgd_t *)top_level_pgt, start, end);
++	if (ret)
++		error("Error: kernel_ident_mapping_init() failed\n");
+ }
  
--	/* set up data segments */
--	xorl %eax,%eax
--	movl %eax,%ds
--	movl %eax,%ss
--	movl %eax,%es
--
--	/*
--	 * We don't really need to load %fs or %gs, but load them anyway
--	 * to kill any stale realmode selectors.  This allows execution
--	 * under VT hardware.
--	 */
--	movl %eax,%fs
--	movl %eax,%gs
--
--	/* Set up %gs.
--	 *
--	 * The base of %gs always points to fixed_percpu_data. If the
--	 * stack protector canary is enabled, it is located at %gs:40.
--	 * Note that, on SMP, the boot cpu uses init data section until
--	 * the per cpu areas are set up.
--	 */
--	movl	$MSR_GS_BASE,%ecx
--	movl	initial_gs(%rip),%eax
--	movl	initial_gs+4(%rip),%edx
--	wrmsr
--
- 	/* rsi is pointer to real mode structure with interesting info.
- 	   pass it to C */
- 	movq	%rsi, %rdi
+ /* Locates and clears a region for a new top level page table. */
 -- 
 2.17.1
