@@ -1,8 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 16/62] x86/boot/compressed/64: Check return value of
- kernel_ident_mapping_init()
-Date: Tue, 11 Feb 2020 14:52:10 +0100
-Message-ID: <20200211135256.24617-17-joro@8bytes.org>
+Subject: [PATCH 28/62] x86/head/64: Switch to initial stack earlier
+Date: Tue, 11 Feb 2020 14:52:22 +0100
+Message-ID: <20200211135256.24617-29-joro@8bytes.org>
 References: <20200211135256.24617-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,38 +23,45 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-The function can fail to create an identity mapping, check for that
-and bail out if it happens.
+Make sure there is a stack once the kernel runs from virual addresses.
+At this stage any secondary CPU which boots will have lost its stack
+because the kernel switched to a new page-table which does not map the
+real-mode stack anymore.
+
+This is also needed for handling early #VC exceptions caused by
+instructions like CPUID.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/compressed/ident_map_64.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/x86/kernel/head_64.S | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/boot/compressed/ident_map_64.c b/arch/x86/boot/compressed/ident_map_64.c
-index 5b720736a789..feb180cced28 100644
---- a/arch/x86/boot/compressed/ident_map_64.c
-+++ b/arch/x86/boot/compressed/ident_map_64.c
-@@ -93,6 +93,8 @@ static struct x86_mapping_info mapping_info;
-  */
- static void add_identity_map(unsigned long start, unsigned long end)
- {
-+	int ret;
+diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
+index 36f2f30ad200..eefd6838b895 100644
+--- a/arch/x86/kernel/head_64.S
++++ b/arch/x86/kernel/head_64.S
+@@ -188,6 +188,12 @@ SYM_CODE_START(secondary_startup_64)
+ 	movl	initial_gs+4(%rip),%edx
+ 	wrmsr
+ 
++	/*
++	 * Setup a boot time stack - Any secondary CPU will have lost its stack
++	 * by now because the cr3-switch above unmaps the real-mode stack
++	 */
++	movq initial_stack(%rip), %rsp
 +
- 	/* Align boundary to 2M. */
- 	start = round_down(start, PMD_SIZE);
- 	end = round_up(end, PMD_SIZE);
-@@ -100,8 +102,9 @@ static void add_identity_map(unsigned long start, unsigned long end)
- 		return;
+ 	/* Check if nx is implemented */
+ 	movl	$0x80000001, %eax
+ 	cpuid
+@@ -208,9 +214,6 @@ SYM_CODE_START(secondary_startup_64)
+ 	/* Make changes effective */
+ 	movq	%rax, %cr0
  
- 	/* Build the mapping. */
--	kernel_ident_mapping_init(&mapping_info, (pgd_t *)top_level_pgt,
--				  start, end);
-+	ret = kernel_ident_mapping_init(&mapping_info, (pgd_t *)top_level_pgt, start, end);
-+	if (ret)
-+		error("Error: kernel_ident_mapping_init() failed\n");
- }
- 
- /* Locates and clears a region for a new top level page table. */
+-	/* Setup a boot time stack */
+-	movq initial_stack(%rip), %rsp
+-
+ 	/* zero EFLAGS after setting rsp */
+ 	pushq $0
+ 	popfq
 -- 
 2.17.1
