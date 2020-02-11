@@ -1,141 +1,166 @@
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 42/62] x86/sev-es: Handle DR7 read/write events
-Date: Tue, 11 Feb 2020 14:52:36 +0100
-Message-ID: <20200211135256.24617-43-joro@8bytes.org>
-References: <20200211135256.24617-1-joro@8bytes.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200211135256.24617-1-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: x86@kernel.org
-Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH v4] drm/cirrus: add drm_driver.release callback.
+Date: Tue, 11 Feb 2020 14:55:22 +0100
+Message-ID: <20200211135522.23654-1-kraxel@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: dri-devel@lists.freedesktop.org
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+Move final cleanups from cirrus_pci_remove() to the new callback.
+Add drm_atomic_helper_shutdown() call to cirrus_pci_remove().
 
-Add code to handle #VC exceptions on DR7 register reads and writes.
-This is needed early because show_regs() reads DR7 to print it out.
+Use drm_dev_{enter,exit,unplug} to avoid touching hardware after
+device removal.
 
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-[ jroedel@suse.de: - Adapt to #VC handling framework
-                   - Support early usage ]
-Co-developed-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+v4: add changelog.
+v3: use drm_dev*.
+v2: stop touching hardware after pci_remove().
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- arch/x86/kernel/sev-es.c | 69 +++++++++++++++++++++++++++++++++++++---
- 1 file changed, 65 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/cirrus/cirrus.c | 43 ++++++++++++++++++++++++++++-----
+ 1 file changed, 37 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index b27d5b0a8ae1..fcd67ab04d2d 100644
---- a/arch/x86/kernel/sev-es.c
-+++ b/arch/x86/kernel/sev-es.c
-@@ -22,6 +22,8 @@
- #include <asm/traps.h>
- #include <asm/svm.h>
+diff --git a/drivers/gpu/drm/cirrus/cirrus.c b/drivers/gpu/drm/cirrus/cirrus.c
+index a91fb0d7282c..d2ff63ce8eaf 100644
+--- a/drivers/gpu/drm/cirrus/cirrus.c
++++ b/drivers/gpu/drm/cirrus/cirrus.c
+@@ -151,9 +151,13 @@ static int cirrus_pitch(struct drm_framebuffer *fb)
  
-+#define DR7_RESET_VALUE        0x400
+ static void cirrus_set_start_address(struct cirrus_device *cirrus, u32 offset)
+ {
++	int idx;
+ 	u32 addr;
+ 	u8 tmp;
+ 
++	if (!drm_dev_enter(&cirrus->dev, &idx))
++		return;
 +
- /* For early boot hypervisor communication in SEV-ES enabled guests */
- struct ghcb boot_ghcb_page __bss_decrypted __aligned(PAGE_SIZE);
- 
-@@ -30,6 +32,9 @@ struct ghcb boot_ghcb_page __bss_decrypted __aligned(PAGE_SIZE);
-  * cleared
-  */
- struct ghcb __initdata *boot_ghcb;
-+static DEFINE_PER_CPU(unsigned long, cached_dr7) = DR7_RESET_VALUE;
-+/* Needed before per-cpu access is set up */
-+static unsigned long early_dr7 = DR7_RESET_VALUE;
- 
- /* Runtime GHCBs */
- static DEFINE_PER_CPU_DECRYPTED(struct ghcb, ghcb_page) __aligned(PAGE_SIZE);
-@@ -212,13 +217,69 @@ static void __init early_forward_exception(struct es_em_ctxt *ctxt)
- 	early_exception(ctxt->regs, trapnr);
+ 	addr = offset >> 2;
+ 	wreg_crt(cirrus, 0x0c, (u8)((addr >> 8) & 0xff));
+ 	wreg_crt(cirrus, 0x0d, (u8)(addr & 0xff));
+@@ -168,6 +172,8 @@ static void cirrus_set_start_address(struct cirrus_device *cirrus, u32 offset)
+ 	tmp &= 0x7f;
+ 	tmp |= (addr >> 12) & 0x80;
+ 	wreg_crt(cirrus, 0x1d, tmp);
++
++	drm_dev_exit(idx);
  }
  
-+static enum es_result handle_dr7_write(struct ghcb *ghcb,
-+				       struct es_em_ctxt *ctxt,
-+				       bool early)
-+{
-+	u8 rm = X86_MODRM_RM(ctxt->insn.modrm.value);
-+	unsigned long *reg;
-+	enum es_result ret;
-+
-+	if (ctxt->insn.rex_prefix.nbytes &&
-+	    X86_REX_B(ctxt->insn.rex_prefix.value))
-+		rm |= 0x8;
-+
-+	reg = register_from_idx(ctxt->regs, rm);
-+
-+	/* Using a value of 0 for ExitInfo1 means RAX holds the value */
-+	ghcb_set_rax(ghcb, *reg);
-+	ret = ghcb_hv_call(ghcb, ctxt, SVM_EXIT_WRITE_DR7, 0, 0);
-+	if (ret != ES_OK)
-+		return ret;
-+
-+	if (early)
-+		early_dr7 = *reg;
-+	else
-+		this_cpu_write(cached_dr7, *reg);
-+
-+	return ES_OK;
-+}
-+
-+static enum es_result handle_dr7_read(struct ghcb *ghcb,
-+				      struct es_em_ctxt *ctxt,
-+				      bool early)
-+{
-+	u8 rm = X86_MODRM_RM(ctxt->insn.modrm.value);
-+	unsigned long *reg;
-+
-+	if (ctxt->insn.rex_prefix.nbytes &&
-+	    X86_REX_B(ctxt->insn.rex_prefix.value))
-+		rm |= 0x8;
-+
-+	reg = register_from_idx(ctxt->regs, rm);
-+
-+	if (early)
-+		*reg = early_dr7;
-+	else
-+		*reg = this_cpu_read(cached_dr7);
-+
-+	return ES_OK;
-+}
-+
- static enum es_result handle_vc_exception(struct es_em_ctxt *ctxt,
--		struct ghcb *ghcb,
--		unsigned long exit_code)
-+					  struct ghcb *ghcb,
-+					  unsigned long exit_code,
-+					  bool early)
+ static int cirrus_mode_set(struct cirrus_device *cirrus,
+@@ -176,9 +182,12 @@ static int cirrus_mode_set(struct cirrus_device *cirrus,
  {
- 	enum es_result result;
+ 	int hsyncstart, hsyncend, htotal, hdispend;
+ 	int vtotal, vdispend;
+-	int tmp;
++	int tmp, idx;
+ 	int sr07 = 0, hdr = 0;
  
- 	switch (exit_code) {
-+	case SVM_EXIT_READ_DR7:
-+		result = handle_dr7_read(ghcb, ctxt, early);
-+		break;
-+	case SVM_EXIT_WRITE_DR7:
-+		result = handle_dr7_write(ghcb, ctxt, early);
-+		break;
- 	case SVM_EXIT_CPUID:
- 		result = handle_cpuid(ghcb, ctxt);
++	if (!drm_dev_enter(&cirrus->dev, &idx))
++		return -1;
++
+ 	htotal = mode->htotal / 8;
+ 	hsyncend = mode->hsync_end / 8;
+ 	hsyncstart = mode->hsync_start / 8;
+@@ -264,6 +273,7 @@ static int cirrus_mode_set(struct cirrus_device *cirrus,
+ 		hdr = 0xc5;
  		break;
-@@ -302,7 +363,7 @@ dotraplinkage void do_vmm_communication(struct pt_regs *regs, unsigned long exit
- 		result = context_filter(regs, exit_code);
+ 	default:
++		drm_dev_exit(idx);
+ 		return -1;
+ 	}
  
- 	if (result == ES_OK)
--		result = handle_vc_exception(&ctxt, ghcb, exit_code);
-+		result = handle_vc_exception(&ctxt, ghcb, exit_code, false);
+@@ -292,6 +302,8 @@ static int cirrus_mode_set(struct cirrus_device *cirrus,
  
- 	/* Done - now check the result */
- 	switch (result) {
-@@ -368,7 +429,7 @@ int __init boot_vc_exception(struct pt_regs *regs)
- 	result = init_em_ctxt(&ctxt, regs, exit_code);
+ 	/* Unblank (needed on S3 resume, vgabios doesn't do it then) */
+ 	outb(0x20, 0x3c0);
++
++	drm_dev_exit(idx);
+ 	return 0;
+ }
  
- 	if (result == ES_OK)
--		result = handle_vc_exception(&ctxt, boot_ghcb, exit_code);
-+		result = handle_vc_exception(&ctxt, boot_ghcb, exit_code, true);
+@@ -300,10 +312,16 @@ static int cirrus_fb_blit_rect(struct drm_framebuffer *fb,
+ {
+ 	struct cirrus_device *cirrus = fb->dev->dev_private;
+ 	void *vmap;
++	int idx, ret;
  
- 	/* Done - now check the result */
- 	switch (result) {
++	ret = -ENODEV;
++	if (!drm_dev_enter(&cirrus->dev, &idx))
++		goto out;
++
++	ret = -ENOMEM;
+ 	vmap = drm_gem_shmem_vmap(fb->obj[0]);
+ 	if (!vmap)
+-		return -ENOMEM;
++		goto out_dev_exit;
+ 
+ 	if (cirrus->cpp == fb->format->cpp[0])
+ 		drm_fb_memcpy_dstclip(cirrus->vram,
+@@ -323,7 +341,12 @@ static int cirrus_fb_blit_rect(struct drm_framebuffer *fb,
+ 		WARN_ON_ONCE("cpp mismatch");
+ 
+ 	drm_gem_shmem_vunmap(fb->obj[0], vmap);
+-	return 0;
++	ret = 0;
++
++out_dev_exit:
++	drm_dev_exit(idx);
++out:
++	return ret;
+ }
+ 
+ static int cirrus_fb_blit_fullscreen(struct drm_framebuffer *fb)
+@@ -502,6 +525,14 @@ static void cirrus_mode_config_init(struct cirrus_device *cirrus)
+ 
+ /* ------------------------------------------------------------------ */
+ 
++static void cirrus_release(struct drm_device *dev)
++{
++	struct cirrus_device *cirrus = dev->dev_private;
++
++	drm_mode_config_cleanup(dev);
++	kfree(cirrus);
++}
++
+ DEFINE_DRM_GEM_FOPS(cirrus_fops);
+ 
+ static struct drm_driver cirrus_driver = {
+@@ -515,6 +546,7 @@ static struct drm_driver cirrus_driver = {
+ 
+ 	.fops		 = &cirrus_fops,
+ 	DRM_GEM_SHMEM_DRIVER_OPS,
++	.release         = cirrus_release,
+ };
+ 
+ static int cirrus_pci_probe(struct pci_dev *pdev,
+@@ -598,12 +630,11 @@ static void cirrus_pci_remove(struct pci_dev *pdev)
+ 	struct drm_device *dev = pci_get_drvdata(pdev);
+ 	struct cirrus_device *cirrus = dev->dev_private;
+ 
+-	drm_dev_unregister(dev);
+-	drm_mode_config_cleanup(dev);
++	drm_dev_unplug(dev);
++	drm_atomic_helper_shutdown(dev);
+ 	iounmap(cirrus->mmio);
+ 	iounmap(cirrus->vram);
+ 	drm_dev_put(dev);
+-	kfree(cirrus);
+ 	pci_release_regions(pdev);
+ }
+ 
 -- 
-2.17.1
+2.18.2
