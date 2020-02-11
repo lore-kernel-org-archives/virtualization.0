@@ -1,75 +1,82 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V2 5/5] vdpasim: vDPA device simulator
-Date: Tue, 11 Feb 2020 11:12:19 +0800
-Message-ID: <d738e251-d03b-c2a0-bf0a-045ea0b1871c@redhat.com>
-References: <20200210035608.10002-1-jasowang@redhat.com>
- <20200210035608.10002-6-jasowang@redhat.com>
- <20200210062219-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH v2] tools/virtio: option to build an out of tree module
+Date: Tue, 11 Feb 2020 11:19:37 +0800
+Message-ID: <e361e68d-e7c8-1fe0-45c1-21e6be8333d1@redhat.com>
+References: <20200207073327.1205669-1-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20200210062219-mutt-send-email-mst@kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200207073327.1205669-1-mst@redhat.com>
 Content-Language: en-US
-Sender: kvm-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, tiwei.bie@intel.com, jgg@mellanox.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jiri@mellanox.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-On 2020/2/10 =E4=B8=8B=E5=8D=887:23, Michael S. Tsirkin wrote:
-> On Mon, Feb 10, 2020 at 11:56:08AM +0800, Jason Wang wrote:
->> This patch implements a software vDPA networking device. The datapath
->> is implemented through vringh and workqueue. The device has an on-chip
->> IOMMU which translates IOVA to PA. For kernel virtio drivers, vDPA
->> simulator driver provides dma_ops. For vhost driers, set_map() methods
->> of vdpa_config_ops is implemented to accept mappings from vhost.
->>
->> Currently, vDPA device simulator will loopback TX traffic to RX. So
->> the main use case for the device is vDPA feature testing, prototyping
->> and development.
->>
->> Note, there's no management API implemented, a vDPA device will be
->> registered once the module is probed. We need to handle this in the
->> future development.
->>
->> Signed-off-by: Jason Wang<jasowang@redhat.com>
->> ---
->>   drivers/virtio/vdpa/Kconfig    |  17 +
->>   drivers/virtio/vdpa/Makefile   |   1 +
->>   drivers/virtio/vdpa/vdpa_sim.c | 678 +++++++++++++++++++++++++++++++=
-++
->>   3 files changed, 696 insertions(+)
->>   create mode 100644 drivers/virtio/vdpa/vdpa_sim.c
->>
->> diff --git a/drivers/virtio/vdpa/Kconfig b/drivers/virtio/vdpa/Kconfig
->> index 7a99170e6c30..a7888974dda8 100644
->> --- a/drivers/virtio/vdpa/Kconfig
->> +++ b/drivers/virtio/vdpa/Kconfig
->> @@ -7,3 +7,20 @@ config VDPA
->>             datapath which complies with virtio specifications with
->>             vendor specific control path.
->>  =20
->> +menuconfig VDPA_MENU
->> +	bool "VDPA drivers"
->> +	default n
->> +
->> +if VDPA_MENU
->> +
->> +config VDPA_SIM
->> +	tristate "vDPA device simulator"
->> +        select VDPA
->> +        default n
->> +        help
->> +          vDPA networking device simulator which loop TX traffic back
->> +          to RX. This device is used for testing, prototyping and
->> +          development of vDPA.
-> So how about we make this depend on RUNTIME_TESTING_MENU?
+On 2020/2/7 =E4=B8=8B=E5=8D=883:35, Michael S. Tsirkin wrote:
+> Handy for testing with distro kernels.
+> Warn that the resulting module is completely unsupported,
+> and isn't intended for production use.
 >
+> Usage:
+>          make oot # builds vhost_test.ko, vhost.ko
+>          make oot-clean # cleans out files created
 >
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>
+> changes from v1:
+> 	lots of refactoring
+> 	disable all modules except vhost by default (more of a chance
+> 						     it'll build)
+> 	oot-clean target
+>
+>   tools/virtio/Makefile | 27 ++++++++++++++++++++++++++-
+>   1 file changed, 26 insertions(+), 1 deletion(-)
+>
+> diff --git a/tools/virtio/Makefile b/tools/virtio/Makefile
+> index 8e2a908115c2..f33f32f1d208 100644
+> --- a/tools/virtio/Makefile
+> +++ b/tools/virtio/Makefile
+> @@ -8,7 +8,32 @@ CFLAGS +=3D -g -O2 -Werror -Wall -I. -I../include/ -I =
+../../usr/include/ -Wno-poin
+>   vpath %.c ../../drivers/virtio ../../drivers/vhost
+>   mod:
+>   	${MAKE} -C `pwd`/../.. M=3D`pwd`/vhost_test V=3D${V}
+> -.PHONY: all test mod clean
+> +
+> +#oot: build vhost as an out of tree module for a distro kernel
+> +#no effort is taken to make it actually build or work, but tends to mo=
+stly work
+> +#if the distro kernel is very close to upstream
+> +#unsupported! this is a development tool only, don't use the
+> +#resulting modules in production!
+> +OOT_KSRC=3D/lib/modules/$$(uname -r)/build
+> +OOT_VHOST=3D`pwd`/../../drivers/vhost
+> +#Everyone depends on vhost
+> +#Tweak the below to enable more modules
+> +OOT_CONFIGS=3D\
+> +	CONFIG_VHOST=3Dm \
+> +	CONFIG_VHOST_NET=3Dn \
+> +	CONFIG_VHOST_SCSI=3Dn \
+> +	CONFIG_VHOST_VSOCK=3Dn
+> +OOT_BUILD=3DKCFLAGS=3D"-I "${OOT_VHOST} ${MAKE} -C ${OOT_KSRC} V=3D${V=
+}
+> +oot-build:
+> +	echo "UNSUPPORTED! Don't use the resulting modules in production!"
+> +	${OOT_BUILD} M=3D`pwd`/vhost_test
+> +	${OOT_BUILD} M=3D${OOT_VHOST} ${OOT_CONFIGS}
+> +
+> +oot-clean: oot-build
+> +oot: oot-build
+> +oot-clean: OOT_BUILD+=3Dclean
+> +
+> +.PHONY: all test mod clean vhost oot oot-clean oot-build
+>   clean:
+>   	${RM} *.o vringh_test virtio_test vhost_test/*.o vhost_test/.*.cmd \
+>                 vhost_test/Module.symvers vhost_test/modules.order *.d
 
-I'm not sure how much it can help but I can do that in next version.
 
-Thanks
-
-RUNTIME_TESTING_MENU
+Acked-by: Jason Wang <jasowang@redhat.com>
