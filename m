@@ -1,8 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 39/62] x86/sev-es: Harden runtime #VC handler for exceptions
- from user-space
-Date: Tue, 11 Feb 2020 14:52:33 +0100
-Message-ID: <20200211135256.24617-40-joro@8bytes.org>
+Subject: [PATCH 31/62] x86/sev-es: Add SEV-ES Feature Detection
+Date: Tue, 11 Feb 2020 14:52:25 +0100
+Message-ID: <20200211135256.24617-32-joro@8bytes.org>
 References: <20200211135256.24617-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,69 +23,105 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Send SIGBUS to the user-space process that caused the #VC exception
-instead of killing the machine. Also ratelimit the error messages so
-that user-space can't flood the kernel log.
+Add the sev_es_active function for checking whether SEV-ES is enabled.
+Also cache the value of MSR_AMD64_SEV at boot to speed up the feature
+checking in the running code.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev-es.c | 32 +++++++++++++++++++++++---------
- 1 file changed, 23 insertions(+), 9 deletions(-)
+ arch/x86/include/asm/mem_encrypt.h |  3 +++
+ arch/x86/include/asm/msr-index.h   |  2 ++
+ arch/x86/mm/mem_encrypt.c          | 11 ++++++++++-
+ arch/x86/mm/mem_encrypt_identity.c |  3 +++
+ 4 files changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index f5bff4219f6f..d128a9397639 100644
---- a/arch/x86/kernel/sev-es.c
-+++ b/arch/x86/kernel/sev-es.c
-@@ -254,16 +254,16 @@ dotraplinkage void do_vmm_communication(struct pt_regs *regs, unsigned long exit
- 		finish_insn(&ctxt);
- 		break;
- 	case ES_UNSUPPORTED:
--		pr_emerg("Unsupported exit-code 0x%02lx in early #VC exception (IP: 0x%lx)\n",
--			 exit_code, regs->ip);
-+		pr_err_ratelimited("Unsupported exit-code 0x%02lx in early #VC exception (IP: 0x%lx)\n",
-+				   exit_code, regs->ip);
- 		goto fail;
- 	case ES_VMM_ERROR:
--		pr_emerg("PANIC: Failure in communication with VMM (exit-code 0x%02lx IP: 0x%lx)\n",
--			 exit_code, regs->ip);
-+		pr_err_ratelimited("Failure in communication with VMM (exit-code 0x%02lx IP: 0x%lx)\n",
-+				   exit_code, regs->ip);
- 		goto fail;
- 	case ES_DECODE_FAILED:
--		pr_emerg("PANIC: Failed to decode instruction (exit-code 0x%02lx IP: 0x%lx)\n",
--			 exit_code, regs->ip);
-+		pr_err_ratelimited("PANIC: Failed to decode instruction (exit-code 0x%02lx IP: 0x%lx)\n",
-+				   exit_code, regs->ip);
- 		goto fail;
- 	case ES_EXCEPTION:
- 		forward_exception(&ctxt);
-@@ -278,10 +278,24 @@ dotraplinkage void do_vmm_communication(struct pt_regs *regs, unsigned long exit
- 	return;
+diff --git a/arch/x86/include/asm/mem_encrypt.h b/arch/x86/include/asm/mem_encrypt.h
+index 848ce43b9040..6f61bb93366a 100644
+--- a/arch/x86/include/asm/mem_encrypt.h
++++ b/arch/x86/include/asm/mem_encrypt.h
+@@ -19,6 +19,7 @@
+ #ifdef CONFIG_AMD_MEM_ENCRYPT
  
- fail:
--	show_regs(regs);
-+	if (user_mode(regs)) {
-+		/*
-+		 * Do not kill the machine if user-space triggered the
-+		 * exception. Send SIGBUS instead and let user-space deal with
-+		 * it.
-+		 */
-+		force_sig_fault(SIGBUS, BUS_OBJERR, (void __user *)0);
-+	} else {
-+		/* Show some debug info */
-+		show_regs(regs);
+ extern u64 sme_me_mask;
++extern u64 sev_status;
+ extern bool sev_enabled;
  
--	while (true)
--		halt();
-+		/* Ask hypervisor to terminate */
-+		terminate(GHCB_SEV_ES_REASON_GENERAL_REQUEST);
-+
-+		/* If that fails and we get here - just halt the machine */
-+		while (true)
-+			halt();
-+	}
+ void sme_encrypt_execute(unsigned long encrypted_kernel_vaddr,
+@@ -49,6 +50,7 @@ void __init mem_encrypt_free_decrypted_mem(void);
+ 
+ bool sme_active(void);
+ bool sev_active(void);
++bool sev_es_active(void);
+ 
+ #define __bss_decrypted __attribute__((__section__(".bss..decrypted")))
+ 
+@@ -71,6 +73,7 @@ static inline void __init sme_enable(struct boot_params *bp) { }
+ 
+ static inline bool sme_active(void) { return false; }
+ static inline bool sev_active(void) { return false; }
++static inline bool sev_es_active(void) { return false; }
+ 
+ static inline int __init
+ early_set_memory_decrypted(unsigned long vaddr, unsigned long size) { return 0; }
+diff --git a/arch/x86/include/asm/msr-index.h b/arch/x86/include/asm/msr-index.h
+index b6139b70db54..1411c37b6cd9 100644
+--- a/arch/x86/include/asm/msr-index.h
++++ b/arch/x86/include/asm/msr-index.h
+@@ -435,7 +435,9 @@
+ #define MSR_AMD64_SEV_ES_GHCB		0xc0010130
+ #define MSR_AMD64_SEV			0xc0010131
+ #define MSR_AMD64_SEV_ENABLED_BIT	0
++#define MSR_AMD64_SEV_ES_ENABLED_BIT	1
+ #define MSR_AMD64_SEV_ENABLED		BIT_ULL(MSR_AMD64_SEV_ENABLED_BIT)
++#define MSR_AMD64_SEV_ES_ENABLED	BIT_ULL(MSR_AMD64_SEV_ES_ENABLED_BIT)
+ 
+ #define MSR_AMD64_VIRT_SPEC_CTRL	0xc001011f
+ 
+diff --git a/arch/x86/mm/mem_encrypt.c b/arch/x86/mm/mem_encrypt.c
+index a03614bd3e1a..a35fcba24866 100644
+--- a/arch/x86/mm/mem_encrypt.c
++++ b/arch/x86/mm/mem_encrypt.c
+@@ -38,7 +38,9 @@
+  * section is later cleared.
+  */
+ u64 sme_me_mask __section(.data) = 0;
++u64 sev_status __section(.data) = 0;
+ EXPORT_SYMBOL(sme_me_mask);
++EXPORT_SYMBOL(sev_status);
+ DEFINE_STATIC_KEY_FALSE(sev_enable_key);
+ EXPORT_SYMBOL_GPL(sev_enable_key);
+ 
+@@ -347,9 +349,16 @@ bool sme_active(void)
+ 
+ bool sev_active(void)
+ {
+-	return sme_me_mask && sev_enabled;
++	return !!(sev_status & MSR_AMD64_SEV_ENABLED);
  }
  
- int __init boot_vc_exception(struct pt_regs *regs)
++bool sev_es_active(void)
++{
++	return !!(sev_status & MSR_AMD64_SEV_ES_ENABLED);
++}
++EXPORT_SYMBOL_GPL(sev_es_active);
++
++
+ /* Override for DMA direct allocation check - ARCH_HAS_FORCE_DMA_UNENCRYPTED */
+ bool force_dma_unencrypted(struct device *dev)
+ {
+diff --git a/arch/x86/mm/mem_encrypt_identity.c b/arch/x86/mm/mem_encrypt_identity.c
+index e2b0e2ac07bb..68d75379e06a 100644
+--- a/arch/x86/mm/mem_encrypt_identity.c
++++ b/arch/x86/mm/mem_encrypt_identity.c
+@@ -540,6 +540,9 @@ void __init sme_enable(struct boot_params *bp)
+ 		if (!(msr & MSR_AMD64_SEV_ENABLED))
+ 			return;
+ 
++		/* Save SEV_STATUS to avoid reading MSR again */
++		sev_status = msr;
++
+ 		/* SEV state cannot be controlled by a command line option */
+ 		sme_me_mask = me_mask;
+ 		sev_enabled = true;
 -- 
 2.17.1
