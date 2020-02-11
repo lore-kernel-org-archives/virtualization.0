@@ -1,105 +1,51 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 09/62] x86/boot/compressed/64: Rename kaslr_64.c to ident_map_64.c
-Date: Tue, 11 Feb 2020 14:52:03 +0100
-Message-ID: <20200211135256.24617-10-joro@8bytes.org>
+Subject: [PATCH 06/62] x86/boot/compressed: Fix debug_puthex() parameter type
+Date: Tue, 11 Feb 2020 14:52:00 +0100
+Message-ID: <20200211135256.24617-7-joro@8bytes.org>
 References: <20200211135256.24617-1-joro@8bytes.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200211135256.24617-1-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: x86@kernel.org
-Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>
+Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Joerg Roedel <jroedel@suse.de>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-The file contains only code related to identity mapped page-tables.
-Rename the file and compile it always in.
+In the CONFIG_X86_VERBOSE_BOOTUP=Y case the debug_puthex() macro just
+turns into __puthex, which takes 'unsigned long' as parameter. But in
+the CONFIG_X86_VERBOSE_BOOTUP=N case it is a function which takes
+'unsigned char *', causing compile warnings when the function is used.
+Fix the parameter type to get rid of the warnings.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/compressed/Makefile                       | 2 +-
- arch/x86/boot/compressed/{kaslr_64.c => ident_map_64.c} | 9 +++++++++
- arch/x86/boot/compressed/kaslr.c                        | 9 ---------
- arch/x86/boot/compressed/misc.h                         | 8 ++++++++
- 4 files changed, 18 insertions(+), 10 deletions(-)
- rename arch/x86/boot/compressed/{kaslr_64.c => ident_map_64.c} (95%)
+ arch/x86/boot/compressed/misc.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
-index 54d63526e856..e6b3e0fc48de 100644
---- a/arch/x86/boot/compressed/Makefile
-+++ b/arch/x86/boot/compressed/Makefile
-@@ -80,7 +80,7 @@ vmlinux-objs-y := $(obj)/vmlinux.lds $(obj)/kernel_info.o $(obj)/head_$(BITS).o
- vmlinux-objs-$(CONFIG_EARLY_PRINTK) += $(obj)/early_serial_console.o
- vmlinux-objs-$(CONFIG_RANDOMIZE_BASE) += $(obj)/kaslr.o
- ifdef CONFIG_X86_64
--	vmlinux-objs-$(CONFIG_RANDOMIZE_BASE) += $(obj)/kaslr_64.o
-+	vmlinux-objs-y += $(obj)/ident_map_64.o
- 	vmlinux-objs-y += $(obj)/idt_64.o $(obj)/idt_handlers_64.o
- 	vmlinux-objs-y += $(obj)/mem_encrypt.o
- 	vmlinux-objs-y += $(obj)/pgtable_64.o
-diff --git a/arch/x86/boot/compressed/kaslr_64.c b/arch/x86/boot/compressed/ident_map_64.c
-similarity index 95%
-rename from arch/x86/boot/compressed/kaslr_64.c
-rename to arch/x86/boot/compressed/ident_map_64.c
-index 748456c365f4..3a2115582920 100644
---- a/arch/x86/boot/compressed/kaslr_64.c
-+++ b/arch/x86/boot/compressed/ident_map_64.c
-@@ -29,6 +29,15 @@
- #define __PAGE_OFFSET __PAGE_OFFSET_BASE
- #include "../../mm/ident_map.c"
- 
-+#ifdef CONFIG_X86_5LEVEL
-+unsigned int __pgtable_l5_enabled;
-+unsigned int pgdir_shift = 39;
-+unsigned int ptrs_per_p4d = 1;
-+#endif
-+
-+/* Used by PAGE_KERN* macros: */
-+pteval_t __default_kernel_pte_mask __read_mostly = ~0;
-+
- /* Used by pgtable.h asm code to force instruction serialization. */
- unsigned long __force_order;
- 
-diff --git a/arch/x86/boot/compressed/kaslr.c b/arch/x86/boot/compressed/kaslr.c
-index d7408af55738..7c61a8c5b9cf 100644
---- a/arch/x86/boot/compressed/kaslr.c
-+++ b/arch/x86/boot/compressed/kaslr.c
-@@ -43,17 +43,8 @@
- #define STATIC
- #include <linux/decompress/mm.h>
- 
--#ifdef CONFIG_X86_5LEVEL
--unsigned int __pgtable_l5_enabled;
--unsigned int pgdir_shift __ro_after_init = 39;
--unsigned int ptrs_per_p4d __ro_after_init = 1;
--#endif
--
- extern unsigned long get_cmd_line_ptr(void);
- 
--/* Used by PAGE_KERN* macros: */
--pteval_t __default_kernel_pte_mask __read_mostly = ~0;
--
- /* Simplified build-specific string for starting entropy. */
- static const char build_str[] = UTS_RELEASE " (" LINUX_COMPILE_BY "@"
- 		LINUX_COMPILE_HOST ") (" LINUX_COMPILER ") " UTS_VERSION;
 diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
-index 062ae3ae6930..3a030a878d53 100644
+index c8181392f70d..726e264410ff 100644
 --- a/arch/x86/boot/compressed/misc.h
 +++ b/arch/x86/boot/compressed/misc.h
-@@ -134,6 +134,14 @@ int count_immovable_mem_regions(void);
- static inline int count_immovable_mem_regions(void) { return 0; }
- #endif
+@@ -59,7 +59,7 @@ void __puthex(unsigned long value);
  
-+/* ident_map_64.c */
-+#ifdef CONFIG_X86_5LEVEL
-+extern unsigned int __pgtable_l5_enabled, pgdir_shift, ptrs_per_p4d;
-+#endif
-+
-+/* Used by PAGE_KERN* macros: */
-+extern pteval_t __default_kernel_pte_mask;
-+
- /* idt_64.c */
- extern gate_desc boot_idt[BOOT_IDT_ENTRIES];
- extern struct desc_ptr boot_idt_desc;
+ static inline void debug_putstr(const char *s)
+ { }
+-static inline void debug_puthex(const char *s)
++static inline void debug_puthex(unsigned long value)
+ { }
+ #define debug_putaddr(x) /* */
+ 
 -- 
 2.17.1
