@@ -1,7 +1,7 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH 1/2] drm/virtio: fix virtio_gpu_execbuffer_ioctl locking
-Date: Tue, 11 Feb 2020 14:50:46 +0100
-Message-ID: <20200211135047.22261-2-kraxel@redhat.com>
+Subject: [PATCH 2/2] drm/virtio: fix virtio_gpu_cursor_plane_update().
+Date: Tue, 11 Feb 2020 14:50:47 +0100
+Message-ID: <20200211135047.22261-3-kraxel@redhat.com>
 References: <20200211135047.22261-1-kraxel@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200211135047.22261-1-kraxel@redhat.com>
@@ -10,63 +10,24 @@ To: dri-devel@lists.freedesktop.org
 Cc: olvaffe@gmail.com, gurchetansingh@chromium.org, Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Lockdep says we can't call vmemdup() while having objects reserved
-because it needs the mmap semaphore.  So reorder the calls reserve
-the objects later.
+Add missing virtio_gpu_array_lock_resv() call.
 
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_ioctl.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index 205ec4abae2b..0477d1250f2d 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -126,22 +126,22 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
- 		bo_handles = NULL;
- 	}
- 
--	if (buflist) {
--		ret = virtio_gpu_array_lock_resv(buflist);
--		if (ret)
--			goto out_unused_fd;
--	}
--
- 	buf = vmemdup_user(u64_to_user_ptr(exbuf->command), exbuf->size);
- 	if (IS_ERR(buf)) {
- 		ret = PTR_ERR(buf);
--		goto out_unresv;
-+		goto out_unused_fd;
-+	}
-+
-+	if (buflist) {
-+		ret = virtio_gpu_array_lock_resv(buflist);
-+		if (ret)
-+			goto out_memdup;
- 	}
- 
- 	out_fence = virtio_gpu_fence_alloc(vgdev);
- 	if(!out_fence) {
- 		ret = -ENOMEM;
--		goto out_memdup;
-+		goto out_unresv;
- 	}
- 
- 	if (out_fence_fd >= 0) {
-@@ -160,11 +160,11 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
- 			      vfpriv->ctx_id, buflist, out_fence);
- 	return 0;
- 
--out_memdup:
--	kvfree(buf);
- out_unresv:
- 	if (buflist)
- 		virtio_gpu_array_unlock_resv(buflist);
-+out_memdup:
-+	kvfree(buf);
- out_unused_fd:
- 	kvfree(bo_handles);
- 	if (buflist)
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index ac42c84d2d7f..d1c3f5fbfee4 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -260,6 +260,7 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
+ 		if (!objs)
+ 			return;
+ 		virtio_gpu_array_add_obj(objs, vgfb->base.obj[0]);
++		virtio_gpu_array_lock_resv(objs);
+ 		virtio_gpu_cmd_transfer_to_host_2d
+ 			(vgdev, 0,
+ 			 plane->state->crtc_w,
 -- 
 2.18.2
