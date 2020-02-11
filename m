@@ -1,152 +1,95 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v3] drm/cirrus: add drm_driver.release callback.
-Date: Tue, 11 Feb 2020 11:16:15 +0100
-Message-ID: <20200211101616.16065-1-kraxel@redhat.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: dri-devel@lists.freedesktop.org
-Cc: Gerd Hoffmann <kraxel@redhat.com>, Dave Airlie <airlied@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR
-        QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio: Work around frames incorrectly marked as gso
+Date: Tue, 11 Feb 2020 05:37:50 -0500
+Message-ID: <20200211053502-mutt-send-email-mst@kernel.org>
+References: <20191209104824.17059-1-anton.ivanov@cambridgegreys.com>
+ <57230228-7030-c65f-a24f-910ca52bbe9e@cambridgegreys.com>
+ <f78bfe6e-2ffc-3734-9618-470f1afea0c6@redhat.com>
+ <918222d9-816a-be70-f8af-b8dfcb586240@cambridgegreys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <918222d9-816a-be70-f8af-b8dfcb586240@cambridgegreys.com>
+Sender: netdev-owner@vger.kernel.org
+To: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Cc: Jason Wang <jasowang@redhat.com>, netdev@vger.kernel.org, linux-um@lists.infradead.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Move final cleanups from cirrus_pci_remove() to the new callback.
-Add drm_atomic_helper_shutdown() call to cirrus_pci_remove().
+On Tue, Feb 11, 2020 at 07:42:37AM +0000, Anton Ivanov wrote:
+> On 11/02/2020 02:51, Jason Wang wrote:
+> > 
+> > On 2020/2/11 上午12:55, Anton Ivanov wrote:
+> > > 
+> > > 
+> > > On 09/12/2019 10:48, anton.ivanov@cambridgegreys.com wrote:
+> > > > From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+> > > > 
+> > > > Some of the frames marked as GSO which arrive at
+> > > > virtio_net_hdr_from_skb() have no GSO_TYPE, no
+> > > > fragments (data_len = 0) and length significantly shorter
+> > > > than the MTU (752 in my experiments).
+> > > > 
+> > > > This is observed on raw sockets reading off vEth interfaces
+> > > > in all 4.x and 5.x kernels I tested.
+> > > > 
+> > > > These frames are reported as invalid while they are in fact
+> > > > gso-less frames.
+> > > > 
+> > > > This patch marks the vnet header as no-GSO for them instead
+> > > > of reporting it as invalid.
+> > > > 
+> > > > Signed-off-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+> > > > ---
+> > > >   include/linux/virtio_net.h | 8 ++++++--
+> > > >   1 file changed, 6 insertions(+), 2 deletions(-)
+> > > > 
+> > > > diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> > > > index 0d1fe9297ac6..d90d5cff1b9a 100644
+> > > > --- a/include/linux/virtio_net.h
+> > > > +++ b/include/linux/virtio_net.h
+> > > > @@ -112,8 +112,12 @@ static inline int
+> > > > virtio_net_hdr_from_skb(const struct sk_buff *skb,
+> > > >               hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
+> > > >           else if (sinfo->gso_type & SKB_GSO_TCPV6)
+> > > >               hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
+> > > > -        else
+> > > > -            return -EINVAL;
+> > > > +        else {
+> > > > +            if (skb->data_len == 0)
+> > > > +                hdr->gso_type = VIRTIO_NET_HDR_GSO_NONE;
+> > > > +            else
+> > > > +                return -EINVAL;
+> > > > +        }
+> > > >           if (sinfo->gso_type & SKB_GSO_TCP_ECN)
+> > > >               hdr->gso_type |= VIRTIO_NET_HDR_GSO_ECN;
+> > > >       } else
+> > > > 
+> > > 
+> > > ping.
+> > > 
+> > 
+> > Do you mean gso_size is set but gso_type is not? Looks like a bug
+> > elsewhere.
+> > 
+> > Thanks
+> > 
+> > 
+> Yes.
+> 
+> I could not trace it where it is coming from.
+> 
+> I see it when doing recvmmsg on raw sockets in the UML vector network
+> drivers.
+> 
 
-Use drm_dev_{enter,exit,unplug} to avoid touching hardware after
-device removal.
+I think we need to find the culprit and fix it there, lots of other things
+can break otherwise.
+Just printing out skb->dev->name should do the trick, no?
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/cirrus/cirrus.c | 43 ++++++++++++++++++++++++++++-----
- 1 file changed, 37 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/cirrus/cirrus.c b/drivers/gpu/drm/cirrus/cirrus.c
-index a91fb0d7282c..d2ff63ce8eaf 100644
---- a/drivers/gpu/drm/cirrus/cirrus.c
-+++ b/drivers/gpu/drm/cirrus/cirrus.c
-@@ -151,9 +151,13 @@ static int cirrus_pitch(struct drm_framebuffer *fb)
- 
- static void cirrus_set_start_address(struct cirrus_device *cirrus, u32 offset)
- {
-+	int idx;
- 	u32 addr;
- 	u8 tmp;
- 
-+	if (!drm_dev_enter(&cirrus->dev, &idx))
-+		return;
-+
- 	addr = offset >> 2;
- 	wreg_crt(cirrus, 0x0c, (u8)((addr >> 8) & 0xff));
- 	wreg_crt(cirrus, 0x0d, (u8)(addr & 0xff));
-@@ -168,6 +172,8 @@ static void cirrus_set_start_address(struct cirrus_device *cirrus, u32 offset)
- 	tmp &= 0x7f;
- 	tmp |= (addr >> 12) & 0x80;
- 	wreg_crt(cirrus, 0x1d, tmp);
-+
-+	drm_dev_exit(idx);
- }
- 
- static int cirrus_mode_set(struct cirrus_device *cirrus,
-@@ -176,9 +182,12 @@ static int cirrus_mode_set(struct cirrus_device *cirrus,
- {
- 	int hsyncstart, hsyncend, htotal, hdispend;
- 	int vtotal, vdispend;
--	int tmp;
-+	int tmp, idx;
- 	int sr07 = 0, hdr = 0;
- 
-+	if (!drm_dev_enter(&cirrus->dev, &idx))
-+		return -1;
-+
- 	htotal = mode->htotal / 8;
- 	hsyncend = mode->hsync_end / 8;
- 	hsyncstart = mode->hsync_start / 8;
-@@ -264,6 +273,7 @@ static int cirrus_mode_set(struct cirrus_device *cirrus,
- 		hdr = 0xc5;
- 		break;
- 	default:
-+		drm_dev_exit(idx);
- 		return -1;
- 	}
- 
-@@ -292,6 +302,8 @@ static int cirrus_mode_set(struct cirrus_device *cirrus,
- 
- 	/* Unblank (needed on S3 resume, vgabios doesn't do it then) */
- 	outb(0x20, 0x3c0);
-+
-+	drm_dev_exit(idx);
- 	return 0;
- }
- 
-@@ -300,10 +312,16 @@ static int cirrus_fb_blit_rect(struct drm_framebuffer *fb,
- {
- 	struct cirrus_device *cirrus = fb->dev->dev_private;
- 	void *vmap;
-+	int idx, ret;
- 
-+	ret = -ENODEV;
-+	if (!drm_dev_enter(&cirrus->dev, &idx))
-+		goto out;
-+
-+	ret = -ENOMEM;
- 	vmap = drm_gem_shmem_vmap(fb->obj[0]);
- 	if (!vmap)
--		return -ENOMEM;
-+		goto out_dev_exit;
- 
- 	if (cirrus->cpp == fb->format->cpp[0])
- 		drm_fb_memcpy_dstclip(cirrus->vram,
-@@ -323,7 +341,12 @@ static int cirrus_fb_blit_rect(struct drm_framebuffer *fb,
- 		WARN_ON_ONCE("cpp mismatch");
- 
- 	drm_gem_shmem_vunmap(fb->obj[0], vmap);
--	return 0;
-+	ret = 0;
-+
-+out_dev_exit:
-+	drm_dev_exit(idx);
-+out:
-+	return ret;
- }
- 
- static int cirrus_fb_blit_fullscreen(struct drm_framebuffer *fb)
-@@ -502,6 +525,14 @@ static void cirrus_mode_config_init(struct cirrus_device *cirrus)
- 
- /* ------------------------------------------------------------------ */
- 
-+static void cirrus_release(struct drm_device *dev)
-+{
-+	struct cirrus_device *cirrus = dev->dev_private;
-+
-+	drm_mode_config_cleanup(dev);
-+	kfree(cirrus);
-+}
-+
- DEFINE_DRM_GEM_FOPS(cirrus_fops);
- 
- static struct drm_driver cirrus_driver = {
-@@ -515,6 +546,7 @@ static struct drm_driver cirrus_driver = {
- 
- 	.fops		 = &cirrus_fops,
- 	DRM_GEM_SHMEM_DRIVER_OPS,
-+	.release         = cirrus_release,
- };
- 
- static int cirrus_pci_probe(struct pci_dev *pdev,
-@@ -598,12 +630,11 @@ static void cirrus_pci_remove(struct pci_dev *pdev)
- 	struct drm_device *dev = pci_get_drvdata(pdev);
- 	struct cirrus_device *cirrus = dev->dev_private;
- 
--	drm_dev_unregister(dev);
--	drm_mode_config_cleanup(dev);
-+	drm_dev_unplug(dev);
-+	drm_atomic_helper_shutdown(dev);
- 	iounmap(cirrus->mmio);
- 	iounmap(cirrus->vram);
- 	drm_dev_put(dev);
--	kfree(cirrus);
- 	pci_release_regions(pdev);
- }
- 
--- 
-2.18.2
+> -- 
+> Anton R. Ivanov
+> Cambridgegreys Limited. Registered in England. Company Number 10273661
+> https://www.cambridgegreys.com/
