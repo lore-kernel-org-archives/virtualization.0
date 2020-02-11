@@ -1,92 +1,76 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: vhost changes (batched) in linux-next after 12/13 trigger random
- crashes in KVM guests after reboot
-Date: Tue, 11 Feb 2020 14:13:38 +0100
-Message-ID: <4c3f70b7-723a-8b0f-ac49-babef1bcc180@de.ibm.com>
-References: <20200107042401-mutt-send-email-mst@kernel.org>
- <c6795e53-d12c-0709-c2e9-e35d9af1f693@de.ibm.com>
- <20200107065434-mutt-send-email-mst@kernel.org>
- <fe6e7e90-3004-eb7a-9ed8-b53a7667959f@de.ibm.com>
- <20200120012724-mutt-send-email-mst@kernel.org>
- <2a63b15f-8cf5-5868-550c-42e2cfd92c60@de.ibm.com>
- <b6e32f58e5d85ac5cc3141e9155fb140ae5cd580.camel@redhat.com>
- <1ade56b5-083f-bb6f-d3e0-3ddcf78f4d26@de.ibm.com>
- <20200206171349-mutt-send-email-mst@kernel.org>
- <5c860fa1-cef5-b389-4ebf-99a62afa0fe8@de.ibm.com>
- <20200207025806-mutt-send-email-mst@kernel.org>
- <97c93d38-ef07-e321-d133-18483d54c0c0@de.ibm.com>
- <CAJaqyWfngzP4d01B6+Sqt8FXN6jX7kGegjx8ie4no_1Er3igQA@mail.gmail.com>
- <43a5dbaa-9129-e220-8483-45c60a82c945@de.ibm.com>
- <e299afca8e22044916abbf9fbbd0bff6b0ee9e13.camel@redhat.com>
+From: Jason Gunthorpe <jgg@mellanox.com>
+Subject: Re: [PATCH V2 3/5] vDPA: introduce vDPA bus
+Date: Tue, 11 Feb 2020 09:47:46 -0400
+Message-ID: <20200211134746.GI4271@mellanox.com>
+References: <20200210035608.10002-1-jasowang@redhat.com>
+ <20200210035608.10002-4-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <e299afca8e22044916abbf9fbbd0bff6b0ee9e13.camel@redhat.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20200210035608.10002-4-jasowang@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?Q?Eugenio_P=c3=a9rez?= <eperezma@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Stephen Rothwell <sfr@canb.auug.org.au>, Linux Next Mailing List <linux-next@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Halil Pasic <pasic@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, tiwei.bie@intel.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jiri@mellanox.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Mon, Feb 10, 2020 at 11:56:06AM +0800, Jason Wang wrote:
+> +/**
+> + * vdpa_register_device - register a vDPA device
+> + * Callers must have a succeed call of vdpa_init_device() before.
+> + * @vdev: the vdpa device to be registered to vDPA bus
+> + *
+> + * Returns an error when fail to add to vDPA bus
+> + */
+> +int vdpa_register_device(struct vdpa_device *vdev)
+> +{
+> +	int err = device_add(&vdev->dev);
+> +
+> +	if (err) {
+> +		put_device(&vdev->dev);
+> +		ida_simple_remove(&vdpa_index_ida, vdev->index);
+> +	}
 
+This is a very dangerous construction, I've seen it lead to driver
+bugs. Better to require the driver to always do the put_device on
+error unwind
 
-On 11.02.20 14:04, Eugenio Pérez wrote:
-> On Mon, 2020-02-10 at 12:01 +0100, Christian Borntraeger wrote:
->>
->> On 10.02.20 10:47, Eugenio Perez Martin wrote:
->>> Hi Christian.
->>>
->>> I'm not able to reproduce the failure with eccb852f1fe6bede630e2e4f1a121a81e34354ab commit. Could you add more data?
->>> Your configuration (libvirt or qemu line), and host's dmesg output if any?
->>>
->>> Thanks!
->>
->> If it was not obvious, this is on s390x, a big endian system.
->>
-> 
-> Hi Christian. Thank you very much for your fast responses.
-> 
-> Could you try this patch on top of eccb852f1fe6bede630e2e4f1a121a81e34354ab?
+The ida_simple_remove should probably be part of the class release
+function to make everything work right
 
-I still get 
-[   43.665145] Guest moved used index from 0 to 289
-after some reboots.
+> +/**
+> + * vdpa_unregister_driver - unregister a vDPA device driver
+> + * @drv: the vdpa device driver to be unregistered
+> + */
+> +void vdpa_unregister_driver(struct vdpa_driver *drv)
+> +{
+> +	driver_unregister(&drv->driver);
+> +}
+> +EXPORT_SYMBOL_GPL(vdpa_unregister_driver);
+> +
+> +static int vdpa_init(void)
+> +{
+> +	if (bus_register(&vdpa_bus) != 0)
+> +		panic("virtio bus registration failed");
+> +	return 0;
+> +}
 
+Linus will tell you not to kill the kernel - return the error code and
+propagate it up to the module init function.
 
-> 
-> Thanks!
-> 
-> From 71d0f9108a18aa894cc0c0c1c7efbad39f465a27 Mon Sep 17 00:00:00 2001
-> From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <
-> eperezma@redhat.com>
-> Date: Tue, 11 Feb 2020 13:19:10 +0100
-> Subject: [PATCH] vhost: fix return value of vhost_get_vq_desc
-> 
-> Before of the batch change, it was the chain's head. Need to keep that
-> way or we will not be able to free a chain of descriptors.
-> 
-> Fixes: eccb852f1fe6 ("vhost: batching fetches")
-> ---
->  drivers/vhost/vhost.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
-> 
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index b5a51b1f2e79..fc422c3e5c08 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -2409,12 +2409,11 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
->  			*out_num += ret;
->  		}
->  
-> -		ret = desc->id;
-> -
->  		if (!(desc->flags & VRING_DESC_F_NEXT))
->  			break;
->  	}
->  
-> +	ret = vq->descs[vq->first_desc].id;
->  	vq->first_desc = i + 1;
->  
->  	return ret;
-> 
+> +/**
+> + * vDPA device - representation of a vDPA device
+> + * @dev: underlying device
+> + * @dma_dev: the actual device that is performing DMA
+> + * @config: the configuration ops for this device.
+> + * @index: device index
+> + */
+> +struct vdpa_device {
+> +	struct device dev;
+> +	struct device *dma_dev;
+> +	const struct vdpa_config_ops *config;
+> +	int index;
+
+unsigned values shuld be unsigned int
+
+Jason
