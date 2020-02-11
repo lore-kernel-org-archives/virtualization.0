@@ -1,49 +1,177 @@
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Subject: Re: [PATCH RFC] virtio_balloon: conservative balloon page shrinking
-Date: Tue, 11 Feb 2020 23:18:56 +0900
-Message-ID: <51306985-90ac-6e6b-d085-4e076698c48c@i-love.sakura.ne.jp>
-References: <345addae-0945-2f49-52cf-8e53446e63b2@i-love.sakura.ne.jp>
- <286AC319A985734F985F78AFA26841F73E429F32@shsmsx102.ccr.corp.intel.com>
- <202002100357.01A3vNNU089831@www262.sakura.ne.jp>
- <286AC319A985734F985F78AFA26841F73E42AD6D@shsmsx102.ccr.corp.intel.com>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH v4] drm/cirrus: add drm_driver.release callback.
+Date: Tue, 11 Feb 2020 15:22:42 +0100
+Message-ID: <20200211142242.GD2363188@phenom.ffwll.local>
+References: <20200211135522.23654-1-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <286AC319A985734F985F78AFA26841F73E42AD6D@shsmsx102.ccr.corp.intel.com>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Wang, Wei W" <wei.w.wang@intel.com>
-Cc: "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "tysand@google.com" <tysand@google.com>, "namit@vmware.com" <namit@vmware.com>, "rientjes@google.com" <rientjes@google.com>, "alexander.h.duyck@linux.intel.com" <alexander.h.duyck@linux.intel.com>, "mhocko@kernel.org" <mhocko@kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200211135522.23654-1-kraxel@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: dri-devel@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR QEMU'S CIRRUS DEVICE" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2020/02/10 16:27, Wang, Wei W wrote:
->> Well, my comment is rather: "Do not try to reserve guest's memory. In other
->> words, do not try to maintain balloons on the guest side. Since host would
->> be able to cache file data on the host's cache, guests would be able to
->> quickly fetch file data from host's cache via normal I/O requests." ;-)
+On Tue, Feb 11, 2020 at 02:55:22PM +0100, Gerd Hoffmann wrote:
+> Move final cleanups from cirrus_pci_remove() to the new callback.
+> Add drm_atomic_helper_shutdown() call to cirrus_pci_remove().
 > 
-> Didn't this one. The discussion was about guest pagecache pages v.s. guest balloon pages.
-> Why is host's pagecache here?
+> Use drm_dev_{enter,exit,unplug} to avoid touching hardware after
+> device removal.
+> 
+> v4: add changelog.
+> v3: use drm_dev*.
+> v2: stop touching hardware after pci_remove().
+> 
+> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 
-I'm expecting a mode: "Guests should try to minimize pagecache pages (and teach
-host to treat reclaimed pages as if POSIX_FADV_DONTNEED) instead of managing
-guest balloon pages". In other words, as if
+I think you got them all with drm_dev_enter/exit.
 
-  while :; sleep 5; echo 1 > /proc/sys/vm/drop_caches; done
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-is running in the guest's kernel. And as if
+Aside: everyone ignores the return value of cirrus_fb_blit_rect and
+cirrus_mode_set (with atomic those shouldn't be able to fail anymore),
+could ditch those.
+-Daniel
 
-  echo 2 > /proc/sys/vm/drop_caches
+> ---
+>  drivers/gpu/drm/cirrus/cirrus.c | 43 ++++++++++++++++++++++++++++-----
+>  1 file changed, 37 insertions(+), 6 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/cirrus/cirrus.c b/drivers/gpu/drm/cirrus/cirrus.c
+> index a91fb0d7282c..d2ff63ce8eaf 100644
+> --- a/drivers/gpu/drm/cirrus/cirrus.c
+> +++ b/drivers/gpu/drm/cirrus/cirrus.c
+> @@ -151,9 +151,13 @@ static int cirrus_pitch(struct drm_framebuffer *fb)
+>  
+>  static void cirrus_set_start_address(struct cirrus_device *cirrus, u32 offset)
+>  {
+> +	int idx;
+>  	u32 addr;
+>  	u8 tmp;
+>  
+> +	if (!drm_dev_enter(&cirrus->dev, &idx))
+> +		return;
+> +
+>  	addr = offset >> 2;
+>  	wreg_crt(cirrus, 0x0c, (u8)((addr >> 8) & 0xff));
+>  	wreg_crt(cirrus, 0x0d, (u8)(addr & 0xff));
+> @@ -168,6 +172,8 @@ static void cirrus_set_start_address(struct cirrus_device *cirrus, u32 offset)
+>  	tmp &= 0x7f;
+>  	tmp |= (addr >> 12) & 0x80;
+>  	wreg_crt(cirrus, 0x1d, tmp);
+> +
+> +	drm_dev_exit(idx);
+>  }
+>  
+>  static int cirrus_mode_set(struct cirrus_device *cirrus,
+> @@ -176,9 +182,12 @@ static int cirrus_mode_set(struct cirrus_device *cirrus,
+>  {
+>  	int hsyncstart, hsyncend, htotal, hdispend;
+>  	int vtotal, vdispend;
+> -	int tmp;
+> +	int tmp, idx;
+>  	int sr07 = 0, hdr = 0;
+>  
+> +	if (!drm_dev_enter(&cirrus->dev, &idx))
+> +		return -1;
+> +
+>  	htotal = mode->htotal / 8;
+>  	hsyncend = mode->hsync_end / 8;
+>  	hsyncstart = mode->hsync_start / 8;
+> @@ -264,6 +273,7 @@ static int cirrus_mode_set(struct cirrus_device *cirrus,
+>  		hdr = 0xc5;
+>  		break;
+>  	default:
+> +		drm_dev_exit(idx);
+>  		return -1;
+>  	}
+>  
+> @@ -292,6 +302,8 @@ static int cirrus_mode_set(struct cirrus_device *cirrus,
+>  
+>  	/* Unblank (needed on S3 resume, vgabios doesn't do it then) */
+>  	outb(0x20, 0x3c0);
+> +
+> +	drm_dev_exit(idx);
+>  	return 0;
+>  }
+>  
+> @@ -300,10 +312,16 @@ static int cirrus_fb_blit_rect(struct drm_framebuffer *fb,
+>  {
+>  	struct cirrus_device *cirrus = fb->dev->dev_private;
+>  	void *vmap;
+> +	int idx, ret;
+>  
+> +	ret = -ENODEV;
+> +	if (!drm_dev_enter(&cirrus->dev, &idx))
+> +		goto out;
+> +
+> +	ret = -ENOMEM;
+>  	vmap = drm_gem_shmem_vmap(fb->obj[0]);
+>  	if (!vmap)
+> -		return -ENOMEM;
+> +		goto out_dev_exit;
+>  
+>  	if (cirrus->cpp == fb->format->cpp[0])
+>  		drm_fb_memcpy_dstclip(cirrus->vram,
+> @@ -323,7 +341,12 @@ static int cirrus_fb_blit_rect(struct drm_framebuffer *fb,
+>  		WARN_ON_ONCE("cpp mismatch");
+>  
+>  	drm_gem_shmem_vunmap(fb->obj[0], vmap);
+> -	return 0;
+> +	ret = 0;
+> +
+> +out_dev_exit:
+> +	drm_dev_exit(idx);
+> +out:
+> +	return ret;
+>  }
+>  
+>  static int cirrus_fb_blit_fullscreen(struct drm_framebuffer *fb)
+> @@ -502,6 +525,14 @@ static void cirrus_mode_config_init(struct cirrus_device *cirrus)
+>  
+>  /* ------------------------------------------------------------------ */
+>  
+> +static void cirrus_release(struct drm_device *dev)
+> +{
+> +	struct cirrus_device *cirrus = dev->dev_private;
+> +
+> +	drm_mode_config_cleanup(dev);
+> +	kfree(cirrus);
+> +}
+> +
+>  DEFINE_DRM_GEM_FOPS(cirrus_fops);
+>  
+>  static struct drm_driver cirrus_driver = {
+> @@ -515,6 +546,7 @@ static struct drm_driver cirrus_driver = {
+>  
+>  	.fops		 = &cirrus_fops,
+>  	DRM_GEM_SHMEM_DRIVER_OPS,
+> +	.release         = cirrus_release,
+>  };
+>  
+>  static int cirrus_pci_probe(struct pci_dev *pdev,
+> @@ -598,12 +630,11 @@ static void cirrus_pci_remove(struct pci_dev *pdev)
+>  	struct drm_device *dev = pci_get_drvdata(pdev);
+>  	struct cirrus_device *cirrus = dev->dev_private;
+>  
+> -	drm_dev_unregister(dev);
+> -	drm_mode_config_cleanup(dev);
+> +	drm_dev_unplug(dev);
+> +	drm_atomic_helper_shutdown(dev);
+>  	iounmap(cirrus->mmio);
+>  	iounmap(cirrus->vram);
+>  	drm_dev_put(dev);
+> -	kfree(cirrus);
+>  	pci_release_regions(pdev);
+>  }
+>  
+> -- 
+> 2.18.2
+> 
 
-is triggered in the guest's kernel when host requested guests to reclaim
-memory. No long-life balloons. Guest balloons do not need to care about
-NUMA. Just leave the management of pagecache pages to the host.
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
