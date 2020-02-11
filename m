@@ -1,221 +1,41 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH v4] drm/virtio: add drm_driver.release callback.
-Date: Tue, 11 Feb 2020 15:27:11 +0100
-Message-ID: <20200211142711.GE2363188@phenom.ffwll.local>
-References: <20200211135805.24436-1-kraxel@redhat.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [RFC PATCH 00/62] Linux as SEV-ES Guest Support
+Date: Tue, 11 Feb 2020 15:50:08 +0100
+Message-ID: <20200211145008.GT14914@hirez.programming.kicks-ass.net>
+References: <20200211135256.24617-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200211135805.24436-1-kraxel@redhat.com>
+In-Reply-To: <20200211135256.24617-1-joro@8bytes.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: dri-devel@lists.freedesktop.org, olvaffe@gmail.com, gurchetansingh@chromium.org, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
+To: Joerg Roedel <joro@8bytes.org>
+Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Feb 11, 2020 at 02:58:04PM +0100, Gerd Hoffmann wrote:
-> Split virtio_gpu_deinit(), move the drm shutdown and release to
-> virtio_gpu_release().  Drop vqs_ready variable, instead use
-> drm_dev_{enter,exit,unplug} to avoid touching hardware after
-> device removal.  Tidy up here and there.
+On Tue, Feb 11, 2020 at 02:51:54PM +0100, Joerg Roedel wrote:
+> NMI Special Handling
+> --------------------
 > 
-> v4: add changelog.
-> v3: use drm_dev_*().
+> The last thing that needs special handling with SEV-ES are NMIs.
+> Hypervisors usually start to intercept IRET instructions when an NMI got
+> injected to find out when the NMI window is re-opened. But handling IRET
+> intercepts requires the hypervisor to access guest register state and is
+> not possible with SEV-ES. The specification under [1] solves this
+> problem with an NMI_COMPLETE message sent my the guest to the
+> hypervisor, upon which the hypervisor re-opens the NMI window for the
+> guest.
 > 
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-
-Looks reasonable I think.
-
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-
-I didn't review whether you need more drm_dev_enter/exit pairs, virtio is
-a bit more complex for that and I have no idea how exactly it works. Maybe
-for these more complex drivers we need a drm_dev_assert_entered() or so
-that uses the right srcu lockdep annotations to make sure we do this
-right. Sprinkling that check into a few low-level hw functions (touching
-registers or whatever) should catch most issues.
--Daniel
-
-> ---
->  drivers/gpu/drm/virtio/virtgpu_drv.h     |  3 ++-
->  drivers/gpu/drm/virtio/virtgpu_display.c |  1 -
->  drivers/gpu/drm/virtio/virtgpu_drv.c     |  6 +++++-
->  drivers/gpu/drm/virtio/virtgpu_kms.c     |  7 ++++--
->  drivers/gpu/drm/virtio/virtgpu_vq.c      | 27 +++++++++++++-----------
->  5 files changed, 27 insertions(+), 17 deletions(-)
+> This patch-set sends the NMI_COMPLETE message before the actual IRET,
+> while the kernel is still on a valid stack and kernel cr3. This opens
+> the NMI-window a few instructions early, but this is fine as under
+> x86-64 Linux NMI-nesting is safe. The alternative would be to
+> single-step over the IRET, but that requires more intrusive changes to
+> the entry code because it does not handle entries from kernel-mode while
+> on the entry stack.
 > 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> index 7fd8361e1c9e..af9403e1cf78 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> @@ -32,6 +32,7 @@
->  #include <linux/virtio_gpu.h>
->  
->  #include <drm/drm_atomic.h>
-> +#include <drm/drm_drv.h>
->  #include <drm/drm_encoder.h>
->  #include <drm/drm_fb_helper.h>
->  #include <drm/drm_gem.h>
-> @@ -177,7 +178,6 @@ struct virtio_gpu_device {
->  	struct virtio_gpu_queue ctrlq;
->  	struct virtio_gpu_queue cursorq;
->  	struct kmem_cache *vbufs;
-> -	bool vqs_ready;
->  
->  	bool disable_notify;
->  	bool pending_notify;
-> @@ -219,6 +219,7 @@ extern struct drm_ioctl_desc virtio_gpu_ioctls[DRM_VIRTIO_NUM_IOCTLS];
->  /* virtio_kms.c */
->  int virtio_gpu_init(struct drm_device *dev);
->  void virtio_gpu_deinit(struct drm_device *dev);
-> +void virtio_gpu_release(struct drm_device *dev);
->  int virtio_gpu_driver_open(struct drm_device *dev, struct drm_file *file);
->  void virtio_gpu_driver_postclose(struct drm_device *dev, struct drm_file *file);
->  
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-> index 7b0f0643bb2d..af953db4a0c9 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_display.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-> @@ -368,6 +368,5 @@ void virtio_gpu_modeset_fini(struct virtio_gpu_device *vgdev)
->  
->  	for (i = 0 ; i < vgdev->num_scanouts; ++i)
->  		kfree(vgdev->outputs[i].edid);
-> -	drm_atomic_helper_shutdown(vgdev->ddev);
->  	drm_mode_config_cleanup(vgdev->ddev);
->  }
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> index 8cf27af3ad53..ab4bed78e656 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> @@ -31,6 +31,7 @@
->  #include <linux/pci.h>
->  
->  #include <drm/drm.h>
-> +#include <drm/drm_atomic_helper.h>
->  #include <drm/drm_drv.h>
->  #include <drm/drm_file.h>
->  
-> @@ -135,7 +136,8 @@ static void virtio_gpu_remove(struct virtio_device *vdev)
->  {
->  	struct drm_device *dev = vdev->priv;
->  
-> -	drm_dev_unregister(dev);
-> +	drm_dev_unplug(dev);
-> +	drm_atomic_helper_shutdown(dev);
->  	virtio_gpu_deinit(dev);
->  	drm_dev_put(dev);
->  }
-> @@ -214,4 +216,6 @@ static struct drm_driver driver = {
->  	.major = DRIVER_MAJOR,
->  	.minor = DRIVER_MINOR,
->  	.patchlevel = DRIVER_PATCHLEVEL,
-> +
-> +	.release = virtio_gpu_release,
->  };
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-> index c1086df49816..4009c2f97d08 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-> @@ -199,7 +199,6 @@ int virtio_gpu_init(struct drm_device *dev)
->  	virtio_gpu_modeset_init(vgdev);
->  
->  	virtio_device_ready(vgdev->vdev);
-> -	vgdev->vqs_ready = true;
->  
->  	if (num_capsets)
->  		virtio_gpu_get_capsets(vgdev, num_capsets);
-> @@ -234,12 +233,16 @@ void virtio_gpu_deinit(struct drm_device *dev)
->  	struct virtio_gpu_device *vgdev = dev->dev_private;
->  
->  	flush_work(&vgdev->obj_free_work);
-> -	vgdev->vqs_ready = false;
->  	flush_work(&vgdev->ctrlq.dequeue_work);
->  	flush_work(&vgdev->cursorq.dequeue_work);
->  	flush_work(&vgdev->config_changed_work);
->  	vgdev->vdev->config->reset(vgdev->vdev);
->  	vgdev->vdev->config->del_vqs(vgdev->vdev);
-> +}
-> +
-> +void virtio_gpu_release(struct drm_device *dev)
-> +{
-> +	struct virtio_gpu_device *vgdev = dev->dev_private;
->  
->  	virtio_gpu_modeset_fini(vgdev);
->  	virtio_gpu_free_vbufs(vgdev);
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> index a682c2fcbe9a..cfe9c54f87a3 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> @@ -330,7 +330,14 @@ static void virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
->  {
->  	struct virtqueue *vq = vgdev->ctrlq.vq;
->  	bool notify = false;
-> -	int ret;
-> +	int ret, idx;
-> +
-> +	if (!drm_dev_enter(vgdev->ddev, &idx)) {
-> +		if (fence && vbuf->objs)
-> +			virtio_gpu_array_unlock_resv(vbuf->objs);
-> +		free_vbuf(vgdev, vbuf);
-> +		return;
-> +	}
->  
->  	if (vgdev->has_indirect)
->  		elemcnt = 1;
-> @@ -338,14 +345,6 @@ static void virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
->  again:
->  	spin_lock(&vgdev->ctrlq.qlock);
->  
-> -	if (!vgdev->vqs_ready) {
-> -		spin_unlock(&vgdev->ctrlq.qlock);
-> -
-> -		if (fence && vbuf->objs)
-> -			virtio_gpu_array_unlock_resv(vbuf->objs);
-> -		return;
-> -	}
-> -
->  	if (vq->num_free < elemcnt) {
->  		spin_unlock(&vgdev->ctrlq.qlock);
->  		wait_event(vgdev->ctrlq.ack_queue, vq->num_free >= elemcnt);
-> @@ -379,6 +378,7 @@ static void virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
->  		else
->  			virtqueue_notify(vq);
->  	}
-> +	drm_dev_exit(idx);
->  }
->  
->  static void virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
-> @@ -460,12 +460,13 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
->  {
->  	struct virtqueue *vq = vgdev->cursorq.vq;
->  	struct scatterlist *sgs[1], ccmd;
-> +	int idx, ret, outcnt;
->  	bool notify;
-> -	int ret;
-> -	int outcnt;
->  
-> -	if (!vgdev->vqs_ready)
-> +	if (!drm_dev_enter(vgdev->ddev, &idx)) {
-> +		free_vbuf(vgdev, vbuf);
->  		return;
-> +	}
->  
->  	sg_init_one(&ccmd, vbuf->buf, vbuf->size);
->  	sgs[0] = &ccmd;
-> @@ -490,6 +491,8 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
->  
->  	if (notify)
->  		virtqueue_notify(vq);
-> +
-> +	drm_dev_exit(idx);
->  }
->  
->  /* just create gem objects for userspace and long lived objects,
-> -- 
-> 2.18.2
-> 
+> Besides the special handling above the patch-set contains the handlers
+> for the #VC exception and all the exit-codes specified in [1].
 
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+Oh gawd; so instead of improving the whole NMI situation, AMD went and
+made it worse still ?!?
