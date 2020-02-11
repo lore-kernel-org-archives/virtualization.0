@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 03/62] x86/cpufeatures: Add SEV-ES CPU feature
-Date: Tue, 11 Feb 2020 14:51:57 +0100
-Message-ID: <20200211135256.24617-4-joro@8bytes.org>
+Subject: [PATCH 05/62] x86/insn-decoder: Make inat-tables.c suitable for pre-decompression code
+Date: Tue, 11 Feb 2020 14:51:59 +0100
+Message-ID: <20200211135256.24617-6-joro@8bytes.org>
 References: <20200211135256.24617-1-joro@8bytes.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200211135256.24617-1-joro@8bytes.org>
@@ -10,65 +10,156 @@ To: x86@kernel.org
 Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-Add CPU feature detection for Secure Encrypted Virtualization with
-Encrypted State. This feature enhances SEV by also encrypting the
-guest register state, making it in-accessible to the hypervisor.
+The inat-tables.c file has some arrays in it that contain pointers to
+other arrays. These pointers need to be relocated when the kernel
+image is moved to a different location.
 
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+The pre-decompression boot-code has no support for applying ELF
+relocations, so initialize these arrays at runtime in the
+pre-decompression code to make sure all pointers are correctly
+initialized.
+
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/cpufeatures.h | 1 +
- arch/x86/kernel/cpu/amd.c          | 4 +++-
- arch/x86/kernel/cpu/scattered.c    | 1 +
- 3 files changed, 5 insertions(+), 1 deletion(-)
+ arch/x86/tools/gen-insn-attr-x86.awk       | 50 +++++++++++++++++++++-
+ tools/arch/x86/tools/gen-insn-attr-x86.awk | 50 +++++++++++++++++++++-
+ 2 files changed, 98 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
-index f3327cb56edf..26e4ee209f7b 100644
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -285,6 +285,7 @@
- #define X86_FEATURE_CQM_MBM_LOCAL	(11*32+ 3) /* LLC Local MBM monitoring */
- #define X86_FEATURE_FENCE_SWAPGS_USER	(11*32+ 4) /* "" LFENCE in user entry SWAPGS path */
- #define X86_FEATURE_FENCE_SWAPGS_KERNEL	(11*32+ 5) /* "" LFENCE in kernel entry SWAPGS path */
-+#define X86_FEATURE_SEV_ES		(11*32+ 6) /* AMD Secure Encrypted Virtualization - Encrypted State */
- 
- /* Intel-defined CPU features, CPUID level 0x00000007:1 (EAX), word 12 */
- #define X86_FEATURE_AVX512_BF16		(12*32+ 5) /* AVX512 BFLOAT16 instructions */
-diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
-index ac83a0fef628..aad2223862ef 100644
---- a/arch/x86/kernel/cpu/amd.c
-+++ b/arch/x86/kernel/cpu/amd.c
-@@ -580,7 +580,7 @@ static void early_detect_mem_encrypt(struct cpuinfo_x86 *c)
- 	 *	      If BIOS has not enabled SME then don't advertise the
- 	 *	      SME feature (set in scattered.c).
- 	 *   For SEV: If BIOS has not enabled SEV then don't advertise the
--	 *            SEV feature (set in scattered.c).
-+	 *            SEV and SEV_ES feature (set in scattered.c).
- 	 *
- 	 *   In all cases, since support for SME and SEV requires long mode,
- 	 *   don't advertise the feature under CONFIG_X86_32.
-@@ -611,6 +611,8 @@ static void early_detect_mem_encrypt(struct cpuinfo_x86 *c)
- 		setup_clear_cpu_cap(X86_FEATURE_SME);
- clear_sev:
- 		setup_clear_cpu_cap(X86_FEATURE_SEV);
-+		setup_clear_cpu_cap(X86_FEATURE_SEV);
-+		setup_clear_cpu_cap(X86_FEATURE_SEV_ES);
- 	}
+diff --git a/arch/x86/tools/gen-insn-attr-x86.awk b/arch/x86/tools/gen-insn-attr-x86.awk
+index a42015b305f4..af38469afd14 100644
+--- a/arch/x86/tools/gen-insn-attr-x86.awk
++++ b/arch/x86/tools/gen-insn-attr-x86.awk
+@@ -362,6 +362,9 @@ function convert_operands(count,opnd,       i,j,imm,mod)
+ END {
+ 	if (awkchecked != "")
+ 		exit 1
++
++	print "#ifndef __BOOT_COMPRESSED\n"
++
+ 	# print escape opcode map's array
+ 	print "/* Escape opcode map array */"
+ 	print "const insn_attr_t * const inat_escape_tables[INAT_ESC_MAX + 1]" \
+@@ -388,6 +391,51 @@ END {
+ 		for (j = 0; j < max_lprefix; j++)
+ 			if (atable[i,j])
+ 				print "	["i"]["j"] = "atable[i,j]","
+-	print "};"
++	print "};\n"
++
++	print "#else /* !__BOOT_COMPRESSED */\n"
++
++	print "/* Escape opcode map array */"
++	print "static const insn_attr_t *inat_escape_tables[INAT_ESC_MAX + 1]" \
++	      "[INAT_LSTPFX_MAX + 1];"
++	print ""
++
++	print "/* Group opcode map array */"
++	print "static const insn_attr_t *inat_group_tables[INAT_GRP_MAX + 1]"\
++	      "[INAT_LSTPFX_MAX + 1];"
++	print ""
++
++	print "/* AVX opcode map array */"
++	print "static const insn_attr_t *inat_avx_tables[X86_VEX_M_MAX + 1]"\
++	      "[INAT_LSTPFX_MAX + 1];"
++	print ""
++
++	print "static void inat_init_tables(void)"
++	print "{"
++
++	# print escape opcode map's array
++	print "\t/* Print Escape opcode map array */"
++	for (i = 0; i < geid; i++)
++		for (j = 0; j < max_lprefix; j++)
++			if (etable[i,j])
++				print "\tinat_escape_tables["i"]["j"] = "etable[i,j]";"
++	print ""
++
++	# print group opcode map's array
++	print "\t/* Print Group opcode map array */"
++	for (i = 0; i < ggid; i++)
++		for (j = 0; j < max_lprefix; j++)
++			if (gtable[i,j])
++				print "\tinat_group_tables["i"]["j"] = "gtable[i,j]";"
++	print ""
++	# print AVX opcode map's array
++	print "\t/* Print AVX opcode map array */"
++	for (i = 0; i < gaid; i++)
++		for (j = 0; j < max_lprefix; j++)
++			if (atable[i,j])
++				print "\tinat_avx_tables["i"]["j"] = "atable[i,j]";"
++
++	print "}"
++	print "#endif"
  }
  
-diff --git a/arch/x86/kernel/cpu/scattered.c b/arch/x86/kernel/cpu/scattered.c
-index 62b137c3c97a..30f354989cf1 100644
---- a/arch/x86/kernel/cpu/scattered.c
-+++ b/arch/x86/kernel/cpu/scattered.c
-@@ -41,6 +41,7 @@ static const struct cpuid_bit cpuid_bits[] = {
- 	{ X86_FEATURE_MBA,		CPUID_EBX,  6, 0x80000008, 0 },
- 	{ X86_FEATURE_SME,		CPUID_EAX,  0, 0x8000001f, 0 },
- 	{ X86_FEATURE_SEV,		CPUID_EAX,  1, 0x8000001f, 0 },
-+	{ X86_FEATURE_SEV_ES,		CPUID_EAX,  3, 0x8000001f, 0 },
- 	{ 0, 0, 0, 0, 0 }
- };
+diff --git a/tools/arch/x86/tools/gen-insn-attr-x86.awk b/tools/arch/x86/tools/gen-insn-attr-x86.awk
+index a42015b305f4..af38469afd14 100644
+--- a/tools/arch/x86/tools/gen-insn-attr-x86.awk
++++ b/tools/arch/x86/tools/gen-insn-attr-x86.awk
+@@ -362,6 +362,9 @@ function convert_operands(count,opnd,       i,j,imm,mod)
+ END {
+ 	if (awkchecked != "")
+ 		exit 1
++
++	print "#ifndef __BOOT_COMPRESSED\n"
++
+ 	# print escape opcode map's array
+ 	print "/* Escape opcode map array */"
+ 	print "const insn_attr_t * const inat_escape_tables[INAT_ESC_MAX + 1]" \
+@@ -388,6 +391,51 @@ END {
+ 		for (j = 0; j < max_lprefix; j++)
+ 			if (atable[i,j])
+ 				print "	["i"]["j"] = "atable[i,j]","
+-	print "};"
++	print "};\n"
++
++	print "#else /* !__BOOT_COMPRESSED */\n"
++
++	print "/* Escape opcode map array */"
++	print "static const insn_attr_t *inat_escape_tables[INAT_ESC_MAX + 1]" \
++	      "[INAT_LSTPFX_MAX + 1];"
++	print ""
++
++	print "/* Group opcode map array */"
++	print "static const insn_attr_t *inat_group_tables[INAT_GRP_MAX + 1]"\
++	      "[INAT_LSTPFX_MAX + 1];"
++	print ""
++
++	print "/* AVX opcode map array */"
++	print "static const insn_attr_t *inat_avx_tables[X86_VEX_M_MAX + 1]"\
++	      "[INAT_LSTPFX_MAX + 1];"
++	print ""
++
++	print "static void inat_init_tables(void)"
++	print "{"
++
++	# print escape opcode map's array
++	print "\t/* Print Escape opcode map array */"
++	for (i = 0; i < geid; i++)
++		for (j = 0; j < max_lprefix; j++)
++			if (etable[i,j])
++				print "\tinat_escape_tables["i"]["j"] = "etable[i,j]";"
++	print ""
++
++	# print group opcode map's array
++	print "\t/* Print Group opcode map array */"
++	for (i = 0; i < ggid; i++)
++		for (j = 0; j < max_lprefix; j++)
++			if (gtable[i,j])
++				print "\tinat_group_tables["i"]["j"] = "gtable[i,j]";"
++	print ""
++	# print AVX opcode map's array
++	print "\t/* Print AVX opcode map array */"
++	for (i = 0; i < gaid; i++)
++		for (j = 0; j < max_lprefix; j++)
++			if (atable[i,j])
++				print "\tinat_avx_tables["i"]["j"] = "atable[i,j]";"
++
++	print "}"
++	print "#endif"
+ }
  
 -- 
 2.17.1
