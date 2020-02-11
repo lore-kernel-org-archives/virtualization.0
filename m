@@ -1,109 +1,196 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: vhost changes (batched) in linux-next after 12/13 trigger random
- crashes in KVM guests after reboot
-Date: Tue, 11 Feb 2020 08:57:58 -0500
-Message-ID: <20200211085736-mutt-send-email-mst@kernel.org>
-References: <2a63b15f-8cf5-5868-550c-42e2cfd92c60@de.ibm.com>
- <b6e32f58e5d85ac5cc3141e9155fb140ae5cd580.camel@redhat.com>
- <1ade56b5-083f-bb6f-d3e0-3ddcf78f4d26@de.ibm.com>
- <20200206171349-mutt-send-email-mst@kernel.org>
- <5c860fa1-cef5-b389-4ebf-99a62afa0fe8@de.ibm.com>
- <20200207025806-mutt-send-email-mst@kernel.org>
- <97c93d38-ef07-e321-d133-18483d54c0c0@de.ibm.com>
- <CAJaqyWfngzP4d01B6+Sqt8FXN6jX7kGegjx8ie4no_1Er3igQA@mail.gmail.com>
- <43a5dbaa-9129-e220-8483-45c60a82c945@de.ibm.com>
- <e299afca8e22044916abbf9fbbd0bff6b0ee9e13.camel@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <e299afca8e22044916abbf9fbbd0bff6b0ee9e13.camel@redhat.com>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, kvm list <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Halil Pasic <pasic@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Linux Next Mailing List <linux-next@vger.kernel.org>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH v4] drm/virtio: add drm_driver.release callback.
+Date: Tue, 11 Feb 2020 14:58:04 +0100
+Message-ID: <20200211135805.24436-1-kraxel@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dri-devel@lists.freedesktop.org
+Cc: olvaffe@gmail.com, gurchetansingh@chromium.org, Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Feb 11, 2020 at 02:04:54PM +0100, Eugenio P=C3=A9rez wrote:
-> On Mon, 2020-02-10 at 12:01 +0100, Christian Borntraeger wrote:
-> > =
+Split virtio_gpu_deinit(), move the drm shutdown and release to
+virtio_gpu_release().  Drop vqs_ready variable, instead use
+drm_dev_{enter,exit,unplug} to avoid touching hardware after
+device removal.  Tidy up here and there.
 
-> > On 10.02.20 10:47, Eugenio Perez Martin wrote:
-> > > Hi Christian.
-> > > =
+v4: add changelog.
+v3: use drm_dev_*().
 
-> > > I'm not able to reproduce the failure with eccb852f1fe6bede630e2e4f1a=
-121a81e34354ab commit. Could you add more data?
-> > > Your configuration (libvirt or qemu line), and host's dmesg output if=
- any?
-> > > =
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_drv.h     |  3 ++-
+ drivers/gpu/drm/virtio/virtgpu_display.c |  1 -
+ drivers/gpu/drm/virtio/virtgpu_drv.c     |  6 +++++-
+ drivers/gpu/drm/virtio/virtgpu_kms.c     |  7 ++++--
+ drivers/gpu/drm/virtio/virtgpu_vq.c      | 27 +++++++++++++-----------
+ 5 files changed, 27 insertions(+), 17 deletions(-)
 
-> > > Thanks!
-> > =
-
-> > If it was not obvious, this is on s390x, a big endian system.
-> > =
-
-> =
-
-> Hi Christian. Thank you very much for your fast responses.
-> =
-
-> Could you try this patch on top of eccb852f1fe6bede630e2e4f1a121a81e34354=
-ab?
-> =
-
-> Thanks!
-> =
-
-> >From 71d0f9108a18aa894cc0c0c1c7efbad39f465a27 Mon Sep 17 00:00:00 2001
-> From: =3D?UTF-8?q?Eugenio=3D20P=3DC3=3DA9rez?=3D <
-> eperezma@redhat.com>
-> Date: Tue, 11 Feb 2020 13:19:10 +0100
-> Subject: [PATCH] vhost: fix return value of vhost_get_vq_desc
-> =
-
-> Before of the batch change, it was the chain's head. Need to keep that
-> way or we will not be able to free a chain of descriptors.
-
-I think it's cleaner to have all descriptors in the chain
-have the same id.
-
-> Fixes: eccb852f1fe6 ("vhost: batching fetches")
-> ---
->  drivers/vhost/vhost.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
-> =
-
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index b5a51b1f2e79..fc422c3e5c08 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -2409,12 +2409,11 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
->  			*out_num +=3D ret;
->  		}
->  =
-
-> -		ret =3D desc->id;
-> -
->  		if (!(desc->flags & VRING_DESC_F_NEXT))
->  			break;
->  	}
->  =
-
-> +	ret =3D vq->descs[vq->first_desc].id;
->  	vq->first_desc =3D i + 1;
->  =
-
->  	return ret;
-> -- =
-
-> 2.18.1
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 7fd8361e1c9e..af9403e1cf78 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -32,6 +32,7 @@
+ #include <linux/virtio_gpu.h>
+ 
+ #include <drm/drm_atomic.h>
++#include <drm/drm_drv.h>
+ #include <drm/drm_encoder.h>
+ #include <drm/drm_fb_helper.h>
+ #include <drm/drm_gem.h>
+@@ -177,7 +178,6 @@ struct virtio_gpu_device {
+ 	struct virtio_gpu_queue ctrlq;
+ 	struct virtio_gpu_queue cursorq;
+ 	struct kmem_cache *vbufs;
+-	bool vqs_ready;
+ 
+ 	bool disable_notify;
+ 	bool pending_notify;
+@@ -219,6 +219,7 @@ extern struct drm_ioctl_desc virtio_gpu_ioctls[DRM_VIRTIO_NUM_IOCTLS];
+ /* virtio_kms.c */
+ int virtio_gpu_init(struct drm_device *dev);
+ void virtio_gpu_deinit(struct drm_device *dev);
++void virtio_gpu_release(struct drm_device *dev);
+ int virtio_gpu_driver_open(struct drm_device *dev, struct drm_file *file);
+ void virtio_gpu_driver_postclose(struct drm_device *dev, struct drm_file *file);
+ 
+diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
+index 7b0f0643bb2d..af953db4a0c9 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_display.c
++++ b/drivers/gpu/drm/virtio/virtgpu_display.c
+@@ -368,6 +368,5 @@ void virtio_gpu_modeset_fini(struct virtio_gpu_device *vgdev)
+ 
+ 	for (i = 0 ; i < vgdev->num_scanouts; ++i)
+ 		kfree(vgdev->outputs[i].edid);
+-	drm_atomic_helper_shutdown(vgdev->ddev);
+ 	drm_mode_config_cleanup(vgdev->ddev);
+ }
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+index 8cf27af3ad53..ab4bed78e656 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.c
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+@@ -31,6 +31,7 @@
+ #include <linux/pci.h>
+ 
+ #include <drm/drm.h>
++#include <drm/drm_atomic_helper.h>
+ #include <drm/drm_drv.h>
+ #include <drm/drm_file.h>
+ 
+@@ -135,7 +136,8 @@ static void virtio_gpu_remove(struct virtio_device *vdev)
+ {
+ 	struct drm_device *dev = vdev->priv;
+ 
+-	drm_dev_unregister(dev);
++	drm_dev_unplug(dev);
++	drm_atomic_helper_shutdown(dev);
+ 	virtio_gpu_deinit(dev);
+ 	drm_dev_put(dev);
+ }
+@@ -214,4 +216,6 @@ static struct drm_driver driver = {
+ 	.major = DRIVER_MAJOR,
+ 	.minor = DRIVER_MINOR,
+ 	.patchlevel = DRIVER_PATCHLEVEL,
++
++	.release = virtio_gpu_release,
+ };
+diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+index c1086df49816..4009c2f97d08 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_kms.c
++++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+@@ -199,7 +199,6 @@ int virtio_gpu_init(struct drm_device *dev)
+ 	virtio_gpu_modeset_init(vgdev);
+ 
+ 	virtio_device_ready(vgdev->vdev);
+-	vgdev->vqs_ready = true;
+ 
+ 	if (num_capsets)
+ 		virtio_gpu_get_capsets(vgdev, num_capsets);
+@@ -234,12 +233,16 @@ void virtio_gpu_deinit(struct drm_device *dev)
+ 	struct virtio_gpu_device *vgdev = dev->dev_private;
+ 
+ 	flush_work(&vgdev->obj_free_work);
+-	vgdev->vqs_ready = false;
+ 	flush_work(&vgdev->ctrlq.dequeue_work);
+ 	flush_work(&vgdev->cursorq.dequeue_work);
+ 	flush_work(&vgdev->config_changed_work);
+ 	vgdev->vdev->config->reset(vgdev->vdev);
+ 	vgdev->vdev->config->del_vqs(vgdev->vdev);
++}
++
++void virtio_gpu_release(struct drm_device *dev)
++{
++	struct virtio_gpu_device *vgdev = dev->dev_private;
+ 
+ 	virtio_gpu_modeset_fini(vgdev);
+ 	virtio_gpu_free_vbufs(vgdev);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index a682c2fcbe9a..cfe9c54f87a3 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -330,7 +330,14 @@ static void virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
+ {
+ 	struct virtqueue *vq = vgdev->ctrlq.vq;
+ 	bool notify = false;
+-	int ret;
++	int ret, idx;
++
++	if (!drm_dev_enter(vgdev->ddev, &idx)) {
++		if (fence && vbuf->objs)
++			virtio_gpu_array_unlock_resv(vbuf->objs);
++		free_vbuf(vgdev, vbuf);
++		return;
++	}
+ 
+ 	if (vgdev->has_indirect)
+ 		elemcnt = 1;
+@@ -338,14 +345,6 @@ static void virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
+ again:
+ 	spin_lock(&vgdev->ctrlq.qlock);
+ 
+-	if (!vgdev->vqs_ready) {
+-		spin_unlock(&vgdev->ctrlq.qlock);
+-
+-		if (fence && vbuf->objs)
+-			virtio_gpu_array_unlock_resv(vbuf->objs);
+-		return;
+-	}
+-
+ 	if (vq->num_free < elemcnt) {
+ 		spin_unlock(&vgdev->ctrlq.qlock);
+ 		wait_event(vgdev->ctrlq.ack_queue, vq->num_free >= elemcnt);
+@@ -379,6 +378,7 @@ static void virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
+ 		else
+ 			virtqueue_notify(vq);
+ 	}
++	drm_dev_exit(idx);
+ }
+ 
+ static void virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
+@@ -460,12 +460,13 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
+ {
+ 	struct virtqueue *vq = vgdev->cursorq.vq;
+ 	struct scatterlist *sgs[1], ccmd;
++	int idx, ret, outcnt;
+ 	bool notify;
+-	int ret;
+-	int outcnt;
+ 
+-	if (!vgdev->vqs_ready)
++	if (!drm_dev_enter(vgdev->ddev, &idx)) {
++		free_vbuf(vgdev, vbuf);
+ 		return;
++	}
+ 
+ 	sg_init_one(&ccmd, vbuf->buf, vbuf->size);
+ 	sgs[0] = &ccmd;
+@@ -490,6 +491,8 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
+ 
+ 	if (notify)
+ 		virtqueue_notify(vq);
++
++	drm_dev_exit(idx);
+ }
+ 
+ /* just create gem objects for userspace and long lived objects,
+-- 
+2.18.2
