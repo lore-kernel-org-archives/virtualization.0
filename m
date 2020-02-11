@@ -1,92 +1,66 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 21/62] x86/sev-es: Add CPUID handling to #VC handler
-Date: Tue, 11 Feb 2020 14:52:15 +0100
-Message-ID: <20200211135256.24617-22-joro@8bytes.org>
+Subject: [PATCH 40/62] x86/sev-es: Filter exceptions not supported from user-space
+Date: Tue, 11 Feb 2020 14:52:34 +0100
+Message-ID: <20200211135256.24617-41-joro@8bytes.org>
 References: <20200211135256.24617-1-joro@8bytes.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200211135256.24617-1-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: kvm-owner@vger.kernel.org
 To: x86@kernel.org
 Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-Handle #VC exceptions caused by CPUID instructions. These happen in
-early boot code when the KASLR code checks for RDTSC.
+Currently only CPUID caused #VC exceptions are supported from
+user-space. Filter the others out early.
 
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-[ jroedel@suse.de: Adapt to #VC handling framework ]
-Co-developed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/compressed/sev-es.c |  4 ++++
- arch/x86/kernel/sev-es-shared.c   | 34 +++++++++++++++++++++++++++++++
- 2 files changed, 38 insertions(+)
+ arch/x86/kernel/sev-es.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/arch/x86/boot/compressed/sev-es.c b/arch/x86/boot/compressed/sev-es.c
-index b2a2d068dc12..270a23c05f53 100644
---- a/arch/x86/boot/compressed/sev-es.c
-+++ b/arch/x86/boot/compressed/sev-es.c
-@@ -10,6 +10,7 @@
- #include <asm/sev-es.h>
- #include <asm/trap_defs.h>
- #include <asm/msr-index.h>
-+#include <asm/fpu/xcr.h>
- #include <asm/ptrace.h>
- #include <asm/svm.h>
- 
-@@ -117,6 +118,9 @@ void boot_vc_handler(struct pt_regs *regs)
- 	case SVM_EXIT_IOIO:
- 		result = handle_ioio(boot_ghcb, &ctxt);
- 		break;
-+	case SVM_EXIT_CPUID:
-+		result = handle_cpuid(boot_ghcb, &ctxt);
-+		break;
- 	default:
- 		result = ES_UNSUPPORTED;
- 		break;
-diff --git a/arch/x86/kernel/sev-es-shared.c b/arch/x86/kernel/sev-es-shared.c
-index bd21a79da084..0f422e3b2077 100644
---- a/arch/x86/kernel/sev-es-shared.c
-+++ b/arch/x86/kernel/sev-es-shared.c
-@@ -449,3 +449,37 @@ static enum es_result handle_ioio(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
- 
- 	return ret;
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+index d128a9397639..84b5b8f7897a 100644
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -209,6 +209,26 @@ static enum es_result handle_vc_exception(struct es_em_ctxt *ctxt,
+ 	return result;
  }
-+
-+static enum es_result handle_cpuid(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
+ 
++static enum es_result context_filter(struct pt_regs *regs, long exit_code)
 +{
-+	struct pt_regs *regs = ctxt->regs;
-+	u32 cr4 = native_read_cr4();
-+	enum es_result ret;
++	enum es_result r = ES_OK;
 +
-+	ghcb_set_rax(ghcb, regs->ax);
-+	ghcb_set_rcx(ghcb, regs->cx);
++	if (user_mode(regs)) {
++		switch (exit_code) {
++		/* List of #VC exit-codes we support in user-space */
++		case SVM_EXIT_EXCP_BASE ... SVM_EXIT_LAST_EXCP:
++		case SVM_EXIT_CPUID:
++			r = ES_OK;
++			break;
++		default:
++			r = ES_UNSUPPORTED;
++			break;
++		}
++	}
 +
-+	if (cr4 & X86_CR4_OSXSAVE)
-+		/* Safe to read xcr0 */
-+		ghcb_set_xcr0(ghcb, xgetbv(XCR_XFEATURE_ENABLED_MASK));
-+	else
-+		/* xgetbv will cause #GP - use reset value for xcr0 */
-+		ghcb_set_xcr0(ghcb, 1);
-+
-+	ret = ghcb_hv_call(ghcb, ctxt, SVM_EXIT_CPUID, 0, 0);
-+	if (ret != ES_OK)
-+		return ret;
-+
-+	if (!(ghcb_is_valid_rax(ghcb) &&
-+	      ghcb_is_valid_rbx(ghcb) &&
-+	      ghcb_is_valid_rcx(ghcb) &&
-+	      ghcb_is_valid_rdx(ghcb)))
-+		return ES_VMM_ERROR;
-+
-+	regs->ax = ghcb->save.rax;
-+	regs->bx = ghcb->save.rbx;
-+	regs->cx = ghcb->save.rcx;
-+	regs->dx = ghcb->save.rdx;
-+
-+	return ES_OK;
++	return r;
 +}
++
+ static void forward_exception(struct es_em_ctxt *ctxt)
+ {
+ 	long error_code = ctxt->fi.error_code;
+@@ -245,6 +265,10 @@ dotraplinkage void do_vmm_communication(struct pt_regs *regs, unsigned long exit
+ 	ghcb_invalidate(ghcb);
+ 	result = init_em_ctxt(&ctxt, regs, exit_code);
+ 
++	/* Check if the exception is supported in the context we came from. */
++	if (result == ES_OK)
++		result = context_filter(regs, exit_code);
++
+ 	if (result == ES_OK)
+ 		result = handle_vc_exception(&ctxt, ghcb, exit_code);
+ 
 -- 
 2.17.1
