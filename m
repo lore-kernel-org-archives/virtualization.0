@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 05/62] x86/insn-decoder: Make inat-tables.c suitable for pre-decompression code
-Date: Tue, 11 Feb 2020 14:51:59 +0100
-Message-ID: <20200211135256.24617-6-joro@8bytes.org>
+Subject: [PATCH 07/62] x86/boot/compressed/64: Disable red-zone usage
+Date: Tue, 11 Feb 2020 14:52:01 +0100
+Message-ID: <20200211135256.24617-8-joro@8bytes.org>
 References: <20200211135256.24617-1-joro@8bytes.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200211135256.24617-1-joro@8bytes.org>
@@ -12,154 +12,59 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-The inat-tables.c file has some arrays in it that contain pointers to
-other arrays. These pointers need to be relocated when the kernel
-image is moved to a different location.
+The x86-64 ABI defines a red-zone on the stack:
 
-The pre-decompression boot-code has no support for applying ELF
-relocations, so initialize these arrays at runtime in the
-pre-decompression code to make sure all pointers are correctly
-initialized.
+  The 128-byte area beyond the location pointed to by %rsp is
+  considered to be reserved and shall not be modified by signal or
+  interrupt handlers. 10 Therefore, functions may use this area for
+  temporary data that is not needed across function calls. In
+  particular, leaf functions may use this area for their entire stack
+  frame, rather than adjusting the stack pointer in the prologue and
+  epilogue. This area is known as the red zone.
+
+This is not compatible with exception handling, so disable it for the
+pre-decompression boot code.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/tools/gen-insn-attr-x86.awk       | 50 +++++++++++++++++++++-
- tools/arch/x86/tools/gen-insn-attr-x86.awk | 50 +++++++++++++++++++++-
- 2 files changed, 98 insertions(+), 2 deletions(-)
+ arch/x86/boot/Makefile            | 2 +-
+ arch/x86/boot/compressed/Makefile | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/tools/gen-insn-attr-x86.awk b/arch/x86/tools/gen-insn-attr-x86.awk
-index a42015b305f4..af38469afd14 100644
---- a/arch/x86/tools/gen-insn-attr-x86.awk
-+++ b/arch/x86/tools/gen-insn-attr-x86.awk
-@@ -362,6 +362,9 @@ function convert_operands(count,opnd,       i,j,imm,mod)
- END {
- 	if (awkchecked != "")
- 		exit 1
-+
-+	print "#ifndef __BOOT_COMPRESSED\n"
-+
- 	# print escape opcode map's array
- 	print "/* Escape opcode map array */"
- 	print "const insn_attr_t * const inat_escape_tables[INAT_ESC_MAX + 1]" \
-@@ -388,6 +391,51 @@ END {
- 		for (j = 0; j < max_lprefix; j++)
- 			if (atable[i,j])
- 				print "	["i"]["j"] = "atable[i,j]","
--	print "};"
-+	print "};\n"
-+
-+	print "#else /* !__BOOT_COMPRESSED */\n"
-+
-+	print "/* Escape opcode map array */"
-+	print "static const insn_attr_t *inat_escape_tables[INAT_ESC_MAX + 1]" \
-+	      "[INAT_LSTPFX_MAX + 1];"
-+	print ""
-+
-+	print "/* Group opcode map array */"
-+	print "static const insn_attr_t *inat_group_tables[INAT_GRP_MAX + 1]"\
-+	      "[INAT_LSTPFX_MAX + 1];"
-+	print ""
-+
-+	print "/* AVX opcode map array */"
-+	print "static const insn_attr_t *inat_avx_tables[X86_VEX_M_MAX + 1]"\
-+	      "[INAT_LSTPFX_MAX + 1];"
-+	print ""
-+
-+	print "static void inat_init_tables(void)"
-+	print "{"
-+
-+	# print escape opcode map's array
-+	print "\t/* Print Escape opcode map array */"
-+	for (i = 0; i < geid; i++)
-+		for (j = 0; j < max_lprefix; j++)
-+			if (etable[i,j])
-+				print "\tinat_escape_tables["i"]["j"] = "etable[i,j]";"
-+	print ""
-+
-+	# print group opcode map's array
-+	print "\t/* Print Group opcode map array */"
-+	for (i = 0; i < ggid; i++)
-+		for (j = 0; j < max_lprefix; j++)
-+			if (gtable[i,j])
-+				print "\tinat_group_tables["i"]["j"] = "gtable[i,j]";"
-+	print ""
-+	# print AVX opcode map's array
-+	print "\t/* Print AVX opcode map array */"
-+	for (i = 0; i < gaid; i++)
-+		for (j = 0; j < max_lprefix; j++)
-+			if (atable[i,j])
-+				print "\tinat_avx_tables["i"]["j"] = "atable[i,j]";"
-+
-+	print "}"
-+	print "#endif"
- }
+diff --git a/arch/x86/boot/Makefile b/arch/x86/boot/Makefile
+index 012b82fc8617..8f55e4ce1ccc 100644
+--- a/arch/x86/boot/Makefile
++++ b/arch/x86/boot/Makefile
+@@ -65,7 +65,7 @@ clean-files += cpustr.h
  
-diff --git a/tools/arch/x86/tools/gen-insn-attr-x86.awk b/tools/arch/x86/tools/gen-insn-attr-x86.awk
-index a42015b305f4..af38469afd14 100644
---- a/tools/arch/x86/tools/gen-insn-attr-x86.awk
-+++ b/tools/arch/x86/tools/gen-insn-attr-x86.awk
-@@ -362,6 +362,9 @@ function convert_operands(count,opnd,       i,j,imm,mod)
- END {
- 	if (awkchecked != "")
- 		exit 1
-+
-+	print "#ifndef __BOOT_COMPRESSED\n"
-+
- 	# print escape opcode map's array
- 	print "/* Escape opcode map array */"
- 	print "const insn_attr_t * const inat_escape_tables[INAT_ESC_MAX + 1]" \
-@@ -388,6 +391,51 @@ END {
- 		for (j = 0; j < max_lprefix; j++)
- 			if (atable[i,j])
- 				print "	["i"]["j"] = "atable[i,j]","
--	print "};"
-+	print "};\n"
-+
-+	print "#else /* !__BOOT_COMPRESSED */\n"
-+
-+	print "/* Escape opcode map array */"
-+	print "static const insn_attr_t *inat_escape_tables[INAT_ESC_MAX + 1]" \
-+	      "[INAT_LSTPFX_MAX + 1];"
-+	print ""
-+
-+	print "/* Group opcode map array */"
-+	print "static const insn_attr_t *inat_group_tables[INAT_GRP_MAX + 1]"\
-+	      "[INAT_LSTPFX_MAX + 1];"
-+	print ""
-+
-+	print "/* AVX opcode map array */"
-+	print "static const insn_attr_t *inat_avx_tables[X86_VEX_M_MAX + 1]"\
-+	      "[INAT_LSTPFX_MAX + 1];"
-+	print ""
-+
-+	print "static void inat_init_tables(void)"
-+	print "{"
-+
-+	# print escape opcode map's array
-+	print "\t/* Print Escape opcode map array */"
-+	for (i = 0; i < geid; i++)
-+		for (j = 0; j < max_lprefix; j++)
-+			if (etable[i,j])
-+				print "\tinat_escape_tables["i"]["j"] = "etable[i,j]";"
-+	print ""
-+
-+	# print group opcode map's array
-+	print "\t/* Print Group opcode map array */"
-+	for (i = 0; i < ggid; i++)
-+		for (j = 0; j < max_lprefix; j++)
-+			if (gtable[i,j])
-+				print "\tinat_group_tables["i"]["j"] = "gtable[i,j]";"
-+	print ""
-+	# print AVX opcode map's array
-+	print "\t/* Print AVX opcode map array */"
-+	for (i = 0; i < gaid; i++)
-+		for (j = 0; j < max_lprefix; j++)
-+			if (atable[i,j])
-+				print "\tinat_avx_tables["i"]["j"] = "atable[i,j]";"
-+
-+	print "}"
-+	print "#endif"
- }
+ # ---------------------------------------------------------------------------
  
+-KBUILD_CFLAGS	:= $(REALMODE_CFLAGS) -D_SETUP
++KBUILD_CFLAGS	:= $(REALMODE_CFLAGS) -D_SETUP -mno-red-zone
+ KBUILD_AFLAGS	:= $(KBUILD_CFLAGS) -D__ASSEMBLY__
+ KBUILD_CFLAGS	+= $(call cc-option,-fmacro-prefix-map=$(srctree)/=)
+ GCOV_PROFILE := n
+diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
+index 26050ae0b27e..e186cc0b628d 100644
+--- a/arch/x86/boot/compressed/Makefile
++++ b/arch/x86/boot/compressed/Makefile
+@@ -30,7 +30,7 @@ KBUILD_CFLAGS := -m$(BITS) -O2
+ KBUILD_CFLAGS += -fno-strict-aliasing $(call cc-option, -fPIE, -fPIC)
+ KBUILD_CFLAGS += -DDISABLE_BRANCH_PROFILING
+ cflags-$(CONFIG_X86_32) := -march=i386
+-cflags-$(CONFIG_X86_64) := -mcmodel=small
++cflags-$(CONFIG_X86_64) := -mcmodel=small -mno-red-zone
+ KBUILD_CFLAGS += $(cflags-y)
+ KBUILD_CFLAGS += -mno-mmx -mno-sse
+ KBUILD_CFLAGS += $(call cc-option,-ffreestanding)
+@@ -87,7 +87,7 @@ endif
+ 
+ vmlinux-objs-$(CONFIG_ACPI) += $(obj)/acpi.o
+ 
+-$(obj)/eboot.o: KBUILD_CFLAGS += -fshort-wchar -mno-red-zone
++$(obj)/eboot.o: KBUILD_CFLAGS += -fshort-wchar
+ 
+ vmlinux-objs-$(CONFIG_EFI_STUB) += $(obj)/eboot.o \
+ 	$(objtree)/drivers/firmware/efi/libstub/lib.a
 -- 
 2.17.1
