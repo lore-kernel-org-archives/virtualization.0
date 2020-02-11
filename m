@@ -1,76 +1,72 @@
-From: Jason Gunthorpe <jgg@mellanox.com>
-Subject: Re: [PATCH V2 3/5] vDPA: introduce vDPA bus
-Date: Tue, 11 Feb 2020 09:47:46 -0400
-Message-ID: <20200211134746.GI4271@mellanox.com>
-References: <20200210035608.10002-1-jasowang@redhat.com>
- <20200210035608.10002-4-jasowang@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH 1/2] drm/virtio: fix virtio_gpu_execbuffer_ioctl locking
+Date: Tue, 11 Feb 2020 14:50:46 +0100
+Message-ID: <20200211135047.22261-2-kraxel@redhat.com>
+References: <20200211135047.22261-1-kraxel@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200210035608.10002-4-jasowang@redhat.com>
+In-Reply-To: <20200211135047.22261-1-kraxel@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, tiwei.bie@intel.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jiri@mellanox.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com
+To: dri-devel@lists.freedesktop.org
+Cc: olvaffe@gmail.com, gurchetansingh@chromium.org, Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Feb 10, 2020 at 11:56:06AM +0800, Jason Wang wrote:
-> +/**
-> + * vdpa_register_device - register a vDPA device
-> + * Callers must have a succeed call of vdpa_init_device() before.
-> + * @vdev: the vdpa device to be registered to vDPA bus
-> + *
-> + * Returns an error when fail to add to vDPA bus
-> + */
-> +int vdpa_register_device(struct vdpa_device *vdev)
-> +{
-> +	int err = device_add(&vdev->dev);
-> +
-> +	if (err) {
-> +		put_device(&vdev->dev);
-> +		ida_simple_remove(&vdpa_index_ida, vdev->index);
-> +	}
+Lockdep says we can't call vmemdup() while having objects reserved
+because it needs the mmap semaphore.  So reorder the calls reserve
+the objects later.
 
-This is a very dangerous construction, I've seen it lead to driver
-bugs. Better to require the driver to always do the put_device on
-error unwind
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-The ida_simple_remove should probably be part of the class release
-function to make everything work right
-
-> +/**
-> + * vdpa_unregister_driver - unregister a vDPA device driver
-> + * @drv: the vdpa device driver to be unregistered
-> + */
-> +void vdpa_unregister_driver(struct vdpa_driver *drv)
-> +{
-> +	driver_unregister(&drv->driver);
-> +}
-> +EXPORT_SYMBOL_GPL(vdpa_unregister_driver);
-> +
-> +static int vdpa_init(void)
-> +{
-> +	if (bus_register(&vdpa_bus) != 0)
-> +		panic("virtio bus registration failed");
-> +	return 0;
-> +}
-
-Linus will tell you not to kill the kernel - return the error code and
-propagate it up to the module init function.
-
-> +/**
-> + * vDPA device - representation of a vDPA device
-> + * @dev: underlying device
-> + * @dma_dev: the actual device that is performing DMA
-> + * @config: the configuration ops for this device.
-> + * @index: device index
-> + */
-> +struct vdpa_device {
-> +	struct device dev;
-> +	struct device *dma_dev;
-> +	const struct vdpa_config_ops *config;
-> +	int index;
-
-unsigned values shuld be unsigned int
-
-Jason
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index 205ec4abae2b..0477d1250f2d 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -126,22 +126,22 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
+ 		bo_handles = NULL;
+ 	}
+ 
+-	if (buflist) {
+-		ret = virtio_gpu_array_lock_resv(buflist);
+-		if (ret)
+-			goto out_unused_fd;
+-	}
+-
+ 	buf = vmemdup_user(u64_to_user_ptr(exbuf->command), exbuf->size);
+ 	if (IS_ERR(buf)) {
+ 		ret = PTR_ERR(buf);
+-		goto out_unresv;
++		goto out_unused_fd;
++	}
++
++	if (buflist) {
++		ret = virtio_gpu_array_lock_resv(buflist);
++		if (ret)
++			goto out_memdup;
+ 	}
+ 
+ 	out_fence = virtio_gpu_fence_alloc(vgdev);
+ 	if(!out_fence) {
+ 		ret = -ENOMEM;
+-		goto out_memdup;
++		goto out_unresv;
+ 	}
+ 
+ 	if (out_fence_fd >= 0) {
+@@ -160,11 +160,11 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
+ 			      vfpriv->ctx_id, buflist, out_fence);
+ 	return 0;
+ 
+-out_memdup:
+-	kvfree(buf);
+ out_unresv:
+ 	if (buflist)
+ 		virtio_gpu_array_unlock_resv(buflist);
++out_memdup:
++	kvfree(buf);
+ out_unused_fd:
+ 	kvfree(bo_handles);
+ 	if (buflist)
+-- 
+2.18.2
