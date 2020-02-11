@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 48/62] x86/sev-es: Handle MONITOR/MONITORX Events
-Date: Tue, 11 Feb 2020 14:52:42 +0100
-Message-ID: <20200211135256.24617-49-joro@8bytes.org>
+Subject: [PATCH 50/62] x86/sev-es: Handle VMMCALL Events
+Date: Tue, 11 Feb 2020 14:52:44 +0100
+Message-ID: <20200211135256.24617-51-joro@8bytes.org>
 References: <20200211135256.24617-1-joro@8bytes.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200211135256.24617-1-joro@8bytes.org>
@@ -12,52 +12,58 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Tom Lendacky <thomas.lendacky@amd.com>
 
-Implement a handler for #VC exceptions caused by MONITOR and MONITORX
-instructions.
+Implement a handler for #VC exceptions caused by VMMCALL instructions.
+This patch is only a starting point, VMMCALL emulation under SEV-ES
+needs further hypervisor-specific changes to provide additional state.
 
 Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
 [ jroedel@suse.de: Adapt to #VC handling infrastructure ]
 Co-developed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev-es.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ arch/x86/kernel/sev-es.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
 diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index d5a14f277adb..865f510d11ba 100644
+index 8f1e84da6fa6..6bd2cae7eb9c 100644
 --- a/arch/x86/kernel/sev-es.c
 +++ b/arch/x86/kernel/sev-es.c
-@@ -318,6 +318,21 @@ static enum es_result handle_invd(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
- 	return ghcb_hv_call(ghcb, ctxt, SVM_EXIT_INVD, 0, 0);
+@@ -341,6 +341,26 @@ static enum es_result handle_mwait(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
+ 	return ghcb_hv_call(ghcb, ctxt, SVM_EXIT_MWAIT, 0, 0);
  }
  
-+static enum es_result handle_monitor(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
++static enum es_result handle_vmmcall(struct ghcb *ghcb,
++				     struct es_em_ctxt *ctxt)
 +{
-+	phys_addr_t monitor_pa;
-+	pgd_t *pgd;
++	enum es_result ret;
 +
-+	pgd = __va(read_cr3_pa());
-+	monitor_pa = es_slow_virt_to_phys(ghcb, ctxt->regs->ax);
++	ghcb_set_rax(ghcb, ctxt->regs->ax);
++	ghcb_set_cpl(ghcb, user_mode(ctxt->regs) ? 3 : 0);
 +
-+	ghcb_set_rax(ghcb, monitor_pa);
-+	ghcb_set_rcx(ghcb, ctxt->regs->cx);
-+	ghcb_set_rdx(ghcb, ctxt->regs->dx);
++	ret = ghcb_hv_call(ghcb, ctxt, SVM_EXIT_VMMCALL, 0, 0);
++	if (ret != ES_OK)
++		return ret;
 +
-+	return ghcb_hv_call(ghcb, ctxt, SVM_EXIT_MONITOR, 0, 0);
++	if (!ghcb_is_valid_rax(ghcb))
++		return ES_VMM_ERROR;
++
++	ctxt->regs->ax = ghcb->save.rax;
++
++	return ES_OK;
 +}
 +
  static enum es_result handle_vc_exception(struct es_em_ctxt *ctxt,
  					  struct ghcb *ghcb,
  					  unsigned long exit_code,
-@@ -354,6 +369,9 @@ static enum es_result handle_vc_exception(struct es_em_ctxt *ctxt,
+@@ -374,6 +394,9 @@ static enum es_result handle_vc_exception(struct es_em_ctxt *ctxt,
+ 	case SVM_EXIT_MSR:
+ 		result = handle_msr(ghcb, ctxt);
+ 		break;
++	case SVM_EXIT_VMMCALL:
++		result = handle_vmmcall(ghcb, ctxt);
++		break;
  	case SVM_EXIT_WBINVD:
  		result = handle_wbinvd(ghcb, ctxt);
- 		break;
-+	case SVM_EXIT_MONITOR:
-+		result = handle_monitor(ghcb, ctxt);
-+		break;
- 	case SVM_EXIT_NPF:
- 		result = handle_mmio(ghcb, ctxt);
  		break;
 -- 
 2.17.1
