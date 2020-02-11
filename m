@@ -1,89 +1,282 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 01/62] KVM: SVM: Add GHCB definitions
-Date: Tue, 11 Feb 2020 14:51:55 +0100
-Message-ID: <20200211135256.24617-2-joro@8bytes.org>
+Subject: [PATCH 08/62] x86/boot/compressed/64: Add IDT Infrastructure
+Date: Tue, 11 Feb 2020 14:52:02 +0100
+Message-ID: <20200211135256.24617-9-joro@8bytes.org>
 References: <20200211135256.24617-1-joro@8bytes.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200211135256.24617-1-joro@8bytes.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: x86@kernel.org
-Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Joerg Roedel <jroedel@suse.de>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
+Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-Extend the vmcb_safe_area with SEV-ES fields and add a new
-'struct ghcb' which will be used for guest-hypervisor communication.
+Add code needed to setup an IDT in the early pre-decompression
+boot-code. The IDT is loaded first in startup_64, which is after
+EfiExitBootServices() has been called, and later reloaded when the
+kernel image has been relocated to the end of the decompression area.
 
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+This allows to setup different IDT handlers before and after the
+relocation.
+
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/svm.h | 42 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 42 insertions(+)
+ arch/x86/boot/compressed/Makefile          |  1 +
+ arch/x86/boot/compressed/head_64.S         | 34 +++++++++++
+ arch/x86/boot/compressed/idt_64.c          | 43 +++++++++++++
+ arch/x86/boot/compressed/idt_handlers_64.S | 71 ++++++++++++++++++++++
+ arch/x86/boot/compressed/misc.h            |  5 ++
+ arch/x86/include/asm/desc_defs.h           |  3 +
+ 6 files changed, 157 insertions(+)
+ create mode 100644 arch/x86/boot/compressed/idt_64.c
+ create mode 100644 arch/x86/boot/compressed/idt_handlers_64.S
 
-diff --git a/arch/x86/include/asm/svm.h b/arch/x86/include/asm/svm.h
-index 6ece8561ba66..f36288c659b5 100644
---- a/arch/x86/include/asm/svm.h
-+++ b/arch/x86/include/asm/svm.h
-@@ -201,6 +201,48 @@ struct __attribute__ ((__packed__)) vmcb_save_area {
- 	u64 br_to;
- 	u64 last_excp_from;
- 	u64 last_excp_to;
+diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
+index e186cc0b628d..54d63526e856 100644
+--- a/arch/x86/boot/compressed/Makefile
++++ b/arch/x86/boot/compressed/Makefile
+@@ -81,6 +81,7 @@ vmlinux-objs-$(CONFIG_EARLY_PRINTK) += $(obj)/early_serial_console.o
+ vmlinux-objs-$(CONFIG_RANDOMIZE_BASE) += $(obj)/kaslr.o
+ ifdef CONFIG_X86_64
+ 	vmlinux-objs-$(CONFIG_RANDOMIZE_BASE) += $(obj)/kaslr_64.o
++	vmlinux-objs-y += $(obj)/idt_64.o $(obj)/idt_handlers_64.o
+ 	vmlinux-objs-y += $(obj)/mem_encrypt.o
+ 	vmlinux-objs-y += $(obj)/pgtable_64.o
+ endif
+diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
+index 1f1f6c8139b3..d27a9ce1bcb0 100644
+--- a/arch/x86/boot/compressed/head_64.S
++++ b/arch/x86/boot/compressed/head_64.S
+@@ -33,6 +33,7 @@
+ #include <asm/processor-flags.h>
+ #include <asm/asm-offsets.h>
+ #include <asm/bootparam.h>
++#include <asm/desc_defs.h>
+ #include "pgtable.h"
+ 
+ /*
+@@ -358,6 +359,10 @@ SYM_CODE_START(startup_64)
+ 	movq	%rax, gdt64+2(%rip)
+ 	lgdt	gdt64(%rip)
+ 
++	pushq	%rsi
++	call	load_stage1_idt
++	popq	%rsi
++
+ 	/*
+ 	 * paging_prepare() sets up the trampoline and checks if we need to
+ 	 * enable 5-level paging.
+@@ -465,6 +470,16 @@ SYM_FUNC_END_ALIAS(efi_stub_entry)
+ 	.text
+ SYM_FUNC_START_LOCAL_NOALIGN(.Lrelocated)
+ 
++/*
++ * Reload GDT after relocation - The GDT at the non-relocated position
++ * might be overwritten soon by the in-place decompression, so reload
++ * GDT at the relocated address. The GDT is referenced by exception
++ * handling and needs to be set up correctly.
++ */
++	leaq	gdt(%rip), %rax
++	movq	%rax, gdt64+2(%rip)
++	lgdt	gdt64(%rip)
++
+ /*
+  * Clear BSS (stack is currently empty)
+  */
+@@ -475,6 +490,13 @@ SYM_FUNC_START_LOCAL_NOALIGN(.Lrelocated)
+ 	shrq	$3, %rcx
+ 	rep	stosq
+ 
++/*
++ * Load stage2 IDT
++ */
++	pushq	%rsi
++	call	load_stage2_idt
++	popq	%rsi
++
+ /*
+  * Do the extraction, and jump to the new kernel..
+  */
+@@ -628,6 +650,18 @@ SYM_DATA_START_LOCAL(gdt)
+ 	.quad   0x0000000000000000	/* TS continued */
+ SYM_DATA_END_LABEL(gdt, SYM_L_LOCAL, gdt_end)
+ 
++SYM_DATA_START(boot_idt_desc)
++	.word	boot_idt_end - boot_idt
++	.quad	0
++SYM_DATA_END(boot_idt_desc)
++	.balign 8
++SYM_DATA_START(boot_idt)
++	.rept	BOOT_IDT_ENTRIES
++	.quad	0
++	.quad	0
++	.endr
++SYM_DATA_END_LABEL(boot_idt, SYM_L_GLOBAL, boot_idt_end)
++
+ #ifdef CONFIG_EFI_MIXED
+ SYM_DATA_LOCAL(efi32_boot_args, .long 0, 0)
+ SYM_DATA(efi_is64, .byte 1)
+diff --git a/arch/x86/boot/compressed/idt_64.c b/arch/x86/boot/compressed/idt_64.c
+new file mode 100644
+index 000000000000..46ecea671b90
+--- /dev/null
++++ b/arch/x86/boot/compressed/idt_64.c
+@@ -0,0 +1,43 @@
++// SPDX-License-Identifier: GPL-2.0-only
++#include <asm/trap_defs.h>
++#include <asm/segment.h>
++#include "misc.h"
++
++static void set_idt_entry(int vector, void (*handler)(void))
++{
++	unsigned long address = (unsigned long)handler;
++	gate_desc entry;
++
++	memset(&entry, 0, sizeof(entry));
++
++	entry.offset_low    = (u16)(address & 0xffff);
++	entry.segment       = __KERNEL_CS;
++	entry.bits.type     = GATE_TRAP;
++	entry.bits.p        = 1;
++	entry.offset_middle = (u16)((address >> 16) & 0xffff);
++	entry.offset_high   = (u32)(address >> 32);
++
++	memcpy(&boot_idt[vector], &entry, sizeof(entry));
++}
++
++/* Have this here so we don't need to include <asm/desc.h> */
++static void load_boot_idt(const struct desc_ptr *dtr)
++{
++	asm volatile("lidt %0"::"m" (*dtr));
++}
++
++/* Setup IDT before kernel jumping to  .Lrelocated */
++void load_stage1_idt(void)
++{
++	boot_idt_desc.address = (unsigned long)boot_idt;
++
++	load_boot_idt(&boot_idt_desc);
++}
++
++/* Setup IDT after kernel jumping to  .Lrelocated */
++void load_stage2_idt(void)
++{
++	boot_idt_desc.address = (unsigned long)boot_idt;
++
++	load_boot_idt(&boot_idt_desc);
++}
+diff --git a/arch/x86/boot/compressed/idt_handlers_64.S b/arch/x86/boot/compressed/idt_handlers_64.S
+new file mode 100644
+index 000000000000..0b2b6cf747d2
+--- /dev/null
++++ b/arch/x86/boot/compressed/idt_handlers_64.S
+@@ -0,0 +1,71 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * Early IDT handler entry points
++ *
++ * Copyright (C) 2019 SUSE
++ *
++ * Author: Joerg Roedel <jroedel@suse.de>
++ */
++
++#include <asm/segment.h>
++
++.macro EXCEPTION_HANDLER name function error_code=0
++SYM_FUNC_START(\name)
++
++	/* Build pt_regs */
++	.if \error_code == 0
++	pushq   $0
++	.endif
++
++	pushq   %rdi
++	pushq   %rsi
++	pushq   %rdx
++	pushq   %rcx
++	pushq   %rax
++	pushq   %r8
++	pushq   %r9
++	pushq   %r10
++	pushq   %r11
++	pushq   %rbx
++	pushq   %rbp
++	pushq   %r12
++	pushq   %r13
++	pushq   %r14
++	pushq   %r15
++
++	/* Call handler with pt_regs */
++	movq    %rsp, %rdi
++	call    \function
++
++	/* Restore regs */
++	popq    %r15
++	popq    %r14
++	popq    %r13
++	popq    %r12
++	popq    %rbp
++	popq    %rbx
++	popq    %r11
++	popq    %r10
++	popq    %r9
++	popq    %r8
++	popq    %rax
++	popq    %rcx
++	popq    %rdx
++	popq    %rsi
++	popq    %rdi
++
++	/* Remove error code and return */
++	addq    $8, %rsp
 +
 +	/*
-+	 * The following part of the save area is valid only for
-+	 * SEV-ES guests when referenced through the GHCB.
++	 * Make sure we return to __KERNEL_CS - the CS selector on
++	 * the IRET frame might still be from an old BIOS GDT
 +	 */
-+	u8 reserved_7[104];
-+	u64 reserved_8;		/* rax already available at 0x01f8 */
-+	u64 rcx;
-+	u64 rdx;
-+	u64 rbx;
-+	u64 reserved_9;		/* rsp already available at 0x01d8 */
-+	u64 rbp;
-+	u64 rsi;
-+	u64 rdi;
-+	u64 r8;
-+	u64 r9;
-+	u64 r10;
-+	u64 r11;
-+	u64 r12;
-+	u64 r13;
-+	u64 r14;
-+	u64 r15;
-+	u8 reserved_10[16];
-+	u64 sw_exit_code;
-+	u64 sw_exit_info_1;
-+	u64 sw_exit_info_2;
-+	u64 sw_scratch;
-+	u8 reserved_11[56];
-+	u64 xcr0;
-+	u8 valid_bitmap[16];
-+	u64 x87_state_gpa;
-+	u8 reserved_12[1016];
-+};
++	movq	$__KERNEL_CS, 8(%rsp)
 +
-+struct __attribute__ ((__packed__)) ghcb {
-+	struct vmcb_save_area save;
++	iretq
++SYM_FUNC_END(\name)
++	.endm
 +
-+	u8 shared_buffer[2032];
-+
-+	u8 reserved_1[10];
-+	u16 protocol_version;	/* negotiated SEV-ES/GHCB protocol version */
-+	u32 ghcb_usage;
- };
++	.text
++	.code64
+diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
+index 726e264410ff..062ae3ae6930 100644
+--- a/arch/x86/boot/compressed/misc.h
++++ b/arch/x86/boot/compressed/misc.h
+@@ -23,6 +23,7 @@
+ #include <asm/page.h>
+ #include <asm/boot.h>
+ #include <asm/bootparam.h>
++#include <asm/desc_defs.h>
  
- struct __attribute__ ((__packed__)) vmcb {
+ #define BOOT_CTYPE_H
+ #include <linux/acpi.h>
+@@ -133,4 +134,8 @@ int count_immovable_mem_regions(void);
+ static inline int count_immovable_mem_regions(void) { return 0; }
+ #endif
+ 
++/* idt_64.c */
++extern gate_desc boot_idt[BOOT_IDT_ENTRIES];
++extern struct desc_ptr boot_idt_desc;
++
+ #endif /* BOOT_COMPRESSED_MISC_H */
+diff --git a/arch/x86/include/asm/desc_defs.h b/arch/x86/include/asm/desc_defs.h
+index a91f3b6e4f2a..5621fb3f2d1a 100644
+--- a/arch/x86/include/asm/desc_defs.h
++++ b/arch/x86/include/asm/desc_defs.h
+@@ -109,6 +109,9 @@ struct desc_ptr {
+ 
+ #endif /* !__ASSEMBLY__ */
+ 
++/* Boot IDT definitions */
++#define	BOOT_IDT_ENTRIES	32
++
+ /* Access rights as returned by LAR */
+ #define AR_TYPE_RODATA		(0 * (1 << 9))
+ #define AR_TYPE_RWDATA		(1 * (1 << 9))
 -- 
 2.17.1
