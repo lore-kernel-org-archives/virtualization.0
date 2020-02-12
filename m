@@ -1,44 +1,49 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH v4] drm/bochs: add drm_driver.release callback.
-Date: Wed, 12 Feb 2020 10:20:42 +0100
-Message-ID: <20200212092042.wnolwagpiucyw25m@sirius.home.kraxel.org>
-References: <20200211135218.22871-1-kraxel@redhat.com>
- <20200211141956.GC2363188@phenom.ffwll.local>
+Subject: Re: [PATCH v4] drm/virtio: add drm_driver.release callback.
+Date: Wed, 12 Feb 2020 10:35:43 +0100
+Message-ID: <20200212093543.qg4j2nk5wxlii7wr@sirius.home.kraxel.org>
+References: <20200211135805.24436-1-kraxel@redhat.com>
+ <20200211142711.GE2363188@phenom.ffwll.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200211141956.GC2363188@phenom.ffwll.local>
+In-Reply-To: <20200211142711.GE2363188@phenom.ffwll.local>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dri-devel@lists.freedesktop.org, David Airlie <airlied@linux.ie>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
+To: dri-devel@lists.freedesktop.org, olvaffe@gmail.com, gurchetansingh@chromium.org, David Airlie <airlied@linux.ie>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Feb 11, 2020 at 03:19:56PM +0100, Daniel Vetter wrote:
-> On Tue, Feb 11, 2020 at 02:52:18PM +0100, Gerd Hoffmann wrote:
-> > Call bochs_unload via drm_driver.release to make sure we release stuff
-> > when it is safe to do so.  Use drm_dev_{enter,exit,unplug} to avoid
-> > touching hardware after device removal.  Tidy up here and there.
+On Tue, Feb 11, 2020 at 03:27:11PM +0100, Daniel Vetter wrote:
+> On Tue, Feb 11, 2020 at 02:58:04PM +0100, Gerd Hoffmann wrote:
+> > Split virtio_gpu_deinit(), move the drm shutdown and release to
+> > virtio_gpu_release().  Drop vqs_ready variable, instead use
+> > drm_dev_{enter,exit,unplug} to avoid touching hardware after
+> > device removal.  Tidy up here and there.
 > > 
 > > v4: add changelog.
 > > v3: use drm_dev_*().
-> > v2: move hardware deinit to pci_remove().
 > > 
 > > Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 > 
+> Looks reasonable I think.
+> 
 > Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 > 
-> Btw I checked around whether there's anything else that obviously needs a
-> drm_dev_enter/exit, and I spotted the !bochs->mmio check in
-> bochs_hw_load_edid. That one looks like cargo-cult, there's a single
-> caller in the init path, so either mmio works at that point or this is
-> dead code ... slightly confusing.
+> I didn't review whether you need more drm_dev_enter/exit pairs, virtio is
+> a bit more complex for that and I have no idea how exactly it works.
 
-FYI:  bochs->mmio actually can be NULL when running on very old qemu
-versions, the mmio bar was added in qemu release 1.3.  All the register
-access functions in bochs_hw.c have a fallback going to ioports because
-of that.  So there is a reason for the check, even though it is highly
-unlikely that mmio actually is NULL these days.  qemu 1.3 was released
-in 2013 ...
+virtio uses two rings to send commands to the device, one to move the
+cursor and one for everything else.  So pretty much everything ends up
+calling either this ...
+
+> > @@ -330,7 +330,14 @@ static void virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
+
+... or this ...
+
+> > @@ -460,12 +460,13 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
+
+... to submit some request to the (virtual) hardware.  Therefore we
+don't need many drm_dev_enter/exit pairs to cover everything ;)
 
 cheers,
   Gerd
