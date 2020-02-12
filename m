@@ -1,39 +1,37 @@
-From: Joerg Roedel <joro@8bytes.org>
-Subject: Re: [PATCH 46/62] x86/sev-es: Handle INVD Events
-Date: Wed, 12 Feb 2020 16:36:17 +0100
-Message-ID: <20200212153617.GD22063@8bytes.org>
-References: <20200211135256.24617-47-joro@8bytes.org>
- <EA510462-A43C-4F7E-BFE8-B212003B3627@amacapital.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <EA510462-A43C-4F7E-BFE8-B212003B3627@amacapital.net>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Andy Lutomirski <luto@amacapital.net>
-Cc: Juergen Gross <JGross@suse.com>, Tom Lendacky <Thomas.Lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Dave Hansen <dave.hansen@linux.intel.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
+From: Andy Lutomirski <luto@amacapital.net>
+Subject: Re: [PATCH 14/62] x86/boot/compressed/64: Add stage1 #VC handler
+Date: Wed, 12 Feb 2020 08:22:14 -0800
+Message-ID: <A67CC291-C07A-496C-BD67-2A795813E93F@amacapital.net>
+References: <20200212113840.GB20066@8bytes.org>
+Mime-Version: 1.0 (1.0)
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200212113840.GB20066@8bytes.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>
+Cc: Andy Lutomirski <luto@kernel.org>, X86 ML <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <Thomas.Lendacky@amd.com>, Juergen Gross <JGross@suse.com>, Kees Cook <keescook@chromium.org>, LKML <linux-kernel@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVHVlLCBGZWIgMTEsIDIwMjAgYXQgMDQ6MTI6MTlQTSAtMDgwMCwgQW5keSBMdXRvbWlyc2tp
-IHdyb3RlOgo+IAo+IAo+ID4gT24gRmViIDExLCAyMDIwLCBhdCA1OjUzIEFNLCBKb2VyZyBSb2Vk
-ZWwgPGpvcm9AOGJ5dGVzLm9yZz4gd3JvdGU6Cj4gPiAKPiA+IO+7v0Zyb206IFRvbSBMZW5kYWNr
-eSA8dGhvbWFzLmxlbmRhY2t5QGFtZC5jb20+Cj4gPiAKPiA+IEltcGxlbWVudCBhIGhhbmRsZXIg
-Zm9yICNWQyBleGNlcHRpb25zIGNhdXNlZCBieSBJTlZEIGluc3RydWN0aW9ucy4KPiAKPiBVaCwg
-d2hhdD8gIFN1cmVseSB0aGUgI1ZDIGNvZGUgY2FuIGhhdmUgYSBjYXRjaC1hbGwgT09QUyBwYXRo
-IGZvciB0aGluZ3MgbGlrZSB0aGlzLiBMaW51eCBzaG91bGQgbmV2ZXIgZXZlciBkbyBJTlZELgoK
-UmlnaHQsIGl0cyBoYXJkIHRvIGNvbWUgdXAgd2l0aCBhIHZhbGlkIHVzZS1jYXNlIGZvciBJTlZE
-IGluIHRoZSBMaW51eAprZXJuZWwuIEkgY2hhbmdlZCB0aGUgcGF0Y2ggdG8gbWFyayBJTlZEIGFz
-IHVuc3VwcG9ydGVkIGFuZCBwcmludCBhbgplcnJvciBtZXNzYWdlLgoKUmVnYXJkcywKCglKb2Vy
-ZwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFs
-aXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlv
-bi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8v
-dmlydHVhbGl6YXRpb24=
+
+
+> On Feb 12, 2020, at 3:38 AM, Joerg Roedel <joro@8bytes.org> wrote:
+>=20
+> =EF=BB=BFOn Tue, Feb 11, 2020 at 02:23:22PM -0800, Andy Lutomirski wrote:
+>>> On Tue, Feb 11, 2020 at 5:53 AM Joerg Roedel <joro@8bytes.org> wrote:
+>>> +void __init no_ghcb_vc_handler(struct pt_regs *regs)
+>>=20
+>> Isn't there a second parameter: unsigned long error_code?
+>=20
+> No, the function gets the error-code from regs->orig_ax. This particular
+> function only needs to check for error_code =3D=3D SVM_EXIT_CPUID, as that=
+
+> is the only one supported when there is no GHCB.
+>=20
+
+Hmm. It might be nice to use the same signature for early handlers as for no=
+rmal ones.
+
+> Regards,
+>=20
+>    Joerg
