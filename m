@@ -1,38 +1,30 @@
-From: Joerg Roedel <joro@8bytes.org>
-Subject: Re: [PATCH 30/62] x86/head/64: Move early exception dispatch to C
- code
-Date: Wed, 12 Feb 2020 13:39:02 +0100
-Message-ID: <20200212123902.GG20066@8bytes.org>
-References: <20200211135256.24617-1-joro@8bytes.org>
- <20200211135256.24617-31-joro@8bytes.org>
- <CALCETrVLhTkZ2MMUD+WMWXnhmSvwVhinUtMJey2M6sx_iUREcg@mail.gmail.com>
+From: Jason Gunthorpe <jgg@mellanox.com>
+Subject: Re: [PATCH V2 3/5] vDPA: introduce vDPA bus
+Date: Wed, 12 Feb 2020 08:51:08 -0400
+Message-ID: <20200212125108.GS4271@mellanox.com>
+References: <20200210035608.10002-1-jasowang@redhat.com>
+ <20200210035608.10002-4-jasowang@redhat.com>
+ <20200211134746.GI4271@mellanox.com>
+ <cf7abcc9-f8ef-1fe2-248e-9b9028788ade@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CALCETrVLhTkZ2MMUD+WMWXnhmSvwVhinUtMJey2M6sx_iUREcg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Lutomirski <luto@kernel.org>
-Cc: X86 ML <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, LKML <linux-kernel@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Joerg Roedel <jroedel@suse.de>
+In-Reply-To: <cf7abcc9-f8ef-1fe2-248e-9b9028788ade@redhat.com>
+Sender: netdev-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, tiwei.bie@intel.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jiri@mellanox.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Feb 11, 2020 at 02:44:45PM -0800, Andy Lutomirski wrote:
-> How about int (or bool) handled;  Or just if (!early_make_pgtable)
-> return;  This would also be nicer if you inverted the return value so
-> that true means "I handled it".
+On Wed, Feb 12, 2020 at 03:55:31PM +0800, Jason Wang wrote:
+> > The ida_simple_remove should probably be part of the class release
+> > function to make everything work right
+> 
+> It looks to me bus instead of class is the correct abstraction here since
+> the devices share a set of programming interface but not the semantics.
 
-Okay, makes sense. Changed the return value of early_make_pgtable() to bool and
-this function to:
+device_release() doesn't call the bus release? You have dev, type or
+class to choose from. Type is rarely used and doesn't seem to be used
+by vdpa, so class seems the right choice
 
-	void __init early_exception(struct pt_regs *regs, int trapnr)
-	{
-		if (trapnr == X86_TRAP_PF &&
-		    early_make_pgtable(native_read_cr2()))
-				return;
-
-		early_fixup_exception(regs, trapnr);
-	}
-
-Regards,
-
-	Joerg
+Jason
