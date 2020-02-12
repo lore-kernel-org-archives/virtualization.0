@@ -1,35 +1,37 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: Re: [PATCH 25/62] x86/head/64: Install boot GDT
-Date: Wed, 12 Feb 2020 13:20:52 +0100
-Message-ID: <20200212122052.GF20066@8bytes.org>
+Subject: Re: [PATCH 30/62] x86/head/64: Move early exception dispatch to C
+ code
+Date: Wed, 12 Feb 2020 13:39:02 +0100
+Message-ID: <20200212123902.GG20066@8bytes.org>
 References: <20200211135256.24617-1-joro@8bytes.org>
- <20200211135256.24617-26-joro@8bytes.org>
- <CALCETrWryvrGoPD5zOVxVs3pk+WFfb287NV46Zw7Gz7FtNAHag@mail.gmail.com>
+ <20200211135256.24617-31-joro@8bytes.org>
+ <CALCETrVLhTkZ2MMUD+WMWXnhmSvwVhinUtMJey2M6sx_iUREcg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CALCETrWryvrGoPD5zOVxVs3pk+WFfb287NV46Zw7Gz7FtNAHag@mail.gmail.com>
-Sender: kvm-owner@vger.kernel.org
+In-Reply-To: <CALCETrVLhTkZ2MMUD+WMWXnhmSvwVhinUtMJey2M6sx_iUREcg@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Andy Lutomirski <luto@kernel.org>
 Cc: X86 ML <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, LKML <linux-kernel@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Feb 11, 2020 at 02:29:24PM -0800, Andy Lutomirski wrote:
-> On Tue, Feb 11, 2020 at 5:53 AM Joerg Roedel <joro@8bytes.org> wrote:
-> > +       /* GDT loaded - switch to __KERNEL_CS so IRET works reliably */
-> > +       pushq   $__KERNEL_CS
-> > +       leaq    .Lon_kernel_cs(%rip), %rax
-> > +       pushq   %rax
-> > +       lretq
-> > +
-> > +.Lon_kernel_cs:
-> > +       UNWIND_HINT_EMPTY
-> 
-> I would suggest fixing at least SS as well.
+On Tue, Feb 11, 2020 at 02:44:45PM -0800, Andy Lutomirski wrote:
+> How about int (or bool) handled;  Or just if (!early_make_pgtable)
+> return;  This would also be nicer if you inverted the return value so
+> that true means "I handled it".
 
-You are right, that is cleaner. Initialized DS, ES, and SS to
-__KERNEL_DS here too.
+Okay, makes sense. Changed the return value of early_make_pgtable() to bool and
+this function to:
+
+	void __init early_exception(struct pt_regs *regs, int trapnr)
+	{
+		if (trapnr == X86_TRAP_PF &&
+		    early_make_pgtable(native_read_cr2()))
+				return;
+
+		early_fixup_exception(regs, trapnr);
+	}
 
 Regards,
 
