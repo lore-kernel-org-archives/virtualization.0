@@ -1,93 +1,66 @@
-From: Alexey Makhalov via Virtualization
- <virtualization@lists.linux-foundation.org>
-Subject: [PATCH 4/5] x86/vmware: Enable steal time accounting
-Date: Wed, 12 Feb 2020 20:03:11 +0000
-Message-ID: <20200212200312.2033-5-amakhalov@vmware.com>
-References: <20200212200312.2033-1-amakhalov@vmware.com>
-Reply-To: Alexey Makhalov <amakhalov@vmware.com>
+From: Johannes Hirte <johannes.hirte@datenkhaos.de>
+Subject: Re: [PATCH v3 13/22] compat_ioctl: scsi: move ioctl handling into
+ drivers
+Date: Wed, 12 Feb 2020 22:14:52 +0100
+Message-ID: <20200212211452.GA5726@latitude>
+References: <20200102145552.1853992-1-arnd@arndb.de>
+ <20200102145552.1853992-14-arnd@arndb.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200212200312.2033-1-amakhalov@vmware.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: x86@kernel.org
-Cc: Juergen Gross <jgross@suse.com>, Alexey Makhalov <amakhalov@vmware.com>, Jonathan Corbet <corbet@lwn.net>, "VMware,
- Inc." <pv-drivers@vmware.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Josh Poimboeuf <jpoimboe@redhat.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Pawan Gupta <pawan.kumar.gupta@linux.intel.com>, Thomas Gleixner <tglx@linutronix.de>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-block-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200102145552.1853992-14-arnd@arndb.de>
+Sender: linux-block-owner@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Jens Axboe <axboe@kernel.dk>, Doug Gilbert <dgilbert@interlog.com>, Kai =?utf-8?B?TcOka2lzYXJh?= <Kai.Makisara@kolumbus.fi>, Alexander Viro <viro@zeniv.linux.org.uk>, Dongli Zhang <dongli.zhang@oracle.com>, Thomas Gleixner <tglx@linutronix.de>, Bart Van Assche <bvanassche@acm.org>, Hannes Reinecke <hare@suse.com>, Damien Le Moal <damien.lemoal@wdc.com>, John Garry <john.garry@huawei.com>, Martin Wilck <mwilck@suse.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "Gustavo A. R. Silva" <gustavo@embedded>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Set paravirt_steal_rq_enabled if steal clock present.
-paravirt_steal_rq_enabled is used in sched/core.c to
-adjust task progress by offsetting stolen time.
-Use 'no-steal-acc' off switch (share same name with KVM)
-to disable steal time accounting.
+On 2020 Jan 02, Arnd Bergmann wrote:
+> Each driver calling scsi_ioctl() gets an equivalent compat_ioctl()
+> handler that implements the same commands by calling scsi_compat_ioctl().
+> 
+> The scsi_cmd_ioctl() and scsi_cmd_blk_ioctl() functions are compatible
+> at this point, so any driver that calls those can do so for both native
+> and compat mode, with the argument passed through compat_ptr().
+> 
+> With this, we can remove the entries from fs/compat_ioctl.c.  The new
+> code is larger, but should be easier to maintain and keep updated with
+> newly added commands.
+> 
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> ---
+>  drivers/block/virtio_blk.c |   3 +
+>  drivers/scsi/ch.c          |   9 ++-
+>  drivers/scsi/sd.c          |  50 ++++++--------
+>  drivers/scsi/sg.c          |  44 ++++++++-----
+>  drivers/scsi/sr.c          |  57 ++++++++++++++--
+>  drivers/scsi/st.c          |  51 ++++++++------
+>  fs/compat_ioctl.c          | 132 +------------------------------------
+>  7 files changed, 142 insertions(+), 204 deletions(-)
+> 
 
-Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
-Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
----
- Documentation/admin-guide/kernel-parameters.txt |  2 +-
- arch/x86/kernel/cpu/vmware.c                    | 13 ++++++++++++-
- 2 files changed, 13 insertions(+), 2 deletions(-)
+This breaks libcdio. cd-info now results in:
 
-diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index 87176a90e61a..07fbdccdd77c 100644
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -3152,7 +3152,7 @@
- 			[X86,PV_OPS] Disable paravirtualized VMware scheduler
- 			clock and use the default one.
- 
--	no-steal-acc	[X86,KVM,ARM64] Disable paravirtualized steal time
-+	no-steal-acc	[X86,PV_OPS,ARM64] Disable paravirtualized steal time
- 			accounting. steal time is computed, but won't
- 			influence scheduler behaviour
- 
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index 59459992ad47..0c65d661d88b 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -125,6 +125,7 @@ static struct cyc2ns_data vmware_cyc2ns __ro_after_init;
- static int vmw_sched_clock __initdata = 1;
- static DEFINE_PER_CPU_DECRYPTED(struct vmware_steal_time, steal_time) __aligned(64);
- static bool has_steal_clock;
-+static bool steal_acc __initdata = true; /* steal time accounting */
- 
- static __init int setup_vmw_sched_clock(char *s)
- {
-@@ -133,6 +134,13 @@ static __init int setup_vmw_sched_clock(char *s)
- }
- early_param("no-vmw-sched-clock", setup_vmw_sched_clock);
- 
-+static __init int parse_no_stealacc(char *arg)
-+{
-+	steal_acc = false;
-+	return 0;
-+}
-+early_param("no-steal-acc", parse_no_stealacc);
-+
- static unsigned long long notrace vmware_sched_clock(void)
- {
- 	unsigned long long ns;
-@@ -306,8 +314,11 @@ static int vmware_cpu_down_prepare(unsigned int cpu)
- 
- static __init int activate_jump_labels(void)
- {
--	if (has_steal_clock)
-+	if (has_steal_clock) {
- 		static_key_slow_inc(&paravirt_steal_enabled);
-+		if (steal_acc)
-+			static_key_slow_inc(&paravirt_steal_rq_enabled);
-+	}
- 
- 	return 0;
- }
+cd-info version 2.1.0 x86_64-pc-linux-gnu
+Copyright (c) 2003-2005, 2007-2008, 2011-2015, 2017 R. Bernstein
+This is free software; see the source for copying conditions.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.
+CD location   : /dev/cdrom
+CD driver name: GNU/Linux
+   access mode: IOCTL
+
+Error in getting drive hardware properties
+Error in getting drive reading properties
+Error in getting drive writing properties
+__________________________________
+
+Disc mode is listed as: CD-DA
+++ WARN: error in ioctl CDROMREADTOCHDR: Bad address
+
+cd-info: Can't get first track number. I give up.
+
+
 -- 
-2.14.2
+Regards,
+  Johannes Hirte
