@@ -1,60 +1,158 @@
-From: Jason Gunthorpe <jgg@mellanox.com>
-Subject: Re: [PATCH V2 3/5] vDPA: introduce vDPA bus
-Date: Thu, 13 Feb 2020 12:13:20 -0400
-Message-ID: <20200213161320.GY4271@mellanox.com>
-References: <20200211134746.GI4271@mellanox.com>
- <cf7abcc9-f8ef-1fe2-248e-9b9028788ade@redhat.com>
- <20200212125108.GS4271@mellanox.com>
- <12775659-1589-39e4-e344-b7a2c792b0f3@redhat.com>
- <20200213134128.GV4271@mellanox.com>
- <ebaea825-5432-65e2-2ab3-720a8c4030e7@redhat.com>
- <20200213150542.GW4271@mellanox.com>
- <20200213103714-mutt-send-email-mst@kernel.org>
- <20200213155154.GX4271@mellanox.com>
- <20200213105743-mutt-send-email-mst@kernel.org>
+From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Subject: Re: [PATCH] virtio: Work around frames incorrectly marked as gso
+Date: Thu, 13 Feb 2020 16:23:24 +0000
+Message-ID: <35510da7-08f1-4aa5-c6d6-6bffbccaee0c@cambridgegreys.com>
+References: <20191209104824.17059-1-anton.ivanov@cambridgegreys.com>
+ <57230228-7030-c65f-a24f-910ca52bbe9e@cambridgegreys.com>
+ <f78bfe6e-2ffc-3734-9618-470f1afea0c6@redhat.com>
+ <918222d9-816a-be70-f8af-b8dfcb586240@cambridgegreys.com>
+ <20200211053502-mutt-send-email-mst@kernel.org>
+ <9547228b-aa93-f2b6-6fdc-8d33cde3716a@cambridgegreys.com>
+ <20200213045937-mutt-send-email-mst@kernel.org>
+ <94fb9656-99ee-a001-e428-9d76c3620e61@gmail.com>
+ <20200213105010-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200213105743-mutt-send-email-mst@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, tiwei.bie@intel.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jiri@mellanox.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20200213105010-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+Sender: netdev-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Eric Dumazet <eric.dumazet@gmail.com>
+Cc: netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, linux-um@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 13, 2020 at 10:59:34AM -0500, Michael S. Tsirkin wrote:
-> On Thu, Feb 13, 2020 at 11:51:54AM -0400, Jason Gunthorpe wrote:
-> > The 'class' is supposed to provide all the library functions to remove
-> > this duplication. Instead of plugging the HW driver in via some bus
-> > scheme every subsystem has its own 'ops' that the HW driver provides
-> > to the subsystem's class via subsystem_register()
-> 
-> Hmm I'm not familiar with subsystem_register. A grep didn't find it
-> in the kernel either ...
 
-I mean it is the registration function provided by the subsystem that
-owns the class, for instance tpm_chip_register(),
-ib_register_device(), register_netdev(), rtc_register_device() etc
+On 13/02/2020 15:53, Michael S. Tsirkin wrote:
+> On Thu, Feb 13, 2020 at 07:44:06AM -0800, Eric Dumazet wrote:
+>>
+>> On 2/13/20 2:00 AM, Michael S. Tsirkin wrote:
+>>> On Wed, Feb 12, 2020 at 05:38:09PM +0000, Anton Ivanov wrote:
+>>>>
+>>>> On 11/02/2020 10:37, Michael S. Tsirkin wrote:
+>>>>> On Tue, Feb 11, 2020 at 07:42:37AM +0000, Anton Ivanov wrote:
+>>>>>> On 11/02/2020 02:51, Jason Wang wrote:
+>>>>>>> On 2020/2/11 上午12:55, Anton Ivanov wrote:
+>>>>>>>>
+>>>>>>>> On 09/12/2019 10:48, anton.ivanov@cambridgegreys.com wrote:
+>>>>>>>>> From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+>>>>>>>>>
+>>>>>>>>> Some of the frames marked as GSO which arrive at
+>>>>>>>>> virtio_net_hdr_from_skb() have no GSO_TYPE, no
+>>>>>>>>> fragments (data_len = 0) and length significantly shorter
+>>>>>>>>> than the MTU (752 in my experiments).
+>>>>>>>>>
+>>>>>>>>> This is observed on raw sockets reading off vEth interfaces
+>>>>>>>>> in all 4.x and 5.x kernels I tested.
+>>>>>>>>>
+>>>>>>>>> These frames are reported as invalid while they are in fact
+>>>>>>>>> gso-less frames.
+>>>>>>>>>
+>>>>>>>>> This patch marks the vnet header as no-GSO for them instead
+>>>>>>>>> of reporting it as invalid.
+>>>>>>>>>
+>>>>>>>>> Signed-off-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+>>>>>>>>> ---
+>>>>>>>>>     include/linux/virtio_net.h | 8 ++++++--
+>>>>>>>>>     1 file changed, 6 insertions(+), 2 deletions(-)
+>>>>>>>>>
+>>>>>>>>> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+>>>>>>>>> index 0d1fe9297ac6..d90d5cff1b9a 100644
+>>>>>>>>> --- a/include/linux/virtio_net.h
+>>>>>>>>> +++ b/include/linux/virtio_net.h
+>>>>>>>>> @@ -112,8 +112,12 @@ static inline int
+>>>>>>>>> virtio_net_hdr_from_skb(const struct sk_buff *skb,
+>>>>>>>>>                 hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
+>>>>>>>>>             else if (sinfo->gso_type & SKB_GSO_TCPV6)
+>>>>>>>>>                 hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
+>>>>>>>>> -        else
+>>>>>>>>> -            return -EINVAL;
+>>>>>>>>> +        else {
+>>>>>>>>> +            if (skb->data_len == 0)
+>>>>>>>>> +                hdr->gso_type = VIRTIO_NET_HDR_GSO_NONE;
+>>>>>>>>> +            else
+>>>>>>>>> +                return -EINVAL;
+>>>>>>>>> +        }
+>>>>>>>>>             if (sinfo->gso_type & SKB_GSO_TCP_ECN)
+>>>>>>>>>                 hdr->gso_type |= VIRTIO_NET_HDR_GSO_ECN;
+>>>>>>>>>         } else
+>>>>>>>>>
+>>>>>>>> ping.
+>>>>>>>>
+>>>>>>> Do you mean gso_size is set but gso_type is not? Looks like a bug
+>>>>>>> elsewhere.
+>>>>>>>
+>>>>>>> Thanks
+>>>>>>>
+>>>>>>>
+>>>>>> Yes.
+>>>>>>
+>>>>>> I could not trace it where it is coming from.
+>>>>>>
+>>>>>> I see it when doing recvmmsg on raw sockets in the UML vector network
+>>>>>> drivers.
+>>>>>>
+>>>>> I think we need to find the culprit and fix it there, lots of other things
+>>>>> can break otherwise.
+>>>>> Just printing out skb->dev->name should do the trick, no?
+>>>> The printk in virtio_net_hdr_from_skb says NULL.
+>>>>
+>>>> That is probably normal for a locally originated frame.
+>>>>
+>>>> I cannot reproduce this with network traffic by the way - it happens only if the traffic is locally originated on the host.
+>>>>
+>>>> A,
+>>> OK so is it code in __tcp_transmit_skb that sets gso_size to non-null
+>>> when gso_type is 0?
+>>>
+>> Correct way to determine if a packet is a gso one is by looking at gso_size.
+>> Then only it is legal looking at gso_type
+>>
+>>
+>> static inline bool skb_is_gso(const struct sk_buff *skb)
+>> {
+>>      return skb_shinfo(skb)->gso_size;
+>> }
+>>
+>> /* Note: Should be called only if skb_is_gso(skb) is true */
+>> static inline bool skb_is_gso_v6(const struct sk_buff *skb)
+>> ...
+>>
+>>
+>> There is absolutely no relation between GSO and skb->data_len, skb can be linearized
+>> for various orthogonal reasons.
+> The reported problem is that virtio gets a packet where gso_size
+> is !0 but gso_type is 0.
+>
+> It currently drops these on the assumption that it's some type
+> of a gso packet it does not know how to handle.
+>
+>
+> So you are saying if skb_is_gso we can still have gso_type set to 0,
+> and that's an expected configuration?
+>
+> So the patch should just be:
+>
+>
+> -        if (skb_is_gso(skb)) {
+> +        if (skb_is_gso(skb) && sinfo->gso_type) {
+>
+Yes, provided that skb_is_gso(skb) and sinfo->gso_type == 0 is a valid state.
 
-So if you have some vhost (vhost net?) class then you'd have some
-vhost_vdpa_init/alloc(); vhost_vdpa_register(), sequence
-presumably. (vs trying to do it with a bus matcher)
+I agree with Jason, there may be something wrong going on here and we need to find the source which creates these packets.
 
-I recommend to look at rtc and tpm for fairly simple easy to follow
-patterns for creating a subsystem in the kernel. A subsystem owns a class,
-allows HW drivers to plug in to it, and provides a consistent user
-API via a cdev/sysfs/etc.
+A.
 
-The driver model class should revolve around the char dev and sysfs
-uABI - if you enumerate the devices on the class then they should all
-follow the char dev and sysfs interfaces contract of that class.
+>
+> ?
+>
+>
+> _______________________________________________
+> linux-um mailing list
+> linux-um@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-um
 
-Those examples show how to do all the refcounting semi-sanely,
-introduce sysfs, cdevs, etc.
-
-I thought the latest proposal was to use the existing vhost class and
-largely the existing vhost API, so it probably just needs to make sure
-the common class-wide stuff is split from the 'driver' stuff of the
-existing vhost to netdev.
-
-Jason
+-- 
+Anton R. Ivanov
+Cambridgegreys Limited. Registered in England. Company Number 10273661
+https://www.cambridgegreys.com/
