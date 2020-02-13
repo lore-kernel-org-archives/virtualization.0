@@ -1,74 +1,48 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH 03/62] x86/cpufeatures: Add SEV-ES CPU feature
-Date: Thu, 13 Feb 2020 07:51:30 +0100
-Message-ID: <20200213065130.GC31799@zn.tnic>
-References: <20200211135256.24617-1-joro@8bytes.org>
- <20200211135256.24617-4-joro@8bytes.org>
+From: Johannes Hirte <johannes.hirte@datenkhaos.de>
+Subject: Re: [PATCH v3 13/22] compat_ioctl: scsi: move ioctl handling into
+ drivers
+Date: Thu, 13 Feb 2020 07:53:21 +0100
+Message-ID: <20200213065321.GA8696@latitude>
+References: <20200102145552.1853992-1-arnd@arndb.de>
+ <20200102145552.1853992-14-arnd@arndb.de>
+ <20200212211452.GA5726@latitude>
+ <CAK8P3a0oPpMC8367sEs+9Ae=wFH30BHAq+aRDbWLyeVLuNOnEw@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-block-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200211135256.24617-4-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Joerg Roedel <joro@8bytes.org>
-Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+In-Reply-To: <CAK8P3a0oPpMC8367sEs+9Ae=wFH30BHAq+aRDbWLyeVLuNOnEw@mail.gmail.com>
+Sender: linux-block-owner@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Jens Axboe <axboe@kernel.dk>, Doug Gilbert <dgilbert@interlog.com>, Kai =?utf-8?B?TcOka2lzYXJh?= <Kai.Makisara@kolumbus.fi>, Alexander Viro <viro@zeniv.linux.org.uk>, Dongli Zhang <dongli.zhang@oracle.com>, Thomas Gleixner <tglx@linutronix.de>, Bart Van Assche <bvanassche@acm.org>, Hannes Reinecke <hare@suse.com>, Damien Le Moal <damien.lemoal@wdc.com>, John Garry <john.garry@huawei.com>, Martin Wilck <mwilck@suse.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "Gustavo A. R. Silva" <gustavo@embedded>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Feb 11, 2020 at 02:51:57PM +0100, Joerg Roedel wrote:
-> From: Tom Lendacky <thomas.lendacky@amd.com>
+On 2020 Feb 12, Arnd Bergmann wrote:
+> On Wed, Feb 12, 2020 at 10:15 PM Johannes Hirte
+> <johannes.hirte@datenkhaos.de> wrote:
+> >
+> > On 2020 Jan 02, Arnd Bergmann wrote:
 > 
-> Add CPU feature detection for Secure Encrypted Virtualization with
-> Encrypted State. This feature enhances SEV by also encrypting the
-> guest register state, making it in-accessible to the hypervisor.
+> >
+> > Error in getting drive hardware properties
+> > Error in getting drive reading properties
+> > Error in getting drive writing properties
+> > __________________________________
+> >
+> > Disc mode is listed as: CD-DA
+> > ++ WARN: error in ioctl CDROMREADTOCHDR: Bad address
+> >
+> > cd-info: Can't get first track number. I give up.
 > 
-> Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-> Signed-off-by: Joerg Roedel <jroedel@suse.de>
-> ---
->  arch/x86/include/asm/cpufeatures.h | 1 +
->  arch/x86/kernel/cpu/amd.c          | 4 +++-
->  arch/x86/kernel/cpu/scattered.c    | 1 +
->  3 files changed, 5 insertions(+), 1 deletion(-)
+> Right, there was also a report about breaking the Fedora installer,
+> see https://bugzilla.redhat.com/show_bug.cgi?id=1801353
 > 
-> diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
-> index f3327cb56edf..26e4ee209f7b 100644
-> --- a/arch/x86/include/asm/cpufeatures.h
-> +++ b/arch/x86/include/asm/cpufeatures.h
-> @@ -285,6 +285,7 @@
->  #define X86_FEATURE_CQM_MBM_LOCAL	(11*32+ 3) /* LLC Local MBM monitoring */
->  #define X86_FEATURE_FENCE_SWAPGS_USER	(11*32+ 4) /* "" LFENCE in user entry SWAPGS path */
->  #define X86_FEATURE_FENCE_SWAPGS_KERNEL	(11*32+ 5) /* "" LFENCE in kernel entry SWAPGS path */
-> +#define X86_FEATURE_SEV_ES		(11*32+ 6) /* AMD Secure Encrypted Virtualization - Encrypted State */
+> There is a preliminary patch that should fix this, I'll post a
+> version with more references tomorrow:
+> https://www.happyassassin.net/temp/0001-Replace-.ioctl-with-.compat_ioctl-in-three-appropria.patch
 
-Let's put this in word 8 which is for virt flags. X86_FEATURE_SEV could
-go there too but that should be a separate patch anyway, if at all.
-
->  /* Intel-defined CPU features, CPUID level 0x00000007:1 (EAX), word 12 */
->  #define X86_FEATURE_AVX512_BF16		(12*32+ 5) /* AVX512 BFLOAT16 instructions */
-> diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
-> index ac83a0fef628..aad2223862ef 100644
-> --- a/arch/x86/kernel/cpu/amd.c
-> +++ b/arch/x86/kernel/cpu/amd.c
-> @@ -580,7 +580,7 @@ static void early_detect_mem_encrypt(struct cpuinfo_x86 *c)
->  	 *	      If BIOS has not enabled SME then don't advertise the
->  	 *	      SME feature (set in scattered.c).
->  	 *   For SEV: If BIOS has not enabled SEV then don't advertise the
-> -	 *            SEV feature (set in scattered.c).
-> +	 *            SEV and SEV_ES feature (set in scattered.c).
->  	 *
->  	 *   In all cases, since support for SME and SEV requires long mode,
->  	 *   don't advertise the feature under CONFIG_X86_32.
-> @@ -611,6 +611,8 @@ static void early_detect_mem_encrypt(struct cpuinfo_x86 *c)
->  		setup_clear_cpu_cap(X86_FEATURE_SME);
->  clear_sev:
->  		setup_clear_cpu_cap(X86_FEATURE_SEV);
-> +		setup_clear_cpu_cap(X86_FEATURE_SEV);
-
-X86_FEATURE_SEV twice? Because once didn't stick?
-
-:-)
+Yes, I can confirm that the patch fix it.
 
 -- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+Regards,
+  Johannes Hirte
