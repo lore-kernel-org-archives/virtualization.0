@@ -1,39 +1,47 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v3 13/22] compat_ioctl: scsi: move ioctl handling into drivers
-Date: Wed, 12 Feb 2020 22:49:49 +0100
-Message-ID: <CAK8P3a0oPpMC8367sEs+9Ae=wFH30BHAq+aRDbWLyeVLuNOnEw@mail.gmail.com>
-References: <20200102145552.1853992-1-arnd@arndb.de> <20200102145552.1853992-14-arnd@arndb.de>
- <20200212211452.GA5726@latitude>
+From: Ram Muthiah <rammuthiah@google.com>
+Subject: [PATCH] virtio: virtio_pci_legacy: Remove default y from Kconfig
+Date: Wed, 12 Feb 2020 16:02:42 -0800
+Message-ID: <20200213000242.26245-1-rammuthiah@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200212211452.GA5726@latitude>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Johannes Hirte <johannes.hirte@datenkhaos.de>
-Cc: "James E.J. Bottomley" <jejb@linux.ibm.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Jens Axboe <axboe@kernel.dk>, Doug Gilbert <dgilbert@interlog.com>, =?UTF-8?Q?Kai_M=C3=A4kisara?= <Kai.Makisara@kolumbus.fi>, Alexander Viro <viro@zeniv.linux.org.uk>, Dongli Zhang <dongli.zhang@oracle.com>, Thomas Gleixner <tglx@linutronix.de>, Bart Van Assche <bvanassche@acm.org>, Hannes Reinecke <hare@suse.com>, Damien Le Moal <damien.lemoal@wdc.com>, John Garry <john.garry@huawei.com>, Martin Wilck <mwilck@suse.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, "Gustavo A. R. Silva" <gustavo@embedde>
+To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kernel-team@android.com, Ram Muthiah <rammuthiah@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 12, 2020 at 10:15 PM Johannes Hirte
-<johannes.hirte@datenkhaos.de> wrote:
->
-> On 2020 Jan 02, Arnd Bergmann wrote:
+The legacy pci driver should no longer be default enabled. QEMU has
+implemented support for Virtio 1 for virtio-pci since June 2015
+on SHA dfb8e184db75.
 
->
-> Error in getting drive hardware properties
-> Error in getting drive reading properties
-> Error in getting drive writing properties
-> __________________________________
->
-> Disc mode is listed as: CD-DA
-> ++ WARN: error in ioctl CDROMREADTOCHDR: Bad address
->
-> cd-info: Can't get first track number. I give up.
+Signed-off-by: Ram Muthiah <rammuthiah@google.com>
+---
+ drivers/virtio/Kconfig | 6 ------
+ 1 file changed, 6 deletions(-)
 
-Right, there was also a report about breaking the Fedora installer,
-see https://bugzilla.redhat.com/show_bug.cgi?id=1801353
-
-There is a preliminary patch that should fix this, I'll post a
-version with more references tomorrow:
-https://www.happyassassin.net/temp/0001-Replace-.ioctl-with-.compat_ioctl-in-three-appropria.patch
-
-      Arnd
+diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+index 078615cf2afc..eacd0b90d32b 100644
+--- a/drivers/virtio/Kconfig
++++ b/drivers/virtio/Kconfig
+@@ -26,7 +26,6 @@ config VIRTIO_PCI
+ 
+ config VIRTIO_PCI_LEGACY
+ 	bool "Support for legacy virtio draft 0.9.X and older devices"
+-	default y
+ 	depends on VIRTIO_PCI
+ 	---help---
+           Virtio PCI Card 0.9.X Draft (circa 2014) and older device support.
+@@ -36,11 +35,6 @@ config VIRTIO_PCI_LEGACY
+ 	  If disabled, you get a slightly smaller, non-transitional driver,
+ 	  with no legacy compatibility.
+ 
+-          So look out into your driveway.  Do you have a flying car?  If
+-          so, you can happily disable this option and virtio will not
+-          break.  Otherwise, leave it set.  Unless you're testing what
+-          life will be like in The Future.
+-
+ 	  If unsure, say Y.
+ 
+ config VIRTIO_PMEM
+-- 
+2.25.0.225.g125e21ebc7-goog
