@@ -1,7 +1,7 @@
-From: Jason Gunthorpe <jgg@mellanox.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH V2 3/5] vDPA: introduce vDPA bus
-Date: Thu, 13 Feb 2020 11:05:42 -0400
-Message-ID: <20200213150542.GW4271@mellanox.com>
+Date: Thu, 13 Feb 2020 10:41:06 -0500
+Message-ID: <20200213103714-mutt-send-email-mst@kernel.org>
 References: <20200210035608.10002-1-jasowang@redhat.com>
  <20200210035608.10002-4-jasowang@redhat.com>
  <20200211134746.GI4271@mellanox.com>
@@ -10,68 +10,96 @@ References: <20200210035608.10002-1-jasowang@redhat.com>
  <12775659-1589-39e4-e344-b7a2c792b0f3@redhat.com>
  <20200213134128.GV4271@mellanox.com>
  <ebaea825-5432-65e2-2ab3-720a8c4030e7@redhat.com>
+ <20200213150542.GW4271@mellanox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <kvm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <ebaea825-5432-65e2-2ab3-720a8c4030e7@redhat.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, mhabets@solarflare.com, virtualization@lists.linux-foundation.org, rob.miller@broadcom.com, lulu@redhat.com, hanand@xilinx.com, hch@infradead.org, eperezma@redhat.com, haotian.wang@sifive.com, shahafs@mellanox.com, parav@mellanox.com, jiri@mellanox.com, xiao.w.wang@intel.com, stefanha@redhat.com, zhihong.wang@intel.com, rdunlap@infradead.org, linux-kernel@vger.kernel.org, maxime.coquelin@redhat.com, netdev@vger.kernel.org, lingshan.zhu@intel.com
+In-Reply-To: <20200213150542.GW4271@mellanox.com>
+Sender: kvm-owner@vger.kernel.org
+To: Jason Gunthorpe <jgg@mellanox.com>
+Cc: Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, tiwei.bie@intel.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jiri@mellanox.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBGZWIgMTMsIDIwMjAgYXQgMTA6NTg6NDRQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDIwLzIvMTMg5LiL5Y2IOTo0MSwgSmFzb24gR3VudGhvcnBlIHdyb3RlOgo+
-ID4gT24gVGh1LCBGZWIgMTMsIDIwMjAgYXQgMTE6MzQ6MTBBTSArMDgwMCwgSmFzb24gV2FuZyB3
-cm90ZToKPiA+IAo+ID4gPiA+ICAgIFlvdSBoYXZlIGRldiwgdHlwZSBvcgo+ID4gPiA+IGNsYXNz
-IHRvIGNob29zZSBmcm9tLiBUeXBlIGlzIHJhcmVseSB1c2VkIGFuZCBkb2Vzbid0IHNlZW0gdG8g
-YmUgdXNlZAo+ID4gPiA+IGJ5IHZkcGEsIHNvIGNsYXNzIHNlZW1zIHRoZSByaWdodCBjaG9pY2UK
-PiA+ID4gPiAKPiA+ID4gPiBKYXNvbgo+ID4gPiBZZXMsIGJ1dCBteSB1bmRlcnN0YW5kaW5nIGlz
-IGNsYXNzIGFuZCBidXMgYXJlIG11dHVhbGx5IGV4Y2x1c2l2ZS4gU28gd2UKPiA+ID4gY2FuJ3Qg
-YWRkIGEgY2xhc3MgdG8gYSBkZXZpY2Ugd2hpY2ggaXMgYWxyZWFkeSBhdHRhY2hlZCBvbiBhIGJ1
-cy4KPiA+IFdoaWxlIEkgc3VwcG9zZSB0aGVyZSBhcmUgdmFyaWF0aW9ucywgdHlwaWNhbGx5ICdj
-bGFzcycgZGV2aWNlcyBhcmUKPiA+IHVzZXIgZmFjaW5nIHRoaW5ncyBhbmQgJ2J1cycgZGV2aWNl
-cyBhcmUgaW50ZXJuYWwgZmFjaW5nIChpZSBsaWtlIGEKPiA+IFBDSSBkZXZpY2UpCj4gCj4gCj4g
-VGhvdWdoIGFsbCB2RFBBIGRldmljZXMgaGF2ZSB0aGUgc2FtZSBwcm9ncmFtbWluZyBpbnRlcmZh
-Y2UsIGJ1dCB0aGUKPiBzZW1hbnRpYyBpcyBkaWZmZXJlbnQuIFNvIGl0IGxvb2tzIHRvIG1lIHRo
-YXQgdXNlIGJ1cyBjb21wbGllcyB3aGF0Cj4gY2xhc3MucnN0IHNhaWQ6Cj4gCj4gIgo+IAo+IEVh
-Y2ggZGV2aWNlIGNsYXNzIGRlZmluZXMgYSBzZXQgb2Ygc2VtYW50aWNzIGFuZCBhIHByb2dyYW1t
-aW5nIGludGVyZmFjZQo+IHRoYXQgZGV2aWNlcyBvZiB0aGF0IGNsYXNzIGFkaGVyZSB0by4gRGV2
-aWNlIGRyaXZlcnMgYXJlIHRoZQo+IGltcGxlbWVudGF0aW9uIG9mIHRoYXQgcHJvZ3JhbW1pbmcg
-aW50ZXJmYWNlIGZvciBhIHBhcnRpY3VsYXIgZGV2aWNlIG9uCj4gYSBwYXJ0aWN1bGFyIGJ1cy4K
-PiAKPiAiCgpIZXJlIHdlIGFyZSB0YWxraW5nIGFib3V0IHRoZSAvZGV2L1hYIG5vZGUgdGhhdCBw
-cm92aWRlcyB0aGUKcHJvZ3JhbW1pbmcgaW50ZXJmYWNlLiBBbGwgdGhlIHZkcGEgZGV2aWNlcyBo
-YXZlIHRoZSBzYW1lIGJhc2ljCmNoYXJkZXYgaW50ZXJmYWNlIGFuZCBkaXNjb3ZlciBhbnkgc2Vt
-YW50aWMgdmFyaWF0aW9ucyAnaW4gYmFuZCcKCj4gPiBTbyB3aHkgaXMgdGhpcyB1c2luZyBhIGJ1
-cz8gVkRQQSBpcyBhIHVzZXIgZmFjaW5nIG9iamVjdCwgc28gdGhlCj4gPiBkcml2ZXIgc2hvdWxk
-IGNyZWF0ZSBhIGNsYXNzIHZob3N0X3ZkcGEgZGV2aWNlIGRpcmVjdGx5LCBhbmQgdGhhdAo+ID4g
-ZHJpdmVyIHNob3VsZCBsaXZlIGluIHRoZSBkcml2ZXJzL3Zob3N0LyBkaXJlY3RvcnkuCj4gIAo+
-IFRoaXMgaXMgYmVjYXVzZSB3ZSB3YW50IHZEUEEgdG8gYmUgZ2VuZXJpYyBmb3IgYmVpbmcgdXNl
-ZCBieSBkaWZmZXJlbnQKPiBkcml2ZXJzIHdoaWNoIGlzIG5vdCBsaW1pdGVkIHRvIHZob3N0LXZk
-cGEuIEUuZyBpbiB0aGlzIHNlcmllcywgaXQgYWxsb3dzCj4gdkRQQSB0byBiZSB1c2VkIGJ5IGtl
-cm5lbCB2aXJ0aW8gZHJpdmVycy4gQW5kIGluIHRoZSBmdXR1cmUsIHdlIHdpbGwKPiBwcm9iYWJs
-eSBpbnRyb2R1Y2UgbW9yZSBkcml2ZXJzIGluIHRoZSBmdXR1cmUuCgpJIGRvbid0IHNlZSBob3cg
-dGhhdCBjb25uZWN0cyB3aXRoIHVzaW5nIGEgYnVzLgoKRXZlcnkgY2xhc3Mgb2YgdmlydGlvIHRy
-YWZmaWMgaXMgZ29pbmcgdG8gbmVlZCBhIHNwZWNpYWwgSFcgZHJpdmVyIHRvCmVuYWJsZSBWRFBB
-LCB0aGF0IHNwZWNpYWwgZHJpdmVyIGNhbiBjcmVhdGUgdGhlIGNvcnJlY3Qgdmhvc3Qgc2lkZQpj
-bGFzcyBkZXZpY2UuCgo+ID4gRm9yIHRoZSBQQ0kgVkYgY2FzZSB0aGlzIGRyaXZlciB3b3VsZCBi
-aW5kIHRvIGEgUENJIGRldmljZSBsaWtlCj4gPiBldmVyeXRoaW5nIGVsc2UKPiA+IAo+ID4gRm9y
-IG91ciBmdXR1cmUgU0YvQURJIGNhc2VzIHRoZSBkcml2ZXIgd291bGQgYmluZCB0byBzb21lCj4g
-PiBTRi9BREkvd2hhdGV2ZXIgZGV2aWNlIG9uIGEgYnVzLgo+IAo+IEFsbCB0aGVzZSBkcml2ZXIg
-d2lsbCBzdGlsbCBiZSBib3VuZCB0byB0aGVpciBvd24gYnVzIChQQ0kgb3Igb3RoZXIpLiBBbmQK
-PiB3aGF0IHRoZSBkcml2ZXIgbmVlZHMgaXMgdG8gcHJlc2VudCBhIHZEUEEgZGV2aWNlIHRvIHZp
-cnR1YWwgdkRQQSBidXMgb24KPiB0b3AuCgpBZ2FpbiwgSSBjYW4ndCBzZWUgYW55IHJlYXNvbiB0
-byBpbmplY3QgYSAndmRwYSB2aXJ0dWFsIGJ1cycgb24KdG9wLiBUaGF0IHNlZW1zIGxpa2UgbWlz
-LXVzaW5nIHRoZSBkcml2ZXIgY29yZS4KCkphc29uCl9fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFs
-aXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91
-bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Thu, Feb 13, 2020 at 11:05:42AM -0400, Jason Gunthorpe wrote:
+> On Thu, Feb 13, 2020 at 10:58:44PM +0800, Jason Wang wrote:
+> > 
+> > On 2020/2/13 下午9:41, Jason Gunthorpe wrote:
+> > > On Thu, Feb 13, 2020 at 11:34:10AM +0800, Jason Wang wrote:
+> > > 
+> > > > >    You have dev, type or
+> > > > > class to choose from. Type is rarely used and doesn't seem to be used
+> > > > > by vdpa, so class seems the right choice
+> > > > > 
+> > > > > Jason
+> > > > Yes, but my understanding is class and bus are mutually exclusive. So we
+> > > > can't add a class to a device which is already attached on a bus.
+> > > While I suppose there are variations, typically 'class' devices are
+> > > user facing things and 'bus' devices are internal facing (ie like a
+> > > PCI device)
+> > 
+> > 
+> > Though all vDPA devices have the same programming interface, but the
+> > semantic is different. So it looks to me that use bus complies what
+> > class.rst said:
+> > 
+> > "
+> > 
+> > Each device class defines a set of semantics and a programming interface
+> > that devices of that class adhere to. Device drivers are the
+> > implementation of that programming interface for a particular device on
+> > a particular bus.
+> > 
+> > "
+> 
+> Here we are talking about the /dev/XX node that provides the
+> programming interface. All the vdpa devices have the same basic
+> chardev interface and discover any semantic variations 'in band'
+> 
+> > > So why is this using a bus? VDPA is a user facing object, so the
+> > > driver should create a class vhost_vdpa device directly, and that
+> > > driver should live in the drivers/vhost/ directory.
+> >  
+> > This is because we want vDPA to be generic for being used by different
+> > drivers which is not limited to vhost-vdpa. E.g in this series, it allows
+> > vDPA to be used by kernel virtio drivers. And in the future, we will
+> > probably introduce more drivers in the future.
+> 
+> I don't see how that connects with using a bus.
+> 
+> Every class of virtio traffic is going to need a special HW driver to
+> enable VDPA, that special driver can create the correct vhost side
+> class device.
+
+
+That's just a ton of useless code duplication, and a good chance
+to have minor variations in implementations confusing
+userspace.
+
+Instead, each device implement the same interface, and then
+vhost sits on top.
+
+> > > For the PCI VF case this driver would bind to a PCI device like
+> > > everything else
+> > > 
+> > > For our future SF/ADI cases the driver would bind to some
+> > > SF/ADI/whatever device on a bus.
+> > 
+> > All these driver will still be bound to their own bus (PCI or other). And
+> > what the driver needs is to present a vDPA device to virtual vDPA bus on
+> > top.
+> 
+> Again, I can't see any reason to inject a 'vdpa virtual bus' on
+> top. That seems like mis-using the driver core.
+> 
+> Jason
+
+That bus is exactly what Greg KH proposed. There are other ways
+to solve this I guess but this bikeshedding is getting tiring.
+Come on it's an internal kernel interface, if we feel
+it was a wrong direction to take we can change our minds later.
+Main thing is getting UAPI right.
+
+-- 
+MST
