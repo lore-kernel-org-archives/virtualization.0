@@ -1,171 +1,163 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: vhost changes (batched) in linux-next after 12/13 trigger random
- crashes in KVM guests after reboot
-Date: Thu, 13 Feb 2020 17:32:59 +0100
-Message-ID: <2dc1df65-1431-3917-40e5-c2b12096e2a7@de.ibm.com>
-References: <20200107042401-mutt-send-email-mst@kernel.org>
- <20200120012724-mutt-send-email-mst@kernel.org>
- <2a63b15f-8cf5-5868-550c-42e2cfd92c60@de.ibm.com>
- <b6e32f58e5d85ac5cc3141e9155fb140ae5cd580.camel@redhat.com>
- <1ade56b5-083f-bb6f-d3e0-3ddcf78f4d26@de.ibm.com>
- <20200206171349-mutt-send-email-mst@kernel.org>
- <5c860fa1-cef5-b389-4ebf-99a62afa0fe8@de.ibm.com>
- <20200207025806-mutt-send-email-mst@kernel.org>
- <97c93d38-ef07-e321-d133-18483d54c0c0@de.ibm.com>
- <CAJaqyWfngzP4d01B6+Sqt8FXN6jX7kGegjx8ie4no_1Er3igQA@mail.gmail.com>
- <43a5dbaa-9129-e220-8483-45c60a82c945@de.ibm.com>
- <e299afca8e22044916abbf9fbbd0bff6b0ee9e13.camel@redhat.com>
- <4c3f70b7-723a-8b0f-ac49-babef1bcc180@de.ibm.com>
- <50a79c3491ac483583c97df2fac29e2c3248fdea.camel@redhat.com>
- <8fbbfb49-99d1-7fee-e713-d6d5790fe866@de.ibm.com>
- <2364d0728c3bb4bcc0c13b591f774109a9274a30.camel@redhat.com>
- <bb9fb726-306c-5330-05aa-a86bd1b18097@de.ibm.com>
- <468983fad50a5e74a739f71487f0ea11e8d4dfd1.camel@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio: Work around frames incorrectly marked as gso
+Date: Thu, 13 Feb 2020 11:37:16 -0500
+Message-ID: <20200213113654-mutt-send-email-mst@kernel.org>
+References: <20191209104824.17059-1-anton.ivanov@cambridgegreys.com>
+ <57230228-7030-c65f-a24f-910ca52bbe9e@cambridgegreys.com>
+ <f78bfe6e-2ffc-3734-9618-470f1afea0c6@redhat.com>
+ <918222d9-816a-be70-f8af-b8dfcb586240@cambridgegreys.com>
+ <20200211053502-mutt-send-email-mst@kernel.org>
+ <9547228b-aa93-f2b6-6fdc-8d33cde3716a@cambridgegreys.com>
+ <20200213045937-mutt-send-email-mst@kernel.org>
+ <94fb9656-99ee-a001-e428-9d76c3620e61@gmail.com>
+ <20200213105010-mutt-send-email-mst@kernel.org>
+ <35510da7-08f1-4aa5-c6d6-6bffbccaee0c@cambridgegreys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <468983fad50a5e74a739f71487f0ea11e8d4dfd1.camel@redhat.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?Q?Eugenio_P=c3=a9rez?= <eperezma@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Stephen Rothwell <sfr@canb.auug.org.au>, Linux Next Mailing List <linux-next@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Halil Pasic <pasic@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <35510da7-08f1-4aa5-c6d6-6bffbccaee0c@cambridgegreys.com>
+Sender: netdev-owner@vger.kernel.org
+To: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Cc: Eric Dumazet <eric.dumazet@gmail.com>, netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, linux-um@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On 13.02.20 17:29, Eugenio Pérez wrote:
-> Can we try with this traces?
-
-Does not apply on eccb852f1fe6bede630e2e4f1a121a81e34354ab, can you double check?
-
+On Thu, Feb 13, 2020 at 04:23:24PM +0000, Anton Ivanov wrote:
 > 
-> From b793b4106085ab1970bdedb340e49f37843ed585 Mon Sep 17 00:00:00 2001
-> From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
-> Date: Thu, 13 Feb 2020 17:27:05 +0100
-> Subject: [PATCH] vhost: Add debug in ioctl calls
+> On 13/02/2020 15:53, Michael S. Tsirkin wrote:
+> > On Thu, Feb 13, 2020 at 07:44:06AM -0800, Eric Dumazet wrote:
+> > > 
+> > > On 2/13/20 2:00 AM, Michael S. Tsirkin wrote:
+> > > > On Wed, Feb 12, 2020 at 05:38:09PM +0000, Anton Ivanov wrote:
+> > > > > 
+> > > > > On 11/02/2020 10:37, Michael S. Tsirkin wrote:
+> > > > > > On Tue, Feb 11, 2020 at 07:42:37AM +0000, Anton Ivanov wrote:
+> > > > > > > On 11/02/2020 02:51, Jason Wang wrote:
+> > > > > > > > On 2020/2/11 上午12:55, Anton Ivanov wrote:
+> > > > > > > > > 
+> > > > > > > > > On 09/12/2019 10:48, anton.ivanov@cambridgegreys.com wrote:
+> > > > > > > > > > From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+> > > > > > > > > > 
+> > > > > > > > > > Some of the frames marked as GSO which arrive at
+> > > > > > > > > > virtio_net_hdr_from_skb() have no GSO_TYPE, no
+> > > > > > > > > > fragments (data_len = 0) and length significantly shorter
+> > > > > > > > > > than the MTU (752 in my experiments).
+> > > > > > > > > > 
+> > > > > > > > > > This is observed on raw sockets reading off vEth interfaces
+> > > > > > > > > > in all 4.x and 5.x kernels I tested.
+> > > > > > > > > > 
+> > > > > > > > > > These frames are reported as invalid while they are in fact
+> > > > > > > > > > gso-less frames.
+> > > > > > > > > > 
+> > > > > > > > > > This patch marks the vnet header as no-GSO for them instead
+> > > > > > > > > > of reporting it as invalid.
+> > > > > > > > > > 
+> > > > > > > > > > Signed-off-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+> > > > > > > > > > ---
+> > > > > > > > > >     include/linux/virtio_net.h | 8 ++++++--
+> > > > > > > > > >     1 file changed, 6 insertions(+), 2 deletions(-)
+> > > > > > > > > > 
+> > > > > > > > > > diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+> > > > > > > > > > index 0d1fe9297ac6..d90d5cff1b9a 100644
+> > > > > > > > > > --- a/include/linux/virtio_net.h
+> > > > > > > > > > +++ b/include/linux/virtio_net.h
+> > > > > > > > > > @@ -112,8 +112,12 @@ static inline int
+> > > > > > > > > > virtio_net_hdr_from_skb(const struct sk_buff *skb,
+> > > > > > > > > >                 hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
+> > > > > > > > > >             else if (sinfo->gso_type & SKB_GSO_TCPV6)
+> > > > > > > > > >                 hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
+> > > > > > > > > > -        else
+> > > > > > > > > > -            return -EINVAL;
+> > > > > > > > > > +        else {
+> > > > > > > > > > +            if (skb->data_len == 0)
+> > > > > > > > > > +                hdr->gso_type = VIRTIO_NET_HDR_GSO_NONE;
+> > > > > > > > > > +            else
+> > > > > > > > > > +                return -EINVAL;
+> > > > > > > > > > +        }
+> > > > > > > > > >             if (sinfo->gso_type & SKB_GSO_TCP_ECN)
+> > > > > > > > > >                 hdr->gso_type |= VIRTIO_NET_HDR_GSO_ECN;
+> > > > > > > > > >         } else
+> > > > > > > > > > 
+> > > > > > > > > ping.
+> > > > > > > > > 
+> > > > > > > > Do you mean gso_size is set but gso_type is not? Looks like a bug
+> > > > > > > > elsewhere.
+> > > > > > > > 
+> > > > > > > > Thanks
+> > > > > > > > 
+> > > > > > > > 
+> > > > > > > Yes.
+> > > > > > > 
+> > > > > > > I could not trace it where it is coming from.
+> > > > > > > 
+> > > > > > > I see it when doing recvmmsg on raw sockets in the UML vector network
+> > > > > > > drivers.
+> > > > > > > 
+> > > > > > I think we need to find the culprit and fix it there, lots of other things
+> > > > > > can break otherwise.
+> > > > > > Just printing out skb->dev->name should do the trick, no?
+> > > > > The printk in virtio_net_hdr_from_skb says NULL.
+> > > > > 
+> > > > > That is probably normal for a locally originated frame.
+> > > > > 
+> > > > > I cannot reproduce this with network traffic by the way - it happens only if the traffic is locally originated on the host.
+> > > > > 
+> > > > > A,
+> > > > OK so is it code in __tcp_transmit_skb that sets gso_size to non-null
+> > > > when gso_type is 0?
+> > > > 
+> > > Correct way to determine if a packet is a gso one is by looking at gso_size.
+> > > Then only it is legal looking at gso_type
+> > > 
+> > > 
+> > > static inline bool skb_is_gso(const struct sk_buff *skb)
+> > > {
+> > >      return skb_shinfo(skb)->gso_size;
+> > > }
+> > > 
+> > > /* Note: Should be called only if skb_is_gso(skb) is true */
+> > > static inline bool skb_is_gso_v6(const struct sk_buff *skb)
+> > > ...
+> > > 
+> > > 
+> > > There is absolutely no relation between GSO and skb->data_len, skb can be linearized
+> > > for various orthogonal reasons.
+> > The reported problem is that virtio gets a packet where gso_size
+> > is !0 but gso_type is 0.
+> > 
+> > It currently drops these on the assumption that it's some type
+> > of a gso packet it does not know how to handle.
+> > 
+> > 
+> > So you are saying if skb_is_gso we can still have gso_type set to 0,
+> > and that's an expected configuration?
+> > 
+> > So the patch should just be:
+> > 
+> > 
+> > -        if (skb_is_gso(skb)) {
+> > +        if (skb_is_gso(skb) && sinfo->gso_type) {
+> > 
+> Yes, provided that skb_is_gso(skb) and sinfo->gso_type == 0 is a valid state.
 > 
-> ---
->  drivers/vhost/net.c   | 20 +++++++++++++++++---
->  drivers/vhost/vhost.c | 16 ++++++++++++++--
->  2 files changed, 31 insertions(+), 5 deletions(-)
+> I agree with Jason, there may be something wrong going on here and we need to find the source which creates these packets.
 > 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index e158159671fa..e4d5f843f9c0 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -1505,10 +1505,13 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
->  
->  	mutex_lock(&n->dev.mutex);
->  	r = vhost_dev_check_owner(&n->dev);
-> -	if (r)
-> +	if (r) {
-> +		pr_debug("vhost_dev_check_owner index=%u fd=%d rc r=%d", index, fd, r);
->  		goto err;
-> +	}
->  
->  	if (index >= VHOST_NET_VQ_MAX) {
-> +		pr_debug("vhost_dev_check_owner index=%u fd=%d MAX=%d", index, fd, VHOST_NET_VQ_MAX);
->  		r = -ENOBUFS;
->  		goto err;
->  	}
-> @@ -1518,22 +1521,26 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
->  
->  	/* Verify that ring has been setup correctly. */
->  	if (!vhost_vq_access_ok(vq)) {
-> +		pr_debug("vhost_net_set_backend index=%u fd=%d !vhost_vq_access_ok", index, fd);
->  		r = -EFAULT;
->  		goto err_vq;
->  	}
->  	sock = get_socket(fd);
->  	if (IS_ERR(sock)) {
->  		r = PTR_ERR(sock);
-> +		pr_debug("vhost_net_set_backend index=%u fd=%d get_socket err r=%d", index, fd, r);
->  		goto err_vq;
->  	}
->  
->  	/* start polling new socket */
->  	oldsock = vq->private_data;
->  	if (sock != oldsock) {
-> +		pr_debug("sock=%p != oldsock=%p index=%u fd=%d vq=%p", sock, oldsock, index, fd, vq);
->  		ubufs = vhost_net_ubuf_alloc(vq,
->  					     sock && vhost_sock_zcopy(sock));
->  		if (IS_ERR(ubufs)) {
->  			r = PTR_ERR(ubufs);
-> +			pr_debug("ubufs index=%u fd=%d err r=%d vq=%p", index, fd, r, vq);
->  			goto err_ubufs;
->  		}
->  
-> @@ -1541,11 +1548,15 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
->  		vq->private_data = sock;
->  		vhost_net_buf_unproduce(nvq);
->  		r = vhost_vq_init_access(vq);
-> -		if (r)
-> +		if (r) {
-> +			pr_debug("init_access index=%u fd=%d r=%d vq=%p", index, fd, r, vq);
->  			goto err_used;
-> +		}
->  		r = vhost_net_enable_vq(n, vq);
-> -		if (r)
-> +		if (r) {
-> +			pr_debug("enable_vq index=%u fd=%d r=%d vq=%p", index, fd, r, vq);
->  			goto err_used;
-> +		}
->  		if (index == VHOST_NET_VQ_RX)
->  			nvq->rx_ring = get_tap_ptr_ring(fd);
->  
-> @@ -1559,6 +1570,8 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
->  
->  	mutex_unlock(&vq->mutex);
->  
-> +	pr_debug("sock=%p", sock);
-> +
->  	if (oldubufs) {
->  		vhost_net_ubuf_put_wait_and_free(oldubufs);
->  		mutex_lock(&vq->mutex);
-> @@ -1710,6 +1723,7 @@ static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
->  
->  	switch (ioctl) {
->  	case VHOST_NET_SET_BACKEND:
-> +		pr_debug("VHOST_NET_SET_BACKEND");
->  		if (copy_from_user(&backend, argp, sizeof backend))
->  			return -EFAULT;
->  		return vhost_net_set_backend(n, backend.index, backend.fd);
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 021d70bed015..7f4848f9cec3 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -1642,18 +1642,30 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *arg
->  			r = -EINVAL;
->  			break;
->  		}
-> +
-> +		if (vq->last_avail_idx || vq->avail_idx) {
-> +			pr_debug(
-> +				"strange VHOST_SET_VRING_BASE [vq=%p][s.index=%u][s.num=%u]",
-> +				vq, s.index, s.num);
-> +			dump_stack();
-> +			r = 0;
-> +			break;
-> +		}
->  		vq->last_avail_idx = s.num;
->  		/* Forget the cached index value. */
->  		vq->avail_idx = vq->last_avail_idx;
->  		pr_debug(
-> -			"VHOST_SET_VRING_BASE [vq=%p][vq->last_avail_idx=%u][vq->avail_idx=%u]",
-> -			vq, vq->last_avail_idx, vq->avail_idx);
-> +			"VHOST_SET_VRING_BASE [vq=%p][vq->last_avail_idx=%u][vq->avail_idx=%u][s.index=%u][s.num=%u]",
-> +			vq, vq->last_avail_idx, vq->avail_idx, s.index, s.num);
->  		break;
->  	case VHOST_GET_VRING_BASE:
->  		s.index = idx;
->  		s.num = vq->last_avail_idx;
->  		if (copy_to_user(argp, &s, sizeof s))
->  			r = -EFAULT;
-> +		pr_debug(
-> +			"VHOST_GET_VRING_BASE [vq=%p][vq->last_avail_idx=%u][vq->avail_idx=%u][s.index=%u][s.num=%u]",
-> +			vq, vq->last_avail_idx, vq->avail_idx, s.index, s.num);
->  		break;
->  	case VHOST_SET_VRING_KICK:
->  		if (copy_from_user(&f, argp, sizeof f)) {
+> A.
+
+Well Eric will know for sure. Eric is skb_is_gso(skb) and
+sinfo->gso_type == 0 a valid state?
+
+> > 
+> > ?
+> > 
+> > 
+> > _______________________________________________
+> > linux-um mailing list
+> > linux-um@lists.infradead.org
+> > http://lists.infradead.org/mailman/listinfo/linux-um
 > 
+> -- 
+> Anton R. Ivanov
+> Cambridgegreys Limited. Registered in England. Company Number 10273661
+> https://www.cambridgegreys.com/
