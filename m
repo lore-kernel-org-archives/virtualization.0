@@ -1,49 +1,146 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH] drm/qxl: replace zero-length array with flexible-array
- member
-Date: Thu, 13 Feb 2020 11:52:18 +0100
-Message-ID: <20200213105218.xsjy3bv2d6c2y2mc@sirius.home.kraxel.org>
-References: <20200212193344.GA27929@embeddedor>
+From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Subject: Re: [PATCH] virtio: Work around frames incorrectly marked as gso
+Date: Thu, 13 Feb 2020 11:07:47 +0000
+Message-ID: <0c204585-d297-0ecb-2af1-cc3b4cac13da@cambridgegreys.com>
+References: <20191209104824.17059-1-anton.ivanov@cambridgegreys.com>
+ <57230228-7030-c65f-a24f-910ca52bbe9e@cambridgegreys.com>
+ <f78bfe6e-2ffc-3734-9618-470f1afea0c6@redhat.com>
+ <918222d9-816a-be70-f8af-b8dfcb586240@cambridgegreys.com>
+ <20200211053502-mutt-send-email-mst@kernel.org>
+ <9547228b-aa93-f2b6-6fdc-8d33cde3716a@cambridgegreys.com>
+ <71193f51-9606-58ba-39d7-904bc9fbd29a@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200212193344.GA27929@embeddedor>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Cc: Dave Airlie <airlied@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, virtualization@lists.linux-foundation.org, spice-devel@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <71193f51-9606-58ba-39d7-904bc9fbd29a@redhat.com>
+Content-Language: en-US
+Sender: netdev-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, linux-um@lists.infradead.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 12, 2020 at 01:33:44PM -0600, Gustavo A. R. Silva wrote:
-> The current codebase makes use of the zero-length array language
-> extension to the C90 standard, but the preferred mechanism to declare
-> variable-length types such as these ones is a flexible array member[1][2],
-> introduced in C99:
-> 
-> struct foo {
->         int stuff;
->         struct boo array[];
-> };
-> 
-> By making use of the mechanism above, we will get a compiler warning
-> in case the flexible array does not occur last in the structure, which
-> will help us prevent some kind of undefined behavior bugs from being
-> inadvertenly introduced[3] to the codebase from now on.
-> 
-> Also, notice that, dynamic memory allocations won't be affected by
-> this change:
-> 
-> "Flexible array members have incomplete type, and so the sizeof operator
-> may not be applied. As a quirk of the original implementation of
-> zero-length arrays, sizeof evaluates to zero."[1]
-> 
-> This issue was found with the help of Coccinelle.
-> 
-> [1] https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html
-> [2] https://github.com/KSPP/linux/issues/21
-> [3] commit 76497732932f ("cxgb3/l2t: Fix undefined behaviour")
 
-Pushed to drm-misc-next.
 
-thanks,
-  Gerd
+On 13/02/2020 03:31, Jason Wang wrote:
+> 
+> On 2020/2/13 上午1:38, Anton Ivanov wrote:
+>>
+>>
+>> On 11/02/2020 10:37, Michael S. Tsirkin wrote:
+>>> On Tue, Feb 11, 2020 at 07:42:37AM +0000, Anton Ivanov wrote:
+>>>> On 11/02/2020 02:51, Jason Wang wrote:
+>>>>>
+>>>>> On 2020/2/11 上午12:55, Anton Ivanov wrote:
+>>>>>>
+>>>>>>
+>>>>>> On 09/12/2019 10:48, anton.ivanov@cambridgegreys.com wrote:
+>>>>>>> From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+>>>>>>>
+>>>>>>> Some of the frames marked as GSO which arrive at
+>>>>>>> virtio_net_hdr_from_skb() have no GSO_TYPE, no
+>>>>>>> fragments (data_len = 0) and length significantly shorter
+>>>>>>> than the MTU (752 in my experiments).
+>>>>>>>
+>>>>>>> This is observed on raw sockets reading off vEth interfaces
+>>>>>>> in all 4.x and 5.x kernels I tested.
+>>>>>>>
+>>>>>>> These frames are reported as invalid while they are in fact
+>>>>>>> gso-less frames.
+>>>>>>>
+>>>>>>> This patch marks the vnet header as no-GSO for them instead
+>>>>>>> of reporting it as invalid.
+>>>>>>>
+>>>>>>> Signed-off-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+>>>>>>> ---
+>>>>>>>    include/linux/virtio_net.h | 8 ++++++--
+>>>>>>>    1 file changed, 6 insertions(+), 2 deletions(-)
+>>>>>>>
+>>>>>>> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+>>>>>>> index 0d1fe9297ac6..d90d5cff1b9a 100644
+>>>>>>> --- a/include/linux/virtio_net.h
+>>>>>>> +++ b/include/linux/virtio_net.h
+>>>>>>> @@ -112,8 +112,12 @@ static inline int
+>>>>>>> virtio_net_hdr_from_skb(const struct sk_buff *skb,
+>>>>>>>                hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
+>>>>>>>            else if (sinfo->gso_type & SKB_GSO_TCPV6)
+>>>>>>>                hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
+>>>>>>> -        else
+>>>>>>> -            return -EINVAL;
+>>>>>>> +        else {
+>>>>>>> +            if (skb->data_len == 0)
+>>>>>>> +                hdr->gso_type = VIRTIO_NET_HDR_GSO_NONE;
+>>>>>>> +            else
+>>>>>>> +                return -EINVAL;
+>>>>>>> +        }
+>>>>>>>            if (sinfo->gso_type & SKB_GSO_TCP_ECN)
+>>>>>>>                hdr->gso_type |= VIRTIO_NET_HDR_GSO_ECN;
+>>>>>>>        } else
+>>>>>>>
+>>>>>>
+>>>>>> ping.
+>>>>>>
+>>>>>
+>>>>> Do you mean gso_size is set but gso_type is not? Looks like a bug
+>>>>> elsewhere.
+>>>>>
+>>>>> Thanks
+>>>>>
+>>>>>
+>>>> Yes.
+>>>>
+>>>> I could not trace it where it is coming from.
+>>>>
+>>>> I see it when doing recvmmsg on raw sockets in the UML vector network
+>>>> drivers.
+>>>>
+>>>
+>>> I think we need to find the culprit and fix it there, lots of other things
+>>> can break otherwise.
+>>> Just printing out skb->dev->name should do the trick, no?
+>>
+>> The printk in virtio_net_hdr_from_skb says NULL.
+>>
+>> That is probably normal for a locally originated frame.
+>>
+>> I cannot reproduce this with network traffic by the way - it happens only if the traffic is locally originated on the host.
+>>
+>> A,
+> 
+> 
+> Or maybe you can try add dump_stack() there.
+
+That unfortunately is not very informative. At that point it shows me the invocation chain from recvmmsg:
+
+[ 2334.180854] Call Trace:
+[ 2334.181947]  dump_stack+0x5c/0x80
+[ 2334.183021]  packet_recvmsg.cold+0x23/0x49
+[ 2334.184063]  ___sys_recvmsg+0xe1/0x1f0
+[ 2334.185034]  ? packet_poll+0xca/0x130
+[ 2334.186014]  ? sock_poll+0x77/0xb0
+[ 2334.186977]  ? ep_item_poll.isra.0+0x3f/0xb0
+[ 2334.187936]  ? ep_send_events_proc+0xf1/0x240
+[ 2334.188901]  ? dequeue_signal+0xdb/0x180
+[ 2334.189848]  do_recvmmsg+0xc8/0x2d0
+[ 2334.190728]  ? ep_poll+0x8c/0x470
+[ 2334.191581]  __sys_recvmmsg+0x108/0x150
+[ 2334.192441]  __x64_sys_recvmmsg+0x25/0x30
+[ 2334.193346]  do_syscall_64+0x53/0x140
+[ 2334.194262]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+
+> 
+> Thanks
+> 
+> 
+> 
+> 
+> _______________________________________________
+> linux-um mailing list
+> linux-um@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-um
+
+-- 
+Anton R. Ivanov
+Cambridgegreys Limited. Registered in England. Company Number 10273661
+https://www.cambridgegreys.com/
