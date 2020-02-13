@@ -1,30 +1,29 @@
 From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
 Subject: Re: [PATCH] virtio: Work around frames incorrectly marked as gso
-Date: Thu, 13 Feb 2020 11:07:47 +0000
-Message-ID: <0c204585-d297-0ecb-2af1-cc3b4cac13da@cambridgegreys.com>
+Date: Thu, 13 Feb 2020 11:12:45 +0000
+Message-ID: <54692f06-f687-8bd3-7a1b-3dac3e79110b@cambridgegreys.com>
 References: <20191209104824.17059-1-anton.ivanov@cambridgegreys.com>
  <57230228-7030-c65f-a24f-910ca52bbe9e@cambridgegreys.com>
  <f78bfe6e-2ffc-3734-9618-470f1afea0c6@redhat.com>
  <918222d9-816a-be70-f8af-b8dfcb586240@cambridgegreys.com>
  <20200211053502-mutt-send-email-mst@kernel.org>
  <9547228b-aa93-f2b6-6fdc-8d33cde3716a@cambridgegreys.com>
- <71193f51-9606-58ba-39d7-904bc9fbd29a@redhat.com>
+ <20200213045937-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <71193f51-9606-58ba-39d7-904bc9fbd29a@redhat.com>
+In-Reply-To: <20200213045937-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
 Sender: netdev-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, linux-um@lists.infradead.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>, linux-um@lists.infradead.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 
-On 13/02/2020 03:31, Jason Wang wrote:
-> 
-> On 2020/2/13 上午1:38, Anton Ivanov wrote:
+On 13/02/2020 10:00, Michael S. Tsirkin wrote:
+> On Wed, Feb 12, 2020 at 05:38:09PM +0000, Anton Ivanov wrote:
 >>
 >>
 >> On 11/02/2020 10:37, Michael S. Tsirkin wrote:
@@ -53,8 +52,8 @@ On 13/02/2020 03:31, Jason Wang wrote:
 >>>>>>>
 >>>>>>> Signed-off-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
 >>>>>>> ---
->>>>>>>    include/linux/virtio_net.h | 8 ++++++--
->>>>>>>    1 file changed, 6 insertions(+), 2 deletions(-)
+>>>>>>>     include/linux/virtio_net.h | 8 ++++++--
+>>>>>>>     1 file changed, 6 insertions(+), 2 deletions(-)
 >>>>>>>
 >>>>>>> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
 >>>>>>> index 0d1fe9297ac6..d90d5cff1b9a 100644
@@ -62,9 +61,9 @@ On 13/02/2020 03:31, Jason Wang wrote:
 >>>>>>> +++ b/include/linux/virtio_net.h
 >>>>>>> @@ -112,8 +112,12 @@ static inline int
 >>>>>>> virtio_net_hdr_from_skb(const struct sk_buff *skb,
->>>>>>>                hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
->>>>>>>            else if (sinfo->gso_type & SKB_GSO_TCPV6)
->>>>>>>                hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
+>>>>>>>                 hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
+>>>>>>>             else if (sinfo->gso_type & SKB_GSO_TCPV6)
+>>>>>>>                 hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
 >>>>>>> -        else
 >>>>>>> -            return -EINVAL;
 >>>>>>> +        else {
@@ -73,9 +72,9 @@ On 13/02/2020 03:31, Jason Wang wrote:
 >>>>>>> +            else
 >>>>>>> +                return -EINVAL;
 >>>>>>> +        }
->>>>>>>            if (sinfo->gso_type & SKB_GSO_TCP_ECN)
->>>>>>>                hdr->gso_type |= VIRTIO_NET_HDR_GSO_ECN;
->>>>>>>        } else
+>>>>>>>             if (sinfo->gso_type & SKB_GSO_TCP_ECN)
+>>>>>>>                 hdr->gso_type |= VIRTIO_NET_HDR_GSO_ECN;
+>>>>>>>         } else
 >>>>>>>
 >>>>>>
 >>>>>> ping.
@@ -107,38 +106,34 @@ On 13/02/2020 03:31, Jason Wang wrote:
 >>
 >> A,
 > 
-> 
-> Or maybe you can try add dump_stack() there.
+> OK so is it code in __tcp_transmit_skb that sets gso_size to non-null
+> when gso_type is 0?
 
-That unfortunately is not very informative. At that point it shows me the invocation chain from recvmmsg:
-
-[ 2334.180854] Call Trace:
-[ 2334.181947]  dump_stack+0x5c/0x80
-[ 2334.183021]  packet_recvmsg.cold+0x23/0x49
-[ 2334.184063]  ___sys_recvmsg+0xe1/0x1f0
-[ 2334.185034]  ? packet_poll+0xca/0x130
-[ 2334.186014]  ? sock_poll+0x77/0xb0
-[ 2334.186977]  ? ep_item_poll.isra.0+0x3f/0xb0
-[ 2334.187936]  ? ep_send_events_proc+0xf1/0x240
-[ 2334.188901]  ? dequeue_signal+0xdb/0x180
-[ 2334.189848]  do_recvmmsg+0xc8/0x2d0
-[ 2334.190728]  ? ep_poll+0x8c/0x470
-[ 2334.191581]  __sys_recvmmsg+0x108/0x150
-[ 2334.192441]  __x64_sys_recvmmsg+0x25/0x30
-[ 2334.193346]  do_syscall_64+0x53/0x140
-[ 2334.194262]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+It does look like that, but I cannot see it when reading it :(
 
 
 > 
-> Thanks
+> 
+>>>
+>>>
+>>>> -- 
+>>>> Anton R. Ivanov
+>>>> Cambridgegreys Limited. Registered in England. Company Number 10273661
+>>>> https://www.cambridgegreys.com/
+>>>
+>>>
+>>> _______________________________________________
+>>> linux-um mailing list
+>>> linux-um@lists.infradead.org
+>>> http://lists.infradead.org/mailman/listinfo/linux-um
+>>>
+>>
+>> -- 
+>> Anton R. Ivanov
+>> Cambridgegreys Limited. Registered in England. Company Number 10273661
+>> https://www.cambridgegreys.com/
 > 
 > 
-> 
-> 
-> _______________________________________________
-> linux-um mailing list
-> linux-um@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-um
 
 -- 
 Anton R. Ivanov
