@@ -1,56 +1,211 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v1 3/3] virtio-balloon: Switch back to OOM handler for
- VIRTIO_BALLOON_F_DEFLATE_ON_OOM
-Date: Fri, 14 Feb 2020 15:18:55 +0100
-Message-ID: <802f93b1-1588-bd2c-8238-c12ec7f7ae9e@redhat.com>
-References: <20200205163402.42627-1-david@redhat.com>
- <20200205163402.42627-4-david@redhat.com>
- <20200214140641.GB31689@dhcp22.suse.cz>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.5 006/542] drm/virtio: fix byteorder handling in
+ virtio_gpu_cmd_transfer_{from, to}_host_3d functions
+Date: Fri, 14 Feb 2020 10:39:58 -0500
+Message-ID: <20200214154854.6746-6-sashal@kernel.org>
+References: <20200214154854.6746-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200214140641.GB31689@dhcp22.suse.cz>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Michal Hocko <mhocko@kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtualization@lists.linux-foundation.org, Tyler Sanderson <tysand@google.com>, "Michael S . Tsirkin" <mst@redhat.com>, Wei Wang <wei.w.wang@intel.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, David Rientjes <rientjes@google.com>, Nadav Amit <namit@vmware.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200214154854.6746-1-sashal@kernel.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Sasha Levin <sashal@kernel.org>, virtualization@lists.linux-foundation.org, dri-devel@lists.freedesktop.org, Gurchetan Singh <gurchetansingh@chromium.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
->> There was a report that this results in undesired side effects when
->> inflating the balloon to shrink the page cache. [1]
->> 	"When inflating the balloon against page cache (i.e. no free memory
->> 	 remains) vmscan.c will both shrink page cache, but also invoke the
->> 	 shrinkers -- including the balloon's shrinker. So the balloon
->> 	 driver allocates memory which requires reclaim, vmscan gets this
->> 	 memory by shrinking the balloon, and then the driver adds the
->> 	 memory back to the balloon. Basically a busy no-op."
->>
->> The name "deflate on OOM" makes it pretty clear when deflation should
->> happen - after other approaches to reclaim memory failed, not while
->> reclaiming. This allows to minimize the footprint of a guest - memory
->> will only be taken out of the balloon when really needed.
->>
->> Especially, a drop_slab() will result in the whole balloon getting
->> deflated - undesired.
->=20
-> Could you explain why some more? drop_caches shouldn't be really used i=
-n
-> any production workloads and if somebody really wants all the cache to
-> be dropped then why is balloon any different?
->=20
+From: Gerd Hoffmann <kraxel@redhat.com>
 
-Deflation should happen when the guest is out of memory, not when
-somebody thinks it's time to reclaim some memory. That's what the
-feature promised from the beginning: Only give the guest more memory in
-case it *really* needs more memory.
+[ Upstream commit 1dc3485247170d3b88a21cadee7f7da1f0433495 ]
 
-Deflate on oom, not deflate on reclaim/memory pressure. (that's what the
-report was all about)
+Be consistent with the rest of the code base.
+No functional change.
 
-A priority for shrinkers might be a step into the right direction.
+v2:
+ - fix sparse warnings for virtio_gpu_cmd_transfer_to_host_2d call.
+ - move convert_to_hw_box helper function.
 
---=20
-Thanks,
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Reviewed-by: Gurchetan Singh <gurchetansingh@chromium.org>
+Link: http://patchwork.freedesktop.org/patch/msgid/20191023062539.11728-2-kraxel@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/gpu/drm/virtio/virtgpu_drv.h   |  5 +++--
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c | 22 +++-------------------
+ drivers/gpu/drm/virtio/virtgpu_vq.c    | 19 +++++++++++++++----
+ 3 files changed, 21 insertions(+), 25 deletions(-)
 
-David / dhildenb
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 0b56ba005e253..eedae2a7b532d 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -38,6 +38,7 @@
+ #include <drm/drm_gem_shmem_helper.h>
+ #include <drm/drm_ioctl.h>
+ #include <drm/drm_probe_helper.h>
++#include <drm/virtgpu_drm.h>
+ 
+ #define DRIVER_NAME "virtio_gpu"
+ #define DRIVER_DESC "virtio GPU"
+@@ -312,13 +313,13 @@ void virtio_gpu_cmd_submit(struct virtio_gpu_device *vgdev,
+ void virtio_gpu_cmd_transfer_from_host_3d(struct virtio_gpu_device *vgdev,
+ 					  uint32_t ctx_id,
+ 					  uint64_t offset, uint32_t level,
+-					  struct virtio_gpu_box *box,
++					  struct drm_virtgpu_3d_box *box,
+ 					  struct virtio_gpu_object_array *objs,
+ 					  struct virtio_gpu_fence *fence);
+ void virtio_gpu_cmd_transfer_to_host_3d(struct virtio_gpu_device *vgdev,
+ 					uint32_t ctx_id,
+ 					uint64_t offset, uint32_t level,
+-					struct virtio_gpu_box *box,
++					struct drm_virtgpu_3d_box *box,
+ 					struct virtio_gpu_object_array *objs,
+ 					struct virtio_gpu_fence *fence);
+ void
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index 9af1ec62434f2..205ec4abae2b9 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -33,17 +33,6 @@
+ 
+ #include "virtgpu_drv.h"
+ 
+-static void convert_to_hw_box(struct virtio_gpu_box *dst,
+-			      const struct drm_virtgpu_3d_box *src)
+-{
+-	dst->x = cpu_to_le32(src->x);
+-	dst->y = cpu_to_le32(src->y);
+-	dst->z = cpu_to_le32(src->z);
+-	dst->w = cpu_to_le32(src->w);
+-	dst->h = cpu_to_le32(src->h);
+-	dst->d = cpu_to_le32(src->d);
+-}
+-
+ static int virtio_gpu_map_ioctl(struct drm_device *dev, void *data,
+ 				struct drm_file *file_priv)
+ {
+@@ -304,7 +293,6 @@ static int virtio_gpu_transfer_from_host_ioctl(struct drm_device *dev,
+ 	struct virtio_gpu_fence *fence;
+ 	int ret;
+ 	u32 offset = args->offset;
+-	struct virtio_gpu_box box;
+ 
+ 	if (vgdev->has_virgl_3d == false)
+ 		return -ENOSYS;
+@@ -317,8 +305,6 @@ static int virtio_gpu_transfer_from_host_ioctl(struct drm_device *dev,
+ 	if (ret != 0)
+ 		goto err_put_free;
+ 
+-	convert_to_hw_box(&box, &args->box);
+-
+ 	fence = virtio_gpu_fence_alloc(vgdev);
+ 	if (!fence) {
+ 		ret = -ENOMEM;
+@@ -326,7 +312,7 @@ static int virtio_gpu_transfer_from_host_ioctl(struct drm_device *dev,
+ 	}
+ 	virtio_gpu_cmd_transfer_from_host_3d
+ 		(vgdev, vfpriv->ctx_id, offset, args->level,
+-		 &box, objs, fence);
++		 &args->box, objs, fence);
+ 	dma_fence_put(&fence->f);
+ 	return 0;
+ 
+@@ -345,7 +331,6 @@ static int virtio_gpu_transfer_to_host_ioctl(struct drm_device *dev, void *data,
+ 	struct drm_virtgpu_3d_transfer_to_host *args = data;
+ 	struct virtio_gpu_object_array *objs;
+ 	struct virtio_gpu_fence *fence;
+-	struct virtio_gpu_box box;
+ 	int ret;
+ 	u32 offset = args->offset;
+ 
+@@ -353,11 +338,10 @@ static int virtio_gpu_transfer_to_host_ioctl(struct drm_device *dev, void *data,
+ 	if (objs == NULL)
+ 		return -ENOENT;
+ 
+-	convert_to_hw_box(&box, &args->box);
+ 	if (!vgdev->has_virgl_3d) {
+ 		virtio_gpu_cmd_transfer_to_host_2d
+ 			(vgdev, offset,
+-			 box.w, box.h, box.x, box.y,
++			 args->box.w, args->box.h, args->box.x, args->box.y,
+ 			 objs, NULL);
+ 	} else {
+ 		ret = virtio_gpu_array_lock_resv(objs);
+@@ -372,7 +356,7 @@ static int virtio_gpu_transfer_to_host_ioctl(struct drm_device *dev, void *data,
+ 		virtio_gpu_cmd_transfer_to_host_3d
+ 			(vgdev,
+ 			 vfpriv ? vfpriv->ctx_id : 0, offset,
+-			 args->level, &box, objs, fence);
++			 args->level, &args->box, objs, fence);
+ 		dma_fence_put(&fence->f);
+ 	}
+ 	return 0;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 74ad3bc3ebe83..9274c4063c701 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -40,6 +40,17 @@
+ 			       + MAX_INLINE_CMD_SIZE		 \
+ 			       + MAX_INLINE_RESP_SIZE)
+ 
++static void convert_to_hw_box(struct virtio_gpu_box *dst,
++			      const struct drm_virtgpu_3d_box *src)
++{
++	dst->x = cpu_to_le32(src->x);
++	dst->y = cpu_to_le32(src->y);
++	dst->z = cpu_to_le32(src->z);
++	dst->w = cpu_to_le32(src->w);
++	dst->h = cpu_to_le32(src->h);
++	dst->d = cpu_to_le32(src->d);
++}
++
+ void virtio_gpu_ctrl_ack(struct virtqueue *vq)
+ {
+ 	struct drm_device *dev = vq->vdev->priv;
+@@ -965,7 +976,7 @@ virtio_gpu_cmd_resource_create_3d(struct virtio_gpu_device *vgdev,
+ void virtio_gpu_cmd_transfer_to_host_3d(struct virtio_gpu_device *vgdev,
+ 					uint32_t ctx_id,
+ 					uint64_t offset, uint32_t level,
+-					struct virtio_gpu_box *box,
++					struct drm_virtgpu_3d_box *box,
+ 					struct virtio_gpu_object_array *objs,
+ 					struct virtio_gpu_fence *fence)
+ {
+@@ -987,7 +998,7 @@ void virtio_gpu_cmd_transfer_to_host_3d(struct virtio_gpu_device *vgdev,
+ 	cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_TRANSFER_TO_HOST_3D);
+ 	cmd_p->hdr.ctx_id = cpu_to_le32(ctx_id);
+ 	cmd_p->resource_id = cpu_to_le32(bo->hw_res_handle);
+-	cmd_p->box = *box;
++	convert_to_hw_box(&cmd_p->box, box);
+ 	cmd_p->offset = cpu_to_le64(offset);
+ 	cmd_p->level = cpu_to_le32(level);
+ 
+@@ -997,7 +1008,7 @@ void virtio_gpu_cmd_transfer_to_host_3d(struct virtio_gpu_device *vgdev,
+ void virtio_gpu_cmd_transfer_from_host_3d(struct virtio_gpu_device *vgdev,
+ 					  uint32_t ctx_id,
+ 					  uint64_t offset, uint32_t level,
+-					  struct virtio_gpu_box *box,
++					  struct drm_virtgpu_3d_box *box,
+ 					  struct virtio_gpu_object_array *objs,
+ 					  struct virtio_gpu_fence *fence)
+ {
+@@ -1013,7 +1024,7 @@ void virtio_gpu_cmd_transfer_from_host_3d(struct virtio_gpu_device *vgdev,
+ 	cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_TRANSFER_FROM_HOST_3D);
+ 	cmd_p->hdr.ctx_id = cpu_to_le32(ctx_id);
+ 	cmd_p->resource_id = cpu_to_le32(bo->hw_res_handle);
+-	cmd_p->box = *box;
++	convert_to_hw_box(&cmd_p->box, box);
+ 	cmd_p->offset = cpu_to_le64(offset);
+ 	cmd_p->level = cpu_to_le32(level);
+ 
+-- 
+2.20.1
