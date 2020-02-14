@@ -1,75 +1,48 @@
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Subject: [PATCH 0/3] virtio-iommu on non-devicetree platforms
-Date: Fri, 14 Feb 2020 17:04:10 +0100
-Message-ID: <20200214160413.1475396-1-jean-philippe@linaro.org>
+From: Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 3/3] iommu/virtio: Enable x86 support
+Date: Fri, 14 Feb 2020 17:04:13 +0100
+Message-ID: <20200214160413.1475396-4-jean-philippe@linaro.org>
+References: <20200214160413.1475396-1-jean-philippe@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, linux-pci@vger.kernel.org
-Cc: mst@redhat.com, joro@8bytes.org, eric.auger@redhat.com, sebastien.boeuf@intel.com, jacob.jun.pan@intel.com, bhelgaas@google.com
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <20200214160413.1475396-1-jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+ <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+ <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Sender: "iommu" <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+To: iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: kevin.tian-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, sebastien.boeuf-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, jacob.jun.pan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, jasowang-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add topology description to the virtio-iommu driver and enable x86
-platforms. Since the RFC [1] I've mostly given up on ACPI tables, since
-the internal discussions seem to have reached a dead end. The built-in
-topology description presented here isn't ideal, but it is simple to
-implement and doesn't impose a dependency on ACPI or device-tree, which
-can be beneficial to lightweight hypervisors.
+With the built-in topology description in place, x86 platforms can now
+use the virtio-iommu.
 
-The built-in description is an array in the virtio config space. The
-driver parses the config space early and postpones endpoint probe until
-the virtio-iommu device is ready. Each element in the array describes
-either a PCI range or a single MMIO endpoint, and their associated
-endpoint IDs:
+Signed-off-by: Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+---
+ drivers/iommu/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-struct virtio_iommu_topo_pci_range {
-	__le16 type;			/* 1: PCI range */
-	__le16 hierarchy;		/* PCI domain number */
-	__le16 requester_start;		/* First BDF */
-	__le16 requester_end;		/* Last BDF */
-	__le32 endpoint_start;		/* First endpoint ID */
-};
-
-struct virtio_iommu_topo_endpoint {
-	__le16 type;			/* 2: Endpoint */
-	__le16 reserved;		/* 0 */
-	__le32 endpoint;		/* Endpoint ID */
-	__le64 address;			/* First MMIO address */
-};
-
-You can find the QEMU patches based on Eric's latest device on my
-virtio-iommu/devel branch [2]. I test on both x86 q35, and aarch64 virt
-machine with edk2.
-
-[1] https://lore.kernel.org/linux-iommu/20191122105000.800410-1-jean-philippe@linaro.org/
-[2] https://jpbrucker.net/git/qemu virtio-iommu/devel
-
-Jean-Philippe Brucker (3):
-  iommu/virtio: Add topology description to virtio-iommu config space
-  PCI: Add DMA configuration for virtual platforms
-  iommu/virtio: Enable x86 support
-
- MAINTAINERS                           |   2 +
- drivers/iommu/Kconfig                 |  13 +-
- drivers/iommu/Makefile                |   1 +
- drivers/iommu/virtio-iommu-topology.c | 343 ++++++++++++++++++++++++++
- drivers/iommu/virtio-iommu.c          |   3 +
- drivers/pci/pci-driver.c              |   5 +
- include/linux/virt_iommu.h            |  19 ++
- include/uapi/linux/virtio_iommu.h     |  26 ++
- 8 files changed, 411 insertions(+), 1 deletion(-)
- create mode 100644 drivers/iommu/virtio-iommu-topology.c
- create mode 100644 include/linux/virt_iommu.h
-
+diff --git a/drivers/iommu/Kconfig b/drivers/iommu/Kconfig
+index 068d4e0e3541..adcbda44d473 100644
+--- a/drivers/iommu/Kconfig
++++ b/drivers/iommu/Kconfig
+@@ -508,8 +508,9 @@ config HYPERV_IOMMU
+ config VIRTIO_IOMMU
+ 	bool "Virtio IOMMU driver"
+ 	depends on VIRTIO=y
+-	depends on ARM64
++	depends on (ARM64 || X86)
+ 	select IOMMU_API
++	select IOMMU_DMA
+ 	select INTERVAL_TREE
+ 	help
+ 	  Para-virtualised IOMMU driver with virtio.
 -- 
 2.25.0
