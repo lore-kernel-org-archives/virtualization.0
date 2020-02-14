@@ -1,14 +1,14 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 251/252] virtio_balloon: prevent pfn array
+Subject: [PATCH AUTOSEL 4.14 185/186] virtio_balloon: prevent pfn array
  overflow
-Date: Fri, 14 Feb 2020 11:11:46 -0500
-Message-ID: <20200214161147.15842-251-sashal@kernel.org>
-References: <20200214161147.15842-1-sashal@kernel.org>
+Date: Fri, 14 Feb 2020 11:17:14 -0500
+Message-ID: <20200214161715.18113-185-sashal@kernel.org>
+References: <20200214161715.18113-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200214161147.15842-1-sashal@kernel.org>
+In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -38,10 +38,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+)
 
 diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 14ac36ca8fbd3..1afcbef397ab7 100644
+index 499531608fa26..71970773aad13 100644
 --- a/drivers/virtio/virtio_balloon.c
 +++ b/drivers/virtio/virtio_balloon.c
-@@ -126,6 +126,8 @@ static void set_page_pfns(struct virtio_balloon *vb,
+@@ -132,6 +132,8 @@ static void set_page_pfns(struct virtio_balloon *vb,
  {
  	unsigned int i;
  
