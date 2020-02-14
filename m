@@ -1,76 +1,55 @@
-From: "Wang, Wei W" <wei.w.wang@intel.com>
-Subject: RE: [PATCH v1 3/3] virtio-balloon: Switch back to OOM handler for
- VIRTIO_BALLOON_F_DEFLATE_ON_OOM
-Date: Fri, 14 Feb 2020 13:31:51 +0000
-Message-ID: <286AC319A985734F985F78AFA26841F73E4392AF@shsmsx102.ccr.corp.intel.com>
-References: <20200205163402.42627-1-david@redhat.com>
- <20200205163402.42627-4-david@redhat.com>
- <f31eff75-b328-de41-c2cc-e55471aa27d8@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH] drm/qxl: don't take vga ports on rev5+
+Date: Fri, 14 Feb 2020 14:36:45 +0100
+Message-ID: <20200214133645.30977-1-kraxel@redhat.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <f31eff75-b328-de41-c2cc-e55471aa27d8@redhat.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: David Hildenbrand <david@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: "linux-mm@kvack.org" <linux-mm@kvack.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Tyler Sanderson <tysand@google.com>, "Michael S . Tsirkin" <mst@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, David Rientjes <rientjes@google.com>, Nadav Amit <namit@vmware.com>, Michal Hocko <mhocko@kernel.org>
+To: dri-devel@lists.freedesktop.org
+Cc: Gerd Hoffmann <kraxel@redhat.com>, Dave Airlie <airlied@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR QXL
+        VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, "open list:DRM DRIVER FOR QXL VIRTUAL
+        GPU" <spice-devel@lists.freedesktop.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpZGF5LCBGZWJydWFyeSAxNCwgMjAyMCA1OjUyIFBNLCBEYXZpZCBIaWxkZW5icmFuZCB3
-cm90ZToNCj4gPiBDb21taXQgNzE5OTQ2MjBiYjI1ICgidmlydGlvX2JhbGxvb246IHJlcGxhY2Ug
-b29tIG5vdGlmaWVyIHdpdGgNCj4gPiBzaHJpbmtlciIpIGNoYW5nZWQgdGhlIGJlaGF2aW9yIHdo
-ZW4gZGVmbGF0aW9uIGhhcHBlbnMgYXV0b21hdGljYWxseS4NCj4gPiBJbnN0ZWFkIG9mIGRlZmxh
-dGluZyB3aGVuIGNhbGxlZCBieSB0aGUgT09NIGhhbmRsZXIsIHRoZSBzaHJpbmtlciBpcyB1c2Vk
-Lg0KPiA+DQo+ID4gSG93ZXZlciwgdGhlIGJhbGxvb24gaXMgbm90IHNpbXBseSBzb21lIHNsYWIg
-Y2FjaGUgdGhhdCBzaG91bGQgYmUNCj4gPiBzaHJ1bmsgd2hlbiB1bmRlciBtZW1vcnkgcHJlc3N1
-cmUuIFRoZSBzaHJpbmtlciBkb2VzIG5vdCBoYXZlIGENCj4gPiBjb25jZXB0IG9mIHByaW9yaXRp
-ZXMsIHNvIHRoaXMgYmVoYXZpb3IgY2Fubm90IGJlIGNvbmZpZ3VyZWQuDQo+ID4NCj4gPiBUaGVy
-ZSB3YXMgYSByZXBvcnQgdGhhdCB0aGlzIHJlc3VsdHMgaW4gdW5kZXNpcmVkIHNpZGUgZWZmZWN0
-cyB3aGVuDQo+ID4gaW5mbGF0aW5nIHRoZSBiYWxsb29uIHRvIHNocmluayB0aGUgcGFnZSBjYWNo
-ZS4gWzFdDQo+ID4gCSJXaGVuIGluZmxhdGluZyB0aGUgYmFsbG9vbiBhZ2FpbnN0IHBhZ2UgY2Fj
-aGUgKGkuZS4gbm8gZnJlZSBtZW1vcnkNCj4gPiAJIHJlbWFpbnMpIHZtc2Nhbi5jIHdpbGwgYm90
-aCBzaHJpbmsgcGFnZSBjYWNoZSwgYnV0IGFsc28gaW52b2tlIHRoZQ0KPiA+IAkgc2hyaW5rZXJz
-IC0tIGluY2x1ZGluZyB0aGUgYmFsbG9vbidzIHNocmlua2VyLiBTbyB0aGUgYmFsbG9vbg0KPiA+
-IAkgZHJpdmVyIGFsbG9jYXRlcyBtZW1vcnkgd2hpY2ggcmVxdWlyZXMgcmVjbGFpbSwgdm1zY2Fu
-IGdldHMgdGhpcw0KPiA+IAkgbWVtb3J5IGJ5IHNocmlua2luZyB0aGUgYmFsbG9vbiwgYW5kIHRo
-ZW4gdGhlIGRyaXZlciBhZGRzIHRoZQ0KPiA+IAkgbWVtb3J5IGJhY2sgdG8gdGhlIGJhbGxvb24u
-IEJhc2ljYWxseSBhIGJ1c3kgbm8tb3AuIg0KPiA+DQo+ID4gVGhlIG5hbWUgImRlZmxhdGUgb24g
-T09NIiBtYWtlcyBpdCBwcmV0dHkgY2xlYXIgd2hlbiBkZWZsYXRpb24gc2hvdWxkDQo+ID4gaGFw
-cGVuIC0gYWZ0ZXIgb3RoZXIgYXBwcm9hY2hlcyB0byByZWNsYWltIG1lbW9yeSBmYWlsZWQsIG5v
-dCB3aGlsZQ0KPiA+IHJlY2xhaW1pbmcuIFRoaXMgYWxsb3dzIHRvIG1pbmltaXplIHRoZSBmb290
-cHJpbnQgb2YgYSBndWVzdCAtIG1lbW9yeQ0KPiA+IHdpbGwgb25seSBiZSB0YWtlbiBvdXQgb2Yg
-dGhlIGJhbGxvb24gd2hlbiByZWFsbHkgbmVlZGVkLg0KPiA+DQo+ID4gRXNwZWNpYWxseSwgYSBk
-cm9wX3NsYWIoKSB3aWxsIHJlc3VsdCBpbiB0aGUgd2hvbGUgYmFsbG9vbiBnZXR0aW5nDQo+ID4g
-ZGVmbGF0ZWQgLSB1bmRlc2lyZWQuIFdoaWxlIGhhbmRsaW5nIGl0IHZpYSB0aGUgT09NIGhhbmRs
-ZXIgbWlnaHQgbm90DQo+ID4gYmUgcGVyZmVjdCwgaXQga2VlcHMgZXhpc3RpbmcgYmVoYXZpb3Iu
-IElmIHdlIHdhbnQgYSBkaWZmZXJlbnQNCj4gPiBiZWhhdmlvciwgdGhlbiB3ZSBuZWVkIGEgbmV3
-IGZlYXR1cmUgYml0IGFuZCBkb2N1bWVudCBpdCBwcm9wZXJseQ0KPiA+IChhbHRob3VnaCwgdGhl
-cmUgc2hvdWxkIGJlIGEgY2xlYXIgdXNlIGNhc2UgYW5kIHRoZSBpbnRlbmRlZCBlZmZlY3RzIHNo
-b3VsZA0KPiBiZSB3ZWxsIGRlc2NyaWJlZCkuDQo+ID4NCj4gPiBLZWVwIHVzaW5nIHRoZSBzaHJp
-bmtlciBmb3IgVklSVElPX0JBTExPT05fRl9GUkVFX1BBR0VfSElOVCwNCj4gYmVjYXVzZQ0KPiA+
-IHRoaXMgaGFzIG5vIHN1Y2ggc2lkZSBlZmZlY3RzLiBBbHdheXMgcmVnaXN0ZXIgdGhlIHNocmlu
-a2VyIHdpdGgNCj4gPiBWSVJUSU9fQkFMTE9PTl9GX0ZSRUVfUEFHRV9ISU5UIG5vdy4gV2UgYXJl
-IGFsd2F5cyBhbGxvd2VkIHRvDQo+IHJldXNlDQo+ID4gZnJlZSBwYWdlcyB0aGF0IGFyZSBzdGls
-bCB0byBiZSBwcm9jZXNzZWQgYnkgdGhlIGd1ZXN0LiBUaGUgaHlwZXJ2aXNvcg0KPiA+IHRha2Vz
-IGNhcmUgb2YgaWRlbnRpZnlpbmcgYW5kIHJlc29sdmluZyBwb3NzaWJsZSByYWNlcyBiZXR3ZWVu
-DQo+ID4gcHJvY2Vzc2luZyBhIGhpbnRpbmcgcmVxdWVzdCBhbmQgdGhlIGd1ZXN0IHJldXNpbmcg
-YSBwYWdlLg0KPiA+DQo+ID4gSW4gY29udHJhc3QgdG8gcHJlIGNvbW1pdCA3MTk5NDYyMGJiMjUg
-KCJ2aXJ0aW9fYmFsbG9vbjogcmVwbGFjZSBvb20NCj4gPiBub3RpZmllciB3aXRoIHNocmlua2Vy
-IiksIGRvbid0IGFkZCBhIG1vb2R1bGUgcGFyYW1ldGVyIHRvIGNvbmZpZ3VyZQ0KPiA+IHRoZSBu
-dW1iZXIgb2YgcGFnZXMgdG8gZGVmbGF0ZSBvbiBPT00uIENhbiBiZSByZS1hZGRlZCBpZiByZWFs
-bHkgbmVlZGVkLg0KPiA+IEFsc28sIHBheSBhdHRlbnRpb24gdGhhdCBsZWFrX2JhbGxvb24oKSBy
-ZXR1cm5zIHRoZSBudW1iZXIgb2YgNGsgcGFnZXMNCj4gPiAtIGNvbnZlcnQgaXQgcHJvcGVybHkg
-aW4gdmlydGlvX2JhbGxvb25fb29tX25vdGlmeSgpLg0KPiA+DQo+ID4gTm90ZTE6IHVzaW5nIHRo
-ZSBPT00gaGFuZGxlciBpcyBmcm93bmVkIHVwb24sIGJ1dCBpdCByZWFsbHkgaXMgd2hhdCB3ZQ0K
-PiA+ICAgICAgICBuZWVkIGZvciB0aGlzIGZlYXR1cmUuDQo+ID4NCj4gPiBOb3RlMjogd2l0aG91
-dCBWSVJUSU9fQkFMTE9PTl9GX01VU1RfVEVMTF9IT1NUIChpb3csIGFsd2F5cyB3aXRoDQo+IFFF
-TVUpIHdlDQo+ID4gICAgICAgIGNvdWxkIGFjdHVhbGx5IHNraXAgc2VuZGluZyBkZWZsYXRpb24g
-cmVxdWVzdHMgdG8gb3VyIGh5cGVydmlzb3IsDQo+ID4gICAgICAgIG1ha2luZyB0aGUgT09NIHBh
-dGggKnZlcnkqIHNpbXBsZS4gQmVzaWNhbGx5IGZyZWVpbmcgcGFnZXMgYW5kDQo+ID4gICAgICAg
-IHVwZGF0aW5nIHRoZSBiYWxsb29uLiBJZiB0aGUgY29tbXVuaWNhdGlvbiB3aXRoIHRoZSBob3N0
-IGV2ZXINCj4gPiAgICAgICAgYmVjb21lcyBhIHByb2JsZW0gb24gdGhpcyBjYWxsIHBhdGguDQo+
-ID4NCj4gDQo+IEBNaWNoYWVsLCBob3cgdG8gcHJvY2VlZCB3aXRoIHRoaXM/DQo+IA0KDQpJIHZv
-dGUgZm9yIG5vdCBnb2luZyBiYWNrLiBXaGVuIHRoZXJlIGFyZSBzb2xpZCByZXF1ZXN0IGFuZCBz
-dHJvbmcgcmVhc29ucyBpbiB0aGUgZnV0dXJlLCB3ZSBjb3VsZCByZW9wZW4gdGhpcyBkaXNjdXNz
-aW9uLg0KDQpCZXN0LA0KV2VpDQo=
+qemu 5.0 introduces a new qxl hardware revision 5.  Unlike revision 4
+(and below) the device doesn't switch back into vga compatibility mode
+when someone touches the vga ports.  So we don't have to reserve the
+vga ports any more to avoid that happening.
+
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/qxl/qxl_drv.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
+index 4fda3f9b29f4..afea743989dd 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.c
++++ b/drivers/gpu/drm/qxl/qxl_drv.c
+@@ -93,7 +93,7 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	if (ret)
+ 		goto disable_pci;
+ 
+-	if (is_vga(pdev)) {
++	if (is_vga(pdev) && pdev->revision < 5) {
+ 		ret = vga_get_interruptible(pdev, VGA_RSRC_LEGACY_IO);
+ 		if (ret) {
+ 			DRM_ERROR("can't get legacy vga ioports\n");
+@@ -124,7 +124,7 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ unload:
+ 	qxl_device_fini(qdev);
+ put_vga:
+-	if (is_vga(pdev))
++	if (is_vga(pdev) && pdev->revision < 5)
+ 		vga_put(pdev, VGA_RSRC_LEGACY_IO);
+ disable_pci:
+ 	pci_disable_device(pdev);
+@@ -155,7 +155,7 @@ qxl_pci_remove(struct pci_dev *pdev)
+ 
+ 	drm_dev_unregister(dev);
+ 	drm_atomic_helper_shutdown(dev);
+-	if (is_vga(pdev))
++	if (is_vga(pdev) && pdev->revision < 5)
+ 		vga_put(pdev, VGA_RSRC_LEGACY_IO);
+ 	drm_dev_put(dev);
+ }
+-- 
+2.18.2
