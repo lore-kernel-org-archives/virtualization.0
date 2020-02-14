@@ -1,14 +1,11 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 185/186] virtio_balloon: prevent pfn array
- overflow
-Date: Fri, 14 Feb 2020 11:17:14 -0500
-Message-ID: <20200214161715.18113-185-sashal@kernel.org>
-References: <20200214161715.18113-1-sashal@kernel.org>
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Subject: [PATCH] iommu/virtio: Build virtio-iommu as module
+Date: Fri, 14 Feb 2020 17:38:27 +0100
+Message-ID: <20200214163827.1606668-1-jean-philippe@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200214161715.18113-1-sashal@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,37 +15,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Sasha Levin <sashal@kernel.org>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
+To: iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org
+Cc: joro@8bytes.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
 
-[ Upstream commit 6e9826e77249355c09db6ba41cd3f84e89f4b614 ]
+Now that the infrastructure changes are in place, enable virtio-iommu to
+be built as a module. Remove the redundant pci_request_acs() call, since
+it's not exported but is already invoked during DMA setup.
 
-Make sure, at build time, that pfn array is big enough to hold a single
-page.  It happens to be true since the PAGE_SHIFT value at the moment is
-20, which is 1M - exactly 256 4K balloon pages.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Jean-Philippe Brucker <jean-philippe.brucker@arm.com>
 ---
- drivers/virtio/virtio_balloon.c | 2 ++
- 1 file changed, 2 insertions(+)
+This conflicts with the multiplatform work [1] since they both change
+Kconfig. Locally I have this patch applied on top of that series but
+there is no functional dependency between the two.
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 499531608fa26..71970773aad13 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -132,6 +132,8 @@ static void set_page_pfns(struct virtio_balloon *vb,
- {
- 	unsigned int i;
+[1] https://lore.kernel.org/linux-iommu/20200214160413.1475396-1-jean-philippe@linaro.org/
+---
+ drivers/iommu/Kconfig        | 4 ++--
+ drivers/iommu/virtio-iommu.c | 1 -
+ 2 files changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/iommu/Kconfig b/drivers/iommu/Kconfig
+index adcbda44d473..bfd4e5fcd6aa 100644
+--- a/drivers/iommu/Kconfig
++++ b/drivers/iommu/Kconfig
+@@ -506,8 +506,8 @@ config HYPERV_IOMMU
+ 	  guests to run with x2APIC mode enabled.
  
-+	BUILD_BUG_ON(VIRTIO_BALLOON_PAGES_PER_PAGE > VIRTIO_BALLOON_ARRAY_PFNS_MAX);
-+
- 	/*
- 	 * Set balloon pfns pointing at this page.
- 	 * Note that the first pfn points at start of the page.
+ config VIRTIO_IOMMU
+-	bool "Virtio IOMMU driver"
+-	depends on VIRTIO=y
++	tristate "Virtio IOMMU driver"
++	depends on VIRTIO
+ 	depends on (ARM64 || X86)
+ 	select IOMMU_API
+ 	select IOMMU_DMA
+diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+index f18ba8e22ebd..5429c12c879b 100644
+--- a/drivers/iommu/virtio-iommu.c
++++ b/drivers/iommu/virtio-iommu.c
+@@ -1084,7 +1084,6 @@ static int viommu_probe(struct virtio_device *vdev)
+ 
+ #ifdef CONFIG_PCI
+ 	if (pci_bus_type.iommu_ops != &viommu_ops) {
+-		pci_request_acs();
+ 		ret = bus_set_iommu(&pci_bus_type, &viommu_ops);
+ 		if (ret)
+ 			goto err_unregister;
 -- 
-2.20.1
+2.25.0
