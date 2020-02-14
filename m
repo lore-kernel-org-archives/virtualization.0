@@ -1,14 +1,11 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 005/459] drm/qxl: Complete exception handling in
- qxl_device_init()
-Date: Fri, 14 Feb 2020 10:54:15 -0500
-Message-ID: <20200214160149.11681-5-sashal@kernel.org>
-References: <20200214160149.11681-1-sashal@kernel.org>
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Subject: [PATCH 0/3] virtio-iommu on non-devicetree platforms
+Date: Fri, 14 Feb 2020 17:04:10 +0100
+Message-ID: <20200214160413.1475396-1-jean-philippe@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200214160149.11681-1-sashal@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,36 +15,61 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Sasha Levin <sashal@kernel.org>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, spice-devel@lists.freedesktop.org, Markus Elfring <elfring@users.sourceforge.net>
+To: iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, linux-pci@vger.kernel.org
+Cc: mst@redhat.com, joro@8bytes.org, eric.auger@redhat.com, sebastien.boeuf@intel.com, jacob.jun.pan@intel.com, bhelgaas@google.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogTWFya3VzIEVsZnJpbmcgPGVsZnJpbmdAdXNlcnMuc291cmNlZm9yZ2UubmV0PgoKWyBV
-cHN0cmVhbSBjb21taXQgZGJlM2FkNjFkY2ViYzQ5ZmUzZWZjYTcwYTBmNzUyYTk1YjQ2MDBmMiBd
-CgpBIGNvY2NpY2hlY2sgcnVuIHByb3ZpZGVkIGluZm9ybWF0aW9uIGxpa2UgdGhlIGZvbGxvd2lu
-Zy4KCmRyaXZlcnMvZ3B1L2RybS9xeGwvcXhsX2ttcy5jOjI5NToxLTc6IEVSUk9SOiBtaXNzaW5n
-IGlvdW5tYXA7CmlvcmVtYXAgb24gbGluZSAxNzggYW5kIGV4ZWN1dGlvbiB2aWEgY29uZGl0aW9u
-YWwgb24gbGluZSAxODUKCkdlbmVyYXRlZCBieTogc2NyaXB0cy9jb2NjaW5lbGxlL2ZyZWUvaW91
-bm1hcC5jb2NjaQoKQSBqdW1wIHRhcmdldCB3YXMgc3BlY2lmaWVkIGluIGFuIGlmIGJyYW5jaC4g
-VGhlIGNvcnJlc3BvbmRpbmcgZnVuY3Rpb24KY2FsbCBkaWQgbm90IHJlbGVhc2UgdGhlIGRlc2ly
-ZWQgc3lzdGVtIHJlc291cmNlIHRoZW4uClRodXMgdXNlIHRoZSBsYWJlbCDigJxyb21fdW5tYXDi
-gJ0gaW5zdGVhZCB0byBmaXggdGhlIGV4Y2VwdGlvbiBoYW5kbGluZwpmb3IgdGhpcyBmdW5jdGlv
-biBpbXBsZW1lbnRhdGlvbi4KCkZpeGVzOiA1MDQzMzQ4YTQ5NjlhZTE2NjFjMDA4ZWZlOTI5YWJk
-MGQ3NmUzNzkyICgiZHJtOiBxeGw6IEZpeCBlcnJvciBoYW5kbGluZyBhdCBxeGxfZGV2aWNlX2lu
-aXQiKQpTaWduZWQtb2ZmLWJ5OiBNYXJrdXMgRWxmcmluZyA8ZWxmcmluZ0B1c2Vycy5zb3VyY2Vm
-b3JnZS5uZXQ+Ckxpbms6IGh0dHA6Ly9wYXRjaHdvcmsuZnJlZWRlc2t0b3Aub3JnL3BhdGNoL21z
-Z2lkLzVlNWVmOWM0LTRkODUtM2M5My1jZjI4LTQyY2ZjYjViMDY0OUB3ZWIuZGUKU2lnbmVkLW9m
-Zi1ieTogR2VyZCBIb2ZmbWFubiA8a3JheGVsQHJlZGhhdC5jb20+ClNpZ25lZC1vZmYtYnk6IFNh
-c2hhIExldmluIDxzYXNoYWxAa2VybmVsLm9yZz4KLS0tCiBkcml2ZXJzL2dwdS9kcm0vcXhsL3F4
-bF9rbXMuYyB8IDIgKy0KIDEgZmlsZSBjaGFuZ2VkLCAxIGluc2VydGlvbigrKSwgMSBkZWxldGlv
-bigtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS9xeGwvcXhsX2ttcy5jIGIvZHJpdmVy
-cy9ncHUvZHJtL3F4bC9xeGxfa21zLmMKaW5kZXggNjExY2JlN2FlZTY5MC4uYmZjMTYzMTA5M2U5
-YiAxMDA2NDQKLS0tIGEvZHJpdmVycy9ncHUvZHJtL3F4bC9xeGxfa21zLmMKKysrIGIvZHJpdmVy
-cy9ncHUvZHJtL3F4bC9xeGxfa21zLmMKQEAgLTE4NCw3ICsxODQsNyBAQCBpbnQgcXhsX2Rldmlj
-ZV9pbml0KHN0cnVjdCBxeGxfZGV2aWNlICpxZGV2LAogCiAJaWYgKCFxeGxfY2hlY2tfZGV2aWNl
-KHFkZXYpKSB7CiAJCXIgPSAtRU5PREVWOwotCQlnb3RvIHN1cmZhY2VfbWFwcGluZ19mcmVlOwor
-CQlnb3RvIHJvbV91bm1hcDsKIAl9CiAKIAlyID0gcXhsX2JvX2luaXQocWRldik7Ci0tIAoyLjIw
-LjEKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
-YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
-aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
-by92aXJ0dWFsaXphdGlvbg==
+Add topology description to the virtio-iommu driver and enable x86
+platforms. Since the RFC [1] I've mostly given up on ACPI tables, since
+the internal discussions seem to have reached a dead end. The built-in
+topology description presented here isn't ideal, but it is simple to
+implement and doesn't impose a dependency on ACPI or device-tree, which
+can be beneficial to lightweight hypervisors.
+
+The built-in description is an array in the virtio config space. The
+driver parses the config space early and postpones endpoint probe until
+the virtio-iommu device is ready. Each element in the array describes
+either a PCI range or a single MMIO endpoint, and their associated
+endpoint IDs:
+
+struct virtio_iommu_topo_pci_range {
+	__le16 type;			/* 1: PCI range */
+	__le16 hierarchy;		/* PCI domain number */
+	__le16 requester_start;		/* First BDF */
+	__le16 requester_end;		/* Last BDF */
+	__le32 endpoint_start;		/* First endpoint ID */
+};
+
+struct virtio_iommu_topo_endpoint {
+	__le16 type;			/* 2: Endpoint */
+	__le16 reserved;		/* 0 */
+	__le32 endpoint;		/* Endpoint ID */
+	__le64 address;			/* First MMIO address */
+};
+
+You can find the QEMU patches based on Eric's latest device on my
+virtio-iommu/devel branch [2]. I test on both x86 q35, and aarch64 virt
+machine with edk2.
+
+[1] https://lore.kernel.org/linux-iommu/20191122105000.800410-1-jean-philippe@linaro.org/
+[2] https://jpbrucker.net/git/qemu virtio-iommu/devel
+
+Jean-Philippe Brucker (3):
+  iommu/virtio: Add topology description to virtio-iommu config space
+  PCI: Add DMA configuration for virtual platforms
+  iommu/virtio: Enable x86 support
+
+ MAINTAINERS                           |   2 +
+ drivers/iommu/Kconfig                 |  13 +-
+ drivers/iommu/Makefile                |   1 +
+ drivers/iommu/virtio-iommu-topology.c | 343 ++++++++++++++++++++++++++
+ drivers/iommu/virtio-iommu.c          |   3 +
+ drivers/pci/pci-driver.c              |   5 +
+ include/linux/virt_iommu.h            |  19 ++
+ include/uapi/linux/virtio_iommu.h     |  26 ++
+ 8 files changed, 411 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/iommu/virtio-iommu-topology.c
+ create mode 100644 include/linux/virt_iommu.h
+
+-- 
+2.25.0
