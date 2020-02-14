@@ -1,18 +1,18 @@
 From: Tyler Sanderson via Virtualization
  <virtualization@lists.linux-foundation.org>
-Subject: Re: [PATCH RFC] virtio_balloon: conservative balloon page shrinking
-Date: Fri, 14 Feb 2020 12:22:36 -0800
-Message-ID: <CAJuQAmpbNDhcJXrxO46ikivuzE3w9Bqp7BJzAxnFR-bo5Kw5Aw@mail.gmail.com>
-References: <345addae-0945-2f49-52cf-8e53446e63b2@i-love.sakura.ne.jp>
- <286AC319A985734F985F78AFA26841F73E429F32@shsmsx102.ccr.corp.intel.com>
- <202002100357.01A3vNNU089831@www262.sakura.ne.jp>
- <286AC319A985734F985F78AFA26841F73E42AD6D@shsmsx102.ccr.corp.intel.com>
- <51306985-90ac-6e6b-d085-4e076698c48c@i-love.sakura.ne.jp>
+Subject: Re: [PATCH v1 3/3] virtio-balloon: Switch back to OOM handler for
+ VIRTIO_BALLOON_F_DEFLATE_ON_OOM
+Date: Fri, 14 Feb 2020 12:48:42 -0800
+Message-ID: <CAJuQAmpGKcyWo8Ojnia_pXZAaOt98u0c_Sk-8ieCO218hutW1g@mail.gmail.com>
+References: <20200205163402.42627-1-david@redhat.com>
+ <20200205163402.42627-4-david@redhat.com>
+ <20200214140641.GB31689@dhcp22.suse.cz>
+ <802f93b1-1588-bd2c-8238-c12ec7f7ae9e@redhat.com>
 Reply-To: Tyler Sanderson <tysand@google.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1888424916671118205=="
+Content-Type: multipart/mixed; boundary="===============5193468567358900890=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <51306985-90ac-6e6b-d085-4e076698c48c@i-love.sakura.ne.jp>
+In-Reply-To: <802f93b1-1588-bd2c-8238-c12ec7f7ae9e@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,168 +22,159 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Cc: "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "namit@vmware.com" <namit@vmware.com>, "rientjes@google.com" <rientjes@google.com>, "alexander.h.duyck@linux.intel.com" <alexander.h.duyck@linux.intel.com>, "mhocko@kernel.org" <mhocko@kernel.org>
+To: David Hildenbrand <david@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Nadav Amit <namit@vmware.com>, David Rientjes <rientjes@google.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Michal Hocko <mhocko@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============1888424916671118205==
-Content-Type: multipart/alternative; boundary="0000000000000b6b64059e8ef85d"
+--===============5193468567358900890==
+Content-Type: multipart/alternative; boundary="000000000000685d73059e8f55b9"
 
---0000000000000b6b64059e8ef85d
+--000000000000685d73059e8f55b9
 Content-Type: text/plain; charset="UTF-8"
 
-Sorry for the slow reply.
+Regarding Wei's patch that modifies the shrinker implementation, versus
+this patch which reverts to OOM notifier:
+I am in favor of both patches. But I do want to make sure a fix gets back
+ported to 4.19 where the performance regression was first introduced.
+My concern with reverting to the OOM notifier is, as mst@ put it (in the
+other thread):
+"when linux hits OOM all kind of error paths are being hit, latent bugs
+start triggering, latency goes up drastically."
+The guest could be in a lot of pain before the OOM notifier is invoked, and
+it seems like the shrinker API might allow more fine grained control of
+when we deflate.
 
-Re: Module parameters: I prefer not to have module parameters since they
-are controlled by the guest. In general, in virtualized environments the
-admins controlling the hypervisor are more knowledgeable about these things
-than the users. A feature bit seems useful so that the host knows what the
-guest behavior will be, and can change the host side implementation to make
-the experience good for the guest.
+On the other hand, I'm not totally convinced that Wei's patch is an
+expected use of the shrinker/page-cache APIs, and maybe it is fragile.
+Needs more testing and scrutiny.
 
-I worry that requiring global_node_page_state(NR_FILE_PAGES) == 0 before
-allowing deflation is too strict. One of the benefits of the shrinker API
-is that it is invoked before vmscan.c has gone through heroic efforts to
-reclaim the world. I'm not familiar enough with the code to judge how this
-patch impacts this, but would it be beneficial to allow deflation when
-vmscan.c is trying "too hard" to reclaim pages? Is there some softer
-condition than "global_node_page_state(NR_FILE_PAGES) == 0"?
+It seems to me like the shrinker API is the right API in the long run,
+perhaps with some fixes and modifications. But maybe reverting to OOM
+notifier is the best patch to back port?
 
-For my own understanding, does this patch work by returning 0 pages when
-asked for pages? Are there cases where that results in an unnecessary OOM?
-For example, if global_node_page_state(NR_FILE_PAGES) == 1, and the guest
-needs 2?
+On Fri, Feb 14, 2020 at 6:19 AM David Hildenbrand <david@redhat.com> wrote:
 
-Regarding other shrinkers (like KVM MMU cache): Reclaiming other shrinkers
-first would match the behavior of DEFLATE_ON_OOM when it was using the OOM
-notifier callback. On the other hand (awkwardly), the memory stats reported
-on the stats queue for "available memory" do not count shrinker memory as
-"available". So a balloon implementation that aims to reclaim some amount
-of available memory would not be able to tell how much memory was in the
-shrinkers and probably doesn't expect to reclaim them. For this reason, I
-think only looking at page cache size is the right choice. There should be
-a 1:1 relationship between stats reported and when DEFLATE_ON_OOM is
-invoked. Maybe in the future we add another stat that reports shrinker
-sizes, in which case we should also add a feature bit that allows other
-shrinkers to be pressured.
-
-Regarding NUMA awareness: I agree it's out of scope for this patch since
-all implementations so far are not NUMA aware.
-
-Would it be possible to back port this patch to 4.19 when the change to
-shrinker API was made?
-
-On Tue, Feb 11, 2020 at 6:20 AM Tetsuo Handa <
-penguin-kernel@i-love.sakura.ne.jp> wrote:
-
-> On 2020/02/10 16:27, Wang, Wei W wrote:
-> >> Well, my comment is rather: "Do not try to reserve guest's memory. In
-> other
-> >> words, do not try to maintain balloons on the guest side. Since host
-> would
-> >> be able to cache file data on the host's cache, guests would be able to
-> >> quickly fetch file data from host's cache via normal I/O requests." ;-)
+> >> There was a report that this results in undesired side effects when
+> >> inflating the balloon to shrink the page cache. [1]
+> >>      "When inflating the balloon against page cache (i.e. no free memory
+> >>       remains) vmscan.c will both shrink page cache, but also invoke the
+> >>       shrinkers -- including the balloon's shrinker. So the balloon
+> >>       driver allocates memory which requires reclaim, vmscan gets this
+> >>       memory by shrinking the balloon, and then the driver adds the
+> >>       memory back to the balloon. Basically a busy no-op."
+> >>
+> >> The name "deflate on OOM" makes it pretty clear when deflation should
+> >> happen - after other approaches to reclaim memory failed, not while
+> >> reclaiming. This allows to minimize the footprint of a guest - memory
+> >> will only be taken out of the balloon when really needed.
+> >>
+> >> Especially, a drop_slab() will result in the whole balloon getting
+> >> deflated - undesired.
 > >
-> > Didn't this one. The discussion was about guest pagecache pages v.s.
-> guest balloon pages.
-> > Why is host's pagecache here?
+> > Could you explain why some more? drop_caches shouldn't be really used in
+> > any production workloads and if somebody really wants all the cache to
+> > be dropped then why is balloon any different?
+> >
 >
-> I'm expecting a mode: "Guests should try to minimize pagecache pages (and
-> teach
-> host to treat reclaimed pages as if POSIX_FADV_DONTNEED) instead of
-> managing
-> guest balloon pages". In other words, as if
+> Deflation should happen when the guest is out of memory, not when
+> somebody thinks it's time to reclaim some memory. That's what the
+> feature promised from the beginning: Only give the guest more memory in
+> case it *really* needs more memory.
 >
->   while :; sleep 5; echo 1 > /proc/sys/vm/drop_caches; done
+> Deflate on oom, not deflate on reclaim/memory pressure. (that's what the
+> report was all about)
 >
-> is running in the guest's kernel. And as if
+> A priority for shrinkers might be a step into the right direction.
 >
->   echo 2 > /proc/sys/vm/drop_caches
+> --
+> Thanks,
 >
-> is triggered in the guest's kernel when host requested guests to reclaim
-> memory. No long-life balloons. Guest balloons do not need to care about
-> NUMA. Just leave the management of pagecache pages to the host.
+> David / dhildenb
 >
 >
 
---0000000000000b6b64059e8ef85d
+--000000000000685d73059e8f55b9
 Content-Type: text/html; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-<div dir=3D"ltr">Sorry for the slow reply.<div><br></div><div>Re: Module pa=
-rameters: I prefer not to have module parameters since they are controlled =
-by the guest. In general, in virtualized environments the admins controllin=
-g the hypervisor are more knowledgeable=C2=A0about these things than the us=
-ers. A feature bit seems useful so that the host knows what the guest behav=
-ior will be, and can change the host side implementation to make the experi=
-ence good for the guest.</div><div><br></div><div>I worry that requiring gl=
-obal_node_page_state(NR_FILE_PAGES) =3D=3D 0 before allowing deflation is t=
-oo strict. One of the benefits of the shrinker API is that it is invoked be=
-fore vmscan.c has gone through heroic efforts to reclaim the world. I&#39;m=
- not familiar enough with the code to judge how this patch impacts this, bu=
-t would it be beneficial to allow deflation when vmscan.c is trying &quot;t=
-oo hard&quot; to reclaim pages? Is there some softer condition than &quot;g=
-lobal_node_page_state(NR_FILE_PAGES) =3D=3D 0&quot;?</div><div><br></div><d=
-iv>For my own understanding, does this patch work by returning 0 pages when=
- asked for pages? Are there cases where that results in an unnecessary OOM?=
- For example, if global_node_page_state(NR_FILE_PAGES) =3D=3D 1, and the gu=
-est needs 2?</div><div><br></div><div>Regarding other shrinkers (like KVM M=
-MU cache): Reclaiming other shrinkers first would match the behavior of DEF=
-LATE_ON_OOM when it was using the OOM notifier callback. On the other hand =
-(awkwardly), the memory stats reported on the stats queue for &quot;availab=
-le memory&quot; do not count shrinker memory as &quot;available&quot;. So a=
- balloon implementation that aims to reclaim some amount of available memor=
-y would not be able to tell how much memory was in the shrinkers and probab=
-ly doesn&#39;t expect to reclaim them. For this reason, I think only lookin=
-g at page=C2=A0cache size is the right choice. There should be a 1:1 relati=
-onship between stats reported and when DEFLATE_ON_OOM is invoked. Maybe in =
-the future we add another stat that reports shrinker sizes, in which case w=
-e should also add a feature bit that allows other shrinkers to be pressured=
-.</div><div><br></div><div>Regarding NUMA awareness: I agree it&#39;s out o=
-f scope for this patch since all implementations so far are not NUMA aware.=
-</div><div><br></div><div>Would it be possible to back port this patch to 4=
-.19 when the change to shrinker API was made?</div></div><br><div class=3D"=
-gmail_quote"><div dir=3D"ltr" class=3D"gmail_attr">On Tue, Feb 11, 2020 at =
-6:20 AM Tetsuo Handa &lt;<a href=3D"mailto:penguin-kernel@i-love.sakura.ne.=
-jp">penguin-kernel@i-love.sakura.ne.jp</a>&gt; wrote:<br></div><blockquote =
-class=3D"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border-left:1px sol=
-id rgb(204,204,204);padding-left:1ex">On 2020/02/10 16:27, Wang, Wei W wrot=
-e:<br>
-&gt;&gt; Well, my comment is rather: &quot;Do not try to reserve guest&#39;=
-s memory. In other<br>
-&gt;&gt; words, do not try to maintain balloons on the guest side. Since ho=
-st would<br>
-&gt;&gt; be able to cache file data on the host&#39;s cache, guests would b=
-e able to<br>
-&gt;&gt; quickly fetch file data from host&#39;s cache via normal I/O reque=
-sts.&quot; ;-)<br>
+<div dir=3D"ltr"><div>Regarding Wei&#39;s patch that modifies the shrinker =
+implementation, versus this patch which reverts to OOM notifier:</div><div>=
+I am in favor of both patches. But I do want to make sure a fix gets back p=
+orted to 4.19 where the performance regression was first introduced.</div><=
+div>My concern with reverting to the OOM notifier is, as mst@ put it (in th=
+e other thread):<br><span style=3D"color:rgb(80,0,80)">&quot;when linux hit=
+s OOM=C2=A0</span><span style=3D"color:rgb(80,0,80)">all kind of error path=
+s are being hit, latent bugs start triggering,=C2=A0</span><span style=3D"c=
+olor:rgb(80,0,80)">latency goes up drastically.&quot;</span><br></div><div>=
+The guest could be in a lot of pain before the OOM notifier is invoked, and=
+ it seems like the shrinker API might allow more fine grained control of wh=
+en we deflate.</div><div><br></div><div>On the other hand, I&#39;m not tota=
+lly convinced that Wei&#39;s patch is an expected use of the shrinker/page-=
+cache APIs, and maybe it is fragile. Needs more testing=C2=A0and scrutiny.<=
+/div><div><br></div><div>It seems to me like the shrinker API is the right =
+API in the long run, perhaps with some fixes and modifications. But maybe r=
+everting to OOM notifier is the best patch to back port?</div><br><div clas=
+s=3D"gmail_quote"><div dir=3D"ltr" class=3D"gmail_attr">On Fri, Feb 14, 202=
+0 at 6:19 AM David Hildenbrand &lt;<a href=3D"mailto:david@redhat.com" targ=
+et=3D"_blank">david@redhat.com</a>&gt; wrote:<br></div><blockquote class=3D=
+"gmail_quote" style=3D"margin:0px 0px 0px 0.8ex;border-left:1px solid rgb(2=
+04,204,204);padding-left:1ex">&gt;&gt; There was a report that this results=
+ in undesired side effects when<br>
+&gt;&gt; inflating the balloon to shrink the page cache. [1]<br>
+&gt;&gt;=C2=A0 =C2=A0 =C2=A0 &quot;When inflating the balloon against page =
+cache (i.e. no free memory<br>
+&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0remains) vmscan.c will both shrink page =
+cache, but also invoke the<br>
+&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0shrinkers -- including the balloon&#39;s=
+ shrinker. So the balloon<br>
+&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0driver allocates memory which requires r=
+eclaim, vmscan gets this<br>
+&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0memory by shrinking the balloon, and the=
+n the driver adds the<br>
+&gt;&gt;=C2=A0 =C2=A0 =C2=A0 =C2=A0memory back to the balloon. Basically a =
+busy no-op.&quot;<br>
+&gt;&gt;<br>
+&gt;&gt; The name &quot;deflate on OOM&quot; makes it pretty clear when def=
+lation should<br>
+&gt;&gt; happen - after other approaches to reclaim memory failed, not whil=
+e<br>
+&gt;&gt; reclaiming. This allows to minimize the footprint of a guest - mem=
+ory<br>
+&gt;&gt; will only be taken out of the balloon when really needed.<br>
+&gt;&gt;<br>
+&gt;&gt; Especially, a drop_slab() will result in the whole balloon getting=
+<br>
+&gt;&gt; deflated - undesired.<br>
 &gt; <br>
-&gt; Didn&#39;t this one. The discussion was about guest pagecache pages v.=
-s. guest balloon pages.<br>
-&gt; Why is host&#39;s pagecache here?<br>
+&gt; Could you explain why some more? drop_caches shouldn&#39;t be really u=
+sed in<br>
+&gt; any production workloads and if somebody really wants all the cache to=
 <br>
-I&#39;m expecting a mode: &quot;Guests should try to minimize pagecache pag=
-es (and teach<br>
-host to treat reclaimed pages as if POSIX_FADV_DONTNEED) instead of managin=
-g<br>
-guest balloon pages&quot;. In other words, as if<br>
+&gt; be dropped then why is balloon any different?<br>
+&gt; <br>
 <br>
-=C2=A0 while :; sleep 5; echo 1 &gt; /proc/sys/vm/drop_caches; done<br>
+Deflation should happen when the guest is out of memory, not when<br>
+somebody thinks it&#39;s time to reclaim some memory. That&#39;s what the<b=
+r>
+feature promised from the beginning: Only give the guest more memory in<br>
+case it *really* needs more memory.<br>
 <br>
-is running in the guest&#39;s kernel. And as if<br>
+Deflate on oom, not deflate on reclaim/memory pressure. (that&#39;s what th=
+e<br>
+report was all about)<br>
 <br>
-=C2=A0 echo 2 &gt; /proc/sys/vm/drop_caches<br>
+A priority for shrinkers might be a step into the right direction.<br>
 <br>
-is triggered in the guest&#39;s kernel when host requested guests to reclai=
-m<br>
-memory. No long-life balloons. Guest balloons do not need to care about<br>
-NUMA. Just leave the management of pagecache pages to the host.<br>
+-- <br>
+Thanks,<br>
 <br>
-</blockquote></div>
+David / dhildenb<br>
+<br>
+</blockquote></div></div>
 
---0000000000000b6b64059e8ef85d--
+--000000000000685d73059e8f55b9--
 
---===============1888424916671118205==
+--===============5193468567358900890==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -193,4 +184,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1888424916671118205==--
+--===============5193468567358900890==--
