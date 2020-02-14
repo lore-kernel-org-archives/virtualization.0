@@ -1,308 +1,76 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH v4 1/6] drm/virtio: rework notification for better batching
-Date: Fri, 14 Feb 2020 13:55:30 +0100
-Message-ID: <20200214125535.26349-2-kraxel@redhat.com>
-References: <20200214125535.26349-1-kraxel@redhat.com>
+From: "Wang, Wei W" <wei.w.wang@intel.com>
+Subject: RE: [PATCH v1 3/3] virtio-balloon: Switch back to OOM handler for
+ VIRTIO_BALLOON_F_DEFLATE_ON_OOM
+Date: Fri, 14 Feb 2020 13:31:51 +0000
+Message-ID: <286AC319A985734F985F78AFA26841F73E4392AF@shsmsx102.ccr.corp.intel.com>
+References: <20200205163402.42627-1-david@redhat.com>
+ <20200205163402.42627-4-david@redhat.com>
+ <f31eff75-b328-de41-c2cc-e55471aa27d8@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200214125535.26349-1-kraxel@redhat.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: dri-devel@lists.freedesktop.org
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>, gurchetansingh@chromium.org, olvaffe@gmail.com
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <f31eff75-b328-de41-c2cc-e55471aa27d8@redhat.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: "linux-mm@kvack.org" <linux-mm@kvack.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Tyler Sanderson <tysand@google.com>, "Michael S . Tsirkin" <mst@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, David Rientjes <rientjes@google.com>, Nadav Amit <namit@vmware.com>, Michal Hocko <mhocko@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Drop the virtio_gpu_{disable,enable}_notify().  Add a new
-virtio_gpu_notify() call instead, which must be called whenever
-the driver wants make sure the host is notified needed.
-
-Drop automatic notification from command submission.  Add
-virtio_gpu_notify() calls after each command query instead.
-This allows more fine-grained control over host notification
-and can move around the notify calls in subsequent patches to
-batch command submissions. With this in place it is also
-possible to make notification optional for userspace ioctls.
-
-Page flip batching goes away (temporarely).
-
-v3:
- - move batching to separate patches.
-v2:
- - rebase to latest drm-misc-next.
- - use "if (!atomic_read())".
- - add review & test tags.
-
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Reviewed-by: Gurchetan Singh <gurchetansingh@chromium.org>
-Tested-by: Gurchetan Singh <gurchetansingh@chromium.org>
-Reviewed-by: Chia-I Wu <olvaffe@gmail.com>
----
- drivers/gpu/drm/virtio/virtgpu_drv.h   |  6 ++--
- drivers/gpu/drm/virtio/virtgpu_plane.c |  4 ---
- drivers/gpu/drm/virtio/virtgpu_vq.c    | 50 ++++++++++++++++----------
- 3 files changed, 33 insertions(+), 27 deletions(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index af9403e1cf78..2f6c4ccbfd14 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -179,8 +179,7 @@ struct virtio_gpu_device {
- 	struct virtio_gpu_queue cursorq;
- 	struct kmem_cache *vbufs;
- 
--	bool disable_notify;
--	bool pending_notify;
-+	atomic_t pending_commands;
- 
- 	struct ida	resource_ida;
- 
-@@ -335,8 +334,7 @@ void virtio_gpu_dequeue_ctrl_func(struct work_struct *work);
- void virtio_gpu_dequeue_cursor_func(struct work_struct *work);
- void virtio_gpu_dequeue_fence_func(struct work_struct *work);
- 
--void virtio_gpu_disable_notify(struct virtio_gpu_device *vgdev);
--void virtio_gpu_enable_notify(struct virtio_gpu_device *vgdev);
-+void virtio_gpu_notify(struct virtio_gpu_device *vgdev);
- 
- /* virtio_gpu_display.c */
- void virtio_gpu_modeset_init(struct virtio_gpu_device *vgdev);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-index d1c3f5fbfee4..08b2e4127eb3 100644
---- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-@@ -154,8 +154,6 @@ static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
- 	if (!drm_atomic_helper_damage_merged(old_state, plane->state, &rect))
- 		return;
- 
--	virtio_gpu_disable_notify(vgdev);
--
- 	bo = gem_to_virtio_gpu_obj(plane->state->fb->obj[0]);
- 	if (bo->dumb)
- 		virtio_gpu_update_dumb_bo(vgdev, plane->state, &rect);
-@@ -186,8 +184,6 @@ static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
- 				      rect.y1,
- 				      rect.x2 - rect.x1,
- 				      rect.y2 - rect.y1);
--
--	virtio_gpu_enable_notify(vgdev);
- }
- 
- static int virtio_gpu_cursor_prepare_fb(struct drm_plane *plane,
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 67caecde623e..6cc259cfa517 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -329,7 +329,6 @@ static void virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
- 				      int incnt)
- {
- 	struct virtqueue *vq = vgdev->ctrlq.vq;
--	bool notify = false;
- 	int ret, idx;
- 
- 	if (!drm_dev_enter(vgdev->ddev, &idx)) {
-@@ -368,16 +367,10 @@ static void virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
- 
- 	trace_virtio_gpu_cmd_queue(vq, virtio_gpu_vbuf_ctrl_hdr(vbuf));
- 
--	notify = virtqueue_kick_prepare(vq);
-+	atomic_inc(&vgdev->pending_commands);
- 
- 	spin_unlock(&vgdev->ctrlq.qlock);
- 
--	if (notify) {
--		if (vgdev->disable_notify)
--			vgdev->pending_notify = true;
--		else
--			virtqueue_notify(vq);
--	}
- 	drm_dev_exit(idx);
- }
- 
-@@ -434,19 +427,20 @@ static void virtio_gpu_queue_fenced_ctrl_buffer(struct virtio_gpu_device *vgdev,
- 	}
- }
- 
--void virtio_gpu_disable_notify(struct virtio_gpu_device *vgdev)
-+void virtio_gpu_notify(struct virtio_gpu_device *vgdev)
- {
--	vgdev->disable_notify = true;
--}
-+	bool notify;
- 
--void virtio_gpu_enable_notify(struct virtio_gpu_device *vgdev)
--{
--	vgdev->disable_notify = false;
--
--	if (!vgdev->pending_notify)
-+	if (!atomic_read(&vgdev->pending_commands))
- 		return;
--	vgdev->pending_notify = false;
--	virtqueue_notify(vgdev->ctrlq.vq);
-+
-+	spin_lock(&vgdev->ctrlq.qlock);
-+	atomic_set(&vgdev->pending_commands, 0);
-+	notify = virtqueue_kick_prepare(vgdev->ctrlq.vq);
-+	spin_unlock(&vgdev->ctrlq.qlock);
-+
-+	if (notify)
-+		virtqueue_notify(vgdev->ctrlq.vq);
- }
- 
- static void virtio_gpu_queue_ctrl_buffer(struct virtio_gpu_device *vgdev,
-@@ -520,6 +514,7 @@ void virtio_gpu_cmd_create_resource(struct virtio_gpu_device *vgdev,
- 	cmd_p->height = cpu_to_le32(params->height);
- 
- 	virtio_gpu_queue_fenced_ctrl_buffer(vgdev, vbuf, fence);
-+	virtio_gpu_notify(vgdev);
- 	bo->created = true;
- }
- 
-@@ -549,6 +544,7 @@ void virtio_gpu_cmd_unref_resource(struct virtio_gpu_device *vgdev,
- 
- 	vbuf->resp_cb_data = bo;
- 	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
-+	virtio_gpu_notify(vgdev);
- }
- 
- void virtio_gpu_cmd_set_scanout(struct virtio_gpu_device *vgdev,
-@@ -571,6 +567,7 @@ void virtio_gpu_cmd_set_scanout(struct virtio_gpu_device *vgdev,
- 	cmd_p->r.y = cpu_to_le32(y);
- 
- 	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
-+	virtio_gpu_notify(vgdev);
- }
- 
- void virtio_gpu_cmd_resource_flush(struct virtio_gpu_device *vgdev,
-@@ -592,6 +589,7 @@ void virtio_gpu_cmd_resource_flush(struct virtio_gpu_device *vgdev,
- 	cmd_p->r.y = cpu_to_le32(y);
- 
- 	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
-+	virtio_gpu_notify(vgdev);
- }
- 
- void virtio_gpu_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
-@@ -624,6 +622,7 @@ void virtio_gpu_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
- 	cmd_p->r.y = cpu_to_le32(y);
- 
- 	virtio_gpu_queue_fenced_ctrl_buffer(vgdev, vbuf, fence);
-+	virtio_gpu_notify(vgdev);
- }
- 
- static void
-@@ -647,6 +646,7 @@ virtio_gpu_cmd_resource_attach_backing(struct virtio_gpu_device *vgdev,
- 	vbuf->data_size = sizeof(*ents) * nents;
- 
- 	virtio_gpu_queue_fenced_ctrl_buffer(vgdev, vbuf, fence);
-+	virtio_gpu_notify(vgdev);
- }
- 
- static void virtio_gpu_cmd_get_display_info_cb(struct virtio_gpu_device *vgdev,
-@@ -779,6 +779,7 @@ int virtio_gpu_cmd_get_display_info(struct virtio_gpu_device *vgdev)
- 	vgdev->display_info_pending = true;
- 	cmd_p->type = cpu_to_le32(VIRTIO_GPU_CMD_GET_DISPLAY_INFO);
- 	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
-+	virtio_gpu_notify(vgdev);
- 	return 0;
- }
- 
-@@ -802,6 +803,7 @@ int virtio_gpu_cmd_get_capset_info(struct virtio_gpu_device *vgdev, int idx)
- 	cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_GET_CAPSET_INFO);
- 	cmd_p->capset_index = cpu_to_le32(idx);
- 	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
-+	virtio_gpu_notify(vgdev);
- 	return 0;
- }
- 
-@@ -877,6 +879,7 @@ int virtio_gpu_cmd_get_capset(struct virtio_gpu_device *vgdev,
- 	cmd_p->capset_version = cpu_to_le32(version);
- 	*cache_p = cache_ent;
- 	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
-+	virtio_gpu_notify(vgdev);
- 
- 	return 0;
- }
-@@ -904,6 +907,7 @@ int virtio_gpu_cmd_get_edids(struct virtio_gpu_device *vgdev)
- 		cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_GET_EDID);
- 		cmd_p->scanout = cpu_to_le32(scanout);
- 		virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
-+		virtio_gpu_notify(vgdev);
- 	}
- 
- 	return 0;
-@@ -924,6 +928,7 @@ void virtio_gpu_cmd_context_create(struct virtio_gpu_device *vgdev, uint32_t id,
- 	strncpy(cmd_p->debug_name, name, sizeof(cmd_p->debug_name) - 1);
- 	cmd_p->debug_name[sizeof(cmd_p->debug_name) - 1] = 0;
- 	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
-+	virtio_gpu_notify(vgdev);
- }
- 
- void virtio_gpu_cmd_context_destroy(struct virtio_gpu_device *vgdev,
-@@ -938,6 +943,7 @@ void virtio_gpu_cmd_context_destroy(struct virtio_gpu_device *vgdev,
- 	cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_CTX_DESTROY);
- 	cmd_p->hdr.ctx_id = cpu_to_le32(id);
- 	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
-+	virtio_gpu_notify(vgdev);
- }
- 
- void virtio_gpu_cmd_context_attach_resource(struct virtio_gpu_device *vgdev,
-@@ -956,7 +962,7 @@ void virtio_gpu_cmd_context_attach_resource(struct virtio_gpu_device *vgdev,
- 	cmd_p->hdr.ctx_id = cpu_to_le32(ctx_id);
- 	cmd_p->resource_id = cpu_to_le32(bo->hw_res_handle);
- 	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
--
-+	virtio_gpu_notify(vgdev);
- }
- 
- void virtio_gpu_cmd_context_detach_resource(struct virtio_gpu_device *vgdev,
-@@ -975,6 +981,7 @@ void virtio_gpu_cmd_context_detach_resource(struct virtio_gpu_device *vgdev,
- 	cmd_p->hdr.ctx_id = cpu_to_le32(ctx_id);
- 	cmd_p->resource_id = cpu_to_le32(bo->hw_res_handle);
- 	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
-+	virtio_gpu_notify(vgdev);
- }
- 
- void
-@@ -1006,6 +1013,8 @@ virtio_gpu_cmd_resource_create_3d(struct virtio_gpu_device *vgdev,
- 	cmd_p->flags = cpu_to_le32(params->flags);
- 
- 	virtio_gpu_queue_fenced_ctrl_buffer(vgdev, vbuf, fence);
-+	virtio_gpu_notify(vgdev);
-+
- 	bo->created = true;
- }
- 
-@@ -1039,6 +1048,7 @@ void virtio_gpu_cmd_transfer_to_host_3d(struct virtio_gpu_device *vgdev,
- 	cmd_p->level = cpu_to_le32(level);
- 
- 	virtio_gpu_queue_fenced_ctrl_buffer(vgdev, vbuf, fence);
-+	virtio_gpu_notify(vgdev);
- }
- 
- void virtio_gpu_cmd_transfer_from_host_3d(struct virtio_gpu_device *vgdev,
-@@ -1065,6 +1075,7 @@ void virtio_gpu_cmd_transfer_from_host_3d(struct virtio_gpu_device *vgdev,
- 	cmd_p->level = cpu_to_le32(level);
- 
- 	virtio_gpu_queue_fenced_ctrl_buffer(vgdev, vbuf, fence);
-+	virtio_gpu_notify(vgdev);
- }
- 
- void virtio_gpu_cmd_submit(struct virtio_gpu_device *vgdev,
-@@ -1088,6 +1099,7 @@ void virtio_gpu_cmd_submit(struct virtio_gpu_device *vgdev,
- 	cmd_p->size = cpu_to_le32(data_size);
- 
- 	virtio_gpu_queue_fenced_ctrl_buffer(vgdev, vbuf, fence);
-+	virtio_gpu_notify(vgdev);
- }
- 
- int virtio_gpu_object_attach(struct virtio_gpu_device *vgdev,
--- 
-2.18.2
+T24gRnJpZGF5LCBGZWJydWFyeSAxNCwgMjAyMCA1OjUyIFBNLCBEYXZpZCBIaWxkZW5icmFuZCB3
+cm90ZToNCj4gPiBDb21taXQgNzE5OTQ2MjBiYjI1ICgidmlydGlvX2JhbGxvb246IHJlcGxhY2Ug
+b29tIG5vdGlmaWVyIHdpdGgNCj4gPiBzaHJpbmtlciIpIGNoYW5nZWQgdGhlIGJlaGF2aW9yIHdo
+ZW4gZGVmbGF0aW9uIGhhcHBlbnMgYXV0b21hdGljYWxseS4NCj4gPiBJbnN0ZWFkIG9mIGRlZmxh
+dGluZyB3aGVuIGNhbGxlZCBieSB0aGUgT09NIGhhbmRsZXIsIHRoZSBzaHJpbmtlciBpcyB1c2Vk
+Lg0KPiA+DQo+ID4gSG93ZXZlciwgdGhlIGJhbGxvb24gaXMgbm90IHNpbXBseSBzb21lIHNsYWIg
+Y2FjaGUgdGhhdCBzaG91bGQgYmUNCj4gPiBzaHJ1bmsgd2hlbiB1bmRlciBtZW1vcnkgcHJlc3N1
+cmUuIFRoZSBzaHJpbmtlciBkb2VzIG5vdCBoYXZlIGENCj4gPiBjb25jZXB0IG9mIHByaW9yaXRp
+ZXMsIHNvIHRoaXMgYmVoYXZpb3IgY2Fubm90IGJlIGNvbmZpZ3VyZWQuDQo+ID4NCj4gPiBUaGVy
+ZSB3YXMgYSByZXBvcnQgdGhhdCB0aGlzIHJlc3VsdHMgaW4gdW5kZXNpcmVkIHNpZGUgZWZmZWN0
+cyB3aGVuDQo+ID4gaW5mbGF0aW5nIHRoZSBiYWxsb29uIHRvIHNocmluayB0aGUgcGFnZSBjYWNo
+ZS4gWzFdDQo+ID4gCSJXaGVuIGluZmxhdGluZyB0aGUgYmFsbG9vbiBhZ2FpbnN0IHBhZ2UgY2Fj
+aGUgKGkuZS4gbm8gZnJlZSBtZW1vcnkNCj4gPiAJIHJlbWFpbnMpIHZtc2Nhbi5jIHdpbGwgYm90
+aCBzaHJpbmsgcGFnZSBjYWNoZSwgYnV0IGFsc28gaW52b2tlIHRoZQ0KPiA+IAkgc2hyaW5rZXJz
+IC0tIGluY2x1ZGluZyB0aGUgYmFsbG9vbidzIHNocmlua2VyLiBTbyB0aGUgYmFsbG9vbg0KPiA+
+IAkgZHJpdmVyIGFsbG9jYXRlcyBtZW1vcnkgd2hpY2ggcmVxdWlyZXMgcmVjbGFpbSwgdm1zY2Fu
+IGdldHMgdGhpcw0KPiA+IAkgbWVtb3J5IGJ5IHNocmlua2luZyB0aGUgYmFsbG9vbiwgYW5kIHRo
+ZW4gdGhlIGRyaXZlciBhZGRzIHRoZQ0KPiA+IAkgbWVtb3J5IGJhY2sgdG8gdGhlIGJhbGxvb24u
+IEJhc2ljYWxseSBhIGJ1c3kgbm8tb3AuIg0KPiA+DQo+ID4gVGhlIG5hbWUgImRlZmxhdGUgb24g
+T09NIiBtYWtlcyBpdCBwcmV0dHkgY2xlYXIgd2hlbiBkZWZsYXRpb24gc2hvdWxkDQo+ID4gaGFw
+cGVuIC0gYWZ0ZXIgb3RoZXIgYXBwcm9hY2hlcyB0byByZWNsYWltIG1lbW9yeSBmYWlsZWQsIG5v
+dCB3aGlsZQ0KPiA+IHJlY2xhaW1pbmcuIFRoaXMgYWxsb3dzIHRvIG1pbmltaXplIHRoZSBmb290
+cHJpbnQgb2YgYSBndWVzdCAtIG1lbW9yeQ0KPiA+IHdpbGwgb25seSBiZSB0YWtlbiBvdXQgb2Yg
+dGhlIGJhbGxvb24gd2hlbiByZWFsbHkgbmVlZGVkLg0KPiA+DQo+ID4gRXNwZWNpYWxseSwgYSBk
+cm9wX3NsYWIoKSB3aWxsIHJlc3VsdCBpbiB0aGUgd2hvbGUgYmFsbG9vbiBnZXR0aW5nDQo+ID4g
+ZGVmbGF0ZWQgLSB1bmRlc2lyZWQuIFdoaWxlIGhhbmRsaW5nIGl0IHZpYSB0aGUgT09NIGhhbmRs
+ZXIgbWlnaHQgbm90DQo+ID4gYmUgcGVyZmVjdCwgaXQga2VlcHMgZXhpc3RpbmcgYmVoYXZpb3Iu
+IElmIHdlIHdhbnQgYSBkaWZmZXJlbnQNCj4gPiBiZWhhdmlvciwgdGhlbiB3ZSBuZWVkIGEgbmV3
+IGZlYXR1cmUgYml0IGFuZCBkb2N1bWVudCBpdCBwcm9wZXJseQ0KPiA+IChhbHRob3VnaCwgdGhl
+cmUgc2hvdWxkIGJlIGEgY2xlYXIgdXNlIGNhc2UgYW5kIHRoZSBpbnRlbmRlZCBlZmZlY3RzIHNo
+b3VsZA0KPiBiZSB3ZWxsIGRlc2NyaWJlZCkuDQo+ID4NCj4gPiBLZWVwIHVzaW5nIHRoZSBzaHJp
+bmtlciBmb3IgVklSVElPX0JBTExPT05fRl9GUkVFX1BBR0VfSElOVCwNCj4gYmVjYXVzZQ0KPiA+
+IHRoaXMgaGFzIG5vIHN1Y2ggc2lkZSBlZmZlY3RzLiBBbHdheXMgcmVnaXN0ZXIgdGhlIHNocmlu
+a2VyIHdpdGgNCj4gPiBWSVJUSU9fQkFMTE9PTl9GX0ZSRUVfUEFHRV9ISU5UIG5vdy4gV2UgYXJl
+IGFsd2F5cyBhbGxvd2VkIHRvDQo+IHJldXNlDQo+ID4gZnJlZSBwYWdlcyB0aGF0IGFyZSBzdGls
+bCB0byBiZSBwcm9jZXNzZWQgYnkgdGhlIGd1ZXN0LiBUaGUgaHlwZXJ2aXNvcg0KPiA+IHRha2Vz
+IGNhcmUgb2YgaWRlbnRpZnlpbmcgYW5kIHJlc29sdmluZyBwb3NzaWJsZSByYWNlcyBiZXR3ZWVu
+DQo+ID4gcHJvY2Vzc2luZyBhIGhpbnRpbmcgcmVxdWVzdCBhbmQgdGhlIGd1ZXN0IHJldXNpbmcg
+YSBwYWdlLg0KPiA+DQo+ID4gSW4gY29udHJhc3QgdG8gcHJlIGNvbW1pdCA3MTk5NDYyMGJiMjUg
+KCJ2aXJ0aW9fYmFsbG9vbjogcmVwbGFjZSBvb20NCj4gPiBub3RpZmllciB3aXRoIHNocmlua2Vy
+IiksIGRvbid0IGFkZCBhIG1vb2R1bGUgcGFyYW1ldGVyIHRvIGNvbmZpZ3VyZQ0KPiA+IHRoZSBu
+dW1iZXIgb2YgcGFnZXMgdG8gZGVmbGF0ZSBvbiBPT00uIENhbiBiZSByZS1hZGRlZCBpZiByZWFs
+bHkgbmVlZGVkLg0KPiA+IEFsc28sIHBheSBhdHRlbnRpb24gdGhhdCBsZWFrX2JhbGxvb24oKSBy
+ZXR1cm5zIHRoZSBudW1iZXIgb2YgNGsgcGFnZXMNCj4gPiAtIGNvbnZlcnQgaXQgcHJvcGVybHkg
+aW4gdmlydGlvX2JhbGxvb25fb29tX25vdGlmeSgpLg0KPiA+DQo+ID4gTm90ZTE6IHVzaW5nIHRo
+ZSBPT00gaGFuZGxlciBpcyBmcm93bmVkIHVwb24sIGJ1dCBpdCByZWFsbHkgaXMgd2hhdCB3ZQ0K
+PiA+ICAgICAgICBuZWVkIGZvciB0aGlzIGZlYXR1cmUuDQo+ID4NCj4gPiBOb3RlMjogd2l0aG91
+dCBWSVJUSU9fQkFMTE9PTl9GX01VU1RfVEVMTF9IT1NUIChpb3csIGFsd2F5cyB3aXRoDQo+IFFF
+TVUpIHdlDQo+ID4gICAgICAgIGNvdWxkIGFjdHVhbGx5IHNraXAgc2VuZGluZyBkZWZsYXRpb24g
+cmVxdWVzdHMgdG8gb3VyIGh5cGVydmlzb3IsDQo+ID4gICAgICAgIG1ha2luZyB0aGUgT09NIHBh
+dGggKnZlcnkqIHNpbXBsZS4gQmVzaWNhbGx5IGZyZWVpbmcgcGFnZXMgYW5kDQo+ID4gICAgICAg
+IHVwZGF0aW5nIHRoZSBiYWxsb29uLiBJZiB0aGUgY29tbXVuaWNhdGlvbiB3aXRoIHRoZSBob3N0
+IGV2ZXINCj4gPiAgICAgICAgYmVjb21lcyBhIHByb2JsZW0gb24gdGhpcyBjYWxsIHBhdGguDQo+
+ID4NCj4gDQo+IEBNaWNoYWVsLCBob3cgdG8gcHJvY2VlZCB3aXRoIHRoaXM/DQo+IA0KDQpJIHZv
+dGUgZm9yIG5vdCBnb2luZyBiYWNrLiBXaGVuIHRoZXJlIGFyZSBzb2xpZCByZXF1ZXN0IGFuZCBz
+dHJvbmcgcmVhc29ucyBpbiB0aGUgZnV0dXJlLCB3ZSBjb3VsZCByZW9wZW4gdGhpcyBkaXNjdXNz
+aW9uLg0KDQpCZXN0LA0KV2VpDQo=
