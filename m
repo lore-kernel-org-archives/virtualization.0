@@ -1,15 +1,17 @@
-From: Robin Murphy <robin.murphy@arm.com>
-Subject: Re: [PATCH 3/3] iommu/virtio: Enable x86 support
-Date: Fri, 14 Feb 2020 16:57:11 +0000
-Message-ID: <311a1885-c619-3c8d-29dd-14fbfbf74898@arm.com>
-References: <20200214160413.1475396-1-jean-philippe@linaro.org>
- <20200214160413.1475396-4-jean-philippe@linaro.org>
+From: Dave Hansen <dave.hansen@intel.com>
+Subject: Re: [PATCH 41/62] x86/sev-es: Handle MSR events
+Date: Fri, 14 Feb 2020 08:59:39 -0800
+Message-ID: <d43a1cc5-4229-e1fb-2a7a-d701d7b12ea9@intel.com>
+References: <20200211135256.24617-1-joro@8bytes.org>
+ <20200211135256.24617-42-joro@8bytes.org>
+ <b688b4ad-5a64-d2df-6dd8-e23fac75a6b9@intel.com>
+ <20200214072324.GE22063@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200214160413.1475396-4-jean-philippe@linaro.org>
-Content-Language: en-GB
+In-Reply-To: <20200214072324.GE22063@8bytes.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,40 +21,25 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Jean-Philippe Brucker <jean-philippe@linaro.org>, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, linux-pci@vger.kernel.org
-Cc: mst@redhat.com, sebastien.boeuf@intel.com, jacob.jun.pan@intel.com, bhelgaas@google.com
+To: Joerg Roedel <joro@8bytes.org>
+Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Dave Hansen <dave.hansen@linux.intel.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 14/02/2020 4:04 pm, Jean-Philippe Brucker wrote:
-> With the built-in topology description in place, x86 platforms can now
-> use the virtio-iommu.
-> 
-> Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-> ---
->   drivers/iommu/Kconfig | 3 ++-
->   1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/iommu/Kconfig b/drivers/iommu/Kconfig
-> index 068d4e0e3541..adcbda44d473 100644
-> --- a/drivers/iommu/Kconfig
-> +++ b/drivers/iommu/Kconfig
-> @@ -508,8 +508,9 @@ config HYPERV_IOMMU
->   config VIRTIO_IOMMU
->   	bool "Virtio IOMMU driver"
->   	depends on VIRTIO=y
-> -	depends on ARM64
-> +	depends on (ARM64 || X86)
->   	select IOMMU_API
-> +	select IOMMU_DMA
+On 2/13/20 11:23 PM, Joerg Roedel wrote:
+> Yes, investigating this is on the list for future optimizations (besides
+> caching CPUID results). My idea is to use alternatives patching for
+> this. But the exception handling is needed anyway because #VC
+> exceptions happen very early already, basically the first thing after
+> setting up a stack is calling verify_cpu(), which uses CPUID.
 
-Can that have an "if X86" for clarity? AIUI it's not necessary for 
-virtio-iommu itself (and really shouldn't be), but is merely to satisfy 
-the x86 arch code's expectation that IOMMU drivers bring their own DMA 
-ops, right?
+Ahh, bummer.  How does a guest know that it's running under SEV-ES?
+What's the enumeration mechanism if CPUID doesn't "work"?
 
-Robin.
+> The other reason is that things like MMIO and IOIO instructions can't be
+> easily patched by alternatives. Those would work with the runtime
+> checking you showed above, though.
 
->   	select INTERVAL_TREE
->   	help
->   	  Para-virtualised IOMMU driver with virtio.
-> 
+Is there a reason we can't make a rule that you *must* do MMIO through
+an accessor function so we *can* patch them?  I know random drivers
+might break the rule, but are SEV-ES guests going to be running random
+drivers?  I would think that they mostly if not all want to use virtio.
