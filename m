@@ -1,55 +1,88 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: [PATCH] drm/qxl: don't take vga ports on rev5+
-Date: Fri, 14 Feb 2020 14:36:45 +0100
-Message-ID: <20200214133645.30977-1-kraxel@redhat.com>
+From: Jason Gunthorpe <jgg@mellanox.com>
+Subject: Re: [PATCH V2 3/5] vDPA: introduce vDPA bus
+Date: Fri, 14 Feb 2020 09:52:32 -0400
+Message-ID: <20200214135232.GB4271@mellanox.com>
+References: <20200210035608.10002-1-jasowang@redhat.com>
+ <20200210035608.10002-4-jasowang@redhat.com>
+ <20200211134746.GI4271@mellanox.com>
+ <cf7abcc9-f8ef-1fe2-248e-9b9028788ade@redhat.com>
+ <20200212125108.GS4271@mellanox.com>
+ <12775659-1589-39e4-e344-b7a2c792b0f3@redhat.com>
+ <20200213134128.GV4271@mellanox.com>
+ <ebaea825-5432-65e2-2ab3-720a8c4030e7@redhat.com>
+ <20200213150542.GW4271@mellanox.com>
+ <8b3e6a9c-8bfd-fb3c-12a8-2d6a3879f1ae@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <8b3e6a9c-8bfd-fb3c-12a8-2d6a3879f1ae@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: dri-devel@lists.freedesktop.org
-Cc: Gerd Hoffmann <kraxel@redhat.com>, Dave Airlie <airlied@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR QXL
-        VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, "open list:DRM DRIVER FOR QXL VIRTUAL
-        GPU" <spice-devel@lists.freedesktop.org>, open list <linux-kernel@vger.kernel.org>
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, tiwei.bie@intel.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jiri@mellanox.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-qemu 5.0 introduces a new qxl hardware revision 5.  Unlike revision 4
-(and below) the device doesn't switch back into vga compatibility mode
-when someone touches the vga ports.  So we don't have to reserve the
-vga ports any more to avoid that happening.
+On Fri, Feb 14, 2020 at 11:23:27AM +0800, Jason Wang wrote:
 
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/qxl/qxl_drv.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+> > > Though all vDPA devices have the same programming interface, but the
+> > > semantic is different. So it looks to me that use bus complies what
+> > > class.rst said:
+> > > 
+> > > "
+> > > 
+> > > Each device class defines a set of semantics and a programming interface
+> > > that devices of that class adhere to. Device drivers are the
+> > > implementation of that programming interface for a particular device on
+> > > a particular bus.
+> > > 
+> > > "
+> > Here we are talking about the /dev/XX node that provides the
+> > programming interface.
+> 
+> 
+> I'm confused here, are you suggesting to use class to create char device in
+> vhost-vdpa? That's fine but the comment should go for vhost-vdpa patch.
 
-diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
-index 4fda3f9b29f4..afea743989dd 100644
---- a/drivers/gpu/drm/qxl/qxl_drv.c
-+++ b/drivers/gpu/drm/qxl/qxl_drv.c
-@@ -93,7 +93,7 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 	if (ret)
- 		goto disable_pci;
- 
--	if (is_vga(pdev)) {
-+	if (is_vga(pdev) && pdev->revision < 5) {
- 		ret = vga_get_interruptible(pdev, VGA_RSRC_LEGACY_IO);
- 		if (ret) {
- 			DRM_ERROR("can't get legacy vga ioports\n");
-@@ -124,7 +124,7 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- unload:
- 	qxl_device_fini(qdev);
- put_vga:
--	if (is_vga(pdev))
-+	if (is_vga(pdev) && pdev->revision < 5)
- 		vga_put(pdev, VGA_RSRC_LEGACY_IO);
- disable_pci:
- 	pci_disable_device(pdev);
-@@ -155,7 +155,7 @@ qxl_pci_remove(struct pci_dev *pdev)
- 
- 	drm_dev_unregister(dev);
- 	drm_atomic_helper_shutdown(dev);
--	if (is_vga(pdev))
-+	if (is_vga(pdev) && pdev->revision < 5)
- 		vga_put(pdev, VGA_RSRC_LEGACY_IO);
- 	drm_dev_put(dev);
- }
--- 
-2.18.2
+Certainly yes, something creating many char devs should have a
+class. That makes the sysfs work as expected
+
+I suppose this is vhost user? I admit I don't really see how this
+vhost stuff works, all I see are global misc devices? Very unusual for
+a new subsystem to be using global misc devices..
+
+I would have expected that a single VDPA device comes out as a single
+char dev linked to only that VDPA device.
+
+> > All the vdpa devices have the same basic
+> > chardev interface and discover any semantic variations 'in band'
+> 
+> That's not true, char interface is only used for vhost. Kernel virtio driver
+> does not need char dev but a device on the virtio bus.
+
+Okay, this is fine, but why do you need two busses to accomplish this?
+
+Shouldn't the 'struct virito_device' be the plug in point for HW
+drivers I was talking about - and from there a vhost-user can connect
+to the struct virtio_device to give it a char dev or a kernel driver
+can connect to link it to another subsystem?
+
+It is easy to see something is going wrong with this design because
+the drivers/virtio/virtio_vdpa.c mainly contains a bunch of trampoline
+functions reflecting identical calls from one ops struct to a
+different ops struct. This suggests the 'vdpa' is some subclass of
+'virtio' and it is possibly better to model it by extending 'struct
+virito_device' to include the vdpa specific stuff.
+
+Where does the vhost-user char dev get invovled in with the v2 series?
+Is that included?
+
+> > Every class of virtio traffic is going to need a special HW driver to
+> > enable VDPA, that special driver can create the correct vhost side
+> > class device.
+> 
+> Are you saying, e.g it's the charge of IFCVF driver to create vhost char dev
+> and other stuffs?
+
+No.
+
+Jason
