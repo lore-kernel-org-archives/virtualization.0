@@ -1,70 +1,59 @@
-From: Joerg Roedel <joro@8bytes.org>
-Subject: Re: [PATCH 41/62] x86/sev-es: Handle MSR events
-Date: Sat, 15 Feb 2020 13:45:41 +0100
-Message-ID: <20200215124540.GG22063@8bytes.org>
-References: <20200211135256.24617-1-joro@8bytes.org>
- <20200211135256.24617-42-joro@8bytes.org>
- <b688b4ad-5a64-d2df-6dd8-e23fac75a6b9@intel.com>
- <20200214072324.GE22063@8bytes.org>
- <d43a1cc5-4229-e1fb-2a7a-d701d7b12ea9@intel.com>
+From: syzbot <syzbot+f2a62d07a5198c819c7b@syzkaller.appspotmail.com>
+Subject: Re: kernel panic: stack is corrupted in vhost_net_ioctl
+Date: Sat, 15 Feb 2020 07:33:13 -0800
+Message-ID: <00000000000053f643059e9f0a89@google.com>
+References: <000000000000fd119d0597d12a56@google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <d43a1cc5-4229-e1fb-2a7a-d701d7b12ea9@intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dave Hansen <dave.hansen@intel.com>
-Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <000000000000fd119d0597d12a56@google.com>
+Sender: netdev-owner@vger.kernel.org
+To: ast@kernel.org, bpf@vger.kernel.org, daniel@iogearbox.net, davem@davemloft.net, hawk@kernel.org, jakub.kicinski@netronome.com, jasowang@redhat.com, john.fastabend@gmail.com, kuba@kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Feb 14, 2020 at 08:59:39AM -0800, Dave Hansen wrote:
-> On 2/13/20 11:23 PM, Joerg Roedel wrote:
-> > Yes, investigating this is on the list for future optimizations (besides
-> > caching CPUID results). My idea is to use alternatives patching for
-> > this. But the exception handling is needed anyway because #VC
-> > exceptions happen very early already, basically the first thing after
-> > setting up a stack is calling verify_cpu(), which uses CPUID.
-> 
-> Ahh, bummer.  How does a guest know that it's running under SEV-ES?
-> What's the enumeration mechanism if CPUID doesn't "work"?
+syzbot has found a reproducer for the following crash on:
 
-There are two ways a guest can find out:
+HEAD commit:    2019fc96 Merge git://git.kernel.org/pub/scm/linux/kernel/g..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=1677602de00000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=6780df5a5f208964
+dashboard link: https://syzkaller.appspot.com/bug?extid=f2a62d07a5198c819c7b
+compiler:       clang version 10.0.0 (https://github.com/llvm/llvm-project/ c2443155a0fb245c8f17f2c1c72b6ea391e86e81)
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=16dcd87ee00000
+C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1135fa31e00000
 
-	1) Read the SEV_STATUS_MSR and check for the SEV-ES bit
-	2) If a #VC exception is raised it also knows it runs as an
-	   SEV-ES guest
+Bisection is inconclusive: the bug happens on the oldest tested release.
 
-This patch-set implements both ways at the appropriate stages of the
-boot process. Very early it just installs a #VC handler without checking
-whether it is running under SEV-ES and handles the exceptions when they
-are raised.
+bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=13204371e00000
+final crash:    https://syzkaller.appspot.com/x/report.txt?x=10a04371e00000
+console output: https://syzkaller.appspot.com/x/log.txt?x=17204371e00000
 
-Later in the boot process it also reads the SEV_STATUS_MSR and sets a
-cpu_feature flag to do alternative patching based on its value.
+IMPORTANT: if you fix the bug, please add the following tag to the commit:
+Reported-by: syzbot+f2a62d07a5198c819c7b@syzkaller.appspotmail.com
 
-> > The other reason is that things like MMIO and IOIO instructions can't be
-> > easily patched by alternatives. Those would work with the runtime
-> > checking you showed above, though.
-> 
-> Is there a reason we can't make a rule that you *must* do MMIO through
-> an accessor function so we *can* patch them?  I know random drivers
-> might break the rule, but are SEV-ES guests going to be running random
-> drivers?  I would think that they mostly if not all want to use
-> virtio.
-
-Yeah, there are already defined accessor functions for MMIO, like
-read/write[bwlq] and memcpy_toio/memcpy_fromio. It is probably worth
-testing what performance overhead is involved in overloading these to
-call directly into the paravirt path when SEV-ES is enabled. With
-alternatives patching it would still add a couple of NOPS for the
-non-SEV-ES case.
-
-But all that does not remove the need for the #VC exception handler, as
-#VC exceptions can also be triggered by user-space, and the instruction
-emulation for MMIO will be needed to allow MMIO in user-space (the
-patch-set currently does not allow that, but it could be needed in the
-future).
-
-Regards,
-
-	Joerg
+Kernel panic - not syncing: stack-protector: Kernel stack is corrupted in: vhost_net_ioctl+0x1d83/0x1db0 drivers/vhost/net.c:366
+CPU: 0 PID: 8673 Comm: syz-executor239 Not tainted 5.6.0-rc1-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x1fb/0x318 lib/dump_stack.c:118
+ panic+0x264/0x7a9 kernel/panic.c:221
+ __stack_chk_fail+0x1f/0x20 kernel/panic.c:667
+ vhost_net_ioctl+0x1d83/0x1db0 drivers/vhost/net.c:366
+ vfs_ioctl fs/ioctl.c:47 [inline]
+ ksys_ioctl fs/ioctl.c:763 [inline]
+ __do_sys_ioctl fs/ioctl.c:772 [inline]
+ __se_sys_ioctl+0x113/0x190 fs/ioctl.c:770
+ __x64_sys_ioctl+0x7b/0x90 fs/ioctl.c:770
+ do_syscall_64+0xf7/0x1c0 arch/x86/entry/common.c:294
+ entry_SYSCALL_64_after_hwframe+0x49/0xbe
+RIP: 0033:0x440259
+Code: 18 89 d0 c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 0f 83 fb 13 fc ff c3 66 2e 0f 1f 84 00 00 00 00
+RSP: 002b:00007ffdeb5890b8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 00000000004002c8 RCX: 0000000000440259
+RDX: 0000000020f1dff8 RSI: 000000004008af30 RDI: 0000000000000003
+RBP: 00000000006ca018 R08: 00000000004002c8 R09: 00000000004002c8
+R10: 00000000004002c8 R11: 0000000000000246 R12: 0000000000401ae0
+R13: 0000000000401b70 R14: 0000000000000000 R15: 0000000000000000
+Kernel Offset: disabled
+Rebooting in 86400 seconds..
