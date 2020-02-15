@@ -1,111 +1,93 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v1 3/3] virtio-balloon: Switch back to OOM handler for
- VIRTIO_BALLOON_F_DEFLATE_ON_OOM
-Date: Fri, 14 Feb 2020 22:17:26 +0100
-Message-ID: <8B1B3CD6-10D5-46D3-B8E5-A6AD0B8E41BC@redhat.com>
-References: <CAJuQAmpGKcyWo8Ojnia_pXZAaOt98u0c_Sk-8ieCO218hutW1g@mail.gmail.com>
-Mime-Version: 1.0 (1.0)
-Content-Type: multipart/mixed; boundary="===============0044154316470416689=="
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAJuQAmpGKcyWo8Ojnia_pXZAaOt98u0c_Sk-8ieCO218hutW1g@mail.gmail.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Tyler Sanderson <tysand@google.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, Nadav Amit <namit@vmware.com>, David Rientjes <rientjes@google.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, virtualization@lists.linux-foundation.org
+From: Juerg Haefliger <juergh@gmail.com>
+Subject: arm64 kernel crash in bochs_get_edid_block() with QEMU '-device VGA'
+Date: Sat, 15 Feb 2020 13:11:45 +0100
+Message-ID: <CADLDEKugE-Y9rMumiCDJDW_FvGcBaQd3fBv80YeSS0=udnkMAQ@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: LKML <linux-kernel@vger.kernel.org>, kraxel@redhat.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---===============0044154316470416689==
-Content-Type: multipart/alternative; boundary=Apple-Mail-3738AA56-3B37-4F6D-A815-7B956B2B47A0
+The QEMU default edid=off results in a kernel crash [1] on arm64 due
+to commit [2]. To reproduce:
 
---Apple-Mail-3738AA56-3B37-4F6D-A815-7B956B2B47A0
-Content-Type: text/plain;
-	charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+$ ARCH=arm64 make defconfig
+$ ./scripts/config -e DRM -e DRM_BOCHS
+$ ARCH=arm64 CROSS_COMPILE=aarch64-linux-gnu- make olddefconfig Image
+$ qemu-system-aarch64 -M virt -cpu cortex-a57 -device VGA -device
+virtio-serial-pci -kernel arch/arm64/boot/Image -append
+"console=ttyAMA0"
 
+Using '-device VGA,edid=on' instead works just fine.
 
+$ qemu-system-aarch64 -version
+QEMU emulator version 4.0.0 (Debian 1:4.0+dfsg-0ubuntu9.2)
+Copyright (c) 2003-2019 Fabrice Bellard and the QEMU Project developers
 
-> Am 14.02.2020 um 21:49 schrieb Tyler Sanderson <tysand@google.com>:
->=20
-> =EF=BB=BF
-> Regarding Wei's patch that modifies the shrinker implementation, versus t=
-his patch which reverts to OOM notifier:
-> I am in favor of both patches. But I do want to make sure a fix gets back=
- ported to 4.19 where the performance regression was first introduced.
-> My concern with reverting to the OOM notifier is, as mst@ put it (in the =
-other thread):
-> "when linux hits OOM all kind of error paths are being hit, latent bugs s=
-tart triggering, latency goes up drastically."
+...Juerg
 
-Yeah, and that was the default behavior for years, so it=E2=80=98s not big =
-news :)
+[1]
+[    0.740886] Internal error: synchronous external abort: 96000010
+[#1] PREEMPT SMP
+[    0.741120] Modules linked in:
+[    0.741435] CPU: 0 PID: 1 Comm: swapper/0 Not tainted
+4.19.0-rc6-01554-g7118072afbf2 #48
+[    0.741605] Hardware name: linux,dummy-virt (DT)
+[    0.741817] pstate: 80000005 (Nzcv daif -PAN -UAO)
+[    0.741945] pc : bochs_get_edid_block+0x20/0x48
+[    0.742052] lr : drm_do_get_edid+0x64/0x318
+[    0.742148] sp : ffff00000805ba00
+[    0.742239] x29: ffff00000805ba00 x28: 0000000000000000
+[    0.742381] x27: 0000000000000000 x26: ffff0000092404dc
+[    0.742504] x25: ffff80003c0a4590 x24: ffff80003c218680
+[    0.742625] x23: ffff80003c0a496c x22: ffff80003c0a4000
+[    0.742745] x21: ffff000008653db0 x20: 0000000000000001
+[    0.742865] x19: ffff80003c2a3c00 x18: 0000000000000400
+[    0.742986] x17: 0000000000000000 x16: 0000000000000000
+[    0.743106] x15: 0000000000000400 x14: 0000000000000400
+[    0.743226] x13: 0000000000000374 x12: 0000000000000028
+[    0.743345] x11: 0000000000000040 x10: ffff80003c0b3ab0
+[    0.743482] x9 : 0000000000000000 x8 : ffff80003c538a40
+[    0.743605] x7 : 0000000000800004 x6 : 0000000000000000
+[    0.743726] x5 : 0000000000000080 x4 : ffff80003c2a3c00
+[    0.743846] x3 : 0000000000000080 x2 : 0000000000000000
+[    0.743966] x1 : ffff0000097fd000 x0 : ffff80003c0a4000
+[    0.744131] Process swapper/0 (pid: 1, stack limit = 0x(____ptrval____))
+[    0.744339] Call trace:
+[    0.744709]  bochs_get_edid_block+0x20/0x48
+[    0.744816]  bochs_hw_load_edid+0x34/0x58
+[    0.744917]  bochs_kms_init+0x15c/0x1e0
+[    0.745006]  bochs_load+0x84/0xc8
+[    0.745086]  drm_dev_register+0x140/0x1d0
+[    0.745178]  drm_get_pci_dev+0x9c/0x160
+[    0.745266]  bochs_pci_probe+0x70/0x98
+[    0.745354]  local_pci_probe+0x3c/0xb0
+[    0.745441]  pci_device_probe+0x188/0x1a0
+[    0.745532]  really_probe+0x1ec/0x280
+[    0.745616]  driver_probe_device+0x54/0xe8
+[    0.745709]  __driver_attach+0xe4/0xe8
+[    0.745811]  bus_for_each_dev+0x70/0xb8
+[    0.745897]  driver_attach+0x20/0x28
+[    0.745978]  bus_add_driver+0x1a0/0x210
+[    0.746063]  driver_register+0x60/0x110
+[    0.746151]  __pci_register_driver+0x40/0x48
+[    0.746246]  bochs_init+0x28/0x38
+[    0.746325]  do_one_initcall+0x54/0x154
+[    0.746413]  kernel_init_freeable+0x18c/0x228
+[    0.746511]  kernel_init+0x10/0x100
+[    0.746592]  ret_from_fork+0x10/0x18
+[    0.746834] Code: cb020024 b4000123 f9400001 8b020021 (08dffc21)
+[    0.747380] ---[ end trace 4353104b0caf319a ]---
+[    0.747791] Kernel panic - not syncing: Attempted to kill init!
+exitcode=0x0000000b
+[    0.747791]
+[    0.748046] SMP: stopping secondary CPUs
+[    0.748338] Kernel Offset: disabled
+[    0.748598] CPU features: 0x0,21806082
+[    0.748707] Memory Limit: none
+[    0.748871] ---[ end Kernel panic - not syncing: Attempted to kill
+init! exitcode=0x0000000b
+[    0.748871]  ]---
 
-> The guest could be in a lot of pain before the OOM notifier is invoked, a=
-nd it seems like the shrinker API might allow more fine grained control of =
-when we deflate.
->=20
-> On the other hand, I'm not totally convinced that Wei's patch is an expec=
-ted use of the shrinker/page-cache APIs, and maybe it is fragile. Needs mor=
-e testing and scrutiny.
->=20
-> It seems to me like the shrinker API is the right API in the long run, pe=
-rhaps with some fixes and modifications. But maybe reverting to OOM notifie=
-r is the best patch to back
-
-I think that=E2=80=98s a good idea. Revert to the old state we had for year=
-s and then implement a proper, fully tested solution (e.g., shrinkers with =
-priorities).
-
-Cheers!
---Apple-Mail-3738AA56-3B37-4F6D-A815-7B956B2B47A0
-Content-Type: text/html;
-	charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-
-<html><head><meta http-equiv=3D"content-type" content=3D"text/html; charset=
-=3Dutf-8"></head><body dir=3D"auto"><div dir=3D"ltr"><br></div><div dir=3D"=
-ltr"><br><blockquote type=3D"cite">Am 14.02.2020 um 21:49 schrieb Tyler San=
-derson &lt;tysand@google.com&gt;:<br><br></blockquote></div><blockquote typ=
-e=3D"cite"><div dir=3D"ltr">=EF=BB=BF<div dir=3D"ltr"><div>Regarding Wei's =
-patch that modifies the shrinker implementation, versus this patch which re=
-verts to OOM notifier:</div><div>I am in favor of both patches. But I do wa=
-nt to make sure a fix gets back ported to 4.19 where the performance regres=
-sion was first introduced.</div><div>My concern with reverting to the OOM n=
-otifier is, as mst@ put it (in the other thread):<br><span style=3D"color:r=
-gb(80,0,80)">"when linux hits OOM&nbsp;</span><span style=3D"color:rgb(80,0=
-,80)">all kind of error paths are being hit, latent bugs start triggering,&=
-nbsp;</span><span style=3D"color:rgb(80,0,80)">latency goes up drastically.=
-"</span><br></div></div></div></blockquote><div><br></div><div>Yeah, and th=
-at was the default behavior for years, so it=E2=80=98s not big news :)</div=
-><br><blockquote type=3D"cite"><div dir=3D"ltr"><div dir=3D"ltr"><div>The g=
-uest could be in a lot of pain before the OOM notifier is invoked, and it s=
-eems like the shrinker API might allow more fine grained control of when we=
- deflate.</div><div><br></div><div>On the other hand, I'm not totally convi=
-nced that Wei's patch is an expected use of the shrinker/page-cache APIs, a=
-nd maybe it is fragile. Needs more testing&nbsp;and scrutiny.</div><div><br=
-></div><div>It seems to me like the shrinker API is the right API in the lo=
-ng run, perhaps with some fixes and modifications. But maybe reverting to O=
-OM notifier is the best patch to back</div></div></div></blockquote><br><di=
-v>I think that=E2=80=98s a good idea. Revert to the old state we had for ye=
-ars and then implement a proper, fully tested solution (e.g., shrinkers wit=
-h priorities).</div><div><br></div><div>Cheers!</div></body></html>
---Apple-Mail-3738AA56-3B37-4F6D-A815-7B956B2B47A0--
-
-
---===============0044154316470416689==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0044154316470416689==--
+[2] 01f23459cf93 ("drm/bochs: add edid support.")
