@@ -1,57 +1,41 @@
 From: Nathan Chancellor <natechancellor@gmail.com>
-Subject: Re: [PATCH] virtio_balloon: Fix unused label warning
-Date: Sun, 16 Feb 2020 00:46:39 -0700
-Message-ID: <20200216074639.GA25292@ubuntu-m2-xlarge-x86>
-References: <20200210093328.15349-1-bp@alien8.de>
+Subject: Re: [PATCH] virtio_balloon: Adjust label in virtballoon_probe
+Date: Sun, 16 Feb 2020 00:47:35 -0700
+Message-ID: <20200216074735.GA4717@ubuntu-m2-xlarge-x86>
+References: <20200216004039.23464-1-natechancellor@gmail.com>
+ <67FCAE69-05CF-4588-A7BC-664267D14BAF@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200210093328.15349-1-bp@alien8.de>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Borislav Petkov <bp@alien8.de>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
+In-Reply-To: <67FCAE69-05CF-4588-A7BC-664267D14BAF@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBGZWIgMTAsIDIwMjAgYXQgMTA6MzM6MjhBTSArMDEwMCwgQm9yaXNsYXYgUGV0a292
-IHdyb3RlOgo+IEZyb206IEJvcmlzbGF2IFBldGtvdiA8YnBAc3VzZS5kZT4KPiAKPiBGaXgKPiAK
-PiAgIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmM6IEluIGZ1bmN0aW9uIOKAmHZpcnRi
-YWxsb29uX3Byb2Jl4oCZOgo+ICAgZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24uYzo5NjM6
-MTogd2FybmluZzogbGFiZWwg4oCYb3V0X2RlbF92cXPigJkgZGVmaW5lZCBidXQgbm90IHVzZWQg
-Wy1XdW51c2VkLWxhYmVsXQo+ICAgICA5NjMgfCBvdXRfZGVsX3ZxczoKPiAgICAgICAgIHwgXn4K
-PiAKPiBUaGUgQ09ORklHX0JBTExPT05fQ09NUEFDVElPTiBpZmRlZmZlcnkgc2hvdWxkIGVuY2xv
-c2UgaXQgdG9vLgo+IAo+IFNpZ25lZC1vZmYtYnk6IEJvcmlzbGF2IFBldGtvdiA8YnBAc3VzZS5k
-ZT4KPiBDYzogRGF2aWQgSGlsZGVuYnJhbmQgPGRhdmlkQHJlZGhhdC5jb20+Cj4gLS0tCj4gIGRy
-aXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMgfCAyICstCj4gIDEgZmlsZSBjaGFuZ2VkLCAx
-IGluc2VydGlvbigrKSwgMSBkZWxldGlvbigtKQo+IAo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zp
-cnRpby92aXJ0aW9fYmFsbG9vbi5jIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24uYwo+
-IGluZGV4IDdiZmUzNjVkOTM3Mi4uYjZlZDVmOGJjY2IxIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMv
-dmlydGlvL3ZpcnRpb19iYWxsb29uLmMKPiArKysgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFs
-bG9vbi5jCj4gQEAgLTk1OSw5ICs5NTksOSBAQCBzdGF0aWMgaW50IHZpcnRiYWxsb29uX3Byb2Jl
-KHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQo+ICAJaXB1dCh2Yi0+dmJfZGV2X2luZm8uaW5v
-ZGUpOwo+ICBvdXRfa2Vybl91bm1vdW50Ogo+ICAJa2Vybl91bm1vdW50KGJhbGxvb25fbW50KTsK
-PiAtI2VuZGlmCj4gIG91dF9kZWxfdnFzOgo+ICAJdmRldi0+Y29uZmlnLT5kZWxfdnFzKHZkZXYp
-Owo+ICsjZW5kaWYKCkkgbm90aWNlZCB0aGUgc2FtZSBpc3N1ZSBhbmQgc2VudCBhbiBhbG1vc3Qg
-aWRlbnRpY2FsIHBhdGNoIFsxXSBidXQgSQprZXB0IHRoZSBjYWxsIHRvIGRlbF92cXMgb3V0c2lk
-ZSBvZiB0aGUgQ09ORklHX0JBTExPT05fQ09NUEFDVElPTiBndWFyZApzaW5jZSBpdCBzZWVtcyBs
-aWtlIHRoYXQgc2hvdWxkIHN0aWxsIGJlIGNhbGxlZCB3aGVuIHRoYXQgY29uZmlnIGlzCnVuc2V0
-LCBhcyB0aGF0IHdhcyB0aGUgY2FzZSBiZWZvcmUgY29tbWl0IDFhZDZmNThlYTkzNiAoInZpcnRp
-b19iYWxsb29uOgpGaXggbWVtb3J5IGxlYWtzIG9uIGVycm9ycyBpbiB2aXJ0YmFsbG9vbl9wcm9i
-ZSgpIikuIElzIHRoaXMgcGF0Y2ggZnVsbHkKY29ycmVjdD8gSSBhbSBub3QgYSB2aXJ0aW8gZXhw
-ZXJ0IGF0IGFsbCwganVzdCBub3RpY2luZyBmcm9tIGEgYnJpZWYKcmVhZGluZyBvZiB0aGlzIGZ1
-bmN0aW9uLgoKWzFdOiBodHRwczovL2xvcmUua2VybmVsLm9yZy9sa21sLzIwMjAwMjE2MDA0MDM5
-LjIzNDY0LTEtbmF0ZWNoYW5jZWxsb3JAZ21haWwuY29tLwoKQ2hlZXJzLApOYXRoYW4KCj4gIG91
-dF9mcmVlX3ZiOgo+ICAJa2ZyZWUodmIpOwo+ICBvdXQ6Cj4gLS0gCj4gMi4yMS4wCj4gCl9fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
-IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
-dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
-aXphdGlvbg==
+On Sun, Feb 16, 2020 at 08:36:45AM +0100, David Hildenbrand wrote:
+> 
+> 
+> > Am 16.02.2020 um 01:41 schrieb Nathan Chancellor <natechancellor@gmail.com>:
+> > 
+> > ﻿Clang warns when CONFIG_BALLOON_COMPACTION is unset:
+> > 
+> > ../drivers/virtio/virtio_balloon.c:963:1: warning: unused label
+> > 'out_del_vqs' [-Wunused-label]
+> > out_del_vqs:
+> > ^~~~~~~~~~~~
+> > 1 warning generated.
+> > 
+> 
+> Thanks, there is already „ [PATCH] virtio_balloon: Fix unused label warning“ from Boris on the list.
+> 
+> Cheers!
+> 
+
+Sorry for the noise, I thought I did a search for duplicate patches but
+seems I missed it :/ I've commented on that patch.
+
+Cheers,
+Nathan
