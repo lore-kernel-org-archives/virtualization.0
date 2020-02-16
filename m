@@ -1,11 +1,13 @@
-From: Nathan Chancellor <natechancellor@gmail.com>
-Subject: [PATCH] virtio_balloon: Adjust label in virtballoon_probe
-Date: Sat, 15 Feb 2020 17:40:39 -0700
-Message-ID: <20200216004039.23464-1-natechancellor@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH] virtio_balloon: Adjust label in virtballoon_probe
+Date: Sun, 16 Feb 2020 08:36:45 +0100
+Message-ID: <67FCAE69-05CF-4588-A7BC-664267D14BAF@redhat.com>
+References: <20200216004039.23464-1-natechancellor@gmail.com>
+Mime-Version: 1.0 (1.0)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200216004039.23464-1-natechancellor@gmail.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,41 +17,18 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: clang-built-linux@googlegroups.com, Nathan Chancellor <natechancellor@gmail.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: Nathan Chancellor <natechancellor@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, clang-built-linux@googlegroups.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Clang warns when CONFIG_BALLOON_COMPACTION is unset:
-
-../drivers/virtio/virtio_balloon.c:963:1: warning: unused label
-'out_del_vqs' [-Wunused-label]
-out_del_vqs:
-^~~~~~~~~~~~
-1 warning generated.
-
-Move the label within the preprocessor block since it is only used when
-CONFIG_BALLOON_COMPACTION is set.
-
-Fixes: 1ad6f58ea936 ("virtio_balloon: Fix memory leaks on errors in virtballoon_probe()")
-Link: https://github.com/ClangBuiltLinux/linux/issues/886
-Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
----
- drivers/virtio/virtio_balloon.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 7bfe365d9372..341458fd95ca 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -959,8 +959,8 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 	iput(vb->vb_dev_info.inode);
- out_kern_unmount:
- 	kern_unmount(balloon_mnt);
--#endif
- out_del_vqs:
-+#endif
- 	vdev->config->del_vqs(vdev);
- out_free_vb:
- 	kfree(vb);
--- 
-2.25.0
+Cgo+IEFtIDE2LjAyLjIwMjAgdW0gMDE6NDEgc2NocmllYiBOYXRoYW4gQ2hhbmNlbGxvciA8bmF0
+ZWNoYW5jZWxsb3JAZ21haWwuY29tPjoKPiAKPiDvu79DbGFuZyB3YXJucyB3aGVuIENPTkZJR19C
+QUxMT09OX0NPTVBBQ1RJT04gaXMgdW5zZXQ6Cj4gCj4gLi4vZHJpdmVycy92aXJ0aW8vdmlydGlv
+X2JhbGxvb24uYzo5NjM6MTogd2FybmluZzogdW51c2VkIGxhYmVsCj4gJ291dF9kZWxfdnFzJyBb
+LVd1bnVzZWQtbGFiZWxdCj4gb3V0X2RlbF92cXM6Cj4gXn5+fn5+fn5+fn5+Cj4gMSB3YXJuaW5n
+IGdlbmVyYXRlZC4KPiAKClRoYW5rcywgdGhlcmUgaXMgYWxyZWFkeSDigJ4gW1BBVENIXSB2aXJ0
+aW9fYmFsbG9vbjogRml4IHVudXNlZCBsYWJlbCB3YXJuaW5n4oCcIGZyb20gQm9yaXMgb24gdGhl
+IGxpc3QuCgpDaGVlcnMhCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
+bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
+aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
