@@ -1,13 +1,14 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH] virtio_balloon: Adjust label in virtballoon_probe
-Date: Sun, 16 Feb 2020 08:36:45 +0100
-Message-ID: <67FCAE69-05CF-4588-A7BC-664267D14BAF@redhat.com>
-References: <20200216004039.23464-1-natechancellor@gmail.com>
-Mime-Version: 1.0 (1.0)
+From: Nathan Chancellor <natechancellor@gmail.com>
+Subject: Re: [PATCH] virtio_balloon: Fix unused label warning
+Date: Sun, 16 Feb 2020 00:46:39 -0700
+Message-ID: <20200216074639.GA25292@ubuntu-m2-xlarge-x86>
+References: <20200210093328.15349-1-bp@alien8.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200216004039.23464-1-natechancellor@gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20200210093328.15349-1-bp@alien8.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,18 +18,40 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Nathan Chancellor <natechancellor@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, clang-built-linux@googlegroups.com
+To: Borislav Petkov <bp@alien8.de>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Cgo+IEFtIDE2LjAyLjIwMjAgdW0gMDE6NDEgc2NocmllYiBOYXRoYW4gQ2hhbmNlbGxvciA8bmF0
-ZWNoYW5jZWxsb3JAZ21haWwuY29tPjoKPiAKPiDvu79DbGFuZyB3YXJucyB3aGVuIENPTkZJR19C
-QUxMT09OX0NPTVBBQ1RJT04gaXMgdW5zZXQ6Cj4gCj4gLi4vZHJpdmVycy92aXJ0aW8vdmlydGlv
-X2JhbGxvb24uYzo5NjM6MTogd2FybmluZzogdW51c2VkIGxhYmVsCj4gJ291dF9kZWxfdnFzJyBb
-LVd1bnVzZWQtbGFiZWxdCj4gb3V0X2RlbF92cXM6Cj4gXn5+fn5+fn5+fn5+Cj4gMSB3YXJuaW5n
-IGdlbmVyYXRlZC4KPiAKClRoYW5rcywgdGhlcmUgaXMgYWxyZWFkeSDigJ4gW1BBVENIXSB2aXJ0
-aW9fYmFsbG9vbjogRml4IHVudXNlZCBsYWJlbCB3YXJuaW5n4oCcIGZyb20gQm9yaXMgb24gdGhl
-IGxpc3QuCgpDaGVlcnMhCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
-bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
-aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+T24gTW9uLCBGZWIgMTAsIDIwMjAgYXQgMTA6MzM6MjhBTSArMDEwMCwgQm9yaXNsYXYgUGV0a292
+IHdyb3RlOgo+IEZyb206IEJvcmlzbGF2IFBldGtvdiA8YnBAc3VzZS5kZT4KPiAKPiBGaXgKPiAK
+PiAgIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmM6IEluIGZ1bmN0aW9uIOKAmHZpcnRi
+YWxsb29uX3Byb2Jl4oCZOgo+ICAgZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24uYzo5NjM6
+MTogd2FybmluZzogbGFiZWwg4oCYb3V0X2RlbF92cXPigJkgZGVmaW5lZCBidXQgbm90IHVzZWQg
+Wy1XdW51c2VkLWxhYmVsXQo+ICAgICA5NjMgfCBvdXRfZGVsX3ZxczoKPiAgICAgICAgIHwgXn4K
+PiAKPiBUaGUgQ09ORklHX0JBTExPT05fQ09NUEFDVElPTiBpZmRlZmZlcnkgc2hvdWxkIGVuY2xv
+c2UgaXQgdG9vLgo+IAo+IFNpZ25lZC1vZmYtYnk6IEJvcmlzbGF2IFBldGtvdiA8YnBAc3VzZS5k
+ZT4KPiBDYzogRGF2aWQgSGlsZGVuYnJhbmQgPGRhdmlkQHJlZGhhdC5jb20+Cj4gLS0tCj4gIGRy
+aXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmMgfCAyICstCj4gIDEgZmlsZSBjaGFuZ2VkLCAx
+IGluc2VydGlvbigrKSwgMSBkZWxldGlvbigtKQo+IAo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zp
+cnRpby92aXJ0aW9fYmFsbG9vbi5jIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24uYwo+
+IGluZGV4IDdiZmUzNjVkOTM3Mi4uYjZlZDVmOGJjY2IxIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMv
+dmlydGlvL3ZpcnRpb19iYWxsb29uLmMKPiArKysgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFs
+bG9vbi5jCj4gQEAgLTk1OSw5ICs5NTksOSBAQCBzdGF0aWMgaW50IHZpcnRiYWxsb29uX3Byb2Jl
+KHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQo+ICAJaXB1dCh2Yi0+dmJfZGV2X2luZm8uaW5v
+ZGUpOwo+ICBvdXRfa2Vybl91bm1vdW50Ogo+ICAJa2Vybl91bm1vdW50KGJhbGxvb25fbW50KTsK
+PiAtI2VuZGlmCj4gIG91dF9kZWxfdnFzOgo+ICAJdmRldi0+Y29uZmlnLT5kZWxfdnFzKHZkZXYp
+Owo+ICsjZW5kaWYKCkkgbm90aWNlZCB0aGUgc2FtZSBpc3N1ZSBhbmQgc2VudCBhbiBhbG1vc3Qg
+aWRlbnRpY2FsIHBhdGNoIFsxXSBidXQgSQprZXB0IHRoZSBjYWxsIHRvIGRlbF92cXMgb3V0c2lk
+ZSBvZiB0aGUgQ09ORklHX0JBTExPT05fQ09NUEFDVElPTiBndWFyZApzaW5jZSBpdCBzZWVtcyBs
+aWtlIHRoYXQgc2hvdWxkIHN0aWxsIGJlIGNhbGxlZCB3aGVuIHRoYXQgY29uZmlnIGlzCnVuc2V0
+LCBhcyB0aGF0IHdhcyB0aGUgY2FzZSBiZWZvcmUgY29tbWl0IDFhZDZmNThlYTkzNiAoInZpcnRp
+b19iYWxsb29uOgpGaXggbWVtb3J5IGxlYWtzIG9uIGVycm9ycyBpbiB2aXJ0YmFsbG9vbl9wcm9i
+ZSgpIikuIElzIHRoaXMgcGF0Y2ggZnVsbHkKY29ycmVjdD8gSSBhbSBub3QgYSB2aXJ0aW8gZXhw
+ZXJ0IGF0IGFsbCwganVzdCBub3RpY2luZyBmcm9tIGEgYnJpZWYKcmVhZGluZyBvZiB0aGlzIGZ1
+bmN0aW9uLgoKWzFdOiBodHRwczovL2xvcmUua2VybmVsLm9yZy9sa21sLzIwMjAwMjE2MDA0MDM5
+LjIzNDY0LTEtbmF0ZWNoYW5jZWxsb3JAZ21haWwuY29tLwoKQ2hlZXJzLApOYXRoYW4KCj4gIG91
+dF9mcmVlX3ZiOgo+ICAJa2ZyZWUodmIpOwo+ICBvdXQ6Cj4gLS0gCj4gMi4yMS4wCj4gCl9fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
+IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
+dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
+aXphdGlvbg==
