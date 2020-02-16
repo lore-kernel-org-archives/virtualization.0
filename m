@@ -1,41 +1,56 @@
-From: Nathan Chancellor <natechancellor@gmail.com>
-Subject: Re: [PATCH] virtio_balloon: Adjust label in virtballoon_probe
-Date: Sun, 16 Feb 2020 00:47:35 -0700
-Message-ID: <20200216074735.GA4717@ubuntu-m2-xlarge-x86>
-References: <20200216004039.23464-1-natechancellor@gmail.com>
- <67FCAE69-05CF-4588-A7BC-664267D14BAF@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <67FCAE69-05CF-4588-A7BC-664267D14BAF@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Hildenbrand <david@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH] virtio_balloon: Fix unused label warning
+Date: Sun, 16 Feb 2020 09:05:02 +0100
+Message-ID: <FF9BD3B9-7D78-4470-89CD-6F6831F4B6A6@redhat.com>
+References: <20200216074639.GA25292@ubuntu-m2-xlarge-x86>
+Mime-Version: 1.0 (1.0)
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200216074639.GA25292@ubuntu-m2-xlarge-x86>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Nathan Chancellor <natechancellor@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, Borislav Petkov <bp@alien8.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Feb 16, 2020 at 08:36:45AM +0100, David Hildenbrand wrote:
-> 
-> 
-> > Am 16.02.2020 um 01:41 schrieb Nathan Chancellor <natechancellor@gmail.com>:
-> > 
-> > ﻿Clang warns when CONFIG_BALLOON_COMPACTION is unset:
-> > 
-> > ../drivers/virtio/virtio_balloon.c:963:1: warning: unused label
-> > 'out_del_vqs' [-Wunused-label]
-> > out_del_vqs:
-> > ^~~~~~~~~~~~
-> > 1 warning generated.
-> > 
-> 
-> Thanks, there is already „ [PATCH] virtio_balloon: Fix unused label warning“ from Boris on the list.
-> 
-> Cheers!
-> 
-
-Sorry for the noise, I thought I did a search for duplicate patches but
-seems I missed it :/ I've commented on that patch.
-
-Cheers,
-Nathan
+PiBBbSAxNi4wMi4yMDIwIHVtIDA4OjQ2IHNjaHJpZWIgTmF0aGFuIENoYW5jZWxsb3IgPG5hdGVj
+aGFuY2VsbG9yQGdtYWlsLmNvbT46Cj4gCj4g77u/T24gTW9uLCBGZWIgMTAsIDIwMjAgYXQgMTA6
+MzM6MjhBTSArMDEwMCwgQm9yaXNsYXYgUGV0a292IHdyb3RlOgo+PiBGcm9tOiBCb3Jpc2xhdiBQ
+ZXRrb3YgPGJwQHN1c2UuZGU+Cj4+IAo+PiBGaXgKPj4gCj4+ICBkcml2ZXJzL3ZpcnRpby92aXJ0
+aW9fYmFsbG9vbi5jOiBJbiBmdW5jdGlvbiDigJh2aXJ0YmFsbG9vbl9wcm9iZeKAmToKPj4gIGRy
+aXZlcnMvdmlydGlvL3ZpcnRpb19iYWxsb29uLmM6OTYzOjE6IHdhcm5pbmc6IGxhYmVsIOKAmG91
+dF9kZWxfdnFz4oCZIGRlZmluZWQgYnV0IG5vdCB1c2VkIFstV3VudXNlZC1sYWJlbF0KPj4gICAg
+OTYzIHwgb3V0X2RlbF92cXM6Cj4+ICAgICAgICB8IF5+Cj4+IAo+PiBUaGUgQ09ORklHX0JBTExP
+T05fQ09NUEFDVElPTiBpZmRlZmZlcnkgc2hvdWxkIGVuY2xvc2UgaXQgdG9vLgo+PiAKPj4gU2ln
+bmVkLW9mZi1ieTogQm9yaXNsYXYgUGV0a292IDxicEBzdXNlLmRlPgo+PiBDYzogRGF2aWQgSGls
+ZGVuYnJhbmQgPGRhdmlkQHJlZGhhdC5jb20+Cj4+IC0tLQo+PiBkcml2ZXJzL3ZpcnRpby92aXJ0
+aW9fYmFsbG9vbi5jIHwgMiArLQo+PiAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDEg
+ZGVsZXRpb24oLSkKPj4gCj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFs
+bG9vbi5jIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX2JhbGxvb24uYwo+PiBpbmRleCA3YmZlMzY1
+ZDkzNzIuLmI2ZWQ1ZjhiY2NiMSAxMDA2NDQKPj4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlv
+X2JhbGxvb24uYwo+PiArKysgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fYmFsbG9vbi5jCj4+IEBA
+IC05NTksOSArOTU5LDkgQEAgc3RhdGljIGludCB2aXJ0YmFsbG9vbl9wcm9iZShzdHJ1Y3Qgdmly
+dGlvX2RldmljZSAqdmRldikKPj4gICAgaXB1dCh2Yi0+dmJfZGV2X2luZm8uaW5vZGUpOwo+PiBv
+dXRfa2Vybl91bm1vdW50Ogo+PiAgICBrZXJuX3VubW91bnQoYmFsbG9vbl9tbnQpOwo+PiAtI2Vu
+ZGlmCj4+IG91dF9kZWxfdnFzOgo+PiAgICB2ZGV2LT5jb25maWctPmRlbF92cXModmRldik7Cj4+
+ICsjZW5kaWYKPiAKPiBJIG5vdGljZWQgdGhlIHNhbWUgaXNzdWUgYW5kIHNlbnQgYW4gYWxtb3N0
+IGlkZW50aWNhbCBwYXRjaCBbMV0gYnV0IEkKPiBrZXB0IHRoZSBjYWxsIHRvIGRlbF92cXMgb3V0
+c2lkZSBvZiB0aGUgQ09ORklHX0JBTExPT05fQ09NUEFDVElPTiBndWFyZAo+IHNpbmNlIGl0IHNl
+ZW1zIGxpa2UgdGhhdCBzaG91bGQgc3RpbGwgYmUgY2FsbGVkIHdoZW4gdGhhdCBjb25maWcgaXMK
+PiB1bnNldCwgYXMgdGhhdCB3YXMgdGhlIGNhc2UgYmVmb3JlIGNvbW1pdCAxYWQ2ZjU4ZWE5MzYg
+KCJ2aXJ0aW9fYmFsbG9vbjoKPiBGaXggbWVtb3J5IGxlYWtzIG9uIGVycm9ycyBpbiB2aXJ0YmFs
+bG9vbl9wcm9iZSgpIikuIElzIHRoaXMgcGF0Y2ggZnVsbHkKPiBjb3JyZWN0PyBJIGFtIG5vdCBh
+IHZpcnRpbyBleHBlcnQgYXQgYWxsLCBqdXN0IG5vdGljaW5nIGZyb20gYSBicmllZgo+IHJlYWRp
+bmcgb2YgdGhpcyBmdW5jdGlvbi4KCkkgdGhpbmsgeW91IGFyZSByaWdodCBhbmQgdGhpcyBzcGxp
+cHBlZCBteSBleWVzIQoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
+bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
+bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
