@@ -1,90 +1,53 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v1 3/3] virtio-balloon: Switch back to OOM handler for
- VIRTIO_BALLOON_F_DEFLATE_ON_OOM
-Date: Sun, 16 Feb 2020 04:47:12 -0500
-Message-ID: <20200216044641-mutt-send-email-mst@kernel.org>
-References: <20200205163402.42627-1-david@redhat.com>
- <20200205163402.42627-4-david@redhat.com>
- <f31eff75-b328-de41-c2cc-e55471aa27d8@redhat.com>
+Subject: Re: [PATCH 3/3] iommu/virtio: Enable x86 support
+Date: Sun, 16 Feb 2020 04:50:33 -0500
+Message-ID: <20200216045006-mutt-send-email-mst@kernel.org>
+References: <20200214160413.1475396-1-jean-philippe@linaro.org>
+ <20200214160413.1475396-4-jean-philippe@linaro.org>
+ <311a1885-c619-3c8d-29dd-14fbfbf74898@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <f31eff75-b328-de41-c2cc-e55471aa27d8@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-pci-owner@vger.kernel.org>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Tyler Sanderson <tysand@google.com>, linux-mm@kvack.org, Nadav Amit <namit@vmware.com>, David Rientjes <rientjes@google.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Michal Hocko <mhocko@kernel.org>
+In-Reply-To: <311a1885-c619-3c8d-29dd-14fbfbf74898@arm.com>
+Sender: linux-pci-owner@vger.kernel.org
+To: Robin Murphy <robin.murphy@arm.com>
+Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, linux-pci@vger.kernel.org, kevin.tian@intel.com, sebastien.boeuf@intel.com, jacob.jun.pan@intel.com, bhelgaas@google.com, jasowang@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Feb 14, 2020 at 10:51:43AM +0100, David Hildenbrand wrote:
-> On 05.02.20 17:34, David Hildenbrand wrote:
-> > Commit 71994620bb25 ("virtio_balloon: replace oom notifier with shrinker")
-> > changed the behavior when deflation happens automatically. Instead of
-> > deflating when called by the OOM handler, the shrinker is used.
+On Fri, Feb 14, 2020 at 04:57:11PM +0000, Robin Murphy wrote:
+> On 14/02/2020 4:04 pm, Jean-Philippe Brucker wrote:
+> > With the built-in topology description in place, x86 platforms can now
+> > use the virtio-iommu.
 > > 
-> > However, the balloon is not simply some slab cache that should be
-> > shrunk when under memory pressure. The shrinker does not have a concept of
-> > priorities, so this behavior cannot be configured.
+> > Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+> > ---
+> >   drivers/iommu/Kconfig | 3 ++-
+> >   1 file changed, 2 insertions(+), 1 deletion(-)
 > > 
-> > There was a report that this results in undesired side effects when
-> > inflating the balloon to shrink the page cache. [1]
-> > 	"When inflating the balloon against page cache (i.e. no free memory
-> > 	 remains) vmscan.c will both shrink page cache, but also invoke the
-> > 	 shrinkers -- including the balloon's shrinker. So the balloon
-> > 	 driver allocates memory which requires reclaim, vmscan gets this
-> > 	 memory by shrinking the balloon, and then the driver adds the
-> > 	 memory back to the balloon. Basically a busy no-op."
-> > 
-> > The name "deflate on OOM" makes it pretty clear when deflation should
-> > happen - after other approaches to reclaim memory failed, not while
-> > reclaiming. This allows to minimize the footprint of a guest - memory
-> > will only be taken out of the balloon when really needed.
-> > 
-> > Especially, a drop_slab() will result in the whole balloon getting
-> > deflated - undesired. While handling it via the OOM handler might not be
-> > perfect, it keeps existing behavior. If we want a different behavior, then
-> > we need a new feature bit and document it properly (although, there should
-> > be a clear use case and the intended effects should be well described).
-> > 
-> > Keep using the shrinker for VIRTIO_BALLOON_F_FREE_PAGE_HINT, because
-> > this has no such side effects. Always register the shrinker with
-> > VIRTIO_BALLOON_F_FREE_PAGE_HINT now. We are always allowed to reuse free
-> > pages that are still to be processed by the guest. The hypervisor takes
-> > care of identifying and resolving possible races between processing a
-> > hinting request and the guest reusing a page.
-> > 
-> > In contrast to pre commit 71994620bb25 ("virtio_balloon: replace oom
-> > notifier with shrinker"), don't add a moodule parameter to configure the
-> > number of pages to deflate on OOM. Can be re-added if really needed.
-> > Also, pay attention that leak_balloon() returns the number of 4k pages -
-> > convert it properly in virtio_balloon_oom_notify().
-> > 
-> > Note1: using the OOM handler is frowned upon, but it really is what we
-> >        need for this feature.
-> > 
-> > Note2: without VIRTIO_BALLOON_F_MUST_TELL_HOST (iow, always with QEMU) we
-> >        could actually skip sending deflation requests to our hypervisor,
-> >        making the OOM path *very* simple. Besically freeing pages and
-> >        updating the balloon. If the communication with the host ever
-> >        becomes a problem on this call path.
-> > 
+> > diff --git a/drivers/iommu/Kconfig b/drivers/iommu/Kconfig
+> > index 068d4e0e3541..adcbda44d473 100644
+> > --- a/drivers/iommu/Kconfig
+> > +++ b/drivers/iommu/Kconfig
+> > @@ -508,8 +508,9 @@ config HYPERV_IOMMU
+> >   config VIRTIO_IOMMU
+> >   	bool "Virtio IOMMU driver"
+> >   	depends on VIRTIO=y
+> > -	depends on ARM64
+> > +	depends on (ARM64 || X86)
+> >   	select IOMMU_API
+> > +	select IOMMU_DMA
 > 
-> @Michael, how to proceed with this?
+> Can that have an "if X86" for clarity? AIUI it's not necessary for
+> virtio-iommu itself (and really shouldn't be), but is merely to satisfy the
+> x86 arch code's expectation that IOMMU drivers bring their own DMA ops,
+> right?
 > 
+> Robin.
 
-I'd like to see some reports that this helps people.
-e.g. a tested-by tag.
+In fact does not this work on any platform now?
 
-> -- 
-> Thanks,
-> 
-> David / dhildenb
+> >   	select INTERVAL_TREE
+> >   	help
+> >   	  Para-virtualised IOMMU driver with virtio.
+> > 
