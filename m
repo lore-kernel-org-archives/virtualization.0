@@ -1,57 +1,71 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH] virtio_balloon: Adjust label in virtballoon_probe
-Date: Mon, 17 Feb 2020 09:37:25 +0100
-Message-ID: <c02f5eb2-386a-33d0-338f-afc4f8049c95@redhat.com>
-References: <20200216004039.23464-1-natechancellor@gmail.com>
+From: Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH 3/3] iommu/virtio: Enable x86 support
+Date: Mon, 17 Feb 2020 10:01:07 +0100
+Message-ID: <20200217090107.GA1650092@myrica>
+References: <20200214160413.1475396-1-jean-philippe@linaro.org>
+ <20200214160413.1475396-4-jean-philippe@linaro.org>
+ <311a1885-c619-3c8d-29dd-14fbfbf74898@arm.com>
+ <20200216045006-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200216004039.23464-1-natechancellor@gmail.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Nathan Chancellor <natechancellor@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20200216045006-mutt-send-email-mst-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+ <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+ <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Sender: "iommu" <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+To: "Michael S. Tsirkin" <mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: kevin.tian-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, linux-pci-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jasowang-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, sebastien.boeuf-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, jacob.jun.pan-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, bhelgaas-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org, Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 16.02.20 01:40, Nathan Chancellor wrote:
-> Clang warns when CONFIG_BALLOON_COMPACTION is unset:
+On Sun, Feb 16, 2020 at 04:50:33AM -0500, Michael S. Tsirkin wrote:
+> On Fri, Feb 14, 2020 at 04:57:11PM +0000, Robin Murphy wrote:
+> > On 14/02/2020 4:04 pm, Jean-Philippe Brucker wrote:
+> > > With the built-in topology description in place, x86 platforms can now
+> > > use the virtio-iommu.
+> > > 
+> > > Signed-off-by: Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+> > > ---
+> > >   drivers/iommu/Kconfig | 3 ++-
+> > >   1 file changed, 2 insertions(+), 1 deletion(-)
+> > > 
+> > > diff --git a/drivers/iommu/Kconfig b/drivers/iommu/Kconfig
+> > > index 068d4e0e3541..adcbda44d473 100644
+> > > --- a/drivers/iommu/Kconfig
+> > > +++ b/drivers/iommu/Kconfig
+> > > @@ -508,8 +508,9 @@ config HYPERV_IOMMU
+> > >   config VIRTIO_IOMMU
+> > >   	bool "Virtio IOMMU driver"
+> > >   	depends on VIRTIO=y
+> > > -	depends on ARM64
+> > > +	depends on (ARM64 || X86)
+> > >   	select IOMMU_API
+> > > +	select IOMMU_DMA
+> > 
+> > Can that have an "if X86" for clarity? AIUI it's not necessary for
+> > virtio-iommu itself (and really shouldn't be), but is merely to satisfy the
+> > x86 arch code's expectation that IOMMU drivers bring their own DMA ops,
+> > right?
+> > 
+> > Robin.
 > 
-> ../drivers/virtio/virtio_balloon.c:963:1: warning: unused label
-> 'out_del_vqs' [-Wunused-label]
-> out_del_vqs:
-> ^~~~~~~~~~~~
-> 1 warning generated.
-> 
-> Move the label within the preprocessor block since it is only used when
-> CONFIG_BALLOON_COMPACTION is set.
-> 
-> Fixes: 1ad6f58ea936 ("virtio_balloon: Fix memory leaks on errors in virtballoon_probe()")
-> Link: https://github.com/ClangBuiltLinux/linux/issues/886
-> Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
-> ---
->  drivers/virtio/virtio_balloon.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 7bfe365d9372..341458fd95ca 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -959,8 +959,8 @@ static int virtballoon_probe(struct virtio_device *vdev)
->  	iput(vb->vb_dev_info.inode);
->  out_kern_unmount:
->  	kern_unmount(balloon_mnt);
-> -#endif
->  out_del_vqs:
-> +#endif
->  	vdev->config->del_vqs(vdev);
->  out_free_vb:
->  	kfree(vb);
-> 
+> In fact does not this work on any platform now?
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
+There is ongoing work to use the generic IOMMU_DMA ops on X86. AMD IOMMU
+has been converted recently [1] but VT-d still implements its own DMA ops
+(conversion patches are on the list [2]). On Arm the arch Kconfig selects
+IOMMU_DMA, and I assume we'll have the same on X86 once Tom's work is
+complete. Until then I can add a "if X86" here for clarity.
 
--- 
 Thanks,
+Jean
 
-David / dhildenb
+[1] https://lore.kernel.org/linux-iommu/20190613223901.9523-1-murphyt7-/Zw1syy4LHg@public.gmane.org/
+[2] https://lore.kernel.org/linux-iommu/20191221150402.13868-1-murphyt7-/Zw1syy4LHg@public.gmane.org/
