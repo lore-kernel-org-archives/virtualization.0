@@ -1,117 +1,57 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V2 3/5] vDPA: introduce vDPA bus
-Date: Mon, 17 Feb 2020 14:08:03 +0800
-Message-ID: <01c86ebb-cf4b-691f-e682-2d6f93ddbcf7@redhat.com>
-References: <20200210035608.10002-1-jasowang@redhat.com>
- <20200210035608.10002-4-jasowang@redhat.com>
- <20200211134746.GI4271@mellanox.com>
- <cf7abcc9-f8ef-1fe2-248e-9b9028788ade@redhat.com>
- <20200212125108.GS4271@mellanox.com>
- <12775659-1589-39e4-e344-b7a2c792b0f3@redhat.com>
- <20200213134128.GV4271@mellanox.com>
- <ebaea825-5432-65e2-2ab3-720a8c4030e7@redhat.com>
- <20200213150542.GW4271@mellanox.com>
- <8b3e6a9c-8bfd-fb3c-12a8-2d6a3879f1ae@redhat.com>
- <20200214135232.GB4271@mellanox.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH] virtio_balloon: Adjust label in virtballoon_probe
+Date: Mon, 17 Feb 2020 09:37:25 +0100
+Message-ID: <c02f5eb2-386a-33d0-338f-afc4f8049c95@redhat.com>
+References: <20200216004039.23464-1-natechancellor@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200214135232.GB4271@mellanox.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200216004039.23464-1-natechancellor@gmail.com>
 Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Jason Gunthorpe <jgg@mellanox.com>
-Cc: kvm@vger.kernel.org, mst@redhat.com, mhabets@solarflare.com, virtualization@lists.linux-foundation.org, rob.miller@broadcom.com, lulu@redhat.com, hanand@xilinx.com, hch@infradead.org, eperezma@redhat.com, haotian.wang@sifive.com, shahafs@mellanox.com, parav@mellanox.com, jiri@mellanox.com, xiao.w.wang@intel.com, stefanha@redhat.com, zhihong.wang@intel.com, rdunlap@infradead.org, linux-kernel@vger.kernel.org, maxime.coquelin@redhat.com, netdev@vger.kernel.org, lingshan.zhu@intel.com
+Sender: linux-kernel-owner@vger.kernel.org
+To: Nathan Chancellor <natechancellor@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, clang-built-linux@googlegroups.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMjAvMi8xNCDkuIvljYg5OjUyLCBKYXNvbiBHdW50aG9ycGUgd3JvdGU6Cj4gT24gRnJp
-LCBGZWIgMTQsIDIwMjAgYXQgMTE6MjM6MjdBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPgo+
-Pj4+IFRob3VnaCBhbGwgdkRQQSBkZXZpY2VzIGhhdmUgdGhlIHNhbWUgcHJvZ3JhbW1pbmcgaW50
-ZXJmYWNlLCBidXQgdGhlCj4+Pj4gc2VtYW50aWMgaXMgZGlmZmVyZW50LiBTbyBpdCBsb29rcyB0
-byBtZSB0aGF0IHVzZSBidXMgY29tcGxpZXMgd2hhdAo+Pj4+IGNsYXNzLnJzdCBzYWlkOgo+Pj4+
-Cj4+Pj4gIgo+Pj4+Cj4+Pj4gRWFjaCBkZXZpY2UgY2xhc3MgZGVmaW5lcyBhIHNldCBvZiBzZW1h
-bnRpY3MgYW5kIGEgcHJvZ3JhbW1pbmcgaW50ZXJmYWNlCj4+Pj4gdGhhdCBkZXZpY2VzIG9mIHRo
-YXQgY2xhc3MgYWRoZXJlIHRvLiBEZXZpY2UgZHJpdmVycyBhcmUgdGhlCj4+Pj4gaW1wbGVtZW50
-YXRpb24gb2YgdGhhdCBwcm9ncmFtbWluZyBpbnRlcmZhY2UgZm9yIGEgcGFydGljdWxhciBkZXZp
-Y2Ugb24KPj4+PiBhIHBhcnRpY3VsYXIgYnVzLgo+Pj4+Cj4+Pj4gIgo+Pj4gSGVyZSB3ZSBhcmUg
-dGFsa2luZyBhYm91dCB0aGUgL2Rldi9YWCBub2RlIHRoYXQgcHJvdmlkZXMgdGhlCj4+PiBwcm9n
-cmFtbWluZyBpbnRlcmZhY2UuCj4+Cj4+IEknbSBjb25mdXNlZCBoZXJlLCBhcmUgeW91IHN1Z2dl
-c3RpbmcgdG8gdXNlIGNsYXNzIHRvIGNyZWF0ZSBjaGFyIGRldmljZSBpbgo+PiB2aG9zdC12ZHBh
-PyBUaGF0J3MgZmluZSBidXQgdGhlIGNvbW1lbnQgc2hvdWxkIGdvIGZvciB2aG9zdC12ZHBhIHBh
-dGNoLgo+IENlcnRhaW5seSB5ZXMsIHNvbWV0aGluZyBjcmVhdGluZyBtYW55IGNoYXIgZGV2cyBz
-aG91bGQgaGF2ZSBhCj4gY2xhc3MuIFRoYXQgbWFrZXMgdGhlIHN5c2ZzIHdvcmsgYXMgZXhwZWN0
-ZWQKPgo+IEkgc3VwcG9zZSB0aGlzIGlzIHZob3N0IHVzZXI/CgoKQWN0dWFsbHkgbm90LgoKVmhv
-c3QtdXNlciBpcyB0aGUgdmhvc3QgcHJvdG9jb2wgdGhhdCBpcyB1c2VkIGZvciB1c2Vyc3BhY2Ug
-dmhvc3QgCmJhY2tlbmQgKHVzdWFsbHkgdGhvdWdoIGEgVU5JWCBkb21haW4gc29ja2V0KS4KCldo
-YXQncyBiZWluZyBkb25lIGluIHRoZSB2aG9zdC12cGRhIGlzIGEgbmV3IHR5cGUgb2YgdGhlIHZo
-b3N0IGluIGtlcm5lbC4KCgo+IEkgYWRtaXQgSSBkb24ndCByZWFsbHkgc2VlIGhvdyB0aGlzCj4g
-dmhvc3Qgc3R1ZmYgd29ya3MsIGFsbCBJIHNlZSBhcmUgZ2xvYmFsIG1pc2MgZGV2aWNlcz8gVmVy
-eSB1bnVzdWFsIGZvcgo+IGEgbmV3IHN1YnN5c3RlbSB0byBiZSB1c2luZyBnbG9iYWwgbWlzYyBk
-ZXZpY2VzLi4KCgpWaG9zdCBpcyBub3QgYSBzdWJzeXN0ZW0gcmlnaHQgbm93LCBlLmcgZm9yIGl0
-J3MgbmV0IGltcGxlbWVudGF0aW9uLCBpdCAKd2FzIGxvb3NlbHkgY291cGxlZCB3aXRoIGEgc29j
-a2V0LgoKSSB0aG91Z2h0IHlvdSB3ZXJlIGNvcGllZCBpbiB0aGUgcGF0Y2ggWzFdLCBtYXliZSB3
-ZSBjYW4gbW92ZSB2aG9zdCAKcmVsYXRlZCBkaXNjdXNzaW9uIHRoZXJlIHRvIGF2b2lkIGNvbmZ1
-c2lvbi4KClsxXSBodHRwczovL2x3bi5uZXQvQXJ0aWNsZXMvODExMjEwLwoKCj4KPiBJIHdvdWxk
-IGhhdmUgZXhwZWN0ZWQgdGhhdCBhIHNpbmdsZSBWRFBBIGRldmljZSBjb21lcyBvdXQgYXMgYSBz
-aW5nbGUKPiBjaGFyIGRldiBsaW5rZWQgdG8gb25seSB0aGF0IFZEUEEgZGV2aWNlLgo+Cj4+PiBB
-bGwgdGhlIHZkcGEgZGV2aWNlcyBoYXZlIHRoZSBzYW1lIGJhc2ljCj4+PiBjaGFyZGV2IGludGVy
-ZmFjZSBhbmQgZGlzY292ZXIgYW55IHNlbWFudGljIHZhcmlhdGlvbnMgJ2luIGJhbmQnCj4+IFRo
-YXQncyBub3QgdHJ1ZSwgY2hhciBpbnRlcmZhY2UgaXMgb25seSB1c2VkIGZvciB2aG9zdC4gS2Vy
-bmVsIHZpcnRpbyBkcml2ZXIKPj4gZG9lcyBub3QgbmVlZCBjaGFyIGRldiBidXQgYSBkZXZpY2Ug
-b24gdGhlIHZpcnRpbyBidXMuCj4gT2theSwgdGhpcyBpcyBmaW5lLCBidXQgd2h5IGRvIHlvdSBu
-ZWVkIHR3byBidXNzZXMgdG8gYWNjb21wbGlzaCB0aGlzPwoKClRoZSByZWFzb25zIGFyZToKCi0g
-dkRQQSBvcHMgaXMgZGVzaWduZWQgdG8gYmUgZnVuY3Rpb25hbCBhcyBhIHNvZnR3YXJlIGFzc2lz
-dGVkIHRyYW5zcG9ydCAKKGNvbnRyb2wgcGF0aCkgZm9yIHZpcnRpbywgc28gaXQncyBmaXQgZm9y
-IGEgbmV3IHRyYW5zcG9ydCBkcml2ZXIgYnV0IApub3QgZGlyZWN0bHkgaW50byB2aXJ0aW8gYnVz
-LiBWT1AgdXNlIHNpbWlsYXIgZGVzaWduLgotIHZpcnRpbyBidXMgaXMgZGVzaWduZWQgZm9yIGtl
-cm5lbCBkcml2ZXJzIGJ1dCBub3QgdXNlcnNwYWNlLCBhbmQgaXQgCmNhbiBub3QgYmUgZWFzaWx5
-IGV4dGVuZGVkIHRvIHN1cHBvcnQgdXNlcnNwYWNlIGRyaXZlciBidXQgcmVxdWlyZXMgc29tZSAK
-bWFqb3IgcmVmYWN0b3JpbmcuIEUuZyB0aGUgdmlydGlvIGJ1cyBvcGVyYXRpb25zIHJlcXVpcmVz
-IHRoZSB2aXJ0cXVldWUgCnRvIGJlIGFsbG9jYXRlZCBieSB0aGUgdHJhbnNwb3J0IGRyaXZlci4K
-ClNvIGl0J3MgY2hlYXBlciBhbmQgc2ltcGxlciB0byBpbnRyb2R1Y2UgYSBuZXcgYnVzIGluc3Rl
-YWQgb2YgCnJlZmFjdG9yaW5nIGEgd2VsbCBrbm93biBidXMgYW5kIEFQSSB3aGVyZSBicnVuY2hl
-cyBvZiBkcml2ZXJzIGFuZCAKZGV2aWNlcyBoYWQgYmVlbiBpbXBsZW1lbnRlZCBmb3IgeWVhcnMu
-CgoKPgo+IFNob3VsZG4ndCB0aGUgJ3N0cnVjdCB2aXJpdG9fZGV2aWNlJyBiZSB0aGUgcGx1ZyBp
-biBwb2ludCBmb3IgSFcKPiBkcml2ZXJzIEkgd2FzIHRhbGtpbmcgYWJvdXQgLSBhbmQgZnJvbSB0
-aGVyZSBhIHZob3N0LXVzZXIgY2FuIGNvbm5lY3QKPiB0byB0aGUgc3RydWN0IHZpcnRpb19kZXZp
-Y2UgdG8gZ2l2ZSBpdCBhIGNoYXIgZGV2IG9yIGEga2VybmVsIGRyaXZlcgo+IGNhbiBjb25uZWN0
-IHRvIGxpbmsgaXQgdG8gYW5vdGhlciBzdWJzeXN0ZW0/CgoKIEZyb20gdmhvc3QgcG9pbnQgb2Yg
-dmlldywgaXQgd291bGQgb25seSBuZWVkIHRvIGNvbm5lY3QgdkRQQSBidXMsIG5vIApuZWVkIHRv
-IGdvIGZvciB2aXJ0aW8gYnVzLiBWaG9zdCBkZXZpY2UgdGFsa3MgdG8gdkRQQSBkZXZpY2UgdGhy
-b3VnaCAKdkRQQSBidXMuIFZpcml0byBkZXZpY2UgdGFsa3MgdG8gdkRQQSBkZXZpY2UgdGhyb3Vn
-aCBhIG5ldyB2RFBBIAp0cmFuc3BvcnQgZHJpdmVyLgoKCj4KPiBJdCBpcyBlYXN5IHRvIHNlZSBz
-b21ldGhpbmcgaXMgZ29pbmcgd3Jvbmcgd2l0aCB0aGlzIGRlc2lnbiBiZWNhdXNlCj4gdGhlIGRy
-aXZlcnMvdmlydGlvL3ZpcnRpb192ZHBhLmMgbWFpbmx5IGNvbnRhaW5zIGEgYnVuY2ggb2YgdHJh
-bXBvbGluZQo+IGZ1bmN0aW9ucyByZWZsZWN0aW5nIGlkZW50aWNhbCBjYWxscyBmcm9tIG9uZSBv
-cHMgc3RydWN0IHRvIGEKPiBkaWZmZXJlbnQgb3BzIHN0cnVjdC4KCgpUaGF0J3MgcHJldHR5IG5v
-cm1hbCwgc2luY2UgcGFydCBvZiB0aGUgdmlydGlvIG9wcyBjb3VsZCBiZSAxOjEgbWFwcGVkIAp0
-byBzb21lIGRldmljZSBmdW5jdGlvbi4gSWYgeW91IHNlZSBNTUlPIGFuZCBQQ0kgdHJhbnNwb3J0
-LCB5b3UgY2FuIHNlZSAKc29tZXRoaW5nIHNpbWlsYXIuIFRoZSBvbmx5IGRpZmZlcmVuY2UgaXMg
-dGhhdCBpbiB0aGUgY2FzZSBvZiBWRFBBIHRoZSAKZnVuY3Rpb24gaXMgYXNzaXN0ZWQgb3IgZW11
-bGF0ZWQgYnkgaGFyZHdhcmUgdkRQQSBkcml2ZXIuCgoKPiAgIFRoaXMgc3VnZ2VzdHMgdGhlICd2
-ZHBhJyBpcyBzb21lIHN1YmNsYXNzIG9mCj4gJ3ZpcnRpbycgYW5kIGl0IGlzIHBvc3NpYmx5IGJl
-dHRlciB0byBtb2RlbCBpdCBieSBleHRlbmRpbmcgJ3N0cnVjdAo+IHZpcml0b19kZXZpY2UnIHRv
-IGluY2x1ZGUgdGhlIHZkcGEgc3BlY2lmaWMgc3R1ZmYuCgoKR29pbmcgZm9yIHN1Y2gga2luZCBv
-ZiBtb2RlbGluZywgdmlydGlvLXBjaSBhbmQgdmlydGlvLW1taW8gY291bGQgYmUgCmFsc28gdHJl
-YXRlZCBhcyBhIHN1YmNsYXNzIG9mIHZpcnRpbyBhcyB3ZWxsLCB0aGV5IHdlcmUgYWxsIGltcGxl
-bWVudGVkIAp2aWEgYSBkZWRpY2F0ZWQgdHJhbnNwb3J0IGRyaXZlci4KCgo+Cj4gV2hlcmUgZG9l
-cyB0aGUgdmhvc3QtdXNlciBjaGFyIGRldiBnZXQgaW52b3ZsZWQgaW4gd2l0aCB0aGUgdjIgc2Vy
-aWVzPwo+IElzIHRoYXQgaW5jbHVkZWQ/CgoKV2UncmUgd29ya2luZyBvbiB0aGUgYSBuZXcgdmVy
-c2lvbiwgYnV0IGZvciB0aGUgYnVzL2RyaXZlciBwYXJ0IGl0IApzaG91bGQgYmUgdGhlIHNhbWUg
-YXMgdmVyc2lvbiAxLgoKVGhhbmtzCgoKPgo+Pj4gRXZlcnkgY2xhc3Mgb2YgdmlydGlvIHRyYWZm
-aWMgaXMgZ29pbmcgdG8gbmVlZCBhIHNwZWNpYWwgSFcgZHJpdmVyIHRvCj4+PiBlbmFibGUgVkRQ
-QSwgdGhhdCBzcGVjaWFsIGRyaXZlciBjYW4gY3JlYXRlIHRoZSBjb3JyZWN0IHZob3N0IHNpZGUK
-Pj4+IGNsYXNzIGRldmljZS4KPj4gQXJlIHlvdSBzYXlpbmcsIGUuZyBpdCdzIHRoZSBjaGFyZ2Ug
-b2YgSUZDVkYgZHJpdmVyIHRvIGNyZWF0ZSB2aG9zdCBjaGFyIGRldgo+PiBhbmQgb3RoZXIgc3R1
-ZmZzPwo+IE5vLgo+Cj4gSmFzb24KPgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
-QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
-Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On 16.02.20 01:40, Nathan Chancellor wrote:
+> Clang warns when CONFIG_BALLOON_COMPACTION is unset:
+> 
+> ../drivers/virtio/virtio_balloon.c:963:1: warning: unused label
+> 'out_del_vqs' [-Wunused-label]
+> out_del_vqs:
+> ^~~~~~~~~~~~
+> 1 warning generated.
+> 
+> Move the label within the preprocessor block since it is only used when
+> CONFIG_BALLOON_COMPACTION is set.
+> 
+> Fixes: 1ad6f58ea936 ("virtio_balloon: Fix memory leaks on errors in virtballoon_probe()")
+> Link: https://github.com/ClangBuiltLinux/linux/issues/886
+> Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+> ---
+>  drivers/virtio/virtio_balloon.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 7bfe365d9372..341458fd95ca 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -959,8 +959,8 @@ static int virtballoon_probe(struct virtio_device *vdev)
+>  	iput(vb->vb_dev_info.inode);
+>  out_kern_unmount:
+>  	kern_unmount(balloon_mnt);
+> -#endif
+>  out_del_vqs:
+> +#endif
+>  	vdev->config->del_vqs(vdev);
+>  out_free_vb:
+>  	kfree(vb);
+> 
+
+Reviewed-by: David Hildenbrand <david@redhat.com>
+
+-- 
+Thanks,
+
+David / dhildenb
