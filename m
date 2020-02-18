@@ -1,11 +1,13 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v2 0/4] drm: Provide a simple encoder
-Date: Tue, 18 Feb 2020 09:48:11 +0100
-Message-ID: <20200218084815.2137-1-tzimmermann@suse.de>
+Subject: [PATCH v2 4/4] drm/qxl: Use simple encoder
+Date: Tue, 18 Feb 2020 09:48:15 +0100
+Message-ID: <20200218084815.2137-5-tzimmermann@suse.de>
+References: <20200218084815.2137-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200218084815.2137-1-tzimmermann@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,37 +21,72 @@ To: airlied@linux.ie, daniel@ffwll.ch, maarten.lankhorst@linux.intel.com, mripar
 Cc: spice-devel@lists.freedesktop.org, Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Many DRM drivers implement an encoder with an empty implementation. This
-patchset adds drm_simple_encoder_init() and drm_simple_encoder_create(),
-which can be used by drivers instead. Except for the destroy callback, the
-simple encoder's implementation is empty.
-
-The patchset also converts 4 encoder instances to use the simple-encoder
-helpers. But there are at least 11 other drivers which can use the helper
-and I think I did not examine all drivers yet.
-
-The patchset was smoke-tested on mgag200 by running the fbdev console
-and Gnome on X11.
+The qxl driver uses an empty implementation for its encoder. Replace
+the code with the generic simple encoder.
 
 v2:
-	* move simple encoder to KMS helpers (Daniel)
-	* remove name argument; simplifies implementation (Gerd)
-	* don't allocate with devm_ interfaces; unsafe with DRM (Noralf)
+	* rebase onto new simple-encoder interface
 
-Thomas Zimmermann (4):
-  drm/simple-kms: Add drm_simple_encoder_{init,create}()
-  drm/ast: Use simple encoder
-  drm/mgag200: Use simple encoder
-  drm/qxl: Use simple encoder
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+---
+ drivers/gpu/drm/qxl/qxl_display.c | 18 +++---------------
+ 1 file changed, 3 insertions(+), 15 deletions(-)
 
- drivers/gpu/drm/ast/ast_drv.h           |  6 +-
- drivers/gpu/drm/ast/ast_mode.c          | 25 +++-----
- drivers/gpu/drm/drm_simple_kms_helper.c | 83 ++++++++++++++++++++++++-
- drivers/gpu/drm/mgag200/mgag200_drv.h   |  7 ---
- drivers/gpu/drm/mgag200/mgag200_mode.c  | 61 +-----------------
- drivers/gpu/drm/qxl/qxl_display.c       | 18 +-----
- include/drm/drm_simple_kms_helper.h     |  7 +++
- 7 files changed, 102 insertions(+), 105 deletions(-)
-
---
+diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+index ab4f8dd00400..9c0e1add59fb 100644
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -31,6 +31,7 @@
+ #include <drm/drm_gem_framebuffer_helper.h>
+ #include <drm/drm_plane_helper.h>
+ #include <drm/drm_probe_helper.h>
++#include <drm/drm_simple_kms_helper.h>
+ 
+ #include "qxl_drv.h"
+ #include "qxl_object.h"
+@@ -1007,9 +1008,6 @@ static struct drm_encoder *qxl_best_encoder(struct drm_connector *connector)
+ 	return &qxl_output->enc;
+ }
+ 
+-static const struct drm_encoder_helper_funcs qxl_enc_helper_funcs = {
+-};
+-
+ static const struct drm_connector_helper_funcs qxl_connector_helper_funcs = {
+ 	.get_modes = qxl_conn_get_modes,
+ 	.mode_valid = qxl_conn_mode_valid,
+@@ -1059,15 +1057,6 @@ static const struct drm_connector_funcs qxl_connector_funcs = {
+ 	.atomic_destroy_state = drm_atomic_helper_connector_destroy_state,
+ };
+ 
+-static void qxl_enc_destroy(struct drm_encoder *encoder)
+-{
+-	drm_encoder_cleanup(encoder);
+-}
+-
+-static const struct drm_encoder_funcs qxl_enc_funcs = {
+-	.destroy = qxl_enc_destroy,
+-};
+-
+ static int qxl_mode_create_hotplug_mode_update_property(struct qxl_device *qdev)
+ {
+ 	if (qdev->hotplug_mode_update_property)
+@@ -1098,15 +1087,14 @@ static int qdev_output_init(struct drm_device *dev, int num_output)
+ 	drm_connector_init(dev, &qxl_output->base,
+ 			   &qxl_connector_funcs, DRM_MODE_CONNECTOR_VIRTUAL);
+ 
+-	drm_encoder_init(dev, &qxl_output->enc, &qxl_enc_funcs,
+-			 DRM_MODE_ENCODER_VIRTUAL, NULL);
++	drm_simple_encoder_init(dev, &qxl_output->enc,
++				DRM_MODE_ENCODER_VIRTUAL);
+ 
+ 	/* we get HPD via client monitors config */
+ 	connector->polled = DRM_CONNECTOR_POLL_HPD;
+ 	encoder->possible_crtcs = 1 << num_output;
+ 	drm_connector_attach_encoder(&qxl_output->base,
+ 					  &qxl_output->enc);
+-	drm_encoder_helper_add(encoder, &qxl_enc_helper_funcs);
+ 	drm_connector_helper_add(connector, &qxl_connector_helper_funcs);
+ 
+ 	drm_object_attach_property(&connector->base,
+-- 
 2.25.0
