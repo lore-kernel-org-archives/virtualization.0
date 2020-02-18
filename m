@@ -1,37 +1,55 @@
-From: Ming Lei <tom.leiming@gmail.com>
-Subject: Re: [PATCH 1/2] virtio-blk: fix hw_queue stopped on arbitrary error
-Date: Tue, 18 Feb 2020 10:21:18 +0800
-Message-ID: <CACVXFVNiADTW_vLVc1bUSa0CoViLbVzoMnSJW4=sx=MCE-xUPw@mail.gmail.com>
-References: <20200213123728.61216-1-pasic@linux.ibm.com> <20200213123728.61216-2-pasic@linux.ibm.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH v2 0/4] drm: Provide a simple encoder
+Date: Tue, 18 Feb 2020 09:48:11 +0100
+Message-ID: <20200218084815.2137-1-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-block-owner@vger.kernel.org>
-In-Reply-To: <20200213123728.61216-2-pasic@linux.ibm.com>
-Sender: linux-block-owner@vger.kernel.org
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Jens Axboe <axboe@kernel.dk>, linux-block <linux-block@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: airlied@linux.ie, daniel@ffwll.ch, maarten.lankhorst@linux.intel.com, mripard@kernel.org, kraxel@redhat.com, noralf@tronnes.org, sam@ravnborg.org, alexander.deucher@amd.com, emil.velikov@collabora.com
+Cc: spice-devel@lists.freedesktop.org, Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 13, 2020 at 8:38 PM Halil Pasic <pasic@linux.ibm.com> wrote:
->
-> Since nobody else is going to restart our hw_queue for us, the
-> blk_mq_start_stopped_hw_queues() is in virtblk_done() is not sufficient
-> necessarily sufficient to ensure that the queue will get started again.
-> In case of global resource outage (-ENOMEM because mapping failure,
-> because of swiotlb full) our virtqueue may be empty and we can get
-> stuck with a stopped hw_queue.
->
-> Let us not stop the queue on arbitrary errors, but only on -EONSPC which
-> indicates a full virtqueue, where the hw_queue is guaranteed to get
-> started by virtblk_done() before when it makes sense to carry on
-> submitting requests. Let us also remove a stale comment.
+Many DRM drivers implement an encoder with an empty implementation. This
+patchset adds drm_simple_encoder_init() and drm_simple_encoder_create(),
+which can be used by drivers instead. Except for the destroy callback, the
+simple encoder's implementation is empty.
 
-The generic solution may be to stop queue only when there is any
-in-flight request
-not completed.
+The patchset also converts 4 encoder instances to use the simple-encoder
+helpers. But there are at least 11 other drivers which can use the helper
+and I think I did not examine all drivers yet.
 
-Checking -ENOMEM may not be enough, given -EIO can be returned from
-virtqueue_add()
-too in case of dma map failure.
+The patchset was smoke-tested on mgag200 by running the fbdev console
+and Gnome on X11.
 
-Thanks,
+v2:
+	* move simple encoder to KMS helpers (Daniel)
+	* remove name argument; simplifies implementation (Gerd)
+	* don't allocate with devm_ interfaces; unsafe with DRM (Noralf)
+
+Thomas Zimmermann (4):
+  drm/simple-kms: Add drm_simple_encoder_{init,create}()
+  drm/ast: Use simple encoder
+  drm/mgag200: Use simple encoder
+  drm/qxl: Use simple encoder
+
+ drivers/gpu/drm/ast/ast_drv.h           |  6 +-
+ drivers/gpu/drm/ast/ast_mode.c          | 25 +++-----
+ drivers/gpu/drm/drm_simple_kms_helper.c | 83 ++++++++++++++++++++++++-
+ drivers/gpu/drm/mgag200/mgag200_drv.h   |  7 ---
+ drivers/gpu/drm/mgag200/mgag200_mode.c  | 61 +-----------------
+ drivers/gpu/drm/qxl/qxl_display.c       | 18 +-----
+ include/drm/drm_simple_kms_helper.h     |  7 +++
+ 7 files changed, 102 insertions(+), 105 deletions(-)
+
+--
+2.25.0
