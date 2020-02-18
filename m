@@ -1,177 +1,54 @@
-From: Jason Gunthorpe <jgg@ziepe.ca>
-Subject: Re: [PATCH] vhost: introduce vDPA based backend
-Date: Tue, 18 Feb 2020 09:53:59 -0400
-Message-ID: <20200218135359.GA9608@ziepe.ca>
-References: <20200131033651.103534-1-tiwei.bie@intel.com>
+From: Jason Gunthorpe <jgg@mellanox.com>
+Subject: Re: [PATCH V2 3/5] vDPA: introduce vDPA bus
+Date: Tue, 18 Feb 2020 13:56:12 +0000
+Message-ID: <20200218135608.GS4271@mellanox.com>
+References: <20200211134746.GI4271@mellanox.com>
+ <cf7abcc9-f8ef-1fe2-248e-9b9028788ade@redhat.com>
+ <20200212125108.GS4271@mellanox.com>
+ <12775659-1589-39e4-e344-b7a2c792b0f3@redhat.com>
+ <20200213134128.GV4271@mellanox.com>
+ <ebaea825-5432-65e2-2ab3-720a8c4030e7@redhat.com>
+ <20200213150542.GW4271@mellanox.com>
+ <8b3e6a9c-8bfd-fb3c-12a8-2d6a3879f1ae@redhat.com>
+ <20200214135232.GB4271@mellanox.com>
+ <01c86ebb-cf4b-691f-e682-2d6f93ddbcf7@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200131033651.103534-1-tiwei.bie@intel.com>
+In-Reply-To: <01c86ebb-cf4b-691f-e682-2d6f93ddbcf7@redhat.com>
+Content-Language: en-US
+Content-ID: <CFAA87160CBAF244B86C490A3BEFC428@eurprd05.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Tiwei Bie <tiwei.bie@intel.com>
-Cc: mst@redhat.com, jasowang@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, shahafs@mellanox.com, rob.miller@broadcom.com, haotian.wang@sifive.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, rdunlap@infradead.org, hch@infradead.org, jiri@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, maxime.coquelin@redhat.com, lingshan.zhu@intel.com, dan.daly@intel.com, cunming.liang@intel.com, zhihong.wang@intel.com
+To: Jason Wang <jasowang@redhat.com>
+Cc: "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "tiwei.bie@intel.com" <tiwei.bie@intel.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "cunming.liang@intel.com" <cunming.liang@intel.com>, "zhihong.wang@intel.com" <zhihong.wang@intel.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "xiao.w.wang@intel.com" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "lingshan.zhu@intel.com" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.co>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jan 31, 2020 at 11:36:51AM +0800, Tiwei Bie wrote:
+On Mon, Feb 17, 2020 at 02:08:03PM +0800, Jason Wang wrote:
 
-> +static int vhost_vdpa_alloc_minor(struct vhost_vdpa *v)
-> +{
-> +	return idr_alloc(&vhost_vdpa.idr, v, 0, MINORMASK + 1,
-> +			 GFP_KERNEL);
-> +}
+> I thought you were copied in the patch [1], maybe we can move vhost relat=
+ed
+> discussion there to avoid confusion.
+>
+> [1] https://lwn.net/Articles/811210/
 
-Please don't use idr in new code, use xarray directly
+Wow, that is .. confusing.
 
-> +static int vhost_vdpa_probe(struct device *dev)
-> +{
-> +	struct vdpa_device *vdpa = dev_to_vdpa(dev);
-> +	const struct vdpa_config_ops *ops = vdpa->config;
-> +	struct vhost_vdpa *v;
-> +	struct device *d;
-> +	int minor, nvqs;
-> +	int r;
-> +
-> +	/* Currently, we only accept the network devices. */
-> +	if (ops->get_device_id(vdpa) != VIRTIO_ID_NET) {
-> +		r = -ENOTSUPP;
-> +		goto err;
-> +	}
-> +
-> +	v = kzalloc(sizeof(*v), GFP_KERNEL | __GFP_RETRY_MAYFAIL);
-> +	if (!v) {
-> +		r = -ENOMEM;
-> +		goto err;
-> +	}
-> +
-> +	nvqs = VHOST_VDPA_VQ_MAX;
-> +
-> +	v->vqs = kmalloc_array(nvqs, sizeof(struct vhost_virtqueue),
-> +			       GFP_KERNEL);
-> +	if (!v->vqs) {
-> +		r = -ENOMEM;
-> +		goto err_alloc_vqs;
-> +	}
-> +
-> +	mutex_init(&v->mutex);
-> +	atomic_set(&v->opened, 0);
-> +
-> +	v->vdpa = vdpa;
-> +	v->nvqs = nvqs;
-> +	v->virtio_id = ops->get_device_id(vdpa);
-> +
-> +	mutex_lock(&vhost_vdpa.mutex);
-> +
-> +	minor = vhost_vdpa_alloc_minor(v);
-> +	if (minor < 0) {
-> +		r = minor;
-> +		goto err_alloc_minor;
-> +	}
-> +
-> +	d = device_create(vhost_vdpa.class, NULL,
-> +			  MKDEV(MAJOR(vhost_vdpa.devt), minor),
-> +			  v, "%d", vdpa->index);
-> +	if (IS_ERR(d)) {
-> +		r = PTR_ERR(d);
-> +		goto err_device_create;
-> +	}
-> +
+So this is supposed to duplicate the uAPI of vhost-user? But it is
+open coded and duplicated because .. vdpa?
 
-I can't understand what this messing around with major/minor numbers
-does. Without allocating a cdev via cdev_add/etc there is only a
-single char dev in existence here. This and the stuff in
-vhost_vdpa_open() looks non-functional.
+> So it's cheaper and simpler to introduce a new bus instead of refactoring=
+ a
+> well known bus and API where brunches of drivers and devices had been
+> implemented for years.
 
-> +static void vhost_vdpa_remove(struct device *dev)
-> +{
-> +	DEFINE_WAIT_FUNC(wait, woken_wake_function);
-> +	struct vhost_vdpa *v = dev_get_drvdata(dev);
-> +	int opened;
-> +
-> +	add_wait_queue(&vhost_vdpa.release_q, &wait);
-> +
-> +	do {
-> +		opened = atomic_cmpxchg(&v->opened, 0, 1);
-> +		if (!opened)
-> +			break;
-> +		wait_woken(&wait, TASK_UNINTERRUPTIBLE, HZ * 10);
-> +	} while (1);
-> +
-> +	remove_wait_queue(&vhost_vdpa.release_q, &wait);
+If you reason for this approach is to ease the implementation then you
+should talk about it in the cover letters/etc
 
-*barf* use the normal refcount pattern please
+Maybe it is reasonable to do this because the rework is too great, I
+don't know, but to me this whole thing looks rather messy.=20
 
-read side:
-
-  refcount_inc_not_zero(uses)
-  //stuff
-  if (refcount_dec_and_test(uses))
-     complete(completer)
-
-destroy side:
-  if (refcount_dec_and_test(uses))
-     complete(completer)
-  wait_for_completion(completer)
-  // refcount now permanently == 0
-
-Use a completion in driver code
-
-> +	mutex_lock(&vhost_vdpa.mutex);
-> +	device_destroy(vhost_vdpa.class,
-> +		       MKDEV(MAJOR(vhost_vdpa.devt), v->minor));
-> +	vhost_vdpa_free_minor(v->minor);
-> +	mutex_unlock(&vhost_vdpa.mutex);
-> +	kfree(v->vqs);
-> +	kfree(v);
-
-This use after-fress vs vhost_vdpa_open prior to it setting the open
-bit. Maybe use xarray, rcu and kfree_rcu ..
-
-> +static int __init vhost_vdpa_init(void)
-> +{
-> +	int r;
-> +
-> +	idr_init(&vhost_vdpa.idr);
-> +	mutex_init(&vhost_vdpa.mutex);
-> +	init_waitqueue_head(&vhost_vdpa.release_q);
-> +
-> +	/* /dev/vhost-vdpa/$vdpa_device_index */
-> +	vhost_vdpa.class = class_create(THIS_MODULE, "vhost-vdpa");
-> +	if (IS_ERR(vhost_vdpa.class)) {
-> +		r = PTR_ERR(vhost_vdpa.class);
-> +		goto err_class;
-> +	}
-> +
-> +	vhost_vdpa.class->devnode = vhost_vdpa_devnode;
-> +
-> +	r = alloc_chrdev_region(&vhost_vdpa.devt, 0, MINORMASK + 1,
-> +				"vhost-vdpa");
-> +	if (r)
-> +		goto err_alloc_chrdev;
-> +
-> +	cdev_init(&vhost_vdpa.cdev, &vhost_vdpa_fops);
-> +	r = cdev_add(&vhost_vdpa.cdev, vhost_vdpa.devt, MINORMASK + 1);
-> +	if (r)
-> +		goto err_cdev_add;
-
-It is very strange, is the intention to create a single global char
-dev?
-
-If so, why is there this:
-
-+static int vhost_vdpa_open(struct inode *inode, struct file *filep)
-+{
-+	struct vhost_vdpa *v;
-+	struct vhost_dev *dev;
-+	struct vhost_virtqueue **vqs;
-+	int nvqs, i, r, opened;
-+
-+	v = vhost_vdpa_get_from_minor(iminor(inode));
-
-?
-
-If the idea is to create a per-vdpa char dev then this stuff belongs
-in vhost_vdpa_probe(), the cdev should be part of the vhost_vdpa, and
-the above should be container_of not an idr lookup.
+Remember this stuff is all uAPI as it shows up in sysfs, so you can
+easilly get stuck with it forever.
 
 Jason
