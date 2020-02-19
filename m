@@ -1,70 +1,121 @@
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH 1/2] virtio-blk: fix hw_queue stopped on arbitrary error
-Date: Wed, 19 Feb 2020 16:42:18 +0100
-Message-ID: <20200219164218.6164cb17.pasic@linux.ibm.com>
-References: <20200213123728.61216-1-pasic@linux.ibm.com>
-        <20200213123728.61216-2-pasic@linux.ibm.com>
-        <CACVXFVNiADTW_vLVc1bUSa0CoViLbVzoMnSJW4=sx=MCE-xUPw@mail.gmail.com>
-        <20200218133531.3eb08120.pasic@linux.ibm.com>
-        <CACVXFVPBPCzr+sfQ4HOw1DNPGnEfp+5BLqQkXWQgkaBKqr3yVQ@mail.gmail.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Subject: [RESEND PATCH v2 0/9] iomap: Constify ioreadX() iomem argument
+Date: Wed, 19 Feb 2020 18:49:58 +0100
+Message-ID: <20200219175007.13627-1-krzk__6565.22658407397$1582134675$gmane$org@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CACVXFVPBPCzr+sfQ4HOw1DNPGnEfp+5BLqQkXWQgkaBKqr3yVQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Ming Lei <tom.leiming@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Jens Axboe <axboe@kernel.dk>, linux-block <linux-block@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Alexey Brodkin <abrodkin@synopsys.com>, Vineet Gupta <vgupta@synopsys.com>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, Dave Airlie <airlied@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Ben Skeggs <bskeggs@redhat.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Jiri Slaby <jirislaby@gmail.com>, Nick Kossifidis <mickflemm@gmail.com>, Luis Chamberlain <mcgrof@kernel.org>, Kalle Valo <kvalo@codeaurora.org>, "David S. Miller" <davem@davemloft.net>, Dave Jiang <dave.jiang@intel.com>
+Cc: Krzysztof Kozlowski <krzk@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 19 Feb 2020 09:46:56 +0800
-Ming Lei <tom.leiming@gmail.com> wrote:
+Hi,
 
-> On Tue, Feb 18, 2020 at 8:35 PM Halil Pasic <pasic@linux.ibm.com> wrote:
-> >
-> > On Tue, 18 Feb 2020 10:21:18 +0800
-> > Ming Lei <tom.leiming@gmail.com> wrote:
-> >
-> > > On Thu, Feb 13, 2020 at 8:38 PM Halil Pasic <pasic@linux.ibm.com> wrote:
-> > > >
-> > > > Since nobody else is going to restart our hw_queue for us, the
-> > > > blk_mq_start_stopped_hw_queues() is in virtblk_done() is not sufficient
-> > > > necessarily sufficient to ensure that the queue will get started again.
-> > > > In case of global resource outage (-ENOMEM because mapping failure,
-> > > > because of swiotlb full) our virtqueue may be empty and we can get
-> > > > stuck with a stopped hw_queue.
-> > > >
-> > > > Let us not stop the queue on arbitrary errors, but only on -EONSPC which
-> > > > indicates a full virtqueue, where the hw_queue is guaranteed to get
-> > > > started by virtblk_done() before when it makes sense to carry on
-> > > > submitting requests. Let us also remove a stale comment.
-> > >
-> > > The generic solution may be to stop queue only when there is any
-> > > in-flight request
-> > > not completed.
-> > >
-> >
-> > I think this is a pretty close to that. The queue is stopped only on
-> > ENOSPC, which means virtqueue is full.
-> >
-> > > Checking -ENOMEM may not be enough, given -EIO can be returned from
-> > > virtqueue_add()
-> > > too in case of dma map failure.
-> >
-> > I'm not checking on -ENOMEM. So the queue would not be stopped on EIO.
-> > Maybe I'm misunderstanding something In any case, please have another
-> > look at the diff, and if your concerns persist please help me understand.
-> 
-> Looks I misread the patch, and this patch is fine:
-> 
-> Reviewed-by: Ming Lei <ming.lei@redhat.com>
 
-Thank you very much!
+Changes since v1
+================
+https://lore.kernel.org/lkml/1578415992-24054-1-git-send-email-krzk@kernel.org/
+1. Constify also ioreadX_rep() and mmio_insX(),
+2. Squash lib+alpha+powerpc+parisc+sh into one patch for bisectability,
+3. Add acks and reviews,
+4. Re-order patches so all optional driver changes are at the end.
 
-Regards,
-Halil
 
-> 
-> 
-> Thanks,
-> Ming Lei
+Description
+===========
+The ioread8/16/32() and others have inconsistent interface among the
+architectures: some taking address as const, some not.
+
+It seems there is nothing really stopping all of them to take
+pointer to const.
+
+Patchset was only compile tested on affected architectures.  No real
+testing.
+
+
+volatile
+========
+There is still interface inconsistency between architectures around
+"volatile" qualifier:
+ - include/asm-generic/io.h:static inline u32 ioread32(const volatile void __iomem *addr)
+ - include/asm-generic/iomap.h:extern unsigned int ioread32(const void __iomem *);
+
+This is still discussed and out of scope of this patchset.
+
+
+Merging
+=======
+Multiple architectures are affected in first patch so acks are welcomed.
+
+1. All patches depend on first patch,
+2. Patches 2-4 unify the interface also in few drivers,
+3. PAtches 5-9 are optional cleanup, without actual impact.
+
+
+Best regards,
+Krzysztof
+
+
+Krzysztof Kozlowski (9):
+  iomap: Constify ioreadX() iomem argument (as in generic
+    implementation)
+  rtl818x: Constify ioreadX() iomem argument (as in generic
+    implementation)
+  ntb: intel: Constify ioreadX() iomem argument (as in generic
+    implementation)
+  virtio: pci: Constify ioreadX() iomem argument (as in generic
+    implementation)
+  arc: Constify ioreadX() iomem argument (as in generic implementation)
+  drm/mgag200: Constify ioreadX() iomem argument (as in generic
+    implementation)
+  drm/nouveau: Constify ioreadX() iomem argument (as in generic
+    implementation)
+  media: fsl-viu: Constify ioreadX() iomem argument (as in generic
+    implementation)
+  ath5k: Constify ioreadX() iomem argument (as in generic
+    implementation)
+
+ arch/alpha/include/asm/core_apecs.h           |  6 +-
+ arch/alpha/include/asm/core_cia.h             |  6 +-
+ arch/alpha/include/asm/core_lca.h             |  6 +-
+ arch/alpha/include/asm/core_marvel.h          |  4 +-
+ arch/alpha/include/asm/core_mcpcia.h          |  6 +-
+ arch/alpha/include/asm/core_t2.h              |  2 +-
+ arch/alpha/include/asm/io.h                   | 12 ++--
+ arch/alpha/include/asm/io_trivial.h           | 16 ++---
+ arch/alpha/include/asm/jensen.h               |  2 +-
+ arch/alpha/include/asm/machvec.h              |  6 +-
+ arch/alpha/kernel/core_marvel.c               |  2 +-
+ arch/alpha/kernel/io.c                        | 12 ++--
+ arch/arc/plat-axs10x/axs10x.c                 |  4 +-
+ arch/parisc/include/asm/io.h                  |  4 +-
+ arch/parisc/lib/iomap.c                       | 72 +++++++++----------
+ arch/powerpc/kernel/iomap.c                   | 28 ++++----
+ arch/sh/kernel/iomap.c                        | 22 +++---
+ drivers/gpu/drm/mgag200/mgag200_drv.h         |  4 +-
+ drivers/gpu/drm/nouveau/nouveau_bo.c          |  2 +-
+ drivers/media/platform/fsl-viu.c              |  2 +-
+ drivers/net/wireless/ath/ath5k/ahb.c          | 10 +--
+ .../realtek/rtl818x/rtl8180/rtl8180.h         |  6 +-
+ drivers/ntb/hw/intel/ntb_hw_gen1.c            |  2 +-
+ drivers/ntb/hw/intel/ntb_hw_gen3.h            |  2 +-
+ drivers/ntb/hw/intel/ntb_hw_intel.h           |  2 +-
+ drivers/virtio/virtio_pci_modern.c            |  6 +-
+ include/asm-generic/iomap.h                   | 28 ++++----
+ include/linux/io-64-nonatomic-hi-lo.h         |  4 +-
+ include/linux/io-64-nonatomic-lo-hi.h         |  4 +-
+ lib/iomap.c                                   | 30 ++++----
+ 30 files changed, 156 insertions(+), 156 deletions(-)
+
+-- 
+2.17.1
