@@ -1,58 +1,49 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: Re: [PATCH V2 3/5] vDPA: introduce vDPA bus
-Date: Wed, 19 Feb 2020 10:59:48 +0800
-Message-ID: <20200219025948.GA972742@___>
-References: <cf7abcc9-f8ef-1fe2-248e-9b9028788ade@redhat.com>
- <20200212125108.GS4271@mellanox.com>
- <12775659-1589-39e4-e344-b7a2c792b0f3@redhat.com>
- <20200213134128.GV4271@mellanox.com>
- <ebaea825-5432-65e2-2ab3-720a8c4030e7@redhat.com>
- <20200213150542.GW4271@mellanox.com>
- <8b3e6a9c-8bfd-fb3c-12a8-2d6a3879f1ae@redhat.com>
- <20200214135232.GB4271@mellanox.com>
- <01c86ebb-cf4b-691f-e682-2d6f93ddbcf7@redhat.com>
- <20200218135608.GS4271@mellanox.com>
+From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+Subject: Re: [PATCH] x86/ioperm: add new paravirt function update_io_bitmap
+Date: Wed, 19 Feb 2020 06:35:16 +0100
+Message-ID: <b0f33786-79b1-f8ee-24ae-ce9f9f4791af@suse.com>
+References: <20200218154712.25490-1-jgross@suse.com>
+ <87mu9fr4ky.fsf@nanos.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200218135608.GS4271@mellanox.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Gunthorpe <jgg@mellanox.com>
-Cc: Jason Wang <jasowang@redhat.com>, "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "cunming.liang@intel.com" <cunming.liang@intel.com>, "zhihong.wang@intel.com" <zhihong.wang@intel.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "xiao.w.wang@intel.com" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "lingshan.zhu@intel.com" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <87mu9fr4ky.fsf@nanos.tec.linutronix.de>
+Content-Language: en-US
+Sender: stable-owner@vger.kernel.org
+To: Thomas Gleixner <tglx@linutronix.de>, xen-devel@lists.xenproject.org, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Hellstrom <thellstrom@vmware.com>, "VMware, Inc." <pv-drivers@vmware.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stefano Stabellini <sstabellini@kernel.org>, stable@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Feb 18, 2020 at 01:56:12PM +0000, Jason Gunthorpe wrote:
-> On Mon, Feb 17, 2020 at 02:08:03PM +0800, Jason Wang wrote:
+On 18.02.20 22:03, Thomas Gleixner wrote:
+> Juergen Gross <jgross@suse.com> writes:
+>> Commit 111e7b15cf10f6 ("x86/ioperm: Extend IOPL config to control
+>> ioperm() as well") reworked the iopl syscall to use I/O bitmaps.
+>>
+>> Unfortunately this broke Xen PV domains using that syscall as there
+>> is currently no I/O bitmap support in PV domains.
+>>
+>> Add I/O bitmap support via a new paravirt function update_io_bitmap
+>> which Xen PV domains can use to update their I/O bitmaps via a
+>> hypercall.
+>>
+>> Fixes: 111e7b15cf10f6 ("x86/ioperm: Extend IOPL config to control ioperm() as well")
+>> Reported-by: Jan Beulich <jbeulich@suse.com>
+>> Cc: <stable@vger.kernel.org> # 5.5
+>> Signed-off-by: Juergen Gross <jgross@suse.com>
+>> Reviewed-by: Jan Beulich <jbeulich@suse.com>
+>> Tested-by: Jan Beulich <jbeulich@suse.com>
 > 
-> > I thought you were copied in the patch [1], maybe we can move vhost related
-> > discussion there to avoid confusion.
-> >
-> > [1] https://lwn.net/Articles/811210/
+> Duh, sorry about that and thanks for fixing it.
 > 
-> Wow, that is .. confusing.
-> 
-> So this is supposed to duplicate the uAPI of vhost-user? But it is
-> open coded and duplicated because .. vdpa?
+> BTW, why isn't stuff like this not catched during next or at least
+> before the final release? Is nothing running CI on upstream with all
+> that XEN muck active?
 
-Do you mean the vhost-user in DPDK? There is no vhost-user
-in Linux kernel.
+This problem showed up by not being able to start the X server (probably
+not the freshest one) in dom0 on a moderate aged AMD system.
 
-Thanks,
-Tiwei
+Our CI tests tend do be more text console based for dom0.
 
-> 
-> > So it's cheaper and simpler to introduce a new bus instead of refactoring a
-> > well known bus and API where brunches of drivers and devices had been
-> > implemented for years.
-> 
-> If you reason for this approach is to ease the implementation then you
-> should talk about it in the cover letters/etc
-> 
-> Maybe it is reasonable to do this because the rework is too great, I
-> don't know, but to me this whole thing looks rather messy. 
-> 
-> Remember this stuff is all uAPI as it shows up in sysfs, so you can
-> easilly get stuck with it forever.
-> 
-> Jason
+
+Juergen
