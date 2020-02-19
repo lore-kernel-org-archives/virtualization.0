@@ -1,41 +1,70 @@
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-Subject: Re: [PATCH] x86/ioperm: add new paravirt function update_io_bitmap
-Date: Wed, 19 Feb 2020 10:46:15 +0100
-Message-ID: <4537af8d-e28f-1c27-53a9-e3208874037e@suse.com>
-References: <20200218154712.25490-1-jgross@suse.com>
- <87mu9fr4ky.fsf@nanos.tec.linutronix.de>
- <b0f33786-79b1-f8ee-24ae-ce9f9f4791af@suse.com>
- <8736b7q6ca.fsf@nanos.tec.linutronix.de>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 08/52] drm/qxl: Use drmm_add_final_kfree
+Date: Wed, 19 Feb 2020 11:20:38 +0100
+Message-ID: <20200219102122.1607365-9-daniel.vetter@ffwll.ch>
+References: <20200219102122.1607365-1-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <8736b7q6ca.fsf@nanos.tec.linutronix.de>
-Content-Language: en-US
-Sender: stable-owner@vger.kernel.org
-To: Thomas Gleixner <tglx@linutronix.de>, xen-devel@lists.xenproject.org, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Hellstrom <thellstrom@vmware.com>, "VMware, Inc." <pv-drivers@vmware.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stefano Stabellini <sstabellini@kernel.org>, stable@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200219102122.1607365-1-daniel.vetter@ffwll.ch>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: DRI Development <dri-devel@lists.freedesktop.org>
+Cc: spice-devel@lists.freedesktop.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Daniel Vetter <daniel.vetter@intel.com>, Dave Airlie <airlied@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 19.02.20 10:22, Thomas Gleixner wrote:
-> Jürgen Groß <jgross@suse.com> writes:
->> On 18.02.20 22:03, Thomas Gleixner wrote:
->>> BTW, why isn't stuff like this not catched during next or at least
->>> before the final release? Is nothing running CI on upstream with all
->>> that XEN muck active?
->>
->> This problem showed up by not being able to start the X server (probably
->> not the freshest one) in dom0 on a moderate aged AMD system.
->>
->> Our CI tests tend do be more text console based for dom0.
-> 
-> tools/testing/selftests/x86/io[perm|pl] should have caught that as well,
-> right? If not, we need to fix the selftests.
+With this we can drop the final kfree from the release function.
 
-Hmm, yes. Thanks for the pointer.
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Cc: Dave Airlie <airlied@redhat.com>
+Cc: Gerd Hoffmann <kraxel@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
+Cc: spice-devel@lists.freedesktop.org
+---
+ drivers/gpu/drm/qxl/qxl_drv.c | 2 --
+ drivers/gpu/drm/qxl/qxl_kms.c | 2 ++
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-Will ask our testing specialist what is done in this regard and how it
-can be enhanced.
-
-
-Juergen
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
+index 4fda3f9b29f4..09102e2efabc 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.c
++++ b/drivers/gpu/drm/qxl/qxl_drv.c
+@@ -144,8 +144,6 @@ static void qxl_drm_release(struct drm_device *dev)
+ 	 */
+ 	qxl_modeset_fini(qdev);
+ 	qxl_device_fini(qdev);
+-	dev->dev_private = NULL;
+-	kfree(qdev);
+ }
+ 
+ static void
+diff --git a/drivers/gpu/drm/qxl/qxl_kms.c b/drivers/gpu/drm/qxl/qxl_kms.c
+index 70b20ee4741a..09d7b5f6d172 100644
+--- a/drivers/gpu/drm/qxl/qxl_kms.c
++++ b/drivers/gpu/drm/qxl/qxl_kms.c
+@@ -27,6 +27,7 @@
+ #include <linux/pci.h>
+ 
+ #include <drm/drm_drv.h>
++#include <drm/drm_managed.h>
+ #include <drm/drm_probe_helper.h>
+ 
+ #include "qxl_drv.h"
+@@ -121,6 +122,7 @@ int qxl_device_init(struct qxl_device *qdev,
+ 	qdev->ddev.pdev = pdev;
+ 	pci_set_drvdata(pdev, &qdev->ddev);
+ 	qdev->ddev.dev_private = qdev;
++	drmm_add_final_kfree(&qdev->ddev, qdev);
+ 
+ 	mutex_init(&qdev->gem.mutex);
+ 	mutex_init(&qdev->update_area_mutex);
+-- 
+2.24.1
