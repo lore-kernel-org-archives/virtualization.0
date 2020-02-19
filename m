@@ -1,57 +1,200 @@
-From: Ming Lei <tom.leiming@gmail.com>
-Subject: Re: [PATCH 1/2] virtio-blk: fix hw_queue stopped on arbitrary error
-Date: Wed, 19 Feb 2020 09:46:56 +0800
-Message-ID: <CACVXFVPBPCzr+sfQ4HOw1DNPGnEfp+5BLqQkXWQgkaBKqr3yVQ@mail.gmail.com>
-References: <20200213123728.61216-1-pasic@linux.ibm.com> <20200213123728.61216-2-pasic@linux.ibm.com>
- <CACVXFVNiADTW_vLVc1bUSa0CoViLbVzoMnSJW4=sx=MCE-xUPw@mail.gmail.com> <20200218133531.3eb08120.pasic@linux.ibm.com>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: Re: [PATCH] vhost: introduce vDPA based backend
+Date: Wed, 19 Feb 2020 10:52:38 +0800
+Message-ID: <20200219025217.GA971968@___>
+References: <20200131033651.103534-1-tiwei.bie@intel.com>
+ <20200218135359.GA9608@ziepe.ca>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-block-owner@vger.kernel.org>
-In-Reply-To: <20200218133531.3eb08120.pasic@linux.ibm.com>
-Sender: linux-block-owner@vger.kernel.org
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Jens Axboe <axboe@kernel.dk>, linux-block <linux-block@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200218135359.GA9608@ziepe.ca>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: mst@redhat.com, jasowang@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, shahafs@mellanox.com, rob.miller@broadcom.com, haotian.wang@sifive.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, rdunlap@infradead.org, hch@infradead.org, jiri@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, maxime.coquelin@redhat.com, lingshan.zhu@intel.com, dan.daly@intel.com, cunming.liang@intel.com, zhihong.wang@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Feb 18, 2020 at 8:35 PM Halil Pasic <pasic@linux.ibm.com> wrote:
->
-> On Tue, 18 Feb 2020 10:21:18 +0800
-> Ming Lei <tom.leiming@gmail.com> wrote:
->
-> > On Thu, Feb 13, 2020 at 8:38 PM Halil Pasic <pasic@linux.ibm.com> wrote:
-> > >
-> > > Since nobody else is going to restart our hw_queue for us, the
-> > > blk_mq_start_stopped_hw_queues() is in virtblk_done() is not sufficient
-> > > necessarily sufficient to ensure that the queue will get started again.
-> > > In case of global resource outage (-ENOMEM because mapping failure,
-> > > because of swiotlb full) our virtqueue may be empty and we can get
-> > > stuck with a stopped hw_queue.
-> > >
-> > > Let us not stop the queue on arbitrary errors, but only on -EONSPC which
-> > > indicates a full virtqueue, where the hw_queue is guaranteed to get
-> > > started by virtblk_done() before when it makes sense to carry on
-> > > submitting requests. Let us also remove a stale comment.
-> >
-> > The generic solution may be to stop queue only when there is any
-> > in-flight request
-> > not completed.
-> >
->
-> I think this is a pretty close to that. The queue is stopped only on
-> ENOSPC, which means virtqueue is full.
->
-> > Checking -ENOMEM may not be enough, given -EIO can be returned from
-> > virtqueue_add()
-> > too in case of dma map failure.
->
-> I'm not checking on -ENOMEM. So the queue would not be stopped on EIO.
-> Maybe I'm misunderstanding something In any case, please have another
-> look at the diff, and if your concerns persist please help me understand.
+On Tue, Feb 18, 2020 at 09:53:59AM -0400, Jason Gunthorpe wrote:
+> On Fri, Jan 31, 2020 at 11:36:51AM +0800, Tiwei Bie wrote:
+> 
+> > +static int vhost_vdpa_alloc_minor(struct vhost_vdpa *v)
+> > +{
+> > +	return idr_alloc(&vhost_vdpa.idr, v, 0, MINORMASK + 1,
+> > +			 GFP_KERNEL);
+> > +}
+> 
+> Please don't use idr in new code, use xarray directly
+> 
+> > +static int vhost_vdpa_probe(struct device *dev)
+> > +{
+> > +	struct vdpa_device *vdpa = dev_to_vdpa(dev);
+> > +	const struct vdpa_config_ops *ops = vdpa->config;
+> > +	struct vhost_vdpa *v;
+> > +	struct device *d;
+> > +	int minor, nvqs;
+> > +	int r;
+> > +
+> > +	/* Currently, we only accept the network devices. */
+> > +	if (ops->get_device_id(vdpa) != VIRTIO_ID_NET) {
+> > +		r = -ENOTSUPP;
+> > +		goto err;
+> > +	}
+> > +
+> > +	v = kzalloc(sizeof(*v), GFP_KERNEL | __GFP_RETRY_MAYFAIL);
+> > +	if (!v) {
+> > +		r = -ENOMEM;
+> > +		goto err;
+> > +	}
+> > +
+> > +	nvqs = VHOST_VDPA_VQ_MAX;
+> > +
+> > +	v->vqs = kmalloc_array(nvqs, sizeof(struct vhost_virtqueue),
+> > +			       GFP_KERNEL);
+> > +	if (!v->vqs) {
+> > +		r = -ENOMEM;
+> > +		goto err_alloc_vqs;
+> > +	}
+> > +
+> > +	mutex_init(&v->mutex);
+> > +	atomic_set(&v->opened, 0);
+> > +
+> > +	v->vdpa = vdpa;
+> > +	v->nvqs = nvqs;
+> > +	v->virtio_id = ops->get_device_id(vdpa);
+> > +
+> > +	mutex_lock(&vhost_vdpa.mutex);
+> > +
+> > +	minor = vhost_vdpa_alloc_minor(v);
+> > +	if (minor < 0) {
+> > +		r = minor;
+> > +		goto err_alloc_minor;
+> > +	}
+> > +
+> > +	d = device_create(vhost_vdpa.class, NULL,
+> > +			  MKDEV(MAJOR(vhost_vdpa.devt), minor),
+> > +			  v, "%d", vdpa->index);
+> > +	if (IS_ERR(d)) {
+> > +		r = PTR_ERR(d);
+> > +		goto err_device_create;
+> > +	}
+> > +
+> 
+> I can't understand what this messing around with major/minor numbers
+> does. Without allocating a cdev via cdev_add/etc there is only a
+> single char dev in existence here. This and the stuff in
+> vhost_vdpa_open() looks non-functional.
 
-Looks I misread the patch, and this patch is fine:
+I followed the code in VFIO. Please see more details below.
 
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
+> 
+> > +static void vhost_vdpa_remove(struct device *dev)
+> > +{
+> > +	DEFINE_WAIT_FUNC(wait, woken_wake_function);
+> > +	struct vhost_vdpa *v = dev_get_drvdata(dev);
+> > +	int opened;
+> > +
+> > +	add_wait_queue(&vhost_vdpa.release_q, &wait);
+> > +
+> > +	do {
+> > +		opened = atomic_cmpxchg(&v->opened, 0, 1);
+> > +		if (!opened)
+> > +			break;
+> > +		wait_woken(&wait, TASK_UNINTERRUPTIBLE, HZ * 10);
+> > +	} while (1);
+> > +
+> > +	remove_wait_queue(&vhost_vdpa.release_q, &wait);
+> 
+> *barf* use the normal refcount pattern please
+> 
+> read side:
+> 
+>   refcount_inc_not_zero(uses)
+>   //stuff
+>   if (refcount_dec_and_test(uses))
+>      complete(completer)
+> 
+> destroy side:
+>   if (refcount_dec_and_test(uses))
+>      complete(completer)
+>   wait_for_completion(completer)
+>   // refcount now permanently == 0
+> 
+> Use a completion in driver code
+> 
+> > +	mutex_lock(&vhost_vdpa.mutex);
+> > +	device_destroy(vhost_vdpa.class,
+> > +		       MKDEV(MAJOR(vhost_vdpa.devt), v->minor));
+> > +	vhost_vdpa_free_minor(v->minor);
+> > +	mutex_unlock(&vhost_vdpa.mutex);
+> > +	kfree(v->vqs);
+> > +	kfree(v);
+> 
+> This use after-fress vs vhost_vdpa_open prior to it setting the open
+> bit. Maybe use xarray, rcu and kfree_rcu ..
+> 
+> > +static int __init vhost_vdpa_init(void)
+> > +{
+> > +	int r;
+> > +
+> > +	idr_init(&vhost_vdpa.idr);
+> > +	mutex_init(&vhost_vdpa.mutex);
+> > +	init_waitqueue_head(&vhost_vdpa.release_q);
+> > +
+> > +	/* /dev/vhost-vdpa/$vdpa_device_index */
+> > +	vhost_vdpa.class = class_create(THIS_MODULE, "vhost-vdpa");
+> > +	if (IS_ERR(vhost_vdpa.class)) {
+> > +		r = PTR_ERR(vhost_vdpa.class);
+> > +		goto err_class;
+> > +	}
+> > +
+> > +	vhost_vdpa.class->devnode = vhost_vdpa_devnode;
+> > +
+> > +	r = alloc_chrdev_region(&vhost_vdpa.devt, 0, MINORMASK + 1,
+> > +				"vhost-vdpa");
+> > +	if (r)
+> > +		goto err_alloc_chrdev;
+> > +
+> > +	cdev_init(&vhost_vdpa.cdev, &vhost_vdpa_fops);
+> > +	r = cdev_add(&vhost_vdpa.cdev, vhost_vdpa.devt, MINORMASK + 1);
+> > +	if (r)
+> > +		goto err_cdev_add;
+> 
+> It is very strange, is the intention to create a single global char
+> dev?
 
+No. It's to create a per-vdpa char dev named
+vhost-vdpa/$vdpa_device_index in dev.
 
-Thanks,
-Ming Lei
+I followed the code in VFIO which creates char dev
+vfio/$GROUP dynamically, e.g.:
+
+https://github.com/torvalds/linux/blob/b1da3acc781c/drivers/vfio/vfio.c#L2164-L2180
+https://github.com/torvalds/linux/blob/b1da3acc781c/drivers/vfio/vfio.c#L373-L387
+https://github.com/torvalds/linux/blob/b1da3acc781c/drivers/vfio/vfio.c#L1553
+
+Is it something unwanted?
+
+Thanks for the review.
+
+Regards,
+Tiwei
+
+> 
+> If so, why is there this:
+> 
+> +static int vhost_vdpa_open(struct inode *inode, struct file *filep)
+> +{
+> +	struct vhost_vdpa *v;
+> +	struct vhost_dev *dev;
+> +	struct vhost_virtqueue **vqs;
+> +	int nvqs, i, r, opened;
+> +
+> +	v = vhost_vdpa_get_from_minor(iminor(inode));
+> 
+> ?
+> 
+> If the idea is to create a per-vdpa char dev then this stuff belongs
+> in vhost_vdpa_probe(), the cdev should be part of the vhost_vdpa, and
+> the above should be container_of not an idr lookup.
+> 
+> Jason
