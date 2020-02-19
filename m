@@ -1,35 +1,38 @@
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-Subject: Re: [PATCH 23/62] x86/idt: Move IDT to data segment
-Date: Wed, 19 Feb 2020 11:47:33 +0100
-Message-ID: <64f1fa87-17c2-928b-06f5-17b6771fc753@suse.com>
-References: <20200212115516.GE20066@8bytes.org>
- <EEAC8672-C98F-45D0-9F2D-0802516C3908@amacapital.net>
- <879ace44-cee3-98aa-0dff-549b69355096@suse.com>
- <20200219104213.GJ22063@8bytes.org>
+From: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH] iommu/virtio: Build virtio-iommu as module
+Date: Wed, 19 Feb 2020 12:16:04 +0100
+Message-ID: <20200219111604.GH1961@8bytes.org>
+References: <20200214163827.1606668-1-jean-philippe@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200219104213.GJ22063@8bytes.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Joerg Roedel <joro@8bytes.org>
-Cc: Andy Lutomirski <luto@amacapital.net>, Andy Lutomirski <luto@kernel.org>, X86 ML <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <Thomas.Lendacky@amd.com>, Kees Cook <keescook@chromium.org>, LKML <linux-kernel@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Joerg Roedel <jroedel@suse.de>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20200214163827.1606668-1-jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+ <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+ <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Sender: "iommu" <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+To: Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 19.02.20 11:42, Joerg Roedel wrote:
-> Hi Jürgen,
+On Fri, Feb 14, 2020 at 05:38:27PM +0100, Jean-Philippe Brucker wrote:
+> From: Jean-Philippe Brucker <jean-philippe.brucker-5wv7dgnIgG8@public.gmane.org>
 > 
-> On Wed, Feb 12, 2020 at 05:28:21PM +0100, Jürgen Groß wrote:
->> Xen-PV is clearing BSS as the very first action.
-> 
-> In the kernel image? Or in the ELF loader before jumping to the kernel
-> image?
+> Now that the infrastructure changes are in place, enable virtio-iommu to
+> be built as a module. Remove the redundant pci_request_acs() call, since
+> it's not exported but is already invoked during DMA setup.
 
-In the kernel image.
-
-See arch/x86/xen/xen-head.S - startup_xen is the entry point of the
-kernel.
+Which infrastructure changes do you mean? Does this depend on the x86
+enablement patch-set in any way?
 
 
-Juergen
+Regards,
+
+	Joerg
