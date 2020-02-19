@@ -1,51 +1,57 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH] x86/ioperm: add new paravirt function update_io_bitmap
-Date: Tue, 18 Feb 2020 22:03:09 +0100
-Message-ID: <87mu9fr4ky.fsf@nanos.tec.linutronix.de>
-References: <20200218154712.25490-1-jgross@suse.com>
+From: Ming Lei <tom.leiming@gmail.com>
+Subject: Re: [PATCH 1/2] virtio-blk: fix hw_queue stopped on arbitrary error
+Date: Wed, 19 Feb 2020 09:46:56 +0800
+Message-ID: <CACVXFVPBPCzr+sfQ4HOw1DNPGnEfp+5BLqQkXWQgkaBKqr3yVQ@mail.gmail.com>
+References: <20200213123728.61216-1-pasic@linux.ibm.com> <20200213123728.61216-2-pasic@linux.ibm.com>
+ <CACVXFVNiADTW_vLVc1bUSa0CoViLbVzoMnSJW4=sx=MCE-xUPw@mail.gmail.com> <20200218133531.3eb08120.pasic@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200218154712.25490-1-jgross@suse.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: xen-devel@lists.xenproject.org, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: Juergen Gross <jgross@suse.com>, Thomas Hellstrom <thellstrom@vmware.com>, Stefano Stabellini <sstabellini@kernel.org>, "VMware,
- Inc." <pv-drivers@vmware.com>, stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-block-owner@vger.kernel.org>
+In-Reply-To: <20200218133531.3eb08120.pasic@linux.ibm.com>
+Sender: linux-block-owner@vger.kernel.org
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Jens Axboe <axboe@kernel.dk>, linux-block <linux-block@vger.kernel.org>, linux-s390 <linux-s390@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Juergen Gross <jgross@suse.com> writes:
-> Commit 111e7b15cf10f6 ("x86/ioperm: Extend IOPL config to control
-> ioperm() as well") reworked the iopl syscall to use I/O bitmaps.
+On Tue, Feb 18, 2020 at 8:35 PM Halil Pasic <pasic@linux.ibm.com> wrote:
 >
-> Unfortunately this broke Xen PV domains using that syscall as there
-> is currently no I/O bitmap support in PV domains.
+> On Tue, 18 Feb 2020 10:21:18 +0800
+> Ming Lei <tom.leiming@gmail.com> wrote:
 >
-> Add I/O bitmap support via a new paravirt function update_io_bitmap
-> which Xen PV domains can use to update their I/O bitmaps via a
-> hypercall.
+> > On Thu, Feb 13, 2020 at 8:38 PM Halil Pasic <pasic@linux.ibm.com> wrote:
+> > >
+> > > Since nobody else is going to restart our hw_queue for us, the
+> > > blk_mq_start_stopped_hw_queues() is in virtblk_done() is not sufficient
+> > > necessarily sufficient to ensure that the queue will get started again.
+> > > In case of global resource outage (-ENOMEM because mapping failure,
+> > > because of swiotlb full) our virtqueue may be empty and we can get
+> > > stuck with a stopped hw_queue.
+> > >
+> > > Let us not stop the queue on arbitrary errors, but only on -EONSPC which
+> > > indicates a full virtqueue, where the hw_queue is guaranteed to get
+> > > started by virtblk_done() before when it makes sense to carry on
+> > > submitting requests. Let us also remove a stale comment.
+> >
+> > The generic solution may be to stop queue only when there is any
+> > in-flight request
+> > not completed.
+> >
 >
-> Fixes: 111e7b15cf10f6 ("x86/ioperm: Extend IOPL config to control ioperm() as well")
-> Reported-by: Jan Beulich <jbeulich@suse.com>
-> Cc: <stable@vger.kernel.org> # 5.5
-> Signed-off-by: Juergen Gross <jgross@suse.com>
-> Reviewed-by: Jan Beulich <jbeulich@suse.com>
-> Tested-by: Jan Beulich <jbeulich@suse.com>
+> I think this is a pretty close to that. The queue is stopped only on
+> ENOSPC, which means virtqueue is full.
+>
+> > Checking -ENOMEM may not be enough, given -EIO can be returned from
+> > virtqueue_add()
+> > too in case of dma map failure.
+>
+> I'm not checking on -ENOMEM. So the queue would not be stopped on EIO.
+> Maybe I'm misunderstanding something In any case, please have another
+> look at the diff, and if your concerns persist please help me understand.
 
-Duh, sorry about that and thanks for fixing it.
+Looks I misread the patch, and this patch is fine:
 
-BTW, why isn't stuff like this not catched during next or at least
-before the final release? Is nothing running CI on upstream with all
-that XEN muck active?
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+
 
 Thanks,
-
-        tglx
+Ming Lei
