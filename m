@@ -1,70 +1,113 @@
 From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 30/52] drm/cirrus: Drop explicit drm_mode_config_cleanup call
-Date: Wed, 19 Feb 2020 11:21:00 +0100
-Message-ID: <20200219102122.1607365-31-daniel.vetter@ffwll.ch>
+Subject: [PATCH 29/52] drm/bochs: Drop explicit
+ drm_mode_config_cleanup
+Date: Wed, 19 Feb 2020 11:20:59 +0100
+Message-ID: <20200219102122.1607365-30-daniel.vetter@ffwll.ch>
 References: <20200219102122.1607365-1-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
 In-Reply-To: <20200219102122.1607365-1-daniel.vetter@ffwll.ch>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
 To: DRI Development <dri-devel@lists.freedesktop.org>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>, Thomas Zimmermann <tzimmermann@suse.de>, Daniel Vetter <daniel.vetter@intel.com>, Dave Airlie <airlied@redhat.com>, Sam Ravnborg <sam@ravnborg.org>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Gerd Hoffmann <kraxel@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-V2UgY2FuIGV2ZW4gZGVsZXRlIHRoZSBkcm1fZHJpdmVyLnJlbGVhc2UgaG9vayBub3chCgpTaWdu
-ZWQtb2ZmLWJ5OiBEYW5pZWwgVmV0dGVyIDxkYW5pZWwudmV0dGVyQGludGVsLmNvbT4KQ2M6IERh
-dmUgQWlybGllIDxhaXJsaWVkQHJlZGhhdC5jb20+CkNjOiBHZXJkIEhvZmZtYW5uIDxrcmF4ZWxA
-cmVkaGF0LmNvbT4KQ2M6IERhbmllbCBWZXR0ZXIgPGRhbmllbC52ZXR0ZXJAZmZ3bGwuY2g+CkNj
-OiAiTm9yYWxmIFRyw7hubmVzIiA8bm9yYWxmQHRyb25uZXMub3JnPgpDYzogU2FtIFJhdm5ib3Jn
-IDxzYW1AcmF2bmJvcmcub3JnPgpDYzogVGhvbWFzIFppbW1lcm1hbm4gPHR6aW1tZXJtYW5uQHN1
-c2UuZGU+CkNjOiB2aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwotLS0K
-IGRyaXZlcnMvZ3B1L2RybS9jaXJydXMvY2lycnVzLmMgfCAyMSArKysrKysrKysrKy0tLS0tLS0t
-LS0KIDEgZmlsZSBjaGFuZ2VkLCAxMSBpbnNlcnRpb25zKCspLCAxMCBkZWxldGlvbnMoLSkKCmRp
-ZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vY2lycnVzL2NpcnJ1cy5jIGIvZHJpdmVycy9ncHUv
-ZHJtL2NpcnJ1cy9jaXJydXMuYwppbmRleCBhOWQ3ODlhNTY1MzYuLjZhYzAyODY4MTBlYyAxMDA2
-NDQKLS0tIGEvZHJpdmVycy9ncHUvZHJtL2NpcnJ1cy9jaXJydXMuYworKysgYi9kcml2ZXJzL2dw
-dS9kcm0vY2lycnVzL2NpcnJ1cy5jCkBAIC01MTAsMTEgKzUxMCwxNSBAQCBzdGF0aWMgY29uc3Qg
-c3RydWN0IGRybV9tb2RlX2NvbmZpZ19mdW5jcyBjaXJydXNfbW9kZV9jb25maWdfZnVuY3MgPSB7
-CiAJLmF0b21pY19jb21taXQgPSBkcm1fYXRvbWljX2hlbHBlcl9jb21taXQsCiB9OwogCi1zdGF0
-aWMgdm9pZCBjaXJydXNfbW9kZV9jb25maWdfaW5pdChzdHJ1Y3QgY2lycnVzX2RldmljZSAqY2ly
-cnVzKQorc3RhdGljIGludCBjaXJydXNfbW9kZV9jb25maWdfaW5pdChzdHJ1Y3QgY2lycnVzX2Rl
-dmljZSAqY2lycnVzKQogewogCXN0cnVjdCBkcm1fZGV2aWNlICpkZXYgPSAmY2lycnVzLT5kZXY7
-CisJaW50IHJldDsKKworCXJldCA9IGRybV9tb2RlX2NvbmZpZ19pbml0KGRldik7CisJaWYgKHJl
-dCkKKwkJcmV0dXJuIHJldDsKIAotCWRybV9tb2RlX2NvbmZpZ19pbml0KGRldik7CiAJZGV2LT5t
-b2RlX2NvbmZpZy5taW5fd2lkdGggPSAwOwogCWRldi0+bW9kZV9jb25maWcubWluX2hlaWdodCA9
-IDA7CiAJZGV2LT5tb2RlX2NvbmZpZy5tYXhfd2lkdGggPSBDSVJSVVNfTUFYX1BJVENIIC8gMjsK
-QEAgLTUyMiwxNSArNTI2LDEyIEBAIHN0YXRpYyB2b2lkIGNpcnJ1c19tb2RlX2NvbmZpZ19pbml0
-KHN0cnVjdCBjaXJydXNfZGV2aWNlICpjaXJydXMpCiAJZGV2LT5tb2RlX2NvbmZpZy5wcmVmZXJy
-ZWRfZGVwdGggPSAxNjsKIAlkZXYtPm1vZGVfY29uZmlnLnByZWZlcl9zaGFkb3cgPSAwOwogCWRl
-di0+bW9kZV9jb25maWcuZnVuY3MgPSAmY2lycnVzX21vZGVfY29uZmlnX2Z1bmNzOworCisJcmV0
-dXJuIDA7CiB9CiAKIC8qIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLSAqLwogCi1zdGF0aWMgdm9pZCBjaXJydXNfcmVsZWFz
-ZShzdHJ1Y3QgZHJtX2RldmljZSAqZGV2KQotewotCWRybV9tb2RlX2NvbmZpZ19jbGVhbnVwKGRl
-dik7Ci19Ci0KIERFRklORV9EUk1fR0VNX0ZPUFMoY2lycnVzX2ZvcHMpOwogCiBzdGF0aWMgc3Ry
-dWN0IGRybV9kcml2ZXIgY2lycnVzX2RyaXZlciA9IHsKQEAgLTU0NCw3ICs1NDUsNiBAQCBzdGF0
-aWMgc3RydWN0IGRybV9kcml2ZXIgY2lycnVzX2RyaXZlciA9IHsKIAogCS5mb3BzCQkgPSAmY2ly
-cnVzX2ZvcHMsCiAJRFJNX0dFTV9TSE1FTV9EUklWRVJfT1BTLAotCS5yZWxlYXNlICAgICAgICAg
-PSBjaXJydXNfcmVsZWFzZSwKIH07CiAKIHN0YXRpYyBpbnQgY2lycnVzX3BjaV9wcm9iZShzdHJ1
-Y3QgcGNpX2RldiAqcGRldiwKQEAgLTU5MSw3ICs1OTEsOSBAQCBzdGF0aWMgaW50IGNpcnJ1c19w
-Y2lfcHJvYmUoc3RydWN0IHBjaV9kZXYgKnBkZXYsCiAJaWYgKGNpcnJ1cy0+bW1pbyA9PSBOVUxM
-KQogCQlnb3RvIGVycl91bm1hcF92cmFtOwogCi0JY2lycnVzX21vZGVfY29uZmlnX2luaXQoY2ly
-cnVzKTsKKwlyZXQgPSBjaXJydXNfbW9kZV9jb25maWdfaW5pdChjaXJydXMpOworCWlmIChyZXQp
-CisJCWdvdG8gZXJyX2NsZWFudXA7CiAKIAlyZXQgPSBjaXJydXNfY29ubl9pbml0KGNpcnJ1cyk7
-CiAJaWYgKHJldCA8IDApCkBAIC02MTMsNyArNjE1LDYgQEAgc3RhdGljIGludCBjaXJydXNfcGNp
-X3Byb2JlKHN0cnVjdCBwY2lfZGV2ICpwZGV2LAogCXJldHVybiAwOwogCiBlcnJfY2xlYW51cDoK
-LQlkcm1fbW9kZV9jb25maWdfY2xlYW51cChkZXYpOwogCWlvdW5tYXAoY2lycnVzLT5tbWlvKTsK
-IGVycl91bm1hcF92cmFtOgogCWlvdW5tYXAoY2lycnVzLT52cmFtKTsKLS0gCjIuMjQuMQoKX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRp
-b24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3Jn
-Cmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1
-YWxpemF0aW9u
+Instead rely on the automatic clean, for which we just need to check
+that drm_mode_config_init succeeded. To avoid an inversion in the
+cleanup we also have to move the dev_private allocation over to
+drmm_kzalloc.
+
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Cc: Gerd Hoffmann <kraxel@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
+---
+ drivers/gpu/drm/bochs/bochs.h     |  1 -
+ drivers/gpu/drm/bochs/bochs_drv.c |  6 ++----
+ drivers/gpu/drm/bochs/bochs_kms.c | 14 +++++---------
+ 3 files changed, 7 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
+index 917767173ee6..e5bd1d517a18 100644
+--- a/drivers/gpu/drm/bochs/bochs.h
++++ b/drivers/gpu/drm/bochs/bochs.h
+@@ -92,7 +92,6 @@ void bochs_mm_fini(struct bochs_device *bochs);
+ 
+ /* bochs_kms.c */
+ int bochs_kms_init(struct bochs_device *bochs);
+-void bochs_kms_fini(struct bochs_device *bochs);
+ 
+ /* bochs_fbdev.c */
+ extern const struct drm_mode_config_funcs bochs_mode_funcs;
+diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
+index addb0568c1af..e18c51de1196 100644
+--- a/drivers/gpu/drm/bochs/bochs_drv.c
++++ b/drivers/gpu/drm/bochs/bochs_drv.c
+@@ -7,6 +7,7 @@
+ 
+ #include <drm/drm_drv.h>
+ #include <drm/drm_atomic_helper.h>
++#include <drm/drm_managed.h>
+ 
+ #include "bochs.h"
+ 
+@@ -21,10 +22,7 @@ static void bochs_unload(struct drm_device *dev)
+ {
+ 	struct bochs_device *bochs = dev->dev_private;
+ 
+-	bochs_kms_fini(bochs);
+ 	bochs_mm_fini(bochs);
+-	kfree(bochs);
+-	dev->dev_private = NULL;
+ }
+ 
+ static int bochs_load(struct drm_device *dev)
+@@ -32,7 +30,7 @@ static int bochs_load(struct drm_device *dev)
+ 	struct bochs_device *bochs;
+ 	int ret;
+ 
+-	bochs = kzalloc(sizeof(*bochs), GFP_KERNEL);
++	bochs = drmm_kzalloc(dev, sizeof(*bochs), GFP_KERNEL);
+ 	if (bochs == NULL)
+ 		return -ENOMEM;
+ 	dev->dev_private = bochs;
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index e8cc8156d773..8285c03a6a95 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -134,7 +134,11 @@ const struct drm_mode_config_funcs bochs_mode_funcs = {
+ 
+ int bochs_kms_init(struct bochs_device *bochs)
+ {
+-	drm_mode_config_init(bochs->dev);
++	int ret;
++
++	ret = drm_mode_config_init(bochs->dev);
++	if (ret)
++		return ret;
+ 
+ 	bochs->dev->mode_config.max_width = 8192;
+ 	bochs->dev->mode_config.max_height = 8192;
+@@ -160,11 +164,3 @@ int bochs_kms_init(struct bochs_device *bochs)
+ 
+ 	return 0;
+ }
+-
+-void bochs_kms_fini(struct bochs_device *bochs)
+-{
+-	if (!bochs->dev->mode_config.num_connector)
+-		return;
+-
+-	drm_mode_config_cleanup(bochs->dev);
+-}
+-- 
+2.24.1
