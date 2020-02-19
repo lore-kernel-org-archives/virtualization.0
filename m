@@ -1,49 +1,74 @@
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-Subject: Re: [PATCH] x86/ioperm: add new paravirt function update_io_bitmap
-Date: Wed, 19 Feb 2020 06:35:16 +0100
-Message-ID: <b0f33786-79b1-f8ee-24ae-ce9f9f4791af@suse.com>
-References: <20200218154712.25490-1-jgross@suse.com>
- <87mu9fr4ky.fsf@nanos.tec.linutronix.de>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V2 3/5] vDPA: introduce vDPA bus
+Date: Wed, 19 Feb 2020 13:35:25 +0800
+Message-ID: <bbfc608b-2bfa-e4c7-c2b9-dbcfe63518cb@redhat.com>
+References: <20200211134746.GI4271@mellanox.com>
+ <cf7abcc9-f8ef-1fe2-248e-9b9028788ade@redhat.com>
+ <20200212125108.GS4271@mellanox.com>
+ <12775659-1589-39e4-e344-b7a2c792b0f3@redhat.com>
+ <20200213134128.GV4271@mellanox.com>
+ <ebaea825-5432-65e2-2ab3-720a8c4030e7@redhat.com>
+ <20200213150542.GW4271@mellanox.com>
+ <8b3e6a9c-8bfd-fb3c-12a8-2d6a3879f1ae@redhat.com>
+ <20200214135232.GB4271@mellanox.com>
+ <01c86ebb-cf4b-691f-e682-2d6f93ddbcf7@redhat.com>
+ <20200218135608.GS4271@mellanox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <87mu9fr4ky.fsf@nanos.tec.linutronix.de>
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200218135608.GS4271@mellanox.com>
 Content-Language: en-US
-Sender: stable-owner@vger.kernel.org
-To: Thomas Gleixner <tglx@linutronix.de>, xen-devel@lists.xenproject.org, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Thomas Hellstrom <thellstrom@vmware.com>, "VMware, Inc." <pv-drivers@vmware.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stefano Stabellini <sstabellini@kernel.org>, stable@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jason Gunthorpe <jgg@mellanox.com>
+Cc: "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "tiwei.bie@intel.com" <tiwei.bie@intel.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "cunming.liang@intel.com" <cunming.liang@intel.com>, "zhihong.wang@intel.com" <zhihong.wang@intel.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "xiao.w.wang@intel.com" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "lingshan.zhu@intel.com" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.co>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 18.02.20 22:03, Thomas Gleixner wrote:
-> Juergen Gross <jgross@suse.com> writes:
->> Commit 111e7b15cf10f6 ("x86/ioperm: Extend IOPL config to control
->> ioperm() as well") reworked the iopl syscall to use I/O bitmaps.
+
+On 2020/2/18 =E4=B8=8B=E5=8D=889:56, Jason Gunthorpe wrote:
+> On Mon, Feb 17, 2020 at 02:08:03PM +0800, Jason Wang wrote:
+>
+>> I thought you were copied in the patch [1], maybe we can move vhost re=
+lated
+>> discussion there to avoid confusion.
 >>
->> Unfortunately this broke Xen PV domains using that syscall as there
->> is currently no I/O bitmap support in PV domains.
->>
->> Add I/O bitmap support via a new paravirt function update_io_bitmap
->> which Xen PV domains can use to update their I/O bitmaps via a
->> hypercall.
->>
->> Fixes: 111e7b15cf10f6 ("x86/ioperm: Extend IOPL config to control ioperm() as well")
->> Reported-by: Jan Beulich <jbeulich@suse.com>
->> Cc: <stable@vger.kernel.org> # 5.5
->> Signed-off-by: Juergen Gross <jgross@suse.com>
->> Reviewed-by: Jan Beulich <jbeulich@suse.com>
->> Tested-by: Jan Beulich <jbeulich@suse.com>
-> 
-> Duh, sorry about that and thanks for fixing it.
-> 
-> BTW, why isn't stuff like this not catched during next or at least
-> before the final release? Is nothing running CI on upstream with all
-> that XEN muck active?
-
-This problem showed up by not being able to start the X server (probably
-not the freshest one) in dom0 on a moderate aged AMD system.
-
-Our CI tests tend do be more text console based for dom0.
+>> [1] https://lwn.net/Articles/811210/
+> Wow, that is .. confusing.
+>
+> So this is supposed to duplicate the uAPI of vhost-user?
 
 
-Juergen
+It tries to reuse the uAPI of vhost with some extension.
+
+
+> But it is
+> open coded and duplicated because .. vdpa?
+
+
+I'm not sure I get here, vhost module is reused for vhost-vdpa and all=20
+current vhost device (e.g net) uses their own char device.
+
+
+>
+>> So it's cheaper and simpler to introduce a new bus instead of refactor=
+ing a
+>> well known bus and API where brunches of drivers and devices had been
+>> implemented for years.
+> If you reason for this approach is to ease the implementation then you
+> should talk about it in the cover letters/etc
+
+
+I will add more rationale in both cover letter and this patch.
+
+Thanks
+
+
+>
+> Maybe it is reasonable to do this because the rework is too great, I
+> don't know, but to me this whole thing looks rather messy.
+>
+> Remember this stuff is all uAPI as it shows up in sysfs, so you can
+> easilly get stuck with it forever.
+>
+> Jason
+>
