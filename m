@@ -1,53 +1,40 @@
-From: Jan Beulich <jbeulich@suse.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 Subject: Re: [PATCH] x86/ioperm: add new paravirt function update_io_bitmap
-Date: Wed, 19 Feb 2020 09:29:41 +0100
-Message-ID: <e1617641-2106-cd81-628f-569b1a8cf1f7@suse.com>
+Date: Wed, 19 Feb 2020 10:22:45 +0100
+Message-ID: <8736b7q6ca.fsf@nanos.tec.linutronix.de>
 References: <20200218154712.25490-1-jgross@suse.com>
  <87mu9fr4ky.fsf@nanos.tec.linutronix.de>
  <b0f33786-79b1-f8ee-24ae-ce9f9f4791af@suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <b0f33786-79b1-f8ee-24ae-ce9f9f4791af@suse.com>
-Content-Language: en-US
-Sender: stable-owner@vger.kernel.org
-To: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>, Thomas Gleixner <tglx@linutronix.de>
-Cc: xen-devel@lists.xenproject.org, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Thomas Hellstrom <thellstrom@vmware.com>, Stefano Stabellini <sstabellini@kernel.org>, "VMware, Inc." <pv-drivers@vmware.com>, stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: =?utf-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>, xen-devel@lists.xenproject.org, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Thomas Hellstrom <thellstrom@vmware.com>, Stefano Stabellini <sstabellini@kernel.org>, "VMware,
+ Inc." <pv-drivers@vmware.com>, stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 19.02.2020 06:35, Jürgen Groß wrote:
-> On 18.02.20 22:03, Thomas Gleixner wrote:
->> Juergen Gross <jgross@suse.com> writes:
->>> Commit 111e7b15cf10f6 ("x86/ioperm: Extend IOPL config to control
->>> ioperm() as well") reworked the iopl syscall to use I/O bitmaps.
->>>
->>> Unfortunately this broke Xen PV domains using that syscall as there
->>> is currently no I/O bitmap support in PV domains.
->>>
->>> Add I/O bitmap support via a new paravirt function update_io_bitmap
->>> which Xen PV domains can use to update their I/O bitmaps via a
->>> hypercall.
->>>
->>> Fixes: 111e7b15cf10f6 ("x86/ioperm: Extend IOPL config to control ioperm() as well")
->>> Reported-by: Jan Beulich <jbeulich@suse.com>
->>> Cc: <stable@vger.kernel.org> # 5.5
->>> Signed-off-by: Juergen Gross <jgross@suse.com>
->>> Reviewed-by: Jan Beulich <jbeulich@suse.com>
->>> Tested-by: Jan Beulich <jbeulich@suse.com>
->>
->> Duh, sorry about that and thanks for fixing it.
->>
->> BTW, why isn't stuff like this not catched during next or at least
->> before the final release? Is nothing running CI on upstream with all
->> that XEN muck active?
-> 
-> This problem showed up by not being able to start the X server (probably
-> not the freshest one) in dom0 on a moderate aged AMD system.
-
-Not the freshest one, yes, but also on a system where KMS would not
-be available (my success rate with KMS is rather low overall, and
-with newer Linux I see rather more systems to stop working than ones
-to become working, but I simply don't have the time to investigate).
-
-Jan
+SsO8cmdlbiBHcm/DnyA8amdyb3NzQHN1c2UuY29tPiB3cml0ZXM6Cj4gT24gMTguMDIuMjAgMjI6
+MDMsIFRob21hcyBHbGVpeG5lciB3cm90ZToKPj4gQlRXLCB3aHkgaXNuJ3Qgc3R1ZmYgbGlrZSB0
+aGlzIG5vdCBjYXRjaGVkIGR1cmluZyBuZXh0IG9yIGF0IGxlYXN0Cj4+IGJlZm9yZSB0aGUgZmlu
+YWwgcmVsZWFzZT8gSXMgbm90aGluZyBydW5uaW5nIENJIG9uIHVwc3RyZWFtIHdpdGggYWxsCj4+
+IHRoYXQgWEVOIG11Y2sgYWN0aXZlPwo+Cj4gVGhpcyBwcm9ibGVtIHNob3dlZCB1cCBieSBub3Qg
+YmVpbmcgYWJsZSB0byBzdGFydCB0aGUgWCBzZXJ2ZXIgKHByb2JhYmx5Cj4gbm90IHRoZSBmcmVz
+aGVzdCBvbmUpIGluIGRvbTAgb24gYSBtb2RlcmF0ZSBhZ2VkIEFNRCBzeXN0ZW0uCj4KPiBPdXIg
+Q0kgdGVzdHMgdGVuZCBkbyBiZSBtb3JlIHRleHQgY29uc29sZSBiYXNlZCBmb3IgZG9tMC4KCnRv
+b2xzL3Rlc3Rpbmcvc2VsZnRlc3RzL3g4Ni9pb1twZXJtfHBsXSBzaG91bGQgaGF2ZSBjYXVnaHQg
+dGhhdCBhcyB3ZWxsLApyaWdodD8gSWYgbm90LCB3ZSBuZWVkIHRvIGZpeCB0aGUgc2VsZnRlc3Rz
+LgoKVGhhbmtzLAoKICAgICAgICB0Z2x4Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlv
+bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlv
+bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
