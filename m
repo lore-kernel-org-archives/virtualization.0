@@ -1,54 +1,88 @@
 From: Halil Pasic <pasic@linux.ibm.com>
-Subject: [PATCH 0/2] virtio: decouple protected guest RAM form VIRTIO_F_IOMMU_PLATFORM
-Date: Thu, 20 Feb 2020 17:06:04 +0100
-Message-ID: <20200220160606.53156-1-pasic@linux.ibm.com>
+Subject: [PATCH 1/2] mm: move force_dma_unencrypted() to mem_encrypt.h
+Date: Thu, 20 Feb 2020 17:06:05 +0100
+Message-ID: <20200220160606.53156-2-pasic@linux.ibm.com>
+References: <20200220160606.53156-1-pasic@linux.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200220160606.53156-1-pasic@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>
 Cc: Halil Pasic <pasic@linux.ibm.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, David Gibson <david@gibson.dropbear.id.au>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Currently if one intends to run a memory protection enabled VM with
-virtio devices and linux as the guest OS, one needs to specify the
-VIRTIO_F_IOMMU_PLATFORM flag for each virtio device to make the guest
-linux use the DMA API, which in turn handles the memory
-encryption/protection stuff if the guest decides to turn itself into
-a protected one. This however makes no sense due to multiple reasons:
-* The device is not changed by the fact that the guest RAM is
-protected. The so called IOMMU bypass quirk is not affected.
-* This usage is not congruent with  standardised semantics of
-VIRTIO_F_IOMMU_PLATFORM. Guest memory protected is an orthogonal reason
-for using DMA API in virtio (orthogonal with respect to what is
-expressed by VIRTIO_F_IOMMU_PLATFORM). 
+Currently force_dma_unencrypted() is only used by the direct
+implementation of the DMA API, and thus resides in dma-direct.h. But
+there is nothing dma-direct specific about it: if one was -- for
+whatever reason -- to implement custom DMA ops that have to in the
+encrypted/protected scenarios dma-direct currently deals with, one would
+need exactly this kind of information.
 
-This series aims to decouple 'have to use DMA API because my (guest) RAM
-is protected' and 'have to use DMA API because the device told me
-VIRTIO_F_IOMMU_PLATFORM'.
+More importantly, virtio has to use DMA API (so that the memory
+encryption (x86) or protection (power, s390) is handled) under the very
+same circumstances force_dma_unencrypted() returns true. Furthermore,
+the in these cases the reason to go via the DMA API is distinct,
+compared to the reason indicated by VIRTIO_F_IOMMU_PLATFORM: we need to
+use DMA API independently of the device's properties with regards to
+access to memory. I.e. the addresses in the descriptors are still guest
+physical addresses, the device may still be implemented by a SMP CPU,
+and thus the device shall use those without any further translation. See
+[1].
 
-Please find more detailed explanations about the conceptual aspects in
-the individual patches. There is however also a very practical problem
-that is addressed by this series. 
+Let's move force_dma_unencrypted() the so virtio, or other
+implementations of DMA ops can make the right decisions.
 
-For vhost-net the feature VIRTIO_F_IOMMU_PLATFORM has the following side
-effect The vhost code assumes it the addresses on the virtio descriptor
-ring are not guest physical addresses but iova's, and insists on doing a
-translation of these regardless of what transport is used (e.g. whether
-we emulate a PCI or a CCW device). (For details see commit 6b1e6cc7855b
-"vhost: new device IOTLB API".) On s390 this results in severe
-performance degradation (c.a. factor 10). BTW with ccw I/O there is
-(architecturally) no IOMMU, so the whole address translation makes no
-sense in the context of virtio-ccw.
+[1] https://docs.oasis-open.org/virtio/virtio/v1.1/cs01/virtio-v1.1-cs01.html#x1-4100006
+(In the spec VIRTIO_F_IOMMU_PLATFORM is called
+VIRTIO_F_ACCESS_PLATFORM).
 
-Halil Pasic (2):
-  mm: move force_dma_unencrypted() to mem_encrypt.h
-  virtio: let virtio use DMA API when guest RAM is protected
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Tested-by: Ram Pai <linuxram@us.ibm.com>
+Tested-by: Michael Mueller <mimu@linux.ibm.com>
+---
+ include/linux/dma-direct.h  |  9 ---------
+ include/linux/mem_encrypt.h | 10 ++++++++++
+ 2 files changed, 10 insertions(+), 9 deletions(-)
 
- drivers/virtio/virtio_ring.c |  3 +++
- include/linux/dma-direct.h   |  9 ---------
- include/linux/mem_encrypt.h  | 10 ++++++++++
- 3 files changed, 13 insertions(+), 9 deletions(-)
-
-
-base-commit: ca7e1fd1026c5af6a533b4b5447e1d2f153e28f2
+diff --git a/include/linux/dma-direct.h b/include/linux/dma-direct.h
+index 24b8684aa21d..590b15d881b0 100644
+--- a/include/linux/dma-direct.h
++++ b/include/linux/dma-direct.h
+@@ -26,15 +26,6 @@ static inline phys_addr_t __dma_to_phys(struct device *dev, dma_addr_t dev_addr)
+ }
+ #endif /* !CONFIG_ARCH_HAS_PHYS_TO_DMA */
+ 
+-#ifdef CONFIG_ARCH_HAS_FORCE_DMA_UNENCRYPTED
+-bool force_dma_unencrypted(struct device *dev);
+-#else
+-static inline bool force_dma_unencrypted(struct device *dev)
+-{
+-	return false;
+-}
+-#endif /* CONFIG_ARCH_HAS_FORCE_DMA_UNENCRYPTED */
+-
+ /*
+  * If memory encryption is supported, phys_to_dma will set the memory encryption
+  * bit in the DMA address, and dma_to_phys will clear it.  The raw __phys_to_dma
+diff --git a/include/linux/mem_encrypt.h b/include/linux/mem_encrypt.h
+index 5c4a18a91f89..64a48c4b01a2 100644
+--- a/include/linux/mem_encrypt.h
++++ b/include/linux/mem_encrypt.h
+@@ -22,6 +22,16 @@ static inline bool mem_encrypt_active(void) { return false; }
+ 
+ #endif	/* CONFIG_ARCH_HAS_MEM_ENCRYPT */
+ 
++struct device;
++#ifdef CONFIG_ARCH_HAS_FORCE_DMA_UNENCRYPTED
++bool force_dma_unencrypted(struct device *dev);
++#else
++static inline bool force_dma_unencrypted(struct device *dev)
++{
++	return false;
++}
++#endif /* CONFIG_ARCH_HAS_FORCE_DMA_UNENCRYPTED */
++
+ #ifdef CONFIG_AMD_MEM_ENCRYPT
+ /*
+  * The __sme_set() and __sme_clr() macros are useful for adding or removing
 -- 
 2.17.1
