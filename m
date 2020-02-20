@@ -1,76 +1,176 @@
-From: LABBE Corentin <clabbe@baylibre.com>
-Subject: Re: [CRASH] crypto: virtio: crash when modprobing tcrypt on 5.5-rc7
- / next-20200122
-Date: Thu, 20 Feb 2020 20:15:53 +0100
-Message-ID: <20200220191553.GA30549@Red>
-References: <20200123101000.GB24255@Red>
- <20200204041419-mutt-send-email-mst@kernel.org>
+From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Subject: Re: [PATCH] virtio: Work around frames incorrectly marked as gso
+Date: Thu, 20 Feb 2020 19:33:29 +0000
+Message-ID: <d26515b2-c0f4-195d-f754-caf7aa78ab81@cambridgegreys.com>
+References: <20191209104824.17059-1-anton.ivanov@cambridgegreys.com>
+ <57230228-7030-c65f-a24f-910ca52bbe9e@cambridgegreys.com>
+ <f78bfe6e-2ffc-3734-9618-470f1afea0c6@redhat.com>
+ <918222d9-816a-be70-f8af-b8dfcb586240@cambridgegreys.com>
+ <20200211053502-mutt-send-email-mst@kernel.org>
+ <9547228b-aa93-f2b6-6fdc-8d33cde3716a@cambridgegreys.com>
+ <20200213045937-mutt-send-email-mst@kernel.org>
+ <94fb9656-99ee-a001-e428-9d76c3620e61@gmail.com>
+ <20200213105010-mutt-send-email-mst@kernel.org>
+ <35510da7-08f1-4aa5-c6d6-6bffbccaee0c@cambridgegreys.com>
+ <20200220025506-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-crypto-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200204041419-mutt-send-email-mst@kernel.org>
-Sender: linux-crypto-owner@vger.kernel.org
-To: arei.gonglei@huawei.com
-Cc: jasowang@redhat.com, herbert@gondor.apana.org.au, davem@davemloft.net, virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, mst@redhat.com
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20200220025506-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+Sender: netdev-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>, linux-um@lists.infradead.org, Eric Dumazet <eric.dumazet@gmail.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Feb 04, 2020 at 04:15:22AM -0500, Michael S. Tsirkin wrote:
-> On Thu, Jan 23, 2020 at 11:10:00AM +0100, LABBE Corentin wrote:
-> > Hello
-> > 
-> > When modprobing tcrypt on qemu 4.1.0 I get a kernel panic on 5.5-rc7 and next-20200122
-> > qemu is started by:
-> > /usr/bin/qemu-system-x86_64 -cpu host -enable-kvm -nographic -net nic,model=e1000,macaddr=52:54:00:12:34:58 -net tap -m 512 -monitor none -object cryptodev-backend-builtin,id=cryptodev0 -device virtio-crypto-pci,id=crypto0,cryptodev=cryptodev0 -append 'console=ttyS0 root=/dev/ram0 ip=dhcp' -kernel /var/lib/lava/dispatcher/tmp/41332/deployimages-td18675m/kernel/bzImage -initrd /var/lib/lava/dispatcher/tmp/41332/deployimages-td18675m/ramdisk/rootfs.cpio.gz -drive format=qcow2,file=/var/lib/lava/dispatcher/tmp/41332/apply-overlay-guest-icy4k1ol/lava-guest.qcow2,media=disk,if=ide,id=lavatest
-> > 
-> > [  112.771925] general protection fault: 0000 [#1] SMP PTI
-> > [  112.772686] CPU: 0 PID: 126 Comm: virtio0-engine Not tainted 5.5.0-rc7+ #1
-> > [  112.773576] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190711_202441-buildvm-armv7-10.arm.fedoraproject.org-2.fc31 04/01/2014
-> > [  112.775319] RIP: 0010:sg_next+0x0/0x20
-> > [  112.775821] Code: cc cc cc cc cc cc cc cc cc cc c7 47 10 00 00 00 00 89 57 0c 48 89 37 89 4f 08 c3 0f 1f 44 00 00 66 2e 0f 1f 84 00 00 00 00 00 <f6> 07 02 75 17 48 8b 57 20 48 8d 47 20 48 89 d1 48 83 e1 fc 83 e2
-> > [  112.778330] RSP: 0018:ffffa92440237d90 EFLAGS: 00010006
-> > [  112.779071] RAX: fefefefe00000000 RBX: 000000000000000a RCX: fefefefe00000000
-> > [  112.780081] RDX: 0000000000000001 RSI: ffff9b19da1a2180 RDI: fefefefe00000000
-> > [  112.781081] RBP: ffff9b19da1a2198 R08: ffff9b19dfb24ee8 R09: 0000000000000a20
-> > [  112.782079] R10: ffff9b19da125010 R11: 0000000000000000 R12: ffff9b19da1a21b8
-> > [  112.783079] R13: 0000000000000003 R14: ffff9b19da1a2180 R15: 0000000000000004
-> > [  112.784077] FS:  0000000000000000(0000) GS:ffff9b19de400000(0000) knlGS:0000000000000000
-> > [  112.785202] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > [  112.786030] CR2: 00007f18a157b050 CR3: 000000001040a004 CR4: 0000000000060ef0
-> > [  112.787034] Call Trace:
-> > [  112.787393]  virtqueue_add_sgs+0x4c/0x90
-> > [  112.787998]  virtio_crypto_skcipher_crypt_req+0x310/0x3e0
-> > [  112.788817]  crypto_pump_work+0x10c/0x240
-> > [  112.789420]  ? __kthread_init_worker+0x50/0x50
-> > [  112.790082]  kthread_worker_fn+0x89/0x180
-> > [  112.790690]  kthread+0x10e/0x130
-> > [  112.791182]  ? kthread_park+0x80/0x80
-> > [  112.791736]  ret_from_fork+0x35/0x40
-> > [  112.792282] Modules linked in: cts lzo salsa20_generic camellia_x86_64 camellia_generic fcrypt pcbc tgr192 anubis wp512 khazad tea michael_mic arc4 cast6_generic cast5_generic cast_common deflate sha512_ssse3 sha512_generic cfb ofb serpent_sse2_x86_64 serpent_generic lrw twofish_x86_64_3way twofish_x86_64 crypto_simd cryptd glue_helper twofish_generic twofish_common blowfish_x86_64 blowfish_generic blowfish_common md4 tcrypt(+)
-> > [  112.797652] ---[ end trace 4a8142d4a08c2518 ]---
-> > [  112.798320] RIP: 0010:sg_next+0x0/0x20
-> > [  112.798865] Code: cc cc cc cc cc cc cc cc cc cc c7 47 10 00 00 00 00 89 57 0c 48 89 37 89 4f 08 c3 0f 1f 44 00 00 66 2e 0f 1f 84 00 00 00 00 00 <f6> 07 02 75 17 48 8b 57 20 48 8d 47 20 48 89 d1 48 83 e1 fc 83 e2
-> > [  112.801452] RSP: 0018:ffffa92440237d90 EFLAGS: 00010006
-> > [  112.802189] RAX: fefefefe00000000 RBX: 000000000000000a RCX: fefefefe00000000
-> > [  112.803190] RDX: 0000000000000001 RSI: ffff9b19da1a2180 RDI: fefefefe00000000
-> > [  112.804192] RBP: ffff9b19da1a2198 R08: ffff9b19dfb24ee8 R09: 0000000000000a20
-> > [  112.805201] R10: ffff9b19da125010 R11: 0000000000000000 R12: ffff9b19da1a21b8
-> > [  112.806195] R13: 0000000000000003 R14: ffff9b19da1a2180 R15: 0000000000000004
-> > [  112.807222] FS:  0000000000000000(0000) GS:ffff9b19de400000(0000) knlGS:0000000000000000
-> > [  112.808352] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > [  112.809169] CR2: 00007f18a157b050 CR3: 000000001040a004 CR4: 0000000000060ef0
-> > 
-> > I have tested also 5.4.14 
-> > and I got random freeze with:
-> > qemu-system-x86_64: virtio: zero sized buffers are not allowed
-> > 
-> > Regards
-> 
-> Cc: Gonglei <arei.gonglei@huawei.com>
-> 
 
-Hello Gonglei
+On 20/02/2020 07:58, Michael S. Tsirkin wrote:
+> On Thu, Feb 13, 2020 at 04:23:24PM +0000, Anton Ivanov wrote:
+>> On 13/02/2020 15:53, Michael S. Tsirkin wrote:
+>>> On Thu, Feb 13, 2020 at 07:44:06AM -0800, Eric Dumazet wrote:
+>>>> On 2/13/20 2:00 AM, Michael S. Tsirkin wrote:
+>>>>> On Wed, Feb 12, 2020 at 05:38:09PM +0000, Anton Ivanov wrote:
+>>>>>> On 11/02/2020 10:37, Michael S. Tsirkin wrote:
+>>>>>>> On Tue, Feb 11, 2020 at 07:42:37AM +0000, Anton Ivanov wrote:
+>>>>>>>> On 11/02/2020 02:51, Jason Wang wrote:
+>>>>>>>>> On 2020/2/11 上午12:55, Anton Ivanov wrote:
+>>>>>>>>>> On 09/12/2019 10:48, anton.ivanov@cambridgegreys.com wrote:
+>>>>>>>>>>> From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+>>>>>>>>>>>
+>>>>>>>>>>> Some of the frames marked as GSO which arrive at
+>>>>>>>>>>> virtio_net_hdr_from_skb() have no GSO_TYPE, no
+>>>>>>>>>>> fragments (data_len = 0) and length significantly shorter
+>>>>>>>>>>> than the MTU (752 in my experiments).
+>>>>>>>>>>>
+>>>>>>>>>>> This is observed on raw sockets reading off vEth interfaces
+>>>>>>>>>>> in all 4.x and 5.x kernels I tested.
+>>>>>>>>>>>
+>>>>>>>>>>> These frames are reported as invalid while they are in fact
+>>>>>>>>>>> gso-less frames.
+>>>>>>>>>>>
+>>>>>>>>>>> This patch marks the vnet header as no-GSO for them instead
+>>>>>>>>>>> of reporting it as invalid.
+>>>>>>>>>>>
+>>>>>>>>>>> Signed-off-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+>>>>>>>>>>> ---
+>>>>>>>>>>>      include/linux/virtio_net.h | 8 ++++++--
+>>>>>>>>>>>      1 file changed, 6 insertions(+), 2 deletions(-)
+>>>>>>>>>>>
+>>>>>>>>>>> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+>>>>>>>>>>> index 0d1fe9297ac6..d90d5cff1b9a 100644
+>>>>>>>>>>> --- a/include/linux/virtio_net.h
+>>>>>>>>>>> +++ b/include/linux/virtio_net.h
+>>>>>>>>>>> @@ -112,8 +112,12 @@ static inline int
+>>>>>>>>>>> virtio_net_hdr_from_skb(const struct sk_buff *skb,
+>>>>>>>>>>>                  hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
+>>>>>>>>>>>              else if (sinfo->gso_type & SKB_GSO_TCPV6)
+>>>>>>>>>>>                  hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
+>>>>>>>>>>> -        else
+>>>>>>>>>>> -            return -EINVAL;
+>>>>>>>>>>> +        else {
+>>>>>>>>>>> +            if (skb->data_len == 0)
+>>>>>>>>>>> +                hdr->gso_type = VIRTIO_NET_HDR_GSO_NONE;
+>>>>>>>>>>> +            else
+>>>>>>>>>>> +                return -EINVAL;
+>>>>>>>>>>> +        }
+>>>>>>>>>>>              if (sinfo->gso_type & SKB_GSO_TCP_ECN)
+>>>>>>>>>>>                  hdr->gso_type |= VIRTIO_NET_HDR_GSO_ECN;
+>>>>>>>>>>>          } else
+>>>>>>>>>>>
+>>>>>>>>>> ping.
+>>>>>>>>>>
+>>>>>>>>> Do you mean gso_size is set but gso_type is not? Looks like a bug
+>>>>>>>>> elsewhere.
+>>>>>>>>>
+>>>>>>>>> Thanks
+>>>>>>>>>
+>>>>>>>>>
+>>>>>>>> Yes.
+>>>>>>>>
+>>>>>>>> I could not trace it where it is coming from.
+>>>>>>>>
+>>>>>>>> I see it when doing recvmmsg on raw sockets in the UML vector network
+>>>>>>>> drivers.
+>>>>>>>>
+>>>>>>> I think we need to find the culprit and fix it there, lots of other things
+>>>>>>> can break otherwise.
+>>>>>>> Just printing out skb->dev->name should do the trick, no?
+>>>>>> The printk in virtio_net_hdr_from_skb says NULL.
+>>>>>>
+>>>>>> That is probably normal for a locally originated frame.
+>>>>>>
+>>>>>> I cannot reproduce this with network traffic by the way - it happens only if the traffic is locally originated on the host.
+>>>>>>
+>>>>>> A,
+>>>>> OK so is it code in __tcp_transmit_skb that sets gso_size to non-null
+>>>>> when gso_type is 0?
+>>>>>
+>>>> Correct way to determine if a packet is a gso one is by looking at gso_size.
+>>>> Then only it is legal looking at gso_type
+>>>>
+>>>>
+>>>> static inline bool skb_is_gso(const struct sk_buff *skb)
+>>>> {
+>>>>       return skb_shinfo(skb)->gso_size;
+>>>> }
+>>>>
+>>>> /* Note: Should be called only if skb_is_gso(skb) is true */
+>>>> static inline bool skb_is_gso_v6(const struct sk_buff *skb)
+>>>> ...
+>>>>
+>>>>
+>>>> There is absolutely no relation between GSO and skb->data_len, skb can be linearized
+>>>> for various orthogonal reasons.
+>>> The reported problem is that virtio gets a packet where gso_size
+>>> is !0 but gso_type is 0.
+>>>
+>>> It currently drops these on the assumption that it's some type
+>>> of a gso packet it does not know how to handle.
+>>>
+>>>
+>>> So you are saying if skb_is_gso we can still have gso_type set to 0,
+>>> and that's an expected configuration?
+>>>
+>>> So the patch should just be:
+>>>
+>>>
+>>> -        if (skb_is_gso(skb)) {
+>>> +        if (skb_is_gso(skb) && sinfo->gso_type) {
+>>>
+>> Yes, provided that skb_is_gso(skb) and sinfo->gso_type == 0 is a valid state.
+>>
+>> I agree with Jason, there may be something wrong going on here and we need to find the source which creates these packets.
+>>
+>> A.
+>
+> Want to submit a patch to address this for now?
 
-Any plan to fix the driver ? It is broken since its introduction.
+I can do that on Monday - traveling till then.
 
-Regards
+A.
+
+
+>
+>>> ?
+>>>
+>>>
+>>> _______________________________________________
+>>> linux-um mailing list
+>>> linux-um@lists.infradead.org
+>>> http://lists.infradead.org/mailman/listinfo/linux-um
+>> -- 
+>> Anton R. Ivanov
+>> Cambridgegreys Limited. Registered in England. Company Number 10273661
+>> https://www.cambridgegreys.com/
+>
+> _______________________________________________
+> linux-um mailing list
+> linux-um@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-um
+
+-- 
+Anton R. Ivanov
+
+Cambridge Greys Limited, England and Wales company No 10273661
+http://www.cambridgegreys.com/
