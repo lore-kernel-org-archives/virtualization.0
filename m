@@ -1,57 +1,131 @@
-From: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: [RESEND PATCH v2 9/9] ath5k: Constify ioreadX() iomem argument
- (as in generic implementation)
-Date: Thu, 20 Feb 2020 10:48:33 +0100
-Message-ID: <518a9023-f802-17b3-fca5-582400bc34ae__7785.95339959196$1582192135$gmane$org@gmail.com>
-References: <20200219175007.13627-1-krzk@kernel.org>
- <20200219175007.13627-10-krzk@kernel.org>
+From: Jason Gunthorpe <jgg@mellanox.com>
+Subject: Re: [PATCH V4 5/5] vdpasim: vDPA device simulator
+Date: Thu, 20 Feb 2020 15:12:18 +0000
+Message-ID: <20200220151215.GU23930@mellanox.com>
+References: <20200220061141.29390-1-jasowang@redhat.com>
+ <20200220061141.29390-6-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200219175007.13627-10-krzk@kernel.org>
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200220061141.29390-6-jasowang@redhat.com>
 Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Krzysztof Kozlowski <krzk@kernel.org>, Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Alexey Brodkin <abrodkin@synopsys.com>, Vineet Gupta <vgupta@synopsys.com>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, Dave Airlie <airlied@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Ben Skeggs <bskeggs@redhat.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Nick Kossifidis <mickflemm@gmail.com>, Luis Chamberlain <mcgrof@kernel.org>, Kalle Valo <kvalo@codeaurora.org>, "David S. Miller" <davem@davemloft.net>, Dave Jiang <dave.jiang@inte>
+Content-ID: <27D03B0CCFB76D4196FC8C2FF59A0D07@eurprd05.prod.outlook.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "tiwei.bie@intel.com" <tiwei.bie@intel.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "cunming.liang@intel.com" <cunming.liang@intel.com>, "zhihong.wang@intel.com" <zhihong.wang@intel.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "xiao.w.wang@intel.com" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "lingshan.zhu@intel.com" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.co>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 19. 02. 20, 18:50, Krzysztof Kozlowski wrote:
-> The ioreadX() helpers have inconsistent interface.  On some architectures
-> void *__iomem address argument is a pointer to const, on some not.
-> 
-> Implementations of ioreadX() do not modify the memory under the address
-> so they can be converted to a "const" version for const-safety and
-> consistency among architectures.
-> 
-> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-> Acked-by: Kalle Valo <kvalo@codeaurora.org>
-> ---
->  drivers/net/wireless/ath/ath5k/ahb.c | 10 +++++-----
->  1 file changed, 5 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/net/wireless/ath/ath5k/ahb.c b/drivers/net/wireless/ath/ath5k/ahb.c
-> index 2c9cec8b53d9..8bd01df369fb 100644
-> --- a/drivers/net/wireless/ath/ath5k/ahb.c
-> +++ b/drivers/net/wireless/ath/ath5k/ahb.c
-> @@ -138,18 +138,18 @@ static int ath_ahb_probe(struct platform_device *pdev)
->  
->  	if (bcfg->devid >= AR5K_SREV_AR2315_R6) {
->  		/* Enable WMAC AHB arbitration */
-> -		reg = ioread32((void __iomem *) AR5K_AR2315_AHB_ARB_CTL);
-> +		reg = ioread32((const void __iomem *) AR5K_AR2315_AHB_ARB_CTL);
+On Thu, Feb 20, 2020 at 02:11:41PM +0800, Jason Wang wrote:
+> +static void vdpasim_device_release(struct device *dev)
+> +{
+> +	struct vdpasim *vdpasim =3D dev_to_sim(dev);
+> +
+> +	cancel_work_sync(&vdpasim->work);
+> +	kfree(vdpasim->buffer);
+> +	vhost_iotlb_free(vdpasim->iommu);
+> +	kfree(vdpasim);
+> +}
+> +
+> +static struct vdpasim *vdpasim_create(void)
+> +{
+> +	struct virtio_net_config *config;
+> +	struct vhost_iotlb *iommu;
+> +	struct vdpasim *vdpasim;
+> +	struct device *dev;
+> +	void *buffer;
+> +	int ret =3D -ENOMEM;
+> +
+> +	iommu =3D vhost_iotlb_alloc(2048, 0);
+> +	if (!iommu)
+> +		goto err;
+> +
+> +	buffer =3D kmalloc(PAGE_SIZE, GFP_KERNEL);
+> +	if (!buffer)
+> +		goto err_buffer;
+> +
+> +	vdpasim =3D kzalloc(sizeof(*vdpasim), GFP_KERNEL);
+> +	if (!vdpasim)
+> +		goto err_alloc;
+> +
+> +	vdpasim->buffer =3D buffer;
+> +	vdpasim->iommu =3D iommu;
+> +
+> +	config =3D &vdpasim->config;
+> +	config->mtu =3D 1500;
+> +	config->status =3D VIRTIO_NET_S_LINK_UP;
+> +	eth_random_addr(config->mac);
+> +
+> +	INIT_WORK(&vdpasim->work, vdpasim_work);
+> +	spin_lock_init(&vdpasim->lock);
+> +
+> +	vringh_set_iotlb(&vdpasim->vqs[0].vring, vdpasim->iommu);
+> +	vringh_set_iotlb(&vdpasim->vqs[1].vring, vdpasim->iommu);
+> +
+> +	dev =3D &vdpasim->dev;
+> +	dev->release =3D vdpasim_device_release;
+> +	dev->coherent_dma_mask =3D DMA_BIT_MASK(64);
+> +	set_dma_ops(dev, &vdpasim_dma_ops);
+> +	dev_set_name(dev, "%s", VDPASIM_NAME);
+> +
+> +	ret =3D device_register(&vdpasim->dev);
+> +	if (ret)
+> +		goto err_init;
 
-While I understand why the parameter of ioread32 should be const, I
-don't see a reason for these casts on the users' side. What does it
-bring except longer code to read?
+It is a bit weird to be creating this dummy parent, couldn't this be
+done by just passing a NULL parent to vdpa_alloc_device, doing
+set_dma_ops() on the vdpasim->vdpa->dev and setting dma_device to
+vdpasim->vdpa->dev ?
 
-thanks,
--- 
-js
+> +	vdpasim->vdpa =3D vdpa_alloc_device(dev, dev, &vdpasim_net_config_ops);
+> +	if (ret)
+> +		goto err_vdpa;
+
+> +	ret =3D vdpa_register_device(vdpasim->vdpa);
+> +	if (ret)
+> +		goto err_register;
+> +
+> +	return vdpasim;
+> +
+> +err_register:
+> +	put_device(&vdpasim->vdpa->dev);
+> +err_vdpa:
+> +	device_del(&vdpasim->dev);
+> +	goto err;
+> +err_init:
+> +	put_device(&vdpasim->dev);
+> +	goto err;
+
+If you do the vdmasim alloc first, and immediately do
+device_initialize() then all the failure paths can do put_device
+instead of having this ugly goto unwind split. Just check for
+vdpasim->iommu =3D=3D NULL during release.
+
+> +static int __init vdpasim_dev_init(void)
+> +{
+> +	vdpasim_dev =3D vdpasim_create();
+> +
+> +	if (!IS_ERR(vdpasim_dev))
+> +		return 0;
+> +
+> +	return PTR_ERR(vdpasim_dev);
+> +}
+> +
+> +static int vdpasim_device_remove_cb(struct device *dev, void *data)
+> +{
+> +	struct vdpa_device *vdpa =3D dev_to_vdpa(dev);
+> +
+> +	vdpa_unregister_device(vdpa);
+> +
+> +	return 0;
+> +}
+> +
+> +static void __exit vdpasim_dev_exit(void)
+> +{
+> +	device_for_each_child(&vdpasim_dev->dev, NULL,
+> +			      vdpasim_device_remove_cb);
+
+Why the loop? There is only one device, and it is in the global
+varaible vdmasim_dev ?
+
+Jason
