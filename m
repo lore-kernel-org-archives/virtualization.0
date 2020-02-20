@@ -1,43 +1,77 @@
-From: Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH] virtio_balloon: Fix build error seen with CONFIG_BALLOON_COMPACTION=n
-Date: Wed, 19 Feb 2020 18:31:56 -0800
-Message-ID: <20200220023156.20636-1-linux@roeck-us.net>
+From: Tiwei Bie <tiwei.bie@intel.com>
+Subject: Re: [PATCH] vhost: introduce vDPA based backend
+Date: Thu, 20 Feb 2020 10:42:21 +0800
+Message-ID: <20200220024220.GA43609@___>
+References: <20200131033651.103534-1-tiwei.bie@intel.com>
+ <20200218135359.GA9608@ziepe.ca>
+ <20200219025217.GA971968@___>
+ <20200219131102.GN31668@ziepe.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200219131102.GN31668@ziepe.ca>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S . Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>, David Hildenbrand <david@redhat.com>
+To: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: mst@redhat.com, jasowang@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, shahafs@mellanox.com, rob.miller@broadcom.com, haotian.wang@sifive.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, rdunlap@infradead.org, hch@infradead.org, jiri@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, maxime.coquelin@redhat.com, lingshan.zhu@intel.com, dan.daly@intel.com, cunming.liang@intel.com, zhihong.wang@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-0day reports:
+On Wed, Feb 19, 2020 at 09:11:02AM -0400, Jason Gunthorpe wrote:
+> On Wed, Feb 19, 2020 at 10:52:38AM +0800, Tiwei Bie wrote:
+> > > > +static int __init vhost_vdpa_init(void)
+> > > > +{
+> > > > +	int r;
+> > > > +
+> > > > +	idr_init(&vhost_vdpa.idr);
+> > > > +	mutex_init(&vhost_vdpa.mutex);
+> > > > +	init_waitqueue_head(&vhost_vdpa.release_q);
+> > > > +
+> > > > +	/* /dev/vhost-vdpa/$vdpa_device_index */
+> > > > +	vhost_vdpa.class = class_create(THIS_MODULE, "vhost-vdpa");
+> > > > +	if (IS_ERR(vhost_vdpa.class)) {
+> > > > +		r = PTR_ERR(vhost_vdpa.class);
+> > > > +		goto err_class;
+> > > > +	}
+> > > > +
+> > > > +	vhost_vdpa.class->devnode = vhost_vdpa_devnode;
+> > > > +
+> > > > +	r = alloc_chrdev_region(&vhost_vdpa.devt, 0, MINORMASK + 1,
+> > > > +				"vhost-vdpa");
+> > > > +	if (r)
+> > > > +		goto err_alloc_chrdev;
+> > > > +
+> > > > +	cdev_init(&vhost_vdpa.cdev, &vhost_vdpa_fops);
+> > > > +	r = cdev_add(&vhost_vdpa.cdev, vhost_vdpa.devt, MINORMASK + 1);
+> > > > +	if (r)
+> > > > +		goto err_cdev_add;
+> > > 
+> > > It is very strange, is the intention to create a single global char
+> > > dev?
+> > 
+> > No. It's to create a per-vdpa char dev named
+> > vhost-vdpa/$vdpa_device_index in dev.
+> > 
+> > I followed the code in VFIO which creates char dev
+> > vfio/$GROUP dynamically, e.g.:
+> > 
+> > https://github.com/torvalds/linux/blob/b1da3acc781c/drivers/vfio/vfio.c#L2164-L2180
+> > https://github.com/torvalds/linux/blob/b1da3acc781c/drivers/vfio/vfio.c#L373-L387
+> > https://github.com/torvalds/linux/blob/b1da3acc781c/drivers/vfio/vfio.c#L1553
+> > 
+> > Is it something unwanted?
+> 
+> Yes it is unwanted. This is some special pattern for vfio's unique
+> needs. 
+> 
+> Since this has a struct device for each char dev instance please use
+> the normal cdev_device_add() driven pattern here, or justify why it
+> needs to be special like this.
 
-drivers//virtio/virtio_balloon.c: In function 'virtballoon_probe':
-drivers//virtio/virtio_balloon.c:960:1: error:
-	label 'out_del_vqs' defined but not used [-Werror=unused-label]
+I see. Thanks! I will embed the cdev in each vhost_vdpa
+structure directly.
 
-This is seen with CONFIG_BALLOON_COMPACTION=n.
+Regards,
+Tiwei
 
-Reported-by: kbuild test robot <lkp@intel.com>
-Fixes: 1ad6f58ea936 ("virtio_balloon: Fix memory leaks on errors in virtballoon_probe()")
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
----
- drivers/virtio/virtio_balloon.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 7bfe365d9372..341458fd95ca 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -959,8 +959,8 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 	iput(vb->vb_dev_info.inode);
- out_kern_unmount:
- 	kern_unmount(balloon_mnt);
--#endif
- out_del_vqs:
-+#endif
- 	vdev->config->del_vqs(vdev);
- out_free_vb:
- 	kfree(vb);
--- 
-2.17.1
+> 
+> Jason
