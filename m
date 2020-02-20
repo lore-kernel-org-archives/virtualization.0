@@ -1,13 +1,13 @@
 From: Sam Ravnborg <sam@ravnborg.org>
 Subject: Re: [PATCH v2 1/4] drm/simple-kms: Add drm_simple_encoder_{init,
  create}()
-Date: Thu, 20 Feb 2020 19:42:30 +0100
-Message-ID: <20200220184230.GA18993@ravnborg.org>
+Date: Thu, 20 Feb 2020 19:50:50 +0100
+Message-ID: <20200220185050.GB18993@ravnborg.org>
 References: <20200218084815.2137-1-tzimmermann@suse.de>
  <20200218084815.2137-2-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
 In-Reply-To: <20200218084815.2137-2-tzimmermann@suse.de>
@@ -29,92 +29,69 @@ Hi Thomas.
 On Tue, Feb 18, 2020 at 09:48:12AM +0100, Thomas Zimmermann wrote:
 > This patch makes the internal encoder implementation of the simple
 > KMS helpers available to drivers.
-> =
-
+> 
 > These simple-encoder helpers initialize an encoder with an empty
 > implementation. This covers the requirements of most of the existing
 > DRM drivers. A call to drm_simple_encoder_create() allocates and
 > initializes an encoder instance, a call to drm_simple_encoder_init()
 > initializes a pre-allocated instance.
-> =
-
+> 
 > v2:
 > 	* move simple encoder to KMS helpers
 > 	* remove name argument; simplifies implementation
 > 	* don't allocate with devm_ interfaces; unsafe with DRM
-> =
-
+> 
 > Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 > ---
 >  drivers/gpu/drm/drm_simple_kms_helper.c | 83 ++++++++++++++++++++++++-
 >  include/drm/drm_simple_kms_helper.h     |  7 +++
 >  2 files changed, 87 insertions(+), 3 deletions(-)
-> =
-
-> diff --git a/drivers/gpu/drm/drm_simple_kms_helper.c b/drivers/gpu/drm/dr=
-m_simple_kms_helper.c
+> 
+> diff --git a/drivers/gpu/drm/drm_simple_kms_helper.c b/drivers/gpu/drm/drm_simple_kms_helper.c
 > index 15fb516ae2d8..745c2f34c42b 100644
 > --- a/drivers/gpu/drm/drm_simple_kms_helper.c
 > +++ b/drivers/gpu/drm/drm_simple_kms_helper.c
 > @@ -26,12 +26,90 @@
->   * entity. Some flexibility for code reuse is provided through a separat=
-ely
+>   * entity. Some flexibility for code reuse is provided through a separately
 >   * allocated &drm_connector object and supporting optional &drm_bridge
 >   * encoder drivers.
 > + *
-> + * Many drivers use an encoder with an empty implementation. Such encode=
-rs
-> + * fulfill the minimum requirements of the display pipeline, but don't a=
-dd
+> + * Many drivers use an encoder with an empty implementation. Such encoders
+> + * fulfill the minimum requirements of the display pipeline, but don't add
 > + * additional functionality. The simple-encoder functions
 > + * drm_simple_encoder_init() and drm_simple_encoder_create() provide an
 > + * appropriate implementation.
-This paragraph reads a bit strange to me - I read this as a
-justification for addding a generic encoded that can be used by exisitg
-drivers.
-
-How about something like this:
-
-Many drivers requires a very simple encoder that only fullfill
-the minimum requirements of the display pipeline and do not add
-any extra functionslity.
-The simple-encoder functions drm_simple_encoder_init() and
-drm_simple_encoder_create() provides an imp=E5lmentation of such
-a simple encoder.
-The simple encoder includes automatically release of resources.
-
-And then leave it to the changelog to tell what should be done in
-existing drivers.
-
-
-
 >   */
->  =
-
-> -static const struct drm_encoder_funcs drm_simple_kms_encoder_funcs =3D {
-> +static const struct drm_encoder_funcs drm_simple_encoder_funcs_cleanup =
-=3D {
->  	.destroy =3D drm_encoder_cleanup,
+>  
+> -static const struct drm_encoder_funcs drm_simple_kms_encoder_funcs = {
+> +static const struct drm_encoder_funcs drm_simple_encoder_funcs_cleanup = {
+>  	.destroy = drm_encoder_cleanup,
 >  };
->  =
-
+>  
 > +/**
 > + * drm_simple_encoder_init - Initialize a preallocated encoder
 > + * @dev: drm device
 > + * @funcs: callbacks for this encoder
 > + * @encoder_type: user visible type of the encoder
 > + *
-> + * Initialises a preallocated encoder that has no further functionality.=
- The
-> + * encoder will be released automatically. Settings for possible CRTC and
-> + * clones are left to their initial values. The encoder will be cleaned =
-up
+> + * Initialises a preallocated encoder that has no further functionality. The
+> + * encoder will be released automatically.
+I got confused here. The comment says the encoder is automatically
+released. But in this case we have a preallocated encoder (maybe
+embedded in ast_private or something.
+So the encoder is - as I understnad it - not released. But it is cleaned
+up as it is also documented in the next sentences.
+
+Sorry if I am dense, just returned from some travelling...
+
+	Sam
+
+
+Settings for possible CRTC and
+> + * clones are left to their initial values. The encoder will be cleaned up
 > + * automatically as part of the mode-setting cleanup.
 > + *
 > + * Also see drm_simple_encoder_create().
-s/Also see/See also/??
-
-
 > + *
 > + * Returns:
 > + * Zero on success, error code on failure.
@@ -135,9 +112,8 @@ s/Also see/See also/??
 > +	kfree(encoder);
 > +}
 > +
-> +static const struct drm_encoder_funcs drm_simple_encoder_funcs_destroy =
-=3D {
-> +	.destroy =3D drm_encoder_destroy,
+> +static const struct drm_encoder_funcs drm_simple_encoder_funcs_destroy = {
+> +	.destroy = drm_encoder_destroy,
 > +};
 > +
 > +/**
@@ -145,19 +121,13 @@ s/Also see/See also/??
 > + * @dev: drm device
 > + * @encoder_type: user visible type of the encoder
 > + *
-> + * Allocates and initialises an encoder that has no further functionalit=
-y. The
-> + * encoder will be destroyed automatically as part of the mode-setting c=
-leanup.
+> + * Allocates and initialises an encoder that has no further functionality. The
+> + * encoder will be destroyed automatically as part of the mode-setting cleanup.
 > + *
 > + * See drm_simple_encoder_init() for more information.
 > + *
 > + * Returns:
 > + * The encoder on success, a pointer-encoder error code on failure.
-                                pointer-encoded?
-
-
-
 > + */
 > +struct drm_encoder *drm_simple_encoder_create(struct drm_device *dev,
 > +					      int encoder_type)
@@ -165,10 +135,10 @@ leanup.
 > +	struct drm_encoder *encoder;
 > +	int ret;
 > +
-> +	encoder =3D kzalloc(sizeof(*encoder), GFP_KERNEL);
+> +	encoder = kzalloc(sizeof(*encoder), GFP_KERNEL);
 > +	if (!encoder)
 > +		return ERR_PTR(-ENOMEM);
-> +	ret =3D drm_encoder_init(dev, encoder,
+> +	ret = drm_encoder_init(dev, encoder,
 > +			       &drm_simple_encoder_funcs_destroy,
 > +			       encoder_type, NULL);
 > +	if (ret)
@@ -185,30 +155,24 @@ leanup.
 >  static enum drm_mode_status
 >  drm_simple_kms_crtc_mode_valid(struct drm_crtc *crtc,
 >  			       const struct drm_display_mode *mode)
-> @@ -288,8 +366,7 @@ int drm_simple_display_pipe_init(struct drm_device *d=
-ev,
+> @@ -288,8 +366,7 @@ int drm_simple_display_pipe_init(struct drm_device *dev,
 >  		return ret;
->  =
-
->  	encoder->possible_crtcs =3D drm_crtc_mask(crtc);
-> -	ret =3D drm_encoder_init(dev, encoder, &drm_simple_kms_encoder_funcs,
+>  
+>  	encoder->possible_crtcs = drm_crtc_mask(crtc);
+> -	ret = drm_encoder_init(dev, encoder, &drm_simple_kms_encoder_funcs,
 > -			       DRM_MODE_ENCODER_NONE, NULL);
-> +	ret =3D drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_NONE);
+> +	ret = drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_NONE);
 >  	if (ret || !connector)
 >  		return ret;
->  =
-
-> diff --git a/include/drm/drm_simple_kms_helper.h b/include/drm/drm_simple=
-_kms_helper.h
+>  
+> diff --git a/include/drm/drm_simple_kms_helper.h b/include/drm/drm_simple_kms_helper.h
 > index e253ba7bea9d..54d5066d90c7 100644
 > --- a/include/drm/drm_simple_kms_helper.h
 > +++ b/include/drm/drm_simple_kms_helper.h
-> @@ -181,4 +181,11 @@ int drm_simple_display_pipe_init(struct drm_device *=
-dev,
+> @@ -181,4 +181,11 @@ int drm_simple_display_pipe_init(struct drm_device *dev,
 >  			const uint64_t *format_modifiers,
 >  			struct drm_connector *connector);
->  =
-
+>  
 > +int drm_simple_encoder_init(struct drm_device *dev,
 > +			    struct drm_encoder *encoder,
 > +			    int encoder_type);
@@ -217,5 +181,10 @@ dev,
 > +					      int encoder_type);
 > +
 >  #endif /* __LINUX_DRM_SIMPLE_KMS_HELPER_H */
-
-	Sam
+> -- 
+> 2.25.0
+> 
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
