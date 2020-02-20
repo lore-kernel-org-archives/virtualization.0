@@ -1,77 +1,174 @@
-From: Tiwei Bie <tiwei.bie@intel.com>
-Subject: Re: [PATCH] vhost: introduce vDPA based backend
-Date: Thu, 20 Feb 2020 10:42:21 +0800
-Message-ID: <20200220024220.GA43609@___>
-References: <20200131033651.103534-1-tiwei.bie@intel.com>
- <20200218135359.GA9608@ziepe.ca>
- <20200219025217.GA971968@___>
- <20200219131102.GN31668@ziepe.ca>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH V3 0/5] vDPA support
+Date: Thu, 20 Feb 2020 11:56:45 +0800
+Message-ID: <20200220035650.7986-1-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200219131102.GN31668@ziepe.ca>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: mst@redhat.com, jasowang@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, shahafs@mellanox.com, rob.miller@broadcom.com, haotian.wang@sifive.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, rdunlap@infradead.org, hch@infradead.org, jiri@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, maxime.coquelin@redhat.com, lingshan.zhu@intel.com, dan.daly@intel.com, cunming.liang@intel.com, zhihong.wang@intel.com
+Content-Transfer-Encoding: quoted-printable
+Return-path: <kvm-owner@vger.kernel.org>
+Sender: kvm-owner@vger.kernel.org
+To: mst@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: tiwei.bie@intel.com, jgg@mellanox.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jiri@mellanox.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, Jason Wang <jasowang@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 19, 2020 at 09:11:02AM -0400, Jason Gunthorpe wrote:
-> On Wed, Feb 19, 2020 at 10:52:38AM +0800, Tiwei Bie wrote:
-> > > > +static int __init vhost_vdpa_init(void)
-> > > > +{
-> > > > +	int r;
-> > > > +
-> > > > +	idr_init(&vhost_vdpa.idr);
-> > > > +	mutex_init(&vhost_vdpa.mutex);
-> > > > +	init_waitqueue_head(&vhost_vdpa.release_q);
-> > > > +
-> > > > +	/* /dev/vhost-vdpa/$vdpa_device_index */
-> > > > +	vhost_vdpa.class = class_create(THIS_MODULE, "vhost-vdpa");
-> > > > +	if (IS_ERR(vhost_vdpa.class)) {
-> > > > +		r = PTR_ERR(vhost_vdpa.class);
-> > > > +		goto err_class;
-> > > > +	}
-> > > > +
-> > > > +	vhost_vdpa.class->devnode = vhost_vdpa_devnode;
-> > > > +
-> > > > +	r = alloc_chrdev_region(&vhost_vdpa.devt, 0, MINORMASK + 1,
-> > > > +				"vhost-vdpa");
-> > > > +	if (r)
-> > > > +		goto err_alloc_chrdev;
-> > > > +
-> > > > +	cdev_init(&vhost_vdpa.cdev, &vhost_vdpa_fops);
-> > > > +	r = cdev_add(&vhost_vdpa.cdev, vhost_vdpa.devt, MINORMASK + 1);
-> > > > +	if (r)
-> > > > +		goto err_cdev_add;
-> > > 
-> > > It is very strange, is the intention to create a single global char
-> > > dev?
-> > 
-> > No. It's to create a per-vdpa char dev named
-> > vhost-vdpa/$vdpa_device_index in dev.
-> > 
-> > I followed the code in VFIO which creates char dev
-> > vfio/$GROUP dynamically, e.g.:
-> > 
-> > https://github.com/torvalds/linux/blob/b1da3acc781c/drivers/vfio/vfio.c#L2164-L2180
-> > https://github.com/torvalds/linux/blob/b1da3acc781c/drivers/vfio/vfio.c#L373-L387
-> > https://github.com/torvalds/linux/blob/b1da3acc781c/drivers/vfio/vfio.c#L1553
-> > 
-> > Is it something unwanted?
-> 
-> Yes it is unwanted. This is some special pattern for vfio's unique
-> needs. 
-> 
-> Since this has a struct device for each char dev instance please use
-> the normal cdev_device_add() driven pattern here, or justify why it
-> needs to be special like this.
+Hi all:
 
-I see. Thanks! I will embed the cdev in each vhost_vdpa
-structure directly.
+This is an update version of vDPA support in kernel.
 
-Regards,
-Tiwei
+vDPA device is a device that uses a datapath which complies with the
+virtio specifications with vendor specific control path. vDPA devices
+can be both physically located on the hardware or emulated by
+software. vDPA hardware devices are usually implemented through PCIE
+with the following types:
 
-> 
-> Jason
+- PF (Physical Function) - A single Physical Function
+- VF (Virtual Function) - Device that supports single root I/O
+  virtualization (SR-IOV). Its Virtual Function (VF) represents a
+  virtualized instance of the device that can be assigned to different
+  partitions
+- ADI (Assignable Device Interface) and its equivalents - With
+  technologies such as Intel Scalable IOV, a virtual device (VDEV)
+  composed by host OS utilizing one or more ADIs. Or its equivalent
+  like SF (Sub function) from Mellanox.
+
+From a driver's perspective, depends on how and where the DMA
+translation is done, vDPA devices are split into two types:
+
+- Platform specific DMA translation - From the driver's perspective,
+  the device can be used on a platform where device access to data in
+  memory is limited and/or translated. An example is a PCIE vDPA whose
+  DMA request was tagged via a bus (e.g PCIE) specific way. DMA
+  translation and protection are done at PCIE bus IOMMU level.
+- Device specific DMA translation - The device implements DMA
+  isolation and protection through its own logic. An example is a vDPA
+  device which uses on-chip IOMMU.
+
+To hide the differences and complexity of the above types for a vDPA
+device/IOMMU options and in order to present a generic virtio device
+to the upper layer, a device agnostic framework is required.
+
+This series introduces a software vDPA bus which abstracts the
+common attributes of vDPA device, vDPA bus driver and the
+communication method, the bus operations (vdpa_config_ops) between the
+vDPA device abstraction and the vDPA bus driver. This allows multiple
+types of drivers to be used for vDPA device like the virtio_vdpa and
+vhost_vdpa driver to operate on the bus and allow vDPA device could be
+used by either kernel virtio driver or userspace vhost drivers as:
+
+   virtio drivers  vhost drivers
+          |             |
+    [virtio bus]   [vhost uAPI]
+          |             |
+   virtio device   vhost device
+   virtio_vdpa drv vhost_vdpa drv
+             \       /
+            [vDPA bus]
+                 |
+            vDPA device
+            hardware drv
+                 |
+            [hardware bus]
+                 |
+            vDPA hardware
+
+virtio_vdpa driver is a transport implementation for kernel virtio
+drivers on top of vDPA bus operations. An alternative is to refactor
+virtio bus which is sub-optimal since the bus and drivers are designed
+to be use by kernel subsystem, a non-trivial major refactoring is
+needed which may impact a brunches of drivers and devices
+implementation inside the kernel. Using a new transport may grealy
+simply both the design and changes.
+
+vhost_vdpa driver is a new type of vhost device which allows userspace
+vhost drivers to use vDPA devices via vhost uAPI (with minor
+extension). This help to minimize the changes of existed vhost drivers
+for using vDPA devices.
+
+With the abstraction of vDPA bus and vDPA bus operations, the
+difference and complexity of the under layer hardware is hidden from
+upper layer. The vDPA bus drivers on top can use a unified
+vdpa_config_ops to control different types of vDPA device.
+
+This series contains the bus and virtio_vdpa implementation. We are
+working on the vhost part and IFCVF (vDPA driver from Intel) which
+will be posted in future days.
+
+Thanks
+
+Changes from V2:
+
+- release idr in the release function for put_device() unwind (Jason)
+- don't panic when fail to register vdpa bus (Jason)
+- use unsigned int instead of int for ida (Jason)
+- fix the wrong commit log in virito_vdpa patches (Jason)
+- make vdpa_sim depends on RUNTIME_TESTING_MENU (Michael)
+- provide a bus release function for vDPA device (Jason)
+- fix the wrong unwind when creating devices for vDPA simulator (Jason)
+- move vDPA simulator to a dedicated directory (Lingshan)
+- cancel the work before release vDPA simulator
+
+Changes from V1:
+
+- drop sysfs API, leave the management interface to future development
+  (Michael)
+- introduce incremental DMA ops (dma_map/dma_unmap) (Michael)
+- introduce dma_device and use it instead of parent device for doing
+  IOMMU or DMA from bus driver (Michael, Jason, Ling Shan, Tiwei)
+- accept parent device and dma device when register vdpa device
+- coding style and compile fixes (Randy)
+- using vdpa_xxx instead of xxx_vdpa (Jason)
+- ove vDPA accessors to header and make it static inline (Jason)
+- split vdp_register_device() into two helpers vdpa_init_device() and
+  vdpa_register_device() which allows intermediate step to be done (Jason=
+)
+- warn on invalidate queue state when fail to creating virtqueue (Jason)
+- make to_virtio_vdpa_device() static (Jason)
+- use kmalloc/kfree instead of devres for virtio vdpa device (Jason)
+- avoid using cast in vdpa bus function (Jason)
+- introduce module_vdpa_driver and fix module refcnt (Jason)
+- fix returning freed address in vdapsim coherent DMA addr allocation (Da=
+n)
+- various other fixes and tweaks
+
+V2: https://lkml.org/lkml/2020/2/9/275
+V1: https://lkml.org/lkml/2020/1/16/353
+
+Jason Wang (5):
+  vhost: factor out IOTLB
+  vringh: IOTLB support
+  vDPA: introduce vDPA bus
+  virtio: introduce a vDPA based transport
+  vdpasim: vDPA device simulator
+
+ MAINTAINERS                             |   2 +
+ drivers/vhost/Kconfig                   |   7 +
+ drivers/vhost/Kconfig.vringh            |   1 +
+ drivers/vhost/Makefile                  |   2 +
+ drivers/vhost/net.c                     |   2 +-
+ drivers/vhost/vhost.c                   | 221 +++-----
+ drivers/vhost/vhost.h                   |  36 +-
+ drivers/vhost/vhost_iotlb.c             | 171 ++++++
+ drivers/vhost/vringh.c                  | 421 ++++++++++++++-
+ drivers/virtio/Kconfig                  |  15 +
+ drivers/virtio/Makefile                 |   2 +
+ drivers/virtio/vdpa/Kconfig             |  27 +
+ drivers/virtio/vdpa/Makefile            |   3 +
+ drivers/virtio/vdpa/vdpa.c              | 167 ++++++
+ drivers/virtio/vdpa/vdpa_sim/Makefile   |   2 +
+ drivers/virtio/vdpa/vdpa_sim/vdpa_sim.c | 660 ++++++++++++++++++++++++
+ drivers/virtio/virtio_vdpa.c            | 392 ++++++++++++++
+ include/linux/vdpa.h                    | 232 +++++++++
+ include/linux/vhost_iotlb.h             |  45 ++
+ include/linux/vringh.h                  |  36 ++
+ 20 files changed, 2240 insertions(+), 204 deletions(-)
+ create mode 100644 drivers/vhost/vhost_iotlb.c
+ create mode 100644 drivers/virtio/vdpa/Kconfig
+ create mode 100644 drivers/virtio/vdpa/Makefile
+ create mode 100644 drivers/virtio/vdpa/vdpa.c
+ create mode 100644 drivers/virtio/vdpa/vdpa_sim/Makefile
+ create mode 100644 drivers/virtio/vdpa/vdpa_sim/vdpa_sim.c
+ create mode 100644 drivers/virtio/virtio_vdpa.c
+ create mode 100644 include/linux/vdpa.h
+ create mode 100644 include/linux/vhost_iotlb.h
+
+--=20
+2.19.1
