@@ -1,42 +1,221 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH 1/2] mm: move force_dma_unencrypted() to mem_encrypt.h
-Date: Thu, 20 Feb 2020 18:00:02 +0100
-Message-ID: <c41d567c-85ba-0f19-e56f-1b6cc4581d89@de.ibm.com>
-References: <20200220160606.53156-1-pasic@linux.ibm.com>
- <20200220160606.53156-2-pasic@linux.ibm.com> <20200220161146.GA12709@lst.de>
- <4369f099-e4e4-4a58-b38b-642cf53ccca6@de.ibm.com>
- <20200220163135.GA13192@lst.de>
+From: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [PATCH v2 1/4] drm/simple-kms: Add drm_simple_encoder_{init,
+ create}()
+Date: Thu, 20 Feb 2020 19:42:30 +0100
+Message-ID: <20200220184230.GA18993@ravnborg.org>
+References: <20200218084815.2137-1-tzimmermann@suse.de>
+ <20200218084815.2137-2-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200220163135.GA13192@lst.de>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Christoph Hellwig <hch@lst.de>
-Cc: Halil Pasic <pasic@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, David Gibson <david@gibson.dropbear.id.au>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20200218084815.2137-2-tzimmermann@suse.de>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: airlied@linux.ie, dri-devel@lists.freedesktop.org, maarten.lankhorst@linux.intel.com, mripard@kernel.org, virtualization@lists.linux-foundation.org, noralf@tronnes.org, daniel@ffwll.ch, alexander.deucher@amd.com, spice-devel@lists.freedesktop.org, emil.velikov@collabora.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+Hi Thomas.
+
+On Tue, Feb 18, 2020 at 09:48:12AM +0100, Thomas Zimmermann wrote:
+> This patch makes the internal encoder implementation of the simple
+> KMS helpers available to drivers.
+> =
+
+> These simple-encoder helpers initialize an encoder with an empty
+> implementation. This covers the requirements of most of the existing
+> DRM drivers. A call to drm_simple_encoder_create() allocates and
+> initializes an encoder instance, a call to drm_simple_encoder_init()
+> initializes a pre-allocated instance.
+> =
+
+> v2:
+> 	* move simple encoder to KMS helpers
+> 	* remove name argument; simplifies implementation
+> 	* don't allocate with devm_ interfaces; unsafe with DRM
+> =
+
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> ---
+>  drivers/gpu/drm/drm_simple_kms_helper.c | 83 ++++++++++++++++++++++++-
+>  include/drm/drm_simple_kms_helper.h     |  7 +++
+>  2 files changed, 87 insertions(+), 3 deletions(-)
+> =
+
+> diff --git a/drivers/gpu/drm/drm_simple_kms_helper.c b/drivers/gpu/drm/dr=
+m_simple_kms_helper.c
+> index 15fb516ae2d8..745c2f34c42b 100644
+> --- a/drivers/gpu/drm/drm_simple_kms_helper.c
+> +++ b/drivers/gpu/drm/drm_simple_kms_helper.c
+> @@ -26,12 +26,90 @@
+>   * entity. Some flexibility for code reuse is provided through a separat=
+ely
+>   * allocated &drm_connector object and supporting optional &drm_bridge
+>   * encoder drivers.
+> + *
+> + * Many drivers use an encoder with an empty implementation. Such encode=
+rs
+> + * fulfill the minimum requirements of the display pipeline, but don't a=
+dd
+> + * additional functionality. The simple-encoder functions
+> + * drm_simple_encoder_init() and drm_simple_encoder_create() provide an
+> + * appropriate implementation.
+This paragraph reads a bit strange to me - I read this as a
+justification for addding a generic encoded that can be used by exisitg
+drivers.
+
+How about something like this:
+
+Many drivers requires a very simple encoder that only fullfill
+the minimum requirements of the display pipeline and do not add
+any extra functionslity.
+The simple-encoder functions drm_simple_encoder_init() and
+drm_simple_encoder_create() provides an imp=E5lmentation of such
+a simple encoder.
+The simple encoder includes automatically release of resources.
+
+And then leave it to the changelog to tell what should be done in
+existing drivers.
 
 
-On 20.02.20 17:31, Christoph Hellwig wrote:
-> On Thu, Feb 20, 2020 at 05:23:20PM +0100, Christian Borntraeger wrote:
->> >From a users perspective it makes absolutely perfect sense to use the
->> bounce buffers when they are NEEDED. 
->> Forcing the user to specify iommu_platform just because you need bounce buffers
->> really feels wrong. And obviously we have a severe performance issue
->> because of the indirections.
-> 
-> The point is that the user should not have to specify iommu_platform.
 
-I (and Halil) agree on that. From a user perspective we want to
-have the right thing in the guest without any command option. The iommu_plaform
-thing was indeed a first step to make things work. 
+>   */
+>  =
 
-I might mis-read Halils patch, but isnt one effect of this patch set 
-that things WILL work without iommu_platform?
+> -static const struct drm_encoder_funcs drm_simple_kms_encoder_funcs =3D {
+> +static const struct drm_encoder_funcs drm_simple_encoder_funcs_cleanup =
+=3D {
+>  	.destroy =3D drm_encoder_cleanup,
+>  };
+>  =
+
+> +/**
+> + * drm_simple_encoder_init - Initialize a preallocated encoder
+> + * @dev: drm device
+> + * @funcs: callbacks for this encoder
+> + * @encoder_type: user visible type of the encoder
+> + *
+> + * Initialises a preallocated encoder that has no further functionality.=
+ The
+> + * encoder will be released automatically. Settings for possible CRTC and
+> + * clones are left to their initial values. The encoder will be cleaned =
+up
+> + * automatically as part of the mode-setting cleanup.
+> + *
+> + * Also see drm_simple_encoder_create().
+s/Also see/See also/??
 
 
-> We need to make sure any new hypervisor (especially one that might require
-> bounce buffering) always sets it, as was a rather bogus legacy hack
-> that isn't extensibe for cases that for example require bounce buffering.
+> + *
+> + * Returns:
+> + * Zero on success, error code on failure.
+> + */
+> +int drm_simple_encoder_init(struct drm_device *dev,
+> +			    struct drm_encoder *encoder,
+> +			    int encoder_type)
+> +{
+> +	return drm_encoder_init(dev, encoder,
+> +				&drm_simple_encoder_funcs_cleanup,
+> +				encoder_type, NULL);
+> +}
+> +EXPORT_SYMBOL(drm_simple_encoder_init);
+> +
+> +static void drm_encoder_destroy(struct drm_encoder *encoder)
+> +{
+> +	drm_encoder_cleanup(encoder);
+> +	kfree(encoder);
+> +}
+> +
+> +static const struct drm_encoder_funcs drm_simple_encoder_funcs_destroy =
+=3D {
+> +	.destroy =3D drm_encoder_destroy,
+> +};
+> +
+> +/**
+> + * drm_simple_encoder_create - Allocate and initialize an encoder
+> + * @dev: drm device
+> + * @encoder_type: user visible type of the encoder
+> + *
+> + * Allocates and initialises an encoder that has no further functionalit=
+y. The
+> + * encoder will be destroyed automatically as part of the mode-setting c=
+leanup.
+> + *
+> + * See drm_simple_encoder_init() for more information.
+> + *
+> + * Returns:
+> + * The encoder on success, a pointer-encoder error code on failure.
+                                pointer-encoded?
+
+
+
+> + */
+> +struct drm_encoder *drm_simple_encoder_create(struct drm_device *dev,
+> +					      int encoder_type)
+> +{
+> +	struct drm_encoder *encoder;
+> +	int ret;
+> +
+> +	encoder =3D kzalloc(sizeof(*encoder), GFP_KERNEL);
+> +	if (!encoder)
+> +		return ERR_PTR(-ENOMEM);
+> +	ret =3D drm_encoder_init(dev, encoder,
+> +			       &drm_simple_encoder_funcs_destroy,
+> +			       encoder_type, NULL);
+> +	if (ret)
+> +		goto err_kfree;
+> +
+> +	return encoder;
+> +
+> +err_kfree:
+> +	kfree(encoder);
+> +	return ERR_PTR(ret);
+> +}
+> +EXPORT_SYMBOL(drm_simple_encoder_create);
+> +
+>  static enum drm_mode_status
+>  drm_simple_kms_crtc_mode_valid(struct drm_crtc *crtc,
+>  			       const struct drm_display_mode *mode)
+> @@ -288,8 +366,7 @@ int drm_simple_display_pipe_init(struct drm_device *d=
+ev,
+>  		return ret;
+>  =
+
+>  	encoder->possible_crtcs =3D drm_crtc_mask(crtc);
+> -	ret =3D drm_encoder_init(dev, encoder, &drm_simple_kms_encoder_funcs,
+> -			       DRM_MODE_ENCODER_NONE, NULL);
+> +	ret =3D drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_NONE);
+>  	if (ret || !connector)
+>  		return ret;
+>  =
+
+> diff --git a/include/drm/drm_simple_kms_helper.h b/include/drm/drm_simple=
+_kms_helper.h
+> index e253ba7bea9d..54d5066d90c7 100644
+> --- a/include/drm/drm_simple_kms_helper.h
+> +++ b/include/drm/drm_simple_kms_helper.h
+> @@ -181,4 +181,11 @@ int drm_simple_display_pipe_init(struct drm_device *=
+dev,
+>  			const uint64_t *format_modifiers,
+>  			struct drm_connector *connector);
+>  =
+
+> +int drm_simple_encoder_init(struct drm_device *dev,
+> +			    struct drm_encoder *encoder,
+> +			    int encoder_type);
+> +
+> +struct drm_encoder *drm_simple_encoder_create(struct drm_device *dev,
+> +					      int encoder_type);
+> +
+>  #endif /* __LINUX_DRM_SIMPLE_KMS_HELPER_H */
+
+	Sam
