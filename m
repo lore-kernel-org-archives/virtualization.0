@@ -1,39 +1,57 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH] virtio_balloon: Fix build error seen with CONFIG_BALLOON_COMPACTION=n
-Date: Thu, 20 Feb 2020 10:09:20 +0100
-Message-ID: <48277641-3748-4EFD-BB19-ED5C9E06FDF2@redhat.com>
-References: <20200220023156.20636-1-linux@roeck-us.net>
-Mime-Version: 1.0 (1.0)
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200220023156.20636-1-linux@roeck-us.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Guenter Roeck <linux@roeck-us.net>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, David Hildenbrand <david@redhat.com>
+From: Jiri Slaby <jirislaby@gmail.com>
+Subject: Re: [RESEND PATCH v2 9/9] ath5k: Constify ioreadX() iomem argument
+ (as in generic implementation)
+Date: Thu, 20 Feb 2020 10:48:33 +0100
+Message-ID: <518a9023-f802-17b3-fca5-582400bc34ae__7785.95339959196$1582192135$gmane$org@gmail.com>
+References: <20200219175007.13627-1-krzk@kernel.org>
+ <20200219175007.13627-10-krzk@kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200219175007.13627-10-krzk@kernel.org>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Krzysztof Kozlowski <krzk@kernel.org>, Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Alexey Brodkin <abrodkin@synopsys.com>, Vineet Gupta <vgupta@synopsys.com>, "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, Dave Airlie <airlied@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Ben Skeggs <bskeggs@redhat.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Nick Kossifidis <mickflemm@gmail.com>, Luis Chamberlain <mcgrof@kernel.org>, Kalle Valo <kvalo@codeaurora.org>, "David S. Miller" <davem@davemloft.net>, Dave Jiang <dave.jiang@inte>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-> Am 20.02.2020 um 03:32 schrieb Guenter Roeck <linux@roeck-us.net>:
->=20
-> =EF=BB=BF0day reports:
->=20
-> drivers//virtio/virtio_balloon.c: In function 'virtballoon_probe':
-> drivers//virtio/virtio_balloon.c:960:1: error:
->    label 'out_del_vqs' defined but not used [-Werror=3Dunused-label]
->=20
-> This is seen with CONFIG_BALLOON_COMPACTION=3Dn.
->=20
-> Reported-by: kbuild test robot <lkp@intel.com>
-> Fixes: 1ad6f58ea936 ("virtio_balloon: Fix memory leaks on errors in virtba=
-lloon_probe()")
-> Cc: David Hildenbrand <david@redhat.com>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+On 19. 02. 20, 18:50, Krzysztof Kozlowski wrote:
+> The ioreadX() helpers have inconsistent interface.  On some architectures
+> void *__iomem address argument is a pointer to const, on some not.
+> 
+> Implementations of ioreadX() do not modify the memory under the address
+> so they can be converted to a "const" version for const-safety and
+> consistency among architectures.
+> 
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+> Acked-by: Kalle Valo <kvalo@codeaurora.org>
 > ---
+>  drivers/net/wireless/ath/ath5k/ahb.c | 10 +++++-----
+>  1 file changed, 5 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/net/wireless/ath/ath5k/ahb.c b/drivers/net/wireless/ath/ath5k/ahb.c
+> index 2c9cec8b53d9..8bd01df369fb 100644
+> --- a/drivers/net/wireless/ath/ath5k/ahb.c
+> +++ b/drivers/net/wireless/ath/ath5k/ahb.c
+> @@ -138,18 +138,18 @@ static int ath_ahb_probe(struct platform_device *pdev)
+>  
+>  	if (bcfg->devid >= AR5K_SREV_AR2315_R6) {
+>  		/* Enable WMAC AHB arbitration */
+> -		reg = ioread32((void __iomem *) AR5K_AR2315_AHB_ARB_CTL);
+> +		reg = ioread32((const void __iomem *) AR5K_AR2315_AHB_ARB_CTL);
 
-There is already a patch on the list to fix that (and it looks exactly like t=
-his one :) ). Unfortunately, not picked up yet.
+While I understand why the parameter of ioread32 should be const, I
+don't see a reason for these casts on the users' side. What does it
+bring except longer code to read?
 
-Thanks!=
+thanks,
+-- 
+js
