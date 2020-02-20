@@ -1,176 +1,65 @@
-From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Subject: Re: [PATCH] virtio: Work around frames incorrectly marked as gso
-Date: Thu, 20 Feb 2020 19:33:29 +0000
-Message-ID: <d26515b2-c0f4-195d-f754-caf7aa78ab81@cambridgegreys.com>
-References: <20191209104824.17059-1-anton.ivanov@cambridgegreys.com>
- <57230228-7030-c65f-a24f-910ca52bbe9e@cambridgegreys.com>
- <f78bfe6e-2ffc-3734-9618-470f1afea0c6@redhat.com>
- <918222d9-816a-be70-f8af-b8dfcb586240@cambridgegreys.com>
- <20200211053502-mutt-send-email-mst@kernel.org>
- <9547228b-aa93-f2b6-6fdc-8d33cde3716a@cambridgegreys.com>
- <20200213045937-mutt-send-email-mst@kernel.org>
- <94fb9656-99ee-a001-e428-9d76c3620e61@gmail.com>
- <20200213105010-mutt-send-email-mst@kernel.org>
- <35510da7-08f1-4aa5-c6d6-6bffbccaee0c@cambridgegreys.com>
- <20200220025506-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 0/2] virtio: decouple protected guest RAM form
+ VIRTIO_F_IOMMU_PLATFORM
+Date: Thu, 20 Feb 2020 15:48:35 -0500
+Message-ID: <20200220154718-mutt-send-email-mst@kernel.org>
+References: <20200220160606.53156-1-pasic@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20200220025506-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>, linux-um@lists.infradead.org, Eric Dumazet <eric.dumazet@gmail.com>, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200220160606.53156-1-pasic@linux.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Jason Wang <jasowang@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, David Gibson <david@gibson.dropbear.id.au>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Thu, Feb 20, 2020 at 05:06:04PM +0100, Halil Pasic wrote:
+> Currently if one intends to run a memory protection enabled VM with
+> virtio devices and linux as the guest OS, one needs to specify the
+> VIRTIO_F_IOMMU_PLATFORM flag for each virtio device to make the guest
+> linux use the DMA API, which in turn handles the memory
+> encryption/protection stuff if the guest decides to turn itself into
+> a protected one. This however makes no sense due to multiple reasons:
+> * The device is not changed by the fact that the guest RAM is
+> protected. The so called IOMMU bypass quirk is not affected.
+> * This usage is not congruent with  standardised semantics of
+> VIRTIO_F_IOMMU_PLATFORM. Guest memory protected is an orthogonal reason
+> for using DMA API in virtio (orthogonal with respect to what is
+> expressed by VIRTIO_F_IOMMU_PLATFORM). 
+> 
+> This series aims to decouple 'have to use DMA API because my (guest) RAM
+> is protected' and 'have to use DMA API because the device told me
+> VIRTIO_F_IOMMU_PLATFORM'.
+> 
+> Please find more detailed explanations about the conceptual aspects in
+> the individual patches. There is however also a very practical problem
+> that is addressed by this series. 
+> 
+> For vhost-net the feature VIRTIO_F_IOMMU_PLATFORM has the following side
+> effect The vhost code assumes it the addresses on the virtio descriptor
+> ring are not guest physical addresses but iova's, and insists on doing a
+> translation of these regardless of what transport is used (e.g. whether
+> we emulate a PCI or a CCW device). (For details see commit 6b1e6cc7855b
+> "vhost: new device IOTLB API".) On s390 this results in severe
+> performance degradation (c.a. factor 10). BTW with ccw I/O there is
+> (architecturally) no IOMMU, so the whole address translation makes no
+> sense in the context of virtio-ccw.
 
-On 20/02/2020 07:58, Michael S. Tsirkin wrote:
-> On Thu, Feb 13, 2020 at 04:23:24PM +0000, Anton Ivanov wrote:
->> On 13/02/2020 15:53, Michael S. Tsirkin wrote:
->>> On Thu, Feb 13, 2020 at 07:44:06AM -0800, Eric Dumazet wrote:
->>>> On 2/13/20 2:00 AM, Michael S. Tsirkin wrote:
->>>>> On Wed, Feb 12, 2020 at 05:38:09PM +0000, Anton Ivanov wrote:
->>>>>> On 11/02/2020 10:37, Michael S. Tsirkin wrote:
->>>>>>> On Tue, Feb 11, 2020 at 07:42:37AM +0000, Anton Ivanov wrote:
->>>>>>>> On 11/02/2020 02:51, Jason Wang wrote:
->>>>>>>>> On 2020/2/11 上午12:55, Anton Ivanov wrote:
->>>>>>>>>> On 09/12/2019 10:48, anton.ivanov@cambridgegreys.com wrote:
->>>>>>>>>>> From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
->>>>>>>>>>>
->>>>>>>>>>> Some of the frames marked as GSO which arrive at
->>>>>>>>>>> virtio_net_hdr_from_skb() have no GSO_TYPE, no
->>>>>>>>>>> fragments (data_len = 0) and length significantly shorter
->>>>>>>>>>> than the MTU (752 in my experiments).
->>>>>>>>>>>
->>>>>>>>>>> This is observed on raw sockets reading off vEth interfaces
->>>>>>>>>>> in all 4.x and 5.x kernels I tested.
->>>>>>>>>>>
->>>>>>>>>>> These frames are reported as invalid while they are in fact
->>>>>>>>>>> gso-less frames.
->>>>>>>>>>>
->>>>>>>>>>> This patch marks the vnet header as no-GSO for them instead
->>>>>>>>>>> of reporting it as invalid.
->>>>>>>>>>>
->>>>>>>>>>> Signed-off-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
->>>>>>>>>>> ---
->>>>>>>>>>>      include/linux/virtio_net.h | 8 ++++++--
->>>>>>>>>>>      1 file changed, 6 insertions(+), 2 deletions(-)
->>>>>>>>>>>
->>>>>>>>>>> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
->>>>>>>>>>> index 0d1fe9297ac6..d90d5cff1b9a 100644
->>>>>>>>>>> --- a/include/linux/virtio_net.h
->>>>>>>>>>> +++ b/include/linux/virtio_net.h
->>>>>>>>>>> @@ -112,8 +112,12 @@ static inline int
->>>>>>>>>>> virtio_net_hdr_from_skb(const struct sk_buff *skb,
->>>>>>>>>>>                  hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV4;
->>>>>>>>>>>              else if (sinfo->gso_type & SKB_GSO_TCPV6)
->>>>>>>>>>>                  hdr->gso_type = VIRTIO_NET_HDR_GSO_TCPV6;
->>>>>>>>>>> -        else
->>>>>>>>>>> -            return -EINVAL;
->>>>>>>>>>> +        else {
->>>>>>>>>>> +            if (skb->data_len == 0)
->>>>>>>>>>> +                hdr->gso_type = VIRTIO_NET_HDR_GSO_NONE;
->>>>>>>>>>> +            else
->>>>>>>>>>> +                return -EINVAL;
->>>>>>>>>>> +        }
->>>>>>>>>>>              if (sinfo->gso_type & SKB_GSO_TCP_ECN)
->>>>>>>>>>>                  hdr->gso_type |= VIRTIO_NET_HDR_GSO_ECN;
->>>>>>>>>>>          } else
->>>>>>>>>>>
->>>>>>>>>> ping.
->>>>>>>>>>
->>>>>>>>> Do you mean gso_size is set but gso_type is not? Looks like a bug
->>>>>>>>> elsewhere.
->>>>>>>>>
->>>>>>>>> Thanks
->>>>>>>>>
->>>>>>>>>
->>>>>>>> Yes.
->>>>>>>>
->>>>>>>> I could not trace it where it is coming from.
->>>>>>>>
->>>>>>>> I see it when doing recvmmsg on raw sockets in the UML vector network
->>>>>>>> drivers.
->>>>>>>>
->>>>>>> I think we need to find the culprit and fix it there, lots of other things
->>>>>>> can break otherwise.
->>>>>>> Just printing out skb->dev->name should do the trick, no?
->>>>>> The printk in virtio_net_hdr_from_skb says NULL.
->>>>>>
->>>>>> That is probably normal for a locally originated frame.
->>>>>>
->>>>>> I cannot reproduce this with network traffic by the way - it happens only if the traffic is locally originated on the host.
->>>>>>
->>>>>> A,
->>>>> OK so is it code in __tcp_transmit_skb that sets gso_size to non-null
->>>>> when gso_type is 0?
->>>>>
->>>> Correct way to determine if a packet is a gso one is by looking at gso_size.
->>>> Then only it is legal looking at gso_type
->>>>
->>>>
->>>> static inline bool skb_is_gso(const struct sk_buff *skb)
->>>> {
->>>>       return skb_shinfo(skb)->gso_size;
->>>> }
->>>>
->>>> /* Note: Should be called only if skb_is_gso(skb) is true */
->>>> static inline bool skb_is_gso_v6(const struct sk_buff *skb)
->>>> ...
->>>>
->>>>
->>>> There is absolutely no relation between GSO and skb->data_len, skb can be linearized
->>>> for various orthogonal reasons.
->>> The reported problem is that virtio gets a packet where gso_size
->>> is !0 but gso_type is 0.
->>>
->>> It currently drops these on the assumption that it's some type
->>> of a gso packet it does not know how to handle.
->>>
->>>
->>> So you are saying if skb_is_gso we can still have gso_type set to 0,
->>> and that's an expected configuration?
->>>
->>> So the patch should just be:
->>>
->>>
->>> -        if (skb_is_gso(skb)) {
->>> +        if (skb_is_gso(skb) && sinfo->gso_type) {
->>>
->> Yes, provided that skb_is_gso(skb) and sinfo->gso_type == 0 is a valid state.
->>
->> I agree with Jason, there may be something wrong going on here and we need to find the source which creates these packets.
->>
->> A.
->
-> Want to submit a patch to address this for now?
-
-I can do that on Monday - traveling till then.
-
-A.
+That's just a QEMU thing. It uses the same flag for VIRTIO_F_ACCESS_PLATFORM
+and vhost IOTLB. QEMU can separate them, no need to change linux.
 
 
->
->>> ?
->>>
->>>
->>> _______________________________________________
->>> linux-um mailing list
->>> linux-um@lists.infradead.org
->>> http://lists.infradead.org/mailman/listinfo/linux-um
->> -- 
->> Anton R. Ivanov
->> Cambridgegreys Limited. Registered in England. Company Number 10273661
->> https://www.cambridgegreys.com/
->
-> _______________________________________________
-> linux-um mailing list
-> linux-um@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-um
-
--- 
-Anton R. Ivanov
-
-Cambridge Greys Limited, England and Wales company No 10273661
-http://www.cambridgegreys.com/
+> Halil Pasic (2):
+>   mm: move force_dma_unencrypted() to mem_encrypt.h
+>   virtio: let virtio use DMA API when guest RAM is protected
+> 
+>  drivers/virtio/virtio_ring.c |  3 +++
+>  include/linux/dma-direct.h   |  9 ---------
+>  include/linux/mem_encrypt.h  | 10 ++++++++++
+>  3 files changed, 13 insertions(+), 9 deletions(-)
+> 
+> 
+> base-commit: ca7e1fd1026c5af6a533b4b5447e1d2f153e28f2
+> -- 
+> 2.17.1
