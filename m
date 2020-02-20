@@ -1,16 +1,15 @@
 From: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [PATCH v2 1/4] drm/simple-kms: Add drm_simple_encoder_{init,
- create}()
-Date: Thu, 20 Feb 2020 19:50:50 +0100
-Message-ID: <20200220185050.GB18993@ravnborg.org>
+Subject: Re: [PATCH v2 3/4] drm/mgag200: Use simple encoder
+Date: Thu, 20 Feb 2020 19:56:42 +0100
+Message-ID: <20200220185642.GA20011@ravnborg.org>
 References: <20200218084815.2137-1-tzimmermann@suse.de>
- <20200218084815.2137-2-tzimmermann@suse.de>
+ <20200218084815.2137-4-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20200218084815.2137-2-tzimmermann@suse.de>
+In-Reply-To: <20200218084815.2137-4-tzimmermann@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -26,165 +25,141 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 Hi Thomas.
 
-On Tue, Feb 18, 2020 at 09:48:12AM +0100, Thomas Zimmermann wrote:
-> This patch makes the internal encoder implementation of the simple
-> KMS helpers available to drivers.
-> 
-> These simple-encoder helpers initialize an encoder with an empty
-> implementation. This covers the requirements of most of the existing
-> DRM drivers. A call to drm_simple_encoder_create() allocates and
-> initializes an encoder instance, a call to drm_simple_encoder_init()
-> initializes a pre-allocated instance.
+On Tue, Feb 18, 2020 at 09:48:14AM +0100, Thomas Zimmermann wrote:
+> The mgag200 driver uses an empty implementation for its encoder. Replace
+> the code with the generic simple encoder.
 > 
 > v2:
-> 	* move simple encoder to KMS helpers
-> 	* remove name argument; simplifies implementation
-> 	* don't allocate with devm_ interfaces; unsafe with DRM
+> 	* rebase onto new simple-encoder interface
 > 
 > Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 > ---
->  drivers/gpu/drm/drm_simple_kms_helper.c | 83 ++++++++++++++++++++++++-
->  include/drm/drm_simple_kms_helper.h     |  7 +++
->  2 files changed, 87 insertions(+), 3 deletions(-)
+>  drivers/gpu/drm/mgag200/mgag200_drv.h  |  7 ---
+>  drivers/gpu/drm/mgag200/mgag200_mode.c | 61 ++------------------------
+>  2 files changed, 3 insertions(+), 65 deletions(-)
 > 
-> diff --git a/drivers/gpu/drm/drm_simple_kms_helper.c b/drivers/gpu/drm/drm_simple_kms_helper.c
-> index 15fb516ae2d8..745c2f34c42b 100644
-> --- a/drivers/gpu/drm/drm_simple_kms_helper.c
-> +++ b/drivers/gpu/drm/drm_simple_kms_helper.c
-> @@ -26,12 +26,90 @@
->   * entity. Some flexibility for code reuse is provided through a separately
->   * allocated &drm_connector object and supporting optional &drm_bridge
->   * encoder drivers.
-> + *
-> + * Many drivers use an encoder with an empty implementation. Such encoders
-> + * fulfill the minimum requirements of the display pipeline, but don't add
-> + * additional functionality. The simple-encoder functions
-> + * drm_simple_encoder_init() and drm_simple_encoder_create() provide an
-> + * appropriate implementation.
->   */
+> diff --git a/drivers/gpu/drm/mgag200/mgag200_drv.h b/drivers/gpu/drm/mgag200/mgag200_drv.h
+> index aa32aad222c2..9bb9e8e14539 100644
+> --- a/drivers/gpu/drm/mgag200/mgag200_drv.h
+> +++ b/drivers/gpu/drm/mgag200/mgag200_drv.h
+> @@ -95,7 +95,6 @@
+>  #define MATROX_DPMS_CLEARED (-1)
 >  
-> -static const struct drm_encoder_funcs drm_simple_kms_encoder_funcs = {
-> +static const struct drm_encoder_funcs drm_simple_encoder_funcs_cleanup = {
->  	.destroy = drm_encoder_cleanup,
+>  #define to_mga_crtc(x) container_of(x, struct mga_crtc, base)
+> -#define to_mga_encoder(x) container_of(x, struct mga_encoder, base)
+>  #define to_mga_connector(x) container_of(x, struct mga_connector, base)
+>  
+>  struct mga_crtc {
+> @@ -110,12 +109,6 @@ struct mga_mode_info {
+>  	struct mga_crtc *crtc;
 >  };
 >  
-> +/**
-> + * drm_simple_encoder_init - Initialize a preallocated encoder
-> + * @dev: drm device
-> + * @funcs: callbacks for this encoder
-> + * @encoder_type: user visible type of the encoder
-> + *
-> + * Initialises a preallocated encoder that has no further functionality. The
-> + * encoder will be released automatically.
-I got confused here. The comment says the encoder is automatically
-released. But in this case we have a preallocated encoder (maybe
-embedded in ast_private or something.
-So the encoder is - as I understnad it - not released. But it is cleaned
-up as it is also documented in the next sentences.
+> -struct mga_encoder {
+> -	struct drm_encoder base;
+> -	int last_dpms;
+> -};
+> -
+> -
+>  struct mga_i2c_chan {
+>  	struct i2c_adapter adapter;
+>  	struct drm_device *dev;
 
-Sorry if I am dense, just returned from some travelling...
+Any particular reason why the drm_encoder is not embedded in struct
+mga_device?
+
+I found it more elegant - like you did it for ast in the previous patch.
+
+I also noted there is one more unused "last_dpms" - but it is outside
+the scope of this patch to remove it.
 
 	Sam
 
-
-Settings for possible CRTC and
-> + * clones are left to their initial values. The encoder will be cleaned up
-> + * automatically as part of the mode-setting cleanup.
-> + *
-> + * Also see drm_simple_encoder_create().
-> + *
-> + * Returns:
-> + * Zero on success, error code on failure.
-> + */
-> +int drm_simple_encoder_init(struct drm_device *dev,
-> +			    struct drm_encoder *encoder,
-> +			    int encoder_type)
-> +{
-> +	return drm_encoder_init(dev, encoder,
-> +				&drm_simple_encoder_funcs_cleanup,
-> +				encoder_type, NULL);
-> +}
-> +EXPORT_SYMBOL(drm_simple_encoder_init);
-> +
-> +static void drm_encoder_destroy(struct drm_encoder *encoder)
-> +{
-> +	drm_encoder_cleanup(encoder);
-> +	kfree(encoder);
-> +}
-> +
-> +static const struct drm_encoder_funcs drm_simple_encoder_funcs_destroy = {
-> +	.destroy = drm_encoder_destroy,
-> +};
-> +
-> +/**
-> + * drm_simple_encoder_create - Allocate and initialize an encoder
-> + * @dev: drm device
-> + * @encoder_type: user visible type of the encoder
-> + *
-> + * Allocates and initialises an encoder that has no further functionality. The
-> + * encoder will be destroyed automatically as part of the mode-setting cleanup.
-> + *
-> + * See drm_simple_encoder_init() for more information.
-> + *
-> + * Returns:
-> + * The encoder on success, a pointer-encoder error code on failure.
-> + */
-> +struct drm_encoder *drm_simple_encoder_create(struct drm_device *dev,
-> +					      int encoder_type)
-> +{
-> +	struct drm_encoder *encoder;
-> +	int ret;
-> +
-> +	encoder = kzalloc(sizeof(*encoder), GFP_KERNEL);
-> +	if (!encoder)
-> +		return ERR_PTR(-ENOMEM);
-> +	ret = drm_encoder_init(dev, encoder,
-> +			       &drm_simple_encoder_funcs_destroy,
-> +			       encoder_type, NULL);
-> +	if (ret)
-> +		goto err_kfree;
-> +
-> +	return encoder;
-> +
-> +err_kfree:
-> +	kfree(encoder);
-> +	return ERR_PTR(ret);
-> +}
-> +EXPORT_SYMBOL(drm_simple_encoder_create);
-> +
->  static enum drm_mode_status
->  drm_simple_kms_crtc_mode_valid(struct drm_crtc *crtc,
->  			       const struct drm_display_mode *mode)
-> @@ -288,8 +366,7 @@ int drm_simple_display_pipe_init(struct drm_device *dev,
->  		return ret;
+> diff --git a/drivers/gpu/drm/mgag200/mgag200_mode.c b/drivers/gpu/drm/mgag200/mgag200_mode.c
+> index 62a8e9ccb16d..957ea1057b6c 100644
+> --- a/drivers/gpu/drm/mgag200/mgag200_mode.c
+> +++ b/drivers/gpu/drm/mgag200/mgag200_mode.c
+> @@ -15,6 +15,7 @@
+>  #include <drm/drm_fourcc.h>
+>  #include <drm/drm_plane_helper.h>
+>  #include <drm/drm_probe_helper.h>
+> +#include <drm/drm_simple_kms_helper.h>
 >  
->  	encoder->possible_crtcs = drm_crtc_mask(crtc);
-> -	ret = drm_encoder_init(dev, encoder, &drm_simple_kms_encoder_funcs,
-> -			       DRM_MODE_ENCODER_NONE, NULL);
-> +	ret = drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_NONE);
->  	if (ret || !connector)
->  		return ret;
+>  #include "mgag200_drv.h"
 >  
-> diff --git a/include/drm/drm_simple_kms_helper.h b/include/drm/drm_simple_kms_helper.h
-> index e253ba7bea9d..54d5066d90c7 100644
-> --- a/include/drm/drm_simple_kms_helper.h
-> +++ b/include/drm/drm_simple_kms_helper.h
-> @@ -181,4 +181,11 @@ int drm_simple_display_pipe_init(struct drm_device *dev,
->  			const uint64_t *format_modifiers,
->  			struct drm_connector *connector);
+> @@ -1449,72 +1450,16 @@ static void mga_crtc_init(struct mga_device *mdev)
+>  	drm_crtc_helper_add(&mga_crtc->base, &mga_helper_funcs);
+>  }
 >  
-> +int drm_simple_encoder_init(struct drm_device *dev,
-> +			    struct drm_encoder *encoder,
-> +			    int encoder_type);
-> +
-> +struct drm_encoder *drm_simple_encoder_create(struct drm_device *dev,
-> +					      int encoder_type);
-> +
->  #endif /* __LINUX_DRM_SIMPLE_KMS_HELPER_H */
+> -/*
+> - * The encoder comes after the CRTC in the output pipeline, but before
+> - * the connector. It's responsible for ensuring that the digital
+> - * stream is appropriately converted into the output format. Setup is
+> - * very simple in this case - all we have to do is inform qemu of the
+> - * colour depth in order to ensure that it displays appropriately
+> - */
+> -
+> -/*
+> - * These functions are analagous to those in the CRTC code, but are intended
+> - * to handle any encoder-specific limitations
+> - */
+> -static void mga_encoder_mode_set(struct drm_encoder *encoder,
+> -				struct drm_display_mode *mode,
+> -				struct drm_display_mode *adjusted_mode)
+> -{
+> -
+> -}
+> -
+> -static void mga_encoder_dpms(struct drm_encoder *encoder, int state)
+> -{
+> -	return;
+> -}
+> -
+> -static void mga_encoder_prepare(struct drm_encoder *encoder)
+> -{
+> -}
+> -
+> -static void mga_encoder_commit(struct drm_encoder *encoder)
+> -{
+> -}
+> -
+> -static void mga_encoder_destroy(struct drm_encoder *encoder)
+> -{
+> -	struct mga_encoder *mga_encoder = to_mga_encoder(encoder);
+> -	drm_encoder_cleanup(encoder);
+> -	kfree(mga_encoder);
+> -}
+> -
+> -static const struct drm_encoder_helper_funcs mga_encoder_helper_funcs = {
+> -	.dpms = mga_encoder_dpms,
+> -	.mode_set = mga_encoder_mode_set,
+> -	.prepare = mga_encoder_prepare,
+> -	.commit = mga_encoder_commit,
+> -};
+> -
+> -static const struct drm_encoder_funcs mga_encoder_encoder_funcs = {
+> -	.destroy = mga_encoder_destroy,
+> -};
+> -
+>  static struct drm_encoder *mga_encoder_init(struct drm_device *dev)
+>  {
+>  	struct drm_encoder *encoder;
+> -	struct mga_encoder *mga_encoder;
+>  
+> -	mga_encoder = kzalloc(sizeof(struct mga_encoder), GFP_KERNEL);
+> -	if (!mga_encoder)
+> +	encoder = drm_simple_encoder_create(dev, DRM_MODE_ENCODER_DAC);
+> +	if (IS_ERR(encoder))
+>  		return NULL;
+>  
+> -	encoder = &mga_encoder->base;
+>  	encoder->possible_crtcs = 0x1;
+>  
+> -	drm_encoder_init(dev, encoder, &mga_encoder_encoder_funcs,
+> -			 DRM_MODE_ENCODER_DAC, NULL);
+> -	drm_encoder_helper_add(encoder, &mga_encoder_helper_funcs);
+> -
+>  	return encoder;
+>  }
+>  
 > -- 
 > 2.25.0
-> 
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
