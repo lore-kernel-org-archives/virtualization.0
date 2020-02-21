@@ -1,86 +1,68 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V4 5/5] vdpasim: vDPA device simulator
-Date: Fri, 21 Feb 2020 15:57:29 +0800
-Message-ID: <6c341a77-a297-b7c7-dea5-b3f7b920b1f3@redhat.com>
+Subject: Re: [PATCH V4 4/5] virtio: introduce a vDPA based transport
+Date: Fri, 21 Feb 2020 16:06:24 +0800
+Message-ID: <d6d910bb-8431-7e95-8808-9ed2d6ec9211@redhat.com>
 References: <20200220061141.29390-1-jasowang@redhat.com>
- <20200220061141.29390-6-jasowang@redhat.com>
- <20200220151215.GU23930@mellanox.com>
+ <20200220061141.29390-5-jasowang@redhat.com>
+ <20200220151914.GW23930@mellanox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200220151215.GU23930@mellanox.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20200220151914.GW23930@mellanox.com>
 Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Sender: netdev-owner@vger.kernel.org
 To: Jason Gunthorpe <jgg@mellanox.com>
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "mhabets@solarflare.com" <mhabets@solarflare.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "lulu@redhat.com" <lulu@redhat.com>, "hanand@xilinx.com" <hanand@xilinx.com>, "hch@infradead.org" <hch@infradead.org>, "eperezma@redhat.com" <eperezma@redhat.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, Shahaf Shuler <shahafs@mellanox.com>, Parav Pandit <parav@mellanox.com>, Jiri Pirko <jiri@mellanox.com>, "xiao.w.wang@intel.com" <xiao.w.wang@intel.com>, "stefanha@redhat.com" <stefanha@redhat.com>, "zhihong.wang@intel.com" <zhihong.wang@intel.com>, "rdunlap@infradead.org" <rdunlap@infradead.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, maxime.coquelin@redhat.com
+Cc: "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "tiwei.bie@intel.com" <tiwei.bie@intel.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "cunming.liang@intel.com" <cunming.liang@intel.com>, "zhihong.wang@intel.com" <zhihong.wang@intel.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "xiao.w.wang@intel.com" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "lingshan.zhu@intel.com" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.co>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMjAvMi8yMCDkuIvljYgxMToxMiwgSmFzb24gR3VudGhvcnBlIHdyb3RlOgo+IE9uIFRo
-dSwgRmViIDIwLCAyMDIwIGF0IDAyOjExOjQxUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+
-ICtzdGF0aWMgdm9pZCB2ZHBhc2ltX2RldmljZV9yZWxlYXNlKHN0cnVjdCBkZXZpY2UgKmRldikK
-Pj4gK3sKPj4gKwlzdHJ1Y3QgdmRwYXNpbSAqdmRwYXNpbSA9IGRldl90b19zaW0oZGV2KTsKPj4g
-Kwo+PiArCWNhbmNlbF93b3JrX3N5bmMoJnZkcGFzaW0tPndvcmspOwo+PiArCWtmcmVlKHZkcGFz
-aW0tPmJ1ZmZlcik7Cj4+ICsJdmhvc3RfaW90bGJfZnJlZSh2ZHBhc2ltLT5pb21tdSk7Cj4+ICsJ
-a2ZyZWUodmRwYXNpbSk7Cj4+ICt9Cj4+ICsKPj4gK3N0YXRpYyBzdHJ1Y3QgdmRwYXNpbSAqdmRw
-YXNpbV9jcmVhdGUodm9pZCkKPj4gK3sKPj4gKwlzdHJ1Y3QgdmlydGlvX25ldF9jb25maWcgKmNv
-bmZpZzsKPj4gKwlzdHJ1Y3Qgdmhvc3RfaW90bGIgKmlvbW11Owo+PiArCXN0cnVjdCB2ZHBhc2lt
-ICp2ZHBhc2ltOwo+PiArCXN0cnVjdCBkZXZpY2UgKmRldjsKPj4gKwl2b2lkICpidWZmZXI7Cj4+
-ICsJaW50IHJldCA9IC1FTk9NRU07Cj4+ICsKPj4gKwlpb21tdSA9IHZob3N0X2lvdGxiX2FsbG9j
-KDIwNDgsIDApOwo+PiArCWlmICghaW9tbXUpCj4+ICsJCWdvdG8gZXJyOwo+PiArCj4+ICsJYnVm
-ZmVyID0ga21hbGxvYyhQQUdFX1NJWkUsIEdGUF9LRVJORUwpOwo+PiArCWlmICghYnVmZmVyKQo+
-PiArCQlnb3RvIGVycl9idWZmZXI7Cj4+ICsKPj4gKwl2ZHBhc2ltID0ga3phbGxvYyhzaXplb2Yo
-KnZkcGFzaW0pLCBHRlBfS0VSTkVMKTsKPj4gKwlpZiAoIXZkcGFzaW0pCj4+ICsJCWdvdG8gZXJy
-X2FsbG9jOwo+PiArCj4+ICsJdmRwYXNpbS0+YnVmZmVyID0gYnVmZmVyOwo+PiArCXZkcGFzaW0t
-PmlvbW11ID0gaW9tbXU7Cj4+ICsKPj4gKwljb25maWcgPSAmdmRwYXNpbS0+Y29uZmlnOwo+PiAr
-CWNvbmZpZy0+bXR1ID0gMTUwMDsKPj4gKwljb25maWctPnN0YXR1cyA9IFZJUlRJT19ORVRfU19M
-SU5LX1VQOwo+PiArCWV0aF9yYW5kb21fYWRkcihjb25maWctPm1hYyk7Cj4+ICsKPj4gKwlJTklU
-X1dPUksoJnZkcGFzaW0tPndvcmssIHZkcGFzaW1fd29yayk7Cj4+ICsJc3Bpbl9sb2NrX2luaXQo
-JnZkcGFzaW0tPmxvY2spOwo+PiArCj4+ICsJdnJpbmdoX3NldF9pb3RsYigmdmRwYXNpbS0+dnFz
-WzBdLnZyaW5nLCB2ZHBhc2ltLT5pb21tdSk7Cj4+ICsJdnJpbmdoX3NldF9pb3RsYigmdmRwYXNp
-bS0+dnFzWzFdLnZyaW5nLCB2ZHBhc2ltLT5pb21tdSk7Cj4+ICsKPj4gKwlkZXYgPSAmdmRwYXNp
-bS0+ZGV2Owo+PiArCWRldi0+cmVsZWFzZSA9IHZkcGFzaW1fZGV2aWNlX3JlbGVhc2U7Cj4+ICsJ
-ZGV2LT5jb2hlcmVudF9kbWFfbWFzayA9IERNQV9CSVRfTUFTSyg2NCk7Cj4+ICsJc2V0X2RtYV9v
-cHMoZGV2LCAmdmRwYXNpbV9kbWFfb3BzKTsKPj4gKwlkZXZfc2V0X25hbWUoZGV2LCAiJXMiLCBW
-RFBBU0lNX05BTUUpOwo+PiArCj4+ICsJcmV0ID0gZGV2aWNlX3JlZ2lzdGVyKCZ2ZHBhc2ltLT5k
-ZXYpOwo+PiArCWlmIChyZXQpCj4+ICsJCWdvdG8gZXJyX2luaXQ7Cj4gSXQgaXMgYSBiaXQgd2Vp
-cmQgdG8gYmUgY3JlYXRpbmcgdGhpcyBkdW1teSBwYXJlbnQsIGNvdWxkbid0IHRoaXMgYmUKPiBk
-b25lIGJ5IGp1c3QgcGFzc2luZyBhIE5VTEwgcGFyZW50IHRvIHZkcGFfYWxsb2NfZGV2aWNlLCBk
-b2luZwo+IHNldF9kbWFfb3BzKCkgb24gdGhlIHZkcGFzaW0tPnZkcGEtPmRldiBhbmQgc2V0dGlu
-ZyBkbWFfZGV2aWNlIHRvCj4gdmRwYXNpbS0+dmRwYS0+ZGV2ID8KCgpJIHRoaW5rIGl0IHdvcmtz
-LgoKCj4+ICsJdmRwYXNpbS0+dmRwYSA9IHZkcGFfYWxsb2NfZGV2aWNlKGRldiwgZGV2LCAmdmRw
-YXNpbV9uZXRfY29uZmlnX29wcyk7Cj4+ICsJaWYgKHJldCkKPj4gKwkJZ290byBlcnJfdmRwYTsK
-Pj4gKwlyZXQgPSB2ZHBhX3JlZ2lzdGVyX2RldmljZSh2ZHBhc2ltLT52ZHBhKTsKPj4gKwlpZiAo
-cmV0KQo+PiArCQlnb3RvIGVycl9yZWdpc3RlcjsKPj4gKwo+PiArCXJldHVybiB2ZHBhc2ltOwo+
-PiArCj4+ICtlcnJfcmVnaXN0ZXI6Cj4+ICsJcHV0X2RldmljZSgmdmRwYXNpbS0+dmRwYS0+ZGV2
-KTsKPj4gK2Vycl92ZHBhOgo+PiArCWRldmljZV9kZWwoJnZkcGFzaW0tPmRldik7Cj4+ICsJZ290
-byBlcnI7Cj4+ICtlcnJfaW5pdDoKPj4gKwlwdXRfZGV2aWNlKCZ2ZHBhc2ltLT5kZXYpOwo+PiAr
-CWdvdG8gZXJyOwo+IElmIHlvdSBkbyB0aGUgdmRtYXNpbSBhbGxvYyBmaXJzdCwgYW5kIGltbWVk
-aWF0ZWx5IGRvCj4gZGV2aWNlX2luaXRpYWxpemUoKSB0aGVuIGFsbCB0aGUgZmFpbHVyZSBwYXRo
-cyBjYW4gZG8gcHV0X2RldmljZQo+IGluc3RlYWQgb2YgaGF2aW5nIHRoaXMgdWdseSBnb3RvIHVu
-d2luZCBzcGxpdC4gSnVzdCBjaGVjayBmb3IKPiB2ZHBhc2ltLT5pb21tdSA9PSBOVUxMIGR1cmlu
-ZyByZWxlYXNlLgoKClllcywgdGhhdCBsb29rcyBzaW1wbGVyLgoKCj4KPj4gK3N0YXRpYyBpbnQg
-X19pbml0IHZkcGFzaW1fZGV2X2luaXQodm9pZCkKPj4gK3sKPj4gKwl2ZHBhc2ltX2RldiA9IHZk
-cGFzaW1fY3JlYXRlKCk7Cj4+ICsKPj4gKwlpZiAoIUlTX0VSUih2ZHBhc2ltX2RldikpCj4+ICsJ
-CXJldHVybiAwOwo+PiArCj4+ICsJcmV0dXJuIFBUUl9FUlIodmRwYXNpbV9kZXYpOwo+PiArfQo+
-PiArCj4+ICtzdGF0aWMgaW50IHZkcGFzaW1fZGV2aWNlX3JlbW92ZV9jYihzdHJ1Y3QgZGV2aWNl
-ICpkZXYsIHZvaWQgKmRhdGEpCj4+ICt7Cj4+ICsJc3RydWN0IHZkcGFfZGV2aWNlICp2ZHBhID0g
-ZGV2X3RvX3ZkcGEoZGV2KTsKPj4gKwo+PiArCXZkcGFfdW5yZWdpc3Rlcl9kZXZpY2UodmRwYSk7
-Cj4+ICsKPj4gKwlyZXR1cm4gMDsKPj4gK30KPj4gKwo+PiArc3RhdGljIHZvaWQgX19leGl0IHZk
-cGFzaW1fZGV2X2V4aXQodm9pZCkKPj4gK3sKPj4gKwlkZXZpY2VfZm9yX2VhY2hfY2hpbGQoJnZk
-cGFzaW1fZGV2LT5kZXYsIE5VTEwsCj4+ICsJCQkgICAgICB2ZHBhc2ltX2RldmljZV9yZW1vdmVf
-Y2IpOwo+IFdoeSB0aGUgbG9vcD8gVGhlcmUgaXMgb25seSBvbmUgZGV2aWNlLCBhbmQgaXQgaXMg
-aW4gdGhlIGdsb2JhbAo+IHZhcmFpYmxlIHZkbWFzaW1fZGV2ID8KCgpOb3QgbmVjZXNzYXJ5IGJ1
-dCBkb2Vzbid0IGhhcm0sIHdpbGwgcmVtb3ZlIHRoaXMuCgpUaGFua3MKCgo+Cj4gSmFzb24KPgoK
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6
-YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24u
-b3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3Zp
-cnR1YWxpemF0aW9u
+
+On 2020/2/20 =E4=B8=8B=E5=8D=8811:19, Jason Gunthorpe wrote:
+> On Thu, Feb 20, 2020 at 02:11:40PM +0800, Jason Wang wrote:
+>> +static int virtio_vdpa_probe(struct vdpa_device *vdpa)
+>> +{
+>> +	const struct vdpa_config_ops *ops =3D vdpa->config;
+>> +	struct virtio_vdpa_device *vd_dev;
+>> +	int ret =3D -EINVAL;
+>> +
+>> +	vd_dev =3D kzalloc(sizeof(*vd_dev), GFP_KERNEL);
+>> +	if (!vd_dev)
+>> +		return -ENOMEM;
+>> +
+>> +	vd_dev->vdev.dev.parent =3D vdpa_get_dma_dev(vdpa);
+>> +	vd_dev->vdev.dev.release =3D virtio_vdpa_release_dev;
+>> +	vd_dev->vdev.config =3D &virtio_vdpa_config_ops;
+>> +	vd_dev->vdpa =3D vdpa;
+>> +	INIT_LIST_HEAD(&vd_dev->virtqueues);
+>> +	spin_lock_init(&vd_dev->lock);
+>> +
+>> +	vd_dev->vdev.id.device =3D ops->get_device_id(vdpa);
+>> +	if (vd_dev->vdev.id.device =3D=3D 0)
+>> +		goto err;
+>> +
+>> +	vd_dev->vdev.id.vendor =3D ops->get_vendor_id(vdpa);
+>> +	ret =3D register_virtio_device(&vd_dev->vdev);
+>> +	if (ret)
+>> +		goto err;
+> This error unwind is wrong. register_virtio_device() does
+> device_initialize() as it's first action. After that point error
+> unwind must be done with put_device() - particularly calling
+> kfree(vd_dev) after doing dev_set_name() leaks memory.
+
+
+Exactly.
+
+
+>
+> Looks like about half of the register_virtio_device() users did this
+> right, the others not. Perhaps you should fix them too...
+>
+> Jason
+
+
+Will do.
+
+Thanks
+
+
+>
