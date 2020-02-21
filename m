@@ -1,69 +1,71 @@
 From: David Gibson <david@gibson.dropbear.id.au>
-Subject: Re: [PATCH 2/2] virtio: let virtio use DMA API when guest RAM is
- protected
-Date: Fri, 21 Feb 2020 13:59:15 +1100
-Message-ID: <20200221025915.GB2298@umbus.fritz.box>
+Subject: Re: [PATCH 1/2] mm: move force_dma_unencrypted() to mem_encrypt.h
+Date: Fri, 21 Feb 2020 14:27:27 +1100
+Message-ID: <20200221032727.GC2298@umbus.fritz.box>
 References: <20200220160606.53156-1-pasic@linux.ibm.com>
- <20200220160606.53156-3-pasic@linux.ibm.com>
- <20200220161309.GB12709@lst.de>
+ <20200220160606.53156-2-pasic@linux.ibm.com>
+ <20200220161146.GA12709@lst.de>
+ <4369f099-e4e4-4a58-b38b-642cf53ccca6@de.ibm.com>
+ <20200220163135.GA13192@lst.de>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="5/uDoXvLw7AC5HRs"
+        protocol="application/pgp-signature"; boundary="xesSdrSSBC0PokLI"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200220161309.GB12709@lst.de>
+In-Reply-To: <20200220163135.GA13192@lst.de>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Christoph Hellwig <hch@lst.de>
-Cc: Halil Pasic <pasic@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---5/uDoXvLw7AC5HRs
+--xesSdrSSBC0PokLI
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Feb 20, 2020 at 05:13:09PM +0100, Christoph Hellwig wrote:
-> On Thu, Feb 20, 2020 at 05:06:06PM +0100, Halil Pasic wrote:
-> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > index 867c7ebd3f10..fafc8f924955 100644
-> > --- a/drivers/virtio/virtio_ring.c
-> > +++ b/drivers/virtio/virtio_ring.c
-> > @@ -243,6 +243,9 @@ static bool vring_use_dma_api(struct virtio_device =
-*vdev)
-> >  	if (!virtio_has_iommu_quirk(vdev))
-> >  		return true;
-> > =20
-> > +	if (force_dma_unencrypted(&vdev->dev))
-> > +		return true;
+On Thu, Feb 20, 2020 at 05:31:35PM +0100, Christoph Hellwig wrote:
+> On Thu, Feb 20, 2020 at 05:23:20PM +0100, Christian Borntraeger wrote:
+> > >From a users perspective it makes absolutely perfect sense to use the
+> > bounce buffers when they are NEEDED.=20
+> > Forcing the user to specify iommu_platform just because you need bounce=
+ buffers
+> > really feels wrong. And obviously we have a severe performance issue
+> > because of the indirections.
 >=20
-> Hell no.  This is a detail of the platform DMA direct implementation.
-> Drivers have no business looking at this flag, and virtio finally needs
-> to be fixed to use the DMA API properly for everything but legacy devices.
+> The point is that the user should not have to specify iommu_platform.
+> We need to make sure any new hypervisor (especially one that might require
+> bounce buffering) always sets it,
 
-So, this patch definitely isn't right as it stands, but I'm struggling
-to understand what it is you're saying is the right way.
+So, I have draft qemu patches which enable iommu_platform by default.
+But that's really because of other problems with !iommu_platform, not
+anything to do with bounce buffering or secure VMs.
 
-By "legacy devices" I assume you mean pre-virtio-1.0 devices, that
-lack the F_VERSION_1 feature flag.  Is that right?  Because I don't
-see how being a legacy device or not relates to use of the DMA API.
+The thing is that the hypervisor *doesn't* require bounce buffering.
+In the POWER (and maybe s390 as well) models for Secure VMs, it's the
+*guest*'s choice to enter secure mode, so the hypervisor has no reason
+to know whether the guest needs bounce buffering.  As far as the
+hypervisor and qemu are concerned that's a guest internal detail, it
+just expects to get addresses it can access whether those are GPAs
+(iommu_platform=3Doff) or IOVAs (iommu_platform=3Don).
 
-I *think* what you are suggesting here is that virtio devices that
-have !F_IOMMU_PLATFORM should have their dma_ops set up so that the
-DMA API treats IOVA=3D=3DPA, which will satisfy what the device expects.
-Then the virtio driver can use the DMA API the same way for both
-F_IOMMU_PLATFORM and !F_IOMMU_PLATFORM devices.
+> as was a rather bogus legacy hack
 
-But if that works for !F_IOMMU_PLATFORM_DEVICES+F_VERSION_1 devices,
-then AFAICT it will work equally well for legacy devices.
+It was certainly a bad idea, but it was a bad idea that went into a
+public spec and has been widely deployed for many years.  We can't
+just pretend it didn't happen and move on.
 
-Using the DMA API for *everything* in virtio, legacy or not, seems
-like a reasonable approach to me.  But, AFAICT, that does require the
-DMA layer to have some kind of explicit call to turn on this
-behaviour, which the virtio driver would call during initializsation.
-I don't think we can do it 100% within the DMA layer, because only the
-driver can reasonably know when a device has this weird non-standard
-DMA behaviour.
+Turning iommu_platform=3Don by default breaks old guests, some of which
+we still care about.  We can't (automatically) do it only for guests
+that need bounce buffering, because the hypervisor doesn't know that
+ahead of time.
+
+> that isn't extensibe for cases that for example require bounce buffering.
+
+In fact bounce buffering isn't really the issue from the hypervisor
+(or spec's) point of view.  It's the fact that not all of guest memory
+is accessible to the hypervisor.  Bounce buffering is just one way the
+guest might deal with that.
 
 --=20
 David Gibson			| I'll have my music baroque, and my code
@@ -71,24 +73,24 @@ david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
 				| _way_ _around_!
 http://www.ozlabs.org/~dgibson
 
---5/uDoXvLw7AC5HRs
+--xesSdrSSBC0PokLI
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEEdfRlhq5hpmzETofcbDjKyiDZs5IFAl5PR4EACgkQbDjKyiDZ
-s5LraA/+KQYlg3wZ+0krCgI0rnOA1c4Rh7dkchkUxj0XPpjfegrcik9vB4AEk1uV
-NViHfw9TklofjnE59FOo9Rexy90uk2aepCPMiba2Aidm0X+E9OMWIZ75l+9IyNod
-fnTLSUCP45wGHQUcjIE1iL3TNJrTZ+F0bQkuu1rwZhtBHx+mKYmS005cUmOuiYQi
-+gZAl8VlR/Ar3QktvDq1ChJai/rB22k+AWL9eL6fgpFGZv/E13hM25tKU61acUZh
-WbtOBNEDoDs792CWCbIs9gqoeq1Whd555JS3nbAlDqNykTUMrfqDbbX/FdJlciPu
-b1TlYEWQLmJDCv8xdPNj8Iep747a3Pc8pDhe7cALeEGvR8dEgbXE7+cx6l5rX6FW
-glvHUQbw8/iD2tRbMLEfk1z/uyL7Gzugk7P6Xfeg+fNcGoL6ADR3DFCBUn1eD0Bf
-EHyBM/WOmi1kn9p52fC3waAPg5BqftyrxFdGd2dI7mUjLvGeT/gxPnqfdaEDbdku
-nlBw4/tcIdlesiIAiI+bCe4bX111KgcJvqVSjaRiS1YqFumJ1aySBzXpAfjqWW/p
-2MU+m6v1xqCEDc7UY+aFtHrRw+CsByowyIFYfNcfSgDMvB9uFkvme4opmrdyAe+g
-G/3fLNvewrGHvqTITJtkyQGQnyJEmHbcQMnWbSdQyqbQU+qO8tg=
-=dMlk
+iQIzBAEBCAAdFiEEdfRlhq5hpmzETofcbDjKyiDZs5IFAl5PTh0ACgkQbDjKyiDZ
+s5KxuA/8Dp0u3ClHJcvgYS9sPsWYf3cIiL0ssD718l7m06uHYCC8BZhGbCeMhbfK
+jDV3bIOPMI6f+L4KTSrPkH71KAYKLKbt52Si354kI/7xkDmCu3B8SmL/u+ptC0Y/
+UYD0ZFkgyOLQaOS/jN5zMae3337n6qPRZuOP12epFWZ9QpP4v55Dba2ICuJXkbU1
+5QaQIcCLwSBcEYxZOuLqc7s7tWfOt/NeNmvgMnCGJie035XlK0c8q2v7XqRnH8ec
+5tej0mQvwOyKgZkYhr35Q/4t2V0LxPDvD+8W636WdH0O9h6wjeMeKlVoq8IpgMyz
+NkYNX7yaPfnkh3fvqWa7NMmmi32Rt9/85Kk/3I4YD1KCMSzv7AGJ1TBnUMumisYJ
+F2rB+Q07oGi/r/UNg2VSUE2S4rGgq1k9hD2Xb0yE+3+l1TvowJ+2ly30W1TSo5Hu
+LZZ/XX0uzsCnrlw4aqzyh4+u4++QcgnlwvDgdfadNXVd3gQdPEoxAP+vV6FhTinx
+29Dus3s83/aCpkNeU63NfDWXSIOPTUspWC8Ny1qGE1Vt0Dfie5K+6j7iZdYX0HZT
+duIb419GYkR2DBTS0vS6jFh9QFN+jThVs4qc4uRqR6ibwocNlXSdxt+jT7QNkaqO
+8HtGwkfqQZCCm4Z0uNnoFv4NY9kLB21wa/z0xOVmDJZtVD8Jgto=
+=NO4r
 -----END PGP SIGNATURE-----
 
---5/uDoXvLw7AC5HRs--
+--xesSdrSSBC0PokLI--
