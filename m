@@ -1,35 +1,112 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V4 5/5] vdpasim: vDPA device simulator
-Date: Fri, 21 Feb 2020 16:50:10 +0800
-Message-ID: <2c0ad54d-c8bd-bb2e-5dff-ce79cf0d45b9@redhat.com>
-References: <20200220061141.29390-1-jasowang@redhat.com>
- <20200220061141.29390-6-jasowang@redhat.com>
- <BY5PR02MB637195ECE0879F5F7CB72CE3BB120@BY5PR02MB6371.namprd02.prod.outlook.com>
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH 1/2] mm: move force_dma_unencrypted() to mem_encrypt.h
+Date: Fri, 21 Feb 2020 14:06:39 +0100
+Message-ID: <20200221140639.54928efe.pasic@linux.ibm.com>
+References: <20200220160606.53156-1-pasic@linux.ibm.com>
+        <20200220160606.53156-2-pasic@linux.ibm.com>
+        <20200220161146.GA12709@lst.de>
+        <4369f099-e4e4-4a58-b38b-642cf53ccca6@de.ibm.com>
+        <20200220163135.GA13192@lst.de>
+        <20200221032727.GC2298@umbus.fritz.box>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ boundary="Sig_/0Kh./iiZFoeVIQkl275YsuF"; protocol="application/pgp-signature"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <BY5PR02MB637195ECE0879F5F7CB72CE3BB120@BY5PR02MB6371.namprd02.prod.outlook.com>
-Content-Language: en-US
+In-Reply-To: <20200221032727.GC2298@umbus.fritz.box>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Harpreet Singh Anand <hanand@xilinx.com>, "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>
-Cc: "tiwei.bie@intel.com" <tiwei.bie@intel.com>, "jgg@mellanox.com" <jgg@mellanox.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "cunming.liang@intel.com" <cunming.liang@intel.com>, "zhihong.wang@intel.com" <zhihong.wang@intel.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "xiao.w.wang@intel.com" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "lingshan.zhu@intel.com" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.com>, "parav@mellanox.com" <parav@mellanox.com>, "kevin.tian@intel.com" <kevin.tian@intel.com>, "stefanha@redhat.com" <stefanha@redhat.com>, "rdunlap@infradead.org" <rdunlap@infradead.org>, "hch@infradead.org" <hch@infradead.org>, aadam@r
+To: David Gibson <david@gibson.dropbear.id.au>
+Cc: Christoph Hellwig <hch@lst.de>, Christian Borntraeger <borntraeger@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+--Sig_/0Kh./iiZFoeVIQkl275YsuF
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-On 2020/2/21 =E4=B8=8B=E5=8D=884:33, Harpreet Singh Anand wrote:
-> +       ret =3D device_register(&vdpasim->dev);
-> +       if (ret)
-> +               goto err_init;
-> +
-> +       vdpasim->vdpa =3D vdpa_alloc_device(dev, dev, &vdpasim_net_conf=
-ig_ops);
-> +       if (ret)
-> +               goto err_vdpa;
->
-> [HSA] Incorrect checking of the return value of vdpa_alloc_device.
+On Fri, 21 Feb 2020 14:27:27 +1100
+David Gibson <david@gibson.dropbear.id.au> wrote:
+
+> On Thu, Feb 20, 2020 at 05:31:35PM +0100, Christoph Hellwig wrote:
+> > On Thu, Feb 20, 2020 at 05:23:20PM +0100, Christian Borntraeger wrote:
+> > > >From a users perspective it makes absolutely perfect sense to use the
+> > > bounce buffers when they are NEEDED.=20
+> > > Forcing the user to specify iommu_platform just because you need boun=
+ce buffers
+> > > really feels wrong. And obviously we have a severe performance issue
+> > > because of the indirections.
+> >=20
+> > The point is that the user should not have to specify iommu_platform.
+> > We need to make sure any new hypervisor (especially one that might requ=
+ire
+> > bounce buffering) always sets it,
+>=20
+> So, I have draft qemu patches which enable iommu_platform by default.
+> But that's really because of other problems with !iommu_platform, not
+> anything to do with bounce buffering or secure VMs.
+>=20
+> The thing is that the hypervisor *doesn't* require bounce buffering.
+> In the POWER (and maybe s390 as well) models for Secure VMs, it's the
+> *guest*'s choice to enter secure mode, so the hypervisor has no reason
+> to know whether the guest needs bounce buffering.  As far as the
+> hypervisor and qemu are concerned that's a guest internal detail, it
+> just expects to get addresses it can access whether those are GPAs
+> (iommu_platform=3Doff) or IOVAs (iommu_platform=3Don).
+
+I very much agree!
+
+>=20
+> > as was a rather bogus legacy hack
+>=20
+> It was certainly a bad idea, but it was a bad idea that went into a
+> public spec and has been widely deployed for many years.  We can't
+> just pretend it didn't happen and move on.
+>=20
+> Turning iommu_platform=3Don by default breaks old guests, some of which
+> we still care about.  We can't (automatically) do it only for guests
+> that need bounce buffering, because the hypervisor doesn't know that
+> ahead of time.
+
+Turning iommu_platform=3Don for virtio-ccw makes no sense whatsover,
+because for CCW I/O there is no such thing as IOMMU and the addresses
+are always physical addresses.
+
+>=20
+> > that isn't extensibe for cases that for example require bounce bufferin=
+g.
+>=20
+> In fact bounce buffering isn't really the issue from the hypervisor
+> (or spec's) point of view.  It's the fact that not all of guest memory
+> is accessible to the hypervisor.  Bounce buffering is just one way the
+> guest might deal with that.
+>=20
+
+Agreed.
+
+Regards,
+Halil
 
 
-Yes, fixed.
 
-Thanks
+
+--Sig_/0Kh./iiZFoeVIQkl275YsuF
+Content-Type: application/pgp-signature
+Content-Description: OpenPGP digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v2.0.22 (GNU/Linux)
+
+iQIcBAEBAgAGBQJeT9X4AAoJEA0vhuyXGx0ARxMQANpU75HMoKggL5saR9hlPY+f
+8kd9nsbmTauewzRRSYganieZMbhq5H4sv5H2VARK0ySgBNe1c+odv/sbtfFcGGcp
+2eYet2eXXYLylxx0nExFUWlXigdd1ZdF6OLCzriuNQO20M3bhoA619DLYAZ9LcG9
+w0FNjbUyDaucworTmNFr/fbQ6Sx5UMr5KJ/ms/dK9gG4pzlIx58yfOYkyPNXfmof
+/BCm3hYysWjzCprWJiWoe439z1f12ZTmtNu+nsYYhFL4JSY+HOZaY/LR3IgmKsSx
+1wNvMwr5GTc+Wap23hJPd0SWEH03Szl2rbTEkhMGGzCbv44E7OFJVMt8DBKwunUD
+ojlaoDt4PtkEvDI6iQxT+C0aL7rHLSmmT1aaGjCi+GhN0pVmSqBa9v71VzcdWhQb
+jS22EkPJnMt+mdmEObiDo38AA/L8wyKt8Emvvza+Xm43+LGsAU7Dlq452PauXABA
+jlyOp7VvKBy15KUPQsLgLY9G29wQeVfRhqXI/b1fZvPZFYjbo5eTZCsHOdoXc+w9
+wrW+SYSHotrl9FCTFKXB5n4DGC+hrwaUXlX5/cEMGPhSijtYTbemx0KopMuhV4rD
+ri6Am9MOOwS/UxHve/SQw17N1RfUdGat2pQNTPiSSKw8XvpWLlK2iNw+/pz4SENC
+9TtNOE3IvOXOuA6UMeXy
+=Cagi
+-----END PGP SIGNATURE-----
+
+--Sig_/0Kh./iiZFoeVIQkl275YsuF--
