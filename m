@@ -1,86 +1,159 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 1/2] mm: move force_dma_unencrypted() to mem_encrypt.h
-Date: Fri, 21 Feb 2020 10:48:15 -0500
-Message-ID: <20200221104724-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH 2/2] virtio: let virtio use DMA API when guest RAM is
+ protected
+Date: Fri, 21 Feb 2020 10:56:45 -0500
+Message-ID: <20200221104901-mutt-send-email-mst@kernel.org>
 References: <20200220160606.53156-1-pasic@linux.ibm.com>
- <20200220160606.53156-2-pasic@linux.ibm.com>
- <20200220161146.GA12709@lst.de>
- <4369f099-e4e4-4a58-b38b-642cf53ccca6@de.ibm.com>
- <20200220163135.GA13192@lst.de>
- <20200221032727.GC2298@umbus.fritz.box>
- <20200221140639.54928efe.pasic@linux.ibm.com>
+ <20200220160606.53156-3-pasic@linux.ibm.com>
+ <20200220154904-mutt-send-email-mst@kernel.org>
+ <20200221141230.13eebc35.pasic@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200221140639.54928efe.pasic@linux.ibm.com>
+In-Reply-To: <20200221141230.13eebc35.pasic@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Halil Pasic <pasic@linux.ibm.com>
-Cc: David Gibson <david@gibson.dropbear.id.au>, Christoph Hellwig <hch@lst.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Jason Wang <jasowang@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
+Cc: Jason Wang <jasowang@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, David Gibson <david@gibson.dropbear.id.au>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Feb 21, 2020 at 02:06:39PM +0100, Halil Pasic wrote:
-> On Fri, 21 Feb 2020 14:27:27 +1100
-> David Gibson <david@gibson.dropbear.id.au> wrote:
+On Fri, Feb 21, 2020 at 02:12:30PM +0100, Halil Pasic wrote:
+> On Thu, 20 Feb 2020 15:55:14 -0500
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
 > 
-> > On Thu, Feb 20, 2020 at 05:31:35PM +0100, Christoph Hellwig wrote:
-> > > On Thu, Feb 20, 2020 at 05:23:20PM +0100, Christian Borntraeger wrote:
-> > > > >From a users perspective it makes absolutely perfect sense to use the
-> > > > bounce buffers when they are NEEDED. 
-> > > > Forcing the user to specify iommu_platform just because you need bounce buffers
-> > > > really feels wrong. And obviously we have a severe performance issue
-> > > > because of the indirections.
+> > On Thu, Feb 20, 2020 at 05:06:06PM +0100, Halil Pasic wrote:
+> > > Currently the advanced guest memory protection technologies (AMD SEV,
+> > > powerpc secure guest technology and s390 Protected VMs) abuse the
+> > > VIRTIO_F_IOMMU_PLATFORM flag to make virtio core use the DMA API, which
+> > > is in turn necessary, to make IO work with guest memory protection.
 > > > 
-> > > The point is that the user should not have to specify iommu_platform.
-> > > We need to make sure any new hypervisor (especially one that might require
-> > > bounce buffering) always sets it,
+> > > But VIRTIO_F_IOMMU_PLATFORM a.k.a. VIRTIO_F_ACCESS_PLATFORM is really a
+> > > different beast: with virtio devices whose implementation runs on an SMP
+> > > CPU we are still fine with doing all the usual optimizations, it is just
+> > > that we need to make sure that the memory protection mechanism does not
+> > > get in the way. The VIRTIO_F_ACCESS_PLATFORM mandates more work on the
+> > > side of the guest (and possibly he host side as well) than we actually
+> > > need.
+> > > 
+> > > An additional benefit of teaching the guest to make the right decision
+> > > (and use DMA API) on it's own is: removing the need, to mandate special
+> > > VM configuration for guests that may run with protection. This is
+> > > especially interesting for s390 as VIRTIO_F_IOMMU_PLATFORM pushes all
+> > > the virtio control structures into the first 2G of guest memory:
+> > > something we don't necessarily want to do per-default.
+> > > 
+> > > Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+> > > Tested-by: Ram Pai <linuxram@us.ibm.com>
+> > > Tested-by: Michael Mueller <mimu@linux.ibm.com>
 > > 
-> > So, I have draft qemu patches which enable iommu_platform by default.
-> > But that's really because of other problems with !iommu_platform, not
-> > anything to do with bounce buffering or secure VMs.
+> > This might work for you but it's fragile, since without
+> > VIRTIO_F_ACCESS_PLATFORM hypervisor assumes it gets
+> > GPA's, not DMA addresses.
 > > 
-> > The thing is that the hypervisor *doesn't* require bounce buffering.
-> > In the POWER (and maybe s390 as well) models for Secure VMs, it's the
-> > *guest*'s choice to enter secure mode, so the hypervisor has no reason
-> > to know whether the guest needs bounce buffering.  As far as the
-> > hypervisor and qemu are concerned that's a guest internal detail, it
-> > just expects to get addresses it can access whether those are GPAs
-> > (iommu_platform=off) or IOVAs (iommu_platform=on).
 > 
-> I very much agree!
+> Thanks for your constructive approach. I do want the hypervisor to
+> assume it gets GPA's. My train of thought was that the guys that need
+> to use IOVA's that are not GPA's when force_dma_unencrypted() will have
+> to to specify VIRTIO_F_ACCESS_PLATFORM (at the device) anyway, because
+> otherwise it won't work. But I see your point: in case of a
+> mis-configuration and provided the DMA API returns IOVA's one could end
+> up trying to touch wrong memory locations. But this should be similar to
+> what would happen if DMA ops are not used, and memory is not made accessible.
 > 
 > > 
-> > > as was a rather bogus legacy hack
 > > 
-> > It was certainly a bad idea, but it was a bad idea that went into a
-> > public spec and has been widely deployed for many years.  We can't
-> > just pretend it didn't happen and move on.
+> > IOW this looks like another iteration of:
 > > 
-> > Turning iommu_platform=on by default breaks old guests, some of which
-> > we still care about.  We can't (automatically) do it only for guests
-> > that need bounce buffering, because the hypervisor doesn't know that
-> > ahead of time.
+> > 	virtio: Support encrypted memory on powerpc secure guests
+> > 
+> > which I was under the impression was abandoned as unnecessary.
 > 
-> Turning iommu_platform=on for virtio-ccw makes no sense whatsover,
-> because for CCW I/O there is no such thing as IOMMU and the addresses
-> are always physical addresses.
+> Unnecessary for powerpc because they do normal PCI. In the context of
+> CCW there are only guest physical addresses (CCW I/O has no concept of
+> IOMMU or IOVAs).
+> 
+> > 
+> > 
+> > To summarize, the necessary conditions for a hack along these lines
+> > (using DMA API without VIRTIO_F_ACCESS_PLATFORM) are that we detect that:
+> > 
+> >   - secure guest mode is enabled - so we know that since we don't share
+> >     most memory regular virtio code won't
+> >     work, even though the buggy hypervisor didn't set VIRTIO_F_ACCESS_PLATFORM
+> 
+> force_dma_unencrypted(&vdev->dev) is IMHO exactly about this.
+> 
+> >   - DMA API is giving us addresses that are actually also physical
+> >     addresses
+> 
+> In case of s390 this is given.
+> I talked with the power people before
+> posting this, and they ensured me they can are willing to deal with
+> this. I was hoping to talk abut this with the AMD SEV people here (hence
+> the cc).
 
-Fix the name then. The spec calls is ACCESS_PLATFORM now, which
-makes much more sense.
+We'd need a part of DMA API that promises this though. Platform
+maintainers aren't going to go out of their way to do the
+right thing just for virtio, and I can't track all arches
+to make sure they don't violate virtio requirements.
 
-> > 
-> > > that isn't extensibe for cases that for example require bounce buffering.
-> > 
-> > In fact bounce buffering isn't really the issue from the hypervisor
-> > (or spec's) point of view.  It's the fact that not all of guest memory
-> > is accessible to the hypervisor.  Bounce buffering is just one way the
-> > guest might deal with that.
+> 
+> >   - Hypervisor is buggy and didn't enable VIRTIO_F_ACCESS_PLATFORM
 > > 
 > 
-> Agreed.
+> I don't get this point. The argument where the hypervisor is buggy is a
+> bit hard to follow for me. If hypervisor is buggy we have already lost
+> anyway most of the time, or?
+
+If VIRTIO_F_ACCESS_PLATFORM is set then things just work.  If
+VIRTIO_F_ACCESS_PLATFORM is clear device is supposed to have access to
+all of memory.  You can argue in various ways but it's easier to just
+declare a behaviour that violates this a bug. Which might still be worth
+working around, for various reasons.
+
+
+> > I don't see how this patch does this.
+> 
+> I do get your point. I don't know of a good way to check that DMA API
+> is giving us addresses that are actually physical addresses, and the
+> situation you describe definitely has some risk to it.
+
+One way would be to extend the DMA API with such an API.
+
+Another would be to make virtio always use DMA API
+and hide the logic in there.
+This second approach is not easy, in particular since DMA API adds
+a bunch of overhead which we need to find ways to
+measure and mitigate.
+
+
+> 
+> Let me comment on other ideas that came up. I would be very happy to go
+> with the best one. Thank you very much.
 > 
 > Regards,
 > Halil
 > 
-> 
-> 
+> > 
+> > 
+> > > ---
+> > >  drivers/virtio/virtio_ring.c | 3 +++
+> > >  1 file changed, 3 insertions(+)
+> > > 
+> > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> > > index 867c7ebd3f10..fafc8f924955 100644
+> > > --- a/drivers/virtio/virtio_ring.c
+> > > +++ b/drivers/virtio/virtio_ring.c
+> > > @@ -243,6 +243,9 @@ static bool vring_use_dma_api(struct virtio_device *vdev)
+> > >  	if (!virtio_has_iommu_quirk(vdev))
+> > >  		return true;
+> > >  
+> > > +	if (force_dma_unencrypted(&vdev->dev))
+> > > +		return true;
+> > > +
+> > >  	/* Otherwise, we are left to guess. */
+> > >  	/*
+> > >  	 * In theory, it's possible to have a buggy QEMU-supposed
+> > > -- 
+> > > 2.17.1
+> > 
