@@ -1,72 +1,82 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 2/2] virtio: let virtio use DMA API when guest RAM is
- protected
-Date: Fri, 21 Feb 2020 11:41:57 +0800
-Message-ID: <8194d502-07d8-b798-a2b5-606a8c05b895@redhat.com>
+Subject: Re: [PATCH 0/2] virtio: decouple protected guest RAM form
+ VIRTIO_F_IOMMU_PLATFORM
+Date: Fri, 21 Feb 2020 14:22:26 +0800
+Message-ID: <426e6972-0565-c931-e171-da0f58fbf856@redhat.com>
 References: <20200220160606.53156-1-pasic@linux.ibm.com>
- <20200220160606.53156-3-pasic@linux.ibm.com> <20200220161309.GB12709@lst.de>
- <20200221025915.GB2298@umbus.fritz.box>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200221025915.GB2298@umbus.fritz.box>
+In-Reply-To: <20200220160606.53156-1-pasic@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: David Gibson <david@gibson.dropbear.id.au>, Christoph Hellwig <hch@lst.de>
-Cc: Halil Pasic <pasic@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
+To: Halil Pasic <pasic@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>
+Cc: linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, David Gibson <david@gibson.dropbear.id.au>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-On 2020/2/21 =E4=B8=8A=E5=8D=8810:59, David Gibson wrote:
-> On Thu, Feb 20, 2020 at 05:13:09PM +0100, Christoph Hellwig wrote:
->> On Thu, Feb 20, 2020 at 05:06:06PM +0100, Halil Pasic wrote:
->>> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_rin=
-g.c
->>> index 867c7ebd3f10..fafc8f924955 100644
->>> --- a/drivers/virtio/virtio_ring.c
->>> +++ b/drivers/virtio/virtio_ring.c
->>> @@ -243,6 +243,9 @@ static bool vring_use_dma_api(struct virtio_devic=
-e *vdev)
->>>   	if (!virtio_has_iommu_quirk(vdev))
->>>   		return true;
->>>  =20
->>> +	if (force_dma_unencrypted(&vdev->dev))
->>> +		return true;
->> Hell no.  This is a detail of the platform DMA direct implementation.
->> Drivers have no business looking at this flag, and virtio finally need=
-s
->> to be fixed to use the DMA API properly for everything but legacy devi=
-ces.
-> So, this patch definitely isn't right as it stands, but I'm struggling
-> to understand what it is you're saying is the right way.
+On 2020/2/21 =E4=B8=8A=E5=8D=8812:06, Halil Pasic wrote:
+> Currently if one intends to run a memory protection enabled VM with
+> virtio devices and linux as the guest OS, one needs to specify the
+> VIRTIO_F_IOMMU_PLATFORM flag for each virtio device to make the guest
+> linux use the DMA API, which in turn handles the memory
+> encryption/protection stuff if the guest decides to turn itself into
+> a protected one. This however makes no sense due to multiple reasons:
+> * The device is not changed by the fact that the guest RAM is
+> protected. The so called IOMMU bypass quirk is not affected.
+> * This usage is not congruent with  standardised semantics of
+> VIRTIO_F_IOMMU_PLATFORM. Guest memory protected is an orthogonal reason
+> for using DMA API in virtio (orthogonal with respect to what is
+> expressed by VIRTIO_F_IOMMU_PLATFORM).
 >
-> By "legacy devices" I assume you mean pre-virtio-1.0 devices, that
-> lack the F_VERSION_1 feature flag.  Is that right?  Because I don't
-> see how being a legacy device or not relates to use of the DMA API.
+> This series aims to decouple 'have to use DMA API because my (guest) RA=
+M
+> is protected' and 'have to use DMA API because the device told me
+> VIRTIO_F_IOMMU_PLATFORM'.
 >
-> I *think* what you are suggesting here is that virtio devices that
-> have !F_IOMMU_PLATFORM should have their dma_ops set up so that the
-> DMA API treats IOVA=3D=3DPA, which will satisfy what the device expects=
-.
+> Please find more detailed explanations about the conceptual aspects in
+> the individual patches. There is however also a very practical problem
+> that is addressed by this series.
+>
+> For vhost-net the feature VIRTIO_F_IOMMU_PLATFORM has the following sid=
+e
+> effect The vhost code assumes it the addresses on the virtio descriptor
+> ring are not guest physical addresses but iova's, and insists on doing =
+a
+> translation of these regardless of what transport is used (e.g. whether
+> we emulate a PCI or a CCW device). (For details see commit 6b1e6cc7855b
+> "vhost: new device IOTLB API".) On s390 this results in severe
+> performance degradation (c.a. factor 10).
 
 
-Can this work for swiotlb?
+Do you see a consistent degradation on the performance, or it only=20
+happen when for during the beginning of the test?
+
+
+> BTW with ccw I/O there is
+> (architecturally) no IOMMU, so the whole address translation makes no
+> sense in the context of virtio-ccw.
+
+
+I suspect we can do optimization in qemu side.
+
+E.g send memtable entry via IOTLB API when vIOMMU is not enabled.
+
+If this makes sense, I can draft patch to see if there's any difference.
 
 Thanks
 
 
-> Then the virtio driver can use the DMA API the same way for both
-> F_IOMMU_PLATFORM and !F_IOMMU_PLATFORM devices.
 >
-> But if that works for !F_IOMMU_PLATFORM_DEVICES+F_VERSION_1 devices,
-> then AFAICT it will work equally well for legacy devices.
+> Halil Pasic (2):
+>    mm: move force_dma_unencrypted() to mem_encrypt.h
+>    virtio: let virtio use DMA API when guest RAM is protected
 >
-> Using the DMA API for *everything* in virtio, legacy or not, seems
-> like a reasonable approach to me.  But, AFAICT, that does require the
-> DMA layer to have some kind of explicit call to turn on this
-> behaviour, which the virtio driver would call during initializsation.
-> I don't think we can do it 100% within the DMA layer, because only the
-> driver can reasonably know when a device has this weird non-standard
-> DMA behaviour.
+>   drivers/virtio/virtio_ring.c |  3 +++
+>   include/linux/dma-direct.h   |  9 ---------
+>   include/linux/mem_encrypt.h  | 10 ++++++++++
+>   3 files changed, 13 insertions(+), 9 deletions(-)
 >
+>
+> base-commit: ca7e1fd1026c5af6a533b4b5447e1d2f153e28f2
