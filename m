@@ -1,63 +1,90 @@
 From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH 0/2] virtio: decouple protected guest RAM form
- VIRTIO_F_IOMMU_PLATFORM
-Date: Fri, 21 Feb 2020 14:49:36 +0100
-Message-ID: <20200221144936.2102bcce.pasic@linux.ibm.com>
+Subject: Re: [PATCH 2/2] virtio: let virtio use DMA API when guest RAM is
+ protected
+Date: Fri, 21 Feb 2020 15:33:40 +0100
+Message-ID: <20200221153340.4cdcde81.pasic@linux.ibm.com>
 References: <20200220160606.53156-1-pasic@linux.ibm.com>
-        <20200220163055-mutt-send-email-mst@kernel.org>
+        <20200220160606.53156-3-pasic@linux.ibm.com>
+        <20200220161309.GB12709@lst.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200220163055-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20200220161309.GB12709@lst.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, David Gibson <david@gibson.dropbear.id.au>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
+To: Christoph Hellwig <hch@lst.de>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, David Gibson <david@gibson.dropbear.id.au>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 20 Feb 2020 16:33:35 -0500
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+On Thu, 20 Feb 2020 17:13:09 +0100
+Christoph Hellwig <hch@lst.de> wrote:
 
-> On Thu, Feb 20, 2020 at 05:06:04PM +0100, Halil Pasic wrote:
-> > For vhost-net the feature VIRTIO_F_IOMMU_PLATFORM has the following side
-> > effect The vhost code assumes it the addresses on the virtio descriptor
-> > ring are not guest physical addresses but iova's, and insists on doing a
-> > translation of these regardless of what transport is used (e.g. whether
-> > we emulate a PCI or a CCW device). (For details see commit 6b1e6cc7855b
-> > "vhost: new device IOTLB API".) On s390 this results in severe
-> > performance degradation (c.a. factor 10). BTW with ccw I/O there is
-> > (architecturally) no IOMMU, so the whole address translation makes no
-> > sense in the context of virtio-ccw.
+> On Thu, Feb 20, 2020 at 05:06:06PM +0100, Halil Pasic wrote:
+> > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> > index 867c7ebd3f10..fafc8f924955 100644
+> > --- a/drivers/virtio/virtio_ring.c
+> > +++ b/drivers/virtio/virtio_ring.c
+> > @@ -243,6 +243,9 @@ static bool vring_use_dma_api(struct virtio_device *vdev)
+> >  	if (!virtio_has_iommu_quirk(vdev))
+> >  		return true;
+> >  
+> > +	if (force_dma_unencrypted(&vdev->dev))
+> > +		return true;
 > 
-> So it sounds like a host issue: the emulation of s390 unnecessarily complicated.
-> Working around it by the guest looks wrong ...
+> Hell no.  This is a detail of the platform DMA direct implementation.
 
-While do think that forcing IOMMU_PLATFORM on devices that do not
-want or need it, just to trigger DMA API usage in guest is conceptually
-wrong, I do agree, that we might have a host issue. Namely, unlike PCI,
-CCW does not have an IOMMU, and the spec clearly states that "Whether
-accesses are actually limited or translated is described by
-platform-specific means.". With CCW devices we don't have address translation
-by IOMMU, and in that sense vhost is probably wrong about trying to do
-the translation. That is why I mentioned the patch, and that it's done
-regardless of the transport/platform.
+I beg to differ. If it was a detail of the DMA direct implementation, it
+should have/would have been private to kernel/dma/direct.c. 
+
+A look at 
+
+$ git grep -e force_dma_unencrypted
+arch/powerpc/include/asm/mem_encrypt.h:static inline bool force_dma_unencrypted(struct device *dev)
+arch/s390/mm/init.c:bool force_dma_unencrypted(struct device *dev)
+arch/x86/mm/mem_encrypt.c:bool force_dma_unencrypted(struct device *dev)
+include/linux/dma-direct.h:bool force_dma_unencrypted(struct device *dev);
+include/linux/dma-direct.h:static inline bool force_dma_unencrypted(struct device *dev)
+kernel/dma/direct.c:    if (force_dma_unencrypted(dev))
+kernel/dma/direct.c:    if (force_dma_unencrypted(dev))
+kernel/dma/direct.c:        !force_dma_unencrypted(dev)) {
+kernel/dma/direct.c:    if (force_dma_unencrypted(dev))
+kernel/dma/direct.c:    if (force_dma_unencrypted(dev))
+kernel/dma/direct.c:        !force_dma_unencrypted(dev)) {
+kernel/dma/direct.c:    if (force_dma_unencrypted(dev))
+
+tells you, that force_dma_unencrypted() is *consumed* by dma direct, but
+*provided* by the memory encryption or memory management code.
+I.e. platform code tells the dma (direct) code what decisions to make
+under certain circumstances.
+
+Consider what would we have to do to make PCI devices do I/O trough
+pages that were shared when the guest is running in a protected VM. The
+s390_pci_dma_ops would also need to know whether to 'force dma uencrypted'
+or not, and it's the exact same logic. I doubt simply using DMA direct
+for zPCI would do, because we still have to do all the Z specific IOMMU
+management.
+
+> Drivers have no business looking at this flag, and virtio finally needs
+> to be fixed to use the DMA API properly for everything but legacy devices.
+
+See the follow on discussion with David Gibson. In short: I'm in favor
+of always using DMA API iff we keep conformance with the VIRTIO spec and
+if it does not imply any degradations for s390 (virtio-ccw), or any
+other regressions.
+
+> 
+> No amount of desparate hacks is going to fix that fundamental problem,
+> and I'm starting to get really sick and tired of all the crap patches
+> published in this area.
+
+I don't think I deserve the offensive language.
+
+AFAIU you have a positive attitude towards the idea, that 
+!F_VIRTIO_PLATFORM implies 'no DMA API is used by virtio' 
+should be scrapped. 
+
+I would like to accomplish that without adverse effects to virtio-ccw
+(because caring for virtio-ccw is a part of job description).
 
 Regards,
 Halil
-
-
-> 
-> > Halil Pasic (2):
-> >   mm: move force_dma_unencrypted() to mem_encrypt.h
-> >   virtio: let virtio use DMA API when guest RAM is protected
-> > 
-> >  drivers/virtio/virtio_ring.c |  3 +++
-> >  include/linux/dma-direct.h   |  9 ---------
-> >  include/linux/mem_encrypt.h  | 10 ++++++++++
-> >  3 files changed, 13 insertions(+), 9 deletions(-)
-> > 
-> > 
-> > base-commit: ca7e1fd1026c5af6a533b4b5447e1d2f153e28f2
-> > -- 
-> > 2.17.1
-> 
