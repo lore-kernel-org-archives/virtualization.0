@@ -1,13 +1,16 @@
-From: Hillf Danton <hdanton@sina.com>
-Subject: Re: INFO: task hung in lock_sock_nested (2)
-Date: Sun, 23 Feb 2020 15:50:25 +0800
-Message-ID: <20200223075025.9068-1-hdanton@sina.com>
-References: <0000000000004241ff059f2eb8a4@google.com>
+From: "Gonglei (Arei)" <arei.gonglei@huawei.com>
+Subject: RE: [CRASH] crypto: virtio: crash when modprobing tcrypt on 5.5-rc7
+ / next-20200122
+Date: Sun, 23 Feb 2020 15:06:00 +0000
+Message-ID: <33183CC9F5247A488A2544077AF19020DF4B2ED4@dggeml511-mbx.china.huawei.com>
+References: <20200123101000.GB24255@Red>
+ <20200204041419-mutt-send-email-mst@kernel.org> <20200220191553.GA30549@Red>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <0000000000004241ff059f2eb8a4@google.com>
+In-Reply-To: <20200220191553.GA30549@Red>
+Content-Language: zh-CN
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,260 +20,170 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: syzbot <syzbot+731710996d79d0d58fbc@syzkaller.appspotmail.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, stefanha@redhat.com, kuba@kernel.org, davem@davemloft.net, jhansen@vmware.com
+To: LABBE Corentin <clabbe@baylibre.com>
+Cc: "Liujinsong (Paul)" <liu.jinsong@huawei.com>, "herbert@gondor.apana.org.au" <herbert@gondor.apana.org.au>, "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>, "davem@davemloft.net" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-On Sat, 22 Feb 2020 10:58:12 -0800
-> syzbot found the following crash on:
+> -----Original Message-----
+> From: LABBE Corentin [mailto:clabbe@baylibre.com]
+> Sent: Friday, February 21, 2020 3:16 AM
+> To: Gonglei (Arei) <arei.gonglei@huawei.com>
+> Cc: jasowang@redhat.com; herbert@gondor.apana.org.au;
+> davem@davemloft.net; virtualization@lists.linux-foundation.org;
+> linux-crypto@vger.kernel.org; linux-kernel@vger.kernel.org; mst@redhat.com
+> Subject: Re: [CRASH] crypto: virtio: crash when modprobing tcrypt on 5.5-rc7 /
+> next-20200122
 > 
-> HEAD commit:    2bb07f4e tc-testing: updated tdc tests for basic filter
-> git tree:       net-next
-> console output: https://syzkaller.appspot.com/x/log.txt?x=122efdede00000
-> kernel config:  https://syzkaller.appspot.com/x/.config?x=768cc3d3e277cc16
-> dashboard link: https://syzkaller.appspot.com/bug?extid=731710996d79d0d58fbc
-> compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
-> syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=14887de9e00000
-> C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=149eec81e00000
+> On Tue, Feb 04, 2020 at 04:15:22AM -0500, Michael S. Tsirkin wrote:
+> > On Thu, Jan 23, 2020 at 11:10:00AM +0100, LABBE Corentin wrote:
+> > > Hello
+> > >
+> > > When modprobing tcrypt on qemu 4.1.0 I get a kernel panic on 5.5-rc7
+> > > and next-20200122 qemu is started by:
+> > > /usr/bin/qemu-system-x86_64 -cpu host -enable-kvm -nographic -net
+> > > nic,model=e1000,macaddr=52:54:00:12:34:58 -net tap -m 512 -monitor
+> > > none -object cryptodev-backend-builtin,id=cryptodev0 -device
+> > > virtio-crypto-pci,id=crypto0,cryptodev=cryptodev0 -append
+> > > 'console=ttyS0 root=/dev/ram0 ip=dhcp' -kernel
+> > > /var/lib/lava/dispatcher/tmp/41332/deployimages-td18675m/kernel/bzIm
+> > > age -initrd
+> > > /var/lib/lava/dispatcher/tmp/41332/deployimages-td18675m/ramdisk/roo
+> > > tfs.cpio.gz -drive
+> > > format=qcow2,file=/var/lib/lava/dispatcher/tmp/41332/apply-overlay-g
+> > > uest-icy4k1ol/lava-guest.qcow2,media=disk,if=ide,id=lavatest
+> > >
+> > > [  112.771925] general protection fault: 0000 [#1] SMP PTI [
+> > > 112.772686] CPU: 0 PID: 126 Comm: virtio0-engine Not tainted
+> > > 5.5.0-rc7+ #1 [  112.773576] Hardware name: QEMU Standard PC (i440FX
+> > > + PIIX, 1996), BIOS
+> > > ?-20190711_202441-buildvm-armv7-10.arm.fedoraproject.org-2.fc31
+> > > 04/01/2014 [  112.775319] RIP: 0010:sg_next+0x0/0x20 [  112.775821]
+> > > Code: cc cc cc cc cc cc cc cc cc cc c7 47 10 00 00 00 00 89 57 0c 48
+> > > 89 37 89 4f 08 c3 0f 1f 44 00 00 66 2e 0f 1f 84 00 00 00 00 00 <f6>
+> > > 07 02 75 17 48 8b 57 20 48 8d 47 20 48 89 d1 48 83 e1 fc 83 e2 [
+> > > 112.778330] RSP: 0018:ffffa92440237d90 EFLAGS: 00010006 [
+> > > 112.779071] RAX: fefefefe00000000 RBX: 000000000000000a RCX:
+> > > fefefefe00000000 [  112.780081] RDX: 0000000000000001 RSI:
+> > > ffff9b19da1a2180 RDI: fefefefe00000000 [  112.781081] RBP:
+> > > ffff9b19da1a2198 R08: ffff9b19dfb24ee8 R09: 0000000000000a20 [
+> > > 112.782079] R10: ffff9b19da125010 R11: 0000000000000000 R12:
+> ffff9b19da1a21b8 [  112.783079] R13: 0000000000000003 R14:
+> ffff9b19da1a2180 R15: 0000000000000004 [  112.784077] FS:
+> 0000000000000000(0000) GS:ffff9b19de400000(0000)
+> knlGS:0000000000000000 [  112.785202] CS:  0010 DS: 0000 ES: 0000 CR0:
+> 0000000080050033 [  112.786030] CR2: 00007f18a157b050 CR3:
+> 000000001040a004 CR4: 0000000000060ef0 [  112.787034] Call Trace:
+> > > [  112.787393]  virtqueue_add_sgs+0x4c/0x90 [  112.787998]
+> > > virtio_crypto_skcipher_crypt_req+0x310/0x3e0
+> > > [  112.788817]  crypto_pump_work+0x10c/0x240 [  112.789420]  ?
+> > > __kthread_init_worker+0x50/0x50 [  112.790082]
+> > > kthread_worker_fn+0x89/0x180 [  112.790690]  kthread+0x10e/0x130 [
+> > > 112.791182]  ? kthread_park+0x80/0x80 [  112.791736]
+> > > ret_from_fork+0x35/0x40 [  112.792282] Modules linked in: cts lzo
+> > > salsa20_generic camellia_x86_64 camellia_generic fcrypt pcbc tgr192
+> > > anubis wp512 khazad tea michael_mic arc4 cast6_generic cast5_generic
+> > > cast_common deflate sha512_ssse3 sha512_generic cfb ofb
+> > > serpent_sse2_x86_64 serpent_generic lrw twofish_x86_64_3way
+> > > twofish_x86_64 crypto_simd cryptd glue_helper twofish_generic
+> > > twofish_common blowfish_x86_64 blowfish_generic blowfish_common md4
+> > > tcrypt(+) [  112.797652] ---[ end trace 4a8142d4a08c2518 ]--- [
+> > > 112.798320] RIP: 0010:sg_next+0x0/0x20 [  112.798865] Code: cc cc cc
+> > > cc cc cc cc cc cc cc c7 47 10 00 00 00 00 89 57 0c 48 89 37 89 4f 08
+> > > c3 0f 1f 44 00 00 66 2e 0f 1f 84 00 00 00 00 00 <f6> 07 02 75 17 48
+> > > 8b 57 20 48 8d 47 20 48 89 d1 48 83 e1 fc 83 e2 [  112.801452] RSP:
+> > > 0018:ffffa92440237d90 EFLAGS: 00010006 [  112.802189] RAX:
+> > > fefefefe00000000 RBX: 000000000000000a RCX: fefefefe00000000 [
+> > > 112.803190] RDX: 0000000000000001 RSI: ffff9b19da1a2180 RDI:
+> > > fefefefe00000000 [  112.804192] RBP: ffff9b19da1a2198 R08:
+> > > ffff9b19dfb24ee8 R09: 0000000000000a20 [  112.805201] R10:
+> > > ffff9b19da125010 R11: 0000000000000000 R12: ffff9b19da1a21b8 [
+> > > 112.806195] R13: 0000000000000003 R14: ffff9b19da1a2180 R15:
+> > > 0000000000000004 [  112.807222] FS:  0000000000000000(0000)
+> > > GS:ffff9b19de400000(0000) knlGS:0000000000000000 [  112.808352] CS:
+> > > 0010 DS: 0000 ES: 0000 CR0: 0000000080050033 [  112.809169] CR2:
+> > > 00007f18a157b050 CR3: 000000001040a004 CR4: 0000000000060ef0
+> > >
+> > > I have tested also 5.4.14
+> > > and I got random freeze with:
+> > > qemu-system-x86_64: virtio: zero sized buffers are not allowed
+> > >
+> > > Regards
+> >
+> > Cc: Gonglei <arei.gonglei@huawei.com>
+> >
 > 
-> The bug was bisected to:
+> Hello Gonglei
 > 
-> commit 408624af4c89989117bb2c6517bd50b7708a2fcd
-> Author: Stefano Garzarella <sgarzare@redhat.com>
-> Date:   Tue Dec 10 10:43:06 2019 +0000
+> Any plan to fix the driver ? It is broken since its introduction.
 > 
->     vsock: use local transport when it is loaded
-> 
-> bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=1011e27ee00000
-> final crash:    https://syzkaller.appspot.com/x/report.txt?x=1211e27ee00000
-> console output: https://syzkaller.appspot.com/x/log.txt?x=1411e27ee00000
-> 
-> IMPORTANT: if you fix the bug, please add the following tag to the commit:
-> Reported-by: syzbot+731710996d79d0d58fbc@syzkaller.appspotmail.com
-> Fixes: 408624af4c89 ("vsock: use local transport when it is loaded")
-> 
-> INFO: task syz-executor280:9768 blocked for more than 143 seconds.
->       Not tainted 5.6.0-rc1-syzkaller #0
-> "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-> syz-executor280 D27912  9768   9766 0x00000000
-> Call Trace:
->  context_switch kernel/sched/core.c:3386 [inline]
->  __schedule+0x934/0x1f90 kernel/sched/core.c:4082
->  schedule+0xdc/0x2b0 kernel/sched/core.c:4156
->  __lock_sock+0x165/0x290 net/core/sock.c:2413
->  lock_sock_nested+0xfe/0x120 net/core/sock.c:2938
->  virtio_transport_release+0xc4/0xd60 net/vmw_vsock/virtio_transport_common.c:832
->  vsock_assign_transport+0xf3/0x3b0 net/vmw_vsock/af_vsock.c:454
->  vsock_stream_connect+0x2b3/0xc70 net/vmw_vsock/af_vsock.c:1288
->  __sys_connect_file+0x161/0x1c0 net/socket.c:1857
->  __sys_connect+0x174/0x1b0 net/socket.c:1874
->  __do_sys_connect net/socket.c:1885 [inline]
->  __se_sys_connect net/socket.c:1882 [inline]
->  __x64_sys_connect+0x73/0xb0 net/socket.c:1882
->  do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
->  entry_SYSCALL_64_after_hwframe+0x49/0xbe
-> RIP: 0033:0x440209
-> Code: Bad RIP value.
-> RSP: 002b:00007ffdb9f67718 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
-> RAX: ffffffffffffffda RBX: 00000000004002c8 RCX: 0000000000440209
-> RDX: 0000000000000010 RSI: 0000000020000440 RDI: 0000000000000003
-> RBP: 00000000006ca018 R08: 00000000004002c8 R09: 00000000004002c8
-> R10: 00000000004002c8 R11: 0000000000000246 R12: 0000000000401a90
-> R13: 0000000000401b20 R14: 0000000000000000 R15: 0000000000000000
-> 
-> Showing all locks held in the system:
-> 1 lock held by khungtaskd/951:
->  #0: ffffffff89bac240 (rcu_read_lock){....}, at: debug_show_all_locks+0x5f/0x279 kernel/locking/lockdep.c:5333
-> 1 lock held by rsyslogd/9652:
->  #0: ffff8880a6533120 (&f->f_pos_lock){+.+.}, at: __fdget_pos+0xee/0x110 fs/file.c:821
-> 2 locks held by getty/9742:
->  #0: ffff8880a693f090 (&tty->ldisc_sem){++++}, at: ldsem_down_read+0x33/0x40 drivers/tty/tty_ldsem.c:340
->  #1: ffffc900061bb2e0 (&ldata->atomic_read_lock){+.+.}, at: n_tty_read+0x220/0x1bf0 drivers/tty/n_tty.c:2156
-> 2 locks held by getty/9743:
->  #0: ffff88809f7a1090 (&tty->ldisc_sem){++++}, at: ldsem_down_read+0x33/0x40 drivers/tty/tty_ldsem.c:340
->  #1: ffffc900061b72e0 (&ldata->atomic_read_lock){+.+.}, at: n_tty_read+0x220/0x1bf0 drivers/tty/n_tty.c:2156
-> 2 locks held by getty/9744:
->  #0: ffff88809be3e090 (&tty->ldisc_sem){++++}, at: ldsem_down_read+0x33/0x40 drivers/tty/tty_ldsem.c:340
->  #1: ffffc900061632e0 (&ldata->atomic_read_lock){+.+.}, at: n_tty_read+0x220/0x1bf0 drivers/tty/n_tty.c:2156
-> 2 locks held by getty/9745:
->  #0: ffff88808eb1e090 (&tty->ldisc_sem){++++}, at: ldsem_down_read+0x33/0x40 drivers/tty/tty_ldsem.c:340
->  #1: ffffc900061bf2e0 (&ldata->atomic_read_lock){+.+.}, at: n_tty_read+0x220/0x1bf0 drivers/tty/n_tty.c:2156
-> 2 locks held by getty/9746:
->  #0: ffff88808d33a090 (&tty->ldisc_sem){++++}, at: ldsem_down_read+0x33/0x40 drivers/tty/tty_ldsem.c:340
->  #1: ffffc900061732e0 (&ldata->atomic_read_lock){+.+.}, at: n_tty_read+0x220/0x1bf0 drivers/tty/n_tty.c:2156
-> 2 locks held by getty/9747:
->  #0: ffff8880a6a0c090 (&tty->ldisc_sem){++++}, at: ldsem_down_read+0x33/0x40 drivers/tty/tty_ldsem.c:340
->  #1: ffffc900061c32e0 (&ldata->atomic_read_lock){+.+.}, at: n_tty_read+0x220/0x1bf0 drivers/tty/n_tty.c:2156
-> 2 locks held by getty/9748:
->  #0: ffff8880a6e4d090 (&tty->ldisc_sem){++++}, at: ldsem_down_read+0x33/0x40 drivers/tty/tty_ldsem.c:340
->  #1: ffffc900061332e0 (&ldata->atomic_read_lock){+.+.}, at: n_tty_read+0x220/0x1bf0 drivers/tty/n_tty.c:2156
-> 1 lock held by syz-executor280/9768:
->  #0: ffff8880987cb8d0 (sk_lock-AF_VSOCK){+.+.}, at: lock_sock include/net/sock.h:1516 [inline]
->  #0: ffff8880987cb8d0 (sk_lock-AF_VSOCK){+.+.}, at: vsock_stream_connect+0xfb/0xc70 net/vmw_vsock/af_vsock.c:1258
-> 
-> =============================================
-> 
-> NMI backtrace for cpu 1
-> CPU: 1 PID: 951 Comm: khungtaskd Not tainted 5.6.0-rc1-syzkaller #0
-> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-> Call Trace:
->  __dump_stack lib/dump_stack.c:77 [inline]
->  dump_stack+0x197/0x210 lib/dump_stack.c:118
->  nmi_cpu_backtrace.cold+0x70/0xb2 lib/nmi_backtrace.c:101
->  nmi_trigger_cpumask_backtrace+0x23b/0x28b lib/nmi_backtrace.c:62
->  arch_trigger_cpumask_backtrace+0x14/0x20 arch/x86/kernel/apic/hw_nmi.c:38
->  trigger_all_cpu_backtrace include/linux/nmi.h:146 [inline]
->  check_hung_uninterruptible_tasks kernel/hung_task.c:205 [inline]
->  watchdog+0xb11/0x10c0 kernel/hung_task.c:289
->  kthread+0x361/0x430 kernel/kthread.c:255
->  ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
-> Sending NMI from CPU 1 to CPUs 0:
-> NMI backtrace for cpu 0
-> CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.6.0-rc1-syzkaller #0
-> Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-> RIP: 0010:group_is_overloaded kernel/sched/fair.c:7929 [inline]
-> RIP: 0010:group_classify kernel/sched/fair.c:7964 [inline]
-> RIP: 0010:update_sg_lb_stats kernel/sched/fair.c:8077 [inline]
-> RIP: 0010:update_sd_lb_stats kernel/sched/fair.c:8565 [inline]
-> RIP: 0010:find_busiest_group+0xa33/0x3250 kernel/sched/fair.c:8793
-> Code: 89 f8 83 e0 07 83 c0 03 40 38 f0 7c 09 40 84 f6 0f 85 f7 1f 00 00 48 8b b5 c0 fd ff ff 41 8b 41 2c 48 c1 ee 03 42 0f b6 34 26 <40> 84 f6 74 0a 40 80 fe 03 0f 8e 8f 1f 00 00 44 8b 6b 20 44 39 ea
-> RSP: 0018:ffffc90000007850 EFLAGS: 00000a06
-> RAX: 000000000000006e RBX: ffffc90000007938 RCX: 00000000000003fa
-> RDX: 0000000000000001 RSI: 0000000000000000 RDI: ffff8880a9a8282c
-> RBP: ffffc90000007af0 R08: ffffffff89a7a440 R09: ffff8880a9a82800
-> R10: 0000000000000000 R11: ffff8880a9a83f27 R12: dffffc0000000000
-> R13: ffff8880a9a83e80 R14: ffffc90000007ac8 R15: ffffc90000007c08
-> FS:  0000000000000000(0000) GS:ffff8880ae800000(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> CR2: ffffffffff600400 CR3: 000000009fde0000 CR4: 00000000001406f0
-> DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> Call Trace:
->  <IRQ>
->  load_balance+0x38c/0x2b50 kernel/sched/fair.c:9161
->  rebalance_domains+0x739/0x1000 kernel/sched/fair.c:9588
->  _nohz_idle_balance+0x336/0x3f0 kernel/sched/fair.c:10002
->  nohz_idle_balance kernel/sched/fair.c:10048 [inline]
->  run_rebalance_domains+0x1c6/0x2d0 kernel/sched/fair.c:10237
->  __do_softirq+0x262/0x98c kernel/softirq.c:292
->  invoke_softirq kernel/softirq.c:373 [inline]
->  irq_exit+0x19b/0x1e0 kernel/softirq.c:413
->  scheduler_ipi+0x38c/0x610 kernel/sched/core.c:2349
->  smp_reschedule_interrupt+0x78/0x4c0 arch/x86/kernel/smp.c:244
->  reschedule_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:853
->  </IRQ>
-> RIP: 0010:native_safe_halt+0xe/0x10 arch/x86/include/asm/irqflags.h:61
-> Code: 58 f5 c3 f9 eb 8a cc cc cc cc cc cc e9 07 00 00 00 0f 00 2d 74 40 58 00 f4 c3 66 90 e9 07 00 00 00 0f 00 2d 64 40 58 00 fb f4 <c3> cc 55 48 89 e5 41 57 41 56 41 55 41 54 53 e8 ce ac 72 f9 e8 e9
-> RSP: 0018:ffffffff89a07ce8 EFLAGS: 00000286 ORIG_RAX: ffffffffffffff02
-> RAX: 1ffffffff136761a RBX: ffffffff89a7a440 RCX: 0000000000000000
-> RDX: dffffc0000000000 RSI: 0000000000000006 RDI: ffffffff89a7acd4
-> RBP: ffffffff89a07d18 R08: ffffffff89a7a440 R09: 0000000000000000
-> R10: 0000000000000000 R11: 0000000000000000 R12: dffffc0000000000
-> R13: ffffffff8aa5ab80 R14: 0000000000000000 R15: 0000000000000000
->  arch_cpu_idle+0xa/0x10 arch/x86/kernel/process.c:686
->  default_idle_call+0x84/0xb0 kernel/sched/idle.c:94
->  cpuidle_idle_call kernel/sched/idle.c:154 [inline]
->  do_idle+0x3c8/0x6e0 kernel/sched/idle.c:269
->  cpu_startup_entry+0x1b/0x20 kernel/sched/idle.c:361
->  rest_init+0x23b/0x371 init/main.c:654
->  arch_call_rest_init+0xe/0x1b
->  start_kernel+0x886/0x8c5 init/main.c:992
->  x86_64_start_reservations+0x29/0x2b arch/x86/kernel/head64.c:490
->  x86_64_start_kernel+0x77/0x7b arch/x86/kernel/head64.c:471
->  secondary_startup_64+0xa4/0xb0 arch/x86/kernel/head_64.S:242
-> 
-> 
-> ---
-> This bug is generated by a bot. It may contain errors.
-> See https://goo.gl/tpsmEJ for more information about syzbot.
-> syzbot engineers can be reached at syzkaller@googlegroups.com.
-> 
-> syzbot will keep track of this bug report. See:
-> https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
-> For information about bisection process see: https://goo.gl/tpsmEJ#bisection
-> syzbot can test patches for this bug, for details see:
-> https://goo.gl/tpsmEJ#testing-patches
+Thanks for your report firstly.
+I've been busy launching new products recently, so I don't have much time
+to invest in the open source community. 
+
+I spent some time investigating the BUG this weekend, 
+and IMO I found the root cause. The following patch, please help test it, thanks!
+
+[PATCH] virtio-crypto: fix src/dst scatterlist calculation
+
+Usually the next entry of one sg will be @sg@ + 1, but if this sg element
+is part of a chained scatterlist, it could jump to the start of a new
+scatterlist array. Let's fix it by sg_next() on calculation of src/dst
+scatterlist.
+
+BTW I add a check for sg_nents_for_len() its return value since
+sg_nents_for_len() function could fail.
+
+Signed-off-by: Gonglei <arei.gonglei@huawei.com>
+---
+ drivers/crypto/virtio/virtio_crypto_algs.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/crypto/virtio/virtio_crypto_algs.c b/drivers/crypto/virtio/virtio_crypto_algs.c
+index fd045e64..bde0539 100644
+--- a/drivers/crypto/virtio/virtio_crypto_algs.c
++++ b/drivers/crypto/virtio/virtio_crypto_algs.c
+@@ -355,8 +355,14 @@ static int virtio_crypto_skcipher_setkey(struct crypto_skcipher *tfm,
+ 	unsigned int num_out = 0, num_in = 0;
+ 	int sg_total;
+ 	uint8_t *iv;
++	struct scatterlist *sg;
+ 
+ 	src_nents = sg_nents_for_len(req->src, req->cryptlen);
++	if (src_nents < 0) {
++		pr_err("Invalid number of src SG.\n");
++		return src_nents;
++	}
++
+ 	dst_nents = sg_nents(req->dst);
+ 
+ 	pr_debug("virtio_crypto: Number of sgs (src_nents: %d, dst_nents: %d)\n",
+@@ -442,12 +448,18 @@ static int virtio_crypto_skcipher_setkey(struct crypto_skcipher *tfm,
+ 	vc_sym_req->iv = iv;
+ 
+ 	/* Source data */
+-	for (i = 0; i < src_nents; i++)
+-		sgs[num_out++] = &req->src[i];
++	sg = req->src;
++	for (i = 0; sg && i < src_nents; sg = sg_next(sg)) {
++		i++;
++		sgs[num_out++] = sg;
++	}
+ 
+ 	/* Destination data */
+-	for (i = 0; i < dst_nents; i++)
+-		sgs[num_out + num_in++] = &req->dst[i];
++	sg = req->dst;
++	for (i = 0; sg && i < dst_nents; sg = sg_next(sg)) {
++		i++;
++		sgs[num_out + num_in++] = sg;
++	}
+ 
+ 	/* Status */
+ 	sg_init_one(&status_sg, &vc_req->status, sizeof(vc_req->status));
+-- 
+1.8.3.1
 
 
-Seems like vsock needs a word to track lock owner in an attempt to
-avoid trying to lock sock while the current is the lock owner.
-
---- a/include/net/af_vsock.h
-+++ b/include/net/af_vsock.h
-@@ -41,6 +41,7 @@ struct vsock_sock {
- 					 * cached peer?
- 					 */
- 	u32 cached_peer;  /* Context ID of last dgram destination check. */
-+	void *lock_owner;
- 	const struct cred *owner;
- 	/* Rest are SOCK_STREAM only. */
- 	long connect_timeout;
-@@ -74,6 +75,13 @@ struct vsock_sock {
- 	void *trans;
- };
- 
-+static inline bool vsock_locked(struct sock *sk)
-+{
-+	struct vsock_sock *vsk = vsock_sk(sk);
-+
-+	return vsk->lock_owner == current;
-+}
-+
- s64 vsock_stream_has_data(struct vsock_sock *vsk);
- s64 vsock_stream_has_space(struct vsock_sock *vsk);
- struct sock *vsock_create_connected(struct sock *parent);
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -1236,6 +1236,7 @@ static int vsock_stream_connect(struct s
- 	vsk = vsock_sk(sk);
- 
- 	lock_sock(sk);
-+	vsk->lock_owner = current;
- 
- 	/* XXX AF_UNSPEC should make us disconnect like AF_INET. */
- 	switch (sock->state) {
-@@ -1320,9 +1321,11 @@ static int vsock_stream_connect(struct s
- 			goto out_wait;
- 		}
- 
-+		vsk->lock_owner = NULL;
- 		release_sock(sk);
- 		timeout = schedule_timeout(timeout);
- 		lock_sock(sk);
-+		vsk->lock_owner = current;
- 
- 		if (signal_pending(current)) {
- 			err = sock_intr_errno(timeout);
-@@ -1352,6 +1355,7 @@ static int vsock_stream_connect(struct s
- out_wait:
- 	finish_wait(sk_sleep(sk), &wait);
- out:
-+	vsk->lock_owner = NULL;
- 	release_sock(sk);
- 	return err;
- }
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -832,7 +832,9 @@ void virtio_transport_release(struct vso
- 	struct sock *sk = &vsk->sk;
- 	bool remove_sock = true;
- 
--	lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
-+	if (!vsock_locked(sk))
-+		lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
-+
- 	if (sk->sk_type == SOCK_STREAM)
- 		remove_sock = virtio_transport_close(vsk);
- 
-@@ -840,7 +842,9 @@ void virtio_transport_release(struct vso
- 		list_del(&pkt->list);
- 		virtio_transport_free_pkt(pkt);
- 	}
--	release_sock(sk);
-+
-+	if (!vsock_locked(sk))
-+		release_sock(sk);
- 
- 	if (remove_sock)
- 		vsock_remove_sock(vsk);
+Regards
+-Gonglei
