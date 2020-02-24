@@ -1,134 +1,128 @@
 From: David Gibson <david@gibson.dropbear.id.au>
-Subject: Re: [PATCH 2/2] virtio: let virtio use DMA API when guest RAM is
- protected
-Date: Mon, 24 Feb 2020 17:40:41 +1100
-Message-ID: <20200224064041.GL1751@umbus.fritz.box>
+Subject: Re: [PATCH 0/2] virtio: decouple protected guest RAM form
+ VIRTIO_F_IOMMU_PLATFORM
+Date: Mon, 24 Feb 2020 14:38:53 +1100
+Message-ID: <20200224033853.GE1751@umbus.fritz.box>
 References: <20200220160606.53156-1-pasic@linux.ibm.com>
- <20200220160606.53156-3-pasic@linux.ibm.com>
- <20200220154904-mutt-send-email-mst@kernel.org>
- <20200221141230.13eebc35.pasic@linux.ibm.com>
- <bf0c87a2-adc6-a05a-835f-f98e7cd0cd3b@amd.com>
+ <426e6972-0565-c931-e171-da0f58fbf856@redhat.com>
+ <20200221155602.4de41fa7.pasic@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="huBJOJF9BsF479P6"
+        protocol="application/pgp-signature"; boundary="48TaNjbzBVislYPb"
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <bf0c87a2-adc6-a05a-835f-f98e7cd0cd3b@amd.com>
+In-Reply-To: <20200221155602.4de41fa7.pasic@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, Michael Mueller <mimu@linux.ibm.com>, "Singh, Brijesh" <brijesh.singh@amd.com>, "Huang, Wei" <wei.huang2@amd.com>, Suravee Suthikulpanit <suravee.suthikulpan>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---huBJOJF9BsF479P6
-Content-Type: text/plain; charset=us-ascii
+--48TaNjbzBVislYPb
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Feb 21, 2020 at 09:39:38AM -0600, Tom Lendacky wrote:
-> On 2/21/20 7:12 AM, Halil Pasic wrote:
-> > On Thu, 20 Feb 2020 15:55:14 -0500
-> > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> >=20
-> >> On Thu, Feb 20, 2020 at 05:06:06PM +0100, Halil Pasic wrote:
-> >>> Currently the advanced guest memory protection technologies (AMD SEV,
-> >>> powerpc secure guest technology and s390 Protected VMs) abuse the
-> >>> VIRTIO_F_IOMMU_PLATFORM flag to make virtio core use the DMA API, whi=
-ch
-> >>> is in turn necessary, to make IO work with guest memory protection.
-> >>>
-> >>> But VIRTIO_F_IOMMU_PLATFORM a.k.a. VIRTIO_F_ACCESS_PLATFORM is really=
- a
-> >>> different beast: with virtio devices whose implementation runs on an =
-SMP
-> >>> CPU we are still fine with doing all the usual optimizations, it is j=
-ust
-> >>> that we need to make sure that the memory protection mechanism does n=
-ot
-> >>> get in the way. The VIRTIO_F_ACCESS_PLATFORM mandates more work on the
-> >>> side of the guest (and possibly he host side as well) than we actually
-> >>> need.
-> >>>
-> >>> An additional benefit of teaching the guest to make the right decision
-> >>> (and use DMA API) on it's own is: removing the need, to mandate speci=
-al
-> >>> VM configuration for guests that may run with protection. This is
-> >>> especially interesting for s390 as VIRTIO_F_IOMMU_PLATFORM pushes all
-> >>> the virtio control structures into the first 2G of guest memory:
-> >>> something we don't necessarily want to do per-default.
-> >>>
-> >>> Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-> >>> Tested-by: Ram Pai <linuxram@us.ibm.com>
-> >>> Tested-by: Michael Mueller <mimu@linux.ibm.com>
-> >>
-> >> This might work for you but it's fragile, since without
-> >> VIRTIO_F_ACCESS_PLATFORM hypervisor assumes it gets
-> >> GPA's, not DMA addresses.
-> >>
-> >=20
-> > Thanks for your constructive approach. I do want the hypervisor to
-> > assume it gets GPA's. My train of thought was that the guys that need
-> > to use IOVA's that are not GPA's when force_dma_unencrypted() will have
-> > to to specify VIRTIO_F_ACCESS_PLATFORM (at the device) anyway, because
-> > otherwise it won't work. But I see your point: in case of a
-> > mis-configuration and provided the DMA API returns IOVA's one could end
-> > up trying to touch wrong memory locations. But this should be similar to
-> > what would happen if DMA ops are not used, and memory is not made acces=
-sible.
-> >=20
-> >>
-> >>
-> >> IOW this looks like another iteration of:
-> >>
-> >> 	virtio: Support encrypted memory on powerpc secure guests
-> >>
-> >> which I was under the impression was abandoned as unnecessary.
-> >=20
-> > Unnecessary for powerpc because they do normal PCI. In the context of
-> > CCW there are only guest physical addresses (CCW I/O has no concept of
-> > IOMMU or IOVAs).
-> >=20
-> >>
-> >>
-> >> To summarize, the necessary conditions for a hack along these lines
-> >> (using DMA API without VIRTIO_F_ACCESS_PLATFORM) are that we detect th=
-at:
-> >>
-> >>   - secure guest mode is enabled - so we know that since we don't share
-> >>     most memory regular virtio code won't
-> >>     work, even though the buggy hypervisor didn't set VIRTIO_F_ACCESS_=
-PLATFORM
-> >=20
-> > force_dma_unencrypted(&vdev->dev) is IMHO exactly about this.
-> >=20
-> >>   - DMA API is giving us addresses that are actually also physical
-> >>     addresses
-> >=20
-> > In case of s390 this is given. I talked with the power people before
-> > posting this, and they ensured me they can are willing to deal with
-> > this. I was hoping to talk abut this with the AMD SEV people here (hence
-> > the cc).
+On Fri, Feb 21, 2020 at 03:56:02PM +0100, Halil Pasic wrote:
+> On Fri, 21 Feb 2020 14:22:26 +0800
+> Jason Wang <jasowang@redhat.com> wrote:
 >=20
-> Yes, physical addresses are fine for SEV - the key is that the DMA API is
-> used so that an address for unencrypted, or shared, memory is returned.
-> E.g. for a dma_alloc_coherent() call this is an allocation that has had
-> set_memory_decrypted() called or for a dma_map_page() call this is an
-> address from SWIOTLB, which was mapped shared during boot, where the data
-> will be bounce-buffered.
+> >=20
+> > On 2020/2/21 =E4=B8=8A=E5=8D=8812:06, Halil Pasic wrote:
+> > > Currently if one intends to run a memory protection enabled VM with
+> > > virtio devices and linux as the guest OS, one needs to specify the
+> > > VIRTIO_F_IOMMU_PLATFORM flag for each virtio device to make the guest
+> > > linux use the DMA API, which in turn handles the memory
+> > > encryption/protection stuff if the guest decides to turn itself into
+> > > a protected one. This however makes no sense due to multiple reasons:
+> > > * The device is not changed by the fact that the guest RAM is
+> > > protected. The so called IOMMU bypass quirk is not affected.
+> > > * This usage is not congruent with  standardised semantics of
+> > > VIRTIO_F_IOMMU_PLATFORM. Guest memory protected is an orthogonal reas=
+on
+> > > for using DMA API in virtio (orthogonal with respect to what is
+> > > expressed by VIRTIO_F_IOMMU_PLATFORM).
+> > >
+> > > This series aims to decouple 'have to use DMA API because my (guest) =
+RAM
+> > > is protected' and 'have to use DMA API because the device told me
+> > > VIRTIO_F_IOMMU_PLATFORM'.
+> > >
+> > > Please find more detailed explanations about the conceptual aspects in
+> > > the individual patches. There is however also a very practical problem
+> > > that is addressed by this series.
+> > >
+> > > For vhost-net the feature VIRTIO_F_IOMMU_PLATFORM has the following s=
+ide
+> > > effect The vhost code assumes it the addresses on the virtio descript=
+or
+> > > ring are not guest physical addresses but iova's, and insists on doin=
+g a
+> > > translation of these regardless of what transport is used (e.g. wheth=
+er
+> > > we emulate a PCI or a CCW device). (For details see commit 6b1e6cc785=
+5b
+> > > "vhost: new device IOTLB API".) On s390 this results in severe
+> > > performance degradation (c.a. factor 10).
+> >=20
+> >=20
+> > Do you see a consistent degradation on the performance, or it only=20
+> > happen when for during the beginning of the test?
+> >=20
 >=20
-> We don't currently support an emulated IOMMU in our SEV guest because that
-> would require a lot of support in the driver to make IOMMU data available
-> to the hypervisor (I/O page tables, etc.). We would need hardware support
-> to really make this work easily in the guest.
+> AFAIK the degradation is consistent.
+>=20
+> >=20
+> > > BTW with ccw I/O there is
+> > > (architecturally) no IOMMU, so the whole address translation makes no
+> > > sense in the context of virtio-ccw.
+> >=20
+> >=20
+> > I suspect we can do optimization in qemu side.
+> >=20
+> > E.g send memtable entry via IOTLB API when vIOMMU is not enabled.
+> >=20
+> > If this makes sense, I can draft patch to see if there's any difference.
+>=20
+> Frankly I would prefer to avoid IOVAs on the descriptor ring (and the
+> then necessary translation) for virtio-ccw altogether. But Michael
+> voiced his opinion that we should mandate F_IOMMU_PLATFORM for devices
+> that could be used with guests running in protected mode. I don't share
+> his opinion, but that's an ongoing discussion.
 
-A tangent here: note that on POWER our IOMMU is paravirtualized
-(updated with hypercalls), it's also always enabled.  For that reason
-we can and do combine vIOMMU translation with the need for bounce
-buffering for secure guests.
+I'm a bit confused by this.  For the ccw specific case,
+F_ACCESS_PLATFORM shouldn't have any impact: for you, IOVA =3D=3D GPA so
+everything is easy.
 
-(We generally statically configure the vIOMMU to have a huge window
-which just maps GPAs 1-to-1, which means we can still use dma-direct,
-but the vIOMMU is still there from the platform point of view)
+> Should we end up having to do translation from IOVA in vhost, we are
+> very interested in that translation being fast and efficient.
+>=20
+> In that sense we would be very happy to test any optimization that aim
+> into that direction.
+>=20
+> Thank you very much for your input!
+>=20
+> Regards,
+> Halil
+>=20
+> >=20
+> > Thanks
+> >=20
+> >=20
+> > >
+> > > Halil Pasic (2):
+> > >    mm: move force_dma_unencrypted() to mem_encrypt.h
+> > >    virtio: let virtio use DMA API when guest RAM is protected
+> > >
+> > >   drivers/virtio/virtio_ring.c |  3 +++
+> > >   include/linux/dma-direct.h   |  9 ---------
+> > >   include/linux/mem_encrypt.h  | 10 ++++++++++
+> > >   3 files changed, 13 insertions(+), 9 deletions(-)
+> > >
+> > >
+> > > base-commit: ca7e1fd1026c5af6a533b4b5447e1d2f153e28f2
+> >=20
+>=20
 
 --=20
 David Gibson			| I'll have my music baroque, and my code
@@ -136,24 +130,24 @@ david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
 				| _way_ _around_!
 http://www.ozlabs.org/~dgibson
 
---huBJOJF9BsF479P6
+--48TaNjbzBVislYPb
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAEBCAAdFiEEdfRlhq5hpmzETofcbDjKyiDZs5IFAl5Tb+cACgkQbDjKyiDZ
-s5JuYA/+PfSvSTQHH+JQEj0OF/7dpLptTGSV1vu254FmtjttOv1Jp6vV1qNrERui
-WrRDf1Hu/dKxuJty9TNapcUvBHFWP5NtSSRXXYsTRm+A629Ykjtom+0/2TjOzKbF
-oX7NvwxIc33a0Y64z3cstNSKcj8eTrRZC1SvIwezFXL1uldfKOq+WH42U/cImXy7
-Br6oWhkuV5EHDcshTAQ2FLz6zxhzp0hPuL2+PrYETrqHJq2Vx08goX4ZgwH6iL40
-NDTT6JNniVQE3rZ8NimqdXJETTXVuqTKPVinVod77U6V/QSEKf1YYL9upvc6oYSU
-LZKsXAlQVgdSepYV/3PMafrZ6OhX0ZorfqzfDn/p0FkHYAKmSNgBG3mzI8JbIrE/
-kPCF6Jo8vbs0SX24V4N/cTFxAodz+YQaMGtf+IZQ1LB56XhQBv2GES82btCMM8Re
-1e6T6AXQuXUb0db5JsYzh9Iopa8cqABVVNqYKoCcDKll1bkCDW2OA0jK3qtz9wH6
-mNNLn8ZLZDX0OjwINwQK2brVa6p5UTrk0l+Tgg94EbpISG5R4pb1e9rGK8UUrVcg
-G4AqmwA8NkFmCJPEbeWxYwE2Rg73yJx1C3okR5KTC/odF/7Pw6KParzV1Wn3lMdz
-WLYS9wIe5ZmNIjpbAPS1dEM1cjyza4Qyuu3xyvKcoKuT/uxPl5c=
-=VdBp
+iQIzBAEBCAAdFiEEdfRlhq5hpmzETofcbDjKyiDZs5IFAl5TRUwACgkQbDjKyiDZ
+s5KHhRAAzvCq4VbEVWbiYmB1ioNQU2Zls3KoMhs0PgZRddR+1P85yLT3xnHrw/LQ
+g2UfyDDlqIqQgVjwHuHBTwoRWvNFm7Q72IUkh/Crwex4MlbvdSA0MIovpx9J3SSq
+tjQ/No5y2xz2zsksr3T7KRh+w7EM62KyxJU1vnZj1NvlZQmHGG4tMtEpsv+rwa9R
+13j0VvV9SqLMCPS7zMFge/kvOg59UqwGpFXIaILBx9TGPHAjjLNt2GZCAPAsOxmO
+TIqzQwP2pooqNrLVnTvaXP3R4HUi/3V86Cys7oKnStuG95psLjB+2S8wxpfOTXS2
+3pPHCTweu2xyQNReRbrjQq0aovnDdioNVFn6auGF0ilCd3xFrd0fYWG0vvW0d8f/
+hlyZfoJCTCvKs60OcC7x45FKfpcU4+R8oHxdVJG/DPI6Uxbk9C5T0G/maOMxKLDO
+40hJGP2SVIFtdmb8lNhlA4saVYjsR0OqH+Y+fLYi6dsl1S7FFNAhMEOOJrvhfE1O
+cSSWeq2NsyY0mtTFeAtXv25yZ4t8Ed9oNnVvTXyNKkp8VKmVGz2qmH+sx1wHi4m8
+UANxHkrr0V1IzMdE4Bz7TKeOVNdTQQN+0AQlwL6R+XZTpwgPAUXQbV5bLvwX+CEp
+SqpVVhl9CnKeqyppaXy08CiYwdQIaze77BSX0VHTyIJq4WzI8YY=
+=FeJg
 -----END PGP SIGNATURE-----
 
---huBJOJF9BsF479P6--
+--48TaNjbzBVislYPb--
