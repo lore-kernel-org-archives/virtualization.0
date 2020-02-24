@@ -1,328 +1,272 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 0/2] virtio: decouple protected guest RAM form
- VIRTIO_F_IOMMU_PLATFORM
-Date: Mon, 24 Feb 2020 17:26:20 +0800
-Message-ID: <08d6bdfb-9b49-c278-3c0b-2e02376cf0cf@redhat.com>
-References: <20200220160606.53156-1-pasic@linux.ibm.com>
- <426e6972-0565-c931-e171-da0f58fbf856@redhat.com>
- <20200221155602.4de41fa7.pasic@linux.ibm.com>
- <0181712c-e533-fcfd-2638-8a0649d713dd@redhat.com>
- <20200224010607-mutt-send-email-mst@kernel.org>
- <b3c52c67-c740-a50e-2595-fe04d179c881@redhat.com>
- <20200224024641-mutt-send-email-mst@kernel.org>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: INFO: task hung in lock_sock_nested (2)
+Date: Mon, 24 Feb 2020 11:08:53 +0100
+Message-ID: <20200224100853.wd67e7rqmtidfg7y@steredhat>
+References: <0000000000004241ff059f2eb8a4@google.com>
+ <20200223075025.9068-1-hdanton@sina.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed;
- boundary="------------BDFD2BED5C3364D3CE35012F"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200224024641-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, David Gibson <david@gibson.dropbear.id.au>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200223075025.9068-1-hdanton@sina.com>
+Sender: kvm-owner@vger.kernel.org
+To: Hillf Danton <hdanton@sina.com>, Dexuan Cui <decui@microsoft.com>, Jorgen Hansen <jhansen@vmware.com>, Stefan Hajnoczi <stefanha@redhat.com>
+Cc: syzbot <syzbot+731710996d79d0d58fbc@syzkaller.appspotmail.com>, davem@davemloft.net, kuba@kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format.
---------------BDFD2BED5C3364D3CE35012F
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
+On Sun, Feb 23, 2020 at 03:50:25PM +0800, Hillf Danton wrote:
+> On Sat, 22 Feb 2020 10:58:12 -0800
+> > syzbot found the following crash on:
+> > 
+> > HEAD commit:    2bb07f4e tc-testing: updated tdc tests for basic filter
+> > git tree:       net-next
+> > console output: https://syzkaller.appspot.com/x/log.txt?x=122efdede00000
+> > kernel config:  https://syzkaller.appspot.com/x/.config?x=768cc3d3e277cc16
+> > dashboard link: https://syzkaller.appspot.com/bug?extid=731710996d79d0d58fbc
+> > compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+> > syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=14887de9e00000
+> > C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=149eec81e00000
+> > 
+> > The bug was bisected to:
+> > 
+> > commit 408624af4c89989117bb2c6517bd50b7708a2fcd
+> > Author: Stefano Garzarella <sgarzare@redhat.com>
+> > Date:   Tue Dec 10 10:43:06 2019 +0000
+> > 
+> >     vsock: use local transport when it is loaded
+> > 
+> > bisection log:  https://syzkaller.appspot.com/x/bisect.txt?x=1011e27ee00000
+> > final crash:    https://syzkaller.appspot.com/x/report.txt?x=1211e27ee00000
+> > console output: https://syzkaller.appspot.com/x/log.txt?x=1411e27ee00000
+> > 
+> > IMPORTANT: if you fix the bug, please add the following tag to the commit:
+> > Reported-by: syzbot+731710996d79d0d58fbc@syzkaller.appspotmail.com
+> > Fixes: 408624af4c89 ("vsock: use local transport when it is loaded")
+> > 
+> > INFO: task syz-executor280:9768 blocked for more than 143 seconds.
+> >       Not tainted 5.6.0-rc1-syzkaller #0
+> > "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+> > syz-executor280 D27912  9768   9766 0x00000000
+> > Call Trace:
+> >  context_switch kernel/sched/core.c:3386 [inline]
+> >  __schedule+0x934/0x1f90 kernel/sched/core.c:4082
+> >  schedule+0xdc/0x2b0 kernel/sched/core.c:4156
+> >  __lock_sock+0x165/0x290 net/core/sock.c:2413
+> >  lock_sock_nested+0xfe/0x120 net/core/sock.c:2938
+> >  virtio_transport_release+0xc4/0xd60 net/vmw_vsock/virtio_transport_common.c:832
+> >  vsock_assign_transport+0xf3/0x3b0 net/vmw_vsock/af_vsock.c:454
+> >  vsock_stream_connect+0x2b3/0xc70 net/vmw_vsock/af_vsock.c:1288
+> >  __sys_connect_file+0x161/0x1c0 net/socket.c:1857
+> >  __sys_connect+0x174/0x1b0 net/socket.c:1874
+> >  __do_sys_connect net/socket.c:1885 [inline]
+> >  __se_sys_connect net/socket.c:1882 [inline]
+> >  __x64_sys_connect+0x73/0xb0 net/socket.c:1882
+> >  do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
+> >  entry_SYSCALL_64_after_hwframe+0x49/0xbe
+> > RIP: 0033:0x440209
+> > Code: Bad RIP value.
+> > RSP: 002b:00007ffdb9f67718 EFLAGS: 00000246 ORIG_RAX: 000000000000002a
+> > RAX: ffffffffffffffda RBX: 00000000004002c8 RCX: 0000000000440209
+> > RDX: 0000000000000010 RSI: 0000000020000440 RDI: 0000000000000003
+> > RBP: 00000000006ca018 R08: 00000000004002c8 R09: 00000000004002c8
+> > R10: 00000000004002c8 R11: 0000000000000246 R12: 0000000000401a90
+> > R13: 0000000000401b20 R14: 0000000000000000 R15: 0000000000000000
+> > 
+> > Showing all locks held in the system:
+> > 1 lock held by khungtaskd/951:
+> >  #0: ffffffff89bac240 (rcu_read_lock){....}, at: debug_show_all_locks+0x5f/0x279 kernel/locking/lockdep.c:5333
+> > 1 lock held by rsyslogd/9652:
+> >  #0: ffff8880a6533120 (&f->f_pos_lock){+.+.}, at: __fdget_pos+0xee/0x110 fs/file.c:821
+> > 2 locks held by getty/9742:
+> >  #0: ffff8880a693f090 (&tty->ldisc_sem){++++}, at: ldsem_down_read+0x33/0x40 drivers/tty/tty_ldsem.c:340
+> >  #1: ffffc900061bb2e0 (&ldata->atomic_read_lock){+.+.}, at: n_tty_read+0x220/0x1bf0 drivers/tty/n_tty.c:2156
+> > 2 locks held by getty/9743:
+> >  #0: ffff88809f7a1090 (&tty->ldisc_sem){++++}, at: ldsem_down_read+0x33/0x40 drivers/tty/tty_ldsem.c:340
+> >  #1: ffffc900061b72e0 (&ldata->atomic_read_lock){+.+.}, at: n_tty_read+0x220/0x1bf0 drivers/tty/n_tty.c:2156
+> > 2 locks held by getty/9744:
+> >  #0: ffff88809be3e090 (&tty->ldisc_sem){++++}, at: ldsem_down_read+0x33/0x40 drivers/tty/tty_ldsem.c:340
+> >  #1: ffffc900061632e0 (&ldata->atomic_read_lock){+.+.}, at: n_tty_read+0x220/0x1bf0 drivers/tty/n_tty.c:2156
+> > 2 locks held by getty/9745:
+> >  #0: ffff88808eb1e090 (&tty->ldisc_sem){++++}, at: ldsem_down_read+0x33/0x40 drivers/tty/tty_ldsem.c:340
+> >  #1: ffffc900061bf2e0 (&ldata->atomic_read_lock){+.+.}, at: n_tty_read+0x220/0x1bf0 drivers/tty/n_tty.c:2156
+> > 2 locks held by getty/9746:
+> >  #0: ffff88808d33a090 (&tty->ldisc_sem){++++}, at: ldsem_down_read+0x33/0x40 drivers/tty/tty_ldsem.c:340
+> >  #1: ffffc900061732e0 (&ldata->atomic_read_lock){+.+.}, at: n_tty_read+0x220/0x1bf0 drivers/tty/n_tty.c:2156
+> > 2 locks held by getty/9747:
+> >  #0: ffff8880a6a0c090 (&tty->ldisc_sem){++++}, at: ldsem_down_read+0x33/0x40 drivers/tty/tty_ldsem.c:340
+> >  #1: ffffc900061c32e0 (&ldata->atomic_read_lock){+.+.}, at: n_tty_read+0x220/0x1bf0 drivers/tty/n_tty.c:2156
+> > 2 locks held by getty/9748:
+> >  #0: ffff8880a6e4d090 (&tty->ldisc_sem){++++}, at: ldsem_down_read+0x33/0x40 drivers/tty/tty_ldsem.c:340
+> >  #1: ffffc900061332e0 (&ldata->atomic_read_lock){+.+.}, at: n_tty_read+0x220/0x1bf0 drivers/tty/n_tty.c:2156
+> > 1 lock held by syz-executor280/9768:
+> >  #0: ffff8880987cb8d0 (sk_lock-AF_VSOCK){+.+.}, at: lock_sock include/net/sock.h:1516 [inline]
+> >  #0: ffff8880987cb8d0 (sk_lock-AF_VSOCK){+.+.}, at: vsock_stream_connect+0xfb/0xc70 net/vmw_vsock/af_vsock.c:1258
+> > 
+> > =============================================
+> > 
+> > NMI backtrace for cpu 1
+> > CPU: 1 PID: 951 Comm: khungtaskd Not tainted 5.6.0-rc1-syzkaller #0
+> > Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+> > Call Trace:
+> >  __dump_stack lib/dump_stack.c:77 [inline]
+> >  dump_stack+0x197/0x210 lib/dump_stack.c:118
+> >  nmi_cpu_backtrace.cold+0x70/0xb2 lib/nmi_backtrace.c:101
+> >  nmi_trigger_cpumask_backtrace+0x23b/0x28b lib/nmi_backtrace.c:62
+> >  arch_trigger_cpumask_backtrace+0x14/0x20 arch/x86/kernel/apic/hw_nmi.c:38
+> >  trigger_all_cpu_backtrace include/linux/nmi.h:146 [inline]
+> >  check_hung_uninterruptible_tasks kernel/hung_task.c:205 [inline]
+> >  watchdog+0xb11/0x10c0 kernel/hung_task.c:289
+> >  kthread+0x361/0x430 kernel/kthread.c:255
+> >  ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:352
+> > Sending NMI from CPU 1 to CPUs 0:
+> > NMI backtrace for cpu 0
+> > CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.6.0-rc1-syzkaller #0
+> > Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+> > RIP: 0010:group_is_overloaded kernel/sched/fair.c:7929 [inline]
+> > RIP: 0010:group_classify kernel/sched/fair.c:7964 [inline]
+> > RIP: 0010:update_sg_lb_stats kernel/sched/fair.c:8077 [inline]
+> > RIP: 0010:update_sd_lb_stats kernel/sched/fair.c:8565 [inline]
+> > RIP: 0010:find_busiest_group+0xa33/0x3250 kernel/sched/fair.c:8793
+> > Code: 89 f8 83 e0 07 83 c0 03 40 38 f0 7c 09 40 84 f6 0f 85 f7 1f 00 00 48 8b b5 c0 fd ff ff 41 8b 41 2c 48 c1 ee 03 42 0f b6 34 26 <40> 84 f6 74 0a 40 80 fe 03 0f 8e 8f 1f 00 00 44 8b 6b 20 44 39 ea
+> > RSP: 0018:ffffc90000007850 EFLAGS: 00000a06
+> > RAX: 000000000000006e RBX: ffffc90000007938 RCX: 00000000000003fa
+> > RDX: 0000000000000001 RSI: 0000000000000000 RDI: ffff8880a9a8282c
+> > RBP: ffffc90000007af0 R08: ffffffff89a7a440 R09: ffff8880a9a82800
+> > R10: 0000000000000000 R11: ffff8880a9a83f27 R12: dffffc0000000000
+> > R13: ffff8880a9a83e80 R14: ffffc90000007ac8 R15: ffffc90000007c08
+> > FS:  0000000000000000(0000) GS:ffff8880ae800000(0000) knlGS:0000000000000000
+> > CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> > CR2: ffffffffff600400 CR3: 000000009fde0000 CR4: 00000000001406f0
+> > DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+> > DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+> > Call Trace:
+> >  <IRQ>
+> >  load_balance+0x38c/0x2b50 kernel/sched/fair.c:9161
+> >  rebalance_domains+0x739/0x1000 kernel/sched/fair.c:9588
+> >  _nohz_idle_balance+0x336/0x3f0 kernel/sched/fair.c:10002
+> >  nohz_idle_balance kernel/sched/fair.c:10048 [inline]
+> >  run_rebalance_domains+0x1c6/0x2d0 kernel/sched/fair.c:10237
+> >  __do_softirq+0x262/0x98c kernel/softirq.c:292
+> >  invoke_softirq kernel/softirq.c:373 [inline]
+> >  irq_exit+0x19b/0x1e0 kernel/softirq.c:413
+> >  scheduler_ipi+0x38c/0x610 kernel/sched/core.c:2349
+> >  smp_reschedule_interrupt+0x78/0x4c0 arch/x86/kernel/smp.c:244
+> >  reschedule_interrupt+0xf/0x20 arch/x86/entry/entry_64.S:853
+> >  </IRQ>
+> > RIP: 0010:native_safe_halt+0xe/0x10 arch/x86/include/asm/irqflags.h:61
+> > Code: 58 f5 c3 f9 eb 8a cc cc cc cc cc cc e9 07 00 00 00 0f 00 2d 74 40 58 00 f4 c3 66 90 e9 07 00 00 00 0f 00 2d 64 40 58 00 fb f4 <c3> cc 55 48 89 e5 41 57 41 56 41 55 41 54 53 e8 ce ac 72 f9 e8 e9
+> > RSP: 0018:ffffffff89a07ce8 EFLAGS: 00000286 ORIG_RAX: ffffffffffffff02
+> > RAX: 1ffffffff136761a RBX: ffffffff89a7a440 RCX: 0000000000000000
+> > RDX: dffffc0000000000 RSI: 0000000000000006 RDI: ffffffff89a7acd4
+> > RBP: ffffffff89a07d18 R08: ffffffff89a7a440 R09: 0000000000000000
+> > R10: 0000000000000000 R11: 0000000000000000 R12: dffffc0000000000
+> > R13: ffffffff8aa5ab80 R14: 0000000000000000 R15: 0000000000000000
+> >  arch_cpu_idle+0xa/0x10 arch/x86/kernel/process.c:686
+> >  default_idle_call+0x84/0xb0 kernel/sched/idle.c:94
+> >  cpuidle_idle_call kernel/sched/idle.c:154 [inline]
+> >  do_idle+0x3c8/0x6e0 kernel/sched/idle.c:269
+> >  cpu_startup_entry+0x1b/0x20 kernel/sched/idle.c:361
+> >  rest_init+0x23b/0x371 init/main.c:654
+> >  arch_call_rest_init+0xe/0x1b
+> >  start_kernel+0x886/0x8c5 init/main.c:992
+> >  x86_64_start_reservations+0x29/0x2b arch/x86/kernel/head64.c:490
+> >  x86_64_start_kernel+0x77/0x7b arch/x86/kernel/head64.c:471
+> >  secondary_startup_64+0xa4/0xb0 arch/x86/kernel/head_64.S:242
+> > 
+> > 
+> > ---
+> > This bug is generated by a bot. It may contain errors.
+> > See https://goo.gl/tpsmEJ for more information about syzbot.
+> > syzbot engineers can be reached at syzkaller@googlegroups.com.
+> > 
+> > syzbot will keep track of this bug report. See:
+> > https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+> > For information about bisection process see: https://goo.gl/tpsmEJ#bisection
+> > syzbot can test patches for this bug, for details see:
+> > https://goo.gl/tpsmEJ#testing-patches
+> 
+> 
+> Seems like vsock needs a word to track lock owner in an attempt to
+> avoid trying to lock sock while the current is the lock owner.
+
+Thanks for this possible solution.
+What about using sock_owned_by_user()?
+
+We should fix also hyperv_transport, because it could suffer from the same
+problem.
+
+At this point, it might be better to call vsk->transport->release(vsk)
+always with the lock taken and remove it in the transports as in the
+following patch.
+
+What do you think?
 
 
-On 2020/2/24 =E4=B8=8B=E5=8D=883:48, Michael S. Tsirkin wrote:
-> On Mon, Feb 24, 2020 at 02:45:03PM +0800, Jason Wang wrote:
->> On 2020/2/24 =E4=B8=8B=E5=8D=882:06, Michael S. Tsirkin wrote:
->>> On Mon, Feb 24, 2020 at 12:01:57PM +0800, Jason Wang wrote:
->>>> On 2020/2/21 =E4=B8=8B=E5=8D=8810:56, Halil Pasic wrote:
->>>>> On Fri, 21 Feb 2020 14:22:26 +0800
->>>>> Jason Wang <jasowang@redhat.com> wrote:
->>>>>
->>>>>> On 2020/2/21 =E4=B8=8A=E5=8D=8812:06, Halil Pasic wrote:
->>>>>>> Currently if one intends to run a memory protection enabled VM wi=
-th
->>>>>>> virtio devices and linux as the guest OS, one needs to specify th=
-e
->>>>>>> VIRTIO_F_IOMMU_PLATFORM flag for each virtio device to make the g=
-uest
->>>>>>> linux use the DMA API, which in turn handles the memory
->>>>>>> encryption/protection stuff if the guest decides to turn itself i=
-nto
->>>>>>> a protected one. This however makes no sense due to multiple reas=
-ons:
->>>>>>> * The device is not changed by the fact that the guest RAM is
->>>>>>> protected. The so called IOMMU bypass quirk is not affected.
->>>>>>> * This usage is not congruent with  standardised semantics of
->>>>>>> VIRTIO_F_IOMMU_PLATFORM. Guest memory protected is an orthogonal =
-reason
->>>>>>> for using DMA API in virtio (orthogonal with respect to what is
->>>>>>> expressed by VIRTIO_F_IOMMU_PLATFORM).
->>>>>>>
->>>>>>> This series aims to decouple 'have to use DMA API because my (gue=
-st) RAM
->>>>>>> is protected' and 'have to use DMA API because the device told me
->>>>>>> VIRTIO_F_IOMMU_PLATFORM'.
->>>>>>>
->>>>>>> Please find more detailed explanations about the conceptual aspec=
-ts in
->>>>>>> the individual patches. There is however also a very practical pr=
-oblem
->>>>>>> that is addressed by this series.
->>>>>>>
->>>>>>> For vhost-net the feature VIRTIO_F_IOMMU_PLATFORM has the followi=
-ng side
->>>>>>> effect The vhost code assumes it the addresses on the virtio desc=
-riptor
->>>>>>> ring are not guest physical addresses but iova's, and insists on =
-doing a
->>>>>>> translation of these regardless of what transport is used (e.g. w=
-hether
->>>>>>> we emulate a PCI or a CCW device). (For details see commit 6b1e6c=
-c7855b
->>>>>>> "vhost: new device IOTLB API".) On s390 this results in severe
->>>>>>> performance degradation (c.a. factor 10).
->>>>>> Do you see a consistent degradation on the performance, or it only
->>>>>> happen when for during the beginning of the test?
->>>>>>
->>>>> AFAIK the degradation is consistent.
->>>>>
->>>>>>> BTW with ccw I/O there is
->>>>>>> (architecturally) no IOMMU, so the whole address translation make=
-s no
->>>>>>> sense in the context of virtio-ccw.
->>>>>> I suspect we can do optimization in qemu side.
->>>>>>
->>>>>> E.g send memtable entry via IOTLB API when vIOMMU is not enabled.
->>>>>>
->>>>>> If this makes sense, I can draft patch to see if there's any diffe=
-rence.
->>>>> Frankly I would prefer to avoid IOVAs on the descriptor ring (and t=
-he
->>>>> then necessary translation) for virtio-ccw altogether. But Michael
->>>>> voiced his opinion that we should mandate F_IOMMU_PLATFORM for devi=
-ces
->>>>> that could be used with guests running in protected mode. I don't s=
-hare
->>>>> his opinion, but that's an ongoing discussion.
->>>>>
->>>>> Should we end up having to do translation from IOVA in vhost, we ar=
-e
->>>>> very interested in that translation being fast and efficient.
->>>>>
->>>>> In that sense we would be very happy to test any optimization that =
-aim
->>>>> into that direction.
->>>>>
->>>>> Thank you very much for your input!
->>>> Using IOTLB API on platform without IOMMU support is not intended. P=
-lease
->>>> try the attached patch to see if it helps.
->>>>
->>>> Thanks
->>>>
->>>>
->>>>> Regards,
->>>>> Halil
->>>>>
->>>>>> Thanks
->>>>>>
->>>>>>
->>>>>>> Halil Pasic (2):
->>>>>>>       mm: move force_dma_unencrypted() to mem_encrypt.h
->>>>>>>       virtio: let virtio use DMA API when guest RAM is protected
->>>>>>>
->>>>>>>      drivers/virtio/virtio_ring.c |  3 +++
->>>>>>>      include/linux/dma-direct.h   |  9 ---------
->>>>>>>      include/linux/mem_encrypt.h  | 10 ++++++++++
->>>>>>>      3 files changed, 13 insertions(+), 9 deletions(-)
->>>>>>>
->>>>>>>
->>>>>>> base-commit: ca7e1fd1026c5af6a533b4b5447e1d2f153e28f2
->>>> >From 66fa730460875ac99e81d7db2334cd16bb1d2b27 Mon Sep 17 00:00:00 2=
-001
->>>> From: Jason Wang <jasowang@redhat.com>
->>>> Date: Mon, 24 Feb 2020 12:00:10 +0800
->>>> Subject: [PATCH] virtio: turn on IOMMU_PLATFORM properly
->>>>
->>>> When transport does not support IOMMU, we should clear IOMMU_PLATFOR=
-M
->>>> even if the device and vhost claims to support that. This help to
->>>> avoid the performance overhead caused by unnecessary IOTLB miss/upda=
-te
->>>> transactions on such platform.
->>>>
->>>> Signed-off-by: Jason Wang <jasowang@redhat.com>
->>>> ---
->>>>    hw/virtio/virtio-bus.c | 6 +++---
->>>>    1 file changed, 3 insertions(+), 3 deletions(-)
->>>>
->>>> diff --git a/hw/virtio/virtio-bus.c b/hw/virtio/virtio-bus.c
->>>> index d6332d45c3..2741b9fdd2 100644
->>>> --- a/hw/virtio/virtio-bus.c
->>>> +++ b/hw/virtio/virtio-bus.c
->>>> @@ -47,7 +47,6 @@ void virtio_bus_device_plugged(VirtIODevice *vdev,=
- Error **errp)
->>>>        VirtioBusState *bus =3D VIRTIO_BUS(qbus);
->>>>        VirtioBusClass *klass =3D VIRTIO_BUS_GET_CLASS(bus);
->>>>        VirtioDeviceClass *vdc =3D VIRTIO_DEVICE_GET_CLASS(vdev);
->>>> -    bool has_iommu =3D virtio_host_has_feature(vdev, VIRTIO_F_IOMMU=
-_PLATFORM);
->>>>        Error *local_err =3D NULL;
->>>>        DPRINTF("%s: plug device.\n", qbus->name);
->>>> @@ -77,10 +76,11 @@ void virtio_bus_device_plugged(VirtIODevice *vde=
-v, Error **errp)
->>>>            return;
->>>>        }
->>>> -    if (klass->get_dma_as !=3D NULL && has_iommu) {
->>>> -        virtio_add_feature(&vdev->host_features, VIRTIO_F_IOMMU_PLA=
-TFORM);
->>>> +    if (false && klass->get_dma_as !=3D NULL &&
->>>> +        virtio_host_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM)) {
->>>>            vdev->dma_as =3D klass->get_dma_as(qbus->parent);
->>>>        } else {
->>>> +        virtio_clear_feature(&vdev->host_features, VIRTIO_F_IOMMU_P=
-LATFORM);
->>>>            vdev->dma_as =3D &address_space_memory;
->>>>        }
->>>>    }
->>> This seems to clear it unconditionally. I guess it's just a debugging
->>> patch, the real one will come later?
->>
->> My bad, here's the correct one.
->>
->> Thanks
->>
->>
->>>> --=20
->>>> 2.19.1
->>>>
->> >From b8a8b582f46bb86c7a745b272db7b744779e5cc7 Mon Sep 17 00:00:00 200=
-1
->> From: Jason Wang <jasowang@redhat.com>
->> Date: Mon, 24 Feb 2020 12:00:10 +0800
->> Subject: [PATCH] virtio: turn on IOMMU_PLATFORM properly
->>
->> When transport does not support IOMMU, we should clear IOMMU_PLATFORM
->> even if the device and vhost claims to support that. This help to
->> avoid the performance overhead caused by unnecessary IOTLB miss/update
->> transactions on such platform.
->>
->> Signed-off-by: Jason Wang <jasowang@redhat.com>
->> ---
->>   hw/virtio/virtio-bus.c | 6 +++---
->>   1 file changed, 3 insertions(+), 3 deletions(-)
->>
->> diff --git a/hw/virtio/virtio-bus.c b/hw/virtio/virtio-bus.c
->> index d6332d45c3..4be64e193e 100644
->> --- a/hw/virtio/virtio-bus.c
->> +++ b/hw/virtio/virtio-bus.c
->> @@ -47,7 +47,6 @@ void virtio_bus_device_plugged(VirtIODevice *vdev, E=
-rror **errp)
->>       VirtioBusState *bus =3D VIRTIO_BUS(qbus);
->>       VirtioBusClass *klass =3D VIRTIO_BUS_GET_CLASS(bus);
->>       VirtioDeviceClass *vdc =3D VIRTIO_DEVICE_GET_CLASS(vdev);
->> -    bool has_iommu =3D virtio_host_has_feature(vdev, VIRTIO_F_IOMMU_P=
-LATFORM);
->>       Error *local_err =3D NULL;
->>  =20
->>       DPRINTF("%s: plug device.\n", qbus->name);
->> @@ -77,10 +76,11 @@ void virtio_bus_device_plugged(VirtIODevice *vdev,=
- Error **errp)
->>           return;
->>       }
->>  =20
->> -    if (klass->get_dma_as !=3D NULL && has_iommu) {
->> -        virtio_add_feature(&vdev->host_features, VIRTIO_F_IOMMU_PLATF=
-ORM);
-> So it looks like this line is unnecessary, but it's an unrelated
-> cleanup, right?
-
-
-Yes.
-
-
->
->> +    if (klass->get_dma_as !=3D NULL &&
->> +        virtio_host_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM)) {
->>           vdev->dma_as =3D klass->get_dma_as(qbus->parent);
->>       } else {
->> +        virtio_clear_feature(&vdev->host_features, VIRTIO_F_IOMMU_PLA=
-TFORM);
->
-> Of course any change like that will have to affect migration compat, et=
-c.
-> Can't we clear the bit when we are sending the features to vhost
-> instead?
-
-
-That's better.
-
-How about attached?
-
-Thanks
-
-
->
->
->>           vdev->dma_as =3D &address_space_memory;
->>       }
->>   }
->> --=20
->> 2.19.1
->>
-
---------------BDFD2BED5C3364D3CE35012F
-Content-Type: text/x-patch;
- name="0001-vhost-do-not-set-VIRTIO_F_IOMMU_PLATFORM-when-IOMMU-.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename*0="0001-vhost-do-not-set-VIRTIO_F_IOMMU_PLATFORM-when-IOMMU-.pa";
- filename*1="tch"
-
-From 3177c5194c729f3056b84c67664c59b9b949bb76 Mon Sep 17 00:00:00 2001
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 24 Feb 2020 17:24:14 +0800
-Subject: [PATCH] vhost: do not set VIRTIO_F_IOMMU_PLATFORM when IOMMU is not
- used
-
-We enable device IOTLB unconditionally when VIRTIO_F_IOMMU_PLATFORM is
-negotiated. This lead unnecessary IOTLB miss/update transactions when
-IOMMU is used. This patch fixes this.
-
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- hw/net/virtio-net.c | 3 +++
- hw/virtio/vhost.c   | 4 +---
- 2 files changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
-index 3627bb1717..0d50e8bd34 100644
---- a/hw/net/virtio-net.c
-+++ b/hw/net/virtio-net.c
-@@ -879,6 +879,9 @@ static void virtio_net_set_features(VirtIODevice *vdev, uint64_t features)
-         virtio_net_apply_guest_offloads(n);
-     }
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 9c5b2a91baad..a073d8efca33 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -753,20 +753,18 @@ static void __vsock_release(struct sock *sk, int level)
+ 		vsk = vsock_sk(sk);
+ 		pending = NULL;	/* Compiler warning. */
  
-+    if (vdev->dma_as == &address_space_memory)
-+        features &= ~(1ULL << VIRTIO_F_IOMMU_PLATFORM);
-+
-     for (i = 0;  i < n->max_queues; i++) {
-         NetClientState *nc = qemu_get_subqueue(n->nic, i);
- 
-diff --git a/hw/virtio/vhost.c b/hw/virtio/vhost.c
-index 9edfadc81d..711b1136f6 100644
---- a/hw/virtio/vhost.c
-+++ b/hw/virtio/vhost.c
-@@ -288,9 +288,7 @@ static inline void vhost_dev_log_resize(struct vhost_dev *dev, uint64_t size)
- 
- static int vhost_dev_has_iommu(struct vhost_dev *dev)
- {
--    VirtIODevice *vdev = dev->vdev;
+-		/* The release call is supposed to use lock_sock_nested()
+-		 * rather than lock_sock(), if a sock lock should be acquired.
+-		 */
+-		if (vsk->transport)
+-			vsk->transport->release(vsk);
+-		else if (sk->sk_type == SOCK_STREAM)
+-			vsock_remove_sock(vsk);
 -
--    return virtio_host_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM);
-+    return virtio_has_feature(dev->acked_features, VIRTIO_F_IOMMU_PLATFORM);
- }
+ 		/* When "level" is SINGLE_DEPTH_NESTING, use the nested
+ 		 * version to avoid the warning "possible recursive locking
+ 		 * detected". When "level" is 0, lock_sock_nested(sk, level)
+ 		 * is the same as lock_sock(sk).
+ 		 */
+ 		lock_sock_nested(sk, level);
++
++		if (vsk->transport)
++			vsk->transport->release(vsk);
++		else if (sk->sk_type == SOCK_STREAM)
++			vsock_remove_sock(vsk);
++
+ 		sock_orphan(sk);
+ 		sk->sk_shutdown = SHUTDOWN_MASK;
  
- static void *vhost_memory_map(struct vhost_dev *dev, hwaddr addr,
--- 
-2.19.1
+diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
+index 3492c021925f..510f25f4a856 100644
+--- a/net/vmw_vsock/hyperv_transport.c
++++ b/net/vmw_vsock/hyperv_transport.c
+@@ -529,9 +529,7 @@ static void hvs_release(struct vsock_sock *vsk)
+ 	struct sock *sk = sk_vsock(vsk);
+ 	bool remove_sock;
+ 
+-	lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
+ 	remove_sock = hvs_close_lock_held(vsk);
+-	release_sock(sk);
+ 	if (remove_sock)
+ 		vsock_remove_sock(vsk);
+ }
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index d9f0c9c5425a..f3c4bab2f737 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -829,7 +829,6 @@ void virtio_transport_release(struct vsock_sock *vsk)
+ 	struct sock *sk = &vsk->sk;
+ 	bool remove_sock = true;
+ 
+-	lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
+ 	if (sk->sk_type == SOCK_STREAM)
+ 		remove_sock = virtio_transport_close(vsk);
+ 
+@@ -837,7 +836,6 @@ void virtio_transport_release(struct vsock_sock *vsk)
+ 		list_del(&pkt->list);
+ 		virtio_transport_free_pkt(pkt);
+ 	}
+-	release_sock(sk);
+ 
+ 	if (remove_sock)
+ 		vsock_remove_sock(vsk);
 
-
---------------BDFD2BED5C3364D3CE35012F--
+Thanks,
+Stefano
