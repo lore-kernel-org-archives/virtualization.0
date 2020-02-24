@@ -1,14 +1,14 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH v2 4/4] drm/qxl: Use simple encoder
-Date: Mon, 24 Feb 2020 09:09:34 +0100
-Message-ID: <20200224080934.we4tzcwes4pyd7xj@sirius.home.kraxel.org>
-References: <20200218084815.2137-1-tzimmermann@suse.de>
- <20200218084815.2137-5-tzimmermann@suse.de>
+Subject: Re: [PATCH 10/52] drm/cirrus: Use drmm_add_final_kfree
+Date: Mon, 24 Feb 2020 09:13:36 +0100
+Message-ID: <20200224081336.dhzkrwst4dyuyurq@sirius.home.kraxel.org>
+References: <20200219102122.1607365-1-daniel.vetter@ffwll.ch>
+ <20200219102122.1607365-11-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200218084815.2137-5-tzimmermann@suse.de>
+In-Reply-To: <20200219102122.1607365-11-daniel.vetter@ffwll.ch>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,17 +19,16 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: airlied@linux.ie, maarten.lankhorst@linux.intel.com, mripard@kernel.org, virtualization@lists.linux-foundation.org, noralf@tronnes.org, dri-devel@lists.freedesktop.org, daniel@ffwll.ch, alexander.deucher@amd.com, spice-devel@lists.freedesktop.org, sam@ravnborg.org, emil.velikov@collabora.com
+To: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Intel Graphics Development <intel-gfx@lists.freedesktop.org>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Noralf =?utf-8?Q?Tr=C3=B8nnes?= <noralf@tronnes.org>, Thomas Zimmermann <tzimmermann@suse.de>, Dave Airlie <airlied@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>, Sam Ravnborg <sam@ravnborg.org>, Linus Walleij <linus.walleij@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Feb 18, 2020 at 09:48:15AM +0100, Thomas Zimmermann wrote:
-> The qxl driver uses an empty implementation for its encoder. Replace
-> the code with the generic simple encoder.
+On Wed, Feb 19, 2020 at 11:20:40AM +0100, Daniel Vetter wrote:
+> With this we can drop the final kfree from the release function.
 > 
-> v2:
-> 	* rebase onto new simple-encoder interface
+> I also noticed that cirrus forgot to call drm_dev_fini().
 > 
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> v2: Don't call kfree(cirrus) after we've handed overship of that to
+> drm_device and the drmm_ stuff.
 
 Acked-by: Gerd Hoffmann <kraxel@redhat.com>
