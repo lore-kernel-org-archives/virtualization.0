@@ -1,57 +1,80 @@
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Subject: Re: [RESEND PATCH v2 9/9] ath5k: Constify ioreadX() iomem argument
- (as in generic implementation)
-Date: Mon, 24 Feb 2020 13:47:44 +0100
-Message-ID: <20200224124744.GA1949@pi3>
-References: <20200219175007.13627-1-krzk@kernel.org>
- <20200219175007.13627-10-krzk@kernel.org>
- <518a9023-f802-17b3-fca5-582400bc34ae@gmail.com>
+From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Subject: Re: [PATCH v2] virtio: Work around frames incorrectly marked as gso
+Date: Mon, 24 Feb 2020 12:51:05 +0000
+Message-ID: <ca0ca1b6-b453-cba0-adb0-42a9517743e9@cambridgegreys.com>
+References: <20200224101912.14074-1-anton.ivanov@cambridgegreys.com>
+ <20200224074516-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-alpha-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <518a9023-f802-17b3-fca5-582400bc34ae@gmail.com>
-Sender: linux-alpha-owner@vger.kernel.org
-To: Jiri Slaby <jirislaby@gmail.com>
-Cc: Richard Henderson <rth@twiddle.net>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Matt Turner <mattst88@gmail.com>, Alexey Brodkin <abrodkin@synopsys.com>, Vineet Gupta <vgupta@synopsys.com>, "James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, Helge Deller <deller@gmx.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Yoshinori Sato <ysato@users.sourceforge.jp>, Rich Felker <dalias@libc.org>, Dave Airlie <airlied@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Ben Skeggs <bskeggs@redhat.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, Nick Kossifidis <mickflemm@gmail.com>, Luis Chamberlain <mcgrof@kernel.org>, Kall
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20200224074516-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+Sender: netdev-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-um@lists.infradead.org, jasowang@redhat.com, eric.dumazet@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 20, 2020 at 10:48:33AM +0100, Jiri Slaby wrote:
-> On 19. 02. 20, 18:50, Krzysztof Kozlowski wrote:
-> > The ioreadX() helpers have inconsistent interface.  On some architectures
-> > void *__iomem address argument is a pointer to const, on some not.
-> > 
-> > Implementations of ioreadX() do not modify the memory under the address
-> > so they can be converted to a "const" version for const-safety and
-> > consistency among architectures.
-> > 
-> > Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-> > Acked-by: Kalle Valo <kvalo@codeaurora.org>
-> > ---
-> >  drivers/net/wireless/ath/ath5k/ahb.c | 10 +++++-----
-> >  1 file changed, 5 insertions(+), 5 deletions(-)
-> > 
-> > diff --git a/drivers/net/wireless/ath/ath5k/ahb.c b/drivers/net/wireless/ath/ath5k/ahb.c
-> > index 2c9cec8b53d9..8bd01df369fb 100644
-> > --- a/drivers/net/wireless/ath/ath5k/ahb.c
-> > +++ b/drivers/net/wireless/ath/ath5k/ahb.c
-> > @@ -138,18 +138,18 @@ static int ath_ahb_probe(struct platform_device *pdev)
-> >  
-> >  	if (bcfg->devid >= AR5K_SREV_AR2315_R6) {
-> >  		/* Enable WMAC AHB arbitration */
-> > -		reg = ioread32((void __iomem *) AR5K_AR2315_AHB_ARB_CTL);
-> > +		reg = ioread32((const void __iomem *) AR5K_AR2315_AHB_ARB_CTL);
+
+
+On 24/02/2020 12:46, Michael S. Tsirkin wrote:
+> On Mon, Feb 24, 2020 at 10:19:12AM +0000, anton.ivanov@cambridgegreys.com wrote:
+>> From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+>>
+>> Some of the locally generated frames marked as GSO which
+>> arrive at virtio_net_hdr_from_skb() have no GSO_TYPE, no
+>> fragments (data_len = 0) and length significantly shorter
+>> than the MTU (752 in my experiments).
+>>
+>> This is observed on raw sockets reading off vEth interfaces
+>> in all 4.x and 5.x kernels I tested.
 > 
-> While I understand why the parameter of ioread32 should be const, I
-> don't see a reason for these casts on the users' side. What does it
-> bring except longer code to read?
+> A bit more info on how to reproduce couldn't hurt here.
 
-Because the argument is an int:
+Will do, a v3 will follow shortly.
 
-drivers/net/wireless/ath/ath5k/ahb.c: In function ‘ath_ahb_probe’:
-drivers/net/wireless/ath/ath5k/ahb.c:141:18: warning: passing argument 1 of ‘ioread32’ makes pointer from integer without a cast [-Wint-conversion]
-   reg = ioread32(AR5K_AR2315_AHB_ARB_CTL);
+> 
+>>
+>> These frames are reported as invalid while they are in fact
+>> gso-less frames.
+>>
+>> This patch marks the vnet header as no-GSO for them instead
+>> of reporting it as invalid.
+>>
+>> Signed-off-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+> 
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> 
+> Eric - as you looked at this in the past, would you mind acking please?
+> 
+>> ---
+>>   include/linux/virtio_net.h | 4 ++--
+>>   1 file changed, 2 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
+>> index 0d1fe9297ac6..94fb78c3a2ab 100644
+>> --- a/include/linux/virtio_net.h
+>> +++ b/include/linux/virtio_net.h
+>> @@ -100,8 +100,8 @@ static inline int virtio_net_hdr_from_skb(const struct sk_buff *skb,
+>>   {
+>>   	memset(hdr, 0, sizeof(*hdr));   /* no info leak */
+>>   
+>> -	if (skb_is_gso(skb)) {
+>> -		struct skb_shared_info *sinfo = skb_shinfo(skb);
+>> +	struct skb_shared_info *sinfo = skb_shinfo(skb);
 
-Best regards,
-Krzysztof
+I need to move this a few lines up - the kernel build robot is quite rightfully complaining.
+
+>> +	if (skb_is_gso(skb) && sinfo->gso_type) {
+>>   
+>>   		/* This is a hint as to how much should be linear. */
+>>   		hdr->hdr_len = __cpu_to_virtio16(little_endian,
+>> -- 
+>> 2.20.1
+> 
+> 
+
+-- 
+Anton R. Ivanov
+Cambridgegreys Limited. Registered in England. Company Number 10273661
+https://www.cambridgegreys.com/
