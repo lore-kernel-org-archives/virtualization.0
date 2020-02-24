@@ -1,122 +1,76 @@
-From: Hillf Danton <hdanton@sina.com>
-Subject: Re: INFO: task hung in lock_sock_nested (2)
-Date: Mon, 24 Feb 2020 21:44:28 +0800
-Message-ID: <20200224134428.12256-1-hdanton@sina.com>
-References: <0000000000004241ff059f2eb8a4@google.com>
- <20200223075025.9068-1-hdanton@sina.com>
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH 0/2] virtio: decouple protected guest RAM form
+ VIRTIO_F_IOMMU_PLATFORM
+Date: Mon, 24 Feb 2020 14:56:07 +0100
+Message-ID: <20200224145607.2729f47b.pasic@linux.ibm.com>
+References: <20200220160606.53156-1-pasic@linux.ibm.com>
+        <426e6972-0565-c931-e171-da0f58fbf856@redhat.com>
+        <20200221155602.4de41fa7.pasic@linux.ibm.com>
+        <0181712c-e533-fcfd-2638-8a0649d713dd@redhat.com>
+        <20200224010607-mutt-send-email-mst@kernel.org>
+        <b3c52c67-c740-a50e-2595-fe04d179c881@redhat.com>
+        <20200224024641-mutt-send-email-mst@kernel.org>
+        <08d6bdfb-9b49-c278-3c0b-2e02376cf0cf@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200223075025.9068-1-hdanton@sina.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: kvm@vger.kernel.org, syzbot <syzbot+731710996d79d0d58fbc@syzkaller.appspotmail.com>, netdev@vger.kernel.org, Dexuan Cui <decui@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, syzkaller-bugs@googlegroups.com, Stefan Hajnoczi <stefanha@redhat.com>, kuba@kernel.org, davem@davemloft.net, Jorgen Hansen <jhansen@vmware.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <08d6bdfb-9b49-c278-3c0b-2e02376cf0cf@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, David Gibson <david@gibson.dropbear.id.au>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Mon, 24 Feb 2020 17:26:20 +0800
+Jason Wang <jasowang@redhat.com> wrote:
 
-On Mon, 24 Feb 2020 11:08:53 +0100 Stefano Garzarella wrote:
-> On Sun, Feb 23, 2020 at 03:50:25PM +0800, Hillf Danton wrote:
-> > 
-> > Seems like vsock needs a word to track lock owner in an attempt to
-> > avoid trying to lock sock while the current is the lock owner.
+> That's better.
 > 
-> Thanks for this possible solution.
-> What about using sock_owned_by_user()?
+> How about attached?
 > 
-No chance for vsock_locked() if it works.
+> Thanks
 
-> We should fix also hyperv_transport, because it could suffer from the same
-> problem.
-> 
-You're right. My diff is at most for introducing vsk's lock owner.
+Thanks Jason! It does avoid the translation overhead in vhost.
 
-> At this point, it might be better to call vsk->transport->release(vsk)
-> always with the lock taken and remove it in the transports as in the
-> following patch.
-> 
-> What do you think?
-> 
-Yes and ... please take a look at the output of grep
+Tested-by: Halil Pasic <pasic@linux.ibm.com>
 
-	grep -n lock_sock linux/net/vmw_vsock/af_vsock.c
+Regarding the code, you fence it in virtio-net.c, but AFAIU this feature
+has relevance for other vhost devices as well. E.g. what about vhost
+user? Would it be the responsibility of each virtio device to fence this
+on its own?
 
-as it drove me mad.
+I'm also a bit confused about the semantics of the vhost feature bit
+F_ACCESS_PLATFORM. What we have specified on virtio level is:
+"""
+This feature indicates that the device can be used on a platform where
+device access to data in memory is limited and/or translated. E.g. this
+is the case if the device can be located behind an IOMMU that translates
+bus addresses from the device into physical addresses in memory, if the
+device can be limited to only access certain memory addresses or if
+special commands such as a cache flush can be needed to synchronise data
+in memory with the device. Whether accesses are actually limited or
+translated is described by platform-specific means. If this feature bit
+is set to 0, then the device has same access to memory addresses
+supplied to it as the driver has. In particular, the device will always
+use physical addresses matching addresses used by the driver (typically
+meaning physical addresses used by the CPU) and not translated further,
+and can access any address supplied to it by the driver. When clear,
+this overrides any platform-specific description of whether device
+access is limited or translated in any way, e.g. whether an IOMMU may be
+present.
+"""
 
-> 
-> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> index 9c5b2a91baad..a073d8efca33 100644
-> --- a/net/vmw_vsock/af_vsock.c
-> +++ b/net/vmw_vsock/af_vsock.c
-> @@ -753,20 +753,18 @@ static void __vsock_release(struct sock *sk, int level)
->  		vsk = vsock_sk(sk);
->  		pending = NULL;	/* Compiler warning. */
->  
-> -		/* The release call is supposed to use lock_sock_nested()
-> -		 * rather than lock_sock(), if a sock lock should be acquired.
-> -		 */
-> -		if (vsk->transport)
-> -			vsk->transport->release(vsk);
-> -		else if (sk->sk_type == SOCK_STREAM)
-> -			vsock_remove_sock(vsk);
-> -
->  		/* When "level" is SINGLE_DEPTH_NESTING, use the nested
->  		 * version to avoid the warning "possible recursive locking
->  		 * detected". When "level" is 0, lock_sock_nested(sk, level)
->  		 * is the same as lock_sock(sk).
->  		 */
->  		lock_sock_nested(sk, level);
-> +
-> +		if (vsk->transport)
-> +			vsk->transport->release(vsk);
-> +		else if (sk->sk_type == SOCK_STREAM)
-> +			vsock_remove_sock(vsk);
-> +
->  		sock_orphan(sk);
->  		sk->sk_shutdown = SHUTDOWN_MASK;
->  
-> diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
-> index 3492c021925f..510f25f4a856 100644
-> --- a/net/vmw_vsock/hyperv_transport.c
-> +++ b/net/vmw_vsock/hyperv_transport.c
-> @@ -529,9 +529,7 @@ static void hvs_release(struct vsock_sock *vsk)
->  	struct sock *sk = sk_vsock(vsk);
->  	bool remove_sock;
->  
-> -	lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
->  	remove_sock = hvs_close_lock_held(vsk);
-> -	release_sock(sk);
->  	if (remove_sock)
->  		vsock_remove_sock(vsk);
->  }
-> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-> index d9f0c9c5425a..f3c4bab2f737 100644
-> --- a/net/vmw_vsock/virtio_transport_common.c
-> +++ b/net/vmw_vsock/virtio_transport_common.c
-> @@ -829,7 +829,6 @@ void virtio_transport_release(struct vsock_sock *vsk)
->  	struct sock *sk = &vsk->sk;
->  	bool remove_sock = true;
->  
-> -	lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
->  	if (sk->sk_type == SOCK_STREAM)
->  		remove_sock = virtio_transport_close(vsk);
->  
-> @@ -837,7 +836,6 @@ void virtio_transport_release(struct vsock_sock *vsk)
->  		list_del(&pkt->list);
->  		virtio_transport_free_pkt(pkt);
->  	}
-> -	release_sock(sk);
->  
->  	if (remove_sock)
->  		vsock_remove_sock(vsk);
-> 
-> Thanks,
-> Stefano
+I read this like the addresses may be IOVAs which require
+IMMU translation or GPAs which don't.
+
+On the vhost level however, it seems that F_IOMMU_PLATFORM means that
+vhost has to do the translation (via IOTLB API).
+
+Do I understand this correctly? If yes, I believe we should document
+this properly.
+
+BTW I'm still not 100% on the purpose and semantics of the
+F_ACCESS_PLATFORM feature bit. But that is a different problem.
+
+Regards,
+Halil
