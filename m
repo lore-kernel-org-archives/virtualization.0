@@ -1,279 +1,122 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 0/2] virtio: decouple protected guest RAM form
- VIRTIO_F_IOMMU_PLATFORM
-Date: Mon, 24 Feb 2020 08:40:29 -0500
-Message-ID: <20200224083845-mutt-send-email-mst@kernel.org>
-References: <20200220160606.53156-1-pasic@linux.ibm.com>
- <426e6972-0565-c931-e171-da0f58fbf856@redhat.com>
- <20200221155602.4de41fa7.pasic@linux.ibm.com>
- <0181712c-e533-fcfd-2638-8a0649d713dd@redhat.com>
- <20200224010607-mutt-send-email-mst@kernel.org>
- <b3c52c67-c740-a50e-2595-fe04d179c881@redhat.com>
- <20200224024641-mutt-send-email-mst@kernel.org>
- <08d6bdfb-9b49-c278-3c0b-2e02376cf0cf@redhat.com>
+From: Hillf Danton <hdanton@sina.com>
+Subject: Re: INFO: task hung in lock_sock_nested (2)
+Date: Mon, 24 Feb 2020 21:44:28 +0800
+Message-ID: <20200224134428.12256-1-hdanton@sina.com>
+References: <0000000000004241ff059f2eb8a4@google.com>
+ <20200223075025.9068-1-hdanton@sina.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <08d6bdfb-9b49-c278-3c0b-2e02376cf0cf@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, David Gibson <david@gibson.dropbear.id.au>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200223075025.9068-1-hdanton@sina.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: kvm@vger.kernel.org, syzbot <syzbot+731710996d79d0d58fbc@syzkaller.appspotmail.com>, netdev@vger.kernel.org, Dexuan Cui <decui@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, syzkaller-bugs@googlegroups.com, Stefan Hajnoczi <stefanha@redhat.com>, kuba@kernel.org, davem@davemloft.net, Jorgen Hansen <jhansen@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Feb 24, 2020 at 05:26:20PM +0800, Jason Wang wrote:
-> 
-> On 2020/2/24 下午3:48, Michael S. Tsirkin wrote:
-> > On Mon, Feb 24, 2020 at 02:45:03PM +0800, Jason Wang wrote:
-> > > On 2020/2/24 下午2:06, Michael S. Tsirkin wrote:
-> > > > On Mon, Feb 24, 2020 at 12:01:57PM +0800, Jason Wang wrote:
-> > > > > On 2020/2/21 下午10:56, Halil Pasic wrote:
-> > > > > > On Fri, 21 Feb 2020 14:22:26 +0800
-> > > > > > Jason Wang <jasowang@redhat.com> wrote:
-> > > > > > 
-> > > > > > > On 2020/2/21 上午12:06, Halil Pasic wrote:
-> > > > > > > > Currently if one intends to run a memory protection enabled VM with
-> > > > > > > > virtio devices and linux as the guest OS, one needs to specify the
-> > > > > > > > VIRTIO_F_IOMMU_PLATFORM flag for each virtio device to make the guest
-> > > > > > > > linux use the DMA API, which in turn handles the memory
-> > > > > > > > encryption/protection stuff if the guest decides to turn itself into
-> > > > > > > > a protected one. This however makes no sense due to multiple reasons:
-> > > > > > > > * The device is not changed by the fact that the guest RAM is
-> > > > > > > > protected. The so called IOMMU bypass quirk is not affected.
-> > > > > > > > * This usage is not congruent with  standardised semantics of
-> > > > > > > > VIRTIO_F_IOMMU_PLATFORM. Guest memory protected is an orthogonal reason
-> > > > > > > > for using DMA API in virtio (orthogonal with respect to what is
-> > > > > > > > expressed by VIRTIO_F_IOMMU_PLATFORM).
-> > > > > > > > 
-> > > > > > > > This series aims to decouple 'have to use DMA API because my (guest) RAM
-> > > > > > > > is protected' and 'have to use DMA API because the device told me
-> > > > > > > > VIRTIO_F_IOMMU_PLATFORM'.
-> > > > > > > > 
-> > > > > > > > Please find more detailed explanations about the conceptual aspects in
-> > > > > > > > the individual patches. There is however also a very practical problem
-> > > > > > > > that is addressed by this series.
-> > > > > > > > 
-> > > > > > > > For vhost-net the feature VIRTIO_F_IOMMU_PLATFORM has the following side
-> > > > > > > > effect The vhost code assumes it the addresses on the virtio descriptor
-> > > > > > > > ring are not guest physical addresses but iova's, and insists on doing a
-> > > > > > > > translation of these regardless of what transport is used (e.g. whether
-> > > > > > > > we emulate a PCI or a CCW device). (For details see commit 6b1e6cc7855b
-> > > > > > > > "vhost: new device IOTLB API".) On s390 this results in severe
-> > > > > > > > performance degradation (c.a. factor 10).
-> > > > > > > Do you see a consistent degradation on the performance, or it only
-> > > > > > > happen when for during the beginning of the test?
-> > > > > > > 
-> > > > > > AFAIK the degradation is consistent.
-> > > > > > 
-> > > > > > > > BTW with ccw I/O there is
-> > > > > > > > (architecturally) no IOMMU, so the whole address translation makes no
-> > > > > > > > sense in the context of virtio-ccw.
-> > > > > > > I suspect we can do optimization in qemu side.
-> > > > > > > 
-> > > > > > > E.g send memtable entry via IOTLB API when vIOMMU is not enabled.
-> > > > > > > 
-> > > > > > > If this makes sense, I can draft patch to see if there's any difference.
-> > > > > > Frankly I would prefer to avoid IOVAs on the descriptor ring (and the
-> > > > > > then necessary translation) for virtio-ccw altogether. But Michael
-> > > > > > voiced his opinion that we should mandate F_IOMMU_PLATFORM for devices
-> > > > > > that could be used with guests running in protected mode. I don't share
-> > > > > > his opinion, but that's an ongoing discussion.
-> > > > > > 
-> > > > > > Should we end up having to do translation from IOVA in vhost, we are
-> > > > > > very interested in that translation being fast and efficient.
-> > > > > > 
-> > > > > > In that sense we would be very happy to test any optimization that aim
-> > > > > > into that direction.
-> > > > > > 
-> > > > > > Thank you very much for your input!
-> > > > > Using IOTLB API on platform without IOMMU support is not intended. Please
-> > > > > try the attached patch to see if it helps.
-> > > > > 
-> > > > > Thanks
-> > > > > 
-> > > > > 
-> > > > > > Regards,
-> > > > > > Halil
-> > > > > > 
-> > > > > > > Thanks
-> > > > > > > 
-> > > > > > > 
-> > > > > > > > Halil Pasic (2):
-> > > > > > > >       mm: move force_dma_unencrypted() to mem_encrypt.h
-> > > > > > > >       virtio: let virtio use DMA API when guest RAM is protected
-> > > > > > > > 
-> > > > > > > >      drivers/virtio/virtio_ring.c |  3 +++
-> > > > > > > >      include/linux/dma-direct.h   |  9 ---------
-> > > > > > > >      include/linux/mem_encrypt.h  | 10 ++++++++++
-> > > > > > > >      3 files changed, 13 insertions(+), 9 deletions(-)
-> > > > > > > > 
-> > > > > > > > 
-> > > > > > > > base-commit: ca7e1fd1026c5af6a533b4b5447e1d2f153e28f2
-> > > > > >From 66fa730460875ac99e81d7db2334cd16bb1d2b27 Mon Sep 17 00:00:00 2001
-> > > > > From: Jason Wang <jasowang@redhat.com>
-> > > > > Date: Mon, 24 Feb 2020 12:00:10 +0800
-> > > > > Subject: [PATCH] virtio: turn on IOMMU_PLATFORM properly
-> > > > > 
-> > > > > When transport does not support IOMMU, we should clear IOMMU_PLATFORM
-> > > > > even if the device and vhost claims to support that. This help to
-> > > > > avoid the performance overhead caused by unnecessary IOTLB miss/update
-> > > > > transactions on such platform.
-> > > > > 
-> > > > > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > > > > ---
-> > > > >    hw/virtio/virtio-bus.c | 6 +++---
-> > > > >    1 file changed, 3 insertions(+), 3 deletions(-)
-> > > > > 
-> > > > > diff --git a/hw/virtio/virtio-bus.c b/hw/virtio/virtio-bus.c
-> > > > > index d6332d45c3..2741b9fdd2 100644
-> > > > > --- a/hw/virtio/virtio-bus.c
-> > > > > +++ b/hw/virtio/virtio-bus.c
-> > > > > @@ -47,7 +47,6 @@ void virtio_bus_device_plugged(VirtIODevice *vdev, Error **errp)
-> > > > >        VirtioBusState *bus = VIRTIO_BUS(qbus);
-> > > > >        VirtioBusClass *klass = VIRTIO_BUS_GET_CLASS(bus);
-> > > > >        VirtioDeviceClass *vdc = VIRTIO_DEVICE_GET_CLASS(vdev);
-> > > > > -    bool has_iommu = virtio_host_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM);
-> > > > >        Error *local_err = NULL;
-> > > > >        DPRINTF("%s: plug device.\n", qbus->name);
-> > > > > @@ -77,10 +76,11 @@ void virtio_bus_device_plugged(VirtIODevice *vdev, Error **errp)
-> > > > >            return;
-> > > > >        }
-> > > > > -    if (klass->get_dma_as != NULL && has_iommu) {
-> > > > > -        virtio_add_feature(&vdev->host_features, VIRTIO_F_IOMMU_PLATFORM);
-> > > > > +    if (false && klass->get_dma_as != NULL &&
-> > > > > +        virtio_host_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM)) {
-> > > > >            vdev->dma_as = klass->get_dma_as(qbus->parent);
-> > > > >        } else {
-> > > > > +        virtio_clear_feature(&vdev->host_features, VIRTIO_F_IOMMU_PLATFORM);
-> > > > >            vdev->dma_as = &address_space_memory;
-> > > > >        }
-> > > > >    }
-> > > > This seems to clear it unconditionally. I guess it's just a debugging
-> > > > patch, the real one will come later?
-> > > 
-> > > My bad, here's the correct one.
-> > > 
-> > > Thanks
-> > > 
-> > > 
-> > > > > -- 
-> > > > > 2.19.1
-> > > > > 
-> > > >From b8a8b582f46bb86c7a745b272db7b744779e5cc7 Mon Sep 17 00:00:00 2001
-> > > From: Jason Wang <jasowang@redhat.com>
-> > > Date: Mon, 24 Feb 2020 12:00:10 +0800
-> > > Subject: [PATCH] virtio: turn on IOMMU_PLATFORM properly
-> > > 
-> > > When transport does not support IOMMU, we should clear IOMMU_PLATFORM
-> > > even if the device and vhost claims to support that. This help to
-> > > avoid the performance overhead caused by unnecessary IOTLB miss/update
-> > > transactions on such platform.
-> > > 
-> > > Signed-off-by: Jason Wang <jasowang@redhat.com>
-> > > ---
-> > >   hw/virtio/virtio-bus.c | 6 +++---
-> > >   1 file changed, 3 insertions(+), 3 deletions(-)
-> > > 
-> > > diff --git a/hw/virtio/virtio-bus.c b/hw/virtio/virtio-bus.c
-> > > index d6332d45c3..4be64e193e 100644
-> > > --- a/hw/virtio/virtio-bus.c
-> > > +++ b/hw/virtio/virtio-bus.c
-> > > @@ -47,7 +47,6 @@ void virtio_bus_device_plugged(VirtIODevice *vdev, Error **errp)
-> > >       VirtioBusState *bus = VIRTIO_BUS(qbus);
-> > >       VirtioBusClass *klass = VIRTIO_BUS_GET_CLASS(bus);
-> > >       VirtioDeviceClass *vdc = VIRTIO_DEVICE_GET_CLASS(vdev);
-> > > -    bool has_iommu = virtio_host_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM);
-> > >       Error *local_err = NULL;
-> > >       DPRINTF("%s: plug device.\n", qbus->name);
-> > > @@ -77,10 +76,11 @@ void virtio_bus_device_plugged(VirtIODevice *vdev, Error **errp)
-> > >           return;
-> > >       }
-> > > -    if (klass->get_dma_as != NULL && has_iommu) {
-> > > -        virtio_add_feature(&vdev->host_features, VIRTIO_F_IOMMU_PLATFORM);
-> > So it looks like this line is unnecessary, but it's an unrelated
-> > cleanup, right?
-> 
-> 
-> Yes.
-> 
-> 
-> > 
-> > > +    if (klass->get_dma_as != NULL &&
-> > > +        virtio_host_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM)) {
-> > >           vdev->dma_as = klass->get_dma_as(qbus->parent);
-> > >       } else {
-> > > +        virtio_clear_feature(&vdev->host_features, VIRTIO_F_IOMMU_PLATFORM);
-> > 
-> > Of course any change like that will have to affect migration compat, etc.
-> > Can't we clear the bit when we are sending the features to vhost
-> > instead?
-> 
-> 
-> That's better.
-> 
-> How about attached?
-> 
-> Thanks
-> 
-> 
-> > 
-> > 
-> > >           vdev->dma_as = &address_space_memory;
-> > >       }
-> > >   }
-> > > -- 
-> > > 2.19.1
-> > > 
 
-> >From 3177c5194c729f3056b84c67664c59b9b949bb76 Mon Sep 17 00:00:00 2001
-> From: Jason Wang <jasowang@redhat.com>
-> Date: Mon, 24 Feb 2020 17:24:14 +0800
-> Subject: [PATCH] vhost: do not set VIRTIO_F_IOMMU_PLATFORM when IOMMU is not
->  used
+On Mon, 24 Feb 2020 11:08:53 +0100 Stefano Garzarella wrote:
+> On Sun, Feb 23, 2020 at 03:50:25PM +0800, Hillf Danton wrote:
+> > 
+> > Seems like vsock needs a word to track lock owner in an attempt to
+> > avoid trying to lock sock while the current is the lock owner.
 > 
-> We enable device IOTLB unconditionally when VIRTIO_F_IOMMU_PLATFORM is
-> negotiated. This lead unnecessary IOTLB miss/update transactions when
-> IOMMU is used. This patch fixes this.
+> Thanks for this possible solution.
+> What about using sock_owned_by_user()?
 > 
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  hw/net/virtio-net.c | 3 +++
->  hw/virtio/vhost.c   | 4 +---
->  2 files changed, 4 insertions(+), 3 deletions(-)
+No chance for vsock_locked() if it works.
+
+> We should fix also hyperv_transport, because it could suffer from the same
+> problem.
 > 
-> diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
-> index 3627bb1717..0d50e8bd34 100644
-> --- a/hw/net/virtio-net.c
-> +++ b/hw/net/virtio-net.c
-> @@ -879,6 +879,9 @@ static void virtio_net_set_features(VirtIODevice *vdev, uint64_t features)
->          virtio_net_apply_guest_offloads(n);
->      }
+You're right. My diff is at most for introducing vsk's lock owner.
+
+> At this point, it might be better to call vsk->transport->release(vsk)
+> always with the lock taken and remove it in the transports as in the
+> following patch.
+> 
+> What do you think?
+> 
+Yes and ... please take a look at the output of grep
+
+	grep -n lock_sock linux/net/vmw_vsock/af_vsock.c
+
+as it drove me mad.
+
+> 
+> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> index 9c5b2a91baad..a073d8efca33 100644
+> --- a/net/vmw_vsock/af_vsock.c
+> +++ b/net/vmw_vsock/af_vsock.c
+> @@ -753,20 +753,18 @@ static void __vsock_release(struct sock *sk, int level)
+>  		vsk = vsock_sk(sk);
+>  		pending = NULL;	/* Compiler warning. */
 >  
-> +    if (vdev->dma_as == &address_space_memory)
-> +        features &= ~(1ULL << VIRTIO_F_IOMMU_PLATFORM);
-> +
->      for (i = 0;  i < n->max_queues; i++) {
->          NetClientState *nc = qemu_get_subqueue(n->nic, i);
-
-This pokes at acked features. I think they are also
-guest visible ...
-
-> diff --git a/hw/virtio/vhost.c b/hw/virtio/vhost.c
-> index 9edfadc81d..711b1136f6 100644
-> --- a/hw/virtio/vhost.c
-> +++ b/hw/virtio/vhost.c
-> @@ -288,9 +288,7 @@ static inline void vhost_dev_log_resize(struct vhost_dev *dev, uint64_t size)
->  
->  static int vhost_dev_has_iommu(struct vhost_dev *dev)
->  {
-> -    VirtIODevice *vdev = dev->vdev;
+> -		/* The release call is supposed to use lock_sock_nested()
+> -		 * rather than lock_sock(), if a sock lock should be acquired.
+> -		 */
+> -		if (vsk->transport)
+> -			vsk->transport->release(vsk);
+> -		else if (sk->sk_type == SOCK_STREAM)
+> -			vsock_remove_sock(vsk);
 > -
-> -    return virtio_host_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM);
-> +    return virtio_has_feature(dev->acked_features, VIRTIO_F_IOMMU_PLATFORM);
->  }
+>  		/* When "level" is SINGLE_DEPTH_NESTING, use the nested
+>  		 * version to avoid the warning "possible recursive locking
+>  		 * detected". When "level" is 0, lock_sock_nested(sk, level)
+>  		 * is the same as lock_sock(sk).
+>  		 */
+>  		lock_sock_nested(sk, level);
+> +
+> +		if (vsk->transport)
+> +			vsk->transport->release(vsk);
+> +		else if (sk->sk_type == SOCK_STREAM)
+> +			vsock_remove_sock(vsk);
+> +
+>  		sock_orphan(sk);
+>  		sk->sk_shutdown = SHUTDOWN_MASK;
 >  
->  static void *vhost_memory_map(struct vhost_dev *dev, hwaddr addr,
-> -- 
-> 2.19.1
+> diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
+> index 3492c021925f..510f25f4a856 100644
+> --- a/net/vmw_vsock/hyperv_transport.c
+> +++ b/net/vmw_vsock/hyperv_transport.c
+> @@ -529,9 +529,7 @@ static void hvs_release(struct vsock_sock *vsk)
+>  	struct sock *sk = sk_vsock(vsk);
+>  	bool remove_sock;
+>  
+> -	lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
+>  	remove_sock = hvs_close_lock_held(vsk);
+> -	release_sock(sk);
+>  	if (remove_sock)
+>  		vsock_remove_sock(vsk);
+>  }
+> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+> index d9f0c9c5425a..f3c4bab2f737 100644
+> --- a/net/vmw_vsock/virtio_transport_common.c
+> +++ b/net/vmw_vsock/virtio_transport_common.c
+> @@ -829,7 +829,6 @@ void virtio_transport_release(struct vsock_sock *vsk)
+>  	struct sock *sk = &vsk->sk;
+>  	bool remove_sock = true;
+>  
+> -	lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
+>  	if (sk->sk_type == SOCK_STREAM)
+>  		remove_sock = virtio_transport_close(vsk);
+>  
+> @@ -837,7 +836,6 @@ void virtio_transport_release(struct vsock_sock *vsk)
+>  		list_del(&pkt->list);
+>  		virtio_transport_free_pkt(pkt);
+>  	}
+> -	release_sock(sk);
+>  
+>  	if (remove_sock)
+>  		vsock_remove_sock(vsk);
 > 
+> Thanks,
+> Stefano
