@@ -1,36 +1,40 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH 29/52] drm/bochs: Drop explicit drm_mode_config_cleanup
-Date: Mon, 24 Feb 2020 09:15:59 +0100
-Message-ID: <20200224081559.7id67nrk5bbob5kc@sirius.home.kraxel.org>
+Subject: Re: [PATCH 30/52] drm/cirrus: Drop explicit
+ drm_mode_config_cleanup call
+Date: Mon, 24 Feb 2020 09:16:55 +0100
+Message-ID: <20200224081655.h7w6rvuady5vje7r@sirius.home.kraxel.org>
 References: <20200219102122.1607365-1-daniel.vetter@ffwll.ch>
- <20200219102122.1607365-30-daniel.vetter@ffwll.ch>
+ <20200219102122.1607365-31-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200219102122.1607365-30-daniel.vetter@ffwll.ch>
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+In-Reply-To: <20200219102122.1607365-31-daniel.vetter@ffwll.ch>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
 To: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Daniel Vetter <daniel.vetter@intel.com>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org
+Cc: Intel Graphics Development <intel-gfx@lists.freedesktop.org>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Noralf =?utf-8?Q?Tr=C3=B8nnes?= <noralf@tronnes.org>, Thomas Zimmermann <tzimmermann@suse.de>, Dave Airlie <airlied@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>, Sam Ravnborg <sam@ravnborg.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 19, 2020 at 11:20:59AM +0100, Daniel Vetter wrote:
-> Instead rely on the automatic clean, for which we just need to check
-> that drm_mode_config_init succeeded. To avoid an inversion in the
-> cleanup we also have to move the dev_private allocation over to
-> drmm_kzalloc.
-> 
+On Wed, Feb 19, 2020 at 11:21:00AM +0100, Daniel Vetter wrote:
+> We can even delete the drm_driver.release hook now!
+> =
+
 > Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+> Cc: Dave Airlie <airlied@redhat.com>
 > Cc: Gerd Hoffmann <kraxel@redhat.com>
+> Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+> Cc: "Noralf Tr=F8nnes" <noralf@tronnes.org>
+> Cc: Sam Ravnborg <sam@ravnborg.org>
+> Cc: Thomas Zimmermann <tzimmermann@suse.de>
 > Cc: virtualization@lists.linux-foundation.org
 
 Acked-by: Gerd Hoffmann <kraxel@redhat.com>
