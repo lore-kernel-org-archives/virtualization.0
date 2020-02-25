@@ -1,144 +1,57 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v3] virtio: Work around frames incorrectly marked as gso
-Date: Tue, 25 Feb 2020 12:02:52 +0800
-Message-ID: <1af28666-1d27-8c9e-7225-2796a9f7336e@redhat.com>
-References: <20200224132550.2083-1-anton.ivanov@cambridgegreys.com>
- <CA+FuTSd8P6uQnwisZEh7+nfowW9qKLBEvA4GPg+xUkjBa-6TDA@mail.gmail.com>
- <4e7757cf-148e-4585-b358-3b38f391275d@cambridgegreys.com>
- <CA+FuTSdOCJZCVS4xohx+BQmkmq8JALnK=gGc0=qy1TbjY707ag@mail.gmail.com>
- <93cb2b3f-6cae-8cf1-5fab-93fa34c14628@cambridgegreys.com>
- <CA+FuTScEXRwYtFzn-jtFhV0dNKNQqKPBwCWaNORJW=ERU=izMA@mail.gmail.com>
+Subject: Re: [PATCH] virtio_ring: Fix mem leak with vring_new_virtqueue()
+Date: Tue, 25 Feb 2020 13:39:41 +0800
+Message-ID: <b622c831-9adb-b9af-dd4a-21605bc124a8@redhat.com>
+References: <20200224212643.30672-1-s-anna@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <CA+FuTScEXRwYtFzn-jtFhV0dNKNQqKPBwCWaNORJW=ERU=izMA@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200224212643.30672-1-s-anna@ti.com>
 Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Cc: Network Development <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, linux-um@lists.infradead.org, "Michael S. Tsirkin" <mst@redhat.com>, Eric Dumazet <eric.dumazet@gmail.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Suman Anna <s-anna@ti.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-remoteproc@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-On 2020/2/25 =E4=B8=8A=E5=8D=886:22, Willem de Bruijn wrote:
-> On Mon, Feb 24, 2020 at 4:00 PM Anton Ivanov
-> <anton.ivanov@cambridgegreys.com> wrote:
->> On 24/02/2020 20:20, Willem de Bruijn wrote:
->>> On Mon, Feb 24, 2020 at 2:55 PM Anton Ivanov
->>> <anton.ivanov@cambridgegreys.com> wrote:
->>>> On 24/02/2020 19:27, Willem de Bruijn wrote:
->>>>> On Mon, Feb 24, 2020 at 8:26 AM <anton.ivanov@cambridgegreys.com> w=
-rote:
->>>>>> From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
->>>>>>
->>>>>> Some of the locally generated frames marked as GSO which
->>>>>> arrive at virtio_net_hdr_from_skb() have no GSO_TYPE, no
->>>>>> fragments (data_len =3D 0) and length significantly shorter
->>>>>> than the MTU (752 in my experiments).
->>>>> Do we understand how these packets are generated?
->>>> No, we have not been able to trace them.
->>>>
->>>> The only thing we know is that this is specific to locally generated
->>>> packets. Something arriving from the network does not show this.
->>>>
->>>>> Else it seems this
->>>>> might be papering over a deeper problem.
->>>>>
->>>>> The stack should not create GSO packets less than or equal to
->>>>> skb_shinfo(skb)->gso_size. See for instance the check in
->>>>> tcp_gso_segment after pulling the tcp header:
->>>>>
->>>>>            mss =3D skb_shinfo(skb)->gso_size;
->>>>>            if (unlikely(skb->len <=3D mss))
->>>>>                    goto out;
->>>>>
->>>>> What is the gso_type, and does it include SKB_GSO_DODGY?
->>>>>
->>>> 0 - not set.
->>> Thanks for the follow-up details. Is this something that you can trig=
-ger easily?
->> Yes, if you have a UML instance handy.
->>
->> Running iperf between the host and a UML guest using raw socket
->> transport triggers it immediately.
->>
->> This is my UML command line:
->>
->> vmlinux mem=3D2048M umid=3DOPX \
->>       ubd0=3DOPX-3.0-Work.img \
->> vec0:transport=3Draw,ifname=3Dp-veth0,depth=3D128,gro=3D1,mac=3D92:9b:=
-36:5e:38:69 \
->>       root=3D/dev/ubda ro con=3Dnull con0=3Dnull,fd:2 con1=3Dfd:0,fd:1
->>
->> p-right is a part of a vEth pair:
->>
->> ip link add l-veth0 type veth peer name p-veth0 && ifconfig p-veth0 up
->>
->> iperf server is on host, iperf -c in the guest.
->>
->>> An skb_dump() + dump_stack() when the packet socket gets such a
->>> packet may point us to the root cause and fix that.
->> We tried dump stack, it was not informative - it was just the recvmmsg
->> call stack coming from the UML until it hits the relevant recv bit in
->> af_packet - it does not tell us where the packet is coming from.
->>
->> Quoting from the message earlier in the thread:
->>
->> [ 2334.180854] Call Trace:
->> [ 2334.181947]  dump_stack+0x5c/0x80
->> [ 2334.183021]  packet_recvmsg.cold+0x23/0x49
->> [ 2334.184063]  ___sys_recvmsg+0xe1/0x1f0
->> [ 2334.185034]  ? packet_poll+0xca/0x130
->> [ 2334.186014]  ? sock_poll+0x77/0xb0
->> [ 2334.186977]  ? ep_item_poll.isra.0+0x3f/0xb0
->> [ 2334.187936]  ? ep_send_events_proc+0xf1/0x240
->> [ 2334.188901]  ? dequeue_signal+0xdb/0x180
->> [ 2334.189848]  do_recvmmsg+0xc8/0x2d0
->> [ 2334.190728]  ? ep_poll+0x8c/0x470
->> [ 2334.191581]  __sys_recvmmsg+0x108/0x150
->> [ 2334.192441]  __x64_sys_recvmmsg+0x25/0x30
->> [ 2334.193346]  do_syscall_64+0x53/0x140
->> [ 2334.194262]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-> That makes sense. skb_dump might show more interesting details about
-> the packet. From the previous thread, these are assumed to be TCP
-> packets?
->
-> I had missed the original thread. If the packet has
->
->      sinfo(skb)->gso_size =3D 752.
->      skb->len =3D 818
->
-> then this is a GSO packet. Even though UML will correctly process it
-> as a normal 818 B packet if psock_rcv pretends that it is, treating it
-> like that is not strictly correct. A related question is how the setup
-> arrived at that low MTU size, assuming that is not explicitly
-> configured that low.
->
-> As of commit 51466a7545b7 ("tcp: fill shinfo->gso_type at last
-> moment") tcp unconditionally sets gso_type, even for non gso packets.
-> So either this is not a tcp packet or the field gets zeroed somewhere
-> along the way. I could not quickly find a possible path to
-> skb_gso_reset or a raw write.
->
-> It may be useful to insert tests for this condition (skb_is_gso(skb)
-> && !skb_shinfo(skb)->gso_type) that call skb_dump at other points in
-> the network stack. For instance in __ip_queue_xmit and
-> __dev_queue_xmit.
-
-
-+1
-
-We meet some customer hit such condition as well which lead over MTU=20
-packet to be queued by TAP which crashes their buggy userspace applicatio=
-n.
-
-We suspect it's the issue of wrong gso_type vs gso_size.
-
-Thanks
-
-
->
-> Since skb segmentation fails in tcp_gso_segment for such packets, it
-> may also be informative to disable TSO on the veth device and see if
-> the test fails.
->
+Ck9uIDIwMjAvMi8yNSDkuIrljYg1OjI2LCBTdW1hbiBBbm5hIHdyb3RlOgo+IFRoZSBmdW5jdGlv
+bnMgdnJpbmdfbmV3X3ZpcnRxdWV1ZSgpIGFuZCBfX3ZyaW5nX25ld192aXJ0cXVldWUoKSBhcmUg
+dXNlZAo+IHdpdGggc3BsaXQgcmluZ3MsIGFuZCBhbnkgYWxsb2NhdGlvbnMgd2l0aGluIHRoZXNl
+IGZ1bmN0aW9ucyBhcmUgbWFuYWdlZAo+IG91dHNpZGUgb2YgdGhlIC53ZV9vd25fcmluZyBmbGFn
+LiBUaGUgY29tbWl0IGNiZWVkYjcyYjk3YSAoInZpcnRpb19yaW5nOgo+IGFsbG9jYXRlIGRlc2Mg
+c3RhdGUgZm9yIHNwbGl0IHJpbmcgc2VwYXJhdGVseSIpIGFsbG9jYXRlcyB0aGUgZGVzYyBzdGF0
+ZQo+IHdpdGhpbiB0aGUgX192cmluZ19uZXdfdmlydHF1ZXVlKCkgYnV0IGZyZWVzIGl0IG9ubHkg
+d2hlbiB0aGUgLndlX293bl9yaW5nCj4gZmxhZyBpcyBzZXQuIFRoaXMgbGVhZHMgdG8gYSBtZW1v
+cnkgbGVhayB3aGVuIGZyZWVpbmcgc3VjaCBhbGxvY2F0ZWQKPiB2aXJ0cXVldWVzIHdpdGggdGhl
+IHZyaW5nX2RlbF92aXJ0cXVldWUoKSBmdW5jdGlvbi4KPgo+IEZpeCB0aGlzIGJ5IG1vdmluZyB0
+aGUgZGVzY19zdGF0ZSBmcmVlIGNvZGUgb3V0c2lkZSB0aGUgZmxhZyBhbmQgb25seQo+IGZvciBz
+cGxpdCByaW5ncy4gSXNzdWUgd2FzIGRpc2NvdmVyZWQgZHVyaW5nIHRlc3Rpbmcgd2l0aCByZW1v
+dGVwcm9jCj4gYW5kIHZpcnRpb19ycG1zZy4KPgo+IEZpeGVzOiBjYmVlZGI3MmI5N2EgKCJ2aXJ0
+aW9fcmluZzogYWxsb2NhdGUgZGVzYyBzdGF0ZSBmb3Igc3BsaXQgcmluZyBzZXBhcmF0ZWx5IikK
+PiBTaWduZWQtb2ZmLWJ5OiBTdW1hbiBBbm5hIDxzLWFubmFAdGkuY29tPgo+IC0tLQo+ICAgZHJp
+dmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYyB8IDQgKystLQo+ICAgMSBmaWxlIGNoYW5nZWQsIDIg
+aW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zp
+cnRpby92aXJ0aW9fcmluZy5jIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+IGluZGV4
+IDg2N2M3ZWJkM2YxMC4uNThiOTZiYWE4ZDQ4IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmlydGlv
+L3ZpcnRpb19yaW5nLmMKPiArKysgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4gQEAg
+LTIyMDMsMTAgKzIyMDMsMTAgQEAgdm9pZCB2cmluZ19kZWxfdmlydHF1ZXVlKHN0cnVjdCB2aXJ0
+cXVldWUgKl92cSkKPiAgIAkJCQkJIHZxLT5zcGxpdC5xdWV1ZV9zaXplX2luX2J5dGVzLAo+ICAg
+CQkJCQkgdnEtPnNwbGl0LnZyaW5nLmRlc2MsCj4gICAJCQkJCSB2cS0+c3BsaXQucXVldWVfZG1h
+X2FkZHIpOwo+IC0KPiAtCQkJa2ZyZWUodnEtPnNwbGl0LmRlc2Nfc3RhdGUpOwo+ICAgCQl9Cj4g
+ICAJfQo+ICsJaWYgKCF2cS0+cGFja2VkX3JpbmcpCj4gKwkJa2ZyZWUodnEtPnNwbGl0LmRlc2Nf
+c3RhdGUpOwoKCk5pdHBpY2ssIGl0IGxvb2tzIHRvIG1lIGl0IHdvdWxkIGJlIG1vcmUgY2xlYXIg
+aWYgd2UganVzdCBmcmVlIApkZXNjX3N0YXRlIHVuY29uZGl0aW9uYWxseSBoZXJlIChhbmQgcmVt
+b3ZlIHRoZSBrZnJlZSBmb3IgcGFja2VkIGFib3ZlKS4KCkFueXdheSBkZXNjX3N0YXRlIHdpbGwg
+YmUgYWxsb2NhdGVkIGJ5IHVzZSBldmVuIGlmICF3ZV9vd25fcmluZy4KClRoYW5rcwoKCj4gICAJ
+bGlzdF9kZWwoJl92cS0+bGlzdCk7Cj4gICAJa2ZyZWUodnEpOwo+ICAgfQoKX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGlu
+ZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8v
+bGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
