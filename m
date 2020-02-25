@@ -1,56 +1,178 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: INFO: task hung in lock_sock_nested (2)
-Date: Tue, 25 Feb 2020 10:07:32 +0100
-Message-ID: <20200225090732.kge6bdf46ji6mbb5@steredhat>
-References: <0000000000004241ff059f2eb8a4@google.com>
- <20200223075025.9068-1-hdanton@sina.com>
- <20200224134428.12256-1-hdanton@sina.com>
+From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Subject: Re: [PATCH v3] virtio: Work around frames incorrectly marked as gso
+Date: Tue, 25 Feb 2020 09:40:45 +0000
+Message-ID: <cd1b4084-af6b-7fd9-f182-8b32a3c8d837@cambridgegreys.com>
+References: <20200224132550.2083-1-anton.ivanov@cambridgegreys.com>
+ <CA+FuTSd8P6uQnwisZEh7+nfowW9qKLBEvA4GPg+xUkjBa-6TDA@mail.gmail.com>
+ <4e7757cf-148e-4585-b358-3b38f391275d@cambridgegreys.com>
+ <CA+FuTSdOCJZCVS4xohx+BQmkmq8JALnK=gGc0=qy1TbjY707ag@mail.gmail.com>
+ <93cb2b3f-6cae-8cf1-5fab-93fa34c14628@cambridgegreys.com>
+ <CA+FuTScEXRwYtFzn-jtFhV0dNKNQqKPBwCWaNORJW=ERU=izMA@mail.gmail.com>
+ <6b83116c-2cca-fb03-1c13-bb436dccf1b3@cambridgegreys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200224134428.12256-1-hdanton@sina.com>
-Sender: kvm-owner@vger.kernel.org
-To: Hillf Danton <hdanton@sina.com>
-Cc: Dexuan Cui <decui@microsoft.com>, Jorgen Hansen <jhansen@vmware.com>, Stefan Hajnoczi <stefanha@redhat.com>, syzbot <syzbot+731710996d79d0d58fbc@syzkaller.appspotmail.com>, davem@davemloft.net, kuba@kernel.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, syzkaller-bugs@googlegroups.com, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <6b83116c-2cca-fb03-1c13-bb436dccf1b3@cambridgegreys.com>
+Content-Language: en-US
+Sender: netdev-owner@vger.kernel.org
+To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Cc: Eric Dumazet <eric.dumazet@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>, Network Development <netdev@vger.kernel.org>, Jason Wang <jasowang@redhat.com>, linux-um@lists.infradead.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Feb 24, 2020 at 09:44:28PM +0800, Hillf Danton wrote:
-> 
-> On Mon, 24 Feb 2020 11:08:53 +0100 Stefano Garzarella wrote:
-> > On Sun, Feb 23, 2020 at 03:50:25PM +0800, Hillf Danton wrote:
-> > > 
-> > > Seems like vsock needs a word to track lock owner in an attempt to
-> > > avoid trying to lock sock while the current is the lock owner.
-> > 
-> > Thanks for this possible solution.
-> > What about using sock_owned_by_user()?
-> > 
-> No chance for vsock_locked() if it works.
-> 
-> > We should fix also hyperv_transport, because it could suffer from the same
-> > problem.
-> > 
-> You're right. My diff is at most for introducing vsk's lock owner.
 
-Sure, thanks for this!
+
+On 25/02/2020 07:48, Anton Ivanov wrote:
+> 
+> 
+> On 24/02/2020 22:22, Willem de Bruijn wrote:
+>> On Mon, Feb 24, 2020 at 4:00 PM Anton Ivanov
+>> <anton.ivanov@cambridgegreys.com> wrote:
+>>>
+>>> On 24/02/2020 20:20, Willem de Bruijn wrote:
+>>>> On Mon, Feb 24, 2020 at 2:55 PM Anton Ivanov
+>>>> <anton.ivanov@cambridgegreys.com> wrote:
+>>>>> On 24/02/2020 19:27, Willem de Bruijn wrote:
+>>>>>> On Mon, Feb 24, 2020 at 8:26 AM <anton.ivanov@cambridgegreys.com> wrote:
+>>>>>>> From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+>>>>>>>
+>>>>>>> Some of the locally generated frames marked as GSO which
+>>>>>>> arrive at virtio_net_hdr_from_skb() have no GSO_TYPE, no
+>>>>>>> fragments (data_len = 0) and length significantly shorter
+>>>>>>> than the MTU (752 in my experiments).
+>>>>>> Do we understand how these packets are generated?
+>>>>> No, we have not been able to trace them.
+>>>>>
+>>>>> The only thing we know is that this is specific to locally generated
+>>>>> packets. Something arriving from the network does not show this.
+>>>>>
+>>>>>> Else it seems this
+>>>>>> might be papering over a deeper problem.
+>>>>>>
+>>>>>> The stack should not create GSO packets less than or equal to
+>>>>>> skb_shinfo(skb)->gso_size. See for instance the check in
+>>>>>> tcp_gso_segment after pulling the tcp header:
+>>>>>>
+>>>>>>            mss = skb_shinfo(skb)->gso_size;
+>>>>>>            if (unlikely(skb->len <= mss))
+>>>>>>                    goto out;
+>>>>>>
+>>>>>> What is the gso_type, and does it include SKB_GSO_DODGY?
+>>>>>>
+>>>>>
+>>>>> 0 - not set.
+>>>> Thanks for the follow-up details. Is this something that you can trigger easily?
+>>>
+>>> Yes, if you have a UML instance handy.
+>>>
+>>> Running iperf between the host and a UML guest using raw socket
+>>> transport triggers it immediately.
+>>>
+>>> This is my UML command line:
+>>>
+>>> vmlinux mem=2048M umid=OPX \
+>>>       ubd0=OPX-3.0-Work.img \
+>>> vec0:transport=raw,ifname=p-veth0,depth=128,gro=1,mac=92:9b:36:5e:38:69 \
+>>>       root=/dev/ubda ro con=null con0=null,fd:2 con1=fd:0,fd:1
+>>>
+>>> p-right is a part of a vEth pair:
+>>>
+>>> ip link add l-veth0 type veth peer name p-veth0 && ifconfig p-veth0 up
+>>>
+>>> iperf server is on host, iperf -c in the guest.
+>>>
+>>>>
+>>>> An skb_dump() + dump_stack() when the packet socket gets such a
+>>>> packet may point us to the root cause and fix that.
+>>>
+>>> We tried dump stack, it was not informative - it was just the recvmmsg
+>>> call stack coming from the UML until it hits the relevant recv bit in
+>>> af_packet - it does not tell us where the packet is coming from.
+>>>
+>>> Quoting from the message earlier in the thread:
+>>>
+>>> [ 2334.180854] Call Trace:
+>>> [ 2334.181947]  dump_stack+0x5c/0x80
+>>> [ 2334.183021]  packet_recvmsg.cold+0x23/0x49
+>>> [ 2334.184063]  ___sys_recvmsg+0xe1/0x1f0
+>>> [ 2334.185034]  ? packet_poll+0xca/0x130
+>>> [ 2334.186014]  ? sock_poll+0x77/0xb0
+>>> [ 2334.186977]  ? ep_item_poll.isra.0+0x3f/0xb0
+>>> [ 2334.187936]  ? ep_send_events_proc+0xf1/0x240
+>>> [ 2334.188901]  ? dequeue_signal+0xdb/0x180
+>>> [ 2334.189848]  do_recvmmsg+0xc8/0x2d0
+>>> [ 2334.190728]  ? ep_poll+0x8c/0x470
+>>> [ 2334.191581]  __sys_recvmmsg+0x108/0x150
+>>> [ 2334.192441]  __x64_sys_recvmmsg+0x25/0x30
+>>> [ 2334.193346]  do_syscall_64+0x53/0x140
+>>> [ 2334.194262]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+>>
+>> That makes sense. skb_dump might show more interesting details about
+>> the packet.
+> 
+> I will add that and retest later today.
+
+
+skb len=818 headroom=2 headlen=818 tailroom=908
+mac=(2,14) net=(16,0) trans=16
+shinfo(txflags=0 nr_frags=0 gso(size=752 type=0 segs=1))
+csum(0x100024 ip_summed=3 complete_sw=0 valid=0 level=0)
+hash(0x0 sw=0 l4=0) proto=0x0800 pkttype=4 iif=0
+sk family=17 type=3 proto=0
+
+Deciphering the actual packet data gives a
+
+TCP packet, ACK and PSH set.
+
+The PSH flag looks like the only "interesting" thing about it in first read.
 
 > 
-> > At this point, it might be better to call vsk->transport->release(vsk)
-> > always with the lock taken and remove it in the transports as in the
-> > following patch.
-> > 
-> > What do you think?
-> > 
-> Yes and ... please take a look at the output of grep
+>> From the previous thread, these are assumed to be TCP
+>> packets?
 > 
-> 	grep -n lock_sock linux/net/vmw_vsock/af_vsock.c
+> Yes
 > 
-> as it drove me mad.
+>>
+>> I had missed the original thread. If the packet has
+>>
+>>      sinfo(skb)->gso_size = 752.
+>>      skb->len = 818
+>>
+>> then this is a GSO packet. Even though UML will correctly process it
+>> as a normal 818 B packet if psock_rcv pretends that it is, treating it
+>> like that is not strictly correct. A related question is how the setup
+>> arrived at that low MTU size, assuming that is not explicitly
+>> configured that low.
+> 
+> The mtu on the interface is normal. I suspect it is one of the first packets
+> in the stream or something iperf uses for communication between the server and
+> the client which always ends up that size.
+> 
+>>
+>> As of commit 51466a7545b7 ("tcp: fill shinfo->gso_type at last
+>> moment") tcp unconditionally sets gso_type, even for non gso packets.
+>> So either this is not a tcp packet or the field gets zeroed somewhere
+>> along the way. I could not quickly find a possible path to
+>> skb_gso_reset or a raw write.
+> 
+> Same. I have tried to trace a possible origin and I have not seen anything which may cause it.
+> 
+>>
+>> It may be useful to insert tests for this condition (skb_is_gso(skb)
+>> && !skb_shinfo(skb)->gso_type) that call skb_dump at other points in
+>> the network stack. For instance in __ip_queue_xmit and
+>> __dev_queue_xmit.
+>>
+>> Since skb segmentation fails in tcp_gso_segment for such packets, it
+>> may also be informative to disable TSO on the veth device and see if
+>> the test fails.
+> 
+> Ack.
+> 
+>>
+> 
 
-:-) I'll go in this direction and I'll check all the cases.
-
-We should avoid to take lock_sock in the transports when it is possible.
-
-Thanks for the help,
-Stefano
+-- 
+Anton R. Ivanov
+Cambridgegreys Limited. Registered in England. Company Number 10273661
+https://www.cambridgegreys.com/
