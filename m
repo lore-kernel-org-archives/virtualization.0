@@ -1,70 +1,73 @@
-From: Michal Hocko <mhocko@kernel.org>
-Subject: Re: [PATCH RFC v4 11/13] mm/vmscan: Move count_vm_event(DROP_SLAB)
- into drop_slab()
-Date: Tue, 25 Feb 2020 15:13:39 +0100
-Message-ID: <20200225141339.GV22443@dhcp22.suse.cz>
-References: <20191212171137.13872-1-david@redhat.com>
- <20191212171137.13872-12-david@redhat.com>
+From: Jani Nikula <jani.nikula@linux.intel.com>
+Subject: Re: [PATCH][next] drm: Replace zero-length array with flexible-array member
+Date: Tue, 25 Feb 2020 16:17:35 +0200
+Message-ID: <87a756sqdc.fsf@intel.com>
+References: <20200225140347.GA22864@embeddedor>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20191212171137.13872-12-david@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Alexander Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org
+Content-Type: text/plain
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+In-Reply-To: <20200225140347.GA22864@embeddedor>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Lucas Stach <l.stach@pengutronix.de>, Russell King <linux+etnaviv@armlinux.org.uk>, Christian Gmeiner <christian.gmeiner@gmail.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Patrik Jakobsson <patrik.r.jakobsson@gmail.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>, Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, Hans de Goede <hdegoede@redhat.com>, Eric Anholt <eric@anholt.net>, VMware Graphics <linux-graphics-maintainer@vmware.com>, Thomas Hellstrom <thellstrom@vmware.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard>
+Cc: etnaviv@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, intel-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org, virtualization@lists.linux-foundation.org, spice-devel@lists.freedesktop.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu 12-12-19 18:11:35, David Hildenbrand wrote:
-> Let's count within the function itself, so every invocation (of future
-> users) will be counted.
-> 
-> Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: linux-fsdevel@vger.kernel.org
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-
-Slight inconsistency with the page cache droppint but nothing earth
-shattering.
-
-Acked-by: Michal Hocko <mhocko@suse.com>
-
+On Tue, 25 Feb 2020, "Gustavo A. R. Silva" <gustavo@embeddedor.com> wrote:
+> The current codebase makes use of the zero-length array language
+> extension to the C90 standard, but the preferred mechanism to declare
+> variable-length types such as these ones is a flexible array member[1][2],
+> introduced in C99:
+>
+> struct foo {
+>         int stuff;
+>         struct boo array[];
+> };
+>
+> By making use of the mechanism above, we will get a compiler warning
+> in case the flexible array does not occur last in the structure, which
+> will help us prevent some kind of undefined behavior bugs from being
+> inadvertently introduced[3] to the codebase from now on.
+>
+> Also, notice that, dynamic memory allocations won't be affected by
+> this change:
+>
+> "Flexible array members have incomplete type, and so the sizeof operator
+> may not be applied. As a quirk of the original implementation of
+> zero-length arrays, sizeof evaluates to zero."[1]
+>
+> This issue was found with the help of Coccinelle.
+>
+> [1] https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html
+> [2] https://github.com/KSPP/linux/issues/21
+> [3] commit 76497732932f ("cxgb3/l2t: Fix undefined behaviour")
+>
+> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
 > ---
->  fs/drop_caches.c | 4 +---
->  mm/vmscan.c      | 1 +
->  2 files changed, 2 insertions(+), 3 deletions(-)
-> 
-> diff --git a/fs/drop_caches.c b/fs/drop_caches.c
-> index d31b6c72b476..a042da782fcd 100644
-> --- a/fs/drop_caches.c
-> +++ b/fs/drop_caches.c
-> @@ -61,10 +61,8 @@ int drop_caches_sysctl_handler(struct ctl_table *table, int write,
->  			iterate_supers(drop_pagecache_sb, NULL);
->  			count_vm_event(DROP_PAGECACHE);
->  		}
-> -		if (sysctl_drop_caches & 2) {
-> +		if (sysctl_drop_caches & 2)
->  			drop_slab();
-> -			count_vm_event(DROP_SLAB);
-> -		}
->  		if (!stfu) {
->  			pr_info("%s (%d): drop_caches: %d\n",
->  				current->comm, task_pid_nr(current),
-> diff --git a/mm/vmscan.c b/mm/vmscan.c
-> index 5a6445e86328..c3e53502a84a 100644
-> --- a/mm/vmscan.c
-> +++ b/mm/vmscan.c
-> @@ -726,6 +726,7 @@ void drop_slab(void)
->  
->  	for_each_online_node(nid)
->  		drop_slab_node(nid);
-> +	count_vm_event(DROP_SLAB);
->  }
->  
->  static inline int is_page_cache_freeable(struct page *page)
-> -- 
-> 2.23.0
+>  drivers/gpu/drm/etnaviv/etnaviv_gem.h         | 2 +-
+>  drivers/gpu/drm/gma500/intel_bios.h           | 2 +-
+>  drivers/gpu/drm/i915/display/intel_vbt_defs.h | 4 ++--
+>  drivers/gpu/drm/i915/gt/intel_lrc.c           | 2 +-
+>  drivers/gpu/drm/i915/i915_gpu_error.h         | 2 +-
+
+Please split out the i915 changes to a separate patch.
+
+>  drivers/gpu/drm/msm/msm_gem.h                 | 2 +-
+>  drivers/gpu/drm/qxl/qxl_cmd.c                 | 2 +-
+>  drivers/gpu/drm/vboxvideo/vboxvideo.h         | 2 +-
+>  drivers/gpu/drm/vc4/vc4_drv.h                 | 2 +-
+>  drivers/gpu/drm/vmwgfx/vmwgfx_page_dirty.c    | 2 +-
+>  drivers/gpu/drm/vmwgfx/vmwgfx_surface.c       | 2 +-
+>  include/drm/bridge/mhl.h                      | 4 ++--
+>  include/drm/drm_displayid.h                   | 2 +-
+>  include/uapi/drm/i915_drm.h                   | 4 ++--
+
+Not sure it's worth touching uapi headers. They're full of both [0] and
+[]. Again, please at least split it to a separate patch to be decided
+separately.
+
+BR,
+Jani.
+
 
 -- 
-Michal Hocko
-SUSE Labs
+Jani Nikula, Intel Open Source Graphics Center
