@@ -1,90 +1,96 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH RFC v4 12/13] mm/vmscan: Export drop_slab() and
- drop_slab_node()
-Date: Tue, 25 Feb 2020 16:09:29 +0100
-Message-ID: <afdf8600-2339-6d74-5e3d-fa1a23384318@redhat.com>
-References: <20191212171137.13872-1-david@redhat.com>
- <20191212171137.13872-13-david@redhat.com>
- <20200225145829.GW22443@dhcp22.suse.cz>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Subject: Re: [PATCH v3] virtio: Work around frames incorrectly marked as gso
+Date: Tue, 25 Feb 2020 11:26:01 -0500
+Message-ID: <CA+FuTSebC064cZXTz_n7jXLrtAcuXxp2N_jiAdi3v2=A6fBBJw@mail.gmail.com>
+References: <20200224132550.2083-1-anton.ivanov@cambridgegreys.com>
+ <CA+FuTSd8P6uQnwisZEh7+nfowW9qKLBEvA4GPg+xUkjBa-6TDA@mail.gmail.com>
+ <4e7757cf-148e-4585-b358-3b38f391275d@cambridgegreys.com> <CA+FuTSdOCJZCVS4xohx+BQmkmq8JALnK=gGc0=qy1TbjY707ag@mail.gmail.com>
+ <93cb2b3f-6cae-8cf1-5fab-93fa34c14628@cambridgegreys.com> <CA+FuTScEXRwYtFzn-jtFhV0dNKNQqKPBwCWaNORJW=ERU=izMA@mail.gmail.com>
+ <6b83116c-2cca-fb03-1c13-bb436dccf1b3@cambridgegreys.com> <cd1b4084-af6b-7fd9-f182-8b32a3c8d837@cambridgegreys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtio-dev-return-6778-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <20200225145829.GW22443@dhcp22.suse.cz>
-Content-Language: en-US
-To: Michal Hocko <mhocko@kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <cd1b4084-af6b-7fd9-f182-8b32a3c8d837@cambridgegreys.com>
+Sender: netdev-owner@vger.kernel.org
+To: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, Eric Dumazet <eric.dumazet@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>, Network Development <netdev@vger.kernel.org>, Jason Wang <jasowang@redhat.com>, linux-um@lists.infradead.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 25.02.20 15:58, Michal Hocko wrote:
-> On Thu 12-12-19 18:11:36, David Hildenbrand wrote:
->> We already have a way to trigger reclaiming of all reclaimable slab ob=
-jects
->> from user space (echo 2 > /proc/sys/vm/drop_caches). Let's allow drive=
-rs
->> to also trigger this when they really want to make progress and know w=
-hat
->> they are doing.
->=20
-> I cannot say I would be fan of this. This is a global action with user
-> visible performance impact. I am worried that we will find out that all
-> sorts of drivers have a very good idea that dropping slab caches is
-> going to help their problem whatever it is. We have seen the same patte=
-r
-> in the userspace already and that is the reason we are logging the usag=
-e
-> to the log and count invocations in the counter.
+> >>>> An skb_dump() + dump_stack() when the packet socket gets such a
+> >>>> packet may point us to the root cause and fix that.
+> >>>
+> >>> We tried dump stack, it was not informative - it was just the recvmmsg
+> >>> call stack coming from the UML until it hits the relevant recv bit in
+> >>> af_packet - it does not tell us where the packet is coming from.
+> >>>
+> >>> Quoting from the message earlier in the thread:
+> >>>
+> >>> [ 2334.180854] Call Trace:
+> >>> [ 2334.181947]  dump_stack+0x5c/0x80
+> >>> [ 2334.183021]  packet_recvmsg.cold+0x23/0x49
+> >>> [ 2334.184063]  ___sys_recvmsg+0xe1/0x1f0
+> >>> [ 2334.185034]  ? packet_poll+0xca/0x130
+> >>> [ 2334.186014]  ? sock_poll+0x77/0xb0
+> >>> [ 2334.186977]  ? ep_item_poll.isra.0+0x3f/0xb0
+> >>> [ 2334.187936]  ? ep_send_events_proc+0xf1/0x240
+> >>> [ 2334.188901]  ? dequeue_signal+0xdb/0x180
+> >>> [ 2334.189848]  do_recvmmsg+0xc8/0x2d0
+> >>> [ 2334.190728]  ? ep_poll+0x8c/0x470
+> >>> [ 2334.191581]  __sys_recvmmsg+0x108/0x150
+> >>> [ 2334.192441]  __x64_sys_recvmmsg+0x25/0x30
+> >>> [ 2334.193346]  do_syscall_64+0x53/0x140
+> >>> [ 2334.194262]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+> >>
+> >> That makes sense. skb_dump might show more interesting details about
+> >> the packet.
+> >
+> > I will add that and retest later today.
+>
+>
+> skb len=818 headroom=2 headlen=818 tailroom=908
+> mac=(2,14) net=(16,0) trans=16
+> shinfo(txflags=0 nr_frags=0 gso(size=752 type=0 segs=1))
+> csum(0x100024 ip_summed=3 complete_sw=0 valid=0 level=0)
+> hash(0x0 sw=0 l4=0) proto=0x0800 pkttype=4 iif=0
+> sk family=17 type=3 proto=0
+>
+> Deciphering the actual packet data gives a
+>
+> TCP packet, ACK and PSH set.
+>
+> The PSH flag looks like the only "interesting" thing about it in first read.
 
-Yeah, I decided to hold back patch 11-13 for the v1 (which I am planning
-to post in March after more testing). What we really want is to make
-memory offlining an alloc_contig_range() work better with reclaimable
-objects.
+Thanks.
 
->=20
->> virtio-mem wants to use these functions when it failed to unplug memor=
-y
->> for quite some time (e.g., after 30 minutes). It will then try to
->> free up reclaimable objects by dropping the slab caches every now and
->> then (e.g., every 30 minutes) as long as necessary. There will be a wa=
-y to
->> disable this feature and info messages will be logged.
->>
->> In the future, we want to have a drop_slab_range() functionality
->> instead. Memory offlining code has similar demands and also other
->> alloc_contig_range() users (e.g., gigantic pages) could make good use =
-of
->> this feature. Adding it, however, requires more work/thought.
->=20
-> We already do have a memory_notify(MEM_GOING_OFFLINE) for that purpose
-> and slab allocator implements a callback (slab_mem_going_offline_callba=
-ck).
-> The callback is quite dumb and it doesn't really try to free objects
-> from the given memory range or even try to drop active objects which
-> might turn out to be hard but this sounds like a more robust way to
-> achieve what you want.
+TCP always sets the PSH bit on a GSO packet as of commit commit
+051ba67447de  ("tcp: force a PSH flag on TSO packets"), so that is
+definitely informative.
 
-Two things:
+The lower gso size might come from a path mtu probing depending on
+tcp_base_mss, but that's definitely wild speculation. Increasing that
+value to, say, 1024, could tell us.
 
-1. memory_notify(MEM_GOING_OFFLINE) is called after trying to isolate
-the page range and checking if we only have movable pages. Won't help
-much I guess.
+In this case it may indeed not be a GSO packet. As 752 is the MSS + 28
+B TCP header including timestamp + 20 B IPv4 header + 14B Eth header.
+Which adds up to 814 already.
 
-2. alloc_contig_range() won't benefit from that.
+Not sure what those 2 B between skb->data and mac_header are. Was this
+captured inside packet_rcv? network_header and transport_header both
+at 16B offset is also sketchy, but again may be an artifact of where
+exactly this is being read.
 
-Something like drop_slab_range() would be better, and calling it from
-the right spots in the core (e.g., set_migratetype_isolate() see below).
+Perhaps this is a segment of a larger GSO packet that is retransmitted
+in part. Like an mtu probe or loss probe. See for instance this in
+tcp_send_loss_probe for  how a single MSS is extracted:
 
-Especially, have a look at mm/page_isolation.c:set_migratetype_isolate()
+       if ((pcount > 1) && (skb->len > (pcount - 1) * mss)) {
+                if (unlikely(tcp_fragment(sk, TCP_FRAG_IN_RTX_QUEUE, skb,
+                                          (pcount - 1) * mss, mss,
+                                          GFP_ATOMIC)))
+                        goto rearm_timer;
+                skb = skb_rb_next(skb);
+        }
 
-"FIXME: Now, memory hotplug doesn't call shrink_slab() by itself. We
-just check MOVABLE pages."
-
---=20
-Thanks,
-
-David / dhildenb
+Note that I'm not implicating this specific code. I don't see anything
+wrong with it. Just an indication that a trace would be very
+informative, as it could tell if any of these edge cases is being hit.
