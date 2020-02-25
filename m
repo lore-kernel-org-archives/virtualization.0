@@ -1,8 +1,8 @@
-From: Jason Wang <jasowang-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH 0/2] virtio: decouple protected guest RAM form
  VIRTIO_F_IOMMU_PLATFORM
-Date: Tue, 25 Feb 2020 11:30:16 +0800
-Message-ID: <1b2673e7-56ff-7d69-af2d-503a97408d95@redhat.com>
+Date: Tue, 25 Feb 2020 11:38:34 +0800
+Message-ID: <ac15de73-8c61-5e82-4ed2-760b7f3055bb@redhat.com>
 References: <20200220160606.53156-1-pasic@linux.ibm.com>
  <426e6972-0565-c931-e171-da0f58fbf856@redhat.com>
  <20200221155602.4de41fa7.pasic@linux.ibm.com>
@@ -11,81 +11,62 @@ References: <20200220160606.53156-1-pasic@linux.ibm.com>
  <b3c52c67-c740-a50e-2595-fe04d179c881@redhat.com>
  <20200224024641-mutt-send-email-mst@kernel.org>
  <08d6bdfb-9b49-c278-3c0b-2e02376cf0cf@redhat.com>
- <20200224145607.2729f47b.pasic@linux.ibm.com>
+ <20200224083845-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-In-Reply-To: <20200224145607.2729f47b.pasic-tEXmvtCZX7AybS5Ee8rs3A@public.gmane.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200224083845-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
- <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
- <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Sender: "iommu" <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-To: Halil Pasic <pasic-tEXmvtCZX7AybS5Ee8rs3A@public.gmane.org>
-Cc: linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Janosch Frank <frankja-tEXmvtCZX7AybS5Ee8rs3A@public.gmane.org>, "Michael S. Tsirkin" <mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Cornelia Huck <cohuck-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Ram Pai <linuxram-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Christian Borntraeger <borntraeger-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, David Gibson <david-xT8FGy+AXnRB3Ne2BGzF6laj5H9X9Tb+@public.gmane.org>, Michael Mueller <mimu-tEXmvtCZX7AybS5Ee8rs3A@public.gmane.org>, "Lendacky,
- Thomas" <Thomas.Lendacky-5C7GfCeVMHo@public.gmane.org>, Viktor Mihajlovski <mihajlov-tEXmvtCZX7AybS5Ee8rs3A@public.gmane.org>, Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>, Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, Christoph Hellwig <hch@lst.de>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Christian Borntraeger <borntraeger@de.ibm.com>, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, David Gibson <david@gibson.dropbear.id.au>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMjAvMi8yNCDkuIvljYg5OjU2LCBIYWxpbCBQYXNpYyB3cm90ZToKPiBPbiBNb24sIDI0
-IEZlYiAyMDIwIDE3OjI2OjIwICswODAwCj4gSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNv
-bT4gd3JvdGU6Cj4KPj4gVGhhdCdzIGJldHRlci4KPj4KPj4gSG93IGFib3V0IGF0dGFjaGVkPwo+
-Pgo+PiBUaGFua3MKPiBUaGFua3MgSmFzb24hIEl0IGRvZXMgYXZvaWQgdGhlIHRyYW5zbGF0aW9u
-IG92ZXJoZWFkIGluIHZob3N0Lgo+Cj4gVGVzdGVkLWJ5OiBIYWxpbCBQYXNpYyA8cGFzaWNAbGlu
-dXguaWJtLmNvbT4KPgo+IFJlZ2FyZGluZyB0aGUgY29kZSwgeW91IGZlbmNlIGl0IGluIHZpcnRp
-by1uZXQuYywgYnV0IEFGQUlVIHRoaXMgZmVhdHVyZQo+IGhhcyByZWxldmFuY2UgZm9yIG90aGVy
-IHZob3N0IGRldmljZXMgYXMgd2VsbC4gRS5nLiB3aGF0IGFib3V0IHZob3N0Cj4gdXNlcj8gV291
-bGQgaXQgYmUgdGhlIHJlc3BvbnNpYmlsaXR5IG9mIGVhY2ggdmlydGlvIGRldmljZSB0byBmZW5j
-ZSB0aGlzCj4gb24gaXRzIG93bj8KCgpZZXMsIGl0IGxvb2tzIHRvIG1lIGl0J3MgYmV0dGVyIHRv
-IGRvIHRoYXQgaW4gdmlydGlvX3NldF9mZWF0dXJlc19ub2NoZWNrKCkKCgo+Cj4gSSdtIGFsc28g
-YSBiaXQgY29uZnVzZWQgYWJvdXQgdGhlIHNlbWFudGljcyBvZiB0aGUgdmhvc3QgZmVhdHVyZSBi
-aXQKPiBGX0FDQ0VTU19QTEFURk9STS4gV2hhdCB3ZSBoYXZlIHNwZWNpZmllZCBvbiB2aXJ0aW8g
-bGV2ZWwgaXM6Cj4gIiIiCj4gVGhpcyBmZWF0dXJlIGluZGljYXRlcyB0aGF0IHRoZSBkZXZpY2Ug
-Y2FuIGJlIHVzZWQgb24gYSBwbGF0Zm9ybSB3aGVyZQo+IGRldmljZSBhY2Nlc3MgdG8gZGF0YSBp
-biBtZW1vcnkgaXMgbGltaXRlZCBhbmQvb3IgdHJhbnNsYXRlZC4gRS5nLiB0aGlzCj4gaXMgdGhl
-IGNhc2UgaWYgdGhlIGRldmljZSBjYW4gYmUgbG9jYXRlZCBiZWhpbmQgYW4gSU9NTVUgdGhhdCB0
-cmFuc2xhdGVzCj4gYnVzIGFkZHJlc3NlcyBmcm9tIHRoZSBkZXZpY2UgaW50byBwaHlzaWNhbCBh
-ZGRyZXNzZXMgaW4gbWVtb3J5LCBpZiB0aGUKPiBkZXZpY2UgY2FuIGJlIGxpbWl0ZWQgdG8gb25s
-eSBhY2Nlc3MgY2VydGFpbiBtZW1vcnkgYWRkcmVzc2VzIG9yIGlmCj4gc3BlY2lhbCBjb21tYW5k
-cyBzdWNoIGFzIGEgY2FjaGUgZmx1c2ggY2FuIGJlIG5lZWRlZCB0byBzeW5jaHJvbmlzZSBkYXRh
-Cj4gaW4gbWVtb3J5IHdpdGggdGhlIGRldmljZS4gV2hldGhlciBhY2Nlc3NlcyBhcmUgYWN0dWFs
-bHkgbGltaXRlZCBvcgo+IHRyYW5zbGF0ZWQgaXMgZGVzY3JpYmVkIGJ5IHBsYXRmb3JtLXNwZWNp
-ZmljIG1lYW5zLiBJZiB0aGlzIGZlYXR1cmUgYml0Cj4gaXMgc2V0IHRvIDAsIHRoZW4gdGhlIGRl
-dmljZSBoYXMgc2FtZSBhY2Nlc3MgdG8gbWVtb3J5IGFkZHJlc3Nlcwo+IHN1cHBsaWVkIHRvIGl0
-IGFzIHRoZSBkcml2ZXIgaGFzLiBJbiBwYXJ0aWN1bGFyLCB0aGUgZGV2aWNlIHdpbGwgYWx3YXlz
-Cj4gdXNlIHBoeXNpY2FsIGFkZHJlc3NlcyBtYXRjaGluZyBhZGRyZXNzZXMgdXNlZCBieSB0aGUg
-ZHJpdmVyICh0eXBpY2FsbHkKPiBtZWFuaW5nIHBoeXNpY2FsIGFkZHJlc3NlcyB1c2VkIGJ5IHRo
-ZSBDUFUpIGFuZCBub3QgdHJhbnNsYXRlZCBmdXJ0aGVyLAo+IGFuZCBjYW4gYWNjZXNzIGFueSBh
-ZGRyZXNzIHN1cHBsaWVkIHRvIGl0IGJ5IHRoZSBkcml2ZXIuIFdoZW4gY2xlYXIsCj4gdGhpcyBv
-dmVycmlkZXMgYW55IHBsYXRmb3JtLXNwZWNpZmljIGRlc2NyaXB0aW9uIG9mIHdoZXRoZXIgZGV2
-aWNlCj4gYWNjZXNzIGlzIGxpbWl0ZWQgb3IgdHJhbnNsYXRlZCBpbiBhbnkgd2F5LCBlLmcuIHdo
-ZXRoZXIgYW4gSU9NTVUgbWF5IGJlCj4gcHJlc2VudC4KPiAiIiIKPgo+IEkgcmVhZCB0aGlzIGxp
-a2UgdGhlIGFkZHJlc3NlcyBtYXkgYmUgSU9WQXMgd2hpY2ggcmVxdWlyZQo+IElNTVUgdHJhbnNs
-YXRpb24gb3IgR1BBcyB3aGljaCBkb24ndC4KPgo+IE9uIHRoZSB2aG9zdCBsZXZlbCBob3dldmVy
-LCBpdCBzZWVtcyB0aGF0IEZfSU9NTVVfUExBVEZPUk0gbWVhbnMgdGhhdAo+IHZob3N0IGhhcyB0
-byBkbyB0aGUgdHJhbnNsYXRpb24gKHZpYSBJT1RMQiBBUEkpLgoKClllcy4KCgo+Cj4gRG8gSSB1
-bmRlcnN0YW5kIHRoaXMgY29ycmVjdGx5PyBJZiB5ZXMsIEkgYmVsaWV2ZSB3ZSBzaG91bGQgZG9j
-dW1lbnQKPiB0aGlzIHByb3Blcmx5LgoKCkdvb2QgcG9pbnQuIEkgdGhpbmsgaXQgd2FzIHByb2Jh
-Ymx5IHdyb25nIHRvIHRpZSBGX0lPTU1VX1BMQVRGT1JNIHRvIApJT1RMQiBBUEkuIFRlY2huaWNh
-bGx5IElPVExCIGNhbiB3b3JrIHdpdGggR1BBLT5IVkEgbWFwcGluZy4gSSAKb3JpZ2luYWxseSB1
-c2UgYSBkZWRpY2F0ZWQgZmVhdHVyZSBiaXQgKHlvdSBjYW4gc2VlIHRoYXQgZnJvbSBjb21taXQg
-CmxvZyksIGJ1dCBmb3Igc29tZSByZWFzb24gTWljaGFlbCB0d2VhayBpdCB0byB2aXJ0aW8gZmVh
-dHVyZSBiaXQuIEkgCmd1ZXNzIGl0IHdhcyBwcm9iYWJseSBiZWNhdXNlIGF0IHRoYXQgdGltZSB0
-aGVyZSdzIG5vIHdheSB0byBzcGVjaWZ5IGUuZyAKYmFja2VuZCBjYXBhYmlsaXR5IGJ1dCBub3cg
-d2UgaGF2ZSBWSE9TVF9HRVRfQkFDS0VORF9GRUFUVVJFUy4KCkZvciBub3csIGl0IHdhcyBwcm9i
-YWJseSB0b28gbGF0ZSB0byBmaXggdGhhdCBidXQgZG9jdW1lbnQgb3Igd2UgY2FuIGFkZCAKdGhl
-IHN1cHBvcnQgb2YgZW5hYmxpbmcgSU9UTEIgdmlhIG5ldyBiYWNrZW5kIGZlYXR1cmVzLgoKCj4K
-PiBCVFcgSSdtIHN0aWxsIG5vdCAxMDAlIG9uIHRoZSBwdXJwb3NlIGFuZCBzZW1hbnRpY3Mgb2Yg
-dGhlCj4gRl9BQ0NFU1NfUExBVEZPUk0gZmVhdHVyZSBiaXQuIEJ1dCB0aGF0IGlzIGEgZGlmZmVy
-ZW50IHByb2JsZW0uCgoKWWVzLCBJIGFnZ3JlZSB0aGF0IHdlIHNob3VsZCBkZWNvdXBsZSB0aGUg
-ZmVhdHVyZXMgdGhhdCBkb2VzIG5vdCBiZWxvbmdzIAp0byBkZXZpY2UgKHByb3RlY3RlZCwgZW5j
-cnlwdGVkLCBzd2lvdGxiIGV0YykgZnJvbSBGX0lPTU1VX1BMQVRGT1JNLiBCdXQgCk1pY2hhZWwg
-YW5kIG90aGVyIGhhdmUgdGhlaXIgcG9pbnRzIGFzIHdlbGwuCgpUaGFua3MKCgo+Cj4gUmVnYXJk
-cywKPiBIYWxpbAo+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fXwppb21tdSBtYWlsaW5nIGxpc3QKaW9tbXVAbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
-aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vaW9tbXU=
+
+On 2020/2/24 =E4=B8=8B=E5=8D=889:40, Michael S. Tsirkin wrote:
+>> Subject: [PATCH] vhost: do not set VIRTIO_F_IOMMU_PLATFORM when IOMMU =
+is not
+>>   used
+>>
+>> We enable device IOTLB unconditionally when VIRTIO_F_IOMMU_PLATFORM is
+>> negotiated. This lead unnecessary IOTLB miss/update transactions when
+>> IOMMU is used. This patch fixes this.
+>>
+>> Signed-off-by: Jason Wang<jasowang@redhat.com>
+>> ---
+>>   hw/net/virtio-net.c | 3 +++
+>>   hw/virtio/vhost.c   | 4 +---
+>>   2 files changed, 4 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/hw/net/virtio-net.c b/hw/net/virtio-net.c
+>> index 3627bb1717..0d50e8bd34 100644
+>> --- a/hw/net/virtio-net.c
+>> +++ b/hw/net/virtio-net.c
+>> @@ -879,6 +879,9 @@ static void virtio_net_set_features(VirtIODevice *=
+vdev, uint64_t features)
+>>           virtio_net_apply_guest_offloads(n);
+>>       }
+>>  =20
+>> +    if (vdev->dma_as =3D=3D &address_space_memory)
+>> +        features &=3D ~(1ULL << VIRTIO_F_IOMMU_PLATFORM);
+>> +
+>>       for (i =3D 0;  i < n->max_queues; i++) {
+>>           NetClientState *nc =3D qemu_get_subqueue(n->nic, i);
+> This pokes at acked features. I think they are also
+> guest visible ...
+
+
+It's the acked features of vhost device, so I guess not?
+
+E.g virtio_set_features_nocheck() did:
+
+ =C2=A0=C2=A0=C2=A0 val &=3D vdev->host_features;
+ =C2=A0=C2=A0=C2=A0 if (k->set_features) {
+ =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 k->set_features(vdev, val);
+ =C2=A0=C2=A0=C2=A0 }
+ =C2=A0=C2=A0=C2=A0 vdev->guest_features =3D val;
+
+Thanks
+
+>
