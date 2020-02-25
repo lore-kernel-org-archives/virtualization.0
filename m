@@ -1,178 +1,383 @@
-From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Subject: Re: [PATCH v3] virtio: Work around frames incorrectly marked as gso
-Date: Tue, 25 Feb 2020 09:40:45 +0000
-Message-ID: <cd1b4084-af6b-7fd9-f182-8b32a3c8d837@cambridgegreys.com>
-References: <20200224132550.2083-1-anton.ivanov@cambridgegreys.com>
- <CA+FuTSd8P6uQnwisZEh7+nfowW9qKLBEvA4GPg+xUkjBa-6TDA@mail.gmail.com>
- <4e7757cf-148e-4585-b358-3b38f391275d@cambridgegreys.com>
- <CA+FuTSdOCJZCVS4xohx+BQmkmq8JALnK=gGc0=qy1TbjY707ag@mail.gmail.com>
- <93cb2b3f-6cae-8cf1-5fab-93fa34c14628@cambridgegreys.com>
- <CA+FuTScEXRwYtFzn-jtFhV0dNKNQqKPBwCWaNORJW=ERU=izMA@mail.gmail.com>
- <6b83116c-2cca-fb03-1c13-bb436dccf1b3@cambridgegreys.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH RFC v4 00/13] virtio-mem: paravirtualized memory
+Date: Tue, 25 Feb 2020 10:58:36 +0100
+Message-ID: <3468efe4-0878-3d22-4f74-3092acfd0c47@redhat.com>
+References: <20191212171137.13872-1-david@redhat.com>
+ <9acc5d04-c8e9-ef53-85e4-709030997ca6@redhat.com>
+ <d07c6b4a-46e3-3f81-04db-ea1475fe48c2@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <6b83116c-2cca-fb03-1c13-bb436dccf1b3@cambridgegreys.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <virtio-dev-return-6774-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+In-Reply-To: <d07c6b4a-46e3-3f81-04db-ea1475fe48c2@redhat.com>
 Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: Eric Dumazet <eric.dumazet@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>, Network Development <netdev@vger.kernel.org>, Jason Wang <jasowang@redhat.com>, linux-um@lists.infradead.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org, Michal Hocko <mhocko@kernel.org>
+Cc: linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Sebastien Boeuf <sebastien.boeuf@intel.com>, Samuel Ortiz <samuel.ortiz@intel.com>, Robert Bradford <robert.bradford@intel.com>, Luiz Capitulino <lcapitulino@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Alexander Potapenko <glider@google.com>, Alexander Viro <viro@zeniv.linux.org.uk>, Anshuman Khandual <anshuman.khandual@arm.com>, Anthony Yznaga <anthony.yznaga@oracle.com>, Dan Williams <dan.j.williams@intel.com>, Dave Young <dyoung@redhat.com>, Igor Mammedov <imammedo@redhat.com>, Jason Wang <jasowang@redhat.com>, Johannes Weiner <hannes@cmpxchg.org>, Juergen Gross <jgross@suse.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Len Brown <lenb@ker>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On 25/02/2020 07:48, Anton Ivanov wrote:
-> 
-> 
-> On 24/02/2020 22:22, Willem de Bruijn wrote:
->> On Mon, Feb 24, 2020 at 4:00 PM Anton Ivanov
->> <anton.ivanov@cambridgegreys.com> wrote:
+On 29.01.20 10:41, David Hildenbrand wrote:
+> On 09.01.20 14:48, David Hildenbrand wrote:
+>> On 12.12.19 18:11, David Hildenbrand wrote:
+>>> This series is based on latest linux-next. The patches are located at:
+>>>     https://github.com/davidhildenbrand/linux.git virtio-mem-rfc-v4
 >>>
->>> On 24/02/2020 20:20, Willem de Bruijn wrote:
->>>> On Mon, Feb 24, 2020 at 2:55 PM Anton Ivanov
->>>> <anton.ivanov@cambridgegreys.com> wrote:
->>>>> On 24/02/2020 19:27, Willem de Bruijn wrote:
->>>>>> On Mon, Feb 24, 2020 at 8:26 AM <anton.ivanov@cambridgegreys.com> wrote:
->>>>>>> From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
->>>>>>>
->>>>>>> Some of the locally generated frames marked as GSO which
->>>>>>> arrive at virtio_net_hdr_from_skb() have no GSO_TYPE, no
->>>>>>> fragments (data_len = 0) and length significantly shorter
->>>>>>> than the MTU (752 in my experiments).
->>>>>> Do we understand how these packets are generated?
->>>>> No, we have not been able to trace them.
->>>>>
->>>>> The only thing we know is that this is specific to locally generated
->>>>> packets. Something arriving from the network does not show this.
->>>>>
->>>>>> Else it seems this
->>>>>> might be papering over a deeper problem.
->>>>>>
->>>>>> The stack should not create GSO packets less than or equal to
->>>>>> skb_shinfo(skb)->gso_size. See for instance the check in
->>>>>> tcp_gso_segment after pulling the tcp header:
->>>>>>
->>>>>>            mss = skb_shinfo(skb)->gso_size;
->>>>>>            if (unlikely(skb->len <= mss))
->>>>>>                    goto out;
->>>>>>
->>>>>> What is the gso_type, and does it include SKB_GSO_DODGY?
->>>>>>
->>>>>
->>>>> 0 - not set.
->>>> Thanks for the follow-up details. Is this something that you can trigger easily?
+>>> The basic idea of virtio-mem is to provide a flexible,
+>>> cross-architecture memory hot(un)plug solution that avoids many limitations
+>>> imposed by existing technologies, architectures, and interfaces. More
+>>> details can be found below and in linked material.
 >>>
->>> Yes, if you have a UML instance handy.
+>>> This RFC is limited to x86-64, however, should theoretically work on any
+>>> architecture that supports virtio and implements memory hot(un)plug under
+>>> Linux - like s390x, powerpc64 and arm64. On x86-64, it is currently
+>>> possible to add/remove memory to the system in >= 4MB granularity.
+>>> Memory hotplug works very reliably. For memory unplug, there are no
+>>> guarantees how much memory can actually get unplugged, it depends on the
+>>> setup (especially: fragmentation of (unmovable) memory). I have plans to
+>>> improve that in the future.
 >>>
->>> Running iperf between the host and a UML guest using raw socket
->>> transport triggers it immediately.
+>>> --------------------------------------------------------------------------
+>>> 1. virtio-mem
+>>> --------------------------------------------------------------------------
 >>>
->>> This is my UML command line:
+>>> The basic idea behind virtio-mem was presented at KVM Forum 2018. The
+>>> slides can be found at [1]. The previous RFC can be found at [2]. The
+>>> first RFC can be found at [3]. However, the concept evolved over time. The
+>>> KVM Forum slides roughly match the current design.
 >>>
->>> vmlinux mem=2048M umid=OPX \
->>>       ubd0=OPX-3.0-Work.img \
->>> vec0:transport=raw,ifname=p-veth0,depth=128,gro=1,mac=92:9b:36:5e:38:69 \
->>>       root=/dev/ubda ro con=null con0=null,fd:2 con1=fd:0,fd:1
+>>> Patch #2 ("virtio-mem: Paravirtualized memory hotplug") contains quite some
+>>> information, especially in "include/uapi/linux/virtio_mem.h":
 >>>
->>> p-right is a part of a vEth pair:
+>>>   Each virtio-mem device manages a dedicated region in physical address
+>>>   space. Each device can belong to a single NUMA node, multiple devices
+>>>   for a single NUMA node are possible. A virtio-mem device is like a
+>>>   "resizable DIMM" consisting of small memory blocks that can be plugged
+>>>   or unplugged. The device driver is responsible for (un)plugging memory
+>>>   blocks on demand.
 >>>
->>> ip link add l-veth0 type veth peer name p-veth0 && ifconfig p-veth0 up
+>>>   Virtio-mem devices can only operate on their assigned memory region in
+>>>   order to (un)plug memory. A device cannot (un)plug memory belonging to
+>>>   other devices.
 >>>
->>> iperf server is on host, iperf -c in the guest.
+>>>   The "region_size" corresponds to the maximum amount of memory that can
+>>>   be provided by a device. The "size" corresponds to the amount of memory
+>>>   that is currently plugged. "requested_size" corresponds to a request
+>>>   from the device to the device driver to (un)plug blocks. The
+>>>   device driver should try to (un)plug blocks in order to reach the
+>>>   "requested_size". It is impossible to plug more memory than requested.
 >>>
->>>>
->>>> An skb_dump() + dump_stack() when the packet socket gets such a
->>>> packet may point us to the root cause and fix that.
+>>>   The "usable_region_size" represents the memory region that can actually
+>>>   be used to (un)plug memory. It is always at least as big as the
+>>>   "requested_size" and will grow dynamically. It will only shrink when
+>>>   explicitly triggered (VIRTIO_MEM_REQ_UNPLUG).
 >>>
->>> We tried dump stack, it was not informative - it was just the recvmmsg
->>> call stack coming from the UML until it hits the relevant recv bit in
->>> af_packet - it does not tell us where the packet is coming from.
+>>>   Memory in the usable region can usually be read, however, there are no
+>>>   guarantees. It can happen that the device cannot process a request,
+>>>   because it is busy. The device driver has to retry later.
 >>>
->>> Quoting from the message earlier in the thread:
+>>>   Usually, during system resets all memory will get unplugged, so the
+>>>   device driver can start with a clean state. However, in specific
+>>>   scenarios (if the device is busy) it can happen that the device still
+>>>   has memory plugged. The device driver can request to unplug all memory
+>>>   (VIRTIO_MEM_REQ_UNPLUG) - which might take a while to succeed if the
+>>>   device is busy.
 >>>
->>> [ 2334.180854] Call Trace:
->>> [ 2334.181947]  dump_stack+0x5c/0x80
->>> [ 2334.183021]  packet_recvmsg.cold+0x23/0x49
->>> [ 2334.184063]  ___sys_recvmsg+0xe1/0x1f0
->>> [ 2334.185034]  ? packet_poll+0xca/0x130
->>> [ 2334.186014]  ? sock_poll+0x77/0xb0
->>> [ 2334.186977]  ? ep_item_poll.isra.0+0x3f/0xb0
->>> [ 2334.187936]  ? ep_send_events_proc+0xf1/0x240
->>> [ 2334.188901]  ? dequeue_signal+0xdb/0x180
->>> [ 2334.189848]  do_recvmmsg+0xc8/0x2d0
->>> [ 2334.190728]  ? ep_poll+0x8c/0x470
->>> [ 2334.191581]  __sys_recvmmsg+0x108/0x150
->>> [ 2334.192441]  __x64_sys_recvmmsg+0x25/0x30
->>> [ 2334.193346]  do_syscall_64+0x53/0x140
->>> [ 2334.194262]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+>>> --------------------------------------------------------------------------
+>>> 2. Linux Implementation
+>>> --------------------------------------------------------------------------
+>>>
+>>> This RFC reuses quite some existing MM infrastructure, however, has to
+>>> expose some additional functionality.
+>>>
+>>> Memory blocks (e.g., 128MB) are added/removed on demand. Within these
+>>> memory blocks, subblocks (e.g., 4MB) are plugged/unplugged. The sizes
+>>> depend on the target architecture, MAX_ORDER + pageblock_order, and
+>>> the block size of a virtio-mem device.
+>>>
+>>> add_memory()/try_remove_memory() is used to add/remove memory blocks.
+>>> virtio-mem will not online memory blocks itself. This has to be done by
+>>> user space, or configured into the kernel
+>>> (CONFIG_MEMORY_HOTPLUG_DEFAULT_ONLINE). virtio-mem will only unplug memory
+>>> that was online to the ZONE_NORMAL. Memory is suggested to be onlined to
+>>> the ZONE_NORMAL for now.
+>>>
+>>> The memory hotplug notifier is used to properly synchronize against
+>>> onlining/offlining of memory blocks and to track the states of memory
+>>> blocks (including the zone memory blocks are onlined to).
+>>>
+>>> The set_online_page() callback is used to keep unplugged subblocks
+>>> of a memory block fake-offline when onlining the memory block.
+>>> generic_online_page() is used to fake-online plugged subblocks. This
+>>> handling is similar to the Hyper-V balloon driver.
+>>>
+>>> PG_offline is used to mark unplugged subblocks as offline, so e.g.,
+>>> dumping tools (makedumpfile) will skip these pages. This is similar to
+>>> other balloon drivers like virtio-balloon and Hyper-V.
+>>>
+>>> Memory offlining code is extended to allow drivers to drop their reference
+>>> to PG_offline pages when MEM_GOING_OFFLINE, so these pages can be skipped
+>>> when offlining memory blocks. This allows to offline memory blocks that
+>>> have partially unplugged (allocated e.g., via alloc_contig_range())
+>>> subblocks - or are completely unplugged.
+>>>
+>>> alloc_contig_range()/free_contig_range() [now exposed] is used to
+>>> unplug/plug subblocks of memory blocks the are already exposed to Linux.
+>>>
+>>> offline_and_remove_memory() [new] is used to offline a fully unplugged
+>>> memory block and remove it from Linux.
+>>>
+>>>
+>>> A lot of additional information can be found in the separate patches and
+>>> as comments in the code itself.
+>>>
+>>> --------------------------------------------------------------------------
+>>> 3. Changes RFC v2 -> v3
+>>> --------------------------------------------------------------------------
+>>>
+>>> A lot of things changed, especially also on the QEMU + virtio side. The
+>>> biggest changes on the Linux driver side are:
+>>> - Onlining/offlining of subblocks is now emulated on top of memory blocks.
+>>>   set_online_page()+alloc_contig_range()+free_contig_range() is now used
+>>>   for that. Core MM does not have to be modified and will continue to
+>>>   online/offline full memory blocks.
+>>> - Onlining/offlining of memory blocks is no longer performed by virtio-mem.
+>>> - Pg_offline is upstream and can be used. It is also used to allow
+>>>   offlining of partially unplugged memory blocks.
+>>> - Memory block states + subblocks are now tracked more space-efficient.
+>>> - Proper kexec(), kdump(), driver unload, driver reload, ZONE_MOVABLE, ...
+>>>   handling.
+>>>
+>>> --------------------------------------------------------------------------
+>>> 4. Changes RFC v3 -> RFC v4
+>>> --------------------------------------------------------------------------
+>>>
+>>> Only minor things changed, especially nothing on the QEMU + virtio side.
+>>> Interresting changes on the Linux driver side are:
+>>> - "mm: Allow to offline unmovable PageOffline() pages via
+>>>    MEM_GOING_OFFLINE"
+>>> -- Rework to Michals suggestion (allow to isolate all PageOffline() pages
+>>>    by skipping all PageOffline() pages in has_unmovable_pages(). Fail
+>>>    offlining later if the pages cannot be offlined/migrated).
+>>> - "virtio-mem: Allow to offline partially unplugged memory blocks"
+>>> -- Adapt to Michals suggestion on core-mm part.
+>>> - "virtio-mem: Better retry handling"
+>>> -- Optimize retry intervals
+>>> - "virtio-mem: Drop slab objects when unplug continues to fail"
+>>> -- Call drop_slab()/drop_slab_node() when unplug keeps failing for a longer
+>>>    time.
+>>> - Multiple cleanups and fixes.
+>>>
+>>> --------------------------------------------------------------------------
+>>> 5. Future work
+>>> --------------------------------------------------------------------------
+>>>
+>>> The separate patches contain a lot of future work items. One of the next
+>>> steps is to make memory unplug more likely to succeed - currently, there
+>>> are no guarantees on how much memory can get unplugged again. I have
+>>> various ideas on how to limit fragmentation of all memory blocks that
+>>> virtio-mem added.
+>>>
+>>> Memory hotplug:
+>>> - Reduce the amount of memory resources if that turnes out to be an
+>>>   issue. Or try to speed up relevant code paths to deal with many
+>>>   resources.
+>>> - Allocate the vmemmap from the added memory. Makes hotplug more likely
+>>>   to succeed, the vmemmap is stored on the same NUMA node and that
+>>>   unmovable memory will later not hinder unplug.
+>>>
+>>> Memory hotunplug:
+>>> - Performance improvements:
+>>> -- Sense (lockless) if it make sense to try alloc_contig_range() at all
+>>>    before directly trying to isolate and taking locks.
+>>> -- Try to unplug bigger chunks if possible first.
+>>> -- Identify free areas first, that don't have to be evacuated.
+>>> - Make unplug more likely to succeed:
+>>> -- There are various idea to limit fragmentation on memory block
+>>>    granularity. (e.g., ZONE_PREFER_MOVABLE and smart balancing)
+>>> -- Allocate memmap from added memory. This way, less unmovable data can
+>>>    end up on the memory blocks.
+>>> - OOM handling, e.g., via an OOM handler.
+>>> - Defragmentation
+>>> -- Will require a new virtio-mem CMD to exchange plugged<->unplugged blocks
+>>>
+>>> --------------------------------------------------------------------------
+>>> 6. Example Usage
+>>> --------------------------------------------------------------------------
+>>>
+>>> A very basic QEMU prototype (kept updated) is available at:
+>>>     https://github.com/davidhildenbrand/qemu.git virtio-mem
+>>>
+>>> It lacks various features, however, works to test the guest driver side:
+>>> - No support for resizable memory regions / memory backends yet
+>>> - No protection of unplugged memory (esp., userfaultfd-wp) yet
+>>> - No dump/migration/XXX optimizations to skip unplugged memory (and avoid
+>>>   touching it)
+>>>
+>>> Start QEMU with two virtio-mem devices (one per NUMA node):
+>>>  $ qemu-system-x86_64 -m 4G,maxmem=20G \
+>>>   -smp sockets=2,cores=2 \
+>>>   -numa node,nodeid=0,cpus=0-1 -numa node,nodeid=1,cpus=2-3 \
+>>>   [...]
+>>>   -object memory-backend-ram,id=mem0,size=8G \
+>>>   -device virtio-mem-pci,id=vm0,memdev=mem0,node=0,requested-size=128M \
+>>>   -object memory-backend-ram,id=mem1,size=8G \
+>>>   -device virtio-mem-pci,id=vm1,memdev=mem1,node=1,requested-size=80M
+>>>
+>>> Query the configuration:
+>>>  QEMU 4.1.95 monitor - type 'help' for more information
+>>>  (qemu) info memory-devices
+>>>  Memory device [virtio-mem]: "vm0"
+>>>    memaddr: 0x140000000
+>>>    node: 0
+>>>    requested-size: 134217728
+>>>    size: 134217728
+>>>    max-size: 8589934592
+>>>    block-size: 2097152
+>>>    memdev: /objects/mem0
+>>>  Memory device [virtio-mem]: "vm1"
+>>>    memaddr: 0x340000000
+>>>    node: 1
+>>>    requested-size: 83886080
+>>>    size: 83886080
+>>>    max-size: 8589934592
+>>>    block-size: 2097152
+>>>    memdev: /objects/mem1
+>>>
+>>> Add some memory to node 1:
+>>>  QEMU 4.1.95 monitor - type 'help' for more information
+>>>  (qemu) qom-set vm1 requested-size 1G
+>>>
+>>> Remove some memory from node 0:
+>>>  QEMU 4.1.95 monitor - type 'help' for more information
+>>>  (qemu) qom-set vm0 requested-size 64M
+>>>
+>>> Query the configuration again:
+>>>  (qemu) info memory-devices
+>>>  Memory device [virtio-mem]: "vm0"
+>>>    memaddr: 0x140000000
+>>>    node: 0
+>>>    requested-size: 67108864
+>>>    size: 67108864
+>>>    max-size: 8589934592
+>>>    block-size: 2097152
+>>>    memdev: /objects/mem0
+>>>  Memory device [virtio-mem]: "vm1"
+>>>    memaddr: 0x340000000
+>>>    node: 1
+>>>    requested-size: 1073741824
+>>>    size: 1073741824
+>>>    max-size: 8589934592
+>>>    block-size: 2097152
+>>>    memdev: /objects/mem1
+>>>
+>>> --------------------------------------------------------------------------
+>>> 7. Q/A
+>>> --------------------------------------------------------------------------
+>>>
+>>> Q: Why add/remove parts ("subblocks") of memory blocks/sections?
+>>> A: Flexibility (section size depends on the architecture) - e.g., some
+>>>    architectures have a section size of 2GB. Also, the memory block size
+>>>    is variable (e.g., on x86-64). I want to avoid any such restrictions.
+>>>    Some use cases want to add/remove memory in smaller granularities to a
+>>>    VM (e.g., the Hyper-V balloon also implements this) - especially smaller
+>>>    VMs like used for kata containers. Also, on memory unplug, it is more
+>>>    reliable to free-up and unplug multiple small chunks instead
+>>>    of one big chunk. E.g., if one page of a DIMM is either unmovable or
+>>>    pinned, the DIMM can't get unplugged. This approach is basically a
+>>>    compromise between DIMM-based memory hot(un)plug and balloon
+>>>    inflation/deflation, which works mostly on page granularity.
+>>>
+>>> Q: Why care about memory blocks?
+>>> A: They are the way to tell user space about new memory. This way,
+>>>    memory can get onlined/offlined by user space. Also, e.g., kdump
+>>>    relies on udev events to reload kexec when memory blocks are
+>>>    onlined/offlined. Memory blocks are the "real" memory hot(un)plug
+>>>    granularity. Everything that's smaller has to be emulated "on top".
+>>>
+>>> Q: Won't memory unplug of subblocks fragment memory?
+>>> A: Yes and no. Unplugging e.g., >=4MB subblocks on x86-64 will not really
+>>>    fragment memory like unplugging random pages like a balloon driver does.
+>>>    Buddy merging will not be limited. However, any allocation that requires
+>>>    bigger consecutive memory chunks (e.g., gigantic pages) might observe
+>>>    the fragmentation. Possible solutions: Allocate gigantic huge pages
+>>>    before unplugging memory, don't unplug memory, combine virtio-mem with
+>>>    DIMM based memory or bigger initial memory. Remember, a virtio-mem
+>>>    device will only unplug on the memory range it manages, not on other
+>>>    DIMMs. Unplug of single memory blocks will result in similar
+>>>    fragmentation in respect to gigantic huge pages. I ahve plans for a
+>>>    virtio-mem defragmentation feature in the future.
+>>>
+>>> Q: How reliable is memory unplug?
+>>> A: There are no guarantees on how much memory can get unplugged
+>>>    again. However, it is more likely to find 4MB chunks to unplug than
+>>>    e.g., 128MB chunks. If memory is terribly fragmented, there is nothing
+>>>    we can do - for now. I consider memory hotplug the first primary use
+>>>    of virtio-mem. Memory unplug might usually work, but we want to improve
+>>>    the performance and the amount of memory we can actually unplug later.
+>>>
+>>> Q: Why not unplug from the ZONE_MOVABLE?
+>>> A: Unplugged memory chunks are unmovable. Unmovable data must not end up
+>>>    on the ZONE_MOVABLE - similar to gigantic pages - they will never be
+>>>    allocated from ZONE_MOVABLE. virtio-mem added memory can be onlined
+>>>    to the ZONE_MOVABLE, but subblocks will not get unplugged from it.
+>>>
+>>> Q: How big should the initial (!virtio-mem) memory of a VM be?
+>>> A: virtio-mem memory will not go to the DMA zones. So to avoid running out
+>>>    of DMA memory, I suggest something like 2-3GB on x86-64. But many
+>>>    VMs can most probably deal with less DMA memory - depends on the use
+>>>    case.
+>>>
+>>> [1] https://events.linuxfoundation.org/wp-content/uploads/2017/12/virtio-mem-Paravirtualized-Memory-David-Hildenbrand-Red-Hat-1.pdf
+>>> [2] https://lkml.kernel.org/r/20190919142228.5483-1-david@redhat.com
+>>> [3] https://lkml.kernel.org/r/547865a9-d6c2-7140-47e2-5af01e7d761d@redhat.com
+>>>
+>>> Cc: Sebastien Boeuf  <sebastien.boeuf@intel.com>
+>>> Cc: Samuel Ortiz <samuel.ortiz@intel.com>
+>>> Cc: Robert Bradford <robert.bradford@intel.com>
+>>> Cc: Luiz Capitulino <lcapitulino@redhat.com>
+>>>
+>>> David Hildenbrand (13):
+>>>   ACPI: NUMA: export pxm_to_node
+>>>   virtio-mem: Paravirtualized memory hotplug
+>>>   virtio-mem: Paravirtualized memory hotunplug part 1
+>>>   mm: Export alloc_contig_range() / free_contig_range()
+>>>   virtio-mem: Paravirtualized memory hotunplug part 2
+>>>   mm: Allow to offline unmovable PageOffline() pages via
+>>>     MEM_GOING_OFFLINE
+>>>   virtio-mem: Allow to offline partially unplugged memory blocks
+>>>   mm/memory_hotplug: Introduce offline_and_remove_memory()
+>>>   virtio-mem: Offline and remove completely unplugged memory blocks
+>>>   virtio-mem: Better retry handling
+>>>   mm/vmscan: Move count_vm_event(DROP_SLAB) into drop_slab()
+>>>   mm/vmscan: Export drop_slab() and drop_slab_node()
+>>>   virtio-mem: Drop slab objects when unplug continues to fail
 >>
->> That makes sense. skb_dump might show more interesting details about
->> the packet.
+>> Ping,
+>>
+>> I'd love to get some feedback on
+>>
+>> a) The remaining MM bits from MM folks (especially, patch #6 and #8).
 > 
-> I will add that and retest later today.
+> Friendly ping again:
+> 
+> Can I get some feedback on the two important MM changes in this series
+> 
+> "[PATCH RFC v4 06/13] mm: Allow to offline unmovable PageOffline() pages
+> via MEM_GOING_OFFLINE"
+> 
+> and
+> 
+> "[PATCH RFC v4 08/13] mm/memory_hotplug: Introduce
+> offline_and_remove_memory()"
+> 
 
-
-skb len=818 headroom=2 headlen=818 tailroom=908
-mac=(2,14) net=(16,0) trans=16
-shinfo(txflags=0 nr_frags=0 gso(size=752 type=0 segs=1))
-csum(0x100024 ip_summed=3 complete_sw=0 valid=0 level=0)
-hash(0x0 sw=0 l4=0) proto=0x0800 pkttype=4 iif=0
-sk family=17 type=3 proto=0
-
-Deciphering the actual packet data gives a
-
-TCP packet, ACK and PSH set.
-
-The PSH flag looks like the only "interesting" thing about it in first read.
-
-> 
->> From the previous thread, these are assumed to be TCP
->> packets?
-> 
-> Yes
-> 
->>
->> I had missed the original thread. If the packet has
->>
->>      sinfo(skb)->gso_size = 752.
->>      skb->len = 818
->>
->> then this is a GSO packet. Even though UML will correctly process it
->> as a normal 818 B packet if psock_rcv pretends that it is, treating it
->> like that is not strictly correct. A related question is how the setup
->> arrived at that low MTU size, assuming that is not explicitly
->> configured that low.
-> 
-> The mtu on the interface is normal. I suspect it is one of the first packets
-> in the stream or something iperf uses for communication between the server and
-> the client which always ends up that size.
-> 
->>
->> As of commit 51466a7545b7 ("tcp: fill shinfo->gso_type at last
->> moment") tcp unconditionally sets gso_type, even for non gso packets.
->> So either this is not a tcp packet or the field gets zeroed somewhere
->> along the way. I could not quickly find a possible path to
->> skb_gso_reset or a raw write.
-> 
-> Same. I have tried to trace a possible origin and I have not seen anything which may cause it.
-> 
->>
->> It may be useful to insert tests for this condition (skb_is_gso(skb)
->> && !skb_shinfo(skb)->gso_type) that call skb_dump at other points in
->> the network stack. For instance in __ip_queue_xmit and
->> __dev_queue_xmit.
->>
->> Since skb segmentation fails in tcp_gso_segment for such packets, it
->> may also be informative to disable TSO on the veth device and see if
->> the test fails.
-> 
-> Ack.
-> 
->>
-> 
+Yet another ping.
 
 -- 
-Anton R. Ivanov
-Cambridgegreys Limited. Registered in England. Company Number 10273661
-https://www.cambridgegreys.com/
+Thanks,
+
+David / dhildenb
