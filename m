@@ -1,127 +1,91 @@
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Subject: Re: [PATCH v3] virtio: Work around frames incorrectly marked as gso
-Date: Mon, 24 Feb 2020 17:22:21 -0500
-Message-ID: <CA+FuTScEXRwYtFzn-jtFhV0dNKNQqKPBwCWaNORJW=ERU=izMA@mail.gmail.com>
-References: <20200224132550.2083-1-anton.ivanov@cambridgegreys.com>
- <CA+FuTSd8P6uQnwisZEh7+nfowW9qKLBEvA4GPg+xUkjBa-6TDA@mail.gmail.com>
- <4e7757cf-148e-4585-b358-3b38f391275d@cambridgegreys.com> <CA+FuTSdOCJZCVS4xohx+BQmkmq8JALnK=gGc0=qy1TbjY707ag@mail.gmail.com>
- <93cb2b3f-6cae-8cf1-5fab-93fa34c14628@cambridgegreys.com>
+From: Jason Wang <jasowang-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH 0/2] virtio: decouple protected guest RAM form
+ VIRTIO_F_IOMMU_PLATFORM
+Date: Tue, 25 Feb 2020 11:30:16 +0800
+Message-ID: <1b2673e7-56ff-7d69-af2d-503a97408d95@redhat.com>
+References: <20200220160606.53156-1-pasic@linux.ibm.com>
+ <426e6972-0565-c931-e171-da0f58fbf856@redhat.com>
+ <20200221155602.4de41fa7.pasic@linux.ibm.com>
+ <0181712c-e533-fcfd-2638-8a0649d713dd@redhat.com>
+ <20200224010607-mutt-send-email-mst@kernel.org>
+ <b3c52c67-c740-a50e-2595-fe04d179c881@redhat.com>
+ <20200224024641-mutt-send-email-mst@kernel.org>
+ <08d6bdfb-9b49-c278-3c0b-2e02376cf0cf@redhat.com>
+ <20200224145607.2729f47b.pasic@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <93cb2b3f-6cae-8cf1-5fab-93fa34c14628@cambridgegreys.com>
-Sender: netdev-owner@vger.kernel.org
-To: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>, Network Development <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, linux-um@lists.infradead.org, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Eric Dumazet <eric.dumazet@gmail.com>
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <20200224145607.2729f47b.pasic-tEXmvtCZX7AybS5Ee8rs3A@public.gmane.org>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+ <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+ <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Sender: "iommu" <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+To: Halil Pasic <pasic-tEXmvtCZX7AybS5Ee8rs3A@public.gmane.org>
+Cc: linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Janosch Frank <frankja-tEXmvtCZX7AybS5Ee8rs3A@public.gmane.org>, "Michael S. Tsirkin" <mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Cornelia Huck <cohuck-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Ram Pai <linuxram-r/Jw6+rmf7HQT0dZR+AlfA@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Christian Borntraeger <borntraeger-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, David Gibson <david-xT8FGy+AXnRB3Ne2BGzF6laj5H9X9Tb+@public.gmane.org>, Michael Mueller <mimu-tEXmvtCZX7AybS5Ee8rs3A@public.gmane.org>, "Lendacky,
+ Thomas" <Thomas.Lendacky-5C7GfCeVMHo@public.gmane.org>, Viktor Mihajlovski <mihajlov-tEXmvtCZX7AybS5Ee8rs3A@public.gmane.org>, Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>, Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Feb 24, 2020 at 4:00 PM Anton Ivanov
-<anton.ivanov@cambridgegreys.com> wrote:
->
-> On 24/02/2020 20:20, Willem de Bruijn wrote:
-> > On Mon, Feb 24, 2020 at 2:55 PM Anton Ivanov
-> > <anton.ivanov@cambridgegreys.com> wrote:
-> >> On 24/02/2020 19:27, Willem de Bruijn wrote:
-> >>> On Mon, Feb 24, 2020 at 8:26 AM <anton.ivanov@cambridgegreys.com> wrote:
-> >>>> From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-> >>>>
-> >>>> Some of the locally generated frames marked as GSO which
-> >>>> arrive at virtio_net_hdr_from_skb() have no GSO_TYPE, no
-> >>>> fragments (data_len = 0) and length significantly shorter
-> >>>> than the MTU (752 in my experiments).
-> >>> Do we understand how these packets are generated?
-> >> No, we have not been able to trace them.
-> >>
-> >> The only thing we know is that this is specific to locally generated
-> >> packets. Something arriving from the network does not show this.
-> >>
-> >>> Else it seems this
-> >>> might be papering over a deeper problem.
-> >>>
-> >>> The stack should not create GSO packets less than or equal to
-> >>> skb_shinfo(skb)->gso_size. See for instance the check in
-> >>> tcp_gso_segment after pulling the tcp header:
-> >>>
-> >>>           mss = skb_shinfo(skb)->gso_size;
-> >>>           if (unlikely(skb->len <= mss))
-> >>>                   goto out;
-> >>>
-> >>> What is the gso_type, and does it include SKB_GSO_DODGY?
-> >>>
-> >>
-> >> 0 - not set.
-> > Thanks for the follow-up details. Is this something that you can trigger easily?
->
-> Yes, if you have a UML instance handy.
->
-> Running iperf between the host and a UML guest using raw socket
-> transport triggers it immediately.
->
-> This is my UML command line:
->
-> vmlinux mem=2048M umid=OPX \
->      ubd0=OPX-3.0-Work.img \
-> vec0:transport=raw,ifname=p-veth0,depth=128,gro=1,mac=92:9b:36:5e:38:69 \
->      root=/dev/ubda ro con=null con0=null,fd:2 con1=fd:0,fd:1
->
-> p-right is a part of a vEth pair:
->
-> ip link add l-veth0 type veth peer name p-veth0 && ifconfig p-veth0 up
->
-> iperf server is on host, iperf -c in the guest.
->
-> >
-> > An skb_dump() + dump_stack() when the packet socket gets such a
-> > packet may point us to the root cause and fix that.
->
-> We tried dump stack, it was not informative - it was just the recvmmsg
-> call stack coming from the UML until it hits the relevant recv bit in
-> af_packet - it does not tell us where the packet is coming from.
->
-> Quoting from the message earlier in the thread:
->
-> [ 2334.180854] Call Trace:
-> [ 2334.181947]  dump_stack+0x5c/0x80
-> [ 2334.183021]  packet_recvmsg.cold+0x23/0x49
-> [ 2334.184063]  ___sys_recvmsg+0xe1/0x1f0
-> [ 2334.185034]  ? packet_poll+0xca/0x130
-> [ 2334.186014]  ? sock_poll+0x77/0xb0
-> [ 2334.186977]  ? ep_item_poll.isra.0+0x3f/0xb0
-> [ 2334.187936]  ? ep_send_events_proc+0xf1/0x240
-> [ 2334.188901]  ? dequeue_signal+0xdb/0x180
-> [ 2334.189848]  do_recvmmsg+0xc8/0x2d0
-> [ 2334.190728]  ? ep_poll+0x8c/0x470
-> [ 2334.191581]  __sys_recvmmsg+0x108/0x150
-> [ 2334.192441]  __x64_sys_recvmmsg+0x25/0x30
-> [ 2334.193346]  do_syscall_64+0x53/0x140
-> [ 2334.194262]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-That makes sense. skb_dump might show more interesting details about
-the packet. From the previous thread, these are assumed to be TCP
-packets?
-
-I had missed the original thread. If the packet has
-
-    sinfo(skb)->gso_size = 752.
-    skb->len = 818
-
-then this is a GSO packet. Even though UML will correctly process it
-as a normal 818 B packet if psock_rcv pretends that it is, treating it
-like that is not strictly correct. A related question is how the setup
-arrived at that low MTU size, assuming that is not explicitly
-configured that low.
-
-As of commit 51466a7545b7 ("tcp: fill shinfo->gso_type at last
-moment") tcp unconditionally sets gso_type, even for non gso packets.
-So either this is not a tcp packet or the field gets zeroed somewhere
-along the way. I could not quickly find a possible path to
-skb_gso_reset or a raw write.
-
-It may be useful to insert tests for this condition (skb_is_gso(skb)
-&& !skb_shinfo(skb)->gso_type) that call skb_dump at other points in
-the network stack. For instance in __ip_queue_xmit and
-__dev_queue_xmit.
-
-Since skb segmentation fails in tcp_gso_segment for such packets, it
-may also be informative to disable TSO on the veth device and see if
-the test fails.
+Ck9uIDIwMjAvMi8yNCDkuIvljYg5OjU2LCBIYWxpbCBQYXNpYyB3cm90ZToKPiBPbiBNb24sIDI0
+IEZlYiAyMDIwIDE3OjI2OjIwICswODAwCj4gSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNv
+bT4gd3JvdGU6Cj4KPj4gVGhhdCdzIGJldHRlci4KPj4KPj4gSG93IGFib3V0IGF0dGFjaGVkPwo+
+Pgo+PiBUaGFua3MKPiBUaGFua3MgSmFzb24hIEl0IGRvZXMgYXZvaWQgdGhlIHRyYW5zbGF0aW9u
+IG92ZXJoZWFkIGluIHZob3N0Lgo+Cj4gVGVzdGVkLWJ5OiBIYWxpbCBQYXNpYyA8cGFzaWNAbGlu
+dXguaWJtLmNvbT4KPgo+IFJlZ2FyZGluZyB0aGUgY29kZSwgeW91IGZlbmNlIGl0IGluIHZpcnRp
+by1uZXQuYywgYnV0IEFGQUlVIHRoaXMgZmVhdHVyZQo+IGhhcyByZWxldmFuY2UgZm9yIG90aGVy
+IHZob3N0IGRldmljZXMgYXMgd2VsbC4gRS5nLiB3aGF0IGFib3V0IHZob3N0Cj4gdXNlcj8gV291
+bGQgaXQgYmUgdGhlIHJlc3BvbnNpYmlsaXR5IG9mIGVhY2ggdmlydGlvIGRldmljZSB0byBmZW5j
+ZSB0aGlzCj4gb24gaXRzIG93bj8KCgpZZXMsIGl0IGxvb2tzIHRvIG1lIGl0J3MgYmV0dGVyIHRv
+IGRvIHRoYXQgaW4gdmlydGlvX3NldF9mZWF0dXJlc19ub2NoZWNrKCkKCgo+Cj4gSSdtIGFsc28g
+YSBiaXQgY29uZnVzZWQgYWJvdXQgdGhlIHNlbWFudGljcyBvZiB0aGUgdmhvc3QgZmVhdHVyZSBi
+aXQKPiBGX0FDQ0VTU19QTEFURk9STS4gV2hhdCB3ZSBoYXZlIHNwZWNpZmllZCBvbiB2aXJ0aW8g
+bGV2ZWwgaXM6Cj4gIiIiCj4gVGhpcyBmZWF0dXJlIGluZGljYXRlcyB0aGF0IHRoZSBkZXZpY2Ug
+Y2FuIGJlIHVzZWQgb24gYSBwbGF0Zm9ybSB3aGVyZQo+IGRldmljZSBhY2Nlc3MgdG8gZGF0YSBp
+biBtZW1vcnkgaXMgbGltaXRlZCBhbmQvb3IgdHJhbnNsYXRlZC4gRS5nLiB0aGlzCj4gaXMgdGhl
+IGNhc2UgaWYgdGhlIGRldmljZSBjYW4gYmUgbG9jYXRlZCBiZWhpbmQgYW4gSU9NTVUgdGhhdCB0
+cmFuc2xhdGVzCj4gYnVzIGFkZHJlc3NlcyBmcm9tIHRoZSBkZXZpY2UgaW50byBwaHlzaWNhbCBh
+ZGRyZXNzZXMgaW4gbWVtb3J5LCBpZiB0aGUKPiBkZXZpY2UgY2FuIGJlIGxpbWl0ZWQgdG8gb25s
+eSBhY2Nlc3MgY2VydGFpbiBtZW1vcnkgYWRkcmVzc2VzIG9yIGlmCj4gc3BlY2lhbCBjb21tYW5k
+cyBzdWNoIGFzIGEgY2FjaGUgZmx1c2ggY2FuIGJlIG5lZWRlZCB0byBzeW5jaHJvbmlzZSBkYXRh
+Cj4gaW4gbWVtb3J5IHdpdGggdGhlIGRldmljZS4gV2hldGhlciBhY2Nlc3NlcyBhcmUgYWN0dWFs
+bHkgbGltaXRlZCBvcgo+IHRyYW5zbGF0ZWQgaXMgZGVzY3JpYmVkIGJ5IHBsYXRmb3JtLXNwZWNp
+ZmljIG1lYW5zLiBJZiB0aGlzIGZlYXR1cmUgYml0Cj4gaXMgc2V0IHRvIDAsIHRoZW4gdGhlIGRl
+dmljZSBoYXMgc2FtZSBhY2Nlc3MgdG8gbWVtb3J5IGFkZHJlc3Nlcwo+IHN1cHBsaWVkIHRvIGl0
+IGFzIHRoZSBkcml2ZXIgaGFzLiBJbiBwYXJ0aWN1bGFyLCB0aGUgZGV2aWNlIHdpbGwgYWx3YXlz
+Cj4gdXNlIHBoeXNpY2FsIGFkZHJlc3NlcyBtYXRjaGluZyBhZGRyZXNzZXMgdXNlZCBieSB0aGUg
+ZHJpdmVyICh0eXBpY2FsbHkKPiBtZWFuaW5nIHBoeXNpY2FsIGFkZHJlc3NlcyB1c2VkIGJ5IHRo
+ZSBDUFUpIGFuZCBub3QgdHJhbnNsYXRlZCBmdXJ0aGVyLAo+IGFuZCBjYW4gYWNjZXNzIGFueSBh
+ZGRyZXNzIHN1cHBsaWVkIHRvIGl0IGJ5IHRoZSBkcml2ZXIuIFdoZW4gY2xlYXIsCj4gdGhpcyBv
+dmVycmlkZXMgYW55IHBsYXRmb3JtLXNwZWNpZmljIGRlc2NyaXB0aW9uIG9mIHdoZXRoZXIgZGV2
+aWNlCj4gYWNjZXNzIGlzIGxpbWl0ZWQgb3IgdHJhbnNsYXRlZCBpbiBhbnkgd2F5LCBlLmcuIHdo
+ZXRoZXIgYW4gSU9NTVUgbWF5IGJlCj4gcHJlc2VudC4KPiAiIiIKPgo+IEkgcmVhZCB0aGlzIGxp
+a2UgdGhlIGFkZHJlc3NlcyBtYXkgYmUgSU9WQXMgd2hpY2ggcmVxdWlyZQo+IElNTVUgdHJhbnNs
+YXRpb24gb3IgR1BBcyB3aGljaCBkb24ndC4KPgo+IE9uIHRoZSB2aG9zdCBsZXZlbCBob3dldmVy
+LCBpdCBzZWVtcyB0aGF0IEZfSU9NTVVfUExBVEZPUk0gbWVhbnMgdGhhdAo+IHZob3N0IGhhcyB0
+byBkbyB0aGUgdHJhbnNsYXRpb24gKHZpYSBJT1RMQiBBUEkpLgoKClllcy4KCgo+Cj4gRG8gSSB1
+bmRlcnN0YW5kIHRoaXMgY29ycmVjdGx5PyBJZiB5ZXMsIEkgYmVsaWV2ZSB3ZSBzaG91bGQgZG9j
+dW1lbnQKPiB0aGlzIHByb3Blcmx5LgoKCkdvb2QgcG9pbnQuIEkgdGhpbmsgaXQgd2FzIHByb2Jh
+Ymx5IHdyb25nIHRvIHRpZSBGX0lPTU1VX1BMQVRGT1JNIHRvIApJT1RMQiBBUEkuIFRlY2huaWNh
+bGx5IElPVExCIGNhbiB3b3JrIHdpdGggR1BBLT5IVkEgbWFwcGluZy4gSSAKb3JpZ2luYWxseSB1
+c2UgYSBkZWRpY2F0ZWQgZmVhdHVyZSBiaXQgKHlvdSBjYW4gc2VlIHRoYXQgZnJvbSBjb21taXQg
+CmxvZyksIGJ1dCBmb3Igc29tZSByZWFzb24gTWljaGFlbCB0d2VhayBpdCB0byB2aXJ0aW8gZmVh
+dHVyZSBiaXQuIEkgCmd1ZXNzIGl0IHdhcyBwcm9iYWJseSBiZWNhdXNlIGF0IHRoYXQgdGltZSB0
+aGVyZSdzIG5vIHdheSB0byBzcGVjaWZ5IGUuZyAKYmFja2VuZCBjYXBhYmlsaXR5IGJ1dCBub3cg
+d2UgaGF2ZSBWSE9TVF9HRVRfQkFDS0VORF9GRUFUVVJFUy4KCkZvciBub3csIGl0IHdhcyBwcm9i
+YWJseSB0b28gbGF0ZSB0byBmaXggdGhhdCBidXQgZG9jdW1lbnQgb3Igd2UgY2FuIGFkZCAKdGhl
+IHN1cHBvcnQgb2YgZW5hYmxpbmcgSU9UTEIgdmlhIG5ldyBiYWNrZW5kIGZlYXR1cmVzLgoKCj4K
+PiBCVFcgSSdtIHN0aWxsIG5vdCAxMDAlIG9uIHRoZSBwdXJwb3NlIGFuZCBzZW1hbnRpY3Mgb2Yg
+dGhlCj4gRl9BQ0NFU1NfUExBVEZPUk0gZmVhdHVyZSBiaXQuIEJ1dCB0aGF0IGlzIGEgZGlmZmVy
+ZW50IHByb2JsZW0uCgoKWWVzLCBJIGFnZ3JlZSB0aGF0IHdlIHNob3VsZCBkZWNvdXBsZSB0aGUg
+ZmVhdHVyZXMgdGhhdCBkb2VzIG5vdCBiZWxvbmdzIAp0byBkZXZpY2UgKHByb3RlY3RlZCwgZW5j
+cnlwdGVkLCBzd2lvdGxiIGV0YykgZnJvbSBGX0lPTU1VX1BMQVRGT1JNLiBCdXQgCk1pY2hhZWwg
+YW5kIG90aGVyIGhhdmUgdGhlaXIgcG9pbnRzIGFzIHdlbGwuCgpUaGFua3MKCgo+Cj4gUmVnYXJk
+cywKPiBIYWxpbAo+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fXwppb21tdSBtYWlsaW5nIGxpc3QKaW9tbXVAbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
+aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vaW9tbXU=
