@@ -1,118 +1,114 @@
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v3 1/4] drm/simple-kms: Add drm_simple_encoder_{init, create}()
-Date: Tue, 25 Feb 2020 14:10:52 +0100
-Message-ID: <20200225131055.27550-2-tzimmermann@suse.de>
-References: <20200225131055.27550-1-tzimmermann@suse.de>
+From: Michal Hocko <mhocko@kernel.org>
+Subject: Re: [PATCH RFC v4 08/13] mm/memory_hotplug: Introduce
+ offline_and_remove_memory()
+Date: Tue, 25 Feb 2020 15:11:34 +0100
+Message-ID: <20200225141134.GU22443@dhcp22.suse.cz>
+References: <20191212171137.13872-1-david@redhat.com>
+ <20191212171137.13872-9-david@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200225131055.27550-1-tzimmermann@suse.de>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: airlied@linux.ie, daniel@ffwll.ch, maarten.lankhorst@linux.intel.com, mripard@kernel.org, kraxel@redhat.com, noralf@tronnes.org, sam@ravnborg.org, alexander.deucher@amd.com, emil.velikov@collabora.com
-Cc: spice-devel@lists.freedesktop.org, Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20191212171137.13872-9-david@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Oscar Salvador <osalvador@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Wei Yang <richard.weiyang@gmail.com>, Dan Williams <dan.j.williams@intel.com>, Qian Cai <cai@lca.pw>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch makes the internal encoder implementation of the simple
-KMS helpers available to drivers.
+On Thu 12-12-19 18:11:32, David Hildenbrand wrote:
+> virtio-mem wants to offline and remove a memory block once it unplugged
+> all subblocks (e.g., using alloc_contig_range()). Let's provide
+> an interface to do that from a driver. virtio-mem already supports to
+> offline partially unplugged memory blocks. Offlining a fully unplugged
+> memory block will not require to migrate any pages. All unplugged
+> subblocks are PageOffline() and have a reference count of 0 - so
+> offlining code will simply skip them.
+> 
+> All we need an interface to trigger the "offlining" and the removing in a
+> single operation - to make sure the memory block cannot get onlined by
+> user space again before it gets removed.
 
-These simple-encoder helpers initialize an encoder with an empty
-implementation. This covers the requirements of most of the existing
-DRM drivers. A call to drm_simple_encoder_create() allocates and
-initializes an encoder instance, a call to drm_simple_encoder_init()
-initializes a pre-allocated instance.
+Why does that matter? Is it really likely that the userspace would
+interfere? What would be the scenario?
 
-v3:
-	* remove drm_simple_encoder_create(); not required yet
-	* provide more precise documentation
-v2:
-	* move simple encoder to KMS helpers
-	* remove name argument; simplifies implementation
-	* don't allocate with devm_ interfaces; unsafe with DRM
+Or is still mostly about not requiring callers to open code this general
+patter?
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
----
- drivers/gpu/drm/drm_simple_kms_helper.c | 34 ++++++++++++++++++++++---
- include/drm/drm_simple_kms_helper.h     |  4 +++
- 2 files changed, 35 insertions(+), 3 deletions(-)
+> To keep things simple, allow to only work on a single memory block.
+> 
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: David Hildenbrand <david@redhat.com>
+> Cc: Oscar Salvador <osalvador@suse.com>
+> Cc: Michal Hocko <mhocko@suse.com>
+> Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+> Cc: Wei Yang <richard.weiyang@gmail.com>
+> Cc: Dan Williams <dan.j.williams@intel.com>
+> Cc: Qian Cai <cai@lca.pw>
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
+>  include/linux/memory_hotplug.h |  1 +
+>  mm/memory_hotplug.c            | 35 ++++++++++++++++++++++++++++++++++
+>  2 files changed, 36 insertions(+)
+> 
+> diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
+> index ba0dca6aac6e..586f5c59c291 100644
+> --- a/include/linux/memory_hotplug.h
+> +++ b/include/linux/memory_hotplug.h
+> @@ -310,6 +310,7 @@ extern void try_offline_node(int nid);
+>  extern int offline_pages(unsigned long start_pfn, unsigned long nr_pages);
+>  extern int remove_memory(int nid, u64 start, u64 size);
+>  extern void __remove_memory(int nid, u64 start, u64 size);
+> +extern int offline_and_remove_memory(int nid, u64 start, u64 size);
+>  
+>  #else
+>  static inline bool is_mem_section_removable(unsigned long pfn,
+> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+> index da01453a04e6..d04369e6d3cc 100644
+> --- a/mm/memory_hotplug.c
+> +++ b/mm/memory_hotplug.c
+> @@ -1825,4 +1825,39 @@ int remove_memory(int nid, u64 start, u64 size)
+>  	return rc;
+>  }
+>  EXPORT_SYMBOL_GPL(remove_memory);
+> +
+> +/*
+> + * Try to offline and remove a memory block. Might take a long time to
+> + * finish in case memory is still in use. Primarily useful for memory devices
+> + * that logically unplugged all memory (so it's no longer in use) and want to
+> + * offline + remove the memory block.
+> + */
+> +int offline_and_remove_memory(int nid, u64 start, u64 size)
+> +{
+> +	struct memory_block *mem;
+> +	int rc = -EINVAL;
+> +
+> +	if (!IS_ALIGNED(start, memory_block_size_bytes()) ||
+> +	    size != memory_block_size_bytes())
+> +		return rc;
+> +
+> +	lock_device_hotplug();
+> +	mem = find_memory_block(__pfn_to_section(PFN_DOWN(start)));
+> +	if (mem)
+> +		rc = device_offline(&mem->dev);
+> +	/* Ignore if the device is already offline. */
+> +	if (rc > 0)
+> +		rc = 0;
+> +
+> +	/*
+> +	 * In case we succeeded to offline the memory block, remove it.
+> +	 * This cannot fail as it cannot get onlined in the meantime.
+> +	 */
+> +	if (!rc && try_remove_memory(nid, start, size))
+> +		BUG();
+> +	unlock_device_hotplug();
+> +
+> +	return rc;
+> +}
+> +EXPORT_SYMBOL_GPL(offline_and_remove_memory);
+>  #endif /* CONFIG_MEMORY_HOTREMOVE */
+> -- 
+> 2.23.0
 
-diff --git a/drivers/gpu/drm/drm_simple_kms_helper.c b/drivers/gpu/drm/drm_simple_kms_helper.c
-index 15fb516ae2d8..04309e4660de 100644
---- a/drivers/gpu/drm/drm_simple_kms_helper.c
-+++ b/drivers/gpu/drm/drm_simple_kms_helper.c
-@@ -26,12 +26,41 @@
-  * entity. Some flexibility for code reuse is provided through a separately
-  * allocated &drm_connector object and supporting optional &drm_bridge
-  * encoder drivers.
-+ *
-+ * Many drivers require only a very simple encoder that fulfills the minimum
-+ * requirements of the display pipeline and does not add additional
-+ * functionality. The function drm_simple_encoder_init() provides an
-+ * implementation of such an encoder.
-  */
- 
--static const struct drm_encoder_funcs drm_simple_kms_encoder_funcs = {
-+static const struct drm_encoder_funcs drm_simple_encoder_funcs_cleanup = {
- 	.destroy = drm_encoder_cleanup,
- };
- 
-+/**
-+ * drm_simple_encoder_init - Initialize a preallocated encoder
-+ * @dev: drm device
-+ * @funcs: callbacks for this encoder
-+ * @encoder_type: user visible type of the encoder
-+ *
-+ * Initialises a preallocated encoder that has no further functionality.
-+ * Settings for possible CRTC and clones are left to their initial values.
-+ * The encoder will be cleaned up automatically as part of the mode-setting
-+ * cleanup.
-+ *
-+ * Returns:
-+ * Zero on success, error code on failure.
-+ */
-+int drm_simple_encoder_init(struct drm_device *dev,
-+			    struct drm_encoder *encoder,
-+			    int encoder_type)
-+{
-+	return drm_encoder_init(dev, encoder,
-+				&drm_simple_encoder_funcs_cleanup,
-+				encoder_type, NULL);
-+}
-+EXPORT_SYMBOL(drm_simple_encoder_init);
-+
- static enum drm_mode_status
- drm_simple_kms_crtc_mode_valid(struct drm_crtc *crtc,
- 			       const struct drm_display_mode *mode)
-@@ -288,8 +317,7 @@ int drm_simple_display_pipe_init(struct drm_device *dev,
- 		return ret;
- 
- 	encoder->possible_crtcs = drm_crtc_mask(crtc);
--	ret = drm_encoder_init(dev, encoder, &drm_simple_kms_encoder_funcs,
--			       DRM_MODE_ENCODER_NONE, NULL);
-+	ret = drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_NONE);
- 	if (ret || !connector)
- 		return ret;
- 
-diff --git a/include/drm/drm_simple_kms_helper.h b/include/drm/drm_simple_kms_helper.h
-index e253ba7bea9d..a026375464ff 100644
---- a/include/drm/drm_simple_kms_helper.h
-+++ b/include/drm/drm_simple_kms_helper.h
-@@ -181,4 +181,8 @@ int drm_simple_display_pipe_init(struct drm_device *dev,
- 			const uint64_t *format_modifiers,
- 			struct drm_connector *connector);
- 
-+int drm_simple_encoder_init(struct drm_device *dev,
-+			    struct drm_encoder *encoder,
-+			    int encoder_type);
-+
- #endif /* __LINUX_DRM_SIMPLE_KMS_HELPER_H */
 -- 
-2.25.0
+Michal Hocko
+SUSE Labs
