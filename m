@@ -1,111 +1,67 @@
 From: Michal Hocko <mhocko@kernel.org>
-Subject: Re: [PATCH RFC v4 08/13] mm/memory_hotplug: Introduce
- offline_and_remove_memory()
-Date: Tue, 25 Feb 2020 15:11:34 +0100
-Message-ID: <20200225141134.GU22443@dhcp22.suse.cz>
+Subject: Re: [PATCH RFC v4 11/13] mm/vmscan: Move count_vm_event(DROP_SLAB)
+ into drop_slab()
+Date: Tue, 25 Feb 2020 15:13:39 +0100
+Message-ID: <20200225141339.GV22443@dhcp22.suse.cz>
 References: <20191212171137.13872-1-david@redhat.com>
- <20191212171137.13872-9-david@redhat.com>
+ <20191212171137.13872-12-david@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20191212171137.13872-9-david@redhat.com>
+In-Reply-To: <20191212171137.13872-12-david@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Oscar Salvador <osalvador@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Wei Yang <richard.weiyang@gmail.com>, Dan Williams <dan.j.williams@intel.com>, Qian Cai <cai@lca.pw>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Alexander Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu 12-12-19 18:11:32, David Hildenbrand wrote:
-> virtio-mem wants to offline and remove a memory block once it unplugged
-> all subblocks (e.g., using alloc_contig_range()). Let's provide
-> an interface to do that from a driver. virtio-mem already supports to
-> offline partially unplugged memory blocks. Offlining a fully unplugged
-> memory block will not require to migrate any pages. All unplugged
-> subblocks are PageOffline() and have a reference count of 0 - so
-> offlining code will simply skip them.
+On Thu 12-12-19 18:11:35, David Hildenbrand wrote:
+> Let's count within the function itself, so every invocation (of future
+> users) will be counted.
 > 
-> All we need an interface to trigger the "offlining" and the removing in a
-> single operation - to make sure the memory block cannot get onlined by
-> user space again before it gets removed.
-
-Why does that matter? Is it really likely that the userspace would
-interfere? What would be the scenario?
-
-Or is still mostly about not requiring callers to open code this general
-patter?
-
-> To keep things simple, allow to only work on a single memory block.
-> 
+> Cc: Alexander Viro <viro@zeniv.linux.org.uk>
 > Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: David Hildenbrand <david@redhat.com>
-> Cc: Oscar Salvador <osalvador@suse.com>
-> Cc: Michal Hocko <mhocko@suse.com>
-> Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-> Cc: Wei Yang <richard.weiyang@gmail.com>
-> Cc: Dan Williams <dan.j.williams@intel.com>
-> Cc: Qian Cai <cai@lca.pw>
+> Cc: linux-fsdevel@vger.kernel.org
 > Signed-off-by: David Hildenbrand <david@redhat.com>
+
+Slight inconsistency with the page cache droppint but nothing earth
+shattering.
+
+Acked-by: Michal Hocko <mhocko@suse.com>
+
 > ---
->  include/linux/memory_hotplug.h |  1 +
->  mm/memory_hotplug.c            | 35 ++++++++++++++++++++++++++++++++++
->  2 files changed, 36 insertions(+)
+>  fs/drop_caches.c | 4 +---
+>  mm/vmscan.c      | 1 +
+>  2 files changed, 2 insertions(+), 3 deletions(-)
 > 
-> diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
-> index ba0dca6aac6e..586f5c59c291 100644
-> --- a/include/linux/memory_hotplug.h
-> +++ b/include/linux/memory_hotplug.h
-> @@ -310,6 +310,7 @@ extern void try_offline_node(int nid);
->  extern int offline_pages(unsigned long start_pfn, unsigned long nr_pages);
->  extern int remove_memory(int nid, u64 start, u64 size);
->  extern void __remove_memory(int nid, u64 start, u64 size);
-> +extern int offline_and_remove_memory(int nid, u64 start, u64 size);
+> diff --git a/fs/drop_caches.c b/fs/drop_caches.c
+> index d31b6c72b476..a042da782fcd 100644
+> --- a/fs/drop_caches.c
+> +++ b/fs/drop_caches.c
+> @@ -61,10 +61,8 @@ int drop_caches_sysctl_handler(struct ctl_table *table, int write,
+>  			iterate_supers(drop_pagecache_sb, NULL);
+>  			count_vm_event(DROP_PAGECACHE);
+>  		}
+> -		if (sysctl_drop_caches & 2) {
+> +		if (sysctl_drop_caches & 2)
+>  			drop_slab();
+> -			count_vm_event(DROP_SLAB);
+> -		}
+>  		if (!stfu) {
+>  			pr_info("%s (%d): drop_caches: %d\n",
+>  				current->comm, task_pid_nr(current),
+> diff --git a/mm/vmscan.c b/mm/vmscan.c
+> index 5a6445e86328..c3e53502a84a 100644
+> --- a/mm/vmscan.c
+> +++ b/mm/vmscan.c
+> @@ -726,6 +726,7 @@ void drop_slab(void)
 >  
->  #else
->  static inline bool is_mem_section_removable(unsigned long pfn,
-> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-> index da01453a04e6..d04369e6d3cc 100644
-> --- a/mm/memory_hotplug.c
-> +++ b/mm/memory_hotplug.c
-> @@ -1825,4 +1825,39 @@ int remove_memory(int nid, u64 start, u64 size)
->  	return rc;
+>  	for_each_online_node(nid)
+>  		drop_slab_node(nid);
+> +	count_vm_event(DROP_SLAB);
 >  }
->  EXPORT_SYMBOL_GPL(remove_memory);
-> +
-> +/*
-> + * Try to offline and remove a memory block. Might take a long time to
-> + * finish in case memory is still in use. Primarily useful for memory devices
-> + * that logically unplugged all memory (so it's no longer in use) and want to
-> + * offline + remove the memory block.
-> + */
-> +int offline_and_remove_memory(int nid, u64 start, u64 size)
-> +{
-> +	struct memory_block *mem;
-> +	int rc = -EINVAL;
-> +
-> +	if (!IS_ALIGNED(start, memory_block_size_bytes()) ||
-> +	    size != memory_block_size_bytes())
-> +		return rc;
-> +
-> +	lock_device_hotplug();
-> +	mem = find_memory_block(__pfn_to_section(PFN_DOWN(start)));
-> +	if (mem)
-> +		rc = device_offline(&mem->dev);
-> +	/* Ignore if the device is already offline. */
-> +	if (rc > 0)
-> +		rc = 0;
-> +
-> +	/*
-> +	 * In case we succeeded to offline the memory block, remove it.
-> +	 * This cannot fail as it cannot get onlined in the meantime.
-> +	 */
-> +	if (!rc && try_remove_memory(nid, start, size))
-> +		BUG();
-> +	unlock_device_hotplug();
-> +
-> +	return rc;
-> +}
-> +EXPORT_SYMBOL_GPL(offline_and_remove_memory);
->  #endif /* CONFIG_MEMORY_HOTREMOVE */
+>  
+>  static inline int is_page_cache_freeable(struct page *page)
 > -- 
 > 2.23.0
 
