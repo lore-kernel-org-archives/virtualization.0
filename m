@@ -1,182 +1,92 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH RFC v4 06/13] mm: Allow to offline unmovable PageOffline()
- pages via MEM_GOING_OFFLINE
-Date: Tue, 25 Feb 2020 23:19:18 +0100
-Message-ID: <e0892179-b14c-84c3-1284-fc789f16e1c7@redhat.com>
-References: <20191212171137.13872-1-david@redhat.com>
- <20191212171137.13872-7-david@redhat.com>
- <6ec496580ddcb629d22589a1cba8cd61cbd53206.camel@linux.intel.com>
- <267ea186-aba8-1a93-bd55-ac641f78d07e@redhat.com>
- <3d719897039273a2bb8d0fe7d12563498ebd2897.camel@linux.intel.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] virtio_ring: Fix mem leak with vring_new_virtqueue()
+Date: Wed, 26 Feb 2020 11:13:57 +0800
+Message-ID: <1ce2bee4-64ed-f630-2695-8e8b9b8e27c1@redhat.com>
+References: <20200224212643.30672-1-s-anna@ti.com>
+ <b622c831-9adb-b9af-dd4a-21605bc124a8@redhat.com>
+ <0ace3a3b-cf2f-7977-5337-f74f530afbe1@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <3d719897039273a2bb8d0fe7d12563498ebd2897.camel@linux.intel.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <0ace3a3b-cf2f-7977-5337-f74f530afbe1@ti.com>
 Content-Language: en-US
-Sender: kvm-owner@vger.kernel.org
-To: Alexander Duyck <alexander.h.duyck@linux.intel.com>, linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Juergen Gross <jgross@suse.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Vlastimil Babka <vbabka@suse.cz>, Johannes Weiner <hannes@cmpxchg.org>, Anthony Yznaga <anthony.yznaga@oracle.com>, Michal Hocko <mhocko@suse.com>, Oscar Salvador <osalvador@suse.de>, Mel Gorman <mgorman@techsingularity.net>, Mike Rapoport <rppt@linux.ibm.com>, Dan Williams <dan.j.williams@intel.com>, Anshuman Khandual <anshuman.khandual@arm.com>, Qian Cai <cai@lca.pw>, Pingfan Liu <kernelfans@g>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Suman Anna <s-anna@ti.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Tiwei Bie <tiwei.bie@intel.com>, "David S. Miller" <davem@davemloft.net>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-remoteproc@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 25.02.20 22:46, Alexander Duyck wrote:
-> On Tue, 2020-02-25 at 19:49 +0100, David Hildenbrand wrote:
->>>>  /*
->>>>   * Scan pfn range [start,end) to find movable/migratable pages (LRU=
- pages,
->>>> - * non-lru movable pages and hugepages). We scan pfn because it's m=
-uch
->>>> - * easier than scanning over linked list. This function returns the=
- pfn
->>>> - * of the first found movable page if it's found, otherwise 0.
->>>> + * non-lru movable pages and hugepages).
->>>> + *
->>>> + * Returns:
->>>> + *	0 in case a movable page is found and movable_pfn was updated.
->>>> + *	-ENOENT in case no movable page was found.
->>>> + *	-EBUSY in case a definetly unmovable page was found.
->>>>   */
->>>> -static unsigned long scan_movable_pages(unsigned long start, unsign=
-ed long end)
->>>> +static int scan_movable_pages(unsigned long start, unsigned long en=
-d,
->>>> +			      unsigned long *movable_pfn)
->>>>  {
->>>>  	unsigned long pfn;
->>>> =20
->>>> @@ -1247,18 +1251,29 @@ static unsigned long scan_movable_pages(unsi=
-gned long start, unsigned long end)
->>>>  			continue;
->>>>  		page =3D pfn_to_page(pfn);
->>>>  		if (PageLRU(page))
->>>> -			return pfn;
->>>> +			goto found;
->>>>  		if (__PageMovable(page))
->>>> -			return pfn;
->>>> +			goto found;
->>>> +
->>>> +		/*
->>>> +		 * Unmovable PageOffline() pages where somebody still holds
->>>> +		 * a reference count (after MEM_GOING_OFFLINE) can definetly
->>>> +		 * not be offlined.
->>>> +		 */
->>>> +		if (PageOffline(page) && page_count(page))
->>>> +			return -EBUSY;
+
+On 2020/2/26 =E4=B8=8A=E5=8D=8812:51, Suman Anna wrote:
+> Hi Jason,
+>
+> On 2/24/20 11:39 PM, Jason Wang wrote:
+>> On 2020/2/25 =E4=B8=8A=E5=8D=885:26, Suman Anna wrote:
+>>> The functions vring_new_virtqueue() and __vring_new_virtqueue() are u=
+sed
+>>> with split rings, and any allocations within these functions are mana=
+ged
+>>> outside of the .we_own_ring flag. The commit cbeedb72b97a ("virtio_ri=
+ng:
+>>> allocate desc state for split ring separately") allocates the desc st=
+ate
+>>> within the __vring_new_virtqueue() but frees it only when the
+>>> .we_own_ring
+>>> flag is set. This leads to a memory leak when freeing such allocated
+>>> virtqueues with the vring_del_virtqueue() function.
 >>>
->>> So the comment confused me a bit because technically this function is=
-n't
->>> about offlining memory, it is about finding movable pages. I had to d=
-o a
->>> bit of digging to find the only consumer is __offline_pages, but if w=
-e are
->>> going to talk about "offlining" instead of "moving" in this function =
-it
->>> might make sense to rename it.
->>
->> Well, it's contained in memory_hotplug.c, and the only user of moving
->> pages around in there is offlining code :) And it's job is to locate
->> movable pages, skip over some (temporary? unmovable ones) and (now)
->> indicate definitely unmovable ones.
->>
->> Any idea for a better name?
->> scan_movable_pages_and_stop_on_definitely_unmovable() is not so nice :=
-)
->=20
-> I dunno. What I was getting at is that the wording here would make it
-> clearer if you simply stated that these pages "can definately not be
-> moved". Saying you cannot offline a page that is PageOffline seems kind=
- of
-> redundant, then again calling it an Unmovable and then saying it cannot=
- be
-> moves is also redundant I suppose. In the end you don't move them, but
+>>> Fix this by moving the desc_state free code outside the flag and only
+>>> for split rings. Issue was discovered during testing with remoteproc
+>>> and virtio_rpmsg.
+>>>
+>>> Fixes: cbeedb72b97a ("virtio_ring: allocate desc state for split ring
+>>> separately")
+>>> Signed-off-by: Suman Anna<s-anna@ti.com>
+>>> ---
+>>>  =C2=A0 drivers/virtio/virtio_ring.c | 4 ++--
+>>>  =C2=A0 1 file changed, 2 insertions(+), 2 deletions(-)
+>>>
+>>> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_rin=
+g.c
+>>> index 867c7ebd3f10..58b96baa8d48 100644
+>>> --- a/drivers/virtio/virtio_ring.c
+>>> +++ b/drivers/virtio/virtio_ring.c
+>>> @@ -2203,10 +2203,10 @@ void vring_del_virtqueue(struct virtqueue *_v=
+q)
+>>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 vq->split=
+.queue_size_in_bytes,
+>>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 vq->split=
+.vring.desc,
+>>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=
+=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 vq->split=
+.queue_dma_addr);
+>>> -
+>>> -=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 k=
+free(vq->split.desc_state);
+>>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 }
+>>>  =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 }
+>>> +=C2=A0=C2=A0=C2=A0 if (!vq->packed_ring)
+>>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 kfree(vq->split.desc_stat=
+e);
+>> Nitpick, it looks to me it would be more clear if we just free
+>> desc_state unconditionally here (and remove the kfree for packed above=
+).
+> OK, are you sure you want that to be folded into this patch? It looks t=
+o
+> me a separate cleanup/consolidation patch, and packed desc_state does
+> not suffer this memleak, and need not be backported into stable kernels=
+.
+>
+> regards
+> Suman
 
-So, in summary, there are
-- PageOffline() pages that are movable (balloon compaction).
-- PageOffline() pages that cannot be moved and cannot be offlined (e.g.,
-  no balloon compaction enabled, XEN, HyperV, ...) . page_count(page) >=3D
-  0
-- PageOffline() pages that cannot be moved, but can be offlined.
-  page_count(page) =3D=3D 0.
 
+Though it's just a small tweak, I'm fine for leaving it for future.
 
-> they can be switched to offline if the page count hits 0. When that
-> happens you simply end up skipping over them in the code for
-> __test_page_isolated_in_pageblock and __offline_isolated_pages.
+So
 
-Yes. The thing with the wording is that pages with (PageOffline(page) &&
-!page_count(page)) can also not really be moved, but they can be skipped
-when offlining. If we call that "moving them to /dev/null", then yes,
-they can be moved to some degree :)
+Acked-by: Jason Wang <jasowang@redhat.com>
 
-I can certainly do here e.g.,
-
-/*
- * PageOffline() pages that are not marked __PageMovable() and have a
- * reference count > 0 (after MEM_GOING_OFFLINE) are definitely
- * unmovable. If their reference count would be 0, they could be skipped
- * when offlining memory sections.
- */
-
-And maybe I'll add to the function doc, that unmovable pages that are
-skipped in this function can include pages that can be skipped when
-offlining (moving them to nirvana).
-
-Other suggestions?
-
-[...]
-
->>
->> [1] we detect a definite offlining blocker and
->>
->>>> +		} while (!ret);
->>>> +
->>>> +		if (ret !=3D -ENOENT) {
->>>> +			reason =3D "unmovable page";
->>
->> [2] we abort offlining
->>
->>>> +			goto failed_removal_isolated;
->>>>  		}
->>>> =20
->>>>  		/*
->=20
-> Yeah, this is the piece I misread.  I knew the loop this was in previou=
-sly
-> was looping when returning -ENOENT so for some reason I had it in my he=
-ad
-> that you were still looping on -EBUSY.
-
-Ah okay, I see. Yeah, that wouldn't make sense for the use case I have :)
-
->=20
-> So the one question I would have is if at this point are we guaranteed
-> that the balloon drivers have already taken care of the page count for =
-all
-> the pages they set to PageOffline? Based on the patch description I was
-> thinking that this was going to be looping for a while waiting for the
-> driver to clear the pages and then walking through them at the end of t=
-he
-> loop via check_pages_isolated_cb.
-
-So, e.g., the patch description states
-
-"Let's allow to do that by allowing to isolate any PageOffline() page
-when offlining. This way, we can reach the memory hotplug notifier
-MEM_GOING_OFFLINE, where the driver can signal that he is fine with
-offlining this page by dropping its reference count."
-
-Any balloon driver that does not allow offlining (e.g., XEN, HyperV,
-virtio-balloon), will always have a refcount of (at least) 1. Drivers
-that want to make use of that (esp. virtio-mem, but eventually also
-HyperV), will drop their refcount via the MEM_GOING_OFFLINE call.
-
-So yes, at this point, all applicable users were notified via
-MEM_GOING_OFFLINE and had their chance to decrement the refcount. If
-they didn't, offlining will be aborted.
-
-Thanks again!
-
---=20
-Thanks,
-
-David / dhildenb
+Thanks
