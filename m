@@ -1,136 +1,138 @@
-From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Subject: Re: [PATCH v3] virtio: Work around frames incorrectly marked as gso
-Date: Wed, 26 Feb 2020 07:53:11 +0000
-Message-ID: <f7983902-6f53-fe5f-263b-6555b5a1e883@cambridgegreys.com>
-References: <20200224132550.2083-1-anton.ivanov@cambridgegreys.com>
- <CA+FuTSd8P6uQnwisZEh7+nfowW9qKLBEvA4GPg+xUkjBa-6TDA@mail.gmail.com>
- <4e7757cf-148e-4585-b358-3b38f391275d@cambridgegreys.com>
- <CA+FuTSdOCJZCVS4xohx+BQmkmq8JALnK=gGc0=qy1TbjY707ag@mail.gmail.com>
- <93cb2b3f-6cae-8cf1-5fab-93fa34c14628@cambridgegreys.com>
- <CA+FuTScEXRwYtFzn-jtFhV0dNKNQqKPBwCWaNORJW=ERU=izMA@mail.gmail.com>
- <6b83116c-2cca-fb03-1c13-bb436dccf1b3@cambridgegreys.com>
- <cd1b4084-af6b-7fd9-f182-8b32a3c8d837@cambridgegreys.com>
- <CA+FuTSebC064cZXTz_n7jXLrtAcuXxp2N_jiAdi3v2=A6fBBJw@mail.gmail.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: [PATCH net] vsock: fix potential deadlock in transport->release()
+Date: Wed, 26 Feb 2020 11:58:18 +0100
+Message-ID: <20200226105818.36055-1-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <CA+FuTSebC064cZXTz_n7jXLrtAcuXxp2N_jiAdi3v2=A6fBBJw@mail.gmail.com>
-Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
-To: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Cc: Eric Dumazet <eric.dumazet@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>, Network Development <netdev@vger.kernel.org>, Jason Wang <jasowang@redhat.com>, linux-um@lists.infradead.org, virtualization@lists.linux-foundation.org
+Content-Transfer-Encoding: 8bit
+Return-path: <kvm-owner@vger.kernel.org>
+Sender: kvm-owner@vger.kernel.org
+To: davem@davemloft.net
+Cc: Dexuan Cui <decui@microsoft.com>, Hillf Danton <hdanton@sina.com>, virtualization@lists.linux-foundation.org, "K. Y. Srinivasan" <kys@microsoft.com>, kvm@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>, syzbot+731710996d79d0d58fbc@syzkaller.appspotmail.com, netdev@vger.kernel.org, Sasha Levin <sashal@kernel.org>, Sunil Muthuswamy <sunilmut@microsoft.com>, Stefano Garzarella <sgarzare@redhat.com>, linux-kernel@vger.kernel.org, linux-hyperv@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, Haiyang Zhang <haiyangz@microsoft.com>, Stefan Hajnoczi <stefanha@redhat.com>, Jorgen Hansen <jhansen@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 25/02/2020 16:26, Willem de Bruijn wrote:
->>>>>> An skb_dump() + dump_stack() when the packet socket gets such a
->>>>>> packet may point us to the root cause and fix that.
->>>>>
->>>>> We tried dump stack, it was not informative - it was just the recvmmsg
->>>>> call stack coming from the UML until it hits the relevant recv bit in
->>>>> af_packet - it does not tell us where the packet is coming from.
->>>>>
->>>>> Quoting from the message earlier in the thread:
->>>>>
->>>>> [ 2334.180854] Call Trace:
->>>>> [ 2334.181947]  dump_stack+0x5c/0x80
->>>>> [ 2334.183021]  packet_recvmsg.cold+0x23/0x49
->>>>> [ 2334.184063]  ___sys_recvmsg+0xe1/0x1f0
->>>>> [ 2334.185034]  ? packet_poll+0xca/0x130
->>>>> [ 2334.186014]  ? sock_poll+0x77/0xb0
->>>>> [ 2334.186977]  ? ep_item_poll.isra.0+0x3f/0xb0
->>>>> [ 2334.187936]  ? ep_send_events_proc+0xf1/0x240
->>>>> [ 2334.188901]  ? dequeue_signal+0xdb/0x180
->>>>> [ 2334.189848]  do_recvmmsg+0xc8/0x2d0
->>>>> [ 2334.190728]  ? ep_poll+0x8c/0x470
->>>>> [ 2334.191581]  __sys_recvmmsg+0x108/0x150
->>>>> [ 2334.192441]  __x64_sys_recvmmsg+0x25/0x30
->>>>> [ 2334.193346]  do_syscall_64+0x53/0x140
->>>>> [ 2334.194262]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
->>>>
->>>> That makes sense. skb_dump might show more interesting details about
->>>> the packet.
->>>
->>> I will add that and retest later today.
->>
->>
->> skb len=818 headroom=2 headlen=818 tailroom=908
->> mac=(2,14) net=(16,0) trans=16
->> shinfo(txflags=0 nr_frags=0 gso(size=752 type=0 segs=1))
->> csum(0x100024 ip_summed=3 complete_sw=0 valid=0 level=0)
->> hash(0x0 sw=0 l4=0) proto=0x0800 pkttype=4 iif=0
->> sk family=17 type=3 proto=0
->>
->> Deciphering the actual packet data gives a
->>
->> TCP packet, ACK and PSH set.
->>
->> The PSH flag looks like the only "interesting" thing about it in first read.
-> 
-> Thanks.
-> 
-> TCP always sets the PSH bit on a GSO packet as of commit commit
-> 051ba67447de  ("tcp: force a PSH flag on TSO packets"), so that is
-> definitely informative.
-> 
-> The lower gso size might come from a path mtu probing depending on
-> tcp_base_mss, but that's definitely wild speculation. Increasing that
-> value to, say, 1024, could tell us.
-> 
-> In this case it may indeed not be a GSO packet. As 752 is the MSS + 28
-> B TCP header including timestamp + 20 B IPv4 header + 14B Eth header.
-> Which adds up to 814 already.
-> 
-> Not sure what those 2 B between skb->data and mac_header are. Was this
-> captured inside packet_rcv? 
+Some transports (hyperv, virtio) acquire the sock lock during the
+.release() callback.
 
-af_packet, packet_rcv
+In the vsock_stream_connect() we call vsock_assign_transport(); if
+the socket was previously assigned to another transport, the
+vsk->transport->release() is called, but the sock lock is already
+held in the vsock_stream_connect(), causing a deadlock reported by
+syzbot:
 
-https://elixir.bootlin.com/linux/latest/source/net/packet/af_packet.c#L2026
+    INFO: task syz-executor280:9768 blocked for more than 143 seconds.
+      Not tainted 5.6.0-rc1-syzkaller #0
+    "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+    syz-executor280 D27912  9768   9766 0x00000000
+    Call Trace:
+     context_switch kernel/sched/core.c:3386 [inline]
+     __schedule+0x934/0x1f90 kernel/sched/core.c:4082
+     schedule+0xdc/0x2b0 kernel/sched/core.c:4156
+     __lock_sock+0x165/0x290 net/core/sock.c:2413
+     lock_sock_nested+0xfe/0x120 net/core/sock.c:2938
+     virtio_transport_release+0xc4/0xd60 net/vmw_vsock/virtio_transport_common.c:832
+     vsock_assign_transport+0xf3/0x3b0 net/vmw_vsock/af_vsock.c:454
+     vsock_stream_connect+0x2b3/0xc70 net/vmw_vsock/af_vsock.c:1288
+     __sys_connect_file+0x161/0x1c0 net/socket.c:1857
+     __sys_connect+0x174/0x1b0 net/socket.c:1874
+     __do_sys_connect net/socket.c:1885 [inline]
+     __se_sys_connect net/socket.c:1882 [inline]
+     __x64_sys_connect+0x73/0xb0 net/socket.c:1882
+     do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
+     entry_SYSCALL_64_after_hwframe+0x49/0xbe
 
-> network_header and transport_header both
-> at 16B offset is also sketchy, but again may be an artifact of where
-> exactly this is being read.
-> 
-> Perhaps this is a segment of a larger GSO packet that is retransmitted
-> in part. Like an mtu probe or loss probe. See for instance this in
-> tcp_send_loss_probe for  how a single MSS is extracted:
-> 
->         if ((pcount > 1) && (skb->len > (pcount - 1) * mss)) {
->                  if (unlikely(tcp_fragment(sk, TCP_FRAG_IN_RTX_QUEUE, skb,
->                                            (pcount - 1) * mss, mss,
->                                            GFP_ATOMIC)))
->                          goto rearm_timer;
->                  skb = skb_rb_next(skb);
->          }
-> 
-> Note that I'm not implicating this specific code. I don't see anything
-> wrong with it. Just an indication that a trace would be very
-> informative, as it could tell if any of these edge cases is being hit.
+To avoid this issue, this patch remove the lock acquiring in the
+.release() callback of hyperv and virtio transports, and it holds
+the lock when we call vsk->transport->release() in the vsock core.
 
-I will be honest, I have found it a bit difficult to trace.
+Reported-by: syzbot+731710996d79d0d58fbc@syzkaller.appspotmail.com
+Fixes: 408624af4c89 ("vsock: use local transport when it is loaded")
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+---
+ net/vmw_vsock/af_vsock.c                | 20 ++++++++++++--------
+ net/vmw_vsock/hyperv_transport.c        |  3 ---
+ net/vmw_vsock/virtio_transport_common.c |  2 --
+ 3 files changed, 12 insertions(+), 13 deletions(-)
 
-At the point where this is detected, the packet is already in the vEth 
-interface queue and is being read by recvmmsg on a raw socket.
-
-The flags + gso size combination happened long before that - even before 
-it was being placed in the queue.
-
-What is clear so far is that while the packet has invalid 
-gso_size/gso_type combination, it is an otherwise valid tcp frame.
-
-I will stick the debug into is_gso (with a backtrace) instead and re-run 
-it later today to see if this can pick it up elsewhere in the stack.
-
-> 
-> _______________________________________________
-> linux-um mailing list
-> linux-um@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-um
-> 
-
-
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 9c5b2a91baad..a5f28708e0e7 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -451,6 +451,12 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
+ 		if (vsk->transport == new_transport)
+ 			return 0;
+ 
++		/* transport->release() must be called with sock lock acquired.
++		 * This path can only be taken during vsock_stream_connect(),
++		 * where we have already held the sock lock.
++		 * In the other cases, this function is called on a new socket
++		 * which is not assigned to any transport.
++		 */
+ 		vsk->transport->release(vsk);
+ 		vsock_deassign_transport(vsk);
+ 	}
+@@ -753,20 +759,18 @@ static void __vsock_release(struct sock *sk, int level)
+ 		vsk = vsock_sk(sk);
+ 		pending = NULL;	/* Compiler warning. */
+ 
+-		/* The release call is supposed to use lock_sock_nested()
+-		 * rather than lock_sock(), if a sock lock should be acquired.
+-		 */
+-		if (vsk->transport)
+-			vsk->transport->release(vsk);
+-		else if (sk->sk_type == SOCK_STREAM)
+-			vsock_remove_sock(vsk);
+-
+ 		/* When "level" is SINGLE_DEPTH_NESTING, use the nested
+ 		 * version to avoid the warning "possible recursive locking
+ 		 * detected". When "level" is 0, lock_sock_nested(sk, level)
+ 		 * is the same as lock_sock(sk).
+ 		 */
+ 		lock_sock_nested(sk, level);
++
++		if (vsk->transport)
++			vsk->transport->release(vsk);
++		else if (sk->sk_type == SOCK_STREAM)
++			vsock_remove_sock(vsk);
++
+ 		sock_orphan(sk);
+ 		sk->sk_shutdown = SHUTDOWN_MASK;
+ 
+diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
+index 3492c021925f..630b851f8150 100644
+--- a/net/vmw_vsock/hyperv_transport.c
++++ b/net/vmw_vsock/hyperv_transport.c
+@@ -526,12 +526,9 @@ static bool hvs_close_lock_held(struct vsock_sock *vsk)
+ 
+ static void hvs_release(struct vsock_sock *vsk)
+ {
+-	struct sock *sk = sk_vsock(vsk);
+ 	bool remove_sock;
+ 
+-	lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
+ 	remove_sock = hvs_close_lock_held(vsk);
+-	release_sock(sk);
+ 	if (remove_sock)
+ 		vsock_remove_sock(vsk);
+ }
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index d9f0c9c5425a..f3c4bab2f737 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -829,7 +829,6 @@ void virtio_transport_release(struct vsock_sock *vsk)
+ 	struct sock *sk = &vsk->sk;
+ 	bool remove_sock = true;
+ 
+-	lock_sock_nested(sk, SINGLE_DEPTH_NESTING);
+ 	if (sk->sk_type == SOCK_STREAM)
+ 		remove_sock = virtio_transport_close(vsk);
+ 
+@@ -837,7 +836,6 @@ void virtio_transport_release(struct vsock_sock *vsk)
+ 		list_del(&pkt->list);
+ 		virtio_transport_free_pkt(pkt);
+ 	}
+-	release_sock(sk);
+ 
+ 	if (remove_sock)
+ 		vsock_remove_sock(vsk);
 -- 
-Anton R. Ivanov
-Cambridgegreys Limited. Registered in England. Company Number 10273661
-https://www.cambridgegreys.com/
+2.24.1
