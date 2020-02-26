@@ -1,42 +1,48 @@
-From: Jason Gunthorpe <jgg@mellanox.com>
-Subject: Re: [PATCH V4 5/5] vdpasim: vDPA device simulator
-Date: Wed, 26 Feb 2020 13:19:05 -0400
-Message-ID: <20200226171905.GS26318@mellanox.com>
-References: <20200220061141.29390-1-jasowang@redhat.com>
- <20200220061141.29390-6-jasowang@redhat.com>
- <20200220151215.GU23930@mellanox.com>
- <6c341a77-a297-b7c7-dea5-b3f7b920b1f3@redhat.com>
- <793a1b81-4f78-c405-4aae-f32a2bf67d87@redhat.com>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH v3] virtio: Work around frames incorrectly marked as gso
+Date: Wed, 26 Feb 2020 11:09:22 -0800 (PST)
+Message-ID: <20200226.110922.2164858284509225676.davem@davemloft.net>
+References: <20200224132550.2083-1-anton.ivanov@cambridgegreys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <793a1b81-4f78-c405-4aae-f32a2bf67d87@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "tiwei.bie@intel.com" <tiwei.bie@intel.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "cunming.liang@intel.com" <cunming.liang@intel.com>, "zhihong.wang@intel.com" <zhihong.wang@intel.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "xiao.w.wang@intel.com" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "lingshan.zhu@intel.com" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.co>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20200224132550.2083-1-anton.ivanov@cambridgegreys.com>
+Sender: netdev-owner@vger.kernel.org
+To: anton.ivanov@cambridgegreys.com
+Cc: netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-um@lists.infradead.org, mst@redhat.com, jasowang@redhat.com, eric.dumazet@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 26, 2020 at 02:12:26PM +0800, Jason Wang wrote:
-> > > It is a bit weird to be creating this dummy parent, couldn't this be
-> > > done by just passing a NULL parent to vdpa_alloc_device, doing
-> > > set_dma_ops() on the vdpasim->vdpa->dev and setting dma_device to
-> > > vdpasim->vdpa->dev ?
-> > 
-> > 
-> > I think it works.
+From: anton.ivanov@cambridgegreys.com
+Date: Mon, 24 Feb 2020 13:25:50 +0000
+
+> From: Anton Ivanov <anton.ivanov@cambridgegreys.com>
 > 
+> Some of the locally generated frames marked as GSO which
+> arrive at virtio_net_hdr_from_skb() have no GSO_TYPE, no
+> fragments (data_len = 0) and length significantly shorter
+> than the MTU (752 in my experiments).
 > 
-> Rethink about this, since most hardware vDPA driver will have a parent and
-> will use it to find the parent structure e.g
+> This is observed on raw sockets reading off vEth interfaces
+> in all 4.x and 5.x kernels. The frames are reported as
+> invalid, while they are in fact gso-less frames.
 > 
-> dev_get_drvdata(vdpa->dev->parent)
+> The easiest way to reproduce is to connect a User Mode
+> Linux instance to the host using the vector raw transport
+> and a vEth interface. Vector raw uses recvmmsg/sendmmsg
+> with virtio headers on af_packet sockets. When running iperf
+> between the UML and the host, UML regularly complains about
+> EINVAL return from recvmmsg.
+> 
+> This patch marks the vnet header as non-GSO instead of
+> reporting it as invalid.
+> 
+> Signed-off-by: Anton Ivanov <anton.ivanov@cambridgegreys.com>
 
-Oh that seems like a sketchy pattern
+I don't feel comfortable applying this until we know where these
+weird frames are coming from and how they are created.
 
-> So I keep this dummy parent in V5.
+Please respin this patch once you know this information and make
+sure to mention it in the commit log.
 
-The dummy parent is visible in sysfs, I think you should remove it so
-the syfs for this virtual device makes sense.
-
-Jason
+Thank you.
