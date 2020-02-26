@@ -1,76 +1,42 @@
-From: Suman Anna via Virtualization <virtualization@lists.linux-foundation.org>
-Subject: Re: [PATCH] virtio_ring: Fix mem leak with vring_new_virtqueue()
-Date: Wed, 26 Feb 2020 11:01:30 -0600
-Message-ID: <90f85329-9bec-1204-6a0d-892c92219eb1@ti.com>
-References: <20200224212643.30672-1-s-anna@ti.com>
- <b622c831-9adb-b9af-dd4a-21605bc124a8@redhat.com>
- <0ace3a3b-cf2f-7977-5337-f74f530afbe1@ti.com>
- <1ce2bee4-64ed-f630-2695-8e8b9b8e27c1@redhat.com>
-Reply-To: Suman Anna <s-anna@ti.com>
+From: Jason Gunthorpe <jgg@mellanox.com>
+Subject: Re: [PATCH V4 5/5] vdpasim: vDPA device simulator
+Date: Wed, 26 Feb 2020 13:19:05 -0400
+Message-ID: <20200226171905.GS26318@mellanox.com>
+References: <20200220061141.29390-1-jasowang@redhat.com>
+ <20200220061141.29390-6-jasowang@redhat.com>
+ <20200220151215.GU23930@mellanox.com>
+ <6c341a77-a297-b7c7-dea5-b3f7b920b1f3@redhat.com>
+ <793a1b81-4f78-c405-4aae-f32a2bf67d87@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1ce2bee4-64ed-f630-2695-8e8b9b8e27c1@redhat.com>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-remoteproc@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <793a1b81-4f78-c405-4aae-f32a2bf67d87@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: "mst@redhat.com" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "tiwei.bie@intel.com" <tiwei.bie@intel.com>, "maxime.coquelin@redhat.com" <maxime.coquelin@redhat.com>, "cunming.liang@intel.com" <cunming.liang@intel.com>, "zhihong.wang@intel.com" <zhihong.wang@intel.com>, "rob.miller@broadcom.com" <rob.miller@broadcom.com>, "xiao.w.wang@intel.com" <xiao.w.wang@intel.com>, "haotian.wang@sifive.com" <haotian.wang@sifive.com>, "lingshan.zhu@intel.com" <lingshan.zhu@intel.com>, "eperezma@redhat.com" <eperezma@redhat.com>, "lulu@redhat.com" <lulu@redhat.co>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMi8yNS8yMCA5OjEzIFBNLCBKYXNvbiBXYW5nIHdyb3RlOgo+IAo+IE9uIDIwMjAvMi8yNiDk
-uIrljYgxMjo1MSwgU3VtYW4gQW5uYSB3cm90ZToKPj4gSGkgSmFzb24sCj4+Cj4+IE9uIDIvMjQv
-MjAgMTE6MzkgUE0sIEphc29uIFdhbmcgd3JvdGU6Cj4+PiBPbiAyMDIwLzIvMjUg5LiK5Y2INToy
-NiwgU3VtYW4gQW5uYSB3cm90ZToKPj4+PiBUaGUgZnVuY3Rpb25zIHZyaW5nX25ld192aXJ0cXVl
-dWUoKSBhbmQgX192cmluZ19uZXdfdmlydHF1ZXVlKCkgYXJlCj4+Pj4gdXNlZAo+Pj4+IHdpdGgg
-c3BsaXQgcmluZ3MsIGFuZCBhbnkgYWxsb2NhdGlvbnMgd2l0aGluIHRoZXNlIGZ1bmN0aW9ucyBh
-cmUKPj4+PiBtYW5hZ2VkCj4+Pj4gb3V0c2lkZSBvZiB0aGUgLndlX293bl9yaW5nIGZsYWcuIFRo
-ZSBjb21taXQgY2JlZWRiNzJiOTdhCj4+Pj4gKCJ2aXJ0aW9fcmluZzoKPj4+PiBhbGxvY2F0ZSBk
-ZXNjIHN0YXRlIGZvciBzcGxpdCByaW5nIHNlcGFyYXRlbHkiKSBhbGxvY2F0ZXMgdGhlIGRlc2MK
-Pj4+PiBzdGF0ZQo+Pj4+IHdpdGhpbiB0aGUgX192cmluZ19uZXdfdmlydHF1ZXVlKCkgYnV0IGZy
-ZWVzIGl0IG9ubHkgd2hlbiB0aGUKPj4+PiAud2Vfb3duX3JpbmcKPj4+PiBmbGFnIGlzIHNldC4g
-VGhpcyBsZWFkcyB0byBhIG1lbW9yeSBsZWFrIHdoZW4gZnJlZWluZyBzdWNoIGFsbG9jYXRlZAo+
-Pj4+IHZpcnRxdWV1ZXMgd2l0aCB0aGUgdnJpbmdfZGVsX3ZpcnRxdWV1ZSgpIGZ1bmN0aW9uLgo+
-Pj4+Cj4+Pj4gRml4IHRoaXMgYnkgbW92aW5nIHRoZSBkZXNjX3N0YXRlIGZyZWUgY29kZSBvdXRz
-aWRlIHRoZSBmbGFnIGFuZCBvbmx5Cj4+Pj4gZm9yIHNwbGl0IHJpbmdzLiBJc3N1ZSB3YXMgZGlz
-Y292ZXJlZCBkdXJpbmcgdGVzdGluZyB3aXRoIHJlbW90ZXByb2MKPj4+PiBhbmQgdmlydGlvX3Jw
-bXNnLgo+Pj4+Cj4+Pj4gRml4ZXM6IGNiZWVkYjcyYjk3YSAoInZpcnRpb19yaW5nOiBhbGxvY2F0
-ZSBkZXNjIHN0YXRlIGZvciBzcGxpdCByaW5nCj4+Pj4gc2VwYXJhdGVseSIpCj4+Pj4gU2lnbmVk
-LW9mZi1ieTogU3VtYW4gQW5uYTxzLWFubmFAdGkuY29tPgo+Pj4+IC0tLQo+Pj4+IMKgwqAgZHJp
-dmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYyB8IDQgKystLQo+Pj4+IMKgwqAgMSBmaWxlIGNoYW5n
-ZWQsIDIgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkKPj4+Pgo+Pj4+IGRpZmYgLS1naXQg
-YS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4+Pj4gYi9kcml2ZXJzL3ZpcnRpby92aXJ0
-aW9fcmluZy5jCj4+Pj4gaW5kZXggODY3YzdlYmQzZjEwLi41OGI5NmJhYThkNDggMTAwNjQ0Cj4+
-Pj4gLS0tIGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+Pj4+ICsrKyBiL2RyaXZlcnMv
-dmlydGlvL3ZpcnRpb19yaW5nLmMKPj4+PiBAQCAtMjIwMywxMCArMjIwMywxMCBAQCB2b2lkIHZy
-aW5nX2RlbF92aXJ0cXVldWUoc3RydWN0IHZpcnRxdWV1ZSAqX3ZxKQo+Pj4+IMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgdnEtPnNwbGl0LnF1ZXVlX3NpemVf
-aW5fYnl0ZXMsCj4+Pj4gwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoCB2cS0+c3BsaXQudnJpbmcuZGVzYywKPj4+PiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgIHZxLT5zcGxpdC5xdWV1ZV9kbWFfYWRkcik7Cj4+Pj4gLQo+
-Pj4+IC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGtmcmVlKHZxLT5zcGxpdC5kZXNjX3N0YXRlKTsK
-Pj4+PiDCoMKgwqDCoMKgwqDCoMKgwqDCoCB9Cj4+Pj4gwqDCoMKgwqDCoMKgIH0KPj4+PiArwqDC
-oMKgIGlmICghdnEtPnBhY2tlZF9yaW5nKQo+Pj4+ICvCoMKgwqDCoMKgwqDCoCBrZnJlZSh2cS0+
-c3BsaXQuZGVzY19zdGF0ZSk7Cj4+PiBOaXRwaWNrLCBpdCBsb29rcyB0byBtZSBpdCB3b3VsZCBi
-ZSBtb3JlIGNsZWFyIGlmIHdlIGp1c3QgZnJlZQo+Pj4gZGVzY19zdGF0ZSB1bmNvbmRpdGlvbmFs
-bHkgaGVyZSAoYW5kIHJlbW92ZSB0aGUga2ZyZWUgZm9yIHBhY2tlZCBhYm92ZSkuCj4+IE9LLCBh
-cmUgeW91IHN1cmUgeW91IHdhbnQgdGhhdCB0byBiZSBmb2xkZWQgaW50byB0aGlzIHBhdGNoPyBJ
-dCBsb29rcyB0bwo+PiBtZSBhIHNlcGFyYXRlIGNsZWFudXAvY29uc29saWRhdGlvbiBwYXRjaCwg
-YW5kIHBhY2tlZCBkZXNjX3N0YXRlIGRvZXMKPj4gbm90IHN1ZmZlciB0aGlzIG1lbWxlYWssIGFu
-ZCBuZWVkIG5vdCBiZSBiYWNrcG9ydGVkIGludG8gc3RhYmxlIGtlcm5lbHMuCj4+Cj4+IHJlZ2Fy
-ZHMKPj4gU3VtYW4KPiAKPiAKPiBUaG91Z2ggaXQncyBqdXN0IGEgc21hbGwgdHdlYWssIEknbSBm
-aW5lIGZvciBsZWF2aW5nIGl0IGZvciBmdXR1cmUuCj4gCj4gU28KPiAKPiBBY2tlZC1ieTogSmFz
-b24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KClRoYW5rcyBKYXNvbiwgd2lsbCBwb3N0IGEg
-cGF0Y2ggZm9yIHRoZSBzYW1lIG9uY2UgdGhpcyBpcyBtZXJnZWQuCgpyZWdhcmRzClN1bWFuCl9f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
-aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
-ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
-dWFsaXphdGlvbg==
+On Wed, Feb 26, 2020 at 02:12:26PM +0800, Jason Wang wrote:
+> > > It is a bit weird to be creating this dummy parent, couldn't this be
+> > > done by just passing a NULL parent to vdpa_alloc_device, doing
+> > > set_dma_ops() on the vdpasim->vdpa->dev and setting dma_device to
+> > > vdpasim->vdpa->dev ?
+> > 
+> > 
+> > I think it works.
+> 
+> 
+> Rethink about this, since most hardware vDPA driver will have a parent and
+> will use it to find the parent structure e.g
+> 
+> dev_get_drvdata(vdpa->dev->parent)
+
+Oh that seems like a sketchy pattern
+
+> So I keep this dummy parent in V5.
+
+The dummy parent is visible in sysfs, I think you should remove it so
+the syfs for this virtual device makes sense.
+
+Jason
