@@ -1,37 +1,128 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH net] vsock: fix potential deadlock in
- transport->release()
-Date: Thu, 27 Feb 2020 12:04:23 -0800 (PST)
-Message-ID: <20200227.120423.2054408641031093845.davem@davemloft.net>
-References: <20200226105818.36055-1-sgarzare@redhat.com>
+From: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [PATCH v3 1/4] drm/simple-kms: Add drm_simple_encoder_{init,
+ create}()
+Date: Thu, 27 Feb 2020 21:38:33 +0100
+Message-ID: <20200227203833.GD27592@ravnborg.org>
+References: <20200225131055.27550-1-tzimmermann@suse.de>
+ <20200225131055.27550-2-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200226105818.36055-1-sgarzare@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: sgarzare@redhat.com
-Cc: decui@microsoft.com, hdanton@sina.com, virtualization@lists.linux-foundation.org, kys@microsoft.com, kvm@vger.kernel.org, sthemmin@microsoft.com, syzbot+731710996d79d0d58fbc@syzkaller.appspotmail.com, netdev@vger.kernel.org, sashal@kernel.org, sunilmut@microsoft.com, linux-kernel@vger.kernel.org, linux-hyperv@vger.kernel.org, kuba@kernel.org, haiyangz@microsoft.com, stefanha@redhat.com, jhansen@vmware.com
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20200225131055.27550-2-tzimmermann@suse.de>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: airlied@linux.ie, dri-devel@lists.freedesktop.org, maarten.lankhorst@linux.intel.com, mripard@kernel.org, virtualization@lists.linux-foundation.org, noralf@tronnes.org, daniel@ffwll.ch, alexander.deucher@amd.com, spice-devel@lists.freedesktop.org, emil.velikov@collabora.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Stefano Garzarella <sgarzare@redhat.com>
-Date: Wed, 26 Feb 2020 11:58:18 +0100
-
-> Some transports (hyperv, virtio) acquire the sock lock during the
-> .release() callback.
+On Tue, Feb 25, 2020 at 02:10:52PM +0100, Thomas Zimmermann wrote:
+> This patch makes the internal encoder implementation of the simple
+> KMS helpers available to drivers.
 > 
-> In the vsock_stream_connect() we call vsock_assign_transport(); if
-> the socket was previously assigned to another transport, the
-> vsk->transport->release() is called, but the sock lock is already
-> held in the vsock_stream_connect(), causing a deadlock reported by
-> syzbot:
- ...
-> To avoid this issue, this patch remove the lock acquiring in the
-> .release() callback of hyperv and virtio transports, and it holds
-> the lock when we call vsk->transport->release() in the vsock core.
+> These simple-encoder helpers initialize an encoder with an empty
+> implementation. This covers the requirements of most of the existing
+> DRM drivers. A call to drm_simple_encoder_create() allocates and
+> initializes an encoder instance, a call to drm_simple_encoder_init()
+> initializes a pre-allocated instance.
 > 
-> Reported-by: syzbot+731710996d79d0d58fbc@syzkaller.appspotmail.com
-> Fixes: 408624af4c89 ("vsock: use local transport when it is loaded")
-> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-
-Applied, thank you.
+> v3:
+> 	* remove drm_simple_encoder_create(); not required yet
+> 	* provide more precise documentation
+> v2:
+> 	* move simple encoder to KMS helpers
+> 	* remove name argument; simplifies implementation
+> 	* don't allocate with devm_ interfaces; unsafe with DRM
+> 
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
+> ---
+>  drivers/gpu/drm/drm_simple_kms_helper.c | 34 ++++++++++++++++++++++---
+>  include/drm/drm_simple_kms_helper.h     |  4 +++
+>  2 files changed, 35 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/drm_simple_kms_helper.c b/drivers/gpu/drm/drm_simple_kms_helper.c
+> index 15fb516ae2d8..04309e4660de 100644
+> --- a/drivers/gpu/drm/drm_simple_kms_helper.c
+> +++ b/drivers/gpu/drm/drm_simple_kms_helper.c
+> @@ -26,12 +26,41 @@
+>   * entity. Some flexibility for code reuse is provided through a separately
+>   * allocated &drm_connector object and supporting optional &drm_bridge
+>   * encoder drivers.
+> + *
+> + * Many drivers require only a very simple encoder that fulfills the minimum
+> + * requirements of the display pipeline and does not add additional
+> + * functionality. The function drm_simple_encoder_init() provides an
+> + * implementation of such an encoder.
+>   */
+>  
+> -static const struct drm_encoder_funcs drm_simple_kms_encoder_funcs = {
+> +static const struct drm_encoder_funcs drm_simple_encoder_funcs_cleanup = {
+>  	.destroy = drm_encoder_cleanup,
+>  };
+>  
+> +/**
+> + * drm_simple_encoder_init - Initialize a preallocated encoder
+> + * @dev: drm device
+> + * @funcs: callbacks for this encoder
+> + * @encoder_type: user visible type of the encoder
+> + *
+> + * Initialises a preallocated encoder that has no further functionality.
+> + * Settings for possible CRTC and clones are left to their initial values.
+> + * The encoder will be cleaned up automatically as part of the mode-setting
+> + * cleanup.
+> + *
+> + * Returns:
+> + * Zero on success, error code on failure.
+> + */
+> +int drm_simple_encoder_init(struct drm_device *dev,
+> +			    struct drm_encoder *encoder,
+> +			    int encoder_type)
+> +{
+> +	return drm_encoder_init(dev, encoder,
+> +				&drm_simple_encoder_funcs_cleanup,
+> +				encoder_type, NULL);
+> +}
+> +EXPORT_SYMBOL(drm_simple_encoder_init);
+> +
+>  static enum drm_mode_status
+>  drm_simple_kms_crtc_mode_valid(struct drm_crtc *crtc,
+>  			       const struct drm_display_mode *mode)
+> @@ -288,8 +317,7 @@ int drm_simple_display_pipe_init(struct drm_device *dev,
+>  		return ret;
+>  
+>  	encoder->possible_crtcs = drm_crtc_mask(crtc);
+> -	ret = drm_encoder_init(dev, encoder, &drm_simple_kms_encoder_funcs,
+> -			       DRM_MODE_ENCODER_NONE, NULL);
+> +	ret = drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_NONE);
+>  	if (ret || !connector)
+>  		return ret;
+>  
+> diff --git a/include/drm/drm_simple_kms_helper.h b/include/drm/drm_simple_kms_helper.h
+> index e253ba7bea9d..a026375464ff 100644
+> --- a/include/drm/drm_simple_kms_helper.h
+> +++ b/include/drm/drm_simple_kms_helper.h
+> @@ -181,4 +181,8 @@ int drm_simple_display_pipe_init(struct drm_device *dev,
+>  			const uint64_t *format_modifiers,
+>  			struct drm_connector *connector);
+>  
+> +int drm_simple_encoder_init(struct drm_device *dev,
+> +			    struct drm_encoder *encoder,
+> +			    int encoder_type);
+> +
+>  #endif /* __LINUX_DRM_SIMPLE_KMS_HELPER_H */
+> -- 
+> 2.25.0
+> 
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
