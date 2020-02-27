@@ -1,85 +1,70 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH net] vsock: fix potential deadlock in transport->release()
-Date: Thu, 27 Feb 2020 16:11:02 +0000
-Message-ID: <20200227161102.GC315098@stefanha-x1.localdomain>
-References: <20200226105818.36055-1-sgarzare@redhat.com>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: [PATCH 07/51] drm/qxl: Use drmm_add_final_kfree
+Date: Thu, 27 Feb 2020 19:14:38 +0100
+Message-ID: <20200227181522.2711142-8-daniel.vetter@ffwll.ch>
+References: <20200227181522.2711142-1-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="DIOMP1UsTsWJauNi"
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20200226105818.36055-1-sgarzare@redhat.com>
-Content-Disposition: inline
-Sender: netdev-owner@vger.kernel.org
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: davem@davemloft.net, Dexuan Cui <decui@microsoft.com>, Hillf Danton <hdanton@sina.com>, virtualization@lists.linux-foundation.org, "K. Y. Srinivasan" <kys@microsoft.com>, kvm@vger.kernel.org, Stephen Hemminger <sthemmin@microsoft.com>, syzbot+731710996d79d0d58fbc@syzkaller.appspotmail.com, netdev@vger.kernel.org, Sasha Levin <sashal@kernel.org>, Sunil Muthuswamy <sunilmut@microsoft.com>, linux-kernel@vger.kernel.org, linux-hyperv@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, Haiyang Zhang <haiyangz@microsoft.com>, Jorgen Hansen <jhansen@vmware.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200227181522.2711142-1-daniel.vetter@ffwll.ch>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: DRI Development <dri-devel@lists.freedesktop.org>
+Cc: spice-devel@lists.freedesktop.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, m.felsch@pengutronix.de, virtualization@lists.linux-foundation.org, Dave Airlie <airlied@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>, l.stach@pengutronix.de
 List-Id: virtualization@lists.linuxfoundation.org
 
---DIOMP1UsTsWJauNi
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+With this we can drop the final kfree from the release function.
 
-On Wed, Feb 26, 2020 at 11:58:18AM +0100, Stefano Garzarella wrote:
-> Some transports (hyperv, virtio) acquire the sock lock during the
-> .release() callback.
->=20
-> In the vsock_stream_connect() we call vsock_assign_transport(); if
-> the socket was previously assigned to another transport, the
-> vsk->transport->release() is called, but the sock lock is already
-> held in the vsock_stream_connect(), causing a deadlock reported by
-> syzbot:
->=20
->     INFO: task syz-executor280:9768 blocked for more than 143 seconds.
->       Not tainted 5.6.0-rc1-syzkaller #0
->     "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this mess=
-age.
->     syz-executor280 D27912  9768   9766 0x00000000
->     Call Trace:
->      context_switch kernel/sched/core.c:3386 [inline]
->      __schedule+0x934/0x1f90 kernel/sched/core.c:4082
->      schedule+0xdc/0x2b0 kernel/sched/core.c:4156
->      __lock_sock+0x165/0x290 net/core/sock.c:2413
->      lock_sock_nested+0xfe/0x120 net/core/sock.c:2938
->      virtio_transport_release+0xc4/0xd60 net/vmw_vsock/virtio_transport_c=
-ommon.c:832
->      vsock_assign_transport+0xf3/0x3b0 net/vmw_vsock/af_vsock.c:454
->      vsock_stream_connect+0x2b3/0xc70 net/vmw_vsock/af_vsock.c:1288
->      __sys_connect_file+0x161/0x1c0 net/socket.c:1857
->      __sys_connect+0x174/0x1b0 net/socket.c:1874
->      __do_sys_connect net/socket.c:1885 [inline]
->      __se_sys_connect net/socket.c:1882 [inline]
->      __x64_sys_connect+0x73/0xb0 net/socket.c:1882
->      do_syscall_64+0xfa/0x790 arch/x86/entry/common.c:294
->      entry_SYSCALL_64_after_hwframe+0x49/0xbe
->=20
-> To avoid this issue, this patch remove the lock acquiring in the
-> .release() callback of hyperv and virtio transports, and it holds
-> the lock when we call vsk->transport->release() in the vsock core.
->=20
-> Reported-by: syzbot+731710996d79d0d58fbc@syzkaller.appspotmail.com
-> Fixes: 408624af4c89 ("vsock: use local transport when it is loaded")
-> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-> ---
->  net/vmw_vsock/af_vsock.c                | 20 ++++++++++++--------
->  net/vmw_vsock/hyperv_transport.c        |  3 ---
->  net/vmw_vsock/virtio_transport_common.c |  2 --
->  3 files changed, 12 insertions(+), 13 deletions(-)
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Cc: Dave Airlie <airlied@redhat.com>
+Cc: Gerd Hoffmann <kraxel@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
+Cc: spice-devel@lists.freedesktop.org
+---
+ drivers/gpu/drm/qxl/qxl_drv.c | 2 --
+ drivers/gpu/drm/qxl/qxl_kms.c | 2 ++
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-
---DIOMP1UsTsWJauNi
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl5X6hYACgkQnKSrs4Gr
-c8hIwwf/VpB7q37vIv4l2+NFuq3CWGZbLfSSG7A9u4sXSo+VhcEltqh8jdz8xEfS
-k9JaAaCosM43HAtz+LPmfHG6eL761HjpUQ9KnLgU53aWhJwFuIv000o2w+OA3X4O
-cr1aWzcWJzFpkU1xQb41J1FR8FUymgWSqQPitEF3ElEnmbfFGSrEgrVOc9Ou2Qhb
-57r4rlPuiZNNshiWMjCalPewQeJETnrEnB9cxsjc0gMu/xn1KRE7g6i4yG1smtjm
-YSgZmV1NgDWrAKr//amiOCqTvKH2DUYYgvUwnx27G0iRrWO47TQYbE+/jDd+FUol
-u2jPzVcR0q/qq1CJsyPqKx+7pdCqUg==
-=t+mC
------END PGP SIGNATURE-----
-
---DIOMP1UsTsWJauNi--
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
+index 4fda3f9b29f4..09102e2efabc 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.c
++++ b/drivers/gpu/drm/qxl/qxl_drv.c
+@@ -144,8 +144,6 @@ static void qxl_drm_release(struct drm_device *dev)
+ 	 */
+ 	qxl_modeset_fini(qdev);
+ 	qxl_device_fini(qdev);
+-	dev->dev_private = NULL;
+-	kfree(qdev);
+ }
+ 
+ static void
+diff --git a/drivers/gpu/drm/qxl/qxl_kms.c b/drivers/gpu/drm/qxl/qxl_kms.c
+index 70b20ee4741a..09d7b5f6d172 100644
+--- a/drivers/gpu/drm/qxl/qxl_kms.c
++++ b/drivers/gpu/drm/qxl/qxl_kms.c
+@@ -27,6 +27,7 @@
+ #include <linux/pci.h>
+ 
+ #include <drm/drm_drv.h>
++#include <drm/drm_managed.h>
+ #include <drm/drm_probe_helper.h>
+ 
+ #include "qxl_drv.h"
+@@ -121,6 +122,7 @@ int qxl_device_init(struct qxl_device *qdev,
+ 	qdev->ddev.pdev = pdev;
+ 	pci_set_drvdata(pdev, &qdev->ddev);
+ 	qdev->ddev.dev_private = qdev;
++	drmm_add_final_kfree(&qdev->ddev, qdev);
+ 
+ 	mutex_init(&qdev->gem.mutex);
+ 	mutex_init(&qdev->update_area_mutex);
+-- 
+2.24.1
