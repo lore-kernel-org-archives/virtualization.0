@@ -1,68 +1,46 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 00/14] iommu: Move iommu_fwspec out of 'struct device'
-Date: Fri, 28 Feb 2020 16:08:06 +0100
-Message-ID: <20200228150820.15340-1-joro@8bytes.org>
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
+Subject: [PATCH 04/14] iommu/arm-smmu: Fix uninitilized variable warning
+Date: Fri, 28 Feb 2020 16:08:10 +0100
+Message-ID: <20200228150820.15340-5-joro@8bytes.org>
+References: <20200228150820.15340-1-joro@8bytes.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200228150820.15340-1-joro@8bytes.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: iommu@lists.linux-foundation.org
-Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, virtualization@lists.linux-foundation.org, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Hanjun Guo <guohanjun@huawei.com>, Sudeep Holla <sudeep.holla@arm.com>, Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Joerg Roedel <joro@8bytes.org>, Matthias Brugger <matthias.bgg@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>
+Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, virtualization@lists.linux-foundation.org, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Hanjun Guo <guohanjun@huawei.com>, Sudeep Holla <sudeep.holla@arm.com>, Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Joerg Roedel <joro@8bytes.org>, Matthias Brugger <matthias.bgg@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+From: Joerg Roedel <jroedel@suse.de>
 
-here is a patch-set to rename iommu_param to dev_iommu and
-establish it as a struct for generic per-device iommu-data.
-Also move the iommu_fwspec pointer from struct device into
-dev_iommu to have less iommu-related pointers in struct
-device.
+Some unrelated changes in the iommu code caused a new warning to
+appear in the arm-smmu driver:
 
-The bigger part of this patch-set moves the iommu_priv
-pointer from struct iommu_fwspec to dev_iommu, making is
-usable for iommu-drivers which do not use fwspecs.
+  CC      drivers/iommu/arm-smmu.o
+drivers/iommu/arm-smmu.c: In function 'arm_smmu_add_device':
+drivers/iommu/arm-smmu.c:1441:2: warning: 'smmu' may be used uninitialized in this function [-Wmaybe-uninitialized]
+  arm_smmu_rpm_put(smmu);
+  ^~~~~~~~~~~~~~~~~~~~~~
 
-The changes for that were mostly straightforward, except for
-the arm-smmu (_not_ arm-smmu-v3) and the qcom iommu driver.
-Unfortunatly I don't have the hardware for those, so any
-testing of these drivers is greatly appreciated.
+The warning is a false positive, but initialize the variable to NULL
+to get rid of it.
 
-I boot-tested these changes on arm-smmu-v3 enabled KVM VM.
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+---
+ drivers/iommu/arm-smmu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Please review.
-
-Regards,
-
-	Joerg
-
-Joerg Roedel (14):
-  ACPI/IORT: Remove direct access of dev->iommu_fwspec
-  drm/msm/mdp5: Remove direct access of dev->iommu_fwspec
-  iommu/tegra-gart: Remove direct access of dev->iommu_fwspec
-  iommu/arm-smmu: Fix uninitilized variable warning
-  iommu: Rename struct iommu_param to dev_iommu
-  iommu: Move iommu_fwspec to struct dev_iommu
-  iommu: Introduce accessors for iommu private data
-  iommu/arm-smmu-v3: Use accessor functions for iommu private data
-  iommu/arm-smmu: Use accessor functions for iommu private data
-  iommu/renesas: Use accessor functions for iommu private data
-  iommu/mediatek: Use accessor functions for iommu private data
-  iommu/qcom: Use accessor functions for iommu private data
-  iommu/virtio: Use accessor functions for iommu private data
-  iommu: Move fwspec->iommu_priv to struct dev_iommu
-
- drivers/acpi/arm64/iort.c                |  3 +-
- drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c |  2 +-
- drivers/iommu/arm-smmu-v3.c              | 10 ++--
- drivers/iommu/arm-smmu.c                 | 58 +++++++++++-----------
- drivers/iommu/iommu.c                    | 31 ++++++------
- drivers/iommu/ipmmu-vmsa.c               |  7 +--
- drivers/iommu/mtk_iommu.c                | 13 +++--
- drivers/iommu/mtk_iommu_v1.c             | 14 +++---
- drivers/iommu/qcom_iommu.c               | 61 ++++++++++++++----------
- drivers/iommu/tegra-gart.c               |  2 +-
- drivers/iommu/virtio-iommu.c             | 11 ++---
- include/linux/device.h                   |  7 ++-
- include/linux/iommu.h                    | 29 ++++++++---
- 13 files changed, 137 insertions(+), 111 deletions(-)
-
+diff --git a/drivers/iommu/arm-smmu.c b/drivers/iommu/arm-smmu.c
+index 16c4b87af42b..980aae73b45b 100644
+--- a/drivers/iommu/arm-smmu.c
++++ b/drivers/iommu/arm-smmu.c
+@@ -1383,7 +1383,7 @@ struct arm_smmu_device *arm_smmu_get_by_fwnode(struct fwnode_handle *fwnode)
+ 
+ static int arm_smmu_add_device(struct device *dev)
+ {
+-	struct arm_smmu_device *smmu;
++	struct arm_smmu_device *smmu = NULL;
+ 	struct arm_smmu_master_cfg *cfg;
+ 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+ 	int i, ret;
 -- 
 2.17.1
