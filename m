@@ -1,30 +1,68 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: VIRTIO adoption in other hypervisors
-Date: Fri, 28 Feb 2020 12:21:35 +0100
-Message-ID: <71f1773d-579d-fec9-cd49-e500bbca1bc4@redhat.com>
-References: <87mu93vwy2.fsf@linaro.org>
- <fca8366e-662f-af2f-382c-0216d9df63f8@redhat.com> <87k147vu29.fsf@linaro.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtio-dev-return-6819-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <87k147vu29.fsf@linaro.org>
-Content-Language: en-US
-To: =?UTF-8?Q?Alex_Benn=c3=a9e?= <alex.bennee@linaro.org>
-Cc: virtualization@lists.linux-foundation.org, jan.kiszka@siemens.com, Stefano Stabellini <sstabellini@kernel.org>, Wei Liu <liuw@liuw.name>, virtio-dev@lists.oasis-open.org
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH 00/14] iommu: Move iommu_fwspec out of 'struct device'
+Date: Fri, 28 Feb 2020 16:08:06 +0100
+Message-ID: <20200228150820.15340-1-joro@8bytes.org>
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: iommu@lists.linux-foundation.org
+Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, virtualization@lists.linux-foundation.org, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Hanjun Guo <guohanjun@huawei.com>, Sudeep Holla <sudeep.holla@arm.com>, Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Joerg Roedel <joro@8bytes.org>, Matthias Brugger <matthias.bgg@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 28/02/20 12:18, Alex Benn=C3=A9e wrote:
->> OS X Hypervisor.framework just uses QEMU, so it can use virtio devices
->> too.  VirtualBox also supports virtio devices.
-> I guess these don't do any sort of vhost support so all virtio devices
-> are handled directly in QEMU?
+Hi,
 
-OS X can use vhost-user.
+here is a patch-set to rename iommu_param to dev_iommu and
+establish it as a struct for generic per-device iommu-data.
+Also move the iommu_fwspec pointer from struct device into
+dev_iommu to have less iommu-related pointers in struct
+device.
 
-Paolo
+The bigger part of this patch-set moves the iommu_priv
+pointer from struct iommu_fwspec to dev_iommu, making is
+usable for iommu-drivers which do not use fwspecs.
+
+The changes for that were mostly straightforward, except for
+the arm-smmu (_not_ arm-smmu-v3) and the qcom iommu driver.
+Unfortunatly I don't have the hardware for those, so any
+testing of these drivers is greatly appreciated.
+
+I boot-tested these changes on arm-smmu-v3 enabled KVM VM.
+
+Please review.
+
+Regards,
+
+	Joerg
+
+Joerg Roedel (14):
+  ACPI/IORT: Remove direct access of dev->iommu_fwspec
+  drm/msm/mdp5: Remove direct access of dev->iommu_fwspec
+  iommu/tegra-gart: Remove direct access of dev->iommu_fwspec
+  iommu/arm-smmu: Fix uninitilized variable warning
+  iommu: Rename struct iommu_param to dev_iommu
+  iommu: Move iommu_fwspec to struct dev_iommu
+  iommu: Introduce accessors for iommu private data
+  iommu/arm-smmu-v3: Use accessor functions for iommu private data
+  iommu/arm-smmu: Use accessor functions for iommu private data
+  iommu/renesas: Use accessor functions for iommu private data
+  iommu/mediatek: Use accessor functions for iommu private data
+  iommu/qcom: Use accessor functions for iommu private data
+  iommu/virtio: Use accessor functions for iommu private data
+  iommu: Move fwspec->iommu_priv to struct dev_iommu
+
+ drivers/acpi/arm64/iort.c                |  3 +-
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c |  2 +-
+ drivers/iommu/arm-smmu-v3.c              | 10 ++--
+ drivers/iommu/arm-smmu.c                 | 58 +++++++++++-----------
+ drivers/iommu/iommu.c                    | 31 ++++++------
+ drivers/iommu/ipmmu-vmsa.c               |  7 +--
+ drivers/iommu/mtk_iommu.c                | 13 +++--
+ drivers/iommu/mtk_iommu_v1.c             | 14 +++---
+ drivers/iommu/qcom_iommu.c               | 61 ++++++++++++++----------
+ drivers/iommu/tegra-gart.c               |  2 +-
+ drivers/iommu/virtio-iommu.c             | 11 ++---
+ include/linux/device.h                   |  7 ++-
+ include/linux/iommu.h                    | 29 ++++++++---
+ 13 files changed, 137 insertions(+), 111 deletions(-)
+
+-- 
+2.17.1
