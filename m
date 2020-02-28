@@ -1,7 +1,7 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v4 4/4] drm/qxl: Use simple encoder
-Date: Fri, 28 Feb 2020 09:18:28 +0100
-Message-ID: <20200228081828.18463-5-tzimmermann@suse.de>
+Subject: [PATCH v4 1/4] drm/simple-kms: Add drm_simple_encoder_{init, create}()
+Date: Fri, 28 Feb 2020 09:18:25 +0100
+Message-ID: <20200228081828.18463-2-tzimmermann@suse.de>
 References: <20200228081828.18463-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,102 +21,99 @@ To: airlied@linux.ie, daniel@ffwll.ch, maarten.lankhorst@linux.intel.com, mripar
 Cc: spice-devel@lists.freedesktop.org, Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The qxl driver uses an empty implementation for its encoder. Replace
-the code with the generic simple encoder.
+This patch makes the internal encoder implementation of the simple
+KMS helpers available to drivers.
 
-v4:
-	* handle errors returned from drm_simple_encoder_init()
+These simple-encoder helpers initialize an encoder with an empty
+implementation. This covers the requirements of most of the existing
+DRM drivers. A call to drm_simple_encoder_create() allocates and
+initializes an encoder instance, a call to drm_simple_encoder_init()
+initializes a pre-allocated instance.
+
+v3:
+	* remove drm_simple_encoder_create(); not required yet
+	* provide more precise documentation
 v2:
-	* rebase onto new simple-encoder interface
+	* move simple encoder to KMS helpers
+	* remove name argument; simplifies implementation
+	* don't allocate with devm_ interfaces; unsafe with DRM
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/qxl/qxl_display.c | 29 ++++++++++++++---------------
- 1 file changed, 14 insertions(+), 15 deletions(-)
+ drivers/gpu/drm/drm_simple_kms_helper.c | 34 ++++++++++++++++++++++---
+ include/drm/drm_simple_kms_helper.h     |  4 +++
+ 2 files changed, 35 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index ab4f8dd00400..09583a08e141 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -31,6 +31,7 @@
- #include <drm/drm_gem_framebuffer_helper.h>
- #include <drm/drm_plane_helper.h>
- #include <drm/drm_probe_helper.h>
-+#include <drm/drm_simple_kms_helper.h>
+diff --git a/drivers/gpu/drm/drm_simple_kms_helper.c b/drivers/gpu/drm/drm_simple_kms_helper.c
+index 15fb516ae2d8..04309e4660de 100644
+--- a/drivers/gpu/drm/drm_simple_kms_helper.c
++++ b/drivers/gpu/drm/drm_simple_kms_helper.c
+@@ -26,12 +26,41 @@
+  * entity. Some flexibility for code reuse is provided through a separately
+  * allocated &drm_connector object and supporting optional &drm_bridge
+  * encoder drivers.
++ *
++ * Many drivers require only a very simple encoder that fulfills the minimum
++ * requirements of the display pipeline and does not add additional
++ * functionality. The function drm_simple_encoder_init() provides an
++ * implementation of such an encoder.
+  */
  
- #include "qxl_drv.h"
- #include "qxl_object.h"
-@@ -1007,9 +1008,6 @@ static struct drm_encoder *qxl_best_encoder(struct drm_connector *connector)
- 	return &qxl_output->enc;
- }
- 
--static const struct drm_encoder_helper_funcs qxl_enc_helper_funcs = {
--};
--
- static const struct drm_connector_helper_funcs qxl_connector_helper_funcs = {
- 	.get_modes = qxl_conn_get_modes,
- 	.mode_valid = qxl_conn_mode_valid,
-@@ -1059,15 +1057,6 @@ static const struct drm_connector_funcs qxl_connector_funcs = {
- 	.atomic_destroy_state = drm_atomic_helper_connector_destroy_state,
+-static const struct drm_encoder_funcs drm_simple_kms_encoder_funcs = {
++static const struct drm_encoder_funcs drm_simple_encoder_funcs_cleanup = {
+ 	.destroy = drm_encoder_cleanup,
  };
  
--static void qxl_enc_destroy(struct drm_encoder *encoder)
--{
--	drm_encoder_cleanup(encoder);
--}
--
--static const struct drm_encoder_funcs qxl_enc_funcs = {
--	.destroy = qxl_enc_destroy,
--};
--
- static int qxl_mode_create_hotplug_mode_update_property(struct qxl_device *qdev)
- {
- 	if (qdev->hotplug_mode_update_property)
-@@ -1086,6 +1075,7 @@ static int qdev_output_init(struct drm_device *dev, int num_output)
- 	struct qxl_output *qxl_output;
- 	struct drm_connector *connector;
- 	struct drm_encoder *encoder;
-+	int ret;
- 
- 	qxl_output = kzalloc(sizeof(struct qxl_output), GFP_KERNEL);
- 	if (!qxl_output)
-@@ -1098,15 +1088,19 @@ static int qdev_output_init(struct drm_device *dev, int num_output)
- 	drm_connector_init(dev, &qxl_output->base,
- 			   &qxl_connector_funcs, DRM_MODE_CONNECTOR_VIRTUAL);
- 
--	drm_encoder_init(dev, &qxl_output->enc, &qxl_enc_funcs,
--			 DRM_MODE_ENCODER_VIRTUAL, NULL);
-+	ret = drm_simple_encoder_init(dev, &qxl_output->enc,
-+				      DRM_MODE_ENCODER_VIRTUAL);
-+	if (ret) {
-+		drm_err(dev, "drm_simple_encoder_init() failed, error %d\n",
-+			ret);
-+		goto err_drm_connector_cleanup;
-+	}
- 
- 	/* we get HPD via client monitors config */
- 	connector->polled = DRM_CONNECTOR_POLL_HPD;
- 	encoder->possible_crtcs = 1 << num_output;
- 	drm_connector_attach_encoder(&qxl_output->base,
- 					  &qxl_output->enc);
--	drm_encoder_helper_add(encoder, &qxl_enc_helper_funcs);
- 	drm_connector_helper_add(connector, &qxl_connector_helper_funcs);
- 
- 	drm_object_attach_property(&connector->base,
-@@ -1116,6 +1110,11 @@ static int qdev_output_init(struct drm_device *dev, int num_output)
- 	drm_object_attach_property(&connector->base,
- 				   dev->mode_config.suggested_y_property, 0);
- 	return 0;
++/**
++ * drm_simple_encoder_init - Initialize a preallocated encoder
++ * @dev: drm device
++ * @funcs: callbacks for this encoder
++ * @encoder_type: user visible type of the encoder
++ *
++ * Initialises a preallocated encoder that has no further functionality.
++ * Settings for possible CRTC and clones are left to their initial values.
++ * The encoder will be cleaned up automatically as part of the mode-setting
++ * cleanup.
++ *
++ * Returns:
++ * Zero on success, error code on failure.
++ */
++int drm_simple_encoder_init(struct drm_device *dev,
++			    struct drm_encoder *encoder,
++			    int encoder_type)
++{
++	return drm_encoder_init(dev, encoder,
++				&drm_simple_encoder_funcs_cleanup,
++				encoder_type, NULL);
++}
++EXPORT_SYMBOL(drm_simple_encoder_init);
 +
-+err_drm_connector_cleanup:
-+	drm_connector_cleanup(&qxl_output->base);
-+	kfree(qxl_output);
-+	return ret;
- }
+ static enum drm_mode_status
+ drm_simple_kms_crtc_mode_valid(struct drm_crtc *crtc,
+ 			       const struct drm_display_mode *mode)
+@@ -288,8 +317,7 @@ int drm_simple_display_pipe_init(struct drm_device *dev,
+ 		return ret;
  
- static struct drm_framebuffer *
+ 	encoder->possible_crtcs = drm_crtc_mask(crtc);
+-	ret = drm_encoder_init(dev, encoder, &drm_simple_kms_encoder_funcs,
+-			       DRM_MODE_ENCODER_NONE, NULL);
++	ret = drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_NONE);
+ 	if (ret || !connector)
+ 		return ret;
+ 
+diff --git a/include/drm/drm_simple_kms_helper.h b/include/drm/drm_simple_kms_helper.h
+index e253ba7bea9d..a026375464ff 100644
+--- a/include/drm/drm_simple_kms_helper.h
++++ b/include/drm/drm_simple_kms_helper.h
+@@ -181,4 +181,8 @@ int drm_simple_display_pipe_init(struct drm_device *dev,
+ 			const uint64_t *format_modifiers,
+ 			struct drm_connector *connector);
+ 
++int drm_simple_encoder_init(struct drm_device *dev,
++			    struct drm_encoder *encoder,
++			    int encoder_type);
++
+ #endif /* __LINUX_DRM_SIMPLE_KMS_HELPER_H */
 -- 
 2.25.0
