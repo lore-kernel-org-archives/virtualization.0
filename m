@@ -1,241 +1,202 @@
-From: Vivek Thampi <vithampi@vmware.com>
-Subject: [PATCH RESEND] ptp: add VMware virtual PTP clock driver
-Date: Fri, 28 Feb 2020 05:32:46 +0000
-Message-ID: <20200228053230.GA457139@sc2-cpbu2-b0737.eng.vmware.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Subject: Re: [PATCH v3 4/4] drm/qxl: Use simple encoder
+Date: Fri, 28 Feb 2020 08:08:14 +0100
+Message-ID: <f5f81e06-edda-16c6-82fb-f74f1c99ea22@suse.de>
+References: <20200225131055.27550-1-tzimmermann@suse.de>
+ <20200225131055.27550-5-tzimmermann@suse.de>
+ <20200227204536.GF27592@ravnborg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Language: en-US
-Content-ID: <3AA440F89217864C81B078A485FBE2A9@namprd05.prod.outlook.com>
-Sender: netdev-owner@vger.kernel.org
-To: Richard Cochran <richardcochran@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Pv-drivers <Pv-drivers@vmware.com>
-Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "x86@kernel.org" <x86@kernel.org>, Thomas Hellstrom <thellstrom@vmware.com>, Juergen Gross <jgross@suse.com>
+Content-Type: multipart/mixed; boundary="===============0962835247=="
+Return-path: <spice-devel-bounces@lists.freedesktop.org>
+In-Reply-To: <20200227204536.GF27592@ravnborg.org>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/spice-devel>,
+ <mailto:spice-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/spice-devel>
+List-Post: <mailto:spice-devel@lists.freedesktop.org>
+List-Help: <mailto:spice-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/spice-devel>,
+ <mailto:spice-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: spice-devel-bounces@lists.freedesktop.org
+Sender: "Spice-devel" <spice-devel-bounces@lists.freedesktop.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: airlied@linux.ie, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, kraxel@redhat.com, alexander.deucher@amd.com, spice-devel@lists.freedesktop.org, emil.velikov@collabora.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a PTP clock driver called ptp_vmw, for guests running on VMware ESXi
-hypervisor. The driver attaches to a VMware virtual device called
-"precision clock" that provides a mechanism for querying host system time.
-Similar to existing virtual PTP clock drivers (e.g. ptp_kvm), ptp_vmw
-utilizes the kernel's PTP hardware clock API to implement a clock device
-that can be used as a reference in Chrony for synchronizing guest time with
-host.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--===============0962835247==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="XM2oQaHof9k2M6exApwAQnSqigP4LQMrR"
 
-The driver is only applicable to x86 guests running in VMware virtual
-machines with precision clock virtual device present. It uses a VMware
-specific hypercall mechanism to read time from the device.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--XM2oQaHof9k2M6exApwAQnSqigP4LQMrR
+Content-Type: multipart/mixed; boundary="lMK05n7UFNCj751Z8nE6GTcI3v8AWzFOW";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: airlied@linux.ie, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org, kraxel@redhat.com,
+ alexander.deucher@amd.com, spice-devel@lists.freedesktop.org,
+ emil.velikov@collabora.com
+Message-ID: <f5f81e06-edda-16c6-82fb-f74f1c99ea22@suse.de>
+Subject: Re: [PATCH v3 4/4] drm/qxl: Use simple encoder
+References: <20200225131055.27550-1-tzimmermann@suse.de>
+ <20200225131055.27550-5-tzimmermann@suse.de>
+ <20200227204536.GF27592@ravnborg.org>
+In-Reply-To: <20200227204536.GF27592@ravnborg.org>
 
-Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
-Signed-off-by: Vivek Thampi <vithampi@vmware.com>
----
- Based on feedback, resending patch to include a broader audience.
+--lMK05n7UFNCj751Z8nE6GTcI3v8AWzFOW
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
- MAINTAINERS           |   7 +++
- drivers/ptp/Kconfig   |  12 +++++
- drivers/ptp/Makefile  |   1 +
- drivers/ptp/ptp_vmw.c | 144 ++++++++++++++++++++++++++++++++++++++++++++++=
-++++
- 4 files changed, 164 insertions(+)
- create mode 100644 drivers/ptp/ptp_vmw.c
+Hi Sam
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index fcd79fc..871bb39 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -17854,6 +17854,13 @@ S:	Supported
- F:	arch/x86/kernel/cpu/vmware.c
- F:	arch/x86/include/asm/vmware.h
-=20
-+VMWARE VIRTUAL PTP CLOCK DRIVER
-+M:	Vivek Thampi <vithampi@vmware.com>
-+M:	"VMware, Inc." <pv-drivers@vmware.com>
-+L:	netdev@vger.kernel.org
-+S:	Supported
-+F:	drivers/ptp/ptp_vmw.c
-+
- VMWARE PVRDMA DRIVER
- M:	Adit Ranadive <aditr@vmware.com>
- M:	VMware PV-Drivers <pv-drivers@vmware.com>
-diff --git a/drivers/ptp/Kconfig b/drivers/ptp/Kconfig
-index 475c60d..7d7bb99 100644
---- a/drivers/ptp/Kconfig
-+++ b/drivers/ptp/Kconfig
-@@ -127,4 +127,16 @@ config PTP_1588_CLOCK_IDTCM
- 	  To compile this driver as a module, choose M here: the module
- 	  will be called ptp_clockmatrix.
-=20
-+config PTP_1588_CLOCK_VMW
-+	tristate "VMware virtual PTP clock"
-+	depends on ACPI && HYPERVISOR_GUEST && X86
-+	depends on PTP_1588_CLOCK
-+	help
-+	  This driver adds support for using VMware virtual precision
-+	  clock device as a PTP clock. This is only useful in virtual
-+	  machines running on VMware virtual infrastructure.
-+
-+	  To compile this driver as a module, choose M here: the module
-+	  will be called ptp_vmw.
-+
- endmenu
-diff --git a/drivers/ptp/Makefile b/drivers/ptp/Makefile
-index 8c83033..04b9acc 100644
---- a/drivers/ptp/Makefile
-+++ b/drivers/ptp/Makefile
-@@ -13,3 +13,4 @@ obj-$(CONFIG_PTP_1588_CLOCK_QORIQ)	+=3D ptp-qoriq.o
- ptp-qoriq-y				+=3D ptp_qoriq.o
- ptp-qoriq-$(CONFIG_DEBUG_FS)		+=3D ptp_qoriq_debugfs.o
- obj-$(CONFIG_PTP_1588_CLOCK_IDTCM)	+=3D ptp_clockmatrix.o
-+obj-$(CONFIG_PTP_1588_CLOCK_VMW)	+=3D ptp_vmw.o
-diff --git a/drivers/ptp/ptp_vmw.c b/drivers/ptp/ptp_vmw.c
-new file mode 100644
-index 0000000..5dca26e
---- /dev/null
-+++ b/drivers/ptp/ptp_vmw.c
-@@ -0,0 +1,144 @@
-+// SPDX-License-Identifier: GPL-2.0 OR BSD-2-Clause
-+/*
-+ * Copyright (C) 2020 VMware, Inc., Palo Alto, CA., USA
-+ *
-+ * PTP clock driver for VMware precision clock virtual device.
-+ */
-+
-+#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
-+
-+#include <linux/acpi.h>
-+#include <linux/kernel.h>
-+#include <linux/module.h>
-+#include <linux/ptp_clock_kernel.h>
-+#include <asm/hypervisor.h>
-+#include <asm/vmware.h>
-+
-+#define VMWARE_MAGIC 0x564D5868
-+#define VMWARE_CMD_PCLK(nr) ((nr << 16) | 97)
-+#define VMWARE_CMD_PCLK_GETTIME VMWARE_CMD_PCLK(0)
-+
-+static struct acpi_device *ptp_vmw_acpi_device;
-+static struct ptp_clock *ptp_vmw_clock;
-+
-+
-+static int ptp_vmw_pclk_read(u64 *ns)
-+{
-+	u32 ret, nsec_hi, nsec_lo, unused1, unused2, unused3;
-+
-+	asm volatile (VMWARE_HYPERCALL :
-+		"=3Da"(ret), "=3Db"(nsec_hi), "=3Dc"(nsec_lo), "=3Dd"(unused1),
-+		"=3DS"(unused2), "=3DD"(unused3) :
-+		"a"(VMWARE_MAGIC), "b"(0),
-+		"c"(VMWARE_CMD_PCLK_GETTIME), "d"(0) :
-+		"memory");
-+
-+	if (ret =3D=3D 0)
-+		*ns =3D ((u64)nsec_hi << 32) | nsec_lo;
-+	return ret;
-+}
-+
-+/*
-+ * PTP clock ops.
-+ */
-+
-+static int ptp_vmw_adjtime(struct ptp_clock_info *info, s64 delta)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static int ptp_vmw_adjfreq(struct ptp_clock_info *info, s32 delta)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static int ptp_vmw_gettime(struct ptp_clock_info *info, struct timespec64 =
-*ts)
-+{
-+	u64 ns;
-+
-+	if (ptp_vmw_pclk_read(&ns) !=3D 0)
-+		return -EIO;
-+	*ts =3D ns_to_timespec64(ns);
-+	return 0;
-+}
-+
-+static int ptp_vmw_settime(struct ptp_clock_info *info,
-+			  const struct timespec64 *ts)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static int ptp_vmw_enable(struct ptp_clock_info *info,
-+			 struct ptp_clock_request *request, int on)
-+{
-+	return -EOPNOTSUPP;
-+}
-+
-+static struct ptp_clock_info ptp_vmw_clock_info =3D {
-+	.owner		=3D THIS_MODULE,
-+	.name		=3D "ptp_vmw",
-+	.max_adj	=3D 0,
-+	.adjtime	=3D ptp_vmw_adjtime,
-+	.adjfreq	=3D ptp_vmw_adjfreq,
-+	.gettime64	=3D ptp_vmw_gettime,
-+	.settime64	=3D ptp_vmw_settime,
-+	.enable		=3D ptp_vmw_enable,
-+};
-+
-+/*
-+ * ACPI driver ops for VMware "precision clock" virtual device.
-+ */
-+
-+static int ptp_vmw_acpi_add(struct acpi_device *device)
-+{
-+	ptp_vmw_clock =3D ptp_clock_register(&ptp_vmw_clock_info, NULL);
-+	if (IS_ERR(ptp_vmw_clock)) {
-+		pr_err("failed to register ptp clock\n");
-+		return PTR_ERR(ptp_vmw_clock);
-+	}
-+
-+	ptp_vmw_acpi_device =3D device;
-+	return 0;
-+}
-+
-+static int ptp_vmw_acpi_remove(struct acpi_device *device)
-+{
-+	ptp_clock_unregister(ptp_vmw_clock);
-+	return 0;
-+}
-+
-+static const struct acpi_device_id ptp_vmw_acpi_device_ids[] =3D {
-+	{ "VMW0005", 0 },
-+	{ "", 0 },
-+};
-+
-+MODULE_DEVICE_TABLE(acpi, ptp_vmw_acpi_device_ids);
-+
-+static struct acpi_driver ptp_vmw_acpi_driver =3D {
-+	.name =3D "ptp_vmw",
-+	.ids =3D ptp_vmw_acpi_device_ids,
-+	.ops =3D {
-+		.add =3D ptp_vmw_acpi_add,
-+		.remove	=3D ptp_vmw_acpi_remove
-+	},
-+	.owner	=3D THIS_MODULE
-+};
-+
-+static int __init ptp_vmw_init(void)
-+{
-+	if (x86_hyper_type !=3D X86_HYPER_VMWARE)
-+		return -1;
-+	return acpi_bus_register_driver(&ptp_vmw_acpi_driver);
-+}
-+
-+static void __exit ptp_vmw_exit(void)
-+{
-+	acpi_bus_unregister_driver(&ptp_vmw_acpi_driver);
-+}
-+
-+module_init(ptp_vmw_init);
-+module_exit(ptp_vmw_exit);
-+
-+MODULE_DESCRIPTION("VMware virtual PTP clock driver");
-+MODULE_AUTHOR("VMware, Inc.");
-+MODULE_LICENSE("Dual BSD/GPL");
+Am 27.02.20 um 21:45 schrieb Sam Ravnborg:
+> Hi Thomas.
+>=20
+> On Tue, Feb 25, 2020 at 02:10:55PM +0100, Thomas Zimmermann wrote:
+>> The qxl driver uses an empty implementation for its encoder. Replace
+>> the code with the generic simple encoder.
+>>
+>> v2:
+>> 	* rebase onto new simple-encoder interface
+>>
+>> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+>> Acked-by: Sam Ravnborg <sam@ravnborg.org>
+>> Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+>> ---
+>>  drivers/gpu/drm/qxl/qxl_display.c | 18 +++---------------
+>>  1 file changed, 3 insertions(+), 15 deletions(-)
+>>
+>> diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/q=
+xl_display.c
+>> index ab4f8dd00400..9c0e1add59fb 100644
+>> --- a/drivers/gpu/drm/qxl/qxl_display.c
+>> +++ b/drivers/gpu/drm/qxl/qxl_display.c
+>> @@ -31,6 +31,7 @@
+>>  #include <drm/drm_gem_framebuffer_helper.h>
+>>  #include <drm/drm_plane_helper.h>
+>>  #include <drm/drm_probe_helper.h>
+>> +#include <drm/drm_simple_kms_helper.h>
+>> =20
+>>  #include "qxl_drv.h"
+>>  #include "qxl_object.h"
+>> @@ -1007,9 +1008,6 @@ static struct drm_encoder *qxl_best_encoder(stru=
+ct drm_connector *connector)
+>>  	return &qxl_output->enc;
+>>  }
+>> =20
+>> -static const struct drm_encoder_helper_funcs qxl_enc_helper_funcs =3D=
+ {
+>> -};
+>> -
+>>  static const struct drm_connector_helper_funcs qxl_connector_helper_f=
+uncs =3D {
+>>  	.get_modes =3D qxl_conn_get_modes,
+>>  	.mode_valid =3D qxl_conn_mode_valid,
+>> @@ -1059,15 +1057,6 @@ static const struct drm_connector_funcs qxl_con=
+nector_funcs =3D {
+>>  	.atomic_destroy_state =3D drm_atomic_helper_connector_destroy_state,=
+
+>>  };
+>> =20
+>> -static void qxl_enc_destroy(struct drm_encoder *encoder)
+>> -{
+>> -	drm_encoder_cleanup(encoder);
+>> -}
+>> -
+>> -static const struct drm_encoder_funcs qxl_enc_funcs =3D {
+>> -	.destroy =3D qxl_enc_destroy,
+>> -};
+>> -
+>>  static int qxl_mode_create_hotplug_mode_update_property(struct qxl_de=
+vice *qdev)
+>>  {
+>>  	if (qdev->hotplug_mode_update_property)
+>> @@ -1098,15 +1087,14 @@ static int qdev_output_init(struct drm_device =
+*dev, int num_output)
+>>  	drm_connector_init(dev, &qxl_output->base,
+>>  			   &qxl_connector_funcs, DRM_MODE_CONNECTOR_VIRTUAL);
+>> =20
+>> -	drm_encoder_init(dev, &qxl_output->enc, &qxl_enc_funcs,
+>> -			 DRM_MODE_ENCODER_VIRTUAL, NULL);
+>> +	drm_simple_encoder_init(dev, &qxl_output->enc,
+>> +				DRM_MODE_ENCODER_VIRTUAL);
+> return value is ignored - as it was before.
+> A quick grep told that it is 50/50 if return value is checked.
+> So OK.
+
+Well, now that you bring it up, I rather test for the returned value.
+Continuing without an initialized encoder doesn't seem to make much sense=
+=2E
+
+Thanks for reviewing the patchset. I'll address the comments you had and
+post another update before merging.
+
+Best regards
+Thomas
+
+>=20
+> Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
+>> =20
+>>  	/* we get HPD via client monitors config */
+>>  	connector->polled =3D DRM_CONNECTOR_POLL_HPD;
+>>  	encoder->possible_crtcs =3D 1 << num_output;
+>>  	drm_connector_attach_encoder(&qxl_output->base,
+>>  					  &qxl_output->enc);
+>> -	drm_encoder_helper_add(encoder, &qxl_enc_helper_funcs);
+>>  	drm_connector_helper_add(connector, &qxl_connector_helper_funcs);
+>> =20
+>>  	drm_object_attach_property(&connector->base,
+>> --=20
+>> 2.25.0
+>>
+>> _______________________________________________
+>> dri-devel mailing list
+>> dri-devel@lists.freedesktop.org
+>> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel@lists.freedesktop.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+>=20
+
 --=20
-1.8.5.6
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
+(HRB 36809, AG N=C3=BCrnberg)
+Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
+
+
+--lMK05n7UFNCj751Z8nE6GTcI3v8AWzFOW--
+
+--XM2oQaHof9k2M6exApwAQnSqigP4LQMrR
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEchf7rIzpz2NEoWjlaA3BHVMLeiMFAl5YvGEACgkQaA3BHVML
+eiP1Hgf9Fwq4pHaXFCK0/GJAC5J6hu19bTlurzmrhKFzz1DL2TA3fl9xNZ0DYUYw
+7QFKU88Dmtb4NVjW8yXFcrmMstYmAG+KB1JVDAUTNi4i6p7KK99wovSc+1Rb1q/y
+siHk+UHOriHk+Qy+J3z21OzR5E7TUNoVCnVO+OxvZdAEXwUfTISuhrMqTJJ2S3MN
+zdfqoTNLoo+SO/WhaGNgd7DYJcdEOaknGvl9FuHqPPKqRxQuxSJc6rlUWJlgKDNT
+U8vFjx7RD2X1ODzqaDHxPRB4EL/k5FHizyAnevoh5m5DwGZ3/r6JxQa1zLYHEvLT
+KaiQj7E/NbOrGaCNQLdC0WGdyxXEwA==
+=QBcS
+-----END PGP SIGNATURE-----
+
+--XM2oQaHof9k2M6exApwAQnSqigP4LQMrR--
+
+--===============0962835247==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+
+--===============0962835247==--
