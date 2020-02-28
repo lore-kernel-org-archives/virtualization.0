@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 01/14] ACPI/IORT: Remove direct access of dev->iommu_fwspec
-Date: Fri, 28 Feb 2020 16:08:07 +0100
-Message-ID: <20200228150820.15340-2-joro@8bytes.org>
+Subject: [PATCH 14/14] iommu: Move fwspec->iommu_priv to struct dev_iommu
+Date: Fri, 28 Feb 2020 16:08:20 +0100
+Message-ID: <20200228150820.15340-15-joro@8bytes.org>
 References: <20200228150820.15340-1-joro@8bytes.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200228150820.15340-1-joro@8bytes.org>
@@ -12,34 +12,56 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Use the accessor functions instead of directly dereferencing
-dev->iommu_fwspec.
+Move the pointer for iommu private data from struct iommu_fwspec to
+struct dev_iommu.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- drivers/acpi/arm64/iort.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/linux/iommu.h | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/acpi/arm64/iort.c b/drivers/acpi/arm64/iort.c
-index ed3d2d1a7ae9..0e981d7f3c7d 100644
---- a/drivers/acpi/arm64/iort.c
-+++ b/drivers/acpi/arm64/iort.c
-@@ -1015,6 +1015,7 @@ const struct iommu_ops *iort_iommu_configure(struct device *dev)
- 		return ops;
+diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+index 904fb24418e5..77fc6bb35fe9 100644
+--- a/include/linux/iommu.h
++++ b/include/linux/iommu.h
+@@ -369,6 +369,7 @@ struct iommu_fault_param {
+  *
+  * @fault_param: IOMMU detected device fault reporting data
+  * @fwspec:	 IOMMU fwspec data
++ * @priv:	 IOMMU Driver private data
+  *
+  * TODO: migrate other per device data pointers under iommu_dev_data, e.g.
+  *	struct iommu_group	*iommu_group;
+@@ -377,6 +378,7 @@ struct dev_iommu {
+ 	struct mutex lock;
+ 	struct iommu_fault_param	*fault_param;
+ 	struct iommu_fwspec		*fwspec;
++	void				*priv;
+ };
  
- 	if (dev_is_pci(dev)) {
-+		struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
- 		struct pci_bus *bus = to_pci_dev(dev)->bus;
- 		struct iort_pci_alias_info info = { .dev = dev };
+ int  iommu_device_register(struct iommu_device *iommu);
+@@ -589,7 +591,6 @@ struct iommu_group *fsl_mc_device_group(struct device *dev);
+ struct iommu_fwspec {
+ 	const struct iommu_ops	*ops;
+ 	struct fwnode_handle	*iommu_fwnode;
+-	void			*iommu_priv;
+ 	u32			flags;
+ 	u32			num_pasid_bits;
+ 	unsigned int		num_ids;
+@@ -629,12 +630,12 @@ static inline void dev_iommu_fwspec_set(struct device *dev,
  
-@@ -1028,7 +1029,7 @@ const struct iommu_ops *iort_iommu_configure(struct device *dev)
- 					     iort_pci_iommu_init, &info);
+ static inline void *dev_iommu_priv_get(struct device *dev)
+ {
+-	return dev->iommu->fwspec->iommu_priv;
++	return dev->iommu->priv;
+ }
  
- 		if (!err && iort_pci_rc_supports_ats(node))
--			dev->iommu_fwspec->flags |= IOMMU_FWSPEC_PCI_RC_ATS;
-+			fwspec->flags |= IOMMU_FWSPEC_PCI_RC_ATS;
- 	} else {
- 		int i = 0;
+ static inline void dev_iommu_priv_set(struct device *dev, void *priv)
+ {
+-	dev->iommu->fwspec->iommu_priv = priv;
++	dev->iommu->priv = priv;
+ }
  
+ int iommu_probe_device(struct device *dev);
 -- 
 2.17.1
