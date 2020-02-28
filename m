@@ -1,44 +1,31 @@
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Subject: [PATCH v2 3/3] iommu/virtio: Enable x86 support
-Date: Fri, 28 Feb 2020 18:25:38 +0100
-Message-ID: <20200228172537.377327-4-jean-philippe@linaro.org>
-References: <20200228172537.377327-1-jean-philippe@linaro.org>
+From: Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH] x86/ioperm: add new paravirt function update_io_bitmap
+Date: Fri, 28 Feb 2020 18:47:40 +0100
+Message-ID: <87wo86fvsz.fsf@nanos.tec.linutronix.de>
+References: <20200218154712.25490-1-jgross@suse.com>
+ <4715c1af-5854-9f2c-2145-fba43e82d350@suse.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-pci-owner@vger.kernel.org>
-In-Reply-To: <20200228172537.377327-1-jean-philippe@linaro.org>
-Sender: linux-pci-owner@vger.kernel.org
-To: iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, linux-pci@vger.kernel.org
-Cc: joro@8bytes.org, bhelgaas@google.com, mst@redhat.com, jasowang@redhat.com, kevin.tian@intel.com, sebastien.boeuf@intel.com, eric.auger@redhat.com, jacob.jun.pan@intel.com, robin.murphy@arm.com, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <4715c1af-5854-9f2c-2145-fba43e82d350@suse.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: =?utf-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>, xen-devel@lists.xenproject.org, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Thomas Hellstrom <thellstrom@vmware.com>, Stefano Stabellini <sstabellini@kernel.org>, "VMware,
+ Inc." <pv-drivers@vmware.com>, stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-With the built-in topology description in place, x86 platforms can now
-use the virtio-iommu.
-
-Architectures that use the generic iommu_dma_ops should normally select
-CONFIG_IOMMU_DMA themselves (from arch/*/Kconfig). Since not all x86
-drivers have been converted yet, it's currently up to the IOMMU Kconfig
-to select it.
-
-Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
----
- drivers/iommu/Kconfig | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/iommu/Kconfig b/drivers/iommu/Kconfig
-index f8cb45d84bb0..87efc48c244e 100644
---- a/drivers/iommu/Kconfig
-+++ b/drivers/iommu/Kconfig
-@@ -508,8 +508,9 @@ config HYPERV_IOMMU
- config VIRTIO_IOMMU
- 	tristate "Virtio IOMMU driver"
- 	depends on VIRTIO
--	depends on ARM64
-+	depends on (ARM64 || X86)
- 	select IOMMU_API
-+	select IOMMU_DMA if X86
- 	select INTERVAL_TREE
- 	help
- 	  Para-virtualised IOMMU driver with virtio.
--- 
-2.25.0
+SsO8cmdlbiBHcm/DnyA8amdyb3NzQHN1c2UuY29tPiB3cml0ZXM6Cgo+IEZyaWVuZGx5IHBpbmcu
+Li4KCk9vb3BzLiBJIHBpY2sgaXQgdXAgZmlyc3QgdGhpbmcgdG9tb3Jyb3cgbW9ybmluZwpfX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
+biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
+aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
+bGl6YXRpb24=
