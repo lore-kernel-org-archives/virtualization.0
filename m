@@ -1,92 +1,51 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH] drm/bochs: Remove vga write
-Date: Fri, 28 Feb 2020 10:57:48 +0100
-Message-ID: <20200228095748.uu4sqkz6y477eabc@sirius.home.kraxel.org>
-References: <20200227210454.18217-1-alistair.francis@wdc.com>
+From: Alex =?utf-8?Q?Benn=C3=A9e?= <alex.bennee@linaro.org>
+Subject: VIRTIO adoption in other hypervisors
+Date: Fri, 28 Feb 2020 10:16:21 +0000
+Message-ID: <87mu93vwy2.fsf@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20200227210454.18217-1-alistair.francis@wdc.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Alistair Francis <alistair.francis@wdc.com>
-Cc: airlied@linux.ie, Khem Raj <raj.khem@gmail.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, daniel@ffwll.ch, alistair23@gmail.com
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtio-dev-return-6810-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+To: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
+Cc: jan.kiszka@siemens.com, Stefano Stabellini <sstabellini@kernel.org>, Wei Liu <liuw@liuw.name>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Feb 27, 2020 at 01:04:54PM -0800, Alistair Francis wrote:
-> The QEMU model for the Bochs display has no VGA memory section at offset
-> 0x400 [1]. By writing to this register Linux can create a write to
-> unassigned memory which depending on machine and architecture can result
-> in a store fault.
-> 
-> I don't see any reference to this address at OSDev [2] or in the Bochs
-> source code.
-> 
-> Removing this write still allows graphics to work inside QEMU with
-> the bochs-display.
+Hi,
 
-It's not that simple.  The driver also handles the qemu stdvga (-device
-VGA, -device secondary-vga) which *does* need the vga port write.
-There is no way for the guest to figure whenever the device is
-secondary-vga or bochs-display.
+I'm currently trying to get my head around virtio and was wondering how
+widespread adoption of virtio is amongst the various hypervisors and
+emulators out there.
 
-So how about fixing things on the host side?  Does qemu patch below
-help?
+Obviously I'm familiar with QEMU both via KVM and even when just doing
+plain emulation (although with some restrictions). As far as I'm aware
+the various Rust based VMMs have vary degrees of support for virtio
+devices over KVM as well. CrosVM specifically is embracing virtio for
+multi-process device emulation.
 
-Maybe another possible approach is to enable/disable vga access per
-arch.  On x86 this doesn't cause any problems.  I guess you are on
-risc-v?
+I believe there has been some development work for supporting VIRTIO on
+Xen although it seems to have stalled according to:
 
-cheers,
-  Gerd
+  https://wiki.xenproject.org/wiki/Virtio_On_Xen
 
-diff --git a/hw/display/bochs-display.c b/hw/display/bochs-display.c
-index 62085f9fc063..e93e838243b8 100644
---- a/hw/display/bochs-display.c
-+++ b/hw/display/bochs-display.c
-@@ -151,6 +151,26 @@ static const MemoryRegionOps bochs_display_qext_ops = {
-     .endianness = DEVICE_LITTLE_ENDIAN,
- };
- 
-+static uint64_t dummy_read(void *ptr, hwaddr addr, unsigned size)
-+{
-+    return -1;
-+}
-+
-+static void dummy_write(void *ptr, hwaddr addr,
-+                        uint64_t val, unsigned size)
-+{
-+}
-+
-+static const MemoryRegionOps dummy_ops = {
-+    .read = dummy_read,
-+    .write = dummy_write,
-+    .valid.min_access_size = 1,
-+    .valid.max_access_size = 4,
-+    .impl.min_access_size = 1,
-+    .impl.max_access_size = 1,
-+    .endianness = DEVICE_LITTLE_ENDIAN,
-+};
-+
- static int bochs_display_get_mode(BochsDisplayState *s,
-                                    BochsDisplayMode *mode)
- {
-@@ -284,8 +304,8 @@ static void bochs_display_realize(PCIDevice *dev, Error **errp)
-     memory_region_init_io(&s->qext, obj, &bochs_display_qext_ops, s,
-                           "qemu extended regs", PCI_VGA_QEXT_SIZE);
- 
--    memory_region_init(&s->mmio, obj, "bochs-display-mmio",
--                       PCI_VGA_MMIO_SIZE);
-+    memory_region_init_io(&s->mmio, obj, &dummy_ops, NULL,
-+                          "bochs-display-mmio", PCI_VGA_MMIO_SIZE);
-     memory_region_add_subregion(&s->mmio, PCI_VGA_BOCHS_OFFSET, &s->vbe);
-     memory_region_add_subregion(&s->mmio, PCI_VGA_QEXT_OFFSET, &s->qext);
+Recently at KVM Forum there was Jan's talk about Inter-VM shared memory
+which proposed ivshmemv2 as a VIRTIO transport:
+
+  https://events19.linuxfoundation.org/events/kvm-forum-2019/program/schedu=
+le/
+
+As I understood it this would allow Xen (and other hypervisors) a simple
+way to be able to carry virtio traffic between guest and end point.
+
+So some questions:
+
+  - Am I missing anything out in that summary?
+  - How about HyperV and the OSX equivalent?
+  - Do any other type-1 hypervisors support virtio?
+
+--=20
+Alex Benn=C3=A9e
