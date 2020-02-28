@@ -1,13 +1,14 @@
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v4 2/4] drm/ast: Use simple encoder
-Date: Fri, 28 Feb 2020 09:18:26 +0100
-Message-ID: <20200228081828.18463-3-tzimmermann@suse.de>
-References: <20200228081828.18463-1-tzimmermann@suse.de>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH] drm/bochs: Remove vga write
+Date: Fri, 28 Feb 2020 10:57:48 +0100
+Message-ID: <20200228095748.uu4sqkz6y477eabc@sirius.home.kraxel.org>
+References: <20200227210454.18217-1-alistair.francis@wdc.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200228081828.18463-1-tzimmermann@suse.de>
+Content-Disposition: inline
+In-Reply-To: <20200227210454.18217-1-alistair.francis@wdc.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,96 +18,75 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: airlied@linux.ie, daniel@ffwll.ch, maarten.lankhorst@linux.intel.com, mripard@kernel.org, kraxel@redhat.com, noralf@tronnes.org, sam@ravnborg.org, alexander.deucher@amd.com, emil.velikov@collabora.com
-Cc: spice-devel@lists.freedesktop.org, Thomas Zimmermann <tzimmermann@suse.de>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+To: Alistair Francis <alistair.francis@wdc.com>
+Cc: airlied@linux.ie, Khem Raj <raj.khem@gmail.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, daniel@ffwll.ch, alistair23@gmail.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The ast driver uses an empty implementation for its encoder. Replace
-the code with the generic simple encoder.
+On Thu, Feb 27, 2020 at 01:04:54PM -0800, Alistair Francis wrote:
+> The QEMU model for the Bochs display has no VGA memory section at offset
+> 0x400 [1]. By writing to this register Linux can create a write to
+> unassigned memory which depending on machine and architecture can result
+> in a store fault.
+> 
+> I don't see any reference to this address at OSDev [2] or in the Bochs
+> source code.
+> 
+> Removing this write still allows graphics to work inside QEMU with
+> the bochs-display.
 
-v2:
-	* rebase onto new simple-encoder interface
+It's not that simple.  The driver also handles the qemu stdvga (-device
+VGA, -device secondary-vga) which *does* need the vga port write.
+There is no way for the guest to figure whenever the device is
+secondary-vga or bochs-display.
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
----
- drivers/gpu/drm/ast/ast_drv.h  |  6 +-----
- drivers/gpu/drm/ast/ast_mode.c | 25 ++++++++-----------------
- 2 files changed, 9 insertions(+), 22 deletions(-)
+So how about fixing things on the host side?  Does qemu patch below
+help?
 
-diff --git a/drivers/gpu/drm/ast/ast_drv.h b/drivers/gpu/drm/ast/ast_drv.h
-index f5d8780776ae..656d591b154b 100644
---- a/drivers/gpu/drm/ast/ast_drv.h
-+++ b/drivers/gpu/drm/ast/ast_drv.h
-@@ -121,6 +121,7 @@ struct ast_private {
- 		unsigned int next_index;
- 	} cursor;
- 
-+	struct drm_encoder encoder;
- 	struct drm_plane primary_plane;
- 	struct drm_plane cursor_plane;
- 
-@@ -238,13 +239,8 @@ struct ast_crtc {
- 	u8 offset_x, offset_y;
+Maybe another possible approach is to enable/disable vga access per
+arch.  On x86 this doesn't cause any problems.  I guess you are on
+risc-v?
+
+cheers,
+  Gerd
+
+diff --git a/hw/display/bochs-display.c b/hw/display/bochs-display.c
+index 62085f9fc063..e93e838243b8 100644
+--- a/hw/display/bochs-display.c
++++ b/hw/display/bochs-display.c
+@@ -151,6 +151,26 @@ static const MemoryRegionOps bochs_display_qext_ops = {
+     .endianness = DEVICE_LITTLE_ENDIAN,
  };
  
--struct ast_encoder {
--	struct drm_encoder base;
--};
--
- #define to_ast_crtc(x) container_of(x, struct ast_crtc, base)
- #define to_ast_connector(x) container_of(x, struct ast_connector, base)
--#define to_ast_encoder(x) container_of(x, struct ast_encoder, base)
- 
- struct ast_vbios_stdtable {
- 	u8 misc;
-diff --git a/drivers/gpu/drm/ast/ast_mode.c b/drivers/gpu/drm/ast/ast_mode.c
-index 562ea6d9df13..7a9f20a2fd30 100644
---- a/drivers/gpu/drm/ast/ast_mode.c
-+++ b/drivers/gpu/drm/ast/ast_mode.c
-@@ -40,6 +40,7 @@
- #include <drm/drm_gem_vram_helper.h>
- #include <drm/drm_plane_helper.h>
- #include <drm/drm_probe_helper.h>
-+#include <drm/drm_simple_kms_helper.h>
- 
- #include "ast_drv.h"
- #include "ast_tables.h"
-@@ -968,28 +969,18 @@ static int ast_crtc_init(struct drm_device *dev)
-  * Encoder
-  */
- 
--static void ast_encoder_destroy(struct drm_encoder *encoder)
--{
--	drm_encoder_cleanup(encoder);
--	kfree(encoder);
--}
--
--static const struct drm_encoder_funcs ast_enc_funcs = {
--	.destroy = ast_encoder_destroy,
--};
--
- static int ast_encoder_init(struct drm_device *dev)
++static uint64_t dummy_read(void *ptr, hwaddr addr, unsigned size)
++{
++    return -1;
++}
++
++static void dummy_write(void *ptr, hwaddr addr,
++                        uint64_t val, unsigned size)
++{
++}
++
++static const MemoryRegionOps dummy_ops = {
++    .read = dummy_read,
++    .write = dummy_write,
++    .valid.min_access_size = 1,
++    .valid.max_access_size = 4,
++    .impl.min_access_size = 1,
++    .impl.max_access_size = 1,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++};
++
+ static int bochs_display_get_mode(BochsDisplayState *s,
+                                    BochsDisplayMode *mode)
  {
--	struct ast_encoder *ast_encoder;
-+	struct ast_private *ast = dev->dev_private;
-+	struct drm_encoder *encoder = &ast->encoder;
-+	int ret;
+@@ -284,8 +304,8 @@ static void bochs_display_realize(PCIDevice *dev, Error **errp)
+     memory_region_init_io(&s->qext, obj, &bochs_display_qext_ops, s,
+                           "qemu extended regs", PCI_VGA_QEXT_SIZE);
  
--	ast_encoder = kzalloc(sizeof(struct ast_encoder), GFP_KERNEL);
--	if (!ast_encoder)
--		return -ENOMEM;
-+	ret = drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_DAC);
-+	if (ret)
-+		return ret;
- 
--	drm_encoder_init(dev, &ast_encoder->base, &ast_enc_funcs,
--			 DRM_MODE_ENCODER_DAC, NULL);
-+	encoder->possible_crtcs = 1;
- 
--	ast_encoder->base.possible_crtcs = 1;
- 	return 0;
- }
- 
--- 
-2.25.0
+-    memory_region_init(&s->mmio, obj, "bochs-display-mmio",
+-                       PCI_VGA_MMIO_SIZE);
++    memory_region_init_io(&s->mmio, obj, &dummy_ops, NULL,
++                          "bochs-display-mmio", PCI_VGA_MMIO_SIZE);
+     memory_region_add_subregion(&s->mmio, PCI_VGA_BOCHS_OFFSET, &s->vbe);
+     memory_region_add_subregion(&s->mmio, PCI_VGA_QEXT_OFFSET, &s->qext);
