@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 14/14] iommu: Move fwspec->iommu_priv to struct dev_iommu
-Date: Fri, 28 Feb 2020 16:08:20 +0100
-Message-ID: <20200228150820.15340-15-joro@8bytes.org>
+Subject: [PATCH 10/14] iommu/renesas: Use accessor functions for iommu private data
+Date: Fri, 28 Feb 2020 16:08:16 +0100
+Message-ID: <20200228150820.15340-11-joro@8bytes.org>
 References: <20200228150820.15340-1-joro@8bytes.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200228150820.15340-1-joro@8bytes.org>
@@ -12,56 +12,43 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Move the pointer for iommu private data from struct iommu_fwspec to
-struct dev_iommu.
+Make use of dev_iommu_priv_set/get() functions.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- include/linux/iommu.h | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/iommu/ipmmu-vmsa.c | 7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-index 904fb24418e5..77fc6bb35fe9 100644
---- a/include/linux/iommu.h
-+++ b/include/linux/iommu.h
-@@ -369,6 +369,7 @@ struct iommu_fault_param {
-  *
-  * @fault_param: IOMMU detected device fault reporting data
-  * @fwspec:	 IOMMU fwspec data
-+ * @priv:	 IOMMU Driver private data
-  *
-  * TODO: migrate other per device data pointers under iommu_dev_data, e.g.
-  *	struct iommu_group	*iommu_group;
-@@ -377,6 +378,7 @@ struct dev_iommu {
- 	struct mutex lock;
- 	struct iommu_fault_param	*fault_param;
- 	struct iommu_fwspec		*fwspec;
-+	void				*priv;
- };
+diff --git a/drivers/iommu/ipmmu-vmsa.c b/drivers/iommu/ipmmu-vmsa.c
+index ecb3f9464dd5..310cf09feea3 100644
+--- a/drivers/iommu/ipmmu-vmsa.c
++++ b/drivers/iommu/ipmmu-vmsa.c
+@@ -89,9 +89,7 @@ static struct ipmmu_vmsa_domain *to_vmsa_domain(struct iommu_domain *dom)
  
- int  iommu_device_register(struct iommu_device *iommu);
-@@ -589,7 +591,6 @@ struct iommu_group *fsl_mc_device_group(struct device *dev);
- struct iommu_fwspec {
- 	const struct iommu_ops	*ops;
- 	struct fwnode_handle	*iommu_fwnode;
--	void			*iommu_priv;
- 	u32			flags;
- 	u32			num_pasid_bits;
- 	unsigned int		num_ids;
-@@ -629,12 +630,12 @@ static inline void dev_iommu_fwspec_set(struct device *dev,
- 
- static inline void *dev_iommu_priv_get(struct device *dev)
+ static struct ipmmu_vmsa_device *to_ipmmu(struct device *dev)
  {
--	return dev->iommu->fwspec->iommu_priv;
-+	return dev->iommu->priv;
+-	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+-
+-	return fwspec ? fwspec->iommu_priv : NULL;
++	return dev_iommu_priv_get(dev);
  }
  
- static inline void dev_iommu_priv_set(struct device *dev, void *priv)
+ #define TLB_LOOP_TIMEOUT		100	/* 100us */
+@@ -727,14 +725,13 @@ static phys_addr_t ipmmu_iova_to_phys(struct iommu_domain *io_domain,
+ static int ipmmu_init_platform_device(struct device *dev,
+ 				      struct of_phandle_args *args)
  {
--	dev->iommu->fwspec->iommu_priv = priv;
-+	dev->iommu->priv = priv;
- }
+-	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+ 	struct platform_device *ipmmu_pdev;
  
- int iommu_probe_device(struct device *dev);
+ 	ipmmu_pdev = of_find_device_by_node(args->np);
+ 	if (!ipmmu_pdev)
+ 		return -ENODEV;
+ 
+-	fwspec->iommu_priv = platform_get_drvdata(ipmmu_pdev);
++	dev_iommu_priv_set(dev, platform_get_drvdata(ipmmu_pdev));
+ 
+ 	return 0;
+ }
 -- 
 2.17.1
