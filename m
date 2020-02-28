@@ -1,89 +1,71 @@
-From: Jan Kiszka <jan.kiszka@siemens.com>
-Subject: Re: VIRTIO adoption in other hypervisors
-Date: Fri, 28 Feb 2020 18:16:48 +0100
-Message-ID: <a64fd962-8b62-58d9-9fe3-cc2aa686ac02@siemens.com>
-References: <87mu93vwy2.fsf@linaro.org>
- <db75fc2b-ac2e-2351-cc3c-cdb42a50ac24@siemens.com>
- <0b80da21-ed40-c550-c605-031a209115b1@siemens.com>
- <878skmwtei.fsf@linaro.org>
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Subject: [PATCH v2 0/3] virtio-iommu on x86 and non-devicetree platforms
+Date: Fri, 28 Feb 2020 18:25:35 +0100
+Message-ID: <20200228172537.377327-1-jean-philippe@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Return-path: <virtio-dev-return-6821-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <878skmwtei.fsf@linaro.org>
-Content-Language: en-US
-To: =?UTF-8?Q?Alex_Benn=c3=a9e?= <alex.bennee@linaro.org>
-Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, Stefano Stabellini <sstabellini@kernel.org>, Wei Liu <liuw@liuw.name>
+Return-path: <linux-pci-owner@vger.kernel.org>
+Sender: linux-pci-owner@vger.kernel.org
+To: iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, linux-pci@vger.kernel.org
+Cc: joro@8bytes.org, bhelgaas@google.com, mst@redhat.com, jasowang@redhat.com, kevin.tian@intel.com, sebastien.boeuf@intel.com, eric.auger@redhat.com, jacob.jun.pan@intel.com, robin.murphy@arm.com, Jean-Philippe Brucker <jean-philippe@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 28.02.20 17:47, Alex Bennée wrote:
-> 
-> Jan Kiszka <jan.kiszka@siemens.com> writes:
-> 
->> On 28.02.20 11:30, Jan Kiszka wrote:
->>> On 28.02.20 11:16, Alex Bennée wrote:
->>>> Hi,
->>>>
-> <snip>
->>>> I believe there has been some development work for supporting VIRTIO on
->>>> Xen although it seems to have stalled according to:
->>>>
->>>>     https://wiki.xenproject.org/wiki/Virtio_On_Xen
->>>>
->>>> Recently at KVM Forum there was Jan's talk about Inter-VM shared memory
->>>> which proposed ivshmemv2 as a VIRTIO transport:
->>>>
->>>>     https://events19.linuxfoundation.org/events/kvm-forum-2019/program/schedule/
->>>>
->>>>
->>>> As I understood it this would allow Xen (and other hypervisors) a simple
->>>> way to be able to carry virtio traffic between guest and end point.
->>
->> And to clarify the scope of this effort: virtio-over-ivshmem is not
->> the fastest option to offer virtio to a guest (static "DMA" window),
->> but it is the simplest one from the hypervisor PoV and, thus, also
->> likely the easiest one to argue over when it comes to security and
->> safety.
-> 
-> So to drill down on this is this a particular problem with type-1
-> hypervisors?
+Add a topology description to the virtio-iommu driver and enable x86
+platforms.
 
-Well, this typing doesn't help here (like it rarely does). There are 
-kvm-based setups that are stripped down and hardened in a way where 
-other folks would rather think of "type 1". I just had a discussion 
-around such a model for a cloud scenario that runs on kvm.
+Two minor changes since v1 [1]:
+* Don't setup DMA twice in patch 1
+* Clarify the CONFIG_IOMMU_DMA selection in patch 3
 
-> 
-> It seems to me any KVM-like run loop trivially supports a range of
-> virtio devices by virtue of trapping accesses to the signalling area of
-> a virtqueue and allowing the VMM to handle the transaction which ever
-> way it sees fit.
-> 
-> I've not quite understood the way Xen interfaces to QEMU aside from it's
-> different to everything else. More over it seems the type-1 hypervisors
-> are more interested in providing better isolation between segments of a
-> system whereas VIRTIO currently assumes either the VMM or the hypervisor
-> has full access the full guest address space. I've seen quite a lot of
-> slides that want to isolate sections of device emulation to separate
-> processes or even separate guest VMs.
+And rebased on top of "iommu/virtio: Build virtio-iommu as a module"
+which Joerg picked up for v5.7.
 
-The point is in fact not only whether to trap IO accesses or to ask the 
-guest to rather target something like ivshmem (in fact, that is where 
-use cases I have in mind deviated from those of that cloud operator). It 
-is specifically the question how the backend should be able to transfer 
-data to/from the frontend. If you want to isolate the both from each 
-other (driver VMs/domains/etc.), you either need a complex virtual IOMMU 
-(or "grant tables") or a static DMA windows (like ivshmem). The former 
-is more efficient with large transfers, the latter is much simpler and 
-therefore more robust.
+--- Copy-paste from v1:
+The built-in description is an array in the virtio config space. The
+driver parses the config space early and postpones endpoint probe until
+the virtio-iommu device is ready. Each element in the array describes
+either a PCI range or a single MMIO endpoint, and their associated
+endpoint IDs:
 
-Jan
+struct virtio_iommu_topo_pci_range {
+	__le16 type;			/* 1: PCI range */
+	__le16 hierarchy;		/* PCI domain number */
+	__le16 requester_start;		/* First BDF */
+	__le16 requester_end;		/* Last BDF */
+	__le32 endpoint_start;		/* First endpoint ID */
+};
+
+struct virtio_iommu_topo_endpoint {
+	__le16 type;			/* 2: Endpoint */
+	__le16 reserved;		/* 0 */
+	__le32 endpoint;		/* Endpoint ID */
+	__le64 address;			/* First MMIO address */
+};
+
+You can find the QEMU patches based on Eric's latest device on my
+virtio-iommu/devel branch [2]. I test on both x86 q35, and aarch64 virt
+machine with edk2.
+---
+
+[1] https://lore.kernel.org/linux-iommu/20200214160413.1475396-1-jean-philippe@linaro.org/
+[2] https://jpbrucker.net/git/qemu virtio-iommu/devel
+
+Jean-Philippe Brucker (3):
+  iommu/virtio: Add topology description to virtio-iommu config space
+  PCI: Add DMA configuration for virtual platforms
+  iommu/virtio: Enable x86 support
+
+ MAINTAINERS                           |   2 +
+ drivers/iommu/Kconfig                 |  13 +-
+ drivers/iommu/Makefile                |   1 +
+ drivers/iommu/virtio-iommu-topology.c | 343 ++++++++++++++++++++++++++
+ drivers/iommu/virtio-iommu.c          |   3 +
+ drivers/pci/pci-driver.c              |   5 +
+ include/linux/virt_iommu.h            |  19 ++
+ include/uapi/linux/virtio_iommu.h     |  26 ++
+ 8 files changed, 411 insertions(+), 1 deletion(-)
+ create mode 100644 drivers/iommu/virtio-iommu-topology.c
+ create mode 100644 include/linux/virt_iommu.h
 
 -- 
-Siemens AG, Corporate Technology, CT RDA IOT SES-DE
-Corporate Competence Center Embedded Linux
+2.25.0
