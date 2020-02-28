@@ -1,14 +1,14 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH] x86/ioperm: add new paravirt function update_io_bitmap
-Date: Fri, 28 Feb 2020 18:47:40 +0100
-Message-ID: <87wo86fvsz.fsf@nanos.tec.linutronix.de>
-References: <20200218154712.25490-1-jgross@suse.com>
- <4715c1af-5854-9f2c-2145-fba43e82d350@suse.com>
+From: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [PATCH v4 0/4] drm: Provide a simple encoder
+Date: Fri, 28 Feb 2020 20:36:03 +0100
+Message-ID: <20200228193603.GA22966@ravnborg.org>
+References: <20200228081828.18463-1-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <4715c1af-5854-9f2c-2145-fba43e82d350@suse.com>
+Content-Disposition: inline
+In-Reply-To: <20200228081828.18463-1-tzimmermann@suse.de>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -18,14 +18,30 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: =?utf-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>, xen-devel@lists.xenproject.org, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: Thomas Hellstrom <thellstrom@vmware.com>, Stefano Stabellini <sstabellini@kernel.org>, "VMware,
- Inc." <pv-drivers@vmware.com>, stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: airlied@linux.ie, dri-devel@lists.freedesktop.org, maarten.lankhorst@linux.intel.com, mripard@kernel.org, virtualization@lists.linux-foundation.org, noralf@tronnes.org, daniel@ffwll.ch, alexander.deucher@amd.com, spice-devel@lists.freedesktop.org, emil.velikov@collabora.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-SsO8cmdlbiBHcm/DnyA8amdyb3NzQHN1c2UuY29tPiB3cml0ZXM6Cgo+IEZyaWVuZGx5IHBpbmcu
-Li4KCk9vb3BzLiBJIHBpY2sgaXQgdXAgZmlyc3QgdGhpbmcgdG9tb3Jyb3cgbW9ybmluZwpfX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
-biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
-aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
-bGl6YXRpb24=
+Hi Thomas.
+
+On Fri, Feb 28, 2020 at 09:18:24AM +0100, Thomas Zimmermann wrote:
+> Many DRM drivers implement an encoder with an empty implementation. This
+> patchset adds drm_simple_encoder_init(), which drivers can use instead.
+> Except for the destroy callback, the simple encoder's implementation is
+> empty.
+> 
+> The patchset also converts 4 encoder instances to use the simple-encoder
+> helpers. But there are at least 11 other drivers which can use the helper
+> and I think I did not examine all drivers yet.
+> 
+> The patchset was smoke-tested on mgag200 by running the fbdev console
+> and Gnome on X11.
+> 
+> v4:
+> 	* print error messages with drm_err() (Sam)
+> 	* qxl: handle errors of drm_simple_encoder_init() (Sam)
+
+Looked through the patches - all looked good.
+IMO ready to apply.
+
+	Sam
