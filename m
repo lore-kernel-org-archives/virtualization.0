@@ -1,140 +1,241 @@
-From: David Gibson <david@gibson.dropbear.id.au>
-Subject: Re: [PATCH 1/2] mm: move force_dma_unencrypted() to mem_encrypt.h
-Date: Fri, 28 Feb 2020 11:23:53 +1100
-Message-ID: <20200228002353.GA1842@umbus.fritz.box>
-References: <20200220161146.GA12709@lst.de>
- <4369f099-e4e4-4a58-b38b-642cf53ccca6@de.ibm.com>
- <20200220163135.GA13192@lst.de>
- <20200221032727.GC2298@umbus.fritz.box>
- <20200221140639.54928efe.pasic@linux.ibm.com>
- <20200221104724-mutt-send-email-mst@kernel.org>
- <20200221190702.68fd57fc.pasic@linux.ibm.com>
- <20200224033314.GC1751@umbus.fritz.box>
- <20200224194953.37c0d6b8.pasic@linux.ibm.com>
- <20200225190802.753cffef.cohuck@redhat.com>
+From: Vivek Thampi <vithampi@vmware.com>
+Subject: [PATCH RESEND] ptp: add VMware virtual PTP clock driver
+Date: Fri, 28 Feb 2020 05:32:46 +0000
+Message-ID: <20200228053230.GA457139@sc2-cpbu2-b0737.eng.vmware.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="HcAYCG3uE/tztfnV"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200225190802.753cffef.cohuck@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@lst.de>, Christian Borntraeger <borntraeger@de.ibm.com>, Jason Wang <jasowang@redhat.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Robin Murphy <robin.murphy@arm.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, Janosch Frank <frankja@linux.ibm.com>, Viktor Mihajlovski <mihajlov@linux.ibm.com>, Ram Pai <linuxram@us.ibm.com>, Thiago Jung Bauermann <bauerman@linux.ibm.com>, "Lendacky, Thomas" <Thomas.Lendacky@amd.com>, Michael Mueller <mimu@linux.ibm.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Language: en-US
+Content-ID: <3AA440F89217864C81B078A485FBE2A9@namprd05.prod.outlook.com>
+Sender: netdev-owner@vger.kernel.org
+To: Richard Cochran <richardcochran@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Pv-drivers <Pv-drivers@vmware.com>
+Cc: "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "x86@kernel.org" <x86@kernel.org>, Thomas Hellstrom <thellstrom@vmware.com>, Juergen Gross <jgross@suse.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+Add a PTP clock driver called ptp_vmw, for guests running on VMware ESXi
+hypervisor. The driver attaches to a VMware virtual device called
+"precision clock" that provides a mechanism for querying host system time.
+Similar to existing virtual PTP clock drivers (e.g. ptp_kvm), ptp_vmw
+utilizes the kernel's PTP hardware clock API to implement a clock device
+that can be used as a reference in Chrony for synchronizing guest time with
+host.
 
---HcAYCG3uE/tztfnV
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The driver is only applicable to x86 guests running in VMware virtual
+machines with precision clock virtual device present. It uses a VMware
+specific hypercall mechanism to read time from the device.
 
-On Tue, Feb 25, 2020 at 07:08:02PM +0100, Cornelia Huck wrote:
-> On Mon, 24 Feb 2020 19:49:53 +0100
-> Halil Pasic <pasic@linux.ibm.com> wrote:
->=20
-> > On Mon, 24 Feb 2020 14:33:14 +1100
-> > David Gibson <david@gibson.dropbear.id.au> wrote:
-> >=20
-> > > On Fri, Feb 21, 2020 at 07:07:02PM +0100, Halil Pasic wrote: =20
-> > > > On Fri, 21 Feb 2020 10:48:15 -0500
-> > > > "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > > >  =20
-> > > > > On Fri, Feb 21, 2020 at 02:06:39PM +0100, Halil Pasic wrote: =20
-> > > > > > On Fri, 21 Feb 2020 14:27:27 +1100
-> > > > > > David Gibson <david@gibson.dropbear.id.au> wrote:
-> > > > > >  =20
-> > > > > > > On Thu, Feb 20, 2020 at 05:31:35PM +0100, Christoph Hellwig w=
-rote: =20
-> > > > > > > > On Thu, Feb 20, 2020 at 05:23:20PM +0100, Christian Borntra=
-eger wrote: =20
-> > > > > > > > > >From a users perspective it makes absolutely perfect sen=
-se to use the =20
-> > > > > > > > > bounce buffers when they are NEEDED.=20
-> > > > > > > > > Forcing the user to specify iommu_platform just because y=
-ou need bounce buffers
-> > > > > > > > > really feels wrong. And obviously we have a severe perfor=
-mance issue
-> > > > > > > > > because of the indirections. =20
-> > > > > > > >=20
-> > > > > > > > The point is that the user should not have to specify iommu=
-_platform.
-> > > > > > > > We need to make sure any new hypervisor (especially one tha=
-t might require
-> > > > > > > > bounce buffering) always sets it, =20
-> > > > > > >=20
-> > > > > > > So, I have draft qemu patches which enable iommu_platform by =
-default.
-> > > > > > > But that's really because of other problems with !iommu_platf=
-orm, not
-> > > > > > > anything to do with bounce buffering or secure VMs.
-> > > > > > >=20
-> > > > > > > The thing is that the hypervisor *doesn't* require bounce buf=
-fering.
-> > > > > > > In the POWER (and maybe s390 as well) models for Secure VMs, =
-it's the
-> > > > > > > *guest*'s choice to enter secure mode, so the hypervisor has =
-no reason
-> > > > > > > to know whether the guest needs bounce buffering.  As far as =
-the
-> > > > > > > hypervisor and qemu are concerned that's a guest internal det=
-ail, it
-> > > > > > > just expects to get addresses it can access whether those are=
- GPAs
-> > > > > > > (iommu_platform=3Doff) or IOVAs (iommu_platform=3Don). =20
-> > > > > >=20
-> > > > > > I very much agree!
-> > > > > >  =20
-> > > > > > >  =20
-> > > > > > > > as was a rather bogus legacy hack =20
-> > > > > > >=20
-> > > > > > > It was certainly a bad idea, but it was a bad idea that went =
-into a
-> > > > > > > public spec and has been widely deployed for many years.  We =
-can't
-> > > > > > > just pretend it didn't happen and move on.
-> > > > > > >=20
-> > > > > > > Turning iommu_platform=3Don by default breaks old guests, som=
-e of which
-> > > > > > > we still care about.  We can't (automatically) do it only for=
- guests
-> > > > > > > that need bounce buffering, because the hypervisor doesn't kn=
-ow that
-> > > > > > > ahead of time. =20
->=20
-> We could default to iommu_platform=3Don on s390 when the host has active
-> support for protected virtualization... but that's just another kind of
-> horrible, so let's just pretend I didn't suggest it.
+Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
+Signed-off-by: Vivek Thampi <vithampi@vmware.com>
+---
+ Based on feedback, resending patch to include a broader audience.
 
-Yeah, that would break migration between hosts with the feature and
-hosts without - for everything, not just protected guests.  In general
-any kind of guest visible configuration change based on host
-properties is incompatible with the qemu/KVM migration model.
+ MAINTAINERS           |   7 +++
+ drivers/ptp/Kconfig   |  12 +++++
+ drivers/ptp/Makefile  |   1 +
+ drivers/ptp/ptp_vmw.c | 144 ++++++++++++++++++++++++++++++++++++++++++++++=
+++++
+ 4 files changed, 164 insertions(+)
+ create mode 100644 drivers/ptp/ptp_vmw.c
 
+diff --git a/MAINTAINERS b/MAINTAINERS
+index fcd79fc..871bb39 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -17854,6 +17854,13 @@ S:	Supported
+ F:	arch/x86/kernel/cpu/vmware.c
+ F:	arch/x86/include/asm/vmware.h
+=20
++VMWARE VIRTUAL PTP CLOCK DRIVER
++M:	Vivek Thampi <vithampi@vmware.com>
++M:	"VMware, Inc." <pv-drivers@vmware.com>
++L:	netdev@vger.kernel.org
++S:	Supported
++F:	drivers/ptp/ptp_vmw.c
++
+ VMWARE PVRDMA DRIVER
+ M:	Adit Ranadive <aditr@vmware.com>
+ M:	VMware PV-Drivers <pv-drivers@vmware.com>
+diff --git a/drivers/ptp/Kconfig b/drivers/ptp/Kconfig
+index 475c60d..7d7bb99 100644
+--- a/drivers/ptp/Kconfig
++++ b/drivers/ptp/Kconfig
+@@ -127,4 +127,16 @@ config PTP_1588_CLOCK_IDTCM
+ 	  To compile this driver as a module, choose M here: the module
+ 	  will be called ptp_clockmatrix.
+=20
++config PTP_1588_CLOCK_VMW
++	tristate "VMware virtual PTP clock"
++	depends on ACPI && HYPERVISOR_GUEST && X86
++	depends on PTP_1588_CLOCK
++	help
++	  This driver adds support for using VMware virtual precision
++	  clock device as a PTP clock. This is only useful in virtual
++	  machines running on VMware virtual infrastructure.
++
++	  To compile this driver as a module, choose M here: the module
++	  will be called ptp_vmw.
++
+ endmenu
+diff --git a/drivers/ptp/Makefile b/drivers/ptp/Makefile
+index 8c83033..04b9acc 100644
+--- a/drivers/ptp/Makefile
++++ b/drivers/ptp/Makefile
+@@ -13,3 +13,4 @@ obj-$(CONFIG_PTP_1588_CLOCK_QORIQ)	+=3D ptp-qoriq.o
+ ptp-qoriq-y				+=3D ptp_qoriq.o
+ ptp-qoriq-$(CONFIG_DEBUG_FS)		+=3D ptp_qoriq_debugfs.o
+ obj-$(CONFIG_PTP_1588_CLOCK_IDTCM)	+=3D ptp_clockmatrix.o
++obj-$(CONFIG_PTP_1588_CLOCK_VMW)	+=3D ptp_vmw.o
+diff --git a/drivers/ptp/ptp_vmw.c b/drivers/ptp/ptp_vmw.c
+new file mode 100644
+index 0000000..5dca26e
+--- /dev/null
++++ b/drivers/ptp/ptp_vmw.c
+@@ -0,0 +1,144 @@
++// SPDX-License-Identifier: GPL-2.0 OR BSD-2-Clause
++/*
++ * Copyright (C) 2020 VMware, Inc., Palo Alto, CA., USA
++ *
++ * PTP clock driver for VMware precision clock virtual device.
++ */
++
++#define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
++
++#include <linux/acpi.h>
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/ptp_clock_kernel.h>
++#include <asm/hypervisor.h>
++#include <asm/vmware.h>
++
++#define VMWARE_MAGIC 0x564D5868
++#define VMWARE_CMD_PCLK(nr) ((nr << 16) | 97)
++#define VMWARE_CMD_PCLK_GETTIME VMWARE_CMD_PCLK(0)
++
++static struct acpi_device *ptp_vmw_acpi_device;
++static struct ptp_clock *ptp_vmw_clock;
++
++
++static int ptp_vmw_pclk_read(u64 *ns)
++{
++	u32 ret, nsec_hi, nsec_lo, unused1, unused2, unused3;
++
++	asm volatile (VMWARE_HYPERCALL :
++		"=3Da"(ret), "=3Db"(nsec_hi), "=3Dc"(nsec_lo), "=3Dd"(unused1),
++		"=3DS"(unused2), "=3DD"(unused3) :
++		"a"(VMWARE_MAGIC), "b"(0),
++		"c"(VMWARE_CMD_PCLK_GETTIME), "d"(0) :
++		"memory");
++
++	if (ret =3D=3D 0)
++		*ns =3D ((u64)nsec_hi << 32) | nsec_lo;
++	return ret;
++}
++
++/*
++ * PTP clock ops.
++ */
++
++static int ptp_vmw_adjtime(struct ptp_clock_info *info, s64 delta)
++{
++	return -EOPNOTSUPP;
++}
++
++static int ptp_vmw_adjfreq(struct ptp_clock_info *info, s32 delta)
++{
++	return -EOPNOTSUPP;
++}
++
++static int ptp_vmw_gettime(struct ptp_clock_info *info, struct timespec64 =
+*ts)
++{
++	u64 ns;
++
++	if (ptp_vmw_pclk_read(&ns) !=3D 0)
++		return -EIO;
++	*ts =3D ns_to_timespec64(ns);
++	return 0;
++}
++
++static int ptp_vmw_settime(struct ptp_clock_info *info,
++			  const struct timespec64 *ts)
++{
++	return -EOPNOTSUPP;
++}
++
++static int ptp_vmw_enable(struct ptp_clock_info *info,
++			 struct ptp_clock_request *request, int on)
++{
++	return -EOPNOTSUPP;
++}
++
++static struct ptp_clock_info ptp_vmw_clock_info =3D {
++	.owner		=3D THIS_MODULE,
++	.name		=3D "ptp_vmw",
++	.max_adj	=3D 0,
++	.adjtime	=3D ptp_vmw_adjtime,
++	.adjfreq	=3D ptp_vmw_adjfreq,
++	.gettime64	=3D ptp_vmw_gettime,
++	.settime64	=3D ptp_vmw_settime,
++	.enable		=3D ptp_vmw_enable,
++};
++
++/*
++ * ACPI driver ops for VMware "precision clock" virtual device.
++ */
++
++static int ptp_vmw_acpi_add(struct acpi_device *device)
++{
++	ptp_vmw_clock =3D ptp_clock_register(&ptp_vmw_clock_info, NULL);
++	if (IS_ERR(ptp_vmw_clock)) {
++		pr_err("failed to register ptp clock\n");
++		return PTR_ERR(ptp_vmw_clock);
++	}
++
++	ptp_vmw_acpi_device =3D device;
++	return 0;
++}
++
++static int ptp_vmw_acpi_remove(struct acpi_device *device)
++{
++	ptp_clock_unregister(ptp_vmw_clock);
++	return 0;
++}
++
++static const struct acpi_device_id ptp_vmw_acpi_device_ids[] =3D {
++	{ "VMW0005", 0 },
++	{ "", 0 },
++};
++
++MODULE_DEVICE_TABLE(acpi, ptp_vmw_acpi_device_ids);
++
++static struct acpi_driver ptp_vmw_acpi_driver =3D {
++	.name =3D "ptp_vmw",
++	.ids =3D ptp_vmw_acpi_device_ids,
++	.ops =3D {
++		.add =3D ptp_vmw_acpi_add,
++		.remove	=3D ptp_vmw_acpi_remove
++	},
++	.owner	=3D THIS_MODULE
++};
++
++static int __init ptp_vmw_init(void)
++{
++	if (x86_hyper_type !=3D X86_HYPER_VMWARE)
++		return -1;
++	return acpi_bus_register_driver(&ptp_vmw_acpi_driver);
++}
++
++static void __exit ptp_vmw_exit(void)
++{
++	acpi_bus_unregister_driver(&ptp_vmw_acpi_driver);
++}
++
++module_init(ptp_vmw_init);
++module_exit(ptp_vmw_exit);
++
++MODULE_DESCRIPTION("VMware virtual PTP clock driver");
++MODULE_AUTHOR("VMware, Inc.");
++MODULE_LICENSE("Dual BSD/GPL");
 --=20
-David Gibson			| I'll have my music baroque, and my code
-david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
-				| _way_ _around_!
-http://www.ozlabs.org/~dgibson
-
---HcAYCG3uE/tztfnV
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCAAdFiEEdfRlhq5hpmzETofcbDjKyiDZs5IFAl5YXZcACgkQbDjKyiDZ
-s5LdKA//U9QbJilQoiEQCinA1xGVHP1Hm7w/1rqgbm4B30D4A7I3ioERM/uwdqkQ
-ks4shzQNPfx3O2Bkiit5DGE/A4C9CODYVqjvPw0pDpMaYJI6tDVcjd3bgYhyE2QI
-Gp5oQ4l40a4C5oUH9YYoOS7eyx0rg6q1HstQDyTtTUP8MURr5XsqMIU4086N8bDI
-JrYkBRXTU/W5FCuHnKR8wUwuKGUqTu64yEtzlT40YuWCrUw2PRtaG6jjP9CMisqL
-BS2ISdY2UeTZXNnavX0LycUAwUDo4gy/ux4TcSuzSii7A0ztiqqrbs/UFNs/GCUg
-pfcr9JbU7dsT4po/YKERdQ/6PiYuVufHASLOhDdDw6pNVLyuTnzHgmRkWSrRV4NP
-haSVx1u2JbRmJmO66RgJdt774tVxyDVIRhZprWlvg5yX0ad0TAHvx2MqitDgjCiV
-XZdu7rCfKQVCXU35ODteapV9n+CguP8f2KYIVWXJIHCbjLg65nVr4moJNupn/5nd
-kvhC+2MOoszj0PXtMEPTWe7N/H9KDfp4Vv861JhZL5pe3GluF9qsHDk/vHWuovCK
-Vab8lroMXU5o345o4w70Cu/X+PO1lkVeml+MTI3c+hfZHcaGlvnsVehQGDYhwX4I
-XvNb0jeVjkJJRHVxOIIgzD4PxiBaYtpfFV+cBvysaDf5aaCX2Zk=
-=MCKa
------END PGP SIGNATURE-----
-
---HcAYCG3uE/tztfnV--
+1.8.5.6
