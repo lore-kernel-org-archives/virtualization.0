@@ -1,80 +1,34 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: VIRTIO adoption in other hypervisors
-Date: Fri, 28 Feb 2020 11:09:01 +0000
-Message-ID: <20200228110901.GB326000@stefanha-x1.localdomain>
+From: Alex =?utf-8?Q?Benn=C3=A9e?= <alex.bennee@linaro.org>
+Subject: Re: [virtio-dev] VIRTIO adoption in other hypervisors
+Date: Fri, 28 Feb 2020 11:18:38 +0000
+Message-ID: <87k147vu29.fsf@linaro.org>
 References: <87mu93vwy2.fsf@linaro.org>
+ <fca8366e-662f-af2f-382c-0216d9df63f8@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="JYK4vJDZwFMowpUq"
-Return-path: <virtio-dev-return-6816-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <87mu93vwy2.fsf@linaro.org>
-Content-Disposition: inline
-To: Alex =?iso-8859-1?Q?Benn=E9e?= <alex.bennee@linaro.org>
-Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, jan.kiszka@siemens.com, Stefano Stabellini <sstabellini@kernel.org>, Wei Liu <liuw@liuw.name>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-reply-to: <fca8366e-662f-af2f-382c-0216d9df63f8@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Wei Liu <liuw@liuw.name>, jan.kiszka@siemens.com, Stefano Stabellini <sstabellini@kernel.org>, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---JYK4vJDZwFMowpUq
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Fri, Feb 28, 2020 at 10:16:21AM +0000, Alex Benn=E9e wrote:
-> I'm currently trying to get my head around virtio and was wondering how
-> widespread adoption of virtio is amongst the various hypervisors and
-> emulators out there.
->=20
-> Obviously I'm familiar with QEMU both via KVM and even when just doing
-> plain emulation (although with some restrictions). As far as I'm aware
-> the various Rust based VMMs have vary degrees of support for virtio
-> devices over KVM as well. CrosVM specifically is embracing virtio for
-> multi-process device emulation.
->=20
-> I believe there has been some development work for supporting VIRTIO on
-> Xen although it seems to have stalled according to:
->=20
->   https://wiki.xenproject.org/wiki/Virtio_On_Xen
->=20
-> Recently at KVM Forum there was Jan's talk about Inter-VM shared memory
-> which proposed ivshmemv2 as a VIRTIO transport:
->=20
->   https://events19.linuxfoundation.org/events/kvm-forum-2019/program/sche=
-dule/
->=20
-> As I understood it this would allow Xen (and other hypervisors) a simple
-> way to be able to carry virtio traffic between guest and end point.
->=20
-> So some questions:
->=20
->   - Am I missing anything out in that summary?
-
-VirtualBox has virtio-net support:
-https://www.virtualbox.org/manual/ch06.html
-
->   - How about HyperV and the OSX equivalent?
-
-macOS has *guest* drivers for VIRTIO devices:
-https://www.kraxel.org/blog/2019/06/macos-qemu-guest/
-
-Stefan
-
---JYK4vJDZwFMowpUq
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl5Y9M0ACgkQnKSrs4Gr
-c8gGwQf+PfpzqW9HhG0kQEVMOWxfC8rWQdXg5yEAwshyMsdbOIHqoQG4X3FlBWXK
-nwtSHkasfTyAUh/pW988T1g2kA9WUSs6nOlt8XRUWquGqTzH9wAKMcvIEc9BORsH
-gsM/txLsD1WLZskugxnPwSdgqQCeM4djIIowD+UbzBd8uKI/N5uT4mnNBJR3+GCk
-xhO/fe3cKE63k1AX0vrlariLvUL50KcrKo2fED+bqu6TnvZidDC1L03KYtzQ8e+e
-zPAbIkm1WI8X7eiirIohd/PfNhtlc8xekyldmI6LyABxKYYaxrVC8alXQC4AIoFv
-q1jyylUHQgL9B4B0lH2/Y27SF6w0Ow==
-=8rQ2
------END PGP SIGNATURE-----
-
---JYK4vJDZwFMowpUq--
+ClBhb2xvIEJvbnppbmkgPHBib256aW5pQHJlZGhhdC5jb20+IHdyaXRlczoKCj4gT24gMjgvMDIv
+MjAgMTE6MTYsIEFsZXggQmVubsOpZSB3cm90ZToKPj4gICAtIEhvdyBhYm91dCBIeXBlclYgYW5k
+IHRoZSBPU1ggZXF1aXZhbGVudD8KPgo+IE9TIFggSHlwZXJ2aXNvci5mcmFtZXdvcmsganVzdCB1
+c2VzIFFFTVUsIHNvIGl0IGNhbiB1c2UgdmlydGlvIGRldmljZXMKPiB0b28uICBWaXJ0dWFsQm94
+IGFsc28gc3VwcG9ydHMgdmlydGlvIGRldmljZXMuCgpJIGd1ZXNzIHRoZXNlIGRvbid0IGRvIGFu
+eSBzb3J0IG9mIHZob3N0IHN1cHBvcnQgc28gYWxsIHZpcnRpbyBkZXZpY2VzCmFyZSBoYW5kbGVk
+IGRpcmVjdGx5IGluIFFFTVU/CgotLSAKQWxleCBCZW5uw6llCl9fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
+aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
+bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
