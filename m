@@ -1,80 +1,89 @@
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+From: Jan Kiszka <jan.kiszka@siemens.com>
 Subject: Re: VIRTIO adoption in other hypervisors
-Date: Fri, 28 Feb 2020 18:08:51 +0100
-Message-ID: <2a8b2d4f-28f0-7f03-744d-c8f03d50e383@suse.com>
+Date: Fri, 28 Feb 2020 18:16:48 +0100
+Message-ID: <a64fd962-8b62-58d9-9fe3-cc2aa686ac02@siemens.com>
 References: <87mu93vwy2.fsf@linaro.org>
  <db75fc2b-ac2e-2351-cc3c-cdb42a50ac24@siemens.com>
  <0b80da21-ed40-c550-c605-031a209115b1@siemens.com>
  <878skmwtei.fsf@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <virtio-dev-return-6821-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
 In-Reply-To: <878skmwtei.fsf@linaro.org>
 Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: =?UTF-8?Q?Alex_Benn=c3=a9e?= <alex.bennee@linaro.org>, Jan Kiszka <jan.kiszka@siemens.com>
-Cc: virtio-dev@lists.oasis-open.org, Stefano Stabellini <sstabellini@kernel.org>, virtualization@lists.linux-foundation.org, Wei Liu <liuw@liuw.name>
+To: =?UTF-8?Q?Alex_Benn=c3=a9e?= <alex.bennee@linaro.org>
+Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, Stefano Stabellini <sstabellini@kernel.org>, Wei Liu <liuw@liuw.name>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMjguMDIuMjAgMTc6NDcsIEFsZXggQmVubsOpZSB3cm90ZToKPiAKPiBKYW4gS2lzemthIDxq
-YW4ua2lzemthQHNpZW1lbnMuY29tPiB3cml0ZXM6Cj4gCj4+IE9uIDI4LjAyLjIwIDExOjMwLCBK
-YW4gS2lzemthIHdyb3RlOgo+Pj4gT24gMjguMDIuMjAgMTE6MTYsIEFsZXggQmVubsOpZSB3cm90
-ZToKPj4+PiBIaSwKPj4+Pgo+IDxzbmlwPgo+Pj4+IEkgYmVsaWV2ZSB0aGVyZSBoYXMgYmVlbiBz
-b21lIGRldmVsb3BtZW50IHdvcmsgZm9yIHN1cHBvcnRpbmcgVklSVElPIG9uCj4+Pj4gWGVuIGFs
-dGhvdWdoIGl0IHNlZW1zIHRvIGhhdmUgc3RhbGxlZCBhY2NvcmRpbmcgdG86Cj4+Pj4KPj4+PiAg
-ICAgaHR0cHM6Ly93aWtpLnhlbnByb2plY3Qub3JnL3dpa2kvVmlydGlvX09uX1hlbgo+Pj4+Cj4+
-Pj4gUmVjZW50bHkgYXQgS1ZNIEZvcnVtIHRoZXJlIHdhcyBKYW4ncyB0YWxrIGFib3V0IEludGVy
-LVZNIHNoYXJlZCBtZW1vcnkKPj4+PiB3aGljaCBwcm9wb3NlZCBpdnNobWVtdjIgYXMgYSBWSVJU
-SU8gdHJhbnNwb3J0Ogo+Pj4+Cj4+Pj4gICAgIGh0dHBzOi8vZXZlbnRzMTkubGludXhmb3VuZGF0
-aW9uLm9yZy9ldmVudHMva3ZtLWZvcnVtLTIwMTkvcHJvZ3JhbS9zY2hlZHVsZS8KPj4+Pgo+Pj4+
-Cj4+Pj4gQXMgSSB1bmRlcnN0b29kIGl0IHRoaXMgd291bGQgYWxsb3cgWGVuIChhbmQgb3RoZXIg
-aHlwZXJ2aXNvcnMpIGEgc2ltcGxlCj4+Pj4gd2F5IHRvIGJlIGFibGUgdG8gY2FycnkgdmlydGlv
-IHRyYWZmaWMgYmV0d2VlbiBndWVzdCBhbmQgZW5kIHBvaW50Lgo+Pgo+PiBBbmQgdG8gY2xhcmlm
-eSB0aGUgc2NvcGUgb2YgdGhpcyBlZmZvcnQ6IHZpcnRpby1vdmVyLWl2c2htZW0gaXMgbm90Cj4+
-IHRoZSBmYXN0ZXN0IG9wdGlvbiB0byBvZmZlciB2aXJ0aW8gdG8gYSBndWVzdCAoc3RhdGljICJE
-TUEiIHdpbmRvdyksCj4+IGJ1dCBpdCBpcyB0aGUgc2ltcGxlc3Qgb25lIGZyb20gdGhlIGh5cGVy
-dmlzb3IgUG9WIGFuZCwgdGh1cywgYWxzbwo+PiBsaWtlbHkgdGhlIGVhc2llc3Qgb25lIHRvIGFy
-Z3VlIG92ZXIgd2hlbiBpdCBjb21lcyB0byBzZWN1cml0eSBhbmQKPj4gc2FmZXR5Lgo+IAo+IFNv
-IHRvIGRyaWxsIGRvd24gb24gdGhpcyBpcyB0aGlzIGEgcGFydGljdWxhciBwcm9ibGVtIHdpdGgg
-dHlwZS0xCj4gaHlwZXJ2aXNvcnM/Cj4gCj4gSXQgc2VlbXMgdG8gbWUgYW55IEtWTS1saWtlIHJ1
-biBsb29wIHRyaXZpYWxseSBzdXBwb3J0cyBhIHJhbmdlIG9mCj4gdmlydGlvIGRldmljZXMgYnkg
-dmlydHVlIG9mIHRyYXBwaW5nIGFjY2Vzc2VzIHRvIHRoZSBzaWduYWxsaW5nIGFyZWEgb2YKPiBh
-IHZpcnRxdWV1ZSBhbmQgYWxsb3dpbmcgdGhlIFZNTSB0byBoYW5kbGUgdGhlIHRyYW5zYWN0aW9u
-IHdoaWNoIGV2ZXIKPiB3YXkgaXQgc2VlcyBmaXQuCj4gCj4gSSd2ZSBub3QgcXVpdGUgdW5kZXJz
-dG9vZCB0aGUgd2F5IFhlbiBpbnRlcmZhY2VzIHRvIFFFTVUgYXNpZGUgZnJvbSBpdCdzCj4gZGlm
-ZmVyZW50IHRvIGV2ZXJ5dGhpbmcgZWxzZS4gTW9yZSBvdmVyIGl0IHNlZW1zIHRoZSB0eXBlLTEg
-aHlwZXJ2aXNvcnMKPiBhcmUgbW9yZSBpbnRlcmVzdGVkIGluIHByb3ZpZGluZyBiZXR0ZXIgaXNv
-bGF0aW9uIGJldHdlZW4gc2VnbWVudHMgb2YgYQo+IHN5c3RlbSB3aGVyZWFzIFZJUlRJTyBjdXJy
-ZW50bHkgYXNzdW1lcyBlaXRoZXIgdGhlIFZNTSBvciB0aGUgaHlwZXJ2aXNvcgo+IGhhcyBmdWxs
-IGFjY2VzcyB0aGUgZnVsbCBndWVzdCBhZGRyZXNzIHNwYWNlLiBJJ3ZlIHNlZW4gcXVpdGUgYSBs
-b3Qgb2YKPiBzbGlkZXMgdGhhdCB3YW50IHRvIGlzb2xhdGUgc2VjdGlvbnMgb2YgZGV2aWNlIGVt
-dWxhdGlvbiB0byBzZXBhcmF0ZQo+IHByb2Nlc3NlcyBvciBldmVuIHNlcGFyYXRlIGd1ZXN0IFZN
-cy4KCkluIFhlbiBkZXZpY2UgZW11bGF0aW9uIGlzIGRvbmUgYnkgb3RoZXIgVk1zLiBOb3JtYWxs
-eSB0aGUgZGV2aWNlcyBhcmUKZW11bGF0ZWQgdmlhIGRvbTAsIGJ1dCBpdCBpcyBwb3NzaWJsZSB0
-byBoYXZlIG90aGVyIGRyaXZlciBkb21haW5zLCB0b28KKHRob3NlIG5lZWQgdG8gZ2V0IHBhc3Nl
-ZCB0aHJvdWdoIHRoZSByZWxhdGVkIFBDSSBkZXZpY2VzLCBvZiBjb3Vyc2UpLgoKUFYgZGV2aWNl
-IGJhY2tlbmRzIGdldCBhY2Nlc3Mgb25seSB0byB0aGUgZ3Vlc3QgcGFnZXMgdGhlIFBWIGZyb250
-ZW5kcwphbGxvdy4gVGhpcyBpcyBkb25lIHZpYSBzbyBjYWxsZWQgImdyYW50cyIsIHdoaWNoIGFy
-ZSBwZXIgZ3Vlc3QuIFNvIGEKZnJvbnRlbmQgY2FuIGdyYW50IGFub3RoZXIgWGVuIFZNIGFjY2Vz
-cyB0byBkZWRpY2F0ZWQgcGFnZXMuIFRoZSBiYWNrZW5kCmlzIHVzaW5nIHRoZSBncmFudHMgdG8g
-bWFwIHRob3NlIHBhZ2VzIHZpYSB0aGUgaHlwZXJ2aXNvciBpbiBvcmRlciB0bwpwZXJmb3JtIHRo
-ZSBJL08uIEFmdGVyIGZpbmlzaGluZyB0aGUgSS9PIHRoZSBJL08tcGFnZXMgYXJlIHVubWFwcGVk
-IGJ5CnRoZSBiYWNrZW5kIGFnYWluLgoKRm9yIGxlZ2FjeSBkZXZpY2UgZW11bGF0aW9uIHZpYSBx
-ZW11IHRoZSBndWVzdCBydW5uaW5nIHFlbXUgbmVlZHMgdG8gZ2V0CmFjY2VzcyB0byBhbGwgdGhl
-IGd1ZXN0cyBtZW1vcnksIGFzIHRoZSBndWVzdCB3b24ndCBncmFudCBhbnkgcGFnZXMgdG8KdGhl
-IGVtdWxhdGluZyBWTS4gSXQgaXMgcG9zc2libGUgdG8gbGV0IHFlbXUgcnVuIGluIGEgc21hbGwg
-c3R1YiBndWVzdAp1c2luZyBQViBkZXZpY2VzIGluIG9yZGVyIHRvIGlzb2xhdGUgdGhlIGxlZ2Fj
-eSBndWVzdCBmcm9tIGUuZy4gZG9tMC4KCgpIb3BlIHRoYXQgbWFrZXMgaXQgY2xlYXJlciwKCgpK
-dWVyZ2VuCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
-aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
-bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
-dGluZm8vdmlydHVhbGl6YXRpb24=
+On 28.02.20 17:47, Alex Bennée wrote:
+> 
+> Jan Kiszka <jan.kiszka@siemens.com> writes:
+> 
+>> On 28.02.20 11:30, Jan Kiszka wrote:
+>>> On 28.02.20 11:16, Alex Bennée wrote:
+>>>> Hi,
+>>>>
+> <snip>
+>>>> I believe there has been some development work for supporting VIRTIO on
+>>>> Xen although it seems to have stalled according to:
+>>>>
+>>>>     https://wiki.xenproject.org/wiki/Virtio_On_Xen
+>>>>
+>>>> Recently at KVM Forum there was Jan's talk about Inter-VM shared memory
+>>>> which proposed ivshmemv2 as a VIRTIO transport:
+>>>>
+>>>>     https://events19.linuxfoundation.org/events/kvm-forum-2019/program/schedule/
+>>>>
+>>>>
+>>>> As I understood it this would allow Xen (and other hypervisors) a simple
+>>>> way to be able to carry virtio traffic between guest and end point.
+>>
+>> And to clarify the scope of this effort: virtio-over-ivshmem is not
+>> the fastest option to offer virtio to a guest (static "DMA" window),
+>> but it is the simplest one from the hypervisor PoV and, thus, also
+>> likely the easiest one to argue over when it comes to security and
+>> safety.
+> 
+> So to drill down on this is this a particular problem with type-1
+> hypervisors?
+
+Well, this typing doesn't help here (like it rarely does). There are 
+kvm-based setups that are stripped down and hardened in a way where 
+other folks would rather think of "type 1". I just had a discussion 
+around such a model for a cloud scenario that runs on kvm.
+
+> 
+> It seems to me any KVM-like run loop trivially supports a range of
+> virtio devices by virtue of trapping accesses to the signalling area of
+> a virtqueue and allowing the VMM to handle the transaction which ever
+> way it sees fit.
+> 
+> I've not quite understood the way Xen interfaces to QEMU aside from it's
+> different to everything else. More over it seems the type-1 hypervisors
+> are more interested in providing better isolation between segments of a
+> system whereas VIRTIO currently assumes either the VMM or the hypervisor
+> has full access the full guest address space. I've seen quite a lot of
+> slides that want to isolate sections of device emulation to separate
+> processes or even separate guest VMs.
+
+The point is in fact not only whether to trap IO accesses or to ask the 
+guest to rather target something like ivshmem (in fact, that is where 
+use cases I have in mind deviated from those of that cloud operator). It 
+is specifically the question how the backend should be able to transfer 
+data to/from the frontend. If you want to isolate the both from each 
+other (driver VMs/domains/etc.), you either need a complex virtual IOMMU 
+(or "grant tables") or a static DMA windows (like ivshmem). The former 
+is more efficient with large transfers, the latter is much simpler and 
+therefore more robust.
+
+Jan
+
+-- 
+Siemens AG, Corporate Technology, CT RDA IOT SES-DE
+Corporate Competence Center Embedded Linux
