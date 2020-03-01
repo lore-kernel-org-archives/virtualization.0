@@ -1,14 +1,14 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RESEND] virtio: virtio_pci_legacy: Remove default y from
- Kconfig
-Date: Sun, 1 Mar 2020 02:32:30 -0500
-Message-ID: <20200301023025-mutt-send-email-mst@kernel.org>
-References: <20200228232736.182780-1-rammuthiah@google.com>
+Subject: Re: [PATCH 3/3] virtio-net: Introduce hash report feature
+Date: Sun, 1 Mar 2020 03:43:28 -0500
+Message-ID: <20200301033900-mutt-send-email-mst@kernel.org>
+References: <20200229171301.15234-1-yuri.benditovich@daynix.com>
+ <20200229171301.15234-4-yuri.benditovich@daynix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200228232736.182780-1-rammuthiah@google.com>
+In-Reply-To: <20200229171301.15234-4-yuri.benditovich@daynix.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,47 +19,87 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Ram Muthiah <rammuthiah@google.com>
-Cc: kernel-team@android.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Yuri Benditovich <yuri.benditovich@daynix.com>
+Cc: yan@daynix.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Feb 28, 2020 at 03:27:36PM -0800, Ram Muthiah wrote:
-> The legacy pci driver should no longer be default enabled. QEMU has
-> implemented support for Virtio 1 for virtio-pci since June 2015
-> on SHA dfb8e184db75.
+On Sat, Feb 29, 2020 at 07:13:01PM +0200, Yuri Benditovich wrote:
+> The feature VIRTIO_NET_F_HASH_REPORT extends the
+> layout of the packet and requests the device to
+> calculate hash on incoming packets and report it
+> in the packet header.
 > 
-> Signed-off-by: Ram Muthiah <rammuthiah@google.com>
-
-I see little reason to do this: y is safer and will boot on more
-hypervisors, so people that aren't sure should enable it.
-
+> Signed-off-by: Yuri Benditovich <yuri.benditovich@daynix.com>
 > ---
->  drivers/virtio/Kconfig | 6 ------
->  1 file changed, 6 deletions(-)
+>  include/uapi/linux/virtio_net.h | 36 +++++++++++++++++++++++++++++++++
+>  1 file changed, 36 insertions(+)
 > 
-> diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-> index 078615cf2afc..eacd0b90d32b 100644
-> --- a/drivers/virtio/Kconfig
-> +++ b/drivers/virtio/Kconfig
-> @@ -26,7 +26,6 @@ config VIRTIO_PCI
+> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
+> index 7a342657fb6c..6d7230469c57 100644
+> --- a/include/uapi/linux/virtio_net.h
+> +++ b/include/uapi/linux/virtio_net.h
+> @@ -57,6 +57,7 @@
+>  					 * Steering */
+>  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
 >  
->  config VIRTIO_PCI_LEGACY
->  	bool "Support for legacy virtio draft 0.9.X and older devices"
-> -	default y
->  	depends on VIRTIO_PCI
->  	---help---
->            Virtio PCI Card 0.9.X Draft (circa 2014) and older device support.
-> @@ -36,11 +35,6 @@ config VIRTIO_PCI_LEGACY
->  	  If disabled, you get a slightly smaller, non-transitional driver,
->  	  with no legacy compatibility.
+> +#define VIRTIO_NET_F_HASH_REPORT  57	/* Supports hash report */
+>  #define VIRTIO_NET_F_RSS	  60	/* Supports RSS RX steering */
+>  #define VIRTIO_NET_F_RSC_EXT	  61	/* extended coalescing info */
+>  #define VIRTIO_NET_F_STANDBY	  62	/* Act as standby for another device
+> @@ -144,6 +145,23 @@ struct virtio_net_hdr_v1 {
+>  	__virtio16 num_buffers;	/* Number of merged rx buffers */
+>  };
 >  
-> -          So look out into your driveway.  Do you have a flying car?  If
-> -          so, you can happily disable this option and virtio will not
-> -          break.  Otherwise, leave it set.  Unless you're testing what
-> -          life will be like in The Future.
-> -
->  	  If unsure, say Y.
+> +struct virtio_net_hdr_v1_hash {
+> +	struct virtio_net_hdr_v1 hdr;
+> +	__virtio32 hash_value;
+> +#define VIRTIO_NET_HASH_REPORT_NONE            0
+> +#define VIRTIO_NET_HASH_REPORT_IPv4            1
+> +#define VIRTIO_NET_HASH_REPORT_TCPv4           2
+> +#define VIRTIO_NET_HASH_REPORT_UDPv4           3
+> +#define VIRTIO_NET_HASH_REPORT_IPv6            4
+> +#define VIRTIO_NET_HASH_REPORT_TCPv6           5
+> +#define VIRTIO_NET_HASH_REPORT_UDPv6           6
+> +#define VIRTIO_NET_HASH_REPORT_IPv6_EX         7
+> +#define VIRTIO_NET_HASH_REPORT_TCPv6_EX        8
+> +#define VIRTIO_NET_HASH_REPORT_UDPv6_EX        9
+> +	__virtio16 hash_report;
+> +	__virtio16 padding;
+> +};
+> +
+>  #ifndef VIRTIO_NET_NO_LEGACY
+>  /* This header comes first in the scatter-gather list.
+>   * For legacy virtio, if VIRTIO_F_ANY_LAYOUT is not negotiated, it must
+> @@ -292,6 +310,24 @@ struct virtio_net_rss_config {
 >  
->  config VIRTIO_PMEM
+>   #define VIRTIO_NET_CTRL_MQ_RSS_CONFIG          1
+>  
+> +/*
+> + * The command VIRTIO_NET_CTRL_MQ_HASH_CONFIG requests the device
+> + * to include in the virtio header of the packet the value of the
+> + * calculated hash and the report type of hash. It also provides
+> + * parameters for hash calculation. The command requires feature
+> + * VIRTIO_NET_F_HASH_REPORT to be negotiated to extend the
+> + * layout of virtio header as defined in virtio_net_hdr_v1_hash.
+> + */
+> +struct virtio_net_hash_config {
+> +	__virtio32 hash_types;
+> +	/* for compatibility with virtio_net_rss_config */
+> +	__virtio16 reserved[4];
+
+I expect these should all be le32/le16 respectively.
+
+> +	__u8 hash_key_length;
+> +	__u8 hash_key_data[/*hash_key_length*/];
+> +};
+
+Should be /* hash_key_length */ as per coding style.
+
+> +
+> + #define VIRTIO_NET_CTRL_MQ_HASH_CONFIG         2
+> +
+>  /*
+>   * Control network offloads
+>   *
 > -- 
-> 2.25.0.265.gbab2e86ba0-goog
+> 2.17.1
