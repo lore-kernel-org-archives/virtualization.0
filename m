@@ -1,130 +1,108 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3 2/3] virtio-net: Introduce RSS receive steering feature
-Date: Sun, 1 Mar 2020 14:58:20 -0500
-Message-ID: <20200301145811-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH v3 1/3] virtio-net: Introduce extended RSC feature
+Date: Sun, 1 Mar 2020 15:06:00 -0500
+Message-ID: <20200301145828-mutt-send-email-mst@kernel.org>
 References: <20200301143302.8556-1-yuri.benditovich@daynix.com>
- <20200301143302.8556-3-yuri.benditovich@daynix.com>
+ <20200301143302.8556-2-yuri.benditovich@daynix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: quoted-printable
-Return-path: <virtio-dev-return-6826-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Return-path: <virtio-dev-return-6827-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
 Sender: <virtio-dev@lists.oasis-open.org>
 List-Post: <mailto:virtio-dev@lists.oasis-open.org>
 List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
 List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
 List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <20200301143302.8556-3-yuri.benditovich@daynix.com>
+In-Reply-To: <20200301143302.8556-2-yuri.benditovich@daynix.com>
 Content-Disposition: inline
 To: Yuri Benditovich <yuri.benditovich@daynix.com>
 Cc: jasowang@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, yan@daynix.com, virtio-dev@lists.oasis-open.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Mar 01, 2020 at 04:33:01PM +0200, Yuri Benditovich wrote:
-> RSS (Receive-side scaling) defines hash calculation
-> rules and decision on receive virtqueue according to
-> the calculated hash, provided mask to apply and
-> provided indirection table containing indices of
-> receive virqueues. The driver sends the control
-> command to enable multiqueue and provide parameters
-> for receive steering.
+On Sun, Mar 01, 2020 at 04:33:00PM +0200, Yuri Benditovich wrote:
+> VIRTIO_NET_F_RSC_EXT feature bit indicates that the device
+> is able to provide extended RSC information. When the feature
+> is negotiatede and 'gso_type' field in received packet is not
+> GSO_NONE, the device reports number of coalesced packets in
+> 'csum_start' field and number of duplicated acks in 'csum_offset'
+> field and sets VIRTIO_NET_HDR_F_RSC_INFO in 'flags' field.
 >=20
 > Signed-off-by: Yuri Benditovich <yuri.benditovich@daynix.com>
 > ---
->  include/uapi/linux/virtio_net.h | 42 +++++++++++++++++++++++++++++++--
->  1 file changed, 40 insertions(+), 2 deletions(-)
+>  include/uapi/linux/virtio_net.h | 22 ++++++++++++++++++++--
+>  1 file changed, 20 insertions(+), 2 deletions(-)
 >=20
 > diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_=
 net.h
-> index 19e76b3e3a64..188ad3eecdc8 100644
+> index a3715a3224c1..19e76b3e3a64 100644
 > --- a/include/uapi/linux/virtio_net.h
 > +++ b/include/uapi/linux/virtio_net.h
 > @@ -57,6 +57,7 @@
 >  =09=09=09=09=09 * Steering */
 >  #define VIRTIO_NET_F_CTRL_MAC_ADDR 23=09/* Set MAC address */
 > =20
-> +#define VIRTIO_NET_F_RSS=09  60=09/* Supports RSS RX steering */
->  #define VIRTIO_NET_F_RSC_EXT=09  61=09/* extended coalescing info */
+> +#define VIRTIO_NET_F_RSC_EXT=09  61=09/* extended coalescing info */
 >  #define VIRTIO_NET_F_STANDBY=09  62=09/* Act as standby for another devi=
 ce
 >  =09=09=09=09=09 * with the same MAC.
-> @@ -70,6 +71,17 @@
->  #define VIRTIO_NET_S_LINK_UP=091=09/* Link is up */
->  #define VIRTIO_NET_S_ANNOUNCE=092=09/* Announcement is needed */
-> =20
-> +/* supported/enabled hash types */
-> +#define VIRTIO_NET_RSS_HASH_TYPE_IPv4          (1 << 0)
-> +#define VIRTIO_NET_RSS_HASH_TYPE_TCPv4         (1 << 1)
-> +#define VIRTIO_NET_RSS_HASH_TYPE_UDPv4         (1 << 2)
-> +#define VIRTIO_NET_RSS_HASH_TYPE_IPv6          (1 << 3)
-> +#define VIRTIO_NET_RSS_HASH_TYPE_TCPv6         (1 << 4)
-> +#define VIRTIO_NET_RSS_HASH_TYPE_UDPv6         (1 << 5)
-> +#define VIRTIO_NET_RSS_HASH_TYPE_IP_EX         (1 << 6)
-> +#define VIRTIO_NET_RSS_HASH_TYPE_TCP_EX        (1 << 7)
-> +#define VIRTIO_NET_RSS_HASH_TYPE_UDP_EX        (1 << 8)
-> +
->  struct virtio_net_config {
->  =09/* The config defining mac address (if VIRTIO_NET_F_MAC) */
->  =09__u8 mac[ETH_ALEN];
-> @@ -93,6 +105,12 @@ struct virtio_net_config {
->  =09 * Any other value stands for unknown.
->  =09 */
->  =09__u8 duplex;
-> +=09/* maximum size of RSS key */
-> +=09__u8 rss_max_key_size;
-> +=09/* maximum number of indirection table entries */
-> +=09__le16 rss_max_indirection_table_length;
-> +=09/* bitmask of supported VIRTIO_NET_RSS_HASH_ types */
-> +=09__le32 supported_hash_types;
->  } __attribute__((packed));
-> =20
->  /*
-> @@ -246,7 +264,9 @@ struct virtio_net_ctrl_mac {
-> =20
->  /*
->   * Control Receive Flow Steering
-> - *
-> + */
-> +#define VIRTIO_NET_CTRL_MQ   4
-> +/*
->   * The command VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET
->   * enables Receive Flow Steering, specifying the number of the transmit =
-and
->   * receive queues that will be used. After the command is consumed and a=
-cked by
-> @@ -259,11 +279,29 @@ struct virtio_net_ctrl_mq {
->  =09__virtio16 virtqueue_pairs;
+>  =09=09=09=09=09 */
+> @@ -104,6 +105,7 @@ struct virtio_net_config {
+>  struct virtio_net_hdr_v1 {
+>  #define VIRTIO_NET_HDR_F_NEEDS_CSUM=091=09/* Use csum_start, csum_offset=
+ */
+>  #define VIRTIO_NET_HDR_F_DATA_VALID=092=09/* Csum is valid */
+> +#define VIRTIO_NET_HDR_F_RSC_INFO=094=09/* rsc info in csum_ fields */
+>  =09__u8 flags;
+>  #define VIRTIO_NET_HDR_GSO_NONE=09=090=09/* Not a GSO frame */
+>  #define VIRTIO_NET_HDR_GSO_TCPV4=091=09/* GSO frame, IPv4 TCP (TSO) */
+> @@ -113,8 +115,24 @@ struct virtio_net_hdr_v1 {
+>  =09__u8 gso_type;
+>  =09__virtio16 hdr_len;=09/* Ethernet + IP + tcp/udp hdrs */
+>  =09__virtio16 gso_size;=09/* Bytes to append to hdr_len per frame */
+> -=09__virtio16 csum_start;=09/* Position to start checksumming from */
+> -=09__virtio16 csum_offset;=09/* Offset after that to place checksum */
+> +=09union {
+> +=09=09struct {
+> +=09=09=09__virtio16 csum_start;
+> +=09=09=09__virtio16 csum_offset;
+> +=09=09};
+
+
+Pls add comments for this one as well.
+
+> +=09=09struct {
+> +=09=09=09/* Position to start checksumming from */
+> +=09=09=09__virtio16 start;
+> +=09=09=09/* Offset after that to place checksum */
+> +=09=09=09__virtio16 offset;
+> +=09=09} csum;
+
+Can we add a comment for csum field pls? E.g.
+=09/* Checksum calculation */
+
+> +=09=09struct {
+> +=09=09=09/* num of coalesced packets */
+
+
+num -> Number? Don't abbreviate and upper case for consistency.
+
+> +=09=09=09__le16 packets;
+
+packets -> coalesced_packets? Or is coalesced segments in fact better?
+
+> +=09=09=09/* num of duplicated acks */
+
+num -> Number? Don't abbreviate and upper case for consistency.
+
+
+> +=09=09=09__le16 dup_acks;
+> +=09=09} rsc;
+
+/* Receive Segment Coalescing report */
+
+> +=09};
+>  =09__virtio16 num_buffers;=09/* Number of merged rx buffers */
 >  };
 > =20
-> -#define VIRTIO_NET_CTRL_MQ   4
->   #define VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET        0
->   #define VIRTIO_NET_CTRL_MQ_VQ_PAIRS_MIN        1
->   #define VIRTIO_NET_CTRL_MQ_VQ_PAIRS_MAX        0x8000
-> =20
-> +/*
-> + * The command VIRTIO_NET_CTRL_MQ_RSS_CONFIG has the same effect as
-> + * VIRTIO_NET_CTRL_MQ_VQ_PAIRS_SET does and additionally configures
-> + * the receive steering to use a hash calculated for incoming packet
-> + * to decide on receive virtqueue to place the packet. The command
-> + * also provides parameters to calculate a hash and receive virtqueue.
-> + */
-> +struct virtio_net_rss_config {
-> +=09__le32 hash_types;
-> +=09__le16 indirection_table_mask;
-> +=09__le16 unclassified_queue;
-> +=09__le16 indirection_table[1/* + indirection_table_mask */];
-> +=09__le16 max_tx_vq;
-> +=09__u8 hash_key_length;
-> +=09__u8 hash_key_data[/* hash_key_length */];
-> +};
-> +
-> + #define VIRTIO_NET_CTRL_MQ_RSS_CONFIG          1
-> +
-
-
-Extra space here.
-
->  /*
->   * Control network offloads
->   *
 > --=20
 > 2.17.1
