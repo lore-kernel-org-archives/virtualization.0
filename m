@@ -1,66 +1,115 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v1 04/11] mm: Export alloc_contig_range() /
- free_contig_range()
-Date: Mon, 2 Mar 2020 15:17:38 +0100
-Message-ID: <dd34277f-21ad-cae8-8f07-10915fea305e@redhat.com>
+From: Michal Hocko <mhocko@kernel.org>
+Subject: Re: [PATCH v1 08/11] mm/memory_hotplug: Introduce
+ offline_and_remove_memory()
+Date: Mon, 2 Mar 2020 15:27:37 +0100
+Message-ID: <20200302142737.GP4380@dhcp22.suse.cz>
 References: <20200302134941.315212-1-david@redhat.com>
- <20200302134941.315212-5-david@redhat.com>
- <20200302140519.GN4380@dhcp22.suse.cz>
+ <20200302134941.315212-9-david@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtio-dev-return-6866-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <20200302140519.GN4380@dhcp22.suse.cz>
-Content-Language: en-US
-To: Michal Hocko <mhocko@kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>, Mel Gorman <mgorman@techsingularity.net>, Mike Rapoport <rppt@linux.ibm.com>, Dan Williams <dan.j.williams@intel.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Alexander Potapenko <glider@google.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200302134941.315212-9-david@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Oscar Salvador <osalvador@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Wei Yang <richard.weiyang@gmail.com>, Dan Williams <dan.j.williams@intel.com>, Qian Cai <cai@lca.pw>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 02.03.20 15:05, Michal Hocko wrote:
-> On Mon 02-03-20 14:49:34, David Hildenbrand wrote:
->> A virtio-mem device wants to allocate memory from the memory region it
->> manages in order to unplug it in the hypervisor - similar to
->> a balloon driver. Also, it might want to plug previously unplugged
->> (allocated) memory and give it back to Linux. alloc_contig_range() /
->> free_contig_range() seem to be the perfect interface for this task.
->>
->> In contrast to existing balloon devices, a virtio-mem device operates
->> on bigger chunks (e.g., 4MB) and only on physical memory it manages. I=
-t
->> tracks which chunks (subblocks) are still plugged, so it can go ahead
->> and try to alloc_contig_range()+unplug them on unplug request, or
->> plug+free_contig_range() unplugged chunks on plug requests.
->>
->> A virtio-mem device will use alloc_contig_range() / free_contig_range(=
-)
->> only on ranges that belong to the same node/zone in at least
->> MAX(MAX_ORDER - 1, pageblock_order) order granularity - e.g., 4MB on
->> x86-64. The virtio-mem device added that memory, so the memory
->> exists and does not contain any holes. virtio-mem will only try to all=
-ocate
->> on ZONE_NORMAL, never on ZONE_MOVABLE, just like when allocating
->> gigantic pages (we don't put unmovable data into the movable zone).
->=20
-> Same feedback as in pxm_to_node export. No objections to exporting the
-> symbol but it would be better to squash this function into the patch
-> which uses it. The changelog is highly virtio-mem specific anyway.
-> Maybe it is just a dejavu but I feel I have already said that but I do
-> not remember any details.
+On Mon 02-03-20 14:49:38, David Hildenbrand wrote:
+> virtio-mem wants to offline and remove a memory block once it unplugged
+> all subblocks (e.g., using alloc_contig_range()). Let's provide
+> an interface to do that from a driver. virtio-mem already supports to
+> offline partially unplugged memory blocks. Offlining a fully unplugged
+> memory block will not require to migrate any pages. All unplugged
+> subblocks are PageOffline() and have a reference count of 0 - so
+> offlining code will simply skip them.
+> 
+> All we need is an interface to offline and remove the memory from kernel
+> module context, where we don't have access to the memory block devices
+> (esp. find_memory_block() and device_offline()) and the device hotplug
+> lock.
+> 
+> To keep things simple, allow to only work on a single memory block.
+> 
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: David Hildenbrand <david@redhat.com>
+> Cc: Oscar Salvador <osalvador@suse.com>
+> Cc: Michal Hocko <mhocko@suse.com>
+> Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+> Cc: Wei Yang <richard.weiyang@gmail.com>
+> Cc: Dan Williams <dan.j.williams@intel.com>
+> Cc: Qian Cai <cai@lca.pw>
+> Signed-off-by: David Hildenbrand <david@redhat.com>
 
-As I said back then, I am not a friend of squashing core changes into
-driver changes (and AFAIK separating such is the common practice - well
-I have never written a driver myself). I doubt it will make review
-easier or faster (especially when it comes to patch #1).
+Acked-by: Michal Hocko <mhocko@suse.com>
 
-I can squash #4 into #5, #6 into #7, #8 into #9 if it makes your review
-easier.
+> ---
+>  include/linux/memory_hotplug.h |  1 +
+>  mm/memory_hotplug.c            | 37 ++++++++++++++++++++++++++++++++++
+>  2 files changed, 38 insertions(+)
+> 
+> diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
+> index f4d59155f3d4..a98aa16dbfa1 100644
+> --- a/include/linux/memory_hotplug.h
+> +++ b/include/linux/memory_hotplug.h
+> @@ -311,6 +311,7 @@ extern void try_offline_node(int nid);
+>  extern int offline_pages(unsigned long start_pfn, unsigned long nr_pages);
+>  extern int remove_memory(int nid, u64 start, u64 size);
+>  extern void __remove_memory(int nid, u64 start, u64 size);
+> +extern int offline_and_remove_memory(int nid, u64 start, u64 size);
+>  
+>  #else
+>  static inline bool is_mem_section_removable(unsigned long pfn,
+> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+> index ab1c31e67fd1..d0d337918a15 100644
+> --- a/mm/memory_hotplug.c
+> +++ b/mm/memory_hotplug.c
+> @@ -1818,4 +1818,41 @@ int remove_memory(int nid, u64 start, u64 size)
+>  	return rc;
+>  }
+>  EXPORT_SYMBOL_GPL(remove_memory);
+> +
+> +/*
+> + * Try to offline and remove a memory block. Might take a long time to
+> + * finish in case memory is still in use. Primarily useful for memory devices
+> + * that logically unplugged all memory (so it's no longer in use) and want to
+> + * offline + remove the memory block.
+> + */
+> +int offline_and_remove_memory(int nid, u64 start, u64 size)
+> +{
+> +	struct memory_block *mem;
+> +	int rc = -EINVAL;
+> +
+> +	if (!IS_ALIGNED(start, memory_block_size_bytes()) ||
+> +	    size != memory_block_size_bytes())
+> +		return rc;
+> +
+> +	lock_device_hotplug();
+> +	mem = find_memory_block(__pfn_to_section(PFN_DOWN(start)));
+> +	if (mem)
+> +		rc = device_offline(&mem->dev);
+> +	/* Ignore if the device is already offline. */
+> +	if (rc > 0)
+> +		rc = 0;
+> +
+> +	/*
+> +	 * In case we succeeded to offline the memory block, remove it.
+> +	 * This cannot fail as it cannot get onlined in the meantime.
+> +	 */
+> +	if (!rc) {
+> +		rc = try_remove_memory(nid, start, size);
+> +		WARN_ON_ONCE(rc);
+> +	}
+> +	unlock_device_hotplug();
+> +
+> +	return rc;
+> +}
+> +EXPORT_SYMBOL_GPL(offline_and_remove_memory);
+>  #endif /* CONFIG_MEMORY_HOTREMOVE */
+> -- 
+> 2.24.1
+> 
 
---=20
-Thanks,
-
-David / dhildenb
+-- 
+Michal Hocko
+SUSE Labs
