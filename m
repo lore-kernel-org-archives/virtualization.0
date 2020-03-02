@@ -1,96 +1,54 @@
-From: Yuri Benditovich <yuri.benditovich@daynix.com>
-Subject: [PATCH v4 3/3] virtio-net: Introduce hash report feature
-Date: Mon,  2 Mar 2020 13:50:03 +0200
-Message-ID: <20200302115003.14877-4-yuri.benditovich@daynix.com>
-References: <20200302115003.14877-1-yuri.benditovich@daynix.com>
+From: David Stevens <stevensd@chromium.org>
+Subject: [PATCH v2 0/4] Support virtio cross-device resources
+Date: Mon,  2 Mar 2020 21:15:20 +0900
+Message-ID: <20200302121524.7543-1-stevensd@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200302115003.14877-1-yuri.benditovich@daynix.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Cc: yan@daynix.com, virtio-dev@lists.oasis-open.org
+Content-Transfer-Encoding: 8bit
+Return-path: <virtio-dev-return-6844-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+To: Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, David Stevens <stevensd@chromium.org>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org, virtio-dev@lists.oasis-open.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The feature VIRTIO_NET_F_HASH_REPORT extends the
-layout of the packet and requests the device to
-calculate hash on incoming packets and report it
-in the packet header.
+This patchset implements the current proposal for virtio cross-device
+resource sharing [1], with minor changes based on recent comments. It
+is expected that this will be used to import virtio resources into the
+virtio-video driver currently under discussion [2].
 
-Signed-off-by: Yuri Benditovich <yuri.benditovich@daynix.com>
----
- include/uapi/linux/virtio_net.h | 36 +++++++++++++++++++++++++++++++++
- 1 file changed, 36 insertions(+)
+This patchset adds a new hook to dma-buf, for querying the dma-buf's
+underlying virtio UUID. This hook is then plumbed through DRM PRIME
+buffers, and finally implemented in virtgpu.
 
-diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
-index aec6fac3666a..19d23e5baa4e 100644
---- a/include/uapi/linux/virtio_net.h
-+++ b/include/uapi/linux/virtio_net.h
-@@ -57,6 +57,7 @@
- 					 * Steering */
- #define VIRTIO_NET_F_CTRL_MAC_ADDR 23	/* Set MAC address */
- 
-+#define VIRTIO_NET_F_HASH_REPORT  57	/* Supports hash report */
- #define VIRTIO_NET_F_RSS	  60	/* Supports RSS RX steering */
- #define VIRTIO_NET_F_RSC_EXT	  61	/* extended coalescing info */
- #define VIRTIO_NET_F_STANDBY	  62	/* Act as standby for another device
-@@ -156,6 +157,23 @@ struct virtio_net_hdr_v1 {
- 	__virtio16 num_buffers;	/* Number of merged rx buffers */
- };
- 
-+struct virtio_net_hdr_v1_hash {
-+	struct virtio_net_hdr_v1 hdr;
-+	__le32 hash_value;
-+#define VIRTIO_NET_HASH_REPORT_NONE            0
-+#define VIRTIO_NET_HASH_REPORT_IPv4            1
-+#define VIRTIO_NET_HASH_REPORT_TCPv4           2
-+#define VIRTIO_NET_HASH_REPORT_UDPv4           3
-+#define VIRTIO_NET_HASH_REPORT_IPv6            4
-+#define VIRTIO_NET_HASH_REPORT_TCPv6           5
-+#define VIRTIO_NET_HASH_REPORT_UDPv6           6
-+#define VIRTIO_NET_HASH_REPORT_IPv6_EX         7
-+#define VIRTIO_NET_HASH_REPORT_TCPv6_EX        8
-+#define VIRTIO_NET_HASH_REPORT_UDPv6_EX        9
-+	__le16 hash_report;
-+	__le16 padding;
-+};
-+
- #ifndef VIRTIO_NET_NO_LEGACY
- /* This header comes first in the scatter-gather list.
-  * For legacy virtio, if VIRTIO_F_ANY_LAYOUT is not negotiated, it must
-@@ -304,6 +322,24 @@ struct virtio_net_rss_config {
- 
-  #define VIRTIO_NET_CTRL_MQ_RSS_CONFIG          1
- 
-+/*
-+ * The command VIRTIO_NET_CTRL_MQ_HASH_CONFIG requests the device
-+ * to include in the virtio header of the packet the value of the
-+ * calculated hash and the report type of hash. It also provides
-+ * parameters for hash calculation. The command requires feature
-+ * VIRTIO_NET_F_HASH_REPORT to be negotiated to extend the
-+ * layout of virtio header as defined in virtio_net_hdr_v1_hash.
-+ */
-+struct virtio_net_hash_config {
-+	__le32 hash_types;
-+	/* for compatibility with virtio_net_rss_config */
-+	__le16 reserved[4];
-+	__u8 hash_key_length;
-+	__u8 hash_key_data[/* hash_key_length */];
-+};
-+
-+ #define VIRTIO_NET_CTRL_MQ_HASH_CONFIG         2
-+
- /*
-  * Control network offloads
-  *
+[1] https://markmail.org/thread/jsaoqy7phrqdcpqu
+[2] https://markmail.org/thread/p5d3k566srtdtute
+
+v1 -> v2 changes:
+ - Move get_uuid callback into main dma-buf ops (instead of placing it
+   in a new flavor of dma-buf).
+ - Rename new virtio commands and feature flag, and pull uapi changes
+   into their own patch.
+
+David Stevens (4):
+  dma-buf: add support for virtio exported objects
+  drm/prime: add support for virtio exported objects
+  virtio-gpu: add VIRTIO_GPU_F_RESOURCE_UUID feature
+  drm/virtio: Support virtgpu exported resources
+
+ drivers/dma-buf/dma-buf.c              | 14 ++++++
+ drivers/gpu/drm/drm_prime.c            | 27 +++++++++++
+ drivers/gpu/drm/virtio/virtgpu_drv.c   |  3 ++
+ drivers/gpu/drm/virtio/virtgpu_drv.h   | 19 ++++++++
+ drivers/gpu/drm/virtio/virtgpu_kms.c   |  4 ++
+ drivers/gpu/drm/virtio/virtgpu_prime.c | 48 ++++++++++++++++++--
+ drivers/gpu/drm/virtio/virtgpu_vq.c    | 62 ++++++++++++++++++++++++++
+ include/drm/drm_drv.h                  | 15 +++++++
+ include/linux/dma-buf.h                | 22 +++++++++
+ include/uapi/linux/virtio_gpu.h        | 19 ++++++++
+ 10 files changed, 230 insertions(+), 3 deletions(-)
+
 -- 
-2.17.1
+2.25.0.265.gbab2e86ba0-goog
