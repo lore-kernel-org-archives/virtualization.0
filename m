@@ -1,83 +1,44 @@
-From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
-Subject: Re: [PATCH][next] drm: Replace zero-length array with flexible-array
- member
-Date: Tue, 3 Mar 2020 12:20:16 -0600
-Message-ID: <138ff691-94b3-1ce5-e7fa-e6d7c436bf8e@embeddedor.com>
-References: <20200225140347.GA22864@embeddedor> <87a756sqdc.fsf@intel.com>
+From: Will Deacon <will@kernel.org>
+Subject: Re: [PATCH 00/14] iommu: Move iommu_fwspec out of 'struct device'
+Date: Tue, 3 Mar 2020 19:16:25 +0000
+Message-ID: <20200303191624.GC27329@willie-the-truck>
+References: <20200228150820.15340-1-joro@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <87a756sqdc.fsf@intel.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jani Nikula <jani.nikula@linux.intel.com>, Lucas Stach <l.stach@pengutronix.de>, Russell King <linux+etnaviv@armlinux.org.uk>, Christian Gmeiner <christian.gmeiner@gmail.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Patrik Jakobsson <patrik.r.jakobsson@gmail.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>, Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, Hans de Goede <hdegoede@redhat.com>, Eric Anholt <eric@anholt.net>, VMware Graphics <linux-graphics-maintainer@vmware.com>, Thomas Hellstrom <thellstrom@vmware.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kern>
-Cc: etnaviv@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, intel-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org, virtualization@lists.linux-foundation.org, spice-devel@lists.freedesktop.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200228150820.15340-1-joro@8bytes.org>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>
+Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, virtualization@lists.linux-foundation.org, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Hanjun Guo <guohanjun@huawei.com>, Sudeep Holla <sudeep.holla@arm.com>, Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>, Robin Murphy <robin.murphy@arm.com>, Matthias Brugger <matthias.bgg@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+Hi Joerg,
 
-
-On 2/25/20 08:17, Jani Nikula wrote:
-> On Tue, 25 Feb 2020, "Gustavo A. R. Silva" <gustavo@embeddedor.com> wrote:
->> The current codebase makes use of the zero-length array language
->> extension to the C90 standard, but the preferred mechanism to declare
->> variable-length types such as these ones is a flexible array member[1][2],
->> introduced in C99:
->>
->> struct foo {
->>         int stuff;
->>         struct boo array[];
->> };
->>
->> By making use of the mechanism above, we will get a compiler warning
->> in case the flexible array does not occur last in the structure, which
->> will help us prevent some kind of undefined behavior bugs from being
->> inadvertently introduced[3] to the codebase from now on.
->>
->> Also, notice that, dynamic memory allocations won't be affected by
->> this change:
->>
->> "Flexible array members have incomplete type, and so the sizeof operator
->> may not be applied. As a quirk of the original implementation of
->> zero-length arrays, sizeof evaluates to zero."[1]
->>
->> This issue was found with the help of Coccinelle.
->>
->> [1] https://gcc.gnu.org/onlinedocs/gcc/Zero-Length.html
->> [2] https://github.com/KSPP/linux/issues/21
->> [3] commit 76497732932f ("cxgb3/l2t: Fix undefined behaviour")
->>
->> Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
->> ---
->>  drivers/gpu/drm/etnaviv/etnaviv_gem.h         | 2 +-
->>  drivers/gpu/drm/gma500/intel_bios.h           | 2 +-
->>  drivers/gpu/drm/i915/display/intel_vbt_defs.h | 4 ++--
->>  drivers/gpu/drm/i915/gt/intel_lrc.c           | 2 +-
->>  drivers/gpu/drm/i915/i915_gpu_error.h         | 2 +-
+On Fri, Feb 28, 2020 at 04:08:06PM +0100, Joerg Roedel wrote:
+> here is a patch-set to rename iommu_param to dev_iommu and
+> establish it as a struct for generic per-device iommu-data.
+> Also move the iommu_fwspec pointer from struct device into
+> dev_iommu to have less iommu-related pointers in struct
+> device.
 > 
-> Please split out the i915 changes to a separate patch.
+> The bigger part of this patch-set moves the iommu_priv
+> pointer from struct iommu_fwspec to dev_iommu, making is
+> usable for iommu-drivers which do not use fwspecs.
 > 
+> The changes for that were mostly straightforward, except for
+> the arm-smmu (_not_ arm-smmu-v3) and the qcom iommu driver.
+> Unfortunatly I don't have the hardware for those, so any
+> testing of these drivers is greatly appreciated.
 
-Sure thing. I can do that.
+I haven't had a chance to review this properly yet, but I did take it
+for a spin on my Seattle board with MMU-400 (arm-smmu) and it seems to
+work the same as before, so:
 
->>  drivers/gpu/drm/msm/msm_gem.h                 | 2 +-
->>  drivers/gpu/drm/qxl/qxl_cmd.c                 | 2 +-
->>  drivers/gpu/drm/vboxvideo/vboxvideo.h         | 2 +-
->>  drivers/gpu/drm/vc4/vc4_drv.h                 | 2 +-
->>  drivers/gpu/drm/vmwgfx/vmwgfx_page_dirty.c    | 2 +-
->>  drivers/gpu/drm/vmwgfx/vmwgfx_surface.c       | 2 +-
->>  include/drm/bridge/mhl.h                      | 4 ++--
->>  include/drm/drm_displayid.h                   | 2 +-
->>  include/uapi/drm/i915_drm.h                   | 4 ++--
-> 
-> Not sure it's worth touching uapi headers. They're full of both [0] and
-> []. Again, please at least split it to a separate patch to be decided
-> separately.
-> 
+Tested-by: Will Deacon <will@kernel.org> # arm-smmu
 
-Yeah, it's worth it; the purpose of these patches is to replace [0] with [] across
-the whole tree.
+I'll try to review the patches soon.
 
-Thanks
---
-Gustavo
+Cheers,
+
+Will
