@@ -1,60 +1,63 @@
-From: Auger Eric <eric.auger@redhat.com>
+From: Joerg Roedel <joro@8bytes.org>
 Subject: Re: [PATCH v2 1/3] iommu/virtio: Add topology description to
  virtio-iommu config space
-Date: Tue, 3 Mar 2020 11:19:20 +0100
-Message-ID: <9004f814-2f7c-9024-3465-6f9661b97b7a@redhat.com>
+Date: Tue, 3 Mar 2020 14:01:56 +0100
+Message-ID: <20200303130155.GA13185@8bytes.org>
 References: <20200228172537.377327-1-jean-philippe@linaro.org>
  <20200228172537.377327-2-jean-philippe@linaro.org>
  <20200302161611.GD7829@8bytes.org>
+ <9004f814-2f7c-9024-3465-6f9661b97b7a@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-pci-owner@vger.kernel.org>
-In-Reply-To: <20200302161611.GD7829@8bytes.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <9004f814-2f7c-9024-3465-6f9661b97b7a@redhat.com>
 Sender: linux-pci-owner@vger.kernel.org
-To: Joerg Roedel <joro@8bytes.org>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, linux-pci@vger.kernel.org, bhelgaas@google.com, mst@redhat.com, jasowang@redhat.com, kevin.tian@intel.com, sebastien.boeuf@intel.com, jacob.jun.pan@intel.com, robin.murphy@arm.com
+To: Auger Eric <eric.auger@redhat.com>
+Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, linux-pci@vger.kernel.org, bhelgaas@google.com, mst@redhat.com, jasowang@redhat.com, kevin.tian@intel.com, sebastien.boeuf@intel.com, jacob.jun.pan@intel.com, robin.murphy@arm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Joerg,
+Hi Eric,
 
-On 3/2/20 5:16 PM, Joerg Roedel wrote:
-> On Fri, Feb 28, 2020 at 06:25:36PM +0100, Jean-Philippe Brucker wrote:
->> This solution isn't elegant nor foolproof, but is the best we can do at
->> the moment and works with existing virtio-iommu implementations. It also
->> enables an IOMMU for lightweight hypervisors that do not rely on
->> firmware methods for booting.
-> 
-> I appreciate the enablement on x86, but putting the conmfiguration into
-> mmio-space isn't really something I want to see upstream. What is the
-> problem with defining an ACPI table instead? This would also make things
-> work on AARCH64 UEFI machines.
-Michael has pushed this solution (putting the "configuration in the PCI
-config space"), I think for those main reasons:
-- ACPI may not be supported on some archs/hyps
-- the virtio-iommu is a PCIe device so binding should not need ACPI
-description
+On Tue, Mar 03, 2020 at 11:19:20AM +0100, Auger Eric wrote:
+> Michael has pushed this solution (putting the "configuration in the PCI
+> config space"), I think for those main reasons:
+> - ACPI may not be supported on some archs/hyps
 
-Another issue with ACPI integration is we have different flavours of
-tables that exist: IORT, DMAR, IVRS
+But on those there is device-tree, right?
 
-x86 ACPI integration was suggested with IORT. But it seems ARM is
-reluctant to extend IORT to support para-virtualized IOMMU. So the VIOT
-was proposed as a different atternative in "[RFC 00/13] virtio-iommu on
-non-devicetree platforms"
-(https://patchwork.kernel.org/cover/11257727/). Proposing a table that
-may be used by different vendors seems to be a challenging issue here.
+> - the virtio-iommu is a PCIe device so binding should not need ACPI
+> description
 
-So even if the above solution does not look perfect, it looked a
-sensible compromise given the above arguments. Please could you explain
-what are the most compelling arguments against it?
+The other x86 IOMMUs are PCI devices too and they definitly need a ACPI
+table to be configured.
 
-Thanks
+> Another issue with ACPI integration is we have different flavours of
+> tables that exist: IORT, DMAR, IVRS
 
-Eric
-> 
-> Regards,
-> 
-> 	Joerg
-> 
+An integration with IORT might be the best, but if it is not possible
+ther can be a new table-type for Virtio-iommu. That would still follow
+platform best practices.
+
+> x86 ACPI integration was suggested with IORT. But it seems ARM is
+> reluctant to extend IORT to support para-virtualized IOMMU. So the VIOT
+> was proposed as a different atternative in "[RFC 00/13] virtio-iommu on
+> non-devicetree platforms"
+> (https://patchwork.kernel.org/cover/11257727/). Proposing a table that
+> may be used by different vendors seems to be a challenging issue here.
+
+Yeah, if I am reading that right this proposes a one-fits-all solution.
+That is not needed as the other x86 IOMMUs already have their tables
+defined and implemented. There is no need to change anything there.
+
+> So even if the above solution does not look perfect, it looked a
+> sensible compromise given the above arguments. Please could you explain
+> what are the most compelling arguments against it?
+
+It is a hack and should be avoided if at all possible. And defining an
+own ACPI table type seems very much possible.
+
+
+Regards,
+
+	Joerg
