@@ -1,89 +1,64 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v1 02/11] virtio-mem: Paravirtualized memory hotplug
-Date: Tue, 3 Mar 2020 09:06:29 +0100
-Message-ID: <3851c1eb-92ee-7c85-088f-2adeef3272e6@redhat.com>
-References: <20200302134941.315212-3-david@redhat.com>
- <202003031039.To18mcrC%lkp@intel.com>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH 09/51] drm/cirrus: Use drmm_add_final_kfree
+Date: Tue, 3 Mar 2020 09:27:26 +0100
+Message-ID: <20200303082726.GL2363188@phenom.ffwll.local>
+References: <20200302222631.3861340-1-daniel.vetter@ffwll.ch>
+ <20200302222631.3861340-10-daniel.vetter@ffwll.ch>
+ <20200303074934.vlqxiye7lydnoykd@sirius.home.kraxel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <202003031039.To18mcrC%lkp@intel.com>
-Content-Language: en-US
-Sender: linux-acpi-owner@vger.kernel.org
-To: kbuild test robot <lkp@intel.com>
-Cc: kbuild-all@lists.01.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Oscar Salvador <osalvador@suse.de>, Igor Mammedov <imammedo@redhat.com>, Dave Young <dyoung@redhat.com>, Dan Williams <dan.j.williams@intel.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Stefan Hajnoczi <stefanha@redhat.com>, Vlastimil Babka <vbabka@suse.cz>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+Content-Disposition: inline
+In-Reply-To: <20200303074934.vlqxiye7lydnoykd@sirius.home.kraxel.org>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Noralf =?iso-8859-1?Q?Tr=F8nnes?= <noralf@tronnes.org>, Thomas Zimmermann <tzimmermann@suse.de>, Daniel Vetter <daniel.vetter@intel.com>, Dave Airlie <airlied@redhat.com>, Sam Ravnborg <sam@ravnborg.org>, Linus Walleij <linus.walleij@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 03.03.20 03:24, kbuild test robot wrote:
-> Hi David,
->=20
-> I love your patch! Yet something to improve:
->=20
-> [auto build test ERROR on pm/linux-next]
-> [also build test ERROR on linus/master v5.6-rc4 next-20200302]
-> [cannot apply to linux/master mmotm/master]
-> [if your patch is applied to the wrong git tree, please drop us a note =
-to help
-> improve the system. BTW, we also suggest to use '--base' option to spec=
-ify the
-> base tree in git format-patch, please see https://stackoverflow.com/a/3=
-7406982]
->=20
-> url:    https://github.com/0day-ci/linux/commits/David-Hildenbrand/virt=
-io-mem-paravirtualized-memory/20200303-020852
-> base:   https://git.kernel.org/pub/scm/linux/kernel/git/rafael/linux-pm=
-.git linux-next
-> config: x86_64-randconfig-s1-20200303 (attached as .config)
-> compiler: gcc-5 (Ubuntu 5.5.0-12ubuntu1) 5.5.0 20171010
-> reproduce:
->         # save the attached .config to linux build tree
->         make ARCH=3Dx86_64=20
->=20
-> If you fix the issue, kindly add following tag
-> Reported-by: kbuild test robot <lkp@intel.com>
->=20
-> All errors (new ones prefixed by >>):
->=20
->    In file included from <command-line>:1:0:
->>> ./usr/include/linux/virtio_mem.h:185:2: error: unknown type name 'uin=
-t32_t'
->      uint32_t block_size;
->      ^
->>> ./usr/include/linux/virtio_mem.h:187:2: error: unknown type name 'uin=
-t16_t'
->      uint16_t node_id;
->      ^
->    ./usr/include/linux/virtio_mem.h:188:2: error: unknown type name 'ui=
-nt16_t'
->      uint16_t padding;
->      ^
->>> ./usr/include/linux/virtio_mem.h:190:2: error: unknown type name 'uin=
-t64_t'
->      uint64_t addr;
->      ^
->    ./usr/include/linux/virtio_mem.h:192:2: error: unknown type name 'ui=
-nt64_t'
->      uint64_t region_size;
->      ^
->    ./usr/include/linux/virtio_mem.h:198:2: error: unknown type name 'ui=
-nt64_t'
->      uint64_t usable_region_size;
->      ^
->    ./usr/include/linux/virtio_mem.h:203:2: error: unknown type name 'ui=
-nt64_t'
->      uint64_t plugged_size;
->      ^
->    ./usr/include/linux/virtio_mem.h:205:2: error: unknown type name 'ui=
-nt64_t'
->      uint64_t requested_size;
->      ^
+On Tue, Mar 03, 2020 at 08:49:34AM +0100, Gerd Hoffmann wrote:
+> > @@ -575,9 +574,12 @@ static int cirrus_pci_probe(struct pci_dev *pdev,
+> >  
+> >  	dev = &cirrus->dev;
+> >  	ret = drm_dev_init(dev, &cirrus_driver, &pdev->dev);
+> > -	if (ret)
+> > -		goto err_free_cirrus;
+> > +	if (ret) {
+> > +		kfree(cirrus);
+> > +		goto err_pci_release;
+> > +	}
+> >  	dev->dev_private = cirrus;
+> > +	drmm_add_final_kfree(dev, cirrus);
+> 
+> That doesn't look like an error path improvement.
+> With patch #30 applied it'll looks alot better though.
+> So maybe squash the patches?
 
-Right, these have to be __u64 and friends. Should really enable
-CONFIG_UAPI_HEADER_TEST in my default config.
+Breaks the patch set evolution, there's a _lot_ of dependencies in here to
+make sure we never break anything interim. But yeah that's why I created
+this entire series, since with just the first part it's really not any
+better. I also have a pile more ideas on top, so hopefully once this lands
+I can get around to them and make everything even better :-)
 
+Cheers, Daniel
 
---=20
-Thanks,
+> 
+> In any case:
+> Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+> 
+> cheers,
+>   Gerd
+> 
 
-David / dhildenb
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
