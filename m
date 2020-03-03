@@ -1,31 +1,89 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH 30/51] drm/cirrus: Fully embrace devm_
-Date: Tue, 3 Mar 2020 08:51:57 +0100
-Message-ID: <20200303075157.q5fhywk6lvmjbekv@sirius.home.kraxel.org>
-References: <20200302222631.3861340-1-daniel.vetter@ffwll.ch>
- <20200302222631.3861340-31-daniel.vetter@ffwll.ch>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH v1 02/11] virtio-mem: Paravirtualized memory hotplug
+Date: Tue, 3 Mar 2020 09:06:29 +0100
+Message-ID: <3851c1eb-92ee-7c85-088f-2adeef3272e6@redhat.com>
+References: <20200302134941.315212-3-david@redhat.com>
+ <202003031039.To18mcrC%lkp@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-In-Reply-To: <20200302222631.3861340-31-daniel.vetter@ffwll.ch>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Intel Graphics Development <intel-gfx@lists.freedesktop.org>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Noralf =?utf-8?Q?Tr=C3=B8nnes?= <noralf@tronnes.org>, Thomas Zimmermann <tzimmermann@suse.de>, Dave Airlie <airlied@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>, Emil Velikov <emil.velikov@collabora.com>
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <202003031039.To18mcrC%lkp@intel.com>
+Content-Language: en-US
+Sender: linux-acpi-owner@vger.kernel.org
+To: kbuild test robot <lkp@intel.com>
+Cc: kbuild-all@lists.01.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Oscar Salvador <osalvador@suse.de>, Igor Mammedov <imammedo@redhat.com>, Dave Young <dyoung@redhat.com>, Dan Williams <dan.j.williams@intel.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Stefan Hajnoczi <stefanha@redhat.com>, Vlastimil Babka <vbabka@suse.cz>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Mar 02, 2020 at 11:26:10PM +0100, Daniel Vetter wrote:
-> With the drm_device lifetime fun cleaned up there's nothing in the way
-> anymore to use devm_ for everything hw releated. Do it, and in the
-> process, throw out the entire onion unwinding.
+On 03.03.20 03:24, kbuild test robot wrote:
+> Hi David,
+>=20
+> I love your patch! Yet something to improve:
+>=20
+> [auto build test ERROR on pm/linux-next]
+> [also build test ERROR on linus/master v5.6-rc4 next-20200302]
+> [cannot apply to linux/master mmotm/master]
+> [if your patch is applied to the wrong git tree, please drop us a note =
+to help
+> improve the system. BTW, we also suggest to use '--base' option to spec=
+ify the
+> base tree in git format-patch, please see https://stackoverflow.com/a/3=
+7406982]
+>=20
+> url:    https://github.com/0day-ci/linux/commits/David-Hildenbrand/virt=
+io-mem-paravirtualized-memory/20200303-020852
+> base:   https://git.kernel.org/pub/scm/linux/kernel/git/rafael/linux-pm=
+.git linux-next
+> config: x86_64-randconfig-s1-20200303 (attached as .config)
+> compiler: gcc-5 (Ubuntu 5.5.0-12ubuntu1) 5.5.0 20171010
+> reproduce:
+>         # save the attached .config to linux build tree
+>         make ARCH=3Dx86_64=20
+>=20
+> If you fix the issue, kindly add following tag
+> Reported-by: kbuild test robot <lkp@intel.com>
+>=20
+> All errors (new ones prefixed by >>):
+>=20
+>    In file included from <command-line>:1:0:
+>>> ./usr/include/linux/virtio_mem.h:185:2: error: unknown type name 'uin=
+t32_t'
+>      uint32_t block_size;
+>      ^
+>>> ./usr/include/linux/virtio_mem.h:187:2: error: unknown type name 'uin=
+t16_t'
+>      uint16_t node_id;
+>      ^
+>    ./usr/include/linux/virtio_mem.h:188:2: error: unknown type name 'ui=
+nt16_t'
+>      uint16_t padding;
+>      ^
+>>> ./usr/include/linux/virtio_mem.h:190:2: error: unknown type name 'uin=
+t64_t'
+>      uint64_t addr;
+>      ^
+>    ./usr/include/linux/virtio_mem.h:192:2: error: unknown type name 'ui=
+nt64_t'
+>      uint64_t region_size;
+>      ^
+>    ./usr/include/linux/virtio_mem.h:198:2: error: unknown type name 'ui=
+nt64_t'
+>      uint64_t usable_region_size;
+>      ^
+>    ./usr/include/linux/virtio_mem.h:203:2: error: unknown type name 'ui=
+nt64_t'
+>      uint64_t plugged_size;
+>      ^
+>    ./usr/include/linux/virtio_mem.h:205:2: error: unknown type name 'ui=
+nt64_t'
+>      uint64_t requested_size;
+>      ^
 
-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+Right, these have to be __u64 and friends. Should really enable
+CONFIG_UAPI_HEADER_TEST in my default config.
+
+
+--=20
+Thanks,
+
+David / dhildenb
