@@ -1,56 +1,38 @@
-From: Joerg Roedel <joro@8bytes.org>
-Subject: Re: [PATCH v2 1/3] iommu/virtio: Add topology description to
- virtio-iommu config space
-Date: Wed, 4 Mar 2020 18:40:46 +0100
-Message-ID: <20200304174045.GC3315@8bytes.org>
-References: <20200228172537.377327-1-jean-philippe@linaro.org>
- <20200228172537.377327-2-jean-philippe@linaro.org>
- <20200302161611.GD7829@8bytes.org>
- <9004f814-2f7c-9024-3465-6f9661b97b7a@redhat.com>
- <20200303130155.GA13185@8bytes.org>
- <20200303084753-mutt-send-email-mst@kernel.org>
- <20200303155318.GA3954@8bytes.org>
- <20200303105523-mutt-send-email-mst@kernel.org>
- <20200304133707.GB4177@8bytes.org>
- <20200304153821.GE646000@myrica>
+From: Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH v11 00/11] x86: PIE support to extend KASLR randomization
+Date: Wed, 4 Mar 2020 10:21:48 -0800
+Message-ID: <202003041019.C6386B2F7@keescook>
+References: <20200228000105.165012-1-thgarnie@chromium.org>
+ <202003022100.54CEEE60F@keescook>
+ <20200303095514.GA2596@hirez.programming.kicks-ass.net>
+ <CAJcbSZH1oON2VC2U8HjfC-6=M-xn5eU+JxHG2575iMpVoheKdA@mail.gmail.com>
+ <6e7e4191612460ba96567c16b4171f2d2f91b296.camel@linux.intel.com>
+ <202003031314.1AFFC0E@keescook>
+ <20200304092136.GI2596@hirez.programming.kicks-ass.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-pci-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200304153821.GE646000@myrica>
-Sender: linux-pci-owner@vger.kernel.org
-To: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Auger Eric <eric.auger@redhat.com>, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, linux-pci@vger.kernel.org, bhelgaas@google.com, jasowang@redhat.com, kevin.tian@intel.com, sebastien.boeuf@intel.com, jacob.jun.pan@intel.com, robin.murphy@arm.com
+In-Reply-To: <20200304092136.GI2596@hirez.programming.kicks-ass.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Kristen Carlson Accardi <kristen@linux.intel.com>, Thomas Garnier <thgarnie@chromium.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Kernel Hardening <kernel-hardening@lists.openwall.com>, Herbert Xu <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>, "H. Peter Anvin" <hpa@zytor.com>, the arch/x86 maintainers <x86@kernel.org>, Andy Lutomirski <luto@kernel.org>, Juergen Gross <jgross@suse.com>, Thomas Hellstrom <thellstrom@vmware.com>, "VMware, Inc." <pv-drivers@vmware.com>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <len.brown@intel.com>, Pavel Machek <pavel@ucw.cz>, Rasmus Villemoes <linux@rasmusvillemoes.dk>, Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>, Will
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 04, 2020 at 04:38:21PM +0100, Jean-Philippe Brucker wrote:
-> I agree with this. The problem is I don't know how to get a new ACPI table
-> or change an existing one. It needs to go through the UEFI forum in order
-> to be accepted, and I don't have any weight there. I've been trying to get
-> the tiny change into IORT for ages. I haven't been given any convincing
-> reason against it or offered any alternative, it's just stalled. The
-> topology description introduced here wasn't my first choice either but
-> unless someone can help finding another way into ACPI, I don't have a
-> better idea.
+On Wed, Mar 04, 2020 at 10:21:36AM +0100, Peter Zijlstra wrote:
+> But at what cost; it does unspeakable ugly to the asm. And didn't a
+> kernel compiled with the extended PIE range produce a measurably slower
+> kernel due to all the ugly?
 
-A quote from the ACPI Specification (Version 6.3, Section 5.2.6,
-Page 119):
+Was that true? I thought the final results were a wash and that earlier
+benchmarks weren't accurate for some reason? I can't find the thread
+now. Thomas, do you have numbers on that?
 
-	Table signatures will be reserved by the ACPI promoters and
-	posted independently of this specification in ACPI errata and
-	clarification documents on the ACPI web site. Requests to
-	reserve a 4-byte alphanumeric table signature should be sent to
-	the email address info@acpi.info and should include the purpose
-	of the table and reference URL to a document that describes the
-	table format. Tables defined outside of the ACPI specification
-	may define data value encodings in either little endian or big
-	endian format. For the purpose of clarity, external table
-	definition documents should include the endian-ness of their
-	data value encodings.
+BTW, I totally agree that fgkaslr is the way to go in the future. I
+am mostly arguing for this under the assumption that it doesn't
+have meaningful performance impact and that it gains the kernel some
+flexibility in the kinds of things it can do in the future. If the former
+is not true, then I'd agree, the benefit needs to be more clear.
 
-So it sounds like you need to specifiy the table format and send a
-request to info@acpi.info to get a table signature for it.
-
-Regards,
-
-	Joerg
+-- 
+Kees Cook
