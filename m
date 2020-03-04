@@ -1,56 +1,83 @@
-From: Jason Gunthorpe <jgg@mellanox.com>
-Subject: Re: [PATCH V5 3/5] vDPA: introduce vDPA bus
-Date: Wed, 4 Mar 2020 15:29:49 -0400
-Message-ID: <20200304192949.GR26318@mellanox.com>
-References: <20200226060456.27275-1-jasowang@redhat.com>
- <20200226060456.27275-4-jasowang@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2 1/3] iommu/virtio: Add topology description to
+ virtio-iommu config space
+Date: Wed, 4 Mar 2020 14:34:33 -0500
+Message-ID: <20200304142838-mutt-send-email-mst@kernel.org>
+References: <20200228172537.377327-1-jean-philippe@linaro.org>
+ <20200228172537.377327-2-jean-philippe@linaro.org>
+ <20200302161611.GD7829@8bytes.org>
+ <9004f814-2f7c-9024-3465-6f9661b97b7a@redhat.com>
+ <20200303130155.GA13185@8bytes.org>
+ <20200303084753-mutt-send-email-mst@kernel.org>
+ <20200303155318.GA3954@8bytes.org>
+ <20200303105523-mutt-send-email-mst@kernel.org>
+ <20200304133707.GB4177@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-pci-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200226060456.27275-4-jasowang@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, tiwei.bie@intel.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jiri@mellanox.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com
+In-Reply-To: <20200304133707.GB4177@8bytes.org>
+Sender: linux-pci-owner@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>
+Cc: Auger Eric <eric.auger@redhat.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, linux-pci@vger.kernel.org, bhelgaas@google.com, jasowang@redhat.com, kevin.tian@intel.com, sebastien.boeuf@intel.com, jacob.jun.pan@intel.com, robin.murphy@arm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Feb 26, 2020 at 02:04:54PM +0800, Jason Wang wrote:
-> +struct vdpa_device *vdpa_alloc_device(struct device *parent,
-> +				      struct device *dma_dev,
-> +				      const struct vdpa_config_ops *config)
-> +{
-> +	struct vdpa_device *vdev;
-> +	int err = -ENOMEM;
-> +
-> +	if (!parent || !dma_dev || !config)
-> +		goto err;
-> +
-> +	vdev = kzalloc(sizeof(*vdev), GFP_KERNEL);
-> +	if (!vdev)
-> +		goto err;
-> +
-> +	err = ida_simple_get(&vdpa_index_ida, 0, 0, GFP_KERNEL);
-> +	if (err < 0)
-> +		goto err_ida;
-> +
-> +	vdev->dev.bus = &vdpa_bus;
-> +	vdev->dev.parent = parent;
-> +	vdev->dev.release = vdpa_release_dev;
-> +
-> +	device_initialize(&vdev->dev);
-> +
-> +	vdev->index = err;
-> +	vdev->dma_dev = dma_dev;
-> +	vdev->config = config;
-> +
-> +	dev_set_name(&vdev->dev, "vdpa%u", vdev->index);
+On Wed, Mar 04, 2020 at 02:37:08PM +0100, Joerg Roedel wrote:
+> Hi Michael,
+> 
+> On Tue, Mar 03, 2020 at 11:09:41AM -0500, Michael S. Tsirkin wrote:
+> > No. It's coded into the hardware. Which might even be practical
+> > for bare-metal (e.g. on-board flash), but is very practical
+> > when the device is part of a hypervisor.
+> 
+> If its that way on PPC, than fine for them. But since this is enablement
+> for x86, it should follow the x86 platform best practices, and that
+> means describing hardware through ACPI.
 
-Probably shouldn't ignore the error for dev_set_name ?
+For hardware, sure.  Hypervisors aren't hardware
+though and a bunch of hypervisors don't use ACPI.
 
-err = dev_set_name()
-if (err) {
-   put_device(&vdev->dev);
-   return ERR_PTR(err);
-}
 
-Jason
+> > This "hardware" is actually part of hypervisor so there's no
+> > reason it can't be completely self-descriptive. It's specified
+> > by the same entity as the "firmware".
+> 
+> That is just an implementation detail. Yes, QEMU emulates the hardware
+> and builds the ACPI tables. But it could also be implemented in a way
+> where the ACPI tables are build by guest firmware.
+
+All these extra levels of indirection is one of the reasons
+hypervisors such as kata try to avoid ACPI.
+
+> > I don't see why it would be much faster. The interface isn't that
+> > different from command queues of VTD.
+> 
+> VirtIO IOMMU doesn't need to build page-tables that the hypervisor then
+> has to shadow, which makes things much faster. If you emulate one of the
+> other IOMMUs (VT-d or AMD-Vi) the code has to shadow the full page-table
+> at once when device passthrough is used. VirtIO-IOMMU doesn't need that,
+> and that makes it much faster and efficient.
+
+
+IIUC VT-d at least supports range invalidations.
+
+> 
+> > Making ACPI meet the goals of embedded projects such as kata containers
+> > would be a gigantic task with huge stability implications.  By
+> > comparison this 400-line parser is well contained and does the job.  I
+> > didn't yet see compelling reasons not to merge this, but I'll be
+> > interested to see some more specific concerns.
+> 
+> An ACPI table parse wouldn't need more lines of code.
+
+It realies on ACPI OSPM itself to handle ACPI bytecode, which is huge.
+
+
+> For embedded
+> systems there is still the DT way of describing things.
+
+For some embedded systems.
+
+> Regards,
+> 
+> 	Joerg
