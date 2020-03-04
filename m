@@ -1,8 +1,8 @@
 From: Joerg Roedel <joro@8bytes.org>
 Subject: Re: [PATCH v2 1/3] iommu/virtio: Add topology description to
  virtio-iommu config space
-Date: Wed, 4 Mar 2020 18:34:42 +0100
-Message-ID: <20200304173441.GB3315@8bytes.org>
+Date: Wed, 4 Mar 2020 18:40:46 +0100
+Message-ID: <20200304174045.GC3315@8bytes.org>
 References: <20200228172537.377327-1-jean-philippe@linaro.org>
  <20200228172537.377327-2-jean-philippe@linaro.org>
  <20200302161611.GD7829@8bytes.org>
@@ -12,31 +12,44 @@ References: <20200228172537.377327-1-jean-philippe@linaro.org>
  <20200303155318.GA3954@8bytes.org>
  <20200303105523-mutt-send-email-mst@kernel.org>
  <20200304133707.GB4177@8bytes.org>
- <20200304074854.3ea958a1@jacob-XPS-13-9365>
+ <20200304153821.GE646000@myrica>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-pci-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200304074854.3ea958a1@jacob-XPS-13-9365>
+In-Reply-To: <20200304153821.GE646000@myrica>
 Sender: linux-pci-owner@vger.kernel.org
-To: Jacob Pan <jacob.jun.pan@intel.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, kevin.tian@intel.com, linux-pci@vger.kernel.org, jasowang@redhat.com, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, sebastien.boeuf@intel.com, bhelgaas@google.com, robin.murphy@arm.com
+To: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Auger Eric <eric.auger@redhat.com>, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, linux-pci@vger.kernel.org, bhelgaas@google.com, jasowang@redhat.com, kevin.tian@intel.com, sebastien.boeuf@intel.com, jacob.jun.pan@intel.com, robin.murphy@arm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 04, 2020 at 07:48:54AM -0800, Jacob Pan wrote:
-> For emulated VT-d IOMMU, GIOVA can also be build as first level page
-> tables then pass to the host IOMMU to bind. There is no need to shadow
-> in this case, pIOMMU will do nested translation and walk guest page
-> tables.
+On Wed, Mar 04, 2020 at 04:38:21PM +0100, Jean-Philippe Brucker wrote:
+> I agree with this. The problem is I don't know how to get a new ACPI table
+> or change an existing one. It needs to go through the UEFI forum in order
+> to be accepted, and I don't have any weight there. I've been trying to get
+> the tiny change into IORT for ages. I haven't been given any convincing
+> reason against it or offered any alternative, it's just stalled. The
+> topology description introduced here wasn't my first choice either but
+> unless someone can help finding another way into ACPI, I don't have a
+> better idea.
 
-Right, but that requires hardware support. A pure software emulation of
-VT-d requires the full shadow of the guest io-page-table.
+A quote from the ACPI Specification (Version 6.3, Section 5.2.6,
+Page 119):
 
-> I thought we have the universal device properties to abstract DT and
-> ACPI (via _DSD). Is that an option?
+	Table signatures will be reserved by the ACPI promoters and
+	posted independently of this specification in ACPI errata and
+	clarification documents on the ACPI web site. Requests to
+	reserve a 4-byte alphanumeric table signature should be sent to
+	the email address info@acpi.info and should include the purpose
+	of the table and reference URL to a document that describes the
+	table format. Tables defined outside of the ACPI specification
+	may define data value encodings in either little endian or big
+	endian format. For the purpose of clarity, external table
+	definition documents should include the endian-ness of their
+	data value encodings.
 
-I don't know whether this was considered, Jean-Philippe?
-
+So it sounds like you need to specifiy the table format and send a
+request to info@acpi.info to get a table signature for it.
 
 Regards,
 
