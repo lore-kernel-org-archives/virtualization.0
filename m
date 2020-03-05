@@ -1,7 +1,7 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 03/22] drm/exynos: Use simple encoder
-Date: Thu,  5 Mar 2020 16:59:31 +0100
-Message-ID: <20200305155950.2705-4-tzimmermann@suse.de>
+Subject: [PATCH 08/22] drm/imx: Use simple encoder
+Date: Thu,  5 Mar 2020 16:59:36 +0100
+Message-ID: <20200305155950.2705-9-tzimmermann@suse.de>
 References: <20200305155950.2705-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,182 +12,179 @@ To: airlied@linux.ie, daniel@ffwll.ch, sam@ravnborg.org, abrodkin@synopsys.com, 
 Cc: dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Thomas Zimmermann <tzimmermann@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The exynos driver uses empty implementations for its encoders. Replace
+The imx driver uses empty implementations for its encoders. Replace
 the code with the generic simple encoder.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/exynos/exynos_dp.c       | 8 ++------
- drivers/gpu/drm/exynos/exynos_drm_dpi.c  | 8 ++------
- drivers/gpu/drm/exynos/exynos_drm_dsi.c  | 8 ++------
- drivers/gpu/drm/exynos/exynos_drm_vidi.c | 8 ++------
- drivers/gpu/drm/exynos/exynos_hdmi.c     | 8 ++------
- 5 files changed, 10 insertions(+), 30 deletions(-)
+ drivers/gpu/drm/imx/dw_hdmi-imx.c      | 8 ++------
+ drivers/gpu/drm/imx/imx-drm-core.c     | 6 ------
+ drivers/gpu/drm/imx/imx-drm.h          | 1 -
+ drivers/gpu/drm/imx/imx-ldb.c          | 8 ++------
+ drivers/gpu/drm/imx/imx-tve.c          | 8 ++------
+ drivers/gpu/drm/imx/parallel-display.c | 8 ++------
+ 6 files changed, 8 insertions(+), 31 deletions(-)
 
-diff --git a/drivers/gpu/drm/exynos/exynos_dp.c b/drivers/gpu/drm/exynos/exynos_dp.c
-index d23d3502ca91..a61482af2998 100644
---- a/drivers/gpu/drm/exynos/exynos_dp.c
-+++ b/drivers/gpu/drm/exynos/exynos_dp.c
-@@ -25,6 +25,7 @@
+diff --git a/drivers/gpu/drm/imx/dw_hdmi-imx.c b/drivers/gpu/drm/imx/dw_hdmi-imx.c
+index f22cfbf9353e..ba4ca17fd4d8 100644
+--- a/drivers/gpu/drm/imx/dw_hdmi-imx.c
++++ b/drivers/gpu/drm/imx/dw_hdmi-imx.c
+@@ -18,6 +18,7 @@
+ #include <drm/drm_edid.h>
+ #include <drm/drm_encoder.h>
+ #include <drm/drm_of.h>
++#include <drm/drm_simple_kms_helper.h>
+ 
+ #include "imx-drm.h"
+ 
+@@ -143,10 +144,6 @@ static const struct drm_encoder_helper_funcs dw_hdmi_imx_encoder_helper_funcs =
+ 	.atomic_check = dw_hdmi_imx_atomic_check,
+ };
+ 
+-static const struct drm_encoder_funcs dw_hdmi_imx_encoder_funcs = {
+-	.destroy = drm_encoder_cleanup,
+-};
+-
+ static enum drm_mode_status
+ imx6q_hdmi_mode_valid(struct drm_connector *con,
+ 		      const struct drm_display_mode *mode)
+@@ -236,8 +233,7 @@ static int dw_hdmi_imx_bind(struct device *dev, struct device *master,
+ 		return ret;
+ 
+ 	drm_encoder_helper_add(encoder, &dw_hdmi_imx_encoder_helper_funcs);
+-	drm_encoder_init(drm, encoder, &dw_hdmi_imx_encoder_funcs,
+-			 DRM_MODE_ENCODER_TMDS, NULL);
++	drm_simple_encoder_init(drm, encoder, DRM_MODE_ENCODER_TMDS);
+ 
+ 	platform_set_drvdata(pdev, hdmi);
+ 
+diff --git a/drivers/gpu/drm/imx/imx-drm-core.c b/drivers/gpu/drm/imx/imx-drm-core.c
+index da87c70e413b..9979547ca883 100644
+--- a/drivers/gpu/drm/imx/imx-drm-core.c
++++ b/drivers/gpu/drm/imx/imx-drm-core.c
+@@ -42,12 +42,6 @@ void imx_drm_connector_destroy(struct drm_connector *connector)
+ }
+ EXPORT_SYMBOL_GPL(imx_drm_connector_destroy);
+ 
+-void imx_drm_encoder_destroy(struct drm_encoder *encoder)
+-{
+-	drm_encoder_cleanup(encoder);
+-}
+-EXPORT_SYMBOL_GPL(imx_drm_encoder_destroy);
+-
+ static int imx_drm_atomic_check(struct drm_device *dev,
+ 				struct drm_atomic_state *state)
+ {
+diff --git a/drivers/gpu/drm/imx/imx-drm.h b/drivers/gpu/drm/imx/imx-drm.h
+index ab9c6f706eb3..c3e1a3f14d30 100644
+--- a/drivers/gpu/drm/imx/imx-drm.h
++++ b/drivers/gpu/drm/imx/imx-drm.h
+@@ -38,7 +38,6 @@ int imx_drm_encoder_parse_of(struct drm_device *drm,
+ 	struct drm_encoder *encoder, struct device_node *np);
+ 
+ void imx_drm_connector_destroy(struct drm_connector *connector);
+-void imx_drm_encoder_destroy(struct drm_encoder *encoder);
+ 
+ int ipu_planes_assign_pre(struct drm_device *dev,
+ 			  struct drm_atomic_state *state);
+diff --git a/drivers/gpu/drm/imx/imx-ldb.c b/drivers/gpu/drm/imx/imx-ldb.c
+index 4da22a94790c..66ea68e8da87 100644
+--- a/drivers/gpu/drm/imx/imx-ldb.c
++++ b/drivers/gpu/drm/imx/imx-ldb.c
+@@ -26,6 +26,7 @@
  #include <drm/drm_panel.h>
  #include <drm/drm_print.h>
  #include <drm/drm_probe_helper.h>
 +#include <drm/drm_simple_kms_helper.h>
- #include <drm/exynos_drm.h>
  
- #include "exynos_drm_crtc.h"
-@@ -135,10 +136,6 @@ static const struct drm_encoder_helper_funcs exynos_dp_encoder_helper_funcs = {
- 	.disable = exynos_dp_nop,
+ #include "imx-drm.h"
+ 
+@@ -393,10 +394,6 @@ static const struct drm_connector_helper_funcs imx_ldb_connector_helper_funcs =
+ 	.best_encoder = imx_ldb_connector_best_encoder,
  };
  
--static const struct drm_encoder_funcs exynos_dp_encoder_funcs = {
--	.destroy = drm_encoder_cleanup,
+-static const struct drm_encoder_funcs imx_ldb_encoder_funcs = {
+-	.destroy = imx_drm_encoder_destroy,
 -};
 -
- static int exynos_dp_dt_parse_panel(struct exynos_dp_device *dp)
- {
- 	int ret;
-@@ -174,8 +171,7 @@ static int exynos_dp_bind(struct device *dev, struct device *master, void *data)
- 			return ret;
+ static const struct drm_encoder_helper_funcs imx_ldb_encoder_helper_funcs = {
+ 	.atomic_mode_set = imx_ldb_encoder_atomic_mode_set,
+ 	.enable = imx_ldb_encoder_enable,
+@@ -441,8 +438,7 @@ static int imx_ldb_register(struct drm_device *drm,
  	}
  
--	drm_encoder_init(drm_dev, encoder, &exynos_dp_encoder_funcs,
--			 DRM_MODE_ENCODER_TMDS, NULL);
-+	drm_simple_encoder_init(drm_dev, encoder, DRM_MODE_ENCODER_TMDS);
+ 	drm_encoder_helper_add(encoder, &imx_ldb_encoder_helper_funcs);
+-	drm_encoder_init(drm, encoder, &imx_ldb_encoder_funcs,
+-			 DRM_MODE_ENCODER_LVDS, NULL);
++	drm_simple_encoder_init(drm, encoder, DRM_MODE_ENCODER_LVDS);
  
- 	drm_encoder_helper_add(encoder, &exynos_dp_encoder_helper_funcs);
- 
-diff --git a/drivers/gpu/drm/exynos/exynos_drm_dpi.c b/drivers/gpu/drm/exynos/exynos_drm_dpi.c
-index 43fa0f26c052..7ba5354e7d94 100644
---- a/drivers/gpu/drm/exynos/exynos_drm_dpi.c
-+++ b/drivers/gpu/drm/exynos/exynos_drm_dpi.c
-@@ -14,6 +14,7 @@
- #include <drm/drm_panel.h>
- #include <drm/drm_print.h>
- #include <drm/drm_probe_helper.h>
-+#include <drm/drm_simple_kms_helper.h>
- 
- #include <video/of_videomode.h>
- #include <video/videomode.h>
-@@ -149,10 +150,6 @@ static const struct drm_encoder_helper_funcs exynos_dpi_encoder_helper_funcs = {
- 	.disable = exynos_dpi_disable,
- };
- 
--static const struct drm_encoder_funcs exynos_dpi_encoder_funcs = {
--	.destroy = drm_encoder_cleanup,
--};
--
- enum {
- 	FIMD_PORT_IN0,
- 	FIMD_PORT_IN1,
-@@ -201,8 +198,7 @@ int exynos_dpi_bind(struct drm_device *dev, struct drm_encoder *encoder)
- {
- 	int ret;
- 
--	drm_encoder_init(dev, encoder, &exynos_dpi_encoder_funcs,
--			 DRM_MODE_ENCODER_TMDS, NULL);
-+	drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_TMDS);
- 
- 	drm_encoder_helper_add(encoder, &exynos_dpi_encoder_helper_funcs);
- 
-diff --git a/drivers/gpu/drm/exynos/exynos_drm_dsi.c b/drivers/gpu/drm/exynos/exynos_drm_dsi.c
-index 669d3857502a..2986c93382e0 100644
---- a/drivers/gpu/drm/exynos/exynos_drm_dsi.c
-+++ b/drivers/gpu/drm/exynos/exynos_drm_dsi.c
-@@ -30,6 +30,7 @@
- #include <drm/drm_panel.h>
- #include <drm/drm_print.h>
- #include <drm/drm_probe_helper.h>
-+#include <drm/drm_simple_kms_helper.h>
- 
- #include "exynos_drm_crtc.h"
- #include "exynos_drm_drv.h"
-@@ -1524,10 +1525,6 @@ static const struct drm_encoder_helper_funcs exynos_dsi_encoder_helper_funcs = {
- 	.disable = exynos_dsi_disable,
- };
- 
--static const struct drm_encoder_funcs exynos_dsi_encoder_funcs = {
--	.destroy = drm_encoder_cleanup,
--};
--
- MODULE_DEVICE_TABLE(of, exynos_dsi_of_match);
- 
- static int exynos_dsi_host_attach(struct mipi_dsi_host *host,
-@@ -1705,8 +1702,7 @@ static int exynos_dsi_bind(struct device *dev, struct device *master,
- 	struct drm_bridge *in_bridge;
- 	int ret;
- 
--	drm_encoder_init(drm_dev, encoder, &exynos_dsi_encoder_funcs,
--			 DRM_MODE_ENCODER_TMDS, NULL);
-+	drm_simple_encoder_init(drm_dev, encoder, DRM_MODE_ENCODER_TMDS);
- 
- 	drm_encoder_helper_add(encoder, &exynos_dsi_encoder_helper_funcs);
- 
-diff --git a/drivers/gpu/drm/exynos/exynos_drm_vidi.c b/drivers/gpu/drm/exynos/exynos_drm_vidi.c
-index b320b3a21ad4..282467121699 100644
---- a/drivers/gpu/drm/exynos/exynos_drm_vidi.c
-+++ b/drivers/gpu/drm/exynos/exynos_drm_vidi.c
-@@ -14,6 +14,7 @@
+ 	if (imx_ldb_ch->bridge) {
+ 		ret = drm_bridge_attach(&imx_ldb_ch->encoder,
+diff --git a/drivers/gpu/drm/imx/imx-tve.c b/drivers/gpu/drm/imx/imx-tve.c
+index 5bbfaa2cd0f4..ee63782c77e9 100644
+--- a/drivers/gpu/drm/imx/imx-tve.c
++++ b/drivers/gpu/drm/imx/imx-tve.c
+@@ -21,6 +21,7 @@
  #include <drm/drm_atomic_helper.h>
- #include <drm/drm_edid.h>
- #include <drm/drm_probe_helper.h>
-+#include <drm/drm_simple_kms_helper.h>
- #include <drm/drm_vblank.h>
- #include <drm/exynos_drm.h>
- 
-@@ -369,10 +370,6 @@ static const struct drm_encoder_helper_funcs exynos_vidi_encoder_helper_funcs =
- 	.disable = exynos_vidi_disable,
- };
- 
--static const struct drm_encoder_funcs exynos_vidi_encoder_funcs = {
--	.destroy = drm_encoder_cleanup,
--};
--
- static int vidi_bind(struct device *dev, struct device *master, void *data)
- {
- 	struct vidi_context *ctx = dev_get_drvdata(dev);
-@@ -406,8 +403,7 @@ static int vidi_bind(struct device *dev, struct device *master, void *data)
- 		return PTR_ERR(ctx->crtc);
- 	}
- 
--	drm_encoder_init(drm_dev, encoder, &exynos_vidi_encoder_funcs,
--			 DRM_MODE_ENCODER_TMDS, NULL);
-+	drm_simple_encoder_init(drm_dev, encoder, DRM_MODE_ENCODER_TMDS);
- 
- 	drm_encoder_helper_add(encoder, &exynos_vidi_encoder_helper_funcs);
- 
-diff --git a/drivers/gpu/drm/exynos/exynos_hdmi.c b/drivers/gpu/drm/exynos/exynos_hdmi.c
-index 3e5f1a77286d..302ffda5f297 100644
---- a/drivers/gpu/drm/exynos/exynos_hdmi.c
-+++ b/drivers/gpu/drm/exynos/exynos_hdmi.c
-@@ -38,6 +38,7 @@
- #include <drm/drm_edid.h>
- #include <drm/drm_print.h>
+ #include <drm/drm_fb_helper.h>
  #include <drm/drm_probe_helper.h>
 +#include <drm/drm_simple_kms_helper.h>
  
- #include "exynos_drm_crtc.h"
- #include "regs-hdmi.h"
-@@ -1559,10 +1560,6 @@ static const struct drm_encoder_helper_funcs exynos_hdmi_encoder_helper_funcs =
- 	.disable	= hdmi_disable,
+ #include "imx-drm.h"
+ 
+@@ -348,10 +349,6 @@ static const struct drm_connector_helper_funcs imx_tve_connector_helper_funcs =
+ 	.mode_valid = imx_tve_connector_mode_valid,
  };
  
--static const struct drm_encoder_funcs exynos_hdmi_encoder_funcs = {
--	.destroy = drm_encoder_cleanup,
+-static const struct drm_encoder_funcs imx_tve_encoder_funcs = {
+-	.destroy = imx_drm_encoder_destroy,
 -};
 -
- static void hdmi_audio_shutdown(struct device *dev, void *data)
- {
- 	struct hdmi_context *hdata = dev_get_drvdata(dev);
-@@ -1851,8 +1848,7 @@ static int hdmi_bind(struct device *dev, struct device *master, void *data)
+ static const struct drm_encoder_helper_funcs imx_tve_encoder_helper_funcs = {
+ 	.mode_set = imx_tve_encoder_mode_set,
+ 	.enable = imx_tve_encoder_enable,
+@@ -479,8 +476,7 @@ static int imx_tve_register(struct drm_device *drm, struct imx_tve *tve)
+ 		return ret;
  
- 	hdata->phy_clk.enable = hdmiphy_clk_enable;
+ 	drm_encoder_helper_add(&tve->encoder, &imx_tve_encoder_helper_funcs);
+-	drm_encoder_init(drm, &tve->encoder, &imx_tve_encoder_funcs,
+-			 encoder_type, NULL);
++	drm_simple_encoder_init(drm, &tve->encoder, encoder_type);
  
--	drm_encoder_init(drm_dev, encoder, &exynos_hdmi_encoder_funcs,
--			 DRM_MODE_ENCODER_TMDS, NULL);
-+	drm_simple_encoder_init(drm_dev, encoder, DRM_MODE_ENCODER_TMDS);
+ 	drm_connector_helper_add(&tve->connector,
+ 			&imx_tve_connector_helper_funcs);
+diff --git a/drivers/gpu/drm/imx/parallel-display.c b/drivers/gpu/drm/imx/parallel-display.c
+index 08fafa4bf8c2..ac916c84a631 100644
+--- a/drivers/gpu/drm/imx/parallel-display.c
++++ b/drivers/gpu/drm/imx/parallel-display.c
+@@ -18,6 +18,7 @@
+ #include <drm/drm_of.h>
+ #include <drm/drm_panel.h>
+ #include <drm/drm_probe_helper.h>
++#include <drm/drm_simple_kms_helper.h>
  
- 	drm_encoder_helper_add(encoder, &exynos_hdmi_encoder_helper_funcs);
+ #include "imx-drm.h"
  
+@@ -256,10 +257,6 @@ static const struct drm_connector_helper_funcs imx_pd_connector_helper_funcs = {
+ 	.best_encoder = imx_pd_connector_best_encoder,
+ };
+ 
+-static const struct drm_encoder_funcs imx_pd_encoder_funcs = {
+-	.destroy = imx_drm_encoder_destroy,
+-};
+-
+ static const struct drm_bridge_funcs imx_pd_bridge_funcs = {
+ 	.enable = imx_pd_bridge_enable,
+ 	.disable = imx_pd_bridge_disable,
+@@ -288,8 +285,7 @@ static int imx_pd_register(struct drm_device *drm,
+ 	 */
+ 	imxpd->connector.dpms = DRM_MODE_DPMS_OFF;
+ 
+-	drm_encoder_init(drm, encoder, &imx_pd_encoder_funcs,
+-			 DRM_MODE_ENCODER_NONE, NULL);
++	drm_simple_encoder_init(drm, encoder, DRM_MODE_ENCODER_NONE);
+ 
+ 	imxpd->bridge.funcs = &imx_pd_bridge_funcs;
+ 	drm_bridge_attach(encoder, &imxpd->bridge, NULL, 0);
 -- 
 2.25.1
