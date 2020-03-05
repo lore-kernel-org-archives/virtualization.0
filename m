@@ -1,37 +1,64 @@
-From: David Miller <davem@davemloft.net>
-Subject: Re: [PATCH RESEND] ptp: add VMware virtual PTP clock driver
-Date: Wed, 04 Mar 2020 14:04:10 -0800 (PST)
-Message-ID: <20200304.140410.731261448085906331.davem@davemloft.net>
-References: <20200228053230.GA457139@sc2-cpbu2-b0737.eng.vmware.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V5 3/5] vDPA: introduce vDPA bus
+Date: Thu, 5 Mar 2020 11:01:43 +0800
+Message-ID: <2842e634-bb92-a901-0a64-35a4dcde22da@redhat.com>
+References: <20200226060456.27275-1-jasowang@redhat.com>
+ <20200226060456.27275-4-jasowang@redhat.com>
+ <20200304192949.GR26318@mellanox.com>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200228053230.GA457139@sc2-cpbu2-b0737.eng.vmware.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: vithampi@vmware.com
-Cc: richardcochran@gmail.com, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, Pv-drivers@vmware.com, virtualization@lists.linux-foundation.org, x86@kernel.org, thellstrom@vmware.com, jgross@suse.com
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20200304192949.GR26318@mellanox.com>
+Content-Language: en-US
+Sender: netdev-owner@vger.kernel.org
+To: Jason Gunthorpe <jgg@mellanox.com>
+Cc: mst@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, tiwei.bie@intel.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jiri@mellanox.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Vivek Thampi <vithampi@vmware.com>
-Date: Fri, 28 Feb 2020 05:32:46 +0000
 
-> Add a PTP clock driver called ptp_vmw, for guests running on VMware ESXi
-> hypervisor. The driver attaches to a VMware virtual device called
-> "precision clock" that provides a mechanism for querying host system time.
-> Similar to existing virtual PTP clock drivers (e.g. ptp_kvm), ptp_vmw
-> utilizes the kernel's PTP hardware clock API to implement a clock device
-> that can be used as a reference in Chrony for synchronizing guest time with
-> host.
-> 
-> The driver is only applicable to x86 guests running in VMware virtual
-> machines with precision clock virtual device present. It uses a VMware
-> specific hypercall mechanism to read time from the device.
-> 
-> Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
-> Signed-off-by: Vivek Thampi <vithampi@vmware.com>
-> ---
->  Based on feedback, resending patch to include a broader audience.
+On 2020/3/5 =E4=B8=8A=E5=8D=883:29, Jason Gunthorpe wrote:
+> On Wed, Feb 26, 2020 at 02:04:54PM +0800, Jason Wang wrote:
+>> +struct vdpa_device *vdpa_alloc_device(struct device *parent,
+>> +				      struct device *dma_dev,
+>> +				      const struct vdpa_config_ops *config)
+>> +{
+>> +	struct vdpa_device *vdev;
+>> +	int err =3D -ENOMEM;
+>> +
+>> +	if (!parent || !dma_dev || !config)
+>> +		goto err;
+>> +
+>> +	vdev =3D kzalloc(sizeof(*vdev), GFP_KERNEL);
+>> +	if (!vdev)
+>> +		goto err;
+>> +
+>> +	err =3D ida_simple_get(&vdpa_index_ida, 0, 0, GFP_KERNEL);
+>> +	if (err < 0)
+>> +		goto err_ida;
+>> +
+>> +	vdev->dev.bus =3D &vdpa_bus;
+>> +	vdev->dev.parent =3D parent;
+>> +	vdev->dev.release =3D vdpa_release_dev;
+>> +
+>> +	device_initialize(&vdev->dev);
+>> +
+>> +	vdev->index =3D err;
+>> +	vdev->dma_dev =3D dma_dev;
+>> +	vdev->config =3D config;
+>> +
+>> +	dev_set_name(&vdev->dev, "vdpa%u", vdev->index);
+> Probably shouldn't ignore the error for dev_set_name ?
+>
+> err =3D dev_set_name()
+> if (err) {
+>     put_device(&vdev->dev);
+>     return ERR_PTR(err);
+> }
+>
+> Jason
+>
 
-If it's just providing a read of an accurate timesource, I think it's kinda
-pointless to provide a full PTP driver for it.
+Right, will fix.
+
+Thanks
