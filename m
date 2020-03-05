@@ -1,64 +1,60 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V5 3/5] vDPA: introduce vDPA bus
-Date: Thu, 5 Mar 2020 11:01:43 +0800
-Message-ID: <2842e634-bb92-a901-0a64-35a4dcde22da@redhat.com>
-References: <20200226060456.27275-1-jasowang@redhat.com>
- <20200226060456.27275-4-jasowang@redhat.com>
- <20200304192949.GR26318@mellanox.com>
+From: Vivek Thampi <vithampi@vmware.com>
+Subject: Re: [PATCH RESEND] ptp: add VMware virtual PTP clock driver
+Date: Thu, 5 Mar 2020 04:47:28 +0000
+Message-ID: <20200305044713.GA173879@sc2-cpbu2-b0737.eng.vmware.com>
+References: <20200228053230.GA457139@sc2-cpbu2-b0737.eng.vmware.com>
+ <20200304.140410.731261448085906331.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20200304192949.GR26318@mellanox.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200304.140410.731261448085906331.davem@davemloft.net>
 Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
-To: Jason Gunthorpe <jgg@mellanox.com>
-Cc: mst@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, tiwei.bie@intel.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, haotian.wang@sifive.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jiri@mellanox.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com
+Content-ID: <C0CC8BFB48469A448048072E8EA83764@namprd05.prod.outlook.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Miller <davem@davemloft.net>
+Cc: "richardcochran@gmail.com" <richardcochran@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, Pv-drivers <Pv-drivers@vmware.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "x86@kernel.org" <x86@kernel.org>, Thomas Hellstrom <thellstrom@vmware.com>, "jgross@suse.com" <jgross@suse.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+Thanks for taking a look, David.
 
-On 2020/3/5 =E4=B8=8A=E5=8D=883:29, Jason Gunthorpe wrote:
-> On Wed, Feb 26, 2020 at 02:04:54PM +0800, Jason Wang wrote:
->> +struct vdpa_device *vdpa_alloc_device(struct device *parent,
->> +				      struct device *dma_dev,
->> +				      const struct vdpa_config_ops *config)
->> +{
->> +	struct vdpa_device *vdev;
->> +	int err =3D -ENOMEM;
->> +
->> +	if (!parent || !dma_dev || !config)
->> +		goto err;
->> +
->> +	vdev =3D kzalloc(sizeof(*vdev), GFP_KERNEL);
->> +	if (!vdev)
->> +		goto err;
->> +
->> +	err =3D ida_simple_get(&vdpa_index_ida, 0, 0, GFP_KERNEL);
->> +	if (err < 0)
->> +		goto err_ida;
->> +
->> +	vdev->dev.bus =3D &vdpa_bus;
->> +	vdev->dev.parent =3D parent;
->> +	vdev->dev.release =3D vdpa_release_dev;
->> +
->> +	device_initialize(&vdev->dev);
->> +
->> +	vdev->index =3D err;
->> +	vdev->dma_dev =3D dma_dev;
->> +	vdev->config =3D config;
->> +
->> +	dev_set_name(&vdev->dev, "vdpa%u", vdev->index);
-> Probably shouldn't ignore the error for dev_set_name ?
->
-> err =3D dev_set_name()
-> if (err) {
->     put_device(&vdev->dev);
->     return ERR_PTR(err);
-> }
->
-> Jason
->
+On Wed, Mar 04, 2020 at 02:04:10PM -0800, David Miller wrote:
+> From: Vivek Thampi <vithampi@vmware.com>
+> Date: Fri, 28 Feb 2020 05:32:46 +0000
+>=20
+> > Add a PTP clock driver called ptp_vmw, for guests running on VMware ESX=
+i
+> > hypervisor. The driver attaches to a VMware virtual device called
+> > "precision clock" that provides a mechanism for querying host system ti=
+me.
+> > Similar to existing virtual PTP clock drivers (e.g. ptp_kvm), ptp_vmw
+> > utilizes the kernel's PTP hardware clock API to implement a clock devic=
+e
+> > that can be used as a reference in Chrony for synchronizing guest time =
+with
+> > host.
+> >=20
+> > The driver is only applicable to x86 guests running in VMware virtual
+> > machines with precision clock virtual device present. It uses a VMware
+> > specific hypercall mechanism to read time from the device.
+> >=20
+> > Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
+> > Signed-off-by: Vivek Thampi <vithampi@vmware.com>
+> > ---
+> >  Based on feedback, resending patch to include a broader audience.
+>=20
+> If it's just providing a read of an accurate timesource, I think it's kin=
+da
+> pointless to provide a full PTP driver for it.
 
-Right, will fix.
+The point of a PTP driver for this timesource is to provide an interface
+that can be consumed by Chrony (and possibly other applications) as a
+reference clock for time sync. This is admittedly a very basic first
+step providing just PTP_SYS_OFFSET functionality (which gets us to <1us
+VM-host time sync). Down the line, I also intend to introduce
+cross-timestamping for more precise offsets.
 
-Thanks
+Using the PHC infrastructure seems like a good fit for this, but please
+let me know if I'm missing something or misinterpreting your comment.
+
+Thanks.
