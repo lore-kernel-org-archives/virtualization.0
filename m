@@ -1,14 +1,14 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 26/58] vhost: Check docket sk_family instead of
+Subject: [PATCH AUTOSEL 4.19 12/31] vhost: Check docket sk_family instead of
  call getname
-Date: Thu,  5 Mar 2020 12:13:47 -0500
-Message-ID: <20200305171420.29595-26-sashal@kernel.org>
-References: <20200305171420.29595-1-sashal@kernel.org>
+Date: Thu,  5 Mar 2020 12:14:56 -0500
+Message-ID: <20200305171516.30028-12-sashal@kernel.org>
+References: <20200305171516.30028-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200305171420.29595-1-sashal@kernel.org>
+In-Reply-To: <20200305171516.30028-1-sashal@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -39,13 +39,13 @@ ZC1vZmYtYnk6IERhdmlkIFMuIE1pbGxlciA8ZGF2ZW1AZGF2ZW1sb2Z0Lm5ldD4KU2lnbmVkLW9m
 Zi1ieTogU2FzaGEgTGV2aW4gPHNhc2hhbEBrZXJuZWwub3JnPgotLS0KIGRyaXZlcnMvdmhvc3Qv
 bmV0LmMgfCAxMCArLS0tLS0tLS0tCiAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKyksIDkg
 ZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy92aG9zdC9uZXQuYyBiL2RyaXZlcnMv
-dmhvc3QvbmV0LmMKaW5kZXggMWEyZGQ1M2NhYWRlYS4uYjUzYjY1MjhkNmNlMiAxMDA2NDQKLS0t
-IGEvZHJpdmVycy92aG9zdC9uZXQuYworKysgYi9kcml2ZXJzL3Zob3N0L25ldC5jCkBAIC0xNDE0
-LDEwICsxNDE0LDYgQEAgc3RhdGljIGludCB2aG9zdF9uZXRfcmVsZWFzZShzdHJ1Y3QgaW5vZGUg
+dmhvc3QvbmV0LmMKaW5kZXggMTI0MzU2ZGMzOWUxNC4uODhjOGMxNThlYzI1YyAxMDA2NDQKLS0t
+IGEvZHJpdmVycy92aG9zdC9uZXQuYworKysgYi9kcml2ZXJzL3Zob3N0L25ldC5jCkBAIC0xMTg3
+LDEwICsxMTg3LDYgQEAgc3RhdGljIGludCB2aG9zdF9uZXRfcmVsZWFzZShzdHJ1Y3QgaW5vZGUg
 Kmlub2RlLCBzdHJ1Y3QgZmlsZSAqZikKIAogc3RhdGljIHN0cnVjdCBzb2NrZXQgKmdldF9yYXdf
 c29ja2V0KGludCBmZCkKIHsKLQlzdHJ1Y3QgewotCQlzdHJ1Y3Qgc29ja2FkZHJfbGwgc2E7Ci0J
 CWNoYXIgIGJ1ZltNQVhfQUREUl9MRU5dOwotCX0gdWFkZHI7CiAJaW50IHI7CiAJc3RydWN0IHNv
-Y2tldCAqc29jayA9IHNvY2tmZF9sb29rdXAoZmQsICZyKTsKIApAQCAtMTQzMCwxMSArMTQyNiw3
+Y2tldCAqc29jayA9IHNvY2tmZF9sb29rdXAoZmQsICZyKTsKIApAQCAtMTIwMywxMSArMTE5OSw3
 IEBAIHN0YXRpYyBzdHJ1Y3Qgc29ja2V0ICpnZXRfcmF3X3NvY2tldChpbnQgZmQpCiAJCWdvdG8g
 ZXJyOwogCX0KIAotCXIgPSBzb2NrLT5vcHMtPmdldG5hbWUoc29jaywgKHN0cnVjdCBzb2NrYWRk
 ciAqKSZ1YWRkci5zYSwgMCk7Ci0JaWYgKHIgPCAwKQotCQlnb3RvIGVycjsKLQotCWlmICh1YWRk
