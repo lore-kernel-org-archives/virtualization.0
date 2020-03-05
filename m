@@ -1,7 +1,7 @@
 From: Thomas Zimmermann <tzimmermann-l3A5Bk7waGM@public.gmane.org>
-Subject: [PATCH 01/22] drm/arc: Use simple encoder
-Date: Thu,  5 Mar 2020 16:59:29 +0100
-Message-ID: <20200305155950.2705-2-tzimmermann@suse.de>
+Subject: [PATCH 02/22] drm/atmel-hlcdc: Use simple encoder
+Date: Thu,  5 Mar 2020 16:59:30 +0100
+Message-ID: <20200305155950.2705-3-tzimmermann@suse.de>
 References: <20200305155950.2705-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,77 +12,50 @@ To: airlied-cv59FeDIM0c@public.gmane.org, daniel-/w4YWyX8dFk@public.gmane.org, s
 Cc: dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Thomas Zimmermann <tzimmermann-l3A5Bk7waGM@public.gmane.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The arc driver uses empty implementations for its encoders. Replace
-the code with the generic simple encoder.
+The atmel-hlcdc driver uses an empty implementation for its encoder.
+Replace the code with the generic simple encoder.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann-l3A5Bk7waGM@public.gmane.org>
 ---
- drivers/gpu/drm/arc/arcpgu_hdmi.c | 10 +++-------
- drivers/gpu/drm/arc/arcpgu_sim.c  |  8 ++------
- 2 files changed, 5 insertions(+), 13 deletions(-)
+ drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_output.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/arc/arcpgu_hdmi.c b/drivers/gpu/drm/arc/arcpgu_hdmi.c
-index 52839934f2fb..780911765e2e 100644
---- a/drivers/gpu/drm/arc/arcpgu_hdmi.c
-+++ b/drivers/gpu/drm/arc/arcpgu_hdmi.c
-@@ -7,15 +7,12 @@
+diff --git a/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_output.c b/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_output.c
+index e2019fe97fff..43bc709e3523 100644
+--- a/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_output.c
++++ b/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_output.c
+@@ -11,9 +11,10 @@
+ #include <linux/media-bus-format.h>
+ #include <linux/of_graph.h>
  
- #include <drm/drm_bridge.h>
- #include <drm/drm_crtc.h>
--#include <drm/drm_encoder.h>
- #include <drm/drm_device.h>
-+#include <drm/drm_encoder.h>
++#include <drm/drm_bridge.h>
+ #include <drm/drm_encoder.h>
+ #include <drm/drm_of.h>
+-#include <drm/drm_bridge.h>
 +#include <drm/drm_simple_kms_helper.h>
  
- #include "arcpgu.h"
+ #include "atmel_hlcdc_dc.h"
  
--static struct drm_encoder_funcs arcpgu_drm_encoder_funcs = {
--	.destroy = drm_encoder_cleanup,
--};
--
- int arcpgu_drm_hdmi_init(struct drm_device *drm, struct device_node *np)
- {
- 	struct drm_encoder *encoder;
-@@ -34,8 +31,7 @@ int arcpgu_drm_hdmi_init(struct drm_device *drm, struct device_node *np)
- 
- 	encoder->possible_crtcs = 1;
- 	encoder->possible_clones = 0;
--	ret = drm_encoder_init(drm, encoder, &arcpgu_drm_encoder_funcs,
--			       DRM_MODE_ENCODER_TMDS, NULL);
-+	ret = drm_simple_encoder_init(drm, encoder, DRM_MODE_ENCODER_TMDS);
- 	if (ret)
- 		return ret;
- 
-diff --git a/drivers/gpu/drm/arc/arcpgu_sim.c b/drivers/gpu/drm/arc/arcpgu_sim.c
-index 37d961668dfe..66ca2c26e339 100644
---- a/drivers/gpu/drm/arc/arcpgu_sim.c
-+++ b/drivers/gpu/drm/arc/arcpgu_sim.c
-@@ -8,6 +8,7 @@
- #include <drm/drm_atomic_helper.h>
- #include <drm/drm_device.h>
- #include <drm/drm_probe_helper.h>
-+#include <drm/drm_simple_kms_helper.h>
- 
- #include "arcpgu.h"
- 
-@@ -50,10 +51,6 @@ static const struct drm_connector_funcs arcpgu_drm_connector_funcs = {
- 	.atomic_destroy_state = drm_atomic_helper_connector_destroy_state,
+@@ -22,10 +23,6 @@ struct atmel_hlcdc_rgb_output {
+ 	int bus_fmt;
  };
  
--static struct drm_encoder_funcs arcpgu_drm_encoder_funcs = {
+-static const struct drm_encoder_funcs atmel_hlcdc_panel_encoder_funcs = {
 -	.destroy = drm_encoder_cleanup,
 -};
 -
- int arcpgu_drm_sim_init(struct drm_device *drm, struct device_node *np)
+ static struct atmel_hlcdc_rgb_output *
+ atmel_hlcdc_encoder_to_rgb_output(struct drm_encoder *encoder)
  {
- 	struct arcpgu_drm_connector *arcpgu_connector;
-@@ -68,8 +65,7 @@ int arcpgu_drm_sim_init(struct drm_device *drm, struct device_node *np)
- 	encoder->possible_crtcs = 1;
- 	encoder->possible_clones = 0;
+@@ -98,9 +95,8 @@ static int atmel_hlcdc_attach_endpoint(struct drm_device *dev, int endpoint)
+ 		return -EINVAL;
+ 	}
  
--	ret = drm_encoder_init(drm, encoder, &arcpgu_drm_encoder_funcs,
--			       DRM_MODE_ENCODER_VIRTUAL, NULL);
-+	ret = drm_simple_encoder_init(drm, encoder, DRM_MODE_ENCODER_VIRTUAL);
+-	ret = drm_encoder_init(dev, &output->encoder,
+-			       &atmel_hlcdc_panel_encoder_funcs,
+-			       DRM_MODE_ENCODER_NONE, NULL);
++	ret = drm_simple_encoder_init(dev, &output->encoder,
++				      DRM_MODE_ENCODER_NONE);
  	if (ret)
  		return ret;
  
