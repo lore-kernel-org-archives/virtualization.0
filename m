@@ -1,7 +1,7 @@
 From: Thomas Zimmermann <tzimmermann-l3A5Bk7waGM@public.gmane.org>
-Subject: [PATCH 09/22] drm/ingenic: Use simple encoder
-Date: Thu,  5 Mar 2020 16:59:37 +0100
-Message-ID: <20200305155950.2705-10-tzimmermann@suse.de>
+Subject: [PATCH 06/22] drm/hisilicon/kirin: Use simple encoder
+Date: Thu,  5 Mar 2020 16:59:34 +0100
+Message-ID: <20200305155950.2705-7-tzimmermann@suse.de>
 References: <20200305155950.2705-1-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,47 +12,46 @@ To: airlied-cv59FeDIM0c@public.gmane.org, daniel-/w4YWyX8dFk@public.gmane.org, s
 Cc: dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Thomas Zimmermann <tzimmermann-l3A5Bk7waGM@public.gmane.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The ingenic driver uses an empty implementation for its encoder. Replace
+The kirin driver uses an empty implementation for its encoder. Replace
 the code with the generic simple encoder.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann-l3A5Bk7waGM@public.gmane.org>
 ---
- drivers/gpu/drm/ingenic/ingenic-drm.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/hisilicon/kirin/dw_drm_dsi.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/ingenic/ingenic-drm.c b/drivers/gpu/drm/ingenic/ingenic-drm.c
-index 9dfe7cb530e1..9f7983a97392 100644
---- a/drivers/gpu/drm/ingenic/ingenic-drm.c
-+++ b/drivers/gpu/drm/ingenic/ingenic-drm.c
-@@ -28,6 +28,7 @@
- #include <drm/drm_plane.h>
- #include <drm/drm_plane_helper.h>
+diff --git a/drivers/gpu/drm/hisilicon/kirin/dw_drm_dsi.c b/drivers/gpu/drm/hisilicon/kirin/dw_drm_dsi.c
+index f31068d74b18..08c1ab542c03 100644
+--- a/drivers/gpu/drm/hisilicon/kirin/dw_drm_dsi.c
++++ b/drivers/gpu/drm/hisilicon/kirin/dw_drm_dsi.c
+@@ -25,6 +25,7 @@
+ #include <drm/drm_of.h>
+ #include <drm/drm_print.h>
  #include <drm/drm_probe_helper.h>
 +#include <drm/drm_simple_kms_helper.h>
- #include <drm/drm_vblank.h>
  
- #define JZ_REG_LCD_CFG				0x00
-@@ -592,10 +593,6 @@ static const struct drm_mode_config_funcs ingenic_drm_mode_config_funcs = {
- 	.atomic_commit		= drm_atomic_helper_commit,
+ #include "dw_dsi_reg.h"
+ 
+@@ -696,10 +697,6 @@ static const struct drm_encoder_helper_funcs dw_encoder_helper_funcs = {
+ 	.disable	= dsi_encoder_disable
  };
  
--static const struct drm_encoder_funcs ingenic_drm_encoder_funcs = {
--	.destroy		= drm_encoder_cleanup,
+-static const struct drm_encoder_funcs dw_encoder_funcs = {
+-	.destroy = drm_encoder_cleanup,
 -};
 -
- static void ingenic_drm_free_dma_hwdesc(void *d)
- {
- 	struct ingenic_drm *priv = d;
-@@ -730,8 +727,8 @@ static int ingenic_drm_probe(struct platform_device *pdev)
- 	drm_encoder_helper_add(&priv->encoder,
- 			       &ingenic_drm_encoder_helper_funcs);
+ static int dw_drm_encoder_init(struct device *dev,
+ 			       struct drm_device *drm_dev,
+ 			       struct drm_encoder *encoder)
+@@ -713,8 +710,7 @@ static int dw_drm_encoder_init(struct device *dev,
+ 	}
  
--	ret = drm_encoder_init(drm, &priv->encoder, &ingenic_drm_encoder_funcs,
--			       DRM_MODE_ENCODER_DPI, NULL);
-+	ret = drm_simple_encoder_init(drm, &priv->encoder,
-+				      DRM_MODE_ENCODER_DPI);
+ 	encoder->possible_crtcs = crtc_mask;
+-	ret = drm_encoder_init(drm_dev, encoder, &dw_encoder_funcs,
+-			       DRM_MODE_ENCODER_DSI, NULL);
++	ret = drm_simple_encoder_init(drm_dev, encoder, DRM_MODE_ENCODER_DSI);
  	if (ret) {
- 		dev_err(dev, "Failed to init encoder: %i", ret);
+ 		DRM_ERROR("failed to init dsi encoder\n");
  		return ret;
 -- 
 2.25.1
