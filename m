@@ -1,102 +1,125 @@
 From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 17/22] drm/tilcdc: Use simple encoder
-Date: Thu,  5 Mar 2020 16:59:45 +0100
-Message-ID: <20200305155950.2705-18-tzimmermann@suse.de>
+Subject: [PATCH 22/22] drm/zte: Use simple encoder
+Date: Thu,  5 Mar 2020 16:59:50 +0100
+Message-ID: <20200305155950.2705-23-tzimmermann@suse.de>
 References: <20200305155950.2705-1-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
 In-Reply-To: <20200305155950.2705-1-tzimmermann@suse.de>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: airlied@linux.ie, daniel@ffwll.ch, sam@ravnborg.org, abrodkin@synopsys.com, bbrezillon@kernel.org, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, ludovic.desroches@microchip.com, maarten.lankhorst@linux.intel.com, mripard@kernel.org, jingoohan1@gmail.com, inki.dae@samsung.com, jy0922.shim@samsung.com, sw0312.kim@samsung.com, kyungmin.park@samsung.com, kgene@kernel.org, krzk@kernel.org, stefan@agner.ch, alison.wang@nxp.com, patrik.r.jakobsson@gmail.com, xinliang.liu@linaro.org, zourongrong@gmail.com, john.stultz@linaro.org, kong.kongxinwei@hisilicon.com, puck.chen@hisilicon.com, linux@armlinux.org.uk, p.zabel@pengutronix.de, shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com, paul@crapouillou.net, ck.hu@mediatek.com, matthias.bgg@gmail.com, laurent.pinchart@ideasonboard.com, kieran.bingham+renesas@ideaso
-Cc: linux-samsung-soc@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-rockchip@lists.infradead.org, linux-mediatek@lists.infradead.org, Thomas Zimmermann <tzimmermann@suse.de>, linux-tegra@vger.kernel.org
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: airlied@linux.ie, daniel@ffwll.ch, sam@ravnborg.org, abrodkin@synopsys.com, bbrezillon@kernel.org, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, ludovic.desroches@microchip.com, maarten.lankhorst@linux.intel.com, mripard@kernel.org, jingoohan1@gmail.com, inki.dae@samsung.com, jy0922.shim@samsung.com, sw0312.kim@samsung.com, kyungmin.park@samsung.com, kgene@kernel.org, krzk@kernel.org, stefan@agner.ch, alison.wang@nxp.com, patrik.r.jakobsson@gmail.com, xinliang.liu@linaro.org, zourongrong@gmail.com, john.stultz@linaro.org, kong.kongxinwei@hisilicon.com, puck.chen@hisilicon.com, linux@armlinux.org.uk, p.zabel@pengutronix.de, shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com, paul@crapouillou.net, ck.hu@mediatek.com
+Cc: dri-devel@lists.freedesktop.org, linux-samsung-soc@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Thomas Zimmermann <tzimmermann@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The tilcdc driver uses empty implementations for its encoders. Replace
+The zte driver uses empty implementations for its encoders. Replace
 the code with the generic simple encoder.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/tilcdc/tilcdc_external.c | 10 +++-------
- drivers/gpu/drm/tilcdc/tilcdc_panel.c    |  8 ++------
- 2 files changed, 5 insertions(+), 13 deletions(-)
+ drivers/gpu/drm/zte/zx_hdmi.c  | 8 ++------
+ drivers/gpu/drm/zte/zx_tvenc.c | 8 ++------
+ drivers/gpu/drm/zte/zx_vga.c   | 8 ++------
+ 3 files changed, 6 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/gpu/drm/tilcdc/tilcdc_external.c b/drivers/gpu/drm/tilcdc/tilcdc_external.c
-index 28b7f703236e..b177525588c1 100644
---- a/drivers/gpu/drm/tilcdc/tilcdc_external.c
-+++ b/drivers/gpu/drm/tilcdc/tilcdc_external.c
-@@ -10,6 +10,7 @@
- #include <drm/drm_atomic_helper.h>
- #include <drm/drm_bridge.h>
+diff --git a/drivers/gpu/drm/zte/zx_hdmi.c b/drivers/gpu/drm/zte/zx_hdmi.c
+index b98a1420dcd3..76a16d997a23 100644
+--- a/drivers/gpu/drm/zte/zx_hdmi.c
++++ b/drivers/gpu/drm/zte/zx_hdmi.c
+@@ -20,6 +20,7 @@
  #include <drm/drm_of.h>
+ #include <drm/drm_probe_helper.h>
+ #include <drm/drm_print.h>
 +#include <drm/drm_simple_kms_helper.h>
  
- #include "tilcdc_drv.h"
- #include "tilcdc_external.h"
-@@ -83,10 +84,6 @@ int tilcdc_add_component_encoder(struct drm_device *ddev)
- 	return 0;
- }
+ #include <sound/hdmi-codec.h>
  
--static const struct drm_encoder_funcs tilcdc_external_encoder_funcs = {
--	.destroy	= drm_encoder_cleanup,
+@@ -254,10 +255,6 @@ static const struct drm_encoder_helper_funcs zx_hdmi_encoder_helper_funcs = {
+ 	.mode_set = zx_hdmi_encoder_mode_set,
+ };
+ 
+-static const struct drm_encoder_funcs zx_hdmi_encoder_funcs = {
+-	.destroy = drm_encoder_cleanup,
 -};
 -
- static
- int tilcdc_attach_bridge(struct drm_device *ddev, struct drm_bridge *bridge)
+ static int zx_hdmi_connector_get_modes(struct drm_connector *connector)
  {
-@@ -131,9 +128,8 @@ int tilcdc_attach_external_device(struct drm_device *ddev)
- 	if (!priv->external_encoder)
- 		return -ENOMEM;
+ 	struct zx_hdmi *hdmi = to_zx_hdmi(connector);
+@@ -313,8 +310,7 @@ static int zx_hdmi_register(struct drm_device *drm, struct zx_hdmi *hdmi)
  
--	ret = drm_encoder_init(ddev, priv->external_encoder,
--			       &tilcdc_external_encoder_funcs,
--			       DRM_MODE_ENCODER_NONE, NULL);
-+	ret = drm_simple_encoder_init(ddev, priv->external_encoder,
-+				      DRM_MODE_ENCODER_NONE);
- 	if (ret) {
- 		dev_err(ddev->dev, "drm_encoder_init() failed %d\n", ret);
- 		return ret;
-diff --git a/drivers/gpu/drm/tilcdc/tilcdc_panel.c b/drivers/gpu/drm/tilcdc/tilcdc_panel.c
-index 5584e656b857..12823d60c4e8 100644
---- a/drivers/gpu/drm/tilcdc/tilcdc_panel.c
-+++ b/drivers/gpu/drm/tilcdc/tilcdc_panel.c
-@@ -16,6 +16,7 @@
- #include <drm/drm_connector.h>
- #include <drm/drm_modeset_helper_vtables.h>
+ 	encoder->possible_crtcs = VOU_CRTC_MASK;
+ 
+-	drm_encoder_init(drm, encoder, &zx_hdmi_encoder_funcs,
+-			 DRM_MODE_ENCODER_TMDS, NULL);
++	drm_simple_encoder_init(drm, encoder, DRM_MODE_ENCODER_TMDS);
+ 	drm_encoder_helper_add(encoder, &zx_hdmi_encoder_helper_funcs);
+ 
+ 	hdmi->connector.polled = DRM_CONNECTOR_POLL_HPD;
+diff --git a/drivers/gpu/drm/zte/zx_tvenc.c b/drivers/gpu/drm/zte/zx_tvenc.c
+index c598b7daf1f1..d8a89ba383bc 100644
+--- a/drivers/gpu/drm/zte/zx_tvenc.c
++++ b/drivers/gpu/drm/zte/zx_tvenc.c
+@@ -14,6 +14,7 @@
+ #include <drm/drm_atomic_helper.h>
+ #include <drm/drm_print.h>
  #include <drm/drm_probe_helper.h>
 +#include <drm/drm_simple_kms_helper.h>
  
- #include "tilcdc_drv.h"
- #include "tilcdc_panel.h"
-@@ -74,10 +75,6 @@ static void panel_encoder_mode_set(struct drm_encoder *encoder,
- 	/* nothing needed */
- }
+ #include "zx_drm_drv.h"
+ #include "zx_tvenc_regs.h"
+@@ -218,10 +219,6 @@ static const struct drm_encoder_helper_funcs zx_tvenc_encoder_helper_funcs = {
+ 	.mode_set = zx_tvenc_encoder_mode_set,
+ };
  
--static const struct drm_encoder_funcs panel_encoder_funcs = {
--		.destroy        = drm_encoder_cleanup,
+-static const struct drm_encoder_funcs zx_tvenc_encoder_funcs = {
+-	.destroy = drm_encoder_cleanup,
 -};
 -
- static const struct drm_encoder_helper_funcs panel_encoder_helper_funcs = {
- 		.dpms           = panel_encoder_dpms,
- 		.prepare        = panel_encoder_prepare,
-@@ -102,8 +99,7 @@ static struct drm_encoder *panel_encoder_create(struct drm_device *dev,
- 	encoder = &panel_encoder->base;
- 	encoder->possible_crtcs = 1;
+ static int zx_tvenc_connector_get_modes(struct drm_connector *connector)
+ {
+ 	struct zx_tvenc *tvenc = to_zx_tvenc(connector);
+@@ -285,8 +282,7 @@ static int zx_tvenc_register(struct drm_device *drm, struct zx_tvenc *tvenc)
+ 	 */
+ 	encoder->possible_crtcs = BIT(1);
  
--	ret = drm_encoder_init(dev, encoder, &panel_encoder_funcs,
--			DRM_MODE_ENCODER_LVDS, NULL);
-+	ret = drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_LVDS);
- 	if (ret < 0)
- 		goto fail;
+-	drm_encoder_init(drm, encoder, &zx_tvenc_encoder_funcs,
+-			 DRM_MODE_ENCODER_TVDAC, NULL);
++	drm_simple_encoder_init(drm, encoder, DRM_MODE_ENCODER_TVDAC);
+ 	drm_encoder_helper_add(encoder, &zx_tvenc_encoder_helper_funcs);
  
+ 	connector->interlace_allowed = true;
+diff --git a/drivers/gpu/drm/zte/zx_vga.c b/drivers/gpu/drm/zte/zx_vga.c
+index c4fa3bbaba78..a7ed7f5ca837 100644
+--- a/drivers/gpu/drm/zte/zx_vga.c
++++ b/drivers/gpu/drm/zte/zx_vga.c
+@@ -14,6 +14,7 @@
+ #include <drm/drm_atomic_helper.h>
+ #include <drm/drm_print.h>
+ #include <drm/drm_probe_helper.h>
++#include <drm/drm_simple_kms_helper.h>
+ 
+ #include "zx_drm_drv.h"
+ #include "zx_vga_regs.h"
+@@ -72,10 +73,6 @@ static const struct drm_encoder_helper_funcs zx_vga_encoder_helper_funcs = {
+ 	.disable = zx_vga_encoder_disable,
+ };
+ 
+-static const struct drm_encoder_funcs zx_vga_encoder_funcs = {
+-	.destroy = drm_encoder_cleanup,
+-};
+-
+ static int zx_vga_connector_get_modes(struct drm_connector *connector)
+ {
+ 	struct zx_vga *vga = to_zx_vga(connector);
+@@ -154,8 +151,7 @@ static int zx_vga_register(struct drm_device *drm, struct zx_vga *vga)
+ 
+ 	encoder->possible_crtcs = VOU_CRTC_MASK;
+ 
+-	ret = drm_encoder_init(drm, encoder, &zx_vga_encoder_funcs,
+-			       DRM_MODE_ENCODER_DAC, NULL);
++	ret = drm_simple_encoder_init(drm, encoder, DRM_MODE_ENCODER_DAC);
+ 	if (ret) {
+ 		DRM_DEV_ERROR(dev, "failed to init encoder: %d\n", ret);
+ 		return ret;
 -- 
 2.25.1
