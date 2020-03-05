@@ -1,43 +1,43 @@
-From: David Stevens <stevensd@chromium.org>
-Subject: Re: [PATCH v2 4/4] drm/virtio: Support virtgpu exported resources
-Date: Thu, 5 Mar 2020 17:50:51 +0900
-Message-ID: <CAD=HUj7jS5jaRmiJwtGMSQZnR8Qd0VvPkBSbs1d-nATdczWdZA@mail.gmail.com>
-References: <20200302121524.7543-1-stevensd@chromium.org> <20200302121524.7543-5-stevensd@chromium.org>
- <20200304080119.i55opxkhk4kdt4hp@sirius.home.kraxel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2 1/3] iommu/virtio: Add topology description to
+ virtio-iommu config space
+Date: Thu, 5 Mar 2020 10:39:17 -0500
+Message-ID: <20200305103759-mutt-send-email-mst@kernel.org>
+References: <20200228172537.377327-2-jean-philippe@linaro.org>
+ <20200302161611.GD7829@8bytes.org>
+ <9004f814-2f7c-9024-3465-6f9661b97b7a@redhat.com>
+ <20200303130155.GA13185@8bytes.org>
+ <20200303084753-mutt-send-email-mst@kernel.org>
+ <20200303155318.GA3954@8bytes.org>
+ <20200303105523-mutt-send-email-mst@kernel.org>
+ <20200304133707.GB4177@8bytes.org>
+ <20200304142838-mutt-send-email-mst@kernel.org>
+ <20200304215001.GD3315@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <virtio-dev-return-6890-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <20200304080119.i55opxkhk4kdt4hp@sirius.home.kraxel.org>
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, linaro-mm-sig@lists.linaro.org, virtio-dev@lists.oasis-open.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-pci-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200304215001.GD3315@8bytes.org>
+Sender: linux-pci-owner@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>
+Cc: Auger Eric <eric.auger@redhat.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, linux-pci@vger.kernel.org, bhelgaas@google.com, jasowang@redhat.com, kevin.tian@intel.com, sebastien.boeuf@intel.com, jacob.jun.pan@intel.com, robin.murphy@arm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 4, 2020 at 5:01 PM Gerd Hoffmann <kraxel@redhat.com> wrote:
->
->   Hi,
->
-> > +     if (vgdev->has_resource_assign_uuid) {
-> > +             spin_lock(&vgdev->resource_export_lock);
-> > +             if (bo->uuid_state == UUID_NOT_INITIALIZED) {
-> > +                     bo->uuid_state = UUID_INITIALIZING;
-> > +                     needs_init = true;
-> > +             }
-> > +             spin_unlock(&vgdev->resource_export_lock);
-> > +
-> > +             if (needs_init) {
-> > +                     ret = virtio_gpu_cmd_resource_assign_uuid(vgdev, bo);
->
-> You can submit a fenced command, then wait on the fence here.  Removes
-> the need for UUID_INITIALIZING.
+On Wed, Mar 04, 2020 at 10:50:02PM +0100, Joerg Roedel wrote:
+> On Wed, Mar 04, 2020 at 02:34:33PM -0500, Michael S. Tsirkin wrote:
+> > All these extra levels of indirection is one of the reasons
+> > hypervisors such as kata try to avoid ACPI.
+> 
+> Platforms that don't use ACPI need another hardware detection mechanism,
+> which can also be supported. But the first step here is to enable the
+> general case, and for x86 platforms this means ACPI.
+> 
+> Regards,
+> 
+> 	Joerg
 
-Synchronously waiting is simper, but only doing the wait when trying
-to use the UUID can help to hide the latency of the virito commands.
-That can save quite a bit of time when setting up multiple buffers for
-a graphics pipeline, which I think is worthwhile.
+Frankly since a portable way to do it is needed anyway I don't see why
+we also need ACPI.
 
--David
+-- 
+MST
