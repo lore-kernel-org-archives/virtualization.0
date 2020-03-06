@@ -1,27 +1,20 @@
-From: kbuild test robot <lkp@intel.com>
-Subject: Re: [PATCH 15/22] drm/tegra: Use simple encoder
-Date: Fri, 6 Mar 2020 20:38:53 +0800
-Message-ID: <202003062053.isBJJQ7H%lkp@intel.com>
-References: <20200305155950.2705-16-tzimmermann@suse.de>
+From: kbuild test robot <lkp-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Subject: Re: [PATCH 18/22] drm/vc4: Use simple encoder
+Date: Fri, 6 Mar 2020 21:54:37 +0800
+Message-ID: <202003062111.Q1W7Y5ZF%lkp@intel.com>
+References: <20200305155950.2705-19-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="6TrnltStXW4iwmi0"
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: multipart/mixed; boundary="azLHFNyN32YCQGCU"
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20200305155950.2705-16-tzimmermann@suse.de>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-Cc: hamohammed.sa@gmail.com, alexandre.belloni@bootlin.com, heiko@sntech.de, airlied@linux.ie, stefan@agner.ch, linux@armlinux.org.uk, paul@crapouillou.net, eric@anholt.net, thierry.reding@gmail.com, krzk@kernel.org, sam@ravnborg.org, sebastian.reichel@collabora.com, linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com, hjc@rock-chips.com, festevam@gmail.com, abrodkin@synopsys.com, kong.kongxinwei@hisilicon.com, patrik.r.jakobsson@gmail.com, jonathanh@nvidia.com, clang-built-linux@googlegroups.com, ludovic.desroches@microchip.com, kgene@kernel.org, linux-imx@nxp.com, xinliang.liu@linaro.org, ck.hu@mediatek.com, linux-rockchip@lists.infradead.org, virtualization@lists.linux-foundation.org, linux-tegra@vger.kernel.org, p.zabel@pengutronix.de, Thomas Zimmermann <tzimmermann@suse.de>, puck.chen@hisilicon.com, s.hauer@pengutronix.de, alison.wang@nxp.com, maarten.lankhorst@l
+In-Reply-To: <20200305155950.2705-19-tzimmermann-l3A5Bk7waGM@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Thomas Zimmermann <tzimmermann-l3A5Bk7waGM@public.gmane.org>
+Cc: kbuild-all-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, clang-built-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, airlied-cv59FeDIM0c@public.gmane.org, daniel-/w4YWyX8dFk@public.gmane.org, sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org, abrodkin-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, bbrezillon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, nicolas.ferre-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, alexandre.belloni-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org, ludovic.desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, maarten.lankhorst-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, mripard-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, inki.dae-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, sw0312.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, stefan-XLVq0VzYD2Y@public.gmane.org, alison.wang-3arQi8VN3Tc@public.gmane.org, patrik.r.jakobsson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, xinliang.liu-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, zourongrong-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, john.stultz-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, kong.kongxinwei-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org, puck.chen-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---6TrnltStXW4iwmi0
+--azLHFNyN32YCQGCU
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
@@ -43,98 +36,135 @@ reproduce:
         # FIXME the reproduce steps for clang is not ready yet
 
 If you fix the issue, kindly add following tag
-Reported-by: kbuild test robot <lkp@intel.com>
+Reported-by: kbuild test robot <lkp-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 
 All errors (new ones prefixed by >>):
 
->> drivers/gpu/drm/tegra/rgb.c:281:2: error: implicit declaration of function 'drm_simple_encoder_init' [-Werror,-Wimplicit-function-declaration]
-           drm_simple_encoder_init(drm, &output->encoder, DRM_MODE_ENCODER_LVDS);
+>> drivers/gpu//drm/vc4/vc4_dpi.c:309:2: error: implicit declaration of function 'drm_simple_encoder_init' [-Werror,-Wimplicit-function-declaration]
+           drm_simple_encoder_init(drm, dpi->encoder, DRM_MODE_ENCODER_DPI);
            ^
-   drivers/gpu/drm/tegra/rgb.c:281:2: note: did you mean 'drm_encoder_init'?
+   drivers/gpu//drm/vc4/vc4_dpi.c:309:2: note: did you mean 'drm_encoder_init'?
    include/drm/drm_encoder.h:189:5: note: 'drm_encoder_init' declared here
    int drm_encoder_init(struct drm_device *dev,
        ^
    1 error generated.
 --
->> drivers/gpu/drm/tegra/hdmi.c:1445:2: error: implicit declaration of function 'drm_simple_encoder_init' [-Werror,-Wimplicit-function-declaration]
-           drm_simple_encoder_init(drm, &hdmi->output.encoder,
+>> drivers/gpu//drm/vc4/vc4_dsi.c:1610:2: error: implicit declaration of function 'drm_simple_encoder_init' [-Werror,-Wimplicit-function-declaration]
+           drm_simple_encoder_init(drm, dsi->encoder, DRM_MODE_ENCODER_DSI);
            ^
-   drivers/gpu/drm/tegra/hdmi.c:1445:2: note: did you mean 'drm_encoder_init'?
+   drivers/gpu//drm/vc4/vc4_dsi.c:1610:2: note: did you mean 'drm_encoder_init'?
    include/drm/drm_encoder.h:189:5: note: 'drm_encoder_init' declared here
    int drm_encoder_init(struct drm_device *dev,
        ^
    1 error generated.
 --
->> drivers/gpu/drm/tegra/dsi.c:1058:3: error: implicit declaration of function 'drm_simple_encoder_init' [-Werror,-Wimplicit-function-declaration]
-                   drm_simple_encoder_init(drm, &dsi->output.encoder,
-                   ^
-   drivers/gpu/drm/tegra/dsi.c:1058:3: note: did you mean 'drm_encoder_init'?
+>> drivers/gpu//drm/vc4/vc4_hdmi.c:1389:2: error: implicit declaration of function 'drm_simple_encoder_init' [-Werror,-Wimplicit-function-declaration]
+           drm_simple_encoder_init(drm, hdmi->encoder, DRM_MODE_ENCODER_TMDS);
+           ^
+   drivers/gpu//drm/vc4/vc4_hdmi.c:1389:2: note: did you mean 'drm_encoder_init'?
    include/drm/drm_encoder.h:189:5: note: 'drm_encoder_init' declared here
    int drm_encoder_init(struct drm_device *dev,
        ^
    1 error generated.
 --
->> drivers/gpu/drm/tegra/sor.c:3102:2: error: implicit declaration of function 'drm_simple_encoder_init' [-Werror,-Wimplicit-function-declaration]
-           drm_simple_encoder_init(drm, &sor->output.encoder, encoder);
+>> drivers/gpu//drm/vc4/vc4_vec.c:566:2: error: implicit declaration of function 'drm_simple_encoder_init' [-Werror,-Wimplicit-function-declaration]
+           drm_simple_encoder_init(drm, vec->encoder, DRM_MODE_ENCODER_TVDAC);
            ^
-   drivers/gpu/drm/tegra/sor.c:3102:2: note: did you mean 'drm_encoder_init'?
+   drivers/gpu//drm/vc4/vc4_vec.c:566:2: note: did you mean 'drm_encoder_init'?
    include/drm/drm_encoder.h:189:5: note: 'drm_encoder_init' declared here
    int drm_encoder_init(struct drm_device *dev,
        ^
    1 error generated.
 
-vim +/drm_simple_encoder_init +281 drivers/gpu/drm/tegra/rgb.c
+vim +/drm_simple_encoder_init +309 drivers/gpu//drm/vc4/vc4_dpi.c
 
-   266	
-   267	int tegra_dc_rgb_init(struct drm_device *drm, struct tegra_dc *dc)
-   268	{
-   269		struct tegra_output *output = dc->rgb;
-   270		int err;
-   271	
-   272		if (!dc->rgb)
-   273			return -ENODEV;
-   274	
-   275		drm_connector_init(drm, &output->connector, &tegra_rgb_connector_funcs,
-   276				   DRM_MODE_CONNECTOR_LVDS);
-   277		drm_connector_helper_add(&output->connector,
-   278					 &tegra_rgb_connector_helper_funcs);
-   279		output->connector.dpms = DRM_MODE_DPMS_OFF;
-   280	
- > 281		drm_simple_encoder_init(drm, &output->encoder, DRM_MODE_ENCODER_LVDS);
-   282		drm_encoder_helper_add(&output->encoder,
-   283				       &tegra_rgb_encoder_helper_funcs);
-   284	
-   285		drm_connector_attach_encoder(&output->connector,
-   286						  &output->encoder);
-   287		drm_connector_register(&output->connector);
-   288	
-   289		err = tegra_output_init(drm, output);
-   290		if (err < 0) {
-   291			dev_err(output->dev, "failed to initialize output: %d\n", err);
-   292			return err;
-   293		}
-   294	
-   295		/*
-   296		 * Other outputs can be attached to either display controller. The RGB
-   297		 * outputs are an exception and work only with their parent display
-   298		 * controller.
-   299		 */
-   300		output->encoder.possible_crtcs = drm_crtc_mask(&dc->base);
-   301	
-   302		return 0;
-   303	}
+   254	
+   255	static int vc4_dpi_bind(struct device *dev, struct device *master, void *data)
+   256	{
+   257		struct platform_device *pdev = to_platform_device(dev);
+   258		struct drm_device *drm = dev_get_drvdata(master);
+   259		struct vc4_dev *vc4 = to_vc4_dev(drm);
+   260		struct vc4_dpi *dpi;
+   261		struct vc4_dpi_encoder *vc4_dpi_encoder;
+   262		int ret;
+   263	
+   264		dpi = devm_kzalloc(dev, sizeof(*dpi), GFP_KERNEL);
+   265		if (!dpi)
+   266			return -ENOMEM;
+   267	
+   268		vc4_dpi_encoder = devm_kzalloc(dev, sizeof(*vc4_dpi_encoder),
+   269					       GFP_KERNEL);
+   270		if (!vc4_dpi_encoder)
+   271			return -ENOMEM;
+   272		vc4_dpi_encoder->base.type = VC4_ENCODER_TYPE_DPI;
+   273		vc4_dpi_encoder->dpi = dpi;
+   274		dpi->encoder = &vc4_dpi_encoder->base.base;
+   275	
+   276		dpi->pdev = pdev;
+   277		dpi->regs = vc4_ioremap_regs(pdev, 0);
+   278		if (IS_ERR(dpi->regs))
+   279			return PTR_ERR(dpi->regs);
+   280		dpi->regset.base = dpi->regs;
+   281		dpi->regset.regs = dpi_regs;
+   282		dpi->regset.nregs = ARRAY_SIZE(dpi_regs);
+   283	
+   284		if (DPI_READ(DPI_ID) != DPI_ID_VALUE) {
+   285			dev_err(dev, "Port returned 0x%08x for ID instead of 0x%08x\n",
+   286				DPI_READ(DPI_ID), DPI_ID_VALUE);
+   287			return -ENODEV;
+   288		}
+   289	
+   290		dpi->core_clock = devm_clk_get(dev, "core");
+   291		if (IS_ERR(dpi->core_clock)) {
+   292			ret = PTR_ERR(dpi->core_clock);
+   293			if (ret != -EPROBE_DEFER)
+   294				DRM_ERROR("Failed to get core clock: %d\n", ret);
+   295			return ret;
+   296		}
+   297		dpi->pixel_clock = devm_clk_get(dev, "pixel");
+   298		if (IS_ERR(dpi->pixel_clock)) {
+   299			ret = PTR_ERR(dpi->pixel_clock);
+   300			if (ret != -EPROBE_DEFER)
+   301				DRM_ERROR("Failed to get pixel clock: %d\n", ret);
+   302			return ret;
+   303		}
    304	
+   305		ret = clk_prepare_enable(dpi->core_clock);
+   306		if (ret)
+   307			DRM_ERROR("Failed to turn on core clock: %d\n", ret);
+   308	
+ > 309		drm_simple_encoder_init(drm, dpi->encoder, DRM_MODE_ENCODER_DPI);
+   310		drm_encoder_helper_add(dpi->encoder, &vc4_dpi_encoder_helper_funcs);
+   311	
+   312		ret = vc4_dpi_init_bridge(dpi);
+   313		if (ret)
+   314			goto err_destroy_encoder;
+   315	
+   316		dev_set_drvdata(dev, dpi);
+   317	
+   318		vc4->dpi = dpi;
+   319	
+   320		vc4_debugfs_add_regset32(drm, "dpi_regs", &dpi->regset);
+   321	
+   322		return 0;
+   323	
+   324	err_destroy_encoder:
+   325		drm_encoder_cleanup(dpi->encoder);
+   326		clk_disable_unprepare(dpi->core_clock);
+   327		return ret;
+   328	}
+   329	
 
 ---
 0-DAY CI Kernel Test Service, Intel Corporation
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+https://lists.01.org/hyperkitty/list/kbuild-all-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
 
---6TrnltStXW4iwmi0
+--azLHFNyN32YCQGCU
 Content-Type: application/gzip
 Content-Disposition: attachment; filename=".config.gz"
 Content-Transfer-Encoding: base64
 
-H4sICOc/Yl4AAy5jb25maWcAnDzJdhu3svv7FTzJJlnE4SRKue9oAaLRJMKeDKBJSps+tEQ5
+H4sICPtNYl4AAy5jb25maWcAnDzJdhu3svv7FTzJJlnE4SRKue9oAaLRJMKeDKBJSps+tEQ5
 etHgS0lO/Pe3CugBQKMVv5eTOGZVYS7UjP7xXz+OyNvr8+Ph9f7m8PDwbfT5+HQ8HV6Pt6O7
 +4fj/4yifJTlasQirj4AcXL/9Pb3r4fT42I+Ovuw+DD+5XQzH22Op6fjw4g+P93df36D5vfP
 T//68V/w748AfPwCPZ3+Pbp5ODx9Hn09nl4APZpMPow/jEc/fb5//fevv8Kfj/en0/Pp14eH
@@ -1020,14 +1050,4 @@ wEsOxceLESa/id2aruo8uus6I6nVCGZjw48uHHM8QwbZzQuGMAlwFnpPC3dt0zCPQREdGSiV
 JnKkP+4j6IYhKfDbHY5PTBmnIxwBO5QvgDFHP4J2gUOstpUMAQ0ZKIjQj7lHJbkVu6suF/4H
 +SLxE204AwA=
 
---6TrnltStXW4iwmi0
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---6TrnltStXW4iwmi0--
+--azLHFNyN32YCQGCU--
