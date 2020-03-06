@@ -1,20 +1,20 @@
 From: kbuild test robot <lkp-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-Subject: Re: [PATCH 03/22] drm/exynos: Use simple encoder
-Date: Fri, 6 Mar 2020 13:14:04 +0800
-Message-ID: <202003061311.5Ii8rcnV%lkp@intel.com>
-References: <20200305155950.2705-4-tzimmermann@suse.de>
+Subject: Re: [PATCH 06/22] drm/hisilicon/kirin: Use simple encoder
+Date: Fri, 6 Mar 2020 14:16:48 +0800
+Message-ID: <202003061415.76jjt0tz%lkp@intel.com>
+References: <20200305155950.2705-7-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="k+w/mQv8wyuph6w0"
+Content-Type: multipart/mixed; boundary="2oS5YaxWCcQjTEyO"
 Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20200305155950.2705-4-tzimmermann-l3A5Bk7waGM@public.gmane.org>
+In-Reply-To: <20200305155950.2705-7-tzimmermann-l3A5Bk7waGM@public.gmane.org>
 Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Thomas Zimmermann <tzimmermann-l3A5Bk7waGM@public.gmane.org>
 Cc: kbuild-all-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org, clang-built-linux-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, airlied-cv59FeDIM0c@public.gmane.org, daniel-/w4YWyX8dFk@public.gmane.org, sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org, abrodkin-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, bbrezillon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, nicolas.ferre-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, alexandre.belloni-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org, ludovic.desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, maarten.lankhorst-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, mripard-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, inki.dae-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, sw0312.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, stefan-XLVq0VzYD2Y@public.gmane.org, alison.wang-3arQi8VN3Tc@public.gmane.org, patrik.r.jakobsson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, xinliang.liu-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, zourongrong-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, john.stultz-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, kong.kongxinwei-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org, puck.chen-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---k+w/mQv8wyuph6w0
+--2oS5YaxWCcQjTEyO
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
@@ -41,64 +41,53 @@ Reported-by: kbuild test robot <lkp-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 
 All errors (new ones prefixed by >>):
 
->> drivers/gpu/drm/exynos/exynos_drm_dsi.c:1705:2: error: implicit declaration of function 'drm_simple_encoder_init' [-Werror,-Wimplicit-function-declaration]
-           drm_simple_encoder_init(drm_dev, encoder, DRM_MODE_ENCODER_TMDS);
-           ^
-   drivers/gpu/drm/exynos/exynos_drm_dsi.c:1705:2: note: did you mean 'drm_encoder_init'?
-   include/drm/drm_encoder.h:189:5: note: 'drm_encoder_init' declared here
-   int drm_encoder_init(struct drm_device *dev,
-       ^
-   1 error generated.
---
->> drivers/gpu/drm/exynos/exynos_hdmi.c:1851:2: error: implicit declaration of function 'drm_simple_encoder_init' [-Werror,-Wimplicit-function-declaration]
-           drm_simple_encoder_init(drm_dev, encoder, DRM_MODE_ENCODER_TMDS);
-           ^
-   drivers/gpu/drm/exynos/exynos_hdmi.c:1851:2: note: did you mean 'drm_encoder_init'?
-   include/drm/drm_encoder.h:189:5: note: 'drm_encoder_init' declared here
-   int drm_encoder_init(struct drm_device *dev,
+>> drivers/gpu//drm/hisilicon/kirin/dw_drm_dsi.c:713:8: error: implicit declaration of function 'drm_simple_encoder_init' [-Werror,-Wimplicit-function-declaration]
+           ret = drm_simple_encoder_init(drm_dev, encoder, DRM_MODE_ENCODER_DSI);
+                 ^
+   drivers/gpu//drm/hisilicon/kirin/dw_drm_dsi.c:713:8: note: did you mean 'drm_i2c_encoder_init'?
+   include/drm/drm_encoder_slave.h:104:5: note: 'drm_i2c_encoder_init' declared here
+   int drm_i2c_encoder_init(struct drm_device *dev,
        ^
    1 error generated.
 
-vim +/drm_simple_encoder_init +1705 drivers/gpu/drm/exynos/exynos_drm_dsi.c
+vim +/drm_simple_encoder_init +713 drivers/gpu//drm/hisilicon/kirin/dw_drm_dsi.c
 
-  1695	
-  1696	static int exynos_dsi_bind(struct device *dev, struct device *master,
-  1697					void *data)
-  1698	{
-  1699		struct drm_encoder *encoder = dev_get_drvdata(dev);
-  1700		struct exynos_dsi *dsi = encoder_to_dsi(encoder);
-  1701		struct drm_device *drm_dev = data;
-  1702		struct drm_bridge *in_bridge;
-  1703		int ret;
-  1704	
-> 1705		drm_simple_encoder_init(drm_dev, encoder, DRM_MODE_ENCODER_TMDS);
-  1706	
-  1707		drm_encoder_helper_add(encoder, &exynos_dsi_encoder_helper_funcs);
-  1708	
-  1709		ret = exynos_drm_set_possible_crtcs(encoder, EXYNOS_DISPLAY_TYPE_LCD);
-  1710		if (ret < 0)
-  1711			return ret;
-  1712	
-  1713		if (dsi->in_bridge_node) {
-  1714			in_bridge = of_drm_find_bridge(dsi->in_bridge_node);
-  1715			if (in_bridge)
-  1716				drm_bridge_attach(encoder, in_bridge, NULL, 0);
-  1717		}
-  1718	
-  1719		return mipi_dsi_host_register(&dsi->dsi_host);
-  1720	}
-  1721	
+   699	
+   700	static int dw_drm_encoder_init(struct device *dev,
+   701				       struct drm_device *drm_dev,
+   702				       struct drm_encoder *encoder)
+   703	{
+   704		int ret;
+   705		u32 crtc_mask = drm_of_find_possible_crtcs(drm_dev, dev->of_node);
+   706	
+   707		if (!crtc_mask) {
+   708			DRM_ERROR("failed to find crtc mask\n");
+   709			return -EINVAL;
+   710		}
+   711	
+   712		encoder->possible_crtcs = crtc_mask;
+ > 713		ret = drm_simple_encoder_init(drm_dev, encoder, DRM_MODE_ENCODER_DSI);
+   714		if (ret) {
+   715			DRM_ERROR("failed to init dsi encoder\n");
+   716			return ret;
+   717		}
+   718	
+   719		drm_encoder_helper_add(encoder, &dw_encoder_helper_funcs);
+   720	
+   721		return 0;
+   722	}
+   723	
 
 ---
 0-DAY CI Kernel Test Service, Intel Corporation
 https://lists.01.org/hyperkitty/list/kbuild-all-hn68Rpc1hR1g9hUCZPvPmw@public.gmane.org
 
---k+w/mQv8wyuph6w0
+--2oS5YaxWCcQjTEyO
 Content-Type: application/gzip
 Content-Disposition: attachment; filename=".config.gz"
 Content-Transfer-Encoding: base64
 
-H4sICDPYYV4AAy5jb25maWcAnDzJdhu3svv7FTzJJlnE4SRKue9oAaLRJMKeDKBJSps+tEQ5
+H4sICAnmYV4AAy5jb25maWcAnDzJdhu3svv7FTzJJlnE4SRKue9oAaLRJMKeDKBJSps+tEQ5
 etHgS0lO/Pe3CugBQKMVv5eTOGZVYS7UjP7xXz+OyNvr8+Ph9f7m8PDwbfT5+HQ8HV6Pt6O7
 +4fj/4yifJTlasQirj4AcXL/9Pb3r4fT42I+Ovuw+DD+5XQzH22Op6fjw4g+P93df36D5vfP
 T//68V/w748AfPwCPZ3+Pbp5ODx9Hn09nl4APZpMPow/jEc/fb5//fevv8Kfj/en0/Pp14eH
@@ -984,4 +973,4 @@ wEsOxceLESa/id2aruo8uus6I6nVCGZjw48uHHM8QwbZzQuGMAlwFnpPC3dt0zCPQREdGSiV
 JnKkP+4j6IYhKfDbHY5PTBmnIxwBO5QvgDFHP4J2gUOstpUMAQ0ZKIjQj7lHJbkVu6suF/4H
 +SLxE204AwA=
 
---k+w/mQv8wyuph6w0--
+--2oS5YaxWCcQjTEyO--
