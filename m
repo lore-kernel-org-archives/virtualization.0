@@ -1,199 +1,419 @@
 From: Sam Ravnborg <sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 03/22] drm/exynos: Use simple encoder
-Date: Fri, 6 Mar 2020 22:28:09 +0100
-Message-ID: <20200306212809.GC17369@ravnborg.org>
+Subject: Re: [PATCH 05/22] drm/gma500: Use simple encoder
+Date: Fri, 6 Mar 2020 22:35:19 +0100
+Message-ID: <20200306213519.GD17369@ravnborg.org>
 References: <20200305155950.2705-1-tzimmermann@suse.de>
- <20200305155950.2705-4-tzimmermann@suse.de>
+ <20200305155950.2705-6-tzimmermann@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20200305155950.2705-4-tzimmermann-l3A5Bk7waGM@public.gmane.org>
+In-Reply-To: <20200305155950.2705-6-tzimmermann-l3A5Bk7waGM@public.gmane.org>
 Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 To: Thomas Zimmermann <tzimmermann-l3A5Bk7waGM@public.gmane.org>
 Cc: airlied-cv59FeDIM0c@public.gmane.org, daniel-/w4YWyX8dFk@public.gmane.org, abrodkin-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, bbrezillon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, nicolas.ferre-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, alexandre.belloni-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org, ludovic.desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, maarten.lankhorst-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, mripard-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, inki.dae-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, sw0312.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, stefan-XLVq0VzYD2Y@public.gmane.org, alison.wang-3arQi8VN3Tc@public.gmane.org, patrik.r.jakobsson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, xinliang.liu-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, zourongrong-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, john.stultz-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, kong.kongxinwei-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org, puck.chen-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-imx-3arQi8VN3Tc@public.gmane.org, paul-icTtO2rgO2OTuSrc4Mpeew@public.gmane.org, ck.hu-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, matthias
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 05, 2020 at 04:59:31PM +0100, Thomas Zimmermann wrote:
-> The exynos driver uses empty implementations for its encoders. Replace
-> the code with the generic simple encoder.
-> 
-> Signed-off-by: Thomas Zimmermann <tzimmermann-l3A5Bk7waGM@public.gmane.org>
+Hi Thomas.
 
+On Thu, Mar 05, 2020 at 04:59:33PM +0100, Thomas Zimmermann wrote:
+> The gma500 driver uses empty implementations for some of its encoders.
+> Replace the code with the generic simple encoder.
+This parts looks good.
+
+
+> As a side effect, the
+> patch also removes an indirection in the encoder setup for Medfield.
+
+I failed to see where this was done. Maybe too late for me to review
+patches, so I will stop now.
+
+
+No matter - patch is:
 Acked-by: Sam Ravnborg <sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org>
 
-> ---
->  drivers/gpu/drm/exynos/exynos_dp.c       | 8 ++------
->  drivers/gpu/drm/exynos/exynos_drm_dpi.c  | 8 ++------
->  drivers/gpu/drm/exynos/exynos_drm_dsi.c  | 8 ++------
->  drivers/gpu/drm/exynos/exynos_drm_vidi.c | 8 ++------
->  drivers/gpu/drm/exynos/exynos_hdmi.c     | 8 ++------
->  5 files changed, 10 insertions(+), 30 deletions(-)
 > 
-> diff --git a/drivers/gpu/drm/exynos/exynos_dp.c b/drivers/gpu/drm/exynos/exynos_dp.c
-> index d23d3502ca91..a61482af2998 100644
-> --- a/drivers/gpu/drm/exynos/exynos_dp.c
-> +++ b/drivers/gpu/drm/exynos/exynos_dp.c
-> @@ -25,6 +25,7 @@
->  #include <drm/drm_panel.h>
->  #include <drm/drm_print.h>
->  #include <drm/drm_probe_helper.h>
-> +#include <drm/drm_simple_kms_helper.h>
->  #include <drm/exynos_drm.h>
+> Signed-off-by: Thomas Zimmermann <tzimmermann-l3A5Bk7waGM@public.gmane.org>
+> ---
+>  drivers/gpu/drm/gma500/cdv_intel_crt.c     | 14 +++-----------
+>  drivers/gpu/drm/gma500/cdv_intel_dp.c      | 16 +++-------------
+>  drivers/gpu/drm/gma500/cdv_intel_hdmi.c    |  4 ++--
+>  drivers/gpu/drm/gma500/cdv_intel_lvds.c    | 17 +++--------------
+>  drivers/gpu/drm/gma500/mdfld_dsi_dpi.c     |  7 +++----
+>  drivers/gpu/drm/gma500/mdfld_output.h      |  1 -
+>  drivers/gpu/drm/gma500/mdfld_tmd_vid.c     |  6 ------
+>  drivers/gpu/drm/gma500/mdfld_tpo_vid.c     |  6 ------
+>  drivers/gpu/drm/gma500/oaktrail_hdmi.c     | 14 ++------------
+>  drivers/gpu/drm/gma500/oaktrail_lvds.c     |  5 +++--
+>  drivers/gpu/drm/gma500/psb_intel_drv.h     |  1 -
+>  drivers/gpu/drm/gma500/psb_intel_lvds.c    | 18 +++---------------
+>  drivers/gpu/drm/gma500/tc35876x-dsi-lvds.c |  5 -----
+>  13 files changed, 22 insertions(+), 92 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/gma500/cdv_intel_crt.c b/drivers/gpu/drm/gma500/cdv_intel_crt.c
+> index 29c36d63b20e..88535f5aacc5 100644
+> --- a/drivers/gpu/drm/gma500/cdv_intel_crt.c
+> +++ b/drivers/gpu/drm/gma500/cdv_intel_crt.c
+> @@ -28,6 +28,8 @@
+>  #include <linux/i2c.h>
+>  #include <linux/pm_runtime.h>
 >  
->  #include "exynos_drm_crtc.h"
-> @@ -135,10 +136,6 @@ static const struct drm_encoder_helper_funcs exynos_dp_encoder_helper_funcs = {
->  	.disable = exynos_dp_nop,
+> +#include <drm/drm_simple_kms_helper.h>
+> +
+>  #include "cdv_device.h"
+>  #include "intel_bios.h"
+>  #include "power.h"
+> @@ -237,15 +239,6 @@ static const struct drm_connector_helper_funcs
+>  	.best_encoder = gma_best_encoder,
 >  };
 >  
-> -static const struct drm_encoder_funcs exynos_dp_encoder_funcs = {
-> -	.destroy = drm_encoder_cleanup,
+> -static void cdv_intel_crt_enc_destroy(struct drm_encoder *encoder)
+> -{
+> -	drm_encoder_cleanup(encoder);
+> -}
+> -
+> -static const struct drm_encoder_funcs cdv_intel_crt_enc_funcs = {
+> -	.destroy = cdv_intel_crt_enc_destroy,
 > -};
 > -
->  static int exynos_dp_dt_parse_panel(struct exynos_dp_device *dp)
+>  void cdv_intel_crt_init(struct drm_device *dev,
+>  			struct psb_intel_mode_device *mode_dev)
 >  {
->  	int ret;
-> @@ -174,8 +171,7 @@ static int exynos_dp_bind(struct device *dev, struct device *master, void *data)
->  			return ret;
->  	}
+> @@ -271,8 +264,7 @@ void cdv_intel_crt_init(struct drm_device *dev,
+>  		&cdv_intel_crt_connector_funcs, DRM_MODE_CONNECTOR_VGA);
 >  
-> -	drm_encoder_init(drm_dev, encoder, &exynos_dp_encoder_funcs,
-> -			 DRM_MODE_ENCODER_TMDS, NULL);
-> +	drm_simple_encoder_init(drm_dev, encoder, DRM_MODE_ENCODER_TMDS);
+>  	encoder = &gma_encoder->base;
+> -	drm_encoder_init(dev, encoder,
+> -		&cdv_intel_crt_enc_funcs, DRM_MODE_ENCODER_DAC, NULL);
+> +	drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_DAC);
 >  
->  	drm_encoder_helper_add(encoder, &exynos_dp_encoder_helper_funcs);
+>  	gma_connector_attach_encoder(gma_connector, gma_encoder);
 >  
-> diff --git a/drivers/gpu/drm/exynos/exynos_drm_dpi.c b/drivers/gpu/drm/exynos/exynos_drm_dpi.c
-> index 43fa0f26c052..7ba5354e7d94 100644
-> --- a/drivers/gpu/drm/exynos/exynos_drm_dpi.c
-> +++ b/drivers/gpu/drm/exynos/exynos_drm_dpi.c
-> @@ -14,6 +14,7 @@
->  #include <drm/drm_panel.h>
->  #include <drm/drm_print.h>
->  #include <drm/drm_probe_helper.h>
+> diff --git a/drivers/gpu/drm/gma500/cdv_intel_dp.c b/drivers/gpu/drm/gma500/cdv_intel_dp.c
+> index 5772b2dce0d6..13947ec06dbb 100644
+> --- a/drivers/gpu/drm/gma500/cdv_intel_dp.c
+> +++ b/drivers/gpu/drm/gma500/cdv_intel_dp.c
+> @@ -32,6 +32,7 @@
+>  #include <drm/drm_crtc.h>
+>  #include <drm/drm_crtc_helper.h>
+>  #include <drm/drm_dp_helper.h>
 > +#include <drm/drm_simple_kms_helper.h>
 >  
->  #include <video/of_videomode.h>
->  #include <video/videomode.h>
-> @@ -149,10 +150,6 @@ static const struct drm_encoder_helper_funcs exynos_dpi_encoder_helper_funcs = {
->  	.disable = exynos_dpi_disable,
+>  #include "gma_display.h"
+>  #include "psb_drv.h"
+> @@ -1908,11 +1909,6 @@ cdv_intel_dp_destroy(struct drm_connector *connector)
+>  	kfree(connector);
+>  }
+>  
+> -static void cdv_intel_dp_encoder_destroy(struct drm_encoder *encoder)
+> -{
+> -	drm_encoder_cleanup(encoder);
+> -}
+> -
+>  static const struct drm_encoder_helper_funcs cdv_intel_dp_helper_funcs = {
+>  	.dpms = cdv_intel_dp_dpms,
+>  	.mode_fixup = cdv_intel_dp_mode_fixup,
+> @@ -1935,11 +1931,6 @@ static const struct drm_connector_helper_funcs cdv_intel_dp_connector_helper_fun
+>  	.best_encoder = gma_best_encoder,
 >  };
 >  
-> -static const struct drm_encoder_funcs exynos_dpi_encoder_funcs = {
-> -	.destroy = drm_encoder_cleanup,
+> -static const struct drm_encoder_funcs cdv_intel_dp_enc_funcs = {
+> -	.destroy = cdv_intel_dp_encoder_destroy,
 > -};
 > -
->  enum {
->  	FIMD_PORT_IN0,
->  	FIMD_PORT_IN1,
-> @@ -201,8 +198,7 @@ int exynos_dpi_bind(struct drm_device *dev, struct drm_encoder *encoder)
+> -
+>  static void cdv_intel_dp_add_properties(struct drm_connector *connector)
 >  {
->  	int ret;
+>  	cdv_intel_attach_force_audio_property(connector);
+> @@ -2016,8 +2007,7 @@ cdv_intel_dp_init(struct drm_device *dev, struct psb_intel_mode_device *mode_dev
+>  	encoder = &gma_encoder->base;
 >  
-> -	drm_encoder_init(dev, encoder, &exynos_dpi_encoder_funcs,
+>  	drm_connector_init(dev, connector, &cdv_intel_dp_connector_funcs, type);
+> -	drm_encoder_init(dev, encoder, &cdv_intel_dp_enc_funcs,
 > -			 DRM_MODE_ENCODER_TMDS, NULL);
 > +	drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_TMDS);
 >  
->  	drm_encoder_helper_add(encoder, &exynos_dpi_encoder_helper_funcs);
+>  	gma_connector_attach_encoder(gma_connector, gma_encoder);
 >  
-> diff --git a/drivers/gpu/drm/exynos/exynos_drm_dsi.c b/drivers/gpu/drm/exynos/exynos_drm_dsi.c
-> index 669d3857502a..2986c93382e0 100644
-> --- a/drivers/gpu/drm/exynos/exynos_drm_dsi.c
-> +++ b/drivers/gpu/drm/exynos/exynos_drm_dsi.c
-> @@ -30,6 +30,7 @@
->  #include <drm/drm_panel.h>
->  #include <drm/drm_print.h>
->  #include <drm/drm_probe_helper.h>
-> +#include <drm/drm_simple_kms_helper.h>
->  
->  #include "exynos_drm_crtc.h"
->  #include "exynos_drm_drv.h"
-> @@ -1524,10 +1525,6 @@ static const struct drm_encoder_helper_funcs exynos_dsi_encoder_helper_funcs = {
->  	.disable = exynos_dsi_disable,
->  };
->  
-> -static const struct drm_encoder_funcs exynos_dsi_encoder_funcs = {
-> -	.destroy = drm_encoder_cleanup,
-> -};
-> -
->  MODULE_DEVICE_TABLE(of, exynos_dsi_of_match);
->  
->  static int exynos_dsi_host_attach(struct mipi_dsi_host *host,
-> @@ -1705,8 +1702,7 @@ static int exynos_dsi_bind(struct device *dev, struct device *master,
->  	struct drm_bridge *in_bridge;
->  	int ret;
->  
-> -	drm_encoder_init(drm_dev, encoder, &exynos_dsi_encoder_funcs,
-> -			 DRM_MODE_ENCODER_TMDS, NULL);
-> +	drm_simple_encoder_init(drm_dev, encoder, DRM_MODE_ENCODER_TMDS);
->  
->  	drm_encoder_helper_add(encoder, &exynos_dsi_encoder_helper_funcs);
->  
-> diff --git a/drivers/gpu/drm/exynos/exynos_drm_vidi.c b/drivers/gpu/drm/exynos/exynos_drm_vidi.c
-> index b320b3a21ad4..282467121699 100644
-> --- a/drivers/gpu/drm/exynos/exynos_drm_vidi.c
-> +++ b/drivers/gpu/drm/exynos/exynos_drm_vidi.c
-> @@ -14,6 +14,7 @@
->  #include <drm/drm_atomic_helper.h>
+> @@ -2120,7 +2110,7 @@ cdv_intel_dp_init(struct drm_device *dev, struct psb_intel_mode_device *mode_dev
+>  		if (ret == 0) {
+>  			/* if this fails, presume the device is a ghost */
+>  			DRM_INFO("failed to retrieve link info, disabling eDP\n");
+> -			cdv_intel_dp_encoder_destroy(encoder);
+> +			drm_encoder_cleanup(encoder);
+>  			cdv_intel_dp_destroy(connector);
+>  			goto err_priv;
+>  		} else {
+> diff --git a/drivers/gpu/drm/gma500/cdv_intel_hdmi.c b/drivers/gpu/drm/gma500/cdv_intel_hdmi.c
+> index 1711a41acc16..0d12c6ffbc40 100644
+> --- a/drivers/gpu/drm/gma500/cdv_intel_hdmi.c
+> +++ b/drivers/gpu/drm/gma500/cdv_intel_hdmi.c
+> @@ -32,6 +32,7 @@
+>  #include <drm/drm.h>
+>  #include <drm/drm_crtc.h>
 >  #include <drm/drm_edid.h>
->  #include <drm/drm_probe_helper.h>
 > +#include <drm/drm_simple_kms_helper.h>
->  #include <drm/drm_vblank.h>
->  #include <drm/exynos_drm.h>
 >  
-> @@ -369,10 +370,6 @@ static const struct drm_encoder_helper_funcs exynos_vidi_encoder_helper_funcs =
->  	.disable = exynos_vidi_disable,
+>  #include "cdv_device.h"
+>  #include "psb_drv.h"
+> @@ -311,8 +312,7 @@ void cdv_hdmi_init(struct drm_device *dev,
+>  			   &cdv_hdmi_connector_funcs,
+>  			   DRM_MODE_CONNECTOR_DVID);
+>  
+> -	drm_encoder_init(dev, encoder, &psb_intel_lvds_enc_funcs,
+> -			 DRM_MODE_ENCODER_TMDS, NULL);
+> +	drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_TMDS);
+>  
+>  	gma_connector_attach_encoder(gma_connector, gma_encoder);
+>  	gma_encoder->type = INTEL_OUTPUT_HDMI;
+> diff --git a/drivers/gpu/drm/gma500/cdv_intel_lvds.c b/drivers/gpu/drm/gma500/cdv_intel_lvds.c
+> index ea0a5d9a0acc..18de10e9ff9a 100644
+> --- a/drivers/gpu/drm/gma500/cdv_intel_lvds.c
+> +++ b/drivers/gpu/drm/gma500/cdv_intel_lvds.c
+> @@ -12,6 +12,8 @@
+>  #include <linux/i2c.h>
+>  #include <linux/pm_runtime.h>
+>  
+> +#include <drm/drm_simple_kms_helper.h>
+> +
+>  #include "cdv_device.h"
+>  #include "intel_bios.h"
+>  #include "power.h"
+> @@ -499,16 +501,6 @@ static const struct drm_connector_funcs cdv_intel_lvds_connector_funcs = {
+>  	.destroy = cdv_intel_lvds_destroy,
 >  };
 >  
-> -static const struct drm_encoder_funcs exynos_vidi_encoder_funcs = {
+> -
+> -static void cdv_intel_lvds_enc_destroy(struct drm_encoder *encoder)
+> -{
+> -	drm_encoder_cleanup(encoder);
+> -}
+> -
+> -static const struct drm_encoder_funcs cdv_intel_lvds_enc_funcs = {
+> -	.destroy = cdv_intel_lvds_enc_destroy,
+> -};
+> -
+>  /*
+>   * Enumerate the child dev array parsed from VBT to check whether
+>   * the LVDS is present.
+> @@ -616,10 +608,7 @@ void cdv_intel_lvds_init(struct drm_device *dev,
+>  			   &cdv_intel_lvds_connector_funcs,
+>  			   DRM_MODE_CONNECTOR_LVDS);
+>  
+> -	drm_encoder_init(dev, encoder,
+> -			 &cdv_intel_lvds_enc_funcs,
+> -			 DRM_MODE_ENCODER_LVDS, NULL);
+> -
+> +	drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_LVDS);
+>  
+>  	gma_connector_attach_encoder(gma_connector, gma_encoder);
+>  	gma_encoder->type = INTEL_OUTPUT_LVDS;
+> diff --git a/drivers/gpu/drm/gma500/mdfld_dsi_dpi.c b/drivers/gpu/drm/gma500/mdfld_dsi_dpi.c
+> index d4c65f268922..aa5aa293ddb6 100644
+> --- a/drivers/gpu/drm/gma500/mdfld_dsi_dpi.c
+> +++ b/drivers/gpu/drm/gma500/mdfld_dsi_dpi.c
+> @@ -27,6 +27,8 @@
+>  
+>  #include <linux/delay.h>
+>  
+> +#include <drm/drm_simple_kms_helper.h>
+> +
+>  #include "mdfld_dsi_dpi.h"
+>  #include "mdfld_dsi_pkg_sender.h"
+>  #include "mdfld_output.h"
+> @@ -993,10 +995,7 @@ struct mdfld_dsi_encoder *mdfld_dsi_dpi_init(struct drm_device *dev,
+>  	/*create drm encoder object*/
+>  	connector = &dsi_connector->base.base;
+>  	encoder = &dpi_output->base.base.base;
+> -	drm_encoder_init(dev,
+> -			encoder,
+> -			p_funcs->encoder_funcs,
+> -			DRM_MODE_ENCODER_LVDS, NULL);
+> +	drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_LVDS);
+>  	drm_encoder_helper_add(encoder,
+>  				p_funcs->encoder_helper_funcs);
+>  
+> diff --git a/drivers/gpu/drm/gma500/mdfld_output.h b/drivers/gpu/drm/gma500/mdfld_output.h
+> index ab2b27c0f037..17a944d70add 100644
+> --- a/drivers/gpu/drm/gma500/mdfld_output.h
+> +++ b/drivers/gpu/drm/gma500/mdfld_output.h
+> @@ -51,7 +51,6 @@ struct panel_info {
+>  };
+>  
+>  struct panel_funcs {
+> -	const struct drm_encoder_funcs *encoder_funcs;
+>  	const struct drm_encoder_helper_funcs *encoder_helper_funcs;
+>  	struct drm_display_mode * (*get_config_mode)(struct drm_device *);
+>  	int (*get_panel_info)(struct drm_device *, int, struct panel_info *);
+> diff --git a/drivers/gpu/drm/gma500/mdfld_tmd_vid.c b/drivers/gpu/drm/gma500/mdfld_tmd_vid.c
+> index 49c92debb7b2..25e897b98f86 100644
+> --- a/drivers/gpu/drm/gma500/mdfld_tmd_vid.c
+> +++ b/drivers/gpu/drm/gma500/mdfld_tmd_vid.c
+> @@ -188,13 +188,7 @@ static const struct drm_encoder_helper_funcs
+>  	.commit = mdfld_dsi_dpi_commit,
+>  };
+>  
+> -/*TPO DPI encoder funcs*/
+> -static const struct drm_encoder_funcs mdfld_tpo_dpi_encoder_funcs = {
 > -	.destroy = drm_encoder_cleanup,
 > -};
 > -
->  static int vidi_bind(struct device *dev, struct device *master, void *data)
->  {
->  	struct vidi_context *ctx = dev_get_drvdata(dev);
-> @@ -406,8 +403,7 @@ static int vidi_bind(struct device *dev, struct device *master, void *data)
->  		return PTR_ERR(ctx->crtc);
->  	}
->  
-> -	drm_encoder_init(drm_dev, encoder, &exynos_vidi_encoder_funcs,
-> -			 DRM_MODE_ENCODER_TMDS, NULL);
-> +	drm_simple_encoder_init(drm_dev, encoder, DRM_MODE_ENCODER_TMDS);
->  
->  	drm_encoder_helper_add(encoder, &exynos_vidi_encoder_helper_funcs);
->  
-> diff --git a/drivers/gpu/drm/exynos/exynos_hdmi.c b/drivers/gpu/drm/exynos/exynos_hdmi.c
-> index 3e5f1a77286d..302ffda5f297 100644
-> --- a/drivers/gpu/drm/exynos/exynos_hdmi.c
-> +++ b/drivers/gpu/drm/exynos/exynos_hdmi.c
-> @@ -38,6 +38,7 @@
->  #include <drm/drm_edid.h>
->  #include <drm/drm_print.h>
->  #include <drm/drm_probe_helper.h>
-> +#include <drm/drm_simple_kms_helper.h>
->  
->  #include "exynos_drm_crtc.h"
->  #include "regs-hdmi.h"
-> @@ -1559,10 +1560,6 @@ static const struct drm_encoder_helper_funcs exynos_hdmi_encoder_helper_funcs =
->  	.disable	= hdmi_disable,
+>  const struct panel_funcs mdfld_tmd_vid_funcs = {
+> -	.encoder_funcs = &mdfld_tpo_dpi_encoder_funcs,
+>  	.encoder_helper_funcs = &mdfld_tpo_dpi_encoder_helper_funcs,
+>  	.get_config_mode = &tmd_vid_get_config_mode,
+>  	.get_panel_info = tmd_vid_get_panel_info,
+> diff --git a/drivers/gpu/drm/gma500/mdfld_tpo_vid.c b/drivers/gpu/drm/gma500/mdfld_tpo_vid.c
+> index a9420bf9a419..11845978fb0a 100644
+> --- a/drivers/gpu/drm/gma500/mdfld_tpo_vid.c
+> +++ b/drivers/gpu/drm/gma500/mdfld_tpo_vid.c
+> @@ -76,13 +76,7 @@ static const struct drm_encoder_helper_funcs
+>  	.commit = mdfld_dsi_dpi_commit,
 >  };
 >  
-> -static const struct drm_encoder_funcs exynos_hdmi_encoder_funcs = {
+> -/*TPO DPI encoder funcs*/
+> -static const struct drm_encoder_funcs mdfld_tpo_dpi_encoder_funcs = {
 > -	.destroy = drm_encoder_cleanup,
 > -};
 > -
->  static void hdmi_audio_shutdown(struct device *dev, void *data)
+>  const struct panel_funcs mdfld_tpo_vid_funcs = {
+> -	.encoder_funcs = &mdfld_tpo_dpi_encoder_funcs,
+>  	.encoder_helper_funcs = &mdfld_tpo_dpi_encoder_helper_funcs,
+>  	.get_config_mode = &tpo_vid_get_config_mode,
+>  	.get_panel_info = tpo_vid_get_panel_info,
+> diff --git a/drivers/gpu/drm/gma500/oaktrail_hdmi.c b/drivers/gpu/drm/gma500/oaktrail_hdmi.c
+> index f4370232767d..b25086f252ae 100644
+> --- a/drivers/gpu/drm/gma500/oaktrail_hdmi.c
+> +++ b/drivers/gpu/drm/gma500/oaktrail_hdmi.c
+> @@ -27,6 +27,7 @@
+>  #include <linux/delay.h>
+>  
+>  #include <drm/drm.h>
+> +#include <drm/drm_simple_kms_helper.h>
+>  
+>  #include "psb_drv.h"
+>  #include "psb_intel_drv.h"
+> @@ -620,15 +621,6 @@ static const struct drm_connector_funcs oaktrail_hdmi_connector_funcs = {
+>  	.destroy = oaktrail_hdmi_destroy,
+>  };
+>  
+> -static void oaktrail_hdmi_enc_destroy(struct drm_encoder *encoder)
+> -{
+> -	drm_encoder_cleanup(encoder);
+> -}
+> -
+> -static const struct drm_encoder_funcs oaktrail_hdmi_enc_funcs = {
+> -	.destroy = oaktrail_hdmi_enc_destroy,
+> -};
+> -
+>  void oaktrail_hdmi_init(struct drm_device *dev,
+>  					struct psb_intel_mode_device *mode_dev)
 >  {
->  	struct hdmi_context *hdata = dev_get_drvdata(dev);
-> @@ -1851,8 +1848,7 @@ static int hdmi_bind(struct device *dev, struct device *master, void *data)
+> @@ -651,9 +643,7 @@ void oaktrail_hdmi_init(struct drm_device *dev,
+>  			   &oaktrail_hdmi_connector_funcs,
+>  			   DRM_MODE_CONNECTOR_DVID);
 >  
->  	hdata->phy_clk.enable = hdmiphy_clk_enable;
->  
-> -	drm_encoder_init(drm_dev, encoder, &exynos_hdmi_encoder_funcs,
+> -	drm_encoder_init(dev, encoder,
+> -			 &oaktrail_hdmi_enc_funcs,
 > -			 DRM_MODE_ENCODER_TMDS, NULL);
-> +	drm_simple_encoder_init(drm_dev, encoder, DRM_MODE_ENCODER_TMDS);
+> +	drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_TMDS);
 >  
->  	drm_encoder_helper_add(encoder, &exynos_hdmi_encoder_helper_funcs);
+>  	gma_connector_attach_encoder(gma_connector, gma_encoder);
 >  
+> diff --git a/drivers/gpu/drm/gma500/oaktrail_lvds.c b/drivers/gpu/drm/gma500/oaktrail_lvds.c
+> index 582e09597500..2828360153d1 100644
+> --- a/drivers/gpu/drm/gma500/oaktrail_lvds.c
+> +++ b/drivers/gpu/drm/gma500/oaktrail_lvds.c
+> @@ -13,6 +13,8 @@
+>  
+>  #include <asm/intel-mid.h>
+>  
+> +#include <drm/drm_simple_kms_helper.h>
+> +
+>  #include "intel_bios.h"
+>  #include "power.h"
+>  #include "psb_drv.h"
+> @@ -311,8 +313,7 @@ void oaktrail_lvds_init(struct drm_device *dev,
+>  			   &psb_intel_lvds_connector_funcs,
+>  			   DRM_MODE_CONNECTOR_LVDS);
+>  
+> -	drm_encoder_init(dev, encoder, &psb_intel_lvds_enc_funcs,
+> -			 DRM_MODE_ENCODER_LVDS, NULL);
+> +	drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_LVDS);
+>  
+>  	gma_connector_attach_encoder(gma_connector, gma_encoder);
+>  	gma_encoder->type = INTEL_OUTPUT_LVDS;
+> diff --git a/drivers/gpu/drm/gma500/psb_intel_drv.h b/drivers/gpu/drm/gma500/psb_intel_drv.h
+> index 16c6136f778b..fb601983cef0 100644
+> --- a/drivers/gpu/drm/gma500/psb_intel_drv.h
+> +++ b/drivers/gpu/drm/gma500/psb_intel_drv.h
+> @@ -252,7 +252,6 @@ extern int psb_intel_lvds_set_property(struct drm_connector *connector,
+>  					struct drm_property *property,
+>  					uint64_t value);
+>  extern void psb_intel_lvds_destroy(struct drm_connector *connector);
+> -extern const struct drm_encoder_funcs psb_intel_lvds_enc_funcs;
+>  
+>  /* intel_gmbus.c */
+>  extern void gma_intel_i2c_reset(struct drm_device *dev);
+> diff --git a/drivers/gpu/drm/gma500/psb_intel_lvds.c b/drivers/gpu/drm/gma500/psb_intel_lvds.c
+> index afaebab7bc17..063c66bb946d 100644
+> --- a/drivers/gpu/drm/gma500/psb_intel_lvds.c
+> +++ b/drivers/gpu/drm/gma500/psb_intel_lvds.c
+> @@ -11,6 +11,8 @@
+>  #include <linux/i2c.h>
+>  #include <linux/pm_runtime.h>
+>  
+> +#include <drm/drm_simple_kms_helper.h>
+> +
+>  #include "intel_bios.h"
+>  #include "power.h"
+>  #include "psb_drv.h"
+> @@ -621,18 +623,6 @@ const struct drm_connector_funcs psb_intel_lvds_connector_funcs = {
+>  	.destroy = psb_intel_lvds_destroy,
+>  };
+>  
+> -
+> -static void psb_intel_lvds_enc_destroy(struct drm_encoder *encoder)
+> -{
+> -	drm_encoder_cleanup(encoder);
+> -}
+> -
+> -const struct drm_encoder_funcs psb_intel_lvds_enc_funcs = {
+> -	.destroy = psb_intel_lvds_enc_destroy,
+> -};
+> -
+> -
+> -
+>  /**
+>   * psb_intel_lvds_init - setup LVDS connectors on this device
+>   * @dev: drm device
+> @@ -683,9 +673,7 @@ void psb_intel_lvds_init(struct drm_device *dev,
+>  			   &psb_intel_lvds_connector_funcs,
+>  			   DRM_MODE_CONNECTOR_LVDS);
+>  
+> -	drm_encoder_init(dev, encoder,
+> -			 &psb_intel_lvds_enc_funcs,
+> -			 DRM_MODE_ENCODER_LVDS, NULL);
+> +	drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_LVDS);
+>  
+>  	gma_connector_attach_encoder(gma_connector, gma_encoder);
+>  	gma_encoder->type = INTEL_OUTPUT_LVDS;
+> diff --git a/drivers/gpu/drm/gma500/tc35876x-dsi-lvds.c b/drivers/gpu/drm/gma500/tc35876x-dsi-lvds.c
+> index 9e8224456ea2..f7e121f4c609 100644
+> --- a/drivers/gpu/drm/gma500/tc35876x-dsi-lvds.c
+> +++ b/drivers/gpu/drm/gma500/tc35876x-dsi-lvds.c
+> @@ -765,12 +765,7 @@ static const struct drm_encoder_helper_funcs tc35876x_encoder_helper_funcs = {
+>  	.commit = mdfld_dsi_dpi_commit,
+>  };
+>  
+> -static const struct drm_encoder_funcs tc35876x_encoder_funcs = {
+> -	.destroy = drm_encoder_cleanup,
+> -};
+> -
+>  const struct panel_funcs mdfld_tc35876x_funcs = {
+> -	.encoder_funcs = &tc35876x_encoder_funcs,
+>  	.encoder_helper_funcs = &tc35876x_encoder_helper_funcs,
+>  	.get_config_mode = tc35876x_get_config_mode,
+>  	.get_panel_info = tc35876x_get_panel_info,
 > -- 
 > 2.25.1
