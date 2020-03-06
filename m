@@ -1,131 +1,102 @@
-From: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [PATCH 28/51] drm/bochs: Drop explicit drm_mode_config_cleanup
-Date: Fri, 6 Mar 2020 21:14:57 +0100
-Message-ID: <20200306201457.GC13014@ravnborg.org>
-References: <20200302222631.3861340-1-daniel.vetter@ffwll.ch>
- <20200302222631.3861340-29-daniel.vetter@ffwll.ch>
+From: Sam Ravnborg <sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org>
+Subject: Re: [PATCH 01/22] drm/arc: Use simple encoder
+Date: Fri, 6 Mar 2020 22:18:03 +0100
+Message-ID: <20200306211802.GA17369@ravnborg.org>
+References: <20200305155950.2705-1-tzimmermann@suse.de>
+ <20200305155950.2705-2-tzimmermann@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <20200302222631.3861340-29-daniel.vetter@ffwll.ch>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Intel Graphics Development <intel-gfx@lists.freedesktop.org>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Thomas Zimmermann <tzimmermann@suse.de>, Daniel Vetter <daniel.vetter@intel.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+In-Reply-To: <20200305155950.2705-2-tzimmermann-l3A5Bk7waGM@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Thomas Zimmermann <tzimmermann-l3A5Bk7waGM@public.gmane.org>
+Cc: airlied-cv59FeDIM0c@public.gmane.org, daniel-/w4YWyX8dFk@public.gmane.org, abrodkin-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, bbrezillon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, nicolas.ferre-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, alexandre.belloni-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org, ludovic.desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, maarten.lankhorst-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, mripard-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, inki.dae-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, sw0312.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, stefan-XLVq0VzYD2Y@public.gmane.org, alison.wang-3arQi8VN3Tc@public.gmane.org, patrik.r.jakobsson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, xinliang.liu-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, zourongrong-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, john.stultz-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, kong.kongxinwei-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org, puck.chen-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-imx-3arQi8VN3Tc@public.gmane.org, paul-icTtO2rgO2OTuSrc4Mpeew@public.gmane.org, ck.hu-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org, matthias
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Mar 02, 2020 at 11:26:08PM +0100, Daniel Vetter wrote:
-> Instead rely on the automatic clean, for which we just need to check
-> that drm_mode_config_init succeeded. To avoid an inversion in the
-> cleanup we also have to move the dev_private allocation over to
-> drmm_kzalloc.
-> 
-> This is made possible by a preceeding patch which added a drmm_
-> cleanup action to drm_mode_config_init(), hence all we need to do to
-> ensure that drm_mode_config_cleanup() is run on final drm_device
-> cleanup is check the new error code for _init().
-> 
-> v2: Explain why this cleanup is possible (Laurent).
-> 
-> v3: Use drmm_mode_config_init() for more clarity (Sam, Thomas)
-> 
-> Cc: Sam Ravnborg <sam@ravnborg.org>
-> Cc: Thomas Zimmermann <tzimmermann@suse.de>
-> Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-> Cc: Gerd Hoffmann <kraxel@redhat.com>
-> Cc: virtualization@lists.linux-foundation.org
+On Thu, Mar 05, 2020 at 04:59:29PM +0100, Thomas Zimmermann wrote:
+> The arc driver uses empty implementations for its encoders. Replace
+> the code with the generic simple encoder.
 
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
+We should , as a follow-up patch, embed the encoder in
+arcgpu_drm_private.
+Then we drop the kzalloc() and avoid that life-time challenge.
 
+This patch looks good for what it does.
 
+Acked-by: Sam Ravnborg <sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org>
+
+> 
+> Signed-off-by: Thomas Zimmermann <tzimmermann-l3A5Bk7waGM@public.gmane.org>
 > ---
->  drivers/gpu/drm/bochs/bochs.h     |  1 -
->  drivers/gpu/drm/bochs/bochs_drv.c |  6 ++----
->  drivers/gpu/drm/bochs/bochs_kms.c | 14 +++++---------
->  3 files changed, 7 insertions(+), 14 deletions(-)
+>  drivers/gpu/drm/arc/arcpgu_hdmi.c | 10 +++-------
+>  drivers/gpu/drm/arc/arcpgu_sim.c  |  8 ++------
+>  2 files changed, 5 insertions(+), 13 deletions(-)
 > 
-> diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
-> index 917767173ee6..e5bd1d517a18 100644
-> --- a/drivers/gpu/drm/bochs/bochs.h
-> +++ b/drivers/gpu/drm/bochs/bochs.h
-> @@ -92,7 +92,6 @@ void bochs_mm_fini(struct bochs_device *bochs);
+> diff --git a/drivers/gpu/drm/arc/arcpgu_hdmi.c b/drivers/gpu/drm/arc/arcpgu_hdmi.c
+> index 52839934f2fb..780911765e2e 100644
+> --- a/drivers/gpu/drm/arc/arcpgu_hdmi.c
+> +++ b/drivers/gpu/drm/arc/arcpgu_hdmi.c
+> @@ -7,15 +7,12 @@
 >  
->  /* bochs_kms.c */
->  int bochs_kms_init(struct bochs_device *bochs);
-> -void bochs_kms_fini(struct bochs_device *bochs);
+>  #include <drm/drm_bridge.h>
+>  #include <drm/drm_crtc.h>
+> -#include <drm/drm_encoder.h>
+>  #include <drm/drm_device.h>
+> +#include <drm/drm_encoder.h>
+> +#include <drm/drm_simple_kms_helper.h>
 >  
->  /* bochs_fbdev.c */
->  extern const struct drm_mode_config_funcs bochs_mode_funcs;
-> diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
-> index addb0568c1af..e18c51de1196 100644
-> --- a/drivers/gpu/drm/bochs/bochs_drv.c
-> +++ b/drivers/gpu/drm/bochs/bochs_drv.c
-> @@ -7,6 +7,7 @@
+>  #include "arcpgu.h"
 >  
->  #include <drm/drm_drv.h>
+> -static struct drm_encoder_funcs arcpgu_drm_encoder_funcs = {
+> -	.destroy = drm_encoder_cleanup,
+> -};
+> -
+>  int arcpgu_drm_hdmi_init(struct drm_device *drm, struct device_node *np)
+>  {
+>  	struct drm_encoder *encoder;
+> @@ -34,8 +31,7 @@ int arcpgu_drm_hdmi_init(struct drm_device *drm, struct device_node *np)
+>  
+>  	encoder->possible_crtcs = 1;
+>  	encoder->possible_clones = 0;
+> -	ret = drm_encoder_init(drm, encoder, &arcpgu_drm_encoder_funcs,
+> -			       DRM_MODE_ENCODER_TMDS, NULL);
+> +	ret = drm_simple_encoder_init(drm, encoder, DRM_MODE_ENCODER_TMDS);
+>  	if (ret)
+>  		return ret;
+>  
+> diff --git a/drivers/gpu/drm/arc/arcpgu_sim.c b/drivers/gpu/drm/arc/arcpgu_sim.c
+> index 37d961668dfe..66ca2c26e339 100644
+> --- a/drivers/gpu/drm/arc/arcpgu_sim.c
+> +++ b/drivers/gpu/drm/arc/arcpgu_sim.c
+> @@ -8,6 +8,7 @@
 >  #include <drm/drm_atomic_helper.h>
-> +#include <drm/drm_managed.h>
+>  #include <drm/drm_device.h>
+>  #include <drm/drm_probe_helper.h>
+> +#include <drm/drm_simple_kms_helper.h>
 >  
->  #include "bochs.h"
+>  #include "arcpgu.h"
 >  
-> @@ -21,10 +22,7 @@ static void bochs_unload(struct drm_device *dev)
->  {
->  	struct bochs_device *bochs = dev->dev_private;
+> @@ -50,10 +51,6 @@ static const struct drm_connector_funcs arcpgu_drm_connector_funcs = {
+>  	.atomic_destroy_state = drm_atomic_helper_connector_destroy_state,
+>  };
 >  
-> -	bochs_kms_fini(bochs);
->  	bochs_mm_fini(bochs);
-> -	kfree(bochs);
-> -	dev->dev_private = NULL;
->  }
->  
->  static int bochs_load(struct drm_device *dev)
-> @@ -32,7 +30,7 @@ static int bochs_load(struct drm_device *dev)
->  	struct bochs_device *bochs;
->  	int ret;
->  
-> -	bochs = kzalloc(sizeof(*bochs), GFP_KERNEL);
-> +	bochs = drmm_kzalloc(dev, sizeof(*bochs), GFP_KERNEL);
->  	if (bochs == NULL)
->  		return -ENOMEM;
->  	dev->dev_private = bochs;
-> diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-> index e8cc8156d773..7f4bcfad87e9 100644
-> --- a/drivers/gpu/drm/bochs/bochs_kms.c
-> +++ b/drivers/gpu/drm/bochs/bochs_kms.c
-> @@ -134,7 +134,11 @@ const struct drm_mode_config_funcs bochs_mode_funcs = {
->  
->  int bochs_kms_init(struct bochs_device *bochs)
->  {
-> -	drm_mode_config_init(bochs->dev);
-> +	int ret;
-> +
-> +	ret = drmm_mode_config_init(bochs->dev);
-> +	if (ret)
-> +		return ret;
->  
->  	bochs->dev->mode_config.max_width = 8192;
->  	bochs->dev->mode_config.max_height = 8192;
-> @@ -160,11 +164,3 @@ int bochs_kms_init(struct bochs_device *bochs)
->  
->  	return 0;
->  }
+> -static struct drm_encoder_funcs arcpgu_drm_encoder_funcs = {
+> -	.destroy = drm_encoder_cleanup,
+> -};
 > -
-> -void bochs_kms_fini(struct bochs_device *bochs)
-> -{
-> -	if (!bochs->dev->mode_config.num_connector)
-> -		return;
-> -
-> -	drm_mode_config_cleanup(bochs->dev);
-> -}
+>  int arcpgu_drm_sim_init(struct drm_device *drm, struct device_node *np)
+>  {
+>  	struct arcpgu_drm_connector *arcpgu_connector;
+> @@ -68,8 +65,7 @@ int arcpgu_drm_sim_init(struct drm_device *drm, struct device_node *np)
+>  	encoder->possible_crtcs = 1;
+>  	encoder->possible_clones = 0;
+>  
+> -	ret = drm_encoder_init(drm, encoder, &arcpgu_drm_encoder_funcs,
+> -			       DRM_MODE_ENCODER_VIRTUAL, NULL);
+> +	ret = drm_simple_encoder_init(drm, encoder, DRM_MODE_ENCODER_VIRTUAL);
+>  	if (ret)
+>  		return ret;
+>  
 > -- 
-> 2.24.1
+> 2.25.1
