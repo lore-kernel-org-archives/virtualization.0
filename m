@@ -1,112 +1,131 @@
-From: Jyri Sarha <jsarha-l0cyMroinI0@public.gmane.org>
-Subject: Re: [PATCH 17/22] drm/tilcdc: Use simple encoder
-Date: Fri, 6 Mar 2020 18:03:18 +0200
-Message-ID: <d4b7313e-3b5e-0659-fb2a-32a969a80081@ti.com>
-References: <20200305155950.2705-1-tzimmermann@suse.de>
- <20200305155950.2705-18-tzimmermann@suse.de>
+From: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [PATCH 28/51] drm/bochs: Drop explicit drm_mode_config_cleanup
+Date: Fri, 6 Mar 2020 21:14:57 +0100
+Message-ID: <20200306201457.GC13014@ravnborg.org>
+References: <20200302222631.3861340-1-daniel.vetter@ffwll.ch>
+ <20200302222631.3861340-29-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-mediatek-bounces+glpam-linux-mediatek=m.gmane-mx.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-In-Reply-To: <20200305155950.2705-18-tzimmermann-l3A5Bk7waGM@public.gmane.org>
-Content-Language: en-GB
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mediatek>,
- <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-mediatek/>
-List-Post: <mailto:linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mediatek>,
- <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "Linux-mediatek" <linux-mediatek-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: linux-mediatek-bounces+glpam-linux-mediatek=m.gmane-mx.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: Thomas Zimmermann <tzimmermann-l3A5Bk7waGM@public.gmane.org>, airlied-cv59FeDIM0c@public.gmane.org, daniel-/w4YWyX8dFk@public.gmane.org, sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org, abrodkin-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, bbrezillon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, nicolas.ferre-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, alexandre.belloni-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org, ludovic.desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, maarten.lankhorst-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, mripard-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, inki.dae-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, sw0312.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, stefan-XLVq0VzYD2Y@public.gmane.org, alison.wang-3arQi8VN3Tc@public.gmane.org, patrik.r.jakobsson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, xinliang.liu-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, zourongrong-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, john.stultz-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, kong.kongxinwei-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org, puck.chen-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, festevam-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, linux-imx-3arQi8VN3Tc@public.gmane.org, paul-icTtO2rgO2OTuSrc4Mpeew@public.gmane.org
-Cc: linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20200302222631.3861340-29-daniel.vetter@ffwll.ch>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Intel Graphics Development <intel-gfx@lists.freedesktop.org>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Thomas Zimmermann <tzimmermann@suse.de>, Daniel Vetter <daniel.vetter@intel.com>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 05/03/2020 17:59, Thomas Zimmermann wrote:
-> The tilcdc driver uses empty implementations for its encoders. Replace
-> the code with the generic simple encoder.
+On Mon, Mar 02, 2020 at 11:26:08PM +0100, Daniel Vetter wrote:
+> Instead rely on the automatic clean, for which we just need to check
+> that drm_mode_config_init succeeded. To avoid an inversion in the
+> cleanup we also have to move the dev_private allocation over to
+> drmm_kzalloc.
 > 
-> Signed-off-by: Thomas Zimmermann <tzimmermann-l3A5Bk7waGM@public.gmane.org>
+> This is made possible by a preceeding patch which added a drmm_
+> cleanup action to drm_mode_config_init(), hence all we need to do to
+> ensure that drm_mode_config_cleanup() is run on final drm_device
+> cleanup is check the new error code for _init().
+> 
+> v2: Explain why this cleanup is possible (Laurent).
+> 
+> v3: Use drmm_mode_config_init() for more clarity (Sam, Thomas)
+> 
+> Cc: Sam Ravnborg <sam@ravnborg.org>
+> Cc: Thomas Zimmermann <tzimmermann@suse.de>
+> Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+> Cc: Gerd Hoffmann <kraxel@redhat.com>
+> Cc: virtualization@lists.linux-foundation.org
 
-Acked-by: Jyri Sarha <jsarha-l0cyMroinI0@public.gmane.org>
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+
 
 > ---
->  drivers/gpu/drm/tilcdc/tilcdc_external.c | 10 +++-------
->  drivers/gpu/drm/tilcdc/tilcdc_panel.c    |  8 ++------
->  2 files changed, 5 insertions(+), 13 deletions(-)
+>  drivers/gpu/drm/bochs/bochs.h     |  1 -
+>  drivers/gpu/drm/bochs/bochs_drv.c |  6 ++----
+>  drivers/gpu/drm/bochs/bochs_kms.c | 14 +++++---------
+>  3 files changed, 7 insertions(+), 14 deletions(-)
 > 
-> diff --git a/drivers/gpu/drm/tilcdc/tilcdc_external.c b/drivers/gpu/drm/tilcdc/tilcdc_external.c
-> index 28b7f703236e..b177525588c1 100644
-> --- a/drivers/gpu/drm/tilcdc/tilcdc_external.c
-> +++ b/drivers/gpu/drm/tilcdc/tilcdc_external.c
-> @@ -10,6 +10,7 @@
->  #include <drm/drm_atomic_helper.h>
->  #include <drm/drm_bridge.h>
->  #include <drm/drm_of.h>
-> +#include <drm/drm_simple_kms_helper.h>
+> diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
+> index 917767173ee6..e5bd1d517a18 100644
+> --- a/drivers/gpu/drm/bochs/bochs.h
+> +++ b/drivers/gpu/drm/bochs/bochs.h
+> @@ -92,7 +92,6 @@ void bochs_mm_fini(struct bochs_device *bochs);
 >  
->  #include "tilcdc_drv.h"
->  #include "tilcdc_external.h"
-> @@ -83,10 +84,6 @@ int tilcdc_add_component_encoder(struct drm_device *ddev)
+>  /* bochs_kms.c */
+>  int bochs_kms_init(struct bochs_device *bochs);
+> -void bochs_kms_fini(struct bochs_device *bochs);
+>  
+>  /* bochs_fbdev.c */
+>  extern const struct drm_mode_config_funcs bochs_mode_funcs;
+> diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
+> index addb0568c1af..e18c51de1196 100644
+> --- a/drivers/gpu/drm/bochs/bochs_drv.c
+> +++ b/drivers/gpu/drm/bochs/bochs_drv.c
+> @@ -7,6 +7,7 @@
+>  
+>  #include <drm/drm_drv.h>
+>  #include <drm/drm_atomic_helper.h>
+> +#include <drm/drm_managed.h>
+>  
+>  #include "bochs.h"
+>  
+> @@ -21,10 +22,7 @@ static void bochs_unload(struct drm_device *dev)
+>  {
+>  	struct bochs_device *bochs = dev->dev_private;
+>  
+> -	bochs_kms_fini(bochs);
+>  	bochs_mm_fini(bochs);
+> -	kfree(bochs);
+> -	dev->dev_private = NULL;
+>  }
+>  
+>  static int bochs_load(struct drm_device *dev)
+> @@ -32,7 +30,7 @@ static int bochs_load(struct drm_device *dev)
+>  	struct bochs_device *bochs;
+>  	int ret;
+>  
+> -	bochs = kzalloc(sizeof(*bochs), GFP_KERNEL);
+> +	bochs = drmm_kzalloc(dev, sizeof(*bochs), GFP_KERNEL);
+>  	if (bochs == NULL)
+>  		return -ENOMEM;
+>  	dev->dev_private = bochs;
+> diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+> index e8cc8156d773..7f4bcfad87e9 100644
+> --- a/drivers/gpu/drm/bochs/bochs_kms.c
+> +++ b/drivers/gpu/drm/bochs/bochs_kms.c
+> @@ -134,7 +134,11 @@ const struct drm_mode_config_funcs bochs_mode_funcs = {
+>  
+>  int bochs_kms_init(struct bochs_device *bochs)
+>  {
+> -	drm_mode_config_init(bochs->dev);
+> +	int ret;
+> +
+> +	ret = drmm_mode_config_init(bochs->dev);
+> +	if (ret)
+> +		return ret;
+>  
+>  	bochs->dev->mode_config.max_width = 8192;
+>  	bochs->dev->mode_config.max_height = 8192;
+> @@ -160,11 +164,3 @@ int bochs_kms_init(struct bochs_device *bochs)
+>  
 >  	return 0;
 >  }
->  
-> -static const struct drm_encoder_funcs tilcdc_external_encoder_funcs = {
-> -	.destroy	= drm_encoder_cleanup,
-> -};
 > -
->  static
->  int tilcdc_attach_bridge(struct drm_device *ddev, struct drm_bridge *bridge)
->  {
-> @@ -131,9 +128,8 @@ int tilcdc_attach_external_device(struct drm_device *ddev)
->  	if (!priv->external_encoder)
->  		return -ENOMEM;
->  
-> -	ret = drm_encoder_init(ddev, priv->external_encoder,
-> -			       &tilcdc_external_encoder_funcs,
-> -			       DRM_MODE_ENCODER_NONE, NULL);
-> +	ret = drm_simple_encoder_init(ddev, priv->external_encoder,
-> +				      DRM_MODE_ENCODER_NONE);
->  	if (ret) {
->  		dev_err(ddev->dev, "drm_encoder_init() failed %d\n", ret);
->  		return ret;
-> diff --git a/drivers/gpu/drm/tilcdc/tilcdc_panel.c b/drivers/gpu/drm/tilcdc/tilcdc_panel.c
-> index 5584e656b857..12823d60c4e8 100644
-> --- a/drivers/gpu/drm/tilcdc/tilcdc_panel.c
-> +++ b/drivers/gpu/drm/tilcdc/tilcdc_panel.c
-> @@ -16,6 +16,7 @@
->  #include <drm/drm_connector.h>
->  #include <drm/drm_modeset_helper_vtables.h>
->  #include <drm/drm_probe_helper.h>
-> +#include <drm/drm_simple_kms_helper.h>
->  
->  #include "tilcdc_drv.h"
->  #include "tilcdc_panel.h"
-> @@ -74,10 +75,6 @@ static void panel_encoder_mode_set(struct drm_encoder *encoder,
->  	/* nothing needed */
->  }
->  
-> -static const struct drm_encoder_funcs panel_encoder_funcs = {
-> -		.destroy        = drm_encoder_cleanup,
-> -};
+> -void bochs_kms_fini(struct bochs_device *bochs)
+> -{
+> -	if (!bochs->dev->mode_config.num_connector)
+> -		return;
 > -
->  static const struct drm_encoder_helper_funcs panel_encoder_helper_funcs = {
->  		.dpms           = panel_encoder_dpms,
->  		.prepare        = panel_encoder_prepare,
-> @@ -102,8 +99,7 @@ static struct drm_encoder *panel_encoder_create(struct drm_device *dev,
->  	encoder = &panel_encoder->base;
->  	encoder->possible_crtcs = 1;
->  
-> -	ret = drm_encoder_init(dev, encoder, &panel_encoder_funcs,
-> -			DRM_MODE_ENCODER_LVDS, NULL);
-> +	ret = drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_LVDS);
->  	if (ret < 0)
->  		goto fail;
->  
-> 
-
-
--- 
-Texas Instruments Finland Oy, Porkkalankatu 22, 00180 Helsinki.
-Y-tunnus/Business ID: 0615521-4. Kotipaikka/Domicile: Helsinki
+> -	drm_mode_config_cleanup(bochs->dev);
+> -}
+> -- 
+> 2.24.1
