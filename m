@@ -1,151 +1,95 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH 00/22] drm: Convert drivers to drm_simple_encoder_init()
-Date: Fri, 6 Mar 2020 11:56:59 +0100
-Message-ID: <20200306105659.GY2363188@phenom.ffwll.local>
-References: <20200305155950.2705-1-tzimmermann@suse.de>
+From: Hanjun Guo <guohanjun@huawei.com>
+Subject: Re: [PATCH 00/14] iommu: Move iommu_fwspec out of 'struct device'
+Date: Fri, 6 Mar 2020 19:04:07 +0800
+Message-ID: <c1a0d107-39a2-a25d-ec41-1e5aec68c5ec@huawei.com>
+References: <20200228150820.15340-1-joro@8bytes.org>
+ <ea839f32-194a-29ea-57fc-22caea40b981@huawei.com>
+ <20200306100955.GB50020@myrica>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-samsung-soc-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200305155950.2705-1-tzimmermann@suse.de>
-Sender: linux-samsung-soc-owner@vger.kernel.org
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: airlied@linux.ie, daniel@ffwll.ch, sam@ravnborg.org, abrodkin@synopsys.com, bbrezillon@kernel.org, nicolas.ferre@microchip.com, alexandre.belloni@bootlin.com, ludovic.desroches@microchip.com, maarten.lankhorst@linux.intel.com, mripard@kernel.org, jingoohan1@gmail.com, inki.dae@samsung.com, jy0922.shim@samsung.com, sw0312.kim@samsung.com, kyungmin.park@samsung.com, kgene@kernel.org, krzk@kernel.org, stefan@agner.ch, alison.wang@nxp.com, patrik.r.jakobsson@gmail.com, xinliang.liu@linaro.org, zourongrong@gmail.com, john.stultz@linaro.org, kong.kongxinwei@hisilicon.com, puck.chen@hisilicon.com, linux@armlinux.org.uk, p.zabel@pengutronix.de, shawnguo@kernel.org, s.hauer@pengutronix.de, kernel@pengutronix.de, festevam@gmail.com, linux-imx@nxp.com, paul@crapouillou.net, ck.hu@mediatek.com
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+In-Reply-To: <20200306100955.GB50020@myrica>
+Content-Language: en-US
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, virtualization@lists.linux-foundation.org, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Sudeep Holla <sudeep.holla@arm.com>, Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Matthias Brugger <matthias.bgg@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Linuxarm <linuxarm@huawei.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 05, 2020 at 04:59:28PM +0100, Thomas Zimmermann wrote:
-> A call to drm_simple_encoder_init() initializes an encoder without
-> further functionality. It only provides the destroy callback to
-> cleanup the encoder's state. Only few drivers implement more
-> sophisticated encoders than that. Most drivers implement such a
-> simple encoder and can use drm_simple_encoder_init() instead.
+On 2020/3/6 18:09, Jean-Philippe Brucker wrote:
+> On Fri, Mar 06, 2020 at 04:39:37PM +0800, Hanjun Guo wrote:
+>> Hi Joerg,
+>>
+>> On 2020/2/28 23:08, Joerg Roedel wrote:
+>>> Hi,
+>>>
+>>> here is a patch-set to rename iommu_param to dev_iommu and
+>>> establish it as a struct for generic per-device iommu-data.
+>>> Also move the iommu_fwspec pointer from struct device into
+>>> dev_iommu to have less iommu-related pointers in struct
+>>> device.
+>>>
+>>> The bigger part of this patch-set moves the iommu_priv
+>>> pointer from struct iommu_fwspec to dev_iommu, making is
+>>> usable for iommu-drivers which do not use fwspecs.
+>>>
+>>> The changes for that were mostly straightforward, except for
+>>> the arm-smmu (_not_ arm-smmu-v3) and the qcom iommu driver.
+>>> Unfortunatly I don't have the hardware for those, so any
+>>> testing of these drivers is greatly appreciated.
+>>
+>> I tested this patch set on Kunpeng 920 ARM64 server which
+>> using smmu-v3 with ACPI booting, but triggered a NULL
+>> pointer dereference and panic at boot:
 > 
-> The patchset converts drivers where the encoder's instance is
-> embedded in a larger data structure. The driver releases the
-> memory during cleanup. Each patch replaces drm_encoder_init() with
-> drm_simple_encoder_init() and removes the (now unused) driver's
-> encoder functions.
+> I think that's because patch 01/14 move the fwspec access too early. In 
 > 
-> While the patchset is fairly large, the indiviual patches are self-
-> contained and can be merged independently from each other. The
-> simple-encoder functionality is currently in drm-misc-next, where
-> these patches could go as well.
+>                 err = pci_for_each_dma_alias(to_pci_dev(dev),
+>                                              iort_pci_iommu_init, &info);
 > 
-> Future directions: There's another common case where the driver
-> calls kzalloc() plus drm_encoder_init(). Such drivers are not
-> handled by this patchset. The plan here is to use a simple encoder
-> with either managed memory allocation (once it's merged), or embed
-> the encoder in a larger data structure and drop kzalloc() entirely.
+>                 if (!err && iort_pci_rc_supports_ats(node))
+>                         dev->iommu_fwspec->flags |= IOMMU_FWSPEC_PCI_RC_ATS;
 > 
-> The patchset has been compile-tested on x86-64, aarch64 and arm.
+> the iommu_fwspec is only valid if iort_pci_iommu_init() initialized it
+> successfully, if err == 0. The following might fix it:
 
-So from a cursory look all these drivers get it wrong and devm_kzalloc
-their encoders. But I guess simplifying stuff like you do here will at
-least give us a nice list of things to look at once we get to the
-drmm_simple_encoder_init version of all this. On the series:
-
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Good catch :)
 
 > 
-> Thomas Zimmermann (22):
->   drm/arc: Use simple encoder
->   drm/atmel-hlcdc: Use simple encoder
->   drm/exynos: Use simple encoder
->   drm/fsl-dcu: Use simple encoder
->   drm/gma500: Use simple encoder
->   drm/hisilicon/kirin: Use simple encoder
->   drm/i2c/tda998x: Use simple encoder
->   drm/imx: Use simple encoder
->   drm/ingenic: Use simple encoder
->   drm/mediatek: Use simple encoder
->   drm/rcar-du: Use simple encoder
->   drm/rockchip: Use simple encoder
->   drm/shmobile: Use simple encoder
->   drm/sun4i: Use simple encoder
->   drm/tegra: Use simple encoder
->   drm/tidss: Use simple encoder
->   drm/tilcdc: Use simple encoder
->   drm/vc4: Use simple encoder
->   drm/virtgpu: Use simple encoder
->   drm/vkms: Use simple encoder
->   drm/writeback: Use simple encoder
->   drm/zte: Use simple encoder
+> diff --git a/drivers/acpi/arm64/iort.c b/drivers/acpi/arm64/iort.c
+> index 0e981d7f3c7d..7d04424189df 100644
+> --- a/drivers/acpi/arm64/iort.c
+> +++ b/drivers/acpi/arm64/iort.c
+> @@ -1015,7 +1015,7 @@ const struct iommu_ops *iort_iommu_configure(struct device *dev)
+>  		return ops;
 > 
->  drivers/gpu/drm/arc/arcpgu_hdmi.c              | 10 +++-------
->  drivers/gpu/drm/arc/arcpgu_sim.c               |  8 ++------
->  .../gpu/drm/atmel-hlcdc/atmel_hlcdc_output.c   | 12 ++++--------
->  drivers/gpu/drm/drm_writeback.c                | 10 +++-------
->  drivers/gpu/drm/exynos/exynos_dp.c             |  8 ++------
->  drivers/gpu/drm/exynos/exynos_drm_dpi.c        |  8 ++------
->  drivers/gpu/drm/exynos/exynos_drm_dsi.c        |  8 ++------
->  drivers/gpu/drm/exynos/exynos_drm_vidi.c       |  8 ++------
->  drivers/gpu/drm/exynos/exynos_hdmi.c           |  8 ++------
->  drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c      | 14 +++-----------
->  drivers/gpu/drm/gma500/cdv_intel_crt.c         | 14 +++-----------
->  drivers/gpu/drm/gma500/cdv_intel_dp.c          | 16 +++-------------
->  drivers/gpu/drm/gma500/cdv_intel_hdmi.c        |  4 ++--
->  drivers/gpu/drm/gma500/cdv_intel_lvds.c        | 17 +++--------------
->  drivers/gpu/drm/gma500/mdfld_dsi_dpi.c         |  7 +++----
->  drivers/gpu/drm/gma500/mdfld_output.h          |  1 -
->  drivers/gpu/drm/gma500/mdfld_tmd_vid.c         |  6 ------
->  drivers/gpu/drm/gma500/mdfld_tpo_vid.c         |  6 ------
->  drivers/gpu/drm/gma500/oaktrail_hdmi.c         | 14 ++------------
->  drivers/gpu/drm/gma500/oaktrail_lvds.c         |  5 +++--
->  drivers/gpu/drm/gma500/psb_intel_drv.h         |  1 -
->  drivers/gpu/drm/gma500/psb_intel_lvds.c        | 18 +++---------------
->  drivers/gpu/drm/gma500/tc35876x-dsi-lvds.c     |  5 -----
->  drivers/gpu/drm/hisilicon/kirin/dw_drm_dsi.c   |  8 ++------
->  drivers/gpu/drm/i2c/tda998x_drv.c              | 14 +++-----------
->  drivers/gpu/drm/imx/dw_hdmi-imx.c              |  8 ++------
->  drivers/gpu/drm/imx/imx-drm-core.c             |  6 ------
->  drivers/gpu/drm/imx/imx-drm.h                  |  1 -
->  drivers/gpu/drm/imx/imx-ldb.c                  |  8 ++------
->  drivers/gpu/drm/imx/imx-tve.c                  |  8 ++------
->  drivers/gpu/drm/imx/parallel-display.c         |  8 ++------
->  drivers/gpu/drm/ingenic/ingenic-drm.c          |  9 +++------
->  drivers/gpu/drm/mediatek/mtk_dpi.c             | 14 +++-----------
->  drivers/gpu/drm/mediatek/mtk_dsi.c             | 14 +++-----------
->  drivers/gpu/drm/rcar-du/rcar_du_encoder.c      | 14 +++-----------
->  .../gpu/drm/rockchip/analogix_dp-rockchip.c    |  9 +++------
->  drivers/gpu/drm/rockchip/cdn-dp-core.c         |  9 +++------
->  .../gpu/drm/rockchip/dw-mipi-dsi-rockchip.c    |  8 ++------
->  drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c    |  8 ++------
->  drivers/gpu/drm/rockchip/inno_hdmi.c           |  8 ++------
->  drivers/gpu/drm/rockchip/rk3066_hdmi.c         |  8 ++------
->  drivers/gpu/drm/rockchip/rockchip_lvds.c       | 10 +++-------
->  drivers/gpu/drm/rockchip/rockchip_rgb.c        |  8 ++------
->  drivers/gpu/drm/shmobile/shmob_drm_crtc.c      | 14 +++-----------
->  drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c         | 12 +++---------
->  drivers/gpu/drm/sun4i/sun4i_lvds.c             | 12 +++---------
->  drivers/gpu/drm/sun4i/sun4i_rgb.c              | 17 +++--------------
->  drivers/gpu/drm/sun4i/sun4i_tv.c               | 17 +++--------------
->  drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c         | 12 +++---------
->  drivers/gpu/drm/sun4i/sun8i_dw_hdmi.c          |  8 ++------
->  drivers/gpu/drm/tegra/drm.h                    |  2 --
->  drivers/gpu/drm/tegra/dsi.c                    | 10 +++-------
->  drivers/gpu/drm/tegra/hdmi.c                   |  9 +++------
->  drivers/gpu/drm/tegra/output.c                 |  6 +-----
->  drivers/gpu/drm/tegra/rgb.c                    |  8 ++------
->  drivers/gpu/drm/tegra/sor.c                    |  8 ++------
->  drivers/gpu/drm/tidss/tidss_encoder.c          | 10 +++-------
->  drivers/gpu/drm/tilcdc/tilcdc_external.c       | 10 +++-------
->  drivers/gpu/drm/tilcdc/tilcdc_panel.c          |  8 ++------
->  drivers/gpu/drm/vc4/vc4_dpi.c                  |  8 ++------
->  drivers/gpu/drm/vc4/vc4_dsi.c                  | 15 +++------------
->  drivers/gpu/drm/vc4/vc4_hdmi.c                 | 17 ++++-------------
->  drivers/gpu/drm/vc4/vc4_vec.c                  |  8 ++------
->  drivers/gpu/drm/virtio/virtgpu_display.c       |  8 ++------
->  drivers/gpu/drm/vkms/vkms_output.c             |  8 ++------
->  drivers/gpu/drm/zte/zx_hdmi.c                  |  8 ++------
->  drivers/gpu/drm/zte/zx_tvenc.c                 |  8 ++------
->  drivers/gpu/drm/zte/zx_vga.c                   |  8 ++------
->  68 files changed, 151 insertions(+), 488 deletions(-)
+>  	if (dev_is_pci(dev)) {
+> -		struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+> +		struct iommu_fwspec *fwspec;
+>  		struct pci_bus *bus = to_pci_dev(dev)->bus;
+>  		struct iort_pci_alias_info info = { .dev = dev };
 > 
-> --
-> 2.25.1
+> @@ -1028,7 +1028,8 @@ const struct iommu_ops *iort_iommu_configure(struct device *dev)
+>  		err = pci_for_each_dma_alias(to_pci_dev(dev),
+>  					     iort_pci_iommu_init, &info);
 > 
+> -		if (!err && iort_pci_rc_supports_ats(node))
+> +		fwspec = dev_iommu_fwspec_get(dev);
+> +		if (fwspec && iort_pci_rc_supports_ats(node))
+>  			fwspec->flags |= IOMMU_FWSPEC_PCI_RC_ATS;
+>  	} else {
+>  		int i = 0;
 
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+And the panic disappeared. Joerg, please feel free to add my Tested-by
+for smmu-v3 and IORT ACPI patches with above changes.
+
+> 
+> 
+> Note that this use of iommu_fwspec will be removed by the ATS cleanup
+> series [1], but this change should work as a temporary fix.
+
+Yes, as your patch set will set the ats_supported flag in the
+host bridge level, not per device, nice cleanup.
+
+Thanks
+Hanjun
