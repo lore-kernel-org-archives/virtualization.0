@@ -1,80 +1,46 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio_ring: Fix mem leak with vring_new_virtqueue()
-Date: Sun, 8 Mar 2020 03:58:05 -0400
-Message-ID: <20200308035751-mutt-send-email-mst@kernel.org>
-References: <20200224212643.30672-1-s-anna@ti.com>
- <b622c831-9adb-b9af-dd4a-21605bc124a8@redhat.com>
- <0ace3a3b-cf2f-7977-5337-f74f530afbe1@ti.com>
- <1ce2bee4-64ed-f630-2695-8e8b9b8e27c1@redhat.com>
- <a4335428-e29e-d567-b18b-3c144020a726@ti.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <a4335428-e29e-d567-b18b-3c144020a726@ti.com>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Suman Anna <s-anna@ti.com>
-Cc: linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S. Miller" <davem@davemloft.net>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH] drivers: virtio: Make out_del_vqs dependent on BALLOON_COMPACTION
+Date: Sun, 8 Mar 2020 20:38:19 +0100
+Message-ID: <4AB99BBC-0EC7-40F0-96ED-04796A73CBA2@redhat.com>
+References: <20200306105528.5272-1-vincenzo.frascino@arm.com>
+Mime-Version: 1.0 (1.0)
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200306105528.5272-1-vincenzo.frascino@arm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBNYXIgMDUsIDIwMjAgYXQgMDY6Mjc6NTNQTSAtMDYwMCwgU3VtYW4gQW5uYSB3cm90
-ZToKPiBPbiAyLzI1LzIwIDk6MTMgUE0sIEphc29uIFdhbmcgd3JvdGU6Cj4gPiAKPiA+IE9uIDIw
-MjAvMi8yNiDkuIrljYgxMjo1MSwgU3VtYW4gQW5uYSB3cm90ZToKPiA+PiBIaSBKYXNvbiwKPiA+
-Pgo+ID4+IE9uIDIvMjQvMjAgMTE6MzkgUE0sIEphc29uIFdhbmcgd3JvdGU6Cj4gPj4+IE9uIDIw
-MjAvMi8yNSDkuIrljYg1OjI2LCBTdW1hbiBBbm5hIHdyb3RlOgo+ID4+Pj4gVGhlIGZ1bmN0aW9u
-cyB2cmluZ19uZXdfdmlydHF1ZXVlKCkgYW5kIF9fdnJpbmdfbmV3X3ZpcnRxdWV1ZSgpIGFyZQo+
-ID4+Pj4gdXNlZAo+ID4+Pj4gd2l0aCBzcGxpdCByaW5ncywgYW5kIGFueSBhbGxvY2F0aW9ucyB3
-aXRoaW4gdGhlc2UgZnVuY3Rpb25zIGFyZQo+ID4+Pj4gbWFuYWdlZAo+ID4+Pj4gb3V0c2lkZSBv
-ZiB0aGUgLndlX293bl9yaW5nIGZsYWcuIFRoZSBjb21taXQgY2JlZWRiNzJiOTdhCj4gPj4+PiAo
-InZpcnRpb19yaW5nOgo+ID4+Pj4gYWxsb2NhdGUgZGVzYyBzdGF0ZSBmb3Igc3BsaXQgcmluZyBz
-ZXBhcmF0ZWx5IikgYWxsb2NhdGVzIHRoZSBkZXNjCj4gPj4+PiBzdGF0ZQo+ID4+Pj4gd2l0aGlu
-IHRoZSBfX3ZyaW5nX25ld192aXJ0cXVldWUoKSBidXQgZnJlZXMgaXQgb25seSB3aGVuIHRoZQo+
-ID4+Pj4gLndlX293bl9yaW5nCj4gPj4+PiBmbGFnIGlzIHNldC4gVGhpcyBsZWFkcyB0byBhIG1l
-bW9yeSBsZWFrIHdoZW4gZnJlZWluZyBzdWNoIGFsbG9jYXRlZAo+ID4+Pj4gdmlydHF1ZXVlcyB3
-aXRoIHRoZSB2cmluZ19kZWxfdmlydHF1ZXVlKCkgZnVuY3Rpb24uCj4gPj4+Pgo+ID4+Pj4gRml4
-IHRoaXMgYnkgbW92aW5nIHRoZSBkZXNjX3N0YXRlIGZyZWUgY29kZSBvdXRzaWRlIHRoZSBmbGFn
-IGFuZCBvbmx5Cj4gPj4+PiBmb3Igc3BsaXQgcmluZ3MuIElzc3VlIHdhcyBkaXNjb3ZlcmVkIGR1
-cmluZyB0ZXN0aW5nIHdpdGggcmVtb3RlcHJvYwo+ID4+Pj4gYW5kIHZpcnRpb19ycG1zZy4KPiA+
-Pj4+Cj4gPj4+PiBGaXhlczogY2JlZWRiNzJiOTdhICgidmlydGlvX3Jpbmc6IGFsbG9jYXRlIGRl
-c2Mgc3RhdGUgZm9yIHNwbGl0IHJpbmcKPiA+Pj4+IHNlcGFyYXRlbHkiKQo+ID4+Pj4gU2lnbmVk
-LW9mZi1ieTogU3VtYW4gQW5uYTxzLWFubmFAdGkuY29tPgo+ID4+Pj4gLS0tCj4gPj4+PiDCoMKg
-IGRyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMgfCA0ICsrLS0KPiA+Pj4+IMKgwqAgMSBmaWxl
-IGNoYW5nZWQsIDIgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkKPiA+Pj4+Cj4gPj4+PiBk
-aWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYwo+ID4+Pj4gYi9kcml2ZXJz
-L3ZpcnRpby92aXJ0aW9fcmluZy5jCj4gPj4+PiBpbmRleCA4NjdjN2ViZDNmMTAuLjU4Yjk2YmFh
-OGQ0OCAxMDA2NDQKPiA+Pj4+IC0tLSBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKPiA+
-Pj4+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMKPiA+Pj4+IEBAIC0yMjAzLDEw
-ICsyMjAzLDEwIEBAIHZvaWQgdnJpbmdfZGVsX3ZpcnRxdWV1ZShzdHJ1Y3QgdmlydHF1ZXVlICpf
-dnEpCj4gPj4+PiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-IHZxLT5zcGxpdC5xdWV1ZV9zaXplX2luX2J5dGVzLAo+ID4+Pj4gwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB2cS0+c3BsaXQudnJpbmcuZGVzYywKPiA+Pj4+
-IMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgdnEtPnNwbGl0
-LnF1ZXVlX2RtYV9hZGRyKTsKPiA+Pj4+IC0KPiA+Pj4+IC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-IGtmcmVlKHZxLT5zcGxpdC5kZXNjX3N0YXRlKTsKPiA+Pj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKg
-IH0KPiA+Pj4+IMKgwqDCoMKgwqDCoCB9Cj4gPj4+PiArwqDCoMKgIGlmICghdnEtPnBhY2tlZF9y
-aW5nKQo+ID4+Pj4gK8KgwqDCoMKgwqDCoMKgIGtmcmVlKHZxLT5zcGxpdC5kZXNjX3N0YXRlKTsK
-PiA+Pj4gTml0cGljaywgaXQgbG9va3MgdG8gbWUgaXQgd291bGQgYmUgbW9yZSBjbGVhciBpZiB3
-ZSBqdXN0IGZyZWUKPiA+Pj4gZGVzY19zdGF0ZSB1bmNvbmRpdGlvbmFsbHkgaGVyZSAoYW5kIHJl
-bW92ZSB0aGUga2ZyZWUgZm9yIHBhY2tlZCBhYm92ZSkuCj4gPj4gT0ssIGFyZSB5b3Ugc3VyZSB5
-b3Ugd2FudCB0aGF0IHRvIGJlIGZvbGRlZCBpbnRvIHRoaXMgcGF0Y2g/IEl0IGxvb2tzIHRvCj4g
-Pj4gbWUgYSBzZXBhcmF0ZSBjbGVhbnVwL2NvbnNvbGlkYXRpb24gcGF0Y2gsIGFuZCBwYWNrZWQg
-ZGVzY19zdGF0ZSBkb2VzCj4gPj4gbm90IHN1ZmZlciB0aGlzIG1lbWxlYWssIGFuZCBuZWVkIG5v
-dCBiZSBiYWNrcG9ydGVkIGludG8gc3RhYmxlIGtlcm5lbHMuCj4gPj4KPiA+PiByZWdhcmRzCj4g
-Pj4gU3VtYW4KPiA+IAo+ID4gCj4gPiBUaG91Z2ggaXQncyBqdXN0IGEgc21hbGwgdHdlYWssIEkn
-bSBmaW5lIGZvciBsZWF2aW5nIGl0IGZvciBmdXR1cmUuCj4gPiAKPiA+IFNvCj4gPiAKPiA+IEFj
-a2VkLWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+ID4gCj4gCj4gTWlrZSwK
-PiBQaW5nIG9uIHRoaXMuIEkgZG9uJ3Qgc2VlIHRoZSBwYXRjaCBpbiAtbmV4dCB5ZXQuIENhbiB3
-ZSBnZXQgdGhpcyBpbnRvCj4gdGhlIGN1cnJlbnQgLXJjIHBsZWFzZT8KPiAKPiByZWdhcmRzCj4g
-U3VtYW4KClllcyB3aWxsIHF1ZXVlIGl0IHNob3J0bHksIHRoYW5rcyEKCl9fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcg
-bGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
-c3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+
+
+> Am 06.03.2020 um 11:56 schrieb Vincenzo Frascino <vincenzo.frascino@arm.co=
+m>:
+>=20
+> =EF=BB=BFout_del_vqs label is currently used only when BALLOON_COMPACTION
+> configuration option is enabled. Having it disabled triggers the
+> following warning at compile time:
+>=20
+> drivers/virtio/virtio_balloon.c: In function =E2=80=98virtballoon_probe=E2=
+=80=99:
+> drivers/virtio/virtio_balloon.c:963:1: warning: label =E2=80=98out_del_vqs=
+=E2=80=99
+> defined but not used [-Wunused-label]
+>  963 | out_del_vqs:
+>      | ^~~~~~~~~~~
+>=20
+> Make out_del_vqs dependent on BALLOON_COMPACTION to address the
+> issue.
+>=20
+> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> Cc: Jason Wang <jasowang@redhat.com>
+> Signed-off-by: Vincenzo Frascino <vincenzo.frascino@arm.com>
+
+I think this is now the third patch on the list that tries to fix this warni=
+ng.
+
+Michael, can we finally queue one of these (or is there one in -next already=
+ - did not check)?
+
+Thanks=
