@@ -1,77 +1,60 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v1 3/3] virtio-balloon: Switch back to OOM handler for
- VIRTIO_BALLOON_F_DEFLATE_ON_OOM
-Date: Mon, 9 Mar 2020 11:59:54 +0100
-Message-ID: <a64d0414-652b-88c4-9155-014555a801a3@redhat.com>
-References: <20200205163402.42627-1-david@redhat.com>
- <20200205163402.42627-4-david@redhat.com>
- <f31eff75-b328-de41-c2cc-e55471aa27d8@redhat.com>
- <20200216044641-mutt-send-email-mst@kernel.org>
- <CAJuQAmqmOQMx3A8g81pnFLyTZ5E5joSCEGG5fBwPOBH7crdi2w@mail.gmail.com>
- <CAJuQAmphPcfew1v_EOgAdSFiprzjiZjmOf3iJDmFX0gD6b9TYQ@mail.gmail.com>
- <86453fed-1f39-dfcc-33c6-54241478e2ab@redhat.com>
- <20200309061403-mutt-send-email-mst@kernel.org>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: Re: [PATCH 00/14] iommu: Move iommu_fwspec out of 'struct device'
+Date: Mon, 9 Mar 2020 17:32:02 +0100
+Message-ID: <20200309163202.nk7yotb7awzido7b@8bytes.org>
+References: <20200228150820.15340-1-joro@8bytes.org>
+ <ea839f32-194a-29ea-57fc-22caea40b981@huawei.com>
+ <20200306100955.GB50020@myrica>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200309061403-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Tyler Sanderson <tysand@google.com>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtualization@lists.linux-foundation.org, Wei Wang <wei.w.wang@intel.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, David Rientjes <rientjes@google.com>, Nadav Amit <namit@vmware.com>, Michal Hocko <mhocko@kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200306100955.GB50020@myrica>
+Sender: linux-arm-msm-owner@vger.kernel.org
+To: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: Hanjun Guo <guohanjun@huawei.com>, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, virtualization@lists.linux-foundation.org, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Sudeep Holla <sudeep.holla@arm.com>, Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Matthias Brugger <matthias.bgg@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Linuxarm <linuxarm@huawei.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 09.03.20 11:14, Michael S. Tsirkin wrote:
-> On Mon, Mar 09, 2020 at 10:03:14AM +0100, David Hildenbrand wrote:
->> On 08.03.20 05:47, Tyler Sanderson wrote:
->>> Tested-by: Tyler Sanderson <tysand@google.com>
->>>
->>> Test setup: VM with 16 CPU, 64GB RAM. Running Debian 10. We have a 42
->>> GB file full of random bytes that we continually cat to /dev/null.
->>> This fills the page cache as the file is read. Meanwhile we trigger
->>> the balloon to inflate, with a target size of 53 GB. This setup causes
->>> the balloon inflation to pressure the page cache as the page cache is
->>> also trying to grow. Afterwards we shrink the balloon back to zero (so
->>> total deflate = total inflate).
->>>
->>> Without patch (kernel 4.19.0-5):
->>> Inflation never reaches the target until we stop the "cat file >
->>> /dev/null" process. Total inflation time was 542 seconds. The longest
->>> period that made no net forward progress was 315 seconds (see attached
->>> graph).
->>> Result of "grep balloon /proc/vmstat" after the test:
->>> balloon_inflate 154828377
->>> balloon_deflate 154828377
->>>
->>> With patch (kernel 5.6.0-rc4+):
->>> Total inflation duration was 63 seconds. No deflate-queue activity
->>> occurs when pressuring the page-cache.
->>> Result of "grep balloon /proc/vmstat" after the test:
->>> balloon_inflate 12968539
->>> balloon_deflate 12968539
->>>
->>> Conclusion: This patch fixes the issue. In the test it reduced
->>> inflate/deflate activity by 12x, and reduced inflation time by 8.6x.
->>> But more importantly, if we hadn't killed the "grep balloon
->>> /proc/vmstat" process then, without the patch, the inflation process
->>> would never reach the target.
->>>
->>> Attached is a png of a graph showing the problematic behavior without
->>> this patch. It shows deflate-queue activity increasing linearly while
->>> balloon size stays constant over the course of more than 8 minutes of
->>> the test.
->>
->> Thanks a lot for the extended test!
+Hi Jean-Philippe,
+
+On Fri, Mar 06, 2020 at 11:09:55AM +0100, Jean-Philippe Brucker wrote:
+> I think that's because patch 01/14 move the fwspec access too early. In 
 > 
+>                 err = pci_for_each_dma_alias(to_pci_dev(dev),
+>                                              iort_pci_iommu_init, &info);
 > 
-> Given we shipped this for a long time, I think the best way
-> to make progress is to merge 1/3, 2/3 right now, and 3/3
-> in the next release.
+>                 if (!err && iort_pci_rc_supports_ats(node))
+>                         dev->iommu_fwspec->flags |= IOMMU_FWSPEC_PCI_RC_ATS;
+> 
+> the iommu_fwspec is only valid if iort_pci_iommu_init() initialized it
+> successfully, if err == 0. The following might fix it:
+> 
+> diff --git a/drivers/acpi/arm64/iort.c b/drivers/acpi/arm64/iort.c
+> index 0e981d7f3c7d..7d04424189df 100644
+> --- a/drivers/acpi/arm64/iort.c
+> +++ b/drivers/acpi/arm64/iort.c
+> @@ -1015,7 +1015,7 @@ const struct iommu_ops *iort_iommu_configure(struct device *dev)
+>  		return ops;
+> 
+>  	if (dev_is_pci(dev)) {
+> -		struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+> +		struct iommu_fwspec *fwspec;
+>  		struct pci_bus *bus = to_pci_dev(dev)->bus;
+>  		struct iort_pci_alias_info info = { .dev = dev };
+> 
+> @@ -1028,7 +1028,8 @@ const struct iommu_ops *iort_iommu_configure(struct device *dev)
+>  		err = pci_for_each_dma_alias(to_pci_dev(dev),
+>  					     iort_pci_iommu_init, &info);
+> 
+> -		if (!err && iort_pci_rc_supports_ats(node))
+> +		fwspec = dev_iommu_fwspec_get(dev);
+> +		if (fwspec && iort_pci_rc_supports_ats(node))
+>  			fwspec->flags |= IOMMU_FWSPEC_PCI_RC_ATS;
+>  	} else {
+>  		int i = 0;
 
-Agreed.
+Thanks a lot for the fix! I added it to patch 1/14.
 
--- 
-Thanks,
+Regards,
 
-David / dhildenb
+	Joerg
