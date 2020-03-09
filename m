@@ -1,60 +1,23 @@
-From: Joerg Roedel <joro@8bytes.org>
-Subject: Re: [PATCH 00/14] iommu: Move iommu_fwspec out of 'struct device'
-Date: Mon, 9 Mar 2020 17:32:02 +0100
-Message-ID: <20200309163202.nk7yotb7awzido7b@8bytes.org>
-References: <20200228150820.15340-1-joro@8bytes.org>
- <ea839f32-194a-29ea-57fc-22caea40b981@huawei.com>
- <20200306100955.GB50020@myrica>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200306100955.GB50020@myrica>
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: Hanjun Guo <guohanjun@huawei.com>, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, virtualization@lists.linux-foundation.org, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Sudeep Holla <sudeep.holla@arm.com>, Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Matthias Brugger <matthias.bgg@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Linuxarm <linuxarm@huawei.com>
+From: pr-tracker-bot@kernel.org
+Subject: Re: [GIT PULL] virtio: fixes
+Date: Mon, 09 Mar 2020 23:40:05 +0000
+Message-ID: <158379720586.7202.3470781027361589881.pr-tracker-bot@kernel.org>
+References: <20200309040825-mutt-send-email-mst@kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200309040825-mutt-send-email-mst@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, axboe@kernel.dk, jasowang@redhat.com, mst@redhat.com, natechancellor@gmail.com, pasic@linux.ibm.com, s-anna@ti.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Jean-Philippe,
+The pull request you sent on Mon, 9 Mar 2020 04:08:25 -0400:
 
-On Fri, Mar 06, 2020 at 11:09:55AM +0100, Jean-Philippe Brucker wrote:
-> I think that's because patch 01/14 move the fwspec access too early. In 
-> 
->                 err = pci_for_each_dma_alias(to_pci_dev(dev),
->                                              iort_pci_iommu_init, &info);
-> 
->                 if (!err && iort_pci_rc_supports_ats(node))
->                         dev->iommu_fwspec->flags |= IOMMU_FWSPEC_PCI_RC_ATS;
-> 
-> the iommu_fwspec is only valid if iort_pci_iommu_init() initialized it
-> successfully, if err == 0. The following might fix it:
-> 
-> diff --git a/drivers/acpi/arm64/iort.c b/drivers/acpi/arm64/iort.c
-> index 0e981d7f3c7d..7d04424189df 100644
-> --- a/drivers/acpi/arm64/iort.c
-> +++ b/drivers/acpi/arm64/iort.c
-> @@ -1015,7 +1015,7 @@ const struct iommu_ops *iort_iommu_configure(struct device *dev)
->  		return ops;
-> 
->  	if (dev_is_pci(dev)) {
-> -		struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
-> +		struct iommu_fwspec *fwspec;
->  		struct pci_bus *bus = to_pci_dev(dev)->bus;
->  		struct iort_pci_alias_info info = { .dev = dev };
-> 
-> @@ -1028,7 +1028,8 @@ const struct iommu_ops *iort_iommu_configure(struct device *dev)
->  		err = pci_for_each_dma_alias(to_pci_dev(dev),
->  					     iort_pci_iommu_init, &info);
-> 
-> -		if (!err && iort_pci_rc_supports_ats(node))
-> +		fwspec = dev_iommu_fwspec_get(dev);
-> +		if (fwspec && iort_pci_rc_supports_ats(node))
->  			fwspec->flags |= IOMMU_FWSPEC_PCI_RC_ATS;
->  	} else {
->  		int i = 0;
+> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-Thanks a lot for the fix! I added it to patch 1/14.
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/7de41b120bb7fbe83bb46e7585c7346d21b93585
 
-Regards,
+Thank you!
 
-	Joerg
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.wiki.kernel.org/userdoc/prtracker
