@@ -1,208 +1,106 @@
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 10/15] iommu/arm-smmu: Use accessor functions for iommu
- private data
-Date: Tue, 10 Mar 2020 10:12:24 +0100
-Message-ID: <20200310091229.29830-11-joro@8bytes.org>
+From: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
+Subject: [PATCH 06/15] iommu: Move iommu_fwspec to struct dev_iommu
+Date: Tue, 10 Mar 2020 10:12:20 +0100
+Message-ID: <20200310091229.29830-7-joro@8bytes.org>
 References: <20200310091229.29830-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200310091229.29830-1-joro@8bytes.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: iommu@lists.linux-foundation.org
-Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Will Deacon <will@kernel.org>, linux-arm-msm@vger.kernel.org, Joerg Roedel <joro@8bytes.org>, Sudeep Holla <sudeep.holla@arm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Rob Clark <robdclark@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, linux-mediatek@lists.infradead.org, Andy Gross <agross@kernel.org>, Joerg Roedel <jroedel@suse.de>, Hanjun Guo <guohanjun@huawei.com>, Matthias Brugger <matthias.bgg@gmail.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Sean Paul <sean@poorly.run>, Robin Murphy <robin.murphy@arm.com>
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <20200310091229.29830-1-joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+ <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+ <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Sender: "iommu" <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+To: iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Cc: Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Will Deacon <will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sudeep Holla <sudeep.holla-5wv7dgnIgG8@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Andy Gross <agross-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>, Hanjun Guo <guohanjun-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Sean Paul <sean-p7yTbzM4H96eqtR555YLDQ@public.gmane.org>, Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
 
-Make use of dev_iommu_priv_set/get() functions and simplify the code
-where possible with this change.
+Move the iommu_fwspec pointer in struct device into struct dev_iommu.
+This is a step in the effort to reduce the iommu related pointers in
+struct device to one.
 
-Tested-by: Will Deacon <will@kernel.org> # arm-smmu
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Tested-by: Will Deacon <will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> # arm-smmu
+Signed-off-by: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
 ---
- drivers/iommu/arm-smmu.c | 56 +++++++++++++++++++++-------------------
- 1 file changed, 29 insertions(+), 27 deletions(-)
+ drivers/iommu/iommu.c  |  3 +++
+ include/linux/device.h |  1 -
+ include/linux/iommu.h  | 12 ++++++++----
+ 3 files changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/iommu/arm-smmu.c b/drivers/iommu/arm-smmu.c
-index 980aae73b45b..8276fff5f7dc 100644
---- a/drivers/iommu/arm-smmu.c
-+++ b/drivers/iommu/arm-smmu.c
-@@ -98,12 +98,15 @@ struct arm_smmu_master_cfg {
- 	s16				smendx[];
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index beac2ef063dd..826a67ba247f 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -2405,6 +2405,9 @@ int iommu_fwspec_init(struct device *dev, struct fwnode_handle *iommu_fwnode,
+ 	if (fwspec)
+ 		return ops == fwspec->ops ? 0 : -EINVAL;
+ 
++	if (!dev_iommu_get(dev))
++		return -ENOMEM;
++
+ 	fwspec = kzalloc(sizeof(*fwspec), GFP_KERNEL);
+ 	if (!fwspec)
+ 		return -ENOMEM;
+diff --git a/include/linux/device.h b/include/linux/device.h
+index 405a8f11bec1..ca29c39a6480 100644
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -613,7 +613,6 @@ struct device {
+ 
+ 	void	(*release)(struct device *dev);
+ 	struct iommu_group	*iommu_group;
+-	struct iommu_fwspec	*iommu_fwspec;
+ 	struct dev_iommu	*iommu;
+ 
+ 	bool			offline_disabled:1;
+diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+index 1c9fa5c1174b..f5edc21a644d 100644
+--- a/include/linux/iommu.h
++++ b/include/linux/iommu.h
+@@ -368,14 +368,15 @@ struct iommu_fault_param {
+  * struct dev_iommu - Collection of per-device IOMMU data
+  *
+  * @fault_param: IOMMU detected device fault reporting data
++ * @fwspec:	 IOMMU fwspec data
+  *
+  * TODO: migrate other per device data pointers under iommu_dev_data, e.g.
+  *	struct iommu_group	*iommu_group;
+- *	struct iommu_fwspec	*iommu_fwspec;
+  */
+ struct dev_iommu {
+ 	struct mutex lock;
+-	struct iommu_fault_param *fault_param;
++	struct iommu_fault_param	*fault_param;
++	struct iommu_fwspec		*fwspec;
  };
- #define INVALID_SMENDX			-1
--#define __fwspec_cfg(fw) ((struct arm_smmu_master_cfg *)fw->iommu_priv)
--#define fwspec_smmu(fw)  (__fwspec_cfg(fw)->smmu)
--#define fwspec_smendx(fw, i) \
--	(i >= fw->num_ids ? INVALID_SMENDX : __fwspec_cfg(fw)->smendx[i])
--#define for_each_cfg_sme(fw, i, idx) \
--	for (i = 0; idx = fwspec_smendx(fw, i), i < fw->num_ids; ++i)
-+#define __fwspec_cfg(dev) ((struct arm_smmu_master_cfg *)dev_iommu_priv_get(dev))
-+#define fwspec_smmu(dev)  (__fwspec_cfg(dev)->smmu)
-+#define fwspec_smendx(dev, i)				\
-+	(i >= dev_iommu_fwspec_get(dev)->num_ids ?	\
-+		INVALID_SMENDX :			\
-+		__fwspec_cfg(dev)->smendx[i])
-+#define for_each_cfg_sme(dev, i, idx) \
-+	for (i = 0; idx = fwspec_smendx(dev, i), \
-+	     i < dev_iommu_fwspec_get(dev)->num_ids; ++i)
  
- static bool using_legacy_binding, using_generic_binding;
+ int  iommu_device_register(struct iommu_device *iommu);
+@@ -614,13 +615,16 @@ const struct iommu_ops *iommu_ops_from_fwnode(struct fwnode_handle *fwnode);
  
-@@ -1061,7 +1064,7 @@ static bool arm_smmu_free_sme(struct arm_smmu_device *smmu, int idx)
- static int arm_smmu_master_alloc_smes(struct device *dev)
+ static inline struct iommu_fwspec *dev_iommu_fwspec_get(struct device *dev)
  {
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
--	struct arm_smmu_master_cfg *cfg = fwspec->iommu_priv;
-+	struct arm_smmu_master_cfg *cfg = dev_iommu_priv_get(dev);
- 	struct arm_smmu_device *smmu = cfg->smmu;
- 	struct arm_smmu_smr *smrs = smmu->smrs;
- 	struct iommu_group *group;
-@@ -1069,7 +1072,7 @@ static int arm_smmu_master_alloc_smes(struct device *dev)
- 
- 	mutex_lock(&smmu->stream_map_mutex);
- 	/* Figure out a viable stream map entry allocation */
--	for_each_cfg_sme(fwspec, i, idx) {
-+	for_each_cfg_sme(dev, i, idx) {
- 		u16 sid = FIELD_GET(ARM_SMMU_SMR_ID, fwspec->ids[i]);
- 		u16 mask = FIELD_GET(ARM_SMMU_SMR_MASK, fwspec->ids[i]);
- 
-@@ -1100,7 +1103,7 @@ static int arm_smmu_master_alloc_smes(struct device *dev)
- 	iommu_group_put(group);
- 
- 	/* It worked! Now, poke the actual hardware */
--	for_each_cfg_sme(fwspec, i, idx) {
-+	for_each_cfg_sme(dev, i, idx) {
- 		arm_smmu_write_sme(smmu, idx);
- 		smmu->s2crs[idx].group = group;
- 	}
-@@ -1117,14 +1120,14 @@ static int arm_smmu_master_alloc_smes(struct device *dev)
- 	return ret;
+-	return dev->iommu_fwspec;
++	if (dev->iommu)
++		return dev->iommu->fwspec;
++	else
++		return NULL;
  }
  
--static void arm_smmu_master_free_smes(struct iommu_fwspec *fwspec)
-+static void arm_smmu_master_free_smes(struct device *dev)
+ static inline void dev_iommu_fwspec_set(struct device *dev,
+ 					struct iommu_fwspec *fwspec)
  {
--	struct arm_smmu_device *smmu = fwspec_smmu(fwspec);
--	struct arm_smmu_master_cfg *cfg = fwspec->iommu_priv;
-+	struct arm_smmu_master_cfg *cfg = dev_iommu_priv_get(dev);
-+	struct arm_smmu_device *smmu = fwspec_smmu(dev);
- 	int i, idx;
- 
- 	mutex_lock(&smmu->stream_map_mutex);
--	for_each_cfg_sme(fwspec, i, idx) {
-+	for_each_cfg_sme(dev, i, idx) {
- 		if (arm_smmu_free_sme(smmu, idx))
- 			arm_smmu_write_sme(smmu, idx);
- 		cfg->smendx[i] = INVALID_SMENDX;
-@@ -1133,7 +1136,7 @@ static void arm_smmu_master_free_smes(struct iommu_fwspec *fwspec)
+-	dev->iommu_fwspec = fwspec;
++	dev->iommu->fwspec = fwspec;
  }
  
- static int arm_smmu_domain_add_master(struct arm_smmu_domain *smmu_domain,
--				      struct iommu_fwspec *fwspec)
-+				      struct device *dev)
- {
- 	struct arm_smmu_device *smmu = smmu_domain->smmu;
- 	struct arm_smmu_s2cr *s2cr = smmu->s2crs;
-@@ -1146,7 +1149,7 @@ static int arm_smmu_domain_add_master(struct arm_smmu_domain *smmu_domain,
- 	else
- 		type = S2CR_TYPE_TRANS;
- 
--	for_each_cfg_sme(fwspec, i, idx) {
-+	for_each_cfg_sme(dev, i, idx) {
- 		if (type == s2cr[idx].type && cbndx == s2cr[idx].cbndx)
- 			continue;
- 
-@@ -1160,10 +1163,10 @@ static int arm_smmu_domain_add_master(struct arm_smmu_domain *smmu_domain,
- 
- static int arm_smmu_attach_dev(struct iommu_domain *domain, struct device *dev)
- {
--	int ret;
-+	struct arm_smmu_domain *smmu_domain = to_smmu_domain(domain);
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
- 	struct arm_smmu_device *smmu;
--	struct arm_smmu_domain *smmu_domain = to_smmu_domain(domain);
-+	int ret;
- 
- 	if (!fwspec || fwspec->ops != &arm_smmu_ops) {
- 		dev_err(dev, "cannot attach to SMMU, is it on the same bus?\n");
-@@ -1177,10 +1180,10 @@ static int arm_smmu_attach_dev(struct iommu_domain *domain, struct device *dev)
- 	 * domains, just say no (but more politely than by dereferencing NULL).
- 	 * This should be at least a WARN_ON once that's sorted.
- 	 */
--	if (!fwspec->iommu_priv)
-+	if (!dev_iommu_priv_get(dev))
- 		return -ENODEV;
- 
--	smmu = fwspec_smmu(fwspec);
-+	smmu = fwspec_smmu(dev);
- 
- 	ret = arm_smmu_rpm_get(smmu);
- 	if (ret < 0)
-@@ -1204,7 +1207,7 @@ static int arm_smmu_attach_dev(struct iommu_domain *domain, struct device *dev)
- 	}
- 
- 	/* Looks ok, so add the device to the domain */
--	ret = arm_smmu_domain_add_master(smmu_domain, fwspec);
-+	ret = arm_smmu_domain_add_master(smmu_domain, dev);
- 
- 	/*
- 	 * Setup an autosuspend delay to avoid bouncing runpm state.
-@@ -1429,7 +1432,7 @@ static int arm_smmu_add_device(struct device *dev)
- 		goto out_free;
- 
- 	cfg->smmu = smmu;
--	fwspec->iommu_priv = cfg;
-+	dev_iommu_priv_set(dev, cfg);
- 	while (i--)
- 		cfg->smendx[i] = INVALID_SMENDX;
- 
-@@ -1467,7 +1470,7 @@ static void arm_smmu_remove_device(struct device *dev)
- 	if (!fwspec || fwspec->ops != &arm_smmu_ops)
- 		return;
- 
--	cfg  = fwspec->iommu_priv;
-+	cfg  = dev_iommu_priv_get(dev);
- 	smmu = cfg->smmu;
- 
- 	ret = arm_smmu_rpm_get(smmu);
-@@ -1475,23 +1478,22 @@ static void arm_smmu_remove_device(struct device *dev)
- 		return;
- 
- 	iommu_device_unlink(&smmu->iommu, dev);
--	arm_smmu_master_free_smes(fwspec);
-+	arm_smmu_master_free_smes(dev);
- 
- 	arm_smmu_rpm_put(smmu);
- 
- 	iommu_group_remove_device(dev);
--	kfree(fwspec->iommu_priv);
- 	iommu_fwspec_free(dev);
-+	kfree(cfg);
- }
- 
- static struct iommu_group *arm_smmu_device_group(struct device *dev)
- {
--	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
--	struct arm_smmu_device *smmu = fwspec_smmu(fwspec);
-+	struct arm_smmu_device *smmu = fwspec_smmu(dev);
- 	struct iommu_group *group = NULL;
- 	int i, idx;
- 
--	for_each_cfg_sme(fwspec, i, idx) {
-+	for_each_cfg_sme(dev, i, idx) {
- 		if (group && smmu->s2crs[idx].group &&
- 		    group != smmu->s2crs[idx].group)
- 			return ERR_PTR(-EINVAL);
+ int iommu_probe_device(struct device *dev);
 -- 
 2.17.1
