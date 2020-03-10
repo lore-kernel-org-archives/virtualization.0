@@ -1,7 +1,7 @@
 From: John Garry <john.garry@huawei.com>
-Subject: [PATCH RFC v2 21/24] dpt_i2o: drop cmd_list usage
-Date: Wed, 11 Mar 2020 00:25:47 +0800
-Message-ID: <1583857550-12049-22-git-send-email-john.garry@huawei.com>
+Subject: [PATCH RFC v2 18/24] aacraid: use private commands
+Date: Wed, 11 Mar 2020 00:25:44 +0800
+Message-ID: <1583857550-12049-19-git-send-email-john.garry@huawei.com>
 References: <1583857550-12049-1-git-send-email-john.garry@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -14,56 +14,153 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Hannes Reinecke <hare@suse.com>
 
-Now each command has a unique tag, so we can drop the legacy 'cmd_list'
-usage and rely on the tag to identify the command.
+Use private commands to allocate internal commands.
 
 Signed-off-by: Hannes Reinecke <hare@suse.com>
 ---
- drivers/scsi/dpt_i2o.c | 23 ++++++++++-------------
- 1 file changed, 10 insertions(+), 13 deletions(-)
+ drivers/scsi/aacraid/aacraid.h |  6 +++--
+ drivers/scsi/aacraid/commsup.c | 47 ++++++++++++----------------------
+ drivers/scsi/aacraid/linit.c   |  1 +
+ 3 files changed, 22 insertions(+), 32 deletions(-)
 
-diff --git a/drivers/scsi/dpt_i2o.c b/drivers/scsi/dpt_i2o.c
-index abc74fd474dc..4c7305bf6b57 100644
---- a/drivers/scsi/dpt_i2o.c
-+++ b/drivers/scsi/dpt_i2o.c
-@@ -2335,7 +2335,6 @@ static s32 adpt_scsi_host_alloc(adpt_hba* pHba, struct scsi_host_template *sht)
- 	host->unique_id = (u32)sys_tbl_pa + pHba->unit;
- 	host->sg_tablesize = pHba->sg_tablesize;
- 	host->can_queue = pHba->post_fifo_size;
--	host->use_cmd_list = 1;
+diff --git a/drivers/scsi/aacraid/aacraid.h b/drivers/scsi/aacraid/aacraid.h
+index e3e4ecbea726..0bef32a62e41 100644
+--- a/drivers/scsi/aacraid/aacraid.h
++++ b/drivers/scsi/aacraid/aacraid.h
+@@ -1291,13 +1291,16 @@ struct fsa_dev_info {
+ };
  
+ struct fib {
+-	void			*next;	/* this is used by the allocator */
+ 	s16			type;
+ 	s16			size;
+ 	/*
+ 	 *	The Adapter that this I/O is destined for.
+ 	 */
+ 	struct aac_dev		*dev;
++	/*
++	 * The associated scsi command
++	 */
++	struct scsi_cmnd 	*scmd;
+ 	/*
+ 	 *	This is the event the sendfib routine will wait on if the
+ 	 *	caller did not pass one and this is synch io.
+@@ -1552,7 +1555,6 @@ struct aac_dev
+ 	 */
+ 	struct fib              *fibs;
+ 
+-	struct fib		*free_fib;
+ 	spinlock_t		fib_lock;
+ 
+ 	struct mutex		ioctl_mutex;
+diff --git a/drivers/scsi/aacraid/commsup.c b/drivers/scsi/aacraid/commsup.c
+index 5a8a999606ea..225d67b3177a 100644
+--- a/drivers/scsi/aacraid/commsup.c
++++ b/drivers/scsi/aacraid/commsup.c
+@@ -35,6 +35,7 @@
+ #include <scsi/scsi_host.h>
+ #include <scsi/scsi_device.h>
+ #include <scsi/scsi_cmnd.h>
++#include <scsi/scsi_tcq.h>
+ 
+ #include "aacraid.h"
+ 
+@@ -173,7 +174,6 @@ int aac_fib_setup(struct aac_dev * dev)
+ 		fibptr->dev = dev;
+ 		fibptr->hw_fib_va = hw_fib;
+ 		fibptr->data = (void *) fibptr->hw_fib_va->data;
+-		fibptr->next = fibptr+1;	/* Forward chain the fibs */
+ 		init_completion(&fibptr->event_wait);
+ 		spin_lock_init(&fibptr->event_lock);
+ 		hw_fib->header.XferState = cpu_to_le32(0xffffffff);
+@@ -200,14 +200,6 @@ int aac_fib_setup(struct aac_dev * dev)
+ 	 */
+ 	aac_fib_vector_assign(dev);
+ 
+-	/*
+-	 *	Add the fib chain to the free list
+-	 */
+-	dev->fibs[dev->scsi_host_ptr->can_queue + AAC_NUM_MGT_FIB - 1].next = NULL;
+-	/*
+-	*	Set 8 fibs aside for management tools
+-	*/
+-	dev->free_fib = &dev->fibs[dev->scsi_host_ptr->can_queue];
  	return 0;
  }
-@@ -2647,20 +2646,18 @@ static s32 adpt_i2o_reparse_lct(adpt_hba* pHba)
- 	return 0;
- }
  
--static void adpt_fail_posted_scbs(adpt_hba* pHba)
-+static bool adpt_fail_posted_scbs_iter(struct request *req, void *data, bool reserved)
+@@ -233,6 +225,7 @@ struct fib *aac_fib_alloc_tag(struct aac_dev *dev, struct scsi_cmnd *scmd)
+ 	fibptr->callback_data = NULL;
+ 	fibptr->callback = NULL;
+ 	fibptr->flags = 0;
++	fibptr->scmd = scmd;
+ 
+ 	return fibptr;
+ }
+@@ -247,29 +240,19 @@ struct fib *aac_fib_alloc_tag(struct aac_dev *dev, struct scsi_cmnd *scmd)
+ 
+ struct fib *aac_fib_alloc(struct aac_dev *dev)
  {
--	struct scsi_cmnd* 	cmd = NULL;
--	struct scsi_device* 	d = NULL;
-+	struct scsi_cmnd *cmd = blk_mq_rq_to_pdu(req);
- 
--	shost_for_each_device(d, pHba->host) {
--		unsigned long flags;
--		spin_lock_irqsave(&d->list_lock, flags);
--		list_for_each_entry(cmd, &d->cmd_list, list) {
--			cmd->result = (DID_OK << 16) | (QUEUE_FULL <<1);
--			cmd->scsi_done(cmd);
--		}
--		spin_unlock_irqrestore(&d->list_lock, flags);
--	}
-+	cmd->result = (DID_OK << 16) | (QUEUE_FULL <<1);
-+	cmd->scsi_done(cmd);
-+	return true;
-+}
+-	struct fib * fibptr;
++	struct scsi_cmnd *scmd;
++	struct fib * fibptr = NULL;
+ 	unsigned long flags;
 +
-+static void adpt_fail_posted_scbs(adpt_hba* pHba)
-+{
-+	blk_mq_tagset_busy_iter(&pHba->host->tag_set, adpt_fail_posted_scbs_iter, NULL);
+ 	spin_lock_irqsave(&dev->fib_lock, flags);
+-	fibptr = dev->free_fib;
+-	if(!fibptr){
+-		spin_unlock_irqrestore(&dev->fib_lock, flags);
+-		return fibptr;
+-	}
+-	dev->free_fib = fibptr->next;
++	scmd = scsi_get_reserved_cmd(dev->scsi_host_ptr);
++	if (scmd)
++		fibptr = aac_fib_alloc_tag(dev, scmd);
+ 	spin_unlock_irqrestore(&dev->fib_lock, flags);
+-	/*
+-	 *	Set the proper node type code and node byte size
+-	 */
+-	fibptr->type = FSAFS_NTC_FIB_CONTEXT;
++	if (!fibptr)
++		return NULL;
++
+ 	fibptr->size = sizeof(struct fib);
+-	/*
+-	 *	Null out fields that depend on being zero at the start of
+-	 *	each I/O
+-	 */
+-	fibptr->hw_fib_va->header.XferState = 0;
+-	fibptr->flags = 0;
+-	fibptr->callback = NULL;
+-	fibptr->callback_data = NULL;
+ 
+ 	return fibptr;
+ }
+@@ -297,8 +280,12 @@ void aac_fib_free(struct fib *fibptr)
+ 			 (void*)fibptr,
+ 			 le32_to_cpu(fibptr->hw_fib_va->header.XferState));
+ 	}
+-	fibptr->next = fibptr->dev->free_fib;
+-	fibptr->dev->free_fib = fibptr;
++	if (fibptr->scmd) {
++		struct scsi_cmnd *scmd = fibptr->scmd;
++
++		fibptr->scmd = NULL;
++		scsi_put_reserved_cmd(scmd);
++	}
+ 	spin_unlock_irqrestore(&fibptr->dev->fib_lock, flags);
  }
  
+diff --git a/drivers/scsi/aacraid/linit.c b/drivers/scsi/aacraid/linit.c
+index 0e084b09615d..f027e91656c9 100644
+--- a/drivers/scsi/aacraid/linit.c
++++ b/drivers/scsi/aacraid/linit.c
+@@ -1678,6 +1678,7 @@ static int aac_probe_one(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	shost->use_cmd_list = 1;
+ 	shost->max_id = MAXIMUM_NUM_CONTAINERS;
+ 	shost->max_lun = AAC_MAX_LUN;
++	shost->nr_reserved_cmds = AAC_NUM_MGT_FIB;
+ 	shost->sg_tablesize = HBA_MAX_SG_SEPARATE;
  
+ 	if (aac_cfg_major == AAC_CHARDEV_NEEDS_REINIT)
 -- 
 2.17.1
