@@ -1,23 +1,74 @@
-From: pr-tracker-bot@kernel.org
-Subject: Re: [GIT PULL] virtio: fixes
-Date: Mon, 09 Mar 2020 23:40:05 +0000
-Message-ID: <158379720586.7202.3470781027361589881.pr-tracker-bot@kernel.org>
-References: <20200309040825-mutt-send-email-mst@kernel.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200309040825-mutt-send-email-mst@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, axboe@kernel.dk, jasowang@redhat.com, mst@redhat.com, natechancellor@gmail.com, pasic@linux.ibm.com, s-anna@ti.com
+From: CK Hu <ck.hu-NuS5LvNUpcJWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH 10/22] drm/mediatek: Use simple encoder
+Date: Tue, 10 Mar 2020 10:37:24 +0800
+Message-ID: <1583807844.30143.0.camel@mtksdaap41>
+References: <20200305155950.2705-1-tzimmermann@suse.de>
+         <20200305155950.2705-11-tzimmermann@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20200305155950.2705-11-tzimmermann-l3A5Bk7waGM@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Thomas Zimmermann <tzimmermann-l3A5Bk7waGM@public.gmane.org>
+Cc: airlied-cv59FeDIM0c@public.gmane.org, daniel-/w4YWyX8dFk@public.gmane.org, sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org, abrodkin-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, bbrezillon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, nicolas.ferre-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, alexandre.belloni-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org, ludovic.desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, maarten.lankhorst-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, mripard-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, inki.dae-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, sw0312.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, stefan-XLVq0VzYD2Y@public.gmane.org, alison.wang-3arQi8VN3Tc@public.gmane.org, patrik.r.jakobsson-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, xinliang.liu-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, zourongrong-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, john.stultz-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, kong.kongxinwei-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org, puck.chen-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, p.zabel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, festevam@g
 List-Id: virtualization@lists.linuxfoundation.org
 
-The pull request you sent on Mon, 9 Mar 2020 04:08:25 -0400:
-
-> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-
-has been merged into torvalds/linux.git:
-https://git.kernel.org/torvalds/c/7de41b120bb7fbe83bb46e7585c7346d21b93585
-
-Thank you!
-
--- 
-Deet-doot-dot, I am a bot.
-https://korg.wiki.kernel.org/userdoc/prtracker
+SGksIFRob21hczoNCg0KT24gVGh1LCAyMDIwLTAzLTA1IGF0IDE2OjU5ICswMTAwLCBUaG9tYXMg
+WmltbWVybWFubiB3cm90ZToNCj4gVGhlIG1lZGlhdGFrIGRyaXZlciB1c2VzIGVtcHR5IGltcGxl
+bWVudGF0aW9ucyBmb3IgaXRzIGVuY29kZXJzLiBSZXBsYWNlDQo+IHRoZSBjb2RlIHdpdGggdGhl
+IGdlbmVyaWMgc2ltcGxlIGVuY29kZXIuDQo+IA0KDQpBY2tlZC1ieTogQ0sgSHUgPGNrLmh1QG1l
+ZGlhdGVrLmNvbT4NCg0KPiBTaWduZWQtb2ZmLWJ5OiBUaG9tYXMgWmltbWVybWFubiA8dHppbW1l
+cm1hbm5Ac3VzZS5kZT4NCj4gLS0tDQo+ICBkcml2ZXJzL2dwdS9kcm0vbWVkaWF0ZWsvbXRrX2Rw
+aS5jIHwgMTQgKysrLS0tLS0tLS0tLS0NCj4gIGRyaXZlcnMvZ3B1L2RybS9tZWRpYXRlay9tdGtf
+ZHNpLmMgfCAxNCArKystLS0tLS0tLS0tLQ0KPiAgMiBmaWxlcyBjaGFuZ2VkLCA2IGluc2VydGlv
+bnMoKyksIDIyIGRlbGV0aW9ucygtKQ0KPiANCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2Ry
+bS9tZWRpYXRlay9tdGtfZHBpLmMgYi9kcml2ZXJzL2dwdS9kcm0vbWVkaWF0ZWsvbXRrX2RwaS5j
+DQo+IGluZGV4IDE0ZmJlMWMwOWNlOS4uOWM5MGM1OGU1YWNkIDEwMDY0NA0KPiAtLS0gYS9kcml2
+ZXJzL2dwdS9kcm0vbWVkaWF0ZWsvbXRrX2RwaS5jDQo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9t
+ZWRpYXRlay9tdGtfZHBpLmMNCj4gQEAgLTIwLDYgKzIwLDcgQEANCj4gICNpbmNsdWRlIDxkcm0v
+ZHJtX2JyaWRnZS5oPg0KPiAgI2luY2x1ZGUgPGRybS9kcm1fY3J0Yy5oPg0KPiAgI2luY2x1ZGUg
+PGRybS9kcm1fb2YuaD4NCj4gKyNpbmNsdWRlIDxkcm0vZHJtX3NpbXBsZV9rbXNfaGVscGVyLmg+
+DQo+ICANCj4gICNpbmNsdWRlICJtdGtfZHBpX3JlZ3MuaCINCj4gICNpbmNsdWRlICJtdGtfZHJt
+X2RkcF9jb21wLmgiDQo+IEBAIC01MDksMTUgKzUxMCw2IEBAIHN0YXRpYyBpbnQgbXRrX2RwaV9z
+ZXRfZGlzcGxheV9tb2RlKHN0cnVjdCBtdGtfZHBpICpkcGksDQo+ICAJcmV0dXJuIDA7DQo+ICB9
+DQo+ICANCj4gLXN0YXRpYyB2b2lkIG10a19kcGlfZW5jb2Rlcl9kZXN0cm95KHN0cnVjdCBkcm1f
+ZW5jb2RlciAqZW5jb2RlcikNCj4gLXsNCj4gLQlkcm1fZW5jb2Rlcl9jbGVhbnVwKGVuY29kZXIp
+Ow0KPiAtfQ0KPiAtDQo+IC1zdGF0aWMgY29uc3Qgc3RydWN0IGRybV9lbmNvZGVyX2Z1bmNzIG10
+a19kcGlfZW5jb2Rlcl9mdW5jcyA9IHsNCj4gLQkuZGVzdHJveSA9IG10a19kcGlfZW5jb2Rlcl9k
+ZXN0cm95LA0KPiAtfTsNCj4gLQ0KPiAgc3RhdGljIGJvb2wgbXRrX2RwaV9lbmNvZGVyX21vZGVf
+Zml4dXAoc3RydWN0IGRybV9lbmNvZGVyICplbmNvZGVyLA0KPiAgCQkJCSAgICAgICBjb25zdCBz
+dHJ1Y3QgZHJtX2Rpc3BsYXlfbW9kZSAqbW9kZSwNCj4gIAkJCQkgICAgICAgc3RydWN0IGRybV9k
+aXNwbGF5X21vZGUgKmFkanVzdGVkX21vZGUpDQo+IEBAIC01OTYsOCArNTg4LDggQEAgc3RhdGlj
+IGludCBtdGtfZHBpX2JpbmQoc3RydWN0IGRldmljZSAqZGV2LCBzdHJ1Y3QgZGV2aWNlICptYXN0
+ZXIsIHZvaWQgKmRhdGEpDQo+ICAJCXJldHVybiByZXQ7DQo+ICAJfQ0KPiAgDQo+IC0JcmV0ID0g
+ZHJtX2VuY29kZXJfaW5pdChkcm1fZGV2LCAmZHBpLT5lbmNvZGVyLCAmbXRrX2RwaV9lbmNvZGVy
+X2Z1bmNzLA0KPiAtCQkJICAgICAgIERSTV9NT0RFX0VOQ09ERVJfVE1EUywgTlVMTCk7DQo+ICsJ
+cmV0ID0gZHJtX3NpbXBsZV9lbmNvZGVyX2luaXQoZHJtX2RldiwgJmRwaS0+ZW5jb2RlciwNCj4g
+KwkJCQkgICAgICBEUk1fTU9ERV9FTkNPREVSX1RNRFMpOw0KPiAgCWlmIChyZXQpIHsNCj4gIAkJ
+ZGV2X2VycihkZXYsICJGYWlsZWQgdG8gaW5pdGlhbGl6ZSBkZWNvZGVyOiAlZFxuIiwgcmV0KTsN
+Cj4gIAkJZ290byBlcnJfdW5yZWdpc3RlcjsNCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2Ry
+bS9tZWRpYXRlay9tdGtfZHNpLmMgYi9kcml2ZXJzL2dwdS9kcm0vbWVkaWF0ZWsvbXRrX2RzaS5j
+DQo+IGluZGV4IDBlZGU2OTgzMGE5ZC4uYTlhMjUwODcxMTJmIDEwMDY0NA0KPiAtLS0gYS9kcml2
+ZXJzL2dwdS9kcm0vbWVkaWF0ZWsvbXRrX2RzaS5jDQo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9t
+ZWRpYXRlay9tdGtfZHNpLmMNCj4gQEAgLTIyLDYgKzIyLDcgQEANCj4gICNpbmNsdWRlIDxkcm0v
+ZHJtX3BhbmVsLmg+DQo+ICAjaW5jbHVkZSA8ZHJtL2RybV9wcmludC5oPg0KPiAgI2luY2x1ZGUg
+PGRybS9kcm1fcHJvYmVfaGVscGVyLmg+DQo+ICsjaW5jbHVkZSA8ZHJtL2RybV9zaW1wbGVfa21z
+X2hlbHBlci5oPg0KPiAgDQo+ICAjaW5jbHVkZSAibXRrX2RybV9kZHBfY29tcC5oIg0KPiAgDQo+
+IEBAIC03ODcsMTUgKzc4OCw2IEBAIHN0YXRpYyB2b2lkIG10a19vdXRwdXRfZHNpX2Rpc2FibGUo
+c3RydWN0IG10a19kc2kgKmRzaSkNCj4gIAlkc2ktPmVuYWJsZWQgPSBmYWxzZTsNCj4gIH0NCj4g
+IA0KPiAtc3RhdGljIHZvaWQgbXRrX2RzaV9lbmNvZGVyX2Rlc3Ryb3koc3RydWN0IGRybV9lbmNv
+ZGVyICplbmNvZGVyKQ0KPiAtew0KPiAtCWRybV9lbmNvZGVyX2NsZWFudXAoZW5jb2Rlcik7DQo+
+IC19DQo+IC0NCj4gLXN0YXRpYyBjb25zdCBzdHJ1Y3QgZHJtX2VuY29kZXJfZnVuY3MgbXRrX2Rz
+aV9lbmNvZGVyX2Z1bmNzID0gew0KPiAtCS5kZXN0cm95ID0gbXRrX2RzaV9lbmNvZGVyX2Rlc3Ry
+b3ksDQo+IC19Ow0KPiAtDQo+ICBzdGF0aWMgYm9vbCBtdGtfZHNpX2VuY29kZXJfbW9kZV9maXh1
+cChzdHJ1Y3QgZHJtX2VuY29kZXIgKmVuY29kZXIsDQo+ICAJCQkJICAgICAgIGNvbnN0IHN0cnVj
+dCBkcm1fZGlzcGxheV9tb2RlICptb2RlLA0KPiAgCQkJCSAgICAgICBzdHJ1Y3QgZHJtX2Rpc3Bs
+YXlfbW9kZSAqYWRqdXN0ZWRfbW9kZSkNCj4gQEAgLTg4OCw4ICs4ODAsOCBAQCBzdGF0aWMgaW50
+IG10a19kc2lfY3JlYXRlX2Nvbm5fZW5jKHN0cnVjdCBkcm1fZGV2aWNlICpkcm0sIHN0cnVjdCBt
+dGtfZHNpICpkc2kpDQo+ICB7DQo+ICAJaW50IHJldDsNCj4gIA0KPiAtCXJldCA9IGRybV9lbmNv
+ZGVyX2luaXQoZHJtLCAmZHNpLT5lbmNvZGVyLCAmbXRrX2RzaV9lbmNvZGVyX2Z1bmNzLA0KPiAt
+CQkJICAgICAgIERSTV9NT0RFX0VOQ09ERVJfRFNJLCBOVUxMKTsNCj4gKwlyZXQgPSBkcm1fc2lt
+cGxlX2VuY29kZXJfaW5pdChkcm0sICZkc2ktPmVuY29kZXIsDQo+ICsJCQkJICAgICAgRFJNX01P
+REVfRU5DT0RFUl9EU0kpOw0KPiAgCWlmIChyZXQpIHsNCj4gIAkJRFJNX0VSUk9SKCJGYWlsZWQg
+dG8gZW5jb2RlciBpbml0IHRvIGRybVxuIik7DQo+ICAJCXJldHVybiByZXQ7DQoNCg==
