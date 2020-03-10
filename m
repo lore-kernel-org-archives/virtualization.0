@@ -1,56 +1,36 @@
-From: John Garry <john.garry@huawei.com>
-Subject: Re: [PATCH RFC v2 02/24] scsi: allocate separate queue for reserved
- commands
-Date: Tue, 10 Mar 2020 21:08:56 +0000
-Message-ID: <79cf4341-f2a2-dcc9-be0d-2efc6e83028a@huawei.com>
-References: <1583857550-12049-1-git-send-email-john.garry@huawei.com>
- <1583857550-12049-3-git-send-email-john.garry@huawei.com>
- <20200310183243.GA14549@infradead.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v3] virtio-balloon: Switch back to OOM handler for
+ VIRTIO_BALLOON_F_DEFLATE_ON_OOM
+Date: Tue, 10 Mar 2020 17:25:25 -0400
+Message-ID: <20200310172114-mutt-send-email-mst@kernel.org>
+References: <20200310113854.11515-1-david@redhat.com>
+ <alpine.DEB.2.21.2003101204590.90377@chino.kir.corp.google.com>
+ <890da35b-1ac2-9c2e-b42d-96d24d3e0f4c@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-block-owner@vger.kernel.org>
-In-Reply-To: <20200310183243.GA14549@infradead.org>
-Content-Language: en-US
-Sender: linux-block-owner@vger.kernel.org
-To: Christoph Hellwig <hch@infradead.org>
-Cc: axboe@kernel.dk, jejb@linux.ibm.com, martin.petersen@oracle.com, hare@suse.de, ming.lei@redhat.com, bvanassche@acm.org, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org, esc.storagedev@microsemi.com, chenxiang66@hisilicon.com, Hannes Reinecke <hare@suse.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <890da35b-1ac2-9c2e-b42d-96d24d3e0f4c@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>
+Cc: David Rientjes <rientjes@google.com>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtualization@lists.linux-foundation.org, Jason Wang <jasowang@redhat.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Tyler Sanderson <tysand@google.com>, Wei Wang <wei.w.wang@intel.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Nadav Amit <namit@vmware.com>, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10/03/2020 18:32, Christoph Hellwig wrote:
-> On Wed, Mar 11, 2020 at 12:25:28AM +0800, John Garry wrote:
->> From: Hannes Reinecke <hare@suse.com>
->>
->> Allocate a separate 'reserved_cmd_q' for sending reserved commands.
+On Tue, Mar 10, 2020 at 08:13:19PM +0100, David Hildenbrand wrote:
+> > Should this have:
+> > 
+> > Cc: stable@vger.kernel.org # 4.19+
 > 
-> Why?  Reserved command specifically are not in any way tied to queues.
-> .
-> 
+> I guess as nothing will actually "crash" it's not worth stable.
 
-So the v1 series used a combination of the sdev queue and the per-host 
-reserved_cmd_q. Back then you questioned using the sdev queue for virtio 
-scsi, and the unconfirmed conclusion was to use a common per-host q. 
-This is the best link I can find now:
 
-https://www.mail-archive.com/linux-scsi@vger.kernel.org/msg83177.html
+No - it's a regression, it would be a stable candidate from that POV.
+The issue is the patch size - stable rules say:
 
-"
+ - It cannot be bigger than 100 lines, with context.
 
- >> My implementation actually allows for per-device reserved tags (eg for
- >> virtio). But some drivers require to use internal commands prior to any
- >> device setup, so they have to use a separate reserved command queue 
-just to
- >> be able to allocate tags.
- >
- > Why would virtio-scsi need per-device reserved commands?  It 
-currently uses
- > a global mempool to allocate the reset commands.
- >
-Oh, I'm perfectly fine with dropping the per-device reserved commands,
-and use the host-wide queue in general.
-It turns out most of the drivers use it that way already.
-Will be doing so for the next iteration.
+This is about 200 lines with context.
+In practice Fixes: is enough to make a bunch of downstreams pick it up.
 
-"
-
-Cheers
+-- 
+MST
