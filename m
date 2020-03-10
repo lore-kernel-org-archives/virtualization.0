@@ -1,66 +1,154 @@
-From: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
-Subject: [PATCH 11/15] iommu/renesas: Use accessor functions for iommu private
- data
-Date: Tue, 10 Mar 2020 10:12:25 +0100
-Message-ID: <20200310091229.29830-12-joro@8bytes.org>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH 12/15] iommu/mediatek: Use accessor functions for iommu private data
+Date: Tue, 10 Mar 2020 10:12:26 +0100
+Message-ID: <20200310091229.29830-13-joro@8bytes.org>
 References: <20200310091229.29830-1-joro@8bytes.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-In-Reply-To: <20200310091229.29830-1-joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
- <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
- <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Sender: "iommu" <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-To: iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Cc: Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Will Deacon <will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Sudeep Holla <sudeep.holla-5wv7dgnIgG8@public.gmane.org>, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Andy Gross <agross-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>, Hanjun Guo <guohanjun-hv44wF8Li93QT0dZR+AlfA@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Sean Paul <sean-p7yTbzM4H96eqtR555YLDQ@public.gmane.org>, Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200310091229.29830-1-joro@8bytes.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: iommu@lists.linux-foundation.org
+Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, virtualization@lists.linux-foundation.org, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Hanjun Guo <guohanjun@huawei.com>, Sudeep Holla <sudeep.holla@arm.com>, Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Joerg Roedel <joro@8bytes.org>, Matthias Brugger <matthias.bgg@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
+From: Joerg Roedel <jroedel@suse.de>
 
 Make use of dev_iommu_priv_set/get() functions.
 
-Signed-off-by: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- drivers/iommu/ipmmu-vmsa.c | 7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/iommu/mtk_iommu.c    | 13 ++++++-------
+ drivers/iommu/mtk_iommu_v1.c | 14 +++++++-------
+ 2 files changed, 13 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/iommu/ipmmu-vmsa.c b/drivers/iommu/ipmmu-vmsa.c
-index ecb3f9464dd5..310cf09feea3 100644
---- a/drivers/iommu/ipmmu-vmsa.c
-+++ b/drivers/iommu/ipmmu-vmsa.c
-@@ -89,9 +89,7 @@ static struct ipmmu_vmsa_domain *to_vmsa_domain(struct iommu_domain *dom)
- 
- static struct ipmmu_vmsa_device *to_ipmmu(struct device *dev)
+diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
+index 95945f467c03..5f4d6df59cf6 100644
+--- a/drivers/iommu/mtk_iommu.c
++++ b/drivers/iommu/mtk_iommu.c
+@@ -358,8 +358,8 @@ static void mtk_iommu_domain_free(struct iommu_domain *domain)
+ static int mtk_iommu_attach_device(struct iommu_domain *domain,
+ 				   struct device *dev)
  {
--	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
--
--	return fwspec ? fwspec->iommu_priv : NULL;
-+	return dev_iommu_priv_get(dev);
- }
++	struct mtk_iommu_data *data = dev_iommu_priv_get(dev);
+ 	struct mtk_iommu_domain *dom = to_mtk_domain(domain);
+-	struct mtk_iommu_data *data = dev_iommu_fwspec_get(dev)->iommu_priv;
  
- #define TLB_LOOP_TIMEOUT		100	/* 100us */
-@@ -727,14 +725,13 @@ static phys_addr_t ipmmu_iova_to_phys(struct iommu_domain *io_domain,
- static int ipmmu_init_platform_device(struct device *dev,
- 				      struct of_phandle_args *args)
- {
--	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
- 	struct platform_device *ipmmu_pdev;
- 
- 	ipmmu_pdev = of_find_device_by_node(args->np);
- 	if (!ipmmu_pdev)
+ 	if (!data)
  		return -ENODEV;
+@@ -378,7 +378,7 @@ static int mtk_iommu_attach_device(struct iommu_domain *domain,
+ static void mtk_iommu_detach_device(struct iommu_domain *domain,
+ 				    struct device *dev)
+ {
+-	struct mtk_iommu_data *data = dev_iommu_fwspec_get(dev)->iommu_priv;
++	struct mtk_iommu_data *data = dev_iommu_priv_get(dev);
  
--	fwspec->iommu_priv = platform_get_drvdata(ipmmu_pdev);
-+	dev_iommu_priv_set(dev, platform_get_drvdata(ipmmu_pdev));
+ 	if (!data)
+ 		return;
+@@ -450,7 +450,7 @@ static int mtk_iommu_add_device(struct device *dev)
+ 	if (!fwspec || fwspec->ops != &mtk_iommu_ops)
+ 		return -ENODEV; /* Not a iommu client device */
  
- 	return 0;
- }
+-	data = fwspec->iommu_priv;
++	data = dev_iommu_priv_get(dev);
+ 	iommu_device_link(&data->iommu, dev);
+ 
+ 	group = iommu_group_get_for_dev(dev);
+@@ -469,7 +469,7 @@ static void mtk_iommu_remove_device(struct device *dev)
+ 	if (!fwspec || fwspec->ops != &mtk_iommu_ops)
+ 		return;
+ 
+-	data = fwspec->iommu_priv;
++	data = dev_iommu_priv_get(dev);
+ 	iommu_device_unlink(&data->iommu, dev);
+ 
+ 	iommu_group_remove_device(dev);
+@@ -496,7 +496,6 @@ static struct iommu_group *mtk_iommu_device_group(struct device *dev)
+ 
+ static int mtk_iommu_of_xlate(struct device *dev, struct of_phandle_args *args)
+ {
+-	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+ 	struct platform_device *m4updev;
+ 
+ 	if (args->args_count != 1) {
+@@ -505,13 +504,13 @@ static int mtk_iommu_of_xlate(struct device *dev, struct of_phandle_args *args)
+ 		return -EINVAL;
+ 	}
+ 
+-	if (!fwspec->iommu_priv) {
++	if (!dev_iommu_priv_get(dev)) {
+ 		/* Get the m4u device */
+ 		m4updev = of_find_device_by_node(args->np);
+ 		if (WARN_ON(!m4updev))
+ 			return -EINVAL;
+ 
+-		fwspec->iommu_priv = platform_get_drvdata(m4updev);
++		dev_iommu_priv_set(dev, platform_get_drvdata(m4updev));
+ 	}
+ 
+ 	return iommu_fwspec_add_ids(dev, args->args, 1);
+diff --git a/drivers/iommu/mtk_iommu_v1.c b/drivers/iommu/mtk_iommu_v1.c
+index e93b94ecac45..9930ac7413cc 100644
+--- a/drivers/iommu/mtk_iommu_v1.c
++++ b/drivers/iommu/mtk_iommu_v1.c
+@@ -263,8 +263,8 @@ static void mtk_iommu_domain_free(struct iommu_domain *domain)
+ static int mtk_iommu_attach_device(struct iommu_domain *domain,
+ 				   struct device *dev)
+ {
++	struct mtk_iommu_data *data = dev_iommu_priv_get(dev);
+ 	struct mtk_iommu_domain *dom = to_mtk_domain(domain);
+-	struct mtk_iommu_data *data = dev_iommu_fwspec_get(dev)->iommu_priv;
+ 	int ret;
+ 
+ 	if (!data)
+@@ -286,7 +286,7 @@ static int mtk_iommu_attach_device(struct iommu_domain *domain,
+ static void mtk_iommu_detach_device(struct iommu_domain *domain,
+ 				    struct device *dev)
+ {
+-	struct mtk_iommu_data *data = dev_iommu_fwspec_get(dev)->iommu_priv;
++	struct mtk_iommu_data *data = dev_iommu_priv_get(dev);
+ 
+ 	if (!data)
+ 		return;
+@@ -387,20 +387,20 @@ static int mtk_iommu_create_mapping(struct device *dev,
+ 		return -EINVAL;
+ 	}
+ 
+-	if (!fwspec->iommu_priv) {
++	if (!dev_iommu_priv_get(dev)) {
+ 		/* Get the m4u device */
+ 		m4updev = of_find_device_by_node(args->np);
+ 		if (WARN_ON(!m4updev))
+ 			return -EINVAL;
+ 
+-		fwspec->iommu_priv = platform_get_drvdata(m4updev);
++		dev_iommu_priv_set(dev, platform_get_drvdata(m4updev));
+ 	}
+ 
+ 	ret = iommu_fwspec_add_ids(dev, args->args, 1);
+ 	if (ret)
+ 		return ret;
+ 
+-	data = fwspec->iommu_priv;
++	data = dev_iommu_priv_get(dev);
+ 	m4udev = data->dev;
+ 	mtk_mapping = m4udev->archdata.iommu;
+ 	if (!mtk_mapping) {
+@@ -459,7 +459,7 @@ static int mtk_iommu_add_device(struct device *dev)
+ 	if (err)
+ 		return err;
+ 
+-	data = fwspec->iommu_priv;
++	data = dev_iommu_priv_get(dev)
+ 	mtk_mapping = data->dev->archdata.iommu;
+ 	err = arm_iommu_attach_device(dev, mtk_mapping);
+ 	if (err) {
+@@ -478,7 +478,7 @@ static void mtk_iommu_remove_device(struct device *dev)
+ 	if (!fwspec || fwspec->ops != &mtk_iommu_ops)
+ 		return;
+ 
+-	data = fwspec->iommu_priv;
++	data = dev_iommu_priv_get(dev)
+ 	iommu_device_unlink(&data->iommu, dev);
+ 
+ 	iommu_group_remove_device(dev);
 -- 
 2.17.1
