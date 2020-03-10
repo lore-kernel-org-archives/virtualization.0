@@ -1,79 +1,46 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v1 06/11] mm: Allow to offline unmovable PageOffline()
- pages via MEM_GOING_OFFLINE
-Date: Tue, 10 Mar 2020 12:48:48 +0100
-Message-ID: <5bc2a2ff-1ae0-6746-b32a-c27962804cef@redhat.com>
-References: <20200302134941.315212-1-david@redhat.com>
- <20200302134941.315212-7-david@redhat.com>
- <20200310114745.GH8447@dhcp22.suse.cz>
+Subject: [PATCH v1] MAINTAINERS: Add myself as virtio-balloon co-maintainer
+Date: Tue, 10 Mar 2020 12:54:11 +0100
+Message-ID: <20200310115411.12760-1-david@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200310114745.GH8447@dhcp22.suse.cz>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Michal Hocko <mhocko@kernel.org>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Juergen Gross <jgross@suse.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Vlastimil Babka <vbabka@suse.cz>, Johannes Weiner <hannes@cmpxchg.org>, Anthony Yznaga <anthony.yznaga@oracle.com>, Oscar Salvador <osalvador@suse.de>, Mel Gorman <mgorman@techsingularity.net>, Mike Rapoport <rppt@linux.ibm.com>, Dan Williams <dan.j.williams@intel.com>, Anshuman Khandual <anshuman.khandual@arm.com>, Qian Cai <cai@lca.pw>, Pingfan
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, Luiz Capitulino <lcapitulino@redhat.com>, David Hildenbrand <david@redhat.com>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10.03.20 12:47, Michal Hocko wrote:
-> On Mon 02-03-20 14:49:36, David Hildenbrand wrote:
->> virtio-mem wants to allow to offline memory blocks of which some parts
->> were unplugged (allocated via alloc_contig_range()), especially, to later
->> offline and remove completely unplugged memory blocks. The important part
->> is that PageOffline() has to remain set until the section is offline, so
->> these pages will never get accessed (e.g., when dumping). The pages should
->> not be handed back to the buddy (which would require clearing PageOffline()
->> and result in issues if offlining fails and the pages are suddenly in the
->> buddy).
->>
->> Let's allow to do that by allowing to isolate any PageOffline() page
->> when offlining. This way, we can reach the memory hotplug notifier
->> MEM_GOING_OFFLINE, where the driver can signal that he is fine with
->> offlining this page by dropping its reference count. PageOffline() pages
->> with a reference count of 0 can then be skipped when offlining the
->> pages (like if they were free, however they are not in the buddy).
->>
->> Anybody who uses PageOffline() pages and does not agree to offline them
->> (e.g., Hyper-V balloon, XEN balloon, VMWare balloon for 2MB pages) will not
->> decrement the reference count and make offlining fail when trying to
->> migrate such an unmovable page. So there should be no observable change.
->> Same applies to balloon compaction users (movable PageOffline() pages), the
->> pages will simply be migrated.
->>
->> Note 1: If offlining fails, a driver has to increment the reference
->> 	count again in MEM_CANCEL_OFFLINE.
->>
->> Note 2: A driver that makes use of this has to be aware that re-onlining
->> 	the memory block has to be handled by hooking into onlining code
->> 	(online_page_callback_t), resetting the page PageOffline() and
->> 	not giving them to the buddy.
->>
->> Cc: Andrew Morton <akpm@linux-foundation.org>
->> Cc: Juergen Gross <jgross@suse.com>
->> Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
->> Cc: Pavel Tatashin <pavel.tatashin@microsoft.com>
->> Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>
->> Cc: Vlastimil Babka <vbabka@suse.cz>
->> Cc: Johannes Weiner <hannes@cmpxchg.org>
->> Cc: Anthony Yznaga <anthony.yznaga@oracle.com>
->> Cc: Michal Hocko <mhocko@suse.com>
->> Cc: Oscar Salvador <osalvador@suse.de>
->> Cc: Mel Gorman <mgorman@techsingularity.net>
->> Cc: Mike Rapoport <rppt@linux.ibm.com>
->> Cc: Dan Williams <dan.j.williams@intel.com>
->> Cc: Anshuman Khandual <anshuman.khandual@arm.com>
->> Cc: Qian Cai <cai@lca.pw>
->> Cc: Pingfan Liu <kernelfans@gmail.com>
->> Signed-off-by: David Hildenbrand <david@redhat.com>
-> 
-> Looks good to me. Thanks for dropping __put_page hooks!
-> Acked-by: Michal Hocko <mhocko@suse.com>
+As suggested by Michael, let's add me as co-maintainer of virtio-balloon.
+While at it, also add "include/linux/balloon_compaction.h" to the file
+list.
 
-Thanks a lot Michal - looks much cleaner this way.
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+ MAINTAINERS | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
--- 
-Thanks,
-
-David / dhildenb
+diff --git a/MAINTAINERS b/MAINTAINERS
+index c555f4be8c4e..da9f53a05d0e 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -17800,6 +17800,15 @@ F:	drivers/block/virtio_blk.c
+ F:	include/linux/virtio*.h
+ F:	include/uapi/linux/virtio_*.h
+ F:	drivers/crypto/virtio/
++
++VIRTIO BALLOON
++M:	"Michael S. Tsirkin" <mst@redhat.com>
++M:	David Hildenbrand <david@redhat.com>
++L:	virtualization@lists.linux-foundation.org
++S:	Maintained
++F:	drivers/virtio/virtio_balloon.c
++F:	include/uapi/linux/virtio_balloon.h
++F:	include/linux/balloon_compaction.h
+ F:	mm/balloon_compaction.c
+=20
+ VIRTIO BLOCK AND SCSI DRIVERS
+--=20
+2.24.1
