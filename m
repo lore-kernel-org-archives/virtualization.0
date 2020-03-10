@@ -1,65 +1,344 @@
 From: John Garry <john.garry@huawei.com>
-Subject: [PATCH RFC v2 24/24] scsi: hisi_sas: Use libsas slow task SCSI command
-Date: Wed, 11 Mar 2020 00:25:50 +0800
-Message-ID: <1583857550-12049-25-git-send-email-john.garry@huawei.com>
+Subject: [PATCH RFC v2 20/24] aacraid: use scsi_host_tagset_busy_iter() to traverse outstanding commands
+Date: Wed, 11 Mar 2020 00:25:46 +0800
+Message-ID: <1583857550-12049-21-git-send-email-john.garry@huawei.com>
 References: <1583857550-12049-1-git-send-email-john.garry@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-block-owner@vger.kernel.org>
+Return-path: <linux-scsi-owner@vger.kernel.org>
 In-Reply-To: <1583857550-12049-1-git-send-email-john.garry@huawei.com>
-Sender: linux-block-owner@vger.kernel.org
+Sender: linux-scsi-owner@vger.kernel.org
 To: axboe@kernel.dk, jejb@linux.ibm.com, martin.petersen@oracle.com, hare@suse.de, ming.lei@redhat.com, bvanassche@acm.org, hch@infradead.org
-Cc: linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org, esc.storagedev@microsemi.com, chenxiang66@hisilicon.com, John Garry <john.garry@huawei.com>
+Cc: linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org, esc.storagedev@microsemi.com, chenxiang66@hisilicon.com, Hannes Reinecke <hare@suse.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now that a SCSI command can be allocated for a libsas slow tasks, make the
-task prep code use it.
+From: Hannes Reinecke <hare@suse.de>
 
-Signed-off-by: John Garry <john.garry@huawei.com>
+Instead of walking the array of potential commands and trying to figure out
+which one might be pending the driver should be using
+scsi_host_tagset_busy_iter() to traverse all outstanding commands.
+
+Signed-off-by: Hannes Reinecke <hare@suse.com>
 ---
- drivers/scsi/hisi_sas/hisi_sas_main.c  | 5 ++++-
- drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 5 +++--
- 2 files changed, 7 insertions(+), 3 deletions(-)
+ drivers/scsi/aacraid/commsup.c |  49 +++++----
+ drivers/scsi/aacraid/linit.c   | 188 ++++++++++++++++++++-------------
+ 2 files changed, 142 insertions(+), 95 deletions(-)
 
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
-index c7951ac8b075..61039f3608c8 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_main.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
-@@ -476,8 +476,10 @@ static int hisi_sas_task_prep(struct sas_task *task,
- 			} else {
- 				scsi_cmnd = task->uldd_task;
- 			}
-+		} else if (task->slow_task) {
-+			scsi_cmnd = task->slow_task->scmd;
+diff --git a/drivers/scsi/aacraid/commsup.c b/drivers/scsi/aacraid/commsup.c
+index c0c2c87c4ae3..5e82f4741d82 100644
+--- a/drivers/scsi/aacraid/commsup.c
++++ b/drivers/scsi/aacraid/commsup.c
+@@ -1459,6 +1459,32 @@ static void aac_schedule_bus_scan(struct aac_dev *aac)
+ 		aac_schedule_src_reinit_aif_worker(aac);
+ }
+ 
++static bool aac_close_sync_fib_iter(struct scsi_cmnd *command, void *data,
++				    bool reserved)
++{
++	struct Scsi_Host *host = command->device->host;
++	struct aac_dev *aac = (struct aac_dev *)host->hostdata;
++	struct fib *fib = &aac->fibs[command->request->tag];
++	int *retval = data;
++	__le32 XferState = fib->hw_fib_va->header.XferState;
++	bool is_response_expected = false;
++
++	if (!(XferState & cpu_to_le32(NoResponseExpected | Async)) &&
++	    (XferState & cpu_to_le32(ResponseExpected)))
++		is_response_expected = true;
++
++	if (is_response_expected
++	    || fib->flags & FIB_CONTEXT_FLAG_WAIT) {
++		unsigned long flagv;
++		spin_lock_irqsave(&fib->event_lock, flagv);
++		complete(&fib->event_wait);
++		spin_unlock_irqrestore(&fib->event_lock, flagv);
++		schedule();
++		*retval = 0;
++	}
++	return true;
++}
++
+ static bool aac_reset_adapter_iter(struct scsi_cmnd *command, void *data,
+ 				   bool reserved)
+ {
+@@ -1482,7 +1508,6 @@ static int _aac_reset_adapter(struct aac_dev *aac, int forced, u8 reset_type)
+ 	int jafo = 0;
+ 	int bled;
+ 	u64 dmamask;
+-	int num_of_fibs = 0;
+ 
+ 	/*
+ 	 * Assumptions:
+@@ -1518,27 +1543,7 @@ static int _aac_reset_adapter(struct aac_dev *aac, int forced, u8 reset_type)
+ 	 *	Loop through the fibs, close the synchronous FIBS
+ 	 */
+ 	retval = 1;
+-	num_of_fibs = aac->scsi_host_ptr->can_queue + AAC_NUM_MGT_FIB;
+-	for (index = 0; index <  num_of_fibs; index++) {
+-
+-		struct fib *fib = &aac->fibs[index];
+-		__le32 XferState = fib->hw_fib_va->header.XferState;
+-		bool is_response_expected = false;
+-
+-		if (!(XferState & cpu_to_le32(NoResponseExpected | Async)) &&
+-		   (XferState & cpu_to_le32(ResponseExpected)))
+-			is_response_expected = true;
+-
+-		if (is_response_expected
+-		  || fib->flags & FIB_CONTEXT_FLAG_WAIT) {
+-			unsigned long flagv;
+-			spin_lock_irqsave(&fib->event_lock, flagv);
+-			complete(&fib->event_wait);
+-			spin_unlock_irqrestore(&fib->event_lock, flagv);
+-			schedule();
+-			retval = 0;
+-		}
+-	}
++	scsi_host_tagset_busy_iter(host, aac_close_sync_fib_iter, &retval);
+ 	/* Give some extra time for ioctls to complete. */
+ 	if (retval == 0)
+ 		ssleep(2);
+diff --git a/drivers/scsi/aacraid/linit.c b/drivers/scsi/aacraid/linit.c
+index 2da2f3bfcdc1..457bf342aa82 100644
+--- a/drivers/scsi/aacraid/linit.c
++++ b/drivers/scsi/aacraid/linit.c
+@@ -681,14 +681,87 @@ static int get_num_of_incomplete_fibs(struct aac_dev *aac)
+ 	return iter_data.mlcnt + iter_data.llcnt + iter_data.ehcnt + iter_data.fwcnt;
+ }
+ 
++struct aac_eh_abort_iter_data {
++	struct aac_dev *aac;
++	struct scsi_cmnd *cmd;
++	int ret;
++};
++
++static bool aac_eh_abort_busy_iter(struct scsi_cmnd *cmd, void *data,
++				   bool reserved)
++{
++	struct aac_eh_abort_iter_data *iter_data = data;
++	struct aac_dev *aac = iter_data->aac;
++	struct fib *fib = &aac->fibs[cmd->request->tag];
++
++	if (cmd != iter_data->cmd)
++		return true;
++
++	if (*(u8 *)fib->hw_fib_va != 0 &&
++	    (fib->flags & FIB_CONTEXT_FLAG_NATIVE_HBA) &&
++	    (fib->callback_data == cmd)) {
++		iter_data->ret = SUCCESS;
++		return false;
++	}
++	return true;
++}
++
++static bool aac_eh_abort_cmd_iter(struct scsi_cmnd *cmd, void *data,
++				  bool reserved)
++{
++	struct aac_eh_abort_iter_data *iter_data = data;
++	struct fib *fib = &iter_data->aac->fibs[cmd->request->tag];
++
++	if (cmd != iter_data->cmd)
++		return true;
++
++	if (fib->hw_fib_va->header.XferState &&
++	    (fib->flags & FIB_CONTEXT_FLAG) &&
++	    (fib->callback_data == iter_data->cmd)) {
++		fib->flags |= FIB_CONTEXT_FLAG_TIMED_OUT;
++		cmd->SCp.phase = AAC_OWNER_ERROR_HANDLER;
++		iter_data->ret = SUCCESS;
++	}
++	return true;
++}
++
++static bool aac_eh_abort_tur_iter(struct scsi_cmnd *cmd, void *data,
++				  bool reserved)
++{
++	struct aac_eh_abort_iter_data *iter_data = data;
++	struct fib *fib = &iter_data->aac->fibs[cmd->request->tag];
++	struct scsi_cmnd *command;
++
++	if (cmd != iter_data->cmd)
++		return true;
++
++	command = fib->callback_data;
++	if ((fib->hw_fib_va->header.XferState &
++	     cpu_to_le32(Async | NoResponseExpected)) &&
++	    (fib->flags & FIB_CONTEXT_FLAG) &&
++	    ((command)) && (command->device == cmd->device)) {
++		fib->flags |= FIB_CONTEXT_FLAG_TIMED_OUT;
++		command->SCp.phase = AAC_OWNER_ERROR_HANDLER;
++		if (command == cmd)
++			iter_data->ret = SUCCESS;
++	}
++	return true;
++}
++
+ static int aac_eh_abort(struct scsi_cmnd* cmd)
+ {
+ 	struct scsi_device * dev = cmd->device;
+ 	struct Scsi_Host * host = dev->host;
+ 	struct aac_dev * aac = (struct aac_dev *)host->hostdata;
+-	int count, found;
++	int count;
+ 	u32 bus, cid;
+ 	int ret = FAILED;
++	struct aac_eh_abort_iter_data iter_data = {
++		.aac = aac,
++		.cmd = cmd,
++		.ret = FAILED,
++	};
++
+ 
+ 	if (aac_adapter_check_health(aac))
+ 		return ret;
+@@ -705,17 +778,9 @@ static int aac_eh_abort(struct scsi_cmnd* cmd)
+ 		 AAC_DRIVERNAME,
+ 		 host->host_no, sdev_channel(dev), sdev_id(dev), (int)dev->lun);
+ 
+-		found = 0;
+-		for (count = 0; count < (host->can_queue + AAC_NUM_MGT_FIB); ++count) {
+-			fib = &aac->fibs[count];
+-			if (*(u8 *)fib->hw_fib_va != 0 &&
+-				(fib->flags & FIB_CONTEXT_FLAG_NATIVE_HBA) &&
+-				(fib->callback_data == cmd)) {
+-				found = 1;
+-				break;
+-			}
+-		}
+-		if (!found)
++		scsi_host_tagset_busy_iter(host, aac_eh_abort_busy_iter,
++					   &iter_data);
++		if (iter_data.ret == FAILED)
+ 			return ret;
+ 
+ 		/* start a HBA_TMF_ABORT_TASK TMF request */
+@@ -773,49 +838,18 @@ static int aac_eh_abort(struct scsi_cmnd* cmd)
+ 			 * Mark associated FIB to not complete,
+ 			 * eh handler does this
+ 			 */
+-			for (count = 0;
+-				count < (host->can_queue + AAC_NUM_MGT_FIB);
+-				++count) {
+-				struct fib *fib = &aac->fibs[count];
+-
+-				if (fib->hw_fib_va->header.XferState &&
+-				(fib->flags & FIB_CONTEXT_FLAG) &&
+-				(fib->callback_data == cmd)) {
+-					fib->flags |=
+-						FIB_CONTEXT_FLAG_TIMED_OUT;
+-					cmd->SCp.phase =
+-						AAC_OWNER_ERROR_HANDLER;
+-					ret = SUCCESS;
+-				}
+-			}
++			scsi_host_tagset_busy_iter(host, aac_eh_abort_cmd_iter,
++						   &iter_data);
++			ret = iter_data.ret;
+ 			break;
+ 		case TEST_UNIT_READY:
+ 			/*
+ 			 * Mark associated FIB to not complete,
+ 			 * eh handler does this
+ 			 */
+-			for (count = 0;
+-				count < (host->can_queue + AAC_NUM_MGT_FIB);
+-				++count) {
+-				struct scsi_cmnd *command;
+-				struct fib *fib = &aac->fibs[count];
+-
+-				command = fib->callback_data;
+-
+-				if ((fib->hw_fib_va->header.XferState &
+-					cpu_to_le32
+-					(Async | NoResponseExpected)) &&
+-					(fib->flags & FIB_CONTEXT_FLAG) &&
+-					((command)) &&
+-					(command->device == cmd->device)) {
+-					fib->flags |=
+-						FIB_CONTEXT_FLAG_TIMED_OUT;
+-					command->SCp.phase =
+-						AAC_OWNER_ERROR_HANDLER;
+-					if (command == cmd)
+-						ret = SUCCESS;
+-				}
+-			}
++			scsi_host_tagset_busy_iter(host, aac_eh_abort_tur_iter,
++						   &iter_data);
++			ret = iter_data.ret;
+ 			break;
  		}
--		rc  = hisi_sas_slot_index_alloc(hisi_hba, scsi_cmnd);
-+		rc = hisi_sas_slot_index_alloc(hisi_hba, scsi_cmnd);
  	}
- 	if (rc < 0)
- 		goto err_out_dif_dma_unmap;
-@@ -2650,6 +2652,7 @@ int hisi_sas_probe(struct platform_device *pdev,
- 	} else {
- 		shost->can_queue = HISI_SAS_UNRESERVED_IPTT;
- 		shost->cmd_per_lun = HISI_SAS_UNRESERVED_IPTT;
-+		shost->nr_reserved_cmds = HISI_SAS_RESERVED_IPTT;
- 	}
+@@ -1010,6 +1044,36 @@ static int aac_eh_target_reset(struct scsi_cmnd *cmd)
+ 	return ret;
+ }
  
- 	sha->sas_ha_name = DRV_NAME;
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-index a2debe0c8185..44530f8c0319 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-@@ -3237,8 +3237,9 @@ hisi_sas_v3_probe(struct pci_dev *pdev, const struct pci_device_id *id)
- 	shost->max_lun = ~0;
- 	shost->max_channel = 1;
- 	shost->max_cmd_len = 16;
--	shost->can_queue = HISI_SAS_UNRESERVED_IPTT;
--	shost->cmd_per_lun = HISI_SAS_UNRESERVED_IPTT;
-+	shost->can_queue = HISI_SAS_MAX_COMMANDS;
-+	shost->cmd_per_lun = HISI_SAS_MAX_COMMANDS;
-+	shost->nr_reserved_cmds = HISI_SAS_RESERVED_IPTT;
++static bool aac_eh_bus_reset_iter(struct scsi_cmnd *cmd, void *data,
++				  bool reserved)
++{
++	struct Scsi_Host *host = cmd->device->host;
++	struct aac_dev *aac = (struct aac_dev *)host->hostdata;
++	struct fib *fib = &aac->fibs[cmd->request->tag];
++	int *cmd_bus = data;
++
++	if (fib->hw_fib_va->header.XferState &&
++	    (fib->flags & FIB_CONTEXT_FLAG) &&
++	    (fib->flags & FIB_CONTEXT_FLAG_SCSI_CMD)) {
++		struct aac_hba_map_info *info;
++		u32 bus, cid;
++
++		if (cmd != (struct scsi_cmnd *)fib->callback_data)
++			return true;
++		bus = aac_logical_to_phys(scmd_channel(cmd));
++		if (bus != *cmd_bus)
++			return true;
++		cid = scmd_id(cmd);
++		info = &aac->hba_map[bus][cid];
++		if (bus >= AAC_MAX_BUSES || cid >= AAC_MAX_TARGETS ||
++		    info->devtype != AAC_DEVTYPE_NATIVE_RAW) {
++			fib->flags |= FIB_CONTEXT_FLAG_EH_RESET;
++			cmd->SCp.phase = AAC_OWNER_ERROR_HANDLER;
++		}
++	}
++	return true;
++}
++
+ /*
+  *	aac_eh_bus_reset	- Bus reset command handling
+  *	@scsi_cmd:	SCSI command block causing the reset
+@@ -1024,32 +1088,10 @@ static int aac_eh_bus_reset(struct scsi_cmnd* cmd)
+ 	u32 cmd_bus;
+ 	int status = 0;
  
- 	sha->sas_ha_name = DRV_NAME;
- 	sha->dev = dev;
+-
+ 	cmd_bus = aac_logical_to_phys(scmd_channel(cmd));
+-	/* Mark the assoc. FIB to not complete, eh handler does this */
+-	for (count = 0; count < (host->can_queue + AAC_NUM_MGT_FIB); ++count) {
+-		struct fib *fib = &aac->fibs[count];
+-
+-		if (fib->hw_fib_va->header.XferState &&
+-		    (fib->flags & FIB_CONTEXT_FLAG) &&
+-		    (fib->flags & FIB_CONTEXT_FLAG_SCSI_CMD)) {
+-			struct aac_hba_map_info *info;
+-			u32 bus, cid;
+-
+-			cmd = (struct scsi_cmnd *)fib->callback_data;
+-			bus = aac_logical_to_phys(scmd_channel(cmd));
+-			if (bus != cmd_bus)
+-				continue;
+-			cid = scmd_id(cmd);
+-			info = &aac->hba_map[bus][cid];
+-			if (bus >= AAC_MAX_BUSES || cid >= AAC_MAX_TARGETS ||
+-			    info->devtype != AAC_DEVTYPE_NATIVE_RAW) {
+-				fib->flags |= FIB_CONTEXT_FLAG_EH_RESET;
+-				cmd->SCp.phase = AAC_OWNER_ERROR_HANDLER;
+-			}
+-		}
+-	}
+ 
++	/* Mark the assoc. FIB to not complete, eh handler does this */
++	scsi_host_tagset_busy_iter(host, aac_eh_bus_reset_iter, &cmd_bus);
+ 	pr_err("%s: Host adapter reset request. SCSI hang ?\n", AAC_DRIVERNAME);
+ 
+ 	/*
 -- 
 2.17.1
