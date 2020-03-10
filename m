@@ -1,46 +1,58 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v1] MAINTAINERS: Add myself as virtio-balloon co-maintainer
-Date: Tue, 10 Mar 2020 12:54:11 +0100
-Message-ID: <20200310115411.12760-1-david@redhat.com>
+From: Michal Hocko <mhocko@kernel.org>
+Subject: Re: [PATCH v1 07/11] virtio-mem: Allow to offline partially
+ unplugged memory blocks
+Date: Tue, 10 Mar 2020 12:59:55 +0100
+Message-ID: <20200310115955.GI8447@dhcp22.suse.cz>
+References: <20200302134941.315212-1-david@redhat.com>
+ <20200302134941.315212-8-david@redhat.com>
+ <20200310114312.GG8447@dhcp22.suse.cz>
+ <e505b4cb-1d12-d6e6-3524-9dfa65ae34bf@redhat.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <e505b4cb-1d12-d6e6-3524-9dfa65ae34bf@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Luiz Capitulino <lcapitulino@redhat.com>, David Hildenbrand <david@redhat.com>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Oscar Salvador <osalvador@suse.de>, Igor Mammedov <imammedo@redhat.com>, Dave Young <dyoung@redhat.com>, Dan Williams <dan.j.williams@intel.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Stefan Hajnoczi <stefanha@redhat.com>, Vlastimil Babka <vbabka@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-As suggested by Michael, let's add me as co-maintainer of virtio-balloon.
-While at it, also add "include/linux/balloon_compaction.h" to the file
-list.
+On Tue 10-03-20 12:46:05, David Hildenbrand wrote:
+> On 10.03.20 12:43, Michal Hocko wrote:
+> > On Mon 02-03-20 14:49:37, David Hildenbrand wrote:
+> > [...]
+> >> +static void virtio_mem_notify_going_offline(struct virtio_mem *vm,
+> >> +					    unsigned long mb_id)
+> >> +{
+> >> +	const unsigned long nr_pages = PFN_DOWN(vm->subblock_size);
+> >> +	unsigned long pfn;
+> >> +	int sb_id, i;
+> >> +
+> >> +	for (sb_id = 0; sb_id < vm->nb_sb_per_mb; sb_id++) {
+> >> +		if (virtio_mem_mb_test_sb_plugged(vm, mb_id, sb_id, 1))
+> >> +			continue;
+> >> +		/*
+> >> +		 * Drop our reference to the pages so the memory can get
+> >> +		 * offlined and add the unplugged pages to the managed
+> >> +		 * page counters (so offlining code can correctly subtract
+> >> +		 * them again).
+> >> +		 */
+> >> +		pfn = PFN_DOWN(virtio_mem_mb_id_to_phys(mb_id) +
+> >> +			       sb_id * vm->subblock_size);
+> >> +		adjust_managed_page_count(pfn_to_page(pfn), nr_pages);
+> >> +		for (i = 0; i < nr_pages; i++)
+> >> +			page_ref_dec(pfn_to_page(pfn + i));
+> > 
+> > Is there ever situation this might be a different than 1->0 transition?
+> 
+> Only if some other code would be taking a reference. At least not from
+> virtio-mem perspective.
 
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- MAINTAINERS | 9 +++++++++
- 1 file changed, 9 insertions(+)
+OK, so that is essentially an error condition. I think it shouldn't go
+silent and you want something like
+	if (WARN_ON(!page_ref_sub_and_test(page)))
+		dump_page(pfn_to_page(pfn + i), "YOUR REASON");
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index c555f4be8c4e..da9f53a05d0e 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -17800,6 +17800,15 @@ F:	drivers/block/virtio_blk.c
- F:	include/linux/virtio*.h
- F:	include/uapi/linux/virtio_*.h
- F:	drivers/crypto/virtio/
-+
-+VIRTIO BALLOON
-+M:	"Michael S. Tsirkin" <mst@redhat.com>
-+M:	David Hildenbrand <david@redhat.com>
-+L:	virtualization@lists.linux-foundation.org
-+S:	Maintained
-+F:	drivers/virtio/virtio_balloon.c
-+F:	include/uapi/linux/virtio_balloon.h
-+F:	include/linux/balloon_compaction.h
- F:	mm/balloon_compaction.c
-=20
- VIRTIO BLOCK AND SCSI DRIVERS
---=20
-2.24.1
+-- 
+Michal Hocko
+SUSE Labs
