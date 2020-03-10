@@ -1,73 +1,37 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 14/15] iommu/virtio: Use accessor functions for iommu private data
-Date: Tue, 10 Mar 2020 10:12:28 +0100
-Message-ID: <20200310091229.29830-15-joro@8bytes.org>
+Subject: [PATCH 03/15] drm/msm/mdp5: Remove direct access of dev->iommu_fwspec
+Date: Tue, 10 Mar 2020 10:12:17 +0100
+Message-ID: <20200310091229.29830-4-joro@8bytes.org>
 References: <20200310091229.29830-1-joro@8bytes.org>
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200310091229.29830-1-joro@8bytes.org>
-Sender: linux-arm-msm-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: iommu@lists.linux-foundation.org
 Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, virtualization@lists.linux-foundation.org, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Hanjun Guo <guohanjun@huawei.com>, Sudeep Holla <sudeep.holla@arm.com>, Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Joerg Roedel <joro@8bytes.org>, Matthias Brugger <matthias.bgg@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Make use of dev_iommu_priv_set/get() functions.
+Use the accessor functions instead of directly dereferencing
+dev->iommu_fwspec.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- drivers/iommu/virtio-iommu.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-index cce329d71fba..8ead57f031f5 100644
---- a/drivers/iommu/virtio-iommu.c
-+++ b/drivers/iommu/virtio-iommu.c
-@@ -466,7 +466,7 @@ static int viommu_probe_endpoint(struct viommu_dev *viommu, struct device *dev)
- 	struct virtio_iommu_req_probe *probe;
- 	struct virtio_iommu_probe_property *prop;
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
--	struct viommu_endpoint *vdev = fwspec->iommu_priv;
-+	struct viommu_endpoint *vdev = dev_iommu_priv_get(dev);
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
+index e43ecd4be10a..1252e1d76340 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_kms.c
+@@ -725,7 +725,7 @@ struct msm_kms *mdp5_kms_init(struct drm_device *dev)
  
- 	if (!fwspec->num_ids)
- 		return -EINVAL;
-@@ -648,7 +648,7 @@ static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
- 	int ret = 0;
- 	struct virtio_iommu_req_attach req;
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
--	struct viommu_endpoint *vdev = fwspec->iommu_priv;
-+	struct viommu_endpoint *vdev = dev_iommu_priv_get(dev);
- 	struct viommu_domain *vdomain = to_viommu_domain(domain);
+ 	if (config->platform.iommu) {
+ 		iommu_dev = &pdev->dev;
+-		if (!iommu_dev->iommu_fwspec)
++		if (!dev_iommu_fwspec_get(iommu_dev))
+ 			iommu_dev = iommu_dev->parent;
  
- 	mutex_lock(&vdomain->mutex);
-@@ -807,8 +807,7 @@ static void viommu_iotlb_sync(struct iommu_domain *domain,
- static void viommu_get_resv_regions(struct device *dev, struct list_head *head)
- {
- 	struct iommu_resv_region *entry, *new_entry, *msi = NULL;
--	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
--	struct viommu_endpoint *vdev = fwspec->iommu_priv;
-+	struct viommu_endpoint *vdev = dev_iommu_priv_get(dev);
- 	int prot = IOMMU_WRITE | IOMMU_NOEXEC | IOMMU_MMIO;
- 
- 	list_for_each_entry(entry, &vdev->resv_regions, list) {
-@@ -876,7 +875,7 @@ static int viommu_add_device(struct device *dev)
- 	vdev->dev = dev;
- 	vdev->viommu = viommu;
- 	INIT_LIST_HEAD(&vdev->resv_regions);
--	fwspec->iommu_priv = vdev;
-+	dev_iommu_priv_set(dev, vdev);
- 
- 	if (viommu->probe_size) {
- 		/* Get additional information for this endpoint */
-@@ -920,7 +919,7 @@ static void viommu_remove_device(struct device *dev)
- 	if (!fwspec || fwspec->ops != &viommu_ops)
- 		return;
- 
--	vdev = fwspec->iommu_priv;
-+	vdev = dev_iommu_priv_get(dev);
- 
- 	iommu_group_remove_device(dev);
- 	iommu_device_unlink(&vdev->viommu->iommu, dev);
+ 		aspace = msm_gem_address_space_create(iommu_dev,
 -- 
 2.17.1
