@@ -1,154 +1,85 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 12/15] iommu/mediatek: Use accessor functions for iommu private data
-Date: Tue, 10 Mar 2020 10:12:26 +0100
-Message-ID: <20200310091229.29830-13-joro@8bytes.org>
+Subject: [PATCH 09/15] iommu/arm-smmu-v3: Use accessor functions for iommu
+ private data
+Date: Tue, 10 Mar 2020 10:12:23 +0100
+Message-ID: <20200310091229.29830-10-joro@8bytes.org>
 References: <20200310091229.29830-1-joro@8bytes.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200310091229.29830-1-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: iommu@lists.linux-foundation.org
-Cc: linux-kernel@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, virtualization@lists.linux-foundation.org, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Hanjun Guo <guohanjun@huawei.com>, Sudeep Holla <sudeep.holla@arm.com>, Rob Clark <robdclark@gmail.com>, Sean Paul <sean@poorly.run>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Joerg Roedel <joro@8bytes.org>, Matthias Brugger <matthias.bgg@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Joerg Roedel <jroedel@suse.de>
+Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Will Deacon <will@kernel.org>, linux-arm-msm@vger.kernel.org, Joerg Roedel <joro@8bytes.org>, Sudeep Holla <sudeep.holla@arm.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Rob Clark <robdclark@gmail.com>, Thierry Reding <thierry.reding@gmail.com>, linux-mediatek@lists.infradead.org, Andy Gross <agross@kernel.org>, Joerg Roedel <jroedel@suse.de>, Hanjun Guo <guohanjun@huawei.com>, Matthias Brugger <matthias.bgg@gmail.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Sean Paul <sean@poorly.run>, Robin Murphy <robin.murphy@arm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Make use of dev_iommu_priv_set/get() functions.
+Make use of dev_iommu_priv_set/get() functions in the code.
 
+Tested-by: Hanjun Guo <guohanjun@huawei.com>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- drivers/iommu/mtk_iommu.c    | 13 ++++++-------
- drivers/iommu/mtk_iommu_v1.c | 14 +++++++-------
- 2 files changed, 13 insertions(+), 14 deletions(-)
+ drivers/iommu/arm-smmu-v3.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
-index 95945f467c03..5f4d6df59cf6 100644
---- a/drivers/iommu/mtk_iommu.c
-+++ b/drivers/iommu/mtk_iommu.c
-@@ -358,8 +358,8 @@ static void mtk_iommu_domain_free(struct iommu_domain *domain)
- static int mtk_iommu_attach_device(struct iommu_domain *domain,
- 				   struct device *dev)
- {
-+	struct mtk_iommu_data *data = dev_iommu_priv_get(dev);
- 	struct mtk_iommu_domain *dom = to_mtk_domain(domain);
--	struct mtk_iommu_data *data = dev_iommu_fwspec_get(dev)->iommu_priv;
+diff --git a/drivers/iommu/arm-smmu-v3.c b/drivers/iommu/arm-smmu-v3.c
+index aa3ac2a03807..2b68498dfb66 100644
+--- a/drivers/iommu/arm-smmu-v3.c
++++ b/drivers/iommu/arm-smmu-v3.c
+@@ -2659,7 +2659,7 @@ static int arm_smmu_attach_dev(struct iommu_domain *domain, struct device *dev)
+ 	if (!fwspec)
+ 		return -ENOENT;
  
- 	if (!data)
+-	master = fwspec->iommu_priv;
++	master = dev_iommu_priv_get(dev);
+ 	smmu = master->smmu;
+ 
+ 	arm_smmu_detach_dev(master);
+@@ -2795,7 +2795,7 @@ static int arm_smmu_add_device(struct device *dev)
+ 	if (!fwspec || fwspec->ops != &arm_smmu_ops)
  		return -ENODEV;
-@@ -378,7 +378,7 @@ static int mtk_iommu_attach_device(struct iommu_domain *domain,
- static void mtk_iommu_detach_device(struct iommu_domain *domain,
- 				    struct device *dev)
- {
--	struct mtk_iommu_data *data = dev_iommu_fwspec_get(dev)->iommu_priv;
-+	struct mtk_iommu_data *data = dev_iommu_priv_get(dev);
  
- 	if (!data)
- 		return;
-@@ -450,7 +450,7 @@ static int mtk_iommu_add_device(struct device *dev)
- 	if (!fwspec || fwspec->ops != &mtk_iommu_ops)
- 		return -ENODEV; /* Not a iommu client device */
+-	if (WARN_ON_ONCE(fwspec->iommu_priv))
++	if (WARN_ON_ONCE(dev_iommu_priv_get(dev)))
+ 		return -EBUSY;
  
--	data = fwspec->iommu_priv;
-+	data = dev_iommu_priv_get(dev);
- 	iommu_device_link(&data->iommu, dev);
+ 	smmu = arm_smmu_get_by_fwnode(fwspec->iommu_fwnode);
+@@ -2810,7 +2810,7 @@ static int arm_smmu_add_device(struct device *dev)
+ 	master->smmu = smmu;
+ 	master->sids = fwspec->ids;
+ 	master->num_sids = fwspec->num_ids;
+-	fwspec->iommu_priv = master;
++	dev_iommu_priv_set(dev, master);
  
- 	group = iommu_group_get_for_dev(dev);
-@@ -469,7 +469,7 @@ static void mtk_iommu_remove_device(struct device *dev)
- 	if (!fwspec || fwspec->ops != &mtk_iommu_ops)
- 		return;
+ 	/* Check the SIDs are in range of the SMMU and our stream table */
+ 	for (i = 0; i < master->num_sids; i++) {
+@@ -2852,7 +2852,7 @@ static int arm_smmu_add_device(struct device *dev)
+ 	iommu_device_unlink(&smmu->iommu, dev);
+ err_free_master:
+ 	kfree(master);
+-	fwspec->iommu_priv = NULL;
++	dev_iommu_priv_set(dev, NULL);
+ 	return ret;
+ }
  
--	data = fwspec->iommu_priv;
-+	data = dev_iommu_priv_get(dev);
- 	iommu_device_unlink(&data->iommu, dev);
- 
- 	iommu_group_remove_device(dev);
-@@ -496,7 +496,6 @@ static struct iommu_group *mtk_iommu_device_group(struct device *dev)
- 
- static int mtk_iommu_of_xlate(struct device *dev, struct of_phandle_args *args)
- {
--	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
- 	struct platform_device *m4updev;
- 
- 	if (args->args_count != 1) {
-@@ -505,13 +504,13 @@ static int mtk_iommu_of_xlate(struct device *dev, struct of_phandle_args *args)
- 		return -EINVAL;
- 	}
- 
--	if (!fwspec->iommu_priv) {
-+	if (!dev_iommu_priv_get(dev)) {
- 		/* Get the m4u device */
- 		m4updev = of_find_device_by_node(args->np);
- 		if (WARN_ON(!m4updev))
- 			return -EINVAL;
- 
--		fwspec->iommu_priv = platform_get_drvdata(m4updev);
-+		dev_iommu_priv_set(dev, platform_get_drvdata(m4updev));
- 	}
- 
- 	return iommu_fwspec_add_ids(dev, args->args, 1);
-diff --git a/drivers/iommu/mtk_iommu_v1.c b/drivers/iommu/mtk_iommu_v1.c
-index e93b94ecac45..9930ac7413cc 100644
---- a/drivers/iommu/mtk_iommu_v1.c
-+++ b/drivers/iommu/mtk_iommu_v1.c
-@@ -263,8 +263,8 @@ static void mtk_iommu_domain_free(struct iommu_domain *domain)
- static int mtk_iommu_attach_device(struct iommu_domain *domain,
- 				   struct device *dev)
- {
-+	struct mtk_iommu_data *data = dev_iommu_priv_get(dev);
- 	struct mtk_iommu_domain *dom = to_mtk_domain(domain);
--	struct mtk_iommu_data *data = dev_iommu_fwspec_get(dev)->iommu_priv;
- 	int ret;
- 
- 	if (!data)
-@@ -286,7 +286,7 @@ static int mtk_iommu_attach_device(struct iommu_domain *domain,
- static void mtk_iommu_detach_device(struct iommu_domain *domain,
- 				    struct device *dev)
- {
--	struct mtk_iommu_data *data = dev_iommu_fwspec_get(dev)->iommu_priv;
-+	struct mtk_iommu_data *data = dev_iommu_priv_get(dev);
- 
- 	if (!data)
- 		return;
-@@ -387,20 +387,20 @@ static int mtk_iommu_create_mapping(struct device *dev,
- 		return -EINVAL;
- 	}
- 
--	if (!fwspec->iommu_priv) {
-+	if (!dev_iommu_priv_get(dev)) {
- 		/* Get the m4u device */
- 		m4updev = of_find_device_by_node(args->np);
- 		if (WARN_ON(!m4updev))
- 			return -EINVAL;
- 
--		fwspec->iommu_priv = platform_get_drvdata(m4updev);
-+		dev_iommu_priv_set(dev, platform_get_drvdata(m4updev));
- 	}
- 
- 	ret = iommu_fwspec_add_ids(dev, args->args, 1);
- 	if (ret)
- 		return ret;
- 
--	data = fwspec->iommu_priv;
-+	data = dev_iommu_priv_get(dev);
- 	m4udev = data->dev;
- 	mtk_mapping = m4udev->archdata.iommu;
- 	if (!mtk_mapping) {
-@@ -459,7 +459,7 @@ static int mtk_iommu_add_device(struct device *dev)
- 	if (err)
- 		return err;
- 
--	data = fwspec->iommu_priv;
-+	data = dev_iommu_priv_get(dev)
- 	mtk_mapping = data->dev->archdata.iommu;
- 	err = arm_iommu_attach_device(dev, mtk_mapping);
- 	if (err) {
-@@ -478,7 +478,7 @@ static void mtk_iommu_remove_device(struct device *dev)
- 	if (!fwspec || fwspec->ops != &mtk_iommu_ops)
+@@ -2865,7 +2865,7 @@ static void arm_smmu_remove_device(struct device *dev)
+ 	if (!fwspec || fwspec->ops != &arm_smmu_ops)
  		return;
  
--	data = fwspec->iommu_priv;
-+	data = dev_iommu_priv_get(dev)
- 	iommu_device_unlink(&data->iommu, dev);
- 
+-	master = fwspec->iommu_priv;
++	master = dev_iommu_priv_get(dev);
+ 	smmu = master->smmu;
+ 	arm_smmu_detach_dev(master);
  	iommu_group_remove_device(dev);
 -- 
 2.17.1
