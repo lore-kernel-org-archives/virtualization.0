@@ -1,48 +1,44 @@
-From: Ming Lei <ming.lei@redhat.com>
-Subject: Re: [PATCH RFC v2 01/24] scsi: add 'nr_reserved_cmds' field to the
- SCSI host template
-Date: Wed, 11 Mar 2020 07:08:35 +0800
-Message-ID: <20200310230835.GA16056@ming.t460p>
+From: Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH RFC v2 02/24] scsi: allocate separate queue for reserved
+ commands
+Date: Tue, 10 Mar 2020 23:22:28 -0700
+Message-ID: <20200311062228.GA13522@infradead.org>
 References: <1583857550-12049-1-git-send-email-john.garry@huawei.com>
- <1583857550-12049-2-git-send-email-john.garry@huawei.com>
+ <1583857550-12049-3-git-send-email-john.garry@huawei.com>
+ <20200310183243.GA14549@infradead.org>
+ <79cf4341-f2a2-dcc9-be0d-2efc6e83028a@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-scsi-owner@vger.kernel.org>
+Return-path: <linux-block-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1583857550-12049-2-git-send-email-john.garry@huawei.com>
-Sender: linux-scsi-owner@vger.kernel.org
+In-Reply-To: <79cf4341-f2a2-dcc9-be0d-2efc6e83028a@huawei.com>
+Sender: linux-block-owner@vger.kernel.org
 To: John Garry <john.garry@huawei.com>
-Cc: axboe@kernel.dk, jejb@linux.ibm.com, martin.petersen@oracle.com, hare@suse.de, bvanassche@acm.org, hch@infradead.org, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org, esc.storagedev@microsemi.com, chenxiang66@hisilicon.com, Hannes Reinecke <hare@suse.com>
+Cc: Christoph Hellwig <hch@infradead.org>, axboe@kernel.dk, jejb@linux.ibm.com, martin.petersen@oracle.com, hare@suse.de, ming.lei@redhat.com, bvanassche@acm.org, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org, esc.storagedev@microsemi.com, chenxiang66@hisilicon.com, Hannes Reinecke <hare@suse.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 11, 2020 at 12:25:27AM +0800, John Garry wrote:
-> From: Hannes Reinecke <hare@suse.com>
+On Tue, Mar 10, 2020 at 09:08:56PM +0000, John Garry wrote:
+> On 10/03/2020 18:32, Christoph Hellwig wrote:
+> > On Wed, Mar 11, 2020 at 12:25:28AM +0800, John Garry wrote:
+> > > From: Hannes Reinecke <hare@suse.com>
+> > > 
+> > > Allocate a separate 'reserved_cmd_q' for sending reserved commands.
+> > 
+> > Why?  Reserved command specifically are not in any way tied to queues.
+> > .
+> > 
 > 
-> Add a new field 'nr_reserved_cmds' to the SCSI host template to
-> instruct the block layer to set aside a tag space for reserved
-> commands.
+> So the v1 series used a combination of the sdev queue and the per-host
+> reserved_cmd_q. Back then you questioned using the sdev queue for virtio
+> scsi, and the unconfirmed conclusion was to use a common per-host q. This is
+> the best link I can find now:
 > 
-> Signed-off-by: Hannes Reinecke <hare@suse.com>
-> ---
->  drivers/scsi/scsi_lib.c  | 1 +
->  include/scsi/scsi_host.h | 6 ++++++
->  2 files changed, 7 insertions(+)
-> 
-> diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
-> index 610ee41fa54c..2967325df7a0 100644
-> --- a/drivers/scsi/scsi_lib.c
-> +++ b/drivers/scsi/scsi_lib.c
-> @@ -1896,6 +1896,7 @@ int scsi_mq_setup_tags(struct Scsi_Host *shost)
->  		shost->tag_set.ops = &scsi_mq_ops_no_commit;
->  	shost->tag_set.nr_hw_queues = shost->nr_hw_queues ? : 1;
->  	shost->tag_set.queue_depth = shost->can_queue;
-> +	shost->tag_set.reserved_tags = shost->nr_reserved_cmds;
+> https://www.mail-archive.com/linux-scsi@vger.kernel.org/msg83177.html
 
-You reserve tags for special usage, meantime the whole queue depth
-isn't increased, that means the tags for IO request is decreased given
-reserved tags can't be used for IO, so IO performance may be effected.
-
-If not the case, please explain a bit in commit log.
-
-Thanks,
-Ming
+That was just a question on why virtio uses the per-device tags, which
+didn't look like it made any sense.  What I'm worried about here is
+mixing up the concept of reserved tags in the tagset, and queues to use
+them.  Note that we already have the scsi_get_host_dev to allocate
+a scsi_device and thus a request_queue for the host itself.  That seems
+like the better interface to use a tag for a host wide command vs
+introducing a parallel path.
