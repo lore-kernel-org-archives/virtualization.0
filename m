@@ -1,65 +1,97 @@
-From: Amit Shah <amit@kernel.org>
-Subject: Re: [PATCH] virtio: virtio_console: add missing
- MODULE_DEVICE_TABLE() for rproc serial
-Date: Wed, 11 Mar 2020 15:53:56 +0100
-Message-ID: <f09bacf3029edfc7f90097f7fc6e41176ddd4873.camel@kernel.org>
-References: <20200310110538.19254-1-alobakin@dlink.ru>
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Subject: [PATCH] iommu/virtio: Fix sparse warning
+Date: Wed, 11 Mar 2020 16:39:36 +0100
+Message-ID: <20200311153936.386178-1-jean-philippe@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20200310110538.19254-1-alobakin@dlink.ru>
-Sender: stable-owner@vger.kernel.org
-To: Alexander Lobakin <alobakin@dlink.ru>
-Cc: Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Sjur Brandeland <sjur.brandeland@stericsson.com>, Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux-foundation.org, stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: virtualization@lists.linux-foundation.org
+Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>, kbuild test robot <lkp@intel.com>, mst@redhat.com, eric.auger@redhat.com, iommu@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2020-03-10 at 14:05 +0300, Alexander Lobakin wrote:
-> rproc_serial_id_table lacks an exposure to module devicetable, so
-> when remoteproc firmware requests VIRTIO_ID_RPROC_SERIAL, no uevent
-> is generated and no module autoloading occurs.
-> Add missing MODULE_DEVICE_TABLE() annotation and move the existing
-> one for VIRTIO_ID_CONSOLE right to the table itself.
-> 
-> Fixes: 1b6370463e88 ("virtio_console: Add support for remoteproc
-> serial")
-> Cc: <stable@vger.kernel.org> # v3.8+
-> Signed-off-by: Alexander Lobakin <alobakin@dlink.ru>
+We copied the virtio_iommu_config from the virtio-iommu specification,
+which declares the fields using little-endian annotations (for example
+le32). Unfortunately this causes sparse to warn about comparison between
+little- and cpu-endian, because of the typecheck() in virtio_cread():
 
-Reviewed-by: Amit Shah <amit@kernel.org>
+drivers/iommu/virtio-iommu.c:1024:9: sparse: sparse: incompatible types in comparison expression (different base types):
+drivers/iommu/virtio-iommu.c:1024:9: sparse:    restricted __le64 *
+drivers/iommu/virtio-iommu.c:1024:9: sparse:    unsigned long long *
+drivers/iommu/virtio-iommu.c:1036:9: sparse: sparse: incompatible types in comparison expression (different base types):
+drivers/iommu/virtio-iommu.c:1036:9: sparse:    restricted __le64 *
+drivers/iommu/virtio-iommu.c:1036:9: sparse:    unsigned long long *
+drivers/iommu/virtio-iommu.c:1040:9: sparse: sparse: incompatible types in comparison expression (different base types):
+drivers/iommu/virtio-iommu.c:1040:9: sparse:    restricted __le64 *
+drivers/iommu/virtio-iommu.c:1040:9: sparse:    unsigned long long *
+drivers/iommu/virtio-iommu.c:1044:9: sparse: sparse: incompatible types in comparison expression (different base types):
+drivers/iommu/virtio-iommu.c:1044:9: sparse:    restricted __le32 *
+drivers/iommu/virtio-iommu.c:1044:9: sparse:    unsigned int *
+drivers/iommu/virtio-iommu.c:1048:9: sparse: sparse: incompatible types in comparison expression (different base types):
+drivers/iommu/virtio-iommu.c:1048:9: sparse:    restricted __le32 *
+drivers/iommu/virtio-iommu.c:1048:9: sparse:    unsigned int *
+drivers/iommu/virtio-iommu.c:1052:9: sparse: sparse: incompatible types in comparison expression (different base types):
+drivers/iommu/virtio-iommu.c:1052:9: sparse:    restricted __le32 *
+drivers/iommu/virtio-iommu.c:1052:9: sparse:    unsigned int *
 
-Thanks,
+Although virtio_cread() does convert virtio-endian (in our case
+little-endian) to cpu-endian, the typecheck() needs the two arguments to
+have the same endianness. Do as UAPI headers of other virtio devices do,
+and remove the endian annotation from the device config.
 
-> ---
->  drivers/char/virtio_console.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/char/virtio_console.c
-> b/drivers/char/virtio_console.c
-> index 4df9b40d6342..7e1bc0f580a2 100644
-> --- a/drivers/char/virtio_console.c
-> +++ b/drivers/char/virtio_console.c
-> @@ -2116,6 +2116,7 @@ static struct virtio_device_id id_table[] = {
->  	{ VIRTIO_ID_CONSOLE, VIRTIO_DEV_ANY_ID },
->  	{ 0 },
->  };
-> +MODULE_DEVICE_TABLE(virtio, id_table);
->  
->  static unsigned int features[] = {
->  	VIRTIO_CONSOLE_F_SIZE,
-> @@ -2128,6 +2129,7 @@ static struct virtio_device_id
-> rproc_serial_id_table[] = {
->  #endif
->  	{ 0 },
->  };
-> +MODULE_DEVICE_TABLE(virtio, rproc_serial_id_table);
->  
->  static unsigned int rproc_serial_features[] = {
->  };
-> @@ -2280,6 +2282,5 @@ static void __exit fini(void)
->  module_init(init);
->  module_exit(fini);
->  
-> -MODULE_DEVICE_TABLE(virtio, id_table);
->  MODULE_DESCRIPTION("Virtio console driver");
->  MODULE_LICENSE("GPL");
+Even though we change the UAPI this shouldn't cause any regression since
+QEMU, the existing implementation of virtio-iommu that uses this header,
+already removes the annotations when importing headers.
+
+Reported-by: kbuild test robot <lkp@intel.com>
+Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+---
+ include/uapi/linux/virtio_iommu.h | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/include/uapi/linux/virtio_iommu.h b/include/uapi/linux/virtio_iommu.h
+index 237e36a280cb..48e3c29223b5 100644
+--- a/include/uapi/linux/virtio_iommu.h
++++ b/include/uapi/linux/virtio_iommu.h
+@@ -18,24 +18,24 @@
+ #define VIRTIO_IOMMU_F_MMIO			5
+ 
+ struct virtio_iommu_range_64 {
+-	__le64					start;
+-	__le64					end;
++	__u64					start;
++	__u64					end;
+ };
+ 
+ struct virtio_iommu_range_32 {
+-	__le32					start;
+-	__le32					end;
++	__u32					start;
++	__u32					end;
+ };
+ 
+ struct virtio_iommu_config {
+ 	/* Supported page sizes */
+-	__le64					page_size_mask;
++	__u64					page_size_mask;
+ 	/* Supported IOVA range */
+ 	struct virtio_iommu_range_64		input_range;
+ 	/* Max domain ID size */
+ 	struct virtio_iommu_range_32		domain_range;
+ 	/* Probe buffer size */
+-	__le32					probe_size;
++	__u32					probe_size;
+ };
+ 
+ /* Request types */
+-- 
+2.25.1
