@@ -1,125 +1,42 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v3] virtio-balloon: Switch back to OOM handler for
- VIRTIO_BALLOON_F_DEFLATE_ON_OOM
-Date: Wed, 11 Mar 2020 12:21:07 +0100
-Message-ID: <d331e630-f437-04fa-a772-9f00fd688dc8@redhat.com>
-References: <20200310113854.11515-1-david@redhat.com>
- <alpine.DEB.2.21.2003101204590.90377@chino.kir.corp.google.com>
- <890da35b-1ac2-9c2e-b42d-96d24d3e0f4c@redhat.com>
- <20200311070952-mutt-send-email-mst@kernel.org>
+Subject: [PATCH v4 0/1] mm: virtio-balloon fix to go through the -mm tree
+Date: Wed, 11 Mar 2020 14:55:22 +0100
+Message-ID: <20200311135523.18512-1-david@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200311070952-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: David Rientjes <rientjes@google.com>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtualization@lists.linux-foundation.org, Jason Wang <jasowang@redhat.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Tyler Sanderson <tysand@google.com>, Wei Wang <wei.w.wang@intel.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Nadav Amit <namit@vmware.com>, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, virtualization@lists.linux-foundation.org, Jason Wang <jasowang@redhat.com>, Stephen Rothwell <sfr@canb.auug.org.au>, David Hildenbrand <david@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Andrew Morton <akpm@linux-foundation.org>, David Rientjes <rientjes@google.com>, "Michael S. Tsirkin" <mst@redhat.com>, Michal Hocko <mhocko@kernel.org>, Nadav Amit <namit@vmware.com>, Tyler Sanderson <tysand@google.com>, Wei Wang <wei.w.wang@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11.03.20 12:12, Michael S. Tsirkin wrote:
-> On Tue, Mar 10, 2020 at 08:13:19PM +0100, David Hildenbrand wrote:
->> On 10.03.20 20:05, David Rientjes wrote:
->>> On Tue, 10 Mar 2020, David Hildenbrand wrote:
->>>
->>>> Commit 71994620bb25 ("virtio_balloon: replace oom notifier with shrinker")
->>>> changed the behavior when deflation happens automatically. Instead of
->>>> deflating when called by the OOM handler, the shrinker is used.
->>>>
->>>> However, the balloon is not simply some other slab cache that should be
->>>> shrunk when under memory pressure. The shrinker does not have a concept of
->>>> priorities yet, so this behavior cannot be configured. Eventually once
->>>> that is in place, we might want to switch back after doing proper
->>>> testing.
->>>>
->>>> There was a report that this results in undesired side effects when
->>>> inflating the balloon to shrink the page cache. [1]
->>>> 	"When inflating the balloon against page cache (i.e. no free memory
->>>> 	 remains) vmscan.c will both shrink page cache, but also invoke the
->>>> 	 shrinkers -- including the balloon's shrinker. So the balloon
->>>> 	 driver allocates memory which requires reclaim, vmscan gets this
->>>> 	 memory by shrinking the balloon, and then the driver adds the
->>>> 	 memory back to the balloon. Basically a busy no-op."
->>>>
->>>> The name "deflate on OOM" makes it pretty clear when deflation should
->>>> happen - after other approaches to reclaim memory failed, not while
->>>> reclaiming. This allows to minimize the footprint of a guest - memory
->>>> will only be taken out of the balloon when really needed.
->>>>
->>>> Keep using the shrinker for VIRTIO_BALLOON_F_FREE_PAGE_HINT, because
->>>> this has no such side effects. Always register the shrinker with
->>>> VIRTIO_BALLOON_F_FREE_PAGE_HINT now. We are always allowed to reuse free
->>>> pages that are still to be processed by the guest. The hypervisor takes
->>>> care of identifying and resolving possible races between processing a
->>>> hinting request and the guest reusing a page.
->>>>
->>>> In contrast to pre commit 71994620bb25 ("virtio_balloon: replace oom
->>>> notifier with shrinker"), don't add a moodule parameter to configure the
->>>> number of pages to deflate on OOM. Can be re-added if really needed.
->>>> Also, pay attention that leak_balloon() returns the number of 4k pages -
->>>> convert it properly in virtio_balloon_oom_notify().
->>>>
->>>> Testing done by Tyler for future reference:
->>>>   Test setup: VM with 16 CPU, 64GB RAM. Running Debian 10. We have a 42
->>>>   GB file full of random bytes that we continually cat to /dev/null.
->>>>   This fills the page cache as the file is read. Meanwhile we trigger
->>>>   the balloon to inflate, with a target size of 53 GB. This setup causes
->>>>   the balloon inflation to pressure the page cache as the page cache is
->>>>   also trying to grow. Afterwards we shrink the balloon back to zero (so
->>>>   total deflate = total inflate).
->>>>
->>>>   Without patch (kernel 4.19.0-5):
->>>>   Inflation never reaches the target until we stop the "cat file >
->>>>   /dev/null" process. Total inflation time was 542 seconds. The longest
->>>>   period that made no net forward progress was 315 seconds (see attached
->>>>   graph).
->>>>   Result of "grep balloon /proc/vmstat" after the test:
->>>>   balloon_inflate 154828377
->>>>   balloon_deflate 154828377
->>>>
->>>>   With patch (kernel 5.6.0-rc4+):
->>>>   Total inflation duration was 63 seconds. No deflate-queue activity
->>>>   occurs when pressuring the page-cache.
->>>>   Result of "grep balloon /proc/vmstat" after the test:
->>>>   balloon_inflate 12968539
->>>>   balloon_deflate 12968539
->>>>
->>>>   Conclusion: This patch fixes the issue. In the test it reduced
->>>>   inflate/deflate activity by 12x, and reduced inflation time by 8.6x.
->>>>   But more importantly, if we hadn't killed the "grep balloon
->>>>   /proc/vmstat" process then, without the patch, the inflation process
->>>>   would never reach the target.
->>>>
->>>> [1] https://www.spinics.net/lists/linux-virtualization/msg40863.html
->>>>
->>>> Reported-by: Tyler Sanderson <tysand@google.com>
->>>> Tested-by: Tyler Sanderson <tysand@google.com>
->>>> Fixes: 71994620bb25 ("virtio_balloon: replace oom notifier with shrinker")
->>>> Cc: Michael S. Tsirkin <mst@redhat.com>
->>>> Cc: Wei Wang <wei.w.wang@intel.com>
->>>> Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>
->>>> Cc: David Rientjes <rientjes@google.com>
->>>> Cc: Nadav Amit <namit@vmware.com>
->>>> Cc: Michal Hocko <mhocko@kernel.org>
->>>> Cc: Andrew Morton <akpm@linux-foundation.org>
->>>> Signed-off-by: David Hildenbrand <david@redhat.com>
->>>
->>> Acked-by: David Rientjes <rientjes@google.com>
->>>
->>
->> Thanks!
-> 
-> David could you repost with corrected commit log
-> so Andrew can merge? To make sure it's not missed,
-> it's probably a good idea to have a cover letter
-> mentioning mm in the subject.
+@Andrew, as this fix is based on free page reporting, can this go through
+your tree?
 
-Yes, on my list, busy with some other stuff. Will make sure Andrew will
-see this mail :)
+Patch #1 contains a proper description.
 
+v3 -> v4:
+- Add Ack from David Rientjes
+- Minor tweaks to test details in the patch description
 
--- 
-Thanks,
+v2 -> v3:
+- Use vb->vdev instead of vdev in all feature checks. We'll clean the
+  other ones up later.
+- Add one empty line virtballoon_probe() to make it look consistent.
+- Drop one unrelated added line in virtballoon_remove()
 
-David / dhildenb
+v1 -> v2:
+- Rebase on top of linux-next (free page reporting)
+- Clarified some parts in the patch description and added testing
+  instructions/results
+- Added Fixes: and Tested-by:
+
+David Hildenbrand (1):
+  virtio-balloon: Switch back to OOM handler for
+    VIRTIO_BALLOON_F_DEFLATE_ON_OOM
+
+ drivers/virtio/virtio_balloon.c | 103 +++++++++++++++-----------------
+ 1 file changed, 47 insertions(+), 56 deletions(-)
+
+--=20
+2.24.1
