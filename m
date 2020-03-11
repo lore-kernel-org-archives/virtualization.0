@@ -1,124 +1,53 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3] virtio-balloon: Switch back to OOM handler for
- VIRTIO_BALLOON_F_DEFLATE_ON_OOM
-Date: Wed, 11 Mar 2020 07:12:36 -0400
-Message-ID: <20200311070952-mutt-send-email-mst@kernel.org>
-References: <20200310113854.11515-1-david@redhat.com>
- <alpine.DEB.2.21.2003101204590.90377@chino.kir.corp.google.com>
- <890da35b-1ac2-9c2e-b42d-96d24d3e0f4c@redhat.com>
+From: David Stevens <stevensd@chromium.org>
+Subject: [PATCH v3 0/4] Support virtio cross-device resources
+Date: Wed, 11 Mar 2020 20:20:00 +0900
+Message-ID: <20200311112004.47138-1-stevensd@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <890da35b-1ac2-9c2e-b42d-96d24d3e0f4c@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Hildenbrand <david@redhat.com>
-Cc: David Rientjes <rientjes@google.com>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtualization@lists.linux-foundation.org, Jason Wang <jasowang@redhat.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Tyler Sanderson <tysand@google.com>, Wei Wang <wei.w.wang@intel.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Nadav Amit <namit@vmware.com>, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <virtio-dev-return-6915-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+To: Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, David Stevens <stevensd@chromium.org>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org, virtio-dev@lists.oasis-open.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Mar 10, 2020 at 08:13:19PM +0100, David Hildenbrand wrote:
-> On 10.03.20 20:05, David Rientjes wrote:
-> > On Tue, 10 Mar 2020, David Hildenbrand wrote:
-> > 
-> >> Commit 71994620bb25 ("virtio_balloon: replace oom notifier with shrinker")
-> >> changed the behavior when deflation happens automatically. Instead of
-> >> deflating when called by the OOM handler, the shrinker is used.
-> >>
-> >> However, the balloon is not simply some other slab cache that should be
-> >> shrunk when under memory pressure. The shrinker does not have a concept of
-> >> priorities yet, so this behavior cannot be configured. Eventually once
-> >> that is in place, we might want to switch back after doing proper
-> >> testing.
-> >>
-> >> There was a report that this results in undesired side effects when
-> >> inflating the balloon to shrink the page cache. [1]
-> >> 	"When inflating the balloon against page cache (i.e. no free memory
-> >> 	 remains) vmscan.c will both shrink page cache, but also invoke the
-> >> 	 shrinkers -- including the balloon's shrinker. So the balloon
-> >> 	 driver allocates memory which requires reclaim, vmscan gets this
-> >> 	 memory by shrinking the balloon, and then the driver adds the
-> >> 	 memory back to the balloon. Basically a busy no-op."
-> >>
-> >> The name "deflate on OOM" makes it pretty clear when deflation should
-> >> happen - after other approaches to reclaim memory failed, not while
-> >> reclaiming. This allows to minimize the footprint of a guest - memory
-> >> will only be taken out of the balloon when really needed.
-> >>
-> >> Keep using the shrinker for VIRTIO_BALLOON_F_FREE_PAGE_HINT, because
-> >> this has no such side effects. Always register the shrinker with
-> >> VIRTIO_BALLOON_F_FREE_PAGE_HINT now. We are always allowed to reuse free
-> >> pages that are still to be processed by the guest. The hypervisor takes
-> >> care of identifying and resolving possible races between processing a
-> >> hinting request and the guest reusing a page.
-> >>
-> >> In contrast to pre commit 71994620bb25 ("virtio_balloon: replace oom
-> >> notifier with shrinker"), don't add a moodule parameter to configure the
-> >> number of pages to deflate on OOM. Can be re-added if really needed.
-> >> Also, pay attention that leak_balloon() returns the number of 4k pages -
-> >> convert it properly in virtio_balloon_oom_notify().
-> >>
-> >> Testing done by Tyler for future reference:
-> >>   Test setup: VM with 16 CPU, 64GB RAM. Running Debian 10. We have a 42
-> >>   GB file full of random bytes that we continually cat to /dev/null.
-> >>   This fills the page cache as the file is read. Meanwhile we trigger
-> >>   the balloon to inflate, with a target size of 53 GB. This setup causes
-> >>   the balloon inflation to pressure the page cache as the page cache is
-> >>   also trying to grow. Afterwards we shrink the balloon back to zero (so
-> >>   total deflate = total inflate).
-> >>
-> >>   Without patch (kernel 4.19.0-5):
-> >>   Inflation never reaches the target until we stop the "cat file >
-> >>   /dev/null" process. Total inflation time was 542 seconds. The longest
-> >>   period that made no net forward progress was 315 seconds (see attached
-> >>   graph).
-> >>   Result of "grep balloon /proc/vmstat" after the test:
-> >>   balloon_inflate 154828377
-> >>   balloon_deflate 154828377
-> >>
-> >>   With patch (kernel 5.6.0-rc4+):
-> >>   Total inflation duration was 63 seconds. No deflate-queue activity
-> >>   occurs when pressuring the page-cache.
-> >>   Result of "grep balloon /proc/vmstat" after the test:
-> >>   balloon_inflate 12968539
-> >>   balloon_deflate 12968539
-> >>
-> >>   Conclusion: This patch fixes the issue. In the test it reduced
-> >>   inflate/deflate activity by 12x, and reduced inflation time by 8.6x.
-> >>   But more importantly, if we hadn't killed the "grep balloon
-> >>   /proc/vmstat" process then, without the patch, the inflation process
-> >>   would never reach the target.
-> >>
-> >> [1] https://www.spinics.net/lists/linux-virtualization/msg40863.html
-> >>
-> >> Reported-by: Tyler Sanderson <tysand@google.com>
-> >> Tested-by: Tyler Sanderson <tysand@google.com>
-> >> Fixes: 71994620bb25 ("virtio_balloon: replace oom notifier with shrinker")
-> >> Cc: Michael S. Tsirkin <mst@redhat.com>
-> >> Cc: Wei Wang <wei.w.wang@intel.com>
-> >> Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>
-> >> Cc: David Rientjes <rientjes@google.com>
-> >> Cc: Nadav Amit <namit@vmware.com>
-> >> Cc: Michal Hocko <mhocko@kernel.org>
-> >> Cc: Andrew Morton <akpm@linux-foundation.org>
-> >> Signed-off-by: David Hildenbrand <david@redhat.com>
-> > 
-> > Acked-by: David Rientjes <rientjes@google.com>
-> > 
-> 
-> Thanks!
+This patchset implements the current proposal for virtio cross-device
+resource sharing [1], with minor changes based on recent comments. It
+is expected that this will be used to import virtio resources into the
+virtio-video driver currently under discussion [2].
 
-David could you repost with corrected commit log
-so Andrew can merge? To make sure it's not missed,
-it's probably a good idea to have a cover letter
-mentioning mm in the subject.
+This patchset adds a new hook to dma-buf, for querying the dma-buf's
+underlying virtio UUID. This hook is then plumbed through DRM PRIME
+buffers, and finally implemented in virtgpu.
 
-> > Should this have:
-> > 
-> > Cc: stable@vger.kernel.org # 4.19+
-> 
-> I guess as nothing will actually "crash" it's not worth stable.
-> 
-> -- 
-> Thanks,
-> 
-> David / dhildenb
+[1] https://markmail.org/thread/jsaoqy7phrqdcpqu
+[2] https://markmail.org/thread/p5d3k566srtdtute
+
+v2 -> v3 changes:
+ - Remove ifdefs.
+ - Simplify virtgpu_gem_prime_export as it can only be called once.
+ - Use virtio_gpu_vbuffer's objs field instead of abusing data_buf.
+
+David Stevens (4):
+  dma-buf: add support for virtio exported objects
+  drm/prime: add support for virtio exported objects
+  virtio-gpu: add VIRTIO_GPU_F_RESOURCE_UUID feature
+  drm/virtio: Support virtgpu exported resources
+
+ drivers/dma-buf/dma-buf.c              | 12 ++++++
+ drivers/gpu/drm/drm_prime.c            | 23 +++++++++++
+ drivers/gpu/drm/virtio/virtgpu_drv.c   |  3 ++
+ drivers/gpu/drm/virtio/virtgpu_drv.h   | 18 +++++++++
+ drivers/gpu/drm/virtio/virtgpu_kms.c   |  4 ++
+ drivers/gpu/drm/virtio/virtgpu_prime.c | 41 +++++++++++++++++--
+ drivers/gpu/drm/virtio/virtgpu_vq.c    | 55 ++++++++++++++++++++++++++
+ include/drm/drm_drv.h                  | 10 +++++
+ include/linux/dma-buf.h                | 18 +++++++++
+ include/uapi/linux/virtio_gpu.h        | 19 +++++++++
+ 10 files changed, 200 insertions(+), 3 deletions(-)
+
+-- 
+2.25.1.481.gfbce0eb801-goog
