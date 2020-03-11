@@ -1,45 +1,60 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v2 07/10] mm/memory_hotplug: Introduce
- offline_and_remove_memory()
-Date: Wed, 11 Mar 2020 18:19:04 +0100
-Message-ID: <156601a9-e919-b88f-2278-97ecee554d21@redhat.com>
-References: <20200311171422.10484-1-david@redhat.com>
- <20200311171422.10484-8-david@redhat.com>
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Subject: Re: [PATCH v2 1/3] iommu/virtio: Add topology description to
+ virtio-iommu config space
+Date: Wed, 11 Mar 2020 18:48:22 +0100
+Message-ID: <20200311174822.GA96893@myrica>
+References: <20200228172537.377327-1-jean-philippe@linaro.org>
+ <20200228172537.377327-2-jean-philippe@linaro.org>
+ <AADFC41AFE54684AB9EE6CBC0274A5D19D7BE404@SHSMSX104.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20200311171422.10484-8-david@redhat.com>
-Content-Language: en-US
-Sender: kvm-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Oscar Salvador <osalvador@suse.com>, Michal Hocko <mhocko@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Wei Yang <richard.weiyang@gmail.com>, Dan Williams <dan.j.williams@intel.com>, Qian Cai <cai@lca.pw>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-pci-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <AADFC41AFE54684AB9EE6CBC0274A5D19D7BE404@SHSMSX104.ccr.corp.intel.com>
+Sender: linux-pci-owner@vger.kernel.org
+To: "Tian, Kevin" <kevin.tian@intel.com>
+Cc: "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "mst@redhat.com" <mst@redhat.com>, "Boeuf, Sebastien" <sebastien.boeuf@intel.com>, "Pan, Jacob jun" <jacob.jun.pan@intel.com>, "bhelgaas@google.com" <bhelgaas@google.com>, "robin.murphy@arm.com" <robin.murphy@arm.com>, "jasowang@redhat.com" <jasowang@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 11.03.20 18:14, David Hildenbrand wrote:
-> virtio-mem wants to offline and remove a memory block once it unplugged
-> all subblocks (e.g., using alloc_contig_range()). Let's provide
-> an interface to do that from a driver. virtio-mem already supports to
-> offline partially unplugged memory blocks. Offlining a fully unplugged
-> memory block will not require to migrate any pages. All unplugged
-> subblocks are PageOffline() and have a reference count of 0 - so
-> offlining code will simply skip them.
+On Thu, Mar 05, 2020 at 08:07:32AM +0000, Tian, Kevin wrote:
+> > From: Jean-Philippe Brucker
+> > Sent: Saturday, February 29, 2020 1:26 AM
+> > 
+> > Platforms without device-tree do not currently have a method for
+> > describing the vIOMMU topology. Provide a topology description embedded
+> > into the virtio device.
+> > 
+> > Use PCI FIXUP to probe the config space early, because we need to
+> > discover the topology before any DMA configuration takes place, and the
+> > virtio driver may be loaded much later. Since we discover the topology
+> > description when probing the PCI hierarchy, the virtual IOMMU cannot
+> > manage other platform devices discovered earlier.
+> > 
+> > This solution isn't elegant nor foolproof, but is the best we can do at
 > 
-> All we need is an interface to offline and remove the memory from kernel
-> module context, where we don't have access to the memory block devices
-> (esp. find_memory_block() and device_offline()) and the device hotplug
-> lock.
-> 
-> To keep things simple, allow to only work on a single memory block.
-> 
+> can you elaborate "isn't elegant nor foolproof" part? is there any other 
+> limitation (beside pci fixup) along the route, when comparing it to 
+> the ACPI-approach?
 
-Lost the ACK from Michael
+Yes "not elegant" in part because of the PCI fixup. Fixups are used to
+work around bugs, and it seems strange to have one for a normal use-case.
+We also have to copy some of the virtio infrastructure since this code
+runs before module load. And we have to add a third DMA configuration
+method.
 
-Acked-by: Michal Hocko <mhocko@suse.com> [1]
+I don't believe anymore that the "not foolproof" part is right. After
+studying the device infrastructure a little more this solution seems less
+fragile than I previously thought, but it's still a big hack, and it's
+only half of the story.
 
-[1] https://lkml.kernel.org/r/20200302142737.GP4380@dhcp22.suse.cz
+This patch only handles PCI-based endpoints and viommu. On ACPI platforms,
+where the virtio-mmio device is specified by an object with _HID LNRO0005,
+supporting virtio-iommu on MMIO requires installing a bus notifier. There
+I'd rather use an ACPI table for the topology. Platforms that don't have
+ACPI such as microvm specify virtio-mmio devices on the command-line.
+There devices are only created when the virtio-mmio module is loaded,
+which is too late. In that case I think we need to add an early pass on
+the command-line, instead of a bus notifier.
 
--- 
 Thanks,
-
-David / dhildenb
+Jean
