@@ -1,28 +1,64 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 1/3] iommu/virtio: Add topology description to
- virtio-iommu config space
-Date: Wed, 11 Mar 2020 17:48:22 -0400
-Message-ID: <20200311174348-mutt-send-email-mst@kernel.org>
-References: <20200228172537.377327-1-jean-philippe@linaro.org>
- <20200228172537.377327-2-jean-philippe@linaro.org>
- <AADFC41AFE54684AB9EE6CBC0274A5D19D7BE404@SHSMSX104.ccr.corp.intel.com>
- <20200311174822.GA96893@myrica>
+From: Ram Muthiah <rammuthiah@google.com>
+Subject: Re: [PATCH RESEND] virtio: virtio_pci_legacy: Remove default y from Kconfig
+Date: Wed, 11 Mar 2020 15:44:14 -0700
+Message-ID: <CA+CXyWu9AfPbb_BVb9bh9Q_82XfavTGy+M11+6GEGCjeCetThw@mail.gmail.com>
+References: <20200228232736.182780-1-rammuthiah@google.com> <20200301023025-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-pci-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200311174822.GA96893@myrica>
-Sender: linux-pci-owner@vger.kernel.org
-To: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: "Tian, Kevin" <kevin.tian@intel.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "Boeuf, Sebastien" <sebastien.boeuf@intel.com>, "Pan, Jacob jun" <jacob.jun.pan@intel.com>, "bhelgaas@google.com" <bhelgaas@google.com>, "robin.murphy@arm.com" <robin.murphy@arm.com>, "jasowang@redhat.com" <jasowang@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200301023025-mutt-send-email-mst@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kernel-team@android.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 11, 2020 at 06:48:22PM +0100, Jean-Philippe Brucker wrote:
-> Yes "not elegant" in part because of the PCI fixup. Fixups are used to
-> work around bugs
+On Sat, Feb 29, 2020 at 11:32 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> On Fri, Feb 28, 2020 at 03:27:36PM -0800, Ram Muthiah wrote:
+> > The legacy pci driver should no longer be default enabled. QEMU has
+> > implemented support for Virtio 1 for virtio-pci since June 2015
+> > on SHA dfb8e184db75.
+> >
+> > Signed-off-by: Ram Muthiah <rammuthiah@google.com>
+>
+> I see little reason to do this: y is safer and will boot on more
+> hypervisors, so people that aren't sure should enable it.
+>
 
-Not really - they are for anything unusual that common PCI code can not
-handle on its own.
+In that case, would it be reasonable to fold VIRTIO_PCI_LEGACY
+into VIRTIO_PCI?
 
--- 
-MST
+The result would boot more hypervisors as well and remove the
+CONFIG in the process.
+
+> > ---
+> >  drivers/virtio/Kconfig | 6 ------
+> >  1 file changed, 6 deletions(-)
+> >
+> > diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
+> > index 078615cf2afc..eacd0b90d32b 100644
+> > --- a/drivers/virtio/Kconfig
+> > +++ b/drivers/virtio/Kconfig
+> > @@ -26,7 +26,6 @@ config VIRTIO_PCI
+> >
+> >  config VIRTIO_PCI_LEGACY
+> >       bool "Support for legacy virtio draft 0.9.X and older devices"
+> > -     default y
+> >       depends on VIRTIO_PCI
+> >       ---help---
+> >            Virtio PCI Card 0.9.X Draft (circa 2014) and older device support.
+> > @@ -36,11 +35,6 @@ config VIRTIO_PCI_LEGACY
+> >         If disabled, you get a slightly smaller, non-transitional driver,
+> >         with no legacy compatibility.
+> >
+> > -          So look out into your driveway.  Do you have a flying car?  If
+> > -          so, you can happily disable this option and virtio will not
+> > -          break.  Otherwise, leave it set.  Unless you're testing what
+> > -          life will be like in The Future.
+> > -
+> >         If unsure, say Y.
+> >
+> >  config VIRTIO_PMEM
+> > --
+> > 2.25.0.265.gbab2e86ba0-goog
+>
