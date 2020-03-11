@@ -1,53 +1,88 @@
 From: David Stevens <stevensd@chromium.org>
-Subject: [PATCH v3 0/4] Support virtio cross-device resources
-Date: Wed, 11 Mar 2020 20:20:00 +0900
-Message-ID: <20200311112004.47138-1-stevensd@chromium.org>
+Subject: [PATCH v3 1/4] dma-buf: add support for virtio exported objects
+Date: Wed, 11 Mar 2020 20:20:01 +0900
+Message-ID: <20200311112004.47138-2-stevensd@chromium.org>
+References: <20200311112004.47138-1-stevensd@chromium.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <virtio-dev-return-6915-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Return-path: <virtio-dev-return-6916-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
 Sender: <virtio-dev@lists.oasis-open.org>
 List-Post: <mailto:virtio-dev@lists.oasis-open.org>
 List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
 List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
 List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+In-Reply-To: <20200311112004.47138-1-stevensd@chromium.org>
 To: Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>
 Cc: Daniel Vetter <daniel@ffwll.ch>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, David Stevens <stevensd@chromium.org>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org, virtio-dev@lists.oasis-open.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patchset implements the current proposal for virtio cross-device
-resource sharing [1], with minor changes based on recent comments. It
-is expected that this will be used to import virtio resources into the
-virtio-video driver currently under discussion [2].
+This change adds a new dma-buf operation that allows dma-bufs to be used
+by virtio drivers to share exported objects. The new operation allows
+the importing driver to query the exporting driver for the UUID which
+identifies the underlying exported object.
 
-This patchset adds a new hook to dma-buf, for querying the dma-buf's
-underlying virtio UUID. This hook is then plumbed through DRM PRIME
-buffers, and finally implemented in virtgpu.
+Signed-off-by: David Stevens <stevensd@chromium.org>
+---
+ drivers/dma-buf/dma-buf.c | 12 ++++++++++++
+ include/linux/dma-buf.h   | 18 ++++++++++++++++++
+ 2 files changed, 30 insertions(+)
 
-[1] https://markmail.org/thread/jsaoqy7phrqdcpqu
-[2] https://markmail.org/thread/p5d3k566srtdtute
-
-v2 -> v3 changes:
- - Remove ifdefs.
- - Simplify virtgpu_gem_prime_export as it can only be called once.
- - Use virtio_gpu_vbuffer's objs field instead of abusing data_buf.
-
-David Stevens (4):
-  dma-buf: add support for virtio exported objects
-  drm/prime: add support for virtio exported objects
-  virtio-gpu: add VIRTIO_GPU_F_RESOURCE_UUID feature
-  drm/virtio: Support virtgpu exported resources
-
- drivers/dma-buf/dma-buf.c              | 12 ++++++
- drivers/gpu/drm/drm_prime.c            | 23 +++++++++++
- drivers/gpu/drm/virtio/virtgpu_drv.c   |  3 ++
- drivers/gpu/drm/virtio/virtgpu_drv.h   | 18 +++++++++
- drivers/gpu/drm/virtio/virtgpu_kms.c   |  4 ++
- drivers/gpu/drm/virtio/virtgpu_prime.c | 41 +++++++++++++++++--
- drivers/gpu/drm/virtio/virtgpu_vq.c    | 55 ++++++++++++++++++++++++++
- include/drm/drm_drv.h                  | 10 +++++
- include/linux/dma-buf.h                | 18 +++++++++
- include/uapi/linux/virtio_gpu.h        | 19 +++++++++
- 10 files changed, 200 insertions(+), 3 deletions(-)
-
+diff --git a/drivers/dma-buf/dma-buf.c b/drivers/dma-buf/dma-buf.c
+index d4097856c86b..fa5210ba6aaa 100644
+--- a/drivers/dma-buf/dma-buf.c
++++ b/drivers/dma-buf/dma-buf.c
+@@ -1158,6 +1158,18 @@ void dma_buf_vunmap(struct dma_buf *dmabuf, void *vaddr)
+ }
+ EXPORT_SYMBOL_GPL(dma_buf_vunmap);
+ 
++int dma_buf_get_uuid(struct dma_buf *dmabuf, uuid_t *uuid)
++{
++	if (WARN_ON(!dmabuf) || !uuid)
++		return -EINVAL;
++
++	if (!dmabuf->ops->get_uuid)
++		return -ENODEV;
++
++	return dmabuf->ops->get_uuid(dmabuf, uuid);
++}
++EXPORT_SYMBOL_GPL(dma_buf_get_uuid);
++
+ #ifdef CONFIG_DEBUG_FS
+ static int dma_buf_debug_show(struct seq_file *s, void *unused)
+ {
+diff --git a/include/linux/dma-buf.h b/include/linux/dma-buf.h
+index abf5459a5b9d..00758523597d 100644
+--- a/include/linux/dma-buf.h
++++ b/include/linux/dma-buf.h
+@@ -251,6 +251,21 @@ struct dma_buf_ops {
+ 
+ 	void *(*vmap)(struct dma_buf *);
+ 	void (*vunmap)(struct dma_buf *, void *vaddr);
++
++	/**
++	 * @get_uuid
++	 *
++	 * This is called by dma_buf_get_uuid to get the UUID which identifies
++	 * the buffer to virtio devices.
++	 *
++	 * This callback is optional.
++	 *
++	 * Returns:
++	 *
++	 * 0 on success or a negative error code on failure. On success uuid
++	 * will be populated with the buffer's UUID.
++	 */
++	int (*get_uuid)(struct dma_buf *dmabuf, uuid_t *uuid);
+ };
+ 
+ /**
+@@ -444,4 +459,7 @@ int dma_buf_mmap(struct dma_buf *, struct vm_area_struct *,
+ 		 unsigned long);
+ void *dma_buf_vmap(struct dma_buf *);
+ void dma_buf_vunmap(struct dma_buf *, void *vaddr);
++
++int dma_buf_get_uuid(struct dma_buf *dmabuf, uuid_t *uuid);
++
+ #endif /* __DMA_BUF_H__ */
 -- 
 2.25.1.481.gfbce0eb801-goog
