@@ -1,89 +1,124 @@
-From: Ming Lei <ming.lei@redhat.com>
-Subject: Re: [PATCH RFC v2 12/24] hpsa: use reserved commands
-Date: Wed, 11 Mar 2020 16:10:59 +0800
-Message-ID: <20200311081059.GC31504@ming.t460p>
-References: <1583857550-12049-1-git-send-email-john.garry@huawei.com>
- <1583857550-12049-13-git-send-email-john.garry@huawei.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v3] virtio-balloon: Switch back to OOM handler for
+ VIRTIO_BALLOON_F_DEFLATE_ON_OOM
+Date: Wed, 11 Mar 2020 07:12:36 -0400
+Message-ID: <20200311070952-mutt-send-email-mst@kernel.org>
+References: <20200310113854.11515-1-david@redhat.com>
+ <alpine.DEB.2.21.2003101204590.90377@chino.kir.corp.google.com>
+ <890da35b-1ac2-9c2e-b42d-96d24d3e0f4c@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-block-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1583857550-12049-13-git-send-email-john.garry@huawei.com>
-Sender: linux-block-owner@vger.kernel.org
-To: John Garry <john.garry@huawei.com>
-Cc: axboe@kernel.dk, jejb@linux.ibm.com, martin.petersen@oracle.com, hare@suse.de, bvanassche@acm.org, hch@infradead.org, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org, esc.storagedev@microsemi.com, chenxiang66@hisilicon.com, Hannes Reinecke <hare@suse.com>
+In-Reply-To: <890da35b-1ac2-9c2e-b42d-96d24d3e0f4c@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>
+Cc: David Rientjes <rientjes@google.com>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtualization@lists.linux-foundation.org, Jason Wang <jasowang@redhat.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Tyler Sanderson <tysand@google.com>, Wei Wang <wei.w.wang@intel.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Nadav Amit <namit@vmware.com>, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 11, 2020 at 12:25:38AM +0800, John Garry wrote:
-> From: Hannes Reinecke <hare@suse.com>
+On Tue, Mar 10, 2020 at 08:13:19PM +0100, David Hildenbrand wrote:
+> On 10.03.20 20:05, David Rientjes wrote:
+> > On Tue, 10 Mar 2020, David Hildenbrand wrote:
+> > 
+> >> Commit 71994620bb25 ("virtio_balloon: replace oom notifier with shrinker")
+> >> changed the behavior when deflation happens automatically. Instead of
+> >> deflating when called by the OOM handler, the shrinker is used.
+> >>
+> >> However, the balloon is not simply some other slab cache that should be
+> >> shrunk when under memory pressure. The shrinker does not have a concept of
+> >> priorities yet, so this behavior cannot be configured. Eventually once
+> >> that is in place, we might want to switch back after doing proper
+> >> testing.
+> >>
+> >> There was a report that this results in undesired side effects when
+> >> inflating the balloon to shrink the page cache. [1]
+> >> 	"When inflating the balloon against page cache (i.e. no free memory
+> >> 	 remains) vmscan.c will both shrink page cache, but also invoke the
+> >> 	 shrinkers -- including the balloon's shrinker. So the balloon
+> >> 	 driver allocates memory which requires reclaim, vmscan gets this
+> >> 	 memory by shrinking the balloon, and then the driver adds the
+> >> 	 memory back to the balloon. Basically a busy no-op."
+> >>
+> >> The name "deflate on OOM" makes it pretty clear when deflation should
+> >> happen - after other approaches to reclaim memory failed, not while
+> >> reclaiming. This allows to minimize the footprint of a guest - memory
+> >> will only be taken out of the balloon when really needed.
+> >>
+> >> Keep using the shrinker for VIRTIO_BALLOON_F_FREE_PAGE_HINT, because
+> >> this has no such side effects. Always register the shrinker with
+> >> VIRTIO_BALLOON_F_FREE_PAGE_HINT now. We are always allowed to reuse free
+> >> pages that are still to be processed by the guest. The hypervisor takes
+> >> care of identifying and resolving possible races between processing a
+> >> hinting request and the guest reusing a page.
+> >>
+> >> In contrast to pre commit 71994620bb25 ("virtio_balloon: replace oom
+> >> notifier with shrinker"), don't add a moodule parameter to configure the
+> >> number of pages to deflate on OOM. Can be re-added if really needed.
+> >> Also, pay attention that leak_balloon() returns the number of 4k pages -
+> >> convert it properly in virtio_balloon_oom_notify().
+> >>
+> >> Testing done by Tyler for future reference:
+> >>   Test setup: VM with 16 CPU, 64GB RAM. Running Debian 10. We have a 42
+> >>   GB file full of random bytes that we continually cat to /dev/null.
+> >>   This fills the page cache as the file is read. Meanwhile we trigger
+> >>   the balloon to inflate, with a target size of 53 GB. This setup causes
+> >>   the balloon inflation to pressure the page cache as the page cache is
+> >>   also trying to grow. Afterwards we shrink the balloon back to zero (so
+> >>   total deflate = total inflate).
+> >>
+> >>   Without patch (kernel 4.19.0-5):
+> >>   Inflation never reaches the target until we stop the "cat file >
+> >>   /dev/null" process. Total inflation time was 542 seconds. The longest
+> >>   period that made no net forward progress was 315 seconds (see attached
+> >>   graph).
+> >>   Result of "grep balloon /proc/vmstat" after the test:
+> >>   balloon_inflate 154828377
+> >>   balloon_deflate 154828377
+> >>
+> >>   With patch (kernel 5.6.0-rc4+):
+> >>   Total inflation duration was 63 seconds. No deflate-queue activity
+> >>   occurs when pressuring the page-cache.
+> >>   Result of "grep balloon /proc/vmstat" after the test:
+> >>   balloon_inflate 12968539
+> >>   balloon_deflate 12968539
+> >>
+> >>   Conclusion: This patch fixes the issue. In the test it reduced
+> >>   inflate/deflate activity by 12x, and reduced inflation time by 8.6x.
+> >>   But more importantly, if we hadn't killed the "grep balloon
+> >>   /proc/vmstat" process then, without the patch, the inflation process
+> >>   would never reach the target.
+> >>
+> >> [1] https://www.spinics.net/lists/linux-virtualization/msg40863.html
+> >>
+> >> Reported-by: Tyler Sanderson <tysand@google.com>
+> >> Tested-by: Tyler Sanderson <tysand@google.com>
+> >> Fixes: 71994620bb25 ("virtio_balloon: replace oom notifier with shrinker")
+> >> Cc: Michael S. Tsirkin <mst@redhat.com>
+> >> Cc: Wei Wang <wei.w.wang@intel.com>
+> >> Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+> >> Cc: David Rientjes <rientjes@google.com>
+> >> Cc: Nadav Amit <namit@vmware.com>
+> >> Cc: Michal Hocko <mhocko@kernel.org>
+> >> Cc: Andrew Morton <akpm@linux-foundation.org>
+> >> Signed-off-by: David Hildenbrand <david@redhat.com>
+> > 
+> > Acked-by: David Rientjes <rientjes@google.com>
+> > 
 > 
-> Enable the use of reserved commands, and drop the hand-crafted
-> command allocation.
+> Thanks!
+
+David could you repost with corrected commit log
+so Andrew can merge? To make sure it's not missed,
+it's probably a good idea to have a cover letter
+mentioning mm in the subject.
+
+> > Should this have:
+> > 
+> > Cc: stable@vger.kernel.org # 4.19+
 > 
-> Signed-off-by: Hannes Reinecke <hare@suse.com>
-> ---
->  drivers/scsi/hpsa.c | 147 ++++++++++++++------------------------------
->  drivers/scsi/hpsa.h |   1 -
->  2 files changed, 45 insertions(+), 103 deletions(-)
+> I guess as nothing will actually "crash" it's not worth stable.
 > 
-> diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
-> index 703f824584fe..c14dd4b6e598 100644
-> --- a/drivers/scsi/hpsa.c
-> +++ b/drivers/scsi/hpsa.c
-> @@ -244,10 +244,6 @@ static struct hpsa_scsi_dev_t
->  	*hpsa_find_device_by_sas_rphy(struct ctlr_info *h,
->  		struct sas_rphy *rphy);
->  
-> -#define SCSI_CMD_BUSY ((struct scsi_cmnd *)&hpsa_cmd_busy)
-> -static const struct scsi_cmnd hpsa_cmd_busy;
-> -#define SCSI_CMD_IDLE ((struct scsi_cmnd *)&hpsa_cmd_idle)
-> -static const struct scsi_cmnd hpsa_cmd_idle;
->  static int number_of_controllers;
->  
->  static irqreturn_t do_hpsa_intr_intx(int irq, void *dev_id);
-> @@ -342,7 +338,7 @@ static inline struct ctlr_info *shost_to_hba(struct Scsi_Host *sh)
->  
->  static inline bool hpsa_is_cmd_idle(struct CommandList *c)
->  {
-> -	return c->scsi_cmd == SCSI_CMD_IDLE;
-> +	return c->scsi_cmd == NULL;
->  }
->  
->  /* extract sense key, asc, and ascq from sense data.  -1 means invalid. */
-> @@ -2445,7 +2441,12 @@ static void hpsa_cmd_resolve_events(struct ctlr_info *h,
->  	 * this command has completed.  Then, check to see if the handler is
->  	 * waiting for this command, and, if so, wake it.
->  	 */
-> -	c->scsi_cmd = SCSI_CMD_IDLE;
-> +	if (c->scsi_cmd && c->cmd_type == CMD_IOCTL_PEND) {
-> +		struct scsi_cmnd *scmd = c->scsi_cmd;
-> +
-> +		scsi_put_reserved_cmd(scmd);
-> +	}
-> +	c->scsi_cmd = NULL;
->  	mb();	/* Declare command idle before checking for pending events. */
->  	if (dev) {
->  		atomic_dec(&dev->commands_outstanding);
-> @@ -5502,7 +5503,6 @@ static void hpsa_cmd_init(struct ctlr_info *h, int index,
->  	c->ErrDesc.Addr = cpu_to_le64((u64) err_dma_handle);
->  	c->ErrDesc.Len = cpu_to_le32((u32) sizeof(*c->err_info));
->  	c->h = h;
-> -	c->scsi_cmd = SCSI_CMD_IDLE;
->  }
->  
->  static void hpsa_preinitialize_commands(struct ctlr_info *h)
-> @@ -5803,6 +5803,7 @@ static int hpsa_scsi_host_alloc(struct ctlr_info *h)
->  	sh->max_lun = HPSA_MAX_LUN;
->  	sh->max_id = HPSA_MAX_LUN;
->  	sh->can_queue = h->nr_cmds - HPSA_NRESERVED_CMDS;
-> +	sh->nr_reserved_cmds = HPSA_NRESERVED_CMDS;
-
-Now .nr_reserved_cmds has been passed to blk-mq, you need to increase
-sh->can_queue to h->nr_cmds, because .can_queue is the whole queue depth
-(include the part of reserved tags), otherwise, IO tags will be
-decreased.
-
-Not look into other drivers, I guess they need such change too.
-
-Thanks,
-Ming
+> -- 
+> Thanks,
+> 
+> David / dhildenb
