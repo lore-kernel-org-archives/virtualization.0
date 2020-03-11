@@ -1,256 +1,125 @@
-From: David Stevens <stevensd@chromium.org>
-Subject: [PATCH v3 4/4] drm/virtio: Support virtgpu exported resources
-Date: Wed, 11 Mar 2020 20:20:04 +0900
-Message-ID: <20200311112004.47138-5-stevensd@chromium.org>
-References: <20200311112004.47138-1-stevensd@chromium.org>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH v3] virtio-balloon: Switch back to OOM handler for
+ VIRTIO_BALLOON_F_DEFLATE_ON_OOM
+Date: Wed, 11 Mar 2020 12:21:07 +0100
+Message-ID: <d331e630-f437-04fa-a772-9f00fd688dc8@redhat.com>
+References: <20200310113854.11515-1-david@redhat.com>
+ <alpine.DEB.2.21.2003101204590.90377@chino.kir.corp.google.com>
+ <890da35b-1ac2-9c2e-b42d-96d24d3e0f4c@redhat.com>
+ <20200311070952-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <virtio-dev-return-6919-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <20200311112004.47138-1-stevensd@chromium.org>
-To: Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, David Stevens <stevensd@chromium.org>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org, virtio-dev@lists.oasis-open.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200311070952-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: David Rientjes <rientjes@google.com>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtualization@lists.linux-foundation.org, Jason Wang <jasowang@redhat.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Tyler Sanderson <tysand@google.com>, Wei Wang <wei.w.wang@intel.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Nadav Amit <namit@vmware.com>, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add support for UUID-based resource sharing mechanism to virtgpu. This
-implements the new virtgpu commands and hooks them up to dma-buf's
-get_uuid callback.
+On 11.03.20 12:12, Michael S. Tsirkin wrote:
+> On Tue, Mar 10, 2020 at 08:13:19PM +0100, David Hildenbrand wrote:
+>> On 10.03.20 20:05, David Rientjes wrote:
+>>> On Tue, 10 Mar 2020, David Hildenbrand wrote:
+>>>
+>>>> Commit 71994620bb25 ("virtio_balloon: replace oom notifier with shrinker")
+>>>> changed the behavior when deflation happens automatically. Instead of
+>>>> deflating when called by the OOM handler, the shrinker is used.
+>>>>
+>>>> However, the balloon is not simply some other slab cache that should be
+>>>> shrunk when under memory pressure. The shrinker does not have a concept of
+>>>> priorities yet, so this behavior cannot be configured. Eventually once
+>>>> that is in place, we might want to switch back after doing proper
+>>>> testing.
+>>>>
+>>>> There was a report that this results in undesired side effects when
+>>>> inflating the balloon to shrink the page cache. [1]
+>>>> 	"When inflating the balloon against page cache (i.e. no free memory
+>>>> 	 remains) vmscan.c will both shrink page cache, but also invoke the
+>>>> 	 shrinkers -- including the balloon's shrinker. So the balloon
+>>>> 	 driver allocates memory which requires reclaim, vmscan gets this
+>>>> 	 memory by shrinking the balloon, and then the driver adds the
+>>>> 	 memory back to the balloon. Basically a busy no-op."
+>>>>
+>>>> The name "deflate on OOM" makes it pretty clear when deflation should
+>>>> happen - after other approaches to reclaim memory failed, not while
+>>>> reclaiming. This allows to minimize the footprint of a guest - memory
+>>>> will only be taken out of the balloon when really needed.
+>>>>
+>>>> Keep using the shrinker for VIRTIO_BALLOON_F_FREE_PAGE_HINT, because
+>>>> this has no such side effects. Always register the shrinker with
+>>>> VIRTIO_BALLOON_F_FREE_PAGE_HINT now. We are always allowed to reuse free
+>>>> pages that are still to be processed by the guest. The hypervisor takes
+>>>> care of identifying and resolving possible races between processing a
+>>>> hinting request and the guest reusing a page.
+>>>>
+>>>> In contrast to pre commit 71994620bb25 ("virtio_balloon: replace oom
+>>>> notifier with shrinker"), don't add a moodule parameter to configure the
+>>>> number of pages to deflate on OOM. Can be re-added if really needed.
+>>>> Also, pay attention that leak_balloon() returns the number of 4k pages -
+>>>> convert it properly in virtio_balloon_oom_notify().
+>>>>
+>>>> Testing done by Tyler for future reference:
+>>>>   Test setup: VM with 16 CPU, 64GB RAM. Running Debian 10. We have a 42
+>>>>   GB file full of random bytes that we continually cat to /dev/null.
+>>>>   This fills the page cache as the file is read. Meanwhile we trigger
+>>>>   the balloon to inflate, with a target size of 53 GB. This setup causes
+>>>>   the balloon inflation to pressure the page cache as the page cache is
+>>>>   also trying to grow. Afterwards we shrink the balloon back to zero (so
+>>>>   total deflate = total inflate).
+>>>>
+>>>>   Without patch (kernel 4.19.0-5):
+>>>>   Inflation never reaches the target until we stop the "cat file >
+>>>>   /dev/null" process. Total inflation time was 542 seconds. The longest
+>>>>   period that made no net forward progress was 315 seconds (see attached
+>>>>   graph).
+>>>>   Result of "grep balloon /proc/vmstat" after the test:
+>>>>   balloon_inflate 154828377
+>>>>   balloon_deflate 154828377
+>>>>
+>>>>   With patch (kernel 5.6.0-rc4+):
+>>>>   Total inflation duration was 63 seconds. No deflate-queue activity
+>>>>   occurs when pressuring the page-cache.
+>>>>   Result of "grep balloon /proc/vmstat" after the test:
+>>>>   balloon_inflate 12968539
+>>>>   balloon_deflate 12968539
+>>>>
+>>>>   Conclusion: This patch fixes the issue. In the test it reduced
+>>>>   inflate/deflate activity by 12x, and reduced inflation time by 8.6x.
+>>>>   But more importantly, if we hadn't killed the "grep balloon
+>>>>   /proc/vmstat" process then, without the patch, the inflation process
+>>>>   would never reach the target.
+>>>>
+>>>> [1] https://www.spinics.net/lists/linux-virtualization/msg40863.html
+>>>>
+>>>> Reported-by: Tyler Sanderson <tysand@google.com>
+>>>> Tested-by: Tyler Sanderson <tysand@google.com>
+>>>> Fixes: 71994620bb25 ("virtio_balloon: replace oom notifier with shrinker")
+>>>> Cc: Michael S. Tsirkin <mst@redhat.com>
+>>>> Cc: Wei Wang <wei.w.wang@intel.com>
+>>>> Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+>>>> Cc: David Rientjes <rientjes@google.com>
+>>>> Cc: Nadav Amit <namit@vmware.com>
+>>>> Cc: Michal Hocko <mhocko@kernel.org>
+>>>> Cc: Andrew Morton <akpm@linux-foundation.org>
+>>>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>>>
+>>> Acked-by: David Rientjes <rientjes@google.com>
+>>>
+>>
+>> Thanks!
+> 
+> David could you repost with corrected commit log
+> so Andrew can merge? To make sure it's not missed,
+> it's probably a good idea to have a cover letter
+> mentioning mm in the subject.
 
-Signed-off-by: David Stevens <stevensd@chromium.org>
----
- drivers/gpu/drm/virtio/virtgpu_drv.c   |  3 ++
- drivers/gpu/drm/virtio/virtgpu_drv.h   | 18 +++++++++
- drivers/gpu/drm/virtio/virtgpu_kms.c   |  4 ++
- drivers/gpu/drm/virtio/virtgpu_prime.c | 41 +++++++++++++++++--
- drivers/gpu/drm/virtio/virtgpu_vq.c    | 55 ++++++++++++++++++++++++++
- 5 files changed, 118 insertions(+), 3 deletions(-)
+Yes, on my list, busy with some other stuff. Will make sure Andrew will
+see this mail :)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-index ab4bed78e656..776e6667042e 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-@@ -165,6 +165,7 @@ static unsigned int features[] = {
- 	VIRTIO_GPU_F_VIRGL,
- #endif
- 	VIRTIO_GPU_F_EDID,
-+	VIRTIO_GPU_F_RESOURCE_UUID,
- };
- static struct virtio_driver virtio_gpu_driver = {
- 	.feature_table = features,
-@@ -202,7 +203,9 @@ static struct drm_driver driver = {
- 	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
- 	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
- 	.gem_prime_mmap = drm_gem_prime_mmap,
-+	.gem_prime_export = virtgpu_gem_prime_export,
- 	.gem_prime_import_sg_table = virtgpu_gem_prime_import_sg_table,
-+	.gem_prime_get_uuid = virtgpu_gem_prime_get_uuid,
- 
- 	.gem_create_object = virtio_gpu_create_object,
- 	.fops = &virtio_gpu_driver_fops,
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index af9403e1cf78..fab65f0f5a4d 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -49,6 +49,10 @@
- #define DRIVER_MINOR 1
- #define DRIVER_PATCHLEVEL 0
- 
-+#define UUID_INITIALIZING 0
-+#define UUID_INITIALIZED 1
-+#define UUID_INITIALIZATION_FAILED 2
-+
- struct virtio_gpu_object_params {
- 	uint32_t format;
- 	uint32_t width;
-@@ -75,6 +79,9 @@ struct virtio_gpu_object {
- 
- 	bool dumb;
- 	bool created;
-+
-+	int uuid_state;
-+	uuid_t uuid;
- };
- #define gem_to_virtio_gpu_obj(gobj) \
- 	container_of((gobj), struct virtio_gpu_object, base.base)
-@@ -196,6 +203,7 @@ struct virtio_gpu_device {
- 	bool has_virgl_3d;
- 	bool has_edid;
- 	bool has_indirect;
-+	bool has_resource_assign_uuid;
- 
- 	struct work_struct config_changed_work;
- 
-@@ -206,6 +214,8 @@ struct virtio_gpu_device {
- 	struct virtio_gpu_drv_capset *capsets;
- 	uint32_t num_capsets;
- 	struct list_head cap_cache;
-+
-+	spinlock_t resource_export_lock;
- };
- 
- struct virtio_gpu_fpriv {
-@@ -338,6 +348,10 @@ void virtio_gpu_dequeue_fence_func(struct work_struct *work);
- void virtio_gpu_disable_notify(struct virtio_gpu_device *vgdev);
- void virtio_gpu_enable_notify(struct virtio_gpu_device *vgdev);
- 
-+int
-+virtio_gpu_cmd_resource_assign_uuid(struct virtio_gpu_device *vgdev,
-+				    struct virtio_gpu_object_array *objs);
-+
- /* virtio_gpu_display.c */
- void virtio_gpu_modeset_init(struct virtio_gpu_device *vgdev);
- void virtio_gpu_modeset_fini(struct virtio_gpu_device *vgdev);
-@@ -366,6 +380,10 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
- 			     struct virtio_gpu_object **bo_ptr,
- 			     struct virtio_gpu_fence *fence);
- /* virtgpu_prime.c */
-+struct dma_buf *virtgpu_gem_prime_export(struct drm_gem_object *obj,
-+					 int flags);
-+int virtgpu_gem_prime_get_uuid(struct drm_gem_object *obj,
-+			       uuid_t *uuid);
- struct drm_gem_object *virtgpu_gem_prime_import_sg_table(
- 	struct drm_device *dev, struct dma_buf_attachment *attach,
- 	struct sg_table *sgt);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index 4009c2f97d08..5a2aeb6d2f35 100644
---- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -134,6 +134,7 @@ int virtio_gpu_init(struct drm_device *dev)
- 	vgdev->dev = dev->dev;
- 
- 	spin_lock_init(&vgdev->display_info_lock);
-+	spin_lock_init(&vgdev->resource_export_lock);
- 	ida_init(&vgdev->ctx_id_ida);
- 	ida_init(&vgdev->resource_ida);
- 	init_waitqueue_head(&vgdev->resp_wq);
-@@ -162,6 +163,9 @@ int virtio_gpu_init(struct drm_device *dev)
- 	if (virtio_has_feature(vgdev->vdev, VIRTIO_RING_F_INDIRECT_DESC)) {
- 		vgdev->has_indirect = true;
- 	}
-+	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_RESOURCE_UUID)) {
-+		vgdev->has_resource_assign_uuid = true;
-+	}
- 
- 	DRM_INFO("features: %cvirgl %cedid\n",
- 		 vgdev->has_virgl_3d ? '+' : '-',
-diff --git a/drivers/gpu/drm/virtio/virtgpu_prime.c b/drivers/gpu/drm/virtio/virtgpu_prime.c
-index 050d24c39a8f..7c6357f59877 100644
---- a/drivers/gpu/drm/virtio/virtgpu_prime.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_prime.c
-@@ -26,9 +26,44 @@
- 
- #include "virtgpu_drv.h"
- 
--/* Empty Implementations as there should not be any other driver for a virtual
-- * device that might share buffers with virtgpu
-- */
-+int virtgpu_gem_prime_get_uuid(struct drm_gem_object *obj,
-+			       uuid_t *uuid)
-+{
-+	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
-+	struct virtio_gpu_device *vgdev = obj->dev->dev_private;
-+
-+	wait_event(vgdev->resp_wq, bo->uuid_state != UUID_INITIALIZING);
-+	if (bo->uuid_state != UUID_INITIALIZED)
-+		return -ENODEV;
-+
-+	uuid_copy(uuid, &bo->uuid);
-+
-+	return 0;
-+}
-+
-+struct dma_buf *virtgpu_gem_prime_export(struct drm_gem_object *obj,
-+					 int flags)
-+{
-+	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
-+	struct virtio_gpu_device *vgdev = obj->dev->dev_private;
-+	struct virtio_gpu_object_array *objs;
-+	int ret = 0;
-+
-+	if (vgdev->has_resource_assign_uuid) {
-+		objs = virtio_gpu_array_alloc(1);
-+		if (!objs)
-+			return ERR_PTR(-ENOMEM);
-+		virtio_gpu_array_add_obj(objs, &bo->base.base);
-+
-+		ret = virtio_gpu_cmd_resource_assign_uuid(vgdev, objs);
-+		if (ret)
-+			return ERR_PTR(ret);
-+	} else {
-+		bo->uuid_state = UUID_INITIALIZATION_FAILED;
-+  }
-+
-+	return drm_gem_prime_export(obj, flags);
-+}
- 
- struct drm_gem_object *virtgpu_gem_prime_import_sg_table(
- 	struct drm_device *dev, struct dma_buf_attachment *attach,
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index cfe9c54f87a3..b968eaa46bb0 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -1111,3 +1111,58 @@ void virtio_gpu_cursor_ping(struct virtio_gpu_device *vgdev,
- 	memcpy(cur_p, &output->cursor, sizeof(output->cursor));
- 	virtio_gpu_queue_cursor(vgdev, vbuf);
- }
-+
-+static void virtio_gpu_cmd_resource_uuid_cb(struct virtio_gpu_device *vgdev,
-+					    struct virtio_gpu_vbuffer *vbuf)
-+{
-+	struct virtio_gpu_object *obj =
-+		gem_to_virtio_gpu_obj(vbuf->objs->objs[0]);
-+	struct virtio_gpu_resp_resource_uuid *resp =
-+		(struct virtio_gpu_resp_resource_uuid *)vbuf->resp_buf;
-+	uint32_t resp_type = le32_to_cpu(resp->hdr.type);
-+
-+	spin_lock(&vgdev->resource_export_lock);
-+	WARN_ON(obj->uuid_state != UUID_INITIALIZING);
-+
-+	if (resp_type == VIRTIO_GPU_RESP_OK_RESOURCE_UUID &&
-+			obj->uuid_state == UUID_INITIALIZING) {
-+		memcpy(&obj->uuid.b, resp->uuid, sizeof(obj->uuid.b));
-+		obj->uuid_state = UUID_INITIALIZED;
-+	} else {
-+		obj->uuid_state = UUID_INITIALIZATION_FAILED;
-+	}
-+	spin_unlock(&vgdev->resource_export_lock);
-+
-+	wake_up_all(&vgdev->resp_wq);
-+}
-+
-+int
-+virtio_gpu_cmd_resource_assign_uuid(struct virtio_gpu_device *vgdev,
-+				    struct virtio_gpu_object_array *objs)
-+{
-+	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(objs->objs[0]);
-+	struct virtio_gpu_resource_assign_uuid *cmd_p;
-+	struct virtio_gpu_vbuffer *vbuf;
-+	struct virtio_gpu_resp_resource_uuid *resp_buf;
-+
-+	resp_buf = kzalloc(sizeof(*resp_buf), GFP_KERNEL);
-+	if (!resp_buf) {
-+		spin_lock(&vgdev->resource_export_lock);
-+		bo->uuid_state = UUID_INITIALIZATION_FAILED;
-+		spin_unlock(&vgdev->resource_export_lock);
-+		virtio_gpu_array_put_free(objs);
-+		return -ENOMEM;
-+	}
-+
-+	cmd_p = virtio_gpu_alloc_cmd_resp(vgdev,
-+		virtio_gpu_cmd_resource_uuid_cb, &vbuf, sizeof(*cmd_p),
-+		sizeof(struct virtio_gpu_resp_resource_uuid), resp_buf);
-+	memset(cmd_p, 0, sizeof(*cmd_p));
-+
-+	cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_RESOURCE_ASSIGN_UUID);
-+	cmd_p->resource_id = cpu_to_le32(bo->hw_res_handle);
-+
-+	vbuf->objs = objs;
-+	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
-+	return 0;
-+}
+
 -- 
-2.25.1.481.gfbce0eb801-goog
+Thanks,
+
+David / dhildenb
