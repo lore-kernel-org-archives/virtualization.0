@@ -1,97 +1,75 @@
 From: David Stevens <stevensd@chromium.org>
-Subject: [PATCH v3 2/4] drm/prime: add support for virtio exported objects
-Date: Wed, 11 Mar 2020 20:20:02 +0900
-Message-ID: <20200311112004.47138-3-stevensd@chromium.org>
+Subject: [PATCH v3 3/4] virtio-gpu: add VIRTIO_GPU_F_RESOURCE_UUID feature
+Date: Wed, 11 Mar 2020 20:20:03 +0900
+Message-ID: <20200311112004.47138-4-stevensd@chromium.org>
 References: <20200311112004.47138-1-stevensd@chromium.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <virtio-dev-return-6917-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+Return-path: <linux-media-owner@vger.kernel.org>
 In-Reply-To: <20200311112004.47138-1-stevensd@chromium.org>
+Sender: linux-media-owner@vger.kernel.org
 To: Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>
 Cc: Daniel Vetter <daniel@ffwll.ch>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, David Stevens <stevensd@chromium.org>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org, virtio-dev@lists.oasis-open.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This change exposes dma-buf's get_uuid callback to PRIME drivers.
+This feature allows the guest to request a UUID from the host for a
+particular virtio_gpu resource. The UUID can then be shared with other
+virtio devices, to allow the other host devices to access the
+virtio_gpu's corresponding host resource.
 
 Signed-off-by: David Stevens <stevensd@chromium.org>
 ---
- drivers/gpu/drm/drm_prime.c | 23 +++++++++++++++++++++++
- include/drm/drm_drv.h       | 10 ++++++++++
- 2 files changed, 33 insertions(+)
+ include/uapi/linux/virtio_gpu.h | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_prime.c b/drivers/gpu/drm/drm_prime.c
-index 86d9b0e45c8c..50fed8497d3c 100644
---- a/drivers/gpu/drm/drm_prime.c
-+++ b/drivers/gpu/drm/drm_prime.c
-@@ -779,6 +779,28 @@ int drm_gem_dmabuf_mmap(struct dma_buf *dma_buf, struct vm_area_struct *vma)
- }
- EXPORT_SYMBOL(drm_gem_dmabuf_mmap);
- 
-+/**
-+ * drm_gem_dmabuf_get_uuid - dma_buf get_uuid implementation for GEM
-+ * @dma_buf: buffer to query
-+ * @uuid: uuid outparam
-+ *
-+ * Queries the buffer's virtio UUID. This can be used as the
-+ * &dma_buf_ops.get_uuid callback. Calls into &drm_driver.gem_prime_get_uuid.
-+ *
-+ * Returns 0 on success or a negative error code on failure.
+diff --git a/include/uapi/linux/virtio_gpu.h b/include/uapi/linux/virtio_gpu.h
+index 0c85914d9369..9721d58b4d58 100644
+--- a/include/uapi/linux/virtio_gpu.h
++++ b/include/uapi/linux/virtio_gpu.h
+@@ -50,6 +50,10 @@
+  * VIRTIO_GPU_CMD_GET_EDID
+  */
+ #define VIRTIO_GPU_F_EDID                1
++/*
++ * VIRTIO_GPU_CMD_RESOURCE_ASSIGN_UUID
 + */
-+int drm_gem_dmabuf_get_uuid(struct dma_buf *dma_buf, uuid_t *uuid)
-+{
-+	struct drm_gem_object *obj = dma_buf->priv;
-+	struct drm_device *dev = obj->dev;
-+
-+	if (!dev->driver->gem_prime_get_uuid)
-+		return -ENODEV;
-+
-+	return dev->driver->gem_prime_get_uuid(obj, uuid);
-+}
-+EXPORT_SYMBOL(drm_gem_dmabuf_get_uuid);
-+
- static const struct dma_buf_ops drm_gem_prime_dmabuf_ops =  {
- 	.cache_sgt_mapping = true,
- 	.attach = drm_gem_map_attach,
-@@ -789,6 +811,7 @@ static const struct dma_buf_ops drm_gem_prime_dmabuf_ops =  {
- 	.mmap = drm_gem_dmabuf_mmap,
- 	.vmap = drm_gem_dmabuf_vmap,
- 	.vunmap = drm_gem_dmabuf_vunmap,
-+	.get_uuid = drm_gem_dmabuf_get_uuid,
++#define VIRTIO_GPU_F_RESOURCE_UUID       2
+ 
+ enum virtio_gpu_ctrl_type {
+ 	VIRTIO_GPU_UNDEFINED = 0,
+@@ -66,6 +70,7 @@ enum virtio_gpu_ctrl_type {
+ 	VIRTIO_GPU_CMD_GET_CAPSET_INFO,
+ 	VIRTIO_GPU_CMD_GET_CAPSET,
+ 	VIRTIO_GPU_CMD_GET_EDID,
++	VIRTIO_GPU_CMD_RESOURCE_ASSIGN_UUID,
+ 
+ 	/* 3d commands */
+ 	VIRTIO_GPU_CMD_CTX_CREATE = 0x0200,
+@@ -87,6 +92,7 @@ enum virtio_gpu_ctrl_type {
+ 	VIRTIO_GPU_RESP_OK_CAPSET_INFO,
+ 	VIRTIO_GPU_RESP_OK_CAPSET,
+ 	VIRTIO_GPU_RESP_OK_EDID,
++	VIRTIO_GPU_RESP_OK_RESOURCE_UUID,
+ 
+ 	/* error responses */
+ 	VIRTIO_GPU_RESP_ERR_UNSPEC = 0x1200,
+@@ -340,4 +346,17 @@ enum virtio_gpu_formats {
+ 	VIRTIO_GPU_FORMAT_R8G8B8X8_UNORM  = 134,
  };
  
- /**
-diff --git a/include/drm/drm_drv.h b/include/drm/drm_drv.h
-index 77685ed7aa65..61e3ff341844 100644
---- a/include/drm/drm_drv.h
-+++ b/include/drm/drm_drv.h
-@@ -29,6 +29,7 @@
- 
- #include <linux/list.h>
- #include <linux/irqreturn.h>
-+#include <linux/uuid.h>
- 
- #include <drm/drm_device.h>
- 
-@@ -639,6 +640,15 @@ struct drm_driver {
- 	int (*gem_prime_mmap)(struct drm_gem_object *obj,
- 				struct vm_area_struct *vma);
- 
-+	/**
-+	 * @gem_prime_get_uuid
-+	 *
-+	 * get_uuid hook for GEM drivers. Retrieves the virtio uuid of the
-+	 * given GEM buffer.
-+	 */
-+	int (*gem_prime_get_uuid)(struct drm_gem_object *obj,
-+				  uuid_t *uuid);
++/* VIRTIO_GPU_CMD_RESOURCE_ASSIGN_UUID */
++struct virtio_gpu_resource_assign_uuid {
++	struct virtio_gpu_ctrl_hdr hdr;
++	__le32 resource_id;
++	__le32 padding;
++};
 +
- 	/**
- 	 * @dumb_create:
- 	 *
++/* VIRTIO_GPU_RESP_OK_RESOURCE_UUID */
++struct virtio_gpu_resp_resource_uuid {
++	struct virtio_gpu_ctrl_hdr hdr;
++	__u8 uuid[16];
++};
++
+ #endif
 -- 
 2.25.1.481.gfbce0eb801-goog
