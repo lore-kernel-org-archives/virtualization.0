@@ -1,73 +1,237 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RESEND] virtio: virtio_pci_legacy: Remove default y from
- Kconfig
-Date: Wed, 11 Mar 2020 19:02:32 -0400
-Message-ID: <20200311190026-mutt-send-email-mst@kernel.org>
-References: <20200228232736.182780-1-rammuthiah@google.com>
- <20200301023025-mutt-send-email-mst@kernel.org>
- <CA+CXyWu9AfPbb_BVb9bh9Q_82XfavTGy+M11+6GEGCjeCetThw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Hui Zhu <teawater@gmail.com>
+Subject: [RFC for Linux] virtio_balloon: Add VIRTIO_BALLOON_F_THP_ORDER to handle THP spilt issue
+Date: Thu, 12 Mar 2020 15:49:54 +0800
+Message-ID: <1583999395-9131-1-git-send-email-teawater@gmail.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CA+CXyWu9AfPbb_BVb9bh9Q_82XfavTGy+M11+6GEGCjeCetThw@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Ram Muthiah <rammuthiah@google.com>
-Cc: Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kernel-team@android.com
+To: mst@redhat.com, jasowang@redhat.com, akpm@linux-foundation.org, pagupta@redhat.com, mojha@codeaurora.org, david@redhat.com, namit@vmware.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org
+Cc: Hui Zhu <teawater@gmail.com>, Hui Zhu <teawaterz@linux.alibaba.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 11, 2020 at 03:44:14PM -0700, Ram Muthiah wrote:
-> On Sat, Feb 29, 2020 at 11:32 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Fri, Feb 28, 2020 at 03:27:36PM -0800, Ram Muthiah wrote:
-> > > The legacy pci driver should no longer be default enabled. QEMU has
-> > > implemented support for Virtio 1 for virtio-pci since June 2015
-> > > on SHA dfb8e184db75.
-> > >
-> > > Signed-off-by: Ram Muthiah <rammuthiah@google.com>
-> >
-> > I see little reason to do this: y is safer and will boot on more
-> > hypervisors, so people that aren't sure should enable it.
-> >
-> 
-> In that case, would it be reasonable to fold VIRTIO_PCI_LEGACY
-> into VIRTIO_PCI?
-> 
-> The result would boot more hypervisors as well and remove the
-> CONFIG in the process.
+If the guest kernel has many fragmentation pages, use virtio_balloon
+will split THP of QEMU when it calls MADV_DONTNEED madvise to release
+the balloon pages.
+This is an example in a VM with 1G memory 1CPU:
+cat /proc/meminfo | grep AnonHugePages:
+AnonHugePages:         0 kB
 
-This might break configurations relying on the flying car joke to be
-there.
+usemem --punch-holes -s -1 800m &
 
+cat /proc/meminfo | grep AnonHugePages:
+AnonHugePages:    976896 kB
 
-> > > ---
-> > >  drivers/virtio/Kconfig | 6 ------
-> > >  1 file changed, 6 deletions(-)
-> > >
-> > > diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-> > > index 078615cf2afc..eacd0b90d32b 100644
-> > > --- a/drivers/virtio/Kconfig
-> > > +++ b/drivers/virtio/Kconfig
-> > > @@ -26,7 +26,6 @@ config VIRTIO_PCI
-> > >
-> > >  config VIRTIO_PCI_LEGACY
-> > >       bool "Support for legacy virtio draft 0.9.X and older devices"
-> > > -     default y
-> > >       depends on VIRTIO_PCI
-> > >       ---help---
-> > >            Virtio PCI Card 0.9.X Draft (circa 2014) and older device support.
-> > > @@ -36,11 +35,6 @@ config VIRTIO_PCI_LEGACY
-> > >         If disabled, you get a slightly smaller, non-transitional driver,
-> > >         with no legacy compatibility.
-> > >
-> > > -          So look out into your driveway.  Do you have a flying car?  If
-> > > -          so, you can happily disable this option and virtio will not
-> > > -          break.  Otherwise, leave it set.  Unless you're testing what
-> > > -          life will be like in The Future.
-> > > -
-> > >         If unsure, say Y.
-> > >
-> > >  config VIRTIO_PMEM
-> > > --
-> > > 2.25.0.265.gbab2e86ba0-goog
-> >
+(qemu) device_add virtio-balloon-pci,id=balloon1
+(qemu) info balloon
+balloon: actual=1024
+(qemu) balloon 624
+(qemu) info balloon
+balloon: actual=624
+
+cat /proc/meminfo | grep AnonHugePages:
+AnonHugePages:    153600 kB
+
+THP number decreased more than 800M.
+The reason is usemem with punch-holes option will free every other page
+after allocation.  Then 400M free memory inside the guest kernel is
+fragmentation pages.
+The guest kernel will use them to inflate the balloon.  When these
+fragmentation pages are freed, THP will be split.
+
+This commit tries to handle this with add a new flag
+VIRTIO_BALLOON_F_THP_ORDER.
+When this flag is set, the balloon page order will be set to the THP order.
+Then THP pages will be freed together in the host.
+This is an example in a VM with 1G memory 1CPU:
+cat /proc/meminfo | grep AnonHugePages:
+AnonHugePages:         0 kB
+
+usemem --punch-holes -s -1 800m &
+
+cat /proc/meminfo | grep AnonHugePages:
+AnonHugePages:    976896 kB
+
+(qemu) device_add virtio-balloon-pci,id=balloon1,thp-order=on
+(qemu) info balloon
+balloon: actual=1024
+(qemu) balloon 624
+(qemu) info balloon
+balloon: actual=624
+
+cat /proc/meminfo | grep AnonHugePages:
+AnonHugePages:    583680 kB
+
+The THP number decreases 384M.  This shows that VIRTIO_BALLOON_F_THP_ORDER
+can help handle the THP split issue.
+
+Signed-off-by: Hui Zhu <teawaterz@linux.alibaba.com>
+---
+ drivers/virtio/virtio_balloon.c     | 57 ++++++++++++++++++++++++++-----------
+ include/linux/balloon_compaction.h  | 14 ++++++---
+ include/uapi/linux/virtio_balloon.h |  4 +++
+ 3 files changed, 54 insertions(+), 21 deletions(-)
+
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 7bfe365..1e1dc76 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -175,18 +175,31 @@ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
+ 	unsigned num_pfns;
+ 	struct page *page;
+ 	LIST_HEAD(pages);
++	int page_order = 0;
+ 
+ 	/* We can only do one array worth at a time. */
+ 	num = min(num, ARRAY_SIZE(vb->pfns));
+ 
++	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_THP_ORDER))
++		page_order = VIRTIO_BALLOON_THP_ORDER;
++
+ 	for (num_pfns = 0; num_pfns < num;
+ 	     num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE) {
+-		struct page *page = balloon_page_alloc();
++		struct page *page;
++
++		if (page_order)
++			page = alloc_pages(__GFP_HIGHMEM |
++					   __GFP_KSWAPD_RECLAIM |
++					   __GFP_RETRY_MAYFAIL |
++					   __GFP_NOWARN | __GFP_NOMEMALLOC,
++					   page_order);
++		else
++			page = balloon_page_alloc();
+ 
+ 		if (!page) {
+ 			dev_info_ratelimited(&vb->vdev->dev,
+-					     "Out of puff! Can't get %u pages\n",
+-					     VIRTIO_BALLOON_PAGES_PER_PAGE);
++				"Out of puff! Can't get %u pages\n",
++				VIRTIO_BALLOON_PAGES_PER_PAGE << page_order);
+ 			/* Sleep for at least 1/5 of a second before retry. */
+ 			msleep(200);
+ 			break;
+@@ -206,7 +219,7 @@ static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
+ 		vb->num_pages += VIRTIO_BALLOON_PAGES_PER_PAGE;
+ 		if (!virtio_has_feature(vb->vdev,
+ 					VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
+-			adjust_managed_page_count(page, -1);
++			adjust_managed_page_count(page, -(1 << page_order));
+ 		vb->num_pfns += VIRTIO_BALLOON_PAGES_PER_PAGE;
+ 	}
+ 
+@@ -223,13 +236,20 @@ static void release_pages_balloon(struct virtio_balloon *vb,
+ 				 struct list_head *pages)
+ {
+ 	struct page *page, *next;
++	int page_order = 0;
++
++	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_THP_ORDER))
++		page_order = VIRTIO_BALLOON_THP_ORDER;
+ 
+ 	list_for_each_entry_safe(page, next, pages, lru) {
+ 		if (!virtio_has_feature(vb->vdev,
+ 					VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
+-			adjust_managed_page_count(page, 1);
++			adjust_managed_page_count(page, 1 << page_order);
+ 		list_del(&page->lru);
+-		put_page(page); /* balloon reference */
++		if (page_order)
++			__free_pages(page, page_order);
++		else
++			put_page(page); /* balloon reference */
+ 	}
+ }
+ 
+@@ -893,19 +913,21 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 		goto out_free_vb;
+ 
+ #ifdef CONFIG_BALLOON_COMPACTION
+-	balloon_mnt = kern_mount(&balloon_fs);
+-	if (IS_ERR(balloon_mnt)) {
+-		err = PTR_ERR(balloon_mnt);
+-		goto out_del_vqs;
+-	}
++	if (!virtio_has_feature(vdev, VIRTIO_BALLOON_F_THP_ORDER)) {
++		balloon_mnt = kern_mount(&balloon_fs);
++		if (IS_ERR(balloon_mnt)) {
++			err = PTR_ERR(balloon_mnt);
++			goto out_del_vqs;
++		}
+ 
+-	vb->vb_dev_info.migratepage = virtballoon_migratepage;
+-	vb->vb_dev_info.inode = alloc_anon_inode(balloon_mnt->mnt_sb);
+-	if (IS_ERR(vb->vb_dev_info.inode)) {
+-		err = PTR_ERR(vb->vb_dev_info.inode);
+-		goto out_kern_unmount;
++		vb->vb_dev_info.migratepage = virtballoon_migratepage;
++		vb->vb_dev_info.inode = alloc_anon_inode(balloon_mnt->mnt_sb);
++		if (IS_ERR(vb->vb_dev_info.inode)) {
++			err = PTR_ERR(vb->vb_dev_info.inode);
++			goto out_kern_unmount;
++		}
++		vb->vb_dev_info.inode->i_mapping->a_ops = &balloon_aops;
+ 	}
+-	vb->vb_dev_info.inode->i_mapping->a_ops = &balloon_aops;
+ #endif
+ 	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT)) {
+ 		/*
+@@ -1058,6 +1080,7 @@ static unsigned int features[] = {
+ 	VIRTIO_BALLOON_F_DEFLATE_ON_OOM,
+ 	VIRTIO_BALLOON_F_FREE_PAGE_HINT,
+ 	VIRTIO_BALLOON_F_PAGE_POISON,
++	VIRTIO_BALLOON_F_THP_ORDER,
+ };
+ 
+ static struct virtio_driver virtio_balloon_driver = {
+diff --git a/include/linux/balloon_compaction.h b/include/linux/balloon_compaction.h
+index 338aa27..4c9164e 100644
+--- a/include/linux/balloon_compaction.h
++++ b/include/linux/balloon_compaction.h
+@@ -100,8 +100,12 @@ static inline void balloon_page_insert(struct balloon_dev_info *balloon,
+ 				       struct page *page)
+ {
+ 	__SetPageOffline(page);
+-	__SetPageMovable(page, balloon->inode->i_mapping);
+-	set_page_private(page, (unsigned long)balloon);
++	if (balloon->inode) {
++		__SetPageMovable(page, balloon->inode->i_mapping);
++		set_page_private(page, (unsigned long)balloon);
++	} else {
++		set_page_private(page, 0);
++	}
+ 	list_add(&page->lru, &balloon->pages);
+ }
+ 
+@@ -116,8 +120,10 @@ static inline void balloon_page_insert(struct balloon_dev_info *balloon,
+ static inline void balloon_page_delete(struct page *page)
+ {
+ 	__ClearPageOffline(page);
+-	__ClearPageMovable(page);
+-	set_page_private(page, 0);
++	if (page_private(page)) {
++		__ClearPageMovable(page);
++		set_page_private(page, 0);
++	}
+ 	/*
+ 	 * No touch page.lru field once @page has been isolated
+ 	 * because VM is using the field.
+diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
+index a1966cd7..a2998a9 100644
+--- a/include/uapi/linux/virtio_balloon.h
++++ b/include/uapi/linux/virtio_balloon.h
+@@ -36,10 +36,14 @@
+ #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
+ #define VIRTIO_BALLOON_F_FREE_PAGE_HINT	3 /* VQ to report free pages */
+ #define VIRTIO_BALLOON_F_PAGE_POISON	4 /* Guest is using page poisoning */
++#define VIRTIO_BALLOON_F_THP_ORDER	5 /* Balloon page order to thp order */
+ 
+ /* Size of a PFN in the balloon interface. */
+ #define VIRTIO_BALLOON_PFN_SHIFT 12
+ 
++/* The order of the balloon page */
++#define VIRTIO_BALLOON_THP_ORDER 9
++
+ #define VIRTIO_BALLOON_CMD_ID_STOP	0
+ #define VIRTIO_BALLOON_CMD_ID_DONE	1
+ struct virtio_balloon_config {
+-- 
+2.7.4
