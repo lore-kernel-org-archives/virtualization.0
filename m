@@ -1,33 +1,48 @@
-From: Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH 0/5] x86/vmware: Steal time accounting support
-Date: Thu, 12 Mar 2020 20:05:14 +0100
-Message-ID: <87blp1iec5.fsf@nanos.tec.linutronix.de>
-References: <20200212200312.2033-1-amakhalov@vmware.com>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH v3] drm/bochs: downgrade pci_request_region failure from error to warning
+Date: Fri, 13 Mar 2020 09:41:52 +0100
+Message-ID: <20200313084152.2734-1-kraxel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200212200312.2033-1-amakhalov@vmware.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: x86@kernel.org
-Cc: Juergen Gross <jgross@suse.com>, Alexey Makhalov <amakhalov@vmware.com>, Jonathan Corbet <corbet@lwn.net>, "VMware, Inc." <pv-drivers@vmware.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Josh Poimboeuf <jpoimboe@redhat.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: dri-devel@lists.freedesktop.org
+Cc: marmarek@invisiblethingslab.com, Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR
+        BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Alexey Makhalov <amakhalov@vmware.com> writes:
->
-> Alexey Makhalov (5):
->   x86/vmware: Make vmware_select_hypercall() __init
->   x86/vmware: Remove vmware_sched_clock_setup()
->   x86/vmware: Steal time clock for VMware guest
->   x86/vmware: Enable steal time accounting
->   x86/vmware: Use bool type for vmw_sched_clock
+Shutdown of firmware framebuffer has a bunch of problems.  Because
+of this the framebuffer region might still be reserved even after
+drm_fb_helper_remove_conflicting_pci_framebuffers() returned.
 
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Don't consider pci_request_region() failure for the framebuffer
+region as fatal error to workaround this issue.
+
+Reported-by: Marek Marczykowski-G=C3=B3recki <marmarek@invisiblethingslab=
+.com>
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/bochs/bochs_hw.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/boc=
+hs_hw.c
+index 952199cc0462..dce4672e3fc8 100644
+--- a/drivers/gpu/drm/bochs/bochs_hw.c
++++ b/drivers/gpu/drm/bochs/bochs_hw.c
+@@ -157,10 +157,8 @@ int bochs_hw_init(struct drm_device *dev)
+ 		size =3D min(size, mem);
+ 	}
+=20
+-	if (pci_request_region(pdev, 0, "bochs-drm") !=3D 0) {
+-		DRM_ERROR("Cannot request framebuffer\n");
+-		return -EBUSY;
+-	}
++	if (pci_request_region(pdev, 0, "bochs-drm") !=3D 0)
++		DRM_WARN("Cannot request framebuffer, boot fb still active?\n");
+=20
+ 	bochs->fb_map =3D ioremap(addr, size);
+ 	if (bochs->fb_map =3D=3D NULL) {
+--=20
+2.18.2
