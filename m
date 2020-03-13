@@ -1,167 +1,266 @@
-From: Sam Ravnborg <sam@ravnborg.org>
-Subject: [PATCH v1 0/3] drm: drm_encoder_init() => drm_encoder_init_funcs()
-Date: Fri, 13 Mar 2020 21:17:41 +0100
-Message-ID: <20200313201744.19773-1-sam@ravnborg.org>
+From: Sam Ravnborg <sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org>
+Subject: [PATCH v1 2/3] drm: drm_simple_encoder_init() => drm_encoder_init()
+Date: Fri, 13 Mar 2020 21:17:43 +0100
+Message-ID: <20200313201744.19773-3-sam@ravnborg.org>
+References: <20200313201744.19773-1-sam@ravnborg.org>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Thomas Zimmermann <tzimmermann@suse.de>, Daniel Vetter <daniel@ffwll.ch>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, dri-devel@lists.freedesktop.org
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>, amd-gfx@lists.freedesktop.org, Andrzej Pietrasiewicz <andrzej.p@collabora.com>, Boris Brezillon <bbrezillon@kernel.org>, Dave Airlie <airlied@redhat.com>, David Airlie <airlied@linux.ie>, Emil Velikov <emil.velikov@collabora.com>, Gerd Hoffmann <kraxel@redhat.com>, Jose Roberto de Souza <jose.souza@intel.com>, linux-amlogic@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org, linux-renesas-soc@vger.kernel.org, linux-rockchip@lists.infradead.org, linux-samsung-soc@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-tegra@vger.kernel.org, Ludovic Desroches <ludovic.desroches@microchip.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.c>
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20200313201744.19773-1-sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Thomas Zimmermann <tzimmermann-l3A5Bk7waGM@public.gmane.org>, Daniel Vetter <daniel-/w4YWyX8dFk@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org
+Cc: Alexandre Belloni <alexandre.belloni-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org>, amd-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, Andrzej Pietrasiewicz <andrzej.p-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>, Boris Brezillon <bbrezillon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Dave Airlie <airlied-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, Emil Velikov <emil.velikov-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>, Gerd Hoffmann <kraxel-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Jose Roberto de Souza <jose.souza-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, linux-amlogic-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-renesas-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-stm32-XDFAJ8BFU24N7RejjzZ/Li2xQDfSxrLKVpNB7YpNyf8@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Ludovic Desroches <ludovic.desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>, Maarten Lankhorst <maarten.lankhorst-VuQAYsv1563A2t4k+OOtxA@public.gmane.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Thomas Zimmermann had made a nice patch-set that introduced
-drm_simple_encoder_init() which is already present in drm-misc-next.
+A lot of drivers requires only a basic encoder with no need
+to extend the functionality.
+This was previously implemented in drm_simple_kms_helper.c
+but encoders are not necessarily simple despite no
+need for a drm_encoder_funcs for adding functionality.
 
-While looking at this it was suddenly obvious to me that
-this was functionalty that really should be included in drm_encoder.c
-The case where the core could handle the callback is pretty
-common and not part of the simple pipe line.
+Move the init function to drm_encoder.c to reflect this.
+And adjust the name to drm_encoder_init().
 
-So after some dialog on dri-devel the conclusion was to go for
-a change like this:
+Drop include of drm_simple_kms_helper.h in the touched
+drivers as it is no logner required.
 
-    drm_encoder_init_funcs() for all users that specified a
-    drm_encoder_funcs to extend the functionality.
+Signed-off-by: Sam Ravnborg <sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org>
+Cc: Dave Airlie <airlied-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: Maarten Lankhorst <maarten.lankhorst-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Cc: Maxime Ripard <mripard-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Thomas Zimmermann <tzimmermann-l3A5Bk7waGM@public.gmane.org>
+Cc: Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>
+Cc: David Airlie <airlied-cv59FeDIM0c@public.gmane.org>
+Cc: Daniel Vetter <daniel-/w4YWyX8dFk@public.gmane.org>
+Cc: Gerd Hoffmann <kraxel-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: Sam Ravnborg <sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org>
+Cc: Emil Velikov <emil.velikov-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
+Cc: Andrzej Pietrasiewicz <andrzej.p-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>
+Cc: "José Roberto de Souza" <jose.souza-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+---
+ drivers/gpu/drm/ast/ast_mode.c          |  3 +-
+ drivers/gpu/drm/drm_encoder.c           | 37 ++++++++++++++++++++
+ drivers/gpu/drm/drm_simple_kms_helper.c | 45 +------------------------
+ drivers/gpu/drm/mgag200/mgag200_mode.c  |  7 ++--
+ drivers/gpu/drm/qxl/qxl_display.c       |  7 ++--
+ include/drm/drm_encoder.h               |  3 ++
+ include/drm/drm_simple_kms_helper.h     |  4 ---
+ 7 files changed, 46 insertions(+), 60 deletions(-)
 
-    drm_encoder_init() for all users that did not
-    need to extend the basic functionality with
-    drm_encoder_funcs.
-
-A similar approach with a _funcs() prefix is used elsewhere in drm/
-
-This required a rename of the existing users, and
-a follow-up patch that moves drm_simple_encoder_init()
-to drm_encoder.c
-
-Patches 3 in this set demonstrate the use of drm_encoder_init().
-There are many more drivers that can be converted as Thomas
-has already demonstrated.
-
-This is all based on work done by Thomas Zimmermann,
-I just wanted to implement my suggestion so
-we could select the best way forward.
-
-Note: Daniel Vetter has hinted the approach implemented
-here smelled like middle-layer.
-IMO this is not so, it is just a way to handle cleanup
-for the simple cases.
-
-	Sam
-
-
-Sam Ravnborg (3):
-      drm: drm_encoder_init() => drm_encoder_init_funcs()
-      drm: drm_simple_encoder_init() => drm_encoder_init()
-      drm/atmel-hlcdc: Use drm_encoder_init()
-
- drivers/gpu/drm/amd/amdgpu/dce_v10_0.c             | 28 ++++++-------
- drivers/gpu/drm/amd/amdgpu/dce_v11_0.c             | 28 ++++++-------
- drivers/gpu/drm/amd/amdgpu/dce_v6_0.c              | 28 ++++++-------
- drivers/gpu/drm/amd/amdgpu/dce_v8_0.c              | 28 ++++++-------
- drivers/gpu/drm/amd/amdgpu/dce_virtual.c           |  4 +-
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c  | 10 ++---
- .../amd/display/amdgpu_dm/amdgpu_dm_mst_types.c    | 10 ++---
- drivers/gpu/drm/arc/arcpgu_hdmi.c                  |  4 +-
- drivers/gpu/drm/arc/arcpgu_sim.c                   |  4 +-
- drivers/gpu/drm/ast/ast_mode.c                     |  3 +-
- drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_output.c   |  8 +---
- drivers/gpu/drm/drm_encoder.c                      | 49 +++++++++++++++++++---
- drivers/gpu/drm/drm_encoder_slave.c                |  2 +-
- drivers/gpu/drm/drm_simple_kms_helper.c            | 45 +-------------------
- drivers/gpu/drm/drm_writeback.c                    |  6 +--
- drivers/gpu/drm/exynos/exynos_dp.c                 |  4 +-
- drivers/gpu/drm/exynos/exynos_drm_dpi.c            |  4 +-
- drivers/gpu/drm/exynos/exynos_drm_dsi.c            |  4 +-
- drivers/gpu/drm/exynos/exynos_drm_vidi.c           |  4 +-
- drivers/gpu/drm/exynos/exynos_hdmi.c               |  4 +-
- drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c          |  4 +-
- drivers/gpu/drm/gma500/cdv_intel_crt.c             |  5 ++-
- drivers/gpu/drm/gma500/cdv_intel_dp.c              |  4 +-
- drivers/gpu/drm/gma500/cdv_intel_hdmi.c            |  4 +-
- drivers/gpu/drm/gma500/cdv_intel_lvds.c            |  6 +--
- drivers/gpu/drm/gma500/mdfld_dsi_dpi.c             |  7 ++--
- drivers/gpu/drm/gma500/oaktrail_hdmi.c             |  6 +--
- drivers/gpu/drm/gma500/oaktrail_lvds.c             |  4 +-
- drivers/gpu/drm/gma500/psb_intel_lvds.c            |  6 +--
- drivers/gpu/drm/gma500/psb_intel_sdvo.c            |  4 +-
- drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_vdac.c   |  4 +-
- drivers/gpu/drm/hisilicon/kirin/dw_drm_dsi.c       |  4 +-
- drivers/gpu/drm/i2c/tda998x_drv.c                  |  5 ++-
- drivers/gpu/drm/i915/display/icl_dsi.c             |  4 +-
- drivers/gpu/drm/i915/display/intel_crt.c           |  5 ++-
- drivers/gpu/drm/i915/display/intel_ddi.c           |  6 ++-
- drivers/gpu/drm/i915/display/intel_dp.c            |  6 +--
- drivers/gpu/drm/i915/display/intel_dp_mst.c        |  6 ++-
- drivers/gpu/drm/i915/display/intel_dvo.c           |  6 +--
- drivers/gpu/drm/i915/display/intel_hdmi.c          |  6 +--
- drivers/gpu/drm/i915/display/intel_lvds.c          |  4 +-
- drivers/gpu/drm/i915/display/intel_sdvo.c          |  6 +--
- drivers/gpu/drm/i915/display/intel_tv.c            |  4 +-
- drivers/gpu/drm/i915/display/vlv_dsi.c             |  5 ++-
- drivers/gpu/drm/imx/dw_hdmi-imx.c                  |  4 +-
- drivers/gpu/drm/imx/imx-ldb.c                      |  4 +-
- drivers/gpu/drm/imx/imx-tve.c                      |  4 +-
- drivers/gpu/drm/imx/parallel-display.c             |  4 +-
- drivers/gpu/drm/ingenic/ingenic-drm.c              |  5 ++-
- drivers/gpu/drm/mediatek/mtk_dpi.c                 |  5 ++-
- drivers/gpu/drm/mediatek/mtk_dsi.c                 |  4 +-
- drivers/gpu/drm/meson/meson_dw_hdmi.c              |  5 ++-
- drivers/gpu/drm/meson/meson_venc_cvbs.c            |  5 ++-
- drivers/gpu/drm/mgag200/mgag200_mode.c             |  7 +---
- drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c        |  4 +-
- drivers/gpu/drm/msm/disp/mdp4/mdp4_dsi_encoder.c   |  4 +-
- drivers/gpu/drm/msm/disp/mdp4/mdp4_dtv_encoder.c   |  4 +-
- drivers/gpu/drm/msm/disp/mdp4/mdp4_lcdc_encoder.c  |  4 +-
- drivers/gpu/drm/msm/disp/mdp5/mdp5_encoder.c       |  3 +-
- drivers/gpu/drm/nouveau/dispnv04/dac.c             |  4 +-
- drivers/gpu/drm/nouveau/dispnv04/dfp.c             |  3 +-
- drivers/gpu/drm/nouveau/dispnv04/tvnv04.c          |  4 +-
- drivers/gpu/drm/nouveau/dispnv04/tvnv17.c          |  4 +-
- drivers/gpu/drm/nouveau/dispnv50/disp.c            | 16 +++----
- drivers/gpu/drm/omapdrm/omap_encoder.c             |  4 +-
- drivers/gpu/drm/qxl/qxl_display.c                  |  7 +---
- drivers/gpu/drm/radeon/atombios_encoders.c         | 40 +++++++++---------
- drivers/gpu/drm/radeon/radeon_dp_mst.c             |  4 +-
- drivers/gpu/drm/radeon/radeon_legacy_encoders.c    | 20 ++++-----
- drivers/gpu/drm/rcar-du/rcar_du_encoder.c          |  4 +-
- drivers/gpu/drm/rockchip/analogix_dp-rockchip.c    |  5 ++-
- drivers/gpu/drm/rockchip/cdn-dp-core.c             |  4 +-
- drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c    |  5 ++-
- drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c        |  4 +-
- drivers/gpu/drm/rockchip/inno_hdmi.c               |  4 +-
- drivers/gpu/drm/rockchip/rk3066_hdmi.c             |  4 +-
- drivers/gpu/drm/rockchip/rockchip_lvds.c           |  5 ++-
- drivers/gpu/drm/rockchip/rockchip_rgb.c            |  5 ++-
- drivers/gpu/drm/shmobile/shmob_drm_crtc.c          |  4 +-
- drivers/gpu/drm/sti/sti_tvout.c                    | 16 +++----
- drivers/gpu/drm/stm/ltdc.c                         |  4 +-
- drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c             | 10 ++---
- drivers/gpu/drm/sun4i/sun4i_lvds.c                 | 10 ++---
- drivers/gpu/drm/sun4i/sun4i_rgb.c                  | 10 ++---
- drivers/gpu/drm/sun4i/sun4i_tv.c                   | 10 ++---
- drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c             | 10 ++---
- drivers/gpu/drm/sun4i/sun8i_dw_hdmi.c              |  4 +-
- drivers/gpu/drm/tegra/dsi.c                        |  6 +--
- drivers/gpu/drm/tegra/hdmi.c                       |  5 ++-
- drivers/gpu/drm/tegra/rgb.c                        |  4 +-
- drivers/gpu/drm/tegra/sor.c                        |  4 +-
- drivers/gpu/drm/tidss/tidss_encoder.c              |  4 +-
- drivers/gpu/drm/tilcdc/tilcdc_external.c           |  8 ++--
- drivers/gpu/drm/tilcdc/tilcdc_panel.c              |  4 +-
- drivers/gpu/drm/vboxvideo/vbox_mode.c              |  4 +-
- drivers/gpu/drm/vc4/vc4_dpi.c                      |  4 +-
- drivers/gpu/drm/vc4/vc4_dsi.c                      |  4 +-
- drivers/gpu/drm/vc4/vc4_hdmi.c                     |  4 +-
- drivers/gpu/drm/vc4/vc4_vec.c                      |  4 +-
- drivers/gpu/drm/virtio/virtgpu_display.c           |  4 +-
- drivers/gpu/drm/vkms/vkms_output.c                 |  4 +-
- drivers/gpu/drm/vmwgfx/vmwgfx_ldu.c                |  4 +-
- drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c               |  5 ++-
- drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c               |  4 +-
- drivers/gpu/drm/zte/zx_hdmi.c                      |  4 +-
- drivers/gpu/drm/zte/zx_tvenc.c                     |  4 +-
- drivers/gpu/drm/zte/zx_vga.c                       |  4 +-
- include/drm/drm_encoder.h                          |  9 ++--
- include/drm/drm_simple_kms_helper.h                |  4 --
- 109 files changed, 394 insertions(+), 395 deletions(-)
+diff --git a/drivers/gpu/drm/ast/ast_mode.c b/drivers/gpu/drm/ast/ast_mode.c
+index cdd6c46d6557..4f6ace1afaf0 100644
+--- a/drivers/gpu/drm/ast/ast_mode.c
++++ b/drivers/gpu/drm/ast/ast_mode.c
+@@ -40,7 +40,6 @@
+ #include <drm/drm_gem_vram_helper.h>
+ #include <drm/drm_plane_helper.h>
+ #include <drm/drm_probe_helper.h>
+-#include <drm/drm_simple_kms_helper.h>
+ 
+ #include "ast_drv.h"
+ #include "ast_tables.h"
+@@ -964,7 +963,7 @@ static int ast_encoder_init(struct drm_device *dev)
+ 	struct drm_encoder *encoder = &ast->encoder;
+ 	int ret;
+ 
+-	ret = drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_DAC);
++	ret = drm_encoder_init(dev, encoder, DRM_MODE_ENCODER_DAC);
+ 	if (ret)
+ 		return ret;
+ 
+diff --git a/drivers/gpu/drm/drm_encoder.c b/drivers/gpu/drm/drm_encoder.c
+index a76a5f04ab39..e1e90652094c 100644
+--- a/drivers/gpu/drm/drm_encoder.c
++++ b/drivers/gpu/drm/drm_encoder.c
+@@ -152,6 +152,43 @@ int drm_encoder_init_funcs(struct drm_device *dev,
+ }
+ EXPORT_SYMBOL(drm_encoder_init_funcs);
+ 
++static const struct drm_encoder_funcs drm_simple_encoder_funcs_cleanup = {
++	.destroy = drm_encoder_cleanup,
++};
++
++/**
++ * drm_simple_init - Initialize a preallocated encoder with basic functionality.
++ * @dev: drm device
++ * @encoder: the encoder to initialize
++ * @encoder_type: user visible type of the encoder
++ *
++ * Initialises a preallocated encoder that has no further functionality.
++ * Settings for possible CRTC and clones are left to their initial values.
++ * The encoder will be cleaned up automatically as part of the mode-setting
++ * cleanup.
++ *
++ * The caller of drm_encoder_init() is responsible for freeing
++ * the encoder's memory after the encoder has been cleaned up. At the
++ * moment this only works reliably if the encoder data structure is
++ * stored in the device structure. Free the encoder's memory as part of
++ * the device release function.
++ *
++ * FIXME: Later improvements to DRM's resource management may allow for
++ *        an automated kfree() of the encoder's memory.
++ *
++ * Returns:
++ * Zero on success, error code on failure.
++ */
++int drm_simple_init(struct drm_device *dev,
++		    struct drm_encoder *encoder,
++		    int encoder_type)
++{
++	return drm_encoder_init_funcs(dev, encoder,
++				      &drm_simple_encoder_funcs_cleanup,
++				      encoder_type, NULL);
++}
++EXPORT_SYMBOL(drm_encoder_init);
++
+ /**
+  * drm_encoder_cleanup - cleans up an initialised encoder
+  * @encoder: encoder to cleanup
+diff --git a/drivers/gpu/drm/drm_simple_kms_helper.c b/drivers/gpu/drm/drm_simple_kms_helper.c
+index 24d4433c347b..d70170980839 100644
+--- a/drivers/gpu/drm/drm_simple_kms_helper.c
++++ b/drivers/gpu/drm/drm_simple_kms_helper.c
+@@ -26,51 +26,8 @@
+  * entity. Some flexibility for code reuse is provided through a separately
+  * allocated &drm_connector object and supporting optional &drm_bridge
+  * encoder drivers.
+- *
+- * Many drivers require only a very simple encoder that fulfills the minimum
+- * requirements of the display pipeline and does not add additional
+- * functionality. The function drm_simple_encoder_init() provides an
+- * implementation of such an encoder.
+  */
+ 
+-static const struct drm_encoder_funcs drm_simple_encoder_funcs_cleanup = {
+-	.destroy = drm_encoder_cleanup,
+-};
+-
+-/**
+- * drm_simple_encoder_init - Initialize a preallocated encoder with
+- *                           basic functionality.
+- * @dev: drm device
+- * @encoder: the encoder to initialize
+- * @encoder_type: user visible type of the encoder
+- *
+- * Initialises a preallocated encoder that has no further functionality.
+- * Settings for possible CRTC and clones are left to their initial values.
+- * The encoder will be cleaned up automatically as part of the mode-setting
+- * cleanup.
+- *
+- * The caller of drm_simple_encoder_init() is responsible for freeing
+- * the encoder's memory after the encoder has been cleaned up. At the
+- * moment this only works reliably if the encoder data structure is
+- * stored in the device structure. Free the encoder's memory as part of
+- * the device release function.
+- *
+- * FIXME: Later improvements to DRM's resource management may allow for
+- *        an automated kfree() of the encoder's memory.
+- *
+- * Returns:
+- * Zero on success, error code on failure.
+- */
+-int drm_simple_encoder_init(struct drm_device *dev,
+-			    struct drm_encoder *encoder,
+-			    int encoder_type)
+-{
+-	return drm_encoder_init_funcs(dev, encoder,
+-				      &drm_simple_encoder_funcs_cleanup,
+-				      encoder_type, NULL);
+-}
+-EXPORT_SYMBOL(drm_simple_encoder_init);
+-
+ static enum drm_mode_status
+ drm_simple_kms_crtc_mode_valid(struct drm_crtc *crtc,
+ 			       const struct drm_display_mode *mode)
+@@ -327,7 +284,7 @@ int drm_simple_display_pipe_init(struct drm_device *dev,
+ 		return ret;
+ 
+ 	encoder->possible_crtcs = drm_crtc_mask(crtc);
+-	ret = drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_NONE);
++	ret = drm_encoder_init(dev, encoder, DRM_MODE_ENCODER_NONE);
+ 	if (ret || !connector)
+ 		return ret;
+ 
+diff --git a/drivers/gpu/drm/mgag200/mgag200_mode.c b/drivers/gpu/drm/mgag200/mgag200_mode.c
+index d90e83959fca..9de654b2dffd 100644
+--- a/drivers/gpu/drm/mgag200/mgag200_mode.c
++++ b/drivers/gpu/drm/mgag200/mgag200_mode.c
+@@ -15,7 +15,6 @@
+ #include <drm/drm_fourcc.h>
+ #include <drm/drm_plane_helper.h>
+ #include <drm/drm_probe_helper.h>
+-#include <drm/drm_simple_kms_helper.h>
+ 
+ #include "mgag200_drv.h"
+ 
+@@ -1630,12 +1629,10 @@ int mgag200_modeset_init(struct mga_device *mdev)
+ 
+ 	mga_crtc_init(mdev);
+ 
+-	ret = drm_simple_encoder_init(mdev->dev, encoder,
+-				      DRM_MODE_ENCODER_DAC);
++	ret = drm_encoder_init(mdev->dev, encoder, DRM_MODE_ENCODER_DAC);
+ 	if (ret) {
+ 		drm_err(mdev->dev,
+-			"drm_simple_encoder_init() failed, error %d\n",
+-			ret);
++			"drm_encoder_init() failed, error %d\n", ret);
+ 		return ret;
+ 	}
+ 	encoder->possible_crtcs = 0x1;
+diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+index 09583a08e141..43fb05df950c 100644
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -31,7 +31,6 @@
+ #include <drm/drm_gem_framebuffer_helper.h>
+ #include <drm/drm_plane_helper.h>
+ #include <drm/drm_probe_helper.h>
+-#include <drm/drm_simple_kms_helper.h>
+ 
+ #include "qxl_drv.h"
+ #include "qxl_object.h"
+@@ -1088,11 +1087,9 @@ static int qdev_output_init(struct drm_device *dev, int num_output)
+ 	drm_connector_init(dev, &qxl_output->base,
+ 			   &qxl_connector_funcs, DRM_MODE_CONNECTOR_VIRTUAL);
+ 
+-	ret = drm_simple_encoder_init(dev, &qxl_output->enc,
+-				      DRM_MODE_ENCODER_VIRTUAL);
++	ret = drm_encoder_init(dev, &qxl_output->enc, DRM_MODE_ENCODER_VIRTUAL);
+ 	if (ret) {
+-		drm_err(dev, "drm_simple_encoder_init() failed, error %d\n",
+-			ret);
++		drm_err(dev, "drm_encoder_init() failed, error %d\n", ret);
+ 		goto err_drm_connector_cleanup;
+ 	}
+ 
+diff --git a/include/drm/drm_encoder.h b/include/drm/drm_encoder.h
+index 378ab1778be3..8298b696dca8 100644
+--- a/include/drm/drm_encoder.h
++++ b/include/drm/drm_encoder.h
+@@ -191,6 +191,9 @@ int drm_encoder_init_funcs(struct drm_device *dev,
+ 			   const struct drm_encoder_funcs *funcs,
+ 			   int encoder_type, const char *name, ...);
+ 
++int drm_encoder_init(struct drm_device *dev,
++		     struct drm_encoder *encoder,
++		     int encoder_type);
+ /**
+  * drm_encoder_index - find the index of a registered encoder
+  * @encoder: encoder to find index for
+diff --git a/include/drm/drm_simple_kms_helper.h b/include/drm/drm_simple_kms_helper.h
+index a026375464ff..e253ba7bea9d 100644
+--- a/include/drm/drm_simple_kms_helper.h
++++ b/include/drm/drm_simple_kms_helper.h
+@@ -181,8 +181,4 @@ int drm_simple_display_pipe_init(struct drm_device *dev,
+ 			const uint64_t *format_modifiers,
+ 			struct drm_connector *connector);
+ 
+-int drm_simple_encoder_init(struct drm_device *dev,
+-			    struct drm_encoder *encoder,
+-			    int encoder_type);
+-
+ #endif /* __LINUX_DRM_SIMPLE_KMS_HELPER_H */
+-- 
+2.20.1
