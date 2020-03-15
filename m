@@ -1,37 +1,83 @@
 From: Wang Wenhu <wenhu.wang@vivo.com>
-Subject: [PATCH 0/2] doc: zh_CN: facilitate translation for filesystems
-Date: Sun, 15 Mar 2020 02:27:58 -0700
-Message-ID: <20200315092810.87008-1-wenhu.wang@vivo.com>
+Subject: [PATCH 1/2] doc: zh_CN: index files in filesystems subdirectory
+Date: Sun, 15 Mar 2020 02:27:59 -0700
+Message-ID: <20200315092810.87008-2-wenhu.wang@vivo.com>
+References: <20200315092810.87008-1-wenhu.wang@vivo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20200315092810.87008-1-wenhu.wang@vivo.com>
 Sender: linux-doc-owner@vger.kernel.org
-To: Jonathan Corbet <corbet@lwn.net>, Vivek Goyal <vgoyal@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Miklos Szeredi <miklos@szeredi.hu>, Harry Wei <harryxiyou@gmail.com>, Alex Shi <alex.shi@linux.alibaba.com>, Mauro Carvalho Chehab <mchehab+huawei@kernel.org>, "Daniel W. S. Almeida" <dwlsalmeida@gmail.com>, Jaegeuk Kim <jaegeuk@kernel.org>, "Matthew Wilcox (Oracle)" <willy@infradead.org>, Eric Biggers <ebiggers@google.com>, Wang Wenhu <wenhu.wang@vivo.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org
+To: Jonathan Corbet <corbet@lwn.net>, Vivek Goyal <vgoyal@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Miklos Szeredi <miklos@szeredi.hu>, Harry Wei <harryxiyou@gmail.com>, Alex Shi <alex.shi@linux.alibaba.com>, Mauro Carvalho Chehab <mchehab+huawei@kernel.org>, "Daniel W. S. Almeida" <dwlsalmeida@gmail.com>, Jaegeuk Kim <jaegeuk@kernel.org>, "Matthew Wilcox (Oracle)" <willy@infradead.org>, Eric Biggers <ebiggers@google.com>, Wang Wenhu <wenhu.wang@vivo.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org, Theodore Ts'o <tytso@mit.edu>
 Cc: kernel@vivo.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch series set up the basic facility for the translation work
-of the docs residing on filesystems into Chinese, indexing the filesystems
-directory and adding one indexed translation into it. The virtiofs.rst
-added is not only a translation itself but also an simple example that
-future developers would take.
+Add filesystems subdirectory into the table of Contents for zh_CN,
+all translations residing on it would be indexed conveniently.
 
-The detailed diff info also shows the basic essential markups of
-the toctree and reStructuredText, at least for the most simple occasions.
-More translations of filesystems are on their way, and futher,
-of more subsystems.
-
+Signed-off-by: Wang Wenhu <wenhu.wang@vivo.com>
 ---
-Wang Wenhu (2):
-  doc: zh_CN: index files in filesystems subdirectory
-  doc: zh_CN: add translation for virtiofs
-
- Documentation/filesystems/index.rst           |  2 +
- Documentation/filesystems/virtiofs.rst        |  2 +
- .../translations/zh_CN/filesystems/index.rst  | 29 +++++++++
- .../zh_CN/filesystems/virtiofs.rst            | 62 +++++++++++++++++++
+ Documentation/filesystems/index.rst           |  2 ++
+ .../translations/zh_CN/filesystems/index.rst  | 27 +++++++++++++++++++
  Documentation/translations/zh_CN/index.rst    |  1 +
- 5 files changed, 96 insertions(+)
+ 3 files changed, 30 insertions(+)
  create mode 100644 Documentation/translations/zh_CN/filesystems/index.rst
- create mode 100644 Documentation/translations/zh_CN/filesystems/virtiofs.rst
 
+diff --git a/Documentation/filesystems/index.rst b/Documentation/filesystems/index.rst
+index 386eaad008b2..ab47d5b1f092 100644
+--- a/Documentation/filesystems/index.rst
++++ b/Documentation/filesystems/index.rst
+@@ -1,3 +1,5 @@
++.. _filesystems_index:
++
+ ===============================
+ Filesystems in the Linux kernel
+ ===============================
+diff --git a/Documentation/translations/zh_CN/filesystems/index.rst b/Documentation/translations/zh_CN/filesystems/index.rst
+new file mode 100644
+index 000000000000..a47dd86d6196
+--- /dev/null
++++ b/Documentation/translations/zh_CN/filesystems/index.rst
+@@ -0,0 +1,27 @@
++.. raw:: latex
++
++	\renewcommand\thesection*
++	\renewcommand\thesubsection*
++
++.. include:: ../disclaimer-zh_CN.rst
++
++:Original: :ref:`Documentation/filesystems/index.rst <filesystems_index>`
++:Translator: Wang Wenhu <wenhu.wang@vivo.com>
++
++.. _cn_filesystems_index:
++
++========================
++Linux Kernel中的文件系统
++========================
++
++这份正在开发的手册或许在未来某个辉煌的日子里以易懂的形式将Linux虚拟\
++文件系统（VFS）层以及基于其上的各种文件系统如何工作呈现给大家。当前\
++可以看到下面的内容。
++
++文件系统
++========
++
++文件系统实现文档。
++
++.. toctree::
++   :maxdepth: 2
+diff --git a/Documentation/translations/zh_CN/index.rst b/Documentation/translations/zh_CN/index.rst
+index d3165535ec9e..76850a5dd982 100644
+--- a/Documentation/translations/zh_CN/index.rst
++++ b/Documentation/translations/zh_CN/index.rst
+@@ -14,6 +14,7 @@
+    :maxdepth: 2
+ 
+    process/index
++   filesystems/index
+ 
+ 目录和表格
+ ----------
 -- 
 2.17.1
