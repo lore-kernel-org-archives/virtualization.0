@@ -1,121 +1,124 @@
-From: Wang Wenhu <wenhu.wang@vivo.com>
-Subject: [PATCH v2,2/2] doc: zh_CN: add translation for virtiofs
-Date: Sun, 15 Mar 2020 08:52:39 -0700
-Message-ID: <20200315155258.91725-2-wenhu.wang@vivo.com>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: Re: [PATCH v2,1/2] doc: zh_CN: index files in filesystems
+ subdirectory
+Date: Mon, 16 Mar 2020 07:57:35 +0100
+Message-ID: <20200316075735.67793bfc@coco.lan>
 References: <20200315092810.87008-1-wenhu.wang@vivo.com>
- <20200315155258.91725-1-wenhu.wang@vivo.com>
+        <20200315155258.91725-1-wenhu.wang@vivo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-doc-owner@vger.kernel.org>
 In-Reply-To: <20200315155258.91725-1-wenhu.wang@vivo.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jonathan Corbet <corbet@lwn.net>, Vivek Goyal <vgoyal@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Miklos Szeredi <miklos@szeredi.hu>, Harry Wei <harryxiyou@gmail.com>, Alex Shi <alex.shi@linux.alibaba.com>, Mauro Carvalho Chehab <mchehab+huawei@kernel.org>, "Daniel W. S. Almeida" <dwlsalmeida@gmail.com>, Christian Brauner <christian@brauner.io>, Wang Wenhu <wenhu.wang@vivo.com>, Eric Biggers <ebiggers@google.com>, "Matthew Wilcox (Oracle)" <willy@infradead.org>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org
-Cc: kernel@vivo.com
+Sender: linux-doc-owner@vger.kernel.org
+To: Wang Wenhu <wenhu.wang@vivo.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, Vivek Goyal <vgoyal@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Miklos Szeredi <miklos@szeredi.hu>, Harry Wei <harryxiyou@gmail.com>, Alex Shi <alex.shi@linux.alibaba.com>, "Daniel W. S. Almeida" <dwlsalmeida@gmail.com>, Eric Biggers <ebiggers@google.com>, Jaskaran Singh <jaskaransingh7654321@gmail.com>, "Matthew Wilcox (Oracle)" <willy@infradead.org>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org, kernel@vivo.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Translate virtiofs.rst in Documentation/filesystems/ into Chinese.
+Em Sun, 15 Mar 2020 08:52:38 -0700
+Wang Wenhu <wenhu.wang@vivo.com> escreveu:
 
-Acked-by: Stefan Hajnoczi <stefanha@redhat.com>
-Signed-off-by: Wang Wenhu <wenhu.wang@vivo.com>
----
-Changelog v2:
- - add a blank line in the end of index.rst to index virtiofs.rst
- - Asked-by Stefan Hajnoczi
- - added SPDX header and Copyright info
----
- Documentation/filesystems/virtiofs.rst        |  2 +
- .../translations/zh_CN/filesystems/index.rst  |  2 +
- .../zh_CN/filesystems/virtiofs.rst            | 61 +++++++++++++++++++
- 3 files changed, 65 insertions(+)
- create mode 100644 Documentation/translations/zh_CN/filesystems/virtiofs.rst
+> Add filesystems subdirectory into the table of Contents for zh_CN,
+> all translations residing on it would be indexed conveniently.
+>=20
+> Signed-off-by: Wang Wenhu <wenhu.wang@vivo.com>
+> ---
+> Changelog:
+>  - v2 added SPDX header
+> ---
+>  Documentation/filesystems/index.rst           |  2 ++
+>  .../translations/zh_CN/filesystems/index.rst  | 29 +++++++++++++++++++
+>  Documentation/translations/zh_CN/index.rst    |  1 +
+>  3 files changed, 32 insertions(+)
+>  create mode 100644 Documentation/translations/zh_CN/filesystems/index.rst
+>=20
+> diff --git a/Documentation/filesystems/index.rst b/Documentation/filesyst=
+ems/index.rst
+> index 386eaad008b2..ab47d5b1f092 100644
+> --- a/Documentation/filesystems/index.rst
+> +++ b/Documentation/filesystems/index.rst
+> @@ -1,3 +1,5 @@
+> +.. _filesystems_index:
+> +
+>  =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D
+>  Filesystems in the Linux kernel
+>  =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D
+> diff --git a/Documentation/translations/zh_CN/filesystems/index.rst b/Doc=
+umentation/translations/zh_CN/filesystems/index.rst
+> new file mode 100644
+> index 000000000000..0a2cabfeaf7b
+> --- /dev/null
+> +++ b/Documentation/translations/zh_CN/filesystems/index.rst
+> @@ -0,0 +1,29 @@
+> +.. SPDX-License-Identifier: GPL-2.0
+> +.. raw:: latex
+> +
+> +	\renewcommand\thesection*
+> +	\renewcommand\thesubsection*
 
-diff --git a/Documentation/filesystems/virtiofs.rst b/Documentation/filesystems/virtiofs.rst
-index 4f338e3cb3f7..7c4301d962f8 100644
---- a/Documentation/filesystems/virtiofs.rst
-+++ b/Documentation/filesystems/virtiofs.rst
-@@ -1,3 +1,5 @@
-+.. _virtiofs_index:
-+
- .. SPDX-License-Identifier: GPL-2.0
- 
- ===================================================
-diff --git a/Documentation/translations/zh_CN/filesystems/index.rst b/Documentation/translations/zh_CN/filesystems/index.rst
-index 0a2cabfeaf7b..fd3700a4db6d 100644
---- a/Documentation/translations/zh_CN/filesystems/index.rst
-+++ b/Documentation/translations/zh_CN/filesystems/index.rst
-@@ -27,3 +27,5 @@ Linux Kernel中的文件系统
- .. toctree::
-    :maxdepth: 2
- 
-+   virtiofs
-+
-diff --git a/Documentation/translations/zh_CN/filesystems/virtiofs.rst b/Documentation/translations/zh_CN/filesystems/virtiofs.rst
-new file mode 100644
-index 000000000000..cd836a9b2ac4
---- /dev/null
-+++ b/Documentation/translations/zh_CN/filesystems/virtiofs.rst
-@@ -0,0 +1,61 @@
-+.. SPDX-License-Identifier: GPL-2.0
-+.. raw:: latex
-+
-+	\renewcommand\thesection*
-+	\renewcommand\thesubsection*
-+
-+.. include:: ../disclaimer-zh_CN.rst
-+
-+:Original: :ref:`Documentation/filesystems/virtiofs.rst <virtiofs_index>`
-+
-+译者
-+::
-+
-+	中文版维护者： 王文虎 Wang Wenhu <wenhu.wang@vivo.com>
-+	中文版翻译者： 王文虎 Wang Wenhu <wenhu.wang@vivo.com>
-+	中文版校译者:  王文虎 Wang Wenhu <wenhu.wang@vivo.com>
-+
-+===========================================
-+virtiofs: virtio-fs 主机<->客机共享文件系统
-+===========================================
-+
-+- Copyright (C) 2020 Vivo Communication Technology Co. Ltd.
-+
-+介绍
-+====
-+Linux的virtiofs文件系统实现了一个半虚拟化VIRTIO类型“virtio-fs”设备的驱动，通过该\
-+类型设备实现客机<->主机文件系统共享。它允许客机挂载一个已经导出到主机的目录。
-+
-+客机通常需要访问主机或者远程系统上的文件。使用场景包括：在新客机安装时让文件对其\
-+可见；从主机上的根文件系统启动；对无状态或临时客机提供持久存储和在客机之间共享目录。
-+
-+尽管在某些任务可能通过使用已有的网络文件系统完成，但是却需要非常难以自动化的配置\
-+步骤，且将存储网络暴露给客机。而virtio-fs设备通过提供不经过网络的文件系统访问文件\
-+的设计方式解决了这些问题。
-+
-+另外，virto-fs设备发挥了主客机共存的优点提高了性能，并且提供了网络文件系统所不具备
-+的一些语义功能。
-+
-+用法
-+====
-+以``myfs``标签将文件系统挂载到``/mnt``:
-+
-+.. code-block:: sh
-+
-+  guest# mount -t virtiofs myfs /mnt
-+
-+请查阅 https://virtio-fs.gitlab.io/ 了解配置QEMU和virtiofsd守护程序的详细信息。
-+
-+内幕
-+====
-+由于virtio-fs设备将FUSE协议用于文件系统请求，因此Linux的virtiofs文件系统与FUSE文\
-+件系统客户端紧密集成在一起。客机充当FUSE客户端而主机充当FUSE服务器，内核与用户空\
-+间之间的/dev/fuse接口由virtio-fs设备接口代替。
-+
-+FUSE请求被置于虚拟队列中由主机处理。主机填充缓冲区中的响应部分，而客机处理请求的完成部分。
-+
-+将/dev/fuse映射到虚拟队列需要解决/dev/fuse和虚拟队列之间语义上的差异。每次读取\
-+/dev/fuse设备时，FUSE客户端都可以选择要传输的请求，从而可以使某些请求优先于其他\
-+请求。虚拟队列有其队列语义，无法更改已入队请求的顺序。在虚拟队列已满的情况下尤
-+其关键，因为此时不可能加入高优先级的请求。为了解决此差异，virtio-fs设备采用“hiprio”\
-+（高优先级）虚拟队列，专门用于有别于普通请求的高优先级请求。
--- 
-2.17.1
+Out of curiosity: why do you add those?
+
+My experience with raw latex is that adding things like that tend to
+break with different Sphinx versions. So, if this is really needed, I
+suggest you to test with at least Sphinx 1.7.9 and with the latest
+version, to be sure that it won't cause troubles.
+
+Except for that, patch looks ok to me.
+
+Reviewed-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+
+Regards,
+Mauro
+
+> +
+> +.. include:: ../disclaimer-zh_CN.rst
+> +
+> +:Original: :ref:`Documentation/filesystems/index.rst <filesystems_index>`
+> +:Translator: Wang Wenhu <wenhu.wang@vivo.com>
+> +
+> +.. _cn_filesystems_index:
+> +
+> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> +Linux Kernel=E4=B8=AD=E7=9A=84=E6=96=87=E4=BB=B6=E7=B3=BB=E7=BB=9F
+> +=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+> +
+> +=E8=BF=99=E4=BB=BD=E6=AD=A3=E5=9C=A8=E5=BC=80=E5=8F=91=E7=9A=84=E6=89=8B=
+=E5=86=8C=E6=88=96=E8=AE=B8=E5=9C=A8=E6=9C=AA=E6=9D=A5=E6=9F=90=E4=B8=AA=E8=
+=BE=89=E7=85=8C=E7=9A=84=E6=97=A5=E5=AD=90=E9=87=8C=E4=BB=A5=E6=98=93=E6=87=
+=82=E7=9A=84=E5=BD=A2=E5=BC=8F=E5=B0=86Linux=E8=99=9A=E6=8B=9F\
+> +=E6=96=87=E4=BB=B6=E7=B3=BB=E7=BB=9F=EF=BC=88VFS=EF=BC=89=E5=B1=82=E4=BB=
+=A5=E5=8F=8A=E5=9F=BA=E4=BA=8E=E5=85=B6=E4=B8=8A=E7=9A=84=E5=90=84=E7=A7=8D=
+=E6=96=87=E4=BB=B6=E7=B3=BB=E7=BB=9F=E5=A6=82=E4=BD=95=E5=B7=A5=E4=BD=9C=E5=
+=91=88=E7=8E=B0=E7=BB=99=E5=A4=A7=E5=AE=B6=E3=80=82=E5=BD=93=E5=89=8D\
+> +=E5=8F=AF=E4=BB=A5=E7=9C=8B=E5=88=B0=E4=B8=8B=E9=9D=A2=E7=9A=84=E5=86=85=
+=E5=AE=B9=E3=80=82
+> +
+> +=E6=96=87=E4=BB=B6=E7=B3=BB=E7=BB=9F
+> +=3D=3D=3D=3D=3D=3D=3D=3D
+> +
+> +=E6=96=87=E4=BB=B6=E7=B3=BB=E7=BB=9F=E5=AE=9E=E7=8E=B0=E6=96=87=E6=A1=A3=
+=E3=80=82
+> +
+> +.. toctree::
+> +   :maxdepth: 2
+> +
+> diff --git a/Documentation/translations/zh_CN/index.rst b/Documentation/t=
+ranslations/zh_CN/index.rst
+> index d3165535ec9e..76850a5dd982 100644
+> --- a/Documentation/translations/zh_CN/index.rst
+> +++ b/Documentation/translations/zh_CN/index.rst
+> @@ -14,6 +14,7 @@
+>     :maxdepth: 2
+> =20
+>     process/index
+> +   filesystems/index
+> =20
+>  =E7=9B=AE=E5=BD=95=E5=92=8C=E8=A1=A8=E6=A0=BC
+>  ----------
+
+
+
+Thanks,
+Mauro
