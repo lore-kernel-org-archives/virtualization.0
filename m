@@ -1,48 +1,180 @@
-From: Hannes Reinecke <hare@suse.de>
-Subject: Re: [PATCH RFC v2 12/24] hpsa: use reserved commands
-Date: Tue, 17 Mar 2020 10:48:44 +0100
-Message-ID: <881b6a9b-2137-946f-a900-5c4e6cf1fe37@suse.de>
-References: <1583857550-12049-1-git-send-email-john.garry@huawei.com>
- <1583857550-12049-13-git-send-email-john.garry@huawei.com>
- <20200311081059.GC31504@ming.t460p>
- <a76ab13a-85a3-0d88-595f-af13ef1b3fe3@huawei.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-block-owner@vger.kernel.org>
-In-Reply-To: <a76ab13a-85a3-0d88-595f-af13ef1b3fe3@huawei.com>
-Content-Language: en-US
-Sender: linux-block-owner@vger.kernel.org
-To: John Garry <john.garry@huawei.com>, Ming Lei <ming.lei@redhat.com>
-Cc: axboe@kernel.dk, jejb@linux.ibm.com, martin.petersen@oracle.com, bvanassche@acm.org, hch@infradead.org, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org, esc.storagedev@microsemi.com, chenxiang66@hisilicon.com, Hannes Reinecke <hare@suse.com>
+From: teawater <teawaterz@linux.alibaba.com>
+Subject: Re: [RFC for QEMU] virtio-balloon: Add option thp-order to set
+ VIRTIO_BALLOON_F_THP_ORDER
+Date: Tue, 17 Mar 2020 18:13:32 +0800
+Message-ID: <C9436807-D9CA-49FD-AEE3-3B7CE4BBB711@linux.alibaba.com>
+References: <1583999395-9131-1-git-send-email-teawater@gmail.com>
+ <1583999395-9131-2-git-send-email-teawater@gmail.com>
+ <20200312042340-mutt-send-email-mst@kernel.org>
+Mime-Version: 1.0 (Mac OS X Mail 13.0 \(3608.60.0.2.5\))
+Content-Type: text/plain;
+        charset=utf-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200312042340-mutt-send-email-mst@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Hui Zhu <teawater@gmail.com>, jasowang@redhat.com, akpm@linux-foundation.org, pagupta@redhat.com, mojha@codeaurora.org, david@redhat.com, namit@vmware.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 3/17/20 10:38 AM, John Garry wrote:
-> On 11/03/2020 08:10, Ming Lei wrote:
->>> ands(struct ctlr_info *h)
->>> @@ -5803,6 +5803,7 @@ static int hpsa_scsi_host_alloc(struct 
->>> ctlr_info *h)
->>>       sh->max_lun = HPSA_MAX_LUN;
->>>       sh->max_id = HPSA_MAX_LUN;
->>>       sh->can_queue = h->nr_cmds - HPSA_NRESERVED_CMDS;
->>> +    sh->nr_reserved_cmds = HPSA_NRESERVED_CMDS;
->> Now .nr_reserved_cmds has been passed to blk-mq, you need to increase
->> sh->can_queue to h->nr_cmds, because .can_queue is the whole queue depth
->> (include the part of reserved tags), otherwise, IO tags will be
->> decreased.
->>
-> 
-> Sounds correct.
-> 
-I will have having a look at the patchset; I thought I did a patch to 
-modify .can_queue so that it would cover only the usable tags, not the 
-reserved ones.
 
-Cheers,
 
-Hannes
--- 
-Dr. Hannes Reinecke            Teamlead Storage & Networking
-hare@suse.de                               +49 911 74053 688
-SUSE Software Solutions GmbH, Maxfeldstr. 5, 90409 Nürnberg
-HRB 36809 (AG Nürnberg), Geschäftsführer: Felix Imendörffer
+> 2020年3月12日 16:25，Michael S. Tsirkin <mst@redhat.com> 写道：
+> 
+> On Thu, Mar 12, 2020 at 03:49:55PM +0800, Hui Zhu wrote:
+>> If the guest kernel has many fragmentation pages, use virtio_balloon
+>> will split THP of QEMU when it calls MADV_DONTNEED madvise to release
+>> the balloon pages.
+>> Set option thp-order to on will open flags VIRTIO_BALLOON_F_THP_ORDER.
+>> It will set balloon size to THP size to handle the THP split issue.
+>> 
+>> Signed-off-by: Hui Zhu <teawaterz@linux.alibaba.com>
+> 
+> What's wrong with just using the PartiallyBalloonedPage machinery
+> instead? That would make it guest transparent.
+
+In balloon_inflate_page:
+    rb_page_size = qemu_ram_pagesize(rb);
+
+    if (rb_page_size == BALLOON_PAGE_SIZE) {
+        /* Easy case */
+
+It seems that PartiallyBalloonedPage is only used when rb_page_size is greater than BALLOON_PAGE_SIZE.
+Do you mean I should modify the working mechanism of balloon_inflate_page function?
+
+Thanks,
+Hui
+
+> 
+>> ---
+>> hw/virtio/virtio-balloon.c                      | 67 ++++++++++++++++---------
+>> include/standard-headers/linux/virtio_balloon.h |  4 ++
+>> 2 files changed, 47 insertions(+), 24 deletions(-)
+>> 
+>> diff --git a/hw/virtio/virtio-balloon.c b/hw/virtio/virtio-balloon.c
+>> index a4729f7..cfe86b0 100644
+>> --- a/hw/virtio/virtio-balloon.c
+>> +++ b/hw/virtio/virtio-balloon.c
+>> @@ -340,37 +340,49 @@ static void virtio_balloon_handle_output(VirtIODevice *vdev, VirtQueue *vq)
+>>         while (iov_to_buf(elem->out_sg, elem->out_num, offset, &pfn, 4) == 4) {
+>>             unsigned int p = virtio_ldl_p(vdev, &pfn);
+>>             hwaddr pa;
+>> +            size_t handle_size = BALLOON_PAGE_SIZE;
+>> 
+>>             pa = (hwaddr) p << VIRTIO_BALLOON_PFN_SHIFT;
+>>             offset += 4;
+>> 
+>> -            section = memory_region_find(get_system_memory(), pa,
+>> -                                         BALLOON_PAGE_SIZE);
+>> -            if (!section.mr) {
+>> -                trace_virtio_balloon_bad_addr(pa);
+>> -                continue;
+>> -            }
+>> -            if (!memory_region_is_ram(section.mr) ||
+>> -                memory_region_is_rom(section.mr) ||
+>> -                memory_region_is_romd(section.mr)) {
+>> -                trace_virtio_balloon_bad_addr(pa);
+>> -                memory_region_unref(section.mr);
+>> -                continue;
+>> -            }
+>> +            if (virtio_has_feature(s->host_features,
+>> +                                   VIRTIO_BALLOON_F_THP_ORDER))
+>> +                handle_size = BALLOON_PAGE_SIZE << VIRTIO_BALLOON_THP_ORDER;
+>> +
+>> +            while (handle_size > 0) {
+>> +                section = memory_region_find(get_system_memory(), pa,
+>> +                                             BALLOON_PAGE_SIZE);
+>> +                if (!section.mr) {
+>> +                    trace_virtio_balloon_bad_addr(pa);
+>> +                    continue;
+>> +                }
+>> +                if (!memory_region_is_ram(section.mr) ||
+>> +                    memory_region_is_rom(section.mr) ||
+>> +                    memory_region_is_romd(section.mr)) {
+>> +                    trace_virtio_balloon_bad_addr(pa);
+>> +                    memory_region_unref(section.mr);
+>> +                    continue;
+>> +                }
+>> 
+>> -            trace_virtio_balloon_handle_output(memory_region_name(section.mr),
+>> -                                               pa);
+>> -            if (!qemu_balloon_is_inhibited()) {
+>> -                if (vq == s->ivq) {
+>> -                    balloon_inflate_page(s, section.mr,
+>> -                                         section.offset_within_region, &pbp);
+>> -                } else if (vq == s->dvq) {
+>> -                    balloon_deflate_page(s, section.mr, section.offset_within_region);
+>> -                } else {
+>> -                    g_assert_not_reached();
+>> +                trace_virtio_balloon_handle_output(memory_region_name(section.mr),
+>> +                                                   pa);
+>> +                if (!qemu_balloon_is_inhibited()) {
+>> +                    if (vq == s->ivq) {
+>> +                        balloon_inflate_page(s, section.mr,
+>> +                                             section.offset_within_region,
+>> +                                             &pbp);
+>> +                    } else if (vq == s->dvq) {
+>> +                        balloon_deflate_page(s, section.mr,
+>> +                                             section.offset_within_region);
+>> +                    } else {
+>> +                        g_assert_not_reached();
+>> +                    }
+>>                 }
+>> +                memory_region_unref(section.mr);
+>> +
+>> +                pa += BALLOON_PAGE_SIZE;
+>> +                handle_size -= BALLOON_PAGE_SIZE;
+>>             }
+>> -            memory_region_unref(section.mr);
+>>         }
+>> 
+>>         virtqueue_push(vq, elem, offset);
+>> @@ -693,6 +705,8 @@ static void virtio_balloon_set_config(VirtIODevice *vdev,
+>> 
+>>     memcpy(&config, config_data, virtio_balloon_config_size(dev));
+>>     dev->actual = le32_to_cpu(config.actual);
+>> +    if (virtio_has_feature(vdev->host_features, VIRTIO_BALLOON_F_THP_ORDER))
+>> +        dev->actual <<= VIRTIO_BALLOON_THP_ORDER;
+>>     if (dev->actual != oldactual) {
+>>         qapi_event_send_balloon_change(vm_ram_size -
+>>                         ((ram_addr_t) dev->actual << VIRTIO_BALLOON_PFN_SHIFT));
+>> @@ -728,6 +742,9 @@ static void virtio_balloon_to_target(void *opaque, ram_addr_t target)
+>>     }
+>>     if (target) {
+>>         dev->num_pages = (vm_ram_size - target) >> VIRTIO_BALLOON_PFN_SHIFT;
+>> +        if (virtio_has_feature(dev->host_features,
+>> +                               VIRTIO_BALLOON_F_THP_ORDER))
+>> +            dev->num_pages >>= VIRTIO_BALLOON_THP_ORDER;
+>>         virtio_notify_config(vdev);
+>>     }
+>>     trace_virtio_balloon_to_target(target, dev->num_pages);
+>> @@ -916,6 +933,8 @@ static Property virtio_balloon_properties[] = {
+>>                     VIRTIO_BALLOON_F_DEFLATE_ON_OOM, false),
+>>     DEFINE_PROP_BIT("free-page-hint", VirtIOBalloon, host_features,
+>>                     VIRTIO_BALLOON_F_FREE_PAGE_HINT, false),
+>> +    DEFINE_PROP_BIT("thp-order", VirtIOBalloon, host_features,
+>> +                    VIRTIO_BALLOON_F_THP_ORDER, false),
+>>     /* QEMU 4.0 accidentally changed the config size even when free-page-hint
+>>      * is disabled, resulting in QEMU 3.1 migration incompatibility.  This
+>>      * property retains this quirk for QEMU 4.1 machine types.
+>> diff --git a/include/standard-headers/linux/virtio_balloon.h b/include/standard-headers/linux/virtio_balloon.h
+>> index 9375ca2..f54d613 100644
+>> --- a/include/standard-headers/linux/virtio_balloon.h
+>> +++ b/include/standard-headers/linux/virtio_balloon.h
+>> @@ -36,10 +36,14 @@
+>> #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
+>> #define VIRTIO_BALLOON_F_FREE_PAGE_HINT	3 /* VQ to report free pages */
+>> #define VIRTIO_BALLOON_F_PAGE_POISON	4 /* Guest is using page poisoning */
+>> +#define VIRTIO_BALLOON_F_THP_ORDER	5 /* Set balloon page order to thp order */
+>> 
+>> /* Size of a PFN in the balloon interface. */
+>> #define VIRTIO_BALLOON_PFN_SHIFT 12
+>> 
+>> +/* The order of the balloon page */
+>> +#define VIRTIO_BALLOON_THP_ORDER 9
+>> +
+>> #define VIRTIO_BALLOON_CMD_ID_STOP	0
+>> #define VIRTIO_BALLOON_CMD_ID_DONE	1
+>> struct virtio_balloon_config {
+>> -- 
+>> 2.7.4
