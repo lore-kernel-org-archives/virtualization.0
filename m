@@ -1,180 +1,61 @@
-From: teawater <teawaterz@linux.alibaba.com>
-Subject: Re: [RFC for QEMU] virtio-balloon: Add option thp-order to set
- VIRTIO_BALLOON_F_THP_ORDER
-Date: Tue, 17 Mar 2020 18:13:32 +0800
-Message-ID: <C9436807-D9CA-49FD-AEE3-3B7CE4BBB711@linux.alibaba.com>
-References: <1583999395-9131-1-git-send-email-teawater@gmail.com>
- <1583999395-9131-2-git-send-email-teawater@gmail.com>
- <20200312042340-mutt-send-email-mst@kernel.org>
-Mime-Version: 1.0 (Mac OS X Mail 13.0 \(3608.60.0.2.5\))
-Content-Type: text/plain;
-        charset=utf-8
-Content-Transfer-Encoding: 8BIT
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH v3] drm/bochs: downgrade pci_request_region failure from
+ error to warning
+Date: Tue, 17 Mar 2020 17:49:41 +0100
+Message-ID: <20200317164941.GP2363188@phenom.ffwll.local>
+References: <20200313084152.2734-1-kraxel@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200312042340-mutt-send-email-mst@kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200313084152.2734-1-kraxel@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Hui Zhu <teawater@gmail.com>, jasowang@redhat.com, akpm@linux-foundation.org, pagupta@redhat.com, mojha@codeaurora.org, david@redhat.com, namit@vmware.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: dri-devel@lists.freedesktop.org, marmarek@invisiblethingslab.com, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Fri, Mar 13, 2020 at 09:41:52AM +0100, Gerd Hoffmann wrote:
+> Shutdown of firmware framebuffer has a bunch of problems.  Because
+> of this the framebuffer region might still be reserved even after
+> drm_fb_helper_remove_conflicting_pci_framebuffers() returned.
 
-
-> 2020年3月12日 16:25，Michael S. Tsirkin <mst@redhat.com> 写道：
-> 
-> On Thu, Mar 12, 2020 at 03:49:55PM +0800, Hui Zhu wrote:
->> If the guest kernel has many fragmentation pages, use virtio_balloon
->> will split THP of QEMU when it calls MADV_DONTNEED madvise to release
->> the balloon pages.
->> Set option thp-order to on will open flags VIRTIO_BALLOON_F_THP_ORDER.
->> It will set balloon size to THP size to handle the THP split issue.
->> 
->> Signed-off-by: Hui Zhu <teawaterz@linux.alibaba.com>
-> 
-> What's wrong with just using the PartiallyBalloonedPage machinery
-> instead? That would make it guest transparent.
-
-In balloon_inflate_page:
-    rb_page_size = qemu_ram_pagesize(rb);
-
-    if (rb_page_size == BALLOON_PAGE_SIZE) {
-        /* Easy case */
-
-It seems that PartiallyBalloonedPage is only used when rb_page_size is greater than BALLOON_PAGE_SIZE.
-Do you mean I should modify the working mechanism of balloon_inflate_page function?
-
-Thanks,
-Hui
+Is that still the fbdev lifetime fun where the cleanup might be delayed if
+the char device node is still open?
+-Daniel
 
 > 
->> ---
->> hw/virtio/virtio-balloon.c                      | 67 ++++++++++++++++---------
->> include/standard-headers/linux/virtio_balloon.h |  4 ++
->> 2 files changed, 47 insertions(+), 24 deletions(-)
->> 
->> diff --git a/hw/virtio/virtio-balloon.c b/hw/virtio/virtio-balloon.c
->> index a4729f7..cfe86b0 100644
->> --- a/hw/virtio/virtio-balloon.c
->> +++ b/hw/virtio/virtio-balloon.c
->> @@ -340,37 +340,49 @@ static void virtio_balloon_handle_output(VirtIODevice *vdev, VirtQueue *vq)
->>         while (iov_to_buf(elem->out_sg, elem->out_num, offset, &pfn, 4) == 4) {
->>             unsigned int p = virtio_ldl_p(vdev, &pfn);
->>             hwaddr pa;
->> +            size_t handle_size = BALLOON_PAGE_SIZE;
->> 
->>             pa = (hwaddr) p << VIRTIO_BALLOON_PFN_SHIFT;
->>             offset += 4;
->> 
->> -            section = memory_region_find(get_system_memory(), pa,
->> -                                         BALLOON_PAGE_SIZE);
->> -            if (!section.mr) {
->> -                trace_virtio_balloon_bad_addr(pa);
->> -                continue;
->> -            }
->> -            if (!memory_region_is_ram(section.mr) ||
->> -                memory_region_is_rom(section.mr) ||
->> -                memory_region_is_romd(section.mr)) {
->> -                trace_virtio_balloon_bad_addr(pa);
->> -                memory_region_unref(section.mr);
->> -                continue;
->> -            }
->> +            if (virtio_has_feature(s->host_features,
->> +                                   VIRTIO_BALLOON_F_THP_ORDER))
->> +                handle_size = BALLOON_PAGE_SIZE << VIRTIO_BALLOON_THP_ORDER;
->> +
->> +            while (handle_size > 0) {
->> +                section = memory_region_find(get_system_memory(), pa,
->> +                                             BALLOON_PAGE_SIZE);
->> +                if (!section.mr) {
->> +                    trace_virtio_balloon_bad_addr(pa);
->> +                    continue;
->> +                }
->> +                if (!memory_region_is_ram(section.mr) ||
->> +                    memory_region_is_rom(section.mr) ||
->> +                    memory_region_is_romd(section.mr)) {
->> +                    trace_virtio_balloon_bad_addr(pa);
->> +                    memory_region_unref(section.mr);
->> +                    continue;
->> +                }
->> 
->> -            trace_virtio_balloon_handle_output(memory_region_name(section.mr),
->> -                                               pa);
->> -            if (!qemu_balloon_is_inhibited()) {
->> -                if (vq == s->ivq) {
->> -                    balloon_inflate_page(s, section.mr,
->> -                                         section.offset_within_region, &pbp);
->> -                } else if (vq == s->dvq) {
->> -                    balloon_deflate_page(s, section.mr, section.offset_within_region);
->> -                } else {
->> -                    g_assert_not_reached();
->> +                trace_virtio_balloon_handle_output(memory_region_name(section.mr),
->> +                                                   pa);
->> +                if (!qemu_balloon_is_inhibited()) {
->> +                    if (vq == s->ivq) {
->> +                        balloon_inflate_page(s, section.mr,
->> +                                             section.offset_within_region,
->> +                                             &pbp);
->> +                    } else if (vq == s->dvq) {
->> +                        balloon_deflate_page(s, section.mr,
->> +                                             section.offset_within_region);
->> +                    } else {
->> +                        g_assert_not_reached();
->> +                    }
->>                 }
->> +                memory_region_unref(section.mr);
->> +
->> +                pa += BALLOON_PAGE_SIZE;
->> +                handle_size -= BALLOON_PAGE_SIZE;
->>             }
->> -            memory_region_unref(section.mr);
->>         }
->> 
->>         virtqueue_push(vq, elem, offset);
->> @@ -693,6 +705,8 @@ static void virtio_balloon_set_config(VirtIODevice *vdev,
->> 
->>     memcpy(&config, config_data, virtio_balloon_config_size(dev));
->>     dev->actual = le32_to_cpu(config.actual);
->> +    if (virtio_has_feature(vdev->host_features, VIRTIO_BALLOON_F_THP_ORDER))
->> +        dev->actual <<= VIRTIO_BALLOON_THP_ORDER;
->>     if (dev->actual != oldactual) {
->>         qapi_event_send_balloon_change(vm_ram_size -
->>                         ((ram_addr_t) dev->actual << VIRTIO_BALLOON_PFN_SHIFT));
->> @@ -728,6 +742,9 @@ static void virtio_balloon_to_target(void *opaque, ram_addr_t target)
->>     }
->>     if (target) {
->>         dev->num_pages = (vm_ram_size - target) >> VIRTIO_BALLOON_PFN_SHIFT;
->> +        if (virtio_has_feature(dev->host_features,
->> +                               VIRTIO_BALLOON_F_THP_ORDER))
->> +            dev->num_pages >>= VIRTIO_BALLOON_THP_ORDER;
->>         virtio_notify_config(vdev);
->>     }
->>     trace_virtio_balloon_to_target(target, dev->num_pages);
->> @@ -916,6 +933,8 @@ static Property virtio_balloon_properties[] = {
->>                     VIRTIO_BALLOON_F_DEFLATE_ON_OOM, false),
->>     DEFINE_PROP_BIT("free-page-hint", VirtIOBalloon, host_features,
->>                     VIRTIO_BALLOON_F_FREE_PAGE_HINT, false),
->> +    DEFINE_PROP_BIT("thp-order", VirtIOBalloon, host_features,
->> +                    VIRTIO_BALLOON_F_THP_ORDER, false),
->>     /* QEMU 4.0 accidentally changed the config size even when free-page-hint
->>      * is disabled, resulting in QEMU 3.1 migration incompatibility.  This
->>      * property retains this quirk for QEMU 4.1 machine types.
->> diff --git a/include/standard-headers/linux/virtio_balloon.h b/include/standard-headers/linux/virtio_balloon.h
->> index 9375ca2..f54d613 100644
->> --- a/include/standard-headers/linux/virtio_balloon.h
->> +++ b/include/standard-headers/linux/virtio_balloon.h
->> @@ -36,10 +36,14 @@
->> #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
->> #define VIRTIO_BALLOON_F_FREE_PAGE_HINT	3 /* VQ to report free pages */
->> #define VIRTIO_BALLOON_F_PAGE_POISON	4 /* Guest is using page poisoning */
->> +#define VIRTIO_BALLOON_F_THP_ORDER	5 /* Set balloon page order to thp order */
->> 
->> /* Size of a PFN in the balloon interface. */
->> #define VIRTIO_BALLOON_PFN_SHIFT 12
->> 
->> +/* The order of the balloon page */
->> +#define VIRTIO_BALLOON_THP_ORDER 9
->> +
->> #define VIRTIO_BALLOON_CMD_ID_STOP	0
->> #define VIRTIO_BALLOON_CMD_ID_DONE	1
->> struct virtio_balloon_config {
->> -- 
->> 2.7.4
+> Don't consider pci_request_region() failure for the framebuffer
+> region as fatal error to workaround this issue.
+> 
+> Reported-by: Marek Marczykowski-G�recki <marmarek@invisiblethingslab.com>
+> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> ---
+>  drivers/gpu/drm/bochs/bochs_hw.c | 6 ++----
+>  1 file changed, 2 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/bochs/bochs_hw.c b/drivers/gpu/drm/bochs/bochs_hw.c
+> index 952199cc0462..dce4672e3fc8 100644
+> --- a/drivers/gpu/drm/bochs/bochs_hw.c
+> +++ b/drivers/gpu/drm/bochs/bochs_hw.c
+> @@ -157,10 +157,8 @@ int bochs_hw_init(struct drm_device *dev)
+>  		size = min(size, mem);
+>  	}
+>  
+> -	if (pci_request_region(pdev, 0, "bochs-drm") != 0) {
+> -		DRM_ERROR("Cannot request framebuffer\n");
+> -		return -EBUSY;
+> -	}
+> +	if (pci_request_region(pdev, 0, "bochs-drm") != 0)
+> +		DRM_WARN("Cannot request framebuffer, boot fb still active?\n");
+>  
+>  	bochs->fb_map = ioremap(addr, size);
+>  	if (bochs->fb_map == NULL) {
+> -- 
+> 2.18.2
+> 
+
+-- 
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
