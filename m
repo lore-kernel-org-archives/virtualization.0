@@ -1,14 +1,14 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 37/73] virtio-blk: fix hw_queue stopped on
+Subject: [PATCH AUTOSEL 4.19 23/37] virtio-blk: fix hw_queue stopped on
  arbitrary error
-Date: Wed, 18 Mar 2020 16:53:01 -0400
-Message-ID: <20200318205337.16279-37-sashal@kernel.org>
-References: <20200318205337.16279-1-sashal@kernel.org>
+Date: Wed, 18 Mar 2020 16:54:55 -0400
+Message-ID: <20200318205509.17053-23-sashal@kernel.org>
+References: <20200318205509.17053-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200318205337.16279-1-sashal@kernel.org>
+In-Reply-To: <20200318205509.17053-1-sashal@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -50,10 +50,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 7ffd719d89def..c2ed3e9128e3a 100644
+index dd64f586679e1..728c9a9609f0c 100644
 --- a/drivers/block/virtio_blk.c
 +++ b/drivers/block/virtio_blk.c
-@@ -339,10 +339,12 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+@@ -271,10 +271,12 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
  		err = virtblk_add_req(vblk->vqs[qid].vq, vbr, vbr->sg, num);
  	if (err) {
  		virtqueue_kick(vblk->vqs[qid].vq);
