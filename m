@@ -1,14 +1,14 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 20/28] virtio-blk: fix hw_queue stopped on
+Subject: [PATCH AUTOSEL 4.9 10/15] virtio-blk: fix hw_queue stopped on
  arbitrary error
-Date: Wed, 18 Mar 2020 16:55:47 -0400
-Message-ID: <20200318205555.17447-20-sashal@kernel.org>
-References: <20200318205555.17447-1-sashal@kernel.org>
+Date: Wed, 18 Mar 2020 16:56:24 -0400
+Message-ID: <20200318205629.17750-10-sashal@kernel.org>
+References: <20200318205629.17750-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200318205555.17447-1-sashal@kernel.org>
+In-Reply-To: <20200318205629.17750-1-sashal@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -50,11 +50,11 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 8767401f75e04..19d226ff15ef8 100644
+index 44ef1d66caa68..f287eec36b282 100644
 --- a/drivers/block/virtio_blk.c
 +++ b/drivers/block/virtio_blk.c
-@@ -271,10 +271,12 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
- 		err = virtblk_add_req(vblk->vqs[qid].vq, vbr, vbr->sg, num);
+@@ -215,10 +215,12 @@ static int virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 	err = __virtblk_add_req(vblk->vqs[qid].vq, vbr, vbr->sg, num);
  	if (err) {
  		virtqueue_kick(vblk->vqs[qid].vq);
 -		blk_mq_stop_hw_queue(hctx);
@@ -67,7 +67,7 @@ index 8767401f75e04..19d226ff15ef8 100644
 -		/* Out of mem doesn't actually happen, since we fall back
 -		 * to direct descriptors */
  		if (err == -ENOMEM || err == -ENOSPC)
- 			return BLK_STS_RESOURCE;
- 		return BLK_STS_IOERR;
+ 			return BLK_MQ_RQ_QUEUE_BUSY;
+ 		return BLK_MQ_RQ_QUEUE_ERROR;
 -- 
 2.20.1
