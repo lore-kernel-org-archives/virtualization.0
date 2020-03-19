@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 03/70] x86/cpufeatures: Add SEV-ES CPU feature
-Date: Thu, 19 Mar 2020 10:13:00 +0100
-Message-ID: <20200319091407.1481-4-joro@8bytes.org>
+Subject: [PATCH 08/70] x86/insn: Add insn_get_modrm_reg_off()
+Date: Thu, 19 Mar 2020 10:13:05 +0100
+Message-ID: <20200319091407.1481-9-joro@8bytes.org>
 References: <20200319091407.1481-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,64 +21,76 @@ To: x86@kernel.org
 Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Joerg Roedel <jroedel@suse.de>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-Add CPU feature detection for Secure Encrypted Virtualization with
-Encrypted State. This feature enhances SEV by also encrypting the
-guest register state, making it in-accessible to the hypervisor.
+Add a function to the instruction decoder which returns the pt_regs
+offset of the register specified in the reg field of the modrm byte.
 
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/cpufeatures.h | 1 +
- arch/x86/kernel/cpu/amd.c          | 3 ++-
- arch/x86/kernel/cpu/scattered.c    | 1 +
- 3 files changed, 4 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/insn-eval.h |  1 +
+ arch/x86/lib/insn-eval.c         | 23 +++++++++++++++++++++++
+ 2 files changed, 24 insertions(+)
 
-diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
-index f3327cb56edf..2fee1a2cac2f 100644
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -234,6 +234,7 @@
- #define X86_FEATURE_EPT_AD		( 8*32+17) /* Intel Extended Page Table access-dirty bit */
- #define X86_FEATURE_VMCALL		( 8*32+18) /* "" Hypervisor supports the VMCALL instruction */
- #define X86_FEATURE_VMW_VMMCALL		( 8*32+19) /* "" VMware prefers VMMCALL hypercall instruction */
-+#define X86_FEATURE_SEV_ES		( 8*32+20) /* AMD Secure Encrypted Virtualization - Encrypted State */
+diff --git a/arch/x86/include/asm/insn-eval.h b/arch/x86/include/asm/insn-eval.h
+index b4ff3e3316d1..1e343010129e 100644
+--- a/arch/x86/include/asm/insn-eval.h
++++ b/arch/x86/include/asm/insn-eval.h
+@@ -17,6 +17,7 @@
  
- /* Intel-defined CPU features, CPUID level 0x00000007:0 (EBX), word 9 */
- #define X86_FEATURE_FSGSBASE		( 9*32+ 0) /* RDFSBASE, WRFSBASE, RDGSBASE, WRGSBASE instructions*/
-diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
-index 1f875fbe1384..523a6a76c6c1 100644
---- a/arch/x86/kernel/cpu/amd.c
-+++ b/arch/x86/kernel/cpu/amd.c
-@@ -581,7 +581,7 @@ static void early_detect_mem_encrypt(struct cpuinfo_x86 *c)
- 	 *	      If BIOS has not enabled SME then don't advertise the
- 	 *	      SME feature (set in scattered.c).
- 	 *   For SEV: If BIOS has not enabled SEV then don't advertise the
--	 *            SEV feature (set in scattered.c).
-+	 *            SEV and SEV_ES feature (set in scattered.c).
- 	 *
- 	 *   In all cases, since support for SME and SEV requires long mode,
- 	 *   don't advertise the feature under CONFIG_X86_32.
-@@ -612,6 +612,7 @@ static void early_detect_mem_encrypt(struct cpuinfo_x86 *c)
- 		setup_clear_cpu_cap(X86_FEATURE_SME);
- clear_sev:
- 		setup_clear_cpu_cap(X86_FEATURE_SEV);
-+		setup_clear_cpu_cap(X86_FEATURE_SEV_ES);
- 	}
+ void __user *insn_get_addr_ref(struct insn *insn, struct pt_regs *regs);
+ int insn_get_modrm_rm_off(struct insn *insn, struct pt_regs *regs);
++int insn_get_modrm_reg_off(struct insn *insn, struct pt_regs *regs);
+ unsigned long insn_get_seg_base(struct pt_regs *regs, int seg_reg_idx);
+ int insn_get_code_seg_params(struct pt_regs *regs);
+ int insn_fetch_from_user(struct pt_regs *regs,
+diff --git a/arch/x86/lib/insn-eval.c b/arch/x86/lib/insn-eval.c
+index 1949f5258f9e..f18260a19960 100644
+--- a/arch/x86/lib/insn-eval.c
++++ b/arch/x86/lib/insn-eval.c
+@@ -20,6 +20,7 @@
+ 
+ enum reg_type {
+ 	REG_TYPE_RM = 0,
++	REG_TYPE_REG,
+ 	REG_TYPE_INDEX,
+ 	REG_TYPE_BASE,
+ };
+@@ -441,6 +442,13 @@ static int get_reg_offset(struct insn *insn, struct pt_regs *regs,
+ 			regno += 8;
+ 		break;
+ 
++	case REG_TYPE_REG:
++		regno = X86_MODRM_REG(insn->modrm.value);
++
++		if (X86_REX_R(insn->rex_prefix.value))
++			regno += 8;
++		break;
++
+ 	case REG_TYPE_INDEX:
+ 		regno = X86_SIB_INDEX(insn->sib.value);
+ 		if (X86_REX_X(insn->rex_prefix.value))
+@@ -809,6 +817,21 @@ int insn_get_modrm_rm_off(struct insn *insn, struct pt_regs *regs)
+ 	return get_reg_offset(insn, regs, REG_TYPE_RM);
  }
  
-diff --git a/arch/x86/kernel/cpu/scattered.c b/arch/x86/kernel/cpu/scattered.c
-index 62b137c3c97a..30f354989cf1 100644
---- a/arch/x86/kernel/cpu/scattered.c
-+++ b/arch/x86/kernel/cpu/scattered.c
-@@ -41,6 +41,7 @@ static const struct cpuid_bit cpuid_bits[] = {
- 	{ X86_FEATURE_MBA,		CPUID_EBX,  6, 0x80000008, 0 },
- 	{ X86_FEATURE_SME,		CPUID_EAX,  0, 0x8000001f, 0 },
- 	{ X86_FEATURE_SEV,		CPUID_EAX,  1, 0x8000001f, 0 },
-+	{ X86_FEATURE_SEV_ES,		CPUID_EAX,  3, 0x8000001f, 0 },
- 	{ 0, 0, 0, 0, 0 }
- };
- 
++/**
++ * insn_get_modrm_reg_off() - Obtain register in reg part of the ModRM byte
++ * @insn:	Instruction containing the ModRM byte
++ * @regs:	Register values as seen when entering kernel mode
++ *
++ * Returns:
++ *
++ * The register indicated by the reg part of the ModRM byte. The
++ * register is obtained as an offset from the base of pt_regs.
++ */
++int insn_get_modrm_reg_off(struct insn *insn, struct pt_regs *regs)
++{
++	return get_reg_offset(insn, regs, REG_TYPE_REG);
++}
++
+ /**
+  * get_seg_base_limit() - obtain base address and limit of a segment
+  * @insn:	Instruction. Must be valid.
 -- 
 2.17.1
