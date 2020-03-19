@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 35/70] x86/head/64: Move early exception dispatch to C code
-Date: Thu, 19 Mar 2020 10:13:32 +0100
-Message-ID: <20200319091407.1481-36-joro@8bytes.org>
+Subject: [PATCH 14/70] x86/boot/compressed/64: Add page-fault handler
+Date: Thu, 19 Mar 2020 10:13:11 +0100
+Message-ID: <20200319091407.1481-15-joro@8bytes.org>
 References: <20200319091407.1481-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,128 +23,122 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Move the assembly coded dispatch between page-faults and all other
-exceptions to C code to make it easier to maintain and extend.
+Install a page-fault handler to add an identity mapping to addresses
+not yet mapped. Also do some checking whether the error code is sane.
 
-Also change the return-type of early_make_pgtable() to bool and make it
-static.
+This makes non SEV-ES machines use the exception handling
+infrastructure in the pre-decompressions boot code too, making it less
+likely to break in the future.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/pgtable.h |  2 +-
- arch/x86/include/asm/setup.h   |  1 -
- arch/x86/kernel/head64.c       | 19 +++++++++++++++----
- arch/x86/kernel/head_64.S      | 11 +----------
- 4 files changed, 17 insertions(+), 16 deletions(-)
+ arch/x86/boot/compressed/ident_map_64.c    | 38 ++++++++++++++++++++++
+ arch/x86/boot/compressed/idt_64.c          |  2 ++
+ arch/x86/boot/compressed/idt_handlers_64.S |  2 ++
+ arch/x86/boot/compressed/misc.h            |  6 ++++
+ 4 files changed, 48 insertions(+)
 
-diff --git a/arch/x86/include/asm/pgtable.h b/arch/x86/include/asm/pgtable.h
-index 7e118660bbd9..9327eeeb1de1 100644
---- a/arch/x86/include/asm/pgtable.h
-+++ b/arch/x86/include/asm/pgtable.h
-@@ -27,7 +27,7 @@
- #include <asm/fpu/api.h>
+diff --git a/arch/x86/boot/compressed/ident_map_64.c b/arch/x86/boot/compressed/ident_map_64.c
+index 3a2115582920..0865d181b85d 100644
+--- a/arch/x86/boot/compressed/ident_map_64.c
++++ b/arch/x86/boot/compressed/ident_map_64.c
+@@ -19,11 +19,13 @@
+ /* No PAGE_TABLE_ISOLATION support needed either: */
+ #undef CONFIG_PAGE_TABLE_ISOLATION
  
- extern pgd_t early_top_pgt[PTRS_PER_PGD];
--int __init __early_make_pgtable(unsigned long address, pmdval_t pmd);
-+bool __init __early_make_pgtable(unsigned long address, pmdval_t pmd);
++#include "error.h"
+ #include "misc.h"
  
- void ptdump_walk_pgd_level(struct seq_file *m, struct mm_struct *mm);
- void ptdump_walk_pgd_level_debugfs(struct seq_file *m, struct mm_struct *mm,
-diff --git a/arch/x86/include/asm/setup.h b/arch/x86/include/asm/setup.h
-index ed8ec011a9fd..d8a39d45f182 100644
---- a/arch/x86/include/asm/setup.h
-+++ b/arch/x86/include/asm/setup.h
-@@ -48,7 +48,6 @@ extern void reserve_standard_io_resources(void);
- extern void i386_reserve_resources(void);
- extern unsigned long __startup_64(unsigned long physaddr, struct boot_params *bp);
- extern unsigned long __startup_secondary_64(void);
--extern int early_make_pgtable(unsigned long address);
- 
- #ifdef CONFIG_X86_INTEL_MID
- extern void x86_intel_mid_early_setup(void);
-diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
-index 0ecdf28291fc..8ccca109750d 100644
---- a/arch/x86/kernel/head64.c
-+++ b/arch/x86/kernel/head64.c
-@@ -36,6 +36,8 @@
- #include <asm/microcode.h>
- #include <asm/kasan.h>
- #include <asm/fixmap.h>
-+#include <asm/extable.h>
+ /* These actually do the work of building the kernel identity maps. */
+ #include <asm/init.h>
+ #include <asm/pgtable.h>
 +#include <asm/trap_defs.h>
- 
- /*
-  * Manage page tables very early on.
-@@ -297,7 +299,7 @@ static void __init reset_early_page_tables(void)
- }
- 
- /* Create a new PMD entry */
--int __init __early_make_pgtable(unsigned long address, pmdval_t pmd)
-+bool __init __early_make_pgtable(unsigned long address, pmdval_t pmd)
+ /* Use the static base for this part of the boot process */
+ #undef __PAGE_OFFSET
+ #define __PAGE_OFFSET __PAGE_OFFSET_BASE
+@@ -163,3 +165,39 @@ void finalize_identity_maps(void)
  {
- 	unsigned long physaddr = address - __PAGE_OFFSET;
- 	pgdval_t pgd, *pgd_p;
-@@ -307,7 +309,7 @@ int __init __early_make_pgtable(unsigned long address, pmdval_t pmd)
- 
- 	/* Invalid address or early pgt is done ?  */
- 	if (physaddr >= MAXMEM || read_cr3_pa() != __pa_nodebug(early_top_pgt))
--		return -1;
-+		return false;
- 
- again:
- 	pgd_p = &early_top_pgt[pgd_index(address)].pgd;
-@@ -364,10 +366,10 @@ int __init __early_make_pgtable(unsigned long address, pmdval_t pmd)
- 	}
- 	pmd_p[pmd_index(address)] = pmd;
- 
--	return 0;
-+	return true;
+ 	write_cr3(top_level_pgt);
  }
- 
--int __init early_make_pgtable(unsigned long address)
-+static bool __init early_make_pgtable(unsigned long address)
- {
- 	unsigned long physaddr = address - __PAGE_OFFSET;
- 	pmdval_t pmd;
-@@ -377,6 +379,15 @@ int __init early_make_pgtable(unsigned long address)
- 	return __early_make_pgtable(address, pmd);
- }
- 
-+void __init early_exception(struct pt_regs *regs, int trapnr)
-+{
-+	if (trapnr == X86_TRAP_PF &&
-+	    early_make_pgtable(native_read_cr2()))
-+		return;
 +
-+	early_fixup_exception(regs, trapnr);
++static void pf_error(unsigned long error_code, unsigned long address,
++		     struct pt_regs *regs)
++{
++	error_putstr("Unexpected page-fault:");
++	error_putstr("\nError Code: ");
++	error_puthex(error_code);
++	error_putstr("\nCR2: 0x");
++	error_puthex(address);
++	error_putstr("\nRIP relative to _head: 0x");
++	error_puthex(regs->ip - (unsigned long)_head);
++	error_putstr("\n");
++
++	error("Stopping.\n");
 +}
 +
- /* Don't add a printk in there. printk relies on the PDA which is not initialized 
-    yet. */
- static void __init clear_bss(void)
-diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
-index 8465290a1eb3..bc0622a72d6d 100644
---- a/arch/x86/kernel/head_64.S
-+++ b/arch/x86/kernel/head_64.S
-@@ -363,18 +363,9 @@ SYM_CODE_START_LOCAL(early_idt_handler_common)
- 	pushq %r15				/* pt_regs->r15 */
- 	UNWIND_HINT_REGS
++void do_boot_page_fault(struct pt_regs *regs)
++{
++	unsigned long address = native_read_cr2();
++	unsigned long error_code = regs->orig_ax;
++
++	/*
++	 * Check for unexpected error codes. Unexpected are:
++	 *	- Faults on present pages
++	 *	- User faults
++	 *	- Reserved bits set
++	 */
++	if (error_code & (X86_PF_PROT | X86_PF_USER | X86_PF_RSVD))
++		pf_error(error_code, address, regs);
++
++	/*
++	 * Error code is sane - now identity map the 2M region around
++	 * the faulting address.
++	 */
++	add_identity_map(address & PMD_MASK, PMD_SIZE);
++}
+diff --git a/arch/x86/boot/compressed/idt_64.c b/arch/x86/boot/compressed/idt_64.c
+index 46ecea671b90..84ba57d9d436 100644
+--- a/arch/x86/boot/compressed/idt_64.c
++++ b/arch/x86/boot/compressed/idt_64.c
+@@ -39,5 +39,7 @@ void load_stage2_idt(void)
+ {
+ 	boot_idt_desc.address = (unsigned long)boot_idt;
  
--	cmpq $14,%rsi		/* Page fault? */
--	jnz 10f
--	GET_CR2_INTO(%rdi)	/* can clobber %rax if pv */
--	call early_make_pgtable
--	andl %eax,%eax
--	jz 20f			/* All good */
--
--10:
- 	movq %rsp,%rdi		/* RDI = pt_regs; RSI is already trapnr */
--	call early_fixup_exception
-+	call early_exception
++	set_idt_entry(X86_TRAP_PF, boot_pf_handler);
++
+ 	load_boot_idt(&boot_idt_desc);
+ }
+diff --git a/arch/x86/boot/compressed/idt_handlers_64.S b/arch/x86/boot/compressed/idt_handlers_64.S
+index 3d86ab35ef52..bfb3fc5aa144 100644
+--- a/arch/x86/boot/compressed/idt_handlers_64.S
++++ b/arch/x86/boot/compressed/idt_handlers_64.S
+@@ -73,3 +73,5 @@ SYM_FUNC_END(\name)
  
--20:
- 	decl early_recursion_flag(%rip)
- 	jmp restore_regs_and_return_to_kernel
- SYM_CODE_END(early_idt_handler_common)
+ 	.text
+ 	.code64
++
++EXCEPTION_HANDLER	boot_pf_handler do_boot_page_fault error_code=1
+diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
+index 3a030a878d53..eff4ed0b1cea 100644
+--- a/arch/x86/boot/compressed/misc.h
++++ b/arch/x86/boot/compressed/misc.h
+@@ -37,6 +37,9 @@
+ #define memptr unsigned
+ #endif
+ 
++/* boot/compressed/vmlinux start and end markers */
++extern char _head[], _end[];
++
+ /* misc.c */
+ extern memptr free_mem_ptr;
+ extern memptr free_mem_end_ptr;
+@@ -146,4 +149,7 @@ extern pteval_t __default_kernel_pte_mask;
+ extern gate_desc boot_idt[BOOT_IDT_ENTRIES];
+ extern struct desc_ptr boot_idt_desc;
+ 
++/* IDT Entry Points */
++void boot_pf_handler(void);
++
+ #endif /* BOOT_COMPRESSED_MISC_H */
 -- 
 2.17.1
