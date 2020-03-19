@@ -1,148 +1,83 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 15/70] x86/boot/compressed/64: Always switch to own page-table
-Date: Thu, 19 Mar 2020 10:13:12 +0100
-Message-ID: <20200319091407.1481-16-joro@8bytes.org>
+Subject: [PATCH 34/70] x86/head/64: Load IDT earlier
+Date: Thu, 19 Mar 2020 10:13:31 +0100
+Message-ID: <20200319091407.1481-35-joro@8bytes.org>
 References: <20200319091407.1481-1-joro@8bytes.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200319091407.1481-1-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: kvm-owner@vger.kernel.org
 To: x86@kernel.org
 Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-When booted through startup_64 the kernel keeps running on the EFI
-page-table until the KASLR code sets up its own page-table. Without
-KASLR the pre-decompression boot code never switches off the EFI
-page-table. Change that by unconditionally switching to our own
-page-table once the kernel is relocated.
-
-This makes sure we can make changes to the mapping when necessary, for
-example map pages unencrypted in SEV and SEV-ES guests.
-
-Also remove the debug_putstr() calls in initialize_identity_maps()
-because the function now runs before console_init() is called.
+Load the IDT right after switching to virtual addresses in head_64.S
+so that the kernel can handle #VC exceptions.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/compressed/head_64.S      |  3 +-
- arch/x86/boot/compressed/ident_map_64.c | 51 +++++++++++++++----------
- arch/x86/boot/compressed/kaslr.c        |  3 --
- 3 files changed, 32 insertions(+), 25 deletions(-)
+ arch/x86/kernel/head64.c  | 15 +++++++++++++++
+ arch/x86/kernel/head_64.S | 17 +++++++++++++++++
+ 2 files changed, 32 insertions(+)
 
-diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
-index d27a9ce1bcb0..5164d2e8631a 100644
---- a/arch/x86/boot/compressed/head_64.S
-+++ b/arch/x86/boot/compressed/head_64.S
-@@ -491,10 +491,11 @@ SYM_FUNC_START_LOCAL_NOALIGN(.Lrelocated)
- 	rep	stosq
+diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
+index 206a4b6144c2..0ecdf28291fc 100644
+--- a/arch/x86/kernel/head64.c
++++ b/arch/x86/kernel/head64.c
+@@ -489,3 +489,18 @@ void __init x86_64_start_reservations(char *real_mode_data)
  
- /*
-- * Load stage2 IDT
-+ * Load stage2 IDT and switch to our own page-table
-  */
+ 	start_kernel();
+ }
++
++void __head early_idt_setup_early_handler(unsigned long physaddr)
++{
++	gate_desc *idt = fixup_pointer(idt_table, physaddr);
++	int i;
++
++	for (i = 0; i < NUM_EXCEPTION_VECTORS; i++) {
++		struct idt_data data;
++		gate_desc desc;
++
++		init_idt_data(&data, i, early_idt_handler_array[i]);
++		idt_init_desc(&desc, &data);
++		native_write_idt_entry(idt, i, &desc);
++	}
++}
+diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
+index b8ba72f31be9..8465290a1eb3 100644
+--- a/arch/x86/kernel/head_64.S
++++ b/arch/x86/kernel/head_64.S
+@@ -104,6 +104,20 @@ SYM_CODE_START_NOALIGN(startup_64)
+ 	leaq	_text(%rip), %rdi
  	pushq	%rsi
- 	call	load_stage2_idt
-+	call	initialize_identity_maps
+ 	call	__startup_64
++	/* Save return value */
++	pushq	%rax
++
++	/*
++	 * Load IDT with early handlers - needed for SEV-ES
++	 * Do this here because this must only happen on the boot CPU
++	 * and the code below is shared with secondary CPU bringup.
++	 */
++	leaq	_text(%rip), %rdi
++	call	early_idt_setup_early_handler
++
++	/* Restore __startup_64 return value*/
++	popq	%rax
++	/* Restore pointer to real_mode_data */
  	popq	%rsi
  
- /*
-diff --git a/arch/x86/boot/compressed/ident_map_64.c b/arch/x86/boot/compressed/ident_map_64.c
-index 0865d181b85d..6a3890caaa19 100644
---- a/arch/x86/boot/compressed/ident_map_64.c
-+++ b/arch/x86/boot/compressed/ident_map_64.c
-@@ -88,9 +88,31 @@ phys_addr_t physical_mask = (1ULL << __PHYSICAL_MASK_SHIFT) - 1;
-  */
- static struct x86_mapping_info mapping_info;
- 
-+/*
-+ * Adds the specified range to what will become the new identity mappings.
-+ * Once all ranges have been added, the new mapping is activated by calling
-+ * finalize_identity_maps() below.
-+ */
-+void add_identity_map(unsigned long start, unsigned long size)
-+{
-+	unsigned long end = start + size;
-+
-+	/* Align boundary to 2M. */
-+	start = round_down(start, PMD_SIZE);
-+	end = round_up(end, PMD_SIZE);
-+	if (start >= end)
-+		return;
-+
-+	/* Build the mapping. */
-+	kernel_ident_mapping_init(&mapping_info, (pgd_t *)top_level_pgt,
-+				  start, end);
-+}
-+
- /* Locates and clears a region for a new top level page table. */
- void initialize_identity_maps(void)
- {
-+	unsigned long start, size;
-+
- 	/* If running as an SEV guest, the encryption mask is required. */
- 	set_sev_encryption_mask();
- 
-@@ -123,37 +145,24 @@ void initialize_identity_maps(void)
+ 	/* Form the CR3 value being sure to include the CR3 modifier */
+@@ -200,6 +214,9 @@ SYM_CODE_START(secondary_startup_64)
  	 */
- 	top_level_pgt = read_cr3_pa();
- 	if (p4d_offset((pgd_t *)top_level_pgt, 0) == (p4d_t *)_pgtable) {
--		debug_putstr("booted via startup_32()\n");
- 		pgt_data.pgt_buf = _pgtable + BOOT_INIT_PGT_SIZE;
- 		pgt_data.pgt_buf_size = BOOT_PGT_SIZE - BOOT_INIT_PGT_SIZE;
- 		memset(pgt_data.pgt_buf, 0, pgt_data.pgt_buf_size);
- 	} else {
--		debug_putstr("booted via startup_64()\n");
- 		pgt_data.pgt_buf = _pgtable;
- 		pgt_data.pgt_buf_size = BOOT_PGT_SIZE;
- 		memset(pgt_data.pgt_buf, 0, pgt_data.pgt_buf_size);
- 		top_level_pgt = (unsigned long)alloc_pgt_page(&pgt_data);
- 	}
--}
+ 	movq initial_stack(%rip), %rsp
  
--/*
-- * Adds the specified range to what will become the new identity mappings.
-- * Once all ranges have been added, the new mapping is activated by calling
-- * finalize_identity_maps() below.
-- */
--void add_identity_map(unsigned long start, unsigned long size)
--{
--	unsigned long end = start + size;
--
--	/* Align boundary to 2M. */
--	start = round_down(start, PMD_SIZE);
--	end = round_up(end, PMD_SIZE);
--	if (start >= end)
--		return;
--
--	/* Build the mapping. */
--	kernel_ident_mapping_init(&mapping_info, (pgd_t *)top_level_pgt,
--				  start, end);
-+	/*
-+	 * New page-table is set up - map the kernel image and load it
-+	 * into cr3.
-+	 */
-+	start = (unsigned long)_head;
-+	size  = _end - _head;
-+	add_identity_map(start, size);
-+	write_cr3(top_level_pgt);
- }
- 
- /*
-diff --git a/arch/x86/boot/compressed/kaslr.c b/arch/x86/boot/compressed/kaslr.c
-index 7c61a8c5b9cf..856dc1c9bb0d 100644
---- a/arch/x86/boot/compressed/kaslr.c
-+++ b/arch/x86/boot/compressed/kaslr.c
-@@ -903,9 +903,6 @@ void choose_random_location(unsigned long input,
- 
- 	boot_params->hdr.loadflags |= KASLR_FLAG;
- 
--	/* Prepare to add new identity pagetables on demand. */
--	initialize_identity_maps();
--
- 	/* Record the various known unsafe memory ranges. */
- 	mem_avoid_init(input, input_size, *output);
- 
++	/* Load IDT */
++	lidt	idt_descr(%rip)
++
+ 	/* Check if nx is implemented */
+ 	movl	$0x80000001, %eax
+ 	cpuid
 -- 
 2.17.1
