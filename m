@@ -1,67 +1,67 @@
-From: Bjorn Helgaas <helgaas@kernel.org>
-Subject: Re: [PATCH v2 2/3] PCI: Add DMA configuration for virtual platforms
-Date: Wed, 18 Mar 2020 16:10:02 -0500
-Message-ID: <20200318211002.GA237687@google.com>
-References: <20200228172537.377327-3-jean-philippe@linaro.org>
+From: Zhu Lingshan <lingshan.zhu@linux.intel.com>
+Subject: Re: [PATCH V6 8/8] virtio: Intel IFC VF driver for VDPA
+Date: Thu, 19 Mar 2020 15:28:09 +0800
+Message-ID: <d3e0ec0d-3387-17bd-a33c-189933f70f95@linux.intel.com>
+References: <20200318080327.21958-1-jasowang@redhat.com>
+ <20200318080327.21958-9-jasowang@redhat.com>
+ <20200318122255.GG13183@mellanox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-pci-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200228172537.377327-3-jean-philippe@linaro.org>
-Sender: linux-pci-owner@vger.kernel.org
-To: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, linux-pci@vger.kernel.org, joro@8bytes.org, mst@redhat.com, jasowang@redhat.com, kevin.tian@intel.com, sebastien.boeuf@intel.com, eric.auger@redhat.com, jacob.jun.pan@intel.com, robin.murphy@arm.com
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200318122255.GG13183@mellanox.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jason Gunthorpe <jgg@mellanox.com>, Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jiri@mellanox.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com, Bie Tiwei <tiwei.bie@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Feb 28, 2020 at 06:25:37PM +0100, Jean-Philippe Brucker wrote:
-> Hardware platforms usually describe the IOMMU topology using either
-> device-tree pointers or vendor-specific ACPI tables.  For virtual
-> platforms that don't provide a device-tree, the virtio-iommu device
-> contains a description of the endpoints it manages.  That information
-> allows us to probe endpoints after the IOMMU is probed (possibly as late
-> as userspace modprobe), provided it is discovered early enough.
-> 
-> Add a hook to pci_dma_configure(), which returns -EPROBE_DEFER if the
-> endpoint is managed by a vIOMMU that will be loaded later, or 0 in any
-> other case to avoid disturbing the normal DMA configuration methods.
-> When CONFIG_VIRTIO_IOMMU_TOPOLOGY isn't selected, the call to
-> virt_dma_configure() is compiled out.
-> 
-> As long as the information is consistent, platforms can provide both a
-> device-tree and a built-in topology, and the IOMMU infrastructure is
-> able to deal with multiple DMA configuration methods.
-> 
-> Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
 
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+On 3/18/2020 8:22 PM, Jason Gunthorpe wrote:
+> On Wed, Mar 18, 2020 at 04:03:27PM +0800, Jason Wang wrote:
+>> From: Zhu Lingshan <lingshan.zhu@intel.com>
+>> +
+>> +static int ifcvf_vdpa_attach(struct ifcvf_adapter *adapter)
+>> +{
+>> +	int ret;
+>> +
+>> +	adapter->vdpa_dev  = vdpa_alloc_device(adapter->dev, adapter->dev,
+>> +					       &ifc_vdpa_ops);
+>> +	if (IS_ERR(adapter->vdpa_dev)) {
+>> +		IFCVF_ERR(adapter->dev, "Failed to init ifcvf on vdpa bus");
+>> +		put_device(&adapter->vdpa_dev->dev);
+>> +		return -ENODEV;
+>> +	}
+> The point of having an alloc call is so that the drivers
+> ifcvf_adaptor memory could be placed in the same struct - eg use
+> container_of to flip between them, and have a kref for both memories.
+>
+> It seem really weird to have an alloc followed immediately by
+> register.
 
-> ---
->  drivers/pci/pci-driver.c | 5 +++++
->  1 file changed, 5 insertions(+)
-> 
-> diff --git a/drivers/pci/pci-driver.c b/drivers/pci/pci-driver.c
-> index 0454ca0e4e3f..69303a814f21 100644
-> --- a/drivers/pci/pci-driver.c
-> +++ b/drivers/pci/pci-driver.c
-> @@ -18,6 +18,7 @@
->  #include <linux/kexec.h>
->  #include <linux/of_device.h>
->  #include <linux/acpi.h>
-> +#include <linux/virt_iommu.h>
->  #include "pci.h"
->  #include "pcie/portdrv.h"
->  
-> @@ -1602,6 +1603,10 @@ static int pci_dma_configure(struct device *dev)
->  	struct device *bridge;
->  	int ret = 0;
->  
-> +	ret = virt_dma_configure(dev);
-> +	if (ret)
-> +		return ret;
-> +
->  	bridge = pci_get_host_bridge_device(to_pci_dev(dev));
->  
->  	if (IS_ENABLED(CONFIG_OF) && bridge->parent &&
-> -- 
-> 2.25.0
-> 
+Hi Jason,
+
+Thanks for your comments, but I failed to understand this. In IFCVF 
+driver, we call ifcvf_vdpa_attach() at the end at probe(),
+at this point, PCIE initialization almost done, then try to alloc vdpa 
+device, if successful, we can register it to VDPA bus.
+
+Are you suggesting to wait for anything else done?
+
+THanks,
+BR
+Zhu Linghsan
+>
+>> diff --git a/drivers/virtio/virtio_vdpa.c b/drivers/virtio/virtio_vdpa.c
+>> index c30eb55030be..de64b88ee7e4 100644
+>> +++ b/drivers/virtio/virtio_vdpa.c
+>> @@ -362,6 +362,7 @@ static int virtio_vdpa_probe(struct vdpa_device *vdpa)
+>>   		goto err;
+>>   
+>>   	vdpa_set_drvdata(vdpa, vd_dev);
+>> +	dev_info(vd_dev->vdev.dev.parent, "device attached to VDPA bus\n");
+>>   
+>>   	return 0;
+> This hunk seems out of place
+>
+> Jason
