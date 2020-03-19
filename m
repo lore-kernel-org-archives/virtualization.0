@@ -1,221 +1,133 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [RFC PATCH 00/70 v2] x86: SEV-ES Guest Support
-Date: Thu, 19 Mar 2020 10:12:57 +0100
-Message-ID: <20200319091407.1481-1-joro@8bytes.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: [PATCH 06/70] x86/umip: Factor out instruction fetch
+Date: Thu, 19 Mar 2020 10:13:03 +0100
+Message-ID: <20200319091407.1481-7-joro@8bytes.org>
+References: <20200319091407.1481-1-joro@8bytes.org>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20200319091407.1481-1-joro@8bytes.org>
+Sender: kvm-owner@vger.kernel.org
 To: x86@kernel.org
 Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+From: Joerg Roedel <jroedel@suse.de>
 
-here is an updated version of the patch-set to enable Linux to run as a
-guest in an SEV-ES enabled Hypervisor. The first version can be found
-here:
+Factor out the code to fetch the instruction from user-space to a helper
+function.
 
-	https://lore.kernel.org/lkml/20200211135256.24617-1-joro@8bytes.org/
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+---
+ arch/x86/include/asm/insn-eval.h |  2 ++
+ arch/x86/kernel/umip.c           | 26 +++++-----------------
+ arch/x86/lib/insn-eval.c         | 38 ++++++++++++++++++++++++++++++++
+ 3 files changed, 46 insertions(+), 20 deletions(-)
 
-The first post also includes a more elaborate description of the
-implementation requirements and details.  A branch containing these
-patches is here:
-
-	https://git.kernel.org/pub/scm/linux/kernel/git/joro/linux.git/log/?h=sev-es-client-v5.6-rc6
-
-There are lots of small changes since the first version, here is a list
-of the major ones, which address most of the valuable review comments I
-received, thanks for that!
-
-Changes since v1:
-
-	- Rebased to v5.6-rc6
-
-	- Factored out instruction decoding part of the UMIP handler and
-	  re-used it in the SEV-ES code.
-
-	- Several enhancements of the instruction decoder as needed by
-	  SEV-ES
-
-	- The instruction fetch and memory access code for instruction
-	  emulation now handles different user execution modes as well
-	  as segment bases.
-
-	- Added emulation of (REP) MOVS instructions
-
-	- Added handling for nesting #VC handlers - which fixed the NMI
-	  issues.
-
-	- Pass error_code as a parameter to the #VC exception handlers
-
-	- Reworked early exception dispatch function
-
-	- Moved the GHCB pages out of the per-cpu areas and only
-	  allocate them when they are actually needed. The per-cpu areas
-	  only store a pointer now.
-
-	- Removed emulation for INVD, now it will just cause an error if
-	  used.
-
-	- Added prefixes to the function names.
-
-	- Fixed a bug which broke bare-metal boot with mem_encrypt=on
-
-The last missing change I have on my list is to rework the NMI handling
-patch. I decided to postpone this until Thomas' Gleixners rework of the
-x86 entry code is ready and merged, because the NMI handling will
-conflict with these changes.
-
-Please review.
-
-Thanks,
-
-	Joerg
-
-Doug Covelli (1):
-  x86/vmware: Add VMware specific handling for VMMCALL under SEV-ES
-
-Joerg Roedel (51):
-  KVM: SVM: Add GHCB Accessor functions
-  x86/traps: Move some definitions to <asm/trap_defs.h>
-  x86/insn: Make inat-tables.c suitable for pre-decompression code
-  x86/umip: Factor out instruction fetch
-  x86/umip: Factor out instruction decoding
-  x86/insn: Add insn_get_modrm_reg_off()
-  x86/insn: Add insn_rep_prefix() helper
-  x86/boot/compressed: Fix debug_puthex() parameter type
-  x86/boot/compressed/64: Disable red-zone usage
-  x86/boot/compressed/64: Add IDT Infrastructure
-  x86/boot/compressed/64: Rename kaslr_64.c to ident_map_64.c
-  x86/boot/compressed/64: Add page-fault handler
-  x86/boot/compressed/64: Always switch to own page-table
-  x86/boot/compressed/64: Don't pre-map memory in KASLR code
-  x86/boot/compressed/64: Change add_identity_map() to take start and
-    end
-  x86/boot/compressed/64: Add stage1 #VC handler
-  x86/boot/compressed/64: Call set_sev_encryption_mask earlier
-  x86/boot/compressed/64: Check return value of
-    kernel_ident_mapping_init()
-  x86/boot/compressed/64: Add function to map a page unencrypted
-  x86/boot/compressed/64: Setup GHCB Based VC Exception handler
-  x86/fpu: Move xgetbv()/xsetbv() into separate header
-  x86/idt: Move IDT to data segment
-  x86/idt: Split idt_data setup out of set_intr_gate()
-  x86/idt: Move two function from k/idt.c to i/a/desc.h
-  x86/head/64: Install boot GDT
-  x86/head/64: Reload GDT after switch to virtual addresses
-  x86/head/64: Load segment registers earlier
-  x86/head/64: Switch to initial stack earlier
-  x86/head/64: Build k/head64.c with -fno-stack-protector
-  x86/head/64: Load IDT earlier
-  x86/head/64: Move early exception dispatch to C code
-  x86/sev-es: Add SEV-ES Feature Detection
-  x86/sev-es: Compile early handler code into kernel image
-  x86/sev-es: Setup early #VC handler
-  x86/sev-es: Setup GHCB based boot #VC handler
-  x86/sev-es: Support nested #VC exceptions
-  x86/sev-es: Wire up existing #VC exit-code handlers
-  x86/sev-es: Handle instruction fetches from user-space
-  x86/sev-es: Harden runtime #VC handler for exceptions from user-space
-  x86/sev-es: Filter exceptions not supported from user-space
-  x86/sev-es: Handle MMIO String Instructions
-  x86/sev-es: Handle RDTSCP Events
-  x86/sev-es: Handle #AC Events
-  x86/sev-es: Handle #DB Events
-  x86/paravirt: Allow hypervisor specific VMMCALL handling under SEV-ES
-  x86/realmode: Add SEV-ES specific trampoline entry point
-  x86/head/64: Don't call verify_cpu() on starting APs
-  x86/head/64: Rename start_cpu0
-  x86/sev-es: Support CPU offline/online
-  x86/cpufeature: Add SEV_ES_GUEST CPU Feature
-  x86/sev-es: Add NMI state tracking
-
-Tom Lendacky (18):
-  KVM: SVM: Add GHCB definitions
-  x86/cpufeatures: Add SEV-ES CPU feature
-  x86/sev-es: Add support for handling IOIO exceptions
-  x86/sev-es: Add CPUID handling to #VC handler
-  x86/sev-es: Setup per-cpu GHCBs for the runtime handler
-  x86/sev-es: Add Runtime #VC Exception Handler
-  x86/sev-es: Handle MMIO events
-  x86/sev-es: Handle MSR events
-  x86/sev-es: Handle DR7 read/write events
-  x86/sev-es: Handle WBINVD Events
-  x86/sev-es: Handle RDTSC Events
-  x86/sev-es: Handle RDPMC Events
-  x86/sev-es: Handle INVD Events
-  x86/sev-es: Handle MONITOR/MONITORX Events
-  x86/sev-es: Handle MWAIT/MWAITX Events
-  x86/sev-es: Handle VMMCALL Events
-  x86/kvm: Add KVM specific VMMCALL handling under SEV-ES
-  x86/realmode: Setup AP jump table
-
- arch/x86/Kconfig                           |    1 +
- arch/x86/boot/Makefile                     |    2 +-
- arch/x86/boot/compressed/Makefile          |    8 +-
- arch/x86/boot/compressed/head_64.S         |   41 +
- arch/x86/boot/compressed/ident_map_64.c    |  320 ++++++
- arch/x86/boot/compressed/idt_64.c          |   53 +
- arch/x86/boot/compressed/idt_handlers_64.S |   82 ++
- arch/x86/boot/compressed/kaslr.c           |   36 +-
- arch/x86/boot/compressed/kaslr_64.c        |  153 ---
- arch/x86/boot/compressed/misc.h            |   34 +-
- arch/x86/boot/compressed/sev-es.c          |  177 +++
- arch/x86/entry/entry_64.S                  |   52 +
- arch/x86/include/asm/cpu.h                 |    2 +-
- arch/x86/include/asm/cpufeatures.h         |    2 +
- arch/x86/include/asm/desc.h                |   28 +
- arch/x86/include/asm/desc_defs.h           |   10 +
- arch/x86/include/asm/fpu/internal.h        |   29 +-
- arch/x86/include/asm/fpu/xcr.h             |   32 +
- arch/x86/include/asm/insn-eval.h           |    6 +
- arch/x86/include/asm/mem_encrypt.h         |    5 +
- arch/x86/include/asm/msr-index.h           |    3 +
- arch/x86/include/asm/pgtable.h             |    2 +-
- arch/x86/include/asm/processor.h           |    1 +
- arch/x86/include/asm/realmode.h            |    4 +
- arch/x86/include/asm/segment.h             |    2 +-
- arch/x86/include/asm/setup.h               |    1 -
- arch/x86/include/asm/sev-es.h              |  119 ++
- arch/x86/include/asm/svm.h                 |  103 ++
- arch/x86/include/asm/trap_defs.h           |   50 +
- arch/x86/include/asm/traps.h               |   51 +-
- arch/x86/include/asm/x86_init.h            |   16 +-
- arch/x86/include/uapi/asm/svm.h            |   11 +
- arch/x86/kernel/Makefile                   |    5 +
- arch/x86/kernel/cpu/amd.c                  |    9 +-
- arch/x86/kernel/cpu/scattered.c            |    1 +
- arch/x86/kernel/cpu/vmware.c               |   50 +-
- arch/x86/kernel/head64.c                   |   57 +-
- arch/x86/kernel/head_32.S                  |    4 +-
- arch/x86/kernel/head_64.S                  |  169 ++-
- arch/x86/kernel/idt.c                      |   52 +-
- arch/x86/kernel/kvm.c                      |   35 +-
- arch/x86/kernel/nmi.c                      |    8 +
- arch/x86/kernel/sev-es-shared.c            |  444 ++++++++
- arch/x86/kernel/sev-es.c                   | 1165 ++++++++++++++++++++
- arch/x86/kernel/smpboot.c                  |    4 +-
- arch/x86/kernel/traps.c                    |    3 +
- arch/x86/kernel/umip.c                     |   49 +-
- arch/x86/lib/insn-eval.c                   |  130 +++
- arch/x86/mm/extable.c                      |    1 +
- arch/x86/mm/mem_encrypt.c                  |   11 +-
- arch/x86/mm/mem_encrypt_identity.c         |    3 +
- arch/x86/realmode/init.c                   |   12 +
- arch/x86/realmode/rm/header.S              |    3 +
- arch/x86/realmode/rm/trampoline_64.S       |   20 +
- arch/x86/tools/gen-insn-attr-x86.awk       |   50 +-
- tools/arch/x86/tools/gen-insn-attr-x86.awk |   50 +-
- 56 files changed, 3352 insertions(+), 419 deletions(-)
- create mode 100644 arch/x86/boot/compressed/ident_map_64.c
- create mode 100644 arch/x86/boot/compressed/idt_64.c
- create mode 100644 arch/x86/boot/compressed/idt_handlers_64.S
- delete mode 100644 arch/x86/boot/compressed/kaslr_64.c
- create mode 100644 arch/x86/boot/compressed/sev-es.c
- create mode 100644 arch/x86/include/asm/fpu/xcr.h
- create mode 100644 arch/x86/include/asm/sev-es.h
- create mode 100644 arch/x86/include/asm/trap_defs.h
- create mode 100644 arch/x86/kernel/sev-es-shared.c
- create mode 100644 arch/x86/kernel/sev-es.c
-
+diff --git a/arch/x86/include/asm/insn-eval.h b/arch/x86/include/asm/insn-eval.h
+index 2b6ccf2c49f1..b8b9ef1bbd06 100644
+--- a/arch/x86/include/asm/insn-eval.h
++++ b/arch/x86/include/asm/insn-eval.h
+@@ -19,5 +19,7 @@ void __user *insn_get_addr_ref(struct insn *insn, struct pt_regs *regs);
+ int insn_get_modrm_rm_off(struct insn *insn, struct pt_regs *regs);
+ unsigned long insn_get_seg_base(struct pt_regs *regs, int seg_reg_idx);
+ int insn_get_code_seg_params(struct pt_regs *regs);
++int insn_fetch_from_user(struct pt_regs *regs,
++			 unsigned char buf[MAX_INSN_SIZE]);
+ 
+ #endif /* _ASM_X86_INSN_EVAL_H */
+diff --git a/arch/x86/kernel/umip.c b/arch/x86/kernel/umip.c
+index 4d732a444711..00cb157673b1 100644
+--- a/arch/x86/kernel/umip.c
++++ b/arch/x86/kernel/umip.c
+@@ -317,11 +317,11 @@ static void force_sig_info_umip_fault(void __user *addr, struct pt_regs *regs)
+  */
+ bool fixup_umip_exception(struct pt_regs *regs)
+ {
+-	int not_copied, nr_copied, reg_offset, dummy_data_size, umip_inst;
+-	unsigned long seg_base = 0, *reg_addr;
++	int nr_copied, reg_offset, dummy_data_size, umip_inst;
+ 	/* 10 bytes is the maximum size of the result of UMIP instructions */
+ 	unsigned char dummy_data[10] = { 0 };
+ 	unsigned char buf[MAX_INSN_SIZE];
++	unsigned long *reg_addr;
+ 	void __user *uaddr;
+ 	struct insn insn;
+ 	int seg_defs;
+@@ -329,26 +329,12 @@ bool fixup_umip_exception(struct pt_regs *regs)
+ 	if (!regs)
+ 		return false;
+ 
+-	/*
+-	 * If not in user-space long mode, a custom code segment could be in
+-	 * use. This is true in protected mode (if the process defined a local
+-	 * descriptor table), or virtual-8086 mode. In most of the cases
+-	 * seg_base will be zero as in USER_CS.
+-	 */
+-	if (!user_64bit_mode(regs))
+-		seg_base = insn_get_seg_base(regs, INAT_SEG_REG_CS);
+-
+-	if (seg_base == -1L)
+-		return false;
+-
+-	not_copied = copy_from_user(buf, (void __user *)(seg_base + regs->ip),
+-				    sizeof(buf));
+-	nr_copied = sizeof(buf) - not_copied;
++	nr_copied = insn_fetch_from_user(regs, buf);
+ 
+ 	/*
+-	 * The copy_from_user above could have failed if user code is protected
+-	 * by a memory protection key. Give up on emulation in such a case.
+-	 * Should we issue a page fault?
++	 * The insn_fetch_from_user above could have failed if user code
++	 * is protected by a memory protection key. Give up on emulation
++	 * in such a case.  Should we issue a page fault?
+ 	 */
+ 	if (!nr_copied)
+ 		return false;
+diff --git a/arch/x86/lib/insn-eval.c b/arch/x86/lib/insn-eval.c
+index 31600d851fd8..95ae3953e2a2 100644
+--- a/arch/x86/lib/insn-eval.c
++++ b/arch/x86/lib/insn-eval.c
+@@ -1369,3 +1369,41 @@ void __user *insn_get_addr_ref(struct insn *insn, struct pt_regs *regs)
+ 		return (void __user *)-1L;
+ 	}
+ }
++
++/**
++ * insn_fetch_from_user() - Copy instruction bytes from user-space memory
++ * @regs:	Structure with register values as seen when entering kernel mode
++ * @buf:	Array to store the fetched instruction
++ *
++ * Gets the linear address of the instruction and copies the instruction bytes
++ * to the buf.
++ *
++ * Returns:
++ *
++ * Number of instruction bytes copied.
++ *
++ * 0 if nothing was copied.
++ */
++int insn_fetch_from_user(struct pt_regs *regs,
++			 unsigned char buf[MAX_INSN_SIZE])
++{
++	unsigned long seg_base = 0;
++	int not_copied;
++
++	/*
++	 * If not in user-space long mode, a custom code segment could be in
++	 * use. This is true in protected mode (if the process defined a local
++	 * descriptor table), or virtual-8086 mode. In most of the cases
++	 * seg_base will be zero as in USER_CS.
++	 */
++	if (!user_64bit_mode(regs))
++		seg_base = insn_get_seg_base(regs, INAT_SEG_REG_CS);
++
++	if (seg_base == -1L)
++		return 0;
++
++	not_copied = copy_from_user(buf, (void __user *)(seg_base + regs->ip),
++				    MAX_INSN_SIZE);
++
++	return MAX_INSN_SIZE - not_copied;
++}
 -- 
 2.17.1
