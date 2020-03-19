@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 62/70] x86/kvm: Add KVM specific VMMCALL handling under SEV-ES
-Date: Thu, 19 Mar 2020 10:13:59 +0100
-Message-ID: <20200319091407.1481-63-joro@8bytes.org>
+Subject: [PATCH 51/70] x86/sev-es: Handle WBINVD Events
+Date: Thu, 19 Mar 2020 10:13:48 +0100
+Message-ID: <20200319091407.1481-52-joro@8bytes.org>
 References: <20200319091407.1481-1-joro@8bytes.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200319091407.1481-1-joro@8bytes.org>
@@ -12,71 +12,42 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Tom Lendacky <thomas.lendacky@amd.com>
 
-Implement the callbacks to copy the processor state required by KVM to
-the GHCB.
+Implement a handler for #VC exceptions caused by WBINVD instructions.
 
 Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-[ jroedel@suse.de: - Split out of a larger patch
-                   - Adapt to different callback functions ]
+[ jroedel@suse.de: Adapt to #VC handling framework ]
 Co-developed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/kvm.c | 35 +++++++++++++++++++++++++++++------
- 1 file changed, 29 insertions(+), 6 deletions(-)
+ arch/x86/kernel/sev-es.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-index 6efe0410fb72..0e3fc798d719 100644
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -34,6 +34,8 @@
- #include <asm/hypervisor.h>
- #include <asm/tlb.h>
- #include <asm/cpuidle_haltpoll.h>
-+#include <asm/ptrace.h>
-+#include <asm/svm.h>
- 
- static int kvmapf = 1;
- 
-@@ -729,13 +731,34 @@ static void __init kvm_init_platform(void)
- 	x86_platform.apic_post_init = kvm_apic_init;
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+index 7a9cdc660637..5b024ee54307 100644
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -659,6 +659,12 @@ static enum es_result vc_handle_dr7_read(struct ghcb *ghcb,
+ 	return ES_OK;
  }
  
-+#if defined(CONFIG_AMD_MEM_ENCRYPT)
-+static void kvm_sev_es_hcall_prepare(struct ghcb *ghcb, struct pt_regs *regs)
++static enum es_result vc_handle_wbinvd(struct ghcb *ghcb,
++				       struct es_em_ctxt *ctxt)
 +{
-+	/* RAX and CPL are already in the GHCB */
-+	ghcb_set_rbx(ghcb, regs->bx);
-+	ghcb_set_rcx(ghcb, regs->cx);
-+	ghcb_set_rdx(ghcb, regs->dx);
-+	ghcb_set_rsi(ghcb, regs->si);
++	return sev_es_ghcb_hv_call(ghcb, ctxt, SVM_EXIT_WBINVD, 0, 0);
 +}
 +
-+static bool kvm_sev_es_hcall_finish(struct ghcb *ghcb, struct pt_regs *regs)
-+{
-+	/* No checking of the return state needed */
-+	return true;
-+}
-+#endif
-+
- const __initconst struct hypervisor_x86 x86_hyper_kvm = {
--	.name			= "KVM",
--	.detect			= kvm_detect,
--	.type			= X86_HYPER_KVM,
--	.init.guest_late_init	= kvm_guest_init,
--	.init.x2apic_available	= kvm_para_available,
--	.init.init_platform	= kvm_init_platform,
-+	.name				= "KVM",
-+	.detect				= kvm_detect,
-+	.type				= X86_HYPER_KVM,
-+	.init.guest_late_init		= kvm_guest_init,
-+	.init.x2apic_available		= kvm_para_available,
-+	.init.init_platform		= kvm_init_platform,
-+#if defined(CONFIG_AMD_MEM_ENCRYPT)
-+	.runtime.sev_es_hcall_prepare	= kvm_sev_es_hcall_prepare,
-+	.runtime.sev_es_hcall_finish	= kvm_sev_es_hcall_finish,
-+#endif
- };
- 
- static __init int activate_jump_labels(void)
+ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
+ 					 struct ghcb *ghcb,
+ 					 unsigned long exit_code,
+@@ -682,6 +688,9 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
+ 	case SVM_EXIT_MSR:
+ 		result = vc_handle_msr(ghcb, ctxt);
+ 		break;
++	case SVM_EXIT_WBINVD:
++		result = vc_handle_wbinvd(ghcb, ctxt);
++		break;
+ 	case SVM_EXIT_NPF:
+ 		result = vc_handle_mmio(ghcb, ctxt);
+ 		break;
 -- 
 2.17.1
