@@ -1,96 +1,56 @@
-From: Alex Williamson <alex.williamson@redhat.com>
-Subject: Re: [PATCH] iommu/virtio: Reject IOMMU page granule larger than
- PAGE_SIZE
-Date: Thu, 19 Mar 2020 12:54:16 -0600
-Message-ID: <20200319125416.4ff08ca2@w520.home>
-References: <20200318114047.1518048-1-jean-philippe@linaro.org>
- <f1f3d844-8080-d26d-200e-a38480895480@arm.com>
- <09a32736-ea01-21f9-6bd5-9344b368f90a@redhat.com>
+From: Joerg Roedel <jroedel@suse.de>
+Subject: Re: [PATCH 70/70] x86/sev-es: Add NMI state tracking
+Date: Thu, 19 Mar 2020 20:26:54 +0100
+Message-ID: <20200319192654.GD611@suse.de>
+References: <20200319091407.1481-1-joro@8bytes.org>
+ <20200319091407.1481-71-joro@8bytes.org>
+ <CALCETrUOQneBHjoZkP-7T5PDijb=WOyv7xF7TD0GLR2Aw77vyA@mail.gmail.com>
+ <20200319160749.GC5122@8bytes.org>
+ <CALCETrXY5M87C1Fc3QvTkc6MdbQ_3gAuOPUeWJktAzK4T60QNQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <09a32736-ea01-21f9-6bd5-9344b368f90a@redhat.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Auger Eric <eric.auger@redhat.com>
-Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>, joro@8bytes.org, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, Bharat Bhushan <bbhushan2@marvell.com>, Robin Murphy <robin.murphy@arm.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CALCETrXY5M87C1Fc3QvTkc6MdbQ_3gAuOPUeWJktAzK4T60QNQ@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andy Lutomirski <luto@kernel.org>
+Cc: Joerg Roedel <joro@8bytes.org>, X86 ML <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, LKML <linux-kernel@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCAxOCBNYXIgMjAyMCAxNzoxNDowNSArMDEwMApBdWdlciBFcmljIDxlcmljLmF1Z2Vy
-QHJlZGhhdC5jb20+IHdyb3RlOgoKPiBIaSwKPiAKPiBPbiAzLzE4LzIwIDE6MDAgUE0sIFJvYmlu
-IE11cnBoeSB3cm90ZToKPiA+IE9uIDIwMjAtMDMtMTggMTE6NDAgYW0sIEplYW4tUGhpbGlwcGUg
-QnJ1Y2tlciB3cm90ZTogIAo+ID4+IFdlIGRvbid0IGN1cnJlbnRseSBzdXBwb3J0IElPTU1VcyB3
-aXRoIGEgcGFnZSBncmFudWxlIGxhcmdlciB0aGFuIHRoZQo+ID4+IHN5c3RlbSBwYWdlIHNpemUu
-IFRoZSBJT1ZBIGFsbG9jYXRvciBoYXMgYSBCVUdfT04oKSBpbiB0aGlzIGNhc2UsIGFuZAo+ID4+
-IFZGSU8gaGFzIGEgV0FSTl9PTigpLiAgCj4gCj4gQWRkaW5nIEFsZXggaW4gQ0MgaW4gY2FzZSBo
-ZSBoYXMgdGltZSB0byBqdW1wIGluLiBBdCB0aGUgbW9tZW50IEkgZG9uJ3QKPiBnZXQgd2h5IHRo
-aXMgV0FSTl9PTigpIGlzIGhlcmUuCj4gCj4gVGhpcyB3YXMgaW50cm9kdWNlZCBpbgo+IGM4ZGJj
-YTE2NWJiMDkwZjkyNjk5NmE1NzJlYTJiNWI1NzdiMzRiNzAgdmZpby9pb21tdV90eXBlMTogQXZv
-aWQgb3ZlcmZsb3cKCkkgZG9uJ3QgcmVjYWxsIGlmIEkgaGFkIHNvbWV0aGluZyBzcGVjaWZpYyBp
-biBtaW5kIHdoZW4gYWRkaW5nIHRoaXMKd2FybmluZywgYnV0IGlmIFBBR0VfU0laRSBpcyBzbWFs
-bGVyIHRoYW4gdGhlIG1pbmltdW0gSU9NTVUgcGFnZSBzaXplLAp0aGVuIHdlIG5lZWQgbXVsdGlw
-bGUgUEFHRV9TSVpFIHBhZ2VzIHBlciBJT01NVSBUTEIgZW50cnkuICBUaGVyZWZvcmUKdGhvc2Ug
-cGFnZXMgbXVzdCBiZSBjb250aWd1b3VzLiAgQXNpZGUgZnJvbSByZXF1aXJpbmcgb25seSBodWdl
-cGFnZQpiYWNraW5nLCBob3cgY291bGQgYSB1c2VyIG1ha2Ugc3VyZSB0aGF0IHRoZWlyIHZpcnR1
-YWwgYWRkcmVzcyBidWZmZXIKaXMgcGh5c2ljYWxseSBjb250aWd1b3VzPyAgSSBkb24ndCB0aGlu
-ayB3ZSBoYXZlIGFueSBzYW5pdHkgY2hlY2tpbmcKY29kZSB0aGF0IGRvZXMgdGhpcywgdGh1cyB0
-aGUgd2FybmluZy4gIFRoYW5rcywKCkFsZXgKCj4gPj4gSXQgbWlnaHQgYmUgcG9zc2libGUgdG8g
-cmVtb3ZlIHRoZXNlIG9ic3RhY2xlcyBpZiBuZWNlc3NhcnkuIElmIHRoZSBob3N0Cj4gPj4gdXNl
-cyA2NGtCIHBhZ2VzIGFuZCB0aGUgZ3Vlc3QgdXNlcyA0a0IsIHRoZW4gYSBkZXZpY2UgZHJpdmVy
-IGNhbGxpbmcKPiA+PiBhbGxvY19wYWdlKCkgZm9sbG93ZWQgYnkgZG1hX21hcF9wYWdlKCkgd2ls
-bCBjcmVhdGUgYSA2NGtCIG1hcHBpbmcgZm9yIGEKPiA+PiA0a0IgcGh5c2ljYWwgcGFnZSwgYWxs
-b3dpbmcgdGhlIGVuZHBvaW50IHRvIGFjY2VzcyB0aGUgbmVpZ2hib3VyaW5nIDYwa0IKPiA+PiBv
-ZiBtZW1vcnkuIFRoaXMgcHJvYmxlbSBjb3VsZCBiZSB3b3JrZWQgYXJvdW5kIHdpdGggYm91bmNl
-IGJ1ZmZlcnMuICAKPiA+IAo+ID4gRldJVyB0aGUgZnVuZGFtZW50YWwgaXNzdWUgaXMgdGhhdCBj
-YWxsZXJzIG9mIGlvbW11X21hcCgpIG1heSBleHBlY3QgdG8KPiA+IGJlIGFibGUgdG8gbWFwIHR3
-byBvciBtb3JlIHBhZ2UtYWxpZ25lZCByZWdpb25zIGRpcmVjdGx5IGFkamFjZW50IHRvCj4gPiBl
-YWNoIG90aGVyIGZvciBzY2F0dGVyLWdhdGhlciBwdXJwb3NlcyAob3IgcmluZyBidWZmZXIgdHJp
-Y2tzKSwgYW5kCj4gPiB0aGF0J3MganVzdCBub3QgcG9zc2libGUgaWYgdGhlIElPTU1VIGdyYW51
-bGUgaXMgdG9vIGJpZy4gQm91bmNlCj4gPiBidWZmZXJpbmcgd291bGQgYmUgYSB2aWFibGUgd29y
-a2Fyb3VuZCBmb3IgdGhlIHN0cmVhbWluZyBETUEgQVBJIGFuZAo+ID4gY2VydGFpbiBzaW1pbGFy
-IHVzZS1jYXNlcywgYnV0IG5vdCBpbiBnZW5lcmFsIChlLmcuIGNvaGVyZW50IERNQSwgVkZJTywK
-PiA+IEdQVXMsIGV0Yy4pCj4gPiAKPiA+IFJvYmluLgo+ID4gICAKPiA+PiBGb3IgdGhlIG1vbWVu
-dCwgcmF0aGVyIHRoYW4gdHJpZ2dlcmluZyB0aGUgSU9WQSBCVUdfT04oKSBvbiBtaXNtYXRjaGVk
-Cj4gPj4gcGFnZSBzaXplcywgYWJvcnQgdGhlIHZpcnRpby1pb21tdSBwcm9iZSB3aXRoIGFuIGVy
-cm9yIG1lc3NhZ2UuICAKPiAKPiBJIHVuZGVyc3RhbmQgdGhpcyBpcyBhIGludHJvZHVjZWQgYXMg
-YSB0ZW1wb3Jhcnkgc29sdXRpb24gYnV0IHRoaXMKPiBzb3VuZHMgYXMgYW4gaW1wb3J0YW50IGxp
-bWl0YXRpb24gdG8gbWUuIEZvciBpbnN0YW5jZSB0aGlzIHdpbGwgcHJldmVudAo+IGZyb20gcnVu
-bmluZyBhIGZlZG9yYSBndWVzdCBleHBvc2VkIHdpdGggYSB2aXJ0aW8taW9tbXUgd2l0aCBhIFJI
-RUwgaG9zdC4KPiAKPiBUaGFua3MKPiAKPiBFcmljCj4gPj4KPiA+PiBSZXBvcnRlZC1ieTogQmhh
-cmF0IEJodXNoYW4gPGJiaHVzaGFuMkBtYXJ2ZWxsLmNvbT4KPiA+PiBTaWduZWQtb2ZmLWJ5OiBK
-ZWFuLVBoaWxpcHBlIEJydWNrZXIgPGplYW4tcGhpbGlwcGVAbGluYXJvLm9yZz4KPiA+PiAtLS0K
-PiA+PiDCoCBkcml2ZXJzL2lvbW11L3ZpcnRpby1pb21tdS5jIHwgOSArKysrKysrKysKPiA+PiDC
-oCAxIGZpbGUgY2hhbmdlZCwgOSBpbnNlcnRpb25zKCspCj4gPj4KPiA+PiBkaWZmIC0tZ2l0IGEv
-ZHJpdmVycy9pb21tdS92aXJ0aW8taW9tbXUuYyBiL2RyaXZlcnMvaW9tbXUvdmlydGlvLWlvbW11
-LmMKPiA+PiBpbmRleCA2ZDRlM2MyYTJkZGIuLjgwZDVkOGY2MjFhYiAxMDA2NDQKPiA+PiAtLS0g
-YS9kcml2ZXJzL2lvbW11L3ZpcnRpby1pb21tdS5jCj4gPj4gKysrIGIvZHJpdmVycy9pb21tdS92
-aXJ0aW8taW9tbXUuYwo+ID4+IEBAIC05OTgsNiArOTk4LDcgQEAgc3RhdGljIGludCB2aW9tbXVf
-cHJvYmUoc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYpCj4gPj4gwqDCoMKgwqDCoCBzdHJ1Y3Qg
-ZGV2aWNlICpwYXJlbnRfZGV2ID0gdmRldi0+ZGV2LnBhcmVudDsKPiA+PiDCoMKgwqDCoMKgIHN0
-cnVjdCB2aW9tbXVfZGV2ICp2aW9tbXUgPSBOVUxMOwo+ID4+IMKgwqDCoMKgwqAgc3RydWN0IGRl
-dmljZSAqZGV2ID0gJnZkZXYtPmRldjsKPiA+PiArwqDCoMKgIHVuc2lnbmVkIGxvbmcgdmlvbW11
-X3BhZ2Vfc2l6ZTsKPiA+PiDCoMKgwqDCoMKgIHU2NCBpbnB1dF9zdGFydCA9IDA7Cj4gPj4gwqDC
-oMKgwqDCoCB1NjQgaW5wdXRfZW5kID0gLTFVTDsKPiA+PiDCoMKgwqDCoMKgIGludCByZXQ7Cj4g
-Pj4gQEAgLTEwMjgsNiArMTAyOSwxNCBAQCBzdGF0aWMgaW50IHZpb21tdV9wcm9iZShzdHJ1Y3Qg
-dmlydGlvX2RldmljZQo+ID4+ICp2ZGV2KQo+ID4+IMKgwqDCoMKgwqDCoMKgwqDCoCBnb3RvIGVy
-cl9mcmVlX3ZxczsKPiA+PiDCoMKgwqDCoMKgIH0KPiA+PiDCoCArwqDCoMKgIHZpb21tdV9wYWdl
-X3NpemUgPSAxVUwgPDwgX19mZnModmlvbW11LT5wZ3NpemVfYml0bWFwKTsKPiA+PiArwqDCoMKg
-IGlmICh2aW9tbXVfcGFnZV9zaXplID4gUEFHRV9TSVpFKSB7Cj4gPj4gK8KgwqDCoMKgwqDCoMKg
-IGRldl9lcnIoZGV2LCAiZ3JhbnVsZSAweCVseCBsYXJnZXIgdGhhbiBzeXN0ZW0gcGFnZSBzaXpl
-Cj4gPj4gMHglbHhcbiIsCj4gPj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqAgdmlvbW11X3BhZ2Vf
-c2l6ZSwgUEFHRV9TSVpFKTsKPiA+PiArwqDCoMKgwqDCoMKgwqAgcmV0ID0gLUVJTlZBTDsKPiA+
-PiArwqDCoMKgwqDCoMKgwqAgZ290byBlcnJfZnJlZV92cXM7Cj4gPj4gK8KgwqDCoCB9Cj4gPj4g
-Kwo+ID4+IMKgwqDCoMKgwqAgdmlvbW11LT5tYXBfZmxhZ3MgPSBWSVJUSU9fSU9NTVVfTUFQX0Zf
-UkVBRCB8Cj4gPj4gVklSVElPX0lPTU1VX01BUF9GX1dSSVRFOwo+ID4+IMKgwqDCoMKgwqAgdmlv
-bW11LT5sYXN0X2RvbWFpbiA9IH4wVTsKPiA+PiDCoCAgCj4gPiAgIAoKX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBs
-aXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlz
-dHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Thu, Mar 19, 2020 at 11:40:39AM -0700, Andy Lutomirski wrote:
+ 
+> Nope.  A nested NMI will reset the interrupted NMI's return frame to
+> cause it to run again when it's done.  I don't think this will have
+> any real interaction with #VC.  There's no longjmp() here.
+
+Ahh, so I misunderstood that part, in this case your proposal of sending
+the NMI-complete message right at the beginning of do_nmi() should work
+just fine. I will test this and see how it works out.
+
+> I certainly *like* preventing nesting, but I don't think we really
+> want a whole alternate NMI path just for a couple of messed-up AMD
+> generations.  And the TF trick is not so pretty either.
+
+Indeed, if it could be avoided, it should.
+
+> 
+> > > This causes us to pop the NMI frame off the stack.  Assuming the NMI
+> > > restart logic is invoked (which is maybe impossible?), we get #DB,
+> > > which presumably is actually delivered.  And we end up on the #DB
+> > > stack, which might already have been in use, so we have a potential
+> > > increase in nesting.  Also, #DB may be called from an unexpected
+> > > context.
+> >
+> > An SEV-ES hypervisor is required to intercept #DB, which means that the
+> > #DB exception actually ends up being a #VC exception. So it will not end
+> > up on the #DB stack.
+> 
+> With your patch set, #DB doesn't seem to end up on the #DB stack either.
+
+Right, it does not use the #DB stack or shift-ist stuff. Maybe it
+should, is this needed for anything else than making entry code
+debugable by kgdb?
+
+Regards,
+
+	Joerg
