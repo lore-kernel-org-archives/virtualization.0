@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 23/70] x86/sev-es: Add support for handling IOIO exceptions
-Date: Thu, 19 Mar 2020 10:13:20 +0100
-Message-ID: <20200319091407.1481-24-joro@8bytes.org>
+Subject: [PATCH 35/70] x86/head/64: Move early exception dispatch to C code
+Date: Thu, 19 Mar 2020 10:13:32 +0100
+Message-ID: <20200319091407.1481-36-joro@8bytes.org>
 References: <20200319091407.1481-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,278 +21,130 @@ To: x86@kernel.org
 Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Joerg Roedel <jroedel@suse.de>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-Add support for decoding and handling #VC exceptions for IOIO events.
+Move the assembly coded dispatch between page-faults and all other
+exceptions to C code to make it easier to maintain and extend.
 
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-[ jroedel@suse.de: Adapted code to #VC handling framework ]
-Co-developed-by: Joerg Roedel <jroedel@suse.de>
+Also change the return-type of early_make_pgtable() to bool and make it
+static.
+
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/compressed/sev-es.c |  32 +++++
- arch/x86/kernel/sev-es-shared.c   | 202 ++++++++++++++++++++++++++++++
- 2 files changed, 234 insertions(+)
+ arch/x86/include/asm/pgtable.h |  2 +-
+ arch/x86/include/asm/setup.h   |  1 -
+ arch/x86/kernel/head64.c       | 19 +++++++++++++++----
+ arch/x86/kernel/head_64.S      | 11 +----------
+ 4 files changed, 17 insertions(+), 16 deletions(-)
 
-diff --git a/arch/x86/boot/compressed/sev-es.c b/arch/x86/boot/compressed/sev-es.c
-index 193c970a3379..ae5fbd371fd9 100644
---- a/arch/x86/boot/compressed/sev-es.c
-+++ b/arch/x86/boot/compressed/sev-es.c
-@@ -18,6 +18,35 @@
- struct ghcb boot_ghcb_page __aligned(PAGE_SIZE);
- struct ghcb *boot_ghcb;
+diff --git a/arch/x86/include/asm/pgtable.h b/arch/x86/include/asm/pgtable.h
+index 7e118660bbd9..9327eeeb1de1 100644
+--- a/arch/x86/include/asm/pgtable.h
++++ b/arch/x86/include/asm/pgtable.h
+@@ -27,7 +27,7 @@
+ #include <asm/fpu/api.h>
  
-+/*
-+ * Copy a version of this function here - insn-eval.c can't be used in
-+ * pre-decompression code.
-+ */
-+static bool insn_rep_prefix(struct insn *insn)
-+{
-+	int i;
-+
-+	insn_get_prefixes(insn);
-+
-+	for (i = 0; i < insn->prefixes.nbytes; i++) {
-+		insn_byte_t p = insn->prefixes.bytes[i];
-+
-+		if (p == 0xf2 || p == 0xf3)
-+			return true;
-+	}
-+
-+	return false;
-+}
-+
-+/*
-+ * Only a dummy for insn_get_seg_base() - Early boot-code is 64bit only and
-+ * doesn't use segments.
-+ */
-+static unsigned long insn_get_seg_base(struct pt_regs *regs, int seg_reg_idx)
-+{
-+	return 0UL;
-+}
-+
- static inline u64 sev_es_rd_ghcb_msr(void)
- {
- 	unsigned long low, high;
-@@ -117,6 +146,9 @@ void boot_vc_handler(struct pt_regs *regs, unsigned long exit_code)
- 		goto finish;
+ extern pgd_t early_top_pgt[PTRS_PER_PGD];
+-int __init __early_make_pgtable(unsigned long address, pmdval_t pmd);
++bool __init __early_make_pgtable(unsigned long address, pmdval_t pmd);
  
- 	switch (exit_code) {
-+	case SVM_EXIT_IOIO:
-+		result = vc_handle_ioio(boot_ghcb, &ctxt);
-+		break;
- 	default:
- 		result = ES_UNSUPPORTED;
- 		break;
-diff --git a/arch/x86/kernel/sev-es-shared.c b/arch/x86/kernel/sev-es-shared.c
-index f0947ea3c601..46fc5318d1d7 100644
---- a/arch/x86/kernel/sev-es-shared.c
-+++ b/arch/x86/kernel/sev-es-shared.c
-@@ -205,3 +205,205 @@ static enum es_result vc_insn_string_write(struct es_em_ctxt *ctxt,
+ void ptdump_walk_pgd_level(struct seq_file *m, struct mm_struct *mm);
+ void ptdump_walk_pgd_level_debugfs(struct seq_file *m, struct mm_struct *mm,
+diff --git a/arch/x86/include/asm/setup.h b/arch/x86/include/asm/setup.h
+index ed8ec011a9fd..d8a39d45f182 100644
+--- a/arch/x86/include/asm/setup.h
++++ b/arch/x86/include/asm/setup.h
+@@ -48,7 +48,6 @@ extern void reserve_standard_io_resources(void);
+ extern void i386_reserve_resources(void);
+ extern unsigned long __startup_64(unsigned long physaddr, struct boot_params *bp);
+ extern unsigned long __startup_secondary_64(void);
+-extern int early_make_pgtable(unsigned long address);
  
- 	return ret;
+ #ifdef CONFIG_X86_INTEL_MID
+ extern void x86_intel_mid_early_setup(void);
+diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
+index 0ecdf28291fc..8ccca109750d 100644
+--- a/arch/x86/kernel/head64.c
++++ b/arch/x86/kernel/head64.c
+@@ -36,6 +36,8 @@
+ #include <asm/microcode.h>
+ #include <asm/kasan.h>
+ #include <asm/fixmap.h>
++#include <asm/extable.h>
++#include <asm/trap_defs.h>
+ 
+ /*
+  * Manage page tables very early on.
+@@ -297,7 +299,7 @@ static void __init reset_early_page_tables(void)
  }
-+
-+#define IOIO_TYPE_STR  BIT(2)
-+#define IOIO_TYPE_IN   1
-+#define IOIO_TYPE_INS  (IOIO_TYPE_IN | IOIO_TYPE_STR)
-+#define IOIO_TYPE_OUT  0
-+#define IOIO_TYPE_OUTS (IOIO_TYPE_OUT | IOIO_TYPE_STR)
-+
-+#define IOIO_REP       BIT(3)
-+
-+#define IOIO_ADDR_64   BIT(9)
-+#define IOIO_ADDR_32   BIT(8)
-+#define IOIO_ADDR_16   BIT(7)
-+
-+#define IOIO_DATA_32   BIT(6)
-+#define IOIO_DATA_16   BIT(5)
-+#define IOIO_DATA_8    BIT(4)
-+
-+#define IOIO_SEG_ES    (0 << 10)
-+#define IOIO_SEG_DS    (3 << 10)
-+
-+static enum es_result vc_ioio_exitinfo(struct es_em_ctxt *ctxt, u64 *exitinfo)
+ 
+ /* Create a new PMD entry */
+-int __init __early_make_pgtable(unsigned long address, pmdval_t pmd)
++bool __init __early_make_pgtable(unsigned long address, pmdval_t pmd)
+ {
+ 	unsigned long physaddr = address - __PAGE_OFFSET;
+ 	pgdval_t pgd, *pgd_p;
+@@ -307,7 +309,7 @@ int __init __early_make_pgtable(unsigned long address, pmdval_t pmd)
+ 
+ 	/* Invalid address or early pgt is done ?  */
+ 	if (physaddr >= MAXMEM || read_cr3_pa() != __pa_nodebug(early_top_pgt))
+-		return -1;
++		return false;
+ 
+ again:
+ 	pgd_p = &early_top_pgt[pgd_index(address)].pgd;
+@@ -364,10 +366,10 @@ int __init __early_make_pgtable(unsigned long address, pmdval_t pmd)
+ 	}
+ 	pmd_p[pmd_index(address)] = pmd;
+ 
+-	return 0;
++	return true;
+ }
+ 
+-int __init early_make_pgtable(unsigned long address)
++static bool __init early_make_pgtable(unsigned long address)
+ {
+ 	unsigned long physaddr = address - __PAGE_OFFSET;
+ 	pmdval_t pmd;
+@@ -377,6 +379,15 @@ int __init early_make_pgtable(unsigned long address)
+ 	return __early_make_pgtable(address, pmd);
+ }
+ 
++void __init early_exception(struct pt_regs *regs, int trapnr)
 +{
-+	struct insn *insn = &ctxt->insn;
-+	*exitinfo = 0;
++	if (trapnr == X86_TRAP_PF &&
++	    early_make_pgtable(native_read_cr2()))
++		return;
 +
-+	switch (insn->opcode.bytes[0]) {
-+	/* INS opcodes */
-+	case 0x6c:
-+	case 0x6d:
-+		*exitinfo |= IOIO_TYPE_INS;
-+		*exitinfo |= IOIO_SEG_ES;
-+		*exitinfo |= (ctxt->regs->dx & 0xffff) << 16;
-+		break;
-+
-+	/* OUTS opcodes */
-+	case 0x6e:
-+	case 0x6f:
-+		*exitinfo |= IOIO_TYPE_OUTS;
-+		*exitinfo |= IOIO_SEG_DS;
-+		*exitinfo |= (ctxt->regs->dx & 0xffff) << 16;
-+		break;
-+
-+	/* IN immediate opcodes */
-+	case 0xe4:
-+	case 0xe5:
-+		*exitinfo |= IOIO_TYPE_IN;
-+		*exitinfo |= insn->immediate.value << 16;
-+		break;
-+
-+	/* OUT immediate opcodes */
-+	case 0xe6:
-+	case 0xe7:
-+		*exitinfo |= IOIO_TYPE_OUT;
-+		*exitinfo |= insn->immediate.value << 16;
-+		break;
-+
-+	/* IN register opcodes */
-+	case 0xec:
-+	case 0xed:
-+		*exitinfo |= IOIO_TYPE_IN;
-+		*exitinfo |= (ctxt->regs->dx & 0xffff) << 16;
-+		break;
-+
-+	/* OUT register opcodes */
-+	case 0xee:
-+	case 0xef:
-+		*exitinfo |= IOIO_TYPE_OUT;
-+		*exitinfo |= (ctxt->regs->dx & 0xffff) << 16;
-+		break;
-+
-+	default:
-+		return ES_DECODE_FAILED;
-+	}
-+
-+	switch (insn->opcode.bytes[0]) {
-+	case 0x6c:
-+	case 0x6e:
-+	case 0xe4:
-+	case 0xe6:
-+	case 0xec:
-+	case 0xee:
-+		/* Single byte opcodes */
-+		*exitinfo |= IOIO_DATA_8;
-+		break;
-+	default:
-+		/* Length determined by instruction parsing */
-+		*exitinfo |= (insn->opnd_bytes == 2) ? IOIO_DATA_16
-+						     : IOIO_DATA_32;
-+	}
-+	switch (insn->addr_bytes) {
-+	case 2:
-+		*exitinfo |= IOIO_ADDR_16;
-+		break;
-+	case 4:
-+		*exitinfo |= IOIO_ADDR_32;
-+		break;
-+	case 8:
-+		*exitinfo |= IOIO_ADDR_64;
-+		break;
-+	}
-+
-+	if (insn_rep_prefix(insn))
-+		*exitinfo |= IOIO_REP;
-+
-+	return ES_OK;
++	early_fixup_exception(regs, trapnr);
 +}
 +
-+static enum es_result vc_handle_ioio(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
-+{
-+	struct pt_regs *regs = ctxt->regs;
-+	u64 exit_info_1, exit_info_2;
-+	enum es_result ret;
-+
-+	ret = vc_ioio_exitinfo(ctxt, &exit_info_1);
-+	if (ret != ES_OK)
-+		return ret;
-+
-+	if (exit_info_1 & IOIO_TYPE_STR) {
-+		int df = (regs->flags & X86_EFLAGS_DF) ? -1 : 1;
-+		unsigned int io_bytes, exit_bytes;
-+		unsigned int ghcb_count, op_count;
-+		unsigned long es_base;
-+		u64 sw_scratch;
-+
-+		/*
-+		 * For the string variants with rep prefix the amount of in/out
-+		 * operations per #VC exception is limited so that the kernel
-+		 * has a chance to take interrupts an re-schedule while the
-+		 * instruction is emulated.
-+		 */
-+		io_bytes   = (exit_info_1 >> 4) & 0x7;
-+		ghcb_count = sizeof(ghcb->shared_buffer) / io_bytes;
-+
-+		op_count    = (exit_info_1 & IOIO_REP) ? regs->cx : 1;
-+		exit_info_2 = min(op_count, ghcb_count);
-+		exit_bytes  = exit_info_2 * io_bytes;
-+
-+		es_base = insn_get_seg_base(ctxt->regs, INAT_SEG_REG_ES);
-+
-+		if (!(exit_info_1 & IOIO_TYPE_IN)) {
-+			ret = vc_insn_string_read(ctxt,
-+					       (void *)(es_base + regs->si),
-+					       ghcb->shared_buffer, io_bytes,
-+					       exit_info_2, df);
-+			if (ret)
-+				return ret;
-+		}
-+
-+		sw_scratch = __pa(ghcb) + offsetof(struct ghcb, shared_buffer);
-+		ghcb_set_sw_scratch(ghcb, sw_scratch);
-+		ret = sev_es_ghcb_hv_call(ghcb, ctxt, SVM_EXIT_IOIO,
-+				   exit_info_1, exit_info_2);
-+		if (ret != ES_OK)
-+			return ret;
-+
-+		/* Everything went well, write back results */
-+		if (exit_info_1 & IOIO_TYPE_IN) {
-+			ret = vc_insn_string_write(ctxt,
-+						(void *)(es_base + regs->di),
-+						ghcb->shared_buffer, io_bytes,
-+						exit_info_2, df);
-+			if (ret)
-+				return ret;
-+
-+			if (df)
-+				regs->di -= exit_bytes;
-+			else
-+				regs->di += exit_bytes;
-+		} else {
-+			if (df)
-+				regs->si -= exit_bytes;
-+			else
-+				regs->si += exit_bytes;
-+		}
-+
-+		if (exit_info_1 & IOIO_REP)
-+			regs->cx -= exit_info_2;
-+
-+		ret = regs->cx ? ES_RETRY : ES_OK;
-+
-+	} else {
-+		int bits = (exit_info_1 & 0x70) >> 1;
-+		u64 rax = 0;
-+
-+		if (!(exit_info_1 & IOIO_TYPE_IN))
-+			rax = lower_bits(regs->ax, bits);
-+
-+		ghcb_set_rax(ghcb, rax);
-+
-+		ret = sev_es_ghcb_hv_call(ghcb, ctxt, SVM_EXIT_IOIO, exit_info_1, 0);
-+		if (ret != ES_OK)
-+			return ret;
-+
-+		if (exit_info_1 & IOIO_TYPE_IN) {
-+			if (!ghcb_is_valid_rax(ghcb))
-+				return ES_VMM_ERROR;
-+			regs->ax = lower_bits(ghcb->save.rax, bits);
-+		}
-+	}
-+
-+	return ret;
-+}
+ /* Don't add a printk in there. printk relies on the PDA which is not initialized 
+    yet. */
+ static void __init clear_bss(void)
+diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
+index 8465290a1eb3..bc0622a72d6d 100644
+--- a/arch/x86/kernel/head_64.S
++++ b/arch/x86/kernel/head_64.S
+@@ -363,18 +363,9 @@ SYM_CODE_START_LOCAL(early_idt_handler_common)
+ 	pushq %r15				/* pt_regs->r15 */
+ 	UNWIND_HINT_REGS
+ 
+-	cmpq $14,%rsi		/* Page fault? */
+-	jnz 10f
+-	GET_CR2_INTO(%rdi)	/* can clobber %rax if pv */
+-	call early_make_pgtable
+-	andl %eax,%eax
+-	jz 20f			/* All good */
+-
+-10:
+ 	movq %rsp,%rdi		/* RDI = pt_regs; RSI is already trapnr */
+-	call early_fixup_exception
++	call early_exception
+ 
+-20:
+ 	decl early_recursion_flag(%rip)
+ 	jmp restore_regs_and_return_to_kernel
+ SYM_CODE_END(early_idt_handler_common)
 -- 
 2.17.1
