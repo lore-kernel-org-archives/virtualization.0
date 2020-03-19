@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 68/70] x86/sev-es: Support CPU offline/online
-Date: Thu, 19 Mar 2020 10:14:05 +0100
-Message-ID: <20200319091407.1481-69-joro@8bytes.org>
+Subject: [PATCH 67/70] x86/head/64: Rename start_cpu0
+Date: Thu, 19 Mar 2020 10:14:04 +0100
+Message-ID: <20200319091407.1481-68-joro@8bytes.org>
 References: <20200319091407.1481-1-joro@8bytes.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200319091407.1481-1-joro@8bytes.org>
@@ -12,111 +12,93 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Add a play_dead handler when running under SEV-ES. This is needed
-because the hypervisor can't deliver an SIPI request to restart the AP.
-Instead the kernel has to issue a VMGEXIT to halt the VCPU. When the
-hypervisor would deliver and SIPI is wakes up the VCPU instead.
+For SEV-ES this entry point will be used for restarting APs after they
+have been offlined. Remove the '0' from the name to reflect that.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/uapi/asm/svm.h |  1 +
- arch/x86/kernel/sev-es.c        | 58 +++++++++++++++++++++++++++++++++
- 2 files changed, 59 insertions(+)
+ arch/x86/include/asm/cpu.h | 2 +-
+ arch/x86/kernel/head_32.S  | 4 ++--
+ arch/x86/kernel/head_64.S  | 6 +++---
+ arch/x86/kernel/smpboot.c  | 4 ++--
+ 4 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/arch/x86/include/uapi/asm/svm.h b/arch/x86/include/uapi/asm/svm.h
-index a19ce9681ec2..20a05839dd9a 100644
---- a/arch/x86/include/uapi/asm/svm.h
-+++ b/arch/x86/include/uapi/asm/svm.h
-@@ -84,6 +84,7 @@
- /* SEV-ES software-defined VMGEXIT events */
- #define SVM_VMGEXIT_MMIO_READ			0x80000001
- #define SVM_VMGEXIT_MMIO_WRITE			0x80000002
-+#define SVM_VMGEXIT_AP_HLT_LOOP			0x80000004
- #define SVM_VMGEXIT_AP_JUMP_TABLE		0x80000005
- #define		SVM_VMGEXIT_SET_AP_JUMP_TABLE			0
- #define		SVM_VMGEXIT_GET_AP_JUMP_TABLE			1
-diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index f56bdaf12fbe..3c22f256645e 100644
---- a/arch/x86/kernel/sev-es.c
-+++ b/arch/x86/kernel/sev-es.c
-@@ -23,6 +23,8 @@
- #include <asm/processor.h>
- #include <asm/traps.h>
- #include <asm/svm.h>
-+#include <asm/smp.h>
-+#include <asm/cpu.h>
+diff --git a/arch/x86/include/asm/cpu.h b/arch/x86/include/asm/cpu.h
+index adc6cc86b062..00668daf8991 100644
+--- a/arch/x86/include/asm/cpu.h
++++ b/arch/x86/include/asm/cpu.h
+@@ -29,7 +29,7 @@ struct x86_cpu {
+ #ifdef CONFIG_HOTPLUG_CPU
+ extern int arch_register_cpu(int num);
+ extern void arch_unregister_cpu(int);
+-extern void start_cpu0(void);
++extern void start_cpu(void);
+ #ifdef CONFIG_DEBUG_HOTPLUG_CPU0
+ extern int _debug_hotplug_cpu(int cpu, int action);
+ #endif
+diff --git a/arch/x86/kernel/head_32.S b/arch/x86/kernel/head_32.S
+index 3923ab4630d7..1a280152bd10 100644
+--- a/arch/x86/kernel/head_32.S
++++ b/arch/x86/kernel/head_32.S
+@@ -180,12 +180,12 @@ SYM_CODE_END(startup_32)
+  * up already except stack. We just set up stack here. Then call
+  * start_secondary().
+  */
+-SYM_FUNC_START(start_cpu0)
++SYM_FUNC_START(start_cpu)
+ 	movl initial_stack, %ecx
+ 	movl %ecx, %esp
+ 	call *(initial_code)
+ 1:	jmp 1b
+-SYM_FUNC_END(start_cpu0)
++SYM_FUNC_END(start_cpu)
+ #endif
  
- #define DR7_RESET_VALUE        0x400
+ /*
+diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
+index c935d6d07393..f2e793213fa7 100644
+--- a/arch/x86/kernel/head_64.S
++++ b/arch/x86/kernel/head_64.S
+@@ -299,15 +299,15 @@ SYM_CODE_END(secondary_startup_64)
  
-@@ -381,6 +383,60 @@ static bool __init sev_es_setup_ghcb(void)
- 	return true;
- }
+ #ifdef CONFIG_HOTPLUG_CPU
+ /*
+- * Boot CPU0 entry point. It's called from play_dead(). Everything has been set
++ * CPU entry point. It's called from play_dead(). Everything has been set
+  * up already except stack. We just set up stack here. Then call
+  * start_secondary() via .Ljump_to_C_code.
+  */
+-SYM_CODE_START(start_cpu0)
++SYM_CODE_START(start_cpu)
+ 	UNWIND_HINT_EMPTY
+ 	movq	initial_stack(%rip), %rsp
+ 	jmp	.Ljump_to_C_code
+-SYM_CODE_END(start_cpu0)
++SYM_CODE_END(start_cpu)
+ #endif
  
-+#ifdef CONFIG_HOTPLUG_CPU
-+static void sev_es_ap_hlt_loop(void)
-+{
-+	struct ghcb_state state;
-+	struct ghcb *ghcb;
-+
-+	ghcb = sev_es_get_ghcb(&state);
-+
-+	while (true) {
-+		vc_ghcb_invalidate(ghcb);
-+		ghcb_set_sw_exit_code(ghcb, SVM_VMGEXIT_AP_HLT_LOOP);
-+		ghcb_set_sw_exit_info_1(ghcb, 0);
-+		ghcb_set_sw_exit_info_2(ghcb, 0);
-+
-+		sev_es_wr_ghcb_msr(__pa(ghcb));
-+		VMGEXIT();
-+
-+		/* Wakup Signal? */
-+		if (ghcb_is_valid_sw_exit_info_2(ghcb) &&
-+		    ghcb->save.sw_exit_info_2 != 0)
-+			break;
-+	}
-+
-+	sev_es_put_ghcb(&state);
-+}
-+
-+void sev_es_play_dead(void)
-+{
-+	play_dead_common();
-+
-+	/* IRQs now disabled */
-+
-+	sev_es_ap_hlt_loop();
-+
-+	/*
-+	 * If we get here, the VCPU was woken up again. Jump to CPU
-+	 * startup code to get it back online.
-+	 */
-+
-+	start_cpu();
-+}
-+#else  /* CONFIG_HOTPLUG_CPU */
-+#define sev_es_play_dead	native_play_dead
-+#endif /* CONFIG_HOTPLUG_CPU */
-+
-+#ifdef CONFIG_SMP
-+static void sev_es_setup_play_dead(void)
-+{
-+	smp_ops.play_dead = sev_es_play_dead;
-+}
-+#else
-+static inline void sev_es_setup_play_dead(void) { }
-+#endif
-+
- void sev_es_init_ghcbs(void)
- {
- 	int cpu;
-@@ -399,6 +455,8 @@ void sev_es_init_ghcbs(void)
- 				     sizeof(*ghcb) >> PAGE_SHIFT);
- 		memset(ghcb, 0, sizeof(*ghcb));
+ 	/* Both SMP bootup and ACPI suspend change these variables */
+diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
+index 69881b2d446c..19aa18f1e307 100644
+--- a/arch/x86/kernel/smpboot.c
++++ b/arch/x86/kernel/smpboot.c
+@@ -1717,7 +1717,7 @@ static inline void mwait_play_dead(void)
+ 		 * If NMI wants to wake up CPU0, start CPU0.
+ 		 */
+ 		if (wakeup_cpu0())
+-			start_cpu0();
++			start_cpu();
  	}
-+
-+	sev_es_setup_play_dead();
  }
  
- static void __init vc_early_vc_forward_exception(struct es_em_ctxt *ctxt)
+@@ -1732,7 +1732,7 @@ void hlt_play_dead(void)
+ 		 * If NMI wants to wake up CPU0, start CPU0.
+ 		 */
+ 		if (wakeup_cpu0())
+-			start_cpu0();
++			start_cpu();
+ 	}
+ }
+ 
 -- 
 2.17.1
