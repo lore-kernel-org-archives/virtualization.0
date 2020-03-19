@@ -1,54 +1,95 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 60/70] x86/sev-es: Handle #DB Events
-Date: Thu, 19 Mar 2020 10:13:57 +0100
-Message-ID: <20200319091407.1481-61-joro@8bytes.org>
+Subject: [PATCH 61/70] x86/paravirt: Allow hypervisor specific VMMCALL handling under SEV-ES
+Date: Thu, 19 Mar 2020 10:13:58 +0100
+Message-ID: <20200319091407.1481-62-joro@8bytes.org>
 References: <20200319091407.1481-1-joro@8bytes.org>
-Return-path: <kvm-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200319091407.1481-1-joro@8bytes.org>
-Sender: kvm-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: x86@kernel.org
 Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Handle #VC exceptions caused by #DB exceptions in the guest. Do not
-forward them to the hypervisor and handle them with do_debug() instead.
+Add two new paravirt callbacks to provide hypervisor specific processor
+state in the GHCB and to copy state from the hypervisor back to the
+processor.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev-es.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ arch/x86/include/asm/x86_init.h | 16 +++++++++++++++-
+ arch/x86/kernel/sev-es.c        | 12 ++++++++++++
+ 2 files changed, 27 insertions(+), 1 deletion(-)
 
+diff --git a/arch/x86/include/asm/x86_init.h b/arch/x86/include/asm/x86_init.h
+index 96d9cd208610..c4790ec279cc 100644
+--- a/arch/x86/include/asm/x86_init.h
++++ b/arch/x86/include/asm/x86_init.h
+@@ -4,8 +4,10 @@
+ 
+ #include <asm/bootparam.h>
+ 
++struct ghcb;
+ struct mpc_bus;
+ struct mpc_cpu;
++struct pt_regs;
+ struct mpc_table;
+ struct cpuinfo_x86;
+ 
+@@ -238,10 +240,22 @@ struct x86_legacy_features {
+ /**
+  * struct x86_hyper_runtime - x86 hypervisor specific runtime callbacks
+  *
+- * @pin_vcpu:		pin current vcpu to specified physical cpu (run rarely)
++ * @pin_vcpu:			pin current vcpu to specified physical
++ *				cpu (run rarely)
++ * @sev_es_hcall_prepare:	Load additional hypervisor-specific
++ *				state into the GHCB when doing a VMMCALL under
++ *				SEV-ES. Called from the #VC exception handler.
++ * @sev_es_hcall_finish:	Copies state from the GHCB back into the
++ *				processor (or pt_regs). Also runs checks on the
++ *				state returned from the hypervisor after a
++ *				VMMCALL under SEV-ES.  Needs to return 'false'
++ *				if the checks fail.  Called from the #VC
++ *				exception handler.
+  */
+ struct x86_hyper_runtime {
+ 	void (*pin_vcpu)(int cpu);
++	void (*sev_es_hcall_prepare)(struct ghcb *ghcb, struct pt_regs *regs);
++	bool (*sev_es_hcall_finish)(struct ghcb *ghcb, struct pt_regs *regs);
+ };
+ 
+ /**
 diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index f22b361f6b60..bc553aae31d2 100644
+index bc553aae31d2..635e7fc90d01 100644
 --- a/arch/x86/kernel/sev-es.c
 +++ b/arch/x86/kernel/sev-es.c
-@@ -752,6 +752,15 @@ static enum es_result vc_handle_vmmcall(struct ghcb *ghcb,
+@@ -740,6 +740,9 @@ static enum es_result vc_handle_vmmcall(struct ghcb *ghcb,
+ 	ghcb_set_rax(ghcb, ctxt->regs->ax);
+ 	ghcb_set_cpl(ghcb, user_mode(ctxt->regs) ? 3 : 0);
+ 
++	if (x86_platform.hyper.sev_es_hcall_prepare)
++		x86_platform.hyper.sev_es_hcall_prepare(ghcb, ctxt->regs);
++
+ 	ret = sev_es_ghcb_hv_call(ghcb, ctxt, SVM_EXIT_VMMCALL, 0, 0);
+ 	if (ret != ES_OK)
+ 		return ret;
+@@ -749,6 +752,15 @@ static enum es_result vc_handle_vmmcall(struct ghcb *ghcb,
+ 
+ 	ctxt->regs->ax = ghcb->save.rax;
+ 
++	/*
++	 * Call sev_es_hcall_finish() after regs->ax is already set.
++	 * This allows the hypervisor handler to overwrite it again if
++	 * necessary.
++	 */
++	if (x86_platform.hyper.sev_es_hcall_finish &&
++	    !x86_platform.hyper.sev_es_hcall_finish(ghcb, ctxt->regs))
++		return ES_VMM_ERROR;
++
  	return ES_OK;
  }
  
-+static enum es_result vc_handle_db_exception(struct ghcb *ghcb,
-+					     struct es_em_ctxt *ctxt)
-+{
-+	do_debug(ctxt->regs, 0);
-+
-+	/* Exception event, do not advance RIP */
-+	return ES_RETRY;
-+}
-+
- static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
- 					 struct ghcb *ghcb,
- 					 unsigned long exit_code,
-@@ -766,6 +775,9 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
- 	case SVM_EXIT_WRITE_DR7:
- 		result = vc_handle_dr7_write(ghcb, ctxt, early);
- 		break;
-+	case SVM_EXIT_EXCP_BASE + X86_TRAP_DB:
-+		result = vc_handle_db_exception(ghcb, ctxt);
-+		break;
- 	case SVM_EXIT_EXCP_BASE + X86_TRAP_AC:
- 		do_alignment_check(ctxt->regs, 0);
- 		result = ES_RETRY;
 -- 
 2.17.1
