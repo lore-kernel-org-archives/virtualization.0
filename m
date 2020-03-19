@@ -1,66 +1,52 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 46/70] x86/sev-es: Filter exceptions not supported from user-space
-Date: Thu, 19 Mar 2020 10:13:43 +0100
-Message-ID: <20200319091407.1481-47-joro@8bytes.org>
+Subject: [PATCH 33/70] x86/head/64: Build k/head64.c with -fno-stack-protector
+Date: Thu, 19 Mar 2020 10:13:30 +0100
+Message-ID: <20200319091407.1481-34-joro@8bytes.org>
 References: <20200319091407.1481-1-joro@8bytes.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200319091407.1481-1-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: x86@kernel.org
-Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>
+Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Joerg Roedel <jroedel@suse.de>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Currently only CPUID caused #VC exceptions are supported from
-user-space. Filter the others out early.
+The code inserted by the stack protector does not work in the early
+boot environment because it uses the GS segment, at least with memory
+encryption enabled. Make sure the early code is compiled without this
+feature enabled.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev-es.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
+ arch/x86/kernel/Makefile | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index 71eee7b3667d..6d45a2499460 100644
---- a/arch/x86/kernel/sev-es.c
-+++ b/arch/x86/kernel/sev-es.c
-@@ -318,6 +318,26 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
- 	return result;
- }
+diff --git a/arch/x86/kernel/Makefile b/arch/x86/kernel/Makefile
+index 9b294c13809a..9b0ebcf4b9f3 100644
+--- a/arch/x86/kernel/Makefile
++++ b/arch/x86/kernel/Makefile
+@@ -36,6 +36,10 @@ ifdef CONFIG_FRAME_POINTER
+ OBJECT_FILES_NON_STANDARD_ftrace_$(BITS).o		:= y
+ endif
  
-+static enum es_result vc_context_filter(struct pt_regs *regs, long exit_code)
-+{
-+	enum es_result r = ES_OK;
++# make sure head64.c is built without stack protector
++nostackp := $(call cc-option, -fno-stack-protector)
++CFLAGS_head64.o		:= $(nostackp)
 +
-+	if (user_mode(regs)) {
-+		switch (exit_code) {
-+		/* List of #VC exit-codes we support in user-space */
-+		case SVM_EXIT_EXCP_BASE ... SVM_EXIT_LAST_EXCP:
-+		case SVM_EXIT_CPUID:
-+			r = ES_OK;
-+			break;
-+		default:
-+			r = ES_UNSUPPORTED;
-+			break;
-+		}
-+	}
-+
-+	return r;
-+}
-+
- static void vc_forward_exception(struct es_em_ctxt *ctxt)
- {
- 	long error_code = ctxt->fi.error_code;
-@@ -359,6 +379,10 @@ dotraplinkage void do_vmm_communication(struct pt_regs *regs, unsigned long exit
- 		result = vc_init_em_ctxt(&ctxt, regs, exit_code);
- 	}
- 
-+	/* Check if the exception is supported in the context we came from. */
-+	if (result == ES_OK)
-+		result = vc_context_filter(regs, exit_code);
-+
- 	if (result == ES_OK)
- 		result = vc_handle_exitcode(&ctxt, ghcb, exit_code);
- 
+ # If instrumentation of this dir is enabled, boot hangs during first second.
+ # Probably could be more selective here, but note that files related to irqs,
+ # boot, dumpstack/stacktrace, etc are either non-interesting or can lead to
 -- 
 2.17.1
