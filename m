@@ -1,53 +1,143 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH v3] drm/bochs: downgrade pci_request_region failure from
- error to warning
-Date: Thu, 19 Mar 2020 09:39:52 +0100
-Message-ID: <CAKMK7uE52i2_BhFoH0timOG_jUQP3OThA+wUWoMx6tfH9mMT6w@mail.gmail.com>
-References: <20200313084152.2734-1-kraxel@redhat.com> <20200317164941.GP2363188@phenom.ffwll.local>
- <20200318064211.rg5s4sgrnqhht3f4@sirius.home.kraxel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200318064211.rg5s4sgrnqhht3f4@sirius.home.kraxel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: dri-devel <dri-devel@lists.freedesktop.org>, marmarek@invisiblethingslab.com, David Airlie <airlied@linux.ie>, "open list:DRM DRIVER FOR BOCHS VIRTUAL GPU" <virtualization@lists.linux-foundation.org>, open list <linux-kernel@vger.kernel.org>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH 04/70] x86/traps: Move some definitions to <asm/trap_defs.h>
+Date: Thu, 19 Mar 2020 10:13:01 +0100
+Message-ID: <20200319091407.1481-5-joro@8bytes.org>
+References: <20200319091407.1481-1-joro@8bytes.org>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20200319091407.1481-1-joro@8bytes.org>
+Sender: kvm-owner@vger.kernel.org
+To: x86@kernel.org
+Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 18, 2020 at 7:49 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
->
-> On Tue, Mar 17, 2020 at 05:49:41PM +0100, Daniel Vetter wrote:
-> > On Fri, Mar 13, 2020 at 09:41:52AM +0100, Gerd Hoffmann wrote:
-> > > Shutdown of firmware framebuffer has a bunch of problems.  Because
-> > > of this the framebuffer region might still be reserved even after
-> > > drm_fb_helper_remove_conflicting_pci_framebuffers() returned.
-> >
-> > Is that still the fbdev lifetime fun where the cleanup might be delayed if
-> > the char device node is still open?
->
-> Yes.
+From: Joerg Roedel <jroedel@suse.de>
 
-In that case I think a FIXME comment that this should be upgraded
-again to a full error once fbdev unloading is fixed should be added.
-With that:
+Move the definition of x86 trap vector numbers and the page-fault
+error code bits to the new header file asm/trap_defs.h. This makes it
+easier to include them into pre-decompression boot code. No functional
+changes.
 
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+---
+ arch/x86/include/asm/trap_defs.h | 49 ++++++++++++++++++++++++++++++++
+ arch/x86/include/asm/traps.h     | 44 +---------------------------
+ 2 files changed, 50 insertions(+), 43 deletions(-)
+ create mode 100644 arch/x86/include/asm/trap_defs.h
 
-I guess you might want a cc: stable on this too?
--Daniel
-
->
-> cheers,
->   Gerd
->
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
-
-
-
+diff --git a/arch/x86/include/asm/trap_defs.h b/arch/x86/include/asm/trap_defs.h
+new file mode 100644
+index 000000000000..488f82ac36da
+--- /dev/null
++++ b/arch/x86/include/asm/trap_defs.h
+@@ -0,0 +1,49 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _ASM_X86_TRAP_DEFS_H
++#define _ASM_X86_TRAP_DEFS_H
++
++/* Interrupts/Exceptions */
++enum {
++	X86_TRAP_DE = 0,	/*  0, Divide-by-zero */
++	X86_TRAP_DB,		/*  1, Debug */
++	X86_TRAP_NMI,		/*  2, Non-maskable Interrupt */
++	X86_TRAP_BP,		/*  3, Breakpoint */
++	X86_TRAP_OF,		/*  4, Overflow */
++	X86_TRAP_BR,		/*  5, Bound Range Exceeded */
++	X86_TRAP_UD,		/*  6, Invalid Opcode */
++	X86_TRAP_NM,		/*  7, Device Not Available */
++	X86_TRAP_DF,		/*  8, Double Fault */
++	X86_TRAP_OLD_MF,	/*  9, Coprocessor Segment Overrun */
++	X86_TRAP_TS,		/* 10, Invalid TSS */
++	X86_TRAP_NP,		/* 11, Segment Not Present */
++	X86_TRAP_SS,		/* 12, Stack Segment Fault */
++	X86_TRAP_GP,		/* 13, General Protection Fault */
++	X86_TRAP_PF,		/* 14, Page Fault */
++	X86_TRAP_SPURIOUS,	/* 15, Spurious Interrupt */
++	X86_TRAP_MF,		/* 16, x87 Floating-Point Exception */
++	X86_TRAP_AC,		/* 17, Alignment Check */
++	X86_TRAP_MC,		/* 18, Machine Check */
++	X86_TRAP_XF,		/* 19, SIMD Floating-Point Exception */
++	X86_TRAP_IRET = 32,	/* 32, IRET Exception */
++};
++
++/*
++ * Page fault error code bits:
++ *
++ *   bit 0 ==	 0: no page found	1: protection fault
++ *   bit 1 ==	 0: read access		1: write access
++ *   bit 2 ==	 0: kernel-mode access	1: user-mode access
++ *   bit 3 ==				1: use of reserved bit detected
++ *   bit 4 ==				1: fault was an instruction fetch
++ *   bit 5 ==				1: protection keys block access
++ */
++enum x86_pf_error_code {
++	X86_PF_PROT	=		1 << 0,
++	X86_PF_WRITE	=		1 << 1,
++	X86_PF_USER	=		1 << 2,
++	X86_PF_RSVD	=		1 << 3,
++	X86_PF_INSTR	=		1 << 4,
++	X86_PF_PK	=		1 << 5,
++};
++
++#endif /* _ASM_X86_TRAP_DEFS_H */
+diff --git a/arch/x86/include/asm/traps.h b/arch/x86/include/asm/traps.h
+index ffa0dc8a535e..2aa786484bb1 100644
+--- a/arch/x86/include/asm/traps.h
++++ b/arch/x86/include/asm/traps.h
+@@ -5,6 +5,7 @@
+ #include <linux/context_tracking_state.h>
+ #include <linux/kprobes.h>
+ 
++#include <asm/trap_defs.h>
+ #include <asm/debugreg.h>
+ #include <asm/siginfo.h>			/* TRAP_TRACE, ... */
+ 
+@@ -132,47 +133,4 @@ void __noreturn handle_stack_overflow(const char *message,
+ 				      unsigned long fault_address);
+ #endif
+ 
+-/* Interrupts/Exceptions */
+-enum {
+-	X86_TRAP_DE = 0,	/*  0, Divide-by-zero */
+-	X86_TRAP_DB,		/*  1, Debug */
+-	X86_TRAP_NMI,		/*  2, Non-maskable Interrupt */
+-	X86_TRAP_BP,		/*  3, Breakpoint */
+-	X86_TRAP_OF,		/*  4, Overflow */
+-	X86_TRAP_BR,		/*  5, Bound Range Exceeded */
+-	X86_TRAP_UD,		/*  6, Invalid Opcode */
+-	X86_TRAP_NM,		/*  7, Device Not Available */
+-	X86_TRAP_DF,		/*  8, Double Fault */
+-	X86_TRAP_OLD_MF,	/*  9, Coprocessor Segment Overrun */
+-	X86_TRAP_TS,		/* 10, Invalid TSS */
+-	X86_TRAP_NP,		/* 11, Segment Not Present */
+-	X86_TRAP_SS,		/* 12, Stack Segment Fault */
+-	X86_TRAP_GP,		/* 13, General Protection Fault */
+-	X86_TRAP_PF,		/* 14, Page Fault */
+-	X86_TRAP_SPURIOUS,	/* 15, Spurious Interrupt */
+-	X86_TRAP_MF,		/* 16, x87 Floating-Point Exception */
+-	X86_TRAP_AC,		/* 17, Alignment Check */
+-	X86_TRAP_MC,		/* 18, Machine Check */
+-	X86_TRAP_XF,		/* 19, SIMD Floating-Point Exception */
+-	X86_TRAP_IRET = 32,	/* 32, IRET Exception */
+-};
+-
+-/*
+- * Page fault error code bits:
+- *
+- *   bit 0 ==	 0: no page found	1: protection fault
+- *   bit 1 ==	 0: read access		1: write access
+- *   bit 2 ==	 0: kernel-mode access	1: user-mode access
+- *   bit 3 ==				1: use of reserved bit detected
+- *   bit 4 ==				1: fault was an instruction fetch
+- *   bit 5 ==				1: protection keys block access
+- */
+-enum x86_pf_error_code {
+-	X86_PF_PROT	=		1 << 0,
+-	X86_PF_WRITE	=		1 << 1,
+-	X86_PF_USER	=		1 << 2,
+-	X86_PF_RSVD	=		1 << 3,
+-	X86_PF_INSTR	=		1 << 4,
+-	X86_PF_PK	=		1 << 5,
+-};
+ #endif /* _ASM_X86_TRAPS_H */
 -- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-+41 (0) 79 365 57 48 - http://blog.ffwll.ch
+2.17.1
