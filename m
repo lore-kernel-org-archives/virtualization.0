@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 24/70] x86/fpu: Move xgetbv()/xsetbv() into separate header
-Date: Thu, 19 Mar 2020 10:13:21 +0100
-Message-ID: <20200319091407.1481-25-joro@8bytes.org>
+Subject: [PATCH 31/70] x86/head/64: Load segment registers earlier
+Date: Thu, 19 Mar 2020 10:13:28 +0100
+Message-ID: <20200319091407.1481-32-joro@8bytes.org>
 References: <20200319091407.1481-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,103 +23,84 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-The xgetbv() function is needed in pre-decompression boot code, but
-asm/fpu/internal.h can't be included there directly. Doing so opens
-the door to include-hell due to various include-magic in
-boot/compressed/misc.h.
-
-Avoid that by moving xgetbv()/xsetbv() to a separate header file and
-include this instead.
+Make sure segments are properly set up before setting up an IDT and
+doing anything that might cause a #VC exception. This is later needed
+for early exception handling.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/fpu/internal.h | 29 +-------------------------
- arch/x86/include/asm/fpu/xcr.h      | 32 +++++++++++++++++++++++++++++
- 2 files changed, 33 insertions(+), 28 deletions(-)
- create mode 100644 arch/x86/include/asm/fpu/xcr.h
+ arch/x86/kernel/head_64.S | 52 +++++++++++++++++++--------------------
+ 1 file changed, 26 insertions(+), 26 deletions(-)
 
-diff --git a/arch/x86/include/asm/fpu/internal.h b/arch/x86/include/asm/fpu/internal.h
-index 44c48e34d799..795fc049988e 100644
---- a/arch/x86/include/asm/fpu/internal.h
-+++ b/arch/x86/include/asm/fpu/internal.h
-@@ -19,6 +19,7 @@
- #include <asm/user.h>
- #include <asm/fpu/api.h>
- #include <asm/fpu/xstate.h>
-+#include <asm/fpu/xcr.h>
- #include <asm/cpufeature.h>
- #include <asm/trace/fpu.h>
+diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
+index ebb7d512c9d3..1be178be1566 100644
+--- a/arch/x86/kernel/head_64.S
++++ b/arch/x86/kernel/head_64.S
+@@ -168,6 +168,32 @@ SYM_CODE_START(secondary_startup_64)
+ 	movq	%rax, boot_gdt_base(%rip)
+ 	lgdt	boot_gdt_descr(%rip)
  
-@@ -614,32 +615,4 @@ static inline void switch_fpu_finish(struct fpu *new_fpu)
- 	}
- 	__write_pkru(pkru_val);
- }
--
--/*
-- * MXCSR and XCR definitions:
-- */
--
--extern unsigned int mxcsr_feature_mask;
--
--#define XCR_XFEATURE_ENABLED_MASK	0x00000000
--
--static inline u64 xgetbv(u32 index)
--{
--	u32 eax, edx;
--
--	asm volatile(".byte 0x0f,0x01,0xd0" /* xgetbv */
--		     : "=a" (eax), "=d" (edx)
--		     : "c" (index));
--	return eax + ((u64)edx << 32);
--}
--
--static inline void xsetbv(u32 index, u64 value)
--{
--	u32 eax = value;
--	u32 edx = value >> 32;
--
--	asm volatile(".byte 0x0f,0x01,0xd1" /* xsetbv */
--		     : : "a" (eax), "d" (edx), "c" (index));
--}
--
- #endif /* _ASM_X86_FPU_INTERNAL_H */
-diff --git a/arch/x86/include/asm/fpu/xcr.h b/arch/x86/include/asm/fpu/xcr.h
-new file mode 100644
-index 000000000000..91ee45712737
---- /dev/null
-+++ b/arch/x86/include/asm/fpu/xcr.h
-@@ -0,0 +1,32 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _ASM_X86_FPU_XCR_H
-+#define _ASM_X86_FPU_XCR_H
++	/* set up data segments */
++	xorl %eax,%eax
++	movl %eax,%ds
++	movl %eax,%ss
++	movl %eax,%es
 +
-+/*
-+ * MXCSR and XCR definitions:
-+ */
++	/*
++	 * We don't really need to load %fs or %gs, but load them anyway
++	 * to kill any stale realmode selectors.  This allows execution
++	 * under VT hardware.
++	 */
++	movl %eax,%fs
++	movl %eax,%gs
 +
-+extern unsigned int mxcsr_feature_mask;
++	/* Set up %gs.
++	 *
++	 * The base of %gs always points to fixed_percpu_data. If the
++	 * stack protector canary is enabled, it is located at %gs:40.
++	 * Note that, on SMP, the boot cpu uses init data section until
++	 * the per cpu areas are set up.
++	 */
++	movl	$MSR_GS_BASE,%ecx
++	movl	initial_gs(%rip),%eax
++	movl	initial_gs+4(%rip),%edx
++	wrmsr
 +
-+#define XCR_XFEATURE_ENABLED_MASK	0x00000000
-+
-+static inline u64 xgetbv(u32 index)
-+{
-+	u32 eax, edx;
-+
-+	asm volatile(".byte 0x0f,0x01,0xd0" /* xgetbv */
-+		     : "=a" (eax), "=d" (edx)
-+		     : "c" (index));
-+	return eax + ((u64)edx << 32);
-+}
-+
-+static inline void xsetbv(u32 index, u64 value)
-+{
-+	u32 eax = value;
-+	u32 edx = value >> 32;
-+
-+	asm volatile(".byte 0x0f,0x01,0xd1" /* xsetbv */
-+		     : : "a" (eax), "d" (edx), "c" (index));
-+}
-+
-+#endif /* _ASM_X86_FPU_XCR_H */
+ 	/* Check if nx is implemented */
+ 	movl	$0x80000001, %eax
+ 	cpuid
+@@ -203,32 +229,6 @@ SYM_CODE_START(secondary_startup_64)
+ 	 */
+ 	lgdt	early_gdt_descr(%rip)
+ 
+-	/* set up data segments */
+-	xorl %eax,%eax
+-	movl %eax,%ds
+-	movl %eax,%ss
+-	movl %eax,%es
+-
+-	/*
+-	 * We don't really need to load %fs or %gs, but load them anyway
+-	 * to kill any stale realmode selectors.  This allows execution
+-	 * under VT hardware.
+-	 */
+-	movl %eax,%fs
+-	movl %eax,%gs
+-
+-	/* Set up %gs.
+-	 *
+-	 * The base of %gs always points to fixed_percpu_data. If the
+-	 * stack protector canary is enabled, it is located at %gs:40.
+-	 * Note that, on SMP, the boot cpu uses init data section until
+-	 * the per cpu areas are set up.
+-	 */
+-	movl	$MSR_GS_BASE,%ecx
+-	movl	initial_gs(%rip),%eax
+-	movl	initial_gs+4(%rip),%edx
+-	wrmsr
+-
+ 	/* rsi is pointer to real mode structure with interesting info.
+ 	   pass it to C */
+ 	movq	%rsi, %rdi
 -- 
 2.17.1
