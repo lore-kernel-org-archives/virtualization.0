@@ -1,57 +1,31 @@
-From: Jiri Slaby <jslaby@suse.cz>
-Subject: [PATCH] drm/virtio: fix OOB in virtio_gpu_object_create
-Date: Thu, 19 Mar 2020 11:04:21 +0100
-Message-ID: <20200319100421.16267-1-jslaby@suse.cz>
+From: Thomas Hellstrom <thellstrom@vmware.com>
+Subject: Re: [PATCH 63/70] x86/vmware: Add VMware specific handling for
+ VMMCALL under SEV-ES
+Date: Thu, 19 Mar 2020 10:18:08 +0000
+Message-ID: <5abc70ce42e1445b8ae097a38951b0aa6f67bac8.camel@vmware.com>
+References: <20200319091407.1481-1-joro@8bytes.org>
+         <20200319091407.1481-64-joro@8bytes.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200319091407.1481-64-joro@8bytes.org>
+Content-Language: en-US
+Content-ID: <AD4E5ECE942544418011A3A4E96E3198@namprd05.prod.outlook.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: kraxel@redhat.com
-Cc: airlied@linux.ie, daniel@ffwll.ch, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>, Gurchetan Singh <gurchetansingh@chromium.org>
+To: "joro@8bytes.org" <joro@8bytes.org>, "x86@kernel.org" <x86@kernel.org>
+Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "peterz@infradead.org" <peterz@infradead.org>, "keescook@chromium.org" <keescook@chromium.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>, "jgross@suse.com" <jgross@suse.com>, Doug Covelli <dcovelli@vmware.com>, "dan.j.williams@intel.com" <dan.j.williams@intel.com>, "hpa@zytor.com" <hpa@zytor.com>, "luto@kernel.org" <luto@kernel.org>, "jroedel@suse.de" <jroedel@suse.de>, "jslaby@suse.cz" <jslaby@suse.cz>, "thomas.lendacky@amd.com" <thomas.lendacky@amd.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-After commit f651c8b05542, virtio_gpu_create_object allocates too small
-space to fit everything in. It is because it allocates struct
-virtio_gpu_object, but should allocate a newly added struct
-virtio_gpu_object_shmem which has 2 more members.
-
-So fix that by using correct type in virtio_gpu_create_object.
-
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Fixes: f651c8b05542 ("drm/virtio: factor out the sg_table from virtio_gpu_object")
-Cc: Gurchetan Singh <gurchetansingh@chromium.org>
-Cc: Gerd Hoffmann <kraxel@redhat.com>
----
- drivers/gpu/drm/virtio/virtgpu_object.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-index 2bfb13d1932e..d9039bb7c5e3 100644
---- a/drivers/gpu/drm/virtio/virtgpu_object.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -123,15 +123,17 @@ bool virtio_gpu_is_shmem(struct virtio_gpu_object *bo)
- struct drm_gem_object *virtio_gpu_create_object(struct drm_device *dev,
- 						size_t size)
- {
--	struct virtio_gpu_object *bo;
-+	struct virtio_gpu_object_shmem *shmem;
-+	struct drm_gem_shmem_object *dshmem;
- 
--	bo = kzalloc(sizeof(*bo), GFP_KERNEL);
--	if (!bo)
-+	shmem = kzalloc(sizeof(*shmem), GFP_KERNEL);
-+	if (!shmem)
- 		return NULL;
- 
--	bo->base.base.funcs = &virtio_gpu_shmem_funcs;
--	bo->base.map_cached = true;
--	return &bo->base.base;
-+	dshmem = &shmem->base.base;
-+	dshmem->base.funcs = &virtio_gpu_shmem_funcs;
-+	dshmem->map_cached = true;
-+	return &dshmem->base;
- }
- 
- static int virtio_gpu_object_shmem_init(struct virtio_gpu_device *vgdev,
--- 
-2.25.1
+T24gVGh1LCAyMDIwLTAzLTE5IGF0IDEwOjE0ICswMTAwLCBKb2VyZyBSb2VkZWwgd3JvdGU6DQo+
+IEZyb206IERvdWcgQ292ZWxsaSA8ZGNvdmVsbGlAdm13YXJlLmNvbT4NCj4gDQo+IFRoaXMgY2hh
+bmdlIGFkZHMgVk13YXJlIHNwZWNpZmljIGhhbmRsaW5nIGZvciAjVkMgZmF1bHRzIGNhdXNlZCBi
+eQ0KPiBWTU1DQUxMIGluc3RydWN0aW9ucy4NCj4gDQo+IFNpZ25lZC1vZmYtYnk6IERvdWcgQ292
+ZWxsaSA8ZGNvdmVsbGlAdm13YXJlLmNvbT4NCj4gU2lnbmVkLW9mZi1ieTogVG9tIExlbmRhY2t5
+IDx0aG9tYXMubGVuZGFja3lAYW1kLmNvbT4NCj4gWyBqcm9lZGVsQHN1c2UuZGU6IC0gQWRhcHQg
+dG8gZGlmZmVyZW50IHBhcmF2aXJ0IGludGVyZmFjZSBdDQo+IENvLWRldmVsb3BlZC1ieTogSm9l
+cmcgUm9lZGVsIDxqcm9lZGVsQHN1c2UuZGU+DQo+IFNpZ25lZC1vZmYtYnk6IEpvZXJnIFJvZWRl
+bCA8anJvZWRlbEBzdXNlLmRlPg0KPiAtLS0NCj4gIGFyY2gveDg2L2tlcm5lbC9jcHUvdm13YXJl
+LmMgfCA1MCArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKw0KPiAtLS0tDQo+ICAxIGZp
+bGUgY2hhbmdlZCwgNDUgaW5zZXJ0aW9ucygrKSwgNSBkZWxldGlvbnMoLSkNCj4gDQoNCkFja2Vk
+LWJ5OiBUaG9tYXMgSGVsbHN0cm9tIDx0aGVsbHN0cm9tQHZtd2FyZS5jb20+DQoNCg==
