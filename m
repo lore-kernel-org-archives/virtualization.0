@@ -1,106 +1,181 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 31/70] x86/head/64: Load segment registers earlier
-Date: Thu, 19 Mar 2020 10:13:28 +0100
-Message-ID: <20200319091407.1481-32-joro@8bytes.org>
+Subject: [PATCH 65/70] x86/realmode: Setup AP jump table
+Date: Thu, 19 Mar 2020 10:14:02 +0100
+Message-ID: <20200319091407.1481-66-joro@8bytes.org>
 References: <20200319091407.1481-1-joro@8bytes.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200319091407.1481-1-joro@8bytes.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: x86@kernel.org
-Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Joerg Roedel <jroedel@suse.de>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
+Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-Make sure segments are properly set up before setting up an IDT and
-doing anything that might cause a #VC exception. This is later needed
-for early exception handling.
+Setup the AP jump table to point to the SEV-ES trampoline code so that
+the APs can boot.
 
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+[ jroedel@suse.de: - Adapted to different code base
+                   - Moved AP table setup from SIPI sending path to
+		     real-mode setup code ]
+Co-developed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/head_64.S | 52 +++++++++++++++++++--------------------
- 1 file changed, 26 insertions(+), 26 deletions(-)
+ arch/x86/include/asm/sev-es.h   | 11 ++++++
+ arch/x86/include/uapi/asm/svm.h |  3 ++
+ arch/x86/kernel/sev-es.c        | 66 +++++++++++++++++++++++++++++++++
+ arch/x86/realmode/init.c        |  6 +++
+ 4 files changed, 86 insertions(+)
 
-diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
-index ebb7d512c9d3..1be178be1566 100644
---- a/arch/x86/kernel/head_64.S
-+++ b/arch/x86/kernel/head_64.S
-@@ -168,6 +168,32 @@ SYM_CODE_START(secondary_startup_64)
- 	movq	%rax, boot_gdt_base(%rip)
- 	lgdt	boot_gdt_descr(%rip)
+diff --git a/arch/x86/include/asm/sev-es.h b/arch/x86/include/asm/sev-es.h
+index 122b3e71a788..63acf50e6280 100644
+--- a/arch/x86/include/asm/sev-es.h
++++ b/arch/x86/include/asm/sev-es.h
+@@ -78,4 +78,15 @@ static inline u64 copy_lower_bits(u64 out, u64 in, unsigned int bits)
+ extern void early_vc_handler(void);
+ extern bool boot_vc_exception(struct pt_regs *regs);
  
-+	/* set up data segments */
-+	xorl %eax,%eax
-+	movl %eax,%ds
-+	movl %eax,%ss
-+	movl %eax,%es
++struct real_mode_header;
 +
-+	/*
-+	 * We don't really need to load %fs or %gs, but load them anyway
-+	 * to kill any stale realmode selectors.  This allows execution
-+	 * under VT hardware.
-+	 */
-+	movl %eax,%fs
-+	movl %eax,%gs
++#ifdef CONFIG_AMD_MEM_ENCRYPT
++int sev_es_setup_ap_jump_table(struct real_mode_header *rmh);
++#else /* CONFIG_AMD_MEM_ENCRYPT */
++static inline int sev_es_setup_ap_jump_table(struct real_mode_header *rmh)
++{
++	return 0;
++}
++#endif /* CONFIG_AMD_MEM_ENCRYPT*/
 +
-+	/* Set up %gs.
-+	 *
-+	 * The base of %gs always points to fixed_percpu_data. If the
-+	 * stack protector canary is enabled, it is located at %gs:40.
-+	 * Note that, on SMP, the boot cpu uses init data section until
-+	 * the per cpu areas are set up.
-+	 */
-+	movl	$MSR_GS_BASE,%ecx
-+	movl	initial_gs(%rip),%eax
-+	movl	initial_gs+4(%rip),%edx
-+	wrmsr
-+
- 	/* Check if nx is implemented */
- 	movl	$0x80000001, %eax
- 	cpuid
-@@ -203,32 +229,6 @@ SYM_CODE_START(secondary_startup_64)
- 	 */
- 	lgdt	early_gdt_descr(%rip)
+ #endif
+diff --git a/arch/x86/include/uapi/asm/svm.h b/arch/x86/include/uapi/asm/svm.h
+index 8f36ae021a7f..a19ce9681ec2 100644
+--- a/arch/x86/include/uapi/asm/svm.h
++++ b/arch/x86/include/uapi/asm/svm.h
+@@ -84,6 +84,9 @@
+ /* SEV-ES software-defined VMGEXIT events */
+ #define SVM_VMGEXIT_MMIO_READ			0x80000001
+ #define SVM_VMGEXIT_MMIO_WRITE			0x80000002
++#define SVM_VMGEXIT_AP_JUMP_TABLE		0x80000005
++#define		SVM_VMGEXIT_SET_AP_JUMP_TABLE			0
++#define		SVM_VMGEXIT_GET_AP_JUMP_TABLE			1
+ #define SVM_VMGEXIT_UNSUPPORTED_EVENT		0x8000ffff
  
--	/* set up data segments */
--	xorl %eax,%eax
--	movl %eax,%ds
--	movl %eax,%ss
--	movl %eax,%es
--
--	/*
--	 * We don't really need to load %fs or %gs, but load them anyway
--	 * to kill any stale realmode selectors.  This allows execution
--	 * under VT hardware.
--	 */
--	movl %eax,%fs
--	movl %eax,%gs
--
--	/* Set up %gs.
--	 *
--	 * The base of %gs always points to fixed_percpu_data. If the
--	 * stack protector canary is enabled, it is located at %gs:40.
--	 * Note that, on SMP, the boot cpu uses init data section until
--	 * the per cpu areas are set up.
--	 */
--	movl	$MSR_GS_BASE,%ecx
--	movl	initial_gs(%rip),%eax
--	movl	initial_gs+4(%rip),%edx
--	wrmsr
--
- 	/* rsi is pointer to real mode structure with interesting info.
- 	   pass it to C */
- 	movq	%rsi, %rdi
+ #define SVM_EXIT_ERR           -1
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+index 635e7fc90d01..f56bdaf12fbe 100644
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -16,6 +16,7 @@
+ #include <linux/mm.h>
+ 
+ #include <asm/trap_defs.h>
++#include <asm/realmode.h>
+ #include <asm/sev-es.h>
+ #include <asm/insn-eval.h>
+ #include <asm/fpu/internal.h>
+@@ -89,6 +90,8 @@ static void sev_es_put_ghcb(struct ghcb_state *state)
+ /* Needed in vc_early_vc_forward_exception */
+ extern void early_exception(struct pt_regs *regs, int trapnr);
+ 
++static inline u64 sev_es_rd_ghcb_msr(void);
++
+ static inline u64 sev_es_rd_ghcb_msr(void)
+ {
+ 	return native_read_msr(MSR_AMD64_SEV_ES_GHCB);
+@@ -265,6 +268,69 @@ static phys_addr_t vc_slow_virt_to_phys(struct ghcb *ghcb, long vaddr)
+ /* Include code shared with pre-decompression boot stage */
+ #include "sev-es-shared.c"
+ 
++static u64 sev_es_get_jump_table_addr(void)
++{
++	struct ghcb_state state;
++	unsigned long flags;
++	struct ghcb *ghcb;
++	u64 ret;
++
++	local_irq_save(flags);
++
++	ghcb = sev_es_get_ghcb(&state);
++
++	vc_ghcb_invalidate(ghcb);
++	ghcb_set_sw_exit_code(ghcb, SVM_VMGEXIT_AP_JUMP_TABLE);
++	ghcb_set_sw_exit_info_1(ghcb, SVM_VMGEXIT_GET_AP_JUMP_TABLE);
++	ghcb_set_sw_exit_info_2(ghcb, 0);
++
++	sev_es_wr_ghcb_msr(__pa(ghcb));
++	VMGEXIT();
++
++	if (!ghcb_is_valid_sw_exit_info_1(ghcb) ||
++	    !ghcb_is_valid_sw_exit_info_2(ghcb))
++		ret = 0;
++
++	ret = ghcb->save.sw_exit_info_2;
++
++	sev_es_put_ghcb(&state);
++
++	local_irq_restore(flags);
++
++	return ret;
++}
++
++int sev_es_setup_ap_jump_table(struct real_mode_header *rmh)
++{
++	u16 startup_cs, startup_ip;
++	phys_addr_t jump_table_pa;
++	u64 jump_table_addr;
++	u16 *jump_table;
++
++	jump_table_addr = sev_es_get_jump_table_addr();
++
++	/* Check if AP Jump Table is non-zero and page-aligned */
++	if (!jump_table_addr || jump_table_addr & ~PAGE_MASK)
++		return 0;
++
++	jump_table_pa = jump_table_addr & PAGE_MASK;
++
++	startup_cs = (u16)(rmh->trampoline_start >> 4);
++	startup_ip = (u16)(rmh->sev_es_trampoline_start -
++			   rmh->trampoline_start);
++
++	jump_table = ioremap_encrypted(jump_table_pa, PAGE_SIZE);
++	if (!jump_table)
++		return -EIO;
++
++	jump_table[0] = startup_ip;
++	jump_table[1] = startup_cs;
++
++	iounmap(jump_table);
++
++	return 0;
++}
++
+ static enum es_result vc_handle_msr(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
+ {
+ 	struct pt_regs *regs = ctxt->regs;
+diff --git a/arch/x86/realmode/init.c b/arch/x86/realmode/init.c
+index 262f83cad355..1c5cbfd102d5 100644
+--- a/arch/x86/realmode/init.c
++++ b/arch/x86/realmode/init.c
+@@ -9,6 +9,7 @@
+ #include <asm/realmode.h>
+ #include <asm/tlbflush.h>
+ #include <asm/crash.h>
++#include <asm/sev-es.h>
+ 
+ struct real_mode_header *real_mode_header;
+ u32 *trampoline_cr4_features;
+@@ -107,6 +108,11 @@ static void __init setup_real_mode(void)
+ 	if (sme_active())
+ 		trampoline_header->flags |= TH_FLAGS_SME_ACTIVE;
+ 
++	if (sev_es_active()) {
++		if (sev_es_setup_ap_jump_table(real_mode_header))
++			panic("Failed to update SEV-ES AP Jump Table");
++	}
++
+ 	trampoline_pgd = (u64 *) __va(real_mode_header->trampoline_pgd);
+ 	trampoline_pgd[0] = trampoline_pgd_entry.pgd;
+ 	trampoline_pgd[511] = init_top_pgt[511].pgd;
 -- 
 2.17.1
