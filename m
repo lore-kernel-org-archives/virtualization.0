@@ -1,71 +1,88 @@
-From: Sam Ravnborg <sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH v1 0/3] drm: drm_encoder_init() =>
- drm_encoder_init_funcs()
-Date: Thu, 19 Mar 2020 18:05:22 +0100
-Message-ID: <20200319170522.GA29213@ravnborg.org>
-References: <20200313201744.19773-1-sam@ravnborg.org>
- <20200319141954.GA25036@ravnborg.org>
+From: Andy Lutomirski <luto@kernel.org>
+Subject: Re: [PATCH 70/70] x86/sev-es: Add NMI state tracking
+Date: Thu, 19 Mar 2020 11:40:39 -0700
+Message-ID: <CALCETrXY5M87C1Fc3QvTkc6MdbQ_3gAuOPUeWJktAzK4T60QNQ@mail.gmail.com>
+References: <20200319091407.1481-1-joro@8bytes.org> <20200319091407.1481-71-joro@8bytes.org>
+ <CALCETrUOQneBHjoZkP-7T5PDijb=WOyv7xF7TD0GLR2Aw77vyA@mail.gmail.com> <20200319160749.GC5122@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20200319141954.GA25036-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Thomas Zimmermann <tzimmermann-l3A5Bk7waGM@public.gmane.org>, Daniel Vetter <daniel-/w4YWyX8dFk@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org
-Cc: Alexandre Belloni <alexandre.belloni-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org>, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Boris Brezillon <bbrezillon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, Andrzej Pietrasiewicz <andrzej.p-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>, Nicolas Ferre <nicolas.ferre-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>, NXP Linux Team <linux-imx-3arQi8VN3Tc@public.gmane.org>, Jose Roberto de Souza <jose.souza-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-renesas-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Ludovic Desroches <ludovic.desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Gerd Hoffmann <kraxel-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, linux-amlogic-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Dave Airlie <airlied-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, amd-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-stm32-XDFAJ8BFU24N7RejjzZ/Li2xQDfSxrLKVpNB7YpNyf8@public.gmane.orglinux-a
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200319160749.GC5122@8bytes.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>
+Cc: Andy Lutomirski <luto@kernel.org>, X86 ML <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, LKML <linux-kernel@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 19, 2020 at 03:19:54PM +0100, Sam Ravnborg wrote:
-> On Fri, Mar 13, 2020 at 09:17:41PM +0100, Sam Ravnborg wrote:
-> > Thomas Zimmermann had made a nice patch-set that introduced
-> > drm_simple_encoder_init() which is already present in drm-misc-next.
-> > 
-> > While looking at this it was suddenly obvious to me that
-> > this was functionalty that really should be included in drm_encoder.c
-> > The case where the core could handle the callback is pretty
-> > common and not part of the simple pipe line.
-> > 
-> > So after some dialog on dri-devel the conclusion was to go for
-> > a change like this:
-> > 
-> >     drm_encoder_init_funcs() for all users that specified a
-> >     drm_encoder_funcs to extend the functionality.
-> > 
-> >     drm_encoder_init() for all users that did not
-> >     need to extend the basic functionality with
-> >     drm_encoder_funcs.
-> > 
-> > A similar approach with a _funcs() prefix is used elsewhere in drm/
-> > 
-> > This required a rename of the existing users, and
-> > a follow-up patch that moves drm_simple_encoder_init()
-> > to drm_encoder.c
-> > 
-> > Patches 3 in this set demonstrate the use of drm_encoder_init().
-> > There are many more drivers that can be converted as Thomas
-> > has already demonstrated.
-> > 
-> > This is all based on work done by Thomas Zimmermann,
-> > I just wanted to implement my suggestion so
-> > we could select the best way forward.
-> > 
-> > Note: Daniel Vetter has hinted the approach implemented
-> > here smelled like middle-layer.
-> > IMO this is not so, it is just a way to handle cleanup
-> > for the simple cases.
-> 
-> We discussed this patch-set briefly on irc.
-Just to clarify, we in this context was Daniel Vetter & me.
+On Thu, Mar 19, 2020 at 9:07 AM Joerg Roedel <joro@8bytes.org> wrote:
+>
+> Hi Andy,
+>
+> On Thu, Mar 19, 2020 at 08:35:59AM -0700, Andy Lutomirski wrote:
+> > On Thu, Mar 19, 2020 at 2:14 AM Joerg Roedel <joro@8bytes.org> wrote:
+> > >
+> > > From: Joerg Roedel <jroedel@suse.de>
+> > >
+> > > Keep NMI state in SEV-ES code so the kernel can re-enable NMIs for the
+> > > vCPU when it reaches IRET.
+> >
+> > IIRC I suggested just re-enabling NMI in C from do_nmi().  What was
+> > wrong with that approach?
+>
+> If I understand the code correctly a nested NMI will just reset the
+> interrupted NMI handler to start executing again at 'restart_nmi'.
+> The interrupted NMI handler could be in the #VC handler, and it is not
+> safe to just jump back to the start of the NMI handler from somewhere
+> within the #VC handler.
 
-	Sam
+Nope.  A nested NMI will reset the interrupted NMI's return frame to
+cause it to run again when it's done.  I don't think this will have
+any real interaction with #VC.  There's no longjmp() here.
 
-> With the upcoming drmm_ changes and such this is bad timing..
-> And in the end this may be pointless code-chrunch.
-> 
-> Patch-set shelfed for now - may re-visit it later.
-> 
-> 	Sam
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+>
+> So I decided to not allow NMI nesting for SEV-ES and only re-enable the
+> NMI window when the first NMI returns. This is not implemented in this
+> patch, but I will do that once Thomas' entry-code rewrite is upstream.
+>
+
+I certainly *like* preventing nesting, but I don't think we really
+want a whole alternate NMI path just for a couple of messed-up AMD
+generations.  And the TF trick is not so pretty either.
+
+> > This causes us to pop the NMI frame off the stack.  Assuming the NMI
+> > restart logic is invoked (which is maybe impossible?), we get #DB,
+> > which presumably is actually delivered.  And we end up on the #DB
+> > stack, which might already have been in use, so we have a potential
+> > increase in nesting.  Also, #DB may be called from an unexpected
+> > context.
+>
+> An SEV-ES hypervisor is required to intercept #DB, which means that the
+> #DB exception actually ends up being a #VC exception. So it will not end
+> up on the #DB stack.
+
+With your patch set, #DB doesn't seem to end up on the #DB stack either.
+
+>
+> > I think there are two credible ways to approach this:
+> >
+> > 1. Just put the NMI unmask in do_nmi().  The kernel *already* knows
+> > how to handle running do_nmi() with NMIs unmasked.  This is much, much
+> > simpler than your code.
+>
+> Right, and I thought about that, but the implication is that the
+> complexity is moved somewhere else, namely into the #VC handler, which
+> then has to be restartable.
+
+As above, I don't think there's an actual problem here.
+
+>
+> > 2. Have an entirely separate NMI path for the
+> > SEV-ES-on-misdesigned-CPU case.  And have very clear documentation for
+> > what prevents this code from being executed on future CPUs (Zen3?)
+> > that have this issue fixed for real?
+>
+> That sounds like a good alternative, I will investigate this approach.
+> The NMI handler should be much simpler as it doesn't need to allow NMI
+> nesting. The question is, does the C code down the NMI path depend on
+> the NMI handlers stack frame layout (e.g. the in-nmi flag)?
+
+Nope.  In particular, the 32-bit path doesn't have all this.
