@@ -1,108 +1,177 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 13/70] x86/boot/compressed/64: Rename kaslr_64.c to ident_map_64.c
-Date: Thu, 19 Mar 2020 10:13:10 +0100
-Message-ID: <20200319091407.1481-14-joro@8bytes.org>
+Subject: [PATCH 05/70] x86/insn: Make inat-tables.c suitable for
+ pre-decompression code
+Date: Thu, 19 Mar 2020 10:13:02 +0100
+Message-ID: <20200319091407.1481-6-joro@8bytes.org>
 References: <20200319091407.1481-1-joro@8bytes.org>
-Return-path: <kvm-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200319091407.1481-1-joro@8bytes.org>
-Sender: kvm-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: x86@kernel.org
-Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>
+Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Joerg Roedel <jroedel@suse.de>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-The file contains only code related to identity mapped page-tables.
-Rename the file and compile it always in.
+The inat-tables.c file has some arrays in it that contain pointers to
+other arrays. These pointers need to be relocated when the kernel
+image is moved to a different location.
+
+The pre-decompression boot-code has no support for applying ELF
+relocations, so initialize these arrays at runtime in the
+pre-decompression code to make sure all pointers are correctly
+initialized.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/compressed/Makefile                    |  2 +-
- .../boot/compressed/{kaslr_64.c => ident_map_64.c}   | 12 ++++++++++++
- arch/x86/boot/compressed/kaslr.c                     |  9 ---------
- arch/x86/boot/compressed/misc.h                      |  8 ++++++++
- 4 files changed, 21 insertions(+), 10 deletions(-)
- rename arch/x86/boot/compressed/{kaslr_64.c => ident_map_64.c} (93%)
+ arch/x86/tools/gen-insn-attr-x86.awk       | 50 +++++++++++++++++++++-
+ tools/arch/x86/tools/gen-insn-attr-x86.awk | 50 +++++++++++++++++++++-
+ 2 files changed, 98 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
-index 54d63526e856..e6b3e0fc48de 100644
---- a/arch/x86/boot/compressed/Makefile
-+++ b/arch/x86/boot/compressed/Makefile
-@@ -80,7 +80,7 @@ vmlinux-objs-y := $(obj)/vmlinux.lds $(obj)/kernel_info.o $(obj)/head_$(BITS).o
- vmlinux-objs-$(CONFIG_EARLY_PRINTK) += $(obj)/early_serial_console.o
- vmlinux-objs-$(CONFIG_RANDOMIZE_BASE) += $(obj)/kaslr.o
- ifdef CONFIG_X86_64
--	vmlinux-objs-$(CONFIG_RANDOMIZE_BASE) += $(obj)/kaslr_64.o
-+	vmlinux-objs-y += $(obj)/ident_map_64.o
- 	vmlinux-objs-y += $(obj)/idt_64.o $(obj)/idt_handlers_64.o
- 	vmlinux-objs-y += $(obj)/mem_encrypt.o
- 	vmlinux-objs-y += $(obj)/pgtable_64.o
-diff --git a/arch/x86/boot/compressed/kaslr_64.c b/arch/x86/boot/compressed/ident_map_64.c
-similarity index 93%
-rename from arch/x86/boot/compressed/kaslr_64.c
-rename to arch/x86/boot/compressed/ident_map_64.c
-index 9557c5a15b91..3a2115582920 100644
---- a/arch/x86/boot/compressed/kaslr_64.c
-+++ b/arch/x86/boot/compressed/ident_map_64.c
-@@ -29,6 +29,18 @@
- #define __PAGE_OFFSET __PAGE_OFFSET_BASE
- #include "../../mm/ident_map.c"
+diff --git a/arch/x86/tools/gen-insn-attr-x86.awk b/arch/x86/tools/gen-insn-attr-x86.awk
+index a42015b305f4..af38469afd14 100644
+--- a/arch/x86/tools/gen-insn-attr-x86.awk
++++ b/arch/x86/tools/gen-insn-attr-x86.awk
+@@ -362,6 +362,9 @@ function convert_operands(count,opnd,       i,j,imm,mod)
+ END {
+ 	if (awkchecked != "")
+ 		exit 1
++
++	print "#ifndef __BOOT_COMPRESSED\n"
++
+ 	# print escape opcode map's array
+ 	print "/* Escape opcode map array */"
+ 	print "const insn_attr_t * const inat_escape_tables[INAT_ESC_MAX + 1]" \
+@@ -388,6 +391,51 @@ END {
+ 		for (j = 0; j < max_lprefix; j++)
+ 			if (atable[i,j])
+ 				print "	["i"]["j"] = "atable[i,j]","
+-	print "};"
++	print "};\n"
++
++	print "#else /* !__BOOT_COMPRESSED */\n"
++
++	print "/* Escape opcode map array */"
++	print "static const insn_attr_t *inat_escape_tables[INAT_ESC_MAX + 1]" \
++	      "[INAT_LSTPFX_MAX + 1];"
++	print ""
++
++	print "/* Group opcode map array */"
++	print "static const insn_attr_t *inat_group_tables[INAT_GRP_MAX + 1]"\
++	      "[INAT_LSTPFX_MAX + 1];"
++	print ""
++
++	print "/* AVX opcode map array */"
++	print "static const insn_attr_t *inat_avx_tables[X86_VEX_M_MAX + 1]"\
++	      "[INAT_LSTPFX_MAX + 1];"
++	print ""
++
++	print "static void inat_init_tables(void)"
++	print "{"
++
++	# print escape opcode map's array
++	print "\t/* Print Escape opcode map array */"
++	for (i = 0; i < geid; i++)
++		for (j = 0; j < max_lprefix; j++)
++			if (etable[i,j])
++				print "\tinat_escape_tables["i"]["j"] = "etable[i,j]";"
++	print ""
++
++	# print group opcode map's array
++	print "\t/* Print Group opcode map array */"
++	for (i = 0; i < ggid; i++)
++		for (j = 0; j < max_lprefix; j++)
++			if (gtable[i,j])
++				print "\tinat_group_tables["i"]["j"] = "gtable[i,j]";"
++	print ""
++	# print AVX opcode map's array
++	print "\t/* Print AVX opcode map array */"
++	for (i = 0; i < gaid; i++)
++		for (j = 0; j < max_lprefix; j++)
++			if (atable[i,j])
++				print "\tinat_avx_tables["i"]["j"] = "atable[i,j]";"
++
++	print "}"
++	print "#endif"
+ }
  
-+#ifdef CONFIG_X86_5LEVEL
-+unsigned int __pgtable_l5_enabled;
-+unsigned int pgdir_shift = 39;
-+unsigned int ptrs_per_p4d = 1;
-+#endif
+diff --git a/tools/arch/x86/tools/gen-insn-attr-x86.awk b/tools/arch/x86/tools/gen-insn-attr-x86.awk
+index a42015b305f4..af38469afd14 100644
+--- a/tools/arch/x86/tools/gen-insn-attr-x86.awk
++++ b/tools/arch/x86/tools/gen-insn-attr-x86.awk
+@@ -362,6 +362,9 @@ function convert_operands(count,opnd,       i,j,imm,mod)
+ END {
+ 	if (awkchecked != "")
+ 		exit 1
 +
-+/* Used by PAGE_KERN* macros: */
-+pteval_t __default_kernel_pte_mask __read_mostly = ~0;
++	print "#ifndef __BOOT_COMPRESSED\n"
 +
-+/* Used by pgtable.h asm code to force instruction serialization. */
-+unsigned long __force_order;
+ 	# print escape opcode map's array
+ 	print "/* Escape opcode map array */"
+ 	print "const insn_attr_t * const inat_escape_tables[INAT_ESC_MAX + 1]" \
+@@ -388,6 +391,51 @@ END {
+ 		for (j = 0; j < max_lprefix; j++)
+ 			if (atable[i,j])
+ 				print "	["i"]["j"] = "atable[i,j]","
+-	print "};"
++	print "};\n"
 +
- /* Used to track our page table allocation area. */
- struct alloc_pgt_data {
- 	unsigned char *pgt_buf;
-diff --git a/arch/x86/boot/compressed/kaslr.c b/arch/x86/boot/compressed/kaslr.c
-index d7408af55738..7c61a8c5b9cf 100644
---- a/arch/x86/boot/compressed/kaslr.c
-+++ b/arch/x86/boot/compressed/kaslr.c
-@@ -43,17 +43,8 @@
- #define STATIC
- #include <linux/decompress/mm.h>
++	print "#else /* !__BOOT_COMPRESSED */\n"
++
++	print "/* Escape opcode map array */"
++	print "static const insn_attr_t *inat_escape_tables[INAT_ESC_MAX + 1]" \
++	      "[INAT_LSTPFX_MAX + 1];"
++	print ""
++
++	print "/* Group opcode map array */"
++	print "static const insn_attr_t *inat_group_tables[INAT_GRP_MAX + 1]"\
++	      "[INAT_LSTPFX_MAX + 1];"
++	print ""
++
++	print "/* AVX opcode map array */"
++	print "static const insn_attr_t *inat_avx_tables[X86_VEX_M_MAX + 1]"\
++	      "[INAT_LSTPFX_MAX + 1];"
++	print ""
++
++	print "static void inat_init_tables(void)"
++	print "{"
++
++	# print escape opcode map's array
++	print "\t/* Print Escape opcode map array */"
++	for (i = 0; i < geid; i++)
++		for (j = 0; j < max_lprefix; j++)
++			if (etable[i,j])
++				print "\tinat_escape_tables["i"]["j"] = "etable[i,j]";"
++	print ""
++
++	# print group opcode map's array
++	print "\t/* Print Group opcode map array */"
++	for (i = 0; i < ggid; i++)
++		for (j = 0; j < max_lprefix; j++)
++			if (gtable[i,j])
++				print "\tinat_group_tables["i"]["j"] = "gtable[i,j]";"
++	print ""
++	# print AVX opcode map's array
++	print "\t/* Print AVX opcode map array */"
++	for (i = 0; i < gaid; i++)
++		for (j = 0; j < max_lprefix; j++)
++			if (atable[i,j])
++				print "\tinat_avx_tables["i"]["j"] = "atable[i,j]";"
++
++	print "}"
++	print "#endif"
+ }
  
--#ifdef CONFIG_X86_5LEVEL
--unsigned int __pgtable_l5_enabled;
--unsigned int pgdir_shift __ro_after_init = 39;
--unsigned int ptrs_per_p4d __ro_after_init = 1;
--#endif
--
- extern unsigned long get_cmd_line_ptr(void);
- 
--/* Used by PAGE_KERN* macros: */
--pteval_t __default_kernel_pte_mask __read_mostly = ~0;
--
- /* Simplified build-specific string for starting entropy. */
- static const char build_str[] = UTS_RELEASE " (" LINUX_COMPILE_BY "@"
- 		LINUX_COMPILE_HOST ") (" LINUX_COMPILER ") " UTS_VERSION;
-diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
-index 062ae3ae6930..3a030a878d53 100644
---- a/arch/x86/boot/compressed/misc.h
-+++ b/arch/x86/boot/compressed/misc.h
-@@ -134,6 +134,14 @@ int count_immovable_mem_regions(void);
- static inline int count_immovable_mem_regions(void) { return 0; }
- #endif
- 
-+/* ident_map_64.c */
-+#ifdef CONFIG_X86_5LEVEL
-+extern unsigned int __pgtable_l5_enabled, pgdir_shift, ptrs_per_p4d;
-+#endif
-+
-+/* Used by PAGE_KERN* macros: */
-+extern pteval_t __default_kernel_pte_mask;
-+
- /* idt_64.c */
- extern gate_desc boot_idt[BOOT_IDT_ENTRIES];
- extern struct desc_ptr boot_idt_desc;
 -- 
 2.17.1
