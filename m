@@ -1,41 +1,64 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 59/70] x86/sev-es: Handle #AC Events
-Date: Thu, 19 Mar 2020 10:13:56 +0100
-Message-ID: <20200319091407.1481-60-joro@8bytes.org>
+Subject: [PATCH 56/70] x86/sev-es: Handle MONITOR/MONITORX Events
+Date: Thu, 19 Mar 2020 10:13:53 +0100
+Message-ID: <20200319091407.1481-57-joro@8bytes.org>
 References: <20200319091407.1481-1-joro@8bytes.org>
-Return-path: <kvm-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200319091407.1481-1-joro@8bytes.org>
-Sender: kvm-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: x86@kernel.org
 Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-Implement a handler for #VC exceptions caused by #AC exceptions. The #AC
-exception is just forwarded to do_alignment_check() and not pushed down
-to the hypervisor, as requested by the SEV-ES GHCB Standardization
-Specification.
+Implement a handler for #VC exceptions caused by MONITOR and MONITORX
+instructions.
 
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+[ jroedel@suse.de: Adapt to #VC handling infrastructure ]
+Co-developed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev-es.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/x86/kernel/sev-es.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
 diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index efb392e6f483..f22b361f6b60 100644
+index 11947b648b43..6bd8bc9f2e66 100644
 --- a/arch/x86/kernel/sev-es.c
 +++ b/arch/x86/kernel/sev-es.c
-@@ -766,6 +766,10 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
- 	case SVM_EXIT_WRITE_DR7:
- 		result = vc_handle_dr7_write(ghcb, ctxt, early);
+@@ -707,6 +707,22 @@ static enum es_result vc_handle_rdpmc(struct ghcb *ghcb, struct es_em_ctxt *ctxt
+ 	return ES_OK;
+ }
+ 
++static enum es_result vc_handle_monitor(struct ghcb *ghcb,
++					struct es_em_ctxt *ctxt)
++{
++	phys_addr_t monitor_pa;
++	pgd_t *pgd;
++
++	pgd = __va(read_cr3_pa());
++	monitor_pa = vc_slow_virt_to_phys(ghcb, ctxt->regs->ax);
++
++	ghcb_set_rax(ghcb, monitor_pa);
++	ghcb_set_rcx(ghcb, ctxt->regs->cx);
++	ghcb_set_rdx(ghcb, ctxt->regs->dx);
++
++	return sev_es_ghcb_hv_call(ghcb, ctxt, SVM_EXIT_MONITOR, 0, 0);
++}
++
+ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
+ 					 struct ghcb *ghcb,
+ 					 unsigned long exit_code,
+@@ -744,6 +760,9 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
+ 	case SVM_EXIT_WBINVD:
+ 		result = vc_handle_wbinvd(ghcb, ctxt);
  		break;
-+	case SVM_EXIT_EXCP_BASE + X86_TRAP_AC:
-+		do_alignment_check(ctxt->regs, 0);
-+		result = ES_RETRY;
++	case SVM_EXIT_MONITOR:
++		result = vc_handle_monitor(ghcb, ctxt);
 +		break;
- 	case SVM_EXIT_RDTSC:
- 	case SVM_EXIT_RDTSCP:
- 		result = vc_handle_rdtsc(ghcb, ctxt, exit_code);
+ 	case SVM_EXIT_NPF:
+ 		result = vc_handle_mmio(ghcb, ctxt);
+ 		break;
 -- 
 2.17.1
