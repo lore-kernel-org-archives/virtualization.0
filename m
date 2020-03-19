@@ -1,95 +1,104 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 63/70] x86/vmware: Add VMware specific handling for VMMCALL under SEV-ES
-Date: Thu, 19 Mar 2020 10:14:00 +0100
-Message-ID: <20200319091407.1481-64-joro@8bytes.org>
+Subject: [PATCH 25/70] x86/sev-es: Add CPUID handling to #VC handler
+Date: Thu, 19 Mar 2020 10:13:22 +0100
+Message-ID: <20200319091407.1481-26-joro@8bytes.org>
 References: <20200319091407.1481-1-joro@8bytes.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200319091407.1481-1-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: x86@kernel.org
-Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>, Doug Covelli <dcovelli@vmware.com>
+Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Joerg Roedel <jroedel@suse.de>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Doug Covelli <dcovelli@vmware.com>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-This change adds VMware specific handling for #VC faults caused by
-VMMCALL instructions.
+Handle #VC exceptions caused by CPUID instructions. These happen in
+early boot code when the KASLR code checks for RDTSC.
 
-Signed-off-by: Doug Covelli <dcovelli@vmware.com>
 Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-[ jroedel@suse.de: - Adapt to different paravirt interface ]
+[ jroedel@suse.de: Adapt to #VC handling framework ]
 Co-developed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/cpu/vmware.c | 50 ++++++++++++++++++++++++++++++++----
- 1 file changed, 45 insertions(+), 5 deletions(-)
+ arch/x86/boot/compressed/sev-es.c |  4 ++++
+ arch/x86/kernel/sev-es-shared.c   | 35 +++++++++++++++++++++++++++++++
+ 2 files changed, 39 insertions(+)
 
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index 46d732696c1c..d8bc9106c4e8 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -31,6 +31,7 @@
- #include <asm/timer.h>
- #include <asm/apic.h>
- #include <asm/vmware.h>
-+#include <asm/svm.h>
+diff --git a/arch/x86/boot/compressed/sev-es.c b/arch/x86/boot/compressed/sev-es.c
+index ae5fbd371fd9..40eaf24db641 100644
+--- a/arch/x86/boot/compressed/sev-es.c
++++ b/arch/x86/boot/compressed/sev-es.c
+@@ -10,6 +10,7 @@
+ #include <asm/sev-es.h>
+ #include <asm/trap_defs.h>
+ #include <asm/msr-index.h>
++#include <asm/fpu/xcr.h>
+ #include <asm/ptrace.h>
+ #include <asm/svm.h>
  
- #undef pr_fmt
- #define pr_fmt(fmt)	"vmware: " fmt
-@@ -263,10 +264,49 @@ static bool __init vmware_legacy_x2apic_available(void)
- 	       (eax & (1 << VMWARE_CMD_LEGACY_X2APIC)) != 0;
+@@ -149,6 +150,9 @@ void boot_vc_handler(struct pt_regs *regs, unsigned long exit_code)
+ 	case SVM_EXIT_IOIO:
+ 		result = vc_handle_ioio(boot_ghcb, &ctxt);
+ 		break;
++	case SVM_EXIT_CPUID:
++		result = vc_handle_cpuid(boot_ghcb, &ctxt);
++		break;
+ 	default:
+ 		result = ES_UNSUPPORTED;
+ 		break;
+diff --git a/arch/x86/kernel/sev-es-shared.c b/arch/x86/kernel/sev-es-shared.c
+index 46fc5318d1d7..a632b8f041ec 100644
+--- a/arch/x86/kernel/sev-es-shared.c
++++ b/arch/x86/kernel/sev-es-shared.c
+@@ -407,3 +407,38 @@ static enum es_result vc_handle_ioio(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
+ 
+ 	return ret;
  }
- 
-+#ifdef CONFIG_AMD_MEM_ENCRYPT
-+static void vmware_sev_es_hcall_prepare(struct ghcb *ghcb,
-+					struct pt_regs *regs)
++
++static enum es_result vc_handle_cpuid(struct ghcb *ghcb,
++				      struct es_em_ctxt *ctxt)
 +{
-+	/* Copy VMWARE specific Hypercall parameters to the GHCB */
-+	ghcb_set_rip(ghcb, regs->ip);
-+	ghcb_set_rbx(ghcb, regs->bx);
++	struct pt_regs *regs = ctxt->regs;
++	u32 cr4 = native_read_cr4();
++	enum es_result ret;
++
++	ghcb_set_rax(ghcb, regs->ax);
 +	ghcb_set_rcx(ghcb, regs->cx);
-+	ghcb_set_rdx(ghcb, regs->dx);
-+	ghcb_set_rsi(ghcb, regs->si);
-+	ghcb_set_rdi(ghcb, regs->di);
-+	ghcb_set_rbp(ghcb, regs->bp);
-+}
 +
-+static bool vmware_sev_es_hcall_finish(struct ghcb *ghcb, struct pt_regs *regs)
-+{
-+	if (!(ghcb_is_valid_rbx(ghcb) &&
++	if (cr4 & X86_CR4_OSXSAVE)
++		/* Safe to read xcr0 */
++		ghcb_set_xcr0(ghcb, xgetbv(XCR_XFEATURE_ENABLED_MASK));
++	else
++		/* xgetbv will cause #GP - use reset value for xcr0 */
++		ghcb_set_xcr0(ghcb, 1);
++
++	ret = sev_es_ghcb_hv_call(ghcb, ctxt, SVM_EXIT_CPUID, 0, 0);
++	if (ret != ES_OK)
++		return ret;
++
++	if (!(ghcb_is_valid_rax(ghcb) &&
++	      ghcb_is_valid_rbx(ghcb) &&
 +	      ghcb_is_valid_rcx(ghcb) &&
-+	      ghcb_is_valid_rdx(ghcb) &&
-+	      ghcb_is_valid_rsi(ghcb) &&
-+	      ghcb_is_valid_rdi(ghcb) &&
-+	      ghcb_is_valid_rbp(ghcb)))
-+		return false;
++	      ghcb_is_valid_rdx(ghcb)))
++		return ES_VMM_ERROR;
 +
++	regs->ax = ghcb->save.rax;
 +	regs->bx = ghcb->save.rbx;
 +	regs->cx = ghcb->save.rcx;
 +	regs->dx = ghcb->save.rdx;
-+	regs->si = ghcb->save.rsi;
-+	regs->di = ghcb->save.rdi;
-+	regs->bp = ghcb->save.rbp;
 +
-+	return true;
++	return ES_OK;
 +}
-+#endif
-+
- const __initconst struct hypervisor_x86 x86_hyper_vmware = {
--	.name			= "VMware",
--	.detect			= vmware_platform,
--	.type			= X86_HYPER_VMWARE,
--	.init.init_platform	= vmware_platform_setup,
--	.init.x2apic_available	= vmware_legacy_x2apic_available,
-+	.name				= "VMware",
-+	.detect				= vmware_platform,
-+	.type				= X86_HYPER_VMWARE,
-+	.init.init_platform		= vmware_platform_setup,
-+	.init.x2apic_available		= vmware_legacy_x2apic_available,
-+#ifdef CONFIG_AMD_MEM_ENCRYPT
-+	.runtime.sev_es_hcall_prepare	= vmware_sev_es_hcall_prepare,
-+	.runtime.sev_es_hcall_finish	= vmware_sev_es_hcall_finish,
-+#endif
- };
 -- 
 2.17.1
