@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 50/70] x86/sev-es: Handle DR7 read/write events
-Date: Thu, 19 Mar 2020 10:13:47 +0100
-Message-ID: <20200319091407.1481-51-joro@8bytes.org>
+Subject: [PATCH 49/70] x86/sev-es: Handle MSR events
+Date: Thu, 19 Mar 2020 10:13:46 +0100
+Message-ID: <20200319091407.1481-50-joro@8bytes.org>
 References: <20200319091407.1481-1-joro@8bytes.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200319091407.1481-1-joro@8bytes.org>
@@ -12,155 +12,66 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Tom Lendacky <thomas.lendacky@amd.com>
 
-Add code to handle #VC exceptions on DR7 register reads and writes.
-This is needed early because show_regs() reads DR7 to print it out.
+Implement a handler for #VC exceptions caused by RDMSR/WRMSR
+instructions.
 
 Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-[ jroedel@suse.de: - Adapt to #VC handling framework
-                   - Support early usage ]
+[ jroedel@suse.de: Adapt to #VC handling infrastructure ]
 Co-developed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev-es.c | 87 ++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 83 insertions(+), 4 deletions(-)
+ arch/x86/kernel/sev-es.c | 32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
 
 diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index 163b8a7f98a4..7a9cdc660637 100644
+index a040959e512d..163b8a7f98a4 100644
 --- a/arch/x86/kernel/sev-es.c
 +++ b/arch/x86/kernel/sev-es.c
-@@ -23,6 +23,8 @@
- #include <asm/traps.h>
- #include <asm/svm.h>
+@@ -262,6 +262,35 @@ static phys_addr_t vc_slow_virt_to_phys(struct ghcb *ghcb, long vaddr)
+ /* Include code shared with pre-decompression boot stage */
+ #include "sev-es-shared.c"
  
-+#define DR7_RESET_VALUE        0x400
-+
- /* For early boot hypervisor communication in SEV-ES enabled guests */
- struct ghcb boot_ghcb_page __bss_decrypted __aligned(PAGE_SIZE);
- 
-@@ -31,6 +33,7 @@ struct ghcb boot_ghcb_page __bss_decrypted __aligned(PAGE_SIZE);
-  * cleared
-  */
- struct ghcb __initdata *boot_ghcb;
-+static DEFINE_PER_CPU(unsigned long, cached_dr7) = DR7_RESET_VALUE;
- 
- struct ghcb_state {
- 	struct ghcb *ghcb;
-@@ -359,6 +362,21 @@ static long *vc_insn_get_reg(struct es_em_ctxt *ctxt)
- 	return reg_array + offset;
- }
- 
-+static long *vc_insn_get_rm(struct es_em_ctxt *ctxt)
++static enum es_result vc_handle_msr(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
 +{
-+	long *reg_array;
-+	int offset;
-+
-+	reg_array = (long *)ctxt->regs;
-+	offset    = insn_get_modrm_rm_off(&ctxt->insn, ctxt->regs);
-+
-+	if (offset < 0)
-+		return NULL;
-+
-+	offset /= sizeof(long);
-+
-+	return reg_array + offset;
-+}
- static enum es_result vc_do_mmio(struct ghcb *ghcb, struct es_em_ctxt *ctxt,
- 				 unsigned int bytes, bool read)
- {
-@@ -587,13 +605,74 @@ static enum es_result vc_handle_mmio(struct ghcb *ghcb,
- 	return ret;
- }
- 
-+static enum es_result vc_handle_dr7_write(struct ghcb *ghcb,
-+					  struct es_em_ctxt *ctxt,
-+					  bool early)
-+{
-+	long val, *reg = vc_insn_get_rm(ctxt);
++	struct pt_regs *regs = ctxt->regs;
 +	enum es_result ret;
++	bool write;
++	u64 exit_info_1;
 +
-+	if (!reg)
-+		return ES_DECODE_FAILED;
++	write = (ctxt->insn.opcode.bytes[1] == 0x30);
 +
-+	val = *reg;
-+
-+	/* Upper 32 bits must be written as zeroes */
-+	if (val >> 32) {
-+		ctxt->fi.vector = X86_TRAP_GP;
-+		ctxt->fi.error_code = 0;
-+		return ES_EXCEPTION;
++	ghcb_set_rcx(ghcb, regs->cx);
++	if (write) {
++		ghcb_set_rax(ghcb, regs->ax);
++		ghcb_set_rdx(ghcb, regs->dx);
++		exit_info_1 = 1;
++	} else {
++		exit_info_1 = 0;
 +	}
 +
-+	/* Clear out other reservered bits and set bit 10 */
-+	val = (val & 0xffff23ffL) | BIT(10);
-+
-+	/* Early non-zero writes to DR7 are not supported */
-+	if (early && (val & ~DR7_RESET_VALUE))
-+		return ES_UNSUPPORTED;
-+
-+	/* Using a value of 0 for ExitInfo1 means RAX holds the value */
-+	ghcb_set_rax(ghcb, val);
-+	ret = sev_es_ghcb_hv_call(ghcb, ctxt, SVM_EXIT_WRITE_DR7, 0, 0);
++	ret = sev_es_ghcb_hv_call(ghcb, ctxt, SVM_EXIT_MSR, exit_info_1, 0);
 +	if (ret != ES_OK)
 +		return ret;
++	else if (!write) {
++		regs->ax = ghcb->save.rax;
++		regs->dx = ghcb->save.rdx;
++	}
 +
-+	this_cpu_write(cached_dr7, *reg);
-+
-+	return ES_OK;
++	return ret;
 +}
 +
-+static enum es_result vc_handle_dr7_read(struct ghcb *ghcb,
-+					 struct es_em_ctxt *ctxt,
-+					 bool early)
-+{
-+	long *reg = vc_insn_get_rm(ctxt);
-+
-+	if (!reg)
-+		return ES_DECODE_FAILED;
-+
-+	if (early)
-+		*reg = DR7_RESET_VALUE;
-+	else
-+		*reg = this_cpu_read(cached_dr7);
-+
-+	return ES_OK;
-+}
-+
- static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
--		struct ghcb *ghcb,
--		unsigned long exit_code)
-+					 struct ghcb *ghcb,
-+					 unsigned long exit_code,
-+					 bool early)
- {
- 	enum es_result result;
- 
- 	switch (exit_code) {
-+	case SVM_EXIT_READ_DR7:
-+		result = vc_handle_dr7_read(ghcb, ctxt, early);
-+		break;
-+	case SVM_EXIT_WRITE_DR7:
-+		result = vc_handle_dr7_write(ghcb, ctxt, early);
-+		break;
- 	case SVM_EXIT_CPUID:
- 		result = vc_handle_cpuid(ghcb, ctxt);
+ /*
+  * This function runs on the first #VC exception after the kernel
+  * switched to virtual addresses.
+@@ -571,6 +600,9 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
+ 	case SVM_EXIT_IOIO:
+ 		result = vc_handle_ioio(ghcb, ctxt);
  		break;
-@@ -682,7 +761,7 @@ dotraplinkage void do_vmm_communication(struct pt_regs *regs, unsigned long exit
- 		result = vc_context_filter(regs, exit_code);
- 
- 	if (result == ES_OK)
--		result = vc_handle_exitcode(&ctxt, ghcb, exit_code);
-+		result = vc_handle_exitcode(&ctxt, ghcb, exit_code, false);
- 
- 	sev_es_put_ghcb(&state);
- 
-@@ -750,7 +829,7 @@ bool __init boot_vc_exception(struct pt_regs *regs)
- 	result = vc_init_em_ctxt(&ctxt, regs, exit_code);
- 
- 	if (result == ES_OK)
--		result = vc_handle_exitcode(&ctxt, boot_ghcb, exit_code);
-+		result = vc_handle_exitcode(&ctxt, boot_ghcb, exit_code, true);
- 
- 	/* Done - now check the result */
- 	switch (result) {
++	case SVM_EXIT_MSR:
++		result = vc_handle_msr(ghcb, ctxt);
++		break;
+ 	case SVM_EXIT_NPF:
+ 		result = vc_handle_mmio(ghcb, ctxt);
+ 		break;
 -- 
 2.17.1
