@@ -1,8 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 17/70] x86/boot/compressed/64: Change add_identity_map() to
- take start and end
-Date: Thu, 19 Mar 2020 10:13:14 +0100
-Message-ID: <20200319091407.1481-18-joro@8bytes.org>
+Subject: [PATCH 11/70] x86/boot/compressed/64: Disable red-zone usage
+Date: Thu, 19 Mar 2020 10:13:08 +0100
+Message-ID: <20200319091407.1481-12-joro@8bytes.org>
 References: <20200319091407.1481-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,67 +23,59 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Changing the function to take start and end as parameters instead of
-start and size simplifies the callers, which don't need to calculate
-the size if they already have start and end.
+The x86-64 ABI defines a red-zone on the stack:
+
+  The 128-byte area beyond the location pointed to by %rsp is
+  considered to be reserved and shall not be modified by signal or
+  interrupt handlers. 10 Therefore, functions may use this area for
+  temporary data that is not needed across function calls. In
+  particular, leaf functions may use this area for their entire stack
+  frame, rather than adjusting the stack pointer in the prologue and
+  epilogue. This area is known as the red zone.
+
+This is not compatible with exception handling, so disable it for the
+pre-decompression boot code.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/compressed/ident_map_64.c | 15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ arch/x86/boot/Makefile            | 2 +-
+ arch/x86/boot/compressed/Makefile | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/boot/compressed/ident_map_64.c b/arch/x86/boot/compressed/ident_map_64.c
-index ab7a3d9705c0..ba5b88189220 100644
---- a/arch/x86/boot/compressed/ident_map_64.c
-+++ b/arch/x86/boot/compressed/ident_map_64.c
-@@ -91,10 +91,8 @@ static struct x86_mapping_info mapping_info;
- /*
-  * Adds the specified range to the identity mappings.
-  */
--static void add_identity_map(unsigned long start, unsigned long size)
-+static void add_identity_map(unsigned long start, unsigned long end)
- {
--	unsigned long end = start + size;
--
- 	/* Align boundary to 2M. */
- 	start = round_down(start, PMD_SIZE);
- 	end = round_up(end, PMD_SIZE);
-@@ -109,8 +107,6 @@ static void add_identity_map(unsigned long start, unsigned long size)
- /* Locates and clears a region for a new top level page table. */
- void initialize_identity_maps(void)
- {
--	unsigned long start, size;
--
- 	/* If running as an SEV guest, the encryption mask is required. */
- 	set_sev_encryption_mask();
+diff --git a/arch/x86/boot/Makefile b/arch/x86/boot/Makefile
+index 012b82fc8617..8f55e4ce1ccc 100644
+--- a/arch/x86/boot/Makefile
++++ b/arch/x86/boot/Makefile
+@@ -65,7 +65,7 @@ clean-files += cpustr.h
  
-@@ -157,9 +153,7 @@ void initialize_identity_maps(void)
- 	 * New page-table is set up - map the kernel image and load it
- 	 * into cr3.
- 	 */
--	start = (unsigned long)_head;
--	size  = _end - _head;
--	add_identity_map(start, size);
-+	add_identity_map((unsigned long)_head, (unsigned long)_end);
- 	write_cr3(top_level_pgt);
- }
+ # ---------------------------------------------------------------------------
  
-@@ -180,7 +174,8 @@ static void pf_error(unsigned long error_code, unsigned long address,
+-KBUILD_CFLAGS	:= $(REALMODE_CFLAGS) -D_SETUP
++KBUILD_CFLAGS	:= $(REALMODE_CFLAGS) -D_SETUP -mno-red-zone
+ KBUILD_AFLAGS	:= $(KBUILD_CFLAGS) -D__ASSEMBLY__
+ KBUILD_CFLAGS	+= $(call cc-option,-fmacro-prefix-map=$(srctree)/=)
+ GCOV_PROFILE := n
+diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
+index 26050ae0b27e..e186cc0b628d 100644
+--- a/arch/x86/boot/compressed/Makefile
++++ b/arch/x86/boot/compressed/Makefile
+@@ -30,7 +30,7 @@ KBUILD_CFLAGS := -m$(BITS) -O2
+ KBUILD_CFLAGS += -fno-strict-aliasing $(call cc-option, -fPIE, -fPIC)
+ KBUILD_CFLAGS += -DDISABLE_BRANCH_PROFILING
+ cflags-$(CONFIG_X86_32) := -march=i386
+-cflags-$(CONFIG_X86_64) := -mcmodel=small
++cflags-$(CONFIG_X86_64) := -mcmodel=small -mno-red-zone
+ KBUILD_CFLAGS += $(cflags-y)
+ KBUILD_CFLAGS += -mno-mmx -mno-sse
+ KBUILD_CFLAGS += $(call cc-option,-ffreestanding)
+@@ -87,7 +87,7 @@ endif
  
- void do_boot_page_fault(struct pt_regs *regs)
- {
--	unsigned long address = native_read_cr2();
-+	unsigned long address = native_read_cr2() & PMD_MASK;
-+	unsigned long end = address + PMD_SIZE;
- 	unsigned long error_code = regs->orig_ax;
+ vmlinux-objs-$(CONFIG_ACPI) += $(obj)/acpi.o
  
- 	/*
-@@ -196,5 +191,5 @@ void do_boot_page_fault(struct pt_regs *regs)
- 	 * Error code is sane - now identity map the 2M region around
- 	 * the faulting address.
- 	 */
--	add_identity_map(address & PMD_MASK, PMD_SIZE);
-+	add_identity_map(address, end);
- }
+-$(obj)/eboot.o: KBUILD_CFLAGS += -fshort-wchar -mno-red-zone
++$(obj)/eboot.o: KBUILD_CFLAGS += -fshort-wchar
+ 
+ vmlinux-objs-$(CONFIG_EFI_STUB) += $(obj)/eboot.o \
+ 	$(objtree)/drivers/firmware/efi/libstub/lib.a
 -- 
 2.17.1
