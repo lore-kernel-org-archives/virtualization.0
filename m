@@ -1,279 +1,122 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 47/70] x86/sev-es: Handle MMIO events
-Date: Thu, 19 Mar 2020 10:13:44 +0100
-Message-ID: <20200319091407.1481-48-joro@8bytes.org>
+Subject: [PATCH 42/70] x86/sev-es: Support nested #VC exceptions
+Date: Thu, 19 Mar 2020 10:13:39 +0100
+Message-ID: <20200319091407.1481-43-joro@8bytes.org>
 References: <20200319091407.1481-1-joro@8bytes.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200319091407.1481-1-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: kvm-owner@vger.kernel.org
 To: x86@kernel.org
 Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-Add handler for VC exceptions caused by MMIO intercepts. These
-intercepts come along as nested page faults on pages with reserved
-bits set.
+Handle #VC exceptions that happen while the GHCB is in use. This can
+happen when an NMI happens in the #VC exception handler and the NMI
+handler causes a #VC exception itself. Save the contents of the GHCB
+when nesting is detected and restore it when the GHCB is no longer
+used.
 
-TODO:
-	- Add return values of helper functions
-	- Check permissions on page-table walks
-	- Check data segments
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-[ jroedel@suse.de: Adapt to VC handling framework ]
-Co-developed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/compressed/sev-es.c |   5 +
- arch/x86/include/uapi/asm/svm.h   |   5 +
- arch/x86/kernel/sev-es.c          | 188 ++++++++++++++++++++++++++++++
- 3 files changed, 198 insertions(+)
+ arch/x86/kernel/sev-es.c | 63 +++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 59 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/boot/compressed/sev-es.c b/arch/x86/boot/compressed/sev-es.c
-index 40eaf24db641..53c65fc09341 100644
---- a/arch/x86/boot/compressed/sev-es.c
-+++ b/arch/x86/boot/compressed/sev-es.c
-@@ -100,6 +100,11 @@ static enum es_result vc_read_mem(struct es_em_ctxt *ctxt,
- 	return ES_OK;
- }
- 
-+static phys_addr_t vc_slow_virt_to_phys(struct ghcb *ghcb, long vaddr)
-+{
-+	return (phys_addr_t)vaddr;
-+}
-+
- #undef __init
- #undef __pa
- #define __init
-diff --git a/arch/x86/include/uapi/asm/svm.h b/arch/x86/include/uapi/asm/svm.h
-index c68d1618c9b0..8f36ae021a7f 100644
---- a/arch/x86/include/uapi/asm/svm.h
-+++ b/arch/x86/include/uapi/asm/svm.h
-@@ -81,6 +81,11 @@
- #define SVM_EXIT_AVIC_INCOMPLETE_IPI		0x401
- #define SVM_EXIT_AVIC_UNACCELERATED_ACCESS	0x402
- 
-+/* SEV-ES software-defined VMGEXIT events */
-+#define SVM_VMGEXIT_MMIO_READ			0x80000001
-+#define SVM_VMGEXIT_MMIO_WRITE			0x80000002
-+#define SVM_VMGEXIT_UNSUPPORTED_EVENT		0x8000ffff
-+
- #define SVM_EXIT_ERR           -1
- 
- #define SVM_EXIT_REASONS \
 diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index 6d45a2499460..6b0f82f81229 100644
+index 97241d2f0f70..3b7bbc8d841e 100644
 --- a/arch/x86/kernel/sev-es.c
 +++ b/arch/x86/kernel/sev-es.c
-@@ -240,6 +240,25 @@ static enum es_result vc_read_mem(struct es_em_ctxt *ctxt,
- 	return ES_EXCEPTION;
- }
+@@ -32,9 +32,57 @@ struct ghcb boot_ghcb_page __bss_decrypted __aligned(PAGE_SIZE);
+  */
+ struct ghcb __initdata *boot_ghcb;
  
-+static phys_addr_t vc_slow_virt_to_phys(struct ghcb *ghcb, long vaddr)
-+{
-+	unsigned long va = (unsigned long)vaddr;
-+	unsigned int level;
-+	phys_addr_t pa;
-+	pgd_t *pgd;
-+	pte_t *pte;
++struct ghcb_state {
++	struct ghcb *ghcb;
++};
 +
-+	pgd = pgd_offset(current->active_mm, va);
-+	pte = lookup_address_in_pgd(pgd, va, &level);
-+	if (!pte)
-+		return 0;
-+
-+	pa = (phys_addr_t)pte_pfn(*pte) << PAGE_SHIFT;
-+	pa |= va & ~page_level_mask(level);
-+
-+	return pa;
-+}
-+
- /* Include code shared with pre-decompression boot stage */
- #include "sev-es-shared.c"
+ /* Runtime GHCB pointers */
+ static struct ghcb __percpu *ghcb_page;
  
-@@ -295,6 +314,172 @@ static void __init vc_early_vc_forward_exception(struct es_em_ctxt *ctxt)
- 	early_exception(ctxt->regs, trapnr);
- }
- 
-+static long *vc_insn_get_reg(struct es_em_ctxt *ctxt)
++/*
++ * Mark the per-cpu GHCB as in-use to detect nested #VC exceptions.
++ * There is no need for it to be atomic, because nothing is written to the GHCB
++ * between the read and the write of ghcb_active. So it is safe to use it when a
++ * nested #VC exception happens before the write.
++ */
++static DEFINE_PER_CPU(bool, ghcb_active);
++
++static struct ghcb *sev_es_get_ghcb(struct ghcb_state *state)
 +{
-+	long *reg_array;
-+	int offset;
++	struct ghcb *ghcb = (struct ghcb *)this_cpu_ptr(ghcb_page);
++	bool *active = this_cpu_ptr(&ghcb_active);
 +
-+	reg_array = (long *)ctxt->regs;
-+	offset    = insn_get_modrm_reg_off(&ctxt->insn, ctxt->regs);
++	if (unlikely(*active)) {
++		/* GHCB is already in use - save its contents */
 +
-+	if (offset < 0)
-+		return NULL;
++		state->ghcb = kzalloc(sizeof(struct ghcb), GFP_ATOMIC);
++		if (!state->ghcb)
++			return NULL;
 +
-+	offset /= sizeof(long);
-+
-+	return reg_array + offset;
-+}
-+
-+static enum es_result vc_do_mmio(struct ghcb *ghcb, struct es_em_ctxt *ctxt,
-+				 unsigned int bytes, bool read)
-+{
-+	u64 exit_code, exit_info_1, exit_info_2;
-+	unsigned long ghcb_pa = __pa(ghcb);
-+	void __user *ref;
-+
-+	ref = insn_get_addr_ref(&ctxt->insn, ctxt->regs);
-+	if (ref == (void __user *)-1L)
-+		return ES_UNSUPPORTED;
-+
-+	exit_code = read ? SVM_VMGEXIT_MMIO_READ : SVM_VMGEXIT_MMIO_WRITE;
-+
-+	exit_info_1 = vc_slow_virt_to_phys(ghcb, (long)ref);
-+	exit_info_2 = bytes;    /* Can never be greater than 8 */
-+
-+	ghcb->save.sw_scratch = ghcb_pa + offsetof(struct ghcb, shared_buffer);
-+
-+	return sev_es_ghcb_hv_call(ghcb, ctxt, exit_code, exit_info_1, exit_info_2);
-+}
-+
-+static enum es_result vc_handle_mmio_twobyte_ops(struct ghcb *ghcb,
-+						 struct es_em_ctxt *ctxt)
-+{
-+	struct insn *insn = &ctxt->insn;
-+	unsigned int bytes = 0;
-+	enum es_result ret;
-+	int sign_byte;
-+	long *reg_data;
-+
-+	switch (insn->opcode.bytes[1]) {
-+		/* MMIO Read w/ zero-extension */
-+	case 0xb6:
-+		bytes = 1;
-+		/* Fallthrough */
-+	case 0xb7:
-+		if (!bytes)
-+			bytes = 2;
-+
-+		ret = vc_do_mmio(ghcb, ctxt, bytes, true);
-+		if (ret)
-+			break;
-+
-+		/* Zero extend based on operand size */
-+		reg_data = vc_insn_get_reg(ctxt);
-+		memset(reg_data, 0, insn->opnd_bytes);
-+
-+		memcpy(reg_data, ghcb->shared_buffer, bytes);
-+		break;
-+
-+		/* MMIO Read w/ sign-extension */
-+	case 0xbe:
-+		bytes = 1;
-+		/* Fallthrough */
-+	case 0xbf:
-+		if (!bytes)
-+			bytes = 2;
-+
-+		ret = vc_do_mmio(ghcb, ctxt, bytes, true);
-+		if (ret)
-+			break;
-+
-+		/* Sign extend based on operand size */
-+		reg_data = vc_insn_get_reg(ctxt);
-+		if (bytes == 1) {
-+			u8 *val = (u8 *)ghcb->shared_buffer;
-+
-+			sign_byte = (*val & 0x80) ? 0x00 : 0xff;
-+		} else {
-+			u16 *val = (u16 *)ghcb->shared_buffer;
-+
-+			sign_byte = (*val & 0x8000) ? 0x00 : 0xff;
-+		}
-+		memset(reg_data, sign_byte, insn->opnd_bytes);
-+
-+		memcpy(reg_data, ghcb->shared_buffer, bytes);
-+		break;
-+
-+	default:
-+		ret = ES_UNSUPPORTED;
++		*state->ghcb = *ghcb;
++	} else {
++		state->ghcb = NULL;
++		*active = true;
 +	}
 +
-+	return ret;
++	return ghcb;
 +}
 +
-+static enum es_result vc_handle_mmio(struct ghcb *ghcb,
-+				     struct es_em_ctxt *ctxt)
++static void sev_es_put_ghcb(struct ghcb_state *state)
 +{
-+	struct insn *insn = &ctxt->insn;
-+	unsigned int bytes = 0;
-+	enum es_result ret;
-+	long *reg_data;
++	bool *active = this_cpu_ptr(&ghcb_active);
++	struct ghcb *ghcb = (struct ghcb *)this_cpu_ptr(ghcb_page);
 +
-+	switch (insn->opcode.bytes[0]) {
-+	/* MMIO Write */
-+	case 0x88:
-+		bytes = 1;
-+		/* Fallthrough */
-+	case 0x89:
-+		if (!bytes)
-+			bytes = insn->opnd_bytes;
-+
-+		reg_data = vc_insn_get_reg(ctxt);
-+		memcpy(ghcb->shared_buffer, reg_data, bytes);
-+
-+		ret = vc_do_mmio(ghcb, ctxt, bytes, false);
-+		break;
-+
-+	case 0xc6:
-+		bytes = 1;
-+		/* Fallthrough */
-+	case 0xc7:
-+		if (!bytes)
-+			bytes = insn->opnd_bytes;
-+
-+		memcpy(ghcb->shared_buffer, insn->immediate1.bytes, bytes);
-+
-+		ret = vc_do_mmio(ghcb, ctxt, bytes, false);
-+		break;
-+
-+		/* MMIO Read */
-+	case 0x8a:
-+		bytes = 1;
-+		/* Fallthrough */
-+	case 0x8b:
-+		if (!bytes)
-+			bytes = insn->opnd_bytes;
-+
-+		ret = vc_do_mmio(ghcb, ctxt, bytes, true);
-+		if (ret)
-+			break;
-+
-+		reg_data = vc_insn_get_reg(ctxt);
-+		if (bytes == 4)
-+			*reg_data = 0;  /* Zero-extend for 32-bit operation */
-+
-+		memcpy(reg_data, ghcb->shared_buffer, bytes);
-+		break;
-+
-+		/* Two-Byte Opcodes */
-+	case 0x0f:
-+		ret = vc_handle_mmio_twobyte_ops(ghcb, ctxt);
-+		break;
-+	default:
-+		ret = ES_UNSUPPORTED;
++	if (state->ghcb) {
++		/* Restore saved state and free backup memory */
++		*ghcb = *state->ghcb;
++		kfree(state->ghcb);
++		state->ghcb = NULL;
++	} else {
++		*active = false;
 +	}
-+
-+	return ret;
 +}
 +
- static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
- 		struct ghcb *ghcb,
- 		unsigned long exit_code)
-@@ -308,6 +493,9 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
- 	case SVM_EXIT_IOIO:
- 		result = vc_handle_ioio(ghcb, ctxt);
- 		break;
-+	case SVM_EXIT_NPF:
-+		result = vc_handle_mmio(ghcb, ctxt);
-+		break;
- 	default:
- 		/*
- 		 * Unexpected #VC exception
+ /* Needed in vc_early_vc_forward_exception */
+ extern void early_exception(struct pt_regs *regs, int trapnr);
+ 
+@@ -272,6 +320,7 @@ static void vc_forward_exception(struct es_em_ctxt *ctxt)
+ 
+ dotraplinkage void do_vmm_communication(struct pt_regs *regs, unsigned long exit_code)
+ {
++	struct ghcb_state state;
+ 	struct es_em_ctxt ctxt;
+ 	enum es_result result;
+ 	struct ghcb *ghcb;
+@@ -282,14 +331,20 @@ dotraplinkage void do_vmm_communication(struct pt_regs *regs, unsigned long exit
+ 	 * keep the IRQs disabled to protect us against concurrent TLB flushes.
+ 	 */
+ 
+-	ghcb = (struct ghcb *)this_cpu_ptr(ghcb_page);
+-
+-	vc_ghcb_invalidate(ghcb);
+-	result = vc_init_em_ctxt(&ctxt, regs, exit_code);
++	ghcb = sev_es_get_ghcb(&state);
++	if (!ghcb) {
++		/* This can only fail on an allocation error, so just retry */
++		result = ES_RETRY;
++	} else {
++		vc_ghcb_invalidate(ghcb);
++		result = vc_init_em_ctxt(&ctxt, regs, exit_code);
++	}
+ 
+ 	if (result == ES_OK)
+ 		result = vc_handle_exitcode(&ctxt, ghcb, exit_code);
+ 
++	sev_es_put_ghcb(&state);
++
+ 	/* Done - now check the result */
+ 	switch (result) {
+ 	case ES_OK:
 -- 
 2.17.1
