@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 32/70] x86/head/64: Switch to initial stack earlier
-Date: Thu, 19 Mar 2020 10:13:29 +0100
-Message-ID: <20200319091407.1481-33-joro@8bytes.org>
+Subject: [PATCH 26/70] x86/idt: Move IDT to data segment
+Date: Thu, 19 Mar 2020 10:13:23 +0100
+Message-ID: <20200319091407.1481-27-joro@8bytes.org>
 References: <20200319091407.1481-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,45 +23,33 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Make sure there is a stack once the kernel runs from virual addresses.
-At this stage any secondary CPU which boots will have lost its stack
-because the kernel switched to a new page-table which does not map the
-real-mode stack anymore.
-
-This is also needed for handling early #VC exceptions caused by
-instructions like CPUID.
+With SEV-ES, exception handling is needed very early, even before the
+kernel has cleared the bss segment. In order to prevent clearing the
+currently used IDT, move the IDT to the data segment.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/head_64.S | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/x86/kernel/idt.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
-index 1be178be1566..b8ba72f31be9 100644
---- a/arch/x86/kernel/head_64.S
-+++ b/arch/x86/kernel/head_64.S
-@@ -194,6 +194,12 @@ SYM_CODE_START(secondary_startup_64)
- 	movl	initial_gs+4(%rip),%edx
- 	wrmsr
+diff --git a/arch/x86/kernel/idt.c b/arch/x86/kernel/idt.c
+index 87ef69a72c52..a8fc01ea602a 100644
+--- a/arch/x86/kernel/idt.c
++++ b/arch/x86/kernel/idt.c
+@@ -165,8 +165,12 @@ static const __initconst struct idt_data dbg_idts[] = {
+ };
+ #endif
  
-+	/*
-+	 * Setup a boot time stack - Any secondary CPU will have lost its stack
-+	 * by now because the cr3-switch above unmaps the real-mode stack
-+	 */
-+	movq initial_stack(%rip), %rsp
-+
- 	/* Check if nx is implemented */
- 	movl	$0x80000001, %eax
- 	cpuid
-@@ -214,9 +220,6 @@ SYM_CODE_START(secondary_startup_64)
- 	/* Make changes effective */
- 	movq	%rax, %cr0
+-/* Must be page-aligned because the real IDT is used in a fixmap. */
+-gate_desc idt_table[IDT_ENTRIES] __page_aligned_bss;
++/*
++ * Must be page-aligned because the real IDT is used in a fixmap.
++ * Also needs to be in the .data segment, because the idt_table is
++ * needed before the kernel clears the .bss segment.
++ */
++gate_desc idt_table[IDT_ENTRIES] __page_aligned_data;
  
--	/* Setup a boot time stack */
--	movq initial_stack(%rip), %rsp
--
- 	/* zero EFLAGS after setting rsp */
- 	pushq $0
- 	popfq
+ struct desc_ptr idt_descr __ro_after_init = {
+ 	.size		= (IDT_ENTRIES * 2 * sizeof(unsigned long)) - 1,
 -- 
 2.17.1
