@@ -1,67 +1,66 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH 66/70] x86/head/64: Don't call verify_cpu() on starting APs
-Date: Thu, 19 Mar 2020 10:14:03 +0100
-Message-ID: <20200319091407.1481-67-joro@8bytes.org>
+Subject: [PATCH 46/70] x86/sev-es: Filter exceptions not supported from user-space
+Date: Thu, 19 Mar 2020 10:13:43 +0100
+Message-ID: <20200319091407.1481-47-joro@8bytes.org>
 References: <20200319091407.1481-1-joro@8bytes.org>
-Return-path: <kvm-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200319091407.1481-1-joro@8bytes.org>
-Sender: kvm-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: x86@kernel.org
 Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-The APs are not ready to handle exceptions when verify_cpu() is called
-in secondary_startup_64.
+Currently only CPUID caused #VC exceptions are supported from
+user-space. Filter the others out early.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/realmode.h | 1 +
- arch/x86/kernel/head_64.S       | 1 +
- arch/x86/realmode/init.c        | 6 ++++++
- 3 files changed, 8 insertions(+)
+ arch/x86/kernel/sev-es.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
-diff --git a/arch/x86/include/asm/realmode.h b/arch/x86/include/asm/realmode.h
-index 6590394af309..5c97807c38a4 100644
---- a/arch/x86/include/asm/realmode.h
-+++ b/arch/x86/include/asm/realmode.h
-@@ -69,6 +69,7 @@ extern unsigned char startup_32_smp[];
- extern unsigned char boot_gdt[];
- #else
- extern unsigned char secondary_startup_64[];
-+extern unsigned char secondary_startup_64_no_verify[];
- #endif
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+index 71eee7b3667d..6d45a2499460 100644
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -318,6 +318,26 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
+ 	return result;
+ }
  
- static inline size_t real_mode_size_needed(void)
-diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
-index b3acecdabd34..c935d6d07393 100644
---- a/arch/x86/kernel/head_64.S
-+++ b/arch/x86/kernel/head_64.S
-@@ -150,6 +150,7 @@ SYM_CODE_START(secondary_startup_64)
- 	/* Sanitize CPU configuration */
- 	call verify_cpu
- 
-+SYM_INNER_LABEL(secondary_startup_64_no_verify, SYM_L_GLOBAL)
- 	/*
- 	 * Retrieve the modifier (SME encryption mask if SME is active) to be
- 	 * added to the initial pgdir entry that will be programmed into CR3.
-diff --git a/arch/x86/realmode/init.c b/arch/x86/realmode/init.c
-index 1c5cbfd102d5..030c38268069 100644
---- a/arch/x86/realmode/init.c
-+++ b/arch/x86/realmode/init.c
-@@ -109,6 +109,12 @@ static void __init setup_real_mode(void)
- 		trampoline_header->flags |= TH_FLAGS_SME_ACTIVE;
- 
- 	if (sev_es_active()) {
-+		/*
-+		 * Skip the call to verify_cpu() in secondary_startup_64 as it
-+		 * will cause #VC exceptions when the AP can't handle them yet.
-+		 */
-+		trampoline_header->start = (u64) secondary_startup_64_no_verify;
++static enum es_result vc_context_filter(struct pt_regs *regs, long exit_code)
++{
++	enum es_result r = ES_OK;
 +
- 		if (sev_es_setup_ap_jump_table(real_mode_header))
- 			panic("Failed to update SEV-ES AP Jump Table");
++	if (user_mode(regs)) {
++		switch (exit_code) {
++		/* List of #VC exit-codes we support in user-space */
++		case SVM_EXIT_EXCP_BASE ... SVM_EXIT_LAST_EXCP:
++		case SVM_EXIT_CPUID:
++			r = ES_OK;
++			break;
++		default:
++			r = ES_UNSUPPORTED;
++			break;
++		}
++	}
++
++	return r;
++}
++
+ static void vc_forward_exception(struct es_em_ctxt *ctxt)
+ {
+ 	long error_code = ctxt->fi.error_code;
+@@ -359,6 +379,10 @@ dotraplinkage void do_vmm_communication(struct pt_regs *regs, unsigned long exit
+ 		result = vc_init_em_ctxt(&ctxt, regs, exit_code);
  	}
+ 
++	/* Check if the exception is supported in the context we came from. */
++	if (result == ES_OK)
++		result = vc_context_filter(regs, exit_code);
++
+ 	if (result == ES_OK)
+ 		result = vc_handle_exitcode(&ctxt, ghcb, exit_code);
+ 
 -- 
 2.17.1
