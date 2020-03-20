@@ -1,50 +1,37 @@
-From: Dave Hansen <dave.hansen@intel.com>
-Subject: Re: [PATCH 21/70] x86/boot/compressed/64: Add function to map a page
- unencrypted
-Date: Fri, 20 Mar 2020 15:26:09 -0700
-Message-ID: <9b69d49f-969c-5720-5723-f89ff0e000c0@intel.com>
-References: <20200319091407.1481-1-joro@8bytes.org>
- <20200319091407.1481-22-joro@8bytes.org>
- <alpine.DEB.2.21.2003201350300.205664@chino.kir.corp.google.com>
- <8a50c19f-aaf8-90bd-a415-0e3b71e5a010@intel.com>
- <20200320221213.GK5122@8bytes.org>
+From: Jonathan Corbet <corbet@lwn.net>
+Subject: Re: [PATCH v3,1/2] doc: zh_CN: index files in filesystems
+ subdirectory
+Date: Fri, 20 Mar 2020 17:19:52 -0600
+Message-ID: <20200320171952.5a00ed84@lwn.net>
+References: <20200315155258.91725-1-wenhu.wang@vivo.com>
+        <20200316110143.97848-1-wenhu.wang@vivo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200320221213.GK5122@8bytes.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Joerg Roedel <joro@8bytes.org>
-Cc: David Rientjes <rientjes@google.com>, x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <20200316110143.97848-1-wenhu.wang@vivo.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: Wang Wenhu <wenhu.wang@vivo.com>
+Cc: Vivek Goyal <vgoyal@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Miklos Szeredi <miklos@szeredi.hu>, Harry Wei <harryxiyou@gmail.com>, Alex Shi <alex.shi@linux.alibaba.com>, Mauro Carvalho Chehab <mchehab+huawei@kernel.org>, "Daniel W. S. Almeida" <dwlsalmeida@gmail.com>, "Matthew Wilcox (Oracle)" <willy@infradead.org>, Jaskaran Singh <jaskaransingh7654321@gmail.com>, "Tobin C. Harding" <tobin@kernel.org>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org, kernel@vivo.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 3/20/20 3:12 PM, Joerg Roedel wrote:
-> On Fri, Mar 20, 2020 at 02:02:13PM -0700, Dave Hansen wrote:
->> It *never* flushes global pages.  For a generic function like this, that
->> seems pretty dangerous because the PTEs it goes after could quite easily
->> be Global.  It's also not _obviously_ correct if PCIDs are in play
->> (which I don't think they are on AMD).
->>
->> A flush_tlb_global() is probably more appropriate.  Better yet, is there
->> a reason not to use flush_tlb_kernel_range()?  I don't think it's
->> necessary to whack the entire TLB for one PTE set.
+On Mon, 16 Mar 2020 04:01:31 -0700
+Wang Wenhu <wenhu.wang@vivo.com> wrote:
+
+> Add filesystems subdirectory into the table of Contents for zh_CN,
+> all translations residing on it would be indexed conveniently.
 > 
-> This code runs before the actual kernel image is decompressed, so there
-> is no PCID and no global pages (I think CR4.PGE is still 0). So a
-> cr3-write is enough to flush the TLB. Also the TLB-flush helpers of the
-> running kernel are not available here.
+> Reviewed-by: Alex Shi <alex.shi@linux.alibaba.com>
+> Reviewed-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+> Signed-off-by: Wang Wenhu <wenhu.wang@vivo.com>
+> ---
+> Changelog since v1:
+>  - v2: added SPDX header
+>  - v3: rm raw latex field in translations/zh_CN/filesystems/index.rst
+>         for none compatibility test with Sphinx 1.7.9 or later.
+>        Actually only Sphinx v1.6.7 avalible for me currently.
+>        Reviewed-by labels added
 
-Geez, I always forget about the compressed code. :)  Good point about PCIDs.
+Both patches applied, thanks.
 
-In any case, I thought this all came through initialize_identity_maps(),
-which does, for instance:
-
-        mapping_info.page_flag = __PAGE_KERNEL_LARGE_EXEC | sme_me_mask;
-
-Where:
-
-#define __PAGE_KERNEL_LARGE_EXEC (__PP|__RW|   0|___A|   0|___D|_PSE|___G)
-
-That looks like it has the Global bit set.  Does that not apply here
-somehow?
+jon
