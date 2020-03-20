@@ -1,88 +1,135 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V6 8/8] virtio: Intel IFC VF driver for VDPA
-Date: Fri, 20 Mar 2020 17:17:31 +0800
-Message-ID: <055f10a8-0b7d-ec2b-4fd4-d47ba96ddd5f@redhat.com>
-References: <20200318080327.21958-1-jasowang@redhat.com>
- <20200318080327.21958-9-jasowang@redhat.com>
- <20200318122255.GG13183@mellanox.com>
- <30359bae-d66a-0311-0028-d7d33b8295f2@redhat.com>
- <20200319130239.GW13183@mellanox.com>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [RFC PATCH v2.1] x86/sev-es: Handle NMI State
+Date: Fri, 20 Mar 2020 14:17:07 +0100
+Message-ID: <20200320131707.GF5122@8bytes.org>
+References: <20200319091407.1481-1-joro@8bytes.org>
+ <20200319091407.1481-71-joro@8bytes.org>
+ <CALCETrUOQneBHjoZkP-7T5PDijb=WOyv7xF7TD0GLR2Aw77vyA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200319130239.GW13183@mellanox.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Gunthorpe <jgg@mellanox.com>
-Cc: mst@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jiri@mellanox.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com, Bie Tiwei <tiwei.bie@intel.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CALCETrUOQneBHjoZkP-7T5PDijb=WOyv7xF7TD0GLR2Aw77vyA@mail.gmail.com>
+Sender: kvm-owner@vger.kernel.org
+To: Andy Lutomirski <luto@kernel.org>
+Cc: X86 ML <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, LKML <linux-kernel@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Thu, Mar 19, 2020 at 08:35:59AM -0700, Andy Lutomirski wrote:
+> 1. Just put the NMI unmask in do_nmi().  The kernel *already* knows
+> how to handle running do_nmi() with NMIs unmasked.  This is much, much
+> simpler than your code.
 
-On 2020/3/19 =E4=B8=8B=E5=8D=889:02, Jason Gunthorpe wrote:
-> On Thu, Mar 19, 2020 at 04:14:37PM +0800, Jason Wang wrote:
->> On 2020/3/18 =E4=B8=8B=E5=8D=888:22, Jason Gunthorpe wrote:
->>> On Wed, Mar 18, 2020 at 04:03:27PM +0800, Jason Wang wrote:
->>>> From: Zhu Lingshan <lingshan.zhu@intel.com>
->>>> +
->>>> +static int ifcvf_vdpa_attach(struct ifcvf_adapter *adapter)
->>>> +{
->>>> +	int ret;
->>>> +
->>>> +	adapter->vdpa_dev  =3D vdpa_alloc_device(adapter->dev, adapter->de=
-v,
->>>> +					       &ifc_vdpa_ops);
->>>> +	if (IS_ERR(adapter->vdpa_dev)) {
->>>> +		IFCVF_ERR(adapter->dev, "Failed to init ifcvf on vdpa bus");
->>>> +		put_device(&adapter->vdpa_dev->dev);
->>>> +		return -ENODEV;
->>>> +	}
->>> The point of having an alloc call is so that the drivers
->>> ifcvf_adaptor memory could be placed in the same struct - eg use
->>> container_of to flip between them, and have a kref for both memories.
->>>
->>> It seem really weird to have an alloc followed immediately by
->>> register.
->>
->> I admit the ifcvf_adapter is not correctly ref-counted. What you sugge=
-st
->> should work. But it looks to me the following is more cleaner since th=
-e
->> members of ifcvf_adapter are all related to PCI device not vDPA itself=
-.
-> I've done it both ways (eg tpm is as you describe, ib is using alloc).
->
-> I tend to prefer the alloc method today, allowing the driver memory to
-> have a proper refcount makes the driver structure usable with RCU and
-> allows simple solutions to some tricky cases. It is a bit hard to
-> switch to this later..
->
->> - keep the current layout of ifcvf_adapter
->> - merge vdpa_alloc_device() and vdpa_register_device()
->> - use devres to bind ifcvf_adapter refcnt/lifcycle to the under PCI de=
-vice
-> This is almost what tpm does. Keep in mind the lifecycle with devm is
-> just slightly past the driver remove call, so remove still
-> must revoke all external references to the memory.
->
-> The merging alloc and register rarely works out, the register must be
-> the very last thing done, and usually you need the subsystem pointer
-> to do pre-registration setup in anything but the most trivial of
-> subsystems and drivers.
->
->> If we go for the container_of method, we probably need
->>
->> - accept a size of parent parent structure in vdpa_alloc_device() and
->> mandate vdpa_device to be the first member of ifcvf_adapter
->> - we need provide a way to free resources of parent structure when we
->> destroy vDPA device
-> Yep. netdev and rdma work this way with a free memory callback in the
-> existing ops structures.
->
-> Jason
+Okay, attached is the updated patch which implements this approach. I
+tested it in an SEV-ES guest with 'perf top' running for a little more
+than 30 minutes and all looked good. I also removed the dead code from
+the patch.
 
 
-Ok, I get your points now. Will go for way of container_of in next versio=
-n.
+From ec3b021c5d9130fd66e00d823c4fabc675c4b49e Mon Sep 17 00:00:00 2001
+From: Joerg Roedel <jroedel@suse.de>
+Date: Tue, 28 Jan 2020 17:31:05 +0100
+Subject: [PATCH] x86/sev-es: Handle NMI State
 
-Thanks
+When running under SEV-ES the kernel has to tell the hypervisor when to
+open the NMI window again after an NMI was injected. This is done with
+an NMI-complete message to the hypervisor.
+
+Add code to the kernels NMI handler to send this message right at the
+beginning of do_nmi(). This always allows nesting NMIs.
+
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+---
+ arch/x86/include/asm/sev-es.h   |  2 ++
+ arch/x86/include/uapi/asm/svm.h |  1 +
+ arch/x86/kernel/nmi.c           |  8 ++++++++
+ arch/x86/kernel/sev-es.c        | 18 ++++++++++++++++++
+ 4 files changed, 29 insertions(+)
+
+diff --git a/arch/x86/include/asm/sev-es.h b/arch/x86/include/asm/sev-es.h
+index 63acf50e6280..441ec1ba2cc7 100644
+--- a/arch/x86/include/asm/sev-es.h
++++ b/arch/x86/include/asm/sev-es.h
+@@ -82,11 +82,13 @@ struct real_mode_header;
+ 
+ #ifdef CONFIG_AMD_MEM_ENCRYPT
+ int sev_es_setup_ap_jump_table(struct real_mode_header *rmh);
++void sev_es_nmi_complete(void);
+ #else /* CONFIG_AMD_MEM_ENCRYPT */
+ static inline int sev_es_setup_ap_jump_table(struct real_mode_header *rmh)
+ {
+ 	return 0;
+ }
++static inline void sev_es_nmi_complete(void) { }
+ #endif /* CONFIG_AMD_MEM_ENCRYPT*/
+ 
+ #endif
+diff --git a/arch/x86/include/uapi/asm/svm.h b/arch/x86/include/uapi/asm/svm.h
+index 20a05839dd9a..0f837339db66 100644
+--- a/arch/x86/include/uapi/asm/svm.h
++++ b/arch/x86/include/uapi/asm/svm.h
+@@ -84,6 +84,7 @@
+ /* SEV-ES software-defined VMGEXIT events */
+ #define SVM_VMGEXIT_MMIO_READ			0x80000001
+ #define SVM_VMGEXIT_MMIO_WRITE			0x80000002
++#define SVM_VMGEXIT_NMI_COMPLETE		0x80000003
+ #define SVM_VMGEXIT_AP_HLT_LOOP			0x80000004
+ #define SVM_VMGEXIT_AP_JUMP_TABLE		0x80000005
+ #define		SVM_VMGEXIT_SET_AP_JUMP_TABLE			0
+diff --git a/arch/x86/kernel/nmi.c b/arch/x86/kernel/nmi.c
+index 54c21d6abd5a..fc872a7e0ed1 100644
+--- a/arch/x86/kernel/nmi.c
++++ b/arch/x86/kernel/nmi.c
+@@ -37,6 +37,7 @@
+ #include <asm/reboot.h>
+ #include <asm/cache.h>
+ #include <asm/nospec-branch.h>
++#include <asm/sev-es.h>
+ 
+ #define CREATE_TRACE_POINTS
+ #include <trace/events/nmi.h>
+@@ -510,6 +511,13 @@ NOKPROBE_SYMBOL(is_debug_stack);
+ dotraplinkage notrace void
+ do_nmi(struct pt_regs *regs, long error_code)
+ {
++	/*
++	 * Re-enable NMIs right here when running as an SEV-ES guest. This might
++	 * cause nested NMIs, but those can be handled safely.
++	 */
++	if (sev_es_active())
++		sev_es_nmi_complete();
++
+ 	if (IS_ENABLED(CONFIG_SMP) && cpu_is_offline(smp_processor_id()))
+ 		return;
+ 
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+index 3c22f256645e..a7e2739771e7 100644
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -270,6 +270,24 @@ static phys_addr_t vc_slow_virt_to_phys(struct ghcb *ghcb, long vaddr)
+ /* Include code shared with pre-decompression boot stage */
+ #include "sev-es-shared.c"
+ 
++void sev_es_nmi_complete(void)
++{
++	struct ghcb_state state;
++	struct ghcb *ghcb;
++
++	ghcb = sev_es_get_ghcb(&state);
++
++	vc_ghcb_invalidate(ghcb);
++	ghcb_set_sw_exit_code(ghcb, SVM_VMGEXIT_NMI_COMPLETE);
++	ghcb_set_sw_exit_info_1(ghcb, 0);
++	ghcb_set_sw_exit_info_2(ghcb, 0);
++
++	sev_es_wr_ghcb_msr(__pa(ghcb));
++	VMGEXIT();
++
++	sev_es_put_ghcb(&state);
++}
++
+ static u64 sev_es_get_jump_table_addr(void)
+ {
+ 	struct ghcb_state state;
+-- 
+2.16.4
