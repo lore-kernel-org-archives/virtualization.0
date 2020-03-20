@@ -1,44 +1,88 @@
-From: Lu Baolu <baolu.lu@linux.intel.com>
-Subject: Re: [PATCH 3/8] iommu/vt-d: Remove IOVA handling code from
- non-dma_ops path
-Date: Fri, 20 Mar 2020 15:06:24 +0800
-Message-ID: <46bf21e2-bb3e-1c1e-8dae-2c5bd8c5274f@linux.intel.com>
-References: <20191221150402.13868-1-murphyt7@tcd.ie>
- <20191221150402.13868-4-murphyt7@tcd.ie>
- <CALQxJuuue2MCF+xAAAcWCW=301HHZ9yWBmYV-K-ubCxO4s5eqQ@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V6 8/8] virtio: Intel IFC VF driver for VDPA
+Date: Fri, 20 Mar 2020 17:17:31 +0800
+Message-ID: <055f10a8-0b7d-ec2b-4fd4-d47ba96ddd5f@redhat.com>
+References: <20200318080327.21958-1-jasowang@redhat.com>
+ <20200318080327.21958-9-jasowang@redhat.com>
+ <20200318122255.GG13183@mellanox.com>
+ <30359bae-d66a-0311-0028-d7d33b8295f2@redhat.com>
+ <20200319130239.GW13183@mellanox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-arm-msm-owner@vger.kernel.org>
-In-Reply-To: <CALQxJuuue2MCF+xAAAcWCW=301HHZ9yWBmYV-K-ubCxO4s5eqQ@mail.gmail.com>
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200319130239.GW13183@mellanox.com>
 Content-Language: en-US
-Sender: linux-arm-msm-owner@vger.kernel.org
-To: Tom Murphy <murphyt7@tcd.ie>, iommu@lists.linux-foundation.org
-Cc: baolu.lu@linux.intel.com, Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.co>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jason Gunthorpe <jgg@mellanox.com>
+Cc: mst@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jiri@mellanox.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com, Bie Tiwei <tiwei.bie@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2020/3/20 14:30, Tom Murphy wrote:
-> Could we merge patch 1-3 from this series? it just cleans up weird
-> code and merging these patches will cover some of the work needed to
-> move the intel iommu driver to the dma-iommu api in the future.
 
-Can you please take a look at this patch series?
-
-https://lkml.org/lkml/2020/3/13/1162
-
-It probably makes this series easier.
-
-Best regards,
-baolu
-
-> 
-> On Sat, 21 Dec 2019 at 07:04, Tom Murphy<murphyt7@tcd.ie>  wrote:
->> Remove all IOVA handling code from the non-dma_ops path in the intel
->> iommu driver.
+On 2020/3/19 =E4=B8=8B=E5=8D=889:02, Jason Gunthorpe wrote:
+> On Thu, Mar 19, 2020 at 04:14:37PM +0800, Jason Wang wrote:
+>> On 2020/3/18 =E4=B8=8B=E5=8D=888:22, Jason Gunthorpe wrote:
+>>> On Wed, Mar 18, 2020 at 04:03:27PM +0800, Jason Wang wrote:
+>>>> From: Zhu Lingshan <lingshan.zhu@intel.com>
+>>>> +
+>>>> +static int ifcvf_vdpa_attach(struct ifcvf_adapter *adapter)
+>>>> +{
+>>>> +	int ret;
+>>>> +
+>>>> +	adapter->vdpa_dev  =3D vdpa_alloc_device(adapter->dev, adapter->de=
+v,
+>>>> +					       &ifc_vdpa_ops);
+>>>> +	if (IS_ERR(adapter->vdpa_dev)) {
+>>>> +		IFCVF_ERR(adapter->dev, "Failed to init ifcvf on vdpa bus");
+>>>> +		put_device(&adapter->vdpa_dev->dev);
+>>>> +		return -ENODEV;
+>>>> +	}
+>>> The point of having an alloc call is so that the drivers
+>>> ifcvf_adaptor memory could be placed in the same struct - eg use
+>>> container_of to flip between them, and have a kref for both memories.
+>>>
+>>> It seem really weird to have an alloc followed immediately by
+>>> register.
 >>
->> There's no need for the non-dma_ops path to keep track of IOVAs. The
->> whole point of the non-dma_ops path is that it allows the IOVAs to be
->> handled separately. The IOVA handling code removed in this patch is
->> pointless.
+>> I admit the ifcvf_adapter is not correctly ref-counted. What you sugge=
+st
+>> should work. But it looks to me the following is more cleaner since th=
+e
+>> members of ifcvf_adapter are all related to PCI device not vDPA itself=
+.
+> I've done it both ways (eg tpm is as you describe, ib is using alloc).
+>
+> I tend to prefer the alloc method today, allowing the driver memory to
+> have a proper refcount makes the driver structure usable with RCU and
+> allows simple solutions to some tricky cases. It is a bit hard to
+> switch to this later..
+>
+>> - keep the current layout of ifcvf_adapter
+>> - merge vdpa_alloc_device() and vdpa_register_device()
+>> - use devres to bind ifcvf_adapter refcnt/lifcycle to the under PCI de=
+vice
+> This is almost what tpm does. Keep in mind the lifecycle with devm is
+> just slightly past the driver remove call, so remove still
+> must revoke all external references to the memory.
+>
+> The merging alloc and register rarely works out, the register must be
+> the very last thing done, and usually you need the subsystem pointer
+> to do pre-registration setup in anything but the most trivial of
+> subsystems and drivers.
+>
+>> If we go for the container_of method, we probably need
 >>
->> Signed-off-by: Tom Murphy<murphyt7@tcd.ie>
+>> - accept a size of parent parent structure in vdpa_alloc_device() and
+>> mandate vdpa_device to be the first member of ifcvf_adapter
+>> - we need provide a way to free resources of parent structure when we
+>> destroy vDPA device
+> Yep. netdev and rdma work this way with a free memory callback in the
+> existing ops structures.
+>
+> Jason
+
+
+Ok, I get your points now. Will go for way of container_of in next versio=
+n.
+
+Thanks
