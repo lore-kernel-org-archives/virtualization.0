@@ -1,43 +1,165 @@
-From: no-reply@patchew.org
-Subject: Re: [PATCH for QEMU v2] virtio-balloon: Add option cont-pages to set VIRTIO_BALLOON_VQ_INFLATE_CONT
-Date: Sun, 22 Mar 2020 09:19:37 -0700 (PDT)
-Message-ID: <158489397580.31203.13708294319950127355@39012742ff91>
-References: <1584893097-12317-2-git-send-email-teawater@gmail.com>
-Reply-To: <qemu-devel@nongnu.org>
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Subject: Re: [PATCH RFC] iommu/virtio: Use page size bitmap supported by
+ endpoint
+Date: Mon, 23 Mar 2020 10:59:43 +0100
+Message-ID: <20200323095943.GA2038940@myrica>
+References: <20200323084108.1721-1-bbhushan2@marvell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1584893097-12317-2-git-send-email-teawater@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-Cc: mst@redhat.com, jasowang@redhat.com, akpm@linux-foundation.org, mojha@codeaurora.org, pagupta@redhat.com, aquini@redhat.com, namit@vmware.com, david@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, qemu-devel@nongnu.org, teawaterz@linux.alibaba.com, teawater@gmail.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20200323084108.1721-1-bbhushan2@marvell.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Bharat Bhushan <bbhushan2@marvell.com>
+Cc: mst@redhat.com, joro@8bytes.org, virtualization@lists.linux-foundation.org, eric.auger@redhat.com, iommu@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-UGF0Y2hldyBVUkw6IGh0dHBzOi8vcGF0Y2hldy5vcmcvUUVNVS8xNTg0ODkzMDk3LTEyMzE3LTIt
-Z2l0LXNlbmQtZW1haWwtdGVhd2F0ZXJAZ21haWwuY29tLwoKCgpIaSwKClRoaXMgc2VyaWVzIHNl
-ZW1zIHRvIGhhdmUgc29tZSBjb2Rpbmcgc3R5bGUgcHJvYmxlbXMuIFNlZSBvdXRwdXQgYmVsb3cg
-Zm9yCm1vcmUgaW5mb3JtYXRpb246CgpTdWJqZWN0OiBbUEFUQ0ggZm9yIFFFTVUgdjJdIHZpcnRp
-by1iYWxsb29uOiBBZGQgb3B0aW9uIGNvbnQtcGFnZXMgdG8gc2V0IFZJUlRJT19CQUxMT09OX1ZR
-X0lORkxBVEVfQ09OVApNZXNzYWdlLWlkOiAxNTg0ODkzMDk3LTEyMzE3LTItZ2l0LXNlbmQtZW1h
-aWwtdGVhd2F0ZXJAZ21haWwuY29tClR5cGU6IHNlcmllcwoKPT09IFRFU1QgU0NSSVBUIEJFR0lO
-ID09PQojIS9iaW4vYmFzaApnaXQgcmV2LXBhcnNlIGJhc2UgPiAvZGV2L251bGwgfHwgZXhpdCAw
-CmdpdCBjb25maWcgLS1sb2NhbCBkaWZmLnJlbmFtZWxpbWl0IDAKZ2l0IGNvbmZpZyAtLWxvY2Fs
-IGRpZmYucmVuYW1lcyBUcnVlCmdpdCBjb25maWcgLS1sb2NhbCBkaWZmLmFsZ29yaXRobSBoaXN0
-b2dyYW0KLi9zY3JpcHRzL2NoZWNrcGF0Y2gucGwgLS1tYWlsYmFjayBiYXNlLi4KPT09IFRFU1Qg
-U0NSSVBUIEVORCA9PT0KClVwZGF0aW5nIDNjOGNmNWE5YzIxZmY4NzgyMTY0ZDFkZWY3ZjQ0YmQ4
-ODg3MTMzODQKU3dpdGNoZWQgdG8gYSBuZXcgYnJhbmNoICd0ZXN0JwoyMDZkMWZkIHZpcnRpby1i
-YWxsb29uOiBBZGQgb3B0aW9uIGNvbnQtcGFnZXMgdG8gc2V0IFZJUlRJT19CQUxMT09OX1ZRX0lO
-RkxBVEVfQ09OVAoKPT09IE9VVFBVVCBCRUdJTiA9PT0KRVJST1I6IHRyYWlsaW5nIHdoaXRlc3Bh
-Y2UKIzM2OiBGSUxFOiBody92aXJ0aW8vdmlydGlvLWJhbGxvb24uYzo2OToKKyAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgIFBhcnRpYWxseUJhbGxvb25lZFBhZ2UgKnBicCwgJAoKdG90
-YWw6IDEgZXJyb3JzLCAwIHdhcm5pbmdzLCAxMTUgbGluZXMgY2hlY2tlZAoKQ29tbWl0IDIwNmQx
-ZmQ4NWEyMyAodmlydGlvLWJhbGxvb246IEFkZCBvcHRpb24gY29udC1wYWdlcyB0byBzZXQgVklS
-VElPX0JBTExPT05fVlFfSU5GTEFURV9DT05UKSBoYXMgc3R5bGUgcHJvYmxlbXMsIHBsZWFzZSBy
-ZXZpZXcuICBJZiBhbnkgb2YgdGhlc2UgZXJyb3JzCmFyZSBmYWxzZSBwb3NpdGl2ZXMgcmVwb3J0
-IHRoZW0gdG8gdGhlIG1haW50YWluZXIsIHNlZQpDSEVDS1BBVENIIGluIE1BSU5UQUlORVJTLgo9
-PT0gT1VUUFVUIEVORCA9PT0KClRlc3QgY29tbWFuZCBleGl0ZWQgd2l0aCBjb2RlOiAxCgoKVGhl
-IGZ1bGwgbG9nIGlzIGF2YWlsYWJsZSBhdApodHRwOi8vcGF0Y2hldy5vcmcvbG9ncy8xNTg0ODkz
-MDk3LTEyMzE3LTItZ2l0LXNlbmQtZW1haWwtdGVhd2F0ZXJAZ21haWwuY29tL3Rlc3RpbmcuY2hl
-Y2twYXRjaC8/dHlwZT1tZXNzYWdlLgotLS0KRW1haWwgZ2VuZXJhdGVkIGF1dG9tYXRpY2FsbHkg
-YnkgUGF0Y2hldyBbaHR0cHM6Ly9wYXRjaGV3Lm9yZy9dLgpQbGVhc2Ugc2VuZCB5b3VyIGZlZWRi
-YWNrIHRvIHBhdGNoZXctZGV2ZWxAcmVkaGF0LmNvbQ==
+Hi Bharat,
+
+Please add the IOMMU list on your next posting
+
+On Mon, Mar 23, 2020 at 02:11:08PM +0530, Bharat Bhushan wrote:
+> Different endpoint can support different page size, probe
+> endpoint if it supports specific page size otherwise use
+> global page sizes.
+> 
+> Signed-off-by: Bharat Bhushan <bbhushan2@marvell.com>
+> ---
+>  drivers/iommu/virtio-iommu.c      | 24 ++++++++++++++++++++----
+>  include/uapi/linux/virtio_iommu.h |  6 ++++++
+>  2 files changed, 26 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+> index cce329d71fba..e69347ca4ee6 100644
+> --- a/drivers/iommu/virtio-iommu.c
+> +++ b/drivers/iommu/virtio-iommu.c
+> @@ -78,6 +78,7 @@ struct viommu_endpoint {
+>  	struct viommu_dev		*viommu;
+>  	struct viommu_domain		*vdomain;
+>  	struct list_head		resv_regions;
+> +	u64				pgsize_bitmap;
+>  };
+>  
+>  struct viommu_request {
+> @@ -415,6 +416,14 @@ static int viommu_replay_mappings(struct viommu_domain *vdomain)
+>  	return ret;
+>  }
+>  
+> +static int viommu_set_pgsize_bitmap(struct viommu_endpoint *vdev,
+> +				    struct virtio_iommu_probe_pgsize_mask *mask)
+> +
+> +{
+> +	vdev->pgsize_bitmap = mask->pgsize_bitmap;
+
+We need to read this through le64_to_cpu(). Also check that the length of
+the field provided by the device is >= sizeof(mask) (like
+viommu_add_resv_mem() does)
+
+> +	return 0;
+> +}
+> +
+>  static int viommu_add_resv_mem(struct viommu_endpoint *vdev,
+>  			       struct virtio_iommu_probe_resv_mem *mem,
+>  			       size_t len)
+> @@ -494,11 +503,13 @@ static int viommu_probe_endpoint(struct viommu_dev *viommu, struct device *dev)
+>  	while (type != VIRTIO_IOMMU_PROBE_T_NONE &&
+>  	       cur < viommu->probe_size) {
+>  		len = le16_to_cpu(prop->length) + sizeof(*prop);
+> -
+>  		switch (type) {
+>  		case VIRTIO_IOMMU_PROBE_T_RESV_MEM:
+>  			ret = viommu_add_resv_mem(vdev, (void *)prop, len);
+>  			break;
+> +		case VIRTIO_IOMMU_PROBE_T_PAGE_SIZE_MASK:
+> +			ret = viommu_set_pgsize_bitmap(vdev, (void *)prop);
+> +			break;
+>  		default:
+>  			dev_err(dev, "unknown viommu prop 0x%x\n", type);
+>  		}
+> @@ -607,16 +618,21 @@ static struct iommu_domain *viommu_domain_alloc(unsigned type)
+>  	return &vdomain->domain;
+>  }
+>  
+> -static int viommu_domain_finalise(struct viommu_dev *viommu,
+> +static int viommu_domain_finalise(struct viommu_endpoint *vdev,
+>  				  struct iommu_domain *domain)
+>  {
+>  	int ret;
+>  	struct viommu_domain *vdomain = to_viommu_domain(domain);
+> +	struct viommu_dev *viommu = vdev->viommu;
+>  
+>  	vdomain->viommu		= viommu;
+>  	vdomain->map_flags	= viommu->map_flags;
+>  
+> -	domain->pgsize_bitmap	= viommu->pgsize_bitmap;
+> +	if (vdev->pgsize_bitmap)
+> +		domain->pgsize_bitmap = vdev->pgsize_bitmap;
+> +	else
+> +		domain->pgsize_bitmap	= viommu->pgsize_bitmap;
+> +
+
+nit: it could be nicer to initialize vdev->pgsize_bitmap in add_device(),
+override it in probe_endpoint(), and just copy it here.
+
+>  	domain->geometry	= viommu->geometry;
+>  
+>  	ret = ida_alloc_range(&viommu->domain_ids, viommu->first_domain,
+> @@ -657,7 +673,7 @@ static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
+>  		 * Properly initialize the domain now that we know which viommu
+>  		 * owns it.
+>  		 */
+> -		ret = viommu_domain_finalise(vdev->viommu, domain);
+> +		ret = viommu_domain_finalise(vdev, domain);
+
+Attaching additional endpoints with different masks to the domain should
+return an error
+
+>  	} else if (vdomain->viommu != vdev->viommu) {
+>  		dev_err(dev, "cannot attach to foreign vIOMMU\n");
+>  		ret = -EXDEV;
+> diff --git a/include/uapi/linux/virtio_iommu.h b/include/uapi/linux/virtio_iommu.h
+> index 237e36a280cb..aff3db0ef54b 100644
+> --- a/include/uapi/linux/virtio_iommu.h
+> +++ b/include/uapi/linux/virtio_iommu.h
+> @@ -111,6 +111,7 @@ struct virtio_iommu_req_unmap {
+>  
+>  #define VIRTIO_IOMMU_PROBE_T_NONE		0
+>  #define VIRTIO_IOMMU_PROBE_T_RESV_MEM		1
+> +#define VIRTIO_IOMMU_PROBE_T_PAGE_SIZE_MASK	2
+>  
+>  #define VIRTIO_IOMMU_PROBE_T_MASK		0xfff
+>  
+> @@ -119,6 +120,11 @@ struct virtio_iommu_probe_property {
+>  	__le16					length;
+>  };
+>  
+> +struct virtio_iommu_probe_pgsize_mask {
+> +	struct virtio_iommu_probe_property	head;
+
+Compilers will introduce 4 bytes of padding here, to align the next field.
+We need to make them explicit by adding a 4-bytes 'reserved' field.
+
+> +	uint64_t				pgsize_bitmap;
+
+__le64
+
+Thanks,
+Jean
+
+> +};
+> +
+>  #define VIRTIO_IOMMU_RESV_MEM_T_RESERVED	0
+>  #define VIRTIO_IOMMU_RESV_MEM_T_MSI		1
+>  
+> -- 
+> 2.17.1
+> 
