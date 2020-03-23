@@ -1,71 +1,65 @@
 From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 07/51] drm/qxl: Use drmm_add_final_kfree
-Date: Mon, 23 Mar 2020 15:49:06 +0100
-Message-ID: <20200323144950.3018436-8-daniel.vetter@ffwll.ch>
+Subject: [PATCH 09/51] drm/cirrus: Use drmm_add_final_kfree
+Date: Mon, 23 Mar 2020 15:49:08 +0100
+Message-ID: <20200323144950.3018436-10-daniel.vetter@ffwll.ch>
 References: <20200323144950.3018436-1-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
 In-Reply-To: <20200323144950.3018436-1-daniel.vetter@ffwll.ch>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
 To: DRI Development <dri-devel@lists.freedesktop.org>
-Cc: spice-devel@lists.freedesktop.org, Daniel Vetter <daniel.vetter@ffwll.ch>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Daniel Vetter <daniel.vetter@intel.com>, Dave Airlie <airlied@redhat.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>, Gerd Hoffmann <kraxel@redhat.com>, Thomas Zimmermann <tzimmermann@suse.de>, Daniel Vetter <daniel.vetter@intel.com>, Dave Airlie <airlied@redhat.com>, Sam Ravnborg <sam@ravnborg.org>, Linus Walleij <linus.walleij@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-With this we can drop the final kfree from the release function.
-
-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Dave Airlie <airlied@redhat.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
-Cc: spice-devel@lists.freedesktop.org
----
- drivers/gpu/drm/qxl/qxl_drv.c | 2 --
- drivers/gpu/drm/qxl/qxl_kms.c | 2 ++
- 2 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
-index 4fda3f9b29f4..09102e2efabc 100644
---- a/drivers/gpu/drm/qxl/qxl_drv.c
-+++ b/drivers/gpu/drm/qxl/qxl_drv.c
-@@ -144,8 +144,6 @@ static void qxl_drm_release(struct drm_device *dev)
- 	 */
- 	qxl_modeset_fini(qdev);
- 	qxl_device_fini(qdev);
--	dev->dev_private = NULL;
--	kfree(qdev);
- }
- 
- static void
-diff --git a/drivers/gpu/drm/qxl/qxl_kms.c b/drivers/gpu/drm/qxl/qxl_kms.c
-index 70b20ee4741a..09d7b5f6d172 100644
---- a/drivers/gpu/drm/qxl/qxl_kms.c
-+++ b/drivers/gpu/drm/qxl/qxl_kms.c
-@@ -27,6 +27,7 @@
- #include <linux/pci.h>
- 
- #include <drm/drm_drv.h>
-+#include <drm/drm_managed.h>
- #include <drm/drm_probe_helper.h>
- 
- #include "qxl_drv.h"
-@@ -121,6 +122,7 @@ int qxl_device_init(struct qxl_device *qdev,
- 	qdev->ddev.pdev = pdev;
- 	pci_set_drvdata(pdev, &qdev->ddev);
- 	qdev->ddev.dev_private = qdev;
-+	drmm_add_final_kfree(&qdev->ddev, qdev);
- 
- 	mutex_init(&qdev->gem.mutex);
- 	mutex_init(&qdev->update_area_mutex);
--- 
-2.25.1
+V2l0aCB0aGlzIHdlIGNhbiBkcm9wIHRoZSBmaW5hbCBrZnJlZSBmcm9tIHRoZSByZWxlYXNlIGZ1
+bmN0aW9uLgoKSSBhbHNvIG5vdGljZWQgdGhhdCBjaXJydXMgZm9yZ290IHRvIGNhbGwgZHJtX2Rl
+dl9maW5pKCkuCgp2MjogRG9uJ3QgY2FsbCBrZnJlZShjaXJydXMpIGFmdGVyIHdlJ3ZlIGhhbmRl
+ZCBvdmVyc2hpcCBvZiB0aGF0IHRvCmRybV9kZXZpY2UgYW5kIHRoZSBkcm1tXyBzdHVmZi4KCkFj
+a2VkLWJ5OiBHZXJkIEhvZmZtYW5uIDxrcmF4ZWxAcmVkaGF0LmNvbT4KQWNrZWQtYnk6IFNhbSBS
+YXZuYm9yZyA8c2FtQHJhdm5ib3JnLm9yZz4KU2lnbmVkLW9mZi1ieTogRGFuaWVsIFZldHRlciA8
+ZGFuaWVsLnZldHRlckBpbnRlbC5jb20+CkNjOiBEYXZlIEFpcmxpZSA8YWlybGllZEByZWRoYXQu
+Y29tPgpDYzogR2VyZCBIb2ZmbWFubiA8a3JheGVsQHJlZGhhdC5jb20+CkNjOiBEYW5pZWwgVmV0
+dGVyIDxkYW5pZWwudmV0dGVyQGZmd2xsLmNoPgpDYzogIk5vcmFsZiBUcsO4bm5lcyIgPG5vcmFs
+ZkB0cm9ubmVzLm9yZz4KQ2M6IExpbnVzIFdhbGxlaWogPGxpbnVzLndhbGxlaWpAbGluYXJvLm9y
+Zz4KQ2M6IFNhbSBSYXZuYm9yZyA8c2FtQHJhdm5ib3JnLm9yZz4KQ2M6IFRob21hcyBaaW1tZXJt
+YW5uIDx0emltbWVybWFubkBzdXNlLmRlPgpDYzogdmlydHVhbGl6YXRpb25AbGlzdHMubGludXgt
+Zm91bmRhdGlvbi5vcmcKLS0tCiBkcml2ZXJzL2dwdS9kcm0vY2lycnVzL2NpcnJ1cy5jIHwgMTQg
+KysrKysrKy0tLS0tLS0KIDEgZmlsZSBjaGFuZ2VkLCA3IGluc2VydGlvbnMoKyksIDcgZGVsZXRp
+b25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL2NpcnJ1cy9jaXJydXMuYyBiL2Ry
+aXZlcnMvZ3B1L2RybS9jaXJydXMvY2lycnVzLmMKaW5kZXggZDJmZjYzY2U4ZWFmLi4yMjMyNTU2
+Y2UzNGMgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvZ3B1L2RybS9jaXJydXMvY2lycnVzLmMKKysrIGIv
+ZHJpdmVycy9ncHUvZHJtL2NpcnJ1cy9jaXJydXMuYwpAQCAtMzUsNiArMzUsNyBAQAogI2luY2x1
+ZGUgPGRybS9kcm1fZ2VtX3NobWVtX2hlbHBlci5oPgogI2luY2x1ZGUgPGRybS9kcm1fZ2VtX2Zy
+YW1lYnVmZmVyX2hlbHBlci5oPgogI2luY2x1ZGUgPGRybS9kcm1faW9jdGwuaD4KKyNpbmNsdWRl
+IDxkcm0vZHJtX21hbmFnZWQuaD4KICNpbmNsdWRlIDxkcm0vZHJtX21vZGVzZXRfaGVscGVyX3Z0
+YWJsZXMuaD4KICNpbmNsdWRlIDxkcm0vZHJtX3Byb2JlX2hlbHBlci5oPgogI2luY2x1ZGUgPGRy
+bS9kcm1fc2ltcGxlX2ttc19oZWxwZXIuaD4KQEAgLTUyNywxMCArNTI4LDggQEAgc3RhdGljIHZv
+aWQgY2lycnVzX21vZGVfY29uZmlnX2luaXQoc3RydWN0IGNpcnJ1c19kZXZpY2UgKmNpcnJ1cykK
+IAogc3RhdGljIHZvaWQgY2lycnVzX3JlbGVhc2Uoc3RydWN0IGRybV9kZXZpY2UgKmRldikKIHsK
+LQlzdHJ1Y3QgY2lycnVzX2RldmljZSAqY2lycnVzID0gZGV2LT5kZXZfcHJpdmF0ZTsKLQogCWRy
+bV9tb2RlX2NvbmZpZ19jbGVhbnVwKGRldik7Ci0Ja2ZyZWUoY2lycnVzKTsKKwlkcm1fZGV2X2Zp
+bmkoZGV2KTsKIH0KIAogREVGSU5FX0RSTV9HRU1fRk9QUyhjaXJydXNfZm9wcyk7CkBAIC01NzUs
+OSArNTc0LDEyIEBAIHN0YXRpYyBpbnQgY2lycnVzX3BjaV9wcm9iZShzdHJ1Y3QgcGNpX2RldiAq
+cGRldiwKIAogCWRldiA9ICZjaXJydXMtPmRldjsKIAlyZXQgPSBkcm1fZGV2X2luaXQoZGV2LCAm
+Y2lycnVzX2RyaXZlciwgJnBkZXYtPmRldik7Ci0JaWYgKHJldCkKLQkJZ290byBlcnJfZnJlZV9j
+aXJydXM7CisJaWYgKHJldCkgeworCQlrZnJlZShjaXJydXMpOworCQlnb3RvIGVycl9wY2lfcmVs
+ZWFzZTsKKwl9CiAJZGV2LT5kZXZfcHJpdmF0ZSA9IGNpcnJ1czsKKwlkcm1tX2FkZF9maW5hbF9r
+ZnJlZShkZXYsIGNpcnJ1cyk7CiAKIAlyZXQgPSAtRU5PTUVNOwogCWNpcnJ1cy0+dnJhbSA9IGlv
+cmVtYXAocGNpX3Jlc291cmNlX3N0YXJ0KHBkZXYsIDApLApAQCAtNjE4LDggKzYyMCw2IEBAIHN0
+YXRpYyBpbnQgY2lycnVzX3BjaV9wcm9iZShzdHJ1Y3QgcGNpX2RldiAqcGRldiwKIAlpb3VubWFw
+KGNpcnJ1cy0+dnJhbSk7CiBlcnJfZGV2X3B1dDoKIAlkcm1fZGV2X3B1dChkZXYpOwotZXJyX2Zy
+ZWVfY2lycnVzOgotCWtmcmVlKGNpcnJ1cyk7CiBlcnJfcGNpX3JlbGVhc2U6CiAJcGNpX3JlbGVh
+c2VfcmVnaW9ucyhwZGV2KTsKIAlyZXR1cm4gcmV0OwotLSAKMi4yNS4xCgpfX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpJbnRlbC1nZnggbWFpbGluZyBsaXN0
+CkludGVsLWdmeEBsaXN0cy5mcmVlZGVza3RvcC5vcmcKaHR0cHM6Ly9saXN0cy5mcmVlZGVza3Rv
+cC5vcmcvbWFpbG1hbi9saXN0aW5mby9pbnRlbC1nZngK
