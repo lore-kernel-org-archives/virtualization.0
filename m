@@ -1,8 +1,8 @@
 From: Alexey Makhalov via Virtualization
  <virtualization@lists.linux-foundation.org>
-Subject: [PATCH v2 1/5] x86/vmware: Make vmware_select_hypercall() __init
-Date: Mon, 23 Mar 2020 19:57:03 +0000
-Message-ID: <20200323195707.31242-2-amakhalov@vmware.com>
+Subject: [PATCH v2 4/5] x86/vmware: Enable steal time accounting
+Date: Mon, 23 Mar 2020 19:57:06 +0000
+Message-ID: <20200323195707.31242-5-amakhalov@vmware.com>
 References: <20200212200312.2033-1-amakhalov@vmware.com>
  <20200323195707.31242-1-amakhalov@vmware.com>
 Reply-To: Alexey Makhalov <amakhalov@vmware.com>
@@ -24,28 +24,71 @@ To: x86@kernel.org
 Cc: Juergen Gross <jgross@suse.com>, Alexey Makhalov <amakhalov@vmware.com>, Jonathan Corbet <corbet@lwn.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Josh Poimboeuf <jpoimboe@redhat.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Pawan Gupta <pawan.kumar.gupta@linux.intel.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-vmware_select_hypercall() is used only by the __init
-functions, and should be annotated with __init as well.
+Set paravirt_steal_rq_enabled if steal clock present.
+paravirt_steal_rq_enabled is used in sched/core.c to
+adjust task progress by offsetting stolen time.
+Use 'no-steal-acc' off switch (share same name with KVM)
+to disable steal time accounting.
 
 Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
 Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
 Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
 ---
- arch/x86/kernel/cpu/vmware.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/admin-guide/kernel-parameters.txt |  2 +-
+ arch/x86/kernel/cpu/vmware.c                    | 13 ++++++++++++-
+ 2 files changed, 13 insertions(+), 2 deletions(-)
 
+diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
+index a1b7d3ad2a35..6b1a60fa4ad8 100644
+--- a/Documentation/admin-guide/kernel-parameters.txt
++++ b/Documentation/admin-guide/kernel-parameters.txt
+@@ -3174,7 +3174,7 @@
+ 			[X86,PV_OPS] Disable paravirtualized VMware scheduler
+ 			clock and use the default one.
+ 
+-	no-steal-acc	[X86,KVM,ARM64] Disable paravirtualized steal time
++	no-steal-acc	[X86,PV_OPS,ARM64] Disable paravirtualized steal time
+ 			accounting. steal time is computed, but won't
+ 			influence scheduler behaviour
+ 
 diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index 46d732696c1c..d280560fd75e 100644
+index cc604614f0ae..e885f73bebd4 100644
 --- a/arch/x86/kernel/cpu/vmware.c
 +++ b/arch/x86/kernel/cpu/vmware.c
-@@ -213,7 +213,7 @@ static void __init vmware_platform_setup(void)
- 	vmware_set_capabilities();
- }
+@@ -125,6 +125,7 @@ static struct cyc2ns_data vmware_cyc2ns __ro_after_init;
+ static int vmw_sched_clock __initdata = 1;
+ static DEFINE_PER_CPU_DECRYPTED(struct vmware_steal_time, vmw_steal_time) __aligned(64);
+ static bool has_steal_clock;
++static bool steal_acc __initdata = true; /* steal time accounting */
  
--static u8 vmware_select_hypercall(void)
-+static u8 __init vmware_select_hypercall(void)
+ static __init int setup_vmw_sched_clock(char *s)
  {
- 	int eax, ebx, ecx, edx;
+@@ -133,6 +134,13 @@ static __init int setup_vmw_sched_clock(char *s)
+ }
+ early_param("no-vmw-sched-clock", setup_vmw_sched_clock);
  
++static __init int parse_no_stealacc(char *arg)
++{
++	steal_acc = false;
++	return 0;
++}
++early_param("no-steal-acc", parse_no_stealacc);
++
+ static unsigned long long notrace vmware_sched_clock(void)
+ {
+ 	unsigned long long ns;
+@@ -306,8 +314,11 @@ static int vmware_cpu_down_prepare(unsigned int cpu)
+ 
+ static __init int activate_jump_labels(void)
+ {
+-	if (has_steal_clock)
++	if (has_steal_clock) {
+ 		static_key_slow_inc(&paravirt_steal_enabled);
++		if (steal_acc)
++			static_key_slow_inc(&paravirt_steal_rq_enabled);
++	}
+ 
+ 	return 0;
+ }
 -- 
 2.14.2
