@@ -1,11 +1,11 @@
 From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 28/51] drm/bochs: Drop explicit drm_mode_config_cleanup
-Date: Mon, 23 Mar 2020 15:49:27 +0100
-Message-ID: <20200323144950.3018436-29-daniel.vetter@ffwll.ch>
+Subject: [PATCH 30/51] drm/cirrus: Fully embrace devm_
+Date: Mon, 23 Mar 2020 15:49:29 +0100
+Message-ID: <20200323144950.3018436-31-daniel.vetter@ffwll.ch>
 References: <20200323144950.3018436-1-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200323144950.3018436-1-daniel.vetter@ffwll.ch>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
@@ -18,109 +18,67 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: DRI Development <dri-devel@lists.freedesktop.org>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Thomas Zimmermann <tzimmermann@suse.de>, Daniel Vetter <daniel.vetter@intel.com>, Sam Ravnborg <sam@ravnborg.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>, Thomas Zimmermann <tzimmermann@suse.de>, Daniel Vetter <daniel.vetter@intel.com>, Dave Airlie <airlied@redhat.com>, Emil Velikov <emil.velikov@collabora.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Instead rely on the automatic clean, for which we just need to check
-that drm_mode_config_init succeeded. To avoid an inversion in the
-cleanup we also have to move the dev_private allocation over to
-drmm_kzalloc.
-
-This is made possible by a preceeding patch which added a drmm_
-cleanup action to drm_mode_config_init(), hence all we need to do to
-ensure that drm_mode_config_cleanup() is run on final drm_device
-cleanup is check the new error code for _init().
-
-v2: Explain why this cleanup is possible (Laurent).
-
-v3: Use drmm_mode_config_init() for more clarity (Sam, Thomas)
-
-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
-Cc: Sam Ravnborg <sam@ravnborg.org>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
----
- drivers/gpu/drm/bochs/bochs.h     |  1 -
- drivers/gpu/drm/bochs/bochs_drv.c |  6 ++----
- drivers/gpu/drm/bochs/bochs_kms.c | 14 +++++---------
- 3 files changed, 7 insertions(+), 14 deletions(-)
-
-diff --git a/drivers/gpu/drm/bochs/bochs.h b/drivers/gpu/drm/bochs/bochs.h
-index 917767173ee6..e5bd1d517a18 100644
---- a/drivers/gpu/drm/bochs/bochs.h
-+++ b/drivers/gpu/drm/bochs/bochs.h
-@@ -92,7 +92,6 @@ void bochs_mm_fini(struct bochs_device *bochs);
- 
- /* bochs_kms.c */
- int bochs_kms_init(struct bochs_device *bochs);
--void bochs_kms_fini(struct bochs_device *bochs);
- 
- /* bochs_fbdev.c */
- extern const struct drm_mode_config_funcs bochs_mode_funcs;
-diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
-index addb0568c1af..e18c51de1196 100644
---- a/drivers/gpu/drm/bochs/bochs_drv.c
-+++ b/drivers/gpu/drm/bochs/bochs_drv.c
-@@ -7,6 +7,7 @@
- 
- #include <drm/drm_drv.h>
- #include <drm/drm_atomic_helper.h>
-+#include <drm/drm_managed.h>
- 
- #include "bochs.h"
- 
-@@ -21,10 +22,7 @@ static void bochs_unload(struct drm_device *dev)
- {
- 	struct bochs_device *bochs = dev->dev_private;
- 
--	bochs_kms_fini(bochs);
- 	bochs_mm_fini(bochs);
--	kfree(bochs);
--	dev->dev_private = NULL;
- }
- 
- static int bochs_load(struct drm_device *dev)
-@@ -32,7 +30,7 @@ static int bochs_load(struct drm_device *dev)
- 	struct bochs_device *bochs;
- 	int ret;
- 
--	bochs = kzalloc(sizeof(*bochs), GFP_KERNEL);
-+	bochs = drmm_kzalloc(dev, sizeof(*bochs), GFP_KERNEL);
- 	if (bochs == NULL)
- 		return -ENOMEM;
- 	dev->dev_private = bochs;
-diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-index e8cc8156d773..7f4bcfad87e9 100644
---- a/drivers/gpu/drm/bochs/bochs_kms.c
-+++ b/drivers/gpu/drm/bochs/bochs_kms.c
-@@ -134,7 +134,11 @@ const struct drm_mode_config_funcs bochs_mode_funcs = {
- 
- int bochs_kms_init(struct bochs_device *bochs)
- {
--	drm_mode_config_init(bochs->dev);
-+	int ret;
-+
-+	ret = drmm_mode_config_init(bochs->dev);
-+	if (ret)
-+		return ret;
- 
- 	bochs->dev->mode_config.max_width = 8192;
- 	bochs->dev->mode_config.max_height = 8192;
-@@ -160,11 +164,3 @@ int bochs_kms_init(struct bochs_device *bochs)
- 
- 	return 0;
- }
--
--void bochs_kms_fini(struct bochs_device *bochs)
--{
--	if (!bochs->dev->mode_config.num_connector)
--		return;
--
--	drm_mode_config_cleanup(bochs->dev);
--}
--- 
-2.25.1
+V2l0aCB0aGUgZHJtX2RldmljZSBsaWZldGltZSBmdW4gY2xlYW5lZCB1cCB0aGVyZSdzIG5vdGhp
+bmcgaW4gdGhlIHdheQphbnltb3JlIHRvIHVzZSBkZXZtXyBmb3IgZXZlcnl0aGluZyBodyByZWxl
+YXRlZC4gRG8gaXQsIGFuZCBpbiB0aGUKcHJvY2VzcywgdGhyb3cgb3V0IHRoZSBlbnRpcmUgb25p
+b24gdW53aW5kaW5nLgoKQWNrZWQtYnk6IEdlcmQgSG9mZm1hbm4gPGtyYXhlbEByZWRoYXQuY29t
+PgpTaWduZWQtb2ZmLWJ5OiBEYW5pZWwgVmV0dGVyIDxkYW5pZWwudmV0dGVyQGludGVsLmNvbT4K
+Q2M6IERhdmUgQWlybGllIDxhaXJsaWVkQHJlZGhhdC5jb20+CkNjOiBHZXJkIEhvZmZtYW5uIDxr
+cmF4ZWxAcmVkaGF0LmNvbT4KQ2M6IERhbmllbCBWZXR0ZXIgPGRhbmllbC52ZXR0ZXJAZmZ3bGwu
+Y2g+CkNjOiAiTm9yYWxmIFRyw7hubmVzIiA8bm9yYWxmQHRyb25uZXMub3JnPgpDYzogRW1pbCBW
+ZWxpa292IDxlbWlsLnZlbGlrb3ZAY29sbGFib3JhLmNvbT4KQ2M6IFRob21hcyBaaW1tZXJtYW5u
+IDx0emltbWVybWFubkBzdXNlLmRlPgpDYzogdmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
+bmRhdGlvbi5vcmcKLS0tCiBkcml2ZXJzL2dwdS9kcm0vY2lycnVzL2NpcnJ1cy5jIHwgNDQgKysr
+KysrKysrKystLS0tLS0tLS0tLS0tLS0tLS0tLS0tCiAxIGZpbGUgY2hhbmdlZCwgMTQgaW5zZXJ0
+aW9ucygrKSwgMzAgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL2Np
+cnJ1cy9jaXJydXMuYyBiL2RyaXZlcnMvZ3B1L2RybS9jaXJydXMvY2lycnVzLmMKaW5kZXggYmQ4
+Nzg0ZWE5ZDY0Li5hMzYyNjk3MTdjM2IgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvZ3B1L2RybS9jaXJy
+dXMvY2lycnVzLmMKKysrIGIvZHJpdmVycy9ncHUvZHJtL2NpcnJ1cy9jaXJydXMuYwpAQCAtNTU4
+LDcgKzU1OCw3IEBAIHN0YXRpYyBpbnQgY2lycnVzX3BjaV9wcm9iZShzdHJ1Y3QgcGNpX2RldiAq
+cGRldiwKIAlpZiAocmV0KQogCQlyZXR1cm4gcmV0OwogCi0JcmV0ID0gcGNpX2VuYWJsZV9kZXZp
+Y2UocGRldik7CisJcmV0ID0gcGNpbV9lbmFibGVfZGV2aWNlKHBkZXYpOwogCWlmIChyZXQpCiAJ
+CXJldHVybiByZXQ7CiAKQEAgLTU2OSwzOSArNTY5LDM4IEBAIHN0YXRpYyBpbnQgY2lycnVzX3Bj
+aV9wcm9iZShzdHJ1Y3QgcGNpX2RldiAqcGRldiwKIAlyZXQgPSAtRU5PTUVNOwogCWNpcnJ1cyA9
+IGt6YWxsb2Moc2l6ZW9mKCpjaXJydXMpLCBHRlBfS0VSTkVMKTsKIAlpZiAoY2lycnVzID09IE5V
+TEwpCi0JCWdvdG8gZXJyX3BjaV9yZWxlYXNlOworCQlyZXR1cm4gcmV0OwogCiAJZGV2ID0gJmNp
+cnJ1cy0+ZGV2OwotCXJldCA9IGRybV9kZXZfaW5pdChkZXYsICZjaXJydXNfZHJpdmVyLCAmcGRl
+di0+ZGV2KTsKKwlyZXQgPSBkZXZtX2RybV9kZXZfaW5pdCgmcGRldi0+ZGV2LCBkZXYsICZjaXJy
+dXNfZHJpdmVyKTsKIAlpZiAocmV0KSB7CiAJCWtmcmVlKGNpcnJ1cyk7Ci0JCWdvdG8gZXJyX3Bj
+aV9yZWxlYXNlOworCQlyZXR1cm4gcmV0OwogCX0KIAlkZXYtPmRldl9wcml2YXRlID0gY2lycnVz
+OwogCWRybW1fYWRkX2ZpbmFsX2tmcmVlKGRldiwgY2lycnVzKTsKIAotCXJldCA9IC1FTk9NRU07
+Ci0JY2lycnVzLT52cmFtID0gaW9yZW1hcChwY2lfcmVzb3VyY2Vfc3RhcnQocGRldiwgMCksCi0J
+CQkgICAgICAgcGNpX3Jlc291cmNlX2xlbihwZGV2LCAwKSk7CisJY2lycnVzLT52cmFtID0gZGV2
+bV9pb3JlbWFwKCZwZGV2LT5kZXYsIHBjaV9yZXNvdXJjZV9zdGFydChwZGV2LCAwKSwKKwkJCQkg
+ICAgcGNpX3Jlc291cmNlX2xlbihwZGV2LCAwKSk7CiAJaWYgKGNpcnJ1cy0+dnJhbSA9PSBOVUxM
+KQotCQlnb3RvIGVycl9kZXZfcHV0OworCQlyZXR1cm4gLUVOT01FTTsKIAotCWNpcnJ1cy0+bW1p
+byA9IGlvcmVtYXAocGNpX3Jlc291cmNlX3N0YXJ0KHBkZXYsIDEpLAotCQkJICAgICAgIHBjaV9y
+ZXNvdXJjZV9sZW4ocGRldiwgMSkpOworCWNpcnJ1cy0+bW1pbyA9IGRldm1faW9yZW1hcCgmcGRl
+di0+ZGV2LCBwY2lfcmVzb3VyY2Vfc3RhcnQocGRldiwgMSksCisJCQkJICAgIHBjaV9yZXNvdXJj
+ZV9sZW4ocGRldiwgMSkpOwogCWlmIChjaXJydXMtPm1taW8gPT0gTlVMTCkKLQkJZ290byBlcnJf
+dW5tYXBfdnJhbTsKKwkJcmV0dXJuIC1FTk9NRU07CiAKIAlyZXQgPSBjaXJydXNfbW9kZV9jb25m
+aWdfaW5pdChjaXJydXMpOwogCWlmIChyZXQpCi0JCWdvdG8gZXJyX2NsZWFudXA7CisJCXJldHVy
+biByZXQ7CiAKIAlyZXQgPSBjaXJydXNfY29ubl9pbml0KGNpcnJ1cyk7CiAJaWYgKHJldCA8IDAp
+Ci0JCWdvdG8gZXJyX2NsZWFudXA7CisJCXJldHVybiByZXQ7CiAKIAlyZXQgPSBjaXJydXNfcGlw
+ZV9pbml0KGNpcnJ1cyk7CiAJaWYgKHJldCA8IDApCi0JCWdvdG8gZXJyX2NsZWFudXA7CisJCXJl
+dHVybiByZXQ7CiAKIAlkcm1fbW9kZV9jb25maWdfcmVzZXQoZGV2KTsKIApAQCAtNjA5LDMzICs2
+MDgsMTggQEAgc3RhdGljIGludCBjaXJydXNfcGNpX3Byb2JlKHN0cnVjdCBwY2lfZGV2ICpwZGV2
+LAogCXBjaV9zZXRfZHJ2ZGF0YShwZGV2LCBkZXYpOwogCXJldCA9IGRybV9kZXZfcmVnaXN0ZXIo
+ZGV2LCAwKTsKIAlpZiAocmV0KQotCQlnb3RvIGVycl9jbGVhbnVwOworCQlyZXR1cm4gcmV0Owog
+CiAJZHJtX2ZiZGV2X2dlbmVyaWNfc2V0dXAoZGV2LCBkZXYtPm1vZGVfY29uZmlnLnByZWZlcnJl
+ZF9kZXB0aCk7CiAJcmV0dXJuIDA7Ci0KLWVycl9jbGVhbnVwOgotCWlvdW5tYXAoY2lycnVzLT5t
+bWlvKTsKLWVycl91bm1hcF92cmFtOgotCWlvdW5tYXAoY2lycnVzLT52cmFtKTsKLWVycl9kZXZf
+cHV0OgotCWRybV9kZXZfcHV0KGRldik7Ci1lcnJfcGNpX3JlbGVhc2U6Ci0JcGNpX3JlbGVhc2Vf
+cmVnaW9ucyhwZGV2KTsKLQlyZXR1cm4gcmV0OwogfQogCiBzdGF0aWMgdm9pZCBjaXJydXNfcGNp
+X3JlbW92ZShzdHJ1Y3QgcGNpX2RldiAqcGRldikKIHsKIAlzdHJ1Y3QgZHJtX2RldmljZSAqZGV2
+ID0gcGNpX2dldF9kcnZkYXRhKHBkZXYpOwotCXN0cnVjdCBjaXJydXNfZGV2aWNlICpjaXJydXMg
+PSBkZXYtPmRldl9wcml2YXRlOwogCiAJZHJtX2Rldl91bnBsdWcoZGV2KTsKIAlkcm1fYXRvbWlj
+X2hlbHBlcl9zaHV0ZG93bihkZXYpOwotCWlvdW5tYXAoY2lycnVzLT5tbWlvKTsKLQlpb3VubWFw
+KGNpcnJ1cy0+dnJhbSk7Ci0JZHJtX2Rldl9wdXQoZGV2KTsKLQlwY2lfcmVsZWFzZV9yZWdpb25z
+KHBkZXYpOwogfQogCiBzdGF0aWMgY29uc3Qgc3RydWN0IHBjaV9kZXZpY2VfaWQgcGNpaWRsaXN0
+W10gPSB7Ci0tIAoyLjI1LjEKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
+cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
+bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
