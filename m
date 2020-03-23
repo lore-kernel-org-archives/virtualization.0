@@ -1,8 +1,8 @@
 From: Alexey Makhalov via Virtualization
  <virtualization@lists.linux-foundation.org>
-Subject: [PATCH v2 5/5] x86/vmware: Use bool type for vmw_sched_clock
-Date: Mon, 23 Mar 2020 19:57:07 +0000
-Message-ID: <20200323195707.31242-6-amakhalov@vmware.com>
+Subject: [PATCH v2 1/5] x86/vmware: Make vmware_select_hypercall() __init
+Date: Mon, 23 Mar 2020 19:57:03 +0000
+Message-ID: <20200323195707.31242-2-amakhalov@vmware.com>
 References: <20200212200312.2033-1-amakhalov@vmware.com>
  <20200323195707.31242-1-amakhalov@vmware.com>
 Reply-To: Alexey Makhalov <amakhalov@vmware.com>
@@ -24,34 +24,28 @@ To: x86@kernel.org
 Cc: Juergen Gross <jgross@suse.com>, Alexey Makhalov <amakhalov@vmware.com>, Jonathan Corbet <corbet@lwn.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Josh Poimboeuf <jpoimboe@redhat.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Pawan Gupta <pawan.kumar.gupta@linux.intel.com>, Thomas Gleixner <tglx@linutronix.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-To be aligned with other bool variables.
+vmware_select_hypercall() is used only by the __init
+functions, and should be annotated with __init as well.
 
 Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
+Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
 Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
 ---
- arch/x86/kernel/cpu/vmware.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kernel/cpu/vmware.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index e885f73bebd4..9b6fafa69be9 100644
+index 46d732696c1c..d280560fd75e 100644
 --- a/arch/x86/kernel/cpu/vmware.c
 +++ b/arch/x86/kernel/cpu/vmware.c
-@@ -122,14 +122,14 @@ static unsigned long vmware_get_tsc_khz(void)
- 
- #ifdef CONFIG_PARAVIRT
- static struct cyc2ns_data vmware_cyc2ns __ro_after_init;
--static int vmw_sched_clock __initdata = 1;
-+static bool vmw_sched_clock __initdata = true;
- static DEFINE_PER_CPU_DECRYPTED(struct vmware_steal_time, vmw_steal_time) __aligned(64);
- static bool has_steal_clock;
- static bool steal_acc __initdata = true; /* steal time accounting */
- 
- static __init int setup_vmw_sched_clock(char *s)
- {
--	vmw_sched_clock = 0;
-+	vmw_sched_clock = false;
- 	return 0;
+@@ -213,7 +213,7 @@ static void __init vmware_platform_setup(void)
+ 	vmware_set_capabilities();
  }
- early_param("no-vmw-sched-clock", setup_vmw_sched_clock);
+ 
+-static u8 vmware_select_hypercall(void)
++static u8 __init vmware_select_hypercall(void)
+ {
+ 	int eax, ebx, ecx, edx;
+ 
 -- 
 2.14.2
