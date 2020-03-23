@@ -1,8 +1,8 @@
 From: Bharat Bhushan <bbhushan2-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
 Subject: RE: [EXT] Re: [PATCH RFC] iommu/virtio: Use page size bitmap
  supported by endpoint
-Date: Mon, 23 Mar 2020 17:25:17 +0000
-Message-ID: <MWHPR1801MB196689B3880CD9316942A2B8E3F00@MWHPR1801MB1966.namprd18.prod.outlook.com>
+Date: Mon, 23 Mar 2020 18:04:37 +0000
+Message-ID: <MWHPR1801MB1966865A8DE5AB8FFFAEC85FE3F00@MWHPR1801MB1966.namprd18.prod.outlook.com>
 References: <20200323084108.1721-1-bbhushan2@marvell.com>
  <20200323095943.GA2038940@myrica>
 Mime-Version: 1.0
@@ -42,9 +42,6 @@ Hi Jean,
 > Hi Bharat,
 > 
 > Please add the IOMMU list on your next posting
-
-iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org is there, any other mailing list we need to add?
-
 > 
 > On Mon, Mar 23, 2020 at 02:11:08PM +0530, Bharat Bhushan wrote:
 > > Different endpoint can support different page size, probe endpoint if
@@ -82,12 +79,6 @@ iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org is there, any
 > We need to read this through le64_to_cpu(). Also check that the length of the field
 > provided by the device is >= sizeof(mask) (like
 > viommu_add_resv_mem() does)
-
-Will take care of all the comments in next verions
-
-Thank
--Bharat
-
 > 
 > > +	return 0;
 > > +}
@@ -134,7 +125,14 @@ Thank
 > > +		domain->pgsize_bitmap	= viommu->pgsize_bitmap;
 > > +
 > 
-> nit: it could be nicer to initialize vdev->pgsize_bitmap in add_device(), override it
+> nit: it could be nicer to initialize vdev->pgsize_bitmap in add_device(),
+
+To what size we should initialize in add_device, PAGE_SIZE?
+
+Thanks
+-Bharat
+
+> override it
 > in probe_endpoint(), and just copy it here.
 > 
 > >  	domain->geometry	= viommu->geometry;
