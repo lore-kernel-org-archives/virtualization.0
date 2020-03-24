@@ -1,205 +1,279 @@
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Subject: Re: [EXT] Re: [PATCH RFC] iommu/virtio: Use page size bitmap
- supported by endpoint
-Date: Tue, 24 Mar 2020 08:58:45 +0100
-Message-ID: <20200324075845.GB2173442@myrica>
-References: <20200323084108.1721-1-bbhushan2@marvell.com>
- <20200323095943.GA2038940@myrica>
- <MWHPR1801MB196689B3880CD9316942A2B8E3F00@MWHPR1801MB1966.namprd18.prod.outlook.com>
+From: Thomas Zimmermann <tzimmermann-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: [PATCH v1 0/3] drm: drm_encoder_init() =>
+ drm_encoder_init_funcs()
+Date: Tue, 24 Mar 2020 09:33:23 +0100
+Message-ID: <c93bb45d-7922-56dc-061f-6ef70493a358@suse.de>
+References: <20200313201744.19773-1-sam@ravnborg.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <MWHPR1801MB196689B3880CD9316942A2B8E3F00@MWHPR1801MB1966.namprd18.prod.outlook.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Bharat Bhushan <bbhushan2@marvell.com>
-Cc: "mst@redhat.com" <mst@redhat.com>, "joro@8bytes.org" <joro@8bytes.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "eric.auger@redhat.com" <eric.auger@redhat.com>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="Ufl74Lq2kLxag3rezk70YaJ2XyXJCpUyg"
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20200313201744.19773-1-sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Sam Ravnborg <sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org>, Daniel Vetter <daniel-/w4YWyX8dFk@public.gmane.org>, Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org
+Cc: Alexandre Belloni <alexandre.belloni-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org>, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, Jose Roberto de Souza <jose.souza-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Gerd Hoffmann <kraxel-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, linux-stm32-XDFAJ8BFU24N7RejjzZ/Li2xQDfSxrLKVpNB7YpNyf8@public.gmane.org, Emil Velikov <emil.velikov-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, amd-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Ludovic Desroches <ludovic.desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>, NXP Linux Team <linux-imx-3arQi8VN3Tc@public.gmane.org>, Dave Airlie <airlied-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-amlogic-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, Boris Brezillon <bbrezillon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Nicolas Ferre <nicolas.ferre-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>, Andrzej
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Mar 23, 2020 at 05:25:17PM +0000, Bharat Bhushan wrote:
-> Hi Jean,
-> 
-> > -----Original Message-----
-> > From: Jean-Philippe Brucker <jean-philippe@linaro.org>
-> > Sent: Monday, March 23, 2020 3:30 PM
-> > To: Bharat Bhushan <bbhushan2@marvell.com>
-> > Cc: joro@8bytes.org; mst@redhat.com; jasowang@redhat.com;
-> > virtualization@lists.linux-foundation.org; iommu@lists.linux-foundation.org;
-> > eric.auger@redhat.com
-> > Subject: [EXT] Re: [PATCH RFC] iommu/virtio: Use page size bitmap supported by
-> > endpoint
-> > 
-> > External Email
-> > 
-> > ----------------------------------------------------------------------
-> > Hi Bharat,
-> > 
-> > Please add the IOMMU list on your next posting
-> 
-> iommu@lists.linux-foundation.org is there, any other mailing list we need to add?
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--Ufl74Lq2kLxag3rezk70YaJ2XyXJCpUyg
+Content-Type: multipart/mixed; boundary="De4ctwLgWXvPGwhVVivy7i6RNXKKkyzAV";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann-l3A5Bk7waGM@public.gmane.org>
+To: Sam Ravnborg <sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org>, Daniel Vetter <daniel-/w4YWyX8dFk@public.gmane.org>,
+ Laurent Pinchart <laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org>,
+ dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org
+Cc: Alexandre Belloni <alexandre.belloni-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org>,
+ David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, Jose Roberto de Souza
+ <jose.souza-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org,
+ Gerd Hoffmann <kraxel-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, linux-stm32-XDFAJ8BFU24N7RejjzZ/Li2xQDfSxrLKVpNB7YpNyf8@public.gmane.org,
+ Emil Velikov <emil.velikov-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>,
+ linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, amd-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org,
+ linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org,
+ Ludovic Desroches <ludovic.desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>,
+ NXP Linux Team <linux-imx-3arQi8VN3Tc@public.gmane.org>, Dave Airlie <airlied-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>,
+ linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org,
+ linux-amlogic-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org,
+ Boris Brezillon <bbrezillon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>,
+ Nicolas Ferre <nicolas.ferre-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org>,
+ Andrzej Pietrasiewicz <andrzej.p-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org>,
+ linux-renesas-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Message-ID: <c93bb45d-7922-56dc-061f-6ef70493a358-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: [PATCH v1 0/3] drm: drm_encoder_init() =>
+ drm_encoder_init_funcs()
+References: <20200313201744.19773-1-sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org>
+In-Reply-To: <20200313201744.19773-1-sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org>
 
-I added that address when replying :) It doesn't look like your patch
-reached the list:
-https://lore.kernel.org/linux-iommu/20200323095943.GA2038940@myrica/T/
-But virtualization and iommu lists are enough.
+--De4ctwLgWXvPGwhVVivy7i6RNXKKkyzAV
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
 
-Thanks,
-Jean
+Hi Sam
 
-> 
-> > 
-> > On Mon, Mar 23, 2020 at 02:11:08PM +0530, Bharat Bhushan wrote:
-> > > Different endpoint can support different page size, probe endpoint if
-> > > it supports specific page size otherwise use global page sizes.
-> > >
-> > > Signed-off-by: Bharat Bhushan <bbhushan2@marvell.com>
-> > > ---
-> > >  drivers/iommu/virtio-iommu.c      | 24 ++++++++++++++++++++----
-> > >  include/uapi/linux/virtio_iommu.h |  6 ++++++
-> > >  2 files changed, 26 insertions(+), 4 deletions(-)
-> > >
-> > > diff --git a/drivers/iommu/virtio-iommu.c
-> > > b/drivers/iommu/virtio-iommu.c index cce329d71fba..e69347ca4ee6 100644
-> > > --- a/drivers/iommu/virtio-iommu.c
-> > > +++ b/drivers/iommu/virtio-iommu.c
-> > > @@ -78,6 +78,7 @@ struct viommu_endpoint {
-> > >  	struct viommu_dev		*viommu;
-> > >  	struct viommu_domain		*vdomain;
-> > >  	struct list_head		resv_regions;
-> > > +	u64				pgsize_bitmap;
-> > >  };
-> > >
-> > >  struct viommu_request {
-> > > @@ -415,6 +416,14 @@ static int viommu_replay_mappings(struct
-> > viommu_domain *vdomain)
-> > >  	return ret;
-> > >  }
-> > >
-> > > +static int viommu_set_pgsize_bitmap(struct viommu_endpoint *vdev,
-> > > +				    struct virtio_iommu_probe_pgsize_mask *mask)
-> > > +
-> > > +{
-> > > +	vdev->pgsize_bitmap = mask->pgsize_bitmap;
-> > 
-> > We need to read this through le64_to_cpu(). Also check that the length of the field
-> > provided by the device is >= sizeof(mask) (like
-> > viommu_add_resv_mem() does)
-> 
-> Will take care of all the comments in next verions
-> 
-> Thank
-> -Bharat
-> 
-> > 
-> > > +	return 0;
-> > > +}
-> > > +
-> > >  static int viommu_add_resv_mem(struct viommu_endpoint *vdev,
-> > >  			       struct virtio_iommu_probe_resv_mem *mem,
-> > >  			       size_t len)
-> > > @@ -494,11 +503,13 @@ static int viommu_probe_endpoint(struct viommu_dev
-> > *viommu, struct device *dev)
-> > >  	while (type != VIRTIO_IOMMU_PROBE_T_NONE &&
-> > >  	       cur < viommu->probe_size) {
-> > >  		len = le16_to_cpu(prop->length) + sizeof(*prop);
-> > > -
-> > >  		switch (type) {
-> > >  		case VIRTIO_IOMMU_PROBE_T_RESV_MEM:
-> > >  			ret = viommu_add_resv_mem(vdev, (void *)prop, len);
-> > >  			break;
-> > > +		case VIRTIO_IOMMU_PROBE_T_PAGE_SIZE_MASK:
-> > > +			ret = viommu_set_pgsize_bitmap(vdev, (void *)prop);
-> > > +			break;
-> > >  		default:
-> > >  			dev_err(dev, "unknown viommu prop 0x%x\n", type);
-> > >  		}
-> > > @@ -607,16 +618,21 @@ static struct iommu_domain
-> > *viommu_domain_alloc(unsigned type)
-> > >  	return &vdomain->domain;
-> > >  }
-> > >
-> > > -static int viommu_domain_finalise(struct viommu_dev *viommu,
-> > > +static int viommu_domain_finalise(struct viommu_endpoint *vdev,
-> > >  				  struct iommu_domain *domain)
-> > >  {
-> > >  	int ret;
-> > >  	struct viommu_domain *vdomain = to_viommu_domain(domain);
-> > > +	struct viommu_dev *viommu = vdev->viommu;
-> > >
-> > >  	vdomain->viommu		= viommu;
-> > >  	vdomain->map_flags	= viommu->map_flags;
-> > >
-> > > -	domain->pgsize_bitmap	= viommu->pgsize_bitmap;
-> > > +	if (vdev->pgsize_bitmap)
-> > > +		domain->pgsize_bitmap = vdev->pgsize_bitmap;
-> > > +	else
-> > > +		domain->pgsize_bitmap	= viommu->pgsize_bitmap;
-> > > +
-> > 
-> > nit: it could be nicer to initialize vdev->pgsize_bitmap in add_device(), override it
-> > in probe_endpoint(), and just copy it here.
-> > 
-> > >  	domain->geometry	= viommu->geometry;
-> > >
-> > >  	ret = ida_alloc_range(&viommu->domain_ids, viommu->first_domain, @@
-> > > -657,7 +673,7 @@ static int viommu_attach_dev(struct iommu_domain
-> > *domain, struct device *dev)
-> > >  		 * Properly initialize the domain now that we know which viommu
-> > >  		 * owns it.
-> > >  		 */
-> > > -		ret = viommu_domain_finalise(vdev->viommu, domain);
-> > > +		ret = viommu_domain_finalise(vdev, domain);
-> > 
-> > Attaching additional endpoints with different masks to the domain should return
-> > an error
-> > 
-> > >  	} else if (vdomain->viommu != vdev->viommu) {
-> > >  		dev_err(dev, "cannot attach to foreign vIOMMU\n");
-> > >  		ret = -EXDEV;
-> > > diff --git a/include/uapi/linux/virtio_iommu.h
-> > > b/include/uapi/linux/virtio_iommu.h
-> > > index 237e36a280cb..aff3db0ef54b 100644
-> > > --- a/include/uapi/linux/virtio_iommu.h
-> > > +++ b/include/uapi/linux/virtio_iommu.h
-> > > @@ -111,6 +111,7 @@ struct virtio_iommu_req_unmap {
-> > >
-> > >  #define VIRTIO_IOMMU_PROBE_T_NONE		0
-> > >  #define VIRTIO_IOMMU_PROBE_T_RESV_MEM		1
-> > > +#define VIRTIO_IOMMU_PROBE_T_PAGE_SIZE_MASK	2
-> > >
-> > >  #define VIRTIO_IOMMU_PROBE_T_MASK		0xfff
-> > >
-> > > @@ -119,6 +120,11 @@ struct virtio_iommu_probe_property {
-> > >  	__le16					length;
-> > >  };
-> > >
-> > > +struct virtio_iommu_probe_pgsize_mask {
-> > > +	struct virtio_iommu_probe_property	head;
-> > 
-> > Compilers will introduce 4 bytes of padding here, to align the next field.
-> > We need to make them explicit by adding a 4-bytes 'reserved' field.
-> > 
-> > > +	uint64_t				pgsize_bitmap;
-> > 
-> > __le64
-> > 
-> > Thanks,
-> > Jean
-> > 
-> > > +};
-> > > +
-> > >  #define VIRTIO_IOMMU_RESV_MEM_T_RESERVED	0
-> > >  #define VIRTIO_IOMMU_RESV_MEM_T_MSI		1
-> > >
-> > > --
-> > > 2.17.1
-> > >
+Am 13.03.20 um 21:17 schrieb Sam Ravnborg:
+> Thomas Zimmermann had made a nice patch-set that introduced
+> drm_simple_encoder_init() which is already present in drm-misc-next.
+>=20
+> While looking at this it was suddenly obvious to me that
+> this was functionalty that really should be included in drm_encoder.c
+> The case where the core could handle the callback is pretty
+> common and not part of the simple pipe line.
+
+The original patchset put the new function into the core implementation
+and was shot down for this. So it ended up in the simple-KMS helpers.
+
+>=20
+> So after some dialog on dri-devel the conclusion was to go for
+> a change like this:
+>=20
+>     drm_encoder_init_funcs() for all users that specified a
+>     drm_encoder_funcs to extend the functionality.
+>=20
+>     drm_encoder_init() for all users that did not
+>     need to extend the basic functionality with
+>     drm_encoder_funcs.
+
+TBH, my take-away was to keep the core as it is ans maybe rename
+drm_simple_encoder_init() to some better name.
+
+>=20
+> A similar approach with a _funcs() prefix is used elsewhere in drm/
+
+IMHO, there are a few things to consider:
+
+=46rom grepping, I could only find drm_gem_fb_create_with_funcs(). And th=
+e
+proposed change would make the encoder's function name inconsistent with
+drm_connector_init(), drm_crtc_init(), and others. Finally,
+drm_connector_init_with_ddc() was criticiced for being mid-layerish and
+could lead to many combinations of postfixes (e.g., _with_funcs(),
+with_ddc(), _with_ddc_and_funcs(), etc).
+
+If there is consent that the drm_simple_encoder_init() should go away,
+I'd propose to change drm_encoder_init(). It could use a default
+implementation for funcs, if no funcs argument has been specified. We
+already have such behavior for some GEM callbacks. In later patches,
+drm_gem_fb_create_with_funcs() and drm_connector_init_with_ddc() could
+go away as well.
+
+Best regards
+Thomas
+
+
+>=20
+> This required a rename of the existing users, and
+> a follow-up patch that moves drm_simple_encoder_init()
+> to drm_encoder.c
+>=20
+> Patches 3 in this set demonstrate the use of drm_encoder_init().
+> There are many more drivers that can be converted as Thomas
+> has already demonstrated.
+>=20
+> This is all based on work done by Thomas Zimmermann,
+> I just wanted to implement my suggestion so
+> we could select the best way forward.
+>=20
+> Note: Daniel Vetter has hinted the approach implemented
+> here smelled like middle-layer.
+> IMO this is not so, it is just a way to handle cleanup
+> for the simple cases.
+>=20
+> 	Sam
+>=20
+>=20
+> Sam Ravnborg (3):
+>       drm: drm_encoder_init() =3D> drm_encoder_init_funcs()
+>       drm: drm_simple_encoder_init() =3D> drm_encoder_init()
+>       drm/atmel-hlcdc: Use drm_encoder_init()
+>=20
+>  drivers/gpu/drm/amd/amdgpu/dce_v10_0.c             | 28 ++++++-------
+>  drivers/gpu/drm/amd/amdgpu/dce_v11_0.c             | 28 ++++++-------
+>  drivers/gpu/drm/amd/amdgpu/dce_v6_0.c              | 28 ++++++-------
+>  drivers/gpu/drm/amd/amdgpu/dce_v8_0.c              | 28 ++++++-------
+>  drivers/gpu/drm/amd/amdgpu/dce_virtual.c           |  4 +-
+>  drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c  | 10 ++---
+>  .../amd/display/amdgpu_dm/amdgpu_dm_mst_types.c    | 10 ++---
+>  drivers/gpu/drm/arc/arcpgu_hdmi.c                  |  4 +-
+>  drivers/gpu/drm/arc/arcpgu_sim.c                   |  4 +-
+>  drivers/gpu/drm/ast/ast_mode.c                     |  3 +-
+>  drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_output.c   |  8 +---
+>  drivers/gpu/drm/drm_encoder.c                      | 49 ++++++++++++++=
++++++---
+>  drivers/gpu/drm/drm_encoder_slave.c                |  2 +-
+>  drivers/gpu/drm/drm_simple_kms_helper.c            | 45 +-------------=
+------
+>  drivers/gpu/drm/drm_writeback.c                    |  6 +--
+>  drivers/gpu/drm/exynos/exynos_dp.c                 |  4 +-
+>  drivers/gpu/drm/exynos/exynos_drm_dpi.c            |  4 +-
+>  drivers/gpu/drm/exynos/exynos_drm_dsi.c            |  4 +-
+>  drivers/gpu/drm/exynos/exynos_drm_vidi.c           |  4 +-
+>  drivers/gpu/drm/exynos/exynos_hdmi.c               |  4 +-
+>  drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c          |  4 +-
+>  drivers/gpu/drm/gma500/cdv_intel_crt.c             |  5 ++-
+>  drivers/gpu/drm/gma500/cdv_intel_dp.c              |  4 +-
+>  drivers/gpu/drm/gma500/cdv_intel_hdmi.c            |  4 +-
+>  drivers/gpu/drm/gma500/cdv_intel_lvds.c            |  6 +--
+>  drivers/gpu/drm/gma500/mdfld_dsi_dpi.c             |  7 ++--
+>  drivers/gpu/drm/gma500/oaktrail_hdmi.c             |  6 +--
+>  drivers/gpu/drm/gma500/oaktrail_lvds.c             |  4 +-
+>  drivers/gpu/drm/gma500/psb_intel_lvds.c            |  6 +--
+>  drivers/gpu/drm/gma500/psb_intel_sdvo.c            |  4 +-
+>  drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_vdac.c   |  4 +-
+>  drivers/gpu/drm/hisilicon/kirin/dw_drm_dsi.c       |  4 +-
+>  drivers/gpu/drm/i2c/tda998x_drv.c                  |  5 ++-
+>  drivers/gpu/drm/i915/display/icl_dsi.c             |  4 +-
+>  drivers/gpu/drm/i915/display/intel_crt.c           |  5 ++-
+>  drivers/gpu/drm/i915/display/intel_ddi.c           |  6 ++-
+>  drivers/gpu/drm/i915/display/intel_dp.c            |  6 +--
+>  drivers/gpu/drm/i915/display/intel_dp_mst.c        |  6 ++-
+>  drivers/gpu/drm/i915/display/intel_dvo.c           |  6 +--
+>  drivers/gpu/drm/i915/display/intel_hdmi.c          |  6 +--
+>  drivers/gpu/drm/i915/display/intel_lvds.c          |  4 +-
+>  drivers/gpu/drm/i915/display/intel_sdvo.c          |  6 +--
+>  drivers/gpu/drm/i915/display/intel_tv.c            |  4 +-
+>  drivers/gpu/drm/i915/display/vlv_dsi.c             |  5 ++-
+>  drivers/gpu/drm/imx/dw_hdmi-imx.c                  |  4 +-
+>  drivers/gpu/drm/imx/imx-ldb.c                      |  4 +-
+>  drivers/gpu/drm/imx/imx-tve.c                      |  4 +-
+>  drivers/gpu/drm/imx/parallel-display.c             |  4 +-
+>  drivers/gpu/drm/ingenic/ingenic-drm.c              |  5 ++-
+>  drivers/gpu/drm/mediatek/mtk_dpi.c                 |  5 ++-
+>  drivers/gpu/drm/mediatek/mtk_dsi.c                 |  4 +-
+>  drivers/gpu/drm/meson/meson_dw_hdmi.c              |  5 ++-
+>  drivers/gpu/drm/meson/meson_venc_cvbs.c            |  5 ++-
+>  drivers/gpu/drm/mgag200/mgag200_mode.c             |  7 +---
+>  drivers/gpu/drm/msm/disp/dpu1/dpu_encoder.c        |  4 +-
+>  drivers/gpu/drm/msm/disp/mdp4/mdp4_dsi_encoder.c   |  4 +-
+>  drivers/gpu/drm/msm/disp/mdp4/mdp4_dtv_encoder.c   |  4 +-
+>  drivers/gpu/drm/msm/disp/mdp4/mdp4_lcdc_encoder.c  |  4 +-
+>  drivers/gpu/drm/msm/disp/mdp5/mdp5_encoder.c       |  3 +-
+>  drivers/gpu/drm/nouveau/dispnv04/dac.c             |  4 +-
+>  drivers/gpu/drm/nouveau/dispnv04/dfp.c             |  3 +-
+>  drivers/gpu/drm/nouveau/dispnv04/tvnv04.c          |  4 +-
+>  drivers/gpu/drm/nouveau/dispnv04/tvnv17.c          |  4 +-
+>  drivers/gpu/drm/nouveau/dispnv50/disp.c            | 16 +++----
+>  drivers/gpu/drm/omapdrm/omap_encoder.c             |  4 +-
+>  drivers/gpu/drm/qxl/qxl_display.c                  |  7 +---
+>  drivers/gpu/drm/radeon/atombios_encoders.c         | 40 +++++++++-----=
+----
+>  drivers/gpu/drm/radeon/radeon_dp_mst.c             |  4 +-
+>  drivers/gpu/drm/radeon/radeon_legacy_encoders.c    | 20 ++++-----
+>  drivers/gpu/drm/rcar-du/rcar_du_encoder.c          |  4 +-
+>  drivers/gpu/drm/rockchip/analogix_dp-rockchip.c    |  5 ++-
+>  drivers/gpu/drm/rockchip/cdn-dp-core.c             |  4 +-
+>  drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c    |  5 ++-
+>  drivers/gpu/drm/rockchip/dw_hdmi-rockchip.c        |  4 +-
+>  drivers/gpu/drm/rockchip/inno_hdmi.c               |  4 +-
+>  drivers/gpu/drm/rockchip/rk3066_hdmi.c             |  4 +-
+>  drivers/gpu/drm/rockchip/rockchip_lvds.c           |  5 ++-
+>  drivers/gpu/drm/rockchip/rockchip_rgb.c            |  5 ++-
+>  drivers/gpu/drm/shmobile/shmob_drm_crtc.c          |  4 +-
+>  drivers/gpu/drm/sti/sti_tvout.c                    | 16 +++----
+>  drivers/gpu/drm/stm/ltdc.c                         |  4 +-
+>  drivers/gpu/drm/sun4i/sun4i_hdmi_enc.c             | 10 ++---
+>  drivers/gpu/drm/sun4i/sun4i_lvds.c                 | 10 ++---
+>  drivers/gpu/drm/sun4i/sun4i_rgb.c                  | 10 ++---
+>  drivers/gpu/drm/sun4i/sun4i_tv.c                   | 10 ++---
+>  drivers/gpu/drm/sun4i/sun6i_mipi_dsi.c             | 10 ++---
+>  drivers/gpu/drm/sun4i/sun8i_dw_hdmi.c              |  4 +-
+>  drivers/gpu/drm/tegra/dsi.c                        |  6 +--
+>  drivers/gpu/drm/tegra/hdmi.c                       |  5 ++-
+>  drivers/gpu/drm/tegra/rgb.c                        |  4 +-
+>  drivers/gpu/drm/tegra/sor.c                        |  4 +-
+>  drivers/gpu/drm/tidss/tidss_encoder.c              |  4 +-
+>  drivers/gpu/drm/tilcdc/tilcdc_external.c           |  8 ++--
+>  drivers/gpu/drm/tilcdc/tilcdc_panel.c              |  4 +-
+>  drivers/gpu/drm/vboxvideo/vbox_mode.c              |  4 +-
+>  drivers/gpu/drm/vc4/vc4_dpi.c                      |  4 +-
+>  drivers/gpu/drm/vc4/vc4_dsi.c                      |  4 +-
+>  drivers/gpu/drm/vc4/vc4_hdmi.c                     |  4 +-
+>  drivers/gpu/drm/vc4/vc4_vec.c                      |  4 +-
+>  drivers/gpu/drm/virtio/virtgpu_display.c           |  4 +-
+>  drivers/gpu/drm/vkms/vkms_output.c                 |  4 +-
+>  drivers/gpu/drm/vmwgfx/vmwgfx_ldu.c                |  4 +-
+>  drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c               |  5 ++-
+>  drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c               |  4 +-
+>  drivers/gpu/drm/zte/zx_hdmi.c                      |  4 +-
+>  drivers/gpu/drm/zte/zx_tvenc.c                     |  4 +-
+>  drivers/gpu/drm/zte/zx_vga.c                       |  4 +-
+>  include/drm/drm_encoder.h                          |  9 ++--
+>  include/drm/drm_simple_kms_helper.h                |  4 --
+>  109 files changed, 394 insertions(+), 395 deletions(-)
+>=20
+>=20
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+>=20
+
+--=20
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
+(HRB 36809, AG N=C3=BCrnberg)
+Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
+
+
+--De4ctwLgWXvPGwhVVivy7i6RNXKKkyzAV--
+
+--Ufl74Lq2kLxag3rezk70YaJ2XyXJCpUyg
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEchf7rIzpz2NEoWjlaA3BHVMLeiMFAl55xdYACgkQaA3BHVML
+eiNJUgf+LxlsmFqczF3bmdnqDSQXVB5DSYpT/HzisNKZmH17VGhSjbA3cP6Y+MqX
+r8dHz/QG6y6SoIMm1lhQ4I8uGA3Swmf+Iaod60POAoD4mzFwTfXiI29WEYQ3Qhd2
+sH8DzeBhnTyCt5aUBHxlPkhY4tuF7rfNHwyc1lTAweYfWoy+yMDgWTOQG8ZON7vT
+LScFm4Y78iS3XrmPMMjgZnckvzUrexf7AILZ5zJovktYC1HQVbimK2UY/HxwXmc5
+oiKOttFDWLE9zM4jv7xTzDJ+17ERSiLuHiPcnMU3O3MQmwfWLVY5j5uPF7vhsLw/
+WxudAVCiFE1ukZUitIL3GVyYKuoKNw==
+=3HjZ
+-----END PGP SIGNATURE-----
+
+--Ufl74Lq2kLxag3rezk70YaJ2XyXJCpUyg--
