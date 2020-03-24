@@ -1,295 +1,135 @@
-From: Alexey Makhalov via Virtualization
- <virtualization@lists.linux-foundation.org>
-Subject: [PATCH v2 3/5] x86/vmware: Steal time clock for VMware guest
-Date: Mon, 23 Mar 2020 19:57:05 +0000
-Message-ID: <20200323195707.31242-4-amakhalov@vmware.com>
-References: <20200212200312.2033-1-amakhalov@vmware.com>
- <20200323195707.31242-1-amakhalov@vmware.com>
-Reply-To: Alexey Makhalov <amakhalov@vmware.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH V7 1/8] vhost: allow per device message handler
+Date: Tue, 24 Mar 2020 12:14:51 +0800
+Message-ID: <20200324041458.27384-2-jasowang@redhat.com>
+References: <20200324041458.27384-1-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200323195707.31242-1-amakhalov@vmware.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: x86@kernel.org
-Cc: Juergen Gross <jgross@suse.com>, Alexey Makhalov <amakhalov@vmware.com>, Jonathan Corbet <corbet@lwn.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Josh Poimboeuf <jpoimboe@redhat.com>, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H . Peter Anvin" <hpa@zytor.com>, Mauro Carvalho Chehab <mchehab+samsung@kernel.org>, Pawan Gupta <pawan.kumar.gupta@linux.intel.com>, Thomas Gleixner <tglx@linutronix.de>, Tomer Zeltzer <tomerr90@gmail.com>
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200324041458.27384-1-jasowang@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: mst@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: jgg@mellanox.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jiri@mellanox.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com, Jason Wang <jasowang@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Steal time is the amount of CPU time needed by a guest
-virtual machine that is not provided by the host. Steal
-time occurs when the host allocates this CPU time
-elsewhere: for example, to another guest.
+This patch allow device to register its own message handler during
+vhost_dev_init(). vDPA device will use it to implement its own DMA
+mapping logic.
 
-Steal time can be enabled by adding VM configuration option
-stealclock.enable = "TRUE". It is supported by VMs that run
-hardware version 13 or newer.
-
-This change introduces the VMware steal time infrastructure.
-The high level code (such as enabling, disabling and
-hot-plug routines) was derived from KVM one.
-
-[Tomer: use READ_ONCE macros and 32bit guests support]
-
-Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
-Co-developed-by: Tomer Zeltzer <tomerr90@gmail.com>
-Signed-off-by: Tomer Zeltzer <tomerr90@gmail.com>
-Reviewed-by: Thomas Hellstrom <thellstrom@vmware.com>
-Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- arch/x86/kernel/cpu/vmware.c | 197 +++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 197 insertions(+)
+ drivers/vhost/net.c   |  3 ++-
+ drivers/vhost/scsi.c  |  2 +-
+ drivers/vhost/vhost.c | 12 ++++++++++--
+ drivers/vhost/vhost.h |  6 +++++-
+ drivers/vhost/vsock.c |  2 +-
+ 5 files changed, 19 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index efb22fa76ba4..cc604614f0ae 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -25,6 +25,8 @@
- #include <linux/init.h>
- #include <linux/export.h>
- #include <linux/clocksource.h>
-+#include <linux/cpu.h>
-+#include <linux/reboot.h>
- #include <asm/div64.h>
- #include <asm/x86_init.h>
- #include <asm/hypervisor.h>
-@@ -47,6 +49,11 @@
- #define VMWARE_CMD_GETVCPU_INFO  68
- #define VMWARE_CMD_LEGACY_X2APIC  3
- #define VMWARE_CMD_VCPU_RESERVED 31
-+#define VMWARE_CMD_STEALCLOCK    91
-+
-+#define STEALCLOCK_NOT_AVAILABLE (-1)
-+#define STEALCLOCK_DISABLED        0
-+#define STEALCLOCK_ENABLED         1
- 
- #define VMWARE_PORT(cmd, eax, ebx, ecx, edx)				\
- 	__asm__("inl (%%dx), %%eax" :					\
-@@ -86,6 +93,18 @@
- 	}							\
- 	} while (0)
- 
-+struct vmware_steal_time {
-+	union {
-+		uint64_t clock;	/* stolen time counter in units of vtsc */
-+		struct {
-+			/* only for little-endian */
-+			uint32_t clock_low;
-+			uint32_t clock_high;
-+		};
-+	};
-+	uint64_t reserved[7];
-+};
-+
- static unsigned long vmware_tsc_khz __ro_after_init;
- static u8 vmware_hypercall_mode     __ro_after_init;
- 
-@@ -104,6 +123,8 @@ static unsigned long vmware_get_tsc_khz(void)
- #ifdef CONFIG_PARAVIRT
- static struct cyc2ns_data vmware_cyc2ns __ro_after_init;
- static int vmw_sched_clock __initdata = 1;
-+static DEFINE_PER_CPU_DECRYPTED(struct vmware_steal_time, vmw_steal_time) __aligned(64);
-+static bool has_steal_clock;
- 
- static __init int setup_vmw_sched_clock(char *s)
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index e158159671fa..c8ab8d83b530 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -1324,7 +1324,8 @@ static int vhost_net_open(struct inode *inode, stru=
+ct file *f)
+ 	}
+ 	vhost_dev_init(dev, vqs, VHOST_NET_VQ_MAX,
+ 		       UIO_MAXIOV + VHOST_NET_BATCH,
+-		       VHOST_NET_PKT_WEIGHT, VHOST_NET_WEIGHT);
++		       VHOST_NET_PKT_WEIGHT, VHOST_NET_WEIGHT,
++		       NULL);
+=20
+ 	vhost_poll_init(n->poll + VHOST_NET_VQ_TX, handle_tx_net, EPOLLOUT, dev=
+);
+ 	vhost_poll_init(n->poll + VHOST_NET_VQ_RX, handle_rx_net, EPOLLIN, dev)=
+;
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index 0b949a14bce3..7653667a8cdc 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -1628,7 +1628,7 @@ static int vhost_scsi_open(struct inode *inode, str=
+uct file *f)
+ 		vs->vqs[i].vq.handle_kick =3D vhost_scsi_handle_kick;
+ 	}
+ 	vhost_dev_init(&vs->dev, vqs, VHOST_SCSI_MAX_VQ, UIO_MAXIOV,
+-		       VHOST_SCSI_WEIGHT, 0);
++		       VHOST_SCSI_WEIGHT, 0, NULL);
+=20
+ 	vhost_scsi_init_inflight(vs, NULL);
+=20
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index f44340b41494..8e9e2341e40a 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -457,7 +457,9 @@ static size_t vhost_get_desc_size(struct vhost_virtqu=
+eue *vq,
+=20
+ void vhost_dev_init(struct vhost_dev *dev,
+ 		    struct vhost_virtqueue **vqs, int nvqs,
+-		    int iov_limit, int weight, int byte_weight)
++		    int iov_limit, int weight, int byte_weight,
++		    int (*msg_handler)(struct vhost_dev *dev,
++				       struct vhost_iotlb_msg *msg))
  {
-@@ -135,6 +156,163 @@ static void __init vmware_cyc2ns_setup(void)
- 	pr_info("using clock offset of %llu ns\n", d->cyc2ns_offset);
- }
- 
-+static int vmware_cmd_stealclock(uint32_t arg1, uint32_t arg2)
-+{
-+	uint32_t result, info;
+ 	struct vhost_virtqueue *vq;
+ 	int i;
+@@ -473,6 +475,7 @@ void vhost_dev_init(struct vhost_dev *dev,
+ 	dev->iov_limit =3D iov_limit;
+ 	dev->weight =3D weight;
+ 	dev->byte_weight =3D byte_weight;
++	dev->msg_handler =3D msg_handler;
+ 	init_llist_head(&dev->work_list);
+ 	init_waitqueue_head(&dev->wait);
+ 	INIT_LIST_HEAD(&dev->read_list);
+@@ -1178,7 +1181,12 @@ ssize_t vhost_chr_write_iter(struct vhost_dev *dev=
+,
+ 		ret =3D -EINVAL;
+ 		goto done;
+ 	}
+-	if (vhost_process_iotlb_msg(dev, &msg)) {
 +
-+	asm volatile (VMWARE_HYPERCALL :
-+		"=a"(result),
-+		"=c"(info) :
-+		"a"(VMWARE_HYPERVISOR_MAGIC),
-+		"b"(0),
-+		"c"(VMWARE_CMD_STEALCLOCK),
-+		"d"(0),
-+		"S"(arg1),
-+		"D"(arg2) :
-+		"memory");
-+	return result;
-+}
-+
-+static bool stealclock_enable(phys_addr_t pa)
-+{
-+	return vmware_cmd_stealclock(upper_32_bits(pa),
-+				     lower_32_bits(pa)) == STEALCLOCK_ENABLED;
-+}
-+
-+static int __stealclock_disable(void)
-+{
-+	return vmware_cmd_stealclock(0, 1);
-+}
-+
-+static void stealclock_disable(void)
-+{
-+	__stealclock_disable();
-+}
-+
-+static bool vmware_is_stealclock_available(void)
-+{
-+	return __stealclock_disable() != STEALCLOCK_NOT_AVAILABLE;
-+}
-+
-+/**
-+ * vmware_steal_clock() - read the per-cpu steal clock
-+ * @cpu:            the cpu number whose steal clock we want to read
-+ *
-+ * The function reads the steal clock if we are on a 64-bit system, otherwise
-+ * reads it in parts, checking that the high part didn't change in the
-+ * meantime.
-+ *
-+ * Return:
-+ *      The steal clock reading in ns.
-+ */
-+static uint64_t vmware_steal_clock(int cpu)
-+{
-+	struct vmware_steal_time *steal = &per_cpu(vmw_steal_time, cpu);
-+	uint64_t clock;
-+
-+	if (IS_ENABLED(CONFIG_64BIT))
-+		clock = READ_ONCE(steal->clock);
-+	else {
-+		uint32_t initial_high, low, high;
-+
-+		do {
-+			initial_high = READ_ONCE(steal->clock_high);
-+			/* Do not reorder initial_high and high readings */
-+			virt_rmb();
-+			low = READ_ONCE(steal->clock_low);
-+			/* Keep low reading in between */
-+			virt_rmb();
-+			high = READ_ONCE(steal->clock_high);
-+		} while (initial_high != high);
-+
-+		clock = ((uint64_t)high << 32) | low;
-+	}
-+
-+	return mul_u64_u32_shr(clock, vmware_cyc2ns.cyc2ns_mul,
-+			     vmware_cyc2ns.cyc2ns_shift);
-+}
-+
-+static void vmware_register_steal_time(void)
-+{
-+	int cpu = smp_processor_id();
-+	struct vmware_steal_time *st = &per_cpu(vmw_steal_time, cpu);
-+
-+	if (!has_steal_clock)
-+		return;
-+
-+	if (!stealclock_enable(slow_virt_to_phys(st))) {
-+		has_steal_clock = false;
-+		return;
-+	}
-+
-+	pr_info("vmware-stealtime: cpu %d, pa %llx\n",
-+		cpu, (unsigned long long) slow_virt_to_phys(st));
-+}
-+
-+static void vmware_disable_steal_time(void)
-+{
-+	if (!has_steal_clock)
-+		return;
-+
-+	stealclock_disable();
-+}
-+
-+static void vmware_guest_cpu_init(void)
-+{
-+	if (has_steal_clock)
-+		vmware_register_steal_time();
-+}
-+
-+static void vmware_pv_guest_cpu_reboot(void *unused)
-+{
-+	vmware_disable_steal_time();
-+}
-+
-+static int vmware_pv_reboot_notify(struct notifier_block *nb,
-+				unsigned long code, void *unused)
-+{
-+	if (code == SYS_RESTART)
-+		on_each_cpu(vmware_pv_guest_cpu_reboot, NULL, 1);
-+	return NOTIFY_DONE;
-+}
-+
-+static struct notifier_block vmware_pv_reboot_nb = {
-+	.notifier_call = vmware_pv_reboot_notify,
-+};
-+
-+#ifdef CONFIG_SMP
-+static void __init vmware_smp_prepare_boot_cpu(void)
-+{
-+	vmware_guest_cpu_init();
-+	native_smp_prepare_boot_cpu();
-+}
-+
-+static int vmware_cpu_online(unsigned int cpu)
-+{
-+	local_irq_disable();
-+	vmware_guest_cpu_init();
-+	local_irq_enable();
-+	return 0;
-+}
-+
-+static int vmware_cpu_down_prepare(unsigned int cpu)
-+{
-+	local_irq_disable();
-+	vmware_disable_steal_time();
-+	local_irq_enable();
-+	return 0;
-+}
-+#endif
-+
-+static __init int activate_jump_labels(void)
-+{
-+	if (has_steal_clock)
-+		static_key_slow_inc(&paravirt_steal_enabled);
-+
-+	return 0;
-+}
-+arch_initcall(activate_jump_labels);
-+
- static void __init vmware_paravirt_ops_setup(void)
- {
- 	pv_info.name = "VMware hypervisor";
-@@ -148,6 +326,25 @@ static void __init vmware_paravirt_ops_setup(void)
- 	if (vmw_sched_clock)
- 		pv_ops.time.sched_clock = vmware_sched_clock;
- 
-+	if (vmware_is_stealclock_available()) {
-+		has_steal_clock = true;
-+		pv_ops.time.steal_clock = vmware_steal_clock;
-+
-+		/* We use reboot notifier only to disable steal clock */
-+		register_reboot_notifier(&vmware_pv_reboot_nb);
-+
-+#ifdef CONFIG_SMP
-+		smp_ops.smp_prepare_boot_cpu =
-+			vmware_smp_prepare_boot_cpu;
-+		if (cpuhp_setup_state_nocalls(CPUHP_AP_ONLINE_DYN,
-+					      "x86/vmware:online",
-+					      vmware_cpu_online,
-+					      vmware_cpu_down_prepare) < 0)
-+			pr_err("vmware_guest: Failed to install cpu hotplug callbacks\n");
-+#else
-+		vmware_guest_cpu_init();
-+#endif
-+	}
- }
- #else
- #define vmware_paravirt_ops_setup() do {} while (0)
--- 
-2.14.2
++	if (dev->msg_handler)
++		ret =3D dev->msg_handler(dev, &msg);
++	else
++		ret =3D vhost_process_iotlb_msg(dev, &msg);
++	if (ret) {
+ 		ret =3D -EFAULT;
+ 		goto done;
+ 	}
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index a123fd70847e..f9d1a03dd153 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -174,11 +174,15 @@ struct vhost_dev {
+ 	int weight;
+ 	int byte_weight;
+ 	u64 kcov_handle;
++	int (*msg_handler)(struct vhost_dev *dev,
++			   struct vhost_iotlb_msg *msg);
+ };
+=20
+ bool vhost_exceeds_weight(struct vhost_virtqueue *vq, int pkts, int tota=
+l_len);
+ void vhost_dev_init(struct vhost_dev *, struct vhost_virtqueue **vqs,
+-		    int nvqs, int iov_limit, int weight, int byte_weight);
++		    int nvqs, int iov_limit, int weight, int byte_weight,
++		    int (*msg_handler)(struct vhost_dev *dev,
++				       struct vhost_iotlb_msg *msg));
+ long vhost_dev_set_owner(struct vhost_dev *dev);
+ bool vhost_dev_has_owner(struct vhost_dev *dev);
+ long vhost_dev_check_owner(struct vhost_dev *);
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index c2d7d57e98cf..97669484a3f6 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -621,7 +621,7 @@ static int vhost_vsock_dev_open(struct inode *inode, =
+struct file *file)
+=20
+ 	vhost_dev_init(&vsock->dev, vqs, ARRAY_SIZE(vsock->vqs),
+ 		       UIO_MAXIOV, VHOST_VSOCK_PKT_WEIGHT,
+-		       VHOST_VSOCK_WEIGHT);
++		       VHOST_VSOCK_WEIGHT, NULL);
+=20
+ 	file->private_data =3D vsock;
+ 	spin_lock_init(&vsock->send_pkt_list_lock);
+--=20
+2.20.1
