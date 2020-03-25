@@ -1,180 +1,82 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH 05/70] x86/insn: Make inat-tables.c suitable for
- pre-decompression code
-Date: Wed, 25 Mar 2020 16:39:45 +0100
-Message-ID: <20200325153945.GD27261@zn.tnic>
-References: <20200319091407.1481-1-joro@8bytes.org>
- <20200319091407.1481-6-joro@8bytes.org>
+From: Auger Eric <eric.auger@redhat.com>
+Subject: Re: [PATCH] iommu/virtio: Reject IOMMU page granule larger than
+ PAGE_SIZE
+Date: Wed, 25 Mar 2020 22:05:14 +0100
+Message-ID: <8305aadc-ee0e-382d-b605-b6cfce98b2ac@redhat.com>
+References: <20200318114047.1518048-1-jean-philippe@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200319091407.1481-6-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Joerg Roedel <joro@8bytes.org>
-Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>, Masami Hiramatsu <mhiramat@kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200318114047.1518048-1-jean-philippe@linaro.org>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Jean-Philippe Brucker <jean-philippe@linaro.org>, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org
+Cc: joro@8bytes.org, robin.murphy@arm.com, Bharat Bhushan <bbhushan2@marvell.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-+ Masami.
+Hi Jean,
 
-On Thu, Mar 19, 2020 at 10:13:02AM +0100, Joerg Roedel wrote:
-> From: Joerg Roedel <jroedel@suse.de>
+On 3/18/20 12:40 PM, Jean-Philippe Brucker wrote:
+> We don't currently support IOMMUs with a page granule larger than the
+> system page size. The IOVA allocator has a BUG_ON() in this case, and
+> VFIO has a WARN_ON().
 > 
-> The inat-tables.c file has some arrays in it that contain pointers to
-> other arrays. These pointers need to be relocated when the kernel
-> image is moved to a different location.
+> It might be possible to remove these obstacles if necessary. If the host
+> uses 64kB pages and the guest uses 4kB, then a device driver calling
+> alloc_page() followed by dma_map_page() will create a 64kB mapping for a
+> 4kB physical page, allowing the endpoint to access the neighbouring 60kB
+> of memory. This problem could be worked around with bounce buffers.
 > 
-> The pre-decompression boot-code has no support for applying ELF
-> relocations, so initialize these arrays at runtime in the
-> pre-decompression code to make sure all pointers are correctly
-> initialized.
+> For the moment, rather than triggering the IOVA BUG_ON() on mismatched
+> page sizes, abort the virtio-iommu probe with an error message.
 > 
-> Signed-off-by: Joerg Roedel <jroedel@suse.de>
+> Reported-by: Bharat Bhushan <bbhushan2@marvell.com>
+> Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
 > ---
->  arch/x86/tools/gen-insn-attr-x86.awk       | 50 +++++++++++++++++++++-
->  tools/arch/x86/tools/gen-insn-attr-x86.awk | 50 +++++++++++++++++++++-
->  2 files changed, 98 insertions(+), 2 deletions(-)
+>  drivers/iommu/virtio-iommu.c | 9 +++++++++
+>  1 file changed, 9 insertions(+)
 > 
-> diff --git a/arch/x86/tools/gen-insn-attr-x86.awk b/arch/x86/tools/gen-insn-attr-x86.awk
-> index a42015b305f4..af38469afd14 100644
-> --- a/arch/x86/tools/gen-insn-attr-x86.awk
-> +++ b/arch/x86/tools/gen-insn-attr-x86.awk
-> @@ -362,6 +362,9 @@ function convert_operands(count,opnd,       i,j,imm,mod)
->  END {
->  	if (awkchecked != "")
->  		exit 1
-> +
-> +	print "#ifndef __BOOT_COMPRESSED\n"
-> +
->  	# print escape opcode map's array
->  	print "/* Escape opcode map array */"
->  	print "const insn_attr_t * const inat_escape_tables[INAT_ESC_MAX + 1]" \
-> @@ -388,6 +391,51 @@ END {
->  		for (j = 0; j < max_lprefix; j++)
->  			if (atable[i,j])
->  				print "	["i"]["j"] = "atable[i,j]","
-> -	print "};"
-> +	print "};\n"
-> +
-> +	print "#else /* !__BOOT_COMPRESSED */\n"
-> +
-> +	print "/* Escape opcode map array */"
-> +	print "static const insn_attr_t *inat_escape_tables[INAT_ESC_MAX + 1]" \
-> +	      "[INAT_LSTPFX_MAX + 1];"
-> +	print ""
-> +
-> +	print "/* Group opcode map array */"
-> +	print "static const insn_attr_t *inat_group_tables[INAT_GRP_MAX + 1]"\
-> +	      "[INAT_LSTPFX_MAX + 1];"
-> +	print ""
-> +
-> +	print "/* AVX opcode map array */"
-> +	print "static const insn_attr_t *inat_avx_tables[X86_VEX_M_MAX + 1]"\
-> +	      "[INAT_LSTPFX_MAX + 1];"
-> +	print ""
-> +
-> +	print "static void inat_init_tables(void)"
-> +	print "{"
-> +
-> +	# print escape opcode map's array
-> +	print "\t/* Print Escape opcode map array */"
-> +	for (i = 0; i < geid; i++)
-> +		for (j = 0; j < max_lprefix; j++)
-> +			if (etable[i,j])
-> +				print "\tinat_escape_tables["i"]["j"] = "etable[i,j]";"
-> +	print ""
-> +
-> +	# print group opcode map's array
-> +	print "\t/* Print Group opcode map array */"
-> +	for (i = 0; i < ggid; i++)
-> +		for (j = 0; j < max_lprefix; j++)
-> +			if (gtable[i,j])
-> +				print "\tinat_group_tables["i"]["j"] = "gtable[i,j]";"
-> +	print ""
-> +	# print AVX opcode map's array
-> +	print "\t/* Print AVX opcode map array */"
-> +	for (i = 0; i < gaid; i++)
-> +		for (j = 0; j < max_lprefix; j++)
-> +			if (atable[i,j])
-> +				print "\tinat_avx_tables["i"]["j"] = "atable[i,j]";"
-> +
-> +	print "}"
-> +	print "#endif"
->  }
+> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+> index 6d4e3c2a2ddb..80d5d8f621ab 100644
+> --- a/drivers/iommu/virtio-iommu.c
+> +++ b/drivers/iommu/virtio-iommu.c
+> @@ -998,6 +998,7 @@ static int viommu_probe(struct virtio_device *vdev)
+>  	struct device *parent_dev = vdev->dev.parent;
+>  	struct viommu_dev *viommu = NULL;
+>  	struct device *dev = &vdev->dev;
+> +	unsigned long viommu_page_size;
+>  	u64 input_start = 0;
+>  	u64 input_end = -1UL;
+>  	int ret;
+> @@ -1028,6 +1029,14 @@ static int viommu_probe(struct virtio_device *vdev)
+>  		goto err_free_vqs;
+>  	}
 >  
-> diff --git a/tools/arch/x86/tools/gen-insn-attr-x86.awk b/tools/arch/x86/tools/gen-insn-attr-x86.awk
-> index a42015b305f4..af38469afd14 100644
-> --- a/tools/arch/x86/tools/gen-insn-attr-x86.awk
-> +++ b/tools/arch/x86/tools/gen-insn-attr-x86.awk
-> @@ -362,6 +362,9 @@ function convert_operands(count,opnd,       i,j,imm,mod)
->  END {
->  	if (awkchecked != "")
->  		exit 1
+> +	viommu_page_size = 1UL << __ffs(viommu->pgsize_bitmap);
+Given the fact we now head towards probing the device for its
+page_size_mask in viommu_add_device() the check may need to happen
+later, in viommu_domain_finalise() for instance?
+
+Thanks
+
+Eric
+> +	if (viommu_page_size > PAGE_SIZE) {
+> +		dev_err(dev, "granule 0x%lx larger than system page size 0x%lx\n",
+> +			viommu_page_size, PAGE_SIZE);
+> +		ret = -EINVAL;
+> +		goto err_free_vqs;
+> +	}
 > +
-> +	print "#ifndef __BOOT_COMPRESSED\n"
-> +
->  	# print escape opcode map's array
->  	print "/* Escape opcode map array */"
->  	print "const insn_attr_t * const inat_escape_tables[INAT_ESC_MAX + 1]" \
-> @@ -388,6 +391,51 @@ END {
->  		for (j = 0; j < max_lprefix; j++)
->  			if (atable[i,j])
->  				print "	["i"]["j"] = "atable[i,j]","
-> -	print "};"
-> +	print "};\n"
-> +
-> +	print "#else /* !__BOOT_COMPRESSED */\n"
-> +
-> +	print "/* Escape opcode map array */"
-> +	print "static const insn_attr_t *inat_escape_tables[INAT_ESC_MAX + 1]" \
-> +	      "[INAT_LSTPFX_MAX + 1];"
-> +	print ""
-> +
-> +	print "/* Group opcode map array */"
-> +	print "static const insn_attr_t *inat_group_tables[INAT_GRP_MAX + 1]"\
-> +	      "[INAT_LSTPFX_MAX + 1];"
-> +	print ""
-> +
-> +	print "/* AVX opcode map array */"
-> +	print "static const insn_attr_t *inat_avx_tables[X86_VEX_M_MAX + 1]"\
-> +	      "[INAT_LSTPFX_MAX + 1];"
-> +	print ""
-> +
-> +	print "static void inat_init_tables(void)"
-> +	print "{"
-> +
-> +	# print escape opcode map's array
-> +	print "\t/* Print Escape opcode map array */"
-> +	for (i = 0; i < geid; i++)
-> +		for (j = 0; j < max_lprefix; j++)
-> +			if (etable[i,j])
-> +				print "\tinat_escape_tables["i"]["j"] = "etable[i,j]";"
-> +	print ""
-> +
-> +	# print group opcode map's array
-> +	print "\t/* Print Group opcode map array */"
-> +	for (i = 0; i < ggid; i++)
-> +		for (j = 0; j < max_lprefix; j++)
-> +			if (gtable[i,j])
-> +				print "\tinat_group_tables["i"]["j"] = "gtable[i,j]";"
-> +	print ""
-> +	# print AVX opcode map's array
-> +	print "\t/* Print AVX opcode map array */"
-> +	for (i = 0; i < gaid; i++)
-> +		for (j = 0; j < max_lprefix; j++)
-> +			if (atable[i,j])
-> +				print "\tinat_avx_tables["i"]["j"] = "atable[i,j]";"
-> +
-> +	print "}"
-> +	print "#endif"
->  }
+>  	viommu->map_flags = VIRTIO_IOMMU_MAP_F_READ | VIRTIO_IOMMU_MAP_F_WRITE;
+>  	viommu->last_domain = ~0U;
 >  
-> -- 
-> 2.17.1
 > 
-
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
