@@ -1,82 +1,144 @@
-From: Auger Eric <eric.auger@redhat.com>
-Subject: Re: [PATCH] iommu/virtio: Reject IOMMU page granule larger than
- PAGE_SIZE
-Date: Wed, 25 Mar 2020 22:05:14 +0100
-Message-ID: <8305aadc-ee0e-382d-b605-b6cfce98b2ac@redhat.com>
-References: <20200318114047.1518048-1-jean-philippe@linaro.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V8 9/9] virtio: Intel IFC VF driver for VDPA
+Date: Thu, 26 Mar 2020 13:50:53 +0800
+Message-ID: <ed04692d-236c-2eee-4429-6ef4d5d165fe@redhat.com>
+References: <20200325082711.1107-1-jasowang@redhat.com>
+ <20200325082711.1107-10-jasowang@redhat.com>
+ <20200325123410.GX13183@mellanox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200318114047.1518048-1-jean-philippe@linaro.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20200325123410.GX13183@mellanox.com>
 Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Jean-Philippe Brucker <jean-philippe@linaro.org>, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org
-Cc: joro@8bytes.org, robin.murphy@arm.com, Bharat Bhushan <bbhushan2@marvell.com>
+Sender: kvm-owner@vger.kernel.org
+To: Jason Gunthorpe <jgg@mellanox.com>
+Cc: mst@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jiri@mellanox.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com, Bie Tiwei <tiwei.bie@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Jean,
 
-On 3/18/20 12:40 PM, Jean-Philippe Brucker wrote:
-> We don't currently support IOMMUs with a page granule larger than the
-> system page size. The IOVA allocator has a BUG_ON() in this case, and
-> VFIO has a WARN_ON().
-> 
-> It might be possible to remove these obstacles if necessary. If the host
-> uses 64kB pages and the guest uses 4kB, then a device driver calling
-> alloc_page() followed by dma_map_page() will create a 64kB mapping for a
-> 4kB physical page, allowing the endpoint to access the neighbouring 60kB
-> of memory. This problem could be worked around with bounce buffers.
-> 
-> For the moment, rather than triggering the IOVA BUG_ON() on mismatched
-> page sizes, abort the virtio-iommu probe with an error message.
-> 
-> Reported-by: Bharat Bhushan <bbhushan2@marvell.com>
-> Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-> ---
->  drivers/iommu/virtio-iommu.c | 9 +++++++++
->  1 file changed, 9 insertions(+)
-> 
-> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-> index 6d4e3c2a2ddb..80d5d8f621ab 100644
-> --- a/drivers/iommu/virtio-iommu.c
-> +++ b/drivers/iommu/virtio-iommu.c
-> @@ -998,6 +998,7 @@ static int viommu_probe(struct virtio_device *vdev)
->  	struct device *parent_dev = vdev->dev.parent;
->  	struct viommu_dev *viommu = NULL;
->  	struct device *dev = &vdev->dev;
-> +	unsigned long viommu_page_size;
->  	u64 input_start = 0;
->  	u64 input_end = -1UL;
->  	int ret;
-> @@ -1028,6 +1029,14 @@ static int viommu_probe(struct virtio_device *vdev)
->  		goto err_free_vqs;
->  	}
->  
-> +	viommu_page_size = 1UL << __ffs(viommu->pgsize_bitmap);
-Given the fact we now head towards probing the device for its
-page_size_mask in viommu_add_device() the check may need to happen
-later, in viommu_domain_finalise() for instance?
+On 2020/3/25 =E4=B8=8B=E5=8D=888:34, Jason Gunthorpe wrote:
+> On Wed, Mar 25, 2020 at 04:27:11PM +0800, Jason Wang wrote:
+>> +static int ifcvf_probe(struct pci_dev *pdev, const struct pci_device_=
+id *id)
+>> +{
+>> +	struct device *dev =3D &pdev->dev;
+>> +	struct ifcvf_adapter *adapter;
+>> +	struct ifcvf_hw *vf;
+>> +	int ret, i;
+>> +
+>> +	ret =3D pci_enable_device(pdev);
+>> +	if (ret) {
+>> +		IFCVF_ERR(&pdev->dev, "Failed to enable device\n");
+>> +		goto err_enable;
+>> +	}
+>> +
+>> +	ret =3D pci_request_regions(pdev, IFCVF_DRIVER_NAME);
+>> +	if (ret) {
+>> +		IFCVF_ERR(&pdev->dev, "Failed to request MMIO region\n");
+>> +		goto err_regions;
+>> +	}
+>> +
+>> +	ret =3D pci_alloc_irq_vectors(pdev, IFCVF_MAX_INTR,
+>> +				    IFCVF_MAX_INTR, PCI_IRQ_MSIX);
+>> +	if (ret < 0) {
+>> +		IFCVF_ERR(&pdev->dev, "Failed to alloc irq vectors\n");
+>> +		goto err_vectors;
+>> +	}
+>> +
+>> +	adapter =3D vdpa_alloc_device(ifcvf_adapter, vdpa, dev, &ifc_vdpa_op=
+s);
+>> +	if (adapter =3D=3D NULL) {
+>> +		IFCVF_ERR(&pdev->dev, "Failed to allocate vDPA structure");
+>> +		ret =3D -ENOMEM;
+>> +		goto err_alloc;
+>> +	}
+>> +
+>> +	adapter->dev =3D dev;
+>> +	pci_set_master(pdev);
+>> +	pci_set_drvdata(pdev, adapter);
+>> +
+>> +	ret =3D ifcvf_request_irq(adapter);
+>> +	if (ret) {
+>> +		IFCVF_ERR(&pdev->dev, "Failed to request MSI-X irq\n");
+>> +		goto err_msix;
+>> +	}
+>> +
+>> +	vf =3D &adapter->vf;
+>> +	for (i =3D 0; i < IFCVF_PCI_MAX_RESOURCE; i++) {
+>> +		vf->mem_resource[i].phys_addr =3D pci_resource_start(pdev, i);
+>> +		vf->mem_resource[i].len =3D pci_resource_len(pdev, i);
+>> +		if (!vf->mem_resource[i].len)
+>> +			continue;
+>> +
+>> +		vf->mem_resource[i].addr =3D pci_iomap_range(pdev, i, 0,
+>> +				vf->mem_resource[i].len);
+>> +		if (!vf->mem_resource[i].addr) {
+>> +			IFCVF_ERR(&pdev->dev,
+>> +				  "Failed to map IO resource %d\n", i);
+>> +			ret =3D -EINVAL;
+>> +			goto err_msix;
+>> +		}
+>> +	}
+>> +
+>> +	if (ifcvf_init_hw(vf, pdev) < 0) {
+>> +		ret =3D -EINVAL;
+>> +		goto err_msix;
+>> +	}
+>> +
+>> +	ret =3D dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(64));
+>> +	if (ret)
+>> +		ret =3D dma_set_mask_and_coherent(&pdev->dev, DMA_BIT_MASK(32));
+>> +
+>> +	if (ret) {
+>> +		IFCVF_ERR(adapter->dev, "No usable DMA confiugration\n");
+>> +		ret =3D -EINVAL;
+>> +		goto err_msix;
+>> +	}
+>> +
+>> +	adapter->vdpa.dma_dev =3D dev;
+>> +	ret =3D vdpa_register_device(&adapter->vdpa);
+>> +	if (ret) {
+>> +		IFCVF_ERR(adapter->dev, "Failed to register ifcvf to vdpa bus");
+>> +		goto err_msix;
+>> +	}
+>> +
+>> +	return 0;
+>> +
+>> +err_msix:
+>> +	put_device(&adapter->vdpa.dev);
+>> +	return ret;
+>> +err_alloc:
+>> +	pci_free_irq_vectors(pdev);
+>> +err_vectors:
+>> +	pci_release_regions(pdev);
+>> +err_regions:
+>> +	pci_disable_device(pdev);
+>> +err_enable:
+>> +	return ret;
+>> +}
+> I personally don't like seeing goto unwinds with multiple returns, and
+> here I think it is actually a tiny bug.
+>
+> All touches to the PCI device must stop before the driver core
+> remove() returns - so these pci function cannot be in the kref put
+> release function anyhow.
+
+
+I'm not sure I get here. IFCVF held refcnt of its PCI parent, so it=20
+looks to me it's safe to free PCI resources in vDPA free callback?
+
+
+>
+> Suggest to use the devm versions of the above instead, and then you
+> can reorder things so the allocation is done first.
+>
+> Jason
+
+
+Using devm looks nice, but if it's possible I prefer to tweak on top.
 
 Thanks
 
-Eric
-> +	if (viommu_page_size > PAGE_SIZE) {
-> +		dev_err(dev, "granule 0x%lx larger than system page size 0x%lx\n",
-> +			viommu_page_size, PAGE_SIZE);
-> +		ret = -EINVAL;
-> +		goto err_free_vqs;
-> +	}
-> +
->  	viommu->map_flags = VIRTIO_IOMMU_MAP_F_READ | VIRTIO_IOMMU_MAP_F_WRITE;
->  	viommu->last_domain = ~0U;
->  
-> 
+
+>
