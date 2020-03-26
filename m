@@ -1,8 +1,7 @@
 From: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Subject: [PATCH v2 3/3] iommu/virtio: Reject IOMMU page granule larger than
- PAGE_SIZE
-Date: Thu, 26 Mar 2020 10:35:58 +0100
-Message-ID: <20200326093558.2641019-4-jean-philippe@linaro.org>
+Subject: [PATCH v2 1/3] iommu/virtio: Fix sparse warning
+Date: Thu, 26 Mar 2020 10:35:56 +0100
+Message-ID: <20200326093558.2641019-2-jean-philippe@linaro.org>
 References: <20200326093558.2641019-1-jean-philippe@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,70 +18,82 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: iommu@lists.linux-foundation.org
-Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>, mst@redhat.com, joro@8bytes.org, virtualization@lists.linux-foundation.org, eric.auger@redhat.com, bbhushan2@marvell.com
+Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>, kbuild test robot <lkp@intel.com>, mst@redhat.com, joro@8bytes.org, virtualization@lists.linux-foundation.org, eric.auger@redhat.com, bbhushan2@marvell.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-We don't currently support IOMMUs with a page granule larger than the
-system page size. The IOVA allocator has a BUG_ON() in this case, and
-VFIO has a WARN_ON().
+We copied the virtio_iommu_config from the virtio-iommu specification,
+which declares the fields using little-endian annotations (for example
+le32). Unfortunately this causes sparse to warn about comparison between
+little- and cpu-endian, because of the typecheck() in virtio_cread():
 
-Removing these obstacles ranges doesn't seem possible without major
-changes to the DMA API and VFIO. Some callers of iommu_map(), for
-example, want to map multiple page-aligned regions adjacent to each
-others for scatter-gather purposes. Even in simple DMA API uses, a call
-to dma_map_page() would let the endpoint access neighbouring memory. And
-VFIO users cannot ensure that their virtual address buffer is physically
-contiguous at the IOMMU granule.
+drivers/iommu/virtio-iommu.c:1024:9: sparse: sparse: incompatible types in comparison expression (different base types):
+drivers/iommu/virtio-iommu.c:1024:9: sparse:    restricted __le64 *
+drivers/iommu/virtio-iommu.c:1024:9: sparse:    unsigned long long *
+drivers/iommu/virtio-iommu.c:1036:9: sparse: sparse: incompatible types in comparison expression (different base types):
+drivers/iommu/virtio-iommu.c:1036:9: sparse:    restricted __le64 *
+drivers/iommu/virtio-iommu.c:1036:9: sparse:    unsigned long long *
+drivers/iommu/virtio-iommu.c:1040:9: sparse: sparse: incompatible types in comparison expression (different base types):
+drivers/iommu/virtio-iommu.c:1040:9: sparse:    restricted __le64 *
+drivers/iommu/virtio-iommu.c:1040:9: sparse:    unsigned long long *
+drivers/iommu/virtio-iommu.c:1044:9: sparse: sparse: incompatible types in comparison expression (different base types):
+drivers/iommu/virtio-iommu.c:1044:9: sparse:    restricted __le32 *
+drivers/iommu/virtio-iommu.c:1044:9: sparse:    unsigned int *
+drivers/iommu/virtio-iommu.c:1048:9: sparse: sparse: incompatible types in comparison expression (different base types):
+drivers/iommu/virtio-iommu.c:1048:9: sparse:    restricted __le32 *
+drivers/iommu/virtio-iommu.c:1048:9: sparse:    unsigned int *
+drivers/iommu/virtio-iommu.c:1052:9: sparse: sparse: incompatible types in comparison expression (different base types):
+drivers/iommu/virtio-iommu.c:1052:9: sparse:    restricted __le32 *
+drivers/iommu/virtio-iommu.c:1052:9: sparse:    unsigned int *
 
-Rather than triggering the IOVA BUG_ON() on mismatched page sizes, abort
-the vdomain finalise() with an error message. We could simply abort the
-viommu probe(), but an upcoming extension to virtio-iommu will allow
-setting different page masks for each endpoint.
+Although virtio_cread() does convert virtio-endian (in our case
+little-endian) to cpu-endian, the typecheck() needs the two arguments to
+have the same endianness. Do as UAPI headers of other virtio devices do,
+and remove the endian annotation from the device config.
 
-Reported-by: Bharat Bhushan <bbhushan2@marvell.com>
+Even though we change the UAPI this shouldn't cause any regression since
+QEMU, the existing implementation of virtio-iommu that uses this header,
+already removes the annotations when importing headers.
+
+Reported-by: kbuild test robot <lkp@intel.com>
 Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
 ---
-v1->v2: Move to vdomain_finalise(), improve commit message
----
- drivers/iommu/virtio-iommu.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ include/uapi/linux/virtio_iommu.h | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-index 5eed75cd121f..750f69c49b95 100644
---- a/drivers/iommu/virtio-iommu.c
-+++ b/drivers/iommu/virtio-iommu.c
-@@ -607,12 +607,22 @@ static struct iommu_domain *viommu_domain_alloc(unsigned type)
- 	return &vdomain->domain;
- }
+diff --git a/include/uapi/linux/virtio_iommu.h b/include/uapi/linux/virtio_iommu.h
+index 237e36a280cb..48e3c29223b5 100644
+--- a/include/uapi/linux/virtio_iommu.h
++++ b/include/uapi/linux/virtio_iommu.h
+@@ -18,24 +18,24 @@
+ #define VIRTIO_IOMMU_F_MMIO			5
  
--static int viommu_domain_finalise(struct viommu_dev *viommu,
-+static int viommu_domain_finalise(struct viommu_endpoint *vdev,
- 				  struct iommu_domain *domain)
- {
- 	int ret;
-+	unsigned long viommu_page_size;
-+	struct viommu_dev *viommu = vdev->viommu;
- 	struct viommu_domain *vdomain = to_viommu_domain(domain);
+ struct virtio_iommu_range_64 {
+-	__le64					start;
+-	__le64					end;
++	__u64					start;
++	__u64					end;
+ };
  
-+	viommu_page_size = 1UL << __ffs(viommu->pgsize_bitmap);
-+	if (viommu_page_size > PAGE_SIZE) {
-+		dev_err(vdev->dev,
-+			"granule 0x%lx larger than system page size 0x%lx\n",
-+			viommu_page_size, PAGE_SIZE);
-+		return -EINVAL;
-+	}
-+
- 	ret = ida_alloc_range(&viommu->domain_ids, viommu->first_domain,
- 			      viommu->last_domain, GFP_KERNEL);
- 	if (ret < 0)
-@@ -659,7 +669,7 @@ static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
- 		 * Properly initialize the domain now that we know which viommu
- 		 * owns it.
- 		 */
--		ret = viommu_domain_finalise(vdev->viommu, domain);
-+		ret = viommu_domain_finalise(vdev, domain);
- 	} else if (vdomain->viommu != vdev->viommu) {
- 		dev_err(dev, "cannot attach to foreign vIOMMU\n");
- 		ret = -EXDEV;
+ struct virtio_iommu_range_32 {
+-	__le32					start;
+-	__le32					end;
++	__u32					start;
++	__u32					end;
+ };
+ 
+ struct virtio_iommu_config {
+ 	/* Supported page sizes */
+-	__le64					page_size_mask;
++	__u64					page_size_mask;
+ 	/* Supported IOVA range */
+ 	struct virtio_iommu_range_64		input_range;
+ 	/* Max domain ID size */
+ 	struct virtio_iommu_range_32		domain_range;
+ 	/* Probe buffer size */
+-	__le32					probe_size;
++	__u32					probe_size;
+ };
+ 
+ /* Request types */
 -- 
 2.25.1
