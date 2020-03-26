@@ -1,29 +1,97 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH 07/70] x86/umip: Factor out instruction decoding
-Date: Thu, 26 Mar 2020 18:24:55 +0100
-Message-ID: <20200326172455.GG11398@zn.tnic>
-References: <20200319091407.1481-1-joro@8bytes.org>
- <20200319091407.1481-8-joro@8bytes.org>
+From: Auger Eric <eric.auger@redhat.com>
+Subject: Re: [PATCH v2 3/3] iommu/virtio: Reject IOMMU page granule larger
+ than PAGE_SIZE
+Date: Thu, 26 Mar 2020 18:41:26 +0100
+Message-ID: <04ed8a3e-5602-1a5f-1fa3-ac517fede0b1@redhat.com>
+References: <20200326093558.2641019-1-jean-philippe@linaro.org>
+ <20200326093558.2641019-4-jean-philippe@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200319091407.1481-8-joro@8bytes.org>
-Sender: kvm-owner@vger.kernel.org
-To: Joerg Roedel <joro@8bytes.org>
-Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200326093558.2641019-4-jean-philippe@linaro.org>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Jean-Philippe Brucker <jean-philippe@linaro.org>, iommu@lists.linux-foundation.org
+Cc: joro@8bytes.org, mst@redhat.com, bbhushan2@marvell.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 19, 2020 at 10:13:04AM +0100, Joerg Roedel wrote:
-> From: Joerg Roedel <jroedel@suse.de>
+Hi Jean,
+
+On 3/26/20 10:35 AM, Jean-Philippe Brucker wrote:
+> We don't currently support IOMMUs with a page granule larger than the
+> system page size. The IOVA allocator has a BUG_ON() in this case, and
+> VFIO has a WARN_ON().
 > 
-> Factor out the code used to decode an instruction with the correct
-> address and operand sizes to a helper function.
+> Removing these obstacles ranges doesn't seem possible without major
+> changes to the DMA API and VFIO. Some callers of iommu_map(), for
+> example, want to map multiple page-aligned regions adjacent to each
+> others for scatter-gather purposes. Even in simple DMA API uses, a call
+> to dma_map_page() would let the endpoint access neighbouring memory. And
+> VFIO users cannot ensure that their virtual address buffer is physically
+> contiguous at the IOMMU granule.
+> 
+> Rather than triggering the IOVA BUG_ON() on mismatched page sizes, abort
+> the vdomain finalise() with an error message. We could simply abort the
+> viommu probe(), but an upcoming extension to virtio-iommu will allow
+> setting different page masks for each endpoint.
+> 
+> Reported-by: Bharat Bhushan <bbhushan2@marvell.com>
+> Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Reviewed-by: Eric Auger <eric.auger@redhat.com>
 
-As for the previous one: "No functional changes."
+Thanks
 
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+Eric
+> ---
+> v1->v2: Move to vdomain_finalise(), improve commit message
+> ---
+>  drivers/iommu/virtio-iommu.c | 14 ++++++++++++--
+>  1 file changed, 12 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+> index 5eed75cd121f..750f69c49b95 100644
+> --- a/drivers/iommu/virtio-iommu.c
+> +++ b/drivers/iommu/virtio-iommu.c
+> @@ -607,12 +607,22 @@ static struct iommu_domain *viommu_domain_alloc(unsigned type)
+>  	return &vdomain->domain;
+>  }
+>  
+> -static int viommu_domain_finalise(struct viommu_dev *viommu,
+> +static int viommu_domain_finalise(struct viommu_endpoint *vdev,
+>  				  struct iommu_domain *domain)
+>  {
+>  	int ret;
+> +	unsigned long viommu_page_size;
+> +	struct viommu_dev *viommu = vdev->viommu;
+>  	struct viommu_domain *vdomain = to_viommu_domain(domain);
+>  
+> +	viommu_page_size = 1UL << __ffs(viommu->pgsize_bitmap);
+> +	if (viommu_page_size > PAGE_SIZE) {
+> +		dev_err(vdev->dev,
+> +			"granule 0x%lx larger than system page size 0x%lx\n",
+> +			viommu_page_size, PAGE_SIZE);
+> +		return -EINVAL;
+> +	}
+> +
+>  	ret = ida_alloc_range(&viommu->domain_ids, viommu->first_domain,
+>  			      viommu->last_domain, GFP_KERNEL);
+>  	if (ret < 0)
+> @@ -659,7 +669,7 @@ static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
+>  		 * Properly initialize the domain now that we know which viommu
+>  		 * owns it.
+>  		 */
+> -		ret = viommu_domain_finalise(vdev->viommu, domain);
+> +		ret = viommu_domain_finalise(vdev, domain);
+>  	} else if (vdomain->viommu != vdev->viommu) {
+>  		dev_err(dev, "cannot attach to foreign vIOMMU\n");
+>  		ret = -EXDEV;
+> 
