@@ -1,72 +1,88 @@
-From: Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Subject: [PATCH v2 2/3] iommu/virtio: Fix freeing of incomplete domains
-Date: Thu, 26 Mar 2020 10:35:57 +0100
-Message-ID: <20200326093558.2641019-3-jean-philippe@linaro.org>
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Subject: [PATCH v2 3/3] iommu/virtio: Reject IOMMU page granule larger than
+ PAGE_SIZE
+Date: Thu, 26 Mar 2020 10:35:58 +0100
+Message-ID: <20200326093558.2641019-4-jean-philippe@linaro.org>
 References: <20200326093558.2641019-1-jean-philippe@linaro.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-In-Reply-To: <20200326093558.2641019-1-jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
- <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
- <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Sender: "iommu" <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-To: iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Cc: Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, bbhushan2-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org, jasowang-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200326093558.2641019-1-jean-philippe@linaro.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: iommu@lists.linux-foundation.org
+Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>, mst@redhat.com, joro@8bytes.org, virtualization@lists.linux-foundation.org, eric.auger@redhat.com, bbhushan2@marvell.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Calling viommu_domain_free() on a domain that hasn't been finalised (not
-attached to any device, for example) can currently cause an Oops,
-because we attempt to call ida_free() on ID 0, which may either be
-unallocated or used by another domain.
+We don't currently support IOMMUs with a page granule larger than the
+system page size. The IOVA allocator has a BUG_ON() in this case, and
+VFIO has a WARN_ON().
 
-Only initialise the vdomain->viommu pointer, which denotes a finalised
-domain, at the end of a successful viommu_domain_finalise().
+Removing these obstacles ranges doesn't seem possible without major
+changes to the DMA API and VFIO. Some callers of iommu_map(), for
+example, want to map multiple page-aligned regions adjacent to each
+others for scatter-gather purposes. Even in simple DMA API uses, a call
+to dma_map_page() would let the endpoint access neighbouring memory. And
+VFIO users cannot ensure that their virtual address buffer is physically
+contiguous at the IOMMU granule.
 
-Fixes: edcd69ab9a32 ("iommu: Add virtio-iommu driver")
-Reported-by: Eric Auger <eric.auger-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Signed-off-by: Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Rather than triggering the IOVA BUG_ON() on mismatched page sizes, abort
+the vdomain finalise() with an error message. We could simply abort the
+viommu probe(), but an upcoming extension to virtio-iommu will allow
+setting different page masks for each endpoint.
+
+Reported-by: Bharat Bhushan <bbhushan2@marvell.com>
+Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
 ---
- drivers/iommu/virtio-iommu.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+v1->v2: Move to vdomain_finalise(), improve commit message
+---
+ drivers/iommu/virtio-iommu.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-index cce329d71fba..5eed75cd121f 100644
+index 5eed75cd121f..750f69c49b95 100644
 --- a/drivers/iommu/virtio-iommu.c
 +++ b/drivers/iommu/virtio-iommu.c
-@@ -613,18 +613,20 @@ static int viommu_domain_finalise(struct viommu_dev *viommu,
- 	int ret;
- 	struct viommu_domain *vdomain = to_viommu_domain(domain);
- 
--	vdomain->viommu		= viommu;
--	vdomain->map_flags	= viommu->map_flags;
-+	ret = ida_alloc_range(&viommu->domain_ids, viommu->first_domain,
-+			      viommu->last_domain, GFP_KERNEL);
-+	if (ret < 0)
-+		return ret;
-+
-+	vdomain->id		= (unsigned int)ret;
- 
- 	domain->pgsize_bitmap	= viommu->pgsize_bitmap;
- 	domain->geometry	= viommu->geometry;
- 
--	ret = ida_alloc_range(&viommu->domain_ids, viommu->first_domain,
--			      viommu->last_domain, GFP_KERNEL);
--	if (ret >= 0)
--		vdomain->id = (unsigned int)ret;
-+	vdomain->map_flags	= viommu->map_flags;
-+	vdomain->viommu		= viommu;
- 
--	return ret > 0 ? 0 : ret;
-+	return 0;
+@@ -607,12 +607,22 @@ static struct iommu_domain *viommu_domain_alloc(unsigned type)
+ 	return &vdomain->domain;
  }
  
- static void viommu_domain_free(struct iommu_domain *domain)
+-static int viommu_domain_finalise(struct viommu_dev *viommu,
++static int viommu_domain_finalise(struct viommu_endpoint *vdev,
+ 				  struct iommu_domain *domain)
+ {
+ 	int ret;
++	unsigned long viommu_page_size;
++	struct viommu_dev *viommu = vdev->viommu;
+ 	struct viommu_domain *vdomain = to_viommu_domain(domain);
+ 
++	viommu_page_size = 1UL << __ffs(viommu->pgsize_bitmap);
++	if (viommu_page_size > PAGE_SIZE) {
++		dev_err(vdev->dev,
++			"granule 0x%lx larger than system page size 0x%lx\n",
++			viommu_page_size, PAGE_SIZE);
++		return -EINVAL;
++	}
++
+ 	ret = ida_alloc_range(&viommu->domain_ids, viommu->first_domain,
+ 			      viommu->last_domain, GFP_KERNEL);
+ 	if (ret < 0)
+@@ -659,7 +669,7 @@ static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
+ 		 * Properly initialize the domain now that we know which viommu
+ 		 * owns it.
+ 		 */
+-		ret = viommu_domain_finalise(vdev->viommu, domain);
++		ret = viommu_domain_finalise(vdev, domain);
+ 	} else if (vdomain->viommu != vdev->viommu) {
+ 		dev_err(dev, "cannot attach to foreign vIOMMU\n");
+ 		ret = -EXDEV;
 -- 
 2.25.1
