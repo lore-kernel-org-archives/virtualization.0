@@ -1,99 +1,80 @@
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Subject: [PATCH v2 1/3] iommu/virtio: Fix sparse warning
-Date: Thu, 26 Mar 2020 10:35:56 +0100
-Message-ID: <20200326093558.2641019-2-jean-philippe@linaro.org>
-References: <20200326093558.2641019-1-jean-philippe@linaro.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC for Linux] virtio_balloon: Add VIRTIO_BALLOON_F_THP_ORDER
+ to handle THP spilt issue
+Date: Thu, 26 Mar 2020 05:49:51 -0400
+Message-ID: <20200326054554-mutt-send-email-mst@kernel.org>
+References: <20200326031817-mutt-send-email-mst@kernel.org>
+ <C4C6BAF7-C040-403D-997C-48C7AB5A7D6B@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200326093558.2641019-1-jean-philippe@linaro.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: iommu@lists.linux-foundation.org
-Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>, kbuild test robot <lkp@intel.com>, mst@redhat.com, joro@8bytes.org, virtualization@lists.linux-foundation.org, eric.auger@redhat.com, bbhushan2@marvell.com
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <C4C6BAF7-C040-403D-997C-48C7AB5A7D6B@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>
+Cc: Hui Zhu <teawater@gmail.com>, jasowang@redhat.com, akpm@linux-foundation.org, pagupta@redhat.com, mojha@codeaurora.org, namit@vmware.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, Hui Zhu <teawaterz@linux.alibaba.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We copied the virtio_iommu_config from the virtio-iommu specification,
-which declares the fields using little-endian annotations (for example
-le32). Unfortunately this causes sparse to warn about comparison between
-little- and cpu-endian, because of the typecheck() in virtio_cread():
+On Thu, Mar 26, 2020 at 08:54:04AM +0100, David Hildenbrand wrote:
+> 
+> 
+> > Am 26.03.2020 um 08:21 schrieb Michael S. Tsirkin <mst@redhat.com>:
+> > 
+> > ﻿On Thu, Mar 12, 2020 at 09:51:25AM +0100, David Hildenbrand wrote:
+> >>> On 12.03.20 09:47, Michael S. Tsirkin wrote:
+> >>> On Thu, Mar 12, 2020 at 09:37:32AM +0100, David Hildenbrand wrote:
+> >>>> 2. You are essentially stealing THPs in the guest. So the fastest
+> >>>> mapping (THP in guest and host) is gone. The guest won't be able to make
+> >>>> use of THP where it previously was able to. I can imagine this implies a
+> >>>> performance degradation for some workloads. This needs a proper
+> >>>> performance evaluation.
+> >>> 
+> >>> I think the problem is more with the alloc_pages API.
+> >>> That gives you exactly the given order, and if there's
+> >>> a larger chunk available, it will split it up.
+> >>> 
+> >>> But for balloon - I suspect lots of other users,
+> >>> we do not want to stress the system but if a large
+> >>> chunk is available anyway, then we could handle
+> >>> that more optimally by getting it all in one go.
+> >>> 
+> >>> 
+> >>> So if we want to address this, IMHO this calls for a new API.
+> >>> Along the lines of
+> >>> 
+> >>>    struct page *alloc_page_range(gfp_t gfp, unsigned int min_order,
+> >>>                    unsigned int max_order, unsigned int *order)
+> >>> 
+> >>> the idea would then be to return at a number of pages in the given
+> >>> range.
+> >>> 
+> >>> What do you think? Want to try implementing that?
+> >> 
+> >> You can just start with the highest order and decrement the order until
+> >> your allocation succeeds using alloc_pages(), which would be enough for
+> >> a first version. At least I don't see the immediate need for a new
+> >> kernel API.
+> > 
+> > OK I remember now.  The problem is with reclaim. Unless reclaim is
+> > completely disabled, any of these calls can sleep. After it wakes up,
+> > we would like to get the larger order that has become available
+> > meanwhile.
+> > 
+> 
+> Yes, but that‘s a pure optimization IMHO.
+> So I think we should do a trivial implementation first and then see what we gain from a new allocator API. Then we might also be able to justify it using real numbers.
+> 
 
-drivers/iommu/virtio-iommu.c:1024:9: sparse: sparse: incompatible types in comparison expression (different base types):
-drivers/iommu/virtio-iommu.c:1024:9: sparse:    restricted __le64 *
-drivers/iommu/virtio-iommu.c:1024:9: sparse:    unsigned long long *
-drivers/iommu/virtio-iommu.c:1036:9: sparse: sparse: incompatible types in comparison expression (different base types):
-drivers/iommu/virtio-iommu.c:1036:9: sparse:    restricted __le64 *
-drivers/iommu/virtio-iommu.c:1036:9: sparse:    unsigned long long *
-drivers/iommu/virtio-iommu.c:1040:9: sparse: sparse: incompatible types in comparison expression (different base types):
-drivers/iommu/virtio-iommu.c:1040:9: sparse:    restricted __le64 *
-drivers/iommu/virtio-iommu.c:1040:9: sparse:    unsigned long long *
-drivers/iommu/virtio-iommu.c:1044:9: sparse: sparse: incompatible types in comparison expression (different base types):
-drivers/iommu/virtio-iommu.c:1044:9: sparse:    restricted __le32 *
-drivers/iommu/virtio-iommu.c:1044:9: sparse:    unsigned int *
-drivers/iommu/virtio-iommu.c:1048:9: sparse: sparse: incompatible types in comparison expression (different base types):
-drivers/iommu/virtio-iommu.c:1048:9: sparse:    restricted __le32 *
-drivers/iommu/virtio-iommu.c:1048:9: sparse:    unsigned int *
-drivers/iommu/virtio-iommu.c:1052:9: sparse: sparse: incompatible types in comparison expression (different base types):
-drivers/iommu/virtio-iommu.c:1052:9: sparse:    restricted __le32 *
-drivers/iommu/virtio-iommu.c:1052:9: sparse:    unsigned int *
+Well how do you propose implement the necessary semantics?
+I think we are both agreed that alloc_page_range is more or
+less what's necessary anyway - so how would you approximate it
+on top of existing APIs?
 
-Although virtio_cread() does convert virtio-endian (in our case
-little-endian) to cpu-endian, the typecheck() needs the two arguments to
-have the same endianness. Do as UAPI headers of other virtio devices do,
-and remove the endian annotation from the device config.
 
-Even though we change the UAPI this shouldn't cause any regression since
-QEMU, the existing implementation of virtio-iommu that uses this header,
-already removes the annotations when importing headers.
-
-Reported-by: kbuild test robot <lkp@intel.com>
-Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
----
- include/uapi/linux/virtio_iommu.h | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/include/uapi/linux/virtio_iommu.h b/include/uapi/linux/virtio_iommu.h
-index 237e36a280cb..48e3c29223b5 100644
---- a/include/uapi/linux/virtio_iommu.h
-+++ b/include/uapi/linux/virtio_iommu.h
-@@ -18,24 +18,24 @@
- #define VIRTIO_IOMMU_F_MMIO			5
- 
- struct virtio_iommu_range_64 {
--	__le64					start;
--	__le64					end;
-+	__u64					start;
-+	__u64					end;
- };
- 
- struct virtio_iommu_range_32 {
--	__le32					start;
--	__le32					end;
-+	__u32					start;
-+	__u32					end;
- };
- 
- struct virtio_iommu_config {
- 	/* Supported page sizes */
--	__le64					page_size_mask;
-+	__u64					page_size_mask;
- 	/* Supported IOVA range */
- 	struct virtio_iommu_range_64		input_range;
- 	/* Max domain ID size */
- 	struct virtio_iommu_range_32		domain_range;
- 	/* Probe buffer size */
--	__le32					probe_size;
-+	__u32					probe_size;
- };
- 
- /* Request types */
--- 
-2.25.1
+> > 
+> >> -- 
+> >> Thanks,
+> >> 
+> >> David / dhildenb
+> > 
