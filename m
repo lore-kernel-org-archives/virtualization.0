@@ -1,121 +1,94 @@
-From: Bharat Bhushan <bbhushan2-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-Subject: RE: [EXT] Re: [PATCH v2 3/3] iommu/virtio: Reject IOMMU page granule
- larger than PAGE_SIZE
-Date: Fri, 27 Mar 2020 05:48:52 +0000
-Message-ID: <MWHPR1801MB19666FB2B5F81924E565FA89E3CC0@MWHPR1801MB1966.namprd18.prod.outlook.com>
-References: <20200326093558.2641019-1-jean-philippe@linaro.org>
- <20200326093558.2641019-4-jean-philippe@linaro.org>
- <04ed8a3e-5602-1a5f-1fa3-ac517fede0b1@redhat.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Subject: Re: vhost changes (batched) in linux-next after 12/13 trigger random
+ crashes in KVM guests after reboot
+Date: Fri, 27 Mar 2020 09:03:02 +0100
+Message-ID: <CAJaqyWdpA-M3M3AJWuY9z7yHKbX3-zbSzssWrjur3ok8BuFR9A@mail.gmail.com>
+References: <2a63b15f-8cf5-5868-550c-42e2cfd92c60@de.ibm.com>
+ <b6e32f58e5d85ac5cc3141e9155fb140ae5cd580.camel@redhat.com>
+ <1ade56b5-083f-bb6f-d3e0-3ddcf78f4d26@de.ibm.com> <20200206171349-mutt-send-email-mst@kernel.org>
+ <5c860fa1-cef5-b389-4ebf-99a62afa0fe8@de.ibm.com> <20200207025806-mutt-send-email-mst@kernel.org>
+ <97c93d38-ef07-e321-d133-18483d54c0c0@de.ibm.com> <CAJaqyWfngzP4d01B6+Sqt8FXN6jX7kGegjx8ie4no_1Er3igQA@mail.gmail.com>
+ <43a5dbaa-9129-e220-8483-45c60a82c945@de.ibm.com> <e299afca8e22044916abbf9fbbd0bff6b0ee9e13.camel@redhat.com>
+ <20200211085736-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-In-Reply-To: <04ed8a3e-5602-1a5f-1fa3-ac517fede0b1-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
- <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
- <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Sender: "iommu" <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-To: Auger Eric <eric.auger-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-Cc: "mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org" <mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, "jasowang-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org" <jasowang-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, "virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200211085736-mutt-send-email-mst@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Stephen Rothwell <sfr@canb.auug.org.au>, Linux Next Mailing List <linux-next@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Halil Pasic <pasic@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Jean,
-
-> -----Original Message-----
-> From: Auger Eric <eric.auger-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-> Sent: Thursday, March 26, 2020 11:11 PM
-> To: Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>; iommu-cunTk1MwBs/ROKNJybVBZg@public.gmane.org
-> foundation.org
-> Cc: virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org; joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org; mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org;
-> jasowang-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org; Bharat Bhushan <bbhushan2-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-> Subject: [EXT] Re: [PATCH v2 3/3] iommu/virtio: Reject IOMMU page granule larger
-> than PAGE_SIZE
-> 
-> External Email
-> 
-> ----------------------------------------------------------------------
-> Hi Jean,
-> 
-> On 3/26/20 10:35 AM, Jean-Philippe Brucker wrote:
-> > We don't currently support IOMMUs with a page granule larger than the
-> > system page size. The IOVA allocator has a BUG_ON() in this case, and
-> > VFIO has a WARN_ON().
+On Tue, Feb 11, 2020 at 2:58 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> On Tue, Feb 11, 2020 at 02:04:54PM +0100, Eugenio P=C3=A9rez wrote:
+> > On Mon, 2020-02-10 at 12:01 +0100, Christian Borntraeger wrote:
+> > >
+> > > On 10.02.20 10:47, Eugenio Perez Martin wrote:
+> > > > Hi Christian.
+> > > >
+> > > > I'm not able to reproduce the failure with eccb852f1fe6bede630e2e4f=
+1a121a81e34354ab commit. Could you add more data?
+> > > > Your configuration (libvirt or qemu line), and host's dmesg output =
+if any?
+> > > >
+> > > > Thanks!
+> > >
+> > > If it was not obvious, this is on s390x, a big endian system.
+> > >
 > >
-> > Removing these obstacles ranges doesn't seem possible without major
-> > changes to the DMA API and VFIO. Some callers of iommu_map(), for
-> > example, want to map multiple page-aligned regions adjacent to each
-> > others for scatter-gather purposes. Even in simple DMA API uses, a
-> > call to dma_map_page() would let the endpoint access neighbouring
-> > memory. And VFIO users cannot ensure that their virtual address buffer
-> > is physically contiguous at the IOMMU granule.
+> > Hi Christian. Thank you very much for your fast responses.
 > >
-> > Rather than triggering the IOVA BUG_ON() on mismatched page sizes,
-> > abort the vdomain finalise() with an error message. We could simply
-> > abort the viommu probe(), but an upcoming extension to virtio-iommu
-> > will allow setting different page masks for each endpoint.
+> > Could you try this patch on top of eccb852f1fe6bede630e2e4f1a121a81e343=
+54ab?
 > >
-> > Reported-by: Bharat Bhushan <bbhushan2-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-> > Signed-off-by: Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> Reviewed-by: Eric Auger <eric.auger-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+> > Thanks!
+> >
+> > >From 71d0f9108a18aa894cc0c0c1c7efbad39f465a27 Mon Sep 17 00:00:00 2001
+> > From: =3D?UTF-8?q?Eugenio=3D20P=3DC3=3DA9rez?=3D <
+> > eperezma@redhat.com>
+> > Date: Tue, 11 Feb 2020 13:19:10 +0100
+> > Subject: [PATCH] vhost: fix return value of vhost_get_vq_desc
+> >
+> > Before of the batch change, it was the chain's head. Need to keep that
+> > way or we will not be able to free a chain of descriptors.
+>
+> I think it's cleaner to have all descriptors in the chain
+> have the same id.
+>
 
-Reviewed-by: Eric Auger <bbhushan2-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Hi Michael.
 
-Thanks
--Bharat
+Not sure if I understood you correctly. All the descriptors in the
+chain still have the same id, this just returns the first one instead
+of update it in every loop iteration. Can left unapplied in the final
+version though, is up to you.
 
-> 
-> Thanks
-> 
-> Eric
+> > Fixes: eccb852f1fe6 ("vhost: batching fetches")
 > > ---
-> > v1->v2: Move to vdomain_finalise(), improve commit message
-> > ---
-> >  drivers/iommu/virtio-iommu.c | 14 ++++++++++++--
-> >  1 file changed, 12 insertions(+), 2 deletions(-)
+> >  drivers/vhost/vhost.c | 3 +--
+> >  1 file changed, 1 insertion(+), 2 deletions(-)
 > >
-> > diff --git a/drivers/iommu/virtio-iommu.c
-> > b/drivers/iommu/virtio-iommu.c index 5eed75cd121f..750f69c49b95 100644
-> > --- a/drivers/iommu/virtio-iommu.c
-> > +++ b/drivers/iommu/virtio-iommu.c
-> > @@ -607,12 +607,22 @@ static struct iommu_domain
-> *viommu_domain_alloc(unsigned type)
-> >  	return &vdomain->domain;
-> >  }
+> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> > index b5a51b1f2e79..fc422c3e5c08 100644
+> > --- a/drivers/vhost/vhost.c
+> > +++ b/drivers/vhost/vhost.c
+> > @@ -2409,12 +2409,11 @@ int vhost_get_vq_desc(struct vhost_virtqueue *v=
+q,
+> >                       *out_num +=3D ret;
+> >               }
 > >
-> > -static int viommu_domain_finalise(struct viommu_dev *viommu,
-> > +static int viommu_domain_finalise(struct viommu_endpoint *vdev,
-> >  				  struct iommu_domain *domain)
-> >  {
-> >  	int ret;
-> > +	unsigned long viommu_page_size;
-> > +	struct viommu_dev *viommu = vdev->viommu;
-> >  	struct viommu_domain *vdomain = to_viommu_domain(domain);
+> > -             ret =3D desc->id;
+> > -
+> >               if (!(desc->flags & VRING_DESC_F_NEXT))
+> >                       break;
+> >       }
 > >
-> > +	viommu_page_size = 1UL << __ffs(viommu->pgsize_bitmap);
-> > +	if (viommu_page_size > PAGE_SIZE) {
-> > +		dev_err(vdev->dev,
-> > +			"granule 0x%lx larger than system page size 0x%lx\n",
-> > +			viommu_page_size, PAGE_SIZE);
-> > +		return -EINVAL;
-> > +	}
-> > +
-> >  	ret = ida_alloc_range(&viommu->domain_ids, viommu->first_domain,
-> >  			      viommu->last_domain, GFP_KERNEL);
-> >  	if (ret < 0)
-> > @@ -659,7 +669,7 @@ static int viommu_attach_dev(struct iommu_domain
-> *domain, struct device *dev)
-> >  		 * Properly initialize the domain now that we know which viommu
-> >  		 * owns it.
-> >  		 */
-> > -		ret = viommu_domain_finalise(vdev->viommu, domain);
-> > +		ret = viommu_domain_finalise(vdev, domain);
-> >  	} else if (vdomain->viommu != vdev->viommu) {
-> >  		dev_err(dev, "cannot attach to foreign vIOMMU\n");
-> >  		ret = -EXDEV;
+> > +     ret =3D vq->descs[vq->first_desc].id;
+> >       vq->first_desc =3D i + 1;
 > >
+> >       return ret;
+> > --
+> > 2.18.1
+>
