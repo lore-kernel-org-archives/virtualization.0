@@ -1,53 +1,137 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 2/4] drm/bochs: downgrade pci_request_region
- failure from error to warning
-Date: Thu, 26 Mar 2020 19:25:33 -0400
-Message-ID: <20200326232535.8460-2-sashal@kernel.org>
-References: <20200326232535.8460-1-sashal@kernel.org>
+From: Masami Hiramatsu <mhiramat@kernel.org>
+Subject: Re: [PATCH 05/70] x86/insn: Make inat-tables.c suitable for
+ pre-decompression code
+Date: Fri, 27 Mar 2020 12:02:32 +0900
+Message-ID: <20200327120232.c8e455ca100dc0d96e4ddc43@kernel.org>
+References: <20200319091407.1481-1-joro@8bytes.org>
+        <20200319091407.1481-6-joro@8bytes.org>
+        <20200325153945.GD27261@zn.tnic>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200326232535.8460-1-sashal@kernel.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Sasha Levin <sashal@kernel.org>, =?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= <marmarek@invisiblethingslab.com>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Sam Ravnborg <sam@ravnborg.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200325153945.GD27261@zn.tnic>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Borislav Petkov <bp@alien8.de>
+Cc: Joerg Roedel <joro@8bytes.org>, x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>, Masami Hiramatsu <mhiramat@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogR2VyZCBIb2ZmbWFubiA8a3JheGVsQHJlZGhhdC5jb20+CgpbIFVwc3RyZWFtIGNvbW1p
-dCA4YzM0Y2QxYTdmMDg5ZGMwMzkzMzI4OWM1ZDRhNGQxNDg5NTQ5ODI4IF0KClNodXRkb3duIG9m
-IGZpcm13YXJlIGZyYW1lYnVmZmVyIGhhcyBhIGJ1bmNoIG9mIHByb2JsZW1zLiAgQmVjYXVzZQpv
-ZiB0aGlzIHRoZSBmcmFtZWJ1ZmZlciByZWdpb24gbWlnaHQgc3RpbGwgYmUgcmVzZXJ2ZWQgZXZl
-biBhZnRlcgpkcm1fZmJfaGVscGVyX3JlbW92ZV9jb25mbGljdGluZ19wY2lfZnJhbWVidWZmZXJz
-KCkgcmV0dXJuZWQuCgpEb24ndCBjb25zaWRlciBwY2lfcmVxdWVzdF9yZWdpb24oKSBmYWlsdXJl
-IGZvciB0aGUgZnJhbWVidWZmZXIKcmVnaW9uIGFzIGZhdGFsIGVycm9yIHRvIHdvcmthcm91bmQg
-dGhpcyBpc3N1ZS4KClJlcG9ydGVkLWJ5OiBNYXJlayBNYXJjenlrb3dza2ktR8OzcmVja2kgPG1h
-cm1hcmVrQGludmlzaWJsZXRoaW5nc2xhYi5jb20+ClNpZ25lZC1vZmYtYnk6IEdlcmQgSG9mZm1h
-bm4gPGtyYXhlbEByZWRoYXQuY29tPgpBY2tlZC1ieTogU2FtIFJhdm5ib3JnIDxzYW1AcmF2bmJv
-cmcub3JnPgpMaW5rOiBodHRwOi8vcGF0Y2h3b3JrLmZyZWVkZXNrdG9wLm9yZy9wYXRjaC9tc2dp
-ZC8yMDIwMDMxMzA4NDE1Mi4yNzM0LTEta3JheGVsQHJlZGhhdC5jb20KU2lnbmVkLW9mZi1ieTog
-U2FzaGEgTGV2aW4gPHNhc2hhbEBrZXJuZWwub3JnPgotLS0KIGRyaXZlcnMvZ3B1L2RybS9ib2No
-cy9ib2Noc19ody5jIHwgNiArKy0tLS0KIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKyks
-IDQgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL2JvY2hzL2JvY2hz
-X2h3LmMgYi9kcml2ZXJzL2dwdS9kcm0vYm9jaHMvYm9jaHNfaHcuYwppbmRleCBhMzliMDM0M2Mx
-OTdkLi40MDFjMjE4NTY3YWY5IDEwMDY0NAotLS0gYS9kcml2ZXJzL2dwdS9kcm0vYm9jaHMvYm9j
-aHNfaHcuYworKysgYi9kcml2ZXJzL2dwdS9kcm0vYm9jaHMvYm9jaHNfaHcuYwpAQCAtOTcsMTAg
-Kzk3LDggQEAgaW50IGJvY2hzX2h3X2luaXQoc3RydWN0IGRybV9kZXZpY2UgKmRldiwgdWludDMy
-X3QgZmxhZ3MpCiAJCXNpemUgPSBtaW4oc2l6ZSwgbWVtKTsKIAl9CiAKLQlpZiAocGNpX3JlcXVl
-c3RfcmVnaW9uKHBkZXYsIDAsICJib2Nocy1kcm0iKSAhPSAwKSB7Ci0JCURSTV9FUlJPUigiQ2Fu
-bm90IHJlcXVlc3QgZnJhbWVidWZmZXJcbiIpOwotCQlyZXR1cm4gLUVCVVNZOwotCX0KKwlpZiAo
-cGNpX3JlcXVlc3RfcmVnaW9uKHBkZXYsIDAsICJib2Nocy1kcm0iKSAhPSAwKQorCQlEUk1fV0FS
-TigiQ2Fubm90IHJlcXVlc3QgZnJhbWVidWZmZXIsIGJvb3QgZmIgc3RpbGwgYWN0aXZlP1xuIik7
-CiAKIAlib2Nocy0+ZmJfbWFwID0gaW9yZW1hcChhZGRyLCBzaXplKTsKIAlpZiAoYm9jaHMtPmZi
-X21hcCA9PSBOVUxMKSB7Ci0tIAoyLjIwLjEKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
-dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
-dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Hi,
+
+On Wed, 25 Mar 2020 16:39:45 +0100
+Borislav Petkov <bp@alien8.de> wrote:
+
+> + Masami.
+> 
+> On Thu, Mar 19, 2020 at 10:13:02AM +0100, Joerg Roedel wrote:
+> > From: Joerg Roedel <jroedel@suse.de>
+> > 
+> > The inat-tables.c file has some arrays in it that contain pointers to
+> > other arrays. These pointers need to be relocated when the kernel
+> > image is moved to a different location.
+> > 
+> > The pre-decompression boot-code has no support for applying ELF
+> > relocations, so initialize these arrays at runtime in the
+> > pre-decompression code to make sure all pointers are correctly
+> > initialized.
+
+I need to check the whole series, but as far as I can understand from
+this patch, this seems not allowing to store the address value in
+static pointers. It may break more things, for example _kprobe_blacklist
+records the NOKPROBE_SYMBOL() symbol addresses at the build time.
+
+I have some comments here.
+ 
+> > Signed-off-by: Joerg Roedel <jroedel@suse.de>
+> > ---
+> >  arch/x86/tools/gen-insn-attr-x86.awk       | 50 +++++++++++++++++++++-
+> >  tools/arch/x86/tools/gen-insn-attr-x86.awk | 50 +++++++++++++++++++++-
+> >  2 files changed, 98 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/arch/x86/tools/gen-insn-attr-x86.awk b/arch/x86/tools/gen-insn-attr-x86.awk
+> > index a42015b305f4..af38469afd14 100644
+> > --- a/arch/x86/tools/gen-insn-attr-x86.awk
+> > +++ b/arch/x86/tools/gen-insn-attr-x86.awk
+> > @@ -362,6 +362,9 @@ function convert_operands(count,opnd,       i,j,imm,mod)
+> >  END {
+> >  	if (awkchecked != "")
+> >  		exit 1
+> > +
+> > +	print "#ifndef __BOOT_COMPRESSED\n"
+> > +
+> >  	# print escape opcode map's array
+> >  	print "/* Escape opcode map array */"
+> >  	print "const insn_attr_t * const inat_escape_tables[INAT_ESC_MAX + 1]" \
+> > @@ -388,6 +391,51 @@ END {
+> >  		for (j = 0; j < max_lprefix; j++)
+> >  			if (atable[i,j])
+> >  				print "	["i"]["j"] = "atable[i,j]","
+> > -	print "};"
+> > +	print "};\n"
+> > +
+> > +	print "#else /* !__BOOT_COMPRESSED */\n"
+
+I think the definitions of inat_*_tables can be shared in both case.
+If __BOOT_COMPRESSED is set, we can define inat_init_tables() as a
+initialize function, and if not, it will be just a dummy "do {} while (0)".
+
+BTW, where is the __BOOT_COMPRESSED defined?
+
+> > +
+> > +	print "/* Escape opcode map array */"
+> > +	print "static const insn_attr_t *inat_escape_tables[INAT_ESC_MAX + 1]" \
+> > +	      "[INAT_LSTPFX_MAX + 1];"
+> > +	print ""
+> > +
+> > +	print "/* Group opcode map array */"
+> > +	print "static const insn_attr_t *inat_group_tables[INAT_GRP_MAX + 1]"\
+> > +	      "[INAT_LSTPFX_MAX + 1];"
+> > +	print ""
+> > +
+> > +	print "/* AVX opcode map array */"
+> > +	print "static const insn_attr_t *inat_avx_tables[X86_VEX_M_MAX + 1]"\
+> > +	      "[INAT_LSTPFX_MAX + 1];"
+> > +	print ""
+> > +
+> > +	print "static void inat_init_tables(void)"
+
+This functions should be "inline".
+And I can not see the call-site of inat_init_tables() in this patch.
+
+If possible, please include call-site with definition (especially
+new init function) so that I can check the init call timing too.
+
+> > +	print "{"
+> > +
+> > +	# print escape opcode map's array
+> > +	print "\t/* Print Escape opcode map array */"
+> > +	for (i = 0; i < geid; i++)
+> > +		for (j = 0; j < max_lprefix; j++)
+> > +			if (etable[i,j])
+> > +				print "\tinat_escape_tables["i"]["j"] = "etable[i,j]";"
+> > +	print ""
+> > +
+> > +	# print group opcode map's array
+> > +	print "\t/* Print Group opcode map array */"
+> > +	for (i = 0; i < ggid; i++)
+> > +		for (j = 0; j < max_lprefix; j++)
+> > +			if (gtable[i,j])
+> > +				print "\tinat_group_tables["i"]["j"] = "gtable[i,j]";"
+> > +	print ""
+> > +	# print AVX opcode map's array
+> > +	print "\t/* Print AVX opcode map array */"
+> > +	for (i = 0; i < gaid; i++)
+> > +		for (j = 0; j < max_lprefix; j++)
+> > +			if (atable[i,j])
+> > +				print "\tinat_avx_tables["i"]["j"] = "atable[i,j]";"
+> > +
+> > +	print "}"
+> > +	print "#endif"
+> >  }
+
+The code itself looks good to me.
+
+Thank you,
+
+-- 
+Masami Hiramatsu <mhiramat@kernel.org>
