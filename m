@@ -1,78 +1,305 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH v8 81/81] KVM: x86: call the page tracking code on emulation
- failure
-Date: Mon, 30 Mar 2020 13:13:08 +0300
-Message-ID: <20200330101308.21702-82-alazar@bitdefender.com>
+Subject: [PATCH v8 51/81] KVM: introspection: handle vCPU commands
+Date: Mon, 30 Mar 2020 13:12:38 +0300
+Message-ID: <20200330101308.21702-52-alazar@bitdefender.com>
 References: <20200330101308.21702-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200330101308.21702-1-alazar@bitdefender.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogTWloYWkgRG9uyJt1IDxtZG9udHVAYml0ZGVmZW5kZXIuY29tPgoKVGhlIGluZm9ybWF0
-aW9uIHdlIGNhbiBwcm92aWRlIHRoaXMgd2F5IGlzIGluY29tcGxldGUsIGJ1dCBjdXJyZW50IHVz
-ZXJzCm9mIHRoZSBwYWdlIHRyYWNraW5nIGNvZGUgY2FuIHdvcmsgd2l0aCBpdC4KClNpZ25lZC1v
-ZmYtYnk6IE1paGFpIERvbsibdSA8bWRvbnR1QGJpdGRlZmVuZGVyLmNvbT4KU2lnbmVkLW9mZi1i
-eTogQWRhbGJlcnQgTGF6xINyIDxhbGF6YXJAYml0ZGVmZW5kZXIuY29tPgotLS0KIGFyY2gveDg2
-L2t2bS94ODYuYyB8IDQ5ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKysKIDEgZmlsZSBjaGFuZ2VkLCA0OSBpbnNlcnRpb25zKCspCgpkaWZmIC0tZ2l0IGEvYXJj
-aC94ODYva3ZtL3g4Ni5jIGIvYXJjaC94ODYva3ZtL3g4Ni5jCmluZGV4IDEyZTliNDY4OTAyNS4u
-ZGU5MDMzNWQyZTAxIDEwMDY0NAotLS0gYS9hcmNoL3g4Ni9rdm0veDg2LmMKKysrIGIvYXJjaC94
-ODYva3ZtL3g4Ni5jCkBAIC02NzkzLDYgKzY3OTMsNTEgQEAgc3RhdGljIGJvb2wgaXNfdm13YXJl
-X2JhY2tkb29yX29wY29kZShzdHJ1Y3QgeDg2X2VtdWxhdGVfY3R4dCAqY3R4dCkKIAlyZXR1cm4g
-ZmFsc2U7CiB9CiAKKy8qCisgKiBXaXRoIGludHJvc3BlY3Rpb24gZW5hYmxlZCwgZW11bGF0aW9u
-IGZhaWx1cmVzIHRyYW5zbGF0ZSBpbiBldmVudHMgYmVpbmcKKyAqIG1pc3NlZCBiZWNhdXNlIHRo
-ZSByZWFkL3dyaXRlIGNhbGxiYWNrcyBhcmUgbm90IGludm9rZWQuIEFsbCB3ZSBoYXZlIGlzCisg
-KiB0aGUgZmV0Y2ggZXZlbnQgKGt2bV9wYWdlX3RyYWNrX3ByZWV4ZWMpLiBCZWxvdyB3ZSB1c2Ug
-dGhlIEVQVC9OUFQgVk1FWElUCisgKiBpbmZvcm1hdGlvbiB0byBnZW5lcmF0ZSB0aGUgZXZlbnRz
-LCBidXQgd2l0aG91dCBwcm92aWRpbmcgYWNjdXJhdGUKKyAqIGRhdGEgYW5kIHNpemUgKHRoZSBl
-bXVsYXRvciB3b3VsZCBoYXZlIGNvbXB1dGVkIHRob3NlKS4gSWYgYW4gaW5zdHJ1Y3Rpb24KKyAq
-IHdvdWxkIGhhcHBlbiB0byByZWFkIGFuZCB3cml0ZSBpbiB0aGUgc2FtZSBwYWdlLCB0aGUgc2Vj
-b25kIGV2ZW50IHdpbGwKKyAqIGluaXRpYWxseSBiZSBtaXNzZWQgYW5kIHdlIHJlbHkgb24gdGhl
-IHBhZ2UgdHJhY2tpbmcgbWVjaGFuaXNtIHRvIGJyaW5nCisgKiB1cyBiYWNrIGhlcmUgdG8gc2Vu
-ZCBpdC4KKyAqLworc3RhdGljIGJvb2wga3ZtX3BhZ2VfdHJhY2tfZW11bGF0aW9uX2ZhaWx1cmUo
-c3RydWN0IGt2bV92Y3B1ICp2Y3B1LCBncGFfdCBncGEpCit7CisJdTY0IGVycm9yX2NvZGUgPSB2
-Y3B1LT5hcmNoLmVycm9yX2NvZGU7CisJdTggZGF0YSA9IDA7CisJZ3ZhX3QgZ3ZhOworCWJvb2wg
-cmV0OworCisJLyogTU1JTyBlbXVsYXRpb24gZmFpbHVyZXMgc2hvdWxkIGJlIHRyZWF0ZWQgdGhl
-IG5vcm1hbCB3YXkgKi8KKwlpZiAodW5saWtlbHkoZXJyb3JfY29kZSAmIFBGRVJSX1JTVkRfTUFT
-SykpCisJCXJldHVybiB0cnVlOworCisJLyogRVBUL05UUCBtdXN0IGJlIGVuYWJsZWQgKi8KKwlp
-ZiAodW5saWtlbHkoIXZjcHUtPmFyY2gubW11LT5kaXJlY3RfbWFwKSkKKwkJcmV0dXJuIHRydWU7
-CisKKwkvKgorCSAqIFRoZSBBL0QgYml0IGVtdWxhdGlvbiBzaG91bGQgbWFrZSB0aGlzIHRlc3Qg
-dW5uZWVkZWQsIGJ1dCBqdXN0CisJICogaW4gY2FzZQorCSAqLworCWlmICh1bmxpa2VseSgoZXJy
-b3JfY29kZSAmIFBGRVJSX05FU1RFRF9HVUVTVF9QQUdFKSA9PQorCQkgICAgIFBGRVJSX05FU1RF
-RF9HVUVTVF9QQUdFKSkKKwkJcmV0dXJuIHRydWU7CisKKwlndmEgPSBrdm1feDg2X29wcy0+ZmF1
-bHRfZ2xhKHZjcHUpOworCisJaWYgKGVycm9yX2NvZGUgJiBQRkVSUl9XUklURV9NQVNLKQorCQly
-ZXQgPSBrdm1fcGFnZV90cmFja19wcmV3cml0ZSh2Y3B1LCBncGEsIGd2YSwgJmRhdGEsIDApOwor
-CWVsc2UgaWYgKGVycm9yX2NvZGUgJiBQRkVSUl9VU0VSX01BU0spCisJCXJldCA9IGt2bV9wYWdl
-X3RyYWNrX3ByZXJlYWQodmNwdSwgZ3BhLCBndmEsIDApOworCWVsc2UKKwkJcmV0ID0gdHJ1ZTsK
-KworCXJldHVybiByZXQ7Cit9CisKIGludCB4ODZfZW11bGF0ZV9pbnN0cnVjdGlvbihzdHJ1Y3Qg
-a3ZtX3ZjcHUgKnZjcHUsIGdwYV90IGNyMl9vcl9ncGEsCiAJCQkgICAgaW50IGVtdWxhdGlvbl90
-eXBlLCB2b2lkICppbnNuLCBpbnQgaW5zbl9sZW4pCiB7CkBAIC02ODQyLDYgKzY4ODcsOCBAQCBp
-bnQgeDg2X2VtdWxhdGVfaW5zdHJ1Y3Rpb24oc3RydWN0IGt2bV92Y3B1ICp2Y3B1LCBncGFfdCBj
-cjJfb3JfZ3BhLAogCQkJCWt2bV9xdWV1ZV9leGNlcHRpb24odmNwdSwgVURfVkVDVE9SKTsKIAkJ
-CQlyZXR1cm4gMTsKIAkJCX0KKwkJCWlmICgha3ZtX3BhZ2VfdHJhY2tfZW11bGF0aW9uX2ZhaWx1
-cmUodmNwdSwgY3IyX29yX2dwYSkpCisJCQkJcmV0dXJuIDE7CiAJCQlpZiAocmVleGVjdXRlX2lu
-c3RydWN0aW9uKHZjcHUsIGNyMl9vcl9ncGEsCiAJCQkJCQkgIHdyaXRlX2ZhdWx0X3RvX3NwdCwK
-IAkJCQkJCSAgZW11bGF0aW9uX3R5cGUpKQpAQCAtNjkwMCw2ICs2OTQ3LDggQEAgaW50IHg4Nl9l
-bXVsYXRlX2luc3RydWN0aW9uKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSwgZ3BhX3QgY3IyX29yX2dw
-YSwKIAkJcmV0dXJuIDE7CiAKIAlpZiAociA9PSBFTVVMQVRJT05fRkFJTEVEKSB7CisJCWlmICgh
-a3ZtX3BhZ2VfdHJhY2tfZW11bGF0aW9uX2ZhaWx1cmUodmNwdSwgY3IyX29yX2dwYSkpCisJCQly
-ZXR1cm4gMTsKIAkJaWYgKHJlZXhlY3V0ZV9pbnN0cnVjdGlvbih2Y3B1LCBjcjJfb3JfZ3BhLCB3
-cml0ZV9mYXVsdF90b19zcHQsCiAJCQkJCWVtdWxhdGlvbl90eXBlKSkKIAkJCXJldHVybiAxOwpf
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
-dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
-cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
-dHVhbGl6YXRpb24=
+From: Mihai Donțu <mdontu@bitdefender.com>
+
+Based on the common structure (kvmi_vcpu_hdr) used for all vCPU commands,
+the receiving thread validates and dispatches the message to the proper
+vCPU (adding the handling function to its jobs list).
+
+Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
+Co-developed-by: Nicușor Cîțu <ncitu@bitdefender.com>
+Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
+Co-developed-by: Adalbert Lazăr <alazar@bitdefender.com>
+Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
+---
+ Documentation/virt/kvm/kvmi.rst   |   8 ++
+ include/uapi/linux/kvmi.h         |   6 ++
+ virt/kvm/introspection/kvmi_int.h |   3 +
+ virt/kvm/introspection/kvmi_msg.c | 169 +++++++++++++++++++++++++++++-
+ 4 files changed, 184 insertions(+), 2 deletions(-)
+
+diff --git a/Documentation/virt/kvm/kvmi.rst b/Documentation/virt/kvm/kvmi.rst
+index 748d786d1c08..271aed21f634 100644
+--- a/Documentation/virt/kvm/kvmi.rst
++++ b/Documentation/virt/kvm/kvmi.rst
+@@ -232,6 +232,14 @@ The following C structures are meant to be used directly when communicating
+ over the wire. The peer that detects any size mismatch should simply close
+ the connection and report the error.
+ 
++The vCPU commands start with::
++
++	struct kvmi_vcpu_hdr {
++		__u16 vcpu;
++		__u16 padding1;
++		__u32 padding2;
++	}
++
+ 1. KVMI_GET_VERSION
+ -------------------
+ 
+diff --git a/include/uapi/linux/kvmi.h b/include/uapi/linux/kvmi.h
+index 335e3d879df9..4a75bc28d7e0 100644
+--- a/include/uapi/linux/kvmi.h
++++ b/include/uapi/linux/kvmi.h
+@@ -100,6 +100,12 @@ struct kvmi_vm_write_physical {
+ 	__u8  data[0];
+ };
+ 
++struct kvmi_vcpu_hdr {
++	__u16 vcpu;
++	__u16 padding1;
++	__u32 padding2;
++};
++
+ struct kvmi_event {
+ 	__u16 size;
+ 	__u16 vcpu;
+diff --git a/virt/kvm/introspection/kvmi_int.h b/virt/kvm/introspection/kvmi_int.h
+index 5d40d872e493..55500b89398b 100644
+--- a/virt/kvm/introspection/kvmi_int.h
++++ b/virt/kvm/introspection/kvmi_int.h
+@@ -32,6 +32,9 @@ int kvmi_msg_send_unhook(struct kvm_introspection *kvmi);
+ /* kvmi.c */
+ void *kvmi_msg_alloc(void);
+ void kvmi_msg_free(void *addr);
++int kvmi_add_job(struct kvm_vcpu *vcpu,
++		 void (*fct)(struct kvm_vcpu *vcpu, void *ctx),
++		 void *ctx, void (*free_fct)(void *ctx));
+ int kvmi_cmd_vm_control_events(struct kvm_introspection *kvmi,
+ 				unsigned int event_id, bool enable);
+ int kvmi_cmd_read_physical(struct kvm *kvm, u64 gpa, size_t size,
+diff --git a/virt/kvm/introspection/kvmi_msg.c b/virt/kvm/introspection/kvmi_msg.c
+index 1faf70945123..57e082c3bb43 100644
+--- a/virt/kvm/introspection/kvmi_msg.c
++++ b/virt/kvm/introspection/kvmi_msg.c
+@@ -9,6 +9,30 @@
+ #include "kvmi_int.h"
+ 
+ static bool is_vm_command(u16 id);
++static bool is_vcpu_command(u16 id);
++
++struct kvmi_vcpu_cmd_job {
++	struct {
++		struct kvmi_msg_hdr hdr;
++		struct kvmi_vcpu_hdr cmd;
++	} *msg;
++	struct kvm_vcpu *vcpu;
++};
++
++static const char *const msg_IDs[] = {
++	[KVMI_GET_VERSION]       = "KVMI_GET_VERSION",
++	[KVMI_VM_CHECK_COMMAND]  = "KVMI_VM_CHECK_COMMAND",
++	[KVMI_VM_CHECK_EVENT]    = "KVMI_VM_CHECK_EVENT",
++	[KVMI_VM_CONTROL_EVENTS] = "KVMI_VM_CONTROL_EVENTS",
++	[KVMI_VM_GET_INFO]       = "KVMI_VM_GET_INFO",
++	[KVMI_VM_READ_PHYSICAL]  = "KVMI_VM_READ_PHYSICAL",
++	[KVMI_VM_WRITE_PHYSICAL] = "KVMI_VM_WRITE_PHYSICAL",
++};
++
++static const char *id2str(u16 id)
++{
++	return id < ARRAY_SIZE(msg_IDs) ? msg_IDs[id] : "unknown";
++}
+ 
+ bool kvmi_sock_get(struct kvm_introspection *kvmi, int fd)
+ {
+@@ -105,6 +129,28 @@ static bool is_command_allowed(struct kvm_introspection *kvmi, u16 id)
+ 	return id < KVMI_NUM_COMMANDS && test_bit(id, kvmi->cmd_allow_mask);
+ }
+ 
++static bool invalid_vcpu_hdr(const struct kvmi_vcpu_hdr *hdr)
++{
++	return hdr->padding1 || hdr->padding2;
++}
++
++static int kvmi_get_vcpu(struct kvm_introspection *kvmi, unsigned int vcpu_idx,
++			 struct kvm_vcpu **dest)
++{
++	struct kvm *kvm = kvmi->kvm;
++	struct kvm_vcpu *vcpu;
++
++	if (vcpu_idx >= atomic_read(&kvm->online_vcpus))
++		return -KVM_EINVAL;
++
++	vcpu = kvm_get_vcpu(kvm, vcpu_idx);
++	if (!vcpu)
++		return -KVM_EINVAL;
++
++	*dest = vcpu;
++	return 0;
++}
++
+ static int handle_get_version(struct kvm_introspection *kvmi,
+ 			      const struct kvmi_msg_hdr *msg, const void *req)
+ {
+@@ -125,7 +171,7 @@ static int handle_check_command(struct kvm_introspection *kvmi,
+ 
+ 	if (req->padding1 || req->padding2)
+ 		ec = -KVM_EINVAL;
+-	else if (!is_vm_command(req->id))
++	else if (!is_vm_command(req->id) && !is_vcpu_command(req->id))
+ 		ec = -KVM_ENOENT;
+ 	else if (!is_command_allowed(kvmi, req->id))
+ 		ec = -KVM_EPERM;
+@@ -261,6 +307,60 @@ static bool is_vm_command(u16 id)
+ 	return id < ARRAY_SIZE(msg_vm) && !!msg_vm[id];
+ }
+ 
++/*
++ * These commands are executed from the vCPU thread. The receiving thread
++ * passes the messages using a newly allocated 'struct kvmi_vcpu_cmd_job'
++ * and signals the vCPU to handle the command (which includes
++ * sending back the reply).
++ */
++static int(*const msg_vcpu[])(const struct kvmi_vcpu_cmd_job *,
++			      const struct kvmi_msg_hdr *, const void *) = {
++};
++
++static bool is_vcpu_command(u16 id)
++{
++	return id < ARRAY_SIZE(msg_vcpu) && !!msg_vcpu[id];
++}
++
++static void kvmi_job_vcpu_cmd(struct kvm_vcpu *vcpu, void *ctx)
++{
++	struct kvmi_vcpu_cmd_job *job = ctx;
++	size_t id = job->msg->hdr.id;
++	int err;
++
++	job->vcpu = vcpu;
++
++	err = msg_vcpu[id](job, &job->msg->hdr, job->msg + 1);
++
++	if (err) {
++		struct kvm_introspection *kvmi = KVMI(vcpu->kvm);
++
++		kvmi_err(kvmi, "%s: msg id %zu (%s) size %u err %d\n",
++			 __func__, id, id2str(id), job->msg->hdr.size, err);
++		kvmi_sock_shutdown(kvmi);
++	}
++}
++
++static void kvmi_free_ctx(void *_ctx)
++{
++	const struct kvmi_vcpu_cmd_job *ctx = _ctx;
++
++	kvmi_msg_free(ctx->msg);
++	kfree(ctx);
++}
++
++static int kvmi_msg_queue_to_vcpu(struct kvm_vcpu *vcpu,
++				  const struct kvmi_vcpu_cmd_job *cmd)
++{
++	return kvmi_add_job(vcpu, kvmi_job_vcpu_cmd, (void *)cmd,
++			    kvmi_free_ctx);
++}
++
++static bool is_vcpu_message(u16 id)
++{
++	return is_vcpu_command(id);
++}
++
+ static struct kvmi_msg_hdr *kvmi_msg_recv(struct kvm_introspection *kvmi)
+ {
+ 	struct kvmi_msg_hdr *msg;
+@@ -308,9 +408,68 @@ static int kvmi_msg_vm_reply_ec(struct kvm_introspection *kvmi,
+ 	return kvmi_msg_vm_reply(kvmi, msg, ec, NULL, 0);
+ }
+ 
++static bool vcpu_can_handle_commands(struct kvm_vcpu *vcpu)
++{
++	return vcpu->arch.mp_state != KVM_MP_STATE_UNINITIALIZED;
++}
++
++static bool kvmi_get_vcpu_if_ready(struct kvm_introspection *kvmi,
++				   unsigned int vcpu_idx,
++				   struct kvm_vcpu **vcpu)
++{
++	int err;
++
++	err = kvmi_get_vcpu(kvmi, vcpu_idx, vcpu);
++
++	return !err && vcpu_can_handle_commands(*vcpu);
++}
++
++static int kvmi_validate_vcpu_cmd(struct kvm_introspection *kvmi,
++				  struct kvmi_msg_hdr *msg,
++				  struct kvm_vcpu **vcpu)
++{
++	struct kvmi_vcpu_hdr *cmd = (struct kvmi_vcpu_hdr *)(msg + 1);
++	unsigned int vcpu_idx = cmd->vcpu;
++
++	if (invalid_vcpu_hdr(cmd))
++		return -KVM_EINVAL;
++
++	if (!kvmi_get_vcpu_if_ready(kvmi, vcpu_idx, vcpu))
++		return -KVM_EAGAIN;
++
++	return 0;
++}
++
++static int kvmi_msg_dispatch_vcpu_cmd(struct kvm_introspection *kvmi,
++				      struct kvmi_msg_hdr *msg,
++				      bool *queued)
++{
++	struct kvmi_vcpu_cmd_job *job_cmd;
++	struct kvm_vcpu *vcpu = NULL;
++	int err, ec;
++
++	ec = kvmi_validate_vcpu_cmd(kvmi, msg, &vcpu);
++	if (ec)
++		return kvmi_msg_vm_reply_ec(kvmi, msg, ec);
++
++	job_cmd = kzalloc(sizeof(*job_cmd), GFP_KERNEL);
++	if (!job_cmd)
++		return -KVM_ENOMEM;
++
++	job_cmd->msg = (void *)msg;
++
++	err = kvmi_msg_queue_to_vcpu(vcpu, job_cmd);
++	if (err)
++		kfree(job_cmd);
++
++	*queued = err == 0;
++	return err;
++}
++
+ bool kvmi_msg_process(struct kvm_introspection *kvmi)
+ {
+ 	struct kvmi_msg_hdr *msg;
++	bool queued = false;
+ 	int err = -1;
+ 
+ 	msg = kvmi_msg_recv(kvmi);
+@@ -322,11 +481,17 @@ bool kvmi_msg_process(struct kvm_introspection *kvmi)
+ 			err = kvmi_msg_dispatch_vm_cmd(kvmi, msg);
+ 		else
+ 			err = kvmi_msg_vm_reply_ec(kvmi, msg, -KVM_EPERM);
++	} else if (is_vcpu_message(msg->id)) {
++		if (is_message_allowed(kvmi, msg->id))
++			err = kvmi_msg_dispatch_vcpu_cmd(kvmi, msg, &queued);
++		else
++			err = kvmi_msg_vm_reply_ec(kvmi, msg, -KVM_EPERM);
+ 	} else {
+ 		err = kvmi_msg_vm_reply_ec(kvmi, msg, -KVM_ENOSYS);
+ 	}
+ 
+-	kvmi_msg_free(msg);
++	if (!queued)
++		kvmi_msg_free(msg);
+ out:
+ 	return err == 0;
+ }
