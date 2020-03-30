@@ -1,15 +1,57 @@
-From: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Subject: Re: [PATCH v2 02/10] virtio-mem: Allow to specify an ACPI PXM as nid
-Date: Mon, 30 Mar 2020 13:04:46 +0200
-Message-ID: <CAM9Jb+iLe7inqnAVmmaq2bsRGVKn+dwJqLD=M4yU3KQf+Au9hA@mail.gmail.com>
-References: <20200311171422.10484-1-david@redhat.com> <20200311171422.10484-3-david@redhat.com>
+From: John Garry <john.garry@huawei.com>
+Subject: Re: [PATCH RFC v2 12/24] hpsa: use reserved commands
+Date: Mon, 30 Mar 2020 14:42:45 +0100
+Message-ID: <c3f5c030-d735-c730-6ff9-19cb1cb50fe8@huawei.com>
+References: <1583857550-12049-1-git-send-email-john.garry@huawei.com>
+ <1583857550-12049-13-git-send-email-john.garry@huawei.com>
+ <20200311081059.GC31504@ming.t460p>
+ <a76ab13a-85a3-0d88-595f-af13ef1b3fe3@huawei.com>
+ <881b6a9b-2137-946f-a900-5c4e6cf1fe37@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <20200311171422.10484-3-david@redhat.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Michal Hocko <mhocko@suse.com>, "Rafael J. Wysocki" <rafael@kernel.org>, Jason Wang <jasowang@redhat.com>, Oscar Salvador <osalvador@suse.de>, Igor Mammedov <imammedo@redhat.com>, Dave Young <dyoung@redhat.com>, Dan Williams <dan.j.williams@intel.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Stefan Hajnoczi <stefanha@redhat.com>, Vlastimil Babka <vbabka@suse.cz>, Len Brown <lenb@kernel.org>, linux-acpi@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-block-owner@vger.kernel.org>
+In-Reply-To: <881b6a9b-2137-946f-a900-5c4e6cf1fe37@suse.de>
+Content-Language: en-US
+Sender: linux-block-owner@vger.kernel.org
+To: Hannes Reinecke <hare@suse.de>, Ming Lei <ming.lei@redhat.com>
+Cc: axboe@kernel.dk, jejb@linux.ibm.com, martin.petersen@oracle.com, bvanassche@acm.org, hch@infradead.org, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org, esc.storagedev@microsemi.com, chenxiang66@hisilicon.com, Hannes Reinecke <hare@suse.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Acked-by: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+On 17/03/2020 09:48, Hannes Reinecke wrote:
+> On 3/17/20 10:38 AM, John Garry wrote:
+>> On 11/03/2020 08:10, Ming Lei wrote:
+>>>> ands(struct ctlr_info *h)
+>>>> @@ -5803,6 +5803,7 @@ static int hpsa_scsi_host_alloc(struct 
+>>>> ctlr_info *h)
+>>>>       sh->max_lun = HPSA_MAX_LUN;
+>>>>       sh->max_id = HPSA_MAX_LUN;
+>>>>       sh->can_queue = h->nr_cmds - HPSA_NRESERVED_CMDS;
+>>>> +    sh->nr_reserved_cmds = HPSA_NRESERVED_CMDS;
+>>> Now .nr_reserved_cmds has been passed to blk-mq, you need to increase
+>>> sh->can_queue to h->nr_cmds, because .can_queue is the whole queue depth
+>>> (include the part of reserved tags), otherwise, IO tags will be
+>>> decreased.
+>>>
+>>
+>> Sounds correct.
+>>
+> I will have having a look at the patchset; I thought I did a patch to 
+> modify .can_queue so that it would cover only the usable tags, not the 
+> reserved ones.
+> 
+
+To me, it makes sense to leave .can_queue unmodified, carry it down to 
+blk-mq and allow blk_mq_init_bitmap_tags() find the queue depth:
+
+static struct blk_mq_tags *blk_mq_init_bitmap_tags(struct blk_mq_tags *tags,
+   int node, int alloc_policy)
+{
+	unsigned int depth = tags->nr_tags - tags->nr_reserved_tags; *
+	bool round_robin = alloc_policy == BLK_TAG_ALLOC_RR;
+
+	if (bt_alloc(&tags->bitmap_tags, depth, round_robin, node))
+		goto free_tags;
+
+Cheers,
+John
