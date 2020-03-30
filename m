@@ -1,106 +1,349 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH v8 49/81] KVM: introspection: add a jobs list to every
- introspected vCPU
-Date: Mon, 30 Mar 2020 13:12:36 +0300
-Message-ID: <20200330101308.21702-50-alazar@bitdefender.com>
+Subject: [PATCH v8 46/81] KVM: introspection: add KVMI_VM_CONTROL_EVENTS
+Date: Mon, 30 Mar 2020 13:12:33 +0300
+Message-ID: <20200330101308.21702-47-alazar@bitdefender.com>
 References: <20200330101308.21702-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200330101308.21702-1-alazar@bitdefender.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-RXZlcnkgdkNQVSBoYXMgYSBsb2NrLXByb3RlY3RlZCBsaXN0IGluIHdoaWNoIHRoZSByZWNlaXZp
-bmcgd29ya2VyCnBsYWNlcyB0aGUgam9icyB0aGF0IGhhcyB0byBiZSBkb25lIGJ5IHRoZSB2Q1BV
-IHRocmVhZApvbmNlIGl0IGlzIGtpY2tlZCBvdXQgb2YgZ3Vlc3QgKEtWTV9SRVFfSU5UUk9TUEVD
-VElPTikuCgpBIGpvYiBpcyBkZWZpbmVkIGJ5IGEgImRvIiBmdW5jdGlvbiwgYSAiZnJlZSIgZnVu
-Y3Rpb24gYW5kIGEgcG9pbnRlcgoodGhlIGNvbnRleHQpLgoKQ28tZGV2ZWxvcGVkLWJ5OiBOaWN1
-yJlvciBDw67Im3UgPG5jaXR1QGJpdGRlZmVuZGVyLmNvbT4KU2lnbmVkLW9mZi1ieTogTmljdciZ
-b3IgQ8OuyJt1IDxuY2l0dUBiaXRkZWZlbmRlci5jb20+ClNpZ25lZC1vZmYtYnk6IEFkYWxiZXJ0
-IExhesSDciA8YWxhemFyQGJpdGRlZmVuZGVyLmNvbT4KLS0tCiBpbmNsdWRlL2xpbnV4L2t2bWlf
-aG9zdC5oICAgICAgICAgfCAxMCArKysrKwogdmlydC9rdm0vaW50cm9zcGVjdGlvbi9rdm1pLmMg
-ICAgIHwgNzIgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrLQogdmlydC9rdm0vaW50cm9z
-cGVjdGlvbi9rdm1pX2ludC5oIHwgIDEgKwogMyBmaWxlcyBjaGFuZ2VkLCA4MSBpbnNlcnRpb25z
-KCspLCAyIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgva3ZtaV9ob3N0
-LmggYi9pbmNsdWRlL2xpbnV4L2t2bWlfaG9zdC5oCmluZGV4IGNhMmRiODA0M2E1My4uMWQ4MGQy
-MzNmYmQ1IDEwMDY0NAotLS0gYS9pbmNsdWRlL2xpbnV4L2t2bWlfaG9zdC5oCisrKyBiL2luY2x1
-ZGUvbGludXgva3ZtaV9ob3N0LmgKQEAgLTExLDggKzExLDE4IEBAIHN0cnVjdCBrdm1fdmNwdTsK
-IAogI2RlZmluZSBLVk1JX05VTV9DT01NQU5EUyBLVk1JX05VTV9NRVNTQUdFUwogCitzdHJ1Y3Qg
-a3ZtaV9qb2IgeworCXN0cnVjdCBsaXN0X2hlYWQgbGluazsKKwl2b2lkICpjdHg7CisJdm9pZCAo
-KmZjdCkoc3RydWN0IGt2bV92Y3B1ICp2Y3B1LCB2b2lkICpjdHgpOworCXZvaWQgKCpmcmVlX2Zj
-dCkodm9pZCAqY3R4KTsKK307CisKIHN0cnVjdCBrdm1fdmNwdV9pbnRyb3NwZWN0aW9uIHsKIAlz
-dHJ1Y3Qga3ZtX3ZjcHVfYXJjaF9pbnRyb3NwZWN0aW9uIGFyY2g7CisKKwlzdHJ1Y3QgbGlzdF9o
-ZWFkIGpvYl9saXN0OworCXNwaW5sb2NrX3Qgam9iX2xvY2s7CiB9OwogCiBzdHJ1Y3Qga3ZtX2lu
-dHJvc3BlY3Rpb24gewpkaWZmIC0tZ2l0IGEvdmlydC9rdm0vaW50cm9zcGVjdGlvbi9rdm1pLmMg
-Yi92aXJ0L2t2bS9pbnRyb3NwZWN0aW9uL2t2bWkuYwppbmRleCBhOWY5YWZiYTZiYTIuLmUzNjQ2
-MGI3NTVlOSAxMDA2NDQKLS0tIGEvdmlydC9rdm0vaW50cm9zcGVjdGlvbi9rdm1pLmMKKysrIGIv
-dmlydC9rdm0vaW50cm9zcGVjdGlvbi9rdm1pLmMKQEAgLTE3LDYgKzE3LDcgQEAgREVDTEFSRV9C
-SVRNQVAoS3ZtaV9rbm93bl92bV9ldmVudHMsIEtWTUlfTlVNX0VWRU5UUyk7CiBzdGF0aWMgREVD
-TEFSRV9CSVRNQVAoS3ZtaV9rbm93bl92Y3B1X2V2ZW50cywgS1ZNSV9OVU1fRVZFTlRTKTsKIAog
-c3RhdGljIHN0cnVjdCBrbWVtX2NhY2hlICptc2dfY2FjaGU7CitzdGF0aWMgc3RydWN0IGttZW1f
-Y2FjaGUgKmpvYl9jYWNoZTsKIAogdm9pZCAqa3ZtaV9tc2dfYWxsb2Modm9pZCkKIHsKQEAgLTMz
-LDE0ICszNCwxOSBAQCBzdGF0aWMgdm9pZCBrdm1pX2NhY2hlX2Rlc3Ryb3kodm9pZCkKIHsKIAlr
-bWVtX2NhY2hlX2Rlc3Ryb3kobXNnX2NhY2hlKTsKIAltc2dfY2FjaGUgPSBOVUxMOworCWttZW1f
-Y2FjaGVfZGVzdHJveShqb2JfY2FjaGUpOworCWpvYl9jYWNoZSA9IE5VTEw7CiB9CiAKIHN0YXRp
-YyBpbnQga3ZtaV9jYWNoZV9jcmVhdGUodm9pZCkKIHsKIAltc2dfY2FjaGUgPSBrbWVtX2NhY2hl
-X2NyZWF0ZSgia3ZtaV9tc2ciLCBLVk1JX01TR19TSVpFX0FMTE9DLAogCQkJCSAgICAgIDQwOTYs
-IFNMQUJfQUNDT1VOVCwgTlVMTCk7CisJam9iX2NhY2hlID0ga21lbV9jYWNoZV9jcmVhdGUoImt2
-bWlfam9iIiwKKwkJCQkgICAgICBzaXplb2Yoc3RydWN0IGt2bWlfam9iKSwKKwkJCQkgICAgICAw
-LCBTTEFCX0FDQ09VTlQsIE5VTEwpOwogCi0JaWYgKCFtc2dfY2FjaGUpIHsKKwlpZiAoIW1zZ19j
-YWNoZSB8fCAham9iX2NhY2hlKSB7CiAJCWt2bWlfY2FjaGVfZGVzdHJveSgpOwogCiAJCXJldHVy
-biAtMTsKQEAgLTgxLDYgKzg3LDQ4IEBAIHZvaWQga3ZtaV91bmluaXQodm9pZCkKIAlrdm1pX2Nh
-Y2hlX2Rlc3Ryb3koKTsKIH0KIAorc3RhdGljIGludCBfX2t2bWlfYWRkX2pvYihzdHJ1Y3Qga3Zt
-X3ZjcHUgKnZjcHUsCisJCQkgIHZvaWQgKCpmY3QpKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSwgdm9p
-ZCAqY3R4KSwKKwkJCSAgdm9pZCAqY3R4LCB2b2lkICgqZnJlZV9mY3QpKHZvaWQgKmN0eCkpCit7
-CisJc3RydWN0IGt2bV92Y3B1X2ludHJvc3BlY3Rpb24gKnZjcHVpID0gVkNQVUkodmNwdSk7CisJ
-c3RydWN0IGt2bWlfam9iICpqb2I7CisKKwlqb2IgPSBrbWVtX2NhY2hlX3phbGxvYyhqb2JfY2Fj
-aGUsIEdGUF9LRVJORUwpOworCWlmICh1bmxpa2VseSgham9iKSkKKwkJcmV0dXJuIC1FTk9NRU07
-CisKKwlJTklUX0xJU1RfSEVBRCgmam9iLT5saW5rKTsKKwlqb2ItPmZjdCA9IGZjdDsKKwlqb2It
-PmN0eCA9IGN0eDsKKwlqb2ItPmZyZWVfZmN0ID0gZnJlZV9mY3Q7CisKKwlzcGluX2xvY2soJnZj
-cHVpLT5qb2JfbG9jayk7CisJbGlzdF9hZGRfdGFpbCgmam9iLT5saW5rLCAmdmNwdWktPmpvYl9s
-aXN0KTsKKwlzcGluX3VubG9jaygmdmNwdWktPmpvYl9sb2NrKTsKKworCXJldHVybiAwOworfQor
-CitpbnQga3ZtaV9hZGRfam9iKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSwKKwkJIHZvaWQgKCpmY3Qp
-KHN0cnVjdCBrdm1fdmNwdSAqdmNwdSwgdm9pZCAqY3R4KSwKKwkJIHZvaWQgKmN0eCwgdm9pZCAo
-KmZyZWVfZmN0KSh2b2lkICpjdHgpKQoreworCWludCBlcnI7CisKKwllcnIgPSBfX2t2bWlfYWRk
-X2pvYih2Y3B1LCBmY3QsIGN0eCwgZnJlZV9mY3QpOworCisJcmV0dXJuIGVycjsKK30KKworc3Rh
-dGljIHZvaWQga3ZtaV9mcmVlX2pvYihzdHJ1Y3Qga3ZtaV9qb2IgKmpvYikKK3sKKwlpZiAoam9i
-LT5mcmVlX2ZjdCkKKwkJam9iLT5mcmVlX2ZjdChqb2ItPmN0eCk7CisKKwlrbWVtX2NhY2hlX2Zy
-ZWUoam9iX2NhY2hlLCBqb2IpOworfQorCiBzdGF0aWMgYm9vbCBhbGxvY192Y3B1aShzdHJ1Y3Qg
-a3ZtX3ZjcHUgKnZjcHUpCiB7CiAJc3RydWN0IGt2bV92Y3B1X2ludHJvc3BlY3Rpb24gKnZjcHVp
-OwpAQCAtODksNiArMTM3LDkgQEAgc3RhdGljIGJvb2wgYWxsb2NfdmNwdWkoc3RydWN0IGt2bV92
-Y3B1ICp2Y3B1KQogCWlmICghdmNwdWkpCiAJCXJldHVybiBmYWxzZTsKIAorCUlOSVRfTElTVF9I
-RUFEKCZ2Y3B1aS0+am9iX2xpc3QpOworCXNwaW5fbG9ja19pbml0KCZ2Y3B1aS0+am9iX2xvY2sp
-OworCiAJdmNwdS0+a3ZtaSA9IHZjcHVpOwogCiAJcmV0dXJuIHRydWU7CkBAIC0xMDIsOSArMTUz
-LDI2IEBAIHN0YXRpYyBpbnQgY3JlYXRlX3ZjcHVpKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSkKIAly
-ZXR1cm4gMDsKIH0KIAorc3RhdGljIHZvaWQgZnJlZV92Y3B1X2pvYnMoc3RydWN0IGt2bV92Y3B1
-X2ludHJvc3BlY3Rpb24gKnZjcHVpKQoreworCXN0cnVjdCBrdm1pX2pvYiAqY3VyLCAqbmV4dDsK
-KworCWxpc3RfZm9yX2VhY2hfZW50cnlfc2FmZShjdXIsIG5leHQsICZ2Y3B1aS0+am9iX2xpc3Qs
-IGxpbmspIHsKKwkJbGlzdF9kZWwoJmN1ci0+bGluayk7CisJCWt2bWlfZnJlZV9qb2IoY3VyKTsK
-Kwl9Cit9CisKIHN0YXRpYyB2b2lkIGZyZWVfdmNwdWkoc3RydWN0IGt2bV92Y3B1ICp2Y3B1KQog
-ewotCWtmcmVlKHZjcHUtPmt2bWkpOworCXN0cnVjdCBrdm1fdmNwdV9pbnRyb3NwZWN0aW9uICp2
-Y3B1aSA9IFZDUFVJKHZjcHUpOworCisJaWYgKCF2Y3B1aSkKKwkJcmV0dXJuOworCisJZnJlZV92
-Y3B1X2pvYnModmNwdWkpOworCisJa2ZyZWUodmNwdWkpOwogCXZjcHUtPmt2bWkgPSBOVUxMOwog
-fQogCmRpZmYgLS1naXQgYS92aXJ0L2t2bS9pbnRyb3NwZWN0aW9uL2t2bWlfaW50LmggYi92aXJ0
-L2t2bS9pbnRyb3NwZWN0aW9uL2t2bWlfaW50LmgKaW5kZXggNmExODA4NTg1YTMyLi41ZDQwZDg3
-MmU0OTMgMTAwNjQ0Ci0tLSBhL3ZpcnQva3ZtL2ludHJvc3BlY3Rpb24va3ZtaV9pbnQuaAorKysg
-Yi92aXJ0L2t2bS9pbnRyb3NwZWN0aW9uL2t2bWlfaW50LmgKQEAgLTIwLDYgKzIwLDcgQEAgZXh0
-ZXJuIERFQ0xBUkVfQklUTUFQKEt2bWlfa25vd25fZXZlbnRzLCBLVk1JX05VTV9FVkVOVFMpOwog
-ZXh0ZXJuIERFQ0xBUkVfQklUTUFQKEt2bWlfa25vd25fdm1fZXZlbnRzLCBLVk1JX05VTV9FVkVO
-VFMpOwogCiAjZGVmaW5lIEtWTUkoa3ZtKSAoKGt2bSktPmt2bWkpCisjZGVmaW5lIFZDUFVJKHZj
-cHUpICgodmNwdSktPmt2bWkpCiAKIC8qIGt2bWlfbXNnLmMgKi8KIGJvb2wga3ZtaV9zb2NrX2dl
-dChzdHJ1Y3Qga3ZtX2ludHJvc3BlY3Rpb24gKmt2bWksIGludCBmZCk7Cl9fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcg
-bGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
-c3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+With this command the introspection tool enables/disables VM events
+(ie. KVMI_EVENT_UNHOOK).
+
+By default, all events are disabled.
+
+Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
+---
+ Documentation/virt/kvm/kvmi.rst               | 44 +++++++++++++--
+ include/linux/kvmi_host.h                     |  2 +
+ include/uapi/linux/kvmi.h                     | 18 +++++--
+ .../testing/selftests/kvm/x86_64/kvmi_test.c  | 54 +++++++++++++++++++
+ virt/kvm/introspection/kvmi.c                 | 21 +++++++-
+ virt/kvm/introspection/kvmi_int.h             |  3 ++
+ virt/kvm/introspection/kvmi_msg.c             | 31 +++++++++--
+ 7 files changed, 159 insertions(+), 14 deletions(-)
+
+diff --git a/Documentation/virt/kvm/kvmi.rst b/Documentation/virt/kvm/kvmi.rst
+index e652bdd65052..7a47fade7f08 100644
+--- a/Documentation/virt/kvm/kvmi.rst
++++ b/Documentation/virt/kvm/kvmi.rst
+@@ -340,11 +340,45 @@ This command is always allowed.
+ 
+ Returns the number of online vCPUs.
+ 
++5. KVMI_VM_CONTROL_EVENTS
++-------------------------
++
++:Architectures: all
++:Versions: >= 1
++:Parameters:
++
++::
++
++	struct kvmi_vm_control_events {
++		__u16 event_id;
++		__u8 enable;
++		__u8 padding1;
++		__u32 padding2;
++	};
++
++:Returns:
++
++::
++
++	struct kvmi_error_code
++
++Enables/disables VM introspection events. This command can be used with
++the following events::
++
++	KVMI_EVENT_UNHOOK
++
++:Errors:
++
++* -KVM_EINVAL - the padding is not zero
++* -KVM_EINVAL - the event ID is unknown (use *KVMI_VM_CHECK_EVENT* first)
++* -KVM_EPERM - the access is disallowed (use *KVMI_VM_CHECK_EVENT* first)
++
+ Events
+ ======
+ 
+ All introspection events (VM or vCPU related) are sent
+-using the *KVMI_EVENT* message id.
++using the *KVMI_EVENT* message id. No event will be sent unless
++it is explicitly enabled.
+ 
+ The *KVMI_EVENT_UNHOOK* event doesn't have a reply and share the kvmi_event
+ structure, for consistency with the vCPU events.
+@@ -398,6 +432,8 @@ Specific data can follow these common structures.
+ 
+ :Returns: none
+ 
+-This event is sent when the device manager has to pause/stop/migrate the
+-guest (see **Unhooking**).  The introspection tool has a chance to unhook
+-and close the KVMI channel (signaling that the operation can proceed).
++This event is sent when the device manager has to pause/stop/migrate
++the guest (see **Unhooking**) and the introspection has been enabled
++for this event (see **KVMI_VM_CONTROL_EVENTS**). The introspection tool
++has a chance to unhook and close the KVMI channel (signaling that the
++operation can proceed).
+diff --git a/include/linux/kvmi_host.h b/include/linux/kvmi_host.h
+index 180e26335a8f..41b22af771fb 100644
+--- a/include/linux/kvmi_host.h
++++ b/include/linux/kvmi_host.h
+@@ -22,6 +22,8 @@ struct kvm_introspection {
+ 	DECLARE_BITMAP(cmd_allow_mask, KVMI_NUM_COMMANDS);
+ 	DECLARE_BITMAP(event_allow_mask, KVMI_NUM_EVENTS);
+ 
++	DECLARE_BITMAP(vm_event_enable_mask, KVMI_NUM_EVENTS);
++
+ 	atomic_t ev_seq;
+ };
+ 
+diff --git a/include/uapi/linux/kvmi.h b/include/uapi/linux/kvmi.h
+index 689eba32c031..66e04a82f054 100644
+--- a/include/uapi/linux/kvmi.h
++++ b/include/uapi/linux/kvmi.h
+@@ -15,12 +15,13 @@ enum {
+ };
+ 
+ enum {
+-	KVMI_EVENT            = 1,
++	KVMI_EVENT             = 1,
+ 
+-	KVMI_GET_VERSION      = 2,
+-	KVMI_VM_CHECK_COMMAND = 3,
+-	KVMI_VM_CHECK_EVENT   = 4,
+-	KVMI_VM_GET_INFO      = 5,
++	KVMI_GET_VERSION       = 2,
++	KVMI_VM_CHECK_COMMAND  = 3,
++	KVMI_VM_CHECK_EVENT    = 4,
++	KVMI_VM_GET_INFO       = 5,
++	KVMI_VM_CONTROL_EVENTS = 6,
+ 
+ 	KVMI_NUM_MESSAGES
+ };
+@@ -75,6 +76,13 @@ struct kvmi_vm_get_info_reply {
+ 	__u32 padding[3];
+ };
+ 
++struct kvmi_vm_control_events {
++	__u16 event_id;
++	__u8 enable;
++	__u8 padding1;
++	__u32 padding2;
++};
++
+ struct kvmi_event {
+ 	__u16 size;
+ 	__u16 vcpu;
+diff --git a/tools/testing/selftests/kvm/x86_64/kvmi_test.c b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
+index 9cb65f8c946f..c3beea3feb26 100644
+--- a/tools/testing/selftests/kvm/x86_64/kvmi_test.c
++++ b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
+@@ -245,9 +245,15 @@ static int cmd_check_event(__u16 id)
+ 
+ static void test_cmd_check_event(void)
+ {
++	__u16 valid_id = KVMI_EVENT_UNHOOK;
+ 	__u16 invalid_id = 0xffff;
+ 	int r;
+ 
++	r = cmd_check_event(valid_id);
++	TEST_ASSERT(r == 0,
++		"KVMI_VM_CHECK_EVENT failed, error %d (%s)\n",
++		-r, kvm_strerror(-r));
++
+ 	r = cmd_check_event(invalid_id);
+ 	TEST_ASSERT(r == -KVM_ENOENT,
+ 		"KVMI_VM_CHECK_EVENT didn't failed with -KVM_ENOENT, error %d (%s)\n",
+@@ -298,15 +304,62 @@ static void receive_event(struct kvmi_msg_hdr *hdr, struct kvmi_event *ev,
+ 		ev->event, event_id);
+ }
+ 
++static int cmd_vm_control_events(__u16 event_id, bool enable)
++{
++	struct {
++		struct kvmi_msg_hdr hdr;
++		struct kvmi_vm_control_events cmd;
++	} req = {};
++
++	req.cmd.event_id = event_id;
++	req.cmd.enable = enable ? 1 : 0;
++
++	return do_command(KVMI_VM_CONTROL_EVENTS, &req.hdr, sizeof(req),
++			     NULL, 0);
++}
++
++static void enable_vm_event(__u16 event_id)
++{
++	int r;
++
++	r = cmd_vm_control_events(event_id, true);
++	TEST_ASSERT(r == 0,
++		"KVMI_VM_CONTROL_EVENTS failed to enable VM event %d, error %d (%s)\n",
++		event_id, -r, kvm_strerror(-r));
++}
++
++static void disable_vm_event(__u16 event_id)
++{
++	int r;
++
++	r = cmd_vm_control_events(event_id, false);
++	TEST_ASSERT(r == 0,
++		"KVMI_VM_CONTROL_EVENTS failed to disable VM event %d, error %d (%s)\n",
++		event_id, -r, kvm_strerror(-r));
++}
++
+ static void test_event_unhook(struct kvm_vm *vm)
+ {
+ 	__u16 id = KVMI_EVENT_UNHOOK;
+ 	struct kvmi_msg_hdr hdr;
+ 	struct kvmi_event ev;
+ 
++	enable_vm_event(id);
++
+ 	trigger_event_unhook_notification(vm);
+ 
+ 	receive_event(&hdr, &ev, sizeof(ev), id);
++
++	disable_vm_event(id);
++}
++
++static void test_cmd_vm_control_events(void)
++{
++	__u16 id = KVMI_EVENT_UNHOOK;
++
++	enable_vm_event(id);
++
++	disable_vm_event(id);
+ }
+ 
+ static void test_introspection(struct kvm_vm *vm)
+@@ -320,6 +373,7 @@ static void test_introspection(struct kvm_vm *vm)
+ 	test_cmd_check_event();
+ 	test_cmd_get_vm_info();
+ 	test_event_unhook(vm);
++	test_cmd_vm_control_events();
+ 
+ 	unhook_introspection(vm);
+ }
+diff --git a/virt/kvm/introspection/kvmi.c b/virt/kvm/introspection/kvmi.c
+index bf6d5ec951c8..ec4515be5acc 100644
+--- a/virt/kvm/introspection/kvmi.c
++++ b/virt/kvm/introspection/kvmi.c
+@@ -12,7 +12,7 @@
+ 
+ static DECLARE_BITMAP(Kvmi_always_allowed_commands, KVMI_NUM_COMMANDS);
+ DECLARE_BITMAP(Kvmi_known_events, KVMI_NUM_EVENTS);
+-static DECLARE_BITMAP(Kvmi_known_vm_events, KVMI_NUM_EVENTS);
++DECLARE_BITMAP(Kvmi_known_vm_events, KVMI_NUM_EVENTS);
+ static DECLARE_BITMAP(Kvmi_known_vcpu_events, KVMI_NUM_EVENTS);
+ 
+ static struct kmem_cache *msg_cache;
+@@ -360,10 +360,18 @@ int kvmi_ioctl_command(struct kvm *kvm, void __user *argp)
+ 	return err;
+ }
+ 
++static bool is_vm_event_enabled(struct kvm_introspection *kvmi, int event)
++{
++	return test_bit(event, kvmi->vm_event_enable_mask);
++}
++
+ static bool kvmi_unhook_event(struct kvm_introspection *kvmi)
+ {
+ 	int err;
+ 
++	if (!is_vm_event_enabled(kvmi, KVMI_EVENT_UNHOOK))
++		return false;
++
+ 	err = kvmi_msg_send_unhook(kvmi);
+ 
+ 	return !err;
+@@ -389,3 +397,14 @@ int kvmi_ioctl_preunhook(struct kvm *kvm)
+ 	mutex_unlock(&kvm->kvmi_lock);
+ 	return err;
+ }
++
++int kvmi_cmd_vm_control_events(struct kvm_introspection *kvmi,
++				unsigned int event_id, bool enable)
++{
++	if (enable)
++		set_bit(event_id, kvmi->vm_event_enable_mask);
++	else
++		clear_bit(event_id, kvmi->vm_event_enable_mask);
++
++	return 0;
++}
+diff --git a/virt/kvm/introspection/kvmi_int.h b/virt/kvm/introspection/kvmi_int.h
+index ecd0625e0c9e..75078248a69c 100644
+--- a/virt/kvm/introspection/kvmi_int.h
++++ b/virt/kvm/introspection/kvmi_int.h
+@@ -17,6 +17,7 @@
+ 	kvm_info("%pU ERROR: " fmt, &kvmi->uuid, ## __VA_ARGS__)
+ 
+ extern DECLARE_BITMAP(Kvmi_known_events, KVMI_NUM_EVENTS);
++extern DECLARE_BITMAP(Kvmi_known_vm_events, KVMI_NUM_EVENTS);
+ 
+ #define KVMI(kvm) ((kvm)->kvmi)
+ 
+@@ -30,5 +31,7 @@ int kvmi_msg_send_unhook(struct kvm_introspection *kvmi);
+ /* kvmi.c */
+ void *kvmi_msg_alloc(void);
+ void kvmi_msg_free(void *addr);
++int kvmi_cmd_vm_control_events(struct kvm_introspection *kvmi,
++				unsigned int event_id, bool enable);
+ 
+ #endif
+diff --git a/virt/kvm/introspection/kvmi_msg.c b/virt/kvm/introspection/kvmi_msg.c
+index b381273b7355..4d897c65085b 100644
+--- a/virt/kvm/introspection/kvmi_msg.c
++++ b/virt/kvm/introspection/kvmi_msg.c
+@@ -171,15 +171,38 @@ static int handle_get_info(struct kvm_introspection *kvmi,
+ 	return kvmi_msg_vm_reply(kvmi, msg, 0, &rpl, sizeof(rpl));
+ }
+ 
++static int handle_vm_control_events(struct kvm_introspection *kvmi,
++				    const struct kvmi_msg_hdr *msg,
++				    const void *_req)
++{
++	const struct kvmi_vm_control_events *req = _req;
++	int ec;
++
++	if (req->padding1 || req->padding2 || req->enable > 1)
++		ec = -KVM_EINVAL;
++	else if (req->event_id >= KVMI_NUM_EVENTS)
++		ec = -KVM_EINVAL;
++	else if (!test_bit(req->event_id, Kvmi_known_vm_events))
++		ec = -KVM_EINVAL;
++	else if (!is_event_allowed(kvmi, req->event_id))
++		ec = -KVM_EPERM;
++	else
++		ec = kvmi_cmd_vm_control_events(kvmi, req->event_id,
++						req->enable == 1);
++
++	return kvmi_msg_vm_reply(kvmi, msg, ec, NULL, 0);
++}
++
+ /*
+  * These commands are executed by the receiving thread/worker.
+  */
+ static int(*const msg_vm[])(struct kvm_introspection *,
+ 			    const struct kvmi_msg_hdr *, const void *) = {
+-	[KVMI_GET_VERSION]      = handle_get_version,
+-	[KVMI_VM_CHECK_COMMAND] = handle_check_command,
+-	[KVMI_VM_CHECK_EVENT]   = handle_check_event,
+-	[KVMI_VM_GET_INFO]      = handle_get_info,
++	[KVMI_GET_VERSION]       = handle_get_version,
++	[KVMI_VM_CHECK_COMMAND]  = handle_check_command,
++	[KVMI_VM_CHECK_EVENT]    = handle_check_event,
++	[KVMI_VM_CONTROL_EVENTS] = handle_vm_control_events,
++	[KVMI_VM_GET_INFO]       = handle_get_info,
+ };
+ 
+ static bool is_vm_command(u16 id)
