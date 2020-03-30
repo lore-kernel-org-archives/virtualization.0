@@ -1,355 +1,78 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH v8 57/81] KVM: introspection: add KVMI_VCPU_GET_REGISTERS
-Date: Mon, 30 Mar 2020 13:12:44 +0300
-Message-ID: <20200330101308.21702-58-alazar@bitdefender.com>
+Subject: [PATCH v8 81/81] KVM: x86: call the page tracking code on emulation
+ failure
+Date: Mon, 30 Mar 2020 13:13:08 +0300
+Message-ID: <20200330101308.21702-82-alazar@bitdefender.com>
 References: <20200330101308.21702-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200330101308.21702-1-alazar@bitdefender.com>
-Sender: kvm-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Mihai Donțu <mdontu@bitdefender.com>
-
-This command is used to get kvm_regs and kvm_sregs structures,
-plus the list of struct kvm_msrs.
-
-Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
-Co-developed-by: Adalbert Lazăr <alazar@bitdefender.com>
-Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
----
- Documentation/virt/kvm/kvmi.rst               | 42 +++++++++
- arch/x86/include/uapi/asm/kvmi.h              | 15 +++
- arch/x86/kvm/kvmi.c                           | 91 +++++++++++++++++++
- include/uapi/linux/kvmi.h                     |  1 +
- .../testing/selftests/kvm/x86_64/kvmi_test.c  | 26 ++++++
- virt/kvm/introspection/kvmi.c                 |  7 ++
- virt/kvm/introspection/kvmi_int.h             |  8 ++
- virt/kvm/introspection/kvmi_msg.c             | 21 +++++
- 8 files changed, 211 insertions(+)
-
-diff --git a/Documentation/virt/kvm/kvmi.rst b/Documentation/virt/kvm/kvmi.rst
-index b0eb2649b10c..0000099e8038 100644
---- a/Documentation/virt/kvm/kvmi.rst
-+++ b/Documentation/virt/kvm/kvmi.rst
-@@ -566,6 +566,48 @@ the *KVMI_VM_CONTROL_EVENTS* command.
- * -KVM_EPERM - the access is disallowed (use *KVMI_VM_CHECK_EVENT* first)
- * -KVM_EAGAIN - the selected vCPU can't be introspected yet
- 
-+11. KVMI_VCPU_GET_REGISTERS
-+---------------------------
-+
-+:Architectures: x86
-+:Versions: >= 1
-+:Parameters:
-+
-+::
-+
-+	struct kvmi_vcpu_hdr;
-+	struct kvmi_vcpu_get_registers {
-+		__u16 nmsrs;
-+		__u16 padding1;
-+		__u32 padding2;
-+		__u32 msrs_idx[0];
-+	};
-+
-+:Returns:
-+
-+::
-+
-+	struct kvmi_error_code;
-+	struct kvmi_vcpu_get_registers_reply {
-+		__u32 mode;
-+		__u32 padding;
-+		struct kvm_regs regs;
-+		struct kvm_sregs sregs;
-+		struct kvm_msrs msrs;
-+	};
-+
-+For the given vCPU and the ``nmsrs`` sized array of MSRs registers,
-+returns the current vCPU mode (in bytes: 2, 4 or 8), the general purpose
-+registers, the special registers and the requested set of MSRs.
-+
-+:Errors:
-+
-+* -KVM_EINVAL - the selected vCPU is invalid
-+* -KVM_EINVAL - one of the indicated MSRs is invalid
-+* -KVM_EINVAL - the padding is not zero
-+* -KVM_EAGAIN - the selected vCPU can't be introspected yet
-+* -KVM_ENOMEM - there is not enough memory to allocate the reply
-+
- Events
- ======
- 
-diff --git a/arch/x86/include/uapi/asm/kvmi.h b/arch/x86/include/uapi/asm/kvmi.h
-index 89adf84cefe4..f14674c3c109 100644
---- a/arch/x86/include/uapi/asm/kvmi.h
-+++ b/arch/x86/include/uapi/asm/kvmi.h
-@@ -30,4 +30,19 @@ struct kvmi_vcpu_get_info_reply {
- 	__u64 tsc_speed;
- };
- 
-+struct kvmi_vcpu_get_registers {
-+	__u16 nmsrs;
-+	__u16 padding1;
-+	__u32 padding2;
-+	__u32 msrs_idx[0];
-+};
-+
-+struct kvmi_vcpu_get_registers_reply {
-+	__u32 mode;
-+	__u32 padding;
-+	struct kvm_regs regs;
-+	struct kvm_sregs sregs;
-+	struct kvm_msrs msrs;
-+};
-+
- #endif /* _UAPI_ASM_X86_KVMI_H */
-diff --git a/arch/x86/kvm/kvmi.c b/arch/x86/kvm/kvmi.c
-index 21ff48cfdb89..1ba264c10cff 100644
---- a/arch/x86/kvm/kvmi.c
-+++ b/arch/x86/kvm/kvmi.c
-@@ -98,3 +98,94 @@ int kvmi_arch_cmd_vcpu_get_info(struct kvm_vcpu *vcpu,
- 
- 	return 0;
- }
-+
-+int kvmi_arch_check_get_registers_req(const struct kvmi_msg_hdr *msg,
-+				const struct kvmi_vcpu_get_registers *req)
-+{
-+	size_t req_size;
-+
-+	if (check_add_overflow(sizeof(struct kvmi_vcpu_hdr),
-+				struct_size(req, msrs_idx, req->nmsrs),
-+				&req_size))
-+		return -1;
-+
-+	if (msg->size != req_size)
-+		return -1;
-+
-+	return 0;
-+}
-+
-+static void *alloc_get_registers_reply(const struct kvmi_msg_hdr *msg,
-+				const struct kvmi_vcpu_get_registers *req,
-+				size_t *rpl_size)
-+{
-+	struct kvmi_vcpu_get_registers_reply *rpl;
-+	u16 k, n = req->nmsrs;
-+
-+	*rpl_size = struct_size(rpl, msrs.entries, n);
-+	rpl = kvmi_msg_alloc_check(*rpl_size);
-+	if (rpl) {
-+		rpl->msrs.nmsrs = n;
-+
-+		for (k = 0; k < n; k++)
-+			rpl->msrs.entries[k].index = req->msrs_idx[k];
-+	}
-+
-+	return rpl;
-+}
-+
-+static int kvmi_get_registers(struct kvm_vcpu *vcpu, u32 *mode,
-+			      struct kvm_regs *regs,
-+			      struct kvm_sregs *sregs,
-+			      struct kvm_msrs *msrs)
-+{
-+	struct kvm_msr_entry *msr = msrs->entries;
-+	struct kvm_msr_entry *end = msrs->entries + msrs->nmsrs;
-+	int err = 0;
-+
-+	kvm_arch_vcpu_get_regs(vcpu, regs);
-+	kvm_arch_vcpu_get_sregs(vcpu, sregs);
-+	*mode = kvmi_vcpu_mode(vcpu, sregs);
-+
-+	for (; msr < end; msr++) {
-+		struct msr_data m = {
-+			.index = msr->index,
-+			.host_initiated = true
-+		};
-+		int err = kvm_x86_ops->get_msr(vcpu, &m);
-+
-+		if (err)
-+			break;
-+
-+		msr->data = m.data;
-+	}
-+
-+	return err ? -KVM_EINVAL : 0;
-+}
-+
-+int kvmi_arch_cmd_vcpu_get_registers(struct kvm_vcpu *vcpu,
-+				const struct kvmi_msg_hdr *msg,
-+				const struct kvmi_vcpu_get_registers *req,
-+				struct kvmi_vcpu_get_registers_reply **dest,
-+				size_t *dest_size)
-+{
-+	struct kvmi_vcpu_get_registers_reply *rpl;
-+	size_t rpl_size;
-+	int err;
-+
-+	if (req->padding1 || req->padding2)
-+		return -KVM_EINVAL;
-+
-+	rpl = alloc_get_registers_reply(msg, req, &rpl_size);
-+	if (!rpl)
-+		return -KVM_ENOMEM;
-+
-+	err = kvmi_get_registers(vcpu, &rpl->mode, &rpl->regs,
-+				 &rpl->sregs, &rpl->msrs);
-+
-+	*dest = rpl;
-+	*dest_size = rpl_size;
-+
-+	return err;
-+
-+}
-diff --git a/include/uapi/linux/kvmi.h b/include/uapi/linux/kvmi.h
-index e361d6e6563d..c354c5e15be1 100644
---- a/include/uapi/linux/kvmi.h
-+++ b/include/uapi/linux/kvmi.h
-@@ -28,6 +28,7 @@ enum {
- 	KVMI_VCPU_GET_INFO       = 9,
- 	KVMI_VCPU_PAUSE          = 10,
- 	KVMI_VCPU_CONTROL_EVENTS = 11,
-+	KVMI_VCPU_GET_REGISTERS  = 12,
- 
- 	KVMI_NUM_MESSAGES
- };
-diff --git a/tools/testing/selftests/kvm/x86_64/kvmi_test.c b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-index 94378066d69a..2fb191740cae 100644
---- a/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-+++ b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-@@ -807,6 +807,31 @@ static void test_cmd_vcpu_control_events(struct kvm_vm *vm)
- 	test_invalid_vcpu_event(vm, invalid_id);
- }
- 
-+static void get_vcpu_registers(struct kvm_vm *vm,
-+			       struct kvm_regs *regs)
-+{
-+	struct {
-+		struct kvmi_msg_hdr hdr;
-+		struct kvmi_vcpu_hdr vcpu_hdr;
-+		struct kvmi_vcpu_get_registers cmd;
-+	} req = {};
-+	struct kvmi_vcpu_get_registers_reply rpl;
-+
-+	test_vcpu0_command(vm, KVMI_VCPU_GET_REGISTERS, &req.hdr, sizeof(req),
-+			   &rpl, sizeof(rpl));
-+
-+	memcpy(regs, &rpl.regs, sizeof(*regs));
-+}
-+
-+static void test_cmd_vcpu_get_registers(struct kvm_vm *vm)
-+{
-+	struct kvm_regs regs = {};
-+
-+	get_vcpu_registers(vm, &regs);
-+
-+	DEBUG("get_registers rip 0x%llx\n", regs.rip);
-+}
-+
- static void test_introspection(struct kvm_vm *vm)
- {
- 	srandom(time(0));
-@@ -824,6 +849,7 @@ static void test_introspection(struct kvm_vm *vm)
- 	test_cmd_get_vcpu_info(vm);
- 	test_pause(vm);
- 	test_cmd_vcpu_control_events(vm);
-+	test_cmd_vcpu_get_registers(vm);
- 
- 	unhook_introspection(vm);
- }
-diff --git a/virt/kvm/introspection/kvmi.c b/virt/kvm/introspection/kvmi.c
-index b6b3efd085c4..8d292a4be270 100644
---- a/virt/kvm/introspection/kvmi.c
-+++ b/virt/kvm/introspection/kvmi.c
-@@ -26,6 +26,13 @@ void *kvmi_msg_alloc(void)
- 	return kmem_cache_zalloc(msg_cache, GFP_KERNEL);
- }
- 
-+void *kvmi_msg_alloc_check(size_t size)
-+{
-+	if (size > KVMI_MSG_SIZE_ALLOC)
-+		return NULL;
-+	return kvmi_msg_alloc();
-+}
-+
- void kvmi_msg_free(void *addr)
- {
- 	if (addr)
-diff --git a/virt/kvm/introspection/kvmi_int.h b/virt/kvm/introspection/kvmi_int.h
-index e94356516a05..3e471e3a755d 100644
---- a/virt/kvm/introspection/kvmi_int.h
-+++ b/virt/kvm/introspection/kvmi_int.h
-@@ -33,6 +33,7 @@ u32 kvmi_msg_send_vcpu_pause(struct kvm_vcpu *vcpu);
- 
- /* kvmi.c */
- void *kvmi_msg_alloc(void);
-+void *kvmi_msg_alloc_check(size_t size);
- void kvmi_msg_free(void *addr);
- int kvmi_add_job(struct kvm_vcpu *vcpu,
- 		 void (*fct)(struct kvm_vcpu *vcpu, void *ctx),
-@@ -55,5 +56,12 @@ int kvmi_cmd_vcpu_pause(struct kvm_vcpu *vcpu, bool wait);
- int kvmi_arch_cmd_vcpu_get_info(struct kvm_vcpu *vcpu,
- 				struct kvmi_vcpu_get_info_reply *rpl);
- void kvmi_arch_setup_event(struct kvm_vcpu *vcpu, struct kvmi_event *ev);
-+int kvmi_arch_check_get_registers_req(const struct kvmi_msg_hdr *msg,
-+				const struct kvmi_vcpu_get_registers *req);
-+int kvmi_arch_cmd_vcpu_get_registers(struct kvm_vcpu *vcpu,
-+				const struct kvmi_msg_hdr *msg,
-+				const struct kvmi_vcpu_get_registers *req,
-+				struct kvmi_vcpu_get_registers_reply **dest,
-+				size_t *dest_size);
- 
- #endif
-diff --git a/virt/kvm/introspection/kvmi_msg.c b/virt/kvm/introspection/kvmi_msg.c
-index f819d0a942dc..e30e1ad5e443 100644
---- a/virt/kvm/introspection/kvmi_msg.c
-+++ b/virt/kvm/introspection/kvmi_msg.c
-@@ -30,6 +30,7 @@ static const char *const msg_IDs[] = {
- 	[KVMI_VM_WRITE_PHYSICAL]   = "KVMI_VM_WRITE_PHYSICAL",
- 	[KVMI_VCPU_CONTROL_EVENTS] = "KVMI_VCPU_CONTROL_EVENTS",
- 	[KVMI_VCPU_GET_INFO]       = "KVMI_VCPU_GET_INFO",
-+	[KVMI_VCPU_GET_REGISTERS]  = "KVMI_VCPU_GET_REGISTERS",
- 	[KVMI_VCPU_PAUSE]          = "KVMI_VCPU_PAUSE",
- };
- 
-@@ -466,6 +467,25 @@ static int handle_vcpu_control_events(const struct kvmi_vcpu_cmd_job *job,
- 	return kvmi_msg_vcpu_reply(job, msg, ec, NULL, 0);
- }
- 
-+static int handle_get_registers(const struct kvmi_vcpu_cmd_job *job,
-+				const struct kvmi_msg_hdr *msg,
-+				const void *req)
-+{
-+	struct kvmi_vcpu_get_registers_reply *rpl = NULL;
-+	size_t rpl_size = 0;
-+	int err, ec;
-+
-+	if (kvmi_arch_check_get_registers_req(msg, req))
-+		return -EINVAL;
-+
-+	ec = kvmi_arch_cmd_vcpu_get_registers(job->vcpu, msg, req,
-+					      &rpl, &rpl_size);
-+
-+	err = kvmi_msg_vcpu_reply(job, msg, ec, rpl, rpl_size);
-+	kvmi_msg_free(rpl);
-+	return err;
-+}
-+
- /*
-  * These commands are executed from the vCPU thread. The receiving thread
-  * passes the messages using a newly allocated 'struct kvmi_vcpu_cmd_job'
-@@ -477,6 +497,7 @@ static int(*const msg_vcpu[])(const struct kvmi_vcpu_cmd_job *,
- 	[KVMI_EVENT]               = handle_event_reply,
- 	[KVMI_VCPU_CONTROL_EVENTS] = handle_vcpu_control_events,
- 	[KVMI_VCPU_GET_INFO]       = handle_get_vcpu_info,
-+	[KVMI_VCPU_GET_REGISTERS]  = handle_get_registers,
- };
- 
- static bool is_vcpu_command(u16 id)
+RnJvbTogTWloYWkgRG9uyJt1IDxtZG9udHVAYml0ZGVmZW5kZXIuY29tPgoKVGhlIGluZm9ybWF0
+aW9uIHdlIGNhbiBwcm92aWRlIHRoaXMgd2F5IGlzIGluY29tcGxldGUsIGJ1dCBjdXJyZW50IHVz
+ZXJzCm9mIHRoZSBwYWdlIHRyYWNraW5nIGNvZGUgY2FuIHdvcmsgd2l0aCBpdC4KClNpZ25lZC1v
+ZmYtYnk6IE1paGFpIERvbsibdSA8bWRvbnR1QGJpdGRlZmVuZGVyLmNvbT4KU2lnbmVkLW9mZi1i
+eTogQWRhbGJlcnQgTGF6xINyIDxhbGF6YXJAYml0ZGVmZW5kZXIuY29tPgotLS0KIGFyY2gveDg2
+L2t2bS94ODYuYyB8IDQ5ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysKIDEgZmlsZSBjaGFuZ2VkLCA0OSBpbnNlcnRpb25zKCspCgpkaWZmIC0tZ2l0IGEvYXJj
+aC94ODYva3ZtL3g4Ni5jIGIvYXJjaC94ODYva3ZtL3g4Ni5jCmluZGV4IDEyZTliNDY4OTAyNS4u
+ZGU5MDMzNWQyZTAxIDEwMDY0NAotLS0gYS9hcmNoL3g4Ni9rdm0veDg2LmMKKysrIGIvYXJjaC94
+ODYva3ZtL3g4Ni5jCkBAIC02NzkzLDYgKzY3OTMsNTEgQEAgc3RhdGljIGJvb2wgaXNfdm13YXJl
+X2JhY2tkb29yX29wY29kZShzdHJ1Y3QgeDg2X2VtdWxhdGVfY3R4dCAqY3R4dCkKIAlyZXR1cm4g
+ZmFsc2U7CiB9CiAKKy8qCisgKiBXaXRoIGludHJvc3BlY3Rpb24gZW5hYmxlZCwgZW11bGF0aW9u
+IGZhaWx1cmVzIHRyYW5zbGF0ZSBpbiBldmVudHMgYmVpbmcKKyAqIG1pc3NlZCBiZWNhdXNlIHRo
+ZSByZWFkL3dyaXRlIGNhbGxiYWNrcyBhcmUgbm90IGludm9rZWQuIEFsbCB3ZSBoYXZlIGlzCisg
+KiB0aGUgZmV0Y2ggZXZlbnQgKGt2bV9wYWdlX3RyYWNrX3ByZWV4ZWMpLiBCZWxvdyB3ZSB1c2Ug
+dGhlIEVQVC9OUFQgVk1FWElUCisgKiBpbmZvcm1hdGlvbiB0byBnZW5lcmF0ZSB0aGUgZXZlbnRz
+LCBidXQgd2l0aG91dCBwcm92aWRpbmcgYWNjdXJhdGUKKyAqIGRhdGEgYW5kIHNpemUgKHRoZSBl
+bXVsYXRvciB3b3VsZCBoYXZlIGNvbXB1dGVkIHRob3NlKS4gSWYgYW4gaW5zdHJ1Y3Rpb24KKyAq
+IHdvdWxkIGhhcHBlbiB0byByZWFkIGFuZCB3cml0ZSBpbiB0aGUgc2FtZSBwYWdlLCB0aGUgc2Vj
+b25kIGV2ZW50IHdpbGwKKyAqIGluaXRpYWxseSBiZSBtaXNzZWQgYW5kIHdlIHJlbHkgb24gdGhl
+IHBhZ2UgdHJhY2tpbmcgbWVjaGFuaXNtIHRvIGJyaW5nCisgKiB1cyBiYWNrIGhlcmUgdG8gc2Vu
+ZCBpdC4KKyAqLworc3RhdGljIGJvb2wga3ZtX3BhZ2VfdHJhY2tfZW11bGF0aW9uX2ZhaWx1cmUo
+c3RydWN0IGt2bV92Y3B1ICp2Y3B1LCBncGFfdCBncGEpCit7CisJdTY0IGVycm9yX2NvZGUgPSB2
+Y3B1LT5hcmNoLmVycm9yX2NvZGU7CisJdTggZGF0YSA9IDA7CisJZ3ZhX3QgZ3ZhOworCWJvb2wg
+cmV0OworCisJLyogTU1JTyBlbXVsYXRpb24gZmFpbHVyZXMgc2hvdWxkIGJlIHRyZWF0ZWQgdGhl
+IG5vcm1hbCB3YXkgKi8KKwlpZiAodW5saWtlbHkoZXJyb3JfY29kZSAmIFBGRVJSX1JTVkRfTUFT
+SykpCisJCXJldHVybiB0cnVlOworCisJLyogRVBUL05UUCBtdXN0IGJlIGVuYWJsZWQgKi8KKwlp
+ZiAodW5saWtlbHkoIXZjcHUtPmFyY2gubW11LT5kaXJlY3RfbWFwKSkKKwkJcmV0dXJuIHRydWU7
+CisKKwkvKgorCSAqIFRoZSBBL0QgYml0IGVtdWxhdGlvbiBzaG91bGQgbWFrZSB0aGlzIHRlc3Qg
+dW5uZWVkZWQsIGJ1dCBqdXN0CisJICogaW4gY2FzZQorCSAqLworCWlmICh1bmxpa2VseSgoZXJy
+b3JfY29kZSAmIFBGRVJSX05FU1RFRF9HVUVTVF9QQUdFKSA9PQorCQkgICAgIFBGRVJSX05FU1RF
+RF9HVUVTVF9QQUdFKSkKKwkJcmV0dXJuIHRydWU7CisKKwlndmEgPSBrdm1feDg2X29wcy0+ZmF1
+bHRfZ2xhKHZjcHUpOworCisJaWYgKGVycm9yX2NvZGUgJiBQRkVSUl9XUklURV9NQVNLKQorCQly
+ZXQgPSBrdm1fcGFnZV90cmFja19wcmV3cml0ZSh2Y3B1LCBncGEsIGd2YSwgJmRhdGEsIDApOwor
+CWVsc2UgaWYgKGVycm9yX2NvZGUgJiBQRkVSUl9VU0VSX01BU0spCisJCXJldCA9IGt2bV9wYWdl
+X3RyYWNrX3ByZXJlYWQodmNwdSwgZ3BhLCBndmEsIDApOworCWVsc2UKKwkJcmV0ID0gdHJ1ZTsK
+KworCXJldHVybiByZXQ7Cit9CisKIGludCB4ODZfZW11bGF0ZV9pbnN0cnVjdGlvbihzdHJ1Y3Qg
+a3ZtX3ZjcHUgKnZjcHUsIGdwYV90IGNyMl9vcl9ncGEsCiAJCQkgICAgaW50IGVtdWxhdGlvbl90
+eXBlLCB2b2lkICppbnNuLCBpbnQgaW5zbl9sZW4pCiB7CkBAIC02ODQyLDYgKzY4ODcsOCBAQCBp
+bnQgeDg2X2VtdWxhdGVfaW5zdHJ1Y3Rpb24oc3RydWN0IGt2bV92Y3B1ICp2Y3B1LCBncGFfdCBj
+cjJfb3JfZ3BhLAogCQkJCWt2bV9xdWV1ZV9leGNlcHRpb24odmNwdSwgVURfVkVDVE9SKTsKIAkJ
+CQlyZXR1cm4gMTsKIAkJCX0KKwkJCWlmICgha3ZtX3BhZ2VfdHJhY2tfZW11bGF0aW9uX2ZhaWx1
+cmUodmNwdSwgY3IyX29yX2dwYSkpCisJCQkJcmV0dXJuIDE7CiAJCQlpZiAocmVleGVjdXRlX2lu
+c3RydWN0aW9uKHZjcHUsIGNyMl9vcl9ncGEsCiAJCQkJCQkgIHdyaXRlX2ZhdWx0X3RvX3NwdCwK
+IAkJCQkJCSAgZW11bGF0aW9uX3R5cGUpKQpAQCAtNjkwMCw2ICs2OTQ3LDggQEAgaW50IHg4Nl9l
+bXVsYXRlX2luc3RydWN0aW9uKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSwgZ3BhX3QgY3IyX29yX2dw
+YSwKIAkJcmV0dXJuIDE7CiAKIAlpZiAociA9PSBFTVVMQVRJT05fRkFJTEVEKSB7CisJCWlmICgh
+a3ZtX3BhZ2VfdHJhY2tfZW11bGF0aW9uX2ZhaWx1cmUodmNwdSwgY3IyX29yX2dwYSkpCisJCQly
+ZXR1cm4gMTsKIAkJaWYgKHJlZXhlY3V0ZV9pbnN0cnVjdGlvbih2Y3B1LCBjcjJfb3JfZ3BhLCB3
+cml0ZV9mYXVsdF90b19zcHQsCiAJCQkJCWVtdWxhdGlvbl90eXBlKSkKIAkJCXJldHVybiAxOwpf
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
+dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
+cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
+dHVhbGl6YXRpb24=
