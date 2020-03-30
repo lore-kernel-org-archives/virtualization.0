@@ -1,101 +1,55 @@
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Subject: Re: [PATCH 0/6] vhost: Reset batched descriptors on SET_VRING_BASE call
-Date: Mon, 30 Mar 2020 11:15:18 +0200
-Message-ID: <CAJaqyWfq3TGiQ9GSqdFVAZyydg29BoKiJFGKep+h3BoV5POLHQ@mail.gmail.com>
-References: <20200329113359.30960-1-eperezma@redhat.com> <bb95e827-f219-32fd-0046-41046eec058b@de.ibm.com>
- <CAJaqyWePfMcXhYEPxKYV22J3cYtO=DUXCj1Yf=7XH+khXHop9A@mail.gmail.com> <41dfa0e5-8013-db15-cbfe-aa4574cfb9a0@de.ibm.com>
+From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Subject: [PATCH v8 04/81] KVM: add kvm_vcpu_kick_and_wait()
+Date: Mon, 30 Mar 2020 13:11:51 +0300
+Message-ID: <20200330101308.21702-5-alazar@bitdefender.com>
+References: <20200330101308.21702-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <41dfa0e5-8013-db15-cbfe-aa4574cfb9a0@de.ibm.com>
-Sender: kvm-owner@vger.kernel.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Halil Pasic <pasic@linux.ibm.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Linux Next Mailing List <linux-next@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200330101308.21702-1-alazar@bitdefender.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: kvm@vger.kernel.org
+Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Mar 30, 2020 at 9:34 AM Christian Borntraeger
-<borntraeger@de.ibm.com> wrote:
->
->
->
-> On 30.03.20 09:18, Eugenio Perez Martin wrote:
-> > On Mon, Mar 30, 2020 at 9:14 AM Christian Borntraeger
-> > <borntraeger@de.ibm.com> wrote:
-> >>
-> >>
-> >> On 29.03.20 13:33, Eugenio P=C3=A9rez wrote:
-> >>> Vhost did not reset properly the batched descriptors on SET_VRING_BAS=
-E event. Because of that, is possible to return an invalid descriptor to th=
-e guest.
-> >>
-> >> I guess this could explain my problems that I have seen during reset?
-> >>
-> >
-> > Yes, I think so. The series has a test that should reproduce more or
-> > less what you are seeing. However, it would be useful to reproduce on
-> > your system and to know what causes qemu to send the reset :).
->
-> I do see SET_VRING_BASE in the debug output
-> [228101.438630] [2113] vhost:vhost_vring_ioctl:1668: VHOST_GET_VRING_BASE=
- [vq=3D00000000618905fc][s.index=3D1][s.num=3D42424][vq->avail_idx=3D42424]=
-[vq->last_avail_idx=3D42424][vq->ndescs=3D0][vq->first_desc=3D0]
-> [228101.438631] CPU: 54 PID: 2113 Comm: qemu-system-s39 Not tainted 5.5.0=
-+ #344
-> [228101.438632] Hardware name: IBM 3906 M04 704 (LPAR)
-> [228101.438633] Call Trace:
-> [228101.438634]  [<00000004fc71c132>] show_stack+0x8a/0xd0
-> [228101.438636]  [<00000004fd10e72a>] dump_stack+0x8a/0xb8
-> [228101.438639]  [<000003ff80377600>] vhost_vring_ioctl+0x668/0x848 [vhos=
-t]
-> [228101.438640]  [<000003ff80395fd4>] vhost_net_ioctl+0x4f4/0x570 [vhost_=
-net]
-> [228101.438642]  [<00000004fc9ccdd8>] do_vfs_ioctl+0x430/0x6f8
-> [228101.438643]  [<00000004fc9cd124>] ksys_ioctl+0x84/0xb0
-> [228101.438645]  [<00000004fc9cd1ba>] __s390x_sys_ioctl+0x2a/0x38
-> [228101.438646]  [<00000004fd12ff72>] system_call+0x2a6/0x2c8
-> [228103.682732] [2122] vhost:vhost_vring_ioctl:1653: VHOST_SET_VRING_BASE=
- [vq=3D000000009e1ac3e7][s.index=3D0][s.num=3D0][vq->avail_idx=3D27875][vq-=
->last_avail_idx=3D27709][vq->ndescs=3D65][vq->first_desc=3D22]
-> [228103.682735] CPU: 44 PID: 2122 Comm: CPU 0/KVM Not tainted 5.5.0+ #344
-> [228103.682739] Hardware name: IBM 3906 M04 704 (LPAR)
-> [228103.682741] Call Trace:
-> [228103.682748]  [<00000004fc71c132>] show_stack+0x8a/0xd0
-> [228103.682752]  [<00000004fd10e72a>] dump_stack+0x8a/0xb8
-> [228103.682761]  [<000003ff80377422>] vhost_vring_ioctl+0x48a/0x848 [vhos=
-t]
-> [228103.682764]  [<000003ff80395fd4>] vhost_net_ioctl+0x4f4/0x570 [vhost_=
-net]
-> [228103.682767]  [<00000004fc9ccdd8>] do_vfs_ioctl+0x430/0x6f8
-> [228103.682769]  [<00000004fc9cd124>] ksys_ioctl+0x84/0xb0
-> [228103.682771]  [<00000004fc9cd1ba>] __s390x_sys_ioctl+0x2a/0x38
-> [228103.682773]  [<00000004fd12ff72>] system_call+0x2a6/0x2c8
-> [228103.682794] [2122] vhost:vhost_vring_ioctl:1653: VHOST_SET_VRING_BASE=
- [vq=3D00000000618905fc][s.index=3D1][s.num=3D0][vq->avail_idx=3D42424][vq-=
->last_avail_idx=3D42424][vq->ndescs=3D0][vq->first_desc=3D0]
-> [228103.682795] CPU: 44 PID: 2122 Comm: CPU 0/KVM Not tainted 5.5.0+ #344
-> [228103.682797] Hardware name: IBM 3906 M04 704 (LPAR)
-> [228103.682797] Call Trace:
-> [228103.682799]  [<00000004fc71c132>] show_stack+0x8a/0xd0
-> [228103.682801]  [<00000004fd10e72a>] dump_stack+0x8a/0xb8
-> [228103.682804]  [<000003ff80377422>] vhost_vring_ioctl+0x48a/0x848 [vhos=
-t]
-> [228103.682806]  [<000003ff80395fd4>] vhost_net_ioctl+0x4f4/0x570 [vhost_=
-net]
-> [228103.682808]  [<00000004fc9ccdd8>] do_vfs_ioctl+0x430/0x6f8
-> [228103.682810]  [<00000004fc9cd124>] ksys_ioctl+0x84/0xb0
-> [228103.682812]  [<00000004fc9cd1ba>] __s390x_sys_ioctl+0x2a/0x38
-> [228103.682813]  [<00000004fd12ff72>] system_call+0x2a6/0x2c8
->
->
-> Isnt that triggered by resetting the virtio devices during system reboot?
->
-
-Yes. I don't know exactly why qemu is sending them, but vhost should
-be able to "protect/continue" the same way it used to be before
-batching patches.
-
-Did you lose connectivity or experienced rebooting with this patches applie=
-d?
-
-Thanks!
+VGhpcyBmdW5jdGlvbiBpcyBuZWVkZWQgZm9yIHRoZSBLVk1JX1ZDUFVfUEFVU0UgY29tbWFuZC4g
+VGhlcmUgYXJlCmNhc2VzIHdoZW4gaXQgaXMgZWFzaWVyIGZvciB0aGUgaW50cm9zcGVjdGlvbiB0
+b29sIGlmIGl0IGtub3dzIHRoYXQKdGhlIHZDUFUgZG9lc24ndCBydW4gZ3Vlc3QgY29kZSB3aGVu
+IHRoZSBjb21tYW5kIGNvbXBsZXRlZCwgd2l0aG91dAp0aGUgbmVlZCB0byB3YWl0IGZvciB0aGUg
+S1ZNSV9FVkVOVF9QQVVTRV9WQ1BVIGV2ZW50LgoKU2lnbmVkLW9mZi1ieTogQWRhbGJlcnQgTGF6
+xINyIDxhbGF6YXJAYml0ZGVmZW5kZXIuY29tPgotLS0KIGluY2x1ZGUvbGludXgva3ZtX2hvc3Qu
+aCB8ICAxICsKIHZpcnQva3ZtL2t2bV9tYWluLmMgICAgICB8IDEwICsrKysrKysrKysKIDIgZmls
+ZXMgY2hhbmdlZCwgMTEgaW5zZXJ0aW9ucygrKQoKZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgv
+a3ZtX2hvc3QuaCBiL2luY2x1ZGUvbGludXgva3ZtX2hvc3QuaAppbmRleCBiY2I5YjJhYzA3OTEu
+LjY4OTBmMGE4NWRiYSAxMDA2NDQKLS0tIGEvaW5jbHVkZS9saW51eC9rdm1faG9zdC5oCisrKyBi
+L2luY2x1ZGUvbGludXgva3ZtX2hvc3QuaApAQCAtNzk5LDYgKzc5OSw3IEBAIHZvaWQga3ZtX2Fy
+Y2hfdmNwdV9ibG9ja2luZyhzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpOwogdm9pZCBrdm1fYXJjaF92
+Y3B1X3VuYmxvY2tpbmcoc3RydWN0IGt2bV92Y3B1ICp2Y3B1KTsKIGJvb2wga3ZtX3ZjcHVfd2Fr
+ZV91cChzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpOwogdm9pZCBrdm1fdmNwdV9raWNrKHN0cnVjdCBr
+dm1fdmNwdSAqdmNwdSk7Cit2b2lkIGt2bV92Y3B1X2tpY2tfYW5kX3dhaXQoc3RydWN0IGt2bV92
+Y3B1ICp2Y3B1KTsKIGludCBrdm1fdmNwdV95aWVsZF90byhzdHJ1Y3Qga3ZtX3ZjcHUgKnRhcmdl
+dCk7CiB2b2lkIGt2bV92Y3B1X29uX3NwaW4oc3RydWN0IGt2bV92Y3B1ICp2Y3B1LCBib29sIHVz
+ZXJtb2RlX3ZjcHVfbm90X2VsaWdpYmxlKTsKIApkaWZmIC0tZ2l0IGEvdmlydC9rdm0va3ZtX21h
+aW4uYyBiL3ZpcnQva3ZtL2t2bV9tYWluLmMKaW5kZXggNzBmMDNjZTBlNWMxLi40YzY5Y2U1YWE3
+OWMgMTAwNjQ0Ci0tLSBhL3ZpcnQva3ZtL2t2bV9tYWluLmMKKysrIGIvdmlydC9rdm0va3ZtX21h
+aW4uYwpAQCAtMjU2Nyw2ICsyNTY3LDE2IEBAIHZvaWQga3ZtX3ZjcHVfa2ljayhzdHJ1Y3Qga3Zt
+X3ZjcHUgKnZjcHUpCiBFWFBPUlRfU1lNQk9MX0dQTChrdm1fdmNwdV9raWNrKTsKICNlbmRpZiAv
+KiAhQ09ORklHX1MzOTAgKi8KIAordm9pZCBrdm1fdmNwdV9raWNrX2FuZF93YWl0KHN0cnVjdCBr
+dm1fdmNwdSAqdmNwdSkKK3sKKwlpZiAoa3ZtX3ZjcHVfd2FrZV91cCh2Y3B1KSkKKwkJcmV0dXJu
+OworCisJaWYgKGt2bV9yZXF1ZXN0X25lZWRzX2lwaSh2Y3B1LCBLVk1fUkVRVUVTVF9XQUlUKSkK
+KwkJc21wX2NhbGxfZnVuY3Rpb25fc2luZ2xlKHZjcHUtPmNwdSwgYWNrX2ZsdXNoLCBOVUxMLCAx
+KTsKK30KK0VYUE9SVF9TWU1CT0xfR1BMKGt2bV92Y3B1X2tpY2tfYW5kX3dhaXQpOworCiBpbnQg
+a3ZtX3ZjcHVfeWllbGRfdG8oc3RydWN0IGt2bV92Y3B1ICp0YXJnZXQpCiB7CiAJc3RydWN0IHBp
+ZCAqcGlkOwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpW
+aXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91
+bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlz
+dGluZm8vdmlydHVhbGl6YXRpb24=
