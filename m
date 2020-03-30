@@ -1,46 +1,38 @@
-From: Randy Dunlap <rdunlap@infradead.org>
-Subject: Re: linux-next: Tree for Mar 30 (vhost)
-Date: Mon, 30 Mar 2020 10:22:22 -0700
-Message-ID: <347c851a-b9f6-0046-f6c8-1db0b42be213@infradead.org>
-References: <20200330204307.669bbb4d@canb.auug.org.au>
+From: "Gustavo A. R. Silva" <gustavo@embeddedor.com>
+Subject: [PATCH] vhost: vdpa: remove unnecessary null check
+Date: Mon, 30 Mar 2020 18:50:40 -0500
+Message-ID: <20200330235040.GA9997@embeddedor>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200330204307.669bbb4d@canb.auug.org.au>
-Content-Language: en-US
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Stephen Rothwell <sfr@canb.auug.org.au>, Linux Next Mailing List <linux-next@vger.kernel.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, KVM <kvm@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Tiwei Bie <tiwei.bie@intel.com>, Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, "Gustavo A. R. Silva" <gustavo@embeddedor.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 3/30/20 2:43 AM, Stephen Rothwell wrote:
-> Hi all,
-> 
-> The merge window has opened, so please do not add any material for the
-> next release into your linux-next included trees/branches until after
-> the merge window closes.
-> 
-> Changes since 20200327:
-> 
-> The vhost tree gained a conflict against the kvm-arm tree.
-> 
+container_of is never null, so this null check is
+unnecessary.
 
-(note: today's linux-next is on 5.6-rc7.)
+Addresses-Coverity-ID: 1492006 ("Logically dead code")
+Fixes: 20453a45fb06 ("vhost: introduce vDPA-based backend")
+Signed-off-by: Gustavo A. R. Silva <gustavo@embeddedor.com>
+---
+ drivers/vhost/vdpa.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-on x86_64:
-
-# CONFIG_EVENTFD is not set
-
-../drivers/vhost/vhost.c: In function 'vhost_vring_ioctl':
-../drivers/vhost/vhost.c:1577:33: error: implicit declaration of function 'eventfd_fget'; did you mean 'eventfd_signal'? [-Werror=implicit-function-declaration]
-   eventfp = f.fd == -1 ? NULL : eventfd_fget(f.fd);
-                                 ^~~~~~~~~~~~
-                                 eventfd_signal
-../drivers/vhost/vhost.c:1577:31: warning: pointer/integer type mismatch in conditional expression
-   eventfp = f.fd == -1 ? NULL : eventfd_fget(f.fd);
-                               ^
-
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index 421f02a8530a..3d2cb811757a 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -678,8 +678,6 @@ static int vhost_vdpa_open(struct inode *inode, struct file *filep)
+ 	int nvqs, i, r, opened;
+ 
+ 	v = container_of(inode->i_cdev, struct vhost_vdpa, cdev);
+-	if (!v)
+-		return -ENODEV;
+ 
+ 	opened = atomic_cmpxchg(&v->opened, 0, 1);
+ 	if (opened)
 -- 
-~Randy
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
+2.26.0
