@@ -1,41 +1,97 @@
-From: Huacai Chen <chenhc@lemote.com>
-Subject: [PATCH] drm/qxl: Use correct notify port address when creating cursor ring
-Date: Mon, 30 Mar 2020 10:12:22 +0800
-Message-ID: <1585534342-889-1-git-send-email-chenhc@lemote.com>
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, spice-devel@lists.freedesktop.org, Fuxin Zhang <zhangfx@lemote.com>, Huacai Chen <chenhuacai@gmail.com>, Huacai Chen <chenhc@lemote.com>, stable@vger.kernel.org
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [vhost:linux-next 8/13] include/linux/vringh.h:18:10: fatal
+ error: linux/vhost_iotlb.h: No such file or directory
+Date: Mon, 30 Mar 2020 10:46:35 +0800
+Message-ID: <f1270de5-7a2c-76d2-431c-34364def851a@redhat.com>
+References: <202003292026.dP7OOeCi%lkp@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <202003292026.dP7OOeCi%lkp@intel.com>
+Content-Language: en-US
+Sender: netdev-owner@vger.kernel.org
+To: kbuild test robot <lkp@intel.com>
+Cc: kbuild-all@lists.01.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The command ring and cursor ring use different notify port addresses
-definition: QXL_IO_NOTIFY_CMD and QXL_IO_NOTIFY_CURSOR. However, in
-qxl_device_init() we use QXL_IO_NOTIFY_CMD to create both command ring
-and cursor ring. This doesn't cause any problems now, because QEMU's
-behaviors on QXL_IO_NOTIFY_CMD and QXL_IO_NOTIFY_CURSOR are the same.
-However, QEMU's behavior may be change in future, so let's fix it.
 
-P.S.: In the X.org QXL driver, the notify port address of cursor ring
-      is correct.
+On 2020/3/29 =E4=B8=8B=E5=8D=888:08, kbuild test robot wrote:
+> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git l=
+inux-next
+> head:   f44a63f9ebf66a450c101084a35a3ef158ead209
+> commit: c43908b0b9a900bd51f861f4c57b83cfd932f4d2 [8/13] vringh: IOTLB s=
+upport
+> config: arm-em_x270_defconfig (attached as .config)
+> compiler: arm-linux-gnueabi-gcc (GCC) 9.3.0
+> reproduce:
+>          wget https://raw.githubusercontent.com/intel/lkp-tests/master/=
+sbin/make.cross -O ~/bin/make.cross
+>          chmod +x ~/bin/make.cross
+>          git checkout c43908b0b9a900bd51f861f4c57b83cfd932f4d2
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
----
- drivers/gpu/drm/qxl/qxl_kms.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_kms.c b/drivers/gpu/drm/qxl/qxl_kms.c
-index bfc1631..9bdbe0d 100644
---- a/drivers/gpu/drm/qxl/qxl_kms.c
-+++ b/drivers/gpu/drm/qxl/qxl_kms.c
-@@ -218,7 +218,7 @@ int qxl_device_init(struct qxl_device *qdev,
- 				&(qdev->ram_header->cursor_ring_hdr),
- 				sizeof(struct qxl_command),
- 				QXL_CURSOR_RING_SIZE,
--				qdev->io_base + QXL_IO_NOTIFY_CMD,
-+				qdev->io_base + QXL_IO_NOTIFY_CURSOR,
- 				false,
- 				&qdev->cursor_event);
- 
--- 
-2.7.0
+I could not find this commit in the above branch.
+
+
+>          # save the attached .config to linux build tree
+>          GCC_VERSION=3D9.3.0 make.cross ARCH=3Darm
+
+
+Try to use commit dc3b0673ae5efb73edab66ec5c2f074272e9a4df.
+
+But this command does not work (I remember it used to work):
+
+# GCC_VERSION=3D9.3.0 make.cross ARCH=3Darm
+cd: received redirection to=20
+`https://download.01.org/0day-ci/cross-package/'
+lftpget -c=20
+https://download.01.org/0day-ci/cross-package/./gcc-9.3.0-nolibc/x86_64-g=
+cc-9.3.0-nolibc_arm-linux-gnueabihf.tar.xz
+tar Jxf=20
+gcc-9.3.0-nolibc/x86_64-gcc-9.3.0-nolibc_arm-linux-gnueabihf.tar.xz -C=20
+/root/0day
+No cross compiler for arm
+setup_crosstool failed
+
+
+>
+> If you fix the issue, kindly add following tag
+> Reported-by: kbuild test robot <lkp@intel.com>
+>
+> All errors (new ones prefixed by >>):
+>
+>     In file included from include/linux/virtio.h:12,
+>                      from include/linux/virtio_config.h:7,
+>                      from include/uapi/linux/virtio_net.h:30,
+>                      from include/linux/virtio_net.h:6,
+>                      from net//packet/af_packet.c:82:
+>>> include/linux/vringh.h:18:10: fatal error: linux/vhost_iotlb.h: No su=
+ch file or directory
+>        18 | #include <linux/vhost_iotlb.h>
+>           |          ^~~~~~~~~~~~~~~~~~~~~
+>     compilation terminated.
+>
+> vim +18 include/linux/vringh.h
+>
+>    > 18	#include <linux/vhost_iotlb.h>
+>      19	#include <asm/barrier.h>
+>      20=09
+
+
+I can hardly believe it can't work.
+
+I get
+
+# file include/linux/vringh.h
+include/linux/vringh.h: C source, ASCII text
+
+So this looks like a false positive to me?
+
+Thanks
+
+
+>
+> ---
+> 0-DAY CI Kernel Test Service, Intel Corporation
+> https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
