@@ -1,249 +1,106 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 1/8] vhost: Create accessors for virtqueues
- private_data
-Date: Tue, 31 Mar 2020 14:28:55 -0400
-Message-ID: <20200331142426-mutt-send-email-mst@kernel.org>
-References: <20200331180006.25829-1-eperezma@redhat.com>
- <20200331180006.25829-2-eperezma@redhat.com>
+Subject: Re: mmotm 2020-03-30-18-46 uploaded (VDPA + vhost)
+Date: Tue, 31 Mar 2020 14:37:56 -0400
+Message-ID: <20200331143437-mutt-send-email-mst@kernel.org>
+References: <20200331014748.ajL0G62jF%akpm@linux-foundation.org>
+ <969cacf1-d420-223d-7cc7-5b1b2405ec2a@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <969cacf1-d420-223d-7cc7-5b1b2405ec2a@infradead.org>
 Content-Disposition: inline
-In-Reply-To: <20200331180006.25829-2-eperezma@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Halil Pasic <pasic@linux.ibm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Linux Next Mailing List <linux-next@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Christian Borntraeger <borntraeger@de.ibm.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Randy Dunlap <rdunlap@infradead.org>
+Cc: sfr@canb.auug.org.au, mm-commits@vger.kernel.org, Masahiro Yamada <yamada.masahiro@socionext.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, mhocko@suse.cz, linux-mm@kvack.org, broonie@kernel.org, linux-next@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Mar 31, 2020 at 07:59:59PM +0200, Eugenio Pérez wrote:
-> Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
-> ---
->  drivers/vhost/net.c   | 28 +++++++++++++++-------------
->  drivers/vhost/vhost.h | 28 ++++++++++++++++++++++++++++
->  drivers/vhost/vsock.c | 14 +++++++-------
-
-
-Seems to be missing scsi and test.
-
-
->  3 files changed, 50 insertions(+), 20 deletions(-)
+On Tue, Mar 31, 2020 at 11:27:54AM -0700, Randy Dunlap wrote:
+> On 3/30/20 6:47 PM, akpm@linux-foundation.org wrote:
+> > The mm-of-the-moment snapshot 2020-03-30-18-46 has been uploaded to
+> > 
+> >    http://www.ozlabs.org/~akpm/mmotm/
+> > 
+> > mmotm-readme.txt says
+> > 
+> > README for mm-of-the-moment:
+> > 
+> > http://www.ozlabs.org/~akpm/mmotm/
+> > 
+> > This is a snapshot of my -mm patch queue.  Uploaded at random hopefully
+> > more than once a week.
+> > 
+> > You will need quilt to apply these patches to the latest Linus release (5.x
+> > or 5.x-rcY).  The series file is in broken-out.tar.gz and is duplicated in
+> > http://ozlabs.org/~akpm/mmotm/series
+> > 
+> > The file broken-out.tar.gz contains two datestamp files: .DATE and
+> > .DATE-yyyy-mm-dd-hh-mm-ss.  Both contain the string yyyy-mm-dd-hh-mm-ss,
+> > followed by the base kernel version against which this patch series is to
+> > be applied.
+> > 
+> > This tree is partially included in linux-next.  To see which patches are
+> > included in linux-next, consult the `series' file.  Only the patches
+> > within the #NEXT_PATCHES_START/#NEXT_PATCHES_END markers are included in
+> > linux-next.
+> > 
+> > 
+> > A full copy of the full kernel tree with the linux-next and mmotm patches
+> > already applied is available through git within an hour of the mmotm
+> > release.  Individual mmotm releases are tagged.  The master branch always
+> > points to the latest release, so it's constantly rebasing.
+> > 
+> > 	https://github.com/hnaz/linux-mm
 > 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index e158159671fa..6c5e7a6f712c 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -424,7 +424,7 @@ static void vhost_net_disable_vq(struct vhost_net *n,
->  	struct vhost_net_virtqueue *nvq =
->  		container_of(vq, struct vhost_net_virtqueue, vq);
->  	struct vhost_poll *poll = n->poll + (nvq - n->vqs);
-> -	if (!vq->private_data)
-> +	if (!vhost_vq_get_backend_opaque(vq))
->  		return;
->  	vhost_poll_stop(poll);
->  }
-> @@ -437,7 +437,7 @@ static int vhost_net_enable_vq(struct vhost_net *n,
->  	struct vhost_poll *poll = n->poll + (nvq - n->vqs);
->  	struct socket *sock;
->  
-> -	sock = vq->private_data;
-> +	sock = vhost_vq_get_backend_opaque(vq);
->  	if (!sock)
->  		return 0;
->  
-> @@ -524,7 +524,7 @@ static void vhost_net_busy_poll(struct vhost_net *net,
->  		return;
->  
->  	vhost_disable_notify(&net->dev, vq);
-> -	sock = rvq->private_data;
-> +	sock = vhost_vq_get_backend_opaque(rvq);
->  
->  	busyloop_timeout = poll_rx ? rvq->busyloop_timeout:
->  				     tvq->busyloop_timeout;
-> @@ -570,8 +570,10 @@ static int vhost_net_tx_get_vq_desc(struct vhost_net *net,
->  
->  	if (r == tvq->num && tvq->busyloop_timeout) {
->  		/* Flush batched packets first */
-> -		if (!vhost_sock_zcopy(tvq->private_data))
-> -			vhost_tx_batch(net, tnvq, tvq->private_data, msghdr);
-> +		if (!vhost_sock_zcopy(vhost_vq_get_backend_opaque(tvq)))
-> +			vhost_tx_batch(net, tnvq,
-> +				       vhost_vq_get_backend_opaque(tvq),
-> +				       msghdr);
->  
->  		vhost_net_busy_poll(net, rvq, tvq, busyloop_intr, false);
->  
-> @@ -685,7 +687,7 @@ static int vhost_net_build_xdp(struct vhost_net_virtqueue *nvq,
->  	struct vhost_virtqueue *vq = &nvq->vq;
->  	struct vhost_net *net = container_of(vq->dev, struct vhost_net,
->  					     dev);
-> -	struct socket *sock = vq->private_data;
-> +	struct socket *sock = vhost_vq_get_backend_opaque(vq);
->  	struct page_frag *alloc_frag = &net->page_frag;
->  	struct virtio_net_hdr *gso;
->  	struct xdp_buff *xdp = &nvq->xdp[nvq->batched_xdp];
-> @@ -952,7 +954,7 @@ static void handle_tx(struct vhost_net *net)
->  	struct socket *sock;
->  
->  	mutex_lock_nested(&vq->mutex, VHOST_NET_VQ_TX);
-> -	sock = vq->private_data;
-> +	sock = vhost_vq_get_backend_opaque(vq);
->  	if (!sock)
->  		goto out;
->  
-> @@ -1121,7 +1123,7 @@ static void handle_rx(struct vhost_net *net)
->  	int recv_pkts = 0;
->  
->  	mutex_lock_nested(&vq->mutex, VHOST_NET_VQ_RX);
-> -	sock = vq->private_data;
-> +	sock = vhost_vq_get_backend_opaque(vq);
->  	if (!sock)
->  		goto out;
->  
-> @@ -1344,9 +1346,9 @@ static struct socket *vhost_net_stop_vq(struct vhost_net *n,
->  		container_of(vq, struct vhost_net_virtqueue, vq);
->  
->  	mutex_lock(&vq->mutex);
-> -	sock = vq->private_data;
-> +	sock = vhost_vq_get_backend_opaque(vq);
->  	vhost_net_disable_vq(n, vq);
-> -	vq->private_data = NULL;
-> +	vhost_vq_set_backend_opaque(vq, NULL);
->  	vhost_net_buf_unproduce(nvq);
->  	nvq->rx_ring = NULL;
->  	mutex_unlock(&vq->mutex);
-> @@ -1528,7 +1530,7 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
->  	}
->  
->  	/* start polling new socket */
-> -	oldsock = vq->private_data;
-> +	oldsock = vhost_vq_get_backend_opaque(vq);
->  	if (sock != oldsock) {
->  		ubufs = vhost_net_ubuf_alloc(vq,
->  					     sock && vhost_sock_zcopy(sock));
-> @@ -1538,7 +1540,7 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
->  		}
->  
->  		vhost_net_disable_vq(n, vq);
-> -		vq->private_data = sock;
-> +		vhost_vq_set_backend_opaque(vq, sock);
->  		vhost_net_buf_unproduce(nvq);
->  		r = vhost_vq_init_access(vq);
->  		if (r)
-> @@ -1575,7 +1577,7 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
->  	return 0;
->  
->  err_used:
-> -	vq->private_data = oldsock;
-> +	vhost_vq_set_backend_opaque(vq, oldsock);
->  	vhost_net_enable_vq(n, vq);
->  	if (ubufs)
->  		vhost_net_ubuf_put_wait_and_free(ubufs);
-> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> index a123fd70847e..0808188f7e8f 100644
-> --- a/drivers/vhost/vhost.h
-> +++ b/drivers/vhost/vhost.h
-> @@ -244,6 +244,34 @@ enum {
->  			 (1ULL << VIRTIO_F_VERSION_1)
->  };
->  
-> +/**
-> + * vhost_vq_set_backend_opaque - Set backend opaque.
-> + *
-> + * @vq            Virtqueue.
-> + * @private_data  The private data.
-> + *
-> + * Context: Need to call with vq->mutex acquired.
-> + */
-> +static inline void vhost_vq_set_backend_opaque(struct vhost_virtqueue *vq,
-> +					       void *private_data)
-> +{
-> +	vq->private_data = private_data;
-> +}
-> +
-> +/**
-> + * vhost_vq_get_backend_opaque - Get backend opaque.
-> + *
-> + * @vq            Virtqueue.
-> + * @private_data  The private data.
-> + *
-> + * Context: Need to call with vq->mutex acquired.
-> + * Return: Opaque previously set with vhost_vq_set_backend_opaque.
+> on i386:
+> 
+> ld: drivers/vhost/vdpa.o: in function `vhost_vdpa_init':
+> vdpa.c:(.init.text+0x52): undefined reference to `__vdpa_register_driver'
+> ld: drivers/vhost/vdpa.o: in function `vhost_vdpa_exit':
+> vdpa.c:(.exit.text+0x14): undefined reference to `vdpa_unregister_driver'
+> 
+> 
+> 
+> drivers/virtio/vdpa/ is not being built. (confusing!)
+> 
+> CONFIG_VIRTIO=m
+> # CONFIG_VIRTIO_MENU is not set
+> CONFIG_VDPA=y
+
+Hmm. OK. Can't figure it out. CONFIG_VDPA is set why isn't
+drivers/virtio/vdpa/ built?
+we have:
 
 
-I prefer opaque -> private data in comments.
+obj-$(CONFIG_VDPA) += vdpa/
 
-> + */
+and under that:
+
+obj-$(CONFIG_VDPA) += vdpa.o
 
 
-
-
-> +static inline void *vhost_vq_get_backend_opaque(struct vhost_virtqueue *vq)
-> +{
-> +	return vq->private_data;
-> +}
-> +
->  static inline bool vhost_has_feature(struct vhost_virtqueue *vq, int bit)
->  {
->  	return vq->acked_features & (1ULL << bit);
-> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> index c2d7d57e98cf..6e20dbe14acd 100644
-> --- a/drivers/vhost/vsock.c
-> +++ b/drivers/vhost/vsock.c
-> @@ -91,7 +91,7 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
->  
->  	mutex_lock(&vq->mutex);
->  
-> -	if (!vq->private_data)
-> +	if (!vhost_vq_get_backend_opaque(vq))
->  		goto out;
->  
->  	/* Avoid further vmexits, we're already processing the virtqueue */
-> @@ -440,7 +440,7 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
->  
->  	mutex_lock(&vq->mutex);
->  
-> -	if (!vq->private_data)
-> +	if (!vhost_vq_get_backend_opaque(vq))
->  		goto out;
->  
->  	vhost_disable_notify(&vsock->dev, vq);
-> @@ -533,8 +533,8 @@ static int vhost_vsock_start(struct vhost_vsock *vsock)
->  			goto err_vq;
->  		}
->  
-> -		if (!vq->private_data) {
-> -			vq->private_data = vsock;
-> +		if (!vhost_vq_get_backend_opaque(vq)) {
-> +			vhost_vq_set_backend_opaque(vq, vsock);
->  			ret = vhost_vq_init_access(vq);
->  			if (ret)
->  				goto err_vq;
-> @@ -547,14 +547,14 @@ static int vhost_vsock_start(struct vhost_vsock *vsock)
->  	return 0;
->  
->  err_vq:
-> -	vq->private_data = NULL;
-> +	vhost_vq_set_backend_opaque(vq, NULL);
->  	mutex_unlock(&vq->mutex);
->  
->  	for (i = 0; i < ARRAY_SIZE(vsock->vqs); i++) {
->  		vq = &vsock->vqs[i];
->  
->  		mutex_lock(&vq->mutex);
-> -		vq->private_data = NULL;
-> +		vhost_vq_set_backend_opaque(vq, NULL);
->  		mutex_unlock(&vq->mutex);
->  	}
->  err:
-> @@ -577,7 +577,7 @@ static int vhost_vsock_stop(struct vhost_vsock *vsock)
->  		struct vhost_virtqueue *vq = &vsock->vqs[i];
->  
->  		mutex_lock(&vq->mutex);
-> -		vq->private_data = NULL;
-> +		vhost_vq_set_backend_opaque(vq, NULL);
->  		mutex_unlock(&vq->mutex);
->  	}
->  
+> CONFIG_VDPA_MENU=y
+> # CONFIG_VDPA_SIM is not set
+> CONFIG_VHOST_IOTLB=y
+> CONFIG_VHOST_RING=m
+> CONFIG_VHOST=y
+> CONFIG_VHOST_SCSI=m
+> CONFIG_VHOST_VDPA=y
+> 
+> Full randconfig file is attached.
+> 
+> (This same build failure happens with today's linux-next, Mar. 31.)
+> 
+> @Yamada-san:  Is this a kbuild problem (or feature)?
+> 
 > -- 
-> 2.18.1
+> ~Randy
+> Reported-by: Randy Dunlap <rdunlap@infradead.org>
