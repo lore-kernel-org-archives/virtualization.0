@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
-Subject: [PATCH v2 8/8] tools/virtio: Make --reset reset ring idx
-Date: Tue, 31 Mar 2020 20:00:06 +0200
-Message-ID: <20200331180006.25829-9-eperezma@redhat.com>
+Subject: [PATCH v2 4/8] vhost: batching fetches
+Date: Tue, 31 Mar 2020 20:00:02 +0200
+Message-ID: <20200331180006.25829-5-eperezma@redhat.com>
 References: <20200331180006.25829-1-eperezma@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -13,124 +13,192 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>, kvm list <kvm@vger.kernel.org>, Halil Pasic <pasic@linux.ibm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Linux Next Mailing List <linux-next@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+From: "Michael S. Tsirkin" <mst@redhat.com>
+
+With this patch applied, new and old code perform identically.
+
+Lots of extra optimizations are now possible, e.g.
+we can fetch multiple heads with copy_from/to_user now.
+We can get rid of maintaining the log array.  Etc etc.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
 ---
- drivers/virtio/virtio_ring.c | 29 +++++++++++++++++++++++++++++
- tools/virtio/linux/virtio.h  |  2 ++
- tools/virtio/virtio_test.c   | 28 +++++++++++++++++++++++++++-
- 3 files changed, 58 insertions(+), 1 deletion(-)
+ drivers/vhost/test.c  |  2 +-
+ drivers/vhost/vhost.c | 47 ++++++++++++++++++++++++++++++++++++++-----
+ drivers/vhost/vhost.h |  5 ++++-
+ 3 files changed, 47 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 867c7ebd3f10..01b322ee2e04 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -1810,6 +1810,35 @@ int virtqueue_add_inbuf_ctx(struct virtqueue *vq,
- }
- EXPORT_SYMBOL_GPL(virtqueue_add_inbuf_ctx);
+diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
+index e37c92d4d7ad..58da17af93e9 100644
+--- a/drivers/vhost/test.c
++++ b/drivers/vhost/test.c
+@@ -119,7 +119,7 @@ static int vhost_test_open(struct inode *inode, struc=
+t file *f)
+ 	dev =3D &n->dev;
+ 	vqs[VHOST_TEST_VQ] =3D &n->vqs[VHOST_TEST_VQ];
+ 	n->vqs[VHOST_TEST_VQ].handle_kick =3D handle_vq_kick;
+-	vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX, UIO_MAXIOV,
++	vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX, UIO_MAXIOV + 64,
+ 		       VHOST_TEST_PKT_WEIGHT, VHOST_TEST_WEIGHT);
 =20
-+#ifndef __KERNEL__
-+
-+/**
-+ * virtqueue_reset_free_head - Reset to 0 the members of split ring.
-+ * @vq: Virtqueue to reset.
-+ *
-+ * At this moment, is only meant for debug the ring index change, do not=
- use
-+ * in production.
-+ */
-+void virtqueue_reset_free_head(struct virtqueue *_vq)
-+{
-+	struct vring_virtqueue *vq =3D to_vvq(_vq);
-+
-+	// vq->last_used_idx =3D 0;
-+	vq->num_added =3D 0;
-+
-+	vq->split.queue_size_in_bytes =3D 0;
-+	vq->split.avail_flags_shadow =3D 0;
-+	vq->split.avail_idx_shadow =3D 0;
-+
-+	memset(vq->split.desc_state, 0, vq->split.vring.num *
-+			sizeof(struct vring_desc_state_split));
-+
-+	vq->free_head =3D 0;
-+}
-+EXPORT_SYMBOL_GPL(virtqueue_reset_free_head);
-+
-+#endif
-+
- /**
-  * virtqueue_kick_prepare - first half of split virtqueue_kick call.
-  * @_vq: the struct virtqueue
-diff --git a/tools/virtio/linux/virtio.h b/tools/virtio/linux/virtio.h
-index b751350d4ce8..5d33eab6b814 100644
---- a/tools/virtio/linux/virtio.h
-+++ b/tools/virtio/linux/virtio.h
-@@ -65,4 +65,6 @@ struct virtqueue *vring_new_virtqueue(unsigned int inde=
-x,
- 				      const char *name);
- void vring_del_virtqueue(struct virtqueue *vq);
-=20
-+void virtqueue_reset_free_head(struct virtqueue *vq);
-+
- #endif
-diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
-index 93d81cd64ba0..bf21ece30594 100644
---- a/tools/virtio/virtio_test.c
-+++ b/tools/virtio/virtio_test.c
-@@ -49,6 +49,7 @@ struct vdev_info {
-=20
- static const struct vhost_vring_file no_backend =3D { .fd =3D -1 },
- 				     backend =3D { .fd =3D 1 };
-+static const struct vhost_vring_state null_state =3D {};
-=20
- bool vq_notify(struct virtqueue *vq)
+ 	f->private_data =3D n;
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 56c5253056ee..1646b1ce312a 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -303,6 +303,7 @@ static void vhost_vq_reset(struct vhost_dev *dev,
  {
-@@ -218,10 +219,33 @@ static void run_test(struct vdev_info *dev, struct =
-vq_info *vq,
- 			}
-=20
- 			if (reset) {
-+				struct vhost_vring_state s =3D { .index =3D 0 };
-+				int i;
-+				vq->vring.avail->idx =3D 0;
-+				vq->vq->num_free =3D vq->vring.num;
-+
-+				// Put everything in free lists.
-+				for (i =3D 0; i < vq->vring.num-1; i++)
-+					vq->vring.desc[i].next =3D
-+						cpu_to_virtio16(&dev->vdev,
-+								i + 1);
-+				vq->vring.desc[vq->vring.num-1].next =3D 0;
-+				virtqueue_reset_free_head(vq->vq);
-+
-+				r =3D ioctl(dev->control, VHOST_GET_VRING_BASE,
-+					  &s);
-+				assert(!r);
-+
-+				s.num =3D 0;
-+				r =3D ioctl(dev->control, VHOST_SET_VRING_BASE,
-+					  &null_state);
-+				assert(!r);
-+
- 				r =3D ioctl(dev->control, VHOST_TEST_SET_BACKEND,
- 					  &backend);
- 				assert(!r);
-=20
-+				started =3D completed;
-                                 while (completed > next_reset)
- 					next_reset +=3D completed;
- 			}
-@@ -243,7 +267,9 @@ static void run_test(struct vdev_info *dev, struct vq=
-_info *vq,
- 	test =3D 0;
- 	r =3D ioctl(dev->control, VHOST_TEST_RUN, &test);
- 	assert(r >=3D 0);
--	fprintf(stderr, "spurious wakeups: 0x%llx\n", spurious);
-+	fprintf(stderr,
-+		"spurious wakeups: 0x%llx started=3D0x%lx completed=3D0x%lx\n",
-+		spurious, started, completed);
+ 	vq->num =3D 1;
+ 	vq->ndescs =3D 0;
++	vq->first_desc =3D 0;
+ 	vq->desc =3D NULL;
+ 	vq->avail =3D NULL;
+ 	vq->used =3D NULL;
+@@ -371,6 +372,11 @@ static int vhost_worker(void *data)
+ 	return 0;
  }
 =20
- const char optstring[] =3D "h";
++static int vhost_vq_num_batch_descs(struct vhost_virtqueue *vq)
++{
++	return vq->max_descs - UIO_MAXIOV;
++}
++
+ static void vhost_vq_free_iovecs(struct vhost_virtqueue *vq)
+ {
+ 	kfree(vq->descs);
+@@ -393,6 +399,9 @@ static long vhost_dev_alloc_iovecs(struct vhost_dev *=
+dev)
+ 	for (i =3D 0; i < dev->nvqs; ++i) {
+ 		vq =3D dev->vqs[i];
+ 		vq->max_descs =3D dev->iov_limit;
++		if (vhost_vq_num_batch_descs(vq) < 0) {
++			return -EINVAL;
++		}
+ 		vq->descs =3D kmalloc_array(vq->max_descs,
+ 					  sizeof(*vq->descs),
+ 					  GFP_KERNEL);
+@@ -1643,6 +1652,7 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigne=
+d int ioctl, void __user *arg
+ 		vq->last_avail_idx =3D s.num;
+ 		/* Forget the cached index value. */
+ 		vq->avail_idx =3D vq->last_avail_idx;
++		vq->ndescs =3D vq->first_desc =3D 0;
+ 		break;
+ 	case VHOST_GET_VRING_BASE:
+ 		s.index =3D idx;
+@@ -2211,7 +2221,7 @@ static int fetch_indirect_descs(struct vhost_virtqu=
+eue *vq,
+ 	return 0;
+ }
+=20
+-static int fetch_descs(struct vhost_virtqueue *vq)
++static int fetch_buf(struct vhost_virtqueue *vq)
+ {
+ 	unsigned int i, head, found =3D 0;
+ 	struct vhost_desc *last;
+@@ -2224,7 +2234,11 @@ static int fetch_descs(struct vhost_virtqueue *vq)
+ 	/* Check it isn't doing very strange things with descriptor numbers. */
+ 	last_avail_idx =3D vq->last_avail_idx;
+=20
+-	if (vq->avail_idx =3D=3D vq->last_avail_idx) {
++	if (unlikely(vq->avail_idx =3D=3D vq->last_avail_idx)) {
++		/* If we already have work to do, don't bother re-checking. */
++		if (likely(vq->ndescs))
++			return vq->num;
++
+ 		if (unlikely(vhost_get_avail_idx(vq, &avail_idx))) {
+ 			vq_err(vq, "Failed to access avail idx at %p\n",
+ 				&vq->avail->idx);
+@@ -2315,6 +2329,24 @@ static int fetch_descs(struct vhost_virtqueue *vq)
+ 	return 0;
+ }
+=20
++static int fetch_descs(struct vhost_virtqueue *vq)
++{
++	int ret =3D 0;
++
++	if (unlikely(vq->first_desc >=3D vq->ndescs)) {
++		vq->first_desc =3D 0;
++		vq->ndescs =3D 0;
++	}
++
++	if (vq->ndescs)
++		return 0;
++
++	while (!ret && vq->ndescs <=3D vhost_vq_num_batch_descs(vq))
++		ret =3D fetch_buf(vq);
++
++	return vq->ndescs ? 0 : ret;
++}
++
+ /* This looks in the virtqueue and for the first available buffer, and c=
+onverts
+  * it to an iovec for convenient access.  Since descriptors consist of s=
+ome
+  * number of output then some number of input descriptors, it's actually=
+ two
+@@ -2340,7 +2372,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+ 	if (unlikely(log))
+ 		*log_num =3D 0;
+=20
+-	for (i =3D 0; i < vq->ndescs; ++i) {
++	for (i =3D vq->first_desc; i < vq->ndescs; ++i) {
+ 		unsigned iov_count =3D *in_num + *out_num;
+ 		struct vhost_desc *desc =3D &vq->descs[i];
+ 		int access;
+@@ -2386,14 +2418,19 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+ 		}
+=20
+ 		ret =3D desc->id;
++
++		if (!(desc->flags & VRING_DESC_F_NEXT))
++			break;
+ 	}
+=20
+-	vq->ndescs =3D 0;
++	vq->first_desc =3D i + 1;
+=20
+ 	return ret;
+=20
+ err:
+-	vhost_discard_vq_desc(vq, 1);
++	for (i =3D vq->first_desc; i < vq->ndescs; ++i)
++		if (!(vq->descs[i].flags & VRING_DESC_F_NEXT))
++			vhost_discard_vq_desc(vq, 1);
+ 	vq->ndescs =3D 0;
+=20
+ 	return ret;
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index c1efd8256a88..64a4ebab6dd2 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -100,6 +100,7 @@ struct vhost_virtqueue {
+=20
+ 	struct vhost_desc *descs;
+ 	int ndescs;
++	int first_desc;
+ 	int max_descs;
+=20
+ 	const struct vhost_umem_node *meta_iotlb[VHOST_NUM_ADDRS];
+@@ -242,7 +243,7 @@ ssize_t vhost_chr_write_iter(struct vhost_dev *dev,
+ int vhost_init_device_iotlb(struct vhost_dev *d, bool enabled);
+=20
+ #define vq_err(vq, fmt, ...) do {                                  \
+-		pr_debug(pr_fmt(fmt), ##__VA_ARGS__);       \
++		pr_err(pr_fmt(fmt), ##__VA_ARGS__);       \
+ 		if ((vq)->error_ctx)                               \
+ 				eventfd_signal((vq)->error_ctx, 1);\
+ 	} while (0)
+@@ -268,6 +269,8 @@ static inline void vhost_vq_set_backend_opaque(struct=
+ vhost_virtqueue *vq,
+ 					       void *private_data)
+ {
+ 	vq->private_data =3D private_data;
++	vq->ndescs =3D 0;
++	vq->first_desc =3D 0;
+ }
+=20
+ /**
 --=20
 2.18.1
