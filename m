@@ -1,56 +1,81 @@
-From: YueHaibing <yuehaibing@huawei.com>
-Subject: [PATCH -next] virtio: vdpa: remove unused variables 'ifcvf' and
- 'ifcvf_lm'
-Date: Tue, 31 Mar 2020 16:02:59 +0800
-Message-ID: <20200331080259.33056-1-yuehaibing@huawei.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [vhost:linux-next 8/13] include/linux/vringh.h:18:10: fatal
+ error: linux/vhost_iotlb.h: No such file or directory
+Date: Tue, 31 Mar 2020 16:10:26 +0800
+Message-ID: <ba85a677-85a8-b7d3-1401-4ac7674c8f3c@redhat.com>
+References: <202003292026.dP7OOeCi%lkp@intel.com>
+ <f1270de5-7a2c-76d2-431c-34364def851a@redhat.com>
+ <2A5F4C9150EECB4DAA6291810D6D61B9745B7754@shsmsx102.ccr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: mst@redhat.com, jasowang@redhat.com, tiwei.bie@intel.com, lingshan.zhu@intel.com, yuehaibing@huawei.com, xiao.w.wang@intel.com
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <2A5F4C9150EECB4DAA6291810D6D61B9745B7754@shsmsx102.ccr.corp.intel.com>
+Content-Language: en-US
+Sender: netdev-owner@vger.kernel.org
+To: "Xia, Hui" <hui.xia@intel.com>, lkp <lkp@intel.com>
+Cc: "kbuild-all@lists.01.org" <kbuild-all@lists.01.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-ZHJpdmVycy92aXJ0aW8vdmRwYS9pZmN2Zi9pZmN2Zl9tYWluLmM6MzQ6MjQ6CiB3YXJuaW5nOiB2
-YXJpYWJsZSDigJhpZmN2ZuKAmSBzZXQgYnV0IG5vdCB1c2VkIFstV3VudXNlZC1idXQtc2V0LXZh
-cmlhYmxlXQpkcml2ZXJzL3ZpcnRpby92ZHBhL2lmY3ZmL2lmY3ZmX2Jhc2UuYzozMDQ6MzE6CiB3
-YXJuaW5nOiB2YXJpYWJsZSDigJhpZmN2Zl9sbeKAmSBzZXQgYnV0IG5vdCB1c2VkIFstV3VudXNl
-ZC1idXQtc2V0LXZhcmlhYmxlXQoKUmVwb3J0ZWQtYnk6IEh1bGsgUm9ib3QgPGh1bGtjaUBodWF3
-ZWkuY29tPgpTaWduZWQtb2ZmLWJ5OiBZdWVIYWliaW5nIDx5dWVoYWliaW5nQGh1YXdlaS5jb20+
-Ci0tLQogZHJpdmVycy92aXJ0aW8vdmRwYS9pZmN2Zi9pZmN2Zl9iYXNlLmMgfCAyIC0tCiBkcml2
-ZXJzL3ZpcnRpby92ZHBhL2lmY3ZmL2lmY3ZmX21haW4uYyB8IDIgLS0KIDIgZmlsZXMgY2hhbmdl
-ZCwgNCBkZWxldGlvbnMoLSkKCmRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92ZHBhL2lmY3Zm
-L2lmY3ZmX2Jhc2UuYyBiL2RyaXZlcnMvdmlydGlvL3ZkcGEvaWZjdmYvaWZjdmZfYmFzZS5jCmlu
-ZGV4IGI2MWIwNmVhMjZkMy4uZTI0MzcxZDY0NGI1IDEwMDY0NAotLS0gYS9kcml2ZXJzL3ZpcnRp
-by92ZHBhL2lmY3ZmL2lmY3ZmX2Jhc2UuYworKysgYi9kcml2ZXJzL3ZpcnRpby92ZHBhL2lmY3Zm
-L2lmY3ZmX2Jhc2UuYwpAQCAtMzAxLDEyICszMDEsMTAgQEAgaW50IGlmY3ZmX3NldF92cV9zdGF0
-ZShzdHJ1Y3QgaWZjdmZfaHcgKmh3LCB1MTYgcWlkLCB1NjQgbnVtKQogCiBzdGF0aWMgaW50IGlm
-Y3ZmX2h3X2VuYWJsZShzdHJ1Y3QgaWZjdmZfaHcgKmh3KQogewotCXN0cnVjdCBpZmN2Zl9sbV9j
-ZmcgX19pb21lbSAqaWZjdmZfbG07CiAJc3RydWN0IHZpcnRpb19wY2lfY29tbW9uX2NmZyBfX2lv
-bWVtICpjZmc7CiAJc3RydWN0IGlmY3ZmX2FkYXB0ZXIgKmlmY3ZmOwogCXUzMiBpOwogCi0JaWZj
-dmZfbG0gPSAoc3RydWN0IGlmY3ZmX2xtX2NmZyBfX2lvbWVtICopaHctPmxtX2NmZzsKIAlpZmN2
-ZiA9IHZmX3RvX2FkYXB0ZXIoaHcpOwogCWNmZyA9IGh3LT5jb21tb25fY2ZnOwogCWlmY19pb3dy
-aXRlMTYoSUZDVkZfTVNJX0NPTkZJR19PRkYsICZjZmctPm1zaXhfY29uZmlnKTsKZGlmZiAtLWdp
-dCBhL2RyaXZlcnMvdmlydGlvL3ZkcGEvaWZjdmYvaWZjdmZfbWFpbi5jIGIvZHJpdmVycy92aXJ0
-aW8vdmRwYS9pZmN2Zi9pZmN2Zl9tYWluLmMKaW5kZXggOGQ1NGRjNWIwOGQyLi4yOGQ5ZTVkZTU2
-NzUgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvdmlydGlvL3ZkcGEvaWZjdmYvaWZjdmZfbWFpbi5jCisr
-KyBiL2RyaXZlcnMvdmlydGlvL3ZkcGEvaWZjdmYvaWZjdmZfbWFpbi5jCkBAIC0zMSwxMSArMzEs
-OSBAQCBzdGF0aWMgaXJxcmV0dXJuX3QgaWZjdmZfaW50cl9oYW5kbGVyKGludCBpcnEsIHZvaWQg
-KmFyZykKIHN0YXRpYyBpbnQgaWZjdmZfc3RhcnRfZGF0YXBhdGgodm9pZCAqcHJpdmF0ZSkKIHsK
-IAlzdHJ1Y3QgaWZjdmZfaHcgKnZmID0gaWZjdmZfcHJpdmF0ZV90b192Zihwcml2YXRlKTsKLQlz
-dHJ1Y3QgaWZjdmZfYWRhcHRlciAqaWZjdmY7CiAJdTggc3RhdHVzOwogCWludCByZXQ7CiAKLQlp
-ZmN2ZiA9IHZmX3RvX2FkYXB0ZXIodmYpOwogCXZmLT5ucl92cmluZyA9IElGQ1ZGX01BWF9RVUVV
-RV9QQUlSUyAqIDI7CiAJcmV0ID0gaWZjdmZfc3RhcnRfaHcodmYpOwogCWlmIChyZXQgPCAwKSB7
-Ci0tIAoyLjE3LjEKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
-dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxt
-YW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+
+On 2020/3/31 =E4=B8=8B=E5=8D=883:31, Xia, Hui wrote:
+>> -----Original Message-----
+>> From: Jason Wang<jasowang@redhat.com>
+>> Sent: 2020=E5=B9=B43=E6=9C=8830=E6=97=A5 10:47
+>> To: lkp<lkp@intel.com>
+>> Cc:kbuild-all@lists.01.org;kvm@vger.kernel.org;virtualization@lists.li=
+nux-
+>> foundation.org;netdev@vger.kernel.org; Michael S. Tsirkin<mst@redhat.c=
+om>
+>> Subject: Re: [vhost:linux-next 8/13] include/linux/vringh.h:18:10: fat=
+al error:
+>> linux/vhost_iotlb.h: No such file or directory
+>>
+>>
+>> On 2020/3/29 =E4=B8=8B=E5=8D=888:08, kbuild test robot wrote:
+>>> tree:https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git  l=
+inux-next
+>>> head:   f44a63f9ebf66a450c101084a35a3ef158ead209
+>>> commit: c43908b0b9a900bd51f861f4c57b83cfd932f4d2 [8/13] vringh: IOTLB
+>>> support
+>>> config: arm-em_x270_defconfig (attached as .config)
+>>> compiler: arm-linux-gnueabi-gcc (GCC) 9.3.0
+>>> reproduce:
+>>>           wgethttps://raw.githubusercontent.com/intel/lkp-
+>> tests/master/sbin/make.cross -O ~/bin/make.cross
+>>>           chmod +x ~/bin/make.cross
+>>>           git checkout c43908b0b9a900bd51f861f4c57b83cfd932f4d2
+>> I could not find this commit in the above branch.
+>>
+>>
+>>>           # save the attached .config to linux build tree
+>>>           GCC_VERSION=3D9.3.0 make.cross ARCH=3Darm
+>> Try to use commit dc3b0673ae5efb73edab66ec5c2f074272e9a4df.
+>>
+>> But this command does not work (I remember it used to work):
+>>
+>> # GCC_VERSION=3D9.3.0 make.cross ARCH=3Darm
+>> cd: received redirection to
+>> `https://download.01.org/0day-ci/cross-package/'
+>> lftpget -c
+>> https://download.01.org/0day-ci/cross-package/./gcc-9.3.0-nolibc/x86_6=
+4-gcc-
+>> 9.3.0-nolibc_arm-linux-gnueabihf.tar.xz
+>> tar Jxf
+>> gcc-9.3.0-nolibc/x86_64-gcc-9.3.0-nolibc_arm-linux-gnueabihf.tar.xz -C
+>> /root/0day No cross compiler for arm setup_crosstool failed
+> Hi Jason, thanks for report this issue. It is caused by wrong finding i=
+n 2 cross tools for arm. And has been fixed. Thanks.
+> Regarding to the vhost build issue itself, it has gone in latest vhost/=
+linux-next. The cause is the code kbuild captured didn't have  patch " vh=
+ost: factor out IOTLB " which introduce linux/vhost_iotlb.h at that momen=
+t. So just ignore this issue since the missed patch has been added in lat=
+est vhost/linux-next.
+
+
+Good to know this.
+
+Thanks for the updating.
+
+
+>
