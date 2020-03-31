@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
-Subject: [PATCH v3 5/8] tools/virtio: Add --batch option
-Date: Tue, 31 Mar 2020 21:28:01 +0200
-Message-ID: <20200331192804.6019-6-eperezma@redhat.com>
+Subject: [PATCH v3 7/8] tools/virtio: Add --reset=random
+Date: Tue, 31 Mar 2020 21:28:03 +0200
+Message-ID: <20200331192804.6019-8-eperezma@redhat.com>
 References: <20200331192804.6019-1-eperezma@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -13,138 +13,235 @@ To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Stephen Rothwell <sfr@canb.auug.org.au>, kvm list <kvm@vger.kernel.org>, Linux Next Mailing List <linux-next@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Halil Pasic <pasic@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This allow to test vhost having >1 buffers in flight
+Currently, it only removes and add backend, but it will reset vq
+position in future commits.
 
 Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
 ---
- tools/virtio/virtio_test.c | 47 ++++++++++++++++++++++++++++++--------
- 1 file changed, 37 insertions(+), 10 deletions(-)
+ drivers/vhost/test.c       | 57 ++++++++++++++++++++++++++++++++++++++
+ drivers/vhost/test.h       |  1 +
+ tools/virtio/virtio_test.c | 44 ++++++++++++++++++++++++++---
+ 3 files changed, 98 insertions(+), 4 deletions(-)
 
+diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
+index 4b00cd4266ad..102066515b48 100644
+--- a/drivers/vhost/test.c
++++ b/drivers/vhost/test.c
+@@ -263,9 +263,62 @@ static int vhost_test_set_features(struct vhost_test=
+ *n, u64 features)
+ 	return 0;
+ }
+=20
++static long vhost_test_set_backend(struct vhost_test *n, unsigned index,=
+ int fd)
++{
++	static void *private_data;
++
++	const bool enable =3D fd !=3D -1;
++	struct vhost_virtqueue *vq;
++	int r;
++
++	mutex_lock(&n->dev.mutex);
++	r =3D vhost_dev_check_owner(&n->dev);
++	if (r)
++		goto err;
++
++	if (index >=3D VHOST_TEST_VQ_MAX) {
++		r =3D -ENOBUFS;
++		goto err;
++	}
++	vq =3D &n->vqs[index];
++	mutex_lock(&vq->mutex);
++
++	/* Verify that ring has been setup correctly. */
++	if (!vhost_vq_access_ok(vq)) {
++		r =3D -EFAULT;
++		goto err_vq;
++	}
++	if (!enable) {
++		vhost_poll_stop(&vq->poll);
++		private_data =3D vq->private_data;
++		vq->private_data =3D NULL;
++	} else {
++		r =3D vhost_vq_init_access(vq);
++		vq->private_data =3D private_data;
++		if (r =3D=3D 0)
++			r =3D vhost_poll_start(&vq->poll, vq->kick);
++	}
++
++	mutex_unlock(&vq->mutex);
++
++	if (enable) {
++		vhost_test_flush_vq(n, index);
++	}
++
++	mutex_unlock(&n->dev.mutex);
++	return 0;
++
++err_vq:
++	mutex_unlock(&vq->mutex);
++err:
++	mutex_unlock(&n->dev.mutex);
++	return r;
++}
++
+ static long vhost_test_ioctl(struct file *f, unsigned int ioctl,
+ 			     unsigned long arg)
+ {
++	struct vhost_vring_file backend;
+ 	struct vhost_test *n =3D f->private_data;
+ 	void __user *argp =3D (void __user *)arg;
+ 	u64 __user *featurep =3D argp;
+@@ -277,6 +330,10 @@ static long vhost_test_ioctl(struct file *f, unsigne=
+d int ioctl,
+ 		if (copy_from_user(&test, argp, sizeof test))
+ 			return -EFAULT;
+ 		return vhost_test_run(n, test);
++	case VHOST_TEST_SET_BACKEND:
++		if (copy_from_user(&backend, argp, sizeof backend))
++			return -EFAULT;
++		return vhost_test_set_backend(n, backend.index, backend.fd);
+ 	case VHOST_GET_FEATURES:
+ 		features =3D VHOST_FEATURES;
+ 		if (copy_to_user(featurep, &features, sizeof features))
+diff --git a/drivers/vhost/test.h b/drivers/vhost/test.h
+index 7dd265bfdf81..822bc4bee03a 100644
+--- a/drivers/vhost/test.h
++++ b/drivers/vhost/test.h
+@@ -4,5 +4,6 @@
+=20
+ /* Start a given test on the virtio null device. 0 stops all tests. */
+ #define VHOST_TEST_RUN _IOW(VHOST_VIRTIO, 0x31, int)
++#define VHOST_TEST_SET_BACKEND _IOW(VHOST_VIRTIO, 0x32, int)
+=20
+ #endif
 diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
-index b427def67e7e..c30de9088f3c 100644
+index 4a2b9d11f287..93d81cd64ba0 100644
 --- a/tools/virtio/virtio_test.c
 +++ b/tools/virtio/virtio_test.c
-@@ -1,6 +1,7 @@
- // SPDX-License-Identifier: GPL-2.0
- #define _GNU_SOURCE
- #include <getopt.h>
-+#include <limits.h>
- #include <string.h>
- #include <poll.h>
- #include <sys/eventfd.h>
-@@ -152,11 +153,11 @@ static void wait_for_interrupt(struct vdev_info *de=
+@@ -20,6 +20,7 @@
+ #include "../../drivers/vhost/test.h"
+=20
+ #define RANDOM_BATCH -1
++#define RANDOM_RESET -1
+=20
+ /* Unused */
+ void *__kmalloc_fake, *__kfree_ignore_start, *__kfree_ignore_end;
+@@ -46,6 +47,9 @@ struct vdev_info {
+ 	struct vhost_memory *mem;
+ };
+=20
++static const struct vhost_vring_file no_backend =3D { .fd =3D -1 },
++				     backend =3D { .fd =3D 1 };
++
+ bool vq_notify(struct virtqueue *vq)
+ {
+ 	struct vq_info *info =3D vq->priv;
+@@ -155,10 +159,10 @@ static void wait_for_interrupt(struct vdev_info *de=
 v)
  }
 =20
  static void run_test(struct vdev_info *dev, struct vq_info *vq,
--		     bool delayed, int bufs)
-+		     bool delayed, int batch, int bufs)
+-		     bool delayed, int batch, int bufs)
++		     bool delayed, int batch, int reset_n, int bufs)
  {
  	struct scatterlist sl;
- 	long started =3D 0, completed =3D 0;
--	long completed_before;
-+	long completed_before, started_before;
+-	long started =3D 0, completed =3D 0;
++	long started =3D 0, completed =3D 0, next_reset =3D reset_n;
+ 	long completed_before, started_before;
  	int r, test =3D 1;
  	unsigned len;
- 	long long spurious =3D 0;
-@@ -165,28 +166,42 @@ static void run_test(struct vdev_info *dev, struct =
-vq_info *vq,
- 	for (;;) {
- 		virtqueue_disable_cb(vq->vq);
+@@ -171,6 +175,7 @@ static void run_test(struct vdev_info *dev, struct vq=
+_info *vq,
  		completed_before =3D completed;
-+		started_before =3D started;
+ 		started_before =3D started;
  		do {
--			if (started < bufs) {
-+			while (started < bufs &&
-+			       (started - completed) < batch) {
- 				sg_init_one(&sl, dev->buf, dev->buf_size);
- 				r =3D virtqueue_add_outbuf(vq->vq, &sl, 1,
- 							 dev->buf + started,
- 							 GFP_ATOMIC);
--				if (likely(r =3D=3D 0)) {
--					++started;
--					if (unlikely(!virtqueue_kick(vq->vq)))
-+				if (unlikely(r !=3D 0)) {
-+					if (r =3D=3D -ENOSPC &&
-+					    started > started_before)
-+						r =3D 0;
-+					else
- 						r =3D -1;
-+					break;
- 				}
--			} else
-+
-+				++started;
-+
-+				if (unlikely(!virtqueue_kick(vq->vq))) {
-+					r =3D -1;
-+					break;
-+				}
-+			}
-+
-+			if (started >=3D bufs)
++			const bool reset =3D reset_n && completed > next_reset;
+ 			if (random_batch)
+ 				batch =3D (random() % vq->vring.num) + 1;
+=20
+@@ -200,12 +205,26 @@ static void run_test(struct vdev_info *dev, struct =
+vq_info *vq,
+ 			if (started >=3D bufs)
  				r =3D -1;
 =20
++			if (reset) {
++				r =3D ioctl(dev->control, VHOST_TEST_SET_BACKEND,
++					  &no_backend);
++				assert(!r);
++			}
++
  			/* Flush out completed bufs if any */
--			if (virtqueue_get_buf(vq->vq, &len)) {
-+			while (virtqueue_get_buf(vq->vq, &len)) {
+ 			while (virtqueue_get_buf(vq->vq, &len)) {
  				++completed;
  				r =3D 0;
  			}
 =20
++			if (reset) {
++				r =3D ioctl(dev->control, VHOST_TEST_SET_BACKEND,
++					  &backend);
++				assert(!r);
++
++                                while (completed > next_reset)
++					next_reset +=3D completed;
++			}
  		} while (r =3D=3D 0);
--		if (completed =3D=3D completed_before)
-+		if (completed =3D=3D completed_before && started =3D=3D started_before=
+ 		if (completed =3D=3D completed_before && started =3D=3D started_before=
 )
  			++spurious;
- 		assert(completed <=3D bufs);
- 		assert(started <=3D bufs);
-@@ -244,6 +259,11 @@ const struct option longopts[] =3D {
- 		.name =3D "no-delayed-interrupt",
- 		.val =3D 'd',
+@@ -270,6 +289,11 @@ const struct option longopts[] =3D {
+ 		.val =3D 'b',
+ 		.has_arg =3D required_argument,
  	},
 +	{
-+		.name =3D "batch",
-+		.val =3D 'b',
-+		.has_arg =3D required_argument,
++		.name =3D "reset",
++		.val =3D 'r',
++		.has_arg =3D optional_argument,
 +	},
  	{
  	}
  };
-@@ -255,6 +275,7 @@ static void help(void)
- 		" [--no-event-idx]"
+@@ -282,6 +306,7 @@ static void help(void)
  		" [--no-virtio-1]"
  		" [--delayed-interrupt]"
-+		" [--batch=3DN]"
+ 		" [--batch=3Drandom/N]"
++		" [--reset=3Drandom/N]"
  		"\n");
  }
 =20
-@@ -263,6 +284,7 @@ int main(int argc, char **argv)
+@@ -290,7 +315,7 @@ int main(int argc, char **argv)
  	struct vdev_info dev;
  	unsigned long long features =3D (1ULL << VIRTIO_RING_F_INDIRECT_DESC) |
  		(1ULL << VIRTIO_RING_F_EVENT_IDX) | (1ULL << VIRTIO_F_VERSION_1);
-+	long batch =3D 1;
+-	long batch =3D 1;
++	long batch =3D 1, reset =3D 0;
  	int o;
  	bool delayed =3D false;
 =20
-@@ -289,6 +311,11 @@ int main(int argc, char **argv)
- 		case 'D':
- 			delayed =3D true;
+@@ -326,6 +351,17 @@ int main(int argc, char **argv)
+ 				assert(batch < (long)INT_MAX + 1);
+ 			}
  			break;
-+		case 'b':
-+			batch =3D strtol(optarg, NULL, 10);
-+			assert(batch > 0);
-+			assert(batch < (long)INT_MAX + 1);
++		case 'r':
++			if (!optarg) {
++				reset =3D 1;
++			} else if (0 =3D=3D strcmp(optarg, "random")) {
++				reset =3D RANDOM_RESET;
++			} else {
++				reset =3D strtol(optarg, NULL, 10);
++				assert(reset >=3D 0);
++				assert(reset < (long)INT_MAX + 1);
++			}
 +			break;
  		default:
  			assert(0);
  			break;
-@@ -298,6 +325,6 @@ int main(int argc, char **argv)
+@@ -335,6 +371,6 @@ int main(int argc, char **argv)
  done:
  	vdev_info_init(&dev, features);
  	vq_info_add(&dev, 256);
--	run_test(&dev, &dev.vqs[0], delayed, 0x100000);
-+	run_test(&dev, &dev.vqs[0], delayed, batch, 0x100000);
+-	run_test(&dev, &dev.vqs[0], delayed, batch, 0x100000);
++	run_test(&dev, &dev.vqs[0], delayed, batch, reset, 0x100000);
  	return 0;
  }
 --=20
