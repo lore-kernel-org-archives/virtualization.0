@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: mmotm 2020-03-30-18-46 uploaded (VDPA + vhost)
-Date: Tue, 31 Mar 2020 14:55:41 -0400
-Message-ID: <20200331144650-mutt-send-email-mst@kernel.org>
+Date: Tue, 31 Mar 2020 14:57:43 -0400
+Message-ID: <20200331145630-mutt-send-email-mst@kernel.org>
 References: <20200331014748.ajL0G62jF%akpm@linux-foundation.org>
  <969cacf1-d420-223d-7cc7-5b1b2405ec2a@infradead.org>
  <20200331143437-mutt-send-email-mst@kernel.org>
@@ -78,7 +78,14 @@ On Tue, Mar 31, 2020 at 11:42:47AM -0700, Randy Dunlap wrote:
 > Ack.  Hopefully Yamada-san can tell us what is happening here.
 
 
-I reproduced this without difficulty btw, thanks for the report!
+Oh wait a second:
+
+obj-$(CONFIG_VIRTIO)            += virtio/
+
+So CONFIG_VIRTIO=m and build does not even interate into drivers/virtio.
+
+
+
 
 
 > > 
