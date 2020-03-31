@@ -1,20 +1,20 @@
 From: Eugenio Perez Martin <eperezma@redhat.com>
 Subject: Re: [PATCH v2 1/8] vhost: Create accessors for virtqueues private_data
-Date: Tue, 31 Mar 2020 21:28:24 +0200
-Message-ID: <CAJaqyWfaMb0ZojkeoPhM8b49wZnfwVFG7MbOsOqhRUgLJE_GCw@mail.gmail.com>
+Date: Tue, 31 Mar 2020 21:29:37 +0200
+Message-ID: <CAJaqyWe2xxSR5GpV8c-mPoOizwe8nw-HrKPdjvr4ykOL_garKQ@mail.gmail.com>
 References: <20200331180006.25829-1-eperezma@redhat.com> <20200331180006.25829-2-eperezma@redhat.com>
- <20200331142426-mutt-send-email-mst@kernel.org>
+ <20200331141244-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200331142426-mutt-send-email-mst@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20200331141244-mutt-send-email-mst@kernel.org>
+Sender: kvm-owner@vger.kernel.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Halil Pasic <pasic@linux.ibm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Linux Next Mailing List <linux-next@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Mar 31, 2020 at 8:29 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+On Tue, Mar 31, 2020 at 8:14 PM Michael S. Tsirkin <mst@redhat.com> wrote:
 >
 > On Tue, Mar 31, 2020 at 07:59:59PM +0200, Eugenio P=C3=A9rez wrote:
 > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
@@ -22,14 +22,6 @@ On Tue, Mar 31, 2020 at 8:29 PM Michael S. Tsirkin <mst@redhat.com> wrote:
 > >  drivers/vhost/net.c   | 28 +++++++++++++++-------------
 > >  drivers/vhost/vhost.h | 28 ++++++++++++++++++++++++++++
 > >  drivers/vhost/vsock.c | 14 +++++++-------
->
->
-> Seems to be missing scsi and test.
-
-Good point, changing them too!
-
->
->
 > >  3 files changed, 50 insertions(+), 20 deletions(-)
 > >
 > > diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
@@ -183,23 +175,7 @@ t *n, unsigned index, int fd)
 > > + *
 > > + * Context: Need to call with vq->mutex acquired.
 > > + * Return: Opaque previously set with vhost_vq_set_backend_opaque.
->
->
-> I prefer opaque -> private data in comments.
->
-
-Changing.
-
-v3 sent.
-
-Thanks!
-
-
 > > + */
->
->
->
->
 > > +static inline void *vhost_vq_get_backend_opaque(struct vhost_virtqueue=
  *vq)
 > > +{
@@ -210,6 +186,19 @@ Thanks!
 it)
 > >  {
 > >       return vq->acked_features & (1ULL << bit);
+>
+>
+> I think I prefer vhost_vq_get_backend and vhost_vq_set_backend.
+>
+> "opaque" just means that it's void * that is clear from the signature
+> anyway.
+>
+
+I agree. Changed in sent v3.
+
+Thanks!
+
+>
 > > diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
 > > index c2d7d57e98cf..6e20dbe14acd 100644
 > > --- a/drivers/vhost/vsock.c
