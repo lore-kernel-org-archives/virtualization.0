@@ -1,153 +1,60 @@
-From: Nadav Amit <namit@vmware.com>
-Subject: Re: [RFC for Linux] virtio_balloon: Add VIRTIO_BALLOON_F_THP_ORDER to
- handle THP spilt issue
-Date: Tue, 31 Mar 2020 16:37:44 +0000
-Message-ID: <BABD09DC-217E-4F00-9C05-74ABB4B1E13D@vmware.com>
-References: <20200326031817-mutt-send-email-mst@kernel.org>
- <C4C6BAF7-C040-403D-997C-48C7AB5A7D6B@redhat.com>
- <20200326054554-mutt-send-email-mst@kernel.org>
- <f26dc94a-7296-90c9-56cd-4586b78bc03d@redhat.com>
- <20200331091718-mutt-send-email-mst@kernel.org>
- <02a393ce-c4b4-ede9-7671-76fa4c19097a@redhat.com>
- <20200331093300-mutt-send-email-mst@kernel.org>
- <b69796e0-fa41-a219-c3e5-a11e9f5f18bf@redhat.com>
- <20200331100359-mutt-send-email-mst@kernel.org>
- <85f699d4-459a-a319-0a8f-96c87d345c49@redhat.com>
+From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+Subject: [PATCH v2 0/8] vhost: Reset batched descriptors on SET_VRING_BASE call
+Date: Tue, 31 Mar 2020 19:59:58 +0200
+Message-ID: <20200331180006.25829-1-eperezma@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <85f699d4-459a-a319-0a8f-96c87d345c49@redhat.com>
-Content-Language: en-US
-Content-ID: <21176E85C416AC4BB4C87D98E5352CA3@namprd05.prod.outlook.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Hildenbrand <david@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, "pagupta@redhat.com" <pagupta@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "mojha@codeaurora.org" <mojha@codeaurora.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Hui Zhu <teawaterz@linux.alibaba.com>, Andrew Morton <akpm@linux-foundation.org>, "jasowang@redhat.com" <jasowang@redhat.com>, Hui Zhu <teawater@gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <kvm-owner@vger.kernel.org>
+Sender: kvm-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>, kvm list <kvm@vger.kernel.org>, Halil Pasic <pasic@linux.ibm.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Linux Next Mailing List <linux-next@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-PiBPbiBNYXIgMzEsIDIwMjAsIGF0IDc6MDkgQU0sIERhdmlkIEhpbGRlbmJyYW5kIDxkYXZpZEBy
-ZWRoYXQuY29tPiB3cm90ZToNCj4gDQo+IE9uIDMxLjAzLjIwIDE2OjA3LCBNaWNoYWVsIFMuIFRz
-aXJraW4gd3JvdGU6DQo+PiBPbiBUdWUsIE1hciAzMSwgMjAyMCBhdCAwNDowMzoxOFBNICswMjAw
-LCBEYXZpZCBIaWxkZW5icmFuZCB3cm90ZToNCj4+PiBPbiAzMS4wMy4yMCAxNTozNywgTWljaGFl
-bCBTLiBUc2lya2luIHdyb3RlOg0KPj4+PiBPbiBUdWUsIE1hciAzMSwgMjAyMCBhdCAwMzozMjow
-NVBNICswMjAwLCBEYXZpZCBIaWxkZW5icmFuZCB3cm90ZToNCj4+Pj4+IE9uIDMxLjAzLjIwIDE1
-OjI0LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6DQo+Pj4+Pj4gT24gVHVlLCBNYXIgMzEsIDIw
-MjAgYXQgMTI6MzU6MjRQTSArMDIwMCwgRGF2aWQgSGlsZGVuYnJhbmQgd3JvdGU6DQo+Pj4+Pj4+
-IE9uIDI2LjAzLjIwIDEwOjQ5LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6DQo+Pj4+Pj4+PiBP
-biBUaHUsIE1hciAyNiwgMjAyMCBhdCAwODo1NDowNEFNICswMTAwLCBEYXZpZCBIaWxkZW5icmFu
-ZCB3cm90ZToNCj4+Pj4+Pj4+Pj4gQW0gMjYuMDMuMjAyMCB1bSAwODoyMSBzY2hyaWViIE1pY2hh
-ZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+Og0KPj4+Pj4+Pj4+PiANCj4+Pj4+Pj4+Pj4g
-77u/T24gVGh1LCBNYXIgMTIsIDIwMjAgYXQgMDk6NTE6MjVBTSArMDEwMCwgRGF2aWQgSGlsZGVu
-YnJhbmQgd3JvdGU6DQo+Pj4+Pj4+Pj4+Pj4gT24gMTIuMDMuMjAgMDk6NDcsIE1pY2hhZWwgUy4g
-VHNpcmtpbiB3cm90ZToNCj4+Pj4+Pj4+Pj4+PiBPbiBUaHUsIE1hciAxMiwgMjAyMCBhdCAwOToz
-NzozMkFNICswMTAwLCBEYXZpZCBIaWxkZW5icmFuZCB3cm90ZToNCj4+Pj4+Pj4+Pj4+Pj4gMi4g
-WW91IGFyZSBlc3NlbnRpYWxseSBzdGVhbGluZyBUSFBzIGluIHRoZSBndWVzdC4gU28gdGhlIGZh
-c3Rlc3QNCj4+Pj4+Pj4+Pj4+Pj4gbWFwcGluZyAoVEhQIGluIGd1ZXN0IGFuZCBob3N0KSBpcyBn
-b25lLiBUaGUgZ3Vlc3Qgd29uJ3QgYmUgYWJsZSB0byBtYWtlDQo+Pj4+Pj4+Pj4+Pj4+IHVzZSBv
-ZiBUSFAgd2hlcmUgaXQgcHJldmlvdXNseSB3YXMgYWJsZSB0by4gSSBjYW4gaW1hZ2luZSB0aGlz
-IGltcGxpZXMgYQ0KPj4+Pj4+Pj4+Pj4+PiBwZXJmb3JtYW5jZSBkZWdyYWRhdGlvbiBmb3Igc29t
-ZSB3b3JrbG9hZHMuIFRoaXMgbmVlZHMgYSBwcm9wZXINCj4+Pj4+Pj4+Pj4+Pj4gcGVyZm9ybWFu
-Y2UgZXZhbHVhdGlvbi4NCj4+Pj4+Pj4+Pj4+PiANCj4+Pj4+Pj4+Pj4+PiBJIHRoaW5rIHRoZSBw
-cm9ibGVtIGlzIG1vcmUgd2l0aCB0aGUgYWxsb2NfcGFnZXMgQVBJLg0KPj4+Pj4+Pj4+Pj4+IFRo
-YXQgZ2l2ZXMgeW91IGV4YWN0bHkgdGhlIGdpdmVuIG9yZGVyLCBhbmQgaWYgdGhlcmUncw0KPj4+
-Pj4+Pj4+Pj4+IGEgbGFyZ2VyIGNodW5rIGF2YWlsYWJsZSwgaXQgd2lsbCBzcGxpdCBpdCB1cC4N
-Cj4+Pj4+Pj4+Pj4+PiANCj4+Pj4+Pj4+Pj4+PiBCdXQgZm9yIGJhbGxvb24gLSBJIHN1c3BlY3Qg
-bG90cyBvZiBvdGhlciB1c2VycywNCj4+Pj4+Pj4+Pj4+PiB3ZSBkbyBub3Qgd2FudCB0byBzdHJl
-c3MgdGhlIHN5c3RlbSBidXQgaWYgYSBsYXJnZQ0KPj4+Pj4+Pj4+Pj4+IGNodW5rIGlzIGF2YWls
-YWJsZSBhbnl3YXksIHRoZW4gd2UgY291bGQgaGFuZGxlDQo+Pj4+Pj4+Pj4+Pj4gdGhhdCBtb3Jl
-IG9wdGltYWxseSBieSBnZXR0aW5nIGl0IGFsbCBpbiBvbmUgZ28uDQo+Pj4+Pj4+Pj4+Pj4gDQo+
-Pj4+Pj4+Pj4+Pj4gDQo+Pj4+Pj4+Pj4+Pj4gU28gaWYgd2Ugd2FudCB0byBhZGRyZXNzIHRoaXMs
-IElNSE8gdGhpcyBjYWxscyBmb3IgYSBuZXcgQVBJLg0KPj4+Pj4+Pj4+Pj4+IEFsb25nIHRoZSBs
-aW5lcyBvZg0KPj4+Pj4+Pj4+Pj4+IA0KPj4+Pj4+Pj4+Pj4+ICAgc3RydWN0IHBhZ2UgKmFsbG9j
-X3BhZ2VfcmFuZ2UoZ2ZwX3QgZ2ZwLCB1bnNpZ25lZCBpbnQgbWluX29yZGVyLA0KPj4+Pj4+Pj4+
-Pj4+ICAgICAgICAgICAgICAgICAgIHVuc2lnbmVkIGludCBtYXhfb3JkZXIsIHVuc2lnbmVkIGlu
-dCAqb3JkZXIpDQo+Pj4+Pj4+Pj4+Pj4gDQo+Pj4+Pj4+Pj4+Pj4gdGhlIGlkZWEgd291bGQgdGhl
-biBiZSB0byByZXR1cm4gYXQgYSBudW1iZXIgb2YgcGFnZXMgaW4gdGhlIGdpdmVuDQo+Pj4+Pj4+
-Pj4+Pj4gcmFuZ2UuDQo+Pj4+Pj4+Pj4+Pj4gDQo+Pj4+Pj4+Pj4+Pj4gV2hhdCBkbyB5b3UgdGhp
-bms/IFdhbnQgdG8gdHJ5IGltcGxlbWVudGluZyB0aGF0Pw0KPj4+Pj4+Pj4+Pj4gDQo+Pj4+Pj4+
-Pj4+PiBZb3UgY2FuIGp1c3Qgc3RhcnQgd2l0aCB0aGUgaGlnaGVzdCBvcmRlciBhbmQgZGVjcmVt
-ZW50IHRoZSBvcmRlciB1bnRpbA0KPj4+Pj4+Pj4+Pj4geW91ciBhbGxvY2F0aW9uIHN1Y2NlZWRz
-IHVzaW5nIGFsbG9jX3BhZ2VzKCksIHdoaWNoIHdvdWxkIGJlIGVub3VnaCBmb3INCj4+Pj4+Pj4+
-Pj4+IGEgZmlyc3QgdmVyc2lvbi4gQXQgbGVhc3QgSSBkb24ndCBzZWUgdGhlIGltbWVkaWF0ZSBu
-ZWVkIGZvciBhIG5ldw0KPj4+Pj4+Pj4+Pj4ga2VybmVsIEFQSS4NCj4+Pj4+Pj4+Pj4gDQo+Pj4+
-Pj4+Pj4+IE9LIEkgcmVtZW1iZXIgbm93LiAgVGhlIHByb2JsZW0gaXMgd2l0aCByZWNsYWltLiBV
-bmxlc3MgcmVjbGFpbSBpcw0KPj4+Pj4+Pj4+PiBjb21wbGV0ZWx5IGRpc2FibGVkLCBhbnkgb2Yg
-dGhlc2UgY2FsbHMgY2FuIHNsZWVwLiBBZnRlciBpdCB3YWtlcyB1cCwNCj4+Pj4+Pj4+Pj4gd2Ug
-d291bGQgbGlrZSB0byBnZXQgdGhlIGxhcmdlciBvcmRlciB0aGF0IGhhcyBiZWNvbWUgYXZhaWxh
-YmxlDQo+Pj4+Pj4+Pj4+IG1lYW53aGlsZS4NCj4+Pj4+Pj4+PiANCj4+Pj4+Pj4+PiBZZXMsIGJ1
-dCB0aGF04oCYcyBhIHB1cmUgb3B0aW1pemF0aW9uIElNSE8uDQo+Pj4+Pj4+Pj4gU28gSSB0aGlu
-ayB3ZSBzaG91bGQgZG8gYSB0cml2aWFsIGltcGxlbWVudGF0aW9uIGZpcnN0IGFuZCB0aGVuIHNl
-ZSB3aGF0IHdlIGdhaW4gZnJvbSBhIG5ldyBhbGxvY2F0b3IgQVBJLiBUaGVuIHdlIG1pZ2h0IGFs
-c28gYmUgYWJsZSB0byBqdXN0aWZ5IGl0IHVzaW5nIHJlYWwgbnVtYmVycy4NCj4+Pj4+Pj4+IA0K
-Pj4+Pj4+Pj4gV2VsbCBob3cgZG8geW91IHByb3Bvc2UgaW1wbGVtZW50IHRoZSBuZWNlc3Nhcnkg
-c2VtYW50aWNzPw0KPj4+Pj4+Pj4gSSB0aGluayB3ZSBhcmUgYm90aCBhZ3JlZWQgdGhhdCBhbGxv
-Y19wYWdlX3JhbmdlIGlzIG1vcmUgb3INCj4+Pj4+Pj4+IGxlc3Mgd2hhdCdzIG5lY2Vzc2FyeSBh
-bnl3YXkgLSBzbyBob3cgd291bGQgeW91IGFwcHJveGltYXRlIGl0DQo+Pj4+Pj4+PiBvbiB0b3Ag
-b2YgZXhpc3RpbmcgQVBJcz8NCj4+Pj4+Pj4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvYmFs
-bG9vbl9jb21wYWN0aW9uLmggYi9pbmNsdWRlL2xpbnV4L2JhbGxvb25fY29tcGFjdGlvbi5oDQo+
-Pj4+IA0KPj4+PiAuLi4uLg0KPj4+PiANCj4+Pj4gDQo+Pj4+Pj4+IGRpZmYgLS1naXQgYS9tbS9i
-YWxsb29uX2NvbXBhY3Rpb24uYyBiL21tL2JhbGxvb25fY29tcGFjdGlvbi5jDQo+Pj4+Pj4+IGlu
-ZGV4IDI2ZGUwMjBhYWU3Yi4uMDY3ODEwYjMyODEzIDEwMDY0NA0KPj4+Pj4+PiAtLS0gYS9tbS9i
-YWxsb29uX2NvbXBhY3Rpb24uYw0KPj4+Pj4+PiArKysgYi9tbS9iYWxsb29uX2NvbXBhY3Rpb24u
-Yw0KPj4+Pj4+PiBAQCAtMTEyLDIzICsxMTIsMzUgQEAgc2l6ZV90IGJhbGxvb25fcGFnZV9saXN0
-X2RlcXVldWUoc3RydWN0IGJhbGxvb25fZGV2X2luZm8gKmJfZGV2X2luZm8sDQo+Pj4+Pj4+IEVY
-UE9SVF9TWU1CT0xfR1BMKGJhbGxvb25fcGFnZV9saXN0X2RlcXVldWUpOw0KPj4+Pj4+PiANCj4+
-Pj4+Pj4gLyoNCj4+Pj4+Pj4gLSAqIGJhbGxvb25fcGFnZV9hbGxvYyAtIGFsbG9jYXRlcyBhIG5l
-dyBwYWdlIGZvciBpbnNlcnRpb24gaW50byB0aGUgYmFsbG9vbg0KPj4+Pj4+PiAtICoJCQlwYWdl
-IGxpc3QuDQo+Pj4+Pj4+ICsgKiBiYWxsb29uX3BhZ2VzX2FsbG9jIC0gYWxsb2NhdGVzIGEgbmV3
-IHBhZ2UgKG9mIGF0IG1vc3QgdGhlIGdpdmVuIG9yZGVyKQ0KPj4+Pj4+PiArICogCQkJIGZvciBp
-bnNlcnRpb24gaW50byB0aGUgYmFsbG9vbiBwYWdlIGxpc3QuDQo+Pj4+Pj4+ICAqDQo+Pj4+Pj4+
-ICAqIERyaXZlciBtdXN0IGNhbGwgdGhpcyBmdW5jdGlvbiB0byBwcm9wZXJseSBhbGxvY2F0ZSBh
-IG5ldyBiYWxsb29uIHBhZ2UuDQo+Pj4+Pj4+ICAqIERyaXZlciBtdXN0IGNhbGwgYmFsbG9vbl9w
-YWdlX2VucXVldWUgYmVmb3JlIGRlZmluaXRpdmVseSByZW1vdmluZyB0aGUgcGFnZQ0KPj4+Pj4+
-PiAgKiBmcm9tIHRoZSBndWVzdCBzeXN0ZW0uDQo+Pj4+Pj4+ICAqDQo+Pj4+Pj4+ICsgKiBXaWxs
-IGZhbGwgYmFjayB0byBzbWFsbGVyIG9yZGVycyBpZiBhbGxvY2F0aW9uIGZhaWxzLiBUaGUgb3Jk
-ZXIgb2YgdGhlDQo+Pj4+Pj4+ICsgKiBhbGxvY2F0ZWQgcGFnZSBpcyBzdG9yZWQgaW4gcGFnZS0+
-cHJpdmF0ZS4NCj4+Pj4+Pj4gKyAqDQo+Pj4+Pj4+ICAqIFJldHVybjogc3RydWN0IHBhZ2UgZm9y
-IHRoZSBhbGxvY2F0ZWQgcGFnZSBvciBOVUxMIG9uIGFsbG9jYXRpb24gZmFpbHVyZS4NCj4+Pj4+
-Pj4gICovDQo+Pj4+Pj4+IC1zdHJ1Y3QgcGFnZSAqYmFsbG9vbl9wYWdlX2FsbG9jKHZvaWQpDQo+
-Pj4+Pj4+ICtzdHJ1Y3QgcGFnZSAqYmFsbG9vbl9wYWdlc19hbGxvYyhpbnQgb3JkZXIpDQo+Pj4+
-Pj4+IHsNCj4+Pj4+Pj4gLQlzdHJ1Y3QgcGFnZSAqcGFnZSA9IGFsbG9jX3BhZ2UoYmFsbG9vbl9t
-YXBwaW5nX2dmcF9tYXNrKCkgfA0KPj4+Pj4+PiAtCQkJCSAgICAgICBfX0dGUF9OT01FTUFMTE9D
-IHwgX19HRlBfTk9SRVRSWSB8DQo+Pj4+Pj4+IC0JCQkJICAgICAgIF9fR0ZQX05PV0FSTik7DQo+
-Pj4+Pj4+IC0JcmV0dXJuIHBhZ2U7DQo+Pj4+Pj4+ICsJc3RydWN0IHBhZ2UgKnBhZ2U7DQo+Pj4+
-Pj4+ICsNCj4+Pj4+Pj4gKwl3aGlsZSAob3JkZXIgPj0gMCkgew0KPj4+Pj4+PiArCQlwYWdlID0g
-YWxsb2NfcGFnZXMoYmFsbG9vbl9tYXBwaW5nX2dmcF9tYXNrKCkgfA0KPj4+Pj4+PiArCQkJCSAg
-IF9fR0ZQX05PTUVNQUxMT0MgfCBfX0dGUF9OT1JFVFJZIHwNCj4+Pj4+Pj4gKwkJCQkgICBfX0dG
-UF9OT1dBUk4sIG9yZGVyKTsNCj4+Pj4+Pj4gKwkJaWYgKHBhZ2UpIHsNCj4+Pj4+Pj4gKwkJCXNl
-dF9wYWdlX3ByaXZhdGUocGFnZSwgb3JkZXIpOw0KPj4+Pj4+PiArCQkJcmV0dXJuIHBhZ2U7DQo+
-Pj4+Pj4+ICsJCX0NCj4+Pj4+Pj4gKwkJb3JkZXItLTsNCj4+Pj4+Pj4gKwl9DQo+Pj4+Pj4+ICsJ
-cmV0dXJuIE5VTEw7DQo+Pj4+Pj4+IH0NCj4+Pj4+Pj4gLUVYUE9SVF9TWU1CT0xfR1BMKGJhbGxv
-b25fcGFnZV9hbGxvYyk7DQo+Pj4+Pj4+ICtFWFBPUlRfU1lNQk9MX0dQTChiYWxsb29uX3BhZ2Vz
-X2FsbG9jKTsNCj4+Pj4+Pj4gDQo+Pj4+Pj4+IC8qDQo+Pj4+Pj4+ICAqIGJhbGxvb25fcGFnZV9l
-bnF1ZXVlIC0gaW5zZXJ0cyBhIG5ldyBwYWdlIGludG8gdGhlIGJhbGxvb24gcGFnZSBsaXN0Lg0K
-Pj4+Pj4+IA0KPj4+Pj4+IA0KPj4+Pj4+IEkgdGhpbmsgdGhpcyB3aWxsIHRyeSB0byBpbnZva2Ug
-ZGlyZWN0IHJlY2xhaW0gZnJvbSB0aGUgZmlyc3QgaXRlcmF0aW9uDQo+Pj4+Pj4gdG8gZnJlZSB1
-cCB0aGUgbWF4IG9yZGVyLg0KPj4+Pj4gDQo+Pj4+PiAlX19HRlBfTk9SRVRSWTogVGhlIFZNIGlt
-cGxlbWVudGF0aW9uIHdpbGwgdHJ5IG9ubHkgdmVyeSBsaWdodHdlaWdodA0KPj4+Pj4gbWVtb3J5
-IGRpcmVjdCByZWNsYWltIHRvIGdldCBzb21lIG1lbW9yeSB1bmRlciBtZW1vcnkgcHJlc3N1cmUg
-KHRodXMgaXQNCj4+Pj4+IGNhbiBzbGVlcCkuIEl0IHdpbGwgYXZvaWQgZGlzcnVwdGl2ZSBhY3Rp
-b25zIGxpa2UgT09NIGtpbGxlci4NCj4+Pj4+IA0KPj4+Pj4gQ2VydGFpbmx5IGdvb2QgZW5vdWdo
-IGZvciBhIGZpcnN0IHZlcnNpb24gSSB3b3VsZCBzYXksIG5vPw0KPj4+PiANCj4+Pj4gRnJhbmts
-eSBob3cgd2VsbCB0aGF0IGJlaGF2ZXMgd291bGQgZGVwZW5kIGEgbG90IG9uIHRoZSB3b3JrbG9h
-ZC4NCj4+Pj4gQ2FuIHJlZ3Jlc3MganVzdCBhcyB3ZWxsLg0KPj4+PiANCj4+Pj4gRm9yIHRoZSAx
-c3QgdmVyc2lvbiBJJ2QgcHJlZmVyIHNvbWV0aGluZyB0aGF0IGlzIHRoZSBsZWFzdCBkaXNydXB0
-aXZlLA0KPj4+PiBhbmQgdGhhdCBJTUhPIG1lYW5zIHdlIG9ubHkgdHJpZ2dlciByZWNsYWltIGF0
-IGFsbCBpbiB0aGUgc2FtZSBjb25maWd1cmF0aW9uDQo+Pj4+IGFzIG5vdyAtIHdoZW4gd2UgY2Fu
-J3Qgc2F0aXNmeSB0aGUgbG93ZXN0IG9yZGVyIGFsbG9jYXRpb24uDQo+Pj4gDQo+Pj4gQWdyZWVk
-Lg0KPj4+IA0KPj4+PiBBbnl0aGluZyBlbHNlIHdvdWxkIGJlIGEgaHVnZSBhbW91bnQgb2YgdGVz
-dGluZyB3aXRoIGFsbCBraW5kIG9mDQo+Pj4+IHdvcmtsb2Fkcy4NCj4+PiANCj4+PiBTbyBkb2lu
-ZyBhICImIH5fX0dGUF9SRUNMQUlNIiBpbiBjYXNlIG9yZGVyID4gMD8gKGFzIGRvbmUgaW4NCj4+
-PiBHRlBfVFJBTlNIVUdFX0xJR0hUKQ0KPj4gDQo+PiBUaGF0IHdpbGwgaW1wcm92ZSB0aGUgc2l0
-dWF0aW9uIHdoZW4gcmVjbGFpbSBpcyBub3QgbmVlZGVkLCBidXQgbGVhdmUNCj4+IHRoZSBwcm9i
-bGVtIGluIHBsYWNlIGZvciB3aGVuIGl0J3MgbmVlZGVkOiBpZiByZWNsYWltIGRvZXMgdHJpZ2dl
-ciwgd2UNCj4+IGNhbiBnZXQgYSBodWdlIGZyZWUgcGFnZSBhbmQgaW1tZWRpYXRlbHkgYnJlYWsg
-aXQgdXAuDQo+PiANCj4+IFNvIGl0J3Mgb2sgYXMgYSBmaXJzdCBzdGVwIGJ1dCBpdCB3aWxsIG1h
-a2UgdGhlIHNlY29uZCBzdGVwIGhhcmRlciBhcw0KPj4gd2UnbGwgbmVlZCB0byB0ZXN0IHdpdGgg
-cmVjbGFpbSA6KS4NCj4gDQo+IEkgZXhwZWN0IHRoZSB3aG9sZSAic3RlYWwgaHVnZSBwYWdlcyBm
-cm9tIHlvdXIgZ3Vlc3QiIHRvIGJlIHByb2JsZW1hdGljLA0KPiBhcyBJIGFscmVhZHkgbWVudGlv
-bmVkIHRvIEFsZXguIFRoaXMgbmVlZHMgYSBwZXJmb3JtYW5jZSBldmFsdWF0aW9uLg0KPiANCj4g
-VGhpcyBhbGwgc21lbGxzIGxpa2UgYSBsb3Qgb2Ygd29ya2xvYWQgZGVwZW5kZW50IGZpbmUtdHVu
-aW5nLiA6KQ0KDQpBRkFJSyB0aGUgaGFyZHdhcmUgb3ZlcmhlYWRzIG9mIGtlZXBpbmcgaHVnZS1w
-YWdlcyBpbiB0aGUgZ3Vlc3QgYW5kIGJhY2tpbmcNCnRoZW0gd2l0aCA0S0IgcGFnZXMgYXJlIG5v
-bi1uZWdsaWdpYmxlLiBEaWQgeW91IHRha2UgdGhvc2UgaW50byBhY2NvdW50Pw0KDQo=
+Vhost did not reset properly the batched descriptors on SET_VRING_BASE
+event. Because of that, is possible to return an invalid descriptor to
+the guest.
+
+This series ammend this, resetting them every time backend changes, and
+creates a test to assert correct behavior. To do that, they need to
+expose a new function in virtio_ring, virtqueue_reset_free_head, only
+on test code.
+
+Another useful thing would be to check if mutex is properly get in
+vq private_data accessors. Not sure if mutex debug code allow that,
+similar to C++ unique lock::owns_lock. Not acquiring in the function
+because caller code holds the mutex in order to perform more actions.
+
+v2:
+* Squashed commits.
+* Create vq private_data accesors (mst).
+
+This is meant to be applied on top of
+c4f1c41a6094582903c75c0dcfacb453c959d457 in
+git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git.
+
+Eugenio P=C3=A9rez (5):
+  vhost: Create accessors for virtqueues private_data
+  tools/virtio: Add --batch option
+  tools/virtio: Add --batch=3Drandom option
+  tools/virtio: Add --reset=3Drandom
+  tools/virtio: Make --reset reset ring idx
+
+Michael S. Tsirkin (3):
+  vhost: option to fetch descriptors through an independent struct
+  vhost: use batched version by default
+  vhost: batching fetches
+
+ drivers/vhost/net.c          |  28 ++--
+ drivers/vhost/test.c         |  59 +++++++-
+ drivers/vhost/test.h         |   1 +
+ drivers/vhost/vhost.c        | 271 +++++++++++++++++++++++------------
+ drivers/vhost/vhost.h        |  45 +++++-
+ drivers/vhost/vsock.c        |  14 +-
+ drivers/virtio/virtio_ring.c |  29 ++++
+ tools/virtio/linux/virtio.h  |   2 +
+ tools/virtio/virtio_test.c   | 123 ++++++++++++++--
+ 9 files changed, 445 insertions(+), 127 deletions(-)
+
+--=20
+2.18.1
