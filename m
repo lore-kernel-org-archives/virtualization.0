@@ -1,41 +1,77 @@
-From: Huacai Chen <chenhc@lemote.com>
-Subject: [PATCH Resend] drm/qxl: Use correct notify port address when creating cursor ring
-Date: Tue, 31 Mar 2020 14:18:08 +0800
-Message-ID: <1585635488-17507-1-git-send-email-chenhc@lemote.com>
-Return-path: <stable-owner@vger.kernel.org>
-Sender: stable-owner@vger.kernel.org
-To: Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, spice-devel@lists.freedesktop.org, Fuxin Zhang <zhangfx@lemote.com>, Huacai Chen <chenhuacai@gmail.com>, Huacai Chen <chenhc@lemote.com>, stable@vger.kernel.org
+From: "Xia, Hui" <hui.xia@intel.com>
+Subject: RE: [vhost:linux-next 8/13] include/linux/vringh.h:18:10: fatal
+ error: linux/vhost_iotlb.h: No such file or directory
+Date: Tue, 31 Mar 2020 07:31:50 +0000
+Message-ID: <2A5F4C9150EECB4DAA6291810D6D61B9745B7754@shsmsx102.ccr.corp.intel.com>
+References: <202003292026.dP7OOeCi%lkp@intel.com>
+ <f1270de5-7a2c-76d2-431c-34364def851a@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <f1270de5-7a2c-76d2-431c-34364def851a@redhat.com>
+Content-Language: en-US
+Sender: netdev-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>, lkp <lkp@intel.com>
+Cc: "kbuild-all@lists.01.org" <kbuild-all@lists.01.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The command ring and cursor ring use different notify port addresses
-definition: QXL_IO_NOTIFY_CMD and QXL_IO_NOTIFY_CURSOR. However, in
-qxl_device_init() we use QXL_IO_NOTIFY_CMD to create both command ring
-and cursor ring. This doesn't cause any problems now, because QEMU's
-behaviors on QXL_IO_NOTIFY_CMD and QXL_IO_NOTIFY_CURSOR are the same.
-However, QEMU's behavior may be change in future, so let's fix it.
-
-P.S.: In the X.org QXL driver, the notify port address of cursor ring
-      is correct.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Huacai Chen <chenhc@lemote.com>
----
- drivers/gpu/drm/qxl/qxl_kms.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/gpu/drm/qxl/qxl_kms.c b/drivers/gpu/drm/qxl/qxl_kms.c
-index bfc1631..9bdbe0d 100644
---- a/drivers/gpu/drm/qxl/qxl_kms.c
-+++ b/drivers/gpu/drm/qxl/qxl_kms.c
-@@ -218,7 +218,7 @@ int qxl_device_init(struct qxl_device *qdev,
- 				&(qdev->ram_header->cursor_ring_hdr),
- 				sizeof(struct qxl_command),
- 				QXL_CURSOR_RING_SIZE,
--				qdev->io_base + QXL_IO_NOTIFY_CMD,
-+				qdev->io_base + QXL_IO_NOTIFY_CURSOR,
- 				false,
- 				&qdev->cursor_event);
- 
--- 
-2.7.0
+DQoNCj4tLS0tLU9yaWdpbmFsIE1lc3NhZ2UtLS0tLQ0KPkZyb206IEphc29uIFdhbmcgPGphc293
+YW5nQHJlZGhhdC5jb20+DQo+U2VudDogMjAyMOW5tDPmnIgzMOaXpSAxMDo0Nw0KPlRvOiBsa3Ag
+PGxrcEBpbnRlbC5jb20+DQo+Q2M6IGtidWlsZC1hbGxAbGlzdHMuMDEub3JnOyBrdm1Admdlci5r
+ZXJuZWwub3JnOyB2aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC0NCj5mb3VuZGF0aW9uLm9yZzsg
+bmV0ZGV2QHZnZXIua2VybmVsLm9yZzsgTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVkaGF0LmNv
+bT4NCj5TdWJqZWN0OiBSZTogW3Zob3N0OmxpbnV4LW5leHQgOC8xM10gaW5jbHVkZS9saW51eC92
+cmluZ2guaDoxODoxMDogZmF0YWwgZXJyb3I6DQo+bGludXgvdmhvc3RfaW90bGIuaDogTm8gc3Vj
+aCBmaWxlIG9yIGRpcmVjdG9yeQ0KPg0KPg0KPk9uIDIwMjAvMy8yOSDkuIvljYg4OjA4LCBrYnVp
+bGQgdGVzdCByb2JvdCB3cm90ZToNCj4+IHRyZWU6ICAgaHR0cHM6Ly9naXQua2VybmVsLm9yZy9w
+dWIvc2NtL2xpbnV4L2tlcm5lbC9naXQvbXN0L3Zob3N0LmdpdCBsaW51eC1uZXh0DQo+PiBoZWFk
+OiAgIGY0NGE2M2Y5ZWJmNjZhNDUwYzEwMTA4NGEzNWEzZWYxNThlYWQyMDkNCj4+IGNvbW1pdDog
+YzQzOTA4YjBiOWE5MDBiZDUxZjg2MWY0YzU3YjgzY2ZkOTMyZjRkMiBbOC8xM10gdnJpbmdoOiBJ
+T1RMQg0KPj4gc3VwcG9ydA0KPj4gY29uZmlnOiBhcm0tZW1feDI3MF9kZWZjb25maWcgKGF0dGFj
+aGVkIGFzIC5jb25maWcpDQo+PiBjb21waWxlcjogYXJtLWxpbnV4LWdudWVhYmktZ2NjIChHQ0Mp
+IDkuMy4wDQo+PiByZXByb2R1Y2U6DQo+PiAgICAgICAgICB3Z2V0IGh0dHBzOi8vcmF3LmdpdGh1
+YnVzZXJjb250ZW50LmNvbS9pbnRlbC9sa3AtDQo+dGVzdHMvbWFzdGVyL3NiaW4vbWFrZS5jcm9z
+cyAtTyB+L2Jpbi9tYWtlLmNyb3NzDQo+PiAgICAgICAgICBjaG1vZCAreCB+L2Jpbi9tYWtlLmNy
+b3NzDQo+PiAgICAgICAgICBnaXQgY2hlY2tvdXQgYzQzOTA4YjBiOWE5MDBiZDUxZjg2MWY0YzU3
+YjgzY2ZkOTMyZjRkMg0KPg0KPg0KPkkgY291bGQgbm90IGZpbmQgdGhpcyBjb21taXQgaW4gdGhl
+IGFib3ZlIGJyYW5jaC4NCj4NCj4NCj4+ICAgICAgICAgICMgc2F2ZSB0aGUgYXR0YWNoZWQgLmNv
+bmZpZyB0byBsaW51eCBidWlsZCB0cmVlDQo+PiAgICAgICAgICBHQ0NfVkVSU0lPTj05LjMuMCBt
+YWtlLmNyb3NzIEFSQ0g9YXJtDQo+DQo+DQo+VHJ5IHRvIHVzZSBjb21taXQgZGMzYjA2NzNhZTVl
+ZmI3M2VkYWI2NmVjNWMyZjA3NDI3MmU5YTRkZi4NCj4NCj5CdXQgdGhpcyBjb21tYW5kIGRvZXMg
+bm90IHdvcmsgKEkgcmVtZW1iZXIgaXQgdXNlZCB0byB3b3JrKToNCj4NCj4jIEdDQ19WRVJTSU9O
+PTkuMy4wIG1ha2UuY3Jvc3MgQVJDSD1hcm0NCj5jZDogcmVjZWl2ZWQgcmVkaXJlY3Rpb24gdG8N
+Cj5gaHR0cHM6Ly9kb3dubG9hZC4wMS5vcmcvMGRheS1jaS9jcm9zcy1wYWNrYWdlLycNCj5sZnRw
+Z2V0IC1jDQo+aHR0cHM6Ly9kb3dubG9hZC4wMS5vcmcvMGRheS1jaS9jcm9zcy1wYWNrYWdlLy4v
+Z2NjLTkuMy4wLW5vbGliYy94ODZfNjQtZ2NjLQ0KPjkuMy4wLW5vbGliY19hcm0tbGludXgtZ251
+ZWFiaWhmLnRhci54eg0KPnRhciBKeGYNCj5nY2MtOS4zLjAtbm9saWJjL3g4Nl82NC1nY2MtOS4z
+LjAtbm9saWJjX2FybS1saW51eC1nbnVlYWJpaGYudGFyLnh6IC1DDQo+L3Jvb3QvMGRheSBObyBj
+cm9zcyBjb21waWxlciBmb3IgYXJtIHNldHVwX2Nyb3NzdG9vbCBmYWlsZWQNCkhpIEphc29uLCB0
+aGFua3MgZm9yIHJlcG9ydCB0aGlzIGlzc3VlLiBJdCBpcyBjYXVzZWQgYnkgd3JvbmcgZmluZGlu
+ZyBpbiAyIGNyb3NzIHRvb2xzIGZvciBhcm0uIEFuZCBoYXMgYmVlbiBmaXhlZC4gVGhhbmtzLg0K
+UmVnYXJkaW5nIHRvIHRoZSB2aG9zdCBidWlsZCBpc3N1ZSBpdHNlbGYsIGl0IGhhcyBnb25lIGlu
+IGxhdGVzdCB2aG9zdC9saW51eC1uZXh0LiBUaGUgY2F1c2UgaXMgdGhlIGNvZGUga2J1aWxkIGNh
+cHR1cmVkIGRpZG4ndCBoYXZlICBwYXRjaCAiIHZob3N0OiBmYWN0b3Igb3V0IElPVExCICIgd2hp
+Y2ggaW50cm9kdWNlIGxpbnV4L3Zob3N0X2lvdGxiLmggYXQgdGhhdCBtb21lbnQuIFNvIGp1c3Qg
+aWdub3JlIHRoaXMgaXNzdWUgc2luY2UgdGhlIG1pc3NlZCBwYXRjaCBoYXMgYmVlbiBhZGRlZCBp
+biBsYXRlc3Qgdmhvc3QvbGludXgtbmV4dC4NCg0KPg0KPg0KPj4NCj4+IElmIHlvdSBmaXggdGhl
+IGlzc3VlLCBraW5kbHkgYWRkIGZvbGxvd2luZyB0YWcNCj4+IFJlcG9ydGVkLWJ5OiBrYnVpbGQg
+dGVzdCByb2JvdCA8bGtwQGludGVsLmNvbT4NCj4+DQo+PiBBbGwgZXJyb3JzIChuZXcgb25lcyBw
+cmVmaXhlZCBieSA+Pik6DQo+Pg0KPj4gICAgIEluIGZpbGUgaW5jbHVkZWQgZnJvbSBpbmNsdWRl
+L2xpbnV4L3ZpcnRpby5oOjEyLA0KPj4gICAgICAgICAgICAgICAgICAgICAgZnJvbSBpbmNsdWRl
+L2xpbnV4L3ZpcnRpb19jb25maWcuaDo3LA0KPj4gICAgICAgICAgICAgICAgICAgICAgZnJvbSBp
+bmNsdWRlL3VhcGkvbGludXgvdmlydGlvX25ldC5oOjMwLA0KPj4gICAgICAgICAgICAgICAgICAg
+ICAgZnJvbSBpbmNsdWRlL2xpbnV4L3ZpcnRpb19uZXQuaDo2LA0KPj4gICAgICAgICAgICAgICAg
+ICAgICAgZnJvbSBuZXQvL3BhY2tldC9hZl9wYWNrZXQuYzo4MjoNCj4+Pj4gaW5jbHVkZS9saW51
+eC92cmluZ2guaDoxODoxMDogZmF0YWwgZXJyb3I6IGxpbnV4L3Zob3N0X2lvdGxiLmg6IE5vDQo+
+Pj4+IHN1Y2ggZmlsZSBvciBkaXJlY3RvcnkNCj4+ICAgICAgICAxOCB8ICNpbmNsdWRlIDxsaW51
+eC92aG9zdF9pb3RsYi5oPg0KPj4gICAgICAgICAgIHwgICAgICAgICAgXn5+fn5+fn5+fn5+fn5+
+fn5+fn5+DQo+PiAgICAgY29tcGlsYXRpb24gdGVybWluYXRlZC4NCj4+DQo+PiB2aW0gKzE4IGlu
+Y2x1ZGUvbGludXgvdnJpbmdoLmgNCj4+DQo+PiAgICA+IDE4CSNpbmNsdWRlIDxsaW51eC92aG9z
+dF9pb3RsYi5oPg0KPj4gICAgICAxOQkjaW5jbHVkZSA8YXNtL2JhcnJpZXIuaD4NCj4+ICAgICAg
+MjANCj4NCj4NCj5JIGNhbiBoYXJkbHkgYmVsaWV2ZSBpdCBjYW4ndCB3b3JrLg0KPg0KPkkgZ2V0
+DQo+DQo+IyBmaWxlIGluY2x1ZGUvbGludXgvdnJpbmdoLmgNCj5pbmNsdWRlL2xpbnV4L3ZyaW5n
+aC5oOiBDIHNvdXJjZSwgQVNDSUkgdGV4dA0KPg0KPlNvIHRoaXMgbG9va3MgbGlrZSBhIGZhbHNl
+IHBvc2l0aXZlIHRvIG1lPw0KPg0KPlRoYW5rcw0KPg0KPg0KPj4NCj4+IC0tLQ0KPj4gMC1EQVkg
+Q0kgS2VybmVsIFRlc3QgU2VydmljZSwgSW50ZWwgQ29ycG9yYXRpb24NCj4+IGh0dHBzOi8vbGlz
+dHMuMDEub3JnL2h5cGVya2l0dHkvbGlzdC9rYnVpbGQtYWxsQGxpc3RzLjAxLm9yZw0KDQo=
