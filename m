@@ -1,175 +1,370 @@
 From: David Hildenbrand <david@redhat.com>
 Subject: Re: [RFC for Linux] virtio_balloon: Add VIRTIO_BALLOON_F_THP_ORDER to
  handle THP spilt issue
-Date: Wed, 1 Apr 2020 11:48:08 +0200
-Message-ID: <5e0e0659-5f70-2162-96be-5fcd0d3f46ad@redhat.com>
+Date: Wed, 1 Apr 2020 13:21:28 +0200
+Message-ID: <de0371da-3bf8-7873-559d-665a0e7c0fc5@redhat.com>
 References: <20200326031817-mutt-send-email-mst@kernel.org>
  <C4C6BAF7-C040-403D-997C-48C7AB5A7D6B@redhat.com>
  <20200326054554-mutt-send-email-mst@kernel.org>
  <f26dc94a-7296-90c9-56cd-4586b78bc03d@redhat.com>
  <20200331091718-mutt-send-email-mst@kernel.org>
  <02a393ce-c4b4-ede9-7671-76fa4c19097a@redhat.com>
- <20200331093300-mutt-send-email-mst@kernel.org>
- <b69796e0-fa41-a219-c3e5-a11e9f5f18bf@redhat.com>
- <20200331100359-mutt-send-email-mst@kernel.org>
- <85f699d4-459a-a319-0a8f-96c87d345c49@redhat.com>
- <BABD09DC-217E-4F00-9C05-74ABB4B1E13D@vmware.com>
+ <DD651B97-C7C2-4071-BD8D-EB5BC00A3A52@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <BABD09DC-217E-4F00-9C05-74ABB4B1E13D@vmware.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <DD651B97-C7C2-4071-BD8D-EB5BC00A3A52@vmware.com>
 Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Nadav Amit <namit@vmware.com>
-Cc: "pagupta@redhat.com" <pagupta@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, "mojha@codeaurora.org" <mojha@codeaurora.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, LKML <linux-kernel@vger.kernel.org>, Hui Zhu <teawaterz@linux.alibaba.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, Hui Zhu <teawater@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, "pagupta@redhat.com" <pagupta@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "mojha@codeaurora.org" <mojha@codeaurora.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Hui Zhu <teawaterz@linux.alibaba.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "jasowang@redhat.com" <jasowang@redhat.com>, Hui Zhu <teawater@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gMzEuMDMuMjAgMTg6MzcsIE5hZGF2IEFtaXQgd3JvdGU6Cj4+IE9uIE1hciAzMSwgMjAyMCwg
-YXQgNzowOSBBTSwgRGF2aWQgSGlsZGVuYnJhbmQgPGRhdmlkQHJlZGhhdC5jb20+IHdyb3RlOgo+
-Pgo+PiBPbiAzMS4wMy4yMCAxNjowNywgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+Pj4gT24g
-VHVlLCBNYXIgMzEsIDIwMjAgYXQgMDQ6MDM6MThQTSArMDIwMCwgRGF2aWQgSGlsZGVuYnJhbmQg
-d3JvdGU6Cj4+Pj4gT24gMzEuMDMuMjAgMTU6MzcsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToK
-Pj4+Pj4gT24gVHVlLCBNYXIgMzEsIDIwMjAgYXQgMDM6MzI6MDVQTSArMDIwMCwgRGF2aWQgSGls
-ZGVuYnJhbmQgd3JvdGU6Cj4+Pj4+PiBPbiAzMS4wMy4yMCAxNToyNCwgTWljaGFlbCBTLiBUc2ly
-a2luIHdyb3RlOgo+Pj4+Pj4+IE9uIFR1ZSwgTWFyIDMxLCAyMDIwIGF0IDEyOjM1OjI0UE0gKzAy
-MDAsIERhdmlkIEhpbGRlbmJyYW5kIHdyb3RlOgo+Pj4+Pj4+PiBPbiAyNi4wMy4yMCAxMDo0OSwg
-TWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+Pj4+Pj4+Pj4gT24gVGh1LCBNYXIgMjYsIDIwMjAg
-YXQgMDg6NTQ6MDRBTSArMDEwMCwgRGF2aWQgSGlsZGVuYnJhbmQgd3JvdGU6Cj4+Pj4+Pj4+Pj4+
-IEFtIDI2LjAzLjIwMjAgdW0gMDg6MjEgc2NocmllYiBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEBy
-ZWRoYXQuY29tPjoKPj4+Pj4+Pj4+Pj4KPj4+Pj4+Pj4+Pj4g77u/T24gVGh1LCBNYXIgMTIsIDIw
-MjAgYXQgMDk6NTE6MjVBTSArMDEwMCwgRGF2aWQgSGlsZGVuYnJhbmQgd3JvdGU6Cj4+Pj4+Pj4+
-Pj4+Pj4gT24gMTIuMDMuMjAgMDk6NDcsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPj4+Pj4+
-Pj4+Pj4+PiBPbiBUaHUsIE1hciAxMiwgMjAyMCBhdCAwOTozNzozMkFNICswMTAwLCBEYXZpZCBI
-aWxkZW5icmFuZCB3cm90ZToKPj4+Pj4+Pj4+Pj4+Pj4gMi4gWW91IGFyZSBlc3NlbnRpYWxseSBz
-dGVhbGluZyBUSFBzIGluIHRoZSBndWVzdC4gU28gdGhlIGZhc3Rlc3QKPj4+Pj4+Pj4+Pj4+Pj4g
-bWFwcGluZyAoVEhQIGluIGd1ZXN0IGFuZCBob3N0KSBpcyBnb25lLiBUaGUgZ3Vlc3Qgd29uJ3Qg
-YmUgYWJsZSB0byBtYWtlCj4+Pj4+Pj4+Pj4+Pj4+IHVzZSBvZiBUSFAgd2hlcmUgaXQgcHJldmlv
-dXNseSB3YXMgYWJsZSB0by4gSSBjYW4gaW1hZ2luZSB0aGlzIGltcGxpZXMgYQo+Pj4+Pj4+Pj4+
-Pj4+PiBwZXJmb3JtYW5jZSBkZWdyYWRhdGlvbiBmb3Igc29tZSB3b3JrbG9hZHMuIFRoaXMgbmVl
-ZHMgYSBwcm9wZXIKPj4+Pj4+Pj4+Pj4+Pj4gcGVyZm9ybWFuY2UgZXZhbHVhdGlvbi4KPj4+Pj4+
-Pj4+Pj4+Pgo+Pj4+Pj4+Pj4+Pj4+IEkgdGhpbmsgdGhlIHByb2JsZW0gaXMgbW9yZSB3aXRoIHRo
-ZSBhbGxvY19wYWdlcyBBUEkuCj4+Pj4+Pj4+Pj4+Pj4gVGhhdCBnaXZlcyB5b3UgZXhhY3RseSB0
-aGUgZ2l2ZW4gb3JkZXIsIGFuZCBpZiB0aGVyZSdzCj4+Pj4+Pj4+Pj4+Pj4gYSBsYXJnZXIgY2h1
-bmsgYXZhaWxhYmxlLCBpdCB3aWxsIHNwbGl0IGl0IHVwLgo+Pj4+Pj4+Pj4+Pj4+Cj4+Pj4+Pj4+
-Pj4+Pj4gQnV0IGZvciBiYWxsb29uIC0gSSBzdXNwZWN0IGxvdHMgb2Ygb3RoZXIgdXNlcnMsCj4+
-Pj4+Pj4+Pj4+Pj4gd2UgZG8gbm90IHdhbnQgdG8gc3RyZXNzIHRoZSBzeXN0ZW0gYnV0IGlmIGEg
-bGFyZ2UKPj4+Pj4+Pj4+Pj4+PiBjaHVuayBpcyBhdmFpbGFibGUgYW55d2F5LCB0aGVuIHdlIGNv
-dWxkIGhhbmRsZQo+Pj4+Pj4+Pj4+Pj4+IHRoYXQgbW9yZSBvcHRpbWFsbHkgYnkgZ2V0dGluZyBp
-dCBhbGwgaW4gb25lIGdvLgo+Pj4+Pj4+Pj4+Pj4+Cj4+Pj4+Pj4+Pj4+Pj4KPj4+Pj4+Pj4+Pj4+
-PiBTbyBpZiB3ZSB3YW50IHRvIGFkZHJlc3MgdGhpcywgSU1ITyB0aGlzIGNhbGxzIGZvciBhIG5l
-dyBBUEkuCj4+Pj4+Pj4+Pj4+Pj4gQWxvbmcgdGhlIGxpbmVzIG9mCj4+Pj4+Pj4+Pj4+Pj4KPj4+
-Pj4+Pj4+Pj4+PiAgIHN0cnVjdCBwYWdlICphbGxvY19wYWdlX3JhbmdlKGdmcF90IGdmcCwgdW5z
-aWduZWQgaW50IG1pbl9vcmRlciwKPj4+Pj4+Pj4+Pj4+PiAgICAgICAgICAgICAgICAgICB1bnNp
-Z25lZCBpbnQgbWF4X29yZGVyLCB1bnNpZ25lZCBpbnQgKm9yZGVyKQo+Pj4+Pj4+Pj4+Pj4+Cj4+
-Pj4+Pj4+Pj4+Pj4gdGhlIGlkZWEgd291bGQgdGhlbiBiZSB0byByZXR1cm4gYXQgYSBudW1iZXIg
-b2YgcGFnZXMgaW4gdGhlIGdpdmVuCj4+Pj4+Pj4+Pj4+Pj4gcmFuZ2UuCj4+Pj4+Pj4+Pj4+Pj4K
-Pj4+Pj4+Pj4+Pj4+PiBXaGF0IGRvIHlvdSB0aGluaz8gV2FudCB0byB0cnkgaW1wbGVtZW50aW5n
-IHRoYXQ/Cj4+Pj4+Pj4+Pj4+Pgo+Pj4+Pj4+Pj4+Pj4gWW91IGNhbiBqdXN0IHN0YXJ0IHdpdGgg
-dGhlIGhpZ2hlc3Qgb3JkZXIgYW5kIGRlY3JlbWVudCB0aGUgb3JkZXIgdW50aWwKPj4+Pj4+Pj4+
-Pj4+IHlvdXIgYWxsb2NhdGlvbiBzdWNjZWVkcyB1c2luZyBhbGxvY19wYWdlcygpLCB3aGljaCB3
-b3VsZCBiZSBlbm91Z2ggZm9yCj4+Pj4+Pj4+Pj4+PiBhIGZpcnN0IHZlcnNpb24uIEF0IGxlYXN0
-IEkgZG9uJ3Qgc2VlIHRoZSBpbW1lZGlhdGUgbmVlZCBmb3IgYSBuZXcKPj4+Pj4+Pj4+Pj4+IGtl
-cm5lbCBBUEkuCj4+Pj4+Pj4+Pj4+Cj4+Pj4+Pj4+Pj4+IE9LIEkgcmVtZW1iZXIgbm93LiAgVGhl
-IHByb2JsZW0gaXMgd2l0aCByZWNsYWltLiBVbmxlc3MgcmVjbGFpbSBpcwo+Pj4+Pj4+Pj4+PiBj
-b21wbGV0ZWx5IGRpc2FibGVkLCBhbnkgb2YgdGhlc2UgY2FsbHMgY2FuIHNsZWVwLiBBZnRlciBp
-dCB3YWtlcyB1cCwKPj4+Pj4+Pj4+Pj4gd2Ugd291bGQgbGlrZSB0byBnZXQgdGhlIGxhcmdlciBv
-cmRlciB0aGF0IGhhcyBiZWNvbWUgYXZhaWxhYmxlCj4+Pj4+Pj4+Pj4+IG1lYW53aGlsZS4KPj4+
-Pj4+Pj4+Pgo+Pj4+Pj4+Pj4+IFllcywgYnV0IHRoYXTigJhzIGEgcHVyZSBvcHRpbWl6YXRpb24g
-SU1ITy4KPj4+Pj4+Pj4+PiBTbyBJIHRoaW5rIHdlIHNob3VsZCBkbyBhIHRyaXZpYWwgaW1wbGVt
-ZW50YXRpb24gZmlyc3QgYW5kIHRoZW4gc2VlIHdoYXQgd2UgZ2FpbiBmcm9tIGEgbmV3IGFsbG9j
-YXRvciBBUEkuIFRoZW4gd2UgbWlnaHQgYWxzbyBiZSBhYmxlIHRvIGp1c3RpZnkgaXQgdXNpbmcg
-cmVhbCBudW1iZXJzLgo+Pj4+Pj4+Pj4KPj4+Pj4+Pj4+IFdlbGwgaG93IGRvIHlvdSBwcm9wb3Nl
-IGltcGxlbWVudCB0aGUgbmVjZXNzYXJ5IHNlbWFudGljcz8KPj4+Pj4+Pj4+IEkgdGhpbmsgd2Ug
-YXJlIGJvdGggYWdyZWVkIHRoYXQgYWxsb2NfcGFnZV9yYW5nZSBpcyBtb3JlIG9yCj4+Pj4+Pj4+
-PiBsZXNzIHdoYXQncyBuZWNlc3NhcnkgYW55d2F5IC0gc28gaG93IHdvdWxkIHlvdSBhcHByb3hp
-bWF0ZSBpdAo+Pj4+Pj4+Pj4gb24gdG9wIG9mIGV4aXN0aW5nIEFQSXM/Cj4+Pj4+Pj4+IGRpZmYg
-LS1naXQgYS9pbmNsdWRlL2xpbnV4L2JhbGxvb25fY29tcGFjdGlvbi5oIGIvaW5jbHVkZS9saW51
-eC9iYWxsb29uX2NvbXBhY3Rpb24uaAo+Pj4+Pgo+Pj4+PiAuLi4uLgo+Pj4+Pgo+Pj4+Pgo+Pj4+
-Pj4+PiBkaWZmIC0tZ2l0IGEvbW0vYmFsbG9vbl9jb21wYWN0aW9uLmMgYi9tbS9iYWxsb29uX2Nv
-bXBhY3Rpb24uYwo+Pj4+Pj4+PiBpbmRleCAyNmRlMDIwYWFlN2IuLjA2NzgxMGIzMjgxMyAxMDA2
-NDQKPj4+Pj4+Pj4gLS0tIGEvbW0vYmFsbG9vbl9jb21wYWN0aW9uLmMKPj4+Pj4+Pj4gKysrIGIv
-bW0vYmFsbG9vbl9jb21wYWN0aW9uLmMKPj4+Pj4+Pj4gQEAgLTExMiwyMyArMTEyLDM1IEBAIHNp
-emVfdCBiYWxsb29uX3BhZ2VfbGlzdF9kZXF1ZXVlKHN0cnVjdCBiYWxsb29uX2Rldl9pbmZvICpi
-X2Rldl9pbmZvLAo+Pj4+Pj4+PiBFWFBPUlRfU1lNQk9MX0dQTChiYWxsb29uX3BhZ2VfbGlzdF9k
-ZXF1ZXVlKTsKPj4+Pj4+Pj4KPj4+Pj4+Pj4gLyoKPj4+Pj4+Pj4gLSAqIGJhbGxvb25fcGFnZV9h
-bGxvYyAtIGFsbG9jYXRlcyBhIG5ldyBwYWdlIGZvciBpbnNlcnRpb24gaW50byB0aGUgYmFsbG9v
-bgo+Pj4+Pj4+PiAtICoJCQlwYWdlIGxpc3QuCj4+Pj4+Pj4+ICsgKiBiYWxsb29uX3BhZ2VzX2Fs
-bG9jIC0gYWxsb2NhdGVzIGEgbmV3IHBhZ2UgKG9mIGF0IG1vc3QgdGhlIGdpdmVuIG9yZGVyKQo+
-Pj4+Pj4+PiArICogCQkJIGZvciBpbnNlcnRpb24gaW50byB0aGUgYmFsbG9vbiBwYWdlIGxpc3Qu
-Cj4+Pj4+Pj4+ICAqCj4+Pj4+Pj4+ICAqIERyaXZlciBtdXN0IGNhbGwgdGhpcyBmdW5jdGlvbiB0
-byBwcm9wZXJseSBhbGxvY2F0ZSBhIG5ldyBiYWxsb29uIHBhZ2UuCj4+Pj4+Pj4+ICAqIERyaXZl
-ciBtdXN0IGNhbGwgYmFsbG9vbl9wYWdlX2VucXVldWUgYmVmb3JlIGRlZmluaXRpdmVseSByZW1v
-dmluZyB0aGUgcGFnZQo+Pj4+Pj4+PiAgKiBmcm9tIHRoZSBndWVzdCBzeXN0ZW0uCj4+Pj4+Pj4+
-ICAqCj4+Pj4+Pj4+ICsgKiBXaWxsIGZhbGwgYmFjayB0byBzbWFsbGVyIG9yZGVycyBpZiBhbGxv
-Y2F0aW9uIGZhaWxzLiBUaGUgb3JkZXIgb2YgdGhlCj4+Pj4+Pj4+ICsgKiBhbGxvY2F0ZWQgcGFn
-ZSBpcyBzdG9yZWQgaW4gcGFnZS0+cHJpdmF0ZS4KPj4+Pj4+Pj4gKyAqCj4+Pj4+Pj4+ICAqIFJl
-dHVybjogc3RydWN0IHBhZ2UgZm9yIHRoZSBhbGxvY2F0ZWQgcGFnZSBvciBOVUxMIG9uIGFsbG9j
-YXRpb24gZmFpbHVyZS4KPj4+Pj4+Pj4gICovCj4+Pj4+Pj4+IC1zdHJ1Y3QgcGFnZSAqYmFsbG9v
-bl9wYWdlX2FsbG9jKHZvaWQpCj4+Pj4+Pj4+ICtzdHJ1Y3QgcGFnZSAqYmFsbG9vbl9wYWdlc19h
-bGxvYyhpbnQgb3JkZXIpCj4+Pj4+Pj4+IHsKPj4+Pj4+Pj4gLQlzdHJ1Y3QgcGFnZSAqcGFnZSA9
-IGFsbG9jX3BhZ2UoYmFsbG9vbl9tYXBwaW5nX2dmcF9tYXNrKCkgfAo+Pj4+Pj4+PiAtCQkJCSAg
-ICAgICBfX0dGUF9OT01FTUFMTE9DIHwgX19HRlBfTk9SRVRSWSB8Cj4+Pj4+Pj4+IC0JCQkJICAg
-ICAgIF9fR0ZQX05PV0FSTik7Cj4+Pj4+Pj4+IC0JcmV0dXJuIHBhZ2U7Cj4+Pj4+Pj4+ICsJc3Ry
-dWN0IHBhZ2UgKnBhZ2U7Cj4+Pj4+Pj4+ICsKPj4+Pj4+Pj4gKwl3aGlsZSAob3JkZXIgPj0gMCkg
-ewo+Pj4+Pj4+PiArCQlwYWdlID0gYWxsb2NfcGFnZXMoYmFsbG9vbl9tYXBwaW5nX2dmcF9tYXNr
-KCkgfAo+Pj4+Pj4+PiArCQkJCSAgIF9fR0ZQX05PTUVNQUxMT0MgfCBfX0dGUF9OT1JFVFJZIHwK
-Pj4+Pj4+Pj4gKwkJCQkgICBfX0dGUF9OT1dBUk4sIG9yZGVyKTsKPj4+Pj4+Pj4gKwkJaWYgKHBh
-Z2UpIHsKPj4+Pj4+Pj4gKwkJCXNldF9wYWdlX3ByaXZhdGUocGFnZSwgb3JkZXIpOwo+Pj4+Pj4+
-PiArCQkJcmV0dXJuIHBhZ2U7Cj4+Pj4+Pj4+ICsJCX0KPj4+Pj4+Pj4gKwkJb3JkZXItLTsKPj4+
-Pj4+Pj4gKwl9Cj4+Pj4+Pj4+ICsJcmV0dXJuIE5VTEw7Cj4+Pj4+Pj4+IH0KPj4+Pj4+Pj4gLUVY
-UE9SVF9TWU1CT0xfR1BMKGJhbGxvb25fcGFnZV9hbGxvYyk7Cj4+Pj4+Pj4+ICtFWFBPUlRfU1lN
-Qk9MX0dQTChiYWxsb29uX3BhZ2VzX2FsbG9jKTsKPj4+Pj4+Pj4KPj4+Pj4+Pj4gLyoKPj4+Pj4+
-Pj4gICogYmFsbG9vbl9wYWdlX2VucXVldWUgLSBpbnNlcnRzIGEgbmV3IHBhZ2UgaW50byB0aGUg
-YmFsbG9vbiBwYWdlIGxpc3QuCj4+Pj4+Pj4KPj4+Pj4+Pgo+Pj4+Pj4+IEkgdGhpbmsgdGhpcyB3
-aWxsIHRyeSB0byBpbnZva2UgZGlyZWN0IHJlY2xhaW0gZnJvbSB0aGUgZmlyc3QgaXRlcmF0aW9u
-Cj4+Pj4+Pj4gdG8gZnJlZSB1cCB0aGUgbWF4IG9yZGVyLgo+Pj4+Pj4KPj4+Pj4+ICVfX0dGUF9O
-T1JFVFJZOiBUaGUgVk0gaW1wbGVtZW50YXRpb24gd2lsbCB0cnkgb25seSB2ZXJ5IGxpZ2h0d2Vp
-Z2h0Cj4+Pj4+PiBtZW1vcnkgZGlyZWN0IHJlY2xhaW0gdG8gZ2V0IHNvbWUgbWVtb3J5IHVuZGVy
-IG1lbW9yeSBwcmVzc3VyZSAodGh1cyBpdAo+Pj4+Pj4gY2FuIHNsZWVwKS4gSXQgd2lsbCBhdm9p
-ZCBkaXNydXB0aXZlIGFjdGlvbnMgbGlrZSBPT00ga2lsbGVyLgo+Pj4+Pj4KPj4+Pj4+IENlcnRh
-aW5seSBnb29kIGVub3VnaCBmb3IgYSBmaXJzdCB2ZXJzaW9uIEkgd291bGQgc2F5LCBubz8KPj4+
-Pj4KPj4+Pj4gRnJhbmtseSBob3cgd2VsbCB0aGF0IGJlaGF2ZXMgd291bGQgZGVwZW5kIGEgbG90
-IG9uIHRoZSB3b3JrbG9hZC4KPj4+Pj4gQ2FuIHJlZ3Jlc3MganVzdCBhcyB3ZWxsLgo+Pj4+Pgo+
-Pj4+PiBGb3IgdGhlIDFzdCB2ZXJzaW9uIEknZCBwcmVmZXIgc29tZXRoaW5nIHRoYXQgaXMgdGhl
-IGxlYXN0IGRpc3J1cHRpdmUsCj4+Pj4+IGFuZCB0aGF0IElNSE8gbWVhbnMgd2Ugb25seSB0cmln
-Z2VyIHJlY2xhaW0gYXQgYWxsIGluIHRoZSBzYW1lIGNvbmZpZ3VyYXRpb24KPj4+Pj4gYXMgbm93
-IC0gd2hlbiB3ZSBjYW4ndCBzYXRpc2Z5IHRoZSBsb3dlc3Qgb3JkZXIgYWxsb2NhdGlvbi4KPj4+
-Pgo+Pj4+IEFncmVlZC4KPj4+Pgo+Pj4+PiBBbnl0aGluZyBlbHNlIHdvdWxkIGJlIGEgaHVnZSBh
-bW91bnQgb2YgdGVzdGluZyB3aXRoIGFsbCBraW5kIG9mCj4+Pj4+IHdvcmtsb2Fkcy4KPj4+Pgo+
-Pj4+IFNvIGRvaW5nIGEgIiYgfl9fR0ZQX1JFQ0xBSU0iIGluIGNhc2Ugb3JkZXIgPiAwPyAoYXMg
-ZG9uZSBpbgo+Pj4+IEdGUF9UUkFOU0hVR0VfTElHSFQpCj4+Pgo+Pj4gVGhhdCB3aWxsIGltcHJv
-dmUgdGhlIHNpdHVhdGlvbiB3aGVuIHJlY2xhaW0gaXMgbm90IG5lZWRlZCwgYnV0IGxlYXZlCj4+
-PiB0aGUgcHJvYmxlbSBpbiBwbGFjZSBmb3Igd2hlbiBpdCdzIG5lZWRlZDogaWYgcmVjbGFpbSBk
-b2VzIHRyaWdnZXIsIHdlCj4+PiBjYW4gZ2V0IGEgaHVnZSBmcmVlIHBhZ2UgYW5kIGltbWVkaWF0
-ZWx5IGJyZWFrIGl0IHVwLgo+Pj4KPj4+IFNvIGl0J3Mgb2sgYXMgYSBmaXJzdCBzdGVwIGJ1dCBp
-dCB3aWxsIG1ha2UgdGhlIHNlY29uZCBzdGVwIGhhcmRlciBhcwo+Pj4gd2UnbGwgbmVlZCB0byB0
-ZXN0IHdpdGggcmVjbGFpbSA6KS4KPj4KPj4gSSBleHBlY3QgdGhlIHdob2xlICJzdGVhbCBodWdl
-IHBhZ2VzIGZyb20geW91ciBndWVzdCIgdG8gYmUgcHJvYmxlbWF0aWMsCj4+IGFzIEkgYWxyZWFk
-eSBtZW50aW9uZWQgdG8gQWxleC4gVGhpcyBuZWVkcyBhIHBlcmZvcm1hbmNlIGV2YWx1YXRpb24u
-Cj4+Cj4+IFRoaXMgYWxsIHNtZWxscyBsaWtlIGEgbG90IG9mIHdvcmtsb2FkIGRlcGVuZGVudCBm
-aW5lLXR1bmluZy4gOikKPiAKPiBBRkFJSyB0aGUgaGFyZHdhcmUgb3ZlcmhlYWRzIG9mIGtlZXBp
-bmcgaHVnZS1wYWdlcyBpbiB0aGUgZ3Vlc3QgYW5kIGJhY2tpbmcKPiB0aGVtIHdpdGggNEtCIHBh
-Z2VzIGFyZSBub24tbmVnbGlnaWJsZS4gRGlkIHlvdSB0YWtlIHRob3NlIGludG8gYWNjb3VudD8K
-Ck9mIGNvdXJzZSwgdGhlIGZhc3Rlc3QgbWFwcGluZyB3aWxsIGJlIGh1Z2UgcGFnZXMgaW4gaG9z
-dCBhbmQgZ3Vlc3QuCkhhdmluZyBodWdlIHBhZ2VzIGluIHlvdXIgZ3Vlc3QgYnV0IG5vdCBpbiB5
-b3VyIGhvc3QgY2Fubm90IHJlYWxseSBiZQpzb2x2ZWQgdXNpbmcgYmFsbG9vbmluZyBBRkFJS3Mu
-IEhvcGVmdWxseSBUSFAgaW4gdGhlIGhvc3Qgd2lsbCBiZSBkb2luZwppdHMgam9iIHByb3Blcmx5
-IDopCgouLi4gaG93ZXZlciwgc28gZmFyLCB3ZSBoYXZlbid0IGRvbmUgYW55IHBlcmZvcm1hbmNl
-IGNvbXBhcmlzb25zIGF0IGFsbC4KVGhlIG9ubHkgbnVtYmVycyBmcm9tIEh1aSBaaHUgdGhhdCBJ
-IGNhbiBzcG90IGFyZSBudW1iZXIgb2YgVEhQIGluIHRoZQpob3N0LCB3aGljaCBpcyBub3QgcmVh
-bGx5IGV4cHJlc3NpbmcgYWN0dWFsIGd1ZXN0IHBlcmZvcm1hbmNlIElNSE8uIFRoYXQKZGVmaW5p
-dGVseSBoYXMgdG8gYmUgZG9uZSB0byBldmFsdWF0ZSB0aGUgZGlmZmVyZW50IG9wdGltaXphdGlv
-bnMgd2UKbWlnaHQgd2FudCB0byB0cnkgb3V0LgoKLS0gClRoYW5rcywKCkRhdmlkIC8gZGhpbGRl
-bmIKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
-YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
-aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
-by92aXJ0dWFsaXphdGlvbg==
+On 31.03.20 18:27, Nadav Amit wrote:
+>> On Mar 31, 2020, at 6:32 AM, David Hildenbrand <david@redhat.com> wrot=
+e:
+>>
+>> On 31.03.20 15:24, Michael S. Tsirkin wrote:
+>>> On Tue, Mar 31, 2020 at 12:35:24PM +0200, David Hildenbrand wrote:
+>>>> On 26.03.20 10:49, Michael S. Tsirkin wrote:
+>>>>> On Thu, Mar 26, 2020 at 08:54:04AM +0100, David Hildenbrand wrote:
+>>>>>>> Am 26.03.2020 um 08:21 schrieb Michael S. Tsirkin <mst@redhat.com=
+>:
+>>>>>>>
+>>>>>>> =EF=BB=BFOn Thu, Mar 12, 2020 at 09:51:25AM +0100, David Hildenbr=
+and wrote:
+>>>>>>>>> On 12.03.20 09:47, Michael S. Tsirkin wrote:
+>>>>>>>>> On Thu, Mar 12, 2020 at 09:37:32AM +0100, David Hildenbrand wro=
+te:
+>>>>>>>>>> 2. You are essentially stealing THPs in the guest. So the fast=
+est
+>>>>>>>>>> mapping (THP in guest and host) is gone. The guest won't be ab=
+le to make
+>>>>>>>>>> use of THP where it previously was able to. I can imagine this=
+ implies a
+>>>>>>>>>> performance degradation for some workloads. This needs a prope=
+r
+>>>>>>>>>> performance evaluation.
+>>>>>>>>>
+>>>>>>>>> I think the problem is more with the alloc_pages API.
+>>>>>>>>> That gives you exactly the given order, and if there's
+>>>>>>>>> a larger chunk available, it will split it up.
+>>>>>>>>>
+>>>>>>>>> But for balloon - I suspect lots of other users,
+>>>>>>>>> we do not want to stress the system but if a large
+>>>>>>>>> chunk is available anyway, then we could handle
+>>>>>>>>> that more optimally by getting it all in one go.
+>>>>>>>>>
+>>>>>>>>>
+>>>>>>>>> So if we want to address this, IMHO this calls for a new API.
+>>>>>>>>> Along the lines of
+>>>>>>>>>
+>>>>>>>>>   struct page *alloc_page_range(gfp_t gfp, unsigned int min_ord=
+er,
+>>>>>>>>>                   unsigned int max_order, unsigned int *order)
+>>>>>>>>>
+>>>>>>>>> the idea would then be to return at a number of pages in the gi=
+ven
+>>>>>>>>> range.
+>>>>>>>>>
+>>>>>>>>> What do you think? Want to try implementing that?
+>>>>>>>>
+>>>>>>>> You can just start with the highest order and decrement the orde=
+r until
+>>>>>>>> your allocation succeeds using alloc_pages(), which would be eno=
+ugh for
+>>>>>>>> a first version. At least I don't see the immediate need for a n=
+ew
+>>>>>>>> kernel API.
+>>>>>>>
+>>>>>>> OK I remember now.  The problem is with reclaim. Unless reclaim i=
+s
+>>>>>>> completely disabled, any of these calls can sleep. After it wakes=
+ up,
+>>>>>>> we would like to get the larger order that has become available
+>>>>>>> meanwhile.
+>>>>>>
+>>>>>> Yes, but that=E2=80=98s a pure optimization IMHO.
+>>>>>> So I think we should do a trivial implementation first and then se=
+e what we gain from a new allocator API. Then we might also be able to ju=
+stify it using real numbers.
+>>>>>
+>>>>> Well how do you propose implement the necessary semantics?
+>>>>> I think we are both agreed that alloc_page_range is more or
+>>>>> less what's necessary anyway - so how would you approximate it
+>>>>> on top of existing APIs?
+>>>>
+>>>> Looking at drivers/misc/vmw_balloon.c:vmballoon_inflate(), it first
+>>>> tries to allocate huge pages using
+>>>>
+>>>> 	alloc_pages(__GFP_HIGHMEM|__GFP_NOWARN| __GFP_NOMEMALLOC,=20
+>>>>                    VMW_BALLOON_2M_ORDER)
+>>>>
+>>>> And then falls back to 4k allocations (balloon_page_alloc()) in case
+>>>> allocation fails.
+>>>>
+>>>> I'm roughly thinking of something like the following, but with an
+>>>> optimized reporting interface/bigger pfn array so we can report >
+>>>> 1MB at a time. Also, it might make sense to remember the order that
+>>>> succeeded across some fill_balloon() calls.
+>>>>
+>>>> Don't even expect it to compile ...
+>>>>
+>>>>
+>>>>
+>>>>> From 4305f989672ccca4be9293e6d4167e929f3e299b Mon Sep 17 00:00:00 2=
+001
+>>>> From: David Hildenbrand <david@redhat.com>
+>>>> Date: Tue, 31 Mar 2020 12:28:07 +0200
+>>>> Subject: [PATCH RFC] tmp
+>>>>
+>>>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>>>> ---
+>>>> drivers/virtio/virtio_balloon.c    | 38 ++++++++++++++++++--------
+>>>> include/linux/balloon_compaction.h |  7 ++++-
+>>>> mm/balloon_compaction.c            | 43 +++++++++++++++++++++++-----=
+--
+>>>> 3 files changed, 67 insertions(+), 21 deletions(-)
+>>>>
+>>>> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio=
+_balloon.c
+>>>> index 8511d258dbb4..0660b1b988f0 100644
+>>>> --- a/drivers/virtio/virtio_balloon.c
+>>>> +++ b/drivers/virtio/virtio_balloon.c
+>>>> @@ -187,7 +187,7 @@ int virtballoon_free_page_report(struct page_rep=
+orting_dev_info *pr_dev_info,
+>>>> }
+>>>>
+>>>> static void set_page_pfns(struct virtio_balloon *vb,
+>>>> -			  __virtio32 pfns[], struct page *page)
+>>>> +			  __virtio32 pfns[], struct page *page, int order)
+>>>> {
+>>>> 	unsigned int i;
+>>>>
+>>>> @@ -197,7 +197,7 @@ static void set_page_pfns(struct virtio_balloon =
+*vb,
+>>>> 	 * Set balloon pfns pointing at this page.
+>>>> 	 * Note that the first pfn points at start of the page.
+>>>> 	 */
+>>>> -	for (i =3D 0; i < VIRTIO_BALLOON_PAGES_PER_PAGE; i++)
+>>>> +	for (i =3D 0; i < VIRTIO_BALLOON_PAGES_PER_PAGE * (1 << order); i+=
++)
+>>>> 		pfns[i] =3D cpu_to_virtio32(vb->vdev,
+>>>> 					  page_to_balloon_pfn(page) + i);
+>>>> }
+>>>> @@ -205,6 +205,7 @@ static void set_page_pfns(struct virtio_balloon =
+*vb,
+>>>> static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
+>>>> {
+>>>> 	unsigned num_allocated_pages;
+>>>> +	int order =3D MAX_ORDER - 1;
+>>>> 	unsigned num_pfns;
+>>>> 	struct page *page;
+>>>> 	LIST_HEAD(pages);
+>>>> @@ -212,9 +213,20 @@ static unsigned fill_balloon(struct virtio_ball=
+oon *vb, size_t num)
+>>>> 	/* We can only do one array worth at a time. */
+>>>> 	num =3D min(num, ARRAY_SIZE(vb->pfns));
+>>>>
+>>>> +	/*
+>>>> +	 * Note: we will currently never allocate more than 1MB due to the
+>>>> +	 * pfn array size, so we will not allocate MAX_ORDER - 1 ...
+>>>> +	 */
+>>>> +
+>>>> 	for (num_pfns =3D 0; num_pfns < num;
+>>>> -	     num_pfns +=3D VIRTIO_BALLOON_PAGES_PER_PAGE) {
+>>>> -		struct page *page =3D balloon_page_alloc();
+>>>> +	     num_pfns +=3D VIRTIO_BALLOON_PAGES_PER_PAGE * (1 << order)) {
+>>>> +		const unsigned long remaining =3D num - num_pfns;
+>>>> +
+>>>> +		order =3D MIN(order,
+>>>> +			    get_order(remaining << VIRTIO_BALLOON_PFN_SHIFT));
+>>>> +		if ((1 << order) * VIRTIO_BALLOON_PAGES_PER_PAGE > remaining)
+>>>> +			order--;
+>>>> +		page =3D balloon_pages_alloc(order);
+>>>>
+>>>> 		if (!page) {
+>>>> 			dev_info_ratelimited(&vb->vdev->dev,
+>>>> @@ -225,6 +237,8 @@ static unsigned fill_balloon(struct virtio_ballo=
+on *vb, size_t num)
+>>>> 			break;
+>>>> 		}
+>>>>
+>>>> +		/* Continue with the actual order that succeeded. */
+>>>> +		order =3D page_private(page);
+>>>> 		balloon_page_push(&pages, page);
+>>>> 	}
+>>>>
+>>>> @@ -233,14 +247,16 @@ static unsigned fill_balloon(struct virtio_bal=
+loon *vb, size_t num)
+>>>> 	vb->num_pfns =3D 0;
+>>>>
+>>>> 	while ((page =3D balloon_page_pop(&pages))) {
+>>>> +		order =3D page_order(page);
+>>>> +		/* enqueuing will split the page and clear the order */
+>>>> 		balloon_page_enqueue(&vb->vb_dev_info, page);
+>>>>
+>>>> -		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
+>>>> -		vb->num_pages +=3D VIRTIO_BALLOON_PAGES_PER_PAGE;
+>>>> +		set_page_pfns(vb, vb->pfns + vb->num_pfns, page, order);
+>>>> +		vb->num_pages +=3D VIRTIO_BALLOON_PAGES_PER_PAGE * (1 << order);
+>>>> 		if (!virtio_has_feature(vb->vdev,
+>>>> 					VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
+>>>> -			adjust_managed_page_count(page, -1);
+>>>> -		vb->num_pfns +=3D VIRTIO_BALLOON_PAGES_PER_PAGE;
+>>>> +			adjust_managed_page_count(page, -1 * (1 << order));
+>>>> +		vb->num_pfns +=3D VIRTIO_BALLOON_PAGES_PER_PAGE * (1 << order);
+>>>> 	}
+>>>>
+>>>> 	num_allocated_pages =3D vb->num_pfns;
+>>>> @@ -284,7 +300,7 @@ static unsigned leak_balloon(struct virtio_ballo=
+on *vb, size_t num)
+>>>> 		page =3D balloon_page_dequeue(vb_dev_info);
+>>>> 		if (!page)
+>>>> 			break;
+>>>> -		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
+>>>> +		set_page_pfns(vb, vb->pfns + vb->num_pfns, page, 0);
+>>>> 		list_add(&page->lru, &pages);
+>>>> 		vb->num_pages -=3D VIRTIO_BALLOON_PAGES_PER_PAGE;
+>>>> 	}
+>>>> @@ -786,7 +802,7 @@ static int virtballoon_migratepage(struct balloo=
+n_dev_info *vb_dev_info,
+>>>> 	__count_vm_event(BALLOON_MIGRATE);
+>>>> 	spin_unlock_irqrestore(&vb_dev_info->pages_lock, flags);
+>>>> 	vb->num_pfns =3D VIRTIO_BALLOON_PAGES_PER_PAGE;
+>>>> -	set_page_pfns(vb, vb->pfns, newpage);
+>>>> +	set_page_pfns(vb, vb->pfns, newpage, 0);
+>>>> 	tell_host(vb, vb->inflate_vq);
+>>>>
+>>>> 	/* balloon's page migration 2nd step -- deflate "page" */
+>>>> @@ -794,7 +810,7 @@ static int virtballoon_migratepage(struct balloo=
+n_dev_info *vb_dev_info,
+>>>> 	balloon_page_delete(page);
+>>>> 	spin_unlock_irqrestore(&vb_dev_info->pages_lock, flags);
+>>>> 	vb->num_pfns =3D VIRTIO_BALLOON_PAGES_PER_PAGE;
+>>>> -	set_page_pfns(vb, vb->pfns, page);
+>>>> +	set_page_pfns(vb, vb->pfns, page, 0);
+>>>> 	tell_host(vb, vb->deflate_vq);
+>>>>
+>>>> 	mutex_unlock(&vb->balloon_lock);
+>>>> diff --git a/include/linux/balloon_compaction.h b/include/linux/ball=
+oon_compaction.h
+>>>> index 338aa27e4773..ed93fe5704d1 100644
+>>>> --- a/include/linux/balloon_compaction.h
+>>>> +++ b/include/linux/balloon_compaction.h
+>>>> @@ -60,7 +60,7 @@ struct balloon_dev_info {
+>>>> 	struct inode *inode;
+>>>> };
+>>>>
+>>>> -extern struct page *balloon_page_alloc(void);
+>>>> +extern struct page *balloon_pages_alloc(int order);
+>>>> extern void balloon_page_enqueue(struct balloon_dev_info *b_dev_info=
+,
+>>>> 				 struct page *page);
+>>>> extern struct page *balloon_page_dequeue(struct balloon_dev_info *b_=
+dev_info);
+>>>> @@ -78,6 +78,11 @@ static inline void balloon_devinfo_init(struct ba=
+lloon_dev_info *balloon)
+>>>> 	balloon->inode =3D NULL;
+>>>> }
+>>>>
+>>>> +static inline struct page *balloon_page_alloc(void)
+>>>> +{
+>>>> +	return balloon_pages_alloc(0);
+>>>> +}
+>>>> +
+>>>> #ifdef CONFIG_BALLOON_COMPACTION
+>>>> extern const struct address_space_operations balloon_aops;
+>>>> extern bool balloon_page_isolate(struct page *page,
+>>>> diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
+>>>> index 26de020aae7b..067810b32813 100644
+>>>> --- a/mm/balloon_compaction.c
+>>>> +++ b/mm/balloon_compaction.c
+>>>> @@ -112,23 +112,35 @@ size_t balloon_page_list_dequeue(struct balloo=
+n_dev_info *b_dev_info,
+>>>> EXPORT_SYMBOL_GPL(balloon_page_list_dequeue);
+>>>>
+>>>> /*
+>>>> - * balloon_page_alloc - allocates a new page for insertion into the=
+ balloon
+>>>> - *			page list.
+>>>> + * balloon_pages_alloc - allocates a new page (of at most the given=
+ order)
+>>>> + * 			 for insertion into the balloon page list.
+>>>>  *
+>>>>  * Driver must call this function to properly allocate a new balloon=
+ page.
+>>>>  * Driver must call balloon_page_enqueue before definitively removin=
+g the page
+>>>>  * from the guest system.
+>>>>  *
+>>>> + * Will fall back to smaller orders if allocation fails. The order =
+of the
+>>>> + * allocated page is stored in page->private.
+>>>> + *
+>>>>  * Return: struct page for the allocated page or NULL on allocation =
+failure.
+>>>>  */
+>>>> -struct page *balloon_page_alloc(void)
+>>>> +struct page *balloon_pages_alloc(int order)
+>>>> {
+>>>> -	struct page *page =3D alloc_page(balloon_mapping_gfp_mask() |
+>>>> -				       __GFP_NOMEMALLOC | __GFP_NORETRY |
+>>>> -				       __GFP_NOWARN);
+>>>> -	return page;
+>>>> +	struct page *page;
+>>>> +
+>>>> +	while (order >=3D 0) {
+>>>> +		page =3D alloc_pages(balloon_mapping_gfp_mask() |
+>>>> +				   __GFP_NOMEMALLOC | __GFP_NORETRY |
+>>>> +				   __GFP_NOWARN, order);
+>>>> +		if (page) {
+>>>> +			set_page_private(page, order);
+>>>> +			return page;
+>>>> +		}
+>>>> +		order--;
+>>>> +	}
+>>>> +	return NULL;
+>>>> }
+>>>> -EXPORT_SYMBOL_GPL(balloon_page_alloc);
+>>>> +EXPORT_SYMBOL_GPL(balloon_pages_alloc);
+>>>>
+>>>> /*
+>>>>  * balloon_page_enqueue - inserts a new page into the balloon page l=
+ist.
+>>>
+>>>
+>>> I think this will try to invoke direct reclaim from the first iterati=
+on
+>>> to free up the max order.
+>>
+>> %__GFP_NORETRY: The VM implementation will try only very lightweight
+>> memory direct reclaim to get some memory under memory pressure (thus i=
+t
+>> can sleep). It will avoid disruptive actions like OOM killer.
+>>
+>> Certainly good enough for a first version I would say, no? Looking at
+>> the vmware balloon, they don't even set __GFP_NORETRY.
+>=20
+> Yes, it does seem that we are missing __GFP_NORETRY. I really do not kn=
+ow
+> what I was thinking when I did not add it for huge-pages allocation. I =
+will
+> send a patch. Thanks for noticing :)
+>=20
+> In regard to your patch, I would be happy to consolidate the allocation
+> mechanisms, so VMware balloon driver would also use your code. In gener=
+al
+> your code looks good, take-away some style issues.
+
+Yeah, let's see in which direction we'll be bringing
+balloon_page_alloc(), I think there are still some questions to be
+answered (mostly performance implications).
+
+Cheers!
+
+--=20
+Thanks,
+
+David / dhildenb
