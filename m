@@ -1,370 +1,235 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [RFC for Linux] virtio_balloon: Add VIRTIO_BALLOON_F_THP_ORDER to
- handle THP spilt issue
-Date: Wed, 1 Apr 2020 13:21:28 +0200
-Message-ID: <de0371da-3bf8-7873-559d-665a0e7c0fc5@redhat.com>
-References: <20200326031817-mutt-send-email-mst@kernel.org>
- <C4C6BAF7-C040-403D-997C-48C7AB5A7D6B@redhat.com>
- <20200326054554-mutt-send-email-mst@kernel.org>
- <f26dc94a-7296-90c9-56cd-4586b78bc03d@redhat.com>
- <20200331091718-mutt-send-email-mst@kernel.org>
- <02a393ce-c4b4-ede9-7671-76fa4c19097a@redhat.com>
- <DD651B97-C7C2-4071-BD8D-EB5BC00A3A52@vmware.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH V9 1/9] vhost: refine vhost and vringh kconfig
+Date: Wed, 1 Apr 2020 13:21:40 +0200
+Message-ID: <fde312a4-56bd-f11f-799f-8aa952008012@de.ibm.com>
+References: <20200326140125.19794-1-jasowang@redhat.com>
+ <20200326140125.19794-2-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <DD651B97-C7C2-4071-BD8D-EB5BC00A3A52@vmware.com>
+Content-Transfer-Encoding: 7bit
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20200326140125.19794-2-jasowang@redhat.com>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Nadav Amit <namit@vmware.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, "pagupta@redhat.com" <pagupta@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "mojha@codeaurora.org" <mojha@codeaurora.org>, LKML <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Hui Zhu <teawaterz@linux.alibaba.com>, "akpm@linux-foundation.org" <akpm@linux-foundation.org>, "jasowang@redhat.com" <jasowang@redhat.com>, Hui Zhu <teawater@gmail.com>
+Sender: kvm-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>, mst@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: jgg@mellanox.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jiri@mellanox.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com, zhangweining@ruijie.com.cn
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 31.03.20 18:27, Nadav Amit wrote:
->> On Mar 31, 2020, at 6:32 AM, David Hildenbrand <david@redhat.com> wrot=
-e:
->>
->> On 31.03.20 15:24, Michael S. Tsirkin wrote:
->>> On Tue, Mar 31, 2020 at 12:35:24PM +0200, David Hildenbrand wrote:
->>>> On 26.03.20 10:49, Michael S. Tsirkin wrote:
->>>>> On Thu, Mar 26, 2020 at 08:54:04AM +0100, David Hildenbrand wrote:
->>>>>>> Am 26.03.2020 um 08:21 schrieb Michael S. Tsirkin <mst@redhat.com=
->:
->>>>>>>
->>>>>>> =EF=BB=BFOn Thu, Mar 12, 2020 at 09:51:25AM +0100, David Hildenbr=
-and wrote:
->>>>>>>>> On 12.03.20 09:47, Michael S. Tsirkin wrote:
->>>>>>>>> On Thu, Mar 12, 2020 at 09:37:32AM +0100, David Hildenbrand wro=
-te:
->>>>>>>>>> 2. You are essentially stealing THPs in the guest. So the fast=
-est
->>>>>>>>>> mapping (THP in guest and host) is gone. The guest won't be ab=
-le to make
->>>>>>>>>> use of THP where it previously was able to. I can imagine this=
- implies a
->>>>>>>>>> performance degradation for some workloads. This needs a prope=
-r
->>>>>>>>>> performance evaluation.
->>>>>>>>>
->>>>>>>>> I think the problem is more with the alloc_pages API.
->>>>>>>>> That gives you exactly the given order, and if there's
->>>>>>>>> a larger chunk available, it will split it up.
->>>>>>>>>
->>>>>>>>> But for balloon - I suspect lots of other users,
->>>>>>>>> we do not want to stress the system but if a large
->>>>>>>>> chunk is available anyway, then we could handle
->>>>>>>>> that more optimally by getting it all in one go.
->>>>>>>>>
->>>>>>>>>
->>>>>>>>> So if we want to address this, IMHO this calls for a new API.
->>>>>>>>> Along the lines of
->>>>>>>>>
->>>>>>>>>   struct page *alloc_page_range(gfp_t gfp, unsigned int min_ord=
-er,
->>>>>>>>>                   unsigned int max_order, unsigned int *order)
->>>>>>>>>
->>>>>>>>> the idea would then be to return at a number of pages in the gi=
-ven
->>>>>>>>> range.
->>>>>>>>>
->>>>>>>>> What do you think? Want to try implementing that?
->>>>>>>>
->>>>>>>> You can just start with the highest order and decrement the orde=
-r until
->>>>>>>> your allocation succeeds using alloc_pages(), which would be eno=
-ugh for
->>>>>>>> a first version. At least I don't see the immediate need for a n=
-ew
->>>>>>>> kernel API.
->>>>>>>
->>>>>>> OK I remember now.  The problem is with reclaim. Unless reclaim i=
-s
->>>>>>> completely disabled, any of these calls can sleep. After it wakes=
- up,
->>>>>>> we would like to get the larger order that has become available
->>>>>>> meanwhile.
->>>>>>
->>>>>> Yes, but that=E2=80=98s a pure optimization IMHO.
->>>>>> So I think we should do a trivial implementation first and then se=
-e what we gain from a new allocator API. Then we might also be able to ju=
-stify it using real numbers.
->>>>>
->>>>> Well how do you propose implement the necessary semantics?
->>>>> I think we are both agreed that alloc_page_range is more or
->>>>> less what's necessary anyway - so how would you approximate it
->>>>> on top of existing APIs?
->>>>
->>>> Looking at drivers/misc/vmw_balloon.c:vmballoon_inflate(), it first
->>>> tries to allocate huge pages using
->>>>
->>>> 	alloc_pages(__GFP_HIGHMEM|__GFP_NOWARN| __GFP_NOMEMALLOC,=20
->>>>                    VMW_BALLOON_2M_ORDER)
->>>>
->>>> And then falls back to 4k allocations (balloon_page_alloc()) in case
->>>> allocation fails.
->>>>
->>>> I'm roughly thinking of something like the following, but with an
->>>> optimized reporting interface/bigger pfn array so we can report >
->>>> 1MB at a time. Also, it might make sense to remember the order that
->>>> succeeded across some fill_balloon() calls.
->>>>
->>>> Don't even expect it to compile ...
->>>>
->>>>
->>>>
->>>>> From 4305f989672ccca4be9293e6d4167e929f3e299b Mon Sep 17 00:00:00 2=
-001
->>>> From: David Hildenbrand <david@redhat.com>
->>>> Date: Tue, 31 Mar 2020 12:28:07 +0200
->>>> Subject: [PATCH RFC] tmp
->>>>
->>>> Signed-off-by: David Hildenbrand <david@redhat.com>
->>>> ---
->>>> drivers/virtio/virtio_balloon.c    | 38 ++++++++++++++++++--------
->>>> include/linux/balloon_compaction.h |  7 ++++-
->>>> mm/balloon_compaction.c            | 43 +++++++++++++++++++++++-----=
---
->>>> 3 files changed, 67 insertions(+), 21 deletions(-)
->>>>
->>>> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio=
-_balloon.c
->>>> index 8511d258dbb4..0660b1b988f0 100644
->>>> --- a/drivers/virtio/virtio_balloon.c
->>>> +++ b/drivers/virtio/virtio_balloon.c
->>>> @@ -187,7 +187,7 @@ int virtballoon_free_page_report(struct page_rep=
-orting_dev_info *pr_dev_info,
->>>> }
->>>>
->>>> static void set_page_pfns(struct virtio_balloon *vb,
->>>> -			  __virtio32 pfns[], struct page *page)
->>>> +			  __virtio32 pfns[], struct page *page, int order)
->>>> {
->>>> 	unsigned int i;
->>>>
->>>> @@ -197,7 +197,7 @@ static void set_page_pfns(struct virtio_balloon =
-*vb,
->>>> 	 * Set balloon pfns pointing at this page.
->>>> 	 * Note that the first pfn points at start of the page.
->>>> 	 */
->>>> -	for (i =3D 0; i < VIRTIO_BALLOON_PAGES_PER_PAGE; i++)
->>>> +	for (i =3D 0; i < VIRTIO_BALLOON_PAGES_PER_PAGE * (1 << order); i+=
-+)
->>>> 		pfns[i] =3D cpu_to_virtio32(vb->vdev,
->>>> 					  page_to_balloon_pfn(page) + i);
->>>> }
->>>> @@ -205,6 +205,7 @@ static void set_page_pfns(struct virtio_balloon =
-*vb,
->>>> static unsigned fill_balloon(struct virtio_balloon *vb, size_t num)
->>>> {
->>>> 	unsigned num_allocated_pages;
->>>> +	int order =3D MAX_ORDER - 1;
->>>> 	unsigned num_pfns;
->>>> 	struct page *page;
->>>> 	LIST_HEAD(pages);
->>>> @@ -212,9 +213,20 @@ static unsigned fill_balloon(struct virtio_ball=
-oon *vb, size_t num)
->>>> 	/* We can only do one array worth at a time. */
->>>> 	num =3D min(num, ARRAY_SIZE(vb->pfns));
->>>>
->>>> +	/*
->>>> +	 * Note: we will currently never allocate more than 1MB due to the
->>>> +	 * pfn array size, so we will not allocate MAX_ORDER - 1 ...
->>>> +	 */
->>>> +
->>>> 	for (num_pfns =3D 0; num_pfns < num;
->>>> -	     num_pfns +=3D VIRTIO_BALLOON_PAGES_PER_PAGE) {
->>>> -		struct page *page =3D balloon_page_alloc();
->>>> +	     num_pfns +=3D VIRTIO_BALLOON_PAGES_PER_PAGE * (1 << order)) {
->>>> +		const unsigned long remaining =3D num - num_pfns;
->>>> +
->>>> +		order =3D MIN(order,
->>>> +			    get_order(remaining << VIRTIO_BALLOON_PFN_SHIFT));
->>>> +		if ((1 << order) * VIRTIO_BALLOON_PAGES_PER_PAGE > remaining)
->>>> +			order--;
->>>> +		page =3D balloon_pages_alloc(order);
->>>>
->>>> 		if (!page) {
->>>> 			dev_info_ratelimited(&vb->vdev->dev,
->>>> @@ -225,6 +237,8 @@ static unsigned fill_balloon(struct virtio_ballo=
-on *vb, size_t num)
->>>> 			break;
->>>> 		}
->>>>
->>>> +		/* Continue with the actual order that succeeded. */
->>>> +		order =3D page_private(page);
->>>> 		balloon_page_push(&pages, page);
->>>> 	}
->>>>
->>>> @@ -233,14 +247,16 @@ static unsigned fill_balloon(struct virtio_bal=
-loon *vb, size_t num)
->>>> 	vb->num_pfns =3D 0;
->>>>
->>>> 	while ((page =3D balloon_page_pop(&pages))) {
->>>> +		order =3D page_order(page);
->>>> +		/* enqueuing will split the page and clear the order */
->>>> 		balloon_page_enqueue(&vb->vb_dev_info, page);
->>>>
->>>> -		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
->>>> -		vb->num_pages +=3D VIRTIO_BALLOON_PAGES_PER_PAGE;
->>>> +		set_page_pfns(vb, vb->pfns + vb->num_pfns, page, order);
->>>> +		vb->num_pages +=3D VIRTIO_BALLOON_PAGES_PER_PAGE * (1 << order);
->>>> 		if (!virtio_has_feature(vb->vdev,
->>>> 					VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
->>>> -			adjust_managed_page_count(page, -1);
->>>> -		vb->num_pfns +=3D VIRTIO_BALLOON_PAGES_PER_PAGE;
->>>> +			adjust_managed_page_count(page, -1 * (1 << order));
->>>> +		vb->num_pfns +=3D VIRTIO_BALLOON_PAGES_PER_PAGE * (1 << order);
->>>> 	}
->>>>
->>>> 	num_allocated_pages =3D vb->num_pfns;
->>>> @@ -284,7 +300,7 @@ static unsigned leak_balloon(struct virtio_ballo=
-on *vb, size_t num)
->>>> 		page =3D balloon_page_dequeue(vb_dev_info);
->>>> 		if (!page)
->>>> 			break;
->>>> -		set_page_pfns(vb, vb->pfns + vb->num_pfns, page);
->>>> +		set_page_pfns(vb, vb->pfns + vb->num_pfns, page, 0);
->>>> 		list_add(&page->lru, &pages);
->>>> 		vb->num_pages -=3D VIRTIO_BALLOON_PAGES_PER_PAGE;
->>>> 	}
->>>> @@ -786,7 +802,7 @@ static int virtballoon_migratepage(struct balloo=
-n_dev_info *vb_dev_info,
->>>> 	__count_vm_event(BALLOON_MIGRATE);
->>>> 	spin_unlock_irqrestore(&vb_dev_info->pages_lock, flags);
->>>> 	vb->num_pfns =3D VIRTIO_BALLOON_PAGES_PER_PAGE;
->>>> -	set_page_pfns(vb, vb->pfns, newpage);
->>>> +	set_page_pfns(vb, vb->pfns, newpage, 0);
->>>> 	tell_host(vb, vb->inflate_vq);
->>>>
->>>> 	/* balloon's page migration 2nd step -- deflate "page" */
->>>> @@ -794,7 +810,7 @@ static int virtballoon_migratepage(struct balloo=
-n_dev_info *vb_dev_info,
->>>> 	balloon_page_delete(page);
->>>> 	spin_unlock_irqrestore(&vb_dev_info->pages_lock, flags);
->>>> 	vb->num_pfns =3D VIRTIO_BALLOON_PAGES_PER_PAGE;
->>>> -	set_page_pfns(vb, vb->pfns, page);
->>>> +	set_page_pfns(vb, vb->pfns, page, 0);
->>>> 	tell_host(vb, vb->deflate_vq);
->>>>
->>>> 	mutex_unlock(&vb->balloon_lock);
->>>> diff --git a/include/linux/balloon_compaction.h b/include/linux/ball=
-oon_compaction.h
->>>> index 338aa27e4773..ed93fe5704d1 100644
->>>> --- a/include/linux/balloon_compaction.h
->>>> +++ b/include/linux/balloon_compaction.h
->>>> @@ -60,7 +60,7 @@ struct balloon_dev_info {
->>>> 	struct inode *inode;
->>>> };
->>>>
->>>> -extern struct page *balloon_page_alloc(void);
->>>> +extern struct page *balloon_pages_alloc(int order);
->>>> extern void balloon_page_enqueue(struct balloon_dev_info *b_dev_info=
-,
->>>> 				 struct page *page);
->>>> extern struct page *balloon_page_dequeue(struct balloon_dev_info *b_=
-dev_info);
->>>> @@ -78,6 +78,11 @@ static inline void balloon_devinfo_init(struct ba=
-lloon_dev_info *balloon)
->>>> 	balloon->inode =3D NULL;
->>>> }
->>>>
->>>> +static inline struct page *balloon_page_alloc(void)
->>>> +{
->>>> +	return balloon_pages_alloc(0);
->>>> +}
->>>> +
->>>> #ifdef CONFIG_BALLOON_COMPACTION
->>>> extern const struct address_space_operations balloon_aops;
->>>> extern bool balloon_page_isolate(struct page *page,
->>>> diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
->>>> index 26de020aae7b..067810b32813 100644
->>>> --- a/mm/balloon_compaction.c
->>>> +++ b/mm/balloon_compaction.c
->>>> @@ -112,23 +112,35 @@ size_t balloon_page_list_dequeue(struct balloo=
-n_dev_info *b_dev_info,
->>>> EXPORT_SYMBOL_GPL(balloon_page_list_dequeue);
->>>>
->>>> /*
->>>> - * balloon_page_alloc - allocates a new page for insertion into the=
- balloon
->>>> - *			page list.
->>>> + * balloon_pages_alloc - allocates a new page (of at most the given=
- order)
->>>> + * 			 for insertion into the balloon page list.
->>>>  *
->>>>  * Driver must call this function to properly allocate a new balloon=
- page.
->>>>  * Driver must call balloon_page_enqueue before definitively removin=
-g the page
->>>>  * from the guest system.
->>>>  *
->>>> + * Will fall back to smaller orders if allocation fails. The order =
-of the
->>>> + * allocated page is stored in page->private.
->>>> + *
->>>>  * Return: struct page for the allocated page or NULL on allocation =
-failure.
->>>>  */
->>>> -struct page *balloon_page_alloc(void)
->>>> +struct page *balloon_pages_alloc(int order)
->>>> {
->>>> -	struct page *page =3D alloc_page(balloon_mapping_gfp_mask() |
->>>> -				       __GFP_NOMEMALLOC | __GFP_NORETRY |
->>>> -				       __GFP_NOWARN);
->>>> -	return page;
->>>> +	struct page *page;
->>>> +
->>>> +	while (order >=3D 0) {
->>>> +		page =3D alloc_pages(balloon_mapping_gfp_mask() |
->>>> +				   __GFP_NOMEMALLOC | __GFP_NORETRY |
->>>> +				   __GFP_NOWARN, order);
->>>> +		if (page) {
->>>> +			set_page_private(page, order);
->>>> +			return page;
->>>> +		}
->>>> +		order--;
->>>> +	}
->>>> +	return NULL;
->>>> }
->>>> -EXPORT_SYMBOL_GPL(balloon_page_alloc);
->>>> +EXPORT_SYMBOL_GPL(balloon_pages_alloc);
->>>>
->>>> /*
->>>>  * balloon_page_enqueue - inserts a new page into the balloon page l=
-ist.
->>>
->>>
->>> I think this will try to invoke direct reclaim from the first iterati=
-on
->>> to free up the max order.
->>
->> %__GFP_NORETRY: The VM implementation will try only very lightweight
->> memory direct reclaim to get some memory under memory pressure (thus i=
-t
->> can sleep). It will avoid disruptive actions like OOM killer.
->>
->> Certainly good enough for a first version I would say, no? Looking at
->> the vmware balloon, they don't even set __GFP_NORETRY.
->=20
-> Yes, it does seem that we are missing __GFP_NORETRY. I really do not kn=
-ow
-> what I was thinking when I did not add it for huge-pages allocation. I =
-will
-> send a patch. Thanks for noticing :)
->=20
-> In regard to your patch, I would be happy to consolidate the allocation
-> mechanisms, so VMware balloon driver would also use your code. In gener=
-al
-> your code looks good, take-away some style issues.
 
-Yeah, let's see in which direction we'll be bringing
-balloon_page_alloc(), I think there are still some questions to be
-answered (mostly performance implications).
+On 26.03.20 15:01, Jason Wang wrote:
+> Currently, CONFIG_VHOST depends on CONFIG_VIRTUALIZATION. But vhost is
+> not necessarily for VM since it's a generic userspace and kernel
+> communication protocol. Such dependency may prevent archs without
+> virtualization support from using vhost.
+> 
+> To solve this, a dedicated vhost menu is created under drivers so
+> CONIFG_VHOST can be decoupled out of CONFIG_VIRTUALIZATION.
 
-Cheers!
 
---=20
-Thanks,
+FWIW, this now results in vhost not being build with defconfig kernels (in todays
+linux-next). 
 
-David / dhildenb
+> 
+> While at it, also squash Kconfig.vringh into vhost Kconfig file. This
+> avoids the trick of conditional inclusion from VOP or CAIF. Then it
+> will be easier to introduce new vringh users and common dependency for
+> both vringh and vhost.
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  arch/arm/kvm/Kconfig         |  2 --
+>  arch/arm64/kvm/Kconfig       |  2 --
+>  arch/mips/kvm/Kconfig        |  2 --
+>  arch/powerpc/kvm/Kconfig     |  2 --
+>  arch/s390/kvm/Kconfig        |  4 ----
+>  arch/x86/kvm/Kconfig         |  4 ----
+>  drivers/Kconfig              |  2 ++
+>  drivers/misc/mic/Kconfig     |  4 ----
+>  drivers/net/caif/Kconfig     |  4 ----
+>  drivers/vhost/Kconfig        | 23 ++++++++++++++---------
+>  drivers/vhost/Kconfig.vringh |  6 ------
+>  11 files changed, 16 insertions(+), 39 deletions(-)
+>  delete mode 100644 drivers/vhost/Kconfig.vringh
+> 
+> diff --git a/arch/arm/kvm/Kconfig b/arch/arm/kvm/Kconfig
+> index f591026347a5..be97393761bf 100644
+> --- a/arch/arm/kvm/Kconfig
+> +++ b/arch/arm/kvm/Kconfig
+> @@ -54,6 +54,4 @@ config KVM_ARM_HOST
+>  	---help---
+>  	  Provides host support for ARM processors.
+>  
+> -source "drivers/vhost/Kconfig"
+> -
+>  endif # VIRTUALIZATION
+> diff --git a/arch/arm64/kvm/Kconfig b/arch/arm64/kvm/Kconfig
+> index a475c68cbfec..449386d76441 100644
+> --- a/arch/arm64/kvm/Kconfig
+> +++ b/arch/arm64/kvm/Kconfig
+> @@ -64,6 +64,4 @@ config KVM_ARM_PMU
+>  config KVM_INDIRECT_VECTORS
+>         def_bool KVM && (HARDEN_BRANCH_PREDICTOR || HARDEN_EL2_VECTORS)
+>  
+> -source "drivers/vhost/Kconfig"
+> -
+>  endif # VIRTUALIZATION
+> diff --git a/arch/mips/kvm/Kconfig b/arch/mips/kvm/Kconfig
+> index eac25aef21e0..b91d145aa2d5 100644
+> --- a/arch/mips/kvm/Kconfig
+> +++ b/arch/mips/kvm/Kconfig
+> @@ -72,6 +72,4 @@ config KVM_MIPS_DEBUG_COP0_COUNTERS
+>  
+>  	  If unsure, say N.
+>  
+> -source "drivers/vhost/Kconfig"
+> -
+>  endif # VIRTUALIZATION
+> diff --git a/arch/powerpc/kvm/Kconfig b/arch/powerpc/kvm/Kconfig
+> index 711fca9bc6f0..12885eda324e 100644
+> --- a/arch/powerpc/kvm/Kconfig
+> +++ b/arch/powerpc/kvm/Kconfig
+> @@ -204,6 +204,4 @@ config KVM_XIVE
+>  	default y
+>  	depends on KVM_XICS && PPC_XIVE_NATIVE && KVM_BOOK3S_HV_POSSIBLE
+>  
+> -source "drivers/vhost/Kconfig"
+> -
+>  endif # VIRTUALIZATION
+> diff --git a/arch/s390/kvm/Kconfig b/arch/s390/kvm/Kconfig
+> index d3db3d7ed077..def3b60f1fe8 100644
+> --- a/arch/s390/kvm/Kconfig
+> +++ b/arch/s390/kvm/Kconfig
+> @@ -55,8 +55,4 @@ config KVM_S390_UCONTROL
+>  
+>  	  If unsure, say N.
+>  
+> -# OK, it's a little counter-intuitive to do this, but it puts it neatly under
+> -# the virtualization menu.
+> -source "drivers/vhost/Kconfig"
+> -
+>  endif # VIRTUALIZATION
+> diff --git a/arch/x86/kvm/Kconfig b/arch/x86/kvm/Kconfig
+> index 991019d5eee1..0dfe70e17af9 100644
+> --- a/arch/x86/kvm/Kconfig
+> +++ b/arch/x86/kvm/Kconfig
+> @@ -94,8 +94,4 @@ config KVM_MMU_AUDIT
+>  	 This option adds a R/W kVM module parameter 'mmu_audit', which allows
+>  	 auditing of KVM MMU events at runtime.
+>  
+> -# OK, it's a little counter-intuitive to do this, but it puts it neatly under
+> -# the virtualization menu.
+> -source "drivers/vhost/Kconfig"
+> -
+>  endif # VIRTUALIZATION
+> diff --git a/drivers/Kconfig b/drivers/Kconfig
+> index 8befa53f43be..7a6d8b2b68b4 100644
+> --- a/drivers/Kconfig
+> +++ b/drivers/Kconfig
+> @@ -138,6 +138,8 @@ source "drivers/virt/Kconfig"
+>  
+>  source "drivers/virtio/Kconfig"
+>  
+> +source "drivers/vhost/Kconfig"
+> +
+>  source "drivers/hv/Kconfig"
+>  
+>  source "drivers/xen/Kconfig"
+> diff --git a/drivers/misc/mic/Kconfig b/drivers/misc/mic/Kconfig
+> index b6841ba6d922..8f201d019f5a 100644
+> --- a/drivers/misc/mic/Kconfig
+> +++ b/drivers/misc/mic/Kconfig
+> @@ -133,8 +133,4 @@ config VOP
+>  	  OS and tools for MIC to use with this driver are available from
+>  	  <http://software.intel.com/en-us/mic-developer>.
+>  
+> -if VOP
+> -source "drivers/vhost/Kconfig.vringh"
+> -endif
+> -
+>  endmenu
+> diff --git a/drivers/net/caif/Kconfig b/drivers/net/caif/Kconfig
+> index e74e2bb61236..9db0570c5beb 100644
+> --- a/drivers/net/caif/Kconfig
+> +++ b/drivers/net/caif/Kconfig
+> @@ -58,8 +58,4 @@ config CAIF_VIRTIO
+>  	---help---
+>  	  The CAIF driver for CAIF over Virtio.
+>  
+> -if CAIF_VIRTIO
+> -source "drivers/vhost/Kconfig.vringh"
+> -endif
+> -
+>  endif # CAIF_DRIVERS
+> diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
+> index 3d03ccbd1adc..4aef10a54cd1 100644
+> --- a/drivers/vhost/Kconfig
+> +++ b/drivers/vhost/Kconfig
+> @@ -1,8 +1,20 @@
+>  # SPDX-License-Identifier: GPL-2.0-only
+> +config VHOST_RING
+> +	tristate
+> +	help
+> +	  This option is selected by any driver which needs to access
+> +	  the host side of a virtio ring.
+> +
+> +menuconfig VHOST
+> +	tristate "Host kernel accelerator for virtio (VHOST)"
+> +	help
+> +	  This option is selected by any driver which needs to access
+> +	  the core of vhost.
+> +if VHOST
+> +
+>  config VHOST_NET
+>  	tristate "Host kernel accelerator for virtio net"
+>  	depends on NET && EVENTFD && (TUN || !TUN) && (TAP || !TAP)
+> -	select VHOST
+>  	---help---
+>  	  This kernel module can be loaded in host kernel to accelerate
+>  	  guest networking with virtio_net. Not to be confused with virtio_net
+> @@ -14,7 +26,6 @@ config VHOST_NET
+>  config VHOST_SCSI
+>  	tristate "VHOST_SCSI TCM fabric driver"
+>  	depends on TARGET_CORE && EVENTFD
+> -	select VHOST
+>  	default n
+>  	---help---
+>  	Say M here to enable the vhost_scsi TCM fabric module
+> @@ -24,7 +35,6 @@ config VHOST_VSOCK
+>  	tristate "vhost virtio-vsock driver"
+>  	depends on VSOCKETS && EVENTFD
+>  	select VIRTIO_VSOCKETS_COMMON
+> -	select VHOST
+>  	default n
+>  	---help---
+>  	This kernel module can be loaded in the host kernel to provide AF_VSOCK
+> @@ -34,12 +44,6 @@ config VHOST_VSOCK
+>  	To compile this driver as a module, choose M here: the module will be called
+>  	vhost_vsock.
+>  
+> -config VHOST
+> -	tristate
+> -	---help---
+> -	  This option is selected by any driver which needs to access
+> -	  the core of vhost.
+> -
+>  config VHOST_CROSS_ENDIAN_LEGACY
+>  	bool "Cross-endian support for vhost"
+>  	default n
+> @@ -54,3 +58,4 @@ config VHOST_CROSS_ENDIAN_LEGACY
+>  	  adds some overhead, it is disabled by default.
+>  
+>  	  If unsure, say "N".
+> +endif
+> diff --git a/drivers/vhost/Kconfig.vringh b/drivers/vhost/Kconfig.vringh
+> deleted file mode 100644
+> index c1fe36a9b8d4..000000000000
+> --- a/drivers/vhost/Kconfig.vringh
+> +++ /dev/null
+> @@ -1,6 +0,0 @@
+> -# SPDX-License-Identifier: GPL-2.0-only
+> -config VHOST_RING
+> -	tristate
+> -	---help---
+> -	  This option is selected by any driver which needs to access
+> -	  the host side of a virtio ring.
+> 
