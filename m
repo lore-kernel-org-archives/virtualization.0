@@ -1,80 +1,92 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] virtio/test: fix up after IOTLB changes
-Date: Wed, 1 Apr 2020 12:51:11 -0400
-Message-ID: <20200401165100.276039-1-mst@redhat.com>
+From: Randy Dunlap <rdunlap@infradead.org>
+Subject: Re: mmotm 2020-03-30-18-46 uploaded (VDPA + vhost)
+Date: Wed, 1 Apr 2020 10:13:10 -0700
+Message-ID: <cd94bd62-57c4-b82e-0434-8a470a9ea613@infradead.org>
+References: <20200331014748.ajL0G62jF%akpm@linux-foundation.org>
+ <969cacf1-d420-223d-7cc7-5b1b2405ec2a@infradead.org>
+ <20200331143437-mutt-send-email-mst@kernel.org>
+ <9c03fee8-af1a-2035-b903-611a631094b0@infradead.org>
+ <20200331152106-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: linux-kernel@vger.kernel.org
-Cc: Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200331152106-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: akpm@linux-foundation.org, broonie@kernel.org, linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, linux-next@vger.kernel.org, mhocko@suse.cz, mm-commits@vger.kernel.org, sfr@canb.auug.org.au, Masahiro Yamada <yamada.masahiro@socionext.com>, virtualization@lists.linux-foundation.org, Jason Wang <jasowang@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-QWxsb3cgYnVpbGRpbmcgdnJpbmdoIHdpdGhvdXQgSU9UTEIgKHRoYXQncyB0aGUgY2FzZSBmb3Ig
-dXNlcnNwYWNlCmJ1aWxkcywgd2lsbCBiZSB1c2VmdWwgZm9yIENBSUYvVk9EIGRvd24gdGhlIHJv
-YWQgdG9vKS4KVXBkYXRlIGZvciBBUEkgdHdlYWtzLgpEb24ndCBpbmNsdWRlIHZyaW5naCB3aXRo
-IGtlcm5lbCBidWlsZHMuCgpDYzogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KQ2M6
-IEV1Z2VuaW8gUMOpcmV6IDxlcGVyZXptYUByZWRoYXQuY29tPgpTaWduZWQtb2ZmLWJ5OiBNaWNo
-YWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgotLS0KIGRyaXZlcnMvdmhvc3QvdGVzdC5j
-ICAgfCA0ICsrLS0KIGRyaXZlcnMvdmhvc3QvdnJpbmdoLmMgfCA1ICsrKysrCiBpbmNsdWRlL2xp
-bnV4L3ZyaW5naC5oIHwgMiArKwogdG9vbHMvdmlydGlvL01ha2VmaWxlICB8IDMgKystCiA0IGZp
-bGVzIGNoYW5nZWQsIDExIGluc2VydGlvbnMoKyksIDMgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0
-IGEvZHJpdmVycy92aG9zdC90ZXN0LmMgYi9kcml2ZXJzL3Zob3N0L3Rlc3QuYwppbmRleCAzOTRl
-MmU1Yzc3MmQuLjlhM2EwOTAwNWUwMyAxMDA2NDQKLS0tIGEvZHJpdmVycy92aG9zdC90ZXN0LmMK
-KysrIGIvZHJpdmVycy92aG9zdC90ZXN0LmMKQEAgLTEyMCw3ICsxMjAsNyBAQCBzdGF0aWMgaW50
-IHZob3N0X3Rlc3Rfb3BlbihzdHJ1Y3QgaW5vZGUgKmlub2RlLCBzdHJ1Y3QgZmlsZSAqZikKIAl2
-cXNbVkhPU1RfVEVTVF9WUV0gPSAmbi0+dnFzW1ZIT1NUX1RFU1RfVlFdOwogCW4tPnZxc1tWSE9T
-VF9URVNUX1ZRXS5oYW5kbGVfa2ljayA9IGhhbmRsZV92cV9raWNrOwogCXZob3N0X2Rldl9pbml0
-KGRldiwgdnFzLCBWSE9TVF9URVNUX1ZRX01BWCwgVUlPX01BWElPViwKLQkJICAgICAgIFZIT1NU
-X1RFU1RfUEtUX1dFSUdIVCwgVkhPU1RfVEVTVF9XRUlHSFQpOworCQkgICAgICAgVkhPU1RfVEVT
-VF9QS1RfV0VJR0hULCBWSE9TVF9URVNUX1dFSUdIVCwgTlVMTCk7CiAKIAlmLT5wcml2YXRlX2Rh
-dGEgPSBuOwogCkBAIC0yMjUsNyArMjI1LDcgQEAgc3RhdGljIGxvbmcgdmhvc3RfdGVzdF9yZXNl
-dF9vd25lcihzdHJ1Y3Qgdmhvc3RfdGVzdCAqbikKIHsKIAl2b2lkICpwcml2ID0gTlVMTDsKIAls
-b25nIGVycjsKLQlzdHJ1Y3Qgdmhvc3RfdW1lbSAqdW1lbTsKKwlzdHJ1Y3Qgdmhvc3RfaW90bGIg
-KnVtZW07CiAKIAltdXRleF9sb2NrKCZuLT5kZXYubXV0ZXgpOwogCWVyciA9IHZob3N0X2Rldl9j
-aGVja19vd25lcigmbi0+ZGV2KTsKZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3QvdnJpbmdoLmMg
-Yi9kcml2ZXJzL3Zob3N0L3ZyaW5naC5jCmluZGV4IGVlMDQ5MWY1NzlhYy4uODc4ZTU2NWRmZmZl
-IDEwMDY0NAotLS0gYS9kcml2ZXJzL3Zob3N0L3ZyaW5naC5jCisrKyBiL2RyaXZlcnMvdmhvc3Qv
-dnJpbmdoLmMKQEAgLTEzLDkgKzEzLDExIEBACiAjaW5jbHVkZSA8bGludXgvdWFjY2Vzcy5oPgog
-I2luY2x1ZGUgPGxpbnV4L3NsYWIuaD4KICNpbmNsdWRlIDxsaW51eC9leHBvcnQuaD4KKyNpZmRl
-ZiBWSE9TVF9JT1RMQgogI2luY2x1ZGUgPGxpbnV4L2J2ZWMuaD4KICNpbmNsdWRlIDxsaW51eC9o
-aWdobWVtLmg+CiAjaW5jbHVkZSA8bGludXgvdmhvc3RfaW90bGIuaD4KKyNlbmRpZgogI2luY2x1
-ZGUgPHVhcGkvbGludXgvdmlydGlvX2NvbmZpZy5oPgogCiBzdGF0aWMgX19wcmludGYoMSwyKSBf
-X2NvbGQgdm9pZCB2cmluZ2hfYmFkKGNvbnN0IGNoYXIgKmZtdCwgLi4uKQpAQCAtMTA1OSw2ICsx
-MDYxLDggQEAgaW50IHZyaW5naF9uZWVkX25vdGlmeV9rZXJuKHN0cnVjdCB2cmluZ2ggKnZyaCkK
-IH0KIEVYUE9SVF9TWU1CT0wodnJpbmdoX25lZWRfbm90aWZ5X2tlcm4pOwogCisjaWZkZWYgVkhP
-U1RfSU9UTEIKKwogc3RhdGljIGludCBpb3RsYl90cmFuc2xhdGUoY29uc3Qgc3RydWN0IHZyaW5n
-aCAqdnJoLAogCQkJICAgdTY0IGFkZHIsIHU2NCBsZW4sIHN0cnVjdCBiaW9fdmVjIGlvdltdLAog
-CQkJICAgaW50IGlvdl9zaXplLCB1MzIgcGVybSkKQEAgLTE0MTYsNSArMTQyMCw2IEBAIGludCB2
-cmluZ2hfbmVlZF9ub3RpZnlfaW90bGIoc3RydWN0IHZyaW5naCAqdnJoKQogfQogRVhQT1JUX1NZ
-TUJPTCh2cmluZ2hfbmVlZF9ub3RpZnlfaW90bGIpOwogCisjZW5kaWYKIAogTU9EVUxFX0xJQ0VO
-U0UoIkdQTCIpOwpkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC92cmluZ2guaCBiL2luY2x1ZGUv
-bGludXgvdnJpbmdoLmgKaW5kZXggYmQwNTAzY2E2ZjhmLi5lYmZmMTIxYzBiMDIgMTAwNjQ0Ci0t
-LSBhL2luY2x1ZGUvbGludXgvdnJpbmdoLmgKKysrIGIvaW5jbHVkZS9saW51eC92cmluZ2guaApA
-QCAtMTQsOCArMTQsMTAgQEAKICNpbmNsdWRlIDxsaW51eC92aXJ0aW9fYnl0ZW9yZGVyLmg+CiAj
-aW5jbHVkZSA8bGludXgvdWlvLmg+CiAjaW5jbHVkZSA8bGludXgvc2xhYi5oPgorI2lmZGVmIFZI
-T1NUX0lPVExCCiAjaW5jbHVkZSA8bGludXgvZG1hLWRpcmVjdGlvbi5oPgogI2luY2x1ZGUgPGxp
-bnV4L3Zob3N0X2lvdGxiLmg+CisjZW5kaWYKICNpbmNsdWRlIDxhc20vYmFycmllci5oPgogCiAv
-KiB2aXJ0aW9fcmluZyB3aXRoIGluZm9ybWF0aW9uIG5lZWRlZCBmb3IgaG9zdCBhY2Nlc3MuICov
-CmRpZmYgLS1naXQgYS90b29scy92aXJ0aW8vTWFrZWZpbGUgYi90b29scy92aXJ0aW8vTWFrZWZp
-bGUKaW5kZXggZjMzZjMyZjFkMjA4Li5kM2YxNTJmNDY2MGIgMTAwNjQ0Ci0tLSBhL3Rvb2xzL3Zp
-cnRpby9NYWtlZmlsZQorKysgYi90b29scy92aXJ0aW8vTWFrZWZpbGUKQEAgLTIyLDcgKzIyLDgg
-QEAgT09UX0NPTkZJR1M9XAogCUNPTkZJR19WSE9TVD1tIFwKIAlDT05GSUdfVkhPU1RfTkVUPW4g
-XAogCUNPTkZJR19WSE9TVF9TQ1NJPW4gXAotCUNPTkZJR19WSE9TVF9WU09DSz1uCisJQ09ORklH
-X1ZIT1NUX1ZTT0NLPW4gXAorCUNPTkZJR19WSE9TVF9SSU5HPW4KIE9PVF9CVUlMRD1LQ0ZMQUdT
-PSItSSAiJHtPT1RfVkhPU1R9ICR7TUFLRX0gLUMgJHtPT1RfS1NSQ30gVj0ke1Z9CiBvb3QtYnVp
-bGQ6CiAJZWNobyAiVU5TVVBQT1JURUQhIERvbid0IHVzZSB0aGUgcmVzdWx0aW5nIG1vZHVsZXMg
-aW4gcHJvZHVjdGlvbiEiCi0tIApNU1QKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlv
-bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlv
-bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On 3/31/20 12:22 PM, Michael S. Tsirkin wrote:
+> On Tue, Mar 31, 2020 at 11:42:47AM -0700, Randy Dunlap wrote:
+>> On 3/31/20 11:37 AM, Michael S. Tsirkin wrote:
+>>> On Tue, Mar 31, 2020 at 11:27:54AM -0700, Randy Dunlap wrote:
+>>>> On 3/30/20 6:47 PM, akpm@linux-foundation.org wrote:
+>>>>> The mm-of-the-moment snapshot 2020-03-30-18-46 has been uploaded to
+>>>>>
+>>>>>    http://www.ozlabs.org/~akpm/mmotm/
+>>>>>
+>>>>> mmotm-readme.txt says
+>>>>>
+>>>>> README for mm-of-the-moment:
+>>>>>
+>>>>> http://www.ozlabs.org/~akpm/mmotm/
+>>>>>
+>>>>> This is a snapshot of my -mm patch queue.  Uploaded at random hopefully
+>>>>> more than once a week.
+>>>>>
+>>>>> You will need quilt to apply these patches to the latest Linus release (5.x
+>>>>> or 5.x-rcY).  The series file is in broken-out.tar.gz and is duplicated in
+>>>>> http://ozlabs.org/~akpm/mmotm/series
+>>>>>
+>>>>> The file broken-out.tar.gz contains two datestamp files: .DATE and
+>>>>> .DATE-yyyy-mm-dd-hh-mm-ss.  Both contain the string yyyy-mm-dd-hh-mm-ss,
+>>>>> followed by the base kernel version against which this patch series is to
+>>>>> be applied.
+>>>>>
+>>>>> This tree is partially included in linux-next.  To see which patches are
+>>>>> included in linux-next, consult the `series' file.  Only the patches
+>>>>> within the #NEXT_PATCHES_START/#NEXT_PATCHES_END markers are included in
+>>>>> linux-next.
+>>>>>
+>>>>>
+>>>>> A full copy of the full kernel tree with the linux-next and mmotm patches
+>>>>> already applied is available through git within an hour of the mmotm
+>>>>> release.  Individual mmotm releases are tagged.  The master branch always
+>>>>> points to the latest release, so it's constantly rebasing.
+>>>>>
+>>>>> 	https://github.com/hnaz/linux-mm
+>>>>
+>>>> on i386:
+>>>>
+>>>> ld: drivers/vhost/vdpa.o: in function `vhost_vdpa_init':
+>>>> vdpa.c:(.init.text+0x52): undefined reference to `__vdpa_register_driver'
+>>>> ld: drivers/vhost/vdpa.o: in function `vhost_vdpa_exit':
+>>>> vdpa.c:(.exit.text+0x14): undefined reference to `vdpa_unregister_driver'
+>>>>
+>>>>
+>>>>
+>>>> drivers/virtio/vdpa/ is not being built. (confusing!)
+>>>>
+>>>> CONFIG_VIRTIO=m
+>>>> # CONFIG_VIRTIO_MENU is not set
+>>>> CONFIG_VDPA=y
+>>>
+>>> Hmm. OK. Can't figure it out. CONFIG_VDPA is set why isn't
+>>> drivers/virtio/vdpa/ built?
+>>> we have:
+>>>
+>>
+>> Ack.  Hopefully Yamada-san can tell us what is happening here.
+> 
+> OK I pushed a fix (moving the vdpa subsystem up a level) and pushed into
+> my tree, refs/heads/next .  Seems to build fine now, but I'd appreciate
+> it if you can give it a spin.
+
+This now builds successfully on linux-next of 20200401.
+
+Thanks.
+
+-- 
+~Randy
