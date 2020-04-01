@@ -1,163 +1,51 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH V9 1/9] vhost: refine vhost and vringh kconfig
-Date: Wed, 1 Apr 2020 20:53:25 +0200
-Message-ID: <cc3ef7f5-2980-00bf-2534-272b882bb64f@de.ibm.com>
-References: <20200326140125.19794-1-jasowang@redhat.com>
- <20200326140125.19794-2-jasowang@redhat.com>
- <fde312a4-56bd-f11f-799f-8aa952008012@de.ibm.com>
- <41ee1f6a-3124-d44b-bf34-0f26604f9514@redhat.com>
- <4726da4c-11ec-3b6e-1218-6d6d365d5038@de.ibm.com>
- <39b96e3a-9f4e-6e1d-e988-8c4bcfb55879@de.ibm.com>
- <c423c5b1-7817-7417-d7af-e07bef6368e7@redhat.com>
- <20200401102631-mutt-send-email-mst@kernel.org>
- <5e409bb4-2b06-5193-20c3-a9ddaafacf5a@redhat.com>
- <20200401115650-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH v3 0/8] vhost: Reset batched descriptors on SET_VRING_BASE
+ call
+Date: Wed, 1 Apr 2020 21:13:23 +0200
+Message-ID: <6d16572f-34e9-4806-a5f8-94d8f75db352@de.ibm.com>
+References: <20200331192804.6019-1-eperezma@redhat.com>
+ <c4d2b0b4-0b6d-cd74-0eb5-e7fdfe063d42@de.ibm.com>
+ <CAJaqyWc+fNzHE_p-pApZtj2ypNQfFLawCWf8GJmP8e=k=C+EgA@mail.gmail.com>
+ <916e60f8-45fe-5cc1-d5a1-defdcd00d75b@de.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20200401115650-mutt-send-email-mst@kernel.org>
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <916e60f8-45fe-5cc1-d5a1-defdcd00d75b@de.ibm.com>
 Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, jgg@mellanox.com, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, rdunlap@infradead.org, hch@infradead.org, aadam@redhat.com, jiri@mellanox.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com, zhangweining@ruijie.com.cn
+Sender: linux-kernel-owner@vger.kernel.org
+To: Eugenio Perez Martin <eperezma@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Stephen Rothwell <sfr@canb.auug.org.au>, kvm list <kvm@vger.kernel.org>, Linux Next Mailing List <linux-next@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Halil Pasic <pasic@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+>> Would it be possible to investigate when qemu launches the offending ioctls?
+> 
+> During guest reboot. This is obvious, no?
+> 
 
 
-On 01.04.20 17:57, Michael S. Tsirkin wrote:
-> On Wed, Apr 01, 2020 at 10:50:50PM +0800, Jason Wang wrote:
->>
->> On 2020/4/1 下午10:27, Michael S. Tsirkin wrote:
->>> On Wed, Apr 01, 2020 at 10:13:29PM +0800, Jason Wang wrote:
->>>> On 2020/4/1 下午9:02, Christian Borntraeger wrote:
->>>>> On 01.04.20 14:56, Christian Borntraeger wrote:
->>>>>> On 01.04.20 14:50, Jason Wang wrote:
->>>>>>> On 2020/4/1 下午7:21, Christian Borntraeger wrote:
->>>>>>>> On 26.03.20 15:01, Jason Wang wrote:
->>>>>>>>> Currently, CONFIG_VHOST depends on CONFIG_VIRTUALIZATION. But vhost is
->>>>>>>>> not necessarily for VM since it's a generic userspace and kernel
->>>>>>>>> communication protocol. Such dependency may prevent archs without
->>>>>>>>> virtualization support from using vhost.
->>>>>>>>>
->>>>>>>>> To solve this, a dedicated vhost menu is created under drivers so
->>>>>>>>> CONIFG_VHOST can be decoupled out of CONFIG_VIRTUALIZATION.
->>>>>>>> FWIW, this now results in vhost not being build with defconfig kernels (in todays
->>>>>>>> linux-next).
->>>>>>>>
->>>>>>> Hi Christian:
->>>>>>>
->>>>>>> Did you meet it even with this commit https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?id=a4be40cbcedba9b5b714f3c95182e8a45176e42d?
->>>>>> I simply used linux-next. The defconfig does NOT contain CONFIG_VHOST and therefore CONFIG_VHOST_NET and friends
->>>>>> can not be selected.
->>>>>>
->>>>>> $ git checkout next-20200401
->>>>>> $ make defconfig
->>>>>>     HOSTCC  scripts/basic/fixdep
->>>>>>     HOSTCC  scripts/kconfig/conf.o
->>>>>>     HOSTCC  scripts/kconfig/confdata.o
->>>>>>     HOSTCC  scripts/kconfig/expr.o
->>>>>>     LEX     scripts/kconfig/lexer.lex.c
->>>>>>     YACC    scripts/kconfig/parser.tab.[ch]
->>>>>>     HOSTCC  scripts/kconfig/lexer.lex.o
->>>>>>     HOSTCC  scripts/kconfig/parser.tab.o
->>>>>>     HOSTCC  scripts/kconfig/preprocess.o
->>>>>>     HOSTCC  scripts/kconfig/symbol.o
->>>>>>     HOSTCC  scripts/kconfig/util.o
->>>>>>     HOSTLD  scripts/kconfig/conf
->>>>>> *** Default configuration is based on 'x86_64_defconfig'
->>>>>> #
->>>>>> # configuration written to .config
->>>>>> #
->>>>>>
->>>>>> $ grep VHOST .config
->>>>>> # CONFIG_VHOST is not set
->>>>>>
->>>>>>> If yes, what's your build config looks like?
->>>>>>>
->>>>>>> Thanks
->>>>> This was x86. Not sure if that did work before.
->>>>> On s390 this is definitely a regression as the defconfig files
->>>>> for s390 do select VHOST_NET
->>>>>
->>>>> grep VHOST arch/s390/configs/*
->>>>> arch/s390/configs/debug_defconfig:CONFIG_VHOST_NET=m
->>>>> arch/s390/configs/debug_defconfig:CONFIG_VHOST_VSOCK=m
->>>>> arch/s390/configs/defconfig:CONFIG_VHOST_NET=m
->>>>> arch/s390/configs/defconfig:CONFIG_VHOST_VSOCK=m
->>>>>
->>>>> and this worked with 5.6, but does not work with next. Just adding
->>>>> CONFIG_VHOST=m to the defconfig solves the issue, something like
->>>>
->>>> Right, I think we probably need
->>>>
->>>> 1) add CONFIG_VHOST=m to all defconfigs that enables
->>>> CONFIG_VHOST_NET/VSOCK/SCSI.
->>>>
->>>> or
->>>>
->>>> 2) don't use menuconfig for CONFIG_VHOST, let NET/SCSI/VDPA just select it.
->>>>
->>>> Thanks
->>> OK I tried this:
->>>
->>> diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
->>> index 2523a1d4290a..a314b900d479 100644
->>> --- a/drivers/vhost/Kconfig
->>> +++ b/drivers/vhost/Kconfig
->>> @@ -19,11 +19,10 @@ menuconfig VHOST
->>>   	  This option is selected by any driver which needs to access
->>>   	  the core of vhost.
->>> -if VHOST
->>> -
->>>   config VHOST_NET
->>>   	tristate "Host kernel accelerator for virtio net"
->>>   	depends on NET && EVENTFD && (TUN || !TUN) && (TAP || !TAP)
->>> +	select VHOST
->>>   	---help---
->>>   	  This kernel module can be loaded in host kernel to accelerate
->>>   	  guest networking with virtio_net. Not to be confused with virtio_net
->>> @@ -35,6 +34,7 @@ config VHOST_NET
->>>   config VHOST_SCSI
->>>   	tristate "VHOST_SCSI TCM fabric driver"
->>>   	depends on TARGET_CORE && EVENTFD
->>> +	select VHOST
->>>   	default n
->>>   	---help---
->>>   	Say M here to enable the vhost_scsi TCM fabric module
->>> @@ -44,6 +44,7 @@ config VHOST_VSOCK
->>>   	tristate "vhost virtio-vsock driver"
->>>   	depends on VSOCKETS && EVENTFD
->>>   	select VIRTIO_VSOCKETS_COMMON
->>> +	select VHOST
->>>   	default n
->>>   	---help---
->>>   	This kernel module can be loaded in the host kernel to provide AF_VSOCK
->>> @@ -57,6 +58,7 @@ config VHOST_VDPA
->>>   	tristate "Vhost driver for vDPA-based backend"
->>>   	depends on EVENTFD
->>>   	select VDPA
->>> +	select VHOST
->>>   	help
->>>   	  This kernel module can be loaded in host kernel to accelerate
->>>   	  guest virtio devices with the vDPA-based backends.
->>> @@ -78,5 +80,3 @@ config VHOST_CROSS_ENDIAN_LEGACY
->>>   	  adds some overhead, it is disabled by default.
->>>   	  If unsure, say "N".
->>> -
->>> -endif
->>>
->>>
->>> But now CONFIG_VHOST is always "y", never "m".
->>> Which I think will make it a built-in.
->>> Didn't figure out why yet.
->>
->>
->> Is it because the dependency of EVENTFD for CONFIG_VHOST?
-> 
-> Oh no, it's because I forgot to change menuconfig to config.
-> 
-> 
->> Remove that one for this patch, I can get CONFIG_VHOST=m.
+For example during reboot we do re-setup the virt queues:
 
-FWIW, the current vhost/linux-next branch seems to work again.
+#1  0x00000000010f3e7a in vhost_kernel_set_vring_base (dev=0x21f5f30, ring=0x3ff84d74e88) at /home/cborntra/REPOS/qemu/hw/virtio/vhost-backend.c:126
+#2  0x00000000010f2f92 in vhost_virtqueue_start (idx=0, vq=0x21f6180, vdev=0x241d570, dev=0x21f5f30) at /home/cborntra/REPOS/qemu/hw/virtio/vhost.c:1016
+#3  vhost_dev_start (hdev=hdev@entry=0x21f5f30, vdev=vdev@entry=0x241d570) at /home/cborntra/REPOS/qemu/hw/virtio/vhost.c:1646
+#4  0x00000000011c265a in vhost_net_start_one (dev=0x241d570, net=0x21f5f30) at /home/cborntra/REPOS/qemu/hw/net/vhost_net.c:236
+#5  vhost_net_start (dev=dev@entry=0x241d570, ncs=0x2450f40, total_queues=total_queues@entry=1) at /home/cborntra/REPOS/qemu/hw/net/vhost_net.c:338
+#6  0x00000000010cfdfe in virtio_net_vhost_status (status=15 '\017', n=0x241d570) at /home/cborntra/REPOS/qemu/hw/net/virtio-net.c:250
+#7  virtio_net_set_status (vdev=0x241d570, status=<optimized out>) at /home/cborntra/REPOS/qemu/hw/net/virtio-net.c:331
+#8  0x00000000010eaef4 in virtio_set_status (vdev=vdev@entry=0x241d570, val=<optimized out>) at /home/cborntra/REPOS/qemu/hw/virtio/virtio.c:1956
+#9  0x000000000110ba78 in virtio_ccw_cb (sch=0x2422c30, ccw=...) at /home/cborntra/REPOS/qemu/hw/s390x/virtio-ccw.c:509
+#10 0x00000000011053fc in css_interpret_ccw (sch=sch@entry=0x2422c30, ccw_addr=<optimized out>, suspend_allowed=suspend_allowed@entry=false) at /home/cborntra/REPOS/qemu/hw/s390x/css.c:1108
+#11 0x000000000110557c in sch_handle_start_func_virtual (sch=0x2422c30) at /home/cborntra/REPOS/qemu/hw/s390x/css.c:1162
+#12 do_subchannel_work_virtual (sch=0x2422c30) at /home/cborntra/REPOS/qemu/hw/s390x/css.c:1256
+#13 0x0000000001168592 in ioinst_handle_ssch (cpu=cpu@entry=0x234b920, reg1=<optimized out>, ipb=<optimized out>, ra=ra@entry=0) at /home/cborntra/REPOS/qemu/target/s390x/ioinst.c:218
+#14 0x0000000001170012 in handle_b2 (ipa1=<optimized out>, run=0x3ff97880000, cpu=0x234b920) at /home/cborntra/REPOS/qemu/target/s390x/kvm.c:1279
+#15 handle_instruction (run=0x3ff97880000, cpu=0x234b920) at /home/cborntra/REPOS/qemu/target/s390x/kvm.c:1664
+#16 handle_intercept (cpu=0x234b920) at /home/cborntra/REPOS/qemu/target/s390x/kvm.c:1747
+#17 kvm_arch_handle_exit (cs=cs@entry=0x234b920, run=run@entry=0x3ff97880000) at /home/cborntra/REPOS/qemu/target/s390x/kvm.c:1937
+#18 0x00000000010972dc in kvm_cpu_exec (cpu=cpu@entry=0x234b920) at /home/cborntra/REPOS/qemu/accel/kvm/kvm-all.c:2445
+#19 0x00000000010784f6 in qemu_kvm_cpu_thread_fn (arg=0x234b920) at /home/cborntra/REPOS/qemu/cpus.c:1246
+#20 qemu_kvm_cpu_thread_fn (arg=arg@entry=0x234b920) at /home/cborntra/REPOS/qemu/cpus.c:1218
+#21 0x00000000013891fa in qemu_thread_start (args=0x2372f30) at /home/cborntra/REPOS/qemu/util/qemu-thread-posix.c:519
+#22 0x000003ff93809ed6 in start_thread () from target:/lib64/libpthread.so.0
+#23 0x000003ff93705e46 in thread_start () from target:/lib64/libc.so.6
