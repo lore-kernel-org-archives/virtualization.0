@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH V9 1/9] vhost: refine vhost and vringh kconfig
-Date: Wed, 1 Apr 2020 10:18:03 -0400
-Message-ID: <20200401101634-mutt-send-email-mst@kernel.org>
+Date: Wed, 1 Apr 2020 10:27:24 -0400
+Message-ID: <20200401102631-mutt-send-email-mst@kernel.org>
 References: <20200326140125.19794-1-jasowang@redhat.com>
  <20200326140125.19794-2-jasowang@redhat.com>
  <fde312a4-56bd-f11f-799f-8aa952008012@de.ibm.com>
@@ -94,60 +94,60 @@ On Wed, Apr 01, 2020 at 10:13:29PM +0800, Jason Wang wrote:
 > 
 > Thanks
 
-I think I prefer 2, but does it auto-select VHOST_IOTLB then?
-Generally what was the reason to drop select VHOST from devices?
+OK I tried this:
+
+diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
+index 2523a1d4290a..a314b900d479 100644
+--- a/drivers/vhost/Kconfig
++++ b/drivers/vhost/Kconfig
+@@ -19,11 +19,10 @@ menuconfig VHOST
+ 	  This option is selected by any driver which needs to access
+ 	  the core of vhost.
+ 
+-if VHOST
+-
+ config VHOST_NET
+ 	tristate "Host kernel accelerator for virtio net"
+ 	depends on NET && EVENTFD && (TUN || !TUN) && (TAP || !TAP)
++	select VHOST
+ 	---help---
+ 	  This kernel module can be loaded in host kernel to accelerate
+ 	  guest networking with virtio_net. Not to be confused with virtio_net
+@@ -35,6 +34,7 @@ config VHOST_NET
+ config VHOST_SCSI
+ 	tristate "VHOST_SCSI TCM fabric driver"
+ 	depends on TARGET_CORE && EVENTFD
++	select VHOST
+ 	default n
+ 	---help---
+ 	Say M here to enable the vhost_scsi TCM fabric module
+@@ -44,6 +44,7 @@ config VHOST_VSOCK
+ 	tristate "vhost virtio-vsock driver"
+ 	depends on VSOCKETS && EVENTFD
+ 	select VIRTIO_VSOCKETS_COMMON
++	select VHOST
+ 	default n
+ 	---help---
+ 	This kernel module can be loaded in the host kernel to provide AF_VSOCK
+@@ -57,6 +58,7 @@ config VHOST_VDPA
+ 	tristate "Vhost driver for vDPA-based backend"
+ 	depends on EVENTFD
+ 	select VDPA
++	select VHOST
+ 	help
+ 	  This kernel module can be loaded in host kernel to accelerate
+ 	  guest virtio devices with the vDPA-based backends.
+@@ -78,5 +80,3 @@ config VHOST_CROSS_ENDIAN_LEGACY
+ 	  adds some overhead, it is disabled by default.
+ 
+ 	  If unsure, say "N".
+-
+-endif
 
 
-> 
-> > 
-> > ---
-> >   arch/s390/configs/debug_defconfig | 5 +++--
-> >   arch/s390/configs/defconfig       | 5 +++--
-> >   2 files changed, 6 insertions(+), 4 deletions(-)
-> > 
-> > diff --git a/arch/s390/configs/debug_defconfig b/arch/s390/configs/debug_defconfig
-> > index 46038bc58c9e..0b83274341ce 100644
-> > --- a/arch/s390/configs/debug_defconfig
-> > +++ b/arch/s390/configs/debug_defconfig
-> > @@ -57,8 +57,6 @@ CONFIG_PROTECTED_VIRTUALIZATION_GUEST=y
-> >   CONFIG_CMM=m
-> >   CONFIG_APPLDATA_BASE=y
-> >   CONFIG_KVM=m
-> > -CONFIG_VHOST_NET=m
-> > -CONFIG_VHOST_VSOCK=m
-> >   CONFIG_OPROFILE=m
-> >   CONFIG_KPROBES=y
-> >   CONFIG_JUMP_LABEL=y
-> > @@ -561,6 +559,9 @@ CONFIG_VFIO_MDEV_DEVICE=m
-> >   CONFIG_VIRTIO_PCI=m
-> >   CONFIG_VIRTIO_BALLOON=m
-> >   CONFIG_VIRTIO_INPUT=y
-> > +CONFIG_VHOST=m
-> > +CONFIG_VHOST_NET=m
-> > +CONFIG_VHOST_VSOCK=m
-> >   CONFIG_S390_CCW_IOMMU=y
-> >   CONFIG_S390_AP_IOMMU=y
-> >   CONFIG_EXT4_FS=y
-> > diff --git a/arch/s390/configs/defconfig b/arch/s390/configs/defconfig
-> > index 7cd0648c1f4e..39e69c4e8cf7 100644
-> > --- a/arch/s390/configs/defconfig
-> > +++ b/arch/s390/configs/defconfig
-> > @@ -57,8 +57,6 @@ CONFIG_PROTECTED_VIRTUALIZATION_GUEST=y
-> >   CONFIG_CMM=m
-> >   CONFIG_APPLDATA_BASE=y
-> >   CONFIG_KVM=m
-> > -CONFIG_VHOST_NET=m
-> > -CONFIG_VHOST_VSOCK=m
-> >   CONFIG_OPROFILE=m
-> >   CONFIG_KPROBES=y
-> >   CONFIG_JUMP_LABEL=y
-> > @@ -557,6 +555,9 @@ CONFIG_VFIO_MDEV_DEVICE=m
-> >   CONFIG_VIRTIO_PCI=m
-> >   CONFIG_VIRTIO_BALLOON=m
-> >   CONFIG_VIRTIO_INPUT=y
-> > +CONFIG_VHOST=m
-> > +CONFIG_VHOST_NET=m
-> > +CONFIG_VHOST_VSOCK=m
-> >   CONFIG_S390_CCW_IOMMU=y
-> >   CONFIG_S390_AP_IOMMU=y
-> >   CONFIG_EXT4_FS=y
+But now CONFIG_VHOST is always "y", never "m".
+Which I think will make it a built-in.
+Didn't figure out why yet.
+
+-- 
+MST
