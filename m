@@ -1,152 +1,171 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] vdpa: move to drivers/vdpa
-Date: Wed, 1 Apr 2020 14:32:55 +0800
-Message-ID: <ee5c17e0-0e28-8979-ff6a-5ea1659a24e0@redhat.com>
-References: <20200331191825.249436-1-mst@redhat.com>
+From: Thomas Zimmermann <tzimmermann-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: [PATCH 20/22] drm/vkms: Use simple encoder
+Date: Wed, 1 Apr 2020 09:17:20 +0200
+Message-ID: <3c8c9567-2eca-55a7-072e-5d5c9517ba7d@suse.de>
+References: <20200305155950.2705-1-tzimmermann@suse.de>
+ <20200305155950.2705-21-tzimmermann@suse.de>
+ <20200324115905.dp5jqzbmvhbmk2rn@smtp.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200331191825.249436-1-mst@redhat.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Randy Dunlap <rdunlap@infradead.org>, virtualization@lists.linux-foundation.org
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="POql06Hk2VcpYBHcwhf1TtupB5WQ7dTFU"
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20200324115905.dp5jqzbmvhbmk2rn-TAvD023jEQEN+BqQ9rBEUg@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Rodrigo Siqueira <rodrigosiqueiramelo-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: hamohammed.sa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, alexandre.belloni-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org, airlied-cv59FeDIM0c@public.gmane.org, linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, paul-icTtO2rgO2OTuSrc4Mpeew@public.gmane.org, thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org, sebastian.reichel-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, hjc-TNX95d0MmH7DzftRWevZcw@public.gmane.org, abrodkin-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, kong.kongxinwei-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org, jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, xinliang.liu-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, ludovic.desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-imx-3arQi8VN3Tc@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, puck.chen-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org, s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, alison.wang-3arQi8VN3Tc@public.gmane.org, jsarha-l0cyMroinI0@public.gmane.org, matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, jernej.skrabec-gGgVlfcn5nU@public.gmane.org, kraxel-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, tomi.valkeinen-l0cyMroinI0@public.gmane.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--POql06Hk2VcpYBHcwhf1TtupB5WQ7dTFU
+Content-Type: multipart/mixed; boundary="1z7j8ob092evHfaOe3VHZ65Kyw81DNEUf";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann-l3A5Bk7waGM@public.gmane.org>
+To: Rodrigo Siqueira <rodrigosiqueiramelo-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Cc: hamohammed.sa-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, alexandre.belloni-LDxbnhwyfcJBDgjK7y7TUQ@public.gmane.org, airlied-cv59FeDIM0c@public.gmane.org,
+ linux-I+IVW8TIWO2tmTQ+vhA3Yw@public.gmane.org, paul-icTtO2rgO2OTuSrc4Mpeew@public.gmane.org, thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org,
+ krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org, sebastian.reichel-ZGY8ohtN/8qB+jHODAdFcQ@public.gmane.org,
+ linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, jy0922.shim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org,
+ hjc-TNX95d0MmH7DzftRWevZcw@public.gmane.org, abrodkin-HKixBCOQz3hWk0Htik3J/w@public.gmane.org, kong.kongxinwei-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org,
+ jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, xinliang.liu-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org,
+ ludovic.desroches-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-imx-3arQi8VN3Tc@public.gmane.org,
+ linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org,
+ virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org,
+ puck.chen-C8/M+/jPZTeaMJb+Lgu22Q@public.gmane.org, s.hauer-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org, alison.wang-3arQi8VN3Tc@public.gmane.org,
+ jsarha-l0cyMroinI0@public.gmane.org, matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, wens-jdAy2FN1RRM@public.gmane.org, kernel-bIcnvbaLZ9MEGnE8C9+IrQ@public.gmane.org,
+ jernej.skrabec-gGgVlfcn5nU@public.gmane.org, kraxel-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, tomi.valkeinen-l0cyMroinI0@public.gmane.org,
+ bbrezillon-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jingoohan1-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org,
+ dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, sw0312.kim-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org,
+ nicolas.ferre-UWL1GkI3JZL3oGB3hsPCZA@public.gmane.org, kyungmin.park-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org,
+ kieran.bingham+renesas-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org, zourongrong-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org,
+ linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, shawnguo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org,
+ laurent.pinchart-ryLnwIuWjnjg/C1BVhZhaw@public.gmane.org
+Message-ID: <3c8c9567-2eca-55a7-072e-5d5c9517ba7d-l3A5Bk7waGM@public.gmane.org>
+Subject: Re: [PATCH 20/22] drm/vkms: Use simple encoder
+References: <20200305155950.2705-1-tzimmermann-l3A5Bk7waGM@public.gmane.org>
+ <20200305155950.2705-21-tzimmermann-l3A5Bk7waGM@public.gmane.org>
+ <20200324115905.dp5jqzbmvhbmk2rn-TAvD023jEQEN+BqQ9rBEUg@public.gmane.org>
+In-Reply-To: <20200324115905.dp5jqzbmvhbmk2rn-TAvD023jEQEN+BqQ9rBEUg@public.gmane.org>
 
-On 2020/4/1 =E4=B8=8A=E5=8D=883:19, Michael S. Tsirkin wrote:
-> We have both vhost and virtio drivers that depend on vdpa.
-> It's easier to locate it at a top level directory otherwise
-> we run into issues e.g. if vhost is built-in but virtio
-> is modular.  Let's just move it up a level.
->
-> Reported-by: Randy Dunlap <rdunlap@infradead.org>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+--1z7j8ob092evHfaOe3VHZ65Kyw81DNEUf
+Content-Type: text/plain; charset=windows-1252
+Content-Language: en-US
+Content-Transfer-Encoding: quoted-printable
+
+Hi
+
+Am 24.03.20 um 12:59 schrieb Rodrigo Siqueira:
+> Hi Thomas,
+>=20
+> First of all, thanks for your patch!
+>=20
+> I applied all your series, compiled it, and when I tried
+> `make INSTALL_MOD_PATH=3D/PATH/ modules_instal` I got the following
+> message:
+>=20
+>  depmod: ERROR: Cycle detected: drm_kms_helper -> drm -> drm_kms_helper=
+
+>  depmod: ERROR: Found 2 modules in dependency cycles!
+>  make: *** [Makefile:1317: _modinst_post] Error 1
+>=20
+> I cleaned up my local files and tried again, but I got the same error;
+> If I just use `drm-misc-next` everything is fine.  Did I miss something=
+?
+
+I figured out that this problem is caused by the patch for the writeback
+encoder, which is located in the DRM core. I'll drop the patch. Thanks
+for testing!
+
+Best regards
+Thomas
+
+>=20
+> Thanks
+>=20
+> On 03/05, Thomas Zimmermann wrote:
+>> The vkms driver uses an empty implementation for its encoder. Replace
+>> the code with the generic simple encoder.
+>>
+>> Signed-off-by: Thomas Zimmermann <tzimmermann-l3A5Bk7waGM@public.gmane.org>
+>> ---
+>>  drivers/gpu/drm/vkms/vkms_output.c | 8 ++------
+>>  1 file changed, 2 insertions(+), 6 deletions(-)
+>>
+>> diff --git a/drivers/gpu/drm/vkms/vkms_output.c b/drivers/gpu/drm/vkms=
+/vkms_output.c
+>> index fb1941a6522c..85afb77e97f0 100644
+>> --- a/drivers/gpu/drm/vkms/vkms_output.c
+>> +++ b/drivers/gpu/drm/vkms/vkms_output.c
+>> @@ -3,6 +3,7 @@
+>>  #include "vkms_drv.h"
+>>  #include <drm/drm_atomic_helper.h>
+>>  #include <drm/drm_probe_helper.h>
+>> +#include <drm/drm_simple_kms_helper.h>
+>> =20
+>>  static void vkms_connector_destroy(struct drm_connector *connector)
+>>  {
+>> @@ -17,10 +18,6 @@ static const struct drm_connector_funcs vkms_connec=
+tor_funcs =3D {
+>>  	.atomic_destroy_state =3D drm_atomic_helper_connector_destroy_state,=
+
+>>  };
+>> =20
+>> -static const struct drm_encoder_funcs vkms_encoder_funcs =3D {
+>> -	.destroy =3D drm_encoder_cleanup,
+>> -};
+>> -
+>>  static int vkms_conn_get_modes(struct drm_connector *connector)
+>>  {
+>>  	int count;
+>> @@ -70,8 +67,7 @@ int vkms_output_init(struct vkms_device *vkmsdev, in=
+t index)
+>> =20
+>>  	drm_connector_helper_add(connector, &vkms_conn_helper_funcs);
+>> =20
+>> -	ret =3D drm_encoder_init(dev, encoder, &vkms_encoder_funcs,
+>> -			       DRM_MODE_ENCODER_VIRTUAL, NULL);
+>> +	ret =3D drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_VIRTU=
+AL);
+>>  	if (ret) {
+>>  		DRM_ERROR("Failed to init encoder\n");
+>>  		goto err_encoder;
+>> --=20
+>> 2.25.1
+>>
+>=20
+>=20
+> _______________________________________________
+> dri-devel mailing list
+> dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org
+> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+>=20
+
+--=20
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Maxfeldstr. 5, 90409 N=FCrnberg, Germany
+(HRB 36809, AG N=FCrnberg)
+Gesch=E4ftsf=FChrer: Felix Imend=F6rffer
 
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+--1z7j8ob092evHfaOe3VHZ65Kyw81DNEUf--
 
-Thanks
+--POql06Hk2VcpYBHcwhf1TtupB5WQ7dTFU
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
 
-> ---
->
-> Randy I'd say the issue you are reporting (vhost=3Dy, virtio=3Dm)
-> is esoteric enough not to require a rebase for this.
-> So I'd just apply this on top.
-> Do you agree?
->
->   MAINTAINERS                                   | 1 +
->   drivers/Kconfig                               | 2 ++
->   drivers/Makefile                              | 1 +
->   drivers/{virtio =3D> }/vdpa/Kconfig             | 0
->   drivers/{virtio =3D> }/vdpa/Makefile            | 0
->   drivers/{virtio =3D> }/vdpa/ifcvf/Makefile      | 0
->   drivers/{virtio =3D> }/vdpa/ifcvf/ifcvf_base.c  | 0
->   drivers/{virtio =3D> }/vdpa/ifcvf/ifcvf_base.h  | 0
->   drivers/{virtio =3D> }/vdpa/ifcvf/ifcvf_main.c  | 0
->   drivers/{virtio =3D> }/vdpa/vdpa.c              | 0
->   drivers/{virtio =3D> }/vdpa/vdpa_sim/Makefile   | 0
->   drivers/{virtio =3D> }/vdpa/vdpa_sim/vdpa_sim.c | 0
->   drivers/virtio/Kconfig                        | 2 --
->   13 files changed, 4 insertions(+), 2 deletions(-)
->   rename drivers/{virtio =3D> }/vdpa/Kconfig (100%)
->   rename drivers/{virtio =3D> }/vdpa/Makefile (100%)
->   rename drivers/{virtio =3D> }/vdpa/ifcvf/Makefile (100%)
->   rename drivers/{virtio =3D> }/vdpa/ifcvf/ifcvf_base.c (100%)
->   rename drivers/{virtio =3D> }/vdpa/ifcvf/ifcvf_base.h (100%)
->   rename drivers/{virtio =3D> }/vdpa/ifcvf/ifcvf_main.c (100%)
->   rename drivers/{virtio =3D> }/vdpa/vdpa.c (100%)
->   rename drivers/{virtio =3D> }/vdpa/vdpa_sim/Makefile (100%)
->   rename drivers/{virtio =3D> }/vdpa/vdpa_sim/vdpa_sim.c (100%)
->
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 70c47bc55343..7cfa55c765fd 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -17695,6 +17695,7 @@ L:	virtualization@lists.linux-foundation.org
->   S:	Maintained
->   F:	Documentation/devicetree/bindings/virtio/
->   F:	drivers/virtio/
-> +F:	drivers/vdpa/
->   F:	tools/virtio/
->   F:	drivers/net/virtio_net.c
->   F:	drivers/block/virtio_blk.c
-> diff --git a/drivers/Kconfig b/drivers/Kconfig
-> index 7a6d8b2b68b4..ac23d520e916 100644
-> --- a/drivers/Kconfig
-> +++ b/drivers/Kconfig
-> @@ -138,6 +138,8 @@ source "drivers/virt/Kconfig"
->  =20
->   source "drivers/virtio/Kconfig"
->  =20
-> +source "drivers/vdpa/Kconfig"
-> +
->   source "drivers/vhost/Kconfig"
->  =20
->   source "drivers/hv/Kconfig"
-> diff --git a/drivers/Makefile b/drivers/Makefile
-> index 31cf17dee252..21688f3b1588 100644
-> --- a/drivers/Makefile
-> +++ b/drivers/Makefile
-> @@ -42,6 +42,7 @@ obj-$(CONFIG_DMADEVICES)	+=3D dma/
->   obj-y				+=3D soc/
->  =20
->   obj-$(CONFIG_VIRTIO)		+=3D virtio/
-> +obj-$(CONFIG_VDPA)		+=3D vdpa/
->   obj-$(CONFIG_XEN)		+=3D xen/
->  =20
->   # regulators early, since some subsystems rely on them to initialize
-> diff --git a/drivers/virtio/vdpa/Kconfig b/drivers/vdpa/Kconfig
-> similarity index 100%
-> rename from drivers/virtio/vdpa/Kconfig
-> rename to drivers/vdpa/Kconfig
-> diff --git a/drivers/virtio/vdpa/Makefile b/drivers/vdpa/Makefile
-> similarity index 100%
-> rename from drivers/virtio/vdpa/Makefile
-> rename to drivers/vdpa/Makefile
-> diff --git a/drivers/virtio/vdpa/ifcvf/Makefile b/drivers/vdpa/ifcvf/Ma=
-kefile
-> similarity index 100%
-> rename from drivers/virtio/vdpa/ifcvf/Makefile
-> rename to drivers/vdpa/ifcvf/Makefile
-> diff --git a/drivers/virtio/vdpa/ifcvf/ifcvf_base.c b/drivers/vdpa/ifcv=
-f/ifcvf_base.c
-> similarity index 100%
-> rename from drivers/virtio/vdpa/ifcvf/ifcvf_base.c
-> rename to drivers/vdpa/ifcvf/ifcvf_base.c
-> diff --git a/drivers/virtio/vdpa/ifcvf/ifcvf_base.h b/drivers/vdpa/ifcv=
-f/ifcvf_base.h
-> similarity index 100%
-> rename from drivers/virtio/vdpa/ifcvf/ifcvf_base.h
-> rename to drivers/vdpa/ifcvf/ifcvf_base.h
-> diff --git a/drivers/virtio/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcv=
-f/ifcvf_main.c
-> similarity index 100%
-> rename from drivers/virtio/vdpa/ifcvf/ifcvf_main.c
-> rename to drivers/vdpa/ifcvf/ifcvf_main.c
-> diff --git a/drivers/virtio/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-> similarity index 100%
-> rename from drivers/virtio/vdpa/vdpa.c
-> rename to drivers/vdpa/vdpa.c
-> diff --git a/drivers/virtio/vdpa/vdpa_sim/Makefile b/drivers/vdpa/vdpa_=
-sim/Makefile
-> similarity index 100%
-> rename from drivers/virtio/vdpa/vdpa_sim/Makefile
-> rename to drivers/vdpa/vdpa_sim/Makefile
-> diff --git a/drivers/virtio/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdp=
-a_sim/vdpa_sim.c
-> similarity index 100%
-> rename from drivers/virtio/vdpa/vdpa_sim/vdpa_sim.c
-> rename to drivers/vdpa/vdpa_sim/vdpa_sim.c
-> diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-> index 99e424570644..2aadf398d8cc 100644
-> --- a/drivers/virtio/Kconfig
-> +++ b/drivers/virtio/Kconfig
-> @@ -109,5 +109,3 @@ config VIRTIO_MMIO_CMDLINE_DEVICES
->   	 If unsure, say 'N'.
->  =20
->   endif # VIRTIO_MENU
-> -
-> -source "drivers/virtio/vdpa/Kconfig"
+iQEzBAEBCAAdFiEEchf7rIzpz2NEoWjlaA3BHVMLeiMFAl6EQAMACgkQaA3BHVML
+eiMuBAgAj5UES4iSvgdvGXsxU7JelWDRvIin40v50Ya1mepztavcMF/QTOeQUs60
+90Kgxj2ohhObilKOzxm70RxWHHGRrMK0BMLE+Rwm3TpTZJ+s1Fojn484ZLBnu3hr
+gWp05xuYFrQ/1GtsHStjvUB8ADDEVqnvf2ZomnKZWikHIYl5uCHzW6iumQwBzD/b
+Sh76yaJjOWgjnisEpmCbCQPvN6I21dIM2aH11JFvn0S56vUdylZC7EeLjtjrV3nm
+ix90pnKiwhpohP8Kho+t46VgGEUhDvObTrjNocgBpjdCdbUqINtFh362oJRGeoF/
+Af05YTLOMakHmAB5r4RrZQVsdxYn8A==
+=IKy5
+-----END PGP SIGNATURE-----
+
+--POql06Hk2VcpYBHcwhf1TtupB5WQ7dTFU--
