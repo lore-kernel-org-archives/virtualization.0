@@ -1,194 +1,58 @@
-From: teawater <teawaterz@linux.alibaba.com>
-Subject: Re: [RFC for Linux] virtio_balloon: Add VIRTIO_BALLOON_F_THP_ORDER to
- handle THP spilt issue
-Date: Thu, 2 Apr 2020 16:00:05 +0800
-Message-ID: <02745FD3-E30D-453B-8664-94B8EBF3B313@linux.alibaba.com>
-References: <20200326031817-mutt-send-email-mst@kernel.org>
- <C4C6BAF7-C040-403D-997C-48C7AB5A7D6B@redhat.com>
- <20200326054554-mutt-send-email-mst@kernel.org>
- <f26dc94a-7296-90c9-56cd-4586b78bc03d@redhat.com>
- <20200331091718-mutt-send-email-mst@kernel.org>
- <02a393ce-c4b4-ede9-7671-76fa4c19097a@redhat.com>
- <20200331093300-mutt-send-email-mst@kernel.org>
- <b69796e0-fa41-a219-c3e5-a11e9f5f18bf@redhat.com>
- <20200331100359-mutt-send-email-mst@kernel.org>
-Mime-Version: 1.0 (Mac OS X Mail 13.0 \(3608.60.0.2.5\))
-Content-Type: text/plain;
-        charset=utf-8
-Content-Transfer-Encoding: 8BIT
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200331100359-mutt-send-email-mst@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: David Hildenbrand <david@redhat.com>, Hui Zhu <teawater@gmail.com>, Jason Wang <jasowang@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, pagupta@redhat.com, mojha@codeaurora.org, namit@vmware.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, qemu-devel@nongnu.org, Alexander Duyck <alexander.h.duyck@linux.intel.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Subject: Re: [PATCH v3 0/8] vhost: Reset batched descriptors on SET_VRING_BASE call
+Date: Thu, 2 Apr 2020 10:17:01 +0200
+Message-ID: <CAJaqyWdwqdyfY_ZrWXEGogoUKajEPpT3FdsDMdEUCZ0tt4Dh9w@mail.gmail.com>
+References: <20200331192804.6019-1-eperezma@redhat.com> <c4d2b0b4-0b6d-cd74-0eb5-e7fdfe063d42@de.ibm.com>
+ <CAJaqyWc+fNzHE_p-pApZtj2ypNQfFLawCWf8GJmP8e=k=C+EgA@mail.gmail.com>
+ <916e60f8-45fe-5cc1-d5a1-defdcd00d75b@de.ibm.com> <6d16572f-34e9-4806-a5f8-94d8f75db352@de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <6d16572f-34e9-4806-a5f8-94d8f75db352@de.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Stephen Rothwell <sfr@canb.auug.org.au>, kvm list <kvm@vger.kernel.org>, Linux Next Mailing List <linux-next@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Halil Pasic <pasic@linux.ibm.com>, Cornelia Huck <cohuck@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Wed, Apr 1, 2020 at 9:13 PM Christian Borntraeger
+<borntraeger@de.ibm.com> wrote:
+>
+> >> Would it be possible to investigate when qemu launches the offending ioctls?
+> >
+> > During guest reboot. This is obvious, no?
+> >
+>
+
+Got it. I thought you received it after the reboot AND once you sent
+the firsts packets, since you said that some pings worked. But now
+that this point is clear, I think we can move forward :). Thank you
+very much!
 
 
-> 2020年3月31日 22:07，Michael S. Tsirkin <mst@redhat.com> 写道：
-> 
-> On Tue, Mar 31, 2020 at 04:03:18PM +0200, David Hildenbrand wrote:
->> On 31.03.20 15:37, Michael S. Tsirkin wrote:
->>> On Tue, Mar 31, 2020 at 03:32:05PM +0200, David Hildenbrand wrote:
->>>> On 31.03.20 15:24, Michael S. Tsirkin wrote:
->>>>> On Tue, Mar 31, 2020 at 12:35:24PM +0200, David Hildenbrand wrote:
->>>>>> On 26.03.20 10:49, Michael S. Tsirkin wrote:
->>>>>>> On Thu, Mar 26, 2020 at 08:54:04AM +0100, David Hildenbrand wrote:
->>>>>>>> 
->>>>>>>> 
->>>>>>>>> Am 26.03.2020 um 08:21 schrieb Michael S. Tsirkin <mst@redhat.com>:
->>>>>>>>> 
->>>>>>>>> ﻿On Thu, Mar 12, 2020 at 09:51:25AM +0100, David Hildenbrand wrote:
->>>>>>>>>>> On 12.03.20 09:47, Michael S. Tsirkin wrote:
->>>>>>>>>>> On Thu, Mar 12, 2020 at 09:37:32AM +0100, David Hildenbrand wrote:
->>>>>>>>>>>> 2. You are essentially stealing THPs in the guest. So the fastest
->>>>>>>>>>>> mapping (THP in guest and host) is gone. The guest won't be able to make
->>>>>>>>>>>> use of THP where it previously was able to. I can imagine this implies a
->>>>>>>>>>>> performance degradation for some workloads. This needs a proper
->>>>>>>>>>>> performance evaluation.
->>>>>>>>>>> 
->>>>>>>>>>> I think the problem is more with the alloc_pages API.
->>>>>>>>>>> That gives you exactly the given order, and if there's
->>>>>>>>>>> a larger chunk available, it will split it up.
->>>>>>>>>>> 
->>>>>>>>>>> But for balloon - I suspect lots of other users,
->>>>>>>>>>> we do not want to stress the system but if a large
->>>>>>>>>>> chunk is available anyway, then we could handle
->>>>>>>>>>> that more optimally by getting it all in one go.
->>>>>>>>>>> 
->>>>>>>>>>> 
->>>>>>>>>>> So if we want to address this, IMHO this calls for a new API.
->>>>>>>>>>> Along the lines of
->>>>>>>>>>> 
->>>>>>>>>>> struct page *alloc_page_range(gfp_t gfp, unsigned int min_order,
->>>>>>>>>>>                 unsigned int max_order, unsigned int *order)
->>>>>>>>>>> 
->>>>>>>>>>> the idea would then be to return at a number of pages in the given
->>>>>>>>>>> range.
->>>>>>>>>>> 
->>>>>>>>>>> What do you think? Want to try implementing that?
->>>>>>>>>> 
->>>>>>>>>> You can just start with the highest order and decrement the order until
->>>>>>>>>> your allocation succeeds using alloc_pages(), which would be enough for
->>>>>>>>>> a first version. At least I don't see the immediate need for a new
->>>>>>>>>> kernel API.
->>>>>>>>> 
->>>>>>>>> OK I remember now.  The problem is with reclaim. Unless reclaim is
->>>>>>>>> completely disabled, any of these calls can sleep. After it wakes up,
->>>>>>>>> we would like to get the larger order that has become available
->>>>>>>>> meanwhile.
->>>>>>>>> 
->>>>>>>> 
->>>>>>>> Yes, but that‘s a pure optimization IMHO.
->>>>>>>> So I think we should do a trivial implementation first and then see what we gain from a new allocator API. Then we might also be able to justify it using real numbers.
->>>>>>>> 
->>>>>>> 
->>>>>>> Well how do you propose implement the necessary semantics?
->>>>>>> I think we are both agreed that alloc_page_range is more or
->>>>>>> less what's necessary anyway - so how would you approximate it
->>>>>>> on top of existing APIs?
->>>>>> diff --git a/include/linux/balloon_compaction.h b/include/linux/balloon_compaction.h
->>> 
->>> .....
->>> 
->>> 
->>>>>> diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
->>>>>> index 26de020aae7b..067810b32813 100644
->>>>>> --- a/mm/balloon_compaction.c
->>>>>> +++ b/mm/balloon_compaction.c
->>>>>> @@ -112,23 +112,35 @@ size_t balloon_page_list_dequeue(struct balloon_dev_info *b_dev_info,
->>>>>> EXPORT_SYMBOL_GPL(balloon_page_list_dequeue);
->>>>>> 
->>>>>> /*
->>>>>> - * balloon_page_alloc - allocates a new page for insertion into the balloon
->>>>>> - *			page list.
->>>>>> + * balloon_pages_alloc - allocates a new page (of at most the given order)
->>>>>> + * 			 for insertion into the balloon page list.
->>>>>> *
->>>>>> * Driver must call this function to properly allocate a new balloon page.
->>>>>> * Driver must call balloon_page_enqueue before definitively removing the page
->>>>>> * from the guest system.
->>>>>> *
->>>>>> + * Will fall back to smaller orders if allocation fails. The order of the
->>>>>> + * allocated page is stored in page->private.
->>>>>> + *
->>>>>> * Return: struct page for the allocated page or NULL on allocation failure.
->>>>>> */
->>>>>> -struct page *balloon_page_alloc(void)
->>>>>> +struct page *balloon_pages_alloc(int order)
->>>>>> {
->>>>>> -	struct page *page = alloc_page(balloon_mapping_gfp_mask() |
->>>>>> -				       __GFP_NOMEMALLOC | __GFP_NORETRY |
->>>>>> -				       __GFP_NOWARN);
->>>>>> -	return page;
->>>>>> +	struct page *page;
->>>>>> +
->>>>>> +	while (order >= 0) {
->>>>>> +		page = alloc_pages(balloon_mapping_gfp_mask() |
->>>>>> +				   __GFP_NOMEMALLOC | __GFP_NORETRY |
->>>>>> +				   __GFP_NOWARN, order);
->>>>>> +		if (page) {
->>>>>> +			set_page_private(page, order);
->>>>>> +			return page;
->>>>>> +		}
->>>>>> +		order--;
->>>>>> +	}
->>>>>> +	return NULL;
->>>>>> }
->>>>>> -EXPORT_SYMBOL_GPL(balloon_page_alloc);
->>>>>> +EXPORT_SYMBOL_GPL(balloon_pages_alloc);
->>>>>> 
->>>>>> /*
->>>>>> * balloon_page_enqueue - inserts a new page into the balloon page list.
->>>>> 
->>>>> 
->>>>> I think this will try to invoke direct reclaim from the first iteration
->>>>> to free up the max order.
->>>> 
->>>> %__GFP_NORETRY: The VM implementation will try only very lightweight
->>>> memory direct reclaim to get some memory under memory pressure (thus it
->>>> can sleep). It will avoid disruptive actions like OOM killer.
->>>> 
->>>> Certainly good enough for a first version I would say, no?
->>> 
->>> Frankly how well that behaves would depend a lot on the workload.
->>> Can regress just as well.
->>> 
->>> For the 1st version I'd prefer something that is the least disruptive,
->>> and that IMHO means we only trigger reclaim at all in the same configuration
->>> as now - when we can't satisfy the lowest order allocation.
->> 
->> Agreed.
->> 
->>> 
->>> Anything else would be a huge amount of testing with all kind of
->>> workloads.
->>> 
->> 
->> So doing a "& ~__GFP_RECLAIM" in case order > 0? (as done in
->> GFP_TRANSHUGE_LIGHT)
-> 
-> That will improve the situation when reclaim is not needed, but leave
-> the problem in place for when it's needed: if reclaim does trigger, we
-> can get a huge free page and immediately break it up.
-> 
-> So it's ok as a first step but it will make the second step harder as
-> we'll need to test with reclaim :).
-
-
-I worry that will increases the allocation failure rate for large pages.
-
-I tried alloc 2M memory without __GFP_RECLAIM when I wrote the VIRTIO_BALLOON_F_THP_ORDER first version.
-It will fail when I use usemem punch-holes function generates 400m fragmentation pages in the guest kernel.
-
-What about add another option to balloon to control with __GFP_RECLAIM or without it?
-
-Best,
-Hui
-
-> 
-> 
->> -- 
->> Thanks,
->> 
->> David / dhildenb
+>
+> For example during reboot we do re-setup the virt queues:
+>
+> #1  0x00000000010f3e7a in vhost_kernel_set_vring_base (dev=0x21f5f30, ring=0x3ff84d74e88) at /home/cborntra/REPOS/qemu/hw/virtio/vhost-backend.c:126
+> #2  0x00000000010f2f92 in vhost_virtqueue_start (idx=0, vq=0x21f6180, vdev=0x241d570, dev=0x21f5f30) at /home/cborntra/REPOS/qemu/hw/virtio/vhost.c:1016
+> #3  vhost_dev_start (hdev=hdev@entry=0x21f5f30, vdev=vdev@entry=0x241d570) at /home/cborntra/REPOS/qemu/hw/virtio/vhost.c:1646
+> #4  0x00000000011c265a in vhost_net_start_one (dev=0x241d570, net=0x21f5f30) at /home/cborntra/REPOS/qemu/hw/net/vhost_net.c:236
+> #5  vhost_net_start (dev=dev@entry=0x241d570, ncs=0x2450f40, total_queues=total_queues@entry=1) at /home/cborntra/REPOS/qemu/hw/net/vhost_net.c:338
+> #6  0x00000000010cfdfe in virtio_net_vhost_status (status=15 '\017', n=0x241d570) at /home/cborntra/REPOS/qemu/hw/net/virtio-net.c:250
+> #7  virtio_net_set_status (vdev=0x241d570, status=<optimized out>) at /home/cborntra/REPOS/qemu/hw/net/virtio-net.c:331
+> #8  0x00000000010eaef4 in virtio_set_status (vdev=vdev@entry=0x241d570, val=<optimized out>) at /home/cborntra/REPOS/qemu/hw/virtio/virtio.c:1956
+> #9  0x000000000110ba78 in virtio_ccw_cb (sch=0x2422c30, ccw=...) at /home/cborntra/REPOS/qemu/hw/s390x/virtio-ccw.c:509
+> #10 0x00000000011053fc in css_interpret_ccw (sch=sch@entry=0x2422c30, ccw_addr=<optimized out>, suspend_allowed=suspend_allowed@entry=false) at /home/cborntra/REPOS/qemu/hw/s390x/css.c:1108
+> #11 0x000000000110557c in sch_handle_start_func_virtual (sch=0x2422c30) at /home/cborntra/REPOS/qemu/hw/s390x/css.c:1162
+> #12 do_subchannel_work_virtual (sch=0x2422c30) at /home/cborntra/REPOS/qemu/hw/s390x/css.c:1256
+> #13 0x0000000001168592 in ioinst_handle_ssch (cpu=cpu@entry=0x234b920, reg1=<optimized out>, ipb=<optimized out>, ra=ra@entry=0) at /home/cborntra/REPOS/qemu/target/s390x/ioinst.c:218
+> #14 0x0000000001170012 in handle_b2 (ipa1=<optimized out>, run=0x3ff97880000, cpu=0x234b920) at /home/cborntra/REPOS/qemu/target/s390x/kvm.c:1279
+> #15 handle_instruction (run=0x3ff97880000, cpu=0x234b920) at /home/cborntra/REPOS/qemu/target/s390x/kvm.c:1664
+> #16 handle_intercept (cpu=0x234b920) at /home/cborntra/REPOS/qemu/target/s390x/kvm.c:1747
+> #17 kvm_arch_handle_exit (cs=cs@entry=0x234b920, run=run@entry=0x3ff97880000) at /home/cborntra/REPOS/qemu/target/s390x/kvm.c:1937
+> #18 0x00000000010972dc in kvm_cpu_exec (cpu=cpu@entry=0x234b920) at /home/cborntra/REPOS/qemu/accel/kvm/kvm-all.c:2445
+> #19 0x00000000010784f6 in qemu_kvm_cpu_thread_fn (arg=0x234b920) at /home/cborntra/REPOS/qemu/cpus.c:1246
+> #20 qemu_kvm_cpu_thread_fn (arg=arg@entry=0x234b920) at /home/cborntra/REPOS/qemu/cpus.c:1218
+> #21 0x00000000013891fa in qemu_thread_start (args=0x2372f30) at /home/cborntra/REPOS/qemu/util/qemu-thread-posix.c:519
+> #22 0x000003ff93809ed6 in start_thread () from target:/lib64/libpthread.so.0
+> #23 0x000003ff93705e46 in thread_start () from target:/lib64/libc.so.6
+>
