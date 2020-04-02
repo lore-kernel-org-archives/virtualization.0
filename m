@@ -1,104 +1,166 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] virtio/test: fix up after IOTLB changes
-Date: Thu, 2 Apr 2020 22:18:16 +0800
-Message-ID: <481b8f28-e3a9-dda1-bfb7-df72b11e4073@redhat.com>
-References: <20200401165100.276039-1-mst@redhat.com>
- <921fe999-e183-058d-722a-1a6a6ab066e0@redhat.com>
- <20200402084021-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH v2] virtio/test: fix up after IOTLB changes
+Date: Thu, 2 Apr 2020 22:21:12 +0800
+Message-ID: <9e71c603-300a-e13f-dcef-bc4f9386ac0e@redhat.com>
+References: <20200402125406.9275-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200402084021-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20200402125406.9275-1-mst@redhat.com>
 Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: =?UTF-8?Q?Eugenio_P=c3=a9rez?= <eperezma@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Sender: kvm-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: =?UTF-8?Q?Eugenio_P=c3=a9rez?= <eperezma@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMjAvNC8yIOS4i+WNiDg6NTMsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBPbiBU
-aHUsIEFwciAwMiwgMjAyMCBhdCAxMjowMTo1NlBNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+
-PiBPbiAyMDIwLzQvMiDkuIrljYgxMjo1MSwgTWljaGFlbCBTLiBUc2lya2luIHdyb3RlOgo+Pj4g
-QWxsb3cgYnVpbGRpbmcgdnJpbmdoIHdpdGhvdXQgSU9UTEIgKHRoYXQncyB0aGUgY2FzZSBmb3Ig
-dXNlcnNwYWNlCj4+PiBidWlsZHMsIHdpbGwgYmUgdXNlZnVsIGZvciBDQUlGL1ZPRCBkb3duIHRo
-ZSByb2FkIHRvbykuCj4+PiBVcGRhdGUgZm9yIEFQSSB0d2Vha3MuCj4+PiBEb24ndCBpbmNsdWRl
-IHZyaW5naCB3aXRoIGtlcm5lbCBidWlsZHMuCj4+Cj4+IEknbSBub3QgcXVpdGUgc3VyZSB3ZSBu
-ZWVkIHRoaXMuCj4+Cj4+IEUuZyB0aGUgdXNlcnNwYWNlIGFjY2Vzc29yIGlzIG5vdCB1c2VkIGJ5
-IENBSUYvVk9QLgo+IFdlbGwgYW55IGV4cG9ydGVkIHN5bWJvbHMgYXJlIGFsd2F5cyBjb21waWxl
-ZCBpbiwgcmlnaHQ/Cj4gU28gd2UgY2FuIHNhdmUgc29tZSBrZXJuZWwgbWVtb3J5IGJ5IG5vdCBi
-dWlsZGluZyB1bnVzZWQgc3R1ZmYgLi4uCgoKWWVzLCBqdXN0IHdhbnQgdG8gbWVudGlvbiB0aGF0
-IHRoZSB0aGVyZSdzIG5vIHVzZXIgZm9yIHVzZXJzcGFjZSAKYWNjZXNzb3JzIG5vdy4KCgo+Cj4K
-Pj4+IENjOiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgo+Pj4gQ2M6IEV1Z2VuaW8g
-UMOpcmV6IDxlcGVyZXptYUByZWRoYXQuY29tPgo+Pj4gU2lnbmVkLW9mZi1ieTogTWljaGFlbCBT
-LiBUc2lya2luIDxtc3RAcmVkaGF0LmNvbT4KPj4+IC0tLQo+Pj4gICAgZHJpdmVycy92aG9zdC90
-ZXN0LmMgICB8IDQgKystLQo+Pj4gICAgZHJpdmVycy92aG9zdC92cmluZ2guYyB8IDUgKysrKysK
-Pj4+ICAgIGluY2x1ZGUvbGludXgvdnJpbmdoLmggfCAyICsrCj4+PiAgICB0b29scy92aXJ0aW8v
-TWFrZWZpbGUgIHwgMyArKy0KPj4+ICAgIDQgZmlsZXMgY2hhbmdlZCwgMTEgaW5zZXJ0aW9ucygr
-KSwgMyBkZWxldGlvbnMoLSkKPj4+Cj4+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aG9zdC90ZXN0
-LmMgYi9kcml2ZXJzL3Zob3N0L3Rlc3QuYwo+Pj4gaW5kZXggMzk0ZTJlNWM3NzJkLi45YTNhMDkw
-MDVlMDMgMTAwNjQ0Cj4+PiAtLS0gYS9kcml2ZXJzL3Zob3N0L3Rlc3QuYwo+Pj4gKysrIGIvZHJp
-dmVycy92aG9zdC90ZXN0LmMKPj4+IEBAIC0xMjAsNyArMTIwLDcgQEAgc3RhdGljIGludCB2aG9z
-dF90ZXN0X29wZW4oc3RydWN0IGlub2RlICppbm9kZSwgc3RydWN0IGZpbGUgKmYpCj4+PiAgICAJ
-dnFzW1ZIT1NUX1RFU1RfVlFdID0gJm4tPnZxc1tWSE9TVF9URVNUX1ZRXTsKPj4+ICAgIAluLT52
-cXNbVkhPU1RfVEVTVF9WUV0uaGFuZGxlX2tpY2sgPSBoYW5kbGVfdnFfa2ljazsKPj4+ICAgIAl2
-aG9zdF9kZXZfaW5pdChkZXYsIHZxcywgVkhPU1RfVEVTVF9WUV9NQVgsIFVJT19NQVhJT1YsCj4+
-PiAtCQkgICAgICAgVkhPU1RfVEVTVF9QS1RfV0VJR0hULCBWSE9TVF9URVNUX1dFSUdIVCk7Cj4+
-PiArCQkgICAgICAgVkhPU1RfVEVTVF9QS1RfV0VJR0hULCBWSE9TVF9URVNUX1dFSUdIVCwgTlVM
-TCk7Cj4+PiAgICAJZi0+cHJpdmF0ZV9kYXRhID0gbjsKPj4+IEBAIC0yMjUsNyArMjI1LDcgQEAg
-c3RhdGljIGxvbmcgdmhvc3RfdGVzdF9yZXNldF9vd25lcihzdHJ1Y3Qgdmhvc3RfdGVzdCAqbikK
-Pj4+ICAgIHsKPj4+ICAgIAl2b2lkICpwcml2ID0gTlVMTDsKPj4+ICAgIAlsb25nIGVycjsKPj4+
-IC0Jc3RydWN0IHZob3N0X3VtZW0gKnVtZW07Cj4+PiArCXN0cnVjdCB2aG9zdF9pb3RsYiAqdW1l
-bTsKPj4+ICAgIAltdXRleF9sb2NrKCZuLT5kZXYubXV0ZXgpOwo+Pj4gICAgCWVyciA9IHZob3N0
-X2Rldl9jaGVja19vd25lcigmbi0+ZGV2KTsKPj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0
-L3ZyaW5naC5jIGIvZHJpdmVycy92aG9zdC92cmluZ2guYwo+Pj4gaW5kZXggZWUwNDkxZjU3OWFj
-Li44NzhlNTY1ZGZmZmUgMTAwNjQ0Cj4+PiAtLS0gYS9kcml2ZXJzL3Zob3N0L3ZyaW5naC5jCj4+
-PiArKysgYi9kcml2ZXJzL3Zob3N0L3ZyaW5naC5jCj4+PiBAQCAtMTMsOSArMTMsMTEgQEAKPj4+
-ICAgICNpbmNsdWRlIDxsaW51eC91YWNjZXNzLmg+Cj4+PiAgICAjaW5jbHVkZSA8bGludXgvc2xh
-Yi5oPgo+Pj4gICAgI2luY2x1ZGUgPGxpbnV4L2V4cG9ydC5oPgo+Pj4gKyNpZmRlZiBWSE9TVF9J
-T1RMQgo+Pgo+PiBLYnVpbGQgYm90IHJlcG9ydHMgYnVpbGQgaXNzdWVzIHdpdGggdGhpcy4KPj4K
-Pj4gSXQgbG9va3MgdG8gbWUgd2Ugc2hvdWxkIHVzZSAjaWYgSVNfRU5BQkxFRChDT05GSUdfVkhP
-U1RfSU9UTEIpIGhlcmUgYW5kCj4+IGZvbGxvd2luZyBjaGVja3MuCj4+Cj4+IFRoYW5rcwo+Pgo+
-IEluIGZhY3QgSVNfUkVBQ0hFQUJMRSBpcyBwcm9iYWJseSB0aGUgcmlnaHQgdGhpbmcgdG8gZG8u
-CgoKWWVzLgoKVGhhbmtzCgoKPgo+Cj4+PiAgICAjaW5jbHVkZSA8bGludXgvYnZlYy5oPgo+Pj4g
-ICAgI2luY2x1ZGUgPGxpbnV4L2hpZ2htZW0uaD4KPj4+ICAgICNpbmNsdWRlIDxsaW51eC92aG9z
-dF9pb3RsYi5oPgo+Pj4gKyNlbmRpZgo+Pj4gICAgI2luY2x1ZGUgPHVhcGkvbGludXgvdmlydGlv
-X2NvbmZpZy5oPgo+Pj4gICAgc3RhdGljIF9fcHJpbnRmKDEsMikgX19jb2xkIHZvaWQgdnJpbmdo
-X2JhZChjb25zdCBjaGFyICpmbXQsIC4uLikKPj4+IEBAIC0xMDU5LDYgKzEwNjEsOCBAQCBpbnQg
-dnJpbmdoX25lZWRfbm90aWZ5X2tlcm4oc3RydWN0IHZyaW5naCAqdnJoKQo+Pj4gICAgfQo+Pj4g
-ICAgRVhQT1JUX1NZTUJPTCh2cmluZ2hfbmVlZF9ub3RpZnlfa2Vybik7Cj4+PiArI2lmZGVmIFZI
-T1NUX0lPVExCCj4+PiArCj4+PiAgICBzdGF0aWMgaW50IGlvdGxiX3RyYW5zbGF0ZShjb25zdCBz
-dHJ1Y3QgdnJpbmdoICp2cmgsCj4+PiAgICAJCQkgICB1NjQgYWRkciwgdTY0IGxlbiwgc3RydWN0
-IGJpb192ZWMgaW92W10sCj4+PiAgICAJCQkgICBpbnQgaW92X3NpemUsIHUzMiBwZXJtKQo+Pj4g
-QEAgLTE0MTYsNSArMTQyMCw2IEBAIGludCB2cmluZ2hfbmVlZF9ub3RpZnlfaW90bGIoc3RydWN0
-IHZyaW5naCAqdnJoKQo+Pj4gICAgfQo+Pj4gICAgRVhQT1JUX1NZTUJPTCh2cmluZ2hfbmVlZF9u
-b3RpZnlfaW90bGIpOwo+Pj4gKyNlbmRpZgo+Pj4gICAgTU9EVUxFX0xJQ0VOU0UoIkdQTCIpOwo+
-Pj4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvdnJpbmdoLmggYi9pbmNsdWRlL2xpbnV4L3Zy
-aW5naC5oCj4+PiBpbmRleCBiZDA1MDNjYTZmOGYuLmViZmYxMjFjMGIwMiAxMDA2NDQKPj4+IC0t
-LSBhL2luY2x1ZGUvbGludXgvdnJpbmdoLmgKPj4+ICsrKyBiL2luY2x1ZGUvbGludXgvdnJpbmdo
-LmgKPj4+IEBAIC0xNCw4ICsxNCwxMCBAQAo+Pj4gICAgI2luY2x1ZGUgPGxpbnV4L3ZpcnRpb19i
-eXRlb3JkZXIuaD4KPj4+ICAgICNpbmNsdWRlIDxsaW51eC91aW8uaD4KPj4+ICAgICNpbmNsdWRl
-IDxsaW51eC9zbGFiLmg+Cj4+PiArI2lmZGVmIFZIT1NUX0lPVExCCj4+PiAgICAjaW5jbHVkZSA8
-bGludXgvZG1hLWRpcmVjdGlvbi5oPgo+Pj4gICAgI2luY2x1ZGUgPGxpbnV4L3Zob3N0X2lvdGxi
-Lmg+Cj4+PiArI2VuZGlmCj4+PiAgICAjaW5jbHVkZSA8YXNtL2JhcnJpZXIuaD4KPj4+ICAgIC8q
-IHZpcnRpb19yaW5nIHdpdGggaW5mb3JtYXRpb24gbmVlZGVkIGZvciBob3N0IGFjY2Vzcy4gKi8K
-Pj4+IGRpZmYgLS1naXQgYS90b29scy92aXJ0aW8vTWFrZWZpbGUgYi90b29scy92aXJ0aW8vTWFr
-ZWZpbGUKPj4+IGluZGV4IGYzM2YzMmYxZDIwOC4uZDNmMTUyZjQ2NjBiIDEwMDY0NAo+Pj4gLS0t
-IGEvdG9vbHMvdmlydGlvL01ha2VmaWxlCj4+PiArKysgYi90b29scy92aXJ0aW8vTWFrZWZpbGUK
-Pj4+IEBAIC0yMiw3ICsyMiw4IEBAIE9PVF9DT05GSUdTPVwKPj4+ICAgIAlDT05GSUdfVkhPU1Q9
-bSBcCj4+PiAgICAJQ09ORklHX1ZIT1NUX05FVD1uIFwKPj4+ICAgIAlDT05GSUdfVkhPU1RfU0NT
-ST1uIFwKPj4+IC0JQ09ORklHX1ZIT1NUX1ZTT0NLPW4KPj4+ICsJQ09ORklHX1ZIT1NUX1ZTT0NL
-PW4gXAo+Pj4gKwlDT05GSUdfVkhPU1RfUklORz1uCj4+PiAgICBPT1RfQlVJTEQ9S0NGTEFHUz0i
-LUkgIiR7T09UX1ZIT1NUfSAke01BS0V9IC1DICR7T09UX0tTUkN9IFY9JHtWfQo+Pj4gICAgb290
-LWJ1aWxkOgo+Pj4gICAgCWVjaG8gIlVOU1VQUE9SVEVEISBEb24ndCB1c2UgdGhlIHJlc3VsdGlu
-ZyBtb2R1bGVzIGluIHByb2R1Y3Rpb24hIgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
-aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
-aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+
+On 2020/4/2 =E4=B8=8B=E5=8D=888:55, Michael S. Tsirkin wrote:
+> Allow building vringh without IOTLB (that's the case for userspace
+> builds, will be useful for CAIF/VOD down the road too).
+> Update for API tweaks.
+> Don't include vringh with userspace builds.
+>
+> Cc: Jason Wang <jasowang@redhat.com>
+> Cc: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>
+> changes from v1:
+> 	use IS_REACHEABLE to fix error reported by build bot
+
+
+Acked-by: Jason Wang <jasowang@redhat.com>
+
+
+
+>
+>   drivers/vhost/test.c              | 4 ++--
+>   drivers/vhost/vringh.c            | 5 +++++
+>   include/linux/vringh.h            | 6 ++++++
+>   tools/virtio/Makefile             | 5 +++--
+>   tools/virtio/generated/autoconf.h | 0
+>   5 files changed, 16 insertions(+), 4 deletions(-)
+>   create mode 100644 tools/virtio/generated/autoconf.h
+>
+> diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
+> index 394e2e5c772d..9a3a09005e03 100644
+> --- a/drivers/vhost/test.c
+> +++ b/drivers/vhost/test.c
+> @@ -120,7 +120,7 @@ static int vhost_test_open(struct inode *inode, str=
+uct file *f)
+>   	vqs[VHOST_TEST_VQ] =3D &n->vqs[VHOST_TEST_VQ];
+>   	n->vqs[VHOST_TEST_VQ].handle_kick =3D handle_vq_kick;
+>   	vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX, UIO_MAXIOV,
+> -		       VHOST_TEST_PKT_WEIGHT, VHOST_TEST_WEIGHT);
+> +		       VHOST_TEST_PKT_WEIGHT, VHOST_TEST_WEIGHT, NULL);
+>  =20
+>   	f->private_data =3D n;
+>  =20
+> @@ -225,7 +225,7 @@ static long vhost_test_reset_owner(struct vhost_tes=
+t *n)
+>   {
+>   	void *priv =3D NULL;
+>   	long err;
+> -	struct vhost_umem *umem;
+> +	struct vhost_iotlb *umem;
+>  =20
+>   	mutex_lock(&n->dev.mutex);
+>   	err =3D vhost_dev_check_owner(&n->dev);
+> diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
+> index ee0491f579ac..ba8e0d6cfd97 100644
+> --- a/drivers/vhost/vringh.c
+> +++ b/drivers/vhost/vringh.c
+> @@ -13,9 +13,11 @@
+>   #include <linux/uaccess.h>
+>   #include <linux/slab.h>
+>   #include <linux/export.h>
+> +#if IS_REACHABLE(CONFIG_VHOST_IOTLB)
+>   #include <linux/bvec.h>
+>   #include <linux/highmem.h>
+>   #include <linux/vhost_iotlb.h>
+> +#endif
+>   #include <uapi/linux/virtio_config.h>
+>  =20
+>   static __printf(1,2) __cold void vringh_bad(const char *fmt, ...)
+> @@ -1059,6 +1061,8 @@ int vringh_need_notify_kern(struct vringh *vrh)
+>   }
+>   EXPORT_SYMBOL(vringh_need_notify_kern);
+>  =20
+> +#if IS_REACHABLE(CONFIG_VHOST_IOTLB)
+> +
+>   static int iotlb_translate(const struct vringh *vrh,
+>   			   u64 addr, u64 len, struct bio_vec iov[],
+>   			   int iov_size, u32 perm)
+> @@ -1416,5 +1420,6 @@ int vringh_need_notify_iotlb(struct vringh *vrh)
+>   }
+>   EXPORT_SYMBOL(vringh_need_notify_iotlb);
+>  =20
+> +#endif
+>  =20
+>   MODULE_LICENSE("GPL");
+> diff --git a/include/linux/vringh.h b/include/linux/vringh.h
+> index bd0503ca6f8f..9e2763d7c159 100644
+> --- a/include/linux/vringh.h
+> +++ b/include/linux/vringh.h
+> @@ -14,8 +14,10 @@
+>   #include <linux/virtio_byteorder.h>
+>   #include <linux/uio.h>
+>   #include <linux/slab.h>
+> +#if IS_REACHABLE(CONFIG_VHOST_IOTLB)
+>   #include <linux/dma-direction.h>
+>   #include <linux/vhost_iotlb.h>
+> +#endif
+>   #include <asm/barrier.h>
+>  =20
+>   /* virtio_ring with information needed for host access. */
+> @@ -254,6 +256,8 @@ static inline __virtio64 cpu_to_vringh64(const stru=
+ct vringh *vrh, u64 val)
+>   	return __cpu_to_virtio64(vringh_is_little_endian(vrh), val);
+>   }
+>  =20
+> +#if IS_REACHABLE(CONFIG_VHOST_IOTLB)
+> +
+>   void vringh_set_iotlb(struct vringh *vrh, struct vhost_iotlb *iotlb);
+>  =20
+>   int vringh_init_iotlb(struct vringh *vrh, u64 features,
+> @@ -284,4 +288,6 @@ void vringh_notify_disable_iotlb(struct vringh *vrh=
+);
+>  =20
+>   int vringh_need_notify_iotlb(struct vringh *vrh);
+>  =20
+> +#endif /* CONFIG_VHOST_IOTLB */
+> +
+>   #endif /* _LINUX_VRINGH_H */
+> diff --git a/tools/virtio/Makefile b/tools/virtio/Makefile
+> index f33f32f1d208..b587b9a7a124 100644
+> --- a/tools/virtio/Makefile
+> +++ b/tools/virtio/Makefile
+> @@ -4,7 +4,7 @@ test: virtio_test vringh_test
+>   virtio_test: virtio_ring.o virtio_test.o
+>   vringh_test: vringh_test.o vringh.o virtio_ring.o
+>  =20
+> -CFLAGS +=3D -g -O2 -Werror -Wall -I. -I../include/ -I ../../usr/includ=
+e/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-commo=
+n -MMD -U_FORTIFY_SOURCE
+> +CFLAGS +=3D -g -O2 -Werror -Wall -I. -I../include/ -I ../../usr/includ=
+e/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-commo=
+n -MMD -U_FORTIFY_SOURCE -include ../../include/linux/kconfig.h
+>   vpath %.c ../../drivers/virtio ../../drivers/vhost
+>   mod:
+>   	${MAKE} -C `pwd`/../.. M=3D`pwd`/vhost_test V=3D${V}
+> @@ -22,7 +22,8 @@ OOT_CONFIGS=3D\
+>   	CONFIG_VHOST=3Dm \
+>   	CONFIG_VHOST_NET=3Dn \
+>   	CONFIG_VHOST_SCSI=3Dn \
+> -	CONFIG_VHOST_VSOCK=3Dn
+> +	CONFIG_VHOST_VSOCK=3Dn \
+> +	CONFIG_VHOST_RING=3Dn
+>   OOT_BUILD=3DKCFLAGS=3D"-I "${OOT_VHOST} ${MAKE} -C ${OOT_KSRC} V=3D${=
+V}
+>   oot-build:
+>   	echo "UNSUPPORTED! Don't use the resulting modules in production!"
+> diff --git a/tools/virtio/generated/autoconf.h b/tools/virtio/generated=
+/autoconf.h
+> new file mode 100644
+> index 000000000000..e69de29bb2d1
