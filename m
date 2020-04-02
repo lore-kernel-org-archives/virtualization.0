@@ -1,41 +1,85 @@
-From: YueHaibing <yuehaibing@huawei.com>
-Subject: [PATCH v3 -next] vdpasim: Return status in vdpasim_get_status
-Date: Thu, 2 Apr 2020 10:49:16 +0800
-Message-ID: <20200402024916.35192-1-yuehaibing@huawei.com>
-References: <20200331060858.32520-1-yuehaibing@huawei.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V9 1/9] vhost: refine vhost and vringh kconfig
+Date: Thu, 2 Apr 2020 11:22:57 +0800
+Message-ID: <c11c2195-88eb-2096-af47-40f2da5b389f@redhat.com>
+References: <20200326140125.19794-1-jasowang@redhat.com>
+ <20200326140125.19794-2-jasowang@redhat.com>
+ <20200401092004-mutt-send-email-mst@kernel.org>
+ <6b4d169a-9962-6014-5423-1507059343e9@redhat.com>
+ <20200401100954-mutt-send-email-mst@kernel.org>
+ <3dd3b7e7-e3d9-dba4-00fc-868081f95ab7@redhat.com>
+ <20200401120643-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200331060858.32520-1-yuehaibing@huawei.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: mst@redhat.com, jasowang@redhat.com, yuehaibing@huawei.com
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200401120643-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, mhabets@solarflare.com, virtualization@lists.linux-foundation.org, rob.miller@broadcom.com, saugatm@xilinx.com, lulu@redhat.com, hanand@xilinx.com, hch@infradead.org, eperezma@redhat.com, jgg@mellanox.com, shahafs@mellanox.com, parav@mellanox.com, vmireyno@marvell.com, gdawar@xilinx.com, jiri@mellanox.com, xiao.w.wang@intel.com, stefanha@redhat.com, zhihong.wang@intel.com, zhangweining@ruijie.com.cn, netdev@vger.kernel.org, rdunlap@infradead.org, linux-kernel@vger.kernel.org, maxime.coquelin@redhat.com, lingshan.zhu@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-vdpasim->status should acquired under spin lock.
-
-Fixes: 870448c31775 ("vdpasim: vDPA device simulator")
-Signed-off-by: YueHaibing <yuehaibing@huawei.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
----
-v3: rework based on commit a4be40cbcedb ("vdpa: move to drivers/vdpa")
-v2: Fix patch title typo
----
- drivers/vdpa/vdpa_sim/vdpa_sim.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-index 6e8a0cf2fdeb..72863d01a12a 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-@@ -488,7 +488,7 @@ static u8 vdpasim_get_status(struct vdpa_device *vdpa)
- 	status = vdpasim->status;
- 	spin_unlock(&vdpasim->lock);
- 
--	return vdpasim->status;
-+	return status;
- }
- 
- static void vdpasim_set_status(struct vdpa_device *vdpa, u8 status)
--- 
-2.17.1
+Ck9uIDIwMjAvNC8yIOS4iuWNiDEyOjA4LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gT24g
+V2VkLCBBcHIgMDEsIDIwMjAgYXQgMTA6Mjk6MzJQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToK
+Pj4gPkZyb20gOWIzYTVkMjNiOGJmNmIwYTExZTY1ZTY4ODMzNWQ3ODJmOGU2YWE1YyBNb24gU2Vw
+IDE3IDAwOjAwOjAwIDIwMDEKPj4gRnJvbTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNv
+bT4KPj4gRGF0ZTogV2VkLCAxIEFwciAyMDIwIDIyOjE3OjI3ICswODAwCj4+IFN1YmplY3Q6IFtQ
+QVRDSF0gdmhvc3Q6IGxldCBDT05GSUdfVkhPU1QgdG8gYmUgc2VsZWN0ZWQgYnkgZHJpdmVycwo+
+Pgo+PiBUaGUgZGVmY29uZmlnIG9uIHNvbWUgYXJjaHMgZW5hYmxlIHZob3N0X25ldCBvciB2aG9z
+dF92c29jayBieQo+PiBkZWZhdWx0LiBTbyBpbnN0ZWFkIG9mIGFkZGluZyBDT05GSUdfVkhPU1Q9
+bSB0byBhbGwgb2YgdGhvc2UgZmlsZXMsCj4+IHNpbXBseSBsZXR0aW5nIENPTkZJR19WSE9TVCB0
+byBiZSBzZWxlY3RlZCBieSBhbGwgb2YgdGhlIHZob3N0Cj4+IGRyaXZlcnMuIFRoaXMgZml4ZXMg
+dGhlIGJ1aWxkIG9uIHRoZSBhcmNocyB3aXRoIENPTkZJR19WSE9TVF9ORVQ9bSBpbgo+PiB0aGVp
+ciBkZWZjb25maWcuCj4+Cj4+IFNpZ25lZC1vZmYtYnk6IEphc29uIFdhbmcgPGphc293YW5nQHJl
+ZGhhdC5jb20+Cj4+IC0tLQo+PiAgIGRyaXZlcnMvdmhvc3QvS2NvbmZpZyB8IDE1ICsrKysrKysr
+KysrLS0tLQo+PiAgIDEgZmlsZSBjaGFuZ2VkLCAxMSBpbnNlcnRpb25zKCspLCA0IGRlbGV0aW9u
+cygtKQo+Pgo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aG9zdC9LY29uZmlnIGIvZHJpdmVycy92
+aG9zdC9LY29uZmlnCj4+IGluZGV4IDI1MjNhMWQ0MjkwYS4uMzYyYjgzMmY1MzM4IDEwMDY0NAo+
+PiAtLS0gYS9kcml2ZXJzL3Zob3N0L0tjb25maWcKPj4gKysrIGIvZHJpdmVycy92aG9zdC9LY29u
+ZmlnCj4+IEBAIC0xMSwxOSArMTEsMjMgQEAgY29uZmlnIFZIT1NUX1JJTkcKPj4gICAJICBUaGlz
+IG9wdGlvbiBpcyBzZWxlY3RlZCBieSBhbnkgZHJpdmVyIHdoaWNoIG5lZWRzIHRvIGFjY2Vzcwo+
+PiAgIAkgIHRoZSBob3N0IHNpZGUgb2YgYSB2aXJ0aW8gcmluZy4KPj4gICAKPj4gLW1lbnVjb25m
+aWcgVkhPU1QKPj4gLQl0cmlzdGF0ZSAiSG9zdCBrZXJuZWwgYWNjZWxlcmF0b3IgZm9yIHZpcnRp
+byAoVkhPU1QpIgo+PiAtCWRlcGVuZHMgb24gRVZFTlRGRAo+PiArY29uZmlnIFZIT1NUCj4+ICsJ
+dHJpc3RhdGUKPj4gICAJc2VsZWN0IFZIT1NUX0lPVExCCj4+ICAgCWhlbHAKPj4gICAJICBUaGlz
+IG9wdGlvbiBpcyBzZWxlY3RlZCBieSBhbnkgZHJpdmVyIHdoaWNoIG5lZWRzIHRvIGFjY2Vzcwo+
+PiAgIAkgIHRoZSBjb3JlIG9mIHZob3N0Lgo+PiAgIAo+PiAtaWYgVkhPU1QKPj4gK21lbnVjb25m
+aWcgVkhPU1RfTUVOVQo+PiArCWJvb2wgIlZIT1NUIGRyaXZlcnMiCj4+ICsJZGVmYXVsdCB5Cj4+
+ICsKPj4gK2lmIFZIT1NUX01FTlUKPj4gICAKPj4gICBjb25maWcgVkhPU1RfTkVUCj4+ICAgCXRy
+aXN0YXRlICJIb3N0IGtlcm5lbCBhY2NlbGVyYXRvciBmb3IgdmlydGlvIG5ldCIKPj4gICAJZGVw
+ZW5kcyBvbiBORVQgJiYgRVZFTlRGRCAmJiAoVFVOIHx8ICFUVU4pICYmIChUQVAgfHwgIVRBUCkK
+Pj4gKwlzZWxlY3QgVkhPU1QKPj4gICAJLS0taGVscC0tLQo+PiAgIAkgIFRoaXMga2VybmVsIG1v
+ZHVsZSBjYW4gYmUgbG9hZGVkIGluIGhvc3Qga2VybmVsIHRvIGFjY2VsZXJhdGUKPj4gICAJICBn
+dWVzdCBuZXR3b3JraW5nIHdpdGggdmlydGlvX25ldC4gTm90IHRvIGJlIGNvbmZ1c2VkIHdpdGgg
+dmlydGlvX25ldAo+PiBAQCAtMzUsNiArMzksNyBAQCBjb25maWcgVkhPU1RfTkVUCj4+ICAgY29u
+ZmlnIFZIT1NUX1NDU0kKPj4gICAJdHJpc3RhdGUgIlZIT1NUX1NDU0kgVENNIGZhYnJpYyBkcml2
+ZXIiCj4+ICAgCWRlcGVuZHMgb24gVEFSR0VUX0NPUkUgJiYgRVZFTlRGRAo+PiArCXNlbGVjdCBW
+SE9TVAo+PiAgIAlkZWZhdWx0IG4KPj4gICAJLS0taGVscC0tLQo+PiAgIAlTYXkgTSBoZXJlIHRv
+IGVuYWJsZSB0aGUgdmhvc3Rfc2NzaSBUQ00gZmFicmljIG1vZHVsZQo+PiBAQCAtNDMsNiArNDgs
+NyBAQCBjb25maWcgVkhPU1RfU0NTSQo+PiAgIGNvbmZpZyBWSE9TVF9WU09DSwo+PiAgIAl0cmlz
+dGF0ZSAidmhvc3QgdmlydGlvLXZzb2NrIGRyaXZlciIKPj4gICAJZGVwZW5kcyBvbiBWU09DS0VU
+UyAmJiBFVkVOVEZECj4+ICsJc2VsZWN0IFZIT1NUCj4+ICAgCXNlbGVjdCBWSVJUSU9fVlNPQ0tF
+VFNfQ09NTU9OCj4+ICAgCWRlZmF1bHQgbgo+PiAgIAktLS1oZWxwLS0tCj4+IEBAIC01Niw2ICs2
+Miw3IEBAIGNvbmZpZyBWSE9TVF9WU09DSwo+PiAgIGNvbmZpZyBWSE9TVF9WRFBBCj4+ICAgCXRy
+aXN0YXRlICJWaG9zdCBkcml2ZXIgZm9yIHZEUEEtYmFzZWQgYmFja2VuZCIKPj4gICAJZGVwZW5k
+cyBvbiBFVkVOVEZECj4+ICsJc2VsZWN0IFZIT1NUCgoKVGhpcyBwYXJ0IGlzIG5vdCBzcXVhc2hl
+ZC4KCgo+PiAgIAlzZWxlY3QgVkRQQQo+PiAgIAloZWxwCj4+ICAgCSAgVGhpcyBrZXJuZWwgbW9k
+dWxlIGNhbiBiZSBsb2FkZWQgaW4gaG9zdCBrZXJuZWwgdG8gYWNjZWxlcmF0ZQo+IE9LIHNvIEkg
+c3F1YXNoZWQgdGhpcyBpbnRvIHRoZSBvcmlnaW5hbCBidWdneSBwYXRjaC4KPiBDb3VsZCB5b3Ug
+cGxlYXNlIHBsYXkgd2l0aCB2aG9zdCBicmFuY2ggb2YgbXkgdHJlZSBvbiB2YXJpb3VzCj4gYXJj
+aGVzPyBJZiBpdCBsb29rcyBvayB0byB5b3UgbGV0IG1lIGtub3cgSSdsbCBwdXNoCj4gdGhpcyB0
+byBuZXh0LgoKCldpdGggdGhlIGFib3ZlIHBhcnQgc3F1YXNoZWQuIEkndmUgdGVzdGVkIGFsbCB0
+aGUgYXJjaHMgd2hvc2UgZGVmY29uZmlnIApoYXZlIFZIT1NUX05FVCBvciBWSE9TVF9WU09DSyBl
+bmFibGVkLgoKQWxsIGxvb2tzIGZpbmUuCgpUaGFua3MKCl9fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0
+dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4
+Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
