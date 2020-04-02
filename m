@@ -1,246 +1,136 @@
-From: Bharat Bhushan <bbhushan2-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-Subject: RE: [EXT] Re: [RFC PATCH v2] iommu/virtio: Use page size bitmap
- supported by endpoint
-Date: Thu, 2 Apr 2020 03:53:40 +0000
-Message-ID: <MWHPR1801MB19667BA1D59590BC3DFD87C7E3C60@MWHPR1801MB1966.namprd18.prod.outlook.com>
-References: <20200401113804.21616-1-bbhushan2@marvell.com>
- <b75beb74-89ce-fd6a-6207-3c0d7f479215@arm.com>
- <20200401154932.GA1124215@myrica>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] virtio/test: fix up after IOTLB changes
+Date: Thu, 2 Apr 2020 12:01:56 +0800
+Message-ID: <921fe999-e183-058d-722a-1a6a6ab066e0@redhat.com>
+References: <20200401165100.276039-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-In-Reply-To: <20200401154932.GA1124215@myrica>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200401165100.276039-1-mst@redhat.com>
 Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
- <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
- <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Sender: "iommu" <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-To: Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>
-Cc: "mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org" <mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, "iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, "jasowang-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org" <jasowang-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, "eric.auger.pro-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <eric.auger.pro-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: =?UTF-8?Q?Eugenio_P=c3=a9rez?= <eperezma@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
+On 2020/4/2 =E4=B8=8A=E5=8D=8812:51, Michael S. Tsirkin wrote:
+> Allow building vringh without IOTLB (that's the case for userspace
+> builds, will be useful for CAIF/VOD down the road too).
+> Update for API tweaks.
+> Don't include vringh with kernel builds.
 
-> -----Original Message-----
-> From: Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-> Sent: Wednesday, April 1, 2020 9:20 PM
-> To: Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>
-> Cc: Bharat Bhushan <bbhushan2-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>; joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org;
-> mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org; jasowang-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org; virtualization-cunTk1MwBs/ROKNJybVBZg@public.gmane.org
-> foundation.org; iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org; linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org;
-> eric.auger.pro-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org; eric.auger-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
-> Subject: [EXT] Re: [RFC PATCH v2] iommu/virtio: Use page size bitmap supported by
-> endpoint
-> 
-> External Email
-> 
-> ----------------------------------------------------------------------
-> On Wed, Apr 01, 2020 at 02:00:13PM +0100, Robin Murphy wrote:
-> > On 2020-04-01 12:38 pm, Bharat Bhushan wrote:
-> > > Different endpoint can support different page size, probe endpoint
-> > > if it supports specific page size otherwise use global page sizes.
-> > >
-> > > Signed-off-by: Bharat Bhushan <bbhushan2-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
-> > > ---
-> > >   drivers/iommu/virtio-iommu.c      | 33 +++++++++++++++++++++++++++----
-> > >   include/uapi/linux/virtio_iommu.h |  7 +++++++
-> > >   2 files changed, 36 insertions(+), 4 deletions(-)
-> > >
-> > > diff --git a/drivers/iommu/virtio-iommu.c
-> > > b/drivers/iommu/virtio-iommu.c index cce329d71fba..c794cb5b7b3e
-> > > 100644
-> > > --- a/drivers/iommu/virtio-iommu.c
-> > > +++ b/drivers/iommu/virtio-iommu.c
-> > > @@ -78,6 +78,7 @@ struct viommu_endpoint {
-> > >   	struct viommu_dev		*viommu;
-> > >   	struct viommu_domain		*vdomain;
-> > >   	struct list_head		resv_regions;
-> > > +	u64				pgsize_bitmap;
-> > >   };
-> > >   struct viommu_request {
-> > > @@ -415,6 +416,20 @@ static int viommu_replay_mappings(struct
-> viommu_domain *vdomain)
-> > >   	return ret;
-> > >   }
-> > > +static int viommu_set_pgsize_bitmap(struct viommu_endpoint *vdev,
-> > > +				    struct virtio_iommu_probe_pgsize_mask *mask,
-> > > +				    size_t len)
-> > > +
-> > > +{
-> > > +	u64 pgsize_bitmap = le64_to_cpu(mask->pgsize_bitmap);
-> > > +
-> > > +	if (len < sizeof(*mask))
-> > > +		return -EINVAL;
-> > > +
-> > > +	vdev->pgsize_bitmap = pgsize_bitmap;
-> > > +	return 0;
-> > > +}
-> > > +
-> > >   static int viommu_add_resv_mem(struct viommu_endpoint *vdev,
-> > >   			       struct virtio_iommu_probe_resv_mem *mem,
-> > >   			       size_t len)
-> > > @@ -494,11 +509,13 @@ static int viommu_probe_endpoint(struct
-> viommu_dev *viommu, struct device *dev)
-> > >   	while (type != VIRTIO_IOMMU_PROBE_T_NONE &&
-> > >   	       cur < viommu->probe_size) {
-> > >   		len = le16_to_cpu(prop->length) + sizeof(*prop);
-> > > -
-> 
-> Whitespace change
-> 
-> > >   		switch (type) {
-> > >   		case VIRTIO_IOMMU_PROBE_T_RESV_MEM:
-> > >   			ret = viommu_add_resv_mem(vdev, (void *)prop, len);
-> > >   			break;
-> > > +		case VIRTIO_IOMMU_PROBE_T_PAGE_SIZE_MASK:
-> > > +			ret = viommu_set_pgsize_bitmap(vdev, (void *)prop, len);
-> > > +			break;
-> > >   		default:
-> > >   			dev_err(dev, "unknown viommu prop 0x%x\n", type);
-> > >   		}
-> > > @@ -607,16 +624,23 @@ static struct iommu_domain
-> *viommu_domain_alloc(unsigned type)
-> > >   	return &vdomain->domain;
-> > >   }
-> > > -static int viommu_domain_finalise(struct viommu_dev *viommu,
-> > > +static int viommu_domain_finalise(struct viommu_endpoint *vdev,
-> > >   				  struct iommu_domain *domain)
-> > >   {
-> > >   	int ret;
-> > >   	struct viommu_domain *vdomain = to_viommu_domain(domain);
-> > > +	struct viommu_dev *viommu = vdev->viommu;
-> > >   	vdomain->viommu		= viommu;
-> > >   	vdomain->map_flags	= viommu->map_flags;
-> > > -	domain->pgsize_bitmap	= viommu->pgsize_bitmap;
-> > > +	/* Devices in same domain must support same size pages */
-> >
-> > AFAICS what the code appears to do is enforce that the first endpoint
-> > attached to any domain has the same pgsize_bitmap as the most recently
-> > probed viommu_dev instance, then ignore any subsequent endpoints
-> > attached to the same domain. Thus I'm not sure that comment is accurate.
-> >
-> 
-> Yes viommu_domain_finalise() is only called once. What I had in mind is
-> something like:
 
-Ohh, I did not realized that viommu_domain_finalise().
-I have included below suggested changes
+I'm not quite sure we need this.
 
-> 
-> ---- 8< ----
-> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c index
-> 750f69c49b95..8303b7b513ff 100644
-> --- a/drivers/iommu/virtio-iommu.c
-> +++ b/drivers/iommu/virtio-iommu.c
-> @@ -639,6 +639,29 @@ static int viommu_domain_finalise(struct
-> viommu_endpoint *vdev,
->  	return 0;
->  }
-> 
-> +/*
-> + * Check whether the endpoint's capabilities are compatible with other
-> +endpoints
-> + * in the domain. Report any inconsistency.
-> + */
-> +static bool viommu_endpoint_is_compatible(struct viommu_endpoint *vdev,
-> +					  struct viommu_domain *vdomain)
-> +{
-> +	struct device *dev = vdev->dev;
-> +
-> +	if (vdomain->viommu != vdev->viommu) {
-> +		dev_err(dev, "cannot attach to foreign vIOMMU\n");
-> +		return false;
-> +	}
-> +
-> +	if (vdomain->domain.pgsize_bitmap != vdev->pgsize_bitmap) {
-> +		dev_err(dev, "incompatible domain bitmap 0x%lx != 0x%lx\n",
-> +			vdomain->domain.pgsize_bitmap, vdev->pgsize_bitmap);
-> +		return false;
-> +	}
-> +
-> +	return true;
-> +}
-> +
->  static void viommu_domain_free(struct iommu_domain *domain)  {
->  	struct viommu_domain *vdomain = to_viommu_domain(domain); @@ -
-> 670,9 +693,8 @@ static int viommu_attach_dev(struct iommu_domain *domain,
-> struct device *dev)
->  		 * owns it.
->  		 */
->  		ret = viommu_domain_finalise(vdev, domain);
-> -	} else if (vdomain->viommu != vdev->viommu) {
-> -		dev_err(dev, "cannot attach to foreign vIOMMU\n");
-> -		ret = -EXDEV;
-> +	} else if (!viommu_endpoint_is_compatible(vdev, vdomain)) {
-> +		ret = -EINVAL;
->  	}
->  	mutex_unlock(&vdomain->mutex);
-> ---- >8 ----
-> 
-> >
-> > > +	if ((domain->pgsize_bitmap != viommu->pgsize_bitmap) &&
-> > > +	    (domain->pgsize_bitmap != vdev->pgsize_bitmap))
-> > > +		return -EINVAL;
-> > > +
-> > > +	domain->pgsize_bitmap = vdev->pgsize_bitmap;
-> > > +
-> > >   	domain->geometry	= viommu->geometry;
-> > >   	ret = ida_alloc_range(&viommu->domain_ids, viommu->first_domain,
-> > > @@ -657,7 +681,7 @@ static int viommu_attach_dev(struct iommu_domain
-> *domain, struct device *dev)
-> > >   		 * Properly initialize the domain now that we know which viommu
-> > >   		 * owns it.
-> > >   		 */
-> > > -		ret = viommu_domain_finalise(vdev->viommu, domain);
-> > > +		ret = viommu_domain_finalise(vdev, domain);
-> > >   	} else if (vdomain->viommu != vdev->viommu) {
-> > >   		dev_err(dev, "cannot attach to foreign vIOMMU\n");
-> > >   		ret = -EXDEV;
-> > > @@ -875,6 +899,7 @@ static int viommu_add_device(struct device *dev)
-> > >   	vdev->dev = dev;
-> > >   	vdev->viommu = viommu;
-> > > +	vdev->pgsize_bitmap = viommu->pgsize_bitmap;
-> > >   	INIT_LIST_HEAD(&vdev->resv_regions);
-> > >   	fwspec->iommu_priv = vdev;
-> > > diff --git a/include/uapi/linux/virtio_iommu.h
-> > > b/include/uapi/linux/virtio_iommu.h
-> > > index 237e36a280cb..dc9d3f40bcd8 100644
-> > > --- a/include/uapi/linux/virtio_iommu.h
-> > > +++ b/include/uapi/linux/virtio_iommu.h
-> > > @@ -111,6 +111,7 @@ struct virtio_iommu_req_unmap {
-> > >   #define VIRTIO_IOMMU_PROBE_T_NONE		0
-> > >   #define VIRTIO_IOMMU_PROBE_T_RESV_MEM		1
-> > > +#define VIRTIO_IOMMU_PROBE_T_PAGE_SIZE_MASK	2
-> > >   #define VIRTIO_IOMMU_PROBE_T_MASK		0xfff
-> > > @@ -119,6 +120,12 @@ struct virtio_iommu_probe_property {
-> > >   	__le16					length;
-> > >   };
-> > > +struct virtio_iommu_probe_pgsize_mask {
-> > > +	struct virtio_iommu_probe_property	head;
-> > > +	__u8					reserved[4];
-> > > +	__u64					pgsize_bitmap;
-> 
-> Should be __le64
+E.g the userspace accessor is not used by CAIF/VOP.
 
-Based on" iommu/virtio: Fix sparse warning" patch https://www.spinics.net/lists/linux-virtualization/msg41944.html changed to __u64 (not __le64)
 
-Will keep __le64.
+>
+> Cc: Jason Wang <jasowang@redhat.com>
+> Cc: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>   drivers/vhost/test.c   | 4 ++--
+>   drivers/vhost/vringh.c | 5 +++++
+>   include/linux/vringh.h | 2 ++
+>   tools/virtio/Makefile  | 3 ++-
+>   4 files changed, 11 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
+> index 394e2e5c772d..9a3a09005e03 100644
+> --- a/drivers/vhost/test.c
+> +++ b/drivers/vhost/test.c
+> @@ -120,7 +120,7 @@ static int vhost_test_open(struct inode *inode, str=
+uct file *f)
+>   	vqs[VHOST_TEST_VQ] =3D &n->vqs[VHOST_TEST_VQ];
+>   	n->vqs[VHOST_TEST_VQ].handle_kick =3D handle_vq_kick;
+>   	vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX, UIO_MAXIOV,
+> -		       VHOST_TEST_PKT_WEIGHT, VHOST_TEST_WEIGHT);
+> +		       VHOST_TEST_PKT_WEIGHT, VHOST_TEST_WEIGHT, NULL);
+>  =20
+>   	f->private_data =3D n;
+>  =20
+> @@ -225,7 +225,7 @@ static long vhost_test_reset_owner(struct vhost_tes=
+t *n)
+>   {
+>   	void *priv =3D NULL;
+>   	long err;
+> -	struct vhost_umem *umem;
+> +	struct vhost_iotlb *umem;
+>  =20
+>   	mutex_lock(&n->dev.mutex);
+>   	err =3D vhost_dev_check_owner(&n->dev);
+> diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
+> index ee0491f579ac..878e565dfffe 100644
+> --- a/drivers/vhost/vringh.c
+> +++ b/drivers/vhost/vringh.c
+> @@ -13,9 +13,11 @@
+>   #include <linux/uaccess.h>
+>   #include <linux/slab.h>
+>   #include <linux/export.h>
+> +#ifdef VHOST_IOTLB
+
+
+Kbuild bot reports build issues with this.
+
+It looks to me we should use #if IS_ENABLED(CONFIG_VHOST_IOTLB) here and=20
+following checks.
 
 Thanks
--Bharat
 
-> 
-> Thanks,
-> Jean
-> 
-> > > +};
-> > > +
-> > >   #define VIRTIO_IOMMU_RESV_MEM_T_RESERVED	0
-> > >   #define VIRTIO_IOMMU_RESV_MEM_T_MSI		1
-> > >
+
+>   #include <linux/bvec.h>
+>   #include <linux/highmem.h>
+>   #include <linux/vhost_iotlb.h>
+> +#endif
+>   #include <uapi/linux/virtio_config.h>
+>  =20
+>   static __printf(1,2) __cold void vringh_bad(const char *fmt, ...)
+> @@ -1059,6 +1061,8 @@ int vringh_need_notify_kern(struct vringh *vrh)
+>   }
+>   EXPORT_SYMBOL(vringh_need_notify_kern);
+>  =20
+> +#ifdef VHOST_IOTLB
+> +
+>   static int iotlb_translate(const struct vringh *vrh,
+>   			   u64 addr, u64 len, struct bio_vec iov[],
+>   			   int iov_size, u32 perm)
+> @@ -1416,5 +1420,6 @@ int vringh_need_notify_iotlb(struct vringh *vrh)
+>   }
+>   EXPORT_SYMBOL(vringh_need_notify_iotlb);
+>  =20
+> +#endif
+>  =20
+>   MODULE_LICENSE("GPL");
+> diff --git a/include/linux/vringh.h b/include/linux/vringh.h
+> index bd0503ca6f8f..ebff121c0b02 100644
+> --- a/include/linux/vringh.h
+> +++ b/include/linux/vringh.h
+> @@ -14,8 +14,10 @@
+>   #include <linux/virtio_byteorder.h>
+>   #include <linux/uio.h>
+>   #include <linux/slab.h>
+> +#ifdef VHOST_IOTLB
+>   #include <linux/dma-direction.h>
+>   #include <linux/vhost_iotlb.h>
+> +#endif
+>   #include <asm/barrier.h>
+>  =20
+>   /* virtio_ring with information needed for host access. */
+> diff --git a/tools/virtio/Makefile b/tools/virtio/Makefile
+> index f33f32f1d208..d3f152f4660b 100644
+> --- a/tools/virtio/Makefile
+> +++ b/tools/virtio/Makefile
+> @@ -22,7 +22,8 @@ OOT_CONFIGS=3D\
+>   	CONFIG_VHOST=3Dm \
+>   	CONFIG_VHOST_NET=3Dn \
+>   	CONFIG_VHOST_SCSI=3Dn \
+> -	CONFIG_VHOST_VSOCK=3Dn
+> +	CONFIG_VHOST_VSOCK=3Dn \
+> +	CONFIG_VHOST_RING=3Dn
+>   OOT_BUILD=3DKCFLAGS=3D"-I "${OOT_VHOST} ${MAKE} -C ${OOT_KSRC} V=3D${=
+V}
+>   oot-build:
+>   	echo "UNSUPPORTED! Don't use the resulting modules in production!"
