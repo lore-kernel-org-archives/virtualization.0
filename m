@@ -1,126 +1,36 @@
-From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
-Subject: [PATCH 7/8] tools/virtio: Reset index in virtio_test --reset.
-Date: Fri,  3 Apr 2020 18:51:18 +0200
-Message-ID: <20200403165119.5030-8-eperezma@redhat.com>
-References: <20200403165119.5030-1-eperezma@redhat.com>
+From: Eric Anholt <eric@anholt.net>
+Subject: Re: [PATCH 40/44] drm/cirrus: Don't use drm_device->dev_private
+Date: Fri, 3 Apr 2020 10:40:27 -0700
+Message-ID: <CADaigPWZ9LHOoOPAX442nrXE2rdko04fHsJkuZcgdraicge6zQ@mail.gmail.com>
+References: <20200403135828.2542770-1-daniel.vetter@ffwll.ch>
+ <20200403135828.2542770-41-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200403165119.5030-1-eperezma@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm list <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Linux Next Mailing List <linux-next@vger.kernel.org>, =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>, Stephen Rothwell <sfr@canb.auug.org.au>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Christian Borntraeger <borntraeger@de.ibm.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200403135828.2542770-41-daniel.vetter@ffwll.ch>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Intel Graphics Development <intel-gfx@lists.freedesktop.org>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, =?UTF-8?Q?Noralf_Tr=C3=B8nnes?= <noralf@tronnes.org>, Thomas Zimmermann <tzimmermann@suse.de>, Dave Airlie <airlied@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>, Sam Ravnborg <sam@ravnborg.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This way behavior for vhost is more like a VM.
-
-Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
----
- tools/virtio/virtio_test.c | 33 ++++++++++++++++++++++++++-------
- 1 file changed, 26 insertions(+), 7 deletions(-)
-
-diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
-index 7b7829e510c0..82902fc3ba2a 100644
---- a/tools/virtio/virtio_test.c
-+++ b/tools/virtio/virtio_test.c
-@@ -20,7 +20,6 @@
- #include "../../drivers/vhost/test.h"
-=20
- #define RANDOM_BATCH -1
--#define RANDOM_RESET -1
-=20
- /* Unused */
- void *__kmalloc_fake, *__kfree_ignore_start, *__kfree_ignore_end;
-@@ -49,6 +48,7 @@ struct vdev_info {
-=20
- static const struct vhost_vring_file no_backend =3D { .fd =3D -1 },
- 				     backend =3D { .fd =3D 1 };
-+static const struct vhost_vring_state null_state =3D {};
-=20
- bool vq_notify(struct virtqueue *vq)
- {
-@@ -174,14 +174,19 @@ static void run_test(struct vdev_info *dev, struct =
-vq_info *vq,
- 	unsigned len;
- 	long long spurious =3D 0;
- 	const bool random_batch =3D batch =3D=3D RANDOM_BATCH;
-+
- 	r =3D ioctl(dev->control, VHOST_TEST_RUN, &test);
- 	assert(r >=3D 0);
-+	if (!reset_n) {
-+		next_reset =3D INT_MAX;
-+	}
-+
- 	for (;;) {
- 		virtqueue_disable_cb(vq->vq);
- 		completed_before =3D completed;
- 		started_before =3D started;
- 		do {
--			const bool reset =3D reset_n && completed > next_reset;
-+			const bool reset =3D completed > next_reset;
- 			if (random_batch)
- 				batch =3D (random() % vq->vring.num) + 1;
-=20
-@@ -224,10 +229,24 @@ static void run_test(struct vdev_info *dev, struct =
-vq_info *vq,
- 			}
-=20
- 			if (reset) {
-+				struct vhost_vring_state s =3D { .index =3D 0 };
-+
-+				vq_reset(vq, vq->vring.num, &dev->vdev);
-+
-+				r =3D ioctl(dev->control, VHOST_GET_VRING_BASE,
-+					  &s);
-+				assert(!r);
-+
-+				s.num =3D 0;
-+				r =3D ioctl(dev->control, VHOST_SET_VRING_BASE,
-+					  &null_state);
-+				assert(!r);
-+
- 				r =3D ioctl(dev->control, VHOST_TEST_SET_BACKEND,
- 					  &backend);
- 				assert(!r);
-=20
-+				started =3D completed;
- 				while (completed > next_reset)
- 					next_reset +=3D completed;
- 			}
-@@ -249,7 +268,9 @@ static void run_test(struct vdev_info *dev, struct vq=
-_info *vq,
- 	test =3D 0;
- 	r =3D ioctl(dev->control, VHOST_TEST_RUN, &test);
- 	assert(r >=3D 0);
--	fprintf(stderr, "spurious wakeups: 0x%llx\n", spurious);
-+	fprintf(stderr,
-+		"spurious wakeups: 0x%llx started=3D0x%lx completed=3D0x%lx\n",
-+		spurious, started, completed);
- }
-=20
- const char optstring[] =3D "h";
-@@ -312,7 +333,7 @@ static void help(void)
- 		" [--no-virtio-1]"
- 		" [--delayed-interrupt]"
- 		" [--batch=3Drandom/N]"
--		" [--reset=3Drandom/N]"
-+		" [--reset=3DN]"
- 		"\n");
- }
-=20
-@@ -360,11 +381,9 @@ int main(int argc, char **argv)
- 		case 'r':
- 			if (!optarg) {
- 				reset =3D 1;
--			} else if (0 =3D=3D strcmp(optarg, "random")) {
--				reset =3D RANDOM_RESET;
- 			} else {
- 				reset =3D strtol(optarg, NULL, 10);
--				assert(reset >=3D 0);
-+				assert(reset > 0);
- 				assert(reset < (long)INT_MAX + 1);
- 			}
- 			break;
---=20
-2.18.1
+T24gRnJpLCBBcHIgMywgMjAyMCBhdCA2OjU5IEFNIERhbmllbCBWZXR0ZXIgPGRhbmllbC52ZXR0
+ZXJAZmZ3bGwuY2g+IHdyb3RlOgo+Cj4gVXBjYXN0aW5nIHVzaW5nIGEgY29udGFpbmVyX29mIG1h
+Y3JvIGlzIG1vcmUgdHlwZXNhZmUsIGZhc3RlciBhbmQKPiBlYXNpZXIgZm9yIHRoZSBjb21waWxl
+ciB0byBvcHRpbWl6ZS4KPgo+IFNpZ25lZC1vZmYtYnk6IERhbmllbCBWZXR0ZXIgPGRhbmllbC52
+ZXR0ZXJAaW50ZWwuY29tPgo+IENjOiBEYXZlIEFpcmxpZSA8YWlybGllZEByZWRoYXQuY29tPgo+
+IENjOiBHZXJkIEhvZmZtYW5uIDxrcmF4ZWxAcmVkaGF0LmNvbT4KPiBDYzogRGFuaWVsIFZldHRl
+ciA8ZGFuaWVsLnZldHRlckBmZndsbC5jaD4KPiBDYzogIk5vcmFsZiBUcsO4bm5lcyIgPG5vcmFs
+ZkB0cm9ubmVzLm9yZz4KPiBDYzogU2FtIFJhdm5ib3JnIDxzYW1AcmF2bmJvcmcub3JnPgoKQWNr
+ZWQtYnk6IEVyaWMgQW5ob2x0IDxlcmljQGFuaG9sdC5uZXQ+Cl9fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
+aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
+bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
