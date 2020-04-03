@@ -1,7 +1,7 @@
 From: Bharat Bhushan <bbhushan2@marvell.com>
-Subject: [RFC PATCH v3] iommu/virtio: Use page size bitmap supported by endpoint
-Date: Fri, 3 Apr 2020 09:59:46 +0530
-Message-ID: <20200403042946.28326-1-bbhushan2@marvell.com>
+Subject: [RFC PATCH v4] iommu/virtio: Use page size bitmap supported by endpoint
+Date: Fri, 3 Apr 2020 10:04:29 +0530
+Message-ID: <20200403043429.28484-1-bbhushan2@marvell.com>
 Mime-Version: 1.0
 Content-Type: text/plain
 Return-path: <linux-kernel-owner@vger.kernel.org>
@@ -16,12 +16,19 @@ global page sizes.
 
 Signed-off-by: Bharat Bhushan <bbhushan2@marvell.com>
 ---
- drivers/iommu/virtio-iommu.c      | 54 +++++++++++++++++++++++++++----
+v3->v4:
+ - Fix whitespace error
+
+v2->v3:
+ - Fixed error return for incompatible endpoint
+ - __u64 changed to __le64 in header file
+
+ drivers/iommu/virtio-iommu.c      | 53 +++++++++++++++++++++++++++----
  include/uapi/linux/virtio_iommu.h |  7 ++++
- 2 files changed, 55 insertions(+), 6 deletions(-)
+ 2 files changed, 54 insertions(+), 6 deletions(-)
 
 diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-index cce329d71fba..2ea9e143d95c 100644
+index cce329d71fba..ab09c04b1702 100644
 --- a/drivers/iommu/virtio-iommu.c
 +++ b/drivers/iommu/virtio-iommu.c
 @@ -78,6 +78,7 @@ struct viommu_endpoint {
@@ -32,14 +39,13 @@ index cce329d71fba..2ea9e143d95c 100644
  };
  
  struct viommu_request {
-@@ -415,6 +416,20 @@ static int viommu_replay_mappings(struct viommu_domain *vdomain)
+@@ -415,6 +416,19 @@ static int viommu_replay_mappings(struct viommu_domain *vdomain)
  	return ret;
  }
  
 +static int viommu_set_pgsize_bitmap(struct viommu_endpoint *vdev,
 +				    struct virtio_iommu_probe_pgsize_mask *mask,
 +				    size_t len)
-+
 +{
 +	u64 pgsize_bitmap = le64_to_cpu(mask->pgsize_bitmap);
 +
@@ -53,7 +59,7 @@ index cce329d71fba..2ea9e143d95c 100644
  static int viommu_add_resv_mem(struct viommu_endpoint *vdev,
  			       struct virtio_iommu_probe_resv_mem *mem,
  			       size_t len)
-@@ -499,6 +514,9 @@ static int viommu_probe_endpoint(struct viommu_dev *viommu, struct device *dev)
+@@ -499,6 +513,9 @@ static int viommu_probe_endpoint(struct viommu_dev *viommu, struct device *dev)
  		case VIRTIO_IOMMU_PROBE_T_RESV_MEM:
  			ret = viommu_add_resv_mem(vdev, (void *)prop, len);
  			break;
@@ -63,7 +69,7 @@ index cce329d71fba..2ea9e143d95c 100644
  		default:
  			dev_err(dev, "unknown viommu prop 0x%x\n", type);
  		}
-@@ -607,16 +625,17 @@ static struct iommu_domain *viommu_domain_alloc(unsigned type)
+@@ -607,16 +624,17 @@ static struct iommu_domain *viommu_domain_alloc(unsigned type)
  	return &vdomain->domain;
  }
  
@@ -83,7 +89,7 @@ index cce329d71fba..2ea9e143d95c 100644
  	domain->geometry	= viommu->geometry;
  
  	ret = ida_alloc_range(&viommu->domain_ids, viommu->first_domain,
-@@ -642,6 +661,29 @@ static void viommu_domain_free(struct iommu_domain *domain)
+@@ -642,6 +660,29 @@ static void viommu_domain_free(struct iommu_domain *domain)
  	kfree(vdomain);
  }
  
@@ -113,7 +119,7 @@ index cce329d71fba..2ea9e143d95c 100644
  static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
  {
  	int i;
-@@ -657,10 +699,9 @@ static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
+@@ -657,10 +698,9 @@ static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
  		 * Properly initialize the domain now that we know which viommu
  		 * owns it.
  		 */
@@ -127,7 +133,7 @@ index cce329d71fba..2ea9e143d95c 100644
  	}
  	mutex_unlock(&vdomain->mutex);
  
-@@ -875,6 +916,7 @@ static int viommu_add_device(struct device *dev)
+@@ -875,6 +915,7 @@ static int viommu_add_device(struct device *dev)
  
  	vdev->dev = dev;
  	vdev->viommu = viommu;
