@@ -1,61 +1,54 @@
-From: Pavel Begunkov <asml.silence@gmail.com>
-Subject: Re: [PATCH 5/6] kernel: better document the
- use_mm/unuse_mm API contract
-Date: Sat, 4 Apr 2020 16:07:31 +0300
-Message-ID: <8c1e6600-bee3-d074-28e6-813a6dbf5fd0@gmail.com>
-References: <20200404094101.672954-1-hch@lst.de>
- <20200404094101.672954-6-hch@lst.de>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] vdpa-sim: depend on HAS_DMA
+Date: Sun, 5 Apr 2020 04:14:00 -0400
+Message-ID: <20200405081355.2870-1-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-In-Reply-To: <20200404094101.672954-6-hch@lst.de>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Christoph Hellwig <hch@lst.de>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>
-Cc: Jens Axboe <axboe@kernel.dk>, Felipe Balbi <balbi@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, intel-gvt-dev@lists.freedesktop.org, Felix Kuehling <Felix.Kuehling@amd.com>, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Al Viro <viro@zeniv.linux.org.uk>, linux-fsdevel@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>, intel-gfx@lists.freedesktop.org, io-uring@vger.kernel.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 04/04/2020 12:41, Christoph Hellwig wrote:
-> Switch the function documentation to kerneldoc comments, and add
-> WARN_ON_ONCE asserts that the calling thread is a kernel thread and
-> does not have ->mm set (or has ->mm set in the case of unuse_mm).
-> 
-> Also give the functions a kthread_ prefix to better document the
-> use case.
-> 
+set_dma_ops isn't available on all architectures:
 
-io_uring and io-wq bits LGTM.
-
-> --- a/include/linux/kthread.h
-> +++ b/include/linux/kthread.h
+        make ARCH=um
 ...
-> -/*
-> - * unuse_mm
-> - *	Reverses the effect of use_mm, i.e. releases the
-> - *	specified mm context which was earlier taken on
-> - *	by the calling kernel thread
-> - *	(Note: this routine is intended to be called only
-> - *	from a kernel thread context)
-> +/**
-> + * kthread_use_mm - reverse the effect of kthread_use_mm()
 
-s/kthread_use_mm/kthread_unuse_mm/
-for the first one
+   drivers/vdpa/vdpa_sim/vdpa_sim.c: In function 'vdpasim_create':
+>> drivers/vdpa/vdpa_sim/vdpa_sim.c:324:2: error: implicit declaration of function 'set_dma_ops'; did you mean 'set_groups'?
++[-Werror=implicit-function-declaration]
+     set_dma_ops(dev, &vdpasim_dma_ops);
+     ^~~~~~~~~~~
+     set_groups
 
-> + * @mm: address space to operate on
->   */
-> -void unuse_mm(struct mm_struct *mm)
-> +void kthread_unuse_mm(struct mm_struct *mm)
->  {
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/vdpa/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
+index 08b615f2da39..d0cb0e583a5d 100644
+--- a/drivers/vdpa/Kconfig
++++ b/drivers/vdpa/Kconfig
+@@ -14,7 +14,7 @@ if VDPA_MENU
+ 
+ config VDPA_SIM
+ 	tristate "vDPA device simulator"
+-	depends on RUNTIME_TESTING_MENU
++	depends on RUNTIME_TESTING_MENU && HAS_DMA
+ 	select VDPA
+ 	select VHOST_RING
+ 	select VHOST_IOTLB
 -- 
-Pavel Begunkov
+MST
