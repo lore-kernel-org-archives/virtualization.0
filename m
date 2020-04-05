@@ -1,47 +1,70 @@
-From: Markus Elfring <Markus.Elfring@web.de>
-Subject: [PATCH] virtio-mmio: Delete an error message in vm_find_vqs()
-Date: Sun, 5 Apr 2020 19:19:34 +0200
-Message-ID: <9e27bc4a-cfa1-7818-dc25-8ad308816b30@web.de>
+From: andrew@daynix.com
+Subject: [PATCH] Fix: buffer overflow during hvc_alloc().
+Date: Sun,  5 Apr 2020 23:40:24 +0300
+Message-ID: <20200405204024.1007843-1-andrew@daynix.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: virtualization@lists.linux-foundation.org, Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Tang Bin <tangbin@cmss.chinamobile.com>
+To: virtualization@lists.linux-foundation.org
+Cc: gregkh@linuxfoundation.org, jslaby@suse.com, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Markus Elfring <elfring@users.sourceforge.net>
-Date: Sun, 5 Apr 2020 19:14:10 +0200
+From: Andrew Melnychenko <andrew@daynix.com>
 
-The function =E2=80=9Cplatform_get_irq=E2=80=9D can log an error already.
-Thus omit a redundant message for the exception handling in the
-calling function.
+If there is a lot(more then 16) of virtio-console devices
+or virtio_console module is reloaded
+- buffers 'vtermnos' and 'cons_ops' are overflowed.
+In older kernels it overruns spinlock which leads to kernel freezing:
+https://bugzilla.redhat.com/show_bug.cgi?id=1786239
 
-This issue was detected by using the Coccinelle software.
+Signed-off-by: Andrew Melnychenko <andrew@daynix.com>
+---
+ drivers/tty/hvc/hvc_console.c | 23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
-Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
-=2D--
- drivers/virtio/virtio_mmio.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
-
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 97d5725fd9a2..9d16aaffca9d 100644
-=2D-- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -466,10 +466,8 @@ static int vm_find_vqs(struct virtio_device *vdev, un=
-signed nvqs,
- 	int irq =3D platform_get_irq(vm_dev->pdev, 0);
- 	int i, err, queue_idx =3D 0;
-
--	if (irq < 0) {
--		dev_err(&vdev->dev, "Cannot get IRQ resource\n");
-+	if (irq < 0)
- 		return irq;
--	}
-
- 	err =3D request_irq(irq, vm_interrupt, IRQF_SHARED,
- 			dev_name(&vdev->dev), vm_dev);
-=2D-
-2.26.0
+diff --git a/drivers/tty/hvc/hvc_console.c b/drivers/tty/hvc/hvc_console.c
+index 27284a2dcd2b..436cc51c92c3 100644
+--- a/drivers/tty/hvc/hvc_console.c
++++ b/drivers/tty/hvc/hvc_console.c
+@@ -302,10 +302,6 @@ int hvc_instantiate(uint32_t vtermno, int index, const struct hv_ops *ops)
+ 	vtermnos[index] = vtermno;
+ 	cons_ops[index] = ops;
+ 
+-	/* reserve all indices up to and including this index */
+-	if (last_hvc < index)
+-		last_hvc = index;
+-
+ 	/* check if we need to re-register the kernel console */
+ 	hvc_check_console(index);
+ 
+@@ -960,13 +956,22 @@ struct hvc_struct *hvc_alloc(uint32_t vtermno, int data,
+ 		    cons_ops[i] == hp->ops)
+ 			break;
+ 
+-	/* no matching slot, just use a counter */
+-	if (i >= MAX_NR_HVC_CONSOLES)
+-		i = ++last_hvc;
++	if (i >= MAX_NR_HVC_CONSOLES) {
++
++		/* find 'empty' slot for console */
++		for (i = 0; i < MAX_NR_HVC_CONSOLES && vtermnos[i] != -1; i++) {
++		}
++
++		/* no matching slot, just use a counter */
++		if (i == MAX_NR_HVC_CONSOLES)
++			i = ++last_hvc + MAX_NR_HVC_CONSOLES;
++	}
+ 
+ 	hp->index = i;
+-	cons_ops[i] = ops;
+-	vtermnos[i] = vtermno;
++	if (i < MAX_NR_HVC_CONSOLES) {
++		cons_ops[i] = ops;
++		vtermnos[i] = vtermno;
++	}
+ 
+ 	list_add_tail(&(hp->next), &hvc_structs);
+ 	mutex_unlock(&hvc_structs_mutex);
+-- 
+2.24.1
