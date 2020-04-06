@@ -1,41 +1,35 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] vdpa-sim: depend on HAS_DMA
-Date: Mon, 6 Apr 2020 11:50:30 -0400
-Message-ID: <20200406115000-mutt-send-email-mst@kernel.org>
-References: <20200405081355.2870-1-mst@redhat.com>
- <20200406130927.GA20291@infradead.org>
- <20200406095931-mutt-send-email-mst@kernel.org>
- <0f4f2502-e810-e87a-2fba-dc887d2f4272@redhat.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Re: [PATCH v2 1/2] virtio: stop using legacy struct vring
+Date: Mon, 6 Apr 2020 17:56:02 +0200
+Message-ID: <20200406155602.GA160445@kroah.com>
+References: <20200406153245.127680-1-mst@redhat.com>
+ <20200406153245.127680-2-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <0f4f2502-e810-e87a-2fba-dc887d2f4272@redhat.com>
+In-Reply-To: <20200406153245.127680-2-mst@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Sudeep Dutt <sudeep.dutt@intel.com>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Arnd Bergmann <arnd@arndb.de>, Andy Shevchenko <andy@infradead.org>, Darren Hart <dvhart@infradead.org>, Vadim Pasternak <vadimp@mellanox.com>, Jason Wang <jasowang@redhat.com>, platform-driver-x86@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 06, 2020 at 10:12:56PM +0800, Jason Wang wrote:
+On Mon, Apr 06, 2020 at 11:35:23AM -0400, Michael S. Tsirkin wrote:
+> struct vring (in the uapi directory) and supporting APIs are kept
+> around to avoid breaking old userspace builds.
+> It's not actually part of the UAPI - it was kept in the UAPI
+> header by mistake, and using it in kernel isn't necessary
+> and prevents us from making changes safely.
+> In particular, the APIs actually assume the legacy layout.
 > 
-> On 2020/4/6 下午10:02, Michael S. Tsirkin wrote:
-> > On Mon, Apr 06, 2020 at 06:09:27AM -0700, Christoph Hellwig wrote:
-> > > Pleae just drop the code - we should not add new drivers with custom
-> > > DMA ops.
-> > I'm not sure there's another way to do this: this not a driver, it's a
-> > software emulator that pretends to be an actual device. We can't
-> > have the platform supply DMA ops here since the platform is a regular
-> > x86 or whatever.
-> 
-> 
-> Yes, actually vdpa-sim does not depends on HAS_DMA. Maybe we can do shortcut
-> like dev->dma_ops = vdpasim_dma_ops;
-> 
-> Thanks
-> 
+> Add struct vring_s (identical ATM) and supporting
+> legacy APIs and switch everyone to use that.
 
-We can do that - does it them actually work - and not just compile?
+How are we going to know that "struct vring_s" is what we need/want to
+use?  What does "_s" mean?
 
--- 
-MST
+"struct vring_kernel"?
+
+naming is hard...
+
+greg k-h
