@@ -1,35 +1,52 @@
-From: Andrew Donnellan <ajd@linux.ibm.com>
-Subject: Re: [PATCH] Fix: buffer overflow during hvc_alloc().
-Date: Mon, 6 Apr 2020 10:31:40 +1000
-Message-ID: <a8ab8fe3-3200-9591-7572-abbbd2d505ff@linux.ibm.com>
-References: <20200405204024.1007843-1-andrew@daynix.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] vdpa-sim: depend on HAS_DMA
+Date: Mon, 6 Apr 2020 08:34:15 +0800
+Message-ID: <6e2ad3e3-c4cb-98cb-e15d-8d9e7aa14f50@redhat.com>
+References: <20200405081355.2870-1-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200405204024.1007843-1-andrew@daynix.com>
+In-Reply-To: <20200405081355.2870-1-mst@redhat.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: andrew@daynix.com, virtualization@lists.linux-foundation.org
-Cc: gregkh@linuxfoundation.org, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, jslaby@suse.com
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 6/4/20 6:40 am, andrew@daynix.com wrote:
-> From: Andrew Melnychenko <andrew@daynix.com>
-> 
-> If there is a lot(more then 16) of virtio-console devices
-> or virtio_console module is reloaded
-> - buffers 'vtermnos' and 'cons_ops' are overflowed.
-> In older kernels it overruns spinlock which leads to kernel freezing:
-> https://bugzilla.redhat.com/show_bug.cgi?id=1786239
-> 
 
-This Bugzilla report isn't publicly accessible. Can you include a 
-relevant summary here and/or make the report publicly viewable?
+On 2020/4/5 =E4=B8=8B=E5=8D=884:14, Michael S. Tsirkin wrote:
+> set_dma_ops isn't available on all architectures:
+>
+>          make ARCH=3Dum
+> ...
+>
+>     drivers/vdpa/vdpa_sim/vdpa_sim.c: In function 'vdpasim_create':
+>>> drivers/vdpa/vdpa_sim/vdpa_sim.c:324:2: error: implicit declaration o=
+f function 'set_dma_ops'; did you mean 'set_groups'?
+> +[-Werror=3Dimplicit-function-declaration]
+>       set_dma_ops(dev, &vdpasim_dma_ops);
+>       ^~~~~~~~~~~
+>       set_groups
+>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>   drivers/vdpa/Kconfig | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
+> index 08b615f2da39..d0cb0e583a5d 100644
+> --- a/drivers/vdpa/Kconfig
+> +++ b/drivers/vdpa/Kconfig
+> @@ -14,7 +14,7 @@ if VDPA_MENU
+>  =20
+>   config VDPA_SIM
+>   	tristate "vDPA device simulator"
+> -	depends on RUNTIME_TESTING_MENU
+> +	depends on RUNTIME_TESTING_MENU && HAS_DMA
+>   	select VDPA
+>   	select VHOST_RING
+>   	select VHOST_IOTLB
 
-If it does indeed lead to a kernel freeze, this should be tagged with a 
-Fixes: and a Cc: stable@vger.kernel.org.
 
--- 
-Andrew Donnellan              OzLabs, ADL Canberra
-ajd@linux.ibm.com             IBM Australia Limited
+Acked-by: Jason Wang <jasowang@redhat.com>
