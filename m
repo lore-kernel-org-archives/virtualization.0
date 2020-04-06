@@ -1,37 +1,64 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH 18/70] x86/boot/compressed/64: Add stage1 #VC handler
-Date: Mon, 6 Apr 2020 14:41:24 +0200
-Message-ID: <20200406124123.GE2520@zn.tnic>
-References: <20200319091407.1481-1-joro@8bytes.org>
- <20200319091407.1481-19-joro@8bytes.org>
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: upstream boot error: KASAN: slab-out-of-bounds Write in virtio_gpu_object_create
+Date: Mon, 6 Apr 2020 14:41:20 +0200
+Message-ID: <CAKMK7uE9uQ_YCXfDOH9zQBu_ffoz546hqRd1R_r1+L-T072Lew@mail.gmail.com>
+References: <00000000000091056b05a2999f1e@google.com> <CACT4Y+b4RcgG_GrcpaghmqhX47zUVsAcGGd6vb6MYJT=6gf89g@mail.gmail.com>
+ <20200406080612.v5ubxvyliuso6v5h@sirius.home.kraxel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200319091407.1481-19-joro@8bytes.org>
+In-Reply-To: <20200406080612.v5ubxvyliuso6v5h@sirius.home.kraxel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Joerg Roedel <joro@8bytes.org>
-Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>, syzbot <syzbot+d3a7951ed361037407db@syzkaller.appspotmail.com>, David Airlie <airlied@linux.ie>, DRI <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE, NET..." <virtualization@lists.linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 19, 2020 at 10:13:15AM +0100, Joerg Roedel wrote:
-> diff --git a/arch/x86/boot/compressed/idt_handlers_64.S b/arch/x86/boot/compressed/idt_handlers_64.S
-> index bfb3fc5aa144..67ddafab2943 100644
-> --- a/arch/x86/boot/compressed/idt_handlers_64.S
-> +++ b/arch/x86/boot/compressed/idt_handlers_64.S
-> @@ -75,3 +75,7 @@ SYM_FUNC_END(\name)
->  	.code64
->  
->  EXCEPTION_HANDLER	boot_pf_handler do_boot_page_fault error_code=1
-> +
-> +#ifdef CONFIG_AMD_MEM_ENCRYPT
-> +EXCEPTION_HANDLER	boot_stage1_vc_handler vc_no_ghcb_handler error_code=1
+On Mon, Apr 6, 2020 at 10:06 AM Gerd Hoffmann <kraxel@redhat.com> wrote:
+>
+> On Mon, Apr 06, 2020 at 09:07:44AM +0200, Dmitry Vyukov wrote:
+> > On Mon, Apr 6, 2020 at 8:46 AM syzbot
+> > <syzbot+d3a7951ed361037407db@syzkaller.appspotmail.com> wrote:
+> > >
+> > > Hello,
+> > >
+> > > syzbot found the following crash on:
+> > >
+> > > HEAD commit:    ffc1c20c Merge tag 'for-5.7/dm-changes' of git://git.kerne..
+> > > git tree:       upstream
+> > > console output: https://syzkaller.appspot.com/x/log.txt?x=1690471fe00000
+> > > kernel config:  https://syzkaller.appspot.com/x/.config?x=d6a1e2f9a9986236
+> > > dashboard link: https://syzkaller.appspot.com/bug?extid=d3a7951ed361037407db
+> > > compiler:       gcc (GCC) 9.0.0 20181231 (experimental)
+> > >
+> > > Unfortunately, I don't have any reproducer for this crash yet.
+> > >
+> > > IMPORTANT: if you fix the bug, please add the following tag to the commit:
+> > > Reported-by: syzbot+d3a7951ed361037407db@syzkaller.appspotmail.com
+> >
+> >
+> > +drivers/gpu/drm/virtio/virtgpu_object.c maintainers
+> > Now we have both mainline and linux-next boot broken (linux-next is
+> > broken for the past 40 days).
+> > No testing of new code happens.
+> >
+> > >  virtio_gpu_object_shmem_init drivers/gpu/drm/virtio/virtgpu_object.c:151 [inline]
+> > >  virtio_gpu_object_create+0x9f3/0xaa0 drivers/gpu/drm/virtio/virtgpu_object.c:230
+>
+> Ah, that one.
+>
+> broken patch: f651c8b05542 ("drm/virtio: factor out the sg_table from virtio_gpu_object")
+> fixed by: 0666a8d7f6a4 ("drm/virtio: fix OOB in virtio_gpu_object_create")
+>
+> Both are in drm-misc-next.  I suspect the fix was added after
+> drm-misc-next was closed for the 5.7 merge window and thus should
+> have been submitted to drm-misc-next-fixes instead.
+>
+> So, what to do now?  Should I cherry-pick 0666a8d7f6a4 into
+> drm-misc-next-fixes?  Or should it go into drm-misc-fixes instead?
 
-Like the others
-			boot_stage1_vc	do_boot_stage1_vc ...
-
+Yup cherry-pick it over, with -x, to drm-misc-next-fixes.
+-Daniel
 -- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+Daniel Vetter
+Software Engineer, Intel Corporation
++41 (0) 79 365 57 48 - http://blog.ffwll.ch
