@@ -1,14 +1,14 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH 30/44] drm/qxl: Use devm_drm_dev_alloc
-Date: Mon, 6 Apr 2020 08:55:07 +0200
-Message-ID: <20200406065507.ps2w3xaef7e6ual7@sirius.home.kraxel.org>
+Subject: Re: [PATCH 31/44] drm/qxl: Don't use drm_device->dev_private
+Date: Mon, 6 Apr 2020 08:55:19 +0200
+Message-ID: <20200406065519.b6xj6gbn7y3sjr5h@sirius.home.kraxel.org>
 References: <20200403135828.2542770-1-daniel.vetter@ffwll.ch>
- <20200403135828.2542770-31-daniel.vetter@ffwll.ch>
+ <20200403135828.2542770-32-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200403135828.2542770-31-daniel.vetter@ffwll.ch>
+In-Reply-To: <20200403135828.2542770-32-daniel.vetter@ffwll.ch>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -23,8 +23,9 @@ To: Daniel Vetter <daniel.vetter@ffwll.ch>
 Cc: Dave Airlie <airlied@redhat.com>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, spice-devel@lists.freedesktop.org, Daniel Vetter <daniel.vetter@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Apr 03, 2020 at 03:58:14PM +0200, Daniel Vetter wrote:
-> Also need to remove the drm_dev_put from the remove hook.
+On Fri, Apr 03, 2020 at 03:58:15PM +0200, Daniel Vetter wrote:
+> Upcasting using a container_of macro is more typesafe, faster and
+> easier for the compiler to optimize.
 > 
 > Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
 > Cc: Dave Airlie <airlied@redhat.com>
