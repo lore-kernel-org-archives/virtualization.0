@@ -1,329 +1,238 @@
-From: Felix Kuehling <felix.kuehling-5C7GfCeVMHo@public.gmane.org>
-Subject: Re: [PATCH 5/6] kernel: better document the use_mm/unuse_mm API
- contract
-Date: Mon, 6 Apr 2020 12:10:07 -0400
-Message-ID: <b081a6f2-15c9-7d88-8f6d-ed154348e09a@amd.com>
-References: <20200404094101.672954-1-hch@lst.de>
- <20200404094101.672954-6-hch@lst.de>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH v3 1/2] virtio: stop using legacy struct vring in kernel
+Date: Mon, 6 Apr 2020 12:11:58 -0400
+Message-ID: <20200406161146.130741-2-mst@redhat.com>
+References: <20200406161146.130741-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <amd-gfx-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
-In-Reply-To: <20200404094101.672954-6-hch-jcswGhMUV9g@public.gmane.org>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/amd-gfx>,
- <mailto:amd-gfx-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/amd-gfx>
-List-Post: <mailto:amd-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
-List-Help: <mailto:amd-gfx-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/amd-gfx>,
- <mailto:amd-gfx-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=subscribe>
-Errors-To: amd-gfx-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org
-Sender: "amd-gfx" <amd-gfx-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
-To: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>, Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>
-Cc: Jens Axboe <axboe-tSWWG44O7X1aa/9Udqfwiw@public.gmane.org>, Felipe Balbi <balbi-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, amd-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, "Michael S. Tsirkin" <mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Jason Wang <jasowang-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, io-uring-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Zhenyu Wang <zhenyuw-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org, linux-fsdevel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Al Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org>, Alex Deucher <alexander.deucher-5C7GfCeVMHo@public.gmane.org>, intel-gvt-dev-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, intel-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, Zhi Wang <zhi.a.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200406161146.130741-1-mst@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Am 2020-04-04 um 5:41 a.m. schrieb Christoph Hellwig:
-> Switch the function documentation to kerneldoc comments, and add
-> WARN_ON_ONCE asserts that the calling thread is a kernel thread and
-> does not have ->mm set (or has ->mm set in the case of unuse_mm).
->
-> Also give the functions a kthread_ prefix to better document the
-> use case.
->
-> Signed-off-by: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
+struct vring (in the uapi directory) and supporting APIs are kept
+around to solely avoid breaking old userspace builds.
+It's not actually part of the UAPI - it was kept in the UAPI
+header by mistake, and using it in kernel isn't necessary
+and prevents us from making changes safely.
+In particular, the APIs actually assume the legacy layout.
 
-Acked-by: Felix Kuehling <Felix.Kuehling-5C7GfCeVMHo@public.gmane.org>
+Add an internal kernel-only struct vring, add supporting legacy APIs and
+switch everyone to use that.
 
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ include/linux/virtio_ring.h             | 28 +++++++++++++++++++++++++
+ include/uapi/linux/virtio_ring.h        | 26 ++++++++++++++---------
+ tools/virtio/ringtest/virtio_ring_0_9.c |  6 +++---
+ tools/virtio/vringh_test.c              | 20 +++++++++---------
+ 4 files changed, 57 insertions(+), 23 deletions(-)
 
-> ---
->  drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.h |  4 +--
->  drivers/gpu/drm/i915/gvt/kvmgt.c           |  4 +--
->  drivers/usb/gadget/function/f_fs.c         |  4 +--
->  drivers/usb/gadget/legacy/inode.c          |  4 +--
->  drivers/vhost/vhost.c                      |  4 +--
->  fs/io-wq.c                                 |  6 ++--
->  fs/io_uring.c                              |  6 ++--
->  include/linux/kthread.h                    |  4 +--
->  kernel/kthread.c                           | 33 +++++++++++-----------
->  mm/oom_kill.c                              |  6 ++--
->  mm/vmacache.c                              |  4 +--
->  11 files changed, 39 insertions(+), 40 deletions(-)
->
-> diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.h
-> index bce5e93fefc8..63db84e09408 100644
-> --- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.h
-> +++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd.h
-> @@ -192,9 +192,9 @@ uint8_t amdgpu_amdkfd_get_xgmi_hops_count(struct kgd_dev *dst, struct kgd_dev *s
->  			if ((mmptr) == current->mm) {			\
->  				valid = !get_user((dst), (wptr));	\
->  			} else if (current->flags & PF_KTHREAD) {	\
-> -				use_mm(mmptr);				\
-> +				kthread_use_mm(mmptr);			\
->  				valid = !get_user((dst), (wptr));	\
-> -				unuse_mm(mmptr);			\
-> +				kthread_unuse_mm(mmptr);		\
->  			}						\
->  			pagefault_enable();				\
->  		}							\
-> diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kvmgt.c
-> index dee01c371bf5..92e9b340dbc2 100644
-> --- a/drivers/gpu/drm/i915/gvt/kvmgt.c
-> +++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
-> @@ -2048,7 +2048,7 @@ static int kvmgt_rw_gpa(unsigned long handle, unsigned long gpa,
->  	if (kthread) {
->  		if (!mmget_not_zero(kvm->mm))
->  			return -EFAULT;
-> -		use_mm(kvm->mm);
-> +		kthread_use_mm(kvm->mm);
->  	}
->  
->  	idx = srcu_read_lock(&kvm->srcu);
-> @@ -2057,7 +2057,7 @@ static int kvmgt_rw_gpa(unsigned long handle, unsigned long gpa,
->  	srcu_read_unlock(&kvm->srcu, idx);
->  
->  	if (kthread) {
-> -		unuse_mm(kvm->mm);
-> +		kthread_unuse_mm(kvm->mm);
->  		mmput(kvm->mm);
->  	}
->  
-> diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-> index c57b1b2507c6..d9e48bd7c692 100644
-> --- a/drivers/usb/gadget/function/f_fs.c
-> +++ b/drivers/usb/gadget/function/f_fs.c
-> @@ -827,9 +827,9 @@ static void ffs_user_copy_worker(struct work_struct *work)
->  		mm_segment_t oldfs = get_fs();
->  
->  		set_fs(USER_DS);
-> -		use_mm(io_data->mm);
-> +		kthread_use_mm(io_data->mm);
->  		ret = ffs_copy_to_iter(io_data->buf, ret, &io_data->data);
-> -		unuse_mm(io_data->mm);
-> +		kthread_unuse_mm(io_data->mm);
->  		set_fs(oldfs);
->  	}
->  
-> diff --git a/drivers/usb/gadget/legacy/inode.c b/drivers/usb/gadget/legacy/inode.c
-> index 8b5233888bf8..a05552bc2ff8 100644
-> --- a/drivers/usb/gadget/legacy/inode.c
-> +++ b/drivers/usb/gadget/legacy/inode.c
-> @@ -462,9 +462,9 @@ static void ep_user_copy_worker(struct work_struct *work)
->  	struct kiocb *iocb = priv->iocb;
->  	size_t ret;
->  
-> -	use_mm(mm);
-> +	kthread_use_mm(mm);
->  	ret = copy_to_iter(priv->buf, priv->actual, &priv->to);
-> -	unuse_mm(mm);
-> +	kthread_unuse_mm(mm);
->  	if (!ret)
->  		ret = -EFAULT;
->  
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 4e9ce54869af..1787d426a956 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -336,7 +336,7 @@ static int vhost_worker(void *data)
->  	mm_segment_t oldfs = get_fs();
->  
->  	set_fs(USER_DS);
-> -	use_mm(dev->mm);
-> +	kthread_use_mm(dev->mm);
->  
->  	for (;;) {
->  		/* mb paired w/ kthread_stop */
-> @@ -364,7 +364,7 @@ static int vhost_worker(void *data)
->  				schedule();
->  		}
->  	}
-> -	unuse_mm(dev->mm);
-> +	kthread_unuse_mm(dev->mm);
->  	set_fs(oldfs);
->  	return 0;
->  }
-> diff --git a/fs/io-wq.c b/fs/io-wq.c
-> index c49c2bdbafb5..83c2868eff2a 100644
-> --- a/fs/io-wq.c
-> +++ b/fs/io-wq.c
-> @@ -169,7 +169,7 @@ static bool __io_worker_unuse(struct io_wqe *wqe, struct io_worker *worker)
->  		}
->  		__set_current_state(TASK_RUNNING);
->  		set_fs(KERNEL_DS);
-> -		unuse_mm(worker->mm);
-> +		kthread_unuse_mm(worker->mm);
->  		mmput(worker->mm);
->  		worker->mm = NULL;
->  	}
-> @@ -416,7 +416,7 @@ static struct io_wq_work *io_get_next_work(struct io_wqe *wqe)
->  static void io_wq_switch_mm(struct io_worker *worker, struct io_wq_work *work)
->  {
->  	if (worker->mm) {
-> -		unuse_mm(worker->mm);
-> +		kthread_unuse_mm(worker->mm);
->  		mmput(worker->mm);
->  		worker->mm = NULL;
->  	}
-> @@ -425,7 +425,7 @@ static void io_wq_switch_mm(struct io_worker *worker, struct io_wq_work *work)
->  		return;
->  	}
->  	if (mmget_not_zero(work->mm)) {
-> -		use_mm(work->mm);
-> +		kthread_use_mm(work->mm);
->  		if (!worker->mm)
->  			set_fs(USER_DS);
->  		worker->mm = work->mm;
-> diff --git a/fs/io_uring.c b/fs/io_uring.c
-> index 27a4ecb724ca..367406381044 100644
-> --- a/fs/io_uring.c
-> +++ b/fs/io_uring.c
-> @@ -5839,7 +5839,7 @@ static int io_submit_sqes(struct io_ring_ctx *ctx, unsigned int nr,
->  				err = -EFAULT;
->  				goto fail_req;
->  			}
-> -			use_mm(ctx->sqo_mm);
-> +			kthread_use_mm(ctx->sqo_mm);
->  			*mm = ctx->sqo_mm;
->  		}
->  
-> @@ -5911,7 +5911,7 @@ static int io_sq_thread(void *data)
->  			 * may sleep.
->  			 */
->  			if (cur_mm) {
-> -				unuse_mm(cur_mm);
-> +				kthread_unuse_mm(cur_mm);
->  				mmput(cur_mm);
->  				cur_mm = NULL;
->  			}
-> @@ -5987,7 +5987,7 @@ static int io_sq_thread(void *data)
->  
->  	set_fs(old_fs);
->  	if (cur_mm) {
-> -		unuse_mm(cur_mm);
-> +		kthread_unuse_mm(cur_mm);
->  		mmput(cur_mm);
->  	}
->  	revert_creds(old_cred);
-> diff --git a/include/linux/kthread.h b/include/linux/kthread.h
-> index c2d40c9672d6..12258ea077cf 100644
-> --- a/include/linux/kthread.h
-> +++ b/include/linux/kthread.h
-> @@ -200,8 +200,8 @@ bool kthread_cancel_delayed_work_sync(struct kthread_delayed_work *work);
->  
->  void kthread_destroy_worker(struct kthread_worker *worker);
->  
-> -void use_mm(struct mm_struct *mm);
-> -void unuse_mm(struct mm_struct *mm);
-> +void kthread_use_mm(struct mm_struct *mm);
-> +void kthread_unuse_mm(struct mm_struct *mm);
->  
->  struct cgroup_subsys_state;
->  
-> diff --git a/kernel/kthread.c b/kernel/kthread.c
-> index ce4610316377..316db17f6b4f 100644
-> --- a/kernel/kthread.c
-> +++ b/kernel/kthread.c
-> @@ -1208,18 +1208,18 @@ void kthread_destroy_worker(struct kthread_worker *worker)
->  }
->  EXPORT_SYMBOL(kthread_destroy_worker);
->  
-> -/*
-> - * use_mm
-> - *	Makes the calling kernel thread take on the specified
-> - *	mm context.
-> - *	(Note: this routine is intended to be called only
-> - *	from a kernel thread context)
-> +/**
-> + * kthread_use_mm - make the calling kthread operate on an address space
-> + * @mm: address space to operate on
->   */
-> -void use_mm(struct mm_struct *mm)
-> +void kthread_use_mm(struct mm_struct *mm)
->  {
->  	struct mm_struct *active_mm;
->  	struct task_struct *tsk = current;
->  
-> +	WARN_ON_ONCE(!(tsk->flags & PF_KTHREAD));
-> +	WARN_ON_ONCE(tsk->mm);
-> +
->  	task_lock(tsk);
->  	active_mm = tsk->active_mm;
->  	if (active_mm != mm) {
-> @@ -1236,20 +1236,19 @@ void use_mm(struct mm_struct *mm)
->  	if (active_mm != mm)
->  		mmdrop(active_mm);
->  }
-> -EXPORT_SYMBOL_GPL(use_mm);
-> +EXPORT_SYMBOL_GPL(kthread_use_mm);
->  
-> -/*
-> - * unuse_mm
-> - *	Reverses the effect of use_mm, i.e. releases the
-> - *	specified mm context which was earlier taken on
-> - *	by the calling kernel thread
-> - *	(Note: this routine is intended to be called only
-> - *	from a kernel thread context)
-> +/**
-> + * kthread_use_mm - reverse the effect of kthread_use_mm()
-> + * @mm: address space to operate on
->   */
-> -void unuse_mm(struct mm_struct *mm)
-> +void kthread_unuse_mm(struct mm_struct *mm)
->  {
->  	struct task_struct *tsk = current;
->  
-> +	WARN_ON_ONCE(!(tsk->flags & PF_KTHREAD));
-> +	WARN_ON_ONCE(!tsk->mm);
-> +
->  	task_lock(tsk);
->  	sync_mm_rss(mm);
->  	tsk->mm = NULL;
-> @@ -1257,7 +1256,7 @@ void unuse_mm(struct mm_struct *mm)
->  	enter_lazy_tlb(mm, tsk);
->  	task_unlock(tsk);
->  }
-> -EXPORT_SYMBOL_GPL(unuse_mm);
-> +EXPORT_SYMBOL_GPL(kthread_unuse_mm);
->  
->  #ifdef CONFIG_BLK_CGROUP
->  /**
-> diff --git a/mm/oom_kill.c b/mm/oom_kill.c
-> index dfc357614e56..958d2972313f 100644
-> --- a/mm/oom_kill.c
-> +++ b/mm/oom_kill.c
-> @@ -126,7 +126,7 @@ static bool oom_cpuset_eligible(struct task_struct *tsk, struct oom_control *oc)
->  
->  /*
->   * The process p may have detached its own ->mm while exiting or through
-> - * use_mm(), but one or more of its subthreads may still have a valid
-> + * kthread_use_mm(), but one or more of its subthreads may still have a valid
->   * pointer.  Return p, or any of its subthreads with a valid ->mm, with
->   * task_lock() held.
->   */
-> @@ -919,8 +919,8 @@ static void __oom_kill_process(struct task_struct *victim, const char *message)
->  			continue;
->  		}
->  		/*
-> -		 * No use_mm() user needs to read from the userspace so we are
-> -		 * ok to reap it.
-> +		 * No kthead_use_mm() user needs to read from the userspace so
-> +		 * we are ok to reap it.
->  		 */
->  		if (unlikely(p->flags & PF_KTHREAD))
->  			continue;
-> diff --git a/mm/vmacache.c b/mm/vmacache.c
-> index cdc32a3b02fa..ceedbab82106 100644
-> --- a/mm/vmacache.c
-> +++ b/mm/vmacache.c
-> @@ -25,8 +25,8 @@
->   * task's vmacache pertains to a different mm (ie, its own).  There is
->   * nothing we can do here.
->   *
-> - * Also handle the case where a kernel thread has adopted this mm via use_mm().
-> - * That kernel thread's vmacache is not applicable to this mm.
-> + * Also handle the case where a kernel thread has adopted this mm via
-> + * kthread_use_mm(). That kernel thread's vmacache is not applicable to this mm.
->   */
->  static inline bool vmacache_valid_mm(struct mm_struct *mm)
->  {
+diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
+index 3dc70adfe5f5..b6a31b3cf87c 100644
+--- a/include/linux/virtio_ring.h
++++ b/include/linux/virtio_ring.h
+@@ -112,4 +112,32 @@ void vring_del_virtqueue(struct virtqueue *vq);
+ void vring_transport_features(struct virtio_device *vdev);
+ 
+ irqreturn_t vring_interrupt(int irq, void *_vq);
++
++struct vring {
++	unsigned int num;
++
++	struct vring_desc *desc;
++
++	struct vring_avail *avail;
++
++	struct vring_used *used;
++};
++
++static inline void vring_legacy_init(struct vring *vr, unsigned int num, void *p,
++				     unsigned long align)
++{
++	vr->num = num;
++	vr->desc = p;
++	vr->avail = (struct vring_avail *)((char *)p + num * sizeof(struct vring_desc));
++	vr->used = (void *)(((uintptr_t)&vr->avail->ring[num] + sizeof(__virtio16)
++		+ align-1) & ~(align - 1));
++}
++
++static inline unsigned vring_legacy_size(unsigned int num, unsigned long align)
++{
++	return ((sizeof(struct vring_desc) * num + sizeof(__virtio16) * (3 + num)
++		 + align - 1) & ~(align - 1))
++		+ sizeof(__virtio16) * 3 + sizeof(struct vring_used_elem) * num;
++}
++
+ #endif /* _LINUX_VIRTIO_RING_H */
+diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
+index 559f42e73315..59939ba30b06 100644
+--- a/include/uapi/linux/virtio_ring.h
++++ b/include/uapi/linux/virtio_ring.h
+@@ -118,16 +118,6 @@ struct vring_used {
+ 	struct vring_used_elem ring[];
+ };
+ 
+-struct vring {
+-	unsigned int num;
+-
+-	struct vring_desc *desc;
+-
+-	struct vring_avail *avail;
+-
+-	struct vring_used *used;
+-};
+-
+ /* Alignment requirements for vring elements.
+  * When using pre-virtio 1.0 layout, these fall out naturally.
+  */
+@@ -164,6 +154,21 @@ struct vring {
+ #define vring_used_event(vr) ((vr)->avail->ring[(vr)->num])
+ #define vring_avail_event(vr) (*(__virtio16 *)&(vr)->used->ring[(vr)->num])
+ 
++#ifndef __KERNEL__
++/*
++ * The following definitions have been put in the UAPI header by mistake. We
++ * keep them around to avoid breaking old userspace builds.
++ */
++struct vring {
++	unsigned int num;
++
++	struct vring_desc *desc;
++
++	struct vring_avail *avail;
++
++	struct vring_used *used;
++};
++
+ static inline void vring_init(struct vring *vr, unsigned int num, void *p,
+ 			      unsigned long align)
+ {
+@@ -180,6 +185,7 @@ static inline unsigned vring_size(unsigned int num, unsigned long align)
+ 		 + align - 1) & ~(align - 1))
+ 		+ sizeof(__virtio16) * 3 + sizeof(struct vring_used_elem) * num;
+ }
++#endif
+ 
+ /* The following is used with USED_EVENT_IDX and AVAIL_EVENT_IDX */
+ /* Assuming a given event_idx value from the other side, if
+diff --git a/tools/virtio/ringtest/virtio_ring_0_9.c b/tools/virtio/ringtest/virtio_ring_0_9.c
+index 13a035a390e9..e2ab6ac53966 100644
+--- a/tools/virtio/ringtest/virtio_ring_0_9.c
++++ b/tools/virtio/ringtest/virtio_ring_0_9.c
+@@ -67,13 +67,13 @@ void alloc_ring(void)
+ 	int i;
+ 	void *p;
+ 
+-	ret = posix_memalign(&p, 0x1000, vring_size(ring_size, 0x1000));
++	ret = posix_memalign(&p, 0x1000, vring_legacy_size(ring_size, 0x1000));
+ 	if (ret) {
+ 		perror("Unable to allocate ring buffer.\n");
+ 		exit(3);
+ 	}
+-	memset(p, 0, vring_size(ring_size, 0x1000));
+-	vring_init(&ring, ring_size, p, 0x1000);
++	memset(p, 0, vring_legacy_size(ring_size, 0x1000));
++	vring_legacy_init(&ring, ring_size, p, 0x1000);
+ 
+ 	guest.avail_idx = 0;
+ 	guest.kicked_avail_idx = -1;
+diff --git a/tools/virtio/vringh_test.c b/tools/virtio/vringh_test.c
+index 293653463303..d26dc6530bd4 100644
+--- a/tools/virtio/vringh_test.c
++++ b/tools/virtio/vringh_test.c
+@@ -151,7 +151,7 @@ static int parallel_test(u64 features,
+ 		err(1, "Opening /tmp/vringh_test-file");
+ 
+ 	/* Extra room at the end for some data, and indirects */
+-	mapsize = vring_size(RINGSIZE, ALIGN)
++	mapsize = vring_legacy_size(RINGSIZE, ALIGN)
+ 		+ RINGSIZE * 2 * sizeof(int)
+ 		+ RINGSIZE * 6 * sizeof(struct vring_desc);
+ 	mapsize = (mapsize + getpagesize() - 1) & ~(getpagesize() - 1);
+@@ -185,7 +185,7 @@ static int parallel_test(u64 features,
+ 		close(to_guest[0]);
+ 		close(to_host[1]);
+ 
+-		vring_init(&vrh.vring, RINGSIZE, host_map, ALIGN);
++		vring_legacy_init(&vrh.vring, RINGSIZE, host_map, ALIGN);
+ 		vringh_init_user(&vrh, features, RINGSIZE, true,
+ 				 vrh.vring.desc, vrh.vring.avail, vrh.vring.used);
+ 		CPU_SET(first_cpu, &cpu_set);
+@@ -297,7 +297,7 @@ static int parallel_test(u64 features,
+ 		unsigned int finished = 0;
+ 
+ 		/* We pass sg[]s pointing into here, but we need RINGSIZE+1 */
+-		data = guest_map + vring_size(RINGSIZE, ALIGN);
++		data = guest_map + vring_legacy_size(RINGSIZE, ALIGN);
+ 		indirects = (void *)data + (RINGSIZE + 1) * 2 * sizeof(int);
+ 
+ 		/* We are the guest. */
+@@ -478,7 +478,7 @@ int main(int argc, char *argv[])
+ 	if (posix_memalign(&__user_addr_min, PAGE_SIZE, USER_MEM) != 0)
+ 		abort();
+ 	__user_addr_max = __user_addr_min + USER_MEM;
+-	memset(__user_addr_min, 0, vring_size(RINGSIZE, ALIGN));
++	memset(__user_addr_min, 0, vring_legacy_size(RINGSIZE, ALIGN));
+ 
+ 	/* Set up guest side. */
+ 	vq = vring_new_virtqueue(0, RINGSIZE, ALIGN, &vdev, true, false,
+@@ -487,7 +487,7 @@ int main(int argc, char *argv[])
+ 				 "guest vq");
+ 
+ 	/* Set up host side. */
+-	vring_init(&vrh.vring, RINGSIZE, __user_addr_min, ALIGN);
++	vring_legacy_init(&vrh.vring, RINGSIZE, __user_addr_min, ALIGN);
+ 	vringh_init_user(&vrh, vdev.features, RINGSIZE, true,
+ 			 vrh.vring.desc, vrh.vring.avail, vrh.vring.used);
+ 
+@@ -506,7 +506,7 @@ int main(int argc, char *argv[])
+ 	sgs[1] = &guest_sg[1];
+ 
+ 	/* May allocate an indirect, so force it to allocate user addr */
+-	__kmalloc_fake = __user_addr_min + vring_size(RINGSIZE, ALIGN);
++	__kmalloc_fake = __user_addr_min + vring_legacy_size(RINGSIZE, ALIGN);
+ 	err = virtqueue_add_sgs(vq, sgs, 1, 1, &err, GFP_KERNEL);
+ 	if (err)
+ 		errx(1, "virtqueue_add_sgs: %i", err);
+@@ -556,7 +556,7 @@ int main(int argc, char *argv[])
+ 		errx(1, "vringh_complete_user: %i", err);
+ 
+ 	/* Guest should see used token now. */
+-	__kfree_ignore_start = __user_addr_min + vring_size(RINGSIZE, ALIGN);
++	__kfree_ignore_start = __user_addr_min + vring_legacy_size(RINGSIZE, ALIGN);
+ 	__kfree_ignore_end = __kfree_ignore_start + 1;
+ 	ret = virtqueue_get_buf(vq, &i);
+ 	if (ret != &err)
+@@ -575,7 +575,7 @@ int main(int argc, char *argv[])
+ 		((char *)__user_addr_max - USER_MEM/4)[i] = i;
+ 
+ 	/* This will allocate an indirect, so force it to allocate user addr */
+-	__kmalloc_fake = __user_addr_min + vring_size(RINGSIZE, ALIGN);
++	__kmalloc_fake = __user_addr_min + vring_legacy_size(RINGSIZE, ALIGN);
+ 	err = virtqueue_add_outbuf(vq, guest_sg, RINGSIZE, &err, GFP_KERNEL);
+ 	if (err)
+ 		errx(1, "virtqueue_add_outbuf (large): %i", err);
+@@ -660,7 +660,7 @@ int main(int argc, char *argv[])
+ 	if (__virtio_test_bit(&vdev, VIRTIO_RING_F_INDIRECT_DESC)) {
+ 		char *data = __user_addr_max - USER_MEM/4;
+ 		struct vring_desc *d = __user_addr_max - USER_MEM/2;
+-		struct vring vring;
++		struct vring_s vring;
+ 
+ 		/* Force creation of direct, which we modify. */
+ 		__virtio_clear_bit(&vdev, VIRTIO_RING_F_INDIRECT_DESC);
+@@ -680,7 +680,7 @@ int main(int argc, char *argv[])
+ 		if (err)
+ 			errx(1, "virtqueue_add_outbuf (indirect): %i", err);
+ 
+-		vring_init(&vring, RINGSIZE, __user_addr_min, ALIGN);
++		vring_legacy_init(&vring, RINGSIZE, __user_addr_min, ALIGN);
+ 
+ 		/* They're used in order, but double-check... */
+ 		assert(vring.desc[0].addr == (unsigned long)d);
+-- 
+MST
