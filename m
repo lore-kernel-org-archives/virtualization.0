@@ -1,79 +1,130 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v4 08/12] virtio_ring: switch to virtio_legacy_init/size
-Date: Mon, 6 Apr 2020 17:02:08 -0400
-Message-ID: <20200406210108.148131-9-mst@redhat.com>
-References: <20200406210108.148131-1-mst@redhat.com>
+Subject: [GIT PULL] vhost: fixes, vdpa
+Date: Mon, 6 Apr 2020 17:11:24 -0400
+Message-ID: <20200406171124-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200406210108.148131-1-mst@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
+Sender: kvm-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, alexander.h.duyck@linux.intel.com, david@redhat.com, eperezma@redhat.com, jasowang@redhat.com, lingshan.zhu@intel.com, mhocko@kernel.org, mst@redhat.com, namit@vmware.com, rdunlap@infradead.org, rientjes@google.com, tiwei.bie@intel.com, tysand@google.com, wei.w.wang@intel.com, xiao.w.wang@intel.com, yuri.benditovich@daynix.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-These are used for legacy ring format, switch to APIs
-that make this explicit.
+Now that many more architectures build vhost, a couple of these (um, and
+arm with deprecated oabi) have reported build failures with randconfig,
+however fixes for that need a bit more discussion/testing and will be
+merged separately.
+
+Not a regression - these previously simply didn't have vhost at all.
+Also, there's some DMA API code in the vdpa simulator is hacky - if no
+solution surfaces soon we can always disable it before release:
+it's not a big deal either way as it's just test code.
+
+The following changes since commit 16fbf79b0f83bc752cee8589279f1ebfe57b3b6e:
+
+  Linux 5.6-rc7 (2020-03-22 18:31:56 -0700)
+
+are available in the Git repository at:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to c9b9f5f8c0f3cdb893cb86c168cdaa3aa5ed7278:
+
+  vdpa: move to drivers/vdpa (2020-04-02 10:41:40 -0400)
+
+----------------------------------------------------------------
+virtio: fixes, vdpa
+
+Some bug fixes.
+Balloon reverted to use the OOM handler again.
+The new vdpa subsystem with two first drivers.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/virtio/virtio_ring.c | 15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 58b96baa8d48..2a2b12449bac 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -867,8 +867,10 @@ static struct virtqueue *vring_create_virtqueue_split(
- 	}
- 
- 	/* TODO: allocate each queue chunk individually */
--	for (; num && vring_size(num, vring_align) > PAGE_SIZE; num /= 2) {
--		queue = vring_alloc_queue(vdev, vring_size(num, vring_align),
-+	for (; num && vring_legacy_size(num, vring_align) > PAGE_SIZE;
-+	     num /= 2) {
-+		queue = vring_alloc_queue(vdev,
-+					  vring_legacy_size(num, vring_align),
- 					  &dma_addr,
- 					  GFP_KERNEL|__GFP_NOWARN|__GFP_ZERO);
- 		if (queue)
-@@ -882,14 +884,15 @@ static struct virtqueue *vring_create_virtqueue_split(
- 
- 	if (!queue) {
- 		/* Try to get a single page. You are my only hope! */
--		queue = vring_alloc_queue(vdev, vring_size(num, vring_align),
-+		queue = vring_alloc_queue(vdev,
-+					  vring_legacy_size(num, vring_align),
- 					  &dma_addr, GFP_KERNEL|__GFP_ZERO);
- 	}
- 	if (!queue)
- 		return NULL;
- 
--	queue_size_in_bytes = vring_size(num, vring_align);
--	vring_init(&vring, num, queue, vring_align);
-+	queue_size_in_bytes = vring_legacy_size(num, vring_align);
-+	vring_legacy_init(&vring, num, queue, vring_align);
- 
- 	vq = __vring_new_virtqueue(index, vring, vdev, weak_barriers, context,
- 				   notify, callback, name);
-@@ -2169,7 +2172,7 @@ struct virtqueue *vring_new_virtqueue(unsigned int index,
- 	if (virtio_has_feature(vdev, VIRTIO_F_RING_PACKED))
- 		return NULL;
- 
--	vring_init(&vring, num, pages, vring_align);
-+	vring_legacy_init(&vring, num, pages, vring_align);
- 	return __vring_new_virtqueue(index, vring, vdev, weak_barriers, context,
- 				     notify, callback, name);
- }
--- 
-MST
+----------------------------------------------------------------
+David Hildenbrand (1):
+      virtio-balloon: Switch back to OOM handler for VIRTIO_BALLOON_F_DEFLATE_ON_OOM
+
+Jason Wang (7):
+      vhost: refine vhost and vringh kconfig
+      vhost: allow per device message handler
+      vhost: factor out IOTLB
+      vringh: IOTLB support
+      vDPA: introduce vDPA bus
+      virtio: introduce a vDPA based transport
+      vdpasim: vDPA device simulator
+
+Michael S. Tsirkin (2):
+      tools/virtio: option to build an out of tree module
+      vdpa: move to drivers/vdpa
+
+Tiwei Bie (1):
+      vhost: introduce vDPA-based backend
+
+Yuri Benditovich (3):
+      virtio-net: Introduce extended RSC feature
+      virtio-net: Introduce RSS receive steering feature
+      virtio-net: Introduce hash report feature
+
+Zhu Lingshan (1):
+      virtio: Intel IFC VF driver for VDPA
+
+ MAINTAINERS                      |   3 +
+ arch/arm/kvm/Kconfig             |   2 -
+ arch/arm64/kvm/Kconfig           |   2 -
+ arch/mips/kvm/Kconfig            |   2 -
+ arch/powerpc/kvm/Kconfig         |   2 -
+ arch/s390/kvm/Kconfig            |   4 -
+ arch/x86/kvm/Kconfig             |   4 -
+ drivers/Kconfig                  |   4 +
+ drivers/Makefile                 |   1 +
+ drivers/misc/mic/Kconfig         |   4 -
+ drivers/net/caif/Kconfig         |   4 -
+ drivers/vdpa/Kconfig             |  37 ++
+ drivers/vdpa/Makefile            |   4 +
+ drivers/vdpa/ifcvf/Makefile      |   3 +
+ drivers/vdpa/ifcvf/ifcvf_base.c  | 389 +++++++++++++++++
+ drivers/vdpa/ifcvf/ifcvf_base.h  | 118 ++++++
+ drivers/vdpa/ifcvf/ifcvf_main.c  | 435 +++++++++++++++++++
+ drivers/vdpa/vdpa.c              | 180 ++++++++
+ drivers/vdpa/vdpa_sim/Makefile   |   2 +
+ drivers/vdpa/vdpa_sim/vdpa_sim.c | 629 ++++++++++++++++++++++++++++
+ drivers/vhost/Kconfig            |  45 +-
+ drivers/vhost/Kconfig.vringh     |   6 -
+ drivers/vhost/Makefile           |   6 +
+ drivers/vhost/iotlb.c            | 177 ++++++++
+ drivers/vhost/net.c              |   5 +-
+ drivers/vhost/scsi.c             |   2 +-
+ drivers/vhost/vdpa.c             | 883 +++++++++++++++++++++++++++++++++++++++
+ drivers/vhost/vhost.c            | 233 ++++-------
+ drivers/vhost/vhost.h            |  45 +-
+ drivers/vhost/vringh.c           | 421 ++++++++++++++++++-
+ drivers/vhost/vsock.c            |   2 +-
+ drivers/virtio/Kconfig           |  13 +
+ drivers/virtio/Makefile          |   1 +
+ drivers/virtio/virtio_balloon.c  | 107 ++---
+ drivers/virtio/virtio_vdpa.c     | 396 ++++++++++++++++++
+ include/linux/vdpa.h             | 253 +++++++++++
+ include/linux/vhost_iotlb.h      |  47 +++
+ include/linux/vringh.h           |  36 ++
+ include/uapi/linux/vhost.h       |  24 ++
+ include/uapi/linux/vhost_types.h |   8 +
+ include/uapi/linux/virtio_net.h  | 102 ++++-
+ tools/virtio/Makefile            |  27 +-
+ 42 files changed, 4354 insertions(+), 314 deletions(-)
+ create mode 100644 drivers/vdpa/Kconfig
+ create mode 100644 drivers/vdpa/Makefile
+ create mode 100644 drivers/vdpa/ifcvf/Makefile
+ create mode 100644 drivers/vdpa/ifcvf/ifcvf_base.c
+ create mode 100644 drivers/vdpa/ifcvf/ifcvf_base.h
+ create mode 100644 drivers/vdpa/ifcvf/ifcvf_main.c
+ create mode 100644 drivers/vdpa/vdpa.c
+ create mode 100644 drivers/vdpa/vdpa_sim/Makefile
+ create mode 100644 drivers/vdpa/vdpa_sim/vdpa_sim.c
+ delete mode 100644 drivers/vhost/Kconfig.vringh
+ create mode 100644 drivers/vhost/iotlb.c
+ create mode 100644 drivers/vhost/vdpa.c
+ create mode 100644 drivers/virtio/virtio_vdpa.c
+ create mode 100644 include/linux/vdpa.h
+ create mode 100644 include/linux/vhost_iotlb.h
