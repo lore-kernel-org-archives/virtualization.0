@@ -1,49 +1,49 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH v2 2/2] vhost: disable for OABI
-Date: Mon, 6 Apr 2020 15:15:20 +0200
-Message-ID: <CAK8P3a1=-rhiMyAh6=6EwhxSmNnYaXR9NWhh+ZGh4Hh=U_gEuA@mail.gmail.com>
-References: <20200406121233.109889-1-mst@redhat.com> <20200406121233.109889-3-mst@redhat.com>
- <CAK8P3a1nce31itwMKbmXoNZh-Y68m3GX_WwzNiaBuk280VFh-Q@mail.gmail.com> <20200406085707-mutt-send-email-mst@kernel.org>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: upstream boot error: KASAN: slab-out-of-bounds Write in
+ virtio_gpu_object_create
+Date: Mon, 6 Apr 2020 15:16:02 +0200
+Message-ID: <20200406131602.ggugjwkm36r4zvkr@sirius.home.kraxel.org>
+References: <00000000000091056b05a2999f1e@google.com>
+ <CACT4Y+b4RcgG_GrcpaghmqhX47zUVsAcGGd6vb6MYJT=6gf89g@mail.gmail.com>
+ <20200406080612.v5ubxvyliuso6v5h@sirius.home.kraxel.org>
+ <CAKMK7uE9uQ_YCXfDOH9zQBu_ffoz546hqRd1R_r1+L-T072Lew@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20200406085707-mutt-send-email-mst@kernel.org>
-Sender: netdev-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Ard Biesheuvel <ardb@kernel.org>, "richard.henderson@linaro.org" <richard.henderson@linaro.org>, "christophe.lyon@st.com" <christophe.lyon@st.com>, kbuild test robot <lkp@intel.com>, "daniel.santos@pobox.com" <daniel.santos@pobox.com>, Jason Wang <jasowang@redhat.com>, "kbuild-all@lists.01.org" <kbuild-all@lists.01.org>, Russell King <rmk+kernel@armlinux.org.uk>, Linux ARM <linux-arm-kernel@lists.infradead.org>, Richard Earnshaw <Richard.Earnshaw@arm.com>, Sudeep Dutt <sudeep.dutt@intel.com>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "David S. Miller" <davem@davemloft.net>, Networking <netdev@vger.kernel.org>, virtualization@lists.linux-foundation
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAKMK7uE9uQ_YCXfDOH9zQBu_ffoz546hqRd1R_r1+L-T072Lew@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Daniel Vetter <daniel@ffwll.ch>
+Cc: Dmitry Vyukov <dvyukov@google.com>, syzbot <syzbot+d3a7951ed361037407db@syzkaller.appspotmail.com>, David Airlie <airlied@linux.ie>, DRI <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE, NET..." <virtualization@lists.linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 6, 2020 at 3:02 PM Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> On Mon, Apr 06, 2020 at 02:50:32PM +0200, Arnd Bergmann wrote:
-> > On Mon, Apr 6, 2020 at 2:12 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
+  Hi,
+
+> > > +drivers/gpu/drm/virtio/virtgpu_object.c maintainers
+> > > Now we have both mainline and linux-next boot broken (linux-next is
+> > > broken for the past 40 days).
+> > > No testing of new code happens.
 > > >
-> > > +config VHOST_DPN
-> > > +       bool "VHOST dependencies"
-> > > +       depends on !ARM || AEABI
-> > > +       default y
-> > > +       help
-> > > +         Anything selecting VHOST or VHOST_RING must depend on VHOST_DPN.
-> > > +         This excludes the deprecated ARM ABI since that forces a 4 byte
-> > > +         alignment on all structs - incompatible with virtio spec requirements.
-> > > +
+> > > >  virtio_gpu_object_shmem_init drivers/gpu/drm/virtio/virtgpu_object.c:151 [inline]
+> > > >  virtio_gpu_object_create+0x9f3/0xaa0 drivers/gpu/drm/virtio/virtgpu_object.c:230
 > >
-> > This should not be a user-visible option, so just make this 'def_bool
-> > !ARM || AEABI'
+> > Ah, that one.
 > >
->
-> I like keeping some kind of hint around for when one tries to understand
-> why is a specific symbol visible.
+> > broken patch: f651c8b05542 ("drm/virtio: factor out the sg_table from virtio_gpu_object")
+> > fixed by: 0666a8d7f6a4 ("drm/virtio: fix OOB in virtio_gpu_object_create")
+> >
+> > Both are in drm-misc-next.  I suspect the fix was added after
+> > drm-misc-next was closed for the 5.7 merge window and thus should
+> > have been submitted to drm-misc-next-fixes instead.
+> >
+> > So, what to do now?  Should I cherry-pick 0666a8d7f6a4 into
+> > drm-misc-next-fixes?  Or should it go into drm-misc-fixes instead?
+> 
+> Yup cherry-pick it over, with -x, to drm-misc-next-fixes.
+> -Daniel
 
-I meant you should remove the "VHOST dependencies" prompt, not the
-help text, which is certainly useful here. You can also use the three lines
+Done.  So the next linux-next build should be green again.  mainline
+should get the fix with the next drm pull (may take a few days).
 
-     bool
-     depends on !ARM || AEABI
-     default y
-
-in front of the help text, but those are equivalent to the one-line version
-I suggested.
-
-     Arnd
+take care,
+  Gerd
