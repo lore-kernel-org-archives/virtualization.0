@@ -1,36 +1,47 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH 15/70] x86/boot/compressed/64: Always switch to own
- page-table
-Date: Mon, 6 Apr 2020 13:56:59 +0200
-Message-ID: <20200406115659.GD2520@zn.tnic>
-References: <20200319091407.1481-1-joro@8bytes.org>
- <20200319091407.1481-16-joro@8bytes.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH v2 1/2] vdpa-sim: depend on HAS_DMA
+Date: Mon, 6 Apr 2020 08:12:42 -0400
+Message-ID: <20200406121233.109889-2-mst@redhat.com>
+References: <20200406121233.109889-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200319091407.1481-16-joro@8bytes.org>
+In-Reply-To: <20200406121233.109889-1-mst@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Joerg Roedel <joro@8bytes.org>
-Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+To: linux-kernel@vger.kernel.org
+Cc: Ard Biesheuvel <ardb@kernel.org>, "richard.henderson@linaro.org" <richard.henderson@linaro.org>, "christophe.lyon@st.com" <christophe.lyon@st.com>, kbuild test robot <lkp@intel.com>, "daniel.santos@pobox.com" <daniel.santos@pobox.com>, Jason Wang <jasowang@redhat.com>, "kbuild-all@lists.01.org" <kbuild-all@lists.01.org>, Russell King <rmk+kernel@armlinux.org.uk>, Linux ARM <linux-arm-kernel@lists.infradead.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 19, 2020 at 10:13:12AM +0100, Joerg Roedel wrote:
-> From: Joerg Roedel <jroedel@suse.de>
-> 
-> When booted through startup_64 the kernel keeps running on the EFI
-> page-table until the KASLR code sets up its own page-table. Without
-> KASLR the pre-decompression boot code never switches off the EFI
-> page-table. Change that by unconditionally switching to our own
-> page-table once the kernel is relocated.
-> 
-> This makes sure we can make changes to the mapping when necessary, for
+set_dma_ops isn't available on all architectures:
 
-Pls use passive voice in your commit message: no "we" or "I", etc, and
-describe your changes in imperative mood.
+        make ARCH=um
+...
 
+   drivers/vdpa/vdpa_sim/vdpa_sim.c: In function 'vdpasim_create':
+>> drivers/vdpa/vdpa_sim/vdpa_sim.c:324:2: error: implicit declaration of function 'set_dma_ops'; did you mean 'set_groups'?
++[-Werror=implicit-function-declaration]
+     set_dma_ops(dev, &vdpasim_dma_ops);
+     ^~~~~~~~~~~
+     set_groups
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/vdpa/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
+index 08b615f2da39..d0cb0e583a5d 100644
+--- a/drivers/vdpa/Kconfig
++++ b/drivers/vdpa/Kconfig
+@@ -14,7 +14,7 @@ if VDPA_MENU
+ 
+ config VDPA_SIM
+ 	tristate "vDPA device simulator"
+-	depends on RUNTIME_TESTING_MENU
++	depends on RUNTIME_TESTING_MENU && HAS_DMA
+ 	select VDPA
+ 	select VHOST_RING
+ 	select VHOST_IOTLB
 -- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+MST
