@@ -1,74 +1,36 @@
-From: Hannes Reinecke <hare@suse.de>
-Subject: Re: [PATCH RFC v2 02/24] scsi: allocate separate queue for reserved
- commands
-Date: Mon, 6 Apr 2020 11:05:34 +0200
-Message-ID: <b5a63725-722b-8ccd-3867-6db192a248a4@suse.de>
-References: <1583857550-12049-1-git-send-email-john.garry@huawei.com>
- <1583857550-12049-3-git-send-email-john.garry@huawei.com>
- <20200310183243.GA14549@infradead.org>
- <79cf4341-f2a2-dcc9-be0d-2efc6e83028a@huawei.com>
- <20200311062228.GA13522@infradead.org>
+From: Borislav Petkov <bp@alien8.de>
+Subject: Re: [PATCH 15/70] x86/boot/compressed/64: Always switch to own
+ page-table
+Date: Mon, 6 Apr 2020 13:56:59 +0200
+Message-ID: <20200406115659.GD2520@zn.tnic>
+References: <20200319091407.1481-1-joro@8bytes.org>
+ <20200319091407.1481-16-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-block-owner@vger.kernel.org>
-In-Reply-To: <20200311062228.GA13522@infradead.org>
-Content-Language: en-US
-Sender: linux-block-owner@vger.kernel.org
-To: Christoph Hellwig <hch@infradead.org>, John Garry <john.garry@huawei.com>
-Cc: axboe@kernel.dk, jejb@linux.ibm.com, martin.petersen@oracle.com, ming.lei@redhat.com, bvanassche@acm.org, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org, esc.storagedev@microsemi.com, chenxiang66@hisilicon.com, Hannes Reinecke <hare@suse.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200319091407.1481-16-joro@8bytes.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>
+Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 3/11/20 7:22 AM, Christoph Hellwig wrote:
-> On Tue, Mar 10, 2020 at 09:08:56PM +0000, John Garry wrote:
->> On 10/03/2020 18:32, Christoph Hellwig wrote:
->>> On Wed, Mar 11, 2020 at 12:25:28AM +0800, John Garry wrote:
->>>> From: Hannes Reinecke <hare@suse.com>
->>>>
->>>> Allocate a separate 'reserved_cmd_q' for sending reserved commands.
->>>
->>> Why?  Reserved command specifically are not in any way tied to queues.
->>> .
->>>
->>
->> So the v1 series used a combination of the sdev queue and the per-host
->> reserved_cmd_q. Back then you questioned using the sdev queue for virtio
->> scsi, and the unconfirmed conclusion was to use a common per-host q. This is
->> the best link I can find now:
->>
->> https://www.mail-archive.com/linux-scsi@vger.kernel.org/msg83177.html
+On Thu, Mar 19, 2020 at 10:13:12AM +0100, Joerg Roedel wrote:
+> From: Joerg Roedel <jroedel@suse.de>
 > 
-> That was just a question on why virtio uses the per-device tags, which
-> didn't look like it made any sense.  What I'm worried about here is
-> mixing up the concept of reserved tags in the tagset, and queues to use
-> them.  Note that we already have the scsi_get_host_dev to allocate
-> a scsi_device and thus a request_queue for the host itself.  That seems
-> like the better interface to use a tag for a host wide command vs
-> introducing a parallel path.
+> When booted through startup_64 the kernel keeps running on the EFI
+> page-table until the KASLR code sets up its own page-table. Without
+> KASLR the pre-decompression boot code never switches off the EFI
+> page-table. Change that by unconditionally switching to our own
+> page-table once the kernel is relocated.
 > 
-Thinking about it some more, I don't think that scsi_get_host_dev() is
-the best way of handling it.
-Problem is that it'll create a new scsi_device with <hostno:this_id:0>,
-which will then show up via eg 'lsscsi'.
-This would be okay if 'this_id' would have been defined by the driver;
-sadly, most drivers which are affected here do set 'this_id' to -1.
-So we wouldn't have a nice target ID to allocate the device from, let
-alone the problem that we would have to emulate a complete scsi device
-with all required minimal command support etc.
-And I'm not quite sure how well that would play with the exising SCSI
-host template; the device we'll be allocating would have basically
-nothing in common with the 'normal' SCSI devices.
+> This makes sure we can make changes to the mapping when necessary, for
 
-What we could do, though, is to try it the other way round:
-Lift the request queue from scsi_get_host_dev() into the scsi host
-itself, so that scsi_get_host_dev() can use that queue, but we also
-would be able to use it without a SCSI device attached.
+Pls use passive voice in your commit message: no "we" or "I", etc, and
+describe your changes in imperative mood.
 
-Cheers,
-
-Hannes
 -- 
-Dr. Hannes Reinecke		           Kernel Storage Architect
-hare@suse.de			                  +49 911 74053 688
-SUSE Software Solutions Germany GmbH, Maxfeldstr. 5, 90409 Nürnberg
-HRB 36809 (AG Nürnberg), GF: Felix Imendörffer
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
