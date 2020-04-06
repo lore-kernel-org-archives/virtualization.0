@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v6 07/12] virtio: add legacy init/size APIs
-Date: Mon, 6 Apr 2020 18:26:42 -0400
-Message-ID: <20200406222507.281867-8-mst@redhat.com>
+Subject: [PATCH v6 04/12] virtio: add VIRTIO_RING_NO_LEGACY
+Date: Mon, 6 Apr 2020 18:26:36 -0400
+Message-ID: <20200406222507.281867-5-mst@redhat.com>
 References: <20200406222507.281867-1-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -19,49 +19,54 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
+Cc: Matej Genci <matej.genci@nutanix.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-vring_init/vring_size (in the uapi directory) are kept
-around to solely avoid breaking old userspace builds.
-It's not actually part of the UAPI - it was kept in the UAPI
-header by mistake, and using it in kernel isn't necessary
-and prevents us from making changes safely.
-In particular, the APIs actually assume the legacy layout.
+From: Matej Genci <matej.genci@nutanix.com>
 
-Add an internal kernel-only vring_legacy_init/vring_legacy_size.
+Add macro to disable legacy vring functions.
 
+Signed-off-by: Matej Genci <matej.genci@nutanix.com>
+Link: https://lore.kernel.org/r/20190911124942.243713-1-matej.genci@nutanix.com
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- include/linux/virtio_ring.h | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/virtio/virtio_pci_modern.c | 1 +
+ include/uapi/linux/virtio_ring.h   | 4 ++++
+ 2 files changed, 5 insertions(+)
 
-diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-index c3f9ca054250..766d70bca492 100644
---- a/include/linux/virtio_ring.h
-+++ b/include/linux/virtio_ring.h
-@@ -140,4 +140,22 @@ void vring_del_virtqueue(struct virtqueue *vq);
- void vring_transport_features(struct virtio_device *vdev);
+diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+index 7abcc50838b8..db93cedd262f 100644
+--- a/drivers/virtio/virtio_pci_modern.c
++++ b/drivers/virtio/virtio_pci_modern.c
+@@ -16,6 +16,7 @@
  
- irqreturn_t vring_interrupt(int irq, void *_vq);
+ #include <linux/delay.h>
+ #define VIRTIO_PCI_NO_LEGACY
++#define VIRTIO_RING_NO_LEGACY
+ #include "virtio_pci_common.h"
+ 
+ /*
+diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
+index 559f42e73315..9223c3a5c46a 100644
+--- a/include/uapi/linux/virtio_ring.h
++++ b/include/uapi/linux/virtio_ring.h
+@@ -135,6 +135,8 @@ struct vring {
+ #define VRING_USED_ALIGN_SIZE 4
+ #define VRING_DESC_ALIGN_SIZE 16
+ 
++#ifndef VIRTIO_RING_NO_LEGACY
 +
-+static inline void vring_legacy_init(struct vring *vr, unsigned int num, void *p,
-+				     unsigned long align)
-+{
-+	vr->num = num;
-+	vr->desc = p;
-+	vr->avail = (struct vring_avail *)((char *)p + num * sizeof(struct vring_desc));
-+	vr->used = (void *)(((uintptr_t)&vr->avail->ring[num] + sizeof(__virtio16)
-+		+ align-1) & ~(align - 1));
-+}
+ /* The standard layout for the ring is a continuous chunk of memory which looks
+  * like this.  We assume num is a power of 2.
+  *
+@@ -181,6 +183,8 @@ static inline unsigned vring_size(unsigned int num, unsigned long align)
+ 		+ sizeof(__virtio16) * 3 + sizeof(struct vring_used_elem) * num;
+ }
+ 
++#endif /* VIRTIO_RING_NO_LEGACY */
 +
-+static inline unsigned vring_legacy_size(unsigned int num, unsigned long align)
-+{
-+	return ((sizeof(struct vring_desc) * num + sizeof(__virtio16) * (3 + num)
-+		 + align - 1) & ~(align - 1))
-+		+ sizeof(__virtio16) * 3 + sizeof(struct vring_used_elem) * num;
-+}
-+
- #endif /* _LINUX_VIRTIO_RING_H */
+ /* The following is used with USED_EVENT_IDX and AVAIL_EVENT_IDX */
+ /* Assuming a given event_idx value from the other side, if
+  * we have just incremented index from old to new_idx,
 -- 
 MST
