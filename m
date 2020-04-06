@@ -1,58 +1,101 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v4 07/12] virtio: add legacy init/size APIs
-Date: Mon, 6 Apr 2020 17:02:06 -0400
-Message-ID: <20200406210108.148131-8-mst@redhat.com>
+Subject: [PATCH v4 06/12] vhost: force spec specified alignment on types
+Date: Mon, 6 Apr 2020 17:02:03 -0400
+Message-ID: <20200406210108.148131-7-mst@redhat.com>
 References: <20200406210108.148131-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200406210108.148131-1-mst@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: linux-kernel@vger.kernel.org
-Cc: Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-vring_init/vring_size (in the uapi directory) are kept
-around to solely avoid breaking old userspace builds.
-It's not actually part of the UAPI - it was kept in the UAPI
-header by mistake, and using it in kernel isn't necessary
-and prevents us from making changes safely.
-In particular, the APIs actually assume the legacy layout.
+The ring element addresses are passed between components with different
+alignments assumptions. Thus, if guest/userspace selects a pointer and
+host then gets and dereferences it, we might need to decrease the
+compiler-selected alignment to prevent compiler on the host from
+assuming pointer is aligned.
 
-Add an internal kernel-only vring_legacy_init/vring_legacy_size.
+This actually triggers on ARM with -mabi=apcs-gnu - which is a
+deprecated configuration, but it seems safer to handle this
+generally.
+
+I verified that the produced binary is exactly identical on x86.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- include/linux/virtio_ring.h | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/vhost/vhost.h       |  6 +++---
+ include/linux/virtio_ring.h | 24 +++++++++++++++++++++---
+ 2 files changed, 24 insertions(+), 6 deletions(-)
 
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index f8403bd46b85..60cab4c78229 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -67,9 +67,9 @@ struct vhost_virtqueue {
+ 	/* The actual ring of buffers. */
+ 	struct mutex mutex;
+ 	unsigned int num;
+-	struct vring_desc __user *desc;
+-	struct vring_avail __user *avail;
+-	struct vring_used __user *used;
++	vring_desc_t __user *desc;
++	vring_avail_t __user *avail;
++	vring_used_t __user *used;
+ 	const struct vhost_iotlb_map *meta_iotlb[VHOST_NUM_ADDRS];
+ 	struct file *kick;
+ 	struct eventfd_ctx *call_ctx;
 diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-index c3f9ca054250..766d70bca492 100644
+index 11680e74761a..c3f9ca054250 100644
 --- a/include/linux/virtio_ring.h
 +++ b/include/linux/virtio_ring.h
-@@ -140,4 +140,22 @@ void vring_del_virtqueue(struct virtqueue *vq);
- void vring_transport_features(struct virtio_device *vdev);
+@@ -60,14 +60,32 @@ static inline void virtio_store_mb(bool weak_barriers,
+ struct virtio_device;
+ struct virtqueue;
  
- irqreturn_t vring_interrupt(int irq, void *_vq);
++/*
++ * The ring element addresses are passed between components with different
++ * alignments assumptions. Thus, we might need to decrease the compiler-selected
++ * alignment, and so must use a typedef to make sure the __aligned attribute
++ * actually takes hold:
++ *
++ * https://gcc.gnu.org/onlinedocs//gcc/Common-Type-Attributes.html#Common-Type-Attributes
++ *
++ * When used on a struct, or struct member, the aligned attribute can only
++ * increase the alignment; in order to decrease it, the packed attribute must
++ * be specified as well. When used as part of a typedef, the aligned attribute
++ * can both increase and decrease alignment, and specifying the packed
++ * attribute generates a warning.
++ */
++typedef struct vring_desc __aligned(VRING_DESC_ALIGN_SIZE) vring_desc_t;
++typedef struct vring_avail __aligned(VRING_AVAIL_ALIGN_SIZE) vring_avail_t;
++typedef struct vring_used __aligned(VRING_USED_ALIGN_SIZE) vring_used_t;
 +
-+static inline void vring_legacy_init(struct vring *vr, unsigned int num, void *p,
-+				     unsigned long align)
-+{
-+	vr->num = num;
-+	vr->desc = p;
-+	vr->avail = (struct vring_avail *)((char *)p + num * sizeof(struct vring_desc));
-+	vr->used = (void *)(((uintptr_t)&vr->avail->ring[num] + sizeof(__virtio16)
-+		+ align-1) & ~(align - 1));
-+}
-+
-+static inline unsigned vring_legacy_size(unsigned int num, unsigned long align)
-+{
-+	return ((sizeof(struct vring_desc) * num + sizeof(__virtio16) * (3 + num)
-+		 + align - 1) & ~(align - 1))
-+		+ sizeof(__virtio16) * 3 + sizeof(struct vring_used_elem) * num;
-+}
-+
- #endif /* _LINUX_VIRTIO_RING_H */
+ struct vring {
+ 	unsigned int num;
+ 
+-	struct vring_desc *desc;
++	vring_desc_t *desc;
+ 
+-	struct vring_avail *avail;
++	vring_avail_t *avail;
+ 
+-	struct vring_used *used;
++	vring_used_t *used;
+ };
+ 
+ /*
 -- 
 MST
