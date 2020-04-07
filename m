@@ -1,8 +1,8 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [RFC PATCH 18/34] iommu/arm-smmu: Convert to probe/release_device()
- call-backs
-Date: Tue,  7 Apr 2020 20:37:26 +0200
-Message-ID: <20200407183742.4344-19-joro@8bytes.org>
+Subject: [RFC PATCH 13/34] iommu: Export bus_iommu_probe() and make is safe
+ for re-probing
+Date: Tue,  7 Apr 2020 20:37:21 +0200
+Message-ID: <20200407183742.4344-14-joro@8bytes.org>
 References: <20200407183742.4344-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,222 +24,51 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Convert the arm-smmu and arm-smmu-v3 drivers to use the probe_device() and
-release_device() call-backs of iommu_ops, so that the iommu core code does the
-group and sysfs setup.
+Add a check to the bus_iommu_probe() call-path to make sure it ignores
+devices which have already been successfully probed. Then export the
+bus_iommu_probe() function so it can be used by IOMMU drivers.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- drivers/iommu/arm-smmu-v3.c | 42 +++++++++----------------------------
- drivers/iommu/arm-smmu.c    | 30 ++++++++------------------
- 2 files changed, 19 insertions(+), 53 deletions(-)
+ drivers/iommu/iommu.c | 6 +++++-
+ include/linux/iommu.h | 1 +
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/arm-smmu-v3.c b/drivers/iommu/arm-smmu-v3.c
-index 82508730feb7..7d3c38e088d7 100644
---- a/drivers/iommu/arm-smmu-v3.c
-+++ b/drivers/iommu/arm-smmu-v3.c
-@@ -2914,27 +2914,26 @@ static bool arm_smmu_sid_in_range(struct arm_smmu_device *smmu, u32 sid)
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 844613850595..cf25c1e48830 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -1615,6 +1615,10 @@ static int probe_iommu_group(struct device *dev, void *data)
+ 	if (!dev_iommu_get(dev))
+ 		return -ENOMEM;
  
- static struct iommu_ops arm_smmu_ops;
- 
--static int arm_smmu_add_device(struct device *dev)
-+static struct iommu_device *arm_smmu_probe_device(struct device *dev)
- {
- 	int i, ret;
- 	struct arm_smmu_device *smmu;
- 	struct arm_smmu_master *master;
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
--	struct iommu_group *group;
- 
- 	if (!fwspec || fwspec->ops != &arm_smmu_ops)
--		return -ENODEV;
-+		return ERR_PTR(-ENODEV);
- 
- 	if (WARN_ON_ONCE(dev_iommu_priv_get(dev)))
--		return -EBUSY;
-+		return ERR_PTR(-EBUSY);
- 
- 	smmu = arm_smmu_get_by_fwnode(fwspec->iommu_fwnode);
- 	if (!smmu)
--		return -ENODEV;
-+		return ERR_PTR(-ENODEV);
- 
- 	master = kzalloc(sizeof(*master), GFP_KERNEL);
- 	if (!master)
--		return -ENOMEM;
-+		return ERR_PTR(-ENOMEM);
- 
- 	master->dev = dev;
- 	master->smmu = smmu;
-@@ -2971,34 +2970,15 @@ static int arm_smmu_add_device(struct device *dev)
- 	 */
- 	arm_smmu_enable_pasid(master);
- 
--	if (!(smmu->features & ARM_SMMU_FEAT_2_LVL_CDTAB))
--		master->ssid_bits = min_t(u8, master->ssid_bits,
--					  CTXDESC_LINEAR_CDMAX);
--
--	ret = iommu_device_link(&smmu->iommu, dev);
--	if (ret)
--		goto err_disable_pasid;
--
--	group = iommu_group_get_for_dev(dev);
--	if (IS_ERR(group)) {
--		ret = PTR_ERR(group);
--		goto err_unlink;
--	}
--
--	iommu_group_put(group);
--	return 0;
-+	return &smmu->iommu;
- 
--err_unlink:
--	iommu_device_unlink(&smmu->iommu, dev);
--err_disable_pasid:
--	arm_smmu_disable_pasid(master);
- err_free_master:
- 	kfree(master);
- 	dev_iommu_priv_set(dev, NULL);
--	return ret;
-+	return ERR_PTR(ret);
++	/* Device is probed already if in a group */
++	if (iommu_group_get(dev) != NULL)
++		return 0;
++
+ 	if (!try_module_get(ops->owner)) {
+ 		ret = -EINVAL;
+ 		goto err_free_dev_iommu;
+@@ -1783,7 +1787,7 @@ static int iommu_group_create_direct_mappings(struct iommu_group *group)
+ 					  iommu_do_create_direct_mappings);
  }
  
--static void arm_smmu_remove_device(struct device *dev)
-+static void arm_smmu_release_device(struct device *dev)
+-static int bus_iommu_probe(struct bus_type *bus)
++int bus_iommu_probe(struct bus_type *bus)
  {
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
- 	struct arm_smmu_master *master;
-@@ -3010,8 +2990,6 @@ static void arm_smmu_remove_device(struct device *dev)
- 	master = dev_iommu_priv_get(dev);
- 	smmu = master->smmu;
- 	arm_smmu_detach_dev(master);
--	iommu_group_remove_device(dev);
--	iommu_device_unlink(&smmu->iommu, dev);
- 	arm_smmu_disable_pasid(master);
- 	kfree(master);
- 	iommu_fwspec_free(dev);
-@@ -3138,8 +3116,8 @@ static struct iommu_ops arm_smmu_ops = {
- 	.flush_iotlb_all	= arm_smmu_flush_iotlb_all,
- 	.iotlb_sync		= arm_smmu_iotlb_sync,
- 	.iova_to_phys		= arm_smmu_iova_to_phys,
--	.add_device		= arm_smmu_add_device,
--	.remove_device		= arm_smmu_remove_device,
-+	.probe_device		= arm_smmu_probe_device,
-+	.release_device		= arm_smmu_release_device,
- 	.device_group		= arm_smmu_device_group,
- 	.domain_get_attr	= arm_smmu_domain_get_attr,
- 	.domain_set_attr	= arm_smmu_domain_set_attr,
-diff --git a/drivers/iommu/arm-smmu.c b/drivers/iommu/arm-smmu.c
-index 3493501d8b2c..7b13b2371ad2 100644
---- a/drivers/iommu/arm-smmu.c
-+++ b/drivers/iommu/arm-smmu.c
-@@ -220,7 +220,7 @@ static int arm_smmu_register_legacy_master(struct device *dev,
-  * With the legacy DT binding in play, we have no guarantees about
-  * probe order, but then we're also not doing default domains, so we can
-  * delay setting bus ops until we're sure every possible SMMU is ready,
-- * and that way ensure that no add_device() calls get missed.
-+ * and that way ensure that no probe_device() calls get missed.
-  */
- static int arm_smmu_legacy_bus_init(void)
- {
-@@ -1062,7 +1062,6 @@ static int arm_smmu_master_alloc_smes(struct device *dev)
- 	struct arm_smmu_master_cfg *cfg = dev_iommu_priv_get(dev);
- 	struct arm_smmu_device *smmu = cfg->smmu;
- 	struct arm_smmu_smr *smrs = smmu->smrs;
--	struct iommu_group *group;
- 	int i, idx, ret;
+ 	const struct iommu_ops *ops = bus->iommu_ops;
+ 	int ret;
+diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+index 30170d191e5e..fea1622408ad 100644
+--- a/include/linux/iommu.h
++++ b/include/linux/iommu.h
+@@ -445,6 +445,7 @@ static inline void iommu_iotlb_gather_init(struct iommu_iotlb_gather *gather)
+ #define IOMMU_GROUP_NOTIFY_UNBOUND_DRIVER	6 /* Post Driver unbind */
  
- 	mutex_lock(&smmu->stream_map_mutex);
-@@ -1090,13 +1089,6 @@ static int arm_smmu_master_alloc_smes(struct device *dev)
- 		cfg->smendx[i] = (s16)idx;
- 	}
- 
--	group = iommu_group_get_for_dev(dev);
--	if (IS_ERR(group)) {
--		ret = PTR_ERR(group);
--		goto out_err;
--	}
--	iommu_group_put(group);
--
- 	/* It worked! Now, poke the actual hardware */
- 	for_each_cfg_sme(cfg, fwspec, i, idx) {
- 		arm_smmu_write_sme(smmu, idx);
-@@ -1172,7 +1164,7 @@ static int arm_smmu_attach_dev(struct iommu_domain *domain, struct device *dev)
- 
- 	/*
- 	 * FIXME: The arch/arm DMA API code tries to attach devices to its own
--	 * domains between of_xlate() and add_device() - we have no way to cope
-+	 * domains between of_xlate() and probe_device() - we have no way to cope
- 	 * with that, so until ARM gets converted to rely on groups and default
- 	 * domains, just say no (but more politely than by dereferencing NULL).
- 	 * This should be at least a WARN_ON once that's sorted.
-@@ -1382,7 +1374,7 @@ struct arm_smmu_device *arm_smmu_get_by_fwnode(struct fwnode_handle *fwnode)
- 	return dev ? dev_get_drvdata(dev) : NULL;
- }
- 
--static int arm_smmu_add_device(struct device *dev)
-+static struct iommu_device *arm_smmu_probe_device(struct device *dev)
- {
- 	struct arm_smmu_device *smmu = NULL;
- 	struct arm_smmu_master_cfg *cfg;
-@@ -1403,7 +1395,7 @@ static int arm_smmu_add_device(struct device *dev)
- 	} else if (fwspec && fwspec->ops == &arm_smmu_ops) {
- 		smmu = arm_smmu_get_by_fwnode(fwspec->iommu_fwnode);
- 	} else {
--		return -ENODEV;
-+		return ERR_PTR(-ENODEV);
- 	}
- 
- 	ret = -EINVAL;
-@@ -1444,21 +1436,19 @@ static int arm_smmu_add_device(struct device *dev)
- 	if (ret)
- 		goto out_cfg_free;
- 
--	iommu_device_link(&smmu->iommu, dev);
--
- 	device_link_add(dev, smmu->dev,
- 			DL_FLAG_PM_RUNTIME | DL_FLAG_AUTOREMOVE_SUPPLIER);
- 
--	return 0;
-+	return &smmu->iommu;
- 
- out_cfg_free:
- 	kfree(cfg);
- out_free:
- 	iommu_fwspec_free(dev);
--	return ret;
-+	return ERR_PTR(ret);
- }
- 
--static void arm_smmu_remove_device(struct device *dev)
-+static void arm_smmu_release_device(struct device *dev)
- {
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
- 	struct arm_smmu_master_cfg *cfg;
-@@ -1475,13 +1465,11 @@ static void arm_smmu_remove_device(struct device *dev)
- 	if (ret < 0)
- 		return;
- 
--	iommu_device_unlink(&smmu->iommu, dev);
- 	arm_smmu_master_free_smes(cfg, fwspec);
- 
- 	arm_smmu_rpm_put(smmu);
- 
- 	dev_iommu_priv_set(dev, NULL);
--	iommu_group_remove_device(dev);
- 	kfree(cfg);
- 	iommu_fwspec_free(dev);
- }
-@@ -1632,8 +1620,8 @@ static struct iommu_ops arm_smmu_ops = {
- 	.flush_iotlb_all	= arm_smmu_flush_iotlb_all,
- 	.iotlb_sync		= arm_smmu_iotlb_sync,
- 	.iova_to_phys		= arm_smmu_iova_to_phys,
--	.add_device		= arm_smmu_add_device,
--	.remove_device		= arm_smmu_remove_device,
-+	.probe_device		= arm_smmu_probe_device,
-+	.release_device		= arm_smmu_release_device,
- 	.device_group		= arm_smmu_device_group,
- 	.domain_get_attr	= arm_smmu_domain_get_attr,
- 	.domain_set_attr	= arm_smmu_domain_set_attr,
+ extern int bus_set_iommu(struct bus_type *bus, const struct iommu_ops *ops);
++extern int bus_iommu_probe(struct bus_type *bus);
+ extern bool iommu_present(struct bus_type *bus);
+ extern bool iommu_capable(struct bus_type *bus, enum iommu_cap cap);
+ extern struct iommu_domain *iommu_domain_alloc(struct bus_type *bus);
 -- 
 2.17.1
