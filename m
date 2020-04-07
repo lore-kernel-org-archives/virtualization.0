@@ -1,184 +1,48 @@
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [RFC PATCH 31/34] iommu/exynos: Create iommu_device in struct exynos_iommu_owner
-Date: Tue,  7 Apr 2020 20:37:39 +0200
-Message-ID: <20200407183742.4344-32-joro@8bytes.org>
+From: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
+Subject: [RFC PATCH 05/34] iommu/amd: Remove dma_mask check from check_device()
+Date: Tue,  7 Apr 2020 20:37:13 +0200
+Message-ID: <20200407183742.4344-6-joro@8bytes.org>
 References: <20200407183742.4344-1-joro@8bytes.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200407183742.4344-1-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <20200407183742.4344-1-joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+ <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+ <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Sender: "iommu" <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+To: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>, Will Deacon <will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>, Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Lu Baolu <baolu.lu-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Gross <agross-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Clark <robdclark-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Gerald Schaefer <gerald.schaefer-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
 
-The 'struct exynos_iommu_owner' is an umbrella for multiple SYSMMU
-instances attached to one master. As such all these instances are
-handled the same, they are all configured with the same iommu_domain,
-for example.
+The check was only needed for the DMA-API implementation in the AMD
+IOMMU driver, which no longer exists.
 
-The IOMMU core code expects each device to have only one IOMMU
-attached, so create the IOMMU-device for the umbrella instead of each
-hardware SYSMMU.
-
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
 ---
- drivers/iommu/exynos-iommu.c | 96 +++++++++++++++++++++++++++---------
- 1 file changed, 73 insertions(+), 23 deletions(-)
+ drivers/iommu/amd_iommu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
-index 186ff5cc975c..86ecccbf0438 100644
---- a/drivers/iommu/exynos-iommu.c
-+++ b/drivers/iommu/exynos-iommu.c
-@@ -235,6 +235,8 @@ struct exynos_iommu_owner {
- 	struct list_head controllers;	/* list of sysmmu_drvdata.owner_node */
- 	struct iommu_domain *domain;	/* domain this device is attached */
- 	struct mutex rpm_lock;		/* for runtime pm of all sysmmus */
-+
-+	struct iommu_device iommu;	/* IOMMU core handle */
- };
- 
- /*
-@@ -274,8 +276,6 @@ struct sysmmu_drvdata {
- 	struct list_head owner_node;	/* node for owner controllers list */
- 	phys_addr_t pgtable;		/* assigned page table structure */
- 	unsigned int version;		/* our version */
--
--	struct iommu_device iommu;	/* IOMMU core handle */
- };
- 
- static struct exynos_iommu_domain *to_exynos_domain(struct iommu_domain *dom)
-@@ -625,18 +625,6 @@ static int exynos_sysmmu_probe(struct platform_device *pdev)
- 	data->sysmmu = dev;
- 	spin_lock_init(&data->lock);
- 
--	ret = iommu_device_sysfs_add(&data->iommu, &pdev->dev, NULL,
--				     dev_name(data->sysmmu));
--	if (ret)
--		return ret;
--
--	iommu_device_set_ops(&data->iommu, &exynos_iommu_ops);
--	iommu_device_set_fwnode(&data->iommu, &dev->of_node->fwnode);
--
--	ret = iommu_device_register(&data->iommu);
--	if (ret)
--		return ret;
--
- 	platform_set_drvdata(pdev, data);
- 
- 	__sysmmu_get_version(data);
-@@ -1261,6 +1249,8 @@ static int exynos_iommu_add_device(struct device *dev)
- 	}
- 	iommu_group_put(group);
- 
-+	iommu_device_link(&owner->iommu, dev);
-+
- 	return 0;
- }
- 
-@@ -1282,18 +1272,82 @@ static void exynos_iommu_remove_device(struct device *dev)
- 			iommu_group_put(group);
- 		}
- 	}
-+	iommu_device_unlink(&owner->iommu, dev);
- 	iommu_group_remove_device(dev);
- 
- 	list_for_each_entry(data, &owner->controllers, owner_node)
- 		device_link_del(data->link);
- }
- 
-+static int exynos_iommu_device_init(struct exynos_iommu_owner *owner)
-+{
-+	static u32 counter = 0;
-+	int ret;
-+
-+	/*
-+	 * Create a virtual IOMMU device. In reality it is an umbrella for a
-+	 * number of SYSMMU platform devices, but that also means that any
-+	 * master can have more than one real IOMMU device. This drivers handles
-+	 * all the real devices for one master synchronously, so they appear as
-+	 * one anyway.
-+	 */
-+	ret = iommu_device_sysfs_add(&owner->iommu, NULL, NULL,
-+				     "sysmmu-owner-%d", counter++);
-+	if (ret)
-+		return ret;
-+
-+	iommu_device_set_ops(&owner->iommu, &exynos_iommu_ops);
-+
-+	return 0;
-+}
-+
-+static void exynos_iommu_device_remove(struct exynos_iommu_owner *owner)
-+{
-+	iommu_device_set_ops(&owner->iommu, NULL);
-+	iommu_device_sysfs_remove(&owner->iommu);
-+}
-+
-+static int exynos_owner_init(struct device *dev)
-+{
-+	struct exynos_iommu_owner *owner = dev->archdata.iommu;
-+	int ret;
-+
-+	if (owner)
-+		return 0;
-+
-+	owner = kzalloc(sizeof(*owner), GFP_KERNEL);
-+	if (!owner)
-+		return -ENOMEM;
-+
-+	ret = exynos_iommu_device_init(owner);
-+	if (ret)
-+		goto out_free_owner;
-+
-+	ret = iommu_device_register(&owner->iommu);
-+	if (ret)
-+		goto out_remove_iommu_device;
-+
-+	INIT_LIST_HEAD(&owner->controllers);
-+	mutex_init(&owner->rpm_lock);
-+	dev->archdata.iommu = owner;
-+
-+	return 0;
-+
-+out_remove_iommu_device:
-+	exynos_iommu_device_remove(owner);
-+out_free_owner:
-+	kfree(owner);
-+
-+	return ret;
-+}
-+
- static int exynos_iommu_of_xlate(struct device *dev,
- 				 struct of_phandle_args *spec)
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index 73b4f84cf449..504f2db75eda 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -326,7 +326,7 @@ static bool check_device(struct device *dev)
  {
--	struct exynos_iommu_owner *owner = dev->archdata.iommu;
- 	struct platform_device *sysmmu = of_find_device_by_node(spec->np);
- 	struct sysmmu_drvdata *data, *entry;
-+	struct exynos_iommu_owner *owner;
-+	int ret;
+ 	int devid;
  
- 	if (!sysmmu)
- 		return -ENODEV;
-@@ -1302,15 +1356,11 @@ static int exynos_iommu_of_xlate(struct device *dev,
- 	if (!data)
- 		return -ENODEV;
+-	if (!dev || !dev->dma_mask)
++	if (!dev)
+ 		return false;
  
--	if (!owner) {
--		owner = kzalloc(sizeof(*owner), GFP_KERNEL);
--		if (!owner)
--			return -ENOMEM;
-+	ret = exynos_owner_init(dev);
-+	if (ret)
-+		return ret;
- 
--		INIT_LIST_HEAD(&owner->controllers);
--		mutex_init(&owner->rpm_lock);
--		dev->archdata.iommu = owner;
--	}
-+	owner = dev->archdata.iommu;
- 
- 	list_for_each_entry(entry, &owner->controllers, owner_node)
- 		if (entry == data)
+ 	devid = get_device_id(dev);
 -- 
 2.17.1
