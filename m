@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [RFC PATCH 32/34] iommu/exynos: Convert to probe/release_device() call-backs
-Date: Tue,  7 Apr 2020 20:37:40 +0200
-Message-ID: <20200407183742.4344-33-joro@8bytes.org>
+Subject: [RFC PATCH 27/34] iommu/tegra: Convert to probe/release_device() call-backs
+Date: Tue,  7 Apr 2020 20:37:35 +0200
+Message-ID: <20200407183742.4344-28-joro@8bytes.org>
 References: <20200407183742.4344-1-joro@8bytes.org>
 Return-path: <linux-arm-msm-owner@vger.kernel.org>
 In-Reply-To: <20200407183742.4344-1-joro@8bytes.org>
@@ -12,77 +12,148 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Convert the Exynos IOMMU drivers to use the probe_device() and
+Convert the Tegra IOMMU drivers to use the probe_device() and
 release_device() call-backs of iommu_ops, so that the iommu core code
 does the group and sysfs setup.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- drivers/iommu/exynos-iommu.c | 23 ++++++-----------------
- 1 file changed, 6 insertions(+), 17 deletions(-)
+ drivers/iommu/tegra-gart.c | 24 ++++++------------------
+ drivers/iommu/tegra-smmu.c | 31 ++++++++-----------------------
+ 2 files changed, 14 insertions(+), 41 deletions(-)
 
-diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
-index 86ecccbf0438..f865c9093722 100644
---- a/drivers/iommu/exynos-iommu.c
-+++ b/drivers/iommu/exynos-iommu.c
-@@ -1223,19 +1223,13 @@ static phys_addr_t exynos_iommu_iova_to_phys(struct iommu_domain *iommu_domain,
- 	return phys;
+diff --git a/drivers/iommu/tegra-gart.c b/drivers/iommu/tegra-gart.c
+index db6559e8336f..5fbdff6ff41a 100644
+--- a/drivers/iommu/tegra-gart.c
++++ b/drivers/iommu/tegra-gart.c
+@@ -243,28 +243,16 @@ static bool gart_iommu_capable(enum iommu_cap cap)
+ 	return false;
  }
  
--static int exynos_iommu_add_device(struct device *dev)
-+static struct iommu_device *exynos_iommu_probe_device(struct device *dev)
+-static int gart_iommu_add_device(struct device *dev)
++static struct iommu_device *gart_iommu_probe_device(struct device *dev)
  {
- 	struct exynos_iommu_owner *owner = dev->archdata.iommu;
- 	struct sysmmu_drvdata *data;
 -	struct iommu_group *group;
- 
- 	if (!has_sysmmu(dev))
+-
+ 	if (!dev_iommu_fwspec_get(dev))
 -		return -ENODEV;
 -
 -	group = iommu_group_get_for_dev(dev);
--
 -	if (IS_ERR(group))
 -		return PTR_ERR(group);
+-
+-	iommu_group_put(group);
 +		return ERR_PTR(-ENODEV);
  
- 	list_for_each_entry(data, &owner->controllers, owner_node) {
- 		/*
-@@ -1247,14 +1241,11 @@ static int exynos_iommu_add_device(struct device *dev)
- 					     DL_FLAG_STATELESS |
- 					     DL_FLAG_PM_RUNTIME);
- 	}
--	iommu_group_put(group);
- 
--	iommu_device_link(&owner->iommu, dev);
+-	iommu_device_link(&gart_handle->iommu, dev);
 -
 -	return 0;
-+	return &owner->iommu;
++	return &gart_handle->iommu;
  }
  
--static void exynos_iommu_remove_device(struct device *dev)
-+static void exynos_iommu_release_device(struct device *dev)
+-static void gart_iommu_remove_device(struct device *dev)
++static void gart_iommu_release_device(struct device *dev)
  {
- 	struct exynos_iommu_owner *owner = dev->archdata.iommu;
- 	struct sysmmu_drvdata *data;
-@@ -1272,8 +1263,6 @@ static void exynos_iommu_remove_device(struct device *dev)
- 			iommu_group_put(group);
- 		}
- 	}
--	iommu_device_unlink(&owner->iommu, dev);
 -	iommu_group_remove_device(dev);
+-	iommu_device_unlink(&gart_handle->iommu, dev);
+ }
  
- 	list_for_each_entry(data, &owner->controllers, owner_node)
- 		device_link_del(data->link);
-@@ -1381,8 +1370,8 @@ static const struct iommu_ops exynos_iommu_ops = {
- 	.unmap = exynos_iommu_unmap,
- 	.iova_to_phys = exynos_iommu_iova_to_phys,
- 	.device_group = generic_device_group,
--	.add_device = exynos_iommu_add_device,
--	.remove_device = exynos_iommu_remove_device,
-+	.probe_device = exynos_iommu_probe_device,
-+	.release_device = exynos_iommu_release_device,
- 	.pgsize_bitmap = SECT_SIZE | LPAGE_SIZE | SPAGE_SIZE,
- 	.of_xlate = exynos_iommu_of_xlate,
- };
+ static int gart_iommu_of_xlate(struct device *dev,
+@@ -290,8 +278,8 @@ static const struct iommu_ops gart_iommu_ops = {
+ 	.domain_free	= gart_iommu_domain_free,
+ 	.attach_dev	= gart_iommu_attach_dev,
+ 	.detach_dev	= gart_iommu_detach_dev,
+-	.add_device	= gart_iommu_add_device,
+-	.remove_device	= gart_iommu_remove_device,
++	.probe_device	= gart_iommu_probe_device,
++	.release_device	= gart_iommu_release_device,
+ 	.device_group	= generic_device_group,
+ 	.map		= gart_iommu_map,
+ 	.unmap		= gart_iommu_unmap,
+diff --git a/drivers/iommu/tegra-smmu.c b/drivers/iommu/tegra-smmu.c
+index 63a147b623e6..7426b7666e2b 100644
+--- a/drivers/iommu/tegra-smmu.c
++++ b/drivers/iommu/tegra-smmu.c
+@@ -757,11 +757,10 @@ static int tegra_smmu_configure(struct tegra_smmu *smmu, struct device *dev,
+ 	return 0;
+ }
+ 
+-static int tegra_smmu_add_device(struct device *dev)
++static struct iommu_device *tegra_smmu_probe_device(struct device *dev)
+ {
+ 	struct device_node *np = dev->of_node;
+ 	struct tegra_smmu *smmu = NULL;
+-	struct iommu_group *group;
+ 	struct of_phandle_args args;
+ 	unsigned int index = 0;
+ 	int err;
+@@ -774,7 +773,7 @@ static int tegra_smmu_add_device(struct device *dev)
+ 			of_node_put(args.np);
+ 
+ 			if (err < 0)
+-				return err;
++				return ERR_PTR(err);
+ 
+ 			/*
+ 			 * Only a single IOMMU master interface is currently
+@@ -783,8 +782,6 @@ static int tegra_smmu_add_device(struct device *dev)
+ 			 */
+ 			dev->archdata.iommu = smmu;
+ 
+-			iommu_device_link(&smmu->iommu, dev);
+-
+ 			break;
+ 		}
+ 
+@@ -793,26 +790,14 @@ static int tegra_smmu_add_device(struct device *dev)
+ 	}
+ 
+ 	if (!smmu)
+-		return -ENODEV;
+-
+-	group = iommu_group_get_for_dev(dev);
+-	if (IS_ERR(group))
+-		return PTR_ERR(group);
+-
+-	iommu_group_put(group);
++		return ERR_PTR(-ENODEV);
+ 
+-	return 0;
++	return &smmu->iommu;
+ }
+ 
+-static void tegra_smmu_remove_device(struct device *dev)
++static void tegra_smmu_release_device(struct device *dev)
+ {
+-	struct tegra_smmu *smmu = dev->archdata.iommu;
+-
+-	if (smmu)
+-		iommu_device_unlink(&smmu->iommu, dev);
+-
+ 	dev->archdata.iommu = NULL;
+-	iommu_group_remove_device(dev);
+ }
+ 
+ static const struct tegra_smmu_group_soc *
+@@ -895,8 +880,8 @@ static const struct iommu_ops tegra_smmu_ops = {
+ 	.domain_free = tegra_smmu_domain_free,
+ 	.attach_dev = tegra_smmu_attach_dev,
+ 	.detach_dev = tegra_smmu_detach_dev,
+-	.add_device = tegra_smmu_add_device,
+-	.remove_device = tegra_smmu_remove_device,
++	.probe_device = tegra_smmu_probe_device,
++	.release_device = tegra_smmu_release_device,
+ 	.device_group = tegra_smmu_device_group,
+ 	.map = tegra_smmu_map,
+ 	.unmap = tegra_smmu_unmap,
+@@ -1015,7 +1000,7 @@ struct tegra_smmu *tegra_smmu_probe(struct device *dev,
+ 	 * value. However the IOMMU registration process will attempt to add
+ 	 * all devices to the IOMMU when bus_set_iommu() is called. In order
+ 	 * not to rely on global variables to track the IOMMU instance, we
+-	 * set it here so that it can be looked up from the .add_device()
++	 * set it here so that it can be looked up from the .probe_device()
+ 	 * callback via the IOMMU device's .drvdata field.
+ 	 */
+ 	mc->smmu = smmu;
 -- 
 2.17.1
