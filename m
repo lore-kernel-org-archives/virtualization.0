@@ -1,43 +1,139 @@
-From: Christoph Hellwig <hch@infradead.org>
-Subject: Re: [PATCH RFC v2 02/24] scsi: allocate separate queue for reserved
- commands
-Date: Tue, 7 Apr 2020 09:30:33 -0700
-Message-ID: <20200407163033.GA26568@infradead.org>
-References: <1583857550-12049-1-git-send-email-john.garry@huawei.com>
- <1583857550-12049-3-git-send-email-john.garry@huawei.com>
- <20200310183243.GA14549@infradead.org>
- <79cf4341-f2a2-dcc9-be0d-2efc6e83028a@huawei.com>
- <20200311062228.GA13522@infradead.org>
- <b5a63725-722b-8ccd-3867-6db192a248a4@suse.de>
- <9c6ced82-b3f1-9724-b85e-d58827f1a4a4@huawei.com>
- <39bc2d82-2676-e329-5d32-8acb99b0a204@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <39bc2d82-2676-e329-5d32-8acb99b0a204@suse.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Hannes Reinecke <hare@suse.de>
-Cc: John Garry <john.garry@huawei.com>, Christoph Hellwig <hch@infradead.org>, axboe@kernel.dk, jejb@linux.ibm.com, martin.petersen@oracle.com, ming.lei@redhat.com, bvanassche@acm.org, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org, esc.storagedev@microsemi.com, chenxiang66@hisilicon.com, Hannes Reinecke <hare@suse.com>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [RFC PATCH 00/34] iommu: Move iommu_group setup to IOMMU core code
+Date: Tue,  7 Apr 2020 20:37:08 +0200
+Message-ID: <20200407183742.4344-1-joro@8bytes.org>
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 07, 2020 at 04:00:10PM +0200, Hannes Reinecke wrote:
-> My concern is this:
-> 
-> struct scsi_device *scsi_get_host_dev(struct Scsi_Host *shost)
-> {
-> 	[ .. ]
-> 	starget = scsi_alloc_target(&shost->shost_gendev, 0, shost->this_id);
-> 	[ .. ]
-> 
-> and we have typically:
-> 
-> drivers/scsi/hisi_sas/hisi_sas_v3_hw.c: .this_id                = -1,
-> 
-> It's _very_ uncommon to have a negative number as the SCSI target device; in
-> fact, it _is_ an unsigned int already.
-> 
-> But alright, I'll give it a go; let's see what I'll end up with.
+Hi,
 
-But this shouldn't be exposed anywhere.  And I prefer that over having
-magic requests/scsi_cmnd that do not have a valid ->device pointer.
+here is a patch-set to remove all calls of iommu_group_get_for_dev() from
+the IOMMU drivers and move the per-device group setup and default domain
+allocation into the IOMMU core code.
+
+This eliminates some ugly back and forth between IOMMU core code and the
+IOMMU drivers, where the driver called iommu_group_get_for_dev() which itself
+called back into the driver.
+
+The patch-set started as a "quick" Friday afternoon project to split the
+IOMMU group creation and the allocation of the default domain, so that the
+default domain is not allocated before all devices are added to the group.
+In the end it took 1.5 weeks to get this in a reasonable shape, but now the
+code (during bus probing) first adds all devices to their respective IOMMU
+group before it determines the default domain type and then allocates it for
+the group.
+
+It turned out that this required to remove the calls of
+iommu_group_get_for_dev() from the IOMMU drivers. While at it, the calls to
+iommu_device_link()/unlink() where also moved out of the drivers, which
+required a different interface than add_device()/remove_device(). The result
+is the new probe_device()/release_device() interface, where the driver just
+does its own setup and then returns the iommu_device which belongs to the
+device being probed.
+
+There is certainly more room for cleanups, but I think this is a good start
+to simplify the code flow during IOMMU device probing.  It is also a more
+robust base for the pending patch-sets which implement per-group default
+domain types and the removal of the private domains from the Intel VT-d
+driver.
+
+With regards to testing, I verified this code works on three IOMMUs:
+
+	- AMD-Vi
+	- Intel VT-d (but there might be breakages on some hardware, the
+	  patches to remove the private domain handling from the VT-d driver
+	  should be rebased to these patches)
+	- ARM-SMMU-v3 (as emulated by QEMU)
+
+Most driver conversions to the probe_device()/release_device() interface
+were trivial, but there were also some hard nuts, which I am not sure still
+work. The more difficult drivers were:
+
+	- ARM-SMMU-v2
+	- OMAP
+	- Renesas
+	- Mediatek IOMMU v1
+	- Exynos
+
+It would be great if the changes could be tested (and possibly fixed) on
+those IOMMUs, as I can't do testing on them.
+
+The patches are based on the current iommu/next branch, I will rebase them
+to v5.7-rc1 when it comes out. A branch with these patches applied can be
+found here:
+
+	https://git.kernel.org/pub/scm/linux/kernel/git/joro/linux.git/log/?h=iommu-probe-device
+
+Please review and test these changes and let me know what breaks.
+
+Thanks,
+
+	Joerg
+
+Joerg Roedel (33):
+  iommu: Move default domain allocation to separate function
+  iommu/amd: Implement iommu_ops->def_domain_type call-back
+  iommu/vt-d: Wire up iommu_ops->def_domain_type
+  iommu/amd: Remove dma_mask check from check_device()
+  iommu/amd: Return -ENODEV in add_device when device is not handled by
+    IOMMU
+  iommu: Add probe_device() and remove_device() call-backs
+  iommu: Move default domain allocation to iommu_probe_device()
+  iommu: Keep a list of allocated groups in __iommu_probe_device()
+  iommu: Move new probe_device path to separate function
+  iommu: Split off default domain allocation from group assignment
+  iommu: Move iommu_group_create_direct_mappings() out of
+    iommu_group_add_device()
+  iommu: Export bus_iommu_probe() and make is safe for re-probing
+  iommu/amd: Remove dev_data->passthrough
+  iommu/amd: Convert to probe/release_device() call-backs
+  iommu/vt-d: Convert to probe/release_device() call-backs
+  iommu/arm-smmu: Store device instead of group in arm_smmu_s2cr
+  iommu/arm-smmu: Convert to probe/release_device() call-backs
+  iommu/pamu: Convert to probe/release_device() call-backs
+  iommu/s390: Convert to probe/release_device() call-backs
+  iommu/virtio: Convert to probe/release_device() call-backs
+  iommu/msm: Convert to probe/release_device() call-backs
+  iommu/mediatek: Convert to probe/release_device() call-backs
+  iommu/mediatek-v1 Convert to probe/release_device() call-backs
+  iommu/qcom: Convert to probe/release_device() call-backs
+  iommu/rockchip: Convert to probe/release_device() call-backs
+  iommu/tegra: Convert to probe/release_device() call-backs
+  iommu/renesas: Convert to probe/release_device() call-backs
+  iommu/omap: Remove orphan_dev tracking
+  iommu/omap: Convert to probe/release_device() call-backs
+  iommu/exynos: Create iommu_device in struct exynos_iommu_owner
+  iommu/exynos: Convert to probe/release_device() call-backs
+  iommu: Remove add_device()/remove_device() code-paths
+  iommu: Unexport iommu_group_get_for_dev()
+
+Sai Praneeth Prakhya (1):
+  iommu: Add def_domain_type() callback in iommu_ops
+
+ drivers/iommu/amd_iommu.c       |  97 ++++----
+ drivers/iommu/amd_iommu_types.h |   1 -
+ drivers/iommu/arm-smmu-v3.c     |  42 +---
+ drivers/iommu/arm-smmu.c        |  44 ++--
+ drivers/iommu/exynos-iommu.c    | 113 ++++++---
+ drivers/iommu/fsl_pamu_domain.c |  22 +-
+ drivers/iommu/intel-iommu.c     |  68 +-----
+ drivers/iommu/iommu.c           | 391 +++++++++++++++++++++++++-------
+ drivers/iommu/ipmmu-vmsa.c      |  60 ++---
+ drivers/iommu/msm_iommu.c       |  34 +--
+ drivers/iommu/mtk_iommu.c       |  24 +-
+ drivers/iommu/mtk_iommu_v1.c    |  50 ++--
+ drivers/iommu/omap-iommu.c      |  99 ++------
+ drivers/iommu/qcom_iommu.c      |  24 +-
+ drivers/iommu/rockchip-iommu.c  |  26 +--
+ drivers/iommu/s390-iommu.c      |  22 +-
+ drivers/iommu/tegra-gart.c      |  24 +-
+ drivers/iommu/tegra-smmu.c      |  31 +--
+ drivers/iommu/virtio-iommu.c    |  41 +---
+ include/linux/iommu.h           |  21 +-
+ 20 files changed, 600 insertions(+), 634 deletions(-)
+
+-- 
+2.17.1
