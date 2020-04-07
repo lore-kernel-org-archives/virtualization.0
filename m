@@ -1,137 +1,66 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [GIT PULL v2] vhost: cleanups and fixes
-Date: Tue, 7 Apr 2020 05:53:34 -0400
-Message-ID: <20200407055334-mutt-send-email-mst@kernel.org>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [GIT PULL v2] vhost: cleanups and fixes
+Date: Tue, 7 Apr 2020 11:56:59 +0200
+Message-ID: <00a7ce5f-8fb4-8c3e-7113-9a422682abdf@redhat.com>
+References: <20200407055334-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, alexander.h.duyck@linux.intel.com, david@redhat.com, eperezma@redhat.com, jasowang@redhat.com, lingshan.zhu@intel.com, mhocko@kernel.org, mst@redhat.com, namit@vmware.com, rdunlap@infradead.org, rientjes@google.com, tiwei.bie@intel.com, tysand@google.com, wei.w.wang@intel.com, xiao.w.wang@intel.com, yuri.benditovich@daynix.com
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20200407055334-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+Sender: netdev-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, alexander.h.duyck@linux.intel.com, eperezma@redhat.com, jasowang@redhat.com, lingshan.zhu@intel.com, mhocko@kernel.org, namit@vmware.com, rdunlap@infradead.org, rientjes@google.com, tiwei.bie@intel.com, tysand@google.com, wei.w.wang@intel.com, xiao.w.wang@intel.com, yuri.benditovich@daynix.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Changes from PULL v1:
-	reverted a commit that was also in Andrew Morton's tree,
-	to resolve a merge conflict:
-	this is what Stephen Rothwell was doing to resolve it
-	in linux-next.
+On 07.04.20 11:53, Michael S. Tsirkin wrote:
+> Changes from PULL v1:
+> 	reverted a commit that was also in Andrew Morton's tree,
+> 	to resolve a merge conflict:
+> 	this is what Stephen Rothwell was doing to resolve it
+> 	in linux-next.
+> 
+> 
+> Now that many more architectures build vhost, a couple of these (um, and
+> arm with deprecated oabi) have reported build failures with randconfig,
+> however fixes for that need a bit more discussion/testing and will be
+> merged separately.
+> 
+> Not a regression - these previously simply didn't have vhost at all.
+> Also, there's some DMA API code in the vdpa simulator is hacky - if no
+> solution surfaces soon we can always disable it before release:
+> it's not a big deal either way as it's just test code.
+> 
+> 
+> The following changes since commit 16fbf79b0f83bc752cee8589279f1ebfe57b3b6e:
+> 
+>   Linux 5.6-rc7 (2020-03-22 18:31:56 -0700)
+> 
+> are available in the Git repository at:
+> 
+>   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+> 
+> for you to fetch changes up to 835a6a649d0dd1b1f46759eb60fff2f63ed253a7:
+> 
+>   virtio-balloon: Revert "virtio-balloon: Switch back to OOM handler for VIRTIO_BALLOON_F_DEFLATE_ON_OOM" (2020-04-07 05:44:57 -0400)
+> 
+> ----------------------------------------------------------------
+> virtio: fixes, vdpa
+> 
+> Some bug fixes.
+> The new vdpa subsystem with two first drivers.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> 
+> ----------------------------------------------------------------
+> David Hildenbrand (1):
+>       virtio-balloon: Switch back to OOM handler for VIRTIO_BALLOON_F_DEFLATE_ON_OOM
+
+^ stale leftover in this message only I assume
 
 
-Now that many more architectures build vhost, a couple of these (um, and
-arm with deprecated oabi) have reported build failures with randconfig,
-however fixes for that need a bit more discussion/testing and will be
-merged separately.
+-- 
+Thanks,
 
-Not a regression - these previously simply didn't have vhost at all.
-Also, there's some DMA API code in the vdpa simulator is hacky - if no
-solution surfaces soon we can always disable it before release:
-it's not a big deal either way as it's just test code.
-
-
-The following changes since commit 16fbf79b0f83bc752cee8589279f1ebfe57b3b6e:
-
-  Linux 5.6-rc7 (2020-03-22 18:31:56 -0700)
-
-are available in the Git repository at:
-
-  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-
-for you to fetch changes up to 835a6a649d0dd1b1f46759eb60fff2f63ed253a7:
-
-  virtio-balloon: Revert "virtio-balloon: Switch back to OOM handler for VIRTIO_BALLOON_F_DEFLATE_ON_OOM" (2020-04-07 05:44:57 -0400)
-
-----------------------------------------------------------------
-virtio: fixes, vdpa
-
-Some bug fixes.
-The new vdpa subsystem with two first drivers.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-
-----------------------------------------------------------------
-David Hildenbrand (1):
-      virtio-balloon: Switch back to OOM handler for VIRTIO_BALLOON_F_DEFLATE_ON_OOM
-
-Jason Wang (7):
-      vhost: refine vhost and vringh kconfig
-      vhost: allow per device message handler
-      vhost: factor out IOTLB
-      vringh: IOTLB support
-      vDPA: introduce vDPA bus
-      virtio: introduce a vDPA based transport
-      vdpasim: vDPA device simulator
-
-Michael S. Tsirkin (3):
-      tools/virtio: option to build an out of tree module
-      vdpa: move to drivers/vdpa
-      virtio-balloon: Revert "virtio-balloon: Switch back to OOM handler for VIRTIO_BALLOON_F_DEFLATE_ON_OOM"
-
-Tiwei Bie (1):
-      vhost: introduce vDPA-based backend
-
-Yuri Benditovich (3):
-      virtio-net: Introduce extended RSC feature
-      virtio-net: Introduce RSS receive steering feature
-      virtio-net: Introduce hash report feature
-
-Zhu Lingshan (1):
-      virtio: Intel IFC VF driver for VDPA
-
- MAINTAINERS                      |   3 +
- arch/arm/kvm/Kconfig             |   2 -
- arch/arm64/kvm/Kconfig           |   2 -
- arch/mips/kvm/Kconfig            |   2 -
- arch/powerpc/kvm/Kconfig         |   2 -
- arch/s390/kvm/Kconfig            |   4 -
- arch/x86/kvm/Kconfig             |   4 -
- drivers/Kconfig                  |   4 +
- drivers/Makefile                 |   1 +
- drivers/misc/mic/Kconfig         |   4 -
- drivers/net/caif/Kconfig         |   4 -
- drivers/vdpa/Kconfig             |  37 ++
- drivers/vdpa/Makefile            |   4 +
- drivers/vdpa/ifcvf/Makefile      |   3 +
- drivers/vdpa/ifcvf/ifcvf_base.c  | 389 +++++++++++++++++
- drivers/vdpa/ifcvf/ifcvf_base.h  | 118 ++++++
- drivers/vdpa/ifcvf/ifcvf_main.c  | 435 +++++++++++++++++++
- drivers/vdpa/vdpa.c              | 180 ++++++++
- drivers/vdpa/vdpa_sim/Makefile   |   2 +
- drivers/vdpa/vdpa_sim/vdpa_sim.c | 629 ++++++++++++++++++++++++++++
- drivers/vhost/Kconfig            |  45 +-
- drivers/vhost/Kconfig.vringh     |   6 -
- drivers/vhost/Makefile           |   6 +
- drivers/vhost/iotlb.c            | 177 ++++++++
- drivers/vhost/net.c              |   5 +-
- drivers/vhost/scsi.c             |   2 +-
- drivers/vhost/vdpa.c             | 883 +++++++++++++++++++++++++++++++++++++++
- drivers/vhost/vhost.c            | 233 ++++-------
- drivers/vhost/vhost.h            |  45 +-
- drivers/vhost/vringh.c           | 421 ++++++++++++++++++-
- drivers/vhost/vsock.c            |   2 +-
- drivers/virtio/Kconfig           |  13 +
- drivers/virtio/Makefile          |   1 +
- drivers/virtio/virtio_vdpa.c     | 396 ++++++++++++++++++
- include/linux/vdpa.h             | 253 +++++++++++
- include/linux/vhost_iotlb.h      |  47 +++
- include/linux/vringh.h           |  36 ++
- include/uapi/linux/vhost.h       |  24 ++
- include/uapi/linux/vhost_types.h |   8 +
- include/uapi/linux/virtio_net.h  | 102 ++++-
- tools/virtio/Makefile            |  27 +-
- 41 files changed, 4310 insertions(+), 251 deletions(-)
- create mode 100644 drivers/vdpa/Kconfig
- create mode 100644 drivers/vdpa/Makefile
- create mode 100644 drivers/vdpa/ifcvf/Makefile
- create mode 100644 drivers/vdpa/ifcvf/ifcvf_base.c
- create mode 100644 drivers/vdpa/ifcvf/ifcvf_base.h
- create mode 100644 drivers/vdpa/ifcvf/ifcvf_main.c
- create mode 100644 drivers/vdpa/vdpa.c
- create mode 100644 drivers/vdpa/vdpa_sim/Makefile
- create mode 100644 drivers/vdpa/vdpa_sim/vdpa_sim.c
- delete mode 100644 drivers/vhost/Kconfig.vringh
- create mode 100644 drivers/vhost/iotlb.c
- create mode 100644 drivers/vhost/vdpa.c
- create mode 100644 drivers/virtio/virtio_vdpa.c
- create mode 100644 include/linux/vdpa.h
- create mode 100644 include/linux/vhost_iotlb.h
+David / dhildenb
