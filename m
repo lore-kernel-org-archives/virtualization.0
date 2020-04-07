@@ -1,66 +1,66 @@
-From: Yan Zhao <yan.y.zhao@intel.com>
-Subject: Re: [PATCH 2/6] i915/gvt/kvm: a NULL ->mm does not mean a thread is
- a kthread
-Date: Mon, 6 Apr 2020 23:08:46 -0400
-Message-ID: <20200407030845.GA10586@joy-OptiPlex-7040>
-References: <20200404094101.672954-1-hch@lst.de>
- <20200404094101.672954-3-hch@lst.de>
-Reply-To: Yan Zhao <yan.y.zhao@intel.com>
+From: Andrew Donnellan <ajd@linux.ibm.com>
+Subject: Re: [PATCH] Fix: buffer overflow during hvc_alloc().
+Date: Tue, 7 Apr 2020 16:23:06 +1000
+Message-ID: <06ecf4d9-80d7-fbfd-3f95-9241d8d0d5cd@linux.ibm.com>
+References: <20200405204024.1007843-1-andrew@daynix.com>
+ <a8ab8fe3-3200-9591-7572-abbbd2d505ff@linux.ibm.com>
+ <CABcq3pHMSN9vZRrV1xL6nA7HOK-+wnFSEQsqTqFVvKr4usNbOg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200404094101.672954-3-hch@lst.de>
+In-Reply-To: <CABcq3pHMSN9vZRrV1xL6nA7HOK-+wnFSEQsqTqFVvKr4usNbOg@mail.gmail.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Christoph Hellwig <hch@lst.de>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, Jens Axboe <axboe@kernel.dk>, Felipe Balbi <balbi@kernel.org>, amd-gfx@lists.freedesktop.org, "Michael S. Tsirkin" <mst@redhat.com>, Felix Kuehling <Felix.Kuehling@amd.com>, linux-usb@vger.kernel.org, io-uring@vger.kernel.org, linux-kernel@vger.kernel.org, Zhenyu Wang <zhenyuw@linux.intel.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, linux-fsdevel@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>, intel-gfx@lists.freedesktop.org, Alex Deucher <alexander.deucher@amd.com>, intel-gvt-dev@lists.freedesktop.org, Jason Wang <jasowang@redhat.com>, Zhi Wang <zhi.a.wang@intel.com>
+To: Andrew Melnichenko <andrew@daynix.com>
+Cc: gregkh@linuxfoundation.org, linux-kernel@vger.kernel.org, jslaby@suse.com, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Apr 04, 2020 at 11:40:57AM +0200, Christoph Hellwig wrote:
-> Use the proper API instead.
+On 6/4/20 6:05 pm, Andrew Melnichenko wrote:
 > 
-> Fixes: f440c8a572d7 ("drm/i915/gvt/kvmgt: read/write GPA via KVM API")
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> ---
->  drivers/gpu/drm/i915/gvt/kvmgt.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>     Steps to Reproduce:
 > 
-> diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kvmgt.c
-> index 074c4efb58eb..5848400620b4 100644
-> --- a/drivers/gpu/drm/i915/gvt/kvmgt.c
-> +++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
-> @@ -2037,7 +2037,7 @@ static int kvmgt_rw_gpa(unsigned long handle, unsigned long gpa,
->  	struct kvmgt_guest_info *info;
->  	struct kvm *kvm;
->  	int idx, ret;
-> -	bool kthread = current->mm == NULL;
-> +	bool kthread = (current->flags & PF_KTHREAD);
->  
->  	if (!handle_valid(handle))
->  		return -ESRCH;
-> -- 
-> 2.25.1
->
-hi
-we were removing this code. see
-https://lore.kernel.org/kvm/20200313031109.7989-1-yan.y.zhao@intel.com/
+>     1. boot guest with command [1]
+>     2. load and unload virtio_console inside guest with loop.sh
+>         # cat loop.sh
+>          while [ 1 ]
+>          do
+>     modprobe virtio_console
+>     lsmod | grep virt
+>     modprobe -r virtio_console
+>     lsmod | grep virt
+>          done
+> 
+> 
+> 
+>     Actual results:
+>     Guest reboot and can get vmcore-dmesg.txt file
+> 
+> 
+>     Expected results:
+>     Guest works well without error
+> 
+> 
+>     Additional info:
+>     The whole log will attach to the attachments.
+> 
+>     Call Trace:
+>     [   22.974500] fuse: init (API version 7.31)
+>     [   81.498208] ------------[ cut here ]------------
+>     [   81.499263] pvqspinlock: lock 0xffffffff92080020 has corrupted
+>     value 0xc0774ca0!
+>     [   81.501000] WARNING: CPU: 0 PID: 785 at
+>     kernel/locking/qspinlock_paravirt.h:500
 
-The implementation of vfio_dma_rw() has been in vfio next tree.
-https://github.com/awilliam/linux-vfio/commit/8d46c0cca5f4dc0538173d62cd36b1119b5105bc
+[snip]
 
-in vfio_dma_rw(),  we still use
-bool kthread = current->mm == NULL.
-because if current->mm != NULL and current->flags & PF_KTHREAD, instead
-of calling use_mm(), we first check if (current->mm == mm) and allow copy_to_user() if it's true.
+Thanks!
 
-Do you think it's all right?
-
-Thanks
-Yan
+You should include an appropriate excerpt from this - the WARNING 
+message and stack trace, and the steps to reproduce - in the commit 
+message of the patch.
 
 
-
-> _______________________________________________
-> intel-gvt-dev mailing list
-> intel-gvt-dev@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/intel-gvt-dev
+-- 
+Andrew Donnellan              OzLabs, ADL Canberra
+ajd@linux.ibm.com             IBM Australia Limited
