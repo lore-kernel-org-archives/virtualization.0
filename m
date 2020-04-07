@@ -1,8 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [RFC PATCH 21/34] iommu/virtio: Convert to probe/release_device()
- call-backs
-Date: Tue,  7 Apr 2020 20:37:29 +0200
-Message-ID: <20200407183742.4344-22-joro@8bytes.org>
+Subject: [RFC PATCH 14/34] iommu/amd: Remove dev_data->passthrough
+Date: Tue,  7 Apr 2020 20:37:22 +0200
+Message-ID: <20200407183742.4344-15-joro@8bytes.org>
 References: <20200407183742.4344-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,108 +23,63 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Convert the VirtIO IOMMU driver to use the probe_device() and
-release_device() call-backs of iommu_ops, so that the iommu core code
-does the group and sysfs setup.
+Make use of generic IOMMU infrastructure to gather the same information
+carried in dev_data->passthrough and remove the struct member.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- drivers/iommu/virtio-iommu.c | 41 +++++++++---------------------------
- 1 file changed, 10 insertions(+), 31 deletions(-)
+ drivers/iommu/amd_iommu.c       | 10 +++++-----
+ drivers/iommu/amd_iommu_types.h |  1 -
+ 2 files changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-index d5cac4f46ca5..bda300c2a438 100644
---- a/drivers/iommu/virtio-iommu.c
-+++ b/drivers/iommu/virtio-iommu.c
-@@ -865,24 +865,23 @@ static struct viommu_dev *viommu_get_by_fwnode(struct fwnode_handle *fwnode)
- 	return dev ? dev_to_virtio(dev)->priv : NULL;
- }
- 
--static int viommu_add_device(struct device *dev)
-+static struct iommu_device *viommu_probe_device(struct device *dev)
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index 3e0d27f7622e..0b4b4faa876d 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -2047,8 +2047,8 @@ static int pdev_iommuv2_enable(struct pci_dev *pdev)
+ static int attach_device(struct device *dev,
+ 			 struct protection_domain *domain)
  {
+-	struct pci_dev *pdev;
+ 	struct iommu_dev_data *dev_data;
++	struct pci_dev *pdev;
+ 	unsigned long flags;
  	int ret;
--	struct iommu_group *group;
- 	struct viommu_endpoint *vdev;
- 	struct viommu_dev *viommu = NULL;
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
  
- 	if (!fwspec || fwspec->ops != &viommu_ops)
--		return -ENODEV;
-+		return ERR_PTR(-ENODEV);
+@@ -2067,8 +2067,10 @@ static int attach_device(struct device *dev,
  
- 	viommu = viommu_get_by_fwnode(fwspec->iommu_fwnode);
- 	if (!viommu)
--		return -ENODEV;
-+		return ERR_PTR(-ENODEV);
+ 	pdev = to_pci_dev(dev);
+ 	if (domain->flags & PD_IOMMUV2_MASK) {
++		struct iommu_domain *def_domain = iommu_get_dma_domain(dev);
++
+ 		ret = -EINVAL;
+-		if (!dev_data->passthrough)
++		if (def_domain->type != IOMMU_DOMAIN_IDENTITY)
+ 			goto out;
  
- 	vdev = kzalloc(sizeof(*vdev), GFP_KERNEL);
- 	if (!vdev)
--		return -ENOMEM;
-+		return ERR_PTR(-ENOMEM);
+ 		if (dev_data->iommu_v2) {
+@@ -2189,9 +2191,7 @@ static int amd_iommu_add_device(struct device *dev)
  
- 	vdev->dev = dev;
- 	vdev->viommu = viommu;
-@@ -896,45 +895,25 @@ static int viommu_add_device(struct device *dev)
- 			goto err_free_dev;
- 	}
+ 	/* Domains are initialized for this device - have a look what we ended up with */
+ 	domain = iommu_get_domain_for_dev(dev);
+-	if (domain->type == IOMMU_DOMAIN_IDENTITY)
+-		dev_data->passthrough = true;
+-	else if (domain->type == IOMMU_DOMAIN_DMA)
++	if (domain->type == IOMMU_DOMAIN_DMA)
+ 		iommu_setup_dma_ops(dev, IOVA_START_PFN << PAGE_SHIFT, 0);
  
--	ret = iommu_device_link(&viommu->iommu, dev);
--	if (ret)
--		goto err_free_dev;
-+	return &viommu->iommu;
- 
--	/*
--	 * Last step creates a default domain and attaches to it. Everything
--	 * must be ready.
--	 */
--	group = iommu_group_get_for_dev(dev);
--	if (IS_ERR(group)) {
--		ret = PTR_ERR(group);
--		goto err_unlink_dev;
--	}
--
--	iommu_group_put(group);
--
--	return PTR_ERR_OR_ZERO(group);
--
--err_unlink_dev:
--	iommu_device_unlink(&viommu->iommu, dev);
- err_free_dev:
- 	generic_iommu_put_resv_regions(dev, &vdev->resv_regions);
- 	kfree(vdev);
- 
--	return ret;
-+	return ERR_PTR(ret);
- }
- 
--static void viommu_remove_device(struct device *dev)
-+static void viommu_release_device(struct device *dev)
- {
--	struct viommu_endpoint *vdev;
- 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
-+	struct viommu_endpoint *vdev;
- 
- 	if (!fwspec || fwspec->ops != &viommu_ops)
- 		return;
- 
- 	vdev = dev_iommu_priv_get(dev);
- 
--	iommu_group_remove_device(dev);
--	iommu_device_unlink(&vdev->viommu->iommu, dev);
- 	generic_iommu_put_resv_regions(dev, &vdev->resv_regions);
- 	kfree(vdev);
- }
-@@ -960,8 +939,8 @@ static struct iommu_ops viommu_ops = {
- 	.unmap			= viommu_unmap,
- 	.iova_to_phys		= viommu_iova_to_phys,
- 	.iotlb_sync		= viommu_iotlb_sync,
--	.add_device		= viommu_add_device,
--	.remove_device		= viommu_remove_device,
-+	.probe_device		= viommu_probe_device,
-+	.release_device		= viommu_release_device,
- 	.device_group		= viommu_device_group,
- 	.get_resv_regions	= viommu_get_resv_regions,
- 	.put_resv_regions	= generic_iommu_put_resv_regions,
+ out:
+diff --git a/drivers/iommu/amd_iommu_types.h b/drivers/iommu/amd_iommu_types.h
+index ca8c4522045b..d0d7b6a0c3d8 100644
+--- a/drivers/iommu/amd_iommu_types.h
++++ b/drivers/iommu/amd_iommu_types.h
+@@ -640,7 +640,6 @@ struct iommu_dev_data {
+ 	struct pci_dev *pdev;
+ 	u16 devid;			  /* PCI Device ID */
+ 	bool iommu_v2;			  /* Device can make use of IOMMUv2 */
+-	bool passthrough;		  /* Device is identity mapped */
+ 	struct {
+ 		bool enabled;
+ 		int qdep;
 -- 
 2.17.1
