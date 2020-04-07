@@ -1,8 +1,8 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [RFC PATCH 11/34] iommu: Split off default domain allocation from
- group assignment
-Date: Tue,  7 Apr 2020 20:37:19 +0200
-Message-ID: <20200407183742.4344-12-joro@8bytes.org>
+Subject: [RFC PATCH 26/34] iommu/rockchip: Convert to probe/release_device()
+ call-backs
+Date: Tue,  7 Apr 2020 20:37:34 +0200
+Message-ID: <20200407183742.4344-27-joro@8bytes.org>
 References: <20200407183742.4344-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,213 +24,75 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-When a bus is initialized with iommu-ops, all devices on the bus are
-scanned and iommu-groups are allocated for them, and each groups will
-also get a default domain allocated.
-
-Until now this happened as soon as the group was created and the first
-device added to it. When other devices with different default domain
-requirements were added to the group later on, the default domain was
-re-allocated, if possible.
-
-This resulted in some back and forth and unnecessary allocations, so
-change the flow to defer default domain allocation until all devices
-have been added to their respective IOMMU groups.
-
-The default domains are allocated for newly allocated groups after
-each device on the bus is handled and was probed by the IOMMU driver.
+Convert the Rockchip IOMMU driver to use the probe_device() and
+release_device() call-backs of iommu_ops, so that the iommu core code
+does the group and sysfs setup.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- drivers/iommu/iommu.c | 152 +++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 149 insertions(+), 3 deletions(-)
+ drivers/iommu/rockchip-iommu.c | 26 +++++++-------------------
+ 1 file changed, 7 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 8be047a4808f..44514e3e8ca2 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -199,7 +199,7 @@ static int __iommu_probe_device(struct device *dev, struct list_head *group_list
- 	dev->iommu->iommu_dev = iommu_dev;
- 
- 	group = iommu_group_get_for_dev(dev);
--	if (!IS_ERR(group)) {
-+	if (IS_ERR(group)) {
- 		ret = PTR_ERR(group);
- 		goto out_release;
- 	}
-@@ -1599,6 +1599,37 @@ static int add_iommu_group(struct device *dev, void *data)
- 	return ret;
+diff --git a/drivers/iommu/rockchip-iommu.c b/drivers/iommu/rockchip-iommu.c
+index b33cdd5aad81..d25c2486ca07 100644
+--- a/drivers/iommu/rockchip-iommu.c
++++ b/drivers/iommu/rockchip-iommu.c
+@@ -1054,40 +1054,28 @@ static void rk_iommu_domain_free(struct iommu_domain *domain)
+ 	kfree(rk_domain);
  }
  
-+static int probe_iommu_group(struct device *dev, void *data)
-+{
-+	const struct iommu_ops *ops = dev->bus->iommu_ops;
-+	struct list_head *group_list = data;
-+	int ret;
-+
-+	if (!dev_iommu_get(dev))
-+		return -ENOMEM;
-+
-+	if (!try_module_get(ops->owner)) {
-+		ret = -EINVAL;
-+		goto err_free_dev_iommu;
-+	}
-+
-+	ret = __iommu_probe_device(dev, group_list);
-+	if (ret)
-+		goto err_module_put;
-+
-+	return 0;
-+
-+err_module_put:
-+	module_put(ops->owner);
-+err_free_dev_iommu:
-+	dev_iommu_free(dev);
-+
-+	if (ret == -ENODEV)
-+		ret = 0;
-+
-+	return ret;
-+}
-+
- static int remove_iommu_group(struct device *dev, void *data)
+-static int rk_iommu_add_device(struct device *dev)
++static struct iommu_device *rk_iommu_probe_device(struct device *dev)
  {
- 	iommu_release_device(dev);
-@@ -1658,10 +1689,125 @@ static int iommu_bus_notifier(struct notifier_block *nb,
- 	return 0;
+-	struct iommu_group *group;
+-	struct rk_iommu *iommu;
+ 	struct rk_iommudata *data;
++	struct rk_iommu *iommu;
+ 
+ 	data = dev->archdata.iommu;
+ 	if (!data)
+-		return -ENODEV;
++		return ERR_PTR(-ENODEV);
+ 
+ 	iommu = rk_iommu_from_dev(dev);
+ 
+-	group = iommu_group_get_for_dev(dev);
+-	if (IS_ERR(group))
+-		return PTR_ERR(group);
+-	iommu_group_put(group);
+-
+-	iommu_device_link(&iommu->iommu, dev);
+ 	data->link = device_link_add(dev, iommu->dev,
+ 				     DL_FLAG_STATELESS | DL_FLAG_PM_RUNTIME);
+ 
+-	return 0;
++	return &iommu->iommu;
  }
  
-+struct __group_domain_type {
-+	struct device *dev;
-+	unsigned int type;
-+};
-+
-+static int probe_get_default_domain_type(struct device *dev, void *data)
-+{
-+	const struct iommu_ops *ops = dev->bus->iommu_ops;
-+	struct __group_domain_type *gtype = data;
-+	unsigned int type = 0;
-+
-+	if (ops->def_domain_type)
-+		type = ops->def_domain_type(dev);
-+
-+	if (type) {
-+		if (gtype->type && gtype->type != type) {
-+			dev_warn(dev, "Device needs domain type %s, but device %s in the same iommu group requires type %s - using default\n",
-+				 iommu_domain_type_str(type),
-+				 dev_name(gtype->dev),
-+				 iommu_domain_type_str(gtype->type));
-+			gtype->type = 0;
-+		}
-+
-+		if (!gtype->dev) {
-+			gtype->dev  = dev;
-+			gtype->type = type;
-+		}
-+	}
-+
-+	return 0;
-+}
-+
-+static void probe_alloc_default_domain(struct bus_type *bus,
-+				       struct iommu_group *group)
-+{
-+	struct __group_domain_type gtype;
-+
-+	memset(&gtype, 0, sizeof(gtype));
-+
-+	/* Ask for default domain requirements of all devices in the group */
-+	__iommu_group_for_each_dev(group, &gtype,
-+				   probe_get_default_domain_type);
-+
-+	if (!gtype.type)
-+		gtype.type = iommu_def_domain_type;
-+
-+	iommu_group_alloc_default_domain(bus, group, gtype.type);
-+}
-+
-+static int iommu_group_do_dma_attach(struct device *dev, void *data)
-+{
-+	struct iommu_domain *domain = data;
-+	const struct iommu_ops *ops;
-+	int ret;
-+
-+	ret = __iommu_attach_device(domain, dev);
-+
-+	ops = domain->ops;
-+
-+	if (ret == 0 && ops->probe_finalize)
-+		ops->probe_finalize(dev);
-+
-+	return ret;
-+}
-+
-+static int __iommu_group_dma_attach(struct iommu_group *group)
-+{
-+	return __iommu_group_for_each_dev(group, group->default_domain,
-+					  iommu_group_do_dma_attach);
-+}
-+
-+static int bus_iommu_probe(struct bus_type *bus)
-+{
-+	const struct iommu_ops *ops = bus->iommu_ops;
-+	int ret;
-+
-+	if (ops->probe_device) {
-+		struct iommu_group *group, *next;
-+		LIST_HEAD(group_list);
-+
-+		/*
-+		 * This code-path does not allocate the default domain when
-+		 * creating the iommu group, so do it after the groups are
-+		 * created.
-+		 */
-+		ret = bus_for_each_dev(bus, NULL, &group_list, probe_iommu_group);
-+		if (ret)
-+			return ret;
-+
-+		list_for_each_entry_safe(group, next, &group_list, entry) {
-+			/* Remove item from the list */
-+			list_del_init(&group->entry);
-+
-+			mutex_lock(&group->mutex);
-+
-+			/* Try to allocate default domain */
-+			probe_alloc_default_domain(bus, group);
-+
-+			if (!group->default_domain)
-+				continue;
-+
-+			ret = __iommu_group_dma_attach(group);
-+
-+			mutex_unlock(&group->mutex);
-+
-+			if (ret)
-+				break;
-+		}
-+	} else {
-+		ret = bus_for_each_dev(bus, NULL, NULL, add_iommu_group);
-+	}
-+
-+	return ret;
-+}
-+
- static int iommu_bus_init(struct bus_type *bus, const struct iommu_ops *ops)
+-static void rk_iommu_remove_device(struct device *dev)
++static void rk_iommu_release_device(struct device *dev)
  {
--	int err;
- 	struct notifier_block *nb;
-+	int err;
+-	struct rk_iommu *iommu;
+ 	struct rk_iommudata *data = dev->archdata.iommu;
  
- 	nb = kzalloc(sizeof(struct notifier_block), GFP_KERNEL);
- 	if (!nb)
-@@ -1673,7 +1819,7 @@ static int iommu_bus_init(struct bus_type *bus, const struct iommu_ops *ops)
- 	if (err)
- 		goto out_free;
+-	iommu = rk_iommu_from_dev(dev);
+-
+ 	device_link_del(data->link);
+-	iommu_device_unlink(&iommu->iommu, dev);
+-	iommu_group_remove_device(dev);
+ }
  
--	err = bus_for_each_dev(bus, NULL, NULL, add_iommu_group);
-+	err = bus_iommu_probe(bus);
- 	if (err)
- 		goto out_err;
- 
+ static struct iommu_group *rk_iommu_device_group(struct device *dev)
+@@ -1126,8 +1114,8 @@ static const struct iommu_ops rk_iommu_ops = {
+ 	.detach_dev = rk_iommu_detach_device,
+ 	.map = rk_iommu_map,
+ 	.unmap = rk_iommu_unmap,
+-	.add_device = rk_iommu_add_device,
+-	.remove_device = rk_iommu_remove_device,
++	.probe_device = rk_iommu_probe_device,
++	.release_device = rk_iommu_release_device,
+ 	.iova_to_phys = rk_iommu_iova_to_phys,
+ 	.device_group = rk_iommu_device_group,
+ 	.pgsize_bitmap = RK_IOMMU_PGSIZE_BITMAP,
 -- 
 2.17.1
