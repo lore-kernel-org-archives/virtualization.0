@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v7 03/19] tools/virtio: define __KERNEL__
-Date: Mon, 6 Apr 2020 21:07:32 -0400
-Message-ID: <20200407010700.446571-4-mst@redhat.com>
+Subject: [PATCH v7 05/19] virtgpu: pull in uaccess.h
+Date: Mon, 6 Apr 2020 21:07:36 -0400
+Message-ID: <20200407010700.446571-6-mst@redhat.com>
 References: <20200407010700.446571-1-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -10,28 +10,28 @@ Content-Disposition: inline
 In-Reply-To: <20200407010700.446571-1-mst@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org
+Cc: David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>, Daniel Vetter <daniel@ffwll.ch>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Even though we are building in userspace, we are emulating kernel bits.
+In preparation to virtio header changes, include uaccess.h directly as
+this file is using copy to/from user.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- tools/virtio/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/virtio/Makefile b/tools/virtio/Makefile
-index b587b9a7a124..ea6674307507 100644
---- a/tools/virtio/Makefile
-+++ b/tools/virtio/Makefile
-@@ -4,7 +4,7 @@ test: virtio_test vringh_test
- virtio_test: virtio_ring.o virtio_test.o
- vringh_test: vringh_test.o vringh.o virtio_ring.o
+diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+index 205ec4abae2b..2342a8baa5f8 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
++++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+@@ -27,6 +27,7 @@
  
--CFLAGS += -g -O2 -Werror -Wall -I. -I../include/ -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -include ../../include/linux/kconfig.h
-+CFLAGS += -g -O2 -Werror -Wall -I. -I../include/ -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -include ../../include/linux/kconfig.h -D__KERNEL__
- vpath %.c ../../drivers/virtio ../../drivers/vhost
- mod:
- 	${MAKE} -C `pwd`/../.. M=`pwd`/vhost_test V=${V}
+ #include <linux/file.h>
+ #include <linux/sync_file.h>
++#include <linux/uacess.h>
+ 
+ #include <drm/drm_file.h>
+ #include <drm/virtgpu_drm.h>
 -- 
 MST
