@@ -1,7 +1,8 @@
 From: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
-Subject: [RFC PATCH 05/34] iommu/amd: Remove dma_mask check from check_device()
-Date: Tue,  7 Apr 2020 20:37:13 +0200
-Message-ID: <20200407183742.4344-6-joro@8bytes.org>
+Subject: [RFC PATCH 16/34] iommu/vt-d: Convert to probe/release_device()
+ call-backs
+Date: Tue,  7 Apr 2020 20:37:24 +0200
+Message-ID: <20200407183742.4344-17-joro@8bytes.org>
 References: <20200407183742.4344-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,26 +24,123 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
 
-The check was only needed for the DMA-API implementation in the AMD
-IOMMU driver, which no longer exists.
+Convert the Intel IOMMU driver to use the probe_device() and
+release_device() call-backs of iommu_ops, so that the iommu core code
+does the group and sysfs setup.
 
 Signed-off-by: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
 ---
- drivers/iommu/amd_iommu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iommu/intel-iommu.c | 67 ++++---------------------------------
+ 1 file changed, 6 insertions(+), 61 deletions(-)
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index 73b4f84cf449..504f2db75eda 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -326,7 +326,7 @@ static bool check_device(struct device *dev)
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index b9f905a55dda..b906727f5b85 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -5781,78 +5781,27 @@ static bool intel_iommu_capable(enum iommu_cap cap)
+ 	return false;
+ }
+ 
+-static int intel_iommu_add_device(struct device *dev)
++static struct iommu_device *intel_iommu_probe_device(struct device *dev)
  {
- 	int devid;
+-	struct dmar_domain *dmar_domain;
+-	struct iommu_domain *domain;
+ 	struct intel_iommu *iommu;
+-	struct iommu_group *group;
+ 	u8 bus, devfn;
+-	int ret;
  
--	if (!dev || !dev->dma_mask)
-+	if (!dev)
- 		return false;
+ 	iommu = device_to_iommu(dev, &bus, &devfn);
+ 	if (!iommu)
+-		return -ENODEV;
+-
+-	iommu_device_link(&iommu->iommu, dev);
++		return ERR_PTR(-ENODEV);
  
- 	devid = get_device_id(dev);
+ 	if (translation_pre_enabled(iommu))
+ 		dev->archdata.iommu = DEFER_DEVICE_DOMAIN_INFO;
+ 
+-	group = iommu_group_get_for_dev(dev);
+-
+-	if (IS_ERR(group)) {
+-		ret = PTR_ERR(group);
+-		goto unlink;
+-	}
+-
+-	iommu_group_put(group);
+-
+-	domain = iommu_get_domain_for_dev(dev);
+-	dmar_domain = to_dmar_domain(domain);
+-	if (domain->type == IOMMU_DOMAIN_DMA) {
+-		if (device_def_domain_type(dev) == IOMMU_DOMAIN_IDENTITY) {
+-			ret = iommu_request_dm_for_dev(dev);
+-			if (ret) {
+-				dmar_remove_one_dev_info(dev);
+-				dmar_domain->flags |= DOMAIN_FLAG_LOSE_CHILDREN;
+-				domain_add_dev_info(si_domain, dev);
+-				dev_info(dev,
+-					 "Device uses a private identity domain.\n");
+-			}
+-		}
+-	} else {
+-		if (device_def_domain_type(dev) == IOMMU_DOMAIN_DMA) {
+-			ret = iommu_request_dma_domain_for_dev(dev);
+-			if (ret) {
+-				dmar_remove_one_dev_info(dev);
+-				dmar_domain->flags |= DOMAIN_FLAG_LOSE_CHILDREN;
+-				if (!get_private_domain_for_dev(dev)) {
+-					dev_warn(dev,
+-						 "Failed to get a private domain.\n");
+-					ret = -ENOMEM;
+-					goto unlink;
+-				}
+-
+-				dev_info(dev,
+-					 "Device uses a private dma domain.\n");
+-			}
+-		}
+-	}
+-
+ 	if (device_needs_bounce(dev)) {
+ 		dev_info(dev, "Use Intel IOMMU bounce page dma_ops\n");
+ 		set_dma_ops(dev, &bounce_dma_ops);
+ 	}
+ 
+-	return 0;
+-
+-unlink:
+-	iommu_device_unlink(&iommu->iommu, dev);
+-	return ret;
++	return &iommu->iommu;
+ }
+ 
+-static void intel_iommu_remove_device(struct device *dev)
++static void intel_iommu_release_device(struct device *dev)
+ {
+ 	struct intel_iommu *iommu;
+ 	u8 bus, devfn;
+@@ -5863,10 +5812,6 @@ static void intel_iommu_remove_device(struct device *dev)
+ 
+ 	dmar_remove_one_dev_info(dev);
+ 
+-	iommu_group_remove_device(dev);
+-
+-	iommu_device_unlink(&iommu->iommu, dev);
+-
+ 	if (device_needs_bounce(dev))
+ 		set_dma_ops(dev, NULL);
+ }
+@@ -6198,8 +6143,8 @@ const struct iommu_ops intel_iommu_ops = {
+ 	.map			= intel_iommu_map,
+ 	.unmap			= intel_iommu_unmap,
+ 	.iova_to_phys		= intel_iommu_iova_to_phys,
+-	.add_device		= intel_iommu_add_device,
+-	.remove_device		= intel_iommu_remove_device,
++	.probe_device		= intel_iommu_probe_device,
++	.release_device		= intel_iommu_release_device,
+ 	.get_resv_regions	= intel_iommu_get_resv_regions,
+ 	.put_resv_regions	= generic_iommu_put_resv_regions,
+ 	.apply_resv_region	= intel_iommu_apply_resv_region,
 -- 
 2.17.1
