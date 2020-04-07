@@ -1,131 +1,150 @@
-From: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
-Subject: [RFC PATCH 10/34] iommu: Move new probe_device path to separate
- function
-Date: Tue,  7 Apr 2020 20:37:18 +0200
-Message-ID: <20200407183742.4344-11-joro@8bytes.org>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [RFC PATCH 30/34] iommu/omap: Convert to probe/release_device() call-backs
+Date: Tue,  7 Apr 2020 20:37:38 +0200
+Message-ID: <20200407183742.4344-31-joro@8bytes.org>
 References: <20200407183742.4344-1-joro@8bytes.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-In-Reply-To: <20200407183742.4344-1-joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
- <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
- <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Sender: "iommu" <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-To: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>, Will Deacon <will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>, Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Lu Baolu <baolu.lu-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Gross <agross-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Clark <robdclark-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Gerald Schaefer <gerald.schaefer-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200407183742.4344-1-joro@8bytes.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
+From: Joerg Roedel <jroedel@suse.de>
 
-This makes it easier to remove to old code-path when all drivers are
-converted. As a side effect that it also fixes the error cleanup
-path.
+Convert the OMAP IOMMU driver to use the probe_device() and
+release_device() call-backs of iommu_ops, so that the iommu core code
+does the group and sysfs setup.
 
-Signed-off-by: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- drivers/iommu/iommu.c | 69 ++++++++++++++++++++++++++++---------------
- 1 file changed, 46 insertions(+), 23 deletions(-)
+ drivers/iommu/omap-iommu.c | 49 ++++++++++----------------------------
+ 1 file changed, 13 insertions(+), 36 deletions(-)
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 18eb3623bd00..8be047a4808f 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -218,12 +218,55 @@ static int __iommu_probe_device(struct device *dev, struct list_head *group_list
+diff --git a/drivers/iommu/omap-iommu.c b/drivers/iommu/omap-iommu.c
+index ecc9d0829a91..6699fe6d9e06 100644
+--- a/drivers/iommu/omap-iommu.c
++++ b/drivers/iommu/omap-iommu.c
+@@ -1640,15 +1640,13 @@ static phys_addr_t omap_iommu_iova_to_phys(struct iommu_domain *domain,
  	return ret;
  }
  
-+static int __iommu_probe_device_helper(struct device *dev)
-+{
-+	const struct iommu_ops *ops = dev->bus->iommu_ops;
-+	struct iommu_group *group;
-+	int ret;
-+
-+	ret = __iommu_probe_device(dev, NULL);
-+	if (ret)
-+		goto err_out;
-+
-+	/*
-+	 * Try to allocate a default domain - needs support from the
-+	 * IOMMU driver. There are still some drivers which don't
-+	 * support default domains, so the return value is not yet
-+	 * checked.
-+	 */
-+	iommu_alloc_default_domain(dev);
-+
-+	group = iommu_group_get(dev);
-+	if (!group)
-+		goto err_release;
-+
-+	if (group->default_domain)
-+		ret = __iommu_attach_device(group->default_domain, dev);
-+
-+	iommu_group_put(group);
-+
-+	if (ret)
-+		goto err_release;
-+
-+	if (ops->probe_finalize)
-+		ops->probe_finalize(dev);
-+
-+	return 0;
-+
-+err_release:
-+	iommu_release_device(dev);
-+err_out:
-+	return ret;
-+
-+}
-+
- int iommu_probe_device(struct device *dev)
+-static int omap_iommu_add_device(struct device *dev)
++static struct iommu_device *omap_iommu_probe_device(struct device *dev)
  {
- 	const struct iommu_ops *ops = dev->bus->iommu_ops;
- 	int ret;
+ 	struct omap_iommu_arch_data *arch_data, *tmp;
++	struct platform_device *pdev;
+ 	struct omap_iommu *oiommu;
+-	struct iommu_group *group;
+ 	struct device_node *np;
+-	struct platform_device *pdev;
+ 	int num_iommus, i;
+-	int ret;
  
- 	WARN_ON(dev->iommu_group);
-+
- 	if (!ops)
- 		return -EINVAL;
+ 	/*
+ 	 * Allocate the archdata iommu structure for DT-based devices.
+@@ -1657,7 +1655,7 @@ static int omap_iommu_add_device(struct device *dev)
+ 	 * IOMMU users.
+ 	 */
+ 	if (!dev->of_node)
+-		return 0;
++		return ERR_PTR(-ENODEV);
  
-@@ -235,30 +278,10 @@ int iommu_probe_device(struct device *dev)
- 		goto err_free_dev_param;
+ 	/*
+ 	 * retrieve the count of IOMMU nodes using phandle size as element size
+@@ -1670,27 +1668,27 @@ static int omap_iommu_add_device(struct device *dev)
+ 
+ 	arch_data = kcalloc(num_iommus + 1, sizeof(*arch_data), GFP_KERNEL);
+ 	if (!arch_data)
+-		return -ENOMEM;
++		return ERR_PTR(-ENOMEM);
+ 
+ 	for (i = 0, tmp = arch_data; i < num_iommus; i++, tmp++) {
+ 		np = of_parse_phandle(dev->of_node, "iommus", i);
+ 		if (!np) {
+ 			kfree(arch_data);
+-			return -EINVAL;
++			return ERR_PTR(-EINVAL);
+ 		}
+ 
+ 		pdev = of_find_device_by_node(np);
+ 		if (!pdev) {
+ 			of_node_put(np);
+ 			kfree(arch_data);
+-			return -ENODEV;
++			return ERR_PTR(-ENODEV);
+ 		}
+ 
+ 		oiommu = platform_get_drvdata(pdev);
+ 		if (!oiommu) {
+ 			of_node_put(np);
+ 			kfree(arch_data);
+-			return -EINVAL;
++			return ERR_PTR(-EINVAL);
+ 		}
+ 
+ 		tmp->iommu_dev = oiommu;
+@@ -1699,46 +1697,25 @@ static int omap_iommu_add_device(struct device *dev)
+ 		of_node_put(np);
  	}
  
--	if (ops->probe_device) {
--		struct iommu_group *group;
--
--		ret = __iommu_probe_device(dev, NULL);
--
--		/*
--		 * Try to allocate a default domain - needs support from the
--		 * IOMMU driver. There are still some drivers which don't
--		 * support default domains, so the return value is not yet
--		 * checked.
--		 */
--		if (!ret)
--			iommu_alloc_default_domain(dev);
--
--		group = iommu_group_get(dev);
--		if (group && group->default_domain) {
--			ret = __iommu_attach_device(group->default_domain, dev);
--			iommu_group_put(group);
--		}
--
--	} else {
--		ret = ops->add_device(dev);
++	dev->archdata.iommu = arch_data;
++
+ 	/*
+ 	 * use the first IOMMU alone for the sysfs device linking.
+ 	 * TODO: Evaluate if a single iommu_group needs to be
+ 	 * maintained for both IOMMUs
+ 	 */
+ 	oiommu = arch_data->iommu_dev;
+-	ret = iommu_device_link(&oiommu->iommu, dev);
+-	if (ret) {
+-		kfree(arch_data);
+-		return ret;
 -	}
-+	if (ops->probe_device)
-+		return __iommu_probe_device_helper(dev);
+-
+-	dev->archdata.iommu = arch_data;
+-
+-	/*
+-	 * IOMMU group initialization calls into omap_iommu_device_group, which
+-	 * needs a valid dev->archdata.iommu pointer
+-	 */
+-	group = iommu_group_get_for_dev(dev);
+-	if (IS_ERR(group)) {
+-		iommu_device_unlink(&oiommu->iommu, dev);
+-		dev->archdata.iommu = NULL;
+-		kfree(arch_data);
+-		return PTR_ERR(group);
+-	}
+-	iommu_group_put(group);
  
-+	ret = ops->add_device(dev);
- 	if (ret)
- 		goto err_module_put;
+-	return 0;
++	return &oiommu->iommu;
+ }
  
+-static void omap_iommu_remove_device(struct device *dev)
++static void omap_iommu_release_device(struct device *dev)
+ {
+ 	struct omap_iommu_arch_data *arch_data = dev->archdata.iommu;
+ 
+ 	if (!dev->of_node || !arch_data)
+ 		return;
+ 
+-	iommu_device_unlink(&arch_data->iommu_dev->iommu, dev);
+-	iommu_group_remove_device(dev);
+-
+ 	dev->archdata.iommu = NULL;
+ 	kfree(arch_data);
+ 
+@@ -1763,8 +1740,8 @@ static const struct iommu_ops omap_iommu_ops = {
+ 	.map		= omap_iommu_map,
+ 	.unmap		= omap_iommu_unmap,
+ 	.iova_to_phys	= omap_iommu_iova_to_phys,
+-	.add_device	= omap_iommu_add_device,
+-	.remove_device	= omap_iommu_remove_device,
++	.probe_device	= omap_iommu_probe_device,
++	.release_device	= omap_iommu_release_device,
+ 	.device_group	= omap_iommu_device_group,
+ 	.pgsize_bitmap	= OMAP_IOMMU_PGSIZES,
+ };
 -- 
 2.17.1
