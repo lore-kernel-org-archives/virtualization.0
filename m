@@ -1,169 +1,119 @@
-From: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
-Subject: [RFC PATCH 07/34] iommu: Add probe_device() and remove_device() call-backs
-Date: Tue,  7 Apr 2020 20:37:15 +0200
-Message-ID: <20200407183742.4344-8-joro@8bytes.org>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [RFC PATCH 02/34] iommu: Add def_domain_type() callback in iommu_ops
+Date: Tue,  7 Apr 2020 20:37:10 +0200
+Message-ID: <20200407183742.4344-3-joro@8bytes.org>
 References: <20200407183742.4344-1-joro@8bytes.org>
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20200407183742.4344-1-joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>, Will Deacon <will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>, Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Lu Baolu <baolu.lu-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Gross <agross-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Clark <robdclark-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Gerald Schaefer <gerald.schaefer-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200407183742.4344-1-joro@8bytes.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: linux-s390@vger.kernel.org, linux-samsung-soc@vger.kernel.org, Sai Praneeth Prakhya <sai.praneeth.prakhya@intel.com>, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-rockchip@lists.infradead.org, iommu@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>, linux-mediatek@lists.infradead.org, linux-tegra@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
+From: Sai Praneeth Prakhya <sai.praneeth.prakhya@intel.com>
 
-Add call-backs to 'struct iommu_ops' as an alternative to the
-add_device() and remove_device() call-backs, which will be removed when
-all drivers are converted.
+Some devices are reqired to use a specific type (identity or dma)
+of default domain when they are used with a vendor iommu. When the
+system level default domain type is different from it, the vendor
+iommu driver has to request a new default domain with
+iommu_request_dma_domain_for_dev() and iommu_request_dm_for_dev()
+in the add_dev() callback. Unfortunately, these two helpers only
+work when the group hasn't been assigned to any other devices,
+hence, some vendor iommu driver has to use a private domain if
+it fails to request a new default one.
 
-The new call-backs will not setupt IOMMU groups and domains anymore,
-so also add a probe_finalize() call-back where the IOMMU driver can do
-per-device setup work which require the device to be set up with a
-group and a domain.
+This adds def_domain_type() callback in the iommu_ops, so that
+any special requirement of default domain for a device could be
+aware by the iommu generic layer.
 
-Signed-off-by: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
+Signed-off-by: Sai Praneeth Prakhya <sai.praneeth.prakhya@intel.com>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+[ jroedel@suse.de: Added iommu_get_def_domain_type() function and use
+                   it to allocate the default domain ]
+Co-developed-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- drivers/iommu/iommu.c | 63 ++++++++++++++++++++++++++++++++++++++-----
- include/linux/iommu.h |  9 +++++++
- 2 files changed, 66 insertions(+), 6 deletions(-)
+ drivers/iommu/iommu.c | 20 +++++++++++++++++---
+ include/linux/iommu.h |  6 ++++++
+ 2 files changed, 23 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 5877abd9b693..6cfe7799dc8c 100644
+index bfe011760ed1..5877abd9b693 100644
 --- a/drivers/iommu/iommu.c
 +++ b/drivers/iommu/iommu.c
-@@ -174,6 +174,36 @@ static void dev_iommu_free(struct device *dev)
- 	dev->iommu = NULL;
+@@ -1361,21 +1361,35 @@ struct iommu_group *fsl_mc_device_group(struct device *dev)
  }
+ EXPORT_SYMBOL_GPL(fsl_mc_device_group);
  
-+static int __iommu_probe_device(struct device *dev)
++static int iommu_get_def_domain_type(struct device *dev)
 +{
 +	const struct iommu_ops *ops = dev->bus->iommu_ops;
-+	struct iommu_device *iommu_dev;
-+	struct iommu_group *group;
-+	int ret;
++	unsigned int type = 0;
 +
-+	iommu_dev = ops->probe_device(dev);
-+	if (IS_ERR(iommu_dev))
-+		return PTR_ERR(iommu_dev);
++	if (ops->def_domain_type)
++		type = ops->def_domain_type(dev);
 +
-+	dev->iommu->iommu_dev = iommu_dev;
-+
-+	group = iommu_group_get_for_dev(dev);
-+	if (!IS_ERR(group)) {
-+		ret = PTR_ERR(group);
-+		goto out_release;
-+	}
-+	iommu_group_put(group);
-+
-+	iommu_device_link(iommu_dev, dev);
-+
-+	return 0;
-+
-+out_release:
-+	ops->release_device(dev);
-+
-+	return ret;
++	return (type == 0) ? iommu_def_domain_type : type;
 +}
 +
- int iommu_probe_device(struct device *dev)
+ static int iommu_alloc_default_domain(struct device *dev,
+ 				      struct iommu_group *group)
  {
- 	const struct iommu_ops *ops = dev->bus->iommu_ops;
-@@ -191,10 +221,17 @@ int iommu_probe_device(struct device *dev)
- 		goto err_free_dev_param;
+ 	struct iommu_domain *dom;
++	unsigned int type;
+ 
+ 	if (group->default_domain)
+ 		return 0;
+ 
+-	dom = __iommu_domain_alloc(dev->bus, iommu_def_domain_type);
+-	if (!dom && iommu_def_domain_type != IOMMU_DOMAIN_DMA) {
++	type = iommu_get_def_domain_type(dev);
++
++	dom = __iommu_domain_alloc(dev->bus, type);
++	if (!dom && type != IOMMU_DOMAIN_DMA) {
+ 		dom = __iommu_domain_alloc(dev->bus, IOMMU_DOMAIN_DMA);
+ 		if (dom) {
+ 			dev_warn(dev,
+ 				 "failed to allocate default IOMMU domain of type %u; falling back to IOMMU_DOMAIN_DMA",
+-				 iommu_def_domain_type);
++				 type);
+ 		}
  	}
  
--	ret = ops->add_device(dev);
-+	if (ops->probe_device)
-+		ret = __iommu_probe_device(dev);
-+	else
-+		ret = ops->add_device(dev);
-+
- 	if (ret)
- 		goto err_module_put;
- 
-+	if (ops->probe_finalize)
-+		ops->probe_finalize(dev);
-+
- 	return 0;
- 
- err_module_put:
-@@ -204,17 +241,31 @@ int iommu_probe_device(struct device *dev)
- 	return ret;
- }
- 
-+static void __iommu_release_device(struct device *dev)
-+{
-+	const struct iommu_ops *ops = dev->bus->iommu_ops;
-+
-+	iommu_device_unlink(dev->iommu->iommu_dev, dev);
-+
-+	iommu_group_remove_device(dev);
-+
-+	ops->release_device(dev);
-+}
-+
- void iommu_release_device(struct device *dev)
- {
- 	const struct iommu_ops *ops = dev->bus->iommu_ops;
- 
--	if (dev->iommu_group)
-+	if (!dev->iommu)
-+		return;
-+
-+	if (ops->release_device)
-+		__iommu_release_device(dev);
-+	else if (dev->iommu_group)
- 		ops->remove_device(dev);
- 
--	if (dev->iommu) {
--		module_put(ops->owner);
--		dev_iommu_free(dev);
--	}
-+	module_put(ops->owner);
-+	dev_iommu_free(dev);
- }
- 
- static struct iommu_domain *__iommu_domain_alloc(struct bus_type *bus,
 diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-index 1f027b07e499..30170d191e5e 100644
+index 7ef8b0bda695..1f027b07e499 100644
 --- a/include/linux/iommu.h
 +++ b/include/linux/iommu.h
-@@ -225,6 +225,10 @@ struct iommu_iotlb_gather {
-  * @iova_to_phys: translate iova to physical address
-  * @add_device: add device to iommu grouping
-  * @remove_device: remove device from iommu grouping
-+ * @probe_device: Add device to iommu driver handling
-+ * @release_device: Remove device from iommu driver handling
-+ * @probe_finalize: Do final setup work after the device is added to an IOMMU
-+ *                  group and attached to the groups domain
-  * @device_group: find iommu group for a particular device
-  * @domain_get_attr: Query domain attributes
-  * @domain_set_attr: Change domain attributes
-@@ -275,6 +279,9 @@ struct iommu_ops {
- 	phys_addr_t (*iova_to_phys)(struct iommu_domain *domain, dma_addr_t iova);
- 	int (*add_device)(struct device *dev);
- 	void (*remove_device)(struct device *dev);
-+	struct iommu_device *(*probe_device)(struct device *dev);
-+	void (*release_device)(struct device *dev);
-+	void (*probe_finalize)(struct device *dev);
- 	struct iommu_group *(*device_group)(struct device *dev);
- 	int (*domain_get_attr)(struct iommu_domain *domain,
- 			       enum iommu_attr attr, void *data);
-@@ -375,6 +382,7 @@ struct iommu_fault_param {
-  *
-  * @fault_param: IOMMU detected device fault reporting data
-  * @fwspec:	 IOMMU fwspec data
-+ * @iommu_dev:	 IOMMU device this device is linked to
-  * @priv:	 IOMMU Driver private data
-  *
-  * TODO: migrate other per device data pointers under iommu_dev_data, e.g.
-@@ -384,6 +392,7 @@ struct dev_iommu {
- 	struct mutex lock;
- 	struct iommu_fault_param	*fault_param;
- 	struct iommu_fwspec		*fwspec;
-+	struct iommu_device		*iommu_dev;
- 	void				*priv;
- };
+@@ -248,6 +248,10 @@ struct iommu_iotlb_gather {
+  * @cache_invalidate: invalidate translation caches
+  * @sva_bind_gpasid: bind guest pasid and mm
+  * @sva_unbind_gpasid: unbind guest pasid and mm
++ * @def_domain_type: device default domain type, return value:
++ *		- IOMMU_DOMAIN_IDENTITY: must use an identity domain
++ *		- IOMMU_DOMAIN_DMA: must use a dma domain
++ *		- 0: use the default setting
+  * @pgsize_bitmap: bitmap of all possible supported page sizes
+  * @owner: Driver module providing these ops
+  */
+@@ -318,6 +322,8 @@ struct iommu_ops {
  
+ 	int (*sva_unbind_gpasid)(struct device *dev, int pasid);
+ 
++	int (*def_domain_type)(struct device *dev);
++
+ 	unsigned long pgsize_bitmap;
+ 	struct module *owner;
+ };
 -- 
 2.17.1
