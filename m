@@ -1,66 +1,47 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [GIT PULL v2] vhost: cleanups and fixes
-Date: Tue, 7 Apr 2020 11:56:59 +0200
-Message-ID: <00a7ce5f-8fb4-8c3e-7113-9a422682abdf@redhat.com>
-References: <20200407055334-mutt-send-email-mst@kernel.org>
+From: Dmitry Vyukov <dvyukov@google.com>
+Subject: Re: upstream boot error: KASAN: slab-out-of-bounds Write in virtio_gpu_object_create
+Date: Tue, 7 Apr 2020 11:57:54 +0200
+Message-ID: <CACT4Y+aF1fNRgq_1a2NnVdy9epQvy5TzRF8VQ8OUSSkh6HAc0g@mail.gmail.com>
+References: <00000000000091056b05a2999f1e@google.com> <CACT4Y+b4RcgG_GrcpaghmqhX47zUVsAcGGd6vb6MYJT=6gf89g@mail.gmail.com>
+ <20200406080612.v5ubxvyliuso6v5h@sirius.home.kraxel.org> <CAKMK7uE9uQ_YCXfDOH9zQBu_ffoz546hqRd1R_r1+L-T072Lew@mail.gmail.com>
+ <20200406131602.ggugjwkm36r4zvkr@sirius.home.kraxel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20200407055334-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, alexander.h.duyck@linux.intel.com, eperezma@redhat.com, jasowang@redhat.com, lingshan.zhu@intel.com, mhocko@kernel.org, namit@vmware.com, rdunlap@infradead.org, rientjes@google.com, tiwei.bie@intel.com, tysand@google.com, wei.w.wang@intel.com, xiao.w.wang@intel.com, yuri.benditovich@daynix.com
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200406131602.ggugjwkm36r4zvkr@sirius.home.kraxel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Daniel Vetter <daniel@ffwll.ch>, syzbot <syzbot+d3a7951ed361037407db@syzkaller.appspotmail.com>, David Airlie <airlied@linux.ie>, DRI <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE, NET..." <virtualization@lists.linux-foundation.org>, LKML <linux-kernel@vger.kernel.org>, syzkaller-bugs <syzkaller-bugs@googlegroups.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07.04.20 11:53, Michael S. Tsirkin wrote:
-> Changes from PULL v1:
-> 	reverted a commit that was also in Andrew Morton's tree,
-> 	to resolve a merge conflict:
-> 	this is what Stephen Rothwell was doing to resolve it
-> 	in linux-next.
-> 
-> 
-> Now that many more architectures build vhost, a couple of these (um, and
-> arm with deprecated oabi) have reported build failures with randconfig,
-> however fixes for that need a bit more discussion/testing and will be
-> merged separately.
-> 
-> Not a regression - these previously simply didn't have vhost at all.
-> Also, there's some DMA API code in the vdpa simulator is hacky - if no
-> solution surfaces soon we can always disable it before release:
-> it's not a big deal either way as it's just test code.
-> 
-> 
-> The following changes since commit 16fbf79b0f83bc752cee8589279f1ebfe57b3b6e:
-> 
->   Linux 5.6-rc7 (2020-03-22 18:31:56 -0700)
-> 
-> are available in the Git repository at:
-> 
->   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-> 
-> for you to fetch changes up to 835a6a649d0dd1b1f46759eb60fff2f63ed253a7:
-> 
->   virtio-balloon: Revert "virtio-balloon: Switch back to OOM handler for VIRTIO_BALLOON_F_DEFLATE_ON_OOM" (2020-04-07 05:44:57 -0400)
-> 
-> ----------------------------------------------------------------
-> virtio: fixes, vdpa
-> 
-> Some bug fixes.
-> The new vdpa subsystem with two first drivers.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> 
-> ----------------------------------------------------------------
-> David Hildenbrand (1):
->       virtio-balloon: Switch back to OOM handler for VIRTIO_BALLOON_F_DEFLATE_ON_OOM
+On Mon, Apr 6, 2020 at 3:16 PM Gerd Hoffmann <kraxel@redhat.com> wrote:
+>
+>   Hi,
+>
+> > > > +drivers/gpu/drm/virtio/virtgpu_object.c maintainers
+> > > > Now we have both mainline and linux-next boot broken (linux-next is
+> > > > broken for the past 40 days).
+> > > > No testing of new code happens.
+> > > >
+> > > > >  virtio_gpu_object_shmem_init drivers/gpu/drm/virtio/virtgpu_object.c:151 [inline]
+> > > > >  virtio_gpu_object_create+0x9f3/0xaa0 drivers/gpu/drm/virtio/virtgpu_object.c:230
+> > >
+> > > Ah, that one.
+> > >
+> > > broken patch: f651c8b05542 ("drm/virtio: factor out the sg_table from virtio_gpu_object")
+> > > fixed by: 0666a8d7f6a4 ("drm/virtio: fix OOB in virtio_gpu_object_create")
+> > >
+> > > Both are in drm-misc-next.  I suspect the fix was added after
+> > > drm-misc-next was closed for the 5.7 merge window and thus should
+> > > have been submitted to drm-misc-next-fixes instead.
+> > >
+> > > So, what to do now?  Should I cherry-pick 0666a8d7f6a4 into
+> > > drm-misc-next-fixes?  Or should it go into drm-misc-fixes instead?
+> >
+> > Yup cherry-pick it over, with -x, to drm-misc-next-fixes.
+> > -Daniel
+>
+> Done.  So the next linux-next build should be green again.
 
-^ stale leftover in this message only I assume
-
-
--- 
-Thanks,
-
-David / dhildenb
+Linux-next is boot broken with 2 or 3 other bugs for a month. This
+won't fix linux-next.
