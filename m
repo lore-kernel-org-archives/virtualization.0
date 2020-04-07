@@ -1,8 +1,8 @@
-From: John Garry <john.garry@huawei.com>
+From: Christoph Hellwig <hch@infradead.org>
 Subject: Re: [PATCH RFC v2 02/24] scsi: allocate separate queue for reserved
  commands
-Date: Tue, 7 Apr 2020 16:19:35 +0100
-Message-ID: <38c1592d-c90a-d6ca-1e7e-e8cc665aaf22@huawei.com>
+Date: Tue, 7 Apr 2020 09:30:33 -0700
+Message-ID: <20200407163033.GA26568@infradead.org>
 References: <1583857550-12049-1-git-send-email-john.garry@huawei.com>
  <1583857550-12049-3-git-send-email-john.garry@huawei.com>
  <20200310183243.GA14549@infradead.org>
@@ -11,48 +11,33 @@ References: <1583857550-12049-1-git-send-email-john.garry@huawei.com>
  <b5a63725-722b-8ccd-3867-6db192a248a4@suse.de>
  <9c6ced82-b3f1-9724-b85e-d58827f1a4a4@huawei.com>
  <39bc2d82-2676-e329-5d32-8acb99b0a204@suse.de>
- <20ebe296-9e57-b3e3-21b3-63a09ce86036@huawei.com>
- <dcfba0ea-4ba5-4e4f-150d-24bd4fe11cdd@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <dcfba0ea-4ba5-4e4f-150d-24bd4fe11cdd@suse.de>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <39bc2d82-2676-e329-5d32-8acb99b0a204@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Hannes Reinecke <hare@suse.de>, Christoph Hellwig <hch@infradead.org>
-Cc: axboe@kernel.dk, jejb@linux.ibm.com, martin.petersen@oracle.com, ming.lei@redhat.com, bvanassche@acm.org, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org, esc.storagedev@microsemi.com, chenxiang66@hisilicon.com, Hannes Reinecke <hare@suse.com>
+To: Hannes Reinecke <hare@suse.de>
+Cc: John Garry <john.garry@huawei.com>, Christoph Hellwig <hch@infradead.org>, axboe@kernel.dk, jejb@linux.ibm.com, martin.petersen@oracle.com, ming.lei@redhat.com, bvanassche@acm.org, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org, esc.storagedev@microsemi.com, chenxiang66@hisilicon.com, Hannes Reinecke <hare@suse.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
->>>
->>
->> FWIW, the only other driver (gdth) which I see uses this API has 
->> this_id = -1 in the scsi host template.
->>
->>> But alright, I'll give it a go; let's see what I'll end up with.
->>
->> note: If we want a fixed scsi_device per host, calling 
->> scsi_mq_setup_tags() -> scsi_get_host_dev() will fail as shost state 
->> is not running. Maybe we need to juggle some things there to provide a 
->> generic solution.
->>
-> It might even get worse, as during device setup things like 
-> 'slave_alloc' etc is getting called, which has a fair chance of getting 
-> confused for non-existing devices.
-> Cf qla2xxx:qla2xx_slave_alloc() is calling starget_to_rport(), which 
-> will get us a nice oops when accessing a target which is _not_ the child 
-> of a fc remote port.
-
-Yes, something similar happens for libsas [hence my hack], where 
-sas_alloc_target()->sas_find_dev_by_rphy() fails as it cannot handle 
-rphy for scsi host as parent properly.
-
-> And this is why I'm not utterly keen on this approach; auditing all 
-> these callbacks is _not_ fun.
+On Tue, Apr 07, 2020 at 04:00:10PM +0200, Hannes Reinecke wrote:
+> My concern is this:
 > 
+> struct scsi_device *scsi_get_host_dev(struct Scsi_Host *shost)
+> {
+> 	[ .. ]
+> 	starget = scsi_alloc_target(&shost->shost_gendev, 0, shost->this_id);
+> 	[ .. ]
+> 
+> and we have typically:
+> 
+> drivers/scsi/hisi_sas/hisi_sas_v3_hw.c: .this_id                = -1,
+> 
+> It's _very_ uncommon to have a negative number as the SCSI target device; in
+> fact, it _is_ an unsigned int already.
+> 
+> But alright, I'll give it a go; let's see what I'll end up with.
 
-Understood. And if you can't test them, then a change like this is too 
-risky for those drivers.
-
-Cheers,
-John
+But this shouldn't be exposed anywhere.  And I prefer that over having
+magic requests/scsi_cmnd that do not have a valid ->device pointer.
