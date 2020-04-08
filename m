@@ -1,184 +1,273 @@
-From: VHPC 20 <vhpc.dist@gmail.com>
-Subject: CfP VHPC'20: extension, Zoom Online Event without charge
-Date: Wed, 8 Apr 2020 18:55:47 +0200
-Message-ID: <CAF05tLNjDK-qN35aC5BT1_6GEgSB1pH_0iynUX8_VzcyBJZXMw@mail.gmail.com>
+From: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
+Subject: Re: [RFC PATCH 17/34] iommu/arm-smmu: Store device instead of group
+ in arm_smmu_s2cr
+Date: Wed, 8 Apr 2020 21:11:11 +0200
+Message-ID: <20200408191111.GA6342@8bytes.org>
+References: <20200407183742.4344-1-joro@8bytes.org>
+ <20200407183742.4344-18-joro@8bytes.org>
+ <98c10a41-d223-e375-9742-b6471c3dc33c@arm.com>
+ <20200408143707.GK3103@8bytes.org>
+ <f8b541c2-9271-fc48-dde6-166a2ed6679f@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <f8b541c2-9271-fc48-dde6-166a2ed6679f-5wv7dgnIgG8@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>
+Cc: Will Deacon <will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Lu Baolu <baolu.lu-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Gross <agross-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Clark <robdclark-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Gerald Schaefer <gerald.schaefer-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT0KQ0FMTCBGT1IgUEFQRVJTCgoxNXRoIFdvcmtzaG9wIG9uIFZpcnR1YWxpemF0
-aW9uIGluIEhpZ2gtUGVyZm9ybWFuY2UgQ2xvdWQgQ29tcHV0aW5nCihWSFBDIDIwKSBoZWxkIGlu
-IGNvbmp1bmN0aW9uIHdpdGggdGhlIEludGVybmF0aW9uYWwgU3VwZXJjb21wdXRpbmcKQ29uZmVy
-ZW5jZSAtIEhpZ2ggUGVyZm9ybWFuY2UsIEp1bmUgMjEtMjUsIDIwMjAsIEZyYW5rZnVydCwgR2Vy
-bWFueS4KKFNwcmluZ2VyIExOQ1MgUHJvY2VlZGluZ3MpCgo9PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PQoKCkRhdGU6IEp1
-bmUgMjUsIDIwMjAKV29ya3Nob3AgVVJMOiB2aHBjW2RvdF1vcmcKCk9ubGluZSBab29tIEV2ZW50
-Cmh0dHBzOi8vdXMwMndlYi56b29tLnVzL3dlYmluYXIvcmVnaXN0ZXIvV05fdkM1cHdtZ2JRNnlw
-SkVmeVE4bkhJZwoKUGh5c2ljYWwgRXZlbnQ6IElTQywgRnJhbmtmdXJ0CgpQYXBlciBTdWJtaXNz
-aW9uIERlYWRsaW5lOiBNYXkgMTJ0aCwgMjAyMCAoZXh0ZW5kZWQpClNwcmluZ2VyIExOQ1MKCgoK
-Q2FsbCBmb3IgUGFwZXJzCgpDb250YWluZXJzIGFuZCB2aXJ0dWFsaXphdGlvbiB0ZWNobm9sb2dp
-ZXMgY29uc3RpdHV0ZSBrZXkgZW5hYmxpbmcKZmFjdG9ycyBmb3IgZmxleGlibGUgcmVzb3VyY2Ug
-bWFuYWdlbWVudCBpbiBtb2Rlcm4gZGF0YSBjZW50ZXJzLCBhbmQKcGFydGljdWxhcmx5IGluIGNs
-b3VkIGVudmlyb25tZW50cy4gQ2xvdWQgcHJvdmlkZXJzIG5lZWQgdG8gbWFuYWdlCmNvbXBsZXgg
-aW5mcmFzdHJ1Y3R1cmVzIGluIGEgc2VhbWxlc3MgZmFzaGlvbiB0byBzdXBwb3J0IHRoZSBoaWdo
-bHkKZHluYW1pYyBhbmQgaGV0ZXJvZ2VuZW91cyB3b3JrbG9hZHMgYW5kIGhvc3RlZCBhcHBsaWNh
-dGlvbnMgY3VzdG9tZXJzCmRlcGxveS4gU2ltaWxhcmx5LCBIUEMgZW52aXJvbm1lbnRzIGhhdmUg
-YmVlbiBpbmNyZWFzaW5nbHkgYWRvcHRpbmcKdGVjaG5pcXVlcyB0aGF0IGVuYWJsZSBmbGV4aWJs
-ZSBtYW5hZ2VtZW50IG9mIHZhc3QgY29tcHV0aW5nIGFuZApuZXR3b3JraW5nIHJlc291cmNlcywg
-Y2xvc2UgdG8gbWFyZ2luYWwgcHJvdmlzaW9uaW5nIGNvc3QsIHdoaWNoIGlzCnVucHJlY2VkZW50
-ZWQgaW4gdGhlIGhpc3Rvcnkgb2Ygc2NpZW50aWZpYyBhbmQgY29tbWVyY2lhbCBjb21wdXRpbmcu
-Ck1vc3QgcmVjZW50bHksIEZ1bmN0aW9uIGFzIGEgU2VydmljZSAoRmFhcykgYW5kIFNlcnZlcmxl
-c3MgY29tcHV0aW5nLAp1dGlsaXppbmcgbGlnaHR3ZWlnaHQgVk1zLWNvbnRhaW5lcnMgd2lkZW5z
-IHRoZSBzcGVjdHJ1bSBvZgphcHBsaWNhdGlvbnMgdGhhdCBjYW4gYmUgZGVwbG95ZWQgaW4gYSBj
-bG91ZCBlbnZpcm9ubWVudCwgZXNwZWNpYWxseQppbiBhbiBIUEMgY29udGV4dC4gSGVyZSwgSFBD
-LXByb3ZpZGVkIHNlcnZpY2VzIGJlY29tZSBhY2Nlc3NpYmxlCnRvIGRpc3RyaWJ1dGVkIHdvcmts
-b2FkcyBvdXRzaWRlIG9mIGxhcmdlIGNsdXN0ZXIgZW52aXJvbm1lbnRzLgoKVmFyaW91cyB2aXJ0
-dWFsaXphdGlvbi1jb250YWluZXJpemF0aW9uIHRlY2hub2xvZ2llcyBjb250cmlidXRlIHRvIHRo
-ZQpvdmVyYWxsIHBpY3R1cmUgaW4gZGlmZmVyZW50IHdheXM6IG1hY2hpbmUgdmlydHVhbGl6YXRp
-b24sIHdpdGggaXRzCmNhcGFiaWxpdHkgdG8gZW5hYmxlIGNvbnNvbGlkYXRpb24gb2YgbXVsdGlw
-bGUgdW5kZXLCrXV0aWxpemVkIHNlcnZlcnMKd2l0aCBoZXRlcm9nZW5lb3VzIHNvZnR3YXJlIGFu
-ZCBvcGVyYXRpbmcgc3lzdGVtcyAoT1NlcyksIGFuZCBpdHMKY2FwYWJpbGl0eSB0byBsaXZlwq0t
-bWlncmF0ZSBhIGZ1bGx5IG9wZXJhdGluZyB2aXJ0dWFsIG1hY2hpbmUgKFZNKQp3aXRoIGEgdmVy
-eSBzaG9ydCBkb3dudGltZSwgZW5hYmxlcyBub3ZlbCBhbmQgZHluYW1pYyB3YXlzIHRvIG1hbmFn
-ZQpwaHlzaWNhbCBzZXJ2ZXJzOyBPUy3CrWxldmVsIHZpcnR1YWxpemF0aW9uIChpLmUuLCBjb250
-YWluZXJpemF0aW9uKSwKd2l0aCBpdHMgY2FwYWJpbGl0eSB0byBpc29sYXRlIG11bHRpcGxlIHVz
-ZXLCrS1zcGFjZSBlbnZpcm9ubWVudHMgYW5kCnRvIGFsbG93IGZvciB0aGVpciBjb8KtZXhpc3Rl
-bmNlIHdpdGhpbiB0aGUgc2FtZSBPUyBrZXJuZWwsIHByb21pc2VzIHRvCnByb3ZpZGUgbWFueSBv
-ZiB0aGUgYWR2YW50YWdlcyBvZiBtYWNoaW5lIHZpcnR1YWxpemF0aW9uIHdpdGggaGlnaApsZXZl
-bHMgb2YgcmVzcG9uc2l2ZW5lc3MgYW5kIHBlcmZvcm1hbmNlOyBsYXN0bHksIHVuaWtlcm5lbHMg
-cHJvdmlkZQpmb3IgbWFueSB2aXJ0dWFsaXphdGlvbiBiZW5lZml0cyB3aXRoIGEgbWluaW1pemVk
-IE9TL2xpYnJhcnkgc3VyZmFjZS4KSS9PIFZpcnR1YWxpemF0aW9uIGluIHR1cm4gYWxsb3dzIHBo
-eXNpY2FsIG5ldHdvcmsgaW50ZXJmYWNlcyB0byB0YWtlCnRyYWZmaWMgZnJvbSBtdWx0aXBsZSBW
-TXMgb3IgY29udGFpbmVyczsgbmV0d29yayB2aXJ0dWFsaXphdGlvbiwgd2l0aAppdHMgY2FwYWJp
-bGl0eSB0byBjcmVhdGUgbG9naWNhbCBuZXR3b3JrIG92ZXJsYXlzIHRoYXQgYXJlIGluZGVwZW5k
-ZW50Cm9mIHRoZSB1bmRlcmx5aW5nIHBoeXNpY2FsIHRvcG9sb2d5IGlzIGZ1cnRoZXJtb3JlIGVu
-YWJsaW5nCnZpcnR1YWxpemF0aW9uIG9mIEhQQyBpbmZyYXN0cnVjdHVyZXMuCgoKUHVibGljYXRp
-b24KCgpBY2NlcHRlZCBwYXBlcnMgd2lsbCBiZSBwdWJsaXNoZWQgaW4gYSBTcHJpbmdlciBMTkNT
-IHByb2NlZWRpbmdzCnZvbHVtZS4KCgpUb3BpY3Mgb2YgSW50ZXJlc3QKCgpUaGUgVkhQQyBwcm9n
-cmFtIGNvbW1pdHRlZSBzb2xpY2l0cyBvcmlnaW5hbCwgaGlnaC1xdWFsaXR5IHN1Ym1pc3Npb25z
-CnJlbGF0ZWQgdG8gdmlydHVhbGl6YXRpb24gYWNyb3NzIHRoZSBlbnRpcmUgc29mdHdhcmUgc3Rh
-Y2sgd2l0aCBhCnNwZWNpYWwgZm9jdXMgb24gdGhlIGludGVyc2VjdGlvbiBvZiBIUEMsIGNvbnRh
-aW5lcnMtdmlydHVhbGl6YXRpb24KYW5kIHRoZSBjbG91ZC4KCgpNYWpvciBUb3BpY3M6Ci0gSFBD
-IHdvcmtsb2FkIG9yY2hlc3RyYXRpb24gKEt1YmVybmV0ZXMpCi0gS3ViZXJuZXRlcyBIUEMgYmF0
-Y2gKLSBIUEMgQ29udGFpbmVyIEVudmlyb25tZW50cyBMYW5kc2NhcGUKLSBIVyBIZXRlcm9nZW5l
-aXR5Ci0gQ29udGFpbmVyIGVjb3N5c3RlbSAoRG9ja2VyIGFsdGVybmF0aXZlcykKLSBOZXR3b3Jr
-aW5nCi0gTGlnaHR3ZWlnaHQgVmlydHVhbGl6YXRpb24KLSBVbmlrZXJuZWxzIC8gTGliT1MKLSBT
-dGF0ZS1vZi10aGUtYXJ0IHByb2Nlc3NvciB2aXJ0dWFsaXphdGlvbiAoUklTQy1WLCBFUEkpCi0g
-Q29udGFpbmVyaXppbmcgSFBDIFN0YWNrcy9BcHBzL0NvZGVzOgogIENsaW1hdGUgbW9kZWwgY29u
-dGFpbmVycwoKCmVhY2ggbWFqb3IgdG9waWMgZW5jb21wYXNzaW5nIGRlc2lnbi9hcmNoaXRlY3R1
-cmUsIG1hbmFnZW1lbnQsCnBlcmZvcm1hbmNlIG1hbmFnZW1lbnQsIG1vZGVsaW5nIGFuZCBjb25m
-aWd1cmF0aW9uL3Rvb2xpbmcuClNwZWNpZmljYWxseSwgd2UgaW52aXRlIHBhcGVycyB0aGF0IGRl
-YWwgd2l0aCB0aGUgZm9sbG93aW5nIHRvcGljczoKCi0gSFBDIG9yY2hlc3RyYXRpb24gKEt1YmVy
-bmV0ZXMpCiAgIC0gVmlydHVhbGl6aW5nIEt1YmVybmV0ZXMgZm9yIEhQQwogICAtIERlcGxveW1l
-bnQgcGFyYWRpZ21zCiAgIC0gTXVsdGl0ZW5hbmN5CiAgIC0gU2VydmVybGVzcwogICAtIERlY2xl
-cmF0aXZlIGRhdGEgY2VudGVyIGludGVncmF0aW9uCiAgIC0gTmV0d29yayBwcm92aXNpb25pbmcK
-ICAgLSBTdG9yYWdlCiAgIC0gT0NJIGkuYS4gaW1hZ2VzCiAgIC0gSXNvbGF0aW9uL3NlY3VyaXR5
-Ci0gSFcgQWNjZWxlcmF0b3JzLCBpbmNsdWRpbmcgR1BVcywgRlBHQXMsIEFJLCBhbmQgb3RoZXJz
-CiAgIC0gU3RhdGUtb2YtcHJhY3RpY2UvYXJ0LCBpbmNsdWRpbmcgdHJhbnNpdGlvbiB0byBjbG91
-ZAogICAtIEZyYW1ld29ya3MsIHN5c3RlbSBzb2Z0d2FyZQogICAtIFByb2dyYW1taW5nIG1vZGVs
-cywgcnVudGltZSBzeXN0ZW1zLCBhbmQgQVBJcyB0byBmYWNpbGl0YXRlIGNsb3VkCiAgICAgYWRv
-cHRpb24KICAgLSBFZGdlIHVzZS1jYXNlcwogICAtIEFwcGxpY2F0aW9uIGFkYXB0YXRpb24sIHN1
-Y2Nlc3Mgc3RvcmllcwotIEt1YmVybmV0ZXMgQmF0Y2gKICAgLSBTY2hlZHVsaW5nLCBqb2IgbWFu
-YWdlbWVudAogICAtIEV4ZWN1dGlvbiBwYXJhZGlnbSAtIHdvcmtmbG93CiAgIC0gRGF0YSBtYW5h
-Z2VtZW50CiAgIC0gRGVwbG95bWVudCBwYXJhZGlnbQogICAtIE11bHRpLWNsdXN0ZXIvc2NhbGFi
-aWxpdHkKICAgLSBQZXJmb3JtYW5jZSBpbXByb3ZlbWVudAogICAtIFdvcmtmbG93IC8gZXhlY3V0
-aW9uIHBhcmFkaWdtCi0gUG9kbWFuOiBlbmQtdG8tZW5kIERvY2tlciBhbHRlcm5hdGl2ZSBjb250
-YWluZXIgZW52aXJvbm1lbnQgJiB1c2UtY2FzZXMKICAgLSBDcmVhdGluZywgUnVubmluZyBjb250
-YWluZXJzIGFzIG5vbi1yb290IChyb290bGVzcykKICAgLSBSdW5uaW5nIHJvb3RsZXNzIGNvbnRh
-aW5lcnMgd2l0aCBNUEkKICAgLSBDb250YWluZXIgbGl2ZSBtaWdyYXRpb24KICAgLSBSdW5uaW5n
-IGNvbnRhaW5lcnMgaW4gcmVzdHJpY3RlZCBlbnZpcm9ubWVudHMgd2l0aG91dCBzZXR1aWQKLSBO
-ZXR3b3JraW5nCiAgIC0gU29mdHdhcmUgZGVmaW5lZCBuZXR3b3JrcyBhbmQgbmV0d29yayB2aXJ0
-dWFsaXphdGlvbgogICAtIE5ldyB2aXJ0dWFsaXphdGlvbiBOSUNzL05pdHJvIGFsaWtlIEFTSUNz
-IGZvciB0aGUgZGF0YSBjZW50ZXI/CiAgIC0gS3ViZXJuZXRlcyBTRE4gcG9saWN5IChDYWxpY28g
-aS5hLikKICAgLSBLdWJlcm5ldGVzIG5ldHdvcmsgcHJvdmlzaW9uaW5nIChGbGFubmVsIGkuYS4p
-Ci0gTGlnaHR3ZWlnaHQgVmlydHVhbGl6YXRpb24KICAgLSBNaWNybyBWTU1zIChSdXN0LVZNTSwg
-RmlyZWNyYWNrZXIsIHNvbG81KQogICAtIFhlbgogICAtIE5pdHJvIGh5cGVydmlzb3IgKEtWTSkK
-ICAgLSBSVmlydAogICAtIENsb3VkIEh5cGVydmlzb3IKLSBVbmlrZXJuZWxzIC8gTGliT1MKLSBI
-UEMgU3RvcmFnZSBpbiBWaXJ0dWFsaXphdGlvbgogICAtIEhQQyBjb250YWluZXIgc3RvcmFnZQog
-ICAtIENsb3VkLW5hdGl2ZSBzdG9yYWdlCiAgIC0gSHlwZXJ2aXNvcnMgaW4gc3RvcmFnZSB2aXJ0
-dWFsaXphdGlvbgotIFByb2Nlc3NvciBWaXJ0dWFsaXphdGlvbgogICAtIFJJU0MtViBoeXBlcnZp
-c29yIGV4dGVuc2lvbnMKICAgLSBSSVNDLVYgSHlwZXJ2aXNvciBwb3J0cwogICAtIEVQSQotIENv
-bXBvc2FibGUgSFBDIG1pY3Jvc2VydmljZXMKLSBDb250YWluZXJpemluZyBTY2llbnRpZmljIENv
-ZGVzCiAgIC0gQnVpbGRpbmcKICAgLSBEZXBsb3lpbmcKICAgLSBTZWN1cmluZwogICAtIFN0b3Jh
-Z2UKICAgLSBNb25pdG9yaW5nCi0gVXNlIGNhc2UgZm9yIGNvbnRhaW5lcml6aW5nIEhQQyBjb2Rl
-czoKICBDbGltYXRlIG1vZGVsIGNvbnRhaW5lcnMgZm9yIHBvcnRhYmlsaXR5LCByZXByb2R1Y2li
-aWxpdHksCiAgdHJhY2VhYmlsaXR5LCBpbW11dGFiaWxpdHksIHByb3ZlbmFuY2UsIGRhdGEgJiBz
-b2Z0d2FyZSBwcmVzZXJ2YXRpb24KCgoKVGhlIFdvcmtzaG9wIG9uIFZpcnR1YWxpemF0aW9uIGlu
-IEhpZ2jCrS1QZXJmb3JtYW5jZSBDbG91ZCBDb21wdXRpbmcKKFZIUEMpIGFpbXMgdG8gYnJpbmcg
-dG9nZXRoZXIgcmVzZWFyY2hlcnMgYW5kIGluZHVzdHJpYWwgcHJhY3RpdGlvbmVycwpmYWNpbmcg
-dGhlIGNoYWxsZW5nZXMgcG9zZWQgYnkgdmlydHVhbGl6YXRpb24gaW4gb3JkZXIgdG8gZm9zdGVy
-CmRpc2N1c3Npb24sIGNvbGxhYm9yYXRpb24sIG11dHVhbCBleGNoYW5nZSBvZiBrbm93bGVkZ2Ug
-YW5kCmV4cGVyaWVuY2UsIGVuYWJsaW5nIHJlc2VhcmNoIHRvIHVsdGltYXRlbHkgcHJvdmlkZSBu
-b3ZlbCBzb2x1dGlvbnMKZm9yIHZpcnR1YWxpemVkIGNvbXB1dGluZyBzeXN0ZW1zIG9mIHRvbW9y
-cm93LgoKVGhlIHdvcmtzaG9wIHdpbGwgYmUgb25lIGRheSBpbiBsZW5ndGgsIGNvbXBvc2VkIG9m
-IDIwIG1pbiBwYXBlcgpwcmVzZW50YXRpb25zLCBlYWNoIGZvbGxvd2VkIGJ5IDEwIG1pbiBkaXNj
-dXNzaW9uIHNlY3Rpb25zLCBwbHVzCmxpZ2h0bmluZyB0YWxrcyB0aGF0IGFyZSBsaW1pdGVkIHRv
-IDUgbWludXRlcy4gUHJlc2VudGF0aW9ucyBtYXkgYmUKYWNjb21wYW5pZWQgYnkgaW50ZXJhY3Rp
-dmUgZGVtb25zdHJhdGlvbnMuCgoKSW1wb3J0YW50IERhdGVzCgpNYXkgMTJ0aCwgMjAyMCAtIFBh
-cGVyIHN1Ym1pc3Npb24gZGVhZGxpbmUgLSBleHRlbmRlZCAoU3ByaW5nZXIgTE5DUykKQXByIDI2
-dGgsIDIwMjAgLSBBY2NlcHRhbmNlIG5vdGlmaWNhdGlvbgpKdW5lIDI1dGgsIDIwMjAgLSBXb3Jr
-c2hvcCBEYXkKSnVseSAxMHRoLCAyMDIwIC0gQ2FtZXJhLXJlYWR5IHZlcnNpb24gZHVlCgoKQ2hh
-aXIKCk1pY2hhZWwgQWxleGFuZGVyIChjaGFpciksIEJPS1UsIFZpZW5uYSwgQXVzdHJpYQpBbmFz
-dGFzc2lvcyBOYW5vcyAoY28tY2hhaXIpLCBTdW5saWdodC5pbywgVUsKCgpQcm9ncmFtIGNvbW1p
-dHRlZQoKU3Rlcmdpb3MgQW5hc3Rhc2lhZGlzLCBVbml2ZXJzaXR5IG9mIElvYW5uaW5hLCBHcmVl
-Y2UKUGFvbG8gQm9uemluaSwgUmVkaGF0LCBJdGFseQpKYWtvYiBCbG9tZXIsIENFUk4sIEV1cm9w
-ZQpFZHVhcmRvIEPDqXNhciwgVW5pdmVyc2lkYWQgQXV0b25vbWEgZGUgQmFyY2Vsb25hLCBTcGFp
-bgpUYXlsb3IgQ2hpbGRlcnMsIEFyZ29ubmUgTmF0aW9uYWwgTGFib3JhdG9yeSwgVVNBClN0ZXBo
-ZW4gQ3JhZ28sIFVTQyBJU0ksIFVTQQpUb21tYXNvIEN1Y2lub3R0YSwgU3QuIEFubmEgU2Nob29s
-IG9mIEFkdmFuY2VkIFN0dWRpZXMsIEl0YWx5CkZyYW7Dp29pcyBEaWFraGF0w6kgQ0VBIERBTSBJ
-bGUgZGUgRnJhbmNlLCBGcmFuY2UKS3lsZSBIYWxlLCBOb3J0aHdlc3Rlcm4gVW5pdmVyc2l0eSwg
-VVNBCkJyaWFuIEtvY29sb3NraSwgV2FzaGluZ3RvbiBVbml2ZXJzaXR5LCBVU0EKU2ltb24gS3Vl
-bnplciwgTkVDIExhYm9yYXRvcmllcyBFdXJvcGUsIEdlcm1hbnkKSm9obiBMYW5nZSwgVW5pdmVy
-c2l0eSBvZiBQaXR0c2J1cmdoLCBVU0EKR2l1c2VwcGUgTGV0dGllcmksIFVuaXZlcnNpdHkgb2Yg
-UGlzYSwgSXRhbHkKS2xhdXMgTWEsIEh1YXdlaSBUZWNobm9sb2dpZXMsIENoaW5hCkFsYmVydG8g
-TWFkb25uYSwgU3dpc3MgTmF0aW9uYWwgU3VwZXJjb21wdXRpbmcgQ2VudGVyLCBTd2l0emVybGFu
-ZApOaWtvcyBQYXJsYXZhbnR6YXMsIElSSVNBLCBGcmFuY2UKQW51cCBQYXRlbCwgV2VzdGVybiBE
-aWdpdGFsLCBVU0EKS2V2aW4gUGVkcmV0dGksIFNhbmRpYSBOYXRpb25hbCBMYWJvcmF0b3JpZXMs
-IFVTQQpBbWVyIFFvdW5laCwgV2VzdGVybiBOZXcgRW5nbGFuZCBVbml2ZXJzaXR5LCBVU0EKQ2Fy
-bG9zIFJlYcOxbywgUXVlZW7igJlzIFVuaXZlcnNpdHkgQmVsZmFzdCwgVUsKQWRyaWFuIFJlYmVy
-LCBSZWRoYXQsIEdlcm1hbnkKUmljY2FyZG8gUm9jaGEsIENFUk4sIEV1cm9wZQpCb3JqYSBTb3Rv
-bWF5b3IsIFVuaXZlcnNpdHkgb2YgQ2hpY2FnbywgVVNBCkpvbmF0aGFuIFNwYXJrcywgQ3JheSwg
-VVNBCkt1cnQgVHV0c2Noa3UsIEJsZWtpbmdlIEluc3RpdHV0ZSBvZiBUZWNobm9sb2d5LCBTd2Vk
-ZW4KSm9obiBXYWx0ZXJzLCBVU0MgSVNJLCBVU0EKWWFzdWhpcm8gV2F0YXNoaWJhLCBPc2FrYSBV
-bml2ZXJzaXR5LCBKYXBhbgpDaGFvLVR1bmcgWWFuZywgVHVuZ2hhaSBVbml2ZXJzaXR5LCBUYWl3
-YW4KCgoKUGFwZXIgU3VibWlzc2lvbi1QdWJsaWNhdGlvbgoKUGFwZXJzIHN1Ym1pdHRlZCB0byB0
-aGUgd29ya3Nob3Agd2lsbCBiZSByZXZpZXdlZCBieSBhdCBsZWFzdCB0d28KbWVtYmVycyBvZiB0
-aGUgcHJvZ3JhbSBjb21taXR0ZWUgYW5kIGV4dGVybmFsIHJldmlld2Vycy4gU3VibWlzc2lvbnMK
-c2hvdWxkIGluY2x1ZGUgYWJzdHJhY3QsIGtleXdvcmRzLCB0aGUgZS1tYWlsIGFkZHJlc3Mgb2Yg
-dGhlCmNvcnJlc3BvbmRpbmcgYXV0aG9yLCBhbmQgbXVzdCBub3QgZXhjZWVkIDEwIHBhZ2VzLCBp
-bmNsdWRpbmcgdGFibGVzCmFuZCBmaWd1cmVzIGF0IGEgbWFpbiBmb250IHNpemUgbm8gc21hbGxl
-ciB0aGFuIDExIHBvaW50LiBTdWJtaXNzaW9uCm9mIGEgcGFwZXIgc2hvdWxkIGJlIHJlZ2FyZGVk
-IGFzIGEgY29tbWl0bWVudCB0aGF0LCBzaG91bGQgdGhlIHBhcGVyCmJlIGFjY2VwdGVkLCBhdCBs
-ZWFzdCBvbmUgb2YgdGhlIGF1dGhvcnMgd2lsbCByZWdpc3RlciBhbmQgYXR0ZW5kIHRoZQpjb25m
-ZXJlbmNlIHRvIHByZXNlbnQgdGhlIHdvcmsuIEFjY2VwdGVkIHBhcGVycyB3aWxsIGJlIHB1Ymxp
-c2hlZCBpbiBhClNwcmluZ2VyIExOQ1Mgdm9sdW1lLgoKVGhlIGZvcm1hdCBtdXN0IGJlIGFjY29y
-ZGluZyB0byB0aGUgU3ByaW5nZXIgTE5DUyBTdHlsZS4gSW5pdGlhbApzdWJtaXNzaW9ucyBhcmUg
-aW4gUERGOyBhdXRob3JzIG9mIGFjY2VwdGVkIHBhcGVycyB3aWxsIGJlIHJlcXVlc3RlZAp0byBw
-cm92aWRlIHNvdXJjZSBmaWxlcy4KCgpBYnN0cmFjdCwgUGFwZXIgU3VibWlzc2lvbiBMaW5rOgpl
-ZGFzW2RvdF1pbmZvL25ld1BhcGVyLnBocD9jPTI2OTczCgoKTGlnaHRuaW5nIFRhbGtzCgpMaWdo
-dG5pbmcgVGFsa3MgYXJlIG5vbi1wYXBlciB0cmFjaywgc3lub3B0aWNhbCBpbiBuYXR1cmUgYW5k
-IGFyZQpzdHJpY3RseSBsaW1pdGVkIHRvIDUgbWludXRlcy4gVGhleSBjYW4gYmUgdXNlZCB0byBn
-YWluIGVhcmx5CmZlZWRiYWNrIG9uIG9uZ29pbmcgcmVzZWFyY2gsIGZvciBkZW1vbnN0cmF0aW9u
-cywgdG8gcHJlc2VudCByZXNlYXJjaApyZXN1bHRzLCBlYXJseSByZXNlYXJjaCBpZGVhcywgcGVy
-c3BlY3RpdmVzIGFuZCBwb3NpdGlvbnMgb2YgaW50ZXJlc3QKdG8gdGhlIGNvbW11bml0eS4gU3Vi
-bWl0IGFic3RyYWN0IHZpYSB0aGUgbWFpbiBzdWJtaXNzaW9uIGxpbmsuCgpHZW5lcmFsIEluZm9y
-bWF0aW9uCgpUaGUgd29ya3Nob3AgaXMgb25lIGRheSBpbiBsZW5ndGggYW5kIHdpbGwgYmUgaGVs
-ZCBpbiBjb25qdW5jdGlvbiB3aXRoCnRoZSBJbnRlcm5hdGlvbmFsIFN1cGVyY29tcHV0aW5nIENv
-bmZlcmVuY2UgLSBIaWdoIFBlcmZvcm1hbmNlIChJU0MpCjIwMTksIEp1bmUgMjEtMjUsIEZyYW5r
-ZnVydCwgR2VybWFueS4KX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
-bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On Wed, Apr 08, 2020 at 04:07:33PM +0100, Robin Murphy wrote:
+> On 2020-04-08 3:37 pm, Joerg Roedel wrote:
+> Isn't that exactly what I suggested? :)
+
+Okay, I dropped this patch and updated the next one.
+
+> I don't recall for sure, but knowing me, that bit of group bookkeeping is
+> only where it currently is because it cheekily saves iterating the IDs a
+> second time. I don't think there's any technical reason.
+
+I leave it up to you to make any changes on that :)
+
+Updated patch below. I also noticed that I deleted too much from
+arm-smmu-v3 in the previous version, fixed that too.
+
+From a1d2821235a6c26b668b47ec0e84ad0316524406 Mon Sep 17 00:00:00 2001
+From: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
+Date: Mon, 30 Mar 2020 17:39:04 +0200
+Subject: [PATCH] iommu/arm-smmu: Convert to probe/release_device() call-backs
+
+Convert the arm-smmu and arm-smmu-v3 drivers to use the probe_device() and
+release_device() call-backs of iommu_ops, so that the iommu core code does the
+group and sysfs setup.
+
+Signed-off-by: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
+---
+ drivers/iommu/arm-smmu-v3.c | 38 ++++++++++--------------------------
+ drivers/iommu/arm-smmu.c    | 39 ++++++++++++++-----------------------
+ 2 files changed, 25 insertions(+), 52 deletions(-)
+
+diff --git a/drivers/iommu/arm-smmu-v3.c b/drivers/iommu/arm-smmu-v3.c
+index 82508730feb7..42e1ee7e5197 100644
+--- a/drivers/iommu/arm-smmu-v3.c
++++ b/drivers/iommu/arm-smmu-v3.c
+@@ -2914,27 +2914,26 @@ static bool arm_smmu_sid_in_range(struct arm_smmu_device *smmu, u32 sid)
+ 
+ static struct iommu_ops arm_smmu_ops;
+ 
+-static int arm_smmu_add_device(struct device *dev)
++static struct iommu_device *arm_smmu_probe_device(struct device *dev)
+ {
+ 	int i, ret;
+ 	struct arm_smmu_device *smmu;
+ 	struct arm_smmu_master *master;
+ 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+-	struct iommu_group *group;
+ 
+ 	if (!fwspec || fwspec->ops != &arm_smmu_ops)
+-		return -ENODEV;
++		return ERR_PTR(-ENODEV);
+ 
+ 	if (WARN_ON_ONCE(dev_iommu_priv_get(dev)))
+-		return -EBUSY;
++		return ERR_PTR(-EBUSY);
+ 
+ 	smmu = arm_smmu_get_by_fwnode(fwspec->iommu_fwnode);
+ 	if (!smmu)
+-		return -ENODEV;
++		return ERR_PTR(-ENODEV);
+ 
+ 	master = kzalloc(sizeof(*master), GFP_KERNEL);
+ 	if (!master)
+-		return -ENOMEM;
++		return ERR_PTR(-ENOMEM);
+ 
+ 	master->dev = dev;
+ 	master->smmu = smmu;
+@@ -2975,30 +2974,15 @@ static int arm_smmu_add_device(struct device *dev)
+ 		master->ssid_bits = min_t(u8, master->ssid_bits,
+ 					  CTXDESC_LINEAR_CDMAX);
+ 
+-	ret = iommu_device_link(&smmu->iommu, dev);
+-	if (ret)
+-		goto err_disable_pasid;
++	return &smmu->iommu;
+ 
+-	group = iommu_group_get_for_dev(dev);
+-	if (IS_ERR(group)) {
+-		ret = PTR_ERR(group);
+-		goto err_unlink;
+-	}
+-
+-	iommu_group_put(group);
+-	return 0;
+-
+-err_unlink:
+-	iommu_device_unlink(&smmu->iommu, dev);
+-err_disable_pasid:
+-	arm_smmu_disable_pasid(master);
+ err_free_master:
+ 	kfree(master);
+ 	dev_iommu_priv_set(dev, NULL);
+-	return ret;
++	return ERR_PTR(ret);
+ }
+ 
+-static void arm_smmu_remove_device(struct device *dev)
++static void arm_smmu_release_device(struct device *dev)
+ {
+ 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+ 	struct arm_smmu_master *master;
+@@ -3010,8 +2994,6 @@ static void arm_smmu_remove_device(struct device *dev)
+ 	master = dev_iommu_priv_get(dev);
+ 	smmu = master->smmu;
+ 	arm_smmu_detach_dev(master);
+-	iommu_group_remove_device(dev);
+-	iommu_device_unlink(&smmu->iommu, dev);
+ 	arm_smmu_disable_pasid(master);
+ 	kfree(master);
+ 	iommu_fwspec_free(dev);
+@@ -3138,8 +3120,8 @@ static struct iommu_ops arm_smmu_ops = {
+ 	.flush_iotlb_all	= arm_smmu_flush_iotlb_all,
+ 	.iotlb_sync		= arm_smmu_iotlb_sync,
+ 	.iova_to_phys		= arm_smmu_iova_to_phys,
+-	.add_device		= arm_smmu_add_device,
+-	.remove_device		= arm_smmu_remove_device,
++	.probe_device		= arm_smmu_probe_device,
++	.release_device		= arm_smmu_release_device,
+ 	.device_group		= arm_smmu_device_group,
+ 	.domain_get_attr	= arm_smmu_domain_get_attr,
+ 	.domain_set_attr	= arm_smmu_domain_set_attr,
+diff --git a/drivers/iommu/arm-smmu.c b/drivers/iommu/arm-smmu.c
+index a6a5796e9c41..e622f4e33379 100644
+--- a/drivers/iommu/arm-smmu.c
++++ b/drivers/iommu/arm-smmu.c
+@@ -220,7 +220,7 @@ static int arm_smmu_register_legacy_master(struct device *dev,
+  * With the legacy DT binding in play, we have no guarantees about
+  * probe order, but then we're also not doing default domains, so we can
+  * delay setting bus ops until we're sure every possible SMMU is ready,
+- * and that way ensure that no add_device() calls get missed.
++ * and that way ensure that no probe_device() calls get missed.
+  */
+ static int arm_smmu_legacy_bus_init(void)
+ {
+@@ -1062,7 +1062,6 @@ static int arm_smmu_master_alloc_smes(struct device *dev)
+ 	struct arm_smmu_master_cfg *cfg = dev_iommu_priv_get(dev);
+ 	struct arm_smmu_device *smmu = cfg->smmu;
+ 	struct arm_smmu_smr *smrs = smmu->smrs;
+-	struct iommu_group *group;
+ 	int i, idx, ret;
+ 
+ 	mutex_lock(&smmu->stream_map_mutex);
+@@ -1090,18 +1089,9 @@ static int arm_smmu_master_alloc_smes(struct device *dev)
+ 		cfg->smendx[i] = (s16)idx;
+ 	}
+ 
+-	group = iommu_group_get_for_dev(dev);
+-	if (IS_ERR(group)) {
+-		ret = PTR_ERR(group);
+-		goto out_err;
+-	}
+-	iommu_group_put(group);
+-
+ 	/* It worked! Now, poke the actual hardware */
+-	for_each_cfg_sme(cfg, fwspec, i, idx) {
++	for_each_cfg_sme(cfg, fwspec, i, idx)
+ 		arm_smmu_write_sme(smmu, idx);
+-		smmu->s2crs[idx].group = group;
+-	}
+ 
+ 	mutex_unlock(&smmu->stream_map_mutex);
+ 	return 0;
+@@ -1172,7 +1162,7 @@ static int arm_smmu_attach_dev(struct iommu_domain *domain, struct device *dev)
+ 
+ 	/*
+ 	 * FIXME: The arch/arm DMA API code tries to attach devices to its own
+-	 * domains between of_xlate() and add_device() - we have no way to cope
++	 * domains between of_xlate() and probe_device() - we have no way to cope
+ 	 * with that, so until ARM gets converted to rely on groups and default
+ 	 * domains, just say no (but more politely than by dereferencing NULL).
+ 	 * This should be at least a WARN_ON once that's sorted.
+@@ -1382,7 +1372,7 @@ struct arm_smmu_device *arm_smmu_get_by_fwnode(struct fwnode_handle *fwnode)
+ 	return dev ? dev_get_drvdata(dev) : NULL;
+ }
+ 
+-static int arm_smmu_add_device(struct device *dev)
++static struct iommu_device *arm_smmu_probe_device(struct device *dev)
+ {
+ 	struct arm_smmu_device *smmu = NULL;
+ 	struct arm_smmu_master_cfg *cfg;
+@@ -1403,7 +1393,7 @@ static int arm_smmu_add_device(struct device *dev)
+ 	} else if (fwspec && fwspec->ops == &arm_smmu_ops) {
+ 		smmu = arm_smmu_get_by_fwnode(fwspec->iommu_fwnode);
+ 	} else {
+-		return -ENODEV;
++		return ERR_PTR(-ENODEV);
+ 	}
+ 
+ 	ret = -EINVAL;
+@@ -1444,21 +1434,19 @@ static int arm_smmu_add_device(struct device *dev)
+ 	if (ret)
+ 		goto out_cfg_free;
+ 
+-	iommu_device_link(&smmu->iommu, dev);
+-
+ 	device_link_add(dev, smmu->dev,
+ 			DL_FLAG_PM_RUNTIME | DL_FLAG_AUTOREMOVE_SUPPLIER);
+ 
+-	return 0;
++	return &smmu->iommu;
+ 
+ out_cfg_free:
+ 	kfree(cfg);
+ out_free:
+ 	iommu_fwspec_free(dev);
+-	return ret;
++	return ERR_PTR(ret);
+ }
+ 
+-static void arm_smmu_remove_device(struct device *dev)
++static void arm_smmu_release_device(struct device *dev)
+ {
+ 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+ 	struct arm_smmu_master_cfg *cfg;
+@@ -1475,13 +1463,11 @@ static void arm_smmu_remove_device(struct device *dev)
+ 	if (ret < 0)
+ 		return;
+ 
+-	iommu_device_unlink(&smmu->iommu, dev);
+ 	arm_smmu_master_free_smes(cfg, fwspec);
+ 
+ 	arm_smmu_rpm_put(smmu);
+ 
+ 	dev_iommu_priv_set(dev, NULL);
+-	iommu_group_remove_device(dev);
+ 	kfree(cfg);
+ 	iommu_fwspec_free(dev);
+ }
+@@ -1512,6 +1498,11 @@ static struct iommu_group *arm_smmu_device_group(struct device *dev)
+ 	else
+ 		group = generic_device_group(dev);
+ 
++	/* Remember group for faster lookups */
++	if (!IS_ERR(group))
++		for_each_cfg_sme(cfg, fwspec, i, idx)
++			smmu->s2crs[idx].group = group;
++
+ 	return group;
+ }
+ 
+@@ -1628,8 +1619,8 @@ static struct iommu_ops arm_smmu_ops = {
+ 	.flush_iotlb_all	= arm_smmu_flush_iotlb_all,
+ 	.iotlb_sync		= arm_smmu_iotlb_sync,
+ 	.iova_to_phys		= arm_smmu_iova_to_phys,
+-	.add_device		= arm_smmu_add_device,
+-	.remove_device		= arm_smmu_remove_device,
++	.probe_device		= arm_smmu_probe_device,
++	.release_device		= arm_smmu_release_device,
+ 	.device_group		= arm_smmu_device_group,
+ 	.domain_get_attr	= arm_smmu_domain_get_attr,
+ 	.domain_set_attr	= arm_smmu_domain_set_attr,
+-- 
+2.25.1
