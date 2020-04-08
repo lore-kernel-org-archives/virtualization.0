@@ -1,304 +1,233 @@
 From: Ankur Arora <ankur.a.arora@oracle.com>
-Subject: [RFC PATCH 18/26] x86/alternatives: Handle BP in non-emulated text poking
-Date: Tue,  7 Apr 2020 22:03:15 -0700
-Message-ID: <20200408050323.4237-19-ankur.a.arora@oracle.com>
+Subject: [RFC PATCH 09/26] x86/paravirt: Add runtime_patch()
+Date: Tue,  7 Apr 2020 22:03:06 -0700
+Message-ID: <20200408050323.4237-10-ankur.a.arora@oracle.com>
 References: <20200408050323.4237-1-ankur.a.arora@oracle.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <xen-devel-bounces@lists.xenproject.org>
 In-Reply-To: <20200408050323.4237-1-ankur.a.arora@oracle.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xenproject.org>
+List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
+List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
+Errors-To: xen-devel-bounces@lists.xenproject.org
+Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
 To: linux-kernel@vger.kernel.org, x86@kernel.org
-Cc: peterz@infradead.org, hpa@zytor.com, jpoimboe@redhat.com, namit@vmware.com, mhiramat@kernel.org, jgross@suse.com, bp@alien8.de, vkuznets@redhat.com, pbonzini@redhat.com, boris.ostrovsky@oracle.com, mihai.carabas@oracle.com, kvm@vger.kernel.org, xen-devel@lists.xenproject.org, virtualization@lists.linux-foundation.org, Ankur Arora <ankur.a.arora@oracle.com>
+Cc: jgross@suse.com, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, peterz@infradead.org, hpa@zytor.com, Ankur Arora <ankur.a.arora@oracle.com>, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, namit@vmware.com, mhiramat@kernel.org, jpoimboe@redhat.com, mihai.carabas@oracle.com, bp@alien8.de, vkuznets@redhat.com, boris.ostrovsky@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Handle breakpoints if we hit an INT3 either by way of an NMI while
-patching a site in the NMI handling path, or if we are patching text
-in text_poke_site() (executes on the primary), or in the pipeline sync
-path in text_poke_sync_site() (executes on secondary CPUs.)
-(The last two are not expected to happen, but see below.)
+runtime_patch() generates insn sequences for patching supported pv_ops.
+It does this by calling paravirt_patch_default() or native_patch()
+dpending on if the target is a paravirt or native pv-op.
 
-The handling on the primary CPU is to update the insn stream locally
-such that we can return to the primary patching loop but not force
-the secondary CPUs to execute sync_core().
+In addition, runtime_patch() also whitelists pv-ops that are safe to
+patch at runtime.
 
-From my reading of the Intel spec and the thread which laid down the
-INT3 approach: https//lore.kernel.org/lkml/4B4D02B8.5020801@zytor.com,
-skipping the sync_core() would mean that remote pipelines -- if they
-have relevant uops cached would not see the updated instruction and
-would continue to execute stale uops.
+The static conditions that need to be satisfied to patch safely:
+ - Insn sequences under replacement need to execute without preemption.
+   This is meant to avoid scenarios where a call-site (ex.
+   lock.vcpu_is_preempted) switches between the following sequences:
 
-This is safe because the primary eventually gets back to the patching
-loop in text_poke_site() and resumes the state-machine, re-writing
-some of the insn sequences just written in the BP handling and forcing
-the secondary CPUs to execute sync_core().
+  lock.vcpu_is_preempted = __raw_callee_save___kvm_vcpu_is_preempted
+    0: e8 31 e6 ff ff		callq  0xffffffffffffe636
+    4: 66 90			xchg   %ax,%ax      # NOP2
 
-The handling on the secondary, is to call text_poke_sync_site() just as
-in thread-context, so it contains acking the patch states such that the
-primary can continue making forward progress. This can be called in a
-re-entrant fashion.
+  lock.vcpu_is_preempted = __raw_callee_save___native_vcpu_is_preempted
+    0: 31 c0			xor   %rax, %rax
+    2: 0f 1f 44 00 00		nopl   0x0(%rax)    # NOP5
 
-Note that this does mean that we cannot handle any patches in
-text_poke_sync_site() itself since that would end up being called
-recursively in the BP handler.
+   If kvm_vcpu_is_preempted() were preemptible, then, post patching
+   we would return to address 4 above, which is in the middle of an
+   instruction for native_vcpu_is_preempted().
 
-Control flow diagram with the BP handler:
+   Even if this were to be made safe (ex. by changing the NOP2 to be a
+   prefix instead of a suffix), it would still not be enough -- since
+   we do not want any code from the switched out pv-op to be executing
+   after the pv-op has been switched out.
 
- CPU0-BP                             CPUx-BP
- -------                             -------
+ - Entered only at the beginning: this allows us to use text_poke()
+   which uses INT3 as a barrier.
 
- poke_int3_native()                  poke_int3_native()
-   __text_do_poke()         	       text_poke_sync_site()
-   sync_one()               	        /* for state in:
-                                         *  [PATCH_SYNC_y.._SYNC_DONE) */
-                                         sync_one()
-                                         ack()
+We don't store the address inside any call-sites so the second can be
+assumed.
 
+Guaranteeing the first condition boils down to stating that any pv-op
+being patched cannot be present/referenced from any call-stack in the
+system. pv-ops that are not obviously non-preemptible need to be
+enclosed in preempt_disable_runtime_patch()/preempt_enable_runtime_patch().
 
- CPU0                                CPUx
- ----                                ----
+This should be sufficient because runtime_patch() itself is called from
+a stop_machine() context which would would be enough to flush out any
+non-preemptible sequences.
 
- patch_worker()                      patch_worker()
-
-   /* Traversal, insn-gen */           text_poke_sync_finish()
-   tps.patch_worker()                    /* wait until:
-     /* = paravirt_worker() */            *  tps->state == PATCH_DONE
-                                          */
-                 /* for each patch-site */
-     generate_paravirt()
-       runtime_patch()
-     text_poke_site()                    text_poke_sync_site()
-        poke_sync()                       /* for state in:
-          __text_do_poke()                 *  [PATCH_SYNC_0..PATCH_SYNC_y]
-          sync_one()                       */
-          ack()                            sync_one()
-          wait_for_acks()                  ack()
-
-           ...                                 ...
-
-   smp_store_release(&tps->state, PATCH_DONE)
+Note that preemption in the host is okay: stop_machine() would unwind
+any pv-ops sleeping in the host.
 
 Signed-off-by: Ankur Arora <ankur.a.arora@oracle.com>
 ---
- arch/x86/kernel/alternative.c | 145 ++++++++++++++++++++++++++++++++--
- 1 file changed, 137 insertions(+), 8 deletions(-)
+ arch/x86/include/asm/paravirt_types.h |  8 +++++
+ arch/x86/kernel/paravirt.c            |  6 +---
+ arch/x86/kernel/paravirt_patch.c      | 49 +++++++++++++++++++++++++++
+ include/linux/preempt.h               | 17 ++++++++++
+ 4 files changed, 75 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
-index 7fdaae9edbf0..c68d940356a2 100644
---- a/arch/x86/kernel/alternative.c
-+++ b/arch/x86/kernel/alternative.c
-@@ -1055,6 +1055,8 @@ static int notrace patch_cmp(const void *key, const void *elt)
- }
- NOKPROBE_SYMBOL(patch_cmp);
+diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+index bc935eec7ec6..3b9f6c105397 100644
+--- a/arch/x86/include/asm/paravirt_types.h
++++ b/arch/x86/include/asm/paravirt_types.h
+@@ -350,6 +350,12 @@ extern struct paravirt_patch_template native_pv_ops;
+ #define PARAVIRT_PATCH(x)					\
+ 	(offsetof(struct paravirt_patch_template, x) / sizeof(void *))
  
-+static void poke_int3_native(struct pt_regs *regs,
-+			     struct text_poke_loc *tp);
- int notrace poke_int3_handler(struct pt_regs *regs)
++/*
++ * Neat trick to map patch type back to the call within the
++ * corresponding structure.
++ */
++#define PARAVIRT_PATCH_OP(ops, type) (*(long *)(&((long **)&(ops))[type]))
++
+ #define paravirt_type(op)				\
+ 	[paravirt_typenum] "i" (PARAVIRT_PATCH(op)),	\
+ 	[paravirt_opptr] "i" (&(pv_ops.op))
+@@ -383,6 +389,8 @@ unsigned paravirt_patch_default(u8 type, void *insn_buff, unsigned long addr, un
+ unsigned paravirt_patch_insns(void *insn_buff, unsigned len, const char *start, const char *end);
+ 
+ unsigned native_patch(u8 type, void *insn_buff, unsigned long addr, unsigned len);
++int runtime_patch(u8 type, void *insn_buff, void *op, unsigned long addr,
++		  unsigned int len);
+ 
+ int paravirt_disable_iospace(void);
+ 
+diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
+index 8c511cc4d4f4..c4128436b05a 100644
+--- a/arch/x86/kernel/paravirt.c
++++ b/arch/x86/kernel/paravirt.c
+@@ -117,11 +117,7 @@ void __init native_pv_lock_init(void)
+ unsigned paravirt_patch_default(u8 type, void *insn_buff,
+ 				unsigned long addr, unsigned len)
  {
- 	struct bp_patching_desc *desc;
-@@ -1099,8 +1101,11 @@ int notrace poke_int3_handler(struct pt_regs *regs)
- 			goto out_put;
- 	}
+-	/*
+-	 * Neat trick to map patch type back to the call within the
+-	 * corresponding structure.
+-	 */
+-	void *opfunc = *((void **)&pv_ops + type);
++	void *opfunc = (void *)PARAVIRT_PATCH_OP(pv_ops, type);
+ 	unsigned ret;
  
--	if (desc->native)
--		BUG();
-+	if (desc->native) {
-+		poke_int3_native(regs, tp);
-+		ret = 1; /* handled */
-+		goto out_put;
-+	}
+ 	if (opfunc == NULL)
+diff --git a/arch/x86/kernel/paravirt_patch.c b/arch/x86/kernel/paravirt_patch.c
+index 3eff63c090d2..3eb8c0e720b4 100644
+--- a/arch/x86/kernel/paravirt_patch.c
++++ b/arch/x86/kernel/paravirt_patch.c
+@@ -1,5 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0
+ #include <linux/stringify.h>
++#include <linux/errno.h>
  
- 	len = text_opcode_size(tp->emulated.opcode);
- 	ip += len;
-@@ -1469,8 +1474,15 @@ static void wait_for_acks(struct text_poke_state *tps)
- static void poke_sync(struct text_poke_state *tps, int state, int offset,
- 		      const char *insns, int len)
- {
--	if (len)
-+	if (len) {
-+		/*
-+		 * Note that we could hit a BP right after patching memory
-+		 * below. This could happen before the state change further
-+		 * down. The primary BP handler allows us to make
-+		 * forward-progress in that case.
-+		 */
- 		__text_do_poke(offset, insns, len);
-+	}
- 	/*
- 	 * Stores to tps.sync_ack_map are ordered with
- 	 * smp_load_acquire(tps->state) in text_poke_sync_site()
-@@ -1504,11 +1516,22 @@ static void __maybe_unused text_poke_site(struct text_poke_state *tps,
- 	temp_mm_state_t prev_mm;
- 	pte_t *ptep;
- 	int offset;
-+	struct bp_patching_desc desc = {
-+		.vec = tp,
-+		.nr_entries = 1,
-+		.native = true,
-+		.refs = ATOMIC_INIT(1),
-+	};
+ #include <asm/paravirt.h>
+ #include <asm/asm-offsets.h>
+@@ -124,3 +125,51 @@ unsigned int native_patch(u8 type, void *insn_buff, unsigned long addr,
  
- 	__text_poke_map(text_poke_addr(tp), tp->native.len, &prev_mm, &ptep);
- 
- 	offset = offset_in_page(text_poke_addr(tp));
- 
-+	/*
-+	 * For INT3 use the same exclusion logic as BP emulation path.
-+	 */
-+	smp_store_release(&bp_desc, &desc); /* rcu_assign_pointer */
-+
- 	/*
- 	 * All secondary CPUs are waiting in tps->state == PATCH_SYNC_DONE
- 	 * to move to PATCH_SYNC_0. Poke the INT3 and wait until all CPUs
-@@ -1537,6 +1560,19 @@ static void __maybe_unused text_poke_site(struct text_poke_state *tps,
- 	 */
- 	poke_sync(tps, PATCH_SYNC_DONE, 0, NULL, 0);
- 
-+	/*
-+	 * All CPUs have ack'd PATCH_SYNC_DONE. So there can be no
-+	 * laggard CPUs executing BP handlers. Reset bp_desc.
-+	 */
-+	WRITE_ONCE(bp_desc, NULL); /* RCU_INIT_POINTER */
-+
-+	/*
-+	 * We've already done the synchronization so this should not
-+	 * race.
-+	 */
-+	if (!atomic_dec_and_test(&desc.refs))
-+		atomic_cond_read_acquire(&desc.refs, !VAL);
-+
- 	/*
- 	 * Unmap the poking_addr, poking_mm.
- 	 */
-@@ -1548,7 +1584,8 @@ static void __maybe_unused text_poke_site(struct text_poke_state *tps,
-  * text_poke_sync_site() -- called to synchronize the CPU pipeline
-  * on secondary CPUs for each patch site.
-  *
-- * Called in thread context with tps->state == PATCH_SYNC_0.
-+ * Called in thread context with tps->state == PATCH_SYNC_0 and in
-+ * BP context with tps->state < PATCH_SYNC_DONE.
-  *
-  * Returns after having observed tps->state == PATCH_SYNC_DONE.
-  */
-@@ -1561,6 +1598,26 @@ static void text_poke_sync_site(struct text_poke_state *tps)
- 	/*
- 	 * In thread context we arrive here expecting tps->state to move
- 	 * in-order from PATCH_SYNC_{0 -> 1 -> 2} -> PATCH_SYNC_DONE.
-+	 *
-+	 * We could also arrive here in BP-context some point after having
-+	 * observed bp_patching.nr_entries (and after poking the first INT3.)
-+	 * This could happen by way of an NMI while we are patching a site
-+	 * that'll get executed in the NMI handler, or if we hit a site
-+	 * being patched in text_poke_sync_site().
-+	 *
-+	 * Just as thread-context, the BP handler calls text_poke_sync_site()
-+	 * to keep the primary's state-machine moving forward until it has
-+	 * finished patching the call-site. At that point it is safe to
-+	 * unwind the contexts.
-+	 *
-+	 * The second case, where we are patching a site in
-+	 * text_poke_sync_site(), could end up in recursive BP handlers
-+	 * and is not handled.
-+	 *
-+	 * Note that unlike thread-context where the start state can only
-+	 * be PATCH_SYNC_0, in the BP-context, the start state could be any
-+	 * PATCH_SYNC_x, so long as (state < PATCH_SYNC_DONE) since once a
-+	 * CPU has acked PATCH_SYNC_2, there is no INT3 left for it to observe.
- 	 */
- 	do {
- 		/*
-@@ -1571,16 +1628,88 @@ static void text_poke_sync_site(struct text_poke_state *tps)
- 
- 		prevstate = READ_ONCE(tps->state);
- 
--		if (prevstate < PATCH_SYNC_DONE) {
--			acked = cpumask_test_cpu(cpu, &tps->sync_ack_map);
--
--			BUG_ON(acked);
-+		/*
-+		 * As described above, text_poke_sync_site() gets called
-+		 * from both thread-context and potentially in a re-entrant
-+		 * fashion in BP-context. Accordingly expect to potentially
-+		 * enter and exit this loop twice.
-+		 *
-+		 * Concretely, this means we need to handle the case where we
-+		 * see an already acked state at BP/NMI entry and, see a
-+		 * state discontinuity when returning to thread-context from
-+		 * BP-context which would return after having observed
-+		 * tps->state == PATCH_SYNC_DONE.
-+		 *
-+		 * Help this along by always exiting with tps->state ==
-+		 * PATCH_SYNC_DONE but without acking it. Not acking it in
-+		 * text_poke_sync_site(), guarantees that the state can only
-+		 * forward once all secondary CPUs have exited both thread
-+		 * and BP-contexts.
-+		 */
-+		acked = cpumask_test_cpu(cpu, &tps->sync_ack_map);
-+		if (prevstate < PATCH_SYNC_DONE && !acked) {
- 			sync_one();
- 			cpumask_set_cpu(cpu, &tps->sync_ack_map);
- 		}
- 	} while (prevstate < PATCH_SYNC_DONE);
+ 	return paravirt_patch_default(type, insn_buff, addr, len);
  }
- 
-+static void poke_int3_native(struct pt_regs *regs,
-+			     struct text_poke_loc *tp)
++
++#ifdef CONFIG_PARAVIRT_RUNTIME
++/**
++ * runtime_patch - Generate patching code for a native/paravirt op
++ * @type: op type to generate code for
++ * @insn_buff: destination buffer
++ * @op: op target
++ * @addr: call site address
++ * @len: length of insn_buff
++ *
++ * Note that pv-ops are only suitable for runtime patching if they are
++ * non-preemptible. This is necessary for two reasons: we don't want to
++ * be overwriting insn sequences which might be referenced from call-stacks
++ * (and thus would be returned to), and we want patching to act as a barrier
++ * so no code from now stale paravirt ops should execute after an op has
++ * changed.
++ *
++ * Return: size of insn sequence on success, -EINVAL on error.
++ */
++int runtime_patch(u8 type, void *insn_buff, void *op,
++		  unsigned long addr, unsigned int len)
 +{
-+	int cpu = smp_processor_id();
-+	struct text_poke_state *tps = &text_poke_state;
++	void *native_op;
++	int used = 0;
 +
-+	if (cpu != tps->primary_cpu) {
-+		/*
-+		 * We came here from the sync loop in text_poke_sync_site().
-+		 * Continue syncing. The primary is waiting.
-+		 */
-+		text_poke_sync_site(tps);
-+	} else {
-+		int offset = offset_in_page(text_poke_addr(tp));
-+
-+		/*
-+		 * We are in the primary context and have hit the INT3 barrier
-+		 * either ourselves or via an NMI.
-+		 *
-+		 * The secondary CPUs at this time are either in the original
-+		 * text_poke_sync_site() loop or after having hit an NMI->INT3
-+		 * themselves in the BP text_poke_sync_site() loop.
-+		 *
-+		 * The minimum that we need to do here is to update the local
-+		 * insn stream such that we can return to the primary loop.
-+		 * Without executing sync_core() on the secondary CPUs it is
-+		 * possible that some of them might be executing stale uops in
-+		 * their respective pipelines.
-+		 *
-+		 * This should be safe because we will get back to the patching
-+		 * loop in text_poke_site() in due course and will resume
-+		 * the state-machine where we left off including by re-writing
-+		 * some of the insns sequences just written here.
-+		 *
-+		 * Note that we continue to be in poking_mm context and so can
-+		 * safely call __text_do_poke() here.
-+		 */
-+		__text_do_poke(offset + INT3_INSN_SIZE,
-+			       tp->text + INT3_INSN_SIZE,
-+			       tp->native.len - INT3_INSN_SIZE);
-+		__text_do_poke(offset, tp->text, INT3_INSN_SIZE);
-+
-+		/*
-+		 * We only introduce a serializing instruction locally. As
-+		 * noted above, the secondary CPUs can stay where they are --
-+		 * potentially executing in the now stale INT3.) This is fine
-+		 * because the primary will force the sync_core() on the
-+		 * secondary CPUs once it returns.
-+		 */
-+		sync_one();
++	/* Nothing whitelisted for now. */
++	switch (type) {
++	default:
++		pr_warn("type=%d unsuitable for runtime-patching\n", type);
++		return -EINVAL;
 +	}
 +
-+	/* A new start */
-+	regs->ip -= INT3_INSN_SIZE;
-+}
++	if (PARAVIRT_PATCH_OP(pv_ops, type) != (long)op)
++		PARAVIRT_PATCH_OP(pv_ops, type) = (long)op;
 +
- /**
-  * text_poke_sync_finish() -- called to synchronize the CPU pipeline
-  * on secondary CPUs for all patch sites.
++	native_op = (void *)PARAVIRT_PATCH_OP(native_pv_ops, type);
++
++	/*
++	 * Use native_patch() to get the right insns if we are switching
++	 * back to a native_op.
++	 */
++	if (op == native_op)
++		used = native_patch(type, insn_buff, addr, len);
++	else
++		used = paravirt_patch_default(type, insn_buff, addr, len);
++	return used;
++}
++#endif /* CONFIG_PARAVIRT_RUNTIME */
+diff --git a/include/linux/preempt.h b/include/linux/preempt.h
+index bc3f1aecaa19..c569d077aab2 100644
+--- a/include/linux/preempt.h
++++ b/include/linux/preempt.h
+@@ -203,6 +203,13 @@ do { \
+ 		__preempt_schedule(); \
+ } while (0)
+ 
++/*
++ * preempt_enable_no_resched() so we don't add any preemption points until
++ * after the caller has returned.
++ */
++#define preempt_enable_runtime_patch()	preempt_enable_no_resched()
++#define preempt_disable_runtime_patch()	preempt_disable()
++
+ #else /* !CONFIG_PREEMPTION */
+ #define preempt_enable() \
+ do { \
+@@ -217,6 +224,12 @@ do { \
+ } while (0)
+ 
+ #define preempt_check_resched() do { } while (0)
++
++/*
++ * NOP, if there's no preemption.
++ */
++#define preempt_disable_runtime_patch()	do { } while (0)
++#define preempt_enable_runtime_patch()	do { } while (0)
+ #endif /* CONFIG_PREEMPTION */
+ 
+ #define preempt_disable_notrace() \
+@@ -250,6 +263,8 @@ do { \
+ #define preempt_enable_notrace()		barrier()
+ #define preemptible()				0
+ 
++#define preempt_disable_runtime_patch()	do { } while (0)
++#define preempt_enable_runtime_patch()	do { } while (0)
+ #endif /* CONFIG_PREEMPT_COUNT */
+ 
+ #ifdef MODULE
+@@ -260,6 +275,8 @@ do { \
+ #undef preempt_enable_no_resched
+ #undef preempt_enable_no_resched_notrace
+ #undef preempt_check_resched
++#undef preempt_disable_runtime_patch
++#undef preempt_enable_runtime_patch
+ #endif
+ 
+ #define preempt_set_need_resched() \
 -- 
 2.20.1
