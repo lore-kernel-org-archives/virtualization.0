@@ -1,13 +1,15 @@
-From: Huacai Chen <chenhc@lemote.com>
-Subject: [PATCH 3/3] MAINTAINERS: Add myself as fulong2e co-maintainer
-Date: Wed,  8 Apr 2020 17:14:10 +0800
-Message-ID: <1586337250-25149-3-git-send-email-chenhc@lemote.com>
-References: <1586337250-25149-1-git-send-email-chenhc@lemote.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [RFC PATCH 09/26] x86/paravirt: Add runtime_patch()
+Date: Wed, 8 Apr 2020 13:05:01 +0200
+Message-ID: <20200408110501.GS20713@hirez.programming.kicks-ass.net>
+References: <20200408050323.4237-1-ankur.a.arora@oracle.com>
+ <20200408050323.4237-10-ankur.a.arora@oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1586337250-25149-1-git-send-email-chenhc@lemote.com>
+Content-Disposition: inline
+In-Reply-To: <20200408050323.4237-10-ankur.a.arora@oracle.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,28 +19,17 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>
-Cc: Jiaxun Yang <jiaxun.yang@flygoat.com>, virtualization@lists.linux-foundation.org, Fuxin Zhang <zhangfx@lemote.com>, Huacai Chen <chenhc@lemote.com>, spice-devel@lists.freedesktop.org
+To: Ankur Arora <ankur.a.arora@oracle.com>
+Cc: jgross@suse.com, hpa@zytor.com, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, namit@vmware.com, mhiramat@kernel.org, jpoimboe@redhat.com, mihai.carabas@oracle.com, bp@alien8.de, boris.ostrovsky@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-SSBzdWJtaXR0ZWQgdGhlIE1JUFMvZnVsb25nMmUgc3VwcG9ydCBhYm91dCB0ZW4geWVhcnMgYWdv
-LCBhbmQgYWZ0ZXIKdGhhdCBJIGJlY2FtZSBhIE1JUFMga2VybmVsIGRldmVsb3Blci4gTGFzdCB5
-ZWFyLCBQaGlsaXBwZSBNYXRoaWV1LQpEYXVkw6kgYXNrZWQgbWUgdGhhdCB3aGV0aGVyIEkgY2Fu
-IGJlIGEgcmV2aWV3ZXIgb2YgTUlQUy9mdWxvbmcyZSwgYW5kIEkKcHJvbWlzZWQgdGhhdCBJIHdp
-bGwgZG8gc29tZSBRRU1VIHdvcmsgaW4gdGhlIG5leHQgeWVhciAoaS5lLiwgMjAyMCBhbmQKbGF0
-ZXIpLiBJIHRoaW5rIG5vdyAoYW5kIGFsc28gaW4gZnV0dXJlKSBJIGNhbiBoYXZlIHNvbWUgc3Bh
-cmUgdGltZSwgc28KSSBjYW4gZmluYWxseSBkbyBzb21lIHJlYWwgd29yayBvbiBRRU1VL01JUFMu
-IEFuZCBpZiBwb3NzaWJsZSwgSSBob3BlIEkKY2FuIGJlIGEgY28tbWFpbnRhaW5lciBvZiBNSVBT
-L2Z1bG9uZzJlLgoKQ2M6IEppYXh1biBZYW5nIDxqaWF4dW4ueWFuZ0BmbHlnb2F0LmNvbT4KU2ln
-bmVkLW9mZi1ieTogSHVhY2FpIENoZW4gPGNoZW5oY0BsZW1vdGUuY29tPgotLS0KIE1BSU5UQUlO
-RVJTIHwgMSArCiAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRpb24oKykKCmRpZmYgLS1naXQgYS9N
-QUlOVEFJTkVSUyBiL01BSU5UQUlORVJTCmluZGV4IDY0MmM4ZTAuLjMyODFmZjIgMTAwNjQ0Ci0t
-LSBhL01BSU5UQUlORVJTCisrKyBiL01BSU5UQUlORVJTCkBAIC0xMDczLDYgKzEwNzMsNyBAQCBG
-OiBody9taXBzL21pcHNfcjRrLmMKIEZ1bG9uZyAyRQogTTogUGhpbGlwcGUgTWF0aGlldS1EYXVk
-w6kgPGY0YnVnQGFtc2F0Lm9yZz4KIE06IEFsZWtzYW5kYXIgTWFya292aWMgPGFsZWtzYW5kYXIu
-cWVtdS5kZXZlbEBnbWFpbC5jb20+CitNOiBIdWFjYWkgQ2hlbiA8Y2hlbmhjQGxlbW90ZS5jb20+
-CiBTOiBPZGQgRml4ZXMKIEY6IGh3L21pcHMvbWlwc19mdWxvbmcyZS5jCiBGOiBody9pc2EvdnQ4
-MmM2ODYuYwotLSAKMi43LjAKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
-cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
-bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Tue, Apr 07, 2020 at 10:03:06PM -0700, Ankur Arora wrote:
+> +/*
+> + * preempt_enable_no_resched() so we don't add any preemption points until
+> + * after the caller has returned.
+> + */
+> +#define preempt_enable_runtime_patch()	preempt_enable_no_resched()
+> +#define preempt_disable_runtime_patch()	preempt_disable()
+
+NAK, this is probably a stright preemption bug, also, afaict, there
+aren't actually any users of this in the patch-set.
