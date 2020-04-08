@@ -1,7 +1,7 @@
 From: Ankur Arora <ankur.a.arora@oracle.com>
-Subject: [RFC PATCH 07/26] x86/paravirt: Persist .parainstructions.runtime
-Date: Tue,  7 Apr 2020 22:03:04 -0700
-Message-ID: <20200408050323.4237-8-ankur.a.arora@oracle.com>
+Subject: [RFC PATCH 02/26] x86/paravirt: Allow paravirt patching post-init
+Date: Tue,  7 Apr 2020 22:02:59 -0700
+Message-ID: <20200408050323.4237-3-ankur.a.arora@oracle.com>
 References: <20200408050323.4237-1-ankur.a.arora@oracle.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -19,140 +19,180 @@ To: linux-kernel@vger.kernel.org, x86@kernel.org
 Cc: jgross@suse.com, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, peterz@infradead.org, hpa@zytor.com, Ankur Arora <ankur.a.arora@oracle.com>, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, namit@vmware.com, mhiramat@kernel.org, jpoimboe@redhat.com, mihai.carabas@oracle.com, bp@alien8.de, vkuznets@redhat.com, boris.ostrovsky@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Persist .parainstructions.runtime in memory. We will use it to
-patch paravirt-ops at runtime.
+Paravirt-ops are patched at init to convert indirect calls into
+direct calls and in some cases, to inline the target at the call-site.
+This is done by way of PVOP* macros which save the call-site
+information via compile time annotations.
 
-The extra memory footprint depends on chosen config options but the
-inlined queued_spin_unlock() presents an edge case:
-
- $ objdump -h vmlinux|grep .parainstructions
- Idx Name              		Size      VMA
- 	LMA                File-off  Algn
-  27 .parainstructions 		0001013c  ffffffff82895000
-  	0000000002895000   01c95000  2**3
-  28 .parainstructions.runtime  0000cd2c  ffffffff828a5140
-  	00000000028a5140   01ca5140  2**3
-
-(The added footprint is the size of the .parainstructions.runtime
-section.)
-
-  $ size vmlinux
-  text       data       bss        dec      hex       filename
-  13726196   12302814   14094336   40123346 2643bd2   vmlinux
+Pull this state out in .parainstructions.runtime for some pv-ops such
+that they can be used for runtime patching.
 
 Signed-off-by: Ankur Arora <ankur.a.arora@oracle.com>
 ---
- arch/x86/include/asm/alternative.h |  1 +
- arch/x86/kernel/alternative.c      | 16 +++++++++++++++-
- arch/x86/kernel/module.c           | 28 +++++++++++++++++++++++-----
- 3 files changed, 39 insertions(+), 6 deletions(-)
+ arch/x86/Kconfig                      | 12 ++++++++++++
+ arch/x86/include/asm/paravirt_types.h |  5 +++++
+ arch/x86/include/asm/text-patching.h  |  5 +++++
+ arch/x86/kernel/alternative.c         |  2 ++
+ arch/x86/kernel/module.c              | 10 +++++++++-
+ arch/x86/kernel/vmlinux.lds.S         | 16 ++++++++++++++++
+ include/asm-generic/vmlinux.lds.h     |  8 ++++++++
+ 7 files changed, 57 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/alternative.h b/arch/x86/include/asm/alternative.h
-index db91a7731d87..d19546c14ff6 100644
---- a/arch/x86/include/asm/alternative.h
-+++ b/arch/x86/include/asm/alternative.h
-@@ -76,6 +76,7 @@ extern void apply_alternatives(struct alt_instr *start, struct alt_instr *end);
- struct module;
+diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
+index 1edf788d301c..605619938f08 100644
+--- a/arch/x86/Kconfig
++++ b/arch/x86/Kconfig
+@@ -764,6 +764,18 @@ config PARAVIRT
+ 	  over full virtualization.  However, when run without a hypervisor
+ 	  the kernel is theoretically slower and slightly larger.
  
- void alternatives_module_add(struct module *mod, char *name,
-+			     void *para, void *para_end,
- 			     void *locks, void *locks_end,
- 			     void *text, void *text_end);
- void alternatives_module_del(struct module *mod);
++config PARAVIRT_RUNTIME
++	bool "Enable paravirtualized ops to be patched at runtime"
++	depends on PARAVIRT
++	help
++	  Enable the paravirtualized guest kernel to switch pv-ops based on
++	  changed host conditions, potentially improving performance
++	  significantly.
++
++	  This would increase the memory footprint of the running kernel
++	  slightly (depending mostly on whether lock and unlock are inlined
++	  or not.)
++
+ config PARAVIRT_XXL
+ 	bool
+ 
+diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
+index 37e8f27a3b9d..00e4a062ca10 100644
+--- a/arch/x86/include/asm/paravirt_types.h
++++ b/arch/x86/include/asm/paravirt_types.h
+@@ -723,6 +723,11 @@ struct paravirt_patch_site {
+ extern struct paravirt_patch_site __parainstructions[],
+ 	__parainstructions_end[];
+ 
++#ifdef CONFIG_PARAVIRT_RUNTIME
++extern struct paravirt_patch_site __parainstructions_runtime[],
++	__parainstructions_runtime_end[];
++#endif
++
+ #endif	/* __ASSEMBLY__ */
+ 
+ #endif	/* _ASM_X86_PARAVIRT_TYPES_H */
+diff --git a/arch/x86/include/asm/text-patching.h b/arch/x86/include/asm/text-patching.h
+index 67315fa3956a..e2ef241c261e 100644
+--- a/arch/x86/include/asm/text-patching.h
++++ b/arch/x86/include/asm/text-patching.h
+@@ -18,6 +18,11 @@ static inline void apply_paravirt(struct paravirt_patch_site *start,
+ #define __parainstructions_end	NULL
+ #endif
+ 
++#ifndef CONFIG_PARAVIRT_RUNTIME
++#define __parainstructions_runtime	NULL
++#define __parainstructions_runtime_end	NULL
++#endif
++
+ /*
+  * Currently, the max observed size in the kernel code is
+  * JUMP_LABEL_NOP_SIZE/RELATIVEJUMP_SIZE, which are 5.
 diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
-index 09e4ee0e09a2..8189ac21624c 100644
+index 7867dfb3963e..fdfda1375f82 100644
 --- a/arch/x86/kernel/alternative.c
 +++ b/arch/x86/kernel/alternative.c
-@@ -482,6 +482,12 @@ struct alt_module {
- 	struct module	*mod;
- 	char		*name;
- 
-+#ifdef CONFIG_PARAVIRT_RUNTIME
-+	/* ptrs to paravirt sites */
-+	struct paravirt_patch_site *para;
-+	struct paravirt_patch_site *para_end;
-+#endif
-+
- 	/* ptrs to lock prefixes */
- 	const s32	*locks;
- 	const s32	*locks_end;
-@@ -496,6 +502,7 @@ struct alt_module {
- static LIST_HEAD(alt_modules);
- 
- void __init_or_module alternatives_module_add(struct module *mod, char *name,
-+					      void *para, void *para_end,
- 					      void *locks, void *locks_end,
- 					      void *text,  void *text_end)
- {
-@@ -506,7 +513,7 @@ void __init_or_module alternatives_module_add(struct module *mod, char *name,
- 	if (!noreplace_smp && (num_present_cpus() == 1 || setup_max_cpus <= 1))
- 		uniproc_patched = true;
+@@ -740,6 +740,8 @@ void __init alternative_instructions(void)
  #endif
--	if (!uniproc_patched)
-+	if (!IS_ENABLED(CONFIG_PARAVIRT_RUNTIME) && !uniproc_patched)
- 		return;
  
- 	mutex_lock(&text_mutex);
-@@ -516,6 +523,11 @@ void __init_or_module alternatives_module_add(struct module *mod, char *name,
- 	alt->mod	= mod;
- 	alt->name	= name;
+ 	apply_paravirt(__parainstructions, __parainstructions_end);
++	apply_paravirt(__parainstructions_runtime,
++		       __parainstructions_runtime_end);
  
-+#ifdef CONFIG_PARAVIRT_RUNTIME
-+	alt->para	= para;
-+	alt->para_end	= para_end;
-+#endif
-+
- 	if (num_possible_cpus() != 1 || uniproc_patched) {
- 		/* Remember only if we'll need to undo it. */
- 		alt->locks	= locks;
-@@ -733,6 +745,8 @@ void __init alternative_instructions(void)
- 	apply_alternatives(__alt_instructions, __alt_instructions_end);
- 
- 	alternatives_module_add(NULL, "core kernel",
-+				__parainstructions_runtime,
-+				__parainstructions_runtime_end,
- 				__smp_locks, __smp_locks_end,
- 				_text, _etext);
- 
+ 	restart_nmi();
+ 	alternatives_patched = 1;
 diff --git a/arch/x86/kernel/module.c b/arch/x86/kernel/module.c
-index fc3d35198b09..7b2632184c11 100644
+index d5c72cb877b3..658ea60ce324 100644
 --- a/arch/x86/kernel/module.c
 +++ b/arch/x86/kernel/module.c
-@@ -248,12 +248,30 @@ int module_finalize(const Elf_Ehdr *hdr,
- 		void *aseg = (void *)alt->sh_addr;
- 		apply_alternatives(aseg, aseg + alt->sh_size);
+@@ -222,7 +222,7 @@ int module_finalize(const Elf_Ehdr *hdr,
+ 		    struct module *me)
+ {
+ 	const Elf_Shdr *s, *text = NULL, *alt = NULL, *locks = NULL,
+-		*para = NULL, *orc = NULL, *orc_ip = NULL;
++		*para = NULL, *para_run = NULL, *orc = NULL, *orc_ip = NULL;
+ 	char *secstrings = (void *)hdr + sechdrs[hdr->e_shstrndx].sh_offset;
+ 
+ 	for (s = sechdrs; s < sechdrs + hdr->e_shnum; s++) {
+@@ -234,6 +234,9 @@ int module_finalize(const Elf_Ehdr *hdr,
+ 			locks = s;
+ 		if (!strcmp(".parainstructions", secstrings + s->sh_name))
+ 			para = s;
++		if (!strcmp(".parainstructions.runtime",
++			    secstrings + s->sh_name))
++			para_run = s;
+ 		if (!strcmp(".orc_unwind", secstrings + s->sh_name))
+ 			orc = s;
+ 		if (!strcmp(".orc_unwind_ip", secstrings + s->sh_name))
+@@ -257,6 +260,11 @@ int module_finalize(const Elf_Ehdr *hdr,
+ 		void *pseg = (void *)para->sh_addr;
+ 		apply_paravirt(pseg, pseg + para->sh_size);
  	}
--	if (locks && text) {
--		void *lseg = (void *)locks->sh_addr;
--		void *tseg = (void *)text->sh_addr;
-+	if (para_run || (locks && text)) {
-+		void *pseg, *pseg_end;
-+		void *lseg, *lseg_end;
-+		void *tseg, *tseg_end;
++	if (para_run) {
++		void *pseg = (void *)para_run->sh_addr;
 +
-+		pseg = pseg_end = NULL;
-+		lseg = lseg_end = NULL;
-+		tseg = tseg_end = NULL;
-+		if (para_run) {
-+			pseg = (void *)para_run->sh_addr;
-+			pseg_end = pseg + para_run->sh_size;
-+		}
-+
-+		if (locks && text) {
-+			tseg = (void *)text->sh_addr;
-+			tseg_end = tseg + text->sh_size;
-+
-+			lseg = (void *)locks->sh_addr;
-+			lseg_end = lseg + locks->sh_size;
-+		}
- 		alternatives_module_add(me, me->name,
--					lseg, lseg + locks->sh_size,
--					tseg, tseg + text->sh_size);
-+					pseg, pseg_end,
-+					lseg, lseg_end,
-+					tseg, tseg_end);
++		apply_paravirt(pseg, pseg + para_run->sh_size);
++	}
+ 
+ 	/* make jump label nops */
+ 	jump_label_apply_nops(me);
+diff --git a/arch/x86/kernel/vmlinux.lds.S b/arch/x86/kernel/vmlinux.lds.S
+index 1bf7e312361f..7f5b8f6ab96e 100644
+--- a/arch/x86/kernel/vmlinux.lds.S
++++ b/arch/x86/kernel/vmlinux.lds.S
+@@ -269,6 +269,7 @@ SECTIONS
+ 	.parainstructions : AT(ADDR(.parainstructions) - LOAD_OFFSET) {
+ 		__parainstructions = .;
+ 		*(.parainstructions)
++		PARAVIRT_DISCARD(.parainstructions.runtime)
+ 		__parainstructions_end = .;
  	}
  
- 	if (para) {
+@@ -348,6 +349,21 @@ SECTIONS
+ 		__smp_locks_end = .;
+ 	}
+ 
++#ifdef CONFIG_PARAVIRT_RUNTIME
++	/*
++	 * .parainstructions.runtime sticks around in memory after
++	 * init so it doesn't need to be page-aligned but everything
++	 * around us is so we will be too.
++	 */
++	. = ALIGN(8);
++	.parainstructions.runtime : AT(ADDR(.parainstructions.runtime) - \
++								LOAD_OFFSET) {
++		__parainstructions_runtime = .;
++		PARAVIRT_KEEP(.parainstructions.runtime)
++		__parainstructions_runtime_end = .;
++	}
++#endif
++
+ #ifdef CONFIG_X86_64
+ 	.data_nosave : AT(ADDR(.data_nosave) - LOAD_OFFSET) {
+ 		NOSAVE_DATA
+diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
+index 71e387a5fe90..6b009d5ce51f 100644
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -135,6 +135,14 @@
+ #define MEM_DISCARD(sec) *(.mem##sec)
+ #endif
+ 
++#if defined(CONFIG_PARAVIRT_RUNTIME)
++#define PARAVIRT_KEEP(sec)	*(sec)
++#define PARAVIRT_DISCARD(sec)
++#else
++#define PARAVIRT_KEEP(sec)
++#define PARAVIRT_DISCARD(sec)	*(sec)
++#endif
++
+ #ifdef CONFIG_FTRACE_MCOUNT_RECORD
+ /*
+  * The ftrace call sites are logged to a section whose name depends on the
 -- 
 2.20.1
