@@ -1,115 +1,211 @@
-From: Zhenyu Wang <zhenyuw-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH 3/6] i915/gvt: remove unused xen bits
-Date: Wed, 8 Apr 2020 09:44:37 +0800
-Message-ID: <20200408014437.GF11247@zhen-hp.sh.intel.com>
-References: <20200404094101.672954-1-hch@lst.de>
- <20200404094101.672954-4-hch@lst.de>
-Reply-To: Zhenyu Wang <zhenyuw-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+From: Ankur Arora <ankur.a.arora@oracle.com>
+Subject: [RFC PATCH 05/26] x86/alternatives: Rename alternatives_smp*,
+ smp_alt_module
+Date: Tue,  7 Apr 2020 22:03:02 -0700
+Message-ID: <20200408050323.4237-6-ankur.a.arora@oracle.com>
+References: <20200408050323.4237-1-ankur.a.arora@oracle.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1783198304=="
-Return-path: <amd-gfx-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
-In-Reply-To: <20200404094101.672954-4-hch-jcswGhMUV9g@public.gmane.org>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/amd-gfx>,
- <mailto:amd-gfx-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/amd-gfx>
-List-Post: <mailto:amd-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
-List-Help: <mailto:amd-gfx-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/amd-gfx>,
- <mailto:amd-gfx-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=subscribe>
-Errors-To: amd-gfx-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org
-Sender: "amd-gfx" <amd-gfx-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
-To: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
-Cc: Jens Axboe <axboe-tSWWG44O7X1aa/9Udqfwiw@public.gmane.org>, Felipe Balbi <balbi-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "Michael S. Tsirkin" <mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Jason Wang <jasowang-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, intel-gvt-dev-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, Felix Kuehling <Felix.Kuehling-5C7GfCeVMHo@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, amd-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org, Zhenyu Wang <zhenyuw-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, intel-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-fsdevel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alex Deucher <alexander.deucher-5C7GfCeVMHo@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, io-uring-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Zhi Wang <zhi.a.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, Al Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <xen-devel-bounces@lists.xenproject.org>
+In-Reply-To: <20200408050323.4237-1-ankur.a.arora@oracle.com>
+List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xenproject.org>
+List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
+List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
+Errors-To: xen-devel-bounces@lists.xenproject.org
+Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
+To: linux-kernel@vger.kernel.org, x86@kernel.org
+Cc: jgross@suse.com, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, peterz@infradead.org, hpa@zytor.com, Ankur Arora <ankur.a.arora@oracle.com>, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, namit@vmware.com, mhiramat@kernel.org, jpoimboe@redhat.com, mihai.carabas@oracle.com, bp@alien8.de, vkuznets@redhat.com, boris.ostrovsky@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+Rename alternatives_smp_module_*(), smp_alt_module to reflect
+their new purpose.
 
---===============1783198304==
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HnQK338I3UIa/qiP"
-Content-Disposition: inline
+Signed-off-by: Ankur Arora <ankur.a.arora@oracle.com>
+---
+ arch/x86/include/asm/alternative.h | 10 +++---
+ arch/x86/kernel/alternative.c      | 54 +++++++++++++++---------------
+ arch/x86/kernel/module.c           |  8 ++---
+ 3 files changed, 36 insertions(+), 36 deletions(-)
 
-
---HnQK338I3UIa/qiP
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On 2020.04.04 11:40:58 +0200, Christoph Hellwig wrote:
-> No Xen support anywhere here.  Remove a dead declaration and an unused
-> include.
->=20
-> Signed-off-by: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
-> ---
-
-We'll keep that off-tree.
-
-Acked-by: Zhenyu Wang <zhenyuw-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-
-Thanks
-
->  drivers/gpu/drm/i915/gvt/gvt.c       | 1 -
->  drivers/gpu/drm/i915/gvt/hypercall.h | 2 --
->  2 files changed, 3 deletions(-)
->=20
-> diff --git a/drivers/gpu/drm/i915/gvt/gvt.c b/drivers/gpu/drm/i915/gvt/gv=
-t.c
-> index 9e1787867894..c7c561237883 100644
-> --- a/drivers/gpu/drm/i915/gvt/gvt.c
-> +++ b/drivers/gpu/drm/i915/gvt/gvt.c
-> @@ -31,7 +31,6 @@
->   */
-> =20
->  #include <linux/types.h>
-> -#include <xen/xen.h>
->  #include <linux/kthread.h>
-> =20
->  #include "i915_drv.h"
-> diff --git a/drivers/gpu/drm/i915/gvt/hypercall.h b/drivers/gpu/drm/i915/=
-gvt/hypercall.h
-> index b17c4a1599cd..b79da5124f83 100644
-> --- a/drivers/gpu/drm/i915/gvt/hypercall.h
-> +++ b/drivers/gpu/drm/i915/gvt/hypercall.h
-> @@ -79,6 +79,4 @@ struct intel_gvt_mpt {
->  	bool (*is_valid_gfn)(unsigned long handle, unsigned long gfn);
->  };
-> =20
-> -extern struct intel_gvt_mpt xengt_mpt;
-> -
->  #endif /* _GVT_HYPERCALL_H_ */
-> --=20
-> 2.25.1
->=20
-> _______________________________________________
-> intel-gvt-dev mailing list
-> intel-gvt-dev-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org
-> https://lists.freedesktop.org/mailman/listinfo/intel-gvt-dev
-
---=20
-Open Source Technology Center, Intel ltd.
-
-$gpg --keyserver wwwkeys.pgp.net --recv-keys 4D781827
-
---HnQK338I3UIa/qiP
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EARECAB0WIQTXuabgHDW6LPt9CICxBBozTXgYJwUCXo0shQAKCRCxBBozTXgY
-J8WgAJ0VW4AV47S/NYsttohA4zN5UaISYwCcDrId8F/1nTizuYFrFCCaENgnHw4=
-=EI9a
------END PGP SIGNATURE-----
-
---HnQK338I3UIa/qiP--
-
---===============1783198304==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-amd-gfx mailing list
-amd-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org
-https://lists.freedesktop.org/mailman/listinfo/amd-gfx
-
---===============1783198304==--
+diff --git a/arch/x86/include/asm/alternative.h b/arch/x86/include/asm/alternative.h
+index 8235bbb746d9..db91a7731d87 100644
+--- a/arch/x86/include/asm/alternative.h
++++ b/arch/x86/include/asm/alternative.h
+@@ -75,11 +75,11 @@ extern void apply_alternatives(struct alt_instr *start, struct alt_instr *end);
+ 
+ struct module;
+ 
+-extern void alternatives_smp_module_add(struct module *mod, char *name,
+-					void *locks, void *locks_end,
+-					void *text, void *text_end);
+-extern void alternatives_smp_module_del(struct module *mod);
+-extern int alternatives_text_reserved(void *start, void *end);
++void alternatives_module_add(struct module *mod, char *name,
++			     void *locks, void *locks_end,
++			     void *text, void *text_end);
++void alternatives_module_del(struct module *mod);
++int alternatives_text_reserved(void *start, void *end);
+ #ifdef CONFIG_SMP
+ extern void alternatives_enable_smp(void);
+ #else
+diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
+index 32aa1ddf441d..4157f848b537 100644
+--- a/arch/x86/kernel/alternative.c
++++ b/arch/x86/kernel/alternative.c
+@@ -477,7 +477,7 @@ static inline void alternatives_smp_unlock(const s32 *start, const s32 *end,
+ 					   u8 *text, u8 *text_end) { }
+ #endif	/* CONFIG_SMP */
+ 
+-struct smp_alt_module {
++struct alt_module {
+ 	/* what is this ??? */
+ 	struct module	*mod;
+ 	char		*name;
+@@ -492,14 +492,14 @@ struct smp_alt_module {
+ 
+ 	struct list_head next;
+ };
+-static LIST_HEAD(smp_alt_modules);
+ 
+-void __init_or_module alternatives_smp_module_add(struct module *mod,
+-						  char *name,
+-						  void *locks, void *locks_end,
+-						  void *text,  void *text_end)
++static LIST_HEAD(alt_modules);
++
++void __init_or_module alternatives_module_add(struct module *mod, char *name,
++					      void *locks, void *locks_end,
++					      void *text,  void *text_end)
+ {
+-	struct smp_alt_module *smp;
++	struct alt_module *alt;
+ 
+ #ifdef CONFIG_SMP
+ 	/* Patch to UP if other cpus not imminent. */
+@@ -511,36 +511,36 @@ void __init_or_module alternatives_smp_module_add(struct module *mod,
+ 
+ 	mutex_lock(&text_mutex);
+ 
+-	smp = kzalloc(sizeof(*smp), GFP_KERNEL | __GFP_NOFAIL);
++	alt = kzalloc(sizeof(*alt), GFP_KERNEL | __GFP_NOFAIL);
+ 
+-	smp->mod	= mod;
+-	smp->name	= name;
++	alt->mod	= mod;
++	alt->name	= name;
+ 
+ 	if (num_possible_cpus() != 1 || uniproc_patched) {
+ 		/* Remember only if we'll need to undo it. */
+-		smp->locks	= locks;
+-		smp->locks_end	= locks_end;
++		alt->locks	= locks;
++		alt->locks_end	= locks_end;
+ 	}
+ 
+-	smp->text	= text;
+-	smp->text_end	= text_end;
++	alt->text	= text;
++	alt->text_end	= text_end;
+ 	DPRINTK("locks %p -> %p, text %p -> %p, name %s\n",
+-		smp->locks, smp->locks_end,
+-		smp->text, smp->text_end, smp->name);
++		alt->locks, alt->locks_end,
++		alt->text, alt->text_end, alt->name);
+ 
+-	list_add_tail(&smp->next, &smp_alt_modules);
++	list_add_tail(&alt->next, &alt_modules);
+ 
+ 	if (uniproc_patched)
+ 		alternatives_smp_unlock(locks, locks_end, text, text_end);
+ 	mutex_unlock(&text_mutex);
+ }
+ 
+-void __init_or_module alternatives_smp_module_del(struct module *mod)
++void __init_or_module alternatives_module_del(struct module *mod)
+ {
+-	struct smp_alt_module *item;
++	struct alt_module *item;
+ 
+ 	mutex_lock(&text_mutex);
+-	list_for_each_entry(item, &smp_alt_modules, next) {
++	list_for_each_entry(item, &alt_modules, next) {
+ 		if (mod != item->mod)
+ 			continue;
+ 		list_del(&item->next);
+@@ -553,7 +553,7 @@ void __init_or_module alternatives_smp_module_del(struct module *mod)
+ #ifdef CONFIG_SMP
+ void alternatives_enable_smp(void)
+ {
+-	struct smp_alt_module *mod;
++	struct alt_module *mod;
+ 
+ 	/* Why bother if there are no other CPUs? */
+ 	BUG_ON(num_possible_cpus() == 1);
+@@ -565,7 +565,7 @@ void alternatives_enable_smp(void)
+ 		BUG_ON(num_online_cpus() != 1);
+ 		clear_cpu_cap(&boot_cpu_data, X86_FEATURE_UP);
+ 		clear_cpu_cap(&cpu_data(0), X86_FEATURE_UP);
+-		list_for_each_entry(mod, &smp_alt_modules, next)
++		list_for_each_entry(mod, &alt_modules, next)
+ 			alternatives_smp_lock(mod->locks, mod->locks_end,
+ 					      mod->text, mod->text_end);
+ 		uniproc_patched = false;
+@@ -580,14 +580,14 @@ void alternatives_enable_smp(void)
+  */
+ int alternatives_text_reserved(void *start, void *end)
+ {
+-	struct smp_alt_module *mod;
++	struct alt_module *mod;
+ 	const s32 *poff;
+ 	u8 *text_start = start;
+ 	u8 *text_end = end;
+ 
+ 	lockdep_assert_held(&text_mutex);
+ 
+-	list_for_each_entry(mod, &smp_alt_modules, next) {
++	list_for_each_entry(mod, &alt_modules, next) {
+ 		if (mod->text > text_end || mod->text_end < text_start)
+ 			continue;
+ 		for (poff = mod->locks; poff < mod->locks_end; poff++) {
+@@ -734,9 +734,9 @@ void __init alternative_instructions(void)
+ 
+ 	apply_alternatives(__alt_instructions, __alt_instructions_end);
+ 
+-	alternatives_smp_module_add(NULL, "core kernel",
+-				    __smp_locks, __smp_locks_end,
+-				    _text, _etext);
++	alternatives_module_add(NULL, "core kernel",
++				__smp_locks, __smp_locks_end,
++				_text, _etext);
+ 
+ 	if (!uniproc_patched || num_possible_cpus() == 1) {
+ 		free_init_pages("SMP alternatives",
+diff --git a/arch/x86/kernel/module.c b/arch/x86/kernel/module.c
+index 658ea60ce324..fc3d35198b09 100644
+--- a/arch/x86/kernel/module.c
++++ b/arch/x86/kernel/module.c
+@@ -251,9 +251,9 @@ int module_finalize(const Elf_Ehdr *hdr,
+ 	if (locks && text) {
+ 		void *lseg = (void *)locks->sh_addr;
+ 		void *tseg = (void *)text->sh_addr;
+-		alternatives_smp_module_add(me, me->name,
+-					    lseg, lseg + locks->sh_size,
+-					    tseg, tseg + text->sh_size);
++		alternatives_module_add(me, me->name,
++					lseg, lseg + locks->sh_size,
++					tseg, tseg + text->sh_size);
+ 	}
+ 
+ 	if (para) {
+@@ -278,5 +278,5 @@ int module_finalize(const Elf_Ehdr *hdr,
+ 
+ void module_arch_cleanup(struct module *mod)
+ {
+-	alternatives_smp_module_del(mod);
++	alternatives_module_del(mod);
+ }
+-- 
+2.20.1
