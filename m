@@ -1,7 +1,7 @@
 From: Ankur Arora <ankur.a.arora@oracle.com>
-Subject: [RFC PATCH 08/26] x86/paravirt: Stash native pv-ops
-Date: Tue,  7 Apr 2020 22:03:05 -0700
-Message-ID: <20200408050323.4237-9-ankur.a.arora@oracle.com>
+Subject: [RFC PATCH 10/26] x86/paravirt: Add primitives to stage pv-ops
+Date: Tue,  7 Apr 2020 22:03:07 -0700
+Message-ID: <20200408050323.4237-11-ankur.a.arora@oracle.com>
 References: <20200408050323.4237-1-ankur.a.arora@oracle.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -19,80 +19,112 @@ To: linux-kernel@vger.kernel.org, x86@kernel.org
 Cc: jgross@suse.com, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, peterz@infradead.org, hpa@zytor.com, Ankur Arora <ankur.a.arora@oracle.com>, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, namit@vmware.com, mhiramat@kernel.org, jpoimboe@redhat.com, mihai.carabas@oracle.com, bp@alien8.de, vkuznets@redhat.com, boris.ostrovsky@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Introduce native_pv_ops where we stash the pv_ops array before
-hypervisor specific hooks have modified it.
-
-native_pv_ops get used when switching between paravirt and native
-pv-ops at runtime.
+Add paravirt_stage_alt() which conditionally selects between a paravirt
+or native pv-op and then stages it for later patching.
 
 Signed-off-by: Ankur Arora <ankur.a.arora@oracle.com>
 ---
- arch/x86/include/asm/paravirt_types.h |  4 ++++
- arch/x86/kernel/paravirt.c            | 10 ++++++++++
- arch/x86/kernel/setup.c               |  2 ++
- 3 files changed, 16 insertions(+)
+ arch/x86/include/asm/paravirt_types.h |  6 +++
+ arch/x86/include/asm/text-patching.h  |  3 ++
+ arch/x86/kernel/alternative.c         | 58 +++++++++++++++++++++++++++
+ 3 files changed, 67 insertions(+)
 
 diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index f1153f53c529..bc935eec7ec6 100644
+index 3b9f6c105397..0c4ca7ad719c 100644
 --- a/arch/x86/include/asm/paravirt_types.h
 +++ b/arch/x86/include/asm/paravirt_types.h
-@@ -339,6 +339,7 @@ extern struct paravirt_patch_template pv_ops;
+@@ -350,6 +350,12 @@ extern struct paravirt_patch_template native_pv_ops;
+ #define PARAVIRT_PATCH(x)					\
+ 	(offsetof(struct paravirt_patch_template, x) / sizeof(void *))
  
- #ifdef CONFIG_PARAVIRT_RUNTIME
- #define PVRT_SUFFIX ".runtime"
-+extern struct paravirt_patch_template native_pv_ops;
- #else
- #define PVRT_SUFFIX ""
- #endif
-@@ -775,6 +776,9 @@ extern struct paravirt_patch_site __parainstructions[],
- #ifdef CONFIG_PARAVIRT_RUNTIME
- extern struct paravirt_patch_site __parainstructions_runtime[],
- 	__parainstructions_runtime_end[];
-+void paravirt_ops_init(void);
-+#else
-+static inline void paravirt_ops_init(void) { }
- #endif
- 
- #endif	/* __ASSEMBLY__ */
-diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index c131ba4e70ef..8c511cc4d4f4 100644
---- a/arch/x86/kernel/paravirt.c
-+++ b/arch/x86/kernel/paravirt.c
-@@ -458,5 +458,15 @@ NOKPROBE_SYMBOL(native_set_debugreg);
- NOKPROBE_SYMBOL(native_load_idt);
- #endif
- 
-+#ifdef CONFIG_PARAVIRT_RUNTIME
-+__ro_after_init struct paravirt_patch_template native_pv_ops;
++#define paravirt_stage_alt(do_stage, op, opfn)				\
++	(text_poke_pv_stage(PARAVIRT_PATCH(op),				\
++			    (do_stage) ? (opfn) : (native_pv_ops.op)))
 +
-+void __init paravirt_ops_init(void)
-+{
-+	native_pv_ops = pv_ops;
-+}
-+EXPORT_SYMBOL(native_pv_ops);
-+#endif
++#define paravirt_stage_zero() text_poke_pv_stage_zero()
 +
- EXPORT_SYMBOL(pv_ops);
- EXPORT_SYMBOL_GPL(pv_info);
-diff --git a/arch/x86/kernel/setup.c b/arch/x86/kernel/setup.c
-index e6b545047f38..2746a6a78fe7 100644
---- a/arch/x86/kernel/setup.c
-+++ b/arch/x86/kernel/setup.c
-@@ -43,6 +43,7 @@
- #include <asm/unwind.h>
- #include <asm/vsyscall.h>
- #include <linux/vmalloc.h>
-+#include <asm/paravirt_types.h>
- 
  /*
-  * max_low_pfn_mapped: highest directly mapped pfn < 4 GB
-@@ -831,6 +832,7 @@ void __init setup_arch(char **cmdline_p)
- 	boot_cpu_data.x86_phys_bits = MAX_PHYSMEM_BITS;
- #endif
+  * Neat trick to map patch type back to the call within the
+  * corresponding structure.
+diff --git a/arch/x86/include/asm/text-patching.h b/arch/x86/include/asm/text-patching.h
+index e2ef241c261e..706e61e6967d 100644
+--- a/arch/x86/include/asm/text-patching.h
++++ b/arch/x86/include/asm/text-patching.h
+@@ -55,6 +55,9 @@ extern void text_poke_bp(void *addr, const void *opcode, size_t len, const void
+ extern void text_poke_queue(void *addr, const void *opcode, size_t len, const void *emulate);
+ extern void text_poke_finish(void);
  
-+	paravirt_ops_init();
- 	/*
- 	 * If we have OLPC OFW, we might end up relocating the fixmap due to
- 	 * reserve_top(), so do this before touching the ioremap area.
++bool text_poke_pv_stage(u8 type, void *opfn);
++void text_poke_pv_stage_zero(void);
++
+ #define INT3_INSN_SIZE		1
+ #define INT3_INSN_OPCODE	0xCC
+ 
+diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
+index 8189ac21624c..0c335af9ee28 100644
+--- a/arch/x86/kernel/alternative.c
++++ b/arch/x86/kernel/alternative.c
+@@ -1307,3 +1307,61 @@ void __ref text_poke_bp(void *addr, const void *opcode, size_t len, const void *
+ 	text_poke_loc_init(&tp, addr, opcode, len, emulate);
+ 	text_poke_bp_batch(&tp, 1);
+ }
++
++#ifdef CONFIG_PARAVIRT_RUNTIME
++struct paravirt_stage_entry {
++	void *dest;	/* pv_op destination */
++	u8 type;	/* pv_op type */
++};
++
++/*
++ * We don't anticipate many pv-ops being written at runtime.
++ */
++#define PARAVIRT_STAGE_MAX 8
++struct paravirt_stage {
++	struct paravirt_stage_entry ops[PARAVIRT_STAGE_MAX];
++	u32 count;
++};
++
++/* Protected by text_mutex */
++static struct paravirt_stage pv_stage;
++
++/**
++ * text_poke_pv_stage - Stage paravirt-op for poking.
++ * @addr: address in struct paravirt_patch_template
++ * @type: pv-op type
++ * @opfn: destination of the pv-op
++ *
++ * Return: staging status.
++ */
++bool text_poke_pv_stage(u8 type, void *opfn)
++{
++	if (system_state == SYSTEM_BOOTING) { /* Passthrough */
++		PARAVIRT_PATCH_OP(pv_ops, type) = (long)opfn;
++		goto out;
++	}
++
++	lockdep_assert_held(&text_mutex);
++
++	if (PARAVIRT_PATCH_OP(pv_ops, type) == (long)opfn)
++		goto out;
++
++	if (pv_stage.count >= PARAVIRT_STAGE_MAX)
++		goto out;
++
++	pv_stage.ops[pv_stage.count].type = type;
++	pv_stage.ops[pv_stage.count].dest = opfn;
++
++	pv_stage.count++;
++
++	return true;
++out:
++	return false;
++}
++
++void text_poke_pv_stage_zero(void)
++{
++	lockdep_assert_held(&text_mutex);
++	pv_stage.count = 0;
++}
++#endif /* CONFIG_PARAVIRT_RUNTIME */
 -- 
 2.20.1
