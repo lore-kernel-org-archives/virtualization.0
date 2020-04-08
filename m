@@ -1,115 +1,111 @@
 From: Ankur Arora <ankur.a.arora@oracle.com>
-Subject: [RFC PATCH 26/26] x86/kvm: Add hint change notifier for KVM_HINT_REALTIME
-Date: Tue,  7 Apr 2020 22:03:23 -0700
-Message-ID: <20200408050323.4237-27-ankur.a.arora@oracle.com>
+Subject: [RFC PATCH 20/26] x86/paravirt: Enable pv-spinlocks in runtime_patch()
+Date: Tue,  7 Apr 2020 22:03:17 -0700
+Message-ID: <20200408050323.4237-21-ankur.a.arora@oracle.com>
 References: <20200408050323.4237-1-ankur.a.arora@oracle.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <xen-devel-bounces@lists.xenproject.org>
 In-Reply-To: <20200408050323.4237-1-ankur.a.arora@oracle.com>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xenproject.org>
+List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
+List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
+Errors-To: xen-devel-bounces@lists.xenproject.org
+Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
 To: linux-kernel@vger.kernel.org, x86@kernel.org
-Cc: peterz@infradead.org, hpa@zytor.com, jpoimboe@redhat.com, namit@vmware.com, mhiramat@kernel.org, jgross@suse.com, bp@alien8.de, vkuznets@redhat.com, pbonzini@redhat.com, boris.ostrovsky@oracle.com, mihai.carabas@oracle.com, kvm@vger.kernel.org, xen-devel@lists.xenproject.org, virtualization@lists.linux-foundation.org, Ankur Arora <ankur.a.arora@oracle.com>, Joao Martins <joao.m.martins@oracle.com>
+Cc: jgross@suse.com, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, peterz@infradead.org, hpa@zytor.com, Ankur Arora <ankur.a.arora@oracle.com>, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, namit@vmware.com, mhiramat@kernel.org, jpoimboe@redhat.com, mihai.carabas@oracle.com, bp@alien8.de, vkuznets@redhat.com, boris.ostrovsky@oracle.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a blocking notifier that triggers when the host sends a hint
-change notification.
+Enable runtime patching of paravirt spinlocks. These can be trivially
+enabled because pv_lock_ops are never preemptible -- preemption is
+disabled at entry to spin_lock*().
 
-Suggested-by: Joao Martins <joao.m.martins@oracle.com>
+Note that a particular CPU instance might get preempted in the host but
+because runtime_patching() is called via stop_machine(), the migration
+thread would flush out any kernel threads preempted in the host.
+
 Signed-off-by: Ankur Arora <ankur.a.arora@oracle.com>
 ---
- arch/x86/include/asm/kvm_para.h | 10 ++++++++++
- arch/x86/kernel/kvm.c           | 16 ++++++++++++++++
- include/asm-generic/kvm_para.h  |  8 ++++++++
- 3 files changed, 34 insertions(+)
+ arch/x86/include/asm/paravirt.h  | 10 +++++-----
+ arch/x86/kernel/paravirt_patch.c | 12 ++++++++++++
+ kernel/locking/lock_events.c     |  2 +-
+ 3 files changed, 18 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/include/asm/kvm_para.h b/arch/x86/include/asm/kvm_para.h
-index 5a7ca5639c2e..54c3c7a3225e 100644
---- a/arch/x86/include/asm/kvm_para.h
-+++ b/arch/x86/include/asm/kvm_para.h
-@@ -2,6 +2,7 @@
- #ifndef _ASM_X86_KVM_PARA_H
- #define _ASM_X86_KVM_PARA_H
- 
-+#include <linux/notifier.h>
- #include <asm/processor.h>
- #include <asm/alternative.h>
- #include <uapi/asm/kvm_para.h>
-@@ -96,6 +97,9 @@ extern void kvm_disable_steal_time(void);
- void do_async_page_fault(struct pt_regs *regs, unsigned long error_code, unsigned long address);
- void kvm_callback_vector(struct pt_regs *regs);
- 
-+void kvm_realtime_notifier_register(struct notifier_block *nb);
-+void kvm_realtime_notifier_unregister(struct notifier_block *nb);
-+
- #ifdef CONFIG_PARAVIRT_SPINLOCKS
- void __init kvm_spinlock_init(void);
- #else /* !CONFIG_PARAVIRT_SPINLOCKS */
-@@ -137,6 +141,14 @@ static inline void kvm_disable_steal_time(void)
+diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+index 694d8daf4983..cb3d0a91c060 100644
+--- a/arch/x86/include/asm/paravirt.h
++++ b/arch/x86/include/asm/paravirt.h
+@@ -642,27 +642,27 @@ static inline void __set_fixmap(unsigned /* enum fixed_addresses */ idx,
+ static __always_inline void pv_queued_spin_lock_slowpath(struct qspinlock *lock,
+ 							u32 val)
  {
- 	return;
- }
-+
-+static inline void kvm_realtime_notifier_register(struct notifier_block *nb)
-+{
-+}
-+
-+static inline void kvm_realtime_notifier_unregister(struct notifier_block *nb)
-+{
-+}
- #endif
- 
- #endif /* _ASM_X86_KVM_PARA_H */
-diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-index 163b7a7ec5f9..35ba4a837027 100644
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -951,6 +951,20 @@ void __init kvm_spinlock_init(void)
- static inline bool kvm_pv_spinlock(void) { return false; }
- #endif	/* CONFIG_PARAVIRT_SPINLOCKS */
- 
-+static BLOCKING_NOTIFIER_HEAD(realtime_notifier);
-+
-+void kvm_realtime_notifier_register(struct notifier_block *nb)
-+{
-+	blocking_notifier_chain_register(&realtime_notifier, nb);
-+}
-+EXPORT_SYMBOL_GPL(kvm_realtime_notifier_register);
-+
-+void kvm_realtime_notifier_unregister(struct notifier_block *nb)
-+{
-+	blocking_notifier_chain_unregister(&realtime_notifier, nb);
-+}
-+EXPORT_SYMBOL_GPL(kvm_realtime_notifier_unregister);
-+
- #ifdef CONFIG_ARCH_CPUIDLE_HALTPOLL
- 
- static void kvm_disable_host_haltpoll(void *i)
-@@ -1004,6 +1018,8 @@ void kvm_trigger_reprobe_cpuid(struct work_struct *work)
- 	paravirt_runtime_patch(true);
- 
- 	mutex_unlock(&text_mutex);
-+
-+	blocking_notifier_call_chain(&realtime_notifier, 0, NULL);
+-	PVOP_VCALL2(lock.queued_spin_lock_slowpath, lock, val);
++	PVRTOP_VCALL2(lock.queued_spin_lock_slowpath, lock, val);
  }
  
- static DECLARE_WORK(trigger_reprobe, kvm_trigger_reprobe_cpuid);
-diff --git a/include/asm-generic/kvm_para.h b/include/asm-generic/kvm_para.h
-index 4a575299ad62..d443531b49ac 100644
---- a/include/asm-generic/kvm_para.h
-+++ b/include/asm-generic/kvm_para.h
-@@ -33,4 +33,12 @@ static inline bool kvm_para_available(void)
- 	return false;
+ static __always_inline void pv_queued_spin_unlock(struct qspinlock *lock)
+ {
+-	PVOP_VCALLEE1(lock.queued_spin_unlock, lock);
++	PVRTOP_VCALLEE1(lock.queued_spin_unlock, lock);
  }
  
-+static inline void kvm_realtime_notifier_register(struct notifier_block *nb)
-+{
-+}
-+
-+static inline void kvm_realtime_notifier_unregister(struct notifier_block *nb)
-+{
-+}
-+
- #endif
+ static __always_inline void pv_wait(u8 *ptr, u8 val)
+ {
+-	PVOP_VCALL2(lock.wait, ptr, val);
++	PVRTOP_VCALL2(lock.wait, ptr, val);
+ }
+ 
+ static __always_inline void pv_kick(int cpu)
+ {
+-	PVOP_VCALL1(lock.kick, cpu);
++	PVRTOP_VCALL1(lock.kick, cpu);
+ }
+ 
+ static __always_inline bool pv_vcpu_is_preempted(long cpu)
+ {
+-	return PVOP_CALLEE1(bool, lock.vcpu_is_preempted, cpu);
++	return PVRTOP_CALLEE1(bool, lock.vcpu_is_preempted, cpu);
+ }
+ 
+ void __raw_callee_save___native_queued_spin_unlock(struct qspinlock *lock);
+diff --git a/arch/x86/kernel/paravirt_patch.c b/arch/x86/kernel/paravirt_patch.c
+index 3eb8c0e720b4..3f8606f2811c 100644
+--- a/arch/x86/kernel/paravirt_patch.c
++++ b/arch/x86/kernel/paravirt_patch.c
+@@ -152,6 +152,18 @@ int runtime_patch(u8 type, void *insn_buff, void *op,
+ 
+ 	/* Nothing whitelisted for now. */
+ 	switch (type) {
++#ifdef CONFIG_PARAVIRT_SPINLOCKS
++	/*
++	 * Preemption is always disabled in the lifetime of a spinlock
++	 * (whether held or while waiting to acquire.)
++	 */
++	case PARAVIRT_PATCH(lock.queued_spin_lock_slowpath):
++	case PARAVIRT_PATCH(lock.queued_spin_unlock):
++	case PARAVIRT_PATCH(lock.wait):
++	case PARAVIRT_PATCH(lock.kick):
++	case PARAVIRT_PATCH(lock.vcpu_is_preempted):
++		break;
++#endif
+ 	default:
+ 		pr_warn("type=%d unsuitable for runtime-patching\n", type);
+ 		return -EINVAL;
+diff --git a/kernel/locking/lock_events.c b/kernel/locking/lock_events.c
+index fa2c2f951c6b..c3057e82e6f9 100644
+--- a/kernel/locking/lock_events.c
++++ b/kernel/locking/lock_events.c
+@@ -115,7 +115,7 @@ static const struct file_operations fops_lockevent = {
+ 	.llseek = default_llseek,
+ };
+ 
+-#ifdef CONFIG_PARAVIRT_SPINLOCKS
++#if defined(CONFIG_PARAVIRT_SPINLOCKS) && !defined(CONFIG_PARAVIRT_RUNTIME)
+ #include <asm/paravirt.h>
+ 
+ static bool __init skip_lockevent(const char *name)
 -- 
 2.20.1
