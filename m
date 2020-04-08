@@ -1,64 +1,42 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [RFC PATCH 00/26] Runtime paravirt patching
-Date: Wed, 8 Apr 2020 16:49:07 +0200
-Message-ID: <20200408144907.GL20730@hirez.programming.kicks-ass.net>
-References: <20200408050323.4237-1-ankur.a.arora@oracle.com>
- <20200408120856.GY20713@hirez.programming.kicks-ass.net>
- <bcf8206d-5a41-4e6b-1832-75ba1d6367e4@suse.com>
+From: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
+Subject: Re: [RFC PATCH 31/34] iommu/exynos: Create iommu_device in struct
+ exynos_iommu_owner
+Date: Wed, 8 Apr 2020 17:00:15 +0200
+Message-ID: <20200408150014.GM3103@8bytes.org>
+References: <20200407183742.4344-1-joro@8bytes.org>
+ <CGME20200407184501eucas1p25407bc96e4345df406cf6ba061ae6a82@eucas1p2.samsung.com>
+ <20200407183742.4344-32-joro@8bytes.org>
+ <449e7f16-e719-9617-ec92-63b82c0bc33f@samsung.com>
+ <f59b0bb3-8c08-9cc9-bb1a-e69b7b226f60@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 Content-Disposition: inline
-In-Reply-To: <bcf8206d-5a41-4e6b-1832-75ba1d6367e4@suse.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: =?iso-8859-1?Q?J=FCrgen_Gro=DF?= <jgross@suse.com>
-Cc: hpa@zytor.com, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, x86@kernel.org, linux-kernel@vger.kernel.org, Ankur Arora <ankur.a.arora@oracle.com>, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, namit@vmware.com, mhiramat@kernel.org, jpoimboe@redhat.com, mihai.carabas@oracle.com, bp@alien8.de, boris.ostrovsky@oracle.com
+In-Reply-To: <f59b0bb3-8c08-9cc9-bb1a-e69b7b226f60-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: Will Deacon <will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>, Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Lu Baolu <baolu.lu-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Gross <agross-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Clark <robdclark-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Gerald Schaefer <gerald.schaefer-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchi
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 08, 2020 at 03:33:52PM +0200, J=FCrgen Gro=DF wrote:
-> On 08.04.20 14:08, Peter Zijlstra wrote:
-> > On Tue, Apr 07, 2020 at 10:02:57PM -0700, Ankur Arora wrote:
-> > > Mechanism: the patching itself is done using stop_machine(). That is
-> > > not ideal -- text_poke_stop_machine() was replaced with INT3+emulation
-> > > via text_poke_bp(), but I'm using this to address two issues:
-> > >   1) emulation in text_poke() can only easily handle a small set
-> > >   of instructions and this is problematic for inlined pv-ops (and see
-> > >   a possible alternatives use-case below.)
-> > >   2) paravirt patching might have inter-dependendent ops (ex.
-> > >   lock.queued_lock_slowpath, lock.queued_lock_unlock are paired and
-> > >   need to be updated atomically.)
-> > =
+Hi Marek,
 
-> > And then you hope that the spinlock state transfers.. That is that both
-> > implementations agree what an unlocked spinlock looks like.
-> > =
+On Wed, Apr 08, 2020 at 04:23:05PM +0200, Marek Szyprowski wrote:
+> I need a place to initialize properly all the structures for the given 
+> master (IOMMU client device, the one which performs DMA operations).
 
-> > Suppose the native one was a ticket spinlock, where unlocked means 'head
-> > =3D=3D tail' while the paravirt one is a test-and-set spinlock, where
-> > unlocked means 'val =3D=3D 0'.
-> > =
+That could be in the probe_device() call-back, no?
 
-> > That just happens to not be the case now, but it was for a fair while.
-> =
+> I tried to move all the initialization from xlate() to device_probe(), 
+> but such approach doesn't work.
 
-> Sure? This would mean that before spinlock-pvops are being set no lock
-> is allowed to be used in the kernel, because this would block the boot
-> time transition of the lock variant to use.
+device_probe() is exynos_sysmmu_probe(), then yes, this is called before
+any of the xlate() calls are made.
 
-Hurm.. true. I suppose I completely forgot how paravirt spinlocks looked
-before it got rewritten.
+Would it work to keep the iommu_device structures in the sysmmus and
+also create them for the owners? This isn't really a nice solution but
+should work the the IOMMU driver until there is a better way to fix
+this.
 
-> Another problem I'm seeing is that runtime pvops patching would rely on
-> the fact that stop_machine() isn't guarded by a spinlock.
+Regards,
 
-It can't be, stop_machine() relies on scheduling. But yes, that another
-variation of 'stuff uses spinlocks'.
+	Joerg
