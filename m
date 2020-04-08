@@ -1,7 +1,7 @@
 From: Ankur Arora <ankur.a.arora@oracle.com>
-Subject: [RFC PATCH 04/26] x86/alternatives: Refactor alternatives_smp_module*
-Date: Tue,  7 Apr 2020 22:03:01 -0700
-Message-ID: <20200408050323.4237-5-ankur.a.arora@oracle.com>
+Subject: [RFC PATCH 13/26] x86/alternatives: Split __text_poke()
+Date: Tue,  7 Apr 2020 22:03:10 -0700
+Message-ID: <20200408050323.4237-14-ankur.a.arora@oracle.com>
 References: <20200408050323.4237-1-ankur.a.arora@oracle.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,177 +12,129 @@ To: linux-kernel@vger.kernel.org, x86@kernel.org
 Cc: peterz@infradead.org, hpa@zytor.com, jpoimboe@redhat.com, namit@vmware.com, mhiramat@kernel.org, jgross@suse.com, bp@alien8.de, vkuznets@redhat.com, pbonzini@redhat.com, boris.ostrovsky@oracle.com, mihai.carabas@oracle.com, kvm@vger.kernel.org, xen-devel@lists.xenproject.org, virtualization@lists.linux-foundation.org, Ankur Arora <ankur.a.arora@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Refactor alternatives_smp_module* logic to make it available for
-holding generic late patching state.
+Separate __text_poke() into map, memcpy and unmap portions,
+(__text_poke_map(), __text_do_poke() and __text_poke_unmap().)
 
-Most of the changes are to pull the module handling logic out
-from CONFIG_SMP. In addition now we unconditionally call
-alternatives_smp_module_add() and make the decision on patching
-for UP or not there.
+Do this to separate the non-reentrant bits from the reentrant
+__text_do_poke(). __text_poke_map()/_unmap() modify poking_mm,
+poking_addr and do the pte-mapping and thus are non-reentrant.
+
+This allows __text_do_poke() to be safely called from an INT3
+context with __text_poke_map()/_unmap() being called at the
+start and the end of the patching of a call-site instead of
+doing that for each stage of the three patching stages.
 
 Signed-off-by: Ankur Arora <ankur.a.arora@oracle.com>
 ---
- arch/x86/include/asm/alternative.h | 13 ++-----
- arch/x86/kernel/alternative.c      | 55 ++++++++++++++++--------------
- 2 files changed, 32 insertions(+), 36 deletions(-)
+ arch/x86/kernel/alternative.c | 46 +++++++++++++++++++++++++----------
+ 1 file changed, 33 insertions(+), 13 deletions(-)
 
-diff --git a/arch/x86/include/asm/alternative.h b/arch/x86/include/asm/alternative.h
-index 13adca37c99a..8235bbb746d9 100644
---- a/arch/x86/include/asm/alternative.h
-+++ b/arch/x86/include/asm/alternative.h
-@@ -75,24 +75,15 @@ extern void apply_alternatives(struct alt_instr *start, struct alt_instr *end);
- 
- struct module;
- 
--#ifdef CONFIG_SMP
- extern void alternatives_smp_module_add(struct module *mod, char *name,
- 					void *locks, void *locks_end,
- 					void *text, void *text_end);
- extern void alternatives_smp_module_del(struct module *mod);
--extern void alternatives_enable_smp(void);
- extern int alternatives_text_reserved(void *start, void *end);
--extern bool skip_smp_alternatives;
-+#ifdef CONFIG_SMP
-+extern void alternatives_enable_smp(void);
- #else
--static inline void alternatives_smp_module_add(struct module *mod, char *name,
--					       void *locks, void *locks_end,
--					       void *text, void *text_end) {}
--static inline void alternatives_smp_module_del(struct module *mod) {}
- static inline void alternatives_enable_smp(void) {}
--static inline int alternatives_text_reserved(void *start, void *end)
--{
--	return 0;
--}
- #endif	/* CONFIG_SMP */
- 
- #define b_replacement(num)	"664"#num
 diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
-index fdfda1375f82..32aa1ddf441d 100644
+index 0344e49a4ade..337aad8c2521 100644
 --- a/arch/x86/kernel/alternative.c
 +++ b/arch/x86/kernel/alternative.c
-@@ -470,6 +470,13 @@ static void alternatives_smp_unlock(const s32 *start, const s32 *end,
- 	}
- }
+@@ -805,13 +805,12 @@ void __init_or_module text_poke_early(void *addr, const void *opcode,
+ __ro_after_init struct mm_struct *poking_mm;
+ __ro_after_init unsigned long poking_addr;
  
-+static bool uniproc_patched;	/* protected by text_mutex */
-+#else	/* !CONFIG_SMP */
-+#define uniproc_patched false
-+static inline void alternatives_smp_unlock(const s32 *start, const s32 *end,
-+					   u8 *text, u8 *text_end) { }
-+#endif	/* CONFIG_SMP */
-+
- struct smp_alt_module {
- 	/* what is this ??? */
- 	struct module	*mod;
-@@ -486,7 +493,6 @@ struct smp_alt_module {
- 	struct list_head next;
- };
- static LIST_HEAD(smp_alt_modules);
--static bool uniproc_patched = false;	/* protected by text_mutex */
- 
- void __init_or_module alternatives_smp_module_add(struct module *mod,
- 						  char *name,
-@@ -495,23 +501,27 @@ void __init_or_module alternatives_smp_module_add(struct module *mod,
+-static void __text_poke(void *addr, const void *opcode, size_t len)
++static void __text_poke_map(void *addr, size_t len,
++			    temp_mm_state_t *prev_mm, pte_t **ptep)
  {
- 	struct smp_alt_module *smp;
+ 	bool cross_page_boundary = offset_in_page(addr) + len > PAGE_SIZE;
+ 	struct page *pages[2] = {NULL};
+-	temp_mm_state_t prev;
+-	unsigned long flags;
+-	pte_t pte, *ptep;
++	pte_t pte;
+ 	pgprot_t pgprot;
  
--	mutex_lock(&text_mutex);
-+#ifdef CONFIG_SMP
-+	/* Patch to UP if other cpus not imminent. */
-+	if (!noreplace_smp && (num_present_cpus() == 1 || setup_max_cpus <= 1))
-+		uniproc_patched = true;
-+#endif
- 	if (!uniproc_patched)
--		goto unlock;
-+		return;
+ 	/*
+@@ -836,8 +835,6 @@ static void __text_poke(void *addr, const void *opcode, size_t len)
+ 	 */
+ 	BUG_ON(!pages[0] || (cross_page_boundary && !pages[1]));
  
--	if (num_possible_cpus() == 1)
--		/* Don't bother remembering, we'll never have to undo it. */
--		goto smp_unlock;
-+	mutex_lock(&text_mutex);
+-	local_irq_save(flags);
+-
+ 	/*
+ 	 * Map the page without the global bit, as TLB flushing is done with
+ 	 * flush_tlb_mm_range(), which is intended for non-global PTEs.
+@@ -849,30 +846,42 @@ static void __text_poke(void *addr, const void *opcode, size_t len)
+ 	 * unlocked. This does mean that we need to be careful that no other
+ 	 * context (ex. INT3 handler) is simultaneously writing to this pte.
+ 	 */
+-	ptep = __get_unlocked_pte(poking_mm, poking_addr);
++	*ptep = __get_unlocked_pte(poking_mm, poking_addr);
+ 	/*
+ 	 * This must not fail; preallocated in poking_init().
+ 	 */
+-	VM_BUG_ON(!ptep);
++	VM_BUG_ON(!*ptep);
  
--	smp = kzalloc(sizeof(*smp), GFP_KERNEL);
--	if (NULL == smp)
--		/* we'll run the (safe but slow) SMP code then ... */
--		goto unlock;
-+	smp = kzalloc(sizeof(*smp), GFP_KERNEL | __GFP_NOFAIL);
+ 	pte = mk_pte(pages[0], pgprot);
+-	set_pte_at(poking_mm, poking_addr, ptep, pte);
++	set_pte_at(poking_mm, poking_addr, *ptep, pte);
  
- 	smp->mod	= mod;
- 	smp->name	= name;
--	smp->locks	= locks;
--	smp->locks_end	= locks_end;
-+
-+	if (num_possible_cpus() != 1 || uniproc_patched) {
-+		/* Remember only if we'll need to undo it. */
-+		smp->locks	= locks;
-+		smp->locks_end	= locks_end;
-+	}
-+
- 	smp->text	= text;
- 	smp->text_end	= text_end;
- 	DPRINTK("locks %p -> %p, text %p -> %p, name %s\n",
-@@ -519,9 +529,9 @@ void __init_or_module alternatives_smp_module_add(struct module *mod,
- 		smp->text, smp->text_end, smp->name);
- 
- 	list_add_tail(&smp->next, &smp_alt_modules);
--smp_unlock:
--	alternatives_smp_unlock(locks, locks_end, text, text_end);
--unlock:
-+
-+	if (uniproc_patched)
-+		alternatives_smp_unlock(locks, locks_end, text, text_end);
- 	mutex_unlock(&text_mutex);
- }
- 
-@@ -540,6 +550,7 @@ void __init_or_module alternatives_smp_module_del(struct module *mod)
- 	mutex_unlock(&text_mutex);
- }
- 
-+#ifdef CONFIG_SMP
- void alternatives_enable_smp(void)
- {
- 	struct smp_alt_module *mod;
-@@ -561,6 +572,7 @@ void alternatives_enable_smp(void)
+ 	if (cross_page_boundary) {
+ 		pte = mk_pte(pages[1], pgprot);
+-		set_pte_at(poking_mm, poking_addr + PAGE_SIZE, ptep + 1, pte);
++		set_pte_at(poking_mm, poking_addr + PAGE_SIZE, *ptep + 1, pte);
  	}
- 	mutex_unlock(&text_mutex);
+ 
+ 	/*
+ 	 * Loading the temporary mm behaves as a compiler barrier, which
+ 	 * guarantees that the PTE will be set at the time memcpy() is done.
+ 	 */
+-	prev = use_temporary_mm(poking_mm);
++	*prev_mm = use_temporary_mm(poking_mm);
++}
+ 
++/*
++ * Do the actual poke. Needs to be re-entrant as this can be called
++ * via INT3 context as well.
++ */
++static void __text_do_poke(unsigned long offset, const void *opcode, size_t len)
++{
+ 	kasan_disable_current();
+-	memcpy((u8 *)poking_addr + offset_in_page(addr), opcode, len);
++	memcpy((u8 *)poking_addr + offset, opcode, len);
+ 	kasan_enable_current();
++}
+ 
++static void __text_poke_unmap(void *addr, const void *opcode, size_t len,
++			      temp_mm_state_t *prev_mm, pte_t *ptep)
++{
++	bool cross_page_boundary = offset_in_page(addr) + len > PAGE_SIZE;
+ 	/*
+ 	 * Ensure that the PTE is only cleared after the instructions of memcpy
+ 	 * were issued by using a compiler barrier.
+@@ -888,7 +897,7 @@ static void __text_poke(void *addr, const void *opcode, size_t len)
+ 	 * instruction that already allows the core to see the updated version.
+ 	 * Xen-PV is assumed to serialize execution in a similar manner.
+ 	 */
+-	unuse_temporary_mm(prev);
++	unuse_temporary_mm(*prev_mm);
+ 
+ 	/*
+ 	 * Flushing the TLB might involve IPIs, which would require enabled
+@@ -903,7 +912,18 @@ static void __text_poke(void *addr, const void *opcode, size_t len)
+ 	 * fundamentally screwy; there's nothing we can really do about that.
+ 	 */
+ 	BUG_ON(memcmp(addr, opcode, len));
++}
+ 
++static void __text_poke(void *addr, const void *opcode, size_t len)
++{
++	temp_mm_state_t prev_mm;
++	unsigned long flags;
++	pte_t *ptep;
++
++	local_irq_save(flags);
++	__text_poke_map(addr, len, &prev_mm, &ptep);
++	__text_do_poke(offset_in_page(addr), opcode, len);
++	__text_poke_unmap(addr, opcode, len, &prev_mm, ptep);
+ 	local_irq_restore(flags);
  }
-+#endif /* CONFIG_SMP */
  
- /*
-  * Return 1 if the address range is reserved for SMP-alternatives.
-@@ -588,7 +600,6 @@ int alternatives_text_reserved(void *start, void *end)
- 
- 	return 0;
- }
--#endif /* CONFIG_SMP */
- 
- #ifdef CONFIG_PARAVIRT
- void __init_or_module apply_paravirt(struct paravirt_patch_site *start,
-@@ -723,21 +734,15 @@ void __init alternative_instructions(void)
- 
- 	apply_alternatives(__alt_instructions, __alt_instructions_end);
- 
--#ifdef CONFIG_SMP
--	/* Patch to UP if other cpus not imminent. */
--	if (!noreplace_smp && (num_present_cpus() == 1 || setup_max_cpus <= 1)) {
--		uniproc_patched = true;
--		alternatives_smp_module_add(NULL, "core kernel",
--					    __smp_locks, __smp_locks_end,
--					    _text, _etext);
--	}
-+	alternatives_smp_module_add(NULL, "core kernel",
-+				    __smp_locks, __smp_locks_end,
-+				    _text, _etext);
- 
- 	if (!uniproc_patched || num_possible_cpus() == 1) {
- 		free_init_pages("SMP alternatives",
- 				(unsigned long)__smp_locks,
- 				(unsigned long)__smp_locks_end);
- 	}
--#endif
- 
- 	apply_paravirt(__parainstructions, __parainstructions_end);
- 	apply_paravirt(__parainstructions_runtime,
 -- 
 2.20.1
