@@ -1,215 +1,432 @@
 From: Ankur Arora <ankur.a.arora@oracle.com>
-Subject: [RFC PATCH 14/26] x86/alternatives: Handle native insns in
- text_poke_loc*()
-Date: Tue,  7 Apr 2020 22:03:11 -0700
-Message-ID: <20200408050323.4237-15-ankur.a.arora@oracle.com>
+Subject: [RFC PATCH 21/26] x86/alternatives: Paravirt runtime selftest
+Date: Tue,  7 Apr 2020 22:03:18 -0700
+Message-ID: <20200408050323.4237-22-ankur.a.arora@oracle.com>
 References: <20200408050323.4237-1-ankur.a.arora@oracle.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <xen-devel-bounces@lists.xenproject.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200408050323.4237-1-ankur.a.arora@oracle.com>
-List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
-List-Post: <mailto:xen-devel@lists.xenproject.org>
-List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
-List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
- <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
-Errors-To: xen-devel-bounces@lists.xenproject.org
-Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, x86@kernel.org
-Cc: jgross@suse.com, xen-devel@lists.xenproject.org, kvm@vger.kernel.org, peterz@infradead.org, hpa@zytor.com, Ankur Arora <ankur.a.arora@oracle.com>, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, namit@vmware.com, mhiramat@kernel.org, jpoimboe@redhat.com, mihai.carabas@oracle.com, bp@alien8.de, vkuznets@redhat.com, boris.ostrovsky@oracle.com
+Cc: peterz@infradead.org, hpa@zytor.com, jpoimboe@redhat.com, namit@vmware.com, mhiramat@kernel.org, jgross@suse.com, bp@alien8.de, vkuznets@redhat.com, pbonzini@redhat.com, boris.ostrovsky@oracle.com, mihai.carabas@oracle.com, kvm@vger.kernel.org, xen-devel@lists.xenproject.org, virtualization@lists.linux-foundation.org, Ankur Arora <ankur.a.arora@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Intended to handle scenarios where we might want to patch arbitrary
-instructions (ex. inlined opcodes in pv_lock_ops.)
+Add a selftest that triggers paravirt_runtime_patch() which
+toggles between the paravirt and native pv_lock_ops.
 
-Users for native mode (as opposed to emulated) are introduced in
-later patches.
+The selftest also register an NMI handler, which exercises the
+patched pv-ops by spin-lock operations. These are triggered via
+artificially sent NMIs.
+
+And last, introduce patch sites in the primary and secondary
+patching code which are hit while during the patching process.
 
 Signed-off-by: Ankur Arora <ankur.a.arora@oracle.com>
 ---
- arch/x86/include/asm/text-patching.h |  4 +-
- arch/x86/kernel/alternative.c        | 61 ++++++++++++++++++++--------
- 2 files changed, 45 insertions(+), 20 deletions(-)
+ arch/x86/Kconfig.debug        |  13 ++
+ arch/x86/kernel/Makefile      |   1 +
+ arch/x86/kernel/alternative.c |  20 +++
+ arch/x86/kernel/kvm.c         |   4 +-
+ arch/x86/kernel/pv_selftest.c | 264 ++++++++++++++++++++++++++++++++++
+ arch/x86/kernel/pv_selftest.h |  15 ++
+ 6 files changed, 315 insertions(+), 2 deletions(-)
+ create mode 100644 arch/x86/kernel/pv_selftest.c
+ create mode 100644 arch/x86/kernel/pv_selftest.h
 
-diff --git a/arch/x86/include/asm/text-patching.h b/arch/x86/include/asm/text-patching.h
-index 04778c2bc34e..c4b2814f2f9d 100644
---- a/arch/x86/include/asm/text-patching.h
-+++ b/arch/x86/include/asm/text-patching.h
-@@ -25,10 +25,10 @@ static inline void apply_paravirt(struct paravirt_patch_site *start,
+diff --git a/arch/x86/Kconfig.debug b/arch/x86/Kconfig.debug
+index 2e74690b028a..82a8e3fa68c7 100644
+--- a/arch/x86/Kconfig.debug
++++ b/arch/x86/Kconfig.debug
+@@ -252,6 +252,19 @@ config X86_DEBUG_FPU
  
- /*
-  * Currently, the max observed size in the kernel code is
-- * JUMP_LABEL_NOP_SIZE/RELATIVEJUMP_SIZE, which are 5.
-+ * NOP7 for indirect call, which is 7.
-  * Raise it if needed.
-  */
--#define POKE_MAX_OPCODE_SIZE	5
-+#define POKE_MAX_OPCODE_SIZE	7
+ 	  If unsure, say N.
  
- extern void text_poke_early(void *addr, const void *opcode, size_t len);
++config DEBUG_PARAVIRT_SELFTEST
++	bool "Enable paravirt runtime selftest"
++	depends on PARAVIRT
++	depends on PARAVIRT_RUNTIME
++	depends on PARAVIRT_SPINLOCKS
++	depends on KVM_GUEST
++	help
++	  This option enables sanity testing of the runtime paravirtualized
++	  patching code. Triggered via debugfs.
++
++	  Might help diagnose patching problems in different
++	  configurations and loads.
++
+ config PUNIT_ATOM_DEBUG
+ 	tristate "ATOM Punit debug driver"
+ 	depends on PCI
+diff --git a/arch/x86/kernel/Makefile b/arch/x86/kernel/Makefile
+index ba89cabe5fcf..ed3c93681f12 100644
+--- a/arch/x86/kernel/Makefile
++++ b/arch/x86/kernel/Makefile
+@@ -114,6 +114,7 @@ obj-$(CONFIG_APB_TIMER)		+= apb_timer.o
  
+ obj-$(CONFIG_AMD_NB)		+= amd_nb.o
+ obj-$(CONFIG_DEBUG_NMI_SELFTEST) += nmi_selftest.o
++obj-$(CONFIG_DEBUG_PARAVIRT_SELFTEST) += pv_selftest.o
+ 
+ obj-$(CONFIG_KVM_GUEST)		+= kvm.o kvmclock.o
+ obj-$(CONFIG_PARAVIRT)		+= paravirt.o paravirt_patch.o
 diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
-index 337aad8c2521..004fe86f463f 100644
+index 385c3e6ea925..26407d7a54db 100644
 --- a/arch/x86/kernel/alternative.c
 +++ b/arch/x86/kernel/alternative.c
-@@ -981,8 +981,15 @@ void text_poke_sync(void)
+@@ -26,6 +26,7 @@
+ #include <asm/insn.h>
+ #include <asm/io.h>
+ #include <asm/fixmap.h>
++#include "pv_selftest.h"
  
- struct text_poke_loc {
- 	s32 rel_addr; /* addr := _stext + rel_addr */
--	s32 rel32;
--	u8 opcode;
-+	union {
-+		struct {
-+			s32 rel32;
-+			u8 opcode;
-+		} emulated;
-+		struct {
-+			u8 len;
-+		} native;
-+	};
- 	const u8 text[POKE_MAX_OPCODE_SIZE];
- };
+ int __read_mostly alternatives_patched;
  
-@@ -990,6 +997,7 @@ struct bp_patching_desc {
- 	struct text_poke_loc *vec;
- 	int nr_entries;
- 	atomic_t refs;
-+	bool native;
- };
- 
- static struct bp_patching_desc *bp_desc;
-@@ -1071,10 +1079,13 @@ int notrace poke_int3_handler(struct pt_regs *regs)
- 			goto out_put;
- 	}
- 
--	len = text_opcode_size(tp->opcode);
-+	if (desc->native)
-+		BUG();
-+
-+	len = text_opcode_size(tp->emulated.opcode);
- 	ip += len;
- 
--	switch (tp->opcode) {
-+	switch (tp->emulated.opcode) {
- 	case INT3_INSN_OPCODE:
- 		/*
- 		 * Someone poked an explicit INT3, they'll want to handle it,
-@@ -1083,12 +1094,12 @@ int notrace poke_int3_handler(struct pt_regs *regs)
- 		goto out_put;
- 
- 	case CALL_INSN_OPCODE:
--		int3_emulate_call(regs, (long)ip + tp->rel32);
-+		int3_emulate_call(regs, (long)ip + tp->emulated.rel32);
- 		break;
- 
- 	case JMP32_INSN_OPCODE:
- 	case JMP8_INSN_OPCODE:
--		int3_emulate_jmp(regs, (long)ip + tp->rel32);
-+		int3_emulate_jmp(regs, (long)ip + tp->emulated.rel32);
- 		break;
- 
- 	default:
-@@ -1134,6 +1145,7 @@ static void text_poke_bp_batch(struct text_poke_loc *tp, unsigned int nr_entries
- 		.vec = tp,
- 		.nr_entries = nr_entries,
- 		.refs = ATOMIC_INIT(1),
-+		.native = false,
- 	};
- 	unsigned char int3 = INT3_INSN_OPCODE;
- 	unsigned int i;
-@@ -1161,7 +1173,7 @@ static void text_poke_bp_batch(struct text_poke_loc *tp, unsigned int nr_entries
- 	 * Second step: update all but the first byte of the patched range.
+@@ -1549,6 +1550,12 @@ static void __maybe_unused text_poke_site(struct text_poke_state *tps,
  	 */
- 	for (do_sync = 0, i = 0; i < nr_entries; i++) {
--		int len = text_opcode_size(tp[i].opcode);
-+		int len = text_opcode_size(tp[i].emulated.opcode);
+ 	poke_sync(tps, PATCH_SYNC_0, offset, &int3, INT3_INSN_SIZE);
  
- 		if (len - INT3_INSN_SIZE > 0) {
- 			text_poke(text_poke_addr(&tp[i]) + INT3_INSN_SIZE,
-@@ -1205,11 +1217,25 @@ static void text_poke_bp_batch(struct text_poke_loc *tp, unsigned int nr_entries
- }
- 
- static void text_poke_loc_init(struct text_poke_loc *tp, void *addr,
--			       const void *opcode, size_t len, const void *emulate)
-+			       const void *opcode, size_t len,
-+			       const void *emulate, bool native)
- {
- 	struct insn insn;
- 
-+	memset((void *)tp, 0, sizeof(*tp));
- 	memcpy((void *)tp->text, opcode, len);
++	/*
++	 * We have an INT3 in place; execute a contrived selftest that
++	 * has an insn sequence that is under patching.
++	 */
++	pv_selftest_primary();
 +
-+	tp->rel_addr = addr - (void *)_stext;
+ 	/* Poke remaining */
+ 	poke_sync(tps, PATCH_SYNC_1, offset + INT3_INSN_SIZE,
+ 		  tp->text + INT3_INSN_SIZE, tp->native.len - INT3_INSN_SIZE);
+@@ -1634,6 +1641,19 @@ static void text_poke_sync_site(struct text_poke_state *tps)
+ 		smp_cond_load_acquire(&tps->state,
+ 				      prevstate != VAL);
+ 
++		/*
++		 * Send an NMI to one of the other CPUs.
++		 */
++		pv_selftest_send_nmi();
++
++		/*
++		 * We have an INT3 in place; execute a contrived selftest that
++		 * has an insn sequence that is under patching.
++		 *
++		 * Note that this function is also called from BP fixup but
++		 * is just an NOP when called from there.
++		 */
++		pv_selftest_secondary();
+ 		prevstate = READ_ONCE(tps->state);
+ 
+ 		/*
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index 6efe0410fb72..e56d263159d7 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -779,7 +779,7 @@ arch_initcall(kvm_alloc_cpumask);
+ #ifdef CONFIG_PARAVIRT_SPINLOCKS
+ 
+ /* Kick a cpu by its apicid. Used to wake up a halted vcpu */
+-static void kvm_kick_cpu(int cpu)
++void kvm_kick_cpu(int cpu)
+ {
+ 	int apicid;
+ 	unsigned long flags = 0;
+@@ -790,7 +790,7 @@ static void kvm_kick_cpu(int cpu)
+ 
+ #include <asm/qspinlock.h>
+ 
+-static void kvm_wait(u8 *ptr, u8 val)
++void kvm_wait(u8 *ptr, u8 val)
+ {
+ 	unsigned long flags;
+ 
+diff --git a/arch/x86/kernel/pv_selftest.c b/arch/x86/kernel/pv_selftest.c
+new file mode 100644
+index 000000000000..e522f444bd6e
+--- /dev/null
++++ b/arch/x86/kernel/pv_selftest.c
+@@ -0,0 +1,264 @@
++// SPDX-License-Identifier: GPL-2.0
++
++#include <linux/delay.h>
++#include <linux/irq.h>
++#include <linux/spinlock.h>
++#include <linux/debugfs.h>
++#include <linux/memory.h>
++#include <linux/nmi.h>
++#include <linux/uaccess.h>
++#include <asm/apic.h>
++#include <asm/text-patching.h>
++#include <asm/paravirt.h>
++#include <asm/paravirt_types.h>
++#include "pv_selftest.h"
++
++static int nmi_selftest;
++static bool cond_state;
++
++#define SELFTEST_PARAVIRT	1
++static int test_mode;
++
++/*
++ * Mark this and the following functions __always_inline to ensure
++ * we generate multiple patch sites that can be hit independently
++ * in thread, NMI etc contexts.
++ */
++static __always_inline void selftest_pv(void)
++{
++	struct qspinlock test;
++
++	memset(&test, 0, sizeof(test));
++
++	test.locked = _Q_LOCKED_VAL;
 +
 +	/*
-+	 * Native mode: when we might be poking
-+	 * arbitrary (perhaps) multiple instructions.
++	 * Sits directly in the path of the test.
++	 *
++	 * The primary sets up an INT3 instruction at pv_queued_spin_unlock().
++	 * Both the primary and secondary CPUs should hit that in both
++	 * thread and NMI contexts.
++	 *
++	 * Additionally, this also gets inlined in nmi_pv_callback() so we
++	 * should hit this with nmi_selftest.
++	 *
++	 * The fixup takes place in poke_int3_native().
 +	 */
-+	if (native) {
-+		tp->native.len = (u8)len;
++	pv_queued_spin_unlock(&test);
++}
++
++static __always_inline void patch_selftest(void)
++{
++	if (test_mode == SELFTEST_PARAVIRT)
++		selftest_pv();
++}
++
++static DEFINE_PER_CPU(int, selftest_count);
++void pv_selftest_secondary(void)
++{
++	/*
++	 * On the secondary we execute the same code in both the
++	 * thread-context and the BP-context and so would hit this
++	 * recursively if we do inside the fixup context.
++	 *
++	 * So we trigger the selftest only if it's not ongoing already
++	 * (thus allowing the thread or NMI context, but excluding
++	 * the INT3 handling path.)
++	 */
++	if (this_cpu_read(selftest_count))
 +		return;
++
++	this_cpu_inc(selftest_count);
++
++	patch_selftest();
++
++	this_cpu_dec(selftest_count);
++}
++
++void pv_selftest_primary(void)
++{
++	patch_selftest();
++}
++
++/*
++ * We only come here if nmi_selftest > 0.
++ *  - nmi_selftest >= 1: execute a pv-op that will be patched
++ *  - nmi_selftest >= 2: execute a paired pv-op that is also contended
++ *  - nmi_selftest >= 3: add lock contention
++ */
++static int nmi_callback(unsigned int val, struct pt_regs *regs)
++{
++	static DEFINE_SPINLOCK(nmi_spin);
++
++	if (!nmi_selftest)
++		goto out;
++
++	patch_selftest();
++
++	if (nmi_selftest >= 2) {
++		/*
++		 * Depending on whether CONFIG_[UN]INLINE_SPIN_* are
++		 * defined or not, these would get patched or just
++		 * create race conditions between via NMIs.
++		 */
++		spin_lock(&nmi_spin);
++
++		/* Dilate the critical section to force contention. */
++		if (nmi_selftest >= 3)
++			udelay(1);
++
++		spin_unlock(&nmi_spin);
 +	}
 +
- 	if (!emulate)
- 		emulate = opcode;
- 
-@@ -1219,31 +1245,30 @@ static void text_poke_loc_init(struct text_poke_loc *tp, void *addr,
- 	BUG_ON(!insn_complete(&insn));
- 	BUG_ON(len != insn.length);
- 
--	tp->rel_addr = addr - (void *)_stext;
--	tp->opcode = insn.opcode.bytes[0];
-+	tp->emulated.opcode = insn.opcode.bytes[0];
- 
--	switch (tp->opcode) {
-+	switch (tp->emulated.opcode) {
- 	case INT3_INSN_OPCODE:
- 		break;
- 
- 	case CALL_INSN_OPCODE:
- 	case JMP32_INSN_OPCODE:
- 	case JMP8_INSN_OPCODE:
--		tp->rel32 = insn.immediate.value;
-+		tp->emulated.rel32 = insn.immediate.value;
- 		break;
- 
- 	default: /* assume NOP */
- 		switch (len) {
- 		case 2: /* NOP2 -- emulate as JMP8+0 */
- 			BUG_ON(memcmp(emulate, ideal_nops[len], len));
--			tp->opcode = JMP8_INSN_OPCODE;
--			tp->rel32 = 0;
-+			tp->emulated.opcode = JMP8_INSN_OPCODE;
-+			tp->emulated.rel32 = 0;
- 			break;
- 
- 		case 5: /* NOP5 -- emulate as JMP32+0 */
- 			BUG_ON(memcmp(emulate, ideal_nops[NOP_ATOMIC5], len));
--			tp->opcode = JMP32_INSN_OPCODE;
--			tp->rel32 = 0;
-+			tp->emulated.opcode = JMP32_INSN_OPCODE;
-+			tp->emulated.rel32 = 0;
- 			break;
- 
- 		default: /* unknown instruction */
-@@ -1299,7 +1324,7 @@ void __ref text_poke_queue(void *addr, const void *opcode, size_t len, const voi
- 	text_poke_flush(addr);
- 
- 	tp = &tp_vec[tp_vec_nr++];
--	text_poke_loc_init(tp, addr, opcode, len, emulate);
-+	text_poke_loc_init(tp, addr, opcode, len, emulate, false);
- }
- 
- /**
-@@ -1322,7 +1347,7 @@ void __ref text_poke_bp(void *addr, const void *opcode, size_t len, const void *
- 		return;
- 	}
- 
--	text_poke_loc_init(&tp, addr, opcode, len, emulate);
-+	text_poke_loc_init(&tp, addr, opcode, len, emulate, false);
- 	text_poke_bp_batch(&tp, 1);
- }
- 
++	/*
++	 * nmi_selftest > 0, but we should really have a bitmap where
++	 * to check if this really was destined for us or not.
++	 */
++	return NMI_HANDLED;
++out:
++	return NMI_DONE;
++}
++
++void pv_selftest_register(void)
++{
++	register_nmi_handler(NMI_LOCAL, nmi_callback,
++			     0, "paravirt_nmi_selftest");
++}
++
++void pv_selftest_unregister(void)
++{
++	unregister_nmi_handler(NMI_LOCAL, "paravirt_nmi_selftest");
++}
++
++void pv_selftest_send_nmi(void)
++{
++	int cpu = smp_processor_id();
++	/* NMI or INT3 */
++	if (nmi_selftest && !in_interrupt())
++		apic->send_IPI(cpu + 1 % num_online_cpus(), NMI_VECTOR);
++}
++
++/*
++ * Just declare these locally here instead of having them be
++ * exposed to the whole world.
++ */
++void kvm_wait(u8 *ptr, u8 val);
++void kvm_kick_cpu(int cpu);
++bool __raw_callee_save___kvm_vcpu_is_preempted(long cpu);
++static void pv_spinlocks(void)
++{
++	paravirt_stage_alt(cond_state,
++			   lock.queued_spin_lock_slowpath,
++			   __pv_queued_spin_lock_slowpath);
++	paravirt_stage_alt(cond_state, lock.queued_spin_unlock.func,
++			   PV_CALLEE_SAVE(__pv_queued_spin_unlock).func);
++	paravirt_stage_alt(cond_state, lock.wait, kvm_wait);
++	paravirt_stage_alt(cond_state, lock.kick, kvm_kick_cpu);
++
++	paravirt_stage_alt(cond_state,
++			   lock.vcpu_is_preempted.func,
++			   PV_CALLEE_SAVE(__kvm_vcpu_is_preempted).func);
++}
++
++void pv_trigger(void)
++{
++	bool nmi_mode = nmi_selftest ? true : false;
++	int ret;
++
++	pr_debug("%s: nmi=%d; NMI-mode=%d\n", __func__, nmi_selftest, nmi_mode);
++
++	mutex_lock(&text_mutex);
++
++	paravirt_stage_zero();
++	pv_spinlocks();
++
++	/*
++	 * paravirt patching for pv_locks can potentially deadlock
++	 * if we are running with nmi_mode=false and we get an NMI.
++	 *
++	 * For the sake of testing that path, we risk it. However, if
++	 * we are generating synthetic NMIs (nmi_selftest > 0) then
++	 * run with nmi_mode=true.
++	 */
++	ret = paravirt_runtime_patch(nmi_mode);
++
++	/*
++	 * Flip the state so we switch the pv_lock_ops on the next test.
++	 */
++	cond_state = !cond_state;
++
++	mutex_unlock(&text_mutex);
++
++	pr_debug("%s: nmi=%d; NMI-mode=%d, ret=%d\n", __func__, nmi_selftest,
++		 nmi_mode, ret);
++}
++
++static void pv_selftest_trigger(void)
++{
++	test_mode = SELFTEST_PARAVIRT;
++	pv_trigger();
++}
++
++static ssize_t pv_selftest_write(struct file *file, const char __user *ubuf,
++				 size_t count, loff_t *ppos)
++{
++	pv_selftest_register();
++	pv_selftest_trigger();
++	pv_selftest_unregister();
++
++	return count;
++}
++
++static ssize_t pv_nmi_read(struct file *file, char __user *ubuf,
++			   size_t count, loff_t *ppos)
++{
++	char buf[32];
++	unsigned int len;
++
++	len = snprintf(buf, sizeof(buf), "%d\n", nmi_selftest);
++	return simple_read_from_buffer(ubuf, count, ppos, buf, len);
++}
++
++static ssize_t pv_nmi_write(struct file *file, const char __user *ubuf,
++			    size_t count, loff_t *ppos)
++{
++	char buf[32];
++	unsigned int len;
++	unsigned int enabled;
++
++	len = min(sizeof(buf) - 1, count);
++	if (copy_from_user(buf, ubuf, len))
++		return -EFAULT;
++
++	buf[len] = '\0';
++	if (kstrtoint(buf, 0, &enabled))
++		return -EINVAL;
++
++	nmi_selftest = enabled > 3 ? 3 : enabled;
++
++	return count;
++}
++
++static const struct file_operations pv_selftest_fops = {
++	.read = NULL,
++	.write = pv_selftest_write,
++	.llseek = default_llseek,
++};
++
++static const struct file_operations pv_nmi_fops = {
++	.read = pv_nmi_read,
++	.write = pv_nmi_write,
++	.llseek = default_llseek,
++};
++
++static int __init pv_selftest_init(void)
++{
++	struct dentry *d = debugfs_create_dir("pv_selftest", NULL);
++
++	debugfs_create_file("toggle", 0600, d, NULL, &pv_selftest_fops);
++	debugfs_create_file("nmi", 0600, d, NULL, &pv_nmi_fops);
++
++	return 0;
++}
++
++late_initcall(pv_selftest_init);
+diff --git a/arch/x86/kernel/pv_selftest.h b/arch/x86/kernel/pv_selftest.h
+new file mode 100644
+index 000000000000..5afa0f7db5cc
+--- /dev/null
++++ b/arch/x86/kernel/pv_selftest.h
+@@ -0,0 +1,15 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _PVR_SELFTEST_H
++#define _PVR_SELFTEST_H
++
++#ifdef CONFIG_DEBUG_PARAVIRT_SELFTEST
++void pv_selftest_send_nmi(void);
++void pv_selftest_primary(void);
++void pv_selftest_secondary(void);
++#else
++static inline void pv_selftest_send_nmi(void) { }
++static inline void pv_selftest_primary(void) { }
++static inline void pv_selftest_secondary(void) { }
++#endif /*! CONFIG_DEBUG_PARAVIRT_SELFTEST */
++
++#endif /* _PVR_SELFTEST_H */
 -- 
 2.20.1
