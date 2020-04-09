@@ -1,187 +1,42 @@
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-Subject: [PATCH] iommu/exynos: Rework intialization
-Date: Thu,  9 Apr 2020 16:09:28 +0200
-Message-ID: <20200409140928.1403-1-m.szyprowski@samsung.com>
-References: <40af831b-d00c-0cf9-0a06-e60c048a9ab8@samsung.com>
-        <CGME20200409140939eucas1p190daac74c0d5dda4627314c49c1a5b50@eucas1p1.samsung.com>
-Content-Type: text/plain; charset="utf-8"
+From: Joerg Roedel <joro@8bytes.org>
+Subject: Re: [PATCH] iommu/exynos: Get rid of 'struct exynos_iommu_owner'
+ exynos_iommu_owner
+Date: Thu, 9 Apr 2020 16:30:59 +0200
+Message-ID: <20200409143059.GP3103@8bytes.org>
+References: <20200407183742.4344-1-joro@8bytes.org>
+ <CGME20200407184501eucas1p25407bc96e4345df406cf6ba061ae6a82@eucas1p2.samsung.com>
+ <20200407183742.4344-32-joro@8bytes.org>
+ <449e7f16-e719-9617-ec92-63b82c0bc33f@samsung.com>
+ <f59b0bb3-8c08-9cc9-bb1a-e69b7b226f60@samsung.com>
+ <20200409114620.GA16298@8bytes.org>
+ <40af831b-d00c-0cf9-0a06-e60c048a9ab8@samsung.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
 In-Reply-To: <40af831b-d00c-0cf9-0a06-e60c048a9ab8@samsung.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Joerg Roedel <joro@8bytes.org>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org
+To: Marek Szyprowski <m.szyprowski@samsung.com>
+Cc: Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchi
 List-Id: virtualization@lists.linuxfoundation.org
 
-Fix initialization after driver conversion to
-probe_device()/release_device(). Prepared on top of:
-https://git.kernel.org/pub/scm/linux/kernel/git/joro/linux.git/log/?h=iommu-probe-device
+Hi Marek,
 
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
----
- drivers/iommu/exynos-iommu.c | 80 +++++++++++++++++++++++++-------------------
- 1 file changed, 46 insertions(+), 34 deletions(-)
+On Thu, Apr 09, 2020 at 03:58:00PM +0200, Marek Szyprowski wrote:
+> The main problem after your conversion is the fact that ->probe_device() 
+> is called very early, before any other platform device (thus IOMMU 
+> controller) is is probed. It doesn't handle EPROBE_DEFER too.
 
-diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
-index f865c90..53c784f 100644
---- a/drivers/iommu/exynos-iommu.c
-+++ b/drivers/iommu/exynos-iommu.c
-@@ -565,6 +565,7 @@ static void sysmmu_tlb_invalidate_entry(struct sysmmu_drvdata *data,
- }
- 
- static const struct iommu_ops exynos_iommu_ops;
-+static int exynos_iommu_initialize_owner(struct device *sysmmu);
- 
- static int exynos_sysmmu_probe(struct platform_device *pdev)
- {
-@@ -573,6 +574,8 @@ static int exynos_sysmmu_probe(struct platform_device *pdev)
- 	struct sysmmu_drvdata *data;
- 	struct resource *res;
- 
-+	dev_info(dev, "%s %d\n", __func__, __LINE__);
-+
- 	data = devm_kzalloc(dev, sizeof(*data), GFP_KERNEL);
- 	if (!data)
- 		return -ENOMEM;
-@@ -649,6 +652,8 @@ static int exynos_sysmmu_probe(struct platform_device *pdev)
- 
- 	pm_runtime_enable(dev);
- 
-+	exynos_iommu_initialize_owner(dev);
-+
- 	return 0;
- }
- 
-@@ -1225,24 +1230,8 @@ static phys_addr_t exynos_iommu_iova_to_phys(struct iommu_domain *iommu_domain,
- 
- static struct iommu_device *exynos_iommu_probe_device(struct device *dev)
- {
--	struct exynos_iommu_owner *owner = dev->archdata.iommu;
--	struct sysmmu_drvdata *data;
--
--	if (!has_sysmmu(dev))
--		return ERR_PTR(-ENODEV);
--
--	list_for_each_entry(data, &owner->controllers, owner_node) {
--		/*
--		 * SYSMMU will be runtime activated via device link
--		 * (dependency) to its master device, so there are no
--		 * direct calls to pm_runtime_get/put in this driver.
--		 */
--		data->link = device_link_add(dev, data->sysmmu,
--					     DL_FLAG_STATELESS |
--					     DL_FLAG_PM_RUNTIME);
--	}
--
--	return &owner->iommu;
-+	/* this is called too early on ARM 32bit to do anything usefull */
-+	return ERR_PTR(-ENODEV);
- }
- 
- static void exynos_iommu_release_device(struct device *dev)
-@@ -1268,7 +1257,8 @@ static void exynos_iommu_release_device(struct device *dev)
- 		device_link_del(data->link);
- }
- 
--static int exynos_iommu_device_init(struct exynos_iommu_owner *owner)
-+static int exynos_iommu_device_init(struct device *dev,
-+				    struct exynos_iommu_owner *owner)
- {
- 	static u32 counter = 0;
- 	int ret;
-@@ -1287,6 +1277,12 @@ static int exynos_iommu_device_init(struct exynos_iommu_owner *owner)
- 
- 	iommu_device_set_ops(&owner->iommu, &exynos_iommu_ops);
- 
-+	/*
-+	 * the above iommu_device_set_ops is not enough, initializing fwspec
-+	 * is also required
-+	 */
-+	iommu_fwspec_init(dev, &dev->of_node->fwnode, &exynos_iommu_ops);
-+
- 	return 0;
- }
- 
-@@ -1308,7 +1304,7 @@ static int exynos_owner_init(struct device *dev)
- 	if (!owner)
- 		return -ENOMEM;
- 
--	ret = exynos_iommu_device_init(owner);
-+	ret = exynos_iommu_device_init(dev, owner);
- 	if (ret)
- 		goto out_free_owner;
- 
-@@ -1330,34 +1326,51 @@ static int exynos_owner_init(struct device *dev)
- 	return ret;
- }
- 
--static int exynos_iommu_of_xlate(struct device *dev,
--				 struct of_phandle_args *spec)
-+static int exynos_iommu_dev_match_owner(struct device *dev, const void *data)
-+{
-+	const struct device *sysmmu = data;
-+	struct device_node *np;
-+	int idx = 0;
-+
-+	do {
-+		np = of_parse_phandle(dev->of_node, "iommus", idx++);
-+		if (np == sysmmu->of_node)
-+			return true;
-+	} while (np);
-+
-+	return false;
-+}
-+
-+static int exynos_iommu_initialize_owner(struct device *sysmmu)
- {
--	struct platform_device *sysmmu = of_find_device_by_node(spec->np);
--	struct sysmmu_drvdata *data, *entry;
-+	struct sysmmu_drvdata *data = dev_get_drvdata(sysmmu);
- 	struct exynos_iommu_owner *owner;
-+	struct device *dev;
- 	int ret;
- 
--	if (!sysmmu)
-+	dev = bus_find_device(&platform_bus_type, NULL, sysmmu,
-+			      exynos_iommu_dev_match_owner);
-+	if (!dev)
- 		return -ENODEV;
- 
--	data = platform_get_drvdata(sysmmu);
--	if (!data)
--		return -ENODEV;
-+	dev_info(sysmmu, "found master device %s\n", dev_name(dev));
- 
- 	ret = exynos_owner_init(dev);
- 	if (ret)
- 		return ret;
- 
- 	owner = dev->archdata.iommu;
--
--	list_for_each_entry(entry, &owner->controllers, owner_node)
--		if (entry == data)
--			return 0;
--
- 	list_add_tail(&data->owner_node, &owner->controllers);
- 	data->master = dev;
- 
-+	/*
-+	 * SYSMMU will be runtime activated via device link
-+	 * (dependency) to its master device, so there are no
-+	 * direct calls to pm_runtime_get/put in this driver.
-+	 */
-+	data->link = device_link_add(dev, data->sysmmu,
-+				     DL_FLAG_STATELESS |
-+				     DL_FLAG_PM_RUNTIME);
- 	return 0;
- }
- 
-@@ -1373,7 +1386,6 @@ static int exynos_iommu_of_xlate(struct device *dev,
- 	.probe_device = exynos_iommu_probe_device,
- 	.release_device = exynos_iommu_release_device,
- 	.pgsize_bitmap = SECT_SIZE | LPAGE_SIZE | SPAGE_SIZE,
--	.of_xlate = exynos_iommu_of_xlate,
- };
- 
- static int __init exynos_iommu_init(void)
--- 
-1.9.1
+I don't quite understand why probe_device() is called too early, as it
+is called at the same time add_device() was called before. But anyway,
+I have seen a similar problem on OMAP. If the SYSMMU for a master is not
+probed yet when probe_device() is called, it can just return -ENODEV and
+in your driver you just call but_iommu_probe() when a new SYSMMU got
+initialized to re-probe uninitialized masters on the bus. This patch-set
+contains a change to export bus_iommu_probe() for exactly that reason.
+
+What do you think?
+
+Regards,
+
+	Joerg
