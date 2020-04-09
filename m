@@ -1,42 +1,81 @@
-From: Joerg Roedel <joro@8bytes.org>
-Subject: Re: [PATCH] iommu/exynos: Get rid of 'struct exynos_iommu_owner'
- exynos_iommu_owner
-Date: Thu, 9 Apr 2020 16:30:59 +0200
-Message-ID: <20200409143059.GP3103@8bytes.org>
-References: <20200407183742.4344-1-joro@8bytes.org>
- <CGME20200407184501eucas1p25407bc96e4345df406cf6ba061ae6a82@eucas1p2.samsung.com>
- <20200407183742.4344-32-joro@8bytes.org>
- <449e7f16-e719-9617-ec92-63b82c0bc33f@samsung.com>
- <f59b0bb3-8c08-9cc9-bb1a-e69b7b226f60@samsung.com>
- <20200409114620.GA16298@8bytes.org>
- <40af831b-d00c-0cf9-0a06-e60c048a9ab8@samsung.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH V9 9/9] virtio: Intel IFC VF driver for VDPA
+Date: Thu, 9 Apr 2020 16:25:15 -0400
+Message-ID: <20200409162427-mutt-send-email-mst@kernel.org>
+References: <20200326140125.19794-1-jasowang@redhat.com>
+ <20200326140125.19794-10-jasowang@redhat.com>
+ <CAK8P3a1RXUXs5oYjB=Jq5cpvG11eTnmJ+vc18_-0fzgTH6envA@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <40af831b-d00c-0cf9-0a06-e60c048a9ab8@samsung.com>
+In-Reply-To: <CAK8P3a1RXUXs5oYjB=Jq5cpvG11eTnmJ+vc18_-0fzgTH6envA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchi
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Jason Wang <jasowang@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org, Networking <netdev@vger.kernel.org>, Jason Gunthorpe <jgg@mellanox.com>, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, Parav Pandit <parav@mellanox.com>, kevin.tian@intel.com, Stefan Hajnoczi <stefanha@redhat.com>, Randy Dunlap <rdunlap@infradead.org>, Christoph Hellwig <hch@infradead.org>, aadam@redhat.com, Jiri Pirko <jiri@mellanox.com>, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Marek,
+On Thu, Apr 09, 2020 at 12:41:13PM +0200, Arnd Bergmann wrote:
+> On Thu, Mar 26, 2020 at 3:08 PM Jason Wang <jasowang@redhat.com> wrote:
+> >
+> > From: Zhu Lingshan <lingshan.zhu@intel.com>
+> >
+> > This commit introduced two layers to drive IFC VF:
+> >
+> > (1) ifcvf_base layer, which handles IFC VF NIC hardware operations and
+> >     configurations.
+> >
+> > (2) ifcvf_main layer, which complies to VDPA bus framework,
+> >     implemented device operations for VDPA bus, handles device probe,
+> >     bus attaching, vring operations, etc.
+> >
+> > Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+> > Signed-off-by: Bie Tiwei <tiwei.bie@intel.com>
+> > Signed-off-by: Wang Xiao <xiao.w.wang@intel.com>
+> > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> 
+> > +
+> > +#define IFCVF_QUEUE_ALIGNMENT  PAGE_SIZE
+> > +#define IFCVF_QUEUE_MAX                32768
+> > +static u16 ifcvf_vdpa_get_vq_align(struct vdpa_device *vdpa_dev)
+> > +{
+> > +       return IFCVF_QUEUE_ALIGNMENT;
+> > +}
+> 
+> This fails to build on arm64 with 64kb page size (found in linux-next):
+> 
+> /drivers/vdpa/ifcvf/ifcvf_main.c: In function 'ifcvf_vdpa_get_vq_align':
+> arch/arm64/include/asm/page-def.h:17:20: error: conversion from 'long
+> unsigned int' to 'u16' {aka 'short unsigned int'} changes value from
+> '65536' to '0' [-Werror=overflow]
+>    17 | #define PAGE_SIZE  (_AC(1, UL) << PAGE_SHIFT)
+>       |                    ^
+> drivers/vdpa/ifcvf/ifcvf_base.h:37:31: note: in expansion of macro 'PAGE_SIZE'
+>    37 | #define IFCVF_QUEUE_ALIGNMENT PAGE_SIZE
+>       |                               ^~~~~~~~~
+> drivers/vdpa/ifcvf/ifcvf_main.c:231:9: note: in expansion of macro
+> 'IFCVF_QUEUE_ALIGNMENT'
+>   231 |  return IFCVF_QUEUE_ALIGNMENT;
+>       |         ^~~~~~~~~~~~~~~~~~~~~
+> 
+> It's probably good enough to just not allow the driver to be built in that
+> configuration as it's fairly rare but unfortunately there is no simple Kconfig
+> symbol for it.
+> 
+> In a similar driver, we did
+> 
+> config VMXNET3
+>         tristate "VMware VMXNET3 ethernet driver"
+>         depends on PCI && INET
+>         depends on !(PAGE_SIZE_64KB || ARM64_64K_PAGES || \
+>                      IA64_PAGE_SIZE_64KB || MICROBLAZE_64K_PAGES || \
+>                      PARISC_PAGE_SIZE_64KB || PPC_64K_PAGES)
+> 
+> I think we should probably make PAGE_SIZE_64KB a global symbol
+> in arch/Kconfig and have it selected by the other symbols so drivers
+> like yours can add a dependency for it.
+> 
+>          Arnd
 
-On Thu, Apr 09, 2020 at 03:58:00PM +0200, Marek Szyprowski wrote:
-> The main problem after your conversion is the fact that ->probe_device() 
-> is called very early, before any other platform device (thus IOMMU 
-> controller) is is probed. It doesn't handle EPROBE_DEFER too.
-
-I don't quite understand why probe_device() is called too early, as it
-is called at the same time add_device() was called before. But anyway,
-I have seen a similar problem on OMAP. If the SYSMMU for a master is not
-probed yet when probe_device() is called, it can just return -ENODEV and
-in your driver you just call but_iommu_probe() when a new SYSMMU got
-initialized to re-probe uninitialized masters on the bus. This patch-set
-contains a change to export bus_iommu_probe() for exactly that reason.
-
-What do you think?
-
-Regards,
-
-	Joerg
+It's probably easier to make the alignment u32 - I don't really know why it's
+u16, all callers seem to assign the result to a u32 value.
