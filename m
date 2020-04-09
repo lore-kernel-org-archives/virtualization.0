@@ -1,38 +1,74 @@
-From: Jason Yan <yanaijie@huawei.com>
-Subject: [PATCH] virtio-balloon: make virtballoon_free_page_report() static
-Date: Thu, 9 Apr 2020 16:50:47 +0800
-Message-ID: <20200409085047.45483-1-yanaijie@huawei.com>
+From: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH V9 9/9] virtio: Intel IFC VF driver for VDPA
+Date: Thu, 9 Apr 2020 12:41:13 +0200
+Message-ID: <CAK8P3a1RXUXs5oYjB=Jq5cpvG11eTnmJ+vc18_-0fzgTH6envA@mail.gmail.com>
+References: <20200326140125.19794-1-jasowang@redhat.com> <20200326140125.19794-10-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200326140125.19794-10-jasowang@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Cc: Jason Yan <yanaijie@huawei.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org, Networking <netdev@vger.kernel.org>, Jason Gunthorpe <jgg@mellanox.com>, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, Parav Pandit <parav@mellanox.com>, kevin.tian@intel.com, Stefan Hajnoczi <stefanha@redhat.com>, Randy Dunlap <rdunlap@infradead.org>, Christoph Hellwig <hch@infradead.org>, aadam@redhat.com, Jiri Pirko <jiri@mellanox.com>, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@mar
 List-Id: virtualization@lists.linuxfoundation.org
 
-Fix the following sparse warning:
+On Thu, Mar 26, 2020 at 3:08 PM Jason Wang <jasowang@redhat.com> wrote:
+>
+> From: Zhu Lingshan <lingshan.zhu@intel.com>
+>
+> This commit introduced two layers to drive IFC VF:
+>
+> (1) ifcvf_base layer, which handles IFC VF NIC hardware operations and
+>     configurations.
+>
+> (2) ifcvf_main layer, which complies to VDPA bus framework,
+>     implemented device operations for VDPA bus, handles device probe,
+>     bus attaching, vring operations, etc.
+>
+> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+> Signed-off-by: Bie Tiwei <tiwei.bie@intel.com>
+> Signed-off-by: Wang Xiao <xiao.w.wang@intel.com>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-drivers/virtio/virtio_balloon.c:168:5: warning: symbol
-'virtballoon_free_page_report' was not declared. Should it be static?
+> +
+> +#define IFCVF_QUEUE_ALIGNMENT  PAGE_SIZE
+> +#define IFCVF_QUEUE_MAX                32768
+> +static u16 ifcvf_vdpa_get_vq_align(struct vdpa_device *vdpa_dev)
+> +{
+> +       return IFCVF_QUEUE_ALIGNMENT;
+> +}
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Jason Yan <yanaijie@huawei.com>
----
- drivers/virtio/virtio_balloon.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+This fails to build on arm64 with 64kb page size (found in linux-next):
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 0ef16566c3f3..8c964b3eebdf 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -165,7 +165,7 @@ static void tell_host(struct virtio_balloon *vb, struct virtqueue *vq)
- 
- }
- 
--int virtballoon_free_page_report(struct page_reporting_dev_info *pr_dev_info,
-+static int virtballoon_free_page_report(struct page_reporting_dev_info *pr_dev_info,
- 				   struct scatterlist *sg, unsigned int nents)
- {
- 	struct virtio_balloon *vb =
--- 
-2.17.2
+/drivers/vdpa/ifcvf/ifcvf_main.c: In function 'ifcvf_vdpa_get_vq_align':
+arch/arm64/include/asm/page-def.h:17:20: error: conversion from 'long
+unsigned int' to 'u16' {aka 'short unsigned int'} changes value from
+'65536' to '0' [-Werror=overflow]
+   17 | #define PAGE_SIZE  (_AC(1, UL) << PAGE_SHIFT)
+      |                    ^
+drivers/vdpa/ifcvf/ifcvf_base.h:37:31: note: in expansion of macro 'PAGE_SIZE'
+   37 | #define IFCVF_QUEUE_ALIGNMENT PAGE_SIZE
+      |                               ^~~~~~~~~
+drivers/vdpa/ifcvf/ifcvf_main.c:231:9: note: in expansion of macro
+'IFCVF_QUEUE_ALIGNMENT'
+  231 |  return IFCVF_QUEUE_ALIGNMENT;
+      |         ^~~~~~~~~~~~~~~~~~~~~
+
+It's probably good enough to just not allow the driver to be built in that
+configuration as it's fairly rare but unfortunately there is no simple Kconfig
+symbol for it.
+
+In a similar driver, we did
+
+config VMXNET3
+        tristate "VMware VMXNET3 ethernet driver"
+        depends on PCI && INET
+        depends on !(PAGE_SIZE_64KB || ARM64_64K_PAGES || \
+                     IA64_PAGE_SIZE_64KB || MICROBLAZE_64K_PAGES || \
+                     PARISC_PAGE_SIZE_64KB || PPC_64K_PAGES)
+
+I think we should probably make PAGE_SIZE_64KB a global symbol
+in arch/Kconfig and have it selected by the other symbols so drivers
+like yours can add a dependency for it.
+
+         Arnd
