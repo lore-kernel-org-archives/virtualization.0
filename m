@@ -1,74 +1,364 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH V9 9/9] virtio: Intel IFC VF driver for VDPA
-Date: Thu, 9 Apr 2020 12:41:13 +0200
-Message-ID: <CAK8P3a1RXUXs5oYjB=Jq5cpvG11eTnmJ+vc18_-0fzgTH6envA@mail.gmail.com>
-References: <20200326140125.19794-1-jasowang@redhat.com> <20200326140125.19794-10-jasowang@redhat.com>
+From: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
+Subject: [PATCH] iommu/exynos: Get rid of 'struct exynos_iommu_owner'
+ exynos_iommu_owner
+Date: Thu, 9 Apr 2020 13:46:20 +0200
+Message-ID: <20200409114620.GA16298@8bytes.org>
+References: <20200407183742.4344-1-joro@8bytes.org>
+ <CGME20200407184501eucas1p25407bc96e4345df406cf6ba061ae6a82@eucas1p2.samsung.com>
+ <20200407183742.4344-32-joro@8bytes.org>
+ <449e7f16-e719-9617-ec92-63b82c0bc33f@samsung.com>
+ <f59b0bb3-8c08-9cc9-bb1a-e69b7b226f60@samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200326140125.19794-10-jasowang@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org, Networking <netdev@vger.kernel.org>, Jason Gunthorpe <jgg@mellanox.com>, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, Parav Pandit <parav@mellanox.com>, kevin.tian@intel.com, Stefan Hajnoczi <stefanha@redhat.com>, Randy Dunlap <rdunlap@infradead.org>, Christoph Hellwig <hch@infradead.org>, aadam@redhat.com, Jiri Pirko <jiri@mellanox.com>, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@mar
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <f59b0bb3-8c08-9cc9-bb1a-e69b7b226f60-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Cc: Will Deacon <will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>, Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Lu Baolu <baolu.lu-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Gross <agross-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Clark <robdclark-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Gerald Schaefer <gerald.schaefer-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchi
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Mar 26, 2020 at 3:08 PM Jason Wang <jasowang@redhat.com> wrote:
->
-> From: Zhu Lingshan <lingshan.zhu@intel.com>
->
-> This commit introduced two layers to drive IFC VF:
->
-> (1) ifcvf_base layer, which handles IFC VF NIC hardware operations and
->     configurations.
->
-> (2) ifcvf_main layer, which complies to VDPA bus framework,
->     implemented device operations for VDPA bus, handles device probe,
->     bus attaching, vring operations, etc.
->
-> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
-> Signed-off-by: Bie Tiwei <tiwei.bie@intel.com>
-> Signed-off-by: Wang Xiao <xiao.w.wang@intel.com>
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+Hi Marek,
 
-> +
-> +#define IFCVF_QUEUE_ALIGNMENT  PAGE_SIZE
-> +#define IFCVF_QUEUE_MAX                32768
-> +static u16 ifcvf_vdpa_get_vq_align(struct vdpa_device *vdpa_dev)
-> +{
-> +       return IFCVF_QUEUE_ALIGNMENT;
-> +}
+I had some more thoughts and discussions with Robin about how to make
+this work with the Exynos driver. The result is the patch below, can you
+please test it and report back? Even better if you can fix up any
+breakage it might cause :)
 
-This fails to build on arm64 with 64kb page size (found in linux-next):
+From 60a288509baa34df6a0bf437c977925a0a617c72 Mon Sep 17 00:00:00 2001
+From: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
+Date: Thu, 9 Apr 2020 13:38:18 +0200
+Subject: [PATCH] iommu/exynos: Get rid of 'struct exynos_iommu_owner'
 
-/drivers/vdpa/ifcvf/ifcvf_main.c: In function 'ifcvf_vdpa_get_vq_align':
-arch/arm64/include/asm/page-def.h:17:20: error: conversion from 'long
-unsigned int' to 'u16' {aka 'short unsigned int'} changes value from
-'65536' to '0' [-Werror=overflow]
-   17 | #define PAGE_SIZE  (_AC(1, UL) << PAGE_SHIFT)
-      |                    ^
-drivers/vdpa/ifcvf/ifcvf_base.h:37:31: note: in expansion of macro 'PAGE_SIZE'
-   37 | #define IFCVF_QUEUE_ALIGNMENT PAGE_SIZE
-      |                               ^~~~~~~~~
-drivers/vdpa/ifcvf/ifcvf_main.c:231:9: note: in expansion of macro
-'IFCVF_QUEUE_ALIGNMENT'
-  231 |  return IFCVF_QUEUE_ALIGNMENT;
-      |         ^~~~~~~~~~~~~~~~~~~~~
+Remove 'struct exynos_iommu_owner' and replace it with a single-linked
+list of 'struct sysmmu_drvdata'. The first item in the list acts as a
+replacement for the previous exynos_iommu_owner structure. The
+iommu_device member of the first list item is reported to the IOMMU
+core code for the master device.
 
-It's probably good enough to just not allow the driver to be built in that
-configuration as it's fairly rare but unfortunately there is no simple Kconfig
-symbol for it.
+Signed-off-by: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
+---
+ drivers/iommu/exynos-iommu.c | 155 ++++++++++++++++++++---------------
+ 1 file changed, 88 insertions(+), 67 deletions(-)
 
-In a similar driver, we did
-
-config VMXNET3
-        tristate "VMware VMXNET3 ethernet driver"
-        depends on PCI && INET
-        depends on !(PAGE_SIZE_64KB || ARM64_64K_PAGES || \
-                     IA64_PAGE_SIZE_64KB || MICROBLAZE_64K_PAGES || \
-                     PARISC_PAGE_SIZE_64KB || PPC_64K_PAGES)
-
-I think we should probably make PAGE_SIZE_64KB a global symbol
-in arch/Kconfig and have it selected by the other symbols so drivers
-like yours can add a dependency for it.
-
-         Arnd
+diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
+index 186ff5cc975c..e70eb360093f 100644
+--- a/drivers/iommu/exynos-iommu.c
++++ b/drivers/iommu/exynos-iommu.c
+@@ -225,18 +225,6 @@ static const struct sysmmu_fault_info sysmmu_v5_faults[] = {
+ 	{ 20, REG_V5_FAULT_AW_VA, "AW SECURITY PROTECTION", IOMMU_FAULT_WRITE },
+ };
+ 
+-/*
+- * This structure is attached to dev.archdata.iommu of the master device
+- * on device add, contains a list of SYSMMU controllers defined by device tree,
+- * which are bound to given master device. It is usually referenced by 'owner'
+- * pointer.
+-*/
+-struct exynos_iommu_owner {
+-	struct list_head controllers;	/* list of sysmmu_drvdata.owner_node */
+-	struct iommu_domain *domain;	/* domain this device is attached */
+-	struct mutex rpm_lock;		/* for runtime pm of all sysmmus */
+-};
+-
+ /*
+  * This structure exynos specific generalization of struct iommu_domain.
+  * It contains list of SYSMMU controllers from all master devices, which has
+@@ -271,13 +259,23 @@ struct sysmmu_drvdata {
+ 	bool active;			/* current status */
+ 	struct exynos_iommu_domain *domain; /* domain we belong to */
+ 	struct list_head domain_node;	/* node for domain clients list */
+-	struct list_head owner_node;	/* node for owner controllers list */
++	struct sysmmu_drvdata *next;	/* Single-linked list to group SMMUs for
++					   one master. NULL means not in any
++					   list, ERR_PTR(-ENODEV) means end of
++					   list */
++	struct mutex rpm_lock;		/* for runtime pm of all sysmmus */
+ 	phys_addr_t pgtable;		/* assigned page table structure */
+ 	unsigned int version;		/* our version */
+ 
+ 	struct iommu_device iommu;	/* IOMMU core handle */
+ };
+ 
++/* Helper to iterate over all SYSMMUs for a given platform device */
++#define for_each_sysmmu(dev, drvdata)			\
++	for (drvdata = (dev)->archdata.iommu;		\
++	     drvdata != ERR_PTR(-ENODEV);		\
++	     drvdata = drvdata->next)
++
+ static struct exynos_iommu_domain *to_exynos_domain(struct iommu_domain *dom)
+ {
+ 	return container_of(dom, struct exynos_iommu_domain, domain);
+@@ -624,6 +622,8 @@ static int exynos_sysmmu_probe(struct platform_device *pdev)
+ 
+ 	data->sysmmu = dev;
+ 	spin_lock_init(&data->lock);
++	data->next = NULL;
++	mutex_init(&data->rpm_lock);
+ 
+ 	ret = iommu_device_sysfs_add(&data->iommu, &pdev->dev, NULL,
+ 				     dev_name(data->sysmmu));
+@@ -668,17 +668,20 @@ static int __maybe_unused exynos_sysmmu_suspend(struct device *dev)
+ {
+ 	struct sysmmu_drvdata *data = dev_get_drvdata(dev);
+ 	struct device *master = data->master;
++	struct sysmmu_drvdata *master_data;
+ 
+-	if (master) {
+-		struct exynos_iommu_owner *owner = master->archdata.iommu;
++	if (!master)
++		return 0;
+ 
+-		mutex_lock(&owner->rpm_lock);
+-		if (data->domain) {
+-			dev_dbg(data->sysmmu, "saving state\n");
+-			__sysmmu_disable(data);
+-		}
+-		mutex_unlock(&owner->rpm_lock);
++	master_data = master->archdata.iommu;
++
++	mutex_lock(&master_data->rpm_lock);
++	if (data->domain) {
++		dev_dbg(data->sysmmu, "saving state\n");
++		__sysmmu_disable(data);
+ 	}
++	mutex_unlock(&master_data->rpm_lock);
++
+ 	return 0;
+ }
+ 
+@@ -686,17 +689,20 @@ static int __maybe_unused exynos_sysmmu_resume(struct device *dev)
+ {
+ 	struct sysmmu_drvdata *data = dev_get_drvdata(dev);
+ 	struct device *master = data->master;
++	struct sysmmu_drvdata *master_data;
+ 
+-	if (master) {
+-		struct exynos_iommu_owner *owner = master->archdata.iommu;
++	if (!master)
++		return 0;
+ 
+-		mutex_lock(&owner->rpm_lock);
+-		if (data->domain) {
+-			dev_dbg(data->sysmmu, "restoring state\n");
+-			__sysmmu_enable(data);
+-		}
+-		mutex_unlock(&owner->rpm_lock);
++	master_data = master->archdata.iommu;
++
++	mutex_lock(&master_data->rpm_lock);
++	if (data->domain) {
++		dev_dbg(data->sysmmu, "restoring state\n");
++		__sysmmu_enable(data);
+ 	}
++	mutex_unlock(&master_data->rpm_lock);
++
+ 	return 0;
+ }
+ 
+@@ -834,21 +840,21 @@ static void exynos_iommu_domain_free(struct iommu_domain *iommu_domain)
+ 	kfree(domain);
+ }
+ 
+-static void exynos_iommu_detach_device(struct iommu_domain *iommu_domain,
+-				    struct device *dev)
++static void __exynos_iommu_detach_device(struct exynos_iommu_domain *domain,
++					 struct device *dev)
+ {
+-	struct exynos_iommu_owner *owner = dev->archdata.iommu;
+-	struct exynos_iommu_domain *domain = to_exynos_domain(iommu_domain);
+ 	phys_addr_t pagetable = virt_to_phys(domain->pgtable);
+-	struct sysmmu_drvdata *data, *next;
++	struct sysmmu_drvdata *dev_data, *data, *next;
+ 	unsigned long flags;
+ 
+-	if (!has_sysmmu(dev) || owner->domain != iommu_domain)
++	dev_data = dev->archdata.iommu;
++
++	if (!has_sysmmu(dev) || dev_data->domain != domain)
+ 		return;
+ 
+-	mutex_lock(&owner->rpm_lock);
++	mutex_lock(&dev_data->rpm_lock);
+ 
+-	list_for_each_entry(data, &owner->controllers, owner_node) {
++	for_each_sysmmu(dev, data) {
+ 		pm_runtime_get_noresume(data->sysmmu);
+ 		if (pm_runtime_active(data->sysmmu))
+ 			__sysmmu_disable(data);
+@@ -863,51 +869,59 @@ static void exynos_iommu_detach_device(struct iommu_domain *iommu_domain,
+ 		list_del_init(&data->domain_node);
+ 		spin_unlock(&data->lock);
+ 	}
+-	owner->domain = NULL;
+ 	spin_unlock_irqrestore(&domain->lock, flags);
+ 
+-	mutex_unlock(&owner->rpm_lock);
++	mutex_unlock(&dev_data->rpm_lock);
+ 
+ 	dev_dbg(dev, "%s: Detached IOMMU with pgtable %pa\n", __func__,
+ 		&pagetable);
+ }
+ 
++static void exynos_iommu_detach_device(struct iommu_domain *iommu_domain,
++				       struct device *dev)
++{
++	struct exynos_iommu_domain *domain = to_exynos_domain(iommu_domain);
++
++	__exynos_iommu_detach_device(domain, dev);
++}
++
+ static int exynos_iommu_attach_device(struct iommu_domain *iommu_domain,
+ 				   struct device *dev)
+ {
+-	struct exynos_iommu_owner *owner = dev->archdata.iommu;
+ 	struct exynos_iommu_domain *domain = to_exynos_domain(iommu_domain);
+-	struct sysmmu_drvdata *data;
++	struct sysmmu_drvdata *dev_data, *data;
+ 	phys_addr_t pagetable = virt_to_phys(domain->pgtable);
+ 	unsigned long flags;
+ 
+ 	if (!has_sysmmu(dev))
+ 		return -ENODEV;
+ 
+-	if (owner->domain)
+-		exynos_iommu_detach_device(owner->domain, dev);
++	dev_data = dev->archdata.iommu;
+ 
+-	mutex_lock(&owner->rpm_lock);
++	if (dev_data->domain)
++		__exynos_iommu_detach_device(dev_data->domain, dev);
++
++	mutex_lock(&dev_data->rpm_lock);
+ 
+ 	spin_lock_irqsave(&domain->lock, flags);
+-	list_for_each_entry(data, &owner->controllers, owner_node) {
++	for_each_sysmmu(dev, data) {
+ 		spin_lock(&data->lock);
+ 		data->pgtable = pagetable;
+ 		data->domain = domain;
+ 		list_add_tail(&data->domain_node, &domain->clients);
+ 		spin_unlock(&data->lock);
+ 	}
+-	owner->domain = iommu_domain;
+ 	spin_unlock_irqrestore(&domain->lock, flags);
+ 
+-	list_for_each_entry(data, &owner->controllers, owner_node) {
++
++	for_each_sysmmu(dev, data) {
+ 		pm_runtime_get_noresume(data->sysmmu);
+ 		if (pm_runtime_active(data->sysmmu))
+ 			__sysmmu_enable(data);
+ 		pm_runtime_put(data->sysmmu);
+ 	}
+ 
+-	mutex_unlock(&owner->rpm_lock);
++	mutex_unlock(&dev_data->rpm_lock);
+ 
+ 	dev_dbg(dev, "%s: Attached IOMMU with pgtable %pa\n", __func__,
+ 		&pagetable);
+@@ -1237,7 +1251,6 @@ static phys_addr_t exynos_iommu_iova_to_phys(struct iommu_domain *iommu_domain,
+ 
+ static int exynos_iommu_add_device(struct device *dev)
+ {
+-	struct exynos_iommu_owner *owner = dev->archdata.iommu;
+ 	struct sysmmu_drvdata *data;
+ 	struct iommu_group *group;
+ 
+@@ -1249,7 +1262,7 @@ static int exynos_iommu_add_device(struct device *dev)
+ 	if (IS_ERR(group))
+ 		return PTR_ERR(group);
+ 
+-	list_for_each_entry(data, &owner->controllers, owner_node) {
++	for_each_sysmmu(dev, data) {
+ 		/*
+ 		 * SYSMMU will be runtime activated via device link
+ 		 * (dependency) to its master device, so there are no
+@@ -1261,37 +1274,39 @@ static int exynos_iommu_add_device(struct device *dev)
+ 	}
+ 	iommu_group_put(group);
+ 
++	data = dev->archdata.iommu;
++	iommu_device_link(&data->iommu, dev);
++
+ 	return 0;
+ }
+ 
+ static void exynos_iommu_remove_device(struct device *dev)
+ {
+-	struct exynos_iommu_owner *owner = dev->archdata.iommu;
+-	struct sysmmu_drvdata *data;
++	struct sysmmu_drvdata *data = dev->archdata.iommu;
+ 
+ 	if (!has_sysmmu(dev))
+ 		return;
+ 
+-	if (owner->domain) {
++	if (data->domain) {
+ 		struct iommu_group *group = iommu_group_get(dev);
+ 
+ 		if (group) {
+-			WARN_ON(owner->domain !=
++			WARN_ON(&data->domain->domain !=
+ 				iommu_group_default_domain(group));
+-			exynos_iommu_detach_device(owner->domain, dev);
++			__exynos_iommu_detach_device(data->domain, dev);
+ 			iommu_group_put(group);
+ 		}
+ 	}
++	iommu_device_unlink(&data->iommu, dev);
+ 	iommu_group_remove_device(dev);
+ 
+-	list_for_each_entry(data, &owner->controllers, owner_node)
++	for_each_sysmmu(dev, data)
+ 		device_link_del(data->link);
+ }
+ 
+ static int exynos_iommu_of_xlate(struct device *dev,
+ 				 struct of_phandle_args *spec)
+ {
+-	struct exynos_iommu_owner *owner = dev->archdata.iommu;
+ 	struct platform_device *sysmmu = of_find_device_by_node(spec->np);
+ 	struct sysmmu_drvdata *data, *entry;
+ 
+@@ -1302,22 +1317,28 @@ static int exynos_iommu_of_xlate(struct device *dev,
+ 	if (!data)
+ 		return -ENODEV;
+ 
+-	if (!owner) {
+-		owner = kzalloc(sizeof(*owner), GFP_KERNEL);
+-		if (!owner)
+-			return -ENOMEM;
++	data->master = dev;
+ 
+-		INIT_LIST_HEAD(&owner->controllers);
+-		mutex_init(&owner->rpm_lock);
+-		dev->archdata.iommu = owner;
++	if (!dev->archdata.iommu) {
++		WARN_ON(data->next != NULL);
++
++		/* SYSMMU list is empty - add drvdata and return */
++		data->next = ERR_PTR(-ENODEV);
++		dev->archdata.iommu = data;
++
++		return 0;
+ 	}
+ 
+-	list_for_each_entry(entry, &owner->controllers, owner_node)
++	/* Check if SYSMMU is already in the list */
++	for_each_sysmmu(dev, entry)
+ 		if (entry == data)
+ 			return 0;
+ 
+-	list_add_tail(&data->owner_node, &owner->controllers);
+-	data->master = dev;
++	/* Not in the list yet */
++	WARN_ON(data->next != NULL);
++	entry = dev->archdata.iommu;
++	data->next  = entry->next;
++	entry->next = data;
+ 
+ 	return 0;
+ }
+-- 
+2.25.1
