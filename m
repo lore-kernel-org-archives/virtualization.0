@@ -1,64 +1,34 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] virtio-mmio: Delete an error message in vm_find_vqs()
-Date: Thu, 9 Apr 2020 11:19:20 +0800
-Message-ID: <03b19e72-0021-dc6b-77c4-ed3c4e13d526@redhat.com>
-References: <9e27bc4a-cfa1-7818-dc25-8ad308816b30@web.de>
+From: pr-tracker-bot@kernel.org
+Subject: Re: [GIT PULL] vhost: fixes, vdpa
+Date: Thu, 09 Apr 2020 04:05:25 +0000
+Message-ID: <158640512513.12302.5687148234965008608.pr-tracker-bot@kernel.org>
+References: <20200406171124-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-Return-path: <kernel-janitors-owner@vger.kernel.org>
-In-Reply-To: <9e27bc4a-cfa1-7818-dc25-8ad308816b30@web.de>
-Content-Language: en-US
-Sender: kernel-janitors-owner@vger.kernel.org
-To: Markus Elfring <Markus.Elfring@web.de>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org, Tang Bin <tangbin@cmss.chinamobile.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200406171124-mutt-send-email-mst@kernel.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Cc: rdunlap@infradead.org, tiwei.bie@intel.com, kvm@vger.kernel.org, netdev@vger.kernel.org, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, tysand@google.com, eperezma@redhat.com, xiao.w.wang@intel.com, namit@vmware.com, rientjes@google.com, yuri.benditovich@daynix.com, alexander.h.duyck@linux.intel.com, mhocko@kernel.org, Linus Torvalds <torvalds@linux-foundation.org>, lingshan.zhu@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+The pull request you sent on Mon, 6 Apr 2020 17:11:24 -0400:
 
-On 2020/4/6 =E4=B8=8A=E5=8D=881:19, Markus Elfring wrote:
-> From: Markus Elfring <elfring@users.sourceforge.net>
-> Date: Sun, 5 Apr 2020 19:14:10 +0200
->
-> The function =E2=80=9Cplatform_get_irq=E2=80=9D can log an error alread=
-y.
-> Thus omit a redundant message for the exception handling in the
-> calling function.
+> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/835a6a649d0dd1b1f46759eb60fff2f63ed253a7
 
-It looks to me that not all error path of platform_get_irq() were loggd.
+Thank you!
 
-And git grep told me there're other users of platform_get_irq() that=20
-check and log by themselves.
-
-Thanks
-
-
->
-> This issue was detected by using the Coccinelle software.
->
-> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
-> ---
->   drivers/virtio/virtio_mmio.c | 4 +---
->   1 file changed, 1 insertion(+), 3 deletions(-)
->
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.=
-c
-> index 97d5725fd9a2..9d16aaffca9d 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.c
-> @@ -466,10 +466,8 @@ static int vm_find_vqs(struct virtio_device *vdev,=
- unsigned nvqs,
->   	int irq =3D platform_get_irq(vm_dev->pdev, 0);
->   	int i, err, queue_idx =3D 0;
->
-> -	if (irq < 0) {
-> -		dev_err(&vdev->dev, "Cannot get IRQ resource\n");
-> +	if (irq < 0)
->   		return irq;
-> -	}
->
->   	err =3D request_irq(irq, vm_interrupt, IRQF_SHARED,
->   			dev_name(&vdev->dev), vm_dev);
-> --
-> 2.26.0
->
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.wiki.kernel.org/userdoc/prtracker
