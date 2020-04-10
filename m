@@ -1,42 +1,59 @@
-From: Ankur Arora <ankur.a.arora@oracle.com>
-Subject: Re: [RFC PATCH 00/26] Runtime paravirt patching
-Date: Fri, 10 Apr 2020 02:32:35 -0700
-Message-ID: <37d755a7-8fc9-8cc8-5627-027a8479b6c7@oracle.com>
-References: <20200408050323.4237-1-ankur.a.arora@oracle.com>
- <d7f8bff3-526a-6a84-2e81-677cfbac0111@suse.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH] vdpa-sim: depend on HAS_DMA
+Date: Fri, 10 Apr 2020 11:51:22 +0200
+Message-ID: <CAMuHMdXedy2knwgW7-tYB8-d=RaqpvQcoL-MQp3WAED-g1Xpkw@mail.gmail.com>
+References: <20200405081355.2870-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="UTF-8"
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <d7f8bff3-526a-6a84-2e81-677cfbac0111@suse.com>
-Content-Language: en-US
+In-Reply-To: <20200405081355.2870-1-mst@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>, linux-kernel@vger.kernel.org, x86@kernel.org
-Cc: peterz@infradead.org, hpa@zytor.com, jpoimboe@redhat.com, namit@vmware.com, mhiramat@kernel.org, bp@alien8.de, vkuznets@redhat.com, pbonzini@redhat.com, boris.ostrovsky@oracle.com, mihai.carabas@oracle.com, kvm@vger.kernel.org, xen-devel@lists.xenproject.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2020-04-08 5:28 a.m., Jürgen Groß wrote:
-> On 08.04.20 07:02, Ankur Arora wrote:
-[ snip ]
-> 
-> Quite a lot of code churn and hacks for a problem which should not
-> occur on a well administrated machine.
-Yeah, I agree the patch set is pretty large and clearly the NMI or
-the stop_machine() are completely out. That said, as I wrote in my
-other mail I think the problem is still worth solving.
+Hi Michael,
 
-> Especially the NMI dependencies make me not wanting to Ack this series.
-The NMI solution did turn out to be pretty ugly.
+On Sun, Apr 5, 2020 at 10:17 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> set_dma_ops isn't available on all architectures:
+>
+>         make ARCH=um
+> ...
+>
+>    drivers/vdpa/vdpa_sim/vdpa_sim.c: In function 'vdpasim_create':
+> >> drivers/vdpa/vdpa_sim/vdpa_sim.c:324:2: error: implicit declaration of function 'set_dma_ops'; did you mean 'set_groups'?
+> +[-Werror=implicit-function-declaration]
+>      set_dma_ops(dev, &vdpasim_dma_ops);
+>      ^~~~~~~~~~~
+>      set_groups
+>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-I was using it to solve two problems: avoid a deadlock where an NMI handler
-could use a lock while the stop_machine() thread is trying to rewrite the
-corresponding call-sites. And, needed to ensure that we don't lock
-and unlock using mismatched primitives.
+As this fixes the Sun-3 all{mod,yes}-config build, which has NO_DMA=y:
+Acked-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
+However, you may want to follow Christoph's suggestion instead.
 
-Thanks
-Ankur
+> --- a/drivers/vdpa/Kconfig
+> +++ b/drivers/vdpa/Kconfig
+> @@ -14,7 +14,7 @@ if VDPA_MENU
+>
+>  config VDPA_SIM
+>         tristate "vDPA device simulator"
+> -       depends on RUNTIME_TESTING_MENU
+> +       depends on RUNTIME_TESTING_MENU && HAS_DMA
+>         select VDPA
+>         select VHOST_RING
+>         select VHOST_IOTLB
 
-> 
-> 
-> Juergen
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
