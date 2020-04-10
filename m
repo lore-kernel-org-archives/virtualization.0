@@ -1,91 +1,104 @@
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH V9 8/9] vdpasim: vDPA device simulator
-Date: Fri, 10 Apr 2020 09:45:09 +0200
-Message-ID: <CAMuHMdUis3O_mJKOb2s=_=Zs61iHus5Aq74N3-xs7kmjN+egoQ@mail.gmail.com>
-References: <20200326140125.19794-1-jasowang@redhat.com> <20200326140125.19794-9-jasowang@redhat.com>
+Subject: Re: vhost: refine vhost and vringh kconfig
+Date: Fri, 10 Apr 2020 09:53:20 +0200
+Message-ID: <CAMuHMdUkff8XUrbHa90nGxa8Kj3HO9b2CRO57s3YZrSFPM51pg@mail.gmail.com>
+References: <git-mailbomb-linux-master-20c384f1ea1a0bc7320bc445c72dd02d2970d594@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20200326140125.19794-9-jasowang@redhat.com>
-Sender: netdev-owner@vger.kernel.org
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <git-mailbomb-linux-master-20c384f1ea1a0bc7320bc445c72dd02d2970d594@kernel.org>
+Sender: kvm-owner@vger.kernel.org
 To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, KVM list <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org, netdev <netdev@vger.kernel.org>, Jason Gunthorpe <jgg@mellanox.com>, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, Randy Dunlap <rdunlap@infradead.org>, Christoph Hellwig <hch@infradead.org>, aadam@redhat.com, Jiri Pirko <jiri@mellanox.com>, shahafs@mellanox.com, hanand@xilinx.com, Martin Habets <mhabets@solarflare.com>, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com, zhangweining@rui
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, KVM list <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 Hi Jason,
 
-On Thu, Mar 26, 2020 at 3:07 PM Jason Wang <jasowang@redhat.com> wrote:
-> This patch implements a software vDPA networking device. The datapath
-> is implemented through vringh and workqueue. The device has an on-chip
-> IOMMU which translates IOVA to PA. For kernel virtio drivers, vDPA
-> simulator driver provides dma_ops. For vhost driers, set_map() methods
-> of vdpa_config_ops is implemented to accept mappings from vhost.
+On Thu, Apr 9, 2020 at 6:04 AM Linux Kernel Mailing List
+<linux-kernel@vger.kernel.org> wrote:
+> Commit:     20c384f1ea1a0bc7320bc445c72dd02d2970d594
+> Parent:     5a6b4cc5b7a1892a8d7f63d6cbac6e0ae2a9d031
+> Refname:    refs/heads/master
+> Web:        https://git.kernel.org/torvalds/c/20c384f1ea1a0bc7320bc445c72dd02d2970d594
+> Author:     Jason Wang <jasowang@redhat.com>
+> AuthorDate: Thu Mar 26 22:01:17 2020 +0800
+> Committer:  Michael S. Tsirkin <mst@redhat.com>
+> CommitDate: Wed Apr 1 12:06:26 2020 -0400
 >
-> Currently, vDPA device simulator will loopback TX traffic to RX. So
-> the main use case for the device is vDPA feature testing, prototyping
-> and development.
+>     vhost: refine vhost and vringh kconfig
 >
-> Note, there's no management API implemented, a vDPA device will be
-> registered once the module is probed. We need to handle this in the
-> future development.
+>     Currently, CONFIG_VHOST depends on CONFIG_VIRTUALIZATION. But vhost is
+>     not necessarily for VM since it's a generic userspace and kernel
+>     communication protocol. Such dependency may prevent archs without
+>     virtualization support from using vhost.
 >
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
+>     To solve this, a dedicated vhost menu is created under drivers so
+>     CONIFG_VHOST can be decoupled out of CONFIG_VIRTUALIZATION.
+>
+>     While at it, also squash Kconfig.vringh into vhost Kconfig file. This
+>     avoids the trick of conditional inclusion from VOP or CAIF. Then it
+>     will be easier to introduce new vringh users and common dependency for
+>     both vringh and vhost.
+>
+>     Signed-off-by: Jason Wang <jasowang@redhat.com>
+>     Link: https://lore.kernel.org/r/20200326140125.19794-2-jasowang@redhat.com
+>     Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  arch/arm/kvm/Kconfig         |  2 --
+>  arch/arm64/kvm/Kconfig       |  2 --
+>  arch/mips/kvm/Kconfig        |  2 --
+>  arch/powerpc/kvm/Kconfig     |  2 --
+>  arch/s390/kvm/Kconfig        |  4 ----
+>  arch/x86/kvm/Kconfig         |  4 ----
+>  drivers/Kconfig              |  2 ++
+>  drivers/misc/mic/Kconfig     |  4 ----
+>  drivers/net/caif/Kconfig     |  4 ----
+>  drivers/vhost/Kconfig        | 28 +++++++++++++++++++++-------
+>  drivers/vhost/Kconfig.vringh |  6 ------
+>  11 files changed, 23 insertions(+), 37 deletions(-)
 
-This is now commit 2c53d0f64c06f458 ("vdpasim: vDPA device simulator").
-
-> --- a/drivers/virtio/vdpa/Kconfig
-> +++ b/drivers/virtio/vdpa/Kconfig
-> @@ -5,3 +5,22 @@ config VDPA
->           Enable this module to support vDPA device that uses a
->           datapath which complies with virtio specifications with
->           vendor specific control path.
+> --- a/drivers/vhost/Kconfig
+> +++ b/drivers/vhost/Kconfig
+> @@ -1,4 +1,23 @@
+>  # SPDX-License-Identifier: GPL-2.0-only
+> +config VHOST_RING
+> +       tristate
+> +       help
+> +         This option is selected by any driver which needs to access
+> +         the host side of a virtio ring.
 > +
-> +menuconfig VDPA_MENU
-> +       bool "VDPA drivers"
-> +       default n
+> +config VHOST
+> +       tristate
+> +       select VHOST_IOTLB
+> +       help
+> +         This option is selected by any driver which needs to access
+> +         the core of vhost.
+> +
+> +menuconfig VHOST_MENU
+> +       bool "VHOST drivers"
+> +       default y
 
-    *
-    * VDPA drivers
-    *
-    VDPA drivers (VDPA_MENU) [N/y/?] (NEW) ?
+Please do not use default y. Your subsystem is not special.
 
-    There is no help available for this option.
-    Symbol: VDPA_MENU [=n]
-    Type  : bool
-    Defined at drivers/vdpa/Kconfig:9
-     Prompt: VDPA drivers
-     Location:
-       -> Device Drivers
+> +
 
 I think this deserves a help text, so users know if they want to enable this
 option or not.
 
-I had a quick look, but couldn't find the meaning of "vdpa" in the whole kernel
-source tree.
-
 Thanks!
 
+> +if VHOST_MENU
 > +
-> +if VDPA_MENU
-> +
-> +config VDPA_SIM
-> +       tristate "vDPA device simulator"
-> +       depends on RUNTIME_TESTING_MENU
-> +       select VDPA
-> +       select VHOST_RING
-> +       default n
-> +       help
-> +         vDPA networking device simulator which loop TX traffic back
-> +         to RX. This device is used for testing, prototyping and
-> +         development of vDPA.
-> +
-> +endif # VDPA_MENU
+>  config VHOST_NET
+>         tristate "Host kernel accelerator for virtio net"
+>         depends on NET && EVENTFD && (TUN || !TUN) && (TAP || !TAP)
 
 Gr{oetje,eeting}s,
 
                         Geert
 
--- 
+
+--
 Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
 In personal conversations with technical people, I call myself a hacker. But
