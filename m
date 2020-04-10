@@ -1,82 +1,93 @@
-From: "Zhu, Lingshan" <lingshan.zhu@intel.com>
-Subject: Re: [PATCH] vdpa: allow a 32 bit vq alignment
-Date: Fri, 10 Apr 2020 14:24:37 +0800
-Message-ID: <1c164046-cc4c-f5fb-bed1-a650b5078b6f@intel.com>
-References: <20200409202825.10115-1-mst@redhat.com>
- <bed03b3a-ebc0-2a93-7e6b-8f884eab747b@redhat.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH V9 8/9] vdpasim: vDPA device simulator
+Date: Fri, 10 Apr 2020 09:45:09 +0200
+Message-ID: <CAMuHMdUis3O_mJKOb2s=_=Zs61iHus5Aq74N3-xs7kmjN+egoQ@mail.gmail.com>
+References: <20200326140125.19794-1-jasowang@redhat.com> <20200326140125.19794-9-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <bed03b3a-ebc0-2a93-7e6b-8f884eab747b@redhat.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Arnd Bergmann <arnd@arndb.de>, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20200326140125.19794-9-jasowang@redhat.com>
+Sender: netdev-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, KVM list <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org, netdev <netdev@vger.kernel.org>, Jason Gunthorpe <jgg@mellanox.com>, maxime.coquelin@redhat.com, cunming.liang@intel.com, zhihong.wang@intel.com, rob.miller@broadcom.com, xiao.w.wang@intel.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, parav@mellanox.com, kevin.tian@intel.com, stefanha@redhat.com, Randy Dunlap <rdunlap@infradead.org>, Christoph Hellwig <hch@infradead.org>, aadam@redhat.com, Jiri Pirko <jiri@mellanox.com>, shahafs@mellanox.com, hanand@xilinx.com, Martin Habets <mhabets@solarflare.com>, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com, zhangweining@rui
 List-Id: virtualization@lists.linuxfoundation.org
 
+Hi Jason,
 
-On 4/10/2020 2:21 PM, Jason Wang wrote:
-> Cc Ling Shan.
+On Thu, Mar 26, 2020 at 3:07 PM Jason Wang <jasowang@redhat.com> wrote:
+> This patch implements a software vDPA networking device. The datapath
+> is implemented through vringh and workqueue. The device has an on-chip
+> IOMMU which translates IOVA to PA. For kernel virtio drivers, vDPA
+> simulator driver provides dma_ops. For vhost driers, set_map() methods
+> of vdpa_config_ops is implemented to accept mappings from vhost.
 >
-> On 2020/4/10 上午4:28, Michael S. Tsirkin wrote:
->> get_vq_align returns u16 now, but that's not enough for
->> systems/devices with 64K pages. All callers assign it to
->> a u32 variable anyway, so let's just change the return
->> value type to u32.
->>
->> Cc: "Zhu, Lingshan" <lingshan.zhu@intel.com>
->> Reported-by: Arnd Bergmann <arnd@arndb.de>
->> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
->> ---
->>   drivers/vdpa/ifcvf/ifcvf_main.c  | 2 +-
->>   drivers/vdpa/vdpa_sim/vdpa_sim.c | 2 +-
->>   include/linux/vdpa.h             | 2 +-
->>   3 files changed, 3 insertions(+), 3 deletions(-)
->>
->> diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c 
->> b/drivers/vdpa/ifcvf/ifcvf_main.c
->> index 28d9e5de5675..abf6a061cab6 100644
->> --- a/drivers/vdpa/ifcvf/ifcvf_main.c
->> +++ b/drivers/vdpa/ifcvf/ifcvf_main.c
->> @@ -226,7 +226,7 @@ static u32 ifcvf_vdpa_get_vendor_id(struct 
->> vdpa_device *vdpa_dev)
->>       return IFCVF_SUBSYS_VENDOR_ID;
->>   }
->>   -static u16 ifcvf_vdpa_get_vq_align(struct vdpa_device *vdpa_dev)
->> +static u32 ifcvf_vdpa_get_vq_align(struct vdpa_device *vdpa_dev)
->>   {
->>       return IFCVF_QUEUE_ALIGNMENT;
->>   }
->> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c 
->> b/drivers/vdpa/vdpa_sim/vdpa_sim.c
->> index 72863d01a12a..7957d2d41fc4 100644
->> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
->> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
->> @@ -435,7 +435,7 @@ static u64 vdpasim_get_vq_state(struct 
->> vdpa_device *vdpa, u16 idx)
->>       return vrh->last_avail_idx;
->>   }
->>   -static u16 vdpasim_get_vq_align(struct vdpa_device *vdpa)
->> +static u32 vdpasim_get_vq_align(struct vdpa_device *vdpa)
->>   {
->>       return VDPASIM_QUEUE_ALIGN;
->>   }
->> diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
->> index 733acfb7ef84..5453af87a33e 100644
->> --- a/include/linux/vdpa.h
->> +++ b/include/linux/vdpa.h
->> @@ -164,7 +164,7 @@ struct vdpa_config_ops {
->>       u64 (*get_vq_state)(struct vdpa_device *vdev, u16 idx);
->>         /* Device ops */
->> -    u16 (*get_vq_align)(struct vdpa_device *vdev);
->> +    u32 (*get_vq_align)(struct vdpa_device *vdev);
->>       u64 (*get_features)(struct vdpa_device *vdev);
->>       int (*set_features)(struct vdpa_device *vdev, u64 features);
->>       void (*set_config_cb)(struct vdpa_device *vdev,
+> Currently, vDPA device simulator will loopback TX traffic to RX. So
+> the main use case for the device is vDPA feature testing, prototyping
+> and development.
 >
-looks good to me
+> Note, there's no management API implemented, a vDPA device will be
+> registered once the module is probed. We need to handle this in the
+> future development.
+>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-Thanks,
-BR
-Zhu Lingshan
+This is now commit 2c53d0f64c06f458 ("vdpasim: vDPA device simulator").
+
+> --- a/drivers/virtio/vdpa/Kconfig
+> +++ b/drivers/virtio/vdpa/Kconfig
+> @@ -5,3 +5,22 @@ config VDPA
+>           Enable this module to support vDPA device that uses a
+>           datapath which complies with virtio specifications with
+>           vendor specific control path.
+> +
+> +menuconfig VDPA_MENU
+> +       bool "VDPA drivers"
+> +       default n
+
+    *
+    * VDPA drivers
+    *
+    VDPA drivers (VDPA_MENU) [N/y/?] (NEW) ?
+
+    There is no help available for this option.
+    Symbol: VDPA_MENU [=n]
+    Type  : bool
+    Defined at drivers/vdpa/Kconfig:9
+     Prompt: VDPA drivers
+     Location:
+       -> Device Drivers
+
+I think this deserves a help text, so users know if they want to enable this
+option or not.
+
+I had a quick look, but couldn't find the meaning of "vdpa" in the whole kernel
+source tree.
+
+Thanks!
+
+> +
+> +if VDPA_MENU
+> +
+> +config VDPA_SIM
+> +       tristate "vDPA device simulator"
+> +       depends on RUNTIME_TESTING_MENU
+> +       select VDPA
+> +       select VHOST_RING
+> +       default n
+> +       help
+> +         vDPA networking device simulator which loop TX traffic back
+> +         to RX. This device is used for testing, prototyping and
+> +         development of vDPA.
+> +
+> +endif # VDPA_MENU
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
