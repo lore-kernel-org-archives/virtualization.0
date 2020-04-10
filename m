@@ -1,68 +1,267 @@
-From: Ankur Arora <ankur.a.arora@oracle.com>
-Subject: Re: [RFC PATCH 00/26] Runtime paravirt patching
-Date: Fri, 10 Apr 2020 02:55:44 -0700
-Message-ID: <c13ce409-790d-18dd-d941-673e9bb797c3@oracle.com>
-References: <20200408050323.4237-1-ankur.a.arora@oracle.com>
- <87k12qawwl.fsf@nanos.tec.linutronix.de>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
+Subject: Re: [RFC PATCH 33/34] iommu: Remove add_device()/remove_device()
+ code-paths
+Date: Fri, 10 Apr 2020 12:39:38 +0200
+Message-ID: <1a88547f-ac90-825e-e529-a56c2c4e0391@samsung.com>
+References: <20200407183742.4344-1-joro@8bytes.org>
+        <CGME20200407183806eucas1p2cf45fbce5a43a6b4fe3a623b28da0606@eucas1p2.samsung.com>
+        <20200407183742.4344-34-joro@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <87k12qawwl.fsf@nanos.tec.linutronix.de>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200407183742.4344-34-joro@8bytes.org>
 Content-Language: en-US
-Sender: kvm-owner@vger.kernel.org
-To: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org, x86@kernel.org
-Cc: peterz@infradead.org, hpa@zytor.com, jpoimboe@redhat.com, namit@vmware.com, mhiramat@kernel.org, jgross@suse.com, bp@alien8.de, vkuznets@redhat.com, pbonzini@redhat.com, boris.ostrovsky@oracle.com, mihai.carabas@oracle.com, kvm@vger.kernel.org, xen-devel@lists.xenproject.org, virtualization@lists.linux-foundation.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2020-04-08 7:12 a.m., Thomas Gleixner wrote:
-> Ankur Arora <ankur.a.arora@oracle.com> writes:
->> A KVM host (or another hypervisor) might advertise paravirtualized
->> features and optimization hints (ex KVM_HINTS_REALTIME) which might
->> become stale over the lifetime of the guest. For instance, the
->> host might go from being undersubscribed to being oversubscribed
->> (or the other way round) and it would make sense for the guest
->> switch pv-ops based on that.
-> 
-> If your host changes his advertised behaviour then you want to fix the
-> host setup or find a competent admin.
-> 
->> This lockorture splat that I saw on the guest while testing this is
->> indicative of the problem:
->>
->>    [ 1136.461522] watchdog: BUG: soft lockup - CPU#8 stuck for 22s! [lock_torture_wr:12865]
->>    [ 1136.461542] CPU: 8 PID: 12865 Comm: lock_torture_wr Tainted: G W L 5.4.0-rc7+ #77
->>    [ 1136.461546] RIP: 0010:native_queued_spin_lock_slowpath+0x15/0x220
->>
->> (Caused by an oversubscribed host but using mismatched native pv_lock_ops
->> on the gues.)
-> 
-> And this illustrates what? The fact that you used a misconfigured setup.
-> 
->> This series addresses the problem by doing paravirt switching at
->> runtime.
-> 
-> You're not addressing the problem. Your fixing the symptom, which is
-> wrong to begin with.
-> 
->> The alternative use-case is a runtime version of apply_alternatives()
->> (not posted with this patch-set) that can be used for some safe subset
->> of X86_FEATUREs. This could be useful in conjunction with the ongoing
->> late microcode loading work that Mihai Carabas and others have been
->> working on.
-> 
-> This has been discussed to death before and there is no safe subset as
-> long as this hasn't been resolved:
-> 
->    https://lore.kernel.org/lkml/alpine.DEB.2.21.1909062237580.1902@nanos.tec.linutronix.de/
-Thanks. I was thinking of fairly limited subset: ex re-evaluate
-X86_FEATURE_ALWAYS to make sure static_cpu_has() reflects reality
-but I guess that has second order effects here.
+Hi Joerg
 
-Ankur
+On 07.04.2020 20:37, Joerg Roedel wrote:
+> From: Joerg Roedel <jroedel@suse.de>
+>
+> All drivers are converted to use the probe/release_device()
+> call-backs, so the add_device/remove_device() pointers are unused and
+> the code using them can be removed.
+>
+> Signed-off-by: Joerg Roedel <jroedel@suse.de>
+> ---
+>   drivers/iommu/iommu.c | 145 ++++++++----------------------------------
+>   include/linux/iommu.h |   4 --
+>   2 files changed, 27 insertions(+), 122 deletions(-)
+>
+> diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+> index cf25c1e48830..d9032f9d597c 100644
+> --- a/drivers/iommu/iommu.c
+> +++ b/drivers/iommu/iommu.c
+> @@ -220,7 +220,7 @@ static int __iommu_probe_device(struct device *dev, struct list_head *group_list
+>   	return ret;
+>   }
+>   
+> -static int __iommu_probe_device_helper(struct device *dev)
+> +int iommu_probe_device(struct device *dev)
+>   {
+>   	const struct iommu_ops *ops = dev->bus->iommu_ops;
+>   	struct iommu_group *group;
+> @@ -264,70 +264,17 @@ static int __iommu_probe_device_helper(struct device *dev)
+>   
+>   }
+>   
+> -int iommu_probe_device(struct device *dev)
+> +void iommu_release_device(struct device *dev)
+>   {
+>   	const struct iommu_ops *ops = dev->bus->iommu_ops;
+> -	struct iommu_group *group;
+> -	int ret;
+> -
+> -	WARN_ON(dev->iommu_group);
+> -
+> -	if (!ops)
+> -		return -EINVAL;
+> -
+> -	if (!dev_iommu_get(dev))
+> -		return -ENOMEM;
+> -
+> -	if (!try_module_get(ops->owner)) {
+> -		ret = -EINVAL;
+> -		goto err_free_dev_param;
+> -	}
+> -
+> -	if (ops->probe_device)
+> -		return __iommu_probe_device_helper(dev);
+> -
+> -	ret = ops->add_device(dev);
+> -	if (ret)
+> -		goto err_module_put;
+>   
+> -	group = iommu_group_get(dev);
+> -	iommu_create_device_direct_mappings(group, dev);
+> -	iommu_group_put(group);
+> -
+> -	if (ops->probe_finalize)
+> -		ops->probe_finalize(dev);
+> -
+> -	return 0;
+> -
+> -err_module_put:
+> -	module_put(ops->owner);
+> -err_free_dev_param:
+> -	dev_iommu_free(dev);
+> -	return ret;
+> -}
+> -
+> -static void __iommu_release_device(struct device *dev)
+> -{
+> -	const struct iommu_ops *ops = dev->bus->iommu_ops;
+> +	if (!dev->iommu)
+> +		return;
+>   
+>   	iommu_device_unlink(dev->iommu->iommu_dev, dev);
+> -
+>   	iommu_group_remove_device(dev);
+>   
+>   	ops->release_device(dev);
+> -}
+> -
+> -void iommu_release_device(struct device *dev)
+> -{
+> -	const struct iommu_ops *ops = dev->bus->iommu_ops;
+> -
+> -	if (!dev->iommu)
+> -		return;
+> -
+> -	if (ops->release_device)
+> -		__iommu_release_device(dev);
+> -	else if (dev->iommu_group)
+> -		ops->remove_device(dev);
+>   
+>   	module_put(ops->owner);
+>   	dev_iommu_free(dev);
+> @@ -1560,23 +1507,6 @@ struct iommu_group *iommu_group_get_for_dev(struct device *dev)
+>   	if (ret)
+>   		goto out_put_group;
+>   
+> -	/*
+> -	 * Try to allocate a default domain - needs support from the
+> -	 * IOMMU driver. There are still some drivers which don't support
+> -	 * default domains, so the return value is not yet checked. Only
+> -	 * allocate the domain here when the driver still has the
+> -	 * add_device/remove_device call-backs implemented.
+> -	 */
+> -	if (!ops->probe_device) {
+> -		iommu_alloc_default_domain(dev);
+> -
+> -		if (group->default_domain)
+> -			ret = __iommu_attach_device(group->default_domain, dev);
+> -
+> -		if (ret)
+> -			goto out_put_group;
+> -	}
+> -
+>   	return group;
+>   
+>   out_put_group:
+> @@ -1591,21 +1521,6 @@ struct iommu_domain *iommu_group_default_domain(struct iommu_group *group)
+>   	return group->default_domain;
+>   }
+>   
+> -static int add_iommu_group(struct device *dev, void *data)
+> -{
+> -	int ret = iommu_probe_device(dev);
+> -
+> -	/*
+> -	 * We ignore -ENODEV errors for now, as they just mean that the
+> -	 * device is not translated by an IOMMU. We still care about
+> -	 * other errors and fail to initialize when they happen.
+> -	 */
+> -	if (ret == -ENODEV)
+> -		ret = 0;
+> -
+> -	return ret;
+> -}
+> -
+>   static int probe_iommu_group(struct device *dev, void *data)
+>   {
+>   	const struct iommu_ops *ops = dev->bus->iommu_ops;
+> @@ -1789,45 +1704,39 @@ static int iommu_group_create_direct_mappings(struct iommu_group *group)
+>   
+>   int bus_iommu_probe(struct bus_type *bus)
+>   {
+> -	const struct iommu_ops *ops = bus->iommu_ops;
+> +	struct iommu_group *group, *next;
+> +	LIST_HEAD(group_list);
+>   	int ret;
+>   
+> -	if (ops->probe_device) {
+> -		struct iommu_group *group, *next;
+> -		LIST_HEAD(group_list);
+> -
+> -		/*
+> -		 * This code-path does not allocate the default domain when
+> -		 * creating the iommu group, so do it after the groups are
+> -		 * created.
+> -		 */
+> -		ret = bus_for_each_dev(bus, NULL, &group_list, probe_iommu_group);
+> -		if (ret)
+> -			return ret;
+> +	/*
+> +	 * This code-path does not allocate the default domain when
+> +	 * creating the iommu group, so do it after the groups are
+> +	 * created.
+> +	 */
+> +	ret = bus_for_each_dev(bus, NULL, &group_list, probe_iommu_group);
+> +	if (ret)
+> +		return ret;
+>   
+> -		list_for_each_entry_safe(group, next, &group_list, entry) {
+> -			/* Remove item from the list */
+> -			list_del_init(&group->entry);
+> +	list_for_each_entry_safe(group, next, &group_list, entry) {
+> +		/* Remove item from the list */
+> +		list_del_init(&group->entry);
+>   
+> -			mutex_lock(&group->mutex);
+> +		mutex_lock(&group->mutex);
+>   
+> -			/* Try to allocate default domain */
+> -			probe_alloc_default_domain(bus, group);
+> +		/* Try to allocate default domain */
+> +		probe_alloc_default_domain(bus, group);
+>   
+> -			if (!group->default_domain)
+> -				continue;
+> +		if (!group->default_domain)
+> +			continue;
 
-> 
-> Thanks,
-> 
->          tglx
-> 
+It doesn't look straight from the above diff, but this continue leaks 
+group->lock taken.
+
+>   
+> -			iommu_group_create_direct_mappings(group);
+> +		iommu_group_create_direct_mappings(group);
+>   
+> -			ret = __iommu_group_dma_attach(group);
+> +		ret = __iommu_group_dma_attach(group);
+>   
+> -			mutex_unlock(&group->mutex);
+> +		mutex_unlock(&group->mutex);
+>   
+> -			if (ret)
+> -				break;
+> -		}
+> -	} else {
+> -		ret = bus_for_each_dev(bus, NULL, NULL, add_iommu_group);
+> +		if (ret)
+> +			break;
+>   	}
+>   
+>   	return ret;
+> diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+> index fea1622408ad..dd076366383f 100644
+> --- a/include/linux/iommu.h
+> +++ b/include/linux/iommu.h
+> @@ -223,8 +223,6 @@ struct iommu_iotlb_gather {
+>    * @iotlb_sync: Flush all queued ranges from the hardware TLBs and empty flush
+>    *            queue
+>    * @iova_to_phys: translate iova to physical address
+> - * @add_device: add device to iommu grouping
+> - * @remove_device: remove device from iommu grouping
+>    * @probe_device: Add device to iommu driver handling
+>    * @release_device: Remove device from iommu driver handling
+>    * @probe_finalize: Do final setup work after the device is added to an IOMMU
+> @@ -277,8 +275,6 @@ struct iommu_ops {
+>   	void (*iotlb_sync)(struct iommu_domain *domain,
+>   			   struct iommu_iotlb_gather *iotlb_gather);
+>   	phys_addr_t (*iova_to_phys)(struct iommu_domain *domain, dma_addr_t iova);
+> -	int (*add_device)(struct device *dev);
+> -	void (*remove_device)(struct device *dev);
+>   	struct iommu_device *(*probe_device)(struct device *dev);
+>   	void (*release_device)(struct device *dev);
+>   	void (*probe_finalize)(struct device *dev);
+
+Best regards
+-- 
+Marek Szyprowski, PhD
+Samsung R&D Institute Poland
