@@ -1,267 +1,47 @@
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-Subject: Re: [RFC PATCH 33/34] iommu: Remove add_device()/remove_device()
- code-paths
-Date: Fri, 10 Apr 2020 12:39:38 +0200
-Message-ID: <1a88547f-ac90-825e-e529-a56c2c4e0391@samsung.com>
-References: <20200407183742.4344-1-joro@8bytes.org>
-        <CGME20200407183806eucas1p2cf45fbce5a43a6b4fe3a623b28da0606@eucas1p2.samsung.com>
-        <20200407183742.4344-34-joro@8bytes.org>
+From: YueHaibing <yuehaibing@huawei.com>
+Subject: [PATCH -next] vdpasim: remove unused variable 'ret'
+Date: Fri, 10 Apr 2020 19:54:22 +0800
+Message-ID: <20200410115422.42308-1-yuehaibing@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200407183742.4344-34-joro@8bytes.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: mst@redhat.com, jasowang@redhat.com, yuehaibing@huawei.com
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Joerg
-
-On 07.04.2020 20:37, Joerg Roedel wrote:
-> From: Joerg Roedel <jroedel@suse.de>
->
-> All drivers are converted to use the probe/release_device()
-> call-backs, so the add_device/remove_device() pointers are unused and
-> the code using them can be removed.
->
-> Signed-off-by: Joerg Roedel <jroedel@suse.de>
-> ---
->   drivers/iommu/iommu.c | 145 ++++++++----------------------------------
->   include/linux/iommu.h |   4 --
->   2 files changed, 27 insertions(+), 122 deletions(-)
->
-> diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-> index cf25c1e48830..d9032f9d597c 100644
-> --- a/drivers/iommu/iommu.c
-> +++ b/drivers/iommu/iommu.c
-> @@ -220,7 +220,7 @@ static int __iommu_probe_device(struct device *dev, struct list_head *group_list
->   	return ret;
->   }
->   
-> -static int __iommu_probe_device_helper(struct device *dev)
-> +int iommu_probe_device(struct device *dev)
->   {
->   	const struct iommu_ops *ops = dev->bus->iommu_ops;
->   	struct iommu_group *group;
-> @@ -264,70 +264,17 @@ static int __iommu_probe_device_helper(struct device *dev)
->   
->   }
->   
-> -int iommu_probe_device(struct device *dev)
-> +void iommu_release_device(struct device *dev)
->   {
->   	const struct iommu_ops *ops = dev->bus->iommu_ops;
-> -	struct iommu_group *group;
-> -	int ret;
-> -
-> -	WARN_ON(dev->iommu_group);
-> -
-> -	if (!ops)
-> -		return -EINVAL;
-> -
-> -	if (!dev_iommu_get(dev))
-> -		return -ENOMEM;
-> -
-> -	if (!try_module_get(ops->owner)) {
-> -		ret = -EINVAL;
-> -		goto err_free_dev_param;
-> -	}
-> -
-> -	if (ops->probe_device)
-> -		return __iommu_probe_device_helper(dev);
-> -
-> -	ret = ops->add_device(dev);
-> -	if (ret)
-> -		goto err_module_put;
->   
-> -	group = iommu_group_get(dev);
-> -	iommu_create_device_direct_mappings(group, dev);
-> -	iommu_group_put(group);
-> -
-> -	if (ops->probe_finalize)
-> -		ops->probe_finalize(dev);
-> -
-> -	return 0;
-> -
-> -err_module_put:
-> -	module_put(ops->owner);
-> -err_free_dev_param:
-> -	dev_iommu_free(dev);
-> -	return ret;
-> -}
-> -
-> -static void __iommu_release_device(struct device *dev)
-> -{
-> -	const struct iommu_ops *ops = dev->bus->iommu_ops;
-> +	if (!dev->iommu)
-> +		return;
->   
->   	iommu_device_unlink(dev->iommu->iommu_dev, dev);
-> -
->   	iommu_group_remove_device(dev);
->   
->   	ops->release_device(dev);
-> -}
-> -
-> -void iommu_release_device(struct device *dev)
-> -{
-> -	const struct iommu_ops *ops = dev->bus->iommu_ops;
-> -
-> -	if (!dev->iommu)
-> -		return;
-> -
-> -	if (ops->release_device)
-> -		__iommu_release_device(dev);
-> -	else if (dev->iommu_group)
-> -		ops->remove_device(dev);
->   
->   	module_put(ops->owner);
->   	dev_iommu_free(dev);
-> @@ -1560,23 +1507,6 @@ struct iommu_group *iommu_group_get_for_dev(struct device *dev)
->   	if (ret)
->   		goto out_put_group;
->   
-> -	/*
-> -	 * Try to allocate a default domain - needs support from the
-> -	 * IOMMU driver. There are still some drivers which don't support
-> -	 * default domains, so the return value is not yet checked. Only
-> -	 * allocate the domain here when the driver still has the
-> -	 * add_device/remove_device call-backs implemented.
-> -	 */
-> -	if (!ops->probe_device) {
-> -		iommu_alloc_default_domain(dev);
-> -
-> -		if (group->default_domain)
-> -			ret = __iommu_attach_device(group->default_domain, dev);
-> -
-> -		if (ret)
-> -			goto out_put_group;
-> -	}
-> -
->   	return group;
->   
->   out_put_group:
-> @@ -1591,21 +1521,6 @@ struct iommu_domain *iommu_group_default_domain(struct iommu_group *group)
->   	return group->default_domain;
->   }
->   
-> -static int add_iommu_group(struct device *dev, void *data)
-> -{
-> -	int ret = iommu_probe_device(dev);
-> -
-> -	/*
-> -	 * We ignore -ENODEV errors for now, as they just mean that the
-> -	 * device is not translated by an IOMMU. We still care about
-> -	 * other errors and fail to initialize when they happen.
-> -	 */
-> -	if (ret == -ENODEV)
-> -		ret = 0;
-> -
-> -	return ret;
-> -}
-> -
->   static int probe_iommu_group(struct device *dev, void *data)
->   {
->   	const struct iommu_ops *ops = dev->bus->iommu_ops;
-> @@ -1789,45 +1704,39 @@ static int iommu_group_create_direct_mappings(struct iommu_group *group)
->   
->   int bus_iommu_probe(struct bus_type *bus)
->   {
-> -	const struct iommu_ops *ops = bus->iommu_ops;
-> +	struct iommu_group *group, *next;
-> +	LIST_HEAD(group_list);
->   	int ret;
->   
-> -	if (ops->probe_device) {
-> -		struct iommu_group *group, *next;
-> -		LIST_HEAD(group_list);
-> -
-> -		/*
-> -		 * This code-path does not allocate the default domain when
-> -		 * creating the iommu group, so do it after the groups are
-> -		 * created.
-> -		 */
-> -		ret = bus_for_each_dev(bus, NULL, &group_list, probe_iommu_group);
-> -		if (ret)
-> -			return ret;
-> +	/*
-> +	 * This code-path does not allocate the default domain when
-> +	 * creating the iommu group, so do it after the groups are
-> +	 * created.
-> +	 */
-> +	ret = bus_for_each_dev(bus, NULL, &group_list, probe_iommu_group);
-> +	if (ret)
-> +		return ret;
->   
-> -		list_for_each_entry_safe(group, next, &group_list, entry) {
-> -			/* Remove item from the list */
-> -			list_del_init(&group->entry);
-> +	list_for_each_entry_safe(group, next, &group_list, entry) {
-> +		/* Remove item from the list */
-> +		list_del_init(&group->entry);
->   
-> -			mutex_lock(&group->mutex);
-> +		mutex_lock(&group->mutex);
->   
-> -			/* Try to allocate default domain */
-> -			probe_alloc_default_domain(bus, group);
-> +		/* Try to allocate default domain */
-> +		probe_alloc_default_domain(bus, group);
->   
-> -			if (!group->default_domain)
-> -				continue;
-> +		if (!group->default_domain)
-> +			continue;
-
-It doesn't look straight from the above diff, but this continue leaks 
-group->lock taken.
-
->   
-> -			iommu_group_create_direct_mappings(group);
-> +		iommu_group_create_direct_mappings(group);
->   
-> -			ret = __iommu_group_dma_attach(group);
-> +		ret = __iommu_group_dma_attach(group);
->   
-> -			mutex_unlock(&group->mutex);
-> +		mutex_unlock(&group->mutex);
->   
-> -			if (ret)
-> -				break;
-> -		}
-> -	} else {
-> -		ret = bus_for_each_dev(bus, NULL, NULL, add_iommu_group);
-> +		if (ret)
-> +			break;
->   	}
->   
->   	return ret;
-> diff --git a/include/linux/iommu.h b/include/linux/iommu.h
-> index fea1622408ad..dd076366383f 100644
-> --- a/include/linux/iommu.h
-> +++ b/include/linux/iommu.h
-> @@ -223,8 +223,6 @@ struct iommu_iotlb_gather {
->    * @iotlb_sync: Flush all queued ranges from the hardware TLBs and empty flush
->    *            queue
->    * @iova_to_phys: translate iova to physical address
-> - * @add_device: add device to iommu grouping
-> - * @remove_device: remove device from iommu grouping
->    * @probe_device: Add device to iommu driver handling
->    * @release_device: Remove device from iommu driver handling
->    * @probe_finalize: Do final setup work after the device is added to an IOMMU
-> @@ -277,8 +275,6 @@ struct iommu_ops {
->   	void (*iotlb_sync)(struct iommu_domain *domain,
->   			   struct iommu_iotlb_gather *iotlb_gather);
->   	phys_addr_t (*iova_to_phys)(struct iommu_domain *domain, dma_addr_t iova);
-> -	int (*add_device)(struct device *dev);
-> -	void (*remove_device)(struct device *dev);
->   	struct iommu_device *(*probe_device)(struct device *dev);
->   	void (*release_device)(struct device *dev);
->   	void (*probe_finalize)(struct device *dev);
-
-Best regards
--- 
-Marek Szyprowski, PhD
-Samsung R&D Institute Poland
+ZHJpdmVycy92ZHBhL3ZkcGFfc2ltL3ZkcGFfc2ltLmM6OTI6Njogd2FybmluZzoKIHZhcmlhYmxl
+IOKAmHJldOKAmSBzZXQgYnV0IG5vdCB1c2VkIFstV3VudXNlZC1idXQtc2V0LXZhcmlhYmxlXQoK
+U2lnbmVkLW9mZi1ieTogWXVlSGFpYmluZyA8eXVlaGFpYmluZ0BodWF3ZWkuY29tPgotLS0KIGRy
+aXZlcnMvdmRwYS92ZHBhX3NpbS92ZHBhX3NpbS5jIHwgMTUgKysrKysrKy0tLS0tLS0tCiAxIGZp
+bGUgY2hhbmdlZCwgNyBpbnNlcnRpb25zKCspLCA4IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBh
+L2RyaXZlcnMvdmRwYS92ZHBhX3NpbS92ZHBhX3NpbS5jIGIvZHJpdmVycy92ZHBhL3ZkcGFfc2lt
+L3ZkcGFfc2ltLmMKaW5kZXggNzk1N2QyZDQxZmM0Li4wMWM0NTZmN2MxZjcgMTAwNjQ0Ci0tLSBh
+L2RyaXZlcnMvdmRwYS92ZHBhX3NpbS92ZHBhX3NpbS5jCisrKyBiL2RyaXZlcnMvdmRwYS92ZHBh
+X3NpbS92ZHBhX3NpbS5jCkBAIC04OSwxNSArODksMTQgQEAgc3RhdGljIHN0cnVjdCB2ZHBhc2lt
+ICpkZXZfdG9fc2ltKHN0cnVjdCBkZXZpY2UgKmRldikKIHN0YXRpYyB2b2lkIHZkcGFzaW1fcXVl
+dWVfcmVhZHkoc3RydWN0IHZkcGFzaW0gKnZkcGFzaW0sIHVuc2lnbmVkIGludCBpZHgpCiB7CiAJ
+c3RydWN0IHZkcGFzaW1fdmlydHF1ZXVlICp2cSA9ICZ2ZHBhc2ltLT52cXNbaWR4XTsKLQlpbnQg
+cmV0OwogCi0JcmV0ID0gdnJpbmdoX2luaXRfaW90bGIoJnZxLT52cmluZywgdmRwYXNpbV9mZWF0
+dXJlcywKLQkJCQlWRFBBU0lNX1FVRVVFX01BWCwgZmFsc2UsCi0JCQkJKHN0cnVjdCB2cmluZ19k
+ZXNjICopKHVpbnRwdHJfdCl2cS0+ZGVzY19hZGRyLAotCQkJCShzdHJ1Y3QgdnJpbmdfYXZhaWwg
+KikKLQkJCQkodWludHB0cl90KXZxLT5kcml2ZXJfYWRkciwKLQkJCQkoc3RydWN0IHZyaW5nX3Vz
+ZWQgKikKLQkJCQkodWludHB0cl90KXZxLT5kZXZpY2VfYWRkcik7CisJdnJpbmdoX2luaXRfaW90
+bGIoJnZxLT52cmluZywgdmRwYXNpbV9mZWF0dXJlcywKKwkJCSAgVkRQQVNJTV9RVUVVRV9NQVgs
+IGZhbHNlLAorCQkJICAoc3RydWN0IHZyaW5nX2Rlc2MgKikodWludHB0cl90KXZxLT5kZXNjX2Fk
+ZHIsCisJCQkgIChzdHJ1Y3QgdnJpbmdfYXZhaWwgKikKKwkJCSAgKHVpbnRwdHJfdCl2cS0+ZHJp
+dmVyX2FkZHIsCisJCQkgIChzdHJ1Y3QgdnJpbmdfdXNlZCAqKQorCQkJICAodWludHB0cl90KXZx
+LT5kZXZpY2VfYWRkcik7CiB9CiAKIHN0YXRpYyB2b2lkIHZkcGFzaW1fdnFfcmVzZXQoc3RydWN0
+IHZkcGFzaW1fdmlydHF1ZXVlICp2cSkKLS0gCjIuMTcuMQoKCl9fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
+aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
+bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
