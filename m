@@ -1,11 +1,13 @@
-From: YueHaibing <yuehaibing@huawei.com>
-Subject: [PATCH -next] vdpasim: remove unused variable 'ret'
-Date: Fri, 10 Apr 2020 19:54:22 +0800
-Message-ID: <20200410115422.42308-1-yuehaibing@huawei.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
+Subject: Re: [GIT PULL] vhost: fixes, vdpa
+Date: Sat, 11 Apr 2020 09:38:05 -0700
+Message-ID: <CAHk-=wg7sMywb2V8gifhpUDE=DWQTvg1wDieKVc0UoOSsOrynw@mail.gmail.com>
+References: <20200406171124-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200406171124-mutt-send-email-mst@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,33 +17,27 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: mst@redhat.com, jasowang@redhat.com, yuehaibing@huawei.com
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: tiwei.bie@intel.com, KVM list <kvm@vger.kernel.org>, Netdev <netdev@vger.kernel.org>, Randy Dunlap <rdunlap@infradead.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, tysand@google.com, eperezma@redhat.com, xiao.w.wang@intel.com, Nadav Amit <namit@vmware.com>, David Rientjes <rientjes@google.com>, yuri.benditovich@daynix.com, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Michal Hocko <mhocko@kernel.org>, lingshan.zhu@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-ZHJpdmVycy92ZHBhL3ZkcGFfc2ltL3ZkcGFfc2ltLmM6OTI6Njogd2FybmluZzoKIHZhcmlhYmxl
-IOKAmHJldOKAmSBzZXQgYnV0IG5vdCB1c2VkIFstV3VudXNlZC1idXQtc2V0LXZhcmlhYmxlXQoK
-U2lnbmVkLW9mZi1ieTogWXVlSGFpYmluZyA8eXVlaGFpYmluZ0BodWF3ZWkuY29tPgotLS0KIGRy
-aXZlcnMvdmRwYS92ZHBhX3NpbS92ZHBhX3NpbS5jIHwgMTUgKysrKysrKy0tLS0tLS0tCiAxIGZp
-bGUgY2hhbmdlZCwgNyBpbnNlcnRpb25zKCspLCA4IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBh
-L2RyaXZlcnMvdmRwYS92ZHBhX3NpbS92ZHBhX3NpbS5jIGIvZHJpdmVycy92ZHBhL3ZkcGFfc2lt
-L3ZkcGFfc2ltLmMKaW5kZXggNzk1N2QyZDQxZmM0Li4wMWM0NTZmN2MxZjcgMTAwNjQ0Ci0tLSBh
-L2RyaXZlcnMvdmRwYS92ZHBhX3NpbS92ZHBhX3NpbS5jCisrKyBiL2RyaXZlcnMvdmRwYS92ZHBh
-X3NpbS92ZHBhX3NpbS5jCkBAIC04OSwxNSArODksMTQgQEAgc3RhdGljIHN0cnVjdCB2ZHBhc2lt
-ICpkZXZfdG9fc2ltKHN0cnVjdCBkZXZpY2UgKmRldikKIHN0YXRpYyB2b2lkIHZkcGFzaW1fcXVl
-dWVfcmVhZHkoc3RydWN0IHZkcGFzaW0gKnZkcGFzaW0sIHVuc2lnbmVkIGludCBpZHgpCiB7CiAJ
-c3RydWN0IHZkcGFzaW1fdmlydHF1ZXVlICp2cSA9ICZ2ZHBhc2ltLT52cXNbaWR4XTsKLQlpbnQg
-cmV0OwogCi0JcmV0ID0gdnJpbmdoX2luaXRfaW90bGIoJnZxLT52cmluZywgdmRwYXNpbV9mZWF0
-dXJlcywKLQkJCQlWRFBBU0lNX1FVRVVFX01BWCwgZmFsc2UsCi0JCQkJKHN0cnVjdCB2cmluZ19k
-ZXNjICopKHVpbnRwdHJfdCl2cS0+ZGVzY19hZGRyLAotCQkJCShzdHJ1Y3QgdnJpbmdfYXZhaWwg
-KikKLQkJCQkodWludHB0cl90KXZxLT5kcml2ZXJfYWRkciwKLQkJCQkoc3RydWN0IHZyaW5nX3Vz
-ZWQgKikKLQkJCQkodWludHB0cl90KXZxLT5kZXZpY2VfYWRkcik7CisJdnJpbmdoX2luaXRfaW90
-bGIoJnZxLT52cmluZywgdmRwYXNpbV9mZWF0dXJlcywKKwkJCSAgVkRQQVNJTV9RVUVVRV9NQVgs
-IGZhbHNlLAorCQkJICAoc3RydWN0IHZyaW5nX2Rlc2MgKikodWludHB0cl90KXZxLT5kZXNjX2Fk
-ZHIsCisJCQkgIChzdHJ1Y3QgdnJpbmdfYXZhaWwgKikKKwkJCSAgKHVpbnRwdHJfdCl2cS0+ZHJp
-dmVyX2FkZHIsCisJCQkgIChzdHJ1Y3QgdnJpbmdfdXNlZCAqKQorCQkJICAodWludHB0cl90KXZx
-LT5kZXZpY2VfYWRkcik7CiB9CiAKIHN0YXRpYyB2b2lkIHZkcGFzaW1fdnFfcmVzZXQoc3RydWN0
-IHZkcGFzaW1fdmlydHF1ZXVlICp2cSkKLS0gCjIuMTcuMQoKCl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
-aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
-bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Mon, Apr 6, 2020 at 2:11 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> The new vdpa subsystem with two first drivers.
+
+So this one is really annoying to configure.
+
+First it asks for vDPA driver for virtio devices (VIRTIO_VDPA) support.
+
+If you say 'n', it then asks *again* for VDPA drivers (VDPA_MENU).
+
+And then when you say 'n' to *that* it asks you for Vhost driver for
+vDPA-based backend (VHOST_VDPA).
+
+This kind of crazy needs to stop.
+
+Doing kernel configuration is not supposed to be like some truly
+horrendously boring Colossal Cave Adventure game where you have to
+search for a way out of maze of twisty little passages, all alike.
+
+                Linus
