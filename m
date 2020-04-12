@@ -1,27 +1,36 @@
 From: kbuild test robot <lkp@intel.com>
 Subject: [vhost:vhost 54/54] drivers/virtio/Kconfig:49: syntax error
-Date: Sun, 12 Apr 2020 19:37:20 +0800
-Message-ID: <202004121907.Djq7hPBe%lkp@intel.com>
+Date: Sun, 12 Apr 2020 19:44:28 +0800
+Message-ID: <202004121905.c0e81F5r%lkp@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <netdev-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-Sender: netdev-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kbuild-all@lists.01.org, clang-built-linux@googlegroups.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: netdev@vger.kernel.org, kbuild-all@lists.01.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 tree:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost
 head:   e282a85dc20e6d5da055e65c48aae15cc14897c7
 commit: e282a85dc20e6d5da055e65c48aae15cc14897c7 [54/54] vdpa: make vhost, virtio depend on menu
-config: powerpc-defconfig
-compiler: clang version 11.0.0 (https://github.com/llvm/llvm-project 4e86e5eedc684453fe0af6eca2ebdbff33db012c)
+config: s390-randconfig-a001-20200412
+compiler: s390-linux-gcc (GCC) 9.3.0
 reproduce:
         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
         chmod +x ~/bin/make.cross
         git checkout e282a85dc20e6d5da055e65c48aae15cc14897c7
-        COMPILER=clang make.cross ARCH=powerpc  defconfig
-        COMPILER=clang make.cross ARCH=powerpc 
+        GCC_VERSION=9.3.0 make.cross ARCH=s390  randconfig
+        GCC_VERSION=9.3.0 make.cross ARCH=s390 
 
 If you fix the issue, kindly add following tag as appropriate
 Reported-by: kbuild test robot <lkp@intel.com>
@@ -43,30 +52,10 @@ All errors (new ones prefixed by >>):
    drivers/virtio/Kconfig:57:warning: ignoring unsupported character ','
    drivers/virtio/Kconfig:57:warning: ignoring unsupported character '.'
 >> drivers/virtio/Kconfig:57: unknown statement "If"
-   make[2]: *** [scripts/kconfig/Makefile:85: defconfig] Error 1
-   make[1]: *** [Makefile:568: defconfig] Error 2
-   make: *** [Makefile:180: sub-make] Error 2
-   4 real  1 user  1 sys  59.31% cpu 	make defconfig
---
->> drivers/virtio/Kconfig:49: syntax error
->> drivers/virtio/Kconfig:48: unknown statement "depend"
->> drivers/virtio/Kconfig:49: invalid statement
-   drivers/virtio/Kconfig:50: invalid statement
->> drivers/virtio/Kconfig:51: unknown statement "This"
-   drivers/virtio/Kconfig:52:warning: ignoring unsupported character '.'
-   drivers/virtio/Kconfig:52:warning: ignoring unsupported character ','
->> drivers/virtio/Kconfig:52: unknown statement "device"
->> drivers/virtio/Kconfig:53: unknown statement "an"
->> drivers/virtio/Kconfig:54: unknown statement "physical"
-   drivers/virtio/Kconfig:55:warning: ignoring unsupported character '.'
->> drivers/virtio/Kconfig:55: unknown statement "offloaded"
-   drivers/virtio/Kconfig:57:warning: ignoring unsupported character ','
-   drivers/virtio/Kconfig:57:warning: ignoring unsupported character '.'
->> drivers/virtio/Kconfig:57: unknown statement "If"
    make[2]: *** [scripts/kconfig/Makefile:75: oldconfig] Error 1
    make[1]: *** [Makefile:568: oldconfig] Error 2
    make: *** [Makefile:180: sub-make] Error 2
-   4 real  1 user  1 sys  66.71% cpu 	make oldconfig
+   4 real  1 user  0 sys  35.45% cpu 	make oldconfig
 --
 >> drivers/virtio/Kconfig:49: syntax error
 >> drivers/virtio/Kconfig:48: unknown statement "depend"
@@ -86,7 +75,7 @@ All errors (new ones prefixed by >>):
    make[2]: *** [scripts/kconfig/Makefile:75: olddefconfig] Error 1
    make[1]: *** [Makefile:568: olddefconfig] Error 2
    make: *** [Makefile:180: sub-make] Error 2
-   4 real  1 user  1 sys  66.26% cpu 	make olddefconfig
+   5 real  1 user  0 sys  28.87% cpu 	make olddefconfig
 
 vim +49 drivers/virtio/Kconfig
 
