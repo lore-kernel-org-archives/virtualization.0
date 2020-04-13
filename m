@@ -1,79 +1,36 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v2] vdpa: make vhost, virtio depend on menu
-Date: Mon, 13 Apr 2020 11:57:44 +0800
-Message-ID: <1ccf929a-99fc-55ad-3613-146186399c2c@redhat.com>
-References: <20200412125018.74964-1-mst@redhat.com>
+Subject: [PATCH] vdpa: fix comment of vdpa_register_device()
+Date: Mon, 13 Apr 2020 17:37:38 +0800
+Message-ID: <20200413093738.28467-1-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200412125018.74964-1-mst@redhat.com>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: mst@redhat.com, jasowang@redhat.com
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, eli@mellanox.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMjAvNC8xMiDkuIvljYg4OjUwLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gSWYg
-dXNlciBkaWQgbm90IGNvbmZpZ3VyZSBhbnkgdmRwYSBkcml2ZXJzLCBuZWl0aGVyIHZob3N0Cj4g
-bm9yIHZpcnRpbyB2ZHBhIGFyZSBnb2luZyB0byBiZSB1c2VmdWwuIFNvIHRoZXJlJ3Mgbm8gcG9p
-bnQKPiBpbiBwcm9tcHRpbmcgZm9yIHRoZXNlIGFuZCBzZWxlY3RpbmcgdmRwYSBjb3JlIGF1dG9t
-YXRpY2FsbHkuCj4gU2ltcGxpZnkgY29uZmlndXJhdGlvbiBieSBtYWtpbmcgdmlydGlvIGFuZCB2
-aG9zdCB2ZHBhCj4gZHJpdmVycyBkZXBlbmQgb24gdmRwYSBtZW51IGVudHJ5LiBPbmNlIGRvbmUs
-IHdlIG5vIGxvbmdlcgo+IG5lZWQgYSBzZXBhcmF0ZSBtZW51IGVudHJ5LCBzbyBhbHNvIGdldCBy
-aWQgb2YgdGhpcy4KPiBXaGlsZSBhdCBpdCwgZml4IHVwIHRoZSBJRkMgZW50cnk6IFZEUEEtPnZE
-UEEgZm9yIGNvbnNpc3RlbmN5Cj4gd2l0aCBvdGhlciBwbGFjZXMuCj4KPiBTaWduZWQtb2ZmLWJ5
-OiBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgoKCkFja2VkLWJ5OiBKYXNvbiBX
-YW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgoKCj4gLS0tCj4KPiBjaGFuZ2VzIGZyb20gdjE6Cj4g
-CWZpeCB1cCB2aXJ0aW8gdmRwYSBLY29uZmlnCj4KPiAgIGRyaXZlcnMvdmRwYS9LY29uZmlnICAg
-fCAxNiArKysrKy0tLS0tLS0tLS0tCj4gICBkcml2ZXJzL3Zob3N0L0tjb25maWcgIHwgIDIgKy0K
-PiAgIGRyaXZlcnMvdmlydGlvL0tjb25maWcgfCAgMiArLQo+ICAgMyBmaWxlcyBjaGFuZ2VkLCA3
-IGluc2VydGlvbnMoKyksIDEzIGRlbGV0aW9ucygtKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMv
-dmRwYS9LY29uZmlnIGIvZHJpdmVycy92ZHBhL0tjb25maWcKPiBpbmRleCBkMGNiMGU1ODNhNWQu
-LjcxZDlhNjRmMmM3ZCAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3ZkcGEvS2NvbmZpZwo+ICsrKyBi
-L2RyaXZlcnMvdmRwYS9LY29uZmlnCj4gQEAgLTEsMjEgKzEsMTYgQEAKPiAgICMgU1BEWC1MaWNl
-bnNlLUlkZW50aWZpZXI6IEdQTC0yLjAtb25seQo+IC1jb25maWcgVkRQQQo+IC0JdHJpc3RhdGUK
-PiArbWVudWNvbmZpZyBWRFBBCj4gKwl0cmlzdGF0ZSAidkRQQSBkcml2ZXJzIgo+ICAgCWhlbHAK
-PiAgIAkgIEVuYWJsZSB0aGlzIG1vZHVsZSB0byBzdXBwb3J0IHZEUEEgZGV2aWNlIHRoYXQgdXNl
-cyBhCj4gICAJICBkYXRhcGF0aCB3aGljaCBjb21wbGllcyB3aXRoIHZpcnRpbyBzcGVjaWZpY2F0
-aW9ucyB3aXRoCj4gICAJICB2ZW5kb3Igc3BlY2lmaWMgY29udHJvbCBwYXRoLgo+ICAgCj4gLW1l
-bnVjb25maWcgVkRQQV9NRU5VCj4gLQlib29sICJWRFBBIGRyaXZlcnMiCj4gLQlkZWZhdWx0IG4K
-PiAtCj4gLWlmIFZEUEFfTUVOVQo+ICtpZiBWRFBBCj4gICAKPiAgIGNvbmZpZyBWRFBBX1NJTQo+
-ICAgCXRyaXN0YXRlICJ2RFBBIGRldmljZSBzaW11bGF0b3IiCj4gICAJZGVwZW5kcyBvbiBSVU5U
-SU1FX1RFU1RJTkdfTUVOVSAmJiBIQVNfRE1BCj4gLQlzZWxlY3QgVkRQQQo+ICAgCXNlbGVjdCBW
-SE9TVF9SSU5HCj4gICAJc2VsZWN0IFZIT1NUX0lPVExCCj4gICAJZGVmYXVsdCBuCj4gQEAgLTI1
-LDkgKzIwLDggQEAgY29uZmlnIFZEUEFfU0lNCj4gICAJICBkZXZlbG9wbWVudCBvZiB2RFBBLgo+
-ICAgCj4gICBjb25maWcgSUZDVkYKPiAtCXRyaXN0YXRlICJJbnRlbCBJRkMgVkYgVkRQQSBkcml2
-ZXIiCj4gKwl0cmlzdGF0ZSAiSW50ZWwgSUZDIFZGIHZEUEEgZHJpdmVyIgo+ICAgCWRlcGVuZHMg
-b24gUENJX01TSQo+IC0Jc2VsZWN0IFZEUEEKPiAgIAlkZWZhdWx0IG4KPiAgIAloZWxwCj4gICAJ
-ICBUaGlzIGtlcm5lbCBtb2R1bGUgY2FuIGRyaXZlIEludGVsIElGQyBWRiBOSUMgdG8gb2ZmbG9h
-ZAo+IEBAIC0zNSw0ICsyOSw0IEBAIGNvbmZpZyBJRkNWRgo+ICAgCSAgVG8gY29tcGlsZSB0aGlz
-IGRyaXZlciBhcyBhIG1vZHVsZSwgY2hvb3NlIE0gaGVyZTogdGhlIG1vZHVsZSB3aWxsCj4gICAJ
-ICBiZSBjYWxsZWQgaWZjdmYuCj4gICAKPiAtZW5kaWYgIyBWRFBBX01FTlUKPiArZW5kaWYgIyBW
-RFBBCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3QvS2NvbmZpZyBiL2RyaXZlcnMvdmhvc3Qv
-S2NvbmZpZwo+IGluZGV4IGNiNmIxNzMyM2ViMi4uZTc5Y2JiZGZlYTQ1IDEwMDY0NAo+IC0tLSBh
-L2RyaXZlcnMvdmhvc3QvS2NvbmZpZwo+ICsrKyBiL2RyaXZlcnMvdmhvc3QvS2NvbmZpZwo+IEBA
-IC02NCw3ICs2NCw3IEBAIGNvbmZpZyBWSE9TVF9WRFBBCj4gICAJdHJpc3RhdGUgIlZob3N0IGRy
-aXZlciBmb3IgdkRQQS1iYXNlZCBiYWNrZW5kIgo+ICAgCWRlcGVuZHMgb24gRVZFTlRGRAo+ICAg
-CXNlbGVjdCBWSE9TVAo+IC0Jc2VsZWN0IFZEUEEKPiArCWRlcGVuZHMgb24gVkRQQQo+ICAgCWhl
-bHAKPiAgIAkgIFRoaXMga2VybmVsIG1vZHVsZSBjYW4gYmUgbG9hZGVkIGluIGhvc3Qga2VybmVs
-IHRvIGFjY2VsZXJhdGUKPiAgIAkgIGd1ZXN0IHZpcnRpbyBkZXZpY2VzIHdpdGggdGhlIHZEUEEt
-YmFzZWQgYmFja2VuZHMuCj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmlydGlvL0tjb25maWcgYi9k
-cml2ZXJzL3ZpcnRpby9LY29uZmlnCj4gaW5kZXggMmFhZGYzOThkOGNjLi4zOTVjM2Y0ZDQ5Y2Ig
-MTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92aXJ0aW8vS2NvbmZpZwo+ICsrKyBiL2RyaXZlcnMvdmly
-dGlvL0tjb25maWcKPiBAQCAtNDUsNyArNDUsNyBAQCBjb25maWcgVklSVElPX1BDSV9MRUdBQ1kK
-PiAgIAo+ICAgY29uZmlnIFZJUlRJT19WRFBBCj4gICAJdHJpc3RhdGUgInZEUEEgZHJpdmVyIGZv
-ciB2aXJ0aW8gZGV2aWNlcyIKPiAtCXNlbGVjdCBWRFBBCj4gKwlkZXBlbmRzIG9uIFZEUEEKPiAg
-IAlzZWxlY3QgVklSVElPCj4gICAJaGVscAo+ICAgCSAgVGhpcyBkcml2ZXIgcHJvdmlkZXMgc3Vw
-cG9ydCBmb3IgdmlydGlvIGJhc2VkIHBhcmF2aXJ0dWFsCgpfX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
-dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
-eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+The function should be called only after a success calling for
+vdpa_alloc_device().
+
+Reported-by: Eli Cohen <eli@mellanox.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vdpa/vdpa.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+index e9ed6a2b635b..ff6562f602e0 100644
+--- a/drivers/vdpa/vdpa.c
++++ b/drivers/vdpa/vdpa.c
+@@ -116,7 +116,7 @@ EXPORT_SYMBOL_GPL(__vdpa_alloc_device);
+=20
+ /**
+  * vdpa_register_device - register a vDPA device
+- * Callers must have a succeed call of vdpa_init_device() before.
++ * Callers must have a succeed call of vdpa_alloc_device() before.
+  * @vdev: the vdpa device to be registered to vDPA bus
+  *
+  * Returns an error when fail to add to vDPA bus
+--=20
+2.20.1
