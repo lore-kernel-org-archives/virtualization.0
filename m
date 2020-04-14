@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
-Subject: [PATCH v2 31/33] iommu/exynos: Convert to probe/release_device() call-backs
-Date: Tue, 14 Apr 2020 15:15:40 +0200
-Message-ID: <20200414131542.25608-32-joro@8bytes.org>
+Subject: [PATCH v2 33/33] iommu: Unexport iommu_group_get_for_dev()
+Date: Tue, 14 Apr 2020 15:15:42 +0200
+Message-ID: <20200414131542.25608-34-joro@8bytes.org>
 References: <20200414131542.25608-1-joro@8bytes.org>
 Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <20200414131542.25608-1-joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
@@ -12,87 +12,55 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
 
-Convert the Exynos IOMMU driver to use the probe_device() and
-release_device() call-backs of iommu_ops, so that the iommu core code
-does the group and sysfs setup.
+The function is now only used in IOMMU core code and shouldn't be used
+outside of it anyway, so remove the export for it.
 
 Signed-off-by: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
 ---
- drivers/iommu/exynos-iommu.c | 26 ++++++--------------------
- 1 file changed, 6 insertions(+), 20 deletions(-)
+ drivers/iommu/iommu.c | 4 ++--
+ include/linux/iommu.h | 1 -
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
-index 09cdd163560a..60c8a56e4a3f 100644
---- a/drivers/iommu/exynos-iommu.c
-+++ b/drivers/iommu/exynos-iommu.c
-@@ -1235,19 +1235,13 @@ static phys_addr_t exynos_iommu_iova_to_phys(struct iommu_domain *iommu_domain,
- 	return phys;
- }
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 9a7120746b8e..e9413732c61e 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -91,6 +91,7 @@ static void __iommu_detach_group(struct iommu_domain *domain,
+ 				 struct iommu_group *group);
+ static int iommu_create_device_direct_mappings(struct iommu_group *group,
+ 					       struct device *dev);
++static struct iommu_group *iommu_group_get_for_dev(struct device *dev);
  
--static int exynos_iommu_add_device(struct device *dev)
-+static struct iommu_device *exynos_iommu_probe_device(struct device *dev)
+ #define IOMMU_GROUP_ATTR(_name, _mode, _show, _store)		\
+ struct iommu_group_attribute iommu_group_attr_##_name =		\
+@@ -1483,7 +1484,7 @@ static int iommu_alloc_default_domain(struct device *dev)
+  * to the returned IOMMU group, which will already include the provided
+  * device.  The reference should be released with iommu_group_put().
+  */
+-struct iommu_group *iommu_group_get_for_dev(struct device *dev)
++static struct iommu_group *iommu_group_get_for_dev(struct device *dev)
  {
- 	struct exynos_iommu_owner *owner = dev->archdata.iommu;
- 	struct sysmmu_drvdata *data;
--	struct iommu_group *group;
+ 	const struct iommu_ops *ops = dev->bus->iommu_ops;
+ 	struct iommu_group *group;
+@@ -1514,7 +1515,6 @@ struct iommu_group *iommu_group_get_for_dev(struct device *dev)
  
- 	if (!has_sysmmu(dev))
--		return -ENODEV;
--
--	group = iommu_group_get_for_dev(dev);
--
--	if (IS_ERR(group))
--		return PTR_ERR(group);
-+		return ERR_PTR(-ENODEV);
- 
- 	list_for_each_entry(data, &owner->controllers, owner_node) {
- 		/*
-@@ -1259,17 +1253,15 @@ static int exynos_iommu_add_device(struct device *dev)
- 					     DL_FLAG_STATELESS |
- 					     DL_FLAG_PM_RUNTIME);
- 	}
--	iommu_group_put(group);
- 
- 	/* There is always at least one entry, see exynos_iommu_of_xlate() */
- 	data = list_first_entry(&owner->controllers,
- 				struct sysmmu_drvdata, owner_node);
--	iommu_device_link(&data->iommu, dev);
- 
--	return 0;
-+	return &data->iommu;
+ 	return ERR_PTR(ret);
  }
+-EXPORT_SYMBOL(iommu_group_get_for_dev);
  
--static void exynos_iommu_remove_device(struct device *dev)
-+static void exynos_iommu_release_device(struct device *dev)
+ struct iommu_domain *iommu_group_default_domain(struct iommu_group *group)
  {
- 	struct exynos_iommu_owner *owner = dev->archdata.iommu;
- 	struct sysmmu_drvdata *data;
-@@ -1287,15 +1279,9 @@ static void exynos_iommu_remove_device(struct device *dev)
- 			iommu_group_put(group);
- 		}
- 	}
--	iommu_group_remove_device(dev);
+diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+index dd076366383f..7cfd2dddb49d 100644
+--- a/include/linux/iommu.h
++++ b/include/linux/iommu.h
+@@ -527,7 +527,6 @@ extern int iommu_page_response(struct device *dev,
+ 			       struct iommu_page_response *msg);
  
- 	list_for_each_entry(data, &owner->controllers, owner_node)
- 		device_link_del(data->link);
--
--	/* There is always at least one entry, see exynos_iommu_of_xlate() */
--	data = list_first_entry(&owner->controllers,
--				struct sysmmu_drvdata, owner_node);
--	iommu_device_unlink(&data->iommu, dev);
- }
+ extern int iommu_group_id(struct iommu_group *group);
+-extern struct iommu_group *iommu_group_get_for_dev(struct device *dev);
+ extern struct iommu_domain *iommu_group_default_domain(struct iommu_group *);
  
- static int exynos_iommu_of_xlate(struct device *dev,
-@@ -1341,8 +1327,8 @@ static const struct iommu_ops exynos_iommu_ops = {
- 	.unmap = exynos_iommu_unmap,
- 	.iova_to_phys = exynos_iommu_iova_to_phys,
- 	.device_group = generic_device_group,
--	.add_device = exynos_iommu_add_device,
--	.remove_device = exynos_iommu_remove_device,
-+	.probe_device = exynos_iommu_probe_device,
-+	.release_device = exynos_iommu_release_device,
- 	.pgsize_bitmap = SECT_SIZE | LPAGE_SIZE | SPAGE_SIZE,
- 	.of_xlate = exynos_iommu_of_xlate,
- };
+ extern int iommu_domain_get_attr(struct iommu_domain *domain, enum iommu_attr,
 -- 
 2.17.1
