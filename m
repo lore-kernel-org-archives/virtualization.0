@@ -1,111 +1,47 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [GIT PULL] vhost: cleanups and fixes
-Date: Tue, 14 Apr 2020 12:36:06 -0400
-Message-ID: <20200414123606-mutt-send-email-mst@kernel.org>
+From: Waiman Long <longman@redhat.com>
+Subject: Re: [PATCH 1/2] mm, treewide: Rename kzfree() to kfree_sensitive()
+Date: Tue, 14 Apr 2020 14:26:48 -0400
+Message-ID: <3d8c80cb-68e5-9211-9eda-bc343ed7d894@redhat.com>
+References: <20200413211550.8307-1-longman@redhat.com>
+ <20200413211550.8307-2-longman@redhat.com>
+ <20200414124854.GQ5920@twin.jikos.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: hulkci@huawei.com, matej.genci@nutanix.com, kvm@vger.kernel.org, arnd@arndb.de, gustavo@embeddedor.com, netdev@vger.kernel.org, mst@redhat.com, yuehaibing@huawei.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, ashutosh.dixit@intel.com, eperezma@redhat.com, andy.shevchenko@gmail.com, yanaijie@huawei.com, eli@mellanox.com, sfr@canb.auug.org.au, bjorn.andersson@linaro.org, elfring@users.sourceforge.net
+Content-Type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 7bit
+Return-path: <wireguard-bounces@lists.zx2c4.com>
+In-Reply-To: <20200414124854.GQ5920@twin.jikos.cz>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.zx2c4.com/mailman/options/wireguard>,
+ <mailto:wireguard-request@lists.zx2c4.com?subject=unsubscribe>
+List-Archive: <http://lists.zx2c4.com/pipermail/wireguard/>
+List-Post: <mailto:wireguard@lists.zx2c4.com>
+List-Help: <mailto:wireguard-request@lists.zx2c4.com?subject=help>
+List-Subscribe: <https://lists.zx2c4.com/mailman/listinfo/wireguard>,
+ <mailto:wireguard-request@lists.zx2c4.com?subject=subscribe>
+Errors-To: wireguard-bounces@lists.zx2c4.com
+Sender: "WireGuard" <wireguard-bounces@lists.zx2c4.com>
+To: dsterba@suse.cz, Andrew Morton <akpm@linux-foundation.org>, David Howells <dhowells@redhat.com>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, Linus Torvalds <torvalds@linux-foundation.org>, Joe Perches <joe@perches.com>, Matthew Wilcox <willy@infradead.org>, David Rientjes <rientjes@google.com>, linux-mm@kvack.org, keyrings@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org, linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org, linux-pm@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-amlogic@lists.infradead.org, linux-mediatek@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, intel-wired-lan@lists.osuosl.org, linux-ppp@vger.kernel.org, wireguard@lists.zx2c4
 List-Id: virtualization@lists.linuxfoundation.org
 
-VGhlIGZvbGxvd2luZyBjaGFuZ2VzIHNpbmNlIGNvbW1pdCA4MzVhNmE2NDlkMGRkMWIxZjQ2NzU5
-ZWI2MGZmZjJmNjNlZDI1M2E3OgoKICB2aXJ0aW8tYmFsbG9vbjogUmV2ZXJ0ICJ2aXJ0aW8tYmFs
-bG9vbjogU3dpdGNoIGJhY2sgdG8gT09NIGhhbmRsZXIgZm9yIFZJUlRJT19CQUxMT09OX0ZfREVG
-TEFURV9PTl9PT00iICgyMDIwLTA0LTA3IDA1OjQ0OjU3IC0wNDAwKQoKYXJlIGF2YWlsYWJsZSBp
-biB0aGUgR2l0IHJlcG9zaXRvcnkgYXQ6CgogIGh0dHBzOi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3Nj
-bS9saW51eC9rZXJuZWwvZ2l0L21zdC92aG9zdC5naXQgdGFncy9mb3JfbGludXMKCmZvciB5b3Ug
-dG8gZmV0Y2ggY2hhbmdlcyB1cCB0byBkNGE4NWMyYWNlODk1YTU4ZGNhYjY4N2ZmNDljNzY3MTkw
-MTFmNThkOgoKICB2ZHBhOiBmaXggY29tbWVudCBvZiB2ZHBhX3JlZ2lzdGVyX2RldmljZSgpICgy
-MDIwLTA0LTEzIDA3OjE2OjQxIC0wNDAwKQoKLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQp2aXJ0aW86IGZpeGVzLCBjbGVhbnVw
-cwoKU29tZSBidWcgZml4ZXMuCkNsZWFudXAgYSBjb3VwbGUgb2YgaXNzdWVzIHRoYXQgc3VyZmFj
-ZWQgbWVhbndoaWxlLgoKU2lnbmVkLW9mZi1ieTogTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVk
-aGF0LmNvbT4KCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLS0tLS0KRXVnZW5pbyBQw6lyZXogKDQpOgogICAgICB2aG9zdDogQ3JlYXRl
-IGFjY2Vzc29ycyBmb3IgdmlydHF1ZXVlcyBwcml2YXRlX2RhdGEKICAgICAgdG9vbHMvdmlydGlv
-OiBBZGQgLS1iYXRjaCBvcHRpb24KICAgICAgdG9vbHMvdmlydGlvOiBBZGQgLS1iYXRjaD1yYW5k
-b20gb3B0aW9uCiAgICAgIHRvb2xzL3ZpcnRpbzogQWRkIC0tcmVzZXQ9cmFuZG9tCgpHdXN0YXZv
-IEEuIFIuIFNpbHZhICgxKToKICAgICAgdmhvc3Q6IHZkcGE6IHJlbW92ZSB1bm5lY2Vzc2FyeSBu
-dWxsIGNoZWNrCgpKYXNvbiBXYW5nICgxKToKICAgICAgdmRwYTogZml4IGNvbW1lbnQgb2YgdmRw
-YV9yZWdpc3Rlcl9kZXZpY2UoKQoKSmFzb24gWWFuICgxKToKICAgICAgdmhvc3Q6IHJlbW92ZSBz
-ZXQgYnV0IG5vdCB1c2VkIHZhcmlhYmxlICdzdGF0dXMnCgpNYXJrdXMgRWxmcmluZyAoMSk6CiAg
-ICAgIHZpcnRpby1tbWlvOiBEZWxldGUgYW4gZXJyb3IgbWVzc2FnZSBpbiB2bV9maW5kX3Zxcygp
-CgpNYXRlaiBHZW5jaSAoMSk6CiAgICAgIHZpcnRpbzogYWRkIFZJUlRJT19SSU5HX05PX0xFR0FD
-WQoKTWljaGFlbCBTLiBUc2lya2luICgyMik6CiAgICAgIHZkcGEtc2ltOiBkZXBlbmQgb24gSEFT
-X0RNQQogICAgICB2aXJ0aW8vdGVzdDogZml4IHVwIGFmdGVyIElPVExCIGNoYW5nZXMKICAgICAg
-dmhvc3Q6IGRyb3AgdnJpbmcgZGVwZW5kZW5jeSBvbiBpb3RsYgogICAgICB0b29scy92aXJ0aW86
-IGRlZmluZSBhbGlnbmVkIGF0dHJpYnV0ZQogICAgICB0b29scy92aXJ0aW86IG1ha2UgYXNtL2Jh
-cnJpZXIuaCBzZWxmIGNvbnRhaW5lZAogICAgICB0b29scy92aXJ0aW86IGRlZmluZSBfX0tFUk5F
-TF9fCiAgICAgIHZpcnRncHU6IHB1bGwgaW4gdWFjY2Vzcy5oCiAgICAgIHZpcnRpby1ybmc6IHB1
-bGwgaW4gc2xhYi5oCiAgICAgIHJlbW90ZXByb2M6IHB1bGwgaW4gc2xhYi5oCiAgICAgIHZpcnRp
-b19pbnB1dDogcHVsbCBpbiBzbGFiLmgKICAgICAgcnBtc2c6IHB1bGwgaW4gc2xhYi5oCiAgICAg
-IHJlbW90ZXByb2M6IHB1bGwgaW4gc2xhYi5oCiAgICAgIHZpcnRpbzogc3RvcCB1c2luZyBsZWdh
-Y3kgc3RydWN0IHZyaW5nIGluIGtlcm5lbAogICAgICB2aG9zdDogZm9yY2Ugc3BlYyBzcGVjaWZp
-ZWQgYWxpZ25tZW50IG9uIHR5cGVzCiAgICAgIHZpcnRpbzogYWRkIGxlZ2FjeSBpbml0L3NpemUg
-QVBJcwogICAgICB2aXJ0aW9fcmluZzogc3dpdGNoIHRvIHZpcnRpb19sZWdhY3lfaW5pdC9zaXpl
-CiAgICAgIHRvb2xzL3ZpcnRpbzogc3dpdGNoIHRvIHZpcnRpb19sZWdhY3lfaW5pdC9zaXplCiAg
-ICAgIHZvcDogc3dpdGNoIHRvIHZpcnRpb19sZWdhY3lfaW5pdC9zaXplCiAgICAgIHJlbW90ZXBy
-b2M6IHN3aXRjaCB0byB2aXJ0aW9fbGVnYWN5X2luaXQvc2l6ZQogICAgICBtZWxsYW5veDogc3dp
-dGNoIHRvIHZpcnRpb19sZWdhY3lfaW5pdC9zaXplCiAgICAgIHZkcGE6IGFsbG93IGEgMzIgYml0
-IHZxIGFsaWdubWVudAogICAgICB2ZHBhOiBtYWtlIHZob3N0LCB2aXJ0aW8gZGVwZW5kIG9uIG1l
-bnUKClN0ZXBoZW4gUm90aHdlbGwgKDEpOgogICAgICBkcm0vdmlydGlvOiBmaXggdXAgZm9yIGlu
-Y2x1ZGUgZmlsZSBjaGFuZ2VzCgpZdWVIYWliaW5nICgyKToKICAgICAgdmRwYTogcmVtb3ZlIHVu
-dXNlZCB2YXJpYWJsZXMgJ2lmY3ZmJyBhbmQgJ2lmY3ZmX2xtJwogICAgICB2ZHBhc2ltOiBSZXR1
-cm4gc3RhdHVzIGluIHZkcGFzaW1fZ2V0X3N0YXR1cwoKIGRyaXZlcnMvYmxvY2svdmlydGlvX2Js
-ay5jICAgICAgICAgICAgICAgfCAgIDEgKwogZHJpdmVycy9jaGFyL2h3X3JhbmRvbS92aXJ0aW8t
-cm5nLmMgICAgICB8ICAgMSArCiBkcml2ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfaW9jdGwu
-YyAgIHwgICAxICsKIGRyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9rbXMuYyAgICAgfCAg
-IDEgKwogZHJpdmVycy9taXNjL21pYy92b3Avdm9wX21haW4uYyAgICAgICAgICB8ICAgNSArLQog
-ZHJpdmVycy9taXNjL21pYy92b3Avdm9wX3ZyaW5naC5jICAgICAgICB8ICAgOCArKy0KIGRyaXZl
-cnMvcGxhdGZvcm0vbWVsbGFub3gvbWx4YmYtdG1maWZvLmMgfCAgIDYgKy0KIGRyaXZlcnMvcmVt
-b3RlcHJvYy9yZW1vdGVwcm9jX2NvcmUuYyAgICAgfCAgIDIgKy0KIGRyaXZlcnMvcmVtb3RlcHJv
-Yy9yZW1vdGVwcm9jX3N5c2ZzLmMgICAgfCAgIDEgKwogZHJpdmVycy9yZW1vdGVwcm9jL3JlbW90
-ZXByb2NfdmlydGlvLmMgICB8ICAgMiArLQogZHJpdmVycy9yZW1vdGVwcm9jL3N0bTMyX3Jwcm9j
-LmMgICAgICAgICB8ICAgMSArCiBkcml2ZXJzL3JwbXNnL210a19ycG1zZy5jICAgICAgICAgICAg
-ICAgIHwgICAxICsKIGRyaXZlcnMvdmRwYS9LY29uZmlnICAgICAgICAgICAgICAgICAgICAgfCAg
-MTkgKysrLS0tCiBkcml2ZXJzL3ZkcGEvaWZjdmYvaWZjdmZfYmFzZS5jICAgICAgICAgIHwgICAy
-IC0KIGRyaXZlcnMvdmRwYS9pZmN2Zi9pZmN2Zl9tYWluLmMgICAgICAgICAgfCAgIDQgKy0KIGRy
-aXZlcnMvdmRwYS92ZHBhLmMgICAgICAgICAgICAgICAgICAgICAgfCAgIDIgKy0KIGRyaXZlcnMv
-dmRwYS92ZHBhX3NpbS92ZHBhX3NpbS5jICAgICAgICAgfCAgIDQgKy0KIGRyaXZlcnMvdmhvc3Qv
-S2NvbmZpZyAgICAgICAgICAgICAgICAgICAgfCAgIDUgKy0KIGRyaXZlcnMvdmhvc3QvbmV0LmMg
-ICAgICAgICAgICAgICAgICAgICAgfCAgMjggKysrKystLS0tCiBkcml2ZXJzL3Zob3N0L3Njc2ku
-YyAgICAgICAgICAgICAgICAgICAgIHwgIDE0ICsrLS0tCiBkcml2ZXJzL3Zob3N0L3Rlc3QuYyAg
-ICAgICAgICAgICAgICAgICAgIHwgIDcxICsrKysrKysrKysrKysrKysrKystLS0KIGRyaXZlcnMv
-dmhvc3QvdGVzdC5oICAgICAgICAgICAgICAgICAgICAgfCAgIDEgKwogZHJpdmVycy92aG9zdC92
-ZHBhLmMgICAgICAgICAgICAgICAgICAgICB8ICAgNSAtLQogZHJpdmVycy92aG9zdC92aG9zdC5o
-ICAgICAgICAgICAgICAgICAgICB8ICAzMyArKysrKysrKystCiBkcml2ZXJzL3Zob3N0L3ZyaW5n
-aC5jICAgICAgICAgICAgICAgICAgIHwgICA1ICsrCiBkcml2ZXJzL3Zob3N0L3Zzb2NrLmMgICAg
-ICAgICAgICAgICAgICAgIHwgIDE0ICsrLS0tCiBkcml2ZXJzL3ZpcnRpby9LY29uZmlnICAgICAg
-ICAgICAgICAgICAgIHwgICAyICstCiBkcml2ZXJzL3ZpcnRpby92aXJ0aW9faW5wdXQuYyAgICAg
-ICAgICAgIHwgICAxICsKIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19tbWlvLmMgICAgICAgICAgICAg
-fCAgIDQgKy0KIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfbW9kZXJuLmMgICAgICAgfCAgIDEg
-KwogZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYyAgICAgICAgICAgICB8ICAxNSArKystLQog
-aW5jbHVkZS9saW51eC92ZHBhLmggICAgICAgICAgICAgICAgICAgICB8ICAgMiArLQogaW5jbHVk
-ZS9saW51eC92aXJ0aW8uaCAgICAgICAgICAgICAgICAgICB8ICAgMSAtCiBpbmNsdWRlL2xpbnV4
-L3ZpcnRpb19yaW5nLmggICAgICAgICAgICAgIHwgIDQ2ICsrKysrKysrKysrKysrCiBpbmNsdWRl
-L2xpbnV4L3ZyaW5naC5oICAgICAgICAgICAgICAgICAgIHwgICA3ICsrKwogaW5jbHVkZS91YXBp
-L2xpbnV4L3ZpcnRpb19yaW5nLmggICAgICAgICB8ICAzMCArKysrKystLS0KIHRvb2xzL3ZpcnRp
-by9NYWtlZmlsZSAgICAgICAgICAgICAgICAgICAgfCAgIDUgKy0KIHRvb2xzL3ZpcnRpby9hc20v
-YmFycmllci5oICAgICAgICAgICAgICAgfCAgIDEgKwogdG9vbHMvdmlydGlvL2dlbmVyYXRlZC9h
-dXRvY29uZi5oICAgICAgICB8ICAgMAogdG9vbHMvdmlydGlvL2xpbnV4L2NvbXBpbGVyLmggICAg
-ICAgICAgICB8ICAgMSArCiB0b29scy92aXJ0aW8vcmluZ3Rlc3QvdmlydGlvX3JpbmdfMF85LmMg
-IHwgICA2ICstCiB0b29scy92aXJ0aW8vdmlydGlvX3Rlc3QuYyAgICAgICAgICAgICAgIHwgMTAx
-ICsrKysrKysrKysrKysrKysrKysrKysrKysrLS0tLS0KIHRvb2xzL3ZpcnRpby92cmluZ2hfdGVz
-dC5jICAgICAgICAgICAgICAgfCAgMTggKysrLS0tCiA0MyBmaWxlcyBjaGFuZ2VkLCAzNTQgaW5z
-ZXJ0aW9ucygrKSwgMTI0IGRlbGV0aW9ucygtKQogY3JlYXRlIG1vZGUgMTAwNjQ0IHRvb2xzL3Zp
-cnRpby9nZW5lcmF0ZWQvYXV0b2NvbmYuaAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
-aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
-aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On 4/14/20 8:48 AM, David Sterba wrote:
+> On Mon, Apr 13, 2020 at 05:15:49PM -0400, Waiman Long wrote:
+>>  fs/btrfs/ioctl.c                              |  2 +-
+>
+>> diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
+>> index 40b729dce91c..eab3f8510426 100644
+>> --- a/fs/btrfs/ioctl.c
+>> +++ b/fs/btrfs/ioctl.c
+>> @@ -2691,7 +2691,7 @@ static int btrfs_ioctl_get_subvol_info(struct file *file, void __user *argp)
+>>  	btrfs_put_root(root);
+>>  out_free:
+>>  	btrfs_free_path(path);
+>> -	kzfree(subvol_info);
+>> +	kfree_sensitive(subvol_info);
+> This is not in a sensitive context so please switch it to plain kfree.
+> With that you have my acked-by. Thanks.
+>
+Thanks for letting me know about. I think I will send it out as a
+separate patch.
+
+Cheers,
+Longman
