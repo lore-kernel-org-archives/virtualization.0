@@ -1,177 +1,86 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH] vhost: do not enable VHOST_MENU by default
-Date: Tue, 14 Apr 2020 10:44:38 +0800
-Message-ID: <20200414024438.19103-1-jasowang@redhat.com>
+From: Zhenyu Wang <zhenyuw-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+Subject: Re: [PATCH 3/6] i915/gvt: remove unused xen bits
+Date: Tue, 14 Apr 2020 11:04:44 +0800
+Message-ID: <20200414030444.GO11247@zhen-hp.sh.intel.com>
+References: <20200404094101.672954-1-hch@lst.de>
+ <20200404094101.672954-4-hch@lst.de>
+ <20200408014437.GF11247@zhen-hp.sh.intel.com>
+ <20200413130806.GA14455@lst.de>
+Reply-To: Zhenyu Wang <zhenyuw-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: mst@redhat.com, jasowang@redhat.com
-Cc: linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, geert@linux-m68k.org, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
+Content-Type: multipart/mixed; boundary="===============0397426423=="
+Return-path: <amd-gfx-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
+In-Reply-To: <20200413130806.GA14455-jcswGhMUV9g@public.gmane.org>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/amd-gfx>,
+ <mailto:amd-gfx-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/amd-gfx>
+List-Post: <mailto:amd-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
+List-Help: <mailto:amd-gfx-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/amd-gfx>,
+ <mailto:amd-gfx-request-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org?subject=subscribe>
+Errors-To: amd-gfx-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org
+Sender: "amd-gfx" <amd-gfx-bounces-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>
+To: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
+Cc: Jens Axboe <axboe-tSWWG44O7X1aa/9Udqfwiw@public.gmane.org>, Felipe Balbi <balbi-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "Michael S. Tsirkin" <mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Jason Wang <jasowang-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, intel-gvt-dev-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, Felix Kuehling <Felix.Kuehling-5C7GfCeVMHo@public.gmane.org>, linux-usb-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, amd-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org, Al Viro <viro-RmSDqhL/yNMiFSDQTTA3OLVCufUGDwFn@public.gmane.org>, intel-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, linux-fsdevel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Alex Deucher <alexander.deucher-5C7GfCeVMHo@public.gmane.org>, Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, io-uring-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Zhi Wang <zhi.a.wang-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We try to keep the defconfig untouched after decoupling CONFIG_VHOST
-out of CONFIG_VIRTUALIZATION in commit 20c384f1ea1a
-("vhost: refine vhost and vringh kconfig") by enabling VHOST_MENU by
-default. Then the defconfigs can keep enabling CONFIG_VHOST_NET
-without the caring of CONFIG_VHOST.
 
-But this will leave a "CONFIG_VHOST_MENU=3Dy" in all defconfigs and even
-for the ones that doesn't want vhost. So it actually shifts the
-burdens to the maintainers of all other to add "CONFIG_VHOST_MENU is
-not set". So this patch tries to enable CONFIG_VHOST explicitly in
-defconfigs that enables CONFIG_VHOST_NET and CONFIG_VHOST_VSOCK.
+--===============0397426423==
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="3eH4Qcq5fItR5cpy"
+Content-Disposition: inline
 
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- arch/mips/configs/malta_kvm_defconfig  |  1 +
- arch/powerpc/configs/powernv_defconfig |  1 +
- arch/powerpc/configs/ppc64_defconfig   |  1 +
- arch/powerpc/configs/pseries_defconfig |  1 +
- arch/s390/configs/debug_defconfig      |  1 +
- arch/s390/configs/defconfig            |  1 +
- drivers/vhost/Kconfig                  | 18 +++++-------------
- 7 files changed, 11 insertions(+), 13 deletions(-)
 
-diff --git a/arch/mips/configs/malta_kvm_defconfig b/arch/mips/configs/ma=
-lta_kvm_defconfig
-index 8ef612552a19..06f0c7a0ca87 100644
---- a/arch/mips/configs/malta_kvm_defconfig
-+++ b/arch/mips/configs/malta_kvm_defconfig
-@@ -18,6 +18,7 @@ CONFIG_PCI=3Dy
- CONFIG_VIRTUALIZATION=3Dy
- CONFIG_KVM=3Dm
- CONFIG_KVM_MIPS_DEBUG_COP0_COUNTERS=3Dy
-+CONFIG_VHOST=3Dm
- CONFIG_VHOST_NET=3Dm
- CONFIG_MODULES=3Dy
- CONFIG_MODULE_UNLOAD=3Dy
-diff --git a/arch/powerpc/configs/powernv_defconfig b/arch/powerpc/config=
-s/powernv_defconfig
-index 71749377d164..404245b4594d 100644
---- a/arch/powerpc/configs/powernv_defconfig
-+++ b/arch/powerpc/configs/powernv_defconfig
-@@ -346,5 +346,6 @@ CONFIG_CRYPTO_DEV_VMX=3Dy
- CONFIG_VIRTUALIZATION=3Dy
- CONFIG_KVM_BOOK3S_64=3Dm
- CONFIG_KVM_BOOK3S_64_HV=3Dm
-+CONFIG_VHOST=3Dm
- CONFIG_VHOST_NET=3Dm
- CONFIG_PRINTK_TIME=3Dy
-diff --git a/arch/powerpc/configs/ppc64_defconfig b/arch/powerpc/configs/=
-ppc64_defconfig
-index 7e68cb222c7b..4599fc7be285 100644
---- a/arch/powerpc/configs/ppc64_defconfig
-+++ b/arch/powerpc/configs/ppc64_defconfig
-@@ -61,6 +61,7 @@ CONFIG_ELECTRA_CF=3Dy
- CONFIG_VIRTUALIZATION=3Dy
- CONFIG_KVM_BOOK3S_64=3Dm
- CONFIG_KVM_BOOK3S_64_HV=3Dm
-+CONFIG_VHOST=3Dm
- CONFIG_VHOST_NET=3Dm
- CONFIG_OPROFILE=3Dm
- CONFIG_KPROBES=3Dy
-diff --git a/arch/powerpc/configs/pseries_defconfig b/arch/powerpc/config=
-s/pseries_defconfig
-index 6b68109e248f..4cad3901b5de 100644
---- a/arch/powerpc/configs/pseries_defconfig
-+++ b/arch/powerpc/configs/pseries_defconfig
-@@ -321,5 +321,6 @@ CONFIG_CRYPTO_DEV_VMX=3Dy
- CONFIG_VIRTUALIZATION=3Dy
- CONFIG_KVM_BOOK3S_64=3Dm
- CONFIG_KVM_BOOK3S_64_HV=3Dm
-+CONFIG_VHOST=3Dm
- CONFIG_VHOST_NET=3Dm
- CONFIG_PRINTK_TIME=3Dy
-diff --git a/arch/s390/configs/debug_defconfig b/arch/s390/configs/debug_=
-defconfig
-index 0c86ba19fa2b..6ec6e69630d1 100644
---- a/arch/s390/configs/debug_defconfig
-+++ b/arch/s390/configs/debug_defconfig
-@@ -57,6 +57,7 @@ CONFIG_PROTECTED_VIRTUALIZATION_GUEST=3Dy
- CONFIG_CMM=3Dm
- CONFIG_APPLDATA_BASE=3Dy
- CONFIG_KVM=3Dm
-+CONFIG_VHOST=3Dm
- CONFIG_VHOST_NET=3Dm
- CONFIG_VHOST_VSOCK=3Dm
- CONFIG_OPROFILE=3Dm
-diff --git a/arch/s390/configs/defconfig b/arch/s390/configs/defconfig
-index 6b27d861a9a3..d1b3bf83d687 100644
---- a/arch/s390/configs/defconfig
-+++ b/arch/s390/configs/defconfig
-@@ -57,6 +57,7 @@ CONFIG_PROTECTED_VIRTUALIZATION_GUEST=3Dy
- CONFIG_CMM=3Dm
- CONFIG_APPLDATA_BASE=3Dy
- CONFIG_KVM=3Dm
-+CONFIG_VHOST=3Dm
- CONFIG_VHOST_NET=3Dm
- CONFIG_VHOST_VSOCK=3Dm
- CONFIG_OPROFILE=3Dm
-diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
-index e79cbbdfea45..14d296dc18cd 100644
---- a/drivers/vhost/Kconfig
-+++ b/drivers/vhost/Kconfig
-@@ -12,23 +12,18 @@ config VHOST_RING
- 	  This option is selected by any driver which needs to access
- 	  the host side of a virtio ring.
-=20
--config VHOST
--	tristate
-+menuconfig VHOST
-+	tristate "Vhost Devices"
- 	select VHOST_IOTLB
- 	help
--	  This option is selected by any driver which needs to access
--	  the core of vhost.
--
--menuconfig VHOST_MENU
--	bool "VHOST drivers"
--	default y
-+	  Enable option to support host kernel or hardware accelerator
-+	  for virtio device.
-=20
--if VHOST_MENU
-+if VHOST
-=20
- config VHOST_NET
- 	tristate "Host kernel accelerator for virtio net"
- 	depends on NET && EVENTFD && (TUN || !TUN) && (TAP || !TAP)
--	select VHOST
- 	---help---
- 	  This kernel module can be loaded in host kernel to accelerate
- 	  guest networking with virtio_net. Not to be confused with virtio_net
-@@ -40,7 +35,6 @@ config VHOST_NET
- config VHOST_SCSI
- 	tristate "VHOST_SCSI TCM fabric driver"
- 	depends on TARGET_CORE && EVENTFD
--	select VHOST
- 	default n
- 	---help---
- 	Say M here to enable the vhost_scsi TCM fabric module
-@@ -49,7 +43,6 @@ config VHOST_SCSI
- config VHOST_VSOCK
- 	tristate "vhost virtio-vsock driver"
- 	depends on VSOCKETS && EVENTFD
--	select VHOST
- 	select VIRTIO_VSOCKETS_COMMON
- 	default n
- 	---help---
-@@ -63,7 +56,6 @@ config VHOST_VSOCK
- config VHOST_VDPA
- 	tristate "Vhost driver for vDPA-based backend"
- 	depends on EVENTFD
--	select VHOST
- 	depends on VDPA
- 	help
- 	  This kernel module can be loaded in host kernel to accelerate
+--3eH4Qcq5fItR5cpy
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On 2020.04.13 15:08:06 +0200, Christoph Hellwig wrote:
+> On Wed, Apr 08, 2020 at 09:44:37AM +0800, Zhenyu Wang wrote:
+> > On 2020.04.04 11:40:58 +0200, Christoph Hellwig wrote:
+> > > No Xen support anywhere here.  Remove a dead declaration and an unused
+> > > include.
+> > >=20
+> > > Signed-off-by: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
+> > > ---
+> >=20
+> > We'll keep that off-tree.
+> >=20
+> > Acked-by: Zhenyu Wang <zhenyuw-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
+>=20
+> Can you pick this up through the i915 tree?
+
+Yes, I'll pick this.
+
+Thanks
+
 --=20
-2.20.1
+Open Source Technology Center, Intel ltd.
+
+$gpg --keyserver wwwkeys.pgp.net --recv-keys 4D781827
+
+--3eH4Qcq5fItR5cpy
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iF0EARECAB0WIQTXuabgHDW6LPt9CICxBBozTXgYJwUCXpUoTAAKCRCxBBozTXgY
+JygxAJ9JZICeCzXSNp8YPszWNoMERUV94ACeJJLziuDjCDenyBchPPCAYkP+EtI=
+=56PP
+-----END PGP SIGNATURE-----
+
+--3eH4Qcq5fItR5cpy--
+
+--===============0397426423==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+amd-gfx mailing list
+amd-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org
+https://lists.freedesktop.org/mailman/listinfo/amd-gfx
+
+--===============0397426423==--
