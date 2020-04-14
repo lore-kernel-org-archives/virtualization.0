@@ -1,8 +1,8 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v2 29/33] iommu/omap: Convert to probe/release_device()
+Subject: [PATCH v2 27/33] iommu/renesas: Convert to probe/release_device()
  call-backs
-Date: Tue, 14 Apr 2020 15:15:38 +0200
-Message-ID: <20200414131542.25608-30-joro@8bytes.org>
+Date: Tue, 14 Apr 2020 15:15:36 +0200
+Message-ID: <20200414131542.25608-28-joro@8bytes.org>
 References: <20200414131542.25608-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,139 +24,122 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Convert the OMAP IOMMU driver to use the probe_device() and
+Convert the Renesas IOMMU driver to use the probe_device() and
 release_device() call-backs of iommu_ops, so that the iommu core code
 does the group and sysfs setup.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- drivers/iommu/omap-iommu.c | 49 ++++++++++----------------------------
- 1 file changed, 13 insertions(+), 36 deletions(-)
+ drivers/iommu/ipmmu-vmsa.c | 60 +++++++++++++-------------------------
+ 1 file changed, 20 insertions(+), 40 deletions(-)
 
-diff --git a/drivers/iommu/omap-iommu.c b/drivers/iommu/omap-iommu.c
-index ecc9d0829a91..6699fe6d9e06 100644
---- a/drivers/iommu/omap-iommu.c
-+++ b/drivers/iommu/omap-iommu.c
-@@ -1640,15 +1640,13 @@ static phys_addr_t omap_iommu_iova_to_phys(struct iommu_domain *domain,
- 	return ret;
- }
- 
--static int omap_iommu_add_device(struct device *dev)
-+static struct iommu_device *omap_iommu_probe_device(struct device *dev)
+diff --git a/drivers/iommu/ipmmu-vmsa.c b/drivers/iommu/ipmmu-vmsa.c
+index 310cf09feea3..fb7e702dee23 100644
+--- a/drivers/iommu/ipmmu-vmsa.c
++++ b/drivers/iommu/ipmmu-vmsa.c
+@@ -805,24 +805,8 @@ static int ipmmu_of_xlate(struct device *dev,
+ static int ipmmu_init_arm_mapping(struct device *dev)
  {
- 	struct omap_iommu_arch_data *arch_data, *tmp;
-+	struct platform_device *pdev;
- 	struct omap_iommu *oiommu;
+ 	struct ipmmu_vmsa_device *mmu = to_ipmmu(dev);
 -	struct iommu_group *group;
- 	struct device_node *np;
--	struct platform_device *pdev;
- 	int num_iommus, i;
--	int ret;
+ 	int ret;
  
- 	/*
- 	 * Allocate the archdata iommu structure for DT-based devices.
-@@ -1657,7 +1655,7 @@ static int omap_iommu_add_device(struct device *dev)
- 	 * IOMMU users.
- 	 */
- 	if (!dev->of_node)
--		return 0;
-+		return ERR_PTR(-ENODEV);
- 
- 	/*
- 	 * retrieve the count of IOMMU nodes using phandle size as element size
-@@ -1670,27 +1668,27 @@ static int omap_iommu_add_device(struct device *dev)
- 
- 	arch_data = kcalloc(num_iommus + 1, sizeof(*arch_data), GFP_KERNEL);
- 	if (!arch_data)
--		return -ENOMEM;
-+		return ERR_PTR(-ENOMEM);
- 
- 	for (i = 0, tmp = arch_data; i < num_iommus; i++, tmp++) {
- 		np = of_parse_phandle(dev->of_node, "iommus", i);
- 		if (!np) {
- 			kfree(arch_data);
--			return -EINVAL;
-+			return ERR_PTR(-EINVAL);
- 		}
- 
- 		pdev = of_find_device_by_node(np);
- 		if (!pdev) {
- 			of_node_put(np);
- 			kfree(arch_data);
--			return -ENODEV;
-+			return ERR_PTR(-ENODEV);
- 		}
- 
- 		oiommu = platform_get_drvdata(pdev);
- 		if (!oiommu) {
- 			of_node_put(np);
- 			kfree(arch_data);
--			return -EINVAL;
-+			return ERR_PTR(-EINVAL);
- 		}
- 
- 		tmp->iommu_dev = oiommu;
-@@ -1699,46 +1697,25 @@ static int omap_iommu_add_device(struct device *dev)
- 		of_node_put(np);
- 	}
- 
-+	dev->archdata.iommu = arch_data;
-+
- 	/*
- 	 * use the first IOMMU alone for the sysfs device linking.
- 	 * TODO: Evaluate if a single iommu_group needs to be
- 	 * maintained for both IOMMUs
- 	 */
- 	oiommu = arch_data->iommu_dev;
--	ret = iommu_device_link(&oiommu->iommu, dev);
--	if (ret) {
--		kfree(arch_data);
+-	/* Create a device group and add the device to it. */
+-	group = iommu_group_alloc();
+-	if (IS_ERR(group)) {
+-		dev_err(dev, "Failed to allocate IOMMU group\n");
+-		return PTR_ERR(group);
+-	}
+-
+-	ret = iommu_group_add_device(group, dev);
+-	iommu_group_put(group);
+-
+-	if (ret < 0) {
+-		dev_err(dev, "Failed to add device to IPMMU group\n");
 -		return ret;
 -	}
 -
--	dev->archdata.iommu = arch_data;
--
--	/*
--	 * IOMMU group initialization calls into omap_iommu_device_group, which
--	 * needs a valid dev->archdata.iommu pointer
--	 */
--	group = iommu_group_get_for_dev(dev);
--	if (IS_ERR(group)) {
--		iommu_device_unlink(&oiommu->iommu, dev);
--		dev->archdata.iommu = NULL;
--		kfree(arch_data);
--		return PTR_ERR(group);
--	}
--	iommu_group_put(group);
+ 	/*
+ 	 * Create the ARM mapping, used by the ARM DMA mapping core to allocate
+ 	 * VAs. This will allocate a corresponding IOMMU domain.
+@@ -856,48 +840,39 @@ static int ipmmu_init_arm_mapping(struct device *dev)
+ 	return 0;
  
--	return 0;
-+	return &oiommu->iommu;
+ error:
+-	iommu_group_remove_device(dev);
+ 	if (mmu->mapping)
+ 		arm_iommu_release_mapping(mmu->mapping);
+ 
+ 	return ret;
  }
  
--static void omap_iommu_remove_device(struct device *dev)
-+static void omap_iommu_release_device(struct device *dev)
+-static int ipmmu_add_device(struct device *dev)
++static struct iommu_device *ipmmu_probe_device(struct device *dev)
  {
- 	struct omap_iommu_arch_data *arch_data = dev->archdata.iommu;
+ 	struct ipmmu_vmsa_device *mmu = to_ipmmu(dev);
+-	struct iommu_group *group;
+-	int ret;
  
- 	if (!dev->of_node || !arch_data)
- 		return;
+ 	/*
+ 	 * Only let through devices that have been verified in xlate()
+ 	 */
+ 	if (!mmu)
+-		return -ENODEV;
++		return ERR_PTR(-ENODEV);
  
--	iommu_device_unlink(&arch_data->iommu_dev->iommu, dev);
--	iommu_group_remove_device(dev);
+-	if (IS_ENABLED(CONFIG_ARM) && !IS_ENABLED(CONFIG_IOMMU_DMA)) {
+-		ret = ipmmu_init_arm_mapping(dev);
+-		if (ret)
+-			return ret;
+-	} else {
+-		group = iommu_group_get_for_dev(dev);
+-		if (IS_ERR(group))
+-			return PTR_ERR(group);
++	return &mmu->iommu;
++}
+ 
+-		iommu_group_put(group);
+-	}
++static void ipmmu_probe_finalize(struct device *dev)
++{
++	int ret = 0;
+ 
+-	iommu_device_link(&mmu->iommu, dev);
+-	return 0;
++	if (IS_ENABLED(CONFIG_ARM) && !IS_ENABLED(CONFIG_IOMMU_DMA))
++		ret = ipmmu_init_arm_mapping(dev);
++
++	if (ret)
++		dev_err(dev, "Can't create IOMMU mapping - DMA-OPS will not work\n");
+ }
+ 
+-static void ipmmu_remove_device(struct device *dev)
++static void ipmmu_release_device(struct device *dev)
+ {
+-	struct ipmmu_vmsa_device *mmu = to_ipmmu(dev);
 -
- 	dev->archdata.iommu = NULL;
- 	kfree(arch_data);
+-	iommu_device_unlink(&mmu->iommu, dev);
+ 	arm_iommu_detach_device(dev);
+-	iommu_group_remove_device(dev);
+ }
  
-@@ -1763,8 +1740,8 @@ static const struct iommu_ops omap_iommu_ops = {
- 	.map		= omap_iommu_map,
- 	.unmap		= omap_iommu_unmap,
- 	.iova_to_phys	= omap_iommu_iova_to_phys,
--	.add_device	= omap_iommu_add_device,
--	.remove_device	= omap_iommu_remove_device,
-+	.probe_device	= omap_iommu_probe_device,
-+	.release_device	= omap_iommu_release_device,
- 	.device_group	= omap_iommu_device_group,
- 	.pgsize_bitmap	= OMAP_IOMMU_PGSIZES,
+ static struct iommu_group *ipmmu_find_group(struct device *dev)
+@@ -925,9 +900,14 @@ static const struct iommu_ops ipmmu_ops = {
+ 	.flush_iotlb_all = ipmmu_flush_iotlb_all,
+ 	.iotlb_sync = ipmmu_iotlb_sync,
+ 	.iova_to_phys = ipmmu_iova_to_phys,
+-	.add_device = ipmmu_add_device,
+-	.remove_device = ipmmu_remove_device,
++	.probe_device = ipmmu_probe_device,
++	.release_device = ipmmu_release_device,
++	.probe_finalize = ipmmu_probe_finalize,
++#if defined(CONFIG_ARM) && !defined(CONFIG_IOMMU_DMA)
++	.device_group = generic_device_group,
++#else
+ 	.device_group = ipmmu_find_group,
++#endif
+ 	.pgsize_bitmap = SZ_1G | SZ_2M | SZ_4K,
+ 	.of_xlate = ipmmu_of_xlate,
  };
 -- 
 2.17.1
