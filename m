@@ -1,41 +1,187 @@
-From: Yan Zhao <yan.y.zhao@intel.com>
-Subject: Re: [PATCH 2/6] i915/gvt/kvm: a NULL ->mm does not mean a thread is
- a kthread
-Date: Tue, 14 Apr 2020 03:03:44 -0400
-Message-ID: <20200414070344.GF10586@joy-OptiPlex-7040>
-References: <20200404094101.672954-1-hch@lst.de>
- <20200404094101.672954-3-hch@lst.de>
- <20200407030845.GA10586@joy-OptiPlex-7040>
- <20200413132730.GB14455@lst.de>
- <20200414000410.GE10586@joy-OptiPlex-7040>
- <20200414070013.GA23680@lst.de>
-Reply-To: Yan Zhao <yan.y.zhao@intel.com>
+From: Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: Re: [PATCH] vhost: do not enable VHOST_MENU by default
+Date: Tue, 14 Apr 2020 09:26:16 +0200
+Message-ID: <375181ee-08ec-77a6-2dfc-f3c9c26705a1@de.ibm.com>
+References: <20200414024438.19103-1-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200414070013.GA23680@lst.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Christoph Hellwig <hch@lst.de>
-Cc: Jens Axboe <axboe@kernel.dk>, Felipe Balbi <balbi@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, intel-gvt-dev@lists.freedesktop.org, Felix Kuehling <Felix.Kuehling@amd.com>, linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org, io-uring@vger.kernel.org, linux-mm@kvack.org, Zhenyu Wang <zhenyuw@linux.intel.com>, intel-gfx@lists.freedesktop.org, linux-fsdevel@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.linux-foundation.org, Linus Torvalds <torvalds@linux-foundation.org>, Zhi Wang <zhi.a.wang@intel.com>, Al Viro <viro@zeniv.linux.org.uk>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20200414024438.19103-1-jasowang@redhat.com>
+Content-Language: en-US
+Sender: netdev-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>, mst@redhat.com
+Cc: linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, geert@linux-m68k.org, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 14, 2020 at 09:00:13AM +0200, Christoph Hellwig wrote:
-> On Mon, Apr 13, 2020 at 08:04:10PM -0400, Yan Zhao wrote:
-> > > I can't think of another way for a kernel thread to have a mm indeed.
-> > for example, before calling to vfio_dma_rw(), a kernel thread has already
-> > called use_mm(), then its current->mm is not null, and it has flag
-> > PF_KTHREAD.
-> > in this case, we just want to allow the copy_to_user() directly if
-> > current->mm == mm, rather than call another use_mm() again.
-> > 
-> > do you think it makes sense?
+
+
+On 14.04.20 04:44, Jason Wang wrote:
+> We try to keep the defconfig untouched after decoupling CONFIG_VHOST
+> out of CONFIG_VIRTUALIZATION in commit 20c384f1ea1a
+> ("vhost: refine vhost and vringh kconfig") by enabling VHOST_MENU by
+> default. Then the defconfigs can keep enabling CONFIG_VHOST_NET
+> without the caring of CONFIG_VHOST.
 > 
-> I mean no other way than using use_mm.  That being said nesting
-> potentional use_mm callers sounds like a rather bad idea, and we
-> should avoid that.
-yes, agree.
-I was explaining why we just use "current->mm == NULL"
-(not "current->flag & PF_KTHREAD") as a criteria to call use_mm()
-in vfio_dma_rw(), which you might ask us when you take that part into your
-series. :)
+> But this will leave a "CONFIG_VHOST_MENU=y" in all defconfigs and even
+> for the ones that doesn't want vhost. So it actually shifts the
+> burdens to the maintainers of all other to add "CONFIG_VHOST_MENU is
+> not set". So this patch tries to enable CONFIG_VHOST explicitly in
+> defconfigs that enables CONFIG_VHOST_NET and CONFIG_VHOST_VSOCK.
+> 
+> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Cc: Paul Mackerras <paulus@samba.org>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+
+Fine with me.
+s390 part
+
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+
+ That was my first approach to get things fixed before I reported
+this to you.
+
+> Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  arch/mips/configs/malta_kvm_defconfig  |  1 +
+>  arch/powerpc/configs/powernv_defconfig |  1 +
+>  arch/powerpc/configs/ppc64_defconfig   |  1 +
+>  arch/powerpc/configs/pseries_defconfig |  1 +
+>  arch/s390/configs/debug_defconfig      |  1 +
+>  arch/s390/configs/defconfig            |  1 +
+>  drivers/vhost/Kconfig                  | 18 +++++-------------
+>  7 files changed, 11 insertions(+), 13 deletions(-)
+> 
+> diff --git a/arch/mips/configs/malta_kvm_defconfig b/arch/mips/configs/malta_kvm_defconfig
+> index 8ef612552a19..06f0c7a0ca87 100644
+> --- a/arch/mips/configs/malta_kvm_defconfig
+> +++ b/arch/mips/configs/malta_kvm_defconfig
+> @@ -18,6 +18,7 @@ CONFIG_PCI=y
+>  CONFIG_VIRTUALIZATION=y
+>  CONFIG_KVM=m
+>  CONFIG_KVM_MIPS_DEBUG_COP0_COUNTERS=y
+> +CONFIG_VHOST=m
+>  CONFIG_VHOST_NET=m
+>  CONFIG_MODULES=y
+>  CONFIG_MODULE_UNLOAD=y
+> diff --git a/arch/powerpc/configs/powernv_defconfig b/arch/powerpc/configs/powernv_defconfig
+> index 71749377d164..404245b4594d 100644
+> --- a/arch/powerpc/configs/powernv_defconfig
+> +++ b/arch/powerpc/configs/powernv_defconfig
+> @@ -346,5 +346,6 @@ CONFIG_CRYPTO_DEV_VMX=y
+>  CONFIG_VIRTUALIZATION=y
+>  CONFIG_KVM_BOOK3S_64=m
+>  CONFIG_KVM_BOOK3S_64_HV=m
+> +CONFIG_VHOST=m
+>  CONFIG_VHOST_NET=m
+>  CONFIG_PRINTK_TIME=y
+> diff --git a/arch/powerpc/configs/ppc64_defconfig b/arch/powerpc/configs/ppc64_defconfig
+> index 7e68cb222c7b..4599fc7be285 100644
+> --- a/arch/powerpc/configs/ppc64_defconfig
+> +++ b/arch/powerpc/configs/ppc64_defconfig
+> @@ -61,6 +61,7 @@ CONFIG_ELECTRA_CF=y
+>  CONFIG_VIRTUALIZATION=y
+>  CONFIG_KVM_BOOK3S_64=m
+>  CONFIG_KVM_BOOK3S_64_HV=m
+> +CONFIG_VHOST=m
+>  CONFIG_VHOST_NET=m
+>  CONFIG_OPROFILE=m
+>  CONFIG_KPROBES=y
+> diff --git a/arch/powerpc/configs/pseries_defconfig b/arch/powerpc/configs/pseries_defconfig
+> index 6b68109e248f..4cad3901b5de 100644
+> --- a/arch/powerpc/configs/pseries_defconfig
+> +++ b/arch/powerpc/configs/pseries_defconfig
+> @@ -321,5 +321,6 @@ CONFIG_CRYPTO_DEV_VMX=y
+>  CONFIG_VIRTUALIZATION=y
+>  CONFIG_KVM_BOOK3S_64=m
+>  CONFIG_KVM_BOOK3S_64_HV=m
+> +CONFIG_VHOST=m
+>  CONFIG_VHOST_NET=m
+>  CONFIG_PRINTK_TIME=y
+> diff --git a/arch/s390/configs/debug_defconfig b/arch/s390/configs/debug_defconfig
+> index 0c86ba19fa2b..6ec6e69630d1 100644
+> --- a/arch/s390/configs/debug_defconfig
+> +++ b/arch/s390/configs/debug_defconfig
+> @@ -57,6 +57,7 @@ CONFIG_PROTECTED_VIRTUALIZATION_GUEST=y
+>  CONFIG_CMM=m
+>  CONFIG_APPLDATA_BASE=y
+>  CONFIG_KVM=m
+> +CONFIG_VHOST=m
+>  CONFIG_VHOST_NET=m
+>  CONFIG_VHOST_VSOCK=m
+>  CONFIG_OPROFILE=m
+> diff --git a/arch/s390/configs/defconfig b/arch/s390/configs/defconfig
+> index 6b27d861a9a3..d1b3bf83d687 100644
+> --- a/arch/s390/configs/defconfig
+> +++ b/arch/s390/configs/defconfig
+> @@ -57,6 +57,7 @@ CONFIG_PROTECTED_VIRTUALIZATION_GUEST=y
+>  CONFIG_CMM=m
+>  CONFIG_APPLDATA_BASE=y
+>  CONFIG_KVM=m
+> +CONFIG_VHOST=m
+>  CONFIG_VHOST_NET=m
+>  CONFIG_VHOST_VSOCK=m
+>  CONFIG_OPROFILE=m
+> diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
+> index e79cbbdfea45..14d296dc18cd 100644
+> --- a/drivers/vhost/Kconfig
+> +++ b/drivers/vhost/Kconfig
+> @@ -12,23 +12,18 @@ config VHOST_RING
+>  	  This option is selected by any driver which needs to access
+>  	  the host side of a virtio ring.
+>  
+> -config VHOST
+> -	tristate
+> +menuconfig VHOST
+> +	tristate "Vhost Devices"
+>  	select VHOST_IOTLB
+>  	help
+> -	  This option is selected by any driver which needs to access
+> -	  the core of vhost.
+> -
+> -menuconfig VHOST_MENU
+> -	bool "VHOST drivers"
+> -	default y
+> +	  Enable option to support host kernel or hardware accelerator
+> +	  for virtio device.
+>  
+> -if VHOST_MENU
+> +if VHOST
+>  
+>  config VHOST_NET
+>  	tristate "Host kernel accelerator for virtio net"
+>  	depends on NET && EVENTFD && (TUN || !TUN) && (TAP || !TAP)
+> -	select VHOST
+>  	---help---
+>  	  This kernel module can be loaded in host kernel to accelerate
+>  	  guest networking with virtio_net. Not to be confused with virtio_net
+> @@ -40,7 +35,6 @@ config VHOST_NET
+>  config VHOST_SCSI
+>  	tristate "VHOST_SCSI TCM fabric driver"
+>  	depends on TARGET_CORE && EVENTFD
+> -	select VHOST
+>  	default n
+>  	---help---
+>  	Say M here to enable the vhost_scsi TCM fabric module
+> @@ -49,7 +43,6 @@ config VHOST_SCSI
+>  config VHOST_VSOCK
+>  	tristate "vhost virtio-vsock driver"
+>  	depends on VSOCKETS && EVENTFD
+> -	select VHOST
+>  	select VIRTIO_VSOCKETS_COMMON
+>  	default n
+>  	---help---
+> @@ -63,7 +56,6 @@ config VHOST_VSOCK
+>  config VHOST_VDPA
+>  	tristate "Vhost driver for vDPA-based backend"
+>  	depends on EVENTFD
+> -	select VHOST
+>  	depends on VDPA
+>  	help
+>  	  This kernel module can be loaded in host kernel to accelerate
+> 
