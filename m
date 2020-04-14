@@ -1,8 +1,8 @@
 From: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
-Subject: [PATCH v2 06/33] iommu/amd: Return -ENODEV in add_device when device
- is not handled by IOMMU
-Date: Tue, 14 Apr 2020 15:15:15 +0200
-Message-ID: <20200414131542.25608-7-joro@8bytes.org>
+Subject: [PATCH v2 09/33] iommu: Keep a list of allocated groups in
+ __iommu_probe_device()
+Date: Tue, 14 Apr 2020 15:15:18 +0200
+Message-ID: <20200414131542.25608-10-joro@8bytes.org>
 References: <20200414131542.25608-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,31 +24,61 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
 
-When check_device() fails on the device, it is not handled by the
-IOMMU and amd_iommu_add_device() needs to return -ENODEV.
+This is needed to defer default_domain allocation for new IOMMU groups
+until all devices have been added to the group.
 
 Signed-off-by: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
 ---
- drivers/iommu/amd_iommu.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/iommu/iommu.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index 504f2db75eda..3e0d27f7622e 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -2157,9 +2157,12 @@ static int amd_iommu_add_device(struct device *dev)
- 	struct amd_iommu *iommu;
- 	int ret, devid;
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 7a385c18e1a5..18eb3623bd00 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -44,6 +44,7 @@ struct iommu_group {
+ 	int id;
+ 	struct iommu_domain *default_domain;
+ 	struct iommu_domain *domain;
++	struct list_head entry;
+ };
  
--	if (!check_device(dev) || get_dev_data(dev))
-+	if (get_dev_data(dev))
- 		return 0;
+ struct group_device {
+@@ -184,7 +185,7 @@ static void dev_iommu_free(struct device *dev)
+ 	dev->iommu = NULL;
+ }
  
-+	if (!check_device(dev))
-+		return -ENODEV;
+-static int __iommu_probe_device(struct device *dev)
++static int __iommu_probe_device(struct device *dev, struct list_head *group_list)
+ {
+ 	const struct iommu_ops *ops = dev->bus->iommu_ops;
+ 	struct iommu_device *iommu_dev;
+@@ -204,6 +205,9 @@ static int __iommu_probe_device(struct device *dev)
+ 	}
+ 	iommu_group_put(group);
+ 
++	if (group_list && !group->default_domain && list_empty(&group->entry))
++		list_add_tail(&group->entry, group_list);
 +
- 	devid = get_device_id(dev);
- 	if (devid < 0)
- 		return devid;
+ 	iommu_device_link(iommu_dev, dev);
+ 
+ 	return 0;
+@@ -234,7 +238,7 @@ int iommu_probe_device(struct device *dev)
+ 	if (ops->probe_device) {
+ 		struct iommu_group *group;
+ 
+-		ret = __iommu_probe_device(dev);
++		ret = __iommu_probe_device(dev, NULL);
+ 
+ 		/*
+ 		 * Try to allocate a default domain - needs support from the
+@@ -567,6 +571,7 @@ struct iommu_group *iommu_group_alloc(void)
+ 	group->kobj.kset = iommu_group_kset;
+ 	mutex_init(&group->mutex);
+ 	INIT_LIST_HEAD(&group->devices);
++	INIT_LIST_HEAD(&group->entry);
+ 	BLOCKING_INIT_NOTIFIER_HEAD(&group->notifier);
+ 
+ 	ret = ida_simple_get(&iommu_group_ida, 0, 0, GFP_KERNEL);
 -- 
 2.17.1
