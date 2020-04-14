@@ -1,8 +1,8 @@
 From: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
-Subject: [PATCH v2 10/33] iommu: Move new probe_device path to separate
- function
-Date: Tue, 14 Apr 2020 15:15:19 +0200
-Message-ID: <20200414131542.25608-11-joro@8bytes.org>
+Subject: [PATCH v2 06/33] iommu/amd: Return -ENODEV in add_device when device
+ is not handled by IOMMU
+Date: Tue, 14 Apr 2020 15:15:15 +0200
+Message-ID: <20200414131542.25608-7-joro@8bytes.org>
 References: <20200414131542.25608-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,108 +24,31 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
 
-This makes it easier to remove to old code-path when all drivers are
-converted. As a side effect that it also fixes the error cleanup
-path.
+When check_device() fails on the device, it is not handled by the
+IOMMU and amd_iommu_add_device() needs to return -ENODEV.
 
 Signed-off-by: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
 ---
- drivers/iommu/iommu.c | 69 ++++++++++++++++++++++++++++---------------
- 1 file changed, 46 insertions(+), 23 deletions(-)
+ drivers/iommu/amd_iommu.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 18eb3623bd00..8be047a4808f 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -218,12 +218,55 @@ static int __iommu_probe_device(struct device *dev, struct list_head *group_list
- 	return ret;
- }
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index 504f2db75eda..3e0d27f7622e 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -2157,9 +2157,12 @@ static int amd_iommu_add_device(struct device *dev)
+ 	struct amd_iommu *iommu;
+ 	int ret, devid;
  
-+static int __iommu_probe_device_helper(struct device *dev)
-+{
-+	const struct iommu_ops *ops = dev->bus->iommu_ops;
-+	struct iommu_group *group;
-+	int ret;
-+
-+	ret = __iommu_probe_device(dev, NULL);
-+	if (ret)
-+		goto err_out;
-+
-+	/*
-+	 * Try to allocate a default domain - needs support from the
-+	 * IOMMU driver. There are still some drivers which don't
-+	 * support default domains, so the return value is not yet
-+	 * checked.
-+	 */
-+	iommu_alloc_default_domain(dev);
-+
-+	group = iommu_group_get(dev);
-+	if (!group)
-+		goto err_release;
-+
-+	if (group->default_domain)
-+		ret = __iommu_attach_device(group->default_domain, dev);
-+
-+	iommu_group_put(group);
-+
-+	if (ret)
-+		goto err_release;
-+
-+	if (ops->probe_finalize)
-+		ops->probe_finalize(dev);
-+
-+	return 0;
-+
-+err_release:
-+	iommu_release_device(dev);
-+err_out:
-+	return ret;
-+
-+}
-+
- int iommu_probe_device(struct device *dev)
- {
- 	const struct iommu_ops *ops = dev->bus->iommu_ops;
- 	int ret;
+-	if (!check_device(dev) || get_dev_data(dev))
++	if (get_dev_data(dev))
+ 		return 0;
  
- 	WARN_ON(dev->iommu_group);
++	if (!check_device(dev))
++		return -ENODEV;
 +
- 	if (!ops)
- 		return -EINVAL;
- 
-@@ -235,30 +278,10 @@ int iommu_probe_device(struct device *dev)
- 		goto err_free_dev_param;
- 	}
- 
--	if (ops->probe_device) {
--		struct iommu_group *group;
--
--		ret = __iommu_probe_device(dev, NULL);
--
--		/*
--		 * Try to allocate a default domain - needs support from the
--		 * IOMMU driver. There are still some drivers which don't
--		 * support default domains, so the return value is not yet
--		 * checked.
--		 */
--		if (!ret)
--			iommu_alloc_default_domain(dev);
--
--		group = iommu_group_get(dev);
--		if (group && group->default_domain) {
--			ret = __iommu_attach_device(group->default_domain, dev);
--			iommu_group_put(group);
--		}
--
--	} else {
--		ret = ops->add_device(dev);
--	}
-+	if (ops->probe_device)
-+		return __iommu_probe_device_helper(dev);
- 
-+	ret = ops->add_device(dev);
- 	if (ret)
- 		goto err_module_put;
- 
+ 	devid = get_device_id(dev);
+ 	if (devid < 0)
+ 		return devid;
 -- 
 2.17.1
