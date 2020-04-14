@@ -1,8 +1,8 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v2 18/33] iommu/pamu: Convert to probe/release_device()
- call-backs
-Date: Tue, 14 Apr 2020 15:15:27 +0200
-Message-ID: <20200414131542.25608-19-joro@8bytes.org>
+Subject: [PATCH v2 01/33] iommu: Move default domain allocation to separate
+ function
+Date: Tue, 14 Apr 2020 15:15:10 +0200
+Message-ID: <20200414131542.25608-2-joro@8bytes.org>
 References: <20200414131542.25608-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,58 +24,110 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Convert the PAMU IOMMU driver to use the probe_device() and
-release_device() call-backs of iommu_ops, so that the iommu core code
-does the group and sysfs setup.
+Move the code out of iommu_group_get_for_dev() into a separate
+function.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- drivers/iommu/fsl_pamu_domain.c | 22 +++++-----------------
- 1 file changed, 5 insertions(+), 17 deletions(-)
+ drivers/iommu/iommu.c | 74 ++++++++++++++++++++++++++-----------------
+ 1 file changed, 45 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/iommu/fsl_pamu_domain.c b/drivers/iommu/fsl_pamu_domain.c
-index 06828e2698d5..928d37771ece 100644
---- a/drivers/iommu/fsl_pamu_domain.c
-+++ b/drivers/iommu/fsl_pamu_domain.c
-@@ -1016,25 +1016,13 @@ static struct iommu_group *fsl_pamu_device_group(struct device *dev)
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 2b471419e26c..bfe011760ed1 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -1361,6 +1361,41 @@ struct iommu_group *fsl_mc_device_group(struct device *dev)
+ }
+ EXPORT_SYMBOL_GPL(fsl_mc_device_group);
+ 
++static int iommu_alloc_default_domain(struct device *dev,
++				      struct iommu_group *group)
++{
++	struct iommu_domain *dom;
++
++	if (group->default_domain)
++		return 0;
++
++	dom = __iommu_domain_alloc(dev->bus, iommu_def_domain_type);
++	if (!dom && iommu_def_domain_type != IOMMU_DOMAIN_DMA) {
++		dom = __iommu_domain_alloc(dev->bus, IOMMU_DOMAIN_DMA);
++		if (dom) {
++			dev_warn(dev,
++				 "failed to allocate default IOMMU domain of type %u; falling back to IOMMU_DOMAIN_DMA",
++				 iommu_def_domain_type);
++		}
++	}
++
++	if (!dom)
++		return -ENOMEM;
++
++	group->default_domain = dom;
++	if (!group->domain)
++		group->domain = dom;
++
++	if (!iommu_dma_strict) {
++		int attr = 1;
++		iommu_domain_set_attr(dom,
++				      DOMAIN_ATTR_DMA_USE_FLUSH_QUEUE,
++				      &attr);
++	}
++
++	return 0;
++}
++
+ /**
+  * iommu_group_get_for_dev - Find or create the IOMMU group for a device
+  * @dev: target device
+@@ -1393,40 +1428,21 @@ struct iommu_group *iommu_group_get_for_dev(struct device *dev)
+ 
+ 	/*
+ 	 * Try to allocate a default domain - needs support from the
+-	 * IOMMU driver.
++	 * IOMMU driver. There are still some drivers which don't support
++	 * default domains, so the return value is not yet checked.
+ 	 */
+-	if (!group->default_domain) {
+-		struct iommu_domain *dom;
+-
+-		dom = __iommu_domain_alloc(dev->bus, iommu_def_domain_type);
+-		if (!dom && iommu_def_domain_type != IOMMU_DOMAIN_DMA) {
+-			dom = __iommu_domain_alloc(dev->bus, IOMMU_DOMAIN_DMA);
+-			if (dom) {
+-				dev_warn(dev,
+-					 "failed to allocate default IOMMU domain of type %u; falling back to IOMMU_DOMAIN_DMA",
+-					 iommu_def_domain_type);
+-			}
+-		}
+-
+-		group->default_domain = dom;
+-		if (!group->domain)
+-			group->domain = dom;
+-
+-		if (dom && !iommu_dma_strict) {
+-			int attr = 1;
+-			iommu_domain_set_attr(dom,
+-					      DOMAIN_ATTR_DMA_USE_FLUSH_QUEUE,
+-					      &attr);
+-		}
+-	}
++	iommu_alloc_default_domain(dev, group);
+ 
+ 	ret = iommu_group_add_device(group, dev);
+-	if (ret) {
+-		iommu_group_put(group);
+-		return ERR_PTR(ret);
+-	}
++	if (ret)
++		goto out_put_group;
+ 
  	return group;
++
++out_put_group:
++	iommu_group_put(group);
++
++	return ERR_PTR(ret);
  }
- 
--static int fsl_pamu_add_device(struct device *dev)
-+static struct iommu_device *fsl_pamu_probe_device(struct device *dev)
- {
--	struct iommu_group *group;
--
--	group = iommu_group_get_for_dev(dev);
--	if (IS_ERR(group))
--		return PTR_ERR(group);
--
--	iommu_group_put(group);
--
--	iommu_device_link(&pamu_iommu, dev);
--
--	return 0;
-+	return &pamu_iommu;
- }
- 
--static void fsl_pamu_remove_device(struct device *dev)
-+static void fsl_pamu_release_device(struct device *dev)
- {
--	iommu_device_unlink(&pamu_iommu, dev);
--	iommu_group_remove_device(dev);
- }
- 
- static const struct iommu_ops fsl_pamu_ops = {
-@@ -1048,8 +1036,8 @@ static const struct iommu_ops fsl_pamu_ops = {
- 	.iova_to_phys	= fsl_pamu_iova_to_phys,
- 	.domain_set_attr = fsl_pamu_set_domain_attr,
- 	.domain_get_attr = fsl_pamu_get_domain_attr,
--	.add_device	= fsl_pamu_add_device,
--	.remove_device	= fsl_pamu_remove_device,
-+	.probe_device	= fsl_pamu_probe_device,
-+	.release_device	= fsl_pamu_release_device,
- 	.device_group   = fsl_pamu_device_group,
- };
+ EXPORT_SYMBOL(iommu_group_get_for_dev);
  
 -- 
 2.17.1
