@@ -1,56 +1,111 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 07/10] mm/memory_hotplug: Introduce
- offline_and_remove_memory()
-Date: Tue, 14 Apr 2020 12:35:02 -0400
-Message-ID: <20200414123438-mutt-send-email-mst@kernel.org>
-References: <20200311171422.10484-1-david@redhat.com>
- <20200311171422.10484-8-david@redhat.com>
- <156601a9-e919-b88f-2278-97ecee554d21@redhat.com>
+Subject: [GIT PULL] vhost: cleanups and fixes
+Date: Tue, 14 Apr 2020 12:36:06 -0400
+Message-ID: <20200414123606-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtio-dev-return-7061-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <156601a9-e919-b88f-2278-97ecee554d21@redhat.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Oscar Salvador <osalvador@suse.com>, Michal Hocko <mhocko@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Wei Yang <richard.weiyang@gmail.com>, Dan Williams <dan.j.williams@intel.com>, Qian Cai <cai@lca.pw>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: hulkci@huawei.com, matej.genci@nutanix.com, kvm@vger.kernel.org, arnd@arndb.de, gustavo@embeddedor.com, netdev@vger.kernel.org, mst@redhat.com, yuehaibing@huawei.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, ashutosh.dixit@intel.com, eperezma@redhat.com, andy.shevchenko@gmail.com, yanaijie@huawei.com, eli@mellanox.com, sfr@canb.auug.org.au, bjorn.andersson@linaro.org, elfring@users.sourceforge.net
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 11, 2020 at 06:19:04PM +0100, David Hildenbrand wrote:
-> On 11.03.20 18:14, David Hildenbrand wrote:
-> > virtio-mem wants to offline and remove a memory block once it unplugged
-> > all subblocks (e.g., using alloc_contig_range()). Let's provide
-> > an interface to do that from a driver. virtio-mem already supports to
-> > offline partially unplugged memory blocks. Offlining a fully unplugged
-> > memory block will not require to migrate any pages. All unplugged
-> > subblocks are PageOffline() and have a reference count of 0 - so
-> > offlining code will simply skip them.
-> >=20
-> > All we need is an interface to offline and remove the memory from kerne=
-l
-> > module context, where we don't have access to the memory block devices
-> > (esp. find_memory_block() and device_offline()) and the device hotplug
-> > lock.
-> >=20
-> > To keep things simple, allow to only work on a single memory block.
-> >=20
->=20
-> Lost the ACK from Michael
->=20
-> Acked-by: Michal Hocko <mhocko@suse.com> [1]
->=20
-> [1] https://lkml.kernel.org/r/20200302142737.GP4380@dhcp22.suse.cz
-
-
-Andrew, could you pls ack merging this through the vhost tree,
-with the rest of the patchset?
-
-> --=20
-> Thanks,
->=20
-> David / dhildenb
+VGhlIGZvbGxvd2luZyBjaGFuZ2VzIHNpbmNlIGNvbW1pdCA4MzVhNmE2NDlkMGRkMWIxZjQ2NzU5
+ZWI2MGZmZjJmNjNlZDI1M2E3OgoKICB2aXJ0aW8tYmFsbG9vbjogUmV2ZXJ0ICJ2aXJ0aW8tYmFs
+bG9vbjogU3dpdGNoIGJhY2sgdG8gT09NIGhhbmRsZXIgZm9yIFZJUlRJT19CQUxMT09OX0ZfREVG
+TEFURV9PTl9PT00iICgyMDIwLTA0LTA3IDA1OjQ0OjU3IC0wNDAwKQoKYXJlIGF2YWlsYWJsZSBp
+biB0aGUgR2l0IHJlcG9zaXRvcnkgYXQ6CgogIGh0dHBzOi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3Nj
+bS9saW51eC9rZXJuZWwvZ2l0L21zdC92aG9zdC5naXQgdGFncy9mb3JfbGludXMKCmZvciB5b3Ug
+dG8gZmV0Y2ggY2hhbmdlcyB1cCB0byBkNGE4NWMyYWNlODk1YTU4ZGNhYjY4N2ZmNDljNzY3MTkw
+MTFmNThkOgoKICB2ZHBhOiBmaXggY29tbWVudCBvZiB2ZHBhX3JlZ2lzdGVyX2RldmljZSgpICgy
+MDIwLTA0LTEzIDA3OjE2OjQxIC0wNDAwKQoKLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLQp2aXJ0aW86IGZpeGVzLCBjbGVhbnVw
+cwoKU29tZSBidWcgZml4ZXMuCkNsZWFudXAgYSBjb3VwbGUgb2YgaXNzdWVzIHRoYXQgc3VyZmFj
+ZWQgbWVhbndoaWxlLgoKU2lnbmVkLW9mZi1ieTogTWljaGFlbCBTLiBUc2lya2luIDxtc3RAcmVk
+aGF0LmNvbT4KCi0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0KRXVnZW5pbyBQw6lyZXogKDQpOgogICAgICB2aG9zdDogQ3JlYXRl
+IGFjY2Vzc29ycyBmb3IgdmlydHF1ZXVlcyBwcml2YXRlX2RhdGEKICAgICAgdG9vbHMvdmlydGlv
+OiBBZGQgLS1iYXRjaCBvcHRpb24KICAgICAgdG9vbHMvdmlydGlvOiBBZGQgLS1iYXRjaD1yYW5k
+b20gb3B0aW9uCiAgICAgIHRvb2xzL3ZpcnRpbzogQWRkIC0tcmVzZXQ9cmFuZG9tCgpHdXN0YXZv
+IEEuIFIuIFNpbHZhICgxKToKICAgICAgdmhvc3Q6IHZkcGE6IHJlbW92ZSB1bm5lY2Vzc2FyeSBu
+dWxsIGNoZWNrCgpKYXNvbiBXYW5nICgxKToKICAgICAgdmRwYTogZml4IGNvbW1lbnQgb2YgdmRw
+YV9yZWdpc3Rlcl9kZXZpY2UoKQoKSmFzb24gWWFuICgxKToKICAgICAgdmhvc3Q6IHJlbW92ZSBz
+ZXQgYnV0IG5vdCB1c2VkIHZhcmlhYmxlICdzdGF0dXMnCgpNYXJrdXMgRWxmcmluZyAoMSk6CiAg
+ICAgIHZpcnRpby1tbWlvOiBEZWxldGUgYW4gZXJyb3IgbWVzc2FnZSBpbiB2bV9maW5kX3Zxcygp
+CgpNYXRlaiBHZW5jaSAoMSk6CiAgICAgIHZpcnRpbzogYWRkIFZJUlRJT19SSU5HX05PX0xFR0FD
+WQoKTWljaGFlbCBTLiBUc2lya2luICgyMik6CiAgICAgIHZkcGEtc2ltOiBkZXBlbmQgb24gSEFT
+X0RNQQogICAgICB2aXJ0aW8vdGVzdDogZml4IHVwIGFmdGVyIElPVExCIGNoYW5nZXMKICAgICAg
+dmhvc3Q6IGRyb3AgdnJpbmcgZGVwZW5kZW5jeSBvbiBpb3RsYgogICAgICB0b29scy92aXJ0aW86
+IGRlZmluZSBhbGlnbmVkIGF0dHJpYnV0ZQogICAgICB0b29scy92aXJ0aW86IG1ha2UgYXNtL2Jh
+cnJpZXIuaCBzZWxmIGNvbnRhaW5lZAogICAgICB0b29scy92aXJ0aW86IGRlZmluZSBfX0tFUk5F
+TF9fCiAgICAgIHZpcnRncHU6IHB1bGwgaW4gdWFjY2Vzcy5oCiAgICAgIHZpcnRpby1ybmc6IHB1
+bGwgaW4gc2xhYi5oCiAgICAgIHJlbW90ZXByb2M6IHB1bGwgaW4gc2xhYi5oCiAgICAgIHZpcnRp
+b19pbnB1dDogcHVsbCBpbiBzbGFiLmgKICAgICAgcnBtc2c6IHB1bGwgaW4gc2xhYi5oCiAgICAg
+IHJlbW90ZXByb2M6IHB1bGwgaW4gc2xhYi5oCiAgICAgIHZpcnRpbzogc3RvcCB1c2luZyBsZWdh
+Y3kgc3RydWN0IHZyaW5nIGluIGtlcm5lbAogICAgICB2aG9zdDogZm9yY2Ugc3BlYyBzcGVjaWZp
+ZWQgYWxpZ25tZW50IG9uIHR5cGVzCiAgICAgIHZpcnRpbzogYWRkIGxlZ2FjeSBpbml0L3NpemUg
+QVBJcwogICAgICB2aXJ0aW9fcmluZzogc3dpdGNoIHRvIHZpcnRpb19sZWdhY3lfaW5pdC9zaXpl
+CiAgICAgIHRvb2xzL3ZpcnRpbzogc3dpdGNoIHRvIHZpcnRpb19sZWdhY3lfaW5pdC9zaXplCiAg
+ICAgIHZvcDogc3dpdGNoIHRvIHZpcnRpb19sZWdhY3lfaW5pdC9zaXplCiAgICAgIHJlbW90ZXBy
+b2M6IHN3aXRjaCB0byB2aXJ0aW9fbGVnYWN5X2luaXQvc2l6ZQogICAgICBtZWxsYW5veDogc3dp
+dGNoIHRvIHZpcnRpb19sZWdhY3lfaW5pdC9zaXplCiAgICAgIHZkcGE6IGFsbG93IGEgMzIgYml0
+IHZxIGFsaWdubWVudAogICAgICB2ZHBhOiBtYWtlIHZob3N0LCB2aXJ0aW8gZGVwZW5kIG9uIG1l
+bnUKClN0ZXBoZW4gUm90aHdlbGwgKDEpOgogICAgICBkcm0vdmlydGlvOiBmaXggdXAgZm9yIGlu
+Y2x1ZGUgZmlsZSBjaGFuZ2VzCgpZdWVIYWliaW5nICgyKToKICAgICAgdmRwYTogcmVtb3ZlIHVu
+dXNlZCB2YXJpYWJsZXMgJ2lmY3ZmJyBhbmQgJ2lmY3ZmX2xtJwogICAgICB2ZHBhc2ltOiBSZXR1
+cm4gc3RhdHVzIGluIHZkcGFzaW1fZ2V0X3N0YXR1cwoKIGRyaXZlcnMvYmxvY2svdmlydGlvX2Js
+ay5jICAgICAgICAgICAgICAgfCAgIDEgKwogZHJpdmVycy9jaGFyL2h3X3JhbmRvbS92aXJ0aW8t
+cm5nLmMgICAgICB8ICAgMSArCiBkcml2ZXJzL2dwdS9kcm0vdmlydGlvL3ZpcnRncHVfaW9jdGwu
+YyAgIHwgICAxICsKIGRyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9rbXMuYyAgICAgfCAg
+IDEgKwogZHJpdmVycy9taXNjL21pYy92b3Avdm9wX21haW4uYyAgICAgICAgICB8ICAgNSArLQog
+ZHJpdmVycy9taXNjL21pYy92b3Avdm9wX3ZyaW5naC5jICAgICAgICB8ICAgOCArKy0KIGRyaXZl
+cnMvcGxhdGZvcm0vbWVsbGFub3gvbWx4YmYtdG1maWZvLmMgfCAgIDYgKy0KIGRyaXZlcnMvcmVt
+b3RlcHJvYy9yZW1vdGVwcm9jX2NvcmUuYyAgICAgfCAgIDIgKy0KIGRyaXZlcnMvcmVtb3RlcHJv
+Yy9yZW1vdGVwcm9jX3N5c2ZzLmMgICAgfCAgIDEgKwogZHJpdmVycy9yZW1vdGVwcm9jL3JlbW90
+ZXByb2NfdmlydGlvLmMgICB8ICAgMiArLQogZHJpdmVycy9yZW1vdGVwcm9jL3N0bTMyX3Jwcm9j
+LmMgICAgICAgICB8ICAgMSArCiBkcml2ZXJzL3JwbXNnL210a19ycG1zZy5jICAgICAgICAgICAg
+ICAgIHwgICAxICsKIGRyaXZlcnMvdmRwYS9LY29uZmlnICAgICAgICAgICAgICAgICAgICAgfCAg
+MTkgKysrLS0tCiBkcml2ZXJzL3ZkcGEvaWZjdmYvaWZjdmZfYmFzZS5jICAgICAgICAgIHwgICAy
+IC0KIGRyaXZlcnMvdmRwYS9pZmN2Zi9pZmN2Zl9tYWluLmMgICAgICAgICAgfCAgIDQgKy0KIGRy
+aXZlcnMvdmRwYS92ZHBhLmMgICAgICAgICAgICAgICAgICAgICAgfCAgIDIgKy0KIGRyaXZlcnMv
+dmRwYS92ZHBhX3NpbS92ZHBhX3NpbS5jICAgICAgICAgfCAgIDQgKy0KIGRyaXZlcnMvdmhvc3Qv
+S2NvbmZpZyAgICAgICAgICAgICAgICAgICAgfCAgIDUgKy0KIGRyaXZlcnMvdmhvc3QvbmV0LmMg
+ICAgICAgICAgICAgICAgICAgICAgfCAgMjggKysrKystLS0tCiBkcml2ZXJzL3Zob3N0L3Njc2ku
+YyAgICAgICAgICAgICAgICAgICAgIHwgIDE0ICsrLS0tCiBkcml2ZXJzL3Zob3N0L3Rlc3QuYyAg
+ICAgICAgICAgICAgICAgICAgIHwgIDcxICsrKysrKysrKysrKysrKysrKystLS0KIGRyaXZlcnMv
+dmhvc3QvdGVzdC5oICAgICAgICAgICAgICAgICAgICAgfCAgIDEgKwogZHJpdmVycy92aG9zdC92
+ZHBhLmMgICAgICAgICAgICAgICAgICAgICB8ICAgNSAtLQogZHJpdmVycy92aG9zdC92aG9zdC5o
+ICAgICAgICAgICAgICAgICAgICB8ICAzMyArKysrKysrKystCiBkcml2ZXJzL3Zob3N0L3ZyaW5n
+aC5jICAgICAgICAgICAgICAgICAgIHwgICA1ICsrCiBkcml2ZXJzL3Zob3N0L3Zzb2NrLmMgICAg
+ICAgICAgICAgICAgICAgIHwgIDE0ICsrLS0tCiBkcml2ZXJzL3ZpcnRpby9LY29uZmlnICAgICAg
+ICAgICAgICAgICAgIHwgICAyICstCiBkcml2ZXJzL3ZpcnRpby92aXJ0aW9faW5wdXQuYyAgICAg
+ICAgICAgIHwgICAxICsKIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19tbWlvLmMgICAgICAgICAgICAg
+fCAgIDQgKy0KIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfbW9kZXJuLmMgICAgICAgfCAgIDEg
+KwogZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYyAgICAgICAgICAgICB8ICAxNSArKystLQog
+aW5jbHVkZS9saW51eC92ZHBhLmggICAgICAgICAgICAgICAgICAgICB8ICAgMiArLQogaW5jbHVk
+ZS9saW51eC92aXJ0aW8uaCAgICAgICAgICAgICAgICAgICB8ICAgMSAtCiBpbmNsdWRlL2xpbnV4
+L3ZpcnRpb19yaW5nLmggICAgICAgICAgICAgIHwgIDQ2ICsrKysrKysrKysrKysrCiBpbmNsdWRl
+L2xpbnV4L3ZyaW5naC5oICAgICAgICAgICAgICAgICAgIHwgICA3ICsrKwogaW5jbHVkZS91YXBp
+L2xpbnV4L3ZpcnRpb19yaW5nLmggICAgICAgICB8ICAzMCArKysrKystLS0KIHRvb2xzL3ZpcnRp
+by9NYWtlZmlsZSAgICAgICAgICAgICAgICAgICAgfCAgIDUgKy0KIHRvb2xzL3ZpcnRpby9hc20v
+YmFycmllci5oICAgICAgICAgICAgICAgfCAgIDEgKwogdG9vbHMvdmlydGlvL2dlbmVyYXRlZC9h
+dXRvY29uZi5oICAgICAgICB8ICAgMAogdG9vbHMvdmlydGlvL2xpbnV4L2NvbXBpbGVyLmggICAg
+ICAgICAgICB8ICAgMSArCiB0b29scy92aXJ0aW8vcmluZ3Rlc3QvdmlydGlvX3JpbmdfMF85LmMg
+IHwgICA2ICstCiB0b29scy92aXJ0aW8vdmlydGlvX3Rlc3QuYyAgICAgICAgICAgICAgIHwgMTAx
+ICsrKysrKysrKysrKysrKysrKysrKysrKysrLS0tLS0KIHRvb2xzL3ZpcnRpby92cmluZ2hfdGVz
+dC5jICAgICAgICAgICAgICAgfCAgMTggKysrLS0tCiA0MyBmaWxlcyBjaGFuZ2VkLCAzNTQgaW5z
+ZXJ0aW9ucygrKSwgMTI0IGRlbGV0aW9ucygtKQogY3JlYXRlIG1vZGUgMTAwNjQ0IHRvb2xzL3Zp
+cnRpby9nZW5lcmF0ZWQvYXV0b2NvbmYuaAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0
+aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0
+aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
