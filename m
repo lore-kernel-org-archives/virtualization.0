@@ -1,58 +1,54 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v2 00/10] virtio-mem: paravirtualized memory
-Date: Tue, 14 Apr 2020 11:15:18 +0200
-Message-ID: <b9984195-bb48-e2a6-887d-0905692a7524@redhat.com>
-References: <20200311171422.10484-1-david@redhat.com>
- <20200329084128-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] vhost: do not enable VHOST_MENU by default
+Date: Tue, 14 Apr 2020 17:48:04 +0800
+Message-ID: <802e6da9-4827-a9a4-b409-f08a5de4e750@redhat.com>
+References: <20200414024438.19103-1-jasowang@redhat.com>
+ <375181ee-08ec-77a6-2dfc-f3c9c26705a1@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
-Return-path: <virtio-dev-return-7056-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <20200329084128-mutt-send-email-mst@kernel.org>
+Return-path: <linux-mips-owner@vger.kernel.org>
+In-Reply-To: <375181ee-08ec-77a6-2dfc-f3c9c26705a1@de.ibm.com>
 Content-Language: en-US
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Sebastien Boeuf <sebastien.boeuf@intel.com>, Samuel Ortiz <samuel.ortiz@intel.com>, Robert Bradford <robert.bradford@intel.com>, Luiz Capitulino <lcapitulino@redhat.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, teawater <teawaterz@linux.alibaba.com>, Igor Mammedov <imammedo@redhat.com>, "Dr . David Alan Gilbert" <dgilbert@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Alexander Potapenko <glider@google.com>, Anshuman Khandual <anshuman.khandual@arm.com>, Anthony Yznaga <anthony.yznaga@oracle.com>, Dan Williams <dan.j.williams@intel.com>, Dave Young <dyoung@redhat.com>, Jason Wang <jasowang@redhat.com>, Johannes Weiner <hanne>
+Sender: linux-mips-owner@vger.kernel.org
+To: Christian Borntraeger <borntraeger@de.ibm.com>, mst@redhat.com
+Cc: linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, geert@linux-m68k.org, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 29.03.20 14:42, Michael S. Tsirkin wrote:
-> On Wed, Mar 11, 2020 at 06:14:12PM +0100, David Hildenbrand wrote:
->> This series is based on latest linux-next. The patches are located at:
->>     https://github.com/davidhildenbrand/linux.git virtio-mem-v2
+
+On 2020/4/14 =E4=B8=8B=E5=8D=883:26, Christian Borntraeger wrote:
+> On 14.04.20 04:44, Jason Wang wrote:
+>> We try to keep the defconfig untouched after decoupling CONFIG_VHOST
+>> out of CONFIG_VIRTUALIZATION in commit 20c384f1ea1a
+>> ("vhost: refine vhost and vringh kconfig") by enabling VHOST_MENU by
+>> default. Then the defconfigs can keep enabling CONFIG_VHOST_NET
+>> without the caring of CONFIG_VHOST.
 >>
->> I now have acks for all !virtio-mem changes. I'll be happy to get revi=
-ew
->> feedback, testing reports, etc. for the virtio-mem changes. If there a=
-re
->> no further comments, I guess this is good to go as a v1 soon.
->=20
-> I'd like to queue it for merge after the release. If you feel it's read=
-y
-> please ping me after the release to help make sure it didn't get
-> dropped.  I see there were some reports about people having trouble
-> using this, pls keep working on this meanwhile.
+>> But this will leave a "CONFIG_VHOST_MENU=3Dy" in all defconfigs and ev=
+en
+>> for the ones that doesn't want vhost. So it actually shifts the
+>> burdens to the maintainers of all other to add "CONFIG_VHOST_MENU is
+>> not set". So this patch tries to enable CONFIG_VHOST explicitly in
+>> defconfigs that enables CONFIG_VHOST_NET and CONFIG_VHOST_VSOCK.
+>>
+>> Cc: Thomas Bogendoerfer<tsbogend@alpha.franken.de>
+>> Cc: Benjamin Herrenschmidt<benh@kernel.crashing.org>
+>> Cc: Paul Mackerras<paulus@samba.org>
+>> Cc: Michael Ellerman<mpe@ellerman.id.au>
+>> Cc: Heiko Carstens<heiko.carstens@de.ibm.com>
+>> Cc: Vasily Gorbik<gor@linux.ibm.com>
+>> Cc: Christian Borntraeger<borntraeger@de.ibm.com>
+> Fine with me.
+> s390 part
+>
+> Acked-by: Christian Borntraeger<borntraeger@de.ibm.com>
+>
+>   That was my first approach to get things fixed before I reported
+> this to you.
 
-Hi Michael,
 
-I think this is ready to go as a first version. There are a couple of
-future work items related to kexec/kdump:
-- Teach kexec-tools/kexec_file_load() to not place the kexec
-  kernel/initrd onto virtio-mem added memory.
-- Teach kexec-tools/kdump to consider a bigger number of memory
-  resources for dumping.
+Exactly.
 
-In general, as virtio-mem adds a lot of memory resources, we might want
-to tweak performance in that area as well. Future stuff.
+Thanks
 
-So I suggest queuing this. If you need a resend, please let me know.
-
-Cheers!
-
---=20
-Thanks,
-
-David / dhildenb
+>
