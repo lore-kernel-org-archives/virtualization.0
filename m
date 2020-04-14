@@ -1,8 +1,8 @@
 From: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
-Subject: [PATCH v2 20/33] iommu/virtio: Convert to probe/release_device()
+Subject: [PATCH v2 22/33] iommu/mediatek: Convert to probe/release_device()
  call-backs
-Date: Tue, 14 Apr 2020 15:15:29 +0200
-Message-ID: <20200414131542.25608-21-joro@8bytes.org>
+Date: Tue, 14 Apr 2020 15:15:31 +0200
+Message-ID: <20200414131542.25608-23-joro@8bytes.org>
 References: <20200414131542.25608-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,108 +24,72 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
 
-Convert the VirtIO IOMMU driver to use the probe_device() and
+Convert the Mediatek IOMMU driver to use the probe_device() and
 release_device() call-backs of iommu_ops, so that the iommu core code
 does the group and sysfs setup.
 
 Signed-off-by: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
 ---
- drivers/iommu/virtio-iommu.c | 41 +++++++++---------------------------
- 1 file changed, 10 insertions(+), 31 deletions(-)
+ drivers/iommu/mtk_iommu.c | 24 ++++++------------------
+ 1 file changed, 6 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-index d5cac4f46ca5..bda300c2a438 100644
---- a/drivers/iommu/virtio-iommu.c
-+++ b/drivers/iommu/virtio-iommu.c
-@@ -865,24 +865,23 @@ static struct viommu_dev *viommu_get_by_fwnode(struct fwnode_handle *fwnode)
- 	return dev ? dev_to_virtio(dev)->priv : NULL;
+diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
+index 5f4d6df59cf6..2be96f1cdbd2 100644
+--- a/drivers/iommu/mtk_iommu.c
++++ b/drivers/iommu/mtk_iommu.c
+@@ -441,38 +441,26 @@ static phys_addr_t mtk_iommu_iova_to_phys(struct iommu_domain *domain,
+ 	return pa;
  }
  
--static int viommu_add_device(struct device *dev)
-+static struct iommu_device *viommu_probe_device(struct device *dev)
+-static int mtk_iommu_add_device(struct device *dev)
++static struct iommu_device *mtk_iommu_probe_device(struct device *dev)
  {
- 	int ret;
--	struct iommu_group *group;
- 	struct viommu_endpoint *vdev;
- 	struct viommu_dev *viommu = NULL;
  	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+ 	struct mtk_iommu_data *data;
+-	struct iommu_group *group;
  
- 	if (!fwspec || fwspec->ops != &viommu_ops)
--		return -ENODEV;
-+		return ERR_PTR(-ENODEV);
+ 	if (!fwspec || fwspec->ops != &mtk_iommu_ops)
+-		return -ENODEV; /* Not a iommu client device */
++		return ERR_PTR(-ENODEV); /* Not a iommu client device */
  
- 	viommu = viommu_get_by_fwnode(fwspec->iommu_fwnode);
- 	if (!viommu)
--		return -ENODEV;
-+		return ERR_PTR(-ENODEV);
+ 	data = dev_iommu_priv_get(dev);
+-	iommu_device_link(&data->iommu, dev);
  
- 	vdev = kzalloc(sizeof(*vdev), GFP_KERNEL);
- 	if (!vdev)
--		return -ENOMEM;
-+		return ERR_PTR(-ENOMEM);
- 
- 	vdev->dev = dev;
- 	vdev->viommu = viommu;
-@@ -896,45 +895,25 @@ static int viommu_add_device(struct device *dev)
- 			goto err_free_dev;
- 	}
- 
--	ret = iommu_device_link(&viommu->iommu, dev);
--	if (ret)
--		goto err_free_dev;
-+	return &viommu->iommu;
- 
--	/*
--	 * Last step creates a default domain and attaches to it. Everything
--	 * must be ready.
--	 */
 -	group = iommu_group_get_for_dev(dev);
--	if (IS_ERR(group)) {
--		ret = PTR_ERR(group);
--		goto err_unlink_dev;
--	}
+-	if (IS_ERR(group))
+-		return PTR_ERR(group);
 -
 -	iommu_group_put(group);
--
--	return PTR_ERR_OR_ZERO(group);
--
--err_unlink_dev:
--	iommu_device_unlink(&viommu->iommu, dev);
- err_free_dev:
- 	generic_iommu_put_resv_regions(dev, &vdev->resv_regions);
- 	kfree(vdev);
- 
--	return ret;
-+	return ERR_PTR(ret);
+-	return 0;
++	return &data->iommu;
  }
  
--static void viommu_remove_device(struct device *dev)
-+static void viommu_release_device(struct device *dev)
+-static void mtk_iommu_remove_device(struct device *dev)
++static void mtk_iommu_release_device(struct device *dev)
  {
--	struct viommu_endpoint *vdev;
  	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
-+	struct viommu_endpoint *vdev;
+-	struct mtk_iommu_data *data;
  
- 	if (!fwspec || fwspec->ops != &viommu_ops)
+ 	if (!fwspec || fwspec->ops != &mtk_iommu_ops)
  		return;
  
- 	vdev = dev_iommu_priv_get(dev);
- 
+-	data = dev_iommu_priv_get(dev);
+-	iommu_device_unlink(&data->iommu, dev);
+-
 -	iommu_group_remove_device(dev);
--	iommu_device_unlink(&vdev->viommu->iommu, dev);
- 	generic_iommu_put_resv_regions(dev, &vdev->resv_regions);
- 	kfree(vdev);
+ 	iommu_fwspec_free(dev);
  }
-@@ -960,8 +939,8 @@ static struct iommu_ops viommu_ops = {
- 	.unmap			= viommu_unmap,
- 	.iova_to_phys		= viommu_iova_to_phys,
- 	.iotlb_sync		= viommu_iotlb_sync,
--	.add_device		= viommu_add_device,
--	.remove_device		= viommu_remove_device,
-+	.probe_device		= viommu_probe_device,
-+	.release_device		= viommu_release_device,
- 	.device_group		= viommu_device_group,
- 	.get_resv_regions	= viommu_get_resv_regions,
- 	.put_resv_regions	= generic_iommu_put_resv_regions,
+ 
+@@ -526,8 +514,8 @@ static const struct iommu_ops mtk_iommu_ops = {
+ 	.flush_iotlb_all = mtk_iommu_flush_iotlb_all,
+ 	.iotlb_sync	= mtk_iommu_iotlb_sync,
+ 	.iova_to_phys	= mtk_iommu_iova_to_phys,
+-	.add_device	= mtk_iommu_add_device,
+-	.remove_device	= mtk_iommu_remove_device,
++	.probe_device	= mtk_iommu_probe_device,
++	.release_device	= mtk_iommu_release_device,
+ 	.device_group	= mtk_iommu_device_group,
+ 	.of_xlate	= mtk_iommu_of_xlate,
+ 	.pgsize_bitmap	= SZ_4K | SZ_64K | SZ_1M | SZ_16M,
 -- 
 2.17.1
