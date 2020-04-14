@@ -1,133 +1,265 @@
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v2 01/33] iommu: Move default domain allocation to separate
- function
-Date: Tue, 14 Apr 2020 15:15:10 +0200
-Message-ID: <20200414131542.25608-2-joro@8bytes.org>
+From: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
+Subject: [PATCH v2 32/33] iommu: Remove add_device()/remove_device() code-paths
+Date: Tue, 14 Apr 2020 15:15:41 +0200
+Message-ID: <20200414131542.25608-33-joro@8bytes.org>
 References: <20200414131542.25608-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200414131542.25608-1-joro@8bytes.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: linux-s390@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-rockchip@lists.infradead.org, iommu@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>, linux-mediatek@lists.infradead.org, linux-tegra@vger.kernel.org
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <20200414131542.25608-1-joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+ <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+ <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Sender: "iommu" <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+To: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>, Will Deacon <will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>, Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Lu Baolu <baolu.lu-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Gross <agross-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Clark <robdclark-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Gerald Schaefer <gerald.schaefer-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
 
-Move the code out of iommu_group_get_for_dev() into a separate
-function.
+All drivers are converted to use the probe/release_device()
+call-backs, so the add_device/remove_device() pointers are unused and
+the code using them can be removed.
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
 ---
- drivers/iommu/iommu.c | 74 ++++++++++++++++++++++++++-----------------
- 1 file changed, 45 insertions(+), 29 deletions(-)
+ drivers/iommu/iommu.c | 149 ++++++++----------------------------------
+ include/linux/iommu.h |   4 --
+ 2 files changed, 29 insertions(+), 124 deletions(-)
 
 diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 2b471419e26c..bfe011760ed1 100644
+index a2ff95424044..9a7120746b8e 100644
 --- a/drivers/iommu/iommu.c
 +++ b/drivers/iommu/iommu.c
-@@ -1361,6 +1361,41 @@ struct iommu_group *fsl_mc_device_group(struct device *dev)
+@@ -220,7 +220,7 @@ static int __iommu_probe_device(struct device *dev, struct list_head *group_list
+ 	return ret;
  }
- EXPORT_SYMBOL_GPL(fsl_mc_device_group);
  
-+static int iommu_alloc_default_domain(struct device *dev,
-+				      struct iommu_group *group)
-+{
-+	struct iommu_domain *dom;
-+
-+	if (group->default_domain)
-+		return 0;
-+
-+	dom = __iommu_domain_alloc(dev->bus, iommu_def_domain_type);
-+	if (!dom && iommu_def_domain_type != IOMMU_DOMAIN_DMA) {
-+		dom = __iommu_domain_alloc(dev->bus, IOMMU_DOMAIN_DMA);
-+		if (dom) {
-+			dev_warn(dev,
-+				 "failed to allocate default IOMMU domain of type %u; falling back to IOMMU_DOMAIN_DMA",
-+				 iommu_def_domain_type);
-+		}
-+	}
-+
-+	if (!dom)
-+		return -ENOMEM;
-+
-+	group->default_domain = dom;
-+	if (!group->domain)
-+		group->domain = dom;
-+
-+	if (!iommu_dma_strict) {
-+		int attr = 1;
-+		iommu_domain_set_attr(dom,
-+				      DOMAIN_ATTR_DMA_USE_FLUSH_QUEUE,
-+				      &attr);
-+	}
-+
-+	return 0;
-+}
-+
- /**
-  * iommu_group_get_for_dev - Find or create the IOMMU group for a device
-  * @dev: target device
-@@ -1393,40 +1428,21 @@ struct iommu_group *iommu_group_get_for_dev(struct device *dev)
+-static int __iommu_probe_device_helper(struct device *dev)
++int iommu_probe_device(struct device *dev)
+ {
+ 	const struct iommu_ops *ops = dev->bus->iommu_ops;
+ 	struct iommu_group *group;
+@@ -264,70 +264,17 @@ static int __iommu_probe_device_helper(struct device *dev)
  
- 	/*
- 	 * Try to allocate a default domain - needs support from the
--	 * IOMMU driver.
-+	 * IOMMU driver. There are still some drivers which don't support
-+	 * default domains, so the return value is not yet checked.
- 	 */
--	if (!group->default_domain) {
--		struct iommu_domain *dom;
+ }
+ 
+-int iommu_probe_device(struct device *dev)
++void iommu_release_device(struct device *dev)
+ {
+ 	const struct iommu_ops *ops = dev->bus->iommu_ops;
+-	struct iommu_group *group;
+-	int ret;
 -
--		dom = __iommu_domain_alloc(dev->bus, iommu_def_domain_type);
--		if (!dom && iommu_def_domain_type != IOMMU_DOMAIN_DMA) {
--			dom = __iommu_domain_alloc(dev->bus, IOMMU_DOMAIN_DMA);
--			if (dom) {
--				dev_warn(dev,
--					 "failed to allocate default IOMMU domain of type %u; falling back to IOMMU_DOMAIN_DMA",
--					 iommu_def_domain_type);
--			}
--		}
+-	WARN_ON(dev->iommu_group);
 -
--		group->default_domain = dom;
--		if (!group->domain)
--			group->domain = dom;
+-	if (!ops)
+-		return -EINVAL;
 -
--		if (dom && !iommu_dma_strict) {
--			int attr = 1;
--			iommu_domain_set_attr(dom,
--					      DOMAIN_ATTR_DMA_USE_FLUSH_QUEUE,
--					      &attr);
--		}
+-	if (!dev_iommu_get(dev))
+-		return -ENOMEM;
+-
+-	if (!try_module_get(ops->owner)) {
+-		ret = -EINVAL;
+-		goto err_free_dev_param;
 -	}
-+	iommu_alloc_default_domain(dev, group);
+-
+-	if (ops->probe_device)
+-		return __iommu_probe_device_helper(dev);
+-
+-	ret = ops->add_device(dev);
+-	if (ret)
+-		goto err_module_put;
+-
+-	group = iommu_group_get(dev);
+-	iommu_create_device_direct_mappings(group, dev);
+-	iommu_group_put(group);
+-
+-	if (ops->probe_finalize)
+-		ops->probe_finalize(dev);
  
- 	ret = iommu_group_add_device(group, dev);
--	if (ret) {
--		iommu_group_put(group);
--		return ERR_PTR(ret);
+-	return 0;
+-
+-err_module_put:
+-	module_put(ops->owner);
+-err_free_dev_param:
+-	dev_iommu_free(dev);
+-	return ret;
+-}
+-
+-static void __iommu_release_device(struct device *dev)
+-{
+-	const struct iommu_ops *ops = dev->bus->iommu_ops;
++	if (!dev->iommu)
++		return;
+ 
+ 	iommu_device_unlink(dev->iommu->iommu_dev, dev);
+-
+ 	iommu_group_remove_device(dev);
+ 
+ 	ops->release_device(dev);
+-}
+-
+-void iommu_release_device(struct device *dev)
+-{
+-	const struct iommu_ops *ops = dev->bus->iommu_ops;
+-
+-	if (!dev->iommu)
+-		return;
+-
+-	if (ops->release_device)
+-		__iommu_release_device(dev);
+-	else if (dev->iommu_group)
+-		ops->remove_device(dev);
+ 
+ 	module_put(ops->owner);
+ 	dev_iommu_free(dev);
+@@ -1560,23 +1507,6 @@ struct iommu_group *iommu_group_get_for_dev(struct device *dev)
+ 	if (ret)
+ 		goto out_put_group;
+ 
+-	/*
+-	 * Try to allocate a default domain - needs support from the
+-	 * IOMMU driver. There are still some drivers which don't support
+-	 * default domains, so the return value is not yet checked. Only
+-	 * allocate the domain here when the driver still has the
+-	 * add_device/remove_device call-backs implemented.
+-	 */
+-	if (!ops->probe_device) {
+-		iommu_alloc_default_domain(dev);
+-
+-		if (group->default_domain)
+-			ret = __iommu_attach_device(group->default_domain, dev);
+-
+-		if (ret)
+-			goto out_put_group;
 -	}
-+	if (ret)
-+		goto out_put_group;
- 
+-
  	return group;
-+
-+out_put_group:
-+	iommu_group_put(group);
-+
-+	return ERR_PTR(ret);
- }
- EXPORT_SYMBOL(iommu_group_get_for_dev);
  
+ out_put_group:
+@@ -1591,21 +1521,6 @@ struct iommu_domain *iommu_group_default_domain(struct iommu_group *group)
+ 	return group->default_domain;
+ }
+ 
+-static int add_iommu_group(struct device *dev, void *data)
+-{
+-	int ret = iommu_probe_device(dev);
+-
+-	/*
+-	 * We ignore -ENODEV errors for now, as they just mean that the
+-	 * device is not translated by an IOMMU. We still care about
+-	 * other errors and fail to initialize when they happen.
+-	 */
+-	if (ret == -ENODEV)
+-		ret = 0;
+-
+-	return ret;
+-}
+-
+ static int probe_iommu_group(struct device *dev, void *data)
+ {
+ 	const struct iommu_ops *ops = dev->bus->iommu_ops;
+@@ -1789,47 +1704,41 @@ static int iommu_group_create_direct_mappings(struct iommu_group *group)
+ 
+ int bus_iommu_probe(struct bus_type *bus)
+ {
+-	const struct iommu_ops *ops = bus->iommu_ops;
++	struct iommu_group *group, *next;
++	LIST_HEAD(group_list);
+ 	int ret;
+ 
+-	if (ops->probe_device) {
+-		struct iommu_group *group, *next;
+-		LIST_HEAD(group_list);
+-
+-		/*
+-		 * This code-path does not allocate the default domain when
+-		 * creating the iommu group, so do it after the groups are
+-		 * created.
+-		 */
+-		ret = bus_for_each_dev(bus, NULL, &group_list, probe_iommu_group);
+-		if (ret)
+-			return ret;
++	/*
++	 * This code-path does not allocate the default domain when
++	 * creating the iommu group, so do it after the groups are
++	 * created.
++	 */
++	ret = bus_for_each_dev(bus, NULL, &group_list, probe_iommu_group);
++	if (ret)
++		return ret;
+ 
+-		list_for_each_entry_safe(group, next, &group_list, entry) {
+-			/* Remove item from the list */
+-			list_del_init(&group->entry);
++	list_for_each_entry_safe(group, next, &group_list, entry) {
++		/* Remove item from the list */
++		list_del_init(&group->entry);
+ 
+-			mutex_lock(&group->mutex);
++		mutex_lock(&group->mutex);
+ 
+-			/* Try to allocate default domain */
+-			probe_alloc_default_domain(bus, group);
++		/* Try to allocate default domain */
++		probe_alloc_default_domain(bus, group);
+ 
+-			if (!group->default_domain) {
+-				mutex_unlock(&group->mutex);
+-				continue;
+-			}
++		if (!group->default_domain) {
++			mutex_unlock(&group->mutex);
++			continue;
++		}
+ 
+-			iommu_group_create_direct_mappings(group);
++		iommu_group_create_direct_mappings(group);
+ 
+-			ret = __iommu_group_dma_attach(group);
++		ret = __iommu_group_dma_attach(group);
+ 
+-			mutex_unlock(&group->mutex);
++		mutex_unlock(&group->mutex);
+ 
+-			if (ret)
+-				break;
+-		}
+-	} else {
+-		ret = bus_for_each_dev(bus, NULL, NULL, add_iommu_group);
++		if (ret)
++			break;
+ 	}
+ 
+ 	return ret;
+diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+index fea1622408ad..dd076366383f 100644
+--- a/include/linux/iommu.h
++++ b/include/linux/iommu.h
+@@ -223,8 +223,6 @@ struct iommu_iotlb_gather {
+  * @iotlb_sync: Flush all queued ranges from the hardware TLBs and empty flush
+  *            queue
+  * @iova_to_phys: translate iova to physical address
+- * @add_device: add device to iommu grouping
+- * @remove_device: remove device from iommu grouping
+  * @probe_device: Add device to iommu driver handling
+  * @release_device: Remove device from iommu driver handling
+  * @probe_finalize: Do final setup work after the device is added to an IOMMU
+@@ -277,8 +275,6 @@ struct iommu_ops {
+ 	void (*iotlb_sync)(struct iommu_domain *domain,
+ 			   struct iommu_iotlb_gather *iotlb_gather);
+ 	phys_addr_t (*iova_to_phys)(struct iommu_domain *domain, dma_addr_t iova);
+-	int (*add_device)(struct device *dev);
+-	void (*remove_device)(struct device *dev);
+ 	struct iommu_device *(*probe_device)(struct device *dev);
+ 	void (*release_device)(struct device *dev);
+ 	void (*probe_finalize)(struct device *dev);
 -- 
 2.17.1
