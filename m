@@ -1,47 +1,68 @@
-From: Waiman Long <longman@redhat.com>
-Subject: Re: [PATCH 1/2] mm, treewide: Rename kzfree() to kfree_sensitive()
-Date: Tue, 14 Apr 2020 14:26:48 -0400
-Message-ID: <3d8c80cb-68e5-9211-9eda-bc343ed7d894@redhat.com>
-References: <20200413211550.8307-1-longman@redhat.com>
- <20200413211550.8307-2-longman@redhat.com>
- <20200414124854.GQ5920@twin.jikos.cz>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH v2 00/10] virtio-mem: paravirtualized memory
+Date: Tue, 14 Apr 2020 20:39:25 +0200
+Message-ID: <758aa88e-7bd1-ea77-6ee3-9a015a0f8b0e@redhat.com>
+References: <20200311171422.10484-1-david@redhat.com>
+ <20200329084128-mutt-send-email-mst@kernel.org>
+ <b9984195-bb48-e2a6-887d-0905692a7524@redhat.com>
+ <20200414122716-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=windows-1252
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <wireguard-bounces@lists.zx2c4.com>
-In-Reply-To: <20200414124854.GQ5920@twin.jikos.cz>
+Return-path: <virtio-dev-return-7062-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+In-Reply-To: <20200414122716-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
-List-Unsubscribe: <https://lists.zx2c4.com/mailman/options/wireguard>,
- <mailto:wireguard-request@lists.zx2c4.com?subject=unsubscribe>
-List-Archive: <http://lists.zx2c4.com/pipermail/wireguard/>
-List-Post: <mailto:wireguard@lists.zx2c4.com>
-List-Help: <mailto:wireguard-request@lists.zx2c4.com?subject=help>
-List-Subscribe: <https://lists.zx2c4.com/mailman/listinfo/wireguard>,
- <mailto:wireguard-request@lists.zx2c4.com?subject=subscribe>
-Errors-To: wireguard-bounces@lists.zx2c4.com
-Sender: "WireGuard" <wireguard-bounces@lists.zx2c4.com>
-To: dsterba@suse.cz, Andrew Morton <akpm@linux-foundation.org>, David Howells <dhowells@redhat.com>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, Linus Torvalds <torvalds@linux-foundation.org>, Joe Perches <joe@perches.com>, Matthew Wilcox <willy@infradead.org>, David Rientjes <rientjes@google.com>, linux-mm@kvack.org, keyrings@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org, linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org, linux-pm@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-amlogic@lists.infradead.org, linux-mediatek@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, intel-wired-lan@lists.osuosl.org, linux-ppp@vger.kernel.org, wireguard@lists.zx2c4
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Sebastien Boeuf <sebastien.boeuf@intel.com>, Samuel Ortiz <samuel.ortiz@intel.com>, Robert Bradford <robert.bradford@intel.com>, Luiz Capitulino <lcapitulino@redhat.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, teawater <teawaterz@linux.alibaba.com>, Igor Mammedov <imammedo@redhat.com>, "Dr . David Alan Gilbert" <dgilbert@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Alexander Potapenko <glider@google.com>, Anshuman Khandual <anshuman.khandual@arm.com>, Anthony Yznaga <anthony.yznaga@oracle.com>, Dan Williams <dan.j.williams@intel.com>, Dave Young <dyoung@redhat.com>, Jason Wang <jasowang@redhat.com>, Johannes Weiner <hanne>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 4/14/20 8:48 AM, David Sterba wrote:
-> On Mon, Apr 13, 2020 at 05:15:49PM -0400, Waiman Long wrote:
->>  fs/btrfs/ioctl.c                              |  2 +-
->
->> diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
->> index 40b729dce91c..eab3f8510426 100644
->> --- a/fs/btrfs/ioctl.c
->> +++ b/fs/btrfs/ioctl.c
->> @@ -2691,7 +2691,7 @@ static int btrfs_ioctl_get_subvol_info(struct file *file, void __user *argp)
->>  	btrfs_put_root(root);
->>  out_free:
->>  	btrfs_free_path(path);
->> -	kzfree(subvol_info);
->> +	kfree_sensitive(subvol_info);
-> This is not in a sensitive context so please switch it to plain kfree.
-> With that you have my acked-by. Thanks.
->
-Thanks for letting me know about. I think I will send it out as a
-separate patch.
+On 14.04.20 18:28, Michael S. Tsirkin wrote:
+> On Tue, Apr 14, 2020 at 11:15:18AM +0200, David Hildenbrand wrote:
+>> On 29.03.20 14:42, Michael S. Tsirkin wrote:
+>>> On Wed, Mar 11, 2020 at 06:14:12PM +0100, David Hildenbrand wrote:
+>>>> This series is based on latest linux-next. The patches are located at:
+>>>>     https://github.com/davidhildenbrand/linux.git virtio-mem-v2
+>>>>
+>>>> I now have acks for all !virtio-mem changes. I'll be happy to get review
+>>>> feedback, testing reports, etc. for the virtio-mem changes. If there are
+>>>> no further comments, I guess this is good to go as a v1 soon.
+>>>
+>>> I'd like to queue it for merge after the release. If you feel it's ready
+>>> please ping me after the release to help make sure it didn't get
+>>> dropped.  I see there were some reports about people having trouble
+>>> using this, pls keep working on this meanwhile.
+>>
+>> Hi Michael,
+>>
+>> I think this is ready to go as a first version. There are a couple of
+>> future work items related to kexec/kdump:
+>> - Teach kexec-tools/kexec_file_load() to not place the kexec
+>>   kernel/initrd onto virtio-mem added memory.
+>> - Teach kexec-tools/kdump to consider a bigger number of memory
+>>   resources for dumping.
+>>
+>> In general, as virtio-mem adds a lot of memory resources, we might want
+>> to tweak performance in that area as well. Future stuff.
+>>
+>> So I suggest queuing this. If you need a resend, please let me know.
+>>
+>> Cheers!
+> 
+> Thanks!
+> I'll queue it for merge after the release. If possible please ping me
+> after the release to help make sure it didn't get dropped.
 
-Cheers,
-Longman
+If we could get this into 5.8, that would be great (IOW, have it in
+-next for a while before the 5.8 merge window opens).
+
+Thanks!
+
+-- 
+Thanks,
+
+David / dhildenb
