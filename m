@@ -1,49 +1,177 @@
-From: David Rientjes <rientjes@google.com>
-Subject: Re: [PATCH 1/2] mm, treewide: Rename kzfree() to kfree_sensitive()
-Date: Mon, 13 Apr 2020 17:29:58 -0700 (PDT)
-Message-ID: <alpine.DEB.2.21.2004131729410.260270@chino.kir.corp.google.com>
-References: <20200413211550.8307-1-longman@redhat.com> <20200413211550.8307-2-longman@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH] vhost: do not enable VHOST_MENU by default
+Date: Tue, 14 Apr 2020 10:44:38 +0800
+Message-ID: <20200414024438.19103-1-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <target-devel-owner@vger.kernel.org>
-In-Reply-To: <20200413211550.8307-2-longman@redhat.com>
-Sender: target-devel-owner@vger.kernel.org
-To: Waiman Long <longman@redhat.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, David Howells <dhowells@redhat.com>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, Linus Torvalds <torvalds@linux-foundation.org>, Joe Perches <joe@perches.com>, Matthew Wilcox <willy@infradead.org>, linux-mm@kvack.org, keyrings@vger.kernel.org, linux-kernel@vger.kernel.org, x86@kernel.org, linux-crypto@vger.kernel.org, linux-s390@vger.kernel.org, linux-pm@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-arm-kernel@lists.infradead.org, linux-amlogic@lists.infradead.org, linux-mediatek@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, intel-wired-lan@lists.o
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: mst@redhat.com, jasowang@redhat.com
+Cc: linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, geert@linux-m68k.org, Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, Michael Ellerman <mpe@ellerman.id.au>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 13 Apr 2020, Waiman Long wrote:
+We try to keep the defconfig untouched after decoupling CONFIG_VHOST
+out of CONFIG_VIRTUALIZATION in commit 20c384f1ea1a
+("vhost: refine vhost and vringh kconfig") by enabling VHOST_MENU by
+default. Then the defconfigs can keep enabling CONFIG_VHOST_NET
+without the caring of CONFIG_VHOST.
 
-> As said by Linus:
-> 
->   A symmetric naming is only helpful if it implies symmetries in use.
->   Otherwise it's actively misleading.
-> 
->   In "kzalloc()", the z is meaningful and an important part of what the
->   caller wants.
-> 
->   In "kzfree()", the z is actively detrimental, because maybe in the
->   future we really _might_ want to use that "memfill(0xdeadbeef)" or
->   something. The "zero" part of the interface isn't even _relevant_.
-> 
-> The main reason that kzfree() exists is to clear sensitive information
-> that should not be leaked to other future users of the same memory
-> objects.
-> 
-> Rename kzfree() to kfree_sensitive() to follow the example of the
-> recently added kvfree_sensitive() and make the intention of the API
-> more explicit. In addition, memzero_explicit() is used to clear the
-> memory to make sure that it won't get optimized away by the compiler.
-> 
-> The renaming is done by using the command sequence:
-> 
->   git grep -w --name-only kzfree |\
->   xargs sed -i 's/\bkzfree\b/kfree_sensitive/'
-> 
-> followed by some editing of the kfree_sensitive() kerneldoc and the
-> use of memzero_explicit() instead of memset().
-> 
-> Suggested-by: Joe Perches <joe@perches.com>
-> Signed-off-by: Waiman Long <longman@redhat.com>
+But this will leave a "CONFIG_VHOST_MENU=3Dy" in all defconfigs and even
+for the ones that doesn't want vhost. So it actually shifts the
+burdens to the maintainers of all other to add "CONFIG_VHOST_MENU is
+not set". So this patch tries to enable CONFIG_VHOST explicitly in
+defconfigs that enables CONFIG_VHOST_NET and CONFIG_VHOST_VSOCK.
 
-Acked-by: David Rientjes <rientjes@google.com>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ arch/mips/configs/malta_kvm_defconfig  |  1 +
+ arch/powerpc/configs/powernv_defconfig |  1 +
+ arch/powerpc/configs/ppc64_defconfig   |  1 +
+ arch/powerpc/configs/pseries_defconfig |  1 +
+ arch/s390/configs/debug_defconfig      |  1 +
+ arch/s390/configs/defconfig            |  1 +
+ drivers/vhost/Kconfig                  | 18 +++++-------------
+ 7 files changed, 11 insertions(+), 13 deletions(-)
+
+diff --git a/arch/mips/configs/malta_kvm_defconfig b/arch/mips/configs/ma=
+lta_kvm_defconfig
+index 8ef612552a19..06f0c7a0ca87 100644
+--- a/arch/mips/configs/malta_kvm_defconfig
++++ b/arch/mips/configs/malta_kvm_defconfig
+@@ -18,6 +18,7 @@ CONFIG_PCI=3Dy
+ CONFIG_VIRTUALIZATION=3Dy
+ CONFIG_KVM=3Dm
+ CONFIG_KVM_MIPS_DEBUG_COP0_COUNTERS=3Dy
++CONFIG_VHOST=3Dm
+ CONFIG_VHOST_NET=3Dm
+ CONFIG_MODULES=3Dy
+ CONFIG_MODULE_UNLOAD=3Dy
+diff --git a/arch/powerpc/configs/powernv_defconfig b/arch/powerpc/config=
+s/powernv_defconfig
+index 71749377d164..404245b4594d 100644
+--- a/arch/powerpc/configs/powernv_defconfig
++++ b/arch/powerpc/configs/powernv_defconfig
+@@ -346,5 +346,6 @@ CONFIG_CRYPTO_DEV_VMX=3Dy
+ CONFIG_VIRTUALIZATION=3Dy
+ CONFIG_KVM_BOOK3S_64=3Dm
+ CONFIG_KVM_BOOK3S_64_HV=3Dm
++CONFIG_VHOST=3Dm
+ CONFIG_VHOST_NET=3Dm
+ CONFIG_PRINTK_TIME=3Dy
+diff --git a/arch/powerpc/configs/ppc64_defconfig b/arch/powerpc/configs/=
+ppc64_defconfig
+index 7e68cb222c7b..4599fc7be285 100644
+--- a/arch/powerpc/configs/ppc64_defconfig
++++ b/arch/powerpc/configs/ppc64_defconfig
+@@ -61,6 +61,7 @@ CONFIG_ELECTRA_CF=3Dy
+ CONFIG_VIRTUALIZATION=3Dy
+ CONFIG_KVM_BOOK3S_64=3Dm
+ CONFIG_KVM_BOOK3S_64_HV=3Dm
++CONFIG_VHOST=3Dm
+ CONFIG_VHOST_NET=3Dm
+ CONFIG_OPROFILE=3Dm
+ CONFIG_KPROBES=3Dy
+diff --git a/arch/powerpc/configs/pseries_defconfig b/arch/powerpc/config=
+s/pseries_defconfig
+index 6b68109e248f..4cad3901b5de 100644
+--- a/arch/powerpc/configs/pseries_defconfig
++++ b/arch/powerpc/configs/pseries_defconfig
+@@ -321,5 +321,6 @@ CONFIG_CRYPTO_DEV_VMX=3Dy
+ CONFIG_VIRTUALIZATION=3Dy
+ CONFIG_KVM_BOOK3S_64=3Dm
+ CONFIG_KVM_BOOK3S_64_HV=3Dm
++CONFIG_VHOST=3Dm
+ CONFIG_VHOST_NET=3Dm
+ CONFIG_PRINTK_TIME=3Dy
+diff --git a/arch/s390/configs/debug_defconfig b/arch/s390/configs/debug_=
+defconfig
+index 0c86ba19fa2b..6ec6e69630d1 100644
+--- a/arch/s390/configs/debug_defconfig
++++ b/arch/s390/configs/debug_defconfig
+@@ -57,6 +57,7 @@ CONFIG_PROTECTED_VIRTUALIZATION_GUEST=3Dy
+ CONFIG_CMM=3Dm
+ CONFIG_APPLDATA_BASE=3Dy
+ CONFIG_KVM=3Dm
++CONFIG_VHOST=3Dm
+ CONFIG_VHOST_NET=3Dm
+ CONFIG_VHOST_VSOCK=3Dm
+ CONFIG_OPROFILE=3Dm
+diff --git a/arch/s390/configs/defconfig b/arch/s390/configs/defconfig
+index 6b27d861a9a3..d1b3bf83d687 100644
+--- a/arch/s390/configs/defconfig
++++ b/arch/s390/configs/defconfig
+@@ -57,6 +57,7 @@ CONFIG_PROTECTED_VIRTUALIZATION_GUEST=3Dy
+ CONFIG_CMM=3Dm
+ CONFIG_APPLDATA_BASE=3Dy
+ CONFIG_KVM=3Dm
++CONFIG_VHOST=3Dm
+ CONFIG_VHOST_NET=3Dm
+ CONFIG_VHOST_VSOCK=3Dm
+ CONFIG_OPROFILE=3Dm
+diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
+index e79cbbdfea45..14d296dc18cd 100644
+--- a/drivers/vhost/Kconfig
++++ b/drivers/vhost/Kconfig
+@@ -12,23 +12,18 @@ config VHOST_RING
+ 	  This option is selected by any driver which needs to access
+ 	  the host side of a virtio ring.
+=20
+-config VHOST
+-	tristate
++menuconfig VHOST
++	tristate "Vhost Devices"
+ 	select VHOST_IOTLB
+ 	help
+-	  This option is selected by any driver which needs to access
+-	  the core of vhost.
+-
+-menuconfig VHOST_MENU
+-	bool "VHOST drivers"
+-	default y
++	  Enable option to support host kernel or hardware accelerator
++	  for virtio device.
+=20
+-if VHOST_MENU
++if VHOST
+=20
+ config VHOST_NET
+ 	tristate "Host kernel accelerator for virtio net"
+ 	depends on NET && EVENTFD && (TUN || !TUN) && (TAP || !TAP)
+-	select VHOST
+ 	---help---
+ 	  This kernel module can be loaded in host kernel to accelerate
+ 	  guest networking with virtio_net. Not to be confused with virtio_net
+@@ -40,7 +35,6 @@ config VHOST_NET
+ config VHOST_SCSI
+ 	tristate "VHOST_SCSI TCM fabric driver"
+ 	depends on TARGET_CORE && EVENTFD
+-	select VHOST
+ 	default n
+ 	---help---
+ 	Say M here to enable the vhost_scsi TCM fabric module
+@@ -49,7 +43,6 @@ config VHOST_SCSI
+ config VHOST_VSOCK
+ 	tristate "vhost virtio-vsock driver"
+ 	depends on VSOCKETS && EVENTFD
+-	select VHOST
+ 	select VIRTIO_VSOCKETS_COMMON
+ 	default n
+ 	---help---
+@@ -63,7 +56,6 @@ config VHOST_VSOCK
+ config VHOST_VDPA
+ 	tristate "Vhost driver for vDPA-based backend"
+ 	depends on EVENTFD
+-	select VHOST
+ 	depends on VDPA
+ 	help
+ 	  This kernel module can be loaded in host kernel to accelerate
+--=20
+2.20.1
