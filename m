@@ -1,85 +1,150 @@
-From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v2 14/33] iommu/amd: Remove dev_data->passthrough
-Date: Tue, 14 Apr 2020 15:15:23 +0200
-Message-ID: <20200414131542.25608-15-joro@8bytes.org>
+From: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
+Subject: [PATCH v2 28/33] iommu/omap: Remove orphan_dev tracking
+Date: Tue, 14 Apr 2020 15:15:37 +0200
+Message-ID: <20200414131542.25608-29-joro@8bytes.org>
 References: <20200414131542.25608-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200414131542.25608-1-joro@8bytes.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
-Cc: linux-s390@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-rockchip@lists.infradead.org, iommu@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>, linux-mediatek@lists.infradead.org, linux-tegra@vger.kernel.org
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <20200414131542.25608-1-joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+ <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+ <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Sender: "iommu" <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+To: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>, Will Deacon <will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>, Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Lu Baolu <baolu.lu-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Gross <agross-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Clark <robdclark-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Gerald Schaefer <gerald.schaefer-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+Cc: linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
 
-Make use of generic IOMMU infrastructure to gather the same information
-carried in dev_data->passthrough and remove the struct member.
+Remove the tracking of device which could not be probed because
+their IOMMU is not probed yet. Replace it with a call to
+bus_iommu_probe() when a new IOMMU is probed.
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
 ---
- drivers/iommu/amd_iommu.c       | 10 +++++-----
- drivers/iommu/amd_iommu_types.h |  1 -
- 2 files changed, 5 insertions(+), 6 deletions(-)
+ drivers/iommu/omap-iommu.c | 54 +++-----------------------------------
+ 1 file changed, 4 insertions(+), 50 deletions(-)
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index 3e0d27f7622e..0b4b4faa876d 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -2047,8 +2047,8 @@ static int pdev_iommuv2_enable(struct pci_dev *pdev)
- static int attach_device(struct device *dev,
- 			 struct protection_domain *domain)
+diff --git a/drivers/iommu/omap-iommu.c b/drivers/iommu/omap-iommu.c
+index 887fefcb03b4..ecc9d0829a91 100644
+--- a/drivers/iommu/omap-iommu.c
++++ b/drivers/iommu/omap-iommu.c
+@@ -35,15 +35,6 @@
+ 
+ static const struct iommu_ops omap_iommu_ops;
+ 
+-struct orphan_dev {
+-	struct device *dev;
+-	struct list_head node;
+-};
+-
+-static LIST_HEAD(orphan_dev_list);
+-
+-static DEFINE_SPINLOCK(orphan_lock);
+-
+ #define to_iommu(dev)	((struct omap_iommu *)dev_get_drvdata(dev))
+ 
+ /* bitmap of the page sizes currently supported */
+@@ -62,8 +53,6 @@ static DEFINE_SPINLOCK(orphan_lock);
+ static struct platform_driver omap_iommu_driver;
+ static struct kmem_cache *iopte_cachep;
+ 
+-static int _omap_iommu_add_device(struct device *dev);
+-
+ /**
+  * to_omap_domain - Get struct omap_iommu_domain from generic iommu_domain
+  * @dom:	generic iommu domain handle
+@@ -1177,7 +1166,6 @@ static int omap_iommu_probe(struct platform_device *pdev)
+ 	struct omap_iommu *obj;
+ 	struct resource *res;
+ 	struct device_node *of = pdev->dev.of_node;
+-	struct orphan_dev *orphan_dev, *tmp;
+ 
+ 	if (!of) {
+ 		pr_err("%s: only DT-based devices are supported\n", __func__);
+@@ -1260,13 +1248,8 @@ static int omap_iommu_probe(struct platform_device *pdev)
+ 
+ 	dev_info(&pdev->dev, "%s registered\n", obj->name);
+ 
+-	list_for_each_entry_safe(orphan_dev, tmp, &orphan_dev_list, node) {
+-		err = _omap_iommu_add_device(orphan_dev->dev);
+-		if (!err) {
+-			list_del(&orphan_dev->node);
+-			kfree(orphan_dev);
+-		}
+-	}
++	/* Re-probe bus to probe device attached to this IOMMU */
++	bus_iommu_probe(&platform_bus_type);
+ 
+ 	return 0;
+ 
+@@ -1657,7 +1640,7 @@ static phys_addr_t omap_iommu_iova_to_phys(struct iommu_domain *domain,
+ 	return ret;
+ }
+ 
+-static int _omap_iommu_add_device(struct device *dev)
++static int omap_iommu_add_device(struct device *dev)
  {
--	struct pci_dev *pdev;
- 	struct iommu_dev_data *dev_data;
-+	struct pci_dev *pdev;
- 	unsigned long flags;
+ 	struct omap_iommu_arch_data *arch_data, *tmp;
+ 	struct omap_iommu *oiommu;
+@@ -1666,8 +1649,6 @@ static int _omap_iommu_add_device(struct device *dev)
+ 	struct platform_device *pdev;
+ 	int num_iommus, i;
  	int ret;
+-	struct orphan_dev *orphan_dev;
+-	unsigned long flags;
  
-@@ -2067,8 +2067,10 @@ static int attach_device(struct device *dev,
+ 	/*
+ 	 * Allocate the archdata iommu structure for DT-based devices.
+@@ -1702,23 +1683,7 @@ static int _omap_iommu_add_device(struct device *dev)
+ 		if (!pdev) {
+ 			of_node_put(np);
+ 			kfree(arch_data);
+-			spin_lock_irqsave(&orphan_lock, flags);
+-			list_for_each_entry(orphan_dev, &orphan_dev_list,
+-					    node) {
+-				if (orphan_dev->dev == dev)
+-					break;
+-			}
+-			spin_unlock_irqrestore(&orphan_lock, flags);
+-
+-			if (orphan_dev && orphan_dev->dev == dev)
+-				return -EPROBE_DEFER;
+-
+-			orphan_dev = kzalloc(sizeof(*orphan_dev), GFP_KERNEL);
+-			orphan_dev->dev = dev;
+-			spin_lock_irqsave(&orphan_lock, flags);
+-			list_add(&orphan_dev->node, &orphan_dev_list);
+-			spin_unlock_irqrestore(&orphan_lock, flags);
+-			return -EPROBE_DEFER;
++			return -ENODEV;
+ 		}
  
- 	pdev = to_pci_dev(dev);
- 	if (domain->flags & PD_IOMMUV2_MASK) {
-+		struct iommu_domain *def_domain = iommu_get_dma_domain(dev);
-+
- 		ret = -EINVAL;
--		if (!dev_data->passthrough)
-+		if (def_domain->type != IOMMU_DOMAIN_IDENTITY)
- 			goto out;
+ 		oiommu = platform_get_drvdata(pdev);
+@@ -1764,17 +1729,6 @@ static int _omap_iommu_add_device(struct device *dev)
+ 	return 0;
+ }
  
- 		if (dev_data->iommu_v2) {
-@@ -2189,9 +2191,7 @@ static int amd_iommu_add_device(struct device *dev)
- 
- 	/* Domains are initialized for this device - have a look what we ended up with */
- 	domain = iommu_get_domain_for_dev(dev);
--	if (domain->type == IOMMU_DOMAIN_IDENTITY)
--		dev_data->passthrough = true;
--	else if (domain->type == IOMMU_DOMAIN_DMA)
-+	if (domain->type == IOMMU_DOMAIN_DMA)
- 		iommu_setup_dma_ops(dev, IOVA_START_PFN << PAGE_SHIFT, 0);
- 
- out:
-diff --git a/drivers/iommu/amd_iommu_types.h b/drivers/iommu/amd_iommu_types.h
-index ca8c4522045b..d0d7b6a0c3d8 100644
---- a/drivers/iommu/amd_iommu_types.h
-+++ b/drivers/iommu/amd_iommu_types.h
-@@ -640,7 +640,6 @@ struct iommu_dev_data {
- 	struct pci_dev *pdev;
- 	u16 devid;			  /* PCI Device ID */
- 	bool iommu_v2;			  /* Device can make use of IOMMUv2 */
--	bool passthrough;		  /* Device is identity mapped */
- 	struct {
- 		bool enabled;
- 		int qdep;
+-static int omap_iommu_add_device(struct device *dev)
+-{
+-	int ret;
+-
+-	ret = _omap_iommu_add_device(dev);
+-	if (ret == -EPROBE_DEFER)
+-		return 0;
+-
+-	return ret;
+-}
+-
+ static void omap_iommu_remove_device(struct device *dev)
+ {
+ 	struct omap_iommu_arch_data *arch_data = dev->archdata.iommu;
 -- 
 2.17.1
