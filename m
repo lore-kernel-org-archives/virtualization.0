@@ -1,274 +1,56 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 05/10] mm: Allow to offline unmovable PageOffline()
- pages via MEM_GOING_OFFLINE
-Date: Tue, 14 Apr 2020 12:34:26 -0400
-Message-ID: <20200414123334-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH v2 07/10] mm/memory_hotplug: Introduce
+ offline_and_remove_memory()
+Date: Tue, 14 Apr 2020 12:35:02 -0400
+Message-ID: <20200414123438-mutt-send-email-mst@kernel.org>
 References: <20200311171422.10484-1-david@redhat.com>
- <20200311171422.10484-6-david@redhat.com>
+ <20200311171422.10484-8-david@redhat.com>
+ <156601a9-e919-b88f-2278-97ecee554d21@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200311171422.10484-6-david@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtio-dev-return-7061-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+In-Reply-To: <156601a9-e919-b88f-2278-97ecee554d21@redhat.com>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: David Hildenbrand <david@redhat.com>
-Cc: Michal Hocko <mhocko@suse.com>, kvm@vger.kernel.org, Pingfan Liu <kernelfans@gmail.com>, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, Alexander Duyck <alexander.h.duyck@linux.intel.com>, virtio-dev@lists.oasis-open.org, Anshuman Khandual <anshuman.khandual@arm.com>, Mike Rapoport <rppt@linux.ibm.com>, Anthony Yznaga <anthony.yznaga@oracle.com>, Pavel Tatashin <pavel.tatashin@microsoft.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Qian Cai <cai@lca.pw>, Dan Williams <dan.j.williams@intel.com>, virtualization@lists.linux-foundation.org, Vlastimil Babka <vbabka@suse.cz>, Oscar Salvador <osalvador@suse.de>, Juergen Gross <jgross@suse.com>, linux-kernel@vger.kernel.org, Johannes Weiner <hannes@cmpxchg.org>, Andrew Morton <akpm@linux-foundation.org>, Mel Gorman <mgorman@techsingularity.net>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Oscar Salvador <osalvador@suse.com>, Michal Hocko <mhocko@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Wei Yang <richard.weiyang@gmail.com>, Dan Williams <dan.j.williams@intel.com>, Qian Cai <cai@lca.pw>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 11, 2020 at 06:14:17PM +0100, David Hildenbrand wrote:
-> virtio-mem wants to allow to offline memory blocks of which some parts
-> were unplugged (allocated via alloc_contig_range()), especially, to later
-> offline and remove completely unplugged memory blocks. The important part
-> is that PageOffline() has to remain set until the section is offline, so
-> these pages will never get accessed (e.g., when dumping). The pages should
-> not be handed back to the buddy (which would require clearing PageOffline()
-> and result in issues if offlining fails and the pages are suddenly in the
-> buddy).
-> 
-> Let's allow to do that by allowing to isolate any PageOffline() page
-> when offlining. This way, we can reach the memory hotplug notifier
-> MEM_GOING_OFFLINE, where the driver can signal that he is fine with
-> offlining this page by dropping its reference count. PageOffline() pages
-> with a reference count of 0 can then be skipped when offlining the
-> pages (like if they were free, however they are not in the buddy).
-> 
-> Anybody who uses PageOffline() pages and does not agree to offline them
-> (e.g., Hyper-V balloon, XEN balloon, VMWare balloon for 2MB pages) will not
-> decrement the reference count and make offlining fail when trying to
-> migrate such an unmovable page. So there should be no observable change.
-> Same applies to balloon compaction users (movable PageOffline() pages), the
-> pages will simply be migrated.
-> 
-> Note 1: If offlining fails, a driver has to increment the reference
-> 	count again in MEM_CANCEL_OFFLINE.
-> 
-> Note 2: A driver that makes use of this has to be aware that re-onlining
-> 	the memory block has to be handled by hooking into onlining code
-> 	(online_page_callback_t), resetting the page PageOffline() and
-> 	not giving them to the buddy.
-> 
-> Reviewed-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
-> Acked-by: Michal Hocko <mhocko@suse.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Juergen Gross <jgross@suse.com>
-> Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-> Cc: Pavel Tatashin <pavel.tatashin@microsoft.com>
-> Cc: Alexander Duyck <alexander.h.duyck@linux.intel.com>
-> Cc: Vlastimil Babka <vbabka@suse.cz>
-> Cc: Johannes Weiner <hannes@cmpxchg.org>
-> Cc: Anthony Yznaga <anthony.yznaga@oracle.com>
-> Cc: Michal Hocko <mhocko@suse.com>
-> Cc: Oscar Salvador <osalvador@suse.de>
-> Cc: Mel Gorman <mgorman@techsingularity.net>
-> Cc: Mike Rapoport <rppt@linux.ibm.com>
-> Cc: Dan Williams <dan.j.williams@intel.com>
-> Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-> Cc: Qian Cai <cai@lca.pw>
-> Cc: Pingfan Liu <kernelfans@gmail.com>
-> Signed-off-by: David Hildenbrand <david@redhat.com>
-
-Andrew, could you please ack merging this through the vhost tree
-together with the rest of the patches?
+On Wed, Mar 11, 2020 at 06:19:04PM +0100, David Hildenbrand wrote:
+> On 11.03.20 18:14, David Hildenbrand wrote:
+> > virtio-mem wants to offline and remove a memory block once it unplugged
+> > all subblocks (e.g., using alloc_contig_range()). Let's provide
+> > an interface to do that from a driver. virtio-mem already supports to
+> > offline partially unplugged memory blocks. Offlining a fully unplugged
+> > memory block will not require to migrate any pages. All unplugged
+> > subblocks are PageOffline() and have a reference count of 0 - so
+> > offlining code will simply skip them.
+> >=20
+> > All we need is an interface to offline and remove the memory from kerne=
+l
+> > module context, where we don't have access to the memory block devices
+> > (esp. find_memory_block() and device_offline()) and the device hotplug
+> > lock.
+> >=20
+> > To keep things simple, allow to only work on a single memory block.
+> >=20
+>=20
+> Lost the ACK from Michael
+>=20
+> Acked-by: Michal Hocko <mhocko@suse.com> [1]
+>=20
+> [1] https://lkml.kernel.org/r/20200302142737.GP4380@dhcp22.suse.cz
 
 
+Andrew, could you pls ack merging this through the vhost tree,
+with the rest of the patchset?
 
-> ---
->  include/linux/page-flags.h | 10 +++++++++
->  mm/memory_hotplug.c        | 44 +++++++++++++++++++++++++++++---------
->  mm/page_alloc.c            | 24 +++++++++++++++++++++
->  mm/page_isolation.c        |  9 ++++++++
->  4 files changed, 77 insertions(+), 10 deletions(-)
-> 
-> diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
-> index 49c2697046b9..fd6d4670ccc3 100644
-> --- a/include/linux/page-flags.h
-> +++ b/include/linux/page-flags.h
-> @@ -772,6 +772,16 @@ PAGE_TYPE_OPS(Buddy, buddy)
->   * not onlined when onlining the section).
->   * The content of these pages is effectively stale. Such pages should not
->   * be touched (read/write/dump/save) except by their owner.
-> + *
-> + * If a driver wants to allow to offline unmovable PageOffline() pages without
-> + * putting them back to the buddy, it can do so via the memory notifier by
-> + * decrementing the reference count in MEM_GOING_OFFLINE and incrementing the
-> + * reference count in MEM_CANCEL_OFFLINE. When offlining, the PageOffline()
-> + * pages (now with a reference count of zero) are treated like free pages,
-> + * allowing the containing memory block to get offlined. A driver that
-> + * relies on this feature is aware that re-onlining the memory block will
-> + * require to re-set the pages PageOffline() and not giving them to the
-> + * buddy via online_page_callback_t.
->   */
->  PAGE_TYPE_OPS(Offline, offline)
->  
-> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-> index 1a00b5a37ef6..ab1c31e67fd1 100644
-> --- a/mm/memory_hotplug.c
-> +++ b/mm/memory_hotplug.c
-> @@ -1221,11 +1221,17 @@ struct zone *test_pages_in_a_zone(unsigned long start_pfn,
->  
->  /*
->   * Scan pfn range [start,end) to find movable/migratable pages (LRU pages,
-> - * non-lru movable pages and hugepages). We scan pfn because it's much
-> - * easier than scanning over linked list. This function returns the pfn
-> - * of the first found movable page if it's found, otherwise 0.
-> + * non-lru movable pages and hugepages). Will skip over most unmovable
-> + * pages (esp., pages that can be skipped when offlining), but bail out on
-> + * definitely unmovable pages.
-> + *
-> + * Returns:
-> + *	0 in case a movable page is found and movable_pfn was updated.
-> + *	-ENOENT in case no movable page was found.
-> + *	-EBUSY in case a definitely unmovable page was found.
->   */
-> -static unsigned long scan_movable_pages(unsigned long start, unsigned long end)
-> +static int scan_movable_pages(unsigned long start, unsigned long end,
-> +			      unsigned long *movable_pfn)
->  {
->  	unsigned long pfn;
->  
-> @@ -1237,18 +1243,30 @@ static unsigned long scan_movable_pages(unsigned long start, unsigned long end)
->  			continue;
->  		page = pfn_to_page(pfn);
->  		if (PageLRU(page))
-> -			return pfn;
-> +			goto found;
->  		if (__PageMovable(page))
-> -			return pfn;
-> +			goto found;
-> +
-> +		/*
-> +		 * PageOffline() pages that are not marked __PageMovable() and
-> +		 * have a reference count > 0 (after MEM_GOING_OFFLINE) are
-> +		 * definitely unmovable. If their reference count would be 0,
-> +		 * they could at least be skipped when offlining memory.
-> +		 */
-> +		if (PageOffline(page) && page_count(page))
-> +			return -EBUSY;
->  
->  		if (!PageHuge(page))
->  			continue;
->  		head = compound_head(page);
->  		if (page_huge_active(head))
-> -			return pfn;
-> +			goto found;
->  		skip = compound_nr(head) - (page - head);
->  		pfn += skip - 1;
->  	}
-> +	return -ENOENT;
-> +found:
-> +	*movable_pfn = pfn;
->  	return 0;
->  }
->  
-> @@ -1515,7 +1533,8 @@ static int __ref __offline_pages(unsigned long start_pfn,
->  	}
->  
->  	do {
-> -		for (pfn = start_pfn; pfn;) {
-> +		pfn = start_pfn;
-> +		do {
->  			if (signal_pending(current)) {
->  				ret = -EINTR;
->  				reason = "signal backoff";
-> @@ -1525,14 +1544,19 @@ static int __ref __offline_pages(unsigned long start_pfn,
->  			cond_resched();
->  			lru_add_drain_all();
->  
-> -			pfn = scan_movable_pages(pfn, end_pfn);
-> -			if (pfn) {
-> +			ret = scan_movable_pages(pfn, end_pfn, &pfn);
-> +			if (!ret) {
->  				/*
->  				 * TODO: fatal migration failures should bail
->  				 * out
->  				 */
->  				do_migrate_range(pfn, end_pfn);
->  			}
-> +		} while (!ret);
-> +
-> +		if (ret != -ENOENT) {
-> +			reason = "unmovable page";
-> +			goto failed_removal_isolated;
->  		}
->  
->  		/*
-> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> index 8d7be3f33e26..baa60222215f 100644
-> --- a/mm/page_alloc.c
-> +++ b/mm/page_alloc.c
-> @@ -8366,6 +8366,19 @@ struct page *has_unmovable_pages(struct zone *zone, struct page *page,
->  		if ((flags & MEMORY_OFFLINE) && PageHWPoison(page))
->  			continue;
->  
-> +		/*
-> +		 * We treat all PageOffline() pages as movable when offlining
-> +		 * to give drivers a chance to decrement their reference count
-> +		 * in MEM_GOING_OFFLINE in order to indicate that these pages
-> +		 * can be offlined as there are no direct references anymore.
-> +		 * For actually unmovable PageOffline() where the driver does
-> +		 * not support this, we will fail later when trying to actually
-> +		 * move these pages that still have a reference count > 0.
-> +		 * (false negatives in this function only)
-> +		 */
-> +		if ((flags & MEMORY_OFFLINE) && PageOffline(page))
-> +			continue;
-> +
->  		if (__PageMovable(page) || PageLRU(page))
->  			continue;
->  
-> @@ -8786,6 +8799,17 @@ __offline_isolated_pages(unsigned long start_pfn, unsigned long end_pfn)
->  			offlined_pages++;
->  			continue;
->  		}
-> +		/*
-> +		 * At this point all remaining PageOffline() pages have a
-> +		 * reference count of 0 and can simply be skipped.
-> +		 */
-> +		if (PageOffline(page)) {
-> +			BUG_ON(page_count(page));
-> +			BUG_ON(PageBuddy(page));
-> +			pfn++;
-> +			offlined_pages++;
-> +			continue;
-> +		}
->  
->  		BUG_ON(page_count(page));
->  		BUG_ON(!PageBuddy(page));
-> diff --git a/mm/page_isolation.c b/mm/page_isolation.c
-> index 2c11a38d6e87..f6d07c5f0d34 100644
-> --- a/mm/page_isolation.c
-> +++ b/mm/page_isolation.c
-> @@ -151,6 +151,7 @@ __first_valid_page(unsigned long pfn, unsigned long nr_pages)
->   *			a bit mask)
->   *			MEMORY_OFFLINE - isolate to offline (!allocate) memory
->   *					 e.g., skip over PageHWPoison() pages
-> + *					 and PageOffline() pages.
->   *			REPORT_FAILURE - report details about the failure to
->   *			isolate the range
->   *
-> @@ -259,6 +260,14 @@ __test_page_isolated_in_pageblock(unsigned long pfn, unsigned long end_pfn,
->  		else if ((flags & MEMORY_OFFLINE) && PageHWPoison(page))
->  			/* A HWPoisoned page cannot be also PageBuddy */
->  			pfn++;
-> +		else if ((flags & MEMORY_OFFLINE) && PageOffline(page) &&
-> +			 !page_count(page))
-> +			/*
-> +			 * The responsible driver agreed to skip PageOffline()
-> +			 * pages when offlining memory by dropping its
-> +			 * reference in MEM_GOING_OFFLINE.
-> +			 */
-> +			pfn++;
->  		else
->  			break;
->  	}
-> -- 
-> 2.24.1
+> --=20
+> Thanks,
+>=20
+> David / dhildenb
