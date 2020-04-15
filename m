@@ -1,15 +1,15 @@
 From: Lu Baolu <baolu.lu-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH v2 13/33] iommu: Export bus_iommu_probe() and make is safe
- for re-probing
-Date: Wed, 15 Apr 2020 14:10:03 +0800
-Message-ID: <1853992c-47a6-3724-812c-a52558c13732@linux.intel.com>
+Subject: Re: [PATCH v2 07/33] iommu: Add probe_device() and remove_device()
+ call-backs
+Date: Wed, 15 Apr 2020 14:36:20 +0800
+Message-ID: <0ad37581-b464-30ac-c503-4c0daaf43867@linux.intel.com>
 References: <20200414131542.25608-1-joro@8bytes.org>
- <20200414131542.25608-14-joro@8bytes.org>
+ <20200414131542.25608-8-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Content-Transfer-Encoding: 7bit
 Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-In-Reply-To: <20200414131542.25608-14-joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
+In-Reply-To: <20200414131542.25608-8-joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
  <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
@@ -25,35 +25,19 @@ Cc: linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwX
 List-Id: virtualization@lists.linuxfoundation.org
 
 On 2020/4/14 21:15, Joerg Roedel wrote:
-> From: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
+> From: Joerg Roedel<jroedel-l3A5Bk7waGM@public.gmane.org>
 > 
-> Add a check to the bus_iommu_probe() call-path to make sure it ignores
-> devices which have already been successfully probed. Then export the
-> bus_iommu_probe() function so it can be used by IOMMU drivers.
+> Add call-backs to 'struct iommu_ops' as an alternative to the
+> add_device() and remove_device() call-backs, which will be removed when
+> all drivers are converted.
 > 
-> Signed-off-by: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
-> ---
->   drivers/iommu/iommu.c | 6 +++++-
->   include/linux/iommu.h | 1 +
->   2 files changed, 6 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-> index 834a45da0ed0..a2ff95424044 100644
-> --- a/drivers/iommu/iommu.c
-> +++ b/drivers/iommu/iommu.c
-> @@ -1615,6 +1615,10 @@ static int probe_iommu_group(struct device *dev, void *data)
->   	if (!dev_iommu_get(dev))
->   		return -ENOMEM;
->   
-> +	/* Device is probed already if in a group */
-> +	if (iommu_group_get(dev) != NULL)
+> The new call-backs will not setupt IOMMU groups and domains anymore,
+> so also add a probe_finalize() call-back where the IOMMU driver can do
+> per-device setup work which require the device to be set up with a
+> group and a domain.
 
-Same as
-	if (iommu_group_get(dev))
-?
-
-By the way, do we need to put the group if device has already been
-probed?
+The subject is inaccurate. probe_device() and release_device() are
+added to replace the add and remove pair.
 
 Best regards,
 baolu
