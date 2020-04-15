@@ -1,193 +1,55 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH V2] vhost: do not enable VHOST_MENU by default
-Date: Wed, 15 Apr 2020 10:43:56 +0800
-Message-ID: <20200415024356.23751-1-jasowang@redhat.com>
+From: Johannes Weiner <hannes-druUgvl0LCNAfugRpC6u6w@public.gmane.org>
+Subject: Re: [PATCH 1/2] mm, treewide: Rename kzfree() to kfree_sensitive()
+Date: Wed, 15 Apr 2020 01:01:06 -0400
+Message-ID: <20200415050106.GA154671@cmpxchg.org>
+References: <20200413211550.8307-1-longman@redhat.com>
+ <20200413211550.8307-2-longman@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: jasowang@redhat.com, mst@redhat.com
-Cc: linux-s390@vger.kernel.org, tsbogend@alpha.franken.de, benh@kernel.crashing.org, gor@linux.ibm.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, heiko.carstens@de.ibm.com, linux-mips@vger.kernel.org, virtualization@lists.linux-foundation.org, borntraeger@de.ibm.com, geert@linux-m68k.org, Michael Ellerman <mpe@ellerman.id.au>, netdev@vger.kernel.org, paulus@samba.org, linuxppc-dev@lists.ozlabs.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20200413211550.8307-2-longman-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Sender: linux-wireless-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Waiman Long <longman-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: Andrew Morton <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, David Howells <dhowells-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, James Morris <jmorris-gx6/JNMH7DfYtjvyW6yDsg@public.gmane.org>, "Serge E. Hallyn" <serge-A9i7LUbDfNHQT0dZR+AlfA@public.gmane.org>, Linus Torvalds <torvalds-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>, Matthew Wilcox <willy-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, David Rientjes <rientjes-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org, keyrings-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-crypto-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-stm32-XDFAJ8BFU24N7RejjzZ/Li2xQDfSxrLKVpNB7YpNyf8@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-amlogic-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linuxppc-dev-uLR06cmDAlY/bJ5BZ2RsiQ@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, netdev@vg
 List-Id: virtualization@lists.linuxfoundation.org
 
-We try to keep the defconfig untouched after decoupling CONFIG_VHOST
-out of CONFIG_VIRTUALIZATION in commit 20c384f1ea1a
-("vhost: refine vhost and vringh kconfig") by enabling VHOST_MENU by
-default. Then the defconfigs can keep enabling CONFIG_VHOST_NET
-without the caring of CONFIG_VHOST.
+On Mon, Apr 13, 2020 at 05:15:49PM -0400, Waiman Long wrote:
+> As said by Linus:
+> 
+>   A symmetric naming is only helpful if it implies symmetries in use.
+>   Otherwise it's actively misleading.
 
-But this will leave a "CONFIG_VHOST_MENU=y" in all defconfigs and even
-for the ones that doesn't want vhost. So it actually shifts the
-burdens to the maintainers of all other to add "CONFIG_VHOST_MENU is
-not set". So this patch tries to enable CONFIG_VHOST explicitly in
-defconfigs that enables CONFIG_VHOST_NET and CONFIG_VHOST_VSOCK.
+As the btrfs example proves - people can be tempted by this false
+symmetry to pair kzalloc with kzfree, which isn't what we wanted.
 
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com> (s390)
-Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
-Change since V1:
-- depends on EVENTFD for VHOST
----
- arch/mips/configs/malta_kvm_defconfig  |  1 +
- arch/powerpc/configs/powernv_defconfig |  1 +
- arch/powerpc/configs/ppc64_defconfig   |  1 +
- arch/powerpc/configs/pseries_defconfig |  1 +
- arch/s390/configs/debug_defconfig      |  1 +
- arch/s390/configs/defconfig            |  1 +
- drivers/vhost/Kconfig                  | 26 +++++++++-----------------
- 7 files changed, 15 insertions(+), 17 deletions(-)
+>   In "kzalloc()", the z is meaningful and an important part of what the
+>   caller wants.
+> 
+>   In "kzfree()", the z is actively detrimental, because maybe in the
+>   future we really _might_ want to use that "memfill(0xdeadbeef)" or
+>   something. The "zero" part of the interface isn't even _relevant_.
+> 
+> The main reason that kzfree() exists is to clear sensitive information
+> that should not be leaked to other future users of the same memory
+> objects.
+> 
+> Rename kzfree() to kfree_sensitive() to follow the example of the
+> recently added kvfree_sensitive() and make the intention of the API
+> more explicit. In addition, memzero_explicit() is used to clear the
+> memory to make sure that it won't get optimized away by the compiler.
+> 
+> The renaming is done by using the command sequence:
+> 
+>   git grep -w --name-only kzfree |\
+>   xargs sed -i 's/\bkzfree\b/kfree_sensitive/'
+> 
+> followed by some editing of the kfree_sensitive() kerneldoc and the
+> use of memzero_explicit() instead of memset().
+> 
+> Suggested-by: Joe Perches <joe-6d6DIl74uiNBDgjK7y7TUQ@public.gmane.org>
+> Signed-off-by: Waiman Long <longman-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 
-diff --git a/arch/mips/configs/malta_kvm_defconfig b/arch/mips/configs/malta_kvm_defconfig
-index 8ef612552a19..06f0c7a0ca87 100644
---- a/arch/mips/configs/malta_kvm_defconfig
-+++ b/arch/mips/configs/malta_kvm_defconfig
-@@ -18,6 +18,7 @@ CONFIG_PCI=y
- CONFIG_VIRTUALIZATION=y
- CONFIG_KVM=m
- CONFIG_KVM_MIPS_DEBUG_COP0_COUNTERS=y
-+CONFIG_VHOST=m
- CONFIG_VHOST_NET=m
- CONFIG_MODULES=y
- CONFIG_MODULE_UNLOAD=y
-diff --git a/arch/powerpc/configs/powernv_defconfig b/arch/powerpc/configs/powernv_defconfig
-index 71749377d164..404245b4594d 100644
---- a/arch/powerpc/configs/powernv_defconfig
-+++ b/arch/powerpc/configs/powernv_defconfig
-@@ -346,5 +346,6 @@ CONFIG_CRYPTO_DEV_VMX=y
- CONFIG_VIRTUALIZATION=y
- CONFIG_KVM_BOOK3S_64=m
- CONFIG_KVM_BOOK3S_64_HV=m
-+CONFIG_VHOST=m
- CONFIG_VHOST_NET=m
- CONFIG_PRINTK_TIME=y
-diff --git a/arch/powerpc/configs/ppc64_defconfig b/arch/powerpc/configs/ppc64_defconfig
-index 7e68cb222c7b..4599fc7be285 100644
---- a/arch/powerpc/configs/ppc64_defconfig
-+++ b/arch/powerpc/configs/ppc64_defconfig
-@@ -61,6 +61,7 @@ CONFIG_ELECTRA_CF=y
- CONFIG_VIRTUALIZATION=y
- CONFIG_KVM_BOOK3S_64=m
- CONFIG_KVM_BOOK3S_64_HV=m
-+CONFIG_VHOST=m
- CONFIG_VHOST_NET=m
- CONFIG_OPROFILE=m
- CONFIG_KPROBES=y
-diff --git a/arch/powerpc/configs/pseries_defconfig b/arch/powerpc/configs/pseries_defconfig
-index 6b68109e248f..4cad3901b5de 100644
---- a/arch/powerpc/configs/pseries_defconfig
-+++ b/arch/powerpc/configs/pseries_defconfig
-@@ -321,5 +321,6 @@ CONFIG_CRYPTO_DEV_VMX=y
- CONFIG_VIRTUALIZATION=y
- CONFIG_KVM_BOOK3S_64=m
- CONFIG_KVM_BOOK3S_64_HV=m
-+CONFIG_VHOST=m
- CONFIG_VHOST_NET=m
- CONFIG_PRINTK_TIME=y
-diff --git a/arch/s390/configs/debug_defconfig b/arch/s390/configs/debug_defconfig
-index 0c86ba19fa2b..6ec6e69630d1 100644
---- a/arch/s390/configs/debug_defconfig
-+++ b/arch/s390/configs/debug_defconfig
-@@ -57,6 +57,7 @@ CONFIG_PROTECTED_VIRTUALIZATION_GUEST=y
- CONFIG_CMM=m
- CONFIG_APPLDATA_BASE=y
- CONFIG_KVM=m
-+CONFIG_VHOST=m
- CONFIG_VHOST_NET=m
- CONFIG_VHOST_VSOCK=m
- CONFIG_OPROFILE=m
-diff --git a/arch/s390/configs/defconfig b/arch/s390/configs/defconfig
-index 6b27d861a9a3..d1b3bf83d687 100644
---- a/arch/s390/configs/defconfig
-+++ b/arch/s390/configs/defconfig
-@@ -57,6 +57,7 @@ CONFIG_PROTECTED_VIRTUALIZATION_GUEST=y
- CONFIG_CMM=m
- CONFIG_APPLDATA_BASE=y
- CONFIG_KVM=m
-+CONFIG_VHOST=m
- CONFIG_VHOST_NET=m
- CONFIG_VHOST_VSOCK=m
- CONFIG_OPROFILE=m
-diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
-index e79cbbdfea45..29f171a53d8a 100644
---- a/drivers/vhost/Kconfig
-+++ b/drivers/vhost/Kconfig
-@@ -12,23 +12,19 @@ config VHOST_RING
- 	  This option is selected by any driver which needs to access
- 	  the host side of a virtio ring.
- 
--config VHOST
--	tristate
-+menuconfig VHOST
-+	tristate "Vhost Devices"
-+	depends on EVENTFD
- 	select VHOST_IOTLB
- 	help
--	  This option is selected by any driver which needs to access
--	  the core of vhost.
-+	  Enable option to support host kernel or hardware accelerator
-+	  for virtio device.
- 
--menuconfig VHOST_MENU
--	bool "VHOST drivers"
--	default y
--
--if VHOST_MENU
-+if VHOST
- 
- config VHOST_NET
- 	tristate "Host kernel accelerator for virtio net"
--	depends on NET && EVENTFD && (TUN || !TUN) && (TAP || !TAP)
--	select VHOST
-+	depends on NET && (TUN || !TUN) && (TAP || !TAP)
- 	---help---
- 	  This kernel module can be loaded in host kernel to accelerate
- 	  guest networking with virtio_net. Not to be confused with virtio_net
-@@ -39,8 +35,7 @@ config VHOST_NET
- 
- config VHOST_SCSI
- 	tristate "VHOST_SCSI TCM fabric driver"
--	depends on TARGET_CORE && EVENTFD
--	select VHOST
-+	depends on TARGET_CORE
- 	default n
- 	---help---
- 	Say M here to enable the vhost_scsi TCM fabric module
-@@ -48,8 +43,7 @@ config VHOST_SCSI
- 
- config VHOST_VSOCK
- 	tristate "vhost virtio-vsock driver"
--	depends on VSOCKETS && EVENTFD
--	select VHOST
-+	depends on VSOCKETS
- 	select VIRTIO_VSOCKETS_COMMON
- 	default n
- 	---help---
-@@ -62,8 +56,6 @@ config VHOST_VSOCK
- 
- config VHOST_VDPA
- 	tristate "Vhost driver for vDPA-based backend"
--	depends on EVENTFD
--	select VHOST
- 	depends on VDPA
- 	help
- 	  This kernel module can be loaded in host kernel to accelerate
--- 
-2.20.1
+Looks good to me. Thanks for fixing this very old mistake.
+
+Acked-by: Johannes Weiner <hannes-druUgvl0LCNAfugRpC6u6w@public.gmane.org>
