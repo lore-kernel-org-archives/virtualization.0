@@ -1,11 +1,11 @@
 From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 26/59] drm/qxl: Use devm_drm_dev_alloc
-Date: Wed, 15 Apr 2020 09:40:01 +0200
-Message-ID: <20200415074034.175360-27-daniel.vetter@ffwll.ch>
+Subject: [PATCH 36/59] drm/cirrus: Don't use drm_device->dev_private
+Date: Wed, 15 Apr 2020 09:40:11 +0200
+Message-ID: <20200415074034.175360-37-daniel.vetter@ffwll.ch>
 References: <20200415074034.175360-1-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200415074034.175360-1-daniel.vetter@ffwll.ch>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
@@ -18,131 +18,56 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: Intel Graphics Development <intel-gfx@lists.freedesktop.org>
-Cc: spice-devel@lists.freedesktop.org, Daniel Vetter <daniel.vetter@ffwll.ch>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Daniel Vetter <daniel.vetter@intel.com>, Dave Airlie <airlied@redhat.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Eric Anholt <eric@anholt.net>, =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>, Thomas Zimmermann <tzimmermann@suse.de>, Dave Airlie <airlied@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>, Sam Ravnborg <sam@ravnborg.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Also need to remove the drm_dev_put from the remove hook.
-
-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Dave Airlie <airlied@redhat.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
-Cc: spice-devel@lists.freedesktop.org
----
- drivers/gpu/drm/qxl/qxl_drv.c | 15 ++++++++-------
- drivers/gpu/drm/qxl/qxl_drv.h |  3 +--
- drivers/gpu/drm/qxl/qxl_kms.c | 12 +-----------
- 3 files changed, 10 insertions(+), 20 deletions(-)
-
-diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
-index 09102e2efabc..6b4ae4c5fb76 100644
---- a/drivers/gpu/drm/qxl/qxl_drv.c
-+++ b/drivers/gpu/drm/qxl/qxl_drv.c
-@@ -81,13 +81,16 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		return -EINVAL; /* TODO: ENODEV ? */
- 	}
- 
--	qdev = kzalloc(sizeof(struct qxl_device), GFP_KERNEL);
--	if (!qdev)
-+	qdev = devm_drm_dev_alloc(&pdev->dev, &qxl_driver,
-+				  struct qxl_device, ddev);
-+	if (IS_ERR(qdev)) {
-+		pr_err("Unable to init drm dev");
- 		return -ENOMEM;
-+	}
- 
- 	ret = pci_enable_device(pdev);
- 	if (ret)
--		goto free_dev;
-+		return ret;
- 
- 	ret = drm_fb_helper_remove_conflicting_pci_framebuffers(pdev, "qxl");
- 	if (ret)
-@@ -101,7 +104,7 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		}
- 	}
- 
--	ret = qxl_device_init(qdev, &qxl_driver, pdev);
-+	ret = qxl_device_init(qdev, pdev);
- 	if (ret)
- 		goto put_vga;
- 
-@@ -128,8 +131,7 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		vga_put(pdev, VGA_RSRC_LEGACY_IO);
- disable_pci:
- 	pci_disable_device(pdev);
--free_dev:
--	kfree(qdev);
-+
- 	return ret;
- }
- 
-@@ -155,7 +157,6 @@ qxl_pci_remove(struct pci_dev *pdev)
- 	drm_atomic_helper_shutdown(dev);
- 	if (is_vga(pdev))
- 		vga_put(pdev, VGA_RSRC_LEGACY_IO);
--	drm_dev_put(dev);
- }
- 
- DEFINE_DRM_GEM_FOPS(qxl_fops);
-diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
-index 435126facc9b..86ac191d9205 100644
---- a/drivers/gpu/drm/qxl/qxl_drv.h
-+++ b/drivers/gpu/drm/qxl/qxl_drv.h
-@@ -276,8 +276,7 @@ struct qxl_device {
- extern const struct drm_ioctl_desc qxl_ioctls[];
- extern int qxl_max_ioctl;
- 
--int qxl_device_init(struct qxl_device *qdev, struct drm_driver *drv,
--		    struct pci_dev *pdev);
-+int qxl_device_init(struct qxl_device *qdev, struct pci_dev *pdev);
- void qxl_device_fini(struct qxl_device *qdev);
- 
- int qxl_modeset_init(struct qxl_device *qdev);
-diff --git a/drivers/gpu/drm/qxl/qxl_kms.c b/drivers/gpu/drm/qxl/qxl_kms.c
-index 9eed1a375f24..91a34dd835d7 100644
---- a/drivers/gpu/drm/qxl/qxl_kms.c
-+++ b/drivers/gpu/drm/qxl/qxl_kms.c
-@@ -108,21 +108,13 @@ static void qxl_gc_work(struct work_struct *work)
- }
- 
- int qxl_device_init(struct qxl_device *qdev,
--		    struct drm_driver *drv,
- 		    struct pci_dev *pdev)
- {
- 	int r, sb;
- 
--	r = drm_dev_init(&qdev->ddev, drv, &pdev->dev);
--	if (r) {
--		pr_err("Unable to init drm dev");
--		goto error;
--	}
--
- 	qdev->ddev.pdev = pdev;
- 	pci_set_drvdata(pdev, &qdev->ddev);
- 	qdev->ddev.dev_private = qdev;
--	drmm_add_final_kfree(&qdev->ddev, qdev);
- 
- 	mutex_init(&qdev->gem.mutex);
- 	mutex_init(&qdev->update_area_mutex);
-@@ -138,8 +130,7 @@ int qxl_device_init(struct qxl_device *qdev,
- 	qdev->vram_mapping = io_mapping_create_wc(qdev->vram_base, pci_resource_len(pdev, 0));
- 	if (!qdev->vram_mapping) {
- 		pr_err("Unable to create vram_mapping");
--		r = -ENOMEM;
--		goto error;
-+		return -ENOMEM;
- 	}
- 
- 	if (pci_resource_len(pdev, 4) > 0) {
-@@ -293,7 +284,6 @@ int qxl_device_init(struct qxl_device *qdev,
- 	io_mapping_free(qdev->surface_mapping);
- vram_mapping_free:
- 	io_mapping_free(qdev->vram_mapping);
--error:
- 	return r;
- }
- 
--- 
-2.25.1
+VXBjYXN0aW5nIHVzaW5nIGEgY29udGFpbmVyX29mIG1hY3JvIGlzIG1vcmUgdHlwZXNhZmUsIGZh
+c3RlciBhbmQKZWFzaWVyIGZvciB0aGUgY29tcGlsZXIgdG8gb3B0aW1pemUuCgpBY2tlZC1ieTog
+RXJpYyBBbmhvbHQgPGVyaWNAYW5ob2x0Lm5ldD4KQWNrZWQtYnk6IFNhbSBSYXZuYm9yZyA8c2Ft
+QHJhdm5ib3JnLm9yZz4KU2lnbmVkLW9mZi1ieTogRGFuaWVsIFZldHRlciA8ZGFuaWVsLnZldHRl
+ckBpbnRlbC5jb20+CkNjOiBEYXZlIEFpcmxpZSA8YWlybGllZEByZWRoYXQuY29tPgpDYzogR2Vy
+ZCBIb2ZmbWFubiA8a3JheGVsQHJlZGhhdC5jb20+CkNjOiBEYW5pZWwgVmV0dGVyIDxkYW5pZWwu
+dmV0dGVyQGZmd2xsLmNoPgpDYzogIk5vcmFsZiBUcsO4bm5lcyIgPG5vcmFsZkB0cm9ubmVzLm9y
+Zz4KQ2M6IFNhbSBSYXZuYm9yZyA8c2FtQHJhdm5ib3JnLm9yZz4KQ2M6IEVyaWMgQW5ob2x0IDxl
+cmljQGFuaG9sdC5uZXQ+CkNjOiBUaG9tYXMgWmltbWVybWFubiA8dHppbW1lcm1hbm5Ac3VzZS5k
+ZT4KQ2M6IHZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCi0tLQogZHJp
+dmVycy9ncHUvZHJtL2NpcnJ1cy9jaXJydXMuYyB8IDkgKysrKystLS0tCiAxIGZpbGUgY2hhbmdl
+ZCwgNSBpbnNlcnRpb25zKCspLCA0IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMv
+Z3B1L2RybS9jaXJydXMvY2lycnVzLmMgYi9kcml2ZXJzL2dwdS9kcm0vY2lycnVzL2NpcnJ1cy5j
+CmluZGV4IDRiNjU2MzcxNDdiYS4uNzQ0YThlMzM3ZTQxIDEwMDY0NAotLS0gYS9kcml2ZXJzL2dw
+dS9kcm0vY2lycnVzL2NpcnJ1cy5jCisrKyBiL2RyaXZlcnMvZ3B1L2RybS9jaXJydXMvY2lycnVz
+LmMKQEAgLTU5LDYgKzU5LDggQEAgc3RydWN0IGNpcnJ1c19kZXZpY2UgewogCXZvaWQgX19pb21l
+bQkJICAgICAgICptbWlvOwogfTsKIAorI2RlZmluZSB0b19jaXJydXMoX2RldikgY29udGFpbmVy
+X29mKF9kZXYsIHN0cnVjdCBjaXJydXNfZGV2aWNlLCBkZXYpCisKIC8qIC0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLSAqLwog
+LyoKICAqIFRoZSBtZWF0IG9mIHRoaXMgZHJpdmVyLiBUaGUgY29yZSBwYXNzZXMgdXMgYSBtb2Rl
+IGFuZCB3ZSBoYXZlIHRvIHByb2dyYW0KQEAgLTMxMSw3ICszMTMsNyBAQCBzdGF0aWMgaW50IGNp
+cnJ1c19tb2RlX3NldChzdHJ1Y3QgY2lycnVzX2RldmljZSAqY2lycnVzLAogc3RhdGljIGludCBj
+aXJydXNfZmJfYmxpdF9yZWN0KHN0cnVjdCBkcm1fZnJhbWVidWZmZXIgKmZiLAogCQkJICAgICAg
+IHN0cnVjdCBkcm1fcmVjdCAqcmVjdCkKIHsKLQlzdHJ1Y3QgY2lycnVzX2RldmljZSAqY2lycnVz
+ID0gZmItPmRldi0+ZGV2X3ByaXZhdGU7CisJc3RydWN0IGNpcnJ1c19kZXZpY2UgKmNpcnJ1cyA9
+IHRvX2NpcnJ1cyhmYi0+ZGV2KTsKIAl2b2lkICp2bWFwOwogCWludCBpZHgsIHJldDsKIApAQCAt
+NDM2LDcgKzQzOCw3IEBAIHN0YXRpYyB2b2lkIGNpcnJ1c19waXBlX2VuYWJsZShzdHJ1Y3QgZHJt
+X3NpbXBsZV9kaXNwbGF5X3BpcGUgKnBpcGUsCiAJCQkgICAgICAgc3RydWN0IGRybV9jcnRjX3N0
+YXRlICpjcnRjX3N0YXRlLAogCQkJICAgICAgIHN0cnVjdCBkcm1fcGxhbmVfc3RhdGUgKnBsYW5l
+X3N0YXRlKQogewotCXN0cnVjdCBjaXJydXNfZGV2aWNlICpjaXJydXMgPSBwaXBlLT5jcnRjLmRl
+di0+ZGV2X3ByaXZhdGU7CisJc3RydWN0IGNpcnJ1c19kZXZpY2UgKmNpcnJ1cyA9IHRvX2NpcnJ1
+cyhwaXBlLT5jcnRjLmRldik7CiAKIAljaXJydXNfbW9kZV9zZXQoY2lycnVzLCAmY3J0Y19zdGF0
+ZS0+bW9kZSwgcGxhbmVfc3RhdGUtPmZiKTsKIAljaXJydXNfZmJfYmxpdF9mdWxsc2NyZWVuKHBs
+YW5lX3N0YXRlLT5mYik7CkBAIC00NDUsNyArNDQ3LDcgQEAgc3RhdGljIHZvaWQgY2lycnVzX3Bp
+cGVfZW5hYmxlKHN0cnVjdCBkcm1fc2ltcGxlX2Rpc3BsYXlfcGlwZSAqcGlwZSwKIHN0YXRpYyB2
+b2lkIGNpcnJ1c19waXBlX3VwZGF0ZShzdHJ1Y3QgZHJtX3NpbXBsZV9kaXNwbGF5X3BpcGUgKnBp
+cGUsCiAJCQkgICAgICAgc3RydWN0IGRybV9wbGFuZV9zdGF0ZSAqb2xkX3N0YXRlKQogewotCXN0
+cnVjdCBjaXJydXNfZGV2aWNlICpjaXJydXMgPSBwaXBlLT5jcnRjLmRldi0+ZGV2X3ByaXZhdGU7
+CisJc3RydWN0IGNpcnJ1c19kZXZpY2UgKmNpcnJ1cyA9IHRvX2NpcnJ1cyhwaXBlLT5jcnRjLmRl
+dik7CiAJc3RydWN0IGRybV9wbGFuZV9zdGF0ZSAqc3RhdGUgPSBwaXBlLT5wbGFuZS5zdGF0ZTsK
+IAlzdHJ1Y3QgZHJtX2NydGMgKmNydGMgPSAmcGlwZS0+Y3J0YzsKIAlzdHJ1Y3QgZHJtX3JlY3Qg
+cmVjdDsKQEAgLTU3Myw3ICs1NzUsNiBAQCBzdGF0aWMgaW50IGNpcnJ1c19wY2lfcHJvYmUoc3Ry
+dWN0IHBjaV9kZXYgKnBkZXYsCiAJCXJldHVybiBQVFJfRVJSKGNpcnJ1cyk7CiAKIAlkZXYgPSAm
+Y2lycnVzLT5kZXY7Ci0JZGV2LT5kZXZfcHJpdmF0ZSA9IGNpcnJ1czsKIAogCWNpcnJ1cy0+dnJh
+bSA9IGRldm1faW9yZW1hcCgmcGRldi0+ZGV2LCBwY2lfcmVzb3VyY2Vfc3RhcnQocGRldiwgMCks
+CiAJCQkJICAgIHBjaV9yZXNvdXJjZV9sZW4ocGRldiwgMCkpOwotLSAKMi4yNS4xCgpfX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBt
+YWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0
+cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6
+YXRpb24=
