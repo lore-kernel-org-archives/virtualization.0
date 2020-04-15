@@ -1,43 +1,103 @@
-From: Lu Baolu <baolu.lu-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>
-Subject: Re: [PATCH v2 07/33] iommu: Add probe_device() and remove_device()
- call-backs
-Date: Wed, 15 Apr 2020 14:36:20 +0800
-Message-ID: <0ad37581-b464-30ac-c503-4c0daaf43867@linux.intel.com>
-References: <20200414131542.25608-1-joro@8bytes.org>
- <20200414131542.25608-8-joro@8bytes.org>
+From: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Subject: Re: [PATCH v2 07/10] mm/memory_hotplug: Introduce offline_and_remove_memory()
+Date: Wed, 15 Apr 2020 09:35:36 +0200
+Message-ID: <CAM9Jb+iz+meQ-fR+ZAHNeNFefTcoujCgEaSHLO6SJ6C6eTLLXg@mail.gmail.com>
+References: <20200311171422.10484-1-david@redhat.com> <20200311171422.10484-8-david@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-In-Reply-To: <20200414131542.25608-8-joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
- <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
- <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Sender: "iommu" <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-To: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>, Will Deacon <will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>, Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Andy Gross <agross-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Clark <robdclark-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Gerald Schaefer <gerald.schaefer-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20200311171422.10484-8-david@redhat.com>
+Sender: kvm-owner@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Oscar Salvador <osalvador@suse.com>, Michal Hocko <mhocko@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Wei Yang <richard.weiyang@gmail.com>, Dan Williams <dan.j.williams@intel.com>, Qian Cai <cai@lca.pw>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2020/4/14 21:15, Joerg Roedel wrote:
-> From: Joerg Roedel<jroedel-l3A5Bk7waGM@public.gmane.org>
-> 
-> Add call-backs to 'struct iommu_ops' as an alternative to the
-> add_device() and remove_device() call-backs, which will be removed when
-> all drivers are converted.
-> 
-> The new call-backs will not setupt IOMMU groups and domains anymore,
-> so also add a probe_finalize() call-back where the IOMMU driver can do
-> per-device setup work which require the device to be set up with a
-> group and a domain.
+> virtio-mem wants to offline and remove a memory block once it unplugged
+> all subblocks (e.g., using alloc_contig_range()). Let's provide
+> an interface to do that from a driver. virtio-mem already supports to
+> offline partially unplugged memory blocks. Offlining a fully unplugged
+> memory block will not require to migrate any pages. All unplugged
+> subblocks are PageOffline() and have a reference count of 0 - so
+> offlining code will simply skip them.
+>
+> All we need is an interface to offline and remove the memory from kernel
+> module context, where we don't have access to the memory block devices
+> (esp. find_memory_block() and device_offline()) and the device hotplug
+> lock.
+>
+> To keep things simple, allow to only work on a single memory block.
+>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: David Hildenbrand <david@redhat.com>
+> Cc: Oscar Salvador <osalvador@suse.com>
+> Cc: Michal Hocko <mhocko@suse.com>
+> Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
+> Cc: Wei Yang <richard.weiyang@gmail.com>
+> Cc: Dan Williams <dan.j.williams@intel.com>
+> Cc: Qian Cai <cai@lca.pw>
+> Signed-off-by: David Hildenbrand <david@redhat.com>
+> ---
+>  include/linux/memory_hotplug.h |  1 +
+>  mm/memory_hotplug.c            | 37 ++++++++++++++++++++++++++++++++++
+>  2 files changed, 38 insertions(+)
+>
+> diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
+> index f4d59155f3d4..a98aa16dbfa1 100644
+> --- a/include/linux/memory_hotplug.h
+> +++ b/include/linux/memory_hotplug.h
+> @@ -311,6 +311,7 @@ extern void try_offline_node(int nid);
+>  extern int offline_pages(unsigned long start_pfn, unsigned long nr_pages);
+>  extern int remove_memory(int nid, u64 start, u64 size);
+>  extern void __remove_memory(int nid, u64 start, u64 size);
+> +extern int offline_and_remove_memory(int nid, u64 start, u64 size);
+>
+>  #else
+>  static inline bool is_mem_section_removable(unsigned long pfn,
+> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+> index ab1c31e67fd1..d0d337918a15 100644
+> --- a/mm/memory_hotplug.c
+> +++ b/mm/memory_hotplug.c
+> @@ -1818,4 +1818,41 @@ int remove_memory(int nid, u64 start, u64 size)
+>         return rc;
+>  }
+>  EXPORT_SYMBOL_GPL(remove_memory);
+> +
+> +/*
+> + * Try to offline and remove a memory block. Might take a long time to
+> + * finish in case memory is still in use. Primarily useful for memory devices
+> + * that logically unplugged all memory (so it's no longer in use) and want to
+> + * offline + remove the memory block.
+> + */
+> +int offline_and_remove_memory(int nid, u64 start, u64 size)
+> +{
+> +       struct memory_block *mem;
+> +       int rc = -EINVAL;
+> +
+> +       if (!IS_ALIGNED(start, memory_block_size_bytes()) ||
+> +           size != memory_block_size_bytes())
+> +               return rc;
+> +
+> +       lock_device_hotplug();
+> +       mem = find_memory_block(__pfn_to_section(PFN_DOWN(start)));
+> +       if (mem)
+> +               rc = device_offline(&mem->dev);
+> +       /* Ignore if the device is already offline. */
+> +       if (rc > 0)
+> +               rc = 0;
+> +
+> +       /*
+> +        * In case we succeeded to offline the memory block, remove it.
+> +        * This cannot fail as it cannot get onlined in the meantime.
+> +        */
+> +       if (!rc) {
+> +               rc = try_remove_memory(nid, start, size);
+> +               WARN_ON_ONCE(rc);
+> +       }
+> +       unlock_device_hotplug();
+> +
+> +       return rc;
+> +}
+> +EXPORT_SYMBOL_GPL(offline_and_remove_memory);
+>  #endif /* CONFIG_MEMORY_HOTREMOVE */
 
-The subject is inaccurate. probe_device() and release_device() are
-added to replace the add and remove pair.
-
-Best regards,
-baolu
+Acked-by: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
