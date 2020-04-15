@@ -1,11 +1,11 @@
 From: Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 35/59] drm/cirrus: Use devm_drm_dev_alloc
-Date: Wed, 15 Apr 2020 09:40:10 +0200
-Message-ID: <20200415074034.175360-36-daniel.vetter@ffwll.ch>
+Subject: [PATCH 59/59] drm/bochs: Remove explicit drm_connector_register
+Date: Wed, 15 Apr 2020 09:40:34 +0200
+Message-ID: <20200415074034.175360-60-daniel.vetter@ffwll.ch>
 References: <20200415074034.175360-1-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200415074034.175360-1-daniel.vetter@ffwll.ch>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
@@ -18,37 +18,31 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: Intel Graphics Development <intel-gfx@lists.freedesktop.org>
-Cc: Rob Herring <robh@kernel.org>, Daniel Vetter <daniel.vetter@ffwll.ch>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, =?UTF-8?q?Noralf=20Tr=C3=B8nnes?= <noralf@tronnes.org>, Thomas Zimmermann <tzimmermann@suse.de>, Daniel Vetter <daniel.vetter@intel.com>, Dave Airlie <airlied@redhat.com>, Sam Ravnborg <sam@ravnborg.org>, Emil Velikov <emil.velikov@collabora.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>, virtualization@lists.linux-foundation.org, DRI Development <dri-devel@lists.freedesktop.org>, Daniel Vetter <daniel.vetter@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-QWxyZWFkeSB1c2luZyBkZXZtX2RybV9kZXZfaW5pdCwgc28gdmVyeSBzaW1wbGUgcmVwbGFjbWVu
-dC4KCkFja2VkLWJ5OiBOb3JhbGYgVHLDuG5uZXMgPG5vcmFsZkB0cm9ubmVzLm9yZz4KQWNrZWQt
-Ynk6IFNhbSBSYXZuYm9yZyA8c2FtQHJhdm5ib3JnLm9yZz4KU2lnbmVkLW9mZi1ieTogRGFuaWVs
-IFZldHRlciA8ZGFuaWVsLnZldHRlckBpbnRlbC5jb20+CkNjOiBEYXZlIEFpcmxpZSA8YWlybGll
-ZEByZWRoYXQuY29tPgpDYzogR2VyZCBIb2ZmbWFubiA8a3JheGVsQHJlZGhhdC5jb20+CkNjOiBE
-YW5pZWwgVmV0dGVyIDxkYW5pZWwudmV0dGVyQGZmd2xsLmNoPgpDYzogU2FtIFJhdm5ib3JnIDxz
-YW1AcmF2bmJvcmcub3JnPgpDYzogIk5vcmFsZiBUcsO4bm5lcyIgPG5vcmFsZkB0cm9ubmVzLm9y
-Zz4KQ2M6IFJvYiBIZXJyaW5nIDxyb2JoQGtlcm5lbC5vcmc+CkNjOiBUaG9tYXMgWmltbWVybWFu
-biA8dHppbW1lcm1hbm5Ac3VzZS5kZT4KQ2M6IHZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
-dW5kYXRpb24ub3JnCkNjOiBFbWlsIFZlbGlrb3YgPGVtaWwudmVsaWtvdkBjb2xsYWJvcmEuY29t
-PgotLS0KIGRyaXZlcnMvZ3B1L2RybS9jaXJydXMvY2lycnVzLmMgfCAxMyArKysrLS0tLS0tLS0t
-CiAxIGZpbGUgY2hhbmdlZCwgNCBpbnNlcnRpb25zKCspLCA5IGRlbGV0aW9ucygtKQoKZGlmZiAt
-LWdpdCBhL2RyaXZlcnMvZ3B1L2RybS9jaXJydXMvY2lycnVzLmMgYi9kcml2ZXJzL2dwdS9kcm0v
-Y2lycnVzL2NpcnJ1cy5jCmluZGV4IGEzNjI2OTcxN2MzYi4uNGI2NTYzNzE0N2JhIDEwMDY0NAot
-LS0gYS9kcml2ZXJzL2dwdS9kcm0vY2lycnVzL2NpcnJ1cy5jCisrKyBiL2RyaXZlcnMvZ3B1L2Ry
-bS9jaXJydXMvY2lycnVzLmMKQEAgLTU2NywxOCArNTY3LDEzIEBAIHN0YXRpYyBpbnQgY2lycnVz
-X3BjaV9wcm9iZShzdHJ1Y3QgcGNpX2RldiAqcGRldiwKIAkJcmV0dXJuIHJldDsKIAogCXJldCA9
-IC1FTk9NRU07Ci0JY2lycnVzID0ga3phbGxvYyhzaXplb2YoKmNpcnJ1cyksIEdGUF9LRVJORUwp
-OwotCWlmIChjaXJydXMgPT0gTlVMTCkKLQkJcmV0dXJuIHJldDsKKwljaXJydXMgPSBkZXZtX2Ry
-bV9kZXZfYWxsb2MoJnBkZXYtPmRldiwgJmNpcnJ1c19kcml2ZXIsCisJCQkJICAgIHN0cnVjdCBj
-aXJydXNfZGV2aWNlLCBkZXYpOworCWlmIChJU19FUlIoY2lycnVzKSkKKwkJcmV0dXJuIFBUUl9F
-UlIoY2lycnVzKTsKIAogCWRldiA9ICZjaXJydXMtPmRldjsKLQlyZXQgPSBkZXZtX2RybV9kZXZf
-aW5pdCgmcGRldi0+ZGV2LCBkZXYsICZjaXJydXNfZHJpdmVyKTsKLQlpZiAocmV0KSB7Ci0JCWtm
-cmVlKGNpcnJ1cyk7Ci0JCXJldHVybiByZXQ7Ci0JfQogCWRldi0+ZGV2X3ByaXZhdGUgPSBjaXJy
-dXM7Ci0JZHJtbV9hZGRfZmluYWxfa2ZyZWUoZGV2LCBjaXJydXMpOwogCiAJY2lycnVzLT52cmFt
-ID0gZGV2bV9pb3JlbWFwKCZwZGV2LT5kZXYsIHBjaV9yZXNvdXJjZV9zdGFydChwZGV2LCAwKSwK
-IAkJCQkgICAgcGNpX3Jlc291cmNlX2xlbihwZGV2LCAwKSk7Ci0tIAoyLjI1LjEKCl9fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
-aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
-czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
-dGlvbg==
+This is leftovers from the old drm_driver->load callback
+upside-down issues. It doesn't do anything for not-hotplugged
+connectors since drm_dev_register takes care of that.
+
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Cc: Gerd Hoffmann <kraxel@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
+---
+ drivers/gpu/drm/bochs/bochs_kms.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index 7f4bcfad87e9..05d8373888e8 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -104,7 +104,6 @@ static void bochs_connector_init(struct drm_device *dev)
+ 			   DRM_MODE_CONNECTOR_VIRTUAL);
+ 	drm_connector_helper_add(connector,
+ 				 &bochs_connector_connector_helper_funcs);
+-	drm_connector_register(connector);
+ 
+ 	bochs_hw_load_edid(bochs);
+ 	if (bochs->edid) {
+-- 
+2.25.1
