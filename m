@@ -1,16 +1,16 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: linux-next: Tree for Apr 15 (vdpa)
-Date: Thu, 16 Apr 2020 08:32:24 -0400
-Message-ID: <20200416082248-mutt-send-email-mst@kernel.org>
-References: <20200415152240.2422e06c@canb.auug.org.au>
- <620e1646-5899-a077-b9de-95443887364d@infradead.org>
- <33e4922f-d2b5-f3fa-4d32-a5db5a177238@redhat.com>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: Re: [PATCH 12/70] x86/boot/compressed/64: Add IDT Infrastructure
+Date: Thu, 16 Apr 2020 15:30:45 +0200
+Message-ID: <20200416133045.GA4290@8bytes.org>
+References: <20200319091407.1481-1-joro@8bytes.org>
+ <20200319091407.1481-13-joro@8bytes.org>
+ <20200407022127.GA1048595@rani.riverdale.lan>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <33e4922f-d2b5-f3fa-4d32-a5db5a177238@redhat.com>
 Content-Disposition: inline
+In-Reply-To: <20200407022127.GA1048595@rani.riverdale.lan>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -20,38 +20,35 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Jason Wang <jasowang@redhat.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, Randy Dunlap <rdunlap@infradead.org>, virtualization@lists.linux-foundation.org, Linux Next Mailing List <linux-next@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Arvind Sankar <nivedita@alum.mit.edu>
+Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Dave Hansen <dave.hansen@linux.intel.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gVGh1LCBBcHIgMTYsIDIwMjAgYXQgMTI6MDc6MDZQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDIwLzQvMTYg5LiK5Y2IMTI6MTYsIFJhbmR5IER1bmxhcCB3cm90ZToKPiA+
-IE9uIDQvMTQvMjAgMTA6MjIgUE0sIFN0ZXBoZW4gUm90aHdlbGwgd3JvdGU6Cj4gPiA+IEhpIGFs
-bCwKPiA+ID4gCj4gPiA+IENoYW5nZXMgc2luY2UgMjAyMDA0MTQ6Cj4gPiA+IAo+ID4gb24geDg2
-XzY0Ogo+ID4gCj4gPiBFUlJPUjogbW9kcG9zdDogInZyaW5naF9zZXRfaW90bGIiIFtkcml2ZXJz
-L3ZkcGEvdmRwYV9zaW0vdmRwYV9zaW0ua29dIHVuZGVmaW5lZCEKPiA+IEVSUk9SOiBtb2Rwb3N0
-OiAidnJpbmdoX2luaXRfaW90bGIiIFtkcml2ZXJzL3ZkcGEvdmRwYV9zaW0vdmRwYV9zaW0ua29d
-IHVuZGVmaW5lZCEKPiA+IEVSUk9SOiBtb2Rwb3N0OiAidnJpbmdoX2lvdl9wdXNoX2lvdGxiIiBb
-ZHJpdmVycy92ZHBhL3ZkcGFfc2ltL3ZkcGFfc2ltLmtvXSB1bmRlZmluZWQhCj4gPiBFUlJPUjog
-bW9kcG9zdDogInZyaW5naF9pb3ZfcHVsbF9pb3RsYiIgW2RyaXZlcnMvdmRwYS92ZHBhX3NpbS92
-ZHBhX3NpbS5rb10gdW5kZWZpbmVkIQo+ID4gRVJST1I6IG1vZHBvc3Q6ICJ2cmluZ2hfY29tcGxl
-dGVfaW90bGIiIFtkcml2ZXJzL3ZkcGEvdmRwYV9zaW0vdmRwYV9zaW0ua29dIHVuZGVmaW5lZCEK
-PiA+IEVSUk9SOiBtb2Rwb3N0OiAidnJpbmdoX2dldGRlc2NfaW90bGIiIFtkcml2ZXJzL3ZkcGEv
-dmRwYV9zaW0vdmRwYV9zaW0ua29dIHVuZGVmaW5lZCEKPiA+IAo+ID4gCj4gPiBGdWxsIHJhbmRj
-b25maWcgZmlsZSBpcyBhdHRhY2hlZC4KPiA+IAo+IAo+IFRoZSBjb25maWcgaGFzCj4gCj4gQ09O
-RklHX1ZIT1NUX0lPVExCPW0KPiBDT05GSUdfVkhPU1RfUklORz15Cj4gCj4gQnV0IHdlIGRvbid0
-IHNlbGVjdCBWSE9TVF9JT1RMQiBpbiBWSE9TVF9SSU5HIGFmdGVyIGNvbW1pdAo+IGU2ZmFlYWEx
-Mjg0MTcoInZob3N0OiBkcm9wIHZyaW5nIGRlcGVuZGVuY3kgb24gaW90bGIiKS4gV2hpY2ggc2Vl
-bXMgd3JvbmcuCj4gCj4gVGhhbmtzCgpXZWxsIHNlbGVjdGluZyBJT1RMQiBmcm9tIHJpbmcgYnJl
-YWtzIGNvbmZpZ3Mgd2hpY2ggZG9uJ3QgbmVlZCBJT1RMQi4KCkxlZ2FsIGNvbmZpZ3VyYXRpb25z
-IGFyZToKCkNPTkZJR19WSE9TVF9JT1RMQj15CkNPTkZJR19WSE9TVF9SSU5HPW4KCkNPTkZJR19W
-SE9TVF9JT1RMQj1tCkNPTkZJR19WSE9TVF9SSU5HPW4KCkNPTkZJR19WSE9TVF9JT1RMQj1uCkNP
-TkZJR19WSE9TVF9SSU5HPW4KCkNPTkZJR19WSE9TVF9JT1RMQj15CkNPTkZJR19WSE9TVF9SSU5H
-PXkKCkNPTkZJR19WSE9TVF9JT1RMQj1uCkNPTkZJR19WSE9TVF9SSU5HPXkKCkNPTkZJR19WSE9T
-VF9JT1RMQj1uCkNPTkZJR19WSE9TVF9SSU5HPW0KCkNPTkZJR19WSE9TVF9JT1RMQj15CkNPTkZJ
-R19WSE9TVF9SSU5HPW0KCkNPTkZJR19WSE9TVF9JT1RMQj1tCkNPTkZJR19WSE9TVF9SSU5HPW0K
-CgpTbyBWSE9TVF9SSU5HPXkgYW5kIFZIT1NUX0lPVExCPW0gaXMgdGhlIG9ubHkgaWxsZWdhbCBv
-bmUuCgoKLS0gCk1TVAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
-bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Hi Arvind,
+
+On Mon, Apr 06, 2020 at 10:21:27PM -0400, Arvind Sankar wrote:
+> On Thu, Mar 19, 2020 at 10:13:09AM +0100, Joerg Roedel wrote:
+> > From: Joerg Roedel <jroedel@suse.de>
+> > +/*
+> > + * Reload GDT after relocation - The GDT at the non-relocated position
+> > + * might be overwritten soon by the in-place decompression, so reload
+> > + * GDT at the relocated address. The GDT is referenced by exception
+> > + * handling and needs to be set up correctly.
+> > + */
+> > +	leaq	gdt(%rip), %rax
+> > +	movq	%rax, gdt64+2(%rip)
+> > +	lgdt	gdt64(%rip)
+> > +
+> >  /*
+> >   * Clear BSS (stack is currently empty)
+> >   */
+> 
+> Note that this is now done in mainline as of commit c98a76eabbb6e, just
+> prior to jumping to .Lrelocated, so this can be dropped on the next
+> rebase.
+
+Thanks for the heads-up, I removed this hunk.
+
+Regards,
+
+	Joerg
