@@ -1,65 +1,102 @@
 From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
-Subject: [PATCH v2 0/8] tools/vhost: Reset virtqueue on tests
-Date: Thu, 16 Apr 2020 09:56:35 +0200
-Message-ID: <20200416075643.27330-1-eperezma@redhat.com>
+Subject: [PATCH v2 8/8] tools/virtio: Use tools/include/list.h instead of stubs
+Date: Thu, 16 Apr 2020 09:56:43 +0200
+Message-ID: <20200416075643.27330-9-eperezma@redhat.com>
+References: <20200416075643.27330-1-eperezma@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20200416075643.27330-1-eperezma@redhat.com>
+Sender: kvm-owner@vger.kernel.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Stephen Rothwell <sfr@canb.auug.org.au>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>, Linux Next Mailing List <linux-next@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This series add tests used to validate the "vhost: Reset batched
-descriptors on SET_VRING_BASE call" series, with a few minor updates of
-them.
+It should not make any significant difference but reduce stub code.
 
-They are based on the tests sent back them, the ones that were not
-included (reasons in that thread). This series changes:
+Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+---
+ tools/virtio/linux/kernel.h | 7 +------
+ tools/virtio/linux/virtio.h | 5 ++---
+ tools/virtio/virtio_test.c  | 1 +
+ tools/virtio/vringh_test.c  | 2 ++
+ 4 files changed, 6 insertions(+), 9 deletions(-)
 
-* Delete need to export the ugly function in virtio_ring, now all the
-code is added in tools/virtio (except the one line fix).
-* Add forgotten uses of vhost_vq_set_backend. Fix bad usage order in
-vhost_test_set_backend.
-* Drop random reset, not really needed.
-* Minor changes.
-
-This patchset commit messages contains references to commits under
-"for_linus" tag and references to commits in for_linus..mst/vhost.
-They are fixes, so probably it is better just to squash if possible:
-
-("7c48601a3d4d tools/virtio: Add --reset=3Drandom"): Already in for_linus
-("af3756cfed9a vhost: batching fetches"): Only in vhost branch, not in
-for_linus.
-
-Thanks!
-
-Changes from v1:
-* Different base, since branch was force-pushed.
-* Using new vring_legacy_*, as base uses them now.
-
-This serie is meant to be applied on top of
-503b1b3efb47e267001beba8e0759c15fa3e9be7 in
-git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git.
-
-Eugenio P=C3=A9rez (8):
-  tools/virtio: fix virtio_test.c indentation
-  vhost: Not cleaning batched descs in VHOST_SET_VRING_BASE ioctl
-  vhost: Replace vq->private_data access by backend accesors
-  vhost: Fix bad order in vhost_test_set_backend at enable
-  tools/virtio: Use __vring_new_virtqueue in virtio_test.c
-  tools/virtio: Extract virtqueue initialization in vq_reset
-  tools/virtio: Reset index in virtio_test --reset.
-  tools/virtio: Use tools/include/list.h instead of stubs
-
- drivers/vhost/test.c        |  8 ++---
- drivers/vhost/vhost.c       |  1 -
- tools/virtio/linux/kernel.h |  7 +----
- tools/virtio/linux/virtio.h |  5 ++--
- tools/virtio/virtio_test.c  | 58 +++++++++++++++++++++++++++----------
- tools/virtio/vringh_test.c  |  2 ++
- 6 files changed, 51 insertions(+), 30 deletions(-)
-
+diff --git a/tools/virtio/linux/kernel.h b/tools/virtio/linux/kernel.h
+index 6683b4a70b05..caab980211a6 100644
+--- a/tools/virtio/linux/kernel.h
++++ b/tools/virtio/linux/kernel.h
+@@ -11,6 +11,7 @@
+=20
+ #include <linux/compiler.h>
+ #include <linux/types.h>
++#include <linux/list.h>
+ #include <linux/printk.h>
+ #include <linux/bug.h>
+ #include <errno.h>
+@@ -135,10 +136,4 @@ static inline void free_page(unsigned long addr)
+ 	(void) (&_min1 =3D=3D &_min2);		\
+ 	_min1 < _min2 ? _min1 : _min2; })
+=20
+-/* TODO: empty stubs for now. Broken but enough for virtio_ring.c */
+-#define list_add_tail(a, b) do {} while (0)
+-#define list_del(a) do {} while (0)
+-#define list_for_each_entry(a, b, c) while (0)
+-/* end of stubs */
+-
+ #endif /* KERNEL_H */
+diff --git a/tools/virtio/linux/virtio.h b/tools/virtio/linux/virtio.h
+index b751350d4ce8..5d90254ddae4 100644
+--- a/tools/virtio/linux/virtio.h
++++ b/tools/virtio/linux/virtio.h
+@@ -11,12 +11,11 @@ struct device {
+ struct virtio_device {
+ 	struct device dev;
+ 	u64 features;
++	struct list_head vqs;
+ };
+=20
+ struct virtqueue {
+-	/* TODO: commented as list macros are empty stubs for now.
+-	 * Broken but enough for virtio_ring.c
+-	 * struct list_head list; */
++	struct list_head list;
+ 	void (*callback)(struct virtqueue *vq);
+ 	const char *name;
+ 	struct virtio_device *vdev;
+diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
+index dca64d36a882..c0b924b41a1d 100644
+--- a/tools/virtio/virtio_test.c
++++ b/tools/virtio/virtio_test.c
+@@ -129,6 +129,7 @@ static void vdev_info_init(struct vdev_info* dev, uns=
+igned long long features)
+ 	int r;
+ 	memset(dev, 0, sizeof *dev);
+ 	dev->vdev.features =3D features;
++	INIT_LIST_HEAD(&dev->vdev.vqs);
+ 	dev->buf_size =3D 1024;
+ 	dev->buf =3D malloc(dev->buf_size);
+ 	assert(dev->buf);
+diff --git a/tools/virtio/vringh_test.c b/tools/virtio/vringh_test.c
+index 8ee2c9a6ad46..b88b0337fcfd 100644
+--- a/tools/virtio/vringh_test.c
++++ b/tools/virtio/vringh_test.c
+@@ -307,6 +307,7 @@ static int parallel_test(u64 features,
+ 		close(to_host[0]);
+=20
+ 		gvdev.vdev.features =3D features;
++		INIT_LIST_HEAD(&gvdev.vdev.vqs);
+ 		gvdev.to_host_fd =3D to_host[1];
+ 		gvdev.notifies =3D 0;
+=20
+@@ -453,6 +454,7 @@ int main(int argc, char *argv[])
+=20
+ 	getrange =3D getrange_iov;
+ 	vdev.features =3D 0;
++	INIT_LIST_HEAD(&vdev.vqs);
+=20
+ 	while (argv[1]) {
+ 		if (strcmp(argv[1], "--indirect") =3D=3D 0)
 --=20
 2.18.1
