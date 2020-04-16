@@ -1,102 +1,41 @@
 From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
-Subject: [PATCH v2 8/8] tools/virtio: Use tools/include/list.h instead of stubs
-Date: Thu, 16 Apr 2020 09:56:43 +0200
-Message-ID: <20200416075643.27330-9-eperezma@redhat.com>
+Subject: [PATCH v2 2/8] vhost: Not cleaning batched descs in VHOST_SET_VRING_BASE ioctl
+Date: Thu, 16 Apr 2020 09:56:37 +0200
+Message-ID: <20200416075643.27330-3-eperezma@redhat.com>
 References: <20200416075643.27330-1-eperezma@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
-Return-path: <kvm-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200416075643.27330-1-eperezma@redhat.com>
-Sender: kvm-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Stephen Rothwell <sfr@canb.auug.org.au>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>, Linux Next Mailing List <linux-next@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-It should not make any significant difference but reduce stub code.
+They are cleaned in vhost_vq_set_backend, which can be called with an
+active backend. To set and remove backends already clean batched
+descriptors, so to do it here is completely redundant.
+
+Fixes: ("af3756cfed9a vhost: batching fetches")
 
 Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
 ---
- tools/virtio/linux/kernel.h | 7 +------
- tools/virtio/linux/virtio.h | 5 ++---
- tools/virtio/virtio_test.c  | 1 +
- tools/virtio/vringh_test.c  | 2 ++
- 4 files changed, 6 insertions(+), 9 deletions(-)
+ drivers/vhost/vhost.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/tools/virtio/linux/kernel.h b/tools/virtio/linux/kernel.h
-index 6683b4a70b05..caab980211a6 100644
---- a/tools/virtio/linux/kernel.h
-+++ b/tools/virtio/linux/kernel.h
-@@ -11,6 +11,7 @@
-=20
- #include <linux/compiler.h>
- #include <linux/types.h>
-+#include <linux/list.h>
- #include <linux/printk.h>
- #include <linux/bug.h>
- #include <errno.h>
-@@ -135,10 +136,4 @@ static inline void free_page(unsigned long addr)
- 	(void) (&_min1 =3D=3D &_min2);		\
- 	_min1 < _min2 ? _min1 : _min2; })
-=20
--/* TODO: empty stubs for now. Broken but enough for virtio_ring.c */
--#define list_add_tail(a, b) do {} while (0)
--#define list_del(a) do {} while (0)
--#define list_for_each_entry(a, b, c) while (0)
--/* end of stubs */
--
- #endif /* KERNEL_H */
-diff --git a/tools/virtio/linux/virtio.h b/tools/virtio/linux/virtio.h
-index b751350d4ce8..5d90254ddae4 100644
---- a/tools/virtio/linux/virtio.h
-+++ b/tools/virtio/linux/virtio.h
-@@ -11,12 +11,11 @@ struct device {
- struct virtio_device {
- 	struct device dev;
- 	u64 features;
-+	struct list_head vqs;
- };
-=20
- struct virtqueue {
--	/* TODO: commented as list macros are empty stubs for now.
--	 * Broken but enough for virtio_ring.c
--	 * struct list_head list; */
-+	struct list_head list;
- 	void (*callback)(struct virtqueue *vq);
- 	const char *name;
- 	struct virtio_device *vdev;
-diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
-index dca64d36a882..c0b924b41a1d 100644
---- a/tools/virtio/virtio_test.c
-+++ b/tools/virtio/virtio_test.c
-@@ -129,6 +129,7 @@ static void vdev_info_init(struct vdev_info* dev, uns=
-igned long long features)
- 	int r;
- 	memset(dev, 0, sizeof *dev);
- 	dev->vdev.features =3D features;
-+	INIT_LIST_HEAD(&dev->vdev.vqs);
- 	dev->buf_size =3D 1024;
- 	dev->buf =3D malloc(dev->buf_size);
- 	assert(dev->buf);
-diff --git a/tools/virtio/vringh_test.c b/tools/virtio/vringh_test.c
-index 8ee2c9a6ad46..b88b0337fcfd 100644
---- a/tools/virtio/vringh_test.c
-+++ b/tools/virtio/vringh_test.c
-@@ -307,6 +307,7 @@ static int parallel_test(u64 features,
- 		close(to_host[0]);
-=20
- 		gvdev.vdev.features =3D features;
-+		INIT_LIST_HEAD(&gvdev.vdev.vqs);
- 		gvdev.to_host_fd =3D to_host[1];
- 		gvdev.notifies =3D 0;
-=20
-@@ -453,6 +454,7 @@ int main(int argc, char *argv[])
-=20
- 	getrange =3D getrange_iov;
- 	vdev.features =3D 0;
-+	INIT_LIST_HEAD(&vdev.vqs);
-=20
- 	while (argv[1]) {
- 		if (strcmp(argv[1], "--indirect") =3D=3D 0)
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 0395229486a9..882d0df57e24 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -1579,7 +1579,6 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigne=
+d int ioctl, void __user *arg
+ 		vq->last_avail_idx =3D s.num;
+ 		/* Forget the cached index value. */
+ 		vq->avail_idx =3D vq->last_avail_idx;
+-		vq->ndescs =3D vq->first_desc =3D 0;
+ 		break;
+ 	case VHOST_GET_VRING_BASE:
+ 		s.index =3D idx;
 --=20
 2.18.1
