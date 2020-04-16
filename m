@@ -1,70 +1,143 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio-balloon: Disable free page hinting/reporting if
- page poison is disabled
-Date: Thu, 16 Apr 2020 18:13:16 -0400
-Message-ID: <20200416180845-mutt-send-email-mst@kernel.org>
-References: <20200416192809.8763.19308.stgit@localhost.localdomain>
+Subject: [PATCH v3] vhost: disable for OABI
+Date: Thu, 16 Apr 2020 18:20:20 -0400
+Message-ID: <20200416221902.5801-1-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtio-dev-return-7092-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <20200416192809.8763.19308.stgit@localhost.localdomain>
+Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline
-To: Alexander Duyck <alexander.duyck@gmail.com>
-Cc: jasowang@redhat.com, david@redhat.com, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
+Sender: netdev-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Ard Biesheuvel <ardb@kernel.org>, Richard Earnshaw <Richard.Earnshaw@arm.com>, Sudeep Dutt <sudeep.dutt@intel.com>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "David S. Miller" <davem@davemloft.net>, Jason Wang <jasowang@redhat.com>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 16, 2020 at 12:30:38PM -0700, Alexander Duyck wrote:
-> From: Alexander Duyck <alexander.h.duyck@linux.intel.com>
->=20
-> If we have free page hinting or page reporting enabled we should disable =
-it
-> if the pages are poisoned or initialized on free and we cannot notify the
-> hypervisor.
->=20
-> Fixes: 5d757c8d518d ("virtio-balloon: add support for providing free page=
- reports to host")
->=20
-> Signed-off-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+vhost is currently broken on the some ARM configs.
 
+The reason is that that uses apcs-gnu which is the ancient OABI that is been
+deprecated for a long time.
 
-Why not put this logic in the hypervisor?
-We don't know what hypervisor uses the hints for.
-Yes you can not just drop them but you can maybe do
-other things such as MADV_SOFT_OFFLINE.
+Given that virtio support on such ancient systems is not needed in the
+first place, let's just add something along the lines of
 
-Finally, VIRTIO_BALLOON_F_FREE_PAGE_HINT does nothing
-at all unless guest gets the command from hypervisor,
-so there isn't even any overhead.
+	depends on !ARM || AEABI
 
+to the virtio Kconfig declaration, and add a comment that it has to do
+with struct member alignment.
 
+Note: we can't make VHOST and VHOST_RING themselves have
+a dependency since these are selected. Add a new symbol for that.
 
-> ---
->  drivers/virtio/virtio_balloon.c |    6 +++++-
->  1 file changed, 5 insertions(+), 1 deletion(-)
->=20
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_ball=
-oon.c
-> index 95d9c2f0a7be..08bc86a6e468 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -1110,8 +1110,12 @@ static int virtballoon_validate(struct virtio_devi=
-ce *vdev)
->  =09/* Tell the host whether we care about poisoned pages. */
->  =09if (!want_init_on_free() &&
->  =09    (IS_ENABLED(CONFIG_PAGE_POISONING_NO_SANITY) ||
-> -=09     !page_poisoning_enabled()))
-> +=09     !page_poisoning_enabled())) {
->  =09=09__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_PAGE_POISON);
-> +=09} else if (!virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON)) {
-> +=09=09__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT);
-> +=09=09__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
-> +=09}
-> =20
->  =09__virtio_clear_bit(vdev, VIRTIO_F_IOMMU_PLATFORM);
->  =09return 0;
+Link: https://lore.kernel.org/r/20200406121233.109889-3-mst@redhat.com
+Suggested-by: Ard Biesheuvel <ardb@kernel.org>
+Suggested-by: Richard Earnshaw <Richard.Earnshaw@arm.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+
+Changes from v2:
+	- drop prompt from VHOST_DPN
+	- typo fix in commit log
+	- OABI is a possible ARM config but not the default one
+
+ drivers/misc/mic/Kconfig |  2 +-
+ drivers/net/caif/Kconfig |  2 +-
+ drivers/vdpa/Kconfig     |  2 +-
+ drivers/vhost/Kconfig    | 17 +++++++++++++----
+ 4 files changed, 16 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/misc/mic/Kconfig b/drivers/misc/mic/Kconfig
+index 8f201d019f5a..3bfe72c59864 100644
+--- a/drivers/misc/mic/Kconfig
++++ b/drivers/misc/mic/Kconfig
+@@ -116,7 +116,7 @@ config MIC_COSM
+ 
+ config VOP
+ 	tristate "VOP Driver"
+-	depends on VOP_BUS
++	depends on VOP_BUS && VHOST_DPN
+ 	select VHOST_RING
+ 	select VIRTIO
+ 	help
+diff --git a/drivers/net/caif/Kconfig b/drivers/net/caif/Kconfig
+index 9db0570c5beb..661c25eb1c46 100644
+--- a/drivers/net/caif/Kconfig
++++ b/drivers/net/caif/Kconfig
+@@ -50,7 +50,7 @@ config CAIF_HSI
+ 
+ config CAIF_VIRTIO
+ 	tristate "CAIF virtio transport driver"
+-	depends on CAIF && HAS_DMA
++	depends on CAIF && HAS_DMA && VHOST_DPN
+ 	select VHOST_RING
+ 	select VIRTIO
+ 	select GENERIC_ALLOCATOR
+diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
+index 71d9a64f2c7d..ee35f8261a88 100644
+--- a/drivers/vdpa/Kconfig
++++ b/drivers/vdpa/Kconfig
+@@ -10,7 +10,7 @@ if VDPA
+ 
+ config VDPA_SIM
+ 	tristate "vDPA device simulator"
+-	depends on RUNTIME_TESTING_MENU && HAS_DMA
++	depends on RUNTIME_TESTING_MENU && HAS_DMA && VHOST_DPN
+ 	select VHOST_RING
+ 	select VHOST_IOTLB
+ 	default n
+diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
+index e79cbbdfea45..d9b3a3ec765a 100644
+--- a/drivers/vhost/Kconfig
++++ b/drivers/vhost/Kconfig
+@@ -12,6 +12,15 @@ config VHOST_RING
+ 	  This option is selected by any driver which needs to access
+ 	  the host side of a virtio ring.
+ 
++config VHOST_DPN
++	bool
++	depends on !ARM || AEABI
++	default y
++	help
++	  Anything selecting VHOST or VHOST_RING must depend on VHOST_DPN.
++	  This excludes the deprecated ARM ABI since that forces a 4 byte
++	  alignment on all structs - incompatible with virtio spec requirements.
++
+ config VHOST
+ 	tristate
+ 	select VHOST_IOTLB
+@@ -27,7 +36,7 @@ if VHOST_MENU
+ 
+ config VHOST_NET
+ 	tristate "Host kernel accelerator for virtio net"
+-	depends on NET && EVENTFD && (TUN || !TUN) && (TAP || !TAP)
++	depends on NET && EVENTFD && (TUN || !TUN) && (TAP || !TAP) && VHOST_DPN
+ 	select VHOST
+ 	---help---
+ 	  This kernel module can be loaded in host kernel to accelerate
+@@ -39,7 +48,7 @@ config VHOST_NET
+ 
+ config VHOST_SCSI
+ 	tristate "VHOST_SCSI TCM fabric driver"
+-	depends on TARGET_CORE && EVENTFD
++	depends on TARGET_CORE && EVENTFD && VHOST_DPN
+ 	select VHOST
+ 	default n
+ 	---help---
+@@ -48,7 +57,7 @@ config VHOST_SCSI
+ 
+ config VHOST_VSOCK
+ 	tristate "vhost virtio-vsock driver"
+-	depends on VSOCKETS && EVENTFD
++	depends on VSOCKETS && EVENTFD && VHOST_DPN
+ 	select VHOST
+ 	select VIRTIO_VSOCKETS_COMMON
+ 	default n
+@@ -62,7 +71,7 @@ config VHOST_VSOCK
+ 
+ config VHOST_VDPA
+ 	tristate "Vhost driver for vDPA-based backend"
+-	depends on EVENTFD
++	depends on EVENTFD && VHOST_DPN
+ 	select VHOST
+ 	depends on VDPA
+ 	help
+-- 
+MST
