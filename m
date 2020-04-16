@@ -1,153 +1,195 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2 7/8] tools/virtio: Reset index in virtio_test --reset.
-Date: Thu, 16 Apr 2020 18:33:59 -0400
-Message-ID: <20200416183324-mutt-send-email-mst@kernel.org>
-References: <20200416075643.27330-1-eperezma@redhat.com>
- <20200416075643.27330-8-eperezma@redhat.com>
+Subject: Re: [PATCH V2] vhost: do not enable VHOST_MENU by default
+Date: Thu, 16 Apr 2020 18:55:11 -0400
+Message-ID: <20200416185426-mutt-send-email-mst@kernel.org>
+References: <20200415024356.23751-1-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200416075643.27330-8-eperezma@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, kvm list <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Halil Pasic <pasic@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Linux Next Mailing List <linux-next@vger.kernel.org>
+In-Reply-To: <20200415024356.23751-1-jasowang@redhat.com>
+Sender: kvm-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, benh@kernel.crashing.org, paulus@samba.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, Michael Ellerman <mpe@ellerman.id.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 16, 2020 at 09:56:42AM +0200, Eugenio P=C3=A9rez wrote:
-> This way behavior for vhost is more like a VM.
-> =
+On Wed, Apr 15, 2020 at 10:43:56AM +0800, Jason Wang wrote:
+> We try to keep the defconfig untouched after decoupling CONFIG_VHOST
+> out of CONFIG_VIRTUALIZATION in commit 20c384f1ea1a
+> ("vhost: refine vhost and vringh kconfig") by enabling VHOST_MENU by
+> default. Then the defconfigs can keep enabling CONFIG_VHOST_NET
+> without the caring of CONFIG_VHOST.
+> 
+> But this will leave a "CONFIG_VHOST_MENU=y" in all defconfigs and even
+> for the ones that doesn't want vhost. So it actually shifts the
+> burdens to the maintainers of all other to add "CONFIG_VHOST_MENU is
+> not set". So this patch tries to enable CONFIG_VHOST explicitly in
+> defconfigs that enables CONFIG_VHOST_NET and CONFIG_VHOST_VSOCK.
+> 
+> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com> (s390)
+> Acked-by: Michael Ellerman <mpe@ellerman.id.au> (powerpc)
+> Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+> Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+> Cc: Paul Mackerras <paulus@samba.org>
+> Cc: Michael Ellerman <mpe@ellerman.id.au>
+> Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+> Cc: Vasily Gorbik <gor@linux.ibm.com>
+> Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+> Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 
-> Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-
-I dropped --reset from 5.7 since Linus felt it's unappropriate.
-I guess I should squash this in with --reset?
+I rebased this on top of OABI fix since that
+seems more orgent to fix.
+Pushed to my vhost branch pls take a look and
+if possible test.
+Thanks!
 
 > ---
->  tools/virtio/virtio_test.c | 33 ++++++++++++++++++++++++++-------
->  1 file changed, 26 insertions(+), 7 deletions(-)
-> =
-
-> diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
-> index 18d5347003eb..dca64d36a882 100644
-> --- a/tools/virtio/virtio_test.c
-> +++ b/tools/virtio/virtio_test.c
-> @@ -20,7 +20,6 @@
->  #include "../../drivers/vhost/test.h"
->  =
-
->  #define RANDOM_BATCH -1
-> -#define RANDOM_RESET -1
->  =
-
->  /* Unused */
->  void *__kmalloc_fake, *__kfree_ignore_start, *__kfree_ignore_end;
-> @@ -49,6 +48,7 @@ struct vdev_info {
->  =
-
->  static const struct vhost_vring_file no_backend =3D { .fd =3D -1 },
->  				     backend =3D { .fd =3D 1 };
-> +static const struct vhost_vring_state null_state =3D {};
->  =
-
->  bool vq_notify(struct virtqueue *vq)
->  {
-> @@ -174,14 +174,19 @@ static void run_test(struct vdev_info *dev, struct =
-vq_info *vq,
->  	unsigned len;
->  	long long spurious =3D 0;
->  	const bool random_batch =3D batch =3D=3D RANDOM_BATCH;
-> +
->  	r =3D ioctl(dev->control, VHOST_TEST_RUN, &test);
->  	assert(r >=3D 0);
-> +	if (!reset_n) {
-> +		next_reset =3D INT_MAX;
-> +	}
-> +
->  	for (;;) {
->  		virtqueue_disable_cb(vq->vq);
->  		completed_before =3D completed;
->  		started_before =3D started;
->  		do {
-> -			const bool reset =3D reset_n && completed > next_reset;
-> +			const bool reset =3D completed > next_reset;
->  			if (random_batch)
->  				batch =3D (random() % vq->vring.num) + 1;
->  =
-
-> @@ -224,10 +229,24 @@ static void run_test(struct vdev_info *dev, struct =
-vq_info *vq,
->  			}
->  =
-
->  			if (reset) {
-> +				struct vhost_vring_state s =3D { .index =3D 0 };
-> +
-> +				vq_reset(vq, vq->vring.num, &dev->vdev);
-> +
-> +				r =3D ioctl(dev->control, VHOST_GET_VRING_BASE,
-> +					  &s);
-> +				assert(!r);
-> +
-> +				s.num =3D 0;
-> +				r =3D ioctl(dev->control, VHOST_SET_VRING_BASE,
-> +					  &null_state);
-> +				assert(!r);
-> +
->  				r =3D ioctl(dev->control, VHOST_TEST_SET_BACKEND,
->  					  &backend);
->  				assert(!r);
->  =
-
-> +				started =3D completed;
->  				while (completed > next_reset)
->  					next_reset +=3D completed;
->  			}
-> @@ -249,7 +268,9 @@ static void run_test(struct vdev_info *dev, struct vq=
-_info *vq,
->  	test =3D 0;
->  	r =3D ioctl(dev->control, VHOST_TEST_RUN, &test);
->  	assert(r >=3D 0);
-> -	fprintf(stderr, "spurious wakeups: 0x%llx\n", spurious);
-> +	fprintf(stderr,
-> +		"spurious wakeups: 0x%llx started=3D0x%lx completed=3D0x%lx\n",
-> +		spurious, started, completed);
->  }
->  =
-
->  const char optstring[] =3D "h";
-> @@ -312,7 +333,7 @@ static void help(void)
->  		" [--no-virtio-1]"
->  		" [--delayed-interrupt]"
->  		" [--batch=3Drandom/N]"
-> -		" [--reset=3Drandom/N]"
-> +		" [--reset=3DN]"
->  		"\n");
->  }
->  =
-
-> @@ -360,11 +381,9 @@ int main(int argc, char **argv)
->  		case 'r':
->  			if (!optarg) {
->  				reset =3D 1;
-> -			} else if (0 =3D=3D strcmp(optarg, "random")) {
-> -				reset =3D RANDOM_RESET;
->  			} else {
->  				reset =3D strtol(optarg, NULL, 10);
-> -				assert(reset >=3D 0);
-> +				assert(reset > 0);
->  				assert(reset < (long)INT_MAX + 1);
->  			}
->  			break;
-> -- =
-
-> 2.18.1
+> Change since V1:
+> - depends on EVENTFD for VHOST
+> ---
+>  arch/mips/configs/malta_kvm_defconfig  |  1 +
+>  arch/powerpc/configs/powernv_defconfig |  1 +
+>  arch/powerpc/configs/ppc64_defconfig   |  1 +
+>  arch/powerpc/configs/pseries_defconfig |  1 +
+>  arch/s390/configs/debug_defconfig      |  1 +
+>  arch/s390/configs/defconfig            |  1 +
+>  drivers/vhost/Kconfig                  | 26 +++++++++-----------------
+>  7 files changed, 15 insertions(+), 17 deletions(-)
+> 
+> diff --git a/arch/mips/configs/malta_kvm_defconfig b/arch/mips/configs/malta_kvm_defconfig
+> index 8ef612552a19..06f0c7a0ca87 100644
+> --- a/arch/mips/configs/malta_kvm_defconfig
+> +++ b/arch/mips/configs/malta_kvm_defconfig
+> @@ -18,6 +18,7 @@ CONFIG_PCI=y
+>  CONFIG_VIRTUALIZATION=y
+>  CONFIG_KVM=m
+>  CONFIG_KVM_MIPS_DEBUG_COP0_COUNTERS=y
+> +CONFIG_VHOST=m
+>  CONFIG_VHOST_NET=m
+>  CONFIG_MODULES=y
+>  CONFIG_MODULE_UNLOAD=y
+> diff --git a/arch/powerpc/configs/powernv_defconfig b/arch/powerpc/configs/powernv_defconfig
+> index 71749377d164..404245b4594d 100644
+> --- a/arch/powerpc/configs/powernv_defconfig
+> +++ b/arch/powerpc/configs/powernv_defconfig
+> @@ -346,5 +346,6 @@ CONFIG_CRYPTO_DEV_VMX=y
+>  CONFIG_VIRTUALIZATION=y
+>  CONFIG_KVM_BOOK3S_64=m
+>  CONFIG_KVM_BOOK3S_64_HV=m
+> +CONFIG_VHOST=m
+>  CONFIG_VHOST_NET=m
+>  CONFIG_PRINTK_TIME=y
+> diff --git a/arch/powerpc/configs/ppc64_defconfig b/arch/powerpc/configs/ppc64_defconfig
+> index 7e68cb222c7b..4599fc7be285 100644
+> --- a/arch/powerpc/configs/ppc64_defconfig
+> +++ b/arch/powerpc/configs/ppc64_defconfig
+> @@ -61,6 +61,7 @@ CONFIG_ELECTRA_CF=y
+>  CONFIG_VIRTUALIZATION=y
+>  CONFIG_KVM_BOOK3S_64=m
+>  CONFIG_KVM_BOOK3S_64_HV=m
+> +CONFIG_VHOST=m
+>  CONFIG_VHOST_NET=m
+>  CONFIG_OPROFILE=m
+>  CONFIG_KPROBES=y
+> diff --git a/arch/powerpc/configs/pseries_defconfig b/arch/powerpc/configs/pseries_defconfig
+> index 6b68109e248f..4cad3901b5de 100644
+> --- a/arch/powerpc/configs/pseries_defconfig
+> +++ b/arch/powerpc/configs/pseries_defconfig
+> @@ -321,5 +321,6 @@ CONFIG_CRYPTO_DEV_VMX=y
+>  CONFIG_VIRTUALIZATION=y
+>  CONFIG_KVM_BOOK3S_64=m
+>  CONFIG_KVM_BOOK3S_64_HV=m
+> +CONFIG_VHOST=m
+>  CONFIG_VHOST_NET=m
+>  CONFIG_PRINTK_TIME=y
+> diff --git a/arch/s390/configs/debug_defconfig b/arch/s390/configs/debug_defconfig
+> index 0c86ba19fa2b..6ec6e69630d1 100644
+> --- a/arch/s390/configs/debug_defconfig
+> +++ b/arch/s390/configs/debug_defconfig
+> @@ -57,6 +57,7 @@ CONFIG_PROTECTED_VIRTUALIZATION_GUEST=y
+>  CONFIG_CMM=m
+>  CONFIG_APPLDATA_BASE=y
+>  CONFIG_KVM=m
+> +CONFIG_VHOST=m
+>  CONFIG_VHOST_NET=m
+>  CONFIG_VHOST_VSOCK=m
+>  CONFIG_OPROFILE=m
+> diff --git a/arch/s390/configs/defconfig b/arch/s390/configs/defconfig
+> index 6b27d861a9a3..d1b3bf83d687 100644
+> --- a/arch/s390/configs/defconfig
+> +++ b/arch/s390/configs/defconfig
+> @@ -57,6 +57,7 @@ CONFIG_PROTECTED_VIRTUALIZATION_GUEST=y
+>  CONFIG_CMM=m
+>  CONFIG_APPLDATA_BASE=y
+>  CONFIG_KVM=m
+> +CONFIG_VHOST=m
+>  CONFIG_VHOST_NET=m
+>  CONFIG_VHOST_VSOCK=m
+>  CONFIG_OPROFILE=m
+> diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
+> index e79cbbdfea45..29f171a53d8a 100644
+> --- a/drivers/vhost/Kconfig
+> +++ b/drivers/vhost/Kconfig
+> @@ -12,23 +12,19 @@ config VHOST_RING
+>  	  This option is selected by any driver which needs to access
+>  	  the host side of a virtio ring.
+>  
+> -config VHOST
+> -	tristate
+> +menuconfig VHOST
+> +	tristate "Vhost Devices"
+> +	depends on EVENTFD
+>  	select VHOST_IOTLB
+>  	help
+> -	  This option is selected by any driver which needs to access
+> -	  the core of vhost.
+> +	  Enable option to support host kernel or hardware accelerator
+> +	  for virtio device.
+>  
+> -menuconfig VHOST_MENU
+> -	bool "VHOST drivers"
+> -	default y
+> -
+> -if VHOST_MENU
+> +if VHOST
+>  
+>  config VHOST_NET
+>  	tristate "Host kernel accelerator for virtio net"
+> -	depends on NET && EVENTFD && (TUN || !TUN) && (TAP || !TAP)
+> -	select VHOST
+> +	depends on NET && (TUN || !TUN) && (TAP || !TAP)
+>  	---help---
+>  	  This kernel module can be loaded in host kernel to accelerate
+>  	  guest networking with virtio_net. Not to be confused with virtio_net
+> @@ -39,8 +35,7 @@ config VHOST_NET
+>  
+>  config VHOST_SCSI
+>  	tristate "VHOST_SCSI TCM fabric driver"
+> -	depends on TARGET_CORE && EVENTFD
+> -	select VHOST
+> +	depends on TARGET_CORE
+>  	default n
+>  	---help---
+>  	Say M here to enable the vhost_scsi TCM fabric module
+> @@ -48,8 +43,7 @@ config VHOST_SCSI
+>  
+>  config VHOST_VSOCK
+>  	tristate "vhost virtio-vsock driver"
+> -	depends on VSOCKETS && EVENTFD
+> -	select VHOST
+> +	depends on VSOCKETS
+>  	select VIRTIO_VSOCKETS_COMMON
+>  	default n
+>  	---help---
+> @@ -62,8 +56,6 @@ config VHOST_VSOCK
+>  
+>  config VHOST_VDPA
+>  	tristate "Vhost driver for vDPA-based backend"
+> -	depends on EVENTFD
+> -	select VHOST
+>  	depends on VDPA
+>  	help
+>  	  This kernel module can be loaded in host kernel to accelerate
+> -- 
+> 2.20.1
