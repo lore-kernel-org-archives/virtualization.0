@@ -1,123 +1,149 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v9] virtio: force spec specified alignment on types
-Date: Fri, 17 Apr 2020 03:59:34 -0400
-Message-ID: <20200417075551.12291-1-mst@redhat.com>
+Subject: Re: [PATCH v2 7/8] tools/virtio: Reset index in virtio_test --reset.
+Date: Fri, 17 Apr 2020 04:28:46 -0400
+Message-ID: <20200417042551-mutt-send-email-mst@kernel.org>
+References: <20200416075643.27330-1-eperezma@redhat.com>
+ <20200416075643.27330-8-eperezma@redhat.com>
+ <20200416183324-mutt-send-email-mst@kernel.org>
+ <CAJaqyWcBTnXvkzaqfSOWODK=+jddeVpee-4ZuqfWc+zj0UsZLA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
+In-Reply-To: <CAJaqyWcBTnXvkzaqfSOWODK=+jddeVpee-4ZuqfWc+zj0UsZLA@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+To: Eugenio Perez Martin <eperezma@redhat.com>
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Linux Next Mailing List <linux-next@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The ring element addresses are passed between components with different
-alignments assumptions. Thus, if guest/userspace selects a pointer and
-host then gets and dereferences it, we might need to decrease the
-compiler-selected alignment to prevent compiler on the host from
-assuming pointer is aligned.
+On Fri, Apr 17, 2020 at 09:04:04AM +0200, Eugenio Perez Martin wrote:
+> On Fri, Apr 17, 2020 at 12:34 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> > On Thu, Apr 16, 2020 at 09:56:42AM +0200, Eugenio Pérez wrote:
+> > > This way behavior for vhost is more like a VM.
+> > >
+> > > Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
+> >
+> > I dropped --reset from 5.7 since Linus felt it's unappropriate.
+> > I guess I should squash this in with --reset?
+> >
+> 
+> Yes please.
+> 
+> If you prefer I can do it using the base you want, so all commits
+> messages are right.
+> 
+> Thanks!
 
-This actually triggers on ARM with -mabi=apcs-gnu - which is a
-deprecated configuration, but it seems safer to handle this
-generally.
+OK so I dropped new tests from vhost for now, pls rebased on
+top of that.
 
-Note that userspace that allocates the memory is actually OK and does
-not need to be fixed, but userspace that gets it from guest or another
-process does need to be fixed. The later doesn't generally talk to the
-kernel so while it might be buggy it's not talking to the kernel in the
-buggy way - it's just using the header in the buggy way - so fixing
-header and asking userspace to recompile is the best we can do.
+Thanks!
 
-I verified that the produced kernel binary on x86 is exactly identical
-before and after the change.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
-
-I am still not sure this is even needed. Does compiler make
-optimizations based on ABI alignment assumptions?
-
-
-Changes from v8:
-	- better commit log
-	- go back to vring in UAPI
-
- drivers/vhost/vhost.h            |  6 ++---
- include/uapi/linux/virtio_ring.h | 38 +++++++++++++++++++++++---------
- 2 files changed, 31 insertions(+), 13 deletions(-)
-
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index f8403bd46b85..60cab4c78229 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -67,9 +67,9 @@ struct vhost_virtqueue {
- 	/* The actual ring of buffers. */
- 	struct mutex mutex;
- 	unsigned int num;
--	struct vring_desc __user *desc;
--	struct vring_avail __user *avail;
--	struct vring_used __user *used;
-+	vring_desc_t __user *desc;
-+	vring_avail_t __user *avail;
-+	vring_used_t __user *used;
- 	const struct vhost_iotlb_map *meta_iotlb[VHOST_NUM_ADDRS];
- 	struct file *kick;
- 	struct eventfd_ctx *call_ctx;
-diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
-index 9223c3a5c46a..177227f0d9cd 100644
---- a/include/uapi/linux/virtio_ring.h
-+++ b/include/uapi/linux/virtio_ring.h
-@@ -118,16 +118,6 @@ struct vring_used {
- 	struct vring_used_elem ring[];
- };
- 
--struct vring {
--	unsigned int num;
--
--	struct vring_desc *desc;
--
--	struct vring_avail *avail;
--
--	struct vring_used *used;
--};
--
- /* Alignment requirements for vring elements.
-  * When using pre-virtio 1.0 layout, these fall out naturally.
-  */
-@@ -135,6 +125,34 @@ struct vring {
- #define VRING_USED_ALIGN_SIZE 4
- #define VRING_DESC_ALIGN_SIZE 16
- 
-+/*
-+ * The ring element addresses are passed between components with different
-+ * alignments assumptions. Thus, we might need to decrease the compiler-selected
-+ * alignment, and so must use a typedef to make sure the __aligned attribute
-+ * actually takes hold:
-+ *
-+ * https://gcc.gnu.org/onlinedocs//gcc/Common-Type-Attributes.html#Common-Type-Attributes
-+ *
-+ * When used on a struct, or struct member, the aligned attribute can only
-+ * increase the alignment; in order to decrease it, the packed attribute must
-+ * be specified as well. When used as part of a typedef, the aligned attribute
-+ * can both increase and decrease alignment, and specifying the packed
-+ * attribute generates a warning.
-+ */
-+typedef struct vring_desc __aligned(VRING_DESC_ALIGN_SIZE) vring_desc_t;
-+typedef struct vring_avail __aligned(VRING_AVAIL_ALIGN_SIZE) vring_avail_t;
-+typedef struct vring_used __aligned(VRING_USED_ALIGN_SIZE) vring_used_t;
-+
-+struct vring {
-+	unsigned int num;
-+
-+	vring_desc_t *desc;
-+
-+	vring_avail_t *avail;
-+
-+	vring_used_t *used;
-+};
-+
- #ifndef VIRTIO_RING_NO_LEGACY
- 
- /* The standard layout for the ring is a continuous chunk of memory which looks
--- 
-MST
+> > > ---
+> > >  tools/virtio/virtio_test.c | 33 ++++++++++++++++++++++++++-------
+> > >  1 file changed, 26 insertions(+), 7 deletions(-)
+> > >
+> > > diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
+> > > index 18d5347003eb..dca64d36a882 100644
+> > > --- a/tools/virtio/virtio_test.c
+> > > +++ b/tools/virtio/virtio_test.c
+> > > @@ -20,7 +20,6 @@
+> > >  #include "../../drivers/vhost/test.h"
+> > >
+> > >  #define RANDOM_BATCH -1
+> > > -#define RANDOM_RESET -1
+> > >
+> > >  /* Unused */
+> > >  void *__kmalloc_fake, *__kfree_ignore_start, *__kfree_ignore_end;
+> > > @@ -49,6 +48,7 @@ struct vdev_info {
+> > >
+> > >  static const struct vhost_vring_file no_backend = { .fd = -1 },
+> > >                                    backend = { .fd = 1 };
+> > > +static const struct vhost_vring_state null_state = {};
+> > >
+> > >  bool vq_notify(struct virtqueue *vq)
+> > >  {
+> > > @@ -174,14 +174,19 @@ static void run_test(struct vdev_info *dev, struct vq_info *vq,
+> > >       unsigned len;
+> > >       long long spurious = 0;
+> > >       const bool random_batch = batch == RANDOM_BATCH;
+> > > +
+> > >       r = ioctl(dev->control, VHOST_TEST_RUN, &test);
+> > >       assert(r >= 0);
+> > > +     if (!reset_n) {
+> > > +             next_reset = INT_MAX;
+> > > +     }
+> > > +
+> > >       for (;;) {
+> > >               virtqueue_disable_cb(vq->vq);
+> > >               completed_before = completed;
+> > >               started_before = started;
+> > >               do {
+> > > -                     const bool reset = reset_n && completed > next_reset;
+> > > +                     const bool reset = completed > next_reset;
+> > >                       if (random_batch)
+> > >                               batch = (random() % vq->vring.num) + 1;
+> > >
+> > > @@ -224,10 +229,24 @@ static void run_test(struct vdev_info *dev, struct vq_info *vq,
+> > >                       }
+> > >
+> > >                       if (reset) {
+> > > +                             struct vhost_vring_state s = { .index = 0 };
+> > > +
+> > > +                             vq_reset(vq, vq->vring.num, &dev->vdev);
+> > > +
+> > > +                             r = ioctl(dev->control, VHOST_GET_VRING_BASE,
+> > > +                                       &s);
+> > > +                             assert(!r);
+> > > +
+> > > +                             s.num = 0;
+> > > +                             r = ioctl(dev->control, VHOST_SET_VRING_BASE,
+> > > +                                       &null_state);
+> > > +                             assert(!r);
+> > > +
+> > >                               r = ioctl(dev->control, VHOST_TEST_SET_BACKEND,
+> > >                                         &backend);
+> > >                               assert(!r);
+> > >
+> > > +                             started = completed;
+> > >                               while (completed > next_reset)
+> > >                                       next_reset += completed;
+> > >                       }
+> > > @@ -249,7 +268,9 @@ static void run_test(struct vdev_info *dev, struct vq_info *vq,
+> > >       test = 0;
+> > >       r = ioctl(dev->control, VHOST_TEST_RUN, &test);
+> > >       assert(r >= 0);
+> > > -     fprintf(stderr, "spurious wakeups: 0x%llx\n", spurious);
+> > > +     fprintf(stderr,
+> > > +             "spurious wakeups: 0x%llx started=0x%lx completed=0x%lx\n",
+> > > +             spurious, started, completed);
+> > >  }
+> > >
+> > >  const char optstring[] = "h";
+> > > @@ -312,7 +333,7 @@ static void help(void)
+> > >               " [--no-virtio-1]"
+> > >               " [--delayed-interrupt]"
+> > >               " [--batch=random/N]"
+> > > -             " [--reset=random/N]"
+> > > +             " [--reset=N]"
+> > >               "\n");
+> > >  }
+> > >
+> > > @@ -360,11 +381,9 @@ int main(int argc, char **argv)
+> > >               case 'r':
+> > >                       if (!optarg) {
+> > >                               reset = 1;
+> > > -                     } else if (0 == strcmp(optarg, "random")) {
+> > > -                             reset = RANDOM_RESET;
+> > >                       } else {
+> > >                               reset = strtol(optarg, NULL, 10);
+> > > -                             assert(reset >= 0);
+> > > +                             assert(reset > 0);
+> > >                               assert(reset < (long)INT_MAX + 1);
+> > >                       }
+> > >                       break;
+> > > --
+> > > 2.18.1
+> >
