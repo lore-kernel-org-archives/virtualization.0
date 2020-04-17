@@ -1,149 +1,81 @@
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Subject: Re: [PATCH v2 7/8] tools/virtio: Reset index in virtio_test --reset.
-Date: Fri, 17 Apr 2020 09:04:04 +0200
-Message-ID: <CAJaqyWcBTnXvkzaqfSOWODK=+jddeVpee-4ZuqfWc+zj0UsZLA@mail.gmail.com>
-References: <20200416075643.27330-1-eperezma@redhat.com> <20200416075643.27330-8-eperezma@redhat.com>
- <20200416183324-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V2] vhost: do not enable VHOST_MENU by default
+Date: Fri, 17 Apr 2020 15:36:52 +0800
+Message-ID: <4274625d-6feb-81b6-5b0a-695229e7c33d@redhat.com>
+References: <20200415024356.23751-1-jasowang@redhat.com>
+ <20200416185426-mutt-send-email-mst@kernel.org>
+ <b7e2deb7-cb64-b625-aeb4-760c7b28c0c8@redhat.com>
+ <20200417022929-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200416183324-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20200417022929-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Linux Next Mailing List <linux-next@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, benh@kernel.crashing.org, paulus@samba.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, Michael Ellerman <mpe@ellerman.id.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Apr 17, 2020 at 12:34 AM Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> On Thu, Apr 16, 2020 at 09:56:42AM +0200, Eugenio P=C3=A9rez wrote:
-> > This way behavior for vhost is more like a VM.
-> >
-> > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
->
-> I dropped --reset from 5.7 since Linus felt it's unappropriate.
-> I guess I should squash this in with --reset?
->
 
-Yes please.
+On 2020/4/17 =E4=B8=8B=E5=8D=882:33, Michael S. Tsirkin wrote:
+> On Fri, Apr 17, 2020 at 11:12:14AM +0800, Jason Wang wrote:
+>> On 2020/4/17 =E4=B8=8A=E5=8D=886:55, Michael S. Tsirkin wrote:
+>>> On Wed, Apr 15, 2020 at 10:43:56AM +0800, Jason Wang wrote:
+>>>> We try to keep the defconfig untouched after decoupling CONFIG_VHOST
+>>>> out of CONFIG_VIRTUALIZATION in commit 20c384f1ea1a
+>>>> ("vhost: refine vhost and vringh kconfig") by enabling VHOST_MENU by
+>>>> default. Then the defconfigs can keep enabling CONFIG_VHOST_NET
+>>>> without the caring of CONFIG_VHOST.
+>>>>
+>>>> But this will leave a "CONFIG_VHOST_MENU=3Dy" in all defconfigs and =
+even
+>>>> for the ones that doesn't want vhost. So it actually shifts the
+>>>> burdens to the maintainers of all other to add "CONFIG_VHOST_MENU is
+>>>> not set". So this patch tries to enable CONFIG_VHOST explicitly in
+>>>> defconfigs that enables CONFIG_VHOST_NET and CONFIG_VHOST_VSOCK.
+>>>>
+>>>> Acked-by: Christian Borntraeger<borntraeger@de.ibm.com>  (s390)
+>>>> Acked-by: Michael Ellerman<mpe@ellerman.id.au>  (powerpc)
+>>>> Cc: Thomas Bogendoerfer<tsbogend@alpha.franken.de>
+>>>> Cc: Benjamin Herrenschmidt<benh@kernel.crashing.org>
+>>>> Cc: Paul Mackerras<paulus@samba.org>
+>>>> Cc: Michael Ellerman<mpe@ellerman.id.au>
+>>>> Cc: Heiko Carstens<heiko.carstens@de.ibm.com>
+>>>> Cc: Vasily Gorbik<gor@linux.ibm.com>
+>>>> Cc: Christian Borntraeger<borntraeger@de.ibm.com>
+>>>> Reported-by: Geert Uytterhoeven<geert@linux-m68k.org>
+>>>> Signed-off-by: Jason Wang<jasowang@redhat.com>
+>>> I rebased this on top of OABI fix since that
+>>> seems more orgent to fix.
+>>> Pushed to my vhost branch pls take a look and
+>>> if possible test.
+>>> Thanks!
+>>
+>> I test this patch by generating the defconfigs that wants vhost_net or
+>> vhost_vsock. All looks fine.
+>>
+>> But having CONFIG_VHOST_DPN=3Dy may end up with the similar situation =
+that
+>> this patch want to address.
+>> Maybe we can let CONFIG_VHOST depends on !ARM || AEABI then add anothe=
+r
+>> menuconfig for VHOST_RING and do something similar?
+>>
+>> Thanks
+> Sorry I don't understand. After this patch CONFIG_VHOST_DPN is just
+> an internal variable for the OABI fix. I kept it separate
+> so it's easy to revert for 5.8. Yes we could squash it into
+> VHOST directly but I don't see how that changes logic at all.
 
-If you prefer I can do it using the base you want, so all commits
-messages are right.
 
-Thanks!
+Sorry for being unclear.
 
-> > ---
-> >  tools/virtio/virtio_test.c | 33 ++++++++++++++++++++++++++-------
-> >  1 file changed, 26 insertions(+), 7 deletions(-)
-> >
-> > diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
-> > index 18d5347003eb..dca64d36a882 100644
-> > --- a/tools/virtio/virtio_test.c
-> > +++ b/tools/virtio/virtio_test.c
-> > @@ -20,7 +20,6 @@
-> >  #include "../../drivers/vhost/test.h"
-> >
-> >  #define RANDOM_BATCH -1
-> > -#define RANDOM_RESET -1
-> >
-> >  /* Unused */
-> >  void *__kmalloc_fake, *__kfree_ignore_start, *__kfree_ignore_end;
-> > @@ -49,6 +48,7 @@ struct vdev_info {
-> >
-> >  static const struct vhost_vring_file no_backend =3D { .fd =3D -1 },
-> >                                    backend =3D { .fd =3D 1 };
-> > +static const struct vhost_vring_state null_state =3D {};
-> >
-> >  bool vq_notify(struct virtqueue *vq)
-> >  {
-> > @@ -174,14 +174,19 @@ static void run_test(struct vdev_info *dev, struc=
-t vq_info *vq,
-> >       unsigned len;
-> >       long long spurious =3D 0;
-> >       const bool random_batch =3D batch =3D=3D RANDOM_BATCH;
-> > +
-> >       r =3D ioctl(dev->control, VHOST_TEST_RUN, &test);
-> >       assert(r >=3D 0);
-> > +     if (!reset_n) {
-> > +             next_reset =3D INT_MAX;
-> > +     }
-> > +
-> >       for (;;) {
-> >               virtqueue_disable_cb(vq->vq);
-> >               completed_before =3D completed;
-> >               started_before =3D started;
-> >               do {
-> > -                     const bool reset =3D reset_n && completed > next_=
-reset;
-> > +                     const bool reset =3D completed > next_reset;
-> >                       if (random_batch)
-> >                               batch =3D (random() % vq->vring.num) + 1;
-> >
-> > @@ -224,10 +229,24 @@ static void run_test(struct vdev_info *dev, struc=
-t vq_info *vq,
-> >                       }
-> >
-> >                       if (reset) {
-> > +                             struct vhost_vring_state s =3D { .index =
-=3D 0 };
-> > +
-> > +                             vq_reset(vq, vq->vring.num, &dev->vdev);
-> > +
-> > +                             r =3D ioctl(dev->control, VHOST_GET_VRING=
-_BASE,
-> > +                                       &s);
-> > +                             assert(!r);
-> > +
-> > +                             s.num =3D 0;
-> > +                             r =3D ioctl(dev->control, VHOST_SET_VRING=
-_BASE,
-> > +                                       &null_state);
-> > +                             assert(!r);
-> > +
-> >                               r =3D ioctl(dev->control, VHOST_TEST_SET_=
-BACKEND,
-> >                                         &backend);
-> >                               assert(!r);
-> >
-> > +                             started =3D completed;
-> >                               while (completed > next_reset)
-> >                                       next_reset +=3D completed;
-> >                       }
-> > @@ -249,7 +268,9 @@ static void run_test(struct vdev_info *dev, struct =
-vq_info *vq,
-> >       test =3D 0;
-> >       r =3D ioctl(dev->control, VHOST_TEST_RUN, &test);
-> >       assert(r >=3D 0);
-> > -     fprintf(stderr, "spurious wakeups: 0x%llx\n", spurious);
-> > +     fprintf(stderr,
-> > +             "spurious wakeups: 0x%llx started=3D0x%lx completed=3D0x%=
-lx\n",
-> > +             spurious, started, completed);
-> >  }
-> >
-> >  const char optstring[] =3D "h";
-> > @@ -312,7 +333,7 @@ static void help(void)
-> >               " [--no-virtio-1]"
-> >               " [--delayed-interrupt]"
-> >               " [--batch=3Drandom/N]"
-> > -             " [--reset=3Drandom/N]"
-> > +             " [--reset=3DN]"
-> >               "\n");
-> >  }
-> >
-> > @@ -360,11 +381,9 @@ int main(int argc, char **argv)
-> >               case 'r':
-> >                       if (!optarg) {
-> >                               reset =3D 1;
-> > -                     } else if (0 =3D=3D strcmp(optarg, "random")) {
-> > -                             reset =3D RANDOM_RESET;
-> >                       } else {
-> >                               reset =3D strtol(optarg, NULL, 10);
-> > -                             assert(reset >=3D 0);
-> > +                             assert(reset > 0);
-> >                               assert(reset < (long)INT_MAX + 1);
-> >                       }
-> >                       break;
-> > --
-> > 2.18.1
+I meant since it was enabled by default, "CONFIG_VHOST_DPN=3Dy" will be=20
+left in the defconfigs. This requires the arch maintainers to add=20
+"CONFIG_VHOST_VDPN is not set". (Geert complains about this)
+
+Thanks
+
+
 >
