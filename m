@@ -1,71 +1,66 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: Re: [PATCH] virtio-balloon: Disable free page
- hinting/reporting if page poison is disabled
-Date: Fri, 17 Apr 2020 13:18:16 +0200
-Message-ID: <c5af4958-18bd-e46a-3990-72b2f0d8cbe6@redhat.com>
-References: <20200417044641-mutt-send-email-mst@kernel.org>
- <0f867029-aef4-72b9-356f-ec25c265db1b@redhat.com>
- <20200417051223-mutt-send-email-mst@kernel.org>
- <3447361c-4d07-1785-c59b-8c98ddaebd92@redhat.com>
- <20200417055217-mutt-send-email-mst@kernel.org>
- <1823d9be-d175-6cb5-0c7d-8a68d959a0d5@redhat.com>
- <20200417061815-mutt-send-email-mst@kernel.org>
- <34f46dfc-be16-d057-0760-3cb7c1d1288a@redhat.com>
- <20200417062804-mutt-send-email-mst@kernel.org>
- <be245104-c10b-8a91-24d9-d678126a9304@redhat.com>
- <20200417070129-mutt-send-email-mst@kernel.org>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Subject: Re: [PATCH v2 5/8] tools/virtio: Use __vring_new_virtqueue in virtio_test.c
+Date: Fri, 17 Apr 2020 14:24:31 +0200
+Message-ID: <CAJaqyWcuxG03+J+BW=fPb=JFKLPi0h5sRGv9cjWv63eyspS4Qg@mail.gmail.com>
+References: <20200416075643.27330-1-eperezma@redhat.com> <20200416075643.27330-6-eperezma@redhat.com>
+ <20200416183244-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <virtio-dev-return-7125-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <20200417070129-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200416183244-mutt-send-email-mst@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Alexander Duyck <alexander.duyck@gmail.com>, Jason Wang <jasowang@redhat.com>, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
+Cc: Stephen Rothwell <sfr@canb.auug.org.au>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Linux Next Mailing List <linux-next@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 17.04.20 13:02, Michael S. Tsirkin wrote:
-> On Fri, Apr 17, 2020 at 12:31:14PM +0200, David Hildenbrand wrote:
->> On 17.04.20 12:29, Michael S. Tsirkin wrote:
->>> On Fri, Apr 17, 2020 at 12:26:24PM +0200, David Hildenbrand wrote:
->>>> On 17.04.20 12:19, Michael S. Tsirkin wrote:
->>>>> On Fri, Apr 17, 2020 at 12:09:38PM +0200, David Hildenbrand wrote:
->>>>>>  > What do you call "hinting ends" though? The fact we put
->>>>>>> a page in the VQ is not a guarantee that it's been consumed
->>>>>>> by the hypervisor.
->>>>>>>
->>>>>>
->>>>>> I'd say hinting ends once the hypervisor sets FREE_PAGE_REPORT_S_DONE.
->>>>>
->>>>> Can't find that one anywhere. what did I miss?
->>>>
->>>> Sorry, the QEMU implementation is confusing. FREE_PAGE_REPORT_S_DONE is
->>>> translated to VIRTIO_BALLOON_CMD_ID_DONE
->>>
->>> Well VIRTIO_BALLOON_CMD_ID_DONE just means "don't give me any
->>> more hints, I finished migration".
->>> Guest will stop hinting even without that once it scans all
->>> free memory.
->>
->> Yeah, that's the end of the whole process where you can be sure the host
->> processed all requests definetly.
-> 
-> It's not guaranteed to happen :) Sending an interrupt at the end
-> of each scan doubles the overhead ...
+On Fri, Apr 17, 2020 at 12:33 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> On Thu, Apr 16, 2020 at 09:56:40AM +0200, Eugenio P=C3=A9rez wrote:
+> > As updated in ("2a2d1382fe9d virtio: Add improved queue allocation API"=
+)
+> >
+> > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+>
+> Pls add motivation for these changes.
+>
 
-Yeah, AFAIKs you either get a VIRTIO_BALLOON_CMD_ID_STOP or a
-VIRTIO_BALLOON_CMD_ID_DONE at the end. And AFAIK both will guarantee
-that all previous hints were handled.
+The original motivation was to make code as close as possible to
+virtio_net. Also, it skips a (probably not expensive) initialization
+in vring_new_virtqueue.
 
-... but reconstructing this protocol from code is probably too much for
-a friday afternoon, lol
+With the recent events, I think that this could be useful to test when
+userspace and kernel use different struct layout, maybe with some
+sanitizer. I can drop it if you don't see it the same way (or if I
+didn't understand the problem and this does not help).
 
--- 
-Thanks,
+Thanks!
 
-David / dhildenb
+> > ---
+> >  tools/virtio/virtio_test.c | 7 +++----
+> >  1 file changed, 3 insertions(+), 4 deletions(-)
+> >
+> > diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
+> > index 1d5144590df6..d9827b640c21 100644
+> > --- a/tools/virtio/virtio_test.c
+> > +++ b/tools/virtio/virtio_test.c
+> > @@ -106,10 +106,9 @@ static void vq_info_add(struct vdev_info *dev, int=
+ num)
+> >       assert(r >=3D 0);
+> >       memset(info->ring, 0, vring_legacy_size(num, 4096));
+> >       vring_legacy_init(&info->vring, num, info->ring, 4096);
+> > -     info->vq =3D vring_new_virtqueue(info->idx,
+> > -                                    info->vring.num, 4096, &dev->vdev,
+> > -                                    true, false, info->ring,
+> > -                                    vq_notify, vq_callback, "test");
+> > +     info->vq =3D
+> > +             __vring_new_virtqueue(info->idx, info->vring, &dev->vdev,=
+ true,
+> > +                                   false, vq_notify, vq_callback, "tes=
+t");
+> >       assert(info->vq);
+> >       info->vq->priv =3D info;
+> >       vhost_vq_setup(dev, info);
+> > --
+> > 2.18.1
+>
