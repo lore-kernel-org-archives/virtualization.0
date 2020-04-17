@@ -1,65 +1,46 @@
-From: Alexander Duyck <alexander.duyck@gmail.com>
-Subject: Re: Re: [PATCH] virtio-balloon: Disable free page
- hinting/reporting if page poison is disabled
-Date: Thu, 16 Apr 2020 16:52:42 -0700
-Message-ID: <CAKgT0UfWHHyCekU+dReNfhAa6u6FNbm7Ff5wmyN58d1VymmAMA@mail.gmail.com>
-References: <20200416192809.8763.19308.stgit@localhost.localdomain> <20200416180845-mutt-send-email-mst@kernel.org>
+From: Daniel Drake <drake-6IF/jdPJHihWk0Htik3J/w@public.gmane.org>
+Subject: Re: [PATCH v2 00/33] iommu: Move iommu_group setup to IOMMU core code
+Date: Fri, 17 Apr 2020 09:03:35 +0800
+Message-ID: <20200417010335.31739-1-drake@endlessm.com>
+References: <20200414131542.25608-1-joro@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <virtio-dev-return-7093-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <20200416180845-mutt-send-email-mst@kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, David Hildenbrand <david@redhat.com>, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20200414131542.25608-1-joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org
+Cc: agross-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, baolu.lu-VuQAYsv1563Yd54FQh9/CA@public.gmane.org, bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org, gerald.schaefer-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org, heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org, jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org, kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org, matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robdclark-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, robin.murphy-5wv7dgnIgG8@public.gmane.org, thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, jonathan.derrick-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 16, 2020 at 3:13 PM Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> On Thu, Apr 16, 2020 at 12:30:38PM -0700, Alexander Duyck wrote:
-> > From: Alexander Duyck <alexander.h.duyck@linux.intel.com>
-> >
-> > If we have free page hinting or page reporting enabled we should disable it
-> > if the pages are poisoned or initialized on free and we cannot notify the
-> > hypervisor.
-> >
-> > Fixes: 5d757c8d518d ("virtio-balloon: add support for providing free page reports to host")
-> >
-> > Signed-off-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
->
->
-> Why not put this logic in the hypervisor?
+Hi Joerg,
 
-I did that too. This is to cover the case where somebody is running
-the code prior to my QEMU changes where the page poison feature wasn't
-being enabled.
+> Hi,
+> 
+> here is the second version of this patch-set. The first version with
+> some more introductory text can be found here:
+> 
+> 	https://lore.kernel.org/lkml/20200407183742.4344-1-joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org/
 
-> We don't know what hypervisor uses the hints for.
+Thanks for the continued improvements in this area!
 
-I agree, but at the same time the way the feature was originally coded
-it was only checked if the FREE_PAGE_HINT feature was enabled. The
-assumption there is that if we have page poison data and want to use
-hints we need to report it. In my mind if we ever want to switch over
-to the page reporting style setup for page hinting in the future we
-will need to have it behave in a sane manner. So disabling it if we
-have a poison value we need to report, but have no mechanism to report
-it makes sense to me.
+I may have spotted a problem with setups like VMD.
 
-The actual likelihood of us encountering this case should be pretty
-low anyway since it is not that common to have page poisoning or
-init_on_free enabled.
+The core PCI bus is set up during early boot.
+Then, for the PCI bus, we reach iommu_bus_init() -> bus_iommu_probe().
+In there, we call probe_iommu_group() -> dev_iommu_get() for each PCI
+device, which allocates dev->iommu in each case. So far so good.
 
-> Yes you can not just drop them but you can maybe do
-> other things such as MADV_SOFT_OFFLINE.
->
-> Finally, VIRTIO_BALLOON_F_FREE_PAGE_HINT does nothing
-> at all unless guest gets the command from hypervisor,
-> so there isn't even any overhead.
+The problem is that this is the last time that we'll call dev_iommu_get().
+If any PCI bus devices get added after this point, they do not get passed
+to dev_iommu_get().
 
-The problem is we cannot communicate the full situation to the
-hypervisor without the page poison feature being present. As such I
-would worry about that backfiring on us due to the hypervisor acting
-on incomplete data.
+So when the vmd module gets loaded later, and creates more PCI devices,
+we end up in iommu_bus_notifier() -> iommu_probe_device()
+-> __iommu_probe_device() which does:
+
+	dev->iommu->iommu_dev = iommu_dev;
+
+dev->iommu-> is a NULL dereference because dev_iommu_get() was never
+called for this new device.
+
+Daniel
