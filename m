@@ -1,98 +1,33 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: Re: [PATCH] virtio-balloon: Disable free page
- hinting/reporting if page poison is disabled
-Date: Fri, 17 Apr 2020 02:28:30 -0400
-Message-ID: <20200417021335-mutt-send-email-mst@kernel.org>
-References: <20200416192809.8763.19308.stgit@localhost.localdomain>
- <20200416180845-mutt-send-email-mst@kernel.org>
- <CAKgT0UfWHHyCekU+dReNfhAa6u6FNbm7Ff5wmyN58d1VymmAMA@mail.gmail.com>
+From: Christoph Hellwig <hch@lst.de>
+Subject: Re: improve use_mm / unuse_mm v2
+Date: Fri, 17 Apr 2020 08:31:02 +0200
+Message-ID: <20200417063102.GA18556@lst.de>
+References: <20200416053158.586887-1-hch@lst.de> <20200417031744.GI5820@bombadil.infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtio-dev-return-7097-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <CAKgT0UfWHHyCekU+dReNfhAa6u6FNbm7Ff5wmyN58d1VymmAMA@mail.gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-To: Alexander Duyck <alexander.duyck@gmail.com>
-Cc: Jason Wang <jasowang@redhat.com>, David Hildenbrand <david@redhat.com>, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
+In-Reply-To: <20200417031744.GI5820@bombadil.infradead.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Matthew Wilcox <willy@infradead.org>
+Cc: Christoph Hellwig <hch@lst.de>, Linus Torvalds <torvalds@linux-foundation.org>, Andrew Morton <akpm@linux-foundation.org>, Al Viro <viro@zeniv.linux.org.uk>, Felix Kuehling <Felix.Kuehling@amd.com>, Alex Deucher <alexander.deucher@amd.com>, Zhenyu Wang <zhenyuw@linux.intel.com>, Zhi Wang <zhi.a.wang@intel.com>, Felipe Balbi <balbi@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org, amd-gfx@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org, intel-gfx@lists.freedesktop.org, linux-usb@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-fsdevel@vger.kernel.org, io-uring@vger.kernel.org, linux-mm@kvack.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 16, 2020 at 04:52:42PM -0700, Alexander Duyck wrote:
-> On Thu, Apr 16, 2020 at 3:13 PM Michael S. Tsirkin <mst@redhat.com> wrote=
-:
-> >
-> > On Thu, Apr 16, 2020 at 12:30:38PM -0700, Alexander Duyck wrote:
-> > > From: Alexander Duyck <alexander.h.duyck@linux.intel.com>
-> > >
-> > > If we have free page hinting or page reporting enabled we should disa=
-ble it
-> > > if the pages are poisoned or initialized on free and we cannot notify=
- the
-> > > hypervisor.
-> > >
-> > > Fixes: 5d757c8d518d ("virtio-balloon: add support for providing free =
-page reports to host")
-> > >
-> > > Signed-off-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
-> >
-> >
-> > Why not put this logic in the hypervisor?
->=20
-> I did that too. This is to cover the case where somebody is running
-> the code prior to my QEMU changes where the page poison feature wasn't
-> being enabled.
+On Thu, Apr 16, 2020 at 08:17:44PM -0700, Matthew Wilcox wrote:
+> On Thu, Apr 16, 2020 at 07:31:55AM +0200, Christoph Hellwig wrote:
+> > this series improves the use_mm / unuse_mm interface by better
+> > documenting the assumptions, and my taking the set_fs manipulations
+> > spread over the callers into the core API.
+> 
+> I appreciate all the work you're doing here.
+> 
+> Do you have plans to introduce a better-named API than set_fs() / get_fs()?
 
+Eventually.  For now I just plan to kill as many as possible.
 
-Hmm so that one looks like a QEMU bug (does not expose poison flag).  In
-the past we just said need to fix the bug where it's found unless the
-issue is very widespread and major.  Let's assume QEMU learns to always
-expose POISON with HINT.  Then this configuration (HINT && !POISON)
-allows us to detect old QEMU (pre your changes).
+> Also, having set_fs() return the previous value of 'fs' would simplify
+> a lot of the callers.
 
-I am also interested in the following question:
-Is this good for anything? In particular are there any bugs in HINT
-we can fix using this hack?
-
-E.g. I know HINT does not obey MUST_TELL_HOST under OOM.  But that
-unfortunately is a guest not a host bug, so this hack does not seem
-useful.
-
-
-> > We don't know what hypervisor uses the hints for.
->=20
-> I agree, but at the same time the way the feature was originally coded
-> it was only checked if the FREE_PAGE_HINT feature was enabled. The
-> assumption there is that if we have page poison data and want to use
-> hints we need to report it. In my mind if we ever want to switch over
-> to the page reporting style setup for page hinting in the future we
-> will need to have it behave in a sane manner. So disabling it if we
-> have a poison value we need to report, but have no mechanism to report
-> it makes sense to me.
->=20
-> The actual likelihood of us encountering this case should be pretty
-> low anyway since it is not that common to have page poisoning or
-> init_on_free enabled.
->=20
-> > Yes you can not just drop them but you can maybe do
-> > other things such as MADV_SOFT_OFFLINE.
-> >
-> > Finally, VIRTIO_BALLOON_F_FREE_PAGE_HINT does nothing
-> > at all unless guest gets the command from hypervisor,
-> > so there isn't even any overhead.
->=20
-> The problem is we cannot communicate the full situation to the
-> hypervisor without the page poison feature being present. As such I
-> would worry about that backfiring on us due to the hypervisor acting
-> on incomplete data.
-
-
-I'll try to think about VIRTIO_BALLOON_F_FREE_PAGE_HINT situation
-over the weekend. But for the new page reporting, why not
-assume host implementation will be sane?
-
---=20
-MST
+One thing that should go relatively soon is the need to store the
+previous value because we'll have so few callers left that we know we can't
+recurse. We should be able to get there around 5.9 / 5.10.
