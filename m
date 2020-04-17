@@ -1,95 +1,100 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: Re: [PATCH] virtio-balloon: Disable free page
- hinting/reporting if page poison is disabled
-Date: Fri, 17 Apr 2020 04:50:00 -0400
-Message-ID: <20200417044641-mutt-send-email-mst@kernel.org>
-References: <20200416192809.8763.19308.stgit@localhost.localdomain>
- <20200416180845-mutt-send-email-mst@kernel.org>
- <CAKgT0UfWHHyCekU+dReNfhAa6u6FNbm7Ff5wmyN58d1VymmAMA@mail.gmail.com>
- <20200417021335-mutt-send-email-mst@kernel.org>
- <08d2c4e2-8c0f-7d3c-89f1-0e6c6a2756c8@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V2] vhost: do not enable VHOST_MENU by default
+Date: Fri, 17 Apr 2020 16:51:19 +0800
+Message-ID: <73843240-3040-655d-baa9-683341ed4786@redhat.com>
+References: <20200415024356.23751-1-jasowang@redhat.com>
+ <20200416185426-mutt-send-email-mst@kernel.org>
+ <b7e2deb7-cb64-b625-aeb4-760c7b28c0c8@redhat.com>
+ <20200417022929-mutt-send-email-mst@kernel.org>
+ <4274625d-6feb-81b6-5b0a-695229e7c33d@redhat.com>
+ <20200417042912-mutt-send-email-mst@kernel.org>
+ <fdb555a6-4b8d-15b6-0849-3fe0e0786038@redhat.com>
+ <20200417044230-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
-Return-path: <virtio-dev-return-7104-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <08d2c4e2-8c0f-7d3c-89f1-0e6c6a2756c8@redhat.com>
-Content-Disposition: inline
-To: David Hildenbrand <david@redhat.com>
-Cc: Alexander Duyck <alexander.duyck@gmail.com>, Jason Wang <jasowang@redhat.com>, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20200417044230-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+Sender: kvm-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, benh@kernel.crashing.org, paulus@samba.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, Michael Ellerman <mpe@ellerman.id.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Apr 17, 2020 at 09:49:03AM +0200, David Hildenbrand wrote:
-> On 17.04.20 08:28, Michael S. Tsirkin wrote:
-> > On Thu, Apr 16, 2020 at 04:52:42PM -0700, Alexander Duyck wrote:
-> >> On Thu, Apr 16, 2020 at 3:13 PM Michael S. Tsirkin <mst@redhat.com> wr=
-ote:
-> >>>
-> >>> On Thu, Apr 16, 2020 at 12:30:38PM -0700, Alexander Duyck wrote:
-> >>>> From: Alexander Duyck <alexander.h.duyck@linux.intel.com>
-> >>>>
-> >>>> If we have free page hinting or page reporting enabled we should dis=
-able it
-> >>>> if the pages are poisoned or initialized on free and we cannot notif=
-y the
-> >>>> hypervisor.
-> >>>>
-> >>>> Fixes: 5d757c8d518d ("virtio-balloon: add support for providing free=
- page reports to host")
-> >>>>
-> >>>> Signed-off-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
-> >>>
-> >>>
-> >>> Why not put this logic in the hypervisor?
-> >>
-> >> I did that too. This is to cover the case where somebody is running
-> >> the code prior to my QEMU changes where the page poison feature wasn't
-> >> being enabled.
-> >=20
-> >=20
-> > Hmm so that one looks like a QEMU bug (does not expose poison flag).  I=
-n
-> > the past we just said need to fix the bug where it's found unless the
-> > issue is very widespread and major.  Let's assume QEMU learns to always
-> > expose POISON with HINT.  Then this configuration (HINT && !POISON)
-> > allows us to detect old QEMU (pre your changes).
->=20
-> Don't see why this is a QEMU bug. It's just a feature it does not
-> implement. Perfectly valid.
 
-I'll need to think about this.
-We need to remember that the whole HINT thing is not a mandate for host to
-corrupt memory. It's just some info about page use guest
-gives host. If host corrupts memory it's broken ...
+On 2020/4/17 =E4=B8=8B=E5=8D=884:46, Michael S. Tsirkin wrote:
+> On Fri, Apr 17, 2020 at 04:39:49PM +0800, Jason Wang wrote:
+>> On 2020/4/17 =E4=B8=8B=E5=8D=884:29, Michael S. Tsirkin wrote:
+>>> On Fri, Apr 17, 2020 at 03:36:52PM +0800, Jason Wang wrote:
+>>>> On 2020/4/17 =E4=B8=8B=E5=8D=882:33, Michael S. Tsirkin wrote:
+>>>>> On Fri, Apr 17, 2020 at 11:12:14AM +0800, Jason Wang wrote:
+>>>>>> On 2020/4/17 =E4=B8=8A=E5=8D=886:55, Michael S. Tsirkin wrote:
+>>>>>>> On Wed, Apr 15, 2020 at 10:43:56AM +0800, Jason Wang wrote:
+>>>>>>>> We try to keep the defconfig untouched after decoupling CONFIG_V=
+HOST
+>>>>>>>> out of CONFIG_VIRTUALIZATION in commit 20c384f1ea1a
+>>>>>>>> ("vhost: refine vhost and vringh kconfig") by enabling VHOST_MEN=
+U by
+>>>>>>>> default. Then the defconfigs can keep enabling CONFIG_VHOST_NET
+>>>>>>>> without the caring of CONFIG_VHOST.
+>>>>>>>>
+>>>>>>>> But this will leave a "CONFIG_VHOST_MENU=3Dy" in all defconfigs =
+and even
+>>>>>>>> for the ones that doesn't want vhost. So it actually shifts the
+>>>>>>>> burdens to the maintainers of all other to add "CONFIG_VHOST_MEN=
+U is
+>>>>>>>> not set". So this patch tries to enable CONFIG_VHOST explicitly =
+in
+>>>>>>>> defconfigs that enables CONFIG_VHOST_NET and CONFIG_VHOST_VSOCK.
+>>>>>>>>
+>>>>>>>> Acked-by: Christian Borntraeger<borntraeger@de.ibm.com>   (s390)
+>>>>>>>> Acked-by: Michael Ellerman<mpe@ellerman.id.au>   (powerpc)
+>>>>>>>> Cc: Thomas Bogendoerfer<tsbogend@alpha.franken.de>
+>>>>>>>> Cc: Benjamin Herrenschmidt<benh@kernel.crashing.org>
+>>>>>>>> Cc: Paul Mackerras<paulus@samba.org>
+>>>>>>>> Cc: Michael Ellerman<mpe@ellerman.id.au>
+>>>>>>>> Cc: Heiko Carstens<heiko.carstens@de.ibm.com>
+>>>>>>>> Cc: Vasily Gorbik<gor@linux.ibm.com>
+>>>>>>>> Cc: Christian Borntraeger<borntraeger@de.ibm.com>
+>>>>>>>> Reported-by: Geert Uytterhoeven<geert@linux-m68k.org>
+>>>>>>>> Signed-off-by: Jason Wang<jasowang@redhat.com>
+>>>>>>> I rebased this on top of OABI fix since that
+>>>>>>> seems more orgent to fix.
+>>>>>>> Pushed to my vhost branch pls take a look and
+>>>>>>> if possible test.
+>>>>>>> Thanks!
+>>>>>> I test this patch by generating the defconfigs that wants vhost_ne=
+t or
+>>>>>> vhost_vsock. All looks fine.
+>>>>>>
+>>>>>> But having CONFIG_VHOST_DPN=3Dy may end up with the similar situat=
+ion that
+>>>>>> this patch want to address.
+>>>>>> Maybe we can let CONFIG_VHOST depends on !ARM || AEABI then add an=
+other
+>>>>>> menuconfig for VHOST_RING and do something similar?
+>>>>>>
+>>>>>> Thanks
+>>>>> Sorry I don't understand. After this patch CONFIG_VHOST_DPN is just
+>>>>> an internal variable for the OABI fix. I kept it separate
+>>>>> so it's easy to revert for 5.8. Yes we could squash it into
+>>>>> VHOST directly but I don't see how that changes logic at all.
+>>>> Sorry for being unclear.
+>>>>
+>>>> I meant since it was enabled by default, "CONFIG_VHOST_DPN=3Dy" will=
+ be left
+>>>> in the defconfigs.
+>>> But who cares?
+>> FYI, please seehttps://www.spinics.net/lists/kvm/msg212685.html
+> The complaint was not about the symbol IIUC.  It was that we caused
+> everyone to build vhost unless they manually disabled it.
 
-> [...]
-> >>
-> >> The problem is we cannot communicate the full situation to the
-> >> hypervisor without the page poison feature being present. As such I
-> >> would worry about that backfiring on us due to the hypervisor acting
-> >> on incomplete data.
-> >=20
-> >=20
-> > I'll try to think about VIRTIO_BALLOON_F_FREE_PAGE_HINT situation
-> > over the weekend. But for the new page reporting, why not
->=20
-> I shared my thoughts about VIRTIO_BALLOON_F_FREE_PAGE_HINT in the other
-> thread and think we should simply not care at all for now.
->=20
-> > assume host implementation will be sane?
->=20
-> I don't think we should enforce having poison support around. See my
-> reply to this mail for an alternative.
 
-OK so you basically say leave this to host to handle? That's more or
-less what I'm saying too.
+There could be some misunderstanding here. I thought it's somehow=20
+similar: a CONFIG_VHOST_MENU=3Dy will be left in the defconfigs even if=20
+CONFIG_VHOST is not set.
+
+Thanks
 
 
-> --=20
-> Thanks,
->=20
-> David / dhildenb
+>
