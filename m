@@ -1,35 +1,28 @@
-From: Matthew Wilcox <willy@infradead.org>
-Subject: Re: improve use_mm / unuse_mm v2
-Date: Thu, 16 Apr 2020 20:17:44 -0700
-Message-ID: <20200417031744.GI5820@bombadil.infradead.org>
-References: <20200416053158.586887-1-hch@lst.de>
+From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+Subject: Re: [PATCH] MAINTAINERS: Update PARAVIRT_OPS_INTERFACE and
+ VMWARE_HYPERVISOR_INTERFACE
+Date: Fri, 17 Apr 2020 08:22:43 +0200
+Message-ID: <84f719e9-3af0-4242-f50b-990371d4768a@suse.com>
+References: <20200416234520.GA1700@prme-mon-cfl-mlw-07>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-Content-Disposition: inline
-In-Reply-To: <20200416053158.586887-1-hch@lst.de>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Christoph Hellwig <hch@lst.de>
-Cc: Jens Axboe <axboe@kernel.dk>, Felipe Balbi <balbi@kernel.org>, amd-gfx@lists.freedesktop.org, "Michael S. Tsirkin" <mst@redhat.com>, intel-gvt-dev@lists.freedesktop.org, Felix Kuehling <Felix.Kuehling@amd.com>, linux-usb@vger.kernel.org, io-uring@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, linux-fsdevel@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>, intel-gfx@lists.freedesktop.org, Alex Deucher <alexander.deucher@amd.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Jason Wang <jasowang@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200416234520.GA1700@prme-mon-cfl-mlw-07>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Deep Shah <sdeep@vmware.com>, linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, pv-drivers@vmware.com, thellstrom@vmware.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 16, 2020 at 07:31:55AM +0200, Christoph Hellwig wrote:
-> this series improves the use_mm / unuse_mm interface by better
-> documenting the assumptions, and my taking the set_fs manipulations
-> spread over the callers into the core API.
+On 17.04.20 01:45, Deep Shah wrote:
+> Thomas Hellstrom will be handing over VMware's maintainership of these
+> interfaces to Deep Shah.
+> 
+> Signed-off-by: Deep Shah <sdeep@vmware.com>
+> Acked-by: Thomas Hellstrom <thellstrom@vmware.com>
 
-I appreciate all the work you're doing here.
+Acked-by: Juergen Gross <jgross@suse.com>
 
-Do you have plans to introduce a better-named API than set_fs() / get_fs()?
 
-Also, having set_fs() return the previous value of 'fs' would simplify
-a lot of the callers.
+Juergen
