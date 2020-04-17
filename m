@@ -1,62 +1,35 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V2] vhost: do not enable VHOST_MENU by default
-Date: Fri, 17 Apr 2020 11:12:14 +0800
-Message-ID: <b7e2deb7-cb64-b625-aeb4-760c7b28c0c8@redhat.com>
-References: <20200415024356.23751-1-jasowang@redhat.com>
- <20200416185426-mutt-send-email-mst@kernel.org>
+From: Matthew Wilcox <willy@infradead.org>
+Subject: Re: improve use_mm / unuse_mm v2
+Date: Thu, 16 Apr 2020 20:17:44 -0700
+Message-ID: <20200417031744.GI5820@bombadil.infradead.org>
+References: <20200416053158.586887-1-hch@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200416185426-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, benh@kernel.crashing.org, paulus@samba.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, Michael Ellerman <mpe@ellerman.id.au>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+Content-Disposition: inline
+In-Reply-To: <20200416053158.586887-1-hch@lst.de>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+To: Christoph Hellwig <hch@lst.de>
+Cc: Jens Axboe <axboe@kernel.dk>, Felipe Balbi <balbi@kernel.org>, amd-gfx@lists.freedesktop.org, "Michael S. Tsirkin" <mst@redhat.com>, intel-gvt-dev@lists.freedesktop.org, Felix Kuehling <Felix.Kuehling@amd.com>, linux-usb@vger.kernel.org, io-uring@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, linux-fsdevel@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>, intel-gfx@lists.freedesktop.org, Alex Deucher <alexander.deucher@amd.com>, Andrew Morton <akpm@linux-foundation.org>, Linus Torvalds <torvalds@linux-foundation.org>, Jason Wang <jasowang@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Thu, Apr 16, 2020 at 07:31:55AM +0200, Christoph Hellwig wrote:
+> this series improves the use_mm / unuse_mm interface by better
+> documenting the assumptions, and my taking the set_fs manipulations
+> spread over the callers into the core API.
 
-On 2020/4/17 =E4=B8=8A=E5=8D=886:55, Michael S. Tsirkin wrote:
-> On Wed, Apr 15, 2020 at 10:43:56AM +0800, Jason Wang wrote:
->> We try to keep the defconfig untouched after decoupling CONFIG_VHOST
->> out of CONFIG_VIRTUALIZATION in commit 20c384f1ea1a
->> ("vhost: refine vhost and vringh kconfig") by enabling VHOST_MENU by
->> default. Then the defconfigs can keep enabling CONFIG_VHOST_NET
->> without the caring of CONFIG_VHOST.
->>
->> But this will leave a "CONFIG_VHOST_MENU=3Dy" in all defconfigs and ev=
-en
->> for the ones that doesn't want vhost. So it actually shifts the
->> burdens to the maintainers of all other to add "CONFIG_VHOST_MENU is
->> not set". So this patch tries to enable CONFIG_VHOST explicitly in
->> defconfigs that enables CONFIG_VHOST_NET and CONFIG_VHOST_VSOCK.
->>
->> Acked-by: Christian Borntraeger<borntraeger@de.ibm.com>  (s390)
->> Acked-by: Michael Ellerman<mpe@ellerman.id.au>  (powerpc)
->> Cc: Thomas Bogendoerfer<tsbogend@alpha.franken.de>
->> Cc: Benjamin Herrenschmidt<benh@kernel.crashing.org>
->> Cc: Paul Mackerras<paulus@samba.org>
->> Cc: Michael Ellerman<mpe@ellerman.id.au>
->> Cc: Heiko Carstens<heiko.carstens@de.ibm.com>
->> Cc: Vasily Gorbik<gor@linux.ibm.com>
->> Cc: Christian Borntraeger<borntraeger@de.ibm.com>
->> Reported-by: Geert Uytterhoeven<geert@linux-m68k.org>
->> Signed-off-by: Jason Wang<jasowang@redhat.com>
-> I rebased this on top of OABI fix since that
-> seems more orgent to fix.
-> Pushed to my vhost branch pls take a look and
-> if possible test.
-> Thanks!
+I appreciate all the work you're doing here.
 
+Do you have plans to introduce a better-named API than set_fs() / get_fs()?
 
-I test this patch by generating the defconfigs that wants vhost_net or=20
-vhost_vsock. All looks fine.
-
-But having CONFIG_VHOST_DPN=3Dy may end up with the similar situation tha=
-t=20
-this patch want to address.
-
-Maybe we can let CONFIG_VHOST depends on !ARM || AEABI then add another=20
-menuconfig for VHOST_RING and do something similar?
-
-Thanks
+Also, having set_fs() return the previous value of 'fs' would simplify
+a lot of the callers.
