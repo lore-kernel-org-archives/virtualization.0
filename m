@@ -1,47 +1,144 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V2] vhost: do not enable VHOST_MENU by default
-Date: Fri, 17 Apr 2020 17:48:20 +0800
-Message-ID: <71b98c3b-1a38-b9aa-149c-f48c92a77448@redhat.com>
-References: <20200416185426-mutt-send-email-mst@kernel.org>
- <b7e2deb7-cb64-b625-aeb4-760c7b28c0c8@redhat.com>
- <20200417022929-mutt-send-email-mst@kernel.org>
- <4274625d-6feb-81b6-5b0a-695229e7c33d@redhat.com>
- <20200417042912-mutt-send-email-mst@kernel.org>
- <fdb555a6-4b8d-15b6-0849-3fe0e0786038@redhat.com>
- <20200417044230-mutt-send-email-mst@kernel.org>
- <73843240-3040-655d-baa9-683341ed4786@redhat.com>
- <20200417050029-mutt-send-email-mst@kernel.org>
- <ce8a18e5-3c74-73cc-57c5-10c40af838a3@redhat.com>
- <20200417053803-mutt-send-email-mst@kernel.org>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: Re: [PATCH] virtio-balloon: Disable free page
+ hinting/reporting if page poison is disabled
+Date: Fri, 17 Apr 2020 11:51:31 +0200
+Message-ID: <3447361c-4d07-1785-c59b-8c98ddaebd92@redhat.com>
+References: <20200416192809.8763.19308.stgit@localhost.localdomain>
+ <20200416180845-mutt-send-email-mst@kernel.org>
+ <CAKgT0UfWHHyCekU+dReNfhAa6u6FNbm7Ff5wmyN58d1VymmAMA@mail.gmail.com>
+ <20200417021335-mutt-send-email-mst@kernel.org>
+ <08d2c4e2-8c0f-7d3c-89f1-0e6c6a2756c8@redhat.com>
+ <20200417044641-mutt-send-email-mst@kernel.org>
+ <0f867029-aef4-72b9-356f-ec25c265db1b@redhat.com>
+ <20200417051223-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20200417053803-mutt-send-email-mst@kernel.org>
+Return-path: <virtio-dev-return-7113-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+In-Reply-To: <20200417051223-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
-Sender: kvm-owner@vger.kernel.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, benh@kernel.crashing.org, paulus@samba.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, Michael Ellerman <mpe@ellerman.id.au>
+Cc: Alexander Duyck <alexander.duyck@gmail.com>, Jason Wang <jasowang@redhat.com>, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-On 2020/4/17 =E4=B8=8B=E5=8D=885:38, Michael S. Tsirkin wrote:
-> On Fri, Apr 17, 2020 at 05:33:56PM +0800, Jason Wang wrote:
->> On 2020/4/17 =E4=B8=8B=E5=8D=885:01, Michael S. Tsirkin wrote:
->>>> There could be some misunderstanding here. I thought it's somehow si=
-milar: a
->>>> CONFIG_VHOST_MENU=3Dy will be left in the defconfigs even if CONFIG_=
-VHOST is
->>>> not set.
->>>>
->>>> Thanks
->>>>
->>> BTW do entries with no prompt actually appear in defconfig?
->>>
->> Yes. I can see CONFIG_VHOST_DPN=3Dy after make ARCH=3Dm68k defconfig
-> You see it in .config right? So that's harmless right?
+>>> I'll need to think about this.
+>>> We need to remember that the whole HINT thing is not a mandate for host=
+ to
+>>> corrupt memory. It's just some info about page use guest
+>>> gives host. If host corrupts memory it's broken ...
+>>
+>> I don't think that's true,
+>=20
+> Do you refer to "If host corrupts memory it's broken"?
+> You think that's not true?
+
+Let me think this through. IMHO it's a "hint with the option for the
+hypervisor to assume the content is X and optimize (e.g., not migrate a
+page) unless the page is reused before hinting ends". Whereby X is
+currently assumed to be 0, correct?
+
+Assume migrated starts, guest hints a page, migration ends. Guest reads
+the page again.
+
+a) It could be the original page (still migrated)
+b) It could be the zero page (not migrated).
+
+And I think that's a valid corruption of the page content, no?
 
 
-Yes.
+Now, it's more tricky when we have the following
 
-Thanks
+Migrated starts, guest hints a page, guest reuses the page (e.g., writes
+first byte), migration ends. Guest reads the page again.
+
+Here, I (hope) always the original page content is maintained via the
+2-bitmap magic.
+
+Or am I missing something important?
+
+>=20
+>> and that's not what we currently implement in
+>> the hypervisor for speeding up migration. I still consider
+>> VIRTIO_BALLOON_F_FREE_PAGE_HINT as an alternative technique of
+>> temporarily inflating/deflating.
+>=20
+> Reporting is like that. But hinting isn't, simply because
+> by the time host gets the hint page may already be in use.
+> Blowing it out unconditionally would lead to easily
+> reproducible guest crashes.
+
+Agreed that the semantics are different. But "eventually getting a zero
+page after migration" was part of the whole invention, no? That's the
+whole point of the optimization.
+
+>=20
+>> E.g., we don't migrate any of these
+>> pages in the hypervisor, so the content will be zeroed out on the
+>> migration target.
+>=20
+> Not exactly true. We do a delicate play with
+> the two dirty bits so they *are* migrated sometimes.
+
+Agreed. Will something like this catch the semantics?
+
+"Pages hinted via VIRTIO_BALLOON_F_FREE_PAGE_HINT will
+ always have the original page content when written before hinting
+ stops. However, if pages are not written before hinting stops, the
+ hypervisor might replace them by a zero page."
+
+>=20
+>> If migration fails, the ld content will remain. You
+>> can call that "corrupting memory" - it's exactly what it has been
+>> invented for.
+>=20
+> Well no, original author repeatedly stated it's "hinting"
+> because page can be in use actually.
+
+Agreed.
+
+>=20
+>>
+>> IIRC we decided to glue the semantics of VIRTIO_BALLOON_F_PAGE_POISON to
+>> VIRTIO_BALLOON_F_FREE_PAGE_HINT, which makes in my opinion perfect sense=
+.
+>>
+>> So I propose:
+>>
+>> VIRTIO_BALLOON_F_PAGE_POISON not implemented in the hypervisor:
+>> - Pages inflated/deflated via VIRTIO_BALLOON_F_FREE_PAGE_HINT will
+>>   either have the old page content or will be filled with 0.
+>> - This matches what we currently do.
+>>
+>> VIRTIO_BALLOON_F_PAGE_POISON implemented in the hypervisor:
+>> - Pages inflated/deflated via VIRTIO_BALLOON_F_FREE_PAGE_HINT will
+>>   either have the old page content or will be filled with poison_val.
+>> - This matches what we should do also during ordinary
+>>   inflation/deflation and free page reporting.
+>=20
+> It's a reasonable option. however ...
+>=20
+>> Again, nothing is currently broken as we free_page() the pages and don't
+>> care about an eventually changed page content.
+>=20
+> I don't see how you can say that. ATM on a host without POISON
+> and with HINT, with poison val !=3D 0 and with validation,
+> host can blow a free page away and then guest will detect
+> that as corruption.
+
+(At this point I start to hate the whole free page hinting feature again
+:D It starts messing with my brain again.)
+
+As soon as we do the free_page(), the page will be written to and
+definitely get migrated, right? If the hypervisor would blow out the
+page after the free_page(), we would be in trouble. What am I missing?
+
+--=20
+Thanks,
+
+David / dhildenb
