@@ -1,66 +1,140 @@
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Subject: Re: [PATCH v2 5/8] tools/virtio: Use __vring_new_virtqueue in virtio_test.c
-Date: Fri, 17 Apr 2020 14:24:31 +0200
-Message-ID: <CAJaqyWcuxG03+J+BW=fPb=JFKLPi0h5sRGv9cjWv63eyspS4Qg@mail.gmail.com>
-References: <20200416075643.27330-1-eperezma@redhat.com> <20200416075643.27330-6-eperezma@redhat.com>
- <20200416183244-mutt-send-email-mst@kernel.org>
+From: Masami Hiramatsu <mhiramat@kernel.org>
+Subject: Re: [PATCH 05/70] x86/insn: Make inat-tables.c suitable for
+ pre-decompression code
+Date: Fri, 17 Apr 2020 21:50:00 +0900
+Message-ID: <20200417215000.47141001f80005f41153d22e@kernel.org>
+References: <20200319091407.1481-1-joro@8bytes.org>
+        <20200319091407.1481-6-joro@8bytes.org>
+        <20200325153945.GD27261@zn.tnic>
+        <20200327120232.c8e455ca100dc0d96e4ddc43@kernel.org>
+        <20200416152406.GB4290@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200416183244-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20200416152406.GB4290@8bytes.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Stephen Rothwell <sfr@canb.auug.org.au>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Christian Borntraeger <borntraeger@de.ibm.com>, Linux Next Mailing List <linux-next@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Joerg Roedel <joro@8bytes.org>
+Cc: Borislav Petkov <bp@alien8.de>, Joerg Roedel <jroedel@suse.de>, x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Apr 17, 2020 at 12:33 AM Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> On Thu, Apr 16, 2020 at 09:56:40AM +0200, Eugenio P=C3=A9rez wrote:
-> > As updated in ("2a2d1382fe9d virtio: Add improved queue allocation API"=
-)
-> >
-> > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
->
-> Pls add motivation for these changes.
->
+On Thu, 16 Apr 2020 17:24:06 +0200
+Joerg Roedel <joro@8bytes.org> wrote:
 
-The original motivation was to make code as close as possible to
-virtio_net. Also, it skips a (probably not expensive) initialization
-in vring_new_virtqueue.
+> Hi Masami,
+> 
+> On Fri, Mar 27, 2020 at 12:02:32PM +0900, Masami Hiramatsu wrote:
+> > On Wed, 25 Mar 2020 16:39:45 +0100
+> > Borislav Petkov <bp@alien8.de> wrote:
+> > 
+> > > + Masami.
+> > > 
+> > > On Thu, Mar 19, 2020 at 10:13:02AM +0100, Joerg Roedel wrote:
+> > > > From: Joerg Roedel <jroedel@suse.de>
+> > > > 
+> > > > The inat-tables.c file has some arrays in it that contain pointers to
+> > > > other arrays. These pointers need to be relocated when the kernel
+> > > > image is moved to a different location.
+> > > > 
+> > > > The pre-decompression boot-code has no support for applying ELF
+> > > > relocations, so initialize these arrays at runtime in the
+> > > > pre-decompression code to make sure all pointers are correctly
+> > > > initialized.
+> > 
+> > I need to check the whole series, but as far as I can understand from
+> > this patch, this seems not allowing to store the address value in
+> > static pointers. It may break more things, for example _kprobe_blacklist
+> > records the NOKPROBE_SYMBOL() symbol addresses at the build time.
+> 
+> The runtime-initialization function is only used in the
+> pre-decompression boot code (arch/x86/boot/compressed/) which is not
+> part of the running kernel image. At that stage of booting there is no
+> support for kprobe or tracing or any other neat features that might
+> break things here.
 
-With the recent events, I think that this could be useful to test when
-userspace and kernel use different struct layout, maybe with some
-sanitizer. I can drop it if you don't see it the same way (or if I
-didn't understand the problem and this does not help).
+Ah, I got it. So you intended to port the instruction decoder to
+pre-decompression boot code, correct?
 
-Thanks!
+> > > > +	print "#ifndef __BOOT_COMPRESSED\n"
+> > > > +
+> > > >  	# print escape opcode map's array
+> > > >  	print "/* Escape opcode map array */"
+> > > >  	print "const insn_attr_t * const inat_escape_tables[INAT_ESC_MAX + 1]" \
+> > > > @@ -388,6 +391,51 @@ END {
+> > > >  		for (j = 0; j < max_lprefix; j++)
+> > > >  			if (atable[i,j])
+> > > >  				print "	["i"]["j"] = "atable[i,j]","
+> > > > -	print "};"
+> > > > +	print "};\n"
+> > > > +
+> > > > +	print "#else /* !__BOOT_COMPRESSED */\n"
+> > 
+> > I think the definitions of inat_*_tables can be shared in both case.
+> > If __BOOT_COMPRESSED is set, we can define inat_init_tables() as a
+> > initialize function, and if not, it will be just a dummy "do {} while (0)".
+> 
+> The inat_*_tables are all declared const, so this way it is not possible
+> to change them at runtime.
 
-> > ---
-> >  tools/virtio/virtio_test.c | 7 +++----
-> >  1 file changed, 3 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/tools/virtio/virtio_test.c b/tools/virtio/virtio_test.c
-> > index 1d5144590df6..d9827b640c21 100644
-> > --- a/tools/virtio/virtio_test.c
-> > +++ b/tools/virtio/virtio_test.c
-> > @@ -106,10 +106,9 @@ static void vq_info_add(struct vdev_info *dev, int=
- num)
-> >       assert(r >=3D 0);
-> >       memset(info->ring, 0, vring_legacy_size(num, 4096));
-> >       vring_legacy_init(&info->vring, num, info->ring, 4096);
-> > -     info->vq =3D vring_new_virtqueue(info->idx,
-> > -                                    info->vring.num, 4096, &dev->vdev,
-> > -                                    true, false, info->ring,
-> > -                                    vq_notify, vq_callback, "test");
-> > +     info->vq =3D
-> > +             __vring_new_virtqueue(info->idx, info->vring, &dev->vdev,=
- true,
-> > +                                   false, vq_notify, vq_callback, "tes=
-t");
-> >       assert(info->vq);
-> >       info->vq->priv =3D info;
-> >       vhost_vq_setup(dev, info);
-> > --
-> > 2.18.1
->
+Indeed.
+
+> For the running kernel image this is fine, as
+> there are ELF relocations which fix things up, but at the
+> pre-decompression boot stage there are no ELF relocations which can fix
+> the tables, so the pointers in there need to be initialized at runtime.
+
+OK.
+
+> 
+> > BTW, where is the __BOOT_COMPRESSED defined?
+> 
+> It is defined in arch/x86/boot/compressed/sev-es.c by patch
+> 
+> 	x86/boot/compressed/64: Setup GHCB Based VC Exception handler
+> 
+> which also includes parts of the instruction decoder into the
+> pre-decompression boot code and adds the only call-site for
+> inat_init_tables().
+
+Thanks, I understand it.
+
+> 
+> > > > +	print "static void inat_init_tables(void)"
+> > 
+> > This functions should be "inline".
+> > And I can not see the call-site of inat_init_tables() in this patch.
+> 
+> The call-site is added with the patch that includes the
+> instruction decoder into the pre-decompression code. If possible I'd
+> like to keep those things separate, as both patches are already pretty
+> big by themselfes (and they do different things, in different parts of
+> the code).
+
+OK, if you will send v2, please CC both to me.
+
+> 
+> > If possible, please include call-site with definition (especially
+> > new init function) so that I can check the init call timing too.
+> 
+> The function is called at the first #VC exception after a GHCB has been
+> set up. Call-path is: boot_vc_handler -> sev_es_setup_ghcb ->
+> inat_init_tables.
+
+sound good to me. 
+
+Thank you,
+
+> 
+> See
+> 
+> 	https://git.kernel.org/pub/scm/linux/kernel/git/joro/linux.git/tree/arch/x86/boot/compressed/sev-es.c?h=sev-es-client-v5.6-rc6
+> 
+> for the full code there.
+> 
+> Thanks,
+> 
+> 	Joerg
+
+
+-- 
+Masami Hiramatsu <mhiramat@kernel.org>
