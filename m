@@ -1,83 +1,123 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [virtio-dev] Re: [PATCH] virtio-balloon: Disable free page
- hinting/reporting if page poison is disabled
-Date: Fri, 17 Apr 2020 09:49:03 +0200
-Message-ID: <08d2c4e2-8c0f-7d3c-89f1-0e6c6a2756c8@redhat.com>
-References: <20200416192809.8763.19308.stgit@localhost.localdomain>
- <20200416180845-mutt-send-email-mst@kernel.org>
- <CAKgT0UfWHHyCekU+dReNfhAa6u6FNbm7Ff5wmyN58d1VymmAMA@mail.gmail.com>
- <20200417021335-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH v9] virtio: force spec specified alignment on types
+Date: Fri, 17 Apr 2020 03:59:34 -0400
+Message-ID: <20200417075551.12291-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200417021335-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>, Alexander Duyck <alexander.duyck@gmail.com>
-Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 17.04.20 08:28, Michael S. Tsirkin wrote:
-> On Thu, Apr 16, 2020 at 04:52:42PM -0700, Alexander Duyck wrote:
->> On Thu, Apr 16, 2020 at 3:13 PM Michael S. Tsirkin <mst@redhat.com> wrote:
->>>
->>> On Thu, Apr 16, 2020 at 12:30:38PM -0700, Alexander Duyck wrote:
->>>> From: Alexander Duyck <alexander.h.duyck@linux.intel.com>
->>>>
->>>> If we have free page hinting or page reporting enabled we should disable it
->>>> if the pages are poisoned or initialized on free and we cannot notify the
->>>> hypervisor.
->>>>
->>>> Fixes: 5d757c8d518d ("virtio-balloon: add support for providing free page reports to host")
->>>>
->>>> Signed-off-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
->>>
->>>
->>> Why not put this logic in the hypervisor?
->>
->> I did that too. This is to cover the case where somebody is running
->> the code prior to my QEMU changes where the page poison feature wasn't
->> being enabled.
-> 
-> 
-> Hmm so that one looks like a QEMU bug (does not expose poison flag).  In
-> the past we just said need to fix the bug where it's found unless the
-> issue is very widespread and major.  Let's assume QEMU learns to always
-> expose POISON with HINT.  Then this configuration (HINT && !POISON)
-> allows us to detect old QEMU (pre your changes).
+The ring element addresses are passed between components with different
+alignments assumptions. Thus, if guest/userspace selects a pointer and
+host then gets and dereferences it, we might need to decrease the
+compiler-selected alignment to prevent compiler on the host from
+assuming pointer is aligned.
 
-Don't see why this is a QEMU bug. It's just a feature it does not
-implement. Perfectly valid.
+This actually triggers on ARM with -mabi=apcs-gnu - which is a
+deprecated configuration, but it seems safer to handle this
+generally.
 
-[...]
->>
->> The problem is we cannot communicate the full situation to the
->> hypervisor without the page poison feature being present. As such I
->> would worry about that backfiring on us due to the hypervisor acting
->> on incomplete data.
-> 
-> 
-> I'll try to think about VIRTIO_BALLOON_F_FREE_PAGE_HINT situation
-> over the weekend. But for the new page reporting, why not
+Note that userspace that allocates the memory is actually OK and does
+not need to be fixed, but userspace that gets it from guest or another
+process does need to be fixed. The later doesn't generally talk to the
+kernel so while it might be buggy it's not talking to the kernel in the
+buggy way - it's just using the header in the buggy way - so fixing
+header and asking userspace to recompile is the best we can do.
 
-I shared my thoughts about VIRTIO_BALLOON_F_FREE_PAGE_HINT in the other
-thread and think we should simply not care at all for now.
+I verified that the produced kernel binary on x86 is exactly identical
+before and after the change.
 
-> assume host implementation will be sane?
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
 
-I don't think we should enforce having poison support around. See my
-reply to this mail for an alternative.
+I am still not sure this is even needed. Does compiler make
+optimizations based on ABI alignment assumptions?
 
+
+Changes from v8:
+	- better commit log
+	- go back to vring in UAPI
+
+ drivers/vhost/vhost.h            |  6 ++---
+ include/uapi/linux/virtio_ring.h | 38 +++++++++++++++++++++++---------
+ 2 files changed, 31 insertions(+), 13 deletions(-)
+
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index f8403bd46b85..60cab4c78229 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -67,9 +67,9 @@ struct vhost_virtqueue {
+ 	/* The actual ring of buffers. */
+ 	struct mutex mutex;
+ 	unsigned int num;
+-	struct vring_desc __user *desc;
+-	struct vring_avail __user *avail;
+-	struct vring_used __user *used;
++	vring_desc_t __user *desc;
++	vring_avail_t __user *avail;
++	vring_used_t __user *used;
+ 	const struct vhost_iotlb_map *meta_iotlb[VHOST_NUM_ADDRS];
+ 	struct file *kick;
+ 	struct eventfd_ctx *call_ctx;
+diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
+index 9223c3a5c46a..177227f0d9cd 100644
+--- a/include/uapi/linux/virtio_ring.h
++++ b/include/uapi/linux/virtio_ring.h
+@@ -118,16 +118,6 @@ struct vring_used {
+ 	struct vring_used_elem ring[];
+ };
+ 
+-struct vring {
+-	unsigned int num;
+-
+-	struct vring_desc *desc;
+-
+-	struct vring_avail *avail;
+-
+-	struct vring_used *used;
+-};
+-
+ /* Alignment requirements for vring elements.
+  * When using pre-virtio 1.0 layout, these fall out naturally.
+  */
+@@ -135,6 +125,34 @@ struct vring {
+ #define VRING_USED_ALIGN_SIZE 4
+ #define VRING_DESC_ALIGN_SIZE 16
+ 
++/*
++ * The ring element addresses are passed between components with different
++ * alignments assumptions. Thus, we might need to decrease the compiler-selected
++ * alignment, and so must use a typedef to make sure the __aligned attribute
++ * actually takes hold:
++ *
++ * https://gcc.gnu.org/onlinedocs//gcc/Common-Type-Attributes.html#Common-Type-Attributes
++ *
++ * When used on a struct, or struct member, the aligned attribute can only
++ * increase the alignment; in order to decrease it, the packed attribute must
++ * be specified as well. When used as part of a typedef, the aligned attribute
++ * can both increase and decrease alignment, and specifying the packed
++ * attribute generates a warning.
++ */
++typedef struct vring_desc __aligned(VRING_DESC_ALIGN_SIZE) vring_desc_t;
++typedef struct vring_avail __aligned(VRING_AVAIL_ALIGN_SIZE) vring_avail_t;
++typedef struct vring_used __aligned(VRING_USED_ALIGN_SIZE) vring_used_t;
++
++struct vring {
++	unsigned int num;
++
++	vring_desc_t *desc;
++
++	vring_avail_t *avail;
++
++	vring_used_t *used;
++};
++
+ #ifndef VIRTIO_RING_NO_LEGACY
+ 
+ /* The standard layout for the ring is a continuous chunk of memory which looks
 -- 
-Thanks,
-
-David / dhildenb
+MST
