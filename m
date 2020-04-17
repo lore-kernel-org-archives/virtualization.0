@@ -1,81 +1,106 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V2] vhost: do not enable VHOST_MENU by default
-Date: Fri, 17 Apr 2020 15:36:52 +0800
-Message-ID: <4274625d-6feb-81b6-5b0a-695229e7c33d@redhat.com>
-References: <20200415024356.23751-1-jasowang@redhat.com>
- <20200416185426-mutt-send-email-mst@kernel.org>
- <b7e2deb7-cb64-b625-aeb4-760c7b28c0c8@redhat.com>
- <20200417022929-mutt-send-email-mst@kernel.org>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH] virtio-balloon: Disable free page hinting/reporting if
+ page poison is disabled
+Date: Fri, 17 Apr 2020 09:46:28 +0200
+Message-ID: <f85362c1-8e23-36f9-eca7-7a1968b6118b@redhat.com>
+References: <20200416192809.8763.19308.stgit@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200417022929-mutt-send-email-mst@kernel.org>
+Return-path: <virtio-dev-return-7100-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+In-Reply-To: <20200416192809.8763.19308.stgit@localhost.localdomain>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, geert@linux-m68k.org, tsbogend@alpha.franken.de, benh@kernel.crashing.org, paulus@samba.org, heiko.carstens@de.ibm.com, gor@linux.ibm.com, borntraeger@de.ibm.com, Michael Ellerman <mpe@ellerman.id.au>
+To: Alexander Duyck <alexander.duyck@gmail.com>, jasowang@redhat.com, mst@redhat.com
+Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On 16.04.20 21:30, Alexander Duyck wrote:
+> From: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+>=20
+> If we have free page hinting or page reporting enabled we should disable =
+it
+> if the pages are poisoned or initialized on free and we cannot notify the
+> hypervisor.
+>=20
 
-On 2020/4/17 =E4=B8=8B=E5=8D=882:33, Michael S. Tsirkin wrote:
-> On Fri, Apr 17, 2020 at 11:12:14AM +0800, Jason Wang wrote:
->> On 2020/4/17 =E4=B8=8A=E5=8D=886:55, Michael S. Tsirkin wrote:
->>> On Wed, Apr 15, 2020 at 10:43:56AM +0800, Jason Wang wrote:
->>>> We try to keep the defconfig untouched after decoupling CONFIG_VHOST
->>>> out of CONFIG_VIRTUALIZATION in commit 20c384f1ea1a
->>>> ("vhost: refine vhost and vringh kconfig") by enabling VHOST_MENU by
->>>> default. Then the defconfigs can keep enabling CONFIG_VHOST_NET
->>>> without the caring of CONFIG_VHOST.
->>>>
->>>> But this will leave a "CONFIG_VHOST_MENU=3Dy" in all defconfigs and =
-even
->>>> for the ones that doesn't want vhost. So it actually shifts the
->>>> burdens to the maintainers of all other to add "CONFIG_VHOST_MENU is
->>>> not set". So this patch tries to enable CONFIG_VHOST explicitly in
->>>> defconfigs that enables CONFIG_VHOST_NET and CONFIG_VHOST_VSOCK.
->>>>
->>>> Acked-by: Christian Borntraeger<borntraeger@de.ibm.com>  (s390)
->>>> Acked-by: Michael Ellerman<mpe@ellerman.id.au>  (powerpc)
->>>> Cc: Thomas Bogendoerfer<tsbogend@alpha.franken.de>
->>>> Cc: Benjamin Herrenschmidt<benh@kernel.crashing.org>
->>>> Cc: Paul Mackerras<paulus@samba.org>
->>>> Cc: Michael Ellerman<mpe@ellerman.id.au>
->>>> Cc: Heiko Carstens<heiko.carstens@de.ibm.com>
->>>> Cc: Vasily Gorbik<gor@linux.ibm.com>
->>>> Cc: Christian Borntraeger<borntraeger@de.ibm.com>
->>>> Reported-by: Geert Uytterhoeven<geert@linux-m68k.org>
->>>> Signed-off-by: Jason Wang<jasowang@redhat.com>
->>> I rebased this on top of OABI fix since that
->>> seems more orgent to fix.
->>> Pushed to my vhost branch pls take a look and
->>> if possible test.
->>> Thanks!
->>
->> I test this patch by generating the defconfigs that wants vhost_net or
->> vhost_vsock. All looks fine.
->>
->> But having CONFIG_VHOST_DPN=3Dy may end up with the similar situation =
-that
->> this patch want to address.
->> Maybe we can let CONFIG_VHOST depends on !ARM || AEABI then add anothe=
-r
->> menuconfig for VHOST_RING and do something similar?
->>
->> Thanks
-> Sorry I don't understand. After this patch CONFIG_VHOST_DPN is just
-> an internal variable for the OABI fix. I kept it separate
-> so it's easy to revert for 5.8. Yes we could squash it into
-> VHOST directly but I don't see how that changes logic at all.
+Please split that up into an actual fix (Fixes:) for free page reporting
+and an optimization for free page hinting. Also, please document why we
+are doing stuff.
+
+Regarding the free page reporting part, I propose something like this inste=
+ad
 
 
-Sorry for being unclear.
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloo=
+n.c
+index 0ef16566c3f3..9b1e56da1e29 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -1107,6 +1107,20 @@ static int virtballoon_restore(struct virtio_device =
+*vdev)
+=20
+ static int virtballoon_validate(struct virtio_device *vdev)
+ {
++       /*
++        * Free page reporting relies on the fact that any access after
++        * pages were reported (esp. from the buddy) will result in them ge=
+tting
++        * deflated automatically. In case we care about the page content, =
+we
++        * need support from the hypervisor to provide us with the same pag=
+e
++        * (poisoned) content we originally had in the page. Without
++        * VIRTIO_BALLOON_F_PAGE_POISON, we will receive either the origina=
+l
++        * page or a zeroed page.
++        */
++       if (!virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON) &&
++           !IS_ENABLED(CONFIG_PAGE_POISONING_NO_SANITY) &&
++           page_poisoning_enabled())
++               __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
++
+        /* Tell the host whether we care about poisoned pages. */
+        if (!want_init_on_free() &&
+            (IS_ENABLED(CONFIG_PAGE_POISONING_NO_SANITY) ||
 
-I meant since it was enabled by default, "CONFIG_VHOST_DPN=3Dy" will be=20
-left in the defconfigs. This requires the arch maintainers to add=20
-"CONFIG_VHOST_VDPN is not set". (Geert complains about this)
 
-Thanks
+> Fixes: 5d757c8d518d ("virtio-balloon: add support for providing free page=
+ reports to host")
+>=20
+> Signed-off-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+> ---
+>  drivers/virtio/virtio_balloon.c |    6 +++++-
+>  1 file changed, 5 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_ball=
+oon.c
+> index 95d9c2f0a7be..08bc86a6e468 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -1110,8 +1110,12 @@ static int virtballoon_validate(struct virtio_devi=
+ce *vdev)
+>  =09/* Tell the host whether we care about poisoned pages. */
+>  =09if (!want_init_on_free() &&
+>  =09    (IS_ENABLED(CONFIG_PAGE_POISONING_NO_SANITY) ||
+> -=09     !page_poisoning_enabled()))
+> +=09     !page_poisoning_enabled())) {
+>  =09=09__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_PAGE_POISON);
+> +=09} else if (!virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON)) {
+> +=09=09__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT);
+> +=09=09__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
+> +=09}
+> =20
+>  =09__virtio_clear_bit(vdev, VIRTIO_F_IOMMU_PLATFORM);
+>  =09return 0;
+>=20
 
 
->
+--=20
+Thanks,
+
+David / dhildenb
