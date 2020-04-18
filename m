@@ -1,108 +1,319 @@
-From: Alexander Duyck <alexander.duyck@gmail.com>
-Subject: Re: Re: [PATCH] virtio-balloon: Disable free page
- hinting/reporting if page poison is disabled
-Date: Fri, 17 Apr 2020 09:22:16 -0700
-Message-ID: <CAKgT0UdV5+yknti+W4jDLmo9CH+BeS82pm9vDcy47nV8pkEwcw@mail.gmail.com>
-References: <20200416192809.8763.19308.stgit@localhost.localdomain>
- <20200416180845-mutt-send-email-mst@kernel.org> <CAKgT0UfWHHyCekU+dReNfhAa6u6FNbm7Ff5wmyN58d1VymmAMA@mail.gmail.com>
- <20200417021335-mutt-send-email-mst@kernel.org> <08d2c4e2-8c0f-7d3c-89f1-0e6c6a2756c8@redhat.com>
- <20200417044641-mutt-send-email-mst@kernel.org> <0f867029-aef4-72b9-356f-ec25c265db1b@redhat.com>
- <20200417051223-mutt-send-email-mst@kernel.org> <3447361c-4d07-1785-c59b-8c98ddaebd92@redhat.com>
- <20200417055217-mutt-send-email-mst@kernel.org> <1823d9be-d175-6cb5-0c7d-8a68d959a0d5@redhat.com>
+From: Caicai <caizhaopeng@uniontech.com>
+Subject: [PATCH 1/1] drm/qxl: add mutex_lock/mutex_unlock to ensure the order in which resources are released.
+Date: Sat, 18 Apr 2020 14:39:17 +0800
+Message-ID: <20200418063917.26278-1-caizhaopeng@uniontech.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <virtio-dev-return-7127-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <1823d9be-d175-6cb5-0c7d-8a68d959a0d5@redhat.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dave Airlie <airlied@redhat.com>
+Cc: Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, virtualization@lists.linux-foundation.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, Zhangyueqian <zhangyueqian@uniontech.com>, Zhangshuang <zhangshuang@uniontech.com>, Zhangshiwen <zhangshiwen@uniontech.com>, Caicai <caizhaopeng@uniontech.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Apr 17, 2020 at 3:09 AM David Hildenbrand <david@redhat.com> wrote:
->
->  > What do you call "hinting ends" though? The fact we put
-> > a page in the VQ is not a guarantee that it's been consumed
-> > by the hypervisor.
-> >
->
-> I'd say hinting ends once the hypervisor sets FREE_PAGE_REPORT_S_DONE.
+When a qxl resource is released, the list that needs to be released is
+fetched from the linked list ring and cleared. When you empty the list,
+instead of trying to determine whether the ttm buffer object for each
+qxl in the list is locked, you release the qxl object and remove the
+element from the list until the list is empty. It was found that the
+linked list was cleared first, and that the lock on the corresponding
+ttm Bo for the QXL had not been released, so that the new qxl could not
+be locked when it used the TTM. By adding an additional mutex to ensure
+timing, qxl elements are not allowed to be removed from the list until
+ttm Bo's lock is released
 
-The key bit to this is that there are 4 states, and quasi unlimited
-command IDs, although I believe the first 2 are matched up to the
-states. So the VIRTIO_BALLOON_CMD_ID_DONE is matched up with
-FREE_PAGE_REPORT_S_DONE, and CMD_ID_STOP with S_STOP, but really all
-it means is that we are done with the current epoch so we need to
-flush the memory and move on. The state is more important to the
-hypervisor as it will switch to "STOP" while it is synching the dirty
-bits, "REQUESTED" once that has been completed and it will increment
-the command ID, "START" once the first hint is received with the
-matching command ID, and "DONE" once the migration is complete. As
-long as it is in the "START" state and the command ID in the hint
-matches it will use the information to clear the dirty bits as it runs
-in parallel with the migration task.
+Signed-off-by: Caicai <caizhaopeng@uniontech.com>
+---
+ drivers/gpu/drm/qxl/qxl_cmd.c     | 12 +++++++++++-
+ drivers/gpu/drm/qxl/qxl_display.c | 15 +++++++++++++++
+ drivers/gpu/drm/qxl/qxl_draw.c    | 19 +++++++++++++++++++
+ drivers/gpu/drm/qxl/qxl_drv.h     |  3 ++-
+ drivers/gpu/drm/qxl/qxl_ioctl.c   |  3 +++
+ drivers/gpu/drm/qxl/qxl_release.c |  2 ++
+ 6 files changed, 52 insertions(+), 2 deletions(-)
 
-The piece I think I was missing was that the balloon is staying
-(mostly) inflated until the migration is complete. If that is the case
-then I suppose we could leave this enabled at least on the guest side,
-assuming the balloon doesn't give back too many pages when it hits the
-shrinker.
-
-> >
-> > I think a strict definition is this:
-> > - hint includes a command ID
-> > - hint implies "page was unused at some point after guest reading command ID"
-> >
-> >
-> > Hypervisor can use dirty tracking tricks to get from that to
-> > "page is unused at the moment".
-> >
-> >> Whereby X is
-> >> currently assumed to be 0, correct?
-> >
-> >
-> >
-> > Now we are talking about what's safe to do with the page.
-> >
-> > If POISON flag is set by hypervisor but clear by guest,
-> > or poison_val is 0, then it's clear it's safe to blow
-> > away the page if we can figure out it's unused.
-> >
-> > Otherwise, it's much less clear :)
->
-> Hah! Agreed :D
-
-That isn't quite true. The problem is in the case of hinting it isn't
-setting the page to 0. It is simply not migrating it. So if there is
-data from an earlier pass it is stuck at that value. So the balloon
-will see the poison/init on some pages cleared, however I suppose the
-balloon doesn't care about the contents of the page. For the pages
-that are leaked back out via the shrinker they will be dirtied so they
-will end up being migrated with the correct value eventually.
-
-> > I'll have to come back and re-read the rest next week, this
-> > is complex stuff and I'm too rushed with other things today.
->
-> Yeah, I'm also loaded with other stuff. Maybe Alex has time to
-> understand the details as well.
-
-So after looking it over again it makes a bit more sense why this
-hasn't caused any issues so far, and I can see why the poison enabled
-setup and hinting can work. The problem is I am left wondering what
-assumptions we are allowed to leave in place.
-
-1. Can we assume that we don't care about the contents in the pages in
-the balloon changing?
-2. Can we assume that the guest will always rewrite the page after the
-deflate in the case of init_on_free or poison?
-3. Can we assume that free page hinting will always function as a
-balloon setup, so no moving it over to a page reporting type setup?
-
-If we assume the above 3 items then there isn't any point in worrying
-about poison when it comes to free page hinting. It doesn't make sense
-to since they essentially negate it. As such I could go through this
-patch and the QEMU patches and clean up any associations since the to
-are not really tied together in any way.
+diff --git a/drivers/gpu/drm/qxl/qxl_cmd.c b/drivers/gpu/drm/qxl/qxl_cmd.c
+index 208af9f37914..484405dae253 100644
+--- a/drivers/gpu/drm/qxl/qxl_cmd.c
++++ b/drivers/gpu/drm/qxl/qxl_cmd.c
+@@ -203,7 +203,9 @@ bool qxl_queue_garbage_collect(struct qxl_device *qdev, bool flush)
+ 	if (!qxl_check_idle(qdev->release_ring)) {
+ 		schedule_work(&qdev->gc_work);
+ 		if (flush)
+-			flush_work(&qdev->gc_work);
++			//can't flush work, it may lead to deadlock
++			usleep_range(500, 1000);
++
+ 		return true;
+ 	}
+ 	return false;
+@@ -241,7 +243,11 @@ int qxl_garbage_collect(struct qxl_device *qdev)
+ 			}
+ 			id = next_id;
+ 
++			mutex_lock(&release->async_release_mutex);
++
+ 			qxl_release_free(qdev, release);
++
++			mutex_unlock(&release->async_release_mutex);
+ 			++i;
+ 		}
+ 	}
+@@ -475,6 +481,8 @@ int qxl_hw_surface_alloc(struct qxl_device *qdev,
+ 	if (ret)
+ 		return ret;
+ 
++	mutex_lock(&release->async_release_mutex);
++
+ 	cmd = (struct qxl_surface_cmd *)qxl_release_map(qdev, release);
+ 	cmd->type = QXL_SURFACE_CMD_CREATE;
+ 	cmd->flags = QXL_SURF_FLAG_KEEP_DATA;
+@@ -503,6 +511,8 @@ int qxl_hw_surface_alloc(struct qxl_device *qdev,
+ 	qxl_push_command_ring_release(qdev, release, QXL_CMD_SURFACE, false);
+ 	qxl_release_fence_buffer_objects(release);
+ 
++	mutex_unlock(&release->async_release_mutex);
++
+ 	surf->hw_surf_alloc = true;
+ 	spin_lock(&qdev->surf_id_idr_lock);
+ 	idr_replace(&qdev->surf_id_idr, surf, surf->surface_id);
+diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+index 0570c6826bff..04bfb181a402 100644
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -522,6 +522,8 @@ static int qxl_primary_apply_cursor(struct drm_plane *plane)
+ 	if (ret)
+ 		goto out_free_release;
+ 
++	mutex_lock(&release->async_release_mutex);
++
+ 	cmd = (struct qxl_cursor_cmd *)qxl_release_map(qdev, release);
+ 	cmd->type = QXL_CURSOR_SET;
+ 	cmd->u.set.position.x = plane->state->crtc_x + fb->hot_x;
+@@ -535,6 +537,8 @@ static int qxl_primary_apply_cursor(struct drm_plane *plane)
+ 	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
+ 	qxl_release_fence_buffer_objects(release);
+ 
++	mutex_unlock(&release->async_release_mutex);
++
+ 	return ret;
+ 
+ out_free_release:
+@@ -653,6 +657,8 @@ static void qxl_cursor_atomic_update(struct drm_plane *plane,
+ 		if (ret)
+ 			goto out_free_bo;
+ 
++		mutex_lock(&release->async_release_mutex);
++
+ 		ret = qxl_bo_kmap(cursor_bo, (void **)&cursor);
+ 		if (ret)
+ 			goto out_backoff;
+@@ -686,6 +692,8 @@ static void qxl_cursor_atomic_update(struct drm_plane *plane,
+ 		if (ret)
+ 			goto out_free_release;
+ 
++		mutex_lock(&release->async_release_mutex);
++
+ 		cmd = (struct qxl_cursor_cmd *) qxl_release_map(qdev, release);
+ 		cmd->type = QXL_CURSOR_MOVE;
+ 	}
+@@ -697,6 +705,8 @@ static void qxl_cursor_atomic_update(struct drm_plane *plane,
+ 	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
+ 	qxl_release_fence_buffer_objects(release);
+ 
++	mutex_unlock(&release->async_release_mutex);
++
+ 	if (old_cursor_bo)
+ 		qxl_bo_unref(&old_cursor_bo);
+ 
+@@ -706,6 +716,7 @@ static void qxl_cursor_atomic_update(struct drm_plane *plane,
+ 
+ out_backoff:
+ 	qxl_release_backoff_reserve_list(release);
++	mutex_unlock(&release->async_release_mutex);
+ out_free_bo:
+ 	qxl_bo_unref(&cursor_bo);
+ out_kunmap:
+@@ -736,12 +747,16 @@ static void qxl_cursor_atomic_disable(struct drm_plane *plane,
+ 		return;
+ 	}
+ 
++	mutex_lock(&release->async_release_mutex);
++
+ 	cmd = (struct qxl_cursor_cmd *)qxl_release_map(qdev, release);
+ 	cmd->type = QXL_CURSOR_HIDE;
+ 	qxl_release_unmap(qdev, release, &cmd->release_info);
+ 
+ 	qxl_push_cursor_ring_release(qdev, release, QXL_CMD_CURSOR, false);
+ 	qxl_release_fence_buffer_objects(release);
++
++	mutex_unlock(&release->async_release_mutex);
+ }
+ 
+ static int qxl_plane_prepare_fb(struct drm_plane *plane,
+diff --git a/drivers/gpu/drm/qxl/qxl_draw.c b/drivers/gpu/drm/qxl/qxl_draw.c
+index 4d8681e84e68..4dc24739c79c 100644
+--- a/drivers/gpu/drm/qxl/qxl_draw.c
++++ b/drivers/gpu/drm/qxl/qxl_draw.c
+@@ -192,6 +192,8 @@ void qxl_draw_opaque_fb(const struct qxl_fb_image *qxl_fb_image,
+ 	if (ret)
+ 		goto out_free_palette;
+ 
++	mutex_lock(&release->async_release_mutex);
++
+ 	rect.left = x;
+ 	rect.right = x + width;
+ 	rect.top = y;
+@@ -200,6 +202,7 @@ void qxl_draw_opaque_fb(const struct qxl_fb_image *qxl_fb_image,
+ 	ret = make_drawable(qdev, 0, QXL_DRAW_COPY, &rect, release);
+ 	if (ret) {
+ 		qxl_release_backoff_reserve_list(release);
++		mutex_unlock(&release->async_release_mutex);
+ 		goto out_free_palette;
+ 	}
+ 
+@@ -208,6 +211,7 @@ void qxl_draw_opaque_fb(const struct qxl_fb_image *qxl_fb_image,
+ 			     width, height, depth, stride);
+ 	if (ret) {
+ 		qxl_release_backoff_reserve_list(release);
++		mutex_unlock(&release->async_release_mutex);
+ 		qxl_release_free(qdev, release);
+ 		return;
+ 	}
+@@ -244,6 +248,8 @@ void qxl_draw_opaque_fb(const struct qxl_fb_image *qxl_fb_image,
+ 	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
+ 	qxl_release_fence_buffer_objects(release);
+ 
++	mutex_unlock(&release->async_release_mutex);
++
+ out_free_palette:
+ 	if (palette_bo)
+ 		qxl_bo_unref(&palette_bo);
+@@ -326,6 +332,8 @@ void qxl_draw_dirty_fb(struct qxl_device *qdev,
+ 	if (ret)
+ 		goto out_free_image;
+ 
++	mutex_lock(&release->async_release_mutex);
++
+ 	drawable_rect.left = left;
+ 	drawable_rect.right = right;
+ 	drawable_rect.top = top;
+@@ -387,6 +395,7 @@ void qxl_draw_dirty_fb(struct qxl_device *qdev,
+ out_release_backoff:
+ 	if (ret)
+ 		qxl_release_backoff_reserve_list(release);
++	mutex_unlock(&release->async_release_mutex);
+ out_free_image:
+ 	qxl_image_free_objects(qdev, dimage);
+ out_free_clips:
+@@ -417,6 +426,8 @@ void qxl_draw_copyarea(struct qxl_device *qdev,
+ 	if (ret)
+ 		goto out_free_release;
+ 
++	mutex_lock(&release->async_release_mutex);
++
+ 	rect.left = dx;
+ 	rect.top = dy;
+ 	rect.right = dx + width;
+@@ -424,6 +435,7 @@ void qxl_draw_copyarea(struct qxl_device *qdev,
+ 	ret = make_drawable(qdev, 0, QXL_COPY_BITS, &rect, release);
+ 	if (ret) {
+ 		qxl_release_backoff_reserve_list(release);
++		mutex_unlock(&release->async_release_mutex);
+ 		goto out_free_release;
+ 	}
+ 
+@@ -435,6 +447,8 @@ void qxl_draw_copyarea(struct qxl_device *qdev,
+ 	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
+ 	qxl_release_fence_buffer_objects(release);
+ 
++	mutex_unlock(&release->async_release_mutex);
++
+ out_free_release:
+ 	if (ret)
+ 		free_drawable(qdev, release);
+@@ -459,9 +473,12 @@ void qxl_draw_fill(struct qxl_draw_fill *qxl_draw_fill_rec)
+ 	if (ret)
+ 		goto out_free_release;
+ 
++	mutex_lock(&release->async_release_mutex);
++
+ 	ret = make_drawable(qdev, 0, QXL_DRAW_FILL, &rect, release);
+ 	if (ret) {
+ 		qxl_release_backoff_reserve_list(release);
++		mutex_unlock(&release->async_release_mutex);
+ 		goto out_free_release;
+ 	}
+ 
+@@ -479,6 +496,8 @@ void qxl_draw_fill(struct qxl_draw_fill *qxl_draw_fill_rec)
+ 	qxl_push_command_ring_release(qdev, release, QXL_CMD_DRAW, false);
+ 	qxl_release_fence_buffer_objects(release);
+ 
++	mutex_unlock(&release->async_release_mutex);
++
+ out_free_release:
+ 	if (ret)
+ 		free_drawable(qdev, release);
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
+index 01220d386b0a..cbc7bdb5b8d3 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.h
++++ b/drivers/gpu/drm/qxl/qxl_drv.h
+@@ -54,7 +54,7 @@
+ 
+ #define DRIVER_NAME		"qxl"
+ #define DRIVER_DESC		"RH QXL"
+-#define DRIVER_DATE		"20120117"
++#define DRIVER_DATE		"20200107"
+ 
+ #define DRIVER_MAJOR 0
+ #define DRIVER_MINOR 1
+@@ -172,6 +172,7 @@ struct qxl_release {
+ 	uint32_t surface_release_id;
+ 	struct ww_acquire_ctx ticket;
+ 	struct list_head bos;
++	struct mutex	async_release_mutex;
+ };
+ 
+ struct qxl_drm_chunk {
+diff --git a/drivers/gpu/drm/qxl/qxl_ioctl.c b/drivers/gpu/drm/qxl/qxl_ioctl.c
+index 6cc9f3367fa0..189d016b871b 100644
+--- a/drivers/gpu/drm/qxl/qxl_ioctl.c
++++ b/drivers/gpu/drm/qxl/qxl_ioctl.c
+@@ -250,6 +250,8 @@ static int qxl_process_single_command(struct qxl_device *qdev,
+ 	if (ret)
+ 		goto out_free_bos;
+ 
++	mutex_lock(&release->async_release_mutex);
++
+ 	for (i = 0; i < cmd->relocs_num; ++i) {
+ 		if (reloc_info[i].type == QXL_RELOC_TYPE_BO)
+ 			apply_reloc(qdev, &reloc_info[i]);
+@@ -263,6 +265,7 @@ static int qxl_process_single_command(struct qxl_device *qdev,
+ 	else
+ 		qxl_release_fence_buffer_objects(release);
+ 
++	mutex_unlock(&release->async_release_mutex);
+ out_free_bos:
+ out_free_release:
+ 	if (ret)
+diff --git a/drivers/gpu/drm/qxl/qxl_release.c b/drivers/gpu/drm/qxl/qxl_release.c
+index e37f0097f744..f4c066dcabfe 100644
+--- a/drivers/gpu/drm/qxl/qxl_release.c
++++ b/drivers/gpu/drm/qxl/qxl_release.c
+@@ -133,6 +133,7 @@ qxl_release_alloc(struct qxl_device *qdev, int type,
+ 	release->type = type;
+ 	release->release_offset = 0;
+ 	release->surface_release_id = 0;
++	mutex_init(&release->async_release_mutex);
+ 	INIT_LIST_HEAD(&release->bos);
+ 
+ 	idr_preload(GFP_KERNEL);
+@@ -343,6 +344,7 @@ int qxl_alloc_release_reserved(struct qxl_device *qdev, unsigned long size,
+ 	}
+ 
+ 	mutex_lock(&qdev->release_mutex);
++
+ 	if (qdev->current_release_bo_offset[cur_idx] + 1 >= releases_per_bo[cur_idx]) {
+ 		qxl_bo_unref(&qdev->current_release_bo[cur_idx]);
+ 		qdev->current_release_bo_offset[cur_idx] = 0;
+-- 
+2.20.1
