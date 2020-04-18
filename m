@@ -1,65 +1,84 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 45/47] virtio-blk: improve virtqueue error to
- BLK_STS
-Date: Sat, 18 Apr 2020 10:42:25 -0400
-Message-ID: <20200418144227.9802-45-sashal@kernel.org>
-References: <20200418144227.9802-1-sashal@kernel.org>
+From: Christophe Leroy <christophe.leroy@c-s.fr>
+Subject: Re: [PATCH] iommu: spapr_tce: Disable compile testing to fix build on
+ book3s_32 config
+Date: Sat, 18 Apr 2020 15:14:02 +0000
+Message-ID: <a99ee461-664c-51ae-cb3a-cf5d87048d86@c-s.fr>
+References: <20200414142630.21153-1-krzk@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200418144227.9802-1-sashal@kernel.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>, Stefan Hajnoczi <stefanha@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200414142630.21153-1-krzk@kernel.org>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Krzysztof Kozlowski <krzk@kernel.org>, Joerg Roedel <joro@8bytes.org>, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, Geert Uytterhoeven <geert@linux-m68k.org>, linuxppc-dev@lists.ozlabs.org, netdev@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Halil Pasic <pasic@linux.ibm.com>
 
-[ Upstream commit 3d973b2e9a625996ee997c7303cd793b9d197c65 ]
 
-Let's change the mapping between virtqueue_add errors to BLK_STS
-statuses, so that -ENOSPC, which indicates virtqueue full is still
-mapped to BLK_STS_DEV_RESOURCE, but -ENOMEM which indicates non-device
-specific resource outage is mapped to BLK_STS_RESOURCE.
+On 04/14/2020 02:26 PM, Krzysztof Kozlowski wrote:
+> Although SPAPR_TCE_IOMMU itself can be compile tested on certain PowerPC
+> configurations, its presence makes arch/powerpc/kvm/Makefile to select
+> modules which do not build in such configuration.
+> 
+> The arch/powerpc/kvm/ modules use kvm_arch.spapr_tce_tables which exists
+> only with CONFIG_PPC_BOOK3S_64.  However these modules are selected when
+> COMPILE_TEST and SPAPR_TCE_IOMMU are chosen leading to build failures:
+> 
+>      In file included from arch/powerpc/include/asm/book3s/64/mmu-hash.h:20:0,
+>                       from arch/powerpc/kvm/book3s_64_vio_hv.c:22:
+>      arch/powerpc/include/asm/book3s/64/pgtable.h:17:0: error: "_PAGE_EXEC" redefined [-Werror]
+>       #define _PAGE_EXEC  0x00001 /* execute permission */
+> 
+>      In file included from arch/powerpc/include/asm/book3s/32/pgtable.h:8:0,
+>                       from arch/powerpc/include/asm/book3s/pgtable.h:8,
+>                       from arch/powerpc/include/asm/pgtable.h:18,
+>                       from include/linux/mm.h:95,
+>                       from arch/powerpc/include/asm/io.h:29,
+>                       from include/linux/io.h:13,
+>                       from include/linux/irq.h:20,
+>                       from arch/powerpc/include/asm/hardirq.h:6,
+>                       from include/linux/hardirq.h:9,
+>                       from include/linux/kvm_host.h:7,
+>                       from arch/powerpc/kvm/book3s_64_vio_hv.c:12:
+>      arch/powerpc/include/asm/book3s/32/hash.h:29:0: note: this is the location of the previous definition
+>       #define _PAGE_EXEC 0x200 /* software: exec allowed */
+> 
+> Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+> Fixes: e93a1695d7fb ("iommu: Enable compile testing for some of drivers")
+> Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+> ---
+>   drivers/iommu/Kconfig | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/iommu/Kconfig b/drivers/iommu/Kconfig
+> index 58b4a4dbfc78..3532b1ead19d 100644
+> --- a/drivers/iommu/Kconfig
+> +++ b/drivers/iommu/Kconfig
+> @@ -362,7 +362,7 @@ config IPMMU_VMSA
+>   
+>   config SPAPR_TCE_IOMMU
+>   	bool "sPAPR TCE IOMMU Support"
+> -	depends on PPC_POWERNV || PPC_PSERIES || (PPC && COMPILE_TEST)
+> +	depends on PPC_POWERNV || PPC_PSERIES
+>   	select IOMMU_API
+>   	help
+>   	  Enables bits of IOMMU API required by VFIO. The iommu_ops
+> 
 
-Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
-Link: https://lore.kernel.org/r/20200213123728.61216-3-pasic@linux.ibm.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/block/virtio_blk.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+Should it be fixed the other way round, something like:
 
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 728c9a9609f0c..9a3c2b14ac378 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -277,9 +277,14 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
- 		if (err == -ENOSPC)
- 			blk_mq_stop_hw_queue(hctx);
- 		spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
--		if (err == -ENOMEM || err == -ENOSPC)
-+		switch (err) {
-+		case -ENOSPC:
- 			return BLK_STS_DEV_RESOURCE;
--		return BLK_STS_IOERR;
-+		case -ENOMEM:
-+			return BLK_STS_RESOURCE;
-+		default:
-+			return BLK_STS_IOERR;
-+		}
- 	}
- 
- 	if (bd->last && virtqueue_kick_prepare(vblk->vqs[qid].vq))
--- 
-2.20.1
+diff --git a/arch/powerpc/kvm/Makefile b/arch/powerpc/kvm/Makefile
+index 2bfeaa13befb..906707d15810 100644
+--- a/arch/powerpc/kvm/Makefile
++++ b/arch/powerpc/kvm/Makefile
+@@ -135,4 +135,4 @@ obj-$(CONFIG_KVM_BOOK3S_32) += kvm.o
+  obj-$(CONFIG_KVM_BOOK3S_64_PR) += kvm-pr.o
+  obj-$(CONFIG_KVM_BOOK3S_64_HV) += kvm-hv.o
+
+-obj-y += $(kvm-book3s_64-builtin-objs-y)
++obj-$(CONFIG_KVM_BOOK3S_64) += $(kvm-book3s_64-builtin-objs-y)
+
+
+Christophe
