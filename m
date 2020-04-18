@@ -1,15 +1,25 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 73/78] virtio-blk: improve virtqueue error to BLK_STS
-Date: Sat, 18 Apr 2020 10:40:42 -0400
-Message-ID: <20200418144047.9013-73-sashal@kernel.org>
-References: <20200418144047.9013-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 45/47] virtio-blk: improve virtqueue error to
+ BLK_STS
+Date: Sat, 18 Apr 2020 10:42:25 -0400
+Message-ID: <20200418144227.9802-45-sashal@kernel.org>
+References: <20200418144227.9802-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-block-owner@vger.kernel.org>
-In-Reply-To: <20200418144047.9013-1-sashal@kernel.org>
-Sender: linux-block-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200418144227.9802-1-sashal@kernel.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Halil Pasic <pasic@linux.ibm.com>, "Michael S . Tsirkin" <mst@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Sasha Levin <sashal@kernel.org>, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org
+Cc: Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Halil Pasic <pasic@linux.ibm.com>
@@ -31,10 +41,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 7 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index c2ed3e9128e3a..a55383b139df9 100644
+index 728c9a9609f0c..9a3c2b14ac378 100644
 --- a/drivers/block/virtio_blk.c
 +++ b/drivers/block/virtio_blk.c
-@@ -345,9 +345,14 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+@@ -277,9 +277,14 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
  		if (err == -ENOSPC)
  			blk_mq_stop_hw_queue(hctx);
  		spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
