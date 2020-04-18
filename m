@@ -1,81 +1,55 @@
-From: Sasha Levin <sashal-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: [PATCH AUTOSEL 5.4 42/78] iommu/virtio: Fix freeing of incomplete
- domains
-Date: Sat, 18 Apr 2020 10:40:11 -0400
-Message-ID: <20200418144047.9013-42-sashal@kernel.org>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 73/78] virtio-blk: improve virtqueue error to BLK_STS
+Date: Sat, 18 Apr 2020 10:40:42 -0400
+Message-ID: <20200418144047.9013-73-sashal@kernel.org>
 References: <20200418144047.9013-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-In-Reply-To: <20200418144047.9013-1-sashal-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
- <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
- <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Sender: "iommu" <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-To: linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-Cc: Sasha Levin <sashal-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-block-owner@vger.kernel.org>
+In-Reply-To: <20200418144047.9013-1-sashal@kernel.org>
+Sender: linux-block-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Halil Pasic <pasic@linux.ibm.com>, "Michael S . Tsirkin" <mst@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Sasha Levin <sashal@kernel.org>, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
+From: Halil Pasic <pasic@linux.ibm.com>
 
-[ Upstream commit 7062af3ed2ba451029e3733d9f677c68f5ea9e77 ]
+[ Upstream commit 3d973b2e9a625996ee997c7303cd793b9d197c65 ]
 
-Calling viommu_domain_free() on a domain that hasn't been finalised (not
-attached to any device, for example) can currently cause an Oops,
-because we attempt to call ida_free() on ID 0, which may either be
-unallocated or used by another domain.
+Let's change the mapping between virtqueue_add errors to BLK_STS
+statuses, so that -ENOSPC, which indicates virtqueue full is still
+mapped to BLK_STS_DEV_RESOURCE, but -ENOMEM which indicates non-device
+specific resource outage is mapped to BLK_STS_RESOURCE.
 
-Only initialise the vdomain->viommu pointer, which denotes a finalised
-domain, at the end of a successful viommu_domain_finalise().
-
-Fixes: edcd69ab9a32 ("iommu: Add virtio-iommu driver")
-Reported-by: Eric Auger <eric.auger-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Signed-off-by: Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Reviewed-by: Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>
-Link: https://lore.kernel.org/r/20200326093558.2641019-3-jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org
-Signed-off-by: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
-Signed-off-by: Sasha Levin <sashal-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Signed-off-by: Halil Pasic <pasic@linux.ibm.com>
+Link: https://lore.kernel.org/r/20200213123728.61216-3-pasic@linux.ibm.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/virtio-iommu.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ drivers/block/virtio_blk.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-index 3ea9d76829995..6c340a4f4fd28 100644
---- a/drivers/iommu/virtio-iommu.c
-+++ b/drivers/iommu/virtio-iommu.c
-@@ -614,18 +614,20 @@ static int viommu_domain_finalise(struct viommu_dev *viommu,
- 	int ret;
- 	struct viommu_domain *vdomain = to_viommu_domain(domain);
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index c2ed3e9128e3a..a55383b139df9 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -345,9 +345,14 @@ static blk_status_t virtio_queue_rq(struct blk_mq_hw_ctx *hctx,
+ 		if (err == -ENOSPC)
+ 			blk_mq_stop_hw_queue(hctx);
+ 		spin_unlock_irqrestore(&vblk->vqs[qid].lock, flags);
+-		if (err == -ENOMEM || err == -ENOSPC)
++		switch (err) {
++		case -ENOSPC:
+ 			return BLK_STS_DEV_RESOURCE;
+-		return BLK_STS_IOERR;
++		case -ENOMEM:
++			return BLK_STS_RESOURCE;
++		default:
++			return BLK_STS_IOERR;
++		}
+ 	}
  
--	vdomain->viommu		= viommu;
--	vdomain->map_flags	= viommu->map_flags;
-+	ret = ida_alloc_range(&viommu->domain_ids, viommu->first_domain,
-+			      viommu->last_domain, GFP_KERNEL);
-+	if (ret < 0)
-+		return ret;
-+
-+	vdomain->id		= (unsigned int)ret;
- 
- 	domain->pgsize_bitmap	= viommu->pgsize_bitmap;
- 	domain->geometry	= viommu->geometry;
- 
--	ret = ida_alloc_range(&viommu->domain_ids, viommu->first_domain,
--			      viommu->last_domain, GFP_KERNEL);
--	if (ret >= 0)
--		vdomain->id = (unsigned int)ret;
-+	vdomain->map_flags	= viommu->map_flags;
-+	vdomain->viommu		= viommu;
- 
--	return ret > 0 ? 0 : ret;
-+	return 0;
- }
- 
- static void viommu_domain_free(struct iommu_domain *domain)
+ 	if (bd->last && virtqueue_kick_prepare(vblk->vqs[qid].vq))
 -- 
 2.20.1
