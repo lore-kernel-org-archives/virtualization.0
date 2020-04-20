@@ -1,118 +1,181 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [GIT PULL v2] vhost: cleanups and fixes
-Date: Mon, 20 Apr 2020 16:00:01 -0400
-Message-ID: <20200420160001-mutt-send-email-mst@kernel.org>
+Subject: [PATCH v2] virtio: force spec specified alignment on types
+Date: Mon, 20 Apr 2020 16:09:04 -0400
+Message-ID: <20200420200550.254983-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, alexander.h.duyck@linux.intel.com, arnd@arndb.de, bjorn.andersson@linaro.org, eli@mellanox.com, eperezma@redhat.com, gustavo@embeddedor.com, hulkci@huawei.com, jasowang@redhat.com, mst@redhat.com, sfr@canb.auug.org.au, yanaijie@huawei.com, yuehaibing@huawei.com
+To: linux-kernel@vger.kernel.org
+Cc: Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The following changes since commit 8f3d9f354286745c751374f5f1fcafee6b3f3136:
+The ring element addresses are passed between components with different
+alignments assumptions. Thus, if guest/userspace selects a pointer and
+host then gets and dereferences it, we might need to decrease the
+compiler-selected alignment to prevent compiler on the host from
+assuming pointer is aligned.
 
-  Linux 5.7-rc1 (2020-04-12 12:35:55 -0700)
+This actually triggers on ARM with -mabi=apcs-gnu - which is a
+deprecated configuration, but it seems safer to handle this
+generally.
 
-are available in the Git repository at:
+Note that userspace that allocates the memory is actually OK and does
+not need to be fixed, but userspace that gets it from guest or another
+process does need to be fixed. The later doesn't generally talk to the
+kernel so while it might be buggy it's not talking to the kernel in the
+buggy way - it's just using the header in the buggy way - so fixing
+header and asking userspace to recompile is the best we can do.
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-
-for you to fetch changes up to d085eb8ce727e581abf8145244eaa3339021be2f:
-
-  vhost: disable for OABI (2020-04-20 10:19:22 -0400)
-
-Changes from v1:
-	Dropped a bunch of cleanups which turned out to be controversial
-
-This has been in next for a while, though I tweaked some commit
-logs so the hashes differ.
-
-----------------------------------------------------------------
-virtio: fixes, cleanups
-
-Some bug fixes.
-Cleanup a couple of issues that surfaced meanwhile.
-Disable vhost on ARM with OABI for now - to be fixed
-fully later in the cycle or in the next release.
+I verified that the produced kernel binary on x86 is exactly identical
+before and after the change.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
 
-----------------------------------------------------------------
-Alexander Duyck (1):
-      virtio-balloon: Avoid using the word 'report' when referring to free page hinting
+Changes from v1:
+	update vhost, vringh pointers to use the new typedefs
 
-Eugenio Pérez (1):
-      vhost: Create accessors for virtqueues private_data
+ drivers/vhost/vhost.c            |  8 +++----
+ drivers/vhost/vhost.h            |  6 ++---
+ drivers/vhost/vringh.c           |  6 ++---
+ include/linux/vringh.h           |  6 ++---
+ include/uapi/linux/virtio_ring.h | 38 +++++++++++++++++++++++---------
+ 5 files changed, 41 insertions(+), 23 deletions(-)
 
-Gustavo A. R. Silva (1):
-      vhost: vdpa: remove unnecessary null check
-
-Jason Wang (1):
-      vdpa: fix comment of vdpa_register_device()
-
-Jason Yan (2):
-      vhost: remove set but not used variable 'status'
-      virtio-balloon: make virtballoon_free_page_report() static
-
-Michael S. Tsirkin (15):
-      vdpa-sim: depend on HAS_DMA
-      virtio/test: fix up after IOTLB changes
-      tools/virtio: define aligned attribute
-      tools/virtio: make asm/barrier.h self contained
-      virtgpu: pull in uaccess.h
-      virtio-rng: pull in slab.h
-      remoteproc: pull in slab.h
-      virtio_input: pull in slab.h
-      rpmsg: pull in slab.h
-      remoteproc: pull in slab.h
-      vdpa: allow a 32 bit vq alignment
-      vdpa: make vhost, virtio depend on menu
-      virtio_blk: add a missing include
-      virtio: drop vringh.h dependency
-      vhost: disable for OABI
-
-Stephen Rothwell (1):
-      drm/virtio: fix up for include file changes
-
-YueHaibing (2):
-      vdpa: remove unused variables 'ifcvf' and 'ifcvf_lm'
-      vdpasim: Return status in vdpasim_get_status
-
- drivers/block/virtio_blk.c             |  1 +
- drivers/char/hw_random/virtio-rng.c    |  1 +
- drivers/gpu/drm/virtio/virtgpu_ioctl.c |  1 +
- drivers/gpu/drm/virtio/virtgpu_kms.c   |  1 +
- drivers/misc/mic/Kconfig               |  2 +-
- drivers/net/caif/Kconfig               |  2 +-
- drivers/remoteproc/remoteproc_sysfs.c  |  1 +
- drivers/remoteproc/stm32_rproc.c       |  1 +
- drivers/rpmsg/mtk_rpmsg.c              |  1 +
- drivers/vdpa/Kconfig                   | 18 ++++++------------
- drivers/vdpa/ifcvf/ifcvf_base.c        |  2 --
- drivers/vdpa/ifcvf/ifcvf_main.c        |  4 +---
- drivers/vdpa/vdpa.c                    |  2 +-
- drivers/vdpa/vdpa_sim/vdpa_sim.c       |  4 ++--
- drivers/vhost/Kconfig                  | 21 ++++++++++++++++-----
- drivers/vhost/net.c                    | 28 +++++++++++++++-------------
- drivers/vhost/scsi.c                   | 14 +++++++-------
- drivers/vhost/test.c                   | 14 +++++++-------
- drivers/vhost/vdpa.c                   |  5 -----
- drivers/vhost/vhost.h                  | 27 +++++++++++++++++++++++++++
- drivers/vhost/vringh.c                 |  5 +++++
- drivers/vhost/vsock.c                  | 14 +++++++-------
- drivers/virtio/Kconfig                 |  2 +-
- drivers/virtio/virtio_balloon.c        |  4 ++--
- drivers/virtio/virtio_input.c          |  1 +
- include/linux/vdpa.h                   |  2 +-
- include/linux/virtio.h                 |  1 -
- include/linux/vringh.h                 |  6 ++++++
- include/uapi/linux/virtio_balloon.h    | 11 +++++++++--
- tools/virtio/Makefile                  |  5 +++--
- tools/virtio/asm/barrier.h             |  1 +
- tools/virtio/generated/autoconf.h      |  0
- tools/virtio/linux/compiler.h          |  1 +
- 33 files changed, 128 insertions(+), 75 deletions(-)
- create mode 100644 tools/virtio/generated/autoconf.h
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index d450e16c5c25..21706759377e 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -1244,9 +1244,9 @@ static int vhost_iotlb_miss(struct vhost_virtqueue *vq, u64 iova, int access)
+ }
+ 
+ static bool vq_access_ok(struct vhost_virtqueue *vq, unsigned int num,
+-			 struct vring_desc __user *desc,
+-			 struct vring_avail __user *avail,
+-			 struct vring_used __user *used)
++			 vring_desc_t __user *desc,
++			 vring_avail_t __user *avail,
++			 vring_used_t __user *used)
+ 
+ {
+ 	return access_ok(desc, vhost_get_desc_size(vq, num)) &&
+@@ -2301,7 +2301,7 @@ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
+ 			    struct vring_used_elem *heads,
+ 			    unsigned count)
+ {
+-	struct vring_used_elem __user *used;
++	vring_used_t __user *used;
+ 	u16 old, new;
+ 	int start;
+ 
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index f8403bd46b85..60cab4c78229 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -67,9 +67,9 @@ struct vhost_virtqueue {
+ 	/* The actual ring of buffers. */
+ 	struct mutex mutex;
+ 	unsigned int num;
+-	struct vring_desc __user *desc;
+-	struct vring_avail __user *avail;
+-	struct vring_used __user *used;
++	vring_desc_t __user *desc;
++	vring_avail_t __user *avail;
++	vring_used_t __user *used;
+ 	const struct vhost_iotlb_map *meta_iotlb[VHOST_NUM_ADDRS];
+ 	struct file *kick;
+ 	struct eventfd_ctx *call_ctx;
+diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
+index ba8e0d6cfd97..e059a9a47cdf 100644
+--- a/drivers/vhost/vringh.c
++++ b/drivers/vhost/vringh.c
+@@ -620,9 +620,9 @@ static inline int xfer_to_user(const struct vringh *vrh,
+  */
+ int vringh_init_user(struct vringh *vrh, u64 features,
+ 		     unsigned int num, bool weak_barriers,
+-		     struct vring_desc __user *desc,
+-		     struct vring_avail __user *avail,
+-		     struct vring_used __user *used)
++		     vring_desc_t __user *desc,
++		     vring_avail_t __user *avail,
++		     vring_used_t __user *used)
+ {
+ 	/* Sane power of 2 please! */
+ 	if (!num || num > 0xffff || (num & (num - 1))) {
+diff --git a/include/linux/vringh.h b/include/linux/vringh.h
+index 9e2763d7c159..59bd50f99291 100644
+--- a/include/linux/vringh.h
++++ b/include/linux/vringh.h
+@@ -105,9 +105,9 @@ struct vringh_kiov {
+ /* Helpers for userspace vrings. */
+ int vringh_init_user(struct vringh *vrh, u64 features,
+ 		     unsigned int num, bool weak_barriers,
+-		     struct vring_desc __user *desc,
+-		     struct vring_avail __user *avail,
+-		     struct vring_used __user *used);
++		     vring_desc_t __user *desc,
++		     vring_avail_t __user *avail,
++		     vring_used_t __user *used);
+ 
+ static inline void vringh_iov_init(struct vringh_iov *iov,
+ 				   struct iovec *iovec, unsigned num)
+diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
+index 9223c3a5c46a..177227f0d9cd 100644
+--- a/include/uapi/linux/virtio_ring.h
++++ b/include/uapi/linux/virtio_ring.h
+@@ -118,16 +118,6 @@ struct vring_used {
+ 	struct vring_used_elem ring[];
+ };
+ 
+-struct vring {
+-	unsigned int num;
+-
+-	struct vring_desc *desc;
+-
+-	struct vring_avail *avail;
+-
+-	struct vring_used *used;
+-};
+-
+ /* Alignment requirements for vring elements.
+  * When using pre-virtio 1.0 layout, these fall out naturally.
+  */
+@@ -135,6 +125,34 @@ struct vring {
+ #define VRING_USED_ALIGN_SIZE 4
+ #define VRING_DESC_ALIGN_SIZE 16
+ 
++/*
++ * The ring element addresses are passed between components with different
++ * alignments assumptions. Thus, we might need to decrease the compiler-selected
++ * alignment, and so must use a typedef to make sure the __aligned attribute
++ * actually takes hold:
++ *
++ * https://gcc.gnu.org/onlinedocs//gcc/Common-Type-Attributes.html#Common-Type-Attributes
++ *
++ * When used on a struct, or struct member, the aligned attribute can only
++ * increase the alignment; in order to decrease it, the packed attribute must
++ * be specified as well. When used as part of a typedef, the aligned attribute
++ * can both increase and decrease alignment, and specifying the packed
++ * attribute generates a warning.
++ */
++typedef struct vring_desc __aligned(VRING_DESC_ALIGN_SIZE) vring_desc_t;
++typedef struct vring_avail __aligned(VRING_AVAIL_ALIGN_SIZE) vring_avail_t;
++typedef struct vring_used __aligned(VRING_USED_ALIGN_SIZE) vring_used_t;
++
++struct vring {
++	unsigned int num;
++
++	vring_desc_t *desc;
++
++	vring_avail_t *avail;
++
++	vring_used_t *used;
++};
++
+ #ifndef VIRTIO_RING_NO_LEGACY
+ 
+ /* The standard layout for the ring is a continuous chunk of memory which looks
+-- 
+MST
