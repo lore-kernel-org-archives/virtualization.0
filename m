@@ -1,12 +1,12 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v2] virtio: force spec specified alignment on types
-Date: Mon, 20 Apr 2020 16:09:04 -0400
-Message-ID: <20200420200550.254983-1-mst@redhat.com>
+Subject: [PATCH v3] virtio: force spec specified alignment on types
+Date: Mon, 20 Apr 2020 16:46:18 -0400
+Message-ID: <20200420204448.377168-1-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: netdev-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
 Cc: Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
@@ -34,18 +34,20 @@ before and after the change.
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
 
-Changes from v1:
-	update vhost, vringh pointers to use the new typedefs
+changes from v2:
+	add vring_used_elem_t to ensure alignment for substructures
+changes from v1:
+	swicth all __user to the new typedefs
 
- drivers/vhost/vhost.c            |  8 +++----
+ drivers/vhost/vhost.c            |  8 +++---
  drivers/vhost/vhost.h            |  6 ++---
  drivers/vhost/vringh.c           |  6 ++---
  include/linux/vringh.h           |  6 ++---
- include/uapi/linux/virtio_ring.h | 38 +++++++++++++++++++++++---------
- 5 files changed, 41 insertions(+), 23 deletions(-)
+ include/uapi/linux/virtio_ring.h | 43 ++++++++++++++++++++++++--------
+ 5 files changed, 45 insertions(+), 24 deletions(-)
 
 diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index d450e16c5c25..21706759377e 100644
+index d450e16c5c25..bc77b0f465fd 100644
 --- a/drivers/vhost/vhost.c
 +++ b/drivers/vhost/vhost.c
 @@ -1244,9 +1244,9 @@ static int vhost_iotlb_miss(struct vhost_virtqueue *vq, u64 iova, int access)
@@ -66,7 +68,7 @@ index d450e16c5c25..21706759377e 100644
  			    unsigned count)
  {
 -	struct vring_used_elem __user *used;
-+	vring_used_t __user *used;
++	vring_used_elem_t __user *used;
  	u16 old, new;
  	int start;
  
@@ -122,29 +124,36 @@ index 9e2763d7c159..59bd50f99291 100644
  static inline void vringh_iov_init(struct vringh_iov *iov,
  				   struct iovec *iovec, unsigned num)
 diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
-index 9223c3a5c46a..177227f0d9cd 100644
+index 9223c3a5c46a..b2c20f794472 100644
 --- a/include/uapi/linux/virtio_ring.h
 +++ b/include/uapi/linux/virtio_ring.h
-@@ -118,16 +118,6 @@ struct vring_used {
- 	struct vring_used_elem ring[];
+@@ -86,6 +86,13 @@
+  * at the end of the used ring. Guest should ignore the used->flags field. */
+ #define VIRTIO_RING_F_EVENT_IDX		29
+ 
++/* Alignment requirements for vring elements.
++ * When using pre-virtio 1.0 layout, these fall out naturally.
++ */
++#define VRING_AVAIL_ALIGN_SIZE 2
++#define VRING_USED_ALIGN_SIZE 4
++#define VRING_DESC_ALIGN_SIZE 16
++
+ /* Virtio ring descriptors: 16 bytes.  These can chain together via "next". */
+ struct vring_desc {
+ 	/* Address (guest-physical). */
+@@ -112,29 +119,43 @@ struct vring_used_elem {
+ 	__virtio32 len;
  };
  
--struct vring {
--	unsigned int num;
--
--	struct vring_desc *desc;
--
--	struct vring_avail *avail;
--
--	struct vring_used *used;
--};
--
- /* Alignment requirements for vring elements.
-  * When using pre-virtio 1.0 layout, these fall out naturally.
-  */
-@@ -135,6 +125,34 @@ struct vring {
- #define VRING_USED_ALIGN_SIZE 4
- #define VRING_DESC_ALIGN_SIZE 16
++typedef struct vring_used_elem __aligned(VRING_USED_ALIGN_SIZE)
++	vring_used_elem_t;
++
+ struct vring_used {
+ 	__virtio16 flags;
+ 	__virtio16 idx;
+-	struct vring_used_elem ring[];
++	vring_used_elem_t ring[];
+ };
  
 +/*
 + * The ring element addresses are passed between components with different
@@ -164,16 +173,26 @@ index 9223c3a5c46a..177227f0d9cd 100644
 +typedef struct vring_avail __aligned(VRING_AVAIL_ALIGN_SIZE) vring_avail_t;
 +typedef struct vring_used __aligned(VRING_USED_ALIGN_SIZE) vring_used_t;
 +
-+struct vring {
-+	unsigned int num;
-+
+ struct vring {
+ 	unsigned int num;
+ 
+-	struct vring_desc *desc;
 +	vring_desc_t *desc;
-+
+ 
+-	struct vring_avail *avail;
 +	vring_avail_t *avail;
-+
+ 
+-	struct vring_used *used;
 +	vring_used_t *used;
-+};
-+
+ };
+ 
+-/* Alignment requirements for vring elements.
+- * When using pre-virtio 1.0 layout, these fall out naturally.
+- */
+-#define VRING_AVAIL_ALIGN_SIZE 2
+-#define VRING_USED_ALIGN_SIZE 4
+-#define VRING_DESC_ALIGN_SIZE 16
+-
  #ifndef VIRTIO_RING_NO_LEGACY
  
  /* The standard layout for the ring is a continuous chunk of memory which looks
