@@ -1,123 +1,77 @@
-From: Alexander Duyck <alexander.duyck@gmail.com>
-Subject: Re: Re: [PATCH] virtio-balloon: Disable free page
- hinting/reporting if page poison is disabled
-Date: Tue, 21 Apr 2020 08:50:08 -0700
-Message-ID: <CAKgT0UcJEfEy7qS-4r9sQxP9ANZ_gG4VEJ__Zkusg_XDfjBuSg@mail.gmail.com>
-References: <20200416192809.8763.19308.stgit@localhost.localdomain>
- <20200416180845-mutt-send-email-mst@kernel.org> <CAKgT0UfWHHyCekU+dReNfhAa6u6FNbm7Ff5wmyN58d1VymmAMA@mail.gmail.com>
- <20200417021335-mutt-send-email-mst@kernel.org> <08d2c4e2-8c0f-7d3c-89f1-0e6c6a2756c8@redhat.com>
- <20200417044641-mutt-send-email-mst@kernel.org> <0f867029-aef4-72b9-356f-ec25c265db1b@redhat.com>
- <20200417051223-mutt-send-email-mst@kernel.org> <3447361c-4d07-1785-c59b-8c98ddaebd92@redhat.com>
- <20200417055217-mutt-send-email-mst@kernel.org> <1823d9be-d175-6cb5-0c7d-8a68d959a0d5@redhat.com>
- <CAKgT0UdV5+yknti+W4jDLmo9CH+BeS82pm9vDcy47nV8pkEwcw@mail.gmail.com>
- <93ccb738-4480-4c31-69c9-5fc349e2a278@redhat.com> <CAKgT0UddMDRvztirfikyhtHX7Jx+GJZoA5uEcGMhpY9Aw2N5dA@mail.gmail.com>
- <238a99b6-d127-c626-19fa-77824bd72d13@redhat.com> <CAKgT0Ucn-bKqaL0ML4fcm2W7-tGAkJJt2ExYXnBuP4yp2J-uZQ@mail.gmail.com>
- <cfcd4c7e-7737-21e3-dd31-d291f486d1b1@redhat.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH net] vsock/virtio: postpone packet delivery to monitoring
+ devices
+Date: Tue, 21 Apr 2020 18:17:24 +0200
+Message-ID: <20200421161724.c3pnecltfz4jajww@steredhat>
+References: <20200421092527.41651-1-sgarzare@redhat.com>
+ <20200421154246.GA47385@stefanha-x1.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <virtio-dev-return-7138-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <cfcd4c7e-7737-21e3-dd31-d291f486d1b1@redhat.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200421154246.GA47385@stefanha-x1.localdomain>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Stefan Hajnoczi <stefanha@gmail.com>
+Cc: davem@davemloft.net, Gerard Garcia <ggarcia@abra.uab.cat>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Jakub Kicinski <kuba@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 21, 2020 at 8:18 AM David Hildenbrand <david@redhat.com> wrote:
->
-> >>
-> >> That leaves us with either
-> >>
-> >> 1. "Pages hinted via VIRTIO_BALLOON_F_FREE_PAGE_HINT might get replaced
-> >> by zero page. However, as soon as the page is written by the guest (even
-> >> before the hinting request was processed by the host), the modified page
-> >> will stay - whereby the unwritten parts might either be from the old, or
-> >> from the zero page." - a QEMU BUG.
-> >
-> > How is this a bug? This is the behavior you would see with the current
-> > balloon driver. When you put a page into a balloon it has the option
-> > to either madvise it away, defer it, or just skip it because he
-> > balloon is disabled. Is the "zero page" a typo? If it was
-> > uninitialized data that would be a bug, but I don't see how a zero
-> > page or the old data would be a bug.
->
-> Sorry, I meant if this was the original design idea of hinting, then we
-> would have a QEMU BUG as of now, as we might get get uninitialized data.
-> Makes sense?
+On Tue, Apr 21, 2020 at 04:42:46PM +0100, Stefan Hajnoczi wrote:
+> On Tue, Apr 21, 2020 at 11:25:27AM +0200, Stefano Garzarella wrote:
+> > We delivering packets to monitoring devices, before to check if
+> > the virtqueue has enough space.
+> 
+> "We [are] delivering packets" and "before to check" -> "before
+> checking".  Perhaps it can be rewritten as:
+> 
+>   Packets are delivered to monitoring devices before checking if the
+>   virtqueue has enough space.
+> 
 
-Yes, that makes sense. So the bug is that we aren't doing this right now.
+Yeah, it is better :-)
 
-> >
-> >>>
-> >>>> The current QEMU implementation would be to simply migrate all hinted
-> >>>> pages. In the future we could optimize. Not sure if it's worth the trouble.
-> >>>
-> >>> So the trick for me is how best to go about sorting this all out.
-> >>> There are two ways I see of doing it.
-> >>>
-> >>> The first approach would be to just assume that hinting should be
-> >>> disassociated from poisoning. If I go that route that would more
-> >>> closely match up with what happened in QEMU. The downside is that it
-> >>> locks in the unmodified/uninitialized behavior and would require pages
-> >>> to be rewritten when they come out of the balloon. However this is the
-> >>> behavior we have now so it would only require specification
-> >>> documentation changes.
-> >>
-> >> Right now, for simplicity, I prefer this and define
-> >> VIRTIO_BALLOON_F_PAGE_POISON only for explicit deflation (balloon
-> >> deflation via the deflate queue) and implicit deflation
-> >> (VIRTIO_BALLOON_F_REPORTING).
-> >
-> > I don't recall us talking about the explicit deflation case before.
->
-> The interesting part is that drivers/virtio/virtio_balloon.c mentions:
->
-> "Let the hypervisor know that we are expecting a specific value to be
-> written back in balloon pages.".
->
-> But I just realized that you introduced this comment, not the original
-> VIRTIO_BALLOON_F_PAGE_POISON commit.
->
-> Should this have been "in reported pages when implicitly deflating them
-> by reusing them." or sth. like that?
+> > 
+> > If the virtqueue is full, the transmitting packet is queued up
+> > and it will be sent in the next iteration. This causes the same
+> > packet to be delivered multiple times to monitoring devices.
+> > 
+> > This patch fixes this issue, postponing the packet delivery
+> > to monitoring devices, only when it is properly queued in the
+> 
+> s/,//
+> 
+> > virqueue.
+> 
+> s/virqueue/virtqueue/
+> 
 
-Yeah, probably. I should have probably used "reported" instead of
-"balloon" in the comment.
+Thanks, I'll fix in the v2!
 
-> > What is the expectation there? I assume we are saying either
-> > poison_val or unmodified? If so I would think the inflate case makes
-> > much more sense as that is where the madvise is called that will
-> > discard the data. If so it would be pretty easy to just add a check
-> > for the poison value to the same spot we check
-> > qemu_balloon_is_inhibited.
->
-> Okay, we have basically no idea what was the intention of
-> VIRTIO_BALLOON_F_PAGE_POISON with basic deflation/inflation as well. So
-> I think we can define what suits us.
->
-> On the deflate path, we could always simply fill with poison_val. But
-> there are nasty corner cases (esp. no VIRTIO_BALLOON_F_MUST_TELL_HOST).
->
-> What would be your suggestion? Also don't care about
-> VIRTIO_BALLOON_F_PAGE_POISON on ordinary inflation/deflation? At this
-> point, I think this makes sense.
+> > @@ -137,6 +135,11 @@ virtio_transport_send_pkt_work(struct work_struct *work)
+> >  			break;
+> >  		}
+> >  
+> > +		/* Deliver to monitoring devices all correctly transmitted
+> > +		 * packets.
+> > +		 */
+> > +		virtio_transport_deliver_tap_pkt(pkt);
+> > +
+> 
+> The device may see the tx packet and therefore receive a reply to it
+> before we can call virtio_transport_deliver_tap_pkt().  Does this mean
+> that replies can now appear in the packet capture before the transmitted
+> packet?
 
-That is kind of what I was thinking. The problem is that once again
-the current implementation works when page poisoning is enabled. Us
-disabling that wouldn't make much sense.
+hmm, you are right!
 
-The whole thing with the reporting is that we are essentially just
-ballooning in place. What we may do at some point in the future would
-be to add an additional feature bit to do that for the standard
-balloon/hinting case. Then when that is set, and we know the contents
-won't match we can then just skip the madvise or hinting calls. That
-way it becomes an opt-in which is what the poison was supposed to be,
-but wasn't because the QEMU side was never implemented.
+And the same thing can already happen in vhost-vsock where we call
+virtio_transport_deliver_tap_pkt() after the vhost_add_used(), right?
 
-In the meantime I still have to make more changes to my QEMU patch
-set. The way the config_size logic is implemented is somewhat of a
-pain when you factor in the way the host_features and poison were
-handled.
+The vhost-vsock case can be fixed in a simple way, but here do you think
+we should serialize them? (e.g. mutex, spinlock)
+
+In this case I'm worried about performance.
+
+Or is there some virtqueue API to check availability?
+
+Thanks,
+Stefano
