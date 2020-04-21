@@ -1,49 +1,23 @@
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Subject: Re: [PATCH v1] drm/bochs: fix an issue of ioremap() leak
-Date: Tue, 21 Apr 2020 20:24:24 +0300
-Message-ID: <CAHp75Ve4JwkM+=WHHF73jwNwRS39E-xPDrcn77zCUTpVkj8buA@mail.gmail.com>
-References: <20200421164543.16605-1-zhengdejin5@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+From: pr-tracker-bot@kernel.org
+Subject: Re: [GIT PULL v2] vhost: cleanups and fixes
+Date: Tue, 21 Apr 2020 19:40:20 +0000
+Message-ID: <158749802063.25518.14503910452719540577.pr-tracker-bot@kernel.org>
+References: <20200420160001-mutt-send-email-mst@kernel.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200421164543.16605-1-zhengdejin5@gmail.com>
+In-Reply-To: <20200420160001-mutt-send-email-mst@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dejin Zheng <zhengdejin5@gmail.com>
-Cc: kraxel@redhat.com, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, virtualization@lists.linux-foundation.org, dri-devel <dri-devel@lists.freedesktop.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, alexander.h.duyck@linux.intel.com, arnd@arndb.de, bjorn.andersson@linaro.org, eli@mellanox.com, eperezma@redhat.com, gustavo@embeddedor.com, hulkci@huawei.com, jasowang@redhat.com, mst@redhat.com, sfr@canb.auug.org.au, yanaijie@huawei.com, yuehaibing@huawei.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 21, 2020 at 7:45 PM Dejin Zheng <zhengdejin5@gmail.com> wrote:
->
-> It forgot to call bochs_hw_fini() to release related resources when
-> bochs_pci_probe() fail. eg: io virtual address get by ioremap().
+The pull request you sent on Mon, 20 Apr 2020 16:00:01 -0400:
 
-Good start, although I think the best is to switch this driver to use
-pcim_*() functions and drop tons of legacy code.
+> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-> Fixes: 81da8c3b8d3df6 ("drm/bochs: add drm_driver.release callback.")
-> CC: Andy Shevchenko <andy.shevchenko@gmail.com>
-> Signed-off-by: Dejin Zheng <zhengdejin5@gmail.com>
-> ---
->  drivers/gpu/drm/bochs/bochs_drv.c | 1 +
->  1 file changed, 1 insertion(+)
->
-> diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
-> index addb0568c1af..210a60135c8a 100644
-> --- a/drivers/gpu/drm/bochs/bochs_drv.c
-> +++ b/drivers/gpu/drm/bochs/bochs_drv.c
-> @@ -138,6 +138,7 @@ static int bochs_pci_probe(struct pci_dev *pdev,
->         return ret;
->
->  err_unload:
-> +       bochs_hw_fini(dev);
->         bochs_unload(dev);
->  err_free_dev:
->         drm_dev_put(dev);
-> --
-> 2.25.0
->
+has been merged into torvalds/linux.git:
+https://git.kernel.org/torvalds/c/189522da8b3a796d56d802e067d591d2ffff7f40
 
+Thank you!
 
 -- 
-With Best Regards,
-Andy Shevchenko
+Deet-doot-dot, I am a bot.
+https://korg.wiki.kernel.org/userdoc/prtracker
