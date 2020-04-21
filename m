@@ -1,200 +1,172 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v3] virtio: force spec specified alignment on types
-Date: Mon, 20 Apr 2020 16:46:18 -0400
-Message-ID: <20200420204448.377168-1-mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH v4] vhost: disable for OABI
+Date: Tue, 21 Apr 2020 10:27:27 +0800
+Message-ID: <9ccae969-17ec-787c-e6ac-a88222bd1759@redhat.com>
+References: <20200420143229.245488-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: netdev-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200420143229.245488-1-mst@redhat.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Ard Biesheuvel <ardb@kernel.org>, Richard Earnshaw <Richard.Earnshaw@arm.com>, Sudeep Dutt <sudeep.dutt@intel.com>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Arnd Bergmann <arnd@arndb.de>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Christoph Hellwig <hch@infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The ring element addresses are passed between components with different
-alignments assumptions. Thus, if guest/userspace selects a pointer and
-host then gets and dereferences it, we might need to decrease the
-compiler-selected alignment to prevent compiler on the host from
-assuming pointer is aligned.
 
-This actually triggers on ARM with -mabi=apcs-gnu - which is a
-deprecated configuration, but it seems safer to handle this
-generally.
+On 2020/4/20 =E4=B8=8B=E5=8D=8810:34, Michael S. Tsirkin wrote:
+> vhost is currently broken on the some ARM configs.
+>
+> The reason is that the ring element addresses are passed between
+> components with different alignments assumptions. Thus, if
+> guest selects a pointer and host then gets and dereferences
+> it, then alignment assumed by the host's compiler might be
+> greater than the actual alignment of the pointer.
+> compiler on the host from assuming pointer is aligned.
+>
+> This actually triggers on ARM with -mabi=3Dapcs-gnu - which is a
+> deprecated configuration. With this OABI, compiler assumes that
+> all structures are 4 byte aligned - which is stronger than
+> virtio guarantees for available and used rings, which are
+> merely 2 bytes. Thus a guest without -mabi=3Dapcs-gnu running
+> on top of host with -mabi=3Dapcs-gnu will be broken.
+>
+> The correct fix is to force alignment of structures - however
+> that is an intrusive fix that's best deferred until the next release.
+>
+> We didn't previously support such ancient systems at all - this surface=
+d
+> after vdpa support prompted removing dependency of vhost on
+> VIRTULIZATION. So for now, let's just add something along the lines of
+>
+> 	depends on !ARM || AEABI
+>
+> to the virtio Kconfig declaration, and add a comment that it has to do
+> with struct member alignment.
+>
+> Note: we can't make VHOST and VHOST_RING themselves have
+> a dependency since these are selected. Add a new symbol for that.
+>
+> We should be able to drop this dependency down the road.
+>
+> Fixes: 20c384f1ea1a0bc7 ("vhost: refine vhost and vringh kconfig")
+> Suggested-by: Ard Biesheuvel <ardb@kernel.org>
+> Suggested-by: Richard Earnshaw <Richard.Earnshaw@arm.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>
+> changes from v3:
+> 	update commit log clarifying the motivation and that
+> 	it's a temporary fix.
+>
+> 	suggested by Christoph Hellwig
+>
+>   drivers/misc/mic/Kconfig |  2 +-
+>   drivers/net/caif/Kconfig |  2 +-
+>   drivers/vdpa/Kconfig     |  2 +-
+>   drivers/vhost/Kconfig    | 17 +++++++++++++----
+>   4 files changed, 16 insertions(+), 7 deletions(-)
+>
+> diff --git a/drivers/misc/mic/Kconfig b/drivers/misc/mic/Kconfig
+> index 8f201d019f5a..3bfe72c59864 100644
+> --- a/drivers/misc/mic/Kconfig
+> +++ b/drivers/misc/mic/Kconfig
+> @@ -116,7 +116,7 @@ config MIC_COSM
+>  =20
+>   config VOP
+>   	tristate "VOP Driver"
+> -	depends on VOP_BUS
+> +	depends on VOP_BUS && VHOST_DPN
+>   	select VHOST_RING
+>   	select VIRTIO
+>   	help
+> diff --git a/drivers/net/caif/Kconfig b/drivers/net/caif/Kconfig
+> index 9db0570c5beb..661c25eb1c46 100644
+> --- a/drivers/net/caif/Kconfig
+> +++ b/drivers/net/caif/Kconfig
+> @@ -50,7 +50,7 @@ config CAIF_HSI
+>  =20
+>   config CAIF_VIRTIO
+>   	tristate "CAIF virtio transport driver"
+> -	depends on CAIF && HAS_DMA
+> +	depends on CAIF && HAS_DMA && VHOST_DPN
+>   	select VHOST_RING
+>   	select VIRTIO
+>   	select GENERIC_ALLOCATOR
+> diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
+> index 3e1ceb8e9f2b..e8140065c8a5 100644
+> --- a/drivers/vdpa/Kconfig
+> +++ b/drivers/vdpa/Kconfig
+> @@ -10,7 +10,7 @@ if VDPA
+>  =20
+>   config VDPA_SIM
+>   	tristate "vDPA device simulator"
+> -	depends on RUNTIME_TESTING_MENU && HAS_DMA
+> +	depends on RUNTIME_TESTING_MENU && HAS_DMA && VHOST_DPN
+>   	select VHOST_RING
+>   	default n
+>   	help
+> diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
+> index 2c75d164b827..c4f273793595 100644
+> --- a/drivers/vhost/Kconfig
+> +++ b/drivers/vhost/Kconfig
+> @@ -13,6 +13,15 @@ config VHOST_RING
+>   	  This option is selected by any driver which needs to access
+>   	  the host side of a virtio ring.
+>  =20
+> +config VHOST_DPN
+> +	bool
+> +	depends on !ARM || AEABI
+> +	default y
+> +	help
+> +	  Anything selecting VHOST or VHOST_RING must depend on VHOST_DPN.
+> +	  This excludes the deprecated ARM ABI since that forces a 4 byte
+> +	  alignment on all structs - incompatible with virtio spec requiremen=
+ts.
+> +
+>   config VHOST
+>   	tristate
+>   	select VHOST_IOTLB
+> @@ -28,7 +37,7 @@ if VHOST_MENU
+>  =20
+>   config VHOST_NET
+>   	tristate "Host kernel accelerator for virtio net"
+> -	depends on NET && EVENTFD && (TUN || !TUN) && (TAP || !TAP)
+> +	depends on NET && EVENTFD && (TUN || !TUN) && (TAP || !TAP) && VHOST_=
+DPN
+>   	select VHOST
+>   	---help---
+>   	  This kernel module can be loaded in host kernel to accelerate
+> @@ -40,7 +49,7 @@ config VHOST_NET
+>  =20
+>   config VHOST_SCSI
+>   	tristate "VHOST_SCSI TCM fabric driver"
+> -	depends on TARGET_CORE && EVENTFD
+> +	depends on TARGET_CORE && EVENTFD && VHOST_DPN
+>   	select VHOST
+>   	default n
+>   	---help---
+> @@ -49,7 +58,7 @@ config VHOST_SCSI
+>  =20
+>   config VHOST_VSOCK
+>   	tristate "vhost virtio-vsock driver"
+> -	depends on VSOCKETS && EVENTFD
+> +	depends on VSOCKETS && EVENTFD && VHOST_DPN
+>   	select VHOST
+>   	select VIRTIO_VSOCKETS_COMMON
+>   	default n
+> @@ -63,7 +72,7 @@ config VHOST_VSOCK
+>  =20
+>   config VHOST_VDPA
+>   	tristate "Vhost driver for vDPA-based backend"
+> -	depends on EVENTFD
+> +	depends on EVENTFD && VHOST_DPN
+>   	select VHOST
+>   	depends on VDPA
+>   	help
 
-Note that userspace that allocates the memory is actually OK and does
-not need to be fixed, but userspace that gets it from guest or another
-process does need to be fixed. The later doesn't generally talk to the
-kernel so while it might be buggy it's not talking to the kernel in the
-buggy way - it's just using the header in the buggy way - so fixing
-header and asking userspace to recompile is the best we can do.
 
-I verified that the produced kernel binary on x86 is exactly identical
-before and after the change.
+Acked-by: Jason Wang <jasowang@redhat.com>
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
-
-changes from v2:
-	add vring_used_elem_t to ensure alignment for substructures
-changes from v1:
-	swicth all __user to the new typedefs
-
- drivers/vhost/vhost.c            |  8 +++---
- drivers/vhost/vhost.h            |  6 ++---
- drivers/vhost/vringh.c           |  6 ++---
- include/linux/vringh.h           |  6 ++---
- include/uapi/linux/virtio_ring.h | 43 ++++++++++++++++++++++++--------
- 5 files changed, 45 insertions(+), 24 deletions(-)
-
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index d450e16c5c25..bc77b0f465fd 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -1244,9 +1244,9 @@ static int vhost_iotlb_miss(struct vhost_virtqueue *vq, u64 iova, int access)
- }
- 
- static bool vq_access_ok(struct vhost_virtqueue *vq, unsigned int num,
--			 struct vring_desc __user *desc,
--			 struct vring_avail __user *avail,
--			 struct vring_used __user *used)
-+			 vring_desc_t __user *desc,
-+			 vring_avail_t __user *avail,
-+			 vring_used_t __user *used)
- 
- {
- 	return access_ok(desc, vhost_get_desc_size(vq, num)) &&
-@@ -2301,7 +2301,7 @@ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
- 			    struct vring_used_elem *heads,
- 			    unsigned count)
- {
--	struct vring_used_elem __user *used;
-+	vring_used_elem_t __user *used;
- 	u16 old, new;
- 	int start;
- 
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index f8403bd46b85..60cab4c78229 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -67,9 +67,9 @@ struct vhost_virtqueue {
- 	/* The actual ring of buffers. */
- 	struct mutex mutex;
- 	unsigned int num;
--	struct vring_desc __user *desc;
--	struct vring_avail __user *avail;
--	struct vring_used __user *used;
-+	vring_desc_t __user *desc;
-+	vring_avail_t __user *avail;
-+	vring_used_t __user *used;
- 	const struct vhost_iotlb_map *meta_iotlb[VHOST_NUM_ADDRS];
- 	struct file *kick;
- 	struct eventfd_ctx *call_ctx;
-diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-index ba8e0d6cfd97..e059a9a47cdf 100644
---- a/drivers/vhost/vringh.c
-+++ b/drivers/vhost/vringh.c
-@@ -620,9 +620,9 @@ static inline int xfer_to_user(const struct vringh *vrh,
-  */
- int vringh_init_user(struct vringh *vrh, u64 features,
- 		     unsigned int num, bool weak_barriers,
--		     struct vring_desc __user *desc,
--		     struct vring_avail __user *avail,
--		     struct vring_used __user *used)
-+		     vring_desc_t __user *desc,
-+		     vring_avail_t __user *avail,
-+		     vring_used_t __user *used)
- {
- 	/* Sane power of 2 please! */
- 	if (!num || num > 0xffff || (num & (num - 1))) {
-diff --git a/include/linux/vringh.h b/include/linux/vringh.h
-index 9e2763d7c159..59bd50f99291 100644
---- a/include/linux/vringh.h
-+++ b/include/linux/vringh.h
-@@ -105,9 +105,9 @@ struct vringh_kiov {
- /* Helpers for userspace vrings. */
- int vringh_init_user(struct vringh *vrh, u64 features,
- 		     unsigned int num, bool weak_barriers,
--		     struct vring_desc __user *desc,
--		     struct vring_avail __user *avail,
--		     struct vring_used __user *used);
-+		     vring_desc_t __user *desc,
-+		     vring_avail_t __user *avail,
-+		     vring_used_t __user *used);
- 
- static inline void vringh_iov_init(struct vringh_iov *iov,
- 				   struct iovec *iovec, unsigned num)
-diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
-index 9223c3a5c46a..b2c20f794472 100644
---- a/include/uapi/linux/virtio_ring.h
-+++ b/include/uapi/linux/virtio_ring.h
-@@ -86,6 +86,13 @@
-  * at the end of the used ring. Guest should ignore the used->flags field. */
- #define VIRTIO_RING_F_EVENT_IDX		29
- 
-+/* Alignment requirements for vring elements.
-+ * When using pre-virtio 1.0 layout, these fall out naturally.
-+ */
-+#define VRING_AVAIL_ALIGN_SIZE 2
-+#define VRING_USED_ALIGN_SIZE 4
-+#define VRING_DESC_ALIGN_SIZE 16
-+
- /* Virtio ring descriptors: 16 bytes.  These can chain together via "next". */
- struct vring_desc {
- 	/* Address (guest-physical). */
-@@ -112,29 +119,43 @@ struct vring_used_elem {
- 	__virtio32 len;
- };
- 
-+typedef struct vring_used_elem __aligned(VRING_USED_ALIGN_SIZE)
-+	vring_used_elem_t;
-+
- struct vring_used {
- 	__virtio16 flags;
- 	__virtio16 idx;
--	struct vring_used_elem ring[];
-+	vring_used_elem_t ring[];
- };
- 
-+/*
-+ * The ring element addresses are passed between components with different
-+ * alignments assumptions. Thus, we might need to decrease the compiler-selected
-+ * alignment, and so must use a typedef to make sure the __aligned attribute
-+ * actually takes hold:
-+ *
-+ * https://gcc.gnu.org/onlinedocs//gcc/Common-Type-Attributes.html#Common-Type-Attributes
-+ *
-+ * When used on a struct, or struct member, the aligned attribute can only
-+ * increase the alignment; in order to decrease it, the packed attribute must
-+ * be specified as well. When used as part of a typedef, the aligned attribute
-+ * can both increase and decrease alignment, and specifying the packed
-+ * attribute generates a warning.
-+ */
-+typedef struct vring_desc __aligned(VRING_DESC_ALIGN_SIZE) vring_desc_t;
-+typedef struct vring_avail __aligned(VRING_AVAIL_ALIGN_SIZE) vring_avail_t;
-+typedef struct vring_used __aligned(VRING_USED_ALIGN_SIZE) vring_used_t;
-+
- struct vring {
- 	unsigned int num;
- 
--	struct vring_desc *desc;
-+	vring_desc_t *desc;
- 
--	struct vring_avail *avail;
-+	vring_avail_t *avail;
- 
--	struct vring_used *used;
-+	vring_used_t *used;
- };
- 
--/* Alignment requirements for vring elements.
-- * When using pre-virtio 1.0 layout, these fall out naturally.
-- */
--#define VRING_AVAIL_ALIGN_SIZE 2
--#define VRING_USED_ALIGN_SIZE 4
--#define VRING_DESC_ALIGN_SIZE 16
--
- #ifndef VIRTIO_RING_NO_LEGACY
- 
- /* The standard layout for the ring is a continuous chunk of memory which looks
--- 
-MST
+Thanks
