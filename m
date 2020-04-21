@@ -1,52 +1,59 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH 1/1] drm/qxl: add mutex_lock/mutex_unlock to ensure the
- order in which resources are released.
-Date: Tue, 21 Apr 2020 10:43:00 +0200
-Message-ID: <20200421084300.zggroiptwbrblzqy@sirius.home.kraxel.org>
-References: <20200418063917.26278-1-caizhaopeng@uniontech.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: [PATCH net] vsock/virtio: postpone packet delivery to monitoring devices
+Date: Tue, 21 Apr 2020 11:25:27 +0200
+Message-ID: <20200421092527.41651-1-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200418063917.26278-1-caizhaopeng@uniontech.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Caicai <caizhaopeng@uniontech.com>
-Cc: Dave Airlie <airlied@redhat.com>, David Airlie <airlied@linux.ie>, virtualization@lists.linux-foundation.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, Zhangyueqian <zhangyueqian@uniontech.com>, Zhangshuang <zhangshuang@uniontech.com>, Zhangshiwen <zhangshiwen@uniontech.com>
+To: davem@davemloft.net
+Cc: virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, kvm@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, Gerard Garcia <ggarcia@abra.uab.cat>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, Apr 18, 2020 at 02:39:17PM +0800, Caicai wrote:
-> When a qxl resource is released, the list that needs to be released is
-> fetched from the linked list ring and cleared. When you empty the list,
-> instead of trying to determine whether the ttm buffer object for each
-> qxl in the list is locked, you release the qxl object and remove the
-> element from the list until the list is empty. It was found that the
-> linked list was cleared first, and that the lock on the corresponding
-> ttm Bo for the QXL had not been released, so that the new qxl could not
-> be locked when it used the TTM.
+We delivering packets to monitoring devices, before to check if
+the virtqueue has enough space.
 
-So the dma_resv_reserve_shared() call in qxl_release_validate_bo() is
-unbalanced?  Because the dma_resv_unlock() call in
-qxl_release_fence_buffer_objects() never happens due to
-qxl_release_free_list() clearing the list beforehand?  Is that correct?
+If the virtqueue is full, the transmitting packet is queued up
+and it will be sent in the next iteration. This causes the same
+packet to be delivered multiple times to monitoring devices.
 
-The only way I see for this to happen is that the guest is preempted
-between qxl_push_{cursor,command}_ring_release() and
-qxl_release_fence_buffer_objects() calls.  The host can complete the qxl
-command then, signal the guest, and the IRQ handler calls
-qxl_release_free_list() before qxl_release_fence_buffer_objects() runs.
+This patch fixes this issue, postponing the packet delivery
+to monitoring devices, only when it is properly queued in the
+virqueue.
 
-Looking through the code I think it should be safe to simply swap the
-qxl_release_fence_buffer_objects() +
-qxl_push_{cursor,command}_ring_release() calls to close that race
-window.  Can you try that and see if it fixes the bug for you?
+Fixes: 82dfb540aeb2 ("VSOCK: Add virtio vsock vsockmon hooks")
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+---
+ net/vmw_vsock/virtio_transport.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
->  		if (flush)
-> -			flush_work(&qdev->gc_work);
-> +			//can't flush work, it may lead to deadlock
-> +			usleep_range(500, 1000);
-> +
-
-The commit message doesn't explain this chunk.
-
-take care,
-  Gerd
+diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_tran=
+sport.c
+index dfbaf6bd8b1c..d8db837a96fe 100644
+--- a/net/vmw_vsock/virtio_transport.c
++++ b/net/vmw_vsock/virtio_transport.c
+@@ -115,8 +115,6 @@ virtio_transport_send_pkt_work(struct work_struct *wo=
+rk)
+ 		list_del_init(&pkt->list);
+ 		spin_unlock_bh(&vsock->send_pkt_list_lock);
+=20
+-		virtio_transport_deliver_tap_pkt(pkt);
+-
+ 		reply =3D pkt->reply;
+=20
+ 		sg_init_one(&hdr, &pkt->hdr, sizeof(pkt->hdr));
+@@ -137,6 +135,11 @@ virtio_transport_send_pkt_work(struct work_struct *w=
+ork)
+ 			break;
+ 		}
+=20
++		/* Deliver to monitoring devices all correctly transmitted
++		 * packets.
++		 */
++		virtio_transport_deliver_tap_pkt(pkt);
++
+ 		if (reply) {
+ 			struct virtqueue *rx_vq =3D vsock->vqs[VSOCK_VQ_RX];
+ 			int val;
+--=20
+2.25.3
