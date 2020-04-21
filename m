@@ -1,77 +1,36 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH net] vsock/virtio: postpone packet delivery to monitoring
- devices
-Date: Tue, 21 Apr 2020 18:17:24 +0200
-Message-ID: <20200421161724.c3pnecltfz4jajww@steredhat>
-References: <20200421092527.41651-1-sgarzare@redhat.com>
- <20200421154246.GA47385@stefanha-x1.localdomain>
+From: Dejin Zheng <zhengdejin5@gmail.com>
+Subject: [PATCH v1] drm/bochs: fix an issue of ioremap() leak
+Date: Wed, 22 Apr 2020 00:45:43 +0800
+Message-ID: <20200421164543.16605-1-zhengdejin5@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200421154246.GA47385@stefanha-x1.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Stefan Hajnoczi <stefanha@gmail.com>
-Cc: davem@davemloft.net, Gerard Garcia <ggarcia@abra.uab.cat>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Jakub Kicinski <kuba@kernel.org>
+To: kraxel@redhat.com, airlied@linux.ie, daniel@ffwll.ch, virtualization@lists.linux-foundation.org, dri-devel@lists.freedesktop.org
+Cc: linux-kernel@vger.kernel.org, Dejin Zheng <zhengdejin5@gmail.com>, Andy Shevchenko <andy.shevchenko@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 21, 2020 at 04:42:46PM +0100, Stefan Hajnoczi wrote:
-> On Tue, Apr 21, 2020 at 11:25:27AM +0200, Stefano Garzarella wrote:
-> > We delivering packets to monitoring devices, before to check if
-> > the virtqueue has enough space.
-> 
-> "We [are] delivering packets" and "before to check" -> "before
-> checking".  Perhaps it can be rewritten as:
-> 
->   Packets are delivered to monitoring devices before checking if the
->   virtqueue has enough space.
-> 
+It forgot to call bochs_hw_fini() to release related resources when
+bochs_pci_probe() fail. eg: io virtual address get by ioremap().
 
-Yeah, it is better :-)
+Fixes: 81da8c3b8d3df6 ("drm/bochs: add drm_driver.release callback.")
+CC: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Dejin Zheng <zhengdejin5@gmail.com>
+---
+ drivers/gpu/drm/bochs/bochs_drv.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-> > 
-> > If the virtqueue is full, the transmitting packet is queued up
-> > and it will be sent in the next iteration. This causes the same
-> > packet to be delivered multiple times to monitoring devices.
-> > 
-> > This patch fixes this issue, postponing the packet delivery
-> > to monitoring devices, only when it is properly queued in the
-> 
-> s/,//
-> 
-> > virqueue.
-> 
-> s/virqueue/virtqueue/
-> 
-
-Thanks, I'll fix in the v2!
-
-> > @@ -137,6 +135,11 @@ virtio_transport_send_pkt_work(struct work_struct *work)
-> >  			break;
-> >  		}
-> >  
-> > +		/* Deliver to monitoring devices all correctly transmitted
-> > +		 * packets.
-> > +		 */
-> > +		virtio_transport_deliver_tap_pkt(pkt);
-> > +
-> 
-> The device may see the tx packet and therefore receive a reply to it
-> before we can call virtio_transport_deliver_tap_pkt().  Does this mean
-> that replies can now appear in the packet capture before the transmitted
-> packet?
-
-hmm, you are right!
-
-And the same thing can already happen in vhost-vsock where we call
-virtio_transport_deliver_tap_pkt() after the vhost_add_used(), right?
-
-The vhost-vsock case can be fixed in a simple way, but here do you think
-we should serialize them? (e.g. mutex, spinlock)
-
-In this case I'm worried about performance.
-
-Or is there some virtqueue API to check availability?
-
-Thanks,
-Stefano
+diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
+index addb0568c1af..210a60135c8a 100644
+--- a/drivers/gpu/drm/bochs/bochs_drv.c
++++ b/drivers/gpu/drm/bochs/bochs_drv.c
+@@ -138,6 +138,7 @@ static int bochs_pci_probe(struct pci_dev *pdev,
+ 	return ret;
+ 
+ err_unload:
++	bochs_hw_fini(dev);
+ 	bochs_unload(dev);
+ err_free_dev:
+ 	drm_dev_put(dev);
+-- 
+2.25.0
