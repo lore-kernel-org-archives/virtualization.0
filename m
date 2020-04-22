@@ -1,211 +1,84 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v4] virtio: force spec specified alignment on types
-Date: Wed, 22 Apr 2020 10:58:53 -0400
-Message-ID: <20200422145510.442277-1-mst@redhat.com>
+From: Dejin Zheng <zhengdejin5@gmail.com>
+Subject: Re: [PATCH v1] drm/bochs: fix an issue of ioremap() leak
+Date: Wed, 22 Apr 2020 23:21:42 +0800
+Message-ID: <20200422152142.GA26943@nuc8i5>
+References: <20200421164543.16605-1-zhengdejin5@gmail.com>
+ <CAHp75Ve4JwkM+=WHHF73jwNwRS39E-xPDrcn77zCUTpVkj8buA@mail.gmail.com>
+ <20200422135215.GA25950@nuc8i5>
+ <CAHp75Vf2j-QraBxKofgyhtAxpHXnik3DP9kefPhA_d3BuSjfvw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+In-Reply-To: <CAHp75Vf2j-QraBxKofgyhtAxpHXnik3DP9kefPhA_d3BuSjfvw@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: kraxel@redhat.com, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, virtualization@lists.linux-foundation.org, dri-devel <dri-devel@lists.freedesktop.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The ring element addresses are passed between components with different
-alignments assumptions. Thus, if guest/userspace selects a pointer and
-host then gets and dereferences it, we might need to decrease the
-compiler-selected alignment to prevent compiler on the host from
-assuming pointer is aligned.
+On Wed, Apr 22, 2020 at 05:40:51PM +0300, Andy Shevchenko wrote:
+> On Wed, Apr 22, 2020 at 4:52 PM Dejin Zheng <zhengdejin5@gmail.com> wrote:
+> >
+> > On Tue, Apr 21, 2020 at 08:24:24PM +0300, Andy Shevchenko wrote:
+> > > On Tue, Apr 21, 2020 at 7:45 PM Dejin Zheng <zhengdejin5@gmail.com> wrote:
+> > > >
+> > > > It forgot to call bochs_hw_fini() to release related resources when
+> > > > bochs_pci_probe() fail. eg: io virtual address get by ioremap().
+> > >
+> > > Good start, although I think the best is to switch this driver to use
+> > > pcim_*() functions and drop tons of legacy code.
+> > >
+> > Andy, thanks for your encouragement, I think we might be able to fix this
+> > issue first, after that, drop tons of legacy code by pcim_*() functions.
+> > Do you think it is ok?
+> 
+> It's really up to maintainer. I'm not the one here.
+>
+Thanks Andy.
 
-This actually triggers on ARM with -mabi=apcs-gnu - which is a
-deprecated configuration, but it seems safer to handle this
-generally.
+Hi Gerd:
 
-Note that userspace that allocates the memory is actually OK and does
-not need to be fixed, but userspace that gets it from guest or another
-process does need to be fixed. The later doesn't generally talk to the
-kernel so while it might be buggy it's not talking to the kernel in the
-buggy way - it's just using the header in the buggy way - so fixing
-header and asking userspace to recompile is the best we can do.
+I am a newbie, andy gave me some directions to submit the patch, eg: check
+ioremap leak. At this time, I found that the bochs driver may have similar
+problems, so I submitted this patch, then, Andy said the best is to switch
+this driver to use pcim _ * () functions and drop tons of legacy code.
+I think we might be able to fix this issue first, after that, drop tons
+of legacy code by pcim_*() functions. Can you give me some suggestions?
+thank you very much!
 
-I verified that the produced kernel binary on x86 is exactly identical
-before and after the change.
+BR,
+Dejin
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
-
-changes since v3:
-	use __attribute__((aligned(X))) instead of __aligned,
-	to avoid dependency on that macro
-
- drivers/vhost/vhost.c            |  8 +++---
- drivers/vhost/vhost.h            |  6 ++---
- drivers/vhost/vringh.c           |  6 ++---
- include/linux/vringh.h           |  6 ++---
- include/uapi/linux/virtio_ring.h | 46 ++++++++++++++++++++++++--------
- 5 files changed, 48 insertions(+), 24 deletions(-)
-
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index d450e16c5c25..bc77b0f465fd 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -1244,9 +1244,9 @@ static int vhost_iotlb_miss(struct vhost_virtqueue *vq, u64 iova, int access)
- }
- 
- static bool vq_access_ok(struct vhost_virtqueue *vq, unsigned int num,
--			 struct vring_desc __user *desc,
--			 struct vring_avail __user *avail,
--			 struct vring_used __user *used)
-+			 vring_desc_t __user *desc,
-+			 vring_avail_t __user *avail,
-+			 vring_used_t __user *used)
- 
- {
- 	return access_ok(desc, vhost_get_desc_size(vq, num)) &&
-@@ -2301,7 +2301,7 @@ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
- 			    struct vring_used_elem *heads,
- 			    unsigned count)
- {
--	struct vring_used_elem __user *used;
-+	vring_used_elem_t __user *used;
- 	u16 old, new;
- 	int start;
- 
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index f8403bd46b85..60cab4c78229 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -67,9 +67,9 @@ struct vhost_virtqueue {
- 	/* The actual ring of buffers. */
- 	struct mutex mutex;
- 	unsigned int num;
--	struct vring_desc __user *desc;
--	struct vring_avail __user *avail;
--	struct vring_used __user *used;
-+	vring_desc_t __user *desc;
-+	vring_avail_t __user *avail;
-+	vring_used_t __user *used;
- 	const struct vhost_iotlb_map *meta_iotlb[VHOST_NUM_ADDRS];
- 	struct file *kick;
- 	struct eventfd_ctx *call_ctx;
-diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-index ba8e0d6cfd97..e059a9a47cdf 100644
---- a/drivers/vhost/vringh.c
-+++ b/drivers/vhost/vringh.c
-@@ -620,9 +620,9 @@ static inline int xfer_to_user(const struct vringh *vrh,
-  */
- int vringh_init_user(struct vringh *vrh, u64 features,
- 		     unsigned int num, bool weak_barriers,
--		     struct vring_desc __user *desc,
--		     struct vring_avail __user *avail,
--		     struct vring_used __user *used)
-+		     vring_desc_t __user *desc,
-+		     vring_avail_t __user *avail,
-+		     vring_used_t __user *used)
- {
- 	/* Sane power of 2 please! */
- 	if (!num || num > 0xffff || (num & (num - 1))) {
-diff --git a/include/linux/vringh.h b/include/linux/vringh.h
-index 9e2763d7c159..59bd50f99291 100644
---- a/include/linux/vringh.h
-+++ b/include/linux/vringh.h
-@@ -105,9 +105,9 @@ struct vringh_kiov {
- /* Helpers for userspace vrings. */
- int vringh_init_user(struct vringh *vrh, u64 features,
- 		     unsigned int num, bool weak_barriers,
--		     struct vring_desc __user *desc,
--		     struct vring_avail __user *avail,
--		     struct vring_used __user *used);
-+		     vring_desc_t __user *desc,
-+		     vring_avail_t __user *avail,
-+		     vring_used_t __user *used);
- 
- static inline void vringh_iov_init(struct vringh_iov *iov,
- 				   struct iovec *iovec, unsigned num)
-diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
-index 9223c3a5c46a..476d3e5c0fe7 100644
---- a/include/uapi/linux/virtio_ring.h
-+++ b/include/uapi/linux/virtio_ring.h
-@@ -86,6 +86,13 @@
-  * at the end of the used ring. Guest should ignore the used->flags field. */
- #define VIRTIO_RING_F_EVENT_IDX		29
- 
-+/* Alignment requirements for vring elements.
-+ * When using pre-virtio 1.0 layout, these fall out naturally.
-+ */
-+#define VRING_AVAIL_ALIGN_SIZE 2
-+#define VRING_USED_ALIGN_SIZE 4
-+#define VRING_DESC_ALIGN_SIZE 16
-+
- /* Virtio ring descriptors: 16 bytes.  These can chain together via "next". */
- struct vring_desc {
- 	/* Address (guest-physical). */
-@@ -112,29 +119,46 @@ struct vring_used_elem {
- 	__virtio32 len;
- };
- 
-+typedef struct vring_used_elem __attribute__((aligned(VRING_USED_ALIGN_SIZE)))
-+	vring_used_elem_t;
-+
- struct vring_used {
- 	__virtio16 flags;
- 	__virtio16 idx;
--	struct vring_used_elem ring[];
-+	vring_used_elem_t ring[];
- };
- 
-+/*
-+ * The ring element addresses are passed between components with different
-+ * alignments assumptions. Thus, we might need to decrease the compiler-selected
-+ * alignment, and so must use a typedef to make sure the aligned attribute
-+ * actually takes hold:
-+ *
-+ * https://gcc.gnu.org/onlinedocs//gcc/Common-Type-Attributes.html#Common-Type-Attributes
-+ *
-+ * When used on a struct, or struct member, the aligned attribute can only
-+ * increase the alignment; in order to decrease it, the packed attribute must
-+ * be specified as well. When used as part of a typedef, the aligned attribute
-+ * can both increase and decrease alignment, and specifying the packed
-+ * attribute generates a warning.
-+ */
-+typedef struct vring_desc __attribute__((aligned(VRING_DESC_ALIGN_SIZE)))
-+	vring_desc_t;
-+typedef struct vring_avail __attribute__((aligned(VRING_AVAIL_ALIGN_SIZE)))
-+	vring_avail_t;
-+typedef struct vring_used __attribute__((aligned(VRING_USED_ALIGN_SIZE)))
-+	vring_used_t;
-+
- struct vring {
- 	unsigned int num;
- 
--	struct vring_desc *desc;
-+	vring_desc_t *desc;
- 
--	struct vring_avail *avail;
-+	vring_avail_t *avail;
- 
--	struct vring_used *used;
-+	vring_used_t *used;
- };
- 
--/* Alignment requirements for vring elements.
-- * When using pre-virtio 1.0 layout, these fall out naturally.
-- */
--#define VRING_AVAIL_ALIGN_SIZE 2
--#define VRING_USED_ALIGN_SIZE 4
--#define VRING_DESC_ALIGN_SIZE 16
--
- #ifndef VIRTIO_RING_NO_LEGACY
- 
- /* The standard layout for the ring is a continuous chunk of memory which looks
--- 
-MST
+> > > > Fixes: 81da8c3b8d3df6 ("drm/bochs: add drm_driver.release callback.")
+> > > > CC: Andy Shevchenko <andy.shevchenko@gmail.com>
+> > > > Signed-off-by: Dejin Zheng <zhengdejin5@gmail.com>
+> > > > ---
+> > > >  drivers/gpu/drm/bochs/bochs_drv.c | 1 +
+> > > >  1 file changed, 1 insertion(+)
+> > > >
+> > > > diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
+> > > > index addb0568c1af..210a60135c8a 100644
+> > > > --- a/drivers/gpu/drm/bochs/bochs_drv.c
+> > > > +++ b/drivers/gpu/drm/bochs/bochs_drv.c
+> > > > @@ -138,6 +138,7 @@ static int bochs_pci_probe(struct pci_dev *pdev,
+> > > >         return ret;
+> > > >
+> > > >  err_unload:
+> > > > +       bochs_hw_fini(dev);
+> > > >         bochs_unload(dev);
+> > > >  err_free_dev:
+> > > >         drm_dev_put(dev);
+> > > > --
+> > > > 2.25.0
+> > > >
+> > >
+> > >
+> > > --
+> > > With Best Regards,
+> > > Andy Shevchenko
+> 
+> 
+> 
+> -- 
+> With Best Regards,
+> Andy Shevchenko
