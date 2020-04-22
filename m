@@ -1,108 +1,212 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH net] vsock/virtio: postpone packet delivery to monitoring
- devices
-Date: Wed, 22 Apr 2020 17:54:20 +0100
-Message-ID: <20200422165420.GL47385@stefanha-x1.localdomain>
-References: <20200421092527.41651-1-sgarzare@redhat.com>
- <20200421154246.GA47385@stefanha-x1.localdomain>
- <20200421161724.c3pnecltfz4jajww@steredhat>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="FnOKg9Ah4tDwTfQS"
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20200421161724.c3pnecltfz4jajww@steredhat>
-Content-Disposition: inline
-Sender: kvm-owner@vger.kernel.org
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: Stefan Hajnoczi <stefanha@gmail.com>, davem@davemloft.net, Gerard Garcia <ggarcia@abra.uab.cat>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Jakub Kicinski <kuba@kernel.org>
+From: Jon Derrick <jonathan.derrick@intel.com>
+Subject: [PATCH for QEMU] hw/vfio: Add VMD Passthrough Quirk
+Date: Wed, 22 Apr 2020 13:13:04 -0400
+Message-ID: <20200422171305.10923-1-jonathan.derrick@intel.com>
+Return-path: <linux-pci-owner@vger.kernel.org>
+Sender: linux-pci-owner@vger.kernel.org
+To: Bjorn Helgaas <helgaas@kernel.org>, qemu-devel@nongnu.org
+Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, linux-pci@vger.kernel.org, virtualization@lists.linux-foundation.org, Andrzej Jakowski <andrzej.jakowski@intel.com>, Jon Derrick <jonathan.derrick@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
---FnOKg9Ah4tDwTfQS
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The VMD endpoint provides a real PCIe domain to the guest, including
+bridges and endpoints. The IOMMU performs Host Physical Address to Guest
+Physical Address translation when assigning downstream endpoint BARs and
+when translating MMIO addresses.
 
-On Tue, Apr 21, 2020 at 06:17:24PM +0200, Stefano Garzarella wrote:
-> On Tue, Apr 21, 2020 at 04:42:46PM +0100, Stefan Hajnoczi wrote:
-> > On Tue, Apr 21, 2020 at 11:25:27AM +0200, Stefano Garzarella wrote:
-> > > We delivering packets to monitoring devices, before to check if
-> > > the virtqueue has enough space.
-> >=20
-> > "We [are] delivering packets" and "before to check" -> "before
-> > checking".  Perhaps it can be rewritten as:
-> >=20
-> >   Packets are delivered to monitoring devices before checking if the
-> >   virtqueue has enough space.
-> >=20
->=20
-> Yeah, it is better :-)
->=20
-> > >=20
-> > > If the virtqueue is full, the transmitting packet is queued up
-> > > and it will be sent in the next iteration. This causes the same
-> > > packet to be delivered multiple times to monitoring devices.
-> > >=20
-> > > This patch fixes this issue, postponing the packet delivery
-> > > to monitoring devices, only when it is properly queued in the
-> >=20
-> > s/,//
-> >=20
-> > > virqueue.
-> >=20
-> > s/virqueue/virtqueue/
-> >=20
->=20
-> Thanks, I'll fix in the v2!
->=20
-> > > @@ -137,6 +135,11 @@ virtio_transport_send_pkt_work(struct work_struc=
-t *work)
-> > >  =09=09=09break;
-> > >  =09=09}
-> > > =20
-> > > +=09=09/* Deliver to monitoring devices all correctly transmitted
-> > > +=09=09 * packets.
-> > > +=09=09 */
-> > > +=09=09virtio_transport_deliver_tap_pkt(pkt);
-> > > +
-> >=20
-> > The device may see the tx packet and therefore receive a reply to it
-> > before we can call virtio_transport_deliver_tap_pkt().  Does this mean
-> > that replies can now appear in the packet capture before the transmitte=
-d
-> > packet?
->=20
-> hmm, you are right!
->=20
-> And the same thing can already happen in vhost-vsock where we call
-> virtio_transport_deliver_tap_pkt() after the vhost_add_used(), right?
->=20
-> The vhost-vsock case can be fixed in a simple way, but here do you think
-> we should serialize them? (e.g. mutex, spinlock)
->=20
-> In this case I'm worried about performance.
->=20
-> Or is there some virtqueue API to check availability?
+This translation is not desired when assigning bridge windows. When MMIO
+goes to an endpoint after being translated to HPA, the bridge will
+reject the HPA transaction because the bridge window has been programmed
+with translated GPAs.
 
-Let's stick to the same semantics as Ethernet netdevs.  That way there
-are no surprises to anyone who is familiar with Linux packet captures.
-I don't know what those semantics are though, you'd need to check the
-code :).
+VMD device 28C0 natively supports passthrough by providing the Host
+Physical Address in shadow registers accessible to the guest for bridge
+window assignment. The shadow registers are valid if bit 1 is set in VMD
+VMLOCK config register 0x70.
 
-Stefan
+This quirk emulates the VMLOCK and HPA shadow registers for all VMD
+device ids which don't natively offer this feature. The Linux VMD driver
+is updated to match the QEMU subsystem id to enable this feature.
 
---FnOKg9Ah4tDwTfQS
-Content-Type: application/pgp-signature; name="signature.asc"
+Signed-off-by: Jon Derrick <jonathan.derrick@intel.com>
+---
+ hw/vfio/pci-quirks.c | 119 +++++++++++++++++++++++++++++++++++++++++++
+ hw/vfio/pci.c        |   7 +++
+ hw/vfio/pci.h        |   2 +
+ hw/vfio/trace-events |   4 ++
+ 4 files changed, 132 insertions(+)
 
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl6gdrwACgkQnKSrs4Gr
-c8ge/AgAr4BzzDJ/myfhWhgsvMu3TdicuwspJcKD1cHy36+ZKBVo2LAGNjaM14PE
-LfCBpZxLe0al85XyUlQfyhc2yWGnLhNBatu6d9IXH+PiwWgI6LAsE0Wt0GSFgo2Q
-8camx09TTHHx3zKvM5IyGHhJJNgQkOLjCGCRGGBclVjPZymt6KqH38T2YSvzcZlm
-SlGJwX3YlAxmaDxLnenVfdDW76tVkcpg8Ik91Fpa6RHsD+Y4zxF07/qGPIzOB4Ay
-fYQUeCAJV1Vf/au5LOy7KoH6LMdqlOKH8MzCkPXV41REHUYEOXNYWFy13HMkEj+1
-QBkWbRsN/zAS6nmFJWAAYwFz+lNDog==
-=uwp0
------END PGP SIGNATURE-----
-
---FnOKg9Ah4tDwTfQS--
+diff --git a/hw/vfio/pci-quirks.c b/hw/vfio/pci-quirks.c
+index 2d348f8237..2fd27cc8f6 100644
+--- a/hw/vfio/pci-quirks.c
++++ b/hw/vfio/pci-quirks.c
+@@ -1709,3 +1709,122 @@ free_exit:
+ 
+     return ret;
+ }
++
++/*
++ * The VMD endpoint provides a real PCIe domain to the guest. The IOMMU
++ * performs Host Physical Address to Guest Physical Address translation when
++ * assigning downstream endpoint BARs and when translating MMIO addresses.
++ * However this translation is not desired when assigning bridge windows. When
++ * MMIO goes to an endpoint after being translated to HPA, the bridge rejects
++ * the transaction because the window has been programmed with translated GPAs.
++ *
++ * VMD uses the Host Physical Address in order to correctly program the bridge
++ * windows in its PCIe domain. VMD device 28C0 has HPA shadow registers located
++ * at offset 0x2000 in MEMBAR2 (BAR 4). The shadow registers are valid if bit 1
++ * is set in the VMD VMLOCK config register 0x70.
++ *
++ * This quirk emulates the VMLOCK and HPA shadow registers for all VMD device
++ * ids which don't natively offer this feature. The subsystem vendor/device
++ * id is set to the QEMU subsystem vendor/device id, where the driver matches
++ * the id to enable this feature.
++ */
++typedef struct VFIOVMDQuirk {
++    VFIOPCIDevice *vdev;
++    uint64_t membar_phys[2];
++} VFIOVMDQuirk;
++
++static uint64_t vfio_vmd_quirk_read(void *opaque, hwaddr addr, unsigned size)
++{
++    VFIOVMDQuirk *data = opaque;
++    uint64_t val = 0;
++
++    memcpy(&val, (void *)data->membar_phys + addr, size);
++    return val;
++}
++
++static const MemoryRegionOps vfio_vmd_quirk = {
++    .read = vfio_vmd_quirk_read,
++    .endianness = DEVICE_LITTLE_ENDIAN,
++};
++
++#define VMD_VMLOCK  0x70
++#define VMD_SHADOW  0x2000
++#define VMD_MEMBAR2 4
++
++static int vfio_vmd_emulate_shadow_registers(VFIOPCIDevice *vdev)
++{
++    VFIOQuirk *quirk;
++    VFIOVMDQuirk *data;
++    PCIDevice *pdev = &vdev->pdev;
++    int ret;
++
++    data = g_malloc0(sizeof(*data));
++    ret = pread(vdev->vbasedev.fd, data->membar_phys, 16,
++                vdev->config_offset + PCI_BASE_ADDRESS_2);
++    if (ret != 16) {
++        error_report("VMD %s cannot read MEMBARs (%d)",
++                     vdev->vbasedev.name, ret);
++        g_free(data);
++        return -EFAULT;
++    }
++
++    quirk = vfio_quirk_alloc(1);
++    quirk->data = data;
++    data->vdev = vdev;
++
++    /* Emulate Shadow Registers */
++    memory_region_init_io(quirk->mem, OBJECT(vdev), &vfio_vmd_quirk, data,
++                          "vfio-vmd-quirk", sizeof(data->membar_phys));
++    memory_region_add_subregion_overlap(vdev->bars[VMD_MEMBAR2].region.mem,
++                                        VMD_SHADOW, quirk->mem, 1);
++    memory_region_set_readonly(quirk->mem, true);
++    memory_region_set_enabled(quirk->mem, true);
++
++    QLIST_INSERT_HEAD(&vdev->bars[VMD_MEMBAR2].quirks, quirk, next);
++
++    trace_vfio_pci_vmd_quirk_shadow_regs(vdev->vbasedev.name,
++                                         data->membar_phys[0],
++                                         data->membar_phys[1]);
++
++    /* Advertise Shadow Register support */
++    pci_byte_test_and_set_mask(pdev->config + VMD_VMLOCK, 0x2);
++    pci_set_byte(pdev->wmask + VMD_VMLOCK, 0);
++    pci_set_byte(vdev->emulated_config_bits + VMD_VMLOCK, 0x2);
++
++    trace_vfio_pci_vmd_quirk_vmlock(vdev->vbasedev.name,
++                                    pci_get_byte(pdev->config + VMD_VMLOCK));
++
++    /* Drivers can match the subsystem vendor/device id */
++    pci_set_word(pdev->config + PCI_SUBSYSTEM_VENDOR_ID,
++                 PCI_SUBVENDOR_ID_REDHAT_QUMRANET);
++    pci_set_word(vdev->emulated_config_bits + PCI_SUBSYSTEM_VENDOR_ID, ~0);
++
++    pci_set_word(pdev->config + PCI_SUBSYSTEM_ID, PCI_SUBDEVICE_ID_QEMU);
++    pci_set_word(vdev->emulated_config_bits + PCI_SUBSYSTEM_ID, ~0);
++
++    trace_vfio_pci_vmd_quirk_subsystem(vdev->vbasedev.name,
++                           vdev->sub_vendor_id, vdev->sub_device_id,
++                           pci_get_word(pdev->config + PCI_SUBSYSTEM_VENDOR_ID),
++                           pci_get_word(pdev->config + PCI_SUBSYSTEM_ID));
++
++    return 0;
++}
++
++int vfio_pci_vmd_init(VFIOPCIDevice *vdev)
++{
++    int ret = 0;
++
++    switch (vdev->device_id) {
++    case 0x28C0: /* Native passthrough support */
++        break;
++    /* Emulates Native passthrough support */
++    case 0x201D:
++    case 0x467F:
++    case 0x4C3D:
++    case 0x9A0B:
++        ret = vfio_vmd_emulate_shadow_registers(vdev);
++        break;
++    }
++
++    return ret;
++}
+diff --git a/hw/vfio/pci.c b/hw/vfio/pci.c
+index 5e75a95129..85425a1a6f 100644
+--- a/hw/vfio/pci.c
++++ b/hw/vfio/pci.c
+@@ -3024,6 +3024,13 @@ static void vfio_realize(PCIDevice *pdev, Error **errp)
+         }
+     }
+ 
++    if (vdev->vendor_id == PCI_VENDOR_ID_INTEL) {
++        ret = vfio_pci_vmd_init(vdev);
++        if (ret) {
++            error_report("Failed to setup VMD");
++        }
++    }
++
+     vfio_register_err_notifier(vdev);
+     vfio_register_req_notifier(vdev);
+     vfio_setup_resetfn_quirk(vdev);
+diff --git a/hw/vfio/pci.h b/hw/vfio/pci.h
+index 0da7a20a7e..e8632d806b 100644
+--- a/hw/vfio/pci.h
++++ b/hw/vfio/pci.h
+@@ -217,6 +217,8 @@ int vfio_pci_igd_opregion_init(VFIOPCIDevice *vdev,
+ int vfio_pci_nvidia_v100_ram_init(VFIOPCIDevice *vdev, Error **errp);
+ int vfio_pci_nvlink2_init(VFIOPCIDevice *vdev, Error **errp);
+ 
++int vfio_pci_vmd_init(VFIOPCIDevice *vdev);
++
+ void vfio_display_reset(VFIOPCIDevice *vdev);
+ int vfio_display_probe(VFIOPCIDevice *vdev, Error **errp);
+ void vfio_display_finalize(VFIOPCIDevice *vdev);
+diff --git a/hw/vfio/trace-events b/hw/vfio/trace-events
+index b1ef55a33f..aabbd2693a 100644
+--- a/hw/vfio/trace-events
++++ b/hw/vfio/trace-events
+@@ -90,6 +90,10 @@ vfio_pci_nvidia_gpu_setup_quirk(const char *name, uint64_t tgt, uint64_t size) "
+ vfio_pci_nvlink2_setup_quirk_ssatgt(const char *name, uint64_t tgt, uint64_t size) "%s tgt=0x%"PRIx64" size=0x%"PRIx64
+ vfio_pci_nvlink2_setup_quirk_lnkspd(const char *name, uint32_t link_speed) "%s link_speed=0x%x"
+ 
++vfio_pci_vmd_quirk_shadow_regs(const char *name, uint64_t mb1, uint64_t mb2) "%s membar1_phys=0x%"PRIx64" membar2_phys=0x%"PRIx64"
++vfio_pci_vmd_quirk_vmlock(const char *name, uint8_t vmlock) "%s vmlock=0x%x"
++vfio_pci_vmd_quirk_subsystem(const char *name, uint16_t old_svid, uint16_t old_sdid, uint16_t new_svid, uint16_t new_sdid) "%s subsystem id 0x%04x:0x%04x -> 0x%04x:0x%04x"
++
+ # common.c
+ vfio_region_write(const char *name, int index, uint64_t addr, uint64_t data, unsigned size) " (%s:region%d+0x%"PRIx64", 0x%"PRIx64 ", %d)"
+ vfio_region_read(char *name, int index, uint64_t addr, unsigned size, uint64_t data) " (%s:region%d+0x%"PRIx64", %d) = 0x%"PRIx64
+-- 
+2.18.1
