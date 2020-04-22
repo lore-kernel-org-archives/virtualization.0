@@ -1,84 +1,90 @@
-From: Dejin Zheng <zhengdejin5@gmail.com>
-Subject: Re: [PATCH v1] drm/bochs: fix an issue of ioremap() leak
-Date: Wed, 22 Apr 2020 23:21:42 +0800
-Message-ID: <20200422152142.GA26943@nuc8i5>
-References: <20200421164543.16605-1-zhengdejin5@gmail.com>
- <CAHp75Ve4JwkM+=WHHF73jwNwRS39E-xPDrcn77zCUTpVkj8buA@mail.gmail.com>
- <20200422135215.GA25950@nuc8i5>
- <CAHp75Vf2j-QraBxKofgyhtAxpHXnik3DP9kefPhA_d3BuSjfvw@mail.gmail.com>
+From: Alexander Duyck <alexander.duyck@gmail.com>
+Subject: Re: Re: [PATCH] virtio-balloon: Disable free page
+ hinting/reporting if page poison is disabled
+Date: Wed, 22 Apr 2020 08:49:57 -0700
+Message-ID: <CAKgT0UdGOd_A0+Zp7Dwjp9ZaBDsdyHF_te=VfSHOR4KsWXZ-ng@mail.gmail.com>
+References: <20200416192809.8763.19308.stgit@localhost.localdomain>
+ <CAKgT0UfWHHyCekU+dReNfhAa6u6FNbm7Ff5wmyN58d1VymmAMA@mail.gmail.com>
+ <20200417021335-mutt-send-email-mst@kernel.org> <08d2c4e2-8c0f-7d3c-89f1-0e6c6a2756c8@redhat.com>
+ <20200417044641-mutt-send-email-mst@kernel.org> <0f867029-aef4-72b9-356f-ec25c265db1b@redhat.com>
+ <20200417051223-mutt-send-email-mst@kernel.org> <3447361c-4d07-1785-c59b-8c98ddaebd92@redhat.com>
+ <20200417055217-mutt-send-email-mst@kernel.org> <1823d9be-d175-6cb5-0c7d-8a68d959a0d5@redhat.com>
+ <CAKgT0UdV5+yknti+W4jDLmo9CH+BeS82pm9vDcy47nV8pkEwcw@mail.gmail.com>
+ <93ccb738-4480-4c31-69c9-5fc349e2a278@redhat.com> <CAKgT0UddMDRvztirfikyhtHX7Jx+GJZoA5uEcGMhpY9Aw2N5dA@mail.gmail.com>
+ <238a99b6-d127-c626-19fa-77824bd72d13@redhat.com> <CAKgT0Ucn-bKqaL0ML4fcm2W7-tGAkJJt2ExYXnBuP4yp2J-uZQ@mail.gmail.com>
+ <cfcd4c7e-7737-21e3-dd31-d291f486d1b1@redhat.com> <CAKgT0UcJEfEy7qS-4r9sQxP9ANZ_gG4VEJ__Zkusg_XDfjBuSg@mail.gmail.com>
+ <a6c69e10-5acf-f72b-c0fb-d57c39c82b23@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAHp75Vf2j-QraBxKofgyhtAxpHXnik3DP9kefPhA_d3BuSjfvw@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: kraxel@redhat.com, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, virtualization@lists.linux-foundation.org, dri-devel <dri-devel@lists.freedesktop.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <virtio-dev-return-7140-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+In-Reply-To: <a6c69e10-5acf-f72b-c0fb-d57c39c82b23@redhat.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 22, 2020 at 05:40:51PM +0300, Andy Shevchenko wrote:
-> On Wed, Apr 22, 2020 at 4:52 PM Dejin Zheng <zhengdejin5@gmail.com> wrote:
-> >
-> > On Tue, Apr 21, 2020 at 08:24:24PM +0300, Andy Shevchenko wrote:
-> > > On Tue, Apr 21, 2020 at 7:45 PM Dejin Zheng <zhengdejin5@gmail.com> wrote:
-> > > >
-> > > > It forgot to call bochs_hw_fini() to release related resources when
-> > > > bochs_pci_probe() fail. eg: io virtual address get by ioremap().
-> > >
-> > > Good start, although I think the best is to switch this driver to use
-> > > pcim_*() functions and drop tons of legacy code.
-> > >
-> > Andy, thanks for your encouragement, I think we might be able to fix this
-> > issue first, after that, drop tons of legacy code by pcim_*() functions.
-> > Do you think it is ok?
-> 
-> It's really up to maintainer. I'm not the one here.
+On Wed, Apr 22, 2020 at 3:24 AM David Hildenbrand <david@redhat.com> wrote:
 >
-Thanks Andy.
+> >>> What is the expectation there? I assume we are saying either
+> >>> poison_val or unmodified? If so I would think the inflate case makes
+> >>> much more sense as that is where the madvise is called that will
+> >>> discard the data. If so it would be pretty easy to just add a check
+> >>> for the poison value to the same spot we check
+> >>> qemu_balloon_is_inhibited.
+> >>
+> >> Okay, we have basically no idea what was the intention of
+> >> VIRTIO_BALLOON_F_PAGE_POISON with basic deflation/inflation as well. So
+> >> I think we can define what suits us.
+> >>
+> >> On the deflate path, we could always simply fill with poison_val. But
+> >> there are nasty corner cases (esp. no VIRTIO_BALLOON_F_MUST_TELL_HOST).
+> >>
+> >> What would be your suggestion? Also don't care about
+> >> VIRTIO_BALLOON_F_PAGE_POISON on ordinary inflation/deflation? At this
+> >> point, I think this makes sense.
+> >
+> > That is kind of what I was thinking. The problem is that once again
+> > the current implementation works when page poisoning is enabled. Us
+> > disabling that wouldn't make much sense.
+> >
+> > The whole thing with the reporting is that we are essentially just
+> > ballooning in place. What we may do at some point in the future would
+> > be to add an additional feature bit to do that for the standard
+> > balloon/hinting case. Then when that is set, and we know the contents
+> > won't match we can then just skip the madvise or hinting calls. That
+> > way it becomes an opt-in which is what the poison was supposed to be,
+> > but wasn't because the QEMU side was never implemented.
+>
+> Yeah, introducing this later makes sense.
+>
+> So VIRTIO_BALLOON_F_PAGE_POISON really means:
+> - poison_val in the config is unlocked
+> - when active, the guest is using page poisoning/init on free with
+>   poison_val ("for you information")
+> - it only changes the semantic of free page reporting, nothing else.
+>   (when reusing reported pages in the guest, they will either have the
+>   old content, or will be filled with poison_val.)
+>
+> Makes sense? That should be easy to document.
 
-Hi Gerd:
+Yep, makes sense. In theory the old content or being filled with
+poison_val should be the same thing.
 
-I am a newbie, andy gave me some directions to submit the patch, eg: check
-ioremap leak. At this time, I found that the bochs driver may have similar
-problems, so I submitted this patch, then, Andy said the best is to switch
-this driver to use pcim _ * () functions and drop tons of legacy code.
-I think we might be able to fix this issue first, after that, drop tons
-of legacy code by pcim_*() functions. Can you give me some suggestions?
-thank you very much!
+> >
+> > In the meantime I still have to make more changes to my QEMU patch
+> > set. The way the config_size logic is implemented is somewhat of a
+> > pain when you factor in the way the host_features and poison were
+> > handled.
+>
+> Okay, I'll wait for updated QEMU patches.
 
-BR,
-Dejin
-
-> > > > Fixes: 81da8c3b8d3df6 ("drm/bochs: add drm_driver.release callback.")
-> > > > CC: Andy Shevchenko <andy.shevchenko@gmail.com>
-> > > > Signed-off-by: Dejin Zheng <zhengdejin5@gmail.com>
-> > > > ---
-> > > >  drivers/gpu/drm/bochs/bochs_drv.c | 1 +
-> > > >  1 file changed, 1 insertion(+)
-> > > >
-> > > > diff --git a/drivers/gpu/drm/bochs/bochs_drv.c b/drivers/gpu/drm/bochs/bochs_drv.c
-> > > > index addb0568c1af..210a60135c8a 100644
-> > > > --- a/drivers/gpu/drm/bochs/bochs_drv.c
-> > > > +++ b/drivers/gpu/drm/bochs/bochs_drv.c
-> > > > @@ -138,6 +138,7 @@ static int bochs_pci_probe(struct pci_dev *pdev,
-> > > >         return ret;
-> > > >
-> > > >  err_unload:
-> > > > +       bochs_hw_fini(dev);
-> > > >         bochs_unload(dev);
-> > > >  err_free_dev:
-> > > >         drm_dev_put(dev);
-> > > > --
-> > > > 2.25.0
-> > > >
-> > >
-> > >
-> > > --
-> > > With Best Regards,
-> > > Andy Shevchenko
-> 
-> 
-> 
-> -- 
-> With Best Regards,
-> Andy Shevchenko
+I got to the root cause of the issues I was seeing. The config size
+being dependent on the page poison feature was somewhat problematic as
+it affects where I can place the setting of the bit since I have to
+have it done before we call virtio_init. I should be submitting the
+patches this afternoon. I am just going through and making sure I have
+my bases covered and testing for any corner cases.
