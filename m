@@ -1,219 +1,76 @@
-From: Andrzej Jakowski <andrzej.jakowski@intel.com>
+From: no-reply@patchew.org
 Subject: Re: [PATCH for QEMU] hw/vfio: Add VMD Passthrough Quirk
-Date: Wed, 22 Apr 2020 14:08:26 -0700
-Message-ID: <513cfa85-2b93-68b9-4422-aafbcba92e23@intel.com>
+Date: Wed, 22 Apr 2020 14:36:09 -0700 (PDT)
+Message-ID: <158759136841.3922.4821101148440128786@39012742ff91>
 References: <20200422171305.10923-1-jonathan.derrick@intel.com>
+Reply-To: qemu-devel@nongnu.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-pci-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane-mx.org@nongnu.org>
+Resent-Message-Id: <E1jRN2e-0005nL-Qf@eggs.gnu.org>
 In-Reply-To: <20200422171305.10923-1-jonathan.derrick@intel.com>
-Content-Language: en-US
-Sender: linux-pci-owner@vger.kernel.org
-To: Jon Derrick <jonathan.derrick@intel.com>, Bjorn Helgaas <helgaas@kernel.org>, qemu-devel@nongnu.org
-Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, linux-pci@vger.kernel.org, virtualization@lists.linux-foundation.org
+List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
+ <mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
+List-Archive: <https://lists.nongnu.org/archive/html/qemu-devel>
+List-Post: <mailto:qemu-devel@nongnu.org>
+List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
+List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
+ <mailto:qemu-devel-request@nongnu.org?subject=subscribe>
+Errors-To: qemu-devel-bounces+gceq-qemu-devel2=m.gmane-mx.org@nongnu.org
+Sender: "Qemu-devel"
+ <qemu-devel-bounces+gceq-qemu-devel2=m.gmane-mx.org@nongnu.org>
+Cc: lorenzo.pieralisi@arm.com, linux-pci@vger.kernel.org, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org, helgaas@kernel.org, andrzej.jakowski@intel.com, jonathan.derrick@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 4/22/20 10:13 AM, Jon Derrick wrote:
-> The VMD endpoint provides a real PCIe domain to the guest, including
-> bridges and endpoints. The IOMMU performs Host Physical Address to Guest
-> Physical Address translation when assigning downstream endpoint BARs and
-> when translating MMIO addresses.
->
-> This translation is not desired when assigning bridge windows. When MMIO
-> goes to an endpoint after being translated to HPA, the bridge will
-> reject the HPA transaction because the bridge window has been programmed
-> with translated GPAs.
->
-> VMD device 28C0 natively supports passthrough by providing the Host
-> Physical Address in shadow registers accessible to the guest for bridge
-> window assignment. The shadow registers are valid if bit 1 is set in VMD
-> VMLOCK config register 0x70.
->
-> This quirk emulates the VMLOCK and HPA shadow registers for all VMD
-> device ids which don't natively offer this feature. The Linux VMD driver
-> is updated to match the QEMU subsystem id to enable this feature.
->
-> Signed-off-by: Jon Derrick <jonathan.derrick@intel.com>
-> ---
->  hw/vfio/pci-quirks.c | 119 +++++++++++++++++++++++++++++++++++++++++++
->  hw/vfio/pci.c        |   7 +++
->  hw/vfio/pci.h        |   2 +
->  hw/vfio/trace-events |   4 ++
->  4 files changed, 132 insertions(+)
->
-> diff --git a/hw/vfio/pci-quirks.c b/hw/vfio/pci-quirks.c
-> index 2d348f8237..2fd27cc8f6 100644
-> --- a/hw/vfio/pci-quirks.c
-> +++ b/hw/vfio/pci-quirks.c
-> @@ -1709,3 +1709,122 @@ free_exit:
->  
->      return ret;
->  }
-> +
-> +/*
-> + * The VMD endpoint provides a real PCIe domain to the guest. The IOMMU
-> + * performs Host Physical Address to Guest Physical Address translation when
-> + * assigning downstream endpoint BARs and when translating MMIO addresses.
-> + * However this translation is not desired when assigning bridge windows. When
-> + * MMIO goes to an endpoint after being translated to HPA, the bridge rejects
-> + * the transaction because the window has been programmed with translated GPAs.
-> + *
-> + * VMD uses the Host Physical Address in order to correctly program the bridge
-> + * windows in its PCIe domain. VMD device 28C0 has HPA shadow registers located
-> + * at offset 0x2000 in MEMBAR2 (BAR 4). The shadow registers are valid if bit 1
-> + * is set in the VMD VMLOCK config register 0x70.
-> + *
-> + * This quirk emulates the VMLOCK and HPA shadow registers for all VMD device
-> + * ids which don't natively offer this feature. The subsystem vendor/device
-> + * id is set to the QEMU subsystem vendor/device id, where the driver matches
-> + * the id to enable this feature.
-> + */
-> +typedef struct VFIOVMDQuirk {
-> +    VFIOPCIDevice *vdev;
-> +    uint64_t membar_phys[2];
-> +} VFIOVMDQuirk;
-> +
-> +static uint64_t vfio_vmd_quirk_read(void *opaque, hwaddr addr, unsigned size)
-> +{
-> +    VFIOVMDQuirk *data = opaque;
-> +    uint64_t val = 0;
-> +
-> +    memcpy(&val, (void *)data->membar_phys + addr, size);
-> +    return val;
-> +}
-> +
-> +static const MemoryRegionOps vfio_vmd_quirk = {
-> +    .read = vfio_vmd_quirk_read,
-> +    .endianness = DEVICE_LITTLE_ENDIAN,
-> +};
-> +
-> +#define VMD_VMLOCK  0x70
-> +#define VMD_SHADOW  0x2000
-> +#define VMD_MEMBAR2 4
-> +
-> +static int vfio_vmd_emulate_shadow_registers(VFIOPCIDevice *vdev)
-> +{
-> +    VFIOQuirk *quirk;
-> +    VFIOVMDQuirk *data;
-> +    PCIDevice *pdev = &vdev->pdev;
-> +    int ret;
-> +
-> +    data = g_malloc0(sizeof(*data));
-> +    ret = pread(vdev->vbasedev.fd, data->membar_phys, 16,
-> +                vdev->config_offset + PCI_BASE_ADDRESS_2);
-> +    if (ret != 16) {
-> +        error_report("VMD %s cannot read MEMBARs (%d)",
-> +                     vdev->vbasedev.name, ret);
-> +        g_free(data);
-> +        return -EFAULT;
-> +    }
-> +
-> +    quirk = vfio_quirk_alloc(1);
-> +    quirk->data = data;
-> +    data->vdev = vdev;
-> +
-> +    /* Emulate Shadow Registers */
-> +    memory_region_init_io(quirk->mem, OBJECT(vdev), &vfio_vmd_quirk, data,
-> +                          "vfio-vmd-quirk", sizeof(data->membar_phys));
-> +    memory_region_add_subregion_overlap(vdev->bars[VMD_MEMBAR2].region.mem,
-> +                                        VMD_SHADOW, quirk->mem, 1);
-> +    memory_region_set_readonly(quirk->mem, true);
-> +    memory_region_set_enabled(quirk->mem, true);
-> +
-> +    QLIST_INSERT_HEAD(&vdev->bars[VMD_MEMBAR2].quirks, quirk, next);
-> +
-> +    trace_vfio_pci_vmd_quirk_shadow_regs(vdev->vbasedev.name,
-> +                                         data->membar_phys[0],
-> +                                         data->membar_phys[1]);
-> +
-> +    /* Advertise Shadow Register support */
-> +    pci_byte_test_and_set_mask(pdev->config + VMD_VMLOCK, 0x2);
-> +    pci_set_byte(pdev->wmask + VMD_VMLOCK, 0);
-> +    pci_set_byte(vdev->emulated_config_bits + VMD_VMLOCK, 0x2);
-> +
-> +    trace_vfio_pci_vmd_quirk_vmlock(vdev->vbasedev.name,
-> +                                    pci_get_byte(pdev->config + VMD_VMLOCK));
-> +
-> +    /* Drivers can match the subsystem vendor/device id */
-> +    pci_set_word(pdev->config + PCI_SUBSYSTEM_VENDOR_ID,
-> +                 PCI_SUBVENDOR_ID_REDHAT_QUMRANET);
-> +    pci_set_word(vdev->emulated_config_bits + PCI_SUBSYSTEM_VENDOR_ID, ~0);
-> +
-> +    pci_set_word(pdev->config + PCI_SUBSYSTEM_ID, PCI_SUBDEVICE_ID_QEMU);
-> +    pci_set_word(vdev->emulated_config_bits + PCI_SUBSYSTEM_ID, ~0);
-> +
-> +    trace_vfio_pci_vmd_quirk_subsystem(vdev->vbasedev.name,
-> +                           vdev->sub_vendor_id, vdev->sub_device_id,
-> +                           pci_get_word(pdev->config + PCI_SUBSYSTEM_VENDOR_ID),
-> +                           pci_get_word(pdev->config + PCI_SUBSYSTEM_ID));
-> +
-> +    return 0;
-> +}
-> +
-> +int vfio_pci_vmd_init(VFIOPCIDevice *vdev)
-> +{
-> +    int ret = 0;
-> +
-> +    switch (vdev->device_id) {
-> +    case 0x28C0: /* Native passthrough support */
-> +        break;
-> +    /* Emulates Native passthrough support */
-> +    case 0x201D:
-> +    case 0x467F:
-> +    case 0x4C3D:
-> +    case 0x9A0B:
-> +        ret = vfio_vmd_emulate_shadow_registers(vdev);
-> +        break;
-> +    }
-> +
-> +    return ret;
-> +}
-> diff --git a/hw/vfio/pci.c b/hw/vfio/pci.c
-> index 5e75a95129..85425a1a6f 100644
-> --- a/hw/vfio/pci.c
-> +++ b/hw/vfio/pci.c
-> @@ -3024,6 +3024,13 @@ static void vfio_realize(PCIDevice *pdev, Error **errp)
->          }
->      }
->  
-> +    if (vdev->vendor_id == PCI_VENDOR_ID_INTEL) {
-> +        ret = vfio_pci_vmd_init(vdev);
-> +        if (ret) {
-> +            error_report("Failed to setup VMD");
-> +        }
-> +    }
-> +
->      vfio_register_err_notifier(vdev);
->      vfio_register_req_notifier(vdev);
->      vfio_setup_resetfn_quirk(vdev);
-> diff --git a/hw/vfio/pci.h b/hw/vfio/pci.h
-> index 0da7a20a7e..e8632d806b 100644
-> --- a/hw/vfio/pci.h
-> +++ b/hw/vfio/pci.h
-> @@ -217,6 +217,8 @@ int vfio_pci_igd_opregion_init(VFIOPCIDevice *vdev,
->  int vfio_pci_nvidia_v100_ram_init(VFIOPCIDevice *vdev, Error **errp);
->  int vfio_pci_nvlink2_init(VFIOPCIDevice *vdev, Error **errp);
->  
-> +int vfio_pci_vmd_init(VFIOPCIDevice *vdev);
-> +
->  void vfio_display_reset(VFIOPCIDevice *vdev);
->  int vfio_display_probe(VFIOPCIDevice *vdev, Error **errp);
->  void vfio_display_finalize(VFIOPCIDevice *vdev);
-> diff --git a/hw/vfio/trace-events b/hw/vfio/trace-events
-> index b1ef55a33f..aabbd2693a 100644
-> --- a/hw/vfio/trace-events
-> +++ b/hw/vfio/trace-events
-> @@ -90,6 +90,10 @@ vfio_pci_nvidia_gpu_setup_quirk(const char *name, uint64_t tgt, uint64_t size) "
->  vfio_pci_nvlink2_setup_quirk_ssatgt(const char *name, uint64_t tgt, uint64_t size) "%s tgt=0x%"PRIx64" size=0x%"PRIx64
->  vfio_pci_nvlink2_setup_quirk_lnkspd(const char *name, uint32_t link_speed) "%s link_speed=0x%x"
->  
-> +vfio_pci_vmd_quirk_shadow_regs(const char *name, uint64_t mb1, uint64_t mb2) "%s membar1_phys=0x%"PRIx64" membar2_phys=0x%"PRIx64"
-> +vfio_pci_vmd_quirk_vmlock(const char *name, uint8_t vmlock) "%s vmlock=0x%x"
-> +vfio_pci_vmd_quirk_subsystem(const char *name, uint16_t old_svid, uint16_t old_sdid, uint16_t new_svid, uint16_t new_sdid) "%s subsystem id 0x%04x:0x%04x -> 0x%04x:0x%04x"
-> +
->  # common.c
->  vfio_region_write(const char *name, int index, uint64_t addr, uint64_t data, unsigned size) " (%s:region%d+0x%"PRIx64", 0x%"PRIx64 ", %d)"
->  vfio_region_read(char *name, int index, uint64_t addr, unsigned size, uint64_t data) " (%s:region%d+0x%"PRIx64", %d) = 0x%"PRIx64
-
-Reviewed-by: Andrzej Jakowski <andrzej.jakowski@linux.intel.com>
+UGF0Y2hldyBVUkw6IGh0dHBzOi8vcGF0Y2hldy5vcmcvUUVNVS8yMDIwMDQyMjE3MTMwNS4xMDky
+My0xLWpvbmF0aGFuLmRlcnJpY2tAaW50ZWwuY29tLwoKCgpIaSwKClRoaXMgc2VyaWVzIGZhaWxl
+ZCB0aGUgYXNhbiBidWlsZCB0ZXN0LiBQbGVhc2UgZmluZCB0aGUgdGVzdGluZyBjb21tYW5kcyBh
+bmQKdGhlaXIgb3V0cHV0IGJlbG93LiBJZiB5b3UgaGF2ZSBEb2NrZXIgaW5zdGFsbGVkLCB5b3Ug
+Y2FuIHByb2JhYmx5IHJlcHJvZHVjZSBpdApsb2NhbGx5LgoKPT09IFRFU1QgU0NSSVBUIEJFR0lO
+ID09PQojIS9iaW4vYmFzaApleHBvcnQgQVJDSD14ODZfNjQKbWFrZSBkb2NrZXItaW1hZ2UtZmVk
+b3JhIFY9MSBORVRXT1JLPTEKdGltZSBtYWtlIGRvY2tlci10ZXN0LWRlYnVnQGZlZG9yYSBUQVJH
+RVRfTElTVD14ODZfNjQtc29mdG1tdSBKPTE0IE5FVFdPUks9MQo9PT0gVEVTVCBTQ1JJUFQgRU5E
+ID09PQoKICBDQyAgICAgIHFlbXUtaW8tY21kcy5vCiAgQ0MgICAgICByZXBsaWNhdGlvbi5vCklu
+IGZpbGUgaW5jbHVkZWQgZnJvbSBody92ZmlvL3RyYWNlLmM6NToKL3RtcC9xZW11LXRlc3QvYnVp
+bGQvaHcvdmZpby90cmFjZS5oOjIzNDg6MTIwOiBlcnJvcjogZXhwZWN0ZWQgJyknCiAgICAgICAg
+cWVtdV9sb2coIiVkQCV6dS4lMDZ6dTp2ZmlvX3BjaV92bWRfcXVpcmtfc2hhZG93X3JlZ3MgIiAi
+JXMgbWVtYmFyMV9waHlzPTB4JSJQUkl4NjQiIG1lbWJhcjJfcGh5cz0weCUiUFJJeDY0IiAiXG4i
+LAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgIF4KL3RtcC9xZW11LXRlc3QvYnVpbGQvaHcvdmZpby90cmFjZS5oOjIzNDg6MTc6IG5v
+dGU6IHRvIG1hdGNoIHRoaXMgJygnCiAgICAgICAgcWVtdV9sb2coIiVkQCV6dS4lMDZ6dTp2Zmlv
+X3BjaV92bWRfcXVpcmtfc2hhZG93X3JlZ3MgIiAiJXMgbWVtYmFyMV9waHlzPTB4JSJQUkl4NjQi
+IG1lbWJhcjJfcGh5cz0weCUiUFJJeDY0IiAiXG4iLAogICAgICAgICAgICAgICAgXgovdG1wL3Fl
+bXUtdGVzdC9idWlsZC9ody92ZmlvL3RyYWNlLmg6MjM0ODoxMjI6IGVycm9yOiBtaXNzaW5nIHRl
+cm1pbmF0aW5nICciJyBjaGFyYWN0ZXIgWy1XZXJyb3IsLVdpbnZhbGlkLXBwLXRva2VuXQogICAg
+ICAgIHFlbXVfbG9nKCIlZEAlenUuJTA2enU6dmZpb19wY2lfdm1kX3F1aXJrX3NoYWRvd19yZWdz
+ICIgIiVzIG1lbWJhcjFfcGh5cz0weCUiUFJJeDY0IiBtZW1iYXIyX3BoeXM9MHglIlBSSXg2NCIg
+IlxuIiwKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgIF4KICBDQyAgICAgIGJsb2NrL3Jhdy1mb3JtYXQubwoyIGVycm9ycyBnZW5l
+cmF0ZWQuCm1ha2U6ICoqKiBbL3RtcC9xZW11LXRlc3Qvc3JjL3J1bGVzLm1hazo2OTogaHcvdmZp
+by90cmFjZS5vXSBFcnJvciAxCm1ha2U6ICoqKiBXYWl0aW5nIGZvciB1bmZpbmlzaGVkIGpvYnMu
+Li4uCiAgQ0MgICAgICBibG9jay92bWRrLm8KVHJhY2ViYWNrIChtb3N0IHJlY2VudCBjYWxsIGxh
+c3QpOgotLS0KICAgIHJhaXNlIENhbGxlZFByb2Nlc3NFcnJvcihyZXRjb2RlLCBjbWQpCnN1YnBy
+b2Nlc3MuQ2FsbGVkUHJvY2Vzc0Vycm9yOiBDb21tYW5kICdbJ3N1ZG8nLCAnLW4nLCAnZG9ja2Vy
+JywgJ3J1bicsICctLWxhYmVsJywgJ2NvbS5xZW11Lmluc3RhbmNlLnV1aWQ9MjMxYWM5NmRlMTY3
+NGQzYjg4N2IxZDNiOGZkNDc3OWMnLCAnLXUnLCAnMTAwMycsICctLXNlY3VyaXR5LW9wdCcsICdz
+ZWNjb21wPXVuY29uZmluZWQnLCAnLS1ybScsICctZScsICdUQVJHRVRfTElTVD14ODZfNjQtc29m
+dG1tdScsICctZScsICdFWFRSQV9DT05GSUdVUkVfT1BUUz0nLCAnLWUnLCAnVj0nLCAnLWUnLCAn
+Sj0xNCcsICctZScsICdERUJVRz0nLCAnLWUnLCAnU0hPV19FTlY9JywgJy1lJywgJ0NDQUNIRV9E
+SVI9L3Zhci90bXAvY2NhY2hlJywgJy12JywgJy9ob21lL3BhdGNoZXcyLy5jYWNoZS9xZW11LWRv
+Y2tlci1jY2FjaGU6L3Zhci90bXAvY2NhY2hlOnonLCAnLXYnLCAnL3Zhci90bXAvcGF0Y2hldy10
+ZXN0ZXItdG1wLXkwMXdkMGhoL3NyYy9kb2NrZXItc3JjLjIwMjAtMDQtMjItMTcuMzIuMzguNTYw
+NTovdmFyL3RtcC9xZW11Onoscm8nLCAncWVtdTpmZWRvcmEnLCAnL3Zhci90bXAvcWVtdS9ydW4n
+LCAndGVzdC1kZWJ1ZyddJyByZXR1cm5lZCBub24temVybyBleGl0IHN0YXR1cyAyLgpmaWx0ZXI9
+LS1maWx0ZXI9bGFiZWw9Y29tLnFlbXUuaW5zdGFuY2UudXVpZD0yMzFhYzk2ZGUxNjc0ZDNiODg3
+YjFkM2I4ZmQ0Nzc5YwptYWtlWzFdOiAqKiogW2RvY2tlci1ydW5dIEVycm9yIDEKbWFrZVsxXTog
+TGVhdmluZyBkaXJlY3RvcnkgYC92YXIvdG1wL3BhdGNoZXctdGVzdGVyLXRtcC15MDF3ZDBoaC9z
+cmMnCm1ha2U6ICoqKiBbZG9ja2VyLXJ1bi10ZXN0LWRlYnVnQGZlZG9yYV0gRXJyb3IgMgoKcmVh
+bCAgICAzbTMxLjI3OXMKdXNlciAgICAwbTguMjI4cwoKClRoZSBmdWxsIGxvZyBpcyBhdmFpbGFi
+bGUgYXQKaHR0cDovL3BhdGNoZXcub3JnL2xvZ3MvMjAyMDA0MjIxNzEzMDUuMTA5MjMtMS1qb25h
+dGhhbi5kZXJyaWNrQGludGVsLmNvbS90ZXN0aW5nLmFzYW4vP3R5cGU9bWVzc2FnZS4KLS0tCkVt
+YWlsIGdlbmVyYXRlZCBhdXRvbWF0aWNhbGx5IGJ5IFBhdGNoZXcgW2h0dHBzOi8vcGF0Y2hldy5v
+cmcvXS4KUGxlYXNlIHNlbmQgeW91ciBmZWVkYmFjayB0byBwYXRjaGV3LWRldmVsQHJlZGhhdC5j
+b20=
