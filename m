@@ -1,233 +1,42 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v4] virtio: force spec specified alignment on types
-Date: Thu, 23 Apr 2020 20:10:39 +0800
-Message-ID: <7ea553de-7a27-0aa0-4afb-d167147fd155@redhat.com>
-References: <20200422145510.442277-1-mst@redhat.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: [PATCH] virtio-blk: handle block_device_operations callbacks after hot unplug
+Date: Thu, 23 Apr 2020 13:37:17 +0100
+Message-ID: <20200423123717.139141-1-stefanha@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20200422145510.442277-1-mst@redhat.com>
-Content-Language: en-US
-Sender: kvm-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: virtualization@lists.linux-foundation.org
+Cc: Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Lance Digby <ldigby@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-On 2020/4/22 =E4=B8=8B=E5=8D=8810:58, Michael S. Tsirkin wrote:
-> The ring element addresses are passed between components with different
-> alignments assumptions. Thus, if guest/userspace selects a pointer and
-> host then gets and dereferences it, we might need to decrease the
-> compiler-selected alignment to prevent compiler on the host from
-> assuming pointer is aligned.
->
-> This actually triggers on ARM with -mabi=3Dapcs-gnu - which is a
-> deprecated configuration, but it seems safer to handle this
-> generally.
->
-> Note that userspace that allocates the memory is actually OK and does
-> not need to be fixed, but userspace that gets it from guest or another
-> process does need to be fixed. The later doesn't generally talk to the
-> kernel so while it might be buggy it's not talking to the kernel in the
-> buggy way - it's just using the header in the buggy way - so fixing
-> header and asking userspace to recompile is the best we can do.
->
-> I verified that the produced kernel binary on x86 is exactly identical
-> before and after the change.
->
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->
-> changes since v3:
-> 	use __attribute__((aligned(X))) instead of __aligned,
-> 	to avoid dependency on that macro
->
->   drivers/vhost/vhost.c            |  8 +++---
->   drivers/vhost/vhost.h            |  6 ++---
->   drivers/vhost/vringh.c           |  6 ++---
->   include/linux/vringh.h           |  6 ++---
->   include/uapi/linux/virtio_ring.h | 46 ++++++++++++++++++++++++-------=
--
->   5 files changed, 48 insertions(+), 24 deletions(-)
-
-
-Acked-by: Jason Wang <jasowang@redhat.com>
-
-(I think we can then remove the BUILD_BUG_ON() in vhost?)
-
-Thanks
-
-
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index d450e16c5c25..bc77b0f465fd 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -1244,9 +1244,9 @@ static int vhost_iotlb_miss(struct vhost_virtqueu=
-e *vq, u64 iova, int access)
->   }
->  =20
->   static bool vq_access_ok(struct vhost_virtqueue *vq, unsigned int num=
-,
-> -			 struct vring_desc __user *desc,
-> -			 struct vring_avail __user *avail,
-> -			 struct vring_used __user *used)
-> +			 vring_desc_t __user *desc,
-> +			 vring_avail_t __user *avail,
-> +			 vring_used_t __user *used)
->  =20
->   {
->   	return access_ok(desc, vhost_get_desc_size(vq, num)) &&
-> @@ -2301,7 +2301,7 @@ static int __vhost_add_used_n(struct vhost_virtqu=
-eue *vq,
->   			    struct vring_used_elem *heads,
->   			    unsigned count)
->   {
-> -	struct vring_used_elem __user *used;
-> +	vring_used_elem_t __user *used;
->   	u16 old, new;
->   	int start;
->  =20
-> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> index f8403bd46b85..60cab4c78229 100644
-> --- a/drivers/vhost/vhost.h
-> +++ b/drivers/vhost/vhost.h
-> @@ -67,9 +67,9 @@ struct vhost_virtqueue {
->   	/* The actual ring of buffers. */
->   	struct mutex mutex;
->   	unsigned int num;
-> -	struct vring_desc __user *desc;
-> -	struct vring_avail __user *avail;
-> -	struct vring_used __user *used;
-> +	vring_desc_t __user *desc;
-> +	vring_avail_t __user *avail;
-> +	vring_used_t __user *used;
->   	const struct vhost_iotlb_map *meta_iotlb[VHOST_NUM_ADDRS];
->   	struct file *kick;
->   	struct eventfd_ctx *call_ctx;
-> diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-> index ba8e0d6cfd97..e059a9a47cdf 100644
-> --- a/drivers/vhost/vringh.c
-> +++ b/drivers/vhost/vringh.c
-> @@ -620,9 +620,9 @@ static inline int xfer_to_user(const struct vringh =
-*vrh,
->    */
->   int vringh_init_user(struct vringh *vrh, u64 features,
->   		     unsigned int num, bool weak_barriers,
-> -		     struct vring_desc __user *desc,
-> -		     struct vring_avail __user *avail,
-> -		     struct vring_used __user *used)
-> +		     vring_desc_t __user *desc,
-> +		     vring_avail_t __user *avail,
-> +		     vring_used_t __user *used)
->   {
->   	/* Sane power of 2 please! */
->   	if (!num || num > 0xffff || (num & (num - 1))) {
-> diff --git a/include/linux/vringh.h b/include/linux/vringh.h
-> index 9e2763d7c159..59bd50f99291 100644
-> --- a/include/linux/vringh.h
-> +++ b/include/linux/vringh.h
-> @@ -105,9 +105,9 @@ struct vringh_kiov {
->   /* Helpers for userspace vrings. */
->   int vringh_init_user(struct vringh *vrh, u64 features,
->   		     unsigned int num, bool weak_barriers,
-> -		     struct vring_desc __user *desc,
-> -		     struct vring_avail __user *avail,
-> -		     struct vring_used __user *used);
-> +		     vring_desc_t __user *desc,
-> +		     vring_avail_t __user *avail,
-> +		     vring_used_t __user *used);
->  =20
->   static inline void vringh_iov_init(struct vringh_iov *iov,
->   				   struct iovec *iovec, unsigned num)
-> diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virt=
-io_ring.h
-> index 9223c3a5c46a..476d3e5c0fe7 100644
-> --- a/include/uapi/linux/virtio_ring.h
-> +++ b/include/uapi/linux/virtio_ring.h
-> @@ -86,6 +86,13 @@
->    * at the end of the used ring. Guest should ignore the used->flags f=
-ield. */
->   #define VIRTIO_RING_F_EVENT_IDX		29
->  =20
-> +/* Alignment requirements for vring elements.
-> + * When using pre-virtio 1.0 layout, these fall out naturally.
-> + */
-> +#define VRING_AVAIL_ALIGN_SIZE 2
-> +#define VRING_USED_ALIGN_SIZE 4
-> +#define VRING_DESC_ALIGN_SIZE 16
-> +
->   /* Virtio ring descriptors: 16 bytes.  These can chain together via "=
-next". */
->   struct vring_desc {
->   	/* Address (guest-physical). */
-> @@ -112,29 +119,46 @@ struct vring_used_elem {
->   	__virtio32 len;
->   };
->  =20
-> +typedef struct vring_used_elem __attribute__((aligned(VRING_USED_ALIGN=
-_SIZE)))
-> +	vring_used_elem_t;
-> +
->   struct vring_used {
->   	__virtio16 flags;
->   	__virtio16 idx;
-> -	struct vring_used_elem ring[];
-> +	vring_used_elem_t ring[];
->   };
->  =20
-> +/*
-> + * The ring element addresses are passed between components with diffe=
-rent
-> + * alignments assumptions. Thus, we might need to decrease the compile=
-r-selected
-> + * alignment, and so must use a typedef to make sure the aligned attri=
-bute
-> + * actually takes hold:
-> + *
-> + * https://gcc.gnu.org/onlinedocs//gcc/Common-Type-Attributes.html#Com=
-mon-Type-Attributes
-> + *
-> + * When used on a struct, or struct member, the aligned attribute can =
-only
-> + * increase the alignment; in order to decrease it, the packed attribu=
-te must
-> + * be specified as well. When used as part of a typedef, the aligned a=
-ttribute
-> + * can both increase and decrease alignment, and specifying the packed
-> + * attribute generates a warning.
-> + */
-> +typedef struct vring_desc __attribute__((aligned(VRING_DESC_ALIGN_SIZE=
-)))
-> +	vring_desc_t;
-> +typedef struct vring_avail __attribute__((aligned(VRING_AVAIL_ALIGN_SI=
-ZE)))
-> +	vring_avail_t;
-> +typedef struct vring_used __attribute__((aligned(VRING_USED_ALIGN_SIZE=
-)))
-> +	vring_used_t;
-> +
->   struct vring {
->   	unsigned int num;
->  =20
-> -	struct vring_desc *desc;
-> +	vring_desc_t *desc;
->  =20
-> -	struct vring_avail *avail;
-> +	vring_avail_t *avail;
->  =20
-> -	struct vring_used *used;
-> +	vring_used_t *used;
->   };
->  =20
-> -/* Alignment requirements for vring elements.
-> - * When using pre-virtio 1.0 layout, these fall out naturally.
-> - */
-> -#define VRING_AVAIL_ALIGN_SIZE 2
-> -#define VRING_USED_ALIGN_SIZE 4
-> -#define VRING_DESC_ALIGN_SIZE 16
-> -
->   #ifndef VIRTIO_RING_NO_LEGACY
->  =20
->   /* The standard layout for the ring is a continuous chunk of memory w=
-hich looks
+QSB2aXJ0aW9fYmxrIGJsb2NrIGRldmljZSBjYW4gc3RpbGwgYmUgcmVmZXJlbmNlZCBhZnRlciBo
+b3QgdW5wbHVnIGJ5CnVzZXJzcGFjZSBwcm9jZXNzZXMgdGhhdCBob2xkIHRoZSBmaWxlIGRlc2Ny
+aXB0b3IuICBJbiB0aGlzIGNhc2UKdmlydGJsa19nZXRnZW8oKSBjYW4gYmUgaW52b2tlZCBhZnRl
+ciB2aXJ0YmxrX3JlbW92ZSgpIHdhcyBjYWxsZWQuICBGb3IKZXhhbXBsZSwgYSBwcm9ncmFtIHRo
+YXQgaGFzIC9kZXYvdmRiIG9wZW4gY2FuIGNhbGwgaW9jdGwoSERJT19HRVRHRU8pCmFmdGVyIGhv
+dCB1bnBsdWcuCgpGaXggdGhpcyBieSBjbGVhcmluZyB2YmxrLT5kaXNrLT5wcml2YXRlX2RhdGEg
+YW5kIGNoZWNraW5nIHRoYXQgdGhlCnZpcnRpb19ibGsgZHJpdmVyIGluc3RhbmNlIGlzIHN0aWxs
+IGFyb3VuZCBpbiB2aXJ0YmxrX2dldGdlbygpLgoKTm90ZSB0aGF0IHRoZSB2aXJ0YmxrX2dldGdl
+bygpIGZ1bmN0aW9uIGl0c2VsZiBpcyBndWFyYW50ZWVkIHRvIHJlbWFpbgppbiBtZW1vcnkgYWZ0
+ZXIgaG90IHVucGx1ZyBiZWNhdXNlIHRoZSB2aXJ0aW9fYmxrIG1vZHVsZSByZWZjb3VudCBpcwpz
+dGlsbCBoZWxkIHdoaWxlIGEgYmxvY2sgZGV2aWNlIHJlZmVyZW5jZSBleGlzdHMuCgpPcmlnaW5h
+bGx5LWJ5OiBMYW5jZSBEaWdieSA8bGRpZ2J5QHJlZGhhdC5jb20+ClNpZ25lZC1vZmYtYnk6IFN0
+ZWZhbiBIYWpub2N6aSA8c3RlZmFuaGFAcmVkaGF0LmNvbT4KLS0tCiBkcml2ZXJzL2Jsb2NrL3Zp
+cnRpb19ibGsuYyB8IDUgKysrKysKIDEgZmlsZSBjaGFuZ2VkLCA1IGluc2VydGlvbnMoKykKCmRp
+ZmYgLS1naXQgYS9kcml2ZXJzL2Jsb2NrL3ZpcnRpb19ibGsuYyBiL2RyaXZlcnMvYmxvY2svdmly
+dGlvX2Jsay5jCmluZGV4IDkzNDY4YjdjNjcwMS4uYjUwY2RmMzdhNmY3IDEwMDY0NAotLS0gYS9k
+cml2ZXJzL2Jsb2NrL3ZpcnRpb19ibGsuYworKysgYi9kcml2ZXJzL2Jsb2NrL3ZpcnRpb19ibGsu
+YwpAQCAtMzAwLDYgKzMwMCwxMCBAQCBzdGF0aWMgaW50IHZpcnRibGtfZ2V0Z2VvKHN0cnVjdCBi
+bG9ja19kZXZpY2UgKmJkLCBzdHJ1Y3QgaGRfZ2VvbWV0cnkgKmdlbykKIHsKIAlzdHJ1Y3Qgdmly
+dGlvX2JsayAqdmJsayA9IGJkLT5iZF9kaXNrLT5wcml2YXRlX2RhdGE7CiAKKwkvKiBEcml2ZXIg
+aW5zdGFuY2UgaGFzIGJlZW4gcmVtb3ZlZCAqLworCWlmICghdmJsaykKKwkJcmV0dXJuIC1FTk9U
+VFk7CisKIAkvKiBzZWUgaWYgdGhlIGhvc3QgcGFzc2VkIGluIGdlb21ldHJ5IGNvbmZpZyAqLwog
+CWlmICh2aXJ0aW9faGFzX2ZlYXR1cmUodmJsay0+dmRldiwgVklSVElPX0JMS19GX0dFT01FVFJZ
+KSkgewogCQl2aXJ0aW9fY3JlYWQodmJsay0+dmRldiwgc3RydWN0IHZpcnRpb19ibGtfY29uZmln
+LApAQCAtODM1LDYgKzgzOSw3IEBAIHN0YXRpYyB2b2lkIHZpcnRibGtfcmVtb3ZlKHN0cnVjdCB2
+aXJ0aW9fZGV2aWNlICp2ZGV2KQogCXZkZXYtPmNvbmZpZy0+cmVzZXQodmRldik7CiAKIAlyZWZj
+ID0ga3JlZl9yZWFkKCZkaXNrX3RvX2Rldih2YmxrLT5kaXNrKS0+a29iai5rcmVmKTsKKwl2Ymxr
+LT5kaXNrLT5wcml2YXRlX2RhdGEgPSBOVUxMOwogCXB1dF9kaXNrKHZibGstPmRpc2spOwogCXZk
+ZXYtPmNvbmZpZy0+ZGVsX3Zxcyh2ZGV2KTsKIAlrZnJlZSh2YmxrLT52cXMpOwotLSAKMi4yNS4x
+Cgo=
