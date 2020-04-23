@@ -1,35 +1,80 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH v1] drm/bochs: fix an issue of ioremap() leak
-Date: Thu, 23 Apr 2020 12:14:20 +0200
-Message-ID: <20200423101420.ityynrorrehjvxrs@sirius.home.kraxel.org>
-References: <20200421164543.16605-1-zhengdejin5@gmail.com>
- <CAHp75Ve4JwkM+=WHHF73jwNwRS39E-xPDrcn77zCUTpVkj8buA@mail.gmail.com>
- <20200422135215.GA25950@nuc8i5>
- <CAHp75Vf2j-QraBxKofgyhtAxpHXnik3DP9kefPhA_d3BuSjfvw@mail.gmail.com>
- <20200422152142.GA26943@nuc8i5>
+From: Joerg Roedel <jroedel@suse.de>
+Subject: Re: Re: [PATCH 40/70] x86/sev-es: Setup per-cpu GHCBs for the
+ runtime handler
+Date: Thu, 23 Apr 2020 13:30:27 +0200
+Message-ID: <20200423113027.GL30814@suse.de>
+References: <20200319091407.1481-1-joro@8bytes.org>
+ <20200319091407.1481-41-joro@8bytes.org>
+ <A7DF63B4-6589-4386-9302-6B7F8BE0D9BA@vmware.com>
+ <20200415155302.GD21899@suse.de>
+ <1a164e55-19dd-a20b-6837-9f425cfac100@vmware.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200422152142.GA26943@nuc8i5>
+In-Reply-To: <1a164e55-19dd-a20b-6837-9f425cfac100@vmware.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Dejin Zheng <zhengdejin5@gmail.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, virtualization@lists.linux-foundation.org, dri-devel <dri-devel@lists.freedesktop.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+To: Bo Gan <ganb@vmware.com>
+Cc: Mike Stunes <mstunes@vmware.com>, Joerg Roedel <joro@8bytes.org>, "x86@kernel.org" <x86@kernel.org>, "hpa@zytor.com" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-  Hi,
+On Wed, Apr 22, 2020 at 06:33:13PM -0700, Bo Gan wrote:
+> On 4/15/20 8:53 AM, Joerg Roedel wrote:
+> > Hi Mike,
+> > 
+> > On Tue, Apr 14, 2020 at 07:03:44PM +0000, Mike Stunes wrote:
+> > > set_memory_decrypted needs to check the return value. I see it
+> > > consistently return ENOMEM. I've traced that back to split_large_page
+> > > in arch/x86/mm/pat/set_memory.c.
+> > 
+> > I agree that the return code needs to be checked. But I wonder why this
+> > happens. The split_large_page() function returns -ENOMEM when
+> > alloc_pages() fails. Do you boot the guest with minal RAM assigned?
+> > 
+> > Regards,
+> > 
+> > 	Joerg
+> > 
+> 
+> I just want to add some context around this. The call path that lead to the
+> failure is like the following:
+> 
+> 	__alloc_pages_slowpath
+> 	__alloc_pages_nodemask
+> 	alloc_pages_current
+> 	alloc_pages
+> 	split_large_page
+> 	__change_page_attr
+> 	__change_page_attr_set_clr
+> 	__set_memory_enc_dec
+> 	set_memory_decrypted
+> 	sev_es_init_ghcbs
+> 	trap_init   -> before mm_init (in init/main.c)
+> 	start_kernel
+> 	x86_64_start_reservations
+> 	x86_64_start_kernel
+> 	secondary_startup_64
+> 
+> At this time, mem_init hasn't been called yet (which would be called by
+> mm_init). Thus, the free pages are still owned by memblock. It's in mem_init
+> (x86/mm/init_64.c) that memblock_free_all gets called and free pages are
+> released.
+> 
+> During testing, I've also noticed that debug_pagealloc=1 will make the issue
+> disappear. That's because with debug_pagealloc=1, probe_page_size_mask in
+> x86/mm/init.c will not allow large pages (2M/1G). Therefore, no
+> split_large_page would happen. Similarly, if CPU doesn't have
+> X86_FEATURE_PSE, there won't be large pages either.
+> 
+> Any thoughts? Maybe split_large_page should get pages from memblock at early
+> boot?
 
-> I am a newbie, andy gave me some directions to submit the patch, eg: check
-> ioremap leak. At this time, I found that the bochs driver may have similar
-> problems, so I submitted this patch, then, Andy said the best is to switch
-> this driver to use pcim _ * () functions and drop tons of legacy code.
-> I think we might be able to fix this issue first, after that, drop tons
-> of legacy code by pcim_*() functions. Can you give me some suggestions?
-> thank you very much!
+Thanks for you analysis. I fixed it (verified by Mike) by using
+early_set_memory_decrypted() instead of set_memory_decrypted(). I still
+wonder why I didn't see that issue on my kernel. It has
+DEBUG_PAGEALLOC=y set, but it is not enabled by default and I also
+didn't pass the command-line parameter.
 
-drm has drmm_* functions for that.  Daniel Vetter <daniel@ffwll.ch> has
-a patch series pending switching lots of drivers over and IIRC it fixes
-this bug too.
+Regards,
 
-cheers,
-  Gerd
+	Joerg
