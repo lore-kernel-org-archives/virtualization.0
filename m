@@ -1,17 +1,17 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Christoph Hellwig <hch@infradead.org>
 Subject: Re: [PATCH] virtio-blk: handle block_device_operations callbacks
  after hot unplug
-Date: Thu, 23 Apr 2020 08:51:19 -0400
-Message-ID: <20200423084914-mutt-send-email-mst@kernel.org>
+Date: Thu, 23 Apr 2020 07:13:38 -0700
+Message-ID: <20200423141338.GA29646@infradead.org>
 References: <20200423123717.139141-1-stefanha@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-block-owner@vger.kernel.org>
 Content-Disposition: inline
 In-Reply-To: <20200423123717.139141-1-stefanha@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-block-owner@vger.kernel.org
 To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Jason Wang <jasowang@redhat.com>, Lance Digby <ldigby@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Lance Digby <ldigby@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 On Thu, Apr 23, 2020 at 01:37:17PM +0100, Stefan Hajnoczi wrote:
@@ -45,31 +45,6 @@ On Thu, Apr 23, 2020 at 01:37:17PM +0100, Stefan Hajnoczi wrote:
 > +	/* Driver instance has been removed */
 > +	if (!vblk)
 > +		return -ENOTTY;
-> +
->  	/* see if the host passed in geometry config */
->  	if (virtio_has_feature(vblk->vdev, VIRTIO_BLK_F_GEOMETRY)) {
->  		virtio_cread(vblk->vdev, struct virtio_blk_config,
 
-Just so I understand, what serializes this access?
-See below for what looks like a race condition ...
-
-> @@ -835,6 +839,7 @@ static void virtblk_remove(struct virtio_device *vdev)
->  	vdev->config->reset(vdev);
->  
->  	refc = kref_read(&disk_to_dev(vblk->disk)->kobj.kref);
-
-So what if private_data is tested at this time ...
-
-> +	vblk->disk->private_data = NULL;
->  	put_disk(vblk->disk);
->  	vdev->config->del_vqs(vdev);
->  	kfree(vblk->vqs);
-
-... and then used at this time?
-
-What prevents this?
-
-
-> -- 
-> 2.25.1
-> 
+If this ever hits you have a nasty race condition and this is not
+going to fix it, as it could be removed just after this check as well.
