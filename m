@@ -1,34 +1,49 @@
-From: "Derrick, Jonathan" <jonathan.derrick@intel.com>
-Subject: Re: [PATCH 0/1] KVM support for VMD devices
-Date: Thu, 23 Apr 2020 15:18:10 +0000
-Message-ID: <f58982d0d37f86c8cf4d8769d42bea284e0c2825.camel@intel.com>
-References: <20200422171444.10992-1-jonathan.derrick@intel.com>
-         <20200423061631.GA12688@infradead.org>
+From: John Garry <john.garry@huawei.com>
+Subject: Re: [PATCH RFC v2 02/24] scsi: allocate separate queue for reserved
+ commands
+Date: Thu, 23 Apr 2020 16:33:53 +0100
+Message-ID: <17c47c8c-f993-b472-43ac-936cec560744@huawei.com>
+References: <1583857550-12049-1-git-send-email-john.garry@huawei.com>
+ <1583857550-12049-3-git-send-email-john.garry@huawei.com>
+ <20200310183243.GA14549@infradead.org>
+ <79cf4341-f2a2-dcc9-be0d-2efc6e83028a@huawei.com>
+ <20200311062228.GA13522@infradead.org>
+ <b5a63725-722b-8ccd-3867-6db192a248a4@suse.de>
+ <9c6ced82-b3f1-9724-b85e-d58827f1a4a4@huawei.com>
+ <39bc2d82-2676-e329-5d32-8acb99b0a204@suse.de>
+ <20200407163033.GA26568@infradead.org>
+ <ae3b498b-aea8-dc09-53b8-9e160effc681@huawei.com>
+ <a0316b0b-a24c-7d0c-df17-0573593e2a11@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-pci-owner@vger.kernel.org>
-In-Reply-To: <20200423061631.GA12688@infradead.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <a0316b0b-a24c-7d0c-df17-0573593e2a11@suse.de>
 Content-Language: en-US
-Content-ID: <2693A69249AB774DABEBE1A7DBFD60BC@intel.com>
-Sender: linux-pci-owner@vger.kernel.org
-To: "hch@infradead.org" <hch@infradead.org>
-Cc: "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "helgaas@kernel.org" <helgaas@kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "Jakowski, Andrzej" <andrzej.jakowski@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Hannes Reinecke <hare@suse.de>, Christoph Hellwig <hch@infradead.org>
+Cc: axboe@kernel.dk, jejb@linux.ibm.com, martin.petersen@oracle.com, ming.lei@redhat.com, bvanassche@acm.org, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org, esc.storagedev@microsemi.com, chenxiang66@hisilicon.com, Hannes Reinecke <hare@suse.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCAyMDIwLTA0LTIyIGF0IDIzOjE2IC0wNzAwLCBDaHJpc3RvcGggSGVsbHdpZyB3cm90
-ZToNCj4gT24gV2VkLCBBcHIgMjIsIDIwMjAgYXQgMDE6MTQ6NDRQTSAtMDQwMCwgSm9uIERlcnJp
-Y2sgd3JvdGU6DQo+ID4gVGhlIHR3byBwYXRjaGVzIChMaW51eCAmIFFFTVUpIGFkZCBzdXBwb3J0
-IGZvciBwYXNzdGhyb3VnaCBWTUQgZGV2aWNlcw0KPiA+IGluIFFFTVUvS1ZNLiBWTUQgZGV2aWNl
-IDI4QzAgYWxyZWFkeSBzdXBwb3J0cyBwYXNzdGhyb3VnaCBuYXRpdmVseSBieQ0KPiA+IHByb3Zp
-ZGluZyB0aGUgSG9zdCBQaHlzaWNhbCBBZGRyZXNzIGluIGEgc2hhZG93IHJlZ2lzdGVyIHRvIHRo
-ZSBndWVzdA0KPiA+IGZvciBjb3JyZWN0IGJyaWRnZSBwcm9ncmFtbWluZy4NCj4gPiANCj4gPiBU
-aGUgUUVNVSBwYXRjaCBlbXVsYXRlcyB0aGUgMjhDMCBtb2RlIGJ5IGNyZWF0aW5nIGEgc2hhZG93
-IHJlZ2lzdGVyIGFuZA0KPiA+IGFkdmVydGlzaW5nIGl0cyBzdXBwb3J0IGJ5IHVzaW5nIFFFTVUn
-cyBzdWJzeXN0ZW0gdmVuZG9yL2lkLg0KPiA+IFRoZSBMaW51eCBwYXRjaCBtYXRjaGVzIHRoZSBR
-RU1VIHN1YnN5c3RlbSB2ZW5kb3IvaWQgdG8gdXNlIHRoZSBzaGFkb3cNCj4gPiByZWdpc3Rlci4N
-Cj4gDQo+IFBsZWFzZSBwaWNrIGEgZGlmZmVyZW50IFBDSSBJRCBmb3IgUWVtdSB2cyByZWFsIGhh
-cmR3YXJlIHNvIHRoYXQgd2UNCj4gY2FuIHByb3Blcmx5IHF1aXJrIHRoZW0gaWYgdGhleSBlbmQg
-dXAgYmVoYXZpbmcgZGlmZmVyZW50bHkgZHVlIHRvDQo+IGhhcmR3YXJlIG9yIHNvZnR3YXJlIGJ1
-Z3MuDQoNClN1cmUuIFdpbGwgbG9vayBpbnRvIHRoYXQuDQpUaGFua3MgQ2hyaXN0b3BoDQoNCkpv
-bg0K
+
+>> Not sure if we want a static scsi_device per host, or alloc and free 
+>> dynamically.
+>>
+>> (@Hannes, I also have some proper patches for libsas if you want to 
+>> add it)
+>>
+> Hold your horses.
+
+I wasn't going to do anything else...
+
+> I'm currently preparing a patchset implementing things by improving the 
+> current scsi_get_host_dev() etc.
+
+OK, great, all you have to do is say.
+
+> 
+> RFC should be ready by the end of the week.
+> 
+
+Thanks,
+John
