@@ -1,37 +1,72 @@
-From: "Derrick, Jonathan" <jonathan.derrick@intel.com>
-Subject: Re: [PATCH for QEMU] hw/vfio: Add VMD Passthrough Quirk
-Date: Wed, 22 Apr 2020 22:17:56 +0000
-Message-ID: <48e2ef3f6f843d533e4f3cdb83da9be5184768e6.camel@intel.com>
-References: <158759136841.3922.4821101148440128786@39012742ff91>
+From: Bo Gan <ganb@vmware.com>
+Subject: Re: Re: [PATCH 40/70] x86/sev-es: Setup per-cpu GHCBs for the runtime
+ handler
+Date: Wed, 22 Apr 2020 18:33:13 -0700
+Message-ID: <1a164e55-19dd-a20b-6837-9f425cfac100@vmware.com>
+References: <20200319091407.1481-1-joro@8bytes.org>
+ <20200319091407.1481-41-joro@8bytes.org>
+ <A7DF63B4-6589-4386-9302-6B7F8BE0D9BA@vmware.com>
+ <20200415155302.GD21899@suse.de>
+Reply-To: <ganb@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-pci-owner@vger.kernel.org>
-In-Reply-To: <158759136841.3922.4821101148440128786@39012742ff91>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200415155302.GD21899@suse.de>
 Content-Language: en-US
-Content-ID: <EC102D38D2895946AC9731BC742461CF@intel.com>
-Sender: linux-pci-owner@vger.kernel.org
-To: "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>
-Cc: "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>, "helgaas@kernel.org" <helgaas@kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "Jakowski, Andrzej" <andrzej.jakowski@intel.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Joerg Roedel <jroedel@suse.de>, Mike Stunes <mstunes@vmware.com>
+Cc: Joerg Roedel <joro@8bytes.org>, "x86@kernel.org" <x86@kernel.org>, "hpa@zytor.com" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gV2VkLCAyMDIwLTA0LTIyIGF0IDE0OjM2IC0wNzAwLCBuby1yZXBseUBwYXRjaGV3Lm9yZyB3
-cm90ZToNCj4gUGF0Y2hldyBVUkw6IGh0dHBzOi8vcGF0Y2hldy5vcmcvUUVNVS8yMDIwMDQyMjE3
-MTMwNS4xMDkyMy0xLWpvbmF0aGFuLmRlcnJpY2tAaW50ZWwuY29tLw0KPiANCj4gDQo+IA0KPiBI
-aSwNCj4gDQo+IFRoaXMgc2VyaWVzIGZhaWxlZCB0aGUgYXNhbiBidWlsZCB0ZXN0LiBQbGVhc2Ug
-ZmluZCB0aGUgdGVzdGluZyBjb21tYW5kcyBhbmQNCj4gdGhlaXIgb3V0cHV0IGJlbG93LiBJZiB5
-b3UgaGF2ZSBEb2NrZXIgaW5zdGFsbGVkLCB5b3UgY2FuIHByb2JhYmx5IHJlcHJvZHVjZSBpdA0K
-PiBsb2NhbGx5Lg0KPiANCj4gPT09IFRFU1QgU0NSSVBUIEJFR0lOID09PQ0KPiAjIS9iaW4vYmFz
-aA0KPiBleHBvcnQgQVJDSD14ODZfNjQNCj4gbWFrZSBkb2NrZXItaW1hZ2UtZmVkb3JhIFY9MSBO
-RVRXT1JLPTENCj4gdGltZSBtYWtlIGRvY2tlci10ZXN0LWRlYnVnQGZlZG9yYSBUQVJHRVRfTElT
-VD14ODZfNjQtc29mdG1tdSBKPTE0IE5FVFdPUks9MQ0KPiA9PT0gVEVTVCBTQ1JJUFQgRU5EID09
-PQ0KPiANCj4gICBDQyAgICAgIHFlbXUtaW8tY21kcy5vDQo+ICAgQ0MgICAgICByZXBsaWNhdGlv
-bi5vDQo+IEluIGZpbGUgaW5jbHVkZWQgZnJvbSBody92ZmlvL3RyYWNlLmM6NToNCj4gL3RtcC9x
-ZW11LXRlc3QvYnVpbGQvaHcvdmZpby90cmFjZS5oOjIzNDg6MTIwOiBlcnJvcjogZXhwZWN0ZWQg
-JyknDQo+ICAgICAgICAgcWVtdV9sb2coIiVkQCV6dS4lMDZ6dTp2ZmlvX3BjaV92bWRfcXVpcmtf
-c2hhZG93X3JlZ3MgIiAiJXMgbWVtYmFyMV9waHlzPTB4JSJQUkl4NjQiIG1lbWJhcjJfcGh5cz0w
-eCUiUFJJeDY0IiAiXG4iLA0KPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgIF4NCj4gDQoNCkl0J3MgdGhlIGV4dHJhICIgYXQgdGhl
-IGVuZCwgd2hpY2ggd2lsbCBiZSBmaXhlZCBpbiB2Mg0KVGhhbmtzIGZvciB0aGUgc2FuaXR5IGNo
-ZWNrDQoNCg==
+On 4/15/20 8:53 AM, Joerg Roedel wrote:
+> Hi Mike,
+> 
+> On Tue, Apr 14, 2020 at 07:03:44PM +0000, Mike Stunes wrote:
+>> set_memory_decrypted needs to check the return value. I see it
+>> consistently return ENOMEM. I've traced that back to split_large_page
+>> in arch/x86/mm/pat/set_memory.c.
+> 
+> I agree that the return code needs to be checked. But I wonder why this
+> happens. The split_large_page() function returns -ENOMEM when
+> alloc_pages() fails. Do you boot the guest with minal RAM assigned?
+> 
+> Regards,
+> 
+> 	Joerg
+> 
+
+I just want to add some context around this. The call path that lead to 
+the failure is like the following:
+
+	__alloc_pages_slowpath
+	__alloc_pages_nodemask
+	alloc_pages_current
+	alloc_pages
+	split_large_page
+	__change_page_attr
+	__change_page_attr_set_clr
+	__set_memory_enc_dec
+	set_memory_decrypted
+	sev_es_init_ghcbs
+	trap_init   -> before mm_init (in init/main.c)
+	start_kernel
+	x86_64_start_reservations
+	x86_64_start_kernel
+	secondary_startup_64
+
+At this time, mem_init hasn't been called yet (which would be called by 
+mm_init). Thus, the free pages are still owned by memblock. It's in 
+mem_init (x86/mm/init_64.c) that memblock_free_all gets called and free 
+pages are released.
+
+During testing, I've also noticed that debug_pagealloc=1 will make the 
+issue disappear. That's because with debug_pagealloc=1, 
+probe_page_size_mask in x86/mm/init.c will not allow large pages 
+(2M/1G). Therefore, no split_large_page would happen. Similarly, if CPU 
+doesn't have X86_FEATURE_PSE, there won't be large pages either.
+
+Any thoughts? Maybe split_large_page should get pages from memblock at 
+early boot?
+
+Bo
