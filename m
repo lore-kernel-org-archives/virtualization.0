@@ -1,207 +1,75 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v4] virtio: force spec specified alignment on types
-Date: Thu, 23 Apr 2020 08:42:17 -0400
-Message-ID: <20200423083934-mutt-send-email-mst@kernel.org>
-References: <20200422145510.442277-1-mst@redhat.com>
- <7ea553de-7a27-0aa0-4afb-d167147fd155@redhat.com>
+Subject: Re: [PATCH] virtio-blk: handle block_device_operations callbacks
+ after hot unplug
+Date: Thu, 23 Apr 2020 08:51:19 -0400
+Message-ID: <20200423084914-mutt-send-email-mst@kernel.org>
+References: <20200423123717.139141-1-stefanha@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <7ea553de-7a27-0aa0-4afb-d167147fd155@redhat.com>
+In-Reply-To: <20200423123717.139141-1-stefanha@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+To: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Jason Wang <jasowang@redhat.com>, Lance Digby <ldigby@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 23, 2020 at 08:10:39PM +0800, Jason Wang wrote:
+On Thu, Apr 23, 2020 at 01:37:17PM +0100, Stefan Hajnoczi wrote:
+> A virtio_blk block device can still be referenced after hot unplug by
+> userspace processes that hold the file descriptor.  In this case
+> virtblk_getgeo() can be invoked after virtblk_remove() was called.  For
+> example, a program that has /dev/vdb open can call ioctl(HDIO_GETGEO)
+> after hot unplug.
 > 
-> On 2020/4/22 下午10:58, Michael S. Tsirkin wrote:
-> > The ring element addresses are passed between components with different
-> > alignments assumptions. Thus, if guest/userspace selects a pointer and
-> > host then gets and dereferences it, we might need to decrease the
-> > compiler-selected alignment to prevent compiler on the host from
-> > assuming pointer is aligned.
-> > 
-> > This actually triggers on ARM with -mabi=apcs-gnu - which is a
-> > deprecated configuration, but it seems safer to handle this
-> > generally.
-> > 
-> > Note that userspace that allocates the memory is actually OK and does
-> > not need to be fixed, but userspace that gets it from guest or another
-> > process does need to be fixed. The later doesn't generally talk to the
-> > kernel so while it might be buggy it's not talking to the kernel in the
-> > buggy way - it's just using the header in the buggy way - so fixing
-> > header and asking userspace to recompile is the best we can do.
-> > 
-> > I verified that the produced kernel binary on x86 is exactly identical
-> > before and after the change.
-> > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > ---
-> > 
-> > changes since v3:
-> > 	use __attribute__((aligned(X))) instead of __aligned,
-> > 	to avoid dependency on that macro
-> > 
-> >   drivers/vhost/vhost.c            |  8 +++---
-> >   drivers/vhost/vhost.h            |  6 ++---
-> >   drivers/vhost/vringh.c           |  6 ++---
-> >   include/linux/vringh.h           |  6 ++---
-> >   include/uapi/linux/virtio_ring.h | 46 ++++++++++++++++++++++++--------
-> >   5 files changed, 48 insertions(+), 24 deletions(-)
+> Fix this by clearing vblk->disk->private_data and checking that the
+> virtio_blk driver instance is still around in virtblk_getgeo().
 > 
+> Note that the virtblk_getgeo() function itself is guaranteed to remain
+> in memory after hot unplug because the virtio_blk module refcount is
+> still held while a block device reference exists.
 > 
-> Acked-by: Jason Wang <jasowang@redhat.com>
+> Originally-by: Lance Digby <ldigby@redhat.com>
+> Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+> ---
+>  drivers/block/virtio_blk.c | 5 +++++
+>  1 file changed, 5 insertions(+)
 > 
-> (I think we can then remove the BUILD_BUG_ON() in vhost?)
-> 
-> Thanks
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 93468b7c6701..b50cdf37a6f7 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -300,6 +300,10 @@ static int virtblk_getgeo(struct block_device *bd, struct hd_geometry *geo)
+>  {
+>  	struct virtio_blk *vblk = bd->bd_disk->private_data;
+>  
+> +	/* Driver instance has been removed */
+> +	if (!vblk)
+> +		return -ENOTTY;
+> +
+>  	/* see if the host passed in geometry config */
+>  	if (virtio_has_feature(vblk->vdev, VIRTIO_BLK_F_GEOMETRY)) {
+>  		virtio_cread(vblk->vdev, struct virtio_blk_config,
 
-We can in theory but then it's harmless and might catch some bugs in the
-future. After all when I introduced BUILD_BUG_ON I also assumed it's not
-really necessary, I put it there just in case.
+Just so I understand, what serializes this access?
+See below for what looks like a race condition ...
 
+> @@ -835,6 +839,7 @@ static void virtblk_remove(struct virtio_device *vdev)
+>  	vdev->config->reset(vdev);
+>  
+>  	refc = kref_read(&disk_to_dev(vblk->disk)->kobj.kref);
+
+So what if private_data is tested at this time ...
+
+> +	vblk->disk->private_data = NULL;
+>  	put_disk(vblk->disk);
+>  	vdev->config->del_vqs(vdev);
+>  	kfree(vblk->vqs);
+
+... and then used at this time?
+
+What prevents this?
+
+
+> -- 
+> 2.25.1
 > 
-> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> > index d450e16c5c25..bc77b0f465fd 100644
-> > --- a/drivers/vhost/vhost.c
-> > +++ b/drivers/vhost/vhost.c
-> > @@ -1244,9 +1244,9 @@ static int vhost_iotlb_miss(struct vhost_virtqueue *vq, u64 iova, int access)
-> >   }
-> >   static bool vq_access_ok(struct vhost_virtqueue *vq, unsigned int num,
-> > -			 struct vring_desc __user *desc,
-> > -			 struct vring_avail __user *avail,
-> > -			 struct vring_used __user *used)
-> > +			 vring_desc_t __user *desc,
-> > +			 vring_avail_t __user *avail,
-> > +			 vring_used_t __user *used)
-> >   {
-> >   	return access_ok(desc, vhost_get_desc_size(vq, num)) &&
-> > @@ -2301,7 +2301,7 @@ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
-> >   			    struct vring_used_elem *heads,
-> >   			    unsigned count)
-> >   {
-> > -	struct vring_used_elem __user *used;
-> > +	vring_used_elem_t __user *used;
-> >   	u16 old, new;
-> >   	int start;
-> > diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> > index f8403bd46b85..60cab4c78229 100644
-> > --- a/drivers/vhost/vhost.h
-> > +++ b/drivers/vhost/vhost.h
-> > @@ -67,9 +67,9 @@ struct vhost_virtqueue {
-> >   	/* The actual ring of buffers. */
-> >   	struct mutex mutex;
-> >   	unsigned int num;
-> > -	struct vring_desc __user *desc;
-> > -	struct vring_avail __user *avail;
-> > -	struct vring_used __user *used;
-> > +	vring_desc_t __user *desc;
-> > +	vring_avail_t __user *avail;
-> > +	vring_used_t __user *used;
-> >   	const struct vhost_iotlb_map *meta_iotlb[VHOST_NUM_ADDRS];
-> >   	struct file *kick;
-> >   	struct eventfd_ctx *call_ctx;
-> > diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-> > index ba8e0d6cfd97..e059a9a47cdf 100644
-> > --- a/drivers/vhost/vringh.c
-> > +++ b/drivers/vhost/vringh.c
-> > @@ -620,9 +620,9 @@ static inline int xfer_to_user(const struct vringh *vrh,
-> >    */
-> >   int vringh_init_user(struct vringh *vrh, u64 features,
-> >   		     unsigned int num, bool weak_barriers,
-> > -		     struct vring_desc __user *desc,
-> > -		     struct vring_avail __user *avail,
-> > -		     struct vring_used __user *used)
-> > +		     vring_desc_t __user *desc,
-> > +		     vring_avail_t __user *avail,
-> > +		     vring_used_t __user *used)
-> >   {
-> >   	/* Sane power of 2 please! */
-> >   	if (!num || num > 0xffff || (num & (num - 1))) {
-> > diff --git a/include/linux/vringh.h b/include/linux/vringh.h
-> > index 9e2763d7c159..59bd50f99291 100644
-> > --- a/include/linux/vringh.h
-> > +++ b/include/linux/vringh.h
-> > @@ -105,9 +105,9 @@ struct vringh_kiov {
-> >   /* Helpers for userspace vrings. */
-> >   int vringh_init_user(struct vringh *vrh, u64 features,
-> >   		     unsigned int num, bool weak_barriers,
-> > -		     struct vring_desc __user *desc,
-> > -		     struct vring_avail __user *avail,
-> > -		     struct vring_used __user *used);
-> > +		     vring_desc_t __user *desc,
-> > +		     vring_avail_t __user *avail,
-> > +		     vring_used_t __user *used);
-> >   static inline void vringh_iov_init(struct vringh_iov *iov,
-> >   				   struct iovec *iovec, unsigned num)
-> > diff --git a/include/uapi/linux/virtio_ring.h b/include/uapi/linux/virtio_ring.h
-> > index 9223c3a5c46a..476d3e5c0fe7 100644
-> > --- a/include/uapi/linux/virtio_ring.h
-> > +++ b/include/uapi/linux/virtio_ring.h
-> > @@ -86,6 +86,13 @@
-> >    * at the end of the used ring. Guest should ignore the used->flags field. */
-> >   #define VIRTIO_RING_F_EVENT_IDX		29
-> > +/* Alignment requirements for vring elements.
-> > + * When using pre-virtio 1.0 layout, these fall out naturally.
-> > + */
-> > +#define VRING_AVAIL_ALIGN_SIZE 2
-> > +#define VRING_USED_ALIGN_SIZE 4
-> > +#define VRING_DESC_ALIGN_SIZE 16
-> > +
-> >   /* Virtio ring descriptors: 16 bytes.  These can chain together via "next". */
-> >   struct vring_desc {
-> >   	/* Address (guest-physical). */
-> > @@ -112,29 +119,46 @@ struct vring_used_elem {
-> >   	__virtio32 len;
-> >   };
-> > +typedef struct vring_used_elem __attribute__((aligned(VRING_USED_ALIGN_SIZE)))
-> > +	vring_used_elem_t;
-> > +
-> >   struct vring_used {
-> >   	__virtio16 flags;
-> >   	__virtio16 idx;
-> > -	struct vring_used_elem ring[];
-> > +	vring_used_elem_t ring[];
-> >   };
-> > +/*
-> > + * The ring element addresses are passed between components with different
-> > + * alignments assumptions. Thus, we might need to decrease the compiler-selected
-> > + * alignment, and so must use a typedef to make sure the aligned attribute
-> > + * actually takes hold:
-> > + *
-> > + * https://gcc.gnu.org/onlinedocs//gcc/Common-Type-Attributes.html#Common-Type-Attributes
-> > + *
-> > + * When used on a struct, or struct member, the aligned attribute can only
-> > + * increase the alignment; in order to decrease it, the packed attribute must
-> > + * be specified as well. When used as part of a typedef, the aligned attribute
-> > + * can both increase and decrease alignment, and specifying the packed
-> > + * attribute generates a warning.
-> > + */
-> > +typedef struct vring_desc __attribute__((aligned(VRING_DESC_ALIGN_SIZE)))
-> > +	vring_desc_t;
-> > +typedef struct vring_avail __attribute__((aligned(VRING_AVAIL_ALIGN_SIZE)))
-> > +	vring_avail_t;
-> > +typedef struct vring_used __attribute__((aligned(VRING_USED_ALIGN_SIZE)))
-> > +	vring_used_t;
-> > +
-> >   struct vring {
-> >   	unsigned int num;
-> > -	struct vring_desc *desc;
-> > +	vring_desc_t *desc;
-> > -	struct vring_avail *avail;
-> > +	vring_avail_t *avail;
-> > -	struct vring_used *used;
-> > +	vring_used_t *used;
-> >   };
-> > -/* Alignment requirements for vring elements.
-> > - * When using pre-virtio 1.0 layout, these fall out naturally.
-> > - */
-> > -#define VRING_AVAIL_ALIGN_SIZE 2
-> > -#define VRING_USED_ALIGN_SIZE 4
-> > -#define VRING_DESC_ALIGN_SIZE 16
-> > -
-> >   #ifndef VIRTIO_RING_NO_LEGACY
-> >   /* The standard layout for the ring is a continuous chunk of memory which looks
