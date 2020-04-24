@@ -1,85 +1,50 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH] virtio-blk: handle block_device_operations callbacks
- after hot unplug
-Date: Fri, 24 Apr 2020 11:42:48 +0100
-Message-ID: <20200424104248.GB174193@stefanha-x1.localdomain>
-References: <20200423123717.139141-1-stefanha@redhat.com>
- <20200423141338.GA29646@infradead.org>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: [PATCH net v2 1/2] vhost/vsock: fix packet delivery order to monitoring devices
+Date: Fri, 24 Apr 2020 17:08:29 +0200
+Message-ID: <20200424150830.183113-2-sgarzare@redhat.com>
+References: <20200424150830.183113-1-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="wq9mPyueHGvFACwf"
-Return-path: <linux-block-owner@vger.kernel.org>
-In-Reply-To: <20200423141338.GA29646@infradead.org>
-Content-Disposition: inline
-Sender: linux-block-owner@vger.kernel.org
-To: Christoph Hellwig <hch@infradead.org>
-Cc: virtualization@lists.linux-foundation.org, Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Lance Digby <ldigby@redhat.com>
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200424150830.183113-1-sgarzare@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: davem@davemloft.net
+Cc: Jason Wang <jasowang@redhat.com>, Jakub Kicinski <kuba@kernel.org>, linux-kernel@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---wq9mPyueHGvFACwf
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+We want to deliver packets to monitoring devices before it is
+put in the virtqueue, to avoid that replies can appear in the
+packet capture before the transmitted packet.
 
-On Thu, Apr 23, 2020 at 07:13:38AM -0700, Christoph Hellwig wrote:
-> On Thu, Apr 23, 2020 at 01:37:17PM +0100, Stefan Hajnoczi wrote:
-> > A virtio_blk block device can still be referenced after hot unplug by
-> > userspace processes that hold the file descriptor.  In this case
-> > virtblk_getgeo() can be invoked after virtblk_remove() was called.  For
-> > example, a program that has /dev/vdb open can call ioctl(HDIO_GETGEO)
-> > after hot unplug.
-> >=20
-> > Fix this by clearing vblk->disk->private_data and checking that the
-> > virtio_blk driver instance is still around in virtblk_getgeo().
-> >=20
-> > Note that the virtblk_getgeo() function itself is guaranteed to remain
-> > in memory after hot unplug because the virtio_blk module refcount is
-> > still held while a block device reference exists.
-> >=20
-> > Originally-by: Lance Digby <ldigby@redhat.com>
-> > Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
-> > ---
-> >  drivers/block/virtio_blk.c | 5 +++++
-> >  1 file changed, 5 insertions(+)
-> >=20
-> > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> > index 93468b7c6701..b50cdf37a6f7 100644
-> > --- a/drivers/block/virtio_blk.c
-> > +++ b/drivers/block/virtio_blk.c
-> > @@ -300,6 +300,10 @@ static int virtblk_getgeo(struct block_device *bd,=
- struct hd_geometry *geo)
-> >  {
-> >  =09struct virtio_blk *vblk =3D bd->bd_disk->private_data;
-> > =20
-> > +=09/* Driver instance has been removed */
-> > +=09if (!vblk)
-> > +=09=09return -ENOTTY;
->=20
-> If this ever hits you have a nasty race condition and this is not
-> going to fix it, as it could be removed just after this check as well.
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+---
+ drivers/vhost/vsock.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-Perhaps a better fix is to keep a refcount in struct virtio_blk and
-implement block_device_operations->release() to decrement the refcount.
-
-That way the struct virtio_blk stays around until all block device
-references are dropped.  This is similar to nbd_put() in
-drivers/block/nbd.c.
-
-Stefan
-
---wq9mPyueHGvFACwf
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl6iwqgACgkQnKSrs4Gr
-c8gkBQgAwHhtsW9ZXLDZXqp0Kkfsefk/q7JtsVeNejQKlMtOxFqaksestEjC6QvD
-i1eTIlK/eNKdy6dfYcLANEpE4GQWxfYcdRGjVFiEghbpyOxCqbhk+Tj2PYIEpczs
-Hs0l/nnEN07+hP7nI+owGGdpPN3USN8ZPGJyUOEVjPMT10wYbU5msh2sFnPGGAcU
-NbCMJQq6PaNij35r1AL8GdimGQ6lqjnMoTbL1ex9Jrf1KzBoYBBJckK/JkDd1v59
-5DsDbjTkDFcaRHKJzf3iuxg8a0AzGXQKudwiS2rGzVirxwVQN1RAi5yHBZnLJ0uT
-C0Q7z66olBCYP+IxjOpt5ZtA7X8H6A==
-=+zCT
------END PGP SIGNATURE-----
-
---wq9mPyueHGvFACwf--
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index 97669484a3f6..18aff350a405 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -181,14 +181,14 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vso=
+ck,
+ 			break;
+ 		}
+=20
+-		vhost_add_used(vq, head, sizeof(pkt->hdr) + payload_len);
+-		added =3D true;
+-
+-		/* Deliver to monitoring devices all correctly transmitted
+-		 * packets.
++		/* Deliver to monitoring devices all packets that we
++		 * will transmit.
+ 		 */
+ 		virtio_transport_deliver_tap_pkt(pkt);
+=20
++		vhost_add_used(vq, head, sizeof(pkt->hdr) + payload_len);
++		added =3D true;
++
+ 		pkt->off +=3D payload_len;
+ 		total_len +=3D payload_len;
+=20
+--=20
+2.25.3
