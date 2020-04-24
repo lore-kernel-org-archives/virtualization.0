@@ -1,117 +1,85 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH net] vsock/virtio: postpone packet delivery to monitoring
- devices
-Date: Fri, 24 Apr 2020 12:35:15 +0200
-Message-ID: <20200424103515.v62vldnnmtz3r6dm@steredhat>
-References: <20200421092527.41651-1-sgarzare@redhat.com>
- <20200421154246.GA47385@stefanha-x1.localdomain>
- <20200421161724.c3pnecltfz4jajww@steredhat>
- <20200422165420.GL47385@stefanha-x1.localdomain>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH] virtio-blk: handle block_device_operations callbacks
+ after hot unplug
+Date: Fri, 24 Apr 2020 11:42:48 +0100
+Message-ID: <20200424104248.GB174193@stefanha-x1.localdomain>
+References: <20200423123717.139141-1-stefanha@redhat.com>
+ <20200423141338.GA29646@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="wq9mPyueHGvFACwf"
+Return-path: <linux-block-owner@vger.kernel.org>
+In-Reply-To: <20200423141338.GA29646@infradead.org>
 Content-Disposition: inline
-In-Reply-To: <20200422165420.GL47385@stefanha-x1.localdomain>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Stefan Hajnoczi <stefanha@gmail.com>, davem@davemloft.net, Gerard Garcia <ggarcia@abra.uab.cat>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Jakub Kicinski <kuba@kernel.org>
+Sender: linux-block-owner@vger.kernel.org
+To: Christoph Hellwig <hch@infradead.org>
+Cc: virtualization@lists.linux-foundation.org, Jens Axboe <axboe@kernel.dk>, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Lance Digby <ldigby@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 22, 2020 at 05:54:20PM +0100, Stefan Hajnoczi wrote:
-> On Tue, Apr 21, 2020 at 06:17:24PM +0200, Stefano Garzarella wrote:
-> > On Tue, Apr 21, 2020 at 04:42:46PM +0100, Stefan Hajnoczi wrote:
-> > > On Tue, Apr 21, 2020 at 11:25:27AM +0200, Stefano Garzarella wrote:
-> > > > We delivering packets to monitoring devices, before to check if
-> > > > the virtqueue has enough space.
-> > > 
-> > > "We [are] delivering packets" and "before to check" -> "before
-> > > checking".  Perhaps it can be rewritten as:
-> > > 
-> > >   Packets are delivered to monitoring devices before checking if the
-> > >   virtqueue has enough space.
-> > > 
-> > 
-> > Yeah, it is better :-)
-> > 
-> > > > 
-> > > > If the virtqueue is full, the transmitting packet is queued up
-> > > > and it will be sent in the next iteration. This causes the same
-> > > > packet to be delivered multiple times to monitoring devices.
-> > > > 
-> > > > This patch fixes this issue, postponing the packet delivery
-> > > > to monitoring devices, only when it is properly queued in the
-> > > 
-> > > s/,//
-> > > 
-> > > > virqueue.
-> > > 
-> > > s/virqueue/virtqueue/
-> > > 
-> > 
-> > Thanks, I'll fix in the v2!
-> > 
-> > > > @@ -137,6 +135,11 @@ virtio_transport_send_pkt_work(struct work_struct *work)
-> > > >  			break;
-> > > >  		}
-> > > >  
-> > > > +		/* Deliver to monitoring devices all correctly transmitted
-> > > > +		 * packets.
-> > > > +		 */
-> > > > +		virtio_transport_deliver_tap_pkt(pkt);
-> > > > +
-> > > 
-> > > The device may see the tx packet and therefore receive a reply to it
-> > > before we can call virtio_transport_deliver_tap_pkt().  Does this mean
-> > > that replies can now appear in the packet capture before the transmitted
-> > > packet?
-> > 
-> > hmm, you are right!
-> > 
-> > And the same thing can already happen in vhost-vsock where we call
-> > virtio_transport_deliver_tap_pkt() after the vhost_add_used(), right?
-> > 
-> > The vhost-vsock case can be fixed in a simple way, but here do you think
-> > we should serialize them? (e.g. mutex, spinlock)
-> > 
-> > In this case I'm worried about performance.
-> > 
-> > Or is there some virtqueue API to check availability?
-> 
-> Let's stick to the same semantics as Ethernet netdevs.  That way there
-> are no surprises to anyone who is familiar with Linux packet captures.
-> I don't know what those semantics are though, you'd need to check the
-> code :).
+--wq9mPyueHGvFACwf
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-IIUC, the packet is delivered to tap/monitoring devices before to call
-the xmit() callback provided by the NIC driver.
+On Thu, Apr 23, 2020 at 07:13:38AM -0700, Christoph Hellwig wrote:
+> On Thu, Apr 23, 2020 at 01:37:17PM +0100, Stefan Hajnoczi wrote:
+> > A virtio_blk block device can still be referenced after hot unplug by
+> > userspace processes that hold the file descriptor.  In this case
+> > virtblk_getgeo() can be invoked after virtblk_remove() was called.  For
+> > example, a program that has /dev/vdb open can call ioctl(HDIO_GETGEO)
+> > after hot unplug.
+> >=20
+> > Fix this by clearing vblk->disk->private_data and checking that the
+> > virtio_blk driver instance is still around in virtblk_getgeo().
+> >=20
+> > Note that the virtblk_getgeo() function itself is guaranteed to remain
+> > in memory after hot unplug because the virtio_blk module refcount is
+> > still held while a block device reference exists.
+> >=20
+> > Originally-by: Lance Digby <ldigby@redhat.com>
+> > Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+> > ---
+> >  drivers/block/virtio_blk.c | 5 +++++
+> >  1 file changed, 5 insertions(+)
+> >=20
+> > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> > index 93468b7c6701..b50cdf37a6f7 100644
+> > --- a/drivers/block/virtio_blk.c
+> > +++ b/drivers/block/virtio_blk.c
+> > @@ -300,6 +300,10 @@ static int virtblk_getgeo(struct block_device *bd,=
+ struct hd_geometry *geo)
+> >  {
+> >  =09struct virtio_blk *vblk =3D bd->bd_disk->private_data;
+> > =20
+> > +=09/* Driver instance has been removed */
+> > +=09if (!vblk)
+> > +=09=09return -ENOTTY;
+>=20
+> If this ever hits you have a nasty race condition and this is not
+> going to fix it, as it could be removed just after this check as well.
 
-At that point, if the packet is delayed/dropped/retransmitted by the driver
-or the NIC, the monitoring application is not aware.
+Perhaps a better fix is to keep a refcount in struct virtio_blk and
+implement block_device_operations->release() to decrement the refcount.
 
-So, I think we can delivery it the first time that we see the packet,
-before to queue it in the virtqueue (I should revert this change and fix
-vhost-vsock), setting a flag in the 'struct virtio_vsock_pkt' to avoid
-to delivery it multiple times.
+That way the struct virtio_blk stays around until all block device
+references are dropped.  This is similar to nbd_put() in
+drivers/block/nbd.c.
 
-I mean something like this:
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -157,7 +157,11 @@ static struct sk_buff *virtio_transport_build_skb(void *opaque)
+Stefan
 
- void virtio_transport_deliver_tap_pkt(struct virtio_vsock_pkt *pkt)
- {
-+       if (pkt->tap_delivered)
-+               return;
-+
-        vsock_deliver_tap(virtio_transport_build_skb, pkt);
-+       pkt->tap_delivered = true;
- }
- EXPORT_SYMBOL_GPL(virtio_transport_deliver_tap_pkt);
+--wq9mPyueHGvFACwf
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
 
-Let me know if you think it is a bad idea.
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl6iwqgACgkQnKSrs4Gr
+c8gkBQgAwHhtsW9ZXLDZXqp0Kkfsefk/q7JtsVeNejQKlMtOxFqaksestEjC6QvD
+i1eTIlK/eNKdy6dfYcLANEpE4GQWxfYcdRGjVFiEghbpyOxCqbhk+Tj2PYIEpczs
+Hs0l/nnEN07+hP7nI+owGGdpPN3USN8ZPGJyUOEVjPMT10wYbU5msh2sFnPGGAcU
+NbCMJQq6PaNij35r1AL8GdimGQ6lqjnMoTbL1ex9Jrf1KzBoYBBJckK/JkDd1v59
+5DsDbjTkDFcaRHKJzf3iuxg8a0AzGXQKudwiS2rGzVirxwVQN1RAi5yHBZnLJ0uT
+C0Q7z66olBCYP+IxjOpt5ZtA7X8H6A==
+=+zCT
+-----END PGP SIGNATURE-----
 
-I'll send a v2 whit these changes.
-
-Thanks,
-Stefano
+--wq9mPyueHGvFACwf--
