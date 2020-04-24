@@ -1,15 +1,16 @@
 From: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [PATCH 37/59] drm/cirrus: Move to drm/tiny
-Date: Fri, 24 Apr 2020 18:37:57 +0200
-Message-ID: <20200424163756.GB3822@ravnborg.org>
+Subject: Re: [PATCH 59/59] drm/bochs: Remove explicit
+ drm_connector_register
+Date: Fri, 24 Apr 2020 20:11:18 +0200
+Message-ID: <20200424181118.GN7074@ravnborg.org>
 References: <20200415074034.175360-1-daniel.vetter@ffwll.ch>
- <20200415074034.175360-38-daniel.vetter@ffwll.ch>
+ <20200415074034.175360-60-daniel.vetter@ffwll.ch>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <intel-gfx-bounces@lists.freedesktop.org>
 Content-Disposition: inline
-In-Reply-To: <20200415074034.175360-38-daniel.vetter@ffwll.ch>
+In-Reply-To: <20200415074034.175360-60-daniel.vetter@ffwll.ch>
 List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
  <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
 List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
@@ -20,147 +21,34 @@ List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
 Errors-To: intel-gfx-bounces@lists.freedesktop.org
 Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
 To: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Intel Graphics Development <intel-gfx@lists.freedesktop.org>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Gerd Hoffmann <kraxel@redhat.com>, Dave Airlie <airlied@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>
+Cc: Daniel Vetter <daniel.vetter@intel.com>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, Gerd Hoffmann <kraxel@redhat.com>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 15, 2020 at 09:40:12AM +0200, Daniel Vetter wrote:
-> Because it is. Huge congrats to everyone who made this kind of
-> refactoring happen!
+On Wed, Apr 15, 2020 at 09:40:34AM +0200, Daniel Vetter wrote:
+> This is leftovers from the old drm_driver->load callback
+> upside-down issues. It doesn't do anything for not-hotplugged
+> connectors since drm_dev_register takes care of that.
 > 
 > Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-> Cc: Dave Airlie <airlied@redhat.com>
 > Cc: Gerd Hoffmann <kraxel@redhat.com>
 > Cc: virtualization@lists.linux-foundation.org
 Acked-by: Sam Ravnborg <sam@ravnborg.org>
 > ---
->  MAINTAINERS                               |  2 +-
->  drivers/gpu/drm/Kconfig                   |  2 --
->  drivers/gpu/drm/Makefile                  |  1 -
->  drivers/gpu/drm/cirrus/Kconfig            | 19 -------------------
->  drivers/gpu/drm/cirrus/Makefile           |  2 --
->  drivers/gpu/drm/tiny/Kconfig              | 19 +++++++++++++++++++
->  drivers/gpu/drm/tiny/Makefile             |  1 +
->  drivers/gpu/drm/{cirrus => tiny}/cirrus.c |  0
->  8 files changed, 21 insertions(+), 25 deletions(-)
->  delete mode 100644 drivers/gpu/drm/cirrus/Kconfig
->  delete mode 100644 drivers/gpu/drm/cirrus/Makefile
->  rename drivers/gpu/drm/{cirrus => tiny}/cirrus.c (100%)
+>  drivers/gpu/drm/bochs/bochs_kms.c | 1 -
+>  1 file changed, 1 deletion(-)
 > 
-> diff --git a/MAINTAINERS b/MAINTAINERS
-> index 7b3255d96d1d..0a5cf105ee37 100644
-> --- a/MAINTAINERS
-> +++ b/MAINTAINERS
-> @@ -5397,7 +5397,7 @@ L:	virtualization@lists.linux-foundation.org
->  S:	Obsolete
->  W:	https://www.kraxel.org/blog/2014/10/qemu-using-cirrus-considered-harmful/
->  T:	git git://anongit.freedesktop.org/drm/drm-misc
-> -F:	drivers/gpu/drm/cirrus/
-> +F:	drivers/gpu/drm/tiny/cirrus.c
+> diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+> index 7f4bcfad87e9..05d8373888e8 100644
+> --- a/drivers/gpu/drm/bochs/bochs_kms.c
+> +++ b/drivers/gpu/drm/bochs/bochs_kms.c
+> @@ -104,7 +104,6 @@ static void bochs_connector_init(struct drm_device *dev)
+>  			   DRM_MODE_CONNECTOR_VIRTUAL);
+>  	drm_connector_helper_add(connector,
+>  				 &bochs_connector_connector_helper_funcs);
+> -	drm_connector_register(connector);
 >  
->  DRM DRIVER FOR QXL VIRTUAL GPU
->  M:	Dave Airlie <airlied@redhat.com>
-> diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
-> index 43594978958e..4f4e7fa001c1 100644
-> --- a/drivers/gpu/drm/Kconfig
-> +++ b/drivers/gpu/drm/Kconfig
-> @@ -310,8 +310,6 @@ source "drivers/gpu/drm/ast/Kconfig"
->  
->  source "drivers/gpu/drm/mgag200/Kconfig"
->  
-> -source "drivers/gpu/drm/cirrus/Kconfig"
-> -
->  source "drivers/gpu/drm/armada/Kconfig"
->  
->  source "drivers/gpu/drm/atmel-hlcdc/Kconfig"
-> diff --git a/drivers/gpu/drm/Makefile b/drivers/gpu/drm/Makefile
-> index f34d08c83485..2c0e5a7e5953 100644
-> --- a/drivers/gpu/drm/Makefile
-> +++ b/drivers/gpu/drm/Makefile
-> @@ -74,7 +74,6 @@ obj-$(CONFIG_DRM_I915)	+= i915/
->  obj-$(CONFIG_DRM_MGAG200) += mgag200/
->  obj-$(CONFIG_DRM_V3D)  += v3d/
->  obj-$(CONFIG_DRM_VC4)  += vc4/
-> -obj-$(CONFIG_DRM_CIRRUS_QEMU) += cirrus/
->  obj-$(CONFIG_DRM_SIS)   += sis/
->  obj-$(CONFIG_DRM_SAVAGE)+= savage/
->  obj-$(CONFIG_DRM_VMWGFX)+= vmwgfx/
-> diff --git a/drivers/gpu/drm/cirrus/Kconfig b/drivers/gpu/drm/cirrus/Kconfig
-> deleted file mode 100644
-> index c6bbd988b0e5..000000000000
-> --- a/drivers/gpu/drm/cirrus/Kconfig
-> +++ /dev/null
-> @@ -1,19 +0,0 @@
-> -# SPDX-License-Identifier: GPL-2.0-only
-> -config DRM_CIRRUS_QEMU
-> -	tristate "Cirrus driver for QEMU emulated device"
-> -	depends on DRM && PCI && MMU
-> -	select DRM_KMS_HELPER
-> -	select DRM_GEM_SHMEM_HELPER
-> -	help
-> -	 This is a KMS driver for emulated cirrus device in qemu.
-> -	 It is *NOT* intended for real cirrus devices. This requires
-> -	 the modesetting userspace X.org driver.
-> -
-> -	 Cirrus is obsolete, the hardware was designed in the 90ies
-> -	 and can't keep up with todays needs.  More background:
-> -	 https://www.kraxel.org/blog/2014/10/qemu-using-cirrus-considered-harmful/
-> -
-> -	 Better alternatives are:
-> -	   - stdvga (DRM_BOCHS, qemu -vga std, default in qemu 2.2+)
-> -	   - qxl (DRM_QXL, qemu -vga qxl, works best with spice)
-> -	   - virtio (DRM_VIRTIO_GPU), qemu -vga virtio)
-> diff --git a/drivers/gpu/drm/cirrus/Makefile b/drivers/gpu/drm/cirrus/Makefile
-> deleted file mode 100644
-> index 0c1ed3f99725..000000000000
-> --- a/drivers/gpu/drm/cirrus/Makefile
-> +++ /dev/null
-> @@ -1,2 +0,0 @@
-> -# SPDX-License-Identifier: GPL-2.0-only
-> -obj-$(CONFIG_DRM_CIRRUS_QEMU) += cirrus.o
-> diff --git a/drivers/gpu/drm/tiny/Kconfig b/drivers/gpu/drm/tiny/Kconfig
-> index 4160e74e4751..2b6414f0fa75 100644
-> --- a/drivers/gpu/drm/tiny/Kconfig
-> +++ b/drivers/gpu/drm/tiny/Kconfig
-> @@ -1,5 +1,24 @@
->  # SPDX-License-Identifier: GPL-2.0-only
->  
-> +config DRM_CIRRUS_QEMU
-> +	tristate "Cirrus driver for QEMU emulated device"
-> +	depends on DRM && PCI && MMU
-> +	select DRM_KMS_HELPER
-> +	select DRM_GEM_SHMEM_HELPER
-> +	help
-> +	 This is a KMS driver for emulated cirrus device in qemu.
-> +	 It is *NOT* intended for real cirrus devices. This requires
-> +	 the modesetting userspace X.org driver.
-> +
-> +	 Cirrus is obsolete, the hardware was designed in the 90ies
-> +	 and can't keep up with todays needs.  More background:
-> +	 https://www.kraxel.org/blog/2014/10/qemu-using-cirrus-considered-harmful/
-> +
-> +	 Better alternatives are:
-> +	   - stdvga (DRM_BOCHS, qemu -vga std, default in qemu 2.2+)
-> +	   - qxl (DRM_QXL, qemu -vga qxl, works best with spice)
-> +	   - virtio (DRM_VIRTIO_GPU), qemu -vga virtio)
-> +
->  config DRM_GM12U320
->  	tristate "GM12U320 driver for USB projectors"
->  	depends on DRM && USB
-> diff --git a/drivers/gpu/drm/tiny/Makefile b/drivers/gpu/drm/tiny/Makefile
-> index c96ceee71453..6ae4e9e5a35f 100644
-> --- a/drivers/gpu/drm/tiny/Makefile
-> +++ b/drivers/gpu/drm/tiny/Makefile
-> @@ -1,5 +1,6 @@
->  # SPDX-License-Identifier: GPL-2.0-only
->  
-> +obj-$(CONFIG_DRM_CIRRUS_QEMU)		+= cirrus.o
->  obj-$(CONFIG_DRM_GM12U320)		+= gm12u320.o
->  obj-$(CONFIG_TINYDRM_HX8357D)		+= hx8357d.o
->  obj-$(CONFIG_TINYDRM_ILI9225)		+= ili9225.o
-> diff --git a/drivers/gpu/drm/cirrus/cirrus.c b/drivers/gpu/drm/tiny/cirrus.c
-> similarity index 100%
-> rename from drivers/gpu/drm/cirrus/cirrus.c
-> rename to drivers/gpu/drm/tiny/cirrus.c
+>  	bochs_hw_load_edid(bochs);
+>  	if (bochs->edid) {
 > -- 
 > 2.25.1
 > 
