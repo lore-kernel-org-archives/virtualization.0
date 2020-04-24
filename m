@@ -1,98 +1,117 @@
-From: Zhu Lingshan <lingshan.zhu@intel.com>
-Subject: [PATCH 2/2] vdpa: implement config interrupt in IFCVF
-Date: Fri, 24 Apr 2020 18:04:19 +0800
-Message-ID: <1587722659-1300-3-git-send-email-lingshan.zhu@intel.com>
-References: <1587722659-1300-1-git-send-email-lingshan.zhu@intel.com>
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <1587722659-1300-1-git-send-email-lingshan.zhu@intel.com>
-Sender: netdev-owner@vger.kernel.org
-To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, jasowang@redhat.com
-Cc: lulu@redhat.com, dan.daly@intel.com, cunming.liang@intel.com, Zhu Lingshan <lingshan.zhu@intel.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH net] vsock/virtio: postpone packet delivery to monitoring
+ devices
+Date: Fri, 24 Apr 2020 12:35:15 +0200
+Message-ID: <20200424103515.v62vldnnmtz3r6dm@steredhat>
+References: <20200421092527.41651-1-sgarzare@redhat.com>
+ <20200421154246.GA47385@stefanha-x1.localdomain>
+ <20200421161724.c3pnecltfz4jajww@steredhat>
+ <20200422165420.GL47385@stefanha-x1.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200422165420.GL47385@stefanha-x1.localdomain>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@gmail.com>, davem@davemloft.net, Gerard Garcia <ggarcia@abra.uab.cat>, kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Jakub Kicinski <kuba@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This commit implements config interrupt support
-in IFC VF
+On Wed, Apr 22, 2020 at 05:54:20PM +0100, Stefan Hajnoczi wrote:
+> On Tue, Apr 21, 2020 at 06:17:24PM +0200, Stefano Garzarella wrote:
+> > On Tue, Apr 21, 2020 at 04:42:46PM +0100, Stefan Hajnoczi wrote:
+> > > On Tue, Apr 21, 2020 at 11:25:27AM +0200, Stefano Garzarella wrote:
+> > > > We delivering packets to monitoring devices, before to check if
+> > > > the virtqueue has enough space.
+> > > 
+> > > "We [are] delivering packets" and "before to check" -> "before
+> > > checking".  Perhaps it can be rewritten as:
+> > > 
+> > >   Packets are delivered to monitoring devices before checking if the
+> > >   virtqueue has enough space.
+> > > 
+> > 
+> > Yeah, it is better :-)
+> > 
+> > > > 
+> > > > If the virtqueue is full, the transmitting packet is queued up
+> > > > and it will be sent in the next iteration. This causes the same
+> > > > packet to be delivered multiple times to monitoring devices.
+> > > > 
+> > > > This patch fixes this issue, postponing the packet delivery
+> > > > to monitoring devices, only when it is properly queued in the
+> > > 
+> > > s/,//
+> > > 
+> > > > virqueue.
+> > > 
+> > > s/virqueue/virtqueue/
+> > > 
+> > 
+> > Thanks, I'll fix in the v2!
+> > 
+> > > > @@ -137,6 +135,11 @@ virtio_transport_send_pkt_work(struct work_struct *work)
+> > > >  			break;
+> > > >  		}
+> > > >  
+> > > > +		/* Deliver to monitoring devices all correctly transmitted
+> > > > +		 * packets.
+> > > > +		 */
+> > > > +		virtio_transport_deliver_tap_pkt(pkt);
+> > > > +
+> > > 
+> > > The device may see the tx packet and therefore receive a reply to it
+> > > before we can call virtio_transport_deliver_tap_pkt().  Does this mean
+> > > that replies can now appear in the packet capture before the transmitted
+> > > packet?
+> > 
+> > hmm, you are right!
+> > 
+> > And the same thing can already happen in vhost-vsock where we call
+> > virtio_transport_deliver_tap_pkt() after the vhost_add_used(), right?
+> > 
+> > The vhost-vsock case can be fixed in a simple way, but here do you think
+> > we should serialize them? (e.g. mutex, spinlock)
+> > 
+> > In this case I'm worried about performance.
+> > 
+> > Or is there some virtqueue API to check availability?
+> 
+> Let's stick to the same semantics as Ethernet netdevs.  That way there
+> are no surprises to anyone who is familiar with Linux packet captures.
+> I don't know what those semantics are though, you'd need to check the
+> code :).
 
-Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
----
- drivers/vdpa/ifcvf/ifcvf_base.c |  3 +++
- drivers/vdpa/ifcvf/ifcvf_base.h |  2 ++
- drivers/vdpa/ifcvf/ifcvf_main.c | 22 +++++++++++++++++++++-
- 3 files changed, 26 insertions(+), 1 deletion(-)
+IIUC, the packet is delivered to tap/monitoring devices before to call
+the xmit() callback provided by the NIC driver.
 
-diff --git a/drivers/vdpa/ifcvf/ifcvf_base.c b/drivers/vdpa/ifcvf/ifcvf_base.c
-index b61b06e..c825d99 100644
---- a/drivers/vdpa/ifcvf/ifcvf_base.c
-+++ b/drivers/vdpa/ifcvf/ifcvf_base.c
-@@ -185,6 +185,9 @@ void ifcvf_set_status(struct ifcvf_hw *hw, u8 status)
- 
- void ifcvf_reset(struct ifcvf_hw *hw)
+At that point, if the packet is delayed/dropped/retransmitted by the driver
+or the NIC, the monitoring application is not aware.
+
+So, I think we can delivery it the first time that we see the packet,
+before to queue it in the virtqueue (I should revert this change and fix
+vhost-vsock), setting a flag in the 'struct virtio_vsock_pkt' to avoid
+to delivery it multiple times.
+
+I mean something like this:
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -157,7 +157,11 @@ static struct sk_buff *virtio_transport_build_skb(void *opaque)
+
+ void virtio_transport_deliver_tap_pkt(struct virtio_vsock_pkt *pkt)
  {
-+	hw->config_cb.callback = NULL;
-+	hw->config_cb.private = NULL;
++       if (pkt->tap_delivered)
++               return;
 +
- 	ifcvf_set_status(hw, 0);
- 	/* flush set_status, make sure VF is stopped, reset */
- 	ifcvf_get_status(hw);
-diff --git a/drivers/vdpa/ifcvf/ifcvf_base.h b/drivers/vdpa/ifcvf/ifcvf_base.h
-index e803070..76928b0 100644
---- a/drivers/vdpa/ifcvf/ifcvf_base.h
-+++ b/drivers/vdpa/ifcvf/ifcvf_base.h
-@@ -81,6 +81,8 @@ struct ifcvf_hw {
- 	void __iomem *net_cfg;
- 	struct vring_info vring[IFCVF_MAX_QUEUE_PAIRS * 2];
- 	void __iomem * const *base;
-+	char config_msix_name[256];
-+	struct vdpa_callback config_cb;
- };
- 
- struct ifcvf_adapter {
-diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
-index 8d54dc5..f7baeca 100644
---- a/drivers/vdpa/ifcvf/ifcvf_main.c
-+++ b/drivers/vdpa/ifcvf/ifcvf_main.c
-@@ -18,6 +18,16 @@
- #define DRIVER_AUTHOR   "Intel Corporation"
- #define IFCVF_DRIVER_NAME       "ifcvf"
- 
-+static irqreturn_t ifcvf_config_changed(int irq, void *arg)
-+{
-+	struct ifcvf_hw *vf = arg;
-+
-+	if (vf->config_cb.callback)
-+		return vf->config_cb.callback(vf->config_cb.private);
-+
-+	return IRQ_HANDLED;
-+}
-+
- static irqreturn_t ifcvf_intr_handler(int irq, void *arg)
- {
- 	struct vring_info *vring = arg;
-@@ -256,7 +266,10 @@ static void ifcvf_vdpa_set_config(struct vdpa_device *vdpa_dev,
- static void ifcvf_vdpa_set_config_cb(struct vdpa_device *vdpa_dev,
- 				     struct vdpa_callback *cb)
- {
--	/* We don't support config interrupt */
-+	struct ifcvf_hw *vf = vdpa_to_vf(vdpa_dev);
-+
-+	vf->config_cb.callback = cb->callback;
-+	vf->config_cb.private = cb->private;
+        vsock_deliver_tap(virtio_transport_build_skb, pkt);
++       pkt->tap_delivered = true;
  }
- 
- /*
-@@ -292,6 +305,13 @@ static int ifcvf_request_irq(struct ifcvf_adapter *adapter)
- 	struct ifcvf_hw *vf = &adapter->vf;
- 	int vector, i, ret, irq;
- 
-+	snprintf(vf->config_msix_name, 256, "ifcvf[%s]-config\n",
-+		pci_name(pdev));
-+	vector = 0;
-+	irq = pci_irq_vector(pdev, vector);
-+	ret = devm_request_irq(&pdev->dev, irq,
-+			       ifcvf_config_changed, 0,
-+			       vf->config_msix_name, vf);
- 
- 	for (i = 0; i < IFCVF_MAX_QUEUE_PAIRS * 2; i++) {
- 		snprintf(vf->vring[i].msix_name, 256, "ifcvf[%s]-%d\n",
--- 
-1.8.3.1
+ EXPORT_SYMBOL_GPL(virtio_transport_deliver_tap_pkt);
+
+
+Let me know if you think it is a bad idea.
+
+I'll send a v2 whit these changes.
+
+Thanks,
+Stefano
