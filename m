@@ -1,58 +1,123 @@
-From: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [PATCH 59/59] drm/bochs: Remove explicit
- drm_connector_register
-Date: Fri, 24 Apr 2020 20:11:18 +0200
-Message-ID: <20200424181118.GN7074@ravnborg.org>
-References: <20200415074034.175360-1-daniel.vetter@ffwll.ch>
- <20200415074034.175360-60-daniel.vetter@ffwll.ch>
+From: Mike Stunes <mstunes@vmware.com>
+Subject: [PATCH] Allow RDTSC and RDTSCP from userspace
+Date: Fri, 24 Apr 2020 14:03:16 -0700
+Message-ID: <20200424210316.848878-1-mstunes@vmware.com>
+References: <20200319091407.1481-56-joro@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-Content-Disposition: inline
-In-Reply-To: <20200415074034.175360-60-daniel.vetter@ffwll.ch>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Daniel Vetter <daniel.vetter@intel.com>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, Gerd Hoffmann <kraxel@redhat.com>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20200319091407.1481-56-joro@8bytes.org>
+Sender: kvm-owner@vger.kernel.org
+To: joro@8bytes.org
+Cc: dan.j.williams@intel.com, dave.hansen@linux.intel.com, hpa@zytor.com, jgross@suse.com, jroedel@suse.de, jslaby@suse.cz, keescook@chromium.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, luto@kernel.org, peterz@infradead.org, thellstrom@vmware.com, thomas.lendacky@amd.com, virtualization@lists.linux-foundation.org, x86@kernel.org, Mike Stunes <mstunes@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 15, 2020 at 09:40:34AM +0200, Daniel Vetter wrote:
-> This is leftovers from the old drm_driver->load callback
-> upside-down issues. It doesn't do anything for not-hotplugged
-> connectors since drm_dev_register takes care of that.
-> 
-> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-> Cc: Gerd Hoffmann <kraxel@redhat.com>
-> Cc: virtualization@lists.linux-foundation.org
-Acked-by: Sam Ravnborg <sam@ravnborg.org>
-> ---
->  drivers/gpu/drm/bochs/bochs_kms.c | 1 -
->  1 file changed, 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-> index 7f4bcfad87e9..05d8373888e8 100644
-> --- a/drivers/gpu/drm/bochs/bochs_kms.c
-> +++ b/drivers/gpu/drm/bochs/bochs_kms.c
-> @@ -104,7 +104,6 @@ static void bochs_connector_init(struct drm_device *dev)
->  			   DRM_MODE_CONNECTOR_VIRTUAL);
->  	drm_connector_helper_add(connector,
->  				 &bochs_connector_connector_helper_funcs);
-> -	drm_connector_register(connector);
->  
->  	bochs_hw_load_edid(bochs);
->  	if (bochs->edid) {
-> -- 
-> 2.25.1
-> 
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+Hi Joerg,
+
+I needed to allow RDTSC(P) from userspace and in early boot in order to
+get userspace started properly. Patch below.
+
+---
+SEV-ES guests will need to execute rdtsc and rdtscp from userspace and
+during early boot. Move the rdtsc(p) #VC handler into common code and
+extend the #VC handlers.
+
+Signed-off-by: Mike Stunes <mstunes@vmware.com>
+---
+ arch/x86/boot/compressed/sev-es.c |  4 ++++
+ arch/x86/kernel/sev-es-shared.c   | 23 +++++++++++++++++++++++
+ arch/x86/kernel/sev-es.c          | 25 ++-----------------------
+ 3 files changed, 29 insertions(+), 23 deletions(-)
+
+diff --git a/arch/x86/boot/compressed/sev-es.c b/arch/x86/boot/compressed/sev-es.c
+index 53c65fc09341..1d0290cc46c1 100644
+--- a/arch/x86/boot/compressed/sev-es.c
++++ b/arch/x86/boot/compressed/sev-es.c
+@@ -158,6 +158,10 @@ void boot_vc_handler(struct pt_regs *regs, unsigned long exit_code)
+ 	case SVM_EXIT_CPUID:
+ 		result = vc_handle_cpuid(boot_ghcb, &ctxt);
+ 		break;
++	case SVM_EXIT_RDTSC:
++	case SVM_EXIT_RDTSCP:
++		result = vc_handle_rdtsc(boot_ghcb, &ctxt, exit_code);
++		break;
+ 	default:
+ 		result = ES_UNSUPPORTED;
+ 		break;
+diff --git a/arch/x86/kernel/sev-es-shared.c b/arch/x86/kernel/sev-es-shared.c
+index a632b8f041ec..373ced468659 100644
+--- a/arch/x86/kernel/sev-es-shared.c
++++ b/arch/x86/kernel/sev-es-shared.c
+@@ -442,3 +442,26 @@ static enum es_result vc_handle_cpuid(struct ghcb *ghcb,
+ 
+ 	return ES_OK;
+ }
++
++static enum es_result vc_handle_rdtsc(struct ghcb *ghcb,
++				      struct es_em_ctxt *ctxt,
++				      unsigned long exit_code)
++{
++	bool rdtscp = (exit_code == SVM_EXIT_RDTSCP);
++	enum es_result ret;
++
++	ret = sev_es_ghcb_hv_call(ghcb, ctxt, exit_code, 0, 0);
++	if (ret != ES_OK)
++		return ret;
++
++	if (!(ghcb_is_valid_rax(ghcb) && ghcb_is_valid_rdx(ghcb) &&
++	     (!rdtscp || ghcb_is_valid_rcx(ghcb))))
++		return ES_VMM_ERROR;
++
++	ctxt->regs->ax = ghcb->save.rax;
++	ctxt->regs->dx = ghcb->save.rdx;
++	if (rdtscp)
++		ctxt->regs->cx = ghcb->save.rcx;
++
++	return ES_OK;
++}
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+index 409a7a2aa630..82199527d012 100644
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -815,29 +815,6 @@ static enum es_result vc_handle_wbinvd(struct ghcb *ghcb,
+ 	return sev_es_ghcb_hv_call(ghcb, ctxt, SVM_EXIT_WBINVD, 0, 0);
+ }
+ 
+-static enum es_result vc_handle_rdtsc(struct ghcb *ghcb,
+-				      struct es_em_ctxt *ctxt,
+-				      unsigned long exit_code)
+-{
+-	bool rdtscp = (exit_code == SVM_EXIT_RDTSCP);
+-	enum es_result ret;
+-
+-	ret = sev_es_ghcb_hv_call(ghcb, ctxt, exit_code, 0, 0);
+-	if (ret != ES_OK)
+-		return ret;
+-
+-	if (!(ghcb_is_valid_rax(ghcb) && ghcb_is_valid_rdx(ghcb) &&
+-	     (!rdtscp || ghcb_is_valid_rcx(ghcb))))
+-		return ES_VMM_ERROR;
+-
+-	ctxt->regs->ax = ghcb->save.rax;
+-	ctxt->regs->dx = ghcb->save.rdx;
+-	if (rdtscp)
+-		ctxt->regs->cx = ghcb->save.rcx;
+-
+-	return ES_OK;
+-}
+-
+ static enum es_result vc_handle_rdpmc(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
+ {
+ 	enum es_result ret;
+@@ -1001,6 +978,8 @@ static enum es_result vc_context_filter(struct pt_regs *regs, long exit_code)
+ 		/* List of #VC exit-codes we support in user-space */
+ 		case SVM_EXIT_EXCP_BASE ... SVM_EXIT_LAST_EXCP:
+ 		case SVM_EXIT_CPUID:
++		case SVM_EXIT_RDTSC:
++		case SVM_EXIT_RDTSCP:
+ 			r = ES_OK;
+ 			break;
+ 		default:
+-- 
+2.26.1
