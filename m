@@ -1,64 +1,29 @@
-From: Dave Hansen <dave.hansen@intel.com>
+From: Joerg Roedel <jroedel@suse.de>
 Subject: Re: [PATCH] Allow RDTSC and RDTSCP from userspace
-Date: Fri, 24 Apr 2020 15:53:09 -0700
-Message-ID: <4d2ac222-a896-a60e-9b3c-b35aa7e81a97@intel.com>
+Date: Sat, 25 Apr 2020 14:28:35 +0200
+Message-ID: <20200425122835.GM30814@suse.de>
 References: <20200319091407.1481-56-joro@8bytes.org>
  <20200424210316.848878-1-mstunes@vmware.com>
- <2c49061d-eb84-032e-8dcb-dd36a891ce90@intel.com>
- <ead88d04-1756-1190-2b37-b24f86422595@amd.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <ead88d04-1756-1190-2b37-b24f86422595@amd.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20200424210316.848878-1-mstunes@vmware.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Tom Lendacky <thomas.lendacky@amd.com>, Mike Stunes <mstunes@vmware.com>, joro@8bytes.org
-Cc: dan.j.williams@intel.com, dave.hansen@linux.intel.com, hpa@zytor.com, jgross@suse.com, jroedel@suse.de, jslaby@suse.cz, keescook@chromium.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, luto@kernel.org, peterz@infradead.org, thellstrom@vmware.com, virtualization@lists.linux-foundation.org, x86@kernel.org, Sean Christopherson <sean.j.christopherson@intel.com>
+To: Mike Stunes <mstunes@vmware.com>
+Cc: joro@8bytes.org, dan.j.williams@intel.com, dave.hansen@linux.intel.com, hpa@zytor.com, jgross@suse.com, jslaby@suse.cz, keescook@chromium.org, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, luto@kernel.org, peterz@infradead.org, thellstrom@vmware.com, thomas.lendacky@amd.com, virtualization@lists.linux-foundation.org, x86@kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 4/24/20 2:27 PM, Tom Lendacky wrote:
-> On 4/24/20 4:24 PM, Dave Hansen wrote:
->> On 4/24/20 2:03 PM, Mike Stunes wrote:
->>> I needed to allow RDTSC(P) from userspace and in early boot in order to
->>> get userspace started properly. Patch below.
->>>
->>> ---
->>> SEV-ES guests will need to execute rdtsc and rdtscp from userspace and
->>> during early boot. Move the rdtsc(p) #VC handler into common code and
->>> extend the #VC handlers.
->>
->> Do SEV-ES guests _always_ #VC on rdtsc(p)?
-> 
-> Only if the hypervisor is intercepting those instructions.
+Hi Mike,
 
-Ahh, so any instruction that can have an instruction intercept set
-potentially needs to be able to tolerate a #VC?  Those instruction
-intercepts are under the control of the (untrusted relative to the
-guest) hypervisor, right?
+On Fri, Apr 24, 2020 at 02:03:16PM -0700, Mike Stunes wrote:
+> I needed to allow RDTSC(P) from userspace and in early boot in order to
+> get userspace started properly. Patch below.
 
-From the main sev-es series:
+Thanks, but this is not needed anymore. I removed the vc_context_filter
+from the code. The emulation code is now capable of safely handling any
+exception from user-space.
 
-+#ifdef CONFIG_AMD_MEM_ENCRYPT
-+idtentry vmm_communication     do_vmm_communication    has_error_code=1
-+#endif
+Regards,
 
-Since this is set as non-paranoid, that both limits the instructions
-that can be used in entry paths *and* limits the future architecture
-from being able add instructions that a current SEV-ES guest doesn't
-know about.  Does SEV-ES have versioning so guests can tell if they
-might be subject to new interrupt intercepts for which they are not
-prepared?  I didn't see anything obvious in section 15.35 of the manual.
-
-There's also a nugget in the manual that says:
-
-> Similarly, the hypervisor should avoid setting intercept bits for
-> events that would occur in the #VC handler (such as IRET).
-
-That's a fun point because it means that the (untrusted) hypervisor can
-cause endless faults.  I *guess* we have mitigation for this with our
-stack guard pages, but it's still a bit nasty that the hypervisor can
-arbitrarily land a guest in the double-fault handler.
-
-It just all seems a bit weak for the hypervisor to be considered
-untrusted.  But, it's _certainly_ a steep in the right direction from SEV.
+	Joerg
