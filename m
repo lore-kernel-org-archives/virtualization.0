@@ -1,14 +1,14 @@
-From: Jason Wang <jasowang@redhat.com>
+From: Zhu Lingshan <lingshan.zhu@linux.intel.com>
 Subject: Re: [PATCH V2 1/2] vdpa: Support config interrupt in vhost_vdpa
-Date: Sun, 26 Apr 2020 14:58:43 +0800
-Message-ID: <055fb826-895d-881b-719c-228d0cc9a7bf@redhat.com>
+Date: Sun, 26 Apr 2020 15:03:00 +0800
+Message-ID: <136f9109-7959-f38c-dcaa-66d4d707aa56@linux.intel.com>
 References: <1587881384-2133-1-git-send-email-lingshan.zhu@intel.com>
  <1587881384-2133-2-git-send-email-lingshan.zhu@intel.com>
+ <055fb826-895d-881b-719c-228d0cc9a7bf@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: multipart/mixed; boundary="===============6103548127723686993=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1587881384-2133-2-git-send-email-lingshan.zhu@intel.com>
+In-Reply-To: <055fb826-895d-881b-719c-228d0cc9a7bf@redhat.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -19,88 +19,545 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Zhu Lingshan <lingshan.zhu@intel.com>, mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>, Zhu Lingshan <lingshan.zhu@intel.com>, mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
 Cc: lulu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMjAvNC8yNiDkuIvljYgyOjA5LCBaaHUgTGluZ3NoYW4gd3JvdGU6Cj4gVGhpcyBjb21t
-aXQgaW1wbGVtZW50cyBjb25maWcgaW50ZXJydXB0IHN1cHBvcnQgaW4KPiB2aG9zdF92ZHBhIGxh
-eWVyLgo+Cj4gU2lnbmVkLW9mZi1ieTogWmh1IExpbmdzaGFuIDxsaW5nc2hhbi56aHVAaW50ZWwu
-Y29tPgo+IC0tLQo+ICAgZHJpdmVycy92aG9zdC92ZHBhLmMgICAgICAgfCA0NyArKysrKysrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrCj4gICBkcml2ZXJzL3Zob3N0L3Zo
-b3N0LmMgICAgICB8ICAyICstCj4gICBkcml2ZXJzL3Zob3N0L3Zob3N0LmggICAgICB8ICAyICsr
-Cj4gICBpbmNsdWRlL3VhcGkvbGludXgvdmhvc3QuaCB8ICAyICsrCj4gICA0IGZpbGVzIGNoYW5n
-ZWQsIDUyIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2
-ZXJzL3Zob3N0L3ZkcGEuYyBiL2RyaXZlcnMvdmhvc3QvdmRwYS5jCj4gaW5kZXggNDIxZjAyYS4u
-Yjk0ZTM0OSAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3Zob3N0L3ZkcGEuYwo+ICsrKyBiL2RyaXZl
-cnMvdmhvc3QvdmRwYS5jCj4gQEAgLTIxLDYgKzIxLDcgQEAKPiAgICNpbmNsdWRlIDxsaW51eC9u
-b3NwZWMuaD4KPiAgICNpbmNsdWRlIDxsaW51eC92aG9zdC5oPgo+ICAgI2luY2x1ZGUgPGxpbnV4
-L3ZpcnRpb19uZXQuaD4KPiArI2luY2x1ZGUgPGxpbnV4L2tlcm5lbC5oPgo+ICAgCj4gICAjaW5j
-bHVkZSAidmhvc3QuaCIKPiAgIAo+IEBAIC03MCw2ICs3MSw3IEBAIHN0cnVjdCB2aG9zdF92ZHBh
-IHsKPiAgIAlpbnQgbnZxczsKPiAgIAlpbnQgdmlydGlvX2lkOwo+ICAgCWludCBtaW5vcjsKPiAr
-CXN0cnVjdCBldmVudGZkX2N0eCAqY29uZmlnX2N0eDsKPiAgIH07Cj4gICAKPiAgIHN0YXRpYyBE
-RUZJTkVfSURBKHZob3N0X3ZkcGFfaWRhKTsKPiBAQCAtMTAxLDYgKzEwMywxNyBAQCBzdGF0aWMg
-aXJxcmV0dXJuX3Qgdmhvc3RfdmRwYV92aXJ0cXVldWVfY2Iodm9pZCAqcHJpdmF0ZSkKPiAgIAly
-ZXR1cm4gSVJRX0hBTkRMRUQ7Cj4gICB9Cj4gICAKPiArc3RhdGljIGlycXJldHVybl90IHZob3N0
-X3ZkcGFfY29uZmlnX2NiKHZvaWQgKnByaXZhdGUpCj4gK3sKPiArCXN0cnVjdCB2aG9zdF92ZHBh
-ICp2ID0gcHJpdmF0ZTsKPiArCXN0cnVjdCBldmVudGZkX2N0eCAqY29uZmlnX2N0eCA9IHYtPmNv
-bmZpZ19jdHg7Cj4gKwo+ICsJaWYgKGNvbmZpZ19jdHgpCj4gKwkJZXZlbnRmZF9zaWduYWwoY29u
-ZmlnX2N0eCwgMSk7Cj4gKwo+ICsJcmV0dXJuIElSUV9IQU5ETEVEOwo+ICt9Cj4gKwo+ICAgc3Rh
-dGljIHZvaWQgdmhvc3RfdmRwYV9yZXNldChzdHJ1Y3Qgdmhvc3RfdmRwYSAqdikKPiAgIHsKPiAg
-IAlzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZkcGEgPSB2LT52ZHBhOwo+IEBAIC0yODgsNiArMzAxLDM2
-IEBAIHN0YXRpYyBsb25nIHZob3N0X3ZkcGFfZ2V0X3ZyaW5nX251bShzdHJ1Y3Qgdmhvc3RfdmRw
-YSAqdiwgdTE2IF9fdXNlciAqYXJncCkKPiAgIAlyZXR1cm4gMDsKPiAgIH0KPiAgIAo+ICtzdGF0
-aWMgdm9pZCB2aG9zdF92ZHBhX2NvbmZpZ19wdXQoc3RydWN0IHZob3N0X3ZkcGEgKnYpCj4gK3sK
-PiArCWlmICh2LT5jb25maWdfY3R4KQo+ICsJCWV2ZW50ZmRfY3R4X3B1dCh2LT5jb25maWdfY3R4
-KTsKPiArfQo+ICsKPiArc3RhdGljIGxvbmcgdmhvc3RfdmRwYV9zZXRfY29uZmlnX2NhbGwoc3Ry
-dWN0IHZob3N0X3ZkcGEgKnYsIHUzMiBfX3VzZXIgKmFyZ3ApCj4gK3sKPiArCXN0cnVjdCB2ZHBh
-X2NhbGxiYWNrIGNiOwo+ICsJdTMyIGZkOwo+ICsJc3RydWN0IGV2ZW50ZmRfY3R4ICpjdHg7Cj4g
-Kwo+ICsJY2IuY2FsbGJhY2sgPSB2aG9zdF92ZHBhX2NvbmZpZ19jYjsKPiArCWNiLnByaXZhdGUg
-PSB2LT52ZHBhOwo+ICsJaWYgKGNvcHlfZnJvbV91c2VyKCZmZCwgYXJncCwgc2l6ZW9mKGZkKSkp
-Cj4gKwkJcmV0dXJuICAtRUZBVUxUOwo+ICsKPiArCWN0eCA9IGZkID09IFZIT1NUX0ZJTEVfVU5C
-SU5EID8gTlVMTCA6IGV2ZW50ZmRfY3R4X2ZkZ2V0KGZkKTsKPiArCXN3YXAoY3R4LCB2LT5jb25m
-aWdfY3R4KTsKPiArCj4gKwlpZiAoIUlTX0VSUl9PUl9OVUxMKGN0eCkpCj4gKwkJZXZlbnRmZF9j
-dHhfcHV0KGN0eCk7Cj4gKwo+ICsJaWYgKElTX0VSUih2LT5jb25maWdfY3R4KSkKPiArCQlyZXR1
-cm4gUFRSX0VSUih2LT5jb25maWdfY3R4KTsKPiArCj4gKwl2LT52ZHBhLT5jb25maWctPnNldF9j
-b25maWdfY2Iodi0+dmRwYSwgJmNiKTsKPiArCj4gKwlyZXR1cm4gMDsKPiArfQo+ICAgc3RhdGlj
-IGxvbmcgdmhvc3RfdmRwYV92cmluZ19pb2N0bChzdHJ1Y3Qgdmhvc3RfdmRwYSAqdiwgdW5zaWdu
-ZWQgaW50IGNtZCwKPiAgIAkJCQkgICB2b2lkIF9fdXNlciAqYXJncCkKPiAgIHsKPiBAQCAtMzk4
-LDYgKzQ0MSw5IEBAIHN0YXRpYyBsb25nIHZob3N0X3ZkcGFfdW5sb2NrZWRfaW9jdGwoc3RydWN0
-IGZpbGUgKmZpbGVwLAo+ICAgCWNhc2UgVkhPU1RfU0VUX0xPR19GRDoKPiAgIAkJciA9IC1FTk9J
-T0NUTENNRDsKPiAgIAkJYnJlYWs7Cj4gKwljYXNlIFZIT1NUX1ZEUEFfU0VUX0NPTkZJR19DQUxM
-Ogo+ICsJCXIgPSB2aG9zdF92ZHBhX3NldF9jb25maWdfY2FsbCh2LCBhcmdwKTsKPiArCQlicmVh
-azsKPiAgIAlkZWZhdWx0Ogo+ICAgCQlyID0gdmhvc3RfZGV2X2lvY3RsKCZ2LT52ZGV2LCBjbWQs
-IGFyZ3ApOwo+ICAgCQlpZiAociA9PSAtRU5PSU9DVExDTUQpCj4gQEAgLTczNCw2ICs3ODAsNyBA
-QCBzdGF0aWMgaW50IHZob3N0X3ZkcGFfcmVsZWFzZShzdHJ1Y3QgaW5vZGUgKmlub2RlLCBzdHJ1
-Y3QgZmlsZSAqZmlsZXApCj4gICAJdmhvc3RfZGV2X3N0b3AoJnYtPnZkZXYpOwo+ICAgCXZob3N0
-X3ZkcGFfaW90bGJfZnJlZSh2KTsKPiAgIAl2aG9zdF92ZHBhX2ZyZWVfZG9tYWluKHYpOwo+ICsJ
-dmhvc3RfdmRwYV9jb25maWdfcHV0KHYpOwo+ICAgCXZob3N0X2Rldl9jbGVhbnVwKCZ2LT52ZGV2
-KTsKPiAgIAlrZnJlZSh2LT52ZGV2LnZxcyk7Cj4gICAJbXV0ZXhfdW5sb2NrKCZkLT5tdXRleCk7
-Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYyBiL2RyaXZlcnMvdmhvc3Qvdmhv
-c3QuYwo+IGluZGV4IGQ0NTBlMTYuLmU4ZjViMjAgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92aG9z
-dC92aG9zdC5jCj4gKysrIGIvZHJpdmVycy92aG9zdC92aG9zdC5jCj4gQEAgLTE1OTAsNyArMTU5
-MCw3IEBAIGxvbmcgdmhvc3RfdnJpbmdfaW9jdGwoc3RydWN0IHZob3N0X2RldiAqZCwgdW5zaWdu
-ZWQgaW50IGlvY3RsLCB2b2lkIF9fdXNlciAqYXJnCj4gICAJCQlyID0gLUVGQVVMVDsKPiAgIAkJ
-CWJyZWFrOwo+ICAgCQl9Cj4gLQkJY3R4ID0gZi5mZCA9PSAtMSA/IE5VTEwgOiBldmVudGZkX2N0
-eF9mZGdldChmLmZkKTsKPiArCQljdHggPSBmLmZkID09IFZIT1NUX0ZJTEVfVU5CSU5EID8gTlVM
-TCA6IGV2ZW50ZmRfY3R4X2ZkZ2V0KGYuZmQpOwo+ICAgCQlpZiAoSVNfRVJSKGN0eCkpIHsKPiAg
-IAkJCXIgPSBQVFJfRVJSKGN0eCk7Cj4gICAJCQlicmVhazsKPiBkaWZmIC0tZ2l0IGEvZHJpdmVy
-cy92aG9zdC92aG9zdC5oIGIvZHJpdmVycy92aG9zdC92aG9zdC5oCj4gaW5kZXggMTgxMzgyMS4u
-ODY2MzEzOSAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmgKPiArKysgYi9kcml2
-ZXJzL3Zob3N0L3Zob3N0LmgKPiBAQCAtMTgsNiArMTgsOCBAQAo+ICAgdHlwZWRlZiB2b2lkICgq
-dmhvc3Rfd29ya19mbl90KShzdHJ1Y3Qgdmhvc3Rfd29yayAqd29yayk7Cj4gICAKPiAgICNkZWZp
-bmUgVkhPU1RfV09SS19RVUVVRUQgMQo+ICsjZGVmaW5lIFZIT1NUX0ZJTEVfVU5CSU5EIC0xCgoK
-SSB0aGluayBpdCdzIGJldHRlciB0byBkb2N1bWVudCB0aGlzIGluIHVhcGkuCgoKPiArCj4gICBz
-dHJ1Y3Qgdmhvc3Rfd29yayB7Cj4gICAJc3RydWN0IGxsaXN0X25vZGUJICBub2RlOwo+ICAgCXZo
-b3N0X3dvcmtfZm5fdAkJICBmbjsKPiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS91YXBpL2xpbnV4L3Zo
-b3N0LmggYi9pbmNsdWRlL3VhcGkvbGludXgvdmhvc3QuaAo+IGluZGV4IDlmZTcyZTQuLjM0NWFj
-YjMgMTAwNjQ0Cj4gLS0tIGEvaW5jbHVkZS91YXBpL2xpbnV4L3Zob3N0LmgKPiArKysgYi9pbmNs
-dWRlL3VhcGkvbGludXgvdmhvc3QuaAo+IEBAIC0xNDAsNCArMTQwLDYgQEAKPiAgIC8qIEdldCB0
-aGUgbWF4IHJpbmcgc2l6ZS4gKi8KPiAgICNkZWZpbmUgVkhPU1RfVkRQQV9HRVRfVlJJTkdfTlVN
-CV9JT1IoVkhPU1RfVklSVElPLCAweDc2LCBfX3UxNikKPiAgIAo+ICsvKiBTZXQgZXZlbnQgZmQg
-Zm9yIGNvbmZpZyBpbnRlcnJ1cHQqLwo+ICsjZGVmaW5lIFZIT1NUX1ZEUEFfU0VUX0NPTkZJR19D
-QUxMCV9JT1coVkhPU1RfVklSVElPLCAweDc3LCB1MzIpCj4gICAjZW5kaWYKCgpTaG91bGQgYmUg
-ImludCIgaW5zdGVhZCBvZiAidTMyIi4KClRoYW5rcwoKX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
-YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
-b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+This is a multi-part message in MIME format.
+--===============6103548127723686993==
+Content-Type: multipart/alternative;
+ boundary="------------E7BC73C0A315DC055B338C07"
+Content-Language: en-US
+
+This is a multi-part message in MIME format.
+--------------E7BC73C0A315DC055B338C07
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+
+
+On 4/26/2020 2:58 PM, Jason Wang wrote:
+>
+> On 2020/4/26 下午2:09, Zhu Lingshan wrote:
+>> This commit implements config interrupt support in
+>> vhost_vdpa layer.
+>>
+>> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+>> ---
+>>   drivers/vhost/vdpa.c       | 47 
+>> ++++++++++++++++++++++++++++++++++++++++++++++
+>>   drivers/vhost/vhost.c      |  2 +-
+>>   drivers/vhost/vhost.h      |  2 ++
+>>   include/uapi/linux/vhost.h |  2 ++
+>>   4 files changed, 52 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+>> index 421f02a..b94e349 100644
+>> --- a/drivers/vhost/vdpa.c
+>> +++ b/drivers/vhost/vdpa.c
+>> @@ -21,6 +21,7 @@
+>>   #include <linux/nospec.h>
+>>   #include <linux/vhost.h>
+>>   #include <linux/virtio_net.h>
+>> +#include <linux/kernel.h>
+>>     #include "vhost.h"
+>>   @@ -70,6 +71,7 @@ struct vhost_vdpa {
+>>       int nvqs;
+>>       int virtio_id;
+>>       int minor;
+>> +    struct eventfd_ctx *config_ctx;
+>>   };
+>>     static DEFINE_IDA(vhost_vdpa_ida);
+>> @@ -101,6 +103,17 @@ static irqreturn_t vhost_vdpa_virtqueue_cb(void 
+>> *private)
+>>       return IRQ_HANDLED;
+>>   }
+>>   +static irqreturn_t vhost_vdpa_config_cb(void *private)
+>> +{
+>> +    struct vhost_vdpa *v = private;
+>> +    struct eventfd_ctx *config_ctx = v->config_ctx;
+>> +
+>> +    if (config_ctx)
+>> +        eventfd_signal(config_ctx, 1);
+>> +
+>> +    return IRQ_HANDLED;
+>> +}
+>> +
+>>   static void vhost_vdpa_reset(struct vhost_vdpa *v)
+>>   {
+>>       struct vdpa_device *vdpa = v->vdpa;
+>> @@ -288,6 +301,36 @@ static long vhost_vdpa_get_vring_num(struct 
+>> vhost_vdpa *v, u16 __user *argp)
+>>       return 0;
+>>   }
+>>   +static void vhost_vdpa_config_put(struct vhost_vdpa *v)
+>> +{
+>> +    if (v->config_ctx)
+>> +        eventfd_ctx_put(v->config_ctx);
+>> +}
+>> +
+>> +static long vhost_vdpa_set_config_call(struct vhost_vdpa *v, u32 
+>> __user *argp)
+>> +{
+>> +    struct vdpa_callback cb;
+>> +    u32 fd;
+>> +    struct eventfd_ctx *ctx;
+>> +
+>> +    cb.callback = vhost_vdpa_config_cb;
+>> +    cb.private = v->vdpa;
+>> +    if (copy_from_user(&fd, argp, sizeof(fd)))
+>> +        return  -EFAULT;
+>> +
+>> +    ctx = fd == VHOST_FILE_UNBIND ? NULL : eventfd_ctx_fdget(fd);
+>> +    swap(ctx, v->config_ctx);
+>> +
+>> +    if (!IS_ERR_OR_NULL(ctx))
+>> +        eventfd_ctx_put(ctx);
+>> +
+>> +    if (IS_ERR(v->config_ctx))
+>> +        return PTR_ERR(v->config_ctx);
+>> +
+>> + v->vdpa->config->set_config_cb(v->vdpa, &cb);
+>> +
+>> +    return 0;
+>> +}
+>>   static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned 
+>> int cmd,
+>>                      void __user *argp)
+>>   {
+>> @@ -398,6 +441,9 @@ static long vhost_vdpa_unlocked_ioctl(struct file 
+>> *filep,
+>>       case VHOST_SET_LOG_FD:
+>>           r = -ENOIOCTLCMD;
+>>           break;
+>> +    case VHOST_VDPA_SET_CONFIG_CALL:
+>> +        r = vhost_vdpa_set_config_call(v, argp);
+>> +        break;
+>>       default:
+>>           r = vhost_dev_ioctl(&v->vdev, cmd, argp);
+>>           if (r == -ENOIOCTLCMD)
+>> @@ -734,6 +780,7 @@ static int vhost_vdpa_release(struct inode 
+>> *inode, struct file *filep)
+>>       vhost_dev_stop(&v->vdev);
+>>       vhost_vdpa_iotlb_free(v);
+>>       vhost_vdpa_free_domain(v);
+>> +    vhost_vdpa_config_put(v);
+>>       vhost_dev_cleanup(&v->vdev);
+>>       kfree(v->vdev.vqs);
+>>       mutex_unlock(&d->mutex);
+>> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+>> index d450e16..e8f5b20 100644
+>> --- a/drivers/vhost/vhost.c
+>> +++ b/drivers/vhost/vhost.c
+>> @@ -1590,7 +1590,7 @@ long vhost_vring_ioctl(struct vhost_dev *d, 
+>> unsigned int ioctl, void __user *arg
+>>               r = -EFAULT;
+>>               break;
+>>           }
+>> -        ctx = f.fd == -1 ? NULL : eventfd_ctx_fdget(f.fd);
+>> +        ctx = f.fd == VHOST_FILE_UNBIND ? NULL : 
+>> eventfd_ctx_fdget(f.fd);
+>>           if (IS_ERR(ctx)) {
+>>               r = PTR_ERR(ctx);
+>>               break;
+>> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+>> index 1813821..8663139 100644
+>> --- a/drivers/vhost/vhost.h
+>> +++ b/drivers/vhost/vhost.h
+>> @@ -18,6 +18,8 @@
+>>   typedef void (*vhost_work_fn_t)(struct vhost_work *work);
+>>     #define VHOST_WORK_QUEUED 1
+>> +#define VHOST_FILE_UNBIND -1
+>
+>
+> I think it's better to document this in uapi.
+
+OK, will define this in uapi header.
+
+>
+>
+>> +
+>>   struct vhost_work {
+>>       struct llist_node      node;
+>>       vhost_work_fn_t          fn;
+>> diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+>> index 9fe72e4..345acb3 100644
+>> --- a/include/uapi/linux/vhost.h
+>> +++ b/include/uapi/linux/vhost.h
+>> @@ -140,4 +140,6 @@
+>>   /* Get the max ring size. */
+>>   #define VHOST_VDPA_GET_VRING_NUM _IOR(VHOST_VIRTIO, 0x76, __u16)
+>>   +/* Set event fd for config interrupt*/
+>> +#define VHOST_VDPA_SET_CONFIG_CALL _IOW(VHOST_VIRTIO, 0x77, u32)
+>>   #endif
+>
+>
+> Should be "int" instead of "u32".
+
+Oh, right, it could be -1
+
+>
+> Thanks
+>
+
+--------------E7BC73C0A315DC055B338C07
+Content-Type: text/html; charset=utf-8
+Content-Transfer-Encoding: 8bit
+
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  </head>
+  <body>
+    <p><tt><br>
+      </tt></p>
+    <div class="moz-cite-prefix"><tt>On 4/26/2020 2:58 PM, Jason Wang
+        wrote:</tt><tt><br>
+      </tt></div>
+    <blockquote type="cite"
+      cite="mid:055fb826-895d-881b-719c-228d0cc9a7bf@redhat.com">
+      <tt><br>
+      </tt><tt>On 2020/4/26 下午2:09, Zhu Lingshan wrote:
+      </tt><tt><br>
+      </tt>
+      <blockquote type="cite"><tt>This commit implements config
+          interrupt support in
+        </tt><tt><br>
+        </tt><tt>vhost_vdpa layer.
+        </tt><tt><br>
+        </tt>
+        <tt><br>
+        </tt><tt>Signed-off-by: Zhu Lingshan
+          <a class="moz-txt-link-rfc2396E" href="mailto:lingshan.zhu@intel.com">&lt;lingshan.zhu@intel.com&gt;</a>
+        </tt><tt><br>
+        </tt><tt>---
+        </tt><tt><br>
+        </tt><tt>  drivers/vhost/vdpa.c       | 47
+          ++++++++++++++++++++++++++++++++++++++++++++++
+        </tt><tt><br>
+        </tt><tt>  drivers/vhost/vhost.c      |  2 +-
+        </tt><tt><br>
+        </tt><tt>  drivers/vhost/vhost.h      |  2 ++
+        </tt><tt><br>
+        </tt><tt>  include/uapi/linux/vhost.h |  2 ++
+        </tt><tt><br>
+        </tt><tt>  4 files changed, 52 insertions(+), 1 deletion(-)
+        </tt><tt><br>
+        </tt>
+        <tt><br>
+        </tt><tt>diff --git a/drivers/vhost/vdpa.c
+          b/drivers/vhost/vdpa.c
+        </tt><tt><br>
+        </tt><tt>index 421f02a..b94e349 100644
+        </tt><tt><br>
+        </tt><tt>--- a/drivers/vhost/vdpa.c
+        </tt><tt><br>
+        </tt><tt>+++ b/drivers/vhost/vdpa.c
+        </tt><tt><br>
+        </tt><tt>@@ -21,6 +21,7 @@
+        </tt><tt><br>
+        </tt><tt>  #include &lt;linux/nospec.h&gt;
+        </tt><tt><br>
+        </tt><tt>  #include &lt;linux/vhost.h&gt;
+        </tt><tt><br>
+        </tt><tt>  #include &lt;linux/virtio_net.h&gt;
+        </tt><tt><br>
+        </tt><tt>+#include &lt;linux/kernel.h&gt;
+        </tt><tt><br>
+        </tt><tt>    #include "vhost.h"
+        </tt><tt><br>
+        </tt><tt>  @@ -70,6 +71,7 @@ struct vhost_vdpa {
+        </tt><tt><br>
+        </tt><tt>      int nvqs;
+        </tt><tt><br>
+        </tt><tt>      int virtio_id;
+        </tt><tt><br>
+        </tt><tt>      int minor;
+        </tt><tt><br>
+        </tt><tt>+    struct eventfd_ctx *config_ctx;
+        </tt><tt><br>
+        </tt><tt>  };
+        </tt><tt><br>
+        </tt><tt>    static DEFINE_IDA(vhost_vdpa_ida);
+        </tt><tt><br>
+        </tt><tt>@@ -101,6 +103,17 @@ static irqreturn_t
+          vhost_vdpa_virtqueue_cb(void *private)
+        </tt><tt><br>
+        </tt><tt>      return IRQ_HANDLED;
+        </tt><tt><br>
+        </tt><tt>  }
+        </tt><tt><br>
+        </tt><tt>  +static irqreturn_t vhost_vdpa_config_cb(void
+          *private)
+        </tt><tt><br>
+        </tt><tt>+{
+        </tt><tt><br>
+        </tt><tt>+    struct vhost_vdpa *v = private;
+        </tt><tt><br>
+        </tt><tt>+    struct eventfd_ctx *config_ctx = v-&gt;config_ctx;
+        </tt><tt><br>
+        </tt><tt>+
+        </tt><tt><br>
+        </tt><tt>+    if (config_ctx)
+        </tt><tt><br>
+        </tt><tt>+        eventfd_signal(config_ctx, 1);
+        </tt><tt><br>
+        </tt><tt>+
+        </tt><tt><br>
+        </tt><tt>+    return IRQ_HANDLED;
+        </tt><tt><br>
+        </tt><tt>+}
+        </tt><tt><br>
+        </tt><tt>+
+        </tt><tt><br>
+        </tt><tt>  static void vhost_vdpa_reset(struct vhost_vdpa *v)
+        </tt><tt><br>
+        </tt><tt>  {
+        </tt><tt><br>
+        </tt><tt>      struct vdpa_device *vdpa = v-&gt;vdpa;
+        </tt><tt><br>
+        </tt><tt>@@ -288,6 +301,36 @@ static long
+          vhost_vdpa_get_vring_num(struct vhost_vdpa *v, u16 __user
+          *argp)
+        </tt><tt><br>
+        </tt><tt>      return 0;
+        </tt><tt><br>
+        </tt><tt>  }
+        </tt><tt><br>
+        </tt><tt>  +static void vhost_vdpa_config_put(struct vhost_vdpa
+          *v)
+        </tt><tt><br>
+        </tt><tt>+{
+        </tt><tt><br>
+        </tt><tt>+    if (v-&gt;config_ctx)
+        </tt><tt><br>
+        </tt><tt>+        eventfd_ctx_put(v-&gt;config_ctx);
+        </tt><tt><br>
+        </tt><tt>+}
+        </tt><tt><br>
+        </tt><tt>+
+        </tt><tt><br>
+        </tt><tt>+static long vhost_vdpa_set_config_call(struct
+          vhost_vdpa *v, u32 __user *argp)
+        </tt><tt><br>
+        </tt><tt>+{
+        </tt><tt><br>
+        </tt><tt>+    struct vdpa_callback cb;
+        </tt><tt><br>
+        </tt><tt>+    u32 fd;
+        </tt><tt><br>
+        </tt><tt>+    struct eventfd_ctx *ctx;
+        </tt><tt><br>
+        </tt><tt>+
+        </tt><tt><br>
+        </tt><tt>+    cb.callback = vhost_vdpa_config_cb;
+        </tt><tt><br>
+        </tt><tt>+    cb.private = v-&gt;vdpa;
+        </tt><tt><br>
+        </tt><tt>+    if (copy_from_user(&amp;fd, argp, sizeof(fd)))
+        </tt><tt><br>
+        </tt><tt>+        return  -EFAULT;
+        </tt><tt><br>
+        </tt><tt>+
+        </tt><tt><br>
+        </tt><tt>+    ctx = fd == VHOST_FILE_UNBIND ? NULL :
+          eventfd_ctx_fdget(fd);
+        </tt><tt><br>
+        </tt><tt>+    swap(ctx, v-&gt;config_ctx);
+        </tt><tt><br>
+        </tt><tt>+
+        </tt><tt><br>
+        </tt><tt>+    if (!IS_ERR_OR_NULL(ctx))
+        </tt><tt><br>
+        </tt><tt>+        eventfd_ctx_put(ctx);
+        </tt><tt><br>
+        </tt><tt>+
+        </tt><tt><br>
+        </tt><tt>+    if (IS_ERR(v-&gt;config_ctx))
+        </tt><tt><br>
+        </tt><tt>+        return PTR_ERR(v-&gt;config_ctx);
+        </tt><tt><br>
+        </tt><tt>+
+        </tt><tt><br>
+        </tt><tt>+   
+          v-&gt;vdpa-&gt;config-&gt;set_config_cb(v-&gt;vdpa, &amp;cb);
+        </tt><tt><br>
+        </tt><tt>+
+        </tt><tt><br>
+        </tt><tt>+    return 0;
+        </tt><tt><br>
+        </tt><tt>+}
+        </tt><tt><br>
+        </tt><tt>  static long vhost_vdpa_vring_ioctl(struct vhost_vdpa
+          *v, unsigned int cmd,
+        </tt><tt><br>
+        </tt><tt>                     void __user *argp)
+        </tt><tt><br>
+        </tt><tt>  {
+        </tt><tt><br>
+        </tt><tt>@@ -398,6 +441,9 @@ static long
+          vhost_vdpa_unlocked_ioctl(struct file *filep,
+        </tt><tt><br>
+        </tt><tt>      case VHOST_SET_LOG_FD:
+        </tt><tt><br>
+        </tt><tt>          r = -ENOIOCTLCMD;
+        </tt><tt><br>
+        </tt><tt>          break;
+        </tt><tt><br>
+        </tt><tt>+    case VHOST_VDPA_SET_CONFIG_CALL:
+        </tt><tt><br>
+        </tt><tt>+        r = vhost_vdpa_set_config_call(v, argp);
+        </tt><tt><br>
+        </tt><tt>+        break;
+        </tt><tt><br>
+        </tt><tt>      default:
+        </tt><tt><br>
+        </tt><tt>          r = vhost_dev_ioctl(&amp;v-&gt;vdev, cmd,
+          argp);
+        </tt><tt><br>
+        </tt><tt>          if (r == -ENOIOCTLCMD)
+        </tt><tt><br>
+        </tt><tt>@@ -734,6 +780,7 @@ static int
+          vhost_vdpa_release(struct inode *inode, struct file *filep)
+        </tt><tt><br>
+        </tt><tt>      vhost_dev_stop(&amp;v-&gt;vdev);
+        </tt><tt><br>
+        </tt><tt>      vhost_vdpa_iotlb_free(v);
+        </tt><tt><br>
+        </tt><tt>      vhost_vdpa_free_domain(v);
+        </tt><tt><br>
+        </tt><tt>+    vhost_vdpa_config_put(v);
+        </tt><tt><br>
+        </tt><tt>      vhost_dev_cleanup(&amp;v-&gt;vdev);
+        </tt><tt><br>
+        </tt><tt>      kfree(v-&gt;vdev.vqs);
+        </tt><tt><br>
+        </tt><tt>      mutex_unlock(&amp;d-&gt;mutex);
+        </tt><tt><br>
+        </tt><tt>diff --git a/drivers/vhost/vhost.c
+          b/drivers/vhost/vhost.c
+        </tt><tt><br>
+        </tt><tt>index d450e16..e8f5b20 100644
+        </tt><tt><br>
+        </tt><tt>--- a/drivers/vhost/vhost.c
+        </tt><tt><br>
+        </tt><tt>+++ b/drivers/vhost/vhost.c
+        </tt><tt><br>
+        </tt><tt>@@ -1590,7 +1590,7 @@ long vhost_vring_ioctl(struct
+          vhost_dev *d, unsigned int ioctl, void __user *arg
+        </tt><tt><br>
+        </tt><tt>              r = -EFAULT;
+        </tt><tt><br>
+        </tt><tt>              break;
+        </tt><tt><br>
+        </tt><tt>          }
+        </tt><tt><br>
+        </tt><tt>-        ctx = f.fd == -1 ? NULL :
+          eventfd_ctx_fdget(f.fd);
+        </tt><tt><br>
+        </tt><tt>+        ctx = f.fd == VHOST_FILE_UNBIND ? NULL :
+          eventfd_ctx_fdget(f.fd);
+        </tt><tt><br>
+        </tt><tt>          if (IS_ERR(ctx)) {
+        </tt><tt><br>
+        </tt><tt>              r = PTR_ERR(ctx);
+        </tt><tt><br>
+        </tt><tt>              break;
+        </tt><tt><br>
+        </tt><tt>diff --git a/drivers/vhost/vhost.h
+          b/drivers/vhost/vhost.h
+        </tt><tt><br>
+        </tt><tt>index 1813821..8663139 100644
+        </tt><tt><br>
+        </tt><tt>--- a/drivers/vhost/vhost.h
+        </tt><tt><br>
+        </tt><tt>+++ b/drivers/vhost/vhost.h
+        </tt><tt><br>
+        </tt><tt>@@ -18,6 +18,8 @@
+        </tt><tt><br>
+        </tt><tt>  typedef void (*vhost_work_fn_t)(struct vhost_work
+          *work);
+        </tt><tt><br>
+        </tt><tt>    #define VHOST_WORK_QUEUED 1
+        </tt><tt><br>
+        </tt><tt>+#define VHOST_FILE_UNBIND -1
+        </tt><tt><br>
+        </tt></blockquote>
+      <tt><br>
+      </tt>
+      <tt><br>
+      </tt><tt>I think it's better to document this in uapi.
+      </tt><tt><br>
+      </tt></blockquote>
+    <pre>OK, will define this in uapi header.
+</pre>
+    <blockquote type="cite"
+      cite="mid:055fb826-895d-881b-719c-228d0cc9a7bf@redhat.com">
+      <tt><br>
+      </tt>
+      <tt><br>
+      </tt>
+      <blockquote type="cite"><tt>+
+        </tt><tt><br>
+        </tt><tt>  struct vhost_work {
+        </tt><tt><br>
+        </tt><tt>      struct llist_node      node;
+        </tt><tt><br>
+        </tt><tt>      vhost_work_fn_t          fn;
+        </tt><tt><br>
+        </tt><tt>diff --git a/include/uapi/linux/vhost.h
+          b/include/uapi/linux/vhost.h
+        </tt><tt><br>
+        </tt><tt>index 9fe72e4..345acb3 100644
+        </tt><tt><br>
+        </tt><tt>--- a/include/uapi/linux/vhost.h
+        </tt><tt><br>
+        </tt><tt>+++ b/include/uapi/linux/vhost.h
+        </tt><tt><br>
+        </tt><tt>@@ -140,4 +140,6 @@
+        </tt><tt><br>
+        </tt><tt>  /* Get the max ring size. */
+        </tt><tt><br>
+        </tt><tt>  #define VHOST_VDPA_GET_VRING_NUM   
+          _IOR(VHOST_VIRTIO, 0x76, __u16)
+        </tt><tt><br>
+        </tt><tt>  +/* Set event fd for config interrupt*/
+        </tt><tt><br>
+        </tt><tt>+#define VHOST_VDPA_SET_CONFIG_CALL   
+          _IOW(VHOST_VIRTIO, 0x77, u32)
+        </tt><tt><br>
+        </tt><tt>  #endif
+        </tt><tt><br>
+        </tt></blockquote>
+      <tt><br>
+      </tt>
+      <tt><br>
+      </tt><tt>Should be "int" instead of "u32".
+      </tt><tt><br>
+      </tt></blockquote>
+    <pre>Oh, right, it could be -1
+</pre>
+    <blockquote type="cite"
+      cite="mid:055fb826-895d-881b-719c-228d0cc9a7bf@redhat.com">
+      <tt><br>
+      </tt><tt>Thanks
+      </tt><tt><br>
+      </tt>
+      <tt><br>
+      </tt>
+    </blockquote>
+  </body>
+</html>
+
+--------------E7BC73C0A315DC055B338C07--
+
+--===============6103548127723686993==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6103548127723686993==--
