@@ -1,184 +1,83 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 1/2] vdpa: Support config interrupt in vhost_vdpa
-Date: Sun, 26 Apr 2020 11:07:03 +0800
-Message-ID: <cb656c27-22a8-3a18-9e3a-68fa0c3ff06b@redhat.com>
+Subject: Re: [PATCH 2/2] vdpa: implement config interrupt in IFCVF
+Date: Sun, 26 Apr 2020 11:25:34 +0800
+Message-ID: <bb909a20-3f14-427d-ee40-129a1844486b@redhat.com>
 References: <1587722659-1300-1-git-send-email-lingshan.zhu@intel.com>
- <1587722659-1300-2-git-send-email-lingshan.zhu@intel.com>
+ <1587722659-1300-3-git-send-email-lingshan.zhu@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1587722659-1300-2-git-send-email-lingshan.zhu@intel.com>
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1587722659-1300-3-git-send-email-lingshan.zhu@intel.com>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: Zhu Lingshan <lingshan.zhu@intel.com>, mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Cc: lulu@redhat.com, dan.daly@intel.com, cunming.liang@intel.com
+Cc: lulu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-On 2020/4/24 =E4=B8=8B=E5=8D=886:04, Zhu Lingshan wrote:
-> This commit implements config interrupt support in
-> vhost_vdpa layer.
->
-> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
->
-> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
-
-
-One should be sufficient.
-
-
-> ---
->   drivers/vhost/vdpa.c             | 53 +++++++++++++++++++++++++++++++=
-+++++++++
->   include/uapi/linux/vhost.h       |  2 ++
->   include/uapi/linux/vhost_types.h |  2 ++
->   3 files changed, 57 insertions(+)
->
-> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index 421f02a..f1f69bf 100644
-> --- a/drivers/vhost/vdpa.c
-> +++ b/drivers/vhost/vdpa.c
-> @@ -21,6 +21,7 @@
->   #include <linux/nospec.h>
->   #include <linux/vhost.h>
->   #include <linux/virtio_net.h>
-> +#include <linux/kernel.h>
->  =20
->   #include "vhost.h"
->  =20
-> @@ -70,6 +71,7 @@ struct vhost_vdpa {
->   	int nvqs;
->   	int virtio_id;
->   	int minor;
-> +	struct eventfd_ctx *config_ctx;
->   };
->  =20
->   static DEFINE_IDA(vhost_vdpa_ida);
-> @@ -101,6 +103,17 @@ static irqreturn_t vhost_vdpa_virtqueue_cb(void *p=
-rivate)
->   	return IRQ_HANDLED;
->   }
->  =20
-> +static irqreturn_t vhost_vdpa_config_cb(void *private)
-> +{
-> +	struct vhost_vdpa *v =3D private;
-> +	struct eventfd_ctx *config_ctx =3D v->config_ctx;
-> +
-> +	if (config_ctx)
-> +		eventfd_signal(config_ctx, 1);
-> +
-> +	return IRQ_HANDLED;
-> +}
-> +
->   static void vhost_vdpa_reset(struct vhost_vdpa *v)
->   {
->   	struct vdpa_device *vdpa =3D v->vdpa;
-> @@ -288,6 +301,42 @@ static long vhost_vdpa_get_vring_num(struct vhost_=
-vdpa *v, u16 __user *argp)
->   	return 0;
->   }
->  =20
-> +static void vhost_vdpa_config_put(struct vhost_vdpa *v)
-> +{
-> +	if (v->config_ctx)
-> +		eventfd_ctx_put(v->config_ctx);
-> +}
-> +
-> +static long vhost_vdpa_set_config_call(struct vhost_vdpa *v, u32 __use=
-r *argp)
-> +{
-> +	struct vdpa_callback cb;
-> +	vhost_config_file file;
-> +	struct eventfd_ctx *ctx;
-> +
-> +	cb.callback =3D vhost_vdpa_config_cb;
-> +	cb.private =3D v->vdpa;
-> +	if (copy_from_user(&file, argp, sizeof(file)))
-> +		return  -EFAULT;
-> +
-> +	if (file.fd =3D=3D -1) {
-> +		vhost_vdpa_config_put(v);
-> +		v->config_ctx =3D NULL;
-> +		return PTR_ERR(v->config_ctx);
-> +	}
-> +
-> +	ctx =3D eventfd_ctx_fdget(file.fd);
-
-
-You may simply did ctx =3D f.fd =3D=3D -1 ? NULL : eventfd_ctx_fdget(f.fd=
-);
-
-Then there's no need for the specialized action for -1 above.
-
-
-> +	swap(ctx, v->config_ctx);
-> +
-> +	if (!IS_ERR_OR_NULL(ctx))
-> +		eventfd_ctx_put(ctx);
-> +
-> +	if (IS_ERR(v->config_ctx))
-> +		return PTR_ERR(v->config_ctx);
-> +
-> +	v->vdpa->config->set_config_cb(v->vdpa, &cb);
-> +
-> +	return 0;
-> +}
->   static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int=
- cmd,
->   				   void __user *argp)
->   {
-> @@ -398,6 +447,9 @@ static long vhost_vdpa_unlocked_ioctl(struct file *=
-filep,
->   	case VHOST_SET_LOG_FD:
->   		r =3D -ENOIOCTLCMD;
->   		break;
-> +	case VHOST_VDPA_SET_CONFIG_CALL:
-> +		r =3D vhost_vdpa_set_config_call(v, argp);
-> +		break;
->   	default:
->   		r =3D vhost_dev_ioctl(&v->vdev, cmd, argp);
->   		if (r =3D=3D -ENOIOCTLCMD)
-> @@ -734,6 +786,7 @@ static int vhost_vdpa_release(struct inode *inode, =
-struct file *filep)
->   	vhost_dev_stop(&v->vdev);
->   	vhost_vdpa_iotlb_free(v);
->   	vhost_vdpa_free_domain(v);
-> +	vhost_vdpa_config_put(v);
->   	vhost_dev_cleanup(&v->vdev);
->   	kfree(v->vdev.vqs);
->   	mutex_unlock(&d->mutex);
-> diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-> index 9fe72e4..c474a35 100644
-> --- a/include/uapi/linux/vhost.h
-> +++ b/include/uapi/linux/vhost.h
-> @@ -140,4 +140,6 @@
->   /* Get the max ring size. */
->   #define VHOST_VDPA_GET_VRING_NUM	_IOR(VHOST_VIRTIO, 0x76, __u16)
->  =20
-> +/* Set event fd for config interrupt*/
-> +#define VHOST_VDPA_SET_CONFIG_CALL	_IOW(VHOST_VIRTIO, 0x77, vhost_conf=
-ig_file)
->   #endif
-> diff --git a/include/uapi/linux/vhost_types.h b/include/uapi/linux/vhos=
-t_types.h
-> index 669457c..6759aefb 100644
-> --- a/include/uapi/linux/vhost_types.h
-> +++ b/include/uapi/linux/vhost_types.h
-> @@ -27,6 +27,8 @@ struct vhost_vring_file {
->  =20
->   };
->  =20
-> +typedef struct vhost_vring_file vhost_config_file;
-> +
-
-
-I wonder maybe this is the best approach. Maybe it's better to use=20
-vhost_vring_file or just use a int (but need document the -1 action).
-
-Thanks
-
-
->   struct vhost_vring_addr {
->   	unsigned int index;
->   	/* Option flags. */
+Ck9uIDIwMjAvNC8yNCDkuIvljYg2OjA0LCBaaHUgTGluZ3NoYW4gd3JvdGU6Cj4gVGhpcyBjb21t
+aXQgaW1wbGVtZW50cyBjb25maWcgaW50ZXJydXB0IHN1cHBvcnQKPiBpbiBJRkMgVkYKPgo+IFNp
+Z25lZC1vZmYtYnk6IFpodSBMaW5nc2hhbiA8bGluZ3NoYW4uemh1QGludGVsLmNvbT4KPiAtLS0K
+PiAgIGRyaXZlcnMvdmRwYS9pZmN2Zi9pZmN2Zl9iYXNlLmMgfCAgMyArKysKPiAgIGRyaXZlcnMv
+dmRwYS9pZmN2Zi9pZmN2Zl9iYXNlLmggfCAgMiArKwo+ICAgZHJpdmVycy92ZHBhL2lmY3ZmL2lm
+Y3ZmX21haW4uYyB8IDIyICsrKysrKysrKysrKysrKysrKysrKy0KPiAgIDMgZmlsZXMgY2hhbmdl
+ZCwgMjYgaW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZl
+cnMvdmRwYS9pZmN2Zi9pZmN2Zl9iYXNlLmMgYi9kcml2ZXJzL3ZkcGEvaWZjdmYvaWZjdmZfYmFz
+ZS5jCj4gaW5kZXggYjYxYjA2ZS4uYzgyNWQ5OSAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3ZkcGEv
+aWZjdmYvaWZjdmZfYmFzZS5jCj4gKysrIGIvZHJpdmVycy92ZHBhL2lmY3ZmL2lmY3ZmX2Jhc2Uu
+Ywo+IEBAIC0xODUsNiArMTg1LDkgQEAgdm9pZCBpZmN2Zl9zZXRfc3RhdHVzKHN0cnVjdCBpZmN2
+Zl9odyAqaHcsIHU4IHN0YXR1cykKPiAgIAo+ICAgdm9pZCBpZmN2Zl9yZXNldChzdHJ1Y3QgaWZj
+dmZfaHcgKmh3KQo+ICAgewo+ICsJaHctPmNvbmZpZ19jYi5jYWxsYmFjayA9IE5VTEw7Cj4gKwlo
+dy0+Y29uZmlnX2NiLnByaXZhdGUgPSBOVUxMOwo+ICsKPiAgIAlpZmN2Zl9zZXRfc3RhdHVzKGh3
+LCAwKTsKPiAgIAkvKiBmbHVzaCBzZXRfc3RhdHVzLCBtYWtlIHN1cmUgVkYgaXMgc3RvcHBlZCwg
+cmVzZXQgKi8KPiAgIAlpZmN2Zl9nZXRfc3RhdHVzKGh3KTsKPiBkaWZmIC0tZ2l0IGEvZHJpdmVy
+cy92ZHBhL2lmY3ZmL2lmY3ZmX2Jhc2UuaCBiL2RyaXZlcnMvdmRwYS9pZmN2Zi9pZmN2Zl9iYXNl
+LmgKPiBpbmRleCBlODAzMDcwLi43NjkyOGIwIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmRwYS9p
+ZmN2Zi9pZmN2Zl9iYXNlLmgKPiArKysgYi9kcml2ZXJzL3ZkcGEvaWZjdmYvaWZjdmZfYmFzZS5o
+Cj4gQEAgLTgxLDYgKzgxLDggQEAgc3RydWN0IGlmY3ZmX2h3IHsKPiAgIAl2b2lkIF9faW9tZW0g
+Km5ldF9jZmc7Cj4gICAJc3RydWN0IHZyaW5nX2luZm8gdnJpbmdbSUZDVkZfTUFYX1FVRVVFX1BB
+SVJTICogMl07Cj4gICAJdm9pZCBfX2lvbWVtICogY29uc3QgKmJhc2U7Cj4gKwljaGFyIGNvbmZp
+Z19tc2l4X25hbWVbMjU2XTsKPiArCXN0cnVjdCB2ZHBhX2NhbGxiYWNrIGNvbmZpZ19jYjsKPiAg
+IH07Cj4gICAKPiAgIHN0cnVjdCBpZmN2Zl9hZGFwdGVyIHsKPiBkaWZmIC0tZ2l0IGEvZHJpdmVy
+cy92ZHBhL2lmY3ZmL2lmY3ZmX21haW4uYyBiL2RyaXZlcnMvdmRwYS9pZmN2Zi9pZmN2Zl9tYWlu
+LmMKPiBpbmRleCA4ZDU0ZGM1Li5mN2JhZWNhIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvdmRwYS9p
+ZmN2Zi9pZmN2Zl9tYWluLmMKPiArKysgYi9kcml2ZXJzL3ZkcGEvaWZjdmYvaWZjdmZfbWFpbi5j
+Cj4gQEAgLTE4LDYgKzE4LDE2IEBACj4gICAjZGVmaW5lIERSSVZFUl9BVVRIT1IgICAiSW50ZWwg
+Q29ycG9yYXRpb24iCj4gICAjZGVmaW5lIElGQ1ZGX0RSSVZFUl9OQU1FICAgICAgICJpZmN2ZiIK
+PiAgIAo+ICtzdGF0aWMgaXJxcmV0dXJuX3QgaWZjdmZfY29uZmlnX2NoYW5nZWQoaW50IGlycSwg
+dm9pZCAqYXJnKQo+ICt7Cj4gKwlzdHJ1Y3QgaWZjdmZfaHcgKnZmID0gYXJnOwo+ICsKPiArCWlm
+ICh2Zi0+Y29uZmlnX2NiLmNhbGxiYWNrKQo+ICsJCXJldHVybiB2Zi0+Y29uZmlnX2NiLmNhbGxi
+YWNrKHZmLT5jb25maWdfY2IucHJpdmF0ZSk7Cj4gKwo+ICsJcmV0dXJuIElSUV9IQU5ETEVEOwoK
+ClNvIGl0IGxvb2tzIHRvIG1lIHRoZSBjdXJyZW50IHN1cHBvcnQgb2YgVklSVElPX05FVF9GX1NU
+QVRVUyBpcyBicm9rZW4gCndpdGhvdXQgdGhpcyBwYXRjaC4KCldlIHByb2JhYmx5IG5lZWQgdG8g
+cGF0Y2ggdG8gZGlzYWJsZSBpdC4KClRoYW5rcwoKCj4gK30KPiArCj4gICBzdGF0aWMgaXJxcmV0
+dXJuX3QgaWZjdmZfaW50cl9oYW5kbGVyKGludCBpcnEsIHZvaWQgKmFyZykKPiAgIHsKPiAgIAlz
+dHJ1Y3QgdnJpbmdfaW5mbyAqdnJpbmcgPSBhcmc7Cj4gQEAgLTI1Niw3ICsyNjYsMTAgQEAgc3Rh
+dGljIHZvaWQgaWZjdmZfdmRwYV9zZXRfY29uZmlnKHN0cnVjdCB2ZHBhX2RldmljZSAqdmRwYV9k
+ZXYsCj4gICBzdGF0aWMgdm9pZCBpZmN2Zl92ZHBhX3NldF9jb25maWdfY2Ioc3RydWN0IHZkcGFf
+ZGV2aWNlICp2ZHBhX2RldiwKPiAgIAkJCQkgICAgIHN0cnVjdCB2ZHBhX2NhbGxiYWNrICpjYikK
+PiAgIHsKPiAtCS8qIFdlIGRvbid0IHN1cHBvcnQgY29uZmlnIGludGVycnVwdCAqLwo+ICsJc3Ry
+dWN0IGlmY3ZmX2h3ICp2ZiA9IHZkcGFfdG9fdmYodmRwYV9kZXYpOwo+ICsKPiArCXZmLT5jb25m
+aWdfY2IuY2FsbGJhY2sgPSBjYi0+Y2FsbGJhY2s7Cj4gKwl2Zi0+Y29uZmlnX2NiLnByaXZhdGUg
+PSBjYi0+cHJpdmF0ZTsKPiAgIH0KPiAgIAo+ICAgLyoKPiBAQCAtMjkyLDYgKzMwNSwxMyBAQCBz
+dGF0aWMgaW50IGlmY3ZmX3JlcXVlc3RfaXJxKHN0cnVjdCBpZmN2Zl9hZGFwdGVyICphZGFwdGVy
+KQo+ICAgCXN0cnVjdCBpZmN2Zl9odyAqdmYgPSAmYWRhcHRlci0+dmY7Cj4gICAJaW50IHZlY3Rv
+ciwgaSwgcmV0LCBpcnE7Cj4gICAKPiArCXNucHJpbnRmKHZmLT5jb25maWdfbXNpeF9uYW1lLCAy
+NTYsICJpZmN2Zlslc10tY29uZmlnXG4iLAo+ICsJCXBjaV9uYW1lKHBkZXYpKTsKPiArCXZlY3Rv
+ciA9IDA7Cj4gKwlpcnEgPSBwY2lfaXJxX3ZlY3RvcihwZGV2LCB2ZWN0b3IpOwo+ICsJcmV0ID0g
+ZGV2bV9yZXF1ZXN0X2lycSgmcGRldi0+ZGV2LCBpcnEsCj4gKwkJCSAgICAgICBpZmN2Zl9jb25m
+aWdfY2hhbmdlZCwgMCwKPiArCQkJICAgICAgIHZmLT5jb25maWdfbXNpeF9uYW1lLCB2Zik7Cj4g
+ICAKPiAgIAlmb3IgKGkgPSAwOyBpIDwgSUZDVkZfTUFYX1FVRVVFX1BBSVJTICogMjsgaSsrKSB7
+Cj4gICAJCXNucHJpbnRmKHZmLT52cmluZ1tpXS5tc2l4X25hbWUsIDI1NiwgImlmY3ZmWyVzXS0l
+ZFxuIiwKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
+cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
+ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
+aW5mby92aXJ0dWFsaXphdGlvbg==
