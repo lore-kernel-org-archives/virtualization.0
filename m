@@ -1,106 +1,106 @@
-From: Zhu Lingshan <lingshan.zhu@intel.com>
-Subject: [PATCH V2 2/2] vdpa: implement config interrupt in IFCVF
-Date: Sun, 26 Apr 2020 14:09:44 +0800
-Message-ID: <1587881384-2133-3-git-send-email-lingshan.zhu@intel.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V2 1/2] vdpa: Support config interrupt in vhost_vdpa
+Date: Sun, 26 Apr 2020 14:58:43 +0800
+Message-ID: <055fb826-895d-881b-719c-228d0cc9a7bf@redhat.com>
 References: <1587881384-2133-1-git-send-email-lingshan.zhu@intel.com>
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <1587881384-2133-1-git-send-email-lingshan.zhu@intel.com>
-Sender: netdev-owner@vger.kernel.org
-To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, jasowang@redhat.com
-Cc: lulu@redhat.com, dan.daly@intel.com, cunming.liang@intel.com, Zhu Lingshan <lingshan.zhu@intel.com>
+ <1587881384-2133-2-git-send-email-lingshan.zhu@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1587881384-2133-2-git-send-email-lingshan.zhu@intel.com>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Zhu Lingshan <lingshan.zhu@intel.com>, mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Cc: lulu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This commit implements config interrupt support
-in IFC VF
-
-Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
----
- drivers/vdpa/ifcvf/ifcvf_base.c |  3 +++
- drivers/vdpa/ifcvf/ifcvf_base.h |  3 +++
- drivers/vdpa/ifcvf/ifcvf_main.c | 22 +++++++++++++++++++++-
- 3 files changed, 27 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/vdpa/ifcvf/ifcvf_base.c b/drivers/vdpa/ifcvf/ifcvf_base.c
-index b61b06e..c825d99 100644
---- a/drivers/vdpa/ifcvf/ifcvf_base.c
-+++ b/drivers/vdpa/ifcvf/ifcvf_base.c
-@@ -185,6 +185,9 @@ void ifcvf_set_status(struct ifcvf_hw *hw, u8 status)
- 
- void ifcvf_reset(struct ifcvf_hw *hw)
- {
-+	hw->config_cb.callback = NULL;
-+	hw->config_cb.private = NULL;
-+
- 	ifcvf_set_status(hw, 0);
- 	/* flush set_status, make sure VF is stopped, reset */
- 	ifcvf_get_status(hw);
-diff --git a/drivers/vdpa/ifcvf/ifcvf_base.h b/drivers/vdpa/ifcvf/ifcvf_base.h
-index e803070..23ac47d 100644
---- a/drivers/vdpa/ifcvf/ifcvf_base.h
-+++ b/drivers/vdpa/ifcvf/ifcvf_base.h
-@@ -27,6 +27,7 @@
- 		((1ULL << VIRTIO_NET_F_MAC)			| \
- 		 (1ULL << VIRTIO_F_ANY_LAYOUT)			| \
- 		 (1ULL << VIRTIO_F_VERSION_1)			| \
-+		 (1ULL << VIRTIO_NET_F_STATUS)			| \
- 		 (1ULL << VIRTIO_F_ORDER_PLATFORM)		| \
- 		 (1ULL << VIRTIO_F_IOMMU_PLATFORM)		| \
- 		 (1ULL << VIRTIO_NET_F_MRG_RXBUF))
-@@ -81,6 +82,8 @@ struct ifcvf_hw {
- 	void __iomem *net_cfg;
- 	struct vring_info vring[IFCVF_MAX_QUEUE_PAIRS * 2];
- 	void __iomem * const *base;
-+	char config_msix_name[256];
-+	struct vdpa_callback config_cb;
- };
- 
- struct ifcvf_adapter {
-diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
-index 8d54dc5..f7baeca 100644
---- a/drivers/vdpa/ifcvf/ifcvf_main.c
-+++ b/drivers/vdpa/ifcvf/ifcvf_main.c
-@@ -18,6 +18,16 @@
- #define DRIVER_AUTHOR   "Intel Corporation"
- #define IFCVF_DRIVER_NAME       "ifcvf"
- 
-+static irqreturn_t ifcvf_config_changed(int irq, void *arg)
-+{
-+	struct ifcvf_hw *vf = arg;
-+
-+	if (vf->config_cb.callback)
-+		return vf->config_cb.callback(vf->config_cb.private);
-+
-+	return IRQ_HANDLED;
-+}
-+
- static irqreturn_t ifcvf_intr_handler(int irq, void *arg)
- {
- 	struct vring_info *vring = arg;
-@@ -256,7 +266,10 @@ static void ifcvf_vdpa_set_config(struct vdpa_device *vdpa_dev,
- static void ifcvf_vdpa_set_config_cb(struct vdpa_device *vdpa_dev,
- 				     struct vdpa_callback *cb)
- {
--	/* We don't support config interrupt */
-+	struct ifcvf_hw *vf = vdpa_to_vf(vdpa_dev);
-+
-+	vf->config_cb.callback = cb->callback;
-+	vf->config_cb.private = cb->private;
- }
- 
- /*
-@@ -292,6 +305,13 @@ static int ifcvf_request_irq(struct ifcvf_adapter *adapter)
- 	struct ifcvf_hw *vf = &adapter->vf;
- 	int vector, i, ret, irq;
- 
-+	snprintf(vf->config_msix_name, 256, "ifcvf[%s]-config\n",
-+		pci_name(pdev));
-+	vector = 0;
-+	irq = pci_irq_vector(pdev, vector);
-+	ret = devm_request_irq(&pdev->dev, irq,
-+			       ifcvf_config_changed, 0,
-+			       vf->config_msix_name, vf);
- 
- 	for (i = 0; i < IFCVF_MAX_QUEUE_PAIRS * 2; i++) {
- 		snprintf(vf->vring[i].msix_name, 256, "ifcvf[%s]-%d\n",
--- 
-1.8.3.1
+Ck9uIDIwMjAvNC8yNiDkuIvljYgyOjA5LCBaaHUgTGluZ3NoYW4gd3JvdGU6Cj4gVGhpcyBjb21t
+aXQgaW1wbGVtZW50cyBjb25maWcgaW50ZXJydXB0IHN1cHBvcnQgaW4KPiB2aG9zdF92ZHBhIGxh
+eWVyLgo+Cj4gU2lnbmVkLW9mZi1ieTogWmh1IExpbmdzaGFuIDxsaW5nc2hhbi56aHVAaW50ZWwu
+Y29tPgo+IC0tLQo+ICAgZHJpdmVycy92aG9zdC92ZHBhLmMgICAgICAgfCA0NyArKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrCj4gICBkcml2ZXJzL3Zob3N0L3Zo
+b3N0LmMgICAgICB8ICAyICstCj4gICBkcml2ZXJzL3Zob3N0L3Zob3N0LmggICAgICB8ICAyICsr
+Cj4gICBpbmNsdWRlL3VhcGkvbGludXgvdmhvc3QuaCB8ICAyICsrCj4gICA0IGZpbGVzIGNoYW5n
+ZWQsIDUyIGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2
+ZXJzL3Zob3N0L3ZkcGEuYyBiL2RyaXZlcnMvdmhvc3QvdmRwYS5jCj4gaW5kZXggNDIxZjAyYS4u
+Yjk0ZTM0OSAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3Zob3N0L3ZkcGEuYwo+ICsrKyBiL2RyaXZl
+cnMvdmhvc3QvdmRwYS5jCj4gQEAgLTIxLDYgKzIxLDcgQEAKPiAgICNpbmNsdWRlIDxsaW51eC9u
+b3NwZWMuaD4KPiAgICNpbmNsdWRlIDxsaW51eC92aG9zdC5oPgo+ICAgI2luY2x1ZGUgPGxpbnV4
+L3ZpcnRpb19uZXQuaD4KPiArI2luY2x1ZGUgPGxpbnV4L2tlcm5lbC5oPgo+ICAgCj4gICAjaW5j
+bHVkZSAidmhvc3QuaCIKPiAgIAo+IEBAIC03MCw2ICs3MSw3IEBAIHN0cnVjdCB2aG9zdF92ZHBh
+IHsKPiAgIAlpbnQgbnZxczsKPiAgIAlpbnQgdmlydGlvX2lkOwo+ICAgCWludCBtaW5vcjsKPiAr
+CXN0cnVjdCBldmVudGZkX2N0eCAqY29uZmlnX2N0eDsKPiAgIH07Cj4gICAKPiAgIHN0YXRpYyBE
+RUZJTkVfSURBKHZob3N0X3ZkcGFfaWRhKTsKPiBAQCAtMTAxLDYgKzEwMywxNyBAQCBzdGF0aWMg
+aXJxcmV0dXJuX3Qgdmhvc3RfdmRwYV92aXJ0cXVldWVfY2Iodm9pZCAqcHJpdmF0ZSkKPiAgIAly
+ZXR1cm4gSVJRX0hBTkRMRUQ7Cj4gICB9Cj4gICAKPiArc3RhdGljIGlycXJldHVybl90IHZob3N0
+X3ZkcGFfY29uZmlnX2NiKHZvaWQgKnByaXZhdGUpCj4gK3sKPiArCXN0cnVjdCB2aG9zdF92ZHBh
+ICp2ID0gcHJpdmF0ZTsKPiArCXN0cnVjdCBldmVudGZkX2N0eCAqY29uZmlnX2N0eCA9IHYtPmNv
+bmZpZ19jdHg7Cj4gKwo+ICsJaWYgKGNvbmZpZ19jdHgpCj4gKwkJZXZlbnRmZF9zaWduYWwoY29u
+ZmlnX2N0eCwgMSk7Cj4gKwo+ICsJcmV0dXJuIElSUV9IQU5ETEVEOwo+ICt9Cj4gKwo+ICAgc3Rh
+dGljIHZvaWQgdmhvc3RfdmRwYV9yZXNldChzdHJ1Y3Qgdmhvc3RfdmRwYSAqdikKPiAgIHsKPiAg
+IAlzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZkcGEgPSB2LT52ZHBhOwo+IEBAIC0yODgsNiArMzAxLDM2
+IEBAIHN0YXRpYyBsb25nIHZob3N0X3ZkcGFfZ2V0X3ZyaW5nX251bShzdHJ1Y3Qgdmhvc3RfdmRw
+YSAqdiwgdTE2IF9fdXNlciAqYXJncCkKPiAgIAlyZXR1cm4gMDsKPiAgIH0KPiAgIAo+ICtzdGF0
+aWMgdm9pZCB2aG9zdF92ZHBhX2NvbmZpZ19wdXQoc3RydWN0IHZob3N0X3ZkcGEgKnYpCj4gK3sK
+PiArCWlmICh2LT5jb25maWdfY3R4KQo+ICsJCWV2ZW50ZmRfY3R4X3B1dCh2LT5jb25maWdfY3R4
+KTsKPiArfQo+ICsKPiArc3RhdGljIGxvbmcgdmhvc3RfdmRwYV9zZXRfY29uZmlnX2NhbGwoc3Ry
+dWN0IHZob3N0X3ZkcGEgKnYsIHUzMiBfX3VzZXIgKmFyZ3ApCj4gK3sKPiArCXN0cnVjdCB2ZHBh
+X2NhbGxiYWNrIGNiOwo+ICsJdTMyIGZkOwo+ICsJc3RydWN0IGV2ZW50ZmRfY3R4ICpjdHg7Cj4g
+Kwo+ICsJY2IuY2FsbGJhY2sgPSB2aG9zdF92ZHBhX2NvbmZpZ19jYjsKPiArCWNiLnByaXZhdGUg
+PSB2LT52ZHBhOwo+ICsJaWYgKGNvcHlfZnJvbV91c2VyKCZmZCwgYXJncCwgc2l6ZW9mKGZkKSkp
+Cj4gKwkJcmV0dXJuICAtRUZBVUxUOwo+ICsKPiArCWN0eCA9IGZkID09IFZIT1NUX0ZJTEVfVU5C
+SU5EID8gTlVMTCA6IGV2ZW50ZmRfY3R4X2ZkZ2V0KGZkKTsKPiArCXN3YXAoY3R4LCB2LT5jb25m
+aWdfY3R4KTsKPiArCj4gKwlpZiAoIUlTX0VSUl9PUl9OVUxMKGN0eCkpCj4gKwkJZXZlbnRmZF9j
+dHhfcHV0KGN0eCk7Cj4gKwo+ICsJaWYgKElTX0VSUih2LT5jb25maWdfY3R4KSkKPiArCQlyZXR1
+cm4gUFRSX0VSUih2LT5jb25maWdfY3R4KTsKPiArCj4gKwl2LT52ZHBhLT5jb25maWctPnNldF9j
+b25maWdfY2Iodi0+dmRwYSwgJmNiKTsKPiArCj4gKwlyZXR1cm4gMDsKPiArfQo+ICAgc3RhdGlj
+IGxvbmcgdmhvc3RfdmRwYV92cmluZ19pb2N0bChzdHJ1Y3Qgdmhvc3RfdmRwYSAqdiwgdW5zaWdu
+ZWQgaW50IGNtZCwKPiAgIAkJCQkgICB2b2lkIF9fdXNlciAqYXJncCkKPiAgIHsKPiBAQCAtMzk4
+LDYgKzQ0MSw5IEBAIHN0YXRpYyBsb25nIHZob3N0X3ZkcGFfdW5sb2NrZWRfaW9jdGwoc3RydWN0
+IGZpbGUgKmZpbGVwLAo+ICAgCWNhc2UgVkhPU1RfU0VUX0xPR19GRDoKPiAgIAkJciA9IC1FTk9J
+T0NUTENNRDsKPiAgIAkJYnJlYWs7Cj4gKwljYXNlIFZIT1NUX1ZEUEFfU0VUX0NPTkZJR19DQUxM
+Ogo+ICsJCXIgPSB2aG9zdF92ZHBhX3NldF9jb25maWdfY2FsbCh2LCBhcmdwKTsKPiArCQlicmVh
+azsKPiAgIAlkZWZhdWx0Ogo+ICAgCQlyID0gdmhvc3RfZGV2X2lvY3RsKCZ2LT52ZGV2LCBjbWQs
+IGFyZ3ApOwo+ICAgCQlpZiAociA9PSAtRU5PSU9DVExDTUQpCj4gQEAgLTczNCw2ICs3ODAsNyBA
+QCBzdGF0aWMgaW50IHZob3N0X3ZkcGFfcmVsZWFzZShzdHJ1Y3QgaW5vZGUgKmlub2RlLCBzdHJ1
+Y3QgZmlsZSAqZmlsZXApCj4gICAJdmhvc3RfZGV2X3N0b3AoJnYtPnZkZXYpOwo+ICAgCXZob3N0
+X3ZkcGFfaW90bGJfZnJlZSh2KTsKPiAgIAl2aG9zdF92ZHBhX2ZyZWVfZG9tYWluKHYpOwo+ICsJ
+dmhvc3RfdmRwYV9jb25maWdfcHV0KHYpOwo+ICAgCXZob3N0X2Rldl9jbGVhbnVwKCZ2LT52ZGV2
+KTsKPiAgIAlrZnJlZSh2LT52ZGV2LnZxcyk7Cj4gICAJbXV0ZXhfdW5sb2NrKCZkLT5tdXRleCk7
+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYyBiL2RyaXZlcnMvdmhvc3Qvdmhv
+c3QuYwo+IGluZGV4IGQ0NTBlMTYuLmU4ZjViMjAgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92aG9z
+dC92aG9zdC5jCj4gKysrIGIvZHJpdmVycy92aG9zdC92aG9zdC5jCj4gQEAgLTE1OTAsNyArMTU5
+MCw3IEBAIGxvbmcgdmhvc3RfdnJpbmdfaW9jdGwoc3RydWN0IHZob3N0X2RldiAqZCwgdW5zaWdu
+ZWQgaW50IGlvY3RsLCB2b2lkIF9fdXNlciAqYXJnCj4gICAJCQlyID0gLUVGQVVMVDsKPiAgIAkJ
+CWJyZWFrOwo+ICAgCQl9Cj4gLQkJY3R4ID0gZi5mZCA9PSAtMSA/IE5VTEwgOiBldmVudGZkX2N0
+eF9mZGdldChmLmZkKTsKPiArCQljdHggPSBmLmZkID09IFZIT1NUX0ZJTEVfVU5CSU5EID8gTlVM
+TCA6IGV2ZW50ZmRfY3R4X2ZkZ2V0KGYuZmQpOwo+ICAgCQlpZiAoSVNfRVJSKGN0eCkpIHsKPiAg
+IAkJCXIgPSBQVFJfRVJSKGN0eCk7Cj4gICAJCQlicmVhazsKPiBkaWZmIC0tZ2l0IGEvZHJpdmVy
+cy92aG9zdC92aG9zdC5oIGIvZHJpdmVycy92aG9zdC92aG9zdC5oCj4gaW5kZXggMTgxMzgyMS4u
+ODY2MzEzOSAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmgKPiArKysgYi9kcml2
+ZXJzL3Zob3N0L3Zob3N0LmgKPiBAQCAtMTgsNiArMTgsOCBAQAo+ICAgdHlwZWRlZiB2b2lkICgq
+dmhvc3Rfd29ya19mbl90KShzdHJ1Y3Qgdmhvc3Rfd29yayAqd29yayk7Cj4gICAKPiAgICNkZWZp
+bmUgVkhPU1RfV09SS19RVUVVRUQgMQo+ICsjZGVmaW5lIFZIT1NUX0ZJTEVfVU5CSU5EIC0xCgoK
+SSB0aGluayBpdCdzIGJldHRlciB0byBkb2N1bWVudCB0aGlzIGluIHVhcGkuCgoKPiArCj4gICBz
+dHJ1Y3Qgdmhvc3Rfd29yayB7Cj4gICAJc3RydWN0IGxsaXN0X25vZGUJICBub2RlOwo+ICAgCXZo
+b3N0X3dvcmtfZm5fdAkJICBmbjsKPiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS91YXBpL2xpbnV4L3Zo
+b3N0LmggYi9pbmNsdWRlL3VhcGkvbGludXgvdmhvc3QuaAo+IGluZGV4IDlmZTcyZTQuLjM0NWFj
+YjMgMTAwNjQ0Cj4gLS0tIGEvaW5jbHVkZS91YXBpL2xpbnV4L3Zob3N0LmgKPiArKysgYi9pbmNs
+dWRlL3VhcGkvbGludXgvdmhvc3QuaAo+IEBAIC0xNDAsNCArMTQwLDYgQEAKPiAgIC8qIEdldCB0
+aGUgbWF4IHJpbmcgc2l6ZS4gKi8KPiAgICNkZWZpbmUgVkhPU1RfVkRQQV9HRVRfVlJJTkdfTlVN
+CV9JT1IoVkhPU1RfVklSVElPLCAweDc2LCBfX3UxNikKPiAgIAo+ICsvKiBTZXQgZXZlbnQgZmQg
+Zm9yIGNvbmZpZyBpbnRlcnJ1cHQqLwo+ICsjZGVmaW5lIFZIT1NUX1ZEUEFfU0VUX0NPTkZJR19D
+QUxMCV9JT1coVkhPU1RfVklSVElPLCAweDc3LCB1MzIpCj4gICAjZW5kaWYKCgpTaG91bGQgYmUg
+ImludCIgaW5zdGVhZCBvZiAidTMyIi4KClRoYW5rcwoKX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
+YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
+b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
