@@ -1,14 +1,14 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V3 2/2] vdpa: implement config interrupt in IFCVF
-Date: Sun, 26 Apr 2020 17:40:40 +0800
-Message-ID: <32fda0dc-b1c7-4a7c-2f97-34a40af45fac@redhat.com>
+Subject: Re: [PATCH V3 1/2] vdpa: Support config interrupt in vhost_vdpa
+Date: Sun, 26 Apr 2020 17:41:30 +0800
+Message-ID: <ec8b274c-657f-38b0-2b7d-77ab735969c3@redhat.com>
 References: <1587890572-39093-1-git-send-email-lingshan.zhu@intel.com>
- <1587890572-39093-3-git-send-email-lingshan.zhu@intel.com>
+ <1587890572-39093-2-git-send-email-lingshan.zhu@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1587890572-39093-3-git-send-email-lingshan.zhu@intel.com>
+In-Reply-To: <1587890572-39093-2-git-send-email-lingshan.zhu@intel.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: Zhu Lingshan <lingshan.zhu@intel.com>, mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
@@ -17,110 +17,156 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 
 On 2020/4/26 =E4=B8=8B=E5=8D=884:42, Zhu Lingshan wrote:
-> This commit implements config interrupt support
-> in IFC VF
+> This commit implements config interrupt support in
+> vhost_vdpa layer.
 >
 > Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
 > ---
->   drivers/vdpa/ifcvf/ifcvf_base.c |  3 +++
->   drivers/vdpa/ifcvf/ifcvf_base.h |  3 +++
->   drivers/vdpa/ifcvf/ifcvf_main.c | 22 +++++++++++++++++++++-
->   3 files changed, 27 insertions(+), 1 deletion(-)
+>   drivers/vhost/vdpa.c       | 47 +++++++++++++++++++++++++++++++++++++=
++++++++++
+>   drivers/vhost/vhost.c      |  2 +-
+>   include/uapi/linux/vhost.h |  4 ++++
+>   3 files changed, 52 insertions(+), 1 deletion(-)
 >
-> diff --git a/drivers/vdpa/ifcvf/ifcvf_base.c b/drivers/vdpa/ifcvf/ifcvf=
-_base.c
-> index b61b06e..c825d99 100644
-> --- a/drivers/vdpa/ifcvf/ifcvf_base.c
-> +++ b/drivers/vdpa/ifcvf/ifcvf_base.c
-> @@ -185,6 +185,9 @@ void ifcvf_set_status(struct ifcvf_hw *hw, u8 statu=
-s)
+> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> index 421f02a..c370ec5 100644
+> --- a/drivers/vhost/vdpa.c
+> +++ b/drivers/vhost/vdpa.c
+> @@ -21,6 +21,7 @@
+>   #include <linux/nospec.h>
+>   #include <linux/vhost.h>
+>   #include <linux/virtio_net.h>
+> +#include <linux/kernel.h>
 >  =20
->   void ifcvf_reset(struct ifcvf_hw *hw)
->   {
-> +	hw->config_cb.callback =3D NULL;
-> +	hw->config_cb.private =3D NULL;
-> +
->   	ifcvf_set_status(hw, 0);
->   	/* flush set_status, make sure VF is stopped, reset */
->   	ifcvf_get_status(hw);
-> diff --git a/drivers/vdpa/ifcvf/ifcvf_base.h b/drivers/vdpa/ifcvf/ifcvf=
-_base.h
-> index e803070..23ac47d 100644
-> --- a/drivers/vdpa/ifcvf/ifcvf_base.h
-> +++ b/drivers/vdpa/ifcvf/ifcvf_base.h
-> @@ -27,6 +27,7 @@
->   		((1ULL << VIRTIO_NET_F_MAC)			| \
->   		 (1ULL << VIRTIO_F_ANY_LAYOUT)			| \
->   		 (1ULL << VIRTIO_F_VERSION_1)			| \
-> +		 (1ULL << VIRTIO_NET_F_STATUS)			| \
->   		 (1ULL << VIRTIO_F_ORDER_PLATFORM)		| \
->   		 (1ULL << VIRTIO_F_IOMMU_PLATFORM)		| \
->   		 (1ULL << VIRTIO_NET_F_MRG_RXBUF))
-> @@ -81,6 +82,8 @@ struct ifcvf_hw {
->   	void __iomem *net_cfg;
->   	struct vring_info vring[IFCVF_MAX_QUEUE_PAIRS * 2];
->   	void __iomem * const *base;
-> +	char config_msix_name[256];
-> +	struct vdpa_callback config_cb;
+>   #include "vhost.h"
+>  =20
+> @@ -70,6 +71,7 @@ struct vhost_vdpa {
+>   	int nvqs;
+>   	int virtio_id;
+>   	int minor;
+> +	struct eventfd_ctx *config_ctx;
 >   };
 >  =20
->   struct ifcvf_adapter {
-> diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf=
-_main.c
-> index 8d54dc5..f7baeca 100644
-> --- a/drivers/vdpa/ifcvf/ifcvf_main.c
-> +++ b/drivers/vdpa/ifcvf/ifcvf_main.c
-> @@ -18,6 +18,16 @@
->   #define DRIVER_AUTHOR   "Intel Corporation"
->   #define IFCVF_DRIVER_NAME       "ifcvf"
+>   static DEFINE_IDA(vhost_vdpa_ida);
+> @@ -101,6 +103,17 @@ static irqreturn_t vhost_vdpa_virtqueue_cb(void *p=
+rivate)
+>   	return IRQ_HANDLED;
+>   }
 >  =20
-> +static irqreturn_t ifcvf_config_changed(int irq, void *arg)
+> +static irqreturn_t vhost_vdpa_config_cb(void *private)
 > +{
-> +	struct ifcvf_hw *vf =3D arg;
+> +	struct vhost_vdpa *v =3D private;
+> +	struct eventfd_ctx *config_ctx =3D v->config_ctx;
 > +
-> +	if (vf->config_cb.callback)
-> +		return vf->config_cb.callback(vf->config_cb.private);
+> +	if (config_ctx)
+> +		eventfd_signal(config_ctx, 1);
 > +
 > +	return IRQ_HANDLED;
 > +}
 > +
->   static irqreturn_t ifcvf_intr_handler(int irq, void *arg)
+>   static void vhost_vdpa_reset(struct vhost_vdpa *v)
 >   {
->   	struct vring_info *vring =3D arg;
-> @@ -256,7 +266,10 @@ static void ifcvf_vdpa_set_config(struct vdpa_devi=
-ce *vdpa_dev,
->   static void ifcvf_vdpa_set_config_cb(struct vdpa_device *vdpa_dev,
->   				     struct vdpa_callback *cb)
->   {
-> -	/* We don't support config interrupt */
-> +	struct ifcvf_hw *vf =3D vdpa_to_vf(vdpa_dev);
-> +
-> +	vf->config_cb.callback =3D cb->callback;
-> +	vf->config_cb.private =3D cb->private;
+>   	struct vdpa_device *vdpa =3D v->vdpa;
+> @@ -288,6 +301,36 @@ static long vhost_vdpa_get_vring_num(struct vhost_=
+vdpa *v, u16 __user *argp)
+>   	return 0;
 >   }
 >  =20
->   /*
-> @@ -292,6 +305,13 @@ static int ifcvf_request_irq(struct ifcvf_adapter =
-*adapter)
->   	struct ifcvf_hw *vf =3D &adapter->vf;
->   	int vector, i, ret, irq;
+> +static void vhost_vdpa_config_put(struct vhost_vdpa *v)
+> +{
+> +	if (v->config_ctx)
+> +		eventfd_ctx_put(v->config_ctx);
+> +}
+> +
+> +static long vhost_vdpa_set_config_call(struct vhost_vdpa *v, u32 __use=
+r *argp)
+> +{
+> +	struct vdpa_callback cb;
+> +	int fd;
+> +	struct eventfd_ctx *ctx;
+> +
+> +	cb.callback =3D vhost_vdpa_config_cb;
+> +	cb.private =3D v->vdpa;
+> +	if (copy_from_user(&fd, argp, sizeof(fd)))
+> +		return  -EFAULT;
+> +
+> +	ctx =3D fd =3D=3D VHOST_FILE_UNBIND ? NULL : eventfd_ctx_fdget(fd);
+> +	swap(ctx, v->config_ctx);
+> +
+> +	if (!IS_ERR_OR_NULL(ctx))
+> +		eventfd_ctx_put(ctx);
+> +
+> +	if (IS_ERR(v->config_ctx))
+> +		return PTR_ERR(v->config_ctx);
+> +
+> +	v->vdpa->config->set_config_cb(v->vdpa, &cb);
+> +
+> +	return 0;
+> +}
+>   static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int=
+ cmd,
+>   				   void __user *argp)
+>   {
+> @@ -398,6 +441,9 @@ static long vhost_vdpa_unlocked_ioctl(struct file *=
+filep,
+>   	case VHOST_SET_LOG_FD:
+>   		r =3D -ENOIOCTLCMD;
+>   		break;
+> +	case VHOST_VDPA_SET_CONFIG_CALL:
+> +		r =3D vhost_vdpa_set_config_call(v, argp);
+> +		break;
+>   	default:
+>   		r =3D vhost_dev_ioctl(&v->vdev, cmd, argp);
+>   		if (r =3D=3D -ENOIOCTLCMD)
+> @@ -734,6 +780,7 @@ static int vhost_vdpa_release(struct inode *inode, =
+struct file *filep)
+>   	vhost_dev_stop(&v->vdev);
+>   	vhost_vdpa_iotlb_free(v);
+>   	vhost_vdpa_free_domain(v);
+> +	vhost_vdpa_config_put(v);
+>   	vhost_dev_cleanup(&v->vdev);
+>   	kfree(v->vdev.vqs);
+>   	mutex_unlock(&d->mutex);
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index d450e16..e8f5b20 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -1590,7 +1590,7 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsig=
+ned int ioctl, void __user *arg
+>   			r =3D -EFAULT;
+>   			break;
+>   		}
+> -		ctx =3D f.fd =3D=3D -1 ? NULL : eventfd_ctx_fdget(f.fd);
+> +		ctx =3D f.fd =3D=3D VHOST_FILE_UNBIND ? NULL : eventfd_ctx_fdget(f.f=
+d);
+>   		if (IS_ERR(ctx)) {
+>   			r =3D PTR_ERR(ctx);
+>   			break;
+> diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+> index 9fe72e4..0c23496 100644
+> --- a/include/uapi/linux/vhost.h
+> +++ b/include/uapi/linux/vhost.h
+> @@ -15,6 +15,8 @@
+>   #include <linux/types.h>
+>   #include <linux/ioctl.h>
 >  =20
-> +	snprintf(vf->config_msix_name, 256, "ifcvf[%s]-config\n",
-> +		pci_name(pdev));
-> +	vector =3D 0;
-> +	irq =3D pci_irq_vector(pdev, vector);
+> +#define VHOST_FILE_UNBIND -1
 
 
-Nitpick, we can just use pci_irq_vecotr(pdev, 0);
-
-vector will be reassigned soon :)
+I think we need a separate patch for introducing this since we touches=20
+vhost.c
 
 Thanks
 
 
-> +	ret =3D devm_request_irq(&pdev->dev, irq,
-> +			       ifcvf_config_changed, 0,
-> +			       vf->config_msix_name, vf);
+> +
+>   /* ioctls */
 >  =20
->   	for (i =3D 0; i < IFCVF_MAX_QUEUE_PAIRS * 2; i++) {
->   		snprintf(vf->vring[i].msix_name, 256, "ifcvf[%s]-%d\n",
+>   #define VHOST_VIRTIO 0xAF
+> @@ -140,4 +142,6 @@
+>   /* Get the max ring size. */
+>   #define VHOST_VDPA_GET_VRING_NUM	_IOR(VHOST_VIRTIO, 0x76, __u16)
+>  =20
+> +/* Set event fd for config interrupt*/
+> +#define VHOST_VDPA_SET_CONFIG_CALL	_IOW(VHOST_VIRTIO, 0x77, int)
+>   #endif
