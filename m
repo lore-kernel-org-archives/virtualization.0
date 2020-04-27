@@ -1,54 +1,49 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V4 0/3] vdpa: Support config interrupt in vhost_vdpa
-Date: Mon, 27 Apr 2020 11:31:05 +0800
-Message-ID: <ff2471ae-254e-7697-72b7-6601a561c3d9@redhat.com>
-References: <1587901406-27400-1-git-send-email-lingshan.zhu@intel.com>
+From: Vasily Averin <vvs-5HdwGun5lf+gSpxsJD1C4w@public.gmane.org>
+Subject: [PATCH 2/2] drm/qxl: qxl_release leak in
+	qxl_hw_surface_alloc()
+Date: Mon, 27 Apr 2020 08:32:51 +0300
+Message-ID: <2e5a13ae-9ab2-5401-aa4d-03d5f5593423@virtuozzo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1587901406-27400-1-git-send-email-lingshan.zhu@intel.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <devel-bounces-GEFAQzZX7r8dnm+yROfE0A@public.gmane.org>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Zhu Lingshan <lingshan.zhu@intel.com>, mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Cc: lulu@redhat.com, dan.daly@intel.com, cunming.liang@intel.com
+List-Unsubscribe: <https://lists.openvz.org/mailman/options/devel>,
+	<mailto:devel-request-GEFAQzZX7r8dnm+yROfE0A@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.openvz.org/pipermail/devel/>
+List-Post: <mailto:devel-GEFAQzZX7r8dnm+yROfE0A@public.gmane.org>
+List-Help: <mailto:devel-request-GEFAQzZX7r8dnm+yROfE0A@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.openvz.org/mailman/listinfo/devel>,
+	<mailto:devel-request-GEFAQzZX7r8dnm+yROfE0A@public.gmane.org?subject=subscribe>
+Sender: devel-bounces-GEFAQzZX7r8dnm+yROfE0A@public.gmane.org
+Errors-To: devel-bounces-GEFAQzZX7r8dnm+yROfE0A@public.gmane.org
+To: Dave Airlie <airlied-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Gerd Hoffmann <kraxel-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Daniel Vetter <daniel-/w4YWyX8dFk@public.gmane.org>, spice-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, OpenVZ devel <devel-GEFAQzZX7r8dnm+yROfE0A@public.gmane.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+Cc: stable-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Fixes: 8002db6336dd ("qxl: convert qxl driver to proper use for reservations")
+Signed-off-by: Vasily Averin <vvs-5HdwGun5lf+gSpxsJD1C4w@public.gmane.org>
+---
+ drivers/gpu/drm/qxl/qxl_cmd.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-On 2020/4/26 =E4=B8=8B=E5=8D=887:43, Zhu Lingshan wrote:
-> This series includes two patches, one introduced
-> config interrupt support in VDPA core, the other
-> one implemented config interrupt in IFCVF.
->
-> changes from V3:
-> move changes in driver/vhost/vhost.c to a
-> separated patch.
->
-> changes from V2:
-> move VHOST_FILE_UNBIND to the uapi header.
->
-> changes from V1:
-> vdpa: more efficient code to handle eventfd unbind.
-> ifcvf: add VIRTIO_NET_F_STATUS feature bit.
-
-
-5.8 material I think.
-
-Acked-by: Jason Wang <jasowang@redhat.com>
-
-
->
-> Zhu Lingshan (3):
->    vdpa: Support config interrupt in vhost_vdpa
->    vhost: replace -1 with  VHOST_FILE_UNBIND in iotcls
->    vdpa: implement config interrupt in IFCVF
->
->   drivers/vdpa/ifcvf/ifcvf_base.c |  3 +++
->   drivers/vdpa/ifcvf/ifcvf_base.h |  3 +++
->   drivers/vdpa/ifcvf/ifcvf_main.c | 22 ++++++++++++++++++-
->   drivers/vhost/vdpa.c            | 47 ++++++++++++++++++++++++++++++++=
-+++++++++
->   drivers/vhost/vhost.c           |  8 +++----
->   include/uapi/linux/vhost.h      |  4 ++++
->   6 files changed, 82 insertions(+), 5 deletions(-)
->
+diff --git a/drivers/gpu/drm/qxl/qxl_cmd.c b/drivers/gpu/drm/qxl/qxl_cmd.c
+index d1086b2a6892..fa8762d15d0f 100644
+--- a/drivers/gpu/drm/qxl/qxl_cmd.c
++++ b/drivers/gpu/drm/qxl/qxl_cmd.c
+@@ -480,9 +480,10 @@ int qxl_hw_surface_alloc(struct qxl_device *qdev,
+ 		return ret;
+ 
+ 	ret = qxl_release_reserve_list(release, true);
+-	if (ret)
++	if (ret) {
++		qxl_release_free(qdev, release);
+ 		return ret;
+-
++	}
+ 	cmd = (struct qxl_surface_cmd *)qxl_release_map(qdev, release);
+ 	cmd->type = QXL_SURFACE_CMD_CREATE;
+ 	cmd->flags = QXL_SURF_FLAG_KEEP_DATA;
+-- 
+2.17.1
