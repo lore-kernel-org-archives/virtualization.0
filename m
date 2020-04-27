@@ -1,82 +1,86 @@
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH v4] vhost: disable for OABI
-Date: Mon, 27 Apr 2020 08:45:22 +0200
-Message-ID: <CAMuHMdWaG5EUsbTOMPkj4i50D40T0TLRvB6g-Y8Dj4C0v7KTqQ@mail.gmail.com>
-References: <20200420143229.245488-1-mst@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH v2] virtio-balloon: Disable free page reporting if page
+ poison reporting is not enabled
+Date: Mon, 27 Apr 2020 10:08:41 +0200
+Message-ID: <31bc73ea-5d33-a79d-5f30-dc91b85f9b63@redhat.com>
+References: <20200424162103.6681.436.stgit@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200420143229.245488-1-mst@redhat.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Richard Earnshaw <Richard.Earnshaw@arm.com>, KVM list <kvm@vger.kernel.org>, Arnd Bergmann <arnd@arndb.de>, "David S. Miller" <davem@davemloft.net>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Sudeep Dutt <sudeep.dutt@intel.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Ashutosh Dixit <ashutosh.dixit@intel.com>, Christoph Hellwig <hch@infradead.org>, netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org, Ard Biesheuvel <ardb@kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtio-dev-return-7172-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+In-Reply-To: <20200424162103.6681.436.stgit@localhost.localdomain>
+Content-Language: en-US
+To: Alexander Duyck <alexander.duyck@gmail.com>, jasowang@redhat.com, mst@redhat.com
+Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Michael,
+On 24.04.20 18:24, Alexander Duyck wrote:
+> From: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+>=20
+> We should disable free page reporting if page poisoning is enabled in the
+> kernel but we cannot report it via the balloon interface. This way we can
+> avoid the possibility of corrupting guest memory. Normally the page poiso=
+n
+> reporting feature should always be present when free page reporting is
+> enabled on the hypervisor, however this allows us to correctly handle a
+> case of the virtio-balloon device being possibly misconfigured.
+>=20
+> Fixes: 5d757c8d518d ("virtio-balloon: add support for providing free page=
+ reports to host")
+> Signed-off-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+> ---
+>=20
+> Changes since v1:
+> Originally this patch also modified free page hinting, that has been remo=
+ved.
+> Updated patch title and description.
+> Added a comment explaining reasoning for disabling free page reporting.
+>=20
+>  drivers/virtio/virtio_balloon.c |    9 ++++++++-
+>  1 file changed, 8 insertions(+), 1 deletion(-)
+>=20
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_ball=
+oon.c
+> index 51086a5afdd4..1f157d2f4952 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -1107,11 +1107,18 @@ static int virtballoon_restore(struct virtio_devi=
+ce *vdev)
+> =20
+>  static int virtballoon_validate(struct virtio_device *vdev)
+>  {
+> -=09/* Tell the host whether we care about poisoned pages. */
+> +=09/*
+> +=09 * Inform the hypervisor that our pages are poisoned or
+> +=09 * initialized. If we cannot do that then we should disable
+> +=09 * page reporting as it could potentially change the contents
+> +=09 * of our free pages.
+> +=09 */
+>  =09if (!want_init_on_free() &&
+>  =09    (IS_ENABLED(CONFIG_PAGE_POISONING_NO_SANITY) ||
+>  =09     !page_poisoning_enabled()))
+>  =09=09__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_PAGE_POISON);
+> +=09else if (!virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON))
+> +=09=09__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
+> =20
+>  =09__virtio_clear_bit(vdev, VIRTIO_F_IOMMU_PLATFORM);
+>  =09return 0;
+>=20
 
-Thanks for your patch!
+Did you see my feedback on v1?
 
-On Mon, Apr 20, 2020 at 5:13 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> vhost is currently broken on the some ARM configs.
->
-> The reason is that the ring element addresses are passed between
-> components with different alignments assumptions. Thus, if
-> guest selects a pointer and host then gets and dereferences
-> it, then alignment assumed by the host's compiler might be
-> greater than the actual alignment of the pointer.
-> compiler on the host from assuming pointer is aligned.
->
-> This actually triggers on ARM with -mabi=apcs-gnu - which is a
-> deprecated configuration. With this OABI, compiler assumes that
-> all structures are 4 byte aligned - which is stronger than
-> virtio guarantees for available and used rings, which are
-> merely 2 bytes. Thus a guest without -mabi=apcs-gnu running
-> on top of host with -mabi=apcs-gnu will be broken.
->
-> The correct fix is to force alignment of structures - however
-> that is an intrusive fix that's best deferred until the next release.
->
-> We didn't previously support such ancient systems at all - this surfaced
-> after vdpa support prompted removing dependency of vhost on
-> VIRTULIZATION. So for now, let's just add something along the lines of
->
->         depends on !ARM || AEABI
->
-> to the virtio Kconfig declaration, and add a comment that it has to do
-> with struct member alignment.
->
-> Note: we can't make VHOST and VHOST_RING themselves have
-> a dependency since these are selected. Add a new symbol for that.
+https://www.spinics.net/lists/linux-virtualization/msg42783.html
 
-Adding the dependencies to VHOST and VHOST_RING themselves is indeed not
-sufficient.  But IMHO you should still add VHOST_DPN dependencies t
- these two symbols, so any driver selecting them without fulfilling the
-VHOST_DPN dependency will trigger a Kconfig warning.  Else the
-issue will be ignored silently.
+In case of want_init_on_free(), we don't really need VIRTIO_BALLOON_F_PAGE_=
+POISON.
 
-> We should be able to drop this dependency down the road.
->
-> Fixes: 20c384f1ea1a0bc7 ("vhost: refine vhost and vringh kconfig")
-> Suggested-by: Ard Biesheuvel <ardb@kernel.org>
-> Suggested-by: Richard Earnshaw <Richard.Earnshaw@arm.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-Gr{oetje,eeting}s,
+--=20
+Thanks,
 
-                        Geert
-
--- 
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
+David / dhildenb
