@@ -1,130 +1,88 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v2] virtio-balloon: Disable free page reporting if page
- poison reporting is not enabled
-Date: Mon, 27 Apr 2020 17:09:37 +0200
-Message-ID: <9d92de1d-5af5-e8e6-23b9-e61d34bbf677@redhat.com>
-References: <20200424162103.6681.436.stgit@localhost.localdomain>
- <31bc73ea-5d33-a79d-5f30-dc91b85f9b63@redhat.com>
- <CAKgT0UfhH3pyOqaTcO3yyEE94NsFkgZvVzNDNsyyVqNDgHzGdQ@mail.gmail.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH net-next 0/3] vsock: support network namespace
+Date: Mon, 27 Apr 2020 17:21:03 +0200
+Message-ID: <20200427152103.r65new4r342crfs6@steredhat>
+References: <20200116172428.311437-1-sgarzare@redhat.com>
+ <20200427142518.uwssa6dtasrp3bfc@steredhat>
+ <20200427102828-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtio-dev-return-7181-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <CAKgT0UfhH3pyOqaTcO3yyEE94NsFkgZvVzNDNsyyVqNDgHzGdQ@mail.gmail.com>
-Content-Language: en-US
-To: Alexander Duyck <alexander.duyck@gmail.com>
-Cc: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200427102828-mutt-send-email-mst@kernel.org>
+Sender: netdev-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: davem@davemloft.net, Stefan Hajnoczi <stefanha@redhat.com>, linux-kernel@vger.kernel.org, Jorgen Hansen <jhansen@vmware.com>, Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-hyperv@vger.kernel.org, Dexuan Cui <decui@microsoft.com>, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 27.04.20 16:58, Alexander Duyck wrote:
-> On Mon, Apr 27, 2020 at 1:08 AM David Hildenbrand <david@redhat.com> wrot=
-e:
->>
->> On 24.04.20 18:24, Alexander Duyck wrote:
->>> From: Alexander Duyck <alexander.h.duyck@linux.intel.com>
->>>
->>> We should disable free page reporting if page poisoning is enabled in t=
-he
->>> kernel but we cannot report it via the balloon interface. This way we c=
-an
->>> avoid the possibility of corrupting guest memory. Normally the page poi=
-son
->>> reporting feature should always be present when free page reporting is
->>> enabled on the hypervisor, however this allows us to correctly handle a
->>> case of the virtio-balloon device being possibly misconfigured.
->>>
->>> Fixes: 5d757c8d518d ("virtio-balloon: add support for providing free pa=
-ge reports to host")
->>> Signed-off-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
->>> ---
->>>
->>> Changes since v1:
->>> Originally this patch also modified free page hinting, that has been re=
-moved.
->>> Updated patch title and description.
->>> Added a comment explaining reasoning for disabling free page reporting.
->>>
->>>  drivers/virtio/virtio_balloon.c |    9 ++++++++-
->>>  1 file changed, 8 insertions(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_ba=
-lloon.c
->>> index 51086a5afdd4..1f157d2f4952 100644
->>> --- a/drivers/virtio/virtio_balloon.c
->>> +++ b/drivers/virtio/virtio_balloon.c
->>> @@ -1107,11 +1107,18 @@ static int virtballoon_restore(struct virtio_de=
-vice *vdev)
->>>
->>>  static int virtballoon_validate(struct virtio_device *vdev)
->>>  {
->>> -     /* Tell the host whether we care about poisoned pages. */
->>> +     /*
->>> +      * Inform the hypervisor that our pages are poisoned or
->>> +      * initialized. If we cannot do that then we should disable
->>> +      * page reporting as it could potentially change the contents
->>> +      * of our free pages.
->>> +      */
->>>       if (!want_init_on_free() &&
->>>           (IS_ENABLED(CONFIG_PAGE_POISONING_NO_SANITY) ||
->>>            !page_poisoning_enabled()))
->>>               __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_PAGE_POISON);
->>> +     else if (!virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON))
->>> +             __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
->>>
->>>       __virtio_clear_bit(vdev, VIRTIO_F_IOMMU_PLATFORM);
->>>       return 0;
->>>
->>
->> Did you see my feedback on v1?
->>
->> https://www.spinics.net/lists/linux-virtualization/msg42783.html
->>
->> In case of want_init_on_free(), we don't really need VIRTIO_BALLOON_F_PA=
-GE_POISON.
->=20
-> I believe we do. We had discussions earlier in which Michael had
-> mentioned that the guest should not assume implementation details of
-> the host/hypervisor.
+On Mon, Apr 27, 2020 at 10:31:57AM -0400, Michael S. Tsirkin wrote:
+> On Mon, Apr 27, 2020 at 04:25:18PM +0200, Stefano Garzarella wrote:
+> > Hi David, Michael, Stefan,
+> > I'm restarting to work on this topic since Kata guys are interested to
+> > have that, especially on the guest side.
+> > 
+> > While working on the v2 I had few doubts, and I'd like to have your
+> > suggestions:
+> > 
+> >  1. netns assigned to the device inside the guest
+> > 
+> >    Currently I assigned this device to 'init_net'. Maybe it is better
+> >    if we allow the user to decide which netns assign to the device
+> >    or to disable this new feature to have the same behavior as before
+> >    (host reachable from any netns).
+> >    I think we can handle this in the vsock core and not in the single
+> >    transports.
+> > 
+> >    The simplest way that I found, is to add a new
+> >    IOCTL_VM_SOCKETS_ASSIGN_G2H_NETNS to /dev/vsock to enable the feature
+> >    and assign the device to the same netns of the process that do the
+> >    ioctl(), but I'm not sure it is clean enough.
+> > 
+> >    Maybe it is better to add new rtnetlink messages, but I'm not sure if
+> >    it is feasible since we don't have a netdev device.
+> > 
+> >    What do you suggest?
+> 
+> Maybe /dev/vsock-netns here too, like in the host?
+> 
 
-We can simply document this, as I suggested already ("either the old
-page, or a page filled with zero"). Perfectly fine IMHO.
+I'm not sure I get it.
 
->=20
-> The PAGE_POISON feature is being used to indicate that we expect the
-> page to contain a certain value when it is returned to us. With the
-> current implementation in QEMU if that value is zero we can work with
-> it because that is the effect that MADV_DONTNEED has. However if there
-> were some other effect being used by QEMU we would want to know that
-> the guest is expecting us to write a 0 page. So I believe it makes
-> sense to inform the hypervisor that we are doing something that
-> expects us to fill the page with zeros in the case of
+In the guest, /dev/vsock is only used to get the CID assigned to the
+guest through an ioctl().
 
-Informing makes sense, yes. And we inform it via the poison feature, if
-possible. This discussion is about "what happens if the poison feature
-is not there, but we do have want_init_on_free()."
+In the virtio-vsock case, the guest transport is loaded when it is discovered
+on the PCI bus, so we need a way to "move" it to a netns or to specify
+which netns should be used when it is probed.
 
-> want_init_on_free rather than not providing that information to QEMU.
-> This way, if in the future we decide to change the implementation in
-> some way that might effect the value contained in the pages, we might
+> 
+> > 
+> >  2. netns assigned in the host
+> > 
+> >     As Michael suggested, I added a new /dev/vhost-vsock-netns to allow
+> >     userspace application to use this new feature, leaving to
+> >     /dev/vhost-vsock the previous behavior (guest reachable from any
+> >     netns).
+> > 
+> >     I like this approach, but I had these doubts:
+> > 
+> >     - I need to allocate a new minor for that device (e.g.
+> >       VHOST_VSOCK_NETNS_MINOR) or is there an alternative way that I can
+> >       use?
+> 
+> Not that I see. I agree it's a bit annoying. I'll think about it a bit.
+> 
 
-If the hypervisor can no longer guarantee "either the old page, or a
-page filled with zero", it would have to disable the feature. I don't
-see that happening, really.
+Thanks for that!
+An idea that I had, was to add a new ioctl to /dev/vhost-vsock to enable
+the netns support, but I'm not sure it is a clean approach.
 
-> have the flexibility to identify the want_init_on_free case so we can
-> work around it.
+> >     - It is vhost-vsock specific, should we provide something handled in
+> >       the vsock core, maybe centralizing the CID allocation and adding a
+> >       new IOCTL or rtnetlink message like for the guest side?
+> >       (maybe it could be a second step, and for now we can continue with
+> >       the new device)
+> > 
 
-I don't have a too strong opinion here, but this sounds like one of the
-improvements we wanted to have for free page hinting, but learned that
-it's not possible because it was *underspecified*.
-
-
---=20
 Thanks,
-
-David / dhildenb
+Stefano
