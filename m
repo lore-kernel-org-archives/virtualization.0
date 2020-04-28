@@ -1,8 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 14/75] x86/boot/compressed/64: Rename kaslr_64.c to
- ident_map_64.c
-Date: Tue, 28 Apr 2020 17:16:24 +0200
-Message-ID: <20200428151725.31091-15-joro@8bytes.org>
+Subject: [PATCH v3 28/75] x86/idt: Move IDT to data segment
+Date: Tue, 28 Apr 2020 17:16:38 +0200
+Message-ID: <20200428151725.31091-29-joro@8bytes.org>
 References: <20200428151725.31091-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,97 +23,33 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-The file contains only code related to identity mapped page-tables.
-Rename the file and compile it always in.
+With SEV-ES, exception handling is needed very early, even before the
+kernel has cleared the bss segment. In order to prevent clearing the
+currently used IDT, move the IDT to the data segment.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/compressed/Makefile                    |  2 +-
- .../boot/compressed/{kaslr_64.c => ident_map_64.c}   | 12 ++++++++++++
- arch/x86/boot/compressed/kaslr.c                     |  9 ---------
- arch/x86/boot/compressed/misc.h                      |  8 ++++++++
- 4 files changed, 21 insertions(+), 10 deletions(-)
- rename arch/x86/boot/compressed/{kaslr_64.c => ident_map_64.c} (93%)
+ arch/x86/kernel/idt.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
-index 954842333d1d..c6909d10a6b9 100644
---- a/arch/x86/boot/compressed/Makefile
-+++ b/arch/x86/boot/compressed/Makefile
-@@ -81,7 +81,7 @@ vmlinux-objs-y := $(obj)/vmlinux.lds $(obj)/kernel_info.o $(obj)/head_$(BITS).o
- vmlinux-objs-$(CONFIG_EARLY_PRINTK) += $(obj)/early_serial_console.o
- vmlinux-objs-$(CONFIG_RANDOMIZE_BASE) += $(obj)/kaslr.o
- ifdef CONFIG_X86_64
--	vmlinux-objs-$(CONFIG_RANDOMIZE_BASE) += $(obj)/kaslr_64.o
-+	vmlinux-objs-y += $(obj)/ident_map_64.o
- 	vmlinux-objs-y += $(obj)/idt_64.o $(obj)/idt_handlers_64.o
- 	vmlinux-objs-y += $(obj)/mem_encrypt.o
- 	vmlinux-objs-y += $(obj)/pgtable_64.o
-diff --git a/arch/x86/boot/compressed/kaslr_64.c b/arch/x86/boot/compressed/ident_map_64.c
-similarity index 93%
-rename from arch/x86/boot/compressed/kaslr_64.c
-rename to arch/x86/boot/compressed/ident_map_64.c
-index 9557c5a15b91..3a2115582920 100644
---- a/arch/x86/boot/compressed/kaslr_64.c
-+++ b/arch/x86/boot/compressed/ident_map_64.c
-@@ -29,6 +29,18 @@
- #define __PAGE_OFFSET __PAGE_OFFSET_BASE
- #include "../../mm/ident_map.c"
- 
-+#ifdef CONFIG_X86_5LEVEL
-+unsigned int __pgtable_l5_enabled;
-+unsigned int pgdir_shift = 39;
-+unsigned int ptrs_per_p4d = 1;
-+#endif
-+
-+/* Used by PAGE_KERN* macros: */
-+pteval_t __default_kernel_pte_mask __read_mostly = ~0;
-+
-+/* Used by pgtable.h asm code to force instruction serialization. */
-+unsigned long __force_order;
-+
- /* Used to track our page table allocation area. */
- struct alloc_pgt_data {
- 	unsigned char *pgt_buf;
-diff --git a/arch/x86/boot/compressed/kaslr.c b/arch/x86/boot/compressed/kaslr.c
-index d7408af55738..7c61a8c5b9cf 100644
---- a/arch/x86/boot/compressed/kaslr.c
-+++ b/arch/x86/boot/compressed/kaslr.c
-@@ -43,17 +43,8 @@
- #define STATIC
- #include <linux/decompress/mm.h>
- 
--#ifdef CONFIG_X86_5LEVEL
--unsigned int __pgtable_l5_enabled;
--unsigned int pgdir_shift __ro_after_init = 39;
--unsigned int ptrs_per_p4d __ro_after_init = 1;
--#endif
--
- extern unsigned long get_cmd_line_ptr(void);
- 
--/* Used by PAGE_KERN* macros: */
--pteval_t __default_kernel_pte_mask __read_mostly = ~0;
--
- /* Simplified build-specific string for starting entropy. */
- static const char build_str[] = UTS_RELEASE " (" LINUX_COMPILE_BY "@"
- 		LINUX_COMPILE_HOST ") (" LINUX_COMPILER ") " UTS_VERSION;
-diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
-index 062ae3ae6930..3a030a878d53 100644
---- a/arch/x86/boot/compressed/misc.h
-+++ b/arch/x86/boot/compressed/misc.h
-@@ -134,6 +134,14 @@ int count_immovable_mem_regions(void);
- static inline int count_immovable_mem_regions(void) { return 0; }
+diff --git a/arch/x86/kernel/idt.c b/arch/x86/kernel/idt.c
+index 87ef69a72c52..a8fc01ea602a 100644
+--- a/arch/x86/kernel/idt.c
++++ b/arch/x86/kernel/idt.c
+@@ -165,8 +165,12 @@ static const __initconst struct idt_data dbg_idts[] = {
+ };
  #endif
  
-+/* ident_map_64.c */
-+#ifdef CONFIG_X86_5LEVEL
-+extern unsigned int __pgtable_l5_enabled, pgdir_shift, ptrs_per_p4d;
-+#endif
-+
-+/* Used by PAGE_KERN* macros: */
-+extern pteval_t __default_kernel_pte_mask;
-+
- /* idt_64.c */
- extern gate_desc boot_idt[BOOT_IDT_ENTRIES];
- extern struct desc_ptr boot_idt_desc;
+-/* Must be page-aligned because the real IDT is used in a fixmap. */
+-gate_desc idt_table[IDT_ENTRIES] __page_aligned_bss;
++/*
++ * Must be page-aligned because the real IDT is used in a fixmap.
++ * Also needs to be in the .data segment, because the idt_table is
++ * needed before the kernel clears the .bss segment.
++ */
++gate_desc idt_table[IDT_ENTRIES] __page_aligned_data;
+ 
+ struct desc_ptr idt_descr __ro_after_init = {
+ 	.size		= (IDT_ENTRIES * 2 * sizeof(unsigned long)) - 1,
 -- 
 2.17.1
