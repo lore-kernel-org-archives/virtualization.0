@@ -1,68 +1,125 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 63/75] x86/sev-es: Handle #DB Events
-Date: Tue, 28 Apr 2020 17:17:13 +0200
-Message-ID: <20200428151725.31091-64-joro@8bytes.org>
+Subject: [PATCH v3 26/75] x86/fpu: Move xgetbv()/xsetbv() into separate header
+Date: Tue, 28 Apr 2020 17:16:36 +0200
+Message-ID: <20200428151725.31091-27-joro@8bytes.org>
 References: <20200428151725.31091-1-joro@8bytes.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200428151725.31091-1-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: x86@kernel.org
-Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Joerg Roedel <jroedel@suse.de>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Handle #VC exceptions caused by #DB exceptions in the guest. Do not
-forward them to the hypervisor and handle them with do_debug() instead.
+The xgetbv() function is needed in pre-decompression boot code, but
+asm/fpu/internal.h can't be included there directly. Doing so opens
+the door to include-hell due to various include-magic in
+boot/compressed/misc.h.
+
+Avoid that by moving xgetbv()/xsetbv() to a separate header file and
+include this instead.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev-es.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ arch/x86/include/asm/fpu/internal.h | 29 +-------------------------
+ arch/x86/include/asm/fpu/xcr.h      | 32 +++++++++++++++++++++++++++++
+ 2 files changed, 33 insertions(+), 28 deletions(-)
+ create mode 100644 arch/x86/include/asm/fpu/xcr.h
 
-diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index 050a15da9ae5..03095bc7b563 100644
---- a/arch/x86/kernel/sev-es.c
-+++ b/arch/x86/kernel/sev-es.c
-@@ -882,6 +882,19 @@ static enum es_result vc_handle_trap_ac(struct ghcb *ghcb,
- 	return ES_EXCEPTION;
- }
+diff --git a/arch/x86/include/asm/fpu/internal.h b/arch/x86/include/asm/fpu/internal.h
+index 44c48e34d799..795fc049988e 100644
+--- a/arch/x86/include/asm/fpu/internal.h
++++ b/arch/x86/include/asm/fpu/internal.h
+@@ -19,6 +19,7 @@
+ #include <asm/user.h>
+ #include <asm/fpu/api.h>
+ #include <asm/fpu/xstate.h>
++#include <asm/fpu/xcr.h>
+ #include <asm/cpufeature.h>
+ #include <asm/trace/fpu.h>
  
-+static enum es_result vc_handle_trap_db(struct ghcb *ghcb,
-+					struct es_em_ctxt *ctxt)
+@@ -614,32 +615,4 @@ static inline void switch_fpu_finish(struct fpu *new_fpu)
+ 	}
+ 	__write_pkru(pkru_val);
+ }
+-
+-/*
+- * MXCSR and XCR definitions:
+- */
+-
+-extern unsigned int mxcsr_feature_mask;
+-
+-#define XCR_XFEATURE_ENABLED_MASK	0x00000000
+-
+-static inline u64 xgetbv(u32 index)
+-{
+-	u32 eax, edx;
+-
+-	asm volatile(".byte 0x0f,0x01,0xd0" /* xgetbv */
+-		     : "=a" (eax), "=d" (edx)
+-		     : "c" (index));
+-	return eax + ((u64)edx << 32);
+-}
+-
+-static inline void xsetbv(u32 index, u64 value)
+-{
+-	u32 eax = value;
+-	u32 edx = value >> 32;
+-
+-	asm volatile(".byte 0x0f,0x01,0xd1" /* xsetbv */
+-		     : : "a" (eax), "d" (edx), "c" (index));
+-}
+-
+ #endif /* _ASM_X86_FPU_INTERNAL_H */
+diff --git a/arch/x86/include/asm/fpu/xcr.h b/arch/x86/include/asm/fpu/xcr.h
+new file mode 100644
+index 000000000000..91ee45712737
+--- /dev/null
++++ b/arch/x86/include/asm/fpu/xcr.h
+@@ -0,0 +1,32 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _ASM_X86_FPU_XCR_H
++#define _ASM_X86_FPU_XCR_H
++
++/*
++ * MXCSR and XCR definitions:
++ */
++
++extern unsigned int mxcsr_feature_mask;
++
++#define XCR_XFEATURE_ENABLED_MASK	0x00000000
++
++static inline u64 xgetbv(u32 index)
 +{
-+	/*
-+	 * Calling do_debug() directly does not work, because it might enable
-+	 * IRQs and the GHCB is active. Forward the exception and call it later
-+	 * from vc_forward_exception().
-+	 */
-+	ctxt->fi.vector = X86_TRAP_DB;
-+	ctxt->fi.error_code = 0;
-+	return ES_EXCEPTION;
++	u32 eax, edx;
++
++	asm volatile(".byte 0x0f,0x01,0xd0" /* xgetbv */
++		     : "=a" (eax), "=d" (edx)
++		     : "c" (index));
++	return eax + ((u64)edx << 32);
 +}
 +
- static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
- 					 struct ghcb *ghcb,
- 					 unsigned long exit_code)
-@@ -895,6 +908,9 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
- 	case SVM_EXIT_WRITE_DR7:
- 		result = vc_handle_dr7_write(ghcb, ctxt);
- 		break;
-+	case SVM_EXIT_EXCP_BASE + X86_TRAP_DB:
-+		result = vc_handle_trap_db(ghcb, ctxt);
-+		break;
- 	case SVM_EXIT_EXCP_BASE + X86_TRAP_AC:
- 		result = vc_handle_trap_ac(ghcb, ctxt);
- 		break;
-@@ -960,6 +976,9 @@ static void vc_forward_exception(struct es_em_ctxt *ctxt)
- 	case X86_TRAP_AC:
- 		do_alignment_check(ctxt->regs, error_code);
- 		break;
-+	case X86_TRAP_DB:
-+		do_debug(ctxt->regs, error_code);
-+		break;
- 	default:
- 		pr_emerg("Unsupported exception in #VC instruction emulation - can't continue\n");
- 		BUG();
++static inline void xsetbv(u32 index, u64 value)
++{
++	u32 eax = value;
++	u32 edx = value >> 32;
++
++	asm volatile(".byte 0x0f,0x01,0xd1" /* xsetbv */
++		     : : "a" (eax), "d" (edx), "c" (index));
++}
++
++#endif /* _ASM_X86_FPU_XCR_H */
 -- 
 2.17.1
