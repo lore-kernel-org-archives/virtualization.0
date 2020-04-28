@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 33/75] x86/head/64: Load segment registers earlier
-Date: Tue, 28 Apr 2020 17:16:43 +0200
-Message-ID: <20200428151725.31091-34-joro@8bytes.org>
+Subject: [PATCH v3 30/75] x86/idt: Move two function from k/idt.c to i/a/desc.h
+Date: Tue, 28 Apr 2020 17:16:40 +0200
+Message-ID: <20200428151725.31091-31-joro@8bytes.org>
 References: <20200428151725.31091-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,84 +23,138 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Make sure segments are properly set up before setting up an IDT and
-doing anything that might cause a #VC exception. This is later needed
-for early exception handling.
+Move these two functions from kernel/idt.c to include/asm/desc.h:
+
+	* init_idt_data()
+	* idt_init_desc()
+
+These functions are needed to setup IDT entries very early and need to
+be called from head64.c. To be usable this early these functions need to
+be compiled without instrumentation and the stack-protector feature.
+These features need to be kept enabled for kernel/idt.c, so head64.c
+must use its own versions.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/head_64.S | 52 +++++++++++++++++++--------------------
- 1 file changed, 26 insertions(+), 26 deletions(-)
+ arch/x86/include/asm/desc.h      | 27 +++++++++++++++++++++++++
+ arch/x86/include/asm/desc_defs.h |  7 +++++++
+ arch/x86/kernel/idt.c            | 34 --------------------------------
+ 3 files changed, 34 insertions(+), 34 deletions(-)
 
-diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
-index 20a9df062088..b5ff38bb32f2 100644
---- a/arch/x86/kernel/head_64.S
-+++ b/arch/x86/kernel/head_64.S
-@@ -168,6 +168,32 @@ SYM_CODE_START(secondary_startup_64)
- 	movq	%rax, boot_gdt_base(%rip)
- 	lgdt	boot_gdt_descr(%rip)
+diff --git a/arch/x86/include/asm/desc.h b/arch/x86/include/asm/desc.h
+index 68a99d2a5f33..80bf63c08007 100644
+--- a/arch/x86/include/asm/desc.h
++++ b/arch/x86/include/asm/desc.h
+@@ -389,6 +389,33 @@ static inline void set_desc_limit(struct desc_struct *desc, unsigned long limit)
+ void update_intr_gate(unsigned int n, const void *addr);
+ void alloc_intr_gate(unsigned int n, const void *addr);
  
-+	/* set up data segments */
-+	xorl %eax,%eax
-+	movl %eax,%ds
-+	movl %eax,%ss
-+	movl %eax,%es
++static inline void init_idt_data(struct idt_data *data, unsigned int n,
++				 const void *addr)
++{
++	BUG_ON(n > 0xFF);
 +
-+	/*
-+	 * We don't really need to load %fs or %gs, but load them anyway
-+	 * to kill any stale realmode selectors.  This allows execution
-+	 * under VT hardware.
-+	 */
-+	movl %eax,%fs
-+	movl %eax,%gs
++	memset(data, 0, sizeof(*data));
++	data->vector	= n;
++	data->addr	= addr;
++	data->segment	= __KERNEL_CS;
++	data->bits.type	= GATE_INTERRUPT;
++	data->bits.p	= 1;
++}
 +
-+	/* Set up %gs.
-+	 *
-+	 * The base of %gs always points to fixed_percpu_data. If the
-+	 * stack protector canary is enabled, it is located at %gs:40.
-+	 * Note that, on SMP, the boot cpu uses init data section until
-+	 * the per cpu areas are set up.
-+	 */
-+	movl	$MSR_GS_BASE,%ecx
-+	movl	initial_gs(%rip),%eax
-+	movl	initial_gs+4(%rip),%edx
-+	wrmsr
++static inline void idt_init_desc(gate_desc *gate, const struct idt_data *d)
++{
++	unsigned long addr = (unsigned long) d->addr;
 +
- 	/* Check if nx is implemented */
- 	movl	$0x80000001, %eax
- 	cpuid
-@@ -203,32 +229,6 @@ SYM_CODE_START(secondary_startup_64)
- 	 */
- 	lgdt	early_gdt_descr(%rip)
++	gate->offset_low	= (u16) addr;
++	gate->segment		= (u16) d->segment;
++	gate->bits		= d->bits;
++	gate->offset_middle	= (u16) (addr >> 16);
++#ifdef CONFIG_X86_64
++	gate->offset_high	= (u32) (addr >> 32);
++	gate->reserved		= 0;
++#endif
++}
++
+ extern unsigned long system_vectors[];
  
--	/* set up data segments */
--	xorl %eax,%eax
--	movl %eax,%ds
--	movl %eax,%ss
--	movl %eax,%es
+ #ifdef CONFIG_X86_64
+diff --git a/arch/x86/include/asm/desc_defs.h b/arch/x86/include/asm/desc_defs.h
+index 5621fb3f2d1a..f7e7099af595 100644
+--- a/arch/x86/include/asm/desc_defs.h
++++ b/arch/x86/include/asm/desc_defs.h
+@@ -74,6 +74,13 @@ struct idt_bits {
+ 			p	: 1;
+ } __attribute__((packed));
+ 
++struct idt_data {
++	unsigned int	vector;
++	unsigned int	segment;
++	struct idt_bits	bits;
++	const void	*addr;
++};
++
+ struct gate_struct {
+ 	u16		offset_low;
+ 	u16		segment;
+diff --git a/arch/x86/kernel/idt.c b/arch/x86/kernel/idt.c
+index c752027abc9e..4a2c7791c697 100644
+--- a/arch/x86/kernel/idt.c
++++ b/arch/x86/kernel/idt.c
+@@ -9,13 +9,6 @@
+ #include <asm/desc.h>
+ #include <asm/hw_irq.h>
+ 
+-struct idt_data {
+-	unsigned int	vector;
+-	unsigned int	segment;
+-	struct idt_bits	bits;
+-	const void	*addr;
+-};
 -
--	/*
--	 * We don't really need to load %fs or %gs, but load them anyway
--	 * to kill any stale realmode selectors.  This allows execution
--	 * under VT hardware.
--	 */
--	movl %eax,%fs
--	movl %eax,%gs
+ #define DPL0		0x0
+ #define DPL3		0x3
+ 
+@@ -204,20 +197,6 @@ const struct desc_ptr debug_idt_descr = {
+ };
+ #endif
+ 
+-static inline void idt_init_desc(gate_desc *gate, const struct idt_data *d)
+-{
+-	unsigned long addr = (unsigned long) d->addr;
 -
--	/* Set up %gs.
--	 *
--	 * The base of %gs always points to fixed_percpu_data. If the
--	 * stack protector canary is enabled, it is located at %gs:40.
--	 * Note that, on SMP, the boot cpu uses init data section until
--	 * the per cpu areas are set up.
--	 */
--	movl	$MSR_GS_BASE,%ecx
--	movl	initial_gs(%rip),%eax
--	movl	initial_gs+4(%rip),%edx
--	wrmsr
+-	gate->offset_low	= (u16) addr;
+-	gate->segment		= (u16) d->segment;
+-	gate->bits		= d->bits;
+-	gate->offset_middle	= (u16) (addr >> 16);
+-#ifdef CONFIG_X86_64
+-	gate->offset_high	= (u32) (addr >> 32);
+-	gate->reserved		= 0;
+-#endif
+-}
 -
- 	/* rsi is pointer to real mode structure with interesting info.
- 	   pass it to C */
- 	movq	%rsi, %rdi
+ static void
+ idt_setup_from_table(gate_desc *idt, const struct idt_data *t, int size, bool sys)
+ {
+@@ -231,19 +210,6 @@ idt_setup_from_table(gate_desc *idt, const struct idt_data *t, int size, bool sy
+ 	}
+ }
+ 
+-static void init_idt_data(struct idt_data *data, unsigned int n,
+-			  const void *addr)
+-{
+-	BUG_ON(n > 0xFF);
+-
+-	memset(data, 0, sizeof(*data));
+-	data->vector	= n;
+-	data->addr	= addr;
+-	data->segment	= __KERNEL_CS;
+-	data->bits.type	= GATE_INTERRUPT;
+-	data->bits.p	= 1;
+-}
+-
+ static void set_intr_gate(unsigned int n, const void *addr)
+ {
+ 	struct idt_data data;
 -- 
 2.17.1
