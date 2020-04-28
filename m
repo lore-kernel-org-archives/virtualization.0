@@ -1,256 +1,183 @@
-From: Srivatsa Vaddagiri <vatsa@codeaurora.org>
-Subject: [PATCH 5/5] virtio: Add bounce DMA ops
-Date: Tue, 28 Apr 2020 17:09:18 +0530
-Message-ID: <1588073958-1793-6-git-send-email-vatsa@codeaurora.org>
-References: <1588073958-1793-1-git-send-email-vatsa@codeaurora.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1588073958-1793-1-git-send-email-vatsa@codeaurora.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: konrad.wilk@oracle.com, mst@redhat.com, jasowang@redhat.com, jan.kiszka@siemens.com, will@kernel.org, stefano.stabellini@xilinx.com
-Cc: iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, tsoni@codeaurora.org, pratikp@codeaurora.org, vatsa@codeaurora.org, christoffer.dall@arm.com, alex.bennee@linaro.org, linux-kernel@vger.kernel.org
+From: Daniel Vetter <daniel@ffwll.ch>
+Subject: Re: [PATCH 26/59] drm/qxl: Use devm_drm_dev_alloc
+Date: Tue, 28 Apr 2020 16:00:11 +0200
+Message-ID: <20200428140011.GK3456981@phenom.ffwll.local>
+References: <20200415074034.175360-1-daniel.vetter@ffwll.ch>
+ <20200415074034.175360-27-daniel.vetter@ffwll.ch>
+ <20200424150911.GB20856@ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <spice-devel-bounces@lists.freedesktop.org>
+Content-Disposition: inline
+In-Reply-To: <20200424150911.GB20856@ravnborg.org>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/spice-devel>,
+ <mailto:spice-devel-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/spice-devel>
+List-Post: <mailto:spice-devel@lists.freedesktop.org>
+List-Help: <mailto:spice-devel-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/spice-devel>,
+ <mailto:spice-devel-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: spice-devel-bounces@lists.freedesktop.org
+Sender: "Spice-devel" <spice-devel-bounces@lists.freedesktop.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Dave Airlie <airlied@redhat.com>, Daniel Vetter <daniel.vetter@ffwll.ch>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Gerd Hoffmann <kraxel@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>, spice-devel@lists.freedesktop.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-For better security, its desirable that a guest VM's memory is
-not accessible to any entity that executes outside the context of
-guest VM. In case of virtio, backend drivers execute outside the
-context of guest VM and in general will need access to complete
-guest VM memory.  One option to restrict the access provided to
-backend driver is to make use of a bounce buffer. The bounce
-buffer is accessible to both backend and frontend drivers. All IO
-buffers that are in private space of guest VM are bounced to be
-accessible to backend.
+On Fri, Apr 24, 2020 at 05:09:11PM +0200, Sam Ravnborg wrote:
+> Hi Daniel
+> 
+> On Wed, Apr 15, 2020 at 09:40:01AM +0200, Daniel Vetter wrote:
+> > Also need to remove the drm_dev_put from the remove hook.
+> > 
+> > Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+> > Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+> > Cc: Dave Airlie <airlied@redhat.com>
+> > Cc: Gerd Hoffmann <kraxel@redhat.com>
+> > Cc: virtualization@lists.linux-foundation.org
+> > Cc: spice-devel@lists.freedesktop.org
+> > ---
+> >  drivers/gpu/drm/qxl/qxl_drv.c | 15 ++++++++-------
+> >  drivers/gpu/drm/qxl/qxl_drv.h |  3 +--
+> >  drivers/gpu/drm/qxl/qxl_kms.c | 12 +-----------
+> >  3 files changed, 10 insertions(+), 20 deletions(-)
+> > 
+> > diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
+> > index 09102e2efabc..6b4ae4c5fb76 100644
+> > --- a/drivers/gpu/drm/qxl/qxl_drv.c
+> > +++ b/drivers/gpu/drm/qxl/qxl_drv.c
+> > @@ -81,13 +81,16 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+> >  		return -EINVAL; /* TODO: ENODEV ? */
+> >  	}
+> >  
+> > -	qdev = kzalloc(sizeof(struct qxl_device), GFP_KERNEL);
+> > -	if (!qdev)
+> > +	qdev = devm_drm_dev_alloc(&pdev->dev, &qxl_driver,
+> > +				  struct qxl_device, ddev);
+> > +	if (IS_ERR(qdev)) {
+> > +		pr_err("Unable to init drm dev");
+> >  		return -ENOMEM;
+> > +	}
+> 
+> The other patches do not add any error message when devm_drm_dev_alloc()
+> fails and driver core will log that driver init failed.
+> 
+> So the pr_err() above should be dropped.
+> I know it comes from qxl_device_init() but that does not make it a good
+> idea.
 
-This patch proposes a new memory pool to be used for this bounce
-purpose, rather than the default swiotlb memory pool. That will
-avoid any conflicts that may arise in situations where a VM needs
-to use swiotlb pool for driving any pass-through devices (in
-which case swiotlb memory needs not be shared with another VM) as
-well as virtio devices (which will require swiotlb memory to be
-shared with backend VM). As a possible extension to this patch,
-we can provide an option for virtio to make use of default
-swiotlb memory pool itself, where no such conflicts may exist in
-a given deployment.
+Hm I know we're inconsistent here, but some drivers have error logging on
+all branches, some dont. I'm just trying to go with the prevailing style.
 
-Signed-off-by: Srivatsa Vaddagiri <vatsa@codeaurora.org>
----
- drivers/virtio/Makefile        |   2 +-
- drivers/virtio/virtio.c        |   2 +
- drivers/virtio/virtio_bounce.c | 150 +++++++++++++++++++++++++++++++++++++++++
- include/linux/virtio.h         |   4 ++
- 4 files changed, 157 insertions(+), 1 deletion(-)
- create mode 100644 drivers/virtio/virtio_bounce.c
+> With this fixed:
 
-diff --git a/drivers/virtio/Makefile b/drivers/virtio/Makefile
-index 29a1386e..3fd3515 100644
---- a/drivers/virtio/Makefile
-+++ b/drivers/virtio/Makefile
-@@ -1,5 +1,5 @@
- # SPDX-License-Identifier: GPL-2.0
--obj-$(CONFIG_VIRTIO) += virtio.o virtio_ring.o
-+obj-$(CONFIG_VIRTIO) += virtio.o virtio_ring.o virtio_bounce.o
- obj-$(CONFIG_VIRTIO_MMIO) += virtio_mmio.o
- obj-$(CONFIG_VIRTIO_PCI) += virtio_pci.o
- virtio_pci-y := virtio_pci_modern.o virtio_pci_common.o
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index a977e32..bc2f779 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -329,6 +329,7 @@ int register_virtio_device(struct virtio_device *dev)
- 
- 	dev->index = err;
- 	dev_set_name(&dev->dev, "virtio%u", dev->index);
-+	virtio_bounce_set_dma_ops(dev);
- 
- 	spin_lock_init(&dev->config_lock);
- 	dev->config_enabled = false;
-@@ -431,6 +432,7 @@ EXPORT_SYMBOL_GPL(virtio_device_restore);
- 
- static int virtio_init(void)
- {
-+	virtio_map_bounce_buffer();
- 	if (bus_register(&virtio_bus) != 0)
- 		panic("virtio bus registration failed");
- 	return 0;
-diff --git a/drivers/virtio/virtio_bounce.c b/drivers/virtio/virtio_bounce.c
-new file mode 100644
-index 0000000..3de8e0e
---- /dev/null
-+++ b/drivers/virtio/virtio_bounce.c
-@@ -0,0 +1,150 @@
-+// SPDX-License-Identifier: GPL-2.0-or-later
-+/*
-+ * Virtio DMA ops to bounce buffers
-+ *
-+ *  Copyright (c) 2020, The Linux Foundation. All rights reserved.
-+ *
-+ * This module allows bouncing of IO buffers to a region which will be
-+ * accessible to backend drivers.
-+ */
-+
-+#include <linux/virtio.h>
-+#include <linux/io.h>
-+#include <linux/swiotlb.h>
-+#include <linux/dma-mapping.h>
-+#include <linux/of_reserved_mem.h>
-+#include <linux/of.h>
-+#include <linux/of_fdt.h>
-+
-+static phys_addr_t bounce_buf_paddr;
-+static void *bounce_buf_vaddr;
-+static size_t bounce_buf_size;
-+struct swiotlb_pool *virtio_pool;
-+
-+#define VIRTIO_MAX_BOUNCE_SIZE	(16*4096)
-+
-+static void *virtio_alloc_coherent(struct device *dev, size_t size,
-+		dma_addr_t *dma_handle, gfp_t gfp_flags, unsigned long attrs)
-+{
-+	phys_addr_t addr;
-+
-+	if (!virtio_pool)
-+		return NULL;
-+
-+	addr = swiotlb_alloc(virtio_pool, size, bounce_buf_paddr, ULONG_MAX);
-+	if (addr == DMA_MAPPING_ERROR)
-+		return NULL;
-+
-+	*dma_handle = (addr - bounce_buf_paddr);
-+
-+	return bounce_buf_vaddr + (addr - bounce_buf_paddr);
-+}
-+
-+static void virtio_free_coherent(struct device *dev, size_t size, void *vaddr,
-+		dma_addr_t dma_handle, unsigned long attrs)
-+{
-+	phys_addr_t addr = (dma_handle + bounce_buf_paddr);
-+
-+	swiotlb_free(virtio_pool, addr, size);
-+}
-+
-+static dma_addr_t virtio_map_page(struct device *dev, struct page *page,
-+		unsigned long offset, size_t size,
-+		enum dma_data_direction dir, unsigned long attrs)
-+{
-+	void *ptr = page_address(page) + offset;
-+	phys_addr_t paddr = virt_to_phys(ptr);
-+	dma_addr_t handle;
-+
-+	if (!virtio_pool)
-+		return DMA_MAPPING_ERROR;
-+
-+	handle = _swiotlb_tbl_map_single(virtio_pool, dev, bounce_buf_paddr,
-+					 paddr, size, size, dir, attrs);
-+	if (handle == (phys_addr_t)DMA_MAPPING_ERROR)
-+		return DMA_MAPPING_ERROR;
-+
-+	return handle - bounce_buf_paddr;
-+}
-+
-+static void virtio_unmap_page(struct device *dev, dma_addr_t dev_addr,
-+		size_t size, enum dma_data_direction dir, unsigned long attrs)
-+{
-+	phys_addr_t addr = dev_addr + bounce_buf_paddr;
-+
-+	_swiotlb_tbl_unmap_single(virtio_pool, dev, addr, size,
-+					size, dir, attrs);
-+}
-+
-+size_t virtio_max_mapping_size(struct device *dev)
-+{
-+	return VIRTIO_MAX_BOUNCE_SIZE;
-+}
-+
-+static const struct dma_map_ops virtio_dma_ops = {
-+	.alloc			= virtio_alloc_coherent,
-+	.free			= virtio_free_coherent,
-+	.map_page		= virtio_map_page,
-+	.unmap_page		= virtio_unmap_page,
-+	.max_mapping_size	= virtio_max_mapping_size,
-+};
-+
-+void virtio_bounce_set_dma_ops(struct virtio_device *vdev)
-+{
-+	if (!bounce_buf_paddr)
-+		return;
-+
-+	set_dma_ops(vdev->dev.parent, &virtio_dma_ops);
-+}
-+
-+int virtio_map_bounce_buffer(void)
-+{
-+	int ret;
-+
-+	if (!bounce_buf_paddr)
-+		return 0;
-+
-+	/*
-+	 * Map region as 'cacheable' memory. This will reduce access latency for
-+	 * backend.
-+	 */
-+	bounce_buf_vaddr = memremap(bounce_buf_paddr,
-+				bounce_buf_size, MEMREMAP_WB);
-+	if (!bounce_buf_vaddr)
-+		return -ENOMEM;
-+
-+	memset(bounce_buf_vaddr, 0, bounce_buf_size);
-+	virtio_pool = swiotlb_register_pool("virtio_swiotlb", bounce_buf_paddr,
-+				bounce_buf_vaddr, bounce_buf_size);
-+	if (IS_ERR(virtio_pool)) {
-+		ret = PTR_ERR(virtio_pool);
-+		virtio_pool = NULL;
-+		memunmap(bounce_buf_vaddr);
-+		return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+int virtio_register_bounce_buffer(phys_addr_t base, size_t size)
-+{
-+	if (bounce_buf_paddr || !base || size < PAGE_SIZE)
-+		return -EINVAL;
-+
-+	bounce_buf_paddr = base;
-+	bounce_buf_size = size;
-+
-+	return 0;
-+}
-+
-+static int __init virtio_bounce_setup(struct reserved_mem *rmem)
-+{
-+	unsigned long node = rmem->fdt_node;
-+
-+	if (!of_get_flat_dt_prop(node, "no-map", NULL))
-+		return -EINVAL;
-+
-+	return virtio_register_bounce_buffer(rmem->base, rmem->size);
-+}
-+
-+RESERVEDMEM_OF_DECLARE(virtio, "virtio_bounce_pool", virtio_bounce_setup);
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index a493eac..c4970c5 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -134,12 +134,16 @@ void virtio_config_changed(struct virtio_device *dev);
- void virtio_config_disable(struct virtio_device *dev);
- void virtio_config_enable(struct virtio_device *dev);
- int virtio_finalize_features(struct virtio_device *dev);
-+int virtio_register_bounce_buffer(phys_addr_t base, size_t size);
-+
- #ifdef CONFIG_PM_SLEEP
- int virtio_device_freeze(struct virtio_device *dev);
- int virtio_device_restore(struct virtio_device *dev);
- #endif
- 
- size_t virtio_max_dma_size(struct virtio_device *vdev);
-+extern int virtio_map_bounce_buffer(void);
-+extern void virtio_bounce_set_dma_ops(struct virtio_device *dev);
- 
- #define virtio_device_for_each_vq(vdev, vq) \
- 	list_for_each_entry(vq, &vdev->vqs, list)
--- 
-2.7.4
+Insisting on this or ok as-is?
+-Daniel
+
+> Acked-by: Sam Ravnborg <sam@ravnborg.org>
+> 
+> >  
+> >  	ret = pci_enable_device(pdev);
+> >  	if (ret)
+> > -		goto free_dev;
+> > +		return ret;
+> >  
+> >  	ret = drm_fb_helper_remove_conflicting_pci_framebuffers(pdev, "qxl");
+> >  	if (ret)
+> > @@ -101,7 +104,7 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+> >  		}
+> >  	}
+> >  
+> > -	ret = qxl_device_init(qdev, &qxl_driver, pdev);
+> > +	ret = qxl_device_init(qdev, pdev);
+> >  	if (ret)
+> >  		goto put_vga;
+> >  
+> > @@ -128,8 +131,7 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+> >  		vga_put(pdev, VGA_RSRC_LEGACY_IO);
+> >  disable_pci:
+> >  	pci_disable_device(pdev);
+> > -free_dev:
+> > -	kfree(qdev);
+> > +
+> >  	return ret;
+> >  }
+> >  
+> > @@ -155,7 +157,6 @@ qxl_pci_remove(struct pci_dev *pdev)
+> >  	drm_atomic_helper_shutdown(dev);
+> >  	if (is_vga(pdev))
+> >  		vga_put(pdev, VGA_RSRC_LEGACY_IO);
+> > -	drm_dev_put(dev);
+> >  }
+> >  
+> >  DEFINE_DRM_GEM_FOPS(qxl_fops);
+> > diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
+> > index 435126facc9b..86ac191d9205 100644
+> > --- a/drivers/gpu/drm/qxl/qxl_drv.h
+> > +++ b/drivers/gpu/drm/qxl/qxl_drv.h
+> > @@ -276,8 +276,7 @@ struct qxl_device {
+> >  extern const struct drm_ioctl_desc qxl_ioctls[];
+> >  extern int qxl_max_ioctl;
+> >  
+> > -int qxl_device_init(struct qxl_device *qdev, struct drm_driver *drv,
+> > -		    struct pci_dev *pdev);
+> > +int qxl_device_init(struct qxl_device *qdev, struct pci_dev *pdev);
+> >  void qxl_device_fini(struct qxl_device *qdev);
+> >  
+> >  int qxl_modeset_init(struct qxl_device *qdev);
+> > diff --git a/drivers/gpu/drm/qxl/qxl_kms.c b/drivers/gpu/drm/qxl/qxl_kms.c
+> > index 9eed1a375f24..91a34dd835d7 100644
+> > --- a/drivers/gpu/drm/qxl/qxl_kms.c
+> > +++ b/drivers/gpu/drm/qxl/qxl_kms.c
+> > @@ -108,21 +108,13 @@ static void qxl_gc_work(struct work_struct *work)
+> >  }
+> >  
+> >  int qxl_device_init(struct qxl_device *qdev,
+> > -		    struct drm_driver *drv,
+> >  		    struct pci_dev *pdev)
+> >  {
+> >  	int r, sb;
+> >  
+> > -	r = drm_dev_init(&qdev->ddev, drv, &pdev->dev);
+> > -	if (r) {
+> > -		pr_err("Unable to init drm dev");
+> > -		goto error;
+> > -	}
+> > -
+> >  	qdev->ddev.pdev = pdev;
+> >  	pci_set_drvdata(pdev, &qdev->ddev);
+> >  	qdev->ddev.dev_private = qdev;
+> > -	drmm_add_final_kfree(&qdev->ddev, qdev);
+> >  
+> >  	mutex_init(&qdev->gem.mutex);
+> >  	mutex_init(&qdev->update_area_mutex);
+> > @@ -138,8 +130,7 @@ int qxl_device_init(struct qxl_device *qdev,
+> >  	qdev->vram_mapping = io_mapping_create_wc(qdev->vram_base, pci_resource_len(pdev, 0));
+> >  	if (!qdev->vram_mapping) {
+> >  		pr_err("Unable to create vram_mapping");
+> > -		r = -ENOMEM;
+> > -		goto error;
+> > +		return -ENOMEM;
+> >  	}
+> >  
+> >  	if (pci_resource_len(pdev, 4) > 0) {
+> > @@ -293,7 +284,6 @@ int qxl_device_init(struct qxl_device *qdev,
+> >  	io_mapping_free(qdev->surface_mapping);
+> >  vram_mapping_free:
+> >  	io_mapping_free(qdev->vram_mapping);
+> > -error:
+> >  	return r;
+> >  }
+> >  
+> > -- 
+> > 2.25.1
+> > 
+> > _______________________________________________
+> > dri-devel mailing list
+> > dri-devel@lists.freedesktop.org
+> > https://lists.freedesktop.org/mailman/listinfo/dri-devel
 
 -- 
-QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member
-of Code Aurora Forum, hosted by The Linux Foundation
+Daniel Vetter
+Software Engineer, Intel Corporation
+http://blog.ffwll.ch
