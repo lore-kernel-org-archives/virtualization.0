@@ -1,55 +1,122 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 28/75] x86/idt: Move IDT to data segment
-Date: Tue, 28 Apr 2020 17:16:38 +0200
-Message-ID: <20200428151725.31091-29-joro@8bytes.org>
+Subject: [PATCH v3 73/75] x86/sev-es: Support CPU offline/online
+Date: Tue, 28 Apr 2020 17:17:23 +0200
+Message-ID: <20200428151725.31091-74-joro@8bytes.org>
 References: <20200428151725.31091-1-joro@8bytes.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200428151725.31091-1-joro@8bytes.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: x86@kernel.org
-Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Joerg Roedel <jroedel@suse.de>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
+Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-With SEV-ES, exception handling is needed very early, even before the
-kernel has cleared the bss segment. In order to prevent clearing the
-currently used IDT, move the IDT to the data segment.
+Add a play_dead handler when running under SEV-ES. This is needed
+because the hypervisor can't deliver an SIPI request to restart the AP.
+Instead the kernel has to issue a VMGEXIT to halt the VCPU. When the
+hypervisor would deliver and SIPI is wakes up the VCPU instead.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/idt.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ arch/x86/include/uapi/asm/svm.h |  1 +
+ arch/x86/kernel/sev-es.c        | 58 +++++++++++++++++++++++++++++++++
+ 2 files changed, 59 insertions(+)
 
-diff --git a/arch/x86/kernel/idt.c b/arch/x86/kernel/idt.c
-index 87ef69a72c52..a8fc01ea602a 100644
---- a/arch/x86/kernel/idt.c
-+++ b/arch/x86/kernel/idt.c
-@@ -165,8 +165,12 @@ static const __initconst struct idt_data dbg_idts[] = {
- };
- #endif
+diff --git a/arch/x86/include/uapi/asm/svm.h b/arch/x86/include/uapi/asm/svm.h
+index a19ce9681ec2..20a05839dd9a 100644
+--- a/arch/x86/include/uapi/asm/svm.h
++++ b/arch/x86/include/uapi/asm/svm.h
+@@ -84,6 +84,7 @@
+ /* SEV-ES software-defined VMGEXIT events */
+ #define SVM_VMGEXIT_MMIO_READ			0x80000001
+ #define SVM_VMGEXIT_MMIO_WRITE			0x80000002
++#define SVM_VMGEXIT_AP_HLT_LOOP			0x80000004
+ #define SVM_VMGEXIT_AP_JUMP_TABLE		0x80000005
+ #define		SVM_VMGEXIT_SET_AP_JUMP_TABLE			0
+ #define		SVM_VMGEXIT_GET_AP_JUMP_TABLE			1
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+index 28725c38e6fb..00a5d0483730 100644
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -32,6 +32,8 @@
+ #include <asm/processor.h>
+ #include <asm/traps.h>
+ #include <asm/svm.h>
++#include <asm/smp.h>
++#include <asm/cpu.h>
  
--/* Must be page-aligned because the real IDT is used in a fixmap. */
--gate_desc idt_table[IDT_ENTRIES] __page_aligned_bss;
-+/*
-+ * Must be page-aligned because the real IDT is used in a fixmap.
-+ * Also needs to be in the .data segment, because the idt_table is
-+ * needed before the kernel clears the .bss segment.
-+ */
-+gate_desc idt_table[IDT_ENTRIES] __page_aligned_data;
+ #define DR7_RESET_VALUE        0x400
  
- struct desc_ptr idt_descr __ro_after_init = {
- 	.size		= (IDT_ENTRIES * 2 * sizeof(unsigned long)) - 1,
+@@ -448,6 +450,60 @@ static bool __init sev_es_setup_ghcb(void)
+ 	return true;
+ }
+ 
++#ifdef CONFIG_HOTPLUG_CPU
++static void sev_es_ap_hlt_loop(void)
++{
++	struct ghcb_state state;
++	struct ghcb *ghcb;
++
++	ghcb = sev_es_get_ghcb(&state);
++
++	while (true) {
++		vc_ghcb_invalidate(ghcb);
++		ghcb_set_sw_exit_code(ghcb, SVM_VMGEXIT_AP_HLT_LOOP);
++		ghcb_set_sw_exit_info_1(ghcb, 0);
++		ghcb_set_sw_exit_info_2(ghcb, 0);
++
++		sev_es_wr_ghcb_msr(__pa(ghcb));
++		VMGEXIT();
++
++		/* Wakup Signal? */
++		if (ghcb_is_valid_sw_exit_info_2(ghcb) &&
++		    ghcb->save.sw_exit_info_2 != 0)
++			break;
++	}
++
++	sev_es_put_ghcb(&state);
++}
++
++static void sev_es_play_dead(void)
++{
++	play_dead_common();
++
++	/* IRQs now disabled */
++
++	sev_es_ap_hlt_loop();
++
++	/*
++	 * If we get here, the VCPU was woken up again. Jump to CPU
++	 * startup code to get it back online.
++	 */
++
++	start_cpu();
++}
++#else  /* CONFIG_HOTPLUG_CPU */
++#define sev_es_play_dead	native_play_dead
++#endif /* CONFIG_HOTPLUG_CPU */
++
++#ifdef CONFIG_SMP
++static void __init sev_es_setup_play_dead(void)
++{
++	smp_ops.play_dead = sev_es_play_dead;
++}
++#else
++static inline void sev_es_setup_play_dead(void) { }
++#endif
++
+ static void __init sev_es_alloc_runtime_data(int cpu)
+ {
+ 	struct sev_es_runtime_data *data;
+@@ -540,6 +596,8 @@ void __init sev_es_init_vc_handling(void)
+ 		sev_es_setup_vc_stack(cpu);
+ 	}
+ 
++	sev_es_setup_play_dead();
++
+ 	xa_init_flags(&sev_es_cpuid_cache, XA_FLAGS_LOCK_IRQ);
+ 	sev_es_cpuid_cache_initialized = true;
+ 
 -- 
 2.17.1
