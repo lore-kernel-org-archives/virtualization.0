@@ -1,7 +1,8 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 42/75] x86/sev-es: Setup GHCB based boot #VC handler
-Date: Tue, 28 Apr 2020 17:16:52 +0200
-Message-ID: <20200428151725.31091-43-joro@8bytes.org>
+Subject: [PATCH v3 40/75] x86/sev-es: Compile early handler code into kernel
+ image
+Date: Tue, 28 Apr 2020 17:16:50 +0200
+Message-ID: <20200428151725.31091-41-joro@8bytes.org>
 References: <20200428151725.31091-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,89 +24,59 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Add the infrastructure to handle #VC exceptions when the kernel runs
-on virtual addresses and has a GHCB mapped. This handler will be used
-until the runtime #VC handler takes over.
+Setup sev-es.c and include the code from the
+pre-decompression stage to also build it into the image of the running
+kernel. Temporarily add __maybe_unused annotations to avoid build
+warnings until the functions get used.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/segment.h  |   2 +-
- arch/x86/include/asm/sev-es.h   |   1 +
- arch/x86/kernel/head64.c        |   6 ++
- arch/x86/kernel/sev-es-shared.c |  14 ++--
- arch/x86/kernel/sev-es.c        | 116 ++++++++++++++++++++++++++++++++
- arch/x86/mm/extable.c           |   1 +
- 6 files changed, 132 insertions(+), 8 deletions(-)
+ arch/x86/kernel/Makefile        |   1 +
+ arch/x86/kernel/sev-es-shared.c |  21 ++--
+ arch/x86/kernel/sev-es.c        | 163 ++++++++++++++++++++++++++++++++
+ 3 files changed, 175 insertions(+), 10 deletions(-)
+ create mode 100644 arch/x86/kernel/sev-es.c
 
-diff --git a/arch/x86/include/asm/segment.h b/arch/x86/include/asm/segment.h
-index 6669164abadc..5b648066504c 100644
---- a/arch/x86/include/asm/segment.h
-+++ b/arch/x86/include/asm/segment.h
-@@ -230,7 +230,7 @@
- #define NUM_EXCEPTION_VECTORS		32
+diff --git a/arch/x86/kernel/Makefile b/arch/x86/kernel/Makefile
+index 1192de38fa56..f5a9bceb376a 100644
+--- a/arch/x86/kernel/Makefile
++++ b/arch/x86/kernel/Makefile
+@@ -148,6 +148,7 @@ obj-$(CONFIG_UNWINDER_ORC)		+= unwind_orc.o
+ obj-$(CONFIG_UNWINDER_FRAME_POINTER)	+= unwind_frame.o
+ obj-$(CONFIG_UNWINDER_GUESS)		+= unwind_guess.o
  
- /* Bitmask of exception vectors which push an error code on the stack: */
--#define EXCEPTION_ERRCODE_MASK		0x00027d00
-+#define EXCEPTION_ERRCODE_MASK		0x20027d00
- 
- #define GDT_SIZE			(GDT_ENTRIES*8)
- #define GDT_ENTRY_TLS_ENTRIES		3
-diff --git a/arch/x86/include/asm/sev-es.h b/arch/x86/include/asm/sev-es.h
-index b2cbcd40b52e..e1ed963a57ec 100644
---- a/arch/x86/include/asm/sev-es.h
-+++ b/arch/x86/include/asm/sev-es.h
-@@ -74,5 +74,6 @@ static inline u64 lower_bits(u64 val, unsigned int bits)
- }
- 
- extern void vc_no_ghcb(void);
-+extern bool vc_boot_ghcb(struct pt_regs *regs);
- 
- #endif
-diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
-index 9586522bfcb3..d83d59c15548 100644
---- a/arch/x86/kernel/head64.c
-+++ b/arch/x86/kernel/head64.c
-@@ -386,6 +386,12 @@ void __init do_early_exception(struct pt_regs *regs, int trapnr)
- 	    early_make_pgtable(native_read_cr2()))
- 		return;
- 
-+#ifdef CONFIG_AMD_MEM_ENCRYPT
-+	if (trapnr == X86_TRAP_VC &&
-+	    vc_boot_ghcb(regs))
-+		return;
-+#endif
-+
- 	early_fixup_exception(regs, trapnr);
- }
- 
++obj-$(CONFIG_AMD_MEM_ENCRYPT)		+= sev-es.o
+ ###
+ # 64 bit specific files
+ ifeq ($(CONFIG_X86_64),y)
 diff --git a/arch/x86/kernel/sev-es-shared.c b/arch/x86/kernel/sev-es-shared.c
-index 5703f9b17e70..3d2299fb5e3f 100644
+index 3d645662ff10..5703f9b17e70 100644
 --- a/arch/x86/kernel/sev-es-shared.c
 +++ b/arch/x86/kernel/sev-es-shared.c
 @@ -9,7 +9,7 @@
   * and is included directly into both code-bases.
   */
  
--static void __maybe_unused sev_es_terminate(unsigned int reason)
-+static void sev_es_terminate(unsigned int reason)
+-static void sev_es_terminate(unsigned int reason)
++static void __maybe_unused sev_es_terminate(unsigned int reason)
  {
  	u64 val = GHCB_SEV_TERMINATE;
  
-@@ -27,7 +27,7 @@ static void __maybe_unused sev_es_terminate(unsigned int reason)
+@@ -27,7 +27,7 @@ static void sev_es_terminate(unsigned int reason)
  		asm volatile("hlt\n" : : : "memory");
  }
  
--static bool __maybe_unused sev_es_negotiate_protocol(void)
-+static bool sev_es_negotiate_protocol(void)
+-static bool sev_es_negotiate_protocol(void)
++static bool __maybe_unused sev_es_negotiate_protocol(void)
  {
  	u64 val;
  
-@@ -46,7 +46,7 @@ static bool __maybe_unused sev_es_negotiate_protocol(void)
+@@ -46,7 +46,7 @@ static bool sev_es_negotiate_protocol(void)
  	return true;
  }
  
--static void __maybe_unused vc_ghcb_invalidate(struct ghcb *ghcb)
-+static void vc_ghcb_invalidate(struct ghcb *ghcb)
+-static void vc_ghcb_invalidate(struct ghcb *ghcb)
++static void __maybe_unused vc_ghcb_invalidate(struct ghcb *ghcb)
  {
  	memset(ghcb->save.valid_bitmap, 0, sizeof(ghcb->save.valid_bitmap));
  }
@@ -113,176 +84,213 @@ index 5703f9b17e70..3d2299fb5e3f 100644
  		 exit_code <= SVM_EXIT_LAST_EXCP);
  }
  
--static enum es_result __maybe_unused vc_init_em_ctxt(struct es_em_ctxt *ctxt,
--						     struct pt_regs *regs,
--						     unsigned long exit_code)
-+static enum es_result vc_init_em_ctxt(struct es_em_ctxt *ctxt,
-+				      struct pt_regs *regs,
-+				      unsigned long exit_code)
+-static enum es_result vc_init_em_ctxt(struct es_em_ctxt *ctxt,
+-				      struct pt_regs *regs,
+-				      unsigned long exit_code)
++static enum es_result __maybe_unused vc_init_em_ctxt(struct es_em_ctxt *ctxt,
++						     struct pt_regs *regs,
++						     unsigned long exit_code)
  {
  	enum es_result ret = ES_OK;
  
-@@ -73,7 +73,7 @@ static enum es_result __maybe_unused vc_init_em_ctxt(struct es_em_ctxt *ctxt,
+@@ -73,7 +73,7 @@ static enum es_result vc_init_em_ctxt(struct es_em_ctxt *ctxt,
  	return ret;
  }
  
--static void __maybe_unused vc_finish_insn(struct es_em_ctxt *ctxt)
-+static void vc_finish_insn(struct es_em_ctxt *ctxt)
+-static void vc_finish_insn(struct es_em_ctxt *ctxt)
++static void __maybe_unused vc_finish_insn(struct es_em_ctxt *ctxt)
  {
  	ctxt->regs->ip += ctxt->insn.length;
  }
-diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index 0d20770decce..9de5bb23cb0a 100644
---- a/arch/x86/kernel/sev-es.c
-+++ b/arch/x86/kernel/sev-es.c
-@@ -7,7 +7,9 @@
-  * Author: Joerg Roedel <jroedel@suse.de>
-  */
+@@ -324,7 +324,8 @@ static enum es_result vc_ioio_exitinfo(struct es_em_ctxt *ctxt, u64 *exitinfo)
+ 	return ES_OK;
+ }
  
-+#include <linux/sched/debug.h>	/* For show_regs() */
- #include <linux/kernel.h>
-+#include <linux/printk.h>
- #include <linux/mm.h>
- 
- #include <asm/trap_defs.h>
-@@ -15,8 +17,21 @@
- #include <asm/insn-eval.h>
- #include <asm/fpu/internal.h>
- #include <asm/processor.h>
-+#include <asm/trap_defs.h>
- #include <asm/svm.h>
- 
-+/* For early boot hypervisor communication in SEV-ES enabled guests */
-+static struct ghcb boot_ghcb_page __bss_decrypted __aligned(PAGE_SIZE);
-+
-+/*
-+ * Needs to be in the .data section because we need it NULL before bss is
-+ * cleared
-+ */
-+static struct ghcb __initdata *boot_ghcb;
-+
-+/* Needed in vc_early_vc_forward_exception */
-+void do_early_exception(struct pt_regs *regs, int trapnr);
-+
- static inline u64 sev_es_rd_ghcb_msr(void)
+-static enum es_result vc_handle_ioio(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
++static enum es_result __maybe_unused
++vc_handle_ioio(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
  {
- 	return native_read_msr(MSR_AMD64_SEV_ES_GHCB);
-@@ -161,3 +176,104 @@ static enum es_result vc_read_mem(struct es_em_ctxt *ctxt,
+ 	struct pt_regs *regs = ctxt->regs;
+ 	u64 exit_info_1, exit_info_2;
+@@ -420,8 +421,8 @@ static enum es_result vc_handle_ioio(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
+ 	return ret;
+ }
  
- /* Include code shared with pre-decompression boot stage */
- #include "sev-es-shared.c"
-+
+-static enum es_result vc_handle_cpuid(struct ghcb *ghcb,
+-				      struct es_em_ctxt *ctxt)
++static enum es_result __maybe_unused vc_handle_cpuid(struct ghcb *ghcb,
++						     struct es_em_ctxt *ctxt)
+ {
+ 	struct pt_regs *regs = ctxt->regs;
+ 	u32 cr4 = native_read_cr4();
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+new file mode 100644
+index 000000000000..0d20770decce
+--- /dev/null
++++ b/arch/x86/kernel/sev-es.c
+@@ -0,0 +1,163 @@
++// SPDX-License-Identifier: GPL-2.0-only
 +/*
-+ * This function runs on the first #VC exception after the kernel
-+ * switched to virtual addresses.
++ * AMD Memory Encryption Support
++ *
++ * Copyright (C) 2019 SUSE
++ *
++ * Author: Joerg Roedel <jroedel@suse.de>
 + */
-+static bool __init sev_es_setup_ghcb(void)
-+{
-+	/* First make sure the hypervisor talks a supported protocol. */
-+	if (!sev_es_negotiate_protocol())
-+		return false;
-+	/*
-+	 * Clear the boot_ghcb. The first exception comes in before the bss
-+	 * section is cleared.
-+	 */
-+	memset(&boot_ghcb_page, 0, PAGE_SIZE);
 +
-+	/* Alright - Make the boot-ghcb public */
-+	boot_ghcb = &boot_ghcb_page;
++#include <linux/kernel.h>
++#include <linux/mm.h>
 +
-+	return true;
-+}
-+
-+static void __init vc_early_vc_forward_exception(struct es_em_ctxt *ctxt)
-+{
-+	int trapnr = ctxt->fi.vector;
-+
-+	if (trapnr == X86_TRAP_PF)
-+		native_write_cr2(ctxt->fi.cr2);
-+
-+	ctxt->regs->orig_ax = ctxt->fi.error_code;
-+	do_early_exception(ctxt->regs, trapnr);
-+}
-+
-+static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
-+					 struct ghcb *ghcb,
-+					 unsigned long exit_code)
-+{
-+	enum es_result result;
-+
-+	switch (exit_code) {
-+	default:
-+		/*
-+		 * Unexpected #VC exception
-+		 */
-+		result = ES_UNSUPPORTED;
-+	}
-+
-+	return result;
-+}
-+
-+bool __init vc_boot_ghcb(struct pt_regs *regs)
-+{
-+	unsigned long exit_code = regs->orig_ax;
-+	struct es_em_ctxt ctxt;
-+	enum es_result result;
-+
-+	/* Do initial setup or terminate the guest */
-+	if (unlikely(boot_ghcb == NULL && !sev_es_setup_ghcb()))
-+		sev_es_terminate(GHCB_SEV_ES_REASON_GENERAL_REQUEST);
-+
-+	vc_ghcb_invalidate(boot_ghcb);
-+	result = vc_init_em_ctxt(&ctxt, regs, exit_code);
-+
-+	if (result == ES_OK)
-+		result = vc_handle_exitcode(&ctxt, boot_ghcb, exit_code);
-+
-+	/* Done - now check the result */
-+	switch (result) {
-+	case ES_OK:
-+		vc_finish_insn(&ctxt);
-+		break;
-+	case ES_UNSUPPORTED:
-+		early_printk("PANIC: Unsupported exit-code 0x%02lx in early #VC exception (IP: 0x%lx)\n",
-+				exit_code, regs->ip);
-+		goto fail;
-+	case ES_VMM_ERROR:
-+		early_printk("PANIC: Failure in communication with VMM (exit-code 0x%02lx IP: 0x%lx)\n",
-+				exit_code, regs->ip);
-+		goto fail;
-+	case ES_DECODE_FAILED:
-+		early_printk("PANIC: Failed to decode instruction (exit-code 0x%02lx IP: 0x%lx)\n",
-+				exit_code, regs->ip);
-+		goto fail;
-+	case ES_EXCEPTION:
-+		vc_early_vc_forward_exception(&ctxt);
-+		break;
-+	case ES_RETRY:
-+		/* Nothing to do */
-+		break;
-+	default:
-+		BUG();
-+	}
-+
-+	return true;
-+
-+fail:
-+	show_regs(regs);
-+
-+	while (true)
-+		halt();
-+}
-diff --git a/arch/x86/mm/extable.c b/arch/x86/mm/extable.c
-index b991aa4bdfae..5bcbd413b409 100644
---- a/arch/x86/mm/extable.c
-+++ b/arch/x86/mm/extable.c
-@@ -5,6 +5,7 @@
- #include <xen/xen.h>
- 
- #include <asm/fpu/internal.h>
++#include <asm/trap_defs.h>
 +#include <asm/sev-es.h>
- #include <asm/traps.h>
- #include <asm/kdebug.h>
- 
++#include <asm/insn-eval.h>
++#include <asm/fpu/internal.h>
++#include <asm/processor.h>
++#include <asm/svm.h>
++
++static inline u64 sev_es_rd_ghcb_msr(void)
++{
++	return native_read_msr(MSR_AMD64_SEV_ES_GHCB);
++}
++
++static inline void sev_es_wr_ghcb_msr(u64 val)
++{
++	u32 low, high;
++
++	low  = (u32)(val);
++	high = (u32)(val >> 32);
++
++	native_write_msr(MSR_AMD64_SEV_ES_GHCB, low, high);
++}
++
++static int vc_fetch_insn_kernel(struct es_em_ctxt *ctxt,
++				unsigned char *buffer)
++{
++	return probe_kernel_read(buffer, (unsigned char *)ctxt->regs->ip,
++				 MAX_INSN_SIZE);
++}
++
++static enum es_result vc_decode_insn(struct es_em_ctxt *ctxt)
++{
++	char buffer[MAX_INSN_SIZE];
++	enum es_result ret;
++	int res;
++
++	res = vc_fetch_insn_kernel(ctxt, buffer);
++	if (unlikely(res == -EFAULT)) {
++		ctxt->fi.vector     = X86_TRAP_PF;
++		ctxt->fi.error_code = 0;
++		ctxt->fi.cr2        = ctxt->regs->ip;
++		return ES_EXCEPTION;
++	}
++
++	insn_init(&ctxt->insn, buffer, MAX_INSN_SIZE - res, 1);
++	insn_get_length(&ctxt->insn);
++
++	ret = ctxt->insn.immediate.got ? ES_OK : ES_DECODE_FAILED;
++
++	return ret;
++}
++
++static enum es_result vc_write_mem(struct es_em_ctxt *ctxt,
++				   char *dst, char *buf, size_t size)
++{
++	unsigned long error_code = X86_PF_PROT | X86_PF_WRITE;
++	char __user *target = (char __user *)dst;
++	u64 d8;
++	u32 d4;
++	u16 d2;
++	u8  d1;
++
++	switch (size) {
++	case 1:
++		memcpy(&d1, buf, 1);
++		if (put_user(d1, target))
++			goto fault;
++		break;
++	case 2:
++		memcpy(&d2, buf, 2);
++		if (put_user(d2, target))
++			goto fault;
++		break;
++	case 4:
++		memcpy(&d4, buf, 4);
++		if (put_user(d4, target))
++			goto fault;
++		break;
++	case 8:
++		memcpy(&d8, buf, 8);
++		if (put_user(d8, target))
++			goto fault;
++		break;
++	default:
++		WARN_ONCE(1, "%s: Invalid size: %zu\n", __func__, size);
++		return ES_UNSUPPORTED;
++	}
++
++	return ES_OK;
++
++fault:
++	if (user_mode(ctxt->regs))
++		error_code |= X86_PF_USER;
++
++	ctxt->fi.vector = X86_TRAP_PF;
++	ctxt->fi.error_code = error_code;
++	ctxt->fi.cr2 = (unsigned long)dst;
++
++	return ES_EXCEPTION;
++}
++
++static enum es_result vc_read_mem(struct es_em_ctxt *ctxt,
++				  char *src, char *buf, size_t size)
++{
++	unsigned long error_code = X86_PF_PROT;
++	char __user *s = (char __user *)src;
++	u64 d8;
++	u32 d4;
++	u16 d2;
++	u8  d1;
++
++	switch (size) {
++	case 1:
++		if (get_user(d1, s))
++			goto fault;
++		memcpy(buf, &d1, 1);
++		break;
++	case 2:
++		if (get_user(d2, s))
++			goto fault;
++		memcpy(buf, &d2, 2);
++		break;
++	case 4:
++		if (get_user(d4, s))
++			goto fault;
++		memcpy(buf, &d4, 4);
++		break;
++	case 8:
++		if (get_user(d8, s))
++			goto fault;
++		memcpy(buf, &d8, 8);
++		break;
++	default:
++		WARN_ONCE(1, "%s: Invalid size: %zu\n", __func__, size);
++		return ES_UNSUPPORTED;
++	}
++
++	return ES_OK;
++
++fault:
++	if (user_mode(ctxt->regs))
++		error_code |= X86_PF_USER;
++
++	ctxt->fi.vector = X86_TRAP_PF;
++	ctxt->fi.error_code = error_code;
++	ctxt->fi.cr2 = (unsigned long)src;
++
++	return ES_EXCEPTION;
++}
++
++/* Include code shared with pre-decompression boot stage */
++#include "sev-es-shared.c"
 -- 
 2.17.1
