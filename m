@@ -1,52 +1,189 @@
-From: Andrew Cooper <andrew.cooper3@citrix.com>
-Subject: Re: Should SEV-ES #VC use IST? (Re: [PATCH] Allow RDTSC and RDTSCP
- from userspace)
-Date: Tue, 28 Apr 2020 17:34:36 +0100
-Message-ID: <1b232a8e-af99-4f7b-05c5-584b82853ac5@citrix.com>
-References: <20200425191032.GK21900@8bytes.org>
- <910AE5B4-4522-4133-99F7-64850181FBF9@amacapital.net>
- <20200425202316.GL21900@8bytes.org>
- <CALCETrW2Y6UFC=zvGbXEYqpsDyBh0DSEM4NQ+L=_pp4aOd6Fuw@mail.gmail.com>
- <CALCETrXGr+o1_bKbnre8cVY14c_76m8pEf3iB_i7h+zfgE5_jA@mail.gmail.com>
- <20200428075512.GP30814@suse.de>
+From: Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: [PATCH 26/59] drm/qxl: Use devm_drm_dev_alloc
+Date: Tue, 28 Apr 2020 19:00:26 +0200
+Message-ID: <20200428170026.GA27234@ravnborg.org>
+References: <20200415074034.175360-1-daniel.vetter@ffwll.ch>
+ <20200415074034.175360-27-daniel.vetter@ffwll.ch>
+ <20200424150911.GB20856@ravnborg.org>
+ <20200428140011.GK3456981@phenom.ffwll.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200428075512.GP30814@suse.de>
-Content-Language: en-GB
-Sender: linux-kernel-owner@vger.kernel.org
-To: Joerg Roedel <jroedel@suse.de>, Andy Lutomirski <luto@kernel.org>
-Cc: Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@intel.com>, Tom Lendacky <Thomas.Lendacky@amd.com>, Mike Stunes <mstunes@vmware.com>, Dan Williams <dan.j.williams@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Juergen Gross <JGross@suse.com>, Jiri Slaby <jslaby@suse.cz>, Kees Cook <keescook@chromium.org>, kvm list <kvm@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, X86 ML <x86@kernel.org>, Sean Christopherson <sean.j.christopherson@intel.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+Content-Disposition: inline
+In-Reply-To: <20200428140011.GK3456981@phenom.ffwll.local>
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+To: Daniel Vetter <daniel@ffwll.ch>
+Cc: Dave Airlie <airlied@redhat.com>, Daniel Vetter <daniel.vetter@ffwll.ch>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Gerd Hoffmann <kraxel@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>, spice-devel@lists.freedesktop.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 28/04/2020 08:55, Joerg Roedel wrote:
-> On Mon, Apr 27, 2020 at 10:37:41AM -0700, Andy Lutomirski wrote:
->> I have a somewhat serious question: should we use IST for #VC at all?
->> As I understand it, Rome and Naples make it mandatory for hypervisors
->> to intercept #DB, which means that, due to the MOV SS mess, it's sort
->> of mandatory to use IST for #VC.  But Milan fixes the #DB issue, so,
->> if we're running under a sufficiently sensible hypervisor, we don't
->> need IST for #VC.
-> The reason for #VC being IST is not only #DB, but also SEV-SNP. SNP adds
-> page ownership tracking between guest and host, so that the hypervisor
-> can't remap guest pages without the guest noticing.
->
-> If there is a violation of ownership, which can happen at any memory
-> access, there will be a #VC exception to notify the guest. And as this
-> can happen anywhere, for example on a carefully crafted stack page set
-> by userspace before doing SYSCALL, the only robust choice for #VC is to
-> use IST.
+On Tue, Apr 28, 2020 at 04:00:11PM +0200, Daniel Vetter wrote:
+> On Fri, Apr 24, 2020 at 05:09:11PM +0200, Sam Ravnborg wrote:
+> > Hi Daniel
+> > 
+> > On Wed, Apr 15, 2020 at 09:40:01AM +0200, Daniel Vetter wrote:
+> > > Also need to remove the drm_dev_put from the remove hook.
+> > > 
+> > > Acked-by: Gerd Hoffmann <kraxel@redhat.com>
+> > > Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+> > > Cc: Dave Airlie <airlied@redhat.com>
+> > > Cc: Gerd Hoffmann <kraxel@redhat.com>
+> > > Cc: virtualization@lists.linux-foundation.org
+> > > Cc: spice-devel@lists.freedesktop.org
+> > > ---
+> > >  drivers/gpu/drm/qxl/qxl_drv.c | 15 ++++++++-------
+> > >  drivers/gpu/drm/qxl/qxl_drv.h |  3 +--
+> > >  drivers/gpu/drm/qxl/qxl_kms.c | 12 +-----------
+> > >  3 files changed, 10 insertions(+), 20 deletions(-)
+> > > 
+> > > diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
+> > > index 09102e2efabc..6b4ae4c5fb76 100644
+> > > --- a/drivers/gpu/drm/qxl/qxl_drv.c
+> > > +++ b/drivers/gpu/drm/qxl/qxl_drv.c
+> > > @@ -81,13 +81,16 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+> > >  		return -EINVAL; /* TODO: ENODEV ? */
+> > >  	}
+> > >  
+> > > -	qdev = kzalloc(sizeof(struct qxl_device), GFP_KERNEL);
+> > > -	if (!qdev)
+> > > +	qdev = devm_drm_dev_alloc(&pdev->dev, &qxl_driver,
+> > > +				  struct qxl_device, ddev);
+> > > +	if (IS_ERR(qdev)) {
+> > > +		pr_err("Unable to init drm dev");
+> > >  		return -ENOMEM;
+> > > +	}
+> > 
+> > The other patches do not add any error message when devm_drm_dev_alloc()
+> > fails and driver core will log that driver init failed.
+> > 
+> > So the pr_err() above should be dropped.
+> > I know it comes from qxl_device_init() but that does not make it a good
+> > idea.
+> 
+> Hm I know we're inconsistent here, but some drivers have error logging on
+> all branches, some dont. I'm just trying to go with the prevailing style.
+> 
+> > With this fixed:
+> 
+> Insisting on this or ok as-is?
+OK as-is.
 
-The kernel won't ever touch the guest stack before restoring %rsp in the
-syscall path, but the (minimum 2) memory accesses required to save the
-user %rsp and load the kernel stack may be subject to #VC exceptions, as
-are instruction fetches at the head of the SYSCALL path.
+	Sam
 
-So yes - #VC needs IST.
-
-Sorry for the noise.  (That said, it is unfortunate that the hypervisor
-messing with the memory backing the guest #VC handler results in an
-infinite loop, rather than an ability to cleanly terminate.)
-
-~Andrew
+> -Daniel
+> 
+> > Acked-by: Sam Ravnborg <sam@ravnborg.org>
+> > 
+> > >  
+> > >  	ret = pci_enable_device(pdev);
+> > >  	if (ret)
+> > > -		goto free_dev;
+> > > +		return ret;
+> > >  
+> > >  	ret = drm_fb_helper_remove_conflicting_pci_framebuffers(pdev, "qxl");
+> > >  	if (ret)
+> > > @@ -101,7 +104,7 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+> > >  		}
+> > >  	}
+> > >  
+> > > -	ret = qxl_device_init(qdev, &qxl_driver, pdev);
+> > > +	ret = qxl_device_init(qdev, pdev);
+> > >  	if (ret)
+> > >  		goto put_vga;
+> > >  
+> > > @@ -128,8 +131,7 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+> > >  		vga_put(pdev, VGA_RSRC_LEGACY_IO);
+> > >  disable_pci:
+> > >  	pci_disable_device(pdev);
+> > > -free_dev:
+> > > -	kfree(qdev);
+> > > +
+> > >  	return ret;
+> > >  }
+> > >  
+> > > @@ -155,7 +157,6 @@ qxl_pci_remove(struct pci_dev *pdev)
+> > >  	drm_atomic_helper_shutdown(dev);
+> > >  	if (is_vga(pdev))
+> > >  		vga_put(pdev, VGA_RSRC_LEGACY_IO);
+> > > -	drm_dev_put(dev);
+> > >  }
+> > >  
+> > >  DEFINE_DRM_GEM_FOPS(qxl_fops);
+> > > diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
+> > > index 435126facc9b..86ac191d9205 100644
+> > > --- a/drivers/gpu/drm/qxl/qxl_drv.h
+> > > +++ b/drivers/gpu/drm/qxl/qxl_drv.h
+> > > @@ -276,8 +276,7 @@ struct qxl_device {
+> > >  extern const struct drm_ioctl_desc qxl_ioctls[];
+> > >  extern int qxl_max_ioctl;
+> > >  
+> > > -int qxl_device_init(struct qxl_device *qdev, struct drm_driver *drv,
+> > > -		    struct pci_dev *pdev);
+> > > +int qxl_device_init(struct qxl_device *qdev, struct pci_dev *pdev);
+> > >  void qxl_device_fini(struct qxl_device *qdev);
+> > >  
+> > >  int qxl_modeset_init(struct qxl_device *qdev);
+> > > diff --git a/drivers/gpu/drm/qxl/qxl_kms.c b/drivers/gpu/drm/qxl/qxl_kms.c
+> > > index 9eed1a375f24..91a34dd835d7 100644
+> > > --- a/drivers/gpu/drm/qxl/qxl_kms.c
+> > > +++ b/drivers/gpu/drm/qxl/qxl_kms.c
+> > > @@ -108,21 +108,13 @@ static void qxl_gc_work(struct work_struct *work)
+> > >  }
+> > >  
+> > >  int qxl_device_init(struct qxl_device *qdev,
+> > > -		    struct drm_driver *drv,
+> > >  		    struct pci_dev *pdev)
+> > >  {
+> > >  	int r, sb;
+> > >  
+> > > -	r = drm_dev_init(&qdev->ddev, drv, &pdev->dev);
+> > > -	if (r) {
+> > > -		pr_err("Unable to init drm dev");
+> > > -		goto error;
+> > > -	}
+> > > -
+> > >  	qdev->ddev.pdev = pdev;
+> > >  	pci_set_drvdata(pdev, &qdev->ddev);
+> > >  	qdev->ddev.dev_private = qdev;
+> > > -	drmm_add_final_kfree(&qdev->ddev, qdev);
+> > >  
+> > >  	mutex_init(&qdev->gem.mutex);
+> > >  	mutex_init(&qdev->update_area_mutex);
+> > > @@ -138,8 +130,7 @@ int qxl_device_init(struct qxl_device *qdev,
+> > >  	qdev->vram_mapping = io_mapping_create_wc(qdev->vram_base, pci_resource_len(pdev, 0));
+> > >  	if (!qdev->vram_mapping) {
+> > >  		pr_err("Unable to create vram_mapping");
+> > > -		r = -ENOMEM;
+> > > -		goto error;
+> > > +		return -ENOMEM;
+> > >  	}
+> > >  
+> > >  	if (pci_resource_len(pdev, 4) > 0) {
+> > > @@ -293,7 +284,6 @@ int qxl_device_init(struct qxl_device *qdev,
+> > >  	io_mapping_free(qdev->surface_mapping);
+> > >  vram_mapping_free:
+> > >  	io_mapping_free(qdev->vram_mapping);
+> > > -error:
+> > >  	return r;
+> > >  }
+> > >  
+> > > -- 
+> > > 2.25.1
+> > > 
+> > > _______________________________________________
+> > > dri-devel mailing list
+> > > dri-devel@lists.freedesktop.org
+> > > https://lists.freedesktop.org/mailman/listinfo/dri-devel
+> 
+> -- 
+> Daniel Vetter
+> Software Engineer, Intel Corporation
+> http://blog.ffwll.ch
