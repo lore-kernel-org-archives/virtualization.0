@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 70/75] x86/head/64: Setup TSS early for secondary CPUs
-Date: Tue, 28 Apr 2020 17:17:20 +0200
-Message-ID: <20200428151725.31091-71-joro@8bytes.org>
+Subject: [PATCH v3 52/75] x86/sev-es: Handle MMIO String Instructions
+Date: Tue, 28 Apr 2020 17:17:02 +0200
+Message-ID: <20200428151725.31091-53-joro@8bytes.org>
 References: <20200428151725.31091-1-joro@8bytes.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200428151725.31091-1-joro@8bytes.org>
@@ -12,73 +12,109 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-The #VC exception will trigger very early in head_64.S, when the first
-CPUID instruction is executed. When secondary CPUs boot, they already
-load the real system IDT, which has the #VC handler configured to be
-using an IST stack. IST stacks require a TSS to be loaded, to set up the
-TSS early for bringing up the secondary CPUs. Use the RW version of
-early, until cpu_init() switches to the RO mapping.
-
-On the boot CPU the TSS will also be loaded early, but not used as the
-the early #VC handlers do not use IST stacks.
+Add handling for emulation the MOVS instruction on MMIO regions, as done
+by the memcpy_toio() and memcpy_fromio() functions.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/desc.h |  2 ++
- arch/x86/kernel/head64.c    | 13 +++++++++++++
- arch/x86/kernel/head_64.S   |  3 +++
- 3 files changed, 18 insertions(+)
+ arch/x86/kernel/sev-es.c | 78 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 78 insertions(+)
 
-diff --git a/arch/x86/include/asm/desc.h b/arch/x86/include/asm/desc.h
-index 30e2a0e863b6..0777b100dc63 100644
---- a/arch/x86/include/asm/desc.h
-+++ b/arch/x86/include/asm/desc.h
-@@ -40,6 +40,8 @@ static inline void fill_ldt(struct desc_struct *desc, const struct user_desc *in
- 	desc->l			= 0;
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+index e3662723ed76..84958a82f8e0 100644
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -552,6 +552,74 @@ static enum es_result vc_handle_mmio_twobyte_ops(struct ghcb *ghcb,
+ 	return ret;
  }
  
-+extern unsigned char boot_gdt[];
-+
- extern struct desc_ptr idt_descr;
- extern gate_desc idt_table[];
- extern const struct desc_ptr debug_idt_descr;
-diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
-index d83d59c15548..30a6d09fd9d0 100644
---- a/arch/x86/kernel/head64.c
-+++ b/arch/x86/kernel/head64.c
-@@ -523,6 +523,19 @@ void __head early_idt_setup_early_handler(unsigned long physaddr)
- 	}
- }
- 
-+void __head early_load_tss(void)
++/*
++ * The MOVS instruction has two memory operands, which raises the
++ * problem that it is not known whether the access to the source or the
++ * destination caused the #VC exception (and hence whether an MMIO read
++ * or write operation needs to be emulated).
++ *
++ * Instead of playing games with walking page-tables and trying to guess
++ * whether the source or destination is an MMIO range, this code splits
++ * the move into two operations, a read and a write with only one
++ * memory operand. This will cause a nested #VC exception on the MMIO
++ * address which can then be handled.
++ *
++ * This implementation has the benefit that it also supports MOVS where
++ * source _and_ destination are MMIO regions.
++ *
++ * It will slow MOVS on MMIO down a lot, but in SEV-ES guests it is a
++ * rare operation. If it turns out to be a performance problem the split
++ * operations can be moved to memcpy_fromio() and memcpy_toio().
++ */
++static enum es_result vc_handle_mmio_movs(struct es_em_ctxt *ctxt,
++					  unsigned int bytes)
 +{
-+	struct desc_struct *gdt = (struct desc_struct *)boot_gdt;
-+	struct tss_struct *tss = this_cpu_ptr(&cpu_tss_rw);
-+	tss_desc tss_desc;
++	unsigned long ds_base, es_base;
++	unsigned char *src, *dst;
++	unsigned char buffer[8];
++	enum es_result ret;
++	bool rep;
++	int off;
 +
-+	set_tssldt_descriptor(&tss_desc, (unsigned long)tss, DESC_TSS,
-+			      __KERNEL_TSS_LIMIT);
-+	native_write_gdt_entry(gdt, GDT_ENTRY_TSS, &tss_desc, DESC_TSS);
++	ds_base = insn_get_seg_base(ctxt->regs, INAT_SEG_REG_DS);
++	es_base = insn_get_seg_base(ctxt->regs, INAT_SEG_REG_ES);
 +
-+	asm volatile("ltr %w0"::"q" (GDT_ENTRY_TSS*8));
++	if (ds_base == -1L || es_base == -1L) {
++		ctxt->fi.vector = X86_TRAP_GP;
++		ctxt->fi.error_code = 0;
++		return ES_EXCEPTION;
++	}
++
++	src = ds_base + (unsigned char *)ctxt->regs->si;
++	dst = es_base + (unsigned char *)ctxt->regs->di;
++
++	ret = vc_read_mem(ctxt, src, buffer, bytes);
++	if (ret != ES_OK)
++		return ret;
++
++	ret = vc_write_mem(ctxt, dst, buffer, bytes);
++	if (ret != ES_OK)
++		return ret;
++
++	if (ctxt->regs->flags & X86_EFLAGS_DF)
++		off = -bytes;
++	else
++		off =  bytes;
++
++	ctxt->regs->si += off;
++	ctxt->regs->di += off;
++
++	rep = insn_has_rep_prefix(&ctxt->insn);
++
++	if (rep)
++		ctxt->regs->cx -= 1;
++
++	if (!rep || ctxt->regs->cx == 0)
++		return ES_OK;
++	else
++		return ES_RETRY;
 +}
 +
- void __head early_idt_setup(unsigned long physbase)
+ static enum es_result vc_handle_mmio(struct ghcb *ghcb,
+ 				     struct es_em_ctxt *ctxt)
  {
- 	gate_desc *idt = fixup_pointer(idt_table, physbase);
-diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
-index 4d84a0c72e36..7f2d5e14db73 100644
---- a/arch/x86/kernel/head_64.S
-+++ b/arch/x86/kernel/head_64.S
-@@ -220,6 +220,9 @@ SYM_CODE_START(secondary_startup_64)
- 	 */
- 	movq initial_stack(%rip), %rsp
+@@ -606,6 +674,16 @@ static enum es_result vc_handle_mmio(struct ghcb *ghcb,
+ 		memcpy(reg_data, ghcb->shared_buffer, bytes);
+ 		break;
  
-+	/* Setup a TSS for early IST handlers - needs %gs to be set up */
-+	call	early_load_tss
++		/* MOVS instruction */
++	case 0xa4:
++		bytes = 1;
++		/* Fallthrough */
++	case 0xa5:
++		if (!bytes)
++			bytes = insn->opnd_bytes;
 +
- 	/* Load IDT */
- 	lidt	idt_descr(%rip)
- 
++		ret = vc_handle_mmio_movs(ctxt, bytes);
++		break;
+ 		/* Two-Byte Opcodes */
+ 	case 0x0f:
+ 		ret = vc_handle_mmio_twobyte_ops(ghcb, ctxt);
 -- 
 2.17.1
