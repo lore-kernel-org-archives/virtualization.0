@@ -1,88 +1,84 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 18/75] x86/boot/compressed/64: Change add_identity_map() to
- take start and end
-Date: Tue, 28 Apr 2020 17:16:28 +0200
-Message-ID: <20200428151725.31091-19-joro@8bytes.org>
+Subject: [PATCH v3 70/75] x86/head/64: Setup TSS early for secondary CPUs
+Date: Tue, 28 Apr 2020 17:17:20 +0200
+Message-ID: <20200428151725.31091-71-joro@8bytes.org>
 References: <20200428151725.31091-1-joro@8bytes.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200428151725.31091-1-joro@8bytes.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: x86@kernel.org
-Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Joerg Roedel <jroedel@suse.de>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
+Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Changing the function to take start and end as parameters instead of
-start and size simplifies the callers, which don't need to calculate
-the size if they already have start and end.
+The #VC exception will trigger very early in head_64.S, when the first
+CPUID instruction is executed. When secondary CPUs boot, they already
+load the real system IDT, which has the #VC handler configured to be
+using an IST stack. IST stacks require a TSS to be loaded, to set up the
+TSS early for bringing up the secondary CPUs. Use the RW version of
+early, until cpu_init() switches to the RO mapping.
+
+On the boot CPU the TSS will also be loaded early, but not used as the
+the early #VC handlers do not use IST stacks.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/compressed/ident_map_64.c | 15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ arch/x86/include/asm/desc.h |  2 ++
+ arch/x86/kernel/head64.c    | 13 +++++++++++++
+ arch/x86/kernel/head_64.S   |  3 +++
+ 3 files changed, 18 insertions(+)
 
-diff --git a/arch/x86/boot/compressed/ident_map_64.c b/arch/x86/boot/compressed/ident_map_64.c
-index 9f6606184797..83385a551f01 100644
---- a/arch/x86/boot/compressed/ident_map_64.c
-+++ b/arch/x86/boot/compressed/ident_map_64.c
-@@ -91,10 +91,8 @@ static struct x86_mapping_info mapping_info;
- /*
-  * Adds the specified range to the identity mappings.
-  */
--static void add_identity_map(unsigned long start, unsigned long size)
-+static void add_identity_map(unsigned long start, unsigned long end)
- {
--	unsigned long end = start + size;
--
- 	/* Align boundary to 2M. */
- 	start = round_down(start, PMD_SIZE);
- 	end = round_up(end, PMD_SIZE);
-@@ -109,8 +107,6 @@ static void add_identity_map(unsigned long start, unsigned long size)
- /* Locates and clears a region for a new top level page table. */
- void initialize_identity_maps(void)
- {
--	unsigned long start, size;
--
- 	/* If running as an SEV guest, the encryption mask is required. */
- 	set_sev_encryption_mask();
- 
-@@ -157,15 +153,14 @@ void initialize_identity_maps(void)
- 	 * New page-table is set up - map the kernel image and load it
- 	 * into cr3.
- 	 */
--	start = (unsigned long)_head;
--	size  = _end - _head;
--	add_identity_map(start, size);
-+	add_identity_map((unsigned long)_head, (unsigned long)_end);
- 	write_cr3(top_level_pgt);
+diff --git a/arch/x86/include/asm/desc.h b/arch/x86/include/asm/desc.h
+index 30e2a0e863b6..0777b100dc63 100644
+--- a/arch/x86/include/asm/desc.h
++++ b/arch/x86/include/asm/desc.h
+@@ -40,6 +40,8 @@ static inline void fill_ldt(struct desc_struct *desc, const struct user_desc *in
+ 	desc->l			= 0;
  }
  
- void do_boot_page_fault(struct pt_regs *regs, unsigned long error_code)
- {
--	unsigned long address = native_read_cr2();
-+	unsigned long address = native_read_cr2() & PMD_MASK;
-+	unsigned long end = address + PMD_SIZE;
- 
- 	/*
- 	 * Check for unexpected error codes. Unexpected are:
-@@ -191,5 +186,5 @@ void do_boot_page_fault(struct pt_regs *regs, unsigned long error_code)
- 	 * Error code is sane - now identity map the 2M region around
- 	 * the faulting address.
- 	 */
--	add_identity_map(address & PMD_MASK, PMD_SIZE);
-+	add_identity_map(address, end);
++extern unsigned char boot_gdt[];
++
+ extern struct desc_ptr idt_descr;
+ extern gate_desc idt_table[];
+ extern const struct desc_ptr debug_idt_descr;
+diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
+index d83d59c15548..30a6d09fd9d0 100644
+--- a/arch/x86/kernel/head64.c
++++ b/arch/x86/kernel/head64.c
+@@ -523,6 +523,19 @@ void __head early_idt_setup_early_handler(unsigned long physaddr)
+ 	}
  }
+ 
++void __head early_load_tss(void)
++{
++	struct desc_struct *gdt = (struct desc_struct *)boot_gdt;
++	struct tss_struct *tss = this_cpu_ptr(&cpu_tss_rw);
++	tss_desc tss_desc;
++
++	set_tssldt_descriptor(&tss_desc, (unsigned long)tss, DESC_TSS,
++			      __KERNEL_TSS_LIMIT);
++	native_write_gdt_entry(gdt, GDT_ENTRY_TSS, &tss_desc, DESC_TSS);
++
++	asm volatile("ltr %w0"::"q" (GDT_ENTRY_TSS*8));
++}
++
+ void __head early_idt_setup(unsigned long physbase)
+ {
+ 	gate_desc *idt = fixup_pointer(idt_table, physbase);
+diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
+index 4d84a0c72e36..7f2d5e14db73 100644
+--- a/arch/x86/kernel/head_64.S
++++ b/arch/x86/kernel/head_64.S
+@@ -220,6 +220,9 @@ SYM_CODE_START(secondary_startup_64)
+ 	 */
+ 	movq initial_stack(%rip), %rsp
+ 
++	/* Setup a TSS for early IST handlers - needs %gs to be set up */
++	call	early_load_tss
++
+ 	/* Load IDT */
+ 	lidt	idt_descr(%rip)
+ 
 -- 
 2.17.1
