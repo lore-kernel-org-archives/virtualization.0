@@ -1,120 +1,106 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 52/75] x86/sev-es: Handle MMIO String Instructions
-Date: Tue, 28 Apr 2020 17:17:02 +0200
-Message-ID: <20200428151725.31091-53-joro@8bytes.org>
+Subject: [PATCH v3 33/75] x86/head/64: Load segment registers earlier
+Date: Tue, 28 Apr 2020 17:16:43 +0200
+Message-ID: <20200428151725.31091-34-joro@8bytes.org>
 References: <20200428151725.31091-1-joro@8bytes.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200428151725.31091-1-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: x86@kernel.org
-Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Joerg Roedel <jroedel@suse.de>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Add handling for emulation the MOVS instruction on MMIO regions, as done
-by the memcpy_toio() and memcpy_fromio() functions.
+Make sure segments are properly set up before setting up an IDT and
+doing anything that might cause a #VC exception. This is later needed
+for early exception handling.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev-es.c | 78 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 78 insertions(+)
+ arch/x86/kernel/head_64.S | 52 +++++++++++++++++++--------------------
+ 1 file changed, 26 insertions(+), 26 deletions(-)
 
-diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index e3662723ed76..84958a82f8e0 100644
---- a/arch/x86/kernel/sev-es.c
-+++ b/arch/x86/kernel/sev-es.c
-@@ -552,6 +552,74 @@ static enum es_result vc_handle_mmio_twobyte_ops(struct ghcb *ghcb,
- 	return ret;
- }
+diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
+index 20a9df062088..b5ff38bb32f2 100644
+--- a/arch/x86/kernel/head_64.S
++++ b/arch/x86/kernel/head_64.S
+@@ -168,6 +168,32 @@ SYM_CODE_START(secondary_startup_64)
+ 	movq	%rax, boot_gdt_base(%rip)
+ 	lgdt	boot_gdt_descr(%rip)
  
-+/*
-+ * The MOVS instruction has two memory operands, which raises the
-+ * problem that it is not known whether the access to the source or the
-+ * destination caused the #VC exception (and hence whether an MMIO read
-+ * or write operation needs to be emulated).
-+ *
-+ * Instead of playing games with walking page-tables and trying to guess
-+ * whether the source or destination is an MMIO range, this code splits
-+ * the move into two operations, a read and a write with only one
-+ * memory operand. This will cause a nested #VC exception on the MMIO
-+ * address which can then be handled.
-+ *
-+ * This implementation has the benefit that it also supports MOVS where
-+ * source _and_ destination are MMIO regions.
-+ *
-+ * It will slow MOVS on MMIO down a lot, but in SEV-ES guests it is a
-+ * rare operation. If it turns out to be a performance problem the split
-+ * operations can be moved to memcpy_fromio() and memcpy_toio().
-+ */
-+static enum es_result vc_handle_mmio_movs(struct es_em_ctxt *ctxt,
-+					  unsigned int bytes)
-+{
-+	unsigned long ds_base, es_base;
-+	unsigned char *src, *dst;
-+	unsigned char buffer[8];
-+	enum es_result ret;
-+	bool rep;
-+	int off;
++	/* set up data segments */
++	xorl %eax,%eax
++	movl %eax,%ds
++	movl %eax,%ss
++	movl %eax,%es
 +
-+	ds_base = insn_get_seg_base(ctxt->regs, INAT_SEG_REG_DS);
-+	es_base = insn_get_seg_base(ctxt->regs, INAT_SEG_REG_ES);
++	/*
++	 * We don't really need to load %fs or %gs, but load them anyway
++	 * to kill any stale realmode selectors.  This allows execution
++	 * under VT hardware.
++	 */
++	movl %eax,%fs
++	movl %eax,%gs
 +
-+	if (ds_base == -1L || es_base == -1L) {
-+		ctxt->fi.vector = X86_TRAP_GP;
-+		ctxt->fi.error_code = 0;
-+		return ES_EXCEPTION;
-+	}
++	/* Set up %gs.
++	 *
++	 * The base of %gs always points to fixed_percpu_data. If the
++	 * stack protector canary is enabled, it is located at %gs:40.
++	 * Note that, on SMP, the boot cpu uses init data section until
++	 * the per cpu areas are set up.
++	 */
++	movl	$MSR_GS_BASE,%ecx
++	movl	initial_gs(%rip),%eax
++	movl	initial_gs+4(%rip),%edx
++	wrmsr
 +
-+	src = ds_base + (unsigned char *)ctxt->regs->si;
-+	dst = es_base + (unsigned char *)ctxt->regs->di;
-+
-+	ret = vc_read_mem(ctxt, src, buffer, bytes);
-+	if (ret != ES_OK)
-+		return ret;
-+
-+	ret = vc_write_mem(ctxt, dst, buffer, bytes);
-+	if (ret != ES_OK)
-+		return ret;
-+
-+	if (ctxt->regs->flags & X86_EFLAGS_DF)
-+		off = -bytes;
-+	else
-+		off =  bytes;
-+
-+	ctxt->regs->si += off;
-+	ctxt->regs->di += off;
-+
-+	rep = insn_has_rep_prefix(&ctxt->insn);
-+
-+	if (rep)
-+		ctxt->regs->cx -= 1;
-+
-+	if (!rep || ctxt->regs->cx == 0)
-+		return ES_OK;
-+	else
-+		return ES_RETRY;
-+}
-+
- static enum es_result vc_handle_mmio(struct ghcb *ghcb,
- 				     struct es_em_ctxt *ctxt)
- {
-@@ -606,6 +674,16 @@ static enum es_result vc_handle_mmio(struct ghcb *ghcb,
- 		memcpy(reg_data, ghcb->shared_buffer, bytes);
- 		break;
+ 	/* Check if nx is implemented */
+ 	movl	$0x80000001, %eax
+ 	cpuid
+@@ -203,32 +229,6 @@ SYM_CODE_START(secondary_startup_64)
+ 	 */
+ 	lgdt	early_gdt_descr(%rip)
  
-+		/* MOVS instruction */
-+	case 0xa4:
-+		bytes = 1;
-+		/* Fallthrough */
-+	case 0xa5:
-+		if (!bytes)
-+			bytes = insn->opnd_bytes;
-+
-+		ret = vc_handle_mmio_movs(ctxt, bytes);
-+		break;
- 		/* Two-Byte Opcodes */
- 	case 0x0f:
- 		ret = vc_handle_mmio_twobyte_ops(ghcb, ctxt);
+-	/* set up data segments */
+-	xorl %eax,%eax
+-	movl %eax,%ds
+-	movl %eax,%ss
+-	movl %eax,%es
+-
+-	/*
+-	 * We don't really need to load %fs or %gs, but load them anyway
+-	 * to kill any stale realmode selectors.  This allows execution
+-	 * under VT hardware.
+-	 */
+-	movl %eax,%fs
+-	movl %eax,%gs
+-
+-	/* Set up %gs.
+-	 *
+-	 * The base of %gs always points to fixed_percpu_data. If the
+-	 * stack protector canary is enabled, it is located at %gs:40.
+-	 * Note that, on SMP, the boot cpu uses init data section until
+-	 * the per cpu areas are set up.
+-	 */
+-	movl	$MSR_GS_BASE,%ecx
+-	movl	initial_gs(%rip),%eax
+-	movl	initial_gs+4(%rip),%edx
+-	wrmsr
+-
+ 	/* rsi is pointer to real mode structure with interesting info.
+ 	   pass it to C */
+ 	movq	%rsi, %rdi
 -- 
 2.17.1
