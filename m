@@ -1,183 +1,104 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH 26/59] drm/qxl: Use devm_drm_dev_alloc
-Date: Tue, 28 Apr 2020 16:00:11 +0200
-Message-ID: <20200428140011.GK3456981@phenom.ffwll.local>
-References: <20200415074034.175360-1-daniel.vetter@ffwll.ch>
- <20200415074034.175360-27-daniel.vetter@ffwll.ch>
- <20200424150911.GB20856@ravnborg.org>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: [PATCH v2] virtio-blk: handle block_device_operations callbacks after hot unplug
+Date: Tue, 28 Apr 2020 15:30:09 +0100
+Message-ID: <20200428143009.107645-1-stefanha@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <spice-devel-bounces@lists.freedesktop.org>
-Content-Disposition: inline
-In-Reply-To: <20200424150911.GB20856@ravnborg.org>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/spice-devel>,
- <mailto:spice-devel-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/spice-devel>
-List-Post: <mailto:spice-devel@lists.freedesktop.org>
-List-Help: <mailto:spice-devel-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/spice-devel>,
- <mailto:spice-devel-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: spice-devel-bounces@lists.freedesktop.org
-Sender: "Spice-devel" <spice-devel-bounces@lists.freedesktop.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Dave Airlie <airlied@redhat.com>, Daniel Vetter <daniel.vetter@ffwll.ch>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, DRI Development <dri-devel@lists.freedesktop.org>, virtualization@lists.linux-foundation.org, Gerd Hoffmann <kraxel@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>, spice-devel@lists.freedesktop.org
+Content-Transfer-Encoding: base64
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: virtualization@lists.linux-foundation.org
+Cc: Paolo Bonzini <pbonzini@redhat.com>, Jason Wang <jasowang@redhat.com>, linux-block@vger.kernel.org, Christoph Hellwig <hch@infradead.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org, cohuck@redhat.com, Stefano Garzarella <sgarzare@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Lance Digby <ldigby@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Apr 24, 2020 at 05:09:11PM +0200, Sam Ravnborg wrote:
-> Hi Daniel
-> 
-> On Wed, Apr 15, 2020 at 09:40:01AM +0200, Daniel Vetter wrote:
-> > Also need to remove the drm_dev_put from the remove hook.
-> > 
-> > Acked-by: Gerd Hoffmann <kraxel@redhat.com>
-> > Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-> > Cc: Dave Airlie <airlied@redhat.com>
-> > Cc: Gerd Hoffmann <kraxel@redhat.com>
-> > Cc: virtualization@lists.linux-foundation.org
-> > Cc: spice-devel@lists.freedesktop.org
-> > ---
-> >  drivers/gpu/drm/qxl/qxl_drv.c | 15 ++++++++-------
-> >  drivers/gpu/drm/qxl/qxl_drv.h |  3 +--
-> >  drivers/gpu/drm/qxl/qxl_kms.c | 12 +-----------
-> >  3 files changed, 10 insertions(+), 20 deletions(-)
-> > 
-> > diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
-> > index 09102e2efabc..6b4ae4c5fb76 100644
-> > --- a/drivers/gpu/drm/qxl/qxl_drv.c
-> > +++ b/drivers/gpu/drm/qxl/qxl_drv.c
-> > @@ -81,13 +81,16 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
-> >  		return -EINVAL; /* TODO: ENODEV ? */
-> >  	}
-> >  
-> > -	qdev = kzalloc(sizeof(struct qxl_device), GFP_KERNEL);
-> > -	if (!qdev)
-> > +	qdev = devm_drm_dev_alloc(&pdev->dev, &qxl_driver,
-> > +				  struct qxl_device, ddev);
-> > +	if (IS_ERR(qdev)) {
-> > +		pr_err("Unable to init drm dev");
-> >  		return -ENOMEM;
-> > +	}
-> 
-> The other patches do not add any error message when devm_drm_dev_alloc()
-> fails and driver core will log that driver init failed.
-> 
-> So the pr_err() above should be dropped.
-> I know it comes from qxl_device_init() but that does not make it a good
-> idea.
-
-Hm I know we're inconsistent here, but some drivers have error logging on
-all branches, some dont. I'm just trying to go with the prevailing style.
-
-> With this fixed:
-
-Insisting on this or ok as-is?
--Daniel
-
-> Acked-by: Sam Ravnborg <sam@ravnborg.org>
-> 
-> >  
-> >  	ret = pci_enable_device(pdev);
-> >  	if (ret)
-> > -		goto free_dev;
-> > +		return ret;
-> >  
-> >  	ret = drm_fb_helper_remove_conflicting_pci_framebuffers(pdev, "qxl");
-> >  	if (ret)
-> > @@ -101,7 +104,7 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
-> >  		}
-> >  	}
-> >  
-> > -	ret = qxl_device_init(qdev, &qxl_driver, pdev);
-> > +	ret = qxl_device_init(qdev, pdev);
-> >  	if (ret)
-> >  		goto put_vga;
-> >  
-> > @@ -128,8 +131,7 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
-> >  		vga_put(pdev, VGA_RSRC_LEGACY_IO);
-> >  disable_pci:
-> >  	pci_disable_device(pdev);
-> > -free_dev:
-> > -	kfree(qdev);
-> > +
-> >  	return ret;
-> >  }
-> >  
-> > @@ -155,7 +157,6 @@ qxl_pci_remove(struct pci_dev *pdev)
-> >  	drm_atomic_helper_shutdown(dev);
-> >  	if (is_vga(pdev))
-> >  		vga_put(pdev, VGA_RSRC_LEGACY_IO);
-> > -	drm_dev_put(dev);
-> >  }
-> >  
-> >  DEFINE_DRM_GEM_FOPS(qxl_fops);
-> > diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
-> > index 435126facc9b..86ac191d9205 100644
-> > --- a/drivers/gpu/drm/qxl/qxl_drv.h
-> > +++ b/drivers/gpu/drm/qxl/qxl_drv.h
-> > @@ -276,8 +276,7 @@ struct qxl_device {
-> >  extern const struct drm_ioctl_desc qxl_ioctls[];
-> >  extern int qxl_max_ioctl;
-> >  
-> > -int qxl_device_init(struct qxl_device *qdev, struct drm_driver *drv,
-> > -		    struct pci_dev *pdev);
-> > +int qxl_device_init(struct qxl_device *qdev, struct pci_dev *pdev);
-> >  void qxl_device_fini(struct qxl_device *qdev);
-> >  
-> >  int qxl_modeset_init(struct qxl_device *qdev);
-> > diff --git a/drivers/gpu/drm/qxl/qxl_kms.c b/drivers/gpu/drm/qxl/qxl_kms.c
-> > index 9eed1a375f24..91a34dd835d7 100644
-> > --- a/drivers/gpu/drm/qxl/qxl_kms.c
-> > +++ b/drivers/gpu/drm/qxl/qxl_kms.c
-> > @@ -108,21 +108,13 @@ static void qxl_gc_work(struct work_struct *work)
-> >  }
-> >  
-> >  int qxl_device_init(struct qxl_device *qdev,
-> > -		    struct drm_driver *drv,
-> >  		    struct pci_dev *pdev)
-> >  {
-> >  	int r, sb;
-> >  
-> > -	r = drm_dev_init(&qdev->ddev, drv, &pdev->dev);
-> > -	if (r) {
-> > -		pr_err("Unable to init drm dev");
-> > -		goto error;
-> > -	}
-> > -
-> >  	qdev->ddev.pdev = pdev;
-> >  	pci_set_drvdata(pdev, &qdev->ddev);
-> >  	qdev->ddev.dev_private = qdev;
-> > -	drmm_add_final_kfree(&qdev->ddev, qdev);
-> >  
-> >  	mutex_init(&qdev->gem.mutex);
-> >  	mutex_init(&qdev->update_area_mutex);
-> > @@ -138,8 +130,7 @@ int qxl_device_init(struct qxl_device *qdev,
-> >  	qdev->vram_mapping = io_mapping_create_wc(qdev->vram_base, pci_resource_len(pdev, 0));
-> >  	if (!qdev->vram_mapping) {
-> >  		pr_err("Unable to create vram_mapping");
-> > -		r = -ENOMEM;
-> > -		goto error;
-> > +		return -ENOMEM;
-> >  	}
-> >  
-> >  	if (pci_resource_len(pdev, 4) > 0) {
-> > @@ -293,7 +284,6 @@ int qxl_device_init(struct qxl_device *qdev,
-> >  	io_mapping_free(qdev->surface_mapping);
-> >  vram_mapping_free:
-> >  	io_mapping_free(qdev->vram_mapping);
-> > -error:
-> >  	return r;
-> >  }
-> >  
-> > -- 
-> > 2.25.1
-> > 
-> > _______________________________________________
-> > dri-devel mailing list
-> > dri-devel@lists.freedesktop.org
-> > https://lists.freedesktop.org/mailman/listinfo/dri-devel
-
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+QSB1c2Vyc3BhY2UgcHJvY2VzcyBob2xkaW5nIGEgZmlsZSBkZXNjcmlwdG9yIHRvIGEgdmlydGlv
+X2JsayBkZXZpY2UgY2FuCnN0aWxsIGludm9rZSBibG9ja19kZXZpY2Vfb3BlcmF0aW9ucyBhZnRl
+ciBob3QgdW5wbHVnLiAgRm9yIGV4YW1wbGUsIGEKcHJvZ3JhbSB0aGF0IGhhcyAvZGV2L3ZkYiBv
+cGVuIGNhbiBjYWxsIGlvY3RsKEhESU9fR0VUR0VPKSBhZnRlciBob3QKdW5wbHVnIHRvIGludm9r
+ZSB2aXJ0YmxrX2dldGdlbygpLgoKSW50cm9kdWNlIGEgcmVmZXJlbmNlIGNvdW50IGluIHN0cnVj
+dCB2aXJ0aW9fYmxrIHNvIHRoYXQgaXRzIGxpZmV0aW1lCmNvdmVycyBib3RoIHZpcnRpb19kcml2
+ZXIgcHJvYmUvcmVtb3ZlIGFuZCBibG9ja19kZXZpY2Vfb3BlcmF0aW9ucwpvcGVuL3JlbGVhc2Ug
+dXNlcnMuICBUaGlzIGVuc3VyZXMgdGhhdCBibG9ja19kZXZpY2Vfb3BlcmF0aW9ucyBmdW5jdGlv
+bnMKbGlrZSB2aXJ0YmxrX2dldGdlbygpIGNhbiBzYWZlbHkgYWNjZXNzIHN0cnVjdCB2aXJ0aW9f
+YmxrLgoKQWRkIHJlbW92ZV9tdXRleCB0byBwcmV2ZW50IGJsb2NrX2RldmljZV9vcGVyYXRpb25z
+IGZ1bmN0aW9ucyBmcm9tCmFjY2Vzc2luZyB2YmxrLT52ZGV2IGR1cmluZyB2aXJ0YmxrX3JlbW92
+ZSgpIGFuZCBsZXQgdGhlIHNhZmVseSBjaGVjawpmb3IgIXZibGstPnZkZXYgYWZ0ZXIgdmlydGJs
+a19yZW1vdmUoKSByZXR1cm5zLgoKU3dpdGNoaW5nIHRvIGEgcmVmZXJlbmNlIGNvdW50IGFsc28g
+c29sdmVzIHRoZSB2ZF9pbmRleF9pZGEgbGVhayB3aGVyZQp2ZGEsIHZkYiwgdmRjLCBldGMgaW5k
+aWNlcyB3ZXJlIGxvc3Qgd2hlbiB0aGUgZGV2aWNlIHdhcyBob3QgdW5wbHVnZ2VkCndoaWxlIHRo
+ZSBibG9jayBkZXZpY2Ugd2FzIHN0aWxsIG9wZW4uCgpSZXBvcnRlZC1ieTogTGFuY2UgRGlnYnkg
+PGxkaWdieUByZWRoYXQuY29tPgpTaWduZWQtb2ZmLWJ5OiBTdGVmYW4gSGFqbm9jemkgPHN0ZWZh
+bmhhQHJlZGhhdC5jb20+Ci0tLQpJZiBzb21lb25lIGhhcyBhIHNpbXBsZXIgc29sdXRpb24gcGxl
+YXNlIGxldCBtZSBrbm93LiAgSSBsb29rZWQgYXQKdmFyaW91cyBhcHByb2FjaGVzIGluY2x1ZGlu
+ZyByZXVzaW5nIGRldmljZV9sb2NrKCZ2YmxrLT52ZGV2LmRldikgYnV0CnRoZXkgd2VyZSBtb3Jl
+IGNvbXBsZXggYW5kIGV4dGVuZGluZyB0aGUgbGlmZXRpbWUgb2YgdmlydGlvX2RldmljZSBhZnRl
+cgpyZW1vdmUoKSBoYXMgYmVlbiBjYWxsZWQgc2VlbXMgcXVlc3Rpb25hYmxlLgotLS0KIGRyaXZl
+cnMvYmxvY2svdmlydGlvX2Jsay5jIHwgODUgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKy0tLS0KIDEgZmlsZSBjaGFuZ2VkLCA3NyBpbnNlcnRpb25zKCspLCA4IGRlbGV0aW9ucygt
+KQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jIGIvZHJpdmVycy9ibG9j
+ay92aXJ0aW9fYmxrLmMKaW5kZXggOTM0NjhiN2M2NzAxLi4zZGQ1M2I0NDVjYzEgMTAwNjQ0Ci0t
+LSBhL2RyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jCisrKyBiL2RyaXZlcnMvYmxvY2svdmlydGlv
+X2Jsay5jCkBAIC00NCw2ICs0NCwxMyBAQCBzdHJ1Y3QgdmlydGlvX2JsayB7CiAJLyogUHJvY2Vz
+cyBjb250ZXh0IGZvciBjb25maWcgc3BhY2UgdXBkYXRlcyAqLwogCXN0cnVjdCB3b3JrX3N0cnVj
+dCBjb25maWdfd29yazsKIAorCS8qCisJICogVHJhY2tzIHJlZmVyZW5jZXMgZnJvbSBibG9ja19k
+ZXZpY2Vfb3BlcmF0aW9ucyBvcGVuL3JlbGVhc2UgYW5kCisJICogdmlydGlvX2RyaXZlciBwcm9i
+ZS9yZW1vdmUgc28gdGhpcyBvYmplY3QgY2FuIGJlIGZyZWVkIG9uY2Ugbm8KKwkgKiBsb25nZXIg
+aW4gdXNlLgorCSAqLworCXJlZmNvdW50X3QgcmVmczsKKwogCS8qIFdoYXQgaG9zdCB0ZWxscyB1
+cywgcGx1cyAyIGZvciBoZWFkZXIgJiB0YWlsZXIuICovCiAJdW5zaWduZWQgaW50IHNnX2VsZW1z
+OwogCkBAIC01Myw2ICs2MCw5IEBAIHN0cnVjdCB2aXJ0aW9fYmxrIHsKIAkvKiBudW0gb2YgdnFz
+ICovCiAJaW50IG51bV92cXM7CiAJc3RydWN0IHZpcnRpb19ibGtfdnEgKnZxczsKKworCS8qIFBy
+b3ZpZGVzIG11dHVhbCBleGNsdXNpb24gd2l0aCB2aXJ0YmxrX3JlbW92ZSgpLiAqLworCXN0cnVj
+dCBtdXRleCByZW1vdmVfbXV0ZXg7CiB9OwogCiBzdHJ1Y3QgdmlydGJsa19yZXEgewpAQCAtMjk1
+LDEwICszMDUsNTQgQEAgc3RhdGljIGludCB2aXJ0YmxrX2dldF9pZChzdHJ1Y3QgZ2VuZGlzayAq
+ZGlzaywgY2hhciAqaWRfc3RyKQogCXJldHVybiBlcnI7CiB9CiAKK3N0YXRpYyB2b2lkIHZpcnRi
+bGtfZ2V0KHN0cnVjdCB2aXJ0aW9fYmxrICp2YmxrKQoreworCXJlZmNvdW50X2luYygmdmJsay0+
+cmVmcyk7Cit9CisKK3N0YXRpYyB2b2lkIHZpcnRibGtfcHV0KHN0cnVjdCB2aXJ0aW9fYmxrICp2
+YmxrKQoreworCWlmIChyZWZjb3VudF9kZWNfYW5kX3Rlc3QoJnZibGstPnJlZnMpKSB7CisJCWlk
+YV9zaW1wbGVfcmVtb3ZlKCZ2ZF9pbmRleF9pZGEsIHZibGstPmluZGV4KTsKKwkJbXV0ZXhfZGVz
+dHJveSgmdmJsay0+cmVtb3ZlX211dGV4KTsKKwkJa2ZyZWUodmJsayk7CisJfQorfQorCitzdGF0
+aWMgaW50IHZpcnRibGtfb3BlbihzdHJ1Y3QgYmxvY2tfZGV2aWNlICpiZCwgZm1vZGVfdCBtb2Rl
+KQoreworCXN0cnVjdCB2aXJ0aW9fYmxrICp2YmxrID0gYmQtPmJkX2Rpc2stPnByaXZhdGVfZGF0
+YTsKKwlpbnQgcmV0ID0gLUVOWElPOworCisJbXV0ZXhfbG9jaygmdmJsay0+cmVtb3ZlX211dGV4
+KTsKKworCWlmICh2YmxrLT52ZGV2KSB7CisJCXZpcnRibGtfZ2V0KHZibGspOworCQlyZXQgPSAw
+OworCX0KKworCW11dGV4X3VubG9jaygmdmJsay0+cmVtb3ZlX211dGV4KTsKKwlyZXR1cm4gcmV0
+OworfQorCitzdGF0aWMgdm9pZCB2aXJ0YmxrX3JlbGVhc2Uoc3RydWN0IGdlbmRpc2sgKmRpc2ss
+IGZtb2RlX3QgbW9kZSkKK3sKKwlzdHJ1Y3QgdmlydGlvX2JsayAqdmJsayA9IGRpc2stPnByaXZh
+dGVfZGF0YTsKKworCXZpcnRibGtfcHV0KHZibGspOworfQorCiAvKiBXZSBwcm92aWRlIGdldGdl
+byBvbmx5IHRvIHBsZWFzZSBzb21lIG9sZCBib290bG9hZGVyL3BhcnRpdGlvbmluZyB0b29scyAq
+Lwogc3RhdGljIGludCB2aXJ0YmxrX2dldGdlbyhzdHJ1Y3QgYmxvY2tfZGV2aWNlICpiZCwgc3Ry
+dWN0IGhkX2dlb21ldHJ5ICpnZW8pCiB7CiAJc3RydWN0IHZpcnRpb19ibGsgKnZibGsgPSBiZC0+
+YmRfZGlzay0+cHJpdmF0ZV9kYXRhOworCWludCByZXQgPSAtRU5YSU87CisKKwltdXRleF9sb2Nr
+KCZ2YmxrLT5yZW1vdmVfbXV0ZXgpOworCisJaWYgKCF2YmxrLT52ZGV2KSB7CisJCWdvdG8gb3V0
+OworCX0KIAogCS8qIHNlZSBpZiB0aGUgaG9zdCBwYXNzZWQgaW4gZ2VvbWV0cnkgY29uZmlnICov
+CiAJaWYgKHZpcnRpb19oYXNfZmVhdHVyZSh2YmxrLT52ZGV2LCBWSVJUSU9fQkxLX0ZfR0VPTUVU
+UlkpKSB7CkBAIC0zMTQsMTEgKzM2OCwxNyBAQCBzdGF0aWMgaW50IHZpcnRibGtfZ2V0Z2VvKHN0
+cnVjdCBibG9ja19kZXZpY2UgKmJkLCBzdHJ1Y3QgaGRfZ2VvbWV0cnkgKmdlbykKIAkJZ2VvLT5z
+ZWN0b3JzID0gMSA8PCA1OwogCQlnZW8tPmN5bGluZGVycyA9IGdldF9jYXBhY2l0eShiZC0+YmRf
+ZGlzaykgPj4gMTE7CiAJfQotCXJldHVybiAwOworCisJcmV0ID0gMDsKK291dDoKKwltdXRleF91
+bmxvY2soJnZibGstPnJlbW92ZV9tdXRleCk7CisJcmV0dXJuIHJldDsKIH0KIAogc3RhdGljIGNv
+bnN0IHN0cnVjdCBibG9ja19kZXZpY2Vfb3BlcmF0aW9ucyB2aXJ0YmxrX2ZvcHMgPSB7CiAJLm93
+bmVyICA9IFRISVNfTU9EVUxFLAorCS5vcGVuID0gdmlydGJsa19vcGVuLAorCS5yZWxlYXNlID0g
+dmlydGJsa19yZWxlYXNlLAogCS5nZXRnZW8gPSB2aXJ0YmxrX2dldGdlbywKIH07CiAKQEAgLTY1
+NSw2ICs3MTUsMTAgQEAgc3RhdGljIGludCB2aXJ0YmxrX3Byb2JlKHN0cnVjdCB2aXJ0aW9fZGV2
+aWNlICp2ZGV2KQogCQlnb3RvIG91dF9mcmVlX2luZGV4OwogCX0KIAorCS8qIFRoaXMgcmVmZXJl
+bmNlIGlzIGRyb3BwZWQgaW4gdmlydGJsa19yZW1vdmUoKS4gKi8KKwlyZWZjb3VudF9zZXQoJnZi
+bGstPnJlZnMsIDEpOworCW11dGV4X2luaXQoJnZibGstPnJlbW92ZV9tdXRleCk7CisKIAl2Ymxr
+LT52ZGV2ID0gdmRldjsKIAl2YmxrLT5zZ19lbGVtcyA9IHNnX2VsZW1zOwogCkBAIC04MjAsOCAr
+ODg0LDEyIEBAIHN0YXRpYyBpbnQgdmlydGJsa19wcm9iZShzdHJ1Y3QgdmlydGlvX2RldmljZSAq
+dmRldikKIHN0YXRpYyB2b2lkIHZpcnRibGtfcmVtb3ZlKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2
+ZGV2KQogewogCXN0cnVjdCB2aXJ0aW9fYmxrICp2YmxrID0gdmRldi0+cHJpdjsKLQlpbnQgaW5k
+ZXggPSB2YmxrLT5pbmRleDsKLQlpbnQgcmVmYzsKKworCS8qCisJICogVmlydHF1ZXVlIHByb2Nl
+c3NpbmcgaXMgc3RvcHBlZCBzYWZlbHkgaGVyZSBidXQgbXV0dWFsIGV4Y2x1c2lvbiBpcworCSAq
+IG5lZWRlZCBmb3IgYmxvY2tfZGV2aWNlX29wZXJhdGlvbnMuCisJICovCisJbXV0ZXhfbG9jaygm
+dmJsay0+cmVtb3ZlX211dGV4KTsKIAogCS8qIE1ha2Ugc3VyZSBubyB3b3JrIGhhbmRsZXIgaXMg
+YWNjZXNzaW5nIHRoZSBkZXZpY2UuICovCiAJZmx1c2hfd29yaygmdmJsay0+Y29uZmlnX3dvcmsp
+OwpAQCAtODM0LDE1ICs5MDIsMTYgQEAgc3RhdGljIHZvaWQgdmlydGJsa19yZW1vdmUoc3RydWN0
+IHZpcnRpb19kZXZpY2UgKnZkZXYpCiAJLyogU3RvcCBhbGwgdGhlIHZpcnRxdWV1ZXMuICovCiAJ
+dmRldi0+Y29uZmlnLT5yZXNldCh2ZGV2KTsKIAotCXJlZmMgPSBrcmVmX3JlYWQoJmRpc2tfdG9f
+ZGV2KHZibGstPmRpc2spLT5rb2JqLmtyZWYpOworCS8qIFZpcnRxdWV1ZSBhcmUgc3RvcHBlZCwg
+bm90aGluZyBjYW4gdXNlIHZibGstPnZkZXYgYW55bW9yZS4gKi8KKwl2YmxrLT52ZGV2ID0gTlVM
+TDsKKwogCXB1dF9kaXNrKHZibGstPmRpc2spOwogCXZkZXYtPmNvbmZpZy0+ZGVsX3Zxcyh2ZGV2
+KTsKIAlrZnJlZSh2YmxrLT52cXMpOwotCWtmcmVlKHZibGspOwogCi0JLyogT25seSBmcmVlIGRl
+dmljZSBpZCBpZiB3ZSBkb24ndCBoYXZlIGFueSB1c2VycyAqLwotCWlmIChyZWZjID09IDEpCi0J
+CWlkYV9zaW1wbGVfcmVtb3ZlKCZ2ZF9pbmRleF9pZGEsIGluZGV4KTsKKwltdXRleF91bmxvY2so
+JnZibGstPnJlbW92ZV9tdXRleCk7CisKKwl2aXJ0YmxrX3B1dCh2YmxrKTsKIH0KIAogI2lmZGVm
+IENPTkZJR19QTV9TTEVFUAotLSAKMi4yNS4zCgo=
