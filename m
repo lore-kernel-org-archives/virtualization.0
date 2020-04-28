@@ -1,104 +1,290 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: [PATCH v2] virtio-blk: handle block_device_operations callbacks after hot unplug
-Date: Tue, 28 Apr 2020 15:30:09 +0100
-Message-ID: <20200428143009.107645-1-stefanha@redhat.com>
-Mime-Version: 1.0
-Content-Transfer-Encoding: base64
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH v3 00/75] x86: SEV-ES Guest Support
+Date: Tue, 28 Apr 2020 17:16:10 +0200
+Message-ID: <20200428151725.31091-1-joro@8bytes.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: virtualization@lists.linux-foundation.org
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Jason Wang <jasowang@redhat.com>, linux-block@vger.kernel.org, Christoph Hellwig <hch@infradead.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org, cohuck@redhat.com, Stefano Garzarella <sgarzare@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Lance Digby <ldigby@redhat.com>
+To: x86@kernel.org
+Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-QSB1c2Vyc3BhY2UgcHJvY2VzcyBob2xkaW5nIGEgZmlsZSBkZXNjcmlwdG9yIHRvIGEgdmlydGlv
-X2JsayBkZXZpY2UgY2FuCnN0aWxsIGludm9rZSBibG9ja19kZXZpY2Vfb3BlcmF0aW9ucyBhZnRl
-ciBob3QgdW5wbHVnLiAgRm9yIGV4YW1wbGUsIGEKcHJvZ3JhbSB0aGF0IGhhcyAvZGV2L3ZkYiBv
-cGVuIGNhbiBjYWxsIGlvY3RsKEhESU9fR0VUR0VPKSBhZnRlciBob3QKdW5wbHVnIHRvIGludm9r
-ZSB2aXJ0YmxrX2dldGdlbygpLgoKSW50cm9kdWNlIGEgcmVmZXJlbmNlIGNvdW50IGluIHN0cnVj
-dCB2aXJ0aW9fYmxrIHNvIHRoYXQgaXRzIGxpZmV0aW1lCmNvdmVycyBib3RoIHZpcnRpb19kcml2
-ZXIgcHJvYmUvcmVtb3ZlIGFuZCBibG9ja19kZXZpY2Vfb3BlcmF0aW9ucwpvcGVuL3JlbGVhc2Ug
-dXNlcnMuICBUaGlzIGVuc3VyZXMgdGhhdCBibG9ja19kZXZpY2Vfb3BlcmF0aW9ucyBmdW5jdGlv
-bnMKbGlrZSB2aXJ0YmxrX2dldGdlbygpIGNhbiBzYWZlbHkgYWNjZXNzIHN0cnVjdCB2aXJ0aW9f
-YmxrLgoKQWRkIHJlbW92ZV9tdXRleCB0byBwcmV2ZW50IGJsb2NrX2RldmljZV9vcGVyYXRpb25z
-IGZ1bmN0aW9ucyBmcm9tCmFjY2Vzc2luZyB2YmxrLT52ZGV2IGR1cmluZyB2aXJ0YmxrX3JlbW92
-ZSgpIGFuZCBsZXQgdGhlIHNhZmVseSBjaGVjawpmb3IgIXZibGstPnZkZXYgYWZ0ZXIgdmlydGJs
-a19yZW1vdmUoKSByZXR1cm5zLgoKU3dpdGNoaW5nIHRvIGEgcmVmZXJlbmNlIGNvdW50IGFsc28g
-c29sdmVzIHRoZSB2ZF9pbmRleF9pZGEgbGVhayB3aGVyZQp2ZGEsIHZkYiwgdmRjLCBldGMgaW5k
-aWNlcyB3ZXJlIGxvc3Qgd2hlbiB0aGUgZGV2aWNlIHdhcyBob3QgdW5wbHVnZ2VkCndoaWxlIHRo
-ZSBibG9jayBkZXZpY2Ugd2FzIHN0aWxsIG9wZW4uCgpSZXBvcnRlZC1ieTogTGFuY2UgRGlnYnkg
-PGxkaWdieUByZWRoYXQuY29tPgpTaWduZWQtb2ZmLWJ5OiBTdGVmYW4gSGFqbm9jemkgPHN0ZWZh
-bmhhQHJlZGhhdC5jb20+Ci0tLQpJZiBzb21lb25lIGhhcyBhIHNpbXBsZXIgc29sdXRpb24gcGxl
-YXNlIGxldCBtZSBrbm93LiAgSSBsb29rZWQgYXQKdmFyaW91cyBhcHByb2FjaGVzIGluY2x1ZGlu
-ZyByZXVzaW5nIGRldmljZV9sb2NrKCZ2YmxrLT52ZGV2LmRldikgYnV0CnRoZXkgd2VyZSBtb3Jl
-IGNvbXBsZXggYW5kIGV4dGVuZGluZyB0aGUgbGlmZXRpbWUgb2YgdmlydGlvX2RldmljZSBhZnRl
-cgpyZW1vdmUoKSBoYXMgYmVlbiBjYWxsZWQgc2VlbXMgcXVlc3Rpb25hYmxlLgotLS0KIGRyaXZl
-cnMvYmxvY2svdmlydGlvX2Jsay5jIHwgODUgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysr
-KysrKy0tLS0KIDEgZmlsZSBjaGFuZ2VkLCA3NyBpbnNlcnRpb25zKCspLCA4IGRlbGV0aW9ucygt
-KQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jIGIvZHJpdmVycy9ibG9j
-ay92aXJ0aW9fYmxrLmMKaW5kZXggOTM0NjhiN2M2NzAxLi4zZGQ1M2I0NDVjYzEgMTAwNjQ0Ci0t
-LSBhL2RyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jCisrKyBiL2RyaXZlcnMvYmxvY2svdmlydGlv
-X2Jsay5jCkBAIC00NCw2ICs0NCwxMyBAQCBzdHJ1Y3QgdmlydGlvX2JsayB7CiAJLyogUHJvY2Vz
-cyBjb250ZXh0IGZvciBjb25maWcgc3BhY2UgdXBkYXRlcyAqLwogCXN0cnVjdCB3b3JrX3N0cnVj
-dCBjb25maWdfd29yazsKIAorCS8qCisJICogVHJhY2tzIHJlZmVyZW5jZXMgZnJvbSBibG9ja19k
-ZXZpY2Vfb3BlcmF0aW9ucyBvcGVuL3JlbGVhc2UgYW5kCisJICogdmlydGlvX2RyaXZlciBwcm9i
-ZS9yZW1vdmUgc28gdGhpcyBvYmplY3QgY2FuIGJlIGZyZWVkIG9uY2Ugbm8KKwkgKiBsb25nZXIg
-aW4gdXNlLgorCSAqLworCXJlZmNvdW50X3QgcmVmczsKKwogCS8qIFdoYXQgaG9zdCB0ZWxscyB1
-cywgcGx1cyAyIGZvciBoZWFkZXIgJiB0YWlsZXIuICovCiAJdW5zaWduZWQgaW50IHNnX2VsZW1z
-OwogCkBAIC01Myw2ICs2MCw5IEBAIHN0cnVjdCB2aXJ0aW9fYmxrIHsKIAkvKiBudW0gb2YgdnFz
-ICovCiAJaW50IG51bV92cXM7CiAJc3RydWN0IHZpcnRpb19ibGtfdnEgKnZxczsKKworCS8qIFBy
-b3ZpZGVzIG11dHVhbCBleGNsdXNpb24gd2l0aCB2aXJ0YmxrX3JlbW92ZSgpLiAqLworCXN0cnVj
-dCBtdXRleCByZW1vdmVfbXV0ZXg7CiB9OwogCiBzdHJ1Y3QgdmlydGJsa19yZXEgewpAQCAtMjk1
-LDEwICszMDUsNTQgQEAgc3RhdGljIGludCB2aXJ0YmxrX2dldF9pZChzdHJ1Y3QgZ2VuZGlzayAq
-ZGlzaywgY2hhciAqaWRfc3RyKQogCXJldHVybiBlcnI7CiB9CiAKK3N0YXRpYyB2b2lkIHZpcnRi
-bGtfZ2V0KHN0cnVjdCB2aXJ0aW9fYmxrICp2YmxrKQoreworCXJlZmNvdW50X2luYygmdmJsay0+
-cmVmcyk7Cit9CisKK3N0YXRpYyB2b2lkIHZpcnRibGtfcHV0KHN0cnVjdCB2aXJ0aW9fYmxrICp2
-YmxrKQoreworCWlmIChyZWZjb3VudF9kZWNfYW5kX3Rlc3QoJnZibGstPnJlZnMpKSB7CisJCWlk
-YV9zaW1wbGVfcmVtb3ZlKCZ2ZF9pbmRleF9pZGEsIHZibGstPmluZGV4KTsKKwkJbXV0ZXhfZGVz
-dHJveSgmdmJsay0+cmVtb3ZlX211dGV4KTsKKwkJa2ZyZWUodmJsayk7CisJfQorfQorCitzdGF0
-aWMgaW50IHZpcnRibGtfb3BlbihzdHJ1Y3QgYmxvY2tfZGV2aWNlICpiZCwgZm1vZGVfdCBtb2Rl
-KQoreworCXN0cnVjdCB2aXJ0aW9fYmxrICp2YmxrID0gYmQtPmJkX2Rpc2stPnByaXZhdGVfZGF0
-YTsKKwlpbnQgcmV0ID0gLUVOWElPOworCisJbXV0ZXhfbG9jaygmdmJsay0+cmVtb3ZlX211dGV4
-KTsKKworCWlmICh2YmxrLT52ZGV2KSB7CisJCXZpcnRibGtfZ2V0KHZibGspOworCQlyZXQgPSAw
-OworCX0KKworCW11dGV4X3VubG9jaygmdmJsay0+cmVtb3ZlX211dGV4KTsKKwlyZXR1cm4gcmV0
-OworfQorCitzdGF0aWMgdm9pZCB2aXJ0YmxrX3JlbGVhc2Uoc3RydWN0IGdlbmRpc2sgKmRpc2ss
-IGZtb2RlX3QgbW9kZSkKK3sKKwlzdHJ1Y3QgdmlydGlvX2JsayAqdmJsayA9IGRpc2stPnByaXZh
-dGVfZGF0YTsKKworCXZpcnRibGtfcHV0KHZibGspOworfQorCiAvKiBXZSBwcm92aWRlIGdldGdl
-byBvbmx5IHRvIHBsZWFzZSBzb21lIG9sZCBib290bG9hZGVyL3BhcnRpdGlvbmluZyB0b29scyAq
-Lwogc3RhdGljIGludCB2aXJ0YmxrX2dldGdlbyhzdHJ1Y3QgYmxvY2tfZGV2aWNlICpiZCwgc3Ry
-dWN0IGhkX2dlb21ldHJ5ICpnZW8pCiB7CiAJc3RydWN0IHZpcnRpb19ibGsgKnZibGsgPSBiZC0+
-YmRfZGlzay0+cHJpdmF0ZV9kYXRhOworCWludCByZXQgPSAtRU5YSU87CisKKwltdXRleF9sb2Nr
-KCZ2YmxrLT5yZW1vdmVfbXV0ZXgpOworCisJaWYgKCF2YmxrLT52ZGV2KSB7CisJCWdvdG8gb3V0
-OworCX0KIAogCS8qIHNlZSBpZiB0aGUgaG9zdCBwYXNzZWQgaW4gZ2VvbWV0cnkgY29uZmlnICov
-CiAJaWYgKHZpcnRpb19oYXNfZmVhdHVyZSh2YmxrLT52ZGV2LCBWSVJUSU9fQkxLX0ZfR0VPTUVU
-UlkpKSB7CkBAIC0zMTQsMTEgKzM2OCwxNyBAQCBzdGF0aWMgaW50IHZpcnRibGtfZ2V0Z2VvKHN0
-cnVjdCBibG9ja19kZXZpY2UgKmJkLCBzdHJ1Y3QgaGRfZ2VvbWV0cnkgKmdlbykKIAkJZ2VvLT5z
-ZWN0b3JzID0gMSA8PCA1OwogCQlnZW8tPmN5bGluZGVycyA9IGdldF9jYXBhY2l0eShiZC0+YmRf
-ZGlzaykgPj4gMTE7CiAJfQotCXJldHVybiAwOworCisJcmV0ID0gMDsKK291dDoKKwltdXRleF91
-bmxvY2soJnZibGstPnJlbW92ZV9tdXRleCk7CisJcmV0dXJuIHJldDsKIH0KIAogc3RhdGljIGNv
-bnN0IHN0cnVjdCBibG9ja19kZXZpY2Vfb3BlcmF0aW9ucyB2aXJ0YmxrX2ZvcHMgPSB7CiAJLm93
-bmVyICA9IFRISVNfTU9EVUxFLAorCS5vcGVuID0gdmlydGJsa19vcGVuLAorCS5yZWxlYXNlID0g
-dmlydGJsa19yZWxlYXNlLAogCS5nZXRnZW8gPSB2aXJ0YmxrX2dldGdlbywKIH07CiAKQEAgLTY1
-NSw2ICs3MTUsMTAgQEAgc3RhdGljIGludCB2aXJ0YmxrX3Byb2JlKHN0cnVjdCB2aXJ0aW9fZGV2
-aWNlICp2ZGV2KQogCQlnb3RvIG91dF9mcmVlX2luZGV4OwogCX0KIAorCS8qIFRoaXMgcmVmZXJl
-bmNlIGlzIGRyb3BwZWQgaW4gdmlydGJsa19yZW1vdmUoKS4gKi8KKwlyZWZjb3VudF9zZXQoJnZi
-bGstPnJlZnMsIDEpOworCW11dGV4X2luaXQoJnZibGstPnJlbW92ZV9tdXRleCk7CisKIAl2Ymxr
-LT52ZGV2ID0gdmRldjsKIAl2YmxrLT5zZ19lbGVtcyA9IHNnX2VsZW1zOwogCkBAIC04MjAsOCAr
-ODg0LDEyIEBAIHN0YXRpYyBpbnQgdmlydGJsa19wcm9iZShzdHJ1Y3QgdmlydGlvX2RldmljZSAq
-dmRldikKIHN0YXRpYyB2b2lkIHZpcnRibGtfcmVtb3ZlKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2
-ZGV2KQogewogCXN0cnVjdCB2aXJ0aW9fYmxrICp2YmxrID0gdmRldi0+cHJpdjsKLQlpbnQgaW5k
-ZXggPSB2YmxrLT5pbmRleDsKLQlpbnQgcmVmYzsKKworCS8qCisJICogVmlydHF1ZXVlIHByb2Nl
-c3NpbmcgaXMgc3RvcHBlZCBzYWZlbHkgaGVyZSBidXQgbXV0dWFsIGV4Y2x1c2lvbiBpcworCSAq
-IG5lZWRlZCBmb3IgYmxvY2tfZGV2aWNlX29wZXJhdGlvbnMuCisJICovCisJbXV0ZXhfbG9jaygm
-dmJsay0+cmVtb3ZlX211dGV4KTsKIAogCS8qIE1ha2Ugc3VyZSBubyB3b3JrIGhhbmRsZXIgaXMg
-YWNjZXNzaW5nIHRoZSBkZXZpY2UuICovCiAJZmx1c2hfd29yaygmdmJsay0+Y29uZmlnX3dvcmsp
-OwpAQCAtODM0LDE1ICs5MDIsMTYgQEAgc3RhdGljIHZvaWQgdmlydGJsa19yZW1vdmUoc3RydWN0
-IHZpcnRpb19kZXZpY2UgKnZkZXYpCiAJLyogU3RvcCBhbGwgdGhlIHZpcnRxdWV1ZXMuICovCiAJ
-dmRldi0+Y29uZmlnLT5yZXNldCh2ZGV2KTsKIAotCXJlZmMgPSBrcmVmX3JlYWQoJmRpc2tfdG9f
-ZGV2KHZibGstPmRpc2spLT5rb2JqLmtyZWYpOworCS8qIFZpcnRxdWV1ZSBhcmUgc3RvcHBlZCwg
-bm90aGluZyBjYW4gdXNlIHZibGstPnZkZXYgYW55bW9yZS4gKi8KKwl2YmxrLT52ZGV2ID0gTlVM
-TDsKKwogCXB1dF9kaXNrKHZibGstPmRpc2spOwogCXZkZXYtPmNvbmZpZy0+ZGVsX3Zxcyh2ZGV2
-KTsKIAlrZnJlZSh2YmxrLT52cXMpOwotCWtmcmVlKHZibGspOwogCi0JLyogT25seSBmcmVlIGRl
-dmljZSBpZCBpZiB3ZSBkb24ndCBoYXZlIGFueSB1c2VycyAqLwotCWlmIChyZWZjID09IDEpCi0J
-CWlkYV9zaW1wbGVfcmVtb3ZlKCZ2ZF9pbmRleF9pZGEsIGluZGV4KTsKKwltdXRleF91bmxvY2so
-JnZibGstPnJlbW92ZV9tdXRleCk7CisKKwl2aXJ0YmxrX3B1dCh2YmxrKTsKIH0KIAogI2lmZGVm
-IENPTkZJR19QTV9TTEVFUAotLSAKMi4yNS4zCgo=
+Hi,
+
+here is the next version of changes to enable Linux to run as an SEV-ES
+guest. The code was rebased to v5.7-rc3 and got a fair number of changes
+since the last version.
+
+What is SEV-ES
+==============
+
+SEV-ES is an acronym for 'Secure Encrypted Virtualization - Encrypted
+State' and means a hardware feature of AMD processors which hides the
+register state of VCPUs to the hypervisor by encrypting it. The
+hypervisor can't read or make changes to the guests register state.
+
+Most intercepts set by the hypervisor do not cause a #VMEXIT of the
+guest anymore, but turn into a VMM Communication Exception (#VC
+exception, vector 29) inside the guest. The error-code of this exception
+is the intercept exit-code that caused the exception.  The guest handles
+the #VC exception by communicating with the hypervisor through a shared
+data structure, the 'Guest-Hypervisor-Communication-Block'.
+
+With SEV-ES an untrusted hypervisor can no longer steal secrets from a
+guest via inspecting guest memory or guest register contents. A
+malicious hypervisor can still interfere with guest operations, but the
+SEV-ES client code does its best to detect such situations and crash the
+VM if it happens. 
+
+More information about the implementation details can be found in the
+cover letter of the initial post of these patches:
+
+	https://lore.kernel.org/lkml/20200211135256.24617-1-joro@8bytes.org/
+
+Current State of the Patches
+============================
+
+The patches posted here are considered feature complete and survived a
+good amount of functional testing:
+
+	1) Booting an SEV-ES guest VM to the graphical desktop.
+
+	2) Running a 16-vcpu SEV-ES VM with 'perf top' and the x86
+	   selftests shipped with the kernel source in a loop in
+	   parallel for 18 hours showed no issues.
+
+	3) Various compile testing has been done, including
+	   allno/allmod/allyes/defconfig for x86-64 and i386.
+
+	4) Compiled every single commit (single .config only) to check
+	   if they build and do not introduce new warnings.
+
+	5) Boot-tested the changes on various machines, including
+	   bare-metal on an AMD (with and without mem_encrypt=on) and
+	   Intel machine.
+
+A git-tree with these patches applied can be found here:
+
+	https://git.kernel.org/pub/scm/linux/kernel/git/joro/linux.git/log/?h=sev-es-client-v5.7-rc3
+
+Changes to the previous version
+===============================
+
+Here is an incomplete list of changes to the previous version of this
+patch-set. There have been so many small changes that I havn't kept
+track of all, but the most important ones are listed:
+
+
+	- Rebased to v5.7-rc3
+
+	- Changes the #VC exception handler to use an IST stack. This
+	  includes a couple of additional patches to set up and map the
+	  IST stack, to make dumpstack aware of them and to fix a race
+	  with the NMI handler when shifting the #VC handlers IST entry.
+
+	- The NMI_Complete message to the hypervisor the re-open the NMI
+	  window is now sent at the very beginning of do_nmi().
+
+	- The GHCB used in the pre-decompression code is now re-mapped
+	  encrypted and flushed from the cache before jumping to the
+	  decompressed kernel image. This is needed to make sure the
+	  running kernel can safely re-use the page. Actually the page
+	  is also unmapped after being re-encrypted to catch any
+	  use-after-remap.
+
+	- Added CPUID caching.
+
+	- Mapped the GHCBs to the EFI page-tables as the UEFI BIOS
+	  expects to be able to re-use the OS GHCBs.
+
+	- RDTSC and RDTSCP are now also handled in the pre-decompression
+	  boot code. These instructions are used by KASLR and some
+	  hypervisors might intercept them.
+
+	- Re-implemented nested GHCB handling by keeping a backup GHCB
+	  around. This supports one level of GHCB nesting, which is
+	  sufficient for now.
+
+	- Moved all SEV-ES related per-cpu data into
+	  'struct sev_es_runtime_data'. This struct is allocated and
+	  initialized at boot per cpu.
+
+	- Correctly set the protocol and ghcb_usage information when
+	  talking to the hypervisor.
+
+The previous version of the patch-set can be found here:
+
+	https://lore.kernel.org/lkml/20200319091407.1481-1-joro@8bytes.org/
+
+Please review.
+
+
+Thanks,
+
+	Joerg
+
+Borislav Petkov (1):
+  KVM: SVM: Use __packed shorthand
+
+Doug Covelli (1):
+  x86/vmware: Add VMware specific handling for VMMCALL under SEV-ES
+
+Joerg Roedel (53):
+  KVM: SVM: Add GHCB Accessor functions
+  x86/traps: Move some definitions to <asm/trap_defs.h>
+  x86/insn: Make inat-tables.c suitable for pre-decompression code
+  x86/umip: Factor out instruction fetch
+  x86/umip: Factor out instruction decoding
+  x86/insn: Add insn_get_modrm_reg_off()
+  x86/insn: Add insn_rep_prefix() helper
+  x86/boot/compressed/64: Disable red-zone usage
+  x86/boot/compressed/64: Switch to __KERNEL_CS after GDT is loaded
+  x86/boot/compressed/64: Add IDT Infrastructure
+  x86/boot/compressed/64: Rename kaslr_64.c to ident_map_64.c
+  x86/boot/compressed/64: Add page-fault handler
+  x86/boot/compressed/64: Always switch to own page-table
+  x86/boot/compressed/64: Don't pre-map memory in KASLR code
+  x86/boot/compressed/64: Change add_identity_map() to take start and
+    end
+  x86/boot/compressed/64: Add stage1 #VC handler
+  x86/boot/compressed/64: Call set_sev_encryption_mask earlier
+  x86/boot/compressed/64: Check return value of
+    kernel_ident_mapping_init()
+  x86/boot/compressed/64: Add set_page_en/decrypted() helpers
+  x86/boot/compressed/64: Setup GHCB Based VC Exception handler
+  x86/boot/compressed/64: Unmap GHCB page before booting the kernel
+  x86/fpu: Move xgetbv()/xsetbv() into separate header
+  x86/idt: Move IDT to data segment
+  x86/idt: Split idt_data setup out of set_intr_gate()
+  x86/idt: Move two function from k/idt.c to i/a/desc.h
+  x86/head/64: Install boot GDT
+  x86/head/64: Reload GDT after switch to virtual addresses
+  x86/head/64: Load segment registers earlier
+  x86/head/64: Switch to initial stack earlier
+  x86/head/64: Build k/head64.c with -fno-stack-protector
+  x86/head/64: Load IDT earlier
+  x86/head/64: Move early exception dispatch to C code
+  x86/sev-es: Add SEV-ES Feature Detection
+  x86/sev-es: Print SEV-ES info into kernel log
+  x86/sev-es: Compile early handler code into kernel image
+  x86/sev-es: Setup early #VC handler
+  x86/sev-es: Setup GHCB based boot #VC handler
+  x86/sev-es: Allocate and Map IST stacks for #VC handler
+  x86/dumpstack/64: Handle #VC exception stacks
+  x86/sev-es: Shift #VC IST Stack in nmi_enter()/nmi_exit()
+  x86/sev-es: Wire up existing #VC exit-code handlers
+  x86/sev-es: Handle instruction fetches from user-space
+  x86/sev-es: Do not crash on #VC exceptions from user-space
+  x86/sev-es: Handle MMIO String Instructions
+  x86/sev-es: Handle #AC Events
+  x86/sev-es: Handle #DB Events
+  x86/paravirt: Allow hypervisor specific VMMCALL handling under SEV-ES
+  x86/realmode: Add SEV-ES specific trampoline entry point
+  x86/head/64: Setup TSS early for secondary CPUs
+  x86/head/64: Don't call verify_cpu() on starting APs
+  x86/head/64: Rename start_cpu0
+  x86/sev-es: Support CPU offline/online
+  x86/sev-es: Handle NMI State
+
+Mike Stunes (1):
+  x86/sev-es: Cache CPUID results for improved performance
+
+Tom Lendacky (19):
+  KVM: SVM: Add GHCB definitions
+  x86/cpufeatures: Add SEV-ES CPU feature
+  x86/sev-es: Add support for handling IOIO exceptions
+  x86/sev-es: Add CPUID handling to #VC handler
+  x86/sev-es: Setup per-cpu GHCBs for the runtime handler
+  x86/sev-es: Add Runtime #VC Exception Handler
+  x86/sev-es: Handle MMIO events
+  x86/sev-es: Handle MSR events
+  x86/sev-es: Handle DR7 read/write events
+  x86/sev-es: Handle WBINVD Events
+  x86/sev-es: Handle RDTSC(P) Events
+  x86/sev-es: Handle RDPMC Events
+  x86/sev-es: Handle INVD Events
+  x86/sev-es: Handle MONITOR/MONITORX Events
+  x86/sev-es: Handle MWAIT/MWAITX Events
+  x86/sev-es: Handle VMMCALL Events
+  x86/kvm: Add KVM specific VMMCALL handling under SEV-ES
+  x86/realmode: Setup AP jump table
+  x86/efi: Add GHCB mappings when SEV-ES is active
+
+ arch/x86/Kconfig                           |    1 +
+ arch/x86/boot/Makefile                     |    2 +-
+ arch/x86/boot/compressed/Makefile          |    9 +-
+ arch/x86/boot/compressed/head_64.S         |   40 +-
+ arch/x86/boot/compressed/ident_map_64.c    |  339 +++++
+ arch/x86/boot/compressed/idt_64.c          |   53 +
+ arch/x86/boot/compressed/idt_handlers_64.S |   76 ++
+ arch/x86/boot/compressed/kaslr.c           |   36 +-
+ arch/x86/boot/compressed/kaslr_64.c        |  153 ---
+ arch/x86/boot/compressed/misc.c            |    7 +
+ arch/x86/boot/compressed/misc.h            |   45 +-
+ arch/x86/boot/compressed/sev-es.c          |  210 +++
+ arch/x86/entry/entry_64.S                  |    4 +
+ arch/x86/include/asm/cpu.h                 |    2 +-
+ arch/x86/include/asm/cpu_entry_area.h      |   62 +
+ arch/x86/include/asm/cpufeatures.h         |    1 +
+ arch/x86/include/asm/desc.h                |   30 +
+ arch/x86/include/asm/desc_defs.h           |   10 +
+ arch/x86/include/asm/fpu/internal.h        |   29 +-
+ arch/x86/include/asm/fpu/xcr.h             |   32 +
+ arch/x86/include/asm/hardirq.h             |   14 +
+ arch/x86/include/asm/insn-eval.h           |    6 +
+ arch/x86/include/asm/mem_encrypt.h         |    5 +
+ arch/x86/include/asm/msr-index.h           |    3 +
+ arch/x86/include/asm/page_64_types.h       |    1 +
+ arch/x86/include/asm/pgtable.h             |    2 +-
+ arch/x86/include/asm/processor.h           |    1 +
+ arch/x86/include/asm/realmode.h            |    4 +
+ arch/x86/include/asm/segment.h             |    2 +-
+ arch/x86/include/asm/setup.h               |    1 -
+ arch/x86/include/asm/sev-es.h              |  107 ++
+ arch/x86/include/asm/stacktrace.h          |    4 +
+ arch/x86/include/asm/svm.h                 |  115 +-
+ arch/x86/include/asm/trap_defs.h           |   50 +
+ arch/x86/include/asm/traps.h               |   51 +-
+ arch/x86/include/asm/x86_init.h            |   16 +-
+ arch/x86/include/uapi/asm/svm.h            |   11 +
+ arch/x86/kernel/Makefile                   |    5 +
+ arch/x86/kernel/asm-offsets_64.c           |    1 +
+ arch/x86/kernel/cpu/amd.c                  |    3 +-
+ arch/x86/kernel/cpu/common.c               |    1 +
+ arch/x86/kernel/cpu/scattered.c            |    1 +
+ arch/x86/kernel/cpu/vmware.c               |   50 +-
+ arch/x86/kernel/dumpstack_64.c             |   47 +
+ arch/x86/kernel/head64.c                   |   70 +-
+ arch/x86/kernel/head_32.S                  |    4 +-
+ arch/x86/kernel/head_64.S                  |  176 ++-
+ arch/x86/kernel/idt.c                      |   52 +-
+ arch/x86/kernel/kvm.c                      |   35 +-
+ arch/x86/kernel/nmi.c                      |    8 +
+ arch/x86/kernel/sev-es-shared.c            |  479 +++++++
+ arch/x86/kernel/sev-es.c                   | 1428 ++++++++++++++++++++
+ arch/x86/kernel/smpboot.c                  |    4 +-
+ arch/x86/kernel/traps.c                    |    3 +
+ arch/x86/kernel/umip.c                     |   49 +-
+ arch/x86/lib/insn-eval.c                   |  130 ++
+ arch/x86/mm/extable.c                      |    1 +
+ arch/x86/mm/mem_encrypt.c                  |   39 +-
+ arch/x86/mm/mem_encrypt_identity.c         |    3 +
+ arch/x86/platform/efi/efi_64.c             |   10 +
+ arch/x86/realmode/init.c                   |   12 +
+ arch/x86/realmode/rm/header.S              |    3 +
+ arch/x86/realmode/rm/trampoline_64.S       |   20 +
+ arch/x86/tools/gen-insn-attr-x86.awk       |   50 +-
+ tools/arch/x86/tools/gen-insn-attr-x86.awk |   50 +-
+ 65 files changed, 3842 insertions(+), 426 deletions(-)
+ create mode 100644 arch/x86/boot/compressed/ident_map_64.c
+ create mode 100644 arch/x86/boot/compressed/idt_64.c
+ create mode 100644 arch/x86/boot/compressed/idt_handlers_64.S
+ delete mode 100644 arch/x86/boot/compressed/kaslr_64.c
+ create mode 100644 arch/x86/boot/compressed/sev-es.c
+ create mode 100644 arch/x86/include/asm/fpu/xcr.h
+ create mode 100644 arch/x86/include/asm/sev-es.h
+ create mode 100644 arch/x86/include/asm/trap_defs.h
+ create mode 100644 arch/x86/kernel/sev-es-shared.c
+ create mode 100644 arch/x86/kernel/sev-es.c
+
+-- 
+2.17.1
