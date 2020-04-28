@@ -1,7 +1,8 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 09/75] x86/insn: Add insn_get_modrm_reg_off()
-Date: Tue, 28 Apr 2020 17:16:19 +0200
-Message-ID: <20200428151725.31091-10-joro@8bytes.org>
+Subject: [PATCH v3 21/75] x86/boot/compressed/64: Check return value of
+ kernel_ident_mapping_init()
+Date: Tue, 28 Apr 2020 17:16:31 +0200
+Message-ID: <20200428151725.31091-22-joro@8bytes.org>
 References: <20200428151725.31091-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,75 +24,38 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Add a function to the instruction decoder which returns the pt_regs
-offset of the register specified in the reg field of the modrm byte.
+The function can fail to create an identity mapping, check for that
+and bail out if it happens.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
 ---
- arch/x86/include/asm/insn-eval.h |  1 +
- arch/x86/lib/insn-eval.c         | 23 +++++++++++++++++++++++
- 2 files changed, 24 insertions(+)
+ arch/x86/boot/compressed/ident_map_64.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/include/asm/insn-eval.h b/arch/x86/include/asm/insn-eval.h
-index b4ff3e3316d1..1e343010129e 100644
---- a/arch/x86/include/asm/insn-eval.h
-+++ b/arch/x86/include/asm/insn-eval.h
-@@ -17,6 +17,7 @@
- 
- void __user *insn_get_addr_ref(struct insn *insn, struct pt_regs *regs);
- int insn_get_modrm_rm_off(struct insn *insn, struct pt_regs *regs);
-+int insn_get_modrm_reg_off(struct insn *insn, struct pt_regs *regs);
- unsigned long insn_get_seg_base(struct pt_regs *regs, int seg_reg_idx);
- int insn_get_code_seg_params(struct pt_regs *regs);
- int insn_fetch_from_user(struct pt_regs *regs,
-diff --git a/arch/x86/lib/insn-eval.c b/arch/x86/lib/insn-eval.c
-index 0bbb814d4851..371da15f1343 100644
---- a/arch/x86/lib/insn-eval.c
-+++ b/arch/x86/lib/insn-eval.c
-@@ -20,6 +20,7 @@
- 
- enum reg_type {
- 	REG_TYPE_RM = 0,
-+	REG_TYPE_REG,
- 	REG_TYPE_INDEX,
- 	REG_TYPE_BASE,
- };
-@@ -441,6 +442,13 @@ static int get_reg_offset(struct insn *insn, struct pt_regs *regs,
- 			regno += 8;
- 		break;
- 
-+	case REG_TYPE_REG:
-+		regno = X86_MODRM_REG(insn->modrm.value);
+diff --git a/arch/x86/boot/compressed/ident_map_64.c b/arch/x86/boot/compressed/ident_map_64.c
+index 6ee089fdc65a..5d8b0bffe421 100644
+--- a/arch/x86/boot/compressed/ident_map_64.c
++++ b/arch/x86/boot/compressed/ident_map_64.c
+@@ -93,6 +93,8 @@ static struct x86_mapping_info mapping_info;
+  */
+ static void add_identity_map(unsigned long start, unsigned long end)
+ {
++	int ret;
 +
-+		if (X86_REX_R(insn->rex_prefix.value))
-+			regno += 8;
-+		break;
-+
- 	case REG_TYPE_INDEX:
- 		regno = X86_SIB_INDEX(insn->sib.value);
- 		if (X86_REX_X(insn->rex_prefix.value))
-@@ -809,6 +817,21 @@ int insn_get_modrm_rm_off(struct insn *insn, struct pt_regs *regs)
- 	return get_reg_offset(insn, regs, REG_TYPE_RM);
+ 	/* Align boundary to 2M. */
+ 	start = round_down(start, PMD_SIZE);
+ 	end = round_up(end, PMD_SIZE);
+@@ -100,8 +102,9 @@ static void add_identity_map(unsigned long start, unsigned long end)
+ 		return;
+ 
+ 	/* Build the mapping. */
+-	kernel_ident_mapping_init(&mapping_info, (pgd_t *)top_level_pgt,
+-				  start, end);
++	ret = kernel_ident_mapping_init(&mapping_info, (pgd_t *)top_level_pgt, start, end);
++	if (ret)
++		error("Error: kernel_ident_mapping_init() failed\n");
  }
  
-+/**
-+ * insn_get_modrm_reg_off() - Obtain register in reg part of the ModRM byte
-+ * @insn:	Instruction containing the ModRM byte
-+ * @regs:	Register values as seen when entering kernel mode
-+ *
-+ * Returns:
-+ *
-+ * The register indicated by the reg part of the ModRM byte. The
-+ * register is obtained as an offset from the base of pt_regs.
-+ */
-+int insn_get_modrm_reg_off(struct insn *insn, struct pt_regs *regs)
-+{
-+	return get_reg_offset(insn, regs, REG_TYPE_REG);
-+}
-+
- /**
-  * get_seg_base_limit() - obtain base address and limit of a segment
-  * @insn:	Instruction. Must be valid.
+ /* Locates and clears a region for a new top level page table. */
 -- 
 2.17.1
