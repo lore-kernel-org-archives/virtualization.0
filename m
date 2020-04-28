@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 57/75] x86/sev-es: Handle RDPMC Events
-Date: Tue, 28 Apr 2020 17:17:07 +0200
-Message-ID: <20200428151725.31091-58-joro@8bytes.org>
+Subject: [PATCH v3 56/75] x86/sev-es: Handle RDTSC(P) Events
+Date: Tue, 28 Apr 2020 17:17:06 +0200
+Message-ID: <20200428151725.31091-57-joro@8bytes.org>
 References: <20200428151725.31091-1-joro@8bytes.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200428151725.31091-1-joro@8bytes.org>
@@ -12,52 +12,79 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Tom Lendacky <thomas.lendacky@amd.com>
 
-Implement a handler for #VC exceptions caused by RDPMC instructions.
+Implement a handler for #VC exceptions caused by RDTSC and RDTSCP
+instructions. Also make it available in the pre-decompression stage
+because the KASLR code used RDTSC/RDTSCP to gather entropy and some
+hypervisors intercept these instructions.
 
 Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-[ jroedel@suse.de: Adapt to #VC handling infrastructure ]
+[ jroedel@suse.de: - Adapt to #VC handling infrastructure
+                   - Make it available early ]
 Co-developed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev-es.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ arch/x86/boot/compressed/sev-es.c |  4 ++++
+ arch/x86/kernel/sev-es-shared.c   | 23 +++++++++++++++++++++++
+ arch/x86/kernel/sev-es.c          |  4 ++++
+ 3 files changed, 31 insertions(+)
 
-diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index 8b2afb9e292d..eb158781238b 100644
---- a/arch/x86/kernel/sev-es.c
-+++ b/arch/x86/kernel/sev-es.c
-@@ -805,6 +805,25 @@ static enum es_result vc_handle_wbinvd(struct ghcb *ghcb,
- 	return sev_es_ghcb_hv_call(ghcb, ctxt, SVM_EXIT_WBINVD, 0, 0);
- }
+diff --git a/arch/x86/boot/compressed/sev-es.c b/arch/x86/boot/compressed/sev-es.c
+index 05ba1dcdd103..12a5d918d837 100644
+--- a/arch/x86/boot/compressed/sev-es.c
++++ b/arch/x86/boot/compressed/sev-es.c
+@@ -180,6 +180,10 @@ void do_boot_stage2_vc(struct pt_regs *regs, unsigned long exit_code)
+ 		goto finish;
  
-+static enum es_result vc_handle_rdpmc(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
+ 	switch (exit_code) {
++	case SVM_EXIT_RDTSC:
++	case SVM_EXIT_RDTSCP:
++		result = vc_handle_rdtsc(boot_ghcb, &ctxt, exit_code);
++		break;
+ 	case SVM_EXIT_IOIO:
+ 		result = vc_handle_ioio(boot_ghcb, &ctxt);
+ 		break;
+diff --git a/arch/x86/kernel/sev-es-shared.c b/arch/x86/kernel/sev-es-shared.c
+index 3d645662ff10..5bfc1f3030d4 100644
+--- a/arch/x86/kernel/sev-es-shared.c
++++ b/arch/x86/kernel/sev-es-shared.c
+@@ -454,3 +454,26 @@ static enum es_result vc_handle_cpuid(struct ghcb *ghcb,
+ 
+ 	return ES_OK;
+ }
++
++static enum es_result vc_handle_rdtsc(struct ghcb *ghcb,
++				      struct es_em_ctxt *ctxt,
++				      unsigned long exit_code)
 +{
++	bool rdtscp = (exit_code == SVM_EXIT_RDTSCP);
 +	enum es_result ret;
 +
-+	ghcb_set_rcx(ghcb, ctxt->regs->cx);
-+
-+	ret = sev_es_ghcb_hv_call(ghcb, ctxt, SVM_EXIT_RDPMC, 0, 0);
++	ret = sev_es_ghcb_hv_call(ghcb, ctxt, exit_code, 0, 0);
 +	if (ret != ES_OK)
 +		return ret;
 +
-+	if (!(ghcb_is_valid_rax(ghcb) && ghcb_is_valid_rdx(ghcb)))
++	if (!(ghcb_is_valid_rax(ghcb) && ghcb_is_valid_rdx(ghcb) &&
++	     (!rdtscp || ghcb_is_valid_rcx(ghcb))))
 +		return ES_VMM_ERROR;
 +
 +	ctxt->regs->ax = ghcb->save.rax;
 +	ctxt->regs->dx = ghcb->save.rdx;
++	if (rdtscp)
++		ctxt->regs->cx = ghcb->save.rcx;
 +
 +	return ES_OK;
 +}
-+
- static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
- 					 struct ghcb *ghcb,
- 					 unsigned long exit_code)
-@@ -822,6 +841,9 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
- 	case SVM_EXIT_RDTSCP:
- 		result = vc_handle_rdtsc(ghcb, ctxt, exit_code);
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+index a8c0d865ca22..8b2afb9e292d 100644
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -818,6 +818,10 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
+ 	case SVM_EXIT_WRITE_DR7:
+ 		result = vc_handle_dr7_write(ghcb, ctxt);
  		break;
-+	case SVM_EXIT_RDPMC:
-+		result = vc_handle_rdpmc(ghcb, ctxt);
++	case SVM_EXIT_RDTSC:
++	case SVM_EXIT_RDTSCP:
++		result = vc_handle_rdtsc(ghcb, ctxt, exit_code);
 +		break;
  	case SVM_EXIT_CPUID:
  		result = vc_handle_cpuid(ghcb, ctxt);
