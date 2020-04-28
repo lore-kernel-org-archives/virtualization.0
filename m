@@ -1,75 +1,51 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 5/5] virtio: Add bounce DMA ops
-Date: Tue, 28 Apr 2020 16:41:04 -0400
-Message-ID: <20200428163448-mutt-send-email-mst@kernel.org>
-References: <1588073958-1793-1-git-send-email-vatsa@codeaurora.org>
- <1588073958-1793-6-git-send-email-vatsa@codeaurora.org>
- <20200428121232-mutt-send-email-mst@kernel.org>
- <20200428174952.GA5097@quicinc.com>
+From: Lepton Wu <ytht.net@gmail.com>
+Subject: [PATCH 0/1] Add uvirtio for testing
+Date: Tue, 28 Apr 2020 13:47:28 -0700
+Message-ID: <20200428204729.64569-1-ytht.net@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtio-dev-return-7197-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <20200428174952.GA5097@quicinc.com>
-Content-Disposition: inline
-To: Srivatsa Vaddagiri <vatsa@codeaurora.org>
-Cc: konrad.wilk@oracle.com, jasowang@redhat.com, jan.kiszka@siemens.com, will@kernel.org, stefano.stabellini@xilinx.com, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, tsoni@codeaurora.org, pratikp@codeaurora.org, christoffer.dall@arm.com, alex.bennee@linaro.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: virtualization@lists.linux-foundation.org
+Cc: Lepton Wu <ytht.net@gmail.com>, mst@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 28, 2020 at 11:19:52PM +0530, Srivatsa Vaddagiri wrote:
-> * Michael S. Tsirkin <mst@redhat.com> [2020-04-28 12:17:57]:
->=20
-> > Okay, but how is all this virtio specific?  For example, why not allow
-> > separate swiotlbs for any type of device?
-> > For example, this might make sense if a given device is from a
-> > different, less trusted vendor.
->=20
-> Is swiotlb commonly used for multiple devices that may be on different tr=
-ust
-> boundaries (and not behind a hardware iommu)?
+This is a way to create virtio based devices from user space. This is the
+background for this patch:
 
-Even a hardware iommu does not imply a 100% security from malicious
-hardware. First lots of people use iommu=3Dpt for performance reasons.
-Second even without pt, unmaps are often batched, and sub-page buffers
-might be used for DMA, so we are not 100% protected at all times.
+We have some images works fine under qemu, we'd like to also run the same image
+on Google Cloud. Currently Google Cloud doesn't support virtio-vga. I had a 
+patch to create a virtio-vga from kernel directly:
+https://www.spinics.net/lists/dri-devel/msg248573.html
 
+Then I got feedback from Gerd that maybe it's better to change that to something
+like uvirtio. Since I really don't have other use cases for now, I just implemented the minimal stuff which work for my use case.
 
-> If so, then yes it sounds like a
-> good application of multiple swiotlb pools.
->=20
-> > All this can then maybe be hidden behind the DMA API.
->=20
-> Won't we still need some changes to virtio to make use of its own pool (t=
-o
-> bounce buffers)? Something similar to its own DMA ops proposed in this pa=
-tch?
+Lepton Wu (1):
+  virtio: Add uvirtio driver
 
-If you are doing this for all devices, you need to either find a way
-to do this without chaning DMA ops, or by doing some automatic change
-to all drivers.
+ drivers/virtio/Kconfig        |   8 +
+ drivers/virtio/Makefile       |   1 +
+ drivers/virtio/uvirtio.c      | 405 ++++++++++++++++++++++++++++++++++
+ include/linux/uvirtio.h       |   8 +
+ include/uapi/linux/uvirtio.h  |  69 ++++++
+ samples/uvirtio/Makefile      |   9 +
+ samples/uvirtio/uvirtio-vga.c |  63 ++++++
+ 7 files changed, 563 insertions(+)
+ create mode 100644 drivers/virtio/uvirtio.c
+ create mode 100644 include/linux/uvirtio.h
+ create mode 100644 include/uapi/linux/uvirtio.h
+ create mode 100644 samples/uvirtio/Makefile
+ create mode 100644 samples/uvirtio/uvirtio-vga.c
 
-
-> > > +void virtio_bounce_set_dma_ops(struct virtio_device *vdev)
-> > > +{
-> > > +=09if (!bounce_buf_paddr)
-> > > +=09=09return;
-> > > +
-> > > +=09set_dma_ops(vdev->dev.parent, &virtio_dma_ops);
-> >=20
-> >=20
-> > I don't think DMA API maintainers will be happy with new users
-> > of set_dma_ops.
->=20
-> Is there an alternate API that is more preffered?
-
-all this is supposed to be part of DMA API itself. new drivers aren't
-supposed to have custom DMA ops.
-
-> --=20
-> QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member
-> of Code Aurora Forum, hosted by The Linux Foundation
+-- 
+2.26.2.303.gf8c07b1a785-goog
