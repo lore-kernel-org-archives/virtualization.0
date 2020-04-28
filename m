@@ -1,41 +1,175 @@
-From: Joerg Roedel <jroedel@suse.de>
-Subject: Re: Should SEV-ES #VC use IST? (Re: [PATCH] Allow RDTSC and RDTSCP
- from userspace)
-Date: Tue, 28 Apr 2020 09:55:12 +0200
-Message-ID: <20200428075512.GP30814@suse.de>
-References: <20200425191032.GK21900@8bytes.org>
- <910AE5B4-4522-4133-99F7-64850181FBF9@amacapital.net>
- <20200425202316.GL21900@8bytes.org>
- <CALCETrW2Y6UFC=zvGbXEYqpsDyBh0DSEM4NQ+L=_pp4aOd6Fuw@mail.gmail.com>
- <CALCETrXGr+o1_bKbnre8cVY14c_76m8pEf3iB_i7h+zfgE5_jA@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next 0/3] vsock: support network namespace
+Date: Tue, 28 Apr 2020 16:13:22 +0800
+Message-ID: <224cdc10-1532-7ddc-f113-676d43d8f322@redhat.com>
+References: <20200116172428.311437-1-sgarzare@redhat.com>
+ <20200427142518.uwssa6dtasrp3bfc@steredhat>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CALCETrXGr+o1_bKbnre8cVY14c_76m8pEf3iB_i7h+zfgE5_jA@mail.gmail.com>
+In-Reply-To: <20200427142518.uwssa6dtasrp3bfc@steredhat>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Andy Lutomirski <luto@kernel.org>
-Cc: Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@intel.com>, Tom Lendacky <Thomas.Lendacky@amd.com>, Mike Stunes <mstunes@vmware.com>, Dan Williams <dan.j.williams@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Juergen Gross <JGross@suse.com>, Jiri Slaby <jslaby@suse.cz>, Kees Cook <keescook@chromium.org>, kvm list <kvm@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, X86 ML <x86@kernel.org>, Sean Christopherson <sean.j.christopherson@intel.com>, Andrew Cooper <andrew.cooper3@citrix.com>
+To: Stefano Garzarella <sgarzare@redhat.com>, davem@davemloft.net, Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Jorgen Hansen <jhansen@vmware.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-hyperv@vger.kernel.org, Dexuan Cui <decui@microsoft.com>, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Apr 27, 2020 at 10:37:41AM -0700, Andy Lutomirski wrote:
-> I have a somewhat serious question: should we use IST for #VC at all?
-> As I understand it, Rome and Naples make it mandatory for hypervisors
-> to intercept #DB, which means that, due to the MOV SS mess, it's sort
-> of mandatory to use IST for #VC.  But Milan fixes the #DB issue, so,
-> if we're running under a sufficiently sensible hypervisor, we don't
-> need IST for #VC.
 
-The reason for #VC being IST is not only #DB, but also SEV-SNP. SNP adds
-page ownership tracking between guest and host, so that the hypervisor
-can't remap guest pages without the guest noticing.
+On 2020/4/27 =E4=B8=8B=E5=8D=8810:25, Stefano Garzarella wrote:
+> Hi David, Michael, Stefan,
+> I'm restarting to work on this topic since Kata guys are interested to
+> have that, especially on the guest side.
+>
+> While working on the v2 I had few doubts, and I'd like to have your
+> suggestions:
+>
+>   1. netns assigned to the device inside the guest
+>
+>     Currently I assigned this device to 'init_net'. Maybe it is better
+>     if we allow the user to decide which netns assign to the device
+>     or to disable this new feature to have the same behavior as before
+>     (host reachable from any netns).
+>     I think we can handle this in the vsock core and not in the single
+>     transports.
+>
+>     The simplest way that I found, is to add a new
+>     IOCTL_VM_SOCKETS_ASSIGN_G2H_NETNS to /dev/vsock to enable the featu=
+re
+>     and assign the device to the same netns of the process that do the
+>     ioctl(), but I'm not sure it is clean enough.
+>
+>     Maybe it is better to add new rtnetlink messages, but I'm not sure =
+if
+>     it is feasible since we don't have a netdev device.
+>
+>     What do you suggest?
 
-If there is a violation of ownership, which can happen at any memory
-access, there will be a #VC exception to notify the guest. And as this
-can happen anywhere, for example on a carefully crafted stack page set
-by userspace before doing SYSCALL, the only robust choice for #VC is to
-use IST.
 
-Regards,
+As we've discussed, it should be a netdev probably in either guest or=20
+host side. And it would be much simpler if we want do implement=20
+namespace then. No new API is needed.
 
-	Joerg
+Thanks
+
+
+>
+>
+>   2. netns assigned in the host
+>
+>      As Michael suggested, I added a new /dev/vhost-vsock-netns to allo=
+w
+>      userspace application to use this new feature, leaving to
+>      /dev/vhost-vsock the previous behavior (guest reachable from any
+>      netns).
+>
+>      I like this approach, but I had these doubts:
+>
+>      - I need to allocate a new minor for that device (e.g.
+>        VHOST_VSOCK_NETNS_MINOR) or is there an alternative way that I c=
+an
+>        use?
+>
+>      - It is vhost-vsock specific, should we provide something handled =
+in
+>        the vsock core, maybe centralizing the CID allocation and adding=
+ a
+>        new IOCTL or rtnetlink message like for the guest side?
+>        (maybe it could be a second step, and for now we can continue wi=
+th
+>        the new device)
+>
+>
+> Thanks for the help,
+> Stefano
+>
+>
+> On Thu, Jan 16, 2020 at 06:24:25PM +0100, Stefano Garzarella wrote:
+>> RFC -> v1:
+>>   * added 'netns' module param to vsock.ko to enable the
+>>     network namespace support (disabled by default)
+>>   * added 'vsock_net_eq()' to check the "net" assigned to a socket
+>>     only when 'netns' support is enabled
+>>
+>> RFC: https://patchwork.ozlabs.org/cover/1202235/
+>>
+>> Now that we have multi-transport upstream, I started to take a look to
+>> support network namespace in vsock.
+>>
+>> As we partially discussed in the multi-transport proposal [1], it coul=
+d
+>> be nice to support network namespace in vsock to reach the following
+>> goals:
+>> - isolate host applications from guest applications using the same por=
+ts
+>>    with CID_ANY
+>> - assign the same CID of VMs running in different network namespaces
+>> - partition VMs between VMMs or at finer granularity
+>>
+>> This new feature is disabled by default, because it changes vsock's
+>> behavior with network namespaces and could break existing applications=
+.
+>> It can be enabled with the new 'netns' module parameter of vsock.ko.
+>>
+>> This implementation provides the following behavior:
+>> - packets received from the host (received by G2H transports) are
+>>    assigned to the default netns (init_net)
+>> - packets received from the guest (received by H2G - vhost-vsock) are
+>>    assigned to the netns of the process that opens /dev/vhost-vsock
+>>    (usually the VMM, qemu in my tests, opens the /dev/vhost-vsock)
+>>      - for vmci I need some suggestions, because I don't know how to d=
+o
+>>        and test the same in the vmci driver, for now vmci uses the
+>>        init_net
+>> - loopback packets are exchanged only in the same netns
+>>
+>> I tested the series in this way:
+>> l0_host$ qemu-system-x86_64 -m 4G -M accel=3Dkvm -smp 4 \
+>>              -drive file=3D/tmp/vsockvm0.img,if=3Dvirtio --nographic \
+>>              -device vhost-vsock-pci,guest-cid=3D3
+>>
+>> l1_vm$ echo 1 > /sys/module/vsock/parameters/netns
+>>
+>> l1_vm$ ip netns add ns1
+>> l1_vm$ ip netns add ns2
+>>   # same CID on different netns
+>> l1_vm$ ip netns exec ns1 qemu-system-x86_64 -m 1G -M accel=3Dkvm -smp =
+2 \
+>>              -drive file=3D/tmp/vsockvm1.img,if=3Dvirtio --nographic \
+>>              -device vhost-vsock-pci,guest-cid=3D4
+>> l1_vm$ ip netns exec ns2 qemu-system-x86_64 -m 1G -M accel=3Dkvm -smp =
+2 \
+>>              -drive file=3D/tmp/vsockvm2.img,if=3Dvirtio --nographic \
+>>              -device vhost-vsock-pci,guest-cid=3D4
+>>
+>>   # all iperf3 listen on CID_ANY and port 5201, but in different netns
+>> l1_vm$ ./iperf3 --vsock -s # connection from l0 or guests started
+>>                             # on default netns (init_net)
+>> l1_vm$ ip netns exec ns1 ./iperf3 --vsock -s
+>> l1_vm$ ip netns exec ns1 ./iperf3 --vsock -s
+>>
+>> l0_host$ ./iperf3 --vsock -c 3
+>> l2_vm1$ ./iperf3 --vsock -c 2
+>> l2_vm2$ ./iperf3 --vsock -c 2
+>>
+>> [1] https://www.spinics.net/lists/netdev/msg575792.html
+>>
+>> Stefano Garzarella (3):
+>>    vsock: add network namespace support
+>>    vsock/virtio_transport_common: handle netns of received packets
+>>    vhost/vsock: use netns of process that opens the vhost-vsock device
+>>
+>>   drivers/vhost/vsock.c                   | 29 ++++++++++++-----
+>>   include/linux/virtio_vsock.h            |  2 ++
+>>   include/net/af_vsock.h                  |  7 +++--
+>>   net/vmw_vsock/af_vsock.c                | 41 +++++++++++++++++++----=
+--
+>>   net/vmw_vsock/hyperv_transport.c        |  5 +--
+>>   net/vmw_vsock/virtio_transport.c        |  2 ++
+>>   net/vmw_vsock/virtio_transport_common.c | 12 ++++++--
+>>   net/vmw_vsock/vmci_transport.c          |  5 +--
+>>   8 files changed, 78 insertions(+), 25 deletions(-)
+>>
+>> --=20
+>> 2.24.1
+>>
