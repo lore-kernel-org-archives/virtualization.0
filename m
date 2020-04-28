@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 54/75] x86/sev-es: Handle DR7 read/write events
-Date: Tue, 28 Apr 2020 17:17:04 +0200
-Message-ID: <20200428151725.31091-55-joro@8bytes.org>
+Subject: [PATCH v3 51/75] x86/sev-es: Handle MMIO events
+Date: Tue, 28 Apr 2020 17:17:01 +0200
+Message-ID: <20200428151725.31091-52-joro@8bytes.org>
 References: <20200428151725.31091-1-joro@8bytes.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200428151725.31091-1-joro@8bytes.org>
@@ -12,61 +12,76 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Tom Lendacky <thomas.lendacky@amd.com>
 
-Add code to handle #VC exceptions on DR7 register reads and writes.
-This is needed early because show_regs() reads DR7 to print it out.
-
-Under SEV-ES there is currently no support for saving/restoring the
-DRx registers, but software expects to be able to write to the DR7
-register. For now, cache the value written to DR7 and return it on
-read attempts, but do not touch the real hardware DR7.
+Add handler for VC exceptions caused by MMIO intercepts. These
+intercepts come along as nested page faults on pages with reserved
+bits set.
 
 Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-[ jroedel@suse.de: - Adapt to #VC handling framework
-                   - Support early usage ]
+[ jroedel@suse.de: Adapt to VC handling framework ]
 Co-developed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev-es.c | 85 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 85 insertions(+)
+ arch/x86/include/uapi/asm/svm.h |   5 +
+ arch/x86/kernel/sev-es.c        | 188 ++++++++++++++++++++++++++++++++
+ 2 files changed, 193 insertions(+)
 
+diff --git a/arch/x86/include/uapi/asm/svm.h b/arch/x86/include/uapi/asm/svm.h
+index c68d1618c9b0..8f36ae021a7f 100644
+--- a/arch/x86/include/uapi/asm/svm.h
++++ b/arch/x86/include/uapi/asm/svm.h
+@@ -81,6 +81,11 @@
+ #define SVM_EXIT_AVIC_INCOMPLETE_IPI		0x401
+ #define SVM_EXIT_AVIC_UNACCELERATED_ACCESS	0x402
+ 
++/* SEV-ES software-defined VMGEXIT events */
++#define SVM_VMGEXIT_MMIO_READ			0x80000001
++#define SVM_VMGEXIT_MMIO_WRITE			0x80000002
++#define SVM_VMGEXIT_UNSUPPORTED_EVENT		0x8000ffff
++
+ #define SVM_EXIT_ERR           -1
+ 
+ #define SVM_EXIT_REASONS \
 diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index e43bba4c7d79..6100f8ac61d4 100644
+index f4ce3b475464..e3662723ed76 100644
 --- a/arch/x86/kernel/sev-es.c
 +++ b/arch/x86/kernel/sev-es.c
-@@ -31,6 +31,8 @@
- #include <asm/traps.h>
- #include <asm/svm.h>
- 
-+#define DR7_RESET_VALUE        0x400
-+
- /* For early boot hypervisor communication in SEV-ES enabled guests */
- static struct ghcb boot_ghcb_page __bss_decrypted __aligned(PAGE_SIZE);
- 
-@@ -61,6 +63,13 @@ struct sev_es_runtime_data {
- 	 */
- 	bool ghcb_active;
- 	bool backup_ghcb_active;
-+
-+	/*
-+	 * Cached DR7 value - write it on DR7 writes and return it on reads.
-+	 * That value will never make it to the real hardware DR7 as debugging
-+	 * is currently unsupported in SEV-ES guests.
-+	 */
-+	unsigned long dr7;
- };
- 
- static DEFINE_PER_CPU(struct sev_es_runtime_data*, runtime_data);
-@@ -492,6 +501,21 @@ static long *vc_insn_get_reg(struct es_em_ctxt *ctxt)
- 	return reg_array + offset;
+@@ -294,6 +294,25 @@ static enum es_result vc_read_mem(struct es_em_ctxt *ctxt,
+ 	return ES_EXCEPTION;
  }
  
-+static long *vc_insn_get_rm(struct es_em_ctxt *ctxt)
++static phys_addr_t vc_slow_virt_to_phys(struct ghcb *ghcb, unsigned long vaddr)
++{
++	unsigned long va = (unsigned long)vaddr;
++	unsigned int level;
++	phys_addr_t pa;
++	pgd_t *pgd;
++	pte_t *pte;
++
++	pgd = pgd_offset(current->active_mm, va);
++	pte = lookup_address_in_pgd(pgd, va, &level);
++	if (!pte)
++		return 0;
++
++	pa = (phys_addr_t)pte_pfn(*pte) << PAGE_SHIFT;
++	pa |= va & ~page_level_mask(level);
++
++	return pa;
++}
++
+ /* Include code shared with pre-decompression boot stage */
+ #include "sev-es-shared.c"
+ 
+@@ -432,6 +451,172 @@ static void __init vc_early_vc_forward_exception(struct es_em_ctxt *ctxt)
+ 	do_early_exception(ctxt->regs, trapnr);
+ }
+ 
++static long *vc_insn_get_reg(struct es_em_ctxt *ctxt)
 +{
 +	long *reg_array;
 +	int offset;
 +
 +	reg_array = (long *)ctxt->regs;
-+	offset    = insn_get_modrm_rm_off(&ctxt->insn, ctxt->regs);
++	offset    = insn_get_modrm_reg_off(&ctxt->insn, ctxt->regs);
 +
 +	if (offset < 0)
 +		return NULL;
@@ -75,83 +90,169 @@ index e43bba4c7d79..6100f8ac61d4 100644
 +
 +	return reg_array + offset;
 +}
- static enum es_result vc_do_mmio(struct ghcb *ghcb, struct es_em_ctxt *ctxt,
- 				 unsigned int bytes, bool read)
- {
-@@ -720,6 +744,61 @@ static enum es_result vc_handle_mmio(struct ghcb *ghcb,
- 	return ret;
- }
- 
-+static enum es_result vc_handle_dr7_write(struct ghcb *ghcb,
-+					  struct es_em_ctxt *ctxt)
++
++static enum es_result vc_do_mmio(struct ghcb *ghcb, struct es_em_ctxt *ctxt,
++				 unsigned int bytes, bool read)
 +{
-+	struct sev_es_runtime_data *data = this_cpu_read(runtime_data);
-+	long val, *reg = vc_insn_get_rm(ctxt);
-+	enum es_result ret;
++	u64 exit_code, exit_info_1, exit_info_2;
++	unsigned long ghcb_pa = __pa(ghcb);
++	void __user *ref;
 +
-+	if (!reg)
-+		return ES_DECODE_FAILED;
-+
-+	val = *reg;
-+
-+	/* Upper 32 bits must be written as zeroes */
-+	if (val >> 32) {
-+		ctxt->fi.vector = X86_TRAP_GP;
-+		ctxt->fi.error_code = 0;
-+		return ES_EXCEPTION;
-+	}
-+
-+	/* Clear out other reservered bits and set bit 10 */
-+	val = (val & 0xffff23ffL) | BIT(10);
-+
-+	/* Early non-zero writes to DR7 are not supported */
-+	if (!data && (val & ~DR7_RESET_VALUE))
++	ref = insn_get_addr_ref(&ctxt->insn, ctxt->regs);
++	if (ref == (void __user *)-1L)
 +		return ES_UNSUPPORTED;
 +
-+	/* Using a value of 0 for ExitInfo1 means RAX holds the value */
-+	ghcb_set_rax(ghcb, val);
-+	ret = sev_es_ghcb_hv_call(ghcb, ctxt, SVM_EXIT_WRITE_DR7, 0, 0);
-+	if (ret != ES_OK)
-+		return ret;
++	exit_code = read ? SVM_VMGEXIT_MMIO_READ : SVM_VMGEXIT_MMIO_WRITE;
 +
-+	if (data)
-+		data->dr7 = val;
++	exit_info_1 = vc_slow_virt_to_phys(ghcb, (unsigned long)ref);
++	exit_info_2 = bytes;    /* Can never be greater than 8 */
 +
-+	return ES_OK;
++	ghcb->save.sw_scratch = ghcb_pa + offsetof(struct ghcb, shared_buffer);
++
++	return sev_es_ghcb_hv_call(ghcb, ctxt, exit_code, exit_info_1, exit_info_2);
 +}
 +
-+static enum es_result vc_handle_dr7_read(struct ghcb *ghcb,
-+					 struct es_em_ctxt *ctxt)
++static enum es_result vc_handle_mmio_twobyte_ops(struct ghcb *ghcb,
++						 struct es_em_ctxt *ctxt)
 +{
-+	struct sev_es_runtime_data *data = this_cpu_read(runtime_data);
-+	long *reg = vc_insn_get_rm(ctxt);
++	struct insn *insn = &ctxt->insn;
++	unsigned int bytes = 0;
++	enum es_result ret;
++	int sign_byte;
++	long *reg_data;
 +
-+	if (!reg)
-+		return ES_DECODE_FAILED;
++	switch (insn->opcode.bytes[1]) {
++		/* MMIO Read w/ zero-extension */
++	case 0xb6:
++		bytes = 1;
++		/* Fallthrough */
++	case 0xb7:
++		if (!bytes)
++			bytes = 2;
 +
-+	if (data)
-+		*reg = data->dr7;
-+	else
-+		*reg = DR7_RESET_VALUE;
++		ret = vc_do_mmio(ghcb, ctxt, bytes, true);
++		if (ret)
++			break;
 +
-+	return ES_OK;
++		/* Zero extend based on operand size */
++		reg_data = vc_insn_get_reg(ctxt);
++		memset(reg_data, 0, insn->opnd_bytes);
++
++		memcpy(reg_data, ghcb->shared_buffer, bytes);
++		break;
++
++		/* MMIO Read w/ sign-extension */
++	case 0xbe:
++		bytes = 1;
++		/* Fallthrough */
++	case 0xbf:
++		if (!bytes)
++			bytes = 2;
++
++		ret = vc_do_mmio(ghcb, ctxt, bytes, true);
++		if (ret)
++			break;
++
++		/* Sign extend based on operand size */
++		reg_data = vc_insn_get_reg(ctxt);
++		if (bytes == 1) {
++			u8 *val = (u8 *)ghcb->shared_buffer;
++
++			sign_byte = (*val & 0x80) ? 0xff : 0x00;
++		} else {
++			u16 *val = (u16 *)ghcb->shared_buffer;
++
++			sign_byte = (*val & 0x8000) ? 0xff : 0x00;
++		}
++		memset(reg_data, sign_byte, insn->opnd_bytes);
++
++		memcpy(reg_data, ghcb->shared_buffer, bytes);
++		break;
++
++	default:
++		ret = ES_UNSUPPORTED;
++	}
++
++	return ret;
++}
++
++static enum es_result vc_handle_mmio(struct ghcb *ghcb,
++				     struct es_em_ctxt *ctxt)
++{
++	struct insn *insn = &ctxt->insn;
++	unsigned int bytes = 0;
++	enum es_result ret;
++	long *reg_data;
++
++	switch (insn->opcode.bytes[0]) {
++	/* MMIO Write */
++	case 0x88:
++		bytes = 1;
++		/* Fallthrough */
++	case 0x89:
++		if (!bytes)
++			bytes = insn->opnd_bytes;
++
++		reg_data = vc_insn_get_reg(ctxt);
++		memcpy(ghcb->shared_buffer, reg_data, bytes);
++
++		ret = vc_do_mmio(ghcb, ctxt, bytes, false);
++		break;
++
++	case 0xc6:
++		bytes = 1;
++		/* Fallthrough */
++	case 0xc7:
++		if (!bytes)
++			bytes = insn->opnd_bytes;
++
++		memcpy(ghcb->shared_buffer, insn->immediate1.bytes, bytes);
++
++		ret = vc_do_mmio(ghcb, ctxt, bytes, false);
++		break;
++
++		/* MMIO Read */
++	case 0x8a:
++		bytes = 1;
++		/* Fallthrough */
++	case 0x8b:
++		if (!bytes)
++			bytes = insn->opnd_bytes;
++
++		ret = vc_do_mmio(ghcb, ctxt, bytes, true);
++		if (ret)
++			break;
++
++		reg_data = vc_insn_get_reg(ctxt);
++		if (bytes == 4)
++			*reg_data = 0;  /* Zero-extend for 32-bit operation */
++
++		memcpy(reg_data, ghcb->shared_buffer, bytes);
++		break;
++
++		/* Two-Byte Opcodes */
++	case 0x0f:
++		ret = vc_handle_mmio_twobyte_ops(ghcb, ctxt);
++		break;
++	default:
++		ret = ES_UNSUPPORTED;
++	}
++
++	return ret;
 +}
 +
  static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
  					 struct ghcb *ghcb,
  					 unsigned long exit_code)
-@@ -727,6 +806,12 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
- 	enum es_result result;
- 
- 	switch (exit_code) {
-+	case SVM_EXIT_READ_DR7:
-+		result = vc_handle_dr7_read(ghcb, ctxt);
-+		break;
-+	case SVM_EXIT_WRITE_DR7:
-+		result = vc_handle_dr7_write(ghcb, ctxt);
-+		break;
- 	case SVM_EXIT_CPUID:
- 		result = vc_handle_cpuid(ghcb, ctxt);
+@@ -445,6 +630,9 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
+ 	case SVM_EXIT_IOIO:
+ 		result = vc_handle_ioio(ghcb, ctxt);
  		break;
++	case SVM_EXIT_NPF:
++		result = vc_handle_mmio(ghcb, ctxt);
++		break;
+ 	default:
+ 		/*
+ 		 * Unexpected #VC exception
 -- 
 2.17.1
