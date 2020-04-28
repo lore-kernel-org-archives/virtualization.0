@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 58/75] x86/sev-es: Handle INVD Events
-Date: Tue, 28 Apr 2020 17:17:08 +0200
-Message-ID: <20200428151725.31091-59-joro@8bytes.org>
+Subject: [PATCH v3 57/75] x86/sev-es: Handle RDPMC Events
+Date: Tue, 28 Apr 2020 17:17:07 +0200
+Message-ID: <20200428151725.31091-58-joro@8bytes.org>
 References: <20200428151725.31091-1-joro@8bytes.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200428151725.31091-1-joro@8bytes.org>
@@ -12,28 +12,52 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Tom Lendacky <thomas.lendacky@amd.com>
 
-Implement a handler for #VC exceptions caused by INVD instructions.
-Since Linux should never use INVD, just mark it as unsupported.
+Implement a handler for #VC exceptions caused by RDPMC instructions.
 
 Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
 [ jroedel@suse.de: Adapt to #VC handling infrastructure ]
 Co-developed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev-es.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/x86/kernel/sev-es.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
 diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index eb158781238b..601554e6360f 100644
+index 8b2afb9e292d..eb158781238b 100644
 --- a/arch/x86/kernel/sev-es.c
 +++ b/arch/x86/kernel/sev-es.c
-@@ -844,6 +844,10 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
- 	case SVM_EXIT_RDPMC:
- 		result = vc_handle_rdpmc(ghcb, ctxt);
+@@ -805,6 +805,25 @@ static enum es_result vc_handle_wbinvd(struct ghcb *ghcb,
+ 	return sev_es_ghcb_hv_call(ghcb, ctxt, SVM_EXIT_WBINVD, 0, 0);
+ }
+ 
++static enum es_result vc_handle_rdpmc(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
++{
++	enum es_result ret;
++
++	ghcb_set_rcx(ghcb, ctxt->regs->cx);
++
++	ret = sev_es_ghcb_hv_call(ghcb, ctxt, SVM_EXIT_RDPMC, 0, 0);
++	if (ret != ES_OK)
++		return ret;
++
++	if (!(ghcb_is_valid_rax(ghcb) && ghcb_is_valid_rdx(ghcb)))
++		return ES_VMM_ERROR;
++
++	ctxt->regs->ax = ghcb->save.rax;
++	ctxt->regs->dx = ghcb->save.rdx;
++
++	return ES_OK;
++}
++
+ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
+ 					 struct ghcb *ghcb,
+ 					 unsigned long exit_code)
+@@ -822,6 +841,9 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
+ 	case SVM_EXIT_RDTSCP:
+ 		result = vc_handle_rdtsc(ghcb, ctxt, exit_code);
  		break;
-+	case SVM_EXIT_INVD:
-+		pr_err_ratelimited("#VC exception for INVD??? Seriously???\n");
-+		result = ES_UNSUPPORTED;
++	case SVM_EXIT_RDPMC:
++		result = vc_handle_rdpmc(ghcb, ctxt);
 +		break;
  	case SVM_EXIT_CPUID:
  		result = vc_handle_cpuid(ghcb, ctxt);
