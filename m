@@ -1,104 +1,97 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 72/75] x86/head/64: Rename start_cpu0
-Date: Tue, 28 Apr 2020 17:17:22 +0200
-Message-ID: <20200428151725.31091-73-joro@8bytes.org>
+Subject: [PATCH v3 68/75] x86/realmode: Add SEV-ES specific trampoline entry point
+Date: Tue, 28 Apr 2020 17:17:18 +0200
+Message-ID: <20200428151725.31091-69-joro@8bytes.org>
 References: <20200428151725.31091-1-joro@8bytes.org>
-Return-path: <kvm-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200428151725.31091-1-joro@8bytes.org>
-Sender: kvm-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: x86@kernel.org
 Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-For SEV-ES this entry point will be used for restarting APs after they
-have been offlined. Remove the '0' from the name to reflect that.
+The code at the trampoline entry point is executed in real-mode. In
+real-mode #VC exceptions can't be handled, so anything that might cause
+such an exception must be avoided.
+
+In the standard trampoline entry code this is the WBINVD instruction and
+the call to verify_cpu(), which are both not needed anyway when running
+as an SEV-ES guest.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/cpu.h | 2 +-
- arch/x86/kernel/head_32.S  | 4 ++--
- arch/x86/kernel/head_64.S  | 6 +++---
- arch/x86/kernel/smpboot.c  | 4 ++--
- 4 files changed, 8 insertions(+), 8 deletions(-)
+ arch/x86/include/asm/realmode.h      |  3 +++
+ arch/x86/realmode/rm/header.S        |  3 +++
+ arch/x86/realmode/rm/trampoline_64.S | 20 ++++++++++++++++++++
+ 3 files changed, 26 insertions(+)
 
-diff --git a/arch/x86/include/asm/cpu.h b/arch/x86/include/asm/cpu.h
-index dd17c2da1af5..427ae362bbdd 100644
---- a/arch/x86/include/asm/cpu.h
-+++ b/arch/x86/include/asm/cpu.h
-@@ -29,7 +29,7 @@ struct x86_cpu {
- #ifdef CONFIG_HOTPLUG_CPU
- extern int arch_register_cpu(int num);
- extern void arch_unregister_cpu(int);
--extern void start_cpu0(void);
-+extern void start_cpu(void);
- #ifdef CONFIG_DEBUG_HOTPLUG_CPU0
- extern int _debug_hotplug_cpu(int cpu, int action);
+diff --git a/arch/x86/include/asm/realmode.h b/arch/x86/include/asm/realmode.h
+index b35030eeec36..6590394af309 100644
+--- a/arch/x86/include/asm/realmode.h
++++ b/arch/x86/include/asm/realmode.h
+@@ -21,6 +21,9 @@ struct real_mode_header {
+ 	/* SMP trampoline */
+ 	u32	trampoline_start;
+ 	u32	trampoline_header;
++#ifdef CONFIG_AMD_MEM_ENCRYPT
++	u32	sev_es_trampoline_start;
++#endif
+ #ifdef CONFIG_X86_64
+ 	u32	trampoline_pgd;
  #endif
-diff --git a/arch/x86/kernel/head_32.S b/arch/x86/kernel/head_32.S
-index f66a6b90f954..aad62c677486 100644
---- a/arch/x86/kernel/head_32.S
-+++ b/arch/x86/kernel/head_32.S
-@@ -174,12 +174,12 @@ SYM_CODE_END(startup_32)
-  * up already except stack. We just set up stack here. Then call
-  * start_secondary().
-  */
--SYM_FUNC_START(start_cpu0)
-+SYM_FUNC_START(start_cpu)
- 	movl initial_stack, %ecx
- 	movl %ecx, %esp
- 	call *(initial_code)
- 1:	jmp 1b
--SYM_FUNC_END(start_cpu0)
-+SYM_FUNC_END(start_cpu)
+diff --git a/arch/x86/realmode/rm/header.S b/arch/x86/realmode/rm/header.S
+index af04512c02d9..8c1db5bf5d78 100644
+--- a/arch/x86/realmode/rm/header.S
++++ b/arch/x86/realmode/rm/header.S
+@@ -20,6 +20,9 @@ SYM_DATA_START(real_mode_header)
+ 	/* SMP trampoline */
+ 	.long	pa_trampoline_start
+ 	.long	pa_trampoline_header
++#ifdef CONFIG_AMD_MEM_ENCRYPT
++	.long	pa_sev_es_trampoline_start
++#endif
+ #ifdef CONFIG_X86_64
+ 	.long	pa_trampoline_pgd;
  #endif
+diff --git a/arch/x86/realmode/rm/trampoline_64.S b/arch/x86/realmode/rm/trampoline_64.S
+index 251758ed7443..84c5d1b33d10 100644
+--- a/arch/x86/realmode/rm/trampoline_64.S
++++ b/arch/x86/realmode/rm/trampoline_64.S
+@@ -56,6 +56,7 @@ SYM_CODE_START(trampoline_start)
+ 	testl   %eax, %eax		# Check for return code
+ 	jnz	no_longmode
  
- /*
-diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
-index 72b8f0834de1..4502f5d3b9b1 100644
---- a/arch/x86/kernel/head_64.S
-+++ b/arch/x86/kernel/head_64.S
-@@ -302,15 +302,15 @@ SYM_CODE_END(secondary_startup_64)
++.Lswitch_to_protected:
+ 	/*
+ 	 * GDT tables in non default location kernel can be beyond 16MB and
+ 	 * lgdt will not be able to load the address as in real mode default
+@@ -80,6 +81,25 @@ no_longmode:
+ 	jmp no_longmode
+ SYM_CODE_END(trampoline_start)
  
- #ifdef CONFIG_HOTPLUG_CPU
- /*
-- * Boot CPU0 entry point. It's called from play_dead(). Everything has been set
-+ * CPU entry point. It's called from play_dead(). Everything has been set
-  * up already except stack. We just set up stack here. Then call
-  * start_secondary() via .Ljump_to_C_code.
-  */
--SYM_CODE_START(start_cpu0)
-+SYM_CODE_START(start_cpu)
- 	UNWIND_HINT_EMPTY
- 	movq	initial_stack(%rip), %rsp
- 	jmp	.Ljump_to_C_code
--SYM_CODE_END(start_cpu0)
-+SYM_CODE_END(start_cpu)
- #endif
++#ifdef CONFIG_AMD_MEM_ENCRYPT
++/* SEV-ES supports non-zero IP for entry points - no alignment needed */
++SYM_CODE_START(sev_es_trampoline_start)
++	cli			# We should be safe anyway
++
++	LJMPW_RM(1f)
++1:
++	mov	%cs, %ax	# Code and data in the same place
++	mov	%ax, %ds
++	mov	%ax, %es
++	mov	%ax, %ss
++
++	# Setup stack
++	movl	$rm_stack_end, %esp
++
++	jmp	.Lswitch_to_protected
++SYM_CODE_END(sev_es_trampoline_start)
++#endif	/* CONFIG_AMD_MEM_ENCRYPT */
++
+ #include "../kernel/verify_cpu.S"
  
- 	/* Both SMP bootup and ACPI suspend change these variables */
-diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
-index 8c89e4d9ad28..f57685d81bb6 100644
---- a/arch/x86/kernel/smpboot.c
-+++ b/arch/x86/kernel/smpboot.c
-@@ -1721,7 +1721,7 @@ static inline void mwait_play_dead(void)
- 		 * If NMI wants to wake up CPU0, start CPU0.
- 		 */
- 		if (wakeup_cpu0())
--			start_cpu0();
-+			start_cpu();
- 	}
- }
- 
-@@ -1736,7 +1736,7 @@ void hlt_play_dead(void)
- 		 * If NMI wants to wake up CPU0, start CPU0.
- 		 */
- 		if (wakeup_cpu0())
--			start_cpu0();
-+			start_cpu();
- 	}
- }
- 
+ 	.section ".text32","ax"
 -- 
 2.17.1
