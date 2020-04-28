@@ -1,97 +1,95 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 68/75] x86/realmode: Add SEV-ES specific trampoline entry point
-Date: Tue, 28 Apr 2020 17:17:18 +0200
-Message-ID: <20200428151725.31091-69-joro@8bytes.org>
+Subject: [PATCH v3 67/75] x86/vmware: Add VMware specific handling for VMMCALL under SEV-ES
+Date: Tue, 28 Apr 2020 17:17:17 +0200
+Message-ID: <20200428151725.31091-68-joro@8bytes.org>
 References: <20200428151725.31091-1-joro@8bytes.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200428151725.31091-1-joro@8bytes.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: x86@kernel.org
-Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Doug Covelli <dcovelli@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Doug Covelli <dcovelli@vmware.com>
 
-The code at the trampoline entry point is executed in real-mode. In
-real-mode #VC exceptions can't be handled, so anything that might cause
-such an exception must be avoided.
+This change adds VMware specific handling for #VC faults caused by
+VMMCALL instructions.
 
-In the standard trampoline entry code this is the WBINVD instruction and
-the call to verify_cpu(), which are both not needed anyway when running
-as an SEV-ES guest.
-
+Signed-off-by: Doug Covelli <dcovelli@vmware.com>
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+[ jroedel@suse.de: - Adapt to different paravirt interface ]
+Co-developed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/realmode.h      |  3 +++
- arch/x86/realmode/rm/header.S        |  3 +++
- arch/x86/realmode/rm/trampoline_64.S | 20 ++++++++++++++++++++
- 3 files changed, 26 insertions(+)
+ arch/x86/kernel/cpu/vmware.c | 50 ++++++++++++++++++++++++++++++++----
+ 1 file changed, 45 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/include/asm/realmode.h b/arch/x86/include/asm/realmode.h
-index b35030eeec36..6590394af309 100644
---- a/arch/x86/include/asm/realmode.h
-+++ b/arch/x86/include/asm/realmode.h
-@@ -21,6 +21,9 @@ struct real_mode_header {
- 	/* SMP trampoline */
- 	u32	trampoline_start;
- 	u32	trampoline_header;
+diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
+index 9b6fafa69be9..d2129d5e8373 100644
+--- a/arch/x86/kernel/cpu/vmware.c
++++ b/arch/x86/kernel/cpu/vmware.c
+@@ -33,6 +33,7 @@
+ #include <asm/timer.h>
+ #include <asm/apic.h>
+ #include <asm/vmware.h>
++#include <asm/svm.h>
+ 
+ #undef pr_fmt
+ #define pr_fmt(fmt)	"vmware: " fmt
+@@ -476,10 +477,49 @@ static bool __init vmware_legacy_x2apic_available(void)
+ 	       (eax & (1 << VMWARE_CMD_LEGACY_X2APIC)) != 0;
+ }
+ 
 +#ifdef CONFIG_AMD_MEM_ENCRYPT
-+	u32	sev_es_trampoline_start;
++static void vmware_sev_es_hcall_prepare(struct ghcb *ghcb,
++					struct pt_regs *regs)
++{
++	/* Copy VMWARE specific Hypercall parameters to the GHCB */
++	ghcb_set_rip(ghcb, regs->ip);
++	ghcb_set_rbx(ghcb, regs->bx);
++	ghcb_set_rcx(ghcb, regs->cx);
++	ghcb_set_rdx(ghcb, regs->dx);
++	ghcb_set_rsi(ghcb, regs->si);
++	ghcb_set_rdi(ghcb, regs->di);
++	ghcb_set_rbp(ghcb, regs->bp);
++}
++
++static bool vmware_sev_es_hcall_finish(struct ghcb *ghcb, struct pt_regs *regs)
++{
++	if (!(ghcb_is_valid_rbx(ghcb) &&
++	      ghcb_is_valid_rcx(ghcb) &&
++	      ghcb_is_valid_rdx(ghcb) &&
++	      ghcb_is_valid_rsi(ghcb) &&
++	      ghcb_is_valid_rdi(ghcb) &&
++	      ghcb_is_valid_rbp(ghcb)))
++		return false;
++
++	regs->bx = ghcb->save.rbx;
++	regs->cx = ghcb->save.rcx;
++	regs->dx = ghcb->save.rdx;
++	regs->si = ghcb->save.rsi;
++	regs->di = ghcb->save.rdi;
++	regs->bp = ghcb->save.rbp;
++
++	return true;
++}
 +#endif
- #ifdef CONFIG_X86_64
- 	u32	trampoline_pgd;
- #endif
-diff --git a/arch/x86/realmode/rm/header.S b/arch/x86/realmode/rm/header.S
-index af04512c02d9..8c1db5bf5d78 100644
---- a/arch/x86/realmode/rm/header.S
-+++ b/arch/x86/realmode/rm/header.S
-@@ -20,6 +20,9 @@ SYM_DATA_START(real_mode_header)
- 	/* SMP trampoline */
- 	.long	pa_trampoline_start
- 	.long	pa_trampoline_header
++
+ const __initconst struct hypervisor_x86 x86_hyper_vmware = {
+-	.name			= "VMware",
+-	.detect			= vmware_platform,
+-	.type			= X86_HYPER_VMWARE,
+-	.init.init_platform	= vmware_platform_setup,
+-	.init.x2apic_available	= vmware_legacy_x2apic_available,
++	.name				= "VMware",
++	.detect				= vmware_platform,
++	.type				= X86_HYPER_VMWARE,
++	.init.init_platform		= vmware_platform_setup,
++	.init.x2apic_available		= vmware_legacy_x2apic_available,
 +#ifdef CONFIG_AMD_MEM_ENCRYPT
-+	.long	pa_sev_es_trampoline_start
++	.runtime.sev_es_hcall_prepare	= vmware_sev_es_hcall_prepare,
++	.runtime.sev_es_hcall_finish	= vmware_sev_es_hcall_finish,
 +#endif
- #ifdef CONFIG_X86_64
- 	.long	pa_trampoline_pgd;
- #endif
-diff --git a/arch/x86/realmode/rm/trampoline_64.S b/arch/x86/realmode/rm/trampoline_64.S
-index 251758ed7443..84c5d1b33d10 100644
---- a/arch/x86/realmode/rm/trampoline_64.S
-+++ b/arch/x86/realmode/rm/trampoline_64.S
-@@ -56,6 +56,7 @@ SYM_CODE_START(trampoline_start)
- 	testl   %eax, %eax		# Check for return code
- 	jnz	no_longmode
- 
-+.Lswitch_to_protected:
- 	/*
- 	 * GDT tables in non default location kernel can be beyond 16MB and
- 	 * lgdt will not be able to load the address as in real mode default
-@@ -80,6 +81,25 @@ no_longmode:
- 	jmp no_longmode
- SYM_CODE_END(trampoline_start)
- 
-+#ifdef CONFIG_AMD_MEM_ENCRYPT
-+/* SEV-ES supports non-zero IP for entry points - no alignment needed */
-+SYM_CODE_START(sev_es_trampoline_start)
-+	cli			# We should be safe anyway
-+
-+	LJMPW_RM(1f)
-+1:
-+	mov	%cs, %ax	# Code and data in the same place
-+	mov	%ax, %ds
-+	mov	%ax, %es
-+	mov	%ax, %ss
-+
-+	# Setup stack
-+	movl	$rm_stack_end, %esp
-+
-+	jmp	.Lswitch_to_protected
-+SYM_CODE_END(sev_es_trampoline_start)
-+#endif	/* CONFIG_AMD_MEM_ENCRYPT */
-+
- #include "../kernel/verify_cpu.S"
- 
- 	.section ".text32","ax"
+ };
 -- 
 2.17.1
