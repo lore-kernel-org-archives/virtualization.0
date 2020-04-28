@@ -1,83 +1,110 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 39/75] x86/sev-es: Print SEV-ES info into kernel log
-Date: Tue, 28 Apr 2020 17:16:49 +0200
-Message-ID: <20200428151725.31091-40-joro@8bytes.org>
+Subject: [PATCH v3 74/75] x86/sev-es: Handle NMI State
+Date: Tue, 28 Apr 2020 17:17:24 +0200
+Message-ID: <20200428151725.31091-75-joro@8bytes.org>
 References: <20200428151725.31091-1-joro@8bytes.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200428151725.31091-1-joro@8bytes.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Sender: kvm-owner@vger.kernel.org
 To: x86@kernel.org
-Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Joerg Roedel <jroedel@suse.de>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
+Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Refactor the message printed to the kernel log which indicates whether
-SEV or SME is active to print a list of enabled encryption features.
-This will scale better in the future when more memory encryption
-features might be added. Also add SEV-ES to the list of features.
+When running under SEV-ES the kernel has to tell the hypervisor when to
+open the NMI window again after an NMI was injected. This is done with
+an NMI-complete message to the hypervisor.
+
+Add code to the kernels NMI handler to send this message right at the
+beginning of do_nmi(). This always allows nesting NMIs.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/mm/mem_encrypt.c | 29 ++++++++++++++++++++++++++---
- 1 file changed, 26 insertions(+), 3 deletions(-)
+ arch/x86/include/asm/sev-es.h   |  2 ++
+ arch/x86/include/uapi/asm/svm.h |  1 +
+ arch/x86/kernel/nmi.c           |  7 +++++++
+ arch/x86/kernel/sev-es.c        | 18 ++++++++++++++++++
+ 4 files changed, 28 insertions(+)
 
-diff --git a/arch/x86/mm/mem_encrypt.c b/arch/x86/mm/mem_encrypt.c
-index 3e59fcd7f9ac..c8d8eabfa1bc 100644
---- a/arch/x86/mm/mem_encrypt.c
-+++ b/arch/x86/mm/mem_encrypt.c
-@@ -409,6 +409,31 @@ void __init mem_encrypt_free_decrypted_mem(void)
- 	free_init_pages("unused decrypted", vaddr, vaddr_end);
+diff --git a/arch/x86/include/asm/sev-es.h b/arch/x86/include/asm/sev-es.h
+index c89b6e2e6439..a242d16727f1 100644
+--- a/arch/x86/include/asm/sev-es.h
++++ b/arch/x86/include/asm/sev-es.h
+@@ -86,6 +86,7 @@ const char *vc_stack_name(enum stack_type type);
+ void sev_es_nmi_enter(void);
+ void sev_es_nmi_exit(void);
+ int sev_es_setup_ap_jump_table(struct real_mode_header *rmh);
++void sev_es_nmi_complete(void);
+ #else /* CONFIG_AMD_MEM_ENCRYPT */
+ static inline const char *vc_stack_name(enum stack_type type)
+ {
+@@ -95,6 +96,7 @@ static inline int sev_es_setup_ap_jump_table(struct real_mode_header *rmh)
+ {
+ 	return 0;
  }
++static inline void sev_es_nmi_complete(void) { }
+ #endif /* CONFIG_AMD_MEM_ENCRYPT*/
  
-+static void print_mem_encrypt_feature_info(void)
-+{
-+	pr_info("AMD Memory Encryption Features active:");
-+
-+	/* Secure Memory Encryption */
-+	if (sme_active()) {
-+		/*
-+		 * SME is mutually exclusive with any of the SEV
-+		 * features below.
-+		 */
-+		pr_cont(" SME\n");
-+		return;
-+	}
-+
-+	/* Secure Encrypted Virtualization */
-+	if (sev_active())
-+		pr_cont(" SEV");
-+
-+	/* Encrypted Register State */
+ #endif
+diff --git a/arch/x86/include/uapi/asm/svm.h b/arch/x86/include/uapi/asm/svm.h
+index 20a05839dd9a..0f837339db66 100644
+--- a/arch/x86/include/uapi/asm/svm.h
++++ b/arch/x86/include/uapi/asm/svm.h
+@@ -84,6 +84,7 @@
+ /* SEV-ES software-defined VMGEXIT events */
+ #define SVM_VMGEXIT_MMIO_READ			0x80000001
+ #define SVM_VMGEXIT_MMIO_WRITE			0x80000002
++#define SVM_VMGEXIT_NMI_COMPLETE		0x80000003
+ #define SVM_VMGEXIT_AP_HLT_LOOP			0x80000004
+ #define SVM_VMGEXIT_AP_JUMP_TABLE		0x80000005
+ #define		SVM_VMGEXIT_SET_AP_JUMP_TABLE			0
+diff --git a/arch/x86/kernel/nmi.c b/arch/x86/kernel/nmi.c
+index 27d1016ec840..8898002e5600 100644
+--- a/arch/x86/kernel/nmi.c
++++ b/arch/x86/kernel/nmi.c
+@@ -511,6 +511,13 @@ NOKPROBE_SYMBOL(is_debug_stack);
+ dotraplinkage notrace void
+ do_nmi(struct pt_regs *regs, long error_code)
+ {
++	/*
++	 * Re-enable NMIs right here when running as an SEV-ES guest. This might
++	 * cause nested NMIs, but those can be handled safely.
++	 */
 +	if (sev_es_active())
-+		pr_cont(" SEV-ES");
++		sev_es_nmi_complete();
 +
-+	pr_cont("\n");
+ 	if (IS_ENABLED(CONFIG_SMP) && cpu_is_offline(smp_processor_id()))
+ 		return;
+ 
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+index 00a5d0483730..eef6e2196ef4 100644
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -341,6 +341,24 @@ static phys_addr_t vc_slow_virt_to_phys(struct ghcb *ghcb, unsigned long vaddr)
+ /* Include code shared with pre-decompression boot stage */
+ #include "sev-es-shared.c"
+ 
++void sev_es_nmi_complete(void)
++{
++	struct ghcb_state state;
++	struct ghcb *ghcb;
++
++	ghcb = sev_es_get_ghcb(&state);
++
++	vc_ghcb_invalidate(ghcb);
++	ghcb_set_sw_exit_code(ghcb, SVM_VMGEXIT_NMI_COMPLETE);
++	ghcb_set_sw_exit_info_1(ghcb, 0);
++	ghcb_set_sw_exit_info_2(ghcb, 0);
++
++	sev_es_wr_ghcb_msr(__pa(ghcb));
++	VMGEXIT();
++
++	sev_es_put_ghcb(&state);
 +}
 +
- void __init mem_encrypt_init(void)
+ static u64 sev_es_get_jump_table_addr(void)
  {
- 	if (!sme_me_mask)
-@@ -423,8 +448,6 @@ void __init mem_encrypt_init(void)
- 	if (sev_active())
- 		static_branch_enable(&sev_enable_key);
- 
--	pr_info("AMD %s active\n",
--		sev_active() ? "Secure Encrypted Virtualization (SEV)"
--			     : "Secure Memory Encryption (SME)");
-+	print_mem_encrypt_feature_info();
- }
- 
+ 	struct ghcb_state state;
 -- 
 2.17.1
