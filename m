@@ -1,8 +1,8 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 40/75] x86/sev-es: Compile early handler code into kernel
- image
-Date: Tue, 28 Apr 2020 17:16:50 +0200
-Message-ID: <20200428151725.31091-41-joro@8bytes.org>
+Subject: [PATCH v3 24/75] x86/boot/compressed/64: Unmap GHCB page before
+ booting the kernel
+Date: Tue, 28 Apr 2020 17:16:34 +0200
+Message-ID: <20200428151725.31091-25-joro@8bytes.org>
 References: <20200428151725.31091-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,273 +24,111 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Setup sev-es.c and include the code from the
-pre-decompression stage to also build it into the image of the running
-kernel. Temporarily add __maybe_unused annotations to avoid build
-warnings until the functions get used.
+Force a page-fault on any further accesses to the GHCB page when they
+shouldn't happen anymore. This will catch the bugs where a #VC exception
+is raised when no one is expected anymore.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/Makefile        |   1 +
- arch/x86/kernel/sev-es-shared.c |  21 ++--
- arch/x86/kernel/sev-es.c        | 163 ++++++++++++++++++++++++++++++++
- 3 files changed, 175 insertions(+), 10 deletions(-)
- create mode 100644 arch/x86/kernel/sev-es.c
+ arch/x86/boot/compressed/ident_map_64.c | 23 +++++++++++++++++++----
+ arch/x86/boot/compressed/misc.h         |  6 ++++++
+ arch/x86/boot/compressed/sev-es.c       | 14 ++++++++++++++
+ 3 files changed, 39 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/kernel/Makefile b/arch/x86/kernel/Makefile
-index 1192de38fa56..f5a9bceb376a 100644
---- a/arch/x86/kernel/Makefile
-+++ b/arch/x86/kernel/Makefile
-@@ -148,6 +148,7 @@ obj-$(CONFIG_UNWINDER_ORC)		+= unwind_orc.o
- obj-$(CONFIG_UNWINDER_FRAME_POINTER)	+= unwind_frame.o
- obj-$(CONFIG_UNWINDER_GUESS)		+= unwind_guess.o
- 
-+obj-$(CONFIG_AMD_MEM_ENCRYPT)		+= sev-es.o
- ###
- # 64 bit specific files
- ifeq ($(CONFIG_X86_64),y)
-diff --git a/arch/x86/kernel/sev-es-shared.c b/arch/x86/kernel/sev-es-shared.c
-index 3d645662ff10..5703f9b17e70 100644
---- a/arch/x86/kernel/sev-es-shared.c
-+++ b/arch/x86/kernel/sev-es-shared.c
-@@ -9,7 +9,7 @@
-  * and is included directly into both code-bases.
-  */
- 
--static void sev_es_terminate(unsigned int reason)
-+static void __maybe_unused sev_es_terminate(unsigned int reason)
- {
- 	u64 val = GHCB_SEV_TERMINATE;
- 
-@@ -27,7 +27,7 @@ static void sev_es_terminate(unsigned int reason)
- 		asm volatile("hlt\n" : : : "memory");
+diff --git a/arch/x86/boot/compressed/ident_map_64.c b/arch/x86/boot/compressed/ident_map_64.c
+index bb68e9c9d87a..d3771d455249 100644
+--- a/arch/x86/boot/compressed/ident_map_64.c
++++ b/arch/x86/boot/compressed/ident_map_64.c
+@@ -291,10 +291,21 @@ int set_page_encrypted(unsigned long address)
+ 	return set_clr_page_flags(&mapping_info, address, _PAGE_ENC, 0);
  }
  
--static bool sev_es_negotiate_protocol(void)
-+static bool __maybe_unused sev_es_negotiate_protocol(void)
- {
- 	u64 val;
- 
-@@ -46,7 +46,7 @@ static bool sev_es_negotiate_protocol(void)
- 	return true;
- }
- 
--static void vc_ghcb_invalidate(struct ghcb *ghcb)
-+static void __maybe_unused vc_ghcb_invalidate(struct ghcb *ghcb)
- {
- 	memset(ghcb->save.valid_bitmap, 0, sizeof(ghcb->save.valid_bitmap));
- }
-@@ -58,9 +58,9 @@ static bool vc_decoding_needed(unsigned long exit_code)
- 		 exit_code <= SVM_EXIT_LAST_EXCP);
- }
- 
--static enum es_result vc_init_em_ctxt(struct es_em_ctxt *ctxt,
--				      struct pt_regs *regs,
--				      unsigned long exit_code)
-+static enum es_result __maybe_unused vc_init_em_ctxt(struct es_em_ctxt *ctxt,
-+						     struct pt_regs *regs,
-+						     unsigned long exit_code)
- {
- 	enum es_result ret = ES_OK;
- 
-@@ -73,7 +73,7 @@ static enum es_result vc_init_em_ctxt(struct es_em_ctxt *ctxt,
- 	return ret;
- }
- 
--static void vc_finish_insn(struct es_em_ctxt *ctxt)
-+static void __maybe_unused vc_finish_insn(struct es_em_ctxt *ctxt)
- {
- 	ctxt->regs->ip += ctxt->insn.length;
- }
-@@ -324,7 +324,8 @@ static enum es_result vc_ioio_exitinfo(struct es_em_ctxt *ctxt, u64 *exitinfo)
- 	return ES_OK;
- }
- 
--static enum es_result vc_handle_ioio(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
-+static enum es_result __maybe_unused
-+vc_handle_ioio(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
- {
- 	struct pt_regs *regs = ctxt->regs;
- 	u64 exit_info_1, exit_info_2;
-@@ -420,8 +421,8 @@ static enum es_result vc_handle_ioio(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
- 	return ret;
- }
- 
--static enum es_result vc_handle_cpuid(struct ghcb *ghcb,
--				      struct es_em_ctxt *ctxt)
-+static enum es_result __maybe_unused vc_handle_cpuid(struct ghcb *ghcb,
-+						     struct es_em_ctxt *ctxt)
- {
- 	struct pt_regs *regs = ctxt->regs;
- 	u32 cr4 = native_read_cr4();
-diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-new file mode 100644
-index 000000000000..0d20770decce
---- /dev/null
-+++ b/arch/x86/kernel/sev-es.c
-@@ -0,0 +1,163 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * AMD Memory Encryption Support
-+ *
-+ * Copyright (C) 2019 SUSE
-+ *
-+ * Author: Joerg Roedel <jroedel@suse.de>
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/mm.h>
-+
-+#include <asm/trap_defs.h>
-+#include <asm/sev-es.h>
-+#include <asm/insn-eval.h>
-+#include <asm/fpu/internal.h>
-+#include <asm/processor.h>
-+#include <asm/svm.h>
-+
-+static inline u64 sev_es_rd_ghcb_msr(void)
++int set_page_non_present(unsigned long address)
 +{
-+	return native_read_msr(MSR_AMD64_SEV_ES_GHCB);
++	return set_clr_page_flags(&mapping_info, address, 0, _PAGE_PRESENT);
 +}
 +
-+static inline void sev_es_wr_ghcb_msr(u64 val)
+ void do_boot_page_fault(struct pt_regs *regs, unsigned long error_code)
+ {
+-	unsigned long address = native_read_cr2() & PMD_MASK;
+-	unsigned long end = address + PMD_SIZE;
++	unsigned long address = native_read_cr2();
++	unsigned long end;
++	bool ghcb_fault;
++
++	ghcb_fault = sev_es_check_ghcb_fault(address);
++
++	address   &= PMD_MASK;
++	end        = address + PMD_SIZE;
+ 
+ 	/*
+ 	 * Check for unexpected error codes. Unexpected are:
+@@ -302,9 +313,13 @@ void do_boot_page_fault(struct pt_regs *regs, unsigned long error_code)
+ 	 *	- User faults
+ 	 *	- Reserved bits set
+ 	 */
+-	if (error_code & (X86_PF_PROT | X86_PF_USER | X86_PF_RSVD)) {
++	if (ghcb_fault ||
++	    error_code & (X86_PF_PROT | X86_PF_USER | X86_PF_RSVD)) {
+ 		/* Print some information for debugging */
+-		error_putstr("Unexpected page-fault:");
++		if (ghcb_fault)
++			error_putstr("Page-fault on GHCB page:");
++		else
++			error_putstr("Unexpected page-fault:");
+ 		error_putstr("\nError Code: ");
+ 		error_puthex(error_code);
+ 		error_putstr("\nCR2: 0x");
+diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
+index 4d37a28370ed..2e5f82acc122 100644
+--- a/arch/x86/boot/compressed/misc.h
++++ b/arch/x86/boot/compressed/misc.h
+@@ -100,6 +100,7 @@ static inline void choose_random_location(unsigned long input,
+ #ifdef CONFIG_X86_64
+ extern int set_page_decrypted(unsigned long address);
+ extern int set_page_encrypted(unsigned long address);
++extern int set_page_non_present(unsigned long address);
+ extern unsigned char _pgtable[];
+ #endif
+ 
+@@ -117,8 +118,13 @@ void set_sev_encryption_mask(void);
+ 
+ #ifdef CONFIG_AMD_MEM_ENCRYPT
+ void sev_es_shutdown_ghcb(void);
++extern bool sev_es_check_ghcb_fault(unsigned long address);
+ #else
+ static inline void sev_es_shutdown_ghcb(void) { }
++static inline bool sev_es_check_ghcb_fault(unsigned long address)
 +{
-+	u32 low, high;
++	return false;
++}
+ #endif
+ 
+ /* acpi.c */
+diff --git a/arch/x86/boot/compressed/sev-es.c b/arch/x86/boot/compressed/sev-es.c
+index 940d72571fc9..1241697dd156 100644
+--- a/arch/x86/boot/compressed/sev-es.c
++++ b/arch/x86/boot/compressed/sev-es.c
+@@ -120,6 +120,20 @@ void sev_es_shutdown_ghcb(void)
+ 	 */
+ 	if (set_page_encrypted((unsigned long)&boot_ghcb_page))
+ 		error("Can't map GHCB page encrypted");
 +
-+	low  = (u32)(val);
-+	high = (u32)(val >> 32);
-+
-+	native_write_msr(MSR_AMD64_SEV_ES_GHCB, low, high);
++	/*
++	 * GHCB page is mapped encrypted again and flushed from the cache.
++	 * Mark it non-present now to catch bugs when #VC exceptions trigger
++	 * after this point.
++	 */
++	if (set_page_non_present((unsigned long)&boot_ghcb_page))
++		error("Can't unmap GHCB page");
 +}
 +
-+static int vc_fetch_insn_kernel(struct es_em_ctxt *ctxt,
-+				unsigned char *buffer)
++bool sev_es_check_ghcb_fault(unsigned long address)
 +{
-+	return probe_kernel_read(buffer, (unsigned char *)ctxt->regs->ip,
-+				 MAX_INSN_SIZE);
-+}
-+
-+static enum es_result vc_decode_insn(struct es_em_ctxt *ctxt)
-+{
-+	char buffer[MAX_INSN_SIZE];
-+	enum es_result ret;
-+	int res;
-+
-+	res = vc_fetch_insn_kernel(ctxt, buffer);
-+	if (unlikely(res == -EFAULT)) {
-+		ctxt->fi.vector     = X86_TRAP_PF;
-+		ctxt->fi.error_code = 0;
-+		ctxt->fi.cr2        = ctxt->regs->ip;
-+		return ES_EXCEPTION;
-+	}
-+
-+	insn_init(&ctxt->insn, buffer, MAX_INSN_SIZE - res, 1);
-+	insn_get_length(&ctxt->insn);
-+
-+	ret = ctxt->insn.immediate.got ? ES_OK : ES_DECODE_FAILED;
-+
-+	return ret;
-+}
-+
-+static enum es_result vc_write_mem(struct es_em_ctxt *ctxt,
-+				   char *dst, char *buf, size_t size)
-+{
-+	unsigned long error_code = X86_PF_PROT | X86_PF_WRITE;
-+	char __user *target = (char __user *)dst;
-+	u64 d8;
-+	u32 d4;
-+	u16 d2;
-+	u8  d1;
-+
-+	switch (size) {
-+	case 1:
-+		memcpy(&d1, buf, 1);
-+		if (put_user(d1, target))
-+			goto fault;
-+		break;
-+	case 2:
-+		memcpy(&d2, buf, 2);
-+		if (put_user(d2, target))
-+			goto fault;
-+		break;
-+	case 4:
-+		memcpy(&d4, buf, 4);
-+		if (put_user(d4, target))
-+			goto fault;
-+		break;
-+	case 8:
-+		memcpy(&d8, buf, 8);
-+		if (put_user(d8, target))
-+			goto fault;
-+		break;
-+	default:
-+		WARN_ONCE(1, "%s: Invalid size: %zu\n", __func__, size);
-+		return ES_UNSUPPORTED;
-+	}
-+
-+	return ES_OK;
-+
-+fault:
-+	if (user_mode(ctxt->regs))
-+		error_code |= X86_PF_USER;
-+
-+	ctxt->fi.vector = X86_TRAP_PF;
-+	ctxt->fi.error_code = error_code;
-+	ctxt->fi.cr2 = (unsigned long)dst;
-+
-+	return ES_EXCEPTION;
-+}
-+
-+static enum es_result vc_read_mem(struct es_em_ctxt *ctxt,
-+				  char *src, char *buf, size_t size)
-+{
-+	unsigned long error_code = X86_PF_PROT;
-+	char __user *s = (char __user *)src;
-+	u64 d8;
-+	u32 d4;
-+	u16 d2;
-+	u8  d1;
-+
-+	switch (size) {
-+	case 1:
-+		if (get_user(d1, s))
-+			goto fault;
-+		memcpy(buf, &d1, 1);
-+		break;
-+	case 2:
-+		if (get_user(d2, s))
-+			goto fault;
-+		memcpy(buf, &d2, 2);
-+		break;
-+	case 4:
-+		if (get_user(d4, s))
-+			goto fault;
-+		memcpy(buf, &d4, 4);
-+		break;
-+	case 8:
-+		if (get_user(d8, s))
-+			goto fault;
-+		memcpy(buf, &d8, 8);
-+		break;
-+	default:
-+		WARN_ONCE(1, "%s: Invalid size: %zu\n", __func__, size);
-+		return ES_UNSUPPORTED;
-+	}
-+
-+	return ES_OK;
-+
-+fault:
-+	if (user_mode(ctxt->regs))
-+		error_code |= X86_PF_USER;
-+
-+	ctxt->fi.vector = X86_TRAP_PF;
-+	ctxt->fi.error_code = error_code;
-+	ctxt->fi.cr2 = (unsigned long)src;
-+
-+	return ES_EXCEPTION;
-+}
-+
-+/* Include code shared with pre-decompression boot stage */
-+#include "sev-es-shared.c"
++	/* Check whether the fault was on the GHCB page */
++	return ((address & PAGE_MASK) == (unsigned long)&boot_ghcb_page);
+ }
+ 
+ void do_boot_stage2_vc(struct pt_regs *regs, unsigned long exit_code)
 -- 
 2.17.1
