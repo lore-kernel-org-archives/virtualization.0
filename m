@@ -1,135 +1,84 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 07/75] x86/umip: Factor out instruction fetch
-Date: Tue, 28 Apr 2020 17:16:17 +0200
-Message-ID: <20200428151725.31091-8-joro@8bytes.org>
+Subject: [PATCH v3 04/75] x86/cpufeatures: Add SEV-ES CPU feature
+Date: Tue, 28 Apr 2020 17:16:14 +0200
+Message-ID: <20200428151725.31091-5-joro@8bytes.org>
 References: <20200428151725.31091-1-joro@8bytes.org>
-Return-path: <kvm-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200428151725.31091-1-joro@8bytes.org>
-Sender: kvm-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: x86@kernel.org
-Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Joerg Roedel <jroedel@suse.de>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-Factor out the code to fetch the instruction from user-space to a helper
-function.
+Add CPU feature detection for Secure Encrypted Virtualization with
+Encrypted State. This feature enhances SEV by also encrypting the
+guest register state, making it in-accessible to the hypervisor.
 
-No functional changes.
-
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/insn-eval.h |  2 ++
- arch/x86/kernel/umip.c           | 26 +++++-----------------
- arch/x86/lib/insn-eval.c         | 38 ++++++++++++++++++++++++++++++++
- 3 files changed, 46 insertions(+), 20 deletions(-)
+ arch/x86/include/asm/cpufeatures.h | 1 +
+ arch/x86/kernel/cpu/amd.c          | 3 ++-
+ arch/x86/kernel/cpu/scattered.c    | 1 +
+ 3 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/insn-eval.h b/arch/x86/include/asm/insn-eval.h
-index 2b6ccf2c49f1..b8b9ef1bbd06 100644
---- a/arch/x86/include/asm/insn-eval.h
-+++ b/arch/x86/include/asm/insn-eval.h
-@@ -19,5 +19,7 @@ void __user *insn_get_addr_ref(struct insn *insn, struct pt_regs *regs);
- int insn_get_modrm_rm_off(struct insn *insn, struct pt_regs *regs);
- unsigned long insn_get_seg_base(struct pt_regs *regs, int seg_reg_idx);
- int insn_get_code_seg_params(struct pt_regs *regs);
-+int insn_fetch_from_user(struct pt_regs *regs,
-+			 unsigned char buf[MAX_INSN_SIZE]);
+diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
+index db189945e9b0..ade59fca283a 100644
+--- a/arch/x86/include/asm/cpufeatures.h
++++ b/arch/x86/include/asm/cpufeatures.h
+@@ -234,6 +234,7 @@
+ #define X86_FEATURE_EPT_AD		( 8*32+17) /* Intel Extended Page Table access-dirty bit */
+ #define X86_FEATURE_VMCALL		( 8*32+18) /* "" Hypervisor supports the VMCALL instruction */
+ #define X86_FEATURE_VMW_VMMCALL		( 8*32+19) /* "" VMware prefers VMMCALL hypercall instruction */
++#define X86_FEATURE_SEV_ES		( 8*32+20) /* AMD Secure Encrypted Virtualization - Encrypted State */
  
- #endif /* _ASM_X86_INSN_EVAL_H */
-diff --git a/arch/x86/kernel/umip.c b/arch/x86/kernel/umip.c
-index 8d5cbe1bbb3b..c9e5345da793 100644
---- a/arch/x86/kernel/umip.c
-+++ b/arch/x86/kernel/umip.c
-@@ -317,11 +317,11 @@ static void force_sig_info_umip_fault(void __user *addr, struct pt_regs *regs)
-  */
- bool fixup_umip_exception(struct pt_regs *regs)
- {
--	int not_copied, nr_copied, reg_offset, dummy_data_size, umip_inst;
--	unsigned long seg_base = 0, *reg_addr;
-+	int nr_copied, reg_offset, dummy_data_size, umip_inst;
- 	/* 10 bytes is the maximum size of the result of UMIP instructions */
- 	unsigned char dummy_data[10] = { 0 };
- 	unsigned char buf[MAX_INSN_SIZE];
-+	unsigned long *reg_addr;
- 	void __user *uaddr;
- 	struct insn insn;
- 	int seg_defs;
-@@ -329,26 +329,12 @@ bool fixup_umip_exception(struct pt_regs *regs)
- 	if (!regs)
- 		return false;
- 
--	/*
--	 * If not in user-space long mode, a custom code segment could be in
--	 * use. This is true in protected mode (if the process defined a local
--	 * descriptor table), or virtual-8086 mode. In most of the cases
--	 * seg_base will be zero as in USER_CS.
--	 */
--	if (!user_64bit_mode(regs))
--		seg_base = insn_get_seg_base(regs, INAT_SEG_REG_CS);
--
--	if (seg_base == -1L)
--		return false;
--
--	not_copied = copy_from_user(buf, (void __user *)(seg_base + regs->ip),
--				    sizeof(buf));
--	nr_copied = sizeof(buf) - not_copied;
-+	nr_copied = insn_fetch_from_user(regs, buf);
- 
- 	/*
--	 * The copy_from_user above could have failed if user code is protected
--	 * by a memory protection key. Give up on emulation in such a case.
--	 * Should we issue a page fault?
-+	 * The insn_fetch_from_user above could have failed if user code
-+	 * is protected by a memory protection key. Give up on emulation
-+	 * in such a case.  Should we issue a page fault?
- 	 */
- 	if (!nr_copied)
- 		return false;
-diff --git a/arch/x86/lib/insn-eval.c b/arch/x86/lib/insn-eval.c
-index 31600d851fd8..0c4f7ebc261b 100644
---- a/arch/x86/lib/insn-eval.c
-+++ b/arch/x86/lib/insn-eval.c
-@@ -1369,3 +1369,41 @@ void __user *insn_get_addr_ref(struct insn *insn, struct pt_regs *regs)
- 		return (void __user *)-1L;
+ /* Intel-defined CPU features, CPUID level 0x00000007:0 (EBX), word 9 */
+ #define X86_FEATURE_FSGSBASE		( 9*32+ 0) /* RDFSBASE, WRFSBASE, RDGSBASE, WRGSBASE instructions*/
+diff --git a/arch/x86/kernel/cpu/amd.c b/arch/x86/kernel/cpu/amd.c
+index 547ad7bbf0e0..6b036291b9b3 100644
+--- a/arch/x86/kernel/cpu/amd.c
++++ b/arch/x86/kernel/cpu/amd.c
+@@ -610,7 +610,7 @@ static void early_detect_mem_encrypt(struct cpuinfo_x86 *c)
+ 	 *	      If BIOS has not enabled SME then don't advertise the
+ 	 *	      SME feature (set in scattered.c).
+ 	 *   For SEV: If BIOS has not enabled SEV then don't advertise the
+-	 *            SEV feature (set in scattered.c).
++	 *            SEV and SEV_ES feature (set in scattered.c).
+ 	 *
+ 	 *   In all cases, since support for SME and SEV requires long mode,
+ 	 *   don't advertise the feature under CONFIG_X86_32.
+@@ -641,6 +641,7 @@ static void early_detect_mem_encrypt(struct cpuinfo_x86 *c)
+ 		setup_clear_cpu_cap(X86_FEATURE_SME);
+ clear_sev:
+ 		setup_clear_cpu_cap(X86_FEATURE_SEV);
++		setup_clear_cpu_cap(X86_FEATURE_SEV_ES);
  	}
  }
-+
-+/**
-+ * insn_fetch_from_user() - Copy instruction bytes from user-space memory
-+ * @regs:	Structure with register values as seen when entering kernel mode
-+ * @buf:	Array to store the fetched instruction
-+ *
-+ * Gets the linear address of the instruction and copies the instruction bytes
-+ * to the buf.
-+ *
-+ * Returns:
-+ *
-+ * Number of instruction bytes copied.
-+ *
-+ * 0 if nothing was copied.
-+ */
-+int insn_fetch_from_user(struct pt_regs *regs, unsigned char buf[MAX_INSN_SIZE])
-+{
-+	unsigned long seg_base = 0;
-+	int not_copied;
-+
-+	/*
-+	 * If not in user-space long mode, a custom code segment could be in
-+	 * use. This is true in protected mode (if the process defined a local
-+	 * descriptor table), or virtual-8086 mode. In most of the cases
-+	 * seg_base will be zero as in USER_CS.
-+	 */
-+	if (!user_64bit_mode(regs)) {
-+		seg_base = insn_get_seg_base(regs, INAT_SEG_REG_CS);
-+		if (seg_base == -1L)
-+			return 0;
-+	}
-+
-+
-+	not_copied = copy_from_user(buf, (void __user *)(seg_base + regs->ip),
-+				    MAX_INSN_SIZE);
-+
-+	return MAX_INSN_SIZE - not_copied;
-+}
+ 
+diff --git a/arch/x86/kernel/cpu/scattered.c b/arch/x86/kernel/cpu/scattered.c
+index 62b137c3c97a..30f354989cf1 100644
+--- a/arch/x86/kernel/cpu/scattered.c
++++ b/arch/x86/kernel/cpu/scattered.c
+@@ -41,6 +41,7 @@ static const struct cpuid_bit cpuid_bits[] = {
+ 	{ X86_FEATURE_MBA,		CPUID_EBX,  6, 0x80000008, 0 },
+ 	{ X86_FEATURE_SME,		CPUID_EAX,  0, 0x8000001f, 0 },
+ 	{ X86_FEATURE_SEV,		CPUID_EAX,  1, 0x8000001f, 0 },
++	{ X86_FEATURE_SEV_ES,		CPUID_EAX,  3, 0x8000001f, 0 },
+ 	{ 0, 0, 0, 0, 0 }
+ };
+ 
 -- 
 2.17.1
