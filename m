@@ -1,130 +1,76 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 75/75] x86/efi: Add GHCB mappings when SEV-ES is active
-Date: Tue, 28 Apr 2020 17:17:25 +0200
-Message-ID: <20200428151725.31091-76-joro@8bytes.org>
+Subject: [PATCH v3 29/75] x86/idt: Split idt_data setup out of set_intr_gate()
+Date: Tue, 28 Apr 2020 17:16:39 +0200
+Message-ID: <20200428151725.31091-30-joro@8bytes.org>
 References: <20200428151725.31091-1-joro@8bytes.org>
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200428151725.31091-1-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: x86@kernel.org
-Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Joerg Roedel <jroedel@suse.de>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-Calling down to EFI runtime services can result in the firmware performing
-VMGEXIT calls. The firmware is likely to use the GHCB of the OS (e.g., for
-setting EFI variables), so each GHCB in the system needs to be identity
-mapped in the EFI page tables, as unencrypted, to avoid page faults.
+The code to setup idt_data is needed for early exception handling, but
+set_intr_gate() can't be used that early because it has pv-ops in its
+code path, which don't work that early.
 
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-[ jroedel@suse.de: Moved GHCB mapping loop to sev-es.c ]
+Split out the idt_data initialization part from set_intr_gate() so
+that it can be used separatly.
+
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/compressed/sev-es.c |  1 +
- arch/x86/include/asm/sev-es.h     |  5 +++++
- arch/x86/kernel/sev-es.c          | 25 +++++++++++++++++++++++++
- arch/x86/platform/efi/efi_64.c    | 10 ++++++++++
- 4 files changed, 41 insertions(+)
+ arch/x86/kernel/idt.c | 22 ++++++++++++++--------
+ 1 file changed, 14 insertions(+), 8 deletions(-)
 
-diff --git a/arch/x86/boot/compressed/sev-es.c b/arch/x86/boot/compressed/sev-es.c
-index 12a5d918d837..30b2cebf5fed 100644
---- a/arch/x86/boot/compressed/sev-es.c
-+++ b/arch/x86/boot/compressed/sev-es.c
-@@ -12,6 +12,7 @@
-  */
- #include "misc.h"
- 
-+#include <asm/pgtable_types.h>
- #include <asm/sev-es.h>
- #include <asm/trap_defs.h>
- #include <asm/msr-index.h>
-diff --git a/arch/x86/include/asm/sev-es.h b/arch/x86/include/asm/sev-es.h
-index a242d16727f1..ce9a197bf958 100644
---- a/arch/x86/include/asm/sev-es.h
-+++ b/arch/x86/include/asm/sev-es.h
-@@ -87,6 +87,7 @@ void sev_es_nmi_enter(void);
- void sev_es_nmi_exit(void);
- int sev_es_setup_ap_jump_table(struct real_mode_header *rmh);
- void sev_es_nmi_complete(void);
-+int __init sev_es_efi_map_ghcbs(pgd_t *pgd);
- #else /* CONFIG_AMD_MEM_ENCRYPT */
- static inline const char *vc_stack_name(enum stack_type type)
- {
-@@ -97,6 +98,10 @@ static inline int sev_es_setup_ap_jump_table(struct real_mode_header *rmh)
- 	return 0;
- }
- static inline void sev_es_nmi_complete(void) { }
-+static inline int sev_es_efi_map_ghcbs(pgd_t *pgd)
-+{
-+	return 0;
-+}
- #endif /* CONFIG_AMD_MEM_ENCRYPT*/
- 
- #endif
-diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index eef6e2196ef4..3b62714723b5 100644
---- a/arch/x86/kernel/sev-es.c
-+++ b/arch/x86/kernel/sev-es.c
-@@ -422,6 +422,31 @@ int sev_es_setup_ap_jump_table(struct real_mode_header *rmh)
- 	return 0;
- }
- 
-+int __init sev_es_efi_map_ghcbs(pgd_t *pgd)
-+{
-+	struct sev_es_runtime_data *data;
-+	unsigned long address, pflags;
-+	int cpu;
-+	u64 pfn;
-+
-+	if (!sev_es_active())
-+		return 0;
-+
-+	pflags = _PAGE_NX | _PAGE_RW;
-+
-+	for_each_possible_cpu(cpu) {
-+		data = per_cpu(runtime_data, cpu);
-+
-+		address = __pa(&data->ghcb_page);
-+		pfn = address >> PAGE_SHIFT;
-+
-+		if (kernel_map_pages_in_pgd(pgd, pfn, address, 1, pflags))
-+			return 1;
-+	}
-+
-+	return 0;
-+}
-+
- static enum es_result vc_handle_msr(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
- {
- 	struct pt_regs *regs = ctxt->regs;
-diff --git a/arch/x86/platform/efi/efi_64.c b/arch/x86/platform/efi/efi_64.c
-index c5e393f8bb3f..004a18853dd3 100644
---- a/arch/x86/platform/efi/efi_64.c
-+++ b/arch/x86/platform/efi/efi_64.c
-@@ -48,6 +48,7 @@
- #include <asm/realmode.h>
- #include <asm/time.h>
- #include <asm/pgalloc.h>
-+#include <asm/sev-es.h>
- 
- /*
-  * We allocate runtime services regions top-down, starting from -4G, i.e.
-@@ -239,6 +240,15 @@ int __init efi_setup_page_tables(unsigned long pa_memmap, unsigned num_pages)
- 		return 1;
+diff --git a/arch/x86/kernel/idt.c b/arch/x86/kernel/idt.c
+index a8fc01ea602a..c752027abc9e 100644
+--- a/arch/x86/kernel/idt.c
++++ b/arch/x86/kernel/idt.c
+@@ -231,18 +231,24 @@ idt_setup_from_table(gate_desc *idt, const struct idt_data *t, int size, bool sy
  	}
+ }
  
-+	/*
-+	 * When SEV-ES is active, the GHCB as set by the kernel will be used
-+	 * by firmware. Create a 1:1 unencrypted mapping for each GHCB.
-+	 */
-+	if (sev_es_efi_map_ghcbs(pgd)) {
-+		pr_err("Failed to create 1:1 mapping for the GHCBs!\n");
-+		return 1;
-+	}
++static void init_idt_data(struct idt_data *data, unsigned int n,
++			  const void *addr)
++{
++	BUG_ON(n > 0xFF);
 +
- 	/*
- 	 * When making calls to the firmware everything needs to be 1:1
- 	 * mapped and addressable with 32-bit pointers. Map the kernel
++	memset(data, 0, sizeof(*data));
++	data->vector	= n;
++	data->addr	= addr;
++	data->segment	= __KERNEL_CS;
++	data->bits.type	= GATE_INTERRUPT;
++	data->bits.p	= 1;
++}
++
+ static void set_intr_gate(unsigned int n, const void *addr)
+ {
+ 	struct idt_data data;
+ 
+-	BUG_ON(n > 0xFF);
+-
+-	memset(&data, 0, sizeof(data));
+-	data.vector	= n;
+-	data.addr	= addr;
+-	data.segment	= __KERNEL_CS;
+-	data.bits.type	= GATE_INTERRUPT;
+-	data.bits.p	= 1;
++	init_idt_data(&data, n, addr);
+ 
+ 	idt_setup_from_table(idt_table, &data, 1, false);
+ }
 -- 
 2.17.1
