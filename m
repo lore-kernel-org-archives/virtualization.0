@@ -1,53 +1,67 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 35/75] x86/head/64: Build k/head64.c with
- -fno-stack-protector
-Date: Tue, 28 Apr 2020 17:16:45 +0200
-Message-ID: <20200428151725.31091-36-joro@8bytes.org>
+Subject: [PATCH v3 48/75] x86/sev-es: Wire up existing #VC exit-code handlers
+Date: Tue, 28 Apr 2020 17:16:58 +0200
+Message-ID: <20200428151725.31091-49-joro@8bytes.org>
 References: <20200428151725.31091-1-joro@8bytes.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200428151725.31091-1-joro@8bytes.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: x86@kernel.org
-Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Joerg Roedel <jroedel@suse.de>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
+Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-The code inserted by the stack protector does not work in the early
-boot environment because it uses the GS segment, at least with memory
-encryption enabled. Make sure the early code is compiled without this
-feature enabled.
+Re-use the handlers for CPUID and IOIO caused #VC exceptions in the
+early boot handler.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/Makefile | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/x86/kernel/sev-es-shared.c | 7 +++----
+ arch/x86/kernel/sev-es.c        | 6 ++++++
+ 2 files changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/kernel/Makefile b/arch/x86/kernel/Makefile
-index ba89cabe5fcf..1192de38fa56 100644
---- a/arch/x86/kernel/Makefile
-+++ b/arch/x86/kernel/Makefile
-@@ -35,6 +35,10 @@ ifdef CONFIG_FRAME_POINTER
- OBJECT_FILES_NON_STANDARD_ftrace_$(BITS).o		:= y
- endif
+diff --git a/arch/x86/kernel/sev-es-shared.c b/arch/x86/kernel/sev-es-shared.c
+index 3d2299fb5e3f..3d645662ff10 100644
+--- a/arch/x86/kernel/sev-es-shared.c
++++ b/arch/x86/kernel/sev-es-shared.c
+@@ -324,8 +324,7 @@ static enum es_result vc_ioio_exitinfo(struct es_em_ctxt *ctxt, u64 *exitinfo)
+ 	return ES_OK;
+ }
  
-+# make sure head64.c is built without stack protector
-+nostackp := $(call cc-option, -fno-stack-protector)
-+CFLAGS_head64.o		:= $(nostackp)
-+
- # If instrumentation of this dir is enabled, boot hangs during first second.
- # Probably could be more selective here, but note that files related to irqs,
- # boot, dumpstack/stacktrace, etc are either non-interesting or can lead to
+-static enum es_result __maybe_unused
+-vc_handle_ioio(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
++static enum es_result vc_handle_ioio(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
+ {
+ 	struct pt_regs *regs = ctxt->regs;
+ 	u64 exit_info_1, exit_info_2;
+@@ -421,8 +420,8 @@ vc_handle_ioio(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
+ 	return ret;
+ }
+ 
+-static enum es_result __maybe_unused vc_handle_cpuid(struct ghcb *ghcb,
+-						     struct es_em_ctxt *ctxt)
++static enum es_result vc_handle_cpuid(struct ghcb *ghcb,
++				      struct es_em_ctxt *ctxt)
+ {
+ 	struct pt_regs *regs = ctxt->regs;
+ 	u32 cr4 = native_read_cr4();
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+index bc3a58427028..85027fb4177e 100644
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -424,6 +424,12 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
+ 	enum es_result result;
+ 
+ 	switch (exit_code) {
++	case SVM_EXIT_CPUID:
++		result = vc_handle_cpuid(ghcb, ctxt);
++		break;
++	case SVM_EXIT_IOIO:
++		result = vc_handle_ioio(ghcb, ctxt);
++		break;
+ 	default:
+ 		/*
+ 		 * Unexpected #VC exception
 -- 
 2.17.1
