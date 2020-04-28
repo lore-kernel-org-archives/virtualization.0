@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 15/75] x86/boot/compressed/64: Add page-fault handler
-Date: Tue, 28 Apr 2020 17:16:25 +0200
-Message-ID: <20200428151725.31091-16-joro@8bytes.org>
+Subject: [PATCH v3 39/75] x86/sev-es: Print SEV-ES info into kernel log
+Date: Tue, 28 Apr 2020 17:16:49 +0200
+Message-ID: <20200428151725.31091-40-joro@8bytes.org>
 References: <20200428151725.31091-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,117 +23,61 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Install a page-fault handler to add an identity mapping to addresses
-not yet mapped. Also do some checking whether the error code is sane.
-
-This makes non SEV-ES machines use the exception handling
-infrastructure in the pre-decompressions boot code too, making it less
-likely to break in the future.
+Refactor the message printed to the kernel log which indicates whether
+SEV or SME is active to print a list of enabled encryption features.
+This will scale better in the future when more memory encryption
+features might be added. Also add SEV-ES to the list of features.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/compressed/ident_map_64.c    | 33 ++++++++++++++++++++++
- arch/x86/boot/compressed/idt_64.c          |  2 ++
- arch/x86/boot/compressed/idt_handlers_64.S |  2 ++
- arch/x86/boot/compressed/misc.h            |  6 ++++
- 4 files changed, 43 insertions(+)
+ arch/x86/mm/mem_encrypt.c | 29 ++++++++++++++++++++++++++---
+ 1 file changed, 26 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/boot/compressed/ident_map_64.c b/arch/x86/boot/compressed/ident_map_64.c
-index 3a2115582920..33bdf923cbab 100644
---- a/arch/x86/boot/compressed/ident_map_64.c
-+++ b/arch/x86/boot/compressed/ident_map_64.c
-@@ -19,11 +19,13 @@
- /* No PAGE_TABLE_ISOLATION support needed either: */
- #undef CONFIG_PAGE_TABLE_ISOLATION
- 
-+#include "error.h"
- #include "misc.h"
- 
- /* These actually do the work of building the kernel identity maps. */
- #include <asm/init.h>
- #include <asm/pgtable.h>
-+#include <asm/trap_defs.h>
- /* Use the static base for this part of the boot process */
- #undef __PAGE_OFFSET
- #define __PAGE_OFFSET __PAGE_OFFSET_BASE
-@@ -163,3 +165,34 @@ void finalize_identity_maps(void)
- {
- 	write_cr3(top_level_pgt);
+diff --git a/arch/x86/mm/mem_encrypt.c b/arch/x86/mm/mem_encrypt.c
+index 3e59fcd7f9ac..c8d8eabfa1bc 100644
+--- a/arch/x86/mm/mem_encrypt.c
++++ b/arch/x86/mm/mem_encrypt.c
+@@ -409,6 +409,31 @@ void __init mem_encrypt_free_decrypted_mem(void)
+ 	free_init_pages("unused decrypted", vaddr, vaddr_end);
  }
-+
-+void do_boot_page_fault(struct pt_regs *regs, unsigned long error_code)
+ 
++static void print_mem_encrypt_feature_info(void)
 +{
-+	unsigned long address = native_read_cr2();
++	pr_info("AMD Memory Encryption Features active:");
 +
-+	/*
-+	 * Check for unexpected error codes. Unexpected are:
-+	 *	- Faults on present pages
-+	 *	- User faults
-+	 *	- Reserved bits set
-+	 */
-+	if (error_code & (X86_PF_PROT | X86_PF_USER | X86_PF_RSVD)) {
-+		/* Print some information for debugging */
-+		error_putstr("Unexpected page-fault:");
-+		error_putstr("\nError Code: ");
-+		error_puthex(error_code);
-+		error_putstr("\nCR2: 0x");
-+		error_puthex(address);
-+		error_putstr("\nRIP relative to _head: 0x");
-+		error_puthex(regs->ip - (unsigned long)_head);
-+		error_putstr("\n");
-+
-+		error("Stopping.\n");
++	/* Secure Memory Encryption */
++	if (sme_active()) {
++		/*
++		 * SME is mutually exclusive with any of the SEV
++		 * features below.
++		 */
++		pr_cont(" SME\n");
++		return;
 +	}
 +
-+	/*
-+	 * Error code is sane - now identity map the 2M region around
-+	 * the faulting address.
-+	 */
-+	add_identity_map(address & PMD_MASK, PMD_SIZE);
++	/* Secure Encrypted Virtualization */
++	if (sev_active())
++		pr_cont(" SEV");
++
++	/* Encrypted Register State */
++	if (sev_es_active())
++		pr_cont(" SEV-ES");
++
++	pr_cont("\n");
 +}
-diff --git a/arch/x86/boot/compressed/idt_64.c b/arch/x86/boot/compressed/idt_64.c
-index 46ecea671b90..99cc78062684 100644
---- a/arch/x86/boot/compressed/idt_64.c
-+++ b/arch/x86/boot/compressed/idt_64.c
-@@ -39,5 +39,7 @@ void load_stage2_idt(void)
++
+ void __init mem_encrypt_init(void)
  {
- 	boot_idt_desc.address = (unsigned long)boot_idt;
+ 	if (!sme_me_mask)
+@@ -423,8 +448,6 @@ void __init mem_encrypt_init(void)
+ 	if (sev_active())
+ 		static_branch_enable(&sev_enable_key);
  
-+	set_idt_entry(X86_TRAP_PF, boot_page_fault);
-+
- 	load_boot_idt(&boot_idt_desc);
+-	pr_info("AMD %s active\n",
+-		sev_active() ? "Secure Encrypted Virtualization (SEV)"
+-			     : "Secure Memory Encryption (SME)");
++	print_mem_encrypt_feature_info();
  }
-diff --git a/arch/x86/boot/compressed/idt_handlers_64.S b/arch/x86/boot/compressed/idt_handlers_64.S
-index f86ea872d860..eda50cbdafa0 100644
---- a/arch/x86/boot/compressed/idt_handlers_64.S
-+++ b/arch/x86/boot/compressed/idt_handlers_64.S
-@@ -67,3 +67,5 @@ SYM_FUNC_END(\name)
  
- 	.text
- 	.code64
-+
-+EXCEPTION_HANDLER	boot_page_fault do_boot_page_fault error_code=1
-diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
-index 3a030a878d53..345c90fbc500 100644
---- a/arch/x86/boot/compressed/misc.h
-+++ b/arch/x86/boot/compressed/misc.h
-@@ -37,6 +37,9 @@
- #define memptr unsigned
- #endif
- 
-+/* boot/compressed/vmlinux start and end markers */
-+extern char _head[], _end[];
-+
- /* misc.c */
- extern memptr free_mem_ptr;
- extern memptr free_mem_end_ptr;
-@@ -146,4 +149,7 @@ extern pteval_t __default_kernel_pte_mask;
- extern gate_desc boot_idt[BOOT_IDT_ENTRIES];
- extern struct desc_ptr boot_idt_desc;
- 
-+/* IDT Entry Points */
-+void boot_page_fault(void);
-+
- #endif /* BOOT_COMPRESSED_MISC_H */
 -- 
 2.17.1
