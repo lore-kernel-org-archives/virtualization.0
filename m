@@ -1,7 +1,8 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 30/75] x86/idt: Move two function from k/idt.c to i/a/desc.h
-Date: Tue, 28 Apr 2020 17:16:40 +0200
-Message-ID: <20200428151725.31091-31-joro@8bytes.org>
+Subject: [PATCH v3 14/75] x86/boot/compressed/64: Rename kaslr_64.c to
+ ident_map_64.c
+Date: Tue, 28 Apr 2020 17:16:24 +0200
+Message-ID: <20200428151725.31091-15-joro@8bytes.org>
 References: <20200428151725.31091-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,138 +24,97 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Move these two functions from kernel/idt.c to include/asm/desc.h:
-
-	* init_idt_data()
-	* idt_init_desc()
-
-These functions are needed to setup IDT entries very early and need to
-be called from head64.c. To be usable this early these functions need to
-be compiled without instrumentation and the stack-protector feature.
-These features need to be kept enabled for kernel/idt.c, so head64.c
-must use its own versions.
+The file contains only code related to identity mapped page-tables.
+Rename the file and compile it always in.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/desc.h      | 27 +++++++++++++++++++++++++
- arch/x86/include/asm/desc_defs.h |  7 +++++++
- arch/x86/kernel/idt.c            | 34 --------------------------------
- 3 files changed, 34 insertions(+), 34 deletions(-)
+ arch/x86/boot/compressed/Makefile                    |  2 +-
+ .../boot/compressed/{kaslr_64.c => ident_map_64.c}   | 12 ++++++++++++
+ arch/x86/boot/compressed/kaslr.c                     |  9 ---------
+ arch/x86/boot/compressed/misc.h                      |  8 ++++++++
+ 4 files changed, 21 insertions(+), 10 deletions(-)
+ rename arch/x86/boot/compressed/{kaslr_64.c => ident_map_64.c} (93%)
 
-diff --git a/arch/x86/include/asm/desc.h b/arch/x86/include/asm/desc.h
-index 68a99d2a5f33..80bf63c08007 100644
---- a/arch/x86/include/asm/desc.h
-+++ b/arch/x86/include/asm/desc.h
-@@ -389,6 +389,33 @@ static inline void set_desc_limit(struct desc_struct *desc, unsigned long limit)
- void update_intr_gate(unsigned int n, const void *addr);
- void alloc_intr_gate(unsigned int n, const void *addr);
+diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
+index 954842333d1d..c6909d10a6b9 100644
+--- a/arch/x86/boot/compressed/Makefile
++++ b/arch/x86/boot/compressed/Makefile
+@@ -81,7 +81,7 @@ vmlinux-objs-y := $(obj)/vmlinux.lds $(obj)/kernel_info.o $(obj)/head_$(BITS).o
+ vmlinux-objs-$(CONFIG_EARLY_PRINTK) += $(obj)/early_serial_console.o
+ vmlinux-objs-$(CONFIG_RANDOMIZE_BASE) += $(obj)/kaslr.o
+ ifdef CONFIG_X86_64
+-	vmlinux-objs-$(CONFIG_RANDOMIZE_BASE) += $(obj)/kaslr_64.o
++	vmlinux-objs-y += $(obj)/ident_map_64.o
+ 	vmlinux-objs-y += $(obj)/idt_64.o $(obj)/idt_handlers_64.o
+ 	vmlinux-objs-y += $(obj)/mem_encrypt.o
+ 	vmlinux-objs-y += $(obj)/pgtable_64.o
+diff --git a/arch/x86/boot/compressed/kaslr_64.c b/arch/x86/boot/compressed/ident_map_64.c
+similarity index 93%
+rename from arch/x86/boot/compressed/kaslr_64.c
+rename to arch/x86/boot/compressed/ident_map_64.c
+index 9557c5a15b91..3a2115582920 100644
+--- a/arch/x86/boot/compressed/kaslr_64.c
++++ b/arch/x86/boot/compressed/ident_map_64.c
+@@ -29,6 +29,18 @@
+ #define __PAGE_OFFSET __PAGE_OFFSET_BASE
+ #include "../../mm/ident_map.c"
  
-+static inline void init_idt_data(struct idt_data *data, unsigned int n,
-+				 const void *addr)
-+{
-+	BUG_ON(n > 0xFF);
-+
-+	memset(data, 0, sizeof(*data));
-+	data->vector	= n;
-+	data->addr	= addr;
-+	data->segment	= __KERNEL_CS;
-+	data->bits.type	= GATE_INTERRUPT;
-+	data->bits.p	= 1;
-+}
-+
-+static inline void idt_init_desc(gate_desc *gate, const struct idt_data *d)
-+{
-+	unsigned long addr = (unsigned long) d->addr;
-+
-+	gate->offset_low	= (u16) addr;
-+	gate->segment		= (u16) d->segment;
-+	gate->bits		= d->bits;
-+	gate->offset_middle	= (u16) (addr >> 16);
-+#ifdef CONFIG_X86_64
-+	gate->offset_high	= (u32) (addr >> 32);
-+	gate->reserved		= 0;
++#ifdef CONFIG_X86_5LEVEL
++unsigned int __pgtable_l5_enabled;
++unsigned int pgdir_shift = 39;
++unsigned int ptrs_per_p4d = 1;
 +#endif
-+}
 +
- extern unsigned long system_vectors[];
- 
- #ifdef CONFIG_X86_64
-diff --git a/arch/x86/include/asm/desc_defs.h b/arch/x86/include/asm/desc_defs.h
-index 5621fb3f2d1a..f7e7099af595 100644
---- a/arch/x86/include/asm/desc_defs.h
-+++ b/arch/x86/include/asm/desc_defs.h
-@@ -74,6 +74,13 @@ struct idt_bits {
- 			p	: 1;
- } __attribute__((packed));
- 
-+struct idt_data {
-+	unsigned int	vector;
-+	unsigned int	segment;
-+	struct idt_bits	bits;
-+	const void	*addr;
-+};
++/* Used by PAGE_KERN* macros: */
++pteval_t __default_kernel_pte_mask __read_mostly = ~0;
 +
- struct gate_struct {
- 	u16		offset_low;
- 	u16		segment;
-diff --git a/arch/x86/kernel/idt.c b/arch/x86/kernel/idt.c
-index c752027abc9e..4a2c7791c697 100644
---- a/arch/x86/kernel/idt.c
-+++ b/arch/x86/kernel/idt.c
-@@ -9,13 +9,6 @@
- #include <asm/desc.h>
- #include <asm/hw_irq.h>
++/* Used by pgtable.h asm code to force instruction serialization. */
++unsigned long __force_order;
++
+ /* Used to track our page table allocation area. */
+ struct alloc_pgt_data {
+ 	unsigned char *pgt_buf;
+diff --git a/arch/x86/boot/compressed/kaslr.c b/arch/x86/boot/compressed/kaslr.c
+index d7408af55738..7c61a8c5b9cf 100644
+--- a/arch/x86/boot/compressed/kaslr.c
++++ b/arch/x86/boot/compressed/kaslr.c
+@@ -43,17 +43,8 @@
+ #define STATIC
+ #include <linux/decompress/mm.h>
  
--struct idt_data {
--	unsigned int	vector;
--	unsigned int	segment;
--	struct idt_bits	bits;
--	const void	*addr;
--};
+-#ifdef CONFIG_X86_5LEVEL
+-unsigned int __pgtable_l5_enabled;
+-unsigned int pgdir_shift __ro_after_init = 39;
+-unsigned int ptrs_per_p4d __ro_after_init = 1;
+-#endif
 -
- #define DPL0		0x0
- #define DPL3		0x3
+ extern unsigned long get_cmd_line_ptr(void);
  
-@@ -204,20 +197,6 @@ const struct desc_ptr debug_idt_descr = {
- };
+-/* Used by PAGE_KERN* macros: */
+-pteval_t __default_kernel_pte_mask __read_mostly = ~0;
+-
+ /* Simplified build-specific string for starting entropy. */
+ static const char build_str[] = UTS_RELEASE " (" LINUX_COMPILE_BY "@"
+ 		LINUX_COMPILE_HOST ") (" LINUX_COMPILER ") " UTS_VERSION;
+diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
+index 062ae3ae6930..3a030a878d53 100644
+--- a/arch/x86/boot/compressed/misc.h
++++ b/arch/x86/boot/compressed/misc.h
+@@ -134,6 +134,14 @@ int count_immovable_mem_regions(void);
+ static inline int count_immovable_mem_regions(void) { return 0; }
  #endif
  
--static inline void idt_init_desc(gate_desc *gate, const struct idt_data *d)
--{
--	unsigned long addr = (unsigned long) d->addr;
--
--	gate->offset_low	= (u16) addr;
--	gate->segment		= (u16) d->segment;
--	gate->bits		= d->bits;
--	gate->offset_middle	= (u16) (addr >> 16);
--#ifdef CONFIG_X86_64
--	gate->offset_high	= (u32) (addr >> 32);
--	gate->reserved		= 0;
--#endif
--}
--
- static void
- idt_setup_from_table(gate_desc *idt, const struct idt_data *t, int size, bool sys)
- {
-@@ -231,19 +210,6 @@ idt_setup_from_table(gate_desc *idt, const struct idt_data *t, int size, bool sy
- 	}
- }
- 
--static void init_idt_data(struct idt_data *data, unsigned int n,
--			  const void *addr)
--{
--	BUG_ON(n > 0xFF);
--
--	memset(data, 0, sizeof(*data));
--	data->vector	= n;
--	data->addr	= addr;
--	data->segment	= __KERNEL_CS;
--	data->bits.type	= GATE_INTERRUPT;
--	data->bits.p	= 1;
--}
--
- static void set_intr_gate(unsigned int n, const void *addr)
- {
- 	struct idt_data data;
++/* ident_map_64.c */
++#ifdef CONFIG_X86_5LEVEL
++extern unsigned int __pgtable_l5_enabled, pgdir_shift, ptrs_per_p4d;
++#endif
++
++/* Used by PAGE_KERN* macros: */
++extern pteval_t __default_kernel_pte_mask;
++
+ /* idt_64.c */
+ extern gate_desc boot_idt[BOOT_IDT_ENTRIES];
+ extern struct desc_ptr boot_idt_desc;
 -- 
 2.17.1
