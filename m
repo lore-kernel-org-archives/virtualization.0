@@ -1,83 +1,102 @@
-From: Vasily Averin <vvs@virtuozzo.com>
-Subject: Re: [PATCH 1/1] drm/qxl: add mutex_lock/mutex_unlock to ensure the
- order in which resources are rele
-Date: Wed, 29 Apr 2020 09:12:46 +0300
-Message-ID: <bc954de7-bfe0-8e0c-79d4-90d726a0ffa6@virtuozzo.com>
-References: <20200421084300.zggroiptwbrblzqy () sirius ! home ! kraxel ! org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 5/5] virtio: Add bounce DMA ops
+Date: Wed, 29 Apr 2020 02:50:41 -0400
+Message-ID: <20200429023842-mutt-send-email-mst@kernel.org>
+References: <1588073958-1793-1-git-send-email-vatsa@codeaurora.org>
+ <1588073958-1793-6-git-send-email-vatsa@codeaurora.org>
+ <20200428121232-mutt-send-email-mst@kernel.org>
+ <20200428174952.GA5097@quicinc.com>
+ <20200428163448-mutt-send-email-mst@kernel.org>
+ <275eba4b-dd35-aa95-b2e3-9c5cbf7c6d71@linux.intel.com>
+ <20200429004531-mutt-send-email-mst@kernel.org>
+ <b676430c-65b3-096e-ca48-ceebf10f4b28@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200421084300.zggroiptwbrblzqy () sirius ! home ! kraxel ! org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Caicai <caizhaopeng@uniontech.com>, Dave Airlie <airlied@redhat.com>, David Airlie <airlied@linux.ie>, virtualization@lists.linux-foundation.org, dri-devel@lists.freedesktop.org, "linux-kernel@vger.kernel.org\"" <linux-kernel@vger.kernel.org>, Zhangyueqian <zhangyueqian@uniontech.com>, "Denis V. Lunev" <den@virtuozzo.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtio-dev-return-7200-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+In-Reply-To: <b676430c-65b3-096e-ca48-ceebf10f4b28@linux.intel.com>
+Content-Disposition: inline
+To: Lu Baolu <baolu.lu@linux.intel.com>
+Cc: Srivatsa Vaddagiri <vatsa@codeaurora.org>, tsoni@codeaurora.org, virtio-dev@lists.oasis-open.org, konrad.wilk@oracle.com, jan.kiszka@siemens.com, jasowang@redhat.com, christoffer.dall@arm.com, virtualization@lists.linux-foundation.org, alex.bennee@linaro.org, iommu@lists.linux-foundation.org, stefano.stabellini@xilinx.com, will@kernel.org, linux-kernel@vger.kernel.org, pratikp@codeaurora.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Wed, Apr 29, 2020 at 01:42:13PM +0800, Lu Baolu wrote:
+> On 2020/4/29 12:57, Michael S. Tsirkin wrote:
+> > On Wed, Apr 29, 2020 at 10:22:32AM +0800, Lu Baolu wrote:
+> > > On 2020/4/29 4:41, Michael S. Tsirkin wrote:
+> > > > On Tue, Apr 28, 2020 at 11:19:52PM +0530, Srivatsa Vaddagiri wrote:
+> > > > > * Michael S. Tsirkin<mst@redhat.com>  [2020-04-28 12:17:57]:
+> > > > >=20
+> > > > > > Okay, but how is all this virtio specific?  For example, why no=
+t allow
+> > > > > > separate swiotlbs for any type of device?
+> > > > > > For example, this might make sense if a given device is from a
+> > > > > > different, less trusted vendor.
+> > > > > Is swiotlb commonly used for multiple devices that may be on diff=
+erent trust
+> > > > > boundaries (and not behind a hardware iommu)?
+> > > > Even a hardware iommu does not imply a 100% security from malicious
+> > > > hardware. First lots of people use iommu=3Dpt for performance reaso=
+ns.
+> > > > Second even without pt, unmaps are often batched, and sub-page buff=
+ers
+> > > > might be used for DMA, so we are not 100% protected at all times.
+> > > >=20
+> > >=20
+> > > For untrusted devices, IOMMU is forced on even iommu=3Dpt is used;
+> >=20
+> > I think you are talking about untrusted *drivers* like with VFIO.
+>=20
+> No. I am talking about untrusted devices like thunderbolt peripherals.
+> We always trust drivers hosted in kernel and the DMA APIs are designed
+> for them, right?
+>=20
+> Please refer to this series.
+>=20
+> https://lkml.org/lkml/2019/9/6/39
+>=20
+> Best regards,
+> baolu
 
+Oh, thanks for that! I didn't realize Linux is doing this.
 
-On 4/21/20 11:43 AM, Gerd Hoffmann wrote:
-> On Sat, Apr 18, 2020 at 02:39:17PM +0800, Caicai wrote:
->> When a qxl resource is released, the list that needs to be released is
->> fetched from the linked list ring and cleared. When you empty the list,
->> instead of trying to determine whether the ttm buffer object for each
->> qxl in the list is locked, you release the qxl object and remove the
->> element from the list until the list is empty. It was found that the
->> linked list was cleared first, and that the lock on the corresponding
->> ttm Bo for the QXL had not been released, so that the new qxl could not
->> be locked when it used the TTM.
-> 
-> So the dma_resv_reserve_shared() call in qxl_release_validate_bo() is
-> unbalanced?  Because the dma_resv_unlock() call in
-> qxl_release_fence_buffer_objects() never happens due to
-> qxl_release_free_list() clearing the list beforehand?  Is that correct?
+So it seems that with modern Linux, all one needs
+to do on x86 is mark the device as untrusted.
+It's already possible to do this with ACPI and with OF - would that be
+sufficient for achieving what this patchset is trying to do?
 
-we observe similar issue: RHEL7 guests crashes in 
-qxl_draw_opaque_fb()
- qxl_release_fence_buffer_objects() 
+Adding more ways to mark a device as untrusted, and adding
+support for more platforms to use bounce buffers
+sounds like a reasonable thing to do.
 
-crashdump investigation shows that qlx_object was freed and reused,
-so its original content was re-written.
-
-At the same time qxl_device have empty release_idr,
-ant there are no allocated qxl_bo_list entries.
-i.e. qxl_release_free was really called.
-
-> The only way I see for this to happen is that the guest is preempted
-> between qxl_push_{cursor,command}_ring_release() and
-> qxl_release_fence_buffer_objects() calls.  The host can complete the qxl
-> command then, signal the guest, and the IRQ handler calls
-> qxl_release_free_list() before qxl_release_fence_buffer_objects() runs.
-
-We think the same: qxl_release was freed by garbage collector before
-original thread had called qxl_release_fence_buffer_objects().
-
-> Looking through the code I think it should be safe to simply swap the
-> qxl_release_fence_buffer_objects() +
-> qxl_push_{cursor,command}_ring_release() calls to close that race
-> window.  Can you try that and see if it fixes the bug for you?
-
-I'm going to prepare and test such patch but I have one question here:
-qxl_push_*_ring_release can be called with  interruptible=true and fail
-How to correctly handle this case? Is the hunk below correct from your POV?
-
---- a/drivers/gpu/drm/qxl/qxl_ioctl.c
-+++ b/drivers/gpu/drm/qxl/qxl_ioctl.c
-@@ -261,12 +261,8 @@ static int qxl_process_single_command(struct qxl_device *qdev,
-                        apply_surf_reloc(qdev, &reloc_info[i]);
-        }
- 
-+       qxl_release_fence_buffer_objects(release);
-        ret = qxl_push_command_ring_release(qdev, release, cmd->type, true);
--       if (ret)
--               qxl_release_backoff_reserve_list(release);  <<<< ????
--       else
--               qxl_release_fence_buffer_objects(release);
--
- out_free_bos:
- out_free_release:
-
-
-Thank you,
-	Vasily Averin
+> >=20
+> > On the other hand, I am talking about things like thunderbolt
+> > peripherals being less trusted than on-board ones.
+>=20
+>=20
+>=20
+> >=20
+> > Or possibly even using swiotlb for specific use-cases where
+> > speed is less of an issue.
+> >=20
+> > E.g. my wifi is pretty slow anyway, and that card is exposed to
+> > malicious actors all the time, put just that behind swiotlb
+> > for security, and leave my graphics card with pt since
+> > I'm trusting it with secrets anyway.
+> >=20
+> >=20
+> > > and
+> > > iotlb flush is in strict mode (no batched flushes); ATS is also not
+> > > allowed. Swiotlb is used to protect sub-page buffers since IOMMU can
+> > > only apply page granularity protection. Swiotlb is now used for devic=
+es
+> > > from different trust zone.
+> > >=20
+> > > Best regards,
+> > > baolu
+> >=20
