@@ -1,76 +1,43 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v1 3/3] virtio-mem: Add memory with MHP_DRIVER_MANAGED
-Date: Wed, 29 Apr 2020 18:08:03 +0200
-Message-ID: <20200429160803.109056-4-david@redhat.com>
+From: Wei Liu <wei.liu@kernel.org>
+Subject: Re: [PATCH v1 1/3] mm/memory_hotplug: Prepare passing flags to
+ add_memory() and friends
+Date: Wed, 29 Apr 2020 16:41:55 +0000
+Message-ID: <20200429164154.ctflq4ouwrwwe4wq@liuwe-devbox-debian-v2.j3c5onc20sse1dnehy4noqpfcg.zx.internal.cloudapp.net>
 References: <20200429160803.109056-1-david@redhat.com>
+ <20200429160803.109056-2-david@redhat.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <20200429160803.109056-1-david@redhat.com>
+Content-Disposition: inline
+In-Reply-To: <20200429160803.109056-2-david@redhat.com>
 Sender: linux-acpi-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-hyperv@vger.kernel.org, linux-s390@vger.kernel.org, xen-devel@lists.xenproject.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, David Hildenbrand <david@redhat.com>, Jason Wang <jasowang@redhat.com>, Michal Hocko <mhocko@suse.com>, Eric Biederman <ebiederm@xmission.com>
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-hyperv@vger.kernel.org, linux-s390@vger.kernel.org, xen-devel@lists.xenproject.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Michael Ellerman <mpe@ellerman.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dan Williams <dan.j.williams@intel.com>, Vishal Verma <vishal.l.verma@intel.com>, Dave Jiang <dav>
 List-Id: virtualization@lists.linuxfoundation.org
 
-We don't want /sys/firmware/memmap entries and we want to indicate
-our memory as "System RAM (driver managed)" in /proc/iomem. This is
-especially relevant for kexec-tools, which have to be updated to
-support dumping virtio-mem memory after this patch. Expected behavior in
-kexec-tools:
-- Don't use this memory when creating a fixed-up firmware memmap. Works
-  now out of the box on x86-64.
-- Don't use this memory for placing kexec segments. Works now out of the
-  box on x86-64.
-- Consider "System RAM (driver managed)" when creating the elfcorehdr
-  for kdump. This memory has to be dumped. Needs update of kexec-tools.
+On Wed, Apr 29, 2020 at 06:08:01PM +0200, David Hildenbrand wrote:
+> We soon want to pass flags - prepare for that.
+> 
+> This patch is based on a similar patch by Oscar Salvador:
+> 
+> https://lkml.kernel.org/r/20190625075227.15193-3-osalvador@suse.de
+> 
+[...]
+> ---
+>  drivers/hv/hv_balloon.c                         |  2 +-
 
-With this patch on x86-64:
+> diff --git a/drivers/hv/hv_balloon.c b/drivers/hv/hv_balloon.c
+> index 32e3bc0aa665..0194bed1a573 100644
+> --- a/drivers/hv/hv_balloon.c
+> +++ b/drivers/hv/hv_balloon.c
+> @@ -726,7 +726,7 @@ static void hv_mem_hot_add(unsigned long start, unsigned long size,
+>  
+>  		nid = memory_add_physaddr_to_nid(PFN_PHYS(start_pfn));
+>  		ret = add_memory(nid, PFN_PHYS((start_pfn)),
+> -				(HA_CHUNK << PAGE_SHIFT));
+> +				(HA_CHUNK << PAGE_SHIFT), 0);
+>  
+>  		if (ret) {
+>  			pr_err("hot_add memory failed error is %d\n", ret);
 
-/proc/iomem:
-	00000000-00000fff : Reserved
-	00001000-0009fbff : System RAM
-	[...]
-	fffc0000-ffffffff : Reserved
-	100000000-13fffffff : System RAM
-	140000000-147ffffff : System RAM (driver managed)
-	340000000-347ffffff : System RAM (driver managed)
-	348000000-34fffffff : System RAM (driver managed)
-	[..]
-	3280000000-32ffffffff : PCI Bus 0000:00
-
-/sys/firmware/memmap:
-	0000000000000000-000000000009fc00 (System RAM)
-	000000000009fc00-00000000000a0000 (Reserved)
-	00000000000f0000-0000000000100000 (Reserved)
-	0000000000100000-00000000bffe0000 (System RAM)
-	00000000bffe0000-00000000c0000000 (Reserved)
-	00000000feffc000-00000000ff000000 (Reserved)
-	00000000fffc0000-0000000100000000 (Reserved)
-	0000000100000000-0000000140000000 (System RAM)
-
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Eric Biederman <ebiederm@xmission.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- drivers/virtio/virtio_mem.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index 3101cbf9e59d..6f658d1aeac4 100644
---- a/drivers/virtio/virtio_mem.c
-+++ b/drivers/virtio/virtio_mem.c
-@@ -421,7 +421,8 @@ static int virtio_mem_mb_add(struct virtio_mem *vm, u=
-nsigned long mb_id)
- 		nid =3D memory_add_physaddr_to_nid(addr);
-=20
- 	dev_dbg(&vm->vdev->dev, "adding memory block: %lu\n", mb_id);
--	return add_memory(nid, addr, memory_block_size_bytes(), 0);
-+	return add_memory(nid, addr, memory_block_size_bytes(),
-+			  MHP_DRIVER_MANAGED);
- }
-=20
- /*
---=20
-2.25.3
+Acked-by: Wei Liu <wei.liu@kernel.org>
