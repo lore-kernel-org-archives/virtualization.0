@@ -1,8 +1,8 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 16/34] iommu/vt-d: Convert to probe/release_device()
- call-backs
-Date: Wed, 29 Apr 2020 15:36:54 +0200
-Message-ID: <20200429133712.31431-17-joro@8bytes.org>
+Subject: [PATCH v3 10/34] iommu: Move new probe_device path to separate
+ function
+Date: Wed, 29 Apr 2020 15:36:48 +0200
+Message-ID: <20200429133712.31431-11-joro@8bytes.org>
 References: <20200429133712.31431-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,123 +24,110 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Convert the Intel IOMMU driver to use the probe_device() and
-release_device() call-backs of iommu_ops, so that the iommu core code
-does the group and sysfs setup.
+This makes it easier to remove to old code-path when all drivers are
+converted. As a side effect that it also fixes the error cleanup
+path.
 
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- drivers/iommu/intel-iommu.c | 67 ++++---------------------------------
- 1 file changed, 6 insertions(+), 61 deletions(-)
+ drivers/iommu/iommu.c | 69 ++++++++++++++++++++++++++++---------------
+ 1 file changed, 46 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
-index b9f905a55dda..b906727f5b85 100644
---- a/drivers/iommu/intel-iommu.c
-+++ b/drivers/iommu/intel-iommu.c
-@@ -5781,78 +5781,27 @@ static bool intel_iommu_capable(enum iommu_cap cap)
- 	return false;
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 18eb3623bd00..8be047a4808f 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -218,12 +218,55 @@ static int __iommu_probe_device(struct device *dev, struct list_head *group_list
+ 	return ret;
  }
  
--static int intel_iommu_add_device(struct device *dev)
-+static struct iommu_device *intel_iommu_probe_device(struct device *dev)
++static int __iommu_probe_device_helper(struct device *dev)
++{
++	const struct iommu_ops *ops = dev->bus->iommu_ops;
++	struct iommu_group *group;
++	int ret;
++
++	ret = __iommu_probe_device(dev, NULL);
++	if (ret)
++		goto err_out;
++
++	/*
++	 * Try to allocate a default domain - needs support from the
++	 * IOMMU driver. There are still some drivers which don't
++	 * support default domains, so the return value is not yet
++	 * checked.
++	 */
++	iommu_alloc_default_domain(dev);
++
++	group = iommu_group_get(dev);
++	if (!group)
++		goto err_release;
++
++	if (group->default_domain)
++		ret = __iommu_attach_device(group->default_domain, dev);
++
++	iommu_group_put(group);
++
++	if (ret)
++		goto err_release;
++
++	if (ops->probe_finalize)
++		ops->probe_finalize(dev);
++
++	return 0;
++
++err_release:
++	iommu_release_device(dev);
++err_out:
++	return ret;
++
++}
++
+ int iommu_probe_device(struct device *dev)
  {
--	struct dmar_domain *dmar_domain;
--	struct iommu_domain *domain;
- 	struct intel_iommu *iommu;
--	struct iommu_group *group;
- 	u8 bus, devfn;
--	int ret;
+ 	const struct iommu_ops *ops = dev->bus->iommu_ops;
+ 	int ret;
  
- 	iommu = device_to_iommu(dev, &bus, &devfn);
- 	if (!iommu)
--		return -ENODEV;
--
--	iommu_device_link(&iommu->iommu, dev);
-+		return ERR_PTR(-ENODEV);
+ 	WARN_ON(dev->iommu_group);
++
+ 	if (!ops)
+ 		return -EINVAL;
  
- 	if (translation_pre_enabled(iommu))
- 		dev->archdata.iommu = DEFER_DEVICE_DOMAIN_INFO;
- 
--	group = iommu_group_get_for_dev(dev);
--
--	if (IS_ERR(group)) {
--		ret = PTR_ERR(group);
--		goto unlink;
--	}
--
--	iommu_group_put(group);
--
--	domain = iommu_get_domain_for_dev(dev);
--	dmar_domain = to_dmar_domain(domain);
--	if (domain->type == IOMMU_DOMAIN_DMA) {
--		if (device_def_domain_type(dev) == IOMMU_DOMAIN_IDENTITY) {
--			ret = iommu_request_dm_for_dev(dev);
--			if (ret) {
--				dmar_remove_one_dev_info(dev);
--				dmar_domain->flags |= DOMAIN_FLAG_LOSE_CHILDREN;
--				domain_add_dev_info(si_domain, dev);
--				dev_info(dev,
--					 "Device uses a private identity domain.\n");
--			}
--		}
--	} else {
--		if (device_def_domain_type(dev) == IOMMU_DOMAIN_DMA) {
--			ret = iommu_request_dma_domain_for_dev(dev);
--			if (ret) {
--				dmar_remove_one_dev_info(dev);
--				dmar_domain->flags |= DOMAIN_FLAG_LOSE_CHILDREN;
--				if (!get_private_domain_for_dev(dev)) {
--					dev_warn(dev,
--						 "Failed to get a private domain.\n");
--					ret = -ENOMEM;
--					goto unlink;
--				}
--
--				dev_info(dev,
--					 "Device uses a private dma domain.\n");
--			}
--		}
--	}
--
- 	if (device_needs_bounce(dev)) {
- 		dev_info(dev, "Use Intel IOMMU bounce page dma_ops\n");
- 		set_dma_ops(dev, &bounce_dma_ops);
+@@ -235,30 +278,10 @@ int iommu_probe_device(struct device *dev)
+ 		goto err_free_dev_param;
  	}
  
--	return 0;
+-	if (ops->probe_device) {
+-		struct iommu_group *group;
 -
--unlink:
--	iommu_device_unlink(&iommu->iommu, dev);
--	return ret;
-+	return &iommu->iommu;
- }
- 
--static void intel_iommu_remove_device(struct device *dev)
-+static void intel_iommu_release_device(struct device *dev)
- {
- 	struct intel_iommu *iommu;
- 	u8 bus, devfn;
-@@ -5863,10 +5812,6 @@ static void intel_iommu_remove_device(struct device *dev)
- 
- 	dmar_remove_one_dev_info(dev);
- 
--	iommu_group_remove_device(dev);
+-		ret = __iommu_probe_device(dev, NULL);
 -
--	iommu_device_unlink(&iommu->iommu, dev);
+-		/*
+-		 * Try to allocate a default domain - needs support from the
+-		 * IOMMU driver. There are still some drivers which don't
+-		 * support default domains, so the return value is not yet
+-		 * checked.
+-		 */
+-		if (!ret)
+-			iommu_alloc_default_domain(dev);
 -
- 	if (device_needs_bounce(dev))
- 		set_dma_ops(dev, NULL);
- }
-@@ -6198,8 +6143,8 @@ const struct iommu_ops intel_iommu_ops = {
- 	.map			= intel_iommu_map,
- 	.unmap			= intel_iommu_unmap,
- 	.iova_to_phys		= intel_iommu_iova_to_phys,
--	.add_device		= intel_iommu_add_device,
--	.remove_device		= intel_iommu_remove_device,
-+	.probe_device		= intel_iommu_probe_device,
-+	.release_device		= intel_iommu_release_device,
- 	.get_resv_regions	= intel_iommu_get_resv_regions,
- 	.put_resv_regions	= generic_iommu_put_resv_regions,
- 	.apply_resv_region	= intel_iommu_apply_resv_region,
+-		group = iommu_group_get(dev);
+-		if (group && group->default_domain) {
+-			ret = __iommu_attach_device(group->default_domain, dev);
+-			iommu_group_put(group);
+-		}
+-
+-	} else {
+-		ret = ops->add_device(dev);
+-	}
++	if (ops->probe_device)
++		return __iommu_probe_device_helper(dev);
+ 
++	ret = ops->add_device(dev);
+ 	if (ret)
+ 		goto err_module_put;
+ 
 -- 
 2.17.1
