@@ -1,206 +1,100 @@
-From: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
-Subject: [PATCH v3 08/34] iommu: Move default domain allocation to
- iommu_probe_device()
-Date: Wed, 29 Apr 2020 15:36:46 +0200
-Message-ID: <20200429133712.31431-9-joro@8bytes.org>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH v3 31/34] iommu/exynos: Convert to probe/release_device() call-backs
+Date: Wed, 29 Apr 2020 15:37:09 +0200
+Message-ID: <20200429133712.31431-32-joro@8bytes.org>
 References: <20200429133712.31431-1-joro@8bytes.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-In-Reply-To: <20200429133712.31431-1-joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
- <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
- <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Sender: "iommu" <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-To: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>, Will Deacon <will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>, Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Lu Baolu <baolu.lu-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Gross <agross-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Clark <robdclark-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Gerald Schaefer <gerald.schaefer-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Drake <drake-6IF/jdPJHihWk0Htik3J/w@public.gmane.org>, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, jonathan.derrick-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org
+Return-path: <linux-samsung-soc-owner@vger.kernel.org>
+In-Reply-To: <20200429133712.31431-1-joro@8bytes.org>
+Sender: linux-samsung-soc-owner@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: Daniel Drake <drake@endlessm.com>, jonathan.derrick@intel.com, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, linux-s390@vger.kernel.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
+From: Joerg Roedel <jroedel@suse.de>
 
-Well, not really. The call to iommu_alloc_default_domain() in
-iommu_group_get_for_dev() has to stay around as long as there are
-IOMMU drivers using the add/remove_device() call-backs instead of
-probe/release_device().
+Convert the Exynos IOMMU driver to use the probe_device() and
+release_device() call-backs of iommu_ops, so that the iommu core code
+does the group and sysfs setup.
 
-Those drivers expect that iommu_group_get_for_dev() returns the device
-attached to a group and the group set up with a default domain (and
-the device attached to the groups current domain).
-
-But when all drivers are converted this compatability mess can be
-removed.
-
-Tested-by: Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Acked-by: Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
-Signed-off-by: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Acked-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- drivers/iommu/iommu.c | 102 +++++++++++++++++++++++++++++-------------
- 1 file changed, 71 insertions(+), 31 deletions(-)
+ drivers/iommu/exynos-iommu.c | 26 ++++++--------------------
+ 1 file changed, 6 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
-index 6cfe7799dc8c..7a385c18e1a5 100644
---- a/drivers/iommu/iommu.c
-+++ b/drivers/iommu/iommu.c
-@@ -79,6 +79,16 @@ static bool iommu_cmd_line_dma_api(void)
- 	return !!(iommu_cmd_line & IOMMU_CMD_LINE_DMA_API);
+diff --git a/drivers/iommu/exynos-iommu.c b/drivers/iommu/exynos-iommu.c
+index 09cdd163560a..60c8a56e4a3f 100644
+--- a/drivers/iommu/exynos-iommu.c
++++ b/drivers/iommu/exynos-iommu.c
+@@ -1235,19 +1235,13 @@ static phys_addr_t exynos_iommu_iova_to_phys(struct iommu_domain *iommu_domain,
+ 	return phys;
  }
  
-+static int iommu_alloc_default_domain(struct device *dev);
-+static struct iommu_domain *__iommu_domain_alloc(struct bus_type *bus,
-+						 unsigned type);
-+static int __iommu_attach_device(struct iommu_domain *domain,
-+				 struct device *dev);
-+static int __iommu_attach_group(struct iommu_domain *domain,
-+				struct iommu_group *group);
-+static void __iommu_detach_group(struct iommu_domain *domain,
-+				 struct iommu_group *group);
-+
- #define IOMMU_GROUP_ATTR(_name, _mode, _show, _store)		\
- struct iommu_group_attribute iommu_group_attr_##_name =		\
- 	__ATTR(_name, _mode, _show, _store)
-@@ -221,10 +231,29 @@ int iommu_probe_device(struct device *dev)
- 		goto err_free_dev_param;
- 	}
- 
--	if (ops->probe_device)
-+	if (ops->probe_device) {
-+		struct iommu_group *group;
-+
- 		ret = __iommu_probe_device(dev);
--	else
-+
-+		/*
-+		 * Try to allocate a default domain - needs support from the
-+		 * IOMMU driver. There are still some drivers which don't
-+		 * support default domains, so the return value is not yet
-+		 * checked.
-+		 */
-+		if (!ret)
-+			iommu_alloc_default_domain(dev);
-+
-+		group = iommu_group_get(dev);
-+		if (group && group->default_domain) {
-+			ret = __iommu_attach_device(group->default_domain, dev);
-+			iommu_group_put(group);
-+		}
-+
-+	} else {
- 		ret = ops->add_device(dev);
-+	}
- 
- 	if (ret)
- 		goto err_module_put;
-@@ -268,15 +297,6 @@ void iommu_release_device(struct device *dev)
- 	dev_iommu_free(dev);
- }
- 
--static struct iommu_domain *__iommu_domain_alloc(struct bus_type *bus,
--						 unsigned type);
--static int __iommu_attach_device(struct iommu_domain *domain,
--				 struct device *dev);
--static int __iommu_attach_group(struct iommu_domain *domain,
--				struct iommu_group *group);
--static void __iommu_detach_group(struct iommu_domain *domain,
--				 struct iommu_group *group);
--
- static int __init iommu_set_def_domain_type(char *str)
+-static int exynos_iommu_add_device(struct device *dev)
++static struct iommu_device *exynos_iommu_probe_device(struct device *dev)
  {
- 	bool pt;
-@@ -1423,25 +1443,18 @@ static int iommu_get_def_domain_type(struct device *dev)
- 	return (type == 0) ? iommu_def_domain_type : type;
- }
+ 	struct exynos_iommu_owner *owner = dev->archdata.iommu;
+ 	struct sysmmu_drvdata *data;
+-	struct iommu_group *group;
  
--static int iommu_alloc_default_domain(struct device *dev,
--				      struct iommu_group *group)
-+static int iommu_group_alloc_default_domain(struct bus_type *bus,
-+					    struct iommu_group *group,
-+					    unsigned int type)
- {
- 	struct iommu_domain *dom;
--	unsigned int type;
+ 	if (!has_sysmmu(dev))
+-		return -ENODEV;
 -
--	if (group->default_domain)
--		return 0;
+-	group = iommu_group_get_for_dev(dev);
+-
+-	if (IS_ERR(group))
+-		return PTR_ERR(group);
++		return ERR_PTR(-ENODEV);
  
--	type = iommu_get_def_domain_type(dev);
--
--	dom = __iommu_domain_alloc(dev->bus, type);
-+	dom = __iommu_domain_alloc(bus, type);
- 	if (!dom && type != IOMMU_DOMAIN_DMA) {
--		dom = __iommu_domain_alloc(dev->bus, IOMMU_DOMAIN_DMA);
--		if (dom) {
--			dev_warn(dev,
--				 "failed to allocate default IOMMU domain of type %u; falling back to IOMMU_DOMAIN_DMA",
--				 type);
--		}
-+		dom = __iommu_domain_alloc(bus, IOMMU_DOMAIN_DMA);
-+		if (dom)
-+			pr_warn("Failed to allocate default IOMMU domain of type %u for group %s - Falling back to IOMMU_DOMAIN_DMA",
-+				type, group->name);
+ 	list_for_each_entry(data, &owner->controllers, owner_node) {
+ 		/*
+@@ -1259,17 +1253,15 @@ static int exynos_iommu_add_device(struct device *dev)
+ 					     DL_FLAG_STATELESS |
+ 					     DL_FLAG_PM_RUNTIME);
  	}
+-	iommu_group_put(group);
  
- 	if (!dom)
-@@ -1461,6 +1474,23 @@ static int iommu_alloc_default_domain(struct device *dev,
- 	return 0;
+ 	/* There is always at least one entry, see exynos_iommu_of_xlate() */
+ 	data = list_first_entry(&owner->controllers,
+ 				struct sysmmu_drvdata, owner_node);
+-	iommu_device_link(&data->iommu, dev);
+ 
+-	return 0;
++	return &data->iommu;
  }
  
-+static int iommu_alloc_default_domain(struct device *dev)
-+{
-+	struct iommu_group *group;
-+	unsigned int type;
-+
-+	group = iommu_group_get(dev);
-+	if (!group)
-+		return -ENODEV;
-+
-+	if (group->default_domain)
-+		return 0;
-+
-+	type = iommu_get_def_domain_type(dev);
-+
-+	return iommu_group_alloc_default_domain(dev->bus, group, type);
-+}
-+
- /**
-  * iommu_group_get_for_dev - Find or create the IOMMU group for a device
-  * @dev: target device
-@@ -1491,16 +1521,26 @@ struct iommu_group *iommu_group_get_for_dev(struct device *dev)
- 	if (IS_ERR(group))
- 		return group;
+-static void exynos_iommu_remove_device(struct device *dev)
++static void exynos_iommu_release_device(struct device *dev)
+ {
+ 	struct exynos_iommu_owner *owner = dev->archdata.iommu;
+ 	struct sysmmu_drvdata *data;
+@@ -1287,15 +1279,9 @@ static void exynos_iommu_remove_device(struct device *dev)
+ 			iommu_group_put(group);
+ 		}
+ 	}
+-	iommu_group_remove_device(dev);
  
-+	ret = iommu_group_add_device(group, dev);
-+	if (ret)
-+		goto out_put_group;
-+
- 	/*
- 	 * Try to allocate a default domain - needs support from the
- 	 * IOMMU driver. There are still some drivers which don't support
--	 * default domains, so the return value is not yet checked.
-+	 * default domains, so the return value is not yet checked. Only
-+	 * allocate the domain here when the driver still has the
-+	 * add_device/remove_device call-backs implemented.
- 	 */
--	iommu_alloc_default_domain(dev, group);
-+	if (!ops->probe_device) {
-+		iommu_alloc_default_domain(dev);
+ 	list_for_each_entry(data, &owner->controllers, owner_node)
+ 		device_link_del(data->link);
+-
+-	/* There is always at least one entry, see exynos_iommu_of_xlate() */
+-	data = list_first_entry(&owner->controllers,
+-				struct sysmmu_drvdata, owner_node);
+-	iommu_device_unlink(&data->iommu, dev);
+ }
  
--	ret = iommu_group_add_device(group, dev);
--	if (ret)
--		goto out_put_group;
-+		if (group->default_domain)
-+			ret = __iommu_attach_device(group->default_domain, dev);
-+
-+		if (ret)
-+			goto out_put_group;
-+	}
- 
- 	return group;
- 
+ static int exynos_iommu_of_xlate(struct device *dev,
+@@ -1341,8 +1327,8 @@ static const struct iommu_ops exynos_iommu_ops = {
+ 	.unmap = exynos_iommu_unmap,
+ 	.iova_to_phys = exynos_iommu_iova_to_phys,
+ 	.device_group = generic_device_group,
+-	.add_device = exynos_iommu_add_device,
+-	.remove_device = exynos_iommu_remove_device,
++	.probe_device = exynos_iommu_probe_device,
++	.release_device = exynos_iommu_release_device,
+ 	.pgsize_bitmap = SECT_SIZE | LPAGE_SIZE | SPAGE_SIZE,
+ 	.of_xlate = exynos_iommu_of_xlate,
+ };
 -- 
 2.17.1
