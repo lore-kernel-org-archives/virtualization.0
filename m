@@ -1,7 +1,8 @@
 From: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
-Subject: [PATCH v3 28/34] iommu/omap: Remove orphan_dev tracking
-Date: Wed, 29 Apr 2020 15:37:06 +0200
-Message-ID: <20200429133712.31431-29-joro@8bytes.org>
+Subject: [PATCH v3 22/34] iommu/mediatek: Convert to probe/release_device()
+ call-backs
+Date: Wed, 29 Apr 2020 15:37:00 +0200
+Message-ID: <20200429133712.31431-23-joro@8bytes.org>
 References: <20200429133712.31431-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,128 +24,72 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
 
-Remove the tracking of device which could not be probed because
-their IOMMU is not probed yet. Replace it with a call to
-bus_iommu_probe() when a new IOMMU is probed.
+Convert the Mediatek IOMMU driver to use the probe_device() and
+release_device() call-backs of iommu_ops, so that the iommu core code
+does the group and sysfs setup.
 
 Signed-off-by: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
 ---
- drivers/iommu/omap-iommu.c | 54 +++-----------------------------------
- 1 file changed, 4 insertions(+), 50 deletions(-)
+ drivers/iommu/mtk_iommu.c | 24 ++++++------------------
+ 1 file changed, 6 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/iommu/omap-iommu.c b/drivers/iommu/omap-iommu.c
-index 887fefcb03b4..ecc9d0829a91 100644
---- a/drivers/iommu/omap-iommu.c
-+++ b/drivers/iommu/omap-iommu.c
-@@ -35,15 +35,6 @@
- 
- static const struct iommu_ops omap_iommu_ops;
- 
--struct orphan_dev {
--	struct device *dev;
--	struct list_head node;
--};
--
--static LIST_HEAD(orphan_dev_list);
--
--static DEFINE_SPINLOCK(orphan_lock);
--
- #define to_iommu(dev)	((struct omap_iommu *)dev_get_drvdata(dev))
- 
- /* bitmap of the page sizes currently supported */
-@@ -62,8 +53,6 @@ static DEFINE_SPINLOCK(orphan_lock);
- static struct platform_driver omap_iommu_driver;
- static struct kmem_cache *iopte_cachep;
- 
--static int _omap_iommu_add_device(struct device *dev);
--
- /**
-  * to_omap_domain - Get struct omap_iommu_domain from generic iommu_domain
-  * @dom:	generic iommu domain handle
-@@ -1177,7 +1166,6 @@ static int omap_iommu_probe(struct platform_device *pdev)
- 	struct omap_iommu *obj;
- 	struct resource *res;
- 	struct device_node *of = pdev->dev.of_node;
--	struct orphan_dev *orphan_dev, *tmp;
- 
- 	if (!of) {
- 		pr_err("%s: only DT-based devices are supported\n", __func__);
-@@ -1260,13 +1248,8 @@ static int omap_iommu_probe(struct platform_device *pdev)
- 
- 	dev_info(&pdev->dev, "%s registered\n", obj->name);
- 
--	list_for_each_entry_safe(orphan_dev, tmp, &orphan_dev_list, node) {
--		err = _omap_iommu_add_device(orphan_dev->dev);
--		if (!err) {
--			list_del(&orphan_dev->node);
--			kfree(orphan_dev);
--		}
--	}
-+	/* Re-probe bus to probe device attached to this IOMMU */
-+	bus_iommu_probe(&platform_bus_type);
- 
- 	return 0;
- 
-@@ -1657,7 +1640,7 @@ static phys_addr_t omap_iommu_iova_to_phys(struct iommu_domain *domain,
- 	return ret;
+diff --git a/drivers/iommu/mtk_iommu.c b/drivers/iommu/mtk_iommu.c
+index 5f4d6df59cf6..2be96f1cdbd2 100644
+--- a/drivers/iommu/mtk_iommu.c
++++ b/drivers/iommu/mtk_iommu.c
+@@ -441,38 +441,26 @@ static phys_addr_t mtk_iommu_iova_to_phys(struct iommu_domain *domain,
+ 	return pa;
  }
  
--static int _omap_iommu_add_device(struct device *dev)
-+static int omap_iommu_add_device(struct device *dev)
+-static int mtk_iommu_add_device(struct device *dev)
++static struct iommu_device *mtk_iommu_probe_device(struct device *dev)
  {
- 	struct omap_iommu_arch_data *arch_data, *tmp;
- 	struct omap_iommu *oiommu;
-@@ -1666,8 +1649,6 @@ static int _omap_iommu_add_device(struct device *dev)
- 	struct platform_device *pdev;
- 	int num_iommus, i;
- 	int ret;
--	struct orphan_dev *orphan_dev;
--	unsigned long flags;
+ 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+ 	struct mtk_iommu_data *data;
+-	struct iommu_group *group;
  
- 	/*
- 	 * Allocate the archdata iommu structure for DT-based devices.
-@@ -1702,23 +1683,7 @@ static int _omap_iommu_add_device(struct device *dev)
- 		if (!pdev) {
- 			of_node_put(np);
- 			kfree(arch_data);
--			spin_lock_irqsave(&orphan_lock, flags);
--			list_for_each_entry(orphan_dev, &orphan_dev_list,
--					    node) {
--				if (orphan_dev->dev == dev)
--					break;
--			}
--			spin_unlock_irqrestore(&orphan_lock, flags);
--
--			if (orphan_dev && orphan_dev->dev == dev)
--				return -EPROBE_DEFER;
--
--			orphan_dev = kzalloc(sizeof(*orphan_dev), GFP_KERNEL);
--			orphan_dev->dev = dev;
--			spin_lock_irqsave(&orphan_lock, flags);
--			list_add(&orphan_dev->node, &orphan_dev_list);
--			spin_unlock_irqrestore(&orphan_lock, flags);
--			return -EPROBE_DEFER;
-+			return -ENODEV;
- 		}
+ 	if (!fwspec || fwspec->ops != &mtk_iommu_ops)
+-		return -ENODEV; /* Not a iommu client device */
++		return ERR_PTR(-ENODEV); /* Not a iommu client device */
  
- 		oiommu = platform_get_drvdata(pdev);
-@@ -1764,17 +1729,6 @@ static int _omap_iommu_add_device(struct device *dev)
- 	return 0;
+ 	data = dev_iommu_priv_get(dev);
+-	iommu_device_link(&data->iommu, dev);
+ 
+-	group = iommu_group_get_for_dev(dev);
+-	if (IS_ERR(group))
+-		return PTR_ERR(group);
+-
+-	iommu_group_put(group);
+-	return 0;
++	return &data->iommu;
  }
  
--static int omap_iommu_add_device(struct device *dev)
--{
--	int ret;
--
--	ret = _omap_iommu_add_device(dev);
--	if (ret == -EPROBE_DEFER)
--		return 0;
--
--	return ret;
--}
--
- static void omap_iommu_remove_device(struct device *dev)
+-static void mtk_iommu_remove_device(struct device *dev)
++static void mtk_iommu_release_device(struct device *dev)
  {
- 	struct omap_iommu_arch_data *arch_data = dev->archdata.iommu;
+ 	struct iommu_fwspec *fwspec = dev_iommu_fwspec_get(dev);
+-	struct mtk_iommu_data *data;
+ 
+ 	if (!fwspec || fwspec->ops != &mtk_iommu_ops)
+ 		return;
+ 
+-	data = dev_iommu_priv_get(dev);
+-	iommu_device_unlink(&data->iommu, dev);
+-
+-	iommu_group_remove_device(dev);
+ 	iommu_fwspec_free(dev);
+ }
+ 
+@@ -526,8 +514,8 @@ static const struct iommu_ops mtk_iommu_ops = {
+ 	.flush_iotlb_all = mtk_iommu_flush_iotlb_all,
+ 	.iotlb_sync	= mtk_iommu_iotlb_sync,
+ 	.iova_to_phys	= mtk_iommu_iova_to_phys,
+-	.add_device	= mtk_iommu_add_device,
+-	.remove_device	= mtk_iommu_remove_device,
++	.probe_device	= mtk_iommu_probe_device,
++	.release_device	= mtk_iommu_release_device,
+ 	.device_group	= mtk_iommu_device_group,
+ 	.of_xlate	= mtk_iommu_of_xlate,
+ 	.pgsize_bitmap	= SZ_4K | SZ_64K | SZ_1M | SZ_16M,
 -- 
 2.17.1
