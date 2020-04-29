@@ -1,62 +1,51 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 0/1] Add uvirtio for testing
-Date: Wed, 29 Apr 2020 17:56:47 +0800
-Message-ID: <b01454e9-bca8-cf32-7cfa-ebe25032e040@redhat.com>
-References: <20200428204729.64569-1-ytht.net@gmail.com>
+From: Srivatsa Vaddagiri <vatsa@codeaurora.org>
+Subject: Re: [PATCH 5/5] virtio: Add bounce DMA ops
+Date: Wed, 29 Apr 2020 15:39:53 +0530
+Message-ID: <20200429100953.GE5097@quicinc.com>
+References: <1588073958-1793-6-git-send-email-vatsa@codeaurora.org>
+ <20200428121232-mutt-send-email-mst@kernel.org>
+ <20200428174952.GA5097@quicinc.com>
+ <20200428163448-mutt-send-email-mst@kernel.org>
+ <275eba4b-dd35-aa95-b2e3-9c5cbf7c6d71@linux.intel.com>
+ <20200429004531-mutt-send-email-mst@kernel.org>
+ <b676430c-65b3-096e-ca48-ceebf10f4b28@linux.intel.com>
+ <20200429023842-mutt-send-email-mst@kernel.org>
+ <20200429094410.GD5097@quicinc.com>
+ <20200429055125-mutt-send-email-mst@kernel.org>
+Reply-To: Srivatsa Vaddagiri <vatsa@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200428204729.64569-1-ytht.net@gmail.com>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Lepton Wu <ytht.net@gmail.com>, virtualization@lists.linux-foundation.org
-Cc: mst@redhat.com
+Content-Type: text/plain; charset=iso-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200429055125-mutt-send-email-mst@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Lu Baolu <baolu.lu@linux.intel.com>, tsoni@codeaurora.org, virtio-dev@lists.oasis-open.org, konrad.wilk@oracle.com, jan.kiszka@siemens.com, jasowang@redhat.com, christoffer.dall@arm.com, virtualization@lists.linux-foundation.org, alex.bennee@linaro.org, iommu@lists.linux-foundation.org, stefano.stabellini@xilinx.com, will@kernel.org, linux-kernel@vger.kernel.org, pratikp@codeaurora.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMjAvNC8yOSDkuIrljYg0OjQ3LCBMZXB0b24gV3Ugd3JvdGU6Cj4gVGhpcyBpcyBhIHdh
-eSB0byBjcmVhdGUgdmlydGlvIGJhc2VkIGRldmljZXMgZnJvbSB1c2VyIHNwYWNlLiBUaGlzIGlz
-IHRoZQo+IGJhY2tncm91bmQgZm9yIHRoaXMgcGF0Y2g6Cj4KPiBXZSBoYXZlIHNvbWUgaW1hZ2Vz
-IHdvcmtzIGZpbmUgdW5kZXIgcWVtdSwgd2UnZCBsaWtlIHRvIGFsc28gcnVuIHRoZSBzYW1lIGlt
-YWdlCj4gb24gR29vZ2xlIENsb3VkLiBDdXJyZW50bHkgR29vZ2xlIENsb3VkIGRvZXNuJ3Qgc3Vw
-cG9ydCB2aXJ0aW8tdmdhLiBJIGhhZCBhCj4gcGF0Y2ggdG8gY3JlYXRlIGEgdmlydGlvLXZnYSBm
-cm9tIGtlcm5lbCBkaXJlY3RseToKPiBodHRwczovL3d3dy5zcGluaWNzLm5ldC9saXN0cy9kcmkt
-ZGV2ZWwvbXNnMjQ4NTczLmh0bWwKPgo+IFRoZW4gSSBnb3QgZmVlZGJhY2sgZnJvbSBHZXJkIHRo
-YXQgbWF5YmUgaXQncyBiZXR0ZXIgdG8gY2hhbmdlIHRoYXQgdG8gc29tZXRoaW5nCj4gbGlrZSB1
-dmlydGlvLiBTaW5jZSBJIHJlYWxseSBkb24ndCBoYXZlIG90aGVyIHVzZSBjYXNlcyBmb3Igbm93
-LCBJIGp1c3QgaW1wbGVtZW50ZWQgdGhlIG1pbmltYWwgc3R1ZmYgd2hpY2ggd29yayBmb3IgbXkg
-dXNlIGNhc2UuCgoKSW50ZXJlc3RpbmcsIHNldmVyYWwgcXVlc3Rpb25zOgoKMSkgQXJlIHlvdSBh
-d2FyZSBvZiB2aXJ0aW8gdmhvc3QtdXNlciBkcml2ZXIgZG9uZSBieSBVTSBndXlzPyAKKGFyY2gv
-dW0vZHJpdmVycy92aXJ0aW9fdW1sLmMpIFRoZSBtZW1vcnkgcGFydCBpcyB0cmlja3kgYnV0IG92
-ZXJhbGwgCmJvdGggb2YgeW91IGhhdmUgc2ltaWxhciB0YXJnZXQuCjIpIFBhdGNoIDEgc2FpZCBp
-dCdzIHVzZXJzcGFjZSB2aXJ0aW8gZHJpdmVyLCB3aGljaCBJIHRoaW5rIGl0IGlzIAphY3R1YWxs
-eSAidXNlcnNwYWNlIHZpcnRpbyBkZXZpY2UiCjMpIE5lZWQgdG8gYmUgdmVyYm9zZSBvbiBob3cg
-dGhlIHZyaW5nIHByb2Nlc3Npbmcgd29yayBpbiB0aGUgY29tbWl0IGxvZyAKb2YgcGF0Y2ggMQo0
-KSBJJ20gY3VyaW91cyB3aGljaCB0ZXN0aW5nIHlvdSB3YW50IHRvIGFjY29tcGxpc2ggdGhyb3Vn
-aCB0aGlzIG5ldyAKdHJhbnNwb3J0LCBJIGd1ZXNzIHlvdSB3YW50IHRvIHRlc3QgYSBzcGVjaWZp
-YyB2aXJ0aW8gZHJpdmVyPwo1KSBZb3UgbWVudGlvbmVkIHRoYXQgeW91IG1heSB3YW50IHRvIGRl
-dmVsb3AgY29tbXVuaWNhdGlvbiBiZXR3ZWVuIAprZXJuZWwgYW5kIHVzZXJzcGFjZSwgYW55IG1v
-cmUgZGV0YWlscyBvbiB0aGF0PwoKVGhhbmtzCgoKPgo+IExlcHRvbiBXdSAoMSk6Cj4gICAgdmly
-dGlvOiBBZGQgdXZpcnRpbyBkcml2ZXIKPgo+ICAgZHJpdmVycy92aXJ0aW8vS2NvbmZpZyAgICAg
-ICAgfCAgIDggKwo+ICAgZHJpdmVycy92aXJ0aW8vTWFrZWZpbGUgICAgICAgfCAgIDEgKwo+ICAg
-ZHJpdmVycy92aXJ0aW8vdXZpcnRpby5jICAgICAgfCA0MDUgKysrKysrKysrKysrKysrKysrKysr
-KysrKysrKysrKysrKwo+ICAgaW5jbHVkZS9saW51eC91dmlydGlvLmggICAgICAgfCAgIDggKwo+
-ICAgaW5jbHVkZS91YXBpL2xpbnV4L3V2aXJ0aW8uaCAgfCAgNjkgKysrKysrCj4gICBzYW1wbGVz
-L3V2aXJ0aW8vTWFrZWZpbGUgICAgICB8ICAgOSArCj4gICBzYW1wbGVzL3V2aXJ0aW8vdXZpcnRp
-by12Z2EuYyB8ICA2MyArKysrKysKPiAgIDcgZmlsZXMgY2hhbmdlZCwgNTYzIGluc2VydGlvbnMo
-KykKPiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL3ZpcnRpby91dmlydGlvLmMKPiAgIGNy
-ZWF0ZSBtb2RlIDEwMDY0NCBpbmNsdWRlL2xpbnV4L3V2aXJ0aW8uaAo+ICAgY3JlYXRlIG1vZGUg
-MTAwNjQ0IGluY2x1ZGUvdWFwaS9saW51eC91dmlydGlvLmgKPiAgIGNyZWF0ZSBtb2RlIDEwMDY0
-NCBzYW1wbGVzL3V2aXJ0aW8vTWFrZWZpbGUKPiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBzYW1wbGVz
-L3V2aXJ0aW8vdXZpcnRpby12Z2EuYwo+CgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
-b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
-b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+* Michael S. Tsirkin <mst@redhat.com> [2020-04-29 05:52:05]:
+
+> > > So it seems that with modern Linux, all one needs
+> > > to do on x86 is mark the device as untrusted.
+> > > It's already possible to do this with ACPI and with OF - would that be
+> > > sufficient for achieving what this patchset is trying to do?
+> > 
+> > In my case, its not sufficient to just mark virtio device untrusted and thus
+> > activate the use of swiotlb. All of the secondary VM memory, including those
+> > allocate by swiotlb driver, is private to it.
+> 
+> So why not make the bounce buffer memory shared then?
+
+Its a limitation by our hypervisor. When a secondary VM is created, two
+memory segments are allocated - one private and other shared. There is no
+provision for the secondary VM to make part of its private memory shared after
+it boots. I can perhaps consider a change in swiotlb driver to accept the second
+shared memory segment as its main working area (rather than allocate its own).
+
+That would still not work I think where swiotlb is used for pass-thr devices
+(when private memory is fine) as well as virtio devices (when shared memory is
+required).
+
+-- 
+QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member
+of Code Aurora Forum, hosted by The Linux Foundation
