@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
-Subject: [PATCH v3 19/34] iommu/s390: Convert to probe/release_device() call-backs
-Date: Wed, 29 Apr 2020 15:36:57 +0200
-Message-ID: <20200429133712.31431-20-joro@8bytes.org>
+Subject: [PATCH v3 25/34] iommu/rockchip: Convert to probe/release_device() call-backs
+Date: Wed, 29 Apr 2020 15:37:03 +0200
+Message-ID: <20200429133712.31431-26-joro@8bytes.org>
 References: <20200429133712.31431-1-joro@8bytes.org>
 Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
 In-Reply-To: <20200429133712.31431-1-joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
@@ -12,73 +12,75 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
 
-Convert the S390 IOMMU driver to use the probe_device() and
+Convert the Rockchip IOMMU driver to use the probe_device() and
 release_device() call-backs of iommu_ops, so that the iommu core code
 does the group and sysfs setup.
 
 Signed-off-by: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
 ---
- drivers/iommu/s390-iommu.c | 22 ++++++----------------
- 1 file changed, 6 insertions(+), 16 deletions(-)
+ drivers/iommu/rockchip-iommu.c | 26 +++++++-------------------
+ 1 file changed, 7 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/iommu/s390-iommu.c b/drivers/iommu/s390-iommu.c
-index 1137f3ddcb85..610f0828f22d 100644
---- a/drivers/iommu/s390-iommu.c
-+++ b/drivers/iommu/s390-iommu.c
-@@ -166,21 +166,14 @@ static void s390_iommu_detach_device(struct iommu_domain *domain,
- 	}
+diff --git a/drivers/iommu/rockchip-iommu.c b/drivers/iommu/rockchip-iommu.c
+index b33cdd5aad81..d25c2486ca07 100644
+--- a/drivers/iommu/rockchip-iommu.c
++++ b/drivers/iommu/rockchip-iommu.c
+@@ -1054,40 +1054,28 @@ static void rk_iommu_domain_free(struct iommu_domain *domain)
+ 	kfree(rk_domain);
  }
  
--static int s390_iommu_add_device(struct device *dev)
-+static struct iommu_device *s390_iommu_probe_device(struct device *dev)
+-static int rk_iommu_add_device(struct device *dev)
++static struct iommu_device *rk_iommu_probe_device(struct device *dev)
  {
--	struct iommu_group *group = iommu_group_get_for_dev(dev);
- 	struct zpci_dev *zdev = to_pci_dev(dev)->sysdata;
+-	struct iommu_group *group;
+-	struct rk_iommu *iommu;
+ 	struct rk_iommudata *data;
++	struct rk_iommu *iommu;
  
+ 	data = dev->archdata.iommu;
+ 	if (!data)
+-		return -ENODEV;
++		return ERR_PTR(-ENODEV);
+ 
+ 	iommu = rk_iommu_from_dev(dev);
+ 
+-	group = iommu_group_get_for_dev(dev);
 -	if (IS_ERR(group))
 -		return PTR_ERR(group);
--
 -	iommu_group_put(group);
--	iommu_device_link(&zdev->iommu_dev, dev);
 -
+-	iommu_device_link(&iommu->iommu, dev);
+ 	data->link = device_link_add(dev, iommu->dev,
+ 				     DL_FLAG_STATELESS | DL_FLAG_PM_RUNTIME);
+ 
 -	return 0;
-+	return &zdev->iommu_dev;
++	return &iommu->iommu;
  }
  
--static void s390_iommu_remove_device(struct device *dev)
-+static void s390_iommu_release_device(struct device *dev)
+-static void rk_iommu_remove_device(struct device *dev)
++static void rk_iommu_release_device(struct device *dev)
  {
- 	struct zpci_dev *zdev = to_pci_dev(dev)->sysdata;
- 	struct iommu_domain *domain;
-@@ -191,7 +184,7 @@ static void s390_iommu_remove_device(struct device *dev)
- 	 * to vfio-pci and completing the VFIO_SET_IOMMU ioctl (which triggers
- 	 * the attach_dev), removing the device via
- 	 * "echo 1 > /sys/bus/pci/devices/.../remove" won't trigger detach_dev,
--	 * only remove_device will be called via the BUS_NOTIFY_REMOVED_DEVICE
-+	 * only release_device will be called via the BUS_NOTIFY_REMOVED_DEVICE
- 	 * notifier.
- 	 *
- 	 * So let's call detach_dev from here if it hasn't been called before.
-@@ -201,9 +194,6 @@ static void s390_iommu_remove_device(struct device *dev)
- 		if (domain)
- 			s390_iommu_detach_device(domain, dev);
- 	}
+-	struct rk_iommu *iommu;
+ 	struct rk_iommudata *data = dev->archdata.iommu;
+ 
+-	iommu = rk_iommu_from_dev(dev);
 -
--	iommu_device_unlink(&zdev->iommu_dev, dev);
+ 	device_link_del(data->link);
+-	iommu_device_unlink(&iommu->iommu, dev);
 -	iommu_group_remove_device(dev);
  }
  
- static int s390_iommu_update_trans(struct s390_domain *s390_domain,
-@@ -373,8 +363,8 @@ static const struct iommu_ops s390_iommu_ops = {
- 	.map = s390_iommu_map,
- 	.unmap = s390_iommu_unmap,
- 	.iova_to_phys = s390_iommu_iova_to_phys,
--	.add_device = s390_iommu_add_device,
--	.remove_device = s390_iommu_remove_device,
-+	.probe_device = s390_iommu_probe_device,
-+	.release_device = s390_iommu_release_device,
- 	.device_group = generic_device_group,
- 	.pgsize_bitmap = S390_IOMMU_PGSIZES,
- };
+ static struct iommu_group *rk_iommu_device_group(struct device *dev)
+@@ -1126,8 +1114,8 @@ static const struct iommu_ops rk_iommu_ops = {
+ 	.detach_dev = rk_iommu_detach_device,
+ 	.map = rk_iommu_map,
+ 	.unmap = rk_iommu_unmap,
+-	.add_device = rk_iommu_add_device,
+-	.remove_device = rk_iommu_remove_device,
++	.probe_device = rk_iommu_probe_device,
++	.release_device = rk_iommu_release_device,
+ 	.iova_to_phys = rk_iommu_iova_to_phys,
+ 	.device_group = rk_iommu_device_group,
+ 	.pgsize_bitmap = RK_IOMMU_PGSIZE_BITMAP,
 -- 
 2.17.1
