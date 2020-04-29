@@ -1,59 +1,44 @@
-From: Jan Kiszka <jan.kiszka@siemens.com>
-Subject: Re: Re: [PATCH 5/5] virtio: Add bounce DMA ops
-Date: Wed, 29 Apr 2020 12:55:56 +0200
-Message-ID: <303ace66-950c-955d-d750-74de5054788a@siemens.com>
-References: <20200428163448-mutt-send-email-mst@kernel.org>
- <275eba4b-dd35-aa95-b2e3-9c5cbf7c6d71@linux.intel.com>
- <20200429004531-mutt-send-email-mst@kernel.org>
- <b676430c-65b3-096e-ca48-ceebf10f4b28@linux.intel.com>
- <20200429023842-mutt-send-email-mst@kernel.org>
- <20200429094410.GD5097@quicinc.com>
- <20200429055125-mutt-send-email-mst@kernel.org>
- <20200429100953.GE5097@quicinc.com>
- <20200429061621-mutt-send-email-mst@kernel.org>
- <f52556e2-253e-2dbc-cb7a-a7991e3bcfde@siemens.com>
- <20200429064458-mutt-send-email-mst@kernel.org>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH] drm/qxl: qxl_release use after free
+Date: Wed, 29 Apr 2020 13:40:01 +0200
+Message-ID: <20200429114001.k4yhfssob7l6otnk@sirius.home.kraxel.org>
+References: <20200429082837.uedcapxmennuc5a2@sirius.home.kraxel.org>
+ <fa17b338-66ae-f299-68fe-8d32419d9071@virtuozzo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtio-dev-return-7206-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <20200429064458-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Srivatsa Vaddagiri <vatsa@codeaurora.org>, Lu Baolu <baolu.lu@linux.intel.com>, tsoni@codeaurora.org, virtio-dev@lists.oasis-open.org, konrad.wilk@oracle.com, jasowang@redhat.com, christoffer.dall@arm.com, virtualization@lists.linux-foundation.org, alex.bennee@linaro.org, iommu@lists.linux-foundation.org, stefano.stabellini@xilinx.com, will@kernel.org, linux-kernel@vger.kernel.org, pratikp@codeaurora.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <fa17b338-66ae-f299-68fe-8d32419d9071@virtuozzo.com>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Vasily Averin <vvs@virtuozzo.com>
+Cc: David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Daniel Vetter <daniel@ffwll.ch>, spice-devel@lists.freedesktop.org, Dave Airlie <airlied@redhat.com>, Caicai <caizhaopeng@uniontech.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 29.04.20 12:45, Michael S. Tsirkin wrote:
-> On Wed, Apr 29, 2020 at 12:26:43PM +0200, Jan Kiszka wrote:
->> On 29.04.20 12:20, Michael S. Tsirkin wrote:
->>> On Wed, Apr 29, 2020 at 03:39:53PM +0530, Srivatsa Vaddagiri wrote:
->>>> That would still not work I think where swiotlb is used for pass-thr devices
->>>> (when private memory is fine) as well as virtio devices (when shared memory is
->>>> required).
->>>
->>> So that is a separate question. When there are multiple untrusted
->>> devices, at the moment it looks like a single bounce buffer is used.
->>>
->>> Which to me seems like a security problem, I think we should protect
->>> untrusted devices from each other.
->>>
->>
->> Definitely. That's the model we have for ivshmem-virtio as well.
->>
->> Jan
+On Wed, Apr 29, 2020 at 12:01:24PM +0300, Vasily Averin wrote:
+> qxl_release should not be accesses after qxl_push_*_ring_release() calls:
+> userspace driver can process submitted command quickly, move qxl_release
+> into release_ring, generate interrupt and trigger garbage collector.
 > 
-> Want to try implementing that?
+> It can lead to crashes in qxl driver or trigger memory corruption
+> in some kmalloc-192 slab object
 > 
+> Gerd Hoffmann proposes to swap the qxl_release_fence_buffer_objects() +
+> qxl_push_{cursor,command}_ring_release() calls to close that race window.
+> 
+> cc: stable@vger.kernel.org
+> Fixes: f64122c1f6ad ("drm: add new QXL driver. (v1.4)")
+> Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
 
-The desire is definitely there, currently "just" not the time.
+Pushed to drm-misc-fixes.
 
-Jan
-
--- 
-Siemens AG, Corporate Technology, CT RDA IOT SES-DE
-Corporate Competence Center Embedded Linux
+thanks,
+  Gerd
