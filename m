@@ -1,8 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v3 03/34] iommu/amd: Implement iommu_ops->def_domain_type
- call-back
-Date: Wed, 29 Apr 2020 15:36:41 +0200
-Message-ID: <20200429133712.31431-4-joro@8bytes.org>
+Subject: [PATCH v3 04/34] iommu/vt-d: Wire up iommu_ops->def_domain_type
+Date: Wed, 29 Apr 2020 15:36:42 +0200
+Message-ID: <20200429133712.31431-5-joro@8bytes.org>
 References: <20200429133712.31431-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,45 +23,25 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Implement the new def_domain_type call-back for the AMD IOMMU driver.
+The Intel VT-d driver already has a matching function to determine the
+default domain type for a device. Wire it up in intel_iommu_ops.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- drivers/iommu/amd_iommu.c | 15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/iommu/intel-iommu.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
-index 20cce366e951..73b4f84cf449 100644
---- a/drivers/iommu/amd_iommu.c
-+++ b/drivers/iommu/amd_iommu.c
-@@ -2661,6 +2661,20 @@ static void amd_iommu_iotlb_sync(struct iommu_domain *domain,
- 	amd_iommu_flush_iotlb_all(domain);
- }
- 
-+static int amd_iommu_def_domain_type(struct device *dev)
-+{
-+	struct iommu_dev_data *dev_data;
-+
-+	dev_data = get_dev_data(dev);
-+	if (!dev_data)
-+		return 0;
-+
-+	if (dev_data->iommu_v2)
-+		return IOMMU_DOMAIN_IDENTITY;
-+
-+	return 0;
-+}
-+
- const struct iommu_ops amd_iommu_ops = {
- 	.capable = amd_iommu_capable,
- 	.domain_alloc = amd_iommu_domain_alloc,
-@@ -2680,6 +2694,7 @@ const struct iommu_ops amd_iommu_ops = {
- 	.pgsize_bitmap	= AMD_IOMMU_PGSIZES,
- 	.flush_iotlb_all = amd_iommu_flush_iotlb_all,
- 	.iotlb_sync = amd_iommu_iotlb_sync,
-+	.def_domain_type = amd_iommu_def_domain_type,
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index ef0a5246700e..b9f905a55dda 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -6209,6 +6209,7 @@ const struct iommu_ops intel_iommu_ops = {
+ 	.dev_enable_feat	= intel_iommu_dev_enable_feat,
+ 	.dev_disable_feat	= intel_iommu_dev_disable_feat,
+ 	.is_attach_deferred	= intel_iommu_is_attach_deferred,
++	.def_domain_type	= device_def_domain_type,
+ 	.pgsize_bitmap		= INTEL_IOMMU_PGSIZES,
  };
  
- /*****************************************************************************
 -- 
 2.17.1
