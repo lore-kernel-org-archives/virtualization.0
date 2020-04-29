@@ -1,159 +1,146 @@
-From: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
-Subject: [PATCH v3 26/34] iommu/tegra: Convert to probe/release_device() call-backs
-Date: Wed, 29 Apr 2020 15:37:04 +0200
-Message-ID: <20200429133712.31431-27-joro@8bytes.org>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: [PATCH v3 16/34] iommu/vt-d: Convert to probe/release_device()
+ call-backs
+Date: Wed, 29 Apr 2020 15:36:54 +0200
+Message-ID: <20200429133712.31431-17-joro@8bytes.org>
 References: <20200429133712.31431-1-joro@8bytes.org>
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20200429133712.31431-1-joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>, Will Deacon <will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>, Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Lu Baolu <baolu.lu-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Gross <agross-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Clark <robdclark-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Gerald Schaefer <gerald.schaefer-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>
-Cc: Daniel Drake <drake-6IF/jdPJHihWk0Htik3J/w@public.gmane.org>, jonathan.derrick-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200429133712.31431-1-joro@8bytes.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: linux-s390@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, Daniel Drake <drake@endlessm.com>, linux-rockchip@lists.infradead.org, iommu@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>, linux-mediatek@lists.infradead.org, linux-tegra@vger.kernel.org, virtualization@lists.linux-foundation.org, jonathan.derrick@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
+From: Joerg Roedel <jroedel@suse.de>
 
-Convert the Tegra IOMMU drivers to use the probe_device() and
+Convert the Intel IOMMU driver to use the probe_device() and
 release_device() call-backs of iommu_ops, so that the iommu core code
 does the group and sysfs setup.
 
-Signed-off-by: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- drivers/iommu/tegra-gart.c | 24 ++++++------------------
- drivers/iommu/tegra-smmu.c | 31 ++++++++-----------------------
- 2 files changed, 14 insertions(+), 41 deletions(-)
+ drivers/iommu/intel-iommu.c | 67 ++++---------------------------------
+ 1 file changed, 6 insertions(+), 61 deletions(-)
 
-diff --git a/drivers/iommu/tegra-gart.c b/drivers/iommu/tegra-gart.c
-index db6559e8336f..5fbdff6ff41a 100644
---- a/drivers/iommu/tegra-gart.c
-+++ b/drivers/iommu/tegra-gart.c
-@@ -243,28 +243,16 @@ static bool gart_iommu_capable(enum iommu_cap cap)
+diff --git a/drivers/iommu/intel-iommu.c b/drivers/iommu/intel-iommu.c
+index b9f905a55dda..b906727f5b85 100644
+--- a/drivers/iommu/intel-iommu.c
++++ b/drivers/iommu/intel-iommu.c
+@@ -5781,78 +5781,27 @@ static bool intel_iommu_capable(enum iommu_cap cap)
  	return false;
  }
  
--static int gart_iommu_add_device(struct device *dev)
-+static struct iommu_device *gart_iommu_probe_device(struct device *dev)
+-static int intel_iommu_add_device(struct device *dev)
++static struct iommu_device *intel_iommu_probe_device(struct device *dev)
  {
+-	struct dmar_domain *dmar_domain;
+-	struct iommu_domain *domain;
+ 	struct intel_iommu *iommu;
 -	struct iommu_group *group;
--
- 	if (!dev_iommu_fwspec_get(dev))
+ 	u8 bus, devfn;
+-	int ret;
+ 
+ 	iommu = device_to_iommu(dev, &bus, &devfn);
+ 	if (!iommu)
 -		return -ENODEV;
 -
--	group = iommu_group_get_for_dev(dev);
--	if (IS_ERR(group))
--		return PTR_ERR(group);
--
--	iommu_group_put(group);
+-	iommu_device_link(&iommu->iommu, dev);
 +		return ERR_PTR(-ENODEV);
  
--	iommu_device_link(&gart_handle->iommu, dev);
+ 	if (translation_pre_enabled(iommu))
+ 		dev->archdata.iommu = DEFER_DEVICE_DOMAIN_INFO;
+ 
+-	group = iommu_group_get_for_dev(dev);
 -
--	return 0;
-+	return &gart_handle->iommu;
- }
- 
--static void gart_iommu_remove_device(struct device *dev)
-+static void gart_iommu_release_device(struct device *dev)
- {
--	iommu_group_remove_device(dev);
--	iommu_device_unlink(&gart_handle->iommu, dev);
- }
- 
- static int gart_iommu_of_xlate(struct device *dev,
-@@ -290,8 +278,8 @@ static const struct iommu_ops gart_iommu_ops = {
- 	.domain_free	= gart_iommu_domain_free,
- 	.attach_dev	= gart_iommu_attach_dev,
- 	.detach_dev	= gart_iommu_detach_dev,
--	.add_device	= gart_iommu_add_device,
--	.remove_device	= gart_iommu_remove_device,
-+	.probe_device	= gart_iommu_probe_device,
-+	.release_device	= gart_iommu_release_device,
- 	.device_group	= generic_device_group,
- 	.map		= gart_iommu_map,
- 	.unmap		= gart_iommu_unmap,
-diff --git a/drivers/iommu/tegra-smmu.c b/drivers/iommu/tegra-smmu.c
-index 63a147b623e6..7426b7666e2b 100644
---- a/drivers/iommu/tegra-smmu.c
-+++ b/drivers/iommu/tegra-smmu.c
-@@ -757,11 +757,10 @@ static int tegra_smmu_configure(struct tegra_smmu *smmu, struct device *dev,
- 	return 0;
- }
- 
--static int tegra_smmu_add_device(struct device *dev)
-+static struct iommu_device *tegra_smmu_probe_device(struct device *dev)
- {
- 	struct device_node *np = dev->of_node;
- 	struct tegra_smmu *smmu = NULL;
--	struct iommu_group *group;
- 	struct of_phandle_args args;
- 	unsigned int index = 0;
- 	int err;
-@@ -774,7 +773,7 @@ static int tegra_smmu_add_device(struct device *dev)
- 			of_node_put(args.np);
- 
- 			if (err < 0)
--				return err;
-+				return ERR_PTR(err);
- 
- 			/*
- 			 * Only a single IOMMU master interface is currently
-@@ -783,8 +782,6 @@ static int tegra_smmu_add_device(struct device *dev)
- 			 */
- 			dev->archdata.iommu = smmu;
- 
--			iommu_device_link(&smmu->iommu, dev);
+-	if (IS_ERR(group)) {
+-		ret = PTR_ERR(group);
+-		goto unlink;
+-	}
 -
- 			break;
- 		}
- 
-@@ -793,26 +790,14 @@ static int tegra_smmu_add_device(struct device *dev)
+-	iommu_group_put(group);
+-
+-	domain = iommu_get_domain_for_dev(dev);
+-	dmar_domain = to_dmar_domain(domain);
+-	if (domain->type == IOMMU_DOMAIN_DMA) {
+-		if (device_def_domain_type(dev) == IOMMU_DOMAIN_IDENTITY) {
+-			ret = iommu_request_dm_for_dev(dev);
+-			if (ret) {
+-				dmar_remove_one_dev_info(dev);
+-				dmar_domain->flags |= DOMAIN_FLAG_LOSE_CHILDREN;
+-				domain_add_dev_info(si_domain, dev);
+-				dev_info(dev,
+-					 "Device uses a private identity domain.\n");
+-			}
+-		}
+-	} else {
+-		if (device_def_domain_type(dev) == IOMMU_DOMAIN_DMA) {
+-			ret = iommu_request_dma_domain_for_dev(dev);
+-			if (ret) {
+-				dmar_remove_one_dev_info(dev);
+-				dmar_domain->flags |= DOMAIN_FLAG_LOSE_CHILDREN;
+-				if (!get_private_domain_for_dev(dev)) {
+-					dev_warn(dev,
+-						 "Failed to get a private domain.\n");
+-					ret = -ENOMEM;
+-					goto unlink;
+-				}
+-
+-				dev_info(dev,
+-					 "Device uses a private dma domain.\n");
+-			}
+-		}
+-	}
+-
+ 	if (device_needs_bounce(dev)) {
+ 		dev_info(dev, "Use Intel IOMMU bounce page dma_ops\n");
+ 		set_dma_ops(dev, &bounce_dma_ops);
  	}
  
- 	if (!smmu)
--		return -ENODEV;
--
--	group = iommu_group_get_for_dev(dev);
--	if (IS_ERR(group))
--		return PTR_ERR(group);
--
--	iommu_group_put(group);
-+		return ERR_PTR(-ENODEV);
- 
 -	return 0;
-+	return &smmu->iommu;
+-
+-unlink:
+-	iommu_device_unlink(&iommu->iommu, dev);
+-	return ret;
++	return &iommu->iommu;
  }
  
--static void tegra_smmu_remove_device(struct device *dev)
-+static void tegra_smmu_release_device(struct device *dev)
+-static void intel_iommu_remove_device(struct device *dev)
++static void intel_iommu_release_device(struct device *dev)
  {
--	struct tegra_smmu *smmu = dev->archdata.iommu;
--
--	if (smmu)
--		iommu_device_unlink(&smmu->iommu, dev);
--
- 	dev->archdata.iommu = NULL;
--	iommu_group_remove_device(dev);
- }
+ 	struct intel_iommu *iommu;
+ 	u8 bus, devfn;
+@@ -5863,10 +5812,6 @@ static void intel_iommu_remove_device(struct device *dev)
  
- static const struct tegra_smmu_group_soc *
-@@ -895,8 +880,8 @@ static const struct iommu_ops tegra_smmu_ops = {
- 	.domain_free = tegra_smmu_domain_free,
- 	.attach_dev = tegra_smmu_attach_dev,
- 	.detach_dev = tegra_smmu_detach_dev,
--	.add_device = tegra_smmu_add_device,
--	.remove_device = tegra_smmu_remove_device,
-+	.probe_device = tegra_smmu_probe_device,
-+	.release_device = tegra_smmu_release_device,
- 	.device_group = tegra_smmu_device_group,
- 	.map = tegra_smmu_map,
- 	.unmap = tegra_smmu_unmap,
-@@ -1015,7 +1000,7 @@ struct tegra_smmu *tegra_smmu_probe(struct device *dev,
- 	 * value. However the IOMMU registration process will attempt to add
- 	 * all devices to the IOMMU when bus_set_iommu() is called. In order
- 	 * not to rely on global variables to track the IOMMU instance, we
--	 * set it here so that it can be looked up from the .add_device()
-+	 * set it here so that it can be looked up from the .probe_device()
- 	 * callback via the IOMMU device's .drvdata field.
- 	 */
- 	mc->smmu = smmu;
+ 	dmar_remove_one_dev_info(dev);
+ 
+-	iommu_group_remove_device(dev);
+-
+-	iommu_device_unlink(&iommu->iommu, dev);
+-
+ 	if (device_needs_bounce(dev))
+ 		set_dma_ops(dev, NULL);
+ }
+@@ -6198,8 +6143,8 @@ const struct iommu_ops intel_iommu_ops = {
+ 	.map			= intel_iommu_map,
+ 	.unmap			= intel_iommu_unmap,
+ 	.iova_to_phys		= intel_iommu_iova_to_phys,
+-	.add_device		= intel_iommu_add_device,
+-	.remove_device		= intel_iommu_remove_device,
++	.probe_device		= intel_iommu_probe_device,
++	.release_device		= intel_iommu_release_device,
+ 	.get_resv_regions	= intel_iommu_get_resv_regions,
+ 	.put_resv_regions	= generic_iommu_put_resv_regions,
+ 	.apply_resv_region	= intel_iommu_apply_resv_region,
 -- 
 2.17.1
