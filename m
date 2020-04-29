@@ -1,74 +1,76 @@
-From: Lu Baolu <baolu.lu@linux.intel.com>
-Subject: Re: [PATCH 5/5] virtio: Add bounce DMA ops
-Date: Wed, 29 Apr 2020 15:01:14 +0800
-Message-ID: <80a3a471-0a2c-3ab3-529c-1b8b624679f8@linux.intel.com>
-References: <1588073958-1793-1-git-send-email-vatsa@codeaurora.org>
- <1588073958-1793-6-git-send-email-vatsa@codeaurora.org>
- <20200428121232-mutt-send-email-mst@kernel.org>
- <20200428174952.GA5097@quicinc.com>
- <20200428163448-mutt-send-email-mst@kernel.org>
- <275eba4b-dd35-aa95-b2e3-9c5cbf7c6d71@linux.intel.com>
- <20200429004531-mutt-send-email-mst@kernel.org>
- <b676430c-65b3-096e-ca48-ceebf10f4b28@linux.intel.com>
- <20200429023842-mutt-send-email-mst@kernel.org>
+From: Gerd Hoffmann <kraxel@redhat.com>
+Subject: Re: [PATCH 1/1] drm/qxl: add mutex_lock/mutex_unlock to ensure the
+ order in which resources are rele
+Date: Wed, 29 Apr 2020 10:28:37 +0200
+Message-ID: <20200429082837.uedcapxmennuc5a2@sirius.home.kraxel.org>
+References: <bc954de7-bfe0-8e0c-79d4-90d726a0ffa6@virtuozzo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200429023842-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: baolu.lu@linux.intel.com, Srivatsa Vaddagiri <vatsa@codeaurora.org>, tsoni@codeaurora.org, virtio-dev@lists.oasis-open.org, konrad.wilk@oracle.com, jan.kiszka@siemens.com, jasowang@redhat.com, christoffer.dall@arm.com, virtualization@lists.linux-foundation.org, alex.bennee@linaro.org, iommu@lists.linux-foundation.org, stefano.stabellini@xilinx.com, will@kernel.org, linux-kernel@vger.kernel.org, pratikp@codeaurora.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <bc954de7-bfe0-8e0c-79d4-90d726a0ffa6@virtuozzo.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Vasily Averin <vvs@virtuozzo.com>
+Cc: "Denis V. Lunev" <den@virtuozzo.com>, David Airlie <airlied@linux.ie>, "linux-kernel@vger.kernel.org\"" <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Zhangyueqian <zhangyueqian@uniontech.com>, Dave Airlie <airlied@redhat.com>, Caicai <caizhaopeng@uniontech.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2020/4/29 14:50, Michael S. Tsirkin wrote:
-> On Wed, Apr 29, 2020 at 01:42:13PM +0800, Lu Baolu wrote:
->> On 2020/4/29 12:57, Michael S. Tsirkin wrote:
->>> On Wed, Apr 29, 2020 at 10:22:32AM +0800, Lu Baolu wrote:
->>>> On 2020/4/29 4:41, Michael S. Tsirkin wrote:
->>>>> On Tue, Apr 28, 2020 at 11:19:52PM +0530, Srivatsa Vaddagiri wrote:
->>>>>> * Michael S. Tsirkin<mst@redhat.com>   [2020-04-28 12:17:57]:
->>>>>>
->>>>>>> Okay, but how is all this virtio specific?  For example, why not allow
->>>>>>> separate swiotlbs for any type of device?
->>>>>>> For example, this might make sense if a given device is from a
->>>>>>> different, less trusted vendor.
->>>>>> Is swiotlb commonly used for multiple devices that may be on different trust
->>>>>> boundaries (and not behind a hardware iommu)?
->>>>> Even a hardware iommu does not imply a 100% security from malicious
->>>>> hardware. First lots of people use iommu=pt for performance reasons.
->>>>> Second even without pt, unmaps are often batched, and sub-page buffers
->>>>> might be used for DMA, so we are not 100% protected at all times.
->>>>>
->>>> For untrusted devices, IOMMU is forced on even iommu=pt is used;
->>> I think you are talking about untrusted*drivers*  like with VFIO.
->> No. I am talking about untrusted devices like thunderbolt peripherals.
->> We always trust drivers hosted in kernel and the DMA APIs are designed
->> for them, right?
->>
->> Please refer to this series.
->>
->> https://lkml.org/lkml/2019/9/6/39
->>
->> Best regards,
->> baolu
-> Oh, thanks for that! I didn't realize Linux is doing this.
+  Hi,
+
+> > The only way I see for this to happen is that the guest is preempted
+> > between qxl_push_{cursor,command}_ring_release() and
+> > qxl_release_fence_buffer_objects() calls.  The host can complete the qxl
+> > command then, signal the guest, and the IRQ handler calls
+> > qxl_release_free_list() before qxl_release_fence_buffer_objects() runs.
 > 
-> So it seems that with modern Linux, all one needs
-> to do on x86 is mark the device as untrusted.
-> It's already possible to do this with ACPI and with OF - would that be
-> sufficient for achieving what this patchset is trying to do?
+> We think the same: qxl_release was freed by garbage collector before
+> original thread had called qxl_release_fence_buffer_objects().
 
-Yes.
+Ok, nice, I think we can consider the issue being analyzed then ;)
 
+> > Looking through the code I think it should be safe to simply swap the
+> > qxl_release_fence_buffer_objects() +
+> > qxl_push_{cursor,command}_ring_release() calls to close that race
+> > window.  Can you try that and see if it fixes the bug for you?
 > 
-> Adding more ways to mark a device as untrusted, and adding
-> support for more platforms to use bounce buffers
-> sounds like a reasonable thing to do.
-> 
+> I'm going to prepare and test such patch but I have one question here:
+> qxl_push_*_ring_release can be called with  interruptible=true and fail
+> How to correctly handle this case? Is the hunk below correct from your POV?
 
-Agreed.
+Oh, right, the error code path will be quite different, checking ...
 
-Best regards,
-baolu
+> --- a/drivers/gpu/drm/qxl/qxl_ioctl.c
+> +++ b/drivers/gpu/drm/qxl/qxl_ioctl.c
+> @@ -261,12 +261,8 @@ static int qxl_process_single_command(struct qxl_device *qdev,
+>                         apply_surf_reloc(qdev, &reloc_info[i]);
+>         }
+>  
+> +       qxl_release_fence_buffer_objects(release);
+>         ret = qxl_push_command_ring_release(qdev, release, cmd->type, true);
+> -       if (ret)
+> -               qxl_release_backoff_reserve_list(release);  <<<< ????
+> -       else
+> -               qxl_release_fence_buffer_objects(release);
+> -
+>  out_free_bos:
+>  out_free_release:
+	if (ret)
+		qxl_release_free(qdev, release);
+
+[ code context added ]
+
+qxl_release_free() checks whenever a release is fenced and signals the
+fence in case it is so it doesn't wait for the signal forever.  So, yes,
+I think qxl_release_free() should cleanup the release properly in any
+case and the patch chunk should be correct.
+
+take care,
+  Gerd
