@@ -1,15 +1,17 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH 1/1] drm/qxl: add mutex_lock/mutex_unlock to ensure the
- order in which resources are rele
-Date: Wed, 29 Apr 2020 10:28:37 +0200
-Message-ID: <20200429082837.uedcapxmennuc5a2@sirius.home.kraxel.org>
-References: <bc954de7-bfe0-8e0c-79d4-90d726a0ffa6@virtuozzo.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net-next 0/3] vsock: support network namespace
+Date: Wed, 29 Apr 2020 17:21:42 +0800
+Message-ID: <6dc937e4-0ef9-617d-c9c8-8b1f8c428d90@redhat.com>
+References: <20200116172428.311437-1-sgarzare@redhat.com>
+ <20200427142518.uwssa6dtasrp3bfc@steredhat>
+ <224cdc10-1532-7ddc-f113-676d43d8f322@redhat.com>
+ <20200428160052.o3ihui4262xogyg4@steredhat>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <bc954de7-bfe0-8e0c-79d4-90d726a0ffa6@virtuozzo.com>
+In-Reply-To: <20200428160052.o3ihui4262xogyg4@steredhat>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -19,58 +21,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Vasily Averin <vvs@virtuozzo.com>
-Cc: "Denis V. Lunev" <den@virtuozzo.com>, David Airlie <airlied@linux.ie>, "linux-kernel@vger.kernel.org\"" <linux-kernel@vger.kernel.org>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, Zhangyueqian <zhangyueqian@uniontech.com>, Dave Airlie <airlied@redhat.com>, Caicai <caizhaopeng@uniontech.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: linux-hyperv@vger.kernel.org, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Dexuan Cui <decui@microsoft.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, davem@davemloft.net, Jorgen Hansen <jhansen@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-  Hi,
-
-> > The only way I see for this to happen is that the guest is preempted
-> > between qxl_push_{cursor,command}_ring_release() and
-> > qxl_release_fence_buffer_objects() calls.  The host can complete the qxl
-> > command then, signal the guest, and the IRQ handler calls
-> > qxl_release_free_list() before qxl_release_fence_buffer_objects() runs.
-> 
-> We think the same: qxl_release was freed by garbage collector before
-> original thread had called qxl_release_fence_buffer_objects().
-
-Ok, nice, I think we can consider the issue being analyzed then ;)
-
-> > Looking through the code I think it should be safe to simply swap the
-> > qxl_release_fence_buffer_objects() +
-> > qxl_push_{cursor,command}_ring_release() calls to close that race
-> > window.  Can you try that and see if it fixes the bug for you?
-> 
-> I'm going to prepare and test such patch but I have one question here:
-> qxl_push_*_ring_release can be called with  interruptible=true and fail
-> How to correctly handle this case? Is the hunk below correct from your POV?
-
-Oh, right, the error code path will be quite different, checking ...
-
-> --- a/drivers/gpu/drm/qxl/qxl_ioctl.c
-> +++ b/drivers/gpu/drm/qxl/qxl_ioctl.c
-> @@ -261,12 +261,8 @@ static int qxl_process_single_command(struct qxl_device *qdev,
->                         apply_surf_reloc(qdev, &reloc_info[i]);
->         }
->  
-> +       qxl_release_fence_buffer_objects(release);
->         ret = qxl_push_command_ring_release(qdev, release, cmd->type, true);
-> -       if (ret)
-> -               qxl_release_backoff_reserve_list(release);  <<<< ????
-> -       else
-> -               qxl_release_fence_buffer_objects(release);
-> -
->  out_free_bos:
->  out_free_release:
-	if (ret)
-		qxl_release_free(qdev, release);
-
-[ code context added ]
-
-qxl_release_free() checks whenever a release is fenced and signals the
-fence in case it is so it doesn't wait for the signal forever.  So, yes,
-I think qxl_release_free() should cleanup the release properly in any
-case and the patch chunk should be correct.
-
-take care,
-  Gerd
+Ck9uIDIwMjAvNC8yOSDkuIrljYgxMjowMCwgU3RlZmFubyBHYXJ6YXJlbGxhIHdyb3RlOgo+IE9u
+IFR1ZSwgQXByIDI4LCAyMDIwIGF0IDA0OjEzOjIyUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6
+Cj4+IE9uIDIwMjAvNC8yNyDkuIvljYgxMDoyNSwgU3RlZmFubyBHYXJ6YXJlbGxhIHdyb3RlOgo+
+Pj4gSGkgRGF2aWQsIE1pY2hhZWwsIFN0ZWZhbiwKPj4+IEknbSByZXN0YXJ0aW5nIHRvIHdvcmsg
+b24gdGhpcyB0b3BpYyBzaW5jZSBLYXRhIGd1eXMgYXJlIGludGVyZXN0ZWQgdG8KPj4+IGhhdmUg
+dGhhdCwgZXNwZWNpYWxseSBvbiB0aGUgZ3Vlc3Qgc2lkZS4KPj4+Cj4+PiBXaGlsZSB3b3JraW5n
+IG9uIHRoZSB2MiBJIGhhZCBmZXcgZG91YnRzLCBhbmQgSSdkIGxpa2UgdG8gaGF2ZSB5b3VyCj4+
+PiBzdWdnZXN0aW9uczoKPj4+Cj4+PiAgICAxLiBuZXRucyBhc3NpZ25lZCB0byB0aGUgZGV2aWNl
+IGluc2lkZSB0aGUgZ3Vlc3QKPj4+Cj4+PiAgICAgIEN1cnJlbnRseSBJIGFzc2lnbmVkIHRoaXMg
+ZGV2aWNlIHRvICdpbml0X25ldCcuIE1heWJlIGl0IGlzIGJldHRlcgo+Pj4gICAgICBpZiB3ZSBh
+bGxvdyB0aGUgdXNlciB0byBkZWNpZGUgd2hpY2ggbmV0bnMgYXNzaWduIHRvIHRoZSBkZXZpY2UK
+Pj4+ICAgICAgb3IgdG8gZGlzYWJsZSB0aGlzIG5ldyBmZWF0dXJlIHRvIGhhdmUgdGhlIHNhbWUg
+YmVoYXZpb3IgYXMgYmVmb3JlCj4+PiAgICAgIChob3N0IHJlYWNoYWJsZSBmcm9tIGFueSBuZXRu
+cykuCj4+PiAgICAgIEkgdGhpbmsgd2UgY2FuIGhhbmRsZSB0aGlzIGluIHRoZSB2c29jayBjb3Jl
+IGFuZCBub3QgaW4gdGhlIHNpbmdsZQo+Pj4gICAgICB0cmFuc3BvcnRzLgo+Pj4KPj4+ICAgICAg
+VGhlIHNpbXBsZXN0IHdheSB0aGF0IEkgZm91bmQsIGlzIHRvIGFkZCBhIG5ldwo+Pj4gICAgICBJ
+T0NUTF9WTV9TT0NLRVRTX0FTU0lHTl9HMkhfTkVUTlMgdG8gL2Rldi92c29jayB0byBlbmFibGUg
+dGhlIGZlYXR1cmUKPj4+ICAgICAgYW5kIGFzc2lnbiB0aGUgZGV2aWNlIHRvIHRoZSBzYW1lIG5l
+dG5zIG9mIHRoZSBwcm9jZXNzIHRoYXQgZG8gdGhlCj4+PiAgICAgIGlvY3RsKCksIGJ1dCBJJ20g
+bm90IHN1cmUgaXQgaXMgY2xlYW4gZW5vdWdoLgo+Pj4KPj4+ICAgICAgTWF5YmUgaXQgaXMgYmV0
+dGVyIHRvIGFkZCBuZXcgcnRuZXRsaW5rIG1lc3NhZ2VzLCBidXQgSSdtIG5vdCBzdXJlIGlmCj4+
+PiAgICAgIGl0IGlzIGZlYXNpYmxlIHNpbmNlIHdlIGRvbid0IGhhdmUgYSBuZXRkZXYgZGV2aWNl
+Lgo+Pj4KPj4+ICAgICAgV2hhdCBkbyB5b3Ugc3VnZ2VzdD8KPj4gQXMgd2UndmUgZGlzY3Vzc2Vk
+LCBpdCBzaG91bGQgYmUgYSBuZXRkZXYgcHJvYmFibHkgaW4gZWl0aGVyIGd1ZXN0IG9yIGhvc3QK
+Pj4gc2lkZS4gQW5kIGl0IHdvdWxkIGJlIG11Y2ggc2ltcGxlciBpZiB3ZSB3YW50IGRvIGltcGxl
+bWVudCBuYW1lc3BhY2UgdGhlbi4KPj4gTm8gbmV3IEFQSSBpcyBuZWVkZWQuCj4+Cj4gVGhhbmtz
+IEphc29uIQo+Cj4gSXQgd291bGQgYmUgY29vbCwgYnV0IEkgZG9uJ3QgaGF2ZSBtdWNoIGV4cGVy
+aWVuY2Ugb24gbmV0ZGV2Lgo+IERvIHlvdSBzZWUgYW55IHBhcnRpY3VsYXIgb2JzdGFjbGVzPwoK
+CkkgZG9uJ3Qgc2VlIGJ1dCBpZiB0aGVyZSdzIHdlIGNhbiB0cnkgdG8gZmluZCBhIHNvbHV0aW9u
+IG9yIGFzayBmb3IgCm5ldGRldiBleHBlcnRzIGZvciB0aGF0LiBJIGRvIGhlYXIgZnJvbSBzb21l
+Ym9keSB0aGF0IGlzIGludGVyZXN0ZWQgaW4gCmhhdmluZyBuZXRkZXYgaW4gdGhlIHBhc3QuCgoK
+Pgo+IEknbGwgdGFrZSBhIGxvb2sgdG8gdW5kZXJzdGFuZCBob3cgdG8gZG8gaXQsIHN1cmVseSBp
+biB0aGUgZ3Vlc3Qgd291bGQKPiBiZSB2ZXJ5IHVzZWZ1bCB0byBoYXZlIHRoZSB2c29jayBkZXZp
+Y2UgYXMgYSBuZXRkZXYgYW5kIG1heWJlIGFsc28gaW4gdGhlIGhvc3QuCgoKWWVzLCBpdCdzIHdv
+cnRoIHRvIGhhdmUgYSB0cnkgdGhlbiB3ZSB3aWxsIGhhdmUgYSB1bmlmaWVkIG1hbmFnZW1lbnQg
+CmludGVyZmFjZSBhbmQgd2Ugd2lsbCBiZW5lZml0IGZyb20gaXQgaW4gdGhlIGZ1dHVyZS4KClN0
+YXJ0aW5nIGZvcm0gZ3Vlc3QgaXMgZ29vZCBpZGVhIHdoaWNoIHNob3VsZCBiZSBsZXNzIGNvbXBs
+aWNhdGVkIHRoYW4gaG9zdC4KClRoYW5rcwoKCj4KPiBTdGVmYW5vCj4KCl9fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcg
+bGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xp
+c3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
