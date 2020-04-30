@@ -1,47 +1,61 @@
-From: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Subject: Re: [PATCH 5/5] virtio: Add bounce DMA ops
-Date: Thu, 30 Apr 2020 11:20:08 -0400
-Message-ID: <20200430152008.GB872@char.us.oracle.com>
-References: <20200428174952.GA5097@quicinc.com>
- <20200428163448-mutt-send-email-mst@kernel.org>
- <275eba4b-dd35-aa95-b2e3-9c5cbf7c6d71@linux.intel.com>
- <20200429004531-mutt-send-email-mst@kernel.org>
- <b676430c-65b3-096e-ca48-ceebf10f4b28@linux.intel.com>
- <20200429023842-mutt-send-email-mst@kernel.org>
- <20200429094410.GD5097@quicinc.com>
- <20200429055125-mutt-send-email-mst@kernel.org>
- <20200429100953.GE5097@quicinc.com>
- <20200429061621-mutt-send-email-mst@kernel.org>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH v2 3/3] device-dax: Add system ram (add_memory()) with
+ MHP_NO_FIRMWARE_MEMMAP
+Date: Thu, 30 Apr 2020 17:28:29 +0200
+Message-ID: <0e30697f-a5f7-e272-6aa5-8c7197c15818@redhat.com>
+References: <20200430102908.10107-1-david@redhat.com>
+ <20200430102908.10107-4-david@redhat.com>
+ <20b86ced-7c47-02ca-0e0e-1bd5d6cc95c1@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20200429061621-mutt-send-email-mst@kernel.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: tsoni@codeaurora.org, virtio-dev@lists.oasis-open.org, will@kernel.org, jan.kiszka@siemens.com, Srivatsa Vaddagiri <vatsa@codeaurora.org>, christoffer.dall@arm.com, pratikp@codeaurora.org, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, stefano.stabellini@xilinx.com, linux-kernel@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>
+Return-path: <virtio-dev-return-7225-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+In-Reply-To: <20b86ced-7c47-02ca-0e0e-1bd5d6cc95c1@intel.com>
+Content-Language: en-US
+To: Dave Hansen <dave.hansen@intel.com>, linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-hyperv@vger.kernel.org, linux-s390@vger.kernel.org, xen-devel@lists.xenproject.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Michal Hocko <mhocko@suse.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Wei Yang <richard.weiyang@gmail.com>, Baoquan He <bhe@redhat.com>, Dave Hansen <dave.hansen@linux.intel.com>, Eric Biederman <ebiederm@xmission.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Dan Williams <dan.j.williams@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 29, 2020 at 06:20:48AM -0400, Michael S. Tsirkin wrote:
-> On Wed, Apr 29, 2020 at 03:39:53PM +0530, Srivatsa Vaddagiri wrote:
-> > That would still not work I think where swiotlb is used for pass-thr devices
-> > (when private memory is fine) as well as virtio devices (when shared memory is
-> > required).
+On 30.04.20 13:23, Dave Hansen wrote:
+> On 4/30/20 3:29 AM, David Hildenbrand wrote:
+>> Currently, when adding memory, we create entries in /sys/firmware/memmap/
+>> as "System RAM". This does not reflect the reality and will lead to
+>> kexec-tools to add that memory to the fixed-up initial memmap for a
+>> kexec kernel (loaded via kexec_load()). The memory will be considered
+>> initial System RAM by the kexec kernel.
+>>
+>> We should let the kexec kernel decide how to use that memory - just as
+>> we do during an ordinary reboot.
+> ...
+>> -	rc = add_memory(numa_node, new_res->start, resource_size(new_res), 0);
+>> +	rc = add_memory(numa_node, new_res->start, resource_size(new_res),
+>> +			MHP_NO_FIRMWARE_MEMMAP);
 > 
-> So that is a separate question. When there are multiple untrusted
-> devices, at the moment it looks like a single bounce buffer is used.
+> Looks fine.  But, if you send another revision, could you add a comment
+> about the actual goal of MHP_NO_FIRMWARE_MEMMAP?  Maybe:
 > 
-> Which to me seems like a security problem, I think we should protect
-> untrusted devices from each other.
+> 	/*
+> 	 * MHP_NO_FIRMWARE_MEMMAP ensures that future
+> 	 * kexec'd kernels will not treat this as RAM.
+> 	 */
+> 
+> Not a biggie, though.
 
-There are two DMA pools code in Linux already - the TTM one for graphics
-and the mm/dmapool.c - could those be used instead? Or augmented at least?
+Sure, maybe Andrew can fixup when applying (if no resend is necessary).
+
+Thanks Dave!
+
+> 
+> Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
+> 
+
+
+-- 
+Thanks,
+
+David / dhildenb
