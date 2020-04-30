@@ -1,232 +1,34 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH v3] virtio-blk: handle block_device_operations callbacks
- after hot unplug
-Date: Thu, 30 Apr 2020 10:43:23 +0200
-Message-ID: <20200430084323.qts2q5ql7rkclk2h@steredhat>
-References: <20200429165345.144702-1-stefanha@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+From: Srivatsa Vaddagiri <vatsa@codeaurora.org>
+Subject: [RFC/PATCH 0/1] virtio_mmio: hypervisor specific interfaces for MMIO
+Date: Thu, 30 Apr 2020 15:32:55 +0530
+Message-ID: <1588240976-10213-1-git-send-email-vatsa@codeaurora.org>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200429165345.144702-1-stefanha@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, linux-block@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Jens Axboe <axboe@kernel.dk>, cohuck@redhat.com, Jason Wang <jasowang@redhat.com>, Lance Digby <ldigby@redhat.com>
+To: konrad.wilk@oracle.com, mst@redhat.com, jasowang@redhat.com, jan.kiszka@siemens.com, will@kernel.org, stefano.stabellini@xilinx.com
+Cc: iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, tsoni@codeaurora.org, pratikp@codeaurora.org, vatsa@codeaurora.org, christoffer.dall@arm.com, alex.bennee@linaro.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Apr 29, 2020 at 05:53:45PM +0100, Stefan Hajnoczi wrote:
-> A userspace process holding a file descriptor to a virtio_blk device can
-> still invoke block_device_operations after hot unplug.  This leads to a
-> use-after-free accessing vblk->vdev in virtblk_getgeo() when
-> ioctl(HDIO_GETGEO) is invoked:
-> 
->   BUG: unable to handle kernel NULL pointer dereference at 0000000000000090
->   IP: [<ffffffffc00e5450>] virtio_check_driver_offered_feature+0x10/0x90 [virtio]
->   PGD 800000003a92f067 PUD 3a930067 PMD 0
->   Oops: 0000 [#1] SMP
->   CPU: 0 PID: 1310 Comm: hdio-getgeo Tainted: G           OE  ------------   3.10.0-1062.el7.x86_64 #1
->   Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
->   task: ffff9be5fbfb8000 ti: ffff9be5fa890000 task.ti: ffff9be5fa890000
->   RIP: 0010:[<ffffffffc00e5450>]  [<ffffffffc00e5450>] virtio_check_driver_offered_feature+0x10/0x90 [virtio]
->   RSP: 0018:ffff9be5fa893dc8  EFLAGS: 00010246
->   RAX: ffff9be5fc3f3400 RBX: ffff9be5fa893e30 RCX: 0000000000000000
->   RDX: 0000000000000000 RSI: 0000000000000004 RDI: ffff9be5fbc10b40
->   RBP: ffff9be5fa893dc8 R08: 0000000000000301 R09: 0000000000000301
->   R10: 0000000000000000 R11: 0000000000000000 R12: ffff9be5fdc24680
->   R13: ffff9be5fbc10b40 R14: ffff9be5fbc10480 R15: 0000000000000000
->   FS:  00007f1bfb968740(0000) GS:ffff9be5ffc00000(0000) knlGS:0000000000000000
->   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
->   CR2: 0000000000000090 CR3: 000000003a894000 CR4: 0000000000360ff0
->   DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
->   DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
->   Call Trace:
->    [<ffffffffc016ac37>] virtblk_getgeo+0x47/0x110 [virtio_blk]
->    [<ffffffff8d3f200d>] ? handle_mm_fault+0x39d/0x9b0
->    [<ffffffff8d561265>] blkdev_ioctl+0x1f5/0xa20
->    [<ffffffff8d488771>] block_ioctl+0x41/0x50
->    [<ffffffff8d45d9e0>] do_vfs_ioctl+0x3a0/0x5a0
->    [<ffffffff8d45dc81>] SyS_ioctl+0xa1/0xc0
-> 
-> A related problem is that virtblk_remove() leaks the vd_index_ida index
-> when something still holds a reference to vblk->disk during hot unplug.
-> This causes virtio-blk device names to be lost (vda, vdb, etc).
-> 
-> Fix these issues by protecting vblk->vdev with a mutex and reference
-> counting vblk so the vd_index_ida index can be removed in all cases.
-> 
-> Fixes: 48e4043d4529523cbc7fa8dd745bd8e2c45ce1d3
->        ("virtio: add virtio disk geometry feature")
-> Reported-by: Lance Digby <ldigby@redhat.com>
-> Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
-> ---
->  drivers/block/virtio_blk.c | 87 ++++++++++++++++++++++++++++++++++----
->  1 file changed, 79 insertions(+), 8 deletions(-)
-> 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 93468b7c6701..6f7f277495f4 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -33,6 +33,16 @@ struct virtio_blk_vq {
->  } ____cacheline_aligned_in_smp;
->  
->  struct virtio_blk {
-> +	/*
-> +	 * vdev may be accessed without taking this mutex in blk-mq and
-> +	 * virtqueue code paths because virtblk_remove() stops them before vdev
-> +	 * is freed.
-> +	 *
-> +	 * Everything else must hold this mutex when accessing vdev and must
-> +	 * handle the case where vdev is NULL after virtblk_remove() has been
-> +	 * called.
-> +	 */
-> +	struct mutex vdev_mutex;
+The Type-1 hypervisor we are dealing with does not allow for MMIO transport. 
+[1] summarizes some of the problems we have in making virtio work on such
+hypervisors. This patch proposes a solution for transport problem viz how we can
+do config space IO on such a hypervisor. Hypervisor specific methods
+introduced allows for seamless IO of config space.
 
-The patch LGTM, I'm just worried about cache_type_store() and
-cache_type_show() because IIUC they aren't in blk-mq and virtqueue code
-paths, but they use vdev.
+This patch is meant to seek comments. If its considered to be in right
+direction, will work on making it more complete and send the next version!
 
-Do we have to take the mutex there too?
+1. https://lkml.org/lkml/2020/4/28/427
 
-Thanks,
-Stefano
+Srivatsa Vaddagiri (1):
+  virtio: Introduce MMIO ops
 
->  	struct virtio_device *vdev;
->  
->  	/* The disk structure for the kernel. */
-> @@ -44,6 +54,13 @@ struct virtio_blk {
->  	/* Process context for config space updates */
->  	struct work_struct config_work;
->  
-> +	/*
-> +	 * Tracks references from block_device_operations open/release and
-> +	 * virtio_driver probe/remove so this object can be freed once no
-> +	 * longer in use.
-> +	 */
-> +	refcount_t refs;
-> +
->  	/* What host tells us, plus 2 for header & tailer. */
->  	unsigned int sg_elems;
->  
-> @@ -295,10 +312,55 @@ static int virtblk_get_id(struct gendisk *disk, char *id_str)
->  	return err;
->  }
->  
-> +static void virtblk_get(struct virtio_blk *vblk)
-> +{
-> +	refcount_inc(&vblk->refs);
-> +}
-> +
-> +static void virtblk_put(struct virtio_blk *vblk)
-> +{
-> +	if (refcount_dec_and_test(&vblk->refs)) {
-> +		ida_simple_remove(&vd_index_ida, vblk->index);
-> +		mutex_destroy(&vblk->vdev_mutex);
-> +		kfree(vblk);
-> +	}
-> +}
-> +
-> +static int virtblk_open(struct block_device *bd, fmode_t mode)
-> +{
-> +	struct virtio_blk *vblk = bd->bd_disk->private_data;
-> +	int ret = 0;
-> +
-> +	mutex_lock(&vblk->vdev_mutex);
-> +
-> +	if (vblk->vdev)
-> +		virtblk_get(vblk);
-> +	else
-> +		ret = -ENXIO;
-> +
-> +	mutex_unlock(&vblk->vdev_mutex);
-> +	return ret;
-> +}
-> +
-> +static void virtblk_release(struct gendisk *disk, fmode_t mode)
-> +{
-> +	struct virtio_blk *vblk = disk->private_data;
-> +
-> +	virtblk_put(vblk);
-> +}
-> +
->  /* We provide getgeo only to please some old bootloader/partitioning tools */
->  static int virtblk_getgeo(struct block_device *bd, struct hd_geometry *geo)
->  {
->  	struct virtio_blk *vblk = bd->bd_disk->private_data;
-> +	int ret = 0;
-> +
-> +	mutex_lock(&vblk->vdev_mutex);
-> +
-> +	if (!vblk->vdev) {
-> +		ret = -ENXIO;
-> +		goto out;
-> +	}
->  
->  	/* see if the host passed in geometry config */
->  	if (virtio_has_feature(vblk->vdev, VIRTIO_BLK_F_GEOMETRY)) {
-> @@ -314,11 +376,15 @@ static int virtblk_getgeo(struct block_device *bd, struct hd_geometry *geo)
->  		geo->sectors = 1 << 5;
->  		geo->cylinders = get_capacity(bd->bd_disk) >> 11;
->  	}
-> -	return 0;
-> +out:
-> +	mutex_unlock(&vblk->vdev_mutex);
-> +	return ret;
->  }
->  
->  static const struct block_device_operations virtblk_fops = {
->  	.owner  = THIS_MODULE,
-> +	.open = virtblk_open,
-> +	.release = virtblk_release,
->  	.getgeo = virtblk_getgeo,
->  };
->  
-> @@ -655,6 +721,10 @@ static int virtblk_probe(struct virtio_device *vdev)
->  		goto out_free_index;
->  	}
->  
-> +	/* This reference is dropped in virtblk_remove(). */
-> +	refcount_set(&vblk->refs, 1);
-> +	mutex_init(&vblk->vdev_mutex);
-> +
->  	vblk->vdev = vdev;
->  	vblk->sg_elems = sg_elems;
->  
-> @@ -820,8 +890,6 @@ static int virtblk_probe(struct virtio_device *vdev)
->  static void virtblk_remove(struct virtio_device *vdev)
->  {
->  	struct virtio_blk *vblk = vdev->priv;
-> -	int index = vblk->index;
-> -	int refc;
->  
->  	/* Make sure no work handler is accessing the device. */
->  	flush_work(&vblk->config_work);
-> @@ -831,18 +899,21 @@ static void virtblk_remove(struct virtio_device *vdev)
->  
->  	blk_mq_free_tag_set(&vblk->tag_set);
->  
-> +	mutex_lock(&vblk->vdev_mutex);
-> +
->  	/* Stop all the virtqueues. */
->  	vdev->config->reset(vdev);
->  
-> -	refc = kref_read(&disk_to_dev(vblk->disk)->kobj.kref);
-> +	/* Virtqueues are stopped, nothing can use vblk->vdev anymore. */
-> +	vblk->vdev = NULL;
-> +
->  	put_disk(vblk->disk);
->  	vdev->config->del_vqs(vdev);
->  	kfree(vblk->vqs);
-> -	kfree(vblk);
->  
-> -	/* Only free device id if we don't have any users */
-> -	if (refc == 1)
-> -		ida_simple_remove(&vd_index_ida, index);
-> +	mutex_unlock(&vblk->vdev_mutex);
-> +
-> +	virtblk_put(vblk);
->  }
->  
->  #ifdef CONFIG_PM_SLEEP
-> -- 
-> 2.25.3
-> 
+ drivers/virtio/virtio_mmio.c | 131 ++++++++++++++++++++++++++-----------------
+ include/linux/virtio.h       |  14 +++++
+ 2 files changed, 94 insertions(+), 51 deletions(-)
+
+-- 
+2.7.4
+
+-- 
+QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member
+of Code Aurora Forum, hosted by The Linux Foundation
