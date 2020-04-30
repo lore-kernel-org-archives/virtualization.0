@@ -1,397 +1,111 @@
-From: Srivatsa Vaddagiri <vatsa@codeaurora.org>
-Subject: [RFC/PATCH 1/1] virtio: Introduce MMIO ops
-Date: Thu, 30 Apr 2020 15:32:56 +0530
-Message-ID: <1588240976-10213-2-git-send-email-vatsa@codeaurora.org>
-References: <1588240976-10213-1-git-send-email-vatsa@codeaurora.org>
+From: Justin He <Justin.He@arm.com>
+Subject: RE: [PATCH] vhost: vsock: don't send pkt when vq is not started
+Date: Thu, 30 Apr 2020 10:06:26 +0000
+Message-ID: <AM6PR08MB4069D4AB611B8C8180DC4B9CF7AA0@AM6PR08MB4069.eurprd08.prod.outlook.com>
+References: <20200430021314.6425-1-justin.he@arm.com>
+ <20200430082608.wbtqgglmtnd7e5ci@steredhat>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1588240976-10213-1-git-send-email-vatsa@codeaurora.org>
+In-Reply-To: <20200430082608.wbtqgglmtnd7e5ci@steredhat>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: konrad.wilk@oracle.com, mst@redhat.com, jasowang@redhat.com, jan.kiszka@siemens.com, will@kernel.org, stefano.stabellini@xilinx.com
-Cc: iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, tsoni@codeaurora.org, pratikp@codeaurora.org, vatsa@codeaurora.org, christoffer.dall@arm.com, alex.bennee@linaro.org, linux-kernel@vger.kernel.org
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Kaly Xin <Kaly.Xin@arm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Some hypervisors may not support MMIO transport i.e trap config
-space access and have it be handled by backend driver. They may
-allow other ways to interact with backend such as message-queue
-or doorbell API. This patch allows for hypervisor specific
-methods for config space IO.
-
-Signed-off-by: Srivatsa Vaddagiri <vatsa@codeaurora.org>
----
- drivers/virtio/virtio_mmio.c | 131 ++++++++++++++++++++++++++-----------------
- include/linux/virtio.h       |  14 +++++
- 2 files changed, 94 insertions(+), 51 deletions(-)
-
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 97d5725..69bfa35 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -100,7 +100,35 @@ struct virtio_mmio_vq_info {
- 	struct list_head node;
- };
- 
-+#ifdef CONFIG_VIRTIO_MMIO_OPS
- 
-+static struct virtio_mmio_ops *mmio_ops;
-+
-+#define virtio_readb(a)		mmio_ops->mmio_readl((a))
-+#define virtio_readw(a)		mmio_ops->mmio_readl((a))
-+#define virtio_readl(a)		mmio_ops->mmio_readl((a))
-+#define virtio_writeb(val, a)	mmio_ops->mmio_writeb((val), (a))
-+#define virtio_writew(val, a)	mmio_ops->mmio_writew((val), (a))
-+#define virtio_writel(val, a)	mmio_ops->mmio_writel((val), (a))
-+
-+int register_virtio_mmio_ops(struct virtio_mmio_ops *ops)
-+{
-+	pr_info("Registered %s as mmio ops\n", ops->name);
-+	mmio_ops = ops;
-+
-+	return 0;
-+}
-+
-+#else	/* CONFIG_VIRTIO_MMIO_OPS */
-+
-+#define virtio_readb(a)		readb((a))
-+#define virtio_readw(a)		readw((a))
-+#define virtio_readl(a)		readl((a))
-+#define virtio_writeb(val, a)	writeb((val), (a))
-+#define virtio_writew(val, a)	writew((val), (a))
-+#define virtio_writel(val, a)	writel((val), (a))
-+
-+#endif	/* CONFIG_VIRTIO_MMIO_OPS */
- 
- /* Configuration interface */
- 
-@@ -109,12 +137,12 @@ static u64 vm_get_features(struct virtio_device *vdev)
- 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
- 	u64 features;
- 
--	writel(1, vm_dev->base + VIRTIO_MMIO_DEVICE_FEATURES_SEL);
--	features = readl(vm_dev->base + VIRTIO_MMIO_DEVICE_FEATURES);
-+	virtio_writel(1, vm_dev->base + VIRTIO_MMIO_DEVICE_FEATURES_SEL);
-+	features = virtio_readl(vm_dev->base + VIRTIO_MMIO_DEVICE_FEATURES);
- 	features <<= 32;
- 
--	writel(0, vm_dev->base + VIRTIO_MMIO_DEVICE_FEATURES_SEL);
--	features |= readl(vm_dev->base + VIRTIO_MMIO_DEVICE_FEATURES);
-+	virtio_writel(0, vm_dev->base + VIRTIO_MMIO_DEVICE_FEATURES_SEL);
-+	features |= virtio_readl(vm_dev->base + VIRTIO_MMIO_DEVICE_FEATURES);
- 
- 	return features;
- }
-@@ -133,12 +161,12 @@ static int vm_finalize_features(struct virtio_device *vdev)
- 		return -EINVAL;
- 	}
- 
--	writel(1, vm_dev->base + VIRTIO_MMIO_DRIVER_FEATURES_SEL);
--	writel((u32)(vdev->features >> 32),
-+	virtio_writel(1, vm_dev->base + VIRTIO_MMIO_DRIVER_FEATURES_SEL);
-+	virtio_writel((u32)(vdev->features >> 32),
- 			vm_dev->base + VIRTIO_MMIO_DRIVER_FEATURES);
- 
--	writel(0, vm_dev->base + VIRTIO_MMIO_DRIVER_FEATURES_SEL);
--	writel((u32)vdev->features,
-+	virtio_writel(0, vm_dev->base + VIRTIO_MMIO_DRIVER_FEATURES_SEL);
-+	virtio_writel((u32)vdev->features,
- 			vm_dev->base + VIRTIO_MMIO_DRIVER_FEATURES);
- 
- 	return 0;
-@@ -158,25 +186,25 @@ static void vm_get(struct virtio_device *vdev, unsigned offset,
- 		int i;
- 
- 		for (i = 0; i < len; i++)
--			ptr[i] = readb(base + offset + i);
-+			ptr[i] = virtio_readb(base + offset + i);
- 		return;
- 	}
- 
- 	switch (len) {
- 	case 1:
--		b = readb(base + offset);
-+		b = virtio_readb(base + offset);
- 		memcpy(buf, &b, sizeof b);
- 		break;
- 	case 2:
--		w = cpu_to_le16(readw(base + offset));
-+		w = cpu_to_le16(virtio_readw(base + offset));
- 		memcpy(buf, &w, sizeof w);
- 		break;
- 	case 4:
--		l = cpu_to_le32(readl(base + offset));
-+		l = cpu_to_le32(virtio_readl(base + offset));
- 		memcpy(buf, &l, sizeof l);
- 		break;
- 	case 8:
--		l = cpu_to_le32(readl(base + offset));
-+		l = cpu_to_le32(virtio_readl(base + offset));
- 		memcpy(buf, &l, sizeof l);
- 		l = cpu_to_le32(ioread32(base + offset + sizeof l));
- 		memcpy(buf + sizeof l, &l, sizeof l);
-@@ -200,7 +228,7 @@ static void vm_set(struct virtio_device *vdev, unsigned offset,
- 		int i;
- 
- 		for (i = 0; i < len; i++)
--			writeb(ptr[i], base + offset + i);
-+			virtio_writeb(ptr[i], base + offset + i);
- 
- 		return;
- 	}
-@@ -208,21 +236,21 @@ static void vm_set(struct virtio_device *vdev, unsigned offset,
- 	switch (len) {
- 	case 1:
- 		memcpy(&b, buf, sizeof b);
--		writeb(b, base + offset);
-+		virtio_writeb(b, base + offset);
- 		break;
- 	case 2:
- 		memcpy(&w, buf, sizeof w);
--		writew(le16_to_cpu(w), base + offset);
-+		virtio_writew(le16_to_cpu(w), base + offset);
- 		break;
- 	case 4:
- 		memcpy(&l, buf, sizeof l);
--		writel(le32_to_cpu(l), base + offset);
-+		virtio_writel(le32_to_cpu(l), base + offset);
- 		break;
- 	case 8:
- 		memcpy(&l, buf, sizeof l);
--		writel(le32_to_cpu(l), base + offset);
-+		virtio_writel(le32_to_cpu(l), base + offset);
- 		memcpy(&l, buf + sizeof l, sizeof l);
--		writel(le32_to_cpu(l), base + offset + sizeof l);
-+		virtio_writel(le32_to_cpu(l), base + offset + sizeof l);
- 		break;
- 	default:
- 		BUG();
-@@ -236,14 +264,14 @@ static u32 vm_generation(struct virtio_device *vdev)
- 	if (vm_dev->version == 1)
- 		return 0;
- 	else
--		return readl(vm_dev->base + VIRTIO_MMIO_CONFIG_GENERATION);
-+		return virtio_readl(vm_dev->base + VIRTIO_MMIO_CONFIG_GENERATION);
- }
- 
- static u8 vm_get_status(struct virtio_device *vdev)
- {
- 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
- 
--	return readl(vm_dev->base + VIRTIO_MMIO_STATUS) & 0xff;
-+	return virtio_readl(vm_dev->base + VIRTIO_MMIO_STATUS) & 0xff;
- }
- 
- static void vm_set_status(struct virtio_device *vdev, u8 status)
-@@ -253,7 +281,7 @@ static void vm_set_status(struct virtio_device *vdev, u8 status)
- 	/* We should never be setting status to 0. */
- 	BUG_ON(status == 0);
- 
--	writel(status, vm_dev->base + VIRTIO_MMIO_STATUS);
-+	virtio_writel(status, vm_dev->base + VIRTIO_MMIO_STATUS);
- }
- 
- static void vm_reset(struct virtio_device *vdev)
-@@ -261,7 +289,7 @@ static void vm_reset(struct virtio_device *vdev)
- 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
- 
- 	/* 0 status means a reset. */
--	writel(0, vm_dev->base + VIRTIO_MMIO_STATUS);
-+	virtio_writel(0, vm_dev->base + VIRTIO_MMIO_STATUS);
- }
- 
- 
-@@ -275,7 +303,7 @@ static bool vm_notify(struct virtqueue *vq)
- 
- 	/* We write the queue's selector into the notification register to
- 	 * signal the other end */
--	writel(vq->index, vm_dev->base + VIRTIO_MMIO_QUEUE_NOTIFY);
-+	virtio_writel(vq->index, vm_dev->base + VIRTIO_MMIO_QUEUE_NOTIFY);
- 	return true;
- }
- 
-@@ -289,8 +317,8 @@ static irqreturn_t vm_interrupt(int irq, void *opaque)
- 	irqreturn_t ret = IRQ_NONE;
- 
- 	/* Read and acknowledge interrupts */
--	status = readl(vm_dev->base + VIRTIO_MMIO_INTERRUPT_STATUS);
--	writel(status, vm_dev->base + VIRTIO_MMIO_INTERRUPT_ACK);
-+	status = virtio_readl(vm_dev->base + VIRTIO_MMIO_INTERRUPT_STATUS);
-+	virtio_writel(status, vm_dev->base + VIRTIO_MMIO_INTERRUPT_ACK);
- 
- 	if (unlikely(status & VIRTIO_MMIO_INT_CONFIG)) {
- 		virtio_config_changed(&vm_dev->vdev);
-@@ -321,12 +349,12 @@ static void vm_del_vq(struct virtqueue *vq)
- 	spin_unlock_irqrestore(&vm_dev->lock, flags);
- 
- 	/* Select and deactivate the queue */
--	writel(index, vm_dev->base + VIRTIO_MMIO_QUEUE_SEL);
-+	virtio_writel(index, vm_dev->base + VIRTIO_MMIO_QUEUE_SEL);
- 	if (vm_dev->version == 1) {
--		writel(0, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
-+		virtio_writel(0, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
- 	} else {
--		writel(0, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
--		WARN_ON(readl(vm_dev->base + VIRTIO_MMIO_QUEUE_READY));
-+		virtio_writel(0, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
-+		WARN_ON(virtio_readl(vm_dev->base + VIRTIO_MMIO_QUEUE_READY));
- 	}
- 
- 	vring_del_virtqueue(vq);
-@@ -360,10 +388,10 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
- 		return NULL;
- 
- 	/* Select the queue we're interested in */
--	writel(index, vm_dev->base + VIRTIO_MMIO_QUEUE_SEL);
-+	virtio_writel(index, vm_dev->base + VIRTIO_MMIO_QUEUE_SEL);
- 
- 	/* Queue shouldn't already be set up. */
--	if (readl(vm_dev->base + (vm_dev->version == 1 ?
-+	if (virtio_readl(vm_dev->base + (vm_dev->version == 1 ?
- 			VIRTIO_MMIO_QUEUE_PFN : VIRTIO_MMIO_QUEUE_READY))) {
- 		err = -ENOENT;
- 		goto error_available;
-@@ -376,7 +404,7 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
- 		goto error_kmalloc;
- 	}
- 
--	num = readl(vm_dev->base + VIRTIO_MMIO_QUEUE_NUM_MAX);
-+	num = virtio_readl(vm_dev->base + VIRTIO_MMIO_QUEUE_NUM_MAX);
- 	if (num == 0) {
- 		err = -ENOENT;
- 		goto error_new_virtqueue;
-@@ -391,7 +419,7 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
- 	}
- 
- 	/* Activate the queue */
--	writel(virtqueue_get_vring_size(vq), vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
-+	virtio_writel(virtqueue_get_vring_size(vq), vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
- 	if (vm_dev->version == 1) {
- 		u64 q_pfn = virtqueue_get_desc_addr(vq) >> PAGE_SHIFT;
- 
-@@ -408,27 +436,27 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
- 			goto error_bad_pfn;
- 		}
- 
--		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_QUEUE_ALIGN);
--		writel(q_pfn, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
-+		virtio_writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_QUEUE_ALIGN);
-+		virtio_writel(q_pfn, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
- 	} else {
- 		u64 addr;
- 
- 		addr = virtqueue_get_desc_addr(vq);
--		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_LOW);
--		writel((u32)(addr >> 32),
-+		virtio_writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_LOW);
-+		virtio_writel((u32)(addr >> 32),
- 				vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_HIGH);
- 
- 		addr = virtqueue_get_avail_addr(vq);
--		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_LOW);
--		writel((u32)(addr >> 32),
-+		virtio_writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_LOW);
-+		virtio_writel((u32)(addr >> 32),
- 				vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_HIGH);
- 
- 		addr = virtqueue_get_used_addr(vq);
--		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_USED_LOW);
--		writel((u32)(addr >> 32),
-+		virtio_writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_USED_LOW);
-+		virtio_writel((u32)(addr >> 32),
- 				vm_dev->base + VIRTIO_MMIO_QUEUE_USED_HIGH);
- 
--		writel(1, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
-+		virtio_writel(1, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
- 	}
- 
- 	vq->priv = info;
-@@ -444,10 +472,10 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned index,
- 	vring_del_virtqueue(vq);
- error_new_virtqueue:
- 	if (vm_dev->version == 1) {
--		writel(0, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
-+		virtio_writel(0, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
- 	} else {
--		writel(0, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
--		WARN_ON(readl(vm_dev->base + VIRTIO_MMIO_QUEUE_READY));
-+		virtio_writel(0, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
-+		WARN_ON(virtio_readl(vm_dev->base + VIRTIO_MMIO_QUEUE_READY));
- 	}
- 	kfree(info);
- error_kmalloc:
-@@ -514,6 +542,7 @@ static const struct virtio_config_ops virtio_mmio_config_ops = {
- 	.bus_name	= vm_bus_name,
- };
- 
-+static const struct virtio_mmio_ops virtio_mmio_default_ops;
- 
- static void virtio_mmio_release_dev(struct device *_d)
- {
-@@ -550,21 +579,21 @@ static int virtio_mmio_probe(struct platform_device *pdev)
- 		return PTR_ERR(vm_dev->base);
- 
- 	/* Check magic value */
--	magic = readl(vm_dev->base + VIRTIO_MMIO_MAGIC_VALUE);
-+	magic = virtio_readl(vm_dev->base + VIRTIO_MMIO_MAGIC_VALUE);
- 	if (magic != ('v' | 'i' << 8 | 'r' << 16 | 't' << 24)) {
- 		dev_warn(&pdev->dev, "Wrong magic value 0x%08lx!\n", magic);
- 		return -ENODEV;
- 	}
- 
- 	/* Check device version */
--	vm_dev->version = readl(vm_dev->base + VIRTIO_MMIO_VERSION);
-+	vm_dev->version = virtio_readl(vm_dev->base + VIRTIO_MMIO_VERSION);
- 	if (vm_dev->version < 1 || vm_dev->version > 2) {
- 		dev_err(&pdev->dev, "Version %ld not supported!\n",
- 				vm_dev->version);
- 		return -ENXIO;
- 	}
- 
--	vm_dev->vdev.id.device = readl(vm_dev->base + VIRTIO_MMIO_DEVICE_ID);
-+	vm_dev->vdev.id.device = virtio_readl(vm_dev->base + VIRTIO_MMIO_DEVICE_ID);
- 	if (vm_dev->vdev.id.device == 0) {
- 		/*
- 		 * virtio-mmio device with an ID 0 is a (dummy) placeholder
-@@ -572,10 +601,10 @@ static int virtio_mmio_probe(struct platform_device *pdev)
- 		 */
- 		return -ENODEV;
- 	}
--	vm_dev->vdev.id.vendor = readl(vm_dev->base + VIRTIO_MMIO_VENDOR_ID);
-+	vm_dev->vdev.id.vendor = virtio_readl(vm_dev->base + VIRTIO_MMIO_VENDOR_ID);
- 
- 	if (vm_dev->version == 1) {
--		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
-+		virtio_writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
- 
- 		rc = dma_set_mask(&pdev->dev, DMA_BIT_MASK(64));
- 		/*
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index a493eac..652ccfb 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -119,6 +119,20 @@ struct virtio_device {
- 	void *priv;
- };
- 
-+#define MAX_MMIO_NAME_SIZE 32
-+
-+struct virtio_mmio_ops {
-+	char name[MAX_MMIO_NAME_SIZE];
-+	u8 (*mmio_readb)(const volatile void __iomem *addr);
-+	u16 (*mmio_readw)(const volatile void __iomem *addr);
-+	u32 (*mmio_readl)(const volatile void __iomem *addr);
-+	void (*mmio_writeb)(u8 val, volatile void __iomem *addr);
-+	void (*mmio_writew)(u16 val, volatile void __iomem *addr);
-+	void (*mmio_writel)(u32 val, volatile void __iomem *addr);
-+};
-+
-+extern int register_virtio_mmio_ops(struct virtio_mmio_ops *ops);
-+
- static inline struct virtio_device *dev_to_virtio(struct device *_dev)
- {
- 	return container_of(_dev, struct virtio_device, dev);
--- 
-2.7.4
-
-
--- 
-QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member
-of Code Aurora Forum, hosted by The Linux Foundation
+SGkgU3RlZmFubw0KDQo+IC0tLS0tT3JpZ2luYWwgTWVzc2FnZS0tLS0tDQo+IEZyb206IFN0ZWZh
+bm8gR2FyemFyZWxsYSA8c2dhcnphcmVAcmVkaGF0LmNvbT4NCj4gU2VudDogVGh1cnNkYXksIEFw
+cmlsIDMwLCAyMDIwIDQ6MjYgUE0NCj4gVG86IEp1c3RpbiBIZSA8SnVzdGluLkhlQGFybS5jb20+
+DQo+IENjOiBTdGVmYW4gSGFqbm9jemkgPHN0ZWZhbmhhQHJlZGhhdC5jb20+OyBNaWNoYWVsIFMu
+IFRzaXJraW4NCj4gPG1zdEByZWRoYXQuY29tPjsgSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0
+LmNvbT47DQo+IGt2bUB2Z2VyLmtlcm5lbC5vcmc7IHZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
+LWZvdW5kYXRpb24ub3JnOw0KPiBuZXRkZXZAdmdlci5rZXJuZWwub3JnOyBsaW51eC1rZXJuZWxA
+dmdlci5rZXJuZWwub3JnOyBLYWx5IFhpbg0KPiA8S2FseS5YaW5AYXJtLmNvbT4NCj4gU3ViamVj
+dDogUmU6IFtQQVRDSF0gdmhvc3Q6IHZzb2NrOiBkb24ndCBzZW5kIHBrdCB3aGVuIHZxIGlzIG5v
+dCBzdGFydGVkDQo+DQo+IEhpIEppYSwNCj4gdGhhbmtzIGZvciB0aGUgcGF0Y2gsIHNvbWUgY29t
+bWVudHMgYmVsb3c6DQo+DQo+IE9uIFRodSwgQXByIDMwLCAyMDIwIGF0IDEwOjEzOjE0QU0gKzA4
+MDAsIEppYSBIZSB3cm90ZToNCj4gPiBOaW5nIEJvIHJlcG9ydGVkIGFuIGFibm9ybWFsIDItc2Vj
+b25kIGdhcCB3aGVuIGJvb3RpbmcgS2F0YSBjb250YWluZXINCj4gWzFdLg0KPiA+IFRoZSB1bmNv
+bmRpdGlvbmFsIHRpbWVvdXQgaXMgY2F1c2VkIGJ5DQo+IFZTT0NLX0RFRkFVTFRfQ09OTkVDVF9U
+SU1FT1VUIG9mDQo+ID4gY29ubmVjdCBhdCBjbGllbnQgc2lkZS4gVGhlIHZob3N0IHZzb2NrIGNs
+aWVudCB0cmllcyB0byBjb25uZWN0IGFuDQo+ID4gaW5pdGxpemluZyB2aXJ0aW8gdnNvY2sgc2Vy
+dmVyLg0KPiA+DQo+ID4gVGhlIGFibm9ybWFsIGZsb3cgbG9va3MgbGlrZToNCj4gPiBob3N0LXVz
+ZXJzcGFjZSAgICAgICAgICAgdmhvc3QgdnNvY2sgICAgICAgICAgICAgICAgICAgICAgIGd1ZXN0
+IHZzb2NrDQo+ID4gPT09PT09PT09PT09PT0gICAgICAgICAgID09PT09PT09PT09ICAgICAgICAg
+ICAgICAgICAgICAgICA9PT09PT09PT09PT0NCj4gPiBjb25uZWN0KCkgICAgIC0tLS0tLS0tPiAg
+dmhvc3RfdHJhbnNwb3J0X3NlbmRfcGt0X3dvcmsoKSAgIGluaXRpYWxpemluZw0KPiA+ICAgIHwg
+ICAgICAgICAgICAgICAgICAgICB2cS0+cHJpdmF0ZV9kYXRhPT1OVUxMDQo+ID4gICAgfCAgICAg
+ICAgICAgICAgICAgICAgIHdpbGwgbm90IGJlIHF1ZXVlZA0KPiA+ICAgIFYNCj4gPiBzY2hlZHVs
+ZV90aW1lb3V0KDJzKQ0KPiA+ICAgICAgICAgICAgICAgICAgICAgICAgICB2aG9zdF92c29ja19z
+dGFydCgpICA8LS0tLS0tLS0tICAgZGV2aWNlIHJlYWR5DQo+ID4gICAgICAgICAgICAgICAgICAg
+ICAgICAgIHNldCB2cS0+cHJpdmF0ZV9kYXRhDQo+ID4NCj4gPiB3YWl0IGZvciAycyBhbmQgZmFp
+bGVkDQo+ID4NCj4gPiBjb25uZWN0KCkgYWdhaW4gICAgICAgICAgdnEtPnByaXZhdGVfZGF0YSE9
+TlVMTCAgICAgICAgICByZWN2IGNvbm5lY3RpbmcgcGt0DQo+ID4NCj4gPiAxLiBob3N0IHVzZXJz
+cGFjZSBzZW5kcyBhIGNvbm5lY3QgcGt0LCBhdCB0aGF0IHRpbWUsIGd1ZXN0IHZzb2NrIGlzIHVu
+ZGVyDQo+ID4gaW5pdGlhbGl6aW5nLCBoZW5jZSB0aGUgdmhvc3RfdnNvY2tfc3RhcnQgaGFzIG5v
+dCBiZWVuIGNhbGxlZC4gU28NCj4gPiB2cS0+cHJpdmF0ZV9kYXRhPT1OVUxMLCBhbmQgdGhlIHBr
+dCBpcyBub3QgYmVlbiBxdWV1ZWQgdG8gc2VuZCB0byBndWVzdC4NCj4gPiAyLiB0aGVuIGl0IHNs
+ZWVwcyBmb3IgMnMNCj4gPiAzLiBhZnRlciBndWVzdCB2c29jayBmaW5pc2hlcyBpbml0aWFsaXpp
+bmcsIHZxLT5wcml2YXRlX2RhdGEgaXMgc2V0Lg0KPiA+IDQuIFdoZW4gaG9zdCB1c2Vyc3BhY2Ug
+d2FrZXMgdXAgYWZ0ZXIgMnMsIHNlbmQgY29ubmVjdGluZyBwa3QgYWdhaW4sDQo+ID4gZXZlcnl0
+aGluZyBpcyBmaW5lLg0KPiA+DQo+ID4gVGhpcyBmaXhlcyBpdCBieSBjaGVja2luZyB2cS0+cHJp
+dmF0ZV9kYXRhIGluIHZob3N0X3RyYW5zcG9ydF9zZW5kX3BrdCwNCj4gPiBhbmQgcmV0dXJuIGF0
+IG9uY2UgaWYgIXZxLT5wcml2YXRlX2RhdGEuIFRoaXMgbWFrZXMgdXNlciBjb25uZWN0KCkNCj4g
+PiBiZSByZXR1cm5lZCB3aXRoIEVDT05OUkVGVVNFRC4NCj4gPg0KPiA+IEFmdGVyIHRoaXMgcGF0
+Y2gsIGthdGEtcnVudGltZSAod2l0aCB2c29jayBlbmFibGVkKSBib290dGltZSByZWR1Y2VzIGZy
+b20NCj4gPiAzcyB0byAxcyBvbiBUaHVuZGVyWDIgYXJtNjQgc2VydmVyLg0KPiA+DQo+ID4gWzFd
+IGh0dHBzOi8vZ2l0aHViLmNvbS9rYXRhLWNvbnRhaW5lcnMvcnVudGltZS9pc3N1ZXMvMTkxNw0K
+PiA+DQo+ID4gUmVwb3J0ZWQtYnk6IE5pbmcgQm8gPG4uYkBsaXZlLmNvbT4NCj4gPiBTaWduZWQt
+b2ZmLWJ5OiBKaWEgSGUgPGp1c3Rpbi5oZUBhcm0uY29tPg0KPiA+IC0tLQ0KPiA+ICBkcml2ZXJz
+L3Zob3N0L3Zzb2NrLmMgfCA4ICsrKysrKysrDQo+ID4gIDEgZmlsZSBjaGFuZ2VkLCA4IGluc2Vy
+dGlvbnMoKykNCj4gPg0KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L3Zzb2NrLmMgYi9k
+cml2ZXJzL3Zob3N0L3Zzb2NrLmMNCj4gPiBpbmRleCBlMzZhYWY5YmE3YmQuLjY3NDc0MzM0ZGQ4
+OCAxMDA2NDQNCj4gPiAtLS0gYS9kcml2ZXJzL3Zob3N0L3Zzb2NrLmMNCj4gPiArKysgYi9kcml2
+ZXJzL3Zob3N0L3Zzb2NrLmMNCj4gPiBAQCAtMjQxLDYgKzI0MSw3IEBAIHZob3N0X3RyYW5zcG9y
+dF9zZW5kX3BrdChzdHJ1Y3QgdmlydGlvX3Zzb2NrX3BrdA0KPiAqcGt0KQ0KPiA+ICB7DQo+ID4g
+IHN0cnVjdCB2aG9zdF92c29jayAqdnNvY2s7DQo+ID4gIGludCBsZW4gPSBwa3QtPmxlbjsNCj4g
+PiArc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnE7DQo+ID4NCj4gPiAgcmN1X3JlYWRfbG9jaygp
+Ow0KPiA+DQo+ID4gQEAgLTI1Miw2ICsyNTMsMTMgQEAgdmhvc3RfdHJhbnNwb3J0X3NlbmRfcGt0
+KHN0cnVjdCB2aXJ0aW9fdnNvY2tfcGt0DQo+ICpwa3QpDQo+ID4gIHJldHVybiAtRU5PREVWOw0K
+PiA+ICB9DQo+ID4NCj4gPiArdnEgPSAmdnNvY2stPnZxc1tWU09DS19WUV9SWF07DQo+ID4gK2lm
+ICghdnEtPnByaXZhdGVfZGF0YSkgew0KPg0KPiBJIHRoaW5rIGlzIGJldHRlciB0byB1c2Ugdmhv
+c3RfdnFfZ2V0X2JhY2tlbmQoKToNCj4NCj4gaWYgKCF2aG9zdF92cV9nZXRfYmFja2VuZCgmdnNv
+Y2stPnZxc1tWU09DS19WUV9SWF0pKSB7DQo+IC4uLg0KPg0KPiBUaGlzIGZ1bmN0aW9uIHNob3Vs
+ZCBiZSBjYWxsZWQgd2l0aCAndnEtPm11dGV4JyBhY3F1aXJlZCBhcyBleHBsYWluZWQgaW4NCj4g
+dGhlIGNvbW1lbnQsIGJ1dCBoZXJlIHdlIGNhbiBhdm9pZCB0aGF0LCBiZWNhdXNlIHdlIGFyZSBu
+b3QgdXNpbmcgdGhlIHZxLA0KPiBzbyBpdCBpcyBzYWZlLCBiZWNhdXNlIGluIHZob3N0X3RyYW5z
+cG9ydF9kb19zZW5kX3BrdCgpIHdlIGNoZWNrIGl0IGFnYWluLg0KPg0KPiBQbGVhc2UgYWRkIGEg
+Y29tbWVudCBleHBsYWluaW5nIHRoYXQuDQo+DQoNClRoYW5rcywgdmhvc3RfdnFfZ2V0X2JhY2tl
+bmQgaXMgYmV0dGVyLiBJIGNob3NlIGEgNS4zIGtlcm5lbCB0byBkZXZlbG9wDQphbmQgbWlzc2Vk
+IHRoaXMgaGVscGVyLg0KPg0KPiBBcyBhbiBhbHRlcm5hdGl2ZSB0byB0aGlzIHBhdGNoLCBzaG91
+bGQgd2Uga2ljayB0aGUgc2VuZCB3b3JrZXIgd2hlbiB0aGUNCj4gZGV2aWNlIGlzIHJlYWR5Pw0K
+Pg0KPiBJSVVDIHdlIHJlYWNoIHRoZSB0aW1lb3V0IGJlY2F1c2UgdGhlIHNlbmQgd29ya2VyICh0
+aGF0IHJ1bnMNCj4gdmhvc3RfdHJhbnNwb3J0X2RvX3NlbmRfcGt0KCkpIGV4aXRzIGltbWVkaWF0
+ZWx5IHNpbmNlICd2cS0+cHJpdmF0ZV9kYXRhJw0KPiBpcyBOVUxMLCBhbmQgbm8gb25lIHdpbGwg
+cmVxdWV1ZSBpdC4NCj4NCj4gTGV0J3MgZG8gaXQgd2hlbiB3ZSBrbm93IHRoZSBkZXZpY2UgaXMg
+cmVhZHk6DQo+DQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L3Zzb2NrLmMgYi9kcml2ZXJz
+L3Zob3N0L3Zzb2NrLmMNCj4gaW5kZXggZTM2YWFmOWJhN2JkLi4yOTViNTg2Nzk0NGYgMTAwNjQ0
+DQo+IC0tLSBhL2RyaXZlcnMvdmhvc3QvdnNvY2suYw0KPiArKysgYi9kcml2ZXJzL3Zob3N0L3Zz
+b2NrLmMNCj4gQEAgLTU0Myw2ICs1NDMsMTEgQEAgc3RhdGljIGludCB2aG9zdF92c29ja19zdGFy
+dChzdHJ1Y3Qgdmhvc3RfdnNvY2sNCj4gKnZzb2NrKQ0KPiAgICAgICAgICAgICAgICAgbXV0ZXhf
+dW5sb2NrKCZ2cS0+bXV0ZXgpOw0KPiAgICAgICAgIH0NCj4NCj4gKyAgICAgICAvKiBTb21lIHBh
+Y2tldHMgbWF5IGhhdmUgYmVlbiBxdWV1ZWQgYmVmb3JlIHRoZSBkZXZpY2Ugd2FzIHN0YXJ0ZWQs
+DQo+ICsgICAgICAgICogbGV0J3Mga2ljayB0aGUgc2VuZCB3b3JrZXIgdG8gc2VuZCB0aGVtLg0K
+PiArICAgICAgICAqLw0KPiArICAgICAgIHZob3N0X3dvcmtfcXVldWUoJnZzb2NrLT5kZXYsICZ2
+c29jay0+c2VuZF9wa3Rfd29yayk7DQo+ICsNClllcywgaXQgd29ya3MuDQpCdXQgZG8geW91IHRo
+aW5rIGEgdGhyZXNob2xkIHNob3VsZCBiZSBzZXQgaGVyZSB0byBwcmV2ZW50IHRoZSBxdWV1ZQ0K
+ZnJvbSBiZWluZyB0b28gbG9uZz8gRS5nLiB0aGUgY2xpZW50IHVzZXIgc2VuZHMgdG9vIG1hbnkg
+Y29ubmVjdCBwa3RzDQppbiBhIHNob3J0IHRpbWUgYmVmb3JlIHRoZSBzZXJ2ZXIgaXMgY29tcGxl
+dGVseSByZWFkeS4NCg0KPiAgICAgICAgIG11dGV4X3VubG9jaygmdnNvY2stPmRldi5tdXRleCk7
+DQo+ICAgICAgICAgcmV0dXJuIDA7DQo+DQo+IEkgZGlkbid0IHRlc3QgaXQsIGNhbiB5b3UgdHJ5
+IGlmIGl0IGZpeGVzIHRoZSBpc3N1ZT8NCj4NCj4gSSdtIG5vdCBzdXJlIHdoaWNoIGlzIGJldHRl
+ci4uLg0KSSBkb24ndCBrbm93LCBlaXRoZXIuIFdhaXQgZm9yIG1vcmUgY29tbWVudHMg8J+Yig0K
+DQotLQ0KQ2hlZXJzLA0KSnVzdGluIChKaWEgSGUpDQpJTVBPUlRBTlQgTk9USUNFOiBUaGUgY29u
+dGVudHMgb2YgdGhpcyBlbWFpbCBhbmQgYW55IGF0dGFjaG1lbnRzIGFyZSBjb25maWRlbnRpYWwg
+YW5kIG1heSBhbHNvIGJlIHByaXZpbGVnZWQuIElmIHlvdSBhcmUgbm90IHRoZSBpbnRlbmRlZCBy
+ZWNpcGllbnQsIHBsZWFzZSBub3RpZnkgdGhlIHNlbmRlciBpbW1lZGlhdGVseSBhbmQgZG8gbm90
+IGRpc2Nsb3NlIHRoZSBjb250ZW50cyB0byBhbnkgb3RoZXIgcGVyc29uLCB1c2UgaXQgZm9yIGFu
+eSBwdXJwb3NlLCBvciBzdG9yZSBvciBjb3B5IHRoZSBpbmZvcm1hdGlvbiBpbiBhbnkgbWVkaXVt
+LiBUaGFuayB5b3UuDQo=
