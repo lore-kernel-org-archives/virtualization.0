@@ -1,124 +1,78 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH] vhost: vsock: don't send pkt when vq is not started
-Date: Thu, 30 Apr 2020 10:26:08 +0200
-Message-ID: <20200430082608.wbtqgglmtnd7e5ci@steredhat>
-References: <20200430021314.6425-1-justin.he@arm.com>
+From: Dan Williams <dan.j.williams@intel.com>
+Subject: Re: [PATCH v1 2/3] mm/memory_hotplug: Introduce MHP_DRIVER_MANAGED
+Date: Thu, 30 Apr 2020 01:34:00 -0700
+Message-ID: <CAPcyv4gjRE23BHsBAnaVWAPUHWdenxYMUwDBnDF7UmoejmmbNQ@mail.gmail.com>
+References: <20200429160803.109056-1-david@redhat.com> <20200429160803.109056-3-david@redhat.com>
+ <a7305cd8-8b2f-1d8f-7654-ecf777c46df6@redhat.com> <CAPcyv4i04+QLxiOyz04_eef2DFetEFKBUmi2A4xxw9abQD8hNQ@mail.gmail.com>
+ <e32522cd-31bb-e129-47a6-9ec13b570506@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200430021314.6425-1-justin.he@arm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jia He <justin.he@arm.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Kaly.Xin@arm.com
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <e32522cd-31bb-e129-47a6-9ec13b570506@redhat.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, Linux ACPI <linux-acpi@vger.kernel.org>, linux-nvdimm <linux-nvdimm@lists.01.org>, linux-hyperv@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, xen-devel <xen-devel@lists.xenproject.org>, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Michal Hocko <mhocko@suse.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Wei Yang <richard.weiyang@gmail.com>, Baoquan He <bhe@redhat.com>, Eric Biederman <ebiederm@xmission.com>, Pavel Tatashin <pasha.tatashin@soleen.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Jia,
-thanks for the patch, some comments below:
+On Thu, Apr 30, 2020 at 1:21 AM David Hildenbrand <david@redhat.com> wrote:
+> >> Just because we decided to use some DAX memory in the current kernel as
+> >> system ram, doesn't mean we should make that decision for the kexec
+> >> kernel (e.g., using it as initial memory, placing kexec binaries onto
+> >> it, etc.). This is also not what we would observe during a real reboot.
+> >
+> > Agree.
+> >
+> >> I can see that the "System RAM" resource will show up as child resource
+> >> under the device e.g., in /proc/iomem.
+> >>
+> >> However, entries in /sys/firmware/memmap/ are created as "System RAM".
+> >
+> > True. Do you think this rename should just be limited to what type
+> > /sys/firmware/memmap/ emits? I have the concern, but no proof
+>
+> We could split this patch into
+>
+> MHP_NO_FIRMWARE_MEMMAP (create firmware memmap entries)
+>
+> and
+>
+> MHP_DRIVER_MANAGED (name of the resource)
+>
+> See below, the latter might not be needed.
+>
+> > currently, that there are /proc/iomem walkers that explicitly look for
+> > "System RAM", but might be thrown off by "System RAM (driver
+> > managed)". I was not aware of /sys/firmware/memmap until about 5
+> > minutes ago.
+>
+> The only two users of /proc/iomem I am aware of are kexec-tools and some
+> s390x tools.
+>
+> kexec-tools on x86-64 uses /sys/firmware/memmap to craft the initial
+> memmap, but uses /proc/iomem to
+> a) Find places for kexec images
+> b) Detect memory regions to dump via kdump
+>
+> I am not yet sure if we really need the "System RAM (driver managed)"
+> part. If we can teach kexec-tools to
+> a) Don't place kexec images on "System RAM" that has a parent resource
+> (most likely requires kexec-tools changes)
+> b) Consider for kdump "System RAM" that has a parent resource
+> we might be able to avoid renaming that. (I assume that's already done)
+>
+> E.g., regarding virtio-mem (patch #3) I am currently also looking into
+> creating a parent resource instead, like dax/kmem to avoid the rename:
+>
+> :/# cat /proc/iomem
+> 00000000-00000fff : Reserved
+> [...]
+> 100000000-13fffffff : System RAM
+> 140000000-33fffffff : virtio0
+>   140000000-147ffffff : System RAM
+>   148000000-14fffffff : System RAM
+>   150000000-157ffffff : System RAM
+> 340000000-303fffffff : virtio1
+>   340000000-347ffffff : System RAM
+> 3280000000-32ffffffff : PCI Bus 0000:00
 
-On Thu, Apr 30, 2020 at 10:13:14AM +0800, Jia He wrote:
-> Ning Bo reported an abnormal 2-second gap when booting Kata container [1].
-> The unconditional timeout is caused by VSOCK_DEFAULT_CONNECT_TIMEOUT of
-> connect at client side. The vhost vsock client tries to connect an
-> initlizing virtio vsock server.
-> 
-> The abnormal flow looks like:
-> host-userspace           vhost vsock                       guest vsock
-> ==============           ===========                       ============
-> connect()     -------->  vhost_transport_send_pkt_work()   initializing
->    |                     vq->private_data==NULL
->    |                     will not be queued
->    V
-> schedule_timeout(2s)
->                          vhost_vsock_start()  <---------   device ready
->                          set vq->private_data
-> 
-> wait for 2s and failed
-> 
-> connect() again          vq->private_data!=NULL          recv connecting pkt
-> 
-> 1. host userspace sends a connect pkt, at that time, guest vsock is under
-> initializing, hence the vhost_vsock_start has not been called. So
-> vq->private_data==NULL, and the pkt is not been queued to send to guest.
-> 2. then it sleeps for 2s
-> 3. after guest vsock finishes initializing, vq->private_data is set.
-> 4. When host userspace wakes up after 2s, send connecting pkt again,
-> everything is fine.
-> 
-> This fixes it by checking vq->private_data in vhost_transport_send_pkt,
-> and return at once if !vq->private_data. This makes user connect()
-> be returned with ECONNREFUSED.
-> 
-> After this patch, kata-runtime (with vsock enabled) boottime reduces from
-> 3s to 1s on ThunderX2 arm64 server.
-> 
-> [1] https://github.com/kata-containers/runtime/issues/1917
-> 
-> Reported-by: Ning Bo <n.b@live.com>
-> Signed-off-by: Jia He <justin.he@arm.com>
-> ---
->  drivers/vhost/vsock.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
-> 
-> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> index e36aaf9ba7bd..67474334dd88 100644
-> --- a/drivers/vhost/vsock.c
-> +++ b/drivers/vhost/vsock.c
-> @@ -241,6 +241,7 @@ vhost_transport_send_pkt(struct virtio_vsock_pkt *pkt)
->  {
->  	struct vhost_vsock *vsock;
->  	int len = pkt->len;
-> +	struct vhost_virtqueue *vq;
->  
->  	rcu_read_lock();
->  
-> @@ -252,6 +253,13 @@ vhost_transport_send_pkt(struct virtio_vsock_pkt *pkt)
->  		return -ENODEV;
->  	}
->  
-> +	vq = &vsock->vqs[VSOCK_VQ_RX];
-> +	if (!vq->private_data) {
-
-I think is better to use vhost_vq_get_backend():
-
-	if (!vhost_vq_get_backend(&vsock->vqs[VSOCK_VQ_RX])) {
-		...
-
-This function should be called with 'vq->mutex' acquired as explained in
-the comment, but here we can avoid that, because we are not using the vq,
-so it is safe, because in vhost_transport_do_send_pkt() we check it again.
-
-Please add a comment explaining that.
-
-
-As an alternative to this patch, should we kick the send worker when the
-device is ready?
-
-IIUC we reach the timeout because the send worker (that runs
-vhost_transport_do_send_pkt()) exits immediately since 'vq->private_data'
-is NULL, and no one will requeue it.
-
-Let's do it when we know the device is ready:
-
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index e36aaf9ba7bd..295b5867944f 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -543,6 +543,11 @@ static int vhost_vsock_start(struct vhost_vsock *vsock)
-                mutex_unlock(&vq->mutex);
-        }
- 
-+       /* Some packets may have been queued before the device was started,
-+        * let's kick the send worker to send them.
-+        */
-+       vhost_work_queue(&vsock->dev, &vsock->send_pkt_work);
-+
-        mutex_unlock(&vsock->dev.mutex);
-        return 0;
-
-I didn't test it, can you try if it fixes the issue?
-
-I'm not sure which is better...
-
-Thanks,
-Stefano
+Looks good to me if it flies with kexec-tools.
