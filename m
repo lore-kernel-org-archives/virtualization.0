@@ -1,111 +1,73 @@
-From: Dan Williams <dan.j.williams@intel.com>
-Subject: Re: [PATCH v2 2/3] mm/memory_hotplug: Introduce MHP_NO_FIRMWARE_MEMMAP
-Date: Thu, 30 Apr 2020 11:58:16 -0700
-Message-ID: <CAPcyv4j33bwbrFMu2L0knRGRN1RDiC5kbknMNEwo-OFmPSw47w@mail.gmail.com>
-References: <20200430102908.10107-1-david@redhat.com> <20200430102908.10107-3-david@redhat.com>
- <87pnbp2dcz.fsf@x220.int.ebiederm.org> <1b49c3be-6e2f-57cb-96f7-f66a8f8a9380@redhat.com>
- <871ro52ary.fsf@x220.int.ebiederm.org> <373a6898-4020-4af1-5b3d-f827d705dd77@redhat.com>
- <875zdg26hp.fsf@x220.int.ebiederm.org> <b28c9e02-8cf2-33ae-646b-fe50a185738e@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC/PATCH 1/1] virtio: Introduce MMIO ops
+Date: Thu, 30 Apr 2020 15:34:24 -0400
+Message-ID: <20200430152808-mutt-send-email-mst@kernel.org>
+References: <1588240976-10213-1-git-send-email-vatsa@codeaurora.org>
+ <1588240976-10213-2-git-send-email-vatsa@codeaurora.org>
+ <20200430101431.GD19932@willie-the-truck>
+ <20200430103446.GH5097@quicinc.com>
+ <20200430104149.GG19932@willie-the-truck>
+ <20200430111156.GI5097@quicinc.com>
+ <7bf8bffe-267b-6c66-86c9-40017d3ca4c2@siemens.com>
+ <20200430133321.GC3204@quicinc.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <b28c9e02-8cf2-33ae-646b-fe50a185738e@redhat.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: David Hildenbrand <david@redhat.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@linux-foundation.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, Linux ACPI <linux-acpi@vger.kernel.org>, linux-nvdimm <linux-nvdimm@lists.01.org>, linux-hyperv@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, xen-devel <xen-devel@lists.xenproject.org>, Michal Hocko <mhocko@kernel.org>, "Michael S . Tsirkin" <mst@redhat.com>, Michal Hocko <mhocko@suse.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Wei Yang <richard.weiyang@gmail.com>, Baoquan He <bhe@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200430133321.GC3204@quicinc.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Srivatsa Vaddagiri <vatsa@codeaurora.org>
+Cc: Jan Kiszka <jan.kiszka@siemens.com>, Will Deacon <will@kernel.org>, konrad.wilk@oracle.com, jasowang@redhat.com, stefano.stabellini@xilinx.com, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, tsoni@codeaurora.org, pratikp@codeaurora.org, christoffer.dall@arm.com, alex.bennee@linaro.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 30, 2020 at 11:44 AM David Hildenbrand <david@redhat.com> wrote:
->
->  >>> If the class of memory is different then please by all means let's mark
-> >>> it differently in struct resource so everyone knows it is different.
-> >>> But that difference needs to be more than hotplug.
-> >>>
-> >>> That difference needs to be the hypervisor loaned us memory and might
-> >>> take it back at any time, or this memory is persistent and so it has
-> >>> these different characteristics so don't use it as ordinary ram.
-> >>
-> >> Yes, and I think kmem took an excellent approach of explicitly putting
-> >> that "System RAM" into a resource hierarchy. That "System RAM" won't
-> >> show up as a root node under /proc/iomem (see patch #3), which already
-> >> results in kexec-tools to treat it in a special way. I am thinking about
-> >> doing the same for virtio-mem.
-> >
-> > Reading this and your patch cover letters again my concern is that
-> > the justification seems to be letting the tail wag the dog.
-> >
-> > You want kexec-tools to behave in a certain way so you are changing the
-> > kernel.
-> >
-> > Rather it should be change the kernel to clearly reflect reality and if
-> > you can get away without a change to kexec-tools that is a bonus.
-> >
->
-> Right, because user space has to have a way to figure out what to do.
->
-> But talking about the firmware memmap, indicating something via a "raw
-> firmware-provided memory map", that is not actually in the "raw
-> firmware-provided memory map" feels wrong to me. (below)
->
->
-> >>> That information is also useful to other people looking at the system
-> >>> and seeing what is going on.
-> >>>
-> >>> Just please don't muddle the concepts, or assume that whatever subset of
-> >>> hotplug memory you are dealing with is the only subset.
-> >>
-> >> I can certainly rephrase the subject/description/comment, stating that
-> >> this is not to be used for ordinary hotplugged DIMMs - only when the
-> >> device driver is under control to decide what to do with that memory -
-> >> especially when kexec'ing.
-> >>
-> >> (previously, I called this flag MHP_DRIVER_MANAGED, but I think
-> >> MHP_NO_FIRMWARE_MEMMAP is clearer, we just need a better description)
-> >>
-> >> Would that make it clearer?
-> >
-> > I am not certain, but Andrew Morton deliberately added that
-> > firmware_map_add_hotplug call.  Which means that there is a reason
-> > for putting hotplugged memory in the firmware map.
-> >
-> > So the justification needs to take that reason into account.  The
-> > justification can not be it is hotplugged therefore it should not belong
-> > in the firmware memory map.  Unless you can show that
-> > firmware_map_add_hotplug that was actually a bug and should be removed.
-> > But as it has been that way since 2010 that seems like a long shot.
-> >
-> > So my question is what is right for the firmware map?
->
-> We have documentation for that since 2008. Andrews patch is from 2010.
->
-> Documentation/ABI/testing/sysfs-firmware-memmap
->
-> It clearly talks about "raw firmware-provided memory map" and why the
-> interface was introduced at all ("on most architectures that
-> firmware-provided memory map is modified afterwards by the kernel itself").
->
-> >
-> > Why does the firmware map support hotplug entries?
->
-> I assume:
->
-> The firmware memmap was added primarily for x86-64 kexec (and still, is
-> mostly used on x86-64 only IIRC). There, we had ACPI hotplug. When DIMMs
-> get hotplugged on real HW, they get added to e820. Same applies to
-> memory added via HyperV balloon (unless memory is unplugged via
-> ballooning and you reboot ... the the e820 is changed as well). I assume
-> we wanted to be able to reflect that, to make kexec look like a real reboot.
+On Thu, Apr 30, 2020 at 07:03:21PM +0530, Srivatsa Vaddagiri wrote:
+> * Jan Kiszka <jan.kiszka@siemens.com> [2020-04-30 14:59:50]:
+> 
+> > >I believe ivshmem2_virtio requires hypervisor to support PCI device emulation
+> > >(for life-cycle management of VMs), which our hypervisor may not support.
 
-I can at least say that this breakdown makes sense to me. Traditional
-memory hotplug results in permanent change to the raw firmware memory
-map reported by the host at next reboot. These device-driver-owned
-memory regions really want a hotplug policy per-kernel boot instance
-and should fall back to the default reserved state at reboot (kexec or
-otherwise). When I say hotplug-policy I mean whether the current
-kernel wants to treat the device range as System RAM or leave it as
-device-managed. The intent is that the follow-on kernel needs to
-re-decide the device policy.
+PCI is mostly just 2 registers. One sets the affected device, one the data to read/write.
 
->
-> This worked for a while. Then came dax/kmem. Now comes virtio-mem.
->
+> A
+> > >simple shared memory and doorbell or message-queue based transport will work for
+> > >us.
+> > 
+> > As written in our private conversation, a mapping of the ivshmem2 device
+> > discovery to platform mechanism (device tree etc.) and maybe even the
+> > register access for doorbell and life-cycle management to something
+> > hypercall-like would be imaginable. What would count more from virtio
+> > perspective is a common mapping on a shared memory transport.
+> 
+> Yes that sounds simpler for us.
+> 
+> > That said, I also warned about all the features that PCI already defined
+> > (such as message-based interrupts) which you may have to add when going a
+> > different way for the shared memory device.
+> 
+> Is it really required to present this shared memory as belonging to a PCI
+> device?
+
+But then you will go on and add MSI, and NUMA, and security, and and and ...
+
+> I would expect the device-tree to indicate the presence of this shared
+> memory region, which we should be able to present to ivshmem2 as shared memory
+> region to use (along with some handles for doorbell or message queue use).
+> 
+> I understand the usefulness of modeling the shared memory as part of device so
+> that hypervisor can send events related to peers going down or coming up. In our
+> case, there will be other means to discover those events and avoiding this
+> requirement on hypervisor (to emulate PCI) will simplify the solution for us.
+> 
+> Any idea when we can expect virtio over ivshmem2 to become available?!
+
+Check out the virtio spec. Right at the beginning it states:
+
+	These devices are
+	found in virtual environments, yet by design they look like physical devices to the guest within
+	the virtual machine - and this document treats them as such. This similarity allows the guest to
+	use standard drivers and discovery mechanisms
+
+
+> -- 
+> QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member
+> of Code Aurora Forum, hosted by The Linux Foundation
