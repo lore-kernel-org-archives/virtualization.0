@@ -1,145 +1,36 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v2 3/3] device-dax: Add system ram (add_memory()) with MHP_NO_FIRMWARE_MEMMAP
-Date: Thu, 30 Apr 2020 12:29:08 +0200
-Message-ID: <20200430102908.10107-4-david@redhat.com>
-References: <20200430102908.10107-1-david@redhat.com>
+From: Srivatsa Vaddagiri <vatsa@codeaurora.org>
+Subject: Re: [RFC/PATCH 0/1] virtio_mmio: hypervisor specific interfaces for
+ MMIO
+Date: Thu, 30 Apr 2020 15:59:39 +0530
+Message-ID: <20200430102939.GG5097@quicinc.com>
+References: <1588240976-10213-1-git-send-email-vatsa@codeaurora.org>
+ <20200430100821.GC19932@willie-the-truck>
+Reply-To: Srivatsa Vaddagiri <vatsa@codeaurora.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtio-dev-return-7222-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <20200430102908.10107-1-david@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-hyperv@vger.kernel.org, linux-s390@vger.kernel.org, xen-devel@lists.xenproject.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, David Hildenbrand <david@redhat.com>, Michal Hocko <mhocko@suse.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Wei Yang <richard.weiyang@gmail.com>, Baoquan He <bhe@redhat.com>, Dave Hansen <dave.hansen@linux.intel.com>, Eric Biederman <ebiederm@xmission.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Dan Williams <dan.j.williams@intel.com>
+Content-Type: text/plain; charset=iso-8859-1
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200430100821.GC19932@willie-the-truck>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Will Deacon <will@kernel.org>
+Cc: konrad.wilk@oracle.com, mst@redhat.com, jasowang@redhat.com, jan.kiszka@siemens.com, stefano.stabellini@xilinx.com, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, tsoni@codeaurora.org, pratikp@codeaurora.org, christoffer.dall@arm.com, alex.bennee@linaro.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Currently, when adding memory, we create entries in /sys/firmware/memmap/
-as "System RAM". This does not reflect the reality and will lead to
-kexec-tools to add that memory to the fixed-up initial memmap for a
-kexec kernel (loaded via kexec_load()). The memory will be considered
-initial System RAM by the kexec kernel.
+* Will Deacon <will@kernel.org> [2020-04-30 11:08:22]:
 
-We should let the kexec kernel decide how to use that memory - just as
-we do during an ordinary reboot.
+> > This patch is meant to seek comments. If its considered to be in right
+> > direction, will work on making it more complete and send the next version!
+> 
+> What's stopping you from implementing the trapping support in the
+> hypervisor? Unlike the other patches you sent out, where the guest memory
+> is not accessible to the host, there doesn't seem to be any advantage to
+> not having trapping support, or am I missing something here?
 
-Before configuring the namespace:
-	[root@localhost ~]# cat /proc/iomem
-	...
-	140000000-33fffffff : Persistent Memory
-	  140000000-33fffffff : namespace0.0
-	3280000000-32ffffffff : PCI Bus 0000:00
+Hi Will,
+	I have had this discussion with hypervisor folks. They seem to be
+concerned about complexity of having a VM's fault be handled in another
+untrusted VM. They are not keen to add MMIO support.
 
-After configuring the namespace:
-	[root@localhost ~]# cat /proc/iomem
-	...
-	140000000-33fffffff : Persistent Memory
-	  140000000-1481fffff : namespace0.0
-	  148200000-33fffffff : dax0.0
-	3280000000-32ffffffff : PCI Bus 0000:00
-
-After loading kmem:
-	[root@localhost ~]# cat /proc/iomem
-	...
-	140000000-33fffffff : Persistent Memory
-	  140000000-1481fffff : namespace0.0
-	  150000000-33fffffff : dax0.0
-	    150000000-33fffffff : System RAM
-	3280000000-32ffffffff : PCI Bus 0000:00
-
-After a proper reboot:
-	[root@localhost ~]# cat /proc/iomem
-	...
-	140000000-33fffffff : Persistent Memory
-	  140000000-1481fffff : namespace0.0
-	  148200000-33fffffff : dax0.0
-	3280000000-32ffffffff : PCI Bus 0000:00
-
-Within the kexec kernel before this change:
-	[root@localhost ~]# cat /proc/iomem
-	...
-	140000000-33fffffff : Persistent Memory
-	  140000000-1481fffff : namespace0.0
-	  150000000-33fffffff : System RAM
-	3280000000-32ffffffff : PCI Bus 0000:00
-
-Within the kexec kernel after this change:
-	[root@localhost ~]# cat /proc/iomem
-	...
-	140000000-33fffffff : Persistent Memory
-	  140000000-1481fffff : namespace0.0
-	  148200000-33fffffff : dax0.0
-	3280000000-32ffffffff : PCI Bus 0000:00
-
-/sys/firmware/memmap/ before this change:
-	0000000000000000-000000000009fc00 (System RAM)
-	000000000009fc00-00000000000a0000 (Reserved)
-	00000000000f0000-0000000000100000 (Reserved)
-	0000000000100000-00000000bffdf000 (System RAM)
-	00000000bffdf000-00000000c0000000 (Reserved)
-	00000000feffc000-00000000ff000000 (Reserved)
-	00000000fffc0000-0000000100000000 (Reserved)
-	0000000100000000-0000000140000000 (System RAM)
-	0000000150000000-0000000340000000 (System RAM)
-
-/sys/firmware/memmap/ after a proper reboot:
-	0000000000000000-000000000009fc00 (System RAM)
-	000000000009fc00-00000000000a0000 (Reserved)
-	00000000000f0000-0000000000100000 (Reserved)
-	0000000000100000-00000000bffdf000 (System RAM)
-	00000000bffdf000-00000000c0000000 (Reserved)
-	00000000feffc000-00000000ff000000 (Reserved)
-	00000000fffc0000-0000000100000000 (Reserved)
-	0000000100000000-0000000140000000 (System RAM)
-
-/sys/firmware/memmap/ after this change:
-	0000000000000000-000000000009fc00 (System RAM)
-	000000000009fc00-00000000000a0000 (Reserved)
-	00000000000f0000-0000000000100000 (Reserved)
-	0000000000100000-00000000bffdf000 (System RAM)
-	00000000bffdf000-00000000c0000000 (Reserved)
-	00000000feffc000-00000000ff000000 (Reserved)
-	00000000fffc0000-0000000100000000 (Reserved)
-	0000000100000000-0000000140000000 (System RAM)
-
-kexec-tools already seem to basically ignore any System RAM that's not
-on top level when searching for areas to place kexec images - but also
-for determining crash areas to dump via kdump. This behavior is not
-changed by this patch. kexec-tools probably has to be fixed to also
-include this memory in system dumps.
-
-Note: kexec_file_load() does the right thing already within the kernel.
-
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: Wei Yang <richard.weiyang@gmail.com>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: Eric Biederman <ebiederm@xmission.com>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- drivers/dax/kmem.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/dax/kmem.c b/drivers/dax/kmem.c
-index e159184e0ba0..929823a79816 100644
---- a/drivers/dax/kmem.c
-+++ b/drivers/dax/kmem.c
-@@ -65,7 +65,8 @@ int dev_dax_kmem_probe(struct device *dev)
- 	new_res->flags =3D IORESOURCE_SYSTEM_RAM;
- 	new_res->name =3D dev_name(dev);
-=20
--	rc =3D add_memory(numa_node, new_res->start, resource_size(new_res), 0)=
-;
-+	rc =3D add_memory(numa_node, new_res->start, resource_size(new_res),
-+			MHP_NO_FIRMWARE_MEMMAP);
- 	if (rc) {
- 		release_resource(new_res);
- 		kfree(new_res);
---=20
-2.25.3
+-- 
+QUALCOMM INDIA, on behalf of Qualcomm Innovation Center, Inc. is a member
+of Code Aurora Forum, hosted by The Linux Foundation
