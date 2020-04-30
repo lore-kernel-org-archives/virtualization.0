@@ -1,60 +1,264 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v2 0/3] mm/memory_hotplug: Allow to not create firmware memmap entries
-Date: Thu, 30 Apr 2020 12:29:05 +0200
-Message-ID: <20200430102908.10107-1-david@redhat.com>
+Subject: [PATCH v2 1/3] mm/memory_hotplug: Prepare passing flags to add_memory() and friends
+Date: Thu, 30 Apr 2020 12:29:06 +0200
+Message-ID: <20200430102908.10107-2-david@redhat.com>
+References: <20200430102908.10107-1-david@redhat.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-Return-path: <virtio-dev-return-7219-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Return-path: <virtio-dev-return-7220-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
 Sender: <virtio-dev@lists.oasis-open.org>
 List-Post: <mailto:virtio-dev@lists.oasis-open.org>
 List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
 List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
 List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+In-Reply-To: <20200430102908.10107-1-david@redhat.com>
 To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-hyperv@vger.kernel.org, linux-s390@vger.kernel.org, xen-devel@lists.xenproject.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, David Hildenbrand <david@redhat.com>, Baoquan He <bhe@redhat.com>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Christian Borntraeger <borntraeger@de.ibm.com>, Dan Williams <dan.j.williams@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, Dave Jiang <dave.jiang@intel.com>, Eric Biederman <ebiederm@xmission.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Haiyang Zhang <haiyangz@microsoft.com>, Heiko Carstens <heiko.ca>
+Cc: linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linuxppc-dev@lists.ozlabs.org, linux-acpi@vger.kernel.org, linux-nvdimm@lists.01.org, linux-hyperv@vger.kernel.org, linux-s390@vger.kernel.org, xen-devel@lists.xenproject.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, David Hildenbrand <david@redhat.com>, Wei Liu <wei.liu@kernel.org>, Michael Ellerman <mpe@ellerman.id.au>, Benjamin Herrenschmidt <benh@kernel.crashing.org>, Paul Mackerras <paulus@samba.org>, "Rafael J. Wysocki" <rjw@rjwysocki.net>, Len Brown <lenb@kernel.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Dan Williams <dan.j.williams@intel.com>, Vishal Verma <vishal.l.verma@intel.com>, Dave Jiang <dave.jiang@intel.com>, "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is the follow up of [1]:
-	[PATCH v1 0/3] mm/memory_hotplug: Make virtio-mem play nicely with
-	kexec-tools
+We soon want to pass flags - prepare for that.
 
-I realized that this is not only helpful for virtio-mem, but also for
-dax/kmem - it's a fix for that use case (see patch #3) of persistent
-memory.
+This patch is based on a similar patch by Oscar Salvador:
 
-Also, while testing, I discovered that kexec-tools will *not* add dax/kme=
-m
-memory (anything not directly under the root when parsing /proc/iomem) to
-the elfcorehdr, so this memory will never get included in a dump. This
-probably has to be fixed in kexec-tools - virtio-mem will require this as
-well.
+https://lkml.kernel.org/r/20190625075227.15193-3-osalvador@suse.de
 
-v1 -> v2:
-- Don't change the resource name
-- Rename the flag to MHP_NO_FIRMWARE_MEMMAP to reflect what it is doing
-- Rephrase subjects/descriptions
-- Use the flag for dax/kmem
-
-I'll have to rebase virtio-mem on these changes, there will be a resend.
-
-[1] https://lkml.kernel.org/r/20200429160803.109056-1-david@redhat.com
-
-David Hildenbrand (3):
-  mm/memory_hotplug: Prepare passing flags to add_memory() and friends
-  mm/memory_hotplug: Introduce MHP_NO_FIRMWARE_MEMMAP
-  device-dax: Add system ram (add_memory()) with MHP_NO_FIRMWARE_MEMMAP
-
+Acked-by: Wei Liu <wei.liu@kernel.org>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: "Rafael J. Wysocki" <rjw@rjwysocki.net>
+Cc: Len Brown <lenb@kernel.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Vishal Verma <vishal.l.verma@intel.com>
+Cc: Dave Jiang <dave.jiang@intel.com>
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>
+Cc: Haiyang Zhang <haiyangz@microsoft.com>
+Cc: Stephen Hemminger <sthemmin@microsoft.com>
+Cc: Wei Liu <wei.liu@kernel.org>
+Cc: Heiko Carstens <heiko.carstens@de.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Cc: Juergen Gross <jgross@suse.com>
+Cc: Stefano Stabellini <sstabellini@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Pingfan Liu <kernelfans@gmail.com>
+Cc: Leonardo Bras <leobras.c@gmail.com>
+Cc: Nathan Lynch <nathanl@linux.ibm.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Wei Yang <richard.weiyang@gmail.com>
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Cc: Eric Biederman <ebiederm@xmission.com>
+Cc: linuxppc-dev@lists.ozlabs.org
+Cc: linux-kernel@vger.kernel.org
+Cc: linux-acpi@vger.kernel.org
+Cc: linux-nvdimm@lists.01.org
+Cc: linux-hyperv@vger.kernel.org
+Cc: linux-s390@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
+Cc: xen-devel@lists.xenproject.org
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
  arch/powerpc/platforms/powernv/memtrace.c       |  2 +-
  arch/powerpc/platforms/pseries/hotplug-memory.c |  2 +-
  drivers/acpi/acpi_memhotplug.c                  |  2 +-
  drivers/base/memory.c                           |  2 +-
- drivers/dax/kmem.c                              |  3 ++-
+ drivers/dax/kmem.c                              |  2 +-
  drivers/hv/hv_balloon.c                         |  2 +-
  drivers/s390/char/sclp_cmd.c                    |  2 +-
  drivers/xen/balloon.c                           |  2 +-
- include/linux/memory_hotplug.h                  | 15 ++++++++++++---
- mm/memory_hotplug.c                             | 14 ++++++++------
- 10 files changed, 29 insertions(+), 17 deletions(-)
+ include/linux/memory_hotplug.h                  |  7 ++++---
+ mm/memory_hotplug.c                             | 11 ++++++-----
+ 10 files changed, 18 insertions(+), 16 deletions(-)
 
+diff --git a/arch/powerpc/platforms/powernv/memtrace.c b/arch/powerpc/pla=
+tforms/powernv/memtrace.c
+index 13b369d2cc45..a7475d18c671 100644
+--- a/arch/powerpc/platforms/powernv/memtrace.c
++++ b/arch/powerpc/platforms/powernv/memtrace.c
+@@ -224,7 +224,7 @@ static int memtrace_online(void)
+ 			ent->mem =3D 0;
+ 		}
+=20
+-		if (add_memory(ent->nid, ent->start, ent->size)) {
++		if (add_memory(ent->nid, ent->start, ent->size, 0)) {
+ 			pr_err("Failed to add trace memory to node %d\n",
+ 				ent->nid);
+ 			ret +=3D 1;
+diff --git a/arch/powerpc/platforms/pseries/hotplug-memory.c b/arch/power=
+pc/platforms/pseries/hotplug-memory.c
+index 5ace2f9a277e..ae44eba46ca0 100644
+--- a/arch/powerpc/platforms/pseries/hotplug-memory.c
++++ b/arch/powerpc/platforms/pseries/hotplug-memory.c
+@@ -646,7 +646,7 @@ static int dlpar_add_lmb(struct drmem_lmb *lmb)
+ 	block_sz =3D memory_block_size_bytes();
+=20
+ 	/* Add the memory */
+-	rc =3D __add_memory(lmb->nid, lmb->base_addr, block_sz);
++	rc =3D __add_memory(lmb->nid, lmb->base_addr, block_sz, 0);
+ 	if (rc) {
+ 		invalidate_lmb_associativity_index(lmb);
+ 		return rc;
+diff --git a/drivers/acpi/acpi_memhotplug.c b/drivers/acpi/acpi_memhotplu=
+g.c
+index e294f44a7850..d91b3584d4b2 100644
+--- a/drivers/acpi/acpi_memhotplug.c
++++ b/drivers/acpi/acpi_memhotplug.c
+@@ -207,7 +207,7 @@ static int acpi_memory_enable_device(struct acpi_memo=
+ry_device *mem_device)
+ 		if (node < 0)
+ 			node =3D memory_add_physaddr_to_nid(info->start_addr);
+=20
+-		result =3D __add_memory(node, info->start_addr, info->length);
++		result =3D __add_memory(node, info->start_addr, info->length, 0);
+=20
+ 		/*
+ 		 * If the memory block has been used by the kernel, add_memory()
+diff --git a/drivers/base/memory.c b/drivers/base/memory.c
+index 2b09b68b9f78..c0ef7d9e310a 100644
+--- a/drivers/base/memory.c
++++ b/drivers/base/memory.c
+@@ -432,7 +432,7 @@ static ssize_t probe_store(struct device *dev, struct=
+ device_attribute *attr,
+=20
+ 	nid =3D memory_add_physaddr_to_nid(phys_addr);
+ 	ret =3D __add_memory(nid, phys_addr,
+-			   MIN_MEMORY_BLOCK_SIZE * sections_per_block);
++			   MIN_MEMORY_BLOCK_SIZE * sections_per_block, 0);
+=20
+ 	if (ret)
+ 		goto out;
+diff --git a/drivers/dax/kmem.c b/drivers/dax/kmem.c
+index 3d0a7e702c94..e159184e0ba0 100644
+--- a/drivers/dax/kmem.c
++++ b/drivers/dax/kmem.c
+@@ -65,7 +65,7 @@ int dev_dax_kmem_probe(struct device *dev)
+ 	new_res->flags =3D IORESOURCE_SYSTEM_RAM;
+ 	new_res->name =3D dev_name(dev);
+=20
+-	rc =3D add_memory(numa_node, new_res->start, resource_size(new_res));
++	rc =3D add_memory(numa_node, new_res->start, resource_size(new_res), 0)=
+;
+ 	if (rc) {
+ 		release_resource(new_res);
+ 		kfree(new_res);
+diff --git a/drivers/hv/hv_balloon.c b/drivers/hv/hv_balloon.c
+index 32e3bc0aa665..0194bed1a573 100644
+--- a/drivers/hv/hv_balloon.c
++++ b/drivers/hv/hv_balloon.c
+@@ -726,7 +726,7 @@ static void hv_mem_hot_add(unsigned long start, unsig=
+ned long size,
+=20
+ 		nid =3D memory_add_physaddr_to_nid(PFN_PHYS(start_pfn));
+ 		ret =3D add_memory(nid, PFN_PHYS((start_pfn)),
+-				(HA_CHUNK << PAGE_SHIFT));
++				(HA_CHUNK << PAGE_SHIFT), 0);
+=20
+ 		if (ret) {
+ 			pr_err("hot_add memory failed error is %d\n", ret);
+diff --git a/drivers/s390/char/sclp_cmd.c b/drivers/s390/char/sclp_cmd.c
+index a864b21af602..a6a908244c74 100644
+--- a/drivers/s390/char/sclp_cmd.c
++++ b/drivers/s390/char/sclp_cmd.c
+@@ -406,7 +406,7 @@ static void __init add_memory_merged(u16 rn)
+ 	if (!size)
+ 		goto skip_add;
+ 	for (addr =3D start; addr < start + size; addr +=3D block_size)
+-		add_memory(0, addr, block_size);
++		add_memory(0, addr, block_size, 0);
+ skip_add:
+ 	first_rn =3D rn;
+ 	num =3D 1;
+diff --git a/drivers/xen/balloon.c b/drivers/xen/balloon.c
+index 0c142bcab79d..6ec0373fa624 100644
+--- a/drivers/xen/balloon.c
++++ b/drivers/xen/balloon.c
+@@ -347,7 +347,7 @@ static enum bp_state reserve_additional_memory(void)
+ 	mutex_unlock(&balloon_mutex);
+ 	/* add_memory_resource() requires the device_hotplug lock */
+ 	lock_device_hotplug();
+-	rc =3D add_memory_resource(nid, resource);
++	rc =3D add_memory_resource(nid, resource, 0);
+ 	unlock_device_hotplug();
+ 	mutex_lock(&balloon_mutex);
+=20
+diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplu=
+g.h
+index 7dca9cd6076b..0151fb935c09 100644
+--- a/include/linux/memory_hotplug.h
++++ b/include/linux/memory_hotplug.h
+@@ -339,9 +339,10 @@ extern void set_zone_contiguous(struct zone *zone);
+ extern void clear_zone_contiguous(struct zone *zone);
+=20
+ extern void __ref free_area_init_core_hotplug(int nid);
+-extern int __add_memory(int nid, u64 start, u64 size);
+-extern int add_memory(int nid, u64 start, u64 size);
+-extern int add_memory_resource(int nid, struct resource *resource);
++extern int __add_memory(int nid, u64 start, u64 size, unsigned long flag=
+s);
++extern int add_memory(int nid, u64 start, u64 size, unsigned long flags)=
+;
++extern int add_memory_resource(int nid, struct resource *resource,
++			       unsigned long flags);
+ extern void move_pfn_range_to_zone(struct zone *zone, unsigned long star=
+t_pfn,
+ 		unsigned long nr_pages, struct vmem_altmap *altmap);
+ extern void remove_pfn_range_from_zone(struct zone *zone,
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index 555137bd0882..c01be92693e3 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -1004,7 +1004,8 @@ static int online_memory_block(struct memory_block =
+*mem, void *arg)
+  *
+  * we are OK calling __meminit stuff here - we have CONFIG_MEMORY_HOTPLU=
+G
+  */
+-int __ref add_memory_resource(int nid, struct resource *res)
++int __ref add_memory_resource(int nid, struct resource *res,
++			      unsigned long flags)
+ {
+ 	struct mhp_params params =3D { .pgprot =3D PAGE_KERNEL };
+ 	u64 start, size;
+@@ -1082,7 +1083,7 @@ int __ref add_memory_resource(int nid, struct resou=
+rce *res)
+ }
+=20
+ /* requires device_hotplug_lock, see add_memory_resource() */
+-int __ref __add_memory(int nid, u64 start, u64 size)
++int __ref __add_memory(int nid, u64 start, u64 size, unsigned long flags=
+)
+ {
+ 	struct resource *res;
+ 	int ret;
+@@ -1091,18 +1092,18 @@ int __ref __add_memory(int nid, u64 start, u64 si=
+ze)
+ 	if (IS_ERR(res))
+ 		return PTR_ERR(res);
+=20
+-	ret =3D add_memory_resource(nid, res);
++	ret =3D add_memory_resource(nid, res, flags);
+ 	if (ret < 0)
+ 		release_memory_resource(res);
+ 	return ret;
+ }
+=20
+-int add_memory(int nid, u64 start, u64 size)
++int add_memory(int nid, u64 start, u64 size, unsigned long flags)
+ {
+ 	int rc;
+=20
+ 	lock_device_hotplug();
+-	rc =3D __add_memory(nid, start, size);
++	rc =3D __add_memory(nid, start, size, flags);
+ 	unlock_device_hotplug();
+=20
+ 	return rc;
 --=20
 2.25.3
