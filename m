@@ -1,133 +1,66 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH v3] virtio-blk: handle block_device_operations callbacks
- after hot unplug
-Date: Thu, 30 Apr 2020 11:14:10 +0100
-Message-ID: <20200430101410.GA164094@stefanha-x1.localdomain>
-References: <20200429165345.144702-1-stefanha@redhat.com>
- <20200430084323.qts2q5ql7rkclk2h@steredhat>
+From: Will Deacon <will@kernel.org>
+Subject: Re: [RFC/PATCH 1/1] virtio: Introduce MMIO ops
+Date: Thu, 30 Apr 2020 11:14:32 +0100
+Message-ID: <20200430101431.GD19932@willie-the-truck>
+References: <1588240976-10213-1-git-send-email-vatsa@codeaurora.org>
+ <1588240976-10213-2-git-send-email-vatsa@codeaurora.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="C7zPtVaVf+AK4Oqc"
-Return-path: <linux-block-owner@vger.kernel.org>
-In-Reply-To: <20200430084323.qts2q5ql7rkclk2h@steredhat>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: linux-block-owner@vger.kernel.org
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, linux-block@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Jens Axboe <axboe@kernel.dk>, cohuck@redhat.com, Jason Wang <jasowang@redhat.com>, Lance Digby <ldigby@redhat.com>
+In-Reply-To: <1588240976-10213-2-git-send-email-vatsa@codeaurora.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Srivatsa Vaddagiri <vatsa@codeaurora.org>
+Cc: konrad.wilk@oracle.com, mst@redhat.com, jasowang@redhat.com, jan.kiszka@siemens.com, stefano.stabellini@xilinx.com, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org, tsoni@codeaurora.org, pratikp@codeaurora.org, christoffer.dall@arm.com, alex.bennee@linaro.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---C7zPtVaVf+AK4Oqc
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Thu, Apr 30, 2020 at 03:32:56PM +0530, Srivatsa Vaddagiri wrote:
+> Some hypervisors may not support MMIO transport i.e trap config
+> space access and have it be handled by backend driver. They may
+> allow other ways to interact with backend such as message-queue
+> or doorbell API. This patch allows for hypervisor specific
+> methods for config space IO.
+> 
+> Signed-off-by: Srivatsa Vaddagiri <vatsa@codeaurora.org>
+> ---
+>  drivers/virtio/virtio_mmio.c | 131 ++++++++++++++++++++++++++-----------------
+>  include/linux/virtio.h       |  14 +++++
+>  2 files changed, 94 insertions(+), 51 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+> index 97d5725..69bfa35 100644
+> --- a/drivers/virtio/virtio_mmio.c
+> +++ b/drivers/virtio/virtio_mmio.c
+> @@ -100,7 +100,35 @@ struct virtio_mmio_vq_info {
+>  	struct list_head node;
+>  };
+>  
+> +#ifdef CONFIG_VIRTIO_MMIO_OPS
+>  
+> +static struct virtio_mmio_ops *mmio_ops;
+> +
+> +#define virtio_readb(a)		mmio_ops->mmio_readl((a))
+> +#define virtio_readw(a)		mmio_ops->mmio_readl((a))
+> +#define virtio_readl(a)		mmio_ops->mmio_readl((a))
+> +#define virtio_writeb(val, a)	mmio_ops->mmio_writeb((val), (a))
+> +#define virtio_writew(val, a)	mmio_ops->mmio_writew((val), (a))
+> +#define virtio_writel(val, a)	mmio_ops->mmio_writel((val), (a))
 
-On Thu, Apr 30, 2020 at 10:43:23AM +0200, Stefano Garzarella wrote:
-> On Wed, Apr 29, 2020 at 05:53:45PM +0100, Stefan Hajnoczi wrote:
-> > A userspace process holding a file descriptor to a virtio_blk device ca=
-n
-> > still invoke block_device_operations after hot unplug.  This leads to a
-> > use-after-free accessing vblk->vdev in virtblk_getgeo() when
-> > ioctl(HDIO_GETGEO) is invoked:
-> >=20
-> >   BUG: unable to handle kernel NULL pointer dereference at 000000000000=
-0090
-> >   IP: [<ffffffffc00e5450>] virtio_check_driver_offered_feature+0x10/0x9=
-0 [virtio]
-> >   PGD 800000003a92f067 PUD 3a930067 PMD 0
-> >   Oops: 0000 [#1] SMP
-> >   CPU: 0 PID: 1310 Comm: hdio-getgeo Tainted: G           OE  ---------=
----   3.10.0-1062.el7.x86_64 #1
-> >   Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.=
-0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
-> >   task: ffff9be5fbfb8000 ti: ffff9be5fa890000 task.ti: ffff9be5fa890000
-> >   RIP: 0010:[<ffffffffc00e5450>]  [<ffffffffc00e5450>] virtio_check_dri=
-ver_offered_feature+0x10/0x90 [virtio]
-> >   RSP: 0018:ffff9be5fa893dc8  EFLAGS: 00010246
-> >   RAX: ffff9be5fc3f3400 RBX: ffff9be5fa893e30 RCX: 0000000000000000
-> >   RDX: 0000000000000000 RSI: 0000000000000004 RDI: ffff9be5fbc10b40
-> >   RBP: ffff9be5fa893dc8 R08: 0000000000000301 R09: 0000000000000301
-> >   R10: 0000000000000000 R11: 0000000000000000 R12: ffff9be5fdc24680
-> >   R13: ffff9be5fbc10b40 R14: ffff9be5fbc10480 R15: 0000000000000000
-> >   FS:  00007f1bfb968740(0000) GS:ffff9be5ffc00000(0000) knlGS:000000000=
-0000000
-> >   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> >   CR2: 0000000000000090 CR3: 000000003a894000 CR4: 0000000000360ff0
-> >   DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> >   DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> >   Call Trace:
-> >    [<ffffffffc016ac37>] virtblk_getgeo+0x47/0x110 [virtio_blk]
-> >    [<ffffffff8d3f200d>] ? handle_mm_fault+0x39d/0x9b0
-> >    [<ffffffff8d561265>] blkdev_ioctl+0x1f5/0xa20
-> >    [<ffffffff8d488771>] block_ioctl+0x41/0x50
-> >    [<ffffffff8d45d9e0>] do_vfs_ioctl+0x3a0/0x5a0
-> >    [<ffffffff8d45dc81>] SyS_ioctl+0xa1/0xc0
-> >=20
-> > A related problem is that virtblk_remove() leaks the vd_index_ida index
-> > when something still holds a reference to vblk->disk during hot unplug.
-> > This causes virtio-blk device names to be lost (vda, vdb, etc).
-> >=20
-> > Fix these issues by protecting vblk->vdev with a mutex and reference
-> > counting vblk so the vd_index_ida index can be removed in all cases.
-> >=20
-> > Fixes: 48e4043d4529523cbc7fa8dd745bd8e2c45ce1d3
-> >        ("virtio: add virtio disk geometry feature")
-> > Reported-by: Lance Digby <ldigby@redhat.com>
-> > Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
-> > ---
-> >  drivers/block/virtio_blk.c | 87 ++++++++++++++++++++++++++++++++++----
-> >  1 file changed, 79 insertions(+), 8 deletions(-)
-> >=20
-> > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> > index 93468b7c6701..6f7f277495f4 100644
-> > --- a/drivers/block/virtio_blk.c
-> > +++ b/drivers/block/virtio_blk.c
-> > @@ -33,6 +33,16 @@ struct virtio_blk_vq {
-> >  } ____cacheline_aligned_in_smp;
-> > =20
-> >  struct virtio_blk {
-> > +=09/*
-> > +=09 * vdev may be accessed without taking this mutex in blk-mq and
-> > +=09 * virtqueue code paths because virtblk_remove() stops them before =
-vdev
-> > +=09 * is freed.
-> > +=09 *
-> > +=09 * Everything else must hold this mutex when accessing vdev and mus=
-t
-> > +=09 * handle the case where vdev is NULL after virtblk_remove() has be=
-en
-> > +=09 * called.
-> > +=09 */
-> > +=09struct mutex vdev_mutex;
->=20
-> The patch LGTM, I'm just worried about cache_type_store() and
-> cache_type_show() because IIUC they aren't in blk-mq and virtqueue code
-> paths, but they use vdev.
->=20
-> Do we have to take the mutex there too?
+How exactly are these ops hooked up? I'm envisaging something like:
 
-No, because del_gendisk() in virtblk_remove() deletes the sysfs
-attributes before vblk->vdev is set to NULL.  kernfs deactivates the
-kernfs nodes so that further read()/write() operations fail with ENODEV
-(see fs/kernfs/dir.c and fs/kernfs/file.c).
+	ops = spec_compliant_ops;
+	[...]
+	if (firmware_says_hypervisor_is_buggy())
+		ops = magic_qcom_ops;
 
-I have tested that a userspace process with a sysfs attr file open
-cannot access the attribute after virtblk_remove().
+am I wrong?
 
-Stefan
+> +int register_virtio_mmio_ops(struct virtio_mmio_ops *ops)
+> +{
+> +	pr_info("Registered %s as mmio ops\n", ops->name);
+> +	mmio_ops = ops;
 
---C7zPtVaVf+AK4Oqc
-Content-Type: application/pgp-signature; name="signature.asc"
+Not looking good, and really defeats the point of standardising this stuff
+imo.
 
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl6qpPIACgkQnKSrs4Gr
-c8iZKAf/QYt7ZiFCMaka9IVao81da6OKlgxHACLKj/tlMnmQoBlUn6vOfWh1IbNl
-A3Zf/liD7BYWPReVipQYV+GjFllxmNSga2iYjvW82j5N0R8Kk5L5cZ6jx7uASvrI
-3bF+oRoX6bWL8ayocKPD0Sc6P2/tOhCrBpNNuYyB2PEu+oSCYA8KE9BRp+3IRe87
-J+vI3jFPFhX45bZ4nCxwuygtcj1PP98X3kgz4QruMVI0uho/hB56hA1+/7ntU59R
-k3E4v4ZlCT8bbZOEbphOwPjDU7+ESMIR7W8mKl4q6uVlTX0PVEk+q62Q0kBRVVkp
-DLCUFcL2y0BUSwxsmP+qpkyfvgiubg==
-=pQ+W
------END PGP SIGNATURE-----
-
---C7zPtVaVf+AK4Oqc--
+Will
