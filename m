@@ -1,78 +1,232 @@
-From: Dan Williams <dan.j.williams@intel.com>
-Subject: Re: [PATCH v1 2/3] mm/memory_hotplug: Introduce MHP_DRIVER_MANAGED
-Date: Thu, 30 Apr 2020 01:34:00 -0700
-Message-ID: <CAPcyv4gjRE23BHsBAnaVWAPUHWdenxYMUwDBnDF7UmoejmmbNQ@mail.gmail.com>
-References: <20200429160803.109056-1-david@redhat.com> <20200429160803.109056-3-david@redhat.com>
- <a7305cd8-8b2f-1d8f-7654-ecf777c46df6@redhat.com> <CAPcyv4i04+QLxiOyz04_eef2DFetEFKBUmi2A4xxw9abQD8hNQ@mail.gmail.com>
- <e32522cd-31bb-e129-47a6-9ec13b570506@redhat.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH v3] virtio-blk: handle block_device_operations callbacks
+ after hot unplug
+Date: Thu, 30 Apr 2020 10:43:23 +0200
+Message-ID: <20200430084323.qts2q5ql7rkclk2h@steredhat>
+References: <20200429165345.144702-1-stefanha@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-acpi-owner@vger.kernel.org>
-In-Reply-To: <e32522cd-31bb-e129-47a6-9ec13b570506@redhat.com>
-Sender: linux-acpi-owner@vger.kernel.org
-To: David Hildenbrand <david@redhat.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, Linux ACPI <linux-acpi@vger.kernel.org>, linux-nvdimm <linux-nvdimm@lists.01.org>, linux-hyperv@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, xen-devel <xen-devel@lists.xenproject.org>, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Michal Hocko <mhocko@suse.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Wei Yang <richard.weiyang@gmail.com>, Baoquan He <bhe@redhat.com>, Eric Biederman <ebiederm@xmission.com>, Pavel Tatashin <pasha.tatashin@soleen.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200429165345.144702-1-stefanha@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Christoph Hellwig <hch@infradead.org>, linux-block@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>, Jens Axboe <axboe@kernel.dk>, cohuck@redhat.com, Jason Wang <jasowang@redhat.com>, Lance Digby <ldigby@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Apr 30, 2020 at 1:21 AM David Hildenbrand <david@redhat.com> wrote:
-> >> Just because we decided to use some DAX memory in the current kernel as
-> >> system ram, doesn't mean we should make that decision for the kexec
-> >> kernel (e.g., using it as initial memory, placing kexec binaries onto
-> >> it, etc.). This is also not what we would observe during a real reboot.
-> >
-> > Agree.
-> >
-> >> I can see that the "System RAM" resource will show up as child resource
-> >> under the device e.g., in /proc/iomem.
-> >>
-> >> However, entries in /sys/firmware/memmap/ are created as "System RAM".
-> >
-> > True. Do you think this rename should just be limited to what type
-> > /sys/firmware/memmap/ emits? I have the concern, but no proof
->
-> We could split this patch into
->
-> MHP_NO_FIRMWARE_MEMMAP (create firmware memmap entries)
->
-> and
->
-> MHP_DRIVER_MANAGED (name of the resource)
->
-> See below, the latter might not be needed.
->
-> > currently, that there are /proc/iomem walkers that explicitly look for
-> > "System RAM", but might be thrown off by "System RAM (driver
-> > managed)". I was not aware of /sys/firmware/memmap until about 5
-> > minutes ago.
->
-> The only two users of /proc/iomem I am aware of are kexec-tools and some
-> s390x tools.
->
-> kexec-tools on x86-64 uses /sys/firmware/memmap to craft the initial
-> memmap, but uses /proc/iomem to
-> a) Find places for kexec images
-> b) Detect memory regions to dump via kdump
->
-> I am not yet sure if we really need the "System RAM (driver managed)"
-> part. If we can teach kexec-tools to
-> a) Don't place kexec images on "System RAM" that has a parent resource
-> (most likely requires kexec-tools changes)
-> b) Consider for kdump "System RAM" that has a parent resource
-> we might be able to avoid renaming that. (I assume that's already done)
->
-> E.g., regarding virtio-mem (patch #3) I am currently also looking into
-> creating a parent resource instead, like dax/kmem to avoid the rename:
->
-> :/# cat /proc/iomem
-> 00000000-00000fff : Reserved
-> [...]
-> 100000000-13fffffff : System RAM
-> 140000000-33fffffff : virtio0
->   140000000-147ffffff : System RAM
->   148000000-14fffffff : System RAM
->   150000000-157ffffff : System RAM
-> 340000000-303fffffff : virtio1
->   340000000-347ffffff : System RAM
-> 3280000000-32ffffffff : PCI Bus 0000:00
+On Wed, Apr 29, 2020 at 05:53:45PM +0100, Stefan Hajnoczi wrote:
+> A userspace process holding a file descriptor to a virtio_blk device can
+> still invoke block_device_operations after hot unplug.  This leads to a
+> use-after-free accessing vblk->vdev in virtblk_getgeo() when
+> ioctl(HDIO_GETGEO) is invoked:
+> 
+>   BUG: unable to handle kernel NULL pointer dereference at 0000000000000090
+>   IP: [<ffffffffc00e5450>] virtio_check_driver_offered_feature+0x10/0x90 [virtio]
+>   PGD 800000003a92f067 PUD 3a930067 PMD 0
+>   Oops: 0000 [#1] SMP
+>   CPU: 0 PID: 1310 Comm: hdio-getgeo Tainted: G           OE  ------------   3.10.0-1062.el7.x86_64 #1
+>   Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+>   task: ffff9be5fbfb8000 ti: ffff9be5fa890000 task.ti: ffff9be5fa890000
+>   RIP: 0010:[<ffffffffc00e5450>]  [<ffffffffc00e5450>] virtio_check_driver_offered_feature+0x10/0x90 [virtio]
+>   RSP: 0018:ffff9be5fa893dc8  EFLAGS: 00010246
+>   RAX: ffff9be5fc3f3400 RBX: ffff9be5fa893e30 RCX: 0000000000000000
+>   RDX: 0000000000000000 RSI: 0000000000000004 RDI: ffff9be5fbc10b40
+>   RBP: ffff9be5fa893dc8 R08: 0000000000000301 R09: 0000000000000301
+>   R10: 0000000000000000 R11: 0000000000000000 R12: ffff9be5fdc24680
+>   R13: ffff9be5fbc10b40 R14: ffff9be5fbc10480 R15: 0000000000000000
+>   FS:  00007f1bfb968740(0000) GS:ffff9be5ffc00000(0000) knlGS:0000000000000000
+>   CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+>   CR2: 0000000000000090 CR3: 000000003a894000 CR4: 0000000000360ff0
+>   DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+>   DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+>   Call Trace:
+>    [<ffffffffc016ac37>] virtblk_getgeo+0x47/0x110 [virtio_blk]
+>    [<ffffffff8d3f200d>] ? handle_mm_fault+0x39d/0x9b0
+>    [<ffffffff8d561265>] blkdev_ioctl+0x1f5/0xa20
+>    [<ffffffff8d488771>] block_ioctl+0x41/0x50
+>    [<ffffffff8d45d9e0>] do_vfs_ioctl+0x3a0/0x5a0
+>    [<ffffffff8d45dc81>] SyS_ioctl+0xa1/0xc0
+> 
+> A related problem is that virtblk_remove() leaks the vd_index_ida index
+> when something still holds a reference to vblk->disk during hot unplug.
+> This causes virtio-blk device names to be lost (vda, vdb, etc).
+> 
+> Fix these issues by protecting vblk->vdev with a mutex and reference
+> counting vblk so the vd_index_ida index can be removed in all cases.
+> 
+> Fixes: 48e4043d4529523cbc7fa8dd745bd8e2c45ce1d3
+>        ("virtio: add virtio disk geometry feature")
+> Reported-by: Lance Digby <ldigby@redhat.com>
+> Signed-off-by: Stefan Hajnoczi <stefanha@redhat.com>
+> ---
+>  drivers/block/virtio_blk.c | 87 ++++++++++++++++++++++++++++++++++----
+>  1 file changed, 79 insertions(+), 8 deletions(-)
+> 
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 93468b7c6701..6f7f277495f4 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -33,6 +33,16 @@ struct virtio_blk_vq {
+>  } ____cacheline_aligned_in_smp;
+>  
+>  struct virtio_blk {
+> +	/*
+> +	 * vdev may be accessed without taking this mutex in blk-mq and
+> +	 * virtqueue code paths because virtblk_remove() stops them before vdev
+> +	 * is freed.
+> +	 *
+> +	 * Everything else must hold this mutex when accessing vdev and must
+> +	 * handle the case where vdev is NULL after virtblk_remove() has been
+> +	 * called.
+> +	 */
+> +	struct mutex vdev_mutex;
 
-Looks good to me if it flies with kexec-tools.
+The patch LGTM, I'm just worried about cache_type_store() and
+cache_type_show() because IIUC they aren't in blk-mq and virtqueue code
+paths, but they use vdev.
+
+Do we have to take the mutex there too?
+
+Thanks,
+Stefano
+
+>  	struct virtio_device *vdev;
+>  
+>  	/* The disk structure for the kernel. */
+> @@ -44,6 +54,13 @@ struct virtio_blk {
+>  	/* Process context for config space updates */
+>  	struct work_struct config_work;
+>  
+> +	/*
+> +	 * Tracks references from block_device_operations open/release and
+> +	 * virtio_driver probe/remove so this object can be freed once no
+> +	 * longer in use.
+> +	 */
+> +	refcount_t refs;
+> +
+>  	/* What host tells us, plus 2 for header & tailer. */
+>  	unsigned int sg_elems;
+>  
+> @@ -295,10 +312,55 @@ static int virtblk_get_id(struct gendisk *disk, char *id_str)
+>  	return err;
+>  }
+>  
+> +static void virtblk_get(struct virtio_blk *vblk)
+> +{
+> +	refcount_inc(&vblk->refs);
+> +}
+> +
+> +static void virtblk_put(struct virtio_blk *vblk)
+> +{
+> +	if (refcount_dec_and_test(&vblk->refs)) {
+> +		ida_simple_remove(&vd_index_ida, vblk->index);
+> +		mutex_destroy(&vblk->vdev_mutex);
+> +		kfree(vblk);
+> +	}
+> +}
+> +
+> +static int virtblk_open(struct block_device *bd, fmode_t mode)
+> +{
+> +	struct virtio_blk *vblk = bd->bd_disk->private_data;
+> +	int ret = 0;
+> +
+> +	mutex_lock(&vblk->vdev_mutex);
+> +
+> +	if (vblk->vdev)
+> +		virtblk_get(vblk);
+> +	else
+> +		ret = -ENXIO;
+> +
+> +	mutex_unlock(&vblk->vdev_mutex);
+> +	return ret;
+> +}
+> +
+> +static void virtblk_release(struct gendisk *disk, fmode_t mode)
+> +{
+> +	struct virtio_blk *vblk = disk->private_data;
+> +
+> +	virtblk_put(vblk);
+> +}
+> +
+>  /* We provide getgeo only to please some old bootloader/partitioning tools */
+>  static int virtblk_getgeo(struct block_device *bd, struct hd_geometry *geo)
+>  {
+>  	struct virtio_blk *vblk = bd->bd_disk->private_data;
+> +	int ret = 0;
+> +
+> +	mutex_lock(&vblk->vdev_mutex);
+> +
+> +	if (!vblk->vdev) {
+> +		ret = -ENXIO;
+> +		goto out;
+> +	}
+>  
+>  	/* see if the host passed in geometry config */
+>  	if (virtio_has_feature(vblk->vdev, VIRTIO_BLK_F_GEOMETRY)) {
+> @@ -314,11 +376,15 @@ static int virtblk_getgeo(struct block_device *bd, struct hd_geometry *geo)
+>  		geo->sectors = 1 << 5;
+>  		geo->cylinders = get_capacity(bd->bd_disk) >> 11;
+>  	}
+> -	return 0;
+> +out:
+> +	mutex_unlock(&vblk->vdev_mutex);
+> +	return ret;
+>  }
+>  
+>  static const struct block_device_operations virtblk_fops = {
+>  	.owner  = THIS_MODULE,
+> +	.open = virtblk_open,
+> +	.release = virtblk_release,
+>  	.getgeo = virtblk_getgeo,
+>  };
+>  
+> @@ -655,6 +721,10 @@ static int virtblk_probe(struct virtio_device *vdev)
+>  		goto out_free_index;
+>  	}
+>  
+> +	/* This reference is dropped in virtblk_remove(). */
+> +	refcount_set(&vblk->refs, 1);
+> +	mutex_init(&vblk->vdev_mutex);
+> +
+>  	vblk->vdev = vdev;
+>  	vblk->sg_elems = sg_elems;
+>  
+> @@ -820,8 +890,6 @@ static int virtblk_probe(struct virtio_device *vdev)
+>  static void virtblk_remove(struct virtio_device *vdev)
+>  {
+>  	struct virtio_blk *vblk = vdev->priv;
+> -	int index = vblk->index;
+> -	int refc;
+>  
+>  	/* Make sure no work handler is accessing the device. */
+>  	flush_work(&vblk->config_work);
+> @@ -831,18 +899,21 @@ static void virtblk_remove(struct virtio_device *vdev)
+>  
+>  	blk_mq_free_tag_set(&vblk->tag_set);
+>  
+> +	mutex_lock(&vblk->vdev_mutex);
+> +
+>  	/* Stop all the virtqueues. */
+>  	vdev->config->reset(vdev);
+>  
+> -	refc = kref_read(&disk_to_dev(vblk->disk)->kobj.kref);
+> +	/* Virtqueues are stopped, nothing can use vblk->vdev anymore. */
+> +	vblk->vdev = NULL;
+> +
+>  	put_disk(vblk->disk);
+>  	vdev->config->del_vqs(vdev);
+>  	kfree(vblk->vqs);
+> -	kfree(vblk);
+>  
+> -	/* Only free device id if we don't have any users */
+> -	if (refc == 1)
+> -		ida_simple_remove(&vd_index_ida, index);
+> +	mutex_unlock(&vblk->vdev_mutex);
+> +
+> +	virtblk_put(vblk);
+>  }
+>  
+>  #ifdef CONFIG_PM_SLEEP
+> -- 
+> 2.25.3
+> 
