@@ -1,88 +1,76 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH v2] vhost: vsock: kick send_pkt worker once device is
- started
-Date: Fri, 1 May 2020 16:40:51 +0200
-Message-ID: <20200501144051.aotbofpyuy5tqcfp@steredhat>
-References: <20200501043840.186557-1-justin.he@arm.com>
+From: Dan Williams <dan.j.williams@intel.com>
+Subject: Re: [PATCH v2 2/3] mm/memory_hotplug: Introduce MHP_NO_FIRMWARE_MEMMAP
+Date: Fri, 1 May 2020 09:56:56 -0700
+Message-ID: <CAPcyv4j=YKnr1HW4OhAmpzbuKjtfP7FdAn4-V7uA=b-Tcpfu+A@mail.gmail.com>
+References: <20200430102908.10107-1-david@redhat.com> <20200430102908.10107-3-david@redhat.com>
+ <87pnbp2dcz.fsf@x220.int.ebiederm.org> <1b49c3be-6e2f-57cb-96f7-f66a8f8a9380@redhat.com>
+ <871ro52ary.fsf@x220.int.ebiederm.org> <373a6898-4020-4af1-5b3d-f827d705dd77@redhat.com>
+ <875zdg26hp.fsf@x220.int.ebiederm.org> <b28c9e02-8cf2-33ae-646b-fe50a185738e@redhat.com>
+ <20200430152403.e0d6da5eb1cad06411ac6d46@linux-foundation.org> <5c908ec3-9495-531e-9291-cbab24f292d6@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200501043840.186557-1-justin.he@arm.com>
-Sender: kvm-owner@vger.kernel.org
-To: Jia He <justin.he@arm.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Kaly Xin <Kaly.Xin@arm.com>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-acpi-owner@vger.kernel.org>
+In-Reply-To: <5c908ec3-9495-531e-9291-cbab24f292d6@redhat.com>
+Sender: linux-acpi-owner@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, "Eric W. Biederman" <ebiederm@xmission.com>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, linuxppc-dev <linuxppc-dev@lists.ozlabs.org>, Linux ACPI <linux-acpi@vger.kernel.org>, linux-nvdimm <linux-nvdimm@lists.01.org>, linux-hyperv@vger.kernel.org, linux-s390 <linux-s390@vger.kernel.org>, xen-devel <xen-devel@lists.xenproject.org>, Michal Hocko <mhocko@kernel.org>, "Michael S . Tsirkin" <mst@redhat.com>, Michal Hocko <mhocko@suse.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Wei Yang <richard.weiyang@gmail.com>, Baoquan He <bhe@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, May 01, 2020 at 12:38:40PM +0800, Jia He wrote:
-> Ning Bo reported an abnormal 2-second gap when booting Kata container [1].
-> The unconditional timeout was caused by VSOCK_DEFAULT_CONNECT_TIMEOUT of
-> connecting from the client side. The vhost vsock client tries to connect
-> an initializing virtio vsock server.
-> 
-> The abnormal flow looks like:
-> host-userspace           vhost vsock                       guest vsock
-> ==============           ===========                       ============
-> connect()     -------->  vhost_transport_send_pkt_work()   initializing
->    |                     vq->private_data==NULL
->    |                     will not be queued
->    V
-> schedule_timeout(2s)
->                          vhost_vsock_start()  <---------   device ready
->                          set vq->private_data
-> 
-> wait for 2s and failed
-> connect() again          vq->private_data!=NULL         recv connecting pkt
-> 
-> Details:
-> 1. Host userspace sends a connect pkt, at that time, guest vsock is under
->    initializing, hence the vhost_vsock_start has not been called. So
->    vq->private_data==NULL, and the pkt is not been queued to send to guest
-> 2. Then it sleeps for 2s
-> 3. After guest vsock finishes initializing, vq->private_data is set
-> 4. When host userspace wakes up after 2s, send connecting pkt again,
->    everything is fine.
-> 
-> As suggested by Stefano Garzarella, this fixes it by additional kicking the
-> send_pkt worker in vhost_vsock_start once the virtio device is started. This
-> makes the pending pkt sent again.
-> 
-> After this patch, kata-runtime (with vsock enabled) boot time is reduced
-> from 3s to 1s on a ThunderX2 arm64 server.
-> 
-> [1] https://github.com/kata-containers/runtime/issues/1917
-> 
-> Reported-by: Ning Bo <n.b@live.com>
-> Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
-> Signed-off-by: Jia He <justin.he@arm.com>
-> ---
-> v2: new solution suggested by Stefano Garzarella
-> 
->  drivers/vhost/vsock.c | 5 +++++
->  1 file changed, 5 insertions(+)
+On Fri, May 1, 2020 at 2:34 AM David Hildenbrand <david@redhat.com> wrote:
+>
+> On 01.05.20 00:24, Andrew Morton wrote:
+> > On Thu, 30 Apr 2020 20:43:39 +0200 David Hildenbrand <david@redhat.com> wrote:
+> >
+> >>>
+> >>> Why does the firmware map support hotplug entries?
+> >>
+> >> I assume:
+> >>
+> >> The firmware memmap was added primarily for x86-64 kexec (and still, is
+> >> mostly used on x86-64 only IIRC). There, we had ACPI hotplug. When DIMMs
+> >> get hotplugged on real HW, they get added to e820. Same applies to
+> >> memory added via HyperV balloon (unless memory is unplugged via
+> >> ballooning and you reboot ... the the e820 is changed as well). I assume
+> >> we wanted to be able to reflect that, to make kexec look like a real reboot.
+> >>
+> >> This worked for a while. Then came dax/kmem. Now comes virtio-mem.
+> >>
+> >>
+> >> But I assume only Andrew can enlighten us.
+> >>
+> >> @Andrew, any guidance here? Should we really add all memory to the
+> >> firmware memmap, even if this contradicts with the existing
+> >> documentation? (especially, if the actual firmware memmap will *not*
+> >> contain that memory after a reboot)
+> >
+> > For some reason that patch is misattributed - it was authored by
+> > Shaohui Zheng <shaohui.zheng@intel.com>, who hasn't been heard from in
+> > a decade.  I looked through the email discussion from that time and I'm
+> > not seeing anything useful.  But I wasn't able to locate Dave Hansen's
+> > review comments.
+>
+> Okay, thanks for checking. I think the documentation from 2008 is pretty
+> clear what has to be done here. I will add some of these details to the
+> patch description.
+>
+> Also, now that I know that esp. kexec-tools already don't consider
+> dax/kmem memory properly (memory will not get dumped via kdump) and
+> won't really suffer from a name change in /proc/iomem, I will go back to
+> the MHP_DRIVER_MANAGED approach and
+> 1. Don't create firmware memmap entries
+> 2. Name the resource "System RAM (driver managed)"
+> 3. Flag the resource via something like IORESOURCE_MEM_DRIVER_MANAGED.
+>
+> This way, kernel users and user space can figure out that this memory
+> has different semantics and handle it accordingly - I think that was
+> what Eric was asking for.
+>
+> Of course, open for suggestions.
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-
-Thanks,
-Stefano
-
-> 
-> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> index e36aaf9ba7bd..0716a9cdffee 100644
-> --- a/drivers/vhost/vsock.c
-> +++ b/drivers/vhost/vsock.c
-> @@ -543,6 +543,11 @@ static int vhost_vsock_start(struct vhost_vsock *vsock)
->  		mutex_unlock(&vq->mutex);
->  	}
->  
-> +	/* Some packets may have been queued before the device was started,
-> +	 * let's kick the send worker to send them.
-> +	 */
-> +	vhost_work_queue(&vsock->dev, &vsock->send_pkt_work);
-> +
->  	mutex_unlock(&vsock->dev.mutex);
->  	return 0;
->  
-> -- 
-> 2.17.1
-> 
+I'm still more of a fan of this being communicated by "System RAM"
+being parented especially because that tells you something about how
+the memory is driver-managed and which mechanism might be in play.
+What about adding an optional /sys/firmware/memmap/X/parent attribute.
+This lets tooling check if it cares via that interface and lets it
+lookup the related infrastructure to interact with if it would do
+something different for virtio-mem vs dax/kmem?
