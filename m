@@ -1,88 +1,36 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [vhost:vhost 8/22] drivers/virtio/virtio_mem.c:1375:20: error:
- implicit declaration of function 'kzalloc'; did you mean 'vzalloc'?
-Date: Tue, 5 May 2020 12:30:33 -0400
-Message-ID: <20200505123009-mutt-send-email-mst@kernel.org>
-References: <202005052221.83QerHmG%lkp@intel.com>
- <7dea2810-85cf-0892-20a8-bba3e3a2c133@redhat.com>
- <20200505114433-mutt-send-email-mst@kernel.org>
- <3eaebd8d-750a-d046-15f5-706fb00a196e@redhat.com>
- <20200505121732-mutt-send-email-mst@kernel.org>
- <e607a850-ba5c-6033-93fc-144639b125b8@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <e607a850-ba5c-6033-93fc-144639b125b8@redhat.com>
-Sender: kvm-owner@vger.kernel.org
-To: David Hildenbrand <david@redhat.com>
-Cc: kbuild test robot <lkp@intel.com>, kbuild-all@lists.01.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+From: Julia Lawall <Julia.Lawall@inria.fr>
+Subject: [PATCH] iommu/virtio: reverse arguments to list_add
+Date: Tue,  5 May 2020 20:47:47 +0200
+Message-ID: <1588704467-13431-1-git-send-email-Julia.Lawall@inria.fr>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Cc: kernel-janitors@vger.kernel.org, Joerg Roedel <joro@8bytes.org>, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, eugene.volanschi@inria.fr
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, May 05, 2020 at 06:22:51PM +0200, David Hildenbrand wrote:
-> On 05.05.20 18:20, Michael S. Tsirkin wrote:
-> > On Tue, May 05, 2020 at 05:46:44PM +0200, David Hildenbrand wrote:
-> >> On 05.05.20 17:44, Michael S. Tsirkin wrote:
-> >>> On Tue, May 05, 2020 at 04:50:13PM +0200, David Hildenbrand wrote:
-> >>>> On 05.05.20 16:15, kbuild test robot wrote:
-> >>>>> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost
-> >>>>> head:   da1742791d8c0c0a8e5471f181549c4726a5c5f9
-> >>>>> commit: 7527631e900d464ed2d533f799cb0da2b29cc6f0 [8/22] virtio-mem: Paravirtualized memory hotplug
-> >>>>> config: x86_64-randconfig-b002-20200505 (attached as .config)
-> >>>>> compiler: gcc-7 (Ubuntu 7.5.0-6ubuntu2) 7.5.0
-> >>>>> reproduce:
-> >>>>>         git checkout 7527631e900d464ed2d533f799cb0da2b29cc6f0
-> >>>>>         # save the attached .config to linux build tree
-> >>>>>         make ARCH=x86_64 
-> >>>>>
-> >>>>> If you fix the issue, kindly add following tag as appropriate
-> >>>>> Reported-by: kbuild test robot <lkp@intel.com>
-> >>>>>
-> >>>>> All error/warnings (new ones prefixed by >>):
-> >>>>>
-> >>>>>    drivers/virtio/virtio_mem.c: In function 'virtio_mem_probe':
-> >>>>>>> drivers/virtio/virtio_mem.c:1375:20: error: implicit declaration of function 'kzalloc'; did you mean 'vzalloc'? [-Werror=implicit-function-declaration]
-> >>>>>      vdev->priv = vm = kzalloc(sizeof(*vm), GFP_KERNEL);
-> >>>>>                        ^~~~~~~
-> >>>>>                        vzalloc
-> >>>>>>> drivers/virtio/virtio_mem.c:1375:18: warning: assignment makes pointer from integer without a cast [-Wint-conversion]
-> >>>>>      vdev->priv = vm = kzalloc(sizeof(*vm), GFP_KERNEL);
-> >>>>>                      ^
-> >>>>>>> drivers/virtio/virtio_mem.c:1419:2: error: implicit declaration of function 'kfree'; did you mean 'vfree'? [-Werror=implicit-function-declaration]
-> >>>>>      kfree(vm);
-> >>>>>      ^~~~~
-> >>>>>      vfree
-> >>>>>    cc1: some warnings being treated as errors
-> >>>>>
-> >>>>> vim +1375 drivers/virtio/virtio_mem.c
-> >>>>
-> >>>> Guess we simply need
-> >>>>
-> >>>>  #include <linux/slab.h>
-> >>>>
-> >>>> to make it work for that config.
-> >>>
-> >>>
-> >>> OK I added that in the 1st commit that introduced virtio-mem.
-> >>
-> >> Thanks. I have some addon-patches ready, what's the best way to continue
-> >> with these?
-> > 
-> > If these are bugfixes, just respin the series (including this fix).
-> 
-> There are two really minor bugfixes for corner-case error handling and
-> one simplification. I can squash them and resend, makes things easier.
-> 
-> The other stuff I have are extensions, I will send as add-on.
-> 
-> Thanks!
+Elsewhere in the file, there is a list_for_each_entry with
+&vdev->resv_regions as the second argument, suggesting that
+&vdev->resv_regions is the list head.  So exchange the
+arguments on the list_add call to put the list head in the
+second argument.
 
-So just send a giant patchbomb explaining what's what in the
-cover letter. Thanks!
+Fixes: 2a5a31487445 ("iommu/virtio: Add probe request")
+Signed-off-by: Julia Lawall <Julia.Lawall@inria.fr>
 
+---
+ drivers/iommu/virtio-iommu.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> 
-> -- 
-> Thanks,
-> 
-> David / dhildenb
+diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+index d5cac4f46ca5..4e1d11af23c8 100644
+--- a/drivers/iommu/virtio-iommu.c
++++ b/drivers/iommu/virtio-iommu.c
+@@ -453,7 +453,7 @@ static int viommu_add_resv_mem(struct viommu_endpoint *vdev,
+ 	if (!region)
+ 		return -ENOMEM;
+ 
+-	list_add(&vdev->resv_regions, &region->list);
++	list_add(&region->list, &vdev->resv_regions);
+ 	return 0;
+ }
+ 
