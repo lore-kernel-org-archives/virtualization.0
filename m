@@ -1,93 +1,77 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 0/1] Add uvirtio for testing
-Date: Wed, 6 May 2020 11:14:30 +0800
-Message-ID: <a7572f21-9f59-2d32-2a37-bd551a6bf762@redhat.com>
-References: <20200428204729.64569-1-ytht.net@gmail.com>
- <b01454e9-bca8-cf32-7cfa-ebe25032e040@redhat.com>
- <CALqoU4yK3ffLJDQ8GcEdoGM8XPGLF7u0skdNN1gii9qa7UeFDw@mail.gmail.com>
+From: Justin He <Justin.He@arm.com>
+Subject: RE: [GIT PULL] vhost: fixes
+Date: Wed, 6 May 2020 03:28:47 +0000
+Message-ID: <AM6PR08MB40696EFF8BE389C134AC04F6F7A40@AM6PR08MB4069.eurprd08.prod.outlook.com>
+References: <20200504081540-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CALqoU4yK3ffLJDQ8GcEdoGM8XPGLF7u0skdNN1gii9qa7UeFDw@mail.gmail.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200504081540-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: lepton <ytht.net@gmail.com>
-Cc: mst@redhat.com, virtualization@lists.linux-foundation.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, "stable@vger.kernel.org" <stable@vger.kernel.org>
+Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "ldigby@redhat.com" <ldigby@redhat.com>, "n.b@live.com" <n.b@live.com>, "stefanha@redhat.com" <stefanha@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMjAvNC8zMCDkuIrljYgxMTo1NiwgbGVwdG9uIHdyb3RlOgo+IE9uIFdlZCwgQXByIDI5
-LCAyMDIwIGF0IDI6NTcgQU0gSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4gd3JvdGU6
-Cj4+Cj4+IE9uIDIwMjAvNC8yOSDkuIrljYg0OjQ3LCBMZXB0b24gV3Ugd3JvdGU6Cj4+PiBUaGlz
-IGlzIGEgd2F5IHRvIGNyZWF0ZSB2aXJ0aW8gYmFzZWQgZGV2aWNlcyBmcm9tIHVzZXIgc3BhY2Uu
-IFRoaXMgaXMgdGhlCj4+PiBiYWNrZ3JvdW5kIGZvciB0aGlzIHBhdGNoOgo+Pj4KPj4+IFdlIGhh
-dmUgc29tZSBpbWFnZXMgd29ya3MgZmluZSB1bmRlciBxZW11LCB3ZSdkIGxpa2UgdG8gYWxzbyBy
-dW4gdGhlIHNhbWUgaW1hZ2UKPj4+IG9uIEdvb2dsZSBDbG91ZC4gQ3VycmVudGx5IEdvb2dsZSBD
-bG91ZCBkb2Vzbid0IHN1cHBvcnQgdmlydGlvLXZnYS4gSSBoYWQgYQo+Pj4gcGF0Y2ggdG8gY3Jl
-YXRlIGEgdmlydGlvLXZnYSBmcm9tIGtlcm5lbCBkaXJlY3RseToKPj4+IGh0dHBzOi8vd3d3LnNw
-aW5pY3MubmV0L2xpc3RzL2RyaS1kZXZlbC9tc2cyNDg1NzMuaHRtbAo+Pj4KPj4+IFRoZW4gSSBn
-b3QgZmVlZGJhY2sgZnJvbSBHZXJkIHRoYXQgbWF5YmUgaXQncyBiZXR0ZXIgdG8gY2hhbmdlIHRo
-YXQgdG8gc29tZXRoaW5nCj4+PiBsaWtlIHV2aXJ0aW8uIFNpbmNlIEkgcmVhbGx5IGRvbid0IGhh
-dmUgb3RoZXIgdXNlIGNhc2VzIGZvciBub3csIEkganVzdCBpbXBsZW1lbnRlZCB0aGUgbWluaW1h
-bCBzdHVmZiB3aGljaCB3b3JrIGZvciBteSB1c2UgY2FzZS4KPj4KPj4gSW50ZXJlc3RpbmcsIHNl
-dmVyYWwgcXVlc3Rpb25zOgo+Pgo+PiAxKSBBcmUgeW91IGF3YXJlIG9mIHZpcnRpbyB2aG9zdC11
-c2VyIGRyaXZlciBkb25lIGJ5IFVNIGd1eXM/Cj4+IChhcmNoL3VtL2RyaXZlcnMvdmlydGlvX3Vt
-bC5jKSBUaGUgbWVtb3J5IHBhcnQgaXMgdHJpY2t5IGJ1dCBvdmVyYWxsCj4+IGJvdGggb2YgeW91
-IGhhdmUgc2ltaWxhciB0YXJnZXQuCj4gVGhhbmtzIGZvciByZW1pbmRpbmcgbWUsIEkgd2FzIG5v
-dCBhd2FyZSBvZiBpdC4gVGhlIHVzZSBjYXNlIGxvb2tzIGEKPiBsaXR0bGUgZGlmZmVyZW50OiB0
-aGV5IGFyZSB0cnlpbmcgY3JlYXRlIHZpcnRpbyBkZXZpY2VzIGZvciB1c2VyIG1vZGUKPiBsaW51
-eCBhbmQgaXQgY29tbXVuaWNhdGVkIHdpdGggImhvc3QiIHNpZGUuIE15IGRyaXZlciBkb2Vzbid0
-IGRlcGVuZHMKPiBvbiBhbnkgSE9TVC9WTU0gc2lkZSBzdHVmZi4KCgpZZXMsIGJ1dCBhcyBJIHNh
-aWQuIEV4Y2VwdCBmb3IgdGhlIG1lbW9yeSB0YWJsZSBwYXJ0LCB0aGUgcmVzdCBjb3VsZCBiZSAK
-cHJvYmFibHkgcmV1c2VkPwoKVGhlIG9ubHkgZGlmZmVyZW5jZSB0byBtZSBpcyB0aGF0LCB5b3Ug
-ZGV2ZWxvcCB5b3VyIG93biB1QUJJIHdoaWxlIAp2aXJ0aW9fdW1sIHVzZXMgdmhvc3QtdXNlci4K
-Cgo+IEJhc2ljYWxseSB3ZSBjYW4gdXNlIGl0IHRvIGNyZWF0ZSB2aXJ0aW8KPiBkZXZpY2UgZnJv
-bSBndWVzdCBpdHNlbGYuIE9yIGV2ZW4gY3JlYXRlIHZpcnRpbyBkZXZpY2Ugb24gYmFyZSBtZXRh
-bC4KPj4gMikgUGF0Y2ggMSBzYWlkIGl0J3MgdXNlcnNwYWNlIHZpcnRpbyBkcml2ZXIsIHdoaWNo
-IEkgdGhpbmsgaXQgaXMKPj4gYWN0dWFsbHkgInVzZXJzcGFjZSB2aXJ0aW8gZGV2aWNlIgo+IFVw
-ZGF0ZWQgaW4gdmVyc2lvbiAyIG9mIHRoaXMgcGF0Y2guCj4+IDMpIE5lZWQgdG8gYmUgdmVyYm9z
-ZSBvbiBob3cgdGhlIHZyaW5nIHByb2Nlc3Npbmcgd29yayBpbiB0aGUgY29tbWl0IGxvZwo+PiBv
-ZiBwYXRjaCAxCj4gVXBkYXRlZC4KPj4gNCkgSSdtIGN1cmlvdXMgd2hpY2ggdGVzdGluZyB5b3Ug
-d2FudCB0byBhY2NvbXBsaXNoIHRocm91Z2ggdGhpcyBuZXcKPj4gdHJhbnNwb3J0LCBJIGd1ZXNz
-IHlvdSB3YW50IHRvIHRlc3QgYSBzcGVjaWZpYyB2aXJ0aW8gZHJpdmVyPwo+IEhlcmUgaXMgdGhl
-IHdob2xlIHN0b3J5OiB3ZSB3YW50IHRvIHRlc3Qgb3VyIGN1c3RvbSBsaW51eCBpbWFnZS4gSW4K
-PiB0aGUgcGFzdCwgd2UganVzdCB0ZXN0IG91ciBjdXN0b20gbGludXggaW1hZ2Ugd2l0aCBxZW11
-IChhbmQgdmlydGlvCj4gdmdhKSwgYW5kIHJ1biBxZW11IHNlc3Npb24gb24gR29vZ2xlIENsb3Vk
-LiBBcyB5b3UgY2FuIHNlZSwgdGhpcyBpcwo+IG5lc3RlZCB2aXJ0dWFsaXphdGlvbiBhbmQgcGVy
-Zm9ybWFuY2UgaHVydHMuIEFuZCBtb3JlLCB3ZSBoYXZlIGFub3RoZXIKPiB2bSBpbnNpZGUgb3Vy
-IGN1c3RvbSBsaW51eCBpbWFnZS4gU28gd2Ugd2FudCB0byByZW1vdmUgdGhlIHFlbXUgbGF5ZXIs
-Cj4ganVzdCBydW4gb3VyIGN1c3RvbSBsaW51eCBpbWFnZSBvbiBHb29nbGUgQ2xvdWQgZGlyZWN0
-bHkuIFRoZW4gd2UgbmVlZAo+IHNvbWUga2luZCBvZiBWR0EuICBTbyBhICJkdW1teSIgdmlydGlv
-IHZnYSBsb29rcyBhIGdvb2QgZml0LgoKClRoZW4gaXQncyBiZXR0ZXIgdG8gbWVudGlvbiB0aGlz
-IGluIHRoZSBjb3ZlciBsZXR0ZXIuCgoKPj4gNSkgWW91IG1lbnRpb25lZCB0aGF0IHlvdSBtYXkg
-d2FudCB0byBkZXZlbG9wIGNvbW11bmljYXRpb24gYmV0d2Vlbgo+PiBrZXJuZWwgYW5kIHVzZXJz
-cGFjZSwgYW55IG1vcmUgZGV0YWlscyBvbiB0aGF0Pwo+IEN1cnJlbnRseSwgd2UgZG9uJ3QgaGF2
-ZSBzdWNoIHVzZSBjYXNlLiBCdXQgbWF5YmUgb3RoZXJzIGNhbgo+IGZ1cnRoZXJtb3JlIHRvIGV4
-dGVuZCB1dmlydGlvIGZvciB0aGlzLiBGb3IgZXhhbXBsZSwgdXNlciBzcGFjZSBjYW4KPiB1c2Ug
-cmVhZC93cml0ZSB0byBhY3R1YWxseSBleGNoYW5nZSBkYXRhIHdpdGgga2VybmVsLiBUaGVuIHRo
-YXQgY291bGQKPiBiZSB1c2VkIGZvciBzaW11bGF0ZSBtb3JlIGNvbXBsZXggdXNlIGNhc2UuCgoK
-T0suCgpUaGFua3MKCgo+PiBUaGFua3MKPj4KPj4KPj4+IExlcHRvbiBXdSAoMSk6Cj4+PiAgICAg
-dmlydGlvOiBBZGQgdXZpcnRpbyBkcml2ZXIKPj4+Cj4+PiAgICBkcml2ZXJzL3ZpcnRpby9LY29u
-ZmlnICAgICAgICB8ICAgOCArCj4+PiAgICBkcml2ZXJzL3ZpcnRpby9NYWtlZmlsZSAgICAgICB8
-ICAgMSArCj4+PiAgICBkcml2ZXJzL3ZpcnRpby91dmlydGlvLmMgICAgICB8IDQwNSArKysrKysr
-KysrKysrKysrKysrKysrKysrKysrKysrKysrCj4+PiAgICBpbmNsdWRlL2xpbnV4L3V2aXJ0aW8u
-aCAgICAgICB8ICAgOCArCj4+PiAgICBpbmNsdWRlL3VhcGkvbGludXgvdXZpcnRpby5oICB8ICA2
-OSArKysrKysKPj4+ICAgIHNhbXBsZXMvdXZpcnRpby9NYWtlZmlsZSAgICAgIHwgICA5ICsKPj4+
-ICAgIHNhbXBsZXMvdXZpcnRpby91dmlydGlvLXZnYS5jIHwgIDYzICsrKysrKwo+Pj4gICAgNyBm
-aWxlcyBjaGFuZ2VkLCA1NjMgaW5zZXJ0aW9ucygrKQo+Pj4gICAgY3JlYXRlIG1vZGUgMTAwNjQ0
-IGRyaXZlcnMvdmlydGlvL3V2aXJ0aW8uYwo+Pj4gICAgY3JlYXRlIG1vZGUgMTAwNjQ0IGluY2x1
-ZGUvbGludXgvdXZpcnRpby5oCj4+PiAgICBjcmVhdGUgbW9kZSAxMDA2NDQgaW5jbHVkZS91YXBp
-L2xpbnV4L3V2aXJ0aW8uaAo+Pj4gICAgY3JlYXRlIG1vZGUgMTAwNjQ0IHNhbXBsZXMvdXZpcnRp
-by9NYWtlZmlsZQo+Pj4gICAgY3JlYXRlIG1vZGUgMTAwNjQ0IHNhbXBsZXMvdXZpcnRpby91dmly
-dGlvLXZnYS5jCj4+PgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
-bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Hi Michael
+
+> -----Original Message-----
+> From: Michael S. Tsirkin <mst@redhat.com>
+> Sent: Monday, May 4, 2020 8:16 PM
+> To: Linus Torvalds <torvalds@linux-foundation.org>
+> Cc: kvm@vger.kernel.org; virtualization@lists.linux-foundation.org;
+> netdev@vger.kernel.org; linux-kernel@vger.kernel.org; Justin He
+> <Justin.He@arm.com>; ldigby@redhat.com; mst@redhat.com; n.b@live.com;
+> stefanha@redhat.com
+> Subject: [GIT PULL] vhost: fixes
+>
+> The following changes since commit
+> 6a8b55ed4056ea5559ebe4f6a4b247f627870d4c:
+>
+>   Linux 5.7-rc3 (2020-04-26 13:51:02 -0700)
+>
+> are available in the Git repository at:
+>
+>   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_=
+linus
+>
+> for you to fetch changes up to
+> 0b841030625cde5f784dd62aec72d6a766faae70:
+>
+>   vhost: vsock: kick send_pkt worker once device is started (2020-05-02
+> 10:28:21 -0400)
+>
+> ----------------------------------------------------------------
+> virtio: fixes
+>
+> A couple of bug fixes.
+>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>
+> ----------------------------------------------------------------
+> Jia He (1):
+>       vhost: vsock: kick send_pkt worker once device is started
+
+Should this fix also be CC-ed to stable? Sorry I forgot to cc it to stable.
+
+--
+Cheers,
+Justin (Jia He)
+
+
+>
+> Stefan Hajnoczi (1):
+>       virtio-blk: handle block_device_operations callbacks after hot unpl=
+ug
+>
+>  drivers/block/virtio_blk.c | 86
+> +++++++++++++++++++++++++++++++++++++++++-----
+>  drivers/vhost/vsock.c      |  5 +++
+>  2 files changed, 83 insertions(+), 8 deletions(-)
+
+IMPORTANT NOTICE: The contents of this email and any attachments are confid=
+ential and may also be privileged. If you are not the intended recipient, p=
+lease notify the sender immediately and do not disclose the contents to any=
+ other person, use it for any purpose, or store or copy the information in =
+any medium. Thank you.
