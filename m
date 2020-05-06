@@ -1,77 +1,66 @@
-From: Justin He <Justin.He@arm.com>
-Subject: RE: [GIT PULL] vhost: fixes
-Date: Wed, 6 May 2020 03:28:47 +0000
-Message-ID: <AM6PR08MB40696EFF8BE389C134AC04F6F7A40@AM6PR08MB4069.eurprd08.prod.outlook.com>
-References: <20200504081540-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] virtio_net: fix lockdep warning on 32 bit
+Date: Wed, 6 May 2020 13:28:07 +0800
+Message-ID: <cd6132a6-8dbe-9e7b-2e63-46a9864040e4@redhat.com>
+References: <20200506000006.196646-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200504081540-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200506000006.196646-1-mst@redhat.com>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, "stable@vger.kernel.org" <stable@vger.kernel.org>
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "ldigby@redhat.com" <ldigby@redhat.com>, "n.b@live.com" <n.b@live.com>, "stefanha@redhat.com" <stefanha@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet <eric.dumazet@gmail.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Michael
-
-> -----Original Message-----
-> From: Michael S. Tsirkin <mst@redhat.com>
-> Sent: Monday, May 4, 2020 8:16 PM
-> To: Linus Torvalds <torvalds@linux-foundation.org>
-> Cc: kvm@vger.kernel.org; virtualization@lists.linux-foundation.org;
-> netdev@vger.kernel.org; linux-kernel@vger.kernel.org; Justin He
-> <Justin.He@arm.com>; ldigby@redhat.com; mst@redhat.com; n.b@live.com;
-> stefanha@redhat.com
-> Subject: [GIT PULL] vhost: fixes
->
-> The following changes since commit
-> 6a8b55ed4056ea5559ebe4f6a4b247f627870d4c:
->
->   Linux 5.7-rc3 (2020-04-26 13:51:02 -0700)
->
-> are available in the Git repository at:
->
->   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_=
-linus
->
-> for you to fetch changes up to
-> 0b841030625cde5f784dd62aec72d6a766faae70:
->
->   vhost: vsock: kick send_pkt worker once device is started (2020-05-02
-> 10:28:21 -0400)
->
-> ----------------------------------------------------------------
-> virtio: fixes
->
-> A couple of bug fixes.
->
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
->
-> ----------------------------------------------------------------
-> Jia He (1):
->       vhost: vsock: kick send_pkt worker once device is started
-
-Should this fix also be CC-ed to stable? Sorry I forgot to cc it to stable.
-
---
-Cheers,
-Justin (Jia He)
-
-
->
-> Stefan Hajnoczi (1):
->       virtio-blk: handle block_device_operations callbacks after hot unpl=
-ug
->
->  drivers/block/virtio_blk.c | 86
-> +++++++++++++++++++++++++++++++++++++++++-----
->  drivers/vhost/vsock.c      |  5 +++
->  2 files changed, 83 insertions(+), 8 deletions(-)
-
-IMPORTANT NOTICE: The contents of this email and any attachments are confid=
-ential and may also be privileged. If you are not the intended recipient, p=
-lease notify the sender immediately and do not disclose the contents to any=
- other person, use it for any purpose, or store or copy the information in =
-any medium. Thank you.
+Ck9uIDIwMjAvNS82IOS4iuWNiDg6MDEsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBXaGVu
+IHdlIGZpbGwgdXAgYSByZWNlaXZlIFZRLCB0cnlfZmlsbF9yZWN2IGN1cnJlbnRseSB0cmllcyB0
+byBjb3VudAo+IGtpY2tzIHVzaW5nIGEgNjQgYml0IHN0YXRzIGNvdW50ZXIuIFR1cm5zIG91dCwg
+b24gYSAzMiBiaXQga2VybmVsIHRoYXQKPiB1c2VzIGEgc2VxY291bnQuIHNlcXVlbmNlIGNvdW50
+cyBhcmUgImxvY2siIGNvbnN0cnVjdHMgd2hlcmUgeW91IG5lZWQgdG8KPiBtYWtlIHN1cmUgdGhh
+dCB3cml0ZXJzIGFyZSBzZXJpYWxpemVkLgo+Cj4gSW4gdHVybiwgdGhpcyBtZWFucyB0aGF0IHdl
+IG11c3RuJ3QgcnVuIHR3byB0cnlfZmlsbF9yZWN2IGNvbmN1cnJlbnRseS4KPiBXaGljaCBvZiBj
+b3Vyc2Ugd2UgZG9uJ3QuIFdlIGRvIHJ1biB0cnlfZmlsbF9yZWN2IHNvbWV0aW1lcyBmcm9tIGEg
+ZnVsbHkKPiBwcmVlbXB0aWJsZSBjb250ZXh0IGFuZCBzb21ldGltZXMgZnJvbSBhIHNvZnRpcnEg
+KG5hcGkpIGNvbnRleHQuCj4KPiBIb3dldmVyLCB3aGVuIGl0IGNvbWVzIHRvIHRoZSBzZXFjb3Vu
+dCwgbG9ja2RlcCBpcyB0cnlpbmcgdG8gZW5mb3JjZQo+IHRoZSBydWxlIHRoYXQgdGhlIHNhbWUg
+bG9jayBpc24ndCBhY2Nlc3NlZCBmcm9tIHByZWVtcHRpYmxlCj4gYW5kIHNvZnRpcnEgY29udGV4
+dC4gVGhpcyBjYXVzZXMgYSBmYWxzZS1wb3NpdGl2ZSB3YXJuaW5nOgo+Cj4gV0FSTklORzogaW5j
+b25zaXN0ZW50IGxvY2sgc3RhdGUKPiAuLi4KPiBpbmNvbnNpc3RlbnQge1NPRlRJUlEtT04tV30g
+LT4ge0lOLVNPRlRJUlEtV30gdXNhZ2UuCj4KPiBBcyBhIHdvcmsgYXJvdW5kLCBzaHV0IGRvd24g
+dGhlIHdhcm5pbmcgYnkgc3dpdGNoaW5nCj4gdG8gdTY0X3N0YXRzX3VwZGF0ZV9iZWdpbl9pcnFz
+YXZlIC0gdGhhdCB3b3JrcyBieSBkaXNhYmxpbmcKPiBpbnRlcnJ1cHRzIG9uIDMyIGJpdCBvbmx5
+LCBpcyBhIE5PUCBvbiA2NCBiaXQuCj4KPiBSZXBvcnRlZC1ieTogVGhvbWFzIEdsZWl4bmVyIDx0
+Z2x4QGxpbnV0cm9uaXguZGU+Cj4gU3VnZ2VzdGVkLWJ5OiBFcmljIER1bWF6ZXQgPGVyaWMuZHVt
+YXpldEBnbWFpbC5jb20+Cj4gU2lnbmVkLW9mZi1ieTogTWljaGFlbCBTLiBUc2lya2luIDxtc3RA
+cmVkaGF0LmNvbT4KPiAtLS0KPgo+IEknbSBub3QgdGhyaWxsZWQgYWJvdXQgdGhpcyBidXQgdGhp
+cyBzZWVtcyB0aGUgYmVzdCB3ZSBjYW4gZG8gZm9yIG5vdy4KPgo+IENvbXBsZXRlbHkgdW50ZXN0
+ZWQuCj4KPgo+IFRob21hcywgY2FuIHlvdSBwbHMgbGV0IG1lIGtub3cgdGhlIGNvbmZpZyBJIG5l
+ZWQgdG8gdHJpZ2dlciB0aGUgd2FybmluZwo+IGluIHF1ZXN0aW9uPwo+Cj4KPiAgIGRyaXZlcnMv
+bmV0L3ZpcnRpb19uZXQuYyB8IDYgKysrKy0tCj4gICAxIGZpbGUgY2hhbmdlZCwgNCBpbnNlcnRp
+b25zKCspLCAyIGRlbGV0aW9ucygtKQo+Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3ZpcnRp
+b19uZXQuYyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+IGluZGV4IDY1OTRhYWI0OTEwZS4u
+OTUzOTNiNjExODdmIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+ICsr
+KyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+IEBAIC0xMjQzLDkgKzEyNDMsMTEgQEAgc3Rh
+dGljIGJvb2wgdHJ5X2ZpbGxfcmVjdihzdHJ1Y3QgdmlydG5ldF9pbmZvICp2aSwgc3RydWN0IHJl
+Y2VpdmVfcXVldWUgKnJxLAo+ICAgCQkJYnJlYWs7Cj4gICAJfSB3aGlsZSAocnEtPnZxLT5udW1f
+ZnJlZSk7Cj4gICAJaWYgKHZpcnRxdWV1ZV9raWNrX3ByZXBhcmUocnEtPnZxKSAmJiB2aXJ0cXVl
+dWVfbm90aWZ5KHJxLT52cSkpIHsKPiAtCQl1NjRfc3RhdHNfdXBkYXRlX2JlZ2luKCZycS0+c3Rh
+dHMuc3luY3ApOwo+ICsJCXVuc2lnbmVkIGxvbmcgZmxhZ3M7Cj4gKwo+ICsJCWZsYWdzID0gdTY0
+X3N0YXRzX3VwZGF0ZV9iZWdpbl9pcnFzYXZlKCZycS0+c3RhdHMuc3luY3ApOwo+ICAgCQlycS0+
+c3RhdHMua2lja3MrKzsKPiAtCQl1NjRfc3RhdHNfdXBkYXRlX2VuZCgmcnEtPnN0YXRzLnN5bmNw
+KTsKPiArCQl1NjRfc3RhdHNfdXBkYXRlX2VuZF9pcnFyZXN0b3JlKCZycS0+c3RhdHMuc3luY3Ap
+Owo+ICAgCX0KPiAgIAo+ICAgCXJldHVybiAhb29tOwoKCkFja2VkLWJ5OiBKYXNvbiBXYW5nIDxq
+YXNvd2FuZ0ByZWRoYXQuY29tPgoKCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
+bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
+b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
