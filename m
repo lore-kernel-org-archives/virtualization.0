@@ -1,54 +1,76 @@
-From: Jesper Dangaard Brouer <brouer@redhat.com>
-Subject: Re: performance bug in virtio net xdp
-Date: Wed, 6 May 2020 10:37:57 +0200
-Message-ID: <20200506103757.4bc78b3a@carbon>
-References: <20200506035704-mutt-send-email-mst@kernel.org>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [GIT PULL] vhost: fixes
+Date: Wed, 6 May 2020 11:25:46 +0200
+Message-ID: <20200506092546.o6prnn4d66tavmjl@steredhat>
+References: <20200504081540-mutt-send-email-mst@kernel.org>
+ <AM6PR08MB40696EFF8BE389C134AC04F6F7A40@AM6PR08MB4069.eurprd08.prod.outlook.com>
+ <20200506031918-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20200506035704-mutt-send-email-mst@kernel.org>
-Sender: netdev-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bpf@vger.kernel.org, Eugenio Perez Martin <eperezma@redhat.com>, brouer@redhat.com
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200506031918-mutt-send-email-mst@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Greg KH <gregkh@linuxfoundation.org>
+Cc: Justin He <Justin.He@arm.com>, "stable@vger.kernel.org" <stable@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "ldigby@redhat.com" <ldigby@redhat.com>, "n.b@live.com" <n.b@live.com>, "stefanha@redhat.com" <stefanha@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 6 May 2020 04:08:27 -0400
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
-
-> So for mergeable bufs, we use ewma machinery to guess the correct buffer
-> size. If we don't guess correctly, XDP has to do aggressive copies.
+On Wed, May 06, 2020 at 03:19:55AM -0400, Michael S. Tsirkin wrote:
+> On Wed, May 06, 2020 at 03:28:47AM +0000, Justin He wrote:
+> > Hi Michael
+> > 
+> > > -----Original Message-----
+> > > From: Michael S. Tsirkin <mst@redhat.com>
+> > > Sent: Monday, May 4, 2020 8:16 PM
+> > > To: Linus Torvalds <torvalds@linux-foundation.org>
+> > > Cc: kvm@vger.kernel.org; virtualization@lists.linux-foundation.org;
+> > > netdev@vger.kernel.org; linux-kernel@vger.kernel.org; Justin He
+> > > <Justin.He@arm.com>; ldigby@redhat.com; mst@redhat.com; n.b@live.com;
+> > > stefanha@redhat.com
+> > > Subject: [GIT PULL] vhost: fixes
+> > >
+> > > The following changes since commit
+> > > 6a8b55ed4056ea5559ebe4f6a4b247f627870d4c:
+> > >
+> > >   Linux 5.7-rc3 (2020-04-26 13:51:02 -0700)
+> > >
+> > > are available in the Git repository at:
+> > >
+> > >   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+> > >
+> > > for you to fetch changes up to
+> > > 0b841030625cde5f784dd62aec72d6a766faae70:
+> > >
+> > >   vhost: vsock: kick send_pkt worker once device is started (2020-05-02
+> > > 10:28:21 -0400)
+> > >
+> > > ----------------------------------------------------------------
+> > > virtio: fixes
+> > >
+> > > A couple of bug fixes.
+> > >
+> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > >
+> > > ----------------------------------------------------------------
+> > > Jia He (1):
+> > >       vhost: vsock: kick send_pkt worker once device is started
+> > 
+> > Should this fix also be CC-ed to stable? Sorry I forgot to cc it to stable.
+> > 
+> > --
+> > Cheers,
+> > Justin (Jia He)
 > 
-> Problem is, xdp paths do not update the ewma at all, except
-> sometimes with XDP_PASS. So whatever we happen to have
-> before we attach XDP, will mostly stay around.
 > 
-> The fix is probably to update ewma unconditionally.
+> Go ahead, though recently just including Fixes seems to be enough.
+> 
 
-I personally find the code hard to follow, and (I admit) that it took
-me some time to understand this code path (so I might still be wrong).
+The following patch Justin refers to does not contain the "Fixes:" tag:
 
-In patch[1] I tried to explain (my understanding):
-
-  In receive_mergeable() the frame size is more dynamic. There are two
-  basic cases: (1) buffer size is based on a exponentially weighted
-  moving average (see DECLARE_EWMA) of packet length. Or (2) in case
-  virtnet_get_headroom() have any headroom then buffer size is
-  PAGE_SIZE. The ctx pointer is this time used for encoding two values;
-  the buffer len "truesize" and headroom. In case (1) if the rx buffer
-  size is underestimated, the packet will have been split over more
-  buffers (num_buf info in virtio_net_hdr_mrg_rxbuf placed in top of
-  buffer area). If that happens the XDP path does a xdp_linearize_page
-  operation.
+0b841030625c vhost: vsock: kick send_pkt worker once device is started
 
 
-The EWMA code is not used when headroom is defined, which e.g. gets
-enabled when running XDP.
+I think we should merge it on stable branches, so if needed, I can backport
+and send it.
 
-
-[1] https://lore.kernel.org/netdev/158824572816.2172139.1358700000273697123.stgit@firesoul/
--- 
-Best regards,
-  Jesper Dangaard Brouer
-  MSc.CS, Principal Kernel Engineer at Red Hat
-  LinkedIn: http://www.linkedin.com/in/brouer
+Stefano
