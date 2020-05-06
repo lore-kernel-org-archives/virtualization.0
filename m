@@ -1,83 +1,115 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [GIT PULL] vhost: fixes
-Date: Wed, 6 May 2020 05:39:55 -0400
-Message-ID: <20200506053948-mutt-send-email-mst@kernel.org>
-References: <20200504081540-mutt-send-email-mst@kernel.org>
- <AM6PR08MB40696EFF8BE389C134AC04F6F7A40@AM6PR08MB4069.eurprd08.prod.outlook.com>
- <20200506031918-mutt-send-email-mst@kernel.org>
- <20200506092546.o6prnn4d66tavmjl@steredhat>
+Subject: Re: [PATCH net-next 1/2] virtio-net: don't reserve space for vnet
+ header for XDP
+Date: Wed, 6 May 2020 05:46:59 -0400
+Message-ID: <20200506054619-mutt-send-email-mst@kernel.org>
+References: <20200506061633.16327-1-jasowang@redhat.com>
+ <20200506102123.739f1233@carbon>
+ <3ecb558b-5281-2497-db3c-6aae7d7f882b@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200506092546.o6prnn4d66tavmjl@steredhat>
+In-Reply-To: <3ecb558b-5281-2497-db3c-6aae7d7f882b@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: Greg KH <gregkh@linuxfoundation.org>, Justin He <Justin.He@arm.com>, "stable@vger.kernel.org" <stable@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "ldigby@redhat.com" <ldigby@redhat.com>, "n.b@live.com" <n.b@live.com>, "stefanha@redhat.com" <stefanha@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>
+To: Jason Wang <jasowang@redhat.com>
+Cc: Jesper Dangaard Brouer <brouer@redhat.com>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bpf@vger.kernel.org, "Jubran, Samih" <sameehj@amazon.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 06, 2020 at 11:25:46AM +0200, Stefano Garzarella wrote:
-> On Wed, May 06, 2020 at 03:19:55AM -0400, Michael S. Tsirkin wrote:
-> > On Wed, May 06, 2020 at 03:28:47AM +0000, Justin He wrote:
-> > > Hi Michael
-> > > 
-> > > > -----Original Message-----
-> > > > From: Michael S. Tsirkin <mst@redhat.com>
-> > > > Sent: Monday, May 4, 2020 8:16 PM
-> > > > To: Linus Torvalds <torvalds@linux-foundation.org>
-> > > > Cc: kvm@vger.kernel.org; virtualization@lists.linux-foundation.org;
-> > > > netdev@vger.kernel.org; linux-kernel@vger.kernel.org; Justin He
-> > > > <Justin.He@arm.com>; ldigby@redhat.com; mst@redhat.com; n.b@live.com;
-> > > > stefanha@redhat.com
-> > > > Subject: [GIT PULL] vhost: fixes
-> > > >
-> > > > The following changes since commit
-> > > > 6a8b55ed4056ea5559ebe4f6a4b247f627870d4c:
-> > > >
-> > > >   Linux 5.7-rc3 (2020-04-26 13:51:02 -0700)
-> > > >
-> > > > are available in the Git repository at:
-> > > >
-> > > >   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-> > > >
-> > > > for you to fetch changes up to
-> > > > 0b841030625cde5f784dd62aec72d6a766faae70:
-> > > >
-> > > >   vhost: vsock: kick send_pkt worker once device is started (2020-05-02
-> > > > 10:28:21 -0400)
-> > > >
-> > > > ----------------------------------------------------------------
-> > > > virtio: fixes
-> > > >
-> > > > A couple of bug fixes.
-> > > >
-> > > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > > >
-> > > > ----------------------------------------------------------------
-> > > > Jia He (1):
-> > > >       vhost: vsock: kick send_pkt worker once device is started
-> > > 
-> > > Should this fix also be CC-ed to stable? Sorry I forgot to cc it to stable.
-> > > 
-> > > --
-> > > Cheers,
-> > > Justin (Jia He)
+On Wed, May 06, 2020 at 04:34:36PM +0800, Jason Wang wrote:
+> 
+> On 2020/5/6 下午4:21, Jesper Dangaard Brouer wrote:
+> > On Wed,  6 May 2020 14:16:32 +0800
+> > Jason Wang <jasowang@redhat.com> wrote:
+> > 
+> > > We tried to reserve space for vnet header before
+> > > xdp.data_hard_start. But this is useless since the packet could be
+> > > modified by XDP which may invalidate the information stored in the
+> > > header and
+> > IMHO above statements are wrong. XDP cannot access memory before
+> > xdp.data_hard_start. Thus, it is safe to store a vnet headers before
+> > xdp.data_hard_start. (The sfc driver also use this "before" area).
+> 
+> 
+> The problem is if we place vnet header before data_hard_start, virtio-net
+> will fail any header adjustment.
+> 
+> Or do you mean to copy vnet header before data_hard_start before processing
+> XDP?
+> 
+> 
+> > 
+> > > there's no way for XDP to know the existence of the vnet header currently.
+> > It is true that XDP is unaware of this area, which is the way it
+> > should be.  Currently the area will survive after calling BPF/XDP.
+> > After your change it will be overwritten in xdp_frame cases.
 > > 
 > > 
-> > Go ahead, though recently just including Fixes seems to be enough.
+> > > So let's just not reserve space for vnet header in this case.
+> > I think this is a wrong approach!
 > > 
-> 
-> The following patch Justin refers to does not contain the "Fixes:" tag:
-> 
-> 0b841030625c vhost: vsock: kick send_pkt worker once device is started
+> > We are working on supporting GRO multi-buffer for XDP.  The vnet header
+> > contains GRO information (see pahole below sign).
 > 
 > 
-> I think we should merge it on stable branches, so if needed, I can backport
-> and send it.
+> Another note is that since we need reserve room for skb_shared_info, GRO for
+> XDP may probably lead more frag list.
 > 
-> Stefano
+> 
+> >   It is currently not
+> > used in the XDP case, but we will be working towards using it.
+> 
+> 
+> Good to know that, but I think it can only work when the packet is not
+> modified by XDP?
+> 
+> 
+> > There
+> > are a lot of unanswered questions on how this will be implemented.
+> > Thus, I cannot layout how we are going to leverage this info yet, but
+> > your patch are killing this info, which IHMO is going in the wrong
+> > direction.
+> 
+> 
+> I can copy vnet header ahead of data_hard_start, does it work for you?
+> 
+> Thanks
 
-Go ahead.
+That's likely to be somewhat expensive.
 
--- 
-MST
+
+> 
+> > 
+> > 
+> > > Cc: Jesper Dangaard Brouer <brouer@redhat.com>
+> > > Signed-off-by: Jason Wang <jasowang@redhat.com>
+> > > ---
+> > >   drivers/net/virtio_net.c | 6 +++---
+> > >   1 file changed, 3 insertions(+), 3 deletions(-)
+> > > 
+> > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > index 11f722460513..98dd75b665a5 100644
+> > > --- a/drivers/net/virtio_net.c
+> > > +++ b/drivers/net/virtio_net.c
+> > > @@ -684,8 +684,8 @@ static struct sk_buff *receive_small(struct net_device *dev,
+> > >   			page = xdp_page;
+> > >   		}
+> > > -		xdp.data_hard_start = buf + VIRTNET_RX_PAD + vi->hdr_len;
+> > > -		xdp.data = xdp.data_hard_start + xdp_headroom;
+> > > +		xdp.data_hard_start = buf + VIRTNET_RX_PAD;
+> > > +		xdp.data = xdp.data_hard_start + xdp_headroom + vi->hdr_len;
+> > >   		xdp.data_end = xdp.data + len;
+> > >   		xdp.data_meta = xdp.data;
+> > >   		xdp.rxq = &rq->xdp_rxq;
+> > > @@ -845,7 +845,7 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+> > >   		 * the descriptor on if we get an XDP_TX return code.
+> > >   		 */
+> > >   		data = page_address(xdp_page) + offset;
+> > > -		xdp.data_hard_start = data - VIRTIO_XDP_HEADROOM + vi->hdr_len;
+> > > +		xdp.data_hard_start = data - VIRTIO_XDP_HEADROOM;
+> > >   		xdp.data = data + vi->hdr_len;
+> > >   		xdp.data_end = xdp.data + (len - vi->hdr_len);
+> > >   		xdp.data_meta = xdp.data;
+> > 
+> > 
