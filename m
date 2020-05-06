@@ -1,76 +1,49 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [GIT PULL] vhost: fixes
-Date: Wed, 6 May 2020 11:25:46 +0200
-Message-ID: <20200506092546.o6prnn4d66tavmjl@steredhat>
-References: <20200504081540-mutt-send-email-mst@kernel.org>
- <AM6PR08MB40696EFF8BE389C134AC04F6F7A40@AM6PR08MB4069.eurprd08.prod.outlook.com>
- <20200506031918-mutt-send-email-mst@kernel.org>
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Subject: Re: [PATCH] iommu/virtio: reverse arguments to list_add
+Date: Wed, 6 May 2020 11:35:24 +0200
+Message-ID: <20200506093524.GA497896@myrica>
+References: <1588704467-13431-1-git-send-email-Julia.Lawall@inria.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <kernel-janitors-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200506031918-mutt-send-email-mst@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Greg KH <gregkh@linuxfoundation.org>
-Cc: Justin He <Justin.He@arm.com>, "stable@vger.kernel.org" <stable@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "ldigby@redhat.com" <ldigby@redhat.com>, "n.b@live.com" <n.b@live.com>, "stefanha@redhat.com" <stefanha@redhat.com>, Linus Torvalds <torvalds@linux-foundation.org>
+In-Reply-To: <1588704467-13431-1-git-send-email-Julia.Lawall@inria.fr>
+Sender: kernel-janitors-owner@vger.kernel.org
+To: Julia Lawall <Julia.Lawall@inria.fr>
+Cc: kernel-janitors@vger.kernel.org, Joerg Roedel <joro@8bytes.org>, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, eugene.volanschi@inria.fr
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 06, 2020 at 03:19:55AM -0400, Michael S. Tsirkin wrote:
-> On Wed, May 06, 2020 at 03:28:47AM +0000, Justin He wrote:
-> > Hi Michael
-> > 
-> > > -----Original Message-----
-> > > From: Michael S. Tsirkin <mst@redhat.com>
-> > > Sent: Monday, May 4, 2020 8:16 PM
-> > > To: Linus Torvalds <torvalds@linux-foundation.org>
-> > > Cc: kvm@vger.kernel.org; virtualization@lists.linux-foundation.org;
-> > > netdev@vger.kernel.org; linux-kernel@vger.kernel.org; Justin He
-> > > <Justin.He@arm.com>; ldigby@redhat.com; mst@redhat.com; n.b@live.com;
-> > > stefanha@redhat.com
-> > > Subject: [GIT PULL] vhost: fixes
-> > >
-> > > The following changes since commit
-> > > 6a8b55ed4056ea5559ebe4f6a4b247f627870d4c:
-> > >
-> > >   Linux 5.7-rc3 (2020-04-26 13:51:02 -0700)
-> > >
-> > > are available in the Git repository at:
-> > >
-> > >   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
-> > >
-> > > for you to fetch changes up to
-> > > 0b841030625cde5f784dd62aec72d6a766faae70:
-> > >
-> > >   vhost: vsock: kick send_pkt worker once device is started (2020-05-02
-> > > 10:28:21 -0400)
-> > >
-> > > ----------------------------------------------------------------
-> > > virtio: fixes
-> > >
-> > > A couple of bug fixes.
-> > >
-> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > >
-> > > ----------------------------------------------------------------
-> > > Jia He (1):
-> > >       vhost: vsock: kick send_pkt worker once device is started
-> > 
-> > Should this fix also be CC-ed to stable? Sorry I forgot to cc it to stable.
-> > 
-> > --
-> > Cheers,
-> > Justin (Jia He)
+On Tue, May 05, 2020 at 08:47:47PM +0200, Julia Lawall wrote:
+> Elsewhere in the file, there is a list_for_each_entry with
+> &vdev->resv_regions as the second argument, suggesting that
+> &vdev->resv_regions is the list head.  So exchange the
+> arguments on the list_add call to put the list head in the
+> second argument.
 > 
+> Fixes: 2a5a31487445 ("iommu/virtio: Add probe request")
+> Signed-off-by: Julia Lawall <Julia.Lawall@inria.fr>
+
+Thanks for the fix. The reason this hasn't blown up so far is
+iommu_alloc_resv_region() initializes region->list, but adding more than
+one item would break the list.
+
+Reviewed-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+
+> ---
+>  drivers/iommu/virtio-iommu.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> Go ahead, though recently just including Fixes seems to be enough.
+> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+> index d5cac4f46ca5..4e1d11af23c8 100644
+> --- a/drivers/iommu/virtio-iommu.c
+> +++ b/drivers/iommu/virtio-iommu.c
+> @@ -453,7 +453,7 @@ static int viommu_add_resv_mem(struct viommu_endpoint *vdev,
+>  	if (!region)
+>  		return -ENOMEM;
+>  
+> -	list_add(&vdev->resv_regions, &region->list);
+> +	list_add(&region->list, &vdev->resv_regions);
+>  	return 0;
+>  }
+>  
 > 
-
-The following patch Justin refers to does not contain the "Fixes:" tag:
-
-0b841030625c vhost: vsock: kick send_pkt worker once device is started
-
-
-I think we should merge it on stable branches, so if needed, I can backport
-and send it.
-
-Stefano
