@@ -1,15 +1,25 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14 13/16] drm/qxl: lost qxl_bo_kunmap_atomic_page in qxl_image_init_helper()
-Date: Thu,  7 May 2020 10:29:40 -0400
-Message-ID: <20200507142943.26848-13-sashal@kernel.org>
-References: <20200507142943.26848-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 09/11] drm/qxl: lost qxl_bo_kunmap_atomic_page in
+ qxl_image_init_helper()
+Date: Thu,  7 May 2020 10:30:01 -0400
+Message-ID: <20200507143003.27047-9-sashal@kernel.org>
+References: <20200507143003.27047-1-sashal@kernel.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20200507142943.26848-1-sashal@kernel.org>
-Sender: stable-owner@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200507143003.27047-1-sashal@kernel.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Vasily Averin <vvs@virtuozzo.com>, Gerd Hoffmann <kraxel@redhat.com>, Sasha Levin <sashal@kernel.org>, virtualization@lists.linux-foundation.org, spice-devel@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Cc: Sasha Levin <sashal@kernel.org>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, spice-devel@lists.freedesktop.org, Vasily Averin <vvs@virtuozzo.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Vasily Averin <vvs@virtuozzo.com>
