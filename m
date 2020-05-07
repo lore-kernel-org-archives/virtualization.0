@@ -1,83 +1,46 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v4 00/15] virtio-mem: paravirtualized memory
-Date: Thu,  7 May 2020 16:01:24 +0200
-Message-ID: <20200507140139.17083-1-david@redhat.com>
+Subject: [PATCH v4 02/15] MAINTAINERS: Add myself as virtio-mem maintainer
+Date: Thu,  7 May 2020 16:01:26 +0200
+Message-ID: <20200507140139.17083-3-david@redhat.com>
+References: <20200507140139.17083-1-david@redhat.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <virtio-dev-return-7267-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Return-path: <virtio-dev-return-7268-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
 Sender: <virtio-dev@lists.oasis-open.org>
 List-Post: <mailto:virtio-dev@lists.oasis-open.org>
 List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
 List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
 List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+In-Reply-To: <20200507140139.17083-1-david@redhat.com>
 To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, David Hildenbrand <david@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Alexander Potapenko <glider@google.com>, Anshuman Khandual <anshuman.khandual@arm.com>, Anthony Yznaga <anthony.yznaga@oracle.com>, Dan Williams <dan.j.williams@intel.com>, Dave Young <dyoung@redhat.com>, Igor Mammedov <imammedo@redhat.com>, Jason Wang <jasowang@redhat.com>, Johannes Weiner <hannes@cmpxchg.org>, Juergen Gross <jgross@suse.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Len Brown <lenb@kernel.org>, Mel Gorman <mgorman@techsingularity.net>, Michal Hocko <mhocko@suse.com>, Mike Rapoport <rppt@linux.ibm.com>, Oscar
+Cc: linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, David Hildenbrand <david@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This series is based on v5.7-rc4. The patches are located at:
-    https://github.com/davidhildenbrand/linux.git virtio-mem-v4
+Let's make sure patches/bug reports find the right person.
 
-This is basically a resend of v3 [1], now based on v5.7-rc4 and restested.
-One patch was reshuffled and two ACKs I missed to add were added. The
-rebase did not require any modifications to patches.
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+ MAINTAINERS | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-Details about virtio-mem can be found in the cover letter of v2 [2]. A
-basic QEMU implementation was posted yesterday [3].
-
-[1] https://lkml.kernel.org/r/20200507103119.11219-1-david@redhat.com
-[2] https://lkml.kernel.org/r/20200311171422.10484-1-david@redhat.com
-[3] https://lkml.kernel.org/r/20200506094948.76388-1-david@redhat.com
-
-v3 -> v4:
-- Move "MAINTAINERS: Add myself as virtio-mem maintainer" to #2
-- Add two ACKs from Andrew (in reply to v2)
--- "mm: Allow to offline unmovable PageOffline() pages via ..."
--- "mm/memory_hotplug: Introduce offline_and_remove_memory()"
-
-v2 -> v3:
-- "virtio-mem: Paravirtualized memory hotplug"
--- Include "linux/slab.h" to fix build issues
--- Remember the "region_size", helpful for patch #11
--- Minor simplifaction in virtio_mem_overlaps_range()
--- Use notifier_from_errno() instead of notifier_to_errno() in notifier
--- More reliable check for added memory when unloading the driver
-- "virtio-mem: Allow to specify an ACPI PXM as nid"
--- Also print the nid
-- Added patch #11-#15
-
-David Hildenbrand (15):
-  virtio-mem: Paravirtualized memory hotplug
-  MAINTAINERS: Add myself as virtio-mem maintainer
-  virtio-mem: Allow to specify an ACPI PXM as nid
-  virtio-mem: Paravirtualized memory hotunplug part 1
-  virtio-mem: Paravirtualized memory hotunplug part 2
-  mm: Allow to offline unmovable PageOffline() pages via
-    MEM_GOING_OFFLINE
-  virtio-mem: Allow to offline partially unplugged memory blocks
-  mm/memory_hotplug: Introduce offline_and_remove_memory()
-  virtio-mem: Offline and remove completely unplugged memory blocks
-  virtio-mem: Better retry handling
-  virtio-mem: Add parent resource for all added "System RAM"
-  virtio-mem: Drop manual check for already present memory
-  virtio-mem: Unplug subblocks right-to-left
-  virtio-mem: Use -ETXTBSY as error code if the device is busy
-  virtio-mem: Try to unplug the complete online memory block first
-
- MAINTAINERS                     |    7 +
- drivers/acpi/numa/srat.c        |    1 +
- drivers/virtio/Kconfig          |   17 +
- drivers/virtio/Makefile         |    1 +
- drivers/virtio/virtio_mem.c     | 1962 +++++++++++++++++++++++++++++++
- include/linux/memory_hotplug.h  |    1 +
- include/linux/page-flags.h      |   10 +
- include/uapi/linux/virtio_ids.h |    1 +
- include/uapi/linux/virtio_mem.h |  208 ++++
- mm/memory_hotplug.c             |   81 +-
- mm/page_alloc.c                 |   26 +
- mm/page_isolation.c             |    9 +
- 12 files changed, 2314 insertions(+), 10 deletions(-)
- create mode 100644 drivers/virtio/virtio_mem.c
- create mode 100644 include/uapi/linux/virtio_mem.h
-
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 2926327e4976..014bbf5897c2 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -17972,6 +17972,13 @@ S:	Maintained
+ F:	drivers/iommu/virtio-iommu.c
+ F:	include/uapi/linux/virtio_iommu.h
+ 
++VIRTIO MEM DRIVER
++M:	David Hildenbrand <david@redhat.com>
++L:	virtualization@lists.linux-foundation.org
++S:	Maintained
++F:	drivers/virtio/virtio_mem.c
++F:	include/uapi/linux/virtio_mem.h
++
+ VIRTUAL BOX GUEST DEVICE DRIVER
+ M:	Hans de Goede <hdegoede@redhat.com>
+ M:	Arnd Bergmann <arnd@arndb.de>
 -- 
 2.25.3
