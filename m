@@ -1,12 +1,12 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.19 17/20] drm/qxl: lost qxl_bo_kunmap_atomic_page in qxl_image_init_helper()
-Date: Thu,  7 May 2020 10:29:13 -0400
-Message-ID: <20200507142917.26612-17-sashal@kernel.org>
-References: <20200507142917.26612-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 13/16] drm/qxl: lost qxl_bo_kunmap_atomic_page in qxl_image_init_helper()
+Date: Thu,  7 May 2020 10:29:40 -0400
+Message-ID: <20200507142943.26848-13-sashal@kernel.org>
+References: <20200507142943.26848-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20200507142917.26612-1-sashal@kernel.org>
+In-Reply-To: <20200507142943.26848-1-sashal@kernel.org>
 Sender: stable-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc: Vasily Averin <vvs@virtuozzo.com>, Gerd Hoffmann <kraxel@redhat.com>, Sasha Levin <sashal@kernel.org>, virtualization@lists.linux-foundation.org, spice-devel@lists.freedesktop.org, dri-devel@lists.freedesktop.org
