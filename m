@@ -1,122 +1,48 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3 07/15] mm/memory_hotplug: Introduce
- offline_and_remove_memory()
-Date: Thu, 7 May 2020 06:46:46 -0400
-Message-ID: <20200507064558-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH v3 10/15] MAINTAINERS: Add myself as virtio-mem maintainer
+Date: Thu, 7 May 2020 06:47:33 -0400
+Message-ID: <20200507064709-mutt-send-email-mst@kernel.org>
 References: <20200507103119.11219-1-david@redhat.com>
- <20200507103119.11219-8-david@redhat.com>
+ <20200507103119.11219-11-david@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <kvm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200507103119.11219-8-david@redhat.com>
+In-Reply-To: <20200507103119.11219-11-david@redhat.com>
 Sender: kvm-owner@vger.kernel.org
 To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Oscar Salvador <osalvador@suse.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Wei Yang <richard.weiyang@gmail.com>, Dan Williams <dan.j.williams@intel.com>, Qian Cai <cai@lca.pw>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 07, 2020 at 12:31:11PM +0200, David Hildenbrand wrote:
-> virtio-mem wants to offline and remove a memory block once it unplugged
-> all subblocks (e.g., using alloc_contig_range()). Let's provide
-> an interface to do that from a driver. virtio-mem already supports to
-> offline partially unplugged memory blocks. Offlining a fully unplugged
-> memory block will not require to migrate any pages. All unplugged
-> subblocks are PageOffline() and have a reference count of 0 - so
-> offlining code will simply skip them.
+On Thu, May 07, 2020 at 12:31:14PM +0200, David Hildenbrand wrote:
+> Let's make sure patches/bug reports find the right person.
 > 
-> All we need is an interface to offline and remove the memory from kernel
-> module context, where we don't have access to the memory block devices
-> (esp. find_memory_block() and device_offline()) and the device hotplug
-> lock.
-> 
-> To keep things simple, allow to only work on a single memory block.
-> 
-> Acked-by: Michal Hocko <mhocko@suse.com>
-> Tested-by: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: David Hildenbrand <david@redhat.com>
-> Cc: Oscar Salvador <osalvador@suse.com>
-> Cc: Michal Hocko <mhocko@suse.com>
-> Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-> Cc: Wei Yang <richard.weiyang@gmail.com>
-> Cc: Dan Williams <dan.j.williams@intel.com>
-> Cc: Qian Cai <cai@lca.pw>
+> Cc: "Michael S. Tsirkin" <mst@redhat.com>
 > Signed-off-by: David Hildenbrand <david@redhat.com>
 
-
-didn't you lose Andrew Morton's ack here?
+Make this patch 2 in the series, or even squash into patch 1.
 
 > ---
->  include/linux/memory_hotplug.h |  1 +
->  mm/memory_hotplug.c            | 37 ++++++++++++++++++++++++++++++++++
->  2 files changed, 38 insertions(+)
-
-I get:
-
-error: sha1 information is lacking or useless (mm/memory_hotplug.c).
-error: could not build fake ancestor
-
-which version is this against? Pls post patches on top of some tag
-in Linus' tree if possible.
-
-
-> diff --git a/include/linux/memory_hotplug.h b/include/linux/memory_hotplug.h
-> index 7dca9cd6076b..d641828e5596 100644
-> --- a/include/linux/memory_hotplug.h
-> +++ b/include/linux/memory_hotplug.h
-> @@ -318,6 +318,7 @@ extern void try_offline_node(int nid);
->  extern int offline_pages(unsigned long start_pfn, unsigned long nr_pages);
->  extern int remove_memory(int nid, u64 start, u64 size);
->  extern void __remove_memory(int nid, u64 start, u64 size);
-> +extern int offline_and_remove_memory(int nid, u64 start, u64 size);
+>  MAINTAINERS | 7 +++++++
+>  1 file changed, 7 insertions(+)
+> 
+> diff --git a/MAINTAINERS b/MAINTAINERS
+> index 4d43ea5468b5..ad2b34f4dd66 100644
+> --- a/MAINTAINERS
+> +++ b/MAINTAINERS
+> @@ -18037,6 +18037,13 @@ S:	Maintained
+>  F:	drivers/iommu/virtio-iommu.c
+>  F:	include/uapi/linux/virtio_iommu.h
 >  
->  #else
->  static inline void try_offline_node(int nid) {}
-> diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-> index 936bfe208a6e..bf1941f02a60 100644
-> --- a/mm/memory_hotplug.c
-> +++ b/mm/memory_hotplug.c
-> @@ -1748,4 +1748,41 @@ int remove_memory(int nid, u64 start, u64 size)
->  	return rc;
->  }
->  EXPORT_SYMBOL_GPL(remove_memory);
+> +VIRTIO MEM DRIVER
+> +M:	David Hildenbrand <david@redhat.com>
+> +L:	virtualization@lists.linux-foundation.org
+> +S:	Maintained
+> +F:	drivers/virtio/virtio_mem.c
+> +F:	include/uapi/linux/virtio_mem.h
 > +
-> +/*
-> + * Try to offline and remove a memory block. Might take a long time to
-> + * finish in case memory is still in use. Primarily useful for memory devices
-> + * that logically unplugged all memory (so it's no longer in use) and want to
-> + * offline + remove the memory block.
-> + */
-> +int offline_and_remove_memory(int nid, u64 start, u64 size)
-> +{
-> +	struct memory_block *mem;
-> +	int rc = -EINVAL;
-> +
-> +	if (!IS_ALIGNED(start, memory_block_size_bytes()) ||
-> +	    size != memory_block_size_bytes())
-> +		return rc;
-> +
-> +	lock_device_hotplug();
-> +	mem = find_memory_block(__pfn_to_section(PFN_DOWN(start)));
-> +	if (mem)
-> +		rc = device_offline(&mem->dev);
-> +	/* Ignore if the device is already offline. */
-> +	if (rc > 0)
-> +		rc = 0;
-> +
-> +	/*
-> +	 * In case we succeeded to offline the memory block, remove it.
-> +	 * This cannot fail as it cannot get onlined in the meantime.
-> +	 */
-> +	if (!rc) {
-> +		rc = try_remove_memory(nid, start, size);
-> +		WARN_ON_ONCE(rc);
-> +	}
-> +	unlock_device_hotplug();
-> +
-> +	return rc;
-> +}
-> +EXPORT_SYMBOL_GPL(offline_and_remove_memory);
->  #endif /* CONFIG_MEMORY_HOTREMOVE */
+>  VIRTUAL BOX GUEST DEVICE DRIVER
+>  M:	Hans de Goede <hdegoede@redhat.com>
+>  M:	Arnd Bergmann <arnd@arndb.de>
 > -- 
 > 2.25.3
