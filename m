@@ -1,92 +1,116 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v4 10/15] virtio-mem: Better retry handling
-Date: Thu,  7 May 2020 16:01:34 +0200
-Message-ID: <20200507140139.17083-11-david@redhat.com>
+Subject: [PATCH v4 12/15] virtio-mem: Drop manual check for already present memory
+Date: Thu,  7 May 2020 16:01:36 +0200
+Message-ID: <20200507140139.17083-13-david@redhat.com>
 References: <20200507140139.17083-1-david@redhat.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200507140139.17083-1-david@redhat.com>
-Sender: kvm-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, David Hildenbrand <david@redhat.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Jason Wang <jasowang@redhat.com>, Oscar Salvador <osalvador@suse.de>, Igor Mammedov <imammedo@redhat.com>, Dave Young <dyoung@redhat.com>, Dan Williams <dan.j.williams@intel.com>, Pavel Tatashin <pasha.tatashin@soleen.com>, Stefan Hajnoczi <stefanha@redhat.com>, Vlastimil Babka <vbabka@suse.cz>
+Cc: linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, David Hildenbrand <david@redhat.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Let's start with a retry interval of 5 seconds and double the time until
-we reach 5 minutes, in case we keep getting errors. Reset the retry
-interval in case we succeeded.
+Registering our parent resource will fail if any memory is still present
+(e.g., because somebody unloaded the driver and tries to reload it). No
+need for the manual check.
 
-The two main reasons for having to retry are
-- The hypervisor is busy and cannot process our request
-- We cannot reach the desired requested_size (esp., not enough memory can
-  get unplugged because we can't allocate any subblocks).
+Move our "unplug all" handling to after registering the resource.
 
-Tested-by: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
 Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Igor Mammedov <imammedo@redhat.com>
-Cc: Dave Young <dyoung@redhat.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Pavel Tatashin <pasha.tatashin@soleen.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/virtio/virtio_mem.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/virtio/virtio_mem.c | 55 ++++++++-----------------------------
+ 1 file changed, 12 insertions(+), 43 deletions(-)
 
 diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index a2edb87e5ed8..eb4c16d634e0 100644
+index 80cdb9e6b3c4..8dd57b61b09b 100644
 --- a/drivers/virtio/virtio_mem.c
 +++ b/drivers/virtio/virtio_mem.c
-@@ -141,7 +141,9 @@ struct virtio_mem {
- 
- 	/* Timer for retrying to plug/unplug memory. */
- 	struct hrtimer retry_timer;
--#define VIRTIO_MEM_RETRY_TIMER_MS		30000
-+	unsigned int retry_timer_ms;
-+#define VIRTIO_MEM_RETRY_TIMER_MIN_MS		50000
-+#define VIRTIO_MEM_RETRY_TIMER_MAX_MS		300000
- 
- 	/* Memory notifier (online/offline events). */
- 	struct notifier_block memory_notifier;
-@@ -1550,6 +1552,7 @@ static void virtio_mem_run_wq(struct work_struct *work)
- 
- 	switch (rc) {
- 	case 0:
-+		vm->retry_timer_ms = VIRTIO_MEM_RETRY_TIMER_MIN_MS;
- 		break;
- 	case -ENOSPC:
- 		/*
-@@ -1565,8 +1568,7 @@ static void virtio_mem_run_wq(struct work_struct *work)
- 		 */
- 	case -ENOMEM:
- 		/* Out of memory, try again later. */
--		hrtimer_start(&vm->retry_timer,
--			      ms_to_ktime(VIRTIO_MEM_RETRY_TIMER_MS),
-+		hrtimer_start(&vm->retry_timer, ms_to_ktime(vm->retry_timer_ms),
- 			      HRTIMER_MODE_REL);
- 		break;
- 	case -EAGAIN:
-@@ -1586,6 +1588,8 @@ static enum hrtimer_restart virtio_mem_timer_expired(struct hrtimer *timer)
- 					     retry_timer);
- 
- 	virtio_mem_retry(vm);
-+	vm->retry_timer_ms = min_t(unsigned int, vm->retry_timer_ms * 2,
-+				   VIRTIO_MEM_RETRY_TIMER_MAX_MS);
- 	return HRTIMER_NORESTART;
+@@ -1616,23 +1616,6 @@ static int virtio_mem_init_vq(struct virtio_mem *vm)
+ 	return 0;
  }
  
-@@ -1754,6 +1758,7 @@ static int virtio_mem_probe(struct virtio_device *vdev)
- 	spin_lock_init(&vm->removal_lock);
- 	hrtimer_init(&vm->retry_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
- 	vm->retry_timer.function = virtio_mem_timer_expired;
-+	vm->retry_timer_ms = VIRTIO_MEM_RETRY_TIMER_MIN_MS;
+-/*
+- * Test if any memory in the range is present in Linux.
+- */
+-static bool virtio_mem_any_memory_present(unsigned long start,
+-					  unsigned long size)
+-{
+-	const unsigned long start_pfn = PFN_DOWN(start);
+-	const unsigned long end_pfn = PFN_UP(start + size);
+-	unsigned long pfn;
+-
+-	for (pfn = start_pfn; pfn != end_pfn; pfn++)
+-		if (present_section_nr(pfn_to_section_nr(pfn)))
+-			return true;
+-
+-	return false;
+-}
+-
+ static int virtio_mem_init(struct virtio_mem *vm)
+ {
+ 	const uint64_t phys_limit = 1UL << MAX_PHYSMEM_BITS;
+@@ -1664,32 +1647,6 @@ static int virtio_mem_init(struct virtio_mem *vm)
+ 	virtio_cread(vm->vdev, struct virtio_mem_config, region_size,
+ 		     &vm->region_size);
  
- 	/* register the virtqueue */
- 	rc = virtio_mem_init_vq(vm);
+-	/*
+-	 * If we still have memory plugged, we might have to unplug all
+-	 * memory first. However, if somebody simply unloaded the driver
+-	 * we would have to reinitialize the old state - something we don't
+-	 * support yet. Detect if we have any memory in the area present.
+-	 */
+-	if (vm->plugged_size) {
+-		uint64_t usable_region_size;
+-
+-		virtio_cread(vm->vdev, struct virtio_mem_config,
+-			     usable_region_size, &usable_region_size);
+-
+-		if (virtio_mem_any_memory_present(vm->addr,
+-						  usable_region_size)) {
+-			dev_err(&vm->vdev->dev,
+-				"reloading the driver is not supported\n");
+-			return -EINVAL;
+-		}
+-		/*
+-		 * Note: it might happen that the device is busy and
+-		 * unplugging all memory might take some time.
+-		 */
+-		dev_info(&vm->vdev->dev, "unplugging all memory required\n");
+-		vm->unplug_all_required = 1;
+-	}
+-
+ 	/*
+ 	 * We always hotplug memory in memory block granularity. This way,
+ 	 * we have to wait for exactly one memory block to online.
+@@ -1760,6 +1717,8 @@ static int virtio_mem_create_resource(struct virtio_mem *vm)
+ 	if (!vm->parent_resource) {
+ 		kfree(name);
+ 		dev_warn(&vm->vdev->dev, "could not reserve device region\n");
++		dev_info(&vm->vdev->dev,
++			 "reloading the driver is not supported\n");
+ 		return -EBUSY;
+ 	}
+ 
+@@ -1816,6 +1775,16 @@ static int virtio_mem_probe(struct virtio_device *vdev)
+ 	if (rc)
+ 		goto out_del_vq;
+ 
++	/*
++	 * If we still have memory plugged, we have to unplug all memory first.
++	 * Registering our parent resource makes sure that this memory isn't
++	 * actually in use (e.g., trying to reload the driver).
++	 */
++	if (vm->plugged_size) {
++		vm->unplug_all_required = 1;
++		dev_info(&vm->vdev->dev, "unplugging all memory is required\n");
++	}
++
+ 	/* register callbacks */
+ 	vm->memory_notifier.notifier_call = virtio_mem_memory_notifier_cb;
+ 	rc = register_memory_notifier(&vm->memory_notifier);
 -- 
 2.25.3
