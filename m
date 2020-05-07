@@ -1,138 +1,100 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v4 11/15] virtio-mem: Add parent resource for all added "System RAM"
-Date: Thu,  7 May 2020 16:01:35 +0200
-Message-ID: <20200507140139.17083-12-david@redhat.com>
+Subject: [PATCH v4 13/15] virtio-mem: Unplug subblocks right-to-left
+Date: Thu,  7 May 2020 16:01:37 +0200
+Message-ID: <20200507140139.17083-14-david@redhat.com>
 References: <20200507140139.17083-1-david@redhat.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200507140139.17083-1-david@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: kvm-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
 Cc: linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, David Hildenbrand <david@redhat.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Let's add a parent resource, named after the virtio device (inspired by
-drivers/dax/kmem.c). This allows user space to identify which memory
-belongs to which virtio-mem device.
-
-With this change and two virtio-mem devices:
-	:/# cat /proc/iomem
-	00000000-00000fff : Reserved
-	00001000-0009fbff : System RAM
-	[...]
-	140000000-333ffffff : virtio0
-	  140000000-147ffffff : System RAM
-	  148000000-14fffffff : System RAM
-	  150000000-157ffffff : System RAM
-	[...]
-	334000000-3033ffffff : virtio1
-	  338000000-33fffffff : System RAM
-	  340000000-347ffffff : System RAM
-	  348000000-34fffffff : System RAM
-	[...]
+We unplug blocks right-to-left, let's also unplug subblocks within a block
+right-to-left.
 
 Cc: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/virtio/virtio_mem.c | 52 ++++++++++++++++++++++++++++++++++++-
- 1 file changed, 51 insertions(+), 1 deletion(-)
+ drivers/virtio/virtio_mem.c | 38 ++++++++++++++++---------------------
+ 1 file changed, 16 insertions(+), 22 deletions(-)
 
 diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index eb4c16d634e0..80cdb9e6b3c4 100644
+index 8dd57b61b09b..a719e1a04ac7 100644
 --- a/drivers/virtio/virtio_mem.c
 +++ b/drivers/virtio/virtio_mem.c
-@@ -99,6 +99,9 @@ struct virtio_mem {
- 	/* Id of the next memory bock to prepare when needed. */
- 	unsigned long next_mb_id;
- 
-+	/* The parent resource for all memory added via this device. */
-+	struct resource *parent_resource;
-+
- 	/* Summary of all memory block states. */
- 	unsigned long nb_mb_state[VIRTIO_MEM_MB_STATE_COUNT];
- #define VIRTIO_MEM_NB_OFFLINE_THRESHOLD		10
-@@ -1741,6 +1744,44 @@ static int virtio_mem_init(struct virtio_mem *vm)
- 	return 0;
+@@ -353,18 +353,6 @@ static bool virtio_mem_mb_test_sb_unplugged(struct virtio_mem *vm,
+ 	return find_next_bit(vm->sb_bitmap, bit + count, bit) >= bit + count;
  }
  
-+static int virtio_mem_create_resource(struct virtio_mem *vm)
-+{
-+	/*
-+	 * When force-unloading the driver and removing the device, we
-+	 * could have a garbage pointer. Duplicate the string.
-+	 */
-+	const char *name = kstrdup(dev_name(&vm->vdev->dev), GFP_KERNEL);
-+
-+	if (!name)
-+		return -ENOMEM;
-+
-+	vm->parent_resource = __request_mem_region(vm->addr, vm->region_size,
-+						   name, IORESOURCE_SYSTEM_RAM);
-+	if (!vm->parent_resource) {
-+		kfree(name);
-+		dev_warn(&vm->vdev->dev, "could not reserve device region\n");
-+		return -EBUSY;
-+	}
-+
-+	/* The memory is not actually busy - make add_memory() work. */
-+	vm->parent_resource->flags &= ~IORESOURCE_BUSY;
-+	return 0;
-+}
-+
-+static void virtio_mem_delete_resource(struct virtio_mem *vm)
-+{
-+	const char *name;
-+
-+	if (!vm->parent_resource)
-+		return;
-+
-+	name = vm->parent_resource->name;
-+	release_resource(vm->parent_resource);
-+	kfree(vm->parent_resource);
-+	kfree(name);
-+	vm->parent_resource = NULL;
-+}
-+
- static int virtio_mem_probe(struct virtio_device *vdev)
- {
- 	struct virtio_mem *vm;
-@@ -1770,11 +1811,16 @@ static int virtio_mem_probe(struct virtio_device *vdev)
- 	if (rc)
- 		goto out_del_vq;
+-/*
+- * Find the first plugged subblock. Returns vm->nb_sb_per_mb in case there is
+- * none.
+- */
+-static int virtio_mem_mb_first_plugged_sb(struct virtio_mem *vm,
+-					  unsigned long mb_id)
+-{
+-	const int bit = (mb_id - vm->first_mb_id) * vm->nb_sb_per_mb;
+-
+-	return find_next_bit(vm->sb_bitmap, bit + vm->nb_sb_per_mb, bit) - bit;
+-}
+-
+ /*
+  * Find the first unplugged subblock. Returns vm->nb_sb_per_mb in case there is
+  * none.
+@@ -1016,21 +1004,27 @@ static int virtio_mem_mb_unplug_any_sb(struct virtio_mem *vm,
+ 	int sb_id, count;
+ 	int rc;
  
-+	/* create the parent resource for all memory */
-+	rc = virtio_mem_create_resource(vm);
-+	if (rc)
-+		goto out_del_vq;
-+
- 	/* register callbacks */
- 	vm->memory_notifier.notifier_call = virtio_mem_memory_notifier_cb;
- 	rc = register_memory_notifier(&vm->memory_notifier);
- 	if (rc)
--		goto out_del_vq;
-+		goto out_del_resource;
- 	rc = register_virtio_mem_device(vm);
- 	if (rc)
- 		goto out_unreg_mem;
-@@ -1788,6 +1834,8 @@ static int virtio_mem_probe(struct virtio_device *vdev)
++	sb_id = vm->nb_sb_per_mb - 1;
+ 	while (*nb_sb) {
+-		sb_id = virtio_mem_mb_first_plugged_sb(vm, mb_id);
+-		if (sb_id >= vm->nb_sb_per_mb)
++		/* Find the next candidate subblock */
++		while (sb_id >= 0 &&
++		       virtio_mem_mb_test_sb_unplugged(vm, mb_id, sb_id, 1))
++			sb_id--;
++		if (sb_id < 0)
+ 			break;
++		/* Try to unplug multiple subblocks at a time */
+ 		count = 1;
+-		while (count < *nb_sb &&
+-		       sb_id + count  < vm->nb_sb_per_mb &&
+-		       virtio_mem_mb_test_sb_plugged(vm, mb_id, sb_id + count,
+-						     1))
++		while (count < *nb_sb && sb_id > 0 &&
++		       virtio_mem_mb_test_sb_plugged(vm, mb_id, sb_id - 1, 1)) {
+ 			count++;
++			sb_id--;
++		}
+ 
+ 		rc = virtio_mem_mb_unplug_sb(vm, mb_id, sb_id, count);
+ 		if (rc)
+ 			return rc;
+ 		*nb_sb -= count;
++		sb_id--;
+ 	}
+ 
  	return 0;
- out_unreg_mem:
- 	unregister_memory_notifier(&vm->memory_notifier);
-+out_del_resource:
-+	virtio_mem_delete_resource(vm);
- out_del_vq:
- 	vdev->config->del_vqs(vdev);
- out_free_vm:
-@@ -1848,6 +1896,8 @@ static void virtio_mem_remove(struct virtio_device *vdev)
- 	    vm->nb_mb_state[VIRTIO_MEM_MB_STATE_ONLINE_PARTIAL] ||
- 	    vm->nb_mb_state[VIRTIO_MEM_MB_STATE_ONLINE_MOVABLE])
- 		dev_warn(&vdev->dev, "device still has system memory added\n");
-+	else
-+		virtio_mem_delete_resource(vm);
+@@ -1337,12 +1331,12 @@ static int virtio_mem_mb_unplug_any_sb_online(struct virtio_mem *vm,
+ 	 * we should sense via something like is_mem_section_removable()
+ 	 * first if it makes sense to go ahead any try to allocate.
+ 	 */
+-	for (sb_id = 0; sb_id < vm->nb_sb_per_mb && *nb_sb; sb_id++) {
++	for (sb_id = vm->nb_sb_per_mb - 1; sb_id >= 0 && *nb_sb; sb_id--) {
+ 		/* Find the next candidate subblock */
+-		while (sb_id < vm->nb_sb_per_mb &&
++		while (sb_id >= 0 &&
+ 		       !virtio_mem_mb_test_sb_plugged(vm, mb_id, sb_id, 1))
+-			sb_id++;
+-		if (sb_id >= vm->nb_sb_per_mb)
++			sb_id--;
++		if (sb_id < 0)
+ 			break;
  
- 	/* remove all tracking data - no locking needed */
- 	vfree(vm->mb_state);
+ 		start_pfn = PFN_DOWN(virtio_mem_mb_id_to_phys(mb_id) +
 -- 
 2.25.3
