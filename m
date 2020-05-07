@@ -1,8 +1,7 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v3 12/15] virtio-mem: Drop manual check for already present
- memory
-Date: Thu,  7 May 2020 12:31:16 +0200
-Message-ID: <20200507103119.11219-13-david@redhat.com>
+Subject: [PATCH v3 13/15] virtio-mem: Unplug subblocks right-to-left
+Date: Thu,  7 May 2020 12:31:17 +0200
+Message-ID: <20200507103119.11219-14-david@redhat.com>
 References: <20200507103119.11219-1-david@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,105 +21,89 @@ To: linux-kernel@vger.kernel.org
 Cc: virtio-dev@lists.oasis-open.org, kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Registering our parent resource will fail if any memory is still present
-(e.g., because somebody unloaded the driver and tries to reload it). No
-need for the manual check.
-
-Move our "unplug all" handling to after registering the resource.
+We unplug blocks right-to-left, let's also unplug subblocks within a block
+right-to-left.
 
 Cc: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/virtio/virtio_mem.c | 55 ++++++++-----------------------------
- 1 file changed, 12 insertions(+), 43 deletions(-)
+ drivers/virtio/virtio_mem.c | 38 ++++++++++++++++---------------------
+ 1 file changed, 16 insertions(+), 22 deletions(-)
 
 diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index 80cdb9e6b3c4..8dd57b61b09b 100644
+index 8dd57b61b09b..a719e1a04ac7 100644
 --- a/drivers/virtio/virtio_mem.c
 +++ b/drivers/virtio/virtio_mem.c
-@@ -1616,23 +1616,6 @@ static int virtio_mem_init_vq(struct virtio_mem *vm)
- 	return 0;
+@@ -353,18 +353,6 @@ static bool virtio_mem_mb_test_sb_unplugged(struct virtio_mem *vm,
+ 	return find_next_bit(vm->sb_bitmap, bit + count, bit) >= bit + count;
  }
  
 -/*
-- * Test if any memory in the range is present in Linux.
+- * Find the first plugged subblock. Returns vm->nb_sb_per_mb in case there is
+- * none.
 - */
--static bool virtio_mem_any_memory_present(unsigned long start,
--					  unsigned long size)
+-static int virtio_mem_mb_first_plugged_sb(struct virtio_mem *vm,
+-					  unsigned long mb_id)
 -{
--	const unsigned long start_pfn = PFN_DOWN(start);
--	const unsigned long end_pfn = PFN_UP(start + size);
--	unsigned long pfn;
+-	const int bit = (mb_id - vm->first_mb_id) * vm->nb_sb_per_mb;
 -
--	for (pfn = start_pfn; pfn != end_pfn; pfn++)
--		if (present_section_nr(pfn_to_section_nr(pfn)))
--			return true;
--
--	return false;
+-	return find_next_bit(vm->sb_bitmap, bit + vm->nb_sb_per_mb, bit) - bit;
 -}
 -
- static int virtio_mem_init(struct virtio_mem *vm)
- {
- 	const uint64_t phys_limit = 1UL << MAX_PHYSMEM_BITS;
-@@ -1664,32 +1647,6 @@ static int virtio_mem_init(struct virtio_mem *vm)
- 	virtio_cread(vm->vdev, struct virtio_mem_config, region_size,
- 		     &vm->region_size);
+ /*
+  * Find the first unplugged subblock. Returns vm->nb_sb_per_mb in case there is
+  * none.
+@@ -1016,21 +1004,27 @@ static int virtio_mem_mb_unplug_any_sb(struct virtio_mem *vm,
+ 	int sb_id, count;
+ 	int rc;
  
--	/*
--	 * If we still have memory plugged, we might have to unplug all
--	 * memory first. However, if somebody simply unloaded the driver
--	 * we would have to reinitialize the old state - something we don't
--	 * support yet. Detect if we have any memory in the area present.
--	 */
--	if (vm->plugged_size) {
--		uint64_t usable_region_size;
--
--		virtio_cread(vm->vdev, struct virtio_mem_config,
--			     usable_region_size, &usable_region_size);
--
--		if (virtio_mem_any_memory_present(vm->addr,
--						  usable_region_size)) {
--			dev_err(&vm->vdev->dev,
--				"reloading the driver is not supported\n");
--			return -EINVAL;
--		}
--		/*
--		 * Note: it might happen that the device is busy and
--		 * unplugging all memory might take some time.
--		 */
--		dev_info(&vm->vdev->dev, "unplugging all memory required\n");
--		vm->unplug_all_required = 1;
--	}
--
- 	/*
- 	 * We always hotplug memory in memory block granularity. This way,
- 	 * we have to wait for exactly one memory block to online.
-@@ -1760,6 +1717,8 @@ static int virtio_mem_create_resource(struct virtio_mem *vm)
- 	if (!vm->parent_resource) {
- 		kfree(name);
- 		dev_warn(&vm->vdev->dev, "could not reserve device region\n");
-+		dev_info(&vm->vdev->dev,
-+			 "reloading the driver is not supported\n");
- 		return -EBUSY;
++	sb_id = vm->nb_sb_per_mb - 1;
+ 	while (*nb_sb) {
+-		sb_id = virtio_mem_mb_first_plugged_sb(vm, mb_id);
+-		if (sb_id >= vm->nb_sb_per_mb)
++		/* Find the next candidate subblock */
++		while (sb_id >= 0 &&
++		       virtio_mem_mb_test_sb_unplugged(vm, mb_id, sb_id, 1))
++			sb_id--;
++		if (sb_id < 0)
+ 			break;
++		/* Try to unplug multiple subblocks at a time */
+ 		count = 1;
+-		while (count < *nb_sb &&
+-		       sb_id + count  < vm->nb_sb_per_mb &&
+-		       virtio_mem_mb_test_sb_plugged(vm, mb_id, sb_id + count,
+-						     1))
++		while (count < *nb_sb && sb_id > 0 &&
++		       virtio_mem_mb_test_sb_plugged(vm, mb_id, sb_id - 1, 1)) {
+ 			count++;
++			sb_id--;
++		}
+ 
+ 		rc = virtio_mem_mb_unplug_sb(vm, mb_id, sb_id, count);
+ 		if (rc)
+ 			return rc;
+ 		*nb_sb -= count;
++		sb_id--;
  	}
  
-@@ -1816,6 +1775,16 @@ static int virtio_mem_probe(struct virtio_device *vdev)
- 	if (rc)
- 		goto out_del_vq;
+ 	return 0;
+@@ -1337,12 +1331,12 @@ static int virtio_mem_mb_unplug_any_sb_online(struct virtio_mem *vm,
+ 	 * we should sense via something like is_mem_section_removable()
+ 	 * first if it makes sense to go ahead any try to allocate.
+ 	 */
+-	for (sb_id = 0; sb_id < vm->nb_sb_per_mb && *nb_sb; sb_id++) {
++	for (sb_id = vm->nb_sb_per_mb - 1; sb_id >= 0 && *nb_sb; sb_id--) {
+ 		/* Find the next candidate subblock */
+-		while (sb_id < vm->nb_sb_per_mb &&
++		while (sb_id >= 0 &&
+ 		       !virtio_mem_mb_test_sb_plugged(vm, mb_id, sb_id, 1))
+-			sb_id++;
+-		if (sb_id >= vm->nb_sb_per_mb)
++			sb_id--;
++		if (sb_id < 0)
+ 			break;
  
-+	/*
-+	 * If we still have memory plugged, we have to unplug all memory first.
-+	 * Registering our parent resource makes sure that this memory isn't
-+	 * actually in use (e.g., trying to reload the driver).
-+	 */
-+	if (vm->plugged_size) {
-+		vm->unplug_all_required = 1;
-+		dev_info(&vm->vdev->dev, "unplugging all memory is required\n");
-+	}
-+
- 	/* register callbacks */
- 	vm->memory_notifier.notifier_call = virtio_mem_memory_notifier_cb;
- 	rc = register_memory_notifier(&vm->memory_notifier);
+ 		start_pfn = PFN_DOWN(virtio_mem_mb_id_to_phys(mb_id) +
 -- 
 2.25.3
