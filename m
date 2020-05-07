@@ -1,54 +1,46 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4 8/9] drm/qxl: lost qxl_bo_kunmap_atomic_page in
- qxl_image_init_helper()
-Date: Thu,  7 May 2020 10:30:17 -0400
-Message-ID: <20200507143018.27195-8-sashal@kernel.org>
-References: <20200507143018.27195-1-sashal@kernel.org>
+From: David Miller <davem@davemloft.net>
+Subject: Re: [PATCH v2] virtio_net: fix lockdep warning on 32 bit
+Date: Thu, 07 May 2020 07:58:04 -0700 (PDT)
+Message-ID: <20200507.075804.1424387208635118.davem@davemloft.net>
+References: <20200507072525.355222-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200507143018.27195-1-sashal@kernel.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Sasha Levin <sashal@kernel.org>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, spice-devel@lists.freedesktop.org, Vasily Averin <vvs@virtuozzo.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200507072525.355222-1-mst@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: mst@redhat.com
+Cc: linux-kernel@vger.kernel.org, tglx@linutronix.de, eric.dumazet@gmail.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Vasily Averin <vvs@virtuozzo.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Date: Thu, 7 May 2020 03:25:56 -0400
 
-[ Upstream commit 5b5703dbafae74adfbe298a56a81694172caf5e6 ]
+> When we fill up a receive VQ, try_fill_recv currently tries to count
+> kicks using a 64 bit stats counter. Turns out, on a 32 bit kernel that
+> uses a seqcount. sequence counts are "lock" constructs where you need to
+> make sure that writers are serialized.
+> 
+> In turn, this means that we mustn't run two try_fill_recv concurrently.
+> Which of course we don't. We do run try_fill_recv sometimes from a
+> softirq napi context, and sometimes from a fully preemptible context,
+> but the later always runs with napi disabled.
+> 
+> However, when it comes to the seqcount, lockdep is trying to enforce the
+> rule that the same lock isn't accessed from preemptible and softirq
+> context - it doesn't know about napi being enabled/disabled. This causes
+> a false-positive warning:
+> 
+> WARNING: inconsistent lock state
+> ...
+> inconsistent {SOFTIRQ-ON-W} -> {IN-SOFTIRQ-W} usage.
+> 
+> As a work around, shut down the warning by switching
+> to u64_stats_update_begin_irqsave - that works by disabling
+> interrupts on 32 bit only, is a NOP on 64 bit.
+> 
+> Reported-by: Thomas Gleixner <tglx@linutronix.de>
+> Suggested-by: Eric Dumazet <eric.dumazet@gmail.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-v2: removed TODO reminder
-
-Signed-off-by: Vasily Averin <vvs@virtuozzo.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/a4e0ae09-a73c-1c62-04ef-3f990d41bea9@virtuozzo.com
-Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/gpu/drm/qxl/qxl_image.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/gpu/drm/qxl/qxl_image.c b/drivers/gpu/drm/qxl/qxl_image.c
-index 7fbcc35e8ad35..c89c10055641e 100644
---- a/drivers/gpu/drm/qxl/qxl_image.c
-+++ b/drivers/gpu/drm/qxl/qxl_image.c
-@@ -210,7 +210,8 @@ qxl_image_init_helper(struct qxl_device *qdev,
- 		break;
- 	default:
- 		DRM_ERROR("unsupported image bit depth\n");
--		return -EINVAL; /* TODO: cleanup */
-+		qxl_bo_kunmap_atomic_page(qdev, image_bo, ptr);
-+		return -EINVAL;
- 	}
- 	image->u.bitmap.flags = QXL_BITMAP_TOP_DOWN;
- 	image->u.bitmap.x = width;
--- 
-2.20.1
+Applied and queued up for -stable, thanks Michael.
