@@ -1,67 +1,81 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH v2] virtio_net: fix lockdep warning on 32 bit
-Date: Thu, 7 May 2020 03:25:56 -0400
-Message-ID: <20200507072525.355222-1-mst@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v3 00/15] virtio-mem: paravirtualized memory
+Date: Thu,  7 May 2020 12:31:04 +0200
+Message-ID: <20200507103119.11219-1-david@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: Thomas Gleixner <tglx@linutronix.de>, Eric Dumazet <eric.dumazet@gmail.com>, Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, David Hildenbrand <david@redhat.com>, Sebastien Boeuf <sebastien.boeuf@intel.com>, Samuel Ortiz <samuel.ortiz@intel.com>, Robert Bradford <robert.bradford@intel.com>, Luiz Capitulino <lcapitulino@redhat.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, teawater <teawaterz@linux.alibaba.com>, Igor Mammedov <imammedo@redhat.com>, "Dr . David Alan Gilbert" <dgilbert@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Alexander Potapenko <glider@google.com>, Anshuman Khandual <anshuman.khandual@arm.com>, Antho
 List-Id: virtualization@lists.linuxfoundation.org
 
-When we fill up a receive VQ, try_fill_recv currently tries to count
-kicks using a 64 bit stats counter. Turns out, on a 32 bit kernel that
-uses a seqcount. sequence counts are "lock" constructs where you need to
-make sure that writers are serialized.
+This series is based on latest linux-next. The patches are located at:
+    https://github.com/davidhildenbrand/linux.git virtio-mem-v3
 
-In turn, this means that we mustn't run two try_fill_recv concurrently.
-Which of course we don't. We do run try_fill_recv sometimes from a
-softirq napi context, and sometimes from a fully preemptible context,
-but the later always runs with napi disabled.
+Patch #1 - #10 where contained in v2 and only contain minor modifications
+(mostly smaller fixes). The remaining patches are new and contain smaller
+optimizations.
 
-However, when it comes to the seqcount, lockdep is trying to enforce the
-rule that the same lock isn't accessed from preemptible and softirq
-context - it doesn't know about napi being enabled/disabled. This causes
-a false-positive warning:
+Details about virtio-mem can be found in the cover letter of v2 [1]. A
+basic QEMU implementation was posted yesterday [2].
 
-WARNING: inconsistent lock state
-...
-inconsistent {SOFTIRQ-ON-W} -> {IN-SOFTIRQ-W} usage.
+[1] https://lkml.kernel.org/r/20200311171422.10484-1-david@redhat.com
+[2] https://lkml.kernel.org/r/20200506094948.76388-1-david@redhat.com
 
-As a work around, shut down the warning by switching
-to u64_stats_update_begin_irqsave - that works by disabling
-interrupts on 32 bit only, is a NOP on 64 bit.
+v2 -> v3:
+- "virtio-mem: Paravirtualized memory hotplug"
+-- Include "linux/slab.h" to fix build issues
+-- Remember the "region_size", helpful for patch #11
+-- Minor simplifaction in virtio_mem_overlaps_range()
+-- Use notifier_from_errno() instead of notifier_to_errno() in notifier
+-- More reliable check for added memory when unloading the driver
+- "virtio-mem: Allow to specify an ACPI PXM as nid"
+-- Also print the nid
+- Added patch #11-#15
 
-Reported-by: Thomas Gleixner <tglx@linutronix.de>
-Suggested-by: Eric Dumazet <eric.dumazet@gmail.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
+Cc: Sebastien Boeuf <sebastien.boeuf@intel.com>
+Cc: Samuel Ortiz <samuel.ortiz@intel.com>
+Cc: Robert Bradford <robert.bradford@intel.com>
+Cc: Luiz Capitulino <lcapitulino@redhat.com>
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Cc: teawater <teawaterz@linux.alibaba.com>
+Cc: Igor Mammedov <imammedo@redhat.com>
+Cc: Dr. David Alan Gilbert <dgilbert@redhat.com>
 
-changes from v1:
-	builds now. lightly tested
+David Hildenbrand (15):
+  virtio-mem: Paravirtualized memory hotplug
+  virtio-mem: Allow to specify an ACPI PXM as nid
+  virtio-mem: Paravirtualized memory hotunplug part 1
+  virtio-mem: Paravirtualized memory hotunplug part 2
+  mm: Allow to offline unmovable PageOffline() pages via
+    MEM_GOING_OFFLINE
+  virtio-mem: Allow to offline partially unplugged memory blocks
+  mm/memory_hotplug: Introduce offline_and_remove_memory()
+  virtio-mem: Offline and remove completely unplugged memory blocks
+  virtio-mem: Better retry handling
+  MAINTAINERS: Add myself as virtio-mem maintainer
+  virtio-mem: Add parent resource for all added "System RAM"
+  virtio-mem: Drop manual check for already present memory
+  virtio-mem: Unplug subblocks right-to-left
+  virtio-mem: Use -ETXTBSY as error code if the device is busy
+  virtio-mem: Try to unplug the complete online memory block first
 
- drivers/net/virtio_net.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ MAINTAINERS                     |    7 +
+ drivers/acpi/numa/srat.c        |    1 +
+ drivers/virtio/Kconfig          |   17 +
+ drivers/virtio/Makefile         |    1 +
+ drivers/virtio/virtio_mem.c     | 1962 +++++++++++++++++++++++++++++++
+ include/linux/memory_hotplug.h  |    1 +
+ include/linux/page-flags.h      |   10 +
+ include/uapi/linux/virtio_ids.h |    1 +
+ include/uapi/linux/virtio_mem.h |  208 ++++
+ mm/memory_hotplug.c             |   81 +-
+ mm/page_alloc.c                 |   26 +
+ mm/page_isolation.c             |    9 +
+ 12 files changed, 2314 insertions(+), 10 deletions(-)
+ create mode 100644 drivers/virtio/virtio_mem.c
+ create mode 100644 include/uapi/linux/virtio_mem.h
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 11f722460513..ce07f52d89e7 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1243,9 +1243,11 @@ static bool try_fill_recv(struct virtnet_info *vi, struct receive_queue *rq,
- 			break;
- 	} while (rq->vq->num_free);
- 	if (virtqueue_kick_prepare(rq->vq) && virtqueue_notify(rq->vq)) {
--		u64_stats_update_begin(&rq->stats.syncp);
-+		unsigned long flags;
-+
-+		flags = u64_stats_update_begin_irqsave(&rq->stats.syncp);
- 		rq->stats.kicks++;
--		u64_stats_update_end(&rq->stats.syncp);
-+		u64_stats_update_end_irqrestore(&rq->stats.syncp, flags);
- 	}
- 
- 	return !oom;
--- 
-MST
+--=20
+2.25.3
