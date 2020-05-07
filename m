@@ -1,92 +1,67 @@
-From: Tom Lendacky <thomas.lendacky@amd.com>
-Subject: Re: [PATCH v3 64/75] x86/sev-es: Cache CPUID results for improved
- performance
-Date: Wed, 6 May 2020 18:02:54 -0500
-Message-ID: <3ab38184-59fd-73f8-83ca-3f35c8e391eb@amd.com>
-References: <20200428151725.31091-1-joro@8bytes.org>
- <20200428151725.31091-65-joro@8bytes.org>
- <ADD6202C-6743-4C05-B9C9-952BC45C215D@vmware.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH v2] virtio_net: fix lockdep warning on 32 bit
+Date: Thu, 7 May 2020 03:25:56 -0400
+Message-ID: <20200507072525.355222-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <ADD6202C-6743-4C05-B9C9-952BC45C215D@vmware.com>
-Content-Language: en-US
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
-To: Mike Stunes <mstunes@vmware.com>, Joerg Roedel <joro@8bytes.org>
-Cc: "x86@kernel.org" <x86@kernel.org>, "hpa@zytor.com" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Joerg Roedel <jroedel@suse.de>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+To: linux-kernel@vger.kernel.org
+Cc: Thomas Gleixner <tglx@linutronix.de>, Eric Dumazet <eric.dumazet@gmail.com>, Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+When we fill up a receive VQ, try_fill_recv currently tries to count
+kicks using a 64 bit stats counter. Turns out, on a 32 bit kernel that
+uses a seqcount. sequence counts are "lock" constructs where you need to
+make sure that writers are serialized.
 
+In turn, this means that we mustn't run two try_fill_recv concurrently.
+Which of course we don't. We do run try_fill_recv sometimes from a
+softirq napi context, and sometimes from a fully preemptible context,
+but the later always runs with napi disabled.
 
-On 5/6/20 1:08 PM, Mike Stunes wrote:
-> 
-> 
->> On Apr 28, 2020, at 8:17 AM, Joerg Roedel <joro@8bytes.org> wrote:
->>
->> From: Mike Stunes <mstunes@vmware.com>
->>
->> To avoid a future VMEXIT for a subsequent CPUID function, cache the
->> results returned by CPUID into an xarray.
->>
->> [tl: coding standard changes, register zero extension]
->>
->> Signed-off-by: Mike Stunes <mstunes@vmware.com>
->> Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
->> [ jroedel@suse.de: - Wrapped cache handling into vc_handle_cpuid_cached()
->>                    - Used lower_32_bits() where applicable
->> 		   - Moved cache_index out of struct es_em_ctxt ]
->> Co-developed-by: Joerg Roedel <jroedel@suse.de>
->> Signed-off-by: Joerg Roedel <jroedel@suse.de>
->> ---
->> arch/x86/kernel/sev-es-shared.c |  12 ++--
->> arch/x86/kernel/sev-es.c        | 119 +++++++++++++++++++++++++++++++-
->> 2 files changed, 124 insertions(+), 7 deletions(-)
->>
->> diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
->> index 03095bc7b563..0303834d4811 100644
->> --- a/arch/x86/kernel/sev-es.c
->> +++ b/arch/x86/kernel/sev-es.c
->> @@ -744,6 +758,91 @@ static enum es_result vc_handle_mmio(struct ghcb *ghcb,
->> 	return ret;
->> }
->>
->> +static unsigned long sev_es_get_cpuid_cache_index(struct es_em_ctxt *ctxt)
->> +{
->> +	unsigned long hi, lo;
->> +
->> +	/* Don't attempt to cache until the xarray is initialized */
->> +	if (!sev_es_cpuid_cache_initialized)
->> +		return ULONG_MAX;
->> +
->> +	lo = lower_32_bits(ctxt->regs->ax);
->> +
->> +	/*
->> +	 * CPUID 0x0000000d requires both RCX and XCR0, so it can't be
->> +	 * cached.
->> +	 */
->> +	if (lo == 0x0000000d)
->> +		return ULONG_MAX;
->> +
->> +	/*
->> +	 * Some callers of CPUID don't always set RCX to zero for CPUID
->> +	 * functions that don't require RCX, which can result in excessive
->> +	 * cached values, so RCX needs to be manually zeroed for use as part
->> +	 * of the cache index. Future CPUID values may need RCX, but since
->> +	 * they can't be known, they must not be cached.
->> +	 */
->> +	if (lo > 0x80000020)
->> +		return ULONG_MAX;
-> 
-> If the cache is shared across CPUs, do we also need to exclude function 0x1 because it contains the LAPIC ID? (Or is the cache per-CPU?)
+However, when it comes to the seqcount, lockdep is trying to enforce the
+rule that the same lock isn't accessed from preemptible and softirq
+context - it doesn't know about napi being enabled/disabled. This causes
+a false-positive warning:
 
-It's currently not a per-CPU cache, but given what you pointed out, it 
-should be if we're going to keep function 0x1 in there. The question will 
-be how often is that CPUID issued, as that would determine if (not) 
-caching it matters. Or even how often CPUID is issued and whether the 
-xarray lock could be under contention if the cache is not per-CPU.
+WARNING: inconsistent lock state
+...
+inconsistent {SOFTIRQ-ON-W} -> {IN-SOFTIRQ-W} usage.
 
-Thanks,
-Tom
+As a work around, shut down the warning by switching
+to u64_stats_update_begin_irqsave - that works by disabling
+interrupts on 32 bit only, is a NOP on 64 bit.
 
-> 
+Reported-by: Thomas Gleixner <tglx@linutronix.de>
+Suggested-by: Eric Dumazet <eric.dumazet@gmail.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+
+changes from v1:
+	builds now. lightly tested
+
+ drivers/net/virtio_net.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 11f722460513..ce07f52d89e7 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1243,9 +1243,11 @@ static bool try_fill_recv(struct virtnet_info *vi, struct receive_queue *rq,
+ 			break;
+ 	} while (rq->vq->num_free);
+ 	if (virtqueue_kick_prepare(rq->vq) && virtqueue_notify(rq->vq)) {
+-		u64_stats_update_begin(&rq->stats.syncp);
++		unsigned long flags;
++
++		flags = u64_stats_update_begin_irqsave(&rq->stats.syncp);
+ 		rq->stats.kicks++;
+-		u64_stats_update_end(&rq->stats.syncp);
++		u64_stats_update_end_irqrestore(&rq->stats.syncp, flags);
+ 	}
+ 
+ 	return !oom;
+-- 
+MST
