@@ -1,38 +1,269 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v3 10/15] MAINTAINERS: Add myself as virtio-mem maintainer
-Date: Thu, 7 May 2020 13:25:35 +0200
-Message-ID: <fdb4315e-679c-d197-f558-7d0901c0fe87@redhat.com>
-References: <20200507103119.11219-1-david@redhat.com>
- <20200507103119.11219-11-david@redhat.com>
- <20200507064709-mutt-send-email-mst@kernel.org>
+From: Bharat Bhushan <bbhushan2-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Subject: RE: [EXT] Re: [PATCH v5] iommu/virtio: Use page size bitmap supported
+ by endpoint
+Date: Thu, 7 May 2020 11:24:29 +0000
+Message-ID: <MWHPR1801MB19669FA26D44E1C31DF89BDBE3A50@MWHPR1801MB1966.namprd18.prod.outlook.com>
+References: <20200505093004.1935-1-bbhushan2@marvell.com>
+ <20200505200659-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtio-dev-return-7260-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <20200507064709-mutt-send-email-mst@kernel.org>
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <20200505200659-mutt-send-email-mst-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
 Content-Language: en-US
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+ <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+ <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Sender: "iommu" <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+To: "Michael S. Tsirkin" <mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: "jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, "iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, "jasowang-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org" <jasowang-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, "eric.auger.pro-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <eric.auger.pro-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 07.05.20 12:47, Michael S. Tsirkin wrote:
-> On Thu, May 07, 2020 at 12:31:14PM +0200, David Hildenbrand wrote:
->> Let's make sure patches/bug reports find the right person.
->>
->> Cc: "Michael S. Tsirkin" <mst@redhat.com>
->> Signed-off-by: David Hildenbrand <david@redhat.com>
+
+
+> -----Original Message-----
+> From: Michael S. Tsirkin <mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+> Sent: Wednesday, May 6, 2020 5:53 AM
+> To: Bharat Bhushan <bbhushan2-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+> Cc: jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org; joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org; jasowang-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org;
+> virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org; iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org;
+> linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; eric.auger.pro-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org; eric.auger-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
+> Subject: [EXT] Re: [PATCH v5] iommu/virtio: Use page size bitmap supported by
+> endpoint
 > 
-> Make this patch 2 in the series, or even squash into patch 1.
+> External Email
+> 
+> ----------------------------------------------------------------------
+> On Tue, May 05, 2020 at 03:00:04PM +0530, Bharat Bhushan wrote:
+> > Different endpoint can support different page size, probe endpoint if
+> > it supports specific page size otherwise use global page sizes.
+> >
+> > Signed-off-by: Bharat Bhushan <bbhushan2-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+> > ---
+> > v4->v5:
+> >  - Rebase to Linux v5.7-rc4
+> >
+> > v3->v4:
+> >  - Fix whitespace error
+> >
+> > v2->v3:
+> >  - Fixed error return for incompatible endpoint
+> >  - __u64 changed to __le64 in header file
+> >
+> >  drivers/iommu/virtio-iommu.c      | 48 ++++++++++++++++++++++++++++---
+> >  include/uapi/linux/virtio_iommu.h |  7 +++++
+> >  2 files changed, 51 insertions(+), 4 deletions(-)
+> >
+> > diff --git a/drivers/iommu/virtio-iommu.c
+> > b/drivers/iommu/virtio-iommu.c index d5cac4f46ca5..9513d2ab819e 100644
+> > --- a/drivers/iommu/virtio-iommu.c
+> > +++ b/drivers/iommu/virtio-iommu.c
+> > @@ -78,6 +78,7 @@ struct viommu_endpoint {
+> >  	struct viommu_dev		*viommu;
+> >  	struct viommu_domain		*vdomain;
+> >  	struct list_head		resv_regions;
+> > +	u64				pgsize_bitmap;
+> >  };
+> >
+> >  struct viommu_request {
+> > @@ -415,6 +416,19 @@ static int viommu_replay_mappings(struct
+> viommu_domain *vdomain)
+> >  	return ret;
+> >  }
+> >
+> > +static int viommu_set_pgsize_bitmap(struct viommu_endpoint *vdev,
+> > +				    struct virtio_iommu_probe_pgsize_mask *mask,
+> > +				    size_t len)
+> > +{
+> > +	u64 pgsize_bitmap = le64_to_cpu(mask->pgsize_bitmap);
+> > +
+> > +	if (len < sizeof(*mask))
+> 
+> This is too late to validate length, you have dereferenced it already.
+> do it before the read pls.
 
-I'll move it to #2. If there are strong feelings, I can squash. Thanks!
+Yes, Will change here and other places as well
+
+> 
+> > +		return -EINVAL;
+> 
+> OK but note that guest will then just proceed to ignore the property. Is that really
+> OK? Wouldn't host want to know?
 
 
--- 
-Thanks,
+Guest need to be in sync with device, so yes seems like guest need to tell device which page-size-mask it is using.
 
-David / dhildenb
+Corresponding spec change patch (https://www.mail-archive.com/virtio-dev-sDuHXQ4OtrM4h7I2RyI4rWD2FQJk+8+b@public.gmane.org/msg06214.html)
+
+Would like Jean/Eric to comment here as well.
+
+> 
+> 
+> > +
+> > +	vdev->pgsize_bitmap = pgsize_bitmap;
+> 
+> what if bitmap is 0? Is that a valid size? I see a bunch of BUG_ON with that value ...
+
+As per spec proposed device is supposed to set at-least one bit.
+Will add a bug_on her.
+Should we add bug_on or switch to global config page-size mask if this is zero (notify device which page-size-mask it is using).
+
+> 
+> I also see a bunch of code like e.g. this:
+> 
+>         pg_size = 1UL << __ffs(pgsize_bitmap);
+> 
+> which probably won't DTRT on a 32 bit guest if the bitmap has bits set in the high
+> word.
+> 
+
+My thought is that in that case viommu_domain_finalise() will fail, do not proceed.
+
+> 
+> 
+> > +	return 0;
+> > +}
+> > +
+> >  static int viommu_add_resv_mem(struct viommu_endpoint *vdev,
+> >  			       struct virtio_iommu_probe_resv_mem *mem,
+> >  			       size_t len)
+> > @@ -499,6 +513,9 @@ static int viommu_probe_endpoint(struct viommu_dev
+> *viommu, struct device *dev)
+> >  		case VIRTIO_IOMMU_PROBE_T_RESV_MEM:
+> >  			ret = viommu_add_resv_mem(vdev, (void *)prop, len);
+> >  			break;
+> > +		case VIRTIO_IOMMU_PROBE_T_PAGE_SIZE_MASK:
+> > +			ret = viommu_set_pgsize_bitmap(vdev, (void *)prop, len);
+> > +			break;
+> >  		default:
+> >  			dev_err(dev, "unknown viommu prop 0x%x\n", type);
+> >  		}
+> > @@ -630,7 +647,7 @@ static int viommu_domain_finalise(struct
+> > viommu_endpoint *vdev,
+> >
+> >  	vdomain->id		= (unsigned int)ret;
+> >
+> > -	domain->pgsize_bitmap	= viommu->pgsize_bitmap;
+> > +	domain->pgsize_bitmap	= vdev->pgsize_bitmap;
+> >  	domain->geometry	= viommu->geometry;
+> >
+> >  	vdomain->map_flags	= viommu->map_flags;
+> > @@ -654,6 +671,29 @@ static void viommu_domain_free(struct iommu_domain
+> *domain)
+> >  	kfree(vdomain);
+> >  }
+> >
+> > +/*
+> > + * Check whether the endpoint's capabilities are compatible with
+> > +other
+> > + * endpoints in the domain. Report any inconsistency.
+> > + */
+> > +static bool viommu_endpoint_is_compatible(struct viommu_endpoint *vdev,
+> > +					  struct viommu_domain *vdomain) {
+> > +	struct device *dev = vdev->dev;
+> > +
+> > +	if (vdomain->viommu != vdev->viommu) {
+> > +		dev_err(dev, "cannot attach to foreign vIOMMU\n");
+> > +		return false;
+> > +	}
+> > +
+> > +	if (vdomain->domain.pgsize_bitmap != vdev->pgsize_bitmap) {
+> > +		dev_err(dev, "incompatible domain bitmap 0x%lx != 0x%llx\n",
+> > +			vdomain->domain.pgsize_bitmap, vdev->pgsize_bitmap);
+> > +		return false;
+> > +	}
+> 
+> I'm confused by this. So let's assume host supports pages sizes of 4k, 2M, 1G. It
+> signals this in the properties. Nice.
+> Now domain supports 4k, 2M and that's all. Why is that a problem?
+> Just don't use 1G ...
+
+Is not it too to change the existing domain properties, for devices already attached to domain? New devices must match to domain page-size.
+
+> 
+> 
+> > +
+> > +	return true;
+> > +}
+> > +
+> >  static int viommu_attach_dev(struct iommu_domain *domain, struct
+> > device *dev)  {
+> >  	int i;
+> > @@ -670,9 +710,8 @@ static int viommu_attach_dev(struct iommu_domain
+> *domain, struct device *dev)
+> >  		 * owns it.
+> >  		 */
+> >  		ret = viommu_domain_finalise(vdev, domain);
+> > -	} else if (vdomain->viommu != vdev->viommu) {
+> > -		dev_err(dev, "cannot attach to foreign vIOMMU\n");
+> > -		ret = -EXDEV;
+> > +	} else if (!viommu_endpoint_is_compatible(vdev, vdomain)) {
+> > +		ret = -EINVAL;
+> >  	}
+> >  	mutex_unlock(&vdomain->mutex);
+> >
+> > @@ -886,6 +925,7 @@ static int viommu_add_device(struct device *dev)
+> >
+> >  	vdev->dev = dev;
+> >  	vdev->viommu = viommu;
+> > +	vdev->pgsize_bitmap = viommu->pgsize_bitmap;
+> >  	INIT_LIST_HEAD(&vdev->resv_regions);
+> >  	dev_iommu_priv_set(dev, vdev);
+> >
+> > diff --git a/include/uapi/linux/virtio_iommu.h
+> > b/include/uapi/linux/virtio_iommu.h
+> > index 48e3c29223b5..2cced7accc99 100644
+> > --- a/include/uapi/linux/virtio_iommu.h
+> > +++ b/include/uapi/linux/virtio_iommu.h
+> 
+> As any virtio UAPI change, you need to copy virtio TC at some point before this is
+> merged ...
+
+Jean already send patch for same
+https://www.mail-archive.com/virtio-dev-sDuHXQ4OtrM4h7I2RyI4rWD2FQJk+8+b@public.gmane.org/msg06214.html
+
+Do we need to do anything additional?
+
+> 
+> > @@ -111,6 +111,7 @@ struct virtio_iommu_req_unmap {
+> >
+> >  #define VIRTIO_IOMMU_PROBE_T_NONE		0
+> >  #define VIRTIO_IOMMU_PROBE_T_RESV_MEM		1
+> > +#define VIRTIO_IOMMU_PROBE_T_PAGE_SIZE_MASK	2
+> >
+> >  #define VIRTIO_IOMMU_PROBE_T_MASK		0xfff
+> >
+> 
+> Does host need to know that guest will ignore the page size mask?
+> Maybe we need a feature bit.
+> 
+> > @@ -119,6 +120,12 @@ struct virtio_iommu_probe_property {
+> >  	__le16					length;
+> >  };
+> >
+> > +struct virtio_iommu_probe_pgsize_mask {
+> > +	struct virtio_iommu_probe_property	head;
+> > +	__u8					reserved[4];
+> > +	__le64					pgsize_bitmap;
+> > +};
+> > +
+> 
+> This is UAPI. Document the format of pgsize_bitmap please.
+
+Ok,
+
+Thanks
+-Bharat
+
+> 
+> 
+> >  #define VIRTIO_IOMMU_RESV_MEM_T_RESERVED	0
+> >  #define VIRTIO_IOMMU_RESV_MEM_T_MSI		1
+> >
+> > --
+> > 2.17.1
