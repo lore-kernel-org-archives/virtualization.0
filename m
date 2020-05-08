@@ -1,18 +1,17 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next 2/2] virtio-net: fix the XDP truesize calculation
- for mergeable buffers
-Date: Fri, 8 May 2020 09:54:05 +0800
-Message-ID: <0e59287f-8333-c715-da03-91306cef9878@redhat.com>
+Subject: Re: [PATCH net-next 1/2] virtio-net: don't reserve space for vnet
+ header for XDP
+Date: Fri, 8 May 2020 09:56:37 +0800
+Message-ID: <c1df2cdf-eaff-f146-1804-f0a6cad6bb2d@redhat.com>
 References: <20200506061633.16327-1-jasowang@redhat.com>
- <20200506061633.16327-2-jasowang@redhat.com>
- <20200506033259-mutt-send-email-mst@kernel.org>
- <789fc6e6-9667-a609-c777-a9b1fed72f41@redhat.com>
- <20200506075807-mutt-send-email-mst@kernel.org>
+ <20200506033834-mutt-send-email-mst@kernel.org>
+ <7a169b06-b6b9-eac1-f03a-39dd1cfcce57@redhat.com>
+ <20200506055436-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20200506075807-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20200506055436-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
 Sender: netdev-owner@vger.kernel.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
@@ -20,64 +19,38 @@ Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-ker
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-On 2020/5/6 下午8:08, Michael S. Tsirkin wrote:
-> On Wed, May 06, 2020 at 04:21:15PM +0800, Jason Wang wrote:
->> On 2020/5/6 下午3:37, Michael S. Tsirkin wrote:
->>> On Wed, May 06, 2020 at 02:16:33PM +0800, Jason Wang wrote:
->>>> We should not exclude headroom and tailroom when XDP is set. So this
->>>> patch fixes this by initializing the truesize from PAGE_SIZE when XDP
->>>> is set.
->>>>
->>>> Cc: Jesper Dangaard Brouer<brouer@redhat.com>
->>>> Signed-off-by: Jason Wang<jasowang@redhat.com>
->>> Seems too aggressive, we do not use up the whole page for the size.
->>>
->>>
->>>
->> For XDP yes, we do:
+On 2020/5/6 下午5:54, Michael S. Tsirkin wrote:
+> On Wed, May 06, 2020 at 04:19:40PM +0800, Jason Wang wrote:
+>> On 2020/5/6 下午3:53, Michael S. Tsirkin wrote:
+>>> On Wed, May 06, 2020 at 02:16:32PM +0800, Jason Wang wrote:
+>>>> We tried to reserve space for vnet header before
+>>>> xdp.data_hard_start. But this is useless since the packet could be
+>>>> modified by XDP which may invalidate the information stored in the
+>>>> header and there's no way for XDP to know the existence of the vnet
+>>>> header currently.
+>>> What do you mean? Doesn't XDP_PASS use the header in the buffer?
+>> We don't, see 436c9453a1ac0 ("virtio-net: keep vnet header zeroed after
+>> processing XDP")
 >>
->> static unsigned int get_mergeable_buf_len(struct receive_queue *rq,
->>                        struct ewma_pkt_len *avg_pkt_len,
->>                        unsigned int room)
->> {
->>      const size_t hdr_len = sizeof(struct virtio_net_hdr_mrg_rxbuf);
->>      unsigned int len;
+>> If there's other place, it should be a bug.
 >>
->>      if (room)
->>          return PAGE_SIZE - room;
 >>
->> ...
+>>>> So let's just not reserve space for vnet header in this case.
+>>> In any case, we can find out XDP does head adjustments
+>>> if we need to.
+>> But XDP program can modify the packets without adjusting headers.
 >>
 >> Thanks
-> Hmm. But that's only for new buffers. Buffers that were outstanding
-> before xdp was attached don't use the whole page, do they?
+> Then what's the problem?
 
 
-They don't and in either case, we've encoded truesize in the ctx. Any 
-issue you saw?
+Then we can't do anything more than just invalidating vnet header since 
+we don't know whether or not the packet has been modified or not.
 
-
->
->
->
->
-> Also, with TCP smallqueues blocking the queue like that might be a problem.
-> Could you try and check performance impact of this?
-
-
-I'm not sure I get you, TCP small queue is more about TX I guess. And 
-since we've invalidated the vnet header, the performance of XDP_PASS 
-won't be good.
-
-
-> I looked at what other drivers do and I see they tend to copy the skb
-> in XDP_PASS case. ATM we don't normally - but should we?
-
-
-My understanding is XDP runs before skb, so I don't get here. Or maybe 
-you can point me the driver you mentioned here? I've checked i40e and 
-mlx5e, both of them build skb after XDP.
+Technically, XDP can give the driver some hint about whether or not the 
+packet has been modified, but AFAIK we haven't implemented this yet.
 
 Thanks
+
 
 >
