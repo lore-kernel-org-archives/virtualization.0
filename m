@@ -1,38 +1,67 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net-next 1/2] virtio-net: don't reserve space for vnet
- header for XDP
-Date: Fri, 8 May 2020 09:59:29 +0800
-Message-ID: <e1b67a0a-8499-39f9-0132-2ea62205289e@redhat.com>
-References: <20200506061633.16327-1-jasowang@redhat.com>
- <20200506102123.739f1233@carbon>
- <3ecb558b-5281-2497-db3c-6aae7d7f882b@redhat.com>
- <20200506054619-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH -next] vdpasim: remove unused variable 'ret'
+Date: Fri, 8 May 2020 14:57:27 +0800
+Message-ID: <f832450b-03f8-b5b6-76ae-c5c0fe5f2fdb@redhat.com>
+References: <20200410115422.42308-1-yuehaibing@huawei.com>
+ <20200505203544-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20200506054619-mutt-send-email-mst@kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200505203544-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jesper Dangaard Brouer <brouer@redhat.com>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, bpf@vger.kernel.org, "Jubran, Samih" <sameehj@amazon.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, YueHaibing <yuehaibing@huawei.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-On 2020/5/6 下午5:46, Michael S. Tsirkin wrote:
->>> There
->>> are a lot of unanswered questions on how this will be implemented.
->>> Thus, I cannot layout how we are going to leverage this info yet, but
->>> your patch are killing this info, which IHMO is going in the wrong
->>> direction.
->> I can copy vnet header ahead of data_hard_start, does it work for you?
+On 2020/5/6 上午8:35, Michael S. Tsirkin wrote:
+> On Fri, Apr 10, 2020 at 07:54:22PM +0800, YueHaibing wrote:
+>> drivers/vdpa/vdpa_sim/vdpa_sim.c:92:6: warning:
+>>   variable ‘ret’ set but not used [-Wunused-but-set-variable]
 >>
->> Thanks
-> That's likely to be somewhat expensive.
+>> Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+>> ---
+> Either this, or BUG_ON.  Jason?
 
 
-Any better approach? Note that it's not the issue that is introduced in 
-this patch. Anyhow the header adjustment may just overwrite the vnet 
-header even without this patch.
+BUG_ON seems too aggressive. So I prefer this patch.
 
-Thanks
+Acked-by: Jason Wang <jasowang@redhat.com>
+
+
+>
+>>   drivers/vdpa/vdpa_sim/vdpa_sim.c | 15 +++++++--------
+>>   1 file changed, 7 insertions(+), 8 deletions(-)
+>>
+>> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+>> index 7957d2d41fc4..01c456f7c1f7 100644
+>> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
+>> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+>> @@ -89,15 +89,14 @@ static struct vdpasim *dev_to_sim(struct device *dev)
+>>   static void vdpasim_queue_ready(struct vdpasim *vdpasim, unsigned int idx)
+>>   {
+>>   	struct vdpasim_virtqueue *vq = &vdpasim->vqs[idx];
+>> -	int ret;
+>>   
+>> -	ret = vringh_init_iotlb(&vq->vring, vdpasim_features,
+>> -				VDPASIM_QUEUE_MAX, false,
+>> -				(struct vring_desc *)(uintptr_t)vq->desc_addr,
+>> -				(struct vring_avail *)
+>> -				(uintptr_t)vq->driver_addr,
+>> -				(struct vring_used *)
+>> -				(uintptr_t)vq->device_addr);
+>> +	vringh_init_iotlb(&vq->vring, vdpasim_features,
+>> +			  VDPASIM_QUEUE_MAX, false,
+>> +			  (struct vring_desc *)(uintptr_t)vq->desc_addr,
+>> +			  (struct vring_avail *)
+>> +			  (uintptr_t)vq->driver_addr,
+>> +			  (struct vring_used *)
+>> +			  (uintptr_t)vq->device_addr);
+>>   }
+>>   
+>>   static void vdpasim_vq_reset(struct vdpasim_virtqueue *vq)
+>> -- 
+>> 2.17.1
+>>
