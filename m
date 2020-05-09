@@ -1,59 +1,124 @@
-From: Samuel Zou <zou_wei@huawei.com>
-Subject: [PATCH -next] vdpasim: Fix some coccinelle warnings
-Date: Sat, 9 May 2020 10:20:02 +0800
-Message-ID: <1588990802-28451-1-git-send-email-zou_wei@huawei.com>
+From: Borislav Petkov <bp@alien8.de>
+Subject: Re: [PATCH v3 19/75] x86/boot/compressed/64: Add stage1 #VC handler
+Date: Sat, 9 May 2020 11:05:48 +0200
+Message-ID: <20200509090548.GA5893@zn.tnic>
+References: <20200428151725.31091-1-joro@8bytes.org>
+ <20200428151725.31091-20-joro@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200428151725.31091-20-joro@8bytes.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: mst@redhat.com, jasowang@redhat.com
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Samuel Zou <zou_wei@huawei.com>
+To: Joerg Roedel <joro@8bytes.org>
+Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Fix below warnings reported by coccicheck:
+On Tue, Apr 28, 2020 at 05:16:29PM +0200, Joerg Roedel wrote:
+> From: Joerg Roedel <jroedel@suse.de>
+> 
+> Add the first handler for #VC exceptions. At stage 1 there is no GHCB
+> yet becaue we might still be on the EFI page table and thus can't map
 
-drivers/vdpa/vdpa_sim/vdpa_sim.c:104:1-10: WARNING: Assignment of 0/1 to bool variable
-drivers/vdpa/vdpa_sim/vdpa_sim.c:164:7-11: WARNING: Unsigned expression compared with zero: read <= 0
-drivers/vdpa/vdpa_sim/vdpa_sim.c:169:7-12: WARNING: Unsigned expression compared with zero: write <= 0
+     "... because the kernel might still be running on the EFI page table... "
 
-1. The 'ready' variable in vdpasim_virtqueue struct is bool type.
-   It is better to initialize vq->ready to false
+> memory unencrypted.
+> 
+> The stage 1 handler is limited to the MSR based protocol to talk to
+> the hypervisor and can only support CPUID exit-codes, but that is
+> enough to get to stage 2.
+> 
+> Signed-off-by: Joerg Roedel <jroedel@suse.de>
+> ---
+>  arch/x86/boot/compressed/Makefile          |  1 +
+>  arch/x86/boot/compressed/idt_64.c          |  4 ++
+>  arch/x86/boot/compressed/idt_handlers_64.S |  4 ++
+>  arch/x86/boot/compressed/misc.h            |  1 +
+>  arch/x86/boot/compressed/sev-es.c          | 45 +++++++++++++++
+>  arch/x86/include/asm/msr-index.h           |  1 +
+>  arch/x86/include/asm/sev-es.h              | 37 ++++++++++++
+>  arch/x86/include/asm/trap_defs.h           |  1 +
+>  arch/x86/kernel/sev-es-shared.c            | 65 ++++++++++++++++++++++
+>  9 files changed, 159 insertions(+)
+>  create mode 100644 arch/x86/boot/compressed/sev-es.c
+>  create mode 100644 arch/x86/include/asm/sev-es.h
+>  create mode 100644 arch/x86/kernel/sev-es-shared.c
+> 
+> diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
+> index c6909d10a6b9..a7847a1ef63a 100644
+> --- a/arch/x86/boot/compressed/Makefile
+> +++ b/arch/x86/boot/compressed/Makefile
+> @@ -85,6 +85,7 @@ ifdef CONFIG_X86_64
+>  	vmlinux-objs-y += $(obj)/idt_64.o $(obj)/idt_handlers_64.o
+>  	vmlinux-objs-y += $(obj)/mem_encrypt.o
+>  	vmlinux-objs-y += $(obj)/pgtable_64.o
+> +	vmlinux-objs-$(CONFIG_AMD_MEM_ENCRYPT) += $(obj)/sev-es.o
+>  endif
+>  
+>  vmlinux-objs-$(CONFIG_ACPI) += $(obj)/acpi.o
+> diff --git a/arch/x86/boot/compressed/idt_64.c b/arch/x86/boot/compressed/idt_64.c
+> index 99cc78062684..f8295d68b3e1 100644
+> --- a/arch/x86/boot/compressed/idt_64.c
+> +++ b/arch/x86/boot/compressed/idt_64.c
+> @@ -31,6 +31,10 @@ void load_stage1_idt(void)
+>  {
+>  	boot_idt_desc.address = (unsigned long)boot_idt;
+>  
+> +#ifdef CONFIG_AMD_MEM_ENCRYPT
+> +	set_idt_entry(X86_TRAP_VC, boot_stage1_vc);
+> +#endif
 
-2. Modify 'read' and 'write' variables type from size_t to ssize_t.
-   And preserve the reverse christmas tree ordering of local variables.
+	if (IS_ENABLED(CONFIG_AMD_MEM_ENCRYPT))
 
-Fixes: 2c53d0f64c06 ("vdpasim: vDPA device simulator")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Samuel Zou <zou_wei@huawei.com>
----
- drivers/vdpa/vdpa_sim/vdpa_sim.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+seems to work too and drops the ifdeffery ugliness.
 
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-index 01c456f..c7334cc 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-@@ -101,7 +101,7 @@ static void vdpasim_queue_ready(struct vdpasim *vdpasim, unsigned int idx)
- 
- static void vdpasim_vq_reset(struct vdpasim_virtqueue *vq)
- {
--	vq->ready = 0;
-+	vq->ready = false;
- 	vq->desc_addr = 0;
- 	vq->driver_addr = 0;
- 	vq->device_addr = 0;
-@@ -131,9 +131,10 @@ static void vdpasim_work(struct work_struct *work)
- 						 vdpasim, work);
- 	struct vdpasim_virtqueue *txq = &vdpasim->vqs[1];
- 	struct vdpasim_virtqueue *rxq = &vdpasim->vqs[0];
--	size_t read, write, total_write;
--	int err;
-+	ssize_t read, write;
-+	size_t total_write;
- 	int pkts = 0;
-+	int err;
- 
- 	spin_lock(&vdpasim->lock);
- 
+...
+
+> +void __init do_vc_no_ghcb(struct pt_regs *regs, unsigned long exit_code)
+> +{
+> +	unsigned int fn = lower_bits(regs->ax, 32);
+> +	unsigned long val;
+> +
+> +	/* Only CPUID is supported via MSR protocol */
+> +	if (exit_code != SVM_EXIT_CPUID)
+> +		goto fail;
+> +
+> +	sev_es_wr_ghcb_msr(GHCB_CPUID_REQ(fn, GHCB_CPUID_REQ_EAX));
+> +	VMGEXIT();
+> +	val = sev_es_rd_ghcb_msr();
+> +	if (GHCB_SEV_GHCB_RESP_CODE(val) != GHCB_SEV_CPUID_RESP)
+> +		goto fail;
+> +	regs->ax = val >> 32;
+> +
+> +	sev_es_wr_ghcb_msr(GHCB_CPUID_REQ(fn, GHCB_CPUID_REQ_EBX));
+> +	VMGEXIT();
+> +	val = sev_es_rd_ghcb_msr();
+> +	if (GHCB_SEV_GHCB_RESP_CODE(val) != GHCB_SEV_CPUID_RESP)
+> +		goto fail;
+> +	regs->bx = val >> 32;
+> +
+> +	sev_es_wr_ghcb_msr(GHCB_CPUID_REQ(fn, GHCB_CPUID_REQ_ECX));
+> +	VMGEXIT();
+> +	val = sev_es_rd_ghcb_msr();
+> +	if (GHCB_SEV_GHCB_RESP_CODE(val) != GHCB_SEV_CPUID_RESP)
+> +		goto fail;
+> +	regs->cx = val >> 32;
+> +
+> +	sev_es_wr_ghcb_msr(GHCB_CPUID_REQ(fn, GHCB_CPUID_REQ_EDX));
+> +	VMGEXIT();
+> +	val = sev_es_rd_ghcb_msr();
+> +	if (GHCB_SEV_GHCB_RESP_CODE(val) != GHCB_SEV_CPUID_RESP)
+> +		goto fail;
+> +	regs->dx = val >> 32;
+
+This could use a comment:
+
+	/* Skip over the CPUID two-byte opcode */
+
+or so.
+
 -- 
-2.6.2
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
