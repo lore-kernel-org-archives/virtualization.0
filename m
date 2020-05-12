@@ -1,185 +1,111 @@
 From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH] ifcvf: move IRQ request/free to status change handlers
-Date: Tue, 12 May 2020 11:38:18 +0800
-Message-ID: <24d5875e-6f44-ce43-74f0-e641e02f8f42@redhat.com>
+Date: Tue, 12 May 2020 11:41:10 +0800
+Message-ID: <289e3487-7ecc-6b82-35d5-3037e34c8e31@redhat.com>
 References: <1589181563-38400-1-git-send-email-lingshan.zhu@intel.com>
  <22d9dcdb-e790-0a68-ba41-b9530b2bf9fd@redhat.com>
- <0f822630-14ad-e0cd-4171-6213c30f0799@intel.com>
+ <c1da2054-eb4c-d7dd-ca83-29e85e5cfe90@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <0f822630-14ad-e0cd-4171-6213c30f0799@intel.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <c1da2054-eb4c-d7dd-ca83-29e85e5cfe90@gmail.com>
 Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Zhu, Lingshan" <lingshan.zhu@intel.com>, mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Cc: lulu@redhat.com
+Sender: netdev-owner@vger.kernel.org
+To: Francesco Lavra <francescolavra.fl@gmail.com>, Zhu Lingshan <lingshan.zhu@intel.com>, mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Cc: lulu@redhat.com, dan.daly@intel.com, cunming.liang@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMjAvNS8xMSDkuIvljYg2OjExLCBaaHUsIExpbmdzaGFuIHdyb3RlOgo+Cj4KPiBPbiA1
-LzExLzIwMjAgNToyNiBQTSwgSmFzb24gV2FuZyB3cm90ZToKPj4KPj4gT24gMjAyMC81LzExIOS4
-i+WNiDM6MTksIFpodSBMaW5nc2hhbiB3cm90ZToKPj4+IFRoaXMgY29tbWl0IG1vdmUgSVJRIHJl
-cXVlc3QgYW5kIGZyZWUgb3BlcmF0aW9ucyBmcm9tIHByb2JlKCkKPj4+IHRvIFZJUlRJTyBzdGF0
-dXMgY2hhbmdlIGhhbmRsZXIgdG8gY29tcGx5IHdpdGggVklSVElPIHNwZWMuCj4+Pgo+Pj4gVklS
-VElPIHNwZWMgMS4xLCBzZWN0aW9uIDIuMS4yIERldmljZSBSZXF1aXJlbWVudHM6IERldmljZSBT
-dGF0dXMgRmllbGQKPj4+IFRoZSBkZXZpY2UgTVVTVCBOT1QgY29uc3VtZSBidWZmZXJzIG9yIHNl
-bmQgYW55IHVzZWQgYnVmZmVyCj4+PiBub3RpZmljYXRpb25zIHRvIHRoZSBkcml2ZXIgYmVmb3Jl
-IERSSVZFUl9PSy4KPj4KPj4KPj4gTXkgcHJldmlvdXMgZXhwbGFuYXRpb24gbWlnaHQgYmUgd3Jv
-bmcgaGVyZS4gSXQgZGVwZW5kcyBvbiBob3cgeW91IAo+PiBpbXBsZW1lbnQgeW91ciBoYXJkd2Fy
-ZSwgaWYgeW91IGhhcmR3YXJlIGd1YXJhbnRlZSB0aGF0IG5vIGludGVycnVwdCAKPj4gd2lsbCBi
-ZSB0cmlnZ2VyZWQgYmVmb3JlIERSSVZFUl9PSywgdGhlbiBpdCdzIGZpbmUuCj4+Cj4+IEFuZCB0
-aGUgbWFpbiBnb2FsIGZvciB0aGlzIHBhdGNoIGlzIHRvIGFsbG9jYXRlIHRoZSBpbnRlcnJ1cHQg
-b24gZGVtYW5kLgo+IEhpIEphc29uLAo+Cj4gU28gdGhlc2UgY29kZSBjYW4gYSBkb3VibGUgYXNz
-dXJhbmNlLgo+Pgo+Pgo+Pj4KPj4+IFNpZ25lZC1vZmYtYnk6IFpodSBMaW5nc2hhbiA8bGluZ3No
-YW4uemh1QGludGVsLmNvbT4KPj4+IC0tLQo+Pj4gwqAgZHJpdmVycy92ZHBhL2lmY3ZmL2lmY3Zm
-X21haW4uYyB8IDExOSAKPj4+ICsrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0t
-LS0KPj4+IMKgIDEgZmlsZSBjaGFuZ2VkLCA3MyBpbnNlcnRpb25zKCspLCA0NiBkZWxldGlvbnMo
-LSkKPj4+Cj4+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92ZHBhL2lmY3ZmL2lmY3ZmX21haW4uYyAK
-Pj4+IGIvZHJpdmVycy92ZHBhL2lmY3ZmL2lmY3ZmX21haW4uYwo+Pj4gaW5kZXggYWJmNmEwNjEu
-LjRkNThiZjIgMTAwNjQ0Cj4+PiAtLS0gYS9kcml2ZXJzL3ZkcGEvaWZjdmYvaWZjdmZfbWFpbi5j
-Cj4+PiArKysgYi9kcml2ZXJzL3ZkcGEvaWZjdmYvaWZjdmZfbWFpbi5jCj4+PiBAQCAtMjgsNiAr
-MjgsNjAgQEAgc3RhdGljIGlycXJldHVybl90IGlmY3ZmX2ludHJfaGFuZGxlcihpbnQgaXJxLCAK
-Pj4+IHZvaWQgKmFyZykKPj4+IMKgwqDCoMKgwqAgcmV0dXJuIElSUV9IQU5ETEVEOwo+Pj4gwqAg
-fQo+Pj4gwqAgK3N0YXRpYyB2b2lkIGlmY3ZmX2ZyZWVfaXJxX3ZlY3RvcnModm9pZCAqZGF0YSkK
-Pj4+ICt7Cj4+PiArwqDCoMKgIHBjaV9mcmVlX2lycV92ZWN0b3JzKGRhdGEpOwo+Pj4gK30KPj4+
-ICsKPj4+ICtzdGF0aWMgdm9pZCBpZmN2Zl9mcmVlX2lycShzdHJ1Y3QgaWZjdmZfYWRhcHRlciAq
-YWRhcHRlciwgaW50IHF1ZXVlcykKPj4+ICt7Cj4+PiArwqDCoMKgIHN0cnVjdCBwY2lfZGV2ICpw
-ZGV2ID0gYWRhcHRlci0+cGRldjsKPj4+ICvCoMKgwqAgc3RydWN0IGlmY3ZmX2h3ICp2ZiA9ICZh
-ZGFwdGVyLT52ZjsKPj4+ICvCoMKgwqAgaW50IGk7Cj4+PiArCj4+PiArCj4+PiArwqDCoMKgIGZv
-ciAoaSA9IDA7IGkgPCBxdWV1ZXM7IGkrKykKPj4+ICvCoMKgwqDCoMKgwqDCoCBkZXZtX2ZyZWVf
-aXJxKCZwZGV2LT5kZXYsIHZmLT52cmluZ1tpXS5pcnEsICZ2Zi0+dnJpbmdbaV0pOwo+Pj4gKwo+
-Pj4gK8KgwqDCoCBpZmN2Zl9mcmVlX2lycV92ZWN0b3JzKHBkZXYpOwo+Pj4gK30KPj4+ICsKPj4+
-ICtzdGF0aWMgaW50IGlmY3ZmX3JlcXVlc3RfaXJxKHN0cnVjdCBpZmN2Zl9hZGFwdGVyICphZGFw
-dGVyKQo+Pj4gK3sKPj4+ICvCoMKgwqAgc3RydWN0IHBjaV9kZXYgKnBkZXYgPSBhZGFwdGVyLT5w
-ZGV2Owo+Pj4gK8KgwqDCoCBzdHJ1Y3QgaWZjdmZfaHcgKnZmID0gJmFkYXB0ZXItPnZmOwo+Pj4g
-K8KgwqDCoCBpbnQgdmVjdG9yLCBpLCByZXQsIGlycTsKPj4+ICsKPj4+ICvCoMKgwqAgcmV0ID0g
-cGNpX2FsbG9jX2lycV92ZWN0b3JzKHBkZXYsIElGQ1ZGX01BWF9JTlRSLAo+Pj4gK8KgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIElGQ1ZGX01BWF9JTlRSLCBQQ0lfSVJRX01T
-SVgpOwo+Pj4gK8KgwqDCoCBpZiAocmV0IDwgMCkgewo+Pj4gK8KgwqDCoMKgwqDCoMKgIElGQ1ZG
-X0VSUihwZGV2LCAiRmFpbGVkIHRvIGFsbG9jIElSUSB2ZWN0b3JzXG4iKTsKPj4+ICvCoMKgwqDC
-oMKgwqDCoCByZXR1cm4gcmV0Owo+Pj4gK8KgwqDCoCB9Cj4+PiArCj4+PiArwqDCoMKgIGZvciAo
-aSA9IDA7IGkgPCBJRkNWRl9NQVhfUVVFVUVfUEFJUlMgKiAyOyBpKyspIHsKPj4+ICvCoMKgwqDC
-oMKgwqDCoCBzbnByaW50Zih2Zi0+dnJpbmdbaV0ubXNpeF9uYW1lLCAyNTYsICJpZmN2Zlslc10t
-JWRcbiIsCj4+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHBjaV9uYW1lKHBkZXYpLCBpKTsK
-Pj4+ICvCoMKgwqDCoMKgwqDCoCB2ZWN0b3IgPSBpICsgSUZDVkZfTVNJX1FVRVVFX09GRjsKPj4+
-ICvCoMKgwqDCoMKgwqDCoCBpcnEgPSBwY2lfaXJxX3ZlY3RvcihwZGV2LCB2ZWN0b3IpOwo+Pj4g
-K8KgwqDCoMKgwqDCoMKgIHJldCA9IGRldm1fcmVxdWVzdF9pcnEoJnBkZXYtPmRldiwgaXJxLAo+
-Pj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGlmY3ZmX2lu
-dHJfaGFuZGxlciwgMCwKPj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoCB2Zi0+dnJpbmdbaV0ubXNpeF9uYW1lLAo+Pj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgICZ2Zi0+dnJpbmdbaV0pOwo+Pj4gK8KgwqDCoMKgwqDC
-oMKgIGlmIChyZXQpIHsKPj4+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIElGQ1ZGX0VSUihwZGV2
-LAo+Pj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgIkZhaWxlZCB0byByZXF1
-ZXN0IGlycSBmb3IgdnEgJWRcbiIsIGkpOwo+Pj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqAgaWZj
-dmZfZnJlZV9pcnEoYWRhcHRlciwgaSk7Cj4+Cj4+Cj4+IEknbSBub3Qgc3VyZSB0aGlzIHVud2lu
-ZCBpcyBjb3JyZWN0LiBJdCBsb29rcyBsaWtlIHdlIHNob3VsZCBsb29wIGFuZCAKPj4gY2FsbCBk
-ZXZtX2ZyZWVfaXJxKCkgZm9yIHZpcnRxdWV1ZSBbMCwgaSk7Cj4gd2UgaGF2ZSB0aGUgbG9vcCBp
-biBpZmN2Zl9mcmVlX2lycShzdHJ1Y3QgaWZjdmZfYWRhcHRlciAqYWRhcHRlciwgaW50IHF1ZXVl
-cyksCj4gaXQgdGFrZXMgYSBwYXJhbWV0ZXIgcXVldWVzLCBhbmQgYSBsb29wCj4KPiArwqDCoMKg
-IGZvciAoaSA9IDA7IGkgPCBxdWV1ZXM7IGkrKykrwqDCoMKgwqDCoMKgwqAgZGV2bV9mcmVlX2ly
-cSgmcGRldi0+ZGV2LCAKPiB2Zi0+dnJpbmdbaV0uaXJxLCAmdmYtPnZyaW5nW2ldKTsgd2lsbCBm
-cmVlIGlycSBmb3IgdnFbMCxxdWV1ZXMpCgoKQWhhLCBJIGdldCB0aGlzLgoKCj4+Cj4+Cj4+Cj4+
-PiArCj4+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCByZXR1cm4gcmV0Owo+Pj4gK8KgwqDCoMKg
-wqDCoMKgIH0KPj4+ICsKPj4+ICvCoMKgwqDCoMKgwqDCoCB2Zi0+dnJpbmdbaV0uaXJxID0gaXJx
-Owo+Pj4gK8KgwqDCoCB9Cj4+PiArCj4+PiArwqDCoMKgIHJldHVybiAwOwo+Pj4gK30KPj4+ICsK
-Pj4+IMKgIHN0YXRpYyBpbnQgaWZjdmZfc3RhcnRfZGF0YXBhdGgodm9pZCAqcHJpdmF0ZSkKPj4+
-IMKgIHsKPj4+IMKgwqDCoMKgwqAgc3RydWN0IGlmY3ZmX2h3ICp2ZiA9IGlmY3ZmX3ByaXZhdGVf
-dG9fdmYocHJpdmF0ZSk7Cj4+PiBAQCAtMTE4LDkgKzE3MiwxMiBAQCBzdGF0aWMgdm9pZCBpZmN2
-Zl92ZHBhX3NldF9zdGF0dXMoc3RydWN0IAo+Pj4gdmRwYV9kZXZpY2UgKnZkcGFfZGV2LCB1OCBz
-dGF0dXMpCj4+PiDCoCB7Cj4+PiDCoMKgwqDCoMKgIHN0cnVjdCBpZmN2Zl9hZGFwdGVyICphZGFw
-dGVyOwo+Pj4gwqDCoMKgwqDCoCBzdHJ1Y3QgaWZjdmZfaHcgKnZmOwo+Pj4gK8KgwqDCoCB1OCBz
-dGF0dXNfb2xkOwo+Pj4gK8KgwqDCoCBpbnQgcmV0Owo+Pj4gwqAgwqDCoMKgwqDCoCB2ZsKgID0g
-dmRwYV90b192Zih2ZHBhX2Rldik7Cj4+PiDCoMKgwqDCoMKgIGFkYXB0ZXIgPSBkZXZfZ2V0X2Ry
-dmRhdGEodmRwYV9kZXYtPmRldi5wYXJlbnQpOwo+Pj4gK8KgwqDCoCBzdGF0dXNfb2xkID0gaWZj
-dmZfZ2V0X3N0YXR1cyh2Zik7Cj4+PiDCoCDCoMKgwqDCoMKgIGlmIChzdGF0dXMgPT0gMCkgewo+
-Pj4gwqDCoMKgwqDCoMKgwqDCoMKgIGlmY3ZmX3N0b3BfZGF0YXBhdGgoYWRhcHRlcik7Cj4+PiBA
-QCAtMTI4LDcgKzE4NSwyMiBAQCBzdGF0aWMgdm9pZCBpZmN2Zl92ZHBhX3NldF9zdGF0dXMoc3Ry
-dWN0IAo+Pj4gdmRwYV9kZXZpY2UgKnZkcGFfZGV2LCB1OCBzdGF0dXMpCj4+PiDCoMKgwqDCoMKg
-wqDCoMKgwqAgcmV0dXJuOwo+Pj4gwqDCoMKgwqDCoCB9Cj4+PiDCoCAtwqDCoMKgIGlmIChzdGF0
-dXMgJiBWSVJUSU9fQ09ORklHX1NfRFJJVkVSX09LKSB7Cj4+PiArwqDCoMKgIGlmICgoc3RhdHVz
-X29sZCAmIFZJUlRJT19DT05GSUdfU19EUklWRVJfT0spICYmCj4+PiArwqDCoMKgwqDCoMKgwqAg
-IShzdGF0dXMgJiBWSVJUSU9fQ09ORklHX1NfRFJJVkVSX09LKSkgewo+Pj4gK8KgwqDCoMKgwqDC
-oMKgIGlmY3ZmX3N0b3BfZGF0YXBhdGgoYWRhcHRlcik7Cj4+PiArwqDCoMKgwqDCoMKgwqAgaWZj
-dmZfZnJlZV9pcnEoYWRhcHRlciwgSUZDVkZfTUFYX1FVRVVFX1BBSVJTICogMik7Cj4+PiArwqDC
-oMKgIH0KPj4+ICsKPj4+ICvCoMKgwqAgaWYgKChzdGF0dXMgJiBWSVJUSU9fQ09ORklHX1NfRFJJ
-VkVSX09LKSAmJgo+Pj4gK8KgwqDCoMKgwqDCoMKgICEoc3RhdHVzX29sZCAmIFZJUlRJT19DT05G
-SUdfU19EUklWRVJfT0spKSB7Cj4+PiArwqDCoMKgwqDCoMKgwqAgcmV0ID0gaWZjdmZfcmVxdWVz
-dF9pcnEoYWRhcHRlcik7Cj4+PiArwqDCoMKgwqDCoMKgwqAgaWYgKHJldCkgewo+Pj4gK8KgwqDC
-oMKgwqDCoMKgwqDCoMKgwqAgc3RhdHVzID0gaWZjdmZfZ2V0X3N0YXR1cyh2Zik7Cj4+PiArwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoCBzdGF0dXMgfD0gVklSVElPX0NPTkZJR19TX0ZBSUxFRDsKPj4+
-ICvCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGlmY3ZmX3NldF9zdGF0dXModmYsIHN0YXR1cyk7Cj4+
-PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCByZXR1cm47Cj4+PiArwqDCoMKgwqDCoMKgwqAgfQo+
-Pj4gKwo+Pgo+Pgo+PiBIYXZlIGEgaGFyZCB0aG91Z2ggb24gdGhlIGxvZ2ljIGhlcmUuCj4+Cj4+
-IFRoaXMgZGVwZW5kcyBvbiB0aGUgc3RhdHVzIHNldHRpbmcgZnJvbSBndWVzdCBvciB1c2Vyc3Bh
-Y2UuIFdoaWNoIAo+PiBtZWFucyBpdCBjYW4gbm90IGRlYWwgd2l0aCBlLmcgd2hlbiBxZW11IG9y
-IHVzZXJzcGFjZSBpcyBjcmFzaGVkPyBEbyAKPj4gd2UgbmVlZCB0byBjYXJlIHRoaXMgb3IgaXQn
-cyBhIG92ZXIgZW5naW5lZXJpbmc/Cj4+Cj4+IFRoYW5rcwo+IElmIHFlbXUgY3Jhc2gsIEkgZ3Vl
-c3MgdXNlcnMgbWF5IHJlLXJ1biBxbWV1IC8gcmUtaW5pdGlhbGl6ZSB0aGUgZGV2aWNlLCBhY2Nv
-cmRpbmcgdG8gdGhlIHNwZWMsIHRoZXJlIHNob3VsZCBiZSBhIHJlc2V0IHJvdXRpbmUuCj4gVGhp
-cyBjb2RlIHBpZWNlIGhhbmRsZXMgc3RhdHVzIGNoYW5nZSBvbiBEUklWRVJfT0sgZmxpcHBpbmcu
-IEkgYW0gbm90IHN1cmUgSSBnZXQgeW91ciBwb2ludCwgbWluZCB0byBnaXZlIG1vcmUgaGludHM/
-CgoKVGhlIHByb2JsZW0gaXMgaWYgd2UgZG9uJ3QgbGF1bmNoIG5ldyBxZW11IGluc3RhbmNlLCB0
-aGUgaW50ZXJydXB0IHdpbGwgCmJlIHN0aWxsIHRoZXJlPwoKVGhhbmtzCgoKPgo+IFRoYW5rcywK
-PiBCUgo+IFpodSBMaW5nc2hhbgo+ICAgCj4+Cj4+Cj4+PiDCoMKgwqDCoMKgwqDCoMKgwqAgaWYg
-KGlmY3ZmX3N0YXJ0X2RhdGFwYXRoKGFkYXB0ZXIpIDwgMCkKPj4+IMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgIElGQ1ZGX0VSUihhZGFwdGVyLT5wZGV2LAo+Pj4gwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqAgIkZhaWxlZCB0byBzZXQgaWZjdmYgdmRwYcKgIHN0YXR1cyAl
-dVxuIiwKPj4+IEBAIC0yODQsMzggKzM1Niw2IEBAIHN0YXRpYyB2b2lkIGlmY3ZmX3ZkcGFfc2V0
-X2NvbmZpZ19jYihzdHJ1Y3QgCj4+PiB2ZHBhX2RldmljZSAqdmRwYV9kZXYsCj4+PiDCoMKgwqDC
-oMKgIC5zZXRfY29uZmlnX2NiwqAgPSBpZmN2Zl92ZHBhX3NldF9jb25maWdfY2IsCj4+PiDCoCB9
-Owo+Pj4gwqAgLXN0YXRpYyBpbnQgaWZjdmZfcmVxdWVzdF9pcnEoc3RydWN0IGlmY3ZmX2FkYXB0
-ZXIgKmFkYXB0ZXIpCj4+PiAtewo+Pj4gLcKgwqDCoCBzdHJ1Y3QgcGNpX2RldiAqcGRldiA9IGFk
-YXB0ZXItPnBkZXY7Cj4+PiAtwqDCoMKgIHN0cnVjdCBpZmN2Zl9odyAqdmYgPSAmYWRhcHRlci0+
-dmY7Cj4+PiAtwqDCoMKgIGludCB2ZWN0b3IsIGksIHJldCwgaXJxOwo+Pj4gLQo+Pj4gLQo+Pj4g
-LcKgwqDCoCBmb3IgKGkgPSAwOyBpIDwgSUZDVkZfTUFYX1FVRVVFX1BBSVJTICogMjsgaSsrKSB7
-Cj4+PiAtwqDCoMKgwqDCoMKgwqAgc25wcmludGYodmYtPnZyaW5nW2ldLm1zaXhfbmFtZSwgMjU2
-LCAiaWZjdmZbJXNdLSVkXG4iLAo+Pj4gLcKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBwY2lfbmFt
-ZShwZGV2KSwgaSk7Cj4+PiAtwqDCoMKgwqDCoMKgwqAgdmVjdG9yID0gaSArIElGQ1ZGX01TSV9R
-VUVVRV9PRkY7Cj4+PiAtwqDCoMKgwqDCoMKgwqAgaXJxID0gcGNpX2lycV92ZWN0b3IocGRldiwg
-dmVjdG9yKTsKPj4+IC3CoMKgwqDCoMKgwqDCoCByZXQgPSBkZXZtX3JlcXVlc3RfaXJxKCZwZGV2
-LT5kZXYsIGlycSwKPj4+IC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoCBpZmN2Zl9pbnRyX2hhbmRsZXIsIDAsCj4+PiAtwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqAgdmYtPnZyaW5nW2ldLm1zaXhfbmFtZSwKPj4+IC3CoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCAmdmYtPnZyaW5nW2ldKTsKPj4+
-IC3CoMKgwqDCoMKgwqDCoCBpZiAocmV0KSB7Cj4+PiAtwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBJ
-RkNWRl9FUlIocGRldiwKPj4+IC3CoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgICJG
-YWlsZWQgdG8gcmVxdWVzdCBpcnEgZm9yIHZxICVkXG4iLCBpKTsKPj4+IC3CoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgIHJldHVybiByZXQ7Cj4+PiAtwqDCoMKgwqDCoMKgwqAgfQo+Pj4gLcKgwqDCoMKg
-wqDCoMKgIHZmLT52cmluZ1tpXS5pcnEgPSBpcnE7Cj4+PiAtwqDCoMKgIH0KPj4+IC0KPj4+IC3C
-oMKgwqAgcmV0dXJuIDA7Cj4+PiAtfQo+Pj4gLQo+Pj4gLXN0YXRpYyB2b2lkIGlmY3ZmX2ZyZWVf
-aXJxX3ZlY3RvcnModm9pZCAqZGF0YSkKPj4+IC17Cj4+PiAtwqDCoMKgIHBjaV9mcmVlX2lycV92
-ZWN0b3JzKGRhdGEpOwo+Pj4gLX0KPj4+IC0KPj4+IMKgIHN0YXRpYyBpbnQgaWZjdmZfcHJvYmUo
-c3RydWN0IHBjaV9kZXYgKnBkZXYsIGNvbnN0IHN0cnVjdCAKPj4+IHBjaV9kZXZpY2VfaWQgKmlk
-KQo+Pj4gwqAgewo+Pj4gwqDCoMKgwqDCoCBzdHJ1Y3QgZGV2aWNlICpkZXYgPSAmcGRldi0+ZGV2
-Owo+Pj4gQEAgLTM0OSwxMyArMzg5LDYgQEAgc3RhdGljIGludCBpZmN2Zl9wcm9iZShzdHJ1Y3Qg
-cGNpX2RldiAqcGRldiwgCj4+PiBjb25zdCBzdHJ1Y3QgcGNpX2RldmljZV9pZCAqaWQpCj4+PiDC
-oMKgwqDCoMKgwqDCoMKgwqAgcmV0dXJuIHJldDsKPj4+IMKgwqDCoMKgwqAgfQo+Pj4gwqAgLcKg
-wqDCoCByZXQgPSBwY2lfYWxsb2NfaXJxX3ZlY3RvcnMocGRldiwgSUZDVkZfTUFYX0lOVFIsCj4+
-PiAtwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgSUZDVkZfTUFYX0lOVFIs
-IFBDSV9JUlFfTVNJWCk7Cj4+PiAtwqDCoMKgIGlmIChyZXQgPCAwKSB7Cj4+PiAtwqDCoMKgwqDC
-oMKgwqAgSUZDVkZfRVJSKHBkZXYsICJGYWlsZWQgdG8gYWxsb2MgaXJxIHZlY3RvcnNcbiIpOwo+
-Pj4gLcKgwqDCoMKgwqDCoMKgIHJldHVybiByZXQ7Cj4+PiAtwqDCoMKgIH0KPj4+IC0KPj4+IMKg
-wqDCoMKgwqAgcmV0ID0gZGV2bV9hZGRfYWN0aW9uX29yX3Jlc2V0KGRldiwgaWZjdmZfZnJlZV9p
-cnFfdmVjdG9ycywgCj4+PiBwZGV2KTsKPj4+IMKgwqDCoMKgwqAgaWYgKHJldCkgewo+Pj4gwqDC
-oMKgwqDCoMKgwqDCoMKgIElGQ1ZGX0VSUihwZGV2LAo+Pj4gQEAgLTM3OSwxMiArNDEyLDYgQEAg
-c3RhdGljIGludCBpZmN2Zl9wcm9iZShzdHJ1Y3QgcGNpX2RldiAqcGRldiwgCj4+PiBjb25zdCBz
-dHJ1Y3QgcGNpX2RldmljZV9pZCAqaWQpCj4+PiDCoMKgwqDCoMKgIGFkYXB0ZXItPnBkZXYgPSBw
-ZGV2Owo+Pj4gwqDCoMKgwqDCoCBhZGFwdGVyLT52ZHBhLmRtYV9kZXYgPSAmcGRldi0+ZGV2Owo+
-Pj4gwqAgLcKgwqDCoCByZXQgPSBpZmN2Zl9yZXF1ZXN0X2lycShhZGFwdGVyKTsKPj4+IC3CoMKg
-wqAgaWYgKHJldCkgewo+Pj4gLcKgwqDCoMKgwqDCoMKgIElGQ1ZGX0VSUihwZGV2LCAiRmFpbGVk
-IHRvIHJlcXVlc3QgTVNJLVggaXJxXG4iKTsKPj4+IC3CoMKgwqDCoMKgwqDCoCBnb3RvIGVycjsK
-Pj4+IC3CoMKgwqAgfQo+Pj4gLQo+Pj4gwqDCoMKgwqDCoCByZXQgPSBpZmN2Zl9pbml0X2h3KHZm
-LCBwZGV2KTsKPj4+IMKgwqDCoMKgwqAgaWYgKHJldCkgewo+Pj4gwqDCoMKgwqDCoMKgwqDCoMKg
-IElGQ1ZGX0VSUihwZGV2LCAiRmFpbGVkIHRvIGluaXQgSUZDVkYgaHdcbiIpOwo+PgoKX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
-bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
-dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
-emF0aW9u
+
+On 2020/5/11 下午6:18, Francesco Lavra wrote:
+> On 5/11/20 11:26 AM, Jason Wang wrote:
+>>
+>> On 2020/5/11 下午3:19, Zhu Lingshan wrote:
+>>> This commit move IRQ request and free operations from probe()
+>>> to VIRTIO status change handler to comply with VIRTIO spec.
+>>>
+>>> VIRTIO spec 1.1, section 2.1.2 Device Requirements: Device Status Field
+>>> The device MUST NOT consume buffers or send any used buffer
+>>> notifications to the driver before DRIVER_OK.
+>>
+>>
+>> My previous explanation might be wrong here. It depends on how you 
+>> implement your hardware, if you hardware guarantee that no interrupt 
+>> will be triggered before DRIVER_OK, then it's fine.
+>>
+>> And the main goal for this patch is to allocate the interrupt on demand.
+>>
+>>
+>>>
+>>> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+>>> ---
+>>>   drivers/vdpa/ifcvf/ifcvf_main.c | 119 
+>>> ++++++++++++++++++++++++----------------
+>>>   1 file changed, 73 insertions(+), 46 deletions(-)
+>>>
+>>> diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c 
+>>> b/drivers/vdpa/ifcvf/ifcvf_main.c
+>>> index abf6a061..4d58bf2 100644
+>>> --- a/drivers/vdpa/ifcvf/ifcvf_main.c
+>>> +++ b/drivers/vdpa/ifcvf/ifcvf_main.c
+>>> @@ -28,6 +28,60 @@ static irqreturn_t ifcvf_intr_handler(int irq, 
+>>> void *arg)
+>>>       return IRQ_HANDLED;
+>>>   }
+>>> +static void ifcvf_free_irq_vectors(void *data)
+>>> +{
+>>> +    pci_free_irq_vectors(data);
+>>> +}
+>>> +
+>>> +static void ifcvf_free_irq(struct ifcvf_adapter *adapter, int queues)
+>>> +{
+>>> +    struct pci_dev *pdev = adapter->pdev;
+>>> +    struct ifcvf_hw *vf = &adapter->vf;
+>>> +    int i;
+>>> +
+>>> +
+>>> +    for (i = 0; i < queues; i++)
+>>> +        devm_free_irq(&pdev->dev, vf->vring[i].irq, &vf->vring[i]);
+>>> +
+>>> +    ifcvf_free_irq_vectors(pdev);
+>>> +}
+>>> +
+>>> +static int ifcvf_request_irq(struct ifcvf_adapter *adapter)
+>>> +{
+>>> +    struct pci_dev *pdev = adapter->pdev;
+>>> +    struct ifcvf_hw *vf = &adapter->vf;
+>>> +    int vector, i, ret, irq;
+>>> +
+>>> +    ret = pci_alloc_irq_vectors(pdev, IFCVF_MAX_INTR,
+>>> +                    IFCVF_MAX_INTR, PCI_IRQ_MSIX);
+>>> +    if (ret < 0) {
+>>> +        IFCVF_ERR(pdev, "Failed to alloc IRQ vectors\n");
+>>> +        return ret;
+>>> +    }
+>>> +
+>>> +    for (i = 0; i < IFCVF_MAX_QUEUE_PAIRS * 2; i++) {
+>>> +        snprintf(vf->vring[i].msix_name, 256, "ifcvf[%s]-%d\n",
+>>> +             pci_name(pdev), i);
+>>> +        vector = i + IFCVF_MSI_QUEUE_OFF;
+>>> +        irq = pci_irq_vector(pdev, vector);
+>>> +        ret = devm_request_irq(&pdev->dev, irq,
+>>> +                       ifcvf_intr_handler, 0,
+>>> +                       vf->vring[i].msix_name,
+>>> +                       &vf->vring[i]);
+>>> +        if (ret) {
+>>> +            IFCVF_ERR(pdev,
+>>> +                  "Failed to request irq for vq %d\n", i);
+>>> +            ifcvf_free_irq(adapter, i);
+>>
+>>
+>> I'm not sure this unwind is correct. It looks like we should loop and 
+>> call devm_free_irq() for virtqueue [0, i);
+>
+> That's exactly what the code does: ifcvf_free_irq() contains a (i = 0; 
+> i < queues; i++) loop, and here the function is called with the 
+> `queues` argument set to `i`.
+>
+
+Oh right.
+
+Thanks
