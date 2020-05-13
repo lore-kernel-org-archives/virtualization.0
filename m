@@ -1,80 +1,241 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH v3 23/75] x86/boot/compressed/64: Setup GHCB Based VC
- Exception handler
-Date: Wed, 13 May 2020 10:59:28 +0200
-Message-ID: <20200513085928.GB4025@zn.tnic>
-References: <20200428151725.31091-1-joro@8bytes.org>
- <20200428151725.31091-24-joro@8bytes.org>
- <20200512181157.GD6859@zn.tnic>
- <20200512210812.GF8135@suse.de>
+From: Bharat Bhushan <bbhushan2-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+Subject: RE: [EXT] Re: [PATCH v5] iommu/virtio: Use page size bitmap supported
+ by endpoint
+Date: Wed, 13 May 2020 09:15:22 +0000
+Message-ID: <MWHPR1801MB1966A23A0298654CA6965FB9E3BF0@MWHPR1801MB1966.namprd18.prod.outlook.com>
+References: <20200505093004.1935-1-bbhushan2@marvell.com>
+ <20200505200659-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200512210812.GF8135@suse.de>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Joerg Roedel <jroedel@suse.de>, Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Joerg Roedel <joro@8bytes.org>, x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Mike Stunes <mstunes@vmware.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <20200505200659-mutt-send-email-mst-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+ <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+ <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Sender: "iommu" <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+To: "Michael S. Tsirkin" <mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: "jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org" <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, "linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, "iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, "jasowang-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org" <jasowang-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, "eric.auger.pro-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org" <eric.auger.pro-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, May 12, 2020 at 11:08:12PM +0200, Joerg Roedel wrote:
-> No, this is a recent addition, otherwise this breaks out-of-tree builds
-> (make O=/some/path ...) because inat-tables.c (included from inat.c) is
-> generated during build and ends up in the $(objtree).
+Hi Jean,
 
-Please add a blurb about this above it otherwise no one would have a
-clue why it is there.
-
-> Because the immediate is the last part of the instruction which is
-> decoded (even if there is no immediate). The .got field is set when
-> either the immediate was decoded successfully or, in case the
-> instruction has no immediate, when the rest of the instruction was
-> decoded successfully. So testing immediate.got is the indicator whether
-> decoding was successful.
-
-Hm, whether the immediate was parsed correctly or it wasn't there and
-using that as the sign whether the instruction was decoded successfully
-sounds kinda arbitrary.
-
-@Masami: shouldn't that insn_get_length() thing return a value to denote
-whether the decode was successful or not instead of testing arbitrary
-fields?
-
-Pasting for you the code sequence again:
-
-	...
-        insn_get_length(&ctxt->insn);
-
-        ret = ctxt->insn.immediate.got ? ES_OK : ES_DECODE_FAILED;
-	...
-
-I wonder if one would be able to do instead:
-
-	if (insn_get_length(&ctxt->insn))
-		return ES_OK;
-
-	return ES_DECODE_FAILED;
-
-to have it straight-forward...
-
-> Probably better rename the function, it also does the sev-es protocol
-> version negotiation and all other related setup tasks. Maybe
-> sev_es_setup() is a better name?
-
-Sure.
-
-> If the above call fails its the end of the systems lifetime, because we
-> can't continue to boot an SEV-ES guest when we have no GHCB.
+> -----Original Message-----
+> From: Michael S. Tsirkin <mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+> Sent: Wednesday, May 6, 2020 5:53 AM
+> To: Bharat Bhushan <bbhushan2-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+> Cc: jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org; joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org; jasowang-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org;
+> virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org; iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org;
+> linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org; eric.auger.pro-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org; eric.auger-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org
+> Subject: [EXT] Re: [PATCH v5] iommu/virtio: Use page size bitmap supported by
+> endpoint
 > 
-> BUG_ON() and friends are also not available in the pre-decompression
-> boot stage.
+> External Email
+> 
+> ----------------------------------------------------------------------
+> On Tue, May 05, 2020 at 03:00:04PM +0530, Bharat Bhushan wrote:
+> > Different endpoint can support different page size, probe endpoint if
+> > it supports specific page size otherwise use global page sizes.
+> >
+> > Signed-off-by: Bharat Bhushan <bbhushan2-eYqpPyKDWXRBDgjK7y7TUQ@public.gmane.org>
+> > ---
+> > v4->v5:
+> >  - Rebase to Linux v5.7-rc4
+> >
+> > v3->v4:
+> >  - Fix whitespace error
+> >
+> > v2->v3:
+> >  - Fixed error return for incompatible endpoint
+> >  - __u64 changed to __le64 in header file
+> >
+> >  drivers/iommu/virtio-iommu.c      | 48 ++++++++++++++++++++++++++++---
+> >  include/uapi/linux/virtio_iommu.h |  7 +++++
+> >  2 files changed, 51 insertions(+), 4 deletions(-)
+> >
+> > diff --git a/drivers/iommu/virtio-iommu.c
+> > b/drivers/iommu/virtio-iommu.c index d5cac4f46ca5..9513d2ab819e 100644
+> > --- a/drivers/iommu/virtio-iommu.c
+> > +++ b/drivers/iommu/virtio-iommu.c
+> > @@ -78,6 +78,7 @@ struct viommu_endpoint {
+> >  	struct viommu_dev		*viommu;
+> >  	struct viommu_domain		*vdomain;
+> >  	struct list_head		resv_regions;
+> > +	u64				pgsize_bitmap;
+> >  };
+> >
+> >  struct viommu_request {
+> > @@ -415,6 +416,19 @@ static int viommu_replay_mappings(struct
+> viommu_domain *vdomain)
+> >  	return ret;
+> >  }
+> >
+> > +static int viommu_set_pgsize_bitmap(struct viommu_endpoint *vdev,
+> > +				    struct virtio_iommu_probe_pgsize_mask *mask,
+> > +				    size_t len)
+> > +{
+> > +	u64 pgsize_bitmap = le64_to_cpu(mask->pgsize_bitmap);
+> > +
+> > +	if (len < sizeof(*mask))
+> 
+> This is too late to validate length, you have dereferenced it already.
+> do it before the read pls.
+> 
+> > +		return -EINVAL;
+> 
+> OK but note that guest will then just proceed to ignore the property. Is that really
+> OK? Wouldn't host want to know?
+> 
+> 
+> > +
+> > +	vdev->pgsize_bitmap = pgsize_bitmap;
+> 
+> what if bitmap is 0? Is that a valid size? I see a bunch of BUG_ON with that value ...
+> 
+> I also see a bunch of code like e.g. this:
+> 
+>         pg_size = 1UL << __ffs(pgsize_bitmap);
+> 
+> which probably won't DTRT on a 32 bit guest if the bitmap has bits set in the high
+> word.
+> 
+> 
+> 
+> > +	return 0;
+> > +}
+> > +
+> >  static int viommu_add_resv_mem(struct viommu_endpoint *vdev,
+> >  			       struct virtio_iommu_probe_resv_mem *mem,
+> >  			       size_t len)
+> > @@ -499,6 +513,9 @@ static int viommu_probe_endpoint(struct viommu_dev
+> *viommu, struct device *dev)
+> >  		case VIRTIO_IOMMU_PROBE_T_RESV_MEM:
+> >  			ret = viommu_add_resv_mem(vdev, (void *)prop, len);
+> >  			break;
+> > +		case VIRTIO_IOMMU_PROBE_T_PAGE_SIZE_MASK:
+> > +			ret = viommu_set_pgsize_bitmap(vdev, (void *)prop, len);
+> > +			break;
+> >  		default:
+> >  			dev_err(dev, "unknown viommu prop 0x%x\n", type);
+> >  		}
+> > @@ -630,7 +647,7 @@ static int viommu_domain_finalise(struct
+> > viommu_endpoint *vdev,
+> >
+> >  	vdomain->id		= (unsigned int)ret;
+> >
+> > -	domain->pgsize_bitmap	= viommu->pgsize_bitmap;
+> > +	domain->pgsize_bitmap	= vdev->pgsize_bitmap;
+> >  	domain->geometry	= viommu->geometry;
+> >
+> >  	vdomain->map_flags	= viommu->map_flags;
+> > @@ -654,6 +671,29 @@ static void viommu_domain_free(struct iommu_domain
+> *domain)
+> >  	kfree(vdomain);
+> >  }
+> >
+> > +/*
+> > + * Check whether the endpoint's capabilities are compatible with
+> > +other
+> > + * endpoints in the domain. Report any inconsistency.
+> > + */
+> > +static bool viommu_endpoint_is_compatible(struct viommu_endpoint *vdev,
+> > +					  struct viommu_domain *vdomain) {
+> > +	struct device *dev = vdev->dev;
+> > +
+> > +	if (vdomain->viommu != vdev->viommu) {
+> > +		dev_err(dev, "cannot attach to foreign vIOMMU\n");
+> > +		return false;
+> > +	}
+> > +
+> > +	if (vdomain->domain.pgsize_bitmap != vdev->pgsize_bitmap) {
+> > +		dev_err(dev, "incompatible domain bitmap 0x%lx != 0x%llx\n",
+> > +			vdomain->domain.pgsize_bitmap, vdev->pgsize_bitmap);
+> > +		return false;
+> > +	}
+> 
+> I'm confused by this. So let's assume host supports pages sizes of 4k, 2M, 1G. It
+> signals this in the properties. Nice.
+> Now domain supports 4k, 2M and that's all. Why is that a problem?
+> Just don't use 1G ...
+> 
+> 
+> > +
+> > +	return true;
+> > +}
+> > +
+> >  static int viommu_attach_dev(struct iommu_domain *domain, struct
+> > device *dev)  {
+> >  	int i;
+> > @@ -670,9 +710,8 @@ static int viommu_attach_dev(struct iommu_domain
+> *domain, struct device *dev)
+> >  		 * owns it.
+> >  		 */
+> >  		ret = viommu_domain_finalise(vdev, domain);
+> > -	} else if (vdomain->viommu != vdev->viommu) {
+> > -		dev_err(dev, "cannot attach to foreign vIOMMU\n");
+> > -		ret = -EXDEV;
+> > +	} else if (!viommu_endpoint_is_compatible(vdev, vdomain)) {
+> > +		ret = -EINVAL;
+> >  	}
+> >  	mutex_unlock(&vdomain->mutex);
+> >
+> > @@ -886,6 +925,7 @@ static int viommu_add_device(struct device *dev)
+> >
+> >  	vdev->dev = dev;
+> >  	vdev->viommu = viommu;
+> > +	vdev->pgsize_bitmap = viommu->pgsize_bitmap;
+> >  	INIT_LIST_HEAD(&vdev->resv_regions);
+> >  	dev_iommu_priv_set(dev, vdev);
+> >
+> > diff --git a/include/uapi/linux/virtio_iommu.h
+> > b/include/uapi/linux/virtio_iommu.h
+> > index 48e3c29223b5..2cced7accc99 100644
+> > --- a/include/uapi/linux/virtio_iommu.h
+> > +++ b/include/uapi/linux/virtio_iommu.h
+> 
+> As any virtio UAPI change, you need to copy virtio TC at some point before this is
+> merged ...
+> 
+> > @@ -111,6 +111,7 @@ struct virtio_iommu_req_unmap {
+> >
+> >  #define VIRTIO_IOMMU_PROBE_T_NONE		0
+> >  #define VIRTIO_IOMMU_PROBE_T_RESV_MEM		1
+> > +#define VIRTIO_IOMMU_PROBE_T_PAGE_SIZE_MASK	2
+> >
+> >  #define VIRTIO_IOMMU_PROBE_T_MASK		0xfff
+> >
+> 
+> Does host need to know that guest will ignore the page size mask?
+> Maybe we need a feature bit.
+> 
+> > @@ -119,6 +120,12 @@ struct virtio_iommu_probe_property {
+> >  	__le16					length;
+> >  };
+> >
+> > +struct virtio_iommu_probe_pgsize_mask {
+> > +	struct virtio_iommu_probe_property	head;
+> > +	__u8					reserved[4];
+> > +	__le64					pgsize_bitmap;
+> > +};
+> > +
+> 
+> This is UAPI. Document the format of pgsize_bitmap please.
 
-Oh ok, error() does hlt the system.
+I do not see uapi documentation in "Documentation" folder of other data struct in this file, am I missing something?
 
-Thx.
+Thanks
+-Bharat
 
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+> 
+> 
+> >  #define VIRTIO_IOMMU_RESV_MEM_T_RESERVED	0
+> >  #define VIRTIO_IOMMU_RESV_MEM_T_MSI		1
+> >
+> > --
+> > 2.17.1
