@@ -1,262 +1,277 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3 4/4] drm/virtio: Support virtgpu exported resources
-Date: Wed, 13 May 2020 12:34:53 -0400
-Message-ID: <20200513123326-mutt-send-email-mst@kernel.org>
-References: <20200311112004.47138-1-stevensd@chromium.org>
- <20200311112004.47138-5-stevensd@chromium.org>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [RFC v3 for QEMU] virtio-balloon: Add option cont-pages to set
+ VIRTIO_BALLOON_VQ_INFLATE_CONT
+Date: Wed, 13 May 2020 18:37:09 +0200
+Message-ID: <0e7c29be-dd2c-dd95-6f2e-a009c530ffb1@redhat.com>
+References: <1589276501-16026-1-git-send-email-teawater@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200311112004.47138-5-stevensd@chromium.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Stevens <stevensd@chromium.org>
-Cc: Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Jason Wang <jasowang@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org, virtio-dev@lists.oasis-open.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <virtio-dev-return-7327-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+In-Reply-To: <1589276501-16026-1-git-send-email-teawater@gmail.com>
+Content-Language: en-US
+To: Hui Zhu <teawater@gmail.com>, mst@redhat.com, jasowang@redhat.com, akpm@linux-foundation.org, xdeguillard@vmware.com, namit@vmware.com, gregkh@linuxfoundation.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, qemu-devel@nongnu.org, virtio-dev@lists.oasis-open.org
+Cc: wei.guo.simon@linux.alibaba.com, qixuan.wu@linux.alibaba.com, Hui Zhu <teawaterz@linux.alibaba.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Mar 11, 2020 at 08:20:04PM +0900, David Stevens wrote:
-> Add support for UUID-based resource sharing mechanism to virtgpu. This
-> implements the new virtgpu commands and hooks them up to dma-buf's
-> get_uuid callback.
+On 12.05.20 11:41, Hui Zhu wrote:
+
+This description needs an overhaul, it's hard to parse.
+
+> If the guest kernel has many fragmentation pages, use virtio_balloon
+> will split THP of QEMU when it calls MADV_DONTNEED madvise to release
+> the balloon pages.
+
+This is very unclear and confusing. You will *always* split THPs when
+inflating 4k pages and there are THPs around. This is completely
+independent of any fragmentation in the guest. The thing you are trying
+to achieve here is trying to *minimize* the number of split THPs in the
+hypervisor *after* the balloon was completely inflated.
+
+> Set option cont-pages to on will open flags VIRTIO_BALLOON_VQ_INFLATE_CONT
+> and set default continuous pages order to THP order.
+
+... and what you implement here is very x86 specific, hard-coding the
+"9" as THP order.
+
+"Set option cont-pages to on" -> 'Once the feature is enabled via
+"cont-pages=on"'
+"open flags" -> "unlock VIRTIO_BALLOON_VQ_INFLATE_CONT".
+
+
+> Then It will get continuous pages PFN that its order is current_pages_order
+> from VQ ivq use use madvise MADV_DONTNEED release the page.
+
+I fail to parse this sentence. I assume something like
+
+"current_pages_order is set by the guest and configures the size of the
+pages communicated via the inflate/deflate queue by the guest. It
+defaults to 0, which corresponds to the legacy handling without
+VIRTIO_BALLOON_VQ_INFLATE_CONT - 4k pages."
+
+Why is "max_pages_order" necessary *at all*? You never check against that.
+
+I have to say, I really dislike that interface. I would much rather
+prefer new inflate/deflate queues that eat variable sizes (not orders!)
+- similar to the free page reporting interface - and skip things like
+the pbp. Not sure if this interface is really what MST asked for.
+
+> This will handle the THP split issue.
 > 
-> Signed-off-by: David Stevens <stevensd@chromium.org>
+> Signed-off-by: Hui Zhu <teawaterz@linux.alibaba.com>
 > ---
->  drivers/gpu/drm/virtio/virtgpu_drv.c   |  3 ++
->  drivers/gpu/drm/virtio/virtgpu_drv.h   | 18 +++++++++
->  drivers/gpu/drm/virtio/virtgpu_kms.c   |  4 ++
->  drivers/gpu/drm/virtio/virtgpu_prime.c | 41 +++++++++++++++++--
->  drivers/gpu/drm/virtio/virtgpu_vq.c    | 55 ++++++++++++++++++++++++++
->  5 files changed, 118 insertions(+), 3 deletions(-)
+>  hw/virtio/virtio-balloon.c                      | 77 +++++++++++++++++--------
+>  include/hw/virtio/virtio-balloon.h              |  2 +
+>  include/standard-headers/linux/virtio_balloon.h |  5 ++
+>  3 files changed, 60 insertions(+), 24 deletions(-)
 > 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> index ab4bed78e656..776e6667042e 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> @@ -165,6 +165,7 @@ static unsigned int features[] = {
->  	VIRTIO_GPU_F_VIRGL,
->  #endif
->  	VIRTIO_GPU_F_EDID,
-> +	VIRTIO_GPU_F_RESOURCE_UUID,
->  };
->  static struct virtio_driver virtio_gpu_driver = {
->  	.feature_table = features,
-> @@ -202,7 +203,9 @@ static struct drm_driver driver = {
->  	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
->  	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
->  	.gem_prime_mmap = drm_gem_prime_mmap,
-> +	.gem_prime_export = virtgpu_gem_prime_export,
->  	.gem_prime_import_sg_table = virtgpu_gem_prime_import_sg_table,
-> +	.gem_prime_get_uuid = virtgpu_gem_prime_get_uuid,
+> diff --git a/hw/virtio/virtio-balloon.c b/hw/virtio/virtio-balloon.c
+> index a4729f7..84d47d3 100644
+> --- a/hw/virtio/virtio-balloon.c
+> +++ b/hw/virtio/virtio-balloon.c
+> @@ -34,6 +34,7 @@
+>  #include "hw/virtio/virtio-access.h"
 >  
->  	.gem_create_object = virtio_gpu_create_object,
->  	.fops = &virtio_gpu_driver_fops,
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> index af9403e1cf78..fab65f0f5a4d 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> @@ -49,6 +49,10 @@
->  #define DRIVER_MINOR 1
->  #define DRIVER_PATCHLEVEL 0
+>  #define BALLOON_PAGE_SIZE  (1 << VIRTIO_BALLOON_PFN_SHIFT)
+> +#define CONT_PAGES_ORDER   9
 >  
-> +#define UUID_INITIALIZING 0
-> +#define UUID_INITIALIZED 1
-> +#define UUID_INITIALIZATION_FAILED 2
-> +
->  struct virtio_gpu_object_params {
->  	uint32_t format;
->  	uint32_t width;
-> @@ -75,6 +79,9 @@ struct virtio_gpu_object {
->  
->  	bool dumb;
->  	bool created;
-> +
-> +	int uuid_state;
-> +	uuid_t uuid;
->  };
->  #define gem_to_virtio_gpu_obj(gobj) \
->  	container_of((gobj), struct virtio_gpu_object, base.base)
-> @@ -196,6 +203,7 @@ struct virtio_gpu_device {
->  	bool has_virgl_3d;
->  	bool has_edid;
->  	bool has_indirect;
-> +	bool has_resource_assign_uuid;
->  
->  	struct work_struct config_changed_work;
->  
-> @@ -206,6 +214,8 @@ struct virtio_gpu_device {
->  	struct virtio_gpu_drv_capset *capsets;
->  	uint32_t num_capsets;
->  	struct list_head cap_cache;
-> +
-> +	spinlock_t resource_export_lock;
->  };
->  
->  struct virtio_gpu_fpriv {
-> @@ -338,6 +348,10 @@ void virtio_gpu_dequeue_fence_func(struct work_struct *work);
->  void virtio_gpu_disable_notify(struct virtio_gpu_device *vgdev);
->  void virtio_gpu_enable_notify(struct virtio_gpu_device *vgdev);
->  
-> +int
-> +virtio_gpu_cmd_resource_assign_uuid(struct virtio_gpu_device *vgdev,
-> +				    struct virtio_gpu_object_array *objs);
-> +
->  /* virtio_gpu_display.c */
->  void virtio_gpu_modeset_init(struct virtio_gpu_device *vgdev);
->  void virtio_gpu_modeset_fini(struct virtio_gpu_device *vgdev);
-> @@ -366,6 +380,10 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
->  			     struct virtio_gpu_object **bo_ptr,
->  			     struct virtio_gpu_fence *fence);
->  /* virtgpu_prime.c */
-> +struct dma_buf *virtgpu_gem_prime_export(struct drm_gem_object *obj,
-> +					 int flags);
-> +int virtgpu_gem_prime_get_uuid(struct drm_gem_object *obj,
-> +			       uuid_t *uuid);
->  struct drm_gem_object *virtgpu_gem_prime_import_sg_table(
->  	struct drm_device *dev, struct dma_buf_attachment *attach,
->  	struct sg_table *sgt);
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-> index 4009c2f97d08..5a2aeb6d2f35 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-> @@ -134,6 +134,7 @@ int virtio_gpu_init(struct drm_device *dev)
->  	vgdev->dev = dev->dev;
->  
->  	spin_lock_init(&vgdev->display_info_lock);
-> +	spin_lock_init(&vgdev->resource_export_lock);
->  	ida_init(&vgdev->ctx_id_ida);
->  	ida_init(&vgdev->resource_ida);
->  	init_waitqueue_head(&vgdev->resp_wq);
-> @@ -162,6 +163,9 @@ int virtio_gpu_init(struct drm_device *dev)
->  	if (virtio_has_feature(vgdev->vdev, VIRTIO_RING_F_INDIRECT_DESC)) {
->  		vgdev->has_indirect = true;
->  	}
-> +	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_RESOURCE_UUID)) {
-> +		vgdev->has_resource_assign_uuid = true;
-> +	}
+>  typedef struct PartiallyBalloonedPage {
+>      ram_addr_t base_gpa;
+> @@ -72,6 +73,8 @@ static void balloon_inflate_page(VirtIOBalloon *balloon,
+>      RAMBlock *rb;
+>      size_t rb_page_size;
+>      int subpages;
+> +    size_t inflate_size = BALLOON_PAGE_SIZE << balloon->current_pages_order;
+> +    int pages_num;
 
-
-Just a question: this relies on DMA bufs so I assume it is
-not really assumed to work when DMA API is bypassed, right?
-Rather than worry what does it mean, how about just
-disabling  this feature without PLATFORM_DMA for now?
+reverse christmas tree please. squash same types into a single line if
+possible.
 
 >  
->  	DRM_INFO("features: %cvirgl %cedid\n",
->  		 vgdev->has_virgl_3d ? '+' : '-',
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_prime.c b/drivers/gpu/drm/virtio/virtgpu_prime.c
-> index 050d24c39a8f..7c6357f59877 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_prime.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_prime.c
-> @@ -26,9 +26,44 @@
+>      /* XXX is there a better way to get to the RAMBlock than via a
+>       * host address? */
+> @@ -81,7 +84,7 @@ static void balloon_inflate_page(VirtIOBalloon *balloon,
+>      if (rb_page_size == BALLOON_PAGE_SIZE) {
+>          /* Easy case */
 >  
->  #include "virtgpu_drv.h"
+> -        ram_block_discard_range(rb, rb_offset, rb_page_size);
+> +        ram_block_discard_range(rb, rb_offset, inflate_size);
+>          /* We ignore errors from ram_block_discard_range(), because it
+>           * has already reported them, and failing to discard a balloon
+>           * page is not fatal */
+> @@ -99,32 +102,38 @@ static void balloon_inflate_page(VirtIOBalloon *balloon,
 >  
-> -/* Empty Implementations as there should not be any other driver for a virtual
-> - * device that might share buffers with virtgpu
-> - */
-> +int virtgpu_gem_prime_get_uuid(struct drm_gem_object *obj,
-> +			       uuid_t *uuid)
-> +{
-> +	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
-> +	struct virtio_gpu_device *vgdev = obj->dev->dev_private;
-> +
-> +	wait_event(vgdev->resp_wq, bo->uuid_state != UUID_INITIALIZING);
-> +	if (bo->uuid_state != UUID_INITIALIZED)
-> +		return -ENODEV;
-> +
-> +	uuid_copy(uuid, &bo->uuid);
-> +
-> +	return 0;
-> +}
-> +
-> +struct dma_buf *virtgpu_gem_prime_export(struct drm_gem_object *obj,
-> +					 int flags)
-> +{
-> +	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
-> +	struct virtio_gpu_device *vgdev = obj->dev->dev_private;
-> +	struct virtio_gpu_object_array *objs;
-> +	int ret = 0;
-> +
-> +	if (vgdev->has_resource_assign_uuid) {
-> +		objs = virtio_gpu_array_alloc(1);
-> +		if (!objs)
-> +			return ERR_PTR(-ENOMEM);
-> +		virtio_gpu_array_add_obj(objs, &bo->base.base);
-> +
-> +		ret = virtio_gpu_cmd_resource_assign_uuid(vgdev, objs);
-> +		if (ret)
-> +			return ERR_PTR(ret);
-> +	} else {
-> +		bo->uuid_state = UUID_INITIALIZATION_FAILED;
-> +  }
-> +
-> +	return drm_gem_prime_export(obj, flags);
-> +}
+>      rb_aligned_offset = QEMU_ALIGN_DOWN(rb_offset, rb_page_size);
+>      subpages = rb_page_size / BALLOON_PAGE_SIZE;
+> -    base_gpa = memory_region_get_ram_addr(mr) + mr_offset -
+> -               (rb_offset - rb_aligned_offset);
 >  
->  struct drm_gem_object *virtgpu_gem_prime_import_sg_table(
->  	struct drm_device *dev, struct dma_buf_attachment *attach,
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> index cfe9c54f87a3..b968eaa46bb0 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> @@ -1111,3 +1111,58 @@ void virtio_gpu_cursor_ping(struct virtio_gpu_device *vgdev,
->  	memcpy(cur_p, &output->cursor, sizeof(output->cursor));
->  	virtio_gpu_queue_cursor(vgdev, vbuf);
+> -    if (pbp->bitmap && !virtio_balloon_pbp_matches(pbp, base_gpa)) {
+> -        /* We've partially ballooned part of a host page, but now
+> -         * we're trying to balloon part of a different one.  Too hard,
+> -         * give up on the old partial page */
+> -        virtio_balloon_pbp_free(pbp);
+> -    }
+> +    for (pages_num = inflate_size / BALLOON_PAGE_SIZE;
+> +         pages_num > 0; pages_num--) {
+> +        base_gpa = memory_region_get_ram_addr(mr) + mr_offset -
+> +                   (rb_offset - rb_aligned_offset);
+>  
+> -    if (!pbp->bitmap) {
+> -        virtio_balloon_pbp_alloc(pbp, base_gpa, subpages);
+> -    }
+> +        if (pbp->bitmap && !virtio_balloon_pbp_matches(pbp, base_gpa)) {
+> +            /* We've partially ballooned part of a host page, but now
+> +            * we're trying to balloon part of a different one.  Too hard,
+> +            * give up on the old partial page */
+> +            virtio_balloon_pbp_free(pbp);
+> +        }
+>  
+> -    set_bit((rb_offset - rb_aligned_offset) / BALLOON_PAGE_SIZE,
+> -            pbp->bitmap);
+> +        if (!pbp->bitmap) {
+> +            virtio_balloon_pbp_alloc(pbp, base_gpa, subpages);
+> +        }
+>  
+> -    if (bitmap_full(pbp->bitmap, subpages)) {
+> -        /* We've accumulated a full host page, we can actually discard
+> -         * it now */
+> +        set_bit((rb_offset - rb_aligned_offset) / BALLOON_PAGE_SIZE,
+> +                pbp->bitmap);
+>  
+> -        ram_block_discard_range(rb, rb_aligned_offset, rb_page_size);
+> -        /* We ignore errors from ram_block_discard_range(), because it
+> -         * has already reported them, and failing to discard a balloon
+> -         * page is not fatal */
+> -        virtio_balloon_pbp_free(pbp);
+> +        if (bitmap_full(pbp->bitmap, subpages)) {
+> +            /* We've accumulated a full host page, we can actually discard
+> +            * it now */
+> +
+> +            ram_block_discard_range(rb, rb_aligned_offset, rb_page_size);
+> +            /* We ignore errors from ram_block_discard_range(), because it
+> +            * has already reported them, and failing to discard a balloon
+> +            * page is not fatal */
+> +            virtio_balloon_pbp_free(pbp);
+> +        }
+> +
+> +        mr_offset += BALLOON_PAGE_SIZE;
+>      }
 >  }
+>  
+> @@ -345,7 +354,7 @@ static void virtio_balloon_handle_output(VirtIODevice *vdev, VirtQueue *vq)
+>              offset += 4;
+>  
+>              section = memory_region_find(get_system_memory(), pa,
+> -                                         BALLOON_PAGE_SIZE);
+> +                                BALLOON_PAGE_SIZE << s->current_pages_order);
+>              if (!section.mr) {
+>                  trace_virtio_balloon_bad_addr(pa);
+>                  continue;
+> @@ -618,9 +627,12 @@ static size_t virtio_balloon_config_size(VirtIOBalloon *s)
+>      if (s->qemu_4_0_config_size) {
+>          return sizeof(struct virtio_balloon_config);
+>      }
+> -    if (virtio_has_feature(features, VIRTIO_BALLOON_F_PAGE_POISON)) {
+> +    if (virtio_has_feature(s->host_features, VIRTIO_BALLOON_F_CONT_PAGES)) {
+>          return sizeof(struct virtio_balloon_config);
+>      }
+> +    if (virtio_has_feature(features, VIRTIO_BALLOON_F_PAGE_POISON)) {
+> +        return offsetof(struct virtio_balloon_config, current_pages_order);
+> +    }
+>      if (virtio_has_feature(features, VIRTIO_BALLOON_F_FREE_PAGE_HINT)) {
+>          return offsetof(struct virtio_balloon_config, poison_val);
+>      }
+> @@ -646,6 +658,11 @@ static void virtio_balloon_get_config(VirtIODevice *vdev, uint8_t *config_data)
+>                         cpu_to_le32(VIRTIO_BALLOON_CMD_ID_DONE);
+>      }
+>  
+> +    if (virtio_has_feature(dev->host_features, VIRTIO_BALLOON_F_CONT_PAGES)) {
+> +        config.max_pages_order = cpu_to_le32(CONT_PAGES_ORDER);
+> +        config.current_pages_order = cpu_to_le32(dev->current_pages_order);
+> +    }
 > +
-> +static void virtio_gpu_cmd_resource_uuid_cb(struct virtio_gpu_device *vgdev,
-> +					    struct virtio_gpu_vbuffer *vbuf)
-> +{
-> +	struct virtio_gpu_object *obj =
-> +		gem_to_virtio_gpu_obj(vbuf->objs->objs[0]);
-> +	struct virtio_gpu_resp_resource_uuid *resp =
-> +		(struct virtio_gpu_resp_resource_uuid *)vbuf->resp_buf;
-> +	uint32_t resp_type = le32_to_cpu(resp->hdr.type);
+>      trace_virtio_balloon_get_config(config.num_pages, config.actual);
+>      memcpy(config_data, &config, virtio_balloon_config_size(dev));
+>  }
+> @@ -693,6 +710,9 @@ static void virtio_balloon_set_config(VirtIODevice *vdev,
+>  
+>      memcpy(&config, config_data, virtio_balloon_config_size(dev));
+>      dev->actual = le32_to_cpu(config.actual);
+> +    if (virtio_has_feature(dev->host_features, VIRTIO_BALLOON_F_CONT_PAGES)) {
+> +        dev->current_pages_order = le32_to_cpu(config.current_pages_order);
+> +    }
+>      if (dev->actual != oldactual) {
+>          qapi_event_send_balloon_change(vm_ram_size -
+>                          ((ram_addr_t) dev->actual << VIRTIO_BALLOON_PFN_SHIFT));
+> @@ -816,6 +836,13 @@ static void virtio_balloon_device_realize(DeviceState *dev, Error **errp)
+>              virtio_error(vdev, "iothread is missing");
+>          }
+>      }
 > +
-> +	spin_lock(&vgdev->resource_export_lock);
-> +	WARN_ON(obj->uuid_state != UUID_INITIALIZING);
+> +    if (virtio_has_feature(s->host_features, VIRTIO_BALLOON_F_CONT_PAGES)) {
+> +        s->current_pages_order = CONT_PAGES_ORDER;
+> +    } else {
+> +        s->current_pages_order = 0;
+> +    }
 > +
-> +	if (resp_type == VIRTIO_GPU_RESP_OK_RESOURCE_UUID &&
-> +			obj->uuid_state == UUID_INITIALIZING) {
-> +		memcpy(&obj->uuid.b, resp->uuid, sizeof(obj->uuid.b));
-> +		obj->uuid_state = UUID_INITIALIZED;
-> +	} else {
-> +		obj->uuid_state = UUID_INITIALIZATION_FAILED;
-> +	}
-> +	spin_unlock(&vgdev->resource_export_lock);
+>      reset_stats(s);
+>  }
+>  
+> @@ -916,6 +943,8 @@ static Property virtio_balloon_properties[] = {
+>                      VIRTIO_BALLOON_F_DEFLATE_ON_OOM, false),
+>      DEFINE_PROP_BIT("free-page-hint", VirtIOBalloon, host_features,
+>                      VIRTIO_BALLOON_F_FREE_PAGE_HINT, false),
+> +    DEFINE_PROP_BIT("cont-pages", VirtIOBalloon, host_features,
+> +                    VIRTIO_BALLOON_F_CONT_PAGES, false),
+>      /* QEMU 4.0 accidentally changed the config size even when free-page-hint
+>       * is disabled, resulting in QEMU 3.1 migration incompatibility.  This
+>       * property retains this quirk for QEMU 4.1 machine types.
+> diff --git a/include/hw/virtio/virtio-balloon.h b/include/hw/virtio/virtio-balloon.h
+> index d1c968d..e0dce0d 100644
+> --- a/include/hw/virtio/virtio-balloon.h
+> +++ b/include/hw/virtio/virtio-balloon.h
+> @@ -70,6 +70,8 @@ typedef struct VirtIOBalloon {
+>      uint32_t host_features;
+>  
+>      bool qemu_4_0_config_size;
 > +
-> +	wake_up_all(&vgdev->resp_wq);
-> +}
-> +
-> +int
-> +virtio_gpu_cmd_resource_assign_uuid(struct virtio_gpu_device *vgdev,
-> +				    struct virtio_gpu_object_array *objs)
-> +{
-> +	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(objs->objs[0]);
-> +	struct virtio_gpu_resource_assign_uuid *cmd_p;
-> +	struct virtio_gpu_vbuffer *vbuf;
-> +	struct virtio_gpu_resp_resource_uuid *resp_buf;
-> +
-> +	resp_buf = kzalloc(sizeof(*resp_buf), GFP_KERNEL);
-> +	if (!resp_buf) {
-> +		spin_lock(&vgdev->resource_export_lock);
-> +		bo->uuid_state = UUID_INITIALIZATION_FAILED;
-> +		spin_unlock(&vgdev->resource_export_lock);
-> +		virtio_gpu_array_put_free(objs);
-> +		return -ENOMEM;
-> +	}
-> +
-> +	cmd_p = virtio_gpu_alloc_cmd_resp(vgdev,
-> +		virtio_gpu_cmd_resource_uuid_cb, &vbuf, sizeof(*cmd_p),
-> +		sizeof(struct virtio_gpu_resp_resource_uuid), resp_buf);
-> +	memset(cmd_p, 0, sizeof(*cmd_p));
-> +
-> +	cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_RESOURCE_ASSIGN_UUID);
-> +	cmd_p->resource_id = cpu_to_le32(bo->hw_res_handle);
-> +
-> +	vbuf->objs = objs;
-> +	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
-> +	return 0;
-> +}
-> -- 
-> 2.25.1.481.gfbce0eb801-goog
+> +    uint32_t current_pages_order;
+>  } VirtIOBalloon;
+>  
+>  #endif
+> diff --git a/include/standard-headers/linux/virtio_balloon.h b/include/standard-headers/linux/virtio_balloon.h
+> index 9375ca2..b5386ce 100644
+> --- a/include/standard-headers/linux/virtio_balloon.h
+> +++ b/include/standard-headers/linux/virtio_balloon.h
+> @@ -36,6 +36,7 @@
+>  #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
+>  #define VIRTIO_BALLOON_F_FREE_PAGE_HINT	3 /* VQ to report free pages */
+>  #define VIRTIO_BALLOON_F_PAGE_POISON	4 /* Guest is using page poisoning */
+> +#define VIRTIO_BALLOON_F_CONT_PAGES	6 /* VQ to report continuous pages */
+>  
+>  /* Size of a PFN in the balloon interface. */
+>  #define VIRTIO_BALLOON_PFN_SHIFT 12
+> @@ -51,6 +52,10 @@ struct virtio_balloon_config {
+>  	uint32_t free_page_report_cmd_id;
+>  	/* Stores PAGE_POISON if page poisoning is in use */
+>  	uint32_t poison_val;
+> +	/* Max pages order if VIRTIO_BALLOON_F_CONT_PAGES is set */
+> +	uint32_t max_pages_order;
+> +	/* Current pages order if VIRTIO_BALLOON_F_CONT_PAGES is set */
+> +	uint32_t current_pages_order;
+>  };
+>  
+>  #define VIRTIO_BALLOON_S_SWAP_IN  0   /* Amount of memory swapped in */
+> 
+
+
+-- 
+Thanks,
+
+David / dhildenb
