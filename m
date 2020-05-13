@@ -1,65 +1,80 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V2] ifcvf: move IRQ request/free to status change handlers
-Date: Wed, 13 May 2020 15:18:21 +0800
-Message-ID: <572ed6af-7a04-730e-c803-a41868091e88@redhat.com>
-References: <1589270444-3669-1-git-send-email-lingshan.zhu@intel.com>
- <8aca85c3-3bf6-a1ec-7009-cd9a635647d7@redhat.com>
- <5bbe0c21-8638-45e4-04e8-02ad0df44b38@intel.com>
+From: Borislav Petkov <bp@alien8.de>
+Subject: Re: [PATCH v3 23/75] x86/boot/compressed/64: Setup GHCB Based VC
+ Exception handler
+Date: Wed, 13 May 2020 10:59:28 +0200
+Message-ID: <20200513085928.GB4025@zn.tnic>
+References: <20200428151725.31091-1-joro@8bytes.org>
+ <20200428151725.31091-24-joro@8bytes.org>
+ <20200512181157.GD6859@zn.tnic>
+ <20200512210812.GF8135@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <5bbe0c21-8638-45e4-04e8-02ad0df44b38@intel.com>
-Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
-To: "Zhu, Lingshan" <lingshan.zhu@intel.com>, mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Cc: lulu@redhat.com, dan.daly@intel.com, cunming.liang@intel.com
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200512210812.GF8135@suse.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Joerg Roedel <jroedel@suse.de>, Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Joerg Roedel <joro@8bytes.org>, x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Mike Stunes <mstunes@vmware.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue, May 12, 2020 at 11:08:12PM +0200, Joerg Roedel wrote:
+> No, this is a recent addition, otherwise this breaks out-of-tree builds
+> (make O=/some/path ...) because inat-tables.c (included from inat.c) is
+> generated during build and ends up in the $(objtree).
 
-On 2020/5/13 下午12:42, Zhu, Lingshan wrote:
->
->
-> On 5/13/2020 12:12 PM, Jason Wang wrote:
->>
->> On 2020/5/12 下午4:00, Zhu Lingshan wrote:
->>> This commit move IRQ request and free operations from probe()
->>> to VIRTIO status change handler to comply with VIRTIO spec.
->>>
->>> VIRTIO spec 1.1, section 2.1.2 Device Requirements: Device Status Field
->>> The device MUST NOT consume buffers or send any used buffer
->>> notifications to the driver before DRIVER_OK.
->>
->>
->> This comment needs to be checked as I said previously. It's only 
->> needed if we're sure ifcvf can generate interrupt before DRIVER_OK.
->>
->>
->>>
->>> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
->>> ---
->>> changes from V1:
->>> remove ifcvf_stop_datapath() in status == 0 handler, we don't need 
->>> to do this
->>> twice; handle status == 0 after DRIVER_OK -> !DRIVER_OK handler 
->>> (Jason Wang)
->>
->>
->> Patch looks good to me, but with this patch ping cannot work on my 
->> machine. (It works without this patch).
->>
->> Thanks
-> This is strange, it works on my machines, let's have a check offline.
->
-> Thanks,
-> BR
-> Zhu Lingshan
+Please add a blurb about this above it otherwise no one would have a
+clue why it is there.
 
+> Because the immediate is the last part of the instruction which is
+> decoded (even if there is no immediate). The .got field is set when
+> either the immediate was decoded successfully or, in case the
+> instruction has no immediate, when the rest of the instruction was
+> decoded successfully. So testing immediate.got is the indicator whether
+> decoding was successful.
 
-I give it a try with virito-vpda and a tiny userspace. Either works.
+Hm, whether the immediate was parsed correctly or it wasn't there and
+using that as the sign whether the instruction was decoded successfully
+sounds kinda arbitrary.
 
-So it could be an issue of qemu codes.
+@Masami: shouldn't that insn_get_length() thing return a value to denote
+whether the decode was successful or not instead of testing arbitrary
+fields?
 
-Let's wait for Cindy to test if it really works.
+Pasting for you the code sequence again:
 
-Thanks
+	...
+        insn_get_length(&ctxt->insn);
+
+        ret = ctxt->insn.immediate.got ? ES_OK : ES_DECODE_FAILED;
+	...
+
+I wonder if one would be able to do instead:
+
+	if (insn_get_length(&ctxt->insn))
+		return ES_OK;
+
+	return ES_DECODE_FAILED;
+
+to have it straight-forward...
+
+> Probably better rename the function, it also does the sev-es protocol
+> version negotiation and all other related setup tasks. Maybe
+> sev_es_setup() is a better name?
+
+Sure.
+
+> If the above call fails its the end of the systems lifetime, because we
+> can't continue to boot an SEV-ES guest when we have no GHCB.
+> 
+> BUG_ON() and friends are also not available in the pre-decompression
+> boot stage.
+
+Oh ok, error() does hlt the system.
+
+Thx.
+
+-- 
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
