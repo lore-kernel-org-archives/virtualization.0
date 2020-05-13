@@ -1,62 +1,101 @@
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Subject: Re: [EXT] Re: [PATCH v5] iommu/virtio: Use page size bitmap
- supported by endpoint
-Date: Wed, 13 May 2020 12:45:37 +0200
-Message-ID: <20200513104537.GB214296@myrica>
-References: <20200505093004.1935-1-bbhushan2@marvell.com>
- <20200505200659-mutt-send-email-mst@kernel.org>
- <MWHPR1801MB1966A23A0298654CA6965FB9E3BF0@MWHPR1801MB1966.namprd18.prod.outlook.com>
+From: Borislav Petkov <bp@alien8.de>
+Subject: Re: [PATCH v3 24/75] x86/boot/compressed/64: Unmap GHCB page before
+ booting the kernel
+Date: Wed, 13 May 2020 13:13:40 +0200
+Message-ID: <20200513111340.GD4025@zn.tnic>
+References: <20200428151725.31091-1-joro@8bytes.org>
+ <20200428151725.31091-25-joro@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <MWHPR1801MB1966A23A0298654CA6965FB9E3BF0@MWHPR1801MB1966.namprd18.prod.outlook.com>
+In-Reply-To: <20200428151725.31091-25-joro@8bytes.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Bharat Bhushan <bbhushan2@marvell.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, "joro@8bytes.org" <joro@8bytes.org>, "jasowang@redhat.com" <jasowang@redhat.com>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "eric.auger.pro@gmail.com" <eric.auger.pro@gmail.com>, "eric.auger@redhat.com" <eric.auger@redhat.com>
+To: Joerg Roedel <joro@8bytes.org>
+Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 13, 2020 at 09:15:22AM +0000, Bharat Bhushan wrote:
-> Hi Jean,
-> 
-> > -----Original Message-----
-> > From: Michael S. Tsirkin <mst@redhat.com>
-> > Sent: Wednesday, May 6, 2020 5:53 AM
-> > To: Bharat Bhushan <bbhushan2@marvell.com>
-> > Cc: jean-philippe@linaro.org; joro@8bytes.org; jasowang@redhat.com;
-> > virtualization@lists.linux-foundation.org; iommu@lists.linux-foundation.org;
-> > linux-kernel@vger.kernel.org; eric.auger.pro@gmail.com; eric.auger@redhat.com
-> > Subject: [EXT] Re: [PATCH v5] iommu/virtio: Use page size bitmap supported by
-> > endpoint
-[...]
-> > > +struct virtio_iommu_probe_pgsize_mask {
-> > > +	struct virtio_iommu_probe_property	head;
-> > > +	__u8					reserved[4];
-> > > +	__le64					pgsize_bitmap;
-> > > +};
-> > > +
-> > 
-> > This is UAPI. Document the format of pgsize_bitmap please.
-> 
-> I do not see uapi documentation in "Documentation" folder of other data struct in this file, am I missing something?
+On Tue, Apr 28, 2020 at 05:16:34PM +0200, Joerg Roedel wrote:
+> @@ -302,9 +313,13 @@ void do_boot_page_fault(struct pt_regs *regs, unsigned long error_code)
+>  	 *	- User faults
+>  	 *	- Reserved bits set
+>  	 */
+> -	if (error_code & (X86_PF_PROT | X86_PF_USER | X86_PF_RSVD)) {
+> +	if (ghcb_fault ||
+> +	    error_code & (X86_PF_PROT | X86_PF_USER | X86_PF_RSVD)) {
+>  		/* Print some information for debugging */
+> -		error_putstr("Unexpected page-fault:");
+> +		if (ghcb_fault)
+> +			error_putstr("Page-fault on GHCB page:");
+> +		else
+> +			error_putstr("Unexpected page-fault:");
 
-I'm not the one requesting this change, but I'm guessing you should add a
-comment in this header, above pgsize_bitmap (which should actually be
-called page_size_mask to follow the spec). I guess I'd add:
+You could carve out the info dumping into a separate function to
+unclutter this if-statement (diff ontop):
 
-/* Same format as virtio_iommu_config::page_size_mask */
+diff --git a/arch/x86/boot/compressed/ident_map_64.c b/arch/x86/boot/compressed/ident_map_64.c
+index d3771d455249..c1979fc0f853 100644
+--- a/arch/x86/boot/compressed/ident_map_64.c
++++ b/arch/x86/boot/compressed/ident_map_64.c
+@@ -296,6 +296,22 @@ int set_page_non_present(unsigned long address)
+ 	return set_clr_page_flags(&mapping_info, address, 0, _PAGE_PRESENT);
+ }
+ 
++static void do_pf_error(const char *msg, unsigned long error_code,
++			unsigned long address, unsigned long ip)
++{
++	error_putstr(msg);
++
++	error_putstr("\nError Code: ");
++	error_puthex(error_code);
++	error_putstr("\nCR2: 0x");
++	error_puthex(address);
++	error_putstr("\nRIP relative to _head: 0x");
++	error_puthex(ip - (unsigned long)_head);
++	error_putstr("\n");
++
++	error("Stopping.\n");
++}
++
+ void do_boot_page_fault(struct pt_regs *regs, unsigned long error_code)
+ {
+ 	unsigned long address = native_read_cr2();
+@@ -309,27 +325,15 @@ void do_boot_page_fault(struct pt_regs *regs, unsigned long error_code)
+ 
+ 	/*
+ 	 * Check for unexpected error codes. Unexpected are:
++	 *	- Faults on the GHCB page due to unexpected #VCs
+ 	 *	- Faults on present pages
+ 	 *	- User faults
+ 	 *	- Reserved bits set
+ 	 */
+-	if (ghcb_fault ||
+-	    error_code & (X86_PF_PROT | X86_PF_USER | X86_PF_RSVD)) {
+-		/* Print some information for debugging */
+-		if (ghcb_fault)
+-			error_putstr("Page-fault on GHCB page:");
+-		else
+-			error_putstr("Unexpected page-fault:");
+-		error_putstr("\nError Code: ");
+-		error_puthex(error_code);
+-		error_putstr("\nCR2: 0x");
+-		error_puthex(address);
+-		error_putstr("\nRIP relative to _head: 0x");
+-		error_puthex(regs->ip - (unsigned long)_head);
+-		error_putstr("\n");
+-
+-		error("Stopping.\n");
+-	}
++	if (ghcb_fault)
++		do_pf_error("Page-fault on GHCB page:", error_code, address, regs->ip);
++	else if (error_code & (X86_PF_PROT | X86_PF_USER | X86_PF_RSVD))
++		do_pf_error("Unexpected page-fault:", error_code, address, regs->ip);
+ 
+ 	/*
+ 	 * Error code is sane - now identity map the 2M region around
 
-for this field, and then maybe change the comment of virtio_iommu_config,
-currently "/* Supported page sizes */", to something more precise such as:
+-- 
+Regards/Gruss,
+    Boris.
 
-/*
- * Bitmap of supported page sizes. The least significant bit indicates the
- * smallest granularity and the other bits are hints indicating optimal
- * block sizes.
- */
-
-But I don't know how much should be spelled out here, since those details
-are available in the spec.
-
-Thanks,
-Jean
+https://people.kernel.org/tglx/notes-about-netiquette
