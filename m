@@ -1,277 +1,358 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [RFC v3 for QEMU] virtio-balloon: Add option cont-pages to set
- VIRTIO_BALLOON_VQ_INFLATE_CONT
-Date: Wed, 13 May 2020 18:37:09 +0200
-Message-ID: <0e7c29be-dd2c-dd95-6f2e-a009c530ffb1@redhat.com>
-References: <1589276501-16026-1-git-send-email-teawater@gmail.com>
+From: Alex Williamson <alex.williamson@redhat.com>
+Subject: Re: [PATCH for QEMU v2] hw/vfio: Add VMD Passthrough Quirk
+Date: Wed, 13 May 2020 11:55:40 -0600
+Message-ID: <20200513115540.59a2f57d@w520.home>
+References: <20200511190129.9313-1-jonathan.derrick@intel.com>
+        <20200511190129.9313-2-jonathan.derrick@intel.com>
+        <20200511165927.27b41d65@w520.home>
+        <91c6795937035d6ad72cb78c7997ba8168f643c5.camel@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <virtio-dev-return-7327-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <1589276501-16026-1-git-send-email-teawater@gmail.com>
-Content-Language: en-US
-To: Hui Zhu <teawater@gmail.com>, mst@redhat.com, jasowang@redhat.com, akpm@linux-foundation.org, xdeguillard@vmware.com, namit@vmware.com, gregkh@linuxfoundation.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, qemu-devel@nongnu.org, virtio-dev@lists.oasis-open.org
-Cc: wei.guo.simon@linux.alibaba.com, qixuan.wu@linux.alibaba.com, Hui Zhu <teawaterz@linux.alibaba.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-pci-owner@vger.kernel.org>
+In-Reply-To: <91c6795937035d6ad72cb78c7997ba8168f643c5.camel@intel.com>
+Sender: linux-pci-owner@vger.kernel.org
+To: "Derrick, Jonathan" <jonathan.derrick@intel.com>
+Cc: "hch@lst.de" <hch@lst.de>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>, "helgaas@kernel.org" <helgaas@kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "andrzej.jakowski@linux.intel.com" <andrzej.jakowski@linux.intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 12.05.20 11:41, Hui Zhu wrote:
+On Wed, 13 May 2020 00:35:47 +0000
+"Derrick, Jonathan" <jonathan.derrick@intel.com> wrote:
 
-This description needs an overhaul, it's hard to parse.
-
-> If the guest kernel has many fragmentation pages, use virtio_balloon
-> will split THP of QEMU when it calls MADV_DONTNEED madvise to release
-> the balloon pages.
-
-This is very unclear and confusing. You will *always* split THPs when
-inflating 4k pages and there are THPs around. This is completely
-independent of any fragmentation in the guest. The thing you are trying
-to achieve here is trying to *minimize* the number of split THPs in the
-hypervisor *after* the balloon was completely inflated.
-
-> Set option cont-pages to on will open flags VIRTIO_BALLOON_VQ_INFLATE_CONT
-> and set default continuous pages order to THP order.
-
-... and what you implement here is very x86 specific, hard-coding the
-"9" as THP order.
-
-"Set option cont-pages to on" -> 'Once the feature is enabled via
-"cont-pages=on"'
-"open flags" -> "unlock VIRTIO_BALLOON_VQ_INFLATE_CONT".
-
-
-> Then It will get continuous pages PFN that its order is current_pages_order
-> from VQ ivq use use madvise MADV_DONTNEED release the page.
-
-I fail to parse this sentence. I assume something like
-
-"current_pages_order is set by the guest and configures the size of the
-pages communicated via the inflate/deflate queue by the guest. It
-defaults to 0, which corresponds to the legacy handling without
-VIRTIO_BALLOON_VQ_INFLATE_CONT - 4k pages."
-
-Why is "max_pages_order" necessary *at all*? You never check against that.
-
-I have to say, I really dislike that interface. I would much rather
-prefer new inflate/deflate queues that eat variable sizes (not orders!)
-- similar to the free page reporting interface - and skip things like
-the pbp. Not sure if this interface is really what MST asked for.
-
-> This will handle the THP split issue.
+> Hi Alex,
 > 
-> Signed-off-by: Hui Zhu <teawaterz@linux.alibaba.com>
-> ---
->  hw/virtio/virtio-balloon.c                      | 77 +++++++++++++++++--------
->  include/hw/virtio/virtio-balloon.h              |  2 +
->  include/standard-headers/linux/virtio_balloon.h |  5 ++
->  3 files changed, 60 insertions(+), 24 deletions(-)
+> I'm probably not getting the translation technical details correct.
 > 
-> diff --git a/hw/virtio/virtio-balloon.c b/hw/virtio/virtio-balloon.c
-> index a4729f7..84d47d3 100644
-> --- a/hw/virtio/virtio-balloon.c
-> +++ b/hw/virtio/virtio-balloon.c
-> @@ -34,6 +34,7 @@
->  #include "hw/virtio/virtio-access.h"
->  
->  #define BALLOON_PAGE_SIZE  (1 << VIRTIO_BALLOON_PFN_SHIFT)
-> +#define CONT_PAGES_ORDER   9
->  
->  typedef struct PartiallyBalloonedPage {
->      ram_addr_t base_gpa;
-> @@ -72,6 +73,8 @@ static void balloon_inflate_page(VirtIOBalloon *balloon,
->      RAMBlock *rb;
->      size_t rb_page_size;
->      int subpages;
-> +    size_t inflate_size = BALLOON_PAGE_SIZE << balloon->current_pages_order;
-> +    int pages_num;
-
-reverse christmas tree please. squash same types into a single line if
-possible.
-
->  
->      /* XXX is there a better way to get to the RAMBlock than via a
->       * host address? */
-> @@ -81,7 +84,7 @@ static void balloon_inflate_page(VirtIOBalloon *balloon,
->      if (rb_page_size == BALLOON_PAGE_SIZE) {
->          /* Easy case */
->  
-> -        ram_block_discard_range(rb, rb_offset, rb_page_size);
-> +        ram_block_discard_range(rb, rb_offset, inflate_size);
->          /* We ignore errors from ram_block_discard_range(), because it
->           * has already reported them, and failing to discard a balloon
->           * page is not fatal */
-> @@ -99,32 +102,38 @@ static void balloon_inflate_page(VirtIOBalloon *balloon,
->  
->      rb_aligned_offset = QEMU_ALIGN_DOWN(rb_offset, rb_page_size);
->      subpages = rb_page_size / BALLOON_PAGE_SIZE;
-> -    base_gpa = memory_region_get_ram_addr(mr) + mr_offset -
-> -               (rb_offset - rb_aligned_offset);
->  
-> -    if (pbp->bitmap && !virtio_balloon_pbp_matches(pbp, base_gpa)) {
-> -        /* We've partially ballooned part of a host page, but now
-> -         * we're trying to balloon part of a different one.  Too hard,
-> -         * give up on the old partial page */
-> -        virtio_balloon_pbp_free(pbp);
-> -    }
-> +    for (pages_num = inflate_size / BALLOON_PAGE_SIZE;
-> +         pages_num > 0; pages_num--) {
-> +        base_gpa = memory_region_get_ram_addr(mr) + mr_offset -
-> +                   (rb_offset - rb_aligned_offset);
->  
-> -    if (!pbp->bitmap) {
-> -        virtio_balloon_pbp_alloc(pbp, base_gpa, subpages);
-> -    }
-> +        if (pbp->bitmap && !virtio_balloon_pbp_matches(pbp, base_gpa)) {
-> +            /* We've partially ballooned part of a host page, but now
-> +            * we're trying to balloon part of a different one.  Too hard,
-> +            * give up on the old partial page */
-> +            virtio_balloon_pbp_free(pbp);
-> +        }
->  
-> -    set_bit((rb_offset - rb_aligned_offset) / BALLOON_PAGE_SIZE,
-> -            pbp->bitmap);
-> +        if (!pbp->bitmap) {
-> +            virtio_balloon_pbp_alloc(pbp, base_gpa, subpages);
-> +        }
->  
-> -    if (bitmap_full(pbp->bitmap, subpages)) {
-> -        /* We've accumulated a full host page, we can actually discard
-> -         * it now */
-> +        set_bit((rb_offset - rb_aligned_offset) / BALLOON_PAGE_SIZE,
-> +                pbp->bitmap);
->  
-> -        ram_block_discard_range(rb, rb_aligned_offset, rb_page_size);
-> -        /* We ignore errors from ram_block_discard_range(), because it
-> -         * has already reported them, and failing to discard a balloon
-> -         * page is not fatal */
-> -        virtio_balloon_pbp_free(pbp);
-> +        if (bitmap_full(pbp->bitmap, subpages)) {
-> +            /* We've accumulated a full host page, we can actually discard
-> +            * it now */
-> +
-> +            ram_block_discard_range(rb, rb_aligned_offset, rb_page_size);
-> +            /* We ignore errors from ram_block_discard_range(), because it
-> +            * has already reported them, and failing to discard a balloon
-> +            * page is not fatal */
-> +            virtio_balloon_pbp_free(pbp);
-> +        }
-> +
-> +        mr_offset += BALLOON_PAGE_SIZE;
->      }
->  }
->  
-> @@ -345,7 +354,7 @@ static void virtio_balloon_handle_output(VirtIODevice *vdev, VirtQueue *vq)
->              offset += 4;
->  
->              section = memory_region_find(get_system_memory(), pa,
-> -                                         BALLOON_PAGE_SIZE);
-> +                                BALLOON_PAGE_SIZE << s->current_pages_order);
->              if (!section.mr) {
->                  trace_virtio_balloon_bad_addr(pa);
->                  continue;
-> @@ -618,9 +627,12 @@ static size_t virtio_balloon_config_size(VirtIOBalloon *s)
->      if (s->qemu_4_0_config_size) {
->          return sizeof(struct virtio_balloon_config);
->      }
-> -    if (virtio_has_feature(features, VIRTIO_BALLOON_F_PAGE_POISON)) {
-> +    if (virtio_has_feature(s->host_features, VIRTIO_BALLOON_F_CONT_PAGES)) {
->          return sizeof(struct virtio_balloon_config);
->      }
-> +    if (virtio_has_feature(features, VIRTIO_BALLOON_F_PAGE_POISON)) {
-> +        return offsetof(struct virtio_balloon_config, current_pages_order);
-> +    }
->      if (virtio_has_feature(features, VIRTIO_BALLOON_F_FREE_PAGE_HINT)) {
->          return offsetof(struct virtio_balloon_config, poison_val);
->      }
-> @@ -646,6 +658,11 @@ static void virtio_balloon_get_config(VirtIODevice *vdev, uint8_t *config_data)
->                         cpu_to_le32(VIRTIO_BALLOON_CMD_ID_DONE);
->      }
->  
-> +    if (virtio_has_feature(dev->host_features, VIRTIO_BALLOON_F_CONT_PAGES)) {
-> +        config.max_pages_order = cpu_to_le32(CONT_PAGES_ORDER);
-> +        config.current_pages_order = cpu_to_le32(dev->current_pages_order);
-> +    }
-> +
->      trace_virtio_balloon_get_config(config.num_pages, config.actual);
->      memcpy(config_data, &config, virtio_balloon_config_size(dev));
->  }
-> @@ -693,6 +710,9 @@ static void virtio_balloon_set_config(VirtIODevice *vdev,
->  
->      memcpy(&config, config_data, virtio_balloon_config_size(dev));
->      dev->actual = le32_to_cpu(config.actual);
-> +    if (virtio_has_feature(dev->host_features, VIRTIO_BALLOON_F_CONT_PAGES)) {
-> +        dev->current_pages_order = le32_to_cpu(config.current_pages_order);
-> +    }
->      if (dev->actual != oldactual) {
->          qapi_event_send_balloon_change(vm_ram_size -
->                          ((ram_addr_t) dev->actual << VIRTIO_BALLOON_PFN_SHIFT));
-> @@ -816,6 +836,13 @@ static void virtio_balloon_device_realize(DeviceState *dev, Error **errp)
->              virtio_error(vdev, "iothread is missing");
->          }
->      }
-> +
-> +    if (virtio_has_feature(s->host_features, VIRTIO_BALLOON_F_CONT_PAGES)) {
-> +        s->current_pages_order = CONT_PAGES_ORDER;
-> +    } else {
-> +        s->current_pages_order = 0;
-> +    }
-> +
->      reset_stats(s);
->  }
->  
-> @@ -916,6 +943,8 @@ static Property virtio_balloon_properties[] = {
->                      VIRTIO_BALLOON_F_DEFLATE_ON_OOM, false),
->      DEFINE_PROP_BIT("free-page-hint", VirtIOBalloon, host_features,
->                      VIRTIO_BALLOON_F_FREE_PAGE_HINT, false),
-> +    DEFINE_PROP_BIT("cont-pages", VirtIOBalloon, host_features,
-> +                    VIRTIO_BALLOON_F_CONT_PAGES, false),
->      /* QEMU 4.0 accidentally changed the config size even when free-page-hint
->       * is disabled, resulting in QEMU 3.1 migration incompatibility.  This
->       * property retains this quirk for QEMU 4.1 machine types.
-> diff --git a/include/hw/virtio/virtio-balloon.h b/include/hw/virtio/virtio-balloon.h
-> index d1c968d..e0dce0d 100644
-> --- a/include/hw/virtio/virtio-balloon.h
-> +++ b/include/hw/virtio/virtio-balloon.h
-> @@ -70,6 +70,8 @@ typedef struct VirtIOBalloon {
->      uint32_t host_features;
->  
->      bool qemu_4_0_config_size;
-> +
-> +    uint32_t current_pages_order;
->  } VirtIOBalloon;
->  
->  #endif
-> diff --git a/include/standard-headers/linux/virtio_balloon.h b/include/standard-headers/linux/virtio_balloon.h
-> index 9375ca2..b5386ce 100644
-> --- a/include/standard-headers/linux/virtio_balloon.h
-> +++ b/include/standard-headers/linux/virtio_balloon.h
-> @@ -36,6 +36,7 @@
->  #define VIRTIO_BALLOON_F_DEFLATE_ON_OOM	2 /* Deflate balloon on OOM */
->  #define VIRTIO_BALLOON_F_FREE_PAGE_HINT	3 /* VQ to report free pages */
->  #define VIRTIO_BALLOON_F_PAGE_POISON	4 /* Guest is using page poisoning */
-> +#define VIRTIO_BALLOON_F_CONT_PAGES	6 /* VQ to report continuous pages */
->  
->  /* Size of a PFN in the balloon interface. */
->  #define VIRTIO_BALLOON_PFN_SHIFT 12
-> @@ -51,6 +52,10 @@ struct virtio_balloon_config {
->  	uint32_t free_page_report_cmd_id;
->  	/* Stores PAGE_POISON if page poisoning is in use */
->  	uint32_t poison_val;
-> +	/* Max pages order if VIRTIO_BALLOON_F_CONT_PAGES is set */
-> +	uint32_t max_pages_order;
-> +	/* Current pages order if VIRTIO_BALLOON_F_CONT_PAGES is set */
-> +	uint32_t current_pages_order;
->  };
->  
->  #define VIRTIO_BALLOON_S_SWAP_IN  0   /* Amount of memory swapped in */
+> On Mon, 2020-05-11 at 16:59 -0600, Alex Williamson wrote:
+> > On Mon, 11 May 2020 15:01:27 -0400
+> > Jon Derrick <jonathan.derrick@intel.com> wrote:
+> >   
+> > > The VMD endpoint provides a real PCIe domain to the guest, including  
+> > 
+> > Please define VMD.  I'm sure this is obvious to many, but I've had to
+> > do some research.  The best TL;DR summary I've found is Keith's
+> > original commit 185a383ada2e adding the controller to Linux.  If there's
+> > something better, please let me know.  
+> That's the correct commit, but I'll try to summarize the important bits
+> for v3.
 > 
+> >   
+> > > bridges and endpoints. Because the VMD domain is enumerated by the guest
+> > > kernel, the guest kernel will assign Guest Physical Addresses to the
+> > > downstream endpoint BARs and bridge windows.
+> > > 
+> > > When the guest kernel performs MMIO to VMD sub-devices, IOMMU will
+> > > translate from the guest address space to the physical address space.
+> > > Because the bridges have been programmed with guest addresses, the
+> > > bridges will reject the transaction containing physical addresses.  
+> > 
+> > I'm lost, what IOMMU is involved in CPU access to MMIO space?  My guess
+> > is that since all MMIO of this domain is mapped behind the host
+> > endpoint BARs 2 & 4 that QEMU simply accesses it via mapping of those
+> > BARs into the VM, so it's the MMU, not the IOMMU performing those GPA
+> > to HPA translations.  But then presumably the bridges within the domain
+> > are scrambled because their apertures are programmed with ranges that
+> > don't map into the VMD endpoint BARs.  Is that remotely correct?  Some
+> > /proc/iomem output and/or lspci listing from the host to see how this
+> > works would be useful.  
+> Correct. So MMU not IOMMU.
+> 
+> In the guest kernel, the bridges and devices in the VMD domain are
+> programmed with the addresses provided in the VMD endpoint's BAR2&4
+> (MEMBAR1&2). Because these BARs are populated with guest addresses, MMU
+> translates to host physical and the bridge window rejects MMIO not in
+> its [GPA] range.
+> 
+> As an example:
+> Host:
+>   94000000-97ffffff : 0000:17:05.5
+>     94000000-97ffffff : VMD MEMBAR1
+>       94000000-943fffff : PCI Bus 10000:01
+>         94000000-9400ffff : 10000:01:00.0
+>         94010000-94013fff : 10000:01:00.0
+>           94010000-94013fff : nvme
+>       94400000-947fffff : PCI Bus 10000:01
+>       94800000-94bfffff : PCI Bus 10000:02
+>         94800000-9480ffff : 10000:02:00.0
+>         94810000-94813fff : 10000:02:00.0
+>           94810000-94813fff : nvme
+>       94c00000-94ffffff : PCI Bus 10000:02
+> 
+> 
+> MEMBAR 2 is similarly assigned
+> 
+> >   
+> > > VMD device 28C0 natively assists passthrough by providing the Host
+> > > Physical Address in shadow registers accessible to the guest for bridge
+> > > window assignment. The shadow registers are valid if bit 1 is set in VMD
+> > > VMLOCK config register 0x70. Future VMDs will also support this feature.
+> > > Existing VMDs have config register 0x70 reserved, and will return 0 on
+> > > reads.  
+> > 
+> > So these shadow registers are simply exposing the host BAR2 & BAR4
+> > addresses into the guest, so the quirk is dependent on reading those
+> > values from the device before anyone has written to them and the BAR
+> > emulation in the kernel kicks in (not a problem, just an observation).  
+> It's not expected that there will be anything writing that resource and
+> those registers are read-only.
+> The first 0x2000 of MEMBAR2 (BAR4) contain msix tables, and mappings to
+> subordinate buses are on 1MB aligned.
+> 
+> 
+> > Does the VMD controller code then use these bases addresses to program
+> > the bridges/endpoint within the domain?  What does the same /proc/iomem
+> > or lspci look like inside the guest then?  It seems like we'd see the
+> > VMD endpoint with GPA BARs, but the devices within the domain using
+> > HPAs.  If that's remotely true, and we're not forcing an identity
+> > mapping of this HPA range into the GPA, does the vmd controller driver
+> > impose a TRA function on these MMIO addresses in the guest?  
+> 
+> This is the guest with the guest addresses:
+>   f8000000-fbffffff : 0000:00:07.0
+>     f8000000-fbffffff : VMD MEMBAR1
+>   
+>     f8000000-f83fffff : PCI Bus 10000:01
+>         f8000000-f800ffff :
+> 10000:01:00.0
+>         f8010000-f8013fff : 10000:01:00.0
+>           f801000
+> 0-f8013fff : nvme
+>       f8400000-f87fffff : PCI Bus 10000:01
+>       f88000
+> 00-f8bfffff : PCI Bus 10000:02
+>         f8800000-f880ffff : 10000:02:00.0
+>         f8810000-f8813fff : 10000:02:00.0
+>           f8810000-f8813fff :
+> nvme
+>       f8c00000-f8ffffff : PCI Bus 10000:02
+> 
+> 
+> The VMD guest driver does the translation on the supplied address using
+> pci_add_resource_offset prior to creating the root bus and enumerating
+> the domain:
+> 
+> 	offset[0] = vmd->dev->resource[VMD_MEMBAR1].start -
+> 			readq(membar2 + MB2_SHADOW_OFFSET);
+> 	offset[1] = vmd->dev->resource[VMD_MEMBAR2].start -
+> 			readq(membar2 + MB2_SHADOW_OFFSET + 8);
+> ...
+> 	pci_add_resource(&resources, &vmd->resources[0]);
+> 	pci_add_resource_offset(&resources, &vmd->resources[1], offset[0]);
+> 	pci_add_resource_offset(&resources, &vmd->resources[2], offset[1]);
+> 
+> 	vmd->bus = pci_create_root_bus(&vmd->dev->dev, vmd->busn_start,
+> 				       &vmd_ops, sd, &resources);
+> 
+> 
+> The offset becomes the CPU-to-bridge translation function for
+> programming the guest's VMD domain with bus addresses.
+> 
+> 
+> In the patched guest's lspci, for the bridge you see:
+> # lspci -v -s 10000:00:02.0
+> 10000:00:02.0 PCI bridge: Intel Corporation Sky Lake-E PCI Express Root Port C
+> 	...
+> 	Memory behind bridge: 94000000-943fffff
+> 
+> 
+> But the kernel doesn't export the offset BAR for the endpoint:
+> # lspci -v -s 10000:02:00.0
+> 10000:02:00.0 Non-Volatile memory controller: Intel Corporation NVMe Datacenter SSD
+> 	...
+> 	Memory at f8810000 (64-bit, non-prefetchable) [size=16K]
+> 	[virtual] Expansion ROM at f8800000 [disabled] [size=64K]
+> 
+> The endpoint is still programmed with the offset:
+> # setpci -s 10000:02:00.0 10.l
+> 94810004
+> 
+> 
+> > 
+> > Sorry if I'm way off, I'm piecing things together from scant
+> > information here.  Please Cc me on future vfio related patches.  Thanks,
+> > 
+> > Alex
+> >   
+> No problem
 
+Thanks for the confirmation.  The approach seems ok, but a subtle
+side-effect of MemoryRegion quirks is that we're going to trap the
+entire PAGE_SIZE range overlapping the quirk out to QEMU on guest
+access.  The two registers at 0x2000 might be reserved for this
+purpose, but is there anything else that could be performance sensitive
+anywhere in that page?  If so, it might be less transparent, but more
+efficient to invent a new quirk making use of config space (ex. adding
+an emulated vendor capability somewhere known to be unused on the
+device).  Thanks,
 
--- 
-Thanks,
+Alex
 
-David / dhildenb
+> > > In order to support existing VMDs, this quirk emulates the VMLOCK and
+> > > HPA shadow registers for all VMD device ids which don't natively assist
+> > > with passthrough. The Linux VMD driver is updated to allow existing VMD
+> > > devices to query VMLOCK for passthrough support.
+> > > 
+> > > Signed-off-by: Jon Derrick <jonathan.derrick@intel.com>
+> > > ---
+> > >  hw/vfio/pci-quirks.c | 103 +++++++++++++++++++++++++++++++++++++++++++
+> > >  hw/vfio/pci.c        |   7 +++
+> > >  hw/vfio/pci.h        |   2 +
+> > >  hw/vfio/trace-events |   3 ++
+> > >  4 files changed, 115 insertions(+)
+> > > 
+> > > diff --git a/hw/vfio/pci-quirks.c b/hw/vfio/pci-quirks.c
+> > > index 2d348f8237..4060a6a95d 100644
+> > > --- a/hw/vfio/pci-quirks.c
+> > > +++ b/hw/vfio/pci-quirks.c
+> > > @@ -1709,3 +1709,106 @@ free_exit:
+> > >  
+> > >      return ret;
+> > >  }
+> > > +
+> > > +/*
+> > > + * The VMD endpoint provides a real PCIe domain to the guest and the guest
+> > > + * kernel performs enumeration of the VMD sub-device domain. Guest transactions
+> > > + * to VMD sub-devices go through IOMMU translation from guest addresses to
+> > > + * physical addresses. When MMIO goes to an endpoint after being translated to
+> > > + * physical addresses, the bridge rejects the transaction because the window
+> > > + * has been programmed with guest addresses.
+> > > + *
+> > > + * VMD can use the Host Physical Address in order to correctly program the
+> > > + * bridge windows in its PCIe domain. VMD device 28C0 has HPA shadow registers
+> > > + * located at offset 0x2000 in MEMBAR2 (BAR 4). The shadow registers are valid
+> > > + * if bit 1 is set in the VMD VMLOCK config register 0x70. VMD devices without
+> > > + * this native assistance can have these registers safely emulated as these
+> > > + * registers are reserved.
+> > > + */
+> > > +typedef struct VFIOVMDQuirk {
+> > > +    VFIOPCIDevice *vdev;
+> > > +    uint64_t membar_phys[2];
+> > > +} VFIOVMDQuirk;
+> > > +
+> > > +static uint64_t vfio_vmd_quirk_read(void *opaque, hwaddr addr, unsigned size)
+> > > +{
+> > > +    VFIOVMDQuirk *data = opaque;
+> > > +    uint64_t val = 0;
+> > > +
+> > > +    memcpy(&val, (void *)data->membar_phys + addr, size);
+> > > +    return val;
+> > > +}
+> > > +
+> > > +static const MemoryRegionOps vfio_vmd_quirk = {
+> > > +    .read = vfio_vmd_quirk_read,
+> > > +    .endianness = DEVICE_LITTLE_ENDIAN,
+> > > +};
+> > > +
+> > > +#define VMD_VMLOCK  0x70
+> > > +#define VMD_SHADOW  0x2000
+> > > +#define VMD_MEMBAR2 4
+> > > +
+> > > +static int vfio_vmd_emulate_shadow_registers(VFIOPCIDevice *vdev)
+> > > +{
+> > > +    VFIOQuirk *quirk;
+> > > +    VFIOVMDQuirk *data;
+> > > +    PCIDevice *pdev = &vdev->pdev;
+> > > +    int ret;
+> > > +
+> > > +    data = g_malloc0(sizeof(*data));
+> > > +    ret = pread(vdev->vbasedev.fd, data->membar_phys, 16,
+> > > +                vdev->config_offset + PCI_BASE_ADDRESS_2);
+> > > +    if (ret != 16) {
+> > > +        error_report("VMD %s cannot read MEMBARs (%d)",
+> > > +                     vdev->vbasedev.name, ret);
+> > > +        g_free(data);
+> > > +        return -EFAULT;
+> > > +    }
+> > > +
+> > > +    quirk = vfio_quirk_alloc(1);
+> > > +    quirk->data = data;
+> > > +    data->vdev = vdev;
+> > > +
+> > > +    /* Emulate Shadow Registers */
+> > > +    memory_region_init_io(quirk->mem, OBJECT(vdev), &vfio_vmd_quirk, data,
+> > > +                          "vfio-vmd-quirk", sizeof(data->membar_phys));
+> > > +    memory_region_add_subregion_overlap(vdev->bars[VMD_MEMBAR2].region.mem,
+> > > +                                        VMD_SHADOW, quirk->mem, 1);
+> > > +    memory_region_set_readonly(quirk->mem, true);
+> > > +    memory_region_set_enabled(quirk->mem, true);
+> > > +
+> > > +    QLIST_INSERT_HEAD(&vdev->bars[VMD_MEMBAR2].quirks, quirk, next);
+> > > +
+> > > +    trace_vfio_pci_vmd_quirk_shadow_regs(vdev->vbasedev.name,
+> > > +                                         data->membar_phys[0],
+> > > +                                         data->membar_phys[1]);
+> > > +
+> > > +    /* Advertise Shadow Register support */
+> > > +    pci_byte_test_and_set_mask(pdev->config + VMD_VMLOCK, 0x2);
+> > > +    pci_set_byte(pdev->wmask + VMD_VMLOCK, 0);
+> > > +    pci_set_byte(vdev->emulated_config_bits + VMD_VMLOCK, 0x2);
+> > > +
+> > > +    trace_vfio_pci_vmd_quirk_vmlock(vdev->vbasedev.name,
+> > > +                                    pci_get_byte(pdev->config + VMD_VMLOCK));
+> > > +
+> > > +    return 0;
+> > > +}
+> > > +
+> > > +int vfio_pci_vmd_init(VFIOPCIDevice *vdev)
+> > > +{
+> > > +    int ret = 0;
+> > > +
+> > > +    switch (vdev->device_id) {
+> > > +    case 0x28C0: /* Native passthrough support */
+> > > +        break;
+> > > +    /* Emulates Native passthrough support */
+> > > +    case 0x201D:
+> > > +    case 0x467F:
+> > > +    case 0x4C3D:
+> > > +    case 0x9A0B:
+> > > +        ret = vfio_vmd_emulate_shadow_registers(vdev);
+> > > +        break;
+> > > +    }
+> > > +
+> > > +    return ret;
+> > > +}
+> > > diff --git a/hw/vfio/pci.c b/hw/vfio/pci.c
+> > > index 5e75a95129..85425a1a6f 100644
+> > > --- a/hw/vfio/pci.c
+> > > +++ b/hw/vfio/pci.c
+> > > @@ -3024,6 +3024,13 @@ static void vfio_realize(PCIDevice *pdev, Error **errp)
+> > >          }
+> > >      }
+> > >  
+> > > +    if (vdev->vendor_id == PCI_VENDOR_ID_INTEL) {
+> > > +        ret = vfio_pci_vmd_init(vdev);
+> > > +        if (ret) {
+> > > +            error_report("Failed to setup VMD");
+> > > +        }
+> > > +    }
+> > > +
+> > >      vfio_register_err_notifier(vdev);
+> > >      vfio_register_req_notifier(vdev);
+> > >      vfio_setup_resetfn_quirk(vdev);
+> > > diff --git a/hw/vfio/pci.h b/hw/vfio/pci.h
+> > > index 0da7a20a7e..e8632d806b 100644
+> > > --- a/hw/vfio/pci.h
+> > > +++ b/hw/vfio/pci.h
+> > > @@ -217,6 +217,8 @@ int vfio_pci_igd_opregion_init(VFIOPCIDevice *vdev,
+> > >  int vfio_pci_nvidia_v100_ram_init(VFIOPCIDevice *vdev, Error **errp);
+> > >  int vfio_pci_nvlink2_init(VFIOPCIDevice *vdev, Error **errp);
+> > >  
+> > > +int vfio_pci_vmd_init(VFIOPCIDevice *vdev);
+> > > +
+> > >  void vfio_display_reset(VFIOPCIDevice *vdev);
+> > >  int vfio_display_probe(VFIOPCIDevice *vdev, Error **errp);
+> > >  void vfio_display_finalize(VFIOPCIDevice *vdev);
+> > > diff --git a/hw/vfio/trace-events b/hw/vfio/trace-events
+> > > index b1ef55a33f..ed64e477db 100644
+> > > --- a/hw/vfio/trace-events
+> > > +++ b/hw/vfio/trace-events
+> > > @@ -90,6 +90,9 @@ vfio_pci_nvidia_gpu_setup_quirk(const char *name, uint64_t tgt, uint64_t size) "
+> > >  vfio_pci_nvlink2_setup_quirk_ssatgt(const char *name, uint64_t tgt, uint64_t size) "%s tgt=0x%"PRIx64" size=0x%"PRIx64
+> > >  vfio_pci_nvlink2_setup_quirk_lnkspd(const char *name, uint32_t link_speed) "%s link_speed=0x%x"
+> > >  
+> > > +vfio_pci_vmd_quirk_shadow_regs(const char *name, uint64_t mb1, uint64_t mb2) "%s membar1_phys=0x%"PRIx64" membar2_phys=0x%"PRIx64
+> > > +vfio_pci_vmd_quirk_vmlock(const char *name, uint8_t vmlock) "%s vmlock=0x%x"
+> > > +
+> > >  # common.c
+> > >  vfio_region_write(const char *name, int index, uint64_t addr, uint64_t data, unsigned size) " (%s:region%d+0x%"PRIx64", 0x%"PRIx64 ", %d)"
+> > >  vfio_region_read(char *name, int index, uint64_t addr, unsigned size, uint64_t data) " (%s:region%d+0x%"PRIx64", %d) = 0x%"PRIx64  
