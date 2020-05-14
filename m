@@ -1,58 +1,46 @@
-From: Alex Williamson <alex.williamson@redhat.com>
-Subject: Re: [PATCH for QEMU v2] hw/vfio: Add VMD Passthrough Quirk
-Date: Wed, 13 May 2020 13:55:08 -0600
-Message-ID: <20200513135508.162809da@x1.home>
-References: <20200511190129.9313-1-jonathan.derrick@intel.com>
-        <20200511190129.9313-2-jonathan.derrick@intel.com>
-        <20200511165927.27b41d65@w520.home>
-        <91c6795937035d6ad72cb78c7997ba8168f643c5.camel@intel.com>
-        <20200513115540.59a2f57d@w520.home>
-        <bd733dccd9cf67c50e757845332e6f8b95719776.camel@intel.com>
+From: David Stevens <stevensd@chromium.org>
+Subject: Re: [PATCH v3 1/4] dma-buf: add support for virtio exported objects
+Date: Thu, 14 May 2020 11:08:52 +0900
+Message-ID: <CAD=HUj6d9gdZegTGad6thKdHv5b+qOZnkCv5VcWo9AcHifR9uA@mail.gmail.com>
+References: <20200311112004.47138-1-stevensd@chromium.org> <20200311112004.47138-2-stevensd@chromium.org>
+ <CAKMK7uHFgiHLe9oiFBr-VR-6rU9-hLTpBTEVNh0ezyj54u70jw@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-pci-owner@vger.kernel.org>
-In-Reply-To: <bd733dccd9cf67c50e757845332e6f8b95719776.camel@intel.com>
-Sender: linux-pci-owner@vger.kernel.org
-To: "Derrick, Jonathan" <jonathan.derrick@intel.com>
-Cc: "hch@lst.de" <hch@lst.de>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>, "helgaas@kernel.org" <helgaas@kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "andrzej.jakowski@linux.intel.com" <andrzej.jakowski@linux.intel.com>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <CAKMK7uHFgiHLe9oiFBr-VR-6rU9-hLTpBTEVNh0ezyj54u70jw@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Daniel Vetter <daniel@ffwll.ch>
+Cc: Tomasz Figa <tfiga@chromium.org>, Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE, NET..." <virtualization@lists.linux-foundation.org>, "open list:DMA BUFFER SHARING FRAMEWORK" <linux-media@vger.kernel.org>, "moderated list:DMA BUFFER SHARING FRAMEWORK" <linaro-mm-sig@lists.linaro.org>, virtio-dev@lists.oasis-open.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 13 May 2020 19:26:34 +0000
-"Derrick, Jonathan" <jonathan.derrick@intel.com> wrote:
+On Thu, May 14, 2020 at 12:45 AM Daniel Vetter <daniel@ffwll.ch> wrote:
+> On Wed, Mar 11, 2020 at 12:20 PM David Stevens <stevensd@chromium.org> wrote:
+> >
+> > This change adds a new dma-buf operation that allows dma-bufs to be used
+> > by virtio drivers to share exported objects. The new operation allows
+> > the importing driver to query the exporting driver for the UUID which
+> > identifies the underlying exported object.
+> >
+> > Signed-off-by: David Stevens <stevensd@chromium.org>
+>
+> Adding Tomasz Figa, I've discussed this with him at elce last year I
+> think. Just to make sure.
+>
+> Bunch of things:
+> - obviously we need the users of this in a few drivers, can't really
+> review anything stand-alone
 
-> On Wed, 2020-05-13 at 11:55 -0600, Alex Williamson wrote:
-> > On Wed, 13 May 2020 00:35:47 +0000
-> > "Derrick, Jonathan" <jonathan.derrick@intel.com> wrote:
-> >   
-> > > Hi Alex,
-> > > 
-> > >   
-> [snip]
-> 
-> > 
-> > Thanks for the confirmation.  The approach seems ok, but a subtle
-> > side-effect of MemoryRegion quirks is that we're going to trap the
-> > entire PAGE_SIZE range overlapping the quirk out to QEMU on guest
-> > access.  The two registers at 0x2000 might be reserved for this
-> > purpose, but is there anything else that could be performance sensitive
-> > anywhere in that page?  If so, it might be less transparent, but more
-> > efficient to invent a new quirk making use of config space (ex. adding
-> > an emulated vendor capability somewhere known to be unused on the
-> > device).  Thanks,
-> > 
-> > Alex  
-> 
-> Seems like that could be a problem if we're running with huge pages and
-> overlapping msix tables.
+Here is a link to the usage of this feature by the currently under
+development virtio-video driver:
+https://markmail.org/thread/j4xlqaaim266qpks
 
-FWIW, MSI-X tables are already getting trapped into QEMU for emulation.
-We have a mechanism via x-msix-relocation=<OffAutoPCIBAR> in QEMU to
-deal with that when it becomes a problem by emulating the MSI-X
-structures in MMIO space that doesn't overlap with the actual device
-(ie. virtually resizing or adding BARs).  The issue is what else can be
-in that 4K page or will this device be supported on archs where the
-system page size is >4K more so than huge pages (as in hugetlbfs or
-transparent huge pages).  Thanks,
+> - adding very specific ops to the generic interface is rather awkward,
+> eventually everyone wants that and we end up in a mess. I think the
+> best solution here would be if we create a struct virtio_dma_buf which
+> subclasses dma-buf, add a (hopefully safe) runtime upcasting
+> functions, and then a virtio_dma_buf_get_uuid() function. Just storing
+> the uuid should be doable (assuming this doesn't change during the
+> lifetime of the buffer), so no need for a callback.
 
-Alex
+So you would prefer a solution similar to the original version of this
+patchset? https://markmail.org/message/z7if4u56q5fmaok4
