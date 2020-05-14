@@ -1,12 +1,14 @@
-From: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Subject: [Q] vhost: returning misconfigured buffers
-Date: Thu, 14 May 2020 14:55:44 +0200
-Message-ID: <20200514125543.GA12665@ubuntu>
+From: Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.6 13/62] vhost/vsock: fix packet delivery order to
+ monitoring devices
+Date: Thu, 14 May 2020 14:50:58 -0400
+Message-ID: <20200514185147.19716-13-sashal@kernel.org>
+References: <20200514185147.19716-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
+In-Reply-To: <20200514185147.19716-1-sashal@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -16,31 +18,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc: Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, "David S . Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-Many vhost drivers follow a common process to obtain and verify 
-received buffers:
+[ Upstream commit 107bc0766b9feb5113074c753735a3f115c2141f ]
 
-head = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov), &out, &in,...);
-if (head < 0) {
-	return ret;
-}
-if (head == vq->num) {
-	/* no buffer */
-	return 0; /* or -EAGAIN or whatever */
-}
-if (out != EXPECTED_OUT_BUFFERS || in != EXPECTED_IN_BUFFERS) {
-	return -EINVAL;
-}
-/* all good, use buffers */
-vhost_add_used(...);
+We want to deliver packets to monitoring devices before it is
+put in the virtqueue, to avoid that replies can appear in the
+packet capture before the transmitted packet.
 
-Which seems to me to be leaking buffers in the last error case - 
-if the buffer configuration was unexpected. Shouldn't drivers in 
-such cases also use vhost_add_used() to return the buffer?
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/vhost/vsock.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-Thanks
-Guennadi
+diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+index bb3f63386b475..53294c2f8cff4 100644
+--- a/drivers/vhost/vsock.c
++++ b/drivers/vhost/vsock.c
+@@ -181,14 +181,14 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+ 			break;
+ 		}
+ 
+-		vhost_add_used(vq, head, sizeof(pkt->hdr) + payload_len);
+-		added = true;
+-
+-		/* Deliver to monitoring devices all correctly transmitted
+-		 * packets.
++		/* Deliver to monitoring devices all packets that we
++		 * will transmit.
+ 		 */
+ 		virtio_transport_deliver_tap_pkt(pkt);
+ 
++		vhost_add_used(vq, head, sizeof(pkt->hdr) + payload_len);
++		added = true;
++
+ 		pkt->off += payload_len;
+ 		total_len += payload_len;
+ 
+-- 
+2.20.1
