@@ -1,40 +1,46 @@
-From: Daniel Vetter <daniel@ffwll.ch>
-Subject: Re: [PATCH v3 1/4] dma-buf: add support for virtio exported objects
-Date: Thu, 14 May 2020 14:31:11 +0200
-Message-ID: <20200514123111.GQ206103@phenom.ffwll.local>
-References: <20200311112004.47138-1-stevensd@chromium.org>
- <20200311112004.47138-2-stevensd@chromium.org>
- <CAKMK7uHFgiHLe9oiFBr-VR-6rU9-hLTpBTEVNh0ezyj54u70jw@mail.gmail.com>
- <20200514075952.zuc3zjtmasaqrw75@sirius.home.kraxel.org>
+From: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+Subject: [Q] vhost: returning misconfigured buffers
+Date: Thu, 14 May 2020 14:55:44 +0200
+Message-ID: <20200514125543.GA12665@ubuntu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20200514075952.zuc3zjtmasaqrw75@sirius.home.kraxel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Gerd Hoffmann <kraxel@redhat.com>
-Cc: Daniel Vetter <daniel@ffwll.ch>, David Stevens <stevensd@chromium.org>, Tomasz Figa <tfiga@chromium.org>, David Airlie <airlied@linux.ie>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE, NET..." <virtualization@lists.linux-foundation.org>, "open list:DMA BUFFER SHARING FRAMEWORK" <linux-media@vger.kernel.org>, "moderated list:DMA BUFFER SHARING FRAMEWORK" <linaro-mm-sig@lists.linaro.org>, virtio-dev@lists.oasis-open.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 14, 2020 at 09:59:52AM +0200, Gerd Hoffmann wrote:
->   Hi,
-> 
-> > - for the runtime upcasting the usual approach is to check the ->ops
-> > pointer. Which means that would need to be the same for all virtio
-> > dma_bufs, which might get a bit awkward. But I'd really prefer we not
-> > add allocator specific stuff like this to dma-buf.
-> 
-> This is exactly the problem, it gets messy quickly, also when it comes
-> to using the drm_prime.c helpers ...
+Hi,
 
-drm_prime.c helpers (not the core bits) exist becaues nvidia needed
-something that wasnt EXPORT_SYMBOL_GPL.
+Many vhost drivers follow a common process to obtain and verify 
+received buffers:
 
-I wouldn't shed a big tear if they don't fit anymore, they're kinda not
-great to begin with. Much midlayer, not much of valued added, but at least
-the _GPL is gone.
--Daniel
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+head = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov), &out, &in,...);
+if (head < 0) {
+	return ret;
+}
+if (head == vq->num) {
+	/* no buffer */
+	return 0; /* or -EAGAIN or whatever */
+}
+if (out != EXPECTED_OUT_BUFFERS || in != EXPECTED_IN_BUFFERS) {
+	return -EINVAL;
+}
+/* all good, use buffers */
+vhost_add_used(...);
+
+Which seems to me to be leaking buffers in the last error case - 
+if the buffer configuration was unexpected. Shouldn't drivers in 
+such cases also use vhost_add_used() to return the buffer?
+
+Thanks
+Guennadi
