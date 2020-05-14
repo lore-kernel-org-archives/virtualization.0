@@ -1,138 +1,217 @@
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: Re: [PATCH 4/9] drm/virtio: Call the right shmem helpers
-Date: Thu, 14 May 2020 09:46:22 +0200
-Message-ID: <68e36b4b-139c-22c4-3028-26c2b50628f7@suse.de>
-References: <20200511093554.211493-1-daniel.vetter@ffwll.ch>
- <20200511093554.211493-5-daniel.vetter@ffwll.ch>
+From: Bharat Bhushan <bbhushan2@marvell.com>
+Subject: [PATCH v6] iommu/virtio: Use page size bitmap supported by endpoint
+Date: Thu, 14 May 2020 13:21:51 +0530
+Message-ID: <20200514075152.3892-1-bbhushan2@marvell.com>
+References: <jean-philippe@linaro.org, joro@8bytes.org, mst@redhat.com,
+ jasowang@redhat.com, eric.auger.pro@gmail.com, eric.auger@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============0135323606=="
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-In-Reply-To: <20200511093554.211493-5-daniel.vetter@ffwll.ch>
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Daniel Vetter <daniel.vetter@ffwll.ch>, DRI Development <dri-devel@lists.freedesktop.org>
-Cc: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel.vetter@intel.com>, Intel Graphics Development <intel-gfx@lists.freedesktop.org>, Gerd Hoffmann <kraxel@redhat.com>, virtualization@lists.linux-foundation.org
+Content-Type: text/plain
+Return-path: <virtio-dev-return-7330-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+In-Reply-To: <jean-philippe@linaro.org, joro@8bytes.org, mst@redhat.com,
+ jasowang@redhat.com, eric.auger.pro@gmail.com, eric.auger@redhat.com>
+To: virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, linux-kernel@vger.kernel.org, virtio-dev@lists.oasis-open.org
+Cc: Bharat Bhushan <bbhushan2@marvell.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============0135323606==
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="6x5A6hSUnuyBxeEIUE8YoQm0XtN6t7kCJ"
+Different endpoint can support different page size, probe
+endpoint if it supports specific page size otherwise use
+global page sizes.
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---6x5A6hSUnuyBxeEIUE8YoQm0XtN6t7kCJ
-Content-Type: multipart/mixed; boundary="qhdb2900SAJMcBGUSt4068I5n8riGKQ7j";
- protected-headers="v1"
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: Daniel Vetter <daniel.vetter@ffwll.ch>,
- DRI Development <dri-devel@lists.freedesktop.org>
-Cc: David Airlie <airlied@linux.ie>,
- Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
- virtualization@lists.linux-foundation.org, Gerd Hoffmann
- <kraxel@redhat.com>, Daniel Vetter <daniel.vetter@intel.com>
-Message-ID: <68e36b4b-139c-22c4-3028-26c2b50628f7@suse.de>
-Subject: Re: [PATCH 4/9] drm/virtio: Call the right shmem helpers
-References: <20200511093554.211493-1-daniel.vetter@ffwll.ch>
- <20200511093554.211493-5-daniel.vetter@ffwll.ch>
-In-Reply-To: <20200511093554.211493-5-daniel.vetter@ffwll.ch>
+Device attached to domain should support a minimum of
+domain supported page sizes. If device supports more
+than domain supported page sizes then device is limited
+to use domain supported page sizes only.
 
---qhdb2900SAJMcBGUSt4068I5n8riGKQ7j
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Bharat Bhushan <bbhushan2@marvell.com>
+---
+v5->v6
+ - property length before dereference
+ - Error out on no supported page sizes (page-size-mask is zero)
+ - Allow device to attach to domain even it supports
+   minimum of domain supported page sizes. In that case device
+   will use domain page sizes only.
+ - added format of pgsize_bitmap
 
+v4->v5:
+ - Rebase to Linux v5.7-rc4
 
+v3->v4:
+ - Fix whitespace error
 
-Am 11.05.20 um 11:35 schrieb Daniel Vetter:
-> drm_gem_shmem_get_sg_table is meant to implement
-> obj->funcs->get_sg_table, for prime exporting. The one we want is
-> drm_gem_shmem_get_pages_sgt, which also handles imported dma-buf, not
-> just native objects.
->=20
-> v2: Rebase, this stuff moved around in
->=20
-> commit 2f2aa13724d56829d910b2fa8e80c502d388f106
-> Author: Gerd Hoffmann <kraxel@redhat.com>
-> Date:   Fri Feb 7 08:46:38 2020 +0100
->=20
->     drm/virtio: move virtio_gpu_mem_entry initialization to new functio=
-n
->=20
-> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+v2->v3:
+ - Fixed error return for incompatible endpoint
+ - __u64 changed to __le64 in header file
 
-Acked-by: Thomas Zimmermann <tzimmermann@suse.de>
+ drivers/iommu/virtio-iommu.c      | 63 ++++++++++++++++++++++++++++---
+ include/uapi/linux/virtio_iommu.h | 14 ++++++-
+ 2 files changed, 71 insertions(+), 6 deletions(-)
 
-> Cc: David Airlie <airlied@linux.ie>
-> Cc: Gerd Hoffmann <kraxel@redhat.com>
-> Cc: virtualization@lists.linux-foundation.org
-> ---
->  drivers/gpu/drm/virtio/virtgpu_object.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/=
-virtio/virtgpu_object.c
-> index 6ccbd01cd888..346cef5ce251 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_object.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-> @@ -150,7 +150,7 @@ static int virtio_gpu_object_shmem_init(struct virt=
-io_gpu_device *vgdev,
->  	if (ret < 0)
->  		return -EINVAL;
-> =20
-> -	shmem->pages =3D drm_gem_shmem_get_sg_table(&bo->base.base);
-> +	shmem->pages =3D drm_gem_shmem_get_pages_sgt(&bo->base.base);
->  	if (!shmem->pages) {
->  		drm_gem_shmem_unpin(&bo->base.base);
->  		return -EINVAL;
->=20
-
---=20
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Maxfeldstr. 5, 90409 N=C3=BCrnberg, Germany
-(HRB 36809, AG N=C3=BCrnberg)
-Gesch=C3=A4ftsf=C3=BChrer: Felix Imend=C3=B6rffer
-
-
---qhdb2900SAJMcBGUSt4068I5n8riGKQ7j--
-
---6x5A6hSUnuyBxeEIUE8YoQm0XtN6t7kCJ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEchf7rIzpz2NEoWjlaA3BHVMLeiMFAl68904ACgkQaA3BHVML
-eiPtXAf+KYC6fzY0k/WOjwie9brnUcYcOQ6oc2++J3WIgkgVwB1d05ZQAWXdGwg/
-ysGvcW9AnKTmdrOKwWujlHuLbFnpev7ET52b5yR1fU9rSUaf9VnZz3CD5NZGTxYU
-iNmIkXEZEWymeqrIXtyaNMz8Tv6yYinUVsiRfSlwHnLNHnNJXRNUGa21Sf6qEuPD
-wrYkwh4Cw2bjN+ceb/pR5MwjfHhJ5krTunin9xE9SH3QKFhlUZsrbPJHZ+wIBCmh
-f4RqFtTm8PY+4qV1HE424xZTel2b9KpJZFHn+h1yw96dGSDBtKXOFAO0JHkL26Uk
-mSt7aov2kFJci703eiDYNHU/jiZ+LQ==
-=74XA
------END PGP SIGNATURE-----
-
---6x5A6hSUnuyBxeEIUE8YoQm0XtN6t7kCJ--
-
---===============0135323606==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Intel-gfx mailing list
-Intel-gfx@lists.freedesktop.org
-https://lists.freedesktop.org/mailman/listinfo/intel-gfx
-
---===============0135323606==--
+diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+index 4e1d11af23c8..cbac3047a781 100644
+--- a/drivers/iommu/virtio-iommu.c
++++ b/drivers/iommu/virtio-iommu.c
+@@ -78,6 +78,7 @@ struct viommu_endpoint {
+ 	struct viommu_dev		*viommu;
+ 	struct viommu_domain		*vdomain;
+ 	struct list_head		resv_regions;
++	u64				pgsize_bitmap;
+ };
+ 
+ struct viommu_request {
+@@ -415,6 +416,23 @@ static int viommu_replay_mappings(struct viommu_domain *vdomain)
+ 	return ret;
+ }
+ 
++static int viommu_set_pgsize_bitmap(struct viommu_endpoint *vdev,
++				    struct virtio_iommu_probe_pgsize_mask *mask,
++				    size_t len)
++{
++	u64 pgsize_bitmap;
++
++	if (len < sizeof(*mask))
++		return -EINVAL;
++
++	pgsize_bitmap = le64_to_cpu(mask->pgsize_bitmap);
++	if (!pgsize_bitmap)
++		return -EINVAL;
++
++	vdev->pgsize_bitmap = pgsize_bitmap;
++	return 0;
++}
++
+ static int viommu_add_resv_mem(struct viommu_endpoint *vdev,
+ 			       struct virtio_iommu_probe_resv_mem *mem,
+ 			       size_t len)
+@@ -499,6 +517,9 @@ static int viommu_probe_endpoint(struct viommu_dev *viommu, struct device *dev)
+ 		case VIRTIO_IOMMU_PROBE_T_RESV_MEM:
+ 			ret = viommu_add_resv_mem(vdev, (void *)prop, len);
+ 			break;
++		case VIRTIO_IOMMU_PROBE_T_PAGE_SIZE_MASK:
++			ret = viommu_set_pgsize_bitmap(vdev, (void *)prop, len);
++			break;
+ 		default:
+ 			dev_err(dev, "unknown viommu prop 0x%x\n", type);
+ 		}
+@@ -615,7 +636,7 @@ static int viommu_domain_finalise(struct viommu_endpoint *vdev,
+ 	struct viommu_dev *viommu = vdev->viommu;
+ 	struct viommu_domain *vdomain = to_viommu_domain(domain);
+ 
+-	viommu_page_size = 1UL << __ffs(viommu->pgsize_bitmap);
++	viommu_page_size = 1UL << __ffs(vdev->pgsize_bitmap);
+ 	if (viommu_page_size > PAGE_SIZE) {
+ 		dev_err(vdev->dev,
+ 			"granule 0x%lx larger than system page size 0x%lx\n",
+@@ -630,7 +651,7 @@ static int viommu_domain_finalise(struct viommu_endpoint *vdev,
+ 
+ 	vdomain->id		= (unsigned int)ret;
+ 
+-	domain->pgsize_bitmap	= viommu->pgsize_bitmap;
++	domain->pgsize_bitmap	= vdev->pgsize_bitmap;
+ 	domain->geometry	= viommu->geometry;
+ 
+ 	vdomain->map_flags	= viommu->map_flags;
+@@ -654,6 +675,38 @@ static void viommu_domain_free(struct iommu_domain *domain)
+ 	kfree(vdomain);
+ }
+ 
++/*
++ * Check whether the endpoint's capabilities are compatible with other
++ * endpoints in the domain. Report any inconsistency.
++ */
++static bool viommu_endpoint_is_compatible(struct viommu_endpoint *vdev,
++					  struct viommu_domain *vdomain)
++{
++	struct device *dev = vdev->dev;
++	u64 pgsize_bitmap;
++
++	if (vdomain->viommu != vdev->viommu) {
++		dev_err(dev, "cannot attach to foreign vIOMMU\n");
++		return false;
++	}
++
++	pgsize_bitmap = vdomain->domain.pgsize_bitmap & vdev->pgsize_bitmap;
++
++	if (pgsize_bitmap != vdomain->domain.pgsize_bitmap) {
++		dev_err(dev, "incompatible domain bitmap 0x%lx != 0x%llx\n",
++			vdomain->domain.pgsize_bitmap, vdev->pgsize_bitmap);
++		return false;
++	}
++
++	/* Domain pagesize bitmap is subset of device pagesize bitmap */
++	if (pgsize_bitmap != vdev->pgsize_bitmap) {
++		dev_info(dev, "page size bitmap used %llx, supported %llx\n",
++			 pgsize_bitmap, vdev->pgsize_bitmap);
++		vdev->pgsize_bitmap = pgsize_bitmap;
++	}
++	return true;
++}
++
+ static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
+ {
+ 	int i;
+@@ -670,9 +723,8 @@ static int viommu_attach_dev(struct iommu_domain *domain, struct device *dev)
+ 		 * owns it.
+ 		 */
+ 		ret = viommu_domain_finalise(vdev, domain);
+-	} else if (vdomain->viommu != vdev->viommu) {
+-		dev_err(dev, "cannot attach to foreign vIOMMU\n");
+-		ret = -EXDEV;
++	} else if (!viommu_endpoint_is_compatible(vdev, vdomain)) {
++		ret = -EINVAL;
+ 	}
+ 	mutex_unlock(&vdomain->mutex);
+ 
+@@ -886,6 +938,7 @@ static int viommu_add_device(struct device *dev)
+ 
+ 	vdev->dev = dev;
+ 	vdev->viommu = viommu;
++	vdev->pgsize_bitmap = viommu->pgsize_bitmap;
+ 	INIT_LIST_HEAD(&vdev->resv_regions);
+ 	dev_iommu_priv_set(dev, vdev);
+ 
+diff --git a/include/uapi/linux/virtio_iommu.h b/include/uapi/linux/virtio_iommu.h
+index 48e3c29223b5..15a8327ffef5 100644
+--- a/include/uapi/linux/virtio_iommu.h
++++ b/include/uapi/linux/virtio_iommu.h
+@@ -28,7 +28,11 @@ struct virtio_iommu_range_32 {
+ };
+ 
+ struct virtio_iommu_config {
+-	/* Supported page sizes */
++	/*
++	 * Bitmap of supported page sizes. The least significant bit
++	 * indicates the smallest granularity and the other bits are
++	 * hints indicating optimal block sizes.
++	 */
+ 	__u64					page_size_mask;
+ 	/* Supported IOVA range */
+ 	struct virtio_iommu_range_64		input_range;
+@@ -111,6 +115,7 @@ struct virtio_iommu_req_unmap {
+ 
+ #define VIRTIO_IOMMU_PROBE_T_NONE		0
+ #define VIRTIO_IOMMU_PROBE_T_RESV_MEM		1
++#define VIRTIO_IOMMU_PROBE_T_PAGE_SIZE_MASK	2
+ 
+ #define VIRTIO_IOMMU_PROBE_T_MASK		0xfff
+ 
+@@ -119,6 +124,13 @@ struct virtio_iommu_probe_property {
+ 	__le16					length;
+ };
+ 
++struct virtio_iommu_probe_pgsize_mask {
++	struct virtio_iommu_probe_property	head;
++	__u8					reserved[4];
++	/* Same format as virtio_iommu_config::page_size_mask */
++	__le64					pgsize_bitmap;
++};
++
+ #define VIRTIO_IOMMU_RESV_MEM_T_RESERVED	0
+ #define VIRTIO_IOMMU_RESV_MEM_T_MSI		1
+ 
+-- 
+2.17.1
