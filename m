@@ -1,173 +1,82 @@
-From: teawater <teawaterz@linux.alibaba.com>
-Subject: Re: [PATCH v3 00/15] virtio-mem: paravirtualized memory
-Date: Fri, 15 May 2020 10:58:00 +0800
-Message-ID: <9708F43A-9BD2-4377-8EE8-7FB1D95C6F69@linux.alibaba.com>
-References: <20200507103119.11219-1-david@redhat.com>
- <7848642F-6AA7-4B5E-AE0E-DB0857C94A93@linux.alibaba.com>
- <31c5d2f9-c104-53e8-d9c8-cb45f7507c85@redhat.com>
- <A3BBAEEE-FBB9-4259-8BED-023CCD530021@linux.alibaba.com>
- <389b6bdc-b196-e4b9-b6be-dcac57524fdf@redhat.com>
- <3c82e149-6c42-690e-9d58-bb8e69870fe0@redhat.com>
- <e48ded49-9b92-7025-a06f-49b24f1c53a6@redhat.com>
- <cda84c4d-0f4c-1dd8-44f6-68f211e5de6d@redhat.com>
-Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.80.23.2.2\))
-Content-Type: text/plain;
-	charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtio-dev-return-7343-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <cda84c4d-0f4c-1dd8-44f6-68f211e5de6d@redhat.com>
-To: David Hildenbrand <david@redhat.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, virtio-dev@lists.oasis-open.org, Linux Virtualization <virtualization@lists.linux-foundation.org>, kvm@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Sebastien Boeuf <sebastien.boeuf@intel.com>, Samuel Ortiz <samuel.ortiz@intel.com>, Robert Bradford <robert.bradford@intel.com>, Luiz Capitulino <lcapitulino@redhat.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Igor Mammedov <imammedo@redhat.com>, "Dr . David Alan Gilbert" <dgilbert@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Alexander Potapenko <glider@google.com>, Anshuman Khandual <anshuman.khandual@arm.com>, Anthony Yznaga <anthony.yznaga@oracle.com>, Dan Williams <dan.j.williams@intel.com>, Dave Young <dyoung@redhat.com>, Jason
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] vdpa_sim: do not reset IOTLB during device reset
+Date: Fri, 15 May 2020 11:02:00 +0800
+Message-ID: <c0353f0c-e60e-3fcd-6452-38eefca18a03@redhat.com>
+References: <20200514072549.29694-1-jasowang@redhat.com>
+ <20200514053233-mutt-send-email-mst@kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200514053233-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-
-> 2020=E5=B9=B45=E6=9C=8814=E6=97=A5 20:19=EF=BC=8CDavid Hildenbrand =
-<david@redhat.com> =E5=86=99=E9=81=93=EF=BC=9A
->=20
-> On 14.05.20 13:47, David Hildenbrand wrote:
->> On 14.05.20 13:10, David Hildenbrand wrote:
->>> On 14.05.20 12:12, David Hildenbrand wrote:
->>>> On 14.05.20 12:02, teawater wrote:
->>>>>=20
->>>>>=20
->>>>>> 2020=E5=B9=B45=E6=9C=8814=E6=97=A5 16:48=EF=BC=8CDavid =
-Hildenbrand <david@redhat.com> =E5=86=99=E9=81=93=EF=BC=9A
->>>>>>=20
->>>>>> On 14.05.20 08:44, teawater wrote:
->>>>>>> Hi David,
->>>>>>>=20
->>>>>>> I got a kernel warning with v2 and v3.
->>>>>>=20
->>>>>> Hi Hui,
->>>>>>=20
->>>>>> thanks for playing with the latest versions. Surprisingly, I can
->>>>>> reproduce even by hotplugging a DIMM instead as well - that's =
-good, so
->>>>>> it's not related to virtio-mem, lol. Seems to be some QEMU setup =
-issue
->>>>>> with older machine types.
->>>>>>=20
->>>>>> Can you switch to a newer qemu machine version, especially
->>>>>> pc-i440fx-5.0? Both, hotplugging DIMMs and virtio-mem works for =
-me with
->>>>>> that QEMU machine just fine.
->>>>>=20
->>>>> I still could reproduce this issue with pc-i440fx-5.0 or pc.  Did =
-I miss anything?
->>>>>=20
->>>>=20
->>>> Below I don't even see virtio_mem. I had to repair the image =
-(filesystem
->>>> fsck) because it was broken, can you try that as well?
->>>>=20
->>>> Also, it would be great if you could test with v4.
->>>>=20
->>>=20
->>> Correction, something seems to be broken either in QEMU or the =
-kernel. Once I
->>> define a DIMM so it's added and online during boot, I get these =
-issues:
->>>=20
->>> (I have virtio-mem v4 installed in the guest)
->>>=20
->>> #! /bin/bash
->>> sudo x86_64-softmmu/qemu-system-x86_64 \
->>>    -machine pc-i440fx-5.0,accel=3Dkvm,usb=3Doff \
->>>    -cpu host \
->>>    -no-reboot \
->>>    -nographic \
->>>    -device ide-hd,drive=3Dhd \
->>>    -drive =
-if=3Dnone,id=3Dhd,file=3D/home/dhildenb/git/Fedora-Cloud-Base-31-1.9.x86_6=
-4.qcow2,format=3Dqcow2 \
->>>    -m 1g,slots=3D10,maxmem=3D2G \
->>>    -smp 1 \
->>>    -object memory-backend-ram,id=3Dmem0,size=3D256m \
->>>    -device pc-dimm,id=3Ddimm0,memdev=3Dmem0 \
->>>    -s \
->>>    -monitor unix:/var/tmp/monitor,server,nowait
->>>=20
->>>=20
->>> Without the DIMM it seems to work just fine.
->>>=20
->>=20
->> And another correction.=20
->>=20
->> Using QEMU v5.0.0, Linux 5.7-rc5, untouched
->> Fedora-Cloud-Base-32-1.6.x86_64.qcow2, I get even without any memory =
-hotplug:
->>=20
->> #! /bin/bash
->> sudo x86_64-softmmu/qemu-system-x86_64 \
->>    -machine pc-i440fx-5.0,accel=3Dkvm,usb=3Doff \
->>    -cpu host \
->>    -no-reboot \
->>    -nographic \
->>    -device ide-hd,drive=3Dhd \
->>    -drive =
-if=3Dnone,id=3Dhd,file=3D/home/dhildenb/git/Fedora-Cloud-Base-32-1.6.x86_6=
-4.qcow2,format=3Dqcow2 \
->>    -m 5g,slots=3D10,maxmem=3D6G \
->>    -smp 1 \
->>    -s \
->>    -kernel /home/dhildenb/git/linux/arch/x86/boot/bzImage \
->>    -append "console=3DttyS0 rd.shell nokaslr swiotlb=3Dnoforce" \
->>    -monitor unix:/var/tmp/monitor,server,nowait
->>=20
->>=20
->> Observe how big the initial RAM even is!
->>=20
->>=20
->> So this is no DIMM/hotplug/virtio_mem issue. With memory hotplug, it =
-seems to get
->> more likely to trigger if "swiotlb=3Dnoforce" is not specified.
->>=20
->> "swiotlb=3Dnoforce" seems to trigger some pre-existing issue here. =
-Without
->> "swiotlb=3Dnoforce", I was only able to observe this via =
-pc-i440fx-2.1,
->>=20
->=20
-> (talking to myself :) )
->=20
-> I think I finally understood why using "swiotlb=3Dnoforce" with =
-hotplugged
-> memory is wrong - or with memory > 3GB. Via "swiotlb=3Dnoforce" you =
-tell
-> the system to "Never use bounce buffers (for debugging)". This works =
-as
-> long as all memory is DMA memory (e.g., < 3GB) AFAIK.
->=20
-> "If specified, trying to map memory that cannot be used with DMA will
-> fail, and a rate-limited warning will be printed."
->=20
-> Hotplugged memory (under QEMU) is never added below 4GB, because of =
-the
-> PCI hole. So both, memory from DIMMs and from virtio-mem will end up =
-at
-> or above 4GB. To make a device use that memory, you need bounce =
-buffers.
->=20
-> Hotplugged memory is never DMA memory.
->=20
+On 2020/5/14 下午5:35, Michael S. Tsirkin wrote:
+> On Thu, May 14, 2020 at 03:25:49PM +0800, Jason Wang wrote:
+>> We reset IOTLB during device reset this breaks the assumption that the
+>> mapping needs to be controlled via vDPA DMA ops explicitly in a
+>> incremental way. So the networking will be broken after e.g a guest
+>> reset.
+>>
+>> Fix this by not resetting the IOTLB during device reset.
+>>
+>> Signed-off-by: Jason Wang <jasowang@redhat.com>
+>
+> That's a bit weird, and can be a security risk if state
+> leaks between security domains through this.
 
 
-Hi David,
+I'm not sure I get this. Note that:
 
-It is fixed when I remove "swiotlb=3Dnoforce=E2=80=9D.
+1) For devices that depend on platform IOMMU, the mappings are valid 
+across device reset
+2) vhost_vdpa will reset IOTLB during release, so I think there's no 
+security leak in this case
 
-Thanks for your help.
+If we reset IOTLB during device reset, there will be an inconsistency 
+between on-chip IOMMU devices and platform IOMMU devices. We can fix 
+this inconsistency in another way, e.g unmap during vhost_vdpa_reset. 
+This means userspace need to replay the mapping before DRIVER_OK, which 
+seems a burden to userspace.
 
-Best,
-Hui
 
-> --=20
-> Thanks,
->=20
-> David / dhildenb
+> And there's 0 chance any hardware implementation can
+> keep the translations around across resets - there
+> is simply nowhere to keep them.
+
+
+It depends on the hardware implementation, e.g the IOMMU does not belong 
+to VF but PF.
+
+Thanks
+
+
+>
+> IMHO we need a different way to make this work, simulator
+> needs to look like a hardware device as much as possible.
+>
+>
+>> ---
+>>   drivers/vdpa/vdpa_sim/vdpa_sim.c | 2 --
+>>   1 file changed, 2 deletions(-)
+>>
+>> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+>> index 7957d2d41fc4..cc5525743a25 100644
+>> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
+>> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+>> @@ -119,8 +119,6 @@ static void vdpasim_reset(struct vdpasim *vdpasim)
+>>   	for (i = 0; i < VDPASIM_VQ_NUM; i++)
+>>   		vdpasim_vq_reset(&vdpasim->vqs[i]);
+>>   
+>> -	vhost_iotlb_reset(vdpasim->iommu);
+>> -
+>>   	vdpasim->features = 0;
+>>   	vdpasim->status = 0;
+>>   	++vdpasim->generation;
+>> -- 
+>> 2.20.1
