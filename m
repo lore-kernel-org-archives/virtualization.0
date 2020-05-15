@@ -1,57 +1,34 @@
 From: David Stevens <stevensd@chromium.org>
-Subject: Re: [PATCH v3 1/4] dma-buf: add support for virtio exported objects
-Date: Fri, 15 May 2020 14:07:06 +0900
-Message-ID: <CAD=HUj7452eFfn9i=JWm54Mke3Lew-7AWYeoKZLAjCSg7eLO6A@mail.gmail.com>
-References: <20200311112004.47138-1-stevensd@chromium.org> <20200311112004.47138-2-stevensd@chromium.org>
- <CAKMK7uHFgiHLe9oiFBr-VR-6rU9-hLTpBTEVNh0ezyj54u70jw@mail.gmail.com>
- <CAD=HUj6k-y1=64zY8ZFOQBZ7WSUWiQfvkiTpXXt10JB_CGqk1A@mail.gmail.com> <20200514123007.GP206103@phenom.ffwll.local>
+Subject: Re: [PATCH v3 4/4] drm/virtio: Support virtgpu exported resources
+Date: Fri, 15 May 2020 16:26:15 +0900
+Message-ID: <CAD=HUj5qcMLw__LfJizR6nzCR9Qmu21Sjk3i0j_8+=rxt1Hk=w@mail.gmail.com>
+References: <20200311112004.47138-1-stevensd@chromium.org> <20200311112004.47138-5-stevensd@chromium.org>
+ <20200513123326-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <virtio-dev-return-7344-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Return-path: <virtio-dev-return-7345-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
 Sender: <virtio-dev@lists.oasis-open.org>
 List-Post: <mailto:virtio-dev@lists.oasis-open.org>
 List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
 List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
 List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <20200514123007.GP206103@phenom.ffwll.local>
-To: David Stevens <stevensd@chromium.org>, Tomasz Figa <tfiga@chromium.org>, Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE, NET..." <virtualization@lists.linux-foundation.org>, "open list:DMA BUFFER SHARING FRAMEWORK" <linux-media@vger.kernel.org>, "moderated list:DMA BUFFER SHARING FRAMEWORK" <linaro-mm-sig@lists.linaro.org>, virtio-dev@lists.oasis-open.org
-Cc: Daniel Vetter <daniel@ffwll.ch>
+In-Reply-To: <20200513123326-mutt-send-email-mst@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Jason Wang <jasowang@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, "moderated list:DMA BUFFER SHARING FRAMEWORK" <linaro-mm-sig@lists.linaro.org>, virtio-dev@lists.oasis-open.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 14, 2020 at 9:30 PM Daniel Vetter <daniel@ffwll.ch> wrote:
-> On Thu, May 14, 2020 at 05:19:40PM +0900, David Stevens wrote:
-> > Sorry for the duplicate reply, didn't notice this until now.
-> >
-> > > Just storing
-> > > the uuid should be doable (assuming this doesn't change during the
-> > > lifetime of the buffer), so no need for a callback.
-> >
-> > Directly storing the uuid doesn't work that well because of
-> > synchronization issues. The uuid needs to be shared between multiple
-> > virtio devices with independent command streams, so to prevent races
-> > between importing and exporting, the exporting driver can't share the
-> > uuid with other drivers until it knows that the device has finished
-> > registering the uuid. That requires a round trip to and then back from
-> > the device. Using a callback allows the latency from that round trip
-> > registration to be hidden.
+> > +     if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_RESOURCE_UUID)) {
+> > +             vgdev->has_resource_assign_uuid = true;
+> > +     }
 >
-> Uh, that means you actually do something and there's locking involved.
-> Makes stuff more complicated, invariant attributes are a lot easier
-> generally. Registering that uuid just always doesn't work, and blocking
-> when you're exporting?
+>
+> Just a question: this relies on DMA bufs so I assume it is
+> not really assumed to work when DMA API is bypassed, right?
+> Rather than worry what does it mean, how about just
+> disabling  this feature without PLATFORM_DMA for now?
 
-Registering the id at creation and blocking in gem export is feasible,
-but it doesn't work well for systems with a centralized buffer
-allocator that doesn't support batch allocations (e.g. gralloc). In
-such a system, the round trip latency would almost certainly be
-included in the buffer allocation time. At least on the system I'm
-working on, I suspect that would add 10s of milliseconds of startup
-latency to video pipelines (although I haven't benchmarked the
-difference). Doing the blocking as late as possible means most or all
-of the latency can be hidden behind other pipeline setup work.
-
-In terms of complexity, I think the synchronization would be basically
-the same in either approach, just in different locations. All it would
-do is alleviate the need for a callback to fetch the UUID.
+By PLATFORM_DMA, do you mean CONFIG_DMA_SHARED_BUFFER? Virtio-gpu
+depends on DRM, which selects that feature. So I think DMA bufs should
+always be available when virtio-gpu is present.
 
 -David
