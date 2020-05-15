@@ -1,82 +1,57 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] vdpa_sim: do not reset IOTLB during device reset
-Date: Fri, 15 May 2020 11:02:00 +0800
-Message-ID: <c0353f0c-e60e-3fcd-6452-38eefca18a03@redhat.com>
-References: <20200514072549.29694-1-jasowang@redhat.com>
- <20200514053233-mutt-send-email-mst@kernel.org>
+From: David Stevens <stevensd@chromium.org>
+Subject: Re: [PATCH v3 1/4] dma-buf: add support for virtio exported objects
+Date: Fri, 15 May 2020 14:07:06 +0900
+Message-ID: <CAD=HUj7452eFfn9i=JWm54Mke3Lew-7AWYeoKZLAjCSg7eLO6A@mail.gmail.com>
+References: <20200311112004.47138-1-stevensd@chromium.org> <20200311112004.47138-2-stevensd@chromium.org>
+ <CAKMK7uHFgiHLe9oiFBr-VR-6rU9-hLTpBTEVNh0ezyj54u70jw@mail.gmail.com>
+ <CAD=HUj6k-y1=64zY8ZFOQBZ7WSUWiQfvkiTpXXt10JB_CGqk1A@mail.gmail.com> <20200514123007.GP206103@phenom.ffwll.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200514053233-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <virtio-dev-return-7344-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+In-Reply-To: <20200514123007.GP206103@phenom.ffwll.local>
+To: David Stevens <stevensd@chromium.org>, Tomasz Figa <tfiga@chromium.org>, Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE, NET..." <virtualization@lists.linux-foundation.org>, "open list:DMA BUFFER SHARING FRAMEWORK" <linux-media@vger.kernel.org>, "moderated list:DMA BUFFER SHARING FRAMEWORK" <linaro-mm-sig@lists.linaro.org>, virtio-dev@lists.oasis-open.org
+Cc: Daniel Vetter <daniel@ffwll.ch>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-On 2020/5/14 下午5:35, Michael S. Tsirkin wrote:
-> On Thu, May 14, 2020 at 03:25:49PM +0800, Jason Wang wrote:
->> We reset IOTLB during device reset this breaks the assumption that the
->> mapping needs to be controlled via vDPA DMA ops explicitly in a
->> incremental way. So the networking will be broken after e.g a guest
->> reset.
->>
->> Fix this by not resetting the IOTLB during device reset.
->>
->> Signed-off-by: Jason Wang <jasowang@redhat.com>
+On Thu, May 14, 2020 at 9:30 PM Daniel Vetter <daniel@ffwll.ch> wrote:
+> On Thu, May 14, 2020 at 05:19:40PM +0900, David Stevens wrote:
+> > Sorry for the duplicate reply, didn't notice this until now.
+> >
+> > > Just storing
+> > > the uuid should be doable (assuming this doesn't change during the
+> > > lifetime of the buffer), so no need for a callback.
+> >
+> > Directly storing the uuid doesn't work that well because of
+> > synchronization issues. The uuid needs to be shared between multiple
+> > virtio devices with independent command streams, so to prevent races
+> > between importing and exporting, the exporting driver can't share the
+> > uuid with other drivers until it knows that the device has finished
+> > registering the uuid. That requires a round trip to and then back from
+> > the device. Using a callback allows the latency from that round trip
+> > registration to be hidden.
 >
-> That's a bit weird, and can be a security risk if state
-> leaks between security domains through this.
+> Uh, that means you actually do something and there's locking involved.
+> Makes stuff more complicated, invariant attributes are a lot easier
+> generally. Registering that uuid just always doesn't work, and blocking
+> when you're exporting?
 
+Registering the id at creation and blocking in gem export is feasible,
+but it doesn't work well for systems with a centralized buffer
+allocator that doesn't support batch allocations (e.g. gralloc). In
+such a system, the round trip latency would almost certainly be
+included in the buffer allocation time. At least on the system I'm
+working on, I suspect that would add 10s of milliseconds of startup
+latency to video pipelines (although I haven't benchmarked the
+difference). Doing the blocking as late as possible means most or all
+of the latency can be hidden behind other pipeline setup work.
 
-I'm not sure I get this. Note that:
+In terms of complexity, I think the synchronization would be basically
+the same in either approach, just in different locations. All it would
+do is alleviate the need for a callback to fetch the UUID.
 
-1) For devices that depend on platform IOMMU, the mappings are valid 
-across device reset
-2) vhost_vdpa will reset IOTLB during release, so I think there's no 
-security leak in this case
-
-If we reset IOTLB during device reset, there will be an inconsistency 
-between on-chip IOMMU devices and platform IOMMU devices. We can fix 
-this inconsistency in another way, e.g unmap during vhost_vdpa_reset. 
-This means userspace need to replay the mapping before DRIVER_OK, which 
-seems a burden to userspace.
-
-
-> And there's 0 chance any hardware implementation can
-> keep the translations around across resets - there
-> is simply nowhere to keep them.
-
-
-It depends on the hardware implementation, e.g the IOMMU does not belong 
-to VF but PF.
-
-Thanks
-
-
->
-> IMHO we need a different way to make this work, simulator
-> needs to look like a hardware device as much as possible.
->
->
->> ---
->>   drivers/vdpa/vdpa_sim/vdpa_sim.c | 2 --
->>   1 file changed, 2 deletions(-)
->>
->> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
->> index 7957d2d41fc4..cc5525743a25 100644
->> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
->> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
->> @@ -119,8 +119,6 @@ static void vdpasim_reset(struct vdpasim *vdpasim)
->>   	for (i = 0; i < VDPASIM_VQ_NUM; i++)
->>   		vdpasim_vq_reset(&vdpasim->vqs[i]);
->>   
->> -	vhost_iotlb_reset(vdpasim->iommu);
->> -
->>   	vdpasim->features = 0;
->>   	vdpasim->status = 0;
->>   	++vdpasim->generation;
->> -- 
->> 2.20.1
+-David
