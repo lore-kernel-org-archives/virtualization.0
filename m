@@ -1,522 +1,697 @@
 From: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Subject: [PATCH 5/6] vhost: add an rpmsg API
-Date: Sat, 16 May 2020 12:11:08 +0200
-Message-ID: <20200516101109.2624-6-guennadi.liakhovetski@linux.intel.com>
-References: <20200516101109.2624-1-guennadi.liakhovetski@linux.intel.com>
+Subject: [PATCH RFC] vhost: add an SOF Audio DSP driver
+Date: Sat, 16 May 2020 12:16:09 +0200
+Message-ID: <20200516101609.2845-1-guennadi.liakhovetski@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20200516101109.2624-1-guennadi.liakhovetski@linux.intel.com>
 Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
 Cc: linux-remoteproc@vger.kernel.org, virtualization@lists.linux-foundation.org, sound-open-firmware@alsa-project.org, Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>, Liam Girdwood <liam.r.girdwood@linux.intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Linux supports running the RPMsg protocol over the VirtIO transport
-protocol, but currently there is only support for VirtIO clients and
-no support for a VirtIO server. This patch adds a vhost-based RPMsg
-server implementation.
+The SOF ADSP vhost driver consists of two parts: a sound and a vhost
+part. This patch implements the vhost part of the driver. It handles
+QEMU communication with the vhost misc device and virtual queues to
+any VirtIO RPMsg guests.
 
 Signed-off-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
 ---
- drivers/vhost/Kconfig       |   8 +
- drivers/vhost/Makefile      |   3 +
- drivers/vhost/rpmsg.c       | 372 ++++++++++++++++++++++++++++++++++++++++++++
- drivers/vhost/vhost_rpmsg.h |  74 +++++++++
- 4 files changed, 457 insertions(+)
- create mode 100644 drivers/vhost/rpmsg.c
- create mode 100644 drivers/vhost/vhost_rpmsg.h
+
+This is marked as an RFC / request for review, since it depends on other
+patches, that haven't been merged yet. It uses the vhost RPMsg API, submitted
+minutes ago to the lists
+https://lists.linuxfoundation.org/pipermail/virtualization/2020-May/047669.html
+and is a part of the SOF virtualisation project
+https://github.com/thesofproject/linux/pull/1501/commits
+
+Thanks
+Guennadi
+
+ drivers/vhost/Kconfig  |  10 +
+ drivers/vhost/Makefile |   3 +
+ drivers/vhost/adsp.c   | 618 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 631 insertions(+)
+ create mode 100644 drivers/vhost/adsp.c
 
 diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
-index 2c75d16..4ebc871 100644
+index 4021522..2aff7c1 100644
 --- a/drivers/vhost/Kconfig
 +++ b/drivers/vhost/Kconfig
-@@ -38,6 +38,14 @@ config VHOST_NET
- 	  To compile this driver as a module, choose M here: the module will
- 	  be called vhost_net.
+@@ -28,6 +28,16 @@ config VHOST_SCSI
+ 	Say M here to enable the vhost_scsi TCM fabric module
+ 	for use with virtio-scsi guests
  
-+config VHOST_RPMSG
-+	tristate
-+	depends on VHOST
++config VHOST_SOF
++	tristate "Vhost SOF driver"
++	depends on SND_SOC_SOF
++	select VHOST
++	select VHOST_RPMSG
 +	default n
 +	---help---
-+	  Vhost RPMSG API allows vhost drivers to communicate with VirtIO
-+	  drivers, using the RPMsg over VirtIO protocol.
++	  SOF vhost VirtIO driver. It exports the same IPC interface, as the
++	  one, used for Audio DSP communication, to Linux VirtIO guests.
 +
- config VHOST_SCSI
- 	tristate "VHOST_SCSI TCM fabric driver"
- 	depends on TARGET_CORE && EVENTFD
+ config VHOST_VSOCK
+ 	tristate "vhost virtio-vsock driver"
+ 	depends on VSOCKETS && EVENTFD
 diff --git a/drivers/vhost/Makefile b/drivers/vhost/Makefile
-index f3e1897..9cf459d 100644
+index 29b8115..3de5e08 100644
 --- a/drivers/vhost/Makefile
 +++ b/drivers/vhost/Makefile
-@@ -2,6 +2,9 @@
- obj-$(CONFIG_VHOST_NET) += vhost_net.o
- vhost_net-y := net.o
- 
-+obj-$(CONFIG_VHOST_RPMSG) += vhost_rpmsg.o
-+vhost_rpmsg-y := rpmsg.o
-+
+@@ -8,6 +8,9 @@ vhost_rpmsg-y := rpmsg.o
  obj-$(CONFIG_VHOST_SCSI) += vhost_scsi.o
  vhost_scsi-y := scsi.o
  
-diff --git a/drivers/vhost/rpmsg.c b/drivers/vhost/rpmsg.c
++obj-$(CONFIG_VHOST_SOF) += vhost_sof.o
++vhost_sof-y := adsp.o
++
+ obj-$(CONFIG_VHOST_VSOCK) += vhost_vsock.o
+ vhost_vsock-y := vsock.o
+ 
+diff --git a/drivers/vhost/adsp.c b/drivers/vhost/adsp.c
 new file mode 100644
-index 00000000..2fa82bd
+index 00000000..c386cf3
 --- /dev/null
-+++ b/drivers/vhost/rpmsg.c
-@@ -0,0 +1,372 @@
-+/* SPDX-License-Identifier: (GPL-2.0-only) */
++++ b/drivers/vhost/adsp.c
+@@ -0,0 +1,618 @@
++/* SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause) */
 +/*
-+ * Copyright(c) 2020 Intel Corporation. All rights reserved.
++ * Copyright(c) 2019-2020 Intel Corporation. All rights reserved.
 + *
 + * Author: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
 + *
-+ * vhost-RPMsg VirtIO interface
++ * vhost-SOF VirtIO interface
 + */
 +
++#include <linux/bitmap.h>
 +#include <linux/compat.h>
 +#include <linux/file.h>
 +#include <linux/miscdevice.h>
 +#include <linux/module.h>
 +#include <linux/mutex.h>
++#include <linux/slab.h>
++#include <linux/spinlock.h>
 +#include <linux/vhost.h>
 +#include <linux/virtio_rpmsg.h>
 +#include <uapi/linux/rpmsg.h>
 +
++#include <sound/sof/stream.h>
++#include <sound/sof/rpmsg.h>
++
 +#include "vhost.h"
 +#include "vhost_rpmsg.h"
 +
-+/*
-+ * All virtio-rpmsg virtual queue kicks always come with just one buffer -
-+ * either input or output
-+ */
-+static int vhost_rpmsg_get_single(struct vhost_virtqueue *vq)
-+{
-+	struct vhost_rpmsg *vr = container_of(vq->dev, struct vhost_rpmsg, dev);
-+	unsigned int out, in;
-+	int head = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
-+				     &out, &in, NULL, NULL);
-+	if (head < 0) {
-+		vq_err(vq, "%s(): error %d getting buffer\n",
-+		       __func__, head);
-+		return head;
-+	}
++#define VHOST_DSP_FEATURES (VHOST_FEATURES | (1ULL << VIRTIO_RPMSG_F_NS))
 +
-+	/* Nothing new? */
-+	if (head == vq->num)
-+		return head;
++struct snd_sof_dev;
++struct sof_vhost_client;
 +
-+	if (vq == &vr->vq[VIRTIO_RPMSG_RESPONSE] && (out || in != 1)) {
-+		vq_err(vq,
-+		       "%s(): invalid %d input and %d output in response queue\n",
-+		       __func__, in, out);
-+		goto return_buf;
-+	}
++struct vhost_dsp {
++	struct vhost_rpmsg vrdev;
 +
-+	if (vq == &vr->vq[VIRTIO_RPMSG_REQUEST] && (in || out != 1)) {
-+		vq_err(vq,
-+		       "%s(): invalid %d input and %d output in request queue\n",
-+		       __func__, in, out);
-+		goto return_buf;
-+	}
++	struct sof_vhost_client *snd;
 +
-+	return head;
++	bool active;
 +
-+return_buf:
++	/* RPMsg address of the position update endpoint */
++	u32 posn_addr;
++	/* position update buffer and work */
++	struct vhost_work posn_work;
++	struct sof_ipc_stream_posn posn;
++
++	/* IPC request buffer */
++	struct sof_rpmsg_ipc_req ipc_buf;
++	/* IPC response buffer */
++	u8 reply_buf[SOF_IPC_MSG_MAX_SIZE];
 +	/*
-+	 * FIXME: might need to return the buffer using vhost_add_used()
-+	 * or vhost_discard_vq_desc(). vhost_discard_vq_desc() is
-+	 * described as "being useful for error handling," but it makes
-+	 * the thus discarded buffers "unseen," so next time we look we
-+	 * retrieve them again?
++	 * data response header, captured audio data is copied directly from the
++	 * DMA buffer
 +	 */
-+	return -EINVAL;
-+}
++	struct sof_rpmsg_data_resp data_resp;
++};
 +
-+static const struct vhost_rpmsg_ept *vhost_rpmsg_ept_find(struct vhost_rpmsg *vr,
-+							  int addr)
++/* A guest is booting */
++static int vhost_dsp_activate(struct vhost_dsp *dsp)
 +{
 +	unsigned int i;
++	int ret = 0;
 +
-+	for (i = 0; i < vr->n_epts; i++)
-+		if (vr->ept[i].addr == addr)
-+			return vr->ept + i;
++	mutex_lock(&dsp->vrdev.dev.mutex);
 +
-+	return NULL;
-+}
++	/* Wait until all the VirtQueues have been initialised */
++	if (!dsp->active) {
++		struct vhost_virtqueue *vq;
 +
-+/*
-+ * if len < 0, then for reading a request, the complete virtual queue buffer
-+ * size is prepared, for sending a response, the length in the iterator is used
-+ */
-+int vhost_rpmsg_start_lock(struct vhost_rpmsg *vr,
-+			   struct vhost_rpmsg_iter *iter,
-+			   unsigned int qid, ssize_t len)
-+	__acquires(vq->mutex)
-+{
-+	struct vhost_virtqueue *vq = vr->vq + qid;
-+	size_t tmp;
++		for (i = 0, vq = dsp->vrdev.vq;
++		     i < ARRAY_SIZE(dsp->vrdev.vq);
++		     i++, vq++) {
++			/* .private_data is required != NULL */
++			vq->private_data = vq;
++			/* needed for re-initialisation upon guest reboot */
++			ret = vhost_vq_init_access(vq);
++			if (ret)
++				vq_err(vq,
++				       "%s(): error %d initialising vq #%d\n",
++				       __func__, ret, i);
++		}
 +
-+	if (qid >= VIRTIO_RPMSG_NUM_OF_VQS)
-+		return -EINVAL;
-+
-+	iter->vq = vq;
-+
-+	mutex_lock(&vq->mutex);
-+	vhost_disable_notify(&vr->dev, vq);
-+
-+	iter->head = vhost_rpmsg_get_single(vq);
-+	if (iter->head == vq->num)
-+		iter->head = -EAGAIN;
-+
-+	if (iter->head < 0)
-+		goto unlock;
-+
-+	tmp = vq->iov[0].iov_len;
-+	if (tmp < sizeof(iter->rhdr)) {
-+		vq_err(vq, "%s(): size %zu too small\n", __func__, tmp);
-+		iter->head = -ENOBUFS;
-+		goto return_buf;
++		/* Send an RPMsg namespace announcement */
++		if (!ret && !vhost_rpmsg_ns_announce(&dsp->vrdev, "sof_rpmsg",
++						     SOF_RPMSG_ADDR_IPC))
++			dsp->active = true;
 +	}
 +
-+	switch (qid) {
-+	case VIRTIO_RPMSG_REQUEST:
-+		if (len < 0) {
-+			len = tmp - sizeof(iter->rhdr);
-+		} else if (tmp < sizeof(iter->rhdr) + len) {
-+			iter->head = -ENOBUFS;
-+			goto return_buf;
-+		}
-+
-+		/* len is now the size of the payload */
-+		iov_iter_init(&iter->iov_iter, WRITE,
-+			      vq->iov, 1, sizeof(iter->rhdr) + len);
-+
-+		/* Read the RPMSG header with endpoint addresses */
-+		tmp = copy_from_iter(&iter->rhdr, sizeof(iter->rhdr),
-+				     &iter->iov_iter);
-+		if (tmp != sizeof(iter->rhdr)) {
-+			vq_err(vq, "%s(): got %zu instead of %zu\n", __func__,
-+			       tmp, sizeof(iter->rhdr));
-+			iter->head = -EIO;
-+			goto return_buf;
-+		}
-+
-+		iter->ept = vhost_rpmsg_ept_find(vr, iter->rhdr.dst);
-+		if (!iter->ept) {
-+			vq_err(vq, "%s(): no endpoint with address %d\n",
-+			       __func__, iter->rhdr.dst);
-+			iter->head = -ENOENT;
-+			goto return_buf;
-+		}
-+
-+		/* Let the endpoint read the payload */
-+		if (iter->ept->read) {
-+			ssize_t ret = iter->ept->read(vr, iter);
-+			if (ret < 0) {
-+				iter->head = ret;
-+				goto return_buf;
-+			}
-+
-+			iter->rhdr.len = ret;
-+		} else {
-+			iter->rhdr.len = 0;
-+		}
-+
-+		/* Prepare for the response phase */
-+		iter->rhdr.dst = iter->rhdr.src;
-+		iter->rhdr.src = iter->ept->addr;
-+
-+		break;
-+	case VIRTIO_RPMSG_RESPONSE:
-+		if (!iter->ept && iter->rhdr.dst != RPMSG_NS_ADDR) {
-+			/*
-+			 * Usually the iterator is configured when processing a
-+			 * message on the request queue, but it's also possible
-+			 * to send a message on the response queue without a
-+			 * preceding request, in that case the iterator must
-+			 * contain source and destination addresses.
-+			 */
-+			iter->ept = vhost_rpmsg_ept_find(vr, iter->rhdr.src);
-+			if (!iter->ept) {
-+				iter->head = -ENOENT;
-+				goto return_buf;
-+			}
-+		}
-+
-+		if (len < 0) {
-+			len = tmp - sizeof(iter->rhdr);
-+		} else if (tmp < sizeof(iter->rhdr) + len) {
-+			iter->head = -ENOBUFS;
-+			goto return_buf;
-+		} else {
-+			iter->rhdr.len = len;
-+		}
-+
-+		/* len is now the size of the payload */
-+		iov_iter_init(&iter->iov_iter, READ,
-+			      vq->iov, 1, sizeof(iter->rhdr) + len);
-+
-+		/* Write the RPMSG header with endpoint addresses */
-+		tmp = copy_to_iter(&iter->rhdr, sizeof(iter->rhdr),
-+				   &iter->iov_iter);
-+		if (tmp != sizeof(iter->rhdr)) {
-+			iter->head = -EIO;
-+			goto return_buf;
-+		}
-+
-+		/* Let the endpoint write the payload */
-+		if (iter->ept && iter->ept->write) {
-+			ssize_t ret = iter->ept->write(vr, iter);
-+			if (ret < 0) {
-+				iter->head = ret;
-+				goto return_buf;
-+			}
-+		}
-+
-+		break;
-+	}
-+
-+	return 0;
-+
-+return_buf:
-+	/*
-+	 * FIXME: vhost_discard_vq_desc() or vhost_add_used(), see comment in
-+	 * vhost_rpmsg_get_single()
-+	 */
-+unlock:
-+	vhost_enable_notify(&vr->dev, vq);
-+	mutex_unlock(&vq->mutex);
-+
-+	return iter->head;
-+}
-+EXPORT_SYMBOL_GPL(vhost_rpmsg_start_lock);
-+
-+size_t vhost_rpmsg_copy(struct vhost_rpmsg *vr, struct vhost_rpmsg_iter *iter,
-+			void *data, size_t size)
-+{
-+	/*
-+	 * We could check for excess data, but copy_{to,from}_iter() don't do
-+	 * that either
-+	 */
-+	if (iter->vq == vr->vq + VIRTIO_RPMSG_RESPONSE)
-+		return copy_to_iter(data, size, &iter->iov_iter);
-+
-+	return copy_from_iter(data, size, &iter->iov_iter);
-+}
-+EXPORT_SYMBOL_GPL(vhost_rpmsg_copy);
-+
-+int vhost_rpmsg_finish_unlock(struct vhost_rpmsg *vr,
-+			      struct vhost_rpmsg_iter *iter)
-+	__releases(vq->mutex)
-+{
-+	if (iter->head >= 0)
-+		vhost_add_used_and_signal(iter->vq->dev, iter->vq, iter->head,
-+					  iter->rhdr.len + sizeof(iter->rhdr));
-+
-+	vhost_enable_notify(&vr->dev, iter->vq);
-+	mutex_unlock(&iter->vq->mutex);
-+
-+	return iter->head;
-+}
-+EXPORT_SYMBOL_GPL(vhost_rpmsg_finish_unlock);
-+
-+/*
-+ * Return false to terminate the external loop only if we fail to obtain either
-+ * a request or a response buffer
-+ */
-+static bool handle_rpmsg_req_single(struct vhost_rpmsg *vr,
-+				    struct vhost_virtqueue *vq)
-+{
-+	struct vhost_rpmsg_iter iter;
-+	int ret = vhost_rpmsg_start_lock(vr, &iter, VIRTIO_RPMSG_REQUEST,
-+					 -EINVAL);
-+	if (!ret)
-+		ret = vhost_rpmsg_finish_unlock(vr, &iter);
-+	if (ret < 0) {
-+		if (ret != -EAGAIN)
-+			vq_err(vq, "%s(): RPMSG processing failed %d\n",
-+			       __func__, ret);
-+		return false;
-+	}
-+
-+	if (!iter.ept->write)
-+		return true;
-+
-+	ret = vhost_rpmsg_start_lock(vr, &iter, VIRTIO_RPMSG_RESPONSE,
-+				     -EINVAL);
-+	if (!ret)
-+		ret = vhost_rpmsg_finish_unlock(vr, &iter);
-+	if (ret < 0) {
-+		vq_err(vq, "%s(): RPMSG finalising failed %d\n", __func__, ret);
-+		return false;
-+	}
-+
-+	return true;
-+}
-+
-+static void handle_rpmsg_req_kick(struct vhost_work *work)
-+{
-+	struct vhost_virtqueue *vq = container_of(work, struct vhost_virtqueue,
-+						  poll.work);
-+	struct vhost_rpmsg *vr = container_of(vq->dev, struct vhost_rpmsg, dev);
-+
-+	while (handle_rpmsg_req_single(vr, vq))
-+		;
-+}
-+
-+/*
-+ * initialise two virtqueues with an array of endpoints,
-+ * request and response callbacks
-+ */
-+void vhost_rpmsg_init(struct vhost_rpmsg *vr, const struct vhost_rpmsg_ept *ept,
-+		      unsigned int n_epts)
-+{
-+	unsigned int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(vr->vq); i++)
-+		vr->vq_p[i] = &vr->vq[i];
-+
-+	/* vq[0]: host -> guest, vq[1]: host <- guest */
-+	vr->vq[VIRTIO_RPMSG_REQUEST].handle_kick = handle_rpmsg_req_kick;
-+
-+	vr->ept = ept;
-+	vr->n_epts = n_epts;
-+
-+	vhost_dev_init(&vr->dev, vr->vq_p, VIRTIO_RPMSG_NUM_OF_VQS,
-+		       UIO_MAXIOV, 0, 0);
-+}
-+EXPORT_SYMBOL_GPL(vhost_rpmsg_init);
-+
-+void vhost_rpmsg_destroy(struct vhost_rpmsg *vr)
-+{
-+	if (vhost_dev_has_owner(&vr->dev))
-+		vhost_poll_flush(&vr->vq[VIRTIO_RPMSG_REQUEST].poll);
-+
-+	vhost_dev_cleanup(&vr->dev);
-+}
-+EXPORT_SYMBOL_GPL(vhost_rpmsg_destroy);
-+
-+/* send namespace */
-+int vhost_rpmsg_ns_announce(struct vhost_rpmsg *vr, const char *name,
-+			    unsigned int src)
-+{
-+	struct vhost_rpmsg_iter iter = {
-+		.rhdr = {
-+			.src = 0,
-+			.dst = RPMSG_NS_ADDR,
-+			.flags = RPMSG_NS_CREATE, /* rpmsg_recv_single() */
-+		},
-+	};
-+	struct rpmsg_ns_msg ns = {
-+		.addr = src,
-+		.flags = RPMSG_NS_CREATE, /* for rpmsg_ns_cb() */
-+	};
-+	int ret = vhost_rpmsg_start_lock(vr, &iter, VIRTIO_RPMSG_RESPONSE,
-+					 sizeof(ns));
-+
-+	if (ret < 0)
-+		return ret;
-+
-+	strlcpy(ns.name, name, sizeof(ns.name));
-+
-+	ret = vhost_rpmsg_copy(vr, &iter, &ns, sizeof(ns));
-+	if (ret != sizeof(ns))
-+		vq_err(iter.vq, "%s(): added %d instead of %zu bytes\n",
-+		       __func__, ret, sizeof(ns));
-+
-+	ret = vhost_rpmsg_finish_unlock(vr, &iter);
-+	if (ret < 0)
-+		vq_err(iter.vq, "%s(): namespace announcement failed: %d\n",
-+		       __func__, ret);
++	mutex_unlock(&dsp->vrdev.dev.mutex);
 +
 +	return ret;
 +}
-+EXPORT_SYMBOL_GPL(vhost_rpmsg_ns_announce);
 +
-+MODULE_LICENSE("GPL v2");
-+MODULE_AUTHOR("Intel, Inc.");
-+MODULE_DESCRIPTION("Vhost RPMsg API");
-diff --git a/drivers/vhost/vhost_rpmsg.h b/drivers/vhost/vhost_rpmsg.h
-new file mode 100644
-index 00000000..5248ac9
---- /dev/null
-+++ b/drivers/vhost/vhost_rpmsg.h
-@@ -0,0 +1,74 @@
-+/* SPDX-License-Identifier: (GPL-2.0) */
-+/*
-+ * Copyright(c) 2020 Intel Corporation. All rights reserved.
-+ *
-+ * Author: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-+ */
-+
-+#ifndef VHOST_RPMSG_H
-+#define VHOST_RPMSG_H
-+
-+#include <linux/uio.h>
-+#include <linux/virtio_rpmsg.h>
-+
-+#include "vhost.h"
-+
-+/* RPMsg uses two VirtQueues: one for each direction */
-+enum {
-+	VIRTIO_RPMSG_RESPONSE,	/* RPMsg response (host->guest) buffers */
-+	VIRTIO_RPMSG_REQUEST,	/* RPMsg request (guest->host) buffers */
-+	/* Keep last */
-+	VIRTIO_RPMSG_NUM_OF_VQS,
-+};
-+
-+struct vhost_rpmsg_ept;
-+
-+struct vhost_rpmsg_iter {
-+	struct iov_iter iov_iter;
-+	struct rpmsg_hdr rhdr;
-+	struct vhost_virtqueue *vq;
-+	const struct vhost_rpmsg_ept *ept;
-+	int head;
-+	void *priv;
-+};
-+
-+struct vhost_rpmsg {
-+	struct vhost_dev dev;
-+	struct vhost_virtqueue vq[VIRTIO_RPMSG_NUM_OF_VQS];
-+	struct vhost_virtqueue *vq_p[VIRTIO_RPMSG_NUM_OF_VQS];
-+	const struct vhost_rpmsg_ept *ept;
-+	unsigned int n_epts;
-+};
-+
-+struct vhost_rpmsg_ept {
-+	ssize_t (*read)(struct vhost_rpmsg *, struct vhost_rpmsg_iter *);
-+	ssize_t (*write)(struct vhost_rpmsg *, struct vhost_rpmsg_iter *);
-+	int addr;
-+};
-+
-+static inline size_t vhost_rpmsg_iter_len(const struct vhost_rpmsg_iter *iter)
++/* A guest is powered off or reset */
++static void vhost_dsp_deactivate(struct vhost_dsp *dsp)
 +{
-+	return iter->rhdr.len;
-+}
++	unsigned int i;
 +
-+#define VHOST_RPMSG_ITER(_src, _dst) {	\
-+	.rhdr = {			\
-+			.src = _src,	\
-+			.dst = _dst,	\
-+		},			\
++	mutex_lock(&dsp->vrdev.dev.mutex);
++
++	if (dsp->active) {
++		struct vhost_virtqueue *vq;
++
++		dsp->active = false;
++
++		/* If a VM reboots sof_vhost_client_release() isn't called */
++		sof_vhost_topology_purge(dsp->snd);
++
++		/* signal, that we're inactive */
++		for (i = 0, vq = dsp->vrdev.vq;
++		     i < ARRAY_SIZE(dsp->vrdev.vq);
++		     i++, vq++) {
++			mutex_lock(&vq->mutex);
++			vq->private_data = NULL;
++			mutex_unlock(&vq->mutex);
++		}
 +	}
 +
-+void vhost_rpmsg_init(struct vhost_rpmsg *vr, const struct vhost_rpmsg_ept *ept,
-+		      unsigned int n_epts);
-+void vhost_rpmsg_destroy(struct vhost_rpmsg *vr);
-+int vhost_rpmsg_ns_announce(struct vhost_rpmsg *vr, const char *name,
-+			    unsigned int src);
-+int vhost_rpmsg_start_lock(struct vhost_rpmsg *vr,
-+			   struct vhost_rpmsg_iter *iter,
-+			   unsigned int qid, ssize_t len);
-+size_t vhost_rpmsg_copy(struct vhost_rpmsg *vr, struct vhost_rpmsg_iter *iter,
-+			void *data, size_t size);
-+int vhost_rpmsg_finish_unlock(struct vhost_rpmsg *vr,
-+			      struct vhost_rpmsg_iter *iter);
++	mutex_unlock(&dsp->vrdev.dev.mutex);
++}
 +
++/* No special features at the moment */
++static int vhost_dsp_set_features(struct vhost_dsp *dsp, u64 features)
++{
++	struct vhost_virtqueue *vq;
++	unsigned int i;
++
++	if (features & ~VHOST_DSP_FEATURES)
++		return -EOPNOTSUPP;
++
++	mutex_lock(&dsp->vrdev.dev.mutex);
++
++	if ((features & (1 << VHOST_F_LOG_ALL)) &&
++	    !vhost_log_access_ok(&dsp->vrdev.dev)) {
++		mutex_unlock(&dsp->vrdev.dev.mutex);
++		return -EFAULT;
++	}
++
++	for (i = 0, vq = dsp->vrdev.vq;
++	     i < ARRAY_SIZE(dsp->vrdev.vq);
++	     i++, vq++) {
++		mutex_lock(&vq->mutex);
++		vq->acked_features = features;
++		mutex_unlock(&vq->mutex);
++	}
++
++	mutex_unlock(&dsp->vrdev.dev.mutex);
++
++	return 0;
++}
++
++/* .ioctl(): we only use VHOST_SET_RUNNING in a non-default way */
++static long vhost_dsp_ioctl(struct file *filp, unsigned int ioctl,
++			    unsigned long arg)
++{
++	struct vhost_dsp *dsp = filp->private_data;
++	void __user *argp = (void __user *)arg;
++	struct vhost_adsp_topology tplg;
++	u64 __user *featurep = argp;
++	u64 features;
++	int start;
++	long ret;
++
++	switch (ioctl) {
++	case VHOST_GET_FEATURES:
++		features = VHOST_DSP_FEATURES;
++		if (copy_to_user(featurep, &features, sizeof(features)))
++			return -EFAULT;
++		return 0;
++	case VHOST_SET_FEATURES:
++		if (copy_from_user(&features, featurep, sizeof(features)))
++			return -EFAULT;
++		return vhost_dsp_set_features(dsp, features);
++	case VHOST_GET_BACKEND_FEATURES:
++		features = 0;
++		if (copy_to_user(featurep, &features, sizeof(features)))
++			return -EFAULT;
++		return 0;
++	case VHOST_SET_BACKEND_FEATURES:
++		if (copy_from_user(&features, featurep, sizeof(features)))
++			return -EFAULT;
++		if (features)
++			return -EOPNOTSUPP;
++		return 0;
++	case VHOST_RESET_OWNER:
++		mutex_lock(&dsp->vrdev.dev.mutex);
++		ret = vhost_dev_check_owner(&dsp->vrdev.dev);
++		if (!ret) {
++			struct vhost_umem *umem =
++				vhost_dev_reset_owner_prepare();
++			if (!umem) {
++				ret = -ENOMEM;
++			} else {
++				vhost_dev_stop(&dsp->vrdev.dev);
++				vhost_dev_reset_owner(&dsp->vrdev.dev, umem);
++			}
++		}
++		mutex_unlock(&dsp->vrdev.dev.mutex);
++		return ret;
++	case VHOST_SET_OWNER:
++		mutex_lock(&dsp->vrdev.dev.mutex);
++		ret = vhost_dev_set_owner(&dsp->vrdev.dev);
++		mutex_unlock(&dsp->vrdev.dev.mutex);
++		return ret;
++	case VHOST_SET_RUNNING:
++		if (copy_from_user(&start, argp, sizeof(start)))
++			return -EFAULT;
++
++		if (start)
++			return vhost_dsp_activate(dsp);
++
++		vhost_dsp_deactivate(dsp);
++		return 0;
++	case VHOST_ADSP_SET_GUEST_TPLG:
++		if (copy_from_user(&tplg, argp, sizeof(tplg)))
++			return -EFAULT;
++		return sof_vhost_set_tplg(dsp->snd, &tplg);
++	}
++
++	mutex_lock(&dsp->vrdev.dev.mutex);
++	ret = vhost_dev_ioctl(&dsp->vrdev.dev, ioctl, argp);
++	if (ret == -ENOIOCTLCMD)
++		ret = vhost_vring_ioctl(&dsp->vrdev.dev, ioctl, argp);
++	mutex_unlock(&dsp->vrdev.dev.mutex);
++
++	return ret;
++}
++
++#ifdef CONFIG_COMPAT
++static long vhost_dsp_compat_ioctl(struct file *filp, unsigned int ioctl,
++				   unsigned long arg)
++{
++	return vhost_dsp_ioctl(filp, ioctl, (unsigned long)compat_ptr(arg));
++}
 +#endif
++
++static ssize_t vhost_dsp_chr_read_iter(struct kiocb *iocb, struct iov_iter *to)
++{
++	struct file *filp = iocb->ki_filp;
++	struct vhost_dsp *dsp = filp->private_data;
++	struct vhost_dev *dev = &dsp->vrdev.dev;
++	int noblock = filp->f_flags & O_NONBLOCK;
++
++	return vhost_chr_read_iter(dev, to, noblock);
++}
++
++static ssize_t vhost_dsp_chr_write_iter(struct kiocb *iocb,
++					struct iov_iter *from)
++{
++	struct file *filp = iocb->ki_filp;
++	struct vhost_dsp *dsp = filp->private_data;
++	struct vhost_dev *dev = &dsp->vrdev.dev;
++
++	return vhost_chr_write_iter(dev, from);
++}
++
++static __poll_t vhost_dsp_chr_poll(struct file *filp, poll_table *wait)
++{
++	struct vhost_dsp *dsp = filp->private_data;
++	struct vhost_dev *dev = &dsp->vrdev.dev;
++
++	return vhost_chr_poll(filp, dev, wait);
++}
++
++static ssize_t vhost_dsp_data_read(struct vhost_rpmsg *vr,
++				   struct vhost_rpmsg_iter *iter)
++{
++	struct vhost_dsp *dsp = container_of(vr, struct vhost_dsp, vrdev);
++	struct vhost_virtqueue *vq = iter->vq;
++	struct sof_rpmsg_data_resp *resp = &dsp->data_resp;
++	struct sof_rpmsg_data_req req;
++	size_t len = vhost_rpmsg_iter_len(iter);
++	size_t nbytes;
++
++	if (len < sizeof(req)) {
++		vq_err(vq, "%s(): data count %zu too small\n",
++		       __func__, len);
++		return -EINVAL;
++	}
++
++	/* copy_{to,from}_iter() can be called repeatedly to continue copying */
++	nbytes = vhost_rpmsg_copy(vr, iter, &req, sizeof(req));
++	if (nbytes != sizeof(req)) {
++		vq_err(vq,
++		       "%s(): got %zu instead of %zu bytes of data header\n",
++		       __func__, nbytes, sizeof(req));
++		return -EIO;
++	}
++
++	len -= nbytes;
++
++	/* Get a pointer to copy data to or from the audio buffer */
++	iter->priv = sof_vhost_stream_data(dsp->snd, &req, resp);
++	if (IS_ERR(iter->priv)) {
++		vq_err(vq, "%s(): error %ld getting data pointer\n",
++		       __func__, PTR_ERR(iter->priv));
++		return PTR_ERR(iter->priv);
++	}
++
++	if (len) {
++		/* Data in the buffer: playback */
++		if (len != req.size) {
++			vq_err(vq,
++			       "%s(): inconsistent data count: %zu vs. %u bytes\n",
++			       __func__, len, req.size);
++			return -EPROTO;
++		}
++
++		nbytes = vhost_rpmsg_copy(vr, iter, iter->priv, len);
++		if (nbytes != len) {
++			vq_err(vq,
++			       "%s(): copied %zu instead of %zu bytes of data\n",
++			       __func__, nbytes, len);
++			return -EIO;
++		}
++
++		return sizeof(*resp);
++	}
++
++	return sizeof(*resp) + resp->size;
++}
++
++static ssize_t vhost_dsp_data_write(struct vhost_rpmsg *vr,
++				    struct vhost_rpmsg_iter *iter)
++{
++	struct vhost_dsp *dsp = container_of(vr, struct vhost_dsp, vrdev);
++	struct vhost_virtqueue *vq = iter->vq;
++	struct sof_rpmsg_data_resp *resp = &dsp->data_resp;
++	size_t len = vhost_rpmsg_iter_len(iter);
++	size_t nbytes;
++
++	if (len < sizeof(*resp)) {
++		vq_err(vq,
++		       "%s(): %zu bytes aren't enough for %zu bytes of header\n",
++		       __func__, len, sizeof(*resp));
++		return -ENOBUFS;
++	}
++
++	nbytes = vhost_rpmsg_copy(vr, iter, resp, sizeof(*resp));
++	if (nbytes != sizeof(*resp)) {
++		vq_err(vq,
++		       "%s(): copied %zu instead of %zu bytes of data\n",
++		       __func__, nbytes, sizeof(*resp));
++		return -EIO;
++	}
++
++	if (resp->size && !resp->error) {
++		/* Capture */
++		len -= sizeof(*resp);
++
++		if (len < resp->size) {
++			vq_err(vq,
++			       "%s(): insufficient buffer space %zu for %u bytes\n",
++			       __func__, len, resp->size);
++			return -EPROTO;
++		}
++
++		nbytes = vhost_rpmsg_copy(vr, iter, iter->priv, resp->size);
++		if (nbytes != resp->size) {
++			vq_err(vq,
++			       "%s(): copied %zu instead of %u bytes of data\n",
++			       __func__, nbytes, resp->size);
++			return -EIO;
++		}
++	}
++
++	return 0;
++}
++
++static ssize_t vhost_dsp_ipc_read(struct vhost_rpmsg *vr,
++				  struct vhost_rpmsg_iter *iter)
++{
++	struct vhost_dsp *dsp = container_of(vr, struct vhost_dsp, vrdev);
++	struct vhost_virtqueue *vq = iter->vq;
++	size_t len = vhost_rpmsg_iter_len(iter);
++	size_t nbytes;
++	int ret;
++
++	if (len > sizeof(dsp->ipc_buf)) {
++		vq_err(vq, "%s(): data count %zu too large\n",
++		       __func__, len);
++		return -ENOBUFS;
++	}
++
++	if (len < sizeof(struct sof_ipc_cmd_hdr)) {
++		vq_err(vq, "%s(): data count %zu too small\n",
++		       __func__, len);
++		return -EINVAL;
++	}
++
++	nbytes = vhost_rpmsg_copy(vr, iter, &dsp->ipc_buf, len);
++	if (nbytes != len) {
++		vq_err(vq, "Expected %zu bytes for IPC, got %zu bytes\n",
++		       len, nbytes);
++		return -EIO;
++	}
++
++	/* Process the IPC payload */
++	ret = sof_vhost_ipc_fwd(dsp->snd, dsp->ipc_buf.ipc_msg,
++				dsp->reply_buf, len -
++				offsetof(struct sof_rpmsg_ipc_req, ipc_msg),
++				dsp->ipc_buf.reply_size);
++	if (ret < 0) {
++		struct sof_ipc_cmd_hdr *cmd_hdr =
++			(struct sof_ipc_cmd_hdr *)dsp->ipc_buf.ipc_msg;
++		vq_err(vq, "%s(): IPC 0x%x failed with error %d\n",
++		       __func__, cmd_hdr->cmd, ret);
++		/* continue to send an error response */
++	}
++
++	return ((struct sof_ipc_reply *)dsp->reply_buf)->hdr.size;
++}
++
++static ssize_t vhost_dsp_ipc_write(struct vhost_rpmsg *vr,
++				   struct vhost_rpmsg_iter *iter)
++{
++	struct vhost_dsp *dsp = container_of(vr, struct vhost_dsp, vrdev);
++
++	return vhost_rpmsg_copy(vr, iter, dsp->reply_buf,
++				vhost_rpmsg_iter_len(iter)) ==
++		vhost_rpmsg_iter_len(iter) ? 0 : -EIO;
++}
++
++/* Called only once to get guest's position update endpoint address */
++static ssize_t vhost_dsp_posn_read(struct vhost_rpmsg *vr,
++				   struct vhost_rpmsg_iter *iter)
++{
++	struct vhost_dsp *dsp = container_of(vr, struct vhost_dsp, vrdev);
++	struct vhost_virtqueue *vq = &dsp->vrdev.vq[VIRTIO_RPMSG_REQUEST];
++	size_t len = vhost_rpmsg_iter_len(iter);
++	size_t nbytes;
++
++	if ((int)dsp->posn_addr >= 0) {
++		vq_err(vq, "%s(): position queue address %u already set\n",
++		       __func__, dsp->posn_addr);
++		return -EINVAL;
++	}
++
++	if (len != sizeof(dsp->posn_addr)) {
++		vq_err(vq, "%s(): data count %zu invalid\n",
++		       __func__, len);
++		return -EINVAL;
++	}
++
++	nbytes = vhost_rpmsg_copy(vr, iter, &dsp->posn_addr,
++				  sizeof(dsp->posn_addr));
++	if (nbytes != sizeof(dsp->posn_addr)) {
++		vq_err(vq,
++		       "%s(): got %zu instead of %zu bytes position update\n",
++		       __func__, nbytes, sizeof(dsp->posn_addr));
++		return -EIO;
++	}
++
++	pr_debug("%s(): guest position endpoint address 0x%x\n", __func__,
++		 dsp->posn_addr);
++
++	return 0;
++}
++
++static void vhost_dsp_send_posn(struct vhost_work *work)
++{
++	struct vhost_dsp *dsp = container_of(work, struct vhost_dsp, posn_work);
++	struct vhost_rpmsg_iter iter = VHOST_RPMSG_ITER(SOF_RPMSG_ADDR_POSN,
++							dsp->posn_addr);
++	ssize_t nbytes;
++	int ret;
++
++	ret = vhost_rpmsg_start_lock(&dsp->vrdev, &iter, VIRTIO_RPMSG_RESPONSE,
++				     sizeof(dsp->posn));
++	if (ret < 0)
++		return;
++
++	nbytes = vhost_rpmsg_copy(&dsp->vrdev, &iter, &dsp->posn,
++				  sizeof(dsp->posn));
++	if (nbytes != sizeof(dsp->posn))
++		vq_err(iter.vq, "%s(): added %zd instead of %zu bytes\n",
++		       __func__, nbytes, sizeof(dsp->posn));
++
++	ret = vhost_rpmsg_finish_unlock(&dsp->vrdev, &iter);
++}
++
++static const struct vhost_rpmsg_ept vhost_dsp_ept[] = {
++	{
++		.addr = SOF_RPMSG_ADDR_IPC,
++		.read = vhost_dsp_ipc_read,
++		.write = vhost_dsp_ipc_write,
++	}, {
++		.addr = SOF_RPMSG_ADDR_POSN,
++		.read = vhost_dsp_posn_read,
++		.write = NULL, /* position updates are sent from a work-queue */
++	}, {
++		.addr = SOF_RPMSG_ADDR_DATA,
++		.read = vhost_dsp_data_read,
++		.write = vhost_dsp_data_write,
++	}
++};
++
++static int vhost_dsp_open(struct inode *inode, struct file *filp)
++{
++	struct miscdevice *misc = filp->private_data;
++	struct snd_sof_dev *sdev = dev_get_drvdata(misc->parent);
++	struct vhost_dsp *dsp = kmalloc(sizeof(*dsp), GFP_KERNEL);
++
++	if (!dsp)
++		return -ENOMEM;
++
++	dsp->vrdev.dev.mm = NULL;
++	dsp->snd = sof_vhost_client_add(sdev, dsp);
++	if (!dsp->snd) {
++		kfree(dsp);
++		return -ENOMEM;
++	}
++
++	/*
++	 * TODO: do we ever want to support multiple guest machines per DSP, if
++	 * not, we might as well perform all allocations when registering the
++	 * misc device.
++	 */
++	dsp->active = false;
++	dsp->posn_addr = -EINVAL;
++	dsp->posn.rhdr.error = -ENODATA;
++
++	vhost_rpmsg_init(&dsp->vrdev, vhost_dsp_ept, ARRAY_SIZE(vhost_dsp_ept));
++	vhost_work_init(&dsp->posn_work, vhost_dsp_send_posn);
++
++	/* Overwrite file private data */
++	filp->private_data = dsp;
++
++	return 0;
++}
++
++/*
++ * The device is closed by QEMU when the client driver is unloaded or the guest
++ * is shut down
++ */
++static int vhost_dsp_release(struct inode *inode, struct file *filp)
++{
++	struct vhost_dsp *dsp = filp->private_data;
++
++	vhost_work_flush(&dsp->vrdev.dev, &dsp->posn_work);
++
++	vhost_rpmsg_destroy(&dsp->vrdev);
++
++	sof_vhost_client_release(dsp->snd);
++
++	kfree(dsp);
++
++	return 0;
++}
++
++static const struct file_operations vhost_dsp_fops = {
++	.owner          = THIS_MODULE,
++	.release        = vhost_dsp_release,
++	.read_iter      = vhost_dsp_chr_read_iter,
++	.write_iter     = vhost_dsp_chr_write_iter,
++	.poll           = vhost_dsp_chr_poll,
++	.unlocked_ioctl = vhost_dsp_ioctl,
++#ifdef CONFIG_COMPAT
++	.compat_ioctl   = vhost_dsp_compat_ioctl,
++#endif
++	.open           = vhost_dsp_open,
++	.llseek		= noop_llseek,
++};
++
++static struct miscdevice vhost_dsp_misc = {
++	.minor = MISC_DYNAMIC_MINOR,
++	.name = "vhost-dsp",
++	.fops = &vhost_dsp_fops,
++};
++
++/* Always called from an interrupt thread context */
++static int vhost_dsp_update_posn(struct vhost_dsp *dsp,
++				 struct sof_ipc_stream_posn *posn)
++{
++	struct vhost_virtqueue *vq = &dsp->vrdev.vq[VIRTIO_RPMSG_RESPONSE];
++	int ret;
++
++	if (!dsp->active)
++		return 0;
++
++	memcpy(&dsp->posn, posn, sizeof(dsp->posn));
++
++	mutex_lock(&vq->mutex);
++
++	/*
++	 * VirtQueues can only be processed in the context of the VMM process or
++	 * a vhost work queue
++	 */
++	vhost_work_queue(&dsp->vrdev.dev, &dsp->posn_work);
++
++	mutex_unlock(&vq->mutex);
++
++	return ret;
++}
++
++static struct sof_vhost_ops vhost_dsp_ops = {
++	.update_posn = vhost_dsp_update_posn,
++};
++
++static int __init vhost_dsp_init(void)
++{
++	vhost_dsp_misc.parent = sof_vhost_dev_init(&vhost_dsp_ops);
++	if (!vhost_dsp_misc.parent)
++		return -ENODEV;
++
++	return misc_register(&vhost_dsp_misc);
++}
++
++static void __exit vhost_dsp_exit(void)
++{
++	misc_deregister(&vhost_dsp_misc);
++}
++
++module_init(vhost_dsp_init);
++module_exit(vhost_dsp_exit);
++
++MODULE_LICENSE("Dual BSD/GPL");
++MODULE_AUTHOR("Guennadi Liakhovetski");
++MODULE_DESCRIPTION("Host kernel accelerator for virtio sound");
 -- 
 1.9.3
