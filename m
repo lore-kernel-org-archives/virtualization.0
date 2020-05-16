@@ -1,79 +1,47 @@
-From: Alexander Duyck <alexander.duyck@gmail.com>
-Subject: Re: [PATCH v2 resubmit] virtio-balloon: Disable free page reporting
- if page poison reporting is not enabled
-Date: Fri, 15 May 2020 10:02:18 -0700
-Message-ID: <CAKgT0Uce78v1tA6=KHuLNx7pTX324rokprNs32dE2UtsxWnXUg@mail.gmail.com>
-References: <20200508173732.17877.85060.stgit@localhost.localdomain>
+From: Borislav Petkov <bp@alien8.de>
+Subject: Re: [PATCH v3 25/75] x86/sev-es: Add support for handling IOIO
+ exceptions
+Date: Sat, 16 May 2020 09:57:14 +0200
+Message-ID: <20200516075714.GC25771@zn.tnic>
+References: <20200428151725.31091-1-joro@8bytes.org>
+ <20200428151725.31091-26-joro@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <virtio-dev-return-7347-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <20200508173732.17877.85060.stgit@localhost.localdomain>
-To: Jason Wang <jasowang@redhat.com>, David Hildenbrand <david@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200428151725.31091-26-joro@8bytes.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>
+Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Just following up. It has been a week since I submitted this. I was
-hoping we could get it in for 5.7 since this affects free page
-reporting which will be introduced with that kernel release.
+Just a reminder so that this doesn't get lost:
 
-Thanks.
+On Tue, Apr 28, 2020 at 05:16:35PM +0200, Joerg Roedel wrote:
+> +	if (exit_info_1 & IOIO_TYPE_STR) {
+> +		int df = (regs->flags & X86_EFLAGS_DF) ? -1 : 1;
 
-- Alex
+...
 
-On Fri, May 8, 2020 at 10:40 AM Alexander Duyck
-<alexander.duyck@gmail.com> wrote:
->
-> From: Alexander Duyck <alexander.h.duyck@linux.intel.com>
->
-> We should disable free page reporting if page poisoning is enabled but we
-> cannot report it via the balloon interface. This way we can avoid the
-> possibility of corrupting guest memory. Normally the page poisoning feature
-> should always be present when free page reporting is enabled on the
-> hypervisor, however this allows us to correctly handle a case of the
-> virtio-balloon device being possibly misconfigured.
->
-> Fixes: 5d757c8d518d ("virtio-balloon: add support for providing free page reports to host")
-> Acked-by: David Hildenbrand <david@redhat.com>
-> Signed-off-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
-> ---
->
-> Changes since v1:
-> Originally this patch also modified free page hinting, that has been removed.
-> Updated patch title and description.
-> Added a comment explaining reasoning for disabling free page reporting.
->
-> Resbumitting v2 w/ Ack from David Hildebrand.
->
->  drivers/virtio/virtio_balloon.c |    9 ++++++++-
->  1 file changed, 8 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 51086a5afdd4..1f157d2f4952 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -1107,11 +1107,18 @@ static int virtballoon_restore(struct virtio_device *vdev)
->
->  static int virtballoon_validate(struct virtio_device *vdev)
->  {
-> -       /* Tell the host whether we care about poisoned pages. */
-> +       /*
-> +        * Inform the hypervisor that our pages are poisoned or
-> +        * initialized. If we cannot do that then we should disable
-> +        * page reporting as it could potentially change the contents
-> +        * of our free pages.
-> +        */
->         if (!want_init_on_free() &&
->             (IS_ENABLED(CONFIG_PAGE_POISONING_NO_SANITY) ||
->              !page_poisoning_enabled()))
->                 __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_PAGE_POISON);
-> +       else if (!virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON))
-> +               __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
->
->         __virtio_clear_bit(vdev, VIRTIO_F_IOMMU_PLATFORM);
->         return 0;
->
+> +
+> +		if (!(exit_info_1 & IOIO_TYPE_IN)) {
+> +			ret = vc_insn_string_read(ctxt,
+> +					       (void *)(es_base + regs->si),
+> +					       ghcb->shared_buffer, io_bytes,
+> +					       exit_info_2, df);
+							   ^^^^
+
+> +
+> +		/* Everything went well, write back results */
+> +		if (exit_info_1 & IOIO_TYPE_IN) {
+> +			ret = vc_insn_string_write(ctxt,
+> +						(void *)(es_base + regs->di),
+> +						ghcb->shared_buffer, io_bytes,
+> +						exit_info_2, df);
+							    ^^^^
+
+-- 
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
