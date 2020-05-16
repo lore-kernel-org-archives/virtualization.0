@@ -1,47 +1,61 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH v3 25/75] x86/sev-es: Add support for handling IOIO
- exceptions
-Date: Sat, 16 May 2020 09:57:14 +0200
-Message-ID: <20200516075714.GC25771@zn.tnic>
-References: <20200428151725.31091-1-joro@8bytes.org>
- <20200428151725.31091-26-joro@8bytes.org>
+From: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+Subject: [PATCH 0/6] Add a vhost RPMsg API
+Date: Sat, 16 May 2020 12:11:03 +0200
+Message-ID: <20200516101109.2624-1-guennadi.liakhovetski@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200428151725.31091-26-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Joerg Roedel <joro@8bytes.org>
-Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: kvm@vger.kernel.org
+Cc: Liam Girdwood <liam.r.girdwood@linux.intel.com>, sound-open-firmware@alsa-project.org, linux-remoteproc@vger.kernel.org, Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Just a reminder so that this doesn't get lost:
+Linux supports RPMsg over VirtIO for "remote processor" /AMP use
+cases. It can however also be used for virtualisation scenarios,
+e.g. when using KVM to run Linux on both the host and the guests.
+This patch set adds a wrapper API to facilitate writing vhost
+drivers for such RPMsg-based solutions. The first use case is an
+audio DSP virtualisation project, currently under development, ready
+for review and submission, available at
+https://github.com/thesofproject/linux/pull/1501/commits
+A further patch for the ADSP vhost RPMsg driver will be sent
+separately for review only since it cannot be merged without audio
+patches being upstreamed first.
 
-On Tue, Apr 28, 2020 at 05:16:35PM +0200, Joerg Roedel wrote:
-> +	if (exit_info_1 & IOIO_TYPE_STR) {
-> +		int df = (regs->flags & X86_EFLAGS_DF) ? -1 : 1;
+Thanks
+Guennadi
 
-...
+Guennadi Liakhovetski (6):
+  vhost: convert VHOST_VSOCK_SET_RUNNING to a generic ioctl
+  vhost: (cosmetic) remove a superfluous variable initialisation
+  rpmsg: move common structures and defines to headers
+  rpmsg: update documentation
+  vhost: add an rpmsg API
+  rpmsg: add a device ID to also bind to the ADSP device
 
-> +
-> +		if (!(exit_info_1 & IOIO_TYPE_IN)) {
-> +			ret = vc_insn_string_read(ctxt,
-> +					       (void *)(es_base + regs->si),
-> +					       ghcb->shared_buffer, io_bytes,
-> +					       exit_info_2, df);
-							   ^^^^
-
-> +
-> +		/* Everything went well, write back results */
-> +		if (exit_info_1 & IOIO_TYPE_IN) {
-> +			ret = vc_insn_string_write(ctxt,
-> +						(void *)(es_base + regs->di),
-> +						ghcb->shared_buffer, io_bytes,
-> +						exit_info_2, df);
-							    ^^^^
+ Documentation/rpmsg.txt          |   2 +-
+ drivers/rpmsg/virtio_rpmsg_bus.c |  79 +--------
+ drivers/vhost/Kconfig            |   8 +
+ drivers/vhost/Makefile           |   3 +
+ drivers/vhost/rpmsg.c            | 372 +++++++++++++++++++++++++++++++++++++++
+ drivers/vhost/vhost.c            |   2 +-
+ drivers/vhost/vhost_rpmsg.h      |  74 ++++++++
+ include/linux/virtio_rpmsg.h     |  81 +++++++++
+ include/uapi/linux/rpmsg.h       |   3 +
+ include/uapi/linux/vhost.h       |   4 +-
+ 10 files changed, 549 insertions(+), 79 deletions(-)
+ create mode 100644 drivers/vhost/rpmsg.c
+ create mode 100644 drivers/vhost/vhost_rpmsg.h
+ create mode 100644 include/linux/virtio_rpmsg.h
 
 -- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+1.9.3
