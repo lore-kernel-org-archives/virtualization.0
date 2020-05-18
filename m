@@ -1,79 +1,242 @@
-From: Sumit Semwal <sumit.semwal@linaro.org>
-Subject: Re: [PATCH v3 1/4] dma-buf: add support for virtio exported objects
-Date: Mon, 18 May 2020 16:47:02 +0530
-Message-ID: <CAO_48GG85PhyoZ1yzXuwv8tT12V4dkDsXc8_RaMd--oinkpN2g@mail.gmail.com>
-References: <20200311112004.47138-1-stevensd@chromium.org> <20200311112004.47138-2-stevensd@chromium.org>
- <CAKMK7uHFgiHLe9oiFBr-VR-6rU9-hLTpBTEVNh0ezyj54u70jw@mail.gmail.com>
- <CAD=HUj6k-y1=64zY8ZFOQBZ7WSUWiQfvkiTpXXt10JB_CGqk1A@mail.gmail.com>
- <20200514123007.GP206103@phenom.ffwll.local> <CAD=HUj7452eFfn9i=JWm54Mke3Lew-7AWYeoKZLAjCSg7eLO6A@mail.gmail.com>
- <20200515140306.GF206103@phenom.ffwll.local>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 4.4 67/86] x86/paravirt: Remove the unused irq_enable_sysexit
+ pv op
+Date: Mon, 18 May 2020 19:36:38 +0200
+Message-ID: <20200518173503.889676448@linuxfoundation.org>
+References: <20200518173450.254571947@linuxfoundation.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <20200515140306.GF206103@phenom.ffwll.local>
-Sender: linux-media-owner@vger.kernel.org
-To: David Stevens <stevensd@chromium.org>, Tomasz Figa <tfiga@chromium.org>, Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE, NET..." <virtualization@lists.linux-foundation.org>, "open list:DMA BUFFER SHARING FRAMEWORK" <linux-media@vger.kernel.org>, "moderated list:DMA BUFFER SHARING FRAMEWORK" <linaro-mm-sig@lists.linaro.org>, virtio-dev@lists.oasis-open.org
-Cc: Daniel Vetter <daniel@ffwll.ch>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200518173450.254571947@linuxfoundation.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: linux-kernel@vger.kernel.org
+Cc: Ingo Molnar <mingo@kernel.org>, Denys Vlasenko <dvlasenk@redhat.com>, Thomas Gleixner <tglx@linutronix.de>, konrad.wilk@oracle.com, Peter Zijlstra <peterz@infradead.org>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "H. Peter Anvin" <hpa@zytor.com>, virtualization@lists.linux-foundation.org, stable@vger.kernel.org, Andy Lutomirski <luto@amacapital.net>, Borislav Petkov <bp@alien8.de>, david.vrabel@citrix.com, Andy Lutomirski <luto@kernel.org>, Brian Gerst <brgerst@gmail.com>, xen-devel@lists.xenproject.org, Andrew Morton <akpm@linux-foundation.org>, Borislav Petkov <bp@suse.de>, Linus Torvalds <torvalds@linux-foundation.org>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hello David,
+From: Boris Ostrovsky <boris.ostrovsky@oracle.com>
 
-On Fri, 15 May 2020 at 19:33, Daniel Vetter <daniel@ffwll.ch> wrote:
->
-> On Fri, May 15, 2020 at 02:07:06PM +0900, David Stevens wrote:
-> > On Thu, May 14, 2020 at 9:30 PM Daniel Vetter <daniel@ffwll.ch> wrote:
-> > > On Thu, May 14, 2020 at 05:19:40PM +0900, David Stevens wrote:
-> > > > Sorry for the duplicate reply, didn't notice this until now.
-> > > >
-> > > > > Just storing
-> > > > > the uuid should be doable (assuming this doesn't change during the
-> > > > > lifetime of the buffer), so no need for a callback.
-> > > >
-> > > > Directly storing the uuid doesn't work that well because of
-> > > > synchronization issues. The uuid needs to be shared between multiple
-> > > > virtio devices with independent command streams, so to prevent races
-> > > > between importing and exporting, the exporting driver can't share the
-> > > > uuid with other drivers until it knows that the device has finished
-> > > > registering the uuid. That requires a round trip to and then back from
-> > > > the device. Using a callback allows the latency from that round trip
-> > > > registration to be hidden.
-> > >
-> > > Uh, that means you actually do something and there's locking involved.
-> > > Makes stuff more complicated, invariant attributes are a lot easier
-> > > generally. Registering that uuid just always doesn't work, and blocking
-> > > when you're exporting?
-> >
-> > Registering the id at creation and blocking in gem export is feasible,
-> > but it doesn't work well for systems with a centralized buffer
-> > allocator that doesn't support batch allocations (e.g. gralloc). In
-> > such a system, the round trip latency would almost certainly be
-> > included in the buffer allocation time. At least on the system I'm
-> > working on, I suspect that would add 10s of milliseconds of startup
-> > latency to video pipelines (although I haven't benchmarked the
-> > difference). Doing the blocking as late as possible means most or all
-> > of the latency can be hidden behind other pipeline setup work.
-> >
-> > In terms of complexity, I think the synchronization would be basically
-> > the same in either approach, just in different locations. All it would
-> > do is alleviate the need for a callback to fetch the UUID.
->
-I think I agree with Daniel there - this seems best suited for code
-within virtio.
+commit 88c15ec90ff16880efab92b519436ee17b198477 upstream.
 
-> Hm ok. I guess if we go with the older patch, where this all is a lot more
-> just code in virtio, doing an extra function to allocate the uuid sounds
-> fine. Then synchronization is entirely up to the virtio subsystem and not
-> a dma-buf problem (and hence not mine). You can use dma_resv_lock or so,
-> but no need to. But with callbacks potentially going both ways things
-> always get a bit interesting wrt locking - this is what makes peer2peer
-> dma-buf so painful right now. Hence I'd like to avoid that if needed, at
-> least at the dma-buf level. virtio code I don't mind what you do there :-)
->
-> Cheers, Daniel
-> --
-> Daniel Vetter
-> Software Engineer, Intel Corporation
-> http://blog.ffwll.ch
+As result of commit "x86/xen: Avoid fast syscall path for Xen PV
+guests", the irq_enable_sysexit pv op is not called by Xen PV guests
+anymore and since they were the only ones who used it we can
+safely remove it.
 
-Best,
-Sumit.
+Signed-off-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Reviewed-by: Borislav Petkov <bp@suse.de>
+Acked-by: Andy Lutomirski <luto@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Andy Lutomirski <luto@amacapital.net>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Brian Gerst <brgerst@gmail.com>
+Cc: Denys Vlasenko <dvlasenk@redhat.com>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: david.vrabel@citrix.com
+Cc: konrad.wilk@oracle.com
+Cc: virtualization@lists.linux-foundation.org
+Cc: xen-devel@lists.xenproject.org
+Link: http://lkml.kernel.org/r/1447970147-1733-3-git-send-email-boris.ostrovsky@oracle.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+---
+ arch/x86/entry/entry_32.S             |    8 ++------
+ arch/x86/include/asm/paravirt.h       |    7 -------
+ arch/x86/include/asm/paravirt_types.h |    9 ---------
+ arch/x86/kernel/asm-offsets.c         |    3 ---
+ arch/x86/kernel/paravirt.c            |    7 -------
+ arch/x86/kernel/paravirt_patch_32.c   |    2 --
+ arch/x86/kernel/paravirt_patch_64.c   |    1 -
+ arch/x86/xen/enlighten.c              |    3 ---
+ arch/x86/xen/xen-asm_32.S             |   14 --------------
+ arch/x86/xen/xen-ops.h                |    3 ---
+ 10 files changed, 2 insertions(+), 55 deletions(-)
+
+--- a/arch/x86/entry/entry_32.S
++++ b/arch/x86/entry/entry_32.S
+@@ -331,7 +331,8 @@ sysenter_past_esp:
+ 	 * Return back to the vDSO, which will pop ecx and edx.
+ 	 * Don't bother with DS and ES (they already contain __USER_DS).
+ 	 */
+-	ENABLE_INTERRUPTS_SYSEXIT
++	sti
++	sysexit
+ 
+ .pushsection .fixup, "ax"
+ 2:	movl	$0, PT_FS(%esp)
+@@ -554,11 +555,6 @@ ENTRY(native_iret)
+ 	iret
+ 	_ASM_EXTABLE(native_iret, iret_exc)
+ END(native_iret)
+-
+-ENTRY(native_irq_enable_sysexit)
+-	sti
+-	sysexit
+-END(native_irq_enable_sysexit)
+ #endif
+ 
+ ENTRY(overflow)
+--- a/arch/x86/include/asm/paravirt.h
++++ b/arch/x86/include/asm/paravirt.h
+@@ -938,13 +938,6 @@ extern void default_banner(void);
+ 	push %ecx; push %edx;				\
+ 	call PARA_INDIRECT(pv_cpu_ops+PV_CPU_read_cr0);	\
+ 	pop %edx; pop %ecx
+-
+-#define ENABLE_INTERRUPTS_SYSEXIT					\
+-	PARA_SITE(PARA_PATCH(pv_cpu_ops, PV_CPU_irq_enable_sysexit),	\
+-		  CLBR_NONE,						\
+-		  jmp PARA_INDIRECT(pv_cpu_ops+PV_CPU_irq_enable_sysexit))
+-
+-
+ #else	/* !CONFIG_X86_32 */
+ 
+ /*
+--- a/arch/x86/include/asm/paravirt_types.h
++++ b/arch/x86/include/asm/paravirt_types.h
+@@ -162,15 +162,6 @@ struct pv_cpu_ops {
+ 
+ 	u64 (*read_pmc)(int counter);
+ 
+-#ifdef CONFIG_X86_32
+-	/*
+-	 * Atomically enable interrupts and return to userspace.  This
+-	 * is only used in 32-bit kernels.  64-bit kernels use
+-	 * usergs_sysret32 instead.
+-	 */
+-	void (*irq_enable_sysexit)(void);
+-#endif
+-
+ 	/*
+ 	 * Switch to usermode gs and return to 64-bit usermode using
+ 	 * sysret.  Only used in 64-bit kernels to return to 64-bit
+--- a/arch/x86/kernel/asm-offsets.c
++++ b/arch/x86/kernel/asm-offsets.c
+@@ -65,9 +65,6 @@ void common(void) {
+ 	OFFSET(PV_IRQ_irq_disable, pv_irq_ops, irq_disable);
+ 	OFFSET(PV_IRQ_irq_enable, pv_irq_ops, irq_enable);
+ 	OFFSET(PV_CPU_iret, pv_cpu_ops, iret);
+-#ifdef CONFIG_X86_32
+-	OFFSET(PV_CPU_irq_enable_sysexit, pv_cpu_ops, irq_enable_sysexit);
+-#endif
+ 	OFFSET(PV_CPU_read_cr0, pv_cpu_ops, read_cr0);
+ 	OFFSET(PV_MMU_read_cr2, pv_mmu_ops, read_cr2);
+ #endif
+--- a/arch/x86/kernel/paravirt.c
++++ b/arch/x86/kernel/paravirt.c
+@@ -168,9 +168,6 @@ unsigned paravirt_patch_default(u8 type,
+ 		ret = paravirt_patch_ident_64(insnbuf, len);
+ 
+ 	else if (type == PARAVIRT_PATCH(pv_cpu_ops.iret) ||
+-#ifdef CONFIG_X86_32
+-		 type == PARAVIRT_PATCH(pv_cpu_ops.irq_enable_sysexit) ||
+-#endif
+ 		 type == PARAVIRT_PATCH(pv_cpu_ops.usergs_sysret32) ||
+ 		 type == PARAVIRT_PATCH(pv_cpu_ops.usergs_sysret64))
+ 		/* If operation requires a jmp, then jmp */
+@@ -226,7 +223,6 @@ static u64 native_steal_clock(int cpu)
+ 
+ /* These are in entry.S */
+ extern void native_iret(void);
+-extern void native_irq_enable_sysexit(void);
+ extern void native_usergs_sysret32(void);
+ extern void native_usergs_sysret64(void);
+ 
+@@ -385,9 +381,6 @@ __visible struct pv_cpu_ops pv_cpu_ops =
+ 
+ 	.load_sp0 = native_load_sp0,
+ 
+-#if defined(CONFIG_X86_32)
+-	.irq_enable_sysexit = native_irq_enable_sysexit,
+-#endif
+ #ifdef CONFIG_X86_64
+ #ifdef CONFIG_IA32_EMULATION
+ 	.usergs_sysret32 = native_usergs_sysret32,
+--- a/arch/x86/kernel/paravirt_patch_32.c
++++ b/arch/x86/kernel/paravirt_patch_32.c
+@@ -5,7 +5,6 @@ DEF_NATIVE(pv_irq_ops, irq_enable, "sti"
+ DEF_NATIVE(pv_irq_ops, restore_fl, "push %eax; popf");
+ DEF_NATIVE(pv_irq_ops, save_fl, "pushf; pop %eax");
+ DEF_NATIVE(pv_cpu_ops, iret, "iret");
+-DEF_NATIVE(pv_cpu_ops, irq_enable_sysexit, "sti; sysexit");
+ DEF_NATIVE(pv_mmu_ops, read_cr2, "mov %cr2, %eax");
+ DEF_NATIVE(pv_mmu_ops, write_cr3, "mov %eax, %cr3");
+ DEF_NATIVE(pv_mmu_ops, read_cr3, "mov %cr3, %eax");
+@@ -46,7 +45,6 @@ unsigned native_patch(u8 type, u16 clobb
+ 		PATCH_SITE(pv_irq_ops, restore_fl);
+ 		PATCH_SITE(pv_irq_ops, save_fl);
+ 		PATCH_SITE(pv_cpu_ops, iret);
+-		PATCH_SITE(pv_cpu_ops, irq_enable_sysexit);
+ 		PATCH_SITE(pv_mmu_ops, read_cr2);
+ 		PATCH_SITE(pv_mmu_ops, read_cr3);
+ 		PATCH_SITE(pv_mmu_ops, write_cr3);
+--- a/arch/x86/kernel/paravirt_patch_64.c
++++ b/arch/x86/kernel/paravirt_patch_64.c
+@@ -12,7 +12,6 @@ DEF_NATIVE(pv_mmu_ops, write_cr3, "movq
+ DEF_NATIVE(pv_cpu_ops, clts, "clts");
+ DEF_NATIVE(pv_cpu_ops, wbinvd, "wbinvd");
+ 
+-DEF_NATIVE(pv_cpu_ops, irq_enable_sysexit, "swapgs; sti; sysexit");
+ DEF_NATIVE(pv_cpu_ops, usergs_sysret64, "swapgs; sysretq");
+ DEF_NATIVE(pv_cpu_ops, usergs_sysret32, "swapgs; sysretl");
+ DEF_NATIVE(pv_cpu_ops, swapgs, "swapgs");
+--- a/arch/x86/xen/enlighten.c
++++ b/arch/x86/xen/enlighten.c
+@@ -1240,10 +1240,7 @@ static const struct pv_cpu_ops xen_cpu_o
+ 
+ 	.iret = xen_iret,
+ #ifdef CONFIG_X86_64
+-	.usergs_sysret32 = xen_sysret32,
+ 	.usergs_sysret64 = xen_sysret64,
+-#else
+-	.irq_enable_sysexit = xen_sysexit,
+ #endif
+ 
+ 	.load_tr_desc = paravirt_nop,
+--- a/arch/x86/xen/xen-asm_32.S
++++ b/arch/x86/xen/xen-asm_32.S
+@@ -35,20 +35,6 @@ check_events:
+ 	ret
+ 
+ /*
+- * We can't use sysexit directly, because we're not running in ring0.
+- * But we can easily fake it up using iret.  Assuming xen_sysexit is
+- * jumped to with a standard stack frame, we can just strip it back to
+- * a standard iret frame and use iret.
+- */
+-ENTRY(xen_sysexit)
+-	movl PT_EAX(%esp), %eax			/* Shouldn't be necessary? */
+-	orl $X86_EFLAGS_IF, PT_EFLAGS(%esp)
+-	lea PT_EIP(%esp), %esp
+-
+-	jmp xen_iret
+-ENDPROC(xen_sysexit)
+-
+-/*
+  * This is run where a normal iret would be run, with the same stack setup:
+  *	8: eflags
+  *	4: cs
+--- a/arch/x86/xen/xen-ops.h
++++ b/arch/x86/xen/xen-ops.h
+@@ -139,9 +139,6 @@ DECL_ASM(void, xen_restore_fl_direct, un
+ 
+ /* These are not functions, and cannot be called normally */
+ __visible void xen_iret(void);
+-#ifdef CONFIG_X86_32
+-__visible void xen_sysexit(void);
+-#endif
+ __visible void xen_sysret32(void);
+ __visible void xen_sysret64(void);
+ __visible void xen_adjust_exception_frame(void);
