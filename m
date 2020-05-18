@@ -1,44 +1,79 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH v3 31/75] x86/head/64: Install boot GDT
-Date: Mon, 18 May 2020 10:23:13 +0200
-Message-ID: <20200518082313.GA25034@zn.tnic>
-References: <20200428151725.31091-1-joro@8bytes.org>
- <20200428151725.31091-32-joro@8bytes.org>
+From: Sumit Semwal <sumit.semwal@linaro.org>
+Subject: Re: [PATCH v3 1/4] dma-buf: add support for virtio exported objects
+Date: Mon, 18 May 2020 16:47:02 +0530
+Message-ID: <CAO_48GG85PhyoZ1yzXuwv8tT12V4dkDsXc8_RaMd--oinkpN2g@mail.gmail.com>
+References: <20200311112004.47138-1-stevensd@chromium.org> <20200311112004.47138-2-stevensd@chromium.org>
+ <CAKMK7uHFgiHLe9oiFBr-VR-6rU9-hLTpBTEVNh0ezyj54u70jw@mail.gmail.com>
+ <CAD=HUj6k-y1=64zY8ZFOQBZ7WSUWiQfvkiTpXXt10JB_CGqk1A@mail.gmail.com>
+ <20200514123007.GP206103@phenom.ffwll.local> <CAD=HUj7452eFfn9i=JWm54Mke3Lew-7AWYeoKZLAjCSg7eLO6A@mail.gmail.com>
+ <20200515140306.GF206103@phenom.ffwll.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200428151725.31091-32-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Joerg Roedel <joro@8bytes.org>
-Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <20200515140306.GF206103@phenom.ffwll.local>
+Sender: linux-media-owner@vger.kernel.org
+To: David Stevens <stevensd@chromium.org>, Tomasz Figa <tfiga@chromium.org>, Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO CORE, NET..." <virtualization@lists.linux-foundation.org>, "open list:DMA BUFFER SHARING FRAMEWORK" <linux-media@vger.kernel.org>, "moderated list:DMA BUFFER SHARING FRAMEWORK" <linaro-mm-sig@lists.linaro.org>, virtio-dev@lists.oasis-open.org
+Cc: Daniel Vetter <daniel@ffwll.ch>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 28, 2020 at 05:16:41PM +0200, Joerg Roedel wrote:
-> @@ -480,6 +500,22 @@ SYM_DATA_LOCAL(early_gdt_descr_base,	.quad INIT_PER_CPU_VAR(gdt_page))
->  SYM_DATA(phys_base, .quad 0x0)
->  EXPORT_SYMBOL(phys_base)
+Hello David,
+
+On Fri, 15 May 2020 at 19:33, Daniel Vetter <daniel@ffwll.ch> wrote:
 >
-> +/* Boot GDT used when kernel addresses are not mapped yet */
-> +SYM_DATA_LOCAL(boot_gdt_descr,		.word boot_gdt_end - boot_gdt)
-> +SYM_DATA_LOCAL(boot_gdt_base,		.quad 0)
-> +SYM_DATA_START(boot_gdt)
-> +	.quad	0
-> +	.quad   0x00cf9a000000ffff	/* __KERNEL32_CS */
-> +	.quad   0x00af9a000000ffff	/* __KERNEL_CS */
-> +	.quad   0x00cf92000000ffff	/* __KERNEL_DS */
-> +	.quad	0			/* __USER32_CS - unused */
-> +	.quad	0			/* __USER_DS   - unused */
-> +	.quad	0			/* __USER_CS   - unused */
-> +	.quad	0			/* unused */
-> +	.quad   0x0080890000000000	/* TSS descriptor */
-> +	.quad   0x0000000000000000	/* TSS continued */
+> On Fri, May 15, 2020 at 02:07:06PM +0900, David Stevens wrote:
+> > On Thu, May 14, 2020 at 9:30 PM Daniel Vetter <daniel@ffwll.ch> wrote:
+> > > On Thu, May 14, 2020 at 05:19:40PM +0900, David Stevens wrote:
+> > > > Sorry for the duplicate reply, didn't notice this until now.
+> > > >
+> > > > > Just storing
+> > > > > the uuid should be doable (assuming this doesn't change during the
+> > > > > lifetime of the buffer), so no need for a callback.
+> > > >
+> > > > Directly storing the uuid doesn't work that well because of
+> > > > synchronization issues. The uuid needs to be shared between multiple
+> > > > virtio devices with independent command streams, so to prevent races
+> > > > between importing and exporting, the exporting driver can't share the
+> > > > uuid with other drivers until it knows that the device has finished
+> > > > registering the uuid. That requires a round trip to and then back from
+> > > > the device. Using a callback allows the latency from that round trip
+> > > > registration to be hidden.
+> > >
+> > > Uh, that means you actually do something and there's locking involved.
+> > > Makes stuff more complicated, invariant attributes are a lot easier
+> > > generally. Registering that uuid just always doesn't work, and blocking
+> > > when you're exporting?
+> >
+> > Registering the id at creation and blocking in gem export is feasible,
+> > but it doesn't work well for systems with a centralized buffer
+> > allocator that doesn't support batch allocations (e.g. gralloc). In
+> > such a system, the round trip latency would almost certainly be
+> > included in the buffer allocation time. At least on the system I'm
+> > working on, I suspect that would add 10s of milliseconds of startup
+> > latency to video pipelines (although I haven't benchmarked the
+> > difference). Doing the blocking as late as possible means most or all
+> > of the latency can be hidden behind other pipeline setup work.
+> >
+> > In terms of complexity, I think the synchronization would be basically
+> > the same in either approach, just in different locations. All it would
+> > do is alleviate the need for a callback to fetch the UUID.
+>
+I think I agree with Daniel there - this seems best suited for code
+within virtio.
 
-Any chance you could use macros ala GDT_ENTRY_INIT() for those instead
-of the naked values?
+> Hm ok. I guess if we go with the older patch, where this all is a lot more
+> just code in virtio, doing an extra function to allocate the uuid sounds
+> fine. Then synchronization is entirely up to the virtio subsystem and not
+> a dma-buf problem (and hence not mine). You can use dma_resv_lock or so,
+> but no need to. But with callbacks potentially going both ways things
+> always get a bit interesting wrt locking - this is what makes peer2peer
+> dma-buf so painful right now. Hence I'd like to avoid that if needed, at
+> least at the dma-buf level. virtio code I don't mind what you do there :-)
+>
+> Cheers, Daniel
+> --
+> Daniel Vetter
+> Software Engineer, Intel Corporation
+> http://blog.ffwll.ch
 
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+Best,
+Sumit.
