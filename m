@@ -1,82 +1,43 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V2] ifcvf: move IRQ request/free to status change handlers
-Date: Tue, 19 May 2020 13:52:34 +0800
-Message-ID: <c927fcff-de09-d623-e119-4611ab65ff04@redhat.com>
-References: <1589270444-3669-1-git-send-email-lingshan.zhu@intel.com>
- <8aca85c3-3bf6-a1ec-7009-cd9a635647d7@redhat.com>
- <5bbe0c21-8638-45e4-04e8-02ad0df44b38@intel.com>
- <572ed6af-7a04-730e-c803-a41868091e88@redhat.com>
- <CACLfguXXPArd9UWX-HpfqNvgpWS=Nyt6SJ4kUkjjpVsVvVe9oA@mail.gmail.com>
+From: Borislav Petkov <bp@alien8.de>
+Subject: Re: [PATCH v3 35/75] x86/head/64: Build k/head64.c with
+ -fno-stack-protector
+Date: Tue, 19 May 2020 11:15:26 +0200
+Message-ID: <20200519091526.GB444@zn.tnic>
+References: <20200428151725.31091-1-joro@8bytes.org>
+ <20200428151725.31091-36-joro@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CACLfguXXPArd9UWX-HpfqNvgpWS=Nyt6SJ4kUkjjpVsVvVe9oA@mail.gmail.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20200428151725.31091-36-joro@8bytes.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Cindy Lu <lulu@redhat.com>
-Cc: "Zhu, Lingshan" <lingshan.zhu@intel.com>, Michael Tsirkin <mst@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, dan.daly@intel.com, "Liang, Cunming" <cunming.liang@intel.com>
+To: Joerg Roedel <joro@8bytes.org>
+Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue, Apr 28, 2020 at 05:16:45PM +0200, Joerg Roedel wrote:
+> From: Joerg Roedel <jroedel@suse.de>
+> 
+> The code inserted by the stack protector does not work in the early
+> boot environment because it uses the GS segment, at least with memory
+> encryption enabled.
 
-On 2020/5/19 上午9:51, Cindy Lu wrote:
-> Hi ,Jason
-> It works ok in the latest version of qemu vdpa code , So I think the
-> patch is ok.
-> Thanks
-> Cindy
+Can you elaborate on why is that a problem?
 
+The stack cookie is not generated that early yet so it should be
+comparing %gs:40 to 0.
 
-Thanks for the testing, (btw, we'd better not do top posting when 
-discuss in the community).
+Also, it generates the checking code here only with
 
-So,
+CONFIG_STACKPROTECTOR_STRONG=y
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+> Make sure the early code is compiled without this feature enabled.
 
+If so, then this should be with CONFIG_AMD_MEM_ENCRYPT ifdeffery around
+it.
 
+-- 
+Regards/Gruss,
+    Boris.
 
-> On Wed, May 13, 2020 at 3:18 PM Jason Wang <jasowang@redhat.com> wrote:
->>
->> On 2020/5/13 下午12:42, Zhu, Lingshan wrote:
->>>
->>> On 5/13/2020 12:12 PM, Jason Wang wrote:
->>>> On 2020/5/12 下午4:00, Zhu Lingshan wrote:
->>>>> This commit move IRQ request and free operations from probe()
->>>>> to VIRTIO status change handler to comply with VIRTIO spec.
->>>>>
->>>>> VIRTIO spec 1.1, section 2.1.2 Device Requirements: Device Status Field
->>>>> The device MUST NOT consume buffers or send any used buffer
->>>>> notifications to the driver before DRIVER_OK.
->>>>
->>>> This comment needs to be checked as I said previously. It's only
->>>> needed if we're sure ifcvf can generate interrupt before DRIVER_OK.
->>>>
->>>>
->>>>> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
->>>>> ---
->>>>> changes from V1:
->>>>> remove ifcvf_stop_datapath() in status == 0 handler, we don't need
->>>>> to do this
->>>>> twice; handle status == 0 after DRIVER_OK -> !DRIVER_OK handler
->>>>> (Jason Wang)
->>>>
->>>> Patch looks good to me, but with this patch ping cannot work on my
->>>> machine. (It works without this patch).
->>>>
->>>> Thanks
->>> This is strange, it works on my machines, let's have a check offline.
->>>
->>> Thanks,
->>> BR
->>> Zhu Lingshan
->>
->> I give it a try with virito-vpda and a tiny userspace. Either works.
->>
->> So it could be an issue of qemu codes.
->>
->> Let's wait for Cindy to test if it really works.
->>
->> Thanks
->>
->>
+https://people.kernel.org/tglx/notes-about-netiquette
