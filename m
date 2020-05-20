@@ -1,40 +1,31 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v4 00/15] virtio-mem: paravirtualized memory
-Date: Wed, 20 May 2020 09:56:48 +0200
-Message-ID: <d7f18e6b-84e7-47d1-88d6-c73b5dcd8315@redhat.com>
-References: <20200507140139.17083-1-david@redhat.com>
- <2603F9B2-17D0-4A05-A82B-2D3B9671A96E@linux.alibaba.com>
+From: Borislav Petkov <bp@alien8.de>
+Subject: Re: [PATCH v3 38/75] x86/sev-es: Add SEV-ES Feature Detection
+Date: Wed, 20 May 2020 10:39:16 +0200
+Message-ID: <20200520083916.GB1457@zn.tnic>
+References: <20200428151725.31091-1-joro@8bytes.org>
+ <20200428151725.31091-39-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <virtio-dev-return-7388-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <2603F9B2-17D0-4A05-A82B-2D3B9671A96E@linux.alibaba.com>
-Content-Language: en-US
-To: teawater <teawaterz@linux.alibaba.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, virtio-dev@lists.oasis-open.org, Linux Virtualization <virtualization@lists.linux-foundation.org>, kvm@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Alexander Potapenko <glider@google.com>, Anshuman Khandual <anshuman.khandual@arm.com>, Anthony Yznaga <anthony.yznaga@oracle.com>, Dan Williams <dan.j.williams@intel.com>, Dave Young <dyoung@redhat.com>, Igor Mammedov <imammedo@redhat.com>, Jason Wang <jasowang@redhat.com>, Johannes Weiner <hannes@cmpxchg.org>, Juergen Gross <jgross@suse.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Len Brown <lenb@kernel.org>, Mel Gorman <mgorman@techsingularity.net>, Michal Hocko <mhocko@suse.com>, Mike Rapoport <rppt@linux>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200428151725.31091-39-joro@8bytes.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>
+Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 20.05.20 07:25, teawater wrote:
-> Hi David,
-> 
-> Thanks for your work.
-> I tried this version with cloud-hypervisor master.  It worked very well.
-> 
-> Best,
-> Hui
+On Tue, Apr 28, 2020 at 05:16:48PM +0200, Joerg Roedel wrote:
+> +bool sev_es_active(void)
+> +{
+> +	return !!(sev_status & MSR_AMD64_SEV_ES_ENABLED);
+> +}
+> +EXPORT_SYMBOL_GPL(sev_es_active);
 
-Hi Hui,
-
-thanks for testing!
-
-Cheers!
+I don't see this being used in modules anywhere in the patchset. Or am I
+missing something?
 
 -- 
-Thanks,
+Regards/Gruss,
+    Boris.
 
-David / dhildenb
+https://people.kernel.org/tglx/notes-about-netiquette
