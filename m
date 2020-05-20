@@ -1,76 +1,40 @@
-From: Sean Christopherson <sean.j.christopherson@intel.com>
-Subject: Re: [PATCH v3 59/75] x86/sev-es: Handle MONITOR/MONITORX Events
-Date: Tue, 19 May 2020 23:38:45 -0700
-Message-ID: <20200520063845.GC17090@linux.intel.com>
-References: <20200428151725.31091-1-joro@8bytes.org>
- <20200428151725.31091-60-joro@8bytes.org>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH v4 00/15] virtio-mem: paravirtualized memory
+Date: Wed, 20 May 2020 09:56:48 +0200
+Message-ID: <d7f18e6b-84e7-47d1-88d6-c73b5dcd8315@redhat.com>
+References: <20200507140139.17083-1-david@redhat.com>
+ <2603F9B2-17D0-4A05-A82B-2D3B9671A96E@linux.alibaba.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200428151725.31091-60-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Joerg Roedel <joro@8bytes.org>
-Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <virtio-dev-return-7388-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+In-Reply-To: <2603F9B2-17D0-4A05-A82B-2D3B9671A96E@linux.alibaba.com>
+Content-Language: en-US
+To: teawater <teawaterz@linux.alibaba.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, Linux MM <linux-mm@kvack.org>, virtio-dev@lists.oasis-open.org, Linux Virtualization <virtualization@lists.linux-foundation.org>, kvm@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Alexander Potapenko <glider@google.com>, Anshuman Khandual <anshuman.khandual@arm.com>, Anthony Yznaga <anthony.yznaga@oracle.com>, Dan Williams <dan.j.williams@intel.com>, Dave Young <dyoung@redhat.com>, Igor Mammedov <imammedo@redhat.com>, Jason Wang <jasowang@redhat.com>, Johannes Weiner <hannes@cmpxchg.org>, Juergen Gross <jgross@suse.com>, Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, Len Brown <lenb@kernel.org>, Mel Gorman <mgorman@techsingularity.net>, Michal Hocko <mhocko@suse.com>, Mike Rapoport <rppt@linux>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 28, 2020 at 05:17:09PM +0200, Joerg Roedel wrote:
-> From: Tom Lendacky <thomas.lendacky@amd.com>
+On 20.05.20 07:25, teawater wrote:
+> Hi David,
 > 
-> Implement a handler for #VC exceptions caused by MONITOR and MONITORX
-> instructions.
+> Thanks for your work.
+> I tried this version with cloud-hypervisor master.  It worked very well.
 > 
-> Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-> [ jroedel@suse.de: Adapt to #VC handling infrastructure ]
-> Co-developed-by: Joerg Roedel <jroedel@suse.de>
-> Signed-off-by: Joerg Roedel <jroedel@suse.de>
-> ---
->  arch/x86/kernel/sev-es.c | 19 +++++++++++++++++++
->  1 file changed, 19 insertions(+)
-> 
-> diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-> index 601554e6360f..1a961714cd1b 100644
-> --- a/arch/x86/kernel/sev-es.c
-> +++ b/arch/x86/kernel/sev-es.c
-> @@ -824,6 +824,22 @@ static enum es_result vc_handle_rdpmc(struct ghcb *ghcb, struct es_em_ctxt *ctxt
->  	return ES_OK;
->  }
->  
-> +static enum es_result vc_handle_monitor(struct ghcb *ghcb,
-> +					struct es_em_ctxt *ctxt)
-> +{
-> +	phys_addr_t monitor_pa;
-> +	pgd_t *pgd;
-> +
-> +	pgd = __va(read_cr3_pa());
-> +	monitor_pa = vc_slow_virt_to_phys(ghcb, ctxt->regs->ax);
-> +
-> +	ghcb_set_rax(ghcb, monitor_pa);
-> +	ghcb_set_rcx(ghcb, ctxt->regs->cx);
-> +	ghcb_set_rdx(ghcb, ctxt->regs->dx);
-> +
-> +	return sev_es_ghcb_hv_call(ghcb, ctxt, SVM_EXIT_MONITOR, 0, 0);
+> Best,
+> Hui
 
-Why?  If SVM has the same behavior as VMX, the MONITOR will be disarmed on
-VM-Enter, i.e. the VMM can't do anything useful for MONITOR/MWAIT.  I
-assume that's the case given that KVM emulates MONITOR/MWAIT as NOPs on
-SVM.
+Hi Hui,
 
-> +}
-> +
->  static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
->  					 struct ghcb *ghcb,
->  					 unsigned long exit_code)
-> @@ -860,6 +876,9 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
->  	case SVM_EXIT_WBINVD:
->  		result = vc_handle_wbinvd(ghcb, ctxt);
->  		break;
-> +	case SVM_EXIT_MONITOR:
-> +		result = vc_handle_monitor(ghcb, ctxt);
-> +		break;
->  	case SVM_EXIT_NPF:
->  		result = vc_handle_mmio(ghcb, ctxt);
->  		break;
-> -- 
-> 2.17.1
-> 
+thanks for testing!
+
+Cheers!
+
+-- 
+Thanks,
+
+David / dhildenb
