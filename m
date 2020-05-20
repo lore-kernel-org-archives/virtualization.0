@@ -1,73 +1,127 @@
 From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH v3 40/75] x86/sev-es: Compile early handler code into
- kernel image
-Date: Wed, 20 May 2020 11:14:15 +0200
-Message-ID: <20200520091415.GC1457@zn.tnic>
+Subject: Re: [PATCH v3 42/75] x86/sev-es: Setup GHCB based boot #VC handler
+Date: Wed, 20 May 2020 21:22:30 +0200
+Message-ID: <20200520192230.GK1457@zn.tnic>
 References: <20200428151725.31091-1-joro@8bytes.org>
- <20200428151725.31091-41-joro@8bytes.org>
+ <20200428151725.31091-43-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <kvm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200428151725.31091-41-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20200428151725.31091-43-joro@8bytes.org>
+Sender: kvm-owner@vger.kernel.org
 To: Joerg Roedel <joro@8bytes.org>
 Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 28, 2020 at 05:16:50PM +0200, Joerg Roedel wrote:
-> +static inline u64 sev_es_rd_ghcb_msr(void)
+On Tue, Apr 28, 2020 at 05:16:52PM +0200, Joerg Roedel wrote:
+> diff --git a/arch/x86/include/asm/sev-es.h b/arch/x86/include/asm/sev-es.h
+> index b2cbcd40b52e..e1ed963a57ec 100644
+> --- a/arch/x86/include/asm/sev-es.h
+> +++ b/arch/x86/include/asm/sev-es.h
+> @@ -74,5 +74,6 @@ static inline u64 lower_bits(u64 val, unsigned int bits)
+>  }
+>  
+>  extern void vc_no_ghcb(void);
+> +extern bool vc_boot_ghcb(struct pt_regs *regs);
+
+Those function names need verbs:
+
+	handle_vc_no_ghcb
+	handle_vc_boot_ghcb
+
+> @@ -161,3 +176,104 @@ static enum es_result vc_read_mem(struct es_em_ctxt *ctxt,
+>  
+>  /* Include code shared with pre-decompression boot stage */
+>  #include "sev-es-shared.c"
+> +
+> +/*
+> + * This function runs on the first #VC exception after the kernel
+> + * switched to virtual addresses.
+> + */
+> +static bool __init sev_es_setup_ghcb(void)
+
+There's already another sev_es_setup_ghcb() in compressed/. All those
+functions with the same name are just confusion waiting to happen. Let's
+prepend the ones in compressed/ with "early_" or so, so that their names
+are at least different even if they're in two different files with the
+same name.
+
+This way you know at least which function is used in which boot stages.
+
 > +{
-> +	return native_read_msr(MSR_AMD64_SEV_ES_GHCB);
+> +	/* First make sure the hypervisor talks a supported protocol. */
+> +	if (!sev_es_negotiate_protocol())
+> +		return false;
+
+<---- newline here.
+
+> +	/*
+> +	 * Clear the boot_ghcb. The first exception comes in before the bss
+> +	 * section is cleared.
+> +	 */
+> +	memset(&boot_ghcb_page, 0, PAGE_SIZE);
+> +
+> +	/* Alright - Make the boot-ghcb public */
+> +	boot_ghcb = &boot_ghcb_page;
+> +
+> +	return true;
 > +}
 > +
-> +static inline void sev_es_wr_ghcb_msr(u64 val)
+> +static void __init vc_early_vc_forward_exception(struct es_em_ctxt *ctxt)
+
+That second "vc" looks redundant.
+
 > +{
-> +	u32 low, high;
+> +	int trapnr = ctxt->fi.vector;
 > +
-> +	low  = (u32)(val);
-> +	high = (u32)(val >> 32);
+> +	if (trapnr == X86_TRAP_PF)
+> +		native_write_cr2(ctxt->fi.cr2);
 > +
-> +	native_write_msr(MSR_AMD64_SEV_ES_GHCB, low, high);
+> +	ctxt->regs->orig_ax = ctxt->fi.error_code;
+> +	do_early_exception(ctxt->regs, trapnr);
 > +}
-
-Instead of duplicating those two, you can lift the ones in the
-compressed image into sev-es.h and use them here. I don't care one bit
-about the MSR tracepoints in native_*_msr().
-
-> +static enum es_result vc_write_mem(struct es_em_ctxt *ctxt,
-> +				   char *dst, char *buf, size_t size)
-> +{
-> +	unsigned long error_code = X86_PF_PROT | X86_PF_WRITE;
-> +	char __user *target = (char __user *)dst;
-> +	u64 d8;
-> +	u32 d4;
-> +	u16 d2;
-> +	u8  d1;
 > +
-> +	switch (size) {
-> +	case 1:
-> +		memcpy(&d1, buf, 1);
-> +		if (put_user(d1, target))
-> +			goto fault;
-> +		break;
-> +	case 2:
-> +		memcpy(&d2, buf, 2);
-> +		if (put_user(d2, target))
-> +			goto fault;
-> +		break;
-> +	case 4:
-> +		memcpy(&d4, buf, 4);
-> +		if (put_user(d4, target))
-> +			goto fault;
-> +		break;
-> +	case 8:
-> +		memcpy(&d8, buf, 8);
-> +		if (put_user(d8, target))
-> +			goto fault;
+> +static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
+> +					 struct ghcb *ghcb,
+> +					 unsigned long exit_code)
+> +{
+> +	enum es_result result;
+> +
+> +	switch (exit_code) {
+> +	default:
+> +		/*
+> +		 * Unexpected #VC exception
+> +		 */
+> +		result = ES_UNSUPPORTED;
+> +	}
+> +
+> +	return result;
+> +}
+> +
+> +bool __init vc_boot_ghcb(struct pt_regs *regs)
+> +{
+> +	unsigned long exit_code = regs->orig_ax;
+> +	struct es_em_ctxt ctxt;
+> +	enum es_result result;
+> +
+> +	/* Do initial setup or terminate the guest */
+> +	if (unlikely(boot_ghcb == NULL && !sev_es_setup_ghcb()))
+> +		sev_es_terminate(GHCB_SEV_ES_REASON_GENERAL_REQUEST);
+> +
+> +	vc_ghcb_invalidate(boot_ghcb);
 
-Ok, those (and below) memcpys get nicely optimized to MOVs by the
-compiler here.
+Newline here...
+
+> +	result = vc_init_em_ctxt(&ctxt, regs, exit_code);
+> +
+
+... remove that one here.
+
+> +	if (result == ES_OK)
+> +		result = vc_handle_exitcode(&ctxt, boot_ghcb, exit_code);
+
+...
 
 -- 
 Regards/Gruss,
