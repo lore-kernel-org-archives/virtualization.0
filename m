@@ -1,130 +1,42 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH v3 42/75] x86/sev-es: Setup GHCB based boot #VC handler
-Date: Wed, 20 May 2020 21:22:30 +0200
-Message-ID: <20200520192230.GK1457@zn.tnic>
-References: <20200428151725.31091-1-joro@8bytes.org>
- <20200428151725.31091-43-joro@8bytes.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [GIT PULL] vhost/vdpa: minor fixes
+Date: Thu, 21 May 2020 14:08:35 -0400
+Message-ID: <20200521140835-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <kvm-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200428151725.31091-43-joro@8bytes.org>
-Sender: kvm-owner@vger.kernel.org
-To: Joerg Roedel <joro@8bytes.org>
-Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, jasowang@redhat.com, lkp@intel.com, mst@redhat.com, yuehaibing@huawei.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 28, 2020 at 05:16:52PM +0200, Joerg Roedel wrote:
-> diff --git a/arch/x86/include/asm/sev-es.h b/arch/x86/include/asm/sev-es.h
-> index b2cbcd40b52e..e1ed963a57ec 100644
-> --- a/arch/x86/include/asm/sev-es.h
-> +++ b/arch/x86/include/asm/sev-es.h
-> @@ -74,5 +74,6 @@ static inline u64 lower_bits(u64 val, unsigned int bits)
->  }
->  
->  extern void vc_no_ghcb(void);
-> +extern bool vc_boot_ghcb(struct pt_regs *regs);
+The following changes since commit 0b841030625cde5f784dd62aec72d6a766faae70:
 
-Those function names need verbs:
+  vhost: vsock: kick send_pkt worker once device is started (2020-05-02 10:28:21 -0400)
 
-	handle_vc_no_ghcb
-	handle_vc_boot_ghcb
+are available in the Git repository at:
 
-> @@ -161,3 +176,104 @@ static enum es_result vc_read_mem(struct es_em_ctxt *ctxt,
->  
->  /* Include code shared with pre-decompression boot stage */
->  #include "sev-es-shared.c"
-> +
-> +/*
-> + * This function runs on the first #VC exception after the kernel
-> + * switched to virtual addresses.
-> + */
-> +static bool __init sev_es_setup_ghcb(void)
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
 
-There's already another sev_es_setup_ghcb() in compressed/. All those
-functions with the same name are just confusion waiting to happen. Let's
-prepend the ones in compressed/ with "early_" or so, so that their names
-are at least different even if they're in two different files with the
-same name.
+for you to fetch changes up to 1b0be99f1a426d9f17ced95c4118c6641a2ff13d:
 
-This way you know at least which function is used in which boot stages.
+  vhost: missing __user tags (2020-05-15 11:36:31 -0400)
 
-> +{
-> +	/* First make sure the hypervisor talks a supported protocol. */
-> +	if (!sev_es_negotiate_protocol())
-> +		return false;
+----------------------------------------------------------------
+virtio: build warning fixes
 
-<---- newline here.
+Fix a couple of build warnings.
 
-> +	/*
-> +	 * Clear the boot_ghcb. The first exception comes in before the bss
-> +	 * section is cleared.
-> +	 */
-> +	memset(&boot_ghcb_page, 0, PAGE_SIZE);
-> +
-> +	/* Alright - Make the boot-ghcb public */
-> +	boot_ghcb = &boot_ghcb_page;
-> +
-> +	return true;
-> +}
-> +
-> +static void __init vc_early_vc_forward_exception(struct es_em_ctxt *ctxt)
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-That second "vc" looks redundant.
+----------------------------------------------------------------
+Michael S. Tsirkin (1):
+      vhost: missing __user tags
 
-> +{
-> +	int trapnr = ctxt->fi.vector;
-> +
-> +	if (trapnr == X86_TRAP_PF)
-> +		native_write_cr2(ctxt->fi.cr2);
-> +
-> +	ctxt->regs->orig_ax = ctxt->fi.error_code;
-> +	do_early_exception(ctxt->regs, trapnr);
-> +}
-> +
-> +static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
-> +					 struct ghcb *ghcb,
-> +					 unsigned long exit_code)
-> +{
-> +	enum es_result result;
-> +
-> +	switch (exit_code) {
-> +	default:
-> +		/*
-> +		 * Unexpected #VC exception
-> +		 */
-> +		result = ES_UNSUPPORTED;
-> +	}
-> +
-> +	return result;
-> +}
-> +
-> +bool __init vc_boot_ghcb(struct pt_regs *regs)
-> +{
-> +	unsigned long exit_code = regs->orig_ax;
-> +	struct es_em_ctxt ctxt;
-> +	enum es_result result;
-> +
-> +	/* Do initial setup or terminate the guest */
-> +	if (unlikely(boot_ghcb == NULL && !sev_es_setup_ghcb()))
-> +		sev_es_terminate(GHCB_SEV_ES_REASON_GENERAL_REQUEST);
-> +
-> +	vc_ghcb_invalidate(boot_ghcb);
+YueHaibing (1):
+      vdpasim: remove unused variable 'ret'
 
-Newline here...
-
-> +	result = vc_init_em_ctxt(&ctxt, regs, exit_code);
-> +
-
-... remove that one here.
-
-> +	if (result == ES_OK)
-> +		result = vc_handle_exitcode(&ctxt, boot_ghcb, exit_code);
-
-...
-
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+ drivers/vdpa/vdpa_sim/vdpa_sim.c | 15 +++++++--------
+ drivers/vhost/vhost.c            |  4 ++--
+ 2 files changed, 9 insertions(+), 10 deletions(-)
