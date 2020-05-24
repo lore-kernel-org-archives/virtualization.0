@@ -1,70 +1,91 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH v3 45/75] x86/dumpstack/64: Handle #VC exception stacks
-Date: Fri, 22 May 2020 15:06:41 +0200
-Message-ID: <20200522130641.GE28750@zn.tnic>
-References: <20200428151725.31091-1-joro@8bytes.org>
- <20200428151725.31091-46-joro@8bytes.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20200428151725.31091-46-joro@8bytes.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Joerg Roedel <joro@8bytes.org>
-Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Dave Hansen <dave.hansen@linux.intel.com>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>, Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
+From: Sidong Yang <realwakka@gmail.com>
+Subject: [PATCH] drm/qxl: Replace deprecated function in qxl_display
+Date: Sun, 24 May 2020 11:26:23 +0900
+Message-ID: <20200524022624.10363-1-realwakka@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Dave Airlie <airlied@redhat.com>
+Cc: Sidong Yang <realwakka@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>, Daniel Vetter <daniel@ffwll.ch>, virtualization@lists.linux-foundation.org, spice-devel@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 28, 2020 at 05:16:55PM +0200, Joerg Roedel wrote:
-> diff --git a/arch/x86/include/asm/stacktrace.h b/arch/x86/include/asm/stacktrace.h
-> index 14db05086bbf..2f3534ef4b5f 100644
-> --- a/arch/x86/include/asm/stacktrace.h
-> +++ b/arch/x86/include/asm/stacktrace.h
-> @@ -21,6 +21,10 @@ enum stack_type {
->  	STACK_TYPE_ENTRY,
->  	STACK_TYPE_EXCEPTION,
->  	STACK_TYPE_EXCEPTION_LAST = STACK_TYPE_EXCEPTION + N_EXCEPTION_STACKS-1,
-> +#ifdef CONFIG_X86_64
+Hi, Dave.
 
-CONFIG_AMD_MEM_ENCRYPT
+This is resended e-mail for your advice.
 
-> +	STACK_TYPE_VC,
-> +	STACK_TYPE_VC_LAST = STACK_TYPE_VC + N_VC_STACKS - 1,
-> +#endif
->  };
->  
->  struct stack_info {
-> diff --git a/arch/x86/kernel/dumpstack_64.c b/arch/x86/kernel/dumpstack_64.c
-> index 87b97897a881..2468963c1424 100644
-> --- a/arch/x86/kernel/dumpstack_64.c
-> +++ b/arch/x86/kernel/dumpstack_64.c
-> @@ -18,6 +18,7 @@
->  
->  #include <asm/cpu_entry_area.h>
->  #include <asm/stacktrace.h>
-> +#include <asm/sev-es.h>
->  
->  static const char * const exception_stack_names[] = {
->  		[ ESTACK_DF	]	= "#DF",
-> @@ -47,6 +48,9 @@ const char *stack_type_name(enum stack_type type)
->  	if (type >= STACK_TYPE_EXCEPTION && type <= STACK_TYPE_EXCEPTION_LAST)
->  		return exception_stack_names[type - STACK_TYPE_EXCEPTION];
->  
-> +	if (type >= STACK_TYPE_VC && type <= STACK_TYPE_VC_LAST)
+I'm a newbie interested in linux kernel and qxl module.
+Please check this patch and give me advice for me.
+Also I'll be glad if there is any task that you bothered.
+Thanks.
 
-That test can be inside vc_stack_name() so that it gets optimized away
-for !CONFIG_AMD_MEM_ENCRYPT and there's no need for ifdeffery.
+Sidong.
 
+Replace deprecated function drm_modeset_lock/unlock_all with
+helper function DRM_MODESET_LOCK_ALL_BEGIN/END.
+
+Signed-off-by: Sidong Yang <realwakka@gmail.com>
+---
+ drivers/gpu/drm/qxl/qxl_display.c | 21 +++++++++++----------
+ 1 file changed, 11 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+index 1082cd5d2fd4..07e164cee868 100644
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -162,7 +162,8 @@ static void qxl_update_offset_props(struct qxl_device *qdev)
+ void qxl_display_read_client_monitors_config(struct qxl_device *qdev)
+ {
+ 	struct drm_device *dev = &qdev->ddev;
+-	int status, retries;
++	struct drm_modeset_acquire_ctx ctx;
++	int status, retries, ret;
+ 
+ 	for (retries = 0; retries < 10; retries++) {
+ 		status = qxl_display_copy_rom_client_monitors_config(qdev);
+@@ -183,9 +184,9 @@ void qxl_display_read_client_monitors_config(struct qxl_device *qdev)
+ 		return;
+ 	}
+ 
+-	drm_modeset_lock_all(dev);
++	DRM_MODESET_LOCK_ALL_BEGIN(dev, ctx, DRM_MODESET_ACQUIRE_INTERRUPTIBLE, ret);
+ 	qxl_update_offset_props(qdev);
+-	drm_modeset_unlock_all(dev);
++	DRM_MODESET_LOCK_ALL_END(ctx, ret);
+ 	if (!drm_helper_hpd_irq_event(dev)) {
+ 		/* notify that the monitor configuration changed, to
+ 		   adjust at the arbitrary resolution */
+@@ -403,18 +404,17 @@ static int qxl_framebuffer_surface_dirty(struct drm_framebuffer *fb,
+ 	struct qxl_device *qdev = to_qxl(fb->dev);
+ 	struct drm_clip_rect norect;
+ 	struct qxl_bo *qobj;
++	struct drm_modeset_acquire_ctx ctx;
+ 	bool is_primary;
+-	int inc = 1;
++	int inc = 1, ret;
+ 
+-	drm_modeset_lock_all(fb->dev);
++	DRM_MODESET_LOCK_ALL_BEGIN(fb->dev, ctx, DRM_MODESET_ACQUIRE_INTERRUPTIBLE, ret);
+ 
+ 	qobj = gem_to_qxl_bo(fb->obj[0]);
+ 	/* if we aren't primary surface ignore this */
+ 	is_primary = qobj->shadow ? qobj->shadow->is_primary : qobj->is_primary;
+-	if (!is_primary) {
+-		drm_modeset_unlock_all(fb->dev);
+-		return 0;
+-	}
++	if (!is_primary)
++		goto out_lock_end;
+ 
+ 	if (!num_clips) {
+ 		num_clips = 1;
+@@ -430,7 +430,8 @@ static int qxl_framebuffer_surface_dirty(struct drm_framebuffer *fb,
+ 	qxl_draw_dirty_fb(qdev, fb, qobj, flags, color,
+ 			  clips, num_clips, inc, 0);
+ 
+-	drm_modeset_unlock_all(fb->dev);
++out_lock_end:
++	DRM_MODESET_LOCK_ALL_END(ctx, ret);
+ 
+ 	return 0;
+ }
 -- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+2.17.1
