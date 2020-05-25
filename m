@@ -1,44 +1,50 @@
 From: "Longpeng (Mike, Cloud Infrastructure Service Product Dept.)"
         <longpeng2@huawei.com>
-Subject: Re: [PATCH 1/2] crypto: virtio: Fix src/dst scatterlist calculation
- in __virtio_crypto_skcipher_do_req()
-Date: Mon, 25 May 2020 14:46:25 +0800
-Message-ID: <7b2ac2f8-7d92-1bd7-8ad8-9866d9b1d634@huawei.com>
-References: <21478291-9191-1da3-a7e5-65e87c743a3c@web.de>
+Subject: Re: [PATCH 2/2] crypto: virtio: Fix use-after-free in
+ virtio_crypto_skcipher_finalize_req()
+Date: Mon, 25 May 2020 15:13:24 +0800
+Message-ID: <a17850bb-f70d-1f77-3823-afd70816ce57@huawei.com>
+References: <a5ef5d51-e35c-983f-8e7f-5f19552abe9e@web.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-crypto-owner@vger.kernel.org>
-In-Reply-To: <21478291-9191-1da3-a7e5-65e87c743a3c@web.de>
+In-Reply-To: <a5ef5d51-e35c-983f-8e7f-5f19552abe9e@web.de>
 Content-Language: en-US
 Sender: linux-crypto-owner@vger.kernel.org
 To: Markus Elfring <Markus.Elfring@web.de>, linux-crypto@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: linux-kernel@vger.kernel.org, Arei Gonglei <arei.gonglei@huawei.com>, Corentin Labbe <clabbe@baylibre.com>, "David S. Miller" <davem@davemloft.net>, Herbert Xu <herbert@gondor.apana.org.au>, Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Arei Gonglei <arei.gonglei@huawei.com>, Corentin Labbe <clabbe@baylibre.com>, "David S. Miller" <davem@davemloft.net>, Herbert Xu <herbert@gondor.apana.org.au>, Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 Hi Markus,
 
-On 2020/5/25 14:05, Markus Elfring wrote:
->> The system will crash when we insmod crypto/tcrypt.ko whit mode=38.
+On 2020/5/25 14:30, Markus Elfring wrote:
+>> … So the system will crash
+>> at last when this memory be used again.
 > 
-> * I suggest to use the word “with” in this sentence.
+> I would prefer a wording with less typos here.
 > 
-OK, it's a typo.
+Could you help me to make the sentence better?
 
-> * Will it be helpful to explain the passed mode number?
 > 
+>> We can free the resources before calling ->complete to fix this issue.
 > 
->> BTW I add a check for sg_nents_for_len() its return value since
->> sg_nents_for_len() function could fail.
+> * An imperative wording can be nicer.
+>   https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/process/submitting-patches.rst?id=9cb1fd0efd195590b828b9b865421ad345a4a145#n151
 > 
-> Please reconsider also development consequences for this suggestion.
-> Will a separate update step be more appropriate for the addition of
-> an input parameter validation?
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/process/submitting-patches.rst?id=9cb1fd0efd195590b828b9b865421ad345a4a145#n138
+I'll try.
+
+> * You proposed to move a call of the function “crypto_finalize_skcipher_request”.
+>   How does this change fit to the mentioned position?
 > 
-> Would you like to add the tag “Fixes” to the commit message?
+The resources which need to be freed is not used anymore, but the pointers
+of these resources may be changed in the function
+"crypto_finalize_skcipher_request", so free these resources before call the
+function is suitable.
+
+> * Would you like to add the tag “Fixes” to the commit message?
 >
-Will take all of your suggestions in v2, thanks.
+OK.
 
 > Regards,
 > Markus
