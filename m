@@ -1,81 +1,56 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH v3 51/75] x86/sev-es: Handle MMIO events
-Date: Mon, 25 May 2020 10:02:26 +0200
-Message-ID: <20200525080226.GB25636@zn.tnic>
-References: <20200428151725.31091-1-joro@8bytes.org>
- <20200428151725.31091-52-joro@8bytes.org>
+From: "Longpeng (Mike, Cloud Infrastructure Service Product Dept.)"
+        <longpeng2@huawei.com>
+Subject: Re: [2/2] crypto: virtio: Fix use-after-free in
+ virtio_crypto_skcipher_finalize_req()
+Date: Mon, 25 May 2020 16:03:00 +0800
+Message-ID: <c81e5d74-b664-8941-149f-8b916986e8cf@huawei.com>
+References: <a5ef5d51-e35c-983f-8e7f-5f19552abe9e@web.de>
+ <a17850bb-f70d-1f77-3823-afd70816ce57@huawei.com>
+ <cbd8ab27-71c3-2fb0-2fa3-263901596773@web.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200428151725.31091-52-joro@8bytes.org>
-Sender: kvm-owner@vger.kernel.org
-To: Joerg Roedel <joro@8bytes.org>
-Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-crypto-owner@vger.kernel.org>
+In-Reply-To: <cbd8ab27-71c3-2fb0-2fa3-263901596773@web.de>
+Content-Language: en-US
+Sender: linux-crypto-owner@vger.kernel.org
+To: Markus Elfring <Markus.Elfring@web.de>, linux-crypto@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Arei Gonglei <arei.gonglei@huawei.com>, Corentin Labbe <clabbe@baylibre.com>, "David S. Miller" <davem@davemloft.net>, Herbert Xu <herbert@gondor.apana.org.au>, Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 28, 2020 at 05:17:01PM +0200, Joerg Roedel wrote:
-> +static enum es_result vc_do_mmio(struct ghcb *ghcb, struct es_em_ctxt *ctxt,
-> +				 unsigned int bytes, bool read)
-> +{
-> +	u64 exit_code, exit_info_1, exit_info_2;
-> +	unsigned long ghcb_pa = __pa(ghcb);
-> +	void __user *ref;
-> +
-> +	ref = insn_get_addr_ref(&ctxt->insn, ctxt->regs);
-> +	if (ref == (void __user *)-1L)
-> +		return ES_UNSUPPORTED;
-> +
-> +	exit_code = read ? SVM_VMGEXIT_MMIO_READ : SVM_VMGEXIT_MMIO_WRITE;
-> +
-> +	exit_info_1 = vc_slow_virt_to_phys(ghcb, (unsigned long)ref);
-> +	exit_info_2 = bytes;    /* Can never be greater than 8 */
-
-No trailing comments pls - put them over the line.
-
-> +	ghcb->save.sw_scratch = ghcb_pa + offsetof(struct ghcb, shared_buffer);
-> +
-> +	return sev_es_ghcb_hv_call(ghcb, ctxt, exit_code, exit_info_1, exit_info_2);
-> +}
-> +
-> +static enum es_result vc_handle_mmio_twobyte_ops(struct ghcb *ghcb,
-> +						 struct es_em_ctxt *ctxt)
-> +{
-> +	struct insn *insn = &ctxt->insn;
-> +	unsigned int bytes = 0;
-> +	enum es_result ret;
-> +	int sign_byte;
-> +	long *reg_data;
-> +
-> +	switch (insn->opcode.bytes[1]) {
-> +		/* MMIO Read w/ zero-extension */
-> +	case 0xb6:
-> +		bytes = 1;
-> +		/* Fallthrough */
-
-I'm guessing we're supposed to annotate it this way now:
-
-WARNING: Prefer 'fallthrough;' over fallthrough comment
-#139: FILE: arch/x86/kernel/sev-es.c:504:
-+               /* Fallthrough */
 
 
-> +	case 0xb7:
-> +		if (!bytes)
-> +			bytes = 2;
-> +
-> +		ret = vc_do_mmio(ghcb, ctxt, bytes, true);
-> +		if (ret)
-> +			break;
-> +
-> +		/* Zero extend based on operand size */
-> +		reg_data = vc_insn_get_reg(ctxt);
+On 2020/5/25 15:36, Markus Elfring wrote:
+>> Could you help me to make the sentence better?
+> 
+> How do you think about a wording variant like the following?
+> 
+>   So the system will crash when this memory will be used again.
+> 
+Uh, it's much better, thanks.
 
-That function can return NULL - you need to test reg_data. Ditto for all
-its invocations.
+> 
+>>> * You proposed to move a call of the function “crypto_finalize_skcipher_request”.
+>>>   How does this change fit to the mentioned position?
+>>>
+>> The resources which need to be freed is not used anymore, but the pointers
+>> of these resources may be changed in the function
+>> "crypto_finalize_skcipher_request", so free these resources before call the
+>> function is suitable.
+> 
+> Another alternative:
+>   The resources which need to be cleaned up are not used any more.
+>   But the pointers of these resources may be changed in the
+>   function “crypto_finalize_skcipher_request”.
+>   Thus release specific resources before calling this function.
+> 
+Oh great! Thanks.
+
+> Regards,
+> Markus
+> 
 
 -- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+---
+Regards,
+Longpeng(Mike)
