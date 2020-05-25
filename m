@@ -1,111 +1,37 @@
-From: "Longpeng (Mike, Cloud Infrastructure Service Product Dept.)"
-        <longpeng2@huawei.com>
-Subject: Re: [PATCH 1/2] crypto: virtio: fix src/dst scatterlist calculation
-Date: Mon, 25 May 2020 11:45:23 +0800
-Message-ID: <bd31398c-e81b-993f-99ae-37dc364b0e40@huawei.com>
-References: <20200525005627.707-1-longpeng2@huawei.com>
- <20200525005627.707-2-longpeng2@huawei.com>
- <25cff618-601c-e899-a3cc-b289863a7407@redhat.com>
+From: Markus Elfring <Markus.Elfring@web.de>
+Subject: Re: [PATCH 1/2] crypto: virtio: Fix src/dst scatterlist calculation
+ in __virtio_crypto_skcipher_do_req()
+Date: Mon, 25 May 2020 08:05:02 +0200
+Message-ID: <21478291-9191-1da3-a7e5-65e87c743a3c@web.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-crypto-owner@vger.kernel.org>
-In-Reply-To: <25cff618-601c-e899-a3cc-b289863a7407@redhat.com>
-Content-Language: en-US
+Content-Language: en-GB
 Sender: linux-crypto-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>, linux-crypto@vger.kernel.org
-Cc: Gonglei <arei.gonglei@huawei.com>, Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.com>, "David S. Miller" <davem@davemloft.net>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, LABBE Corentin <clabbe@baylibre.com>
+To: longpeng2@huawei.com, linux-crypto@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: linux-kernel@vger.kernel.org, Arei Gonglei <arei.gonglei@huawei.com>, Corentin Labbe <clabbe@baylibre.com>, "David S. Miller" <davem@davemloft.net>, Herbert Xu <herbert@gondor.apana.org.au>, Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Jason,
+> The system will crash when we insmod crypto/tcrypt.ko whit mode=3D38.
 
-On 2020/5/25 11:12, Jason Wang wrote:
-> 
-> On 2020/5/25 上午8:56, Longpeng(Mike) wrote:
->> The system will crash when we insmod crypto/tcrypt.ko whit mode=38.
->>
->> Usually the next entry of one sg will be @sg@ + 1, but if this sg element
->> is part of a chained scatterlist, it could jump to the start of a new
->> scatterlist array. Let's fix it by sg_next() on calculation of src/dst
->> scatterlist.
->>
->> BTW I add a check for sg_nents_for_len() its return value since
->> sg_nents_for_len() function could fail.
->>
->> Cc: Gonglei <arei.gonglei@huawei.com>
->> Cc: Herbert Xu <herbert@gondor.apana.org.au>
->> Cc: "Michael S. Tsirkin" <mst@redhat.com>
->> Cc: Jason Wang <jasowang@redhat.com>
->> Cc: "David S. Miller" <davem@davemloft.net>
->> Cc: virtualization@lists.linux-foundation.org
->> Cc: linux-kernel@vger.kernel.org
->>
->> Reported-by: LABBE Corentin <clabbe@baylibre.com>
->> Signed-off-by: Gonglei <arei.gonglei@huawei.com>
->> Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
->> ---
->>   drivers/crypto/virtio/virtio_crypto_algs.c | 14 ++++++++++----
->>   1 file changed, 10 insertions(+), 4 deletions(-)
->>
->> diff --git a/drivers/crypto/virtio/virtio_crypto_algs.c
->> b/drivers/crypto/virtio/virtio_crypto_algs.c
->> index 372babb44112..2fa1129f96d6 100644
->> --- a/drivers/crypto/virtio/virtio_crypto_algs.c
->> +++ b/drivers/crypto/virtio/virtio_crypto_algs.c
->> @@ -359,8 +359,14 @@ __virtio_crypto_skcipher_do_req(struct
->> virtio_crypto_sym_request *vc_sym_req,
->>       unsigned int num_out = 0, num_in = 0;
->>       int sg_total;
->>       uint8_t *iv;
->> +    struct scatterlist *sg;
->>         src_nents = sg_nents_for_len(req->src, req->cryptlen);
->> +    if (src_nents < 0) {
->> +        pr_err("Invalid number of src SG.\n");
->> +        return src_nents;
->> +    }
->> +
->>       dst_nents = sg_nents(req->dst);
->>         pr_debug("virtio_crypto: Number of sgs (src_nents: %d, dst_nents: %d)\n",
->> @@ -446,12 +452,12 @@ __virtio_crypto_skcipher_do_req(struct
->> virtio_crypto_sym_request *vc_sym_req,
->>       vc_sym_req->iv = iv;
->>         /* Source data */
->> -    for (i = 0; i < src_nents; i++)
->> -        sgs[num_out++] = &req->src[i];
->> +    for (sg = req->src, i = 0; sg && i < src_nents; sg = sg_next(sg), i++)
-> 
-> 
-> Any reason sg is checked here?
-> 
-> I believe it should be checked in sg_nents_for_len().
-> 
-Do you means：
-for (sg = req->src, i = 0; i < src_nents; sg = sg_next(sg), i++) ?
+* I suggest to use the word =E2=80=9Cwith=E2=80=9D in this sentence.
 
-> 
->> +        sgs[num_out++] = sg;
->>         /* Destination data */
->> -    for (i = 0; i < dst_nents; i++)
->> -        sgs[num_out + num_in++] = &req->dst[i];
->> +    for (sg = req->dst, i = 0; sg && i < dst_nents; sg = sg_next(sg), i++)
->> +        sgs[num_out + num_in++] = sg;
-> 
-> 
-> I believe sg should be checked in sg_nents().
->
-How about
-for (sg = req->dst; sg; sg = sg_next(sg)) ?
+* Will it be helpful to explain the passed mode number?
 
-> Thanks
-> 
-> 
->>         /* Status */
->>       sg_init_one(&status_sg, &vc_req->status, sizeof(vc_req->status));
-> 
-> .
-> 
 
--- 
----
+> BTW I add a check for sg_nents_for_len() its return value since
+> sg_nents_for_len() function could fail.
+
+Please reconsider also development consequences for this suggestion.
+Will a separate update step be more appropriate for the addition of
+an input parameter validation?
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do=
+cumentation/process/submitting-patches.rst?id=3D9cb1fd0efd195590b828b9b865=
+421ad345a4a145#n138
+
+Would you like to add the tag =E2=80=9CFixes=E2=80=9D to the commit messag=
+e?
+
 Regards,
-Longpeng(Mike)
+Markus
