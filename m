@@ -1,128 +1,70 @@
 From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH v3 52/75] x86/sev-es: Handle MMIO String Instructions
-Date: Mon, 25 May 2020 11:47:54 +0200
-Message-ID: <20200525094747.GE25636@zn.tnic>
+Subject: Re: [PATCH v3 53/75] x86/sev-es: Handle MSR events
+Date: Mon, 25 May 2020 11:53:46 +0200
+Message-ID: <20200525095346.GF25636@zn.tnic>
 References: <20200428151725.31091-1-joro@8bytes.org>
- <20200428151725.31091-53-joro@8bytes.org>
+ <20200428151725.31091-54-joro@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20200428151725.31091-53-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20200428151725.31091-54-joro@8bytes.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: Joerg Roedel <joro@8bytes.org>
-Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Dave Hansen <dave.hansen@linux.intel.com>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>, Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 28, 2020 at 05:17:02PM +0200, Joerg Roedel wrote:
-> From: Joerg Roedel <jroedel@suse.de>
+On Tue, Apr 28, 2020 at 05:17:03PM +0200, Joerg Roedel wrote:
+> From: Tom Lendacky <thomas.lendacky@amd.com>
 > 
-> Add handling for emulation the MOVS instruction on MMIO regions, as done
-> by the memcpy_toio() and memcpy_fromio() functions.
+> Implement a handler for #VC exceptions caused by RDMSR/WRMSR
+> instructions.
 > 
+> Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+> [ jroedel@suse.de: Adapt to #VC handling infrastructure ]
+> Co-developed-by: Joerg Roedel <jroedel@suse.de>
 > Signed-off-by: Joerg Roedel <jroedel@suse.de>
 > ---
->  arch/x86/kernel/sev-es.c | 78 ++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 78 insertions(+)
+>  arch/x86/kernel/sev-es.c | 28 ++++++++++++++++++++++++++++
+>  1 file changed, 28 insertions(+)
 > 
 > diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-> index e3662723ed76..84958a82f8e0 100644
+> index 84958a82f8e0..e43bba4c7d79 100644
 > --- a/arch/x86/kernel/sev-es.c
 > +++ b/arch/x86/kernel/sev-es.c
-> @@ -552,6 +552,74 @@ static enum es_result vc_handle_mmio_twobyte_ops(struct ghcb *ghcb,
->  	return ret;
->  }
+> @@ -316,6 +316,31 @@ static phys_addr_t vc_slow_virt_to_phys(struct ghcb *ghcb, unsigned long vaddr)
+>  /* Include code shared with pre-decompression boot stage */
+>  #include "sev-es-shared.c"
 >  
-> +/*
-> + * The MOVS instruction has two memory operands, which raises the
-> + * problem that it is not known whether the access to the source or the
-> + * destination caused the #VC exception (and hence whether an MMIO read
-> + * or write operation needs to be emulated).
-> + *
-> + * Instead of playing games with walking page-tables and trying to guess
-> + * whether the source or destination is an MMIO range, this code splits
-
-s/this code splits/split/
-
-> + * the move into two operations, a read and a write with only one
-> + * memory operand. This will cause a nested #VC exception on the MMIO
-> + * address which can then be handled.
-> + *
-> + * This implementation has the benefit that it also supports MOVS where
-> + * source _and_ destination are MMIO regions.
-> + *
-> + * It will slow MOVS on MMIO down a lot, but in SEV-ES guests it is a
-> + * rare operation. If it turns out to be a performance problem the split
-> + * operations can be moved to memcpy_fromio() and memcpy_toio().
-> + */
-> +static enum es_result vc_handle_mmio_movs(struct es_em_ctxt *ctxt,
-> +					  unsigned int bytes)
+> +static enum es_result vc_handle_msr(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
 > +{
-> +	unsigned long ds_base, es_base;
-> +	unsigned char *src, *dst;
-> +	unsigned char buffer[8];
+> +	struct pt_regs *regs = ctxt->regs;
 > +	enum es_result ret;
-> +	bool rep;
-> +	int off;
-> +
-> +	ds_base = insn_get_seg_base(ctxt->regs, INAT_SEG_REG_DS);
-> +	es_base = insn_get_seg_base(ctxt->regs, INAT_SEG_REG_ES);
-> +
-> +	if (ds_base == -1L || es_base == -1L) {
-> +		ctxt->fi.vector = X86_TRAP_GP;
-> +		ctxt->fi.error_code = 0;
-> +		return ES_EXCEPTION;
-> +	}
-> +
-> +	src = ds_base + (unsigned char *)ctxt->regs->si;
-> +	dst = es_base + (unsigned char *)ctxt->regs->di;
-> +
-> +	ret = vc_read_mem(ctxt, src, buffer, bytes);
-> +	if (ret != ES_OK)
-> +		return ret;
-> +
-> +	ret = vc_write_mem(ctxt, dst, buffer, bytes);
-> +	if (ret != ES_OK)
-> +		return ret;
-> +
-> +	if (ctxt->regs->flags & X86_EFLAGS_DF)
-> +		off = -bytes;
-> +	else
-> +		off =  bytes;
-> +
-> +	ctxt->regs->si += off;
-> +	ctxt->regs->di += off;
-> +
-> +	rep = insn_has_rep_prefix(&ctxt->insn);
+> +	u64 exit_info_1;
 > +
 
-^ Superfluous newline.
+A comment pls:
 
-> +	if (rep)
-> +		ctxt->regs->cx -= 1;
+	/* Is it a WRMSR? */
+
+> +	exit_info_1 = (ctxt->insn.opcode.bytes[1] == 0x30) ? 1 : 0;
 > +
-> +	if (!rep || ctxt->regs->cx == 0)
-> +		return ES_OK;
-> +	else
-> +		return ES_RETRY;
-> +}
-> +
->  static enum es_result vc_handle_mmio(struct ghcb *ghcb,
->  				     struct es_em_ctxt *ctxt)
->  {
-> @@ -606,6 +674,16 @@ static enum es_result vc_handle_mmio(struct ghcb *ghcb,
->  		memcpy(reg_data, ghcb->shared_buffer, bytes);
->  		break;
->  
-> +		/* MOVS instruction */
-> +	case 0xa4:
-> +		bytes = 1;
-> +		/* Fallthrough */
+> +	ghcb_set_rcx(ghcb, regs->cx);
+> +	if (exit_info_1) {
+> +		ghcb_set_rax(ghcb, regs->ax);
+> +		ghcb_set_rdx(ghcb, regs->dx);
+> +		exit_info_1 = 1;
 
-WARNING: Prefer 'fallthrough;' over fallthrough comment
-#120: FILE: arch/x86/kernel/sev-es.c:680:
-+               /* Fallthrough */
-
+No need to set it again - you just did above. :)
 
 -- 
 Regards/Gruss,
