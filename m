@@ -1,91 +1,72 @@
-From: Sidong Yang <realwakka@gmail.com>
-Subject: [PATCH] drm/qxl: Replace deprecated function in qxl_display
-Date: Sun, 24 May 2020 11:26:23 +0900
-Message-ID: <20200524022624.10363-1-realwakka@gmail.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dave Airlie <airlied@redhat.com>
-Cc: Sidong Yang <realwakka@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>, Daniel Vetter <daniel@ffwll.ch>, virtualization@lists.linux-foundation.org, spice-devel@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
+From: "Longpeng(Mike)" <longpeng2@huawei.com>
+Subject: [PATCH 2/2] crypto: virtio: fix an memory use-after-free bug
+Date: Mon, 25 May 2020 08:56:27 +0800
+Message-ID: <20200525005627.707-3-longpeng2@huawei.com>
+References: <20200525005627.707-1-longpeng2@huawei.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Return-path: <linux-crypto-owner@vger.kernel.org>
+In-Reply-To: <20200525005627.707-1-longpeng2@huawei.com>
+Sender: linux-crypto-owner@vger.kernel.org
+To: linux-crypto@vger.kernel.org
+Cc: "Longpeng(Mike)" <longpeng2@huawei.com>, Gonglei <arei.gonglei@huawei.com>, Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, LABBE Corentin <clabbe@baylibre.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi, Dave.
+The system'll crash when we insmod crypto/tcrypto.ko with mode=155.
 
-This is resended e-mail for your advice.
+After dig into this case, I find it's caused by reuse the request
+memory.
 
-I'm a newbie interested in linux kernel and qxl module.
-Please check this patch and give me advice for me.
-Also I'll be glad if there is any task that you bothered.
-Thanks.
+In crypto_authenc_init_tfm, we'll set the reqsize to:
+  [PART 1]sizeof(authenc_request_ctx) +
+  [PART 2]ictx->reqoff +
+  [PART 3]MAX(ahash part, skcipher part)
+and the 'PART 3' will be used by both ahash and skcipher.
 
-Sidong.
+When virtio_crypto driver finish skcipher req, it'll call ->complete
+callback(in crypto_finalize_skcipher_request) and then free its
+resources which pointers are recorded in 'skcipher parts'.
 
-Replace deprecated function drm_modeset_lock/unlock_all with
-helper function DRM_MODESET_LOCK_ALL_BEGIN/END.
+However, the ->complete is 'crypto_authenc_encrypt_done' in this case,
+it will use the 'ahash part' of the request and change its content,
+so virtio_crypto driver will get the wrong pointer after ->complete
+finish and mistakenly free some other memory. So the system will crash
+at last when this memory be used again.
 
-Signed-off-by: Sidong Yang <realwakka@gmail.com>
+We can free the resources before calling ->complete to fix this issue.
+
+Cc: Gonglei <arei.gonglei@huawei.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>                                                                                                                                                                      
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: virtualization@lists.linux-foundation.org
+Cc: linux-kernel@vger.kernel.org
+
+Reported-by: LABBE Corentin <clabbe@baylibre.com>
+Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
 ---
- drivers/gpu/drm/qxl/qxl_display.c | 21 +++++++++++----------
- 1 file changed, 11 insertions(+), 10 deletions(-)
+ drivers/crypto/virtio/virtio_crypto_algs.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index 1082cd5d2fd4..07e164cee868 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -162,7 +162,8 @@ static void qxl_update_offset_props(struct qxl_device *qdev)
- void qxl_display_read_client_monitors_config(struct qxl_device *qdev)
- {
- 	struct drm_device *dev = &qdev->ddev;
--	int status, retries;
-+	struct drm_modeset_acquire_ctx ctx;
-+	int status, retries, ret;
- 
- 	for (retries = 0; retries < 10; retries++) {
- 		status = qxl_display_copy_rom_client_monitors_config(qdev);
-@@ -183,9 +184,9 @@ void qxl_display_read_client_monitors_config(struct qxl_device *qdev)
- 		return;
- 	}
- 
--	drm_modeset_lock_all(dev);
-+	DRM_MODESET_LOCK_ALL_BEGIN(dev, ctx, DRM_MODESET_ACQUIRE_INTERRUPTIBLE, ret);
- 	qxl_update_offset_props(qdev);
--	drm_modeset_unlock_all(dev);
-+	DRM_MODESET_LOCK_ALL_END(ctx, ret);
- 	if (!drm_helper_hpd_irq_event(dev)) {
- 		/* notify that the monitor configuration changed, to
- 		   adjust at the arbitrary resolution */
-@@ -403,18 +404,17 @@ static int qxl_framebuffer_surface_dirty(struct drm_framebuffer *fb,
- 	struct qxl_device *qdev = to_qxl(fb->dev);
- 	struct drm_clip_rect norect;
- 	struct qxl_bo *qobj;
-+	struct drm_modeset_acquire_ctx ctx;
- 	bool is_primary;
--	int inc = 1;
-+	int inc = 1, ret;
- 
--	drm_modeset_lock_all(fb->dev);
-+	DRM_MODESET_LOCK_ALL_BEGIN(fb->dev, ctx, DRM_MODESET_ACQUIRE_INTERRUPTIBLE, ret);
- 
- 	qobj = gem_to_qxl_bo(fb->obj[0]);
- 	/* if we aren't primary surface ignore this */
- 	is_primary = qobj->shadow ? qobj->shadow->is_primary : qobj->is_primary;
--	if (!is_primary) {
--		drm_modeset_unlock_all(fb->dev);
--		return 0;
--	}
-+	if (!is_primary)
-+		goto out_lock_end;
- 
- 	if (!num_clips) {
- 		num_clips = 1;
-@@ -430,7 +430,8 @@ static int qxl_framebuffer_surface_dirty(struct drm_framebuffer *fb,
- 	qxl_draw_dirty_fb(qdev, fb, qobj, flags, color,
- 			  clips, num_clips, inc, 0);
- 
--	drm_modeset_unlock_all(fb->dev);
-+out_lock_end:
-+	DRM_MODESET_LOCK_ALL_END(ctx, ret);
- 
- 	return 0;
+diff --git a/drivers/crypto/virtio/virtio_crypto_algs.c b/drivers/crypto/virtio/virtio_crypto_algs.c
+index 2fa1129f96d6..3800356fb764 100644
+--- a/drivers/crypto/virtio/virtio_crypto_algs.c
++++ b/drivers/crypto/virtio/virtio_crypto_algs.c
+@@ -587,10 +587,11 @@ static void virtio_crypto_skcipher_finalize_req(
+ 		scatterwalk_map_and_copy(req->iv, req->dst,
+ 					 req->cryptlen - AES_BLOCK_SIZE,
+ 					 AES_BLOCK_SIZE, 0);
+-	crypto_finalize_skcipher_request(vc_sym_req->base.dataq->engine,
+-					   req, err);
+ 	kzfree(vc_sym_req->iv);
+ 	virtcrypto_clear_request(&vc_sym_req->base);
++
++	crypto_finalize_skcipher_request(vc_sym_req->base.dataq->engine,
++					   req, err);
  }
+ 
+ static struct virtio_crypto_algo virtio_crypto_algs[] = { {
 -- 
 2.17.1
