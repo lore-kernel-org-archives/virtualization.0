@@ -1,37 +1,49 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH v3 64/75] x86/sev-es: Cache CPUID results for improved
- performance
-Date: Tue, 26 May 2020 11:19:09 +0200
-Message-ID: <20200526091909.GB28228@zn.tnic>
-References: <20200428151725.31091-1-joro@8bytes.org>
- <20200428151725.31091-65-joro@8bytes.org>
- <20200520051637.GA16599@linux.intel.com>
+From: "Longpeng (Mike, Cloud Infrastructure Service Product Dept.)"
+        <longpeng2@huawei.com>
+Subject: Re: [v2 2/2] crypto: virtio: Fix use-after-free in
+ virtio_crypto_skcipher_finalize_req()
+Date: Tue, 26 May 2020 17:24:03 +0800
+Message-ID: <321c79df-6397-bbf1-0047-b0b10e5af353@huawei.com>
+References: <20200526031956.1897-1-longpeng2@huawei.com>
+ <20200526031956.1897-3-longpeng2@huawei.com>
+ <0248e0f6-7648-f08d-afa2-170ad2e724b7@web.de>
+ <03d3387f-c886-4fb9-e6f2-9ff8dc6bb80a@huawei.com>
+ <8aab4c6b-7d41-7767-4945-e8af1dec902b@web.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200520051637.GA16599@linux.intel.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sean Christopherson <sean.j.christopherson@intel.com>
-Cc: Joerg Roedel <joro@8bytes.org>, x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <8aab4c6b-7d41-7767-4945-e8af1dec902b@web.de>
+Content-Language: en-US
+Sender: stable-owner@vger.kernel.org
+To: Markus Elfring <Markus.Elfring@web.de>, linux-crypto@vger.kernel.org, virtualization@lists.linux-foundation.org, Gonglei <arei.gonglei@huawei.com>, Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Corentin Labbe <clabbe@baylibre.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org, stable@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, May 19, 2020 at 10:16:37PM -0700, Sean Christopherson wrote:
-> The whole cache on-demand approach seems like overkill.  The number of CPUID
-> leaves that are invoked after boot with any regularity can probably be counted
-> on one hand.   IIRC glibc invokes CPUID to gather TLB/cache info, XCR0-based
-> features, and one or two other leafs.  A statically sized global array that's
-> arbitrarily index a la x86_capability would be just as simple and more
-> performant.  It would also allow fancier things like emulating CPUID 0xD in
-> the guest if you want to go down that road.
 
-And before we do any of that "caching" or whatnot, I'd like to see
-numbers justifying its existence. Because if it is only a couple of
-CPUID invocations and the boot delay is immeasurable, then it's not
-worth the effort.
 
--- 
-Regards/Gruss,
-    Boris.
+On 2020/5/26 17:01, Markus Elfring wrote:
+>>>> … Thus release specific resources before
+>>>
+>>> Is there a need to improve also this information another bit?
+>>>
+>> You mean the last two paragraph is redundant ?
+> 
+> No.
+> 
+> I became curious if you would like to choose a more helpful information
+> according to the wording “specific resources”.
+> 
+> Regards,
+> Markus
+> 
+Hi Markus,
 
-https://people.kernel.org/tglx/notes-about-netiquette
+I respect your work, but please let us to focus on the code itself. I think
+experts in this area know what these patches want to solve after look at the code.
+
+I hope experts in the thread could review the code when you free, thanks :)
+
+---
+Regards,
+Longpeng(Mike)
