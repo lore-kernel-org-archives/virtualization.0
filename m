@@ -1,29 +1,76 @@
-From: Markus Elfring <Markus.Elfring@web.de>
-Subject: Re: [v2 2/2] crypto: virtio: Fix use-after-free in
- virtio_crypto_skcipher_finalize_req()
-Date: Tue, 26 May 2020 11:30:09 +0200
-Message-ID: <2ef98863-fbbf-beca-6a45-cedd686dc23a@web.de>
-References: <20200526031956.1897-1-longpeng2@huawei.com>
- <20200526031956.1897-3-longpeng2@huawei.com>
- <0248e0f6-7648-f08d-afa2-170ad2e724b7@web.de>
- <03d3387f-c886-4fb9-e6f2-9ff8dc6bb80a@huawei.com>
- <8aab4c6b-7d41-7767-4945-e8af1dec902b@web.de>
- <321c79df-6397-bbf1-0047-b0b10e5af353@huawei.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: [PATCH] s390/virtio: remove unused pm callbacks
+Date: Tue, 26 May 2020 11:36:29 +0200
+Message-ID: <20200526093629.257649-1-cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <321c79df-6397-bbf1-0047-b0b10e5af353@huawei.com>
-Content-Language: en-GB
-Sender: stable-owner@vger.kernel.org
-To: "Longpeng (Mike)" <longpeng2@huawei.com>, linux-crypto@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: Gonglei <arei.gonglei@huawei.com>, Herbert Xu <herbert@gondor.apana.org.au>, Corentin Labbe <clabbe@baylibre.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-> I respect your work, but please let us to focus on the code itself. I think
-> experts in this area know what these patches want to solve after look at the code.
+Support for hibernation on s390 has been recently been removed with
+commit 394216275c7d ("s390: remove broken hibernate / power management
+support"), no need to keep unused code around.
 
-I suggest to reconsider such a view.
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Documentation/process/submitting-patches.rst?id=9cb1fd0efd195590b828b9b865421ad345a4a145#n102
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+---
+ drivers/s390/virtio/virtio_ccw.c | 26 --------------------------
+ 1 file changed, 26 deletions(-)
 
-Regards,
-Markus
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index 957889a42d2e..5730572b52cd 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -1372,27 +1372,6 @@ static struct ccw_device_id virtio_ids[] = {
+ 	{},
+ };
+ 
+-#ifdef CONFIG_PM_SLEEP
+-static int virtio_ccw_freeze(struct ccw_device *cdev)
+-{
+-	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
+-
+-	return virtio_device_freeze(&vcdev->vdev);
+-}
+-
+-static int virtio_ccw_restore(struct ccw_device *cdev)
+-{
+-	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
+-	int ret;
+-
+-	ret = virtio_ccw_set_transport_rev(vcdev);
+-	if (ret)
+-		return ret;
+-
+-	return virtio_device_restore(&vcdev->vdev);
+-}
+-#endif
+-
+ static struct ccw_driver virtio_ccw_driver = {
+ 	.driver = {
+ 		.owner = THIS_MODULE,
+@@ -1405,11 +1384,6 @@ static struct ccw_driver virtio_ccw_driver = {
+ 	.set_online = virtio_ccw_online,
+ 	.notify = virtio_ccw_cio_notify,
+ 	.int_class = IRQIO_VIR,
+-#ifdef CONFIG_PM_SLEEP
+-	.freeze = virtio_ccw_freeze,
+-	.thaw = virtio_ccw_restore,
+-	.restore = virtio_ccw_restore,
+-#endif
+ };
+ 
+ static int __init pure_hex(char **cp, unsigned int *val, int min_digit,
+-- 
+2.25.4
