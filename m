@@ -1,103 +1,59 @@
-From: "Gonglei (Arei)" <arei.gonglei@huawei.com>
-Subject: RE: [PATCH v2 2/2] crypto: virtio: Fix use-after-free in
- virtio_crypto_skcipher_finalize_req()
-Date: Tue, 26 May 2020 12:00:33 +0000
-Message-ID: <33183CC9F5247A488A2544077AF19020DF5EA250@dggeml531-mbs.china.huawei.com>
-References: <20200526031956.1897-1-longpeng2@huawei.com>
- <20200526031956.1897-3-longpeng2@huawei.com>
+From: Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH v2 1/2] crypto: virtio: Fix src/dst scatterlist
+ calculation in __virtio_crypto_skcipher_do_req()
+Date: Tue, 26 May 2020 14:11:36 +0000
+Message-ID: <20200526141137.6CD55207CB@mail.kernel.org>
+References: <20200526031956.1897-2-longpeng2@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20200526031956.1897-3-longpeng2@huawei.com>
-Content-Language: zh-CN
-Sender: stable-owner@vger.kernel.org
-To: "Longpeng (Mike, Cloud Infrastructure Service Product Dept.)" <longpeng2@huawei.com>, "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>
-Cc: LABBE Corentin <clabbe@baylibre.com>, Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, Markus Elfring <Markus.Elfring@web.de>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "stable@vger.kernel.org" <stable@vger.kernel.org>
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200526031956.1897-2-longpeng2@huawei.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, Markus Elfring <Markus.Elfring@web.de>, "Longpeng(Mike)" <longpeng2@huawei.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
+<20200123101000.GB24255@Red>
+References: <20200526031956.1897-2-longpeng2@huawei.com>
+<20200123101000.GB24255@Red>
 
-> -----Original Message-----
-> From: Longpeng (Mike, Cloud Infrastructure Service Product Dept.)
-> Sent: Tuesday, May 26, 2020 11:20 AM
-> To: linux-crypto@vger.kernel.org
-> Cc: Longpeng (Mike, Cloud Infrastructure Service Product Dept.)
-> <longpeng2@huawei.com>; LABBE Corentin <clabbe@baylibre.com>; Gonglei
-> (Arei) <arei.gonglei@huawei.com>; Herbert Xu
-> <herbert@gondor.apana.org.au>; Michael S. Tsirkin <mst@redhat.com>; Jason
-> Wang <jasowang@redhat.com>; David S. Miller <davem@davemloft.net>;
-> Markus Elfring <Markus.Elfring@web.de>;
-> virtualization@lists.linux-foundation.org; linux-kernel@vger.kernel.org;
-> stable@vger.kernel.org
-> Subject: [PATCH v2 2/2] crypto: virtio: Fix use-after-free in
-> virtio_crypto_skcipher_finalize_req()
-> 
-> The system'll crash when the users insmod crypto/tcrypto.ko with mode=155
-> ( testing "authenc(hmac(sha1),cbc(aes))" ). It's caused by reuse the memory of
-> request structure.
-> 
-> In crypto_authenc_init_tfm(), the reqsize is set to:
->   [PART 1] sizeof(authenc_request_ctx) +
->   [PART 2] ictx->reqoff +
->   [PART 3] MAX(ahash part, skcipher part) and the 'PART 3' is used by both
-> ahash and skcipher in turn.
-> 
-> When the virtio_crypto driver finish skcipher req, it'll call ->complete callback(in
-> crypto_finalize_skcipher_request) and then free its resources whose pointers
-> are recorded in 'skcipher parts'.
-> 
-> However, the ->complete is 'crypto_authenc_encrypt_done' in this case, it will
-> use the 'ahash part' of the request and change its content, so virtio_crypto
-> driver will get the wrong pointer after ->complete finish and mistakenly free
-> some other's memory. So the system will crash when these memory will be used
-> again.
-> 
-> The resources which need to be cleaned up are not used any more. But the
-> pointers of these resources may be changed in the function
-> "crypto_finalize_skcipher_request". Thus release specific resources before
-> calling this function.
-> 
-> Fixes: dbaf0624ffa5 ("crypto: add virtio-crypto driver")
-> Reported-by: LABBE Corentin <clabbe@baylibre.com>
-> Cc: Gonglei <arei.gonglei@huawei.com>
-> Cc: Herbert Xu <herbert@gondor.apana.org.au>
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: Jason Wang <jasowang@redhat.com>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: Markus Elfring <Markus.Elfring@web.de>
-> Cc: virtualization@lists.linux-foundation.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: stable@vger.kernel.org
-> Message-Id: <20200123101000.GB24255@Red>
-> Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
-> ---
+Hi
 
-Acked-by: Gonglei <arei.gonglei@huawei.com>
+[This is an automated email]
 
-Regards,
--Gonglei
+This commit has been processed because it contains a "Fixes:" tag
+fixing commit: dbaf0624ffa5 ("crypto: add virtio-crypto driver").
 
->  drivers/crypto/virtio/virtio_crypto_algs.c | 5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/crypto/virtio/virtio_crypto_algs.c
-> b/drivers/crypto/virtio/virtio_crypto_algs.c
-> index 5f8243563009..52261b6c247e 100644
-> --- a/drivers/crypto/virtio/virtio_crypto_algs.c
-> +++ b/drivers/crypto/virtio/virtio_crypto_algs.c
-> @@ -582,10 +582,11 @@ static void virtio_crypto_skcipher_finalize_req(
->  		scatterwalk_map_and_copy(req->iv, req->dst,
->  					 req->cryptlen - AES_BLOCK_SIZE,
->  					 AES_BLOCK_SIZE, 0);
-> -	crypto_finalize_skcipher_request(vc_sym_req->base.dataq->engine,
-> -					   req, err);
->  	kzfree(vc_sym_req->iv);
->  	virtcrypto_clear_request(&vc_sym_req->base);
-> +
-> +	crypto_finalize_skcipher_request(vc_sym_req->base.dataq->engine,
-> +					   req, err);
->  }
-> 
->  static struct virtio_crypto_algo virtio_crypto_algs[] = { {
-> --
-> 2.23.0
+The bot has tested the following trees: v5.6.14, v5.4.42, v4.19.124, v4.14.181.
+
+v5.6.14: Build OK!
+v5.4.42: Failed to apply! Possible dependencies:
+    eee1d6fca0a0 ("crypto: virtio - switch to skcipher API")
+
+v4.19.124: Failed to apply! Possible dependencies:
+    eee1d6fca0a0 ("crypto: virtio - switch to skcipher API")
+
+v4.14.181: Failed to apply! Possible dependencies:
+    500e6807ce93 ("crypto: virtio - implement missing support for output IVs")
+    67189375bb3a ("crypto: virtio - convert to new crypto engine API")
+    d0d859bb87ac ("crypto: virtio - Register an algo only if it's supported")
+    e02b8b43f55a ("crypto: virtio - pr_err() strings should end with newlines")
+    eee1d6fca0a0 ("crypto: virtio - switch to skcipher API")
+
+
+NOTE: The patch will not be queued to stable trees until it is upstream.
+
+How should we proceed with this patch?
+
+-- 
+Thanks
+Sasha
