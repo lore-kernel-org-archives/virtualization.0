@@ -1,47 +1,93 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH v2 2/2] crypto: virtio: Fix use-after-free in virtio_crypto_skcipher_finalize_req()
-Date: Tue, 26 May 2020 14:11:37 +0000
-Message-ID: <20200526141138.8410D207FB__27528.789923393$1590502314$gmane$org@mail.kernel.org>
-References: <20200526031956.1897-3-longpeng2@huawei.com>
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20200526031956.1897-3-longpeng2@huawei.com>
-Sender: stable-owner@vger.kernel.org
-To: Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Cc: "Longpeng(Mike)" <longpeng2@huawei.com>, Gonglei <arei.gonglei@huawei.com>, Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, Markus Elfring <Markus.Elfring@web.de>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, stable@vger.kernel.orgstable@vger.kernel.org
+From: Alexander Duyck <alexander.duyck@gmail.com>
+Subject: Re: [PATCH v2 resubmit] virtio-balloon: Disable free page reporting
+ if page poison reporting is not enabled
+Date: Tue, 26 May 2020 08:13:08 -0700
+Message-ID: <CAKgT0UeGgeAExQRGsnJ0qmK_wqosdrmqUmYVtCw4aeSQ3APffg@mail.gmail.com>
+References: <20200508173732.17877.85060.stgit@localhost.localdomain> <CAKgT0Uce78v1tA6=KHuLNx7pTX324rokprNs32dE2UtsxWnXUg@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <virtio-dev-return-7403-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+In-Reply-To: <CAKgT0Uce78v1tA6=KHuLNx7pTX324rokprNs32dE2UtsxWnXUg@mail.gmail.com>
+To: Jason Wang <jasowang@redhat.com>, David Hildenbrand <david@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-<20200123101000.GB24255@Red>
-References: <20200526031956.1897-3-longpeng2@huawei.com>
-<20200123101000.GB24255@Red>
+Do I need to resubmit this patch? It has been over two weeks now since
+it was originally submitted, and a week and a half since I last sent
+out an email following up. I'm just wondering if there is some list I
+missed as I am assuming the maintainers and lists I contacted here are
+correct? It looks like we are at RC7 now so I am worried this won't
+make it in before LInus releases 5.7.
 
-Hi
+Thanks.
 
-[This is an automated email]
+- Alex
 
-This commit has been processed because it contains a "Fixes:" tag
-fixing commit: dbaf0624ffa5 ("crypto: add virtio-crypto driver").
-
-The bot has tested the following trees: v5.6.14, v5.4.42, v4.19.124, v4.14.181.
-
-v5.6.14: Build OK!
-v5.4.42: Failed to apply! Possible dependencies:
-    eee1d6fca0a0 ("crypto: virtio - switch to skcipher API")
-
-v4.19.124: Failed to apply! Possible dependencies:
-    eee1d6fca0a0 ("crypto: virtio - switch to skcipher API")
-
-v4.14.181: Failed to apply! Possible dependencies:
-    500e6807ce93 ("crypto: virtio - implement missing support for output IVs")
-    67189375bb3a ("crypto: virtio - convert to new crypto engine API")
-    d0d859bb87ac ("crypto: virtio - Register an algo only if it's supported")
-    e02b8b43f55a ("crypto: virtio - pr_err() strings should end with newlines")
-    eee1d6fca0a0 ("crypto: virtio - switch to skcipher API")
-
-
-NOTE: The patch will not be queued to stable trees until it is upstream.
-
-How should we proceed with this patch?
-
--- 
-Thanks
-Sasha
+On Fri, May 15, 2020 at 10:02 AM Alexander Duyck
+<alexander.duyck@gmail.com> wrote:
+>
+> Just following up. It has been a week since I submitted this. I was
+> hoping we could get it in for 5.7 since this affects free page
+> reporting which will be introduced with that kernel release.
+>
+> Thanks.
+>
+> - Alex
+>
+> On Fri, May 8, 2020 at 10:40 AM Alexander Duyck
+> <alexander.duyck@gmail.com> wrote:
+> >
+> > From: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+> >
+> > We should disable free page reporting if page poisoning is enabled but we
+> > cannot report it via the balloon interface. This way we can avoid the
+> > possibility of corrupting guest memory. Normally the page poisoning feature
+> > should always be present when free page reporting is enabled on the
+> > hypervisor, however this allows us to correctly handle a case of the
+> > virtio-balloon device being possibly misconfigured.
+> >
+> > Fixes: 5d757c8d518d ("virtio-balloon: add support for providing free page reports to host")
+> > Acked-by: David Hildenbrand <david@redhat.com>
+> > Signed-off-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+> > ---
+> >
+> > Changes since v1:
+> > Originally this patch also modified free page hinting, that has been removed.
+> > Updated patch title and description.
+> > Added a comment explaining reasoning for disabling free page reporting.
+> >
+> > Resbumitting v2 w/ Ack from David Hildebrand.
+> >
+> >  drivers/virtio/virtio_balloon.c |    9 ++++++++-
+> >  1 file changed, 8 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> > index 51086a5afdd4..1f157d2f4952 100644
+> > --- a/drivers/virtio/virtio_balloon.c
+> > +++ b/drivers/virtio/virtio_balloon.c
+> > @@ -1107,11 +1107,18 @@ static int virtballoon_restore(struct virtio_device *vdev)
+> >
+> >  static int virtballoon_validate(struct virtio_device *vdev)
+> >  {
+> > -       /* Tell the host whether we care about poisoned pages. */
+> > +       /*
+> > +        * Inform the hypervisor that our pages are poisoned or
+> > +        * initialized. If we cannot do that then we should disable
+> > +        * page reporting as it could potentially change the contents
+> > +        * of our free pages.
+> > +        */
+> >         if (!want_init_on_free() &&
+> >             (IS_ENABLED(CONFIG_PAGE_POISONING_NO_SANITY) ||
+> >              !page_poisoning_enabled()))
+> >                 __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_PAGE_POISON);
+> > +       else if (!virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON))
+> > +               __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
+> >
+> >         __virtio_clear_bit(vdev, VIRTIO_F_IOMMU_PLATFORM);
+> >         return 0;
+> >
