@@ -1,17 +1,17 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH v2 1/2] crypto: virtio: Fix src/dst scatterlist calculation in __virtio_crypto_skcipher_do_req()
-Date: Tue, 26 May 2020 14:11:36 +0000
-Message-ID: <20200526141137.6CD55207CB__49516.8010167376$1590502312$gmane$org@mail.kernel.org>
-References: <20200526031956.1897-2-longpeng2@huawei.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200526031956.1897-2-longpeng2@huawei.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: Re: [PATCH v2 2/2] crypto: virtio: Fix use-after-free in virtio_crypto_skcipher_finalize_req()
+Date: Tue, 26 May 2020 14:11:37 +0000
+Message-ID: <20200526141138.8410D207FB__27528.789923393$1590502314$gmane$org@mail.kernel.org>
+References: <20200526031956.1897-3-longpeng2@huawei.com>
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20200526031956.1897-3-longpeng2@huawei.com>
+Sender: stable-owner@vger.kernel.org
 To: Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Cc: "Longpeng(Mike)" <longpeng2@huawei.com>, Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, Markus Elfring <Markus.Elfring@web.de>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, stable@vger.kernel.orgstable@vger.kernel.org
+Cc: "Longpeng(Mike)" <longpeng2@huawei.com>, Gonglei <arei.gonglei@huawei.com>, Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, Markus Elfring <Markus.Elfring@web.de>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, stable@vger.kernel.orgstable@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 <20200123101000.GB24255@Red>
-References: <20200526031956.1897-2-longpeng2@huawei.com>
+References: <20200526031956.1897-3-longpeng2@huawei.com>
 <20200123101000.GB24255@Red>
 
 Hi
