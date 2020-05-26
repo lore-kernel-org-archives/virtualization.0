@@ -1,156 +1,43 @@
-From: Zhu Lingshan <lingshan.zhu@intel.com>
-Subject: [PATCH] vdpa: bypass waking up vhost_woker for vdpa vq kick
-Date: Tue, 26 May 2020 13:32:25 +0800
-Message-ID: <1590471145-4436-1-git-send-email-lingshan.zhu@intel.com>
-Return-path: <netdev-owner@vger.kernel.org>
-Sender: netdev-owner@vger.kernel.org
-To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, jasowang@redhat.com
-Cc: lulu@redhat.com, dan.daly@intel.com, cunming.liang@intel.com, Zhu Lingshan <lingshan.zhu@intel.com>
+From: Markus Elfring <Markus.Elfring@web.de>
+Subject: Re: [PATCH v2 1/2] crypto: virtio: Fix src/dst scatterlist
+ calculation in __virtio_crypto_skcipher_do_req()
+Date: Tue, 26 May 2020 09:03:21 +0200
+Message-ID: <d58a046a-e559-55be-16ba-64db43a06568@web.de>
+References: <20200526031956.1897-1-longpeng2@huawei.com>
+ <20200526031956.1897-2-longpeng2@huawei.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20200526031956.1897-2-longpeng2@huawei.com>
+Content-Language: en-GB
+Sender: stable-owner@vger.kernel.org
+To: "Longpeng(Mike)" <longpeng2@huawei.com>, linux-crypto@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Corentin Labbe <clabbe@baylibre.com>, Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, Gonglei <arei.gonglei@huawei.com>, linux-kernel@vger.kernel.org, stable@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Standard vhost devices rely on waking up a vhost_worker to kick
-a virtquque. However vdpa devices have hardware backends, so it
-does not need this waking up routin. In this commit, vdpa device
-will kick a virtqueue directly, reduce the performance overhead
-caused by waking up a vhost_woker.
+> Fix it by sg_next() on calculation of src/dst scatterlist.
 
-Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
-Suggested-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vhost/vdpa.c | 100 +++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 100 insertions(+)
+Wording adjustment:
+=E2=80=A6 by calling the function =E2=80=9Csg_next=E2=80=9D =E2=80=A6
 
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index 0968361..d3a2aca 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -287,6 +287,66 @@ static long vhost_vdpa_get_vring_num(struct vhost_vdpa *v, u16 __user *argp)
- 
- 	return 0;
- }
-+void vhost_vdpa_poll_stop(struct vhost_virtqueue *vq)
-+{
-+	vhost_poll_stop(&vq->poll);
-+}
-+
-+int vhost_vdpa_poll_start(struct vhost_virtqueue *vq)
-+{
-+	struct vhost_poll *poll = &vq->poll;
-+	struct file *file = vq->kick;
-+	__poll_t mask;
-+
-+
-+	if (poll->wqh)
-+		return 0;
-+
-+	mask = vfs_poll(file, &poll->table);
-+	if (mask)
-+		vq->handle_kick(&vq->poll.work);
-+	if (mask & EPOLLERR) {
-+		vhost_poll_stop(poll);
-+		return -EINVAL;
-+	}
-+
-+	return 0;
-+}
-+
-+static long vhost_vdpa_set_vring_kick(struct vhost_virtqueue *vq,
-+				      void __user *argp)
-+{
-+	bool pollstart = false, pollstop = false;
-+	struct file *eventfp, *filep = NULL;
-+	struct vhost_vring_file f;
-+	long r;
-+
-+	if (copy_from_user(&f, argp, sizeof(f)))
-+		return -EFAULT;
-+
-+	eventfp = f.fd == -1 ? NULL : eventfd_fget(f.fd);
-+	if (IS_ERR(eventfp)) {
-+		r = PTR_ERR(eventfp);
-+		return r;
-+	}
-+
-+	if (eventfp != vq->kick) {
-+		pollstop = (filep = vq->kick) != NULL;
-+		pollstart = (vq->kick = eventfp) != NULL;
-+	} else
-+		filep = eventfp;
-+
-+	if (pollstop && vq->handle_kick)
-+		vhost_vdpa_poll_stop(vq);
-+
-+	if (filep)
-+		fput(filep);
-+
-+	if (pollstart && vq->handle_kick)
-+		r = vhost_vdpa_poll_start(vq);
-+
-+	return r;
-+}
- 
- static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
- 				   void __user *argp)
-@@ -316,6 +376,11 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
- 		return 0;
- 	}
- 
-+	if (cmd == VHOST_SET_VRING_KICK) {
-+		r = vhost_vdpa_set_vring_kick(vq, argp);
-+		return r;
-+	}
-+
- 	if (cmd == VHOST_GET_VRING_BASE)
- 		vq->last_avail_idx = ops->get_vq_state(v->vdpa, idx);
- 
-@@ -667,6 +732,39 @@ static void vhost_vdpa_free_domain(struct vhost_vdpa *v)
- 	v->domain = NULL;
- }
- 
-+static int vhost_vdpa_poll_worker(wait_queue_entry_t *wait, unsigned int mode,
-+				  int sync, void *key)
-+{
-+	struct vhost_poll *poll = container_of(wait, struct vhost_poll, wait);
-+	struct vhost_virtqueue *vq = container_of(poll, struct vhost_virtqueue,
-+						  poll);
-+
-+	if (!(key_to_poll(key) & poll->mask))
-+		return 0;
-+
-+	vq->handle_kick(&vq->poll.work);
-+
-+	return 0;
-+}
-+
-+void vhost_vdpa_poll_init(struct vhost_dev *dev)
-+{
-+	struct vhost_virtqueue *vq;
-+	struct vhost_poll *poll;
-+	int i;
-+
-+	for (i = 0; i < dev->nvqs; i++) {
-+		vq = dev->vqs[i];
-+		poll = &vq->poll;
-+		if (vq->handle_kick) {
-+			init_waitqueue_func_entry(&poll->wait,
-+						  vhost_vdpa_poll_worker);
-+			poll->work.fn = vq->handle_kick;
-+		}
-+
-+	}
-+}
-+
- static int vhost_vdpa_open(struct inode *inode, struct file *filep)
- {
- 	struct vhost_vdpa *v;
-@@ -697,6 +795,8 @@ static int vhost_vdpa_open(struct inode *inode, struct file *filep)
- 	vhost_dev_init(dev, vqs, nvqs, 0, 0, 0,
- 		       vhost_vdpa_process_iotlb_msg);
- 
-+	vhost_vdpa_poll_init(dev);
-+
- 	dev->iotlb = vhost_iotlb_alloc(0, 0);
- 	if (!dev->iotlb) {
- 		r = -ENOMEM;
--- 
-1.8.3.1
+
+=E2=80=A6
+> +++ b/drivers/crypto/virtio/virtio_crypto_algs.c
+> @@ -350,13 +350,18 @@ __virtio_crypto_skcipher_do_req(struct virtio_cryp=
+to_sym_request *vc_sym_req,
+=E2=80=A6
+>  	src_nents =3D sg_nents_for_len(req->src, req->cryptlen);
+> +	if (src_nents < 0) {
+> +		pr_err("Invalid number of src SG.\n");
+> +		return src_nents;
+> +	}
+> +
+>  	dst_nents =3D sg_nents(req->dst);
+=E2=80=A6
+
+I suggest to move the addition of such input parameter validation
+to a separate update step.
+
+Regards,
+Markus
