@@ -1,14 +1,14 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH v2 1/2] crypto: virtio: Fix src/dst scatterlist
- calculation in __virtio_crypto_skcipher_do_req()
-Date: Tue, 26 May 2020 14:11:36 +0000
-Message-ID: <20200526141137.6CD55207CB@mail.kernel.org>
-References: <20200526031956.1897-2-longpeng2@huawei.com>
+Subject: Re: [PATCH v2 2/2] crypto: virtio: Fix use-after-free in
+ virtio_crypto_skcipher_finalize_req()
+Date: Tue, 26 May 2020 14:11:37 +0000
+Message-ID: <20200526141138.8410D207FB@mail.kernel.org>
+References: <20200526031956.1897-3-longpeng2@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200526031956.1897-2-longpeng2@huawei.com>
+In-Reply-To: <20200526031956.1897-3-longpeng2@huawei.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -23,7 +23,7 @@ Cc: Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.c
 List-Id: virtualization@lists.linuxfoundation.org
 
 <20200123101000.GB24255@Red>
-References: <20200526031956.1897-2-longpeng2@huawei.com>
+References: <20200526031956.1897-3-longpeng2@huawei.com>
 <20200123101000.GB24255@Red>
 
 Hi
