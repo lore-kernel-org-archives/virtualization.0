@@ -1,181 +1,59 @@
-From: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Subject: Re: [PATCH v2 5/5] vhost: add an RPMsg API
-Date: Wed, 27 May 2020 19:47:19 +0200
-Message-ID: <20200527174719.GA4846@ubuntu>
-References: <20200525144458.8413-1-guennadi.liakhovetski@linux.intel.com>
- <20200525144458.8413-6-guennadi.liakhovetski@linux.intel.com>
- <20200526205039.GA20104@xps15>
+From: Tom Lendacky <thomas.lendacky@amd.com>
+Subject: Re: [PATCH v3 64/75] x86/sev-es: Cache CPUID results for improved
+ performance
+Date: Wed, 27 May 2020 12:49:06 -0500
+Message-ID: <cab5e409-be9e-f2c7-424f-6b7d031324dc@amd.com>
+References: <20200428151725.31091-1-joro@8bytes.org>
+ <20200428151725.31091-65-joro@8bytes.org>
+ <20200520051637.GA16599@linux.intel.com> <20200526091909.GB28228@zn.tnic>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200526205039.GA20104@xps15>
-Sender: kvm-owner@vger.kernel.org
-To: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: kvm@vger.kernel.org, linux-remoteproc@vger.kernel.org, virtualization@lists.linux-foundation.org, sound-open-firmware@alsa-project.org, Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>, Liam Girdwood <liam.r.girdwood@linux.intel.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Ohad Ben-Cohen <ohad@wizery.com>, Bjorn Andersson <bjorn.andersson@linaro.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200526091909.GB28228@zn.tnic>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Borislav Petkov <bp@alien8.de>, Sean Christopherson <sean.j.christopherson@intel.com>
+Cc: Joerg Roedel <joro@8bytes.org>, x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Mathieu,
-
-On Tue, May 26, 2020 at 02:50:39PM -0600, Mathieu Poirier wrote:
-> Hi Guennadi,
+On 5/26/20 4:19 AM, Borislav Petkov wrote:
+> On Tue, May 19, 2020 at 10:16:37PM -0700, Sean Christopherson wrote:
+>> The whole cache on-demand approach seems like overkill.  The number of CPUID
+>> leaves that are invoked after boot with any regularity can probably be counted
+>> on one hand.   IIRC glibc invokes CPUID to gather TLB/cache info, XCR0-based
+>> features, and one or two other leafs.  A statically sized global array that's
+>> arbitrarily index a la x86_capability would be just as simple and more
+>> performant.  It would also allow fancier things like emulating CPUID 0xD in
+>> the guest if you want to go down that road.
 > 
-> On Mon, May 25, 2020 at 04:44:58PM +0200, Guennadi Liakhovetski wrote:
-> > Linux supports running the RPMsg protocol over the VirtIO transport
-> > protocol, but currently there is only support for VirtIO clients and
-> > no support for a VirtIO server. This patch adds a vhost-based RPMsg
-> > server implementation.
-> > 
-> > Signed-off-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-> > ---
-> >  drivers/vhost/Kconfig       |   7 +
-> >  drivers/vhost/Makefile      |   3 +
-> >  drivers/vhost/rpmsg.c       | 372 ++++++++++++++++++++++++++++++++++++++++++++
-> >  drivers/vhost/vhost_rpmsg.h |  74 +++++++++
-> >  4 files changed, 456 insertions(+)
-> >  create mode 100644 drivers/vhost/rpmsg.c
-> >  create mode 100644 drivers/vhost/vhost_rpmsg.h
+> And before we do any of that "caching" or whatnot, I'd like to see
+> numbers justifying its existence. Because if it is only a couple of
+> CPUID invocations and the boot delay is immeasurable, then it's not
+> worth the effort.
 
-[snip]
+I added some rudimentary stats code to see how many times there was a 
+CPUID cache hit on a 64-vCPU guest during a kernel build (make clean 
+followed by make with -j 64):
 
-> > +/* send namespace */
-> > +int vhost_rpmsg_ns_announce(struct vhost_rpmsg *vr, const char *name,
-> > +			    unsigned int src)
-> > +{
-> > +	struct vhost_rpmsg_iter iter = {
-> > +		.rhdr = {
-> > +			.src = 0,
-> > +			.dst = RPMSG_NS_ADDR,
-> > +			.flags = RPMSG_NS_CREATE, /* rpmsg_recv_single() */
-> > +		},
-> > +	};
-> > +	struct rpmsg_ns_msg ns = {
-> > +		.addr = src,
-> > +		.flags = RPMSG_NS_CREATE, /* for rpmsg_ns_cb() */
-> > +	};
+   SEV-ES CPUID cache statistics
+     0x00000000/0x00000000: 220,384
+     0x00000007/0x00000000: 213,306
+     0x80000000/0x00000000: 1,054,642
+     0x80000001/0x00000000: 213,306
+     0x80000005/0x00000000: 210,334
+     0x80000006/0x00000000: 420,668
+     0x80000007/0x00000000: 210,334
+     0x80000008/0x00000000: 420,684
+
+     2,963,658 cache hits
+
+So it is significant in quantity, but I'm not sure what the overall 
+performance difference is. If I can find some more time I'll try to 
+compare the kernel builds with and without the caching to see if it is 
+noticeable.
+
+Thanks,
+Tom
+
 > 
-> I think it would be worth mentioning that someone on the guest side needs to
-> call register_virtio_device() with a vdev->id->device == VIRTIO_ID_RPMSG,
-> something that will match that device to the virtio_ipc_driver.  Otherwise the
-> connection between them is very difficult to establish.
-
-In fact you don't want to use just one ID, as you add more drivers, using RPMsg 
-over VirtIO, you'll add more IDs to the ID table in virtio_rpmsg_bus.c. I am 
-adding a comment at the top of this file to explain that.
-
-Thanks
-Guennadi
-
-> Aside from the checkpatch warning I already pointed out, I don't have much else.
-> 
-> Thanks,
-> Mathieu
-> 
-> > +	int ret = vhost_rpmsg_start_lock(vr, &iter, VIRTIO_RPMSG_RESPONSE,
-> > +					 sizeof(ns));
-> > +
-> > +	if (ret < 0)
-> > +		return ret;
-> > +
-> > +	strlcpy(ns.name, name, sizeof(ns.name));
-> > +
-> > +	ret = vhost_rpmsg_copy(vr, &iter, &ns, sizeof(ns));
-> > +	if (ret != sizeof(ns))
-> > +		vq_err(iter.vq, "%s(): added %d instead of %zu bytes\n",
-> > +		       __func__, ret, sizeof(ns));
-> > +
-> > +	ret = vhost_rpmsg_finish_unlock(vr, &iter);
-> > +	if (ret < 0)
-> > +		vq_err(iter.vq, "%s(): namespace announcement failed: %d\n",
-> > +		       __func__, ret);
-> > +
-> > +	return ret;
-> > +}
-> > +EXPORT_SYMBOL_GPL(vhost_rpmsg_ns_announce);
-> > +
-> > +MODULE_LICENSE("GPL v2");
-> > +MODULE_AUTHOR("Intel, Inc.");
-> > +MODULE_DESCRIPTION("Vhost RPMsg API");
-> > diff --git a/drivers/vhost/vhost_rpmsg.h b/drivers/vhost/vhost_rpmsg.h
-> > new file mode 100644
-> > index 00000000..5248ac9
-> > --- /dev/null
-> > +++ b/drivers/vhost/vhost_rpmsg.h
-> > @@ -0,0 +1,74 @@
-> > +/* SPDX-License-Identifier: (GPL-2.0) */
-> > +/*
-> > + * Copyright(c) 2020 Intel Corporation. All rights reserved.
-> > + *
-> > + * Author: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-> > + */
-> > +
-> > +#ifndef VHOST_RPMSG_H
-> > +#define VHOST_RPMSG_H
-> > +
-> > +#include <linux/uio.h>
-> > +#include <linux/virtio_rpmsg.h>
-> > +
-> > +#include "vhost.h"
-> > +
-> > +/* RPMsg uses two VirtQueues: one for each direction */
-> > +enum {
-> > +	VIRTIO_RPMSG_RESPONSE,	/* RPMsg response (host->guest) buffers */
-> > +	VIRTIO_RPMSG_REQUEST,	/* RPMsg request (guest->host) buffers */
-> > +	/* Keep last */
-> > +	VIRTIO_RPMSG_NUM_OF_VQS,
-> > +};
-> > +
-> > +struct vhost_rpmsg_ept;
-> > +
-> > +struct vhost_rpmsg_iter {
-> > +	struct iov_iter iov_iter;
-> > +	struct rpmsg_hdr rhdr;
-> > +	struct vhost_virtqueue *vq;
-> > +	const struct vhost_rpmsg_ept *ept;
-> > +	int head;
-> > +	void *priv;
-> > +};
-> > +
-> > +struct vhost_rpmsg {
-> > +	struct vhost_dev dev;
-> > +	struct vhost_virtqueue vq[VIRTIO_RPMSG_NUM_OF_VQS];
-> > +	struct vhost_virtqueue *vq_p[VIRTIO_RPMSG_NUM_OF_VQS];
-> > +	const struct vhost_rpmsg_ept *ept;
-> > +	unsigned int n_epts;
-> > +};
-> > +
-> > +struct vhost_rpmsg_ept {
-> > +	ssize_t (*read)(struct vhost_rpmsg *, struct vhost_rpmsg_iter *);
-> > +	ssize_t (*write)(struct vhost_rpmsg *, struct vhost_rpmsg_iter *);
-> > +	int addr;
-> > +};
-> > +
-> > +static inline size_t vhost_rpmsg_iter_len(const struct vhost_rpmsg_iter *iter)
-> > +{
-> > +	return iter->rhdr.len;
-> > +}
-> > +
-> > +#define VHOST_RPMSG_ITER(_src, _dst) {	\
-> > +	.rhdr = {			\
-> > +			.src = _src,	\
-> > +			.dst = _dst,	\
-> > +		},			\
-> > +	}
-> > +
-> > +void vhost_rpmsg_init(struct vhost_rpmsg *vr, const struct vhost_rpmsg_ept *ept,
-> > +		      unsigned int n_epts);
-> > +void vhost_rpmsg_destroy(struct vhost_rpmsg *vr);
-> > +int vhost_rpmsg_ns_announce(struct vhost_rpmsg *vr, const char *name,
-> > +			    unsigned int src);
-> > +int vhost_rpmsg_start_lock(struct vhost_rpmsg *vr,
-> > +			   struct vhost_rpmsg_iter *iter,
-> > +			   unsigned int qid, ssize_t len);
-> > +size_t vhost_rpmsg_copy(struct vhost_rpmsg *vr, struct vhost_rpmsg_iter *iter,
-> > +			void *data, size_t size);
-> > +int vhost_rpmsg_finish_unlock(struct vhost_rpmsg *vr,
-> > +			      struct vhost_rpmsg_iter *iter);
-> > +
-> > +#endif
-> > -- 
-> > 1.9.3
-> > 
