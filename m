@@ -1,33 +1,49 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH] vdpa: fix typos in the comments for __vdpa_alloc_device()
-Date: Wed, 27 May 2020 14:05:28 +0800
-Message-ID: <20200527060528.9100-1-jasowang@redhat.com>
+From: kbuild test robot <lkp@intel.com>
+Subject: [RFC PATCH] vdpa: vhost_vdpa_poll_stop() can be static
+Date: Wed, 27 May 2020 17:16:46 +0800
+Message-ID: <20200527091646.GA80910@369e1fe990b8>
+References: <1590471145-4436-1-git-send-email-lingshan.zhu@intel.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <1590471145-4436-1-git-send-email-lingshan.zhu@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+To: mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, jasowang@redhat.com
+Cc: kbuild-all@lists.01.org, lulu@redhat.com, dan.daly@intel.com, cunming.liang@intel.com, Zhu Lingshan <lingshan.zhu@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Fix two typos in the comments for __vdpa_alloc_device().
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: kbuild test robot <lkp@intel.com>
 ---
- drivers/vdpa/vdpa.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ vdpa.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-index ff6562f602e0..de211ef3738c 100644
---- a/drivers/vdpa/vdpa.c
-+++ b/drivers/vdpa/vdpa.c
-@@ -63,7 +63,7 @@ static void vdpa_release_dev(struct device *d)
-  * @config: the bus operations that is supported by this device
-  * @size: size of the parent structure that contains private data
-  *
-- * Drvier should use vdap_alloc_device() wrapper macro instead of
-+ * Driver should use vdpa_alloc_device() wrapper macro instead of
-  * using this directly.
-  *
-  * Returns an error when parent/config/dma_dev is not set or fail to get
--- 
-2.20.1
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index d3a2acafedecd4..5037ce7f48cd42 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -287,12 +287,12 @@ static long vhost_vdpa_get_vring_num(struct vhost_vdpa *v, u16 __user *argp)
+ 
+ 	return 0;
+ }
+-void vhost_vdpa_poll_stop(struct vhost_virtqueue *vq)
++static void vhost_vdpa_poll_stop(struct vhost_virtqueue *vq)
+ {
+ 	vhost_poll_stop(&vq->poll);
+ }
+ 
+-int vhost_vdpa_poll_start(struct vhost_virtqueue *vq)
++static int vhost_vdpa_poll_start(struct vhost_virtqueue *vq)
+ {
+ 	struct vhost_poll *poll = &vq->poll;
+ 	struct file *file = vq->kick;
+@@ -747,7 +747,7 @@ static int vhost_vdpa_poll_worker(wait_queue_entry_t *wait, unsigned int mode,
+ 	return 0;
+ }
+ 
+-void vhost_vdpa_poll_init(struct vhost_dev *dev)
++static void vhost_vdpa_poll_init(struct vhost_dev *dev)
+ {
+ 	struct vhost_virtqueue *vq;
+ 	struct vhost_poll *poll;
