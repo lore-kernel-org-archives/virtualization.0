@@ -1,62 +1,51 @@
 From: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Subject: [PATCH v3 0/5] Add a vhost RPMsg API
-Date: Wed, 27 May 2020 20:05:36 +0200
-Message-ID: <20200527180541.5570-1-guennadi.liakhovetski@linux.intel.com>
+Subject: [PATCH v3 1/5] vhost: convert VHOST_VSOCK_SET_RUNNING to a generic ioctl
+Date: Wed, 27 May 2020 20:05:37 +0200
+Message-ID: <20200527180541.5570-2-guennadi.liakhovetski@linux.intel.com>
+References: <20200527180541.5570-1-guennadi.liakhovetski@linux.intel.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20200527180541.5570-1-guennadi.liakhovetski@linux.intel.com>
 Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
 Cc: linux-remoteproc@vger.kernel.org, virtualization@lists.linux-foundation.org, sound-open-firmware@alsa-project.org, Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>, Liam Girdwood <liam.r.girdwood@linux.intel.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Ohad Ben-Cohen <ohad@wizery.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Mathieu Poirier <mathieu.poirier@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-v3:
-- address several checkpatch warnings
-- address comments from Mathieu Poirier
+VHOST_VSOCK_SET_RUNNING is used by the vhost vsock driver to perform
+crucial VirtQueue initialisation, like assigning .private fields and
+calling vhost_vq_init_access(), and clean up. However, this ioctl is
+actually extremely useful for any vhost driver, that doesn't have a
+side channel to inform it of a status change, e.g. upon a guest
+reboot. This patch makes that ioctl generic, while preserving its
+numeric value and also keeping the original alias.
 
-v2:
-- update patch #5 with a correct vhost_dev_init() prototype
-- drop patch #6 - it depends on a different patch, that is currently
-  an RFC
-- address comments from Pierre-Louis Bossart:
-  * remove "default n" from Kconfig
+Signed-off-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+---
+ include/uapi/linux/vhost.h | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-Linux supports RPMsg over VirtIO for "remote processor" /AMP use
-cases. It can however also be used for virtualisation scenarios,
-e.g. when using KVM to run Linux on both the host and the guests.
-This patch set adds a wrapper API to facilitate writing vhost
-drivers for such RPMsg-based solutions. The first use case is an
-audio DSP virtualisation project, currently under development, ready
-for review and submission, available at
-https://github.com/thesofproject/linux/pull/1501/commits
-A further patch for the ADSP vhost RPMsg driver will be sent
-separately for review only since it cannot be merged without audio
-patches being upstreamed first.
-
-Thanks
-Guennadi
-
-Guennadi Liakhovetski (5):
-  vhost: convert VHOST_VSOCK_SET_RUNNING to a generic ioctl
-  vhost: (cosmetic) remove a superfluous variable initialisation
-  rpmsg: move common structures and defines to headers
-  rpmsg: update documentation
-  vhost: add an RPMsg API
-
- Documentation/rpmsg.txt          |   6 +-
- drivers/rpmsg/virtio_rpmsg_bus.c |  78 +-------
- drivers/vhost/Kconfig            |   7 +
- drivers/vhost/Makefile           |   3 +
- drivers/vhost/rpmsg.c            | 382 +++++++++++++++++++++++++++++++++++++++
- drivers/vhost/vhost.c            |   2 +-
- drivers/vhost/vhost_rpmsg.h      |  74 ++++++++
- include/linux/virtio_rpmsg.h     |  81 +++++++++
- include/uapi/linux/rpmsg.h       |   3 +
- include/uapi/linux/vhost.h       |   4 +-
- 10 files changed, 559 insertions(+), 81 deletions(-)
- create mode 100644 drivers/vhost/rpmsg.c
- create mode 100644 drivers/vhost/vhost_rpmsg.h
- create mode 100644 include/linux/virtio_rpmsg.h
-
+diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+index 9fe72e4..b54af9d 100644
+--- a/include/uapi/linux/vhost.h
++++ b/include/uapi/linux/vhost.h
+@@ -93,6 +93,8 @@
+ #define VHOST_SET_BACKEND_FEATURES _IOW(VHOST_VIRTIO, 0x25, __u64)
+ #define VHOST_GET_BACKEND_FEATURES _IOR(VHOST_VIRTIO, 0x26, __u64)
+ 
++#define VHOST_SET_RUNNING _IOW(VHOST_VIRTIO, 0x61, int)
++
+ /* VHOST_NET specific defines */
+ 
+ /* Attach virtio net ring to a raw socket, or tap device.
+@@ -114,7 +116,7 @@
+ /* VHOST_VSOCK specific defines */
+ 
+ #define VHOST_VSOCK_SET_GUEST_CID	_IOW(VHOST_VIRTIO, 0x60, __u64)
+-#define VHOST_VSOCK_SET_RUNNING		_IOW(VHOST_VIRTIO, 0x61, int)
++#define VHOST_VSOCK_SET_RUNNING		VHOST_SET_RUNNING
+ 
+ /* VHOST_VDPA specific defines */
+ 
 -- 
 1.9.3
