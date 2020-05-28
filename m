@@ -1,54 +1,208 @@
-From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH v4 0/3] Support virtio cross-device resources
-Date: Thu, 28 May 2020 10:31:15 +0200
-Message-ID: <20200528083115.a6p3y24x3vqzcj4k@sirius.home.kraxel.org>
-References: <20200526105811.30784-1-stevensd@chromium.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] vdpa: bypass waking up vhost_woker for vdpa vq kick
+Date: Thu, 28 May 2020 18:06:15 +0800
+Message-ID: <a21bf980-c001-4728-0f08-69494f31fe98@redhat.com>
+References: <1590471145-4436-1-git-send-email-lingshan.zhu@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <virtio-dev-return-7420-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-Content-Disposition: inline
-In-Reply-To: <20200526105811.30784-1-stevensd@chromium.org>
-To: David Stevens <stevensd@chromium.org>
-Cc: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Sumit Semwal <sumit.semwal@linaro.org>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org, virtio-dev@lists.oasis-open.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1590471145-4436-1-git-send-email-lingshan.zhu@intel.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Zhu Lingshan <lingshan.zhu@intel.com>, mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Cc: lulu@redhat.com, dan.daly@intel.com, cunming.liang@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, May 26, 2020 at 07:58:08PM +0900, David Stevens wrote:
-> This patchset implements the current proposal for virtio cross-device
-> resource sharing [1]. It will be used to import virtio resources into
-> the virtio-video driver currently under discussion [2]. The patch
-> under consideration to add support in the virtio-video driver is [3].
-> It uses the APIs from v3 of this series, but the changes to update it
-> are relatively minor.
-> 
-> This patchset adds a new flavor of dma-bufs that supports querying the
-> underlying virtio object UUID, as well as adding support for exporting
-> resources from virtgpu.
-> 
-> [1] https://markmail.org/thread/2ypjt5cfeu3m6lxu
-> [2] https://markmail.org/thread/p5d3k566srtdtute
-> [3] https://markmail.org/thread/j4xlqaaim266qpks
-> 
-> v3 -> v4 changes:
->  - Replace dma-buf hooks with virtio dma-buf from v1.
->  - Remove virtio_attach callback, as the work that had been done
->    in that callback is now done on dma-buf export. The documented
->    requirement that get_uuid only be called on attached virtio
->    dma-bufs is also removed.
->  - Rebase and add call to virtio_gpu_notify for ASSIGN_UUID.
-> 
-> David Stevens (3):
->   virtio: add dma-buf support for exported objects
->   virtio-gpu: add VIRTIO_GPU_F_RESOURCE_UUID feature
->   drm/virtio: Support virtgpu exported resources
 
-Looks all sane to me.  mst, have you looked at the virtio core changes?
-How we are going to merge this?  If you ack I can merge via
-drm-misc-next.  Merging through virtio queue would be fine too.
+On 2020/5/26 下午1:32, Zhu Lingshan wrote:
+> Standard vhost devices rely on waking up a vhost_worker to kick
+> a virtquque. However vdpa devices have hardware backends, so it
+> does not need this waking up routin. In this commit, vdpa device
+> will kick a virtqueue directly, reduce the performance overhead
+> caused by waking up a vhost_woker.
 
-thanks,
-  Gerd
+
+Thanks for the patch. It would be helpful if you can share some 
+performance numbers.
+
+And the title should be "vhost-vdpa:" instead of "vdpa:"
+
+This patch is important since we want to get rid of ktrhead and 
+use_mm()/unuse_mm() stuffs which allows us to implement doorbell mapping.
+
+
+>
+> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+> Suggested-by: Jason Wang <jasowang@redhat.com>
+> ---
+>   drivers/vhost/vdpa.c | 100 +++++++++++++++++++++++++++++++++++++++++++++++++++
+>   1 file changed, 100 insertions(+)
+>
+> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> index 0968361..d3a2aca 100644
+> --- a/drivers/vhost/vdpa.c
+> +++ b/drivers/vhost/vdpa.c
+> @@ -287,6 +287,66 @@ static long vhost_vdpa_get_vring_num(struct vhost_vdpa *v, u16 __user *argp)
+>   
+>   	return 0;
+>   }
+> +void vhost_vdpa_poll_stop(struct vhost_virtqueue *vq)
+> +{
+> +	vhost_poll_stop(&vq->poll);
+> +}
+> +
+> +int vhost_vdpa_poll_start(struct vhost_virtqueue *vq)
+> +{
+> +	struct vhost_poll *poll = &vq->poll;
+> +	struct file *file = vq->kick;
+> +	__poll_t mask;
+> +
+> +
+> +	if (poll->wqh)
+> +		return 0;
+> +
+> +	mask = vfs_poll(file, &poll->table);
+> +	if (mask)
+> +		vq->handle_kick(&vq->poll.work);
+> +	if (mask & EPOLLERR) {
+> +		vhost_poll_stop(poll);
+> +		return -EINVAL;
+> +	}
+> +
+> +	return 0;
+> +}
+
+
+So this basically a duplication of vhost_poll_start()?
+
+
+> +
+> +static long vhost_vdpa_set_vring_kick(struct vhost_virtqueue *vq,
+> +				      void __user *argp)
+> +{
+> +	bool pollstart = false, pollstop = false;
+> +	struct file *eventfp, *filep = NULL;
+> +	struct vhost_vring_file f;
+> +	long r;
+> +
+> +	if (copy_from_user(&f, argp, sizeof(f)))
+> +		return -EFAULT;
+> +
+> +	eventfp = f.fd == -1 ? NULL : eventfd_fget(f.fd);
+> +	if (IS_ERR(eventfp)) {
+> +		r = PTR_ERR(eventfp);
+> +		return r;
+> +	}
+> +
+> +	if (eventfp != vq->kick) {
+> +		pollstop = (filep = vq->kick) != NULL;
+> +		pollstart = (vq->kick = eventfp) != NULL;
+> +	} else
+> +		filep = eventfp;
+> +
+> +	if (pollstop && vq->handle_kick)
+> +		vhost_vdpa_poll_stop(vq);
+> +
+> +	if (filep)
+> +		fput(filep);
+> +
+> +	if (pollstart && vq->handle_kick)
+> +		r = vhost_vdpa_poll_start(vq);
+> +
+> +	return r;
+> +}
+>   
+>   static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
+>   				   void __user *argp)
+> @@ -316,6 +376,11 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
+>   		return 0;
+>   	}
+>   
+> +	if (cmd == VHOST_SET_VRING_KICK) {
+> +		r = vhost_vdpa_set_vring_kick(vq, argp);
+> +		return r;
+> +	}
+> +
+>   	if (cmd == VHOST_GET_VRING_BASE)
+>   		vq->last_avail_idx = ops->get_vq_state(v->vdpa, idx);
+>   
+> @@ -667,6 +732,39 @@ static void vhost_vdpa_free_domain(struct vhost_vdpa *v)
+>   	v->domain = NULL;
+>   }
+>   
+> +static int vhost_vdpa_poll_worker(wait_queue_entry_t *wait, unsigned int mode,
+> +				  int sync, void *key)
+> +{
+> +	struct vhost_poll *poll = container_of(wait, struct vhost_poll, wait);
+> +	struct vhost_virtqueue *vq = container_of(poll, struct vhost_virtqueue,
+> +						  poll);
+> +
+> +	if (!(key_to_poll(key) & poll->mask))
+> +		return 0;
+> +
+> +	vq->handle_kick(&vq->poll.work);
+> +
+> +	return 0;
+> +}
+> +
+> +void vhost_vdpa_poll_init(struct vhost_dev *dev)
+> +{
+> +	struct vhost_virtqueue *vq;
+> +	struct vhost_poll *poll;
+> +	int i;
+> +
+> +	for (i = 0; i < dev->nvqs; i++) {
+> +		vq = dev->vqs[i];
+> +		poll = &vq->poll;
+> +		if (vq->handle_kick) {
+> +			init_waitqueue_func_entry(&poll->wait,
+> +						  vhost_vdpa_poll_worker);
+> +			poll->work.fn = vq->handle_kick;
+
+
+Why this is needed?
+
+
+> +		}
+> +
+> +	}
+> +}
+> +
+>   static int vhost_vdpa_open(struct inode *inode, struct file *filep)
+>   {
+>   	struct vhost_vdpa *v;
+> @@ -697,6 +795,8 @@ static int vhost_vdpa_open(struct inode *inode, struct file *filep)
+>   	vhost_dev_init(dev, vqs, nvqs, 0, 0, 0,
+>   		       vhost_vdpa_process_iotlb_msg);
+>   
+> +	vhost_vdpa_poll_init(dev);
+> +
+>   	dev->iotlb = vhost_iotlb_alloc(0, 0);
+>   	if (!dev->iotlb) {
+>   		r = -ENOMEM;
+
+
+So my feeling here is that you want to reuse the infrastructure in 
+vhost.c as much as possible
+
+If this is true, let's just avoid duplicating the codes. How about 
+adding something like in vhost_poll_wakeup():
+
+
+     struct vhost_poll *poll = container_of(wait, struct vhost_poll, wait);
+     struct vhost_work *work = &poll->work;
+
+     if (!(key_to_poll(key) & poll->mask))
+         return 0;
+
+     if (!poll->dev->use_worker)
+         work->fn(work);
+     else
+         vhost_poll_queue(poll);
+
+
+Then modify vhost_dev_init() to set use_worker (all true except for vdpa)?
+
+
+Thanks
