@@ -1,45 +1,54 @@
 From: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: Potential Memory Leak Bugs in
- drivers/gpu/drm/virtio/virtgpu_vq.c (Linux 5.6).
-Date: Thu, 28 May 2020 10:25:23 +0200
-Message-ID: <20200528082523.mvurcvr6ohbziad5@sirius.home.kraxel.org>
-References: <CAFSR4ctYjWc8LSqb96Suwprv9=Gd0+vVPZ5pLn+5u1CV7wTq9Q@mail.gmail.com>
+Subject: Re: [PATCH v4 0/3] Support virtio cross-device resources
+Date: Thu, 28 May 2020 10:31:15 +0200
+Message-ID: <20200528083115.a6p3y24x3vqzcj4k@sirius.home.kraxel.org>
+References: <20200526105811.30784-1-stevensd@chromium.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAFSR4ctYjWc8LSqb96Suwprv9=Gd0+vVPZ5pLn+5u1CV7wTq9Q@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <virtio-dev-return-7420-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Dongyang Zhan <zdyzztq@gmail.com>
-Cc: airlied@linux.ie, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+In-Reply-To: <20200526105811.30784-1-stevensd@chromium.org>
+To: David Stevens <stevensd@chromium.org>
+Cc: David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Sumit Semwal <sumit.semwal@linaro.org>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org, virtio-dev@lists.oasis-open.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, May 28, 2020 at 03:57:05PM +0800, Dongyang Zhan wrote:
-> Hi,
-> My name is Dongyang Zhan, I am a security researcher.
-> Currently, I found two possible memory bugs in
-> drivers/gpu/drm/virtio/virtgpu_vq.c (Linux 5.6).
-> I hope you can help me to confirm them. Thank you.
+On Tue, May 26, 2020 at 07:58:08PM +0900, David Stevens wrote:
+> This patchset implements the current proposal for virtio cross-device
+> resource sharing [1]. It will be used to import virtio resources into
+> the virtio-video driver currently under discussion [2]. The patch
+> under consideration to add support in the virtio-video driver is [3].
+> It uses the APIs from v3 of this series, but the changes to update it
+> are relatively minor.
+> 
+> This patchset adds a new flavor of dma-bufs that supports querying the
+> underlying virtio object UUID, as well as adding support for exporting
+> resources from virtgpu.
+> 
+> [1] https://markmail.org/thread/2ypjt5cfeu3m6lxu
+> [2] https://markmail.org/thread/p5d3k566srtdtute
+> [3] https://markmail.org/thread/j4xlqaaim266qpks
+> 
+> v3 -> v4 changes:
+>  - Replace dma-buf hooks with virtio dma-buf from v1.
+>  - Remove virtio_attach callback, as the work that had been done
+>    in that callback is now done on dma-buf export. The documented
+>    requirement that get_uuid only be called on attached virtio
+>    dma-bufs is also removed.
+>  - Rebase and add call to virtio_gpu_notify for ASSIGN_UUID.
+> 
+> David Stevens (3):
+>   virtio: add dma-buf support for exported objects
+>   virtio-gpu: add VIRTIO_GPU_F_RESOURCE_UUID feature
+>   drm/virtio: Support virtgpu exported resources
 
-Sorry.  Not confirmed.  You should do a better job verifying your
-claims before bugging people.
+Looks all sane to me.  mst, have you looked at the virtio core changes?
+How we are going to merge this?  If you ack I can merge via
+drm-misc-next.  Merging through virtio queue would be fine too.
 
-> The first one is resp_buf will not be release in
-> virtio_gpu_cmd_get_display_info() with the condition
-> (resp_size <= MAX_INLINE_RESP_SIZE) in virtio_gpu_alloc_cmd_resp().
-
-In that code path resp_size equals sizeof(struct
-virtio_gpu_resp_display_info) which is larger than MAX_INLINE_RESP_SIZE
-so the condition is never true and no leak happens.
-
-take care,
+thanks,
   Gerd
