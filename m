@@ -1,208 +1,38 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] vdpa: bypass waking up vhost_woker for vdpa vq kick
-Date: Thu, 28 May 2020 18:06:15 +0800
-Message-ID: <a21bf980-c001-4728-0f08-69494f31fe98@redhat.com>
-References: <1590471145-4436-1-git-send-email-lingshan.zhu@intel.com>
+From: Borislav Petkov <bp@alien8.de>
+Subject: Re: [PATCH v3 67/75] x86/vmware: Add VMware specific handling for
+ VMMCALL under SEV-ES
+Date: Thu, 28 May 2020 14:38:42 +0200
+Message-ID: <20200528123842.GA382@zn.tnic>
+References: <20200428151725.31091-1-joro@8bytes.org>
+ <20200428151725.31091-68-joro@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1590471145-4436-1-git-send-email-lingshan.zhu@intel.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Zhu Lingshan <lingshan.zhu@intel.com>, mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Cc: lulu@redhat.com, dan.daly@intel.com, cunming.liang@intel.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20200428151725.31091-68-joro@8bytes.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Joerg Roedel <joro@8bytes.org>
+Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Dave Hansen <dave.hansen@linux.intel.com>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Doug Covelli <dcovelli@vmware.com>, Joerg Roedel <jroedel@suse.de>, Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue, Apr 28, 2020 at 05:17:17PM +0200, Joerg Roedel wrote:
+> From: Doug Covelli <dcovelli@vmware.com>
+> 
+> This change adds VMware specific handling for #VC faults caused by
 
-On 2020/5/26 下午1:32, Zhu Lingshan wrote:
-> Standard vhost devices rely on waking up a vhost_worker to kick
-> a virtquque. However vdpa devices have hardware backends, so it
-> does not need this waking up routin. In this commit, vdpa device
-> will kick a virtqueue directly, reduce the performance overhead
-> caused by waking up a vhost_woker.
+s/This change adds/Add/
 
+-- 
+Regards/Gruss,
+    Boris.
 
-Thanks for the patch. It would be helpful if you can share some 
-performance numbers.
-
-And the title should be "vhost-vdpa:" instead of "vdpa:"
-
-This patch is important since we want to get rid of ktrhead and 
-use_mm()/unuse_mm() stuffs which allows us to implement doorbell mapping.
-
-
->
-> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
-> Suggested-by: Jason Wang <jasowang@redhat.com>
-> ---
->   drivers/vhost/vdpa.c | 100 +++++++++++++++++++++++++++++++++++++++++++++++++++
->   1 file changed, 100 insertions(+)
->
-> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index 0968361..d3a2aca 100644
-> --- a/drivers/vhost/vdpa.c
-> +++ b/drivers/vhost/vdpa.c
-> @@ -287,6 +287,66 @@ static long vhost_vdpa_get_vring_num(struct vhost_vdpa *v, u16 __user *argp)
->   
->   	return 0;
->   }
-> +void vhost_vdpa_poll_stop(struct vhost_virtqueue *vq)
-> +{
-> +	vhost_poll_stop(&vq->poll);
-> +}
-> +
-> +int vhost_vdpa_poll_start(struct vhost_virtqueue *vq)
-> +{
-> +	struct vhost_poll *poll = &vq->poll;
-> +	struct file *file = vq->kick;
-> +	__poll_t mask;
-> +
-> +
-> +	if (poll->wqh)
-> +		return 0;
-> +
-> +	mask = vfs_poll(file, &poll->table);
-> +	if (mask)
-> +		vq->handle_kick(&vq->poll.work);
-> +	if (mask & EPOLLERR) {
-> +		vhost_poll_stop(poll);
-> +		return -EINVAL;
-> +	}
-> +
-> +	return 0;
-> +}
-
-
-So this basically a duplication of vhost_poll_start()?
-
-
-> +
-> +static long vhost_vdpa_set_vring_kick(struct vhost_virtqueue *vq,
-> +				      void __user *argp)
-> +{
-> +	bool pollstart = false, pollstop = false;
-> +	struct file *eventfp, *filep = NULL;
-> +	struct vhost_vring_file f;
-> +	long r;
-> +
-> +	if (copy_from_user(&f, argp, sizeof(f)))
-> +		return -EFAULT;
-> +
-> +	eventfp = f.fd == -1 ? NULL : eventfd_fget(f.fd);
-> +	if (IS_ERR(eventfp)) {
-> +		r = PTR_ERR(eventfp);
-> +		return r;
-> +	}
-> +
-> +	if (eventfp != vq->kick) {
-> +		pollstop = (filep = vq->kick) != NULL;
-> +		pollstart = (vq->kick = eventfp) != NULL;
-> +	} else
-> +		filep = eventfp;
-> +
-> +	if (pollstop && vq->handle_kick)
-> +		vhost_vdpa_poll_stop(vq);
-> +
-> +	if (filep)
-> +		fput(filep);
-> +
-> +	if (pollstart && vq->handle_kick)
-> +		r = vhost_vdpa_poll_start(vq);
-> +
-> +	return r;
-> +}
->   
->   static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
->   				   void __user *argp)
-> @@ -316,6 +376,11 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
->   		return 0;
->   	}
->   
-> +	if (cmd == VHOST_SET_VRING_KICK) {
-> +		r = vhost_vdpa_set_vring_kick(vq, argp);
-> +		return r;
-> +	}
-> +
->   	if (cmd == VHOST_GET_VRING_BASE)
->   		vq->last_avail_idx = ops->get_vq_state(v->vdpa, idx);
->   
-> @@ -667,6 +732,39 @@ static void vhost_vdpa_free_domain(struct vhost_vdpa *v)
->   	v->domain = NULL;
->   }
->   
-> +static int vhost_vdpa_poll_worker(wait_queue_entry_t *wait, unsigned int mode,
-> +				  int sync, void *key)
-> +{
-> +	struct vhost_poll *poll = container_of(wait, struct vhost_poll, wait);
-> +	struct vhost_virtqueue *vq = container_of(poll, struct vhost_virtqueue,
-> +						  poll);
-> +
-> +	if (!(key_to_poll(key) & poll->mask))
-> +		return 0;
-> +
-> +	vq->handle_kick(&vq->poll.work);
-> +
-> +	return 0;
-> +}
-> +
-> +void vhost_vdpa_poll_init(struct vhost_dev *dev)
-> +{
-> +	struct vhost_virtqueue *vq;
-> +	struct vhost_poll *poll;
-> +	int i;
-> +
-> +	for (i = 0; i < dev->nvqs; i++) {
-> +		vq = dev->vqs[i];
-> +		poll = &vq->poll;
-> +		if (vq->handle_kick) {
-> +			init_waitqueue_func_entry(&poll->wait,
-> +						  vhost_vdpa_poll_worker);
-> +			poll->work.fn = vq->handle_kick;
-
-
-Why this is needed?
-
-
-> +		}
-> +
-> +	}
-> +}
-> +
->   static int vhost_vdpa_open(struct inode *inode, struct file *filep)
->   {
->   	struct vhost_vdpa *v;
-> @@ -697,6 +795,8 @@ static int vhost_vdpa_open(struct inode *inode, struct file *filep)
->   	vhost_dev_init(dev, vqs, nvqs, 0, 0, 0,
->   		       vhost_vdpa_process_iotlb_msg);
->   
-> +	vhost_vdpa_poll_init(dev);
-> +
->   	dev->iotlb = vhost_iotlb_alloc(0, 0);
->   	if (!dev->iotlb) {
->   		r = -ENOMEM;
-
-
-So my feeling here is that you want to reuse the infrastructure in 
-vhost.c as much as possible
-
-If this is true, let's just avoid duplicating the codes. How about 
-adding something like in vhost_poll_wakeup():
-
-
-     struct vhost_poll *poll = container_of(wait, struct vhost_poll, wait);
-     struct vhost_work *work = &poll->work;
-
-     if (!(key_to_poll(key) & poll->mask))
-         return 0;
-
-     if (!poll->dev->use_worker)
-         work->fn(work);
-     else
-         vhost_poll_queue(poll);
-
-
-Then modify vhost_dev_init() to set use_worker (all true except for vdpa)?
-
-
-Thanks
+https://people.kernel.org/tglx/notes-about-netiquette
