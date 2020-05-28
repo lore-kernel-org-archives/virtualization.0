@@ -1,7 +1,7 @@
 From: Jon Derrick <jonathan.derrick@intel.com>
-Subject: [PATCH v3 FOR QEMU v3] hw/vfio: Add VMD Passthrough Quirk
-Date: Wed, 27 May 2020 23:02:38 -0400
-Message-ID: <20200528030240.16024-2-jonathan.derrick@intel.com>
+Subject: [PATCH v3 2/2] PCI: vmd: Use Shadow MEMBAR registers for QEMU/KVM guests
+Date: Wed, 27 May 2020 23:02:40 -0400
+Message-ID: <20200528030240.16024-4-jonathan.derrick@intel.com>
 References: <20200528030240.16024-1-jonathan.derrick@intel.com>
 Return-path: <linux-pci-owner@vger.kernel.org>
 In-Reply-To: <20200528030240.16024-1-jonathan.derrick@intel.com>
@@ -10,130 +10,104 @@ To: linux-pci@vger.kernel.org, qemu-devel@nongnu.org
 Cc: Bjorn Helgaas <helgaas@kernel.org>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>, Andrzej Jakowski <andrzej.jakowski@linux.intel.com>, Alex Williamson <alex.williamson@redhat.com>, Jon Derrick <jonathan.derrick@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The VMD endpoint provides a real PCIe domain to the guest, including
-bridges and endpoints. Because the VMD domain is enumerated by the guest
-kernel, the guest kernel will assign Guest Physical Addresses to the
-downstream endpoint BARs and bridge windows.
+VMD device 28C0 natively assists guest passthrough of the VMD endpoint
+through the use of shadow registers that provide Host Physical Addresses
+to correctly assign bridge windows. These shadow registers are only
+available if VMD config space register 0x70, bit 1 is set.
 
-When the guest kernel performs MMIO to VMD sub-devices, MMU will
-translate from the guest address space to the physical address space.
-Because the bridges have been programmed with guest addresses, the
-bridges will reject the transaction containing physical addresses.
+In order to support this mode in existing VMD devices which don't
+natively support the shadow register, it was decided that the hypervisor
+could offer the shadow registers in a vendor-specific PCI capability.
 
-VMD device 28C0 natively assists passthrough by providing the Host
-Physical Address in shadow registers accessible to the guest for bridge
-window assignment. The shadow registers are valid if bit 1 is set in VMD
-VMLOCK config register 0x70.
-
-In order to support existing VMDs, this quirk provides the shadow
-registers in a vendor-specific PCI capability to the vfio-passthrough
-device for all VMD device ids which don't natively assist with
-passthrough. The Linux VMD driver is updated to check for this new
-vendor-specific capability.
+QEMU has been modified to create this vendor-specific capability and
+supply the shadow membar registers for VMDs which don't natively support
+this feature. This patch adds this mode and updates the supported device
+list to allow this feature to be used on these VMDs.
 
 Signed-off-by: Jon Derrick <jonathan.derrick@intel.com>
 ---
- hw/vfio/pci-quirks.c | 84 +++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 72 insertions(+), 12 deletions(-)
+ drivers/pci/controller/vmd.c | 44 ++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 38 insertions(+), 6 deletions(-)
 
-diff --git a/hw/vfio/pci-quirks.c b/hw/vfio/pci-quirks.c
-index 3bd05fed12..6b8c1edfd5 100644
---- a/hw/vfio/pci-quirks.c
-+++ b/hw/vfio/pci-quirks.c
-@@ -1567,18 +1567,6 @@ static int vfio_add_nv_gpudirect_cap(VFIOPCIDevice *vdev, Error **errp)
-     return 0;
- }
+diff --git a/drivers/pci/controller/vmd.c b/drivers/pci/controller/vmd.c
+index e386d4e..76d8acb 100644
+--- a/drivers/pci/controller/vmd.c
++++ b/drivers/pci/controller/vmd.c
+@@ -40,13 +40,19 @@ enum vmd_features {
+ 	 * membars, in order to allow proper address translation during
+ 	 * resource assignment to enable guest virtualization
+ 	 */
+-	VMD_FEAT_HAS_MEMBAR_SHADOW	= (1 << 0),
++	VMD_FEAT_HAS_MEMBAR_SHADOW		= (1 << 0),
  
--int vfio_add_virt_caps(VFIOPCIDevice *vdev, Error **errp)
--{
--    int ret;
--
--    ret = vfio_add_nv_gpudirect_cap(vdev, errp);
--    if (ret) {
--        return ret;
--    }
--
--    return 0;
--}
--
- static void vfio_pci_nvlink2_get_tgt(Object *obj, Visitor *v,
-                                      const char *name,
-                                      void *opaque, Error **errp)
-@@ -1709,3 +1697,75 @@ free_exit:
+ 	/*
+ 	 * Device may provide root port configuration information which limits
+ 	 * bus numbering
+ 	 */
+-	VMD_FEAT_HAS_BUS_RESTRICTIONS	= (1 << 1),
++	VMD_FEAT_HAS_BUS_RESTRICTIONS		= (1 << 1),
++
++	/*
++	 * Device contains physical location shadow registers in
++	 * vendor-specific capability space
++	 */
++	VMD_FEAT_HAS_MEMBAR_SHADOW_VSCAP	= (1 << 2),
+ };
  
-     return ret;
- }
+ /*
+@@ -454,6 +460,28 @@ static int vmd_enable_domain(struct vmd_dev *vmd, unsigned long features)
+ 		}
+ 	}
+ 
++	if (features & VMD_FEAT_HAS_MEMBAR_SHADOW_VSCAP) {
++		int pos = pci_find_capability(vmd->dev, PCI_CAP_ID_VNDR);
++		u32 reg, regu;
 +
-+/*
-+ * The VMD endpoint provides a real PCIe domain to the guest and the guest
-+ * kernel performs enumeration of the VMD sub-device domain. Guest transactions
-+ * to VMD sub-devices go through MMU translation from guest addresses to
-+ * physical addresses. When MMIO goes to an endpoint after being translated to
-+ * physical addresses, the bridge rejects the transaction because the window
-+ * has been programmed with guest addresses.
-+ *
-+ * VMD can use the Host Physical Address in order to correctly program the
-+ * bridge windows in its PCIe domain. VMD device 28C0 has HPA shadow registers
-+ * located at offset 0x2000 in MEMBAR2 (BAR 4). This quirk provides the HPA
-+ * shadow registers in a vendor-specific capability register for devices
-+ * without native support. The position of 0xE8-0xFF is in the reserved range
-+ * of the VMD device capability space following the Power Management
-+ * Capability.
-+ */
-+#define VMD_SHADOW_CAP_VER 1
-+#define VMD_SHADOW_CAP_LEN 24
-+static int vfio_add_vmd_shadow_cap(VFIOPCIDevice *vdev, Error **errp)
-+{
-+    uint8_t membar_phys[16];
-+    int ret, pos = 0xE8;
++		pci_read_config_dword(vmd->dev, pos + 4, &reg);
 +
-+    if (!(vfio_pci_is(vdev, PCI_VENDOR_ID_INTEL, 0x201D) ||
-+          vfio_pci_is(vdev, PCI_VENDOR_ID_INTEL, 0x467F) ||
-+          vfio_pci_is(vdev, PCI_VENDOR_ID_INTEL, 0x4C3D) ||
-+          vfio_pci_is(vdev, PCI_VENDOR_ID_INTEL, 0x9A0B))) {
-+        return 0;
-+    }
++		/* "SHDW" */
++		if (pos && reg == 0x53484457) {
++			pci_read_config_dword(vmd->dev, pos + 8, &reg);
++			pci_read_config_dword(vmd->dev, pos + 12, &regu);
++			offset[0] = vmd->dev->resource[VMD_MEMBAR1].start -
++					(((u64) regu << 32 | reg) &
++					 PCI_BASE_ADDRESS_MEM_MASK);
 +
-+    ret = pread(vdev->vbasedev.fd, membar_phys, 16,
-+                vdev->config_offset + PCI_BASE_ADDRESS_2);
-+    if (ret != 16) {
-+        error_report("VMD %s cannot read MEMBARs (%d)",
-+                     vdev->vbasedev.name, ret);
-+        return -EFAULT;
-+    }
++			pci_read_config_dword(vmd->dev, pos + 16, &reg);
++			pci_read_config_dword(vmd->dev, pos + 20, &regu);
++			offset[1] = vmd->dev->resource[VMD_MEMBAR2].start -
++					(((u64) regu << 32 | reg) &
++					 PCI_BASE_ADDRESS_MEM_MASK);
++		}
++	}
 +
-+    ret = pci_add_capability(&vdev->pdev, PCI_CAP_ID_VNDR, pos,
-+                             VMD_SHADOW_CAP_LEN, errp);
-+    if (ret < 0) {
-+        error_prepend(errp, "Failed to add VMD MEMBAR Shadow cap: ");
-+        return ret;
-+    }
-+
-+    memset(vdev->emulated_config_bits + pos, 0xFF, VMD_SHADOW_CAP_LEN);
-+    pos += PCI_CAP_FLAGS;
-+    pci_set_byte(vdev->pdev.config + pos++, VMD_SHADOW_CAP_LEN);
-+    pci_set_byte(vdev->pdev.config + pos++, VMD_SHADOW_CAP_VER);
-+    pci_set_long(vdev->pdev.config + pos, 0x53484457); /* SHDW */
-+    memcpy(vdev->pdev.config + pos + 4, membar_phys, 16);
-+
-+    return 0;
-+}
-+
-+int vfio_add_virt_caps(VFIOPCIDevice *vdev, Error **errp)
-+{
-+    int ret;
-+
-+    ret = vfio_add_nv_gpudirect_cap(vdev, errp);
-+    if (ret) {
-+        return ret;
-+    }
-+
-+    ret = vfio_add_vmd_shadow_cap(vdev, errp);
-+    if (ret) {
-+        return ret;
-+    }
-+
-+    return 0;
-+}
+ 	/*
+ 	 * Certain VMD devices may have a root port configuration option which
+ 	 * limits the bus range to between 0-127, 128-255, or 224-255
+@@ -716,16 +744,20 @@ static int vmd_resume(struct device *dev)
+ static SIMPLE_DEV_PM_OPS(vmd_dev_pm_ops, vmd_suspend, vmd_resume);
+ 
+ static const struct pci_device_id vmd_ids[] = {
+-	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_VMD_201D),},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_VMD_201D),
++		.driver_data = VMD_FEAT_HAS_MEMBAR_SHADOW_VSCAP,},
+ 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_VMD_28C0),
+ 		.driver_data = VMD_FEAT_HAS_MEMBAR_SHADOW |
+ 				VMD_FEAT_HAS_BUS_RESTRICTIONS,},
+ 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x467f),
+-		.driver_data = VMD_FEAT_HAS_BUS_RESTRICTIONS,},
++		.driver_data = VMD_FEAT_HAS_MEMBAR_SHADOW_VSCAP |
++				VMD_FEAT_HAS_BUS_RESTRICTIONS,},
+ 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x4c3d),
+-		.driver_data = VMD_FEAT_HAS_BUS_RESTRICTIONS,},
++		.driver_data = VMD_FEAT_HAS_MEMBAR_SHADOW_VSCAP |
++				VMD_FEAT_HAS_BUS_RESTRICTIONS,},
+ 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_VMD_9A0B),
+-		.driver_data = VMD_FEAT_HAS_BUS_RESTRICTIONS,},
++		.driver_data = VMD_FEAT_HAS_MEMBAR_SHADOW_VSCAP |
++				VMD_FEAT_HAS_BUS_RESTRICTIONS,},
+ 	{0,}
+ };
+ MODULE_DEVICE_TABLE(pci, vmd_ids);
 -- 
-2.18.1
+1.8.3.1
