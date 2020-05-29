@@ -1,44 +1,64 @@
 From: John Hubbard <jhubbard@nvidia.com>
-Subject: [PATCH 0/2] vhost, docs: convert to pin_user_pages(), new "case 5"
-Date: Fri, 29 May 2020 16:43:07 -0700
-Message-ID: <20200529234309.484480-1-jhubbard@nvidia.com>
+Subject: [PATCH 2/2] vhost: convert get_user_pages() --> pin_user_pages()
+Date: Fri, 29 May 2020 16:43:09 -0700
+Message-ID: <20200529234309.484480-3-jhubbard@nvidia.com>
+References: <20200529234309.484480-1-jhubbard@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain
 Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-doc-owner@vger.kernel.org>
-Sender: linux-doc-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200529234309.484480-1-jhubbard@nvidia.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Andrew Morton <akpm@linux-foundation.org>
 Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Vlastimil Babka <vbabka@suse.cz>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Dave Chinner <david@fromorbit.com>, Souptick Joarder <jrdr.linux@gmail.com>, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org, John Hubbard <jhubbard@nvidia.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+This code was using get_user_pages*(), in approximately a "Case 5"
+scenario (accessing the data within a page), using the categorization
+from [1]. That means that it's time to convert the get_user_pages*() +
+put_page() calls to pin_user_pages*() + unpin_user_pages() calls.
 
-It recently became clear to me that there are some get_user_pages*()
-callers that don't fit neatly into any of the four cases that are so
-far listed in pin_user_pages.rst. vhost.c is one of those.
+There is some helpful background in [2]: basically, this is a small
+part of fixing a long-standing disconnect between pinning pages, and
+file systems' use of those pages.
 
-Add a Case 5 to the documentation, and refer to that when converting
-vhost.c.
+[1] Documentation/core-api/pin_user_pages.rst
 
-Thanks to Jan Kara for helping me (again) in understanding the
-interaction between get_user_pages() and page writeback [1].
+[2] "Explicit pinning of user-space pages":
+    https://lwn.net/Articles/807108/
 
-This is based on today's mmotm, which has a nearby patch to
-pin_user_pages.rst that rewords cases 3 and 4.
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
+Cc: netdev@vger.kernel.org
+Signed-off-by: John Hubbard <jhubbard@nvidia.com>
+---
+ drivers/vhost/vhost.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-Note that I have only compile-tested the vhost.c patch, although that
-does also include cross-compiling for a few other arches. Any run-time
-testing would be greatly appreciated.
-
-[1] https://lore.kernel.org/r/20200529070343.GL14550@quack2.suse.cz
-
-John Hubbard (2):
-  docs: mm/gup: pin_user_pages.rst: add a "case 5"
-  vhost: convert get_user_pages() --> pin_user_pages()
-
- Documentation/core-api/pin_user_pages.rst | 20 ++++++++++++++++++++
- drivers/vhost/vhost.c                     |  5 ++---
- 2 files changed, 22 insertions(+), 3 deletions(-)
-
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 21a59b598ed8..596132a96cd5 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -1762,15 +1762,14 @@ static int set_bit_to_user(int nr, void __user *add=
+r)
+ 	int bit =3D nr + (log % PAGE_SIZE) * 8;
+ 	int r;
+=20
+-	r =3D get_user_pages_fast(log, 1, FOLL_WRITE, &page);
++	r =3D pin_user_pages_fast(log, 1, FOLL_WRITE, &page);
+ 	if (r < 0)
+ 		return r;
+ 	BUG_ON(r !=3D 1);
+ 	base =3D kmap_atomic(page);
+ 	set_bit(bit, base);
+ 	kunmap_atomic(base);
+-	set_page_dirty_lock(page);
+-	put_page(page);
++	unpin_user_pages_dirty_lock(&page, 1, true);
+ 	return 0;
+ }
+=20
 --=20
 2.26.2
