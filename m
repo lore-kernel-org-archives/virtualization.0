@@ -1,7 +1,7 @@
 From: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Subject: [RFC 06/12] ASoC: SOF: add an RPMsg VirtIO DSP driver
-Date: Fri, 29 May 2020 09:37:16 +0200
-Message-ID: <20200529073722.8184-7-guennadi.liakhovetski@linux.intel.com>
+Subject: [RFC 08/12] ASoC: SOF: add a vhost driver: sound part
+Date: Fri, 29 May 2020 09:37:18 +0200
+Message-ID: <20200529073722.8184-9-guennadi.liakhovetski@linux.intel.com>
 References: <20200529073722.8184-1-guennadi.liakhovetski@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -21,1389 +21,1658 @@ To: kvm@vger.kernel.org
 Cc: Ohad Ben-Cohen <ohad@wizery.com>, Mathieu Poirier <mathieu.poirier@linaro.org>, "Michael S. Tsirkin" <mst@redhat.com>, linux-remoteproc@vger.kernel.org, Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>, virtualization@lists.linux-foundation.org, Liam Girdwood <liam.r.girdwood@linux.intel.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, sound-open-firmware@alsa-project.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add a VirtIO driver, designed to work with the SOF vhost driver,
-using the RPMsg protocol layer. This driver allows SOF to be used on
-Virtual Machines (VMs) where the host is also a Linux system, using
-the SOF driver natively. This driver communicates with the host using
-the RPMsg standard over Virtual Queues. This version uses 3 RPMsg
-endpoints: for control, for data and for position updates. The
-control endpoint uses exactly the same IPC protocol as what is used
-by the SOF driver natively to communicate with the DSP.  In the
-future a zero-copy capability should be added thus eliminating 2 out
-of 3 endpoints and only preserving the control channel.
+The SOF VirtIO driver uses a vhost RPMsg driver as a counterpart to
+communicate with the DSP. This patch adds a sound interface of the
+vhost driver.
 
 Signed-off-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
 ---
- include/sound/sof.h             |   4 +
- include/sound/sof/header.h      |   2 +
- include/sound/sof/rpmsg.h       | 120 ++++++
- include/sound/sof/topology.h    |   9 +-
- include/uapi/linux/virtio_ids.h |   1 +
- sound/soc/sof/Kconfig           |   7 +
- sound/soc/sof/Makefile          |   4 +
- sound/soc/sof/core.c            |  29 +-
- sound/soc/sof/ipc.c             |  16 +-
- sound/soc/sof/pcm.c             |   9 +
- sound/soc/sof/rpmsg-vfe.c       | 881 ++++++++++++++++++++++++++++++++++++++++
- sound/soc/sof/sof-priv.h        |  28 ++
- sound/soc/sof/topology.c        |  18 +-
- 13 files changed, 1099 insertions(+), 29 deletions(-)
- create mode 100644 include/sound/sof/rpmsg.h
- create mode 100644 sound/soc/sof/rpmsg-vfe.c
+ include/sound/soc-topology.h     |    3 +
+ include/sound/sof/rpmsg.h        |   72 +++
+ include/uapi/linux/vhost.h       |    5 +
+ include/uapi/linux/vhost_types.h |    7 +
+ sound/soc/soc-pcm.c              |   31 +-
+ sound/soc/sof/Makefile           |    6 +-
+ sound/soc/sof/core.c             |    6 +
+ sound/soc/sof/ipc.c              |    5 +
+ sound/soc/sof/pcm.c              |    4 +-
+ sound/soc/sof/pm.c               |    4 +
+ sound/soc/sof/sof-audio.c        |    9 +
+ sound/soc/sof/sof-audio.h        |   16 +
+ sound/soc/sof/sof-priv.h         |   16 +
+ sound/soc/sof/topology.c         |   54 +-
+ sound/soc/sof/vhost-vbe.c        | 1102 ++++++++++++++++++++++++++++++++++++++
+ 15 files changed, 1324 insertions(+), 16 deletions(-)
+ create mode 100644 sound/soc/sof/vhost-vbe.c
 
-diff --git a/include/sound/sof.h b/include/sound/sof.h
-index f3e716c..761ef8c 100644
---- a/include/sound/sof.h
-+++ b/include/sound/sof.h
-@@ -17,6 +17,8 @@
+diff --git a/include/sound/soc-topology.h b/include/sound/soc-topology.h
+index 5223896..ea0c2a64 100644
+--- a/include/sound/soc-topology.h
++++ b/include/sound/soc-topology.h
+@@ -34,6 +34,9 @@
+ /* object scan be loaded and unloaded in groups with identfying indexes */
+ #define SND_SOC_TPLG_INDEX_ALL	0	/* ID that matches all FW objects */
  
- struct snd_sof_dsp_ops;
- 
-+struct sof_vfe;
++#define SOC_VIRT_DAI_PLAYBACK "VM FE Playback"
++#define SOC_VIRT_DAI_CAPTURE "VM FE Capture"
 +
- /*
-  * SOF Platform data.
-  */
-@@ -30,6 +32,8 @@ struct snd_sof_pdata {
- 	/* indicate how many first bytes shouldn't be loaded into DSP memory. */
- 	size_t fw_offset;
- 
-+	struct sof_vfe *vfe;
-+
- 	/*
- 	 * notification callback used if the hardware initialization
- 	 * can take time or is handled in a workqueue. This callback
-diff --git a/include/sound/sof/header.h b/include/sound/sof/header.h
-index 5ee296c..9844fbe 100644
---- a/include/sound/sof/header.h
-+++ b/include/sound/sof/header.h
-@@ -67,6 +67,8 @@
- #define SOF_IPC_TPLG_PIPE_COMPLETE		SOF_CMD_TYPE(0x013)
- #define SOF_IPC_TPLG_BUFFER_NEW			SOF_CMD_TYPE(0x020)
- #define SOF_IPC_TPLG_BUFFER_FREE		SOF_CMD_TYPE(0x021)
-+#define SOF_IPC_TPLG_VFE_GET			SOF_CMD_TYPE(0x030)
-+#define SOF_IPC_TPLG_VFE_COMP_ID		SOF_CMD_TYPE(0x031)
- 
- /* PM */
- #define SOF_IPC_PM_CTX_SAVE			SOF_CMD_TYPE(0x001)
+ /* dynamic object type */
+ enum snd_soc_dobj_type {
+ 	SND_SOC_DOBJ_NONE		= 0,	/* object is not dynamic */
 diff --git a/include/sound/sof/rpmsg.h b/include/sound/sof/rpmsg.h
-new file mode 100644
-index 00000000..73dc34c
---- /dev/null
+index 73dc34c..ce522c6 100644
+--- a/include/sound/sof/rpmsg.h
 +++ b/include/sound/sof/rpmsg.h
-@@ -0,0 +1,120 @@
-+/* SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause) */
-+/*
-+ * Copyright(c) 2018-2020 Intel Corporation. All rights reserved.
-+ *
-+ *  Contact Information:
-+ *  Author:	Luo Xionghu <xionghu.luo@intel.com>
-+ *		Liam Girdwood <liam.r.girdwood@linux.intel.com>
-+ *		Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-+ */
+@@ -11,6 +11,7 @@
+ #ifndef _SOF_RPMSG_H
+ #define _SOF_RPMSG_H
+ 
++#include <linux/list.h>
+ #include <linux/virtio_rpmsg.h>
+ 
+ #include <sound/sof/header.h>
+@@ -117,4 +118,75 @@ struct sof_rpmsg_ipc_req {
+ 	u8 ipc_msg[SOF_IPC_MSG_MAX_SIZE];
+ } __packed;
+ 
++struct snd_sof_dev;
++struct sof_ipc_stream_posn;
 +
-+#ifndef _SOF_RPMSG_H
-+#define _SOF_RPMSG_H
++#if IS_ENABLED(CONFIG_VHOST_SOF)
++struct firmware;
 +
-+#include <linux/virtio_rpmsg.h>
-+
-+#include <sound/sof/header.h>
-+
-+/* host endpoint addresses */
-+enum {
-+	SOF_RPMSG_ADDR_IPC,	/* IPC commands and replies */
-+	SOF_RPMSG_ADDR_POSN,	/* Stream position updates */
-+	SOF_RPMSG_ADDR_DATA,	/* Audio data */
-+	SOF_RPMSG_ADDR_COUNT,	/* Number of RPMsg endpoints */
++struct vhost_dsp;
++struct sof_vhost_ops {
++	int (*update_posn)(struct vhost_dsp *dsp,
++			   struct sof_ipc_stream_posn *posn);
 +};
 +
-+/**
-+ * struct sof_rpmsg_ipc_tplg_req - request for topology data
-+ * @hdr:	the standard SOF IPC header
-+ * @offset:	the current offset when transferring a split file
-+ */
-+struct sof_rpmsg_ipc_tplg_req {
-+	struct sof_ipc_cmd_hdr hdr;
-+	size_t offset;
-+} __packed;
++struct sof_vhost_client {
++	const struct firmware *fw;
++	struct snd_sof_dev *sdev;
++	/* List of guest endpoints, connecting to the host mixer or demux */
++	struct list_head pipe_conn;
++	/* List of vhost instances on a DSP */
++	struct list_head list;
 +
-+/**
-+ * struct sof_rpmsg_ipc_tplg_resp - response to a topology file request
-+ * @reply:	the standard SOF IPC response header
-+ * @data:	the complete topology file
-+ *
-+ * The topology file is transferred from the host to the guest over a virtual
-+ * queue in chunks of SOF_IPC_MSG_MAX_SIZE - sizeof(struct sof_ipc_reply), so
-+ * for data transfer the @data array is much smaller than 64KiB. 64KiB is what
-+ * is included in struct sof_vfe for permanent storage of the complete file.
-+ */
-+struct sof_rpmsg_ipc_tplg_resp {
-+	struct sof_ipc_reply reply;
-+	/* There exist topology files already larger than 40KiB */
-+	uint8_t data[64 * 1024 - sizeof(struct sof_ipc_reply)];
-+} __packed;
++	/* Component ID range index in the bitmap */
++	unsigned int id;
 +
-+/**
-+ * struct sof_rpmsg_ipc_power_req - power status change IPC
-+ * @hdr:	the standard SOF IPC header
-+ * @power:	1: on, 0: off
-+ */
-+struct sof_rpmsg_ipc_power_req {
-+	struct sof_ipc_cmd_hdr hdr;
-+	uint32_t power;
-+} __packed;
++	/* the comp_ids for this vm audio */
++	int comp_id_begin;
++	int comp_id_end;
 +
-+enum sof_rpmsg_ipc_reset_status {
-+	SOF_RPMSG_IPC_RESET_NONE,	/* Host hasn't been reset */
-+	SOF_RPMSG_IPC_RESET_DONE,	/* Host has been reset */
++	unsigned int reset_count;
++
++	struct vhost_dsp *vhost;
 +};
 +
-+/**
-+ * struct sof_rpmsg_ipc_power_resp - response to a power status request
-+ * @reply:	the standard SOF IPC response header
-+ * @reset_status: enum sof_rpmsg_ipc_reset_status
-+ */
-+struct sof_rpmsg_ipc_power_resp {
-+	struct sof_ipc_reply reply;
-+	uint32_t reset_status;
-+} __packed;
++/* The below functions are only referenced when VHOST_SOF is selected */
++struct device;
++void sof_vhost_client_release(struct sof_vhost_client *client);
++struct sof_vhost_client *sof_vhost_client_add(struct snd_sof_dev *sdev,
++					      struct vhost_dsp *dsp);
++struct device *sof_vhost_dev_init(const struct sof_vhost_ops *ops);
++struct vhost_adsp_topology;
++int sof_vhost_set_tplg(struct sof_vhost_client *client,
++		       const struct vhost_adsp_topology *tplg);
++/* Copy audio data between DMA and VirtQueue */
++void *sof_vhost_stream_data(struct sof_vhost_client *client,
++			    const struct sof_rpmsg_data_req *req,
++			    struct sof_rpmsg_data_resp *resp);
++/* Forward an IPC message from a guest to the DSP */
++int sof_vhost_ipc_fwd(struct sof_vhost_client *client,
++		      void *ipc_buf, void *reply_buf,
++		      size_t count, size_t reply_sz);
 +
-+#define SOF_RPMSG_MAX_DATA_SIZE MAX_RPMSG_BUF_SIZE
++/* The below functions are always referenced, they need dummy counterparts */
++int sof_vhost_update_guest_posn(struct snd_sof_dev *sdev,
++				struct sof_ipc_stream_posn *posn);
++void sof_vhost_suspend(struct snd_sof_dev *sdev);
++void sof_vhost_dev_set(struct snd_sof_dev *sdev);
++#else
++static inline int sof_vhost_update_guest_posn(struct snd_sof_dev *sdev,
++					      struct sof_ipc_stream_posn *posn)
++{
++	return 0;
++}
 +
-+/**
-+ * struct sof_rpmsg_data_req - Audio data request
-+ *
-+ * @size:	the size of audio data sent or requested, excluding the header
-+ * @offset:	offset in the DMA buffer
-+ * @comp_id:	component ID, used to identify the stream
-+ * @data:	audio data
-+ *
-+ * When used during playback, the data array actually contains audio data, when
-+ * used for capture, the data part isn't sent.
-+ */
-+struct sof_rpmsg_data_req {
-+	u32 size;
-+	u32 offset;
-+	u32 comp_id;
-+	/* Only included for playback */
-+	u8 data[];
-+} __packed;
++static inline void sof_vhost_suspend(struct snd_sof_dev *sdev)
++{
++}
 +
-+/**
-+ * struct sof_rpmsg_data_resp - Audio data response
-+ *
-+ * @size:	the size of audio data sent, excluding the header
-+ * @error:	response error
-+ * @data:	audio data
-+ *
-+ * When used during capture, the data array actually contains audio data, when
-+ * used for playback, the data part isn't sent.
-+ */
-+struct sof_rpmsg_data_resp {
-+	u32 size;
-+	u32 error;
-+	/* Only included for capture */
-+	u8 data[];
-+} __packed;
-+
-+struct sof_rpmsg_ipc_req {
-+	u32 reply_size;
-+	u8 ipc_msg[SOF_IPC_MSG_MAX_SIZE];
-+} __packed;
-+
++static inline void sof_vhost_dev_set(struct snd_sof_dev *sdev)
++{
++}
 +#endif
-diff --git a/include/sound/sof/topology.h b/include/sound/sof/topology.h
-index f56e80d..74b7472 100644
---- a/include/sound/sof/topology.h
-+++ b/include/sound/sof/topology.h
-@@ -33,12 +33,13 @@ enum sof_comp_type {
- 	SOF_COMP_EQ_IIR,
- 	SOF_COMP_EQ_FIR,
- 	SOF_COMP_KEYWORD_DETECT,
--	SOF_COMP_KPB,			/* A key phrase buffer component */
--	SOF_COMP_SELECTOR,		/**< channel selector component */
-+	SOF_COMP_KPB,		/**< key phrase buffer component */
-+	SOF_COMP_SELECTOR,	/**< channel selector component */
- 	SOF_COMP_DEMUX,
--	SOF_COMP_ASRC,		/**< Asynchronous sample rate converter */
-+	SOF_COMP_ASRC,		/**< asynchronous sample rate converter */
- 	SOF_COMP_DCBLOCK,
--	SOF_COMP_SMART_AMP,             /**< smart amplifier component */
-+	SOF_COMP_SMART_AMP,	/**< smart amplifier component */
-+	SOF_COMP_VIRT_CON,	/**< virtual connection, sent by the VirtIO guest */
- 	/* keep FILEREAD/FILEWRITE as the last ones */
- 	SOF_COMP_FILEREAD = 10000,	/**< host test based file IO */
- 	SOF_COMP_FILEWRITE = 10001,	/**< host test based file IO */
-diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/virtio_ids.h
-index ecc27a1..7d1a738 100644
---- a/include/uapi/linux/virtio_ids.h
-+++ b/include/uapi/linux/virtio_ids.h
-@@ -46,6 +46,7 @@
- #define VIRTIO_ID_IOMMU        23 /* virtio IOMMU */
- #define VIRTIO_ID_FS           26 /* virtio filesystem */
- #define VIRTIO_ID_PMEM         27 /* virtio pmem */
-+#define VIRTIO_ID_ADSP         28 /* virtio AudioDSP */
- #define VIRTIO_ID_MAC80211_HWSIM 29 /* virtio mac80211-hwsim */
- 
- #endif /* _LINUX_VIRTIO_IDS_H */
-diff --git a/sound/soc/sof/Kconfig b/sound/soc/sof/Kconfig
-index 4dda4b6..1302cea 100644
---- a/sound/soc/sof/Kconfig
-+++ b/sound/soc/sof/Kconfig
-@@ -96,6 +96,13 @@ config SND_SOC_SOF_STRICT_ABI_CHECKS
- 	  If you are not involved in SOF releases and CI development
- 	  select "N".
- 
-+config SND_SOC_SOF_RPMSG_FE
-+	bool "SOF VirtIO guest role"
-+	depends on SND_SOC_SOF_NOCODEC_SUPPORT
-+	depends on VIRTIO && RPMSG_VIRTIO
-+	---help---
-+	  Enable SOF for a VirtIO based guest configuration.
 +
- config SND_SOC_SOF_DEBUG
- 	bool "SOF debugging features"
- 	help
+ #endif
+diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+index b54af9d..aa258e2 100644
+--- a/include/uapi/linux/vhost.h
++++ b/include/uapi/linux/vhost.h
+@@ -142,4 +142,9 @@
+ /* Get the max ring size. */
+ #define VHOST_VDPA_GET_VRING_NUM	_IOR(VHOST_VIRTIO, 0x76, __u16)
+ 
++/* VHOST_ADSP specific defines */
++
++#define VHOST_ADSP_SET_GUEST_TPLG	_IOW(VHOST_VIRTIO, 0x80,	\
++					struct vhost_adsp_topology)
++
+ #endif
+diff --git a/include/uapi/linux/vhost_types.h b/include/uapi/linux/vhost_types.h
+index 669457c..6364bc8 100644
+--- a/include/uapi/linux/vhost_types.h
++++ b/include/uapi/linux/vhost_types.h
+@@ -13,6 +13,7 @@
+ 
+ #include <linux/types.h>
+ #include <linux/compiler.h>
++#include <linux/limits.h>
+ #include <linux/virtio_config.h>
+ #include <linux/virtio_ring.h>
+ 
+@@ -127,6 +128,12 @@ struct vhost_vdpa_config {
+ 	__u8 buf[0];
+ };
+ 
++/* VHOST_ADSP */
++
++struct vhost_adsp_topology {
++	char name[NAME_MAX + 1];
++};
++
+ /* Feature bits */
+ /* Log all write descriptors. Can be changed while device is active. */
+ #define VHOST_F_LOG_ALL 26
+diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
+index eb19a8e..57165769 100644
+--- a/sound/soc/soc-pcm.c
++++ b/sound/soc/soc-pcm.c
+@@ -24,6 +24,7 @@
+ #include <sound/pcm_params.h>
+ #include <sound/soc.h>
+ #include <sound/soc-dpcm.h>
++#include <sound/soc-topology.h>
+ #include <sound/initval.h>
+ 
+ #define DPCM_MAX_BE_USERS	8
+@@ -1418,10 +1419,15 @@ static bool dpcm_end_walk_at_be(struct snd_soc_dapm_widget *widget,
+ 	int stream;
+ 
+ 	/* adjust dir to stream */
+-	if (dir == SND_SOC_DAPM_DIR_OUT)
++	if (dir == SND_SOC_DAPM_DIR_OUT) {
++		if (!strcmp(widget->sname, SOC_VIRT_DAI_PLAYBACK))
++			return false;
+ 		stream = SNDRV_PCM_STREAM_PLAYBACK;
+-	else
++	} else {
++		if (!strcmp(widget->sname, SOC_VIRT_DAI_CAPTURE))
++			return false;
+ 		stream = SNDRV_PCM_STREAM_CAPTURE;
++	}
+ 
+ 	rtd = dpcm_get_be(card, widget, stream);
+ 	if (rtd)
+@@ -2977,14 +2983,6 @@ int soc_new_pcm(struct snd_soc_pcm_runtime *rtd, int num)
+ 	rtd->pcm = pcm;
+ 	pcm->private_data = rtd;
+ 
+-	if (rtd->dai_link->no_pcm || rtd->dai_link->params) {
+-		if (playback)
+-			pcm->streams[SNDRV_PCM_STREAM_PLAYBACK].substream->private_data = rtd;
+-		if (capture)
+-			pcm->streams[SNDRV_PCM_STREAM_CAPTURE].substream->private_data = rtd;
+-		goto out;
+-	}
+-
+ 	/* ASoC PCM operations */
+ 	if (rtd->dai_link->dynamic) {
+ 		rtd->ops.open		= dpcm_fe_dai_open;
+@@ -3004,6 +3002,19 @@ int soc_new_pcm(struct snd_soc_pcm_runtime *rtd, int num)
+ 		rtd->ops.pointer	= soc_pcm_pointer;
+ 	}
+ 
++	if (rtd->dai_link->no_pcm || rtd->dai_link->params) {
++		/*
++		 * Usually in this case we also don't need to assign .ops
++		 * callbacks, but in case of a "no PCM" pipeline, used by a VM
++		 * we use the .prepare() hook to configure the hardware.
++		 */
++		if (playback)
++			pcm->streams[SNDRV_PCM_STREAM_PLAYBACK].substream->private_data = rtd;
++		if (capture)
++			pcm->streams[SNDRV_PCM_STREAM_CAPTURE].substream->private_data = rtd;
++		goto out;
++	}
++
+ 	for_each_rtd_components(rtd, i, component) {
+ 		const struct snd_soc_component_driver *drv = component->driver;
+ 
 diff --git a/sound/soc/sof/Makefile b/sound/soc/sof/Makefile
-index 05718df..34142ba 100644
+index 34142ba..872457c 100644
 --- a/sound/soc/sof/Makefile
 +++ b/sound/soc/sof/Makefile
-@@ -10,6 +10,10 @@ snd-sof-of-objs := sof-of-dev.o
+@@ -3,6 +3,8 @@
+ snd-sof-objs := core.o ops.o loader.o ipc.o pcm.o pm.o debug.o topology.o\
+ 		control.o trace.o utils.o sof-audio.o
+ snd-sof-$(CONFIG_SND_SOC_SOF_DEBUG_PROBES) += probe.o compress.o
++snd-sof-$(CONFIG_SND_SOC_SOF_RPMSG_FE) += rpmsg-vfe.o
++snd-sof-$(CONFIG_VHOST_SOF) += vhost-vbe.o
+ 
+ snd-sof-pci-objs := sof-pci-dev.o
+ snd-sof-acpi-objs := sof-acpi-dev.o
+@@ -10,10 +12,6 @@ snd-sof-of-objs := sof-of-dev.o
  
  snd-sof-nocodec-objs := nocodec.o
  
-+ifdef CONFIG_SND_SOC_SOF_RPMSG_FE
-+snd-sof-objs += rpmsg-vfe.o
-+endif
-+
+-ifdef CONFIG_SND_SOC_SOF_RPMSG_FE
+-snd-sof-objs += rpmsg-vfe.o
+-endif
+-
  obj-$(CONFIG_SND_SOC_SOF) += snd-sof.o
  obj-$(CONFIG_SND_SOC_SOF_NOCODEC) += snd-sof-nocodec.o
  
 diff --git a/sound/soc/sof/core.c b/sound/soc/sof/core.c
-index 61f045c..2515b57 100644
+index 2515b57..c74c6ec 100644
 --- a/sound/soc/sof/core.c
 +++ b/sound/soc/sof/core.c
-@@ -178,7 +178,8 @@ static int sof_load_and_run_firmware(struct snd_sof_dev *sdev)
- 	return 0;
- 
- fw_run_err:
--	snd_sof_fw_unload(sdev);
-+	if (!sdev->pdata->vfe)
-+		snd_sof_fw_unload(sdev);
- 
- 	return ret;
- }
-@@ -229,9 +230,12 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
- 		goto ipc_err;
+@@ -13,6 +13,8 @@
+ #include <linux/module.h>
+ #include <sound/soc.h>
+ #include <sound/sof.h>
++#include <sound/sof/rpmsg.h>
++#include "sof-audio.h"
+ #include "sof-priv.h"
+ #include "ops.h"
+ #if IS_ENABLED(CONFIG_SND_SOC_SOF_DEBUG_PROBES)
+@@ -222,6 +224,9 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
+ 		goto dbg_err;
  	}
  
--	ret = sof_load_and_run_firmware(sdev);
--	if (ret < 0)
--		goto fw_load_err;
-+	/* virtio front-end mode will not touch HW, skip fw loading */
-+	if (!plat_data->vfe) {
-+		ret = sof_load_and_run_firmware(sdev);
-+		if (ret < 0)
-+			goto fw_load_err;
-+	}
++	/* enable the vhost driver on this device */
++	sof_vhost_dev_set(sdev);
++
+ 	/* init the IPC */
+ 	sdev->ipc = snd_sof_ipc_init(sdev);
+ 	if (!sdev->ipc) {
+@@ -334,6 +339,7 @@ int snd_sof_device_probe(struct device *dev, struct snd_sof_pdata *plat_data)
+ 	INIT_LIST_HEAD(&sdev->widget_list);
+ 	INIT_LIST_HEAD(&sdev->dai_list);
+ 	INIT_LIST_HEAD(&sdev->route_list);
++	INIT_LIST_HEAD(&sdev->vbe_list);
+ 	spin_lock_init(&sdev->ipc_lock);
+ 	spin_lock_init(&sdev->hw_lock);
  
- 	/* hereafter all FW boot flows are for PM reasons */
- 	sdev->first_boot = false;
-@@ -265,7 +269,8 @@ static int sof_probe_continue(struct snd_sof_dev *sdev)
+diff --git a/sound/soc/sof/ipc.c b/sound/soc/sof/ipc.c
+index 3e788d9..d3e54cf 100644
+--- a/sound/soc/sof/ipc.c
++++ b/sound/soc/sof/ipc.c
+@@ -14,6 +14,8 @@
+ #include <linux/mutex.h>
+ #include <linux/types.h>
  
- fw_trace_err:
- 	snd_sof_free_trace(sdev);
--	snd_sof_fw_unload(sdev);
-+	if (!sdev->pdata->vfe)
-+		snd_sof_fw_unload(sdev);
- fw_load_err:
- 	snd_sof_ipc_free(sdev);
- ipc_err:
-@@ -369,10 +374,12 @@ int snd_sof_device_remove(struct device *dev)
- 		cancel_work_sync(&sdev->probe_work);
++#include <sound/sof/rpmsg.h>
++
+ #include "sof-priv.h"
+ #include "sof-audio.h"
+ #include "ops.h"
+@@ -452,6 +454,9 @@ static void ipc_period_elapsed(struct snd_sof_dev *sdev, u32 msg_id)
  
- 	if (sdev->fw_state > SOF_FW_BOOT_NOT_STARTED) {
--		snd_sof_fw_unload(sdev);
-+		if (!pdata->vfe) {
-+			snd_sof_fw_unload(sdev);
-+			snd_sof_free_trace(sdev);
-+		}
- 		snd_sof_ipc_free(sdev);
- 		snd_sof_free_debug(sdev);
--		snd_sof_free_trace(sdev);
+ 	memcpy(&stream->posn, &posn, sizeof(posn));
+ 
++	/* optionally update position for vBE */
++	sof_vhost_update_guest_posn(sdev, &posn);
++
+ 	/* only inform ALSA for period_wakeup mode */
+ 	if (!stream->substream->runtime->no_period_wakeup)
+ 		snd_sof_pcm_period_elapsed(stream->substream);
+diff --git a/sound/soc/sof/pcm.c b/sound/soc/sof/pcm.c
+index bb8d597..1cd0082 100644
+--- a/sound/soc/sof/pcm.c
++++ b/sound/soc/sof/pcm.c
+@@ -91,7 +91,8 @@ void snd_sof_pcm_period_elapsed(struct snd_pcm_substream *substream)
+ 	 * To avoid sending IPC before the previous IPC is handled, we
+ 	 * schedule delayed work here to call the snd_pcm_period_elapsed().
+ 	 */
+-	schedule_work(&spcm->stream[substream->stream].period_elapsed_work);
++	if (spcm->stream[substream->stream].substream)
++		schedule_work(&spcm->stream[substream->stream].period_elapsed_work);
+ }
+ EXPORT_SYMBOL(snd_sof_pcm_period_elapsed);
+ 
+@@ -758,6 +759,7 @@ static int sof_pcm_probe(struct snd_soc_component *component)
+ 
+ 	/* load the default topology */
+ 	sdev->component = component;
++	sdev->card = component->card;
+ 
+ 	tplg_filename = devm_kasprintf(sdev->dev, GFP_KERNEL,
+ 				       "%s/%s",
+diff --git a/sound/soc/sof/pm.c b/sound/soc/sof/pm.c
+index c7aa2cf..3584787 100644
+--- a/sound/soc/sof/pm.c
++++ b/sound/soc/sof/pm.c
+@@ -8,6 +8,8 @@
+ // Author: Liam Girdwood <liam.r.girdwood@linux.intel.com>
+ //
+ 
++#include <sound/sof/rpmsg.h>
++
+ #include "ops.h"
+ #include "sof-priv.h"
+ #include "sof-audio.h"
+@@ -253,6 +255,8 @@ static int sof_suspend(struct device *dev, bool runtime_suspend)
+ 	/* reset FW state */
+ 	sdev->fw_state = SOF_FW_BOOT_NOT_STARTED;
+ 
++	sof_vhost_suspend(sdev);
++
+ 	return ret;
+ }
+ 
+diff --git a/sound/soc/sof/sof-audio.c b/sound/soc/sof/sof-audio.c
+index 92fa6a8..2a8b8dc 100644
+--- a/sound/soc/sof/sof-audio.c
++++ b/sound/soc/sof/sof-audio.c
+@@ -151,6 +151,7 @@ int sof_restore_pipelines(struct device *dev)
+ 	struct snd_sof_dai *dai;
+ 	struct sof_ipc_comp_dai *comp_dai;
+ 	struct sof_ipc_cmd_hdr *hdr;
++	struct sof_ipc_buffer *buffer;
+ 	int ret;
+ 
+ 	/* restore pipeline components */
+@@ -182,6 +183,14 @@ int sof_restore_pipelines(struct device *dev)
+ 			pipeline = swidget->private;
+ 			ret = sof_load_pipeline_ipc(dev, pipeline, &r);
+ 			break;
++
++		case snd_soc_dapm_buffer:
++
++			buffer = swidget->private;
++			if (!buffer->size)
++				break;
++
++			/* Fall through */
+ 		default:
+ 			hdr = swidget->private;
+ 			ret = sof_ipc_tx_message(sdev->ipc, hdr->cmd,
+diff --git a/sound/soc/sof/sof-audio.h b/sound/soc/sof/sof-audio.h
+index 8054e48..5e95a6c 100644
+--- a/sound/soc/sof/sof-audio.h
++++ b/sound/soc/sof/sof-audio.h
+@@ -41,6 +41,7 @@ struct snd_sof_pcm_stream {
+ 	 * active or not while suspending the stream
+ 	 */
+ 	bool suspend_ignored;
++	size_t guest_offset;
+ };
+ 
+ /* ALSA SOF PCM device */
+@@ -217,4 +218,19 @@ int snd_sof_ipc_set_get_comp_data(struct snd_sof_control *scontrol,
+ int sof_machine_register(struct snd_sof_dev *sdev, void *pdata);
+ void sof_machine_unregister(struct snd_sof_dev *sdev, void *pdata);
+ 
++#if IS_ENABLED(CONFIG_VHOST_SOF)
++int sof_vhost_add_conn(struct snd_sof_dev *sdev,
++		     struct snd_sof_widget *w_host,
++		     struct snd_sof_widget *w_guest,
++		     enum sof_ipc_stream_direction direction);
++#else
++static inline int sof_vhost_add_conn(struct snd_sof_dev *sdev,
++				   struct snd_sof_widget *w_host,
++				   struct snd_sof_widget *w_guest,
++				   enum sof_ipc_stream_direction direction)
++{
++	return 0;
++}
++#endif
++
+ #endif
+diff --git a/sound/soc/sof/sof-priv.h b/sound/soc/sof/sof-priv.h
+index 2da2469..c11ef1a 100644
+--- a/sound/soc/sof/sof-priv.h
++++ b/sound/soc/sof/sof-priv.h
+@@ -57,6 +57,18 @@
+ 
+ /* The maximum number of components a virtio user vFE driver can use */
+ #define SOF_RPMSG_MAX_UOS_COMPS	1000
++#define SOF_RPMSG_COMP_ID_UNASSIGNED	0xffffffff
++
++/*
++ * in virtio iovec array:
++ *  iovec[0]: the ipc message data between vFE and vBE
++ *  iovec[1]: the ipc reply data between vFE and vBE
++ */
++#define SOF_RPMSG_IPC_MSG 0
++#define SOF_RPMSG_IPC_REPLY 1
++
++/* Maximum supported number of VirtIO clients */
++#define SND_SOF_MAX_VFES BITS_PER_LONG
+ 
+ /* DSP power state */
+ enum sof_dsp_power_states {
+@@ -368,6 +380,7 @@ struct snd_sof_dev {
+ 	 * can't use const
+ 	 */
+ 	struct snd_soc_component_driver plat_drv;
++	struct snd_soc_card *card;
+ 
+ 	/* current DSP power state */
+ 	struct sof_dsp_power_state dsp_power_state;
+@@ -435,6 +448,9 @@ struct snd_sof_dev {
+ 
+ 	/* VirtIO fields for host and guest */
+ 	atomic_t dsp_reset_count;
++	struct list_head vbe_list;
++	struct list_head connector_list;
++	unsigned long vfe_mask[DIV_ROUND_UP(SND_SOF_MAX_VFES, BITS_PER_LONG)];
+ 
+ 	/* DMA for Trace */
+ 	struct snd_dma_buffer dmatb;
+diff --git a/sound/soc/sof/topology.c b/sound/soc/sof/topology.c
+index bb9fcb6..ed05381 100644
+--- a/sound/soc/sof/topology.c
++++ b/sound/soc/sof/topology.c
+@@ -1454,6 +1454,13 @@ static int sof_widget_load_buffer(struct snd_soc_component *scomp, int index,
+ 
+ 	swidget->private = buffer;
+ 
++	/*
++	 * VirtIO dummy buffers between a dummy "aif_in" / "aif_out" widget and
++	 * a mixer / demux respectively
++	 */
++	if (!buffer->size)
++		return 0;
++
+ 	ret = sof_ipc_tx_message(sdev->ipc, buffer->comp.hdr.cmd, buffer,
+ 				 sizeof(*buffer), r, sizeof(*r));
+ 	if (ret < 0) {
+@@ -1499,6 +1506,16 @@ static int sof_widget_load_pcm(struct snd_soc_component *scomp, int index,
+ 	struct sof_ipc_comp_host *host;
+ 	int ret;
+ 
++	/*
++	 * For now just drop any virtual PCMs. Might need to use a more robust
++	 * identification than the name
++	 */
++	if ((dir == SOF_IPC_STREAM_PLAYBACK &&
++	     !strcmp(SOC_VIRT_DAI_PLAYBACK, swidget->widget->sname)) ||
++	    (dir == SOF_IPC_STREAM_CAPTURE &&
++	     !strcmp(SOC_VIRT_DAI_CAPTURE, swidget->widget->sname)))
++		return 0;
++
+ 	host = kzalloc(sizeof(*host), GFP_KERNEL);
+ 	if (!host)
+ 		return -ENOMEM;
+@@ -3128,6 +3145,15 @@ static int sof_link_load(struct snd_soc_component *scomp, int index,
+ 		link->trigger[SNDRV_PCM_STREAM_CAPTURE] =
+ 					SND_SOC_DPCM_TRIGGER_POST;
+ 
++		/*
++		 * set .no_pcm on VirtIO hosts for pseudo PCMs, used as anchors
++		 * for guest pipeline linking
++		 */
++		if (link->stream_name &&
++		    (!strcmp(link->stream_name, "vm_fe_playback") ||
++		     !strcmp(link->stream_name, "vm_fe_capture")))
++			link->no_pcm = true;
++
+ 		/* nothing more to do for FE dai links */
+ 		return 0;
+ 	}
+@@ -3349,6 +3375,32 @@ static int sof_route_load(struct snd_soc_component *scomp, int index,
  	}
  
  	/*
-@@ -391,9 +398,11 @@ int snd_sof_device_remove(struct device *dev)
- 	if (sdev->fw_state > SOF_FW_BOOT_NOT_STARTED)
- 		snd_sof_remove(sdev);
- 
--	/* release firmware */
--	release_firmware(pdata->fw);
--	pdata->fw = NULL;
-+	if (!pdata->vfe) {
-+		/* release firmware */
-+		release_firmware(pdata->fw);
-+		pdata->fw = NULL;
++	 * In VirtIO case the host topology will contain a dummy PCM and a
++	 * buffer at each location, where a partial guest topology will be
++	 * attached. These dummy widgets shall not be sent to the DSP. We use
++	 * them to identify and store VirtIO guest connection points.
++	 */
++	if (source_swidget->id == snd_soc_dapm_buffer) {
++		struct sof_ipc_buffer *buffer = source_swidget->private;
++		/* Is this a virtual playback buffer? */
++		if (!buffer->size) {
++			ret = sof_vhost_add_conn(sdev, sink_swidget,
++					       source_swidget,
++					       SOF_IPC_STREAM_PLAYBACK);
++			goto err;
++		}
++	} else if (sink_swidget->id == snd_soc_dapm_buffer) {
++		struct sof_ipc_buffer *buffer = sink_swidget->private;
++		/* Is this a virtual capture buffer? */
++		if (!buffer->size) {
++			ret = sof_vhost_add_conn(sdev, source_swidget,
++					       sink_swidget,
++					       SOF_IPC_STREAM_CAPTURE);
++			goto err;
++		}
 +	}
- 
- 	return 0;
- }
-diff --git a/sound/soc/sof/ipc.c b/sound/soc/sof/ipc.c
-index e9b0347..3e788d9 100644
---- a/sound/soc/sof/ipc.c
-+++ b/sound/soc/sof/ipc.c
-@@ -25,18 +25,6 @@
-  * IPC message Tx/Rx message handling.
-  */
- 
--/* SOF generic IPC data */
--struct snd_sof_ipc {
--	struct snd_sof_dev *sdev;
--
--	/* protects messages and the disable flag */
--	struct mutex tx_mutex;
--	/* disables further sending of ipc's */
--	bool disable_ipc_tx;
--
--	struct snd_sof_ipc_msg msg;
--};
--
- struct sof_ipc_ctrl_data_params {
- 	size_t msg_bytes;
- 	size_t hdr_bytes;
-@@ -84,6 +72,10 @@ static void ipc_log_header(struct device *dev, u8 *text, u32 cmd)
- 			str2 = "BUFFER_NEW"; break;
- 		case SOF_IPC_TPLG_BUFFER_FREE:
- 			str2 = "BUFFER_FREE"; break;
-+		case SOF_IPC_TPLG_VFE_GET:
-+			str2 = "VFE_GET"; break;
-+		case SOF_IPC_TPLG_VFE_COMP_ID:
-+			str2 = "VFE_COMP_ID"; break;
- 		default:
- 			str2 = "unknown type"; break;
- 		}
-diff --git a/sound/soc/sof/pcm.c b/sound/soc/sof/pcm.c
-index 22fe9d5..bb8d597 100644
---- a/sound/soc/sof/pcm.c
-+++ b/sound/soc/sof/pcm.c
-@@ -678,6 +678,13 @@ static int sof_pcm_dai_link_fixup(struct snd_soc_pcm_runtime *rtd,
- 		return -EINVAL;
- 	}
- 
-+	/* VirtIO guests have no .dai_config, DAIs are configured by the host */
-+	if (!dai->dai_config) {
-+		dev_dbg(component->dev, "no DAI config for %s!\n",
-+			rtd->dai_link->name);
-+		return 0;
-+	}
-+
- 	/* read rate and channels from topology */
- 	switch (dai->dai_config->type) {
- 	case SOF_DAI_INTEL_SSP:
-@@ -793,6 +800,8 @@ void snd_sof_new_platform_drv(struct snd_sof_dev *sdev)
- 	pd->hw_free = sof_pcm_hw_free;
- 	pd->trigger = sof_pcm_trigger;
- 	pd->pointer = sof_pcm_pointer;
-+	if (plat_data->vfe)
-+		pd->copy_user = sof_vfe_pcm_copy_user;
- 
- #if IS_ENABLED(CONFIG_SND_SOC_SOF_COMPRESS)
- 	pd->compress_ops = &sof_compressed_ops;
-diff --git a/sound/soc/sof/rpmsg-vfe.c b/sound/soc/sof/rpmsg-vfe.c
-new file mode 100644
-index 00000000..c1cca16
---- /dev/null
-+++ b/sound/soc/sof/rpmsg-vfe.c
-@@ -0,0 +1,881 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * Copyright (c) 2020 Intel, Inc.
-+ */
-+
-+#include <linux/completion.h>
-+#include <linux/device.h>
-+#include <linux/firmware.h>
-+#include <linux/interrupt.h>
-+#include <linux/module.h>
-+#include <linux/rpmsg.h>
-+#include <linux/scatterlist.h>
-+#include <linux/virtio_rpmsg.h>
-+#include <sound/sof.h>
-+#include <sound/sof/rpmsg.h>
-+
-+#include "ops.h"
-+#include "sof-audio.h"
-+#include "sof-priv.h"
-+
-+/* 600ms for VirtQ IPC */
-+#define SOF_VFE_DATA_TIMEOUT_MS 600
-+
-+/* endpoint indices */
-+#define SOF_VFE_POSN (SOF_RPMSG_ADDR_POSN - 1)
-+#define SOF_VFE_DATA (SOF_RPMSG_ADDR_DATA - 1)
-+
-+struct sov_vfe_posn_stream {
-+	struct work_struct work;
-+	struct snd_sof_pcm_stream *stream;
-+};
-+
-+struct sof_vfe {
-+	struct snd_sof_dev *sdev;
-+
-+	/* current pending cmd message */
-+	struct snd_sof_ipc_msg *msg;
-+
-+	struct rpmsg_device *rpdev;
-+	/* One endpoint is embedded in rpdev */
-+	struct rpmsg_endpoint *ept[SOF_RPMSG_ADDR_COUNT - 1];
 +
 +	/*
-+	 * IPC messages are blocked. "true" if the DSP hasn't been reset and
-+	 * therefore we don't have to re-send our topology.
-+	 */
-+	bool block_ipc;
-+	struct sof_rpmsg_ipc_tplg_resp tplg;
+ 	 * Don't send routes whose sink widget is of type
+ 	 * output or out_drv to the DSP
+ 	 */
+@@ -3615,7 +3667,7 @@ int snd_sof_load_topology(struct snd_soc_component *scomp, const char *file)
+ 	/* VirtIO guests request topology from the host */
+ 	if (sdev->pdata->vfe) {
+ 		fw = &vfe_fw;
+-		ret = sof_ops(sdev)->request_topology(sdev, file, &vfe_fw);
++		ret = sof_ops(sdev)->request_topology(sdev, &vfe_fw);
+ 	} else {
+ 		ret = request_firmware(&fw, file, sdev->dev);
+ 	}
+diff --git a/sound/soc/sof/vhost-vbe.c b/sound/soc/sof/vhost-vbe.c
+new file mode 100644
+index 00000000..8056e25
+--- /dev/null
++++ b/sound/soc/sof/vhost-vbe.c
+@@ -0,0 +1,1102 @@
++/* SPDX-License-Identifier: (GPL-2.0 OR BSD-3-Clause) */
++/*
++ * Copyright(c) 2017-2020 Intel Corporation. All rights reserved.
++ *
++ * Author:	Libin Yang <libin.yang@intel.com>
++ *		Luo Xionghu <xionghu.luo@intel.com>
++ *		Liam Girdwood <liam.r.girdwood@linux.intel.com>
++ *		Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
++ */
 +
-+	struct completion completion;
++#include <asm/unaligned.h>
 +
-+	/* Pointers for virtual queue data buffers */
-+	struct sof_rpmsg_data_req *playback_buf;
-+	struct sof_rpmsg_data_resp *capture_buf;
++#include <linux/atomic.h>
++#include <linux/device.h>
++#include <linux/file.h>
++#include <linux/firmware.h>
++#include <linux/fs.h>
++#include <linux/hw_random.h>
++#include <linux/miscdevice.h>
++#include <linux/module.h>
++#include <linux/slab.h>
++#include <linux/uio.h>
++#include <linux/vhost_types.h>
++#include <linux/vmalloc.h>
++#include <linux/workqueue.h>
 +
-+	/* Headers, used as a playback response or capture request */
-+	struct sof_rpmsg_data_req hdr_req;
-+	struct sof_rpmsg_data_resp hdr_resp;
-+	struct sof_rpmsg_ipc_req ipc_buf;
++#include <sound/pcm_params.h>
++#include <sound/sof.h>
 +
-+	void __user *capture;
-+	size_t capture_size;
++#include <sound/sof/rpmsg.h>
 +
-+	struct workqueue_struct *posn_wq;
-+	struct sov_vfe_posn_stream posn_stream[2];
++#include "sof-audio.h"
++#include "sof-priv.h"
++#include "ops.h"
++
++/* A connection of a guest pipeline into the host topology */
++struct dsp_pipeline_connect {
++	int host_pipeline_id;
++	int guest_pipeline_id;
++	int host_component_id;
++	int guest_component_id;
++	enum sof_ipc_stream_direction direction;
++	struct list_head list;
 +};
 +
-+/* Firmware ready IPC. */
-+static int sof_vfe_fw_ready(struct snd_sof_dev *sdev, u32 msg_id)
++static const char dsp_pcm_name[] = "VHost PCM";
++
++/*
++ * This function is used to find a BE substream. It uses the dai_link stream
++ * name for that. The current dai_link stream names are "vm_fe_playback" and
++ * "vm_fe_capture," which means only one Virtual Machine is supported and the VM
++ * only supports one playback pcm and one capture pcm. After we switch to the
++ * new topology, we can support multiple VMs and multiple PCM streams for each
++ * VM. This function may be abandoned after switching to the new topology.
++ *
++ * Note: if this function returns substream != NULL, then *rtd != NULL too (if
++ * rtd != NULL, of course). If it returns NULL, *rtd hasn't been changed.
++ */
++static struct snd_pcm_substream *sof_vhost_get_substream(
++					struct snd_sof_dev *sdev,
++					struct snd_soc_pcm_runtime **rtd,
++					int direction)
 +{
-+	return 0;
-+};
++	struct snd_soc_card *card = sdev->card;
++	struct snd_soc_pcm_runtime *r;
 +
-+/* Send IPC to vBE */
-+static int sof_vfe_send_msg(struct snd_sof_dev *sdev,
-+			    struct snd_sof_ipc_msg *msg)
-+{
-+	struct sof_ipc_reply *reply = msg->reply_data;
-+	struct sof_vfe *vfe = sdev->pdata->vfe;
-+	size_t msg_size = msg->msg_size;
-+	void *msg_data = msg->msg_data;
-+	int ret;
++	for_each_card_rtds(card, r) {
++		struct snd_pcm_substream *substream;
++		struct snd_pcm *pcm = r->pcm;
++		if (!pcm || !pcm->internal)
++			continue;
 +
-+	if (vfe->block_ipc) {
-+		reply->error = 0;
-+		msg->reply_error = reply->error;
-+		/*
-+		 * No need to take .ipc_lock: we return > 0, so
-+		 * sof_ipc_tx_message_unlocked() won't overwrite .ipc_complete
-+		 */
-+		msg->ipc_complete = true;
-+		wake_up(&msg->waitq);
++		/* Find a substream dedicated to the vFE. */
++		substream = pcm->streams[direction].substream;
++		if (substream) {
++			struct snd_soc_dai_link *dai_link = r->dai_link;
 +
-+		return 1;
-+	}
-+
-+	vfe->ipc_buf.reply_size = msg->reply_size;
-+	memcpy(vfe->ipc_buf.ipc_msg, msg_data, msg_size);
-+
-+	ret = rpmsg_sendto(vfe->rpdev->ept, &vfe->ipc_buf,
-+			   msg_size + offsetof(struct sof_rpmsg_ipc_req, ipc_msg),
-+			   SOF_RPMSG_ADDR_IPC);
-+	if (ret < 0) {
-+		dev_err(sdev->dev, "%s(): error: sending IPC: %d\n",
-+			__func__, ret);
-+		return ret;
-+	}
-+
-+	vfe->msg = msg;
-+
-+	return 0;
-+}
-+
-+static int sof_vfe_register(struct snd_sof_dev *sdev)
-+{
-+	sdev->pdata->vfe->sdev = sdev;
-+	sdev->next_comp_id = SOF_RPMSG_MAX_UOS_COMPS;
-+
-+	return 0;
-+}
-+
-+/* Some struct snd_sof_dsp_ops operations are compulsory, but unused by vFE */
-+static int sof_vfe_deregister(struct snd_sof_dev *sdev)
-+{
-+	return 0;
-+}
-+
-+static int sof_vfe_run(struct snd_sof_dev *sdev)
-+{
-+	return 0;
-+}
-+
-+static void sof_vfe_block_read(struct snd_sof_dev *sdev, u32 bar,
-+			       u32 offset, void *dest,
-+			       size_t size)
-+{
-+}
-+
-+static void sof_vfe_block_write(struct snd_sof_dev *sdev, u32 bar,
-+				u32 offset, void *src,
-+				size_t size)
-+{
-+}
-+
-+static int sof_vfe_load_firmware(struct snd_sof_dev *sdev)
-+{
-+	return 0;
-+}
-+
-+static void sof_vfe_ipc_msg_data(struct snd_sof_dev *sdev,
-+				 struct snd_pcm_substream *substream,
-+				 void *p, size_t sz)
-+{
-+}
-+
-+static int sof_vfe_ipc_pcm_params(struct snd_sof_dev *sdev,
-+				  struct snd_pcm_substream *substream,
-+				  const struct sof_ipc_pcm_params_reply *reply)
-+{
-+	return 0;
-+}
-+
-+static int sof_vfe_sof_runtime_dummy(struct snd_sof_dev *sdev)
-+{
-+	return 0;
-+}
-+
-+/* Send the position queue address. */
-+static int sof_vfe_position_addr(struct snd_sof_dev *sdev)
-+{
-+	struct sof_vfe *vfe = sdev->pdata->vfe;
-+	int ret = rpmsg_sendto(vfe->ept[SOF_VFE_POSN],
-+			       &vfe->ept[SOF_VFE_POSN]->addr,
-+			       sizeof(vfe->ept[SOF_VFE_POSN]->addr),
-+			       SOF_RPMSG_ADDR_POSN);
-+	if (ret < 0)
-+		dev_err(sdev->dev, "%s(): failed %d to send address\n",
-+			__func__, ret);
-+
-+	return ret;
-+}
-+
-+static int sof_vfe_request_topology(struct snd_sof_dev *sdev,
-+				    struct firmware *fw)
-+{
-+	struct sof_rpmsg_ipc_tplg_req rq = {
-+		.hdr = {
-+			.size = sizeof(rq),
-+			.cmd = SOF_IPC_GLB_TPLG_MSG | SOF_IPC_TPLG_VFE_GET,
-+		},
-+	};
-+	struct sof_vfe *vfe = sdev->pdata->vfe;
-+	struct sof_rpmsg_ipc_tplg_resp *partdata =
-+		(struct sof_rpmsg_ipc_tplg_resp *)vfe->ipc_buf.ipc_msg;
-+	size_t data_size;
-+	struct device *dev = sdev->dev;
-+	int ret;
-+
-+	if (!partdata)
-+		return -ENOMEM;
-+
-+	ret = pm_runtime_get_sync(dev);
-+	if (ret < 0) {
-+		dev_err(dev,
-+			"Cannot resume VFE sof-audio device. Error %d\n", ret);
-+		return ret;
-+	}
-+
-+	do {
-+		ret = sof_ipc_tx_message_no_pm(sdev->ipc, rq.hdr.cmd,
-+					       &rq, sizeof(rq), partdata,
-+					       SOF_IPC_MSG_MAX_SIZE);
-+		if (ret < 0)
-+			goto free;
-+
-+		if (partdata->reply.hdr.size <= sizeof(partdata->reply)) {
-+			ret = -EINVAL;
-+			goto free;
++			/* FIXME: replace hard-coded stream name */
++			if (dai_link->stream_name &&
++			    (!strcmp(dai_link->stream_name, "vm_fe_playback") ||
++			     !strcmp(dai_link->stream_name, "vm_fe_capture"))) {
++				if (rtd)
++					*rtd = r;
++				return substream;
++			}
 +		}
++	}
 +
-+		/*
-+		 * Size is consistent and decreasing, we're guaranteed to exit
-+		 * this loop eventually
-+		 */
-+		data_size = partdata->reply.hdr.size - sizeof(partdata->reply);
-+		if (rq.offset + data_size > sizeof(vfe->tplg.data)) {
-+			ret = -ENOBUFS;
-+			goto free;
-+		}
-+
-+		memcpy(vfe->tplg.data + rq.offset, partdata->data, data_size/*to_copy*/);
-+		rq.offset += data_size;
-+	} while (partdata->reply.hdr.size == SOF_IPC_MSG_MAX_SIZE);
-+
-+	fw->size = rq.offset;
-+	fw->data = vfe->tplg.data;
-+
-+	/* Get our first component ID */
-+	rq.hdr.cmd = SOF_IPC_GLB_TPLG_MSG | SOF_IPC_TPLG_VFE_COMP_ID;
-+	rq.hdr.size = sizeof(rq.hdr);
-+	ret = sof_ipc_tx_message_no_pm(sdev->ipc, rq.hdr.cmd,
-+				       &rq, rq.hdr.size, partdata,
-+				       sizeof(partdata->reply) + sizeof(u32));
-+	if (ret < 0)
-+		goto free;
-+
-+	sdev->next_comp_id = *(u32 *)partdata->data;
-+
-+	ret = sof_vfe_position_addr(sdev);
-+
-+free:
-+	pm_runtime_mark_last_busy(dev);
-+	pm_runtime_put_autosuspend(dev);
-+
-+	return ret;
++	return NULL;
 +}
 +
-+static unsigned long get_dma_offset(struct snd_pcm_runtime *runtime,
-+				    int channel, unsigned long hwoff)
++static struct snd_sof_pcm *sof_vhost_find_spcm_comp(struct snd_sof_dev *sdev,
++						    unsigned int comp_id,
++						    int *direction)
 +{
-+	return hwoff + channel * (runtime->dma_bytes / runtime->channels);
++	return snd_sof_find_spcm_comp(sdev->component, comp_id, direction);
 +}
 +
-+/* playback and capture are serialised by ipc->tx_mutex */
-+static int sof_vfe_pcm_read_part(struct snd_sof_dev *sdev,
-+				 struct snd_sof_pcm *spcm,
-+				 struct snd_pcm_substream *substream,
-+				 int channel, unsigned long posn,
-+				 void __user *buf, unsigned long chunk_size)
++/*
++ * Prepare hardware parameters, required for buffer allocation and PCM
++ * configuration
++ */
++static int sof_vhost_assemble_params(struct sof_ipc_pcm_params *pcm,
++				     struct snd_pcm_hw_params *params)
 +{
-+	struct sof_vfe *vfe = sdev->pdata->vfe;
-+	struct sof_rpmsg_data_resp *data = vfe->capture_buf;
-+	long remain;
-+	int ret;
++	struct snd_mask *fmt = hw_param_mask(params, SNDRV_PCM_HW_PARAM_FORMAT);
 +
-+	/* put response size in request */
-+	vfe->hdr_req.size = chunk_size;
-+	vfe->hdr_req.comp_id = spcm->stream[substream->stream].comp_id;
-+	vfe->hdr_req.offset = get_dma_offset(substream->runtime, channel, posn);
++	hw_param_interval(params, SNDRV_PCM_HW_PARAM_CHANNELS)->min =
++		pcm->params.channels;
 +
-+	vfe->capture = buf;
-+	vfe->capture_size = chunk_size;
++	hw_param_interval(params, SNDRV_PCM_HW_PARAM_RATE)->min =
++		pcm->params.rate;
 +
-+	ret = rpmsg_sendto(vfe->ept[SOF_VFE_DATA], &vfe->hdr_req,
-+			   sizeof(vfe->hdr_req), SOF_RPMSG_ADDR_DATA);
++	hw_param_interval(params, SNDRV_PCM_HW_PARAM_PERIOD_BYTES)->min =
++		pcm->params.host_period_bytes;
 +
-+	if (ret < 0) {
-+		dev_err(sdev->dev, "%s(): error: sending capture command %d\n",
-+			__func__, ret);
-+		return ret;
++	hw_param_interval(params, SNDRV_PCM_HW_PARAM_BUFFER_BYTES)->min =
++		pcm->params.buffer.size;
++
++	snd_mask_none(fmt);
++	switch (pcm->params.frame_fmt) {
++	case SOF_IPC_FRAME_S16_LE:
++		snd_mask_set(fmt, SNDRV_PCM_FORMAT_S16);
++		break;
++	case SOF_IPC_FRAME_S24_4LE:
++		snd_mask_set(fmt, SNDRV_PCM_FORMAT_S24);
++		break;
++	case SOF_IPC_FRAME_S32_LE:
++		snd_mask_set(fmt, SNDRV_PCM_FORMAT_S32);
++		break;
++	case SOF_IPC_FRAME_FLOAT:
++		snd_mask_set(fmt, SNDRV_PCM_FORMAT_FLOAT);
++		break;
++	default:
++		return -EINVAL;
 +	}
-+
-+	ret = wait_for_completion_timeout(&vfe->completion,
-+					  msecs_to_jiffies(SOF_VFE_DATA_TIMEOUT_MS));
-+	if (!ret) {
-+		dev_err(sdev->dev, "%s(): error: data read timeout\n", __func__);
-+		return -ETIMEDOUT;
-+	}
-+	if (ret < 0)
-+		return ret;
-+
-+	remain = copy_to_user(vfe->capture, data->data, data->size);
-+	if (remain) {
-+		dev_err(sdev->dev, "%s(): copy_to_user() failed %ld\n",
-+			__func__, remain);
-+		return -EFAULT;
-+	}
-+
-+	if (data->error < 0)
-+		return data->error;
-+
 +	return 0;
 +}
 +
-+/* playback and capture are serialised by ipc->tx_mutex */
-+static int sof_vfe_pcm_write_part(struct snd_sof_dev *sdev,
-+				  struct snd_sof_pcm *spcm,
-+				  struct snd_pcm_substream *substream,
-+				  int channel, unsigned long posn,
-+				  void __user *buf, unsigned long chunk_size)
++/* Handle SOF_IPC_STREAM_PCM_PARAMS IPC */
++static int sof_vhost_stream_hw_params(struct snd_sof_dev *sdev,
++				      struct sof_ipc_pcm_params *pcm)
 +{
-+	struct sof_vfe *vfe = sdev->pdata->vfe;
-+	struct sof_rpmsg_data_req *data = vfe->playback_buf;
++	struct snd_pcm_substream *substream;
++	struct snd_pcm_runtime *runtime;
++	struct snd_pcm_hw_params params;
++	int direction = pcm->params.direction;
 +	int ret;
 +
-+	data->size = chunk_size;
-+	data->comp_id = spcm->stream[substream->stream].comp_id;
-+	data->offset = get_dma_offset(substream->runtime, channel, posn);
++	/* find the proper substream */
++	substream = sof_vhost_get_substream(sdev, NULL, direction);
++	if (!substream)
++		return -ENODEV;
 +
-+	if (copy_from_user(data->data, buf, chunk_size))
-+		return -EFAULT;
-+
-+	vfe->capture = NULL;
-+
-+	ret = rpmsg_sendto(vfe->ept[SOF_VFE_DATA], data,
-+			   chunk_size + sizeof(*data), SOF_RPMSG_ADDR_DATA);
-+	if (ret < 0) {
-+		dev_err(sdev->dev, "%s(): error: sending playback data: %d\n",
-+			__func__, ret);
-+		return ret;
-+	}
-+
-+	ret = wait_for_completion_timeout(&vfe->completion,
-+				msecs_to_jiffies(SOF_VFE_DATA_TIMEOUT_MS));
-+	if (!ret)
-+		return -ETIMEDOUT;
-+
-+	return ret < 0 ? ret : vfe->hdr_resp.error;
-+}
-+
-+/* The slow version, using VirtQueues for playback and capture data */
-+int sof_vfe_pcm_copy_user(struct snd_soc_component *component,
-+			  struct snd_pcm_substream *substream, int channel,
-+			  unsigned long posn, void __user *buf,
-+			  unsigned long bytes)
-+{
-+	struct snd_soc_pcm_runtime *rtd = substream->private_data;
-+	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(component);
-+	struct snd_sof_pcm *spcm = snd_sof_find_spcm_dai(sdev->component, rtd);
-+	unsigned int i, n = (bytes + SOF_RPMSG_MAX_DATA_SIZE - 1) /
-+		SOF_RPMSG_MAX_DATA_SIZE;
-+	int ret = 0;
-+
-+	if (!spcm || spcm->scomp != sdev->component) {
-+		dev_err(sdev->dev, "%s(): invalid SPCM 0x%p!\n", __func__,
-+			spcm);
++	runtime = substream->runtime;
++	if (!runtime) {
++		dev_err(sdev->dev, "no runtime is available for hw_params\n");
 +		return -ENODEV;
 +	}
 +
-+	/* TODO: is locking really needed here? */
-+	mutex_lock(&sdev->ipc->tx_mutex);
++	/* TODO: codec hw_params */
 +
-+	for (i = 0; i < n; i++) {
-+		size_t n_bytes = i == n - 1 ? bytes % SOF_RPMSG_MAX_DATA_SIZE :
-+			SOF_RPMSG_MAX_DATA_SIZE;
++	/* Use different stream_tag from FE. This is the real tag */
++	sof_vhost_assemble_params(pcm, &params);
 +
-+		reinit_completion(&sdev->pdata->vfe->completion);
-+
-+		if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
-+			ret = sof_vfe_pcm_write_part(sdev, spcm, substream,
-+						channel, posn, buf, n_bytes);
-+		else
-+			ret = sof_vfe_pcm_read_part(sdev, spcm, substream,
-+						channel, posn, buf, n_bytes);
-+
-+		if (ret < 0)
-+			break;
-+
-+		buf += n_bytes;
-+		posn += n_bytes;
-+	}
-+
-+	mutex_unlock(&sdev->ipc->tx_mutex);
-+
-+	return ret;
-+}
-+
-+#define SOF_VFE_FORMATS (SNDRV_PCM_FMTBIT_S16_LE | SNDRV_PCM_FMTBIT_S24_LE | \
-+			 SNDRV_PCM_FMTBIT_S32_LE)
-+
-+struct snd_soc_dai_driver virtio_dai[] = {
-+	{
-+		.name = "VirtIO DAI",
-+		/*
-+		 * non-NULL "stream" parameter interferes in
-+		 * snd_soc_dapm_new_dai_widgets()
-+		 */
-+		.playback = SOF_DAI_STREAM(NULL, 1, 8,
-+				SNDRV_PCM_RATE_8000_192000, SOF_VFE_FORMATS),
-+		.capture = SOF_DAI_STREAM(NULL, 1, 8,
-+				SNDRV_PCM_RATE_8000_192000, SOF_VFE_FORMATS),
-+	},
-+};
-+
-+static int sof_vfe_pcm_open(struct snd_sof_dev *sdev,
-+			    struct snd_pcm_substream *substream)
-+{
-+	size_t overhead;
-+	int ret = pm_runtime_get_sync(sdev->dev);
-+	if (ret < 0)
++	/* Allocate a duplicate of the guest buffer */
++	ret = snd_pcm_lib_malloc_pages(substream, params_buffer_bytes(&params));
++	if (ret < 0) {
 +		dev_err(sdev->dev,
-+			"Cannot resume VFE sof-audio device. Error %d\n", ret);
++			"error %d: could not allocate %d bytes for PCM \"%s\"\n",
++			ret, params_buffer_bytes(&params), substream->pcm->name);
++		return ret;
++	}
 +
-+	overhead = substream->stream == SNDRV_PCM_STREAM_PLAYBACK ?
-+		ALIGN(sizeof(struct sof_rpmsg_data_req) +
-+		      sizeof(struct rpmsg_hdr), 16) :
-+		ALIGN(sizeof(struct sof_rpmsg_data_resp) +
-+		      sizeof(struct rpmsg_hdr), 16);
++	return snd_sof_pcm_platform_hw_params(sdev, substream, &params,
++					      &pcm->params);
++}
 +
-+	snd_pcm_hw_constraint_minmax(substream->runtime,
-+				     SNDRV_PCM_HW_PARAM_BUFFER_BYTES, 0,
-+				     SOF_RPMSG_MAX_DATA_SIZE - overhead);
++/* Allocate a runtime object and buffer pages */
++static int sof_vhost_pcm_open(struct snd_sof_dev *sdev, void *ipc_data)
++{
++	struct snd_pcm_substream *substream;
++	struct snd_soc_pcm_runtime *rtd;
++	struct sof_ipc_pcm_params *pcm = ipc_data;
++	struct snd_pcm_runtime *runtime;
++	struct snd_sof_pcm *spcm;
++	u32 comp_id = pcm->comp_id;
++	size_t size;
++	int direction, ret;
 +
++	spcm = sof_vhost_find_spcm_comp(sdev, comp_id, &direction);
++	if (!spcm) {
++		dev_err(sdev->dev, "%s(): no SPCM for comp %u\n", __func__, comp_id);
++		return -ENODEV;
++	}
++
++	substream = sof_vhost_get_substream(sdev, &rtd, direction);
++	if (!substream) {
++		dev_err(sdev->dev, "%s(): no substream for comp %u\n",
++			__func__, comp_id);
++		return -ENODEV;
++	}
++	if (substream->ref_count > 0)
++		return -EBUSY;
++	substream->ref_count++;	/* set it used */
++
++	runtime = kzalloc(sizeof(*runtime), GFP_KERNEL);
++	if (!runtime)
++		return -ENOMEM;
++
++	size = PAGE_ALIGN(sizeof(struct snd_pcm_mmap_status));
++	runtime->status = alloc_pages_exact(size, GFP_KERNEL);
++	if (!runtime->status) {
++		ret = -ENOMEM;
++		goto eruntime;
++	}
++	memset((void *)runtime->status, 0, size);
++
++	size = PAGE_ALIGN(sizeof(struct snd_pcm_mmap_control));
++	runtime->control = alloc_pages_exact(size, GFP_KERNEL);
++	if (!runtime->control) {
++		dev_err(sdev->dev, "fail to alloc pages for runtime->control");
++		ret = -ENOMEM;
++		goto estatus;
++	}
++	memset((void *)runtime->control, 0, size);
++
++	init_waitqueue_head(&runtime->sleep);
++	init_waitqueue_head(&runtime->tsleep);
++	runtime->status->state = SNDRV_PCM_STATE_OPEN;
++
++	substream->runtime = runtime;
++	substream->private_data = rtd;
++	rtd->dpcm[direction].runtime = runtime;
++	substream->stream = direction;
++
++	substream->dma_buffer.dev.type = SNDRV_DMA_TYPE_DEV_SG;
++	substream->dma_buffer.dev.dev = sdev->dev;
++
++	/* check with spcm exists or not */
++	spcm->stream[direction].posn.host_posn = 0;
++	spcm->stream[direction].posn.dai_posn = 0;
++	spcm->stream[direction].substream = substream;
++	spcm->stream[direction].guest_offset = 0;
++
++	/* TODO: codec open */
++
++	snd_sof_pcm_platform_open(sdev, substream);
++
++	return 0;
++
++estatus:
++	free_pages_exact(runtime->status,
++			 PAGE_ALIGN(sizeof(struct snd_pcm_mmap_status)));
++eruntime:
++	kfree(runtime);
 +	return ret;
 +}
 +
-+static int sof_vfe_pcm_close(struct snd_sof_dev *sdev,
-+			     struct snd_pcm_substream *substream)
++static void sof_vhost_stream_close(struct snd_sof_dev *sdev, int direction)
 +{
-+	struct sof_vfe *vfe = sdev->pdata->vfe;
++	struct snd_pcm_substream *substream = sof_vhost_get_substream(sdev,
++							NULL, direction);
++	if (!substream)
++		return;
 +
-+	pm_runtime_mark_last_busy(sdev->dev);
-+	pm_runtime_put_autosuspend(sdev->dev);
++	/* TODO: codec close */
 +
-+	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
-+		kfree(vfe->playback_buf);
-+		vfe->playback_buf = NULL;
-+	} else {
-+		kfree(vfe->capture_buf);
-+		vfe->capture_buf = NULL;
++	substream->ref_count = 0;
++	if (substream->runtime) {
++		snd_sof_pcm_platform_close(sdev, substream);
++
++		free_pages_exact(substream->runtime->status,
++				 PAGE_ALIGN(sizeof(struct snd_pcm_mmap_status)));
++		free_pages_exact(substream->runtime->control,
++				 PAGE_ALIGN(sizeof(struct snd_pcm_mmap_control)));
++		kfree(substream->runtime);
++		substream->runtime = NULL;
 +	}
-+
-+	return 0;
 +}
 +
-+static int sof_vfe_pcm_hw_params(struct snd_sof_dev *sdev,
-+				 struct snd_pcm_substream *substream,
-+				 struct snd_pcm_hw_params *params,
-+				 struct sof_ipc_stream_params *ipc_params)
++/* Handle the SOF_IPC_STREAM_PCM_FREE IPC */
++static int sof_vhost_pcm_close(struct snd_sof_dev *sdev, void *ipc_data)
 +{
-+	struct sof_vfe *vfe = sdev->pdata->vfe;
-+
-+	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK &&
-+	    !vfe->playback_buf) {
-+		vfe->playback_buf = kmalloc(sizeof(*vfe->playback_buf) +
-+					    SOF_RPMSG_MAX_DATA_SIZE, GFP_KERNEL);
-+		if (!vfe->playback_buf)
-+			return -ENOMEM;
-+	} else if (substream->stream == SNDRV_PCM_STREAM_CAPTURE &&
-+		   !vfe->capture_buf) {
-+		vfe->capture_buf = kmalloc(sizeof(*vfe->capture_buf) +
-+					   SOF_RPMSG_MAX_DATA_SIZE, GFP_KERNEL);
-+		if (!vfe->capture_buf)
-+			return -ENOMEM;
-+	}
-+
-+	return 0;
-+}
-+
-+/* IPC message sending completed. This means vBE has received the cmd */
-+static int sof_vfe_ept_ipc_cb(struct rpmsg_device *rpdev, void *buf, int len,
-+			      void *priv, u32 addr)
-+{
-+	struct snd_sof_dev *sdev = dev_get_drvdata(&rpdev->dev);
-+	struct sof_vfe *vfe = sdev->pdata->vfe;
-+	struct snd_sof_ipc_msg *msg = vfe->msg;
-+	struct sof_ipc_reply *reply = msg->reply_data;
-+	unsigned long flags;
-+
-+	if (len > msg->reply_size)
-+		return -ENOBUFS;
-+
-+	memcpy(reply, buf, len);
-+
-+	msg->reply_error = reply->error;
-+
-+	dev_dbg(sdev->dev, "%s(): received %u bytes 0x%x error %d\n", __func__,
-+		reply->hdr.size, reply->hdr.cmd, reply->error);
-+
-+	/* Firmware panic? */
-+	if (msg->reply_error == -ENODEV)
-+		sdev->ipc->disable_ipc_tx = true;
-+
-+	spin_lock_irqsave(&sdev->ipc_lock, flags);
-+	msg->ipc_complete = true;
-+	wake_up(&msg->waitq);
-+	spin_unlock_irqrestore(&sdev->ipc_lock, flags);
-+
-+	return 0;
-+}
-+
-+static int sof_vfe_ept_data_cb(struct rpmsg_device *rpdev, void *buf, int len,
-+			       void *priv, u32 addr)
-+{
-+	struct snd_sof_dev *sdev = dev_get_drvdata(&rpdev->dev);
-+	struct sof_vfe *vfe = sdev->pdata->vfe;
-+	struct sof_rpmsg_data_resp *data = buf;
-+
-+	/* playback and capture are serialised by the IPC mutex */
-+	if (vfe->capture) {
-+		if (addr != SOF_RPMSG_ADDR_DATA || len < sizeof(*data) ||
-+		    data->size != vfe->capture_size) {
-+			dev_err(sdev->dev, "%s(): got %u instead of %zu bytes\n",
-+				__func__, data->size, vfe->capture_size);
-+			return -EINVAL;
-+		}
-+
-+		memcpy(vfe->capture_buf, data,
-+		       data->size + sizeof(struct sof_rpmsg_data_resp));
-+	} else {
-+		if (addr != SOF_RPMSG_ADDR_DATA || len < sizeof(*data) ||
-+		    data->size)
-+			return -EINVAL;
-+
-+		memcpy(&vfe->hdr_resp, buf, sizeof(*data));
-+	}
-+
-+	complete(&vfe->completion);
-+
-+	return 0;
-+}
-+
-+/* The high latency version, using VirtQueues */
-+static int sof_vfe_ept_posn_cb(struct rpmsg_device *rpdev, void *buf, int len,
-+			       void *priv, u32 addr)
-+{
-+	struct snd_sof_dev *sdev = dev_get_drvdata(&rpdev->dev);
-+	struct sof_ipc_stream_posn *posn = buf;
 +	struct snd_sof_pcm *spcm;
++	struct sof_ipc_stream *stream;
 +	int direction;
 +
-+	if (addr != SOF_RPMSG_ADDR_POSN)
-+		return -EINVAL;
++	stream = (struct sof_ipc_stream *)ipc_data;
 +
-+	if (!len)
++	spcm = sof_vhost_find_spcm_comp(sdev, stream->comp_id, &direction);
++	if (!spcm)
 +		return 0;
 +
-+	spcm = snd_sof_find_spcm_comp(sdev->component, posn->comp_id,
-+				      &direction);
-+	if (!spcm) {
-+		dev_err(sdev->dev,
-+			"err: period elapsed for unused component %d\n",
-+			posn->comp_id);
-+	} else {
-+		/*
-+		 * The position update requirement is valid.
-+		 * Let's update the position now.
-+		 */
-+		struct sof_vfe *vfe = sdev->pdata->vfe;
-+		struct sov_vfe_posn_stream *pstream = &vfe->posn_stream[direction];
++	sof_vhost_stream_close(sdev, direction);
 +
-+		pstream->stream = &spcm->stream[direction];
-+		memcpy(&pstream->stream->posn, posn, sizeof(*posn));
-+		queue_work(vfe->posn_wq, &pstream->work);
++	return 0;
++}
++
++/* Copy audio data from DMA buffers for capture */
++static void *sof_vhost_stream_capture(struct snd_sof_pcm_stream *stream,
++				      struct snd_pcm_runtime *runtime,
++				      const struct sof_rpmsg_data_req *req,
++				      struct sof_rpmsg_data_resp *resp)
++{
++	size_t data_size = req->size;
++
++	stream->guest_offset = req->offset;
++
++	if (req->offset + data_size > runtime->dma_bytes) {
++		resp->size = 0;
++		resp->error = -ENOBUFS;
++		return ERR_PTR(resp->error);
++	}
++
++	stream->guest_offset += data_size;
++
++	resp->size = data_size;
++	resp->error = 0;
++
++	return runtime->dma_area + req->offset;
++}
++
++/* Copy audio data to DMA buffers for playback */
++static void *sof_vhost_stream_playback(struct snd_sof_pcm_stream *stream,
++				       struct snd_pcm_runtime *runtime,
++				       const struct sof_rpmsg_data_req *req,
++				       struct sof_rpmsg_data_resp *resp)
++{
++	size_t data_size = req->size;
++
++	stream->guest_offset = req->offset;
++
++	resp->size = 0;
++
++	if (req->offset + data_size > runtime->dma_bytes) {
++		resp->error = -ENOBUFS;
++		return ERR_PTR(resp->error);
++	}
++
++	stream->guest_offset += data_size;
++
++	resp->error = 0;
++
++	return runtime->dma_area + req->offset;
++}
++
++/* Send or receive audio data */
++void *sof_vhost_stream_data(struct sof_vhost_client *client,
++			    const struct sof_rpmsg_data_req *req,
++			    struct sof_rpmsg_data_resp *resp)
++{
++	int direction;
++	struct snd_sof_dev *sdev = client->sdev;
++	struct snd_sof_pcm *spcm = sof_vhost_find_spcm_comp(sdev,
++						req->comp_id, &direction);
++	struct snd_pcm_substream *substream = sof_vhost_get_substream(sdev,
++							NULL, direction);
++
++	if (!spcm || !substream) {
++		resp->error = -ENODEV;
++		resp->size = 0;
++		return ERR_PTR(resp->error);
++	}
++
++	if (direction == SNDRV_PCM_STREAM_PLAYBACK)
++		return sof_vhost_stream_playback(spcm->stream + direction,
++						 substream->runtime, req, resp);
++
++	return sof_vhost_stream_capture(spcm->stream + direction,
++					substream->runtime, req, resp);
++}
++EXPORT_SYMBOL_GPL(sof_vhost_stream_data);
++
++/* Handle the stream IPC */
++static int sof_vhost_ipc_stream(struct snd_sof_dev *sdev,
++				struct sof_ipc_cmd_hdr *hdr, void *reply_buf)
++{
++	struct sof_ipc_pcm_params *pcm;
++	struct sof_ipc_stream *stream;
++	struct snd_soc_pcm_runtime *rtd;
++	struct snd_pcm_substream *substream;
++	int ret = 0, direction, comp_id;
++	u32 cmd = hdr->cmd & SOF_CMD_TYPE_MASK;
++	struct snd_soc_dpcm *dpcm;
++
++	switch (cmd) {
++	case SOF_IPC_STREAM_PCM_PARAMS:
++		ret = sof_vhost_pcm_open(sdev, hdr);
++		if (ret < 0)
++			break;
++		pcm = container_of(hdr, struct sof_ipc_pcm_params, hdr);
++		ret = sof_vhost_stream_hw_params(sdev, pcm);
++		break;
++	case SOF_IPC_STREAM_TRIG_START:
++		stream = container_of(hdr, struct sof_ipc_stream, hdr);
++		comp_id = stream->comp_id;
++		if (!sof_vhost_find_spcm_comp(sdev, comp_id, &direction)) {
++			ret = -ENODEV;
++			break;
++		}
++		substream = sof_vhost_get_substream(sdev, &rtd, direction);
++		if (!substream) {
++			ret = -ENODEV;
++			break;
++		}
++
++		/* Create an RTD, a CPU DAI when parsing aif_in */
++		snd_soc_runtime_activate(rtd, direction);
++		snd_soc_dpcm_runtime_update(sdev->card,
++					    SND_SOC_DPCM_UPDATE_NEW_ONLY);
++
++		dpcm = list_first_entry(&rtd->dpcm[direction].be_clients,
++					struct snd_soc_dpcm, list_be);
++
++		if (list_empty(&rtd->dpcm[direction].be_clients))
++			dev_warn(rtd->dev, "BE client list empty\n");
++		else if (!dpcm->be)
++			dev_warn(rtd->dev, "No BE\n");
++		else
++			dpcm->be->dpcm[direction].state =
++				SND_SOC_DPCM_STATE_HW_PARAMS;
++
++		ret = rtd->ops.prepare(substream);
++		if (ret < 0)
++			break;
++		snd_sof_pcm_platform_trigger(sdev, substream,
++					     SNDRV_PCM_TRIGGER_START);
++		break;
++	case SOF_IPC_STREAM_PCM_FREE:
++		sof_vhost_pcm_close(sdev, hdr);
++		break;
++	}
++
++	return ret;
++}
++
++/* validate component IPC */
++static int sof_vhost_ipc_comp(struct sof_vhost_client *client,
++			      struct sof_ipc_cmd_hdr *hdr)
++{
++	struct sof_ipc_ctrl_data *cdata = container_of(hdr,
++					struct sof_ipc_ctrl_data, rhdr.hdr);
++
++	return cdata->comp_id < client->comp_id_begin ||
++		cdata->comp_id >= client->comp_id_end ? -EINVAL : 0;
++}
++
++/* process PM IPC */
++static int sof_vhost_ipc_pm(struct sof_vhost_client *client,
++			    struct sof_ipc_cmd_hdr *hdr,
++			    struct sof_rpmsg_ipc_power_resp *resp)
++{
++	struct snd_sof_dev *sdev = client->sdev;
++	u32 cmd = hdr->cmd & SOF_CMD_TYPE_MASK;
++	struct sof_rpmsg_ipc_power_req *rq;
++	unsigned int reset_count;
++	int ret;
++
++	switch (cmd) {
++	case SOF_IPC_PM_VFE_POWER_STATUS:
++		rq = container_of(hdr, struct sof_rpmsg_ipc_power_req, hdr);
++		if (rq->power) {
++			ret = pm_runtime_get_sync(sdev->dev);
++			if (ret < 0)
++				return ret;
++		}
++
++		/*
++		 * The DSP is runtime-PM active now for IPC processing, so
++		 * .reset_count won't change
++		 */
++		reset_count = atomic_read(&sdev->dsp_reset_count);
++		resp->reply.hdr.size = sizeof(*resp);
++		resp->reply.hdr.cmd = SOF_IPC_GLB_PM_MSG |
++			SOF_IPC_PM_VFE_POWER_STATUS;
++		resp->reply.error = 0;
++		resp->reset_status = reset_count == client->reset_count ?
++			SOF_RPMSG_IPC_RESET_NONE : SOF_RPMSG_IPC_RESET_DONE;
++
++		if (!rq->power) {
++			pm_runtime_mark_last_busy(sdev->dev);
++			pm_runtime_put_autosuspend(sdev->dev);
++		}
++		return 1;
 +	}
 +
 +	return 0;
 +}
 +
-+static int sof_vfe_runtime_suspend(struct device *dev)
++static int sof_vhost_error_reply(struct sof_ipc_reply *rhdr, unsigned int cmd,
++				 int err)
 +{
-+	struct snd_sof_dev *sdev = dev_get_drvdata(dev);
-+	struct sof_rpmsg_ipc_power_req rq = {
-+		.hdr = {
-+			.size = sizeof(rq),
-+			.cmd = SOF_IPC_GLB_PM_MSG | SOF_IPC_PM_VFE_POWER_STATUS,
-+		},
-+		.power = 0,
-+	};
-+	struct sof_rpmsg_ipc_power_resp resp = {.reply.error = 0};
++	rhdr->hdr.size = sizeof(*rhdr);
++	rhdr->hdr.cmd = cmd;
++	rhdr->error = err;
 +
-+	return sof_ipc_tx_message(sdev->ipc, rq.hdr.cmd, &rq, sizeof(rq),
-+				  &resp, sizeof(resp));
++	return err;
 +}
 +
-+static int sof_vfe_runtime_resume(struct device *dev)
++int sof_vhost_add_conn(struct snd_sof_dev *sdev,
++		       struct snd_sof_widget *w_host,
++		       struct snd_sof_widget *w_guest,
++		       enum sof_ipc_stream_direction direction)
 +{
-+	struct snd_sof_dev *sdev = dev_get_drvdata(dev);
-+	struct sof_vfe *vfe = sdev->pdata->vfe;
-+	struct sof_rpmsg_ipc_power_req rq = {
-+		.hdr = {
-+			.size = sizeof(rq),
-+			.cmd = SOF_IPC_GLB_PM_MSG | SOF_IPC_PM_VFE_POWER_STATUS,
-+		},
-+		.power = 1,
-+	};
-+	struct sof_rpmsg_ipc_power_resp resp = {.reply.error = 0};
-+	int ret = sof_ipc_tx_message(sdev->ipc, rq.hdr.cmd, &rq, sizeof(rq),
-+				     &resp, sizeof(resp));
-+	if (ret < 0)
-+		return ret;
++	struct dsp_pipeline_connect *conn;
 +
-+	if (resp.reply.error < 0)
-+		return resp.reply.error;
++	if (w_host->pipeline_id == w_guest->pipeline_id)
++		return 0;
++
++	conn = devm_kmalloc(sdev->dev, sizeof(*conn), GFP_KERNEL);
++	if (!conn)
++		return -ENOMEM;
 +
 +	/*
-+	 * We are resuming. Check if the host needs the topology. We could in
-+	 * principle skip restoring pipelines completely, but it also does
-+	 * certain additional things, e.g. setting an enabled core mask
++	 * We'll need this mapping twice: first to overwrite a sink or source ID
++	 * for SOF_IPC_TPLG_COMP_CONNECT, then to overwrite the scheduling
++	 * component ID for SOF_IPC_TPLG_PIPE_NEW
 +	 */
-+	vfe->block_ipc = resp.reset_status == SOF_RPMSG_IPC_RESET_NONE;
++	conn->host_pipeline_id = w_host->pipeline_id;
++	conn->guest_pipeline_id = w_guest->pipeline_id;
++	conn->host_component_id = w_host->comp_id;
++	conn->direction = direction;
 +
-+	/* restore pipelines */
-+	ret = sof_restore_pipelines(sdev->dev);
++	list_add_tail(&conn->list, &sdev->connector_list);
++
++	return 0;
++}
++
++/* Handle some special cases of the "new component" IPC */
++static int sof_vhost_ipc_tplg_comp_new(struct sof_vhost_client *client,
++				       struct sof_ipc_cmd_hdr *hdr,
++				       struct sof_ipc_reply *rhdr)
++{
++	struct sof_ipc_comp *comp = container_of(hdr, struct sof_ipc_comp, hdr);
++	struct snd_sof_dev *sdev = client->sdev;
++	struct snd_sof_pcm *spcm, *last;
++	struct sof_ipc_comp_host *host;
++	struct dsp_pipeline_connect *conn;
++
++	if (comp->id < client->comp_id_begin ||
++	    comp->id >= client->comp_id_end)
++		return -EINVAL;
++
++	switch (comp->type) {
++	case SOF_COMP_VIRT_CON:
++		list_for_each_entry(conn, &sdev->connector_list, list)
++			if (conn->guest_pipeline_id == comp->pipeline_id) {
++				/* This ID will have to be overwritten */
++				conn->guest_component_id = comp->id;
++				break;
++			}
++
++		sof_vhost_error_reply(rhdr, hdr->cmd, 0);
++
++		/* The firmware doesn't need this component */
++		return 1;
++	case SOF_COMP_HOST:
++		/*
++		 * TODO: below is a temporary solution. next step is
++		 * to create a whole pcm stuff incluing substream
++		 * based on Liam's suggestion.
++		 */
++
++		/*
++		 * let's create spcm in HOST ipc
++		 * spcm should be created in pcm load, but there is no such ipc
++		 * so we create it here. It is needed for the "period elapsed"
++		 * IPC from the firmware, which will use the host ID to route
++		 * the IPC back to the PCM.
++		 */
++		host = container_of(comp, struct sof_ipc_comp_host, comp);
++		spcm = kzalloc(sizeof(*spcm), GFP_KERNEL);
++		if (!spcm)
++			return -ENOMEM;
++
++		spcm->stream[SNDRV_PCM_STREAM_PLAYBACK].comp_id =
++			SOF_RPMSG_COMP_ID_UNASSIGNED;
++		spcm->stream[SNDRV_PCM_STREAM_CAPTURE].comp_id =
++			SOF_RPMSG_COMP_ID_UNASSIGNED;
++		spcm->stream[host->direction].comp_id = host->comp.id;
++		spcm->stream[SNDRV_PCM_STREAM_PLAYBACK].posn.comp_id =
++			spcm->stream[SNDRV_PCM_STREAM_PLAYBACK].comp_id;
++		spcm->stream[SNDRV_PCM_STREAM_CAPTURE].posn.comp_id =
++			spcm->stream[SNDRV_PCM_STREAM_CAPTURE].comp_id;
++		INIT_WORK(&spcm->stream[host->direction].period_elapsed_work,
++			  snd_sof_pcm_period_elapsed_work);
++		last = list_last_entry(&sdev->pcm_list, struct snd_sof_pcm,
++				       list);
++		spcm->pcm.dai_id = last->pcm.dai_id + 1;
++		strncpy(spcm->pcm.pcm_name, dsp_pcm_name,
++			sizeof(spcm->pcm.pcm_name));
++		list_add(&spcm->list, &sdev->pcm_list);
++
++		client->reset_count = atomic_read(&sdev->dsp_reset_count);
++		break;
++	default:
++		break;
++	}
++
++	return 0;
++}
++
++/* Handle the "new pipeline" IPC: replace the scheduling sink ID */
++static int sof_vhost_ipc_tplg_pipe_new(struct sof_vhost_client *client,
++				       struct sof_ipc_cmd_hdr *hdr)
++{
++	struct sof_ipc_pipe_new *pipeline = container_of(hdr,
++						struct sof_ipc_pipe_new, hdr);
++	struct snd_sof_dev *sdev = client->sdev;
++	struct dsp_pipeline_connect *conn;
++
++	list_for_each_entry(conn, &sdev->connector_list, list)
++		if (pipeline->pipeline_id == conn->guest_pipeline_id) {
++			struct snd_sof_dai *dai;
++
++			dai = snd_sof_find_dai_pipe(sdev,
++						    conn->host_pipeline_id);
++			if (!dai) {
++				dev_warn(sdev->dev,
++					 "no DAI with pipe %u found\n",
++					 conn->host_pipeline_id);
++				continue;
++			}
++
++			/* Overwrite the scheduling sink ID with the DAI ID */
++			pipeline->sched_id = dai->comp_dai.comp.id;
++			break;
++		}
++
++	return 0;
++}
++
++/* Handle the "connect components" IPC: replace the virtual component ID */
++static int sof_vhost_ipc_tplg_comp_connect(struct sof_vhost_client *client,
++					   struct sof_ipc_cmd_hdr *hdr)
++{
++	struct sof_ipc_pipe_comp_connect *connect = container_of(hdr,
++					struct sof_ipc_pipe_comp_connect, hdr);
++	struct dsp_pipeline_connect *conn;
++
++	list_for_each_entry(conn, &client->sdev->connector_list, list) {
++		if (conn->direction == SOF_IPC_STREAM_PLAYBACK &&
++		    connect->sink_id == conn->guest_component_id) {
++			/*
++			 * Overwrite the sink ID with the actual mixer component
++			 * ID
++			 */
++			connect->sink_id = conn->host_component_id;
++			break;
++		}
++
++		if (conn->direction == SOF_IPC_STREAM_CAPTURE &&
++		    connect->source_id == conn->guest_component_id) {
++			/*
++			 * Overwrite the source ID with the actual demux component
++			 * ID
++			 */
++			connect->source_id = conn->host_component_id;
++			break;
++		}
++	}
++
++	return 0;
++}
++
++/* Read guest's topology file and send it back to the requester */
++static int sof_vhost_ipc_tplg_read(struct sof_vhost_client *client,
++				   struct sof_ipc_cmd_hdr *hdr,
++				   void *reply_buf, size_t reply_sz)
++{
++	struct sof_rpmsg_ipc_tplg_req *tplg = container_of(hdr,
++					struct sof_rpmsg_ipc_tplg_req, hdr);
++	struct sof_rpmsg_ipc_tplg_resp *partdata = reply_buf;
++	const struct firmware *fw = client->fw;
++	size_t to_copy, remainder;
++
++	if (reply_sz <= sizeof(partdata->reply))
++		return -ENOBUFS;
++
++	if (!fw || fw->size <= tplg->offset)
++		return -EINVAL;
++
++	remainder = fw->size - tplg->offset;
++
++	to_copy = min_t(size_t, reply_sz - sizeof(partdata->reply),
++			remainder);
++	partdata->reply.hdr.size = to_copy + sizeof(partdata->reply);
++	partdata->reply.hdr.cmd = hdr->cmd;
++
++	memcpy(partdata->data, fw->data + tplg->offset, to_copy);
++
++	dev_dbg(client->sdev->dev, "%s(): copy %zu, %zu remain\n",
++		__func__, to_copy, remainder);
++
++	if (remainder == to_copy) {
++		release_firmware(fw);
++		client->fw = NULL;
++	}
++
++	return 0;
++}
++
++/* Send the next component ID to the guest */
++static int sof_vhost_ipc_tplg_comp_id(struct sof_vhost_client *client,
++				      struct sof_ipc_cmd_hdr *hdr,
++				      void *reply_buf, size_t reply_sz)
++{
++	struct sof_rpmsg_ipc_tplg_resp *partdata = reply_buf;
++
++	client->comp_id_begin = client->sdev->next_comp_id +
++		client->id * SOF_RPMSG_MAX_UOS_COMPS;
++	client->comp_id_end = client->comp_id_begin + SOF_RPMSG_MAX_UOS_COMPS;
++
++	partdata->reply.hdr.cmd = hdr->cmd;
++	partdata->reply.hdr.size = sizeof(partdata->reply) + sizeof(u32);
++	*(u32 *)partdata->data = client->comp_id_begin;
++
++	return 0;
++}
++
++/* Handle topology IPC */
++static int sof_vhost_ipc_tplg(struct sof_vhost_client *client,
++			      struct sof_ipc_cmd_hdr *hdr,
++			      void *reply_buf, size_t reply_sz)
++{
++	u32 cmd = hdr->cmd & SOF_CMD_TYPE_MASK;
++	int ret;
++
++	switch (cmd) {
++	case SOF_IPC_TPLG_COMP_NEW:
++		return sof_vhost_ipc_tplg_comp_new(client, hdr, reply_buf);
++	case SOF_IPC_TPLG_PIPE_NEW:
++		return sof_vhost_ipc_tplg_pipe_new(client, hdr);
++	case SOF_IPC_TPLG_COMP_CONNECT:
++		return sof_vhost_ipc_tplg_comp_connect(client, hdr);
++	case SOF_IPC_TPLG_VFE_GET:
++		ret = sof_vhost_ipc_tplg_read(client, hdr, reply_buf, reply_sz);
++		return ret < 0 ? ret : 1;
++	case SOF_IPC_TPLG_VFE_COMP_ID:
++		ret = sof_vhost_ipc_tplg_comp_id(client, hdr, reply_buf,
++						 reply_sz);
++		return ret < 0 ? ret : 1;
++	}
++
++	return 0;
++}
++
++/* Call SOF core to send an IPC message to the DSP */
++static void sof_vhost_send_ipc(struct snd_sof_dev *sdev, void *ipc_data,
++			       void *reply_buf, size_t count,
++			       size_t reply_size)
++{
++	struct snd_sof_ipc *ipc = sdev->ipc;
++	struct sof_ipc_cmd_hdr *hdr = ipc_data;
++	struct sof_ipc_reply *rhdr = reply_buf;
++	int ret = sof_ipc_tx_message(ipc, hdr->cmd, ipc_data, count,
++				     reply_buf, reply_size);
++
++	if (ret < 0 && !rhdr->error)
++		rhdr->error = ret;
++}
++
++/* Post-process SOF_IPC_STREAM_PCM_PARAMS */
++static int sof_vhost_ipc_stream_param_post(struct snd_sof_dev *sdev,
++					   void *reply_buf)
++{
++	struct sof_ipc_pcm_params_reply *reply = reply_buf;
++	u32 comp_id = reply->comp_id;
++	int direction, ret;
++	struct snd_sof_pcm *spcm = sof_vhost_find_spcm_comp(sdev, comp_id,
++							    &direction);
++	if (!spcm)
++		return -ENODEV;
++
++	ret = snd_sof_ipc_pcm_params(sdev, spcm->stream[direction].substream,
++				     reply);
 +	if (ret < 0)
-+		dev_err(dev,
-+			"error: failed to restore pipeline after resume %d\n",
-+			ret);
-+
-+	/* We're done resuming, from now all IPC have to be sent */
-+	vfe->block_ipc = false;
++		dev_err(sdev->dev, "error: got wrong reply for PCM %d\n",
++			spcm->pcm.pcm_id);
 +
 +	return ret;
 +}
 +
-+/* virtio fe ops */
-+static struct snd_sof_dsp_ops snd_sof_vfe_ops = {
-+	/* device init */
-+	.probe		= sof_vfe_register,
-+	.remove		= sof_vfe_deregister,
-+
-+	/*
-+	 * PM: these are never called, they are only needed to prevent core.c
-+	 * from disabling runtime PM
-+	 */
-+	.runtime_suspend = sof_vfe_sof_runtime_dummy,
-+	.runtime_resume = sof_vfe_sof_runtime_dummy,
-+
-+	/* IPC */
-+	.send_msg	= sof_vfe_send_msg,
-+	.fw_ready	= sof_vfe_fw_ready,
-+
-+	/* machine driver */
-+	.machine_register = sof_machine_register,
-+	.machine_unregister = sof_machine_unregister,
-+
-+	/* DAI drivers */
-+	.drv		= virtio_dai,
-+	.num_drv	= 1,
-+
-+	.pcm_open	= sof_vfe_pcm_open,
-+	.pcm_close	= sof_vfe_pcm_close,
-+	.pcm_hw_params	= sof_vfe_pcm_hw_params,
-+
-+	.run		= sof_vfe_run,
-+	.block_read	= sof_vfe_block_read,
-+	.block_write	= sof_vfe_block_write,
-+	.load_firmware	= sof_vfe_load_firmware,
-+	.ipc_msg_data	= sof_vfe_ipc_msg_data,
-+	.ipc_pcm_params	= sof_vfe_ipc_pcm_params,
-+
-+	.request_topology = sof_vfe_request_topology,
-+
-+	.hw_info	= SNDRV_PCM_INFO_INTERLEAVED,
-+};
-+
-+static const struct sof_dev_desc virt_desc = {
-+	.nocodec_tplg_filename	= "",
-+	.default_tplg_path	= "",
-+	.resindex_lpe_base	= -1,
-+	.resindex_pcicfg_base	= -1,
-+	.resindex_imr_base	= -1,
-+	.irqindex_host_ipc	= -1,
-+	.resindex_dma_base	= -1,
-+	.ipc_timeout		= SOF_VFE_DATA_TIMEOUT_MS,
-+	.ops			= &snd_sof_vfe_ops,
-+};
-+
-+static void sof_vfe_posn_update(struct work_struct *work)
++/* Handle the stream start trigger IPC */
++static int sof_vhost_ipc_stream_codec(struct snd_sof_dev *sdev,
++				      struct sof_ipc_cmd_hdr *hdr)
 +{
-+	struct sov_vfe_posn_stream *pstream = container_of(work,
-+					struct sov_vfe_posn_stream, work);
++	struct sof_ipc_stream *stream = container_of(hdr,
++						struct sof_ipc_stream, hdr);
++	struct snd_pcm_substream *substream;
++	struct snd_soc_pcm_runtime *rtd;
++	struct snd_soc_dai *codec_dai;
++	unsigned int i;
++	int direction;
 +
-+	snd_pcm_period_elapsed(pstream->stream->substream);
++	if (!sof_vhost_find_spcm_comp(sdev, stream->comp_id, &direction))
++		return -ENODEV;
++
++	substream = sof_vhost_get_substream(sdev, &rtd, direction);
++	if (!substream)
++		return -ENODEV;
++
++	for_each_rtd_codec_dais(rtd, i, codec_dai) {
++		const struct snd_soc_dai_ops *ops = codec_dai->driver->ops;
++
++		/*
++		 * Now we are ready to trigger start.
++		 * Let's unmute the codec firstly
++		 */
++		snd_soc_dai_digital_mute(codec_dai, 0, direction);
++		if (ops && ops->trigger) {
++			int ret = ops->trigger(substream,
++					       SNDRV_PCM_TRIGGER_START,
++					       codec_dai);
++			if (ret < 0)
++				return ret;
++		}
++	}
++
++	return 0;
 +}
 +
-+static int sof_vfe_probe(struct rpmsg_device *rpdev)
++static int sof_vhost_ipc_stream_stop(struct snd_sof_dev *sdev,
++				     struct sof_ipc_cmd_hdr *hdr)
 +{
-+	struct device *dev = &rpdev->dev;
-+	struct rpmsg_channel_info chinfo;
-+	struct snd_soc_acpi_mach *mach;
-+	struct snd_sof_pdata *sof_pdata;
-+	struct snd_sof_dev *sdev;
-+	struct sof_vfe *vfe;
-+	struct {
-+		struct snd_soc_acpi_mach mach;
-+		struct snd_sof_pdata pdata;
-+		struct sof_vfe vfe;
-+	} *drvdata;
-+	int ret, dir;
++	struct sof_ipc_stream *stream = container_of(hdr,
++						struct sof_ipc_stream, hdr);
++	struct snd_pcm_substream *substream;
++	struct snd_soc_pcm_runtime *rtd;
++	struct snd_soc_dai *codec_dai;
++	int direction, comp_id = stream->comp_id;
++	unsigned int i;
 +
-+	/*
-+	 * The below two shouldn't be necessary, it's done in
-+	 * virtio_pci_modern_probe() by calling dma_set_mask_and_coherent()
-+	 */
++	if (!sof_vhost_find_spcm_comp(sdev, comp_id, &direction))
++		return -ENODEV;
 +
-+	ret = dma_set_coherent_mask(dev, DMA_BIT_MASK(64));
-+	if (ret < 0)
-+		ret = dma_set_coherent_mask(dev, DMA_BIT_MASK(32));
-+	if (ret < 0)
-+		dev_warn(dev, "failed to set DMA mask: %d\n", ret);
++	substream = sof_vhost_get_substream(sdev, &rtd, direction);
++	if (!substream)
++		return -ENODEV;
 +
-+	drvdata = devm_kzalloc(dev, sizeof(*drvdata), GFP_KERNEL);
-+	if (!drvdata)
-+		return -ENOMEM;
++	for_each_rtd_codec_dais(rtd, i, codec_dai) {
++		const struct snd_soc_dai_ops *ops = codec_dai->driver->ops;
 +
-+	sof_pdata = &drvdata->pdata;
-+	mach = &drvdata->mach;
-+	vfe = &drvdata->vfe;
-+	vfe->rpdev = rpdev;
-+	init_completion(&vfe->completion);
++		if (ops && ops->trigger) {
++			int ret = ops->trigger(substream,
++					       SNDRV_PCM_TRIGGER_STOP,
++					       codec_dai);
++			if (ret < 0) {
++				dev_err(codec_dai->dev,
++					"trigger stop fails\n");
++				return ret;
++			}
++		}
++	}
 +
-+	for_each_pcm_streams(dir)
-+		INIT_WORK(&vfe->posn_stream[dir].work, sof_vfe_posn_update);
++	snd_sof_pcm_platform_trigger(sdev, substream,
++				     SNDRV_PCM_TRIGGER_STOP);
++	snd_soc_dpcm_runtime_update(sdev->card,
++				    SND_SOC_DPCM_UPDATE_OLD_ONLY);
++	snd_soc_runtime_deactivate(rtd, direction);
 +
-+	vfe->posn_wq = alloc_workqueue("dsp-vfe-%d", 0, current->pid);
-+	if (!vfe->posn_wq)
-+		return -ENOMEM;
++	return 0;
++}
 +
-+	mach->drv_name = "sof-nocodec";
-+	mach->mach_params.platform = dev_name(dev);
-+	sof_pdata->tplg_filename = virt_desc.nocodec_tplg_filename;
++/* Handle an IPC reply */
++static int sof_vhost_ipc_post(struct snd_sof_dev *sdev,
++			      struct sof_ipc_cmd_hdr *hdr, void *reply_buf)
++{
++	struct sof_ipc_reply *rhdr = reply_buf;
++	int ret;
 +
-+	ret = sof_nocodec_setup(dev, &snd_sof_vfe_ops);
-+	if (ret < 0)
-+		return ret;
++	switch (hdr->cmd) {
++	case SOF_IPC_GLB_STREAM_MSG | SOF_IPC_STREAM_PCM_PARAMS:
++		if (rhdr->error < 0)
++			break;
++		return sof_vhost_ipc_stream_param_post(sdev, reply_buf);
++	case SOF_IPC_GLB_STREAM_MSG | SOF_IPC_STREAM_TRIG_START:
++		if (rhdr->error < 0)
++			break;
++		/* setup the codec */
++		return sof_vhost_ipc_stream_codec(sdev, hdr);
++	case SOF_IPC_GLB_STREAM_MSG | SOF_IPC_STREAM_TRIG_STOP:
++		ret = sof_vhost_ipc_stream_stop(sdev, hdr);
++		return rhdr->error < 0 ? rhdr->error : ret;
++	}
 +
-+	mach->pdata = &snd_sof_vfe_ops;
++	return rhdr->error;
++}
 +
-+	sof_pdata->name = dev_name(&rpdev->dev);
-+	sof_pdata->machine = mach;
-+	sof_pdata->desc = &virt_desc;
-+	sof_pdata->dev = dev;
-+	sof_pdata->vfe = vfe;
-+	sof_pdata->tplg_filename_prefix = virt_desc.default_tplg_path;
++/* Forward an IPC message from a guest to the DSP */
++int sof_vhost_ipc_fwd(struct sof_vhost_client *client,
++		      void *ipc_buf, void *reply_buf,
++		      size_t count, size_t reply_sz)
++{
++	struct snd_sof_dev *sdev = client->sdev;
++	struct sof_ipc_cmd_hdr *hdr = ipc_buf;
++	struct sof_ipc_reply *rhdr = reply_buf;
++	u32 type;
++	int ret;
 +
-+	/* allow runtime_pm */
-+	pm_runtime_set_autosuspend_delay(dev, SND_SOF_SUSPEND_DELAY_MS);
-+	pm_runtime_use_autosuspend(dev);
-+	pm_runtime_enable(dev);
-+
-+	/*
-+	 * The RPMSG device name comes with the namespace announcement from the
-+	 * remote. That will also be used as a name of the first automatically-
-+	 * created channel
-+	 */
-+
-+	strlcpy(chinfo.name, "ADSP audio data", RPMSG_NAME_SIZE);
-+	chinfo.src = RPMSG_ADDR_ANY;
-+	chinfo.dst = SOF_RPMSG_ADDR_DATA;
-+
-+	get_device(dev);
-+
-+	vfe->ept[SOF_VFE_DATA] = rpmsg_create_ept(rpdev, sof_vfe_ept_data_cb,
-+						    vfe, chinfo);
-+	if (!vfe->ept[SOF_VFE_DATA]) {
-+		dev_err(dev, "failed to create %s\n", chinfo.name);
-+		put_device(dev);
++	/* validate IPC */
++	if (count < sizeof(*hdr) || count > SOF_IPC_MSG_MAX_SIZE) {
++		dev_err(sdev->dev, "error: guest IPC size is 0\n");
 +		return -EINVAL;
 +	}
 +
-+	strlcpy(chinfo.name, "ADSP position update", RPMSG_NAME_SIZE);
-+	/* RPMSG_ADDR_ANY: automatically allocated from RPMSG_RESERVED_ADDRESSES... */
-+	chinfo.src = RPMSG_ADDR_ANY;
-+	chinfo.dst = SOF_RPMSG_ADDR_POSN;
++	type = hdr->cmd & SOF_GLB_TYPE_MASK;
++	rhdr->error = 0;
 +
-+	vfe->ept[SOF_VFE_POSN] = rpmsg_create_ept(rpdev, sof_vfe_ept_posn_cb,
-+						    vfe, chinfo);
-+	if (!vfe->ept[SOF_VFE_POSN]) {
-+		dev_err(dev, "failed to create %s\n", chinfo.name);
-+
-+		ret = -EINVAL;
-+		goto e_posn;
++	/* validate the ipc */
++	switch (type) {
++	case SOF_IPC_GLB_COMP_MSG:
++		ret = sof_vhost_ipc_comp(client, hdr);
++		if (ret < 0)
++			goto err;
++		break;
++	case SOF_IPC_GLB_STREAM_MSG:
++		ret = sof_vhost_ipc_stream(sdev, hdr, reply_buf);
++		if (ret < 0) {
++			dev_err(sdev->dev, "STREAM IPC 0x%x failed %d!\n",
++				hdr->cmd, ret);
++			goto err;
++		}
++		break;
++	case SOF_IPC_GLB_PM_MSG:
++		ret = sof_vhost_ipc_pm(client, hdr, reply_buf);
++		if (!ret)
++			break;
++		if (ret < 0)
++			goto err;
++		return 0;
++	case SOF_IPC_GLB_DAI_MSG:
++		/*
++		 * After we use the new topology solution for FE,
++		 * we will not touch DAI anymore.
++		 */
++		break;
++	case SOF_IPC_GLB_TPLG_MSG:
++		ret = sof_vhost_ipc_tplg(client, hdr, reply_buf, reply_sz);
++		if (!ret)
++			break;
++		if (ret < 0)
++			goto err;
++		return 0;
++	case SOF_IPC_GLB_TRACE_MSG:
++		/* Trace should be initialized in SOS, skip FE requirement */
++		return 0;
++	default:
++		dev_warn(sdev->dev, "unhandled IPC 0x%x!\n", hdr->cmd);
++		break;
 +	}
 +
-+	ret = snd_sof_device_probe(dev, sof_pdata);
-+	if (ret < 0) {
-+		dev_err(dev, "Cannot register VFE sof-audio device. Error %d\n",
-+			ret);
++	/* now send the IPC */
++	sof_vhost_send_ipc(sdev, ipc_buf, reply_buf, count, reply_sz);
 +
-+		goto e_sof;
-+	}
++	/* For some IPCs, the reply needs to be handled */
++	ret = sof_vhost_ipc_post(sdev, hdr, reply_buf);
++	if (ret < 0)
++		dev_err(sdev->dev,
++			"err: failed to send %u bytes virtio IPC 0x%x: %d\n",
++			hdr->size, hdr->cmd, ret);
 +
-+	sdev = dev_get_drvdata(dev);
-+	vfe->sdev = sdev;
++	return ret;
 +
-+	/*
-+	 * Currently we only support one VM. comp_id from 0 to
-+	 * SOF_RPMSG_MAX_UOS_COMPS - 1 is for the host. Other comp_id numbers
-+	 * are for VM1.
-+	 * This will be overwritten during topology setup.
-+	 */
-+	sdev->next_comp_id = SOF_RPMSG_MAX_UOS_COMPS;
++err:
++	return sof_vhost_error_reply(rhdr, hdr->cmd, ret);
++}
++EXPORT_SYMBOL_GPL(sof_vhost_ipc_fwd);
 +
-+	dev_dbg(dev, "created VFE machine %s\n",
-+		dev_name(&sof_pdata->pdev_mach->dev));
++int sof_vhost_set_tplg(struct sof_vhost_client *client,
++		       const struct vhost_adsp_topology *tplg)
++{
++	struct snd_sof_dev *sdev = client->sdev;
++	struct snd_sof_pdata *plat_data = sdev->pdata;
++	char *path;
++	int ret;
 +
-+	return 0;
++	path = kasprintf(GFP_KERNEL, "%s/%s", plat_data->tplg_filename_prefix,
++			 tplg->name);
++	if (!path)
++		return -ENOMEM;
 +
-+e_sof:
-+	rpmsg_destroy_ept(vfe->ept[SOF_VFE_POSN]);
-+e_posn:
-+	rpmsg_destroy_ept(vfe->ept[SOF_VFE_DATA]);
-+	put_device(dev);
++	ret = request_firmware(&client->fw, path, sdev->dev);
++	if (ret < 0)
++		dev_err(sdev->dev,
++			"error: request VFE topology %s failed: %d\n",
++			tplg->name, ret);
++	kfree(path);
 +
 +	return ret;
 +}
++EXPORT_SYMBOL_GPL(sof_vhost_set_tplg);
 +
-+static void sof_vfe_remove(struct rpmsg_device *rpdev)
++void sof_vhost_suspend(struct snd_sof_dev *sdev)
 +{
-+	struct snd_sof_dev *sdev = dev_get_drvdata(&rpdev->dev);
-+	struct sof_vfe *vfe = sdev->pdata->vfe;
++	struct snd_sof_pcm *spcm, *next;
 +
-+	/* free rpmsg resurces and unregister device */
-+	sof_vfe_runtime_suspend(&rpdev->dev);
-+
-+	pm_runtime_disable(&rpdev->dev);
-+
-+	if (vfe->ept[SOF_VFE_DATA]) {
-+		rpmsg_destroy_ept(vfe->ept[SOF_VFE_DATA]);
-+		vfe->ept[SOF_VFE_DATA] = NULL;
-+	}
-+
-+	if (vfe->ept[SOF_VFE_POSN]) {
-+		rpmsg_destroy_ept(vfe->ept[SOF_VFE_POSN]);
-+		vfe->ept[SOF_VFE_POSN] = NULL;
-+	}
-+
-+	/* unregister the SOF device */
-+	snd_sof_device_remove(&rpdev->dev);
-+
-+	put_device(&rpdev->dev);
++	list_for_each_entry_safe(spcm, next, &sdev->pcm_list, list)
++		if (!strcmp(dsp_pcm_name, spcm->pcm.pcm_name)) {
++			list_del(&spcm->list);
++			sof_vhost_stream_close(sdev, SNDRV_PCM_STREAM_PLAYBACK);
++			sof_vhost_stream_close(sdev, SNDRV_PCM_STREAM_CAPTURE);
++			kfree(spcm);
++		}
 +}
 +
-+static const struct rpmsg_device_id sof_vfe_match[] = {
-+	{ "sof_rpmsg" },
-+	{}
-+};
++/* A VM instance has closed the miscdevice */
++void sof_vhost_client_release(struct sof_vhost_client *client)
++{
++	bitmap_release_region(client->sdev->vfe_mask, client->id, 0);
 +
-+static const struct dev_pm_ops sof_vfe_pm = {
-+	SET_RUNTIME_PM_OPS(sof_vfe_runtime_suspend, sof_vfe_runtime_resume,
-+			   NULL)
-+};
++	list_del(&client->list);
 +
-+static struct rpmsg_driver sof_vfe_driver = {
-+	.probe		= sof_vfe_probe,
-+	.remove		= sof_vfe_remove,
-+	.callback	= sof_vfe_ept_ipc_cb,
-+	.id_table	= sof_vfe_match,
-+	.drv		= {
-+		.name	= KBUILD_MODNAME,
-+		.owner	= THIS_MODULE,
-+		.pm	= &sof_vfe_pm,
-+	},
-+};
++	kfree(client);
++}
++EXPORT_SYMBOL_GPL(sof_vhost_client_release);
 +
-+module_rpmsg_driver(sof_vfe_driver);
++/* A new VM instance has opened the miscdevice */
++struct sof_vhost_client *sof_vhost_client_add(struct snd_sof_dev *sdev,
++					      struct sof_vhost *dsp)
++{
++	int id = bitmap_find_free_region(sdev->vfe_mask, SND_SOF_MAX_VFES, 0);
++	struct sof_vhost_client *client;
 +
-+MODULE_AUTHOR("Intel, Inc.");
-+MODULE_DESCRIPTION("SOF RPMSG driver");
-+MODULE_LICENSE("GPL v2");
-diff --git a/sound/soc/sof/sof-priv.h b/sound/soc/sof/sof-priv.h
-index 29ab6ad..2da2469 100644
---- a/sound/soc/sof/sof-priv.h
-+++ b/sound/soc/sof/sof-priv.h
-@@ -55,6 +55,9 @@
- 	(IS_ENABLED(CONFIG_SND_SOC_SOF_DEBUG_ENABLE_DEBUGFS_CACHE) || \
- 	 IS_ENABLED(CONFIG_SND_SOC_SOF_DEBUG_IPC_FLOOD_TEST))
- 
-+/* The maximum number of components a virtio user vFE driver can use */
-+#define SOF_RPMSG_MAX_UOS_COMPS	1000
++	if (id < 0)
++		return NULL;
 +
- /* DSP power state */
- enum sof_dsp_power_states {
- 	SOF_DSP_PM_D0,
-@@ -250,6 +253,10 @@ struct snd_sof_dsp_ops {
- 	void (*set_mach_params)(const struct snd_soc_acpi_mach *mach,
- 				struct device *dev); /* optional */
- 
-+	/* VirtIO operations */
-+	int (*request_topology)(struct snd_sof_dev *sdev,
-+				struct firmware *fw); /* optional */
-+
- 	/* DAI ops */
- 	struct snd_soc_dai_driver *drv;
- 	int num_drv;
-@@ -445,6 +452,18 @@ struct snd_sof_dev {
- 	void *private;			/* core does not touch this */
- };
- 
-+/* SOF generic IPC data */
-+struct snd_sof_ipc {
-+	struct snd_sof_dev *sdev;
-+
-+	/* protects messages and the disable flag */
-+	struct mutex tx_mutex;
-+	/* disables further sending of ipc's */
-+	bool disable_ipc_tx;
-+
-+	struct snd_sof_ipc_msg msg;
-+};
-+
- /*
-  * Device Level.
-  */
-@@ -524,6 +543,15 @@ void snd_sof_get_status(struct snd_sof_dev *sdev, u32 panic_code,
- int snd_sof_init_trace_ipc(struct snd_sof_dev *sdev);
- void snd_sof_handle_fw_exception(struct snd_sof_dev *sdev);
- 
-+#if IS_ENABLED(CONFIG_SND_SOC_SOF_RPMSG_FE)
-+int sof_vfe_pcm_copy_user(struct snd_soc_component *component,
-+			  struct snd_pcm_substream *substream, int channel,
-+			  unsigned long pos, void __user *buf,
-+			  unsigned long bytes);
-+#else
-+#define sof_vfe_pcm_copy_user NULL
-+#endif
-+
- /*
-  * Platform specific ops.
-  */
-diff --git a/sound/soc/sof/topology.c b/sound/soc/sof/topology.c
-index 5a65dcf..bb9fcb6 100644
---- a/sound/soc/sof/topology.c
-+++ b/sound/soc/sof/topology.c
-@@ -1375,7 +1375,8 @@ static int sof_widget_load_dai(struct snd_soc_component *scomp, int index,
- 	comp_dai.comp.hdr.size = sizeof(comp_dai);
- 	comp_dai.comp.hdr.cmd = SOF_IPC_GLB_TPLG_MSG | SOF_IPC_TPLG_COMP_NEW;
- 	comp_dai.comp.id = swidget->comp_id;
--	comp_dai.comp.type = SOF_COMP_DAI;
-+	comp_dai.comp.type = sdev->pdata->vfe ? SOF_COMP_VIRT_CON :
-+		SOF_COMP_DAI;
- 	comp_dai.comp.pipeline_id = index;
- 	comp_dai.config.hdr.size = sizeof(comp_dai.config);
- 
-@@ -3604,12 +3605,21 @@ static int sof_manifest(struct snd_soc_component *scomp, int index,
- 
- int snd_sof_load_topology(struct snd_soc_component *scomp, const char *file)
- {
-+	struct snd_sof_dev *sdev = snd_soc_component_get_drvdata(scomp);
-+	struct firmware vfe_fw;
- 	const struct firmware *fw;
- 	int ret;
- 
- 	dev_dbg(scomp->dev, "loading topology:%s\n", file);
- 
--	ret = request_firmware(&fw, file, scomp->dev);
-+	/* VirtIO guests request topology from the host */
-+	if (sdev->pdata->vfe) {
-+		fw = &vfe_fw;
-+		ret = sof_ops(sdev)->request_topology(sdev, file, &vfe_fw);
-+	} else {
-+		ret = request_firmware(&fw, file, sdev->dev);
++	client = kmalloc(sizeof(*client), GFP_KERNEL);
++	if (!client) {
++		bitmap_release_region(sdev->vfe_mask, id, 0);
++		return NULL;
 +	}
 +
- 	if (ret < 0) {
- 		dev_err(scomp->dev, "error: tplg request firmware %s failed err: %d\n",
- 			file, ret);
-@@ -3625,7 +3635,9 @@ int snd_sof_load_topology(struct snd_soc_component *scomp, const char *file)
- 		ret = -EINVAL;
- 	}
- 
--	release_firmware(fw);
-+	if (!sdev->pdata->vfe)
-+		release_firmware(fw);
++	client->sdev = sdev;
++	client->id = id;
++	client->vhost = dsp;
 +
- 	return ret;
- }
- EXPORT_SYMBOL(snd_sof_load_topology);
++	/*
++	 * link to sdev->vbe_list
++	 * Maybe virtio_miscdev managing the list is more reasonable.
++	 * Let's use sdev to manage the FE audios now.
++	 * FIXME: protect the list.
++	 */
++	list_add(&client->list, &sdev->vbe_list);
++
++	return client;
++}
++EXPORT_SYMBOL_GPL(sof_vhost_client_add);
++
++/* The struct snd_sof_dev instance, that VirtIO guests will be using */
++static struct snd_sof_dev *vhost_sof_dev;
++static const struct sof_vhost_ops *vhost_ops;
++
++/* Find a client by component ID */
++static struct sof_vhost_client *sof_vhost_comp_to_client(
++						struct snd_sof_dev *sdev,
++						int comp_id)
++{
++	struct sof_vhost_client *client;
++
++	list_for_each_entry(client, &sdev->vbe_list, list)
++		if (comp_id < client->comp_id_end &&
++		    comp_id >= client->comp_id_begin)
++			return client;
++
++	return NULL;
++}
++
++/* Called from the position update IRQ thread */
++int sof_vhost_update_guest_posn(struct snd_sof_dev *sdev,
++				struct sof_ipc_stream_posn *posn)
++{
++	struct sof_vhost_client *client = sof_vhost_comp_to_client(sdev,
++							posn->comp_id);
++
++	if (!client || !vhost_ops)
++		return -ENODEV;
++
++	return vhost_ops->update_posn(client->vhost, posn);
++}
++
++/* The vhost driver is loaded */
++struct device *sof_vhost_dev_init(const struct sof_vhost_ops *ops)
++{
++	if (!vhost_sof_dev)
++		return NULL;
++
++	bitmap_zero(vhost_sof_dev->vfe_mask, SND_SOF_MAX_VFES);
++
++	vhost_ops = ops;
++
++	return vhost_sof_dev->dev;
++}
++EXPORT_SYMBOL_GPL(sof_vhost_dev_init);
++
++/* This SOF device will be used for VirtIO */
++void sof_vhost_dev_set(struct snd_sof_dev *sdev)
++{
++	INIT_LIST_HEAD(&sdev->connector_list);
++	vhost_sof_dev = sdev;
++}
 -- 
 1.9.3
