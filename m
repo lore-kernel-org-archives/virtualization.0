@@ -1,63 +1,98 @@
-From: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: Re: [PATCH v3 1/2] PCI: vmd: Filter resource type bits from shadow
- register
-Date: Fri, 29 May 2020 17:18:24 +0100
-Message-ID: <20200529161824.GA17642@e121166-lin.cambridge.arm.com>
-References: <20200528030240.16024-1-jonathan.derrick@intel.com>
- <20200528030240.16024-3-jonathan.derrick@intel.com>
- <20200529103315.GC12270@e121166-lin.cambridge.arm.com>
- <163e8cb37ece0c8daa6d6e5fd7fcae47ba4fa437.camel@intel.com>
+From: Tom Lendacky <thomas.lendacky@amd.com>
+Subject: Re: [PATCH v3 69/75] x86/realmode: Setup AP jump table
+Date: Fri, 29 May 2020 11:21:27 -0500
+Message-ID: <0b39f7af-f006-9563-9dbb-347f68cf492e@amd.com>
+References: <20200428151725.31091-1-joro@8bytes.org>
+ <20200428151725.31091-70-joro@8bytes.org> <20200529090222.GA9011@zn.tnic>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-pci-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <163e8cb37ece0c8daa6d6e5fd7fcae47ba4fa437.camel@intel.com>
-Sender: linux-pci-owner@vger.kernel.org
-To: "Derrick, Jonathan" <jonathan.derrick@intel.com>
-Cc: "hch@lst.de" <hch@lst.de>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "helgaas@kernel.org" <helgaas@kernel.org>, "andrzej.jakowski@linux.intel.com" <andrzej.jakowski@linux.intel.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "alex.williamson@redhat.com" <alex.williamson@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200529090222.GA9011@zn.tnic>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Borislav Petkov <bp@alien8.de>, Joerg Roedel <joro@8bytes.org>
+Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, May 29, 2020 at 03:53:37PM +0000, Derrick, Jonathan wrote:
-> On Fri, 2020-05-29 at 11:33 +0100, Lorenzo Pieralisi wrote:
-> > On Wed, May 27, 2020 at 11:02:39PM -0400, Jon Derrick wrote:
-> > > Versions of VMD with the Host Physical Address shadow register use this
-> > > register to calculate the bus address offset needed to do guest
-> > > passthrough of the domain. This register shadows the Host Physical
-> > > Address registers including the resource type bits. After calculating
-> > > the offset, the extra resource type bits lead to the VMD resources being
-> > > over-provisioned at the front and under-provisioned at the back.
-> > > 
-> > > Example:
-> > > pci 10000:80:02.0: reg 0x10: [mem 0xf801fffc-0xf803fffb 64bit]
-> > > 
-> > > Expected:
-> > > pci 10000:80:02.0: reg 0x10: [mem 0xf8020000-0xf803ffff 64bit]
-> > > 
-> > > If other devices are mapped in the over-provisioned front, it could lead
-> > > to resource conflict issues with VMD or those devices.
-> > > 
-> > > Fixes: a1a30170138c9 ("PCI: vmd: Fix shadow offsets to reflect spec changes")
-> > > Signed-off-by: Jon Derrick <jonathan.derrick@intel.com>
-> > > ---
-> > >  drivers/pci/controller/vmd.c | 6 ++++--
-> > >  1 file changed, 4 insertions(+), 2 deletions(-)
-> > 
-> > Hi Jon,
-> > 
-> > it looks like I can take this patch for v5.8 whereas patch 2 depends
-> > on the QEMU changes acceptance and should probably wait.
-> > 
-> > Please let me know your thoughts asap and I will try to at least
-> > squeeze this patch in.
-> > 
-> > Lorenzo
-> 
-> Hi Lorenzo,
-> 
-> This is fine. Please take Patch 1.
-> Patch 2 is harmless without the QEMU changes, but may always need a
-> different approach.
 
-Pulled patch 1 into pci/vmd, thanks.
 
-Lorenzo
+On 5/29/20 4:02 AM, Borislav Petkov wrote:
+> On Tue, Apr 28, 2020 at 05:17:19PM +0200, Joerg Roedel wrote:
+>> From: Tom Lendacky <thomas.lendacky@amd.com>
+>>
+>> Setup the AP jump table to point to the SEV-ES trampoline code so that
+>> the APs can boot.
+> 
+> Tom, in his laconic way, doesn't want to explain to us why is this even
+> needed...
+> 
+> :)
+
+Looks like some of the detail was lost during the patch shuffling. 
+Originally (on GitHub) this was the text:
+
+  As part of the GHCB specification, the booting of APs under SEV-ES
+  requires an AP jump table when transitioning from one layer of code to
+  another (e.g. when going from UEFI to the OS). As a result, each layer
+  that parks an AP must provide the physical address of an AP jump table
+  to the next layer using the GHCB MSR.
+
+  Upon booting of the kernel, read the GHCB MSR and save the address of
+  the AP jump table. Under SEV-ES, APs are started using the INIT-SIPI-SIPI
+  sequence. Before issuing the first SIPI request for an AP, the start eip
+  is programmed into the AP jump table. Upon issuing the SIPI request, the
+  AP will awaken and jump to the start eip address programmed into the AP
+  jump table.
+
+It needs to change "GHCB MSR" to "VMGEXIT MSR protocol", but should cover 
+what you're looking for.
+
+Thanks,
+Tom
+
+> 
+> /me reads the code
+> 
+> /me reads the GHCB spec
+> 
+> aha, it gets it from the HV. And it can be set by the guest too...
+> 
+> So how about expanding that commit message as to why this is done, why
+> needed, etc?
+> 
+> Thx.
+> 
+>> diff --git a/arch/x86/realmode/init.c b/arch/x86/realmode/init.c
+>> index 262f83cad355..1c5cbfd102d5 100644
+>> --- a/arch/x86/realmode/init.c
+>> +++ b/arch/x86/realmode/init.c
+>> @@ -9,6 +9,7 @@
+>>   #include <asm/realmode.h>
+>>   #include <asm/tlbflush.h>
+>>   #include <asm/crash.h>
+>> +#include <asm/sev-es.h>
+>>   
+>>   struct real_mode_header *real_mode_header;
+>>   u32 *trampoline_cr4_features;
+>> @@ -107,6 +108,11 @@ static void __init setup_real_mode(void)
+>>   	if (sme_active())
+>>   		trampoline_header->flags |= TH_FLAGS_SME_ACTIVE;
+>>   
+>> +	if (sev_es_active()) {
+>> +		if (sev_es_setup_ap_jump_table(real_mode_header))
+>> +			panic("Failed to update SEV-ES AP Jump Table");
+>> +	}
+>> +
+> 
+> So this function gets slowly sprinkled with
+> 
+> 	if (sev-something)
+> 		bla
+> 
+> Please wrap at least those last two into a
+> 
+> 	sev_setup_real_mode()
+> 
+> or so.
+> 
