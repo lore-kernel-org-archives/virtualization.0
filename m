@@ -1,113 +1,309 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH v2] virtio_vsock: Fix race condition in
- virtio_transport_recv_pkt
-Date: Fri, 29 May 2020 18:34:12 +0200
-Message-ID: <20200529163412.fqswshs65f53qgez@steredhat>
-References: <20200529152102.58397-1-justin.he@arm.com>
+From: Rob Miller <rob.miller@broadcom.com>
+Subject: Re: [PATCH 4/6] vhost_vdpa: support doorbell mapping via mmap
+Date: Fri, 29 May 2020 14:30:19 -0400
+Message-ID: <CAJPjb1JGn-+Y2EHvn1S+=uX_cjPVEUmGGo7CmAM2kTqyn4NRYQ@mail.gmail.com>
+References: <20200529080303.15449-1-jasowang@redhat.com> <20200529080303.15449-5-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200529152102.58397-1-justin.he@arm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jia He <justin.he@arm.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Kaly Xin <Kaly.Xin@arm.com>, stable@vger.kernel.org
+Content-Type: multipart/alternative; boundary="000000000000d094a005a6cda45c"
+Return-path: <virtio-dev-return-7429-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+In-Reply-To: <20200529080303.15449-5-jasowang@redhat.com>
+To: Jason Wang <jasowang@redhat.com>, Virtio-Dev <virtio-dev@lists.oasis-open.org>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, May 29, 2020 at 11:21:02PM +0800, Jia He wrote:
-> When client tries to connect(SOCK_STREAM) the server in the guest with
-> NONBLOCK mode, there will be a panic on a ThunderX2 (armv8a server):
-> [  463.718844][ T5040] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
-> [  463.718848][ T5040] Mem abort info:
-> [  463.718849][ T5040]   ESR = 0x96000044
-> [  463.718852][ T5040]   EC = 0x25: DABT (current EL), IL = 32 bits
-> [  463.718853][ T5040]   SET = 0, FnV = 0
-> [  463.718854][ T5040]   EA = 0, S1PTW = 0
-> [  463.718855][ T5040] Data abort info:
-> [  463.718856][ T5040]   ISV = 0, ISS = 0x00000044
-> [  463.718857][ T5040]   CM = 0, WnR = 1
-> [  463.718859][ T5040] user pgtable: 4k pages, 48-bit VAs, pgdp=0000008f6f6e9000
-> [  463.718861][ T5040] [0000000000000000] pgd=0000000000000000
-> [  463.718866][ T5040] Internal error: Oops: 96000044 [#1] SMP
-> [...]
-> [  463.718977][ T5040] CPU: 213 PID: 5040 Comm: vhost-5032 Tainted: G           O      5.7.0-rc7+ #139
-> [  463.718980][ T5040] Hardware name: GIGABYTE R281-T91-00/MT91-FS1-00, BIOS F06 09/25/2018
-> [  463.718982][ T5040] pstate: 60400009 (nZCv daif +PAN -UAO)
-> [  463.718995][ T5040] pc : virtio_transport_recv_pkt+0x4c8/0xd40 [vmw_vsock_virtio_transport_common]
-> [  463.718999][ T5040] lr : virtio_transport_recv_pkt+0x1fc/0xd40 [vmw_vsock_virtio_transport_common]
-> [  463.719000][ T5040] sp : ffff80002dbe3c40
-> [...]
-> [  463.719025][ T5040] Call trace:
-> [  463.719030][ T5040]  virtio_transport_recv_pkt+0x4c8/0xd40 [vmw_vsock_virtio_transport_common]
-> [  463.719034][ T5040]  vhost_vsock_handle_tx_kick+0x360/0x408 [vhost_vsock]
-> [  463.719041][ T5040]  vhost_worker+0x100/0x1a0 [vhost]
-> [  463.719048][ T5040]  kthread+0x128/0x130
-> [  463.719052][ T5040]  ret_from_fork+0x10/0x18
-         ^         ^
-Maybe we can remove these two columns from the commit message.
+--000000000000d094a005a6cda45c
+Content-Type: text/plain; charset="UTF-8"
 
-> 
-> The race condition as follows:
-> Task1                            Task2
-> =====                            =====
-> __sock_release                   virtio_transport_recv_pkt
->   __vsock_release                  vsock_find_bound_socket (found)
->     lock_sock_nested
->     vsock_remove_sock
->     sock_orphan
->       sk_set_socket(sk, NULL)
+Given the need for 4K doorbell such that QEMU can easily map, ect, and
+assuming that I have a HW device which exposes 2 VQ's, with a notification
+area off of BAR3, offset=whatever, notifier_multiplier=4, we don't need to
+have 2 x 4K pages mapped into the VM for both doorbells do we? The guest
+driver would ring DB0 at BAR4+offset, and DB1 at BAR4+offset+(4*1).
 
-Here we can add:
-      sk->sk_shutdown = SHUTDOWN_MASK;
+The 4K per DB is useful how? This allows for QEMU trapping of individual
+DBs, that can then be used to do what, just forward the DBs via some other
+scheme - this makes sense for non-HW related Virtio devices I guess. Is
+this why there is a qemu option?
 
->     ...
->     release_sock
->                                 lock_sock
->                                    virtio_transport_recv_connecting
->                                      sk->sk_socket->state (panic)
-> 
-> The root cause is that vsock_find_bound_socket can't hold the lock_sock,
-> so there is a small race window between vsock_find_bound_socket() and
-> lock_sock(). If there is __vsock_release() in another task, sk->sk_socket
-> will be set to NULL inadvertently.
-> 
-> This fixes it by checking sk->sk_shutdown.
-> 
-> Signed-off-by: Jia He <justin.he@arm.com>
-> Cc: stable@vger.kernel.org
-> Cc: Stefano Garzarella <sgarzare@redhat.com>
+Rob Miller
+rob.miller@broadcom.com
+(919)721-3339
+
+
+On Fri, May 29, 2020 at 4:03 AM Jason Wang <jasowang@redhat.com> wrote:
+
+> Currently the doorbell is relayed via eventfd which may have
+> significant overhead because of the cost of vmexits or syscall. This
+> patch introduces mmap() based doorbell mapping which can eliminate the
+> overhead caused by vmexit or syscall.
+>
+> To ease the userspace modeling of the doorbell layout (usually
+> virtio-pci), this patch starts from a doorbell per page
+> model. Vhost-vdpa only support the hardware doorbell that sit at the
+> boundary of a page and does not share the page with other registers.
+>
+> Doorbell of each virtqueue must be mapped separately, pgoff is the
+> index of the virtqueue. This allows userspace to map a subset of the
+> doorbell which may be useful for the implementation of software
+> assisted virtqueue (control vq) in the future.
+>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
 > ---
-> v2: use lightweight checking suggested by Stefano Garzarella
-> 
->  net/vmw_vsock/virtio_transport_common.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
-> 
-> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-> index 69efc891885f..0edda1edf988 100644
-> --- a/net/vmw_vsock/virtio_transport_common.c
-> +++ b/net/vmw_vsock/virtio_transport_common.c
-> @@ -1132,6 +1132,14 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
->  
->  	lock_sock(sk);
->  
-> +	/* Check if sk has been released before lock_sock */
-> +	if (sk->sk_shutdown == SHUTDOWN_MASK) {
-> +		(void)virtio_transport_reset_no_sock(t, pkt);
-> +		release_sock(sk);
-> +		sock_put(sk);
-> +		goto free_pkt;
-> +	}
+>  drivers/vhost/vdpa.c | 59 ++++++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 59 insertions(+)
+>
+> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> index 6ff72289f488..bbe23cea139a 100644
+> --- a/drivers/vhost/vdpa.c
+> +++ b/drivers/vhost/vdpa.c
+> @@ -15,6 +15,7 @@
+>  #include <linux/module.h>
+>  #include <linux/cdev.h>
+>  #include <linux/device.h>
+> +#include <linux/mm.h>
+>  #include <linux/iommu.h>
+>  #include <linux/uuid.h>
+>  #include <linux/vdpa.h>
+> @@ -741,12 +742,70 @@ static int vhost_vdpa_release(struct inode *inode,
+> struct file *filep)
+>         return 0;
+>  }
+>
+> +static vm_fault_t vhost_vdpa_fault(struct vm_fault *vmf)
+> +{
+> +       struct vhost_vdpa *v = vmf->vma->vm_file->private_data;
+> +       struct vdpa_device *vdpa = v->vdpa;
+> +       const struct vdpa_config_ops *ops = vdpa->config;
+> +       struct vdpa_notification_area notify;
+> +       struct vm_area_struct *vma = vmf->vma;
+> +       u16 index = vma->vm_pgoff;
 > +
->  	/* Update CID in case it has changed after a transport reset event */
->  	vsk->local_addr.svm_cid = dst.svm_cid;
->  
-> -- 
-> 2.17.1
-> 
+> +       notify = ops->get_vq_notification(vdpa, index);
+> +
+> +       vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+> +       if (remap_pfn_range(vma, vmf->address & PAGE_MASK,
+> +                           notify.addr >> PAGE_SHIFT, PAGE_SIZE,
+> +                           vma->vm_page_prot))
+> +               return VM_FAULT_SIGBUS;
+> +
+> +       return VM_FAULT_NOPAGE;
+> +}
+> +
+> +static const struct vm_operations_struct vhost_vdpa_vm_ops = {
+> +       .fault = vhost_vdpa_fault,
+> +};
+> +
+> +static int vhost_vdpa_mmap(struct file *file, struct vm_area_struct *vma)
+> +{
+> +       struct vhost_vdpa *v = vma->vm_file->private_data;
+> +       struct vdpa_device *vdpa = v->vdpa;
+> +       const struct vdpa_config_ops *ops = vdpa->config;
+> +       struct vdpa_notification_area notify;
+> +       int index = vma->vm_pgoff;
+> +
+> +       if (vma->vm_end - vma->vm_start != PAGE_SIZE)
+> +               return -EINVAL;
+> +       if ((vma->vm_flags & VM_SHARED) == 0)
+> +               return -EINVAL;
+> +       if (vma->vm_flags & VM_READ)
+> +               return -EINVAL;
+> +       if (index > 65535)
+> +               return -EINVAL;
+> +       if (!ops->get_vq_notification)
+> +               return -ENOTSUPP;
+> +
+> +       /* To be safe and easily modelled by userspace, We only
+> +        * support the doorbell which sits on the page boundary and
+> +        * does not share the page with other registers.
+> +        */
+> +       notify = ops->get_vq_notification(vdpa, index);
+> +       if (notify.addr & (PAGE_SIZE - 1))
+> +               return -EINVAL;
+> +       if (vma->vm_end - vma->vm_start != notify.size)
+> +               return -ENOTSUPP;
+> +
+> +       vma->vm_ops = &vhost_vdpa_vm_ops;
+> +       return 0;
+> +}
+> +
+>  static const struct file_operations vhost_vdpa_fops = {
+>         .owner          = THIS_MODULE,
+>         .open           = vhost_vdpa_open,
+>         .release        = vhost_vdpa_release,
+>         .write_iter     = vhost_vdpa_chr_write_iter,
+>         .unlocked_ioctl = vhost_vdpa_unlocked_ioctl,
+> +       .mmap           = vhost_vdpa_mmap,
+>         .compat_ioctl   = compat_ptr_ioctl,
+>  };
+>
+> --
+> 2.20.1
+>
+>
 
-Anyway, the patch LGTM, let see what David and other say.
+--000000000000d094a005a6cda45c
+Content-Type: text/html; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+<div dir=3D"ltr">Given the need for 4K doorbell such that QEMU can easily m=
+ap, ect, and assuming that I have a HW device which exposes 2 VQ&#39;s, wit=
+h a notification area off of BAR3, offset=3Dwhatever, notifier_multiplier=
+=3D4, we don&#39;t need to have 2 x 4K pages mapped into the VM for both do=
+orbells do we? The guest driver would ring DB0 at BAR4+offset, and DB1 at B=
+AR4+offset+(4*1).<div><br></div><div>The 4K per DB is useful=C2=A0how? This=
+ allows for QEMU trapping of individual DBs, that can then be used to do wh=
+at, just forward the DBs via some other scheme - this makes sense for non-H=
+W related Virtio devices I guess. Is this why there is a qemu option?</div>=
+<div><br clear=3D"all"><div><div dir=3D"ltr" class=3D"gmail_signature" data=
+-smartmail=3D"gmail_signature"><div dir=3D"ltr">Rob Miller<div><a href=3D"m=
+ailto:rob.miller@broadcom.com" target=3D"_blank">rob.miller@broadcom.com</a=
+></div><div>(919)721-3339</div></div></div></div><br></div></div><br><div c=
+lass=3D"gmail_quote"><div dir=3D"ltr" class=3D"gmail_attr">On Fri, May 29, =
+2020 at 4:03 AM Jason Wang &lt;<a href=3D"mailto:jasowang@redhat.com">jasow=
+ang@redhat.com</a>&gt; wrote:<br></div><blockquote class=3D"gmail_quote" st=
+yle=3D"margin:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padd=
+ing-left:1ex">Currently the doorbell is relayed via eventfd which may have<=
+br>
+significant overhead because of the cost of vmexits or syscall. This<br>
+patch introduces mmap() based doorbell mapping which can eliminate the<br>
+overhead caused by vmexit or syscall.<br>
+<br>
+To ease the userspace modeling of the doorbell layout (usually<br>
+virtio-pci), this patch starts from a doorbell per page<br>
+model. Vhost-vdpa only support the hardware doorbell that sit at the<br>
+boundary of a page and does not share the page with other registers.<br>
+<br>
+Doorbell of each virtqueue must be mapped separately, pgoff is the<br>
+index of the virtqueue. This allows userspace to map a subset of the<br>
+doorbell which may be useful for the implementation of software<br>
+assisted virtqueue (control vq) in the future.<br>
+<br>
+Signed-off-by: Jason Wang &lt;<a href=3D"mailto:jasowang@redhat.com" target=
+=3D"_blank">jasowang@redhat.com</a>&gt;<br>
+---<br>
+=C2=A0drivers/vhost/vdpa.c | 59 +++++++++++++++++++++++++++++++++++++++++++=
++<br>
+=C2=A01 file changed, 59 insertions(+)<br>
+<br>
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c<br>
+index 6ff72289f488..bbe23cea139a 100644<br>
+--- a/drivers/vhost/vdpa.c<br>
++++ b/drivers/vhost/vdpa.c<br>
+@@ -15,6 +15,7 @@<br>
+=C2=A0#include &lt;linux/module.h&gt;<br>
+=C2=A0#include &lt;linux/cdev.h&gt;<br>
+=C2=A0#include &lt;linux/device.h&gt;<br>
++#include &lt;linux/mm.h&gt;<br>
+=C2=A0#include &lt;linux/iommu.h&gt;<br>
+=C2=A0#include &lt;linux/uuid.h&gt;<br>
+=C2=A0#include &lt;linux/vdpa.h&gt;<br>
+@@ -741,12 +742,70 @@ static int vhost_vdpa_release(struct inode *inode, st=
+ruct file *filep)<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 return 0;<br>
+=C2=A0}<br>
+<br>
++static vm_fault_t vhost_vdpa_fault(struct vm_fault *vmf)<br>
++{<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0struct vhost_vdpa *v =3D vmf-&gt;vma-&gt;vm_fil=
+e-&gt;private_data;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0struct vdpa_device *vdpa =3D v-&gt;vdpa;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0const struct vdpa_config_ops *ops =3D vdpa-&gt;=
+config;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0struct vdpa_notification_area notify;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0struct vm_area_struct *vma =3D vmf-&gt;vma;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0u16 index =3D vma-&gt;vm_pgoff;<br>
++<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0notify =3D ops-&gt;get_vq_notification(vdpa, in=
+dex);<br>
++<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0vma-&gt;vm_page_prot =3D pgprot_noncached(vma-&=
+gt;vm_page_prot);<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0if (remap_pfn_range(vma, vmf-&gt;address &amp; =
+PAGE_MASK,<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0notify.addr &gt;&gt; PAGE_SHIFT, PAGE_SIZE,<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
+=A0 =C2=A0 =C2=A0 =C2=A0vma-&gt;vm_page_prot))<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return VM_FAULT_SIG=
+BUS;<br>
++<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0return VM_FAULT_NOPAGE;<br>
++}<br>
++<br>
++static const struct vm_operations_struct vhost_vdpa_vm_ops =3D {<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0.fault =3D vhost_vdpa_fault,<br>
++};<br>
++<br>
++static int vhost_vdpa_mmap(struct file *file, struct vm_area_struct *vma)<=
+br>
++{<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0struct vhost_vdpa *v =3D vma-&gt;vm_file-&gt;pr=
+ivate_data;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0struct vdpa_device *vdpa =3D v-&gt;vdpa;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0const struct vdpa_config_ops *ops =3D vdpa-&gt;=
+config;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0struct vdpa_notification_area notify;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0int index =3D vma-&gt;vm_pgoff;<br>
++<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0if (vma-&gt;vm_end - vma-&gt;vm_start !=3D PAGE=
+_SIZE)<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return -EINVAL;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0if ((vma-&gt;vm_flags &amp; VM_SHARED) =3D=3D 0=
+)<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return -EINVAL;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0if (vma-&gt;vm_flags &amp; VM_READ)<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return -EINVAL;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0if (index &gt; 65535)<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return -EINVAL;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0if (!ops-&gt;get_vq_notification)<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return -ENOTSUPP;<b=
+r>
++<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0/* To be safe and easily modelled by userspace,=
+ We only<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 * support the doorbell which sits on the page =
+boundary and<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 * does not share the page with other registers=
+.<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 */<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0notify =3D ops-&gt;get_vq_notification(vdpa, in=
+dex);<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0if (notify.addr &amp; (PAGE_SIZE - 1))<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return -EINVAL;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0if (vma-&gt;vm_end - vma-&gt;vm_start !=3D noti=
+fy.size)<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return -ENOTSUPP;<b=
+r>
++<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0vma-&gt;vm_ops =3D &amp;vhost_vdpa_vm_ops;<br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0return 0;<br>
++}<br>
++<br>
+=C2=A0static const struct file_operations vhost_vdpa_fops =3D {<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 .owner=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =3D TH=
+IS_MODULE,<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 .open=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+=3D vhost_vdpa_open,<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 .release=C2=A0 =C2=A0 =C2=A0 =C2=A0 =3D vhost_v=
+dpa_release,<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 .write_iter=C2=A0 =C2=A0 =C2=A0=3D vhost_vdpa_c=
+hr_write_iter,<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 .unlocked_ioctl =3D vhost_vdpa_unlocked_ioctl,<=
+br>
++=C2=A0 =C2=A0 =C2=A0 =C2=A0.mmap=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
+=3D vhost_vdpa_mmap,<br>
+=C2=A0 =C2=A0 =C2=A0 =C2=A0 .compat_ioctl=C2=A0 =C2=A0=3D compat_ptr_ioctl,=
+<br>
+=C2=A0};<br>
+<br>
+-- <br>
+2.20.1<br>
+<br>
+</blockquote></div>
 
-Thanks,
-Stefano
+--000000000000d094a005a6cda45c--
