@@ -1,309 +1,81 @@
-From: Rob Miller <rob.miller@broadcom.com>
-Subject: Re: [PATCH 4/6] vhost_vdpa: support doorbell mapping via mmap
-Date: Fri, 29 May 2020 14:30:19 -0400
-Message-ID: <CAJPjb1JGn-+Y2EHvn1S+=uX_cjPVEUmGGo7CmAM2kTqyn4NRYQ@mail.gmail.com>
-References: <20200529080303.15449-1-jasowang@redhat.com> <20200529080303.15449-5-jasowang@redhat.com>
+From: Logan Gunthorpe <logang@deltatee.com>
+Subject: Re: [PATCH 0/8] Convert the intel iommu driver to the
+ dma-iommu api
+Date: Fri, 29 May 2020 13:05:12 -0600
+Message-ID: <33137cfb-603c-86e8-1091-f36117ecfaf3@deltatee.com>
+References: <20191221150402.13868-1-murphyt7@tcd.ie>
+ <465815ae-9292-f37a-59b9-03949cb68460@deltatee.com>
+ <20200529124523.GA11817@infradead.org>
 Mime-Version: 1.0
-Content-Type: multipart/alternative; boundary="000000000000d094a005a6cda45c"
-Return-path: <virtio-dev-return-7429-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <20200529080303.15449-5-jasowang@redhat.com>
-To: Jason Wang <jasowang@redhat.com>, Virtio-Dev <virtio-dev@lists.oasis-open.org>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, Netdev <netdev@vger.kernel.org>, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <intel-gfx-bounces@lists.freedesktop.org>
+In-Reply-To: <20200529124523.GA11817@infradead.org>
+Content-Language: en-CA
+List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
+List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
+List-Post: <mailto:intel-gfx@lists.freedesktop.org>
+List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
+List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
+ <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
+Errors-To: intel-gfx-bounces@lists.freedesktop.org
+Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: kvm@vger.kernel.org, David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org, Bjorn Andersson <bjorn.andersson@linaro.org>, linux-tegra@vger.kernel.org, Julien Grall <julien.grall@arm.com>, Will Deacon <will@kernel.org>, Marek Szyprowski <m.szyprowski@samsung.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, linux-samsung-soc@vger.kernel.org, Marc Zyngier <maz@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, linux-rockchip@lists.infradead.org, Andy Gross <agross@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, linux-mediatek@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, virtualization@lists.linux-foundation.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>David
 List-Id: virtualization@lists.linuxfoundation.org
 
---000000000000d094a005a6cda45c
-Content-Type: text/plain; charset="UTF-8"
-
-Given the need for 4K doorbell such that QEMU can easily map, ect, and
-assuming that I have a HW device which exposes 2 VQ's, with a notification
-area off of BAR3, offset=whatever, notifier_multiplier=4, we don't need to
-have 2 x 4K pages mapped into the VM for both doorbells do we? The guest
-driver would ring DB0 at BAR4+offset, and DB1 at BAR4+offset+(4*1).
-
-The 4K per DB is useful how? This allows for QEMU trapping of individual
-DBs, that can then be used to do what, just forward the DBs via some other
-scheme - this makes sense for non-HW related Virtio devices I guess. Is
-this why there is a qemu option?
-
-Rob Miller
-rob.miller@broadcom.com
-(919)721-3339
-
-
-On Fri, May 29, 2020 at 4:03 AM Jason Wang <jasowang@redhat.com> wrote:
-
-> Currently the doorbell is relayed via eventfd which may have
-> significant overhead because of the cost of vmexits or syscall. This
-> patch introduces mmap() based doorbell mapping which can eliminate the
-> overhead caused by vmexit or syscall.
->
-> To ease the userspace modeling of the doorbell layout (usually
-> virtio-pci), this patch starts from a doorbell per page
-> model. Vhost-vdpa only support the hardware doorbell that sit at the
-> boundary of a page and does not share the page with other registers.
->
-> Doorbell of each virtqueue must be mapped separately, pgoff is the
-> index of the virtqueue. This allows userspace to map a subset of the
-> doorbell which may be useful for the implementation of software
-> assisted virtqueue (control vq) in the future.
->
-> Signed-off-by: Jason Wang <jasowang@redhat.com>
-> ---
->  drivers/vhost/vdpa.c | 59 ++++++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 59 insertions(+)
->
-> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index 6ff72289f488..bbe23cea139a 100644
-> --- a/drivers/vhost/vdpa.c
-> +++ b/drivers/vhost/vdpa.c
-> @@ -15,6 +15,7 @@
->  #include <linux/module.h>
->  #include <linux/cdev.h>
->  #include <linux/device.h>
-> +#include <linux/mm.h>
->  #include <linux/iommu.h>
->  #include <linux/uuid.h>
->  #include <linux/vdpa.h>
-> @@ -741,12 +742,70 @@ static int vhost_vdpa_release(struct inode *inode,
-> struct file *filep)
->         return 0;
->  }
->
-> +static vm_fault_t vhost_vdpa_fault(struct vm_fault *vmf)
-> +{
-> +       struct vhost_vdpa *v = vmf->vma->vm_file->private_data;
-> +       struct vdpa_device *vdpa = v->vdpa;
-> +       const struct vdpa_config_ops *ops = vdpa->config;
-> +       struct vdpa_notification_area notify;
-> +       struct vm_area_struct *vma = vmf->vma;
-> +       u16 index = vma->vm_pgoff;
-> +
-> +       notify = ops->get_vq_notification(vdpa, index);
-> +
-> +       vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
-> +       if (remap_pfn_range(vma, vmf->address & PAGE_MASK,
-> +                           notify.addr >> PAGE_SHIFT, PAGE_SIZE,
-> +                           vma->vm_page_prot))
-> +               return VM_FAULT_SIGBUS;
-> +
-> +       return VM_FAULT_NOPAGE;
-> +}
-> +
-> +static const struct vm_operations_struct vhost_vdpa_vm_ops = {
-> +       .fault = vhost_vdpa_fault,
-> +};
-> +
-> +static int vhost_vdpa_mmap(struct file *file, struct vm_area_struct *vma)
-> +{
-> +       struct vhost_vdpa *v = vma->vm_file->private_data;
-> +       struct vdpa_device *vdpa = v->vdpa;
-> +       const struct vdpa_config_ops *ops = vdpa->config;
-> +       struct vdpa_notification_area notify;
-> +       int index = vma->vm_pgoff;
-> +
-> +       if (vma->vm_end - vma->vm_start != PAGE_SIZE)
-> +               return -EINVAL;
-> +       if ((vma->vm_flags & VM_SHARED) == 0)
-> +               return -EINVAL;
-> +       if (vma->vm_flags & VM_READ)
-> +               return -EINVAL;
-> +       if (index > 65535)
-> +               return -EINVAL;
-> +       if (!ops->get_vq_notification)
-> +               return -ENOTSUPP;
-> +
-> +       /* To be safe and easily modelled by userspace, We only
-> +        * support the doorbell which sits on the page boundary and
-> +        * does not share the page with other registers.
-> +        */
-> +       notify = ops->get_vq_notification(vdpa, index);
-> +       if (notify.addr & (PAGE_SIZE - 1))
-> +               return -EINVAL;
-> +       if (vma->vm_end - vma->vm_start != notify.size)
-> +               return -ENOTSUPP;
-> +
-> +       vma->vm_ops = &vhost_vdpa_vm_ops;
-> +       return 0;
-> +}
-> +
->  static const struct file_operations vhost_vdpa_fops = {
->         .owner          = THIS_MODULE,
->         .open           = vhost_vdpa_open,
->         .release        = vhost_vdpa_release,
->         .write_iter     = vhost_vdpa_chr_write_iter,
->         .unlocked_ioctl = vhost_vdpa_unlocked_ioctl,
-> +       .mmap           = vhost_vdpa_mmap,
->         .compat_ioctl   = compat_ptr_ioctl,
->  };
->
-> --
-> 2.20.1
->
->
-
---000000000000d094a005a6cda45c
-Content-Type: text/html; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-
-<div dir=3D"ltr">Given the need for 4K doorbell such that QEMU can easily m=
-ap, ect, and assuming that I have a HW device which exposes 2 VQ&#39;s, wit=
-h a notification area off of BAR3, offset=3Dwhatever, notifier_multiplier=
-=3D4, we don&#39;t need to have 2 x 4K pages mapped into the VM for both do=
-orbells do we? The guest driver would ring DB0 at BAR4+offset, and DB1 at B=
-AR4+offset+(4*1).<div><br></div><div>The 4K per DB is useful=C2=A0how? This=
- allows for QEMU trapping of individual DBs, that can then be used to do wh=
-at, just forward the DBs via some other scheme - this makes sense for non-H=
-W related Virtio devices I guess. Is this why there is a qemu option?</div>=
-<div><br clear=3D"all"><div><div dir=3D"ltr" class=3D"gmail_signature" data=
--smartmail=3D"gmail_signature"><div dir=3D"ltr">Rob Miller<div><a href=3D"m=
-ailto:rob.miller@broadcom.com" target=3D"_blank">rob.miller@broadcom.com</a=
-></div><div>(919)721-3339</div></div></div></div><br></div></div><br><div c=
-lass=3D"gmail_quote"><div dir=3D"ltr" class=3D"gmail_attr">On Fri, May 29, =
-2020 at 4:03 AM Jason Wang &lt;<a href=3D"mailto:jasowang@redhat.com">jasow=
-ang@redhat.com</a>&gt; wrote:<br></div><blockquote class=3D"gmail_quote" st=
-yle=3D"margin:0px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padd=
-ing-left:1ex">Currently the doorbell is relayed via eventfd which may have<=
-br>
-significant overhead because of the cost of vmexits or syscall. This<br>
-patch introduces mmap() based doorbell mapping which can eliminate the<br>
-overhead caused by vmexit or syscall.<br>
-<br>
-To ease the userspace modeling of the doorbell layout (usually<br>
-virtio-pci), this patch starts from a doorbell per page<br>
-model. Vhost-vdpa only support the hardware doorbell that sit at the<br>
-boundary of a page and does not share the page with other registers.<br>
-<br>
-Doorbell of each virtqueue must be mapped separately, pgoff is the<br>
-index of the virtqueue. This allows userspace to map a subset of the<br>
-doorbell which may be useful for the implementation of software<br>
-assisted virtqueue (control vq) in the future.<br>
-<br>
-Signed-off-by: Jason Wang &lt;<a href=3D"mailto:jasowang@redhat.com" target=
-=3D"_blank">jasowang@redhat.com</a>&gt;<br>
----<br>
-=C2=A0drivers/vhost/vdpa.c | 59 +++++++++++++++++++++++++++++++++++++++++++=
-+<br>
-=C2=A01 file changed, 59 insertions(+)<br>
-<br>
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c<br>
-index 6ff72289f488..bbe23cea139a 100644<br>
---- a/drivers/vhost/vdpa.c<br>
-+++ b/drivers/vhost/vdpa.c<br>
-@@ -15,6 +15,7 @@<br>
-=C2=A0#include &lt;linux/module.h&gt;<br>
-=C2=A0#include &lt;linux/cdev.h&gt;<br>
-=C2=A0#include &lt;linux/device.h&gt;<br>
-+#include &lt;linux/mm.h&gt;<br>
-=C2=A0#include &lt;linux/iommu.h&gt;<br>
-=C2=A0#include &lt;linux/uuid.h&gt;<br>
-=C2=A0#include &lt;linux/vdpa.h&gt;<br>
-@@ -741,12 +742,70 @@ static int vhost_vdpa_release(struct inode *inode, st=
-ruct file *filep)<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 return 0;<br>
-=C2=A0}<br>
-<br>
-+static vm_fault_t vhost_vdpa_fault(struct vm_fault *vmf)<br>
-+{<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0struct vhost_vdpa *v =3D vmf-&gt;vma-&gt;vm_fil=
-e-&gt;private_data;<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0struct vdpa_device *vdpa =3D v-&gt;vdpa;<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0const struct vdpa_config_ops *ops =3D vdpa-&gt;=
-config;<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0struct vdpa_notification_area notify;<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0struct vm_area_struct *vma =3D vmf-&gt;vma;<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0u16 index =3D vma-&gt;vm_pgoff;<br>
-+<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0notify =3D ops-&gt;get_vq_notification(vdpa, in=
-dex);<br>
-+<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0vma-&gt;vm_page_prot =3D pgprot_noncached(vma-&=
-gt;vm_page_prot);<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0if (remap_pfn_range(vma, vmf-&gt;address &amp; =
-PAGE_MASK,<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0notify.addr &gt;&gt; PAGE_SHIFT, PAGE_SIZE,<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=
-=A0 =C2=A0 =C2=A0 =C2=A0vma-&gt;vm_page_prot))<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return VM_FAULT_SIG=
-BUS;<br>
-+<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0return VM_FAULT_NOPAGE;<br>
-+}<br>
-+<br>
-+static const struct vm_operations_struct vhost_vdpa_vm_ops =3D {<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0.fault =3D vhost_vdpa_fault,<br>
-+};<br>
-+<br>
-+static int vhost_vdpa_mmap(struct file *file, struct vm_area_struct *vma)<=
-br>
-+{<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0struct vhost_vdpa *v =3D vma-&gt;vm_file-&gt;pr=
-ivate_data;<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0struct vdpa_device *vdpa =3D v-&gt;vdpa;<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0const struct vdpa_config_ops *ops =3D vdpa-&gt;=
-config;<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0struct vdpa_notification_area notify;<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0int index =3D vma-&gt;vm_pgoff;<br>
-+<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0if (vma-&gt;vm_end - vma-&gt;vm_start !=3D PAGE=
-_SIZE)<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return -EINVAL;<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0if ((vma-&gt;vm_flags &amp; VM_SHARED) =3D=3D 0=
-)<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return -EINVAL;<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0if (vma-&gt;vm_flags &amp; VM_READ)<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return -EINVAL;<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0if (index &gt; 65535)<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return -EINVAL;<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0if (!ops-&gt;get_vq_notification)<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return -ENOTSUPP;<b=
-r>
-+<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0/* To be safe and easily modelled by userspace,=
- We only<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0 * support the doorbell which sits on the page =
-boundary and<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0 * does not share the page with other registers=
-.<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0 */<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0notify =3D ops-&gt;get_vq_notification(vdpa, in=
-dex);<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0if (notify.addr &amp; (PAGE_SIZE - 1))<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return -EINVAL;<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0if (vma-&gt;vm_end - vma-&gt;vm_start !=3D noti=
-fy.size)<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0return -ENOTSUPP;<b=
-r>
-+<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0vma-&gt;vm_ops =3D &amp;vhost_vdpa_vm_ops;<br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0return 0;<br>
-+}<br>
-+<br>
-=C2=A0static const struct file_operations vhost_vdpa_fops =3D {<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 .owner=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =3D TH=
-IS_MODULE,<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 .open=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
-=3D vhost_vdpa_open,<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 .release=C2=A0 =C2=A0 =C2=A0 =C2=A0 =3D vhost_v=
-dpa_release,<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 .write_iter=C2=A0 =C2=A0 =C2=A0=3D vhost_vdpa_c=
-hr_write_iter,<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 .unlocked_ioctl =3D vhost_vdpa_unlocked_ioctl,<=
-br>
-+=C2=A0 =C2=A0 =C2=A0 =C2=A0.mmap=C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0 =C2=A0=
-=3D vhost_vdpa_mmap,<br>
-=C2=A0 =C2=A0 =C2=A0 =C2=A0 .compat_ioctl=C2=A0 =C2=A0=3D compat_ptr_ioctl,=
-<br>
-=C2=A0};<br>
-<br>
--- <br>
-2.20.1<br>
-<br>
-</blockquote></div>
-
---000000000000d094a005a6cda45c--
+CgpPbiAyMDIwLTA1LTI5IDY6NDUgYS5tLiwgQ2hyaXN0b3BoIEhlbGx3aWcgd3JvdGU6Cj4gT24g
+VGh1LCBNYXkgMjgsIDIwMjAgYXQgMDY6MDA6NDRQTSAtMDYwMCwgTG9nYW4gR3VudGhvcnBlIHdy
+b3RlOgo+Pj4gVGhpcyBpc3N1ZSBpcyBtb3N0IGxpa2VseSBpbiB0aGUgaTkxNSBkcml2ZXIgYW5k
+IGlzIG1vc3QgbGlrZWx5IGNhdXNlZCBieSB0aGUgZHJpdmVyIG5vdCByZXNwZWN0aW5nIHRoZSBy
+ZXR1cm4gdmFsdWUgb2YgdGhlIGRtYV9tYXBfb3BzOjptYXBfc2cgZnVuY3Rpb24uIFlvdSBjYW4g
+c2VlIHRoZSBkcml2ZXIgaWdub3JpbmcgdGhlIHJldHVybiB2YWx1ZSBoZXJlOgo+Pj4gaHR0cHM6
+Ly9naXRodWIuY29tL3RvcnZhbGRzL2xpbnV4L2Jsb2IvN2UwMTY1YjJmMWE5MTJhMDZlMzgxZTkx
+ZjBmNGU0OTVmNGFjMzczNi9kcml2ZXJzL2dwdS9kcm0vaTkxNS9nZW0vaTkxNV9nZW1fZG1hYnVm
+LmMjTDUxCj4+Pgo+Pj4gUHJldmlvdXNseSB0aGlzIGRpZG7igJl0IGNhdXNlIGlzc3VlcyBiZWNh
+dXNlIHRoZSBpbnRlbCBtYXBfc2cgYWx3YXlzIHJldHVybmVkIHRoZSBzYW1lIG51bWJlciBvZiBl
+bGVtZW50cyBhcyB0aGUgaW5wdXQgc2NhdHRlciBnYXRoZXIgbGlzdCBidXQgd2l0aCB0aGUgY2hh
+bmdlIHRvIHRoaXMgZG1hLWlvbW11IGFwaSB0aGlzIGlzIG5vIGxvbmdlciB0aGUgY2FzZS4gSSB3
+YXNu4oCZdCBhYmxlIHRvIHRyYWNrIHRoZSBidWcgZG93biB0byBhIHNwZWNpZmljIGxpbmUgb2Yg
+Y29kZSB1bmZvcnR1bmF0ZWx5LiAgCj4gCj4gTWFyayBkaWQgYSBiaWcgYXVkaXQgaW50byB0aGUg
+bWFwX3NnIEFQSSBhYnVzZSBhbmQgaW5pdGlhbGx5IGhhZAo+IHNvbWUgaTkxNSBwYXRjaGVzLCBi
+dXQgdGhlbiBnYXZlIHVwIG9uIHRoZW0gd2l0aCB0aGlzIGNvbW1lbnQ6Cj4gCj4gIlRoZSBiaWdn
+ZXN0IFRPRE8gaXMgRFJNL2k5MTUgZHJpdmVyIGFuZCBJIGRvbid0IGZlZWwgYnJhdmUgZW5vdWdo
+IHRvIGZpeAo+ICBpdCBmdWxseS4gVGhlIGRyaXZlciBjcmVhdGl2ZWx5IHVzZXMgc2dfdGFibGUt
+Pm9yaWdfbmVudHMgdG8gc3RvcmUgdGhlCj4gIHNpemUgb2YgdGhlIGFsbG9jYXRlIHNjYXR0ZXJs
+aXN0IGFuZCBpZ25vcmVzIHRoZSBudW1iZXIgb2YgdGhlIGVudHJpZXMKPiAgcmV0dXJuZWQgYnkg
+ZG1hX21hcF9zZyBmdW5jdGlvbi4gSW4gdGhpcyBwYXRjaHNldCBJIG9ubHkgZml4ZWQgdGhlCj4g
+IHNnX3RhYmxlIG9iamVjdHMgZXhwb3J0ZWQgYnkgZG1hYnVmIHJlbGF0ZWQgZnVuY3Rpb25zLiBJ
+IGhvcGUgdGhhdCBJCj4gIGRpZG4ndCBicmVhayBhbnl0aGluZyB0aGVyZS4iCj4gCj4gaXQgd291
+bGQgYmUgcmVhbGx5IG5pY2UgaWYgdGhlIGk5MTUgbWFpbnRhaW5lcnMgY291bGQgaGVscCB3aXRo
+IHNvcnRpbmcKPiB0aGF0IEFQSSBhYnVzZSBvdXQuCj4gCgpJIGFncmVlIGNvbXBsZXRlbHkgdGhh
+dCB0aGUgQVBJIGFidXNlIHNob3VsZCBiZSBzb3J0ZWQgb3V0LCBidXQgSSB0aGluawp0aGF0J3Mg
+bXVjaCBsYXJnZXIgdGhhbiBqdXN0IHRoZSBpOTE1IGRyaXZlci4gUHJldHR5IG11Y2ggZXZlcnkg
+ZG1hLWJ1ZgptYXBfZG1hX2J1ZiBpbXBsZW1lbnRhdGlvbiBJIGxvb2tlZCBhdCBpZ25vcmVzIHRo
+ZSByZXR1cm5lZCBuZW50cyBvZgpzZ19hdHRycy4gVGhpcyBzdWNrcywgYnV0IEkgZG9uJ3QgdGhp
+bmsgaXQncyB0aGUgYnVnIFRvbSByYW4gaW50by4gU2VlOgoKYW1kZ3B1X2RtYV9idWZfbWFwCmFy
+bWFkYV9nZW1fcHJpbWVfbWFwX2RtYV9idWYKZHJtX2dlbV9tYXBfZG1hX2J1ZgppOTE1X2dlbV9t
+YXBfZG1hX2J1Zgp0ZWdyYV9nZW1fcHJpbWVfbWFwX2RtYV9idWYKClNvIHRoaXMgc2hvdWxkIHBy
+b2JhYmx5IGJlIGFkZHJlc3NlZCBieSB0aGUgd2hvbGUgR1BVIGNvbW11bml0eS4KCkhvd2V2ZXIs
+IGFzIFJvYmluIHBvaW50ZWQgb3V0LCB0aGVyZSBhcmUgb3RoZXIgdWdseSB0cmlja3MgbGlrZSBz
+dG9wcGluZwppdGVyYXRpbmcgdGhyb3VnaCB0aGUgU0dMIHdoZW4gc2dfZG1hX2xlbigpIGlzIHpl
+cm8uIEZvciBleGFtcGxlLCB0aGUKQU1EIGRyaXZlciBhcHBlYXJzIHRvIHVzZSBkcm1fcHJpbWVf
+c2dfdG9fcGFnZV9hZGRyX2FycmF5cygpIHdoaWNoIGRvZXMKdGhpcyB0cmljayBhbmQgdGh1cyBs
+aWtlbHkgaXNuJ3QgYnVnZ3kgKG90aGVyd2lzZSwgSSdkIGV4cGVjdCBzb21lb25lIHRvCmhhdmUg
+Y29tcGxhaW5lZCBieSBub3cgc2VlaW5nIEFNRCBoYXMgYWxyZWFkeSBzd2l0Y2hlZCB0byBJT01N
+VS1ETUEuCgpBcyBJIHRyaWVkIHRvIHBvaW50IG91dCBpbiBteSBwcmV2aW91cyBlbWFpbCwgaTkx
+NSBkb2VzIG5vdCBkbyB0aGlzCnRyaWNrLiBJbiBmYWN0LCBpdCBjb21wbGV0ZWx5IGlnbm9yZXMg
+c2dfZG1hX2xlbigpIGFuZCBpcyB0aHVzCmNvbXBsZXRlbHkgYnJva2VuLiBTZWUgaTkxNV9zY2F0
+dGVybGlzdC5oIGFuZCB0aGUgX19zZ3RfaXRlcigpIGZ1bmN0aW9uLgpTbyBpdCBkb2Vzbid0IHNv
+dW5kIHRvIG1lIGxpa2UgTWFyaydzIGZpeCB3b3VsZCBhZGRyZXNzIHRoZSBpc3N1ZSBhdAphbGwu
+IFBlciBteSBwcmV2aW91cyBlbWFpbCwgSSdkIGd1ZXNzIHRoYXQgaXQgY2FuIGJlIGZpeGVkIHNp
+bXBseSBieQphZGp1c3RpbmcgdGhlIF9fc2d0X2l0ZXIoKSBmdW5jdGlvbiB0byBkbyBzb21ldGhp
+bmcgbW9yZSBzZW5zaWJsZS4KKEJldHRlciB5ZXQsIGlmIHBvc3NpYmxlLCBkaXRjaCBfX3NndF9p
+dGVyKCkgYW5kIHVzZSB0aGUgY29tbW9uIERSTQpmdW5jdGlvbiB0aGF0IEFNRCB1c2VzKS4KClRo
+aXMgd291bGQgYXQgbGVhc3QgYWxsb3cgdXMgdG8gbWFrZSBwcm9ncmVzcyB3aXRoIFRvbSdzIElP
+TU1VLURNQSBwYXRjaApzZXQgYW5kIG9uY2UgdGhhdCBnZXRzIGluLCBpdCB3aWxsIGJlIGhhcmRl
+ciBmb3Igb3RoZXIgZHJpdmVycyB0byBtYWtlCnRoZSBzYW1lIG1pc3Rha2UuCgpMb2dhbgoKCl9f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fCkludGVsLWdmeCBt
+YWlsaW5nIGxpc3QKSW50ZWwtZ2Z4QGxpc3RzLmZyZWVkZXNrdG9wLm9yZwpodHRwczovL2xpc3Rz
+LmZyZWVkZXNrdG9wLm9yZy9tYWlsbWFuL2xpc3RpbmZvL2ludGVsLWdmeAo=
