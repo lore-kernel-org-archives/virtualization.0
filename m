@@ -1,98 +1,113 @@
-From: Tom Lendacky <thomas.lendacky@amd.com>
-Subject: Re: [PATCH v3 69/75] x86/realmode: Setup AP jump table
-Date: Fri, 29 May 2020 11:21:27 -0500
-Message-ID: <0b39f7af-f006-9563-9dbb-347f68cf492e@amd.com>
-References: <20200428151725.31091-1-joro@8bytes.org>
- <20200428151725.31091-70-joro@8bytes.org> <20200529090222.GA9011@zn.tnic>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH v2] virtio_vsock: Fix race condition in
+ virtio_transport_recv_pkt
+Date: Fri, 29 May 2020 18:34:12 +0200
+Message-ID: <20200529163412.fqswshs65f53qgez@steredhat>
+References: <20200529152102.58397-1-justin.he@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200529090222.GA9011@zn.tnic>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20200529152102.58397-1-justin.he@arm.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Borislav Petkov <bp@alien8.de>, Joerg Roedel <joro@8bytes.org>
-Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Jia He <justin.he@arm.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Kaly Xin <Kaly.Xin@arm.com>, stable@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Fri, May 29, 2020 at 11:21:02PM +0800, Jia He wrote:
+> When client tries to connect(SOCK_STREAM) the server in the guest with
+> NONBLOCK mode, there will be a panic on a ThunderX2 (armv8a server):
+> [  463.718844][ T5040] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
+> [  463.718848][ T5040] Mem abort info:
+> [  463.718849][ T5040]   ESR = 0x96000044
+> [  463.718852][ T5040]   EC = 0x25: DABT (current EL), IL = 32 bits
+> [  463.718853][ T5040]   SET = 0, FnV = 0
+> [  463.718854][ T5040]   EA = 0, S1PTW = 0
+> [  463.718855][ T5040] Data abort info:
+> [  463.718856][ T5040]   ISV = 0, ISS = 0x00000044
+> [  463.718857][ T5040]   CM = 0, WnR = 1
+> [  463.718859][ T5040] user pgtable: 4k pages, 48-bit VAs, pgdp=0000008f6f6e9000
+> [  463.718861][ T5040] [0000000000000000] pgd=0000000000000000
+> [  463.718866][ T5040] Internal error: Oops: 96000044 [#1] SMP
+> [...]
+> [  463.718977][ T5040] CPU: 213 PID: 5040 Comm: vhost-5032 Tainted: G           O      5.7.0-rc7+ #139
+> [  463.718980][ T5040] Hardware name: GIGABYTE R281-T91-00/MT91-FS1-00, BIOS F06 09/25/2018
+> [  463.718982][ T5040] pstate: 60400009 (nZCv daif +PAN -UAO)
+> [  463.718995][ T5040] pc : virtio_transport_recv_pkt+0x4c8/0xd40 [vmw_vsock_virtio_transport_common]
+> [  463.718999][ T5040] lr : virtio_transport_recv_pkt+0x1fc/0xd40 [vmw_vsock_virtio_transport_common]
+> [  463.719000][ T5040] sp : ffff80002dbe3c40
+> [...]
+> [  463.719025][ T5040] Call trace:
+> [  463.719030][ T5040]  virtio_transport_recv_pkt+0x4c8/0xd40 [vmw_vsock_virtio_transport_common]
+> [  463.719034][ T5040]  vhost_vsock_handle_tx_kick+0x360/0x408 [vhost_vsock]
+> [  463.719041][ T5040]  vhost_worker+0x100/0x1a0 [vhost]
+> [  463.719048][ T5040]  kthread+0x128/0x130
+> [  463.719052][ T5040]  ret_from_fork+0x10/0x18
+         ^         ^
+Maybe we can remove these two columns from the commit message.
 
-
-On 5/29/20 4:02 AM, Borislav Petkov wrote:
-> On Tue, Apr 28, 2020 at 05:17:19PM +0200, Joerg Roedel wrote:
->> From: Tom Lendacky <thomas.lendacky@amd.com>
->>
->> Setup the AP jump table to point to the SEV-ES trampoline code so that
->> the APs can boot.
 > 
-> Tom, in his laconic way, doesn't want to explain to us why is this even
-> needed...
+> The race condition as follows:
+> Task1                            Task2
+> =====                            =====
+> __sock_release                   virtio_transport_recv_pkt
+>   __vsock_release                  vsock_find_bound_socket (found)
+>     lock_sock_nested
+>     vsock_remove_sock
+>     sock_orphan
+>       sk_set_socket(sk, NULL)
+
+Here we can add:
+      sk->sk_shutdown = SHUTDOWN_MASK;
+
+>     ...
+>     release_sock
+>                                 lock_sock
+>                                    virtio_transport_recv_connecting
+>                                      sk->sk_socket->state (panic)
 > 
-> :)
+> The root cause is that vsock_find_bound_socket can't hold the lock_sock,
+> so there is a small race window between vsock_find_bound_socket() and
+> lock_sock(). If there is __vsock_release() in another task, sk->sk_socket
+> will be set to NULL inadvertently.
+> 
+> This fixes it by checking sk->sk_shutdown.
+> 
+> Signed-off-by: Jia He <justin.he@arm.com>
+> Cc: stable@vger.kernel.org
+> Cc: Stefano Garzarella <sgarzare@redhat.com>
+> ---
+> v2: use lightweight checking suggested by Stefano Garzarella
+> 
+>  net/vmw_vsock/virtio_transport_common.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
+> 
+> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+> index 69efc891885f..0edda1edf988 100644
+> --- a/net/vmw_vsock/virtio_transport_common.c
+> +++ b/net/vmw_vsock/virtio_transport_common.c
+> @@ -1132,6 +1132,14 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
+>  
+>  	lock_sock(sk);
+>  
+> +	/* Check if sk has been released before lock_sock */
+> +	if (sk->sk_shutdown == SHUTDOWN_MASK) {
+> +		(void)virtio_transport_reset_no_sock(t, pkt);
+> +		release_sock(sk);
+> +		sock_put(sk);
+> +		goto free_pkt;
+> +	}
+> +
+>  	/* Update CID in case it has changed after a transport reset event */
+>  	vsk->local_addr.svm_cid = dst.svm_cid;
+>  
+> -- 
+> 2.17.1
+> 
 
-Looks like some of the detail was lost during the patch shuffling. 
-Originally (on GitHub) this was the text:
+Anyway, the patch LGTM, let see what David and other say.
 
-  As part of the GHCB specification, the booting of APs under SEV-ES
-  requires an AP jump table when transitioning from one layer of code to
-  another (e.g. when going from UEFI to the OS). As a result, each layer
-  that parks an AP must provide the physical address of an AP jump table
-  to the next layer using the GHCB MSR.
-
-  Upon booting of the kernel, read the GHCB MSR and save the address of
-  the AP jump table. Under SEV-ES, APs are started using the INIT-SIPI-SIPI
-  sequence. Before issuing the first SIPI request for an AP, the start eip
-  is programmed into the AP jump table. Upon issuing the SIPI request, the
-  AP will awaken and jump to the start eip address programmed into the AP
-  jump table.
-
-It needs to change "GHCB MSR" to "VMGEXIT MSR protocol", but should cover 
-what you're looking for.
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
 Thanks,
-Tom
-
-> 
-> /me reads the code
-> 
-> /me reads the GHCB spec
-> 
-> aha, it gets it from the HV. And it can be set by the guest too...
-> 
-> So how about expanding that commit message as to why this is done, why
-> needed, etc?
-> 
-> Thx.
-> 
->> diff --git a/arch/x86/realmode/init.c b/arch/x86/realmode/init.c
->> index 262f83cad355..1c5cbfd102d5 100644
->> --- a/arch/x86/realmode/init.c
->> +++ b/arch/x86/realmode/init.c
->> @@ -9,6 +9,7 @@
->>   #include <asm/realmode.h>
->>   #include <asm/tlbflush.h>
->>   #include <asm/crash.h>
->> +#include <asm/sev-es.h>
->>   
->>   struct real_mode_header *real_mode_header;
->>   u32 *trampoline_cr4_features;
->> @@ -107,6 +108,11 @@ static void __init setup_real_mode(void)
->>   	if (sme_active())
->>   		trampoline_header->flags |= TH_FLAGS_SME_ACTIVE;
->>   
->> +	if (sev_es_active()) {
->> +		if (sev_es_setup_ap_jump_table(real_mode_header))
->> +			panic("Failed to update SEV-ES AP Jump Table");
->> +	}
->> +
-> 
-> So this function gets slowly sprinkled with
-> 
-> 	if (sev-something)
-> 		bla
-> 
-> Please wrap at least those last two into a
-> 
-> 	sev_setup_real_mode()
-> 
-> or so.
-> 
+Stefano
