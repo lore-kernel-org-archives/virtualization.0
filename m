@@ -1,57 +1,126 @@
-From: Logan Gunthorpe <logang@deltatee.com>
-Subject: Re: [PATCH 0/8] Convert the intel iommu driver to the
- dma-iommu api
-Date: Fri, 29 May 2020 15:21:04 -0600
-Message-ID: <b9140772-0370-a858-578c-af503a06d8e9@deltatee.com>
-References: <20191221150402.13868-1-murphyt7@tcd.ie>
- <465815ae-9292-f37a-59b9-03949cb68460@deltatee.com>
- <20200529124523.GA11817@infradead.org>
- <CGME20200529190523eucas1p2c086133e707257c0cdc002f502d4f51d@eucas1p2.samsung.com>
- <33137cfb-603c-86e8-1091-f36117ecfaf3@deltatee.com>
- <ef2150d5-7b6a-df25-c10d-e43316fe7812@samsung.com>
+From: Jerry Snitselaar <jsnitsel-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH v2 00/33] iommu: Move iommu_group setup to IOMMU core code
+Date: Fri, 29 May 2020 15:16:23 -0700
+Message-ID: <20200529221623.qc6twmpzryh7nkvb@cantor>
+References: <20200414131542.25608-1-joro@8bytes.org>
+Reply-To: Jerry Snitselaar <jsnitsel-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <intel-gfx-bounces@lists.freedesktop.org>
-In-Reply-To: <ef2150d5-7b6a-df25-c10d-e43316fe7812@samsung.com>
-Content-Language: en-CA
-List-Unsubscribe: <https://lists.freedesktop.org/mailman/options/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=unsubscribe>
-List-Archive: <https://lists.freedesktop.org/archives/intel-gfx>
-List-Post: <mailto:intel-gfx@lists.freedesktop.org>
-List-Help: <mailto:intel-gfx-request@lists.freedesktop.org?subject=help>
-List-Subscribe: <https://lists.freedesktop.org/mailman/listinfo/intel-gfx>,
- <mailto:intel-gfx-request@lists.freedesktop.org?subject=subscribe>
-Errors-To: intel-gfx-bounces@lists.freedesktop.org
-Sender: "Intel-gfx" <intel-gfx-bounces@lists.freedesktop.org>
-To: Marek Szyprowski <m.szyprowski@samsung.com>, Christoph Hellwig <hch@infradead.org>
-Cc: kvm@vger.kernel.org, David Airlie <airlied@linux.ie>, dri-devel@lists.freedesktop.org, Bjorn Andersson <bjorn.andersson@linaro.org>, linux-tegra@vger.kernel.org, Julien Grall <julien.grall@arm.com>, Will Deacon <will@kernel.org>, Jean-Philippe Brucker <jean-philippe@linaro.org>, linux-samsung-soc@vger.kernel.org, Marc Zyngier <maz@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, linux-rockchip@lists.infradead.org, Andy Gross <agross@kernel.org>, linux-arm-kernel@lists.infradead.org, linux-s390@vger.kernel.org, linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org, linux-mediatek@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, Thomas Gleixner <tglx@linutronix.de>, virtualization@lists.linux-foundation.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>, David Woodhouse <dwmw2@infradead.org>, Cornelia
+Content-Type: text/plain; charset=utf-8; format=flowed
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20200414131542.25608-1-joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
+Cc: Will Deacon <will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>, Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Lu Baolu <baolu.lu-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Gross <agross-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Clark <robdclark-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Gerald Schaefer <gerald.schaefer-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, virtualiza
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue Apr 14 20, Joerg Roedel wrote:
+>Hi,
+>
+>here is the second version of this patch-set. The first version with
+>some more introductory text can be found here:
+>
+>	https://lore.kernel.org/lkml/20200407183742.4344-1-joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org/
+>
+>Changes v1->v2:
+>
+>	* Rebased to v5.7-rc1
+>
+>	* Re-wrote the arm-smmu changes as suggested by Robin Murphy
+>
+>	* Re-worked the Exynos patches to hopefully not break the
+>	  driver anymore
+>
+>	* Fixed a missing mutex_unlock() reported by Marek Szyprowski,
+>	  thanks for that.
+>
+>There is also a git-branch available with these patches applied:
+>
+>	https://git.kernel.org/pub/scm/linux/kernel/git/joro/linux.git/log/?h=iommu-probe-device-v2
+>
+>Please review.
+>
+>Thanks,
+>
+>	Joerg
+>
+>Joerg Roedel (32):
+>  iommu: Move default domain allocation to separate function
+>  iommu/amd: Implement iommu_ops->def_domain_type call-back
+>  iommu/vt-d: Wire up iommu_ops->def_domain_type
+>  iommu/amd: Remove dma_mask check from check_device()
+>  iommu/amd: Return -ENODEV in add_device when device is not handled by
+>    IOMMU
+>  iommu: Add probe_device() and remove_device() call-backs
+>  iommu: Move default domain allocation to iommu_probe_device()
+>  iommu: Keep a list of allocated groups in __iommu_probe_device()
+>  iommu: Move new probe_device path to separate function
+>  iommu: Split off default domain allocation from group assignment
+>  iommu: Move iommu_group_create_direct_mappings() out of
+>    iommu_group_add_device()
+>  iommu: Export bus_iommu_probe() and make is safe for re-probing
+>  iommu/amd: Remove dev_data->passthrough
+>  iommu/amd: Convert to probe/release_device() call-backs
+>  iommu/vt-d: Convert to probe/release_device() call-backs
+>  iommu/arm-smmu: Convert to probe/release_device() call-backs
+>  iommu/pamu: Convert to probe/release_device() call-backs
+>  iommu/s390: Convert to probe/release_device() call-backs
+>  iommu/virtio: Convert to probe/release_device() call-backs
+>  iommu/msm: Convert to probe/release_device() call-backs
+>  iommu/mediatek: Convert to probe/release_device() call-backs
+>  iommu/mediatek-v1 Convert to probe/release_device() call-backs
+>  iommu/qcom: Convert to probe/release_device() call-backs
+>  iommu/rockchip: Convert to probe/release_device() call-backs
+>  iommu/tegra: Convert to probe/release_device() call-backs
+>  iommu/renesas: Convert to probe/release_device() call-backs
+>  iommu/omap: Remove orphan_dev tracking
+>  iommu/omap: Convert to probe/release_device() call-backs
+>  iommu/exynos: Use first SYSMMU in controllers list for IOMMU core
+>  iommu/exynos: Convert to probe/release_device() call-backs
+>  iommu: Remove add_device()/remove_device() code-paths
+>  iommu: Unexport iommu_group_get_for_dev()
+>
+>Sai Praneeth Prakhya (1):
+>  iommu: Add def_domain_type() callback in iommu_ops
+>
+> drivers/iommu/amd_iommu.c       |  97 ++++----
+> drivers/iommu/amd_iommu_types.h |   1 -
+> drivers/iommu/arm-smmu-v3.c     |  38 +--
+> drivers/iommu/arm-smmu.c        |  39 ++--
+> drivers/iommu/exynos-iommu.c    |  24 +-
+> drivers/iommu/fsl_pamu_domain.c |  22 +-
+> drivers/iommu/intel-iommu.c     |  68 +-----
+> drivers/iommu/iommu.c           | 393 +++++++++++++++++++++++++-------
+> drivers/iommu/ipmmu-vmsa.c      |  60 ++---
+> drivers/iommu/msm_iommu.c       |  34 +--
+> drivers/iommu/mtk_iommu.c       |  24 +-
+> drivers/iommu/mtk_iommu_v1.c    |  50 ++--
+> drivers/iommu/omap-iommu.c      |  99 ++------
+> drivers/iommu/qcom_iommu.c      |  24 +-
+> drivers/iommu/rockchip-iommu.c  |  26 +--
+> drivers/iommu/s390-iommu.c      |  22 +-
+> drivers/iommu/tegra-gart.c      |  24 +-
+> drivers/iommu/tegra-smmu.c      |  31 +--
+> drivers/iommu/virtio-iommu.c    |  41 +---
+> include/linux/iommu.h           |  21 +-
+> 20 files changed, 533 insertions(+), 605 deletions(-)
+>
+>-- 
+>2.17.1
+>
+>_______________________________________________
+>iommu mailing list
+>iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+>https://lists.linuxfoundation.org/mailman/listinfo/iommu
+>
 
+Hi Joerg,
 
-On 2020-05-29 3:11 p.m., Marek Szyprowski wrote:
-> Patches are pending:
-> https://lore.kernel.org/linux-iommu/20200513132114.6046-1-m.szyprowski@samsung.com/T/
+With this patchset, I have an epyc system where if I boot with
+iommu=nopt and force a dump I will see some io page faults for a nic
+on the system. The vmcore is harvested and the system reboots. I
+haven't reproduced it on other systems yet, but without the patchset I
+don't see the io page faults during the kdump.
 
-Cool, nice! Though, I still don't think that fixes the issue in
-i915_scatterlist.h given it still ignores sg_dma_len() and strictly
-relies on sg_next()/sg_is_last() to stop iterating -- and I suspect this
-is the bug that got in Tom's way.
-
->> However, as Robin pointed out, there are other ugly tricks like stopping
->> iterating through the SGL when sg_dma_len() is zero. For example, the
->> AMD driver appears to use drm_prime_sg_to_page_addr_arrays() which does
->> this trick and thus likely isn't buggy (otherwise, I'd expect someone to
->> have complained by now seeing AMD has already switched to IOMMU-DMA.
-> 
-> I'm not sure that this is a trick. Stopping at zero sg_dma_len() was 
-> somewhere documented.
-
-Well whatever you want to call it, it is ugly to have some drivers doing
-one thing with the returned value and others assuming there's an extra
-zero at the end. It just causes confusion for people reading/copying the
-code. It would be better if they are all consistent. However, I concede
-stopping at zero should not be broken, presently.
-
-Logan
+Regards,
+Jerry
