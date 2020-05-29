@@ -1,76 +1,127 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH v3 69/75] x86/realmode: Setup AP jump table
-Date: Fri, 29 May 2020 11:02:22 +0200
-Message-ID: <20200529090222.GA9011@zn.tnic>
-References: <20200428151725.31091-1-joro@8bytes.org>
- <20200428151725.31091-70-joro@8bytes.org>
+From: =?UTF-8?Q?Mika_Penttil=c3=a4?= <mika.penttila@nextfour.com>
+Subject: Re: [PATCH 4/6] vhost_vdpa: support doorbell mapping via mmap
+Date: Fri, 29 May 2020 12:16:02 +0300
+Message-ID: <bab90a3f-f0b3-37d3-89bc-cd17d33f3208@nextfour.com>
+References: <20200529080303.15449-1-jasowang@redhat.com>
+ <20200529080303.15449-5-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200428151725.31091-70-joro@8bytes.org>
+In-Reply-To: <20200529080303.15449-5-jasowang@redhat.com>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Joerg Roedel <joro@8bytes.org>
-Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Jason Wang <jasowang@redhat.com>, mst@redhat.com
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, rob.miller@broadcom.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com, zhangweining@ruijie.com.cn, eli@mellanox.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 28, 2020 at 05:17:19PM +0200, Joerg Roedel wrote:
-> From: Tom Lendacky <thomas.lendacky@amd.com>
-> 
-> Setup the AP jump table to point to the SEV-ES trampoline code so that
-> the APs can boot.
+Hi,
 
-Tom, in his laconic way, doesn't want to explain to us why is this even
-needed...
+On 29.5.2020 11.03, Jason Wang wrote:
+> Currently the doorbell is relayed via eventfd which may have
+> significant overhead because of the cost of vmexits or syscall. This
+> patch introduces mmap() based doorbell mapping which can eliminate the
+> overhead caused by vmexit or syscall.
 
-:)
+Just wondering. I know very little about vdpa. But how is such a "sw 
+doorbell" monitored or observed, if no fault or wmexit etc.
+Is there some kind of polling used?
 
-/me reads the code
-
-/me reads the GHCB spec
-
-aha, it gets it from the HV. And it can be set by the guest too...
-
-So how about expanding that commit message as to why this is done, why
-needed, etc?
-
-Thx.
-
-> diff --git a/arch/x86/realmode/init.c b/arch/x86/realmode/init.c
-> index 262f83cad355..1c5cbfd102d5 100644
-> --- a/arch/x86/realmode/init.c
-> +++ b/arch/x86/realmode/init.c
-> @@ -9,6 +9,7 @@
->  #include <asm/realmode.h>
->  #include <asm/tlbflush.h>
->  #include <asm/crash.h>
-> +#include <asm/sev-es.h>
->  
->  struct real_mode_header *real_mode_header;
->  u32 *trampoline_cr4_features;
-> @@ -107,6 +108,11 @@ static void __init setup_real_mode(void)
->  	if (sme_active())
->  		trampoline_header->flags |= TH_FLAGS_SME_ACTIVE;
->  
-> +	if (sev_es_active()) {
-> +		if (sev_es_setup_ap_jump_table(real_mode_header))
-> +			panic("Failed to update SEV-ES AP Jump Table");
-> +	}
+> To ease the userspace modeling of the doorbell layout (usually
+> virtio-pci), this patch starts from a doorbell per page
+> model. Vhost-vdpa only support the hardware doorbell that sit at the
+> boundary of a page and does not share the page with other registers.
+>
+> Doorbell of each virtqueue must be mapped separately, pgoff is the
+> index of the virtqueue. This allows userspace to map a subset of the
+> doorbell which may be useful for the implementation of software
+> assisted virtqueue (control vq) in the future.
+>
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>   drivers/vhost/vdpa.c | 59 ++++++++++++++++++++++++++++++++++++++++++++
+>   1 file changed, 59 insertions(+)
+>
+> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> index 6ff72289f488..bbe23cea139a 100644
+> --- a/drivers/vhost/vdpa.c
+> +++ b/drivers/vhost/vdpa.c
+> @@ -15,6 +15,7 @@
+>   #include <linux/module.h>
+>   #include <linux/cdev.h>
+>   #include <linux/device.h>
+> +#include <linux/mm.h>
+>   #include <linux/iommu.h>
+>   #include <linux/uuid.h>
+>   #include <linux/vdpa.h>
+> @@ -741,12 +742,70 @@ static int vhost_vdpa_release(struct inode *inode, struct file *filep)
+>   	return 0;
+>   }
+>   
+> +static vm_fault_t vhost_vdpa_fault(struct vm_fault *vmf)
+> +{
+> +	struct vhost_vdpa *v = vmf->vma->vm_file->private_data;
+> +	struct vdpa_device *vdpa = v->vdpa;
+> +	const struct vdpa_config_ops *ops = vdpa->config;
+> +	struct vdpa_notification_area notify;
+> +	struct vm_area_struct *vma = vmf->vma;
+> +	u16 index = vma->vm_pgoff;
 > +
-
-So this function gets slowly sprinkled with
-
-	if (sev-something)
-		bla
-
-Please wrap at least those last two into a
-
-	sev_setup_real_mode()
-
-or so.
-
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+> +	notify = ops->get_vq_notification(vdpa, index);
+> +
+> +	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+> +	if (remap_pfn_range(vma, vmf->address & PAGE_MASK,
+> +			    notify.addr >> PAGE_SHIFT, PAGE_SIZE,
+> +			    vma->vm_page_prot))
+> +		return VM_FAULT_SIGBUS;
+> +
+> +	return VM_FAULT_NOPAGE;
+> +}
+> +
+> +static const struct vm_operations_struct vhost_vdpa_vm_ops = {
+> +	.fault = vhost_vdpa_fault,
+> +};
+> +
+> +static int vhost_vdpa_mmap(struct file *file, struct vm_area_struct *vma)
+> +{
+> +	struct vhost_vdpa *v = vma->vm_file->private_data;
+> +	struct vdpa_device *vdpa = v->vdpa;
+> +	const struct vdpa_config_ops *ops = vdpa->config;
+> +	struct vdpa_notification_area notify;
+> +	int index = vma->vm_pgoff;
+> +
+> +	if (vma->vm_end - vma->vm_start != PAGE_SIZE)
+> +		return -EINVAL;
+> +	if ((vma->vm_flags & VM_SHARED) == 0)
+> +		return -EINVAL;
+> +	if (vma->vm_flags & VM_READ)
+> +		return -EINVAL;
+> +	if (index > 65535)
+> +		return -EINVAL;
+> +	if (!ops->get_vq_notification)
+> +		return -ENOTSUPP;
+> +
+> +	/* To be safe and easily modelled by userspace, We only
+> +	 * support the doorbell which sits on the page boundary and
+> +	 * does not share the page with other registers.
+> +	 */
+> +	notify = ops->get_vq_notification(vdpa, index);
+> +	if (notify.addr & (PAGE_SIZE - 1))
+> +		return -EINVAL;
+> +	if (vma->vm_end - vma->vm_start != notify.size)
+> +		return -ENOTSUPP;
+> +
+> +	vma->vm_ops = &vhost_vdpa_vm_ops;
+> +	return 0;
+> +}
+> +
+>   static const struct file_operations vhost_vdpa_fops = {
+>   	.owner		= THIS_MODULE,
+>   	.open		= vhost_vdpa_open,
+>   	.release	= vhost_vdpa_release,
+>   	.write_iter	= vhost_vdpa_chr_write_iter,
+>   	.unlocked_ioctl	= vhost_vdpa_unlocked_ioctl,
+> +	.mmap		= vhost_vdpa_mmap,
+>   	.compat_ioctl	= compat_ptr_ioctl,
+>   };
+>   
