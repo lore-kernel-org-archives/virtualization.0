@@ -1,8 +1,7 @@
 From: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Subject: [RFC 01/12] ASoC: add function parameters to enable forced path
- pruning
-Date: Fri, 29 May 2020 09:37:11 +0200
-Message-ID: <20200529073722.8184-2-guennadi.liakhovetski@linux.intel.com>
+Subject: [RFC 04/12] ASoC: SOF: add a power status IPC
+Date: Fri, 29 May 2020 09:37:14 +0200
+Message-ID: <20200529073722.8184-5-guennadi.liakhovetski@linux.intel.com>
 References: <20200529073722.8184-1-guennadi.liakhovetski@linux.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,291 +21,112 @@ To: kvm@vger.kernel.org
 Cc: Ohad Ben-Cohen <ohad@wizery.com>, Mathieu Poirier <mathieu.poirier@linaro.org>, "Michael S. Tsirkin" <mst@redhat.com>, linux-remoteproc@vger.kernel.org, Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>, virtualization@lists.linux-foundation.org, Liam Girdwood <liam.r.girdwood@linux.intel.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, sound-open-firmware@alsa-project.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a preparation for the host part of a virtualised VirtIO audio
-host-guest driver pair. It adds a "mode" parameter to
-soc_dpcm_runtime_update() to allow it to be used when stopping
-streaming in a virtual machine, which requires forced DPCM audio path
-pruning.
-
-For audio virtualisation the host side driver will be using the vhost
-API, i.e. it will run completely in the kernel. When a guest begins to
-stream audio, the vhost calls snd_soc_runtime_activate() and
-soc_dpcm_runtime_update() to activate an audio path and update audio
-routing. When streaming is stopped, the vhost driver calls
-soc_dpcm_runtime_update() and snd_soc_runtime_deactivate(). The latter
-doesn't work at the moment, because the DPCM doesn't recognise the
-path as inactive. We address this by adding a "mode" parameter to
-soc_dpcm_runtime_update(). If virtualisation isn't used, the current
-behaviour isn't affected.
+In a virtualised configuration the runtime PM of the host and any
+guests aren't synchronised. But guests have to be able to tell the
+host when they suspend and resume and know, whether the host has been
+runtime suspended since that guests's topology had been sent to the
+host last time. This is needed to decide whether to re-send the
+topology again. To support this we add a new PM IPC message
+SOF_IPC_PM_VFE_POWER_STATUS and a reset counter to track the state of
+the DSP.
 
 Signed-off-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
 ---
- include/sound/soc-dpcm.h | 28 ++++++++++++++++----
- sound/soc/soc-compress.c |  2 +-
- sound/soc/soc-dapm.c     |  8 +++---
- sound/soc/soc-pcm.c      | 67 +++++++++++++++++++++++++++++++++---------------
- 4 files changed, 74 insertions(+), 31 deletions(-)
+ include/sound/sof/header.h | 1 +
+ sound/soc/sof/core.c       | 2 ++
+ sound/soc/sof/ipc.c        | 2 ++
+ sound/soc/sof/loader.c     | 4 ++++
+ sound/soc/sof/sof-priv.h   | 4 ++++
+ 5 files changed, 13 insertions(+)
 
-diff --git a/include/sound/soc-dpcm.h b/include/sound/soc-dpcm.h
-index 0f6c50b..b961c06 100644
---- a/include/sound/soc-dpcm.h
-+++ b/include/sound/soc-dpcm.h
-@@ -61,6 +61,23 @@ enum snd_soc_dpcm_trigger {
- 	SND_SOC_DPCM_TRIGGER_BESPOKE,
- };
+diff --git a/include/sound/sof/header.h b/include/sound/sof/header.h
+index 2d35997..5ee296c 100644
+--- a/include/sound/sof/header.h
++++ b/include/sound/sof/header.h
+@@ -77,6 +77,7 @@
+ #define SOF_IPC_PM_CLK_REQ			SOF_CMD_TYPE(0x006)
+ #define SOF_IPC_PM_CORE_ENABLE			SOF_CMD_TYPE(0x007)
+ #define SOF_IPC_PM_GATE				SOF_CMD_TYPE(0x008)
++#define SOF_IPC_PM_VFE_POWER_STATUS		SOF_CMD_TYPE(0x010)
  
-+/**
-+ * enum snd_soc_dpcm_update_mode - mode for calling soc_dpcm_runtime_update()
-+ *
-+ * @SND_SOC_DPCM_UPDATE_FULL:		default mode, used for mux, mixer, and
-+ *					volume widgets
-+ * @SND_SOC_DPCM_UPDATE_NEW_ONLY:	a pipeline is starting. Skip checking
-+ *					for old paths.
-+ * @SND_SOC_DPCM_UPDATE_OLD_ONLY:	a pipeline is shutting down. Skip
-+ *					checking for new paths, force old path
-+ *					pruning.
-+ */
-+enum snd_soc_dpcm_update_mode {
-+	SND_SOC_DPCM_UPDATE_FULL,
-+	SND_SOC_DPCM_UPDATE_NEW_ONLY,
-+	SND_SOC_DPCM_UPDATE_OLD_ONLY,
-+};
-+
- /*
-  * Dynamic PCM link
-  * This links together a FE and BE DAI at runtime and stores the link
-@@ -133,7 +150,8 @@ struct snd_pcm_substream *
- 	snd_soc_dpcm_get_substream(struct snd_soc_pcm_runtime *be, int stream);
+ /* component runtime config - multiple different types */
+ #define SOF_IPC_COMP_SET_VALUE			SOF_CMD_TYPE(0x001)
+diff --git a/sound/soc/sof/core.c b/sound/soc/sof/core.c
+index 17f264f..61f045c 100644
+--- a/sound/soc/sof/core.c
++++ b/sound/soc/sof/core.c
+@@ -8,6 +8,7 @@
+ // Author: Liam Girdwood <liam.r.girdwood@linux.intel.com>
+ //
  
- /* update audio routing between PCMs and any DAI links */
--int snd_soc_dpcm_runtime_update(struct snd_soc_card *card);
-+int snd_soc_dpcm_runtime_update(struct snd_soc_card *card,
-+				enum snd_soc_dpcm_update_mode mode);
- 
- #ifdef CONFIG_DEBUG_FS
- void soc_dpcm_debugfs_add(struct snd_soc_pcm_runtime *rtd);
-@@ -143,11 +161,11 @@ static inline void soc_dpcm_debugfs_add(struct snd_soc_pcm_runtime *rtd)
- }
++#include <linux/atomic.h>
+ #include <linux/firmware.h>
+ #include <linux/module.h>
+ #include <sound/soc.h>
+@@ -312,6 +313,7 @@ int snd_sof_device_probe(struct device *dev, struct snd_sof_pdata *plat_data)
+ #if IS_ENABLED(CONFIG_SND_SOC_SOF_DEBUG_PROBES)
+ 	sdev->extractor_stream_tag = SOF_PROBE_INVALID_NODE_ID;
  #endif
++	atomic_set(&sdev->dsp_reset_count, 0);
+ 	dev_set_drvdata(dev, sdev);
  
--int dpcm_path_get(struct snd_soc_pcm_runtime *fe,
--	int stream, struct snd_soc_dapm_widget_list **list_);
-+int dpcm_path_get(struct snd_soc_pcm_runtime *fe, int stream,
-+	struct snd_soc_dapm_widget_list **list_);
- void dpcm_path_put(struct snd_soc_dapm_widget_list **list);
--int dpcm_process_paths(struct snd_soc_pcm_runtime *fe,
--	int stream, struct snd_soc_dapm_widget_list **list, int new);
-+int dpcm_process_paths(struct snd_soc_pcm_runtime *fe, int stream,
-+	struct snd_soc_dapm_widget_list **list, bool new, bool force_prune);
- int dpcm_be_dai_startup(struct snd_soc_pcm_runtime *fe, int stream);
- int dpcm_be_dai_shutdown(struct snd_soc_pcm_runtime *fe, int stream);
- void dpcm_be_disconnect(struct snd_soc_pcm_runtime *fe, int stream);
-diff --git a/sound/soc/soc-compress.c b/sound/soc/soc-compress.c
-index 62ece72..c9539b8 100644
---- a/sound/soc/soc-compress.c
-+++ b/sound/soc/soc-compress.c
-@@ -155,7 +155,7 @@ static int soc_compr_open_fe(struct snd_compr_stream *cstream)
- 		dev_dbg(fe->dev, "Compress ASoC: %s no valid %s route\n",
- 			fe->dai_link->name, stream ? "capture" : "playback");
- 	/* calculate valid and active FE <-> BE dpcms */
--	dpcm_process_paths(fe, stream, &list, 1);
-+	dpcm_process_paths(fe, stream, &list, true, false);
- 	fe->dpcm[stream].runtime = fe_substream->runtime;
+ 	/* check all mandatory ops */
+diff --git a/sound/soc/sof/ipc.c b/sound/soc/sof/ipc.c
+index b3e1587..e9b0347 100644
+--- a/sound/soc/sof/ipc.c
++++ b/sound/soc/sof/ipc.c
+@@ -105,6 +105,8 @@ static void ipc_log_header(struct device *dev, u8 *text, u32 cmd)
+ 			str2 = "CLK_REQ"; break;
+ 		case SOF_IPC_PM_CORE_ENABLE:
+ 			str2 = "CORE_ENABLE"; break;
++		case SOF_IPC_PM_VFE_POWER_STATUS:
++			str2 = "VFE_POWER_STATUS"; break;
+ 		default:
+ 			str2 = "unknown type"; break;
+ 		}
+diff --git a/sound/soc/sof/loader.c b/sound/soc/sof/loader.c
+index 4a5b57e..df95bcb 100644
+--- a/sound/soc/sof/loader.c
++++ b/sound/soc/sof/loader.c
+@@ -10,6 +10,7 @@
+ // Generic firmware loader.
+ //
  
- 	fe->dpcm[stream].runtime_update = SND_SOC_DPCM_UPDATE_FE;
-diff --git a/sound/soc/soc-dapm.c b/sound/soc/soc-dapm.c
-index a4de3e4..e27d93d 100644
---- a/sound/soc/soc-dapm.c
-+++ b/sound/soc/soc-dapm.c
-@@ -2311,7 +2311,7 @@ int snd_soc_dapm_mux_update_power(struct snd_soc_dapm_context *dapm,
- 	card->update = NULL;
- 	mutex_unlock(&card->dapm_mutex);
- 	if (ret > 0)
--		snd_soc_dpcm_runtime_update(card);
-+		snd_soc_dpcm_runtime_update(card, SND_SOC_DPCM_UPDATE_FULL);
- 	return ret;
- }
- EXPORT_SYMBOL_GPL(snd_soc_dapm_mux_update_power);
-@@ -2376,7 +2376,7 @@ int snd_soc_dapm_mixer_update_power(struct snd_soc_dapm_context *dapm,
- 	card->update = NULL;
- 	mutex_unlock(&card->dapm_mutex);
- 	if (ret > 0)
--		snd_soc_dpcm_runtime_update(card);
-+		snd_soc_dpcm_runtime_update(card, SND_SOC_DPCM_UPDATE_FULL);
- 	return ret;
- }
- EXPORT_SYMBOL_GPL(snd_soc_dapm_mixer_update_power);
-@@ -3416,7 +3416,7 @@ int snd_soc_dapm_put_volsw(struct snd_kcontrol *kcontrol,
- 	mutex_unlock(&card->dapm_mutex);
++#include <linux/atomic.h>
+ #include <linux/firmware.h>
+ #include <sound/sof.h>
+ #include "ops.h"
+@@ -620,6 +621,9 @@ int snd_sof_run_firmware(struct snd_sof_dev *sdev)
+ 	/* fw boot is complete. Update the active cores mask */
+ 	sdev->enabled_cores_mask = init_core_mask;
  
- 	if (ret > 0)
--		snd_soc_dpcm_runtime_update(card);
-+		snd_soc_dpcm_runtime_update(card, SND_SOC_DPCM_UPDATE_FULL);
- 
- 	return change;
- }
-@@ -3521,7 +3521,7 @@ int snd_soc_dapm_put_enum_double(struct snd_kcontrol *kcontrol,
- 	mutex_unlock(&card->dapm_mutex);
- 
- 	if (ret > 0)
--		snd_soc_dpcm_runtime_update(card);
-+		snd_soc_dpcm_runtime_update(card, SND_SOC_DPCM_UPDATE_FULL);
- 
- 	return change;
- }
-diff --git a/sound/soc/soc-pcm.c b/sound/soc/soc-pcm.c
-index b7899da..eb19a8e 100644
---- a/sound/soc/soc-pcm.c
-+++ b/sound/soc/soc-pcm.c
-@@ -1480,14 +1480,14 @@ static bool dpcm_be_is_active(struct snd_soc_dpcm *dpcm, int stream,
- }
- 
- static int dpcm_prune_paths(struct snd_soc_pcm_runtime *fe, int stream,
--			    struct snd_soc_dapm_widget_list **list_)
-+			    struct snd_soc_dapm_widget_list **list_, bool force)
- {
- 	struct snd_soc_dpcm *dpcm;
- 	int prune = 0;
- 
- 	/* Destroy any old FE <--> BE connections */
- 	for_each_dpcm_be(fe, stream, dpcm) {
--		if (dpcm_be_is_active(dpcm, stream, *list_))
-+		if (!force && dpcm_be_is_active(dpcm, stream, *list_))
- 			continue;
- 
- 		dev_dbg(fe->dev, "ASoC: pruning %s BE %s for %s\n",
-@@ -1562,12 +1562,13 @@ static int dpcm_add_paths(struct snd_soc_pcm_runtime *fe, int stream,
-  * FE substream.
-  */
- int dpcm_process_paths(struct snd_soc_pcm_runtime *fe,
--	int stream, struct snd_soc_dapm_widget_list **list, int new)
-+		       int stream, struct snd_soc_dapm_widget_list **list,
-+		       bool new, bool force_prune)
- {
- 	if (new)
- 		return dpcm_add_paths(fe, stream, list);
- 	else
--		return dpcm_prune_paths(fe, stream, list);
-+		return dpcm_prune_paths(fe, stream, list, force_prune);
- }
- 
- void dpcm_clear_pending_state(struct snd_soc_pcm_runtime *fe, int stream)
-@@ -2563,11 +2564,13 @@ static int dpcm_fe_dai_prepare(struct snd_pcm_substream *substream)
- 	return ret;
- }
- 
--static int dpcm_run_update_shutdown(struct snd_soc_pcm_runtime *fe, int stream)
-+static int dpcm_run_update_shutdown(struct snd_soc_pcm_runtime *fe, int stream,
-+				    bool force)
- {
- 	struct snd_pcm_substream *substream =
- 		snd_soc_dpcm_get_substream(fe, stream);
- 	enum snd_soc_dpcm_trigger trigger = fe->dai_link->trigger[stream];
-+	int event = force ? SND_SOC_DAPM_STREAM_STOP : SND_SOC_DAPM_STREAM_NOP;
- 	int err;
- 
- 	dev_dbg(fe->dev, "ASoC: runtime %s close on FE %s\n",
-@@ -2599,7 +2602,7 @@ static int dpcm_run_update_shutdown(struct snd_soc_pcm_runtime *fe, int stream)
- 		dev_err(fe->dev,"ASoC: shutdown FE failed %d\n", err);
- 
- 	/* run the stream event for each BE */
--	dpcm_dapm_stream_event(fe, stream, SND_SOC_DAPM_STREAM_NOP);
-+	dpcm_dapm_stream_event(fe, stream, event);
- 
++	/* increment reset count */
++	atomic_add(1, &sdev->dsp_reset_count);
++
  	return 0;
  }
-@@ -2692,7 +2695,8 @@ static int dpcm_run_update_startup(struct snd_soc_pcm_runtime *fe, int stream)
- 	return ret;
- }
+ EXPORT_SYMBOL(snd_sof_run_firmware);
+diff --git a/sound/soc/sof/sof-priv.h b/sound/soc/sof/sof-priv.h
+index 3ed39b8..29ab6ad 100644
+--- a/sound/soc/sof/sof-priv.h
++++ b/sound/soc/sof/sof-priv.h
+@@ -11,6 +11,7 @@
+ #ifndef __SOUND_SOC_SOF_PRIV_H
+ #define __SOUND_SOC_SOF_PRIV_H
  
--static int soc_dpcm_fe_runtime_update(struct snd_soc_pcm_runtime *fe, int new)
-+static int soc_dpcm_fe_runtime_update(struct snd_soc_pcm_runtime *fe, bool new,
-+				      bool force_prune)
- {
- 	struct snd_soc_dapm_widget_list *list;
- 	int stream;
-@@ -2738,13 +2742,13 @@ static int soc_dpcm_fe_runtime_update(struct snd_soc_pcm_runtime *fe, int new)
- 		}
++#include <linux/atomic.h>
+ #include <linux/device.h>
+ #include <sound/hdaudio.h>
+ #include <sound/sof.h>
+@@ -425,6 +426,9 @@ struct snd_sof_dev {
+ 	unsigned int extractor_stream_tag;
+ #endif
  
- 		/* update any playback/capture paths */
--		count = dpcm_process_paths(fe, stream, &list, new);
-+		count = dpcm_process_paths(fe, stream, &list, new, force_prune);
- 		if (count) {
- 			dpcm_set_fe_update_state(fe, stream, SND_SOC_DPCM_UPDATE_BE);
- 			if (new)
- 				ret = dpcm_run_update_startup(fe, stream);
- 			else
--				ret = dpcm_run_update_shutdown(fe, stream);
-+				ret = dpcm_run_update_shutdown(fe, stream, force_prune);
- 			if (ret < 0)
- 				dev_err(fe->dev, "ASoC: failed to shutdown some BEs\n");
- 			dpcm_set_fe_update_state(fe, stream, SND_SOC_DPCM_UPDATE_NO);
-@@ -2762,25 +2766,46 @@ static int soc_dpcm_fe_runtime_update(struct snd_soc_pcm_runtime *fe, int new)
- /* Called by DAPM mixer/mux changes to update audio routing between PCMs and
-  * any DAI links.
-  */
--int snd_soc_dpcm_runtime_update(struct snd_soc_card *card)
-+int snd_soc_dpcm_runtime_update(struct snd_soc_card *card,
-+				enum snd_soc_dpcm_update_mode mode)
- {
- 	struct snd_soc_pcm_runtime *fe;
- 	int ret = 0;
- 
- 	mutex_lock_nested(&card->mutex, SND_SOC_CARD_CLASS_RUNTIME);
++	/* VirtIO fields for host and guest */
++	atomic_t dsp_reset_count;
 +
- 	/* shutdown all old paths first */
--	for_each_card_rtds(card, fe) {
--		ret = soc_dpcm_fe_runtime_update(fe, 0);
--		if (ret)
--			goto out;
--	}
-+	if (mode != SND_SOC_DPCM_UPDATE_NEW_ONLY)
-+		/*
-+		 * This is entered if mode == FULL or OLD_ONLY. In both cases we
-+		 * have to call soc_dpcm_fe_runtime_update() but only in the
-+		 * OLD_ONLY case we have to set the "force" (last) parameter to
-+		 * "true."
-+		 */
-+		for_each_card_rtds(card, fe) {
-+			/*
-+			 * check "old" paths (new = false), only force for
-+			 * shutting down.
-+			 */
-+			ret = soc_dpcm_fe_runtime_update(fe, false,
-+					mode == SND_SOC_DPCM_UPDATE_OLD_ONLY);
-+			if (ret)
-+				goto out;
-+		}
- 
- 	/* bring new paths up */
--	for_each_card_rtds(card, fe) {
--		ret = soc_dpcm_fe_runtime_update(fe, 1);
--		if (ret)
--			goto out;
--	}
-+	if (mode != SND_SOC_DPCM_UPDATE_OLD_ONLY)
-+		/*
-+		 * This is entered if mode == FULL or NEW_ONLY. In both cases we
-+		 * have to call soc_dpcm_fe_runtime_update() with the "force"
-+		 * (last) parameter set to "false"
-+		 */
-+		for_each_card_rtds(card, fe) {
-+			/* check "new" paths (new = true), no forcing */
-+			ret = soc_dpcm_fe_runtime_update(fe, true, false);
-+			if (ret)
-+				goto out;
-+		}
- 
- out:
- 	mutex_unlock(&card->mutex);
-@@ -2836,7 +2861,7 @@ static int dpcm_fe_dai_open(struct snd_pcm_substream *fe_substream)
- 	}
- 
- 	/* calculate valid and active FE <-> BE dpcms */
--	dpcm_process_paths(fe, stream, &list, 1);
-+	dpcm_process_paths(fe, stream, &list, true, false);
- 
- 	ret = dpcm_fe_dai_startup(fe_substream);
- 	if (ret < 0)
+ 	/* DMA for Trace */
+ 	struct snd_dma_buffer dmatb;
+ 	struct snd_dma_buffer dmatp;
 -- 
 1.9.3
