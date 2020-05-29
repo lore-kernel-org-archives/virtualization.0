@@ -1,91 +1,63 @@
-From: Jia He <justin.he@arm.com>
-Subject: [PATCH v2] virtio_vsock: Fix race condition in virtio_transport_recv_pkt
-Date: Fri, 29 May 2020 23:21:02 +0800
-Message-ID: <20200529152102.58397-1-justin.he@arm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Kaly Xin <Kaly.Xin@arm.com>, Jia He <justin.he@arm.com>, stable@vger.kernel.org
+From: "Derrick, Jonathan" <jonathan.derrick@intel.com>
+Subject: Re: [PATCH v3 1/2] PCI: vmd: Filter resource type bits from shadow
+ register
+Date: Fri, 29 May 2020 15:53:37 +0000
+Message-ID: <163e8cb37ece0c8daa6d6e5fd7fcae47ba4fa437.camel@intel.com>
+References: <20200528030240.16024-1-jonathan.derrick@intel.com>
+         <20200528030240.16024-3-jonathan.derrick@intel.com>
+         <20200529103315.GC12270@e121166-lin.cambridge.arm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-pci-owner@vger.kernel.org>
+In-Reply-To: <20200529103315.GC12270@e121166-lin.cambridge.arm.com>
+Content-Language: en-US
+Content-ID: <9320F8450203F74885A01C2338E0390F@intel.com>
+Sender: linux-pci-owner@vger.kernel.org
+To: "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>
+Cc: "hch@lst.de" <hch@lst.de>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "helgaas@kernel.org" <helgaas@kernel.org>, "andrzej.jakowski@linux.intel.com" <andrzej.jakowski@linux.intel.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "alex.williamson@redhat.com" <alex.williamson@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-When client tries to connect(SOCK_STREAM) the server in the guest with
-NONBLOCK mode, there will be a panic on a ThunderX2 (armv8a server):
-[  463.718844][ T5040] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
-[  463.718848][ T5040] Mem abort info:
-[  463.718849][ T5040]   ESR = 0x96000044
-[  463.718852][ T5040]   EC = 0x25: DABT (current EL), IL = 32 bits
-[  463.718853][ T5040]   SET = 0, FnV = 0
-[  463.718854][ T5040]   EA = 0, S1PTW = 0
-[  463.718855][ T5040] Data abort info:
-[  463.718856][ T5040]   ISV = 0, ISS = 0x00000044
-[  463.718857][ T5040]   CM = 0, WnR = 1
-[  463.718859][ T5040] user pgtable: 4k pages, 48-bit VAs, pgdp=0000008f6f6e9000
-[  463.718861][ T5040] [0000000000000000] pgd=0000000000000000
-[  463.718866][ T5040] Internal error: Oops: 96000044 [#1] SMP
-[...]
-[  463.718977][ T5040] CPU: 213 PID: 5040 Comm: vhost-5032 Tainted: G           O      5.7.0-rc7+ #139
-[  463.718980][ T5040] Hardware name: GIGABYTE R281-T91-00/MT91-FS1-00, BIOS F06 09/25/2018
-[  463.718982][ T5040] pstate: 60400009 (nZCv daif +PAN -UAO)
-[  463.718995][ T5040] pc : virtio_transport_recv_pkt+0x4c8/0xd40 [vmw_vsock_virtio_transport_common]
-[  463.718999][ T5040] lr : virtio_transport_recv_pkt+0x1fc/0xd40 [vmw_vsock_virtio_transport_common]
-[  463.719000][ T5040] sp : ffff80002dbe3c40
-[...]
-[  463.719025][ T5040] Call trace:
-[  463.719030][ T5040]  virtio_transport_recv_pkt+0x4c8/0xd40 [vmw_vsock_virtio_transport_common]
-[  463.719034][ T5040]  vhost_vsock_handle_tx_kick+0x360/0x408 [vhost_vsock]
-[  463.719041][ T5040]  vhost_worker+0x100/0x1a0 [vhost]
-[  463.719048][ T5040]  kthread+0x128/0x130
-[  463.719052][ T5040]  ret_from_fork+0x10/0x18
-
-The race condition as follows:
-Task1                            Task2
-=====                            =====
-__sock_release                   virtio_transport_recv_pkt
-  __vsock_release                  vsock_find_bound_socket (found)
-    lock_sock_nested
-    vsock_remove_sock
-    sock_orphan
-      sk_set_socket(sk, NULL)
-    ...
-    release_sock
-                                lock_sock
-                                   virtio_transport_recv_connecting
-                                     sk->sk_socket->state (panic)
-
-The root cause is that vsock_find_bound_socket can't hold the lock_sock,
-so there is a small race window between vsock_find_bound_socket() and
-lock_sock(). If there is __vsock_release() in another task, sk->sk_socket
-will be set to NULL inadvertently.
-
-This fixes it by checking sk->sk_shutdown.
-
-Signed-off-by: Jia He <justin.he@arm.com>
-Cc: stable@vger.kernel.org
-Cc: Stefano Garzarella <sgarzare@redhat.com>
----
-v2: use lightweight checking suggested by Stefano Garzarella
-
- net/vmw_vsock/virtio_transport_common.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 69efc891885f..0edda1edf988 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -1132,6 +1132,14 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
- 
- 	lock_sock(sk);
- 
-+	/* Check if sk has been released before lock_sock */
-+	if (sk->sk_shutdown == SHUTDOWN_MASK) {
-+		(void)virtio_transport_reset_no_sock(t, pkt);
-+		release_sock(sk);
-+		sock_put(sk);
-+		goto free_pkt;
-+	}
-+
- 	/* Update CID in case it has changed after a transport reset event */
- 	vsk->local_addr.svm_cid = dst.svm_cid;
- 
--- 
-2.17.1
+T24gRnJpLCAyMDIwLTA1LTI5IGF0IDExOjMzICswMTAwLCBMb3JlbnpvIFBpZXJhbGlzaSB3cm90
+ZToNCj4gT24gV2VkLCBNYXkgMjcsIDIwMjAgYXQgMTE6MDI6MzlQTSAtMDQwMCwgSm9uIERlcnJp
+Y2sgd3JvdGU6DQo+ID4gVmVyc2lvbnMgb2YgVk1EIHdpdGggdGhlIEhvc3QgUGh5c2ljYWwgQWRk
+cmVzcyBzaGFkb3cgcmVnaXN0ZXIgdXNlIHRoaXMNCj4gPiByZWdpc3RlciB0byBjYWxjdWxhdGUg
+dGhlIGJ1cyBhZGRyZXNzIG9mZnNldCBuZWVkZWQgdG8gZG8gZ3Vlc3QNCj4gPiBwYXNzdGhyb3Vn
+aCBvZiB0aGUgZG9tYWluLiBUaGlzIHJlZ2lzdGVyIHNoYWRvd3MgdGhlIEhvc3QgUGh5c2ljYWwN
+Cj4gPiBBZGRyZXNzIHJlZ2lzdGVycyBpbmNsdWRpbmcgdGhlIHJlc291cmNlIHR5cGUgYml0cy4g
+QWZ0ZXIgY2FsY3VsYXRpbmcNCj4gPiB0aGUgb2Zmc2V0LCB0aGUgZXh0cmEgcmVzb3VyY2UgdHlw
+ZSBiaXRzIGxlYWQgdG8gdGhlIFZNRCByZXNvdXJjZXMgYmVpbmcNCj4gPiBvdmVyLXByb3Zpc2lv
+bmVkIGF0IHRoZSBmcm9udCBhbmQgdW5kZXItcHJvdmlzaW9uZWQgYXQgdGhlIGJhY2suDQo+ID4g
+DQo+ID4gRXhhbXBsZToNCj4gPiBwY2kgMTAwMDA6ODA6MDIuMDogcmVnIDB4MTA6IFttZW0gMHhm
+ODAxZmZmYy0weGY4MDNmZmZiIDY0Yml0XQ0KPiA+IA0KPiA+IEV4cGVjdGVkOg0KPiA+IHBjaSAx
+MDAwMDo4MDowMi4wOiByZWcgMHgxMDogW21lbSAweGY4MDIwMDAwLTB4ZjgwM2ZmZmYgNjRiaXRd
+DQo+ID4gDQo+ID4gSWYgb3RoZXIgZGV2aWNlcyBhcmUgbWFwcGVkIGluIHRoZSBvdmVyLXByb3Zp
+c2lvbmVkIGZyb250LCBpdCBjb3VsZCBsZWFkDQo+ID4gdG8gcmVzb3VyY2UgY29uZmxpY3QgaXNz
+dWVzIHdpdGggVk1EIG9yIHRob3NlIGRldmljZXMuDQo+ID4gDQo+ID4gRml4ZXM6IGExYTMwMTcw
+MTM4YzkgKCJQQ0k6IHZtZDogRml4IHNoYWRvdyBvZmZzZXRzIHRvIHJlZmxlY3Qgc3BlYyBjaGFu
+Z2VzIikNCj4gPiBTaWduZWQtb2ZmLWJ5OiBKb24gRGVycmljayA8am9uYXRoYW4uZGVycmlja0Bp
+bnRlbC5jb20+DQo+ID4gLS0tDQo+ID4gIGRyaXZlcnMvcGNpL2NvbnRyb2xsZXIvdm1kLmMgfCA2
+ICsrKystLQ0KPiA+ICAxIGZpbGUgY2hhbmdlZCwgNCBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9u
+cygtKQ0KPiANCj4gSGkgSm9uLA0KPiANCj4gaXQgbG9va3MgbGlrZSBJIGNhbiB0YWtlIHRoaXMg
+cGF0Y2ggZm9yIHY1Ljggd2hlcmVhcyBwYXRjaCAyIGRlcGVuZHMNCj4gb24gdGhlIFFFTVUgY2hh
+bmdlcyBhY2NlcHRhbmNlIGFuZCBzaG91bGQgcHJvYmFibHkgd2FpdC4NCj4gDQo+IFBsZWFzZSBs
+ZXQgbWUga25vdyB5b3VyIHRob3VnaHRzIGFzYXAgYW5kIEkgd2lsbCB0cnkgdG8gYXQgbGVhc3QN
+Cj4gc3F1ZWV6ZSB0aGlzIHBhdGNoIGluLg0KPiANCj4gTG9yZW56bw0KDQpIaSBMb3JlbnpvLA0K
+DQpUaGlzIGlzIGZpbmUuIFBsZWFzZSB0YWtlIFBhdGNoIDEuDQpQYXRjaCAyIGlzIGhhcm1sZXNz
+IHdpdGhvdXQgdGhlIFFFTVUgY2hhbmdlcywgYnV0IG1heSBhbHdheXMgbmVlZCBhDQpkaWZmZXJl
+bnQgYXBwcm9hY2guDQoNCkJlc3QsDQpqb24NCg0KDQo+IA0KPiA+IGRpZmYgLS1naXQgYS9kcml2
+ZXJzL3BjaS9jb250cm9sbGVyL3ZtZC5jIGIvZHJpdmVycy9wY2kvY29udHJvbGxlci92bWQuYw0K
+PiA+IGluZGV4IGRhYzkxZDYuLmUzODZkNGUgMTAwNjQ0DQo+ID4gLS0tIGEvZHJpdmVycy9wY2kv
+Y29udHJvbGxlci92bWQuYw0KPiA+ICsrKyBiL2RyaXZlcnMvcGNpL2NvbnRyb2xsZXIvdm1kLmMN
+Cj4gPiBAQCAtNDQ1LDkgKzQ0NSwxMSBAQCBzdGF0aWMgaW50IHZtZF9lbmFibGVfZG9tYWluKHN0
+cnVjdCB2bWRfZGV2ICp2bWQsIHVuc2lnbmVkIGxvbmcgZmVhdHVyZXMpDQo+ID4gIAkJCWlmICgh
+bWVtYmFyMikNCj4gPiAgCQkJCXJldHVybiAtRU5PTUVNOw0KPiA+ICAJCQlvZmZzZXRbMF0gPSB2
+bWQtPmRldi0+cmVzb3VyY2VbVk1EX01FTUJBUjFdLnN0YXJ0IC0NCj4gPiAtCQkJCQlyZWFkcSht
+ZW1iYXIyICsgTUIyX1NIQURPV19PRkZTRVQpOw0KPiA+ICsJCQkJCShyZWFkcShtZW1iYXIyICsg
+TUIyX1NIQURPV19PRkZTRVQpICYNCj4gPiArCQkJCQkgUENJX0JBU0VfQUREUkVTU19NRU1fTUFT
+Syk7DQo+ID4gIAkJCW9mZnNldFsxXSA9IHZtZC0+ZGV2LT5yZXNvdXJjZVtWTURfTUVNQkFSMl0u
+c3RhcnQgLQ0KPiA+IC0JCQkJCXJlYWRxKG1lbWJhcjIgKyBNQjJfU0hBRE9XX09GRlNFVCArIDgp
+Ow0KPiA+ICsJCQkJCShyZWFkcShtZW1iYXIyICsgTUIyX1NIQURPV19PRkZTRVQgKyA4KSAmDQo+
+ID4gKwkJCQkJIFBDSV9CQVNFX0FERFJFU1NfTUVNX01BU0spOw0KPiA+ICAJCQlwY2lfaW91bm1h
+cCh2bWQtPmRldiwgbWVtYmFyMik7DQo+ID4gIAkJfQ0KPiA+ICAJfQ0KPiA+IC0tIA0KPiA+IDEu
+OC4zLjENCj4gPiANCg==
