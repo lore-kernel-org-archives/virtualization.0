@@ -1,46 +1,100 @@
-From: Justin He <Justin.He@arm.com>
-Subject: RE: [PATCH v3] virtio_vsock: Fix race condition in
- virtio_transport_recv_pkt()
-Date: Sat, 30 May 2020 12:26:33 +0000
-Message-ID: <AM6PR08MB4069DA3BA6B5F59094E2CCBAF78C0@AM6PR08MB4069.eurprd08.prod.outlook.com>
-References: <7edeff0b-2dd8-aeae-aa96-73c98d581ece@web.de>
+From: Jia He <justin.he@arm.com>
+Subject: [PATCH] virtio_vsock: Fix race condition in virtio_transport_recv_pkt
+Date: Sat, 30 May 2020 20:32:06 +0800
+Message-ID: <20200530123206.63335-1-justin.he@arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <7edeff0b-2dd8-aeae-aa96-73c98d581ece@web.de>
-Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
-To: Markus Elfring <Markus.Elfring@web.de>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
-Cc: "kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "stable@vger.kernel.org" <stable@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Kaly Xin <Kaly.Xin@arm.com>, Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <stable-owner@vger.kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>
+Cc: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Kaly Xin <Kaly.Xin@arm.com>, Markus Elfring <Markus.Elfring@web.de>, Jia He <justin.he@arm.com>, stable@vger.kernel.org, Asias He <asias@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGkgTWFya3VzDQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogTWFya3Vz
-IEVsZnJpbmcgPE1hcmt1cy5FbGZyaW5nQHdlYi5kZT4NCj4gU2VudDogU2F0dXJkYXksIE1heSAz
-MCwgMjAyMCA2OjQxIFBNDQo+IFRvOiBKdXN0aW4gSGUgPEp1c3Rpbi5IZUBhcm0uY29tPjsga3Zt
-QHZnZXIua2VybmVsLm9yZzsNCj4gbmV0ZGV2QHZnZXIua2VybmVsLm9yZzsgdmlydHVhbGl6YXRp
-b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcNCj4gQ2M6IGtlcm5lbC1qYW5pdG9yc0B2Z2Vy
-Lmtlcm5lbC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7DQo+IHN0YWJsZUB2Z2Vy
-Lmtlcm5lbC5vcmc7IERhdmlkIFMuIE1pbGxlciA8ZGF2ZW1AZGF2ZW1sb2Z0Lm5ldD47IEpha3Vi
-DQo+IEtpY2luc2tpIDxrdWJhQGtlcm5lbC5vcmc+OyBLYWx5IFhpbiA8S2FseS5YaW5AYXJtLmNv
-bT47IFN0ZWZhbiBIYWpub2N6aQ0KPiA8c3RlZmFuaGFAcmVkaGF0LmNvbT47IFN0ZWZhbm8gR2Fy
-emFyZWxsYSA8c2dhcnphcmVAcmVkaGF0LmNvbT4NCj4gU3ViamVjdDogUmU6IFtQQVRDSCB2M10g
-dmlydGlvX3Zzb2NrOiBGaXggcmFjZSBjb25kaXRpb24gaW4NCj4gdmlydGlvX3RyYW5zcG9ydF9y
-ZWN2X3BrdCgpDQo+DQo+ID4gVGhpcyBmaXhlcyBpdCBieSBjaGVja2luZyBzay0+c2tfc2h1dGRv
-d24oc3VnZ2VzdGVkIGJ5IFN0ZWZhbm8pIGFmdGVyDQo+ID4gbG9ja19zb2NrIHNpbmNlIHNrLT5z
-a19zaHV0ZG93biBpcyBzZXQgdG8gU0hVVERPV05fTUFTSyB1bmRlciB0aGUNCj4gPiBwcm90ZWN0
-aW9uIG9mIGxvY2tfc29ja19uZXN0ZWQuDQo+DQo+IEhvdyBkbyB5b3UgdGhpbmsgYWJvdXQgYSB3
-b3JkaW5nIHZhcmlhbnQgbGlrZSB0aGUgZm9sbG93aW5nPw0KPg0KPiAgIFRodXMgY2hlY2sgdGhl
-IGRhdGEgc3RydWN0dXJlIG1lbWJlciDigJxza19zaHV0ZG93buKAnSAoc3VnZ2VzdGVkIGJ5IFN0
-ZWZhbm8pDQo+ICAgYWZ0ZXIgYSBjYWxsIG9mIHRoZSBmdW5jdGlvbiDigJxsb2NrX3NvY2vigJ0g
-c2luY2UgdGhpcyBmaWVsZCBpcyBzZXQgdG8NCj4gICDigJxTSFVURE9XTl9NQVNL4oCdIHVuZGVy
-IHRoZSBwcm90ZWN0aW9uIG9mIOKAnGxvY2tfc29ja19uZXN0ZWTigJ0uDQo+DQpPa2F5LCB3aWxs
-IHVwZGF0ZSB0aGUgY29tbWl0IG1zZy4NCg0KPg0KPiBXb3VsZCB5b3UgbGlrZSB0byBhZGQgdGhl
-IHRhZyDigJxGaXhlc+KAnSB0byB0aGUgY29tbWl0IG1lc3NhZ2U/DQpTdXJlLg0KDQpUaGFua3MN
-Cg0KDQotLQ0KQ2hlZXJzLA0KSnVzdGluIChKaWEgSGUpDQoNCg0KPg0KPiBSZWdhcmRzLA0KPiBN
-YXJrdXMNCklNUE9SVEFOVCBOT1RJQ0U6IFRoZSBjb250ZW50cyBvZiB0aGlzIGVtYWlsIGFuZCBh
-bnkgYXR0YWNobWVudHMgYXJlIGNvbmZpZGVudGlhbCBhbmQgbWF5IGFsc28gYmUgcHJpdmlsZWdl
-ZC4gSWYgeW91IGFyZSBub3QgdGhlIGludGVuZGVkIHJlY2lwaWVudCwgcGxlYXNlIG5vdGlmeSB0
-aGUgc2VuZGVyIGltbWVkaWF0ZWx5IGFuZCBkbyBub3QgZGlzY2xvc2UgdGhlIGNvbnRlbnRzIHRv
-IGFueSBvdGhlciBwZXJzb24sIHVzZSBpdCBmb3IgYW55IHB1cnBvc2UsIG9yIHN0b3JlIG9yIGNv
-cHkgdGhlIGluZm9ybWF0aW9uIGluIGFueSBtZWRpdW0uIFRoYW5rIHlvdS4NCg==
+When client on the host tries to connect(SOCK_STREAM, O_NONBLOCK) to the
+server on the guest, there will be a panic on a ThunderX2 (armv8a server):
+
+[  463.718844] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
+[  463.718848] Mem abort info:
+[  463.718849]   ESR = 0x96000044
+[  463.718852]   EC = 0x25: DABT (current EL), IL = 32 bits
+[  463.718853]   SET = 0, FnV = 0
+[  463.718854]   EA = 0, S1PTW = 0
+[  463.718855] Data abort info:
+[  463.718856]   ISV = 0, ISS = 0x00000044
+[  463.718857]   CM = 0, WnR = 1
+[  463.718859] user pgtable: 4k pages, 48-bit VAs, pgdp=0000008f6f6e9000
+[  463.718861] [0000000000000000] pgd=0000000000000000
+[  463.718866] Internal error: Oops: 96000044 [#1] SMP
+[...]
+[  463.718977] CPU: 213 PID: 5040 Comm: vhost-5032 Tainted: G           O      5.7.0-rc7+ #139
+[  463.718980] Hardware name: GIGABYTE R281-T91-00/MT91-FS1-00, BIOS F06 09/25/2018
+[  463.718982] pstate: 60400009 (nZCv daif +PAN -UAO)
+[  463.718995] pc : virtio_transport_recv_pkt+0x4c8/0xd40 [vmw_vsock_virtio_transport_common]
+[  463.718999] lr : virtio_transport_recv_pkt+0x1fc/0xd40 [vmw_vsock_virtio_transport_common]
+[  463.719000] sp : ffff80002dbe3c40
+[...]
+[  463.719025] Call trace:
+[  463.719030]  virtio_transport_recv_pkt+0x4c8/0xd40 [vmw_vsock_virtio_transport_common]
+[  463.719034]  vhost_vsock_handle_tx_kick+0x360/0x408 [vhost_vsock]
+[  463.719041]  vhost_worker+0x100/0x1a0 [vhost]
+[  463.719048]  kthread+0x128/0x130
+[  463.719052]  ret_from_fork+0x10/0x18
+
+The race condition is as follows:
+Task1                                Task2
+=====                                =====
+__sock_release                       virtio_transport_recv_pkt
+  __vsock_release                      vsock_find_bound_socket (found sk)
+    lock_sock_nested
+    vsock_remove_sock
+    sock_orphan
+      sk_set_socket(sk, NULL)
+    sk->sk_shutdown = SHUTDOWN_MASK
+    ...
+    release_sock
+                                    lock_sock
+                                       virtio_transport_recv_connecting
+                                         sk->sk_socket->state (panic!)
+
+The root cause is that vsock_find_bound_socket can't hold the lock_sock,
+so there is a small race window between vsock_find_bound_socket() and
+lock_sock(). If __vsock_release() is running in another task,
+sk->sk_socket will be set to NULL inadvertently.
+
+Thus check the data structure member “sk_shutdown” (suggested by Stefano)
+after a call of the function “lock_sock” since this field is set to
+“SHUTDOWN_MASK” under the protection of “lock_sock_nested”.
+
+Fixes: 06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
+Signed-off-by: Jia He <justin.he@arm.com>
+Cc: stable@vger.kernel.org
+Cc: Asias He <asias@redhat.com>
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+---
+v4: refine the commit msg (from Markus)
+
+ net/vmw_vsock/virtio_transport_common.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index 69efc891885f..0edda1edf988 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -1132,6 +1132,14 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
+ 
+ 	lock_sock(sk);
+ 
++	/* Check if sk has been released before lock_sock */
++	if (sk->sk_shutdown == SHUTDOWN_MASK) {
++		(void)virtio_transport_reset_no_sock(t, pkt);
++		release_sock(sk);
++		sock_put(sk);
++		goto free_pkt;
++	}
++
+ 	/* Update CID in case it has changed after a transport reset event */
+ 	vsk->local_addr.svm_cid = dst.svm_cid;
+ 
+-- 
+2.17.1
