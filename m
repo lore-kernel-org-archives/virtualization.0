@@ -1,99 +1,28 @@
-From: Jia He <justin.he@arm.com>
-Subject: [PATCH v5] virtio_vsock: Fix race condition in virtio_transport_recv_pkt
-Date: Sat, 30 May 2020 20:39:36 +0800
-Message-ID: <20200530123936.63480-1-justin.he@arm.com>
+From: Markus Elfring <Markus.Elfring@web.de>
+Subject: Re: [PATCH v5] virtio_vsock: Fix race condition in
+ virtio_transport_recv_pkt()
+Date: Sat, 30 May 2020 15:03:28 +0200
+Message-ID: <7972c279-19a7-3573-647c-749122c90b81@web.de>
 References: <20200530123206.63335-1-justin.he@arm.com>
+ <20200530123936.63480-1-justin.he@arm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20200530123206.63335-1-justin.he@arm.com>
+In-Reply-To: <20200530123936.63480-1-justin.he@arm.com>
+Content-Language: en-GB
 Sender: stable-owner@vger.kernel.org
-To: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Kaly Xin <Kaly.Xin@arm.com>, Markus Elfring <Markus.Elfring@web.de>, Jia He <justin.he@arm.com>, stable@vger.kernel.org, Asias He <asias@redhat.com>
+To: Jia He <justin.he@arm.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, Asias He <asias@redhat.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Kaly Xin <Kaly.Xin@arm.com>, Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-When client on the host tries to connect(SOCK_STREAM, O_NONBLOCK) to the
-server on the guest, there will be a panic on a ThunderX2 (armv8a server):
+> ---
+> v5: sorry, MIME type in the previous commit message
+>
+>  net/vmw_vsock/virtio_transport_common.c | 8 ++++++++
 
-[  463.718844] Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
-[  463.718848] Mem abort info:
-[  463.718849]   ESR = 0x96000044
-[  463.718852]   EC = 0x25: DABT (current EL), IL = 32 bits
-[  463.718853]   SET = 0, FnV = 0
-[  463.718854]   EA = 0, S1PTW = 0
-[  463.718855] Data abort info:
-[  463.718856]   ISV = 0, ISS = 0x00000044
-[  463.718857]   CM = 0, WnR = 1
-[  463.718859] user pgtable: 4k pages, 48-bit VAs, pgdp=0000008f6f6e9000
-[  463.718861] [0000000000000000] pgd=0000000000000000
-[  463.718866] Internal error: Oops: 96000044 [#1] SMP
-[...]
-[  463.718977] CPU: 213 PID: 5040 Comm: vhost-5032 Tainted: G           O      5.7.0-rc7+ #139
-[  463.718980] Hardware name: GIGABYTE R281-T91-00/MT91-FS1-00, BIOS F06 09/25/2018
-[  463.718982] pstate: 60400009 (nZCv daif +PAN -UAO)
-[  463.718995] pc : virtio_transport_recv_pkt+0x4c8/0xd40 [vmw_vsock_virtio_transport_common]
-[  463.718999] lr : virtio_transport_recv_pkt+0x1fc/0xd40 [vmw_vsock_virtio_transport_common]
-[  463.719000] sp : ffff80002dbe3c40
-[...]
-[  463.719025] Call trace:
-[  463.719030]  virtio_transport_recv_pkt+0x4c8/0xd40 [vmw_vsock_virtio_transport_common]
-[  463.719034]  vhost_vsock_handle_tx_kick+0x360/0x408 [vhost_vsock]
-[  463.719041]  vhost_worker+0x100/0x1a0 [vhost]
-[  463.719048]  kthread+0x128/0x130
-[  463.719052]  ret_from_fork+0x10/0x18
+Is it helpful to keep the patch version information complete here?
+(Will another fine-tuning follow for the proposed change?)
 
-The race condition is as follows:
-Task1                                Task2
-=====                                =====
-__sock_release                       virtio_transport_recv_pkt
-  __vsock_release                      vsock_find_bound_socket (found sk)
-    lock_sock_nested
-    vsock_remove_sock
-    sock_orphan
-      sk_set_socket(sk, NULL)
-    sk->sk_shutdown = SHUTDOWN_MASK
-    ...
-    release_sock
-                                    lock_sock
-                                       virtio_transport_recv_connecting
-                                         sk->sk_socket->state (panic!)
-
-The root cause is that vsock_find_bound_socket can't hold the lock_sock,
-so there is a small race window between vsock_find_bound_socket() and
-lock_sock(). If __vsock_release() is running in another task,
-sk->sk_socket will be set to NULL inadvertently.
-
-Thus check the data structure member "sk_shutdown" (suggested by Stefano)
-after a call of the function "lock_sock" since this field is set to
-"SHUTDOWN_MASK" under the protection of "lock_sock_nested".
-
-Fixes: 06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
-Signed-off-by: Jia He <justin.he@arm.com>
-Cc: stable@vger.kernel.org
-Cc: Asias He <asias@redhat.com>
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
----
-v5: sorry, MIME type in the previous commit message
-
- net/vmw_vsock/virtio_transport_common.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 69efc891885f..0edda1edf988 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -1132,6 +1132,14 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
- 
- 	lock_sock(sk);
- 
-+	/* Check if sk has been released before lock_sock */
-+	if (sk->sk_shutdown == SHUTDOWN_MASK) {
-+		(void)virtio_transport_reset_no_sock(t, pkt);
-+		release_sock(sk);
-+		sock_put(sk);
-+		goto free_pkt;
-+	}
-+
- 	/* Update CID in case it has changed after a transport reset event */
- 	vsk->local_addr.svm_cid = dst.svm_cid;
- 
--- 
-2.17.1
+Regards,
+Markus
