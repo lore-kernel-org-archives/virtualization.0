@@ -1,11 +1,10 @@
 From: Jia He <justin.he@arm.com>
-Subject: [PATCH] virtio_vsock: Fix race condition in virtio_transport_recv_pkt
-Date: Sat, 30 May 2020 20:32:06 +0800
-Message-ID: <20200530123206.63335-1-justin.he@arm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Subject: [PATCH v5] virtio_vsock: Fix race condition in virtio_transport_recv_pkt
+Date: Sat, 30 May 2020 20:39:36 +0800
+Message-ID: <20200530123936.63480-1-justin.he@arm.com>
+References: <20200530123206.63335-1-justin.he@arm.com>
 Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20200530123206.63335-1-justin.he@arm.com>
 Sender: stable-owner@vger.kernel.org
 To: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>
 Cc: "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, Kaly Xin <Kaly.Xin@arm.com>, Markus Elfring <Markus.Elfring@web.de>, Jia He <justin.he@arm.com>, stable@vger.kernel.org, Asias He <asias@redhat.com>
@@ -62,9 +61,9 @@ so there is a small race window between vsock_find_bound_socket() and
 lock_sock(). If __vsock_release() is running in another task,
 sk->sk_socket will be set to NULL inadvertently.
 
-Thus check the data structure member “sk_shutdown” (suggested by Stefano)
-after a call of the function “lock_sock” since this field is set to
-“SHUTDOWN_MASK” under the protection of “lock_sock_nested”.
+Thus check the data structure member "sk_shutdown" (suggested by Stefano)
+after a call of the function "lock_sock" since this field is set to
+"SHUTDOWN_MASK" under the protection of "lock_sock_nested".
 
 Fixes: 06a8fc78367d ("VSOCK: Introduce virtio_vsock_common.ko")
 Signed-off-by: Jia He <justin.he@arm.com>
@@ -72,7 +71,7 @@ Cc: stable@vger.kernel.org
 Cc: Asias He <asias@redhat.com>
 Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
-v4: refine the commit msg (from Markus)
+v5: sorry, MIME type in the previous commit message
 
  net/vmw_vsock/virtio_transport_common.c | 8 ++++++++
  1 file changed, 8 insertions(+)
