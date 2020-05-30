@@ -1,64 +1,155 @@
-From: John Hubbard <jhubbard@nvidia.com>
-Subject: [PATCH 1/2] docs: mm/gup: pin_user_pages.rst: add a "case 5"
-Date: Fri, 29 May 2020 16:43:08 -0700
-Message-ID: <20200529234309.484480-2-jhubbard@nvidia.com>
-References: <20200529234309.484480-1-jhubbard@nvidia.com>
+From: Justin He <Justin.He@arm.com>
+Subject: RE: [PATCH v2] virtio_vsock: Fix race condition in
+ virtio_transport_recv_pkt
+Date: Sat, 30 May 2020 01:14:15 +0000
+Message-ID: <AM6PR08MB40691DD26C69D5BA3F2D3468F78C0@AM6PR08MB4069.eurprd08.prod.outlook.com>
+References: <20200529152102.58397-1-justin.he@arm.com>
+ <20200529163412.fqswshs65f53qgez@steredhat>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200529234309.484480-1-jhubbard@nvidia.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jan Kara <jack@suse.cz>, linux-doc@vger.kernel.org, kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>, Dave Chinner <david@fromorbit.com>, LKML <linux-kernel@vger.kernel.org>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Souptick Joarder <jrdr.linux@gmail.com>, John Hubbard <jhubbard@nvidia.com>, linux-fsdevel@vger.kernel.org, Vlastimil Babka <vbabka@suse.cz>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200529163412.fqswshs65f53qgez@steredhat>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Kaly Xin <Kaly.Xin@arm.com>, "stable@vger.kernel.org" <stable@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-VGhlcmUgYXJlIGZvdXIgY2FzZXMgbGlzdGVkIGluIHBpbl91c2VyX3BhZ2VzLnJzdC4gVGhlc2Ug
-YXJlCmludGVuZGVkIHRvIGhlbHAgZGV2ZWxvcGVycyBmaWd1cmUgb3V0IHdoZXRoZXIgdG8gdXNl
-CmdldF91c2VyX3BhZ2VzKigpLCBvciBwaW5fdXNlcl9wYWdlcyooKS4gSG93ZXZlciwgdGhlIGZv
-dXIgY2FzZXMKZG8gbm90IGNvdmVyIGFsbCB0aGUgc2l0dWF0aW9ucy4gRm9yIGV4YW1wbGUsIGRy
-aXZlcnMvdmhvc3Qvdmhvc3QuYwpoYXMgYSAicGluLCB3cml0ZSB0byBwYWdlLCBzZXQgcGFnZSBk
-aXJ0eSwgdW5waW4iIGNhc2UuCgpBZGQgYSBmaWZ0aCBjYXNlLCB0byBoZWxwIGV4cGxhaW4gdGhh
-dCB0aGVyZSBpcyBhIGdlbmVyYWwgcGF0dGVybgp0aGF0IHJlcXVpcmVzIHBpbl91c2VyX3BhZ2Vz
-KigpIEFQSSBjYWxscy4KCkNjOiBWbGFzdGltaWwgQmFia2EgPHZiYWJrYUBzdXNlLmN6PgpDYzog
-SmFuIEthcmEgPGphY2tAc3VzZS5jej4KQ2M6IErDqXLDtG1lIEdsaXNzZSA8amdsaXNzZUByZWRo
-YXQuY29tPgpDYzogRGF2ZSBDaGlubmVyIDxkYXZpZEBmcm9tb3JiaXQuY29tPgpDYzogSm9uYXRo
-YW4gQ29yYmV0IDxjb3JiZXRAbHduLm5ldD4KQ2M6IGxpbnV4LWRvY0B2Z2VyLmtlcm5lbC5vcmcK
-Q2M6IGxpbnV4LWZzZGV2ZWxAdmdlci5rZXJuZWwub3JnClNpZ25lZC1vZmYtYnk6IEpvaG4gSHVi
-YmFyZCA8amh1YmJhcmRAbnZpZGlhLmNvbT4KLS0tCiBEb2N1bWVudGF0aW9uL2NvcmUtYXBpL3Bp
-bl91c2VyX3BhZ2VzLnJzdCB8IDIwICsrKysrKysrKysrKysrKysrKysrCiAxIGZpbGUgY2hhbmdl
-ZCwgMjAgaW5zZXJ0aW9ucygrKQoKZGlmZiAtLWdpdCBhL0RvY3VtZW50YXRpb24vY29yZS1hcGkv
-cGluX3VzZXJfcGFnZXMucnN0IGIvRG9jdW1lbnRhdGlvbi9jb3JlLWFwaS9waW5fdXNlcl9wYWdl
-cy5yc3QKaW5kZXggNDY3NWIwNGU4ODI5Li5iOWYyNjg4YTJjNjcgMTAwNjQ0Ci0tLSBhL0RvY3Vt
-ZW50YXRpb24vY29yZS1hcGkvcGluX3VzZXJfcGFnZXMucnN0CisrKyBiL0RvY3VtZW50YXRpb24v
-Y29yZS1hcGkvcGluX3VzZXJfcGFnZXMucnN0CkBAIC0xNzEsNiArMTcxLDI2IEBAIElmIG9ubHkg
-c3RydWN0IHBhZ2UgZGF0YSAoYXMgb3Bwb3NlZCB0byB0aGUgYWN0dWFsIG1lbW9yeSBjb250ZW50
-cyB0aGF0IGEgcGFnZQogaXMgdHJhY2tpbmcpIGlzIGFmZmVjdGVkLCB0aGVuIG5vcm1hbCBHVVAg
-Y2FsbHMgYXJlIHN1ZmZpY2llbnQsIGFuZCBuZWl0aGVyIGZsYWcKIG5lZWRzIHRvIGJlIHNldC4K
-IAorQ0FTRSA1OiBQaW5uaW5nIGluIG9yZGVyIHRvIHdyaXRlIHRvIHRoZSBkYXRhIHdpdGhpbiB0
-aGUgcGFnZQorLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tLS0tLQorRXZlbiB0aG91Z2ggbmVpdGhlciBETUEgbm9yIERpcmVjdCBJTyBpcyBp
-bnZvbHZlZCwganVzdCBhIHNpbXBsZSBjYXNlIG9mICJwaW4sCithY2Nlc3MgcGFnZSdzIGRhdGEs
-IHVucGluIiBjYW4gY2F1c2UgYSBwcm9ibGVtLiBDYXNlIDUgbWF5IGJlIGNvbnNpZGVyZWQgYQor
-c3VwZXJzZXQgb2YgQ2FzZSAxLCBwbHVzIENhc2UgMiwgcGx1cyBhbnl0aGluZyB0aGF0IGludm9r
-ZXMgdGhhdCBwYXR0ZXJuLiBJbgorb3RoZXIgd29yZHMsIGlmIHRoZSBjb2RlIGlzIG5laXRoZXIg
-Q2FzZSAxIG5vciBDYXNlIDIsIGl0IG1heSBzdGlsbCByZXF1aXJlCitGT0xMX1BJTiwgZm9yIHBh
-dHRlcm5zIGxpa2UgdGhpczoKKworQ29ycmVjdCAodXNlcyBGT0xMX1BJTiBjYWxscyk6CisgICAg
-cGluX3VzZXJfcGFnZXMoKQorICAgIGFjY2VzcyB0aGUgZGF0YSB3aXRoaW4gdGhlIHBhZ2VzCisg
-ICAgc2V0X3BhZ2VfZGlydHlfbG9jaygpCisgICAgdW5waW5fdXNlcl9wYWdlcygpCisKK0lOQ09S
-UkVDVCAodXNlcyBGT0xMX0dFVCBjYWxscyk6CisgICAgZ2V0X3VzZXJfcGFnZXMoKQorICAgIGFj
-Y2VzcyB0aGUgZGF0YSB3aXRoaW4gdGhlIHBhZ2VzCisgICAgc2V0X3BhZ2VfZGlydHlfbG9jaygp
-CisgICAgcHV0X3BhZ2UoKQorCiBwYWdlX21heWJlX2RtYV9waW5uZWQoKTogdGhlIHdob2xlIHBv
-aW50IG9mIHBpbm5pbmcKID09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
-PT09PT09PT09PQogCi0tIAoyLjI2LjIKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlv
-bkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlv
-bi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Hi Stefano
+
+> -----Original Message-----
+> From: Stefano Garzarella <sgarzare@redhat.com>
+> Sent: Saturday, May 30, 2020 12:34 AM
+> To: Justin He <Justin.He@arm.com>
+> Cc: Stefan Hajnoczi <stefanha@redhat.com>; David S. Miller
+> <davem@davemloft.net>; Jakub Kicinski <kuba@kernel.org>;
+> kvm@vger.kernel.org; virtualization@lists.linux-foundation.org;
+> netdev@vger.kernel.org; linux-kernel@vger.kernel.org; Kaly Xin
+> <Kaly.Xin@arm.com>; stable@vger.kernel.org
+> Subject: Re: [PATCH v2] virtio_vsock: Fix race condition in
+> virtio_transport_recv_pkt
+>
+> On Fri, May 29, 2020 at 11:21:02PM +0800, Jia He wrote:
+> > When client tries to connect(SOCK_STREAM) the server in the guest with
+> > NONBLOCK mode, there will be a panic on a ThunderX2 (armv8a server):
+> > [  463.718844][ T5040] Unable to handle kernel NULL pointer dereference
+> at virtual address 0000000000000000
+> > [  463.718848][ T5040] Mem abort info:
+> > [  463.718849][ T5040]   ESR =3D 0x96000044
+> > [  463.718852][ T5040]   EC =3D 0x25: DABT (current EL), IL =3D 32 bits
+> > [  463.718853][ T5040]   SET =3D 0, FnV =3D 0
+> > [  463.718854][ T5040]   EA =3D 0, S1PTW =3D 0
+> > [  463.718855][ T5040] Data abort info:
+> > [  463.718856][ T5040]   ISV =3D 0, ISS =3D 0x00000044
+> > [  463.718857][ T5040]   CM =3D 0, WnR =3D 1
+> > [  463.718859][ T5040] user pgtable: 4k pages, 48-bit VAs,
+> pgdp=3D0000008f6f6e9000
+> > [  463.718861][ T5040] [0000000000000000] pgd=3D0000000000000000
+> > [  463.718866][ T5040] Internal error: Oops: 96000044 [#1] SMP
+> > [...]
+> > [  463.718977][ T5040] CPU: 213 PID: 5040 Comm: vhost-5032 Tainted: G
+> O      5.7.0-rc7+ #139
+> > [  463.718980][ T5040] Hardware name: GIGABYTE R281-T91-00/MT91-FS1-00,
+> BIOS F06 09/25/2018
+> > [  463.718982][ T5040] pstate: 60400009 (nZCv daif +PAN -UAO)
+> > [  463.718995][ T5040] pc : virtio_transport_recv_pkt+0x4c8/0xd40
+> [vmw_vsock_virtio_transport_common]
+> > [  463.718999][ T5040] lr : virtio_transport_recv_pkt+0x1fc/0xd40
+> [vmw_vsock_virtio_transport_common]
+> > [  463.719000][ T5040] sp : ffff80002dbe3c40
+> > [...]
+> > [  463.719025][ T5040] Call trace:
+> > [  463.719030][ T5040]  virtio_transport_recv_pkt+0x4c8/0xd40
+> [vmw_vsock_virtio_transport_common]
+> > [  463.719034][ T5040]  vhost_vsock_handle_tx_kick+0x360/0x408
+> [vhost_vsock]
+> > [  463.719041][ T5040]  vhost_worker+0x100/0x1a0 [vhost]
+> > [  463.719048][ T5040]  kthread+0x128/0x130
+> > [  463.719052][ T5040]  ret_from_fork+0x10/0x18
+>          ^         ^
+> Maybe we can remove these two columns from the commit message.
+>
+> >
+> > The race condition as follows:
+> > Task1                            Task2
+> > =3D=3D=3D=3D=3D                            =3D=3D=3D=3D=3D
+> > __sock_release                   virtio_transport_recv_pkt
+> >   __vsock_release                  vsock_find_bound_socket (found)
+> >     lock_sock_nested
+> >     vsock_remove_sock
+> >     sock_orphan
+> >       sk_set_socket(sk, NULL)
+>
+> Here we can add:
+>       sk->sk_shutdown =3D SHUTDOWN_MASK;
+
+Indeed. This makes it more clearly
+
+--
+Cheers,
+Justin (Jia He)
+
+
+>
+> >     ...
+> >     release_sock
+> >                                 lock_sock
+> >                                    virtio_transport_recv_connecting
+> >                                      sk->sk_socket->state (panic)
+> >
+> > The root cause is that vsock_find_bound_socket can't hold the lock_sock=
+,
+> > so there is a small race window between vsock_find_bound_socket() and
+> > lock_sock(). If there is __vsock_release() in another task, sk->sk_sock=
+et
+> > will be set to NULL inadvertently.
+> >
+> > This fixes it by checking sk->sk_shutdown.
+> >
+> > Signed-off-by: Jia He <justin.he@arm.com>
+> > Cc: stable@vger.kernel.org
+> > Cc: Stefano Garzarella <sgarzare@redhat.com>
+> > ---
+> > v2: use lightweight checking suggested by Stefano Garzarella
+> >
+> >  net/vmw_vsock/virtio_transport_common.c | 8 ++++++++
+> >  1 file changed, 8 insertions(+)
+> >
+> > diff --git a/net/vmw_vsock/virtio_transport_common.c
+> b/net/vmw_vsock/virtio_transport_common.c
+> > index 69efc891885f..0edda1edf988 100644
+> > --- a/net/vmw_vsock/virtio_transport_common.c
+> > +++ b/net/vmw_vsock/virtio_transport_common.c
+> > @@ -1132,6 +1132,14 @@ void virtio_transport_recv_pkt(struct
+> virtio_transport *t,
+> >
+> >  lock_sock(sk);
+> >
+> > +/* Check if sk has been released before lock_sock */
+> > +if (sk->sk_shutdown =3D=3D SHUTDOWN_MASK) {
+> > +(void)virtio_transport_reset_no_sock(t, pkt);
+> > +release_sock(sk);
+> > +sock_put(sk);
+> > +goto free_pkt;
+> > +}
+> > +
+> >  /* Update CID in case it has changed after a transport reset event */
+> >  vsk->local_addr.svm_cid =3D dst.svm_cid;
+> >
+> > --
+> > 2.17.1
+> >
+>
+> Anyway, the patch LGTM, let see what David and other say.
+>
+> Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+>
+> Thanks,
+> Stefano
+
+IMPORTANT NOTICE: The contents of this email and any attachments are confid=
+ential and may also be privileged. If you are not the intended recipient, p=
+lease notify the sender immediately and do not disclose the contents to any=
+ other person, use it for any purpose, or store or copy the information in =
+any medium. Thank you.
