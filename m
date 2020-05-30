@@ -1,34 +1,46 @@
-From: Markus Elfring <Markus.Elfring@web.de>
-Subject: Re: [PATCH v3] virtio_vsock: Fix race condition in
+From: Justin He <Justin.He@arm.com>
+Subject: RE: [PATCH v3] virtio_vsock: Fix race condition in
  virtio_transport_recv_pkt()
-Date: Sat, 30 May 2020 12:40:42 +0200
-Message-ID: <7edeff0b-2dd8-aeae-aa96-73c98d581ece@web.de>
+Date: Sat, 30 May 2020 12:26:33 +0000
+Message-ID: <AM6PR08MB4069DA3BA6B5F59094E2CCBAF78C0@AM6PR08MB4069.eurprd08.prod.outlook.com>
+References: <7edeff0b-2dd8-aeae-aa96-73c98d581ece@web.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <kernel-janitors-owner@vger.kernel.org>
-Content-Language: en-GB
-Sender: kernel-janitors-owner@vger.kernel.org
-To: Jia He <justin.he@arm.com>, kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Kaly Xin <Kaly.Xin@arm.com>, Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <7edeff0b-2dd8-aeae-aa96-73c98d581ece@web.de>
+Content-Language: en-US
+Sender: netdev-owner@vger.kernel.org
+To: Markus Elfring <Markus.Elfring@web.de>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>
+Cc: "kernel-janitors@vger.kernel.org" <kernel-janitors@vger.kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "stable@vger.kernel.org" <stable@vger.kernel.org>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Kaly Xin <Kaly.Xin@arm.com>, Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> This fixes it by checking sk->sk_shutdown(suggested by Stefano) after
-> lock_sock since sk->sk_shutdown is set to SHUTDOWN_MASK under the
-> protection of lock_sock_nested.
-
-How do you think about a wording variant like the following?
-
-  Thus check the data structure member =E2=80=9Csk_shutdown=E2=80=9D (sugg=
-ested by Stefano)
-  after a call of the function =E2=80=9Clock_sock=E2=80=9D since this fiel=
-d is set to
-  =E2=80=9CSHUTDOWN_MASK=E2=80=9D under the protection of =E2=80=9Clock_so=
-ck_nested=E2=80=9D.
-
-
-Would you like to add the tag =E2=80=9CFixes=E2=80=9D to the commit messag=
-e?
-
-Regards,
-Markus
+SGkgTWFya3VzDQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogTWFya3Vz
+IEVsZnJpbmcgPE1hcmt1cy5FbGZyaW5nQHdlYi5kZT4NCj4gU2VudDogU2F0dXJkYXksIE1heSAz
+MCwgMjAyMCA2OjQxIFBNDQo+IFRvOiBKdXN0aW4gSGUgPEp1c3Rpbi5IZUBhcm0uY29tPjsga3Zt
+QHZnZXIua2VybmVsLm9yZzsNCj4gbmV0ZGV2QHZnZXIua2VybmVsLm9yZzsgdmlydHVhbGl6YXRp
+b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcNCj4gQ2M6IGtlcm5lbC1qYW5pdG9yc0B2Z2Vy
+Lmtlcm5lbC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7DQo+IHN0YWJsZUB2Z2Vy
+Lmtlcm5lbC5vcmc7IERhdmlkIFMuIE1pbGxlciA8ZGF2ZW1AZGF2ZW1sb2Z0Lm5ldD47IEpha3Vi
+DQo+IEtpY2luc2tpIDxrdWJhQGtlcm5lbC5vcmc+OyBLYWx5IFhpbiA8S2FseS5YaW5AYXJtLmNv
+bT47IFN0ZWZhbiBIYWpub2N6aQ0KPiA8c3RlZmFuaGFAcmVkaGF0LmNvbT47IFN0ZWZhbm8gR2Fy
+emFyZWxsYSA8c2dhcnphcmVAcmVkaGF0LmNvbT4NCj4gU3ViamVjdDogUmU6IFtQQVRDSCB2M10g
+dmlydGlvX3Zzb2NrOiBGaXggcmFjZSBjb25kaXRpb24gaW4NCj4gdmlydGlvX3RyYW5zcG9ydF9y
+ZWN2X3BrdCgpDQo+DQo+ID4gVGhpcyBmaXhlcyBpdCBieSBjaGVja2luZyBzay0+c2tfc2h1dGRv
+d24oc3VnZ2VzdGVkIGJ5IFN0ZWZhbm8pIGFmdGVyDQo+ID4gbG9ja19zb2NrIHNpbmNlIHNrLT5z
+a19zaHV0ZG93biBpcyBzZXQgdG8gU0hVVERPV05fTUFTSyB1bmRlciB0aGUNCj4gPiBwcm90ZWN0
+aW9uIG9mIGxvY2tfc29ja19uZXN0ZWQuDQo+DQo+IEhvdyBkbyB5b3UgdGhpbmsgYWJvdXQgYSB3
+b3JkaW5nIHZhcmlhbnQgbGlrZSB0aGUgZm9sbG93aW5nPw0KPg0KPiAgIFRodXMgY2hlY2sgdGhl
+IGRhdGEgc3RydWN0dXJlIG1lbWJlciDigJxza19zaHV0ZG93buKAnSAoc3VnZ2VzdGVkIGJ5IFN0
+ZWZhbm8pDQo+ICAgYWZ0ZXIgYSBjYWxsIG9mIHRoZSBmdW5jdGlvbiDigJxsb2NrX3NvY2vigJ0g
+c2luY2UgdGhpcyBmaWVsZCBpcyBzZXQgdG8NCj4gICDigJxTSFVURE9XTl9NQVNL4oCdIHVuZGVy
+IHRoZSBwcm90ZWN0aW9uIG9mIOKAnGxvY2tfc29ja19uZXN0ZWTigJ0uDQo+DQpPa2F5LCB3aWxs
+IHVwZGF0ZSB0aGUgY29tbWl0IG1zZy4NCg0KPg0KPiBXb3VsZCB5b3UgbGlrZSB0byBhZGQgdGhl
+IHRhZyDigJxGaXhlc+KAnSB0byB0aGUgY29tbWl0IG1lc3NhZ2U/DQpTdXJlLg0KDQpUaGFua3MN
+Cg0KDQotLQ0KQ2hlZXJzLA0KSnVzdGluIChKaWEgSGUpDQoNCg0KPg0KPiBSZWdhcmRzLA0KPiBN
+YXJrdXMNCklNUE9SVEFOVCBOT1RJQ0U6IFRoZSBjb250ZW50cyBvZiB0aGlzIGVtYWlsIGFuZCBh
+bnkgYXR0YWNobWVudHMgYXJlIGNvbmZpZGVudGlhbCBhbmQgbWF5IGFsc28gYmUgcHJpdmlsZWdl
+ZC4gSWYgeW91IGFyZSBub3QgdGhlIGludGVuZGVkIHJlY2lwaWVudCwgcGxlYXNlIG5vdGlmeSB0
+aGUgc2VuZGVyIGltbWVkaWF0ZWx5IGFuZCBkbyBub3QgZGlzY2xvc2UgdGhlIGNvbnRlbnRzIHRv
+IGFueSBvdGhlciBwZXJzb24sIHVzZSBpdCBmb3IgYW55IHB1cnBvc2UsIG9yIHN0b3JlIG9yIGNv
+cHkgdGhlIGluZm9ybWF0aW9uIGluIGFueSBtZWRpdW0uIFRoYW5rIHlvdS4NCg==
