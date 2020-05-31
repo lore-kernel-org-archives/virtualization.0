@@ -1,122 +1,101 @@
-From: Sidong Yang <realwakka@gmail.com>
-Subject: Re: [PATCH] drm/qxl: Replace deprecated function in qxl_display
-Date: Sun, 31 May 2020 17:13:39 +0900
-Message-ID: <20200531081339.GA16336@realwakka-Lenovo-IdeaPad-S340-14API>
-References: <20200523160156.32511-1-realwakka@gmail.com>
- <CAMwc25pf=wmtQcog7D8GUJ6zz6ascFkExS+bsyA2E4chz-UcuQ@mail.gmail.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v2 resubmit] virtio-balloon: Disable free page reporting
+ if page poison reporting is not enabled
+Date: Sun, 31 May 2020 05:15:30 -0400
+Message-ID: <20200531051357-mutt-send-email-mst@kernel.org>
+References: <20200508173732.17877.85060.stgit@localhost.localdomain>
+ <CAKgT0Uce78v1tA6=KHuLNx7pTX324rokprNs32dE2UtsxWnXUg@mail.gmail.com>
+ <CAKgT0UeGgeAExQRGsnJ0qmK_wqosdrmqUmYVtCw4aeSQ3APffg@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <virtio-dev-return-7430-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+In-Reply-To: <CAKgT0UeGgeAExQRGsnJ0qmK_wqosdrmqUmYVtCw4aeSQ3APffg@mail.gmail.com>
 Content-Disposition: inline
-In-Reply-To: <CAMwc25pf=wmtQcog7D8GUJ6zz6ascFkExS+bsyA2E4chz-UcuQ@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Airlie <airlied@redhat.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>, Daniel Vetter <daniel@ffwll.ch>, virtualization@lists.linux-foundation.org, spice-devel@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
+To: Alexander Duyck <alexander.duyck@gmail.com>
+Cc: Jason Wang <jasowang@redhat.com>, David Hildenbrand <david@redhat.com>, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, May 24, 2020 at 07:42:25AM +1000, David Airlie wrote:
-> On Sun, May 24, 2020 at 2:02 AM Sidong Yang <realwakka@gmail.com> wrote:
+Oh. A mail misconfig on my part caused me to miss this. Sorry.
+Unfortunately it means it will miss 5.7.
+I'll queue this and CC stable. Thanks!
+
+On Tue, May 26, 2020 at 08:13:08AM -0700, Alexander Duyck wrote:
+> Do I need to resubmit this patch? It has been over two weeks now since
+> it was originally submitted, and a week and a half since I last sent
+> out an email following up. I'm just wondering if there is some list I
+> missed as I am assuming the maintainers and lists I contacted here are
+> correct? It looks like we are at RC7 now so I am worried this won't
+> make it in before LInus releases 5.7.
+> 
+> Thanks.
+> 
+> - Alex
+> 
+> On Fri, May 15, 2020 at 10:02 AM Alexander Duyck
+> <alexander.duyck@gmail.com> wrote:
 > >
-> > Hi, Dave.
+> > Just following up. It has been a week since I submitted this. I was
+> > hoping we could get it in for 5.7 since this affects free page
+> > reporting which will be introduced with that kernel release.
 > >
-> > I'm a newbie kernel developer interested in qxl driver. And I want to participate in
-> > contributing for QXL module.
-> > I wrote some simple patch for refactoring task found in todos in gpu documentation.
-> > I want to know it's okay to contribute and write some patch for qxl module.
-> > If this patch is wrong, please give me some advice for me.
-> > Or if you have some simple task for me, I'll be glad to do it.
 > > Thanks.
-> 
-> Hi Sidong,
-> 
-> The best way to start is probably to email dri-devel list rather than
-> just me, there are a few more people there who can help with
-> onboarding and accepting patches.
-> 
-> For QXL, Gerd Hoffmann (kraxel@redhat.com) is also worth cc'ing as he
-> is mostly maintaining it at the moment.
-> 
-> Dave.
->
-
-Thanks so much for advice Dave.
-I'll add cc for qxl maintainer and dri-devel in next patch.
-
-Sidong.
-> 
 > >
-> > Sincerely,
-> > Sidong.
+> > - Alex
 > >
-> > Replace deprecated function drm_modeset_lock/unlock_all with
-> > helper function DRM_MODESET_LOCK_ALL_BEGIN/END.
-> >
-> > Signed-off-by: Sidong Yang <realwakka@gmail.com>
-> > ---
-> >  drivers/gpu/drm/qxl/qxl_display.c | 21 +++++++++++----------
-> >  1 file changed, 11 insertions(+), 10 deletions(-)
-> >
-> > diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-> > index 1082cd5d2fd4..07e164cee868 100644
-> > --- a/drivers/gpu/drm/qxl/qxl_display.c
-> > +++ b/drivers/gpu/drm/qxl/qxl_display.c
-> > @@ -162,7 +162,8 @@ static void qxl_update_offset_props(struct qxl_device *qdev)
-> >  void qxl_display_read_client_monitors_config(struct qxl_device *qdev)
-> >  {
-> >         struct drm_device *dev = &qdev->ddev;
-> > -       int status, retries;
-> > +       struct drm_modeset_acquire_ctx ctx;
-> > +       int status, retries, ret;
-> >
-> >         for (retries = 0; retries < 10; retries++) {
-> >                 status = qxl_display_copy_rom_client_monitors_config(qdev);
-> > @@ -183,9 +184,9 @@ void qxl_display_read_client_monitors_config(struct qxl_device *qdev)
-> >                 return;
-> >         }
-> >
-> > -       drm_modeset_lock_all(dev);
-> > +       DRM_MODESET_LOCK_ALL_BEGIN(dev, ctx, DRM_MODESET_ACQUIRE_INTERRUPTIBLE, ret);
-> >         qxl_update_offset_props(qdev);
-> > -       drm_modeset_unlock_all(dev);
-> > +       DRM_MODESET_LOCK_ALL_END(ctx, ret);
-> >         if (!drm_helper_hpd_irq_event(dev)) {
-> >                 /* notify that the monitor configuration changed, to
-> >                    adjust at the arbitrary resolution */
-> > @@ -403,18 +404,17 @@ static int qxl_framebuffer_surface_dirty(struct drm_framebuffer *fb,
-> >         struct qxl_device *qdev = to_qxl(fb->dev);
-> >         struct drm_clip_rect norect;
-> >         struct qxl_bo *qobj;
-> > +       struct drm_modeset_acquire_ctx ctx;
-> >         bool is_primary;
-> > -       int inc = 1;
-> > +       int inc = 1, ret;
-> >
-> > -       drm_modeset_lock_all(fb->dev);
-> > +       DRM_MODESET_LOCK_ALL_BEGIN(fb->dev, ctx, DRM_MODESET_ACQUIRE_INTERRUPTIBLE, ret);
-> >
-> >         qobj = gem_to_qxl_bo(fb->obj[0]);
-> >         /* if we aren't primary surface ignore this */
-> >         is_primary = qobj->shadow ? qobj->shadow->is_primary : qobj->is_primary;
-> > -       if (!is_primary) {
-> > -               drm_modeset_unlock_all(fb->dev);
-> > -               return 0;
-> > -       }
-> > +       if (!is_primary)
-> > +               goto out_lock_end;
-> >
-> >         if (!num_clips) {
-> >                 num_clips = 1;
-> > @@ -430,7 +430,8 @@ static int qxl_framebuffer_surface_dirty(struct drm_framebuffer *fb,
-> >         qxl_draw_dirty_fb(qdev, fb, qobj, flags, color,
-> >                           clips, num_clips, inc, 0);
-> >
-> > -       drm_modeset_unlock_all(fb->dev);
-> > +out_lock_end:
-> > +       DRM_MODESET_LOCK_ALL_END(ctx, ret);
-> >
-> >         return 0;
-> >  }
-> > --
-> > 2.17.1
-> >
-> 
+> > On Fri, May 8, 2020 at 10:40 AM Alexander Duyck
+> > <alexander.duyck@gmail.com> wrote:
+> > >
+> > > From: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+> > >
+> > > We should disable free page reporting if page poisoning is enabled but we
+> > > cannot report it via the balloon interface. This way we can avoid the
+> > > possibility of corrupting guest memory. Normally the page poisoning feature
+> > > should always be present when free page reporting is enabled on the
+> > > hypervisor, however this allows us to correctly handle a case of the
+> > > virtio-balloon device being possibly misconfigured.
+> > >
+> > > Fixes: 5d757c8d518d ("virtio-balloon: add support for providing free page reports to host")
+> > > Acked-by: David Hildenbrand <david@redhat.com>
+> > > Signed-off-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+> > > ---
+> > >
+> > > Changes since v1:
+> > > Originally this patch also modified free page hinting, that has been removed.
+> > > Updated patch title and description.
+> > > Added a comment explaining reasoning for disabling free page reporting.
+> > >
+> > > Resbumitting v2 w/ Ack from David Hildebrand.
+> > >
+> > >  drivers/virtio/virtio_balloon.c |    9 ++++++++-
+> > >  1 file changed, 8 insertions(+), 1 deletion(-)
+> > >
+> > > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> > > index 51086a5afdd4..1f157d2f4952 100644
+> > > --- a/drivers/virtio/virtio_balloon.c
+> > > +++ b/drivers/virtio/virtio_balloon.c
+> > > @@ -1107,11 +1107,18 @@ static int virtballoon_restore(struct virtio_device *vdev)
+> > >
+> > >  static int virtballoon_validate(struct virtio_device *vdev)
+> > >  {
+> > > -       /* Tell the host whether we care about poisoned pages. */
+> > > +       /*
+> > > +        * Inform the hypervisor that our pages are poisoned or
+> > > +        * initialized. If we cannot do that then we should disable
+> > > +        * page reporting as it could potentially change the contents
+> > > +        * of our free pages.
+> > > +        */
+> > >         if (!want_init_on_free() &&
+> > >             (IS_ENABLED(CONFIG_PAGE_POISONING_NO_SANITY) ||
+> > >              !page_poisoning_enabled()))
+> > >                 __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_PAGE_POISON);
+> > > +       else if (!virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON))
+> > > +               __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
+> > >
+> > >         __virtio_clear_bit(vdev, VIRTIO_F_IOMMU_PLATFORM);
+> > >         return 0;
+> > >
