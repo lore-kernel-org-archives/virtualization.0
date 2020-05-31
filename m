@@ -1,84 +1,122 @@
-From: Souptick Joarder <jrdr.linux@gmail.com>
-Subject: Re: [PATCH 1/2] docs: mm/gup: pin_user_pages.rst: add a "case 5"
-Date: Sun, 31 May 2020 12:41:19 +0530
-Message-ID: <CAFqt6zaCSngh7-N_qZ6-S3Cj8CHF8DTSPv8anP_oJg5E6UWu9g@mail.gmail.com>
-References: <20200529234309.484480-1-jhubbard@nvidia.com> <20200529234309.484480-2-jhubbard@nvidia.com>
+From: Sidong Yang <realwakka@gmail.com>
+Subject: Re: [PATCH] drm/qxl: Replace deprecated function in qxl_display
+Date: Sun, 31 May 2020 17:13:39 +0900
+Message-ID: <20200531081339.GA16336@realwakka-Lenovo-IdeaPad-S340-14API>
+References: <20200523160156.32511-1-realwakka@gmail.com>
+ <CAMwc25pf=wmtQcog7D8GUJ6zz6ascFkExS+bsyA2E4chz-UcuQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20200529234309.484480-2-jhubbard@nvidia.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: John Hubbard <jhubbard@nvidia.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Vlastimil Babka <vbabka@suse.cz>, =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Dave Chinner <david@fromorbit.com>, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, linux-fsdevel <linux-fsdevel@vger.kernel.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Linux-MM <linux-mm@kvack.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAMwc25pf=wmtQcog7D8GUJ6zz6ascFkExS+bsyA2E4chz-UcuQ@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: David Airlie <airlied@redhat.com>
+Cc: Gerd Hoffmann <kraxel@redhat.com>, Daniel Vetter <daniel@ffwll.ch>, virtualization@lists.linux-foundation.org, spice-devel@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sat, May 30, 2020 at 5:13 AM John Hubbard <jhubbard@nvidia.com> wrote:
+On Sun, May 24, 2020 at 07:42:25AM +1000, David Airlie wrote:
+> On Sun, May 24, 2020 at 2:02 AM Sidong Yang <realwakka@gmail.com> wrote:
+> >
+> > Hi, Dave.
+> >
+> > I'm a newbie kernel developer interested in qxl driver. And I want to participate in
+> > contributing for QXL module.
+> > I wrote some simple patch for refactoring task found in todos in gpu documentation.
+> > I want to know it's okay to contribute and write some patch for qxl module.
+> > If this patch is wrong, please give me some advice for me.
+> > Or if you have some simple task for me, I'll be glad to do it.
+> > Thanks.
+> 
+> Hi Sidong,
+> 
+> The best way to start is probably to email dri-devel list rather than
+> just me, there are a few more people there who can help with
+> onboarding and accepting patches.
+> 
+> For QXL, Gerd Hoffmann (kraxel@redhat.com) is also worth cc'ing as he
+> is mostly maintaining it at the moment.
+> 
+> Dave.
 >
-> There are four cases listed in pin_user_pages.rst. These are
-> intended to help developers figure out whether to use
-> get_user_pages*(), or pin_user_pages*(). However, the four cases
-> do not cover all the situations. For example, drivers/vhost/vhost.c
-> has a "pin, write to page, set page dirty, unpin" case.
->
-> Add a fifth case, to help explain that there is a general pattern
-> that requires pin_user_pages*() API calls.
->
-> Cc: Vlastimil Babka <vbabka@suse.cz>
-> Cc: Jan Kara <jack@suse.cz>
-> Cc: J=C3=A9r=C3=B4me Glisse <jglisse@redhat.com>
-> Cc: Dave Chinner <david@fromorbit.com>
-> Cc: Jonathan Corbet <corbet@lwn.net>
-> Cc: linux-doc@vger.kernel.org
-> Cc: linux-fsdevel@vger.kernel.org
-> Signed-off-by: John Hubbard <jhubbard@nvidia.com>
-> ---
->  Documentation/core-api/pin_user_pages.rst | 20 ++++++++++++++++++++
->  1 file changed, 20 insertions(+)
->
-> diff --git a/Documentation/core-api/pin_user_pages.rst b/Documentation/co=
-re-api/pin_user_pages.rst
-> index 4675b04e8829..b9f2688a2c67 100644
-> --- a/Documentation/core-api/pin_user_pages.rst
-> +++ b/Documentation/core-api/pin_user_pages.rst
-> @@ -171,6 +171,26 @@ If only struct page data (as opposed to the actual m=
-emory contents that a page
->  is tracking) is affected, then normal GUP calls are sufficient, and neit=
-her flag
->  needs to be set.
->
-> +CASE 5: Pinning in order to write to the data within the page
-> +-------------------------------------------------------------
-> +Even though neither DMA nor Direct IO is involved, just a simple case of=
- "pin,
-> +access page's data, unpin" can cause a problem.
 
-Will it be, *"pin, access page's data, set page dirty, unpin" * ?
+Thanks so much for advice Dave.
+I'll add cc for qxl maintainer and dri-devel in next patch.
 
-Case 5 may be considered a
-> +superset of Case 1, plus Case 2, plus anything that invokes that pattern=
-. In
-> +other words, if the code is neither Case 1 nor Case 2, it may still requ=
-ire
-> +FOLL_PIN, for patterns like this:
-> +
-> +Correct (uses FOLL_PIN calls):
-> +    pin_user_pages()
-> +    access the data within the pages
-> +    set_page_dirty_lock()
-> +    unpin_user_pages()
-> +
-> +INCORRECT (uses FOLL_GET calls):
-> +    get_user_pages()
-> +    access the data within the pages
-> +    set_page_dirty_lock()
-> +    put_page()
-> +
->  page_maybe_dma_pinned(): the whole point of pinning
->  =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D
->
-> --
-> 2.26.2
->
+Sidong.
+> 
+> >
+> > Sincerely,
+> > Sidong.
+> >
+> > Replace deprecated function drm_modeset_lock/unlock_all with
+> > helper function DRM_MODESET_LOCK_ALL_BEGIN/END.
+> >
+> > Signed-off-by: Sidong Yang <realwakka@gmail.com>
+> > ---
+> >  drivers/gpu/drm/qxl/qxl_display.c | 21 +++++++++++----------
+> >  1 file changed, 11 insertions(+), 10 deletions(-)
+> >
+> > diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+> > index 1082cd5d2fd4..07e164cee868 100644
+> > --- a/drivers/gpu/drm/qxl/qxl_display.c
+> > +++ b/drivers/gpu/drm/qxl/qxl_display.c
+> > @@ -162,7 +162,8 @@ static void qxl_update_offset_props(struct qxl_device *qdev)
+> >  void qxl_display_read_client_monitors_config(struct qxl_device *qdev)
+> >  {
+> >         struct drm_device *dev = &qdev->ddev;
+> > -       int status, retries;
+> > +       struct drm_modeset_acquire_ctx ctx;
+> > +       int status, retries, ret;
+> >
+> >         for (retries = 0; retries < 10; retries++) {
+> >                 status = qxl_display_copy_rom_client_monitors_config(qdev);
+> > @@ -183,9 +184,9 @@ void qxl_display_read_client_monitors_config(struct qxl_device *qdev)
+> >                 return;
+> >         }
+> >
+> > -       drm_modeset_lock_all(dev);
+> > +       DRM_MODESET_LOCK_ALL_BEGIN(dev, ctx, DRM_MODESET_ACQUIRE_INTERRUPTIBLE, ret);
+> >         qxl_update_offset_props(qdev);
+> > -       drm_modeset_unlock_all(dev);
+> > +       DRM_MODESET_LOCK_ALL_END(ctx, ret);
+> >         if (!drm_helper_hpd_irq_event(dev)) {
+> >                 /* notify that the monitor configuration changed, to
+> >                    adjust at the arbitrary resolution */
+> > @@ -403,18 +404,17 @@ static int qxl_framebuffer_surface_dirty(struct drm_framebuffer *fb,
+> >         struct qxl_device *qdev = to_qxl(fb->dev);
+> >         struct drm_clip_rect norect;
+> >         struct qxl_bo *qobj;
+> > +       struct drm_modeset_acquire_ctx ctx;
+> >         bool is_primary;
+> > -       int inc = 1;
+> > +       int inc = 1, ret;
+> >
+> > -       drm_modeset_lock_all(fb->dev);
+> > +       DRM_MODESET_LOCK_ALL_BEGIN(fb->dev, ctx, DRM_MODESET_ACQUIRE_INTERRUPTIBLE, ret);
+> >
+> >         qobj = gem_to_qxl_bo(fb->obj[0]);
+> >         /* if we aren't primary surface ignore this */
+> >         is_primary = qobj->shadow ? qobj->shadow->is_primary : qobj->is_primary;
+> > -       if (!is_primary) {
+> > -               drm_modeset_unlock_all(fb->dev);
+> > -               return 0;
+> > -       }
+> > +       if (!is_primary)
+> > +               goto out_lock_end;
+> >
+> >         if (!num_clips) {
+> >                 num_clips = 1;
+> > @@ -430,7 +430,8 @@ static int qxl_framebuffer_surface_dirty(struct drm_framebuffer *fb,
+> >         qxl_draw_dirty_fb(qdev, fb, qobj, flags, color,
+> >                           clips, num_clips, inc, 0);
+> >
+> > -       drm_modeset_unlock_all(fb->dev);
+> > +out_lock_end:
+> > +       DRM_MODESET_LOCK_ALL_END(ctx, ret);
+> >
+> >         return 0;
+> >  }
+> > --
+> > 2.17.1
+> >
+> 
