@@ -1,69 +1,50 @@
 From: John Hubbard <jhubbard@nvidia.com>
-Subject: Re: [PATCH 1/2] docs: mm/gup: pin_user_pages.rst: add a "case 5"
-Date: Sun, 31 May 2020 22:11:49 -0700
-Message-ID: <b8de5a5e-b53a-81e8-9165-405d203deb33@nvidia.com>
-References: <20200529234309.484480-1-jhubbard@nvidia.com>
- <20200529234309.484480-2-jhubbard@nvidia.com>
- <CAFqt6zaCSngh7-N_qZ6-S3Cj8CHF8DTSPv8anP_oJg5E6UWu9g@mail.gmail.com>
+Subject: [PATCH v2 0/2] vhost, docs: convert to pin_user_pages(), new "case 5"
+Date: Sun, 31 May 2020 22:26:31 -0700
+Message-ID: <20200601052633.853874-1-jhubbard@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <CAFqt6zaCSngh7-N_qZ6-S3Cj8CHF8DTSPv8anP_oJg5E6UWu9g@mail.gmail.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Souptick Joarder <jrdr.linux@gmail.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Vlastimil Babka <vbabka@suse.cz>, =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Dave Chinner <david@fromorbit.com>, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, linux-fsdevel <linux-fsdevel@vger.kernel.org>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Linux-MM <linux-mm@kvack.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-doc-owner@vger.kernel.org>
+Sender: linux-doc-owner@vger.kernel.org
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Vlastimil Babka <vbabka@suse.cz>, =?UTF-8?q?J=C3=A9r=C3=B4me=20Glisse?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Dave Chinner <david@fromorbit.com>, Souptick Joarder <jrdr.linux@gmail.com>, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org, John Hubbard <jhubbard@nvidia.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2020-05-31 00:11, Souptick Joarder wrote:
-...
->> diff --git a/Documentation/core-api/pin_user_pages.rst b/Documentation/core-api/pin_user_pages.rst
->> index 4675b04e8829..b9f2688a2c67 100644
->> --- a/Documentation/core-api/pin_user_pages.rst
->> +++ b/Documentation/core-api/pin_user_pages.rst
->> @@ -171,6 +171,26 @@ If only struct page data (as opposed to the actual memory contents that a page
->>   is tracking) is affected, then normal GUP calls are sufficient, and neither flag
->>   needs to be set.
->>
->> +CASE 5: Pinning in order to write to the data within the page
->> +-------------------------------------------------------------
->> +Even though neither DMA nor Direct IO is involved, just a simple case of "pin,
->> +access page's data, unpin" can cause a problem.
-> 
-> Will it be, *"pin, access page's data, set page dirty, unpin" * ?
+This is based on Linux 5.7, plus one prerequisite patch:
+   "mm/gup: update pin_user_pages.rst for "case 3" (mmu notifiers)" [1]
 
-Well...the problem can show up with just accessing (writing) the data.
-But it is true that this statement is a little different from the
-patterns below, which is confusing. I'll delete set_page_dirty() from each
-of them, in order to avoid confusing things. (Although each is correct.)
-And I'll also change the above to "pin, write to a page's data, upin".
+Changes since v1: removed references to set_page_dirty*(), in response to
+Souptick Joarder's review (thanks!).
 
-set_page_dirty() interactions are really just extra credit here. :) And
-fully read-only situations won't cause a problem.
+Cover letter for v1, edited/updated slightly:
 
-> 
-> Case 5 may be considered a
->> +superset of Case 1, plus Case 2, plus anything that invokes that pattern. In
->> +other words, if the code is neither Case 1 nor Case 2, it may still require
->> +FOLL_PIN, for patterns like this:
->> +
->> +Correct (uses FOLL_PIN calls):
->> +    pin_user_pages()
->> +    access the data within the pages
->> +    set_page_dirty_lock()
->> +    unpin_user_pages()
->> +
->> +INCORRECT (uses FOLL_GET calls):
->> +    get_user_pages()
->> +    access the data within the pages
->> +    set_page_dirty_lock()
->> +    put_page()
->> +
+It recently became clear to me that there are some get_user_pages*()
+callers that don't fit neatly into any of the four cases that are so
+far listed in pin_user_pages.rst. vhost.c is one of those.
 
-I'll send a v2 shortly.
+Add a Case 5 to the documentation, and refer to that when converting
+vhost.c.
 
-thanks,
--- 
-John Hubbard
-NVIDIA
+Thanks to Jan Kara for helping me (again) in understanding the
+interaction between get_user_pages() and page writeback [2].
+
+Note that I have only compile-tested the vhost.c patch, although that
+does also include cross-compiling for a few other arches. Any run-time
+testing would be greatly appreciated.
+
+[1] https://lore.kernel.org/r/20200527194953.11130-1-jhubbard@nvidia.com
+[2] https://lore.kernel.org/r/20200529070343.GL14550@quack2.suse.cz
+
+John Hubbard (2):
+  docs: mm/gup: pin_user_pages.rst: add a "case 5"
+  vhost: convert get_user_pages() --> pin_user_pages()
+
+ Documentation/core-api/pin_user_pages.rst | 18 ++++++++++++++++++
+ drivers/vhost/vhost.c                     |  5 ++---
+ 2 files changed, 20 insertions(+), 3 deletions(-)
+
+
+base-commit: 3d77e6a8804abcc0504c904bd6e5cdf3a5cf8162
+--=20
+2.26.2
