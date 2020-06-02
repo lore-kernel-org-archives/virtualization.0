@@ -1,57 +1,77 @@
-From: "Longpeng(Mike)" <longpeng2@huawei.com>
-Subject: [PATCH v3 3/3] crypto: virtio: Fix dest length calculation in __virtio_crypto_skcipher_do_req()
-Date: Tue, 2 Jun 2020 15:05:01 +0800
-Message-ID: <20200602070501.2023-4-longpeng2@huawei.com>
-References: <20200602070501.2023-1-longpeng2@huawei.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 5/6] vdpa: introduce virtio pci driver
+Date: Tue, 2 Jun 2020 15:08:39 +0800
+Message-ID: <5dbb0386-beeb-5bf4-d12e-fb5427486bb8@redhat.com>
+References: <20200529080303.15449-1-jasowang@redhat.com>
+ <20200529080303.15449-6-jasowang@redhat.com>
+ <20200602010332-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200602070501.2023-1-longpeng2@huawei.com>
+In-Reply-To: <20200602010332-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: linux-crypto@vger.kernel.org
-Cc: "Longpeng(Mike)" <longpeng2@huawei.com>, Gonglei <arei.gonglei@huawei.com>, Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, rob.miller@broadcom.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com, zhangweining@ruijie.com.cn, eli@mellanox.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-The src/dst length is not aligned with AES_BLOCK_SIZE(which is 16) in some
-testcases in tcrypto.ko.
 
-For example, the src/dst length of one of cts(cbc(aes))'s testcase is 17, the
-crypto_virtio driver will set @src_data_len=16 but @dst_data_len=17 in this
-case and get a wrong at then end.
+On 2020/6/2 下午1:08, Michael S. Tsirkin wrote:
+> On Fri, May 29, 2020 at 04:03:02PM +0800, Jason Wang wrote:
+>> +static void vp_vdpa_set_vq_ready(struct vdpa_device *vdpa,
+>> +				 u16 qid, bool ready)
+>> +{
+>> +	struct vp_vdpa *vp_vdpa = vdpa_to_vp(vdpa);
+>> +
+>> +	vp_iowrite16(qid, &vp_vdpa->common->queue_select);
+>> +	vp_iowrite16(ready, &vp_vdpa->common->queue_enable);
+>> +}
+>> +
+> Looks like this needs to check and just skip the write if
+> ready == 0, right? Of course vdpa core then insists on calling
+> vp_vdpa_get_vq_ready which will warn. Maybe just drop the
+> check from core, move it to drivers which need it?
+>
+> ...
 
-  SRC: pp pp pp pp pp pp pp pp pp pp pp pp pp pp pp pp pp (17 bytes)
-  EXP: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc pp (17 bytes)
-  DST: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc 00 (pollute the last bytes)
-  (pp: plaintext  cc:ciphertext)
 
-Fix this issue by limit the length of dest buffer.
+That may work, but it may cause inconsistent semantic for set_vq_ready 
+if we leave it to the driver.
 
-Fixes: dbaf0624ffa5 ("crypto: add virtio-crypto driver")
-Cc: Gonglei <arei.gonglei@huawei.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: virtualization@lists.linux-foundation.org
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
----
- drivers/crypto/virtio/virtio_crypto_algs.c | 1 +
- 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/crypto/virtio/virtio_crypto_algs.c b/drivers/crypto/virtio/virtio_crypto_algs.c
-index 52261b6..cb8a6ea 100644
---- a/drivers/crypto/virtio/virtio_crypto_algs.c
-+++ b/drivers/crypto/virtio/virtio_crypto_algs.c
-@@ -407,6 +407,7 @@ static int virtio_crypto_skcipher_setkey(struct crypto_skcipher *tfm,
- 		goto free;
- 	}
- 
-+	dst_len = min_t(unsigned int, req->cryptlen, dst_len);
- 	pr_debug("virtio_crypto: src_len: %u, dst_len: %llu\n",
- 			req->cryptlen, dst_len);
- 
--- 
-1.8.3.1
+>
+>
+>> +static const struct pci_device_id vp_vdpa_id_table[] = {
+>> +	{ PCI_DEVICE(PCI_VENDOR_ID_REDHAT_QUMRANET, PCI_ANY_ID) },
+>> +	{ 0 }
+>> +};
+> This looks like it'll create a mess with either virtio pci
+> or vdpa being loaded at random. Maybe just don't specify
+> any IDs for now. Down the road we could get a
+> distinct vendor ID or a range of device IDs for this.
+
+
+Right, will do.
+
+Thanks
+
+
+>
+>> +MODULE_DEVICE_TABLE(pci, vp_vdpa_id_table);
+>> +
+>> +static struct pci_driver vp_vdpa_driver = {
+>> +	.name		= "vp-vdpa",
+>> +	.id_table	= vp_vdpa_id_table,
+>> +	.probe		= vp_vdpa_probe,
+>> +	.remove		= vp_vdpa_remove,
+>> +};
+>> +
+>> +module_pci_driver(vp_vdpa_driver);
+>> +
+>> +MODULE_AUTHOR("Jason Wang <jasowang@redhat.com>");
+>> +MODULE_DESCRIPTION("vp-vdpa");
+>> +MODULE_LICENSE("GPL");
+>> +MODULE_VERSION("1");
+>> -- 
+>> 2.20.1
