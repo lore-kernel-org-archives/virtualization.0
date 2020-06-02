@@ -1,110 +1,176 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC 04/13] vhost: cleanup fetch_buf return code handling
-Date: Tue, 2 Jun 2020 09:06:03 -0400
-Message-ID: <20200602130543.578420-5-mst@redhat.com>
+Subject: [PATCH RFC 07/13] vhost: format-independent API for used buffers
+Date: Tue, 2 Jun 2020 09:06:10 -0400
+Message-ID: <20200602130543.578420-8-mst@redhat.com>
 References: <20200602130543.578420-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200602130543.578420-1-mst@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200602130543.578420-1-mst@redhat.com>
+Sender: kvm-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Return code of fetch_buf is confusing, so callers resort to
-tricks to get to sane values. Let's switch to something standard:
-0 empty, >0 non-empty, <0 error.
+Add a new API that doesn't assume used ring, heads, etc.
+For now, we keep the old APIs around to make it easier
+to convert drivers.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/vhost/vhost.c | 24 ++++++++++++++++--------
- 1 file changed, 16 insertions(+), 8 deletions(-)
+ drivers/vhost/vhost.c | 52 ++++++++++++++++++++++++++++++++++---------
+ drivers/vhost/vhost.h | 17 +++++++++++++-
+ 2 files changed, 58 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index aca2a5b0d078..bd52b44b0d23 100644
+index b4a6e44d56a8..be822f0c9428 100644
 --- a/drivers/vhost/vhost.c
 +++ b/drivers/vhost/vhost.c
-@@ -2146,6 +2146,8 @@ static int fetch_indirect_descs(struct vhost_virtqueue *vq,
- 	return 0;
- }
- 
-+/* This function returns a value > 0 if a descriptor was found, or 0 if none were found.
+@@ -2292,13 +2292,12 @@ static int fetch_descs(struct vhost_virtqueue *vq)
+  * number of output then some number of input descriptors, it's actually two
+  * iovecs, but we pack them into one and note how many of each there were.
+  *
+- * This function returns the descriptor number found, or vq->num (which is
+- * never a valid descriptor number) if none was found.  A negative code is
+- * returned on error. */
+-int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+-		      struct iovec iov[], unsigned int iov_size,
+-		      unsigned int *out_num, unsigned int *in_num,
+-		      struct vhost_log *log, unsigned int *log_num)
++ * This function returns a value > 0 if a descriptor was found, or 0 if none were found.
 + * A negative code is returned on error. */
- static int fetch_buf(struct vhost_virtqueue *vq)
++int vhost_get_avail_buf(struct vhost_virtqueue *vq, struct vhost_buf *buf,
++			struct iovec iov[], unsigned int iov_size,
++			unsigned int *out_num, unsigned int *in_num,
++			struct vhost_log *log, unsigned int *log_num)
  {
- 	unsigned int i, head, found = 0;
-@@ -2162,7 +2164,7 @@ static int fetch_buf(struct vhost_virtqueue *vq)
- 	if (unlikely(vq->avail_idx == vq->last_avail_idx)) {
- 		/* If we already have work to do, don't bother re-checking. */
- 		if (likely(vq->ndescs))
--			return vq->num;
-+			return 0;
- 
- 		if (unlikely(vhost_get_avail_idx(vq, &avail_idx))) {
- 			vq_err(vq, "Failed to access avail idx at %p\n",
-@@ -2181,7 +2183,7 @@ static int fetch_buf(struct vhost_virtqueue *vq)
- 		 * invalid.
- 		 */
- 		if (vq->avail_idx == last_avail_idx)
--			return vq->num;
-+			return 0;
- 
- 		/* Only get avail ring entries after they have been
- 		 * exposed by guest.
-@@ -2251,12 +2253,14 @@ static int fetch_buf(struct vhost_virtqueue *vq)
- 	/* On success, increment avail index. */
- 	vq->last_avail_idx++;
- 
--	return 0;
-+	return 1;
- }
- 
-+/* This function returns a value > 0 if a descriptor was found, or 0 if none were found.
-+ * A negative code is returned on error. */
- static int fetch_descs(struct vhost_virtqueue *vq)
- {
--	int ret = 0;
-+	int ret;
- 
- 	if (unlikely(vq->first_desc >= vq->ndescs)) {
- 		vq->first_desc = 0;
-@@ -2266,10 +2270,14 @@ static int fetch_descs(struct vhost_virtqueue *vq)
- 	if (vq->ndescs)
- 		return 0;
- 
--	while (!ret && vq->ndescs <= vhost_vq_num_batch_descs(vq))
--		ret = fetch_buf(vq);
-+	for (ret = 1;
-+	     ret > 0 && vq->ndescs <= vhost_vq_num_batch_descs(vq);
-+	     ret = fetch_buf(vq))
-+		;
- 
--	return vq->ndescs ? 0 : ret;
-+	/* On success we expect some descs */
-+	BUG_ON(ret > 0 && !vq->ndescs);
-+	return ret;
- }
- 
- /* This looks in the virtqueue and for the first available buffer, and converts
-@@ -2288,7 +2296,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
  	int ret = fetch_descs(vq);
  	int i;
+@@ -2311,6 +2310,8 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+ 	*out_num = *in_num = 0;
+ 	if (unlikely(log))
+ 		*log_num = 0;
++	buf->in_len = buf->out_len = 0;
++	buf->descs = 0;
  
--	if (ret)
-+	if (ret <= 0)
- 		return ret;
+ 	for (i = vq->first_desc; i < vq->ndescs; ++i) {
+ 		unsigned iov_count = *in_num + *out_num;
+@@ -2340,6 +2341,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+ 			/* If this is an input descriptor,
+ 			 * increment that count. */
+ 			*in_num += ret;
++			buf->in_len += desc->len;
+ 			if (unlikely(log && ret)) {
+ 				log[*log_num].addr = desc->addr;
+ 				log[*log_num].len = desc->len;
+@@ -2355,9 +2357,11 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+ 				goto err;
+ 			}
+ 			*out_num += ret;
++			buf->out_len += desc->len;
+ 		}
  
- 	/* Now convert to IOV */
+-		ret = desc->id;
++		buf->id = desc->id;
++		++buf->descs;
+ 
+ 		if (!(desc->flags & VRING_DESC_F_NEXT))
+ 			break;
+@@ -2365,7 +2369,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+ 
+ 	vq->first_desc = i + 1;
+ 
+-	return ret;
++	return 1;
+ 
+ err:
+ 	for (i = vq->first_desc; i < vq->ndescs; ++i)
+@@ -2375,7 +2379,15 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+ 
+ 	return ret;
+ }
+-EXPORT_SYMBOL_GPL(vhost_get_vq_desc);
++EXPORT_SYMBOL_GPL(vhost_get_avail_buf);
++
++/* Reverse the effect of vhost_get_avail_buf. Useful for error handling. */
++void vhost_discard_avail_bufs(struct vhost_virtqueue *vq,
++			      struct vhost_buf *buf, unsigned count)
++{
++	vhost_discard_vq_desc(vq, count);
++}
++EXPORT_SYMBOL_GPL(vhost_discard_avail_bufs);
+ 
+ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
+ 			    struct vring_used_elem *heads,
+@@ -2459,6 +2471,26 @@ int vhost_add_used(struct vhost_virtqueue *vq, unsigned int head, int len)
+ }
+ EXPORT_SYMBOL_GPL(vhost_add_used);
+ 
++int vhost_put_used_buf(struct vhost_virtqueue *vq, struct vhost_buf *buf)
++{
++	return vhost_add_used(vq, buf->id, buf->in_len);
++}
++EXPORT_SYMBOL_GPL(vhost_put_used_buf);
++
++int vhost_put_used_n_bufs(struct vhost_virtqueue *vq,
++			  struct vhost_buf *bufs, unsigned count)
++{
++	unsigned i;
++
++	for (i = 0; i < count; ++i) {
++		vq->heads[i].id = cpu_to_vhost32(vq, bufs[i].id);
++		vq->heads[i].len = cpu_to_vhost32(vq, bufs[i].in_len);
++	}
++
++	return vhost_add_used_n(vq, vq->heads, count);
++}
++EXPORT_SYMBOL_GPL(vhost_put_used_n_bufs);
++
+ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+ {
+ 	__u16 old, new;
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index a67bda9792ec..6c10e99ff334 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -67,6 +67,13 @@ struct vhost_desc {
+ 	u16 id;
+ };
+ 
++struct vhost_buf {
++	u32 out_len;
++	u32 in_len;
++	u16 descs;
++	u16 id;
++};
++
+ /* The virtqueue structure describes a queue attached to a device. */
+ struct vhost_virtqueue {
+ 	struct vhost_dev *dev;
+@@ -193,7 +200,12 @@ int vhost_get_vq_desc(struct vhost_virtqueue *,
+ 		      unsigned int *out_num, unsigned int *in_num,
+ 		      struct vhost_log *log, unsigned int *log_num);
+ void vhost_discard_vq_desc(struct vhost_virtqueue *, int n);
+-
++int vhost_get_avail_buf(struct vhost_virtqueue *, struct vhost_buf *buf,
++			struct iovec iov[], unsigned int iov_count,
++			unsigned int *out_num, unsigned int *in_num,
++			struct vhost_log *log, unsigned int *log_num);
++void vhost_discard_avail_bufs(struct vhost_virtqueue *,
++			      struct vhost_buf *, unsigned count);
+ int vhost_vq_init_access(struct vhost_virtqueue *);
+ int vhost_add_used(struct vhost_virtqueue *, unsigned int head, int len);
+ int vhost_add_used_n(struct vhost_virtqueue *, struct vring_used_elem *heads,
+@@ -202,6 +214,9 @@ void vhost_add_used_and_signal(struct vhost_dev *, struct vhost_virtqueue *,
+ 			       unsigned int id, int len);
+ void vhost_add_used_and_signal_n(struct vhost_dev *, struct vhost_virtqueue *,
+ 			       struct vring_used_elem *heads, unsigned count);
++int vhost_put_used_buf(struct vhost_virtqueue *, struct vhost_buf *buf);
++int vhost_put_used_n_bufs(struct vhost_virtqueue *,
++			  struct vhost_buf *bufs, unsigned count);
+ void vhost_signal(struct vhost_dev *, struct vhost_virtqueue *);
+ void vhost_disable_notify(struct vhost_dev *, struct vhost_virtqueue *);
+ bool vhost_vq_avail_empty(struct vhost_dev *, struct vhost_virtqueue *);
 -- 
 MST
