@@ -1,61 +1,89 @@
-From: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Subject: Re: [PATCH v2 2/2] vhost: convert get_user_pages() --> pin_user_pages()
-Date: Tue, 2 Jun 2020 08:08:44 +0200
-Message-ID: <CAM9Jb+hNSWp-TaQQFg4bs5uR8rYk_POZPT23RYy5V_B9-aOcYg@mail.gmail.com>
-References: <20200601052633.853874-1-jhubbard@nvidia.com> <20200601052633.853874-3-jhubbard@nvidia.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 4/6] vhost_vdpa: support doorbell mapping via mmap
+Date: Tue, 2 Jun 2020 14:49:38 +0800
+Message-ID: <bd7dde11-b726-ee08-4e80-71fb784fa549@redhat.com>
+References: <20200529080303.15449-5-jasowang@redhat.com>
+ <202006020308.kLXTHt4n%lkp@intel.com>
+ <20200602005007-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <20200601052633.853874-3-jhubbard@nvidia.com>
-Sender: linux-doc-owner@vger.kernel.org
-To: John Hubbard <jhubbard@nvidia.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Vlastimil Babka <vbabka@suse.cz>, =?UTF-8?B?SsOpcsO0bWUgR2xpc3Nl?= <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Dave Chinner <david@fromorbit.com>, Souptick Joarder <jrdr.linux@gmail.com>, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, Linux MM <linux-mm@kvack.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20200602005007-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+Sender: netdev-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, kbuild test robot <lkp@intel.com>
+Cc: kbuild-all@lists.01.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, rob.miller@broadcom.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-> This code was using get_user_pages*(), in approximately a "Case 5"
-> scenario (accessing the data within a page), using the categorization
-> from [1]. That means that it's time to convert the get_user_pages*() +
-> put_page() calls to pin_user_pages*() + unpin_user_pages() calls.
->
-> There is some helpful background in [2]: basically, this is a small
-> part of fixing a long-standing disconnect between pinning pages, and
-> file systems' use of those pages.
->
-> [1] Documentation/core-api/pin_user_pages.rst
->
-> [2] "Explicit pinning of user-space pages":
->     https://lwn.net/Articles/807108/
->
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Cc: Jason Wang <jasowang@redhat.com>
-> Cc: kvm@vger.kernel.org
-> Cc: virtualization@lists.linux-foundation.org
-> Cc: netdev@vger.kernel.org
-> Signed-off-by: John Hubbard <jhubbard@nvidia.com>
-> ---
->  drivers/vhost/vhost.c | 5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 21a59b598ed8..596132a96cd5 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -1762,15 +1762,14 @@ static int set_bit_to_user(int nr, void __user *addr)
->         int bit = nr + (log % PAGE_SIZE) * 8;
->         int r;
->
-> -       r = get_user_pages_fast(log, 1, FOLL_WRITE, &page);
-> +       r = pin_user_pages_fast(log, 1, FOLL_WRITE, &page);
->         if (r < 0)
->                 return r;
->         BUG_ON(r != 1);
->         base = kmap_atomic(page);
->         set_bit(bit, base);
->         kunmap_atomic(base);
-> -       set_page_dirty_lock(page);
-> -       put_page(page);
-> +       unpin_user_pages_dirty_lock(&page, 1, true);
->         return 0;
->  }
 
-Acked-by: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+On 2020/6/2 下午12:56, Michael S. Tsirkin wrote:
+> On Tue, Jun 02, 2020 at 03:22:49AM +0800, kbuild test robot wrote:
+>> Hi Jason,
+>>
+>> I love your patch! Yet something to improve:
+>>
+>> [auto build test ERROR on vhost/linux-next]
+>> [also build test ERROR on linus/master v5.7 next-20200529]
+>> [if your patch is applied to the wrong git tree, please drop us a note to help
+>> improve the system. BTW, we also suggest to use '--base' option to specify the
+>> base tree in git format-patch, please seehttps://stackoverflow.com/a/37406982]
+>>
+>> url:https://github.com/0day-ci/linux/commits/Jason-Wang/vDPA-doorbell-mapping/20200531-070834
+>> base:https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git  linux-next
+>> config: m68k-randconfig-r011-20200601 (attached as .config)
+>> compiler: m68k-linux-gcc (GCC) 9.3.0
+>> reproduce (this is a W=1 build):
+>>          wgethttps://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross  -O ~/bin/make.cross
+>>          chmod +x ~/bin/make.cross
+>>          # save the attached .config to linux build tree
+>>          COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-9.3.0 make.cross ARCH=m68k
+>>
+>> If you fix the issue, kindly add following tag as appropriate
+>> Reported-by: kbuild test robot<lkp@intel.com>
+>>
+>> All errors (new ones prefixed by >>, old ones prefixed by <<):
+>>
+>> drivers/vhost/vdpa.c: In function 'vhost_vdpa_fault':
+>>>> drivers/vhost/vdpa.c:754:22: error: implicit declaration of function 'pgprot_noncached' [-Werror=implicit-function-declaration]
+>> 754 |  vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+>> |                      ^~~~~~~~~~~~~~~~
+>>>> drivers/vhost/vdpa.c:754:22: error: incompatible types when assigning to type 'pgprot_t' {aka 'struct <anonymous>'} from type 'int'
+>> cc1: some warnings being treated as errors
+>>
+>> vim +/pgprot_noncached +754 drivers/vhost/vdpa.c
+>>
+>>     742	
+>>     743	static vm_fault_t vhost_vdpa_fault(struct vm_fault *vmf)
+>>     744	{
+>>     745		struct vhost_vdpa *v = vmf->vma->vm_file->private_data;
+>>     746		struct vdpa_device *vdpa = v->vdpa;
+>>     747		const struct vdpa_config_ops *ops = vdpa->config;
+>>     748		struct vdpa_notification_area notify;
+>>     749		struct vm_area_struct *vma = vmf->vma;
+>>     750		u16 index = vma->vm_pgoff;
+>>     751	
+>>     752		notify = ops->get_vq_notification(vdpa, index);
+>>     753	
+>>   > 754		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+>>     755		if (remap_pfn_range(vma, vmf->address & PAGE_MASK,
+>>     756				    notify.addr >> PAGE_SHIFT, PAGE_SIZE,
+>>     757				    vma->vm_page_prot))
+>>     758			return VM_FAULT_SIGBUS;
+>>     759	
+>>     760		return VM_FAULT_NOPAGE;
+>>     761	}
+>>     762	
+> Yes well, all this remapping clearly has no chance to work
+> on systems without CONFIG_MMU.
+
+
+It looks to me mmap can work according to Documentation/nommu-mmap.txt. 
+But I'm not sure it's worth to bother.
+
+Thanks
+
+
+>
+>
+>
