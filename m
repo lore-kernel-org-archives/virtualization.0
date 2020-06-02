@@ -1,87 +1,111 @@
 From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH] vdpa: bypass waking up vhost_woker for vdpa vq kick
-Date: Tue, 2 Jun 2020 18:16:50 +0800
-Message-ID: <b8ccbccf-f667-8d15-8de2-b87da5f51ec3@redhat.com>
+Date: Tue, 2 Jun 2020 19:10:38 +0800
+Message-ID: <c2f3cd6c-6f75-15db-080e-9895a35a0456@redhat.com>
 References: <20200602094203.GU30374@kadam>
+ <b8ccbccf-f667-8d15-8de2-b87da5f51ec3@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200602094203.GU30374@kadam>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <b8ccbccf-f667-8d15-8de2-b87da5f51ec3@redhat.com>
 Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Dan Carpenter <dan.carpenter@oracle.com>, kbuild@lists.01.org, Zhu Lingshan <lingshan.zhu@intel.com>, mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Cc: kbuild-all@lists.01.org, lkp@intel.com, lulu@redhat.com
+Cc: lkp@intel.com, kbuild-all@lists.01.org, lulu@redhat.com, dan.daly@intel.com, cunming.liang@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMjAvNi8yIOS4i+WNiDU6NDIsIERhbiBDYXJwZW50ZXIgd3JvdGU6Cj4gSGkgWmh1LAo+
-Cj4gdXJsOiAgICBodHRwczovL2dpdGh1Yi5jb20vMGRheS1jaS9saW51eC9jb21taXRzL1podS1M
-aW5nc2hhbi92ZHBhLWJ5cGFzcy13YWtpbmctdXAtdmhvc3Rfd29rZXItZm9yLXZkcGEtdnEta2lj
-ay8yMDIwMDUyNi0xMzM4MTkKPiBiYXNlOiAgIGh0dHBzOi8vZ2l0Lmtlcm5lbC5vcmcvcHViL3Nj
-bS9saW51eC9rZXJuZWwvZ2l0L21zdC92aG9zdC5naXQgbGludXgtbmV4dAo+IGNvbmZpZzogeDg2
-XzY0LXJhbmRjb25maWctbTAwMS0yMDIwMDUyOSAoYXR0YWNoZWQgYXMgLmNvbmZpZykKPiBjb21w
-aWxlcjogZ2NjLTkgKERlYmlhbiA5LjMuMC0xMykgOS4zLjAKPgo+IElmIHlvdSBmaXggdGhlIGlz
-c3VlLCBraW5kbHkgYWRkIGZvbGxvd2luZyB0YWcgYXMgYXBwcm9wcmlhdGUKPiBSZXBvcnRlZC1i
-eToga2J1aWxkIHRlc3Qgcm9ib3QgPGxrcEBpbnRlbC5jb20+Cj4gUmVwb3J0ZWQtYnk6IERhbiBD
-YXJwZW50ZXIgPGRhbi5jYXJwZW50ZXJAb3JhY2xlLmNvbT4KPgo+IHNtYXRjaCB3YXJuaW5nczoK
-PiBkcml2ZXJzL3Zob3N0L3ZkcGEuYzozNDggdmhvc3RfdmRwYV9zZXRfdnJpbmdfa2ljaygpIGVy
-cm9yOiB1bmluaXRpYWxpemVkIHN5bWJvbCAncicuCj4KPiAjIGh0dHBzOi8vZ2l0aHViLmNvbS8w
-ZGF5LWNpL2xpbnV4L2NvbW1pdC9hODRkZGJmMWVmMjlmMThhYWZiMmJiOGE5M2JjZWRkNGEyOWE5
-NjdkCj4gZ2l0IHJlbW90ZSBhZGQgbGludXgtcmV2aWV3IGh0dHBzOi8vZ2l0aHViLmNvbS8wZGF5
-LWNpL2xpbnV4Cj4gZ2l0IHJlbW90ZSB1cGRhdGUgbGludXgtcmV2aWV3Cj4gZ2l0IGNoZWNrb3V0
-IGE4NGRkYmYxZWYyOWYxOGFhZmIyYmI4YTkzYmNlZGQ0YTI5YTk2N2QKPiB2aW0gKy9yICszNDgg
-ZHJpdmVycy92aG9zdC92ZHBhLmMKPgo+IGE4NGRkYmYxZWYyOWYxIFpodSBMaW5nc2hhbiAyMDIw
-LTA1LTI2ICAzMTYgIHN0YXRpYyBsb25nIHZob3N0X3ZkcGFfc2V0X3ZyaW5nX2tpY2soc3RydWN0
-IHZob3N0X3ZpcnRxdWV1ZSAqdnEsCj4gYTg0ZGRiZjFlZjI5ZjEgWmh1IExpbmdzaGFuIDIwMjAt
-MDUtMjYgIDMxNyAgCQkJCSAgICAgIHZvaWQgX191c2VyICphcmdwKQo+IGE4NGRkYmYxZWYyOWYx
-IFpodSBMaW5nc2hhbiAyMDIwLTA1LTI2ICAzMTggIHsKPiBhODRkZGJmMWVmMjlmMSBaaHUgTGlu
-Z3NoYW4gMjAyMC0wNS0yNiAgMzE5ICAJYm9vbCBwb2xsc3RhcnQgPSBmYWxzZSwgcG9sbHN0b3Ag
-PSBmYWxzZTsKPiBhODRkZGJmMWVmMjlmMSBaaHUgTGluZ3NoYW4gMjAyMC0wNS0yNiAgMzIwICAJ
-c3RydWN0IGZpbGUgKmV2ZW50ZnAsICpmaWxlcCA9IE5VTEw7Cj4gYTg0ZGRiZjFlZjI5ZjEgWmh1
-IExpbmdzaGFuIDIwMjAtMDUtMjYgIDMyMSAgCXN0cnVjdCB2aG9zdF92cmluZ19maWxlIGY7Cj4g
-YTg0ZGRiZjFlZjI5ZjEgWmh1IExpbmdzaGFuIDIwMjAtMDUtMjYgIDMyMiAgCWxvbmcgcjsKPiBh
-ODRkZGJmMWVmMjlmMSBaaHUgTGluZ3NoYW4gMjAyMC0wNS0yNiAgMzIzCj4gYTg0ZGRiZjFlZjI5
-ZjEgWmh1IExpbmdzaGFuIDIwMjAtMDUtMjYgIDMyNCAgCWlmIChjb3B5X2Zyb21fdXNlcigmZiwg
-YXJncCwgc2l6ZW9mKGYpKSkKPiBhODRkZGJmMWVmMjlmMSBaaHUgTGluZ3NoYW4gMjAyMC0wNS0y
-NiAgMzI1ICAJCXJldHVybiAtRUZBVUxUOwo+IGE4NGRkYmYxZWYyOWYxIFpodSBMaW5nc2hhbiAy
-MDIwLTA1LTI2ICAzMjYKPiBhODRkZGJmMWVmMjlmMSBaaHUgTGluZ3NoYW4gMjAyMC0wNS0yNiAg
-MzI3ICAJZXZlbnRmcCA9IGYuZmQgPT0gLTEgPyBOVUxMIDogZXZlbnRmZF9mZ2V0KGYuZmQpOwo+
-IGE4NGRkYmYxZWYyOWYxIFpodSBMaW5nc2hhbiAyMDIwLTA1LTI2ICAzMjggIAlpZiAoSVNfRVJS
-KGV2ZW50ZnApKSB7Cj4gYTg0ZGRiZjFlZjI5ZjEgWmh1IExpbmdzaGFuIDIwMjAtMDUtMjYgIDMy
-OSAgCQlyID0gUFRSX0VSUihldmVudGZwKTsKPiBhODRkZGJmMWVmMjlmMSBaaHUgTGluZ3NoYW4g
-MjAyMC0wNS0yNiAgMzMwICAJCXJldHVybiByOwo+IGE4NGRkYmYxZWYyOWYxIFpodSBMaW5nc2hh
-biAyMDIwLTA1LTI2ICAzMzEgIAl9Cj4gYTg0ZGRiZjFlZjI5ZjEgWmh1IExpbmdzaGFuIDIwMjAt
-MDUtMjYgIDMzMgo+IGE4NGRkYmYxZWYyOWYxIFpodSBMaW5nc2hhbiAyMDIwLTA1LTI2ICAzMzMg
-IAlpZiAoZXZlbnRmcCAhPSB2cS0+a2ljaykgewo+IGE4NGRkYmYxZWYyOWYxIFpodSBMaW5nc2hh
-biAyMDIwLTA1LTI2ICAzMzQgIAkJcG9sbHN0b3AgPSAoZmlsZXAgPSB2cS0+a2ljaykgIT0gTlVM
-TDsKPiBhODRkZGJmMWVmMjlmMSBaaHUgTGluZ3NoYW4gMjAyMC0wNS0yNiAgMzM1ICAJCXBvbGxz
-dGFydCA9ICh2cS0+a2ljayA9IGV2ZW50ZnApICE9IE5VTEw7Cj4gYTg0ZGRiZjFlZjI5ZjEgWmh1
-IExpbmdzaGFuIDIwMjAtMDUtMjYgIDMzNiAgCX0gZWxzZQo+IGE4NGRkYmYxZWYyOWYxIFpodSBM
-aW5nc2hhbiAyMDIwLTA1LTI2ICAzMzcgIAkJZmlsZXAgPSBldmVudGZwOwo+IGE4NGRkYmYxZWYy
-OWYxIFpodSBMaW5nc2hhbiAyMDIwLTA1LTI2ICAzMzgKPiBhODRkZGJmMWVmMjlmMSBaaHUgTGlu
-Z3NoYW4gMjAyMC0wNS0yNiAgMzM5ICAJaWYgKHBvbGxzdG9wICYmIHZxLT5oYW5kbGVfa2ljaykK
-PiBhODRkZGJmMWVmMjlmMSBaaHUgTGluZ3NoYW4gMjAyMC0wNS0yNiAgMzQwICAJCXZob3N0X3Zk
-cGFfcG9sbF9zdG9wKHZxKTsKPiBhODRkZGJmMWVmMjlmMSBaaHUgTGluZ3NoYW4gMjAyMC0wNS0y
-NiAgMzQxCj4gYTg0ZGRiZjFlZjI5ZjEgWmh1IExpbmdzaGFuIDIwMjAtMDUtMjYgIDM0MiAgCWlm
-IChmaWxlcCkKPiBhODRkZGJmMWVmMjlmMSBaaHUgTGluZ3NoYW4gMjAyMC0wNS0yNiAgMzQzICAJ
-CWZwdXQoZmlsZXApOwo+IGE4NGRkYmYxZWYyOWYxIFpodSBMaW5nc2hhbiAyMDIwLTA1LTI2ICAz
-NDQKPiBhODRkZGJmMWVmMjlmMSBaaHUgTGluZ3NoYW4gMjAyMC0wNS0yNiAgMzQ1ICAJaWYgKHBv
-bGxzdGFydCAmJiB2cS0+aGFuZGxlX2tpY2spCj4gYTg0ZGRiZjFlZjI5ZjEgWmh1IExpbmdzaGFu
-IDIwMjAtMDUtMjYgIDM0NiAgCQlyID0gdmhvc3RfdmRwYV9wb2xsX3N0YXJ0KHZxKTsKPgo+ICJy
-IiBub3QgaW5pdGlhbGl6ZWQgb24gZWxzZSBwYXRoLgo+Cj4gYTg0ZGRiZjFlZjI5ZjEgWmh1IExp
-bmdzaGFuIDIwMjAtMDUtMjYgIDM0Nwo+IGE4NGRkYmYxZWYyOWYxIFpodSBMaW5nc2hhbiAyMDIw
-LTA1LTI2IEAzNDggIAlyZXR1cm4gcjsKPiBhODRkZGJmMWVmMjlmMSBaaHUgTGluZ3NoYW4gMjAy
-MC0wNS0yNiAgMzQ5ICB9CgoKV2lsbCBmaXguCgpUaGFua3MKCgo+IC0tLQo+IDAtREFZIENJIEtl
-cm5lbCBUZXN0IFNlcnZpY2UsIEludGVsIENvcnBvcmF0aW9uCj4gaHR0cHM6Ly9saXN0cy4wMS5v
-cmcvaHlwZXJraXR0eS9saXN0L2tidWlsZC1hbGxAbGlzdHMuMDEub3JnCgpfX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
-IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
-aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+
+On 2020/6/2 下午6:16, Jason Wang wrote:
+>
+> On 2020/6/2 下午5:42, Dan Carpenter wrote:
+>> Hi Zhu,
+>>
+>> url: 
+>> https://github.com/0day-ci/linux/commits/Zhu-Lingshan/vdpa-bypass-waking-up-vhost_woker-for-vdpa-vq-kick/20200526-133819 
+>>
+>> base: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git 
+>> linux-next
+>> config: x86_64-randconfig-m001-20200529 (attached as .config)
+>> compiler: gcc-9 (Debian 9.3.0-13) 9.3.0
+>>
+>> If you fix the issue, kindly add following tag as appropriate
+>> Reported-by: kbuild test robot <lkp@intel.com>
+>> Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+>>
+>> smatch warnings:
+>> drivers/vhost/vdpa.c:348 vhost_vdpa_set_vring_kick() error: 
+>> uninitialized symbol 'r'.
+>>
+>> # 
+>> https://github.com/0day-ci/linux/commit/a84ddbf1ef29f18aafb2bb8a93bcedd4a29a967d 
+>>
+>> git remote add linux-review https://github.com/0day-ci/linux
+>> git remote update linux-review
+>> git checkout a84ddbf1ef29f18aafb2bb8a93bcedd4a29a967d
+>> vim +/r +348 drivers/vhost/vdpa.c
+>>
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  316  static long 
+>> vhost_vdpa_set_vring_kick(struct vhost_virtqueue *vq,
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26 317                        
+>> void __user *argp)
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  318  {
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  319      bool pollstart = 
+>> false, pollstop = false;
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  320      struct file 
+>> *eventfp, *filep = NULL;
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  321      struct 
+>> vhost_vring_file f;
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  322      long r;
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  323
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  324      if 
+>> (copy_from_user(&f, argp, sizeof(f)))
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  325          return -EFAULT;
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  326
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  327      eventfp = f.fd == -1 
+>> ? NULL : eventfd_fget(f.fd);
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  328      if (IS_ERR(eventfp)) {
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  329          r = 
+>> PTR_ERR(eventfp);
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  330          return r;
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  331      }
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  332
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  333      if (eventfp != 
+>> vq->kick) {
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  334          pollstop = 
+>> (filep = vq->kick) != NULL;
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  335          pollstart = 
+>> (vq->kick = eventfp) != NULL;
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  336      } else
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  337          filep = eventfp;
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  338
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  339      if (pollstop && 
+>> vq->handle_kick)
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  340 vhost_vdpa_poll_stop(vq);
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  341
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  342      if (filep)
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  343 fput(filep);
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  344
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  345      if (pollstart && 
+>> vq->handle_kick)
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  346          r = 
+>> vhost_vdpa_poll_start(vq);
+>>
+>> "r" not initialized on else path.
+>>
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  347
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26 @348      return r;
+>> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  349  }
+>
+>
+> Will fix.
+>
+> Thanks 
+
+
+Lingshan reminds me that we've posted V2 which reuses the vhost.c 
+implementation for polling.
+
+So there's no need for the fix.
+
+Thanks
