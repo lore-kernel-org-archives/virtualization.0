@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC 09/13] vhost/net: avoid iov length math
-Date: Tue, 2 Jun 2020 09:06:15 -0400
-Message-ID: <20200602130543.578420-10-mst@redhat.com>
+Subject: [PATCH RFC 10/13] vhost/test: convert to the buf API
+Date: Tue, 2 Jun 2020 09:06:17 -0400
+Message-ID: <20200602130543.578420-11-mst@redhat.com>
 References: <20200602130543.578420-1-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,48 +22,65 @@ To: linux-kernel@vger.kernel.org
 Cc: Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now that API exposes buffer length, we no longer need to
-scan IOVs to figure it out.
-
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/vhost/net.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/vhost/test.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 47af3d1ce3dd..36843058182b 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -607,11 +607,9 @@ static bool vhost_exceeds_maxpend(struct vhost_net *net)
- }
- 
- static size_t init_iov_iter(struct vhost_virtqueue *vq, struct iov_iter *iter,
--			    size_t hdr_size, int out)
-+			    size_t len, size_t hdr_size, int out)
+diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
+index 02806d6f84ef..251fd2bf74a3 100644
+--- a/drivers/vhost/test.c
++++ b/drivers/vhost/test.c
+@@ -44,9 +44,10 @@ static void handle_vq(struct vhost_test *n)
  {
- 	/* Skip header. TODO: support TSO. */
--	size_t len = iov_length(vq->iov, out);
--
- 	iov_iter_init(iter, WRITE, vq->iov, out, len);
- 	iov_iter_advance(iter, hdr_size);
+ 	struct vhost_virtqueue *vq = &n->vqs[VHOST_TEST_VQ];
+ 	unsigned out, in;
+-	int head;
++	int ret;
+ 	size_t len, total_len = 0;
+ 	void *private;
++	struct vhost_buf buf;
  
-@@ -640,7 +638,7 @@ static int get_tx_bufs(struct vhost_net *net,
- 	}
+ 	mutex_lock(&vq->mutex);
+ 	private = vhost_vq_get_backend(vq);
+@@ -58,15 +59,15 @@ static void handle_vq(struct vhost_test *n)
+ 	vhost_disable_notify(&n->dev, vq);
  
- 	/* Sanity check */
--	*len = init_iov_iter(vq, &msg->msg_iter, nvq->vhost_hlen, *out);
-+	*len = init_iov_iter(vq, &msg->msg_iter, buf->out_len, nvq->vhost_hlen, *out);
- 	if (*len == 0) {
- 		vq_err(vq, "Unexpected header len for TX: %zd expected %zd\n",
- 			*len, nvq->vhost_hlen);
-@@ -1080,7 +1078,7 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
- 			nlogs += *log_num;
- 			log += *log_num;
+ 	for (;;) {
+-		head = vhost_get_vq_desc(vq, vq->iov,
+-					 ARRAY_SIZE(vq->iov),
+-					 &out, &in,
+-					 NULL, NULL);
++		ret = vhost_get_avail_buf(vq, vq->iov, &buf,
++					  ARRAY_SIZE(vq->iov),
++					  &out, &in,
++					  NULL, NULL);
+ 		/* On error, stop handling until the next kick. */
+-		if (unlikely(head < 0))
++		if (unlikely(ret < 0))
+ 			break;
+ 		/* Nothing new?  Wait for eventfd to tell us they refilled. */
+-		if (head == vq->num) {
++		if (!ret) {
+ 			if (unlikely(vhost_enable_notify(&n->dev, vq))) {
+ 				vhost_disable_notify(&n->dev, vq);
+ 				continue;
+@@ -78,13 +79,14 @@ static void handle_vq(struct vhost_test *n)
+ 			       "out %d, int %d\n", out, in);
+ 			break;
  		}
--		len = iov_length(vq->iov + seg, in);
-+		len = bufs[bufcount].in_len;
- 		datalen -= len;
- 		++bufcount;
- 		seg += in;
+-		len = iov_length(vq->iov, out);
++		len = buf.out_len;
+ 		/* Sanity check */
+ 		if (!len) {
+ 			vq_err(vq, "Unexpected 0 len for TX\n");
+ 			break;
+ 		}
+-		vhost_add_used_and_signal(&n->dev, vq, head, 0);
++		vhost_put_used_buf(vq, &buf);
++		vhost_signal(&n->dev, vq);
+ 		total_len += len;
+ 		if (unlikely(vhost_exceeds_weight(vq, 0, total_len)))
+ 			break;
 -- 
 MST
