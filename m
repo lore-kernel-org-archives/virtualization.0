@@ -1,34 +1,65 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH v3 70/75] x86/head/64: Setup TSS early for secondary CPUs
-Date: Tue, 2 Jun 2020 17:46:11 +0200
-Message-ID: <20200602154611.GC11634@zn.tnic>
-References: <20200428151725.31091-1-joro@8bytes.org>
- <20200428151725.31091-71-joro@8bytes.org>
+From: Jerry Snitselaar <jsnitsel@redhat.com>
+Subject: Re: [PATCH v2 00/33] iommu: Move iommu_group setup to IOMMU core code
+Date: Tue, 2 Jun 2020 09:38:06 -0700
+Message-ID: <20200602163806.o5dpj2tpemwdzyiw@cantor>
+References: <20200414131542.25608-1-joro@8bytes.org>
+ <20200529221623.qc6twmpzryh7nkvb@cantor>
+ <20200601104240.7f5xhz7gooqhaq4n@cantor>
+ <47711845-98ee-95b8-aa95-423a36ed9741@linux.intel.com>
+ <20200602000236.j4m3jvluzdhjngdc@cantor>
+ <20200602142312.GJ14598@8bytes.org>
+Reply-To: Jerry Snitselaar <jsnitsel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Return-path: <linux-arm-msm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200428151725.31091-71-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20200602142312.GJ14598@8bytes.org>
+Sender: linux-arm-msm-owner@vger.kernel.org
 To: Joerg Roedel <joro@8bytes.org>
-Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Lu Baolu <baolu.lu@linux.intel.com>, Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, linux-s390@vger.kernel.org, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org, virtualiza
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 28, 2020 at 05:17:20PM +0200, Joerg Roedel wrote:
-> From: Joerg Roedel <jroedel@suse.de>
-> 
-> The #VC exception will trigger very early in head_64.S, when the first
-> CPUID instruction is executed. When secondary CPUs boot, they already
-> load the real system IDT, which has the #VC handler configured to be
-> using an IST stack. IST stacks require a TSS to be loaded, to set up the
-> TSS early for bringing up the secondary CPUs. Use the RW version of
-> early, until cpu_init() switches to the RO mapping.
+On Tue Jun 02 20, Joerg Roedel wrote:
+>Hi Jerry,
+>
+>On Mon, Jun 01, 2020 at 05:02:36PM -0700, Jerry Snitselaar wrote:
+>>
+>> Yeah, that will solve the panic.
+>>
+>
+>If you still see the kdump faults, can you please try with the attached
+>diff? I was not able to reproduce them in my setup.
+>
+>Regards,
+>
+>	Joerg
+>
 
-I think you wanna say "Use the read-write version of the per-CPU TSS struct
-early." here.
+I have another hp proliant server now, and reproduced. I will have the
+patch below tested shortly. Minor change, I switched group->domain to
+domain since group isn't an argument, and *data being passed in comes
+from group->domain anyways.
 
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+>diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+>index b5ea203f6c68..5a6d509f72b6 100644
+>--- a/drivers/iommu/iommu.c
+>+++ b/drivers/iommu/iommu.c
+>@@ -1680,8 +1680,12 @@ static void probe_alloc_default_domain(struct bus_type *bus,
+> static int iommu_group_do_dma_attach(struct device *dev, void *data)
+> {
+> 	struct iommu_domain *domain = data;
+>+	int ret = 0;
+>
+>-	return __iommu_attach_device(domain, dev);
+>+	if (!iommu_is_attach_deferred(group->domain, dev))
+>+		ret = __iommu_attach_device(group->domain, dev);
+>+
+>+	return ret;
+> }
+>
+> static int __iommu_group_dma_attach(struct iommu_group *group)
+>_______________________________________________
+>iommu mailing list
+>iommu@lists.linux-foundation.org
+>https://lists.linuxfoundation.org/mailman/listinfo/iommu
+>
