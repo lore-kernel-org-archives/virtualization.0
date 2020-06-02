@@ -1,111 +1,69 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] vdpa: bypass waking up vhost_woker for vdpa vq kick
-Date: Tue, 2 Jun 2020 19:10:38 +0800
-Message-ID: <c2f3cd6c-6f75-15db-080e-9895a35a0456@redhat.com>
-References: <20200602094203.GU30374@kadam>
- <b8ccbccf-f667-8d15-8de2-b87da5f51ec3@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH RFC 00/13] vhost: format independence
+Date: Tue, 2 Jun 2020 09:05:54 -0400
+Message-ID: <20200602130543.578420-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <b8ccbccf-f667-8d15-8de2-b87da5f51ec3@redhat.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>, kbuild@lists.01.org, Zhu Lingshan <lingshan.zhu@intel.com>, mst@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Cc: lkp@intel.com, kbuild-all@lists.01.org, lulu@redhat.com, dan.daly@intel.com, cunming.liang@intel.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: linux-kernel@vger.kernel.org
+Cc: Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+We let the specifics of the ring format seep through to vhost API
+callers - mostly because there was only one format so it was
+hard to imagine what an independent API would look like.
+Now that there's an alternative in form of the packed ring,
+it's easier to see the issues, and fixing them is perhaps
+the cleanest way to add support for more formats.
 
-On 2020/6/2 下午6:16, Jason Wang wrote:
->
-> On 2020/6/2 下午5:42, Dan Carpenter wrote:
->> Hi Zhu,
->>
->> url: 
->> https://github.com/0day-ci/linux/commits/Zhu-Lingshan/vdpa-bypass-waking-up-vhost_woker-for-vdpa-vq-kick/20200526-133819 
->>
->> base: https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git 
->> linux-next
->> config: x86_64-randconfig-m001-20200529 (attached as .config)
->> compiler: gcc-9 (Debian 9.3.0-13) 9.3.0
->>
->> If you fix the issue, kindly add following tag as appropriate
->> Reported-by: kbuild test robot <lkp@intel.com>
->> Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
->>
->> smatch warnings:
->> drivers/vhost/vdpa.c:348 vhost_vdpa_set_vring_kick() error: 
->> uninitialized symbol 'r'.
->>
->> # 
->> https://github.com/0day-ci/linux/commit/a84ddbf1ef29f18aafb2bb8a93bcedd4a29a967d 
->>
->> git remote add linux-review https://github.com/0day-ci/linux
->> git remote update linux-review
->> git checkout a84ddbf1ef29f18aafb2bb8a93bcedd4a29a967d
->> vim +/r +348 drivers/vhost/vdpa.c
->>
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  316  static long 
->> vhost_vdpa_set_vring_kick(struct vhost_virtqueue *vq,
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26 317                        
->> void __user *argp)
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  318  {
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  319      bool pollstart = 
->> false, pollstop = false;
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  320      struct file 
->> *eventfp, *filep = NULL;
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  321      struct 
->> vhost_vring_file f;
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  322      long r;
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  323
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  324      if 
->> (copy_from_user(&f, argp, sizeof(f)))
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  325          return -EFAULT;
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  326
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  327      eventfp = f.fd == -1 
->> ? NULL : eventfd_fget(f.fd);
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  328      if (IS_ERR(eventfp)) {
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  329          r = 
->> PTR_ERR(eventfp);
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  330          return r;
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  331      }
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  332
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  333      if (eventfp != 
->> vq->kick) {
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  334          pollstop = 
->> (filep = vq->kick) != NULL;
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  335          pollstart = 
->> (vq->kick = eventfp) != NULL;
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  336      } else
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  337          filep = eventfp;
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  338
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  339      if (pollstop && 
->> vq->handle_kick)
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  340 vhost_vdpa_poll_stop(vq);
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  341
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  342      if (filep)
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  343 fput(filep);
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  344
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  345      if (pollstart && 
->> vq->handle_kick)
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  346          r = 
->> vhost_vdpa_poll_start(vq);
->>
->> "r" not initialized on else path.
->>
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  347
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26 @348      return r;
->> a84ddbf1ef29f1 Zhu Lingshan 2020-05-26  349  }
->
->
-> Will fix.
->
-> Thanks 
+This patchset does this by indtroducing two new structures: vhost_buf to
+represent a buffer and vhost_desc to represent a descriptor.
+Descriptors aren't normally of interest to devices but do occationally
+get exposed e.g. for logging.
 
+Perhaps surprisingly, the higher level API actually makes things a bit
+easier for callers, as well as allows more freedom for the vhost core.
+The end result is basically unchanged performance (based on preliminary
+testing) even though we are forced to go through a format conversion.
 
-Lingshan reminds me that we've posted V2 which reuses the vhost.c 
-implementation for polling.
+The conversion also exposed (more) bugs in vhost scsi - which isn't
+really surprising, that driver needs a lot more love than it's getting.
 
-So there's no need for the fix.
+Very lightly tested. Would appreciate feedback and testing.
 
-Thanks
+Michael S. Tsirkin (13):
+  vhost: option to fetch descriptors through an independent struct
+  vhost: use batched version by default
+  vhost: batching fetches
+  vhost: cleanup fetch_buf return code handling
+  vhost/net: pass net specific struct pointer
+  vhost: reorder functions
+  vhost: format-independent API for used buffers
+  vhost/net: convert to new API: heads->bufs
+  vhost/net: avoid iov length math
+  vhost/test: convert to the buf API
+  vhost/scsi: switch to buf APIs
+  vhost/vsock: switch to the buf API
+  vhost: drop head based APIs
+
+ drivers/vhost/net.c   | 173 +++++++++----------
+ drivers/vhost/scsi.c  |  73 ++++----
+ drivers/vhost/test.c  |  22 +--
+ drivers/vhost/vhost.c | 375 +++++++++++++++++++++++++++---------------
+ drivers/vhost/vhost.h |  46 ++++--
+ drivers/vhost/vsock.c |  30 ++--
+ 6 files changed, 436 insertions(+), 283 deletions(-)
+
+-- 
+MST
