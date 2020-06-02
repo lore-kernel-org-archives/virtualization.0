@@ -1,420 +1,206 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC 01/13] vhost: option to fetch descriptors through an
- independent struct
-Date: Tue, 2 Jun 2020 09:05:56 -0400
-Message-ID: <20200602130543.578420-2-mst@redhat.com>
+Subject: [PATCH RFC 02/13] vhost: use batched version by default
+Date: Tue, 2 Jun 2020 09:05:59 -0400
+Message-ID: <20200602130543.578420-3-mst@redhat.com>
 References: <20200602130543.578420-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200602130543.578420-1-mst@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: linux-kernel@vger.kernel.org
-Cc: Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc: Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-The idea is to support multiple ring formats by converting
-to a format-independent array of descriptors.
-
-This costs extra cycles, but we gain in ability
-to fetch a batch of descriptors in one go, which
-is good for code cache locality.
-
-When used, this causes a minor performance degradation,
-it's been kept as simple as possible for ease of review.
-A follow-up patch gets us back the performance by adding batching.
-
-To simplify benchmarking, I kept the old code around so one can switch
-back and forth between old and new code. This will go away in the final
-submission.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
-Link: https://lore.kernel.org/r/20200401183118.8334-2-eperezma@redhat.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/vhost/vhost.c | 297 +++++++++++++++++++++++++++++++++++++++++-
- drivers/vhost/vhost.h |  16 +++
- 2 files changed, 312 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 96d9871fa0cb..105fc97af2c8 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -298,6 +298,7 @@ static void vhost_vq_reset(struct vhost_dev *dev,
- 			   struct vhost_virtqueue *vq)
- {
- 	vq->num = 1;
-+	vq->ndescs = 0;
- 	vq->desc = NULL;
- 	vq->avail = NULL;
- 	vq->used = NULL;
-@@ -368,6 +369,9 @@ static int vhost_worker(void *data)
- 
- static void vhost_vq_free_iovecs(struct vhost_virtqueue *vq)
- {
-+	kfree(vq->descs);
-+	vq->descs = NULL;
-+	vq->max_descs = 0;
- 	kfree(vq->indirect);
- 	vq->indirect = NULL;
- 	kfree(vq->log);
-@@ -384,6 +388,10 @@ static long vhost_dev_alloc_iovecs(struct vhost_dev *dev)
- 
- 	for (i = 0; i < dev->nvqs; ++i) {
- 		vq = dev->vqs[i];
-+		vq->max_descs = dev->iov_limit;
-+		vq->descs = kmalloc_array(vq->max_descs,
-+					  sizeof(*vq->descs),
-+					  GFP_KERNEL);
- 		vq->indirect = kmalloc_array(UIO_MAXIOV,
- 					     sizeof(*vq->indirect),
- 					     GFP_KERNEL);
-@@ -391,7 +399,7 @@ static long vhost_dev_alloc_iovecs(struct vhost_dev *dev)
- 					GFP_KERNEL);
- 		vq->heads = kmalloc_array(dev->iov_limit, sizeof(*vq->heads),
- 					  GFP_KERNEL);
--		if (!vq->indirect || !vq->log || !vq->heads)
-+		if (!vq->indirect || !vq->log || !vq->heads || !vq->descs)
- 			goto err_nomem;
- 	}
- 	return 0;
-@@ -2277,6 +2285,293 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
- }
- EXPORT_SYMBOL_GPL(vhost_get_vq_desc);
- 
-+static struct vhost_desc *peek_split_desc(struct vhost_virtqueue *vq)
-+{
-+	BUG_ON(!vq->ndescs);
-+	return &vq->descs[vq->ndescs - 1];
-+}
-+
-+static void pop_split_desc(struct vhost_virtqueue *vq)
-+{
-+	BUG_ON(!vq->ndescs);
-+	--vq->ndescs;
-+}
-+
-+#define VHOST_DESC_FLAGS (VRING_DESC_F_INDIRECT | VRING_DESC_F_WRITE | \
-+			  VRING_DESC_F_NEXT)
-+static int push_split_desc(struct vhost_virtqueue *vq, struct vring_desc *desc, u16 id)
-+{
-+	struct vhost_desc *h;
-+
-+	if (unlikely(vq->ndescs >= vq->max_descs))
-+		return -EINVAL;
-+	h = &vq->descs[vq->ndescs++];
-+	h->addr = vhost64_to_cpu(vq, desc->addr);
-+	h->len = vhost32_to_cpu(vq, desc->len);
-+	h->flags = vhost16_to_cpu(vq, desc->flags) & VHOST_DESC_FLAGS;
-+	h->id = id;
-+
-+	return 0;
-+}
-+
-+static int fetch_indirect_descs(struct vhost_virtqueue *vq,
-+				struct vhost_desc *indirect,
-+				u16 head)
-+{
-+	struct vring_desc desc;
-+	unsigned int i = 0, count, found = 0;
-+	u32 len = indirect->len;
-+	struct iov_iter from;
-+	int ret;
-+
-+	/* Sanity check */
-+	if (unlikely(len % sizeof desc)) {
-+		vq_err(vq, "Invalid length in indirect descriptor: "
-+		       "len 0x%llx not multiple of 0x%zx\n",
-+		       (unsigned long long)len,
-+		       sizeof desc);
-+		return -EINVAL;
-+	}
-+
-+	ret = translate_desc(vq, indirect->addr, len, vq->indirect,
-+			     UIO_MAXIOV, VHOST_ACCESS_RO);
-+	if (unlikely(ret < 0)) {
-+		if (ret != -EAGAIN)
-+			vq_err(vq, "Translation failure %d in indirect.\n", ret);
-+		return ret;
-+	}
-+	iov_iter_init(&from, READ, vq->indirect, ret, len);
-+
-+	/* We will use the result as an address to read from, so most
-+	 * architectures only need a compiler barrier here. */
-+	read_barrier_depends();
-+
-+	count = len / sizeof desc;
-+	/* Buffers are chained via a 16 bit next field, so
-+	 * we can have at most 2^16 of these. */
-+	if (unlikely(count > USHRT_MAX + 1)) {
-+		vq_err(vq, "Indirect buffer length too big: %d\n",
-+		       indirect->len);
-+		return -E2BIG;
-+	}
-+	if (unlikely(vq->ndescs + count > vq->max_descs)) {
-+		vq_err(vq, "Too many indirect + direct descs: %d + %d\n",
-+		       vq->ndescs, indirect->len);
-+		return -E2BIG;
-+	}
-+
-+	do {
-+		if (unlikely(++found > count)) {
-+			vq_err(vq, "Loop detected: last one at %u "
-+			       "indirect size %u\n",
-+			       i, count);
-+			return -EINVAL;
-+		}
-+		if (unlikely(!copy_from_iter_full(&desc, sizeof(desc), &from))) {
-+			vq_err(vq, "Failed indirect descriptor: idx %d, %zx\n",
-+			       i, (size_t)indirect->addr + i * sizeof desc);
-+			return -EINVAL;
-+		}
-+		if (unlikely(desc.flags & cpu_to_vhost16(vq, VRING_DESC_F_INDIRECT))) {
-+			vq_err(vq, "Nested indirect descriptor: idx %d, %zx\n",
-+			       i, (size_t)indirect->addr + i * sizeof desc);
-+			return -EINVAL;
-+		}
-+
-+		push_split_desc(vq, &desc, head);
-+	} while ((i = next_desc(vq, &desc)) != -1);
-+	return 0;
-+}
-+
-+static int fetch_descs(struct vhost_virtqueue *vq)
-+{
-+	unsigned int i, head, found = 0;
-+	struct vhost_desc *last;
-+	struct vring_desc desc;
-+	__virtio16 avail_idx;
-+	__virtio16 ring_head;
-+	u16 last_avail_idx;
-+	int ret;
-+
-+	/* Check it isn't doing very strange things with descriptor numbers. */
-+	last_avail_idx = vq->last_avail_idx;
-+
-+	if (vq->avail_idx == vq->last_avail_idx) {
-+		if (unlikely(vhost_get_avail_idx(vq, &avail_idx))) {
-+			vq_err(vq, "Failed to access avail idx at %p\n",
-+				&vq->avail->idx);
-+			return -EFAULT;
-+		}
-+		vq->avail_idx = vhost16_to_cpu(vq, avail_idx);
-+
-+		if (unlikely((u16)(vq->avail_idx - last_avail_idx) > vq->num)) {
-+			vq_err(vq, "Guest moved used index from %u to %u",
-+				last_avail_idx, vq->avail_idx);
-+			return -EFAULT;
-+		}
-+
-+		/* If there's nothing new since last we looked, return
-+		 * invalid.
-+		 */
-+		if (vq->avail_idx == last_avail_idx)
-+			return vq->num;
-+
-+		/* Only get avail ring entries after they have been
-+		 * exposed by guest.
-+		 */
-+		smp_rmb();
-+	}
-+
-+	/* Grab the next descriptor number they're advertising */
-+	if (unlikely(vhost_get_avail_head(vq, &ring_head, last_avail_idx))) {
-+		vq_err(vq, "Failed to read head: idx %d address %p\n",
-+		       last_avail_idx,
-+		       &vq->avail->ring[last_avail_idx % vq->num]);
-+		return -EFAULT;
-+	}
-+
-+	head = vhost16_to_cpu(vq, ring_head);
-+
-+	/* If their number is silly, that's an error. */
-+	if (unlikely(head >= vq->num)) {
-+		vq_err(vq, "Guest says index %u > %u is available",
-+		       head, vq->num);
-+		return -EINVAL;
-+	}
-+
-+	i = head;
-+	do {
-+		if (unlikely(i >= vq->num)) {
-+			vq_err(vq, "Desc index is %u > %u, head = %u",
-+			       i, vq->num, head);
-+			return -EINVAL;
-+		}
-+		if (unlikely(++found > vq->num)) {
-+			vq_err(vq, "Loop detected: last one at %u "
-+			       "vq size %u head %u\n",
-+			       i, vq->num, head);
-+			return -EINVAL;
-+		}
-+		ret = vhost_get_desc(vq, &desc, i);
-+		if (unlikely(ret)) {
-+			vq_err(vq, "Failed to get descriptor: idx %d addr %p\n",
-+			       i, vq->desc + i);
-+			return -EFAULT;
-+		}
-+		ret = push_split_desc(vq, &desc, head);
-+		if (unlikely(ret)) {
-+			vq_err(vq, "Failed to save descriptor: idx %d\n", i);
-+			return -EINVAL;
-+		}
-+	} while ((i = next_desc(vq, &desc)) != -1);
-+
-+	last = peek_split_desc(vq);
-+	if (unlikely(last->flags & VRING_DESC_F_INDIRECT)) {
-+		pop_split_desc(vq);
-+		ret = fetch_indirect_descs(vq, last, head);
-+		if (unlikely(ret < 0)) {
-+			if (ret != -EAGAIN)
-+				vq_err(vq, "Failure detected "
-+				       "in indirect descriptor at idx %d\n", head);
-+			return ret;
-+		}
-+	}
-+
-+	/* Assume notifications from guest are disabled at this point,
-+	 * if they aren't we would need to update avail_event index. */
-+	BUG_ON(!(vq->used_flags & VRING_USED_F_NO_NOTIFY));
-+
-+	/* On success, increment avail index. */
-+	vq->last_avail_idx++;
-+
-+	return 0;
-+}
-+
-+/* This looks in the virtqueue and for the first available buffer, and converts
-+ * it to an iovec for convenient access.  Since descriptors consist of some
-+ * number of output then some number of input descriptors, it's actually two
-+ * iovecs, but we pack them into one and note how many of each there were.
-+ *
-+ * This function returns the descriptor number found, or vq->num (which is
-+ * never a valid descriptor number) if none was found.  A negative code is
-+ * returned on error. */
-+int vhost_get_vq_desc_batch(struct vhost_virtqueue *vq,
-+		      struct iovec iov[], unsigned int iov_size,
-+		      unsigned int *out_num, unsigned int *in_num,
-+		      struct vhost_log *log, unsigned int *log_num)
-+{
-+	int ret = fetch_descs(vq);
-+	int i;
-+
-+	if (ret)
-+		return ret;
-+
-+	/* Now convert to IOV */
-+	/* When we start there are none of either input nor output. */
-+	*out_num = *in_num = 0;
-+	if (unlikely(log))
-+		*log_num = 0;
-+
-+	for (i = 0; i < vq->ndescs; ++i) {
-+		unsigned iov_count = *in_num + *out_num;
-+		struct vhost_desc *desc = &vq->descs[i];
-+		int access;
-+
-+		if (desc->flags & ~VHOST_DESC_FLAGS) {
-+			vq_err(vq, "Unexpected flags: 0x%x at descriptor id 0x%x\n",
-+			       desc->flags, desc->id);
-+			ret = -EINVAL;
-+			goto err;
-+		}
-+		if (desc->flags & VRING_DESC_F_WRITE)
-+			access = VHOST_ACCESS_WO;
-+		else
-+			access = VHOST_ACCESS_RO;
-+		ret = translate_desc(vq, desc->addr,
-+				     desc->len, iov + iov_count,
-+				     iov_size - iov_count, access);
-+		if (unlikely(ret < 0)) {
-+			if (ret != -EAGAIN)
-+				vq_err(vq, "Translation failure %d descriptor idx %d\n",
-+					ret, i);
-+			goto err;
-+		}
-+		if (access == VHOST_ACCESS_WO) {
-+			/* If this is an input descriptor,
-+			 * increment that count. */
-+			*in_num += ret;
-+			if (unlikely(log && ret)) {
-+				log[*log_num].addr = desc->addr;
-+				log[*log_num].len = desc->len;
-+				++*log_num;
-+			}
-+		} else {
-+			/* If it's an output descriptor, they're all supposed
-+			 * to come before any input descriptors. */
-+			if (unlikely(*in_num)) {
-+				vq_err(vq, "Descriptor has out after in: "
-+				       "idx %d\n", i);
-+				ret = -EINVAL;
-+				goto err;
-+			}
-+			*out_num += ret;
-+		}
-+
-+		ret = desc->id;
-+	}
-+
-+	vq->ndescs = 0;
-+
-+	return ret;
-+
-+err:
-+	vhost_discard_vq_desc(vq, 1);
-+	vq->ndescs = 0;
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(vhost_get_vq_desc_batch);
-+
- /* Reverse the effect of vhost_get_vq_desc. Useful for error handling. */
- void vhost_discard_vq_desc(struct vhost_virtqueue *vq, int n)
- {
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 60cab4c78229..0976a2853935 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -60,6 +60,13 @@ enum vhost_uaddr_type {
- 	VHOST_NUM_ADDRS = 3,
- };
- 
-+struct vhost_desc {
-+	u64 addr;
-+	u32 len;
-+	u16 flags; /* VRING_DESC_F_WRITE, VRING_DESC_F_NEXT */
-+	u16 id;
-+};
-+
- /* The virtqueue structure describes a queue attached to a device. */
- struct vhost_virtqueue {
- 	struct vhost_dev *dev;
-@@ -71,6 +78,11 @@ struct vhost_virtqueue {
- 	vring_avail_t __user *avail;
- 	vring_used_t __user *used;
- 	const struct vhost_iotlb_map *meta_iotlb[VHOST_NUM_ADDRS];
-+
-+	struct vhost_desc *descs;
-+	int ndescs;
-+	int max_descs;
-+
- 	struct file *kick;
- 	struct eventfd_ctx *call_ctx;
- 	struct eventfd_ctx *error_ctx;
-@@ -175,6 +187,10 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *arg
- bool vhost_vq_access_ok(struct vhost_virtqueue *vq);
- bool vhost_log_access_ok(struct vhost_dev *);
- 
-+int vhost_get_vq_desc_batch(struct vhost_virtqueue *,
-+		      struct iovec iov[], unsigned int iov_count,
-+		      unsigned int *out_num, unsigned int *in_num,
-+		      struct vhost_log *log, unsigned int *log_num);
- int vhost_get_vq_desc(struct vhost_virtqueue *,
- 		      struct iovec iov[], unsigned int iov_count,
- 		      unsigned int *out_num, unsigned int *in_num,
--- 
-MST
+QXMgdGVzdGluZyBzaG93cyBubyBwZXJmb3JtYW5jZSBjaGFuZ2UsIHN3aXRjaCB0byB0aGF0IG5v
+dy4KClNpZ25lZC1vZmYtYnk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5jb20+ClNp
+Z25lZC1vZmYtYnk6IEV1Z2VuaW8gUMOpcmV6IDxlcGVyZXptYUByZWRoYXQuY29tPgpMaW5rOiBo
+dHRwczovL2xvcmUua2VybmVsLm9yZy9yLzIwMjAwNDAxMTgzMTE4LjgzMzQtMy1lcGVyZXptYUBy
+ZWRoYXQuY29tClNpZ25lZC1vZmYtYnk6IE1pY2hhZWwgUy4gVHNpcmtpbiA8bXN0QHJlZGhhdC5j
+b20+Ci0tLQogZHJpdmVycy92aG9zdC92aG9zdC5jIHwgMjUxICstLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLQogZHJpdmVycy92aG9zdC92aG9zdC5oIHwgICA0IC0KIDIg
+ZmlsZXMgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspLCAyNTMgZGVsZXRpb25zKC0pCgpkaWZmIC0t
+Z2l0IGEvZHJpdmVycy92aG9zdC92aG9zdC5jIGIvZHJpdmVycy92aG9zdC92aG9zdC5jCmluZGV4
+IDEwNWZjOTdhZjJjOC4uOGY5YTA3MjgyNjI1IDEwMDY0NAotLS0gYS9kcml2ZXJzL3Zob3N0L3Zo
+b3N0LmMKKysrIGIvZHJpdmVycy92aG9zdC92aG9zdC5jCkBAIC0yMDM4LDI1MyArMjAzOCw2IEBA
+IHN0YXRpYyB1bnNpZ25lZCBuZXh0X2Rlc2Moc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEsIHN0
+cnVjdCB2cmluZ19kZXNjICpkZXNjKQogCXJldHVybiBuZXh0OwogfQogCi1zdGF0aWMgaW50IGdl
+dF9pbmRpcmVjdChzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSwKLQkJCXN0cnVjdCBpb3ZlYyBp
+b3ZbXSwgdW5zaWduZWQgaW50IGlvdl9zaXplLAotCQkJdW5zaWduZWQgaW50ICpvdXRfbnVtLCB1
+bnNpZ25lZCBpbnQgKmluX251bSwKLQkJCXN0cnVjdCB2aG9zdF9sb2cgKmxvZywgdW5zaWduZWQg
+aW50ICpsb2dfbnVtLAotCQkJc3RydWN0IHZyaW5nX2Rlc2MgKmluZGlyZWN0KQotewotCXN0cnVj
+dCB2cmluZ19kZXNjIGRlc2M7Ci0JdW5zaWduZWQgaW50IGkgPSAwLCBjb3VudCwgZm91bmQgPSAw
+OwotCXUzMiBsZW4gPSB2aG9zdDMyX3RvX2NwdSh2cSwgaW5kaXJlY3QtPmxlbik7Ci0Jc3RydWN0
+IGlvdl9pdGVyIGZyb207Ci0JaW50IHJldCwgYWNjZXNzOwotCi0JLyogU2FuaXR5IGNoZWNrICov
+Ci0JaWYgKHVubGlrZWx5KGxlbiAlIHNpemVvZiBkZXNjKSkgewotCQl2cV9lcnIodnEsICJJbnZh
+bGlkIGxlbmd0aCBpbiBpbmRpcmVjdCBkZXNjcmlwdG9yOiAiCi0JCSAgICAgICAibGVuIDB4JWxs
+eCBub3QgbXVsdGlwbGUgb2YgMHglenhcbiIsCi0JCSAgICAgICAodW5zaWduZWQgbG9uZyBsb25n
+KWxlbiwKLQkJICAgICAgIHNpemVvZiBkZXNjKTsKLQkJcmV0dXJuIC1FSU5WQUw7Ci0JfQotCi0J
+cmV0ID0gdHJhbnNsYXRlX2Rlc2ModnEsIHZob3N0NjRfdG9fY3B1KHZxLCBpbmRpcmVjdC0+YWRk
+ciksIGxlbiwgdnEtPmluZGlyZWN0LAotCQkJICAgICBVSU9fTUFYSU9WLCBWSE9TVF9BQ0NFU1Nf
+Uk8pOwotCWlmICh1bmxpa2VseShyZXQgPCAwKSkgewotCQlpZiAocmV0ICE9IC1FQUdBSU4pCi0J
+CQl2cV9lcnIodnEsICJUcmFuc2xhdGlvbiBmYWlsdXJlICVkIGluIGluZGlyZWN0LlxuIiwgcmV0
+KTsKLQkJcmV0dXJuIHJldDsKLQl9Ci0JaW92X2l0ZXJfaW5pdCgmZnJvbSwgUkVBRCwgdnEtPmlu
+ZGlyZWN0LCByZXQsIGxlbik7Ci0KLQkvKiBXZSB3aWxsIHVzZSB0aGUgcmVzdWx0IGFzIGFuIGFk
+ZHJlc3MgdG8gcmVhZCBmcm9tLCBzbyBtb3N0Ci0JICogYXJjaGl0ZWN0dXJlcyBvbmx5IG5lZWQg
+YSBjb21waWxlciBiYXJyaWVyIGhlcmUuICovCi0JcmVhZF9iYXJyaWVyX2RlcGVuZHMoKTsKLQot
+CWNvdW50ID0gbGVuIC8gc2l6ZW9mIGRlc2M7Ci0JLyogQnVmZmVycyBhcmUgY2hhaW5lZCB2aWEg
+YSAxNiBiaXQgbmV4dCBmaWVsZCwgc28KLQkgKiB3ZSBjYW4gaGF2ZSBhdCBtb3N0IDJeMTYgb2Yg
+dGhlc2UuICovCi0JaWYgKHVubGlrZWx5KGNvdW50ID4gVVNIUlRfTUFYICsgMSkpIHsKLQkJdnFf
+ZXJyKHZxLCAiSW5kaXJlY3QgYnVmZmVyIGxlbmd0aCB0b28gYmlnOiAlZFxuIiwKLQkJICAgICAg
+IGluZGlyZWN0LT5sZW4pOwotCQlyZXR1cm4gLUUyQklHOwotCX0KLQotCWRvIHsKLQkJdW5zaWdu
+ZWQgaW92X2NvdW50ID0gKmluX251bSArICpvdXRfbnVtOwotCQlpZiAodW5saWtlbHkoKytmb3Vu
+ZCA+IGNvdW50KSkgewotCQkJdnFfZXJyKHZxLCAiTG9vcCBkZXRlY3RlZDogbGFzdCBvbmUgYXQg
+JXUgIgotCQkJICAgICAgICJpbmRpcmVjdCBzaXplICV1XG4iLAotCQkJICAgICAgIGksIGNvdW50
+KTsKLQkJCXJldHVybiAtRUlOVkFMOwotCQl9Ci0JCWlmICh1bmxpa2VseSghY29weV9mcm9tX2l0
+ZXJfZnVsbCgmZGVzYywgc2l6ZW9mKGRlc2MpLCAmZnJvbSkpKSB7Ci0JCQl2cV9lcnIodnEsICJG
+YWlsZWQgaW5kaXJlY3QgZGVzY3JpcHRvcjogaWR4ICVkLCAlenhcbiIsCi0JCQkgICAgICAgaSwg
+KHNpemVfdCl2aG9zdDY0X3RvX2NwdSh2cSwgaW5kaXJlY3QtPmFkZHIpICsgaSAqIHNpemVvZiBk
+ZXNjKTsKLQkJCXJldHVybiAtRUlOVkFMOwotCQl9Ci0JCWlmICh1bmxpa2VseShkZXNjLmZsYWdz
+ICYgY3B1X3RvX3Zob3N0MTYodnEsIFZSSU5HX0RFU0NfRl9JTkRJUkVDVCkpKSB7Ci0JCQl2cV9l
+cnIodnEsICJOZXN0ZWQgaW5kaXJlY3QgZGVzY3JpcHRvcjogaWR4ICVkLCAlenhcbiIsCi0JCQkg
+ICAgICAgaSwgKHNpemVfdCl2aG9zdDY0X3RvX2NwdSh2cSwgaW5kaXJlY3QtPmFkZHIpICsgaSAq
+IHNpemVvZiBkZXNjKTsKLQkJCXJldHVybiAtRUlOVkFMOwotCQl9Ci0KLQkJaWYgKGRlc2MuZmxh
+Z3MgJiBjcHVfdG9fdmhvc3QxNih2cSwgVlJJTkdfREVTQ19GX1dSSVRFKSkKLQkJCWFjY2VzcyA9
+IFZIT1NUX0FDQ0VTU19XTzsKLQkJZWxzZQotCQkJYWNjZXNzID0gVkhPU1RfQUNDRVNTX1JPOwot
+Ci0JCXJldCA9IHRyYW5zbGF0ZV9kZXNjKHZxLCB2aG9zdDY0X3RvX2NwdSh2cSwgZGVzYy5hZGRy
+KSwKLQkJCQkgICAgIHZob3N0MzJfdG9fY3B1KHZxLCBkZXNjLmxlbiksIGlvdiArIGlvdl9jb3Vu
+dCwKLQkJCQkgICAgIGlvdl9zaXplIC0gaW92X2NvdW50LCBhY2Nlc3MpOwotCQlpZiAodW5saWtl
+bHkocmV0IDwgMCkpIHsKLQkJCWlmIChyZXQgIT0gLUVBR0FJTikKLQkJCQl2cV9lcnIodnEsICJU
+cmFuc2xhdGlvbiBmYWlsdXJlICVkIGluZGlyZWN0IGlkeCAlZFxuIiwKLQkJCQkJcmV0LCBpKTsK
+LQkJCXJldHVybiByZXQ7Ci0JCX0KLQkJLyogSWYgdGhpcyBpcyBhbiBpbnB1dCBkZXNjcmlwdG9y
+LCBpbmNyZW1lbnQgdGhhdCBjb3VudC4gKi8KLQkJaWYgKGFjY2VzcyA9PSBWSE9TVF9BQ0NFU1Nf
+V08pIHsKLQkJCSppbl9udW0gKz0gcmV0OwotCQkJaWYgKHVubGlrZWx5KGxvZyAmJiByZXQpKSB7
+Ci0JCQkJbG9nWypsb2dfbnVtXS5hZGRyID0gdmhvc3Q2NF90b19jcHUodnEsIGRlc2MuYWRkcik7
+Ci0JCQkJbG9nWypsb2dfbnVtXS5sZW4gPSB2aG9zdDMyX3RvX2NwdSh2cSwgZGVzYy5sZW4pOwot
+CQkJCSsrKmxvZ19udW07Ci0JCQl9Ci0JCX0gZWxzZSB7Ci0JCQkvKiBJZiBpdCdzIGFuIG91dHB1
+dCBkZXNjcmlwdG9yLCB0aGV5J3JlIGFsbCBzdXBwb3NlZAotCQkJICogdG8gY29tZSBiZWZvcmUg
+YW55IGlucHV0IGRlc2NyaXB0b3JzLiAqLwotCQkJaWYgKHVubGlrZWx5KCppbl9udW0pKSB7Ci0J
+CQkJdnFfZXJyKHZxLCAiSW5kaXJlY3QgZGVzY3JpcHRvciAiCi0JCQkJICAgICAgICJoYXMgb3V0
+IGFmdGVyIGluOiBpZHggJWRcbiIsIGkpOwotCQkJCXJldHVybiAtRUlOVkFMOwotCQkJfQotCQkJ
+Km91dF9udW0gKz0gcmV0OwotCQl9Ci0JfSB3aGlsZSAoKGkgPSBuZXh0X2Rlc2ModnEsICZkZXNj
+KSkgIT0gLTEpOwotCXJldHVybiAwOwotfQotCi0vKiBUaGlzIGxvb2tzIGluIHRoZSB2aXJ0cXVl
+dWUgYW5kIGZvciB0aGUgZmlyc3QgYXZhaWxhYmxlIGJ1ZmZlciwgYW5kIGNvbnZlcnRzCi0gKiBp
+dCB0byBhbiBpb3ZlYyBmb3IgY29udmVuaWVudCBhY2Nlc3MuICBTaW5jZSBkZXNjcmlwdG9ycyBj
+b25zaXN0IG9mIHNvbWUKLSAqIG51bWJlciBvZiBvdXRwdXQgdGhlbiBzb21lIG51bWJlciBvZiBp
+bnB1dCBkZXNjcmlwdG9ycywgaXQncyBhY3R1YWxseSB0d28KLSAqIGlvdmVjcywgYnV0IHdlIHBh
+Y2sgdGhlbSBpbnRvIG9uZSBhbmQgbm90ZSBob3cgbWFueSBvZiBlYWNoIHRoZXJlIHdlcmUuCi0g
+KgotICogVGhpcyBmdW5jdGlvbiByZXR1cm5zIHRoZSBkZXNjcmlwdG9yIG51bWJlciBmb3VuZCwg
+b3IgdnEtPm51bSAod2hpY2ggaXMKLSAqIG5ldmVyIGEgdmFsaWQgZGVzY3JpcHRvciBudW1iZXIp
+IGlmIG5vbmUgd2FzIGZvdW5kLiAgQSBuZWdhdGl2ZSBjb2RlIGlzCi0gKiByZXR1cm5lZCBvbiBl
+cnJvci4gKi8KLWludCB2aG9zdF9nZXRfdnFfZGVzYyhzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2
+cSwKLQkJICAgICAgc3RydWN0IGlvdmVjIGlvdltdLCB1bnNpZ25lZCBpbnQgaW92X3NpemUsCi0J
+CSAgICAgIHVuc2lnbmVkIGludCAqb3V0X251bSwgdW5zaWduZWQgaW50ICppbl9udW0sCi0JCSAg
+ICAgIHN0cnVjdCB2aG9zdF9sb2cgKmxvZywgdW5zaWduZWQgaW50ICpsb2dfbnVtKQotewotCXN0
+cnVjdCB2cmluZ19kZXNjIGRlc2M7Ci0JdW5zaWduZWQgaW50IGksIGhlYWQsIGZvdW5kID0gMDsK
+LQl1MTYgbGFzdF9hdmFpbF9pZHg7Ci0JX192aXJ0aW8xNiBhdmFpbF9pZHg7Ci0JX192aXJ0aW8x
+NiByaW5nX2hlYWQ7Ci0JaW50IHJldCwgYWNjZXNzOwotCi0JLyogQ2hlY2sgaXQgaXNuJ3QgZG9p
+bmcgdmVyeSBzdHJhbmdlIHRoaW5ncyB3aXRoIGRlc2NyaXB0b3IgbnVtYmVycy4gKi8KLQlsYXN0
+X2F2YWlsX2lkeCA9IHZxLT5sYXN0X2F2YWlsX2lkeDsKLQotCWlmICh2cS0+YXZhaWxfaWR4ID09
+IHZxLT5sYXN0X2F2YWlsX2lkeCkgewotCQlpZiAodW5saWtlbHkodmhvc3RfZ2V0X2F2YWlsX2lk
+eCh2cSwgJmF2YWlsX2lkeCkpKSB7Ci0JCQl2cV9lcnIodnEsICJGYWlsZWQgdG8gYWNjZXNzIGF2
+YWlsIGlkeCBhdCAlcFxuIiwKLQkJCQkmdnEtPmF2YWlsLT5pZHgpOwotCQkJcmV0dXJuIC1FRkFV
+TFQ7Ci0JCX0KLQkJdnEtPmF2YWlsX2lkeCA9IHZob3N0MTZfdG9fY3B1KHZxLCBhdmFpbF9pZHgp
+OwotCi0JCWlmICh1bmxpa2VseSgodTE2KSh2cS0+YXZhaWxfaWR4IC0gbGFzdF9hdmFpbF9pZHgp
+ID4gdnEtPm51bSkpIHsKLQkJCXZxX2Vycih2cSwgIkd1ZXN0IG1vdmVkIHVzZWQgaW5kZXggZnJv
+bSAldSB0byAldSIsCi0JCQkJbGFzdF9hdmFpbF9pZHgsIHZxLT5hdmFpbF9pZHgpOwotCQkJcmV0
+dXJuIC1FRkFVTFQ7Ci0JCX0KLQotCQkvKiBJZiB0aGVyZSdzIG5vdGhpbmcgbmV3IHNpbmNlIGxh
+c3Qgd2UgbG9va2VkLCByZXR1cm4KLQkJICogaW52YWxpZC4KLQkJICovCi0JCWlmICh2cS0+YXZh
+aWxfaWR4ID09IGxhc3RfYXZhaWxfaWR4KQotCQkJcmV0dXJuIHZxLT5udW07Ci0KLQkJLyogT25s
+eSBnZXQgYXZhaWwgcmluZyBlbnRyaWVzIGFmdGVyIHRoZXkgaGF2ZSBiZWVuCi0JCSAqIGV4cG9z
+ZWQgYnkgZ3Vlc3QuCi0JCSAqLwotCQlzbXBfcm1iKCk7Ci0JfQotCi0JLyogR3JhYiB0aGUgbmV4
+dCBkZXNjcmlwdG9yIG51bWJlciB0aGV5J3JlIGFkdmVydGlzaW5nLCBhbmQgaW5jcmVtZW50Ci0J
+ICogdGhlIGluZGV4IHdlJ3ZlIHNlZW4uICovCi0JaWYgKHVubGlrZWx5KHZob3N0X2dldF9hdmFp
+bF9oZWFkKHZxLCAmcmluZ19oZWFkLCBsYXN0X2F2YWlsX2lkeCkpKSB7Ci0JCXZxX2Vycih2cSwg
+IkZhaWxlZCB0byByZWFkIGhlYWQ6IGlkeCAlZCBhZGRyZXNzICVwXG4iLAotCQkgICAgICAgbGFz
+dF9hdmFpbF9pZHgsCi0JCSAgICAgICAmdnEtPmF2YWlsLT5yaW5nW2xhc3RfYXZhaWxfaWR4ICUg
+dnEtPm51bV0pOwotCQlyZXR1cm4gLUVGQVVMVDsKLQl9Ci0KLQloZWFkID0gdmhvc3QxNl90b19j
+cHUodnEsIHJpbmdfaGVhZCk7Ci0KLQkvKiBJZiB0aGVpciBudW1iZXIgaXMgc2lsbHksIHRoYXQn
+cyBhbiBlcnJvci4gKi8KLQlpZiAodW5saWtlbHkoaGVhZCA+PSB2cS0+bnVtKSkgewotCQl2cV9l
+cnIodnEsICJHdWVzdCBzYXlzIGluZGV4ICV1ID4gJXUgaXMgYXZhaWxhYmxlIiwKLQkJICAgICAg
+IGhlYWQsIHZxLT5udW0pOwotCQlyZXR1cm4gLUVJTlZBTDsKLQl9Ci0KLQkvKiBXaGVuIHdlIHN0
+YXJ0IHRoZXJlIGFyZSBub25lIG9mIGVpdGhlciBpbnB1dCBub3Igb3V0cHV0LiAqLwotCSpvdXRf
+bnVtID0gKmluX251bSA9IDA7Ci0JaWYgKHVubGlrZWx5KGxvZykpCi0JCSpsb2dfbnVtID0gMDsK
+LQotCWkgPSBoZWFkOwotCWRvIHsKLQkJdW5zaWduZWQgaW92X2NvdW50ID0gKmluX251bSArICpv
+dXRfbnVtOwotCQlpZiAodW5saWtlbHkoaSA+PSB2cS0+bnVtKSkgewotCQkJdnFfZXJyKHZxLCAi
+RGVzYyBpbmRleCBpcyAldSA+ICV1LCBoZWFkID0gJXUiLAotCQkJICAgICAgIGksIHZxLT5udW0s
+IGhlYWQpOwotCQkJcmV0dXJuIC1FSU5WQUw7Ci0JCX0KLQkJaWYgKHVubGlrZWx5KCsrZm91bmQg
+PiB2cS0+bnVtKSkgewotCQkJdnFfZXJyKHZxLCAiTG9vcCBkZXRlY3RlZDogbGFzdCBvbmUgYXQg
+JXUgIgotCQkJICAgICAgICJ2cSBzaXplICV1IGhlYWQgJXVcbiIsCi0JCQkgICAgICAgaSwgdnEt
+Pm51bSwgaGVhZCk7Ci0JCQlyZXR1cm4gLUVJTlZBTDsKLQkJfQotCQlyZXQgPSB2aG9zdF9nZXRf
+ZGVzYyh2cSwgJmRlc2MsIGkpOwotCQlpZiAodW5saWtlbHkocmV0KSkgewotCQkJdnFfZXJyKHZx
+LCAiRmFpbGVkIHRvIGdldCBkZXNjcmlwdG9yOiBpZHggJWQgYWRkciAlcFxuIiwKLQkJCSAgICAg
+ICBpLCB2cS0+ZGVzYyArIGkpOwotCQkJcmV0dXJuIC1FRkFVTFQ7Ci0JCX0KLQkJaWYgKGRlc2Mu
+ZmxhZ3MgJiBjcHVfdG9fdmhvc3QxNih2cSwgVlJJTkdfREVTQ19GX0lORElSRUNUKSkgewotCQkJ
+cmV0ID0gZ2V0X2luZGlyZWN0KHZxLCBpb3YsIGlvdl9zaXplLAotCQkJCQkgICBvdXRfbnVtLCBp
+bl9udW0sCi0JCQkJCSAgIGxvZywgbG9nX251bSwgJmRlc2MpOwotCQkJaWYgKHVubGlrZWx5KHJl
+dCA8IDApKSB7Ci0JCQkJaWYgKHJldCAhPSAtRUFHQUlOKQotCQkJCQl2cV9lcnIodnEsICJGYWls
+dXJlIGRldGVjdGVkICIKLQkJCQkJCSJpbiBpbmRpcmVjdCBkZXNjcmlwdG9yIGF0IGlkeCAlZFxu
+IiwgaSk7Ci0JCQkJcmV0dXJuIHJldDsKLQkJCX0KLQkJCWNvbnRpbnVlOwotCQl9Ci0KLQkJaWYg
+KGRlc2MuZmxhZ3MgJiBjcHVfdG9fdmhvc3QxNih2cSwgVlJJTkdfREVTQ19GX1dSSVRFKSkKLQkJ
+CWFjY2VzcyA9IFZIT1NUX0FDQ0VTU19XTzsKLQkJZWxzZQotCQkJYWNjZXNzID0gVkhPU1RfQUND
+RVNTX1JPOwotCQlyZXQgPSB0cmFuc2xhdGVfZGVzYyh2cSwgdmhvc3Q2NF90b19jcHUodnEsIGRl
+c2MuYWRkciksCi0JCQkJICAgICB2aG9zdDMyX3RvX2NwdSh2cSwgZGVzYy5sZW4pLCBpb3YgKyBp
+b3ZfY291bnQsCi0JCQkJICAgICBpb3Zfc2l6ZSAtIGlvdl9jb3VudCwgYWNjZXNzKTsKLQkJaWYg
+KHVubGlrZWx5KHJldCA8IDApKSB7Ci0JCQlpZiAocmV0ICE9IC1FQUdBSU4pCi0JCQkJdnFfZXJy
+KHZxLCAiVHJhbnNsYXRpb24gZmFpbHVyZSAlZCBkZXNjcmlwdG9yIGlkeCAlZFxuIiwKLQkJCQkJ
+cmV0LCBpKTsKLQkJCXJldHVybiByZXQ7Ci0JCX0KLQkJaWYgKGFjY2VzcyA9PSBWSE9TVF9BQ0NF
+U1NfV08pIHsKLQkJCS8qIElmIHRoaXMgaXMgYW4gaW5wdXQgZGVzY3JpcHRvciwKLQkJCSAqIGlu
+Y3JlbWVudCB0aGF0IGNvdW50LiAqLwotCQkJKmluX251bSArPSByZXQ7Ci0JCQlpZiAodW5saWtl
+bHkobG9nICYmIHJldCkpIHsKLQkJCQlsb2dbKmxvZ19udW1dLmFkZHIgPSB2aG9zdDY0X3RvX2Nw
+dSh2cSwgZGVzYy5hZGRyKTsKLQkJCQlsb2dbKmxvZ19udW1dLmxlbiA9IHZob3N0MzJfdG9fY3B1
+KHZxLCBkZXNjLmxlbik7Ci0JCQkJKysqbG9nX251bTsKLQkJCX0KLQkJfSBlbHNlIHsKLQkJCS8q
+IElmIGl0J3MgYW4gb3V0cHV0IGRlc2NyaXB0b3IsIHRoZXkncmUgYWxsIHN1cHBvc2VkCi0JCQkg
+KiB0byBjb21lIGJlZm9yZSBhbnkgaW5wdXQgZGVzY3JpcHRvcnMuICovCi0JCQlpZiAodW5saWtl
+bHkoKmluX251bSkpIHsKLQkJCQl2cV9lcnIodnEsICJEZXNjcmlwdG9yIGhhcyBvdXQgYWZ0ZXIg
+aW46ICIKLQkJCQkgICAgICAgImlkeCAlZFxuIiwgaSk7Ci0JCQkJcmV0dXJuIC1FSU5WQUw7Ci0J
+CQl9Ci0JCQkqb3V0X251bSArPSByZXQ7Ci0JCX0KLQl9IHdoaWxlICgoaSA9IG5leHRfZGVzYyh2
+cSwgJmRlc2MpKSAhPSAtMSk7Ci0KLQkvKiBPbiBzdWNjZXNzLCBpbmNyZW1lbnQgYXZhaWwgaW5k
+ZXguICovCi0JdnEtPmxhc3RfYXZhaWxfaWR4Kys7Ci0KLQkvKiBBc3N1bWUgbm90aWZpY2F0aW9u
+cyBmcm9tIGd1ZXN0IGFyZSBkaXNhYmxlZCBhdCB0aGlzIHBvaW50LAotCSAqIGlmIHRoZXkgYXJl
+bid0IHdlIHdvdWxkIG5lZWQgdG8gdXBkYXRlIGF2YWlsX2V2ZW50IGluZGV4LiAqLwotCUJVR19P
+TighKHZxLT51c2VkX2ZsYWdzICYgVlJJTkdfVVNFRF9GX05PX05PVElGWSkpOwotCXJldHVybiBo
+ZWFkOwotfQotRVhQT1JUX1NZTUJPTF9HUEwodmhvc3RfZ2V0X3ZxX2Rlc2MpOwotCiBzdGF0aWMg
+c3RydWN0IHZob3N0X2Rlc2MgKnBlZWtfc3BsaXRfZGVzYyhzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVl
+ICp2cSkKIHsKIAlCVUdfT04oIXZxLT5uZGVzY3MpOwpAQCAtMjQ5NSw3ICsyMjQ4LDcgQEAgc3Rh
+dGljIGludCBmZXRjaF9kZXNjcyhzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSkKICAqIFRoaXMg
+ZnVuY3Rpb24gcmV0dXJucyB0aGUgZGVzY3JpcHRvciBudW1iZXIgZm91bmQsIG9yIHZxLT5udW0g
+KHdoaWNoIGlzCiAgKiBuZXZlciBhIHZhbGlkIGRlc2NyaXB0b3IgbnVtYmVyKSBpZiBub25lIHdh
+cyBmb3VuZC4gIEEgbmVnYXRpdmUgY29kZSBpcwogICogcmV0dXJuZWQgb24gZXJyb3IuICovCi1p
+bnQgdmhvc3RfZ2V0X3ZxX2Rlc2NfYmF0Y2goc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEsCitp
+bnQgdmhvc3RfZ2V0X3ZxX2Rlc2Moc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEsCiAJCSAgICAg
+IHN0cnVjdCBpb3ZlYyBpb3ZbXSwgdW5zaWduZWQgaW50IGlvdl9zaXplLAogCQkgICAgICB1bnNp
+Z25lZCBpbnQgKm91dF9udW0sIHVuc2lnbmVkIGludCAqaW5fbnVtLAogCQkgICAgICBzdHJ1Y3Qg
+dmhvc3RfbG9nICpsb2csIHVuc2lnbmVkIGludCAqbG9nX251bSkKQEAgLTI1NzAsNyArMjMyMyw3
+IEBAIGludCB2aG9zdF9nZXRfdnFfZGVzY19iYXRjaChzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2
+cSwKIAogCXJldHVybiByZXQ7CiB9Ci1FWFBPUlRfU1lNQk9MX0dQTCh2aG9zdF9nZXRfdnFfZGVz
+Y19iYXRjaCk7CitFWFBPUlRfU1lNQk9MX0dQTCh2aG9zdF9nZXRfdnFfZGVzYyk7CiAKIC8qIFJl
+dmVyc2UgdGhlIGVmZmVjdCBvZiB2aG9zdF9nZXRfdnFfZGVzYy4gVXNlZnVsIGZvciBlcnJvciBo
+YW5kbGluZy4gKi8KIHZvaWQgdmhvc3RfZGlzY2FyZF92cV9kZXNjKHN0cnVjdCB2aG9zdF92aXJ0
+cXVldWUgKnZxLCBpbnQgbikKZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuaCBiL2Ry
+aXZlcnMvdmhvc3Qvdmhvc3QuaAppbmRleCAwOTc2YTI4NTM5MzUuLjc2MzU2ZWRlZThlNSAxMDA2
+NDQKLS0tIGEvZHJpdmVycy92aG9zdC92aG9zdC5oCisrKyBiL2RyaXZlcnMvdmhvc3Qvdmhvc3Qu
+aApAQCAtMTg3LDEwICsxODcsNiBAQCBsb25nIHZob3N0X3ZyaW5nX2lvY3RsKHN0cnVjdCB2aG9z
+dF9kZXYgKmQsIHVuc2lnbmVkIGludCBpb2N0bCwgdm9pZCBfX3VzZXIgKmFyZwogYm9vbCB2aG9z
+dF92cV9hY2Nlc3Nfb2soc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEpOwogYm9vbCB2aG9zdF9s
+b2dfYWNjZXNzX29rKHN0cnVjdCB2aG9zdF9kZXYgKik7CiAKLWludCB2aG9zdF9nZXRfdnFfZGVz
+Y19iYXRjaChzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICosCi0JCSAgICAgIHN0cnVjdCBpb3ZlYyBp
+b3ZbXSwgdW5zaWduZWQgaW50IGlvdl9jb3VudCwKLQkJICAgICAgdW5zaWduZWQgaW50ICpvdXRf
+bnVtLCB1bnNpZ25lZCBpbnQgKmluX251bSwKLQkJICAgICAgc3RydWN0IHZob3N0X2xvZyAqbG9n
+LCB1bnNpZ25lZCBpbnQgKmxvZ19udW0pOwogaW50IHZob3N0X2dldF92cV9kZXNjKHN0cnVjdCB2
+aG9zdF92aXJ0cXVldWUgKiwKIAkJICAgICAgc3RydWN0IGlvdmVjIGlvdltdLCB1bnNpZ25lZCBp
+bnQgaW92X2NvdW50LAogCQkgICAgICB1bnNpZ25lZCBpbnQgKm91dF9udW0sIHVuc2lnbmVkIGlu
+dCAqaW5fbnVtLAotLSAKTVNUCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
+dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
+L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
