@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC 06/13] vhost: reorder functions
-Date: Tue, 2 Jun 2020 09:06:08 -0400
-Message-ID: <20200602130543.578420-7-mst@redhat.com>
+Subject: [PATCH RFC 04/13] vhost: cleanup fetch_buf return code handling
+Date: Tue, 2 Jun 2020 09:06:03 -0400
+Message-ID: <20200602130543.578420-5-mst@redhat.com>
 References: <20200602130543.578420-1-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,79 +22,89 @@ To: linux-kernel@vger.kernel.org
 Cc: Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Reorder functions in the file to not rely on forward
-declarations, in preparation to making them static
-down the road.
+Return code of fetch_buf is confusing, so callers resort to
+tricks to get to sane values. Let's switch to something standard:
+0 empty, >0 non-empty, <0 error.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/vhost/vhost.c | 40 ++++++++++++++++++++--------------------
- 1 file changed, 20 insertions(+), 20 deletions(-)
+ drivers/vhost/vhost.c | 24 ++++++++++++++++--------
+ 1 file changed, 16 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index bd52b44b0d23..b4a6e44d56a8 100644
+index aca2a5b0d078..bd52b44b0d23 100644
 --- a/drivers/vhost/vhost.c
 +++ b/drivers/vhost/vhost.c
-@@ -2256,6 +2256,13 @@ static int fetch_buf(struct vhost_virtqueue *vq)
- 	return 1;
+@@ -2146,6 +2146,8 @@ static int fetch_indirect_descs(struct vhost_virtqueue *vq,
+ 	return 0;
  }
  
-+/* Reverse the effect of vhost_get_vq_desc. Useful for error handling. */
-+void vhost_discard_vq_desc(struct vhost_virtqueue *vq, int n)
-+{
-+	vq->last_avail_idx -= n;
-+}
-+EXPORT_SYMBOL_GPL(vhost_discard_vq_desc);
-+
- /* This function returns a value > 0 if a descriptor was found, or 0 if none were found.
-  * A negative code is returned on error. */
- static int fetch_descs(struct vhost_virtqueue *vq)
-@@ -2370,26 +2377,6 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
- }
- EXPORT_SYMBOL_GPL(vhost_get_vq_desc);
- 
--/* Reverse the effect of vhost_get_vq_desc. Useful for error handling. */
--void vhost_discard_vq_desc(struct vhost_virtqueue *vq, int n)
--{
--	vq->last_avail_idx -= n;
--}
--EXPORT_SYMBOL_GPL(vhost_discard_vq_desc);
--
--/* After we've used one of their buffers, we tell them about it.  We'll then
-- * want to notify the guest, using eventfd. */
--int vhost_add_used(struct vhost_virtqueue *vq, unsigned int head, int len)
--{
--	struct vring_used_elem heads = {
--		cpu_to_vhost32(vq, head),
--		cpu_to_vhost32(vq, len)
--	};
--
--	return vhost_add_used_n(vq, &heads, 1);
--}
--EXPORT_SYMBOL_GPL(vhost_add_used);
--
- static int __vhost_add_used_n(struct vhost_virtqueue *vq,
- 			    struct vring_used_elem *heads,
- 			    unsigned count)
-@@ -2459,6 +2446,19 @@ int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_elem *heads,
- }
- EXPORT_SYMBOL_GPL(vhost_add_used_n);
- 
-+/* After we've used one of their buffers, we tell them about it.  We'll then
-+ * want to notify the guest, using eventfd. */
-+int vhost_add_used(struct vhost_virtqueue *vq, unsigned int head, int len)
-+{
-+	struct vring_used_elem heads = {
-+		cpu_to_vhost32(vq, head),
-+		cpu_to_vhost32(vq, len)
-+	};
-+
-+	return vhost_add_used_n(vq, &heads, 1);
-+}
-+EXPORT_SYMBOL_GPL(vhost_add_used);
-+
- static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
++/* This function returns a value > 0 if a descriptor was found, or 0 if none were found.
++ * A negative code is returned on error. */
+ static int fetch_buf(struct vhost_virtqueue *vq)
  {
- 	__u16 old, new;
+ 	unsigned int i, head, found = 0;
+@@ -2162,7 +2164,7 @@ static int fetch_buf(struct vhost_virtqueue *vq)
+ 	if (unlikely(vq->avail_idx == vq->last_avail_idx)) {
+ 		/* If we already have work to do, don't bother re-checking. */
+ 		if (likely(vq->ndescs))
+-			return vq->num;
++			return 0;
+ 
+ 		if (unlikely(vhost_get_avail_idx(vq, &avail_idx))) {
+ 			vq_err(vq, "Failed to access avail idx at %p\n",
+@@ -2181,7 +2183,7 @@ static int fetch_buf(struct vhost_virtqueue *vq)
+ 		 * invalid.
+ 		 */
+ 		if (vq->avail_idx == last_avail_idx)
+-			return vq->num;
++			return 0;
+ 
+ 		/* Only get avail ring entries after they have been
+ 		 * exposed by guest.
+@@ -2251,12 +2253,14 @@ static int fetch_buf(struct vhost_virtqueue *vq)
+ 	/* On success, increment avail index. */
+ 	vq->last_avail_idx++;
+ 
+-	return 0;
++	return 1;
+ }
+ 
++/* This function returns a value > 0 if a descriptor was found, or 0 if none were found.
++ * A negative code is returned on error. */
+ static int fetch_descs(struct vhost_virtqueue *vq)
+ {
+-	int ret = 0;
++	int ret;
+ 
+ 	if (unlikely(vq->first_desc >= vq->ndescs)) {
+ 		vq->first_desc = 0;
+@@ -2266,10 +2270,14 @@ static int fetch_descs(struct vhost_virtqueue *vq)
+ 	if (vq->ndescs)
+ 		return 0;
+ 
+-	while (!ret && vq->ndescs <= vhost_vq_num_batch_descs(vq))
+-		ret = fetch_buf(vq);
++	for (ret = 1;
++	     ret > 0 && vq->ndescs <= vhost_vq_num_batch_descs(vq);
++	     ret = fetch_buf(vq))
++		;
+ 
+-	return vq->ndescs ? 0 : ret;
++	/* On success we expect some descs */
++	BUG_ON(ret > 0 && !vq->ndescs);
++	return ret;
+ }
+ 
+ /* This looks in the virtqueue and for the first available buffer, and converts
+@@ -2288,7 +2296,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+ 	int ret = fetch_descs(vq);
+ 	int i;
+ 
+-	if (ret)
++	if (ret <= 0)
+ 		return ret;
+ 
+ 	/* Now convert to IOV */
 -- 
 MST
