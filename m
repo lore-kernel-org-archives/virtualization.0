@@ -1,11 +1,11 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC 03/13] vhost: batching fetches
-Date: Tue, 2 Jun 2020 09:06:01 -0400
-Message-ID: <20200602130543.578420-4-mst@redhat.com>
+Subject: [PATCH RFC 05/13] vhost/net: pass net specific struct pointer
+Date: Tue, 2 Jun 2020 09:06:05 -0400
+Message-ID: <20200602130543.578420-6-mst@redhat.com>
 References: <20200602130543.578420-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200602130543.578420-1-mst@redhat.com>
 Content-Disposition: inline
@@ -22,104 +22,79 @@ To: linux-kernel@vger.kernel.org
 Cc: Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-V2l0aCB0aGlzIHBhdGNoIGFwcGxpZWQsIG5ldyBhbmQgb2xkIGNvZGUgcGVyZm9ybSBpZGVudGlj
-YWxseS4KCkxvdHMgb2YgZXh0cmEgb3B0aW1pemF0aW9ucyBhcmUgbm93IHBvc3NpYmxlLCBlLmcu
-CndlIGNhbiBmZXRjaCBtdWx0aXBsZSBoZWFkcyB3aXRoIGNvcHlfZnJvbS90b191c2VyIG5vdy4K
-V2UgY2FuIGdldCByaWQgb2YgbWFpbnRhaW5pbmcgdGhlIGxvZyBhcnJheS4gIEV0YyBldGMuCgpT
-aWduZWQtb2ZmLWJ5OiBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgpTaWduZWQt
-b2ZmLWJ5OiBFdWdlbmlvIFDDqXJleiA8ZXBlcmV6bWFAcmVkaGF0LmNvbT4KTGluazogaHR0cHM6
-Ly9sb3JlLmtlcm5lbC5vcmcvci8yMDIwMDQwMTE4MzExOC44MzM0LTQtZXBlcmV6bWFAcmVkaGF0
-LmNvbQpTaWduZWQtb2ZmLWJ5OiBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQuY29tPgot
-LS0KIGRyaXZlcnMvdmhvc3QvdGVzdC5jICB8ICAyICstCiBkcml2ZXJzL3Zob3N0L3Zob3N0LmMg
-fCA0NyArKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tCiBkcml2ZXJz
-L3Zob3N0L3Zob3N0LmggfCAgNSArKysrLQogMyBmaWxlcyBjaGFuZ2VkLCA0NyBpbnNlcnRpb25z
-KCspLCA3IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3QvdGVzdC5jIGIv
-ZHJpdmVycy92aG9zdC90ZXN0LmMKaW5kZXggOWEzYTA5MDA1ZTAzLi4wMjgwNmQ2Zjg0ZWYgMTAw
-NjQ0Ci0tLSBhL2RyaXZlcnMvdmhvc3QvdGVzdC5jCisrKyBiL2RyaXZlcnMvdmhvc3QvdGVzdC5j
-CkBAIC0xMTksNyArMTE5LDcgQEAgc3RhdGljIGludCB2aG9zdF90ZXN0X29wZW4oc3RydWN0IGlu
-b2RlICppbm9kZSwgc3RydWN0IGZpbGUgKmYpCiAJZGV2ID0gJm4tPmRldjsKIAl2cXNbVkhPU1Rf
-VEVTVF9WUV0gPSAmbi0+dnFzW1ZIT1NUX1RFU1RfVlFdOwogCW4tPnZxc1tWSE9TVF9URVNUX1ZR
-XS5oYW5kbGVfa2ljayA9IGhhbmRsZV92cV9raWNrOwotCXZob3N0X2Rldl9pbml0KGRldiwgdnFz
-LCBWSE9TVF9URVNUX1ZRX01BWCwgVUlPX01BWElPViwKKwl2aG9zdF9kZXZfaW5pdChkZXYsIHZx
-cywgVkhPU1RfVEVTVF9WUV9NQVgsIFVJT19NQVhJT1YgKyA2NCwKIAkJICAgICAgIFZIT1NUX1RF
-U1RfUEtUX1dFSUdIVCwgVkhPU1RfVEVTVF9XRUlHSFQsIE5VTEwpOwogCiAJZi0+cHJpdmF0ZV9k
-YXRhID0gbjsKZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYyBiL2RyaXZlcnMvdmhv
-c3Qvdmhvc3QuYwppbmRleCA4ZjlhMDcyODI2MjUuLmFjYTJhNWIwZDA3OCAxMDA2NDQKLS0tIGEv
-ZHJpdmVycy92aG9zdC92aG9zdC5jCisrKyBiL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYwpAQCAtMjk5
-LDYgKzI5OSw3IEBAIHN0YXRpYyB2b2lkIHZob3N0X3ZxX3Jlc2V0KHN0cnVjdCB2aG9zdF9kZXYg
-KmRldiwKIHsKIAl2cS0+bnVtID0gMTsKIAl2cS0+bmRlc2NzID0gMDsKKwl2cS0+Zmlyc3RfZGVz
-YyA9IDA7CiAJdnEtPmRlc2MgPSBOVUxMOwogCXZxLT5hdmFpbCA9IE5VTEw7CiAJdnEtPnVzZWQg
-PSBOVUxMOwpAQCAtMzY3LDYgKzM2OCwxMSBAQCBzdGF0aWMgaW50IHZob3N0X3dvcmtlcih2b2lk
-ICpkYXRhKQogCXJldHVybiAwOwogfQogCitzdGF0aWMgaW50IHZob3N0X3ZxX251bV9iYXRjaF9k
-ZXNjcyhzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSkKK3sKKwlyZXR1cm4gdnEtPm1heF9kZXNj
-cyAtIFVJT19NQVhJT1Y7Cit9CisKIHN0YXRpYyB2b2lkIHZob3N0X3ZxX2ZyZWVfaW92ZWNzKHN0
-cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxKQogewogCWtmcmVlKHZxLT5kZXNjcyk7CkBAIC0zODks
-NiArMzk1LDkgQEAgc3RhdGljIGxvbmcgdmhvc3RfZGV2X2FsbG9jX2lvdmVjcyhzdHJ1Y3Qgdmhv
-c3RfZGV2ICpkZXYpCiAJZm9yIChpID0gMDsgaSA8IGRldi0+bnZxczsgKytpKSB7CiAJCXZxID0g
-ZGV2LT52cXNbaV07CiAJCXZxLT5tYXhfZGVzY3MgPSBkZXYtPmlvdl9saW1pdDsKKwkJaWYgKHZo
-b3N0X3ZxX251bV9iYXRjaF9kZXNjcyh2cSkgPCAwKSB7CisJCQlyZXR1cm4gLUVJTlZBTDsKKwkJ
-fQogCQl2cS0+ZGVzY3MgPSBrbWFsbG9jX2FycmF5KHZxLT5tYXhfZGVzY3MsCiAJCQkJCSAgc2l6
-ZW9mKCp2cS0+ZGVzY3MpLAogCQkJCQkgIEdGUF9LRVJORUwpOwpAQCAtMTU3MCw2ICsxNTc5LDcg
-QEAgbG9uZyB2aG9zdF92cmluZ19pb2N0bChzdHJ1Y3Qgdmhvc3RfZGV2ICpkLCB1bnNpZ25lZCBp
-bnQgaW9jdGwsIHZvaWQgX191c2VyICphcmcKIAkJdnEtPmxhc3RfYXZhaWxfaWR4ID0gcy5udW07
-CiAJCS8qIEZvcmdldCB0aGUgY2FjaGVkIGluZGV4IHZhbHVlLiAqLwogCQl2cS0+YXZhaWxfaWR4
-ID0gdnEtPmxhc3RfYXZhaWxfaWR4OworCQl2cS0+bmRlc2NzID0gdnEtPmZpcnN0X2Rlc2MgPSAw
-OwogCQlicmVhazsKIAljYXNlIFZIT1NUX0dFVF9WUklOR19CQVNFOgogCQlzLmluZGV4ID0gaWR4
-OwpAQCAtMjEzNiw3ICsyMTQ2LDcgQEAgc3RhdGljIGludCBmZXRjaF9pbmRpcmVjdF9kZXNjcyhz
-dHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSwKIAlyZXR1cm4gMDsKIH0KIAotc3RhdGljIGludCBm
-ZXRjaF9kZXNjcyhzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSkKK3N0YXRpYyBpbnQgZmV0Y2hf
-YnVmKHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxKQogewogCXVuc2lnbmVkIGludCBpLCBoZWFk
-LCBmb3VuZCA9IDA7CiAJc3RydWN0IHZob3N0X2Rlc2MgKmxhc3Q7CkBAIC0yMTQ5LDcgKzIxNTks
-MTEgQEAgc3RhdGljIGludCBmZXRjaF9kZXNjcyhzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSkK
-IAkvKiBDaGVjayBpdCBpc24ndCBkb2luZyB2ZXJ5IHN0cmFuZ2UgdGhpbmdzIHdpdGggZGVzY3Jp
-cHRvciBudW1iZXJzLiAqLwogCWxhc3RfYXZhaWxfaWR4ID0gdnEtPmxhc3RfYXZhaWxfaWR4Owog
-Ci0JaWYgKHZxLT5hdmFpbF9pZHggPT0gdnEtPmxhc3RfYXZhaWxfaWR4KSB7CisJaWYgKHVubGlr
-ZWx5KHZxLT5hdmFpbF9pZHggPT0gdnEtPmxhc3RfYXZhaWxfaWR4KSkgeworCQkvKiBJZiB3ZSBh
-bHJlYWR5IGhhdmUgd29yayB0byBkbywgZG9uJ3QgYm90aGVyIHJlLWNoZWNraW5nLiAqLworCQlp
-ZiAobGlrZWx5KHZxLT5uZGVzY3MpKQorCQkJcmV0dXJuIHZxLT5udW07CisKIAkJaWYgKHVubGlr
-ZWx5KHZob3N0X2dldF9hdmFpbF9pZHgodnEsICZhdmFpbF9pZHgpKSkgewogCQkJdnFfZXJyKHZx
-LCAiRmFpbGVkIHRvIGFjY2VzcyBhdmFpbCBpZHggYXQgJXBcbiIsCiAJCQkJJnZxLT5hdmFpbC0+
-aWR4KTsKQEAgLTIyNDAsNiArMjI1NCwyNCBAQCBzdGF0aWMgaW50IGZldGNoX2Rlc2NzKHN0cnVj
-dCB2aG9zdF92aXJ0cXVldWUgKnZxKQogCXJldHVybiAwOwogfQogCitzdGF0aWMgaW50IGZldGNo
-X2Rlc2NzKHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxKQoreworCWludCByZXQgPSAwOworCisJ
-aWYgKHVubGlrZWx5KHZxLT5maXJzdF9kZXNjID49IHZxLT5uZGVzY3MpKSB7CisJCXZxLT5maXJz
-dF9kZXNjID0gMDsKKwkJdnEtPm5kZXNjcyA9IDA7CisJfQorCisJaWYgKHZxLT5uZGVzY3MpCisJ
-CXJldHVybiAwOworCisJd2hpbGUgKCFyZXQgJiYgdnEtPm5kZXNjcyA8PSB2aG9zdF92cV9udW1f
-YmF0Y2hfZGVzY3ModnEpKQorCQlyZXQgPSBmZXRjaF9idWYodnEpOworCisJcmV0dXJuIHZxLT5u
-ZGVzY3MgPyAwIDogcmV0OworfQorCiAvKiBUaGlzIGxvb2tzIGluIHRoZSB2aXJ0cXVldWUgYW5k
-IGZvciB0aGUgZmlyc3QgYXZhaWxhYmxlIGJ1ZmZlciwgYW5kIGNvbnZlcnRzCiAgKiBpdCB0byBh
-biBpb3ZlYyBmb3IgY29udmVuaWVudCBhY2Nlc3MuICBTaW5jZSBkZXNjcmlwdG9ycyBjb25zaXN0
-IG9mIHNvbWUKICAqIG51bWJlciBvZiBvdXRwdXQgdGhlbiBzb21lIG51bWJlciBvZiBpbnB1dCBk
-ZXNjcmlwdG9ycywgaXQncyBhY3R1YWxseSB0d28KQEAgLTIyNjUsNyArMjI5Nyw3IEBAIGludCB2
-aG9zdF9nZXRfdnFfZGVzYyhzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSwKIAlpZiAodW5saWtl
-bHkobG9nKSkKIAkJKmxvZ19udW0gPSAwOwogCi0JZm9yIChpID0gMDsgaSA8IHZxLT5uZGVzY3M7
-ICsraSkgeworCWZvciAoaSA9IHZxLT5maXJzdF9kZXNjOyBpIDwgdnEtPm5kZXNjczsgKytpKSB7
-CiAJCXVuc2lnbmVkIGlvdl9jb3VudCA9ICppbl9udW0gKyAqb3V0X251bTsKIAkJc3RydWN0IHZo
-b3N0X2Rlc2MgKmRlc2MgPSAmdnEtPmRlc2NzW2ldOwogCQlpbnQgYWNjZXNzOwpAQCAtMjMxMSwx
-NCArMjM0MywxOSBAQCBpbnQgdmhvc3RfZ2V0X3ZxX2Rlc2Moc3RydWN0IHZob3N0X3ZpcnRxdWV1
-ZSAqdnEsCiAJCX0KIAogCQlyZXQgPSBkZXNjLT5pZDsKKworCQlpZiAoIShkZXNjLT5mbGFncyAm
-IFZSSU5HX0RFU0NfRl9ORVhUKSkKKwkJCWJyZWFrOwogCX0KIAotCXZxLT5uZGVzY3MgPSAwOwor
-CXZxLT5maXJzdF9kZXNjID0gaSArIDE7CiAKIAlyZXR1cm4gcmV0OwogCiBlcnI6Ci0Jdmhvc3Rf
-ZGlzY2FyZF92cV9kZXNjKHZxLCAxKTsKKwlmb3IgKGkgPSB2cS0+Zmlyc3RfZGVzYzsgaSA8IHZx
-LT5uZGVzY3M7ICsraSkKKwkJaWYgKCEodnEtPmRlc2NzW2ldLmZsYWdzICYgVlJJTkdfREVTQ19G
-X05FWFQpKQorCQkJdmhvc3RfZGlzY2FyZF92cV9kZXNjKHZxLCAxKTsKIAl2cS0+bmRlc2NzID0g
-MDsKIAogCXJldHVybiByZXQ7CmRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmggYi9k
-cml2ZXJzL3Zob3N0L3Zob3N0LmgKaW5kZXggNzYzNTZlZGVlOGU1Li5hNjdiZGE5NzkyZWMgMTAw
-NjQ0Ci0tLSBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuaAorKysgYi9kcml2ZXJzL3Zob3N0L3Zob3N0
-LmgKQEAgLTgxLDYgKzgxLDcgQEAgc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSB7CiAKIAlzdHJ1Y3Qg
-dmhvc3RfZGVzYyAqZGVzY3M7CiAJaW50IG5kZXNjczsKKwlpbnQgZmlyc3RfZGVzYzsKIAlpbnQg
-bWF4X2Rlc2NzOwogCiAJc3RydWN0IGZpbGUgKmtpY2s7CkBAIC0yMjksNyArMjMwLDcgQEAgdm9p
-ZCB2aG9zdF9pb3RsYl9tYXBfZnJlZShzdHJ1Y3Qgdmhvc3RfaW90bGIgKmlvdGxiLAogCQkJICBz
-dHJ1Y3Qgdmhvc3RfaW90bGJfbWFwICptYXApOwogCiAjZGVmaW5lIHZxX2Vycih2cSwgZm10LCAu
-Li4pIGRvIHsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgXAotCQlwcl9kZWJ1Zyhw
-cl9mbXQoZm10KSwgIyNfX1ZBX0FSR1NfXyk7ICAgICAgIFwKKwkJcHJfZXJyKHByX2ZtdChmbXQp
-LCAjI19fVkFfQVJHU19fKTsgICAgICAgXAogCQlpZiAoKHZxKS0+ZXJyb3JfY3R4KSAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICBcCiAJCQkJZXZlbnRmZF9zaWduYWwoKHZxKS0+ZXJyb3Jf
-Y3R4LCAxKTtcCiAJfSB3aGlsZSAoMCkKQEAgLTI1NSw2ICsyNTYsOCBAQCBzdGF0aWMgaW5saW5l
-IHZvaWQgdmhvc3RfdnFfc2V0X2JhY2tlbmQoc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEsCiAJ
-CQkJCXZvaWQgKnByaXZhdGVfZGF0YSkKIHsKIAl2cS0+cHJpdmF0ZV9kYXRhID0gcHJpdmF0ZV9k
-YXRhOworCXZxLT5uZGVzY3MgPSAwOworCXZxLT5maXJzdF9kZXNjID0gMDsKIH0KIAogLyoqCi0t
-IApNU1QKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
-cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
-ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
-aW5mby92aXJ0dWFsaXphdGlvbg==
+In preparation for further cleanup, pass net specific pointer
+to ubuf callbacks so we can move net specific fields
+out to net structures.
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/vhost/net.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 2927f02cc7e1..749a9cf51a59 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -94,7 +94,7 @@ struct vhost_net_ubuf_ref {
+ 	 */
+ 	atomic_t refcount;
+ 	wait_queue_head_t wait;
+-	struct vhost_virtqueue *vq;
++	struct vhost_net_virtqueue *nvq;
+ };
+ 
+ #define VHOST_NET_BATCH 64
+@@ -231,7 +231,7 @@ static void vhost_net_enable_zcopy(int vq)
+ }
+ 
+ static struct vhost_net_ubuf_ref *
+-vhost_net_ubuf_alloc(struct vhost_virtqueue *vq, bool zcopy)
++vhost_net_ubuf_alloc(struct vhost_net_virtqueue *nvq, bool zcopy)
+ {
+ 	struct vhost_net_ubuf_ref *ubufs;
+ 	/* No zero copy backend? Nothing to count. */
+@@ -242,7 +242,7 @@ vhost_net_ubuf_alloc(struct vhost_virtqueue *vq, bool zcopy)
+ 		return ERR_PTR(-ENOMEM);
+ 	atomic_set(&ubufs->refcount, 1);
+ 	init_waitqueue_head(&ubufs->wait);
+-	ubufs->vq = vq;
++	ubufs->nvq = nvq;
+ 	return ubufs;
+ }
+ 
+@@ -384,13 +384,13 @@ static void vhost_zerocopy_signal_used(struct vhost_net *net,
+ static void vhost_zerocopy_callback(struct ubuf_info *ubuf, bool success)
+ {
+ 	struct vhost_net_ubuf_ref *ubufs = ubuf->ctx;
+-	struct vhost_virtqueue *vq = ubufs->vq;
++	struct vhost_net_virtqueue *nvq = ubufs->nvq;
+ 	int cnt;
+ 
+ 	rcu_read_lock_bh();
+ 
+ 	/* set len to mark this desc buffers done DMA */
+-	vq->heads[ubuf->desc].len = success ?
++	nvq->vq.heads[ubuf->desc].in_len = success ?
+ 		VHOST_DMA_DONE_LEN : VHOST_DMA_FAILED_LEN;
+ 	cnt = vhost_net_ubuf_put(ubufs);
+ 
+@@ -402,7 +402,7 @@ static void vhost_zerocopy_callback(struct ubuf_info *ubuf, bool success)
+ 	 * less than 10% of times).
+ 	 */
+ 	if (cnt <= 1 || !(cnt % 16))
+-		vhost_poll_queue(&vq->poll);
++		vhost_poll_queue(&nvq->vq.poll);
+ 
+ 	rcu_read_unlock_bh();
+ }
+@@ -1525,7 +1525,7 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
+ 	/* start polling new socket */
+ 	oldsock = vhost_vq_get_backend(vq);
+ 	if (sock != oldsock) {
+-		ubufs = vhost_net_ubuf_alloc(vq,
++		ubufs = vhost_net_ubuf_alloc(nvq,
+ 					     sock && vhost_sock_zcopy(sock));
+ 		if (IS_ERR(ubufs)) {
+ 			r = PTR_ERR(ubufs);
+-- 
+MST
