@@ -1,49 +1,52 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH v3 74/75] x86/sev-es: Handle NMI State
-Date: Wed, 3 Jun 2020 11:59:23 +0200
-Message-ID: <20200603095923.GB19711@zn.tnic>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: Re: [PATCH v3 23/75] x86/boot/compressed/64: Setup GHCB Based VC
+ Exception handler
+Date: Wed, 3 Jun 2020 12:08:57 +0200
+Message-ID: <20200603100857.GA20099@8bytes.org>
 References: <20200428151725.31091-1-joro@8bytes.org>
- <20200428151725.31091-75-joro@8bytes.org>
+ <20200428151725.31091-24-joro@8bytes.org>
+ <20200511200709.GE25861@zn.tnic>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200428151725.31091-75-joro@8bytes.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Joerg Roedel <joro@8bytes.org>
-Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Dave Hansen <dave.hansen@linux.intel.com>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>, Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
+In-Reply-To: <20200511200709.GE25861@zn.tnic>
+Sender: kvm-owner@vger.kernel.org
+To: Borislav Petkov <bp@alien8.de>
+Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 28, 2020 at 05:17:24PM +0200, Joerg Roedel wrote:
-> diff --git a/arch/x86/kernel/nmi.c b/arch/x86/kernel/nmi.c
-> index 27d1016ec840..8898002e5600 100644
-> --- a/arch/x86/kernel/nmi.c
-> +++ b/arch/x86/kernel/nmi.c
-> @@ -511,6 +511,13 @@ NOKPROBE_SYMBOL(is_debug_stack);
->  dotraplinkage notrace void
->  do_nmi(struct pt_regs *regs, long error_code)
->  {
-> +	/*
-> +	 * Re-enable NMIs right here when running as an SEV-ES guest. This might
-> +	 * cause nested NMIs, but those can be handled safely.
-> +	 */
-> +	if (sev_es_active())
-> +		sev_es_nmi_complete();
+On Mon, May 11, 2020 at 10:07:09PM +0200, Borislav Petkov wrote:
+> On Tue, Apr 28, 2020 at 05:16:33PM +0200, Joerg Roedel wrote:
+> > @@ -63,3 +175,45 @@ void __init do_vc_no_ghcb(struct pt_regs *regs, unsigned long exit_code)
+> >  	while (true)
+> >  		asm volatile("hlt\n");
+> >  }
+> > +
+> > +static enum es_result vc_insn_string_read(struct es_em_ctxt *ctxt,
+> > +					  void *src, char *buf,
+> > +					  unsigned int data_size,
+> > +					  unsigned int count,
+> > +					  bool backwards)
+> > +{
+> > +	int i, b = backwards ? -1 : 1;
+> > +	enum es_result ret = ES_OK;
+> > +
+> > +	for (i = 0; i < count; i++) {
+> > +		void *s = src + (i * data_size * b);
+> > +		char *d = buf + (i * data_size);
+> 
+> >From a previous review:
+> 
+> Where are we checking whether that count is not exceeding @buf or
+> similar discrepancies?
 
-Pls move the comment and the sev_es_active() check into
-the sev_es_nmi_complete() function.
+These two functions are only called from vc_handle_ioio() and buf always
+points to ghcb->shared_buffer.
 
--- 
-Regards/Gruss,
-    Boris.
+In general, the caller has to make sure that sizeof(*buf) is at least
+data_size*count, and handle_ioio() calculates count based on the size of
+*buf.
 
-https://people.kernel.org/tglx/notes-about-netiquette
+
+	Joerg
