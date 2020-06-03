@@ -1,44 +1,32 @@
-From: Joerg Roedel <joro@8bytes.org>
-Subject: Re: [PATCH v3 38/75] x86/sev-es: Add SEV-ES Feature Detection
-Date: Wed, 3 Jun 2020 17:24:36 +0200
-Message-ID: <20200603152436.GA17841@8bytes.org>
-References: <20200428151725.31091-1-joro@8bytes.org>
- <20200428151725.31091-39-joro@8bytes.org>
- <20200520083916.GB1457@zn.tnic>
+From: Brian Gerst <brgerst@gmail.com>
+Subject: Re: [PATCH v3 35/75] x86/head/64: Build k/head64.c with -fno-stack-protector
+Date: Wed, 3 Jun 2020 13:14:11 -0400
+Message-ID: <CAMzpN2j4t7UwOFwSR8gVo-FpAQ_RS5pE1c8JZns3xyUXP3yANQ@mail.gmail.com>
+References: <20200428151725.31091-1-joro@8bytes.org> <20200428151725.31091-36-joro@8bytes.org>
+ <CAMzpN2gfiBAeCV_1+9ogh42bMMuDW=qdwd7dYp49-=zY3kzBaA@mail.gmail.com> <20200603151857.GC23071@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20200520083916.GB1457@zn.tnic>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Borislav Petkov <bp@alien8.de>
-Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Dave Hansen <dave.hansen@linux.intel.com>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>, Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200603151857.GC23071@8bytes.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>
+Cc: the arch/x86 maintainers <x86@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, kvm list <kvm@vger.kernel.org>, Linux Virtualization <virtu>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, May 20, 2020 at 10:39:16AM +0200, Borislav Petkov wrote:
-> On Tue, Apr 28, 2020 at 05:16:48PM +0200, Joerg Roedel wrote:
-> > +bool sev_es_active(void)
-> > +{
-> > +	return !!(sev_status & MSR_AMD64_SEV_ES_ENABLED);
-> > +}
-> > +EXPORT_SYMBOL_GPL(sev_es_active);
-> 
-> I don't see this being used in modules anywhere in the patchset. Or am I
-> missing something?
+On Wed, Jun 3, 2020 at 11:18 AM Joerg Roedel <joro@8bytes.org> wrote:
+>
+> On Tue, May 19, 2020 at 09:58:18AM -0400, Brian Gerst wrote:
+> > On Tue, Apr 28, 2020 at 11:28 AM Joerg Roedel <joro@8bytes.org> wrote:
+>
+> > The proper fix would be to initialize MSR_GS_BASE earlier.
+>
+> That'll mean to initialize it two times during boot, as the first C
+> function with stack-protection is called before the kernel switches to
+> its high addresses (early_idt_setup call-path). But okay, I can do that.
 
-It is used in several places, for example do do_nmi() to conditionally
-re-open the NMI window in SEV-ES guests. But there are other uses too,
-like int sev_es_efi_map_ghcbs() or in sev_es_init_vc_handling() to opt
-out if not running as an SEV-ES guest.
+Good point.  Since this is boot code which isn't subject to stack
+smashing attacks, disabling stack protector is probably the simpler
+option.
 
-
-	Joerg
+--
+Brian Gerst
