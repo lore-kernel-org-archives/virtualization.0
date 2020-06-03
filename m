@@ -1,214 +1,75 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH RFC 01/13] vhost: option to fetch descriptors through an
- independent struct
-Date: Wed, 3 Jun 2020 20:04:45 +0800
-Message-ID: <48e6d644-c4aa-2754-9d06-22133987b3be@redhat.com>
-References: <20200602130543.578420-1-mst@redhat.com>
- <20200602130543.578420-2-mst@redhat.com>
- <e35e5df9-7e36-227e-7981-232a62b06607@redhat.com>
- <20200603045825-mutt-send-email-mst@kernel.org>
+From: Borislav Petkov <bp@alien8.de>
+Subject: Re: [PATCH v3 75/75] x86/efi: Add GHCB mappings when SEV-ES is active
+Date: Wed, 3 Jun 2020 15:52:44 +0200
+Message-ID: <20200603135244.GD19711@zn.tnic>
+References: <20200428151725.31091-1-joro@8bytes.org>
+ <20200428151725.31091-76-joro@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20200603045825-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, =?UTF-8?Q?Eugenio_P=c3=a9rez?= <eperezma@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200428151725.31091-76-joro@8bytes.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>
+Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue, Apr 28, 2020 at 05:17:25PM +0200, Joerg Roedel wrote:
+> From: Tom Lendacky <thomas.lendacky@amd.com>
+> 
+> Calling down to EFI runtime services can result in the firmware performing
+> VMGEXIT calls. The firmware is likely to use the GHCB of the OS (e.g., for
+> setting EFI variables), so each GHCB in the system needs to be identity
+> mapped in the EFI page tables, as unencrypted, to avoid page faults.
 
-On 2020/6/3 下午5:48, Michael S. Tsirkin wrote:
-> On Wed, Jun 03, 2020 at 03:13:56PM +0800, Jason Wang wrote:
->> On 2020/6/2 下午9:05, Michael S. Tsirkin wrote:
+...
 
+> diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+> index eef6e2196ef4..3b62714723b5 100644
+> --- a/arch/x86/kernel/sev-es.c
+> +++ b/arch/x86/kernel/sev-es.c
+> @@ -422,6 +422,31 @@ int sev_es_setup_ap_jump_table(struct real_mode_header *rmh)
+>  	return 0;
+>  }
+>  
 
-[...]
+Trusting the firmware is never a good decision but we've established on
+IRC that *this* firmware is in OVMF and is going to be part of the guest
+measurement so if there's trouble we can always fix it, as opposed to
+the actual firmware in the chip.
 
+Please add some blurb above this function about it so that it is clear
+what kind of EFI firmware it is about here.
 
->>> +
->>> +static int fetch_indirect_descs(struct vhost_virtqueue *vq,
->>> +				struct vhost_desc *indirect,
->>> +				u16 head)
->>> +{
->>> +	struct vring_desc desc;
->>> +	unsigned int i = 0, count, found = 0;
->>> +	u32 len = indirect->len;
->>> +	struct iov_iter from;
->>> +	int ret;
->>> +
->>> +	/* Sanity check */
->>> +	if (unlikely(len % sizeof desc)) {
->>> +		vq_err(vq, "Invalid length in indirect descriptor: "
->>> +		       "len 0x%llx not multiple of 0x%zx\n",
->>> +		       (unsigned long long)len,
->>> +		       sizeof desc);
->>> +		return -EINVAL;
->>> +	}
->>> +
->>> +	ret = translate_desc(vq, indirect->addr, len, vq->indirect,
->>> +			     UIO_MAXIOV, VHOST_ACCESS_RO);
->>> +	if (unlikely(ret < 0)) {
->>> +		if (ret != -EAGAIN)
->>> +			vq_err(vq, "Translation failure %d in indirect.\n", ret);
->>> +		return ret;
->>> +	}
->>> +	iov_iter_init(&from, READ, vq->indirect, ret, len);
->>> +
->>> +	/* We will use the result as an address to read from, so most
->>> +	 * architectures only need a compiler barrier here. */
->>> +	read_barrier_depends();
->>> +
->>> +	count = len / sizeof desc;
->>> +	/* Buffers are chained via a 16 bit next field, so
->>> +	 * we can have at most 2^16 of these. */
->>> +	if (unlikely(count > USHRT_MAX + 1)) {
->>> +		vq_err(vq, "Indirect buffer length too big: %d\n",
->>> +		       indirect->len);
->>> +		return -E2BIG;
->>> +	}
->>> +	if (unlikely(vq->ndescs + count > vq->max_descs)) {
->>> +		vq_err(vq, "Too many indirect + direct descs: %d + %d\n",
->>> +		       vq->ndescs, indirect->len);
->>> +		return -E2BIG;
->>> +	}
->>> +
->>> +	do {
->>> +		if (unlikely(++found > count)) {
->>> +			vq_err(vq, "Loop detected: last one at %u "
->>> +			       "indirect size %u\n",
->>> +			       i, count);
->>> +			return -EINVAL;
->>> +		}
->>> +		if (unlikely(!copy_from_iter_full(&desc, sizeof(desc), &from))) {
->>> +			vq_err(vq, "Failed indirect descriptor: idx %d, %zx\n",
->>> +			       i, (size_t)indirect->addr + i * sizeof desc);
->>> +			return -EINVAL;
->>> +		}
->>> +		if (unlikely(desc.flags & cpu_to_vhost16(vq, VRING_DESC_F_INDIRECT))) {
->>> +			vq_err(vq, "Nested indirect descriptor: idx %d, %zx\n",
->>> +			       i, (size_t)indirect->addr + i * sizeof desc);
->>> +			return -EINVAL;
->>> +		}
->>> +
->>> +		push_split_desc(vq, &desc, head);
->>
->> The error is ignored.
-> See above:
->
->       	if (unlikely(vq->ndescs + count > vq->max_descs))
->
-> So it can't fail here, we never fetch unless there's space.
->
-> I guess we can add a WARN_ON here.
+> +int __init sev_es_efi_map_ghcbs(pgd_t *pgd)
+> +{
+> +	struct sev_es_runtime_data *data;
+> +	unsigned long address, pflags;
+> +	int cpu;
+> +	u64 pfn;
+> +
+> +	if (!sev_es_active())
+> +		return 0;
+> +
+> +	pflags = _PAGE_NX | _PAGE_RW;
+> +
+> +	for_each_possible_cpu(cpu) {
+> +		data = per_cpu(runtime_data, cpu);
+> +
+> +		address = __pa(&data->ghcb_page);
+> +		pfn = address >> PAGE_SHIFT;
+> +
+> +		if (kernel_map_pages_in_pgd(pgd, pfn, address, 1, pflags))
+> +			return 1;
+> +	}
+> +
+> +	return 0;
+> +}
 
+Thx.
 
-Yes.
+-- 
+Regards/Gruss,
+    Boris.
 
-
->
->>> +	} while ((i = next_desc(vq, &desc)) != -1);
->>> +	return 0;
->>> +}
->>> +
->>> +static int fetch_descs(struct vhost_virtqueue *vq)
->>> +{
->>> +	unsigned int i, head, found = 0;
->>> +	struct vhost_desc *last;
->>> +	struct vring_desc desc;
->>> +	__virtio16 avail_idx;
->>> +	__virtio16 ring_head;
->>> +	u16 last_avail_idx;
->>> +	int ret;
->>> +
->>> +	/* Check it isn't doing very strange things with descriptor numbers. */
->>> +	last_avail_idx = vq->last_avail_idx;
->>> +
->>> +	if (vq->avail_idx == vq->last_avail_idx) {
->>> +		if (unlikely(vhost_get_avail_idx(vq, &avail_idx))) {
->>> +			vq_err(vq, "Failed to access avail idx at %p\n",
->>> +				&vq->avail->idx);
->>> +			return -EFAULT;
->>> +		}
->>> +		vq->avail_idx = vhost16_to_cpu(vq, avail_idx);
->>> +
->>> +		if (unlikely((u16)(vq->avail_idx - last_avail_idx) > vq->num)) {
->>> +			vq_err(vq, "Guest moved used index from %u to %u",
->>> +				last_avail_idx, vq->avail_idx);
->>> +			return -EFAULT;
->>> +		}
->>> +
->>> +		/* If there's nothing new since last we looked, return
->>> +		 * invalid.
->>> +		 */
->>> +		if (vq->avail_idx == last_avail_idx)
->>> +			return vq->num;
->>> +
->>> +		/* Only get avail ring entries after they have been
->>> +		 * exposed by guest.
->>> +		 */
->>> +		smp_rmb();
->>> +	}
->>> +
->>> +	/* Grab the next descriptor number they're advertising */
->>> +	if (unlikely(vhost_get_avail_head(vq, &ring_head, last_avail_idx))) {
->>> +		vq_err(vq, "Failed to read head: idx %d address %p\n",
->>> +		       last_avail_idx,
->>> +		       &vq->avail->ring[last_avail_idx % vq->num]);
->>> +		return -EFAULT;
->>> +	}
->>> +
->>> +	head = vhost16_to_cpu(vq, ring_head);
->>> +
->>> +	/* If their number is silly, that's an error. */
->>> +	if (unlikely(head >= vq->num)) {
->>> +		vq_err(vq, "Guest says index %u > %u is available",
->>> +		       head, vq->num);
->>> +		return -EINVAL;
->>> +	}
->>> +
->>> +	i = head;
->>> +	do {
->>> +		if (unlikely(i >= vq->num)) {
->>> +			vq_err(vq, "Desc index is %u > %u, head = %u",
->>> +			       i, vq->num, head);
->>> +			return -EINVAL;
->>> +		}
->>> +		if (unlikely(++found > vq->num)) {
->>> +			vq_err(vq, "Loop detected: last one at %u "
->>> +			       "vq size %u head %u\n",
->>> +			       i, vq->num, head);
->>> +			return -EINVAL;
->>> +		}
->>> +		ret = vhost_get_desc(vq, &desc, i);
->>> +		if (unlikely(ret)) {
->>> +			vq_err(vq, "Failed to get descriptor: idx %d addr %p\n",
->>> +			       i, vq->desc + i);
->>> +			return -EFAULT;
->>> +		}
->>> +		ret = push_split_desc(vq, &desc, head);
->>> +		if (unlikely(ret)) {
->>> +			vq_err(vq, "Failed to save descriptor: idx %d\n", i);
->>> +			return -EINVAL;
->>> +		}
->>> +	} while ((i = next_desc(vq, &desc)) != -1);
->>> +
->>> +	last = peek_split_desc(vq);
->>> +	if (unlikely(last->flags & VRING_DESC_F_INDIRECT)) {
->>> +		pop_split_desc(vq);
->>> +		ret = fetch_indirect_descs(vq, last, head);
->>
->> Note that this means we don't supported chained indirect descriptors which
->> complies the spec but we support this in vhost_get_vq_desc().
-> Well the spec says:
-> 	A driver MUST NOT set both VIRTQ_DESC_F_INDIRECT and VIRTQ_DESC_F_NEXT in flags.
->
-> Did I miss anything?
->
-
-No, but I meant current vhost_get_vq_desc() supports chained indirect 
-descriptor. Not sure if there's an application that depends on this 
-silently.
-
-Thanks
+https://people.kernel.org/tglx/notes-about-netiquette
