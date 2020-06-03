@@ -1,124 +1,123 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH 4/6] vhost_vdpa: support doorbell mapping via mmap
-Date: Wed, 3 Jun 2020 02:34:55 -0400
-Message-ID: <20200603023429-mutt-send-email-mst@kernel.org>
+Date: Wed, 3 Jun 2020 14:37:51 +0800
+Message-ID: <3c4ed3de-00e9-2e3d-854e-4bd47063820b@redhat.com>
 References: <20200529080303.15449-5-jasowang@redhat.com>
  <202006020308.kLXTHt4n%lkp@intel.com>
  <20200602005007-mutt-send-email-mst@kernel.org>
  <bd7dde11-b726-ee08-4e80-71fb784fa549@redhat.com>
  <20200602093025-mutt-send-email-mst@kernel.org>
  <5db6b413-cb6c-a566-2f2d-ad580d8e165b@redhat.com>
+ <20200603023429-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <5db6b413-cb6c-a566-2f2d-ad580d8e165b@redhat.com>
+In-Reply-To: <20200603023429-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: kbuild test robot <lkp@intel.com>, kbuild-all@lists.01.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, rob.miller@broadcom.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 03, 2020 at 12:18:44PM +0800, Jason Wang wrote:
-> 
-> On 2020/6/2 下午9:31, Michael S. Tsirkin wrote:
-> > On Tue, Jun 02, 2020 at 02:49:38PM +0800, Jason Wang wrote:
-> > > On 2020/6/2 下午12:56, Michael S. Tsirkin wrote:
-> > > > On Tue, Jun 02, 2020 at 03:22:49AM +0800, kbuild test robot wrote:
-> > > > > Hi Jason,
-> > > > > 
-> > > > > I love your patch! Yet something to improve:
-> > > > > 
-> > > > > [auto build test ERROR on vhost/linux-next]
-> > > > > [also build test ERROR on linus/master v5.7 next-20200529]
-> > > > > [if your patch is applied to the wrong git tree, please drop us a note to help
-> > > > > improve the system. BTW, we also suggest to use '--base' option to specify the
-> > > > > base tree in git format-patch, please seehttps://stackoverflow.com/a/37406982]
-> > > > > 
-> > > > > url:https://github.com/0day-ci/linux/commits/Jason-Wang/vDPA-doorbell-mapping/20200531-070834
-> > > > > base:https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git  linux-next
-> > > > > config: m68k-randconfig-r011-20200601 (attached as .config)
-> > > > > compiler: m68k-linux-gcc (GCC) 9.3.0
-> > > > > reproduce (this is a W=1 build):
-> > > > >           wgethttps://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross  -O ~/bin/make.cross
-> > > > >           chmod +x ~/bin/make.cross
-> > > > >           # save the attached .config to linux build tree
-> > > > >           COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-9.3.0 make.cross ARCH=m68k
-> > > > > 
-> > > > > If you fix the issue, kindly add following tag as appropriate
-> > > > > Reported-by: kbuild test robot<lkp@intel.com>
-> > > > > 
-> > > > > All errors (new ones prefixed by >>, old ones prefixed by <<):
-> > > > > 
-> > > > > drivers/vhost/vdpa.c: In function 'vhost_vdpa_fault':
-> > > > > > > drivers/vhost/vdpa.c:754:22: error: implicit declaration of function 'pgprot_noncached' [-Werror=implicit-function-declaration]
-> > > > > 754 |  vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
-> > > > > |                      ^~~~~~~~~~~~~~~~
-> > > > > > > drivers/vhost/vdpa.c:754:22: error: incompatible types when assigning to type 'pgprot_t' {aka 'struct <anonymous>'} from type 'int'
-> > > > > cc1: some warnings being treated as errors
-> > > > > 
-> > > > > vim +/pgprot_noncached +754 drivers/vhost/vdpa.c
-> > > > > 
-> > > > >      742	
-> > > > >      743	static vm_fault_t vhost_vdpa_fault(struct vm_fault *vmf)
-> > > > >      744	{
-> > > > >      745		struct vhost_vdpa *v = vmf->vma->vm_file->private_data;
-> > > > >      746		struct vdpa_device *vdpa = v->vdpa;
-> > > > >      747		const struct vdpa_config_ops *ops = vdpa->config;
-> > > > >      748		struct vdpa_notification_area notify;
-> > > > >      749		struct vm_area_struct *vma = vmf->vma;
-> > > > >      750		u16 index = vma->vm_pgoff;
-> > > > >      751	
-> > > > >      752		notify = ops->get_vq_notification(vdpa, index);
-> > > > >      753	
-> > > > >    > 754		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
-> > > > >      755		if (remap_pfn_range(vma, vmf->address & PAGE_MASK,
-> > > > >      756				    notify.addr >> PAGE_SHIFT, PAGE_SIZE,
-> > > > >      757				    vma->vm_page_prot))
-> > > > >      758			return VM_FAULT_SIGBUS;
-> > > > >      759	
-> > > > >      760		return VM_FAULT_NOPAGE;
-> > > > >      761	}
-> > > > >      762	
-> > > > Yes well, all this remapping clearly has no chance to work
-> > > > on systems without CONFIG_MMU.
-> > > 
-> > > It looks to me mmap can work according to Documentation/nommu-mmap.txt. But
-> > > I'm not sure it's worth to bother.
-> > > 
-> > > Thanks
-> > 
-> > Well
-> > 
-> > int remap_pfn_range(struct vm_area_struct *vma, unsigned long addr,
-> >                  unsigned long pfn, unsigned long size, pgprot_t prot)
-> > {
-> >          if (addr != (pfn << PAGE_SHIFT))
-> >                  return -EINVAL;
-> > 
-> >          vma->vm_flags |= VM_IO | VM_PFNMAP | VM_DONTEXPAND | VM_DONTDUMP;
-> >          return 0;
-> > }
-> > EXPORT_SYMBOL(remap_pfn_range);
-> > 
-> > 
-> > So things aren't going to work if you have a fixed PFN
-> > which is the case of the hardware device.
-> 
-> 
-> Looking at the implementation of some drivers e.g mtd_char. If I read the
-> code correctly, we can do this by providing get_unmapped_area method and use
-> physical address directly.
-> 
-> But start form CONFIG_MMU should be fine.  Do you prefer making vhost_vdpa
-> depends on CONFIG_MMU or just fail mmap when CONFIG_MMU is not configured?
-> 
-> Thanks
 
-I'd just not specify the mmap callback at all.
+On 2020/6/3 下午2:34, Michael S. Tsirkin wrote:
+> On Wed, Jun 03, 2020 at 12:18:44PM +0800, Jason Wang wrote:
+>> On 2020/6/2 下午9:31, Michael S. Tsirkin wrote:
+>>> On Tue, Jun 02, 2020 at 02:49:38PM +0800, Jason Wang wrote:
+>>>> On 2020/6/2 下午12:56, Michael S. Tsirkin wrote:
+>>>>> On Tue, Jun 02, 2020 at 03:22:49AM +0800, kbuild test robot wrote:
+>>>>>> Hi Jason,
+>>>>>>
+>>>>>> I love your patch! Yet something to improve:
+>>>>>>
+>>>>>> [auto build test ERROR on vhost/linux-next]
+>>>>>> [also build test ERROR on linus/master v5.7 next-20200529]
+>>>>>> [if your patch is applied to the wrong git tree, please drop us a note to help
+>>>>>> improve the system. BTW, we also suggest to use '--base' option to specify the
+>>>>>> base tree in git format-patch, please seehttps://stackoverflow.com/a/37406982]
+>>>>>>
+>>>>>> url:https://github.com/0day-ci/linux/commits/Jason-Wang/vDPA-doorbell-mapping/20200531-070834
+>>>>>> base:https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git   linux-next
+>>>>>> config: m68k-randconfig-r011-20200601 (attached as .config)
+>>>>>> compiler: m68k-linux-gcc (GCC) 9.3.0
+>>>>>> reproduce (this is a W=1 build):
+>>>>>>            wgethttps://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross  -O ~/bin/make.cross
+>>>>>>            chmod +x ~/bin/make.cross
+>>>>>>            # save the attached .config to linux build tree
+>>>>>>            COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-9.3.0 make.cross ARCH=m68k
+>>>>>>
+>>>>>> If you fix the issue, kindly add following tag as appropriate
+>>>>>> Reported-by: kbuild test robot<lkp@intel.com>
+>>>>>>
+>>>>>> All errors (new ones prefixed by >>, old ones prefixed by <<):
+>>>>>>
+>>>>>> drivers/vhost/vdpa.c: In function 'vhost_vdpa_fault':
+>>>>>>>> drivers/vhost/vdpa.c:754:22: error: implicit declaration of function 'pgprot_noncached' [-Werror=implicit-function-declaration]
+>>>>>> 754 |  vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+>>>>>> |                      ^~~~~~~~~~~~~~~~
+>>>>>>>> drivers/vhost/vdpa.c:754:22: error: incompatible types when assigning to type 'pgprot_t' {aka 'struct <anonymous>'} from type 'int'
+>>>>>> cc1: some warnings being treated as errors
+>>>>>>
+>>>>>> vim +/pgprot_noncached +754 drivers/vhost/vdpa.c
+>>>>>>
+>>>>>>       742	
+>>>>>>       743	static vm_fault_t vhost_vdpa_fault(struct vm_fault *vmf)
+>>>>>>       744	{
+>>>>>>       745		struct vhost_vdpa *v = vmf->vma->vm_file->private_data;
+>>>>>>       746		struct vdpa_device *vdpa = v->vdpa;
+>>>>>>       747		const struct vdpa_config_ops *ops = vdpa->config;
+>>>>>>       748		struct vdpa_notification_area notify;
+>>>>>>       749		struct vm_area_struct *vma = vmf->vma;
+>>>>>>       750		u16 index = vma->vm_pgoff;
+>>>>>>       751	
+>>>>>>       752		notify = ops->get_vq_notification(vdpa, index);
+>>>>>>       753	
+>>>>>>     > 754		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
+>>>>>>       755		if (remap_pfn_range(vma, vmf->address & PAGE_MASK,
+>>>>>>       756				    notify.addr >> PAGE_SHIFT, PAGE_SIZE,
+>>>>>>       757				    vma->vm_page_prot))
+>>>>>>       758			return VM_FAULT_SIGBUS;
+>>>>>>       759	
+>>>>>>       760		return VM_FAULT_NOPAGE;
+>>>>>>       761	}
+>>>>>>       762	
+>>>>> Yes well, all this remapping clearly has no chance to work
+>>>>> on systems without CONFIG_MMU.
+>>>> It looks to me mmap can work according to Documentation/nommu-mmap.txt. But
+>>>> I'm not sure it's worth to bother.
+>>>>
+>>>> Thanks
+>>> Well
+>>>
+>>> int remap_pfn_range(struct vm_area_struct *vma, unsigned long addr,
+>>>                   unsigned long pfn, unsigned long size, pgprot_t prot)
+>>> {
+>>>           if (addr != (pfn << PAGE_SHIFT))
+>>>                   return -EINVAL;
+>>>
+>>>           vma->vm_flags |= VM_IO | VM_PFNMAP | VM_DONTEXPAND | VM_DONTDUMP;
+>>>           return 0;
+>>> }
+>>> EXPORT_SYMBOL(remap_pfn_range);
+>>>
+>>>
+>>> So things aren't going to work if you have a fixed PFN
+>>> which is the case of the hardware device.
+>> Looking at the implementation of some drivers e.g mtd_char. If I read the
+>> code correctly, we can do this by providing get_unmapped_area method and use
+>> physical address directly.
+>>
+>> But start form CONFIG_MMU should be fine.  Do you prefer making vhost_vdpa
+>> depends on CONFIG_MMU or just fail mmap when CONFIG_MMU is not configured?
+>>
+>> Thanks
+> I'd just not specify the mmap callback at all.
 
-> 
-> > 
-> > 
-> > > > 
-> > > > 
+
+Ok, will do.
+
+Thanks
+
+
+>
