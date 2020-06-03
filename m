@@ -1,123 +1,84 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 4/6] vhost_vdpa: support doorbell mapping via mmap
-Date: Wed, 3 Jun 2020 14:37:51 +0800
-Message-ID: <3c4ed3de-00e9-2e3d-854e-4bd47063820b@redhat.com>
-References: <20200529080303.15449-5-jasowang@redhat.com>
- <202006020308.kLXTHt4n%lkp@intel.com>
- <20200602005007-mutt-send-email-mst@kernel.org>
- <bd7dde11-b726-ee08-4e80-71fb784fa549@redhat.com>
- <20200602093025-mutt-send-email-mst@kernel.org>
- <5db6b413-cb6c-a566-2f2d-ad580d8e165b@redhat.com>
- <20200603023429-mutt-send-email-mst@kernel.org>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH] s390/virtio: remove unused pm callbacks
+Date: Wed, 3 Jun 2020 08:43:56 +0200
+Message-ID: <20200603084356.326d66aa.cohuck@redhat.com>
+References: <20200526093629.257649-1-cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200603023429-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kbuild test robot <lkp@intel.com>, kbuild-all@lists.01.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, rob.miller@broadcom.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200526093629.257649-1-cohuck@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Halil Pasic <pasic@linux.ibm.com>
+Cc: linux-s390@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+Friendly ping.
 
-On 2020/6/3 下午2:34, Michael S. Tsirkin wrote:
-> On Wed, Jun 03, 2020 at 12:18:44PM +0800, Jason Wang wrote:
->> On 2020/6/2 下午9:31, Michael S. Tsirkin wrote:
->>> On Tue, Jun 02, 2020 at 02:49:38PM +0800, Jason Wang wrote:
->>>> On 2020/6/2 下午12:56, Michael S. Tsirkin wrote:
->>>>> On Tue, Jun 02, 2020 at 03:22:49AM +0800, kbuild test robot wrote:
->>>>>> Hi Jason,
->>>>>>
->>>>>> I love your patch! Yet something to improve:
->>>>>>
->>>>>> [auto build test ERROR on vhost/linux-next]
->>>>>> [also build test ERROR on linus/master v5.7 next-20200529]
->>>>>> [if your patch is applied to the wrong git tree, please drop us a note to help
->>>>>> improve the system. BTW, we also suggest to use '--base' option to specify the
->>>>>> base tree in git format-patch, please seehttps://stackoverflow.com/a/37406982]
->>>>>>
->>>>>> url:https://github.com/0day-ci/linux/commits/Jason-Wang/vDPA-doorbell-mapping/20200531-070834
->>>>>> base:https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git   linux-next
->>>>>> config: m68k-randconfig-r011-20200601 (attached as .config)
->>>>>> compiler: m68k-linux-gcc (GCC) 9.3.0
->>>>>> reproduce (this is a W=1 build):
->>>>>>            wgethttps://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross  -O ~/bin/make.cross
->>>>>>            chmod +x ~/bin/make.cross
->>>>>>            # save the attached .config to linux build tree
->>>>>>            COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-9.3.0 make.cross ARCH=m68k
->>>>>>
->>>>>> If you fix the issue, kindly add following tag as appropriate
->>>>>> Reported-by: kbuild test robot<lkp@intel.com>
->>>>>>
->>>>>> All errors (new ones prefixed by >>, old ones prefixed by <<):
->>>>>>
->>>>>> drivers/vhost/vdpa.c: In function 'vhost_vdpa_fault':
->>>>>>>> drivers/vhost/vdpa.c:754:22: error: implicit declaration of function 'pgprot_noncached' [-Werror=implicit-function-declaration]
->>>>>> 754 |  vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
->>>>>> |                      ^~~~~~~~~~~~~~~~
->>>>>>>> drivers/vhost/vdpa.c:754:22: error: incompatible types when assigning to type 'pgprot_t' {aka 'struct <anonymous>'} from type 'int'
->>>>>> cc1: some warnings being treated as errors
->>>>>>
->>>>>> vim +/pgprot_noncached +754 drivers/vhost/vdpa.c
->>>>>>
->>>>>>       742	
->>>>>>       743	static vm_fault_t vhost_vdpa_fault(struct vm_fault *vmf)
->>>>>>       744	{
->>>>>>       745		struct vhost_vdpa *v = vmf->vma->vm_file->private_data;
->>>>>>       746		struct vdpa_device *vdpa = v->vdpa;
->>>>>>       747		const struct vdpa_config_ops *ops = vdpa->config;
->>>>>>       748		struct vdpa_notification_area notify;
->>>>>>       749		struct vm_area_struct *vma = vmf->vma;
->>>>>>       750		u16 index = vma->vm_pgoff;
->>>>>>       751	
->>>>>>       752		notify = ops->get_vq_notification(vdpa, index);
->>>>>>       753	
->>>>>>     > 754		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
->>>>>>       755		if (remap_pfn_range(vma, vmf->address & PAGE_MASK,
->>>>>>       756				    notify.addr >> PAGE_SHIFT, PAGE_SIZE,
->>>>>>       757				    vma->vm_page_prot))
->>>>>>       758			return VM_FAULT_SIGBUS;
->>>>>>       759	
->>>>>>       760		return VM_FAULT_NOPAGE;
->>>>>>       761	}
->>>>>>       762	
->>>>> Yes well, all this remapping clearly has no chance to work
->>>>> on systems without CONFIG_MMU.
->>>> It looks to me mmap can work according to Documentation/nommu-mmap.txt. But
->>>> I'm not sure it's worth to bother.
->>>>
->>>> Thanks
->>> Well
->>>
->>> int remap_pfn_range(struct vm_area_struct *vma, unsigned long addr,
->>>                   unsigned long pfn, unsigned long size, pgprot_t prot)
->>> {
->>>           if (addr != (pfn << PAGE_SHIFT))
->>>                   return -EINVAL;
->>>
->>>           vma->vm_flags |= VM_IO | VM_PFNMAP | VM_DONTEXPAND | VM_DONTDUMP;
->>>           return 0;
->>> }
->>> EXPORT_SYMBOL(remap_pfn_range);
->>>
->>>
->>> So things aren't going to work if you have a fixed PFN
->>> which is the case of the hardware device.
->> Looking at the implementation of some drivers e.g mtd_char. If I read the
->> code correctly, we can do this by providing get_unmapped_area method and use
->> physical address directly.
->>
->> But start form CONFIG_MMU should be fine.  Do you prefer making vhost_vdpa
->> depends on CONFIG_MMU or just fail mmap when CONFIG_MMU is not configured?
->>
->> Thanks
-> I'd just not specify the mmap callback at all.
+On Tue, 26 May 2020 11:36:29 +0200
+Cornelia Huck <cohuck@redhat.com> wrote:
 
+> Support for hibernation on s390 has been recently been removed with
 
-Ok, will do.
+(one 'been' too much here, I just noticed :)
 
-Thanks
-
-
->
+> commit 394216275c7d ("s390: remove broken hibernate / power management
+> support"), no need to keep unused code around.
+> 
+> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+> ---
+>  drivers/s390/virtio/virtio_ccw.c | 26 --------------------------
+>  1 file changed, 26 deletions(-)
+> 
+> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> index 957889a42d2e..5730572b52cd 100644
+> --- a/drivers/s390/virtio/virtio_ccw.c
+> +++ b/drivers/s390/virtio/virtio_ccw.c
+> @@ -1372,27 +1372,6 @@ static struct ccw_device_id virtio_ids[] = {
+>  	{},
+>  };
+>  
+> -#ifdef CONFIG_PM_SLEEP
+> -static int virtio_ccw_freeze(struct ccw_device *cdev)
+> -{
+> -	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
+> -
+> -	return virtio_device_freeze(&vcdev->vdev);
+> -}
+> -
+> -static int virtio_ccw_restore(struct ccw_device *cdev)
+> -{
+> -	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
+> -	int ret;
+> -
+> -	ret = virtio_ccw_set_transport_rev(vcdev);
+> -	if (ret)
+> -		return ret;
+> -
+> -	return virtio_device_restore(&vcdev->vdev);
+> -}
+> -#endif
+> -
+>  static struct ccw_driver virtio_ccw_driver = {
+>  	.driver = {
+>  		.owner = THIS_MODULE,
+> @@ -1405,11 +1384,6 @@ static struct ccw_driver virtio_ccw_driver = {
+>  	.set_online = virtio_ccw_online,
+>  	.notify = virtio_ccw_cio_notify,
+>  	.int_class = IRQIO_VIR,
+> -#ifdef CONFIG_PM_SLEEP
+> -	.freeze = virtio_ccw_freeze,
+> -	.thaw = virtio_ccw_restore,
+> -	.restore = virtio_ccw_restore,
+> -#endif
+>  };
+>  
+>  static int __init pure_hex(char **cp, unsigned int *val, int min_digit,
