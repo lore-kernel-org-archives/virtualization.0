@@ -1,41 +1,186 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC 04/13] vhost: cleanup fetch_buf return code handling
-Date: Thu, 4 Jun 2020 05:01:12 -0400
-Message-ID: <20200604050011-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH RFC 07/13] vhost: format-independent API for used buffers
+Date: Thu, 4 Jun 2020 05:03:20 -0400
+Message-ID: <20200604050135-mutt-send-email-mst@kernel.org>
 References: <20200602130543.578420-1-mst@redhat.com>
- <20200602130543.578420-5-mst@redhat.com>
- <7221afa5-bafd-f19b-9cfd-cc51a8d3b321@redhat.com>
+ <20200602130543.578420-8-mst@redhat.com>
+ <6d98f2cc-2084-cde0-c938-4ca01692adf9@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <7221afa5-bafd-f19b-9cfd-cc51a8d3b321@redhat.com>
+In-Reply-To: <6d98f2cc-2084-cde0-c938-4ca01692adf9@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: Jason Wang <jasowang@redhat.com>
 Cc: linux-kernel@vger.kernel.org, Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 03, 2020 at 03:29:02PM +0800, Jason Wang wrote:
+On Wed, Jun 03, 2020 at 03:58:26PM +0800, Jason Wang wrote:
 > 
 > On 2020/6/2 下午9:06, Michael S. Tsirkin wrote:
-> > Return code of fetch_buf is confusing, so callers resort to
-> > tricks to get to sane values. Let's switch to something standard:
-> > 0 empty, >0 non-empty, <0 error.
+> > Add a new API that doesn't assume used ring, heads, etc.
+> > For now, we keep the old APIs around to make it easier
+> > to convert drivers.
 > > 
-> > Signed-off-by: Michael S. Tsirkin<mst@redhat.com>
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > > ---
-> >   drivers/vhost/vhost.c | 24 ++++++++++++++++--------
-> >   1 file changed, 16 insertions(+), 8 deletions(-)
+> >   drivers/vhost/vhost.c | 52 ++++++++++++++++++++++++++++++++++---------
+> >   drivers/vhost/vhost.h | 17 +++++++++++++-
+> >   2 files changed, 58 insertions(+), 11 deletions(-)
+> > 
+> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> > index b4a6e44d56a8..be822f0c9428 100644
+> > --- a/drivers/vhost/vhost.c
+> > +++ b/drivers/vhost/vhost.c
+> > @@ -2292,13 +2292,12 @@ static int fetch_descs(struct vhost_virtqueue *vq)
+> >    * number of output then some number of input descriptors, it's actually two
+> >    * iovecs, but we pack them into one and note how many of each there were.
+> >    *
+> > - * This function returns the descriptor number found, or vq->num (which is
+> > - * never a valid descriptor number) if none was found.  A negative code is
+> > - * returned on error. */
+> > -int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+> > -		      struct iovec iov[], unsigned int iov_size,
+> > -		      unsigned int *out_num, unsigned int *in_num,
+> > -		      struct vhost_log *log, unsigned int *log_num)
+> > + * This function returns a value > 0 if a descriptor was found, or 0 if none were found.
+> > + * A negative code is returned on error. */
+> > +int vhost_get_avail_buf(struct vhost_virtqueue *vq, struct vhost_buf *buf,
+> > +			struct iovec iov[], unsigned int iov_size,
+> > +			unsigned int *out_num, unsigned int *in_num,
+> > +			struct vhost_log *log, unsigned int *log_num)
+> >   {
+> >   	int ret = fetch_descs(vq);
+> >   	int i;
+> > @@ -2311,6 +2310,8 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+> >   	*out_num = *in_num = 0;
+> >   	if (unlikely(log))
+> >   		*log_num = 0;
+> > +	buf->in_len = buf->out_len = 0;
+> > +	buf->descs = 0;
+> >   	for (i = vq->first_desc; i < vq->ndescs; ++i) {
+> >   		unsigned iov_count = *in_num + *out_num;
+> > @@ -2340,6 +2341,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+> >   			/* If this is an input descriptor,
+> >   			 * increment that count. */
+> >   			*in_num += ret;
+> > +			buf->in_len += desc->len;
+> >   			if (unlikely(log && ret)) {
+> >   				log[*log_num].addr = desc->addr;
+> >   				log[*log_num].len = desc->len;
+> > @@ -2355,9 +2357,11 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+> >   				goto err;
+> >   			}
+> >   			*out_num += ret;
+> > +			buf->out_len += desc->len;
+> >   		}
+> > -		ret = desc->id;
+> > +		buf->id = desc->id;
+> > +		++buf->descs;
+> >   		if (!(desc->flags & VRING_DESC_F_NEXT))
+> >   			break;
+> > @@ -2365,7 +2369,7 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+> >   	vq->first_desc = i + 1;
+> > -	return ret;
+> > +	return 1;
+> >   err:
+> >   	for (i = vq->first_desc; i < vq->ndescs; ++i)
+> > @@ -2375,7 +2379,15 @@ int vhost_get_vq_desc(struct vhost_virtqueue *vq,
+> >   	return ret;
+> >   }
+> > -EXPORT_SYMBOL_GPL(vhost_get_vq_desc);
+> > +EXPORT_SYMBOL_GPL(vhost_get_avail_buf);
+> > +
+> > +/* Reverse the effect of vhost_get_avail_buf. Useful for error handling. */
+> > +void vhost_discard_avail_bufs(struct vhost_virtqueue *vq,
+> > +			      struct vhost_buf *buf, unsigned count)
+> > +{
+> > +	vhost_discard_vq_desc(vq, count);
+> > +}
+> > +EXPORT_SYMBOL_GPL(vhost_discard_avail_bufs);
+> >   static int __vhost_add_used_n(struct vhost_virtqueue *vq,
+> >   			    struct vring_used_elem *heads,
+> > @@ -2459,6 +2471,26 @@ int vhost_add_used(struct vhost_virtqueue *vq, unsigned int head, int len)
+> >   }
+> >   EXPORT_SYMBOL_GPL(vhost_add_used);
+> > +int vhost_put_used_buf(struct vhost_virtqueue *vq, struct vhost_buf *buf)
+> > +{
+> > +	return vhost_add_used(vq, buf->id, buf->in_len);
+> > +}
+> > +EXPORT_SYMBOL_GPL(vhost_put_used_buf);
+> > +
+> > +int vhost_put_used_n_bufs(struct vhost_virtqueue *vq,
+> > +			  struct vhost_buf *bufs, unsigned count)
+> > +{
+> > +	unsigned i;
+> > +
+> > +	for (i = 0; i < count; ++i) {
+> > +		vq->heads[i].id = cpu_to_vhost32(vq, bufs[i].id);
+> > +		vq->heads[i].len = cpu_to_vhost32(vq, bufs[i].in_len);
+> > +	}
+> > +
+> > +	return vhost_add_used_n(vq, vq->heads, count);
+> > +}
+> > +EXPORT_SYMBOL_GPL(vhost_put_used_n_bufs);
+> > +
+> >   static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+> >   {
+> >   	__u16 old, new;
+> > diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+> > index a67bda9792ec..6c10e99ff334 100644
+> > --- a/drivers/vhost/vhost.h
+> > +++ b/drivers/vhost/vhost.h
+> > @@ -67,6 +67,13 @@ struct vhost_desc {
+> >   	u16 id;
+> >   };
+> > +struct vhost_buf {
+> > +	u32 out_len;
+> > +	u32 in_len;
+> > +	u16 descs;
+> > +	u16 id;
+> > +};
 > 
 > 
-> Why not squashing this into patch 2 or 3?
+> So it looks to me the struct vhost_buf can work for both split ring and
+> packed ring.
+> 
+> If this is true, we'd better make struct vhost_desc work for both.
 > 
 > Thanks
 
-It makes the tricky patches smaller. I'll consider it,
-for now this split is also because patches 1-3 have
-already been tested.
+Both vhost_desc and vhost_buf can work for split and packed.
 
--- 
-MST
+Do you mean we should add packed ring support based on this?
+For sure, this is one of the motivators for the patchset.
+
+
+> 
+> > +
+> >   /* The virtqueue structure describes a queue attached to a device. */
+> >   struct vhost_virtqueue {
+> >   	struct vhost_dev *dev;
+> > @@ -193,7 +200,12 @@ int vhost_get_vq_desc(struct vhost_virtqueue *,
+> >   		      unsigned int *out_num, unsigned int *in_num,
+> >   		      struct vhost_log *log, unsigned int *log_num);
+> >   void vhost_discard_vq_desc(struct vhost_virtqueue *, int n);
+> > -
+> > +int vhost_get_avail_buf(struct vhost_virtqueue *, struct vhost_buf *buf,
+> > +			struct iovec iov[], unsigned int iov_count,
+> > +			unsigned int *out_num, unsigned int *in_num,
+> > +			struct vhost_log *log, unsigned int *log_num);
+> > +void vhost_discard_avail_bufs(struct vhost_virtqueue *,
+> > +			      struct vhost_buf *, unsigned count);
+> >   int vhost_vq_init_access(struct vhost_virtqueue *);
+> >   int vhost_add_used(struct vhost_virtqueue *, unsigned int head, int len);
+> >   int vhost_add_used_n(struct vhost_virtqueue *, struct vring_used_elem *heads,
+> > @@ -202,6 +214,9 @@ void vhost_add_used_and_signal(struct vhost_dev *, struct vhost_virtqueue *,
+> >   			       unsigned int id, int len);
+> >   void vhost_add_used_and_signal_n(struct vhost_dev *, struct vhost_virtqueue *,
+> >   			       struct vring_used_elem *heads, unsigned count);
+> > +int vhost_put_used_buf(struct vhost_virtqueue *, struct vhost_buf *buf);
+> > +int vhost_put_used_n_bufs(struct vhost_virtqueue *,
+> > +			  struct vhost_buf *bufs, unsigned count);
+> >   void vhost_signal(struct vhost_dev *, struct vhost_virtqueue *);
+> >   void vhost_disable_notify(struct vhost_dev *, struct vhost_virtqueue *);
+> >   bool vhost_vq_avail_empty(struct vhost_dev *, struct vhost_virtqueue *);
