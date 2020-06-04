@@ -1,79 +1,132 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC 07/13] vhost: format-independent API for used buffers
-Date: Thu, 4 Jun 2020 06:17:33 -0400
-Message-ID: <20200604060732-mutt-send-email-mst@kernel.org>
-References: <20200602130543.578420-1-mst@redhat.com>
- <20200602130543.578420-8-mst@redhat.com>
- <6d98f2cc-2084-cde0-c938-4ca01692adf9@redhat.com>
- <20200604050135-mutt-send-email-mst@kernel.org>
- <b39e6fb8-a59a-2b3f-a1eb-1ccea2fe1b86@redhat.com>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: Re: [PATCH v3 31/75] x86/head/64: Install boot GDT
+Date: Thu, 4 Jun 2020 13:48:21 +0200
+Message-ID: <20200604114821.GA30945@8bytes.org>
+References: <20200428151725.31091-1-joro@8bytes.org>
+ <20200428151725.31091-32-joro@8bytes.org>
+ <20200518082313.GA25034@zn.tnic>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <b39e6fb8-a59a-2b3f-a1eb-1ccea2fe1b86@redhat.com>
+In-Reply-To: <20200518082313.GA25034@zn.tnic>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+To: Borislav Petkov <bp@alien8.de>
+Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 04, 2020 at 05:18:00PM +0800, Jason Wang wrote:
+On Mon, May 18, 2020 at 10:23:13AM +0200, Borislav Petkov wrote:
+> On Tue, Apr 28, 2020 at 05:16:41PM +0200, Joerg Roedel wrote:
+> > @@ -480,6 +500,22 @@ SYM_DATA_LOCAL(early_gdt_descr_base,	.quad INIT_PER_CPU_VAR(gdt_page))
+> >  SYM_DATA(phys_base, .quad 0x0)
+> >  EXPORT_SYMBOL(phys_base)
+> >
+> > +/* Boot GDT used when kernel addresses are not mapped yet */
+> > +SYM_DATA_LOCAL(boot_gdt_descr,		.word boot_gdt_end - boot_gdt)
+> > +SYM_DATA_LOCAL(boot_gdt_base,		.quad 0)
+> > +SYM_DATA_START(boot_gdt)
+> > +	.quad	0
+> > +	.quad   0x00cf9a000000ffff	/* __KERNEL32_CS */
+> > +	.quad   0x00af9a000000ffff	/* __KERNEL_CS */
+> > +	.quad   0x00cf92000000ffff	/* __KERNEL_DS */
+> > +	.quad	0			/* __USER32_CS - unused */
+> > +	.quad	0			/* __USER_DS   - unused */
+> > +	.quad	0			/* __USER_CS   - unused */
+> > +	.quad	0			/* unused */
+> > +	.quad   0x0080890000000000	/* TSS descriptor */
+> > +	.quad   0x0000000000000000	/* TSS continued */
 > 
-> On 2020/6/4 下午5:03, Michael S. Tsirkin wrote:
-> > > >    static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
-> > > >    {
-> > > >    	__u16 old, new;
-> > > > diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> > > > index a67bda9792ec..6c10e99ff334 100644
-> > > > --- a/drivers/vhost/vhost.h
-> > > > +++ b/drivers/vhost/vhost.h
-> > > > @@ -67,6 +67,13 @@ struct vhost_desc {
-> > > >    	u16 id;
-> > > >    };
-> > > > +struct vhost_buf {
-> > > > +	u32 out_len;
-> > > > +	u32 in_len;
-> > > > +	u16 descs;
-> > > > +	u16 id;
-> > > > +};
-> > > So it looks to me the struct vhost_buf can work for both split ring and
-> > > packed ring.
-> > > 
-> > > If this is true, we'd better make struct vhost_desc work for both.
-> > > 
-> > > Thanks
-> > Both vhost_desc and vhost_buf can work for split and packed.
-> > 
-> > Do you mean we should add packed ring support based on this?
-> > For sure, this is one of the motivators for the patchset.
-> > 
-> 
-> Somehow. But the reason I ask is that I see "split" suffix is used in patch
-> 1 as:
-> 
-> peek_split_desc()
-> pop_split_desc()
-> push_split_desc()
-> 
-> But that suffix is not used for the new used ring API invented in this
-> patch.
-> 
-> Thanks
-> 
+> Any chance you could use macros ala GDT_ENTRY_INIT() for those instead
+> of the naked values?
 
-And that is intentional: split is *not* part of API. The whole idea is
-that ring APIs are format agnostic using "buffer" terminology from spec.
-The split things are all static within vhost.c
+Yeah, seems to work. Updated patch attached.
 
-OK so where I had to add a bunch of new format specific code, that was
-tagged as "split" to make it easier to spot that they only support a
-specific format.  At the same time, I did not rename existing code
-adding "split" in the name. I agree it's a useful additional step for
-packed ring format support, and it's fairly easy. I just didn't want
-to do it automatically.
+From 1350746f9063147a33156c0b56a7b12b1794f555 Mon Sep 17 00:00:00 2001
+From: Joerg Roedel <jroedel@suse.de>
+Date: Fri, 15 Nov 2019 13:49:55 +0100
+Subject: [PATCH 31/74] x86/head/64: Install boot GDT
 
+Handling exceptions during boot requires a working GDT. The kernel GDT
+is not yet ready for use, so install a temporary boot GDT.
 
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+---
+ arch/x86/kernel/head64.c  | 19 +++++++++++++++++++
+ arch/x86/kernel/head_64.S | 25 +++++++++++++++++++++++++
+ 2 files changed, 44 insertions(+)
 
+diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
+index 206a4b6144c2..900c3372cc6a 100644
+--- a/arch/x86/kernel/head64.c
++++ b/arch/x86/kernel/head64.c
+@@ -61,6 +61,25 @@ unsigned long vmemmap_base __ro_after_init = __VMEMMAP_BASE_L4;
+ EXPORT_SYMBOL(vmemmap_base);
+ #endif
+ 
++/*
++ * GDT used before %gs is set up and the kernel can use gdt_page. Needed for
++ * early exception handling.
++ */
++struct desc_struct boot_gdt[GDT_ENTRIES] = {
++	[GDT_ENTRY_KERNEL32_CS]         = GDT_ENTRY_INIT(0xc09b, 0, 0xfffff),
++	[GDT_ENTRY_KERNEL_CS]           = GDT_ENTRY_INIT(0xa09b, 0, 0xfffff),
++	[GDT_ENTRY_KERNEL_DS]           = GDT_ENTRY_INIT(0xc093, 0, 0xfffff),
++};
++
++/*
++ * Address needs to be set at runtime because it references the boot_gdt while
++ * the kernel still uses a direct mapping.
++ */
++struct desc_ptr boot_gdt_descr = {
++	.size = sizeof(boot_gdt),
++	.address = 0,
++};
++
+ #define __head	__section(.head.text)
+ 
+ static void __head *fixup_pointer(void *ptr, unsigned long physaddr)
+diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
+index 4bbc770af632..62513dd1e0e4 100644
+--- a/arch/x86/kernel/head_64.S
++++ b/arch/x86/kernel/head_64.S
+@@ -72,6 +72,26 @@ SYM_CODE_START_NOALIGN(startup_64)
+ 	/* Set up the stack for verify_cpu(), similar to initial_stack below */
+ 	leaq	(__end_init_task - SIZEOF_PTREGS)(%rip), %rsp
+ 
++	/* Setup boot GDT descriptor and load boot GDT */
++	leaq	boot_gdt(%rip), %rax
++	movq	%rax, boot_gdt_descr+2(%rip)
++	lgdt	boot_gdt_descr(%rip)
++
++	/* New GDT is live - reload data segment registers */
++	movl	$__KERNEL_DS, %eax
++	movl	%eax, %ds
++	movl	%eax, %ss
++	movl	%eax, %es
++
++	/* Now switch to __KERNEL_CS so IRET works reliably */
++	pushq	$__KERNEL_CS
++	leaq	.Lon_kernel_cs(%rip), %rax
++	pushq	%rax
++	lretq
++
++.Lon_kernel_cs:
++	UNWIND_HINT_EMPTY
++
+ 	/* Sanitize CPU configuration */
+ 	call verify_cpu
+ 
+@@ -143,6 +163,11 @@ SYM_CODE_START(secondary_startup_64)
+ 1:
+ 	UNWIND_HINT_EMPTY
+ 
++	/* Setup boot GDT descriptor and load boot GDT */
++	leaq	boot_gdt(%rip), %rax
++	movq	%rax, boot_gdt_descr+2(%rip)
++	lgdt	boot_gdt_descr(%rip)
++
+ 	/* Check if nx is implemented */
+ 	movl	$0x80000001, %eax
+ 	cpuid
 -- 
-MST
+2.26.2
