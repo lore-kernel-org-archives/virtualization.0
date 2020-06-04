@@ -1,47 +1,42 @@
-From: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH v3 42/75] x86/sev-es: Setup GHCB based boot #VC handler
-Date: Thu, 4 Jun 2020 17:30:27 +0200
-Message-ID: <20200604153021.GC2246@zn.tnic>
-References: <20200428151725.31091-1-joro@8bytes.org>
- <20200428151725.31091-43-joro@8bytes.org>
- <20200520192230.GK1457@zn.tnic> <20200604120749.GC30945@8bytes.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 5/6] vdpa: introduce virtio pci driver
+Date: Thu, 4 Jun 2020 14:50:37 -0400
+Message-ID: <20200604145002-mutt-send-email-mst@kernel.org>
+References: <20200529080303.15449-1-jasowang@redhat.com>
+ <20200529080303.15449-6-jasowang@redhat.com>
+ <20200602010809-mutt-send-email-mst@kernel.org>
+ <e722bb62-2a72-779a-f542-1096e8f609b8@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200604120749.GC30945@8bytes.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Joerg Roedel <joro@8bytes.org>
-Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Dave Hansen <dave.hansen@linux.intel.com>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>, Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
+In-Reply-To: <e722bb62-2a72-779a-f542-1096e8f609b8@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, rob.miller@broadcom.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com, zhangweining@ruijie.com.cn, eli@mellanox.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 04, 2020 at 02:07:49PM +0200, Joerg Roedel wrote:
-> This are IDT entry points and the names above follow the convention for
-> them, like e.g. 'page_fault', 'nmi' or 'general_protection'. Should I
-> still add the verbs or just add a comment explaining what those symbols
-> are?
+On Tue, Jun 02, 2020 at 03:12:27PM +0800, Jason Wang wrote:
+> 
+> On 2020/6/2 下午1:09, Michael S. Tsirkin wrote:
+> > On Fri, May 29, 2020 at 04:03:02PM +0800, Jason Wang wrote:
+> > > Note that since virtio specification does not support get/restore
+> > > virtqueue state. So we can not use this driver for VM. This can be
+> > > addressed by extending the virtio specification.
+> > Looks like exactly the kind of hardware limitation VDPA is supposed to
+> > paper over within guest. So I suggest we use this as
+> > a litmus test, and find ways for VDPA to handle this without
+> > spec changes.
+> 
+> 
+> Yes, and just to confirm, do you think it's beneficial to extend virtio
+> specification to support state get/set?
+> 
+> Thanks
 
-Hmmkay, I see vc_no_ghcb doing
+Let's leave that for another day. For now vdpa should be flexible enough
+to work on spec compliant VMs.
 
-call    do_vc_no_ghcb
-
-and that's setup in early_idt_setup().
-
-vc_boot_ghcb(), OTOH, is called by do_early_exception() only so that one
-could be called handle_vc_boot_ghcb(), no? I.e., I don't see it being an
-IDT entry point.
-
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+> 
+> > 
