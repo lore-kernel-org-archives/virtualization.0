@@ -1,124 +1,76 @@
-From: David Stevens <stevensd@chromium.org>
-Subject: Re: [PATCH v4 1/3] virtio: add dma-buf support for exported objects
-Date: Fri, 5 Jun 2020 10:28:42 +0900
-Message-ID: <CAD=HUj74mKs5AfcViD3CBva86E0Hvg_pmYChAJe3ny8jtnZ8Tw@mail.gmail.com>
-References: <20200526105811.30784-1-stevensd@chromium.org> <20200526105811.30784-2-stevensd@chromium.org>
- <20200604145620-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH RFC 03/13] vhost: batching fetches
+Date: Fri, 5 Jun 2020 11:40:17 +0800
+Message-ID: <6c2e6cc7-27c5-445b-f252-0356ff8a83f3@redhat.com>
+References: <20200602130543.578420-1-mst@redhat.com>
+ <20200602130543.578420-4-mst@redhat.com>
+ <3323daa2-19ed-02de-0ff7-ab150f949fff@redhat.com>
+ <20200604045830-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-media-owner@vger.kernel.org>
-In-Reply-To: <20200604145620-mutt-send-email-mst@kernel.org>
-Sender: linux-media-owner@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200604045830-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Sumit Semwal <sumit.semwal@linaro.org>, Jason Wang <jasowang@redhat.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, "moderated list:DMA BUFFER SHARING FRAMEWORK" <linaro-mm-sig@lists.linaro.org>, virtio-dev@lists.oasis-open.org
+Cc: =?UTF-8?Q?Eugenio_P=c3=a9rez?= <eperezma@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jun 5, 2020 at 4:05 AM Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> On Tue, May 26, 2020 at 07:58:09PM +0900, David Stevens wrote:
-> > This change adds a new flavor of dma-bufs that can be used by virtio
-> > drivers to share exported objects. A virtio dma-buf can be queried by
-> > virtio drivers to obtain the UUID which identifies the underlying
-> > exported object.
-> >
-> > Signed-off-by: David Stevens <stevensd@chromium.org>
->
-> Is this just for graphics? If yes I'd rather we put it in the graphics
-> driver. We can always move it later ...
-
-As stated in the cover letter, this will be used by virtio-video.
-
-The proposed virtio-video patches: https://markmail.org/thread/p5d3k566srtdtute
-The patch which imports these dma-bufs (slightly out of data, uses v3
-of this patch set): https://markmail.org/thread/j4xlqaaim266qpks
-
-> > ---
-> >  drivers/virtio/Makefile         |  2 +-
-> >  drivers/virtio/virtio.c         |  6 +++
-> >  drivers/virtio/virtio_dma_buf.c | 89 +++++++++++++++++++++++++++++++++
-> >  include/linux/virtio.h          |  1 +
-> >  include/linux/virtio_dma_buf.h  | 58 +++++++++++++++++++++
-> >  5 files changed, 155 insertions(+), 1 deletion(-)
-> >  create mode 100644 drivers/virtio/virtio_dma_buf.c
-> >  create mode 100644 include/linux/virtio_dma_buf.h
-> >
-> > diff --git a/drivers/virtio/Makefile b/drivers/virtio/Makefile
-> > index 29a1386ecc03..ecdae5b596de 100644
-> > --- a/drivers/virtio/Makefile
-> > +++ b/drivers/virtio/Makefile
-> > @@ -1,5 +1,5 @@
-> >  # SPDX-License-Identifier: GPL-2.0
-> > -obj-$(CONFIG_VIRTIO) += virtio.o virtio_ring.o
-> > +obj-$(CONFIG_VIRTIO) += virtio.o virtio_ring.o virtio_dma_buf.o
-> >  obj-$(CONFIG_VIRTIO_MMIO) += virtio_mmio.o
-> >  obj-$(CONFIG_VIRTIO_PCI) += virtio_pci.o
-> >  virtio_pci-y := virtio_pci_modern.o virtio_pci_common.o
-> > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> > index a977e32a88f2..5d46f0ded92d 100644
-> > --- a/drivers/virtio/virtio.c
-> > +++ b/drivers/virtio/virtio.c
-> > @@ -357,6 +357,12 @@ int register_virtio_device(struct virtio_device *dev)
-> >  }
-> >  EXPORT_SYMBOL_GPL(register_virtio_device);
-> >
-> > +bool is_virtio_device(struct device *dev)
-> > +{
-> > +     return dev->bus == &virtio_bus;
-> > +}
-> > +EXPORT_SYMBOL_GPL(is_virtio_device);
-> > +
-> >  void unregister_virtio_device(struct virtio_device *dev)
-> >  {
-> >       int index = dev->index; /* save for after device release */
-> > diff --git a/drivers/virtio/virtio_dma_buf.c b/drivers/virtio/virtio_dma_buf.c
-> > new file mode 100644
-> > index 000000000000..23e3399b11ed
-> > --- /dev/null
-> > +++ b/drivers/virtio/virtio_dma_buf.c
-> > @@ -0,0 +1,89 @@
-> > +// SPDX-License-Identifier: GPL-2.0-or-later
-> > +/*
-> > + * dma-bufs for virtio exported objects
-> > + *
-> > + * Copyright (C) 2020 Google, Inc.
-> > + */
-> > +
-> > +#include <linux/virtio_dma_buf.h>
-> > +
-> > +/**
-> > + * virtio_dma_buf_export - Creates a new dma-buf for a virtio exported object
-> > + *
-> > + * This wraps dma_buf_export() to allow virtio drivers to create a dma-buf
-> > + * for an virtio exported object that can be queried by other virtio drivers
-> > + * for the object's UUID.
-> > + */
-> > +struct dma_buf *virtio_dma_buf_export(
-> > +             const struct virtio_dma_buf_export_info *virtio_exp_info)
-> > +{
-> > +     struct dma_buf_export_info exp_info;
-> > +
-> > +     if (!virtio_exp_info->ops
-> > +             || virtio_exp_info->ops->ops.attach != &virtio_dma_buf_attach
-> > +             || !virtio_exp_info->ops->get_uuid) {
-> > +             return ERR_PTR(-EINVAL);
-> > +     }
-> > +
-> > +     exp_info.exp_name = virtio_exp_info->exp_name;
-> > +     exp_info.owner = virtio_exp_info->owner;
-> > +     exp_info.ops = &virtio_exp_info->ops->ops;
-> > +     exp_info.size = virtio_exp_info->size;
-> > +     exp_info.flags = virtio_exp_info->flags;
-> > +     exp_info.resv = virtio_exp_info->resv;
-> > +     exp_info.priv = virtio_exp_info->priv;
-> > +     BUILD_BUG_ON(sizeof(struct virtio_dma_buf_export_info)
-> > +                  != sizeof(struct dma_buf_export_info));
->
-> This is the only part that gives me pause. Why do we need this hack?
-> What's wrong with just using dma_buf_export_info directly,
-> and if you want the virtio ops, just using container_off?
-
-This approach provides a more explicit type signature and a little
-more type safety, I think. If others don't think it's a worthwhile
-tradeoff, I can remove it.
-
--David
+Ck9uIDIwMjAvNi80IOS4i+WNiDQ6NTksIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBPbiBX
+ZWQsIEp1biAwMywgMjAyMCBhdCAwMzoyNzozOVBNICswODAwLCBKYXNvbiBXYW5nIHdyb3RlOgo+
+PiBPbiAyMDIwLzYvMiDkuIvljYg5OjA2LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4+PiBX
+aXRoIHRoaXMgcGF0Y2ggYXBwbGllZCwgbmV3IGFuZCBvbGQgY29kZSBwZXJmb3JtIGlkZW50aWNh
+bGx5Lgo+Pj4KPj4+IExvdHMgb2YgZXh0cmEgb3B0aW1pemF0aW9ucyBhcmUgbm93IHBvc3NpYmxl
+LCBlLmcuCj4+PiB3ZSBjYW4gZmV0Y2ggbXVsdGlwbGUgaGVhZHMgd2l0aCBjb3B5X2Zyb20vdG9f
+dXNlciBub3cuCj4+PiBXZSBjYW4gZ2V0IHJpZCBvZiBtYWludGFpbmluZyB0aGUgbG9nIGFycmF5
+LiAgRXRjIGV0Yy4KPj4+Cj4+PiBTaWduZWQtb2ZmLWJ5OiBNaWNoYWVsIFMuIFRzaXJraW48bXN0
+QHJlZGhhdC5jb20+Cj4+PiBTaWduZWQtb2ZmLWJ5OiBFdWdlbmlvIFDDqXJlejxlcGVyZXptYUBy
+ZWRoYXQuY29tPgo+Pj4gTGluazpodHRwczovL2xvcmUua2VybmVsLm9yZy9yLzIwMjAwNDAxMTgz
+MTE4LjgzMzQtNC1lcGVyZXptYUByZWRoYXQuY29tCj4+PiBTaWduZWQtb2ZmLWJ5OiBNaWNoYWVs
+IFMuIFRzaXJraW48bXN0QHJlZGhhdC5jb20+Cj4+PiAtLS0KPj4+ICAgIGRyaXZlcnMvdmhvc3Qv
+dGVzdC5jICB8ICAyICstCj4+PiAgICBkcml2ZXJzL3Zob3N0L3Zob3N0LmMgfCA0NyArKysrKysr
+KysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0tLS0tCj4+PiAgICBkcml2ZXJzL3Zob3N0
+L3Zob3N0LmggfCAgNSArKysrLQo+Pj4gICAgMyBmaWxlcyBjaGFuZ2VkLCA0NyBpbnNlcnRpb25z
+KCspLCA3IGRlbGV0aW9ucygtKQo+Pj4KPj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L3Rl
+c3QuYyBiL2RyaXZlcnMvdmhvc3QvdGVzdC5jCj4+PiBpbmRleCA5YTNhMDkwMDVlMDMuLjAyODA2
+ZDZmODRlZiAxMDA2NDQKPj4+IC0tLSBhL2RyaXZlcnMvdmhvc3QvdGVzdC5jCj4+PiArKysgYi9k
+cml2ZXJzL3Zob3N0L3Rlc3QuYwo+Pj4gQEAgLTExOSw3ICsxMTksNyBAQCBzdGF0aWMgaW50IHZo
+b3N0X3Rlc3Rfb3BlbihzdHJ1Y3QgaW5vZGUgKmlub2RlLCBzdHJ1Y3QgZmlsZSAqZikKPj4+ICAg
+IAlkZXYgPSAmbi0+ZGV2Owo+Pj4gICAgCXZxc1tWSE9TVF9URVNUX1ZRXSA9ICZuLT52cXNbVkhP
+U1RfVEVTVF9WUV07Cj4+PiAgICAJbi0+dnFzW1ZIT1NUX1RFU1RfVlFdLmhhbmRsZV9raWNrID0g
+aGFuZGxlX3ZxX2tpY2s7Cj4+PiAtCXZob3N0X2Rldl9pbml0KGRldiwgdnFzLCBWSE9TVF9URVNU
+X1ZRX01BWCwgVUlPX01BWElPViwKPj4+ICsJdmhvc3RfZGV2X2luaXQoZGV2LCB2cXMsIFZIT1NU
+X1RFU1RfVlFfTUFYLCBVSU9fTUFYSU9WICsgNjQsCj4+PiAgICAJCSAgICAgICBWSE9TVF9URVNU
+X1BLVF9XRUlHSFQsIFZIT1NUX1RFU1RfV0VJR0hULCBOVUxMKTsKPj4+ICAgIAlmLT5wcml2YXRl
+X2RhdGEgPSBuOwo+Pj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYyBiL2RyaXZl
+cnMvdmhvc3Qvdmhvc3QuYwo+Pj4gaW5kZXggOGY5YTA3MjgyNjI1Li5hY2EyYTViMGQwNzggMTAw
+NjQ0Cj4+PiAtLS0gYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPj4+ICsrKyBiL2RyaXZlcnMvdmhv
+c3Qvdmhvc3QuYwo+Pj4gQEAgLTI5OSw2ICsyOTksNyBAQCBzdGF0aWMgdm9pZCB2aG9zdF92cV9y
+ZXNldChzdHJ1Y3Qgdmhvc3RfZGV2ICpkZXYsCj4+PiAgICB7Cj4+PiAgICAJdnEtPm51bSA9IDE7
+Cj4+PiAgICAJdnEtPm5kZXNjcyA9IDA7Cj4+PiArCXZxLT5maXJzdF9kZXNjID0gMDsKPj4+ICAg
+IAl2cS0+ZGVzYyA9IE5VTEw7Cj4+PiAgICAJdnEtPmF2YWlsID0gTlVMTDsKPj4+ICAgIAl2cS0+
+dXNlZCA9IE5VTEw7Cj4+PiBAQCAtMzY3LDYgKzM2OCwxMSBAQCBzdGF0aWMgaW50IHZob3N0X3dv
+cmtlcih2b2lkICpkYXRhKQo+Pj4gICAgCXJldHVybiAwOwo+Pj4gICAgfQo+Pj4gK3N0YXRpYyBp
+bnQgdmhvc3RfdnFfbnVtX2JhdGNoX2Rlc2NzKHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKnZxKQo+
+Pj4gK3sKPj4+ICsJcmV0dXJuIHZxLT5tYXhfZGVzY3MgLSBVSU9fTUFYSU9WOwo+Pj4gK30KPj4g
+MSBkZXNjcmlwdG9yIGRvZXMgbm90IG1lYW4gMSBpb3YsIGUuZyB1c2Vyc3BhY2UgbWF5IHBhc3Mg
+c2V2ZXJhbCAxIGJ5dGUKPj4gbGVuZ3RoIG1lbW9yeSByZWdpb25zIGZvciB1cyB0byB0cmFuc2xh
+dGUuCj4+Cj4gWWVzIGJ1dCBJIGRvbid0IHNlZSB0aGUgcmVsZXZhbmNlLiBUaGlzIHRlbGxzIHVz
+IGhvdyBtYW55IGRlc2NyaXB0b3JzIHRvCj4gYmF0Y2gsIG5vdCBob3cgbWFueSBJT1ZzLgoKClll
+cywgYnV0IHF1ZXN0aW9ucyBhcmU6CgotIHRoaXMgaW50cm9kdWNlIGFub3RoZXIgb2JzdGFjbGUg
+dG8gc3VwcG9ydCBtb3JlIHRoYW4gMUsgcXVldWUgc2l6ZQotIGlmIHdlIHN1cHBvcnQgMUsgcXVl
+dWUgc2l6ZSwgZG9lcyBpdCBtZWFuIHdlIG5lZWQgdG8gY2FjaGUgMUsgCmRlc2NyaXB0b3JzLCB3
+aGljaCBzZWVtcyBhIGxhcmdlIHN0cmVzcyBvbiB0aGUgY2FjaGUKClRoYW5rcwoKCj4KCl9fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
+IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
+dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
+aXphdGlvbg==
