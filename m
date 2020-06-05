@@ -1,14 +1,13 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 05/14] net: check untrusted gso_size at kernel
- entry
-Date: Fri,  5 Jun 2020 08:25:31 -0400
-Message-ID: <20200605122540.2882539-5-sashal@kernel.org>
-References: <20200605122540.2882539-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 4/9] net: check untrusted gso_size at kernel entry
+Date: Fri,  5 Jun 2020 08:25:52 -0400
+Message-ID: <20200605122558.2882712-4-sashal@kernel.org>
+References: <20200605122558.2882712-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200605122540.2882539-1-sashal@kernel.org>
+In-Reply-To: <20200605122558.2882712-1-sashal@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -45,7 +44,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 12 insertions(+), 2 deletions(-)
 
 diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-index 6f6ade63b04c..88997022a4b5 100644
+index f36727098df8..1c296f370e46 100644
 --- a/include/linux/virtio_net.h
 +++ b/include/linux/virtio_net.h
 @@ -31,6 +31,7 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
