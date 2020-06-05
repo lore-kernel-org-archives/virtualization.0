@@ -1,74 +1,124 @@
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH] s390/virtio: remove unused pm callbacks
-Date: Thu, 4 Jun 2020 23:44:21 +0200
-Message-ID: <20200604234421.4ada966b.pasic@linux.ibm.com>
-References: <20200526093629.257649-1-cohuck@redhat.com>
+From: David Stevens <stevensd@chromium.org>
+Subject: Re: [PATCH v4 1/3] virtio: add dma-buf support for exported objects
+Date: Fri, 5 Jun 2020 10:28:42 +0900
+Message-ID: <CAD=HUj74mKs5AfcViD3CBva86E0Hvg_pmYChAJe3ny8jtnZ8Tw@mail.gmail.com>
+References: <20200526105811.30784-1-stevensd@chromium.org> <20200526105811.30784-2-stevensd@chromium.org>
+ <20200604145620-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20200526093629.257649-1-cohuck@redhat.com>
-Sender: kvm-owner@vger.kernel.org
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-media-owner@vger.kernel.org>
+In-Reply-To: <20200604145620-mutt-send-email-mst@kernel.org>
+Sender: linux-media-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Sumit Semwal <sumit.semwal@linaro.org>, Jason Wang <jasowang@redhat.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, "moderated list:DMA BUFFER SHARING FRAMEWORK" <linaro-mm-sig@lists.linaro.org>, virtio-dev@lists.oasis-open.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 26 May 2020 11:36:29 +0200
-Cornelia Huck <cohuck@redhat.com> wrote:
+On Fri, Jun 5, 2020 at 4:05 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> On Tue, May 26, 2020 at 07:58:09PM +0900, David Stevens wrote:
+> > This change adds a new flavor of dma-bufs that can be used by virtio
+> > drivers to share exported objects. A virtio dma-buf can be queried by
+> > virtio drivers to obtain the UUID which identifies the underlying
+> > exported object.
+> >
+> > Signed-off-by: David Stevens <stevensd@chromium.org>
+>
+> Is this just for graphics? If yes I'd rather we put it in the graphics
+> driver. We can always move it later ...
 
-> Support for hibernation on s390 has been recently been removed with
-> commit 394216275c7d ("s390: remove broken hibernate / power management
-> support"), no need to keep unused code around.
-> 
-> Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+As stated in the cover letter, this will be used by virtio-video.
 
-Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+The proposed virtio-video patches: https://markmail.org/thread/p5d3k566srtdtute
+The patch which imports these dma-bufs (slightly out of data, uses v3
+of this patch set): https://markmail.org/thread/j4xlqaaim266qpks
 
-> ---
->  drivers/s390/virtio/virtio_ccw.c | 26 --------------------------
->  1 file changed, 26 deletions(-)
-> 
-> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> index 957889a42d2e..5730572b52cd 100644
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -1372,27 +1372,6 @@ static struct ccw_device_id virtio_ids[] = {
->  	{},
->  };
->  
-> -#ifdef CONFIG_PM_SLEEP
-> -static int virtio_ccw_freeze(struct ccw_device *cdev)
-> -{
-> -	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
-> -
-> -	return virtio_device_freeze(&vcdev->vdev);
-> -}
-> -
-> -static int virtio_ccw_restore(struct ccw_device *cdev)
-> -{
-> -	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
-> -	int ret;
-> -
-> -	ret = virtio_ccw_set_transport_rev(vcdev);
-> -	if (ret)
-> -		return ret;
-> -
-> -	return virtio_device_restore(&vcdev->vdev);
-> -}
-> -#endif
-> -
->  static struct ccw_driver virtio_ccw_driver = {
->  	.driver = {
->  		.owner = THIS_MODULE,
-> @@ -1405,11 +1384,6 @@ static struct ccw_driver virtio_ccw_driver = {
->  	.set_online = virtio_ccw_online,
->  	.notify = virtio_ccw_cio_notify,
->  	.int_class = IRQIO_VIR,
-> -#ifdef CONFIG_PM_SLEEP
-> -	.freeze = virtio_ccw_freeze,
-> -	.thaw = virtio_ccw_restore,
-> -	.restore = virtio_ccw_restore,
-> -#endif
->  };
->  
->  static int __init pure_hex(char **cp, unsigned int *val, int min_digit,
+> > ---
+> >  drivers/virtio/Makefile         |  2 +-
+> >  drivers/virtio/virtio.c         |  6 +++
+> >  drivers/virtio/virtio_dma_buf.c | 89 +++++++++++++++++++++++++++++++++
+> >  include/linux/virtio.h          |  1 +
+> >  include/linux/virtio_dma_buf.h  | 58 +++++++++++++++++++++
+> >  5 files changed, 155 insertions(+), 1 deletion(-)
+> >  create mode 100644 drivers/virtio/virtio_dma_buf.c
+> >  create mode 100644 include/linux/virtio_dma_buf.h
+> >
+> > diff --git a/drivers/virtio/Makefile b/drivers/virtio/Makefile
+> > index 29a1386ecc03..ecdae5b596de 100644
+> > --- a/drivers/virtio/Makefile
+> > +++ b/drivers/virtio/Makefile
+> > @@ -1,5 +1,5 @@
+> >  # SPDX-License-Identifier: GPL-2.0
+> > -obj-$(CONFIG_VIRTIO) += virtio.o virtio_ring.o
+> > +obj-$(CONFIG_VIRTIO) += virtio.o virtio_ring.o virtio_dma_buf.o
+> >  obj-$(CONFIG_VIRTIO_MMIO) += virtio_mmio.o
+> >  obj-$(CONFIG_VIRTIO_PCI) += virtio_pci.o
+> >  virtio_pci-y := virtio_pci_modern.o virtio_pci_common.o
+> > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> > index a977e32a88f2..5d46f0ded92d 100644
+> > --- a/drivers/virtio/virtio.c
+> > +++ b/drivers/virtio/virtio.c
+> > @@ -357,6 +357,12 @@ int register_virtio_device(struct virtio_device *dev)
+> >  }
+> >  EXPORT_SYMBOL_GPL(register_virtio_device);
+> >
+> > +bool is_virtio_device(struct device *dev)
+> > +{
+> > +     return dev->bus == &virtio_bus;
+> > +}
+> > +EXPORT_SYMBOL_GPL(is_virtio_device);
+> > +
+> >  void unregister_virtio_device(struct virtio_device *dev)
+> >  {
+> >       int index = dev->index; /* save for after device release */
+> > diff --git a/drivers/virtio/virtio_dma_buf.c b/drivers/virtio/virtio_dma_buf.c
+> > new file mode 100644
+> > index 000000000000..23e3399b11ed
+> > --- /dev/null
+> > +++ b/drivers/virtio/virtio_dma_buf.c
+> > @@ -0,0 +1,89 @@
+> > +// SPDX-License-Identifier: GPL-2.0-or-later
+> > +/*
+> > + * dma-bufs for virtio exported objects
+> > + *
+> > + * Copyright (C) 2020 Google, Inc.
+> > + */
+> > +
+> > +#include <linux/virtio_dma_buf.h>
+> > +
+> > +/**
+> > + * virtio_dma_buf_export - Creates a new dma-buf for a virtio exported object
+> > + *
+> > + * This wraps dma_buf_export() to allow virtio drivers to create a dma-buf
+> > + * for an virtio exported object that can be queried by other virtio drivers
+> > + * for the object's UUID.
+> > + */
+> > +struct dma_buf *virtio_dma_buf_export(
+> > +             const struct virtio_dma_buf_export_info *virtio_exp_info)
+> > +{
+> > +     struct dma_buf_export_info exp_info;
+> > +
+> > +     if (!virtio_exp_info->ops
+> > +             || virtio_exp_info->ops->ops.attach != &virtio_dma_buf_attach
+> > +             || !virtio_exp_info->ops->get_uuid) {
+> > +             return ERR_PTR(-EINVAL);
+> > +     }
+> > +
+> > +     exp_info.exp_name = virtio_exp_info->exp_name;
+> > +     exp_info.owner = virtio_exp_info->owner;
+> > +     exp_info.ops = &virtio_exp_info->ops->ops;
+> > +     exp_info.size = virtio_exp_info->size;
+> > +     exp_info.flags = virtio_exp_info->flags;
+> > +     exp_info.resv = virtio_exp_info->resv;
+> > +     exp_info.priv = virtio_exp_info->priv;
+> > +     BUILD_BUG_ON(sizeof(struct virtio_dma_buf_export_info)
+> > +                  != sizeof(struct dma_buf_export_info));
+>
+> This is the only part that gives me pause. Why do we need this hack?
+> What's wrong with just using dma_buf_export_info directly,
+> and if you want the virtio ops, just using container_off?
+
+This approach provides a more explicit type signature and a little
+more type safety, I think. If others don't think it's a worthwhile
+tradeoff, I can remove it.
+
+-David
