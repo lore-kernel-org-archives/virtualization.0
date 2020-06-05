@@ -1,47 +1,157 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH v3 2/3] crypto: virtio: Fix use-after-free in virtio_crypto_skcipher_finalize_req()
-Date: Fri, 05 Jun 2020 14:10:51 +0000
-Message-ID: <20200605141051.BAE3D207D8__38662.3381216609$1591366270$gmane$org@mail.kernel.org>
-References: <20200602070501.2023-3-longpeng2@huawei.com>
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20200602070501.2023-3-longpeng2@huawei.com>
-Sender: stable-owner@vger.kernel.org
-To: Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Cc: "Longpeng(Mike)" <longpeng2@huawei.com>, Gonglei <arei.gonglei@huawei.com>, Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, stable@vger.kernel.orgstable@vger.kernel.org
+From: Sean Christopherson <sean.j.christopherson@intel.com>
+Subject: [PATCH] virtio_net: Unregister and re-register xdp_rxq across freeze/restore
+Date: Fri,  5 Jun 2020 14:46:24 -0700
+Message-ID: <20200605214624.21430-1-sean.j.christopherson@intel.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>
+Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, bpf@vger.kernel.org, linux-kernel@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-<20200123101000.GB24255@Red>
-References: <20200602070501.2023-3-longpeng2@huawei.com>
-<20200123101000.GB24255@Red>
+Unregister each queue's xdp_rxq during freeze, and re-register the new
+instance during restore.  All queues are released during free and
+recreated during restore, i.e. the pre-freeze xdp_rxq will be lost.
 
-Hi
+The bug is detected by WARNs in xdp_rxq_info_unreg() and
+xdp_rxq_info_unreg_mem_model() that fire after a suspend/resume cycle as
+virtnet_close() attempts to unregister an uninitialized xdp_rxq object.
 
-[This is an automated email]
+  ------------[ cut here ]------------
+  Driver BUG
+  WARNING: CPU: 0 PID: 880 at net/core/xdp.c:163 xdp_rxq_info_unreg+0x48/0x50
+  Modules linked in:
+  CPU: 0 PID: 880 Comm: ip Not tainted 5.7.0-rc5+ #80
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+  RIP: 0010:xdp_rxq_info_unreg+0x48/0x50
+  Code: <0f> 0b eb ca 0f 1f 40 00 0f 1f 44 00 00 53 48 83 ec 10 8b 47 0c 83
+  RSP: 0018:ffffc900001ab540 EFLAGS: 00010286
+  RAX: 0000000000000000 RBX: ffff88827f83ac80 RCX: 0000000000000000
+  RDX: 000000000000000a RSI: ffffffff8253bc2a RDI: ffffffff825397ec
+  RBP: 0000000000000000 R08: ffffffff8253bc20 R09: 000000000000000a
+  R10: ffffc900001ab548 R11: 0000000000000370 R12: ffff88817a89c000
+  R13: 0000000000000000 R14: ffffc900001abbc8 R15: 0000000000000001
+  FS:  00007f48b70e70c0(0000) GS:ffff88817bc00000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007f48b6634950 CR3: 0000000277f1d002 CR4: 0000000000160eb0
+  Call Trace:
+   virtnet_close+0x6a/0xb0
+   __dev_close_many+0x91/0x100
+   __dev_change_flags+0xc1/0x1c0
+   dev_change_flags+0x23/0x60
+   do_setlink+0x350/0xdf0
+   __rtnl_newlink+0x553/0x860
+   rtnl_newlink+0x43/0x60
+   rtnetlink_rcv_msg+0x289/0x340
+   netlink_rcv_skb+0xd1/0x110
+   netlink_unicast+0x203/0x310
+   netlink_sendmsg+0x32b/0x460
+   sock_sendmsg+0x5b/0x60
+   ____sys_sendmsg+0x23e/0x260
+   ___sys_sendmsg+0x88/0xd0
+   __sys_sendmsg+0x63/0xa0
+   do_syscall_64+0x4c/0x170
+   entry_SYSCALL_64_after_hwframe+0x44/0xa9
+  ------------[ cut here ]------------
 
-This commit has been processed because it contains a "Fixes:" tag
-fixing commit: dbaf0624ffa5 ("crypto: add virtio-crypto driver").
+Cc: Jesper Dangaard Brouer <brouer@redhat.com>
+Fixes: 754b8a21a96d5 ("virtio_net: setup xdp_rxq_info")
+Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+---
 
-The bot has tested the following trees: v5.6.15, v5.4.43, v4.19.125, v4.14.182.
+Disclaimer: I am not remotely confident that this patch is 100% correct
+or complete, my VirtIO knowledge is poor and my networking knowledge is
+downright abysmal.
 
-v5.6.15: Build OK!
-v5.4.43: Failed to apply! Possible dependencies:
-    eee1d6fca0a0 ("crypto: virtio - switch to skcipher API")
+ drivers/net/virtio_net.c | 37 +++++++++++++++++++++++++++++--------
+ 1 file changed, 29 insertions(+), 8 deletions(-)
 
-v4.19.125: Failed to apply! Possible dependencies:
-    eee1d6fca0a0 ("crypto: virtio - switch to skcipher API")
-
-v4.14.182: Failed to apply! Possible dependencies:
-    500e6807ce93 ("crypto: virtio - implement missing support for output IVs")
-    67189375bb3a ("crypto: virtio - convert to new crypto engine API")
-    d0d859bb87ac ("crypto: virtio - Register an algo only if it's supported")
-    e02b8b43f55a ("crypto: virtio - pr_err() strings should end with newlines")
-    eee1d6fca0a0 ("crypto: virtio - switch to skcipher API")
-
-
-NOTE: The patch will not be queued to stable trees until it is upstream.
-
-How should we proceed with this patch?
-
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index ba38765dc490..61055be3615e 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1469,6 +1469,21 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
+ 	return received;
+ }
+ 
++static int virtnet_reg_xdp(struct xdp_rxq_info *xdp_rxq,
++			   struct net_device *dev, u32 queue_index)
++{
++	int err;
++
++	err = xdp_rxq_info_reg(xdp_rxq, dev, queue_index);
++	if (err < 0)
++		return err;
++
++	err = xdp_rxq_info_reg_mem_model(xdp_rxq, MEM_TYPE_PAGE_SHARED, NULL);
++	if (err < 0)
++		xdp_rxq_info_unreg(xdp_rxq);
++	return err;
++}
++
+ static int virtnet_open(struct net_device *dev)
+ {
+ 	struct virtnet_info *vi = netdev_priv(dev);
+@@ -1480,17 +1495,10 @@ static int virtnet_open(struct net_device *dev)
+ 			if (!try_fill_recv(vi, &vi->rq[i], GFP_KERNEL))
+ 				schedule_delayed_work(&vi->refill, 0);
+ 
+-		err = xdp_rxq_info_reg(&vi->rq[i].xdp_rxq, dev, i);
++		err = virtnet_reg_xdp(&vi->rq[i].xdp_rxq, dev, i);
+ 		if (err < 0)
+ 			return err;
+ 
+-		err = xdp_rxq_info_reg_mem_model(&vi->rq[i].xdp_rxq,
+-						 MEM_TYPE_PAGE_SHARED, NULL);
+-		if (err < 0) {
+-			xdp_rxq_info_unreg(&vi->rq[i].xdp_rxq);
+-			return err;
+-		}
+-
+ 		virtnet_napi_enable(vi->rq[i].vq, &vi->rq[i].napi);
+ 		virtnet_napi_tx_enable(vi, vi->sq[i].vq, &vi->sq[i].napi);
+ 	}
+@@ -2306,6 +2314,7 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
+ 
+ 	if (netif_running(vi->dev)) {
+ 		for (i = 0; i < vi->max_queue_pairs; i++) {
++			xdp_rxq_info_unreg(&vi->rq[i].xdp_rxq);
+ 			napi_disable(&vi->rq[i].napi);
+ 			virtnet_napi_tx_disable(&vi->sq[i].napi);
+ 		}
+@@ -2313,6 +2322,8 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
+ }
+ 
+ static int init_vqs(struct virtnet_info *vi);
++static void virtnet_del_vqs(struct virtnet_info *vi);
++static void free_receive_page_frags(struct virtnet_info *vi);
+ 
+ static int virtnet_restore_up(struct virtio_device *vdev)
+ {
+@@ -2331,6 +2342,10 @@ static int virtnet_restore_up(struct virtio_device *vdev)
+ 				schedule_delayed_work(&vi->refill, 0);
+ 
+ 		for (i = 0; i < vi->max_queue_pairs; i++) {
++			err = virtnet_reg_xdp(&vi->rq[i].xdp_rxq, vi->dev, i);
++			if (err)
++				goto free_vqs;
++
+ 			virtnet_napi_enable(vi->rq[i].vq, &vi->rq[i].napi);
+ 			virtnet_napi_tx_enable(vi, vi->sq[i].vq,
+ 					       &vi->sq[i].napi);
+@@ -2340,6 +2355,12 @@ static int virtnet_restore_up(struct virtio_device *vdev)
+ 	netif_tx_lock_bh(vi->dev);
+ 	netif_device_attach(vi->dev);
+ 	netif_tx_unlock_bh(vi->dev);
++	return 0;
++
++free_vqs:
++	cancel_delayed_work_sync(&vi->refill);
++	free_receive_page_frags(vi);
++	virtnet_del_vqs(vi);
+ 	return err;
+ }
+ 
 -- 
-Thanks
-Sasha
+2.26.0
