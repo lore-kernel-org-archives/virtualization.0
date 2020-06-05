@@ -1,39 +1,44 @@
-From: Alex Shi <alex.shi@linux.alibaba.com>
-Subject: Re: [PATCH RFC v4 00/13] virtio-mem: paravirtualized memory
-Date: Fri, 5 Jun 2020 18:46:26 +0800
-Message-ID: <95c6ef21-23e0-c768-999d-3af7f69d02d3@linux.alibaba.com>
-References: <20191212171137.13872-1-david@redhat.com>
- <9acc5d04-c8e9-ef53-85e4-709030997ca6@redhat.com>
- <1cfa9edb-47ea-1495-4e28-4cf391eab44c@linux.alibaba.com>
- <d6cd1870-1012-cb3d-7d29-8e5ad2703717@redhat.com>
- <6b4724bf-84b5-9880-5464-1908425d106d@redhat.com>
- <e1643897-ebd7-75f8-d271-44f62318aa66@redhat.com>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH] s390/virtio: remove unused pm callbacks
+Date: Fri, 5 Jun 2020 12:52:30 +0200
+Message-ID: <20200605105230.GA4189@osiris>
+References: <20200526093629.257649-1-cohuck@redhat.com>
+ <20200604234421.4ada966b.pasic@linux.ibm.com>
+ <20200605093907.4d4b3c2a.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <e1643897-ebd7-75f8-d271-44f62318aa66@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Sebastien Boeuf <sebastien.boeuf@intel.com>, Samuel Ortiz <samuel.ortiz@intel.com>, Robert Bradford <robert.bradford@intel.com>, Luiz Capitulino <lcapitulino@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Alexander Potapenko <glider@google.com>, Alexander Viro <viro@zeniv.linux.org.uk>, Anshuman Khandual <anshuman.khandual@arm.com>, Anthony Yznaga <anthony.yznaga@oracle.com>, Dan Williams <dan.j.williams@intel.com>, Dave Young <dyoung@redhat.com>, Igor Mammedov <imammedo@redhat.com>, Jason Wang <jasowa>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200605093907.4d4b3c2a.cohuck@redhat.com>
+Sender: kvm-owner@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-在 2020/6/5 下午6:05, David Hildenbrand 写道:
->> I guess I know what's happening here. In case we only have DMA memory
->> when booting, we don't reserve swiotlb buffers. Once we hotplug memory
->> and online ZONE_NORMAL, we don't have any swiotlb DMA bounce buffers to
->> map such PFNs (total 0 (slots), used 0 (slots)).
->>
->> Can you try with "swiotlb=force" on the kernel cmdline?
-> Alternative, looks like you can specify "-m 2G,maxmem=16G,slots=1", to
-> create proper ACPI tables that indicate hotpluggable memory. (I'll have
-> to look into QEMU to figure out to always indicate hotpluggable memory
-> that way).
+On Fri, Jun 05, 2020 at 09:39:07AM +0200, Cornelia Huck wrote:
+> On Thu, 4 Jun 2020 23:44:21 +0200
+> Halil Pasic <pasic@linux.ibm.com> wrote:
 > 
+> > On Tue, 26 May 2020 11:36:29 +0200
+> > Cornelia Huck <cohuck@redhat.com> wrote:
+> > 
+> > > Support for hibernation on s390 has been recently been removed with
+> 
+> s/been recently been removed/recently been removed/
+> 
+> > > commit 394216275c7d ("s390: remove broken hibernate / power management
+> > > support"), no need to keep unused code around.
+> > > 
+> > > Signed-off-by: Cornelia Huck <cohuck@redhat.com>  
+> > 
+> > Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+> 
+> Thanks!
+> 
+> As this is only a single patch, I think a pull request is a bit
+> overkill, so it would probably be best for someone to pick this
+> directly.
+> 
+> s390 arch maintainers? Michael?
 
-
-That works too. Yes, better resolved in qemu, maybe. :)
-
-Thanks!
+Applied, thanks!
