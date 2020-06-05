@@ -1,14 +1,14 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.6 06/17] net: check untrusted gso_size at kernel
+Subject: [PATCH AUTOSEL 5.4 05/14] net: check untrusted gso_size at kernel
  entry
-Date: Fri,  5 Jun 2020 08:25:05 -0400
-Message-ID: <20200605122517.2882338-6-sashal@kernel.org>
-References: <20200605122517.2882338-1-sashal@kernel.org>
+Date: Fri,  5 Jun 2020 08:25:31 -0400
+Message-ID: <20200605122540.2882539-5-sashal@kernel.org>
+References: <20200605122540.2882539-1-sashal@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200605122517.2882338-1-sashal@kernel.org>
+In-Reply-To: <20200605122540.2882539-1-sashal@kernel.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
