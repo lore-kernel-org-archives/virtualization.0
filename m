@@ -1,18 +1,14 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH v3 1/3] crypto: virtio: Fix src/dst scatterlist calculation in __virtio_crypto_skcipher_do_req()
-Date: Fri, 05 Jun 2020 14:10:44 +0000
-Message-ID: <20200605141045.821A820663__46157.3459486075$1591366254$gmane$org@mail.kernel.org>
-References: <20200602070501.2023-2-longpeng2@huawei.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200602070501.2023-2-longpeng2@huawei.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Subject: Re: [PATCH v3 3/3] crypto: virtio: Fix dest length calculation in __virtio_crypto_skcipher_do_req()
+Date: Fri, 05 Jun 2020 14:10:50 +0000
+Message-ID: <20200605141050.AACEA207D3@mail.kernel.org>
+References: <20200602070501.2023-4-longpeng2@huawei.com>
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20200602070501.2023-4-longpeng2@huawei.com>
+Sender: stable-owner@vger.kernel.org
 To: Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Cc: "Longpeng(Mike)" <longpeng2@huawei.com>, Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, stable@vger.kernel.orgstable@vger.kernel.org
+Cc: "Longpeng(Mike)" <longpeng2@huawei.com>, Gonglei <arei.gonglei@huawei.com>, Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, stable@vger.kernel.orgstable@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
-
-<20200123101000.GB24255@Red>
-References: <20200602070501.2023-2-longpeng2@huawei.com>
-<20200123101000.GB24255@Red>
 
 Hi
 
@@ -24,18 +20,26 @@ fixing commit: dbaf0624ffa5 ("crypto: add virtio-crypto driver").
 The bot has tested the following trees: v5.6.15, v5.4.43, v4.19.125, v4.14.182.
 
 v5.6.15: Build OK!
-v5.4.43: Failed to apply! Possible dependencies:
-    eee1d6fca0a0 ("crypto: virtio - switch to skcipher API")
+v5.4.43: Build failed! Errors:
+    drivers/crypto/virtio/virtio_crypto_algs.c:408:35: error: ‘struct ablkcipher_request’ has no member named ‘cryptlen’
+    drivers/crypto/virtio/virtio_crypto_algs.c:408:35: error: ‘struct ablkcipher_request’ has no member named ‘cryptlen’
+    drivers/crypto/virtio/virtio_crypto_algs.c:408:35: error: ‘struct ablkcipher_request’ has no member named ‘cryptlen’
+    drivers/crypto/virtio/virtio_crypto_algs.c:408:35: error: ‘struct ablkcipher_request’ has no member named ‘cryptlen’
+    drivers/crypto/virtio/virtio_crypto_algs.c:408:35: error: ‘struct ablkcipher_request’ has no member named ‘cryptlen’
+    drivers/crypto/virtio/virtio_crypto_algs.c:408:35: error: ‘struct ablkcipher_request’ has no member named ‘cryptlen’
+    ./include/linux/kernel.h:866:2: error: first argument to ‘__builtin_choose_expr’ not a constant
 
-v4.19.125: Failed to apply! Possible dependencies:
-    eee1d6fca0a0 ("crypto: virtio - switch to skcipher API")
+v4.19.125: Build failed! Errors:
+    drivers/crypto/virtio/virtio_crypto_algs.c:422:35: error: ‘struct ablkcipher_request’ has no member named ‘cryptlen’
+    drivers/crypto/virtio/virtio_crypto_algs.c:422:35: error: ‘struct ablkcipher_request’ has no member named ‘cryptlen’
+    drivers/crypto/virtio/virtio_crypto_algs.c:422:35: error: ‘struct ablkcipher_request’ has no member named ‘cryptlen’
+    drivers/crypto/virtio/virtio_crypto_algs.c:422:35: error: ‘struct ablkcipher_request’ has no member named ‘cryptlen’
+    drivers/crypto/virtio/virtio_crypto_algs.c:422:35: error: ‘struct ablkcipher_request’ has no member named ‘cryptlen’
+    drivers/crypto/virtio/virtio_crypto_algs.c:422:35: error: ‘struct ablkcipher_request’ has no member named ‘cryptlen’
+    ./include/linux/kernel.h:870:2: error: first argument to ‘__builtin_choose_expr’ not a constant
 
-v4.14.182: Failed to apply! Possible dependencies:
-    500e6807ce93 ("crypto: virtio - implement missing support for output IVs")
-    67189375bb3a ("crypto: virtio - convert to new crypto engine API")
-    d0d859bb87ac ("crypto: virtio - Register an algo only if it's supported")
-    e02b8b43f55a ("crypto: virtio - pr_err() strings should end with newlines")
-    eee1d6fca0a0 ("crypto: virtio - switch to skcipher API")
+v4.14.182: Build failed! Errors:
+    drivers/crypto/virtio/virtio_crypto_algs.c:409:35: error: ‘struct ablkcipher_request’ has no member named ‘cryptlen’
 
 
 NOTE: The patch will not be queued to stable trees until it is upstream.
