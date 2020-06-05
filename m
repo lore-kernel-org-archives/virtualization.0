@@ -1,62 +1,91 @@
-From: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Subject: Re: [RFC 12/12] rpmsg: add a device ID to also bind to the ADSP
- device
-Date: Fri, 5 Jun 2020 08:46:59 +0200
-Message-ID: <20200605064659.GC32302@ubuntu>
-References: <20200529073722.8184-1-guennadi.liakhovetski@linux.intel.com>
- <20200529073722.8184-13-guennadi.liakhovetski@linux.intel.com>
- <20200604200156.GB26734@xps15>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH] s390/virtio: remove unused pm callbacks
+Date: Fri, 5 Jun 2020 09:39:07 +0200
+Message-ID: <20200605093907.4d4b3c2a.cohuck@redhat.com>
+References: <20200526093629.257649-1-cohuck@redhat.com>
+        <20200604234421.4ada966b.pasic@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200604200156.GB26734@xps15>
+In-Reply-To: <20200604234421.4ada966b.pasic@linux.ibm.com>
 Sender: kvm-owner@vger.kernel.org
-To: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: kvm@vger.kernel.org, linux-remoteproc@vger.kernel.org, virtualization@lists.linux-foundation.org, sound-open-firmware@alsa-project.org, Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>, Liam Girdwood <liam.r.girdwood@linux.intel.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Ohad Ben-Cohen <ohad@wizery.com>, Bjorn Andersson <bjorn.andersson@linaro.org>
+To: Halil Pasic <pasic@linux.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, Christian Borntraeger <borntraeger@de.ibm.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Mathieu,
+On Thu, 4 Jun 2020 23:44:21 +0200
+Halil Pasic <pasic@linux.ibm.com> wrote:
 
-On Thu, Jun 04, 2020 at 02:01:56PM -0600, Mathieu Poirier wrote:
-> On Fri, May 29, 2020 at 09:37:22AM +0200, Guennadi Liakhovetski wrote:
-> > The ADSP device uses the RPMsg API to connect vhost and VirtIO SOF
-> > Audio DSP drivers on KVM host and guest.
+> On Tue, 26 May 2020 11:36:29 +0200
+> Cornelia Huck <cohuck@redhat.com> wrote:
+> 
+> > Support for hibernation on s390 has been recently been removed with
+
+s/been recently been removed/recently been removed/
+
+> > commit 394216275c7d ("s390: remove broken hibernate / power management
+> > support"), no need to keep unused code around.
 > > 
-> > Signed-off-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+> > Signed-off-by: Cornelia Huck <cohuck@redhat.com>  
+> 
+> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+
+Thanks!
+
+As this is only a single patch, I think a pull request is a bit
+overkill, so it would probably be best for someone to pick this
+directly.
+
+s390 arch maintainers? Michael?
+
+> 
 > > ---
-> >  drivers/rpmsg/virtio_rpmsg_bus.c | 1 +
-> >  1 file changed, 1 insertion(+)
+> >  drivers/s390/virtio/virtio_ccw.c | 26 --------------------------
+> >  1 file changed, 26 deletions(-)
 > > 
-> > diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
-> > index f3bd050..ebe3f19 100644
-> > --- a/drivers/rpmsg/virtio_rpmsg_bus.c
-> > +++ b/drivers/rpmsg/virtio_rpmsg_bus.c
-> > @@ -949,6 +949,7 @@ static void rpmsg_remove(struct virtio_device *vdev)
-> >  
-> >  static struct virtio_device_id id_table[] = {
-> >  	{ VIRTIO_ID_RPMSG, VIRTIO_DEV_ANY_ID },
-> > +	{ VIRTIO_ID_ADSP, VIRTIO_DEV_ANY_ID },
-> 
-> I am fine with this patch but won't add an RB because of the (many) checkpatch
-> errors.  Based on the comment I made on the previous set seeing those was
-> unexpected.
-
-Are you using "--strict?" Sorry, I don't see any checkpatch errors, only warnings. 
-Most of them are "over 80 characters" which as we now know is no more an issue, 
-I just haven't updated my tree yet. Most others are really minor IMHO. Maybe one 
-of them I actually would want to fix - using "help" instead of "---help---" in 
-Kconfig. What errors are you seeing in your checks?
-
-Thanks
-Guennadi
-
-> Thanks,
-> Mathieu
-> 
-> >  	{ 0 },
+> > diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> > index 957889a42d2e..5730572b52cd 100644
+> > --- a/drivers/s390/virtio/virtio_ccw.c
+> > +++ b/drivers/s390/virtio/virtio_ccw.c
+> > @@ -1372,27 +1372,6 @@ static struct ccw_device_id virtio_ids[] = {
+> >  	{},
 > >  };
 > >  
-> > -- 
-> > 1.9.3
-> > 
+> > -#ifdef CONFIG_PM_SLEEP
+> > -static int virtio_ccw_freeze(struct ccw_device *cdev)
+> > -{
+> > -	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
+> > -
+> > -	return virtio_device_freeze(&vcdev->vdev);
+> > -}
+> > -
+> > -static int virtio_ccw_restore(struct ccw_device *cdev)
+> > -{
+> > -	struct virtio_ccw_device *vcdev = dev_get_drvdata(&cdev->dev);
+> > -	int ret;
+> > -
+> > -	ret = virtio_ccw_set_transport_rev(vcdev);
+> > -	if (ret)
+> > -		return ret;
+> > -
+> > -	return virtio_device_restore(&vcdev->vdev);
+> > -}
+> > -#endif
+> > -
+> >  static struct ccw_driver virtio_ccw_driver = {
+> >  	.driver = {
+> >  		.owner = THIS_MODULE,
+> > @@ -1405,11 +1384,6 @@ static struct ccw_driver virtio_ccw_driver = {
+> >  	.set_online = virtio_ccw_online,
+> >  	.notify = virtio_ccw_cio_notify,
+> >  	.int_class = IRQIO_VIR,
+> > -#ifdef CONFIG_PM_SLEEP
+> > -	.freeze = virtio_ccw_freeze,
+> > -	.thaw = virtio_ccw_restore,
+> > -	.restore = virtio_ccw_restore,
+> > -#endif
+> >  };
+> >  
+> >  static int __init pure_hex(char **cp, unsigned int *val, int min_digit,  
+> 
