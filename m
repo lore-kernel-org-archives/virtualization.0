@@ -1,29 +1,17 @@
 From: Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH v3 1/3] crypto: virtio: Fix src/dst scatterlist
- calculation in __virtio_crypto_skcipher_do_req()
-Date: Fri, 05 Jun 2020 14:10:44 +0000
-Message-ID: <20200605141045.821A820663__29427.2559507348$1591366263$gmane$org@mail.kernel.org>
-References: <20200602070501.2023-2-longpeng2@huawei.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200602070501.2023-2-longpeng2@huawei.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Subject: Re: [PATCH v3 2/3] crypto: virtio: Fix use-after-free in virtio_crypto_skcipher_finalize_req()
+Date: Fri, 05 Jun 2020 14:10:51 +0000
+Message-ID: <20200605141051.BAE3D207D8@mail.kernel.org>
+References: <20200602070501.2023-3-longpeng2@huawei.com>
+Return-path: <linux-crypto-owner@vger.kernel.org>
+In-Reply-To: <20200602070501.2023-3-longpeng2@huawei.com>
+Sender: linux-crypto-owner@vger.kernel.org
 To: Sasha Levin <sashal@kernel.org>, linux-crypto@vger.kernel.org
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, "Longpeng(Mike)" <longpeng2@huawei.com>, "David S. Miller" <davem@davemloft.net>
+Cc: "Longpeng(Mike)" <longpeng2@huawei.com>, Gonglei <arei.gonglei@huawei.com>, Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, stable@vger.kernel.orgstable@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 <20200123101000.GB24255@Red>
-References: <20200602070501.2023-2-longpeng2@huawei.com>
+References: <20200602070501.2023-3-longpeng2@huawei.com>
 <20200123101000.GB24255@Red>
 
 Hi
