@@ -1,93 +1,223 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC 03/13] vhost: batching fetches
-Date: Sun, 7 Jun 2020 09:57:10 -0400
-Message-ID: <20200607095219-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH RFC 01/13] vhost: option to fetch descriptors through an
+ independent struct
+Date: Sun, 7 Jun 2020 09:59:00 -0400
+Message-ID: <20200607095810-mutt-send-email-mst@kernel.org>
 References: <20200602130543.578420-1-mst@redhat.com>
- <20200602130543.578420-4-mst@redhat.com>
- <3323daa2-19ed-02de-0ff7-ab150f949fff@redhat.com>
- <20200604045830-mutt-send-email-mst@kernel.org>
- <6c2e6cc7-27c5-445b-f252-0356ff8a83f3@redhat.com>
+ <20200602130543.578420-2-mst@redhat.com>
+ <e35e5df9-7e36-227e-7981-232a62b06607@redhat.com>
+ <20200603045825-mutt-send-email-mst@kernel.org>
+ <48e6d644-c4aa-2754-9d06-22133987b3be@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <6c2e6cc7-27c5-445b-f252-0356ff8a83f3@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <48e6d644-c4aa-2754-9d06-22133987b3be@redhat.com>
+Sender: netdev-owner@vger.kernel.org
 To: Jason Wang <jasowang@redhat.com>
 Cc: linux-kernel@vger.kernel.org, Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jun 05, 2020 at 11:40:17AM +0800, Jason Wang wrote:
+On Wed, Jun 03, 2020 at 08:04:45PM +0800, Jason Wang wrote:
 > 
-> On 2020/6/4 下午4:59, Michael S. Tsirkin wrote:
-> > On Wed, Jun 03, 2020 at 03:27:39PM +0800, Jason Wang wrote:
-> > > On 2020/6/2 下午9:06, Michael S. Tsirkin wrote:
-> > > > With this patch applied, new and old code perform identically.
-> > > > 
-> > > > Lots of extra optimizations are now possible, e.g.
-> > > > we can fetch multiple heads with copy_from/to_user now.
-> > > > We can get rid of maintaining the log array.  Etc etc.
-> > > > 
-> > > > Signed-off-by: Michael S. Tsirkin<mst@redhat.com>
-> > > > Signed-off-by: Eugenio Pérez<eperezma@redhat.com>
-> > > > Link:https://lore.kernel.org/r/20200401183118.8334-4-eperezma@redhat.com
-> > > > Signed-off-by: Michael S. Tsirkin<mst@redhat.com>
-> > > > ---
-> > > >    drivers/vhost/test.c  |  2 +-
-> > > >    drivers/vhost/vhost.c | 47 ++++++++++++++++++++++++++++++++++++++-----
-> > > >    drivers/vhost/vhost.h |  5 ++++-
-> > > >    3 files changed, 47 insertions(+), 7 deletions(-)
-> > > > 
-> > > > diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
-> > > > index 9a3a09005e03..02806d6f84ef 100644
-> > > > --- a/drivers/vhost/test.c
-> > > > +++ b/drivers/vhost/test.c
-> > > > @@ -119,7 +119,7 @@ static int vhost_test_open(struct inode *inode, struct file *f)
-> > > >    	dev = &n->dev;
-> > > >    	vqs[VHOST_TEST_VQ] = &n->vqs[VHOST_TEST_VQ];
-> > > >    	n->vqs[VHOST_TEST_VQ].handle_kick = handle_vq_kick;
-> > > > -	vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX, UIO_MAXIOV,
-> > > > +	vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX, UIO_MAXIOV + 64,
-> > > >    		       VHOST_TEST_PKT_WEIGHT, VHOST_TEST_WEIGHT, NULL);
-> > > >    	f->private_data = n;
-> > > > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> > > > index 8f9a07282625..aca2a5b0d078 100644
-> > > > --- a/drivers/vhost/vhost.c
-> > > > +++ b/drivers/vhost/vhost.c
-> > > > @@ -299,6 +299,7 @@ static void vhost_vq_reset(struct vhost_dev *dev,
-> > > >    {
-> > > >    	vq->num = 1;
-> > > >    	vq->ndescs = 0;
-> > > > +	vq->first_desc = 0;
-> > > >    	vq->desc = NULL;
-> > > >    	vq->avail = NULL;
-> > > >    	vq->used = NULL;
-> > > > @@ -367,6 +368,11 @@ static int vhost_worker(void *data)
-> > > >    	return 0;
-> > > >    }
-> > > > +static int vhost_vq_num_batch_descs(struct vhost_virtqueue *vq)
+> On 2020/6/3 下午5:48, Michael S. Tsirkin wrote:
+> > On Wed, Jun 03, 2020 at 03:13:56PM +0800, Jason Wang wrote:
+> > > On 2020/6/2 下午9:05, Michael S. Tsirkin wrote:
+> 
+> 
+> [...]
+> 
+> 
+> > > > +
+> > > > +static int fetch_indirect_descs(struct vhost_virtqueue *vq,
+> > > > +				struct vhost_desc *indirect,
+> > > > +				u16 head)
 > > > > +{
-> > > > +	return vq->max_descs - UIO_MAXIOV;
-> > > > +}
-> > > 1 descriptor does not mean 1 iov, e.g userspace may pass several 1 byte
-> > > length memory regions for us to translate.
+> > > > +	struct vring_desc desc;
+> > > > +	unsigned int i = 0, count, found = 0;
+> > > > +	u32 len = indirect->len;
+> > > > +	struct iov_iter from;
+> > > > +	int ret;
+> > > > +
+> > > > +	/* Sanity check */
+> > > > +	if (unlikely(len % sizeof desc)) {
+> > > > +		vq_err(vq, "Invalid length in indirect descriptor: "
+> > > > +		       "len 0x%llx not multiple of 0x%zx\n",
+> > > > +		       (unsigned long long)len,
+> > > > +		       sizeof desc);
+> > > > +		return -EINVAL;
+> > > > +	}
+> > > > +
+> > > > +	ret = translate_desc(vq, indirect->addr, len, vq->indirect,
+> > > > +			     UIO_MAXIOV, VHOST_ACCESS_RO);
+> > > > +	if (unlikely(ret < 0)) {
+> > > > +		if (ret != -EAGAIN)
+> > > > +			vq_err(vq, "Translation failure %d in indirect.\n", ret);
+> > > > +		return ret;
+> > > > +	}
+> > > > +	iov_iter_init(&from, READ, vq->indirect, ret, len);
+> > > > +
+> > > > +	/* We will use the result as an address to read from, so most
+> > > > +	 * architectures only need a compiler barrier here. */
+> > > > +	read_barrier_depends();
+> > > > +
+> > > > +	count = len / sizeof desc;
+> > > > +	/* Buffers are chained via a 16 bit next field, so
+> > > > +	 * we can have at most 2^16 of these. */
+> > > > +	if (unlikely(count > USHRT_MAX + 1)) {
+> > > > +		vq_err(vq, "Indirect buffer length too big: %d\n",
+> > > > +		       indirect->len);
+> > > > +		return -E2BIG;
+> > > > +	}
+> > > > +	if (unlikely(vq->ndescs + count > vq->max_descs)) {
+> > > > +		vq_err(vq, "Too many indirect + direct descs: %d + %d\n",
+> > > > +		       vq->ndescs, indirect->len);
+> > > > +		return -E2BIG;
+> > > > +	}
+> > > > +
+> > > > +	do {
+> > > > +		if (unlikely(++found > count)) {
+> > > > +			vq_err(vq, "Loop detected: last one at %u "
+> > > > +			       "indirect size %u\n",
+> > > > +			       i, count);
+> > > > +			return -EINVAL;
+> > > > +		}
+> > > > +		if (unlikely(!copy_from_iter_full(&desc, sizeof(desc), &from))) {
+> > > > +			vq_err(vq, "Failed indirect descriptor: idx %d, %zx\n",
+> > > > +			       i, (size_t)indirect->addr + i * sizeof desc);
+> > > > +			return -EINVAL;
+> > > > +		}
+> > > > +		if (unlikely(desc.flags & cpu_to_vhost16(vq, VRING_DESC_F_INDIRECT))) {
+> > > > +			vq_err(vq, "Nested indirect descriptor: idx %d, %zx\n",
+> > > > +			       i, (size_t)indirect->addr + i * sizeof desc);
+> > > > +			return -EINVAL;
+> > > > +		}
+> > > > +
+> > > > +		push_split_desc(vq, &desc, head);
 > > > 
-> > Yes but I don't see the relevance. This tells us how many descriptors to
-> > batch, not how many IOVs.
+> > > The error is ignored.
+> > See above:
+> > 
+> >       	if (unlikely(vq->ndescs + count > vq->max_descs))
+> > 
+> > So it can't fail here, we never fetch unless there's space.
+> > 
+> > I guess we can add a WARN_ON here.
 > 
 > 
-> Yes, but questions are:
-> 
-> - this introduce another obstacle to support more than 1K queue size
-> - if we support 1K queue size, does it mean we need to cache 1K descriptors,
-> which seems a large stress on the cache
-> 
-> Thanks
+> Yes.
 > 
 > 
 > > 
+> > > > +	} while ((i = next_desc(vq, &desc)) != -1);
+> > > > +	return 0;
+> > > > +}
+> > > > +
+> > > > +static int fetch_descs(struct vhost_virtqueue *vq)
+> > > > +{
+> > > > +	unsigned int i, head, found = 0;
+> > > > +	struct vhost_desc *last;
+> > > > +	struct vring_desc desc;
+> > > > +	__virtio16 avail_idx;
+> > > > +	__virtio16 ring_head;
+> > > > +	u16 last_avail_idx;
+> > > > +	int ret;
+> > > > +
+> > > > +	/* Check it isn't doing very strange things with descriptor numbers. */
+> > > > +	last_avail_idx = vq->last_avail_idx;
+> > > > +
+> > > > +	if (vq->avail_idx == vq->last_avail_idx) {
+> > > > +		if (unlikely(vhost_get_avail_idx(vq, &avail_idx))) {
+> > > > +			vq_err(vq, "Failed to access avail idx at %p\n",
+> > > > +				&vq->avail->idx);
+> > > > +			return -EFAULT;
+> > > > +		}
+> > > > +		vq->avail_idx = vhost16_to_cpu(vq, avail_idx);
+> > > > +
+> > > > +		if (unlikely((u16)(vq->avail_idx - last_avail_idx) > vq->num)) {
+> > > > +			vq_err(vq, "Guest moved used index from %u to %u",
+> > > > +				last_avail_idx, vq->avail_idx);
+> > > > +			return -EFAULT;
+> > > > +		}
+> > > > +
+> > > > +		/* If there's nothing new since last we looked, return
+> > > > +		 * invalid.
+> > > > +		 */
+> > > > +		if (vq->avail_idx == last_avail_idx)
+> > > > +			return vq->num;
+> > > > +
+> > > > +		/* Only get avail ring entries after they have been
+> > > > +		 * exposed by guest.
+> > > > +		 */
+> > > > +		smp_rmb();
+> > > > +	}
+> > > > +
+> > > > +	/* Grab the next descriptor number they're advertising */
+> > > > +	if (unlikely(vhost_get_avail_head(vq, &ring_head, last_avail_idx))) {
+> > > > +		vq_err(vq, "Failed to read head: idx %d address %p\n",
+> > > > +		       last_avail_idx,
+> > > > +		       &vq->avail->ring[last_avail_idx % vq->num]);
+> > > > +		return -EFAULT;
+> > > > +	}
+> > > > +
+> > > > +	head = vhost16_to_cpu(vq, ring_head);
+> > > > +
+> > > > +	/* If their number is silly, that's an error. */
+> > > > +	if (unlikely(head >= vq->num)) {
+> > > > +		vq_err(vq, "Guest says index %u > %u is available",
+> > > > +		       head, vq->num);
+> > > > +		return -EINVAL;
+> > > > +	}
+> > > > +
+> > > > +	i = head;
+> > > > +	do {
+> > > > +		if (unlikely(i >= vq->num)) {
+> > > > +			vq_err(vq, "Desc index is %u > %u, head = %u",
+> > > > +			       i, vq->num, head);
+> > > > +			return -EINVAL;
+> > > > +		}
+> > > > +		if (unlikely(++found > vq->num)) {
+> > > > +			vq_err(vq, "Loop detected: last one at %u "
+> > > > +			       "vq size %u head %u\n",
+> > > > +			       i, vq->num, head);
+> > > > +			return -EINVAL;
+> > > > +		}
+> > > > +		ret = vhost_get_desc(vq, &desc, i);
+> > > > +		if (unlikely(ret)) {
+> > > > +			vq_err(vq, "Failed to get descriptor: idx %d addr %p\n",
+> > > > +			       i, vq->desc + i);
+> > > > +			return -EFAULT;
+> > > > +		}
+> > > > +		ret = push_split_desc(vq, &desc, head);
+> > > > +		if (unlikely(ret)) {
+> > > > +			vq_err(vq, "Failed to save descriptor: idx %d\n", i);
+> > > > +			return -EINVAL;
+> > > > +		}
+> > > > +	} while ((i = next_desc(vq, &desc)) != -1);
+> > > > +
+> > > > +	last = peek_split_desc(vq);
+> > > > +	if (unlikely(last->flags & VRING_DESC_F_INDIRECT)) {
+> > > > +		pop_split_desc(vq);
+> > > > +		ret = fetch_indirect_descs(vq, last, head);
+> > > 
+> > > Note that this means we don't supported chained indirect descriptors which
+> > > complies the spec but we support this in vhost_get_vq_desc().
+> > Well the spec says:
+> > 	A driver MUST NOT set both VIRTQ_DESC_F_INDIRECT and VIRTQ_DESC_F_NEXT in flags.
+> > 
+> > Did I miss anything?
+> > 
+> 
+> No, but I meant current vhost_get_vq_desc() supports chained indirect
+> descriptor. Not sure if there's an application that depends on this
+> silently.
+> 
+> Thanks
+> 
 
-Still don't understand the relevance. We support up to 1K descriptors
-per buffer just for IOV since we always did. This adds 64 more
-descriptors - is that a big deal?
+I don't think we need to worry about that unless this actually
+surfaces.
+
+-- 
+MST
