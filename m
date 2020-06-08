@@ -1,58 +1,125 @@
-From: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Subject: Re: [PATCH v3 0/5] Add a vhost RPMsg API
-Date: Mon, 8 Jun 2020 12:15:27 +0200
-Message-ID: <20200608101526.GD10562@ubuntu>
-References: <20200527180541.5570-1-guennadi.liakhovetski@linux.intel.com>
- <20200604151917-mutt-send-email-mst@kernel.org>
- <20200605063435.GA32302@ubuntu>
- <20200608073715.GA10562@ubuntu>
- <20200608091100.GC10562@ubuntu>
- <20200608051358-mutt-send-email-mst@kernel.org>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH RFC v5 12/13] vhost/vsock: switch to the buf API
+Date: Mon, 8 Jun 2020 12:17:46 +0200
+Message-ID: <20200608101746.xnxtwwygolsk7yol@steredhat>
+References: <20200607141057.704085-1-mst@redhat.com>
+ <20200607141057.704085-13-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
+Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200608051358-mutt-send-email-mst@kernel.org>
-Sender: kvm-owner@vger.kernel.org
+In-Reply-To: <20200607141057.704085-13-mst@redhat.com>
+Sender: netdev-owner@vger.kernel.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, linux-remoteproc@vger.kernel.org, virtualization@lists.linux-foundation.org, sound-open-firmware@alsa-project.org, Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>, Liam Girdwood <liam.r.girdwood@linux.intel.com>, Jason Wang <jasowang@redhat.com>, Ohad Ben-Cohen <ohad@wizery.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Mathieu Poirier <mathieu.poirier@linaro.org>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>, eperezma@redhat.com, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 08, 2020 at 05:19:06AM -0400, Michael S. Tsirkin wrote:
-> On Mon, Jun 08, 2020 at 11:11:00AM +0200, Guennadi Liakhovetski wrote:
-> > Update: I looked through VirtIO 1.0 and 1.1 specs, data format their, 
-> > including byte order, is defined on a per-device type basis. RPMsg is 
-> > indeed included in the spec as device type 7, but that's the only 
-> > mention of it in both versions. It seems RPMsg over VirtIO isn't 
-> > standardised yet.
+On Sun, Jun 07, 2020 at 10:11:49AM -0400, Michael S. Tsirkin wrote:
+> A straight-forward conversion.
 > 
-> Yes. And it would be very good to have some standartization before we
-> keep adding things. For example without any spec if host code breaks
-> with some guests, how do we know which side should be fixed?
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  drivers/vhost/vsock.c | 30 ++++++++++++++++++------------
+>  1 file changed, 18 insertions(+), 12 deletions(-)
+
+The changes for vsock part LGTM:
+
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+
+
+I also did some tests with vhost-vsock (tools/testing/vsock/vsock_test
+and iperf-vsock), so for vsock:
+
+Tested-by: Stefano Garzarella <sgarzare@redhat.com>
+
+Thanks,
+Stefano
+
 > 
-> > Also it looks like newer interface definitions 
-> > specify using "guest native endianness" for Virtual Queue data.
+> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+> index a483cec31d5c..61c6d3dd2ae3 100644
+> --- a/drivers/vhost/vsock.c
+> +++ b/drivers/vhost/vsock.c
+> @@ -103,7 +103,8 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+>  		unsigned out, in;
+>  		size_t nbytes;
+>  		size_t iov_len, payload_len;
+> -		int head;
+> +		struct vhost_buf buf;
+> +		int ret;
+>  
+>  		spin_lock_bh(&vsock->send_pkt_list_lock);
+>  		if (list_empty(&vsock->send_pkt_list)) {
+> @@ -117,16 +118,17 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+>  		list_del_init(&pkt->list);
+>  		spin_unlock_bh(&vsock->send_pkt_list_lock);
+>  
+> -		head = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
+> -					 &out, &in, NULL, NULL);
+> -		if (head < 0) {
+> +		ret = vhost_get_avail_buf(vq, &buf,
+> +					  vq->iov, ARRAY_SIZE(vq->iov),
+> +					  &out, &in, NULL, NULL);
+> +		if (ret < 0) {
+>  			spin_lock_bh(&vsock->send_pkt_list_lock);
+>  			list_add(&pkt->list, &vsock->send_pkt_list);
+>  			spin_unlock_bh(&vsock->send_pkt_list_lock);
+>  			break;
+>  		}
+>  
+> -		if (head == vq->num) {
+> +		if (!ret) {
+>  			spin_lock_bh(&vsock->send_pkt_list_lock);
+>  			list_add(&pkt->list, &vsock->send_pkt_list);
+>  			spin_unlock_bh(&vsock->send_pkt_list_lock);
+> @@ -186,7 +188,8 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+>  		 */
+>  		virtio_transport_deliver_tap_pkt(pkt);
+>  
+> -		vhost_add_used(vq, head, sizeof(pkt->hdr) + payload_len);
+> +		buf.in_len = sizeof(pkt->hdr) + payload_len;
+> +		vhost_put_used_buf(vq, &buf);
+>  		added = true;
+>  
+>  		pkt->off += payload_len;
+> @@ -440,7 +443,8 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
+>  	struct vhost_vsock *vsock = container_of(vq->dev, struct vhost_vsock,
+>  						 dev);
+>  	struct virtio_vsock_pkt *pkt;
+> -	int head, pkts = 0, total_len = 0;
+> +	int ret, pkts = 0, total_len = 0;
+> +	struct vhost_buf buf;
+>  	unsigned int out, in;
+>  	bool added = false;
+>  
+> @@ -461,12 +465,13 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
+>  			goto no_more_replies;
+>  		}
+>  
+> -		head = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
+> -					 &out, &in, NULL, NULL);
+> -		if (head < 0)
+> +		ret = vhost_get_avail_buf(vq, &buf,
+> +					  vq->iov, ARRAY_SIZE(vq->iov),
+> +					  &out, &in, NULL, NULL);
+> +		if (ret < 0)
+>  			break;
+>  
+> -		if (head == vq->num) {
+> +		if (!ret) {
+>  			if (unlikely(vhost_enable_notify(&vsock->dev, vq))) {
+>  				vhost_disable_notify(&vsock->dev, vq);
+>  				continue;
+> @@ -494,7 +499,8 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
+>  			virtio_transport_free_pkt(pkt);
+>  
+>  		len += sizeof(pkt->hdr);
+> -		vhost_add_used(vq, head, len);
+> +		buf.in_len = len;
+> +		vhost_put_used_buf(vq, &buf);
+>  		total_len += len;
+>  		added = true;
+>  	} while(likely(!vhost_exceeds_weight(vq, ++pkts, total_len)));
+> -- 
+> MST
 > 
-> They really don't or shouldn't. That's limited to legacy chapters.
-> Some definitions could have slipped through but it's not
-> the norm. I just quickly looked through the 1.1 spec and could
-> not find any instances that specify "guest native endianness"
-> but feel free to point them out to me.
-
-Oh, there you go. No, sorry, my fault, it's the other way round: "guest 
-native" is for legacy and LE is for current / v1.0 and up.
-
-> > So 
-> > I think the same should be done for RPMsg instead of enforcing LE?
-> 
-> That makes hardware implementations as well as any cross-endian
-> hypervisors tricky.
-
-Yes, LE it is then. And we need to add some text to the spec.
-
-In theory there could be a backward compatibility issue - in case someone 
-was already using virtio_rpmsg_bus.c in BE mode, but I very much doubt 
-that...
-
-Thanks
-Guennadi
