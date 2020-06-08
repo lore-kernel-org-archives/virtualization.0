@@ -1,7 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC v6 07/11] vhost/net: avoid iov length math
-Date: Mon, 8 Jun 2020 08:53:06 -0400
-Message-ID: <20200608125238.728563-8-mst@redhat.com>
+Subject: [PATCH RFC v6 03/11] vhost/net: pass net specific struct pointer
+Date: Mon, 8 Jun 2020 08:52:58 -0400
+Message-ID: <20200608125238.728563-4-mst@redhat.com>
 References: <20200608125238.728563-1-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -22,48 +22,79 @@ To: linux-kernel@vger.kernel.org
 Cc: netdev@vger.kernel.org, eperezma@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Now that API exposes buffer length, we no longer need to
-scan IOVs to figure it out.
+In preparation for further cleanup, pass net specific pointer
+to ubuf callbacks so we can move net specific fields
+out to net structures.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/vhost/net.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/vhost/net.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 830fe84912a5..0b509be8d7b1 100644
+index bf5e1d81ae25..ff594eec8ae3 100644
 --- a/drivers/vhost/net.c
 +++ b/drivers/vhost/net.c
-@@ -607,11 +607,9 @@ static bool vhost_exceeds_maxpend(struct vhost_net *net)
+@@ -94,7 +94,7 @@ struct vhost_net_ubuf_ref {
+ 	 */
+ 	atomic_t refcount;
+ 	wait_queue_head_t wait;
+-	struct vhost_virtqueue *vq;
++	struct vhost_net_virtqueue *nvq;
+ };
+ 
+ #define VHOST_NET_BATCH 64
+@@ -231,7 +231,7 @@ static void vhost_net_enable_zcopy(int vq)
  }
  
- static size_t init_iov_iter(struct vhost_virtqueue *vq, struct iov_iter *iter,
--			    size_t hdr_size, int out)
-+			    size_t len, size_t hdr_size, int out)
+ static struct vhost_net_ubuf_ref *
+-vhost_net_ubuf_alloc(struct vhost_virtqueue *vq, bool zcopy)
++vhost_net_ubuf_alloc(struct vhost_net_virtqueue *nvq, bool zcopy)
  {
- 	/* Skip header. TODO: support TSO. */
--	size_t len = iov_length(vq->iov, out);
--
- 	iov_iter_init(iter, WRITE, vq->iov, out, len);
- 	iov_iter_advance(iter, hdr_size);
+ 	struct vhost_net_ubuf_ref *ubufs;
+ 	/* No zero copy backend? Nothing to count. */
+@@ -242,7 +242,7 @@ vhost_net_ubuf_alloc(struct vhost_virtqueue *vq, bool zcopy)
+ 		return ERR_PTR(-ENOMEM);
+ 	atomic_set(&ubufs->refcount, 1);
+ 	init_waitqueue_head(&ubufs->wait);
+-	ubufs->vq = vq;
++	ubufs->nvq = nvq;
+ 	return ubufs;
+ }
  
-@@ -640,7 +638,7 @@ static int get_tx_bufs(struct vhost_net *net,
- 	}
+@@ -384,13 +384,13 @@ static void vhost_zerocopy_signal_used(struct vhost_net *net,
+ static void vhost_zerocopy_callback(struct ubuf_info *ubuf, bool success)
+ {
+ 	struct vhost_net_ubuf_ref *ubufs = ubuf->ctx;
+-	struct vhost_virtqueue *vq = ubufs->vq;
++	struct vhost_net_virtqueue *nvq = ubufs->nvq;
+ 	int cnt;
  
- 	/* Sanity check */
--	*len = init_iov_iter(vq, &msg->msg_iter, nvq->vhost_hlen, *out);
-+	*len = init_iov_iter(vq, &msg->msg_iter, buf->out_len, nvq->vhost_hlen, *out);
- 	if (*len == 0) {
- 		vq_err(vq, "Unexpected header len for TX: %zd expected %zd\n",
- 			*len, nvq->vhost_hlen);
-@@ -1080,7 +1078,7 @@ static int get_rx_bufs(struct vhost_virtqueue *vq,
- 			nlogs += *log_num;
- 			log += *log_num;
- 		}
--		len = iov_length(vq->iov + seg, in);
-+		len = bufs[bufcount].in_len;
- 		datalen -= len;
- 		++bufcount;
- 		seg += in;
+ 	rcu_read_lock_bh();
+ 
+ 	/* set len to mark this desc buffers done DMA */
+-	vq->heads[ubuf->desc].len = success ?
++	nvq->vq.heads[ubuf->desc].in_len = success ?
+ 		VHOST_DMA_DONE_LEN : VHOST_DMA_FAILED_LEN;
+ 	cnt = vhost_net_ubuf_put(ubufs);
+ 
+@@ -402,7 +402,7 @@ static void vhost_zerocopy_callback(struct ubuf_info *ubuf, bool success)
+ 	 * less than 10% of times).
+ 	 */
+ 	if (cnt <= 1 || !(cnt % 16))
+-		vhost_poll_queue(&vq->poll);
++		vhost_poll_queue(&nvq->vq.poll);
+ 
+ 	rcu_read_unlock_bh();
+ }
+@@ -1525,7 +1525,7 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
+ 	/* start polling new socket */
+ 	oldsock = vhost_vq_get_backend(vq);
+ 	if (sock != oldsock) {
+-		ubufs = vhost_net_ubuf_alloc(vq,
++		ubufs = vhost_net_ubuf_alloc(nvq,
+ 					     sock && vhost_sock_zcopy(sock));
+ 		if (IS_ERR(ubufs)) {
+ 			r = PTR_ERR(ubufs);
 -- 
 MST
