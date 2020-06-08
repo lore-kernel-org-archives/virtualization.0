@@ -1,87 +1,44 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio_mem: prevent overflow with subblock size
-Date: Mon, 8 Jun 2020 05:41:46 -0400
-Message-ID: <20200608053807-mutt-send-email-mst@kernel.org>
-References: <20200608061406.709211-1-mst@redhat.com>
- <0930c9d0-0708-c079-29bd-b80d4e3ce446@redhat.com>
- <20200608030423-mutt-send-email-mst@kernel.org>
- <d10e9515-8408-037c-385a-d69259ce70ee@redhat.com>
+Subject: Re: [PATCH v3 4/4] drm/virtio: Support virtgpu exported resources
+Date: Mon, 8 Jun 2020 05:43:27 -0400
+Message-ID: <20200608054234-mutt-send-email-mst@kernel.org>
+References: <20200311112004.47138-1-stevensd@chromium.org>
+ <20200311112004.47138-5-stevensd@chromium.org>
+ <20200513123326-mutt-send-email-mst@kernel.org>
+ <CAD=HUj5qcMLw__LfJizR6nzCR9Qmu21Sjk3i0j_8+=rxt1Hk=w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <virtio-dev-return-7450-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+In-Reply-To: <CAD=HUj5qcMLw__LfJizR6nzCR9Qmu21Sjk3i0j_8+=rxt1Hk=w@mail.gmail.com>
 Content-Disposition: inline
-In-Reply-To: <d10e9515-8408-037c-385a-d69259ce70ee@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Jason Wang <jasowang@redhat.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, virtualization@lists.linux-foundation.org, teawater <teawaterz@linux.alibaba.com>
+To: David Stevens <stevensd@chromium.org>
+Cc: Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Jason Wang <jasowang@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, "moderated list:DMA BUFFER SHARING FRAMEWORK" <linaro-mm-sig@lists.linaro.org>, virtio-dev@lists.oasis-open.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 08, 2020 at 09:17:45AM +0200, David Hildenbrand wrote:
-> On 08.06.20 09:08, Michael S. Tsirkin wrote:
-> > On Mon, Jun 08, 2020 at 08:58:31AM +0200, David Hildenbrand wrote:
-> >> On 08.06.20 08:14, Michael S. Tsirkin wrote:
-> >>> If subblock size is large (e.g. 1G) 32 bit math involving it
-> >>> can overflow. Rather than try to catch all instances of that,
-> >>> let's tweak block size to 64 bit.
-> >>
-> >> I fail to see where we could actually trigger an overflow. The reported
-> >> warning looked like a false positive to me.
-> > 
-> > 
-> > So
-> > 
-> >     const uint64_t size = count * vm->subblock_size;
-> > 
-> > is it unreasonable for count to be 4K with subblock_size being 1M?
+On Fri, May 15, 2020 at 04:26:15PM +0900, David Stevens wrote:
+> > > +     if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_RESOURCE_UUID)) {
+> > > +             vgdev->has_resource_assign_uuid = true;
+> > > +     }
+> >
+> >
+> > Just a question: this relies on DMA bufs so I assume it is
+> > not really assumed to work when DMA API is bypassed, right?
+> > Rather than worry what does it mean, how about just
+> > disabling  this feature without PLATFORM_DMA for now?
 > 
-> virtio_mem_mb_plug_sb() and friends are only called on subblocks
-> residing within a single Linux memory block. (currently, 128MB .. 2G on
-> x86-64). A subblock on x86-64 is currently at least 4MB.
-> 
-> So "count * vm->subblock_size" can currently not exceed the Linux memory
-> block size (in practice, it is max 128MB).
-> 
-> > 
-> >>>
-> >>> It ripples through UAPI which is an ABI change, but it's not too late to
-> >>> make it, and it will allow supporting >4Gbyte blocks while might
-> >>> become necessary down the road.
-> >>>
-> >>
-> >> This might break cloud-hypervisor, who's already implementing this
-> >> protocol upstream (ccing Hui).
-> >> https://github.com/cloud-hypervisor/cloud-hypervisor/blob/master/vm-virtio/src/mem.rs
-> >>
-> >> (blocks in the gigabyte range were never the original intention of
-> >> virtio-mem, but I am not completely opposed to that)
-> > 
-> > 
-> > So in that case, can you code up validation in the probe function?
-> 
-> If we would currently have a "block_size" > Linux memory block size, we
-> bail out.
-> 
-> virtio_mem_init():
-> 
-> if (vm->device_block_size > memory_block_size_bytes()) {
-> 	dev_err(&vm->vdev->dev,
-> 		"The block size is not supported (too big).\n");
-> 	return -EINVAL;
-> }
+> By PLATFORM_DMA, do you mean CONFIG_DMA_SHARED_BUFFER?
 
-Sounds good.
+Sorry, no. I mean VIRTIO_F_IOMMU_PLATFORM which in the
+future will be renamed to VIRTIO_F_PLATFORM_ACCESS.
 
-> So what's reported can currently not happen. Having that said, changing
-> "subblock_size" to be an uint64_t is a good cleanup, especially for the
-> future.
 
-OK, no need to argue about it then. I tweaked the subject as you
-suggested and queued it then.
-
+> Virtio-gpu
+> depends on DRM, which selects that feature. So I think DMA bufs should
+> always be available when virtio-gpu is present.
 > 
-> 
-> 
-> -- 
-> Thanks,
-> 
-> David / dhildenb
+> -David
