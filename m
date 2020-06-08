@@ -1,55 +1,57 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH] virtio-mem: drop unnecessary initialization
-Date: Mon, 8 Jun 2020 08:44:30 +0200
-Message-ID: <f3535274-296d-62b0-106a-29c52a554815@redhat.com>
-References: <20200608054517.708167-1-mst@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH RFC v5 13/13] vhost: drop head based APIs
+Date: Mon, 8 Jun 2020 02:45:50 -0400
+Message-ID: <20200608023311-mutt-send-email-mst@kernel.org>
+References: <20200607141057.704085-1-mst@redhat.com>
+ <20200607141057.704085-14-mst@redhat.com>
+ <8e3f5b6f-a47b-73cd-e8e3-959d40f6c91c@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200608054517.708167-1-mst@redhat.com>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>, kernel test robot <lkp@intel.com>, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <8e3f5b6f-a47b-73cd-e8e3-959d40f6c91c@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, eperezma@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08.06.20 07:45, Michael S. Tsirkin wrote:
-> rc is initialized to -ENIVAL but that's never used. Drop it.
+On Mon, Jun 08, 2020 at 11:57:48AM +0800, Jason Wang wrote:
 > 
-> Fixes: 5f1f79bbc9e2 ("virtio-mem: Paravirtualized memory hotplug")
-> Reported-by: kernel test robot <lkp@intel.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/virtio/virtio_mem.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> On 2020/6/7 下午10:11, Michael S. Tsirkin wrote:
+> > Everyone's using buf APIs, no need for head based ones anymore.
+> > 
+> > Signed-off-by: Michael S. Tsirkin<mst@redhat.com>
+> > ---
+> >   drivers/vhost/vhost.c | 36 ++++++++----------------------------
+> >   drivers/vhost/vhost.h | 12 ------------
+> >   2 files changed, 8 insertions(+), 40 deletions(-)
+> > 
+> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> > index 72ee55c810c4..e6931b760b61 100644
+> > --- a/drivers/vhost/vhost.c
+> > +++ b/drivers/vhost/vhost.c
+> > @@ -2299,12 +2299,12 @@ static int fetch_buf(struct vhost_virtqueue *vq)
+> >   	return 1;
+> >   }
+> > -/* Reverse the effect of vhost_get_vq_desc. Useful for error handling. */
+> > +/* Revert the effect of fetch_buf. Useful for error handling. */
+> > +static
+> >   void vhost_discard_vq_desc(struct vhost_virtqueue *vq, int n)
+> >   {
+> >   	vq->last_avail_idx -= n;
+> >   }
+> > -EXPORT_SYMBOL_GPL(vhost_discard_vq_desc);
 > 
-> diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-> index f658fe9149be..2f357142ea5e 100644
-> --- a/drivers/virtio/virtio_mem.c
-> +++ b/drivers/virtio/virtio_mem.c
-> @@ -1768,7 +1768,7 @@ static void virtio_mem_delete_resource(struct virtio_mem *vm)
->  static int virtio_mem_probe(struct virtio_device *vdev)
->  {
->  	struct virtio_mem *vm;
-> -	int rc = -EINVAL;
-> +	int rc;
->  
->  	BUILD_BUG_ON(sizeof(struct virtio_mem_req) != 24);
->  	BUILD_BUG_ON(sizeof(struct virtio_mem_resp) != 10);
 > 
+> The same question as previous version.
+> 
+> Do we need to rewind cached descriptor here?
+> 
+> Thanks
 
-Acked-by: David Hildenbrand <david@redhat.com>
+Good point.  This needs more thought, we need to also
+rewind the avail idx each time we flush the descriptor cache.
 
 -- 
-Thanks,
-
-David / dhildenb
+MST
