@@ -1,61 +1,38 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH] virtio_mem: prevent overflow with subblock size
-Date: Mon, 8 Jun 2020 09:34:51 +0200
-Message-ID: <201e8ab5-ec50-af86-0ffc-d25befdba14e@redhat.com>
-References: <20200608061406.709211-1-mst@redhat.com>
- <0930c9d0-0708-c079-29bd-b80d4e3ce446@redhat.com>
- <2D9A07BA-6FDC-48FF-9A1F-62272695B3EF@linux.alibaba.com>
+From: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+Subject: Re: [PATCH v3 0/5] Add a vhost RPMsg API
+Date: Mon, 8 Jun 2020 09:37:15 +0200
+Message-ID: <20200608073715.GA10562@ubuntu>
+References: <20200527180541.5570-1-guennadi.liakhovetski@linux.intel.com>
+ <20200604151917-mutt-send-email-mst@kernel.org>
+ <20200605063435.GA32302@ubuntu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <2D9A07BA-6FDC-48FF-9A1F-62272695B3EF@linux.alibaba.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: teawater <teawaterz@linux.alibaba.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, LKML <linux-kernel@vger.kernel.org>, Jason Wang <jasowang@redhat.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200605063435.GA32302@ubuntu>
+Sender: kvm-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, linux-remoteproc@vger.kernel.org, virtualization@lists.linux-foundation.org, sound-open-firmware@alsa-project.org, Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>, Liam Girdwood <liam.r.girdwood@linux.intel.com>, Jason Wang <jasowang@redhat.com>, Ohad Ben-Cohen <ohad@wizery.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Mathieu Poirier <mathieu.poirier@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 08.06.20 09:12, teawater wrote:
+Hi Michael,
+
+On Fri, Jun 05, 2020 at 08:34:35AM +0200, Guennadi Liakhovetski wrote:
 > 
+> On Thu, Jun 04, 2020 at 03:23:37PM -0400, Michael S. Tsirkin wrote:
+
+[snip]
+
+> > Another it's out of line with 1.0 spec passing guest
+> > endian data around. Won't work if host and guest
+> > endian-ness do not match. Should pass eveything in LE and
+> > convert.
 > 
->> 2020年6月8日 14:58，David Hildenbrand <david@redhat.com> 写道：
->>
->> On 08.06.20 08:14, Michael S. Tsirkin wrote:
->>> If subblock size is large (e.g. 1G) 32 bit math involving it
->>> can overflow. Rather than try to catch all instances of that,
->>> let's tweak block size to 64 bit.
->>
->> I fail to see where we could actually trigger an overflow. The reported
->> warning looked like a false positive to me.
->>
->>>
->>> It ripples through UAPI which is an ABI change, but it's not too late to
->>> make it, and it will allow supporting >4Gbyte blocks while might
->>> become necessary down the road.
->>>
->>
->> This might break cloud-hypervisor, who's already implementing this
->> protocol upstream (ccing Hui).
->> https://github.com/cloud-hypervisor/cloud-hypervisor/blob/master/vm-virtio/src/mem.rs
->>
->> (blocks in the gigabyte range were never the original intention of
->> virtio-mem, but I am not completely opposed to that)
-> 
-> If you think virtio_mem need this patch, I think cloud-hypervisor should follow this update (I will post PR for it).
+> Yes, I have to fix this, thanks.
 
-Thanks Hui. So we can still do last-minute changes if we all agree it
-makes sense.
+Just to make sure my understanding is correct: this would involve also 
+modifying the current virtio_rpmsg_bus.c implementation to add 
+endianness conversions. That's what you meant, right?
 
-@MST can you rephrase the patch description to highlight that this is a
-preparation for the future only and not actually currently broken?
-"virtio-mem: convert device block size into 64bit" ...
-
-With that
-
-Acked-by: David Hildenbrand <david@redhat.com>
-
--- 
-Thanks,
-
-David / dhildenb
+Thanks
+Guennadi
