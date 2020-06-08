@@ -1,50 +1,80 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3 0/5] Add a vhost RPMsg API
-Date: Mon, 8 Jun 2020 05:19:06 -0400
-Message-ID: <20200608051358-mutt-send-email-mst@kernel.org>
-References: <20200527180541.5570-1-guennadi.liakhovetski@linux.intel.com>
- <20200604151917-mutt-send-email-mst@kernel.org>
- <20200605063435.GA32302@ubuntu>
- <20200608073715.GA10562@ubuntu>
- <20200608091100.GC10562@ubuntu>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 5/6] vdpa: introduce virtio pci driver
+Date: Mon, 8 Jun 2020 17:18:44 +0800
+Message-ID: <a1b1b7fb-b097-17b7-2e3a-0da07d2e48ae@redhat.com>
+References: <20200529080303.15449-1-jasowang@redhat.com>
+ <20200529080303.15449-6-jasowang@redhat.com>
+ <20200602010332-mutt-send-email-mst@kernel.org>
+ <5dbb0386-beeb-5bf4-d12e-fb5427486bb8@redhat.com>
+ <6b1d1ef3-d65e-08c2-5b65-32969bb5ecbc@redhat.com>
+ <20200607095012-mutt-send-email-mst@kernel.org>
+ <9b1abd2b-232c-aa0f-d8bb-03e65fd47de2@redhat.com>
+ <20200608021438-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200608091100.GC10562@ubuntu>
+In-Reply-To: <20200608021438-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
-To: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Cc: kvm@vger.kernel.org, linux-remoteproc@vger.kernel.org, virtualization@lists.linux-foundation.org, sound-open-firmware@alsa-project.org, Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>, Liam Girdwood <liam.r.girdwood@linux.intel.com>, Jason Wang <jasowang@redhat.com>, Ohad Ben-Cohen <ohad@wizery.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Mathieu Poirier <mathieu.poirier@linaro.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, rob.miller@broadcom.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com, zhangweining@ruijie.com.cn, eli@mellanox.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 08, 2020 at 11:11:00AM +0200, Guennadi Liakhovetski wrote:
-> Update: I looked through VirtIO 1.0 and 1.1 specs, data format their, 
-> including byte order, is defined on a per-device type basis. RPMsg is 
-> indeed included in the spec as device type 7, but that's the only 
-> mention of it in both versions. It seems RPMsg over VirtIO isn't 
-> standardised yet.
 
-Yes. And it would be very good to have some standartization before we
-keep adding things. For example without any spec if host code breaks
-with some guests, how do we know which side should be fixed?
+On 2020/6/8 下午2:32, Michael S. Tsirkin wrote:
+> On Mon, Jun 08, 2020 at 11:32:31AM +0800, Jason Wang wrote:
+>> On 2020/6/7 下午9:51, Michael S. Tsirkin wrote:
+>>> On Fri, Jun 05, 2020 at 04:54:17PM +0800, Jason Wang wrote:
+>>>> On 2020/6/2 下午3:08, Jason Wang wrote:
+>>>>>>> +static const struct pci_device_id vp_vdpa_id_table[] = {
+>>>>>>> +    { PCI_DEVICE(PCI_VENDOR_ID_REDHAT_QUMRANET, PCI_ANY_ID) },
+>>>>>>> +    { 0 }
+>>>>>>> +};
+>>>>>> This looks like it'll create a mess with either virtio pci
+>>>>>> or vdpa being loaded at random. Maybe just don't specify
+>>>>>> any IDs for now. Down the road we could get a
+>>>>>> distinct vendor ID or a range of device IDs for this.
+>>>>> Right, will do.
+>>>>>
+>>>>> Thanks
+>>>> Rethink about this. If we don't specify any ID, the binding won't work.
+>>> We can bind manually. It's not really for production anyway, so
+>>> not a big deal imho.
+>>
+>> I think you mean doing it via "new_id", right.
+> I really meant driver_override. This is what people have been using
+> with pci-stub for years now.
 
-> Also it looks like newer interface definitions 
-> specify using "guest native endianness" for Virtual Queue data.
 
-They really don't or shouldn't. That's limited to legacy chapters.
-Some definitions could have slipped through but it's not
-the norm. I just quickly looked through the 1.1 spec and could
-not find any instances that specify "guest native endianness"
-but feel free to point them out to me.
+Do you want me to implement "driver_overrid" in this series, or a NULL 
+id_table is sufficient?
 
-> So 
-> I think the same should be done for RPMsg instead of enforcing LE?
-> 
-> Thanks
-> Guennadi
 
-That makes hardware implementations as well as any cross-endian
-hypervisors tricky.
+>
+>>>> How about using a dedicated subsystem vendor id for this?
+>>>>
+>>>> Thanks
+>>> If virtio vendor id is used then standard driver is expected
+>>> to bind, right? Maybe use a dedicated vendor id?
+>>
+>> I meant something like:
+>>
+>> static const struct pci_device_id vp_vdpa_id_table[] = {
+>>      { PCI_DEVICE_SUB(PCI_VENDOR_ID_REDHAT_QUMRANET, PCI_ANY_ID,
+>> VP_TEST_VENDOR_ID, VP_TEST_DEVICE_ID) },
+>>      { 0 }
+>> };
+>>
+>> Thanks
+>>
+> Then regular virtio will still bind to it. It has
+>
+> drivers/virtio/virtio_pci_common.c:     { PCI_DEVICE(PCI_VENDOR_ID_REDHAT_QUMRANET, PCI_ANY_ID) },
+>
+>
 
--- 
-MST
+IFCVF use this to avoid the binding to regular virtio device. Looking at 
+pci_match_one_device() it checks both subvendor and subdevice there.
+
+Thanks
