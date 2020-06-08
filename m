@@ -1,108 +1,121 @@
-From: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Subject: Re: [RFC 12/12] rpmsg: add a device ID to also bind to the ADSP device
-Date: Mon, 8 Jun 2020 19:02:27 +0200
-Message-ID: <20200608170227.GG10562@ubuntu>
-References: <20200529073722.8184-1-guennadi.liakhovetski@linux.intel.com>
- <20200529073722.8184-13-guennadi.liakhovetski@linux.intel.com>
- <20200604200156.GB26734@xps15> <20200605064659.GC32302@ubuntu>
- <20200608161757.GA32518@xps15>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH RFC v6 10/11] vhost/vsock: switch to the buf API
+Date: Mon, 8 Jun 2020 19:08:49 +0200
+Message-ID: <20200608170849.udaxzmfzmhbonoi7@steredhat>
+References: <20200608125238.728563-1-mst@redhat.com>
+ <20200608125238.728563-11-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200608161757.GA32518@xps15>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Ohad Ben-Cohen <ohad@wizery.com>, kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-remoteproc@vger.kernel.org, Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>, virtualization@lists.linux-foundation.org, Liam Girdwood <liam.r.girdwood@linux.intel.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, sound-open-firmware@alsa-project.org
+In-Reply-To: <20200608125238.728563-11-mst@redhat.com>
+Sender: netdev-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>, eperezma@redhat.com, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Mathieu,
-
-On Mon, Jun 08, 2020 at 10:17:57AM -0600, Mathieu Poirier wrote:
-> On Fri, Jun 05, 2020 at 08:46:59AM +0200, Guennadi Liakhovetski wrote:
-> > Hi Mathieu,
-> > 
-> > On Thu, Jun 04, 2020 at 02:01:56PM -0600, Mathieu Poirier wrote:
-> > > On Fri, May 29, 2020 at 09:37:22AM +0200, Guennadi Liakhovetski wrote:
-> > > > The ADSP device uses the RPMsg API to connect vhost and VirtIO SOF
-> > > > Audio DSP drivers on KVM host and guest.
-> > > > 
-> > > > Signed-off-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-> > > > ---
-> > > >  drivers/rpmsg/virtio_rpmsg_bus.c | 1 +
-> > > >  1 file changed, 1 insertion(+)
-> > > > 
-> > > > diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
-> > > > index f3bd050..ebe3f19 100644
-> > > > --- a/drivers/rpmsg/virtio_rpmsg_bus.c
-> > > > +++ b/drivers/rpmsg/virtio_rpmsg_bus.c
-> > > > @@ -949,6 +949,7 @@ static void rpmsg_remove(struct virtio_device *vdev)
-> > > >  
-> > > >  static struct virtio_device_id id_table[] = {
-> > > >  	{ VIRTIO_ID_RPMSG, VIRTIO_DEV_ANY_ID },
-> > > > +	{ VIRTIO_ID_ADSP, VIRTIO_DEV_ANY_ID },
-> > > 
-> > > I am fine with this patch but won't add an RB because of the (many) checkpatch
-> > > errors.  Based on the comment I made on the previous set seeing those was
-> > > unexpected.
-> > 
-> > Are you using "--strict?" Sorry, I don't see any checkpatch errors, only warnings. 
+On Mon, Jun 08, 2020 at 08:53:13AM -0400, Michael S. Tsirkin wrote:
+> A straight-forward conversion.
 > 
-> No, plane checkpatch on the rproc-next branch.
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  drivers/vhost/vsock.c | 30 ++++++++++++++++++------------
+>  1 file changed, 18 insertions(+), 12 deletions(-)
+
+I ran the vsock tests again with this new series and everything seems
+to go well:
+
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Tested-by: Stefano Garzarella <sgarzare@redhat.com>
+
+Thanks,
+Stefano
+
 > 
-> > Most of them are "over 80 characters" which as we now know is no more an issue,
-> 
-> There is a thread discussing the matter but I have not seen a clear resolution
-> yet.
-
-I think the resolution is pretty clear as defined by Linus, but maybe it has changed 
-again since I last checked.
-
-> > I just haven't updated my tree yet. Most others are really minor IMHO. Maybe one
-> 
-> Minor or not, if checkpatch complains then it is important enough to address.  I
-> am willing to overlook the lines over 80 characters but everything else needs to
-> be dealt with.
-
-Sure, checkpatch should be run before each patch submission and whatever it reports 
-should be considered. As Documentation/process/submitting-patches.rst clearly 
-states:
-
-"Check your patches with the patch style checker prior to submission
-(scripts/checkpatch.pl).  Note, though, that the style checker should be
-viewed as a guide, not as a replacement for human judgment.  If your code
-looks better with a violation then its probably best left alone."
-
-So, yes, I checked all what checkepatch reported and used my judgement to decide 
-which recommendations to take and which to ignore.
-
-Thanks
-Guennadi
-
-> Thanks,
-> Mathieu
+> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+> index a483cec31d5c..61c6d3dd2ae3 100644
+> --- a/drivers/vhost/vsock.c
+> +++ b/drivers/vhost/vsock.c
+> @@ -103,7 +103,8 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+>  		unsigned out, in;
+>  		size_t nbytes;
+>  		size_t iov_len, payload_len;
+> -		int head;
+> +		struct vhost_buf buf;
+> +		int ret;
 >  
-> > of them I actually would want to fix - using "help" instead of "---help---" in 
-> > Kconfig. What errors are you seeing in your checks?
-> > 
-> > Thanks
-> > Guennadi
-> > 
-> > > Thanks,
-> > > Mathieu
-> > > 
-> > > >  	{ 0 },
-> > > >  };
-> > > >  
-> > > > -- 
-> > > > 1.9.3
-> > > > 
+>  		spin_lock_bh(&vsock->send_pkt_list_lock);
+>  		if (list_empty(&vsock->send_pkt_list)) {
+> @@ -117,16 +118,17 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+>  		list_del_init(&pkt->list);
+>  		spin_unlock_bh(&vsock->send_pkt_list_lock);
+>  
+> -		head = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
+> -					 &out, &in, NULL, NULL);
+> -		if (head < 0) {
+> +		ret = vhost_get_avail_buf(vq, &buf,
+> +					  vq->iov, ARRAY_SIZE(vq->iov),
+> +					  &out, &in, NULL, NULL);
+> +		if (ret < 0) {
+>  			spin_lock_bh(&vsock->send_pkt_list_lock);
+>  			list_add(&pkt->list, &vsock->send_pkt_list);
+>  			spin_unlock_bh(&vsock->send_pkt_list_lock);
+>  			break;
+>  		}
+>  
+> -		if (head == vq->num) {
+> +		if (!ret) {
+>  			spin_lock_bh(&vsock->send_pkt_list_lock);
+>  			list_add(&pkt->list, &vsock->send_pkt_list);
+>  			spin_unlock_bh(&vsock->send_pkt_list_lock);
+> @@ -186,7 +188,8 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
+>  		 */
+>  		virtio_transport_deliver_tap_pkt(pkt);
+>  
+> -		vhost_add_used(vq, head, sizeof(pkt->hdr) + payload_len);
+> +		buf.in_len = sizeof(pkt->hdr) + payload_len;
+> +		vhost_put_used_buf(vq, &buf);
+>  		added = true;
+>  
+>  		pkt->off += payload_len;
+> @@ -440,7 +443,8 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
+>  	struct vhost_vsock *vsock = container_of(vq->dev, struct vhost_vsock,
+>  						 dev);
+>  	struct virtio_vsock_pkt *pkt;
+> -	int head, pkts = 0, total_len = 0;
+> +	int ret, pkts = 0, total_len = 0;
+> +	struct vhost_buf buf;
+>  	unsigned int out, in;
+>  	bool added = false;
+>  
+> @@ -461,12 +465,13 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
+>  			goto no_more_replies;
+>  		}
+>  
+> -		head = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
+> -					 &out, &in, NULL, NULL);
+> -		if (head < 0)
+> +		ret = vhost_get_avail_buf(vq, &buf,
+> +					  vq->iov, ARRAY_SIZE(vq->iov),
+> +					  &out, &in, NULL, NULL);
+> +		if (ret < 0)
+>  			break;
+>  
+> -		if (head == vq->num) {
+> +		if (!ret) {
+>  			if (unlikely(vhost_enable_notify(&vsock->dev, vq))) {
+>  				vhost_disable_notify(&vsock->dev, vq);
+>  				continue;
+> @@ -494,7 +499,8 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
+>  			virtio_transport_free_pkt(pkt);
+>  
+>  		len += sizeof(pkt->hdr);
+> -		vhost_add_used(vq, head, len);
+> +		buf.in_len = len;
+> +		vhost_put_used_buf(vq, &buf);
+>  		total_len += len;
+>  		added = true;
+>  	} while(likely(!vhost_exceeds_weight(vq, ++pkts, total_len)));
+> -- 
+> MST
+> 
