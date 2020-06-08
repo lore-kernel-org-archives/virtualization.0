@@ -1,77 +1,59 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3 0/5] Add a vhost RPMsg API
-Date: Mon, 8 Jun 2020 09:08:33 -0400
-Message-ID: <20200608090145-mutt-send-email-mst@kernel.org>
-References: <20200527180541.5570-1-guennadi.liakhovetski@linux.intel.com>
- <20200604151917-mutt-send-email-mst@kernel.org>
- <20200605063435.GA32302@ubuntu>
- <20200608073715.GA10562@ubuntu>
- <20200608091100.GC10562@ubuntu>
- <20200608051358-mutt-send-email-mst@kernel.org>
- <20200608101526.GD10562@ubuntu>
- <20200608111637.GE10562@ubuntu>
+Subject: Re: [PATCH 5/6] vdpa: introduce virtio pci driver
+Date: Mon, 8 Jun 2020 09:29:01 -0400
+Message-ID: <20200608092530-mutt-send-email-mst@kernel.org>
+References: <20200607095012-mutt-send-email-mst@kernel.org>
+ <9b1abd2b-232c-aa0f-d8bb-03e65fd47de2@redhat.com>
+ <20200608021438-mutt-send-email-mst@kernel.org>
+ <a1b1b7fb-b097-17b7-2e3a-0da07d2e48ae@redhat.com>
+ <20200608052041-mutt-send-email-mst@kernel.org>
+ <9d2571b6-0b95-53b3-6989-b4d801eeb623@redhat.com>
+ <20200608054453-mutt-send-email-mst@kernel.org>
+ <bc27064c-2309-acf3-ccd8-6182bfa2a4cd@redhat.com>
+ <20200608055331-mutt-send-email-mst@kernel.org>
+ <61117e6a-2568-d0f4-8713-d831af32814d@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <61117e6a-2568-d0f4-8713-d831af32814d@redhat.com>
 Content-Disposition: inline
-In-Reply-To: <20200608111637.GE10562@ubuntu>
-Sender: kvm-owner@vger.kernel.org
-To: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Cc: kvm@vger.kernel.org, linux-remoteproc@vger.kernel.org, virtualization@lists.linux-foundation.org, sound-open-firmware@alsa-project.org, Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>, Liam Girdwood <liam.r.girdwood@linux.intel.com>, Jason Wang <jasowang@redhat.com>, Ohad Ben-Cohen <ohad@wizery.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Mathieu Poirier <mathieu.poirier@linaro.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Jason Wang <jasowang@redhat.com>
+Cc: shahafs@mellanox.com, lulu@redhat.com, kvm@vger.kernel.org, saugatm@xilinx.com, netdev@vger.kernel.org, mhabets@solarflare.com, vmireyno@marvell.com, linux-kernel@vger.kernel.org, gdawar@xilinx.com, virtualization@lists.linux-foundation.org, eperezma@redhat.com, hanand@xilinx.com, zhangweining@ruijie.com.cn, eli@mellanox.com, lingshan.zhu@intel.com, rob.miller@broadcom.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 08, 2020 at 01:16:38PM +0200, Guennadi Liakhovetski wrote:
-> On Mon, Jun 08, 2020 at 12:15:26PM +0200, Guennadi Liakhovetski wrote:
-> > On Mon, Jun 08, 2020 at 05:19:06AM -0400, Michael S. Tsirkin wrote:
-> > > On Mon, Jun 08, 2020 at 11:11:00AM +0200, Guennadi Liakhovetski wrote:
-> > > > Update: I looked through VirtIO 1.0 and 1.1 specs, data format their, 
-> > > > including byte order, is defined on a per-device type basis. RPMsg is 
-> > > > indeed included in the spec as device type 7, but that's the only 
-> > > > mention of it in both versions. It seems RPMsg over VirtIO isn't 
-> > > > standardised yet.
-> > > 
-> > > Yes. And it would be very good to have some standartization before we
-> > > keep adding things. For example without any spec if host code breaks
-> > > with some guests, how do we know which side should be fixed?
-> > > 
-> > > > Also it looks like newer interface definitions 
-> > > > specify using "guest native endianness" for Virtual Queue data.
-> > > 
-> > > They really don't or shouldn't. That's limited to legacy chapters.
-> > > Some definitions could have slipped through but it's not
-> > > the norm. I just quickly looked through the 1.1 spec and could
-> > > not find any instances that specify "guest native endianness"
-> > > but feel free to point them out to me.
-> > 
-> > Oh, there you go. No, sorry, my fault, it's the other way round: "guest 
-> > native" is for legacy and LE is for current / v1.0 and up.
-> > 
-> > > > So 
-> > > > I think the same should be done for RPMsg instead of enforcing LE?
-> > > 
-> > > That makes hardware implementations as well as any cross-endian
-> > > hypervisors tricky.
-> > 
-> > Yes, LE it is then. And we need to add some text to the spec.
-> 
-> I found the protocol and the message format definition: 
-> https://github.com/OpenAMP/open-amp/wiki/RPMsg-Messaging-Protocol#transport-layer---rpmsg 
-> Don't know what the best way for referencing it in the VirtIO standard 
-> would be: just a link to the source or a quote.
-> 
-> Thanks
-> Guennadi
-
-I wasn't aware of that one, thanks!
-OK so that's good.
-
-Ideally we'd have RPMsg Header Definition, RPMsg Channel and RPMsg
-Endppint in the spec proper.
-
-This link is informal so can't be copied into spec as is but can be used as a basis.
-
-We'd also need approval from authors for inclusion in the spec,
-sent to the TC mailing list.
-
--- 
-MST
+T24gTW9uLCBKdW4gMDgsIDIwMjAgYXQgMDY6MDc6MzZQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiBPbiAyMDIwLzYvOCDkuIvljYg1OjU0LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6
+Cj4gPiBPbiBNb24sIEp1biAwOCwgMjAyMCBhdCAwNTo0Njo1MlBNICswODAwLCBKYXNvbiBXYW5n
+IHdyb3RlOgo+ID4gPiBPbiAyMDIwLzYvOCDkuIvljYg1OjQ1LCBNaWNoYWVsIFMuIFRzaXJraW4g
+d3JvdGU6Cj4gPiA+ID4gT24gTW9uLCBKdW4gMDgsIDIwMjAgYXQgMDU6NDM6NThQTSArMDgwMCwg
+SmFzb24gV2FuZyB3cm90ZToKPiA+ID4gPiA+ID4gPiBMb29raW5nIGF0Cj4gPiA+ID4gPiA+ID4g
+cGNpX21hdGNoX29uZV9kZXZpY2UoKSBpdCBjaGVja3MgYm90aCBzdWJ2ZW5kb3IgYW5kIHN1YmRl
+dmljZSB0aGVyZS4KPiA+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gPiBUaGFua3MKPiA+ID4gPiA+
+ID4gQnV0IElJVUMgdGhlcmUgaXMgbm8gZ3VhcmFudGVlIHRoYXQgZHJpdmVyIHdpdGggYSBzcGVj
+aWZpYyBzdWJ2ZW5kb3IKPiA+ID4gPiA+ID4gbWF0Y2hlcyBpbiBwcmVzZW5jZSBvZiBhIGdlbmVy
+aWMgb25lLgo+ID4gPiA+ID4gPiBTbyBlaXRoZXIgSUZDIG9yIHZpcnRpbyBwY2kgY2FuIHdpbiwg
+d2hpY2hldmVyIGJpbmRzIGZpcnN0Lgo+ID4gPiA+ID4gSSdtIG5vdCBzdXJlIEkgZ2V0IHRoZXJl
+LiBCdXQgSSB0cnkgbWFudWFsbHkgYmluZCBJRkNWRiB0byBxZW11J3MKPiA+ID4gPiA+IHZpcnRp
+by1uZXQtcGNpLCBhbmQgaXQgZmFpbHMuCj4gPiA+ID4gPiAKPiA+ID4gPiA+IFRoYW5rcwo+ID4g
+PiA+IFJpZ2h0IGJ1dCB0aGUgcmV2ZXJzZSBjYW4gaGFwcGVuOiB2aXJ0aW8tbmV0IGNhbiBiaW5k
+IHRvIElGQ1ZGIGZpcnN0Lgo+ID4gPiAKPiA+ID4gVGhhdCdzIGtpbmQgb2YgZXhwZWN0ZWQuIFRo
+ZSBQRiBpcyBleHBlY3RlZCB0byBiZSBib3VuZCB0byB2aXJ0aW8tcGNpIHRvCj4gPiA+IGNyZWF0
+ZSBWRiB2aWEgc3lzZnMuCj4gPiA+IAo+ID4gPiBUaGFua3MKPiA+ID4gCj4gPiA+IAo+ID4gPiAK
+PiA+IE9uY2UgVkZzIGFyZSBjcmVhdGVkLCBkb24ndCB3ZSB3YW50IElGQ1ZGIHRvIGJpbmQgcmF0
+aGVyIHRoYW4KPiA+IHZpcnRpby1wY2k/Cj4gCj4gCj4gWWVzLCBidXQgZm9yIFBGIHdlIG5lZWQg
+dmlydGlvLXBjaS4KPiAKPiBUaGFua3MKPiAKCihBYil1c2luZyB0aGUgZHJpdmVyX2RhdGEgZmll
+bGQgZm9yIHRoaXMgaXMgYW4gb3B0aW9uLgpXaGF0IGRvIHlvdSB0aGluaz8KCi0tIApNU1QKCl9f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0
+aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9y
+ZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0
+dWFsaXphdGlvbg==
