@@ -1,125 +1,47 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH RFC v5 12/13] vhost/vsock: switch to the buf API
-Date: Mon, 8 Jun 2020 12:17:46 +0200
-Message-ID: <20200608101746.xnxtwwygolsk7yol@steredhat>
-References: <20200607141057.704085-1-mst@redhat.com>
- <20200607141057.704085-13-mst@redhat.com>
+From: David Stevens <stevensd@chromium.org>
+Subject: Re: [PATCH v3 4/4] drm/virtio: Support virtgpu exported resources
+Date: Mon, 8 Jun 2020 19:36:55 +0900
+Message-ID: <CAD=HUj6kF2JFyC9c0CY5_f-cv6r97501Z2f8D9x0VhQpRen+bw@mail.gmail.com>
+References: <20200311112004.47138-1-stevensd@chromium.org> <20200311112004.47138-5-stevensd@chromium.org>
+ <20200513123326-mutt-send-email-mst@kernel.org> <CAD=HUj5qcMLw__LfJizR6nzCR9Qmu21Sjk3i0j_8+=rxt1Hk=w@mail.gmail.com>
+ <20200608054234-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200607141057.704085-13-mst@redhat.com>
-Sender: netdev-owner@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <virtio-dev-return-7451-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+In-Reply-To: <20200608054234-mutt-send-email-mst@kernel.org>
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>, eperezma@redhat.com, Stefan Hajnoczi <stefanha@redhat.com>
+Cc: Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Jason Wang <jasowang@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, "moderated list:DMA BUFFER SHARING FRAMEWORK" <linaro-mm-sig@lists.linaro.org>, virtio-dev@lists.oasis-open.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Jun 07, 2020 at 10:11:49AM -0400, Michael S. Tsirkin wrote:
-> A straight-forward conversion.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/vhost/vsock.c | 30 ++++++++++++++++++------------
->  1 file changed, 18 insertions(+), 12 deletions(-)
+On Mon, Jun 8, 2020 at 6:43 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> On Fri, May 15, 2020 at 04:26:15PM +0900, David Stevens wrote:
+> > > > +     if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_RESOURCE_UUID)) {
+> > > > +             vgdev->has_resource_assign_uuid = true;
+> > > > +     }
+> > >
+> > >
+> > > Just a question: this relies on DMA bufs so I assume it is
+> > > not really assumed to work when DMA API is bypassed, right?
+> > > Rather than worry what does it mean, how about just
+> > > disabling  this feature without PLATFORM_DMA for now?
+> >
+> > By PLATFORM_DMA, do you mean CONFIG_DMA_SHARED_BUFFER?
+>
+> Sorry, no. I mean VIRTIO_F_IOMMU_PLATFORM which in the
+> future will be renamed to VIRTIO_F_PLATFORM_ACCESS.
 
-The changes for vsock part LGTM:
+Shouldn't things work independent of whether or not that feature is
+set? If a virtio driver properly uses the dma_buf APIs (which virtgpu
+seems to), then that should take care of any mapping/synchronization
+related to VIRTIO_F_IOMMU_PLATFORM. If anything, the case where
+VIRTIO_F_IOMMU_PLATFORM isn't set is easier, since then we know that
+the "the device has same access [sic] to memory addresses supplied to
+it as the driver has", according to the specification.
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-
-
-I also did some tests with vhost-vsock (tools/testing/vsock/vsock_test
-and iperf-vsock), so for vsock:
-
-Tested-by: Stefano Garzarella <sgarzare@redhat.com>
-
-Thanks,
-Stefano
-
-> 
-> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> index a483cec31d5c..61c6d3dd2ae3 100644
-> --- a/drivers/vhost/vsock.c
-> +++ b/drivers/vhost/vsock.c
-> @@ -103,7 +103,8 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
->  		unsigned out, in;
->  		size_t nbytes;
->  		size_t iov_len, payload_len;
-> -		int head;
-> +		struct vhost_buf buf;
-> +		int ret;
->  
->  		spin_lock_bh(&vsock->send_pkt_list_lock);
->  		if (list_empty(&vsock->send_pkt_list)) {
-> @@ -117,16 +118,17 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
->  		list_del_init(&pkt->list);
->  		spin_unlock_bh(&vsock->send_pkt_list_lock);
->  
-> -		head = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
-> -					 &out, &in, NULL, NULL);
-> -		if (head < 0) {
-> +		ret = vhost_get_avail_buf(vq, &buf,
-> +					  vq->iov, ARRAY_SIZE(vq->iov),
-> +					  &out, &in, NULL, NULL);
-> +		if (ret < 0) {
->  			spin_lock_bh(&vsock->send_pkt_list_lock);
->  			list_add(&pkt->list, &vsock->send_pkt_list);
->  			spin_unlock_bh(&vsock->send_pkt_list_lock);
->  			break;
->  		}
->  
-> -		if (head == vq->num) {
-> +		if (!ret) {
->  			spin_lock_bh(&vsock->send_pkt_list_lock);
->  			list_add(&pkt->list, &vsock->send_pkt_list);
->  			spin_unlock_bh(&vsock->send_pkt_list_lock);
-> @@ -186,7 +188,8 @@ vhost_transport_do_send_pkt(struct vhost_vsock *vsock,
->  		 */
->  		virtio_transport_deliver_tap_pkt(pkt);
->  
-> -		vhost_add_used(vq, head, sizeof(pkt->hdr) + payload_len);
-> +		buf.in_len = sizeof(pkt->hdr) + payload_len;
-> +		vhost_put_used_buf(vq, &buf);
->  		added = true;
->  
->  		pkt->off += payload_len;
-> @@ -440,7 +443,8 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
->  	struct vhost_vsock *vsock = container_of(vq->dev, struct vhost_vsock,
->  						 dev);
->  	struct virtio_vsock_pkt *pkt;
-> -	int head, pkts = 0, total_len = 0;
-> +	int ret, pkts = 0, total_len = 0;
-> +	struct vhost_buf buf;
->  	unsigned int out, in;
->  	bool added = false;
->  
-> @@ -461,12 +465,13 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
->  			goto no_more_replies;
->  		}
->  
-> -		head = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov),
-> -					 &out, &in, NULL, NULL);
-> -		if (head < 0)
-> +		ret = vhost_get_avail_buf(vq, &buf,
-> +					  vq->iov, ARRAY_SIZE(vq->iov),
-> +					  &out, &in, NULL, NULL);
-> +		if (ret < 0)
->  			break;
->  
-> -		if (head == vq->num) {
-> +		if (!ret) {
->  			if (unlikely(vhost_enable_notify(&vsock->dev, vq))) {
->  				vhost_disable_notify(&vsock->dev, vq);
->  				continue;
-> @@ -494,7 +499,8 @@ static void vhost_vsock_handle_tx_kick(struct vhost_work *work)
->  			virtio_transport_free_pkt(pkt);
->  
->  		len += sizeof(pkt->hdr);
-> -		vhost_add_used(vq, head, len);
-> +		buf.in_len = len;
-> +		vhost_put_used_buf(vq, &buf);
->  		total_len += len;
->  		added = true;
->  	} while(likely(!vhost_exceeds_weight(vq, ++pkts, total_len)));
-> -- 
-> MST
-> 
+-David
