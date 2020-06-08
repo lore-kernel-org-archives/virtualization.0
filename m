@@ -1,47 +1,61 @@
-From: David Stevens <stevensd@chromium.org>
-Subject: Re: [PATCH v3 4/4] drm/virtio: Support virtgpu exported resources
-Date: Mon, 8 Jun 2020 19:36:55 +0900
-Message-ID: <CAD=HUj6kF2JFyC9c0CY5_f-cv6r97501Z2f8D9x0VhQpRen+bw@mail.gmail.com>
-References: <20200311112004.47138-1-stevensd@chromium.org> <20200311112004.47138-5-stevensd@chromium.org>
- <20200513123326-mutt-send-email-mst@kernel.org> <CAD=HUj5qcMLw__LfJizR6nzCR9Qmu21Sjk3i0j_8+=rxt1Hk=w@mail.gmail.com>
- <20200608054234-mutt-send-email-mst@kernel.org>
+From: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+Subject: Re: [PATCH v3 0/5] Add a vhost RPMsg API
+Date: Mon, 8 Jun 2020 13:16:38 +0200
+Message-ID: <20200608111637.GE10562@ubuntu>
+References: <20200527180541.5570-1-guennadi.liakhovetski@linux.intel.com>
+ <20200604151917-mutt-send-email-mst@kernel.org>
+ <20200605063435.GA32302@ubuntu>
+ <20200608073715.GA10562@ubuntu>
+ <20200608091100.GC10562@ubuntu>
+ <20200608051358-mutt-send-email-mst@kernel.org>
+ <20200608101526.GD10562@ubuntu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <virtio-dev-return-7451-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <20200608054234-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200608101526.GD10562@ubuntu>
+Sender: kvm-owner@vger.kernel.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Jason Wang <jasowang@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, "moderated list:DMA BUFFER SHARING FRAMEWORK" <linaro-mm-sig@lists.linaro.org>, virtio-dev@lists.oasis-open.org
+Cc: kvm@vger.kernel.org, linux-remoteproc@vger.kernel.org, virtualization@lists.linux-foundation.org, sound-open-firmware@alsa-project.org, Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>, Liam Girdwood <liam.r.girdwood@linux.intel.com>, Jason Wang <jasowang@redhat.com>, Ohad Ben-Cohen <ohad@wizery.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Mathieu Poirier <mathieu.poirier@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 8, 2020 at 6:43 PM Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> On Fri, May 15, 2020 at 04:26:15PM +0900, David Stevens wrote:
-> > > > +     if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_RESOURCE_UUID)) {
-> > > > +             vgdev->has_resource_assign_uuid = true;
-> > > > +     }
-> > >
-> > >
-> > > Just a question: this relies on DMA bufs so I assume it is
-> > > not really assumed to work when DMA API is bypassed, right?
-> > > Rather than worry what does it mean, how about just
-> > > disabling  this feature without PLATFORM_DMA for now?
-> >
-> > By PLATFORM_DMA, do you mean CONFIG_DMA_SHARED_BUFFER?
->
-> Sorry, no. I mean VIRTIO_F_IOMMU_PLATFORM which in the
-> future will be renamed to VIRTIO_F_PLATFORM_ACCESS.
+On Mon, Jun 08, 2020 at 12:15:26PM +0200, Guennadi Liakhovetski wrote:
+> On Mon, Jun 08, 2020 at 05:19:06AM -0400, Michael S. Tsirkin wrote:
+> > On Mon, Jun 08, 2020 at 11:11:00AM +0200, Guennadi Liakhovetski wrote:
+> > > Update: I looked through VirtIO 1.0 and 1.1 specs, data format their, 
+> > > including byte order, is defined on a per-device type basis. RPMsg is 
+> > > indeed included in the spec as device type 7, but that's the only 
+> > > mention of it in both versions. It seems RPMsg over VirtIO isn't 
+> > > standardised yet.
+> > 
+> > Yes. And it would be very good to have some standartization before we
+> > keep adding things. For example without any spec if host code breaks
+> > with some guests, how do we know which side should be fixed?
+> > 
+> > > Also it looks like newer interface definitions 
+> > > specify using "guest native endianness" for Virtual Queue data.
+> > 
+> > They really don't or shouldn't. That's limited to legacy chapters.
+> > Some definitions could have slipped through but it's not
+> > the norm. I just quickly looked through the 1.1 spec and could
+> > not find any instances that specify "guest native endianness"
+> > but feel free to point them out to me.
+> 
+> Oh, there you go. No, sorry, my fault, it's the other way round: "guest 
+> native" is for legacy and LE is for current / v1.0 and up.
+> 
+> > > So 
+> > > I think the same should be done for RPMsg instead of enforcing LE?
+> > 
+> > That makes hardware implementations as well as any cross-endian
+> > hypervisors tricky.
+> 
+> Yes, LE it is then. And we need to add some text to the spec.
 
-Shouldn't things work independent of whether or not that feature is
-set? If a virtio driver properly uses the dma_buf APIs (which virtgpu
-seems to), then that should take care of any mapping/synchronization
-related to VIRTIO_F_IOMMU_PLATFORM. If anything, the case where
-VIRTIO_F_IOMMU_PLATFORM isn't set is easier, since then we know that
-the "the device has same access [sic] to memory addresses supplied to
-it as the driver has", according to the specification.
+I found the protocol and the message format definition: 
+https://github.com/OpenAMP/open-amp/wiki/RPMsg-Messaging-Protocol#transport-layer---rpmsg 
+Don't know what the best way for referencing it in the VirtIO standard 
+would be: just a link to the source or a quote.
 
--David
+Thanks
+Guennadi
