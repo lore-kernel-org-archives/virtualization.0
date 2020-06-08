@@ -1,77 +1,55 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 5/6] vdpa: introduce virtio pci driver
-Date: Mon, 8 Jun 2020 02:32:42 -0400
-Message-ID: <20200608021438-mutt-send-email-mst@kernel.org>
-References: <20200529080303.15449-1-jasowang@redhat.com>
- <20200529080303.15449-6-jasowang@redhat.com>
- <20200602010332-mutt-send-email-mst@kernel.org>
- <5dbb0386-beeb-5bf4-d12e-fb5427486bb8@redhat.com>
- <6b1d1ef3-d65e-08c2-5b65-32969bb5ecbc@redhat.com>
- <20200607095012-mutt-send-email-mst@kernel.org>
- <9b1abd2b-232c-aa0f-d8bb-03e65fd47de2@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH] virtio-mem: drop unnecessary initialization
+Date: Mon, 8 Jun 2020 08:44:30 +0200
+Message-ID: <f3535274-296d-62b0-106a-29c52a554815@redhat.com>
+References: <20200608054517.708167-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <9b1abd2b-232c-aa0f-d8bb-03e65fd47de2@redhat.com>
-Sender: netdev-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, rob.miller@broadcom.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com, zhangweining@ruijie.com.cn, eli@mellanox.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200608054517.708167-1-mst@redhat.com>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>, kernel test robot <lkp@intel.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 08, 2020 at 11:32:31AM +0800, Jason Wang wrote:
+On 08.06.20 07:45, Michael S. Tsirkin wrote:
+> rc is initialized to -ENIVAL but that's never used. Drop it.
 > 
-> On 2020/6/7 下午9:51, Michael S. Tsirkin wrote:
-> > On Fri, Jun 05, 2020 at 04:54:17PM +0800, Jason Wang wrote:
-> > > On 2020/6/2 下午3:08, Jason Wang wrote:
-> > > > > > +static const struct pci_device_id vp_vdpa_id_table[] = {
-> > > > > > +    { PCI_DEVICE(PCI_VENDOR_ID_REDHAT_QUMRANET, PCI_ANY_ID) },
-> > > > > > +    { 0 }
-> > > > > > +};
-> > > > > This looks like it'll create a mess with either virtio pci
-> > > > > or vdpa being loaded at random. Maybe just don't specify
-> > > > > any IDs for now. Down the road we could get a
-> > > > > distinct vendor ID or a range of device IDs for this.
-> > > > 
-> > > > Right, will do.
-> > > > 
-> > > > Thanks
-> > > 
-> > > Rethink about this. If we don't specify any ID, the binding won't work.
-> > We can bind manually. It's not really for production anyway, so
-> > not a big deal imho.
+> Fixes: 5f1f79bbc9e2 ("virtio-mem: Paravirtualized memory hotplug")
+> Reported-by: kernel test robot <lkp@intel.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  drivers/virtio/virtio_mem.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> 
-> I think you mean doing it via "new_id", right.
-
-I really meant driver_override. This is what people have been using
-with pci-stub for years now.
-
-> 
-> > 
-> > > How about using a dedicated subsystem vendor id for this?
-> > > 
-> > > Thanks
-> > If virtio vendor id is used then standard driver is expected
-> > to bind, right? Maybe use a dedicated vendor id?
-> 
-> 
-> I meant something like:
-> 
-> static const struct pci_device_id vp_vdpa_id_table[] = {
->     { PCI_DEVICE_SUB(PCI_VENDOR_ID_REDHAT_QUMRANET, PCI_ANY_ID,
-> VP_TEST_VENDOR_ID, VP_TEST_DEVICE_ID) },
->     { 0 }
-> };
-> 
-> Thanks
+> diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
+> index f658fe9149be..2f357142ea5e 100644
+> --- a/drivers/virtio/virtio_mem.c
+> +++ b/drivers/virtio/virtio_mem.c
+> @@ -1768,7 +1768,7 @@ static void virtio_mem_delete_resource(struct virtio_mem *vm)
+>  static int virtio_mem_probe(struct virtio_device *vdev)
+>  {
+>  	struct virtio_mem *vm;
+> -	int rc = -EINVAL;
+> +	int rc;
+>  
+>  	BUILD_BUG_ON(sizeof(struct virtio_mem_req) != 24);
+>  	BUILD_BUG_ON(sizeof(struct virtio_mem_resp) != 10);
 > 
 
-Then regular virtio will still bind to it. It has
-
-drivers/virtio/virtio_pci_common.c:     { PCI_DEVICE(PCI_VENDOR_ID_REDHAT_QUMRANET, PCI_ANY_ID) },
-
+Acked-by: David Hildenbrand <david@redhat.com>
 
 -- 
-MST
+Thanks,
+
+David / dhildenb
