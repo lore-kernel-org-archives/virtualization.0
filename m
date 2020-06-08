@@ -1,7 +1,7 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
 Subject: Re: [PATCH v3 0/5] Add a vhost RPMsg API
-Date: Mon, 8 Jun 2020 05:09:10 -0400
-Message-ID: <20200608050757-mutt-send-email-mst@kernel.org>
+Date: Mon, 8 Jun 2020 11:11:00 +0200
+Message-ID: <20200608091100.GC10562@ubuntu>
 References: <20200527180541.5570-1-guennadi.liakhovetski@linux.intel.com>
  <20200604151917-mutt-send-email-mst@kernel.org>
  <20200605063435.GA32302@ubuntu>
@@ -12,9 +12,20 @@ Return-path: <kvm-owner@vger.kernel.org>
 Content-Disposition: inline
 In-Reply-To: <20200608073715.GA10562@ubuntu>
 Sender: kvm-owner@vger.kernel.org
-To: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: kvm@vger.kernel.org, linux-remoteproc@vger.kernel.org, virtualization@lists.linux-foundation.org, sound-open-firmware@alsa-project.org, Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>, Liam Girdwood <liam.r.girdwood@linux.intel.com>, Jason Wang <jasowang@redhat.com>, Ohad Ben-Cohen <ohad@wizery.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Mathieu Poirier <mathieu.poirier@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
+
+Update: I looked through VirtIO 1.0 and 1.1 specs, data format their, 
+including byte order, is defined on a per-device type basis. RPMsg is 
+indeed included in the spec as device type 7, but that's the only 
+mention of it in both versions. It seems RPMsg over VirtIO isn't 
+standardised yet. Also it looks like newer interface definitions 
+specify using "guest native endianness" for Virtual Queue data. So 
+I think the same should be done for RPMsg instead of enforcing LE?
+
+Thanks
+Guennadi
 
 On Mon, Jun 08, 2020 at 09:37:15AM +0200, Guennadi Liakhovetski wrote:
 > Hi Michael,
@@ -35,12 +46,3 @@ On Mon, Jun 08, 2020 at 09:37:15AM +0200, Guennadi Liakhovetski wrote:
 > Just to make sure my understanding is correct: this would involve also 
 > modifying the current virtio_rpmsg_bus.c implementation to add 
 > endianness conversions. That's what you meant, right?
-> 
-> Thanks
-> Guennadi
-
-right and if there are legacy compat considerations, using _virtio16 and
-friends types, as well as virtio16_to_cpu and friends functions.
-
--- 
-MST
