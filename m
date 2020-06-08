@@ -1,19 +1,11 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC 03/13] vhost: batching fetches
-Date: Mon, 8 Jun 2020 02:01:52 -0400
-Message-ID: <20200608020112-mutt-send-email-mst@kernel.org>
-References: <20200602130543.578420-1-mst@redhat.com>
- <20200602130543.578420-4-mst@redhat.com>
- <3323daa2-19ed-02de-0ff7-ab150f949fff@redhat.com>
- <20200604045830-mutt-send-email-mst@kernel.org>
- <6c2e6cc7-27c5-445b-f252-0356ff8a83f3@redhat.com>
- <20200607095219-mutt-send-email-mst@kernel.org>
- <0d791fe6-8fbe-ddcc-07fa-efbd4fac5ea4@redhat.com>
+Subject: [PATCH] virtio_mem: prevent overflow with subblock size
+Date: Mon, 8 Jun 2020 02:14:08 -0400
+Message-ID: <20200608061406.709211-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <0d791fe6-8fbe-ddcc-07fa-efbd4fac5ea4@redhat.com>
 Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -24,77 +16,87 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Jason Wang <jasowang@redhat.com>
-Cc: Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCBKdW4gMDgsIDIwMjAgYXQgMTE6MzU6NDBBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDIwLzYvNyDkuIvljYg5OjU3LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6
-Cj4gPiBPbiBGcmksIEp1biAwNSwgMjAyMCBhdCAxMTo0MDoxN0FNICswODAwLCBKYXNvbiBXYW5n
-IHdyb3RlOgo+ID4gPiBPbiAyMDIwLzYvNCDkuIvljYg0OjU5LCBNaWNoYWVsIFMuIFRzaXJraW4g
-d3JvdGU6Cj4gPiA+ID4gT24gV2VkLCBKdW4gMDMsIDIwMjAgYXQgMDM6Mjc6MzlQTSArMDgwMCwg
-SmFzb24gV2FuZyB3cm90ZToKPiA+ID4gPiA+IE9uIDIwMjAvNi8yIOS4i+WNiDk6MDYsIE1pY2hh
-ZWwgUy4gVHNpcmtpbiB3cm90ZToKPiA+ID4gPiA+ID4gV2l0aCB0aGlzIHBhdGNoIGFwcGxpZWQs
-IG5ldyBhbmQgb2xkIGNvZGUgcGVyZm9ybSBpZGVudGljYWxseS4KPiA+ID4gPiA+ID4gCj4gPiA+
-ID4gPiA+IExvdHMgb2YgZXh0cmEgb3B0aW1pemF0aW9ucyBhcmUgbm93IHBvc3NpYmxlLCBlLmcu
-Cj4gPiA+ID4gPiA+IHdlIGNhbiBmZXRjaCBtdWx0aXBsZSBoZWFkcyB3aXRoIGNvcHlfZnJvbS90
-b191c2VyIG5vdy4KPiA+ID4gPiA+ID4gV2UgY2FuIGdldCByaWQgb2YgbWFpbnRhaW5pbmcgdGhl
-IGxvZyBhcnJheS4gIEV0YyBldGMuCj4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiBTaWduZWQtb2Zm
-LWJ5OiBNaWNoYWVsIFMuIFRzaXJraW48bXN0QHJlZGhhdC5jb20+Cj4gPiA+ID4gPiA+IFNpZ25l
-ZC1vZmYtYnk6IEV1Z2VuaW8gUMOpcmV6PGVwZXJlem1hQHJlZGhhdC5jb20+Cj4gPiA+ID4gPiA+
-IExpbms6aHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvci8yMDIwMDQwMTE4MzExOC44MzM0LTQtZXBl
-cmV6bWFAcmVkaGF0LmNvbQo+ID4gPiA+ID4gPiBTaWduZWQtb2ZmLWJ5OiBNaWNoYWVsIFMuIFRz
-aXJraW48bXN0QHJlZGhhdC5jb20+Cj4gPiA+ID4gPiA+IC0tLQo+ID4gPiA+ID4gPiAgICAgZHJp
-dmVycy92aG9zdC90ZXN0LmMgIHwgIDIgKy0KPiA+ID4gPiA+ID4gICAgIGRyaXZlcnMvdmhvc3Qv
-dmhvc3QuYyB8IDQ3ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrLS0tLS0K
-PiA+ID4gPiA+ID4gICAgIGRyaXZlcnMvdmhvc3Qvdmhvc3QuaCB8ICA1ICsrKystCj4gPiA+ID4g
-PiA+ICAgICAzIGZpbGVzIGNoYW5nZWQsIDQ3IGluc2VydGlvbnMoKyksIDcgZGVsZXRpb25zKC0p
-Cj4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aG9zdC90ZXN0
-LmMgYi9kcml2ZXJzL3Zob3N0L3Rlc3QuYwo+ID4gPiA+ID4gPiBpbmRleCA5YTNhMDkwMDVlMDMu
-LjAyODA2ZDZmODRlZiAxMDA2NDQKPiA+ID4gPiA+ID4gLS0tIGEvZHJpdmVycy92aG9zdC90ZXN0
-LmMKPiA+ID4gPiA+ID4gKysrIGIvZHJpdmVycy92aG9zdC90ZXN0LmMKPiA+ID4gPiA+ID4gQEAg
-LTExOSw3ICsxMTksNyBAQCBzdGF0aWMgaW50IHZob3N0X3Rlc3Rfb3BlbihzdHJ1Y3QgaW5vZGUg
-Kmlub2RlLCBzdHJ1Y3QgZmlsZSAqZikKPiA+ID4gPiA+ID4gICAgIAlkZXYgPSAmbi0+ZGV2Owo+
-ID4gPiA+ID4gPiAgICAgCXZxc1tWSE9TVF9URVNUX1ZRXSA9ICZuLT52cXNbVkhPU1RfVEVTVF9W
-UV07Cj4gPiA+ID4gPiA+ICAgICAJbi0+dnFzW1ZIT1NUX1RFU1RfVlFdLmhhbmRsZV9raWNrID0g
-aGFuZGxlX3ZxX2tpY2s7Cj4gPiA+ID4gPiA+IC0Jdmhvc3RfZGV2X2luaXQoZGV2LCB2cXMsIFZI
-T1NUX1RFU1RfVlFfTUFYLCBVSU9fTUFYSU9WLAo+ID4gPiA+ID4gPiArCXZob3N0X2Rldl9pbml0
-KGRldiwgdnFzLCBWSE9TVF9URVNUX1ZRX01BWCwgVUlPX01BWElPViArIDY0LAo+ID4gPiA+ID4g
-PiAgICAgCQkgICAgICAgVkhPU1RfVEVTVF9QS1RfV0VJR0hULCBWSE9TVF9URVNUX1dFSUdIVCwg
-TlVMTCk7Cj4gPiA+ID4gPiA+ICAgICAJZi0+cHJpdmF0ZV9kYXRhID0gbjsKPiA+ID4gPiA+ID4g
-ZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYyBiL2RyaXZlcnMvdmhvc3Qvdmhvc3Qu
-Ywo+ID4gPiA+ID4gPiBpbmRleCA4ZjlhMDcyODI2MjUuLmFjYTJhNWIwZDA3OCAxMDA2NDQKPiA+
-ID4gPiA+ID4gLS0tIGEvZHJpdmVycy92aG9zdC92aG9zdC5jCj4gPiA+ID4gPiA+ICsrKyBiL2Ry
-aXZlcnMvdmhvc3Qvdmhvc3QuYwo+ID4gPiA+ID4gPiBAQCAtMjk5LDYgKzI5OSw3IEBAIHN0YXRp
-YyB2b2lkIHZob3N0X3ZxX3Jlc2V0KHN0cnVjdCB2aG9zdF9kZXYgKmRldiwKPiA+ID4gPiA+ID4g
-ICAgIHsKPiA+ID4gPiA+ID4gICAgIAl2cS0+bnVtID0gMTsKPiA+ID4gPiA+ID4gICAgIAl2cS0+
-bmRlc2NzID0gMDsKPiA+ID4gPiA+ID4gKwl2cS0+Zmlyc3RfZGVzYyA9IDA7Cj4gPiA+ID4gPiA+
-ICAgICAJdnEtPmRlc2MgPSBOVUxMOwo+ID4gPiA+ID4gPiAgICAgCXZxLT5hdmFpbCA9IE5VTEw7
-Cj4gPiA+ID4gPiA+ICAgICAJdnEtPnVzZWQgPSBOVUxMOwo+ID4gPiA+ID4gPiBAQCAtMzY3LDYg
-KzM2OCwxMSBAQCBzdGF0aWMgaW50IHZob3N0X3dvcmtlcih2b2lkICpkYXRhKQo+ID4gPiA+ID4g
-PiAgICAgCXJldHVybiAwOwo+ID4gPiA+ID4gPiAgICAgfQo+ID4gPiA+ID4gPiArc3RhdGljIGlu
-dCB2aG9zdF92cV9udW1fYmF0Y2hfZGVzY3Moc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEpCj4g
-PiA+ID4gPiA+ICt7Cj4gPiA+ID4gPiA+ICsJcmV0dXJuIHZxLT5tYXhfZGVzY3MgLSBVSU9fTUFY
-SU9WOwo+ID4gPiA+ID4gPiArfQo+ID4gPiA+ID4gMSBkZXNjcmlwdG9yIGRvZXMgbm90IG1lYW4g
-MSBpb3YsIGUuZyB1c2Vyc3BhY2UgbWF5IHBhc3Mgc2V2ZXJhbCAxIGJ5dGUKPiA+ID4gPiA+IGxl
-bmd0aCBtZW1vcnkgcmVnaW9ucyBmb3IgdXMgdG8gdHJhbnNsYXRlLgo+ID4gPiA+ID4gCj4gPiA+
-ID4gWWVzIGJ1dCBJIGRvbid0IHNlZSB0aGUgcmVsZXZhbmNlLiBUaGlzIHRlbGxzIHVzIGhvdyBt
-YW55IGRlc2NyaXB0b3JzIHRvCj4gPiA+ID4gYmF0Y2gsIG5vdCBob3cgbWFueSBJT1ZzLgo+ID4g
-PiBZZXMsIGJ1dCBxdWVzdGlvbnMgYXJlOgo+ID4gPiAKPiA+ID4gLSB0aGlzIGludHJvZHVjZSBh
-bm90aGVyIG9ic3RhY2xlIHRvIHN1cHBvcnQgbW9yZSB0aGFuIDFLIHF1ZXVlIHNpemUKPiA+ID4g
-LSBpZiB3ZSBzdXBwb3J0IDFLIHF1ZXVlIHNpemUsIGRvZXMgaXQgbWVhbiB3ZSBuZWVkIHRvIGNh
-Y2hlIDFLIGRlc2NyaXB0b3JzLAo+ID4gPiB3aGljaCBzZWVtcyBhIGxhcmdlIHN0cmVzcyBvbiB0
-aGUgY2FjaGUKPiA+ID4gCj4gPiA+IFRoYW5rcwo+ID4gPiAKPiA+ID4gCj4gPiBTdGlsbCBkb24n
-dCB1bmRlcnN0YW5kIHRoZSByZWxldmFuY2UuIFdlIHN1cHBvcnQgdXAgdG8gMUsgZGVzY3JpcHRv
-cnMKPiA+IHBlciBidWZmZXIganVzdCBmb3IgSU9WIHNpbmNlIHdlIGFsd2F5cyBkaWQuIFRoaXMg
-YWRkcyA2NCBtb3JlCj4gPiBkZXNjcmlwdG9ycyAtIGlzIHRoYXQgYSBiaWcgZGVhbD8KPiAKPiAK
-PiBJZiBJIHVuZGVyc3RhbmRpbmcgY29ycmVjdGx5LCBmb3IgbmV0LCB0aGUgY29kZSB0cmllcyB0
-byBiYXRjaCBkZXNjcmlwdG9ycwo+IGZvciBhdCBsYXN0IG9uZSBwYWNrZXQuCj4gCj4gSWYgd2Ug
-YWxsb3cgMUsgcXVldWUgc2l6ZSB0aGVuIHdlIGFsbG93IGEgcGFja2V0IHRoYXQgY29uc2lzdHMg
-b2YgMUsKPiBkZXNjcmlwdG9ycy4gVGhlbiB3ZSBuZWVkIHRvIGNhY2hlIDFLIGRlc2NyaXB0b3Jz
-Lgo+IAo+IFRoYW5rcwoKVGhhdCBjYXNlIGlzIGFscmVhZHkgc28gcGF0aG9sb2dpY2FsLCBJIGFt
-IG5vdCBhdCBhbGwgd29ycmllZCBhYm91dAppdCBwZXJmb3JtaW5nIHdlbGwuCgotLSAKTVNUCgpf
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXph
-dGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5v
-cmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmly
-dHVhbGl6YXRpb24=
+If subblock size is large (e.g. 1G) 32 bit math involving it
+can overflow. Rather than try to catch all instances of that,
+let's tweak block size to 64 bit.
+
+It ripples through UAPI which is an ABI change, but it's not too late to
+make it, and it will allow supporting >4Gbyte blocks while might
+become necessary down the road.
+
+Fixes: 5f1f79bbc9e26 ("virtio-mem: Paravirtualized memory hotplug")
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/virtio/virtio_mem.c     | 14 +++++++-------
+ include/uapi/linux/virtio_mem.h |  4 ++--
+ 2 files changed, 9 insertions(+), 9 deletions(-)
+
+diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
+index 2f357142ea5e..7b1bece8a331 100644
+--- a/drivers/virtio/virtio_mem.c
++++ b/drivers/virtio/virtio_mem.c
+@@ -77,7 +77,7 @@ struct virtio_mem {
+ 	uint64_t requested_size;
+ 
+ 	/* The device block size (for communicating with the device). */
+-	uint32_t device_block_size;
++	uint64_t device_block_size;
+ 	/* The translated node id. NUMA_NO_NODE in case not specified. */
+ 	int nid;
+ 	/* Physical start address of the memory region. */
+@@ -86,7 +86,7 @@ struct virtio_mem {
+ 	uint64_t region_size;
+ 
+ 	/* The subblock size. */
+-	uint32_t subblock_size;
++	uint64_t subblock_size;
+ 	/* The number of subblocks per memory block. */
+ 	uint32_t nb_sb_per_mb;
+ 
+@@ -1698,9 +1698,9 @@ static int virtio_mem_init(struct virtio_mem *vm)
+ 	 * - At least the device block size.
+ 	 * In the worst case, a single subblock per memory block.
+ 	 */
+-	vm->subblock_size = PAGE_SIZE * 1u << max_t(uint32_t, MAX_ORDER - 1,
+-						    pageblock_order);
+-	vm->subblock_size = max_t(uint32_t, vm->device_block_size,
++	vm->subblock_size = PAGE_SIZE * 1ul << max_t(uint32_t, MAX_ORDER - 1,
++						     pageblock_order);
++	vm->subblock_size = max_t(uint64_t, vm->device_block_size,
+ 				  vm->subblock_size);
+ 	vm->nb_sb_per_mb = memory_block_size_bytes() / vm->subblock_size;
+ 
+@@ -1713,8 +1713,8 @@ static int virtio_mem_init(struct virtio_mem *vm)
+ 
+ 	dev_info(&vm->vdev->dev, "start address: 0x%llx", vm->addr);
+ 	dev_info(&vm->vdev->dev, "region size: 0x%llx", vm->region_size);
+-	dev_info(&vm->vdev->dev, "device block size: 0x%x",
+-		 vm->device_block_size);
++	dev_info(&vm->vdev->dev, "device block size: 0x%llx",
++		 (unsigned long long)vm->device_block_size);
+ 	dev_info(&vm->vdev->dev, "memory block size: 0x%lx",
+ 		 memory_block_size_bytes());
+ 	dev_info(&vm->vdev->dev, "subblock size: 0x%x",
+diff --git a/include/uapi/linux/virtio_mem.h b/include/uapi/linux/virtio_mem.h
+index a455c488a995..a9ffe041843c 100644
+--- a/include/uapi/linux/virtio_mem.h
++++ b/include/uapi/linux/virtio_mem.h
+@@ -185,10 +185,10 @@ struct virtio_mem_resp {
+ 
+ struct virtio_mem_config {
+ 	/* Block size and alignment. Cannot change. */
+-	__u32 block_size;
++	__u64 block_size;
+ 	/* Valid with VIRTIO_MEM_F_ACPI_PXM. Cannot change. */
+ 	__u16 node_id;
+-	__u16 padding;
++	__u8 padding[6];
+ 	/* Start address of the memory region. Cannot change. */
+ 	__u64 addr;
+ 	/* Region size (maximum). Cannot change. */
+-- 
+MST
