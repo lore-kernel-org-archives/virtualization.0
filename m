@@ -1,103 +1,151 @@
-From: kernel test robot <lkp@intel.com>
-Subject: [vhost:vhost 18/52] drivers/virtio/virtio_mem.c:1391:5: warning:
- Variable 'rc' is reassigned a value before the old one has been used.
-Date: Mon, 8 Jun 2020 08:59:29 +0800
-Message-ID: <202006080825.MWCyEzr3%lkp@intel.com>
+From: David Stevens <stevensd@chromium.org>
+Subject: Re: [PATCH v4 1/3] virtio: add dma-buf support for exported objects
+Date: Mon, 8 Jun 2020 10:33:09 +0900
+Message-ID: <CAD=HUj5Jn+grQVfxmPSSnERdGwnu8RceDsdpWpoxXH+WL4k+qw@mail.gmail.com>
+References: <20200526105811.30784-1-stevensd@chromium.org> <20200526105811.30784-2-stevensd@chromium.org>
+ <20200604145620-mutt-send-email-mst@kernel.org> <CAD=HUj74mKs5AfcViD3CBva86E0Hvg_pmYChAJe3ny8jtnZ8Tw@mail.gmail.com>
+ <20200606160155-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <netdev-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: netdev-owner@vger.kernel.org
-To: David Hildenbrand <david@redhat.com>
-Cc: kbuild-all@lists.01.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <virtio-dev-return-7445-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+In-Reply-To: <20200606160155-mutt-send-email-mst@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Sumit Semwal <sumit.semwal@linaro.org>, Jason Wang <jasowang@redhat.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, open list <linux-kernel@vger.kernel.org>, ML dri-devel <dri-devel@lists.freedesktop.org>, "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>, Linux Media Mailing List <linux-media@vger.kernel.org>, "moderated list:DMA BUFFER SHARING FRAMEWORK" <linaro-mm-sig@lists.linaro.org>, virtio-dev@lists.oasis-open.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-tree:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost
-head:   f3861bc96a7e130943e1975e571ae62c0319b064
-commit: 5f1f79bbc9e26fa9412fa9522f957bb8f030c442 [18/52] virtio-mem: Paravirtualized memory hotplug
-compiler: gcc-9 (Debian 9.3.0-13) 9.3.0
+On Sun, Jun 7, 2020 at 5:04 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> On Fri, Jun 05, 2020 at 10:28:42AM +0900, David Stevens wrote:
+> > On Fri, Jun 5, 2020 at 4:05 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > >
+> > > On Tue, May 26, 2020 at 07:58:09PM +0900, David Stevens wrote:
+> > > > This change adds a new flavor of dma-bufs that can be used by virtio
+> > > > drivers to share exported objects. A virtio dma-buf can be queried by
+> > > > virtio drivers to obtain the UUID which identifies the underlying
+> > > > exported object.
+> > > >
+> > > > Signed-off-by: David Stevens <stevensd@chromium.org>
+> > >
+> > > Is this just for graphics? If yes I'd rather we put it in the graphics
+> > > driver. We can always move it later ...
+> >
+> > As stated in the cover letter, this will be used by virtio-video.
+> >
+> > The proposed virtio-video patches: https://markmail.org/thread/p5d3k566srtdtute
+> > The patch which imports these dma-bufs (slightly out of data, uses v3
+> > of this patch set): https://markmail.org/thread/j4xlqaaim266qpks
+> >
+> > > > ---
+> > > >  drivers/virtio/Makefile         |  2 +-
+> > > >  drivers/virtio/virtio.c         |  6 +++
+> > > >  drivers/virtio/virtio_dma_buf.c | 89 +++++++++++++++++++++++++++++++++
+> > > >  include/linux/virtio.h          |  1 +
+> > > >  include/linux/virtio_dma_buf.h  | 58 +++++++++++++++++++++
+> > > >  5 files changed, 155 insertions(+), 1 deletion(-)
+> > > >  create mode 100644 drivers/virtio/virtio_dma_buf.c
+> > > >  create mode 100644 include/linux/virtio_dma_buf.h
+> > > >
+> > > > diff --git a/drivers/virtio/Makefile b/drivers/virtio/Makefile
+> > > > index 29a1386ecc03..ecdae5b596de 100644
+> > > > --- a/drivers/virtio/Makefile
+> > > > +++ b/drivers/virtio/Makefile
+> > > > @@ -1,5 +1,5 @@
+> > > >  # SPDX-License-Identifier: GPL-2.0
+> > > > -obj-$(CONFIG_VIRTIO) += virtio.o virtio_ring.o
+> > > > +obj-$(CONFIG_VIRTIO) += virtio.o virtio_ring.o virtio_dma_buf.o
+> > > >  obj-$(CONFIG_VIRTIO_MMIO) += virtio_mmio.o
+> > > >  obj-$(CONFIG_VIRTIO_PCI) += virtio_pci.o
+> > > >  virtio_pci-y := virtio_pci_modern.o virtio_pci_common.o
+> > > > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> > > > index a977e32a88f2..5d46f0ded92d 100644
+> > > > --- a/drivers/virtio/virtio.c
+> > > > +++ b/drivers/virtio/virtio.c
+> > > > @@ -357,6 +357,12 @@ int register_virtio_device(struct virtio_device *dev)
+> > > >  }
+> > > >  EXPORT_SYMBOL_GPL(register_virtio_device);
+> > > >
+> > > > +bool is_virtio_device(struct device *dev)
+> > > > +{
+> > > > +     return dev->bus == &virtio_bus;
+> > > > +}
+> > > > +EXPORT_SYMBOL_GPL(is_virtio_device);
+> > > > +
+> > > >  void unregister_virtio_device(struct virtio_device *dev)
+> > > >  {
+> > > >       int index = dev->index; /* save for after device release */
+> > > > diff --git a/drivers/virtio/virtio_dma_buf.c b/drivers/virtio/virtio_dma_buf.c
+> > > > new file mode 100644
+> > > > index 000000000000..23e3399b11ed
+> > > > --- /dev/null
+> > > > +++ b/drivers/virtio/virtio_dma_buf.c
+> > > > @@ -0,0 +1,89 @@
+> > > > +// SPDX-License-Identifier: GPL-2.0-or-later
+> > > > +/*
+> > > > + * dma-bufs for virtio exported objects
+> > > > + *
+> > > > + * Copyright (C) 2020 Google, Inc.
+> > > > + */
+> > > > +
+> > > > +#include <linux/virtio_dma_buf.h>
+> > > > +
+> > > > +/**
+> > > > + * virtio_dma_buf_export - Creates a new dma-buf for a virtio exported object
+> > > > + *
+> > > > + * This wraps dma_buf_export() to allow virtio drivers to create a dma-buf
+> > > > + * for an virtio exported object that can be queried by other virtio drivers
+> > > > + * for the object's UUID.
+> > > > + */
+> > > > +struct dma_buf *virtio_dma_buf_export(
+> > > > +             const struct virtio_dma_buf_export_info *virtio_exp_info)
+> > > > +{
+> > > > +     struct dma_buf_export_info exp_info;
+> > > > +
+> > > > +     if (!virtio_exp_info->ops
+> > > > +             || virtio_exp_info->ops->ops.attach != &virtio_dma_buf_attach
+> > > > +             || !virtio_exp_info->ops->get_uuid) {
+> > > > +             return ERR_PTR(-EINVAL);
+> > > > +     }
+> > > > +
+> > > > +     exp_info.exp_name = virtio_exp_info->exp_name;
+> > > > +     exp_info.owner = virtio_exp_info->owner;
+> > > > +     exp_info.ops = &virtio_exp_info->ops->ops;
+> > > > +     exp_info.size = virtio_exp_info->size;
+> > > > +     exp_info.flags = virtio_exp_info->flags;
+> > > > +     exp_info.resv = virtio_exp_info->resv;
+> > > > +     exp_info.priv = virtio_exp_info->priv;
+> > > > +     BUILD_BUG_ON(sizeof(struct virtio_dma_buf_export_info)
+> > > > +                  != sizeof(struct dma_buf_export_info));
+> > >
+> > > This is the only part that gives me pause. Why do we need this hack?
+> > > What's wrong with just using dma_buf_export_info directly,
+> > > and if you want the virtio ops, just using container_off?
+> >
+> > This approach provides a more explicit type signature and a little
+> > more type safety, I think. If others don't think it's a worthwhile
+> > tradeoff, I can remove it.
+> >
+> > -David
+>
+> The cost is that if dma_buf_export_info changes even slightly, we get
+> weird crashes.
 
-If you fix the issue, kindly add following tag as appropriate
-Reported-by: kernel test robot <lkp@intel.com>
+I'm not sure I understand what types of changes you're referring to.
+As this is written, virtio-dma-buf is just another client of the
+dma-buf API. If this were rewritten to use dma-buf directly, then
+whatever code calls virtio_dma_buf_export would become a client of the
+dma-buf API. If the semantics of existing fields in the dma-buf API
+were changed and virtio-dma-buf wasn't updated, then yes, you could
+get weird crashes from virtio-dma-buf. However, the same problem would
+exist if virtio_dma_buf_export used dma-buf directly - changes to
+dma-buf's semantics could cause weird crashes if the caller of
+virtio_dma_buf_export wasn't updated properly. The only potential
+source of problems I see is if virtio_dma_buf_export_info wasn't
+updated properly, but virtio_dma_buf_export_info is dead simple, so I
+don't know if that's really a problem.
 
-
-cppcheck warnings: (new ones prefixed by >>)
-
->> drivers/virtio/virtio_mem.c:1391:5: warning: Variable 'rc' is reassigned a value before the old one has been used. [redundantAssignment]
-    rc = virtio_mem_init_vq(vm);
-       ^
-   drivers/virtio/virtio_mem.c:1375:0: note: Variable 'rc' is reassigned a value before the old one has been used.
-    int rc = -EINVAL;
-   ^
-   drivers/virtio/virtio_mem.c:1391:5: note: Variable 'rc' is reassigned a value before the old one has been used.
-    rc = virtio_mem_init_vq(vm);
-       ^
->> drivers/virtio/virtio_mem.c:801:22: warning: int result is assigned to long variable. If the variable is long to avoid loss of information, then you have loss of information. [truncLongCastAssignment]
-    const uint64_t size = count * vm->subblock_size;
-                        ^
-   drivers/virtio/virtio_mem.c:822:22: warning: int result is assigned to long variable. If the variable is long to avoid loss of information, then you have loss of information. [truncLongCastAssignment]
-    const uint64_t size = count * vm->subblock_size;
-                        ^
-
-vim +/rc +1391 drivers/virtio/virtio_mem.c
-
-  1371	
-  1372	static int virtio_mem_probe(struct virtio_device *vdev)
-  1373	{
-  1374		struct virtio_mem *vm;
-  1375		int rc = -EINVAL;
-  1376	
-  1377		vdev->priv = vm = kzalloc(sizeof(*vm), GFP_KERNEL);
-  1378		if (!vm)
-  1379			return -ENOMEM;
-  1380	
-  1381		init_waitqueue_head(&vm->host_resp);
-  1382		vm->vdev = vdev;
-  1383		INIT_WORK(&vm->wq, virtio_mem_run_wq);
-  1384		mutex_init(&vm->hotplug_mutex);
-  1385		INIT_LIST_HEAD(&vm->next);
-  1386		spin_lock_init(&vm->removal_lock);
-  1387		hrtimer_init(&vm->retry_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-  1388		vm->retry_timer.function = virtio_mem_timer_expired;
-  1389	
-  1390		/* register the virtqueue */
-> 1391		rc = virtio_mem_init_vq(vm);
-  1392		if (rc)
-  1393			goto out_free_vm;
-  1394	
-  1395		/* initialize the device by querying the config */
-  1396		rc = virtio_mem_init(vm);
-  1397		if (rc)
-  1398			goto out_del_vq;
-  1399	
-  1400		/* register callbacks */
-  1401		vm->memory_notifier.notifier_call = virtio_mem_memory_notifier_cb;
-  1402		rc = register_memory_notifier(&vm->memory_notifier);
-  1403		if (rc)
-  1404			goto out_del_vq;
-  1405		rc = register_virtio_mem_device(vm);
-  1406		if (rc)
-  1407			goto out_unreg_mem;
-  1408	
-  1409		virtio_device_ready(vdev);
-  1410	
-  1411		/* trigger a config update to start processing the requested_size */
-  1412		atomic_set(&vm->config_changed, 1);
-  1413		queue_work(system_freezable_wq, &vm->wq);
-  1414	
-  1415		return 0;
-  1416	out_unreg_mem:
-  1417		unregister_memory_notifier(&vm->memory_notifier);
-  1418	out_del_vq:
-  1419		vdev->config->del_vqs(vdev);
-  1420	out_free_vm:
-  1421		kfree(vm);
-  1422		vdev->priv = NULL;
-  1423	
-  1424		return rc;
-  1425	}
-  1426	
-
----
-0-DAY CI Kernel Test Service, Intel Corporation
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+-David
