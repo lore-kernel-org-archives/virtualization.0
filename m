@@ -1,230 +1,103 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC v5 11/13] vhost/scsi: switch to buf APIs
-Date: Sun, 7 Jun 2020 10:11:46 -0400
-Message-ID: <20200607141057.704085-12-mst@redhat.com>
-References: <20200607141057.704085-1-mst@redhat.com>
+From: kernel test robot <lkp@intel.com>
+Subject: [vhost:vhost 18/52] drivers/virtio/virtio_mem.c:1391:5: warning:
+ Variable 'rc' is reassigned a value before the old one has been used.
+Date: Mon, 8 Jun 2020 08:59:29 +0800
+Message-ID: <202006080825.MWCyEzr3%lkp@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200607141057.704085-1-mst@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, virtualization@lists.linux-foundation.org, eperezma@redhat.com, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+Sender: netdev-owner@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>
+Cc: kbuild-all@lists.01.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Switch to buf APIs. Doing this exposes a spec violation in vhost scsi:
-all used bufs are marked with length 0.
-Fix that is left for another day.
+tree:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost
+head:   f3861bc96a7e130943e1975e571ae62c0319b064
+commit: 5f1f79bbc9e26fa9412fa9522f957bb8f030c442 [18/52] virtio-mem: Paravirtualized memory hotplug
+compiler: gcc-9 (Debian 9.3.0-13) 9.3.0
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+If you fix the issue, kindly add following tag as appropriate
+Reported-by: kernel test robot <lkp@intel.com>
+
+
+cppcheck warnings: (new ones prefixed by >>)
+
+>> drivers/virtio/virtio_mem.c:1391:5: warning: Variable 'rc' is reassigned a value before the old one has been used. [redundantAssignment]
+    rc = virtio_mem_init_vq(vm);
+       ^
+   drivers/virtio/virtio_mem.c:1375:0: note: Variable 'rc' is reassigned a value before the old one has been used.
+    int rc = -EINVAL;
+   ^
+   drivers/virtio/virtio_mem.c:1391:5: note: Variable 'rc' is reassigned a value before the old one has been used.
+    rc = virtio_mem_init_vq(vm);
+       ^
+>> drivers/virtio/virtio_mem.c:801:22: warning: int result is assigned to long variable. If the variable is long to avoid loss of information, then you have loss of information. [truncLongCastAssignment]
+    const uint64_t size = count * vm->subblock_size;
+                        ^
+   drivers/virtio/virtio_mem.c:822:22: warning: int result is assigned to long variable. If the variable is long to avoid loss of information, then you have loss of information. [truncLongCastAssignment]
+    const uint64_t size = count * vm->subblock_size;
+                        ^
+
+vim +/rc +1391 drivers/virtio/virtio_mem.c
+
+  1371	
+  1372	static int virtio_mem_probe(struct virtio_device *vdev)
+  1373	{
+  1374		struct virtio_mem *vm;
+  1375		int rc = -EINVAL;
+  1376	
+  1377		vdev->priv = vm = kzalloc(sizeof(*vm), GFP_KERNEL);
+  1378		if (!vm)
+  1379			return -ENOMEM;
+  1380	
+  1381		init_waitqueue_head(&vm->host_resp);
+  1382		vm->vdev = vdev;
+  1383		INIT_WORK(&vm->wq, virtio_mem_run_wq);
+  1384		mutex_init(&vm->hotplug_mutex);
+  1385		INIT_LIST_HEAD(&vm->next);
+  1386		spin_lock_init(&vm->removal_lock);
+  1387		hrtimer_init(&vm->retry_timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+  1388		vm->retry_timer.function = virtio_mem_timer_expired;
+  1389	
+  1390		/* register the virtqueue */
+> 1391		rc = virtio_mem_init_vq(vm);
+  1392		if (rc)
+  1393			goto out_free_vm;
+  1394	
+  1395		/* initialize the device by querying the config */
+  1396		rc = virtio_mem_init(vm);
+  1397		if (rc)
+  1398			goto out_del_vq;
+  1399	
+  1400		/* register callbacks */
+  1401		vm->memory_notifier.notifier_call = virtio_mem_memory_notifier_cb;
+  1402		rc = register_memory_notifier(&vm->memory_notifier);
+  1403		if (rc)
+  1404			goto out_del_vq;
+  1405		rc = register_virtio_mem_device(vm);
+  1406		if (rc)
+  1407			goto out_unreg_mem;
+  1408	
+  1409		virtio_device_ready(vdev);
+  1410	
+  1411		/* trigger a config update to start processing the requested_size */
+  1412		atomic_set(&vm->config_changed, 1);
+  1413		queue_work(system_freezable_wq, &vm->wq);
+  1414	
+  1415		return 0;
+  1416	out_unreg_mem:
+  1417		unregister_memory_notifier(&vm->memory_notifier);
+  1418	out_del_vq:
+  1419		vdev->config->del_vqs(vdev);
+  1420	out_free_vm:
+  1421		kfree(vm);
+  1422		vdev->priv = NULL;
+  1423	
+  1424		return rc;
+  1425	}
+  1426	
+
 ---
- drivers/vhost/scsi.c | 73 ++++++++++++++++++++++++++------------------
- 1 file changed, 44 insertions(+), 29 deletions(-)
-
-diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index 0cbaa0b3893d..a5cdd4c01a3a 100644
---- a/drivers/vhost/scsi.c
-+++ b/drivers/vhost/scsi.c
-@@ -71,8 +71,8 @@ struct vhost_scsi_inflight {
- };
- 
- struct vhost_scsi_cmd {
--	/* Descriptor from vhost_get_vq_desc() for virt_queue segment */
--	int tvc_vq_desc;
-+	/* Descriptor from vhost_get_avail_buf() for virt_queue segment */
-+	struct vhost_buf tvc_vq_desc;
- 	/* virtio-scsi initiator task attribute */
- 	int tvc_task_attr;
- 	/* virtio-scsi response incoming iovecs */
-@@ -213,7 +213,7 @@ struct vhost_scsi {
-  * Context for processing request and control queue operations.
-  */
- struct vhost_scsi_ctx {
--	int head;
-+	struct vhost_buf buf;
- 	unsigned int out, in;
- 	size_t req_size, rsp_size;
- 	size_t out_size, in_size;
-@@ -443,6 +443,20 @@ static int vhost_scsi_check_stop_free(struct se_cmd *se_cmd)
- 	return target_put_sess_cmd(se_cmd);
- }
- 
-+/* Signal to guest that request finished with no input buffer. */
-+/* TODO calling this when writing into buffer and most likely a bug */
-+static void vhost_scsi_signal_noinput(struct vhost_dev *vdev,
-+				      struct vhost_virtqueue *vq,
-+				      struct vhost_buf *bufp)
-+{
-+	struct vhost_buf buf = *bufp;
-+
-+	buf.in_len = 0;
-+	vhost_put_used_buf(vq, &buf);
-+	vhost_signal(vdev, vq);
-+}
-+
-+
- static void
- vhost_scsi_do_evt_work(struct vhost_scsi *vs, struct vhost_scsi_evt *evt)
- {
-@@ -450,7 +464,8 @@ vhost_scsi_do_evt_work(struct vhost_scsi *vs, struct vhost_scsi_evt *evt)
- 	struct virtio_scsi_event *event = &evt->event;
- 	struct virtio_scsi_event __user *eventp;
- 	unsigned out, in;
--	int head, ret;
-+	struct vhost_buf buf;
-+	int ret;
- 
- 	if (!vhost_vq_get_backend(vq)) {
- 		vs->vs_events_missed = true;
-@@ -459,14 +474,14 @@ vhost_scsi_do_evt_work(struct vhost_scsi *vs, struct vhost_scsi_evt *evt)
- 
- again:
- 	vhost_disable_notify(&vs->dev, vq);
--	head = vhost_get_vq_desc(vq, vq->iov,
--			ARRAY_SIZE(vq->iov), &out, &in,
--			NULL, NULL);
--	if (head < 0) {
-+	ret = vhost_get_avail_buf(vq, &buf,
-+				  vq->iov, ARRAY_SIZE(vq->iov), &out, &in,
-+				  NULL, NULL);
-+	if (ret < 0) {
- 		vs->vs_events_missed = true;
- 		return;
- 	}
--	if (head == vq->num) {
-+	if (!ret) {
- 		if (vhost_enable_notify(&vs->dev, vq))
- 			goto again;
- 		vs->vs_events_missed = true;
-@@ -488,7 +503,7 @@ vhost_scsi_do_evt_work(struct vhost_scsi *vs, struct vhost_scsi_evt *evt)
- 	eventp = vq->iov[out].iov_base;
- 	ret = __copy_to_user(eventp, event, sizeof(*event));
- 	if (!ret)
--		vhost_add_used_and_signal(&vs->dev, vq, head, 0);
-+		vhost_scsi_signal_noinput(&vs->dev, vq, &buf);
- 	else
- 		vq_err(vq, "Faulted on vhost_scsi_send_event\n");
- }
-@@ -549,7 +564,7 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
- 		ret = copy_to_iter(&v_rsp, sizeof(v_rsp), &iov_iter);
- 		if (likely(ret == sizeof(v_rsp))) {
- 			struct vhost_scsi_virtqueue *q;
--			vhost_add_used(cmd->tvc_vq, cmd->tvc_vq_desc, 0);
-+			vhost_put_used_buf(cmd->tvc_vq, &cmd->tvc_vq_desc);
- 			q = container_of(cmd->tvc_vq, struct vhost_scsi_virtqueue, vq);
- 			vq = q - vs->vqs;
- 			__set_bit(vq, signal);
-@@ -793,7 +808,7 @@ static void vhost_scsi_submission_work(struct work_struct *work)
- static void
- vhost_scsi_send_bad_target(struct vhost_scsi *vs,
- 			   struct vhost_virtqueue *vq,
--			   int head, unsigned out)
-+			   struct vhost_buf *buf, unsigned out)
- {
- 	struct virtio_scsi_cmd_resp __user *resp;
- 	struct virtio_scsi_cmd_resp rsp;
-@@ -804,7 +819,7 @@ vhost_scsi_send_bad_target(struct vhost_scsi *vs,
- 	resp = vq->iov[out].iov_base;
- 	ret = __copy_to_user(resp, &rsp, sizeof(rsp));
- 	if (!ret)
--		vhost_add_used_and_signal(&vs->dev, vq, head, 0);
-+		vhost_scsi_signal_noinput(&vs->dev, vq, buf);
- 	else
- 		pr_err("Faulted on virtio_scsi_cmd_resp\n");
- }
-@@ -813,21 +828,21 @@ static int
- vhost_scsi_get_desc(struct vhost_scsi *vs, struct vhost_virtqueue *vq,
- 		    struct vhost_scsi_ctx *vc)
- {
--	int ret = -ENXIO;
-+	int r, ret = -ENXIO;
- 
--	vc->head = vhost_get_vq_desc(vq, vq->iov,
--				     ARRAY_SIZE(vq->iov), &vc->out, &vc->in,
--				     NULL, NULL);
-+	r = vhost_get_avail_buf(vq, &vc->buf,
-+				vq->iov, ARRAY_SIZE(vq->iov), &vc->out, &vc->in,
-+				NULL, NULL);
- 
--	pr_debug("vhost_get_vq_desc: head: %d, out: %u in: %u\n",
--		 vc->head, vc->out, vc->in);
-+	pr_debug("vhost_get_avail_buf: buf: %d, out: %u in: %u\n",
-+		 vc->buf.id, vc->out, vc->in);
- 
- 	/* On error, stop handling until the next kick. */
--	if (unlikely(vc->head < 0))
-+	if (unlikely(r < 0))
- 		goto done;
- 
- 	/* Nothing new?  Wait for eventfd to tell us they refilled. */
--	if (vc->head == vq->num) {
-+	if (!r) {
- 		if (unlikely(vhost_enable_notify(&vs->dev, vq))) {
- 			vhost_disable_notify(&vs->dev, vq);
- 			ret = -EAGAIN;
-@@ -1093,11 +1108,11 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
- 			}
- 		}
- 		/*
--		 * Save the descriptor from vhost_get_vq_desc() to be used to
-+		 * Save the descriptor from vhost_get_avail_buf() to be used to
- 		 * complete the virtio-scsi request in TCM callback context via
- 		 * vhost_scsi_queue_data_in() and vhost_scsi_queue_status()
- 		 */
--		cmd->tvc_vq_desc = vc.head;
-+		cmd->tvc_vq_desc = vc.buf;
- 		/*
- 		 * Dispatch cmd descriptor for cmwq execution in process
- 		 * context provided by vhost_scsi_workqueue.  This also ensures
-@@ -1117,7 +1132,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
- 		if (ret == -ENXIO)
- 			break;
- 		else if (ret == -EIO)
--			vhost_scsi_send_bad_target(vs, vq, vc.head, vc.out);
-+			vhost_scsi_send_bad_target(vs, vq, &vc.buf, vc.out);
- 	} while (likely(!vhost_exceeds_weight(vq, ++c, 0)));
- out:
- 	mutex_unlock(&vq->mutex);
-@@ -1139,9 +1154,9 @@ vhost_scsi_send_tmf_reject(struct vhost_scsi *vs,
- 	iov_iter_init(&iov_iter, READ, &vq->iov[vc->out], vc->in, sizeof(rsp));
- 
- 	ret = copy_to_iter(&rsp, sizeof(rsp), &iov_iter);
--	if (likely(ret == sizeof(rsp)))
--		vhost_add_used_and_signal(&vs->dev, vq, vc->head, 0);
--	else
-+	if (likely(ret == sizeof(rsp))) {
-+		vhost_scsi_signal_noinput(&vs->dev, vq, &vc->buf);
-+	} else
- 		pr_err("Faulted on virtio_scsi_ctrl_tmf_resp\n");
- }
- 
-@@ -1162,7 +1177,7 @@ vhost_scsi_send_an_resp(struct vhost_scsi *vs,
- 
- 	ret = copy_to_iter(&rsp, sizeof(rsp), &iov_iter);
- 	if (likely(ret == sizeof(rsp)))
--		vhost_add_used_and_signal(&vs->dev, vq, vc->head, 0);
-+		vhost_scsi_signal_noinput(&vs->dev, vq, &vc->buf);
- 	else
- 		pr_err("Faulted on virtio_scsi_ctrl_an_resp\n");
- }
-@@ -1269,7 +1284,7 @@ vhost_scsi_ctl_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
- 		if (ret == -ENXIO)
- 			break;
- 		else if (ret == -EIO)
--			vhost_scsi_send_bad_target(vs, vq, vc.head, vc.out);
-+			vhost_scsi_send_bad_target(vs, vq, &vc.buf, vc.out);
- 	} while (likely(!vhost_exceeds_weight(vq, ++c, 0)));
- out:
- 	mutex_unlock(&vq->mutex);
--- 
-MST
+0-DAY CI Kernel Test Service, Intel Corporation
+https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
