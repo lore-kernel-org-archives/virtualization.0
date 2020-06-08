@@ -1,102 +1,77 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] virtio_mem: prevent overflow with subblock size
-Date: Mon, 8 Jun 2020 02:14:08 -0400
-Message-ID: <20200608061406.709211-1-mst@redhat.com>
+Subject: Re: [PATCH 5/6] vdpa: introduce virtio pci driver
+Date: Mon, 8 Jun 2020 02:32:42 -0400
+Message-ID: <20200608021438-mutt-send-email-mst@kernel.org>
+References: <20200529080303.15449-1-jasowang@redhat.com>
+ <20200529080303.15449-6-jasowang@redhat.com>
+ <20200602010332-mutt-send-email-mst@kernel.org>
+ <5dbb0386-beeb-5bf4-d12e-fb5427486bb8@redhat.com>
+ <6b1d1ef3-d65e-08c2-5b65-32969bb5ecbc@redhat.com>
+ <20200607095012-mutt-send-email-mst@kernel.org>
+ <9b1abd2b-232c-aa0f-d8bb-03e65fd47de2@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: linux-kernel@vger.kernel.org
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>, virtualization@lists.linux-foundation.org
+In-Reply-To: <9b1abd2b-232c-aa0f-d8bb-03e65fd47de2@redhat.com>
+Sender: netdev-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, rob.miller@broadcom.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com, zhangweining@ruijie.com.cn, eli@mellanox.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-If subblock size is large (e.g. 1G) 32 bit math involving it
-can overflow. Rather than try to catch all instances of that,
-let's tweak block size to 64 bit.
+On Mon, Jun 08, 2020 at 11:32:31AM +0800, Jason Wang wrote:
+> 
+> On 2020/6/7 下午9:51, Michael S. Tsirkin wrote:
+> > On Fri, Jun 05, 2020 at 04:54:17PM +0800, Jason Wang wrote:
+> > > On 2020/6/2 下午3:08, Jason Wang wrote:
+> > > > > > +static const struct pci_device_id vp_vdpa_id_table[] = {
+> > > > > > +    { PCI_DEVICE(PCI_VENDOR_ID_REDHAT_QUMRANET, PCI_ANY_ID) },
+> > > > > > +    { 0 }
+> > > > > > +};
+> > > > > This looks like it'll create a mess with either virtio pci
+> > > > > or vdpa being loaded at random. Maybe just don't specify
+> > > > > any IDs for now. Down the road we could get a
+> > > > > distinct vendor ID or a range of device IDs for this.
+> > > > 
+> > > > Right, will do.
+> > > > 
+> > > > Thanks
+> > > 
+> > > Rethink about this. If we don't specify any ID, the binding won't work.
+> > We can bind manually. It's not really for production anyway, so
+> > not a big deal imho.
+> 
+> 
+> I think you mean doing it via "new_id", right.
 
-It ripples through UAPI which is an ABI change, but it's not too late to
-make it, and it will allow supporting >4Gbyte blocks while might
-become necessary down the road.
+I really meant driver_override. This is what people have been using
+with pci-stub for years now.
 
-Fixes: 5f1f79bbc9e26 ("virtio-mem: Paravirtualized memory hotplug")
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/virtio/virtio_mem.c     | 14 +++++++-------
- include/uapi/linux/virtio_mem.h |  4 ++--
- 2 files changed, 9 insertions(+), 9 deletions(-)
+> 
+> > 
+> > > How about using a dedicated subsystem vendor id for this?
+> > > 
+> > > Thanks
+> > If virtio vendor id is used then standard driver is expected
+> > to bind, right? Maybe use a dedicated vendor id?
+> 
+> 
+> I meant something like:
+> 
+> static const struct pci_device_id vp_vdpa_id_table[] = {
+>     { PCI_DEVICE_SUB(PCI_VENDOR_ID_REDHAT_QUMRANET, PCI_ANY_ID,
+> VP_TEST_VENDOR_ID, VP_TEST_DEVICE_ID) },
+>     { 0 }
+> };
+> 
+> Thanks
+> 
 
-diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index 2f357142ea5e..7b1bece8a331 100644
---- a/drivers/virtio/virtio_mem.c
-+++ b/drivers/virtio/virtio_mem.c
-@@ -77,7 +77,7 @@ struct virtio_mem {
- 	uint64_t requested_size;
- 
- 	/* The device block size (for communicating with the device). */
--	uint32_t device_block_size;
-+	uint64_t device_block_size;
- 	/* The translated node id. NUMA_NO_NODE in case not specified. */
- 	int nid;
- 	/* Physical start address of the memory region. */
-@@ -86,7 +86,7 @@ struct virtio_mem {
- 	uint64_t region_size;
- 
- 	/* The subblock size. */
--	uint32_t subblock_size;
-+	uint64_t subblock_size;
- 	/* The number of subblocks per memory block. */
- 	uint32_t nb_sb_per_mb;
- 
-@@ -1698,9 +1698,9 @@ static int virtio_mem_init(struct virtio_mem *vm)
- 	 * - At least the device block size.
- 	 * In the worst case, a single subblock per memory block.
- 	 */
--	vm->subblock_size = PAGE_SIZE * 1u << max_t(uint32_t, MAX_ORDER - 1,
--						    pageblock_order);
--	vm->subblock_size = max_t(uint32_t, vm->device_block_size,
-+	vm->subblock_size = PAGE_SIZE * 1ul << max_t(uint32_t, MAX_ORDER - 1,
-+						     pageblock_order);
-+	vm->subblock_size = max_t(uint64_t, vm->device_block_size,
- 				  vm->subblock_size);
- 	vm->nb_sb_per_mb = memory_block_size_bytes() / vm->subblock_size;
- 
-@@ -1713,8 +1713,8 @@ static int virtio_mem_init(struct virtio_mem *vm)
- 
- 	dev_info(&vm->vdev->dev, "start address: 0x%llx", vm->addr);
- 	dev_info(&vm->vdev->dev, "region size: 0x%llx", vm->region_size);
--	dev_info(&vm->vdev->dev, "device block size: 0x%x",
--		 vm->device_block_size);
-+	dev_info(&vm->vdev->dev, "device block size: 0x%llx",
-+		 (unsigned long long)vm->device_block_size);
- 	dev_info(&vm->vdev->dev, "memory block size: 0x%lx",
- 		 memory_block_size_bytes());
- 	dev_info(&vm->vdev->dev, "subblock size: 0x%x",
-diff --git a/include/uapi/linux/virtio_mem.h b/include/uapi/linux/virtio_mem.h
-index a455c488a995..a9ffe041843c 100644
---- a/include/uapi/linux/virtio_mem.h
-+++ b/include/uapi/linux/virtio_mem.h
-@@ -185,10 +185,10 @@ struct virtio_mem_resp {
- 
- struct virtio_mem_config {
- 	/* Block size and alignment. Cannot change. */
--	__u32 block_size;
-+	__u64 block_size;
- 	/* Valid with VIRTIO_MEM_F_ACPI_PXM. Cannot change. */
- 	__u16 node_id;
--	__u16 padding;
-+	__u8 padding[6];
- 	/* Start address of the memory region. Cannot change. */
- 	__u64 addr;
- 	/* Region size (maximum). Cannot change. */
+Then regular virtio will still bind to it. It has
+
+drivers/virtio/virtio_pci_common.c:     { PCI_DEVICE(PCI_VENDOR_ID_REDHAT_QUMRANET, PCI_ANY_ID) },
+
+
 -- 
 MST
