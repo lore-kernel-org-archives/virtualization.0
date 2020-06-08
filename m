@@ -1,73 +1,61 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [PATCH RFC v5 12/13] vhost/vsock: switch to the buf API
-Date: Mon, 8 Jun 2020 10:57:16 +0100
-Message-ID: <20200608095716.GE83191@stefanha-x1.localdomain>
-References: <20200607141057.704085-1-mst@redhat.com>
- <20200607141057.704085-13-mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 5/6] vdpa: introduce virtio pci driver
+Date: Mon, 8 Jun 2020 18:07:36 +0800
+Message-ID: <61117e6a-2568-d0f4-8713-d831af32814d@redhat.com>
+References: <5dbb0386-beeb-5bf4-d12e-fb5427486bb8@redhat.com>
+ <6b1d1ef3-d65e-08c2-5b65-32969bb5ecbc@redhat.com>
+ <20200607095012-mutt-send-email-mst@kernel.org>
+ <9b1abd2b-232c-aa0f-d8bb-03e65fd47de2@redhat.com>
+ <20200608021438-mutt-send-email-mst@kernel.org>
+ <a1b1b7fb-b097-17b7-2e3a-0da07d2e48ae@redhat.com>
+ <20200608052041-mutt-send-email-mst@kernel.org>
+ <9d2571b6-0b95-53b3-6989-b4d801eeb623@redhat.com>
+ <20200608054453-mutt-send-email-mst@kernel.org>
+ <bc27064c-2309-acf3-ccd8-6182bfa2a4cd@redhat.com>
+ <20200608055331-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============4478659862676583647=="
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200607141057.704085-13-mst@redhat.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20200608055331-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+Sender: kvm-owner@vger.kernel.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, eperezma@redhat.com, Stefan Hajnoczi <stefanha@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, rob.miller@broadcom.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com, zhangweining@ruijie.com.cn, eli@mellanox.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 
---===============4478659862676583647==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="GxcwvYAGnODwn7V8"
-Content-Disposition: inline
+On 2020/6/8 下午5:54, Michael S. Tsirkin wrote:
+> On Mon, Jun 08, 2020 at 05:46:52PM +0800, Jason Wang wrote:
+>> On 2020/6/8 下午5:45, Michael S. Tsirkin wrote:
+>>> On Mon, Jun 08, 2020 at 05:43:58PM +0800, Jason Wang wrote:
+>>>>>> Looking at
+>>>>>> pci_match_one_device() it checks both subvendor and subdevice there.
+>>>>>>
+>>>>>> Thanks
+>>>>> But IIUC there is no guarantee that driver with a specific subvendor
+>>>>> matches in presence of a generic one.
+>>>>> So either IFC or virtio pci can win, whichever binds first.
+>>>> I'm not sure I get there. But I try manually bind IFCVF to qemu's
+>>>> virtio-net-pci, and it fails.
+>>>>
+>>>> Thanks
+>>> Right but the reverse can happen: virtio-net can bind to IFCVF first.
+>>
+>> That's kind of expected. The PF is expected to be bound to virtio-pci to
+>> create VF via sysfs.
+>>
+>> Thanks
+>>
+>>
+>>
+> Once VFs are created, don't we want IFCVF to bind rather than
+> virtio-pci?
 
 
---GxcwvYAGnODwn7V8
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes, but for PF we need virtio-pci.
 
-On Sun, Jun 07, 2020 at 10:11:49AM -0400, Michael S. Tsirkin wrote:
-> A straight-forward conversion.
->=20
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/vhost/vsock.c | 30 ++++++++++++++++++------------
->  1 file changed, 18 insertions(+), 12 deletions(-)
+Thanks
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
---GxcwvYAGnODwn7V8
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl7eC3wACgkQnKSrs4Gr
-c8jwtAf+JgEio09QmwBTCC4RhAS9zTZxiNWAHCdPtESgu4E+VLcxHjEEpkF7w+Cm
-pQiZHcW0mG7Y2PKAg8VkP2GvXH0gbiNSQ/7ZTOFsExePWay5vLQdYg/u21hleZae
-zQ4oI905vhOEb6L92iAvzuFr0hTpIwZ1kvc+1bUAHQwLIycKalMkym1jgoyUaD2/
-eFPwvzPIPZfEuorb3mmhEq98yKTDxH5U5glFjBaZWD3E3Mg9RZN3g0Iqps80abIS
-Z47zkqMzxw8heuyjScbbz26hhKj6ziP1mcs3crmThZk3H1EpPqaVIcNHUTs6AE0P
-pRlUbV4l4np3xvL9u4DDOb2FGjgDlA==
-=6gku
------END PGP SIGNATURE-----
-
---GxcwvYAGnODwn7V8--
-
---===============4478659862676583647==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4478659862676583647==--
+>
