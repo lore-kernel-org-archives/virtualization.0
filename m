@@ -1,47 +1,69 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] vhost/test: fix up after API change
-Date: Tue, 9 Jun 2020 13:53:03 +0800
-Message-ID: <e747a953-3135-fef9-b098-fca11755d6e4@redhat.com>
-References: <20200608124254.727184-1-mst@redhat.com>
+Subject: Re: [PATCH 5/6] vdpa: introduce virtio pci driver
+Date: Tue, 9 Jun 2020 13:55:14 +0800
+Message-ID: <a01aced5-2357-b55c-296b-f152008ddbf2@redhat.com>
+References: <20200607095012-mutt-send-email-mst@kernel.org>
+ <9b1abd2b-232c-aa0f-d8bb-03e65fd47de2@redhat.com>
+ <20200608021438-mutt-send-email-mst@kernel.org>
+ <a1b1b7fb-b097-17b7-2e3a-0da07d2e48ae@redhat.com>
+ <20200608052041-mutt-send-email-mst@kernel.org>
+ <9d2571b6-0b95-53b3-6989-b4d801eeb623@redhat.com>
+ <20200608054453-mutt-send-email-mst@kernel.org>
+ <bc27064c-2309-acf3-ccd8-6182bfa2a4cd@redhat.com>
+ <20200608055331-mutt-send-email-mst@kernel.org>
+ <61117e6a-2568-d0f4-8713-d831af32814d@redhat.com>
+ <20200608092530-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200608124254.727184-1-mst@redhat.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20200608092530-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, Zhu Lingshan <lingshan.zhu@intel.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Sender: kvm-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, rob.miller@broadcom.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com, zhangweining@ruijie.com.cn, eli@mellanox.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMjAvNi84IOS4i+WNiDg6NDIsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBQYXNz
-IGEgZmxhZyB0byByZXF1ZXN0IGtlcm5lbCB0aHJlYWQgdXNlLgo+Cj4gRml4ZXM6IDAxZmNiMWNi
-Yzg4ZSAoInZob3N0OiBhbGxvdyBkZXZpY2UgdGhhdCBkb2VzIG5vdCBkZXBlbmQgb24gdmhvc3Qg
-d29ya2VyIikKPiBTaWduZWQtb2ZmLWJ5OiBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQu
-Y29tPgo+IC0tLQo+ICAgZHJpdmVycy92aG9zdC90ZXN0LmMgfCAyICstCj4gICAxIGZpbGUgY2hh
-bmdlZCwgMSBpbnNlcnRpb24oKyksIDEgZGVsZXRpb24oLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2
-ZXJzL3Zob3N0L3Rlc3QuYyBiL2RyaXZlcnMvdmhvc3QvdGVzdC5jCj4gaW5kZXggZjU1Y2I1ODRi
-ODRhLi4xMjMwNGViOGRhMTUgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92aG9zdC90ZXN0LmMKPiAr
-KysgYi9kcml2ZXJzL3Zob3N0L3Rlc3QuYwo+IEBAIC0xMjIsNyArMTIyLDcgQEAgc3RhdGljIGlu
-dCB2aG9zdF90ZXN0X29wZW4oc3RydWN0IGlub2RlICppbm9kZSwgc3RydWN0IGZpbGUgKmYpCj4g
-ICAJdnFzW1ZIT1NUX1RFU1RfVlFdID0gJm4tPnZxc1tWSE9TVF9URVNUX1ZRXTsKPiAgIAluLT52
-cXNbVkhPU1RfVEVTVF9WUV0uaGFuZGxlX2tpY2sgPSBoYW5kbGVfdnFfa2ljazsKPiAgIAl2aG9z
-dF9kZXZfaW5pdChkZXYsIHZxcywgVkhPU1RfVEVTVF9WUV9NQVgsIFVJT19NQVhJT1YgKyA2NCwK
-PiAtCQkgICAgICAgVkhPU1RfVEVTVF9QS1RfV0VJR0hULCBWSE9TVF9URVNUX1dFSUdIVCwgTlVM
-TCk7Cj4gKwkJICAgICAgIFZIT1NUX1RFU1RfUEtUX1dFSUdIVCwgVkhPU1RfVEVTVF9XRUlHSFQs
-IHRydWUsIE5VTEwpOwo+ICAgCj4gICAJZi0+cHJpdmF0ZV9kYXRhID0gbjsKPiAgIAoKCkFja2Vk
-LWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgoKSnVzdCB0byBjb25maXJtLCBo
-YXZlIHlvdSBxdWV1ZWQgdGhlIGRvb3JiZWxsIG1hcHBpbmcgcGF0Y2hlcyBhbHJlYWR5PyAKT3Ig
-eW91IGV4cGVjdCBJIHNxdWFzaCB0aGlzIGludG8gdjIgb2YgZG9vcmJlbGwgbWFwcGluZyBzZXJp
-ZXM/CgpUaGFua3MKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
-eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
-bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+
+On 2020/6/8 下午9:29, Michael S. Tsirkin wrote:
+> On Mon, Jun 08, 2020 at 06:07:36PM +0800, Jason Wang wrote:
+>> On 2020/6/8 下午5:54, Michael S. Tsirkin wrote:
+>>> On Mon, Jun 08, 2020 at 05:46:52PM +0800, Jason Wang wrote:
+>>>> On 2020/6/8 下午5:45, Michael S. Tsirkin wrote:
+>>>>> On Mon, Jun 08, 2020 at 05:43:58PM +0800, Jason Wang wrote:
+>>>>>>>> Looking at
+>>>>>>>> pci_match_one_device() it checks both subvendor and subdevice there.
+>>>>>>>>
+>>>>>>>> Thanks
+>>>>>>> But IIUC there is no guarantee that driver with a specific subvendor
+>>>>>>> matches in presence of a generic one.
+>>>>>>> So either IFC or virtio pci can win, whichever binds first.
+>>>>>> I'm not sure I get there. But I try manually bind IFCVF to qemu's
+>>>>>> virtio-net-pci, and it fails.
+>>>>>>
+>>>>>> Thanks
+>>>>> Right but the reverse can happen: virtio-net can bind to IFCVF first.
+>>>> That's kind of expected. The PF is expected to be bound to virtio-pci to
+>>>> create VF via sysfs.
+>>>>
+>>>> Thanks
+>>>>
+>>>>
+>>>>
+>>> Once VFs are created, don't we want IFCVF to bind rather than
+>>> virtio-pci?
+>>
+>> Yes, but for PF we need virtio-pci.
+>>
+>> Thanks
+>>
+> (Ab)using the driver_data field for this is an option.
+> What do you think?
+
+
+Maybe you can elaborate more on this idea?
+
+Thanks
+
+
+>
