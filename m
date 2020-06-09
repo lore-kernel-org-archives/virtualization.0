@@ -1,58 +1,38 @@
-From: Alex Shi <alex.shi@linux.alibaba.com>
-Subject: Re: [PATCH RFC v4 00/13] virtio-mem: paravirtualized memory
-Date: Tue, 9 Jun 2020 11:05:50 +0800
-Message-ID: <acf6c8d5-9672-7ec8-f565-707aaaff8e48@linux.alibaba.com>
-References: <20191212171137.13872-1-david@redhat.com>
- <9acc5d04-c8e9-ef53-85e4-709030997ca6@redhat.com>
- <1cfa9edb-47ea-1495-4e28-4cf391eab44c@linux.alibaba.com>
- <d6cd1870-1012-cb3d-7d29-8e5ad2703717@redhat.com>
- <6b4724bf-84b5-9880-5464-1908425d106d@redhat.com>
- <e1643897-ebd7-75f8-d271-44f62318aa66@redhat.com>
- <95c6ef21-23e0-c768-999d-3af7f69d02d3@linux.alibaba.com>
- <b41dcc92-604e-0c48-92e5-5cb3d78f189e@redhat.com>
+From: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Subject: Re: [PATCH] virtio-mem: drop unnecessary initialization
+Date: Tue, 9 Jun 2020 06:52:45 +0200
+Message-ID: <CAM9Jb+ipp09ZMtT9gZ7EDK94QLOmTM7CgQfHZFpUQWRggmVWKA@mail.gmail.com>
+References: <20200608054517.708167-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <b41dcc92-604e-0c48-92e5-5cb3d78f189e@redhat.com>
-Sender: kvm-owner@vger.kernel.org
-To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
-Cc: linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Sebastien Boeuf <sebastien.boeuf@intel.com>, Samuel Ortiz <samuel.ortiz@intel.com>, Robert Bradford <robert.bradford@intel.com>, Luiz Capitulino <lcapitulino@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Alexander Potapenko <glider@google.com>, Alexander Viro <viro@zeniv.linux.org.uk>, Anshuman Khandual <anshuman.khandual@arm.com>, Anthony Yznaga <anthony.yznaga@oracle.com>, Dan Williams <dan.j.williams@intel.com>, Dave Young <dyoung@redhat.com>, Igor Mammedov <imammedo@redhat.com>, Jason Wang <jasowa>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200608054517.708167-1-mst@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel test robot <lkp@intel.com>, David Hildenbrand <david@redhat.com>, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+> rc is initialized to -ENIVAL but that's never used. Drop it.
+>
+> Fixes: 5f1f79bbc9e2 ("virtio-mem: Paravirtualized memory hotplug")
+> Reported-by: kernel test robot <lkp@intel.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  drivers/virtio/virtio_mem.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
+> index f658fe9149be..2f357142ea5e 100644
+> --- a/drivers/virtio/virtio_mem.c
+> +++ b/drivers/virtio/virtio_mem.c
+> @@ -1768,7 +1768,7 @@ static void virtio_mem_delete_resource(struct virtio_mem *vm)
+>  static int virtio_mem_probe(struct virtio_device *vdev)
+>  {
+>         struct virtio_mem *vm;
+> -       int rc = -EINVAL;
+> +       int rc;
+>
+>         BUILD_BUG_ON(sizeof(struct virtio_mem_req) != 24);
+>         BUILD_BUG_ON(sizeof(struct virtio_mem_resp) != 10);
 
-
-在 2020/6/5 下午8:18, David Hildenbrand 写道:
-> On 05.06.20 12:46, Alex Shi wrote:
->>
->>
->> 在 2020/6/5 下午6:05, David Hildenbrand 写道:
->>>> I guess I know what's happening here. In case we only have DMA memory
->>>> when booting, we don't reserve swiotlb buffers. Once we hotplug memory
->>>> and online ZONE_NORMAL, we don't have any swiotlb DMA bounce buffers to
->>>> map such PFNs (total 0 (slots), used 0 (slots)).
->>>>
->>>> Can you try with "swiotlb=force" on the kernel cmdline?
->>> Alternative, looks like you can specify "-m 2G,maxmem=16G,slots=1", to
->>> create proper ACPI tables that indicate hotpluggable memory. (I'll have
->>> to look into QEMU to figure out to always indicate hotpluggable memory
->>> that way).
->>>
->>
->>
->> That works too. Yes, better resolved in qemu, maybe. :)
->>
-> 
-> You can checkout
-> 
-> git@github.com:davidhildenbrand/qemu.git virtio-mem-v4
-
-yes, it works for me. Thanks!
-
-> 
-> (prone to change before officially sent), which will create srat tables
-> also if no "slots" parameter was defined (and no -numa config was
-> specified).
-> 
-> Your original example should work with that.
-> 
+Reviewed-by: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
