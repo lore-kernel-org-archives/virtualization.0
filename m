@@ -1,69 +1,58 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 5/6] vdpa: introduce virtio pci driver
-Date: Tue, 9 Jun 2020 13:55:14 +0800
-Message-ID: <a01aced5-2357-b55c-296b-f152008ddbf2@redhat.com>
-References: <20200607095012-mutt-send-email-mst@kernel.org>
- <9b1abd2b-232c-aa0f-d8bb-03e65fd47de2@redhat.com>
- <20200608021438-mutt-send-email-mst@kernel.org>
- <a1b1b7fb-b097-17b7-2e3a-0da07d2e48ae@redhat.com>
- <20200608052041-mutt-send-email-mst@kernel.org>
- <9d2571b6-0b95-53b3-6989-b4d801eeb623@redhat.com>
- <20200608054453-mutt-send-email-mst@kernel.org>
- <bc27064c-2309-acf3-ccd8-6182bfa2a4cd@redhat.com>
- <20200608055331-mutt-send-email-mst@kernel.org>
- <61117e6a-2568-d0f4-8713-d831af32814d@redhat.com>
- <20200608092530-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH] vhost/test: fix up after API change
+Date: Tue, 9 Jun 2020 13:56:26 +0800
+Message-ID: <8ca24e37-d319-fbf7-0114-ddf7eb110781@redhat.com>
+References: <20200608124254.727184-1-mst@redhat.com>
+ <e747a953-3135-fef9-b098-fca11755d6e4@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20200608092530-mutt-send-email-mst@kernel.org>
+In-Reply-To: <e747a953-3135-fef9-b098-fca11755d6e4@redhat.com>
 Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, rob.miller@broadcom.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com, zhangweining@ruijie.com.cn, eli@mellanox.com
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Zhu Lingshan <lingshan.zhu@intel.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-On 2020/6/8 下午9:29, Michael S. Tsirkin wrote:
-> On Mon, Jun 08, 2020 at 06:07:36PM +0800, Jason Wang wrote:
->> On 2020/6/8 下午5:54, Michael S. Tsirkin wrote:
->>> On Mon, Jun 08, 2020 at 05:46:52PM +0800, Jason Wang wrote:
->>>> On 2020/6/8 下午5:45, Michael S. Tsirkin wrote:
->>>>> On Mon, Jun 08, 2020 at 05:43:58PM +0800, Jason Wang wrote:
->>>>>>>> Looking at
->>>>>>>> pci_match_one_device() it checks both subvendor and subdevice there.
->>>>>>>>
->>>>>>>> Thanks
->>>>>>> But IIUC there is no guarantee that driver with a specific subvendor
->>>>>>> matches in presence of a generic one.
->>>>>>> So either IFC or virtio pci can win, whichever binds first.
->>>>>> I'm not sure I get there. But I try manually bind IFCVF to qemu's
->>>>>> virtio-net-pci, and it fails.
->>>>>>
->>>>>> Thanks
->>>>> Right but the reverse can happen: virtio-net can bind to IFCVF first.
->>>> That's kind of expected. The PF is expected to be bound to virtio-pci to
->>>> create VF via sysfs.
->>>>
->>>> Thanks
->>>>
->>>>
->>>>
->>> Once VFs are created, don't we want IFCVF to bind rather than
->>> virtio-pci?
+On 2020/6/9 下午1:53, Jason Wang wrote:
+>
+> On 2020/6/8 下午8:42, Michael S. Tsirkin wrote:
+>> Pass a flag to request kernel thread use.
 >>
->> Yes, but for PF we need virtio-pci.
+>> Fixes: 01fcb1cbc88e ("vhost: allow device that does not depend on 
+>> vhost worker")
+>> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>> ---
+>>   drivers/vhost/test.c | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
 >>
->> Thanks
->>
-> (Ab)using the driver_data field for this is an option.
-> What do you think?
+>> diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
+>> index f55cb584b84a..12304eb8da15 100644
+>> --- a/drivers/vhost/test.c
+>> +++ b/drivers/vhost/test.c
+>> @@ -122,7 +122,7 @@ static int vhost_test_open(struct inode *inode, 
+>> struct file *f)
+>>       vqs[VHOST_TEST_VQ] = &n->vqs[VHOST_TEST_VQ];
+>>       n->vqs[VHOST_TEST_VQ].handle_kick = handle_vq_kick;
+>>       vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX, UIO_MAXIOV + 64,
+>> -               VHOST_TEST_PKT_WEIGHT, VHOST_TEST_WEIGHT, NULL);
+>> +               VHOST_TEST_PKT_WEIGHT, VHOST_TEST_WEIGHT, true, NULL);
+>>         f->private_data = n;
+>
+>
+> Acked-by: Jason Wang <jasowang@redhat.com>
+>
+> Just to confirm, have you queued the doorbell mapping patches already? 
+> Or you expect I squash this into v2 of doorbell mapping series?
 
 
-Maybe you can elaborate more on this idea?
+Ok, I saw the patches in your linux-next branch.
 
 Thanks
 
 
+>
+> Thanks
 >
