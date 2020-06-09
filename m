@@ -1,50 +1,111 @@
-From: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Subject: [PATCH v2] mm/balloon_compaction: Fix trivial spelling
-Date: Tue,  9 Jun 2020 15:34:12 +0100
-Message-ID: <20200609143412.3456484-1-kieran.bingham+renesas@ideasonboard.com>
-References: <20200609124610.3445662-16-kieran.bingham+renesas@ideasonboard.com>
+From: Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: Re: [RFC 12/12] rpmsg: add a device ID to also bind to the ADSP
+ device
+Date: Tue, 9 Jun 2020 10:26:45 -0600
+Message-ID: <20200609162645.GA23371@xps15>
+References: <20200529073722.8184-1-guennadi.liakhovetski@linux.intel.com>
+ <20200529073722.8184-13-guennadi.liakhovetski@linux.intel.com>
+ <20200604200156.GB26734@xps15>
+ <20200605064659.GC32302@ubuntu>
+ <20200608161757.GA32518@xps15>
+ <20200608170227.GG10562@ubuntu>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <20200609124610.3445662-16-kieran.bingham+renesas@ideasonboard.com>
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Kieran Bingham <kieran.bingham@ideasonboard.com>, David Hildenbrand <david@redhat.com>
-Cc: linux-renesas-soc@vger.kernel.org, Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Jiri Kosina <trivial@kernel.org>, "open list:VIRTIO CORE AND
-        NET DRIVERS" <virtualization@lists.linux-foundation.org>, "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>, open list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200608170227.GG10562@ubuntu>
+Sender: kvm-owner@vger.kernel.org
+To: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+Cc: kvm@vger.kernel.org, linux-remoteproc@vger.kernel.org, virtualization@lists.linux-foundation.org, sound-open-firmware@alsa-project.org, Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>, Liam Girdwood <liam.r.girdwood@linux.intel.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Ohad Ben-Cohen <ohad@wizery.com>, Bjorn Andersson <bjorn.andersson@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The word 'descriptor' is misspelled throughout the tree.
+On Mon, Jun 08, 2020 at 07:02:27PM +0200, Guennadi Liakhovetski wrote:
+> Hi Mathieu,
+> 
+> On Mon, Jun 08, 2020 at 10:17:57AM -0600, Mathieu Poirier wrote:
+> > On Fri, Jun 05, 2020 at 08:46:59AM +0200, Guennadi Liakhovetski wrote:
+> > > Hi Mathieu,
+> > > 
+> > > On Thu, Jun 04, 2020 at 02:01:56PM -0600, Mathieu Poirier wrote:
+> > > > On Fri, May 29, 2020 at 09:37:22AM +0200, Guennadi Liakhovetski wrote:
+> > > > > The ADSP device uses the RPMsg API to connect vhost and VirtIO SOF
+> > > > > Audio DSP drivers on KVM host and guest.
+> > > > > 
+> > > > > Signed-off-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+> > > > > ---
+> > > > >  drivers/rpmsg/virtio_rpmsg_bus.c | 1 +
+> > > > >  1 file changed, 1 insertion(+)
+> > > > > 
+> > > > > diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
+> > > > > index f3bd050..ebe3f19 100644
+> > > > > --- a/drivers/rpmsg/virtio_rpmsg_bus.c
+> > > > > +++ b/drivers/rpmsg/virtio_rpmsg_bus.c
+> > > > > @@ -949,6 +949,7 @@ static void rpmsg_remove(struct virtio_device *vdev)
+> > > > >  
+> > > > >  static struct virtio_device_id id_table[] = {
+> > > > >  	{ VIRTIO_ID_RPMSG, VIRTIO_DEV_ANY_ID },
+> > > > > +	{ VIRTIO_ID_ADSP, VIRTIO_DEV_ANY_ID },
+> > > > 
+> > > > I am fine with this patch but won't add an RB because of the (many) checkpatch
+> > > > errors.  Based on the comment I made on the previous set seeing those was
+> > > > unexpected.
+> > > 
+> > > Are you using "--strict?" Sorry, I don't see any checkpatch errors, only warnings. 
+> > 
+> > No, plane checkpatch on the rproc-next branch.
+> > 
+> > > Most of them are "over 80 characters" which as we now know is no more an issue,
+> > 
+> > There is a thread discussing the matter but I have not seen a clear resolution
+> > yet.
+> 
+> I think the resolution is pretty clear as defined by Linus, but maybe it has changed 
+> again since I last checked.
+> 
+> > > I just haven't updated my tree yet. Most others are really minor IMHO. Maybe one
+> > 
+> > Minor or not, if checkpatch complains then it is important enough to address.  I
+> > am willing to overlook the lines over 80 characters but everything else needs to
+> > be dealt with.
+> 
+> Sure, checkpatch should be run before each patch submission and whatever it reports 
+> should be considered. As Documentation/process/submitting-patches.rst clearly 
+> states:
+> 
+> "Check your patches with the patch style checker prior to submission
+> (scripts/checkpatch.pl).  Note, though, that the style checker should be
+> viewed as a guide, not as a replacement for human judgment.  If your code
+> looks better with a violation then its probably best left alone."
+> 
+> So, yes, I checked all what checkepatch reported and used my judgement to decide 
+> which recommendations to take and which to ignore.
 
-Fix it up accordingly:
-    decriptors -> descriptors
+I will let Michael and friends decide how to handle checkpatch warnings in the
+vhost subsystem but as far as remoteproc/rpmsg are concerned, I will not review
+patches that trigger warnings.
 
-Signed-off-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
----
- mm/balloon_compaction.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+There is a patch in linux-next that deprecates warnings for lines over 80
+characters, so those are no longer a problem.
 
-diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
-index 26de020aae7b..907fefde2572 100644
---- a/mm/balloon_compaction.c
-+++ b/mm/balloon_compaction.c
-@@ -58,7 +58,7 @@ EXPORT_SYMBOL_GPL(balloon_page_list_enqueue);
- /**
-  * balloon_page_list_dequeue() - removes pages from balloon's page list and
-  *				 returns a list of the pages.
-- * @b_dev_info: balloon device decriptor where we will grab a page from.
-+ * @b_dev_info: balloon device descriptor where we will grab a page from.
-  * @pages: pointer to the list of pages that would be returned to the caller.
-  * @n_req_pages: number of requested pages.
-  *
-@@ -157,7 +157,7 @@ EXPORT_SYMBOL_GPL(balloon_page_enqueue);
- /*
-  * balloon_page_dequeue - removes a page from balloon's page list and returns
-  *			  its address to allow the driver to release the page.
-- * @b_dev_info: balloon device decriptor where we will grab a page from.
-+ * @b_dev_info: balloon device descriptor where we will grab a page from.
-  *
-  * Driver must call this function to properly dequeue a previously enqueued page
-  * before definitively releasing it back to the guest system.
--- 
-2.25.1
+> 
+> Thanks
+> Guennadi
+> 
+> > Thanks,
+> > Mathieu
+> >  
+> > > of them I actually would want to fix - using "help" instead of "---help---" in 
+> > > Kconfig. What errors are you seeing in your checks?
+> > > 
+> > > Thanks
+> > > Guennadi
+> > > 
+> > > > Thanks,
+> > > > Mathieu
+> > > > 
+> > > > >  	{ 0 },
+> > > > >  };
+> > > > >  
+> > > > > -- 
+> > > > > 1.9.3
+> > > > > 
