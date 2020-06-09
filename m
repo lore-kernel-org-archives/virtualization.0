@@ -1,315 +1,58 @@
-From: David Stevens <stevensd@chromium.org>
-Subject: [PATCH v5 3/3] drm/virtio: Support virtgpu exported resources
-Date: Tue,  9 Jun 2020 10:25:18 +0900
-Message-ID: <20200609012518.198908-4-stevensd@chromium.org>
-References: <20200609012518.198908-1-stevensd@chromium.org>
+From: Alex Shi <alex.shi@linux.alibaba.com>
+Subject: Re: [PATCH RFC v4 00/13] virtio-mem: paravirtualized memory
+Date: Tue, 9 Jun 2020 11:05:50 +0800
+Message-ID: <acf6c8d5-9672-7ec8-f565-707aaaff8e48@linux.alibaba.com>
+References: <20191212171137.13872-1-david@redhat.com>
+ <9acc5d04-c8e9-ef53-85e4-709030997ca6@redhat.com>
+ <1cfa9edb-47ea-1495-4e28-4cf391eab44c@linux.alibaba.com>
+ <d6cd1870-1012-cb3d-7d29-8e5ad2703717@redhat.com>
+ <6b4724bf-84b5-9880-5464-1908425d106d@redhat.com>
+ <e1643897-ebd7-75f8-d271-44f62318aa66@redhat.com>
+ <95c6ef21-23e0-c768-999d-3af7f69d02d3@linux.alibaba.com>
+ <b41dcc92-604e-0c48-92e5-5cb3d78f189e@redhat.com>
 Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
-Return-path: <virtio-dev-return-7458-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <20200609012518.198908-1-stevensd@chromium.org>
-To: Gerd Hoffmann <kraxel@redhat.com>, David Airlie <airlied@linux.ie>, Daniel Vetter <daniel@ffwll.ch>, Sumit Semwal <sumit.semwal@linaro.org>, "Michael S . Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, David Stevens <stevensd@chromium.org>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org, virtio-dev@lists.oasis-open.org
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <b41dcc92-604e-0c48-92e5-5cb3d78f189e@redhat.com>
+Sender: kvm-owner@vger.kernel.org
+To: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Michal Hocko <mhocko@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Sebastien Boeuf <sebastien.boeuf@intel.com>, Samuel Ortiz <samuel.ortiz@intel.com>, Robert Bradford <robert.bradford@intel.com>, Luiz Capitulino <lcapitulino@redhat.com>, Alexander Duyck <alexander.h.duyck@linux.intel.com>, Alexander Potapenko <glider@google.com>, Alexander Viro <viro@zeniv.linux.org.uk>, Anshuman Khandual <anshuman.khandual@arm.com>, Anthony Yznaga <anthony.yznaga@oracle.com>, Dan Williams <dan.j.williams@intel.com>, Dave Young <dyoung@redhat.com>, Igor Mammedov <imammedo@redhat.com>, Jason Wang <jasowa>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add support for UUID-based resource sharing mechanism to virtgpu. This
-implements the new virtgpu commands and hooks them up to dma-buf's
-get_uuid callback.
 
-Signed-off-by: David Stevens <stevensd@chromium.org>
----
- drivers/gpu/drm/virtio/virtgpu_drv.c   |  3 +
- drivers/gpu/drm/virtio/virtgpu_drv.h   | 20 ++++++
- drivers/gpu/drm/virtio/virtgpu_kms.c   |  4 ++
- drivers/gpu/drm/virtio/virtgpu_prime.c | 96 +++++++++++++++++++++++++-
- drivers/gpu/drm/virtio/virtgpu_vq.c    | 55 +++++++++++++++
- 5 files changed, 175 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-index ab4bed78e656..b039f493bda9 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-@@ -165,6 +165,7 @@ static unsigned int features[] = {
- 	VIRTIO_GPU_F_VIRGL,
- #endif
- 	VIRTIO_GPU_F_EDID,
-+	VIRTIO_GPU_F_RESOURCE_UUID,
- };
- static struct virtio_driver virtio_gpu_driver = {
- 	.feature_table = features,
-@@ -202,6 +203,8 @@ static struct drm_driver driver = {
- 	.prime_handle_to_fd = drm_gem_prime_handle_to_fd,
- 	.prime_fd_to_handle = drm_gem_prime_fd_to_handle,
- 	.gem_prime_mmap = drm_gem_prime_mmap,
-+	.gem_prime_export = virtgpu_gem_prime_export,
-+	.gem_prime_import = virtgpu_gem_prime_import,
- 	.gem_prime_import_sg_table = virtgpu_gem_prime_import_sg_table,
- 
- 	.gem_create_object = virtio_gpu_create_object,
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 49bebdee6d91..39dc907aa805 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -49,6 +49,10 @@
- #define DRIVER_MINOR 1
- #define DRIVER_PATCHLEVEL 0
- 
-+#define UUID_INITIALIZING 0
-+#define UUID_INITIALIZED 1
-+#define UUID_INITIALIZATION_FAILED 2
-+
- struct virtio_gpu_object_params {
- 	uint32_t format;
- 	uint32_t width;
-@@ -71,6 +75,9 @@ struct virtio_gpu_object {
- 	uint32_t hw_res_handle;
- 	bool dumb;
- 	bool created;
-+
-+	int uuid_state;
-+	uuid_t uuid;
- };
- #define gem_to_virtio_gpu_obj(gobj) \
- 	container_of((gobj), struct virtio_gpu_object, base.base)
-@@ -200,6 +207,7 @@ struct virtio_gpu_device {
- 	bool has_virgl_3d;
- 	bool has_edid;
- 	bool has_indirect;
-+	bool has_resource_assign_uuid;
- 
- 	struct work_struct config_changed_work;
- 
-@@ -210,6 +218,8 @@ struct virtio_gpu_device {
- 	struct virtio_gpu_drv_capset *capsets;
- 	uint32_t num_capsets;
- 	struct list_head cap_cache;
-+
-+	spinlock_t resource_export_lock;
- };
- 
- struct virtio_gpu_fpriv {
-@@ -335,6 +345,10 @@ void virtio_gpu_dequeue_fence_func(struct work_struct *work);
- 
- void virtio_gpu_notify(struct virtio_gpu_device *vgdev);
- 
-+int
-+virtio_gpu_cmd_resource_assign_uuid(struct virtio_gpu_device *vgdev,
-+				    struct virtio_gpu_object_array *objs);
-+
- /* virtgpu_display.c */
- void virtio_gpu_modeset_init(struct virtio_gpu_device *vgdev);
- void virtio_gpu_modeset_fini(struct virtio_gpu_device *vgdev);
-@@ -366,6 +380,12 @@ int virtio_gpu_object_create(struct virtio_gpu_device *vgdev,
- bool virtio_gpu_is_shmem(struct virtio_gpu_object *bo);
- 
- /* virtgpu_prime.c */
-+struct dma_buf *virtgpu_gem_prime_export(struct drm_gem_object *obj,
-+					 int flags);
-+struct drm_gem_object *virtgpu_gem_prime_import(struct drm_device *dev,
-+						struct dma_buf *buf);
-+int virtgpu_gem_prime_get_uuid(struct drm_gem_object *obj,
-+			       uuid_t *uuid);
- struct drm_gem_object *virtgpu_gem_prime_import_sg_table(
- 	struct drm_device *dev, struct dma_buf_attachment *attach,
- 	struct sg_table *sgt);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index 023a030ca7b9..7bcd0c75effa 100644
---- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -125,6 +125,7 @@ int virtio_gpu_init(struct drm_device *dev)
- 	vgdev->dev = dev->dev;
- 
- 	spin_lock_init(&vgdev->display_info_lock);
-+	spin_lock_init(&vgdev->resource_export_lock);
- 	ida_init(&vgdev->ctx_id_ida);
- 	ida_init(&vgdev->resource_ida);
- 	init_waitqueue_head(&vgdev->resp_wq);
-@@ -153,6 +154,9 @@ int virtio_gpu_init(struct drm_device *dev)
- 	if (virtio_has_feature(vgdev->vdev, VIRTIO_RING_F_INDIRECT_DESC)) {
- 		vgdev->has_indirect = true;
- 	}
-+	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_RESOURCE_UUID)) {
-+		vgdev->has_resource_assign_uuid = true;
-+	}
- 
- 	DRM_INFO("features: %cvirgl %cedid\n",
- 		 vgdev->has_virgl_3d ? '+' : '-',
-diff --git a/drivers/gpu/drm/virtio/virtgpu_prime.c b/drivers/gpu/drm/virtio/virtgpu_prime.c
-index 050d24c39a8f..acd14ef73d56 100644
---- a/drivers/gpu/drm/virtio/virtgpu_prime.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_prime.c
-@@ -23,12 +23,102 @@
-  */
- 
- #include <drm/drm_prime.h>
-+#include <linux/virtio_dma_buf.h>
- 
- #include "virtgpu_drv.h"
- 
--/* Empty Implementations as there should not be any other driver for a virtual
-- * device that might share buffers with virtgpu
-- */
-+static int virtgpu_virtio_get_uuid(struct dma_buf *buf,
-+				   uuid_t *uuid)
-+{
-+	struct drm_gem_object *obj = buf->priv;
-+	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
-+	struct virtio_gpu_device *vgdev = obj->dev->dev_private;
-+
-+	wait_event(vgdev->resp_wq, bo->uuid_state != UUID_INITIALIZING);
-+	if (bo->uuid_state != UUID_INITIALIZED)
-+		return -ENODEV;
-+
-+	uuid_copy(uuid, &bo->uuid);
-+
-+	return 0;
-+}
-+
-+const struct virtio_dma_buf_ops virtgpu_dmabuf_ops =  {
-+	.ops = {
-+		.cache_sgt_mapping = true,
-+		.attach = virtio_dma_buf_attach,
-+		.detach = drm_gem_map_detach,
-+		.map_dma_buf = drm_gem_map_dma_buf,
-+		.unmap_dma_buf = drm_gem_unmap_dma_buf,
-+		.release = drm_gem_dmabuf_release,
-+		.mmap = drm_gem_dmabuf_mmap,
-+		.vmap = drm_gem_dmabuf_vmap,
-+		.vunmap = drm_gem_dmabuf_vunmap,
-+	},
-+	.device_attach = drm_gem_map_attach,
-+	.get_uuid = virtgpu_virtio_get_uuid,
-+};
-+
-+struct dma_buf *virtgpu_gem_prime_export(struct drm_gem_object *obj,
-+					 int flags)
-+{
-+	struct dma_buf *buf;
-+	struct drm_device *dev = obj->dev;
-+	struct virtio_gpu_device *vgdev = dev->dev_private;
-+	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
-+	struct virtio_gpu_object_array *objs;
-+	int ret = 0;
-+	DEFINE_DMA_BUF_EXPORT_INFO(exp_info);
-+
-+	if (vgdev->has_resource_assign_uuid) {
-+		objs = virtio_gpu_array_alloc(1);
-+		if (!objs)
-+			return ERR_PTR(-ENOMEM);
-+		virtio_gpu_array_add_obj(objs, &bo->base.base);
-+
-+		ret = virtio_gpu_cmd_resource_assign_uuid(vgdev, objs);
-+		if (ret)
-+			return ERR_PTR(ret);
-+		virtio_gpu_notify(vgdev);
-+	} else {
-+		bo->uuid_state = UUID_INITIALIZATION_FAILED;
-+	}
-+
-+	exp_info.ops = &virtgpu_dmabuf_ops.ops;
-+	exp_info.size = obj->size;
-+	exp_info.flags = flags;
-+	exp_info.priv = obj;
-+	exp_info.resv = obj->resv;
-+
-+	buf = virtio_dma_buf_export(&exp_info);
-+	if (IS_ERR(buf))
-+		return buf;
-+
-+	drm_dev_get(dev);
-+	drm_gem_object_get(obj);
-+
-+	return buf;
-+}
-+
-+struct drm_gem_object *virtgpu_gem_prime_import(struct drm_device *dev,
-+						struct dma_buf *buf)
-+{
-+	struct drm_gem_object *obj;
-+
-+	if (buf->ops == &virtgpu_dmabuf_ops.ops) {
-+		obj = buf->priv;
-+		if (obj->dev == dev) {
-+			/*
-+			 * Importing dmabuf exported from our own gem increases
-+			 * refcount on gem itself instead of f_count of dmabuf.
-+			 */
-+			drm_gem_object_get(obj);
-+			return obj;
-+		}
-+	}
-+
-+	return drm_gem_prime_import(dev, buf);
-+}
- 
- struct drm_gem_object *virtgpu_gem_prime_import_sg_table(
- 	struct drm_device *dev, struct dma_buf_attachment *attach,
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 9e663a5d9952..55af6fc7bc7c 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -1107,3 +1107,58 @@ void virtio_gpu_cursor_ping(struct virtio_gpu_device *vgdev,
- 	memcpy(cur_p, &output->cursor, sizeof(output->cursor));
- 	virtio_gpu_queue_cursor(vgdev, vbuf);
- }
-+
-+static void virtio_gpu_cmd_resource_uuid_cb(struct virtio_gpu_device *vgdev,
-+					    struct virtio_gpu_vbuffer *vbuf)
-+{
-+	struct virtio_gpu_object *obj =
-+		gem_to_virtio_gpu_obj(vbuf->objs->objs[0]);
-+	struct virtio_gpu_resp_resource_uuid *resp =
-+		(struct virtio_gpu_resp_resource_uuid *)vbuf->resp_buf;
-+	uint32_t resp_type = le32_to_cpu(resp->hdr.type);
-+
-+	spin_lock(&vgdev->resource_export_lock);
-+	WARN_ON(obj->uuid_state != UUID_INITIALIZING);
-+
-+	if (resp_type == VIRTIO_GPU_RESP_OK_RESOURCE_UUID &&
-+			obj->uuid_state == UUID_INITIALIZING) {
-+		memcpy(&obj->uuid.b, resp->uuid, sizeof(obj->uuid.b));
-+		obj->uuid_state = UUID_INITIALIZED;
-+	} else {
-+		obj->uuid_state = UUID_INITIALIZATION_FAILED;
-+	}
-+	spin_unlock(&vgdev->resource_export_lock);
-+
-+	wake_up_all(&vgdev->resp_wq);
-+}
-+
-+int
-+virtio_gpu_cmd_resource_assign_uuid(struct virtio_gpu_device *vgdev,
-+				    struct virtio_gpu_object_array *objs)
-+{
-+	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(objs->objs[0]);
-+	struct virtio_gpu_resource_assign_uuid *cmd_p;
-+	struct virtio_gpu_vbuffer *vbuf;
-+	struct virtio_gpu_resp_resource_uuid *resp_buf;
-+
-+	resp_buf = kzalloc(sizeof(*resp_buf), GFP_KERNEL);
-+	if (!resp_buf) {
-+		spin_lock(&vgdev->resource_export_lock);
-+		bo->uuid_state = UUID_INITIALIZATION_FAILED;
-+		spin_unlock(&vgdev->resource_export_lock);
-+		virtio_gpu_array_put_free(objs);
-+		return -ENOMEM;
-+	}
-+
-+	cmd_p = virtio_gpu_alloc_cmd_resp(vgdev,
-+		virtio_gpu_cmd_resource_uuid_cb, &vbuf, sizeof(*cmd_p),
-+		sizeof(struct virtio_gpu_resp_resource_uuid), resp_buf);
-+	memset(cmd_p, 0, sizeof(*cmd_p));
-+
-+	cmd_p->hdr.type = cpu_to_le32(VIRTIO_GPU_CMD_RESOURCE_ASSIGN_UUID);
-+	cmd_p->resource_id = cpu_to_le32(bo->hw_res_handle);
-+
-+	vbuf->objs = objs;
-+	virtio_gpu_queue_ctrl_buffer(vgdev, vbuf);
-+	return 0;
-+}
--- 
-2.27.0.278.ge193c7cf3a9-goog
+在 2020/6/5 下午8:18, David Hildenbrand 写道:
+> On 05.06.20 12:46, Alex Shi wrote:
+>>
+>>
+>> 在 2020/6/5 下午6:05, David Hildenbrand 写道:
+>>>> I guess I know what's happening here. In case we only have DMA memory
+>>>> when booting, we don't reserve swiotlb buffers. Once we hotplug memory
+>>>> and online ZONE_NORMAL, we don't have any swiotlb DMA bounce buffers to
+>>>> map such PFNs (total 0 (slots), used 0 (slots)).
+>>>>
+>>>> Can you try with "swiotlb=force" on the kernel cmdline?
+>>> Alternative, looks like you can specify "-m 2G,maxmem=16G,slots=1", to
+>>> create proper ACPI tables that indicate hotpluggable memory. (I'll have
+>>> to look into QEMU to figure out to always indicate hotpluggable memory
+>>> that way).
+>>>
+>>
+>>
+>> That works too. Yes, better resolved in qemu, maybe. :)
+>>
+> 
+> You can checkout
+> 
+> git@github.com:davidhildenbrand/qemu.git virtio-mem-v4
+
+yes, it works for me. Thanks!
+
+> 
+> (prone to change before officially sent), which will create srat tables
+> also if no "slots" parameter was defined (and no -numa config was
+> specified).
+> 
+> Your original example should work with that.
+> 
