@@ -1,38 +1,47 @@
-From: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Subject: Re: [PATCH] virtio-mem: drop unnecessary initialization
-Date: Tue, 9 Jun 2020 06:52:45 +0200
-Message-ID: <CAM9Jb+ipp09ZMtT9gZ7EDK94QLOmTM7CgQfHZFpUQWRggmVWKA@mail.gmail.com>
-References: <20200608054517.708167-1-mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] vhost/test: fix up after API change
+Date: Tue, 9 Jun 2020 13:53:03 +0800
+Message-ID: <e747a953-3135-fef9-b098-fca11755d6e4@redhat.com>
+References: <20200608124254.727184-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200608054517.708167-1-mst@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel test robot <lkp@intel.com>, David Hildenbrand <david@redhat.com>, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200608124254.727184-1-mst@redhat.com>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org, Zhu Lingshan <lingshan.zhu@intel.com>, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-> rc is initialized to -ENIVAL but that's never used. Drop it.
->
-> Fixes: 5f1f79bbc9e2 ("virtio-mem: Paravirtualized memory hotplug")
-> Reported-by: kernel test robot <lkp@intel.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/virtio/virtio_mem.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-> index f658fe9149be..2f357142ea5e 100644
-> --- a/drivers/virtio/virtio_mem.c
-> +++ b/drivers/virtio/virtio_mem.c
-> @@ -1768,7 +1768,7 @@ static void virtio_mem_delete_resource(struct virtio_mem *vm)
->  static int virtio_mem_probe(struct virtio_device *vdev)
->  {
->         struct virtio_mem *vm;
-> -       int rc = -EINVAL;
-> +       int rc;
->
->         BUILD_BUG_ON(sizeof(struct virtio_mem_req) != 24);
->         BUILD_BUG_ON(sizeof(struct virtio_mem_resp) != 10);
-
-Reviewed-by: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Ck9uIDIwMjAvNi84IOS4i+WNiDg6NDIsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPiBQYXNz
+IGEgZmxhZyB0byByZXF1ZXN0IGtlcm5lbCB0aHJlYWQgdXNlLgo+Cj4gRml4ZXM6IDAxZmNiMWNi
+Yzg4ZSAoInZob3N0OiBhbGxvdyBkZXZpY2UgdGhhdCBkb2VzIG5vdCBkZXBlbmQgb24gdmhvc3Qg
+d29ya2VyIikKPiBTaWduZWQtb2ZmLWJ5OiBNaWNoYWVsIFMuIFRzaXJraW4gPG1zdEByZWRoYXQu
+Y29tPgo+IC0tLQo+ICAgZHJpdmVycy92aG9zdC90ZXN0LmMgfCAyICstCj4gICAxIGZpbGUgY2hh
+bmdlZCwgMSBpbnNlcnRpb24oKyksIDEgZGVsZXRpb24oLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2
+ZXJzL3Zob3N0L3Rlc3QuYyBiL2RyaXZlcnMvdmhvc3QvdGVzdC5jCj4gaW5kZXggZjU1Y2I1ODRi
+ODRhLi4xMjMwNGViOGRhMTUgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92aG9zdC90ZXN0LmMKPiAr
+KysgYi9kcml2ZXJzL3Zob3N0L3Rlc3QuYwo+IEBAIC0xMjIsNyArMTIyLDcgQEAgc3RhdGljIGlu
+dCB2aG9zdF90ZXN0X29wZW4oc3RydWN0IGlub2RlICppbm9kZSwgc3RydWN0IGZpbGUgKmYpCj4g
+ICAJdnFzW1ZIT1NUX1RFU1RfVlFdID0gJm4tPnZxc1tWSE9TVF9URVNUX1ZRXTsKPiAgIAluLT52
+cXNbVkhPU1RfVEVTVF9WUV0uaGFuZGxlX2tpY2sgPSBoYW5kbGVfdnFfa2ljazsKPiAgIAl2aG9z
+dF9kZXZfaW5pdChkZXYsIHZxcywgVkhPU1RfVEVTVF9WUV9NQVgsIFVJT19NQVhJT1YgKyA2NCwK
+PiAtCQkgICAgICAgVkhPU1RfVEVTVF9QS1RfV0VJR0hULCBWSE9TVF9URVNUX1dFSUdIVCwgTlVM
+TCk7Cj4gKwkJICAgICAgIFZIT1NUX1RFU1RfUEtUX1dFSUdIVCwgVkhPU1RfVEVTVF9XRUlHSFQs
+IHRydWUsIE5VTEwpOwo+ICAgCj4gICAJZi0+cHJpdmF0ZV9kYXRhID0gbjsKPiAgIAoKCkFja2Vk
+LWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgoKSnVzdCB0byBjb25maXJtLCBo
+YXZlIHlvdSBxdWV1ZWQgdGhlIGRvb3JiZWxsIG1hcHBpbmcgcGF0Y2hlcyBhbHJlYWR5PyAKT3Ig
+eW91IGV4cGVjdCBJIHNxdWFzaCB0aGlzIGludG8gdjIgb2YgZG9vcmJlbGwgbWFwcGluZyBzZXJp
+ZXM/CgpUaGFua3MKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
+eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
+bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
