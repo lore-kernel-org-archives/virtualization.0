@@ -1,81 +1,43 @@
-From: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Subject: Re: [PATCH v2] mm/balloon_compaction: Fix trivial spelling
-Date: Wed, 10 Jun 2020 10:06:20 +0100
-Message-ID: <731a9af2-57eb-3b4e-458e-b652df446d04@ideasonboard.com>
-References: <20200609124610.3445662-16-kieran.bingham+renesas@ideasonboard.com>
- <20200609143412.3456484-1-kieran.bingham+renesas@ideasonboard.com>
- <6b13243c-db22-ef33-8aed-9b385cc10b58@cogentembedded.com>
-Reply-To: kieran.bingham+renesas@ideasonboard.com
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio-mem: silence a static checker warning
+Date: Wed, 10 Jun 2020 05:39:19 -0400
+Message-ID: <20200610053912-mutt-send-email-mst@kernel.org>
+References: <20200610085911.GC5439@mwanda>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-renesas-soc-owner@vger.kernel.org>
-In-Reply-To: <6b13243c-db22-ef33-8aed-9b385cc10b58@cogentembedded.com>
-Content-Language: en-GB
-Sender: linux-renesas-soc-owner@vger.kernel.org
-To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, Kieran Bingham <kieran.bingham@ideasonboard.com>, David Hildenbrand <david@redhat.com>
-Cc: linux-renesas-soc@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Jiri Kosina <trivial@kernel.org>, "open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux-foundation.org>, "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>, open list <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kernel-janitors-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200610085911.GC5439@mwanda>
+Sender: kernel-janitors-owner@vger.kernel.org
+To: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: David Hildenbrand <david@redhat.com>, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kernel-janitors@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Sergei,
-
-On 10/06/2020 10:00, Sergei Shtylyov wrote:
-> Hello!
+On Wed, Jun 10, 2020 at 11:59:11AM +0300, Dan Carpenter wrote:
+> Smatch complains that "rc" can be uninitialized if we hit the "break;"
+> statement on the first iteration through the loop.  I suspect that this
+> can't happen in real life, but returning a zero literal is cleaner and
+> silence the static checker warning.
 > 
-> On 09.06.2020 17:34, Kieran Bingham wrote:
-> 
->> The word 'descriptor' is misspelled throughout the tree.
->>
->> Fix it up accordingly:
->>      decriptors -> descriptors
-> 
->       decriptor -> descriptor really. ;-)
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> ---
+>  drivers/virtio/virtio_mem.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-Ayeee ... that's what I get for doing a batch fixup ...
+Applied, thanks.
 
-Which - I believe I probably actually did a sed conversion on decriptor,
-anyway, so I'm not even sure why the commit messages ended up all
-pluralised ;-)
-
-Thanks for the highlight, I'll fix up in any resends.
---
-Kieran
-
-
-
->> Signed-off-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
->> Reviewed-by: David Hildenbrand <david@redhat.com>
->> ---
->>   mm/balloon_compaction.c | 4 ++--
->>   1 file changed, 2 insertions(+), 2 deletions(-)
->>
->> diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
->> index 26de020aae7b..907fefde2572 100644
->> --- a/mm/balloon_compaction.c
->> +++ b/mm/balloon_compaction.c
->> @@ -58,7 +58,7 @@ EXPORT_SYMBOL_GPL(balloon_page_list_enqueue);
->>   /**
->>    * balloon_page_list_dequeue() - removes pages from balloon's page
->> list and
->>    *                 returns a list of the pages.
->> - * @b_dev_info: balloon device decriptor where we will grab a page from.
->> + * @b_dev_info: balloon device descriptor where we will grab a page
->> from.
->>    * @pages: pointer to the list of pages that would be returned to
->> the caller.
->>    * @n_req_pages: number of requested pages.
->>    *
->> @@ -157,7 +157,7 @@ EXPORT_SYMBOL_GPL(balloon_page_enqueue);
->>   /*
->>    * balloon_page_dequeue - removes a page from balloon's page list
->> and returns
->>    *              its address to allow the driver to release the page.
->> - * @b_dev_info: balloon device decriptor where we will grab a page from.
->> + * @b_dev_info: balloon device descriptor where we will grab a page
->> from.
->>    *
->>    * Driver must call this function to properly dequeue a previously
->> enqueued page
->>    * before definitively releasing it back to the guest system.
-> 
-> MBR, Sergei
+> diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
+> index f658fe9149beb..893ef18060a02 100644
+> --- a/drivers/virtio/virtio_mem.c
+> +++ b/drivers/virtio/virtio_mem.c
+> @@ -1192,7 +1192,7 @@ static int virtio_mem_mb_plug_any_sb(struct virtio_mem *vm, unsigned long mb_id,
+>  						VIRTIO_MEM_MB_STATE_OFFLINE);
+>  	}
+>  
+> -	return rc;
+> +	return 0;
+>  }
+>  
+>  /*
+> -- 
+> 2.26.2
