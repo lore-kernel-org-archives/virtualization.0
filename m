@@ -1,108 +1,91 @@
-From: Eugenio =?ISO-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
-Subject: Re: [PATCH RFC v7 04/14] vhost/net: pass net specific struct pointer
-Date: Wed, 10 Jun 2020 17:13:48 +0200
-Message-ID: <f2e20055215fcfb63eb4839644c1578b21aeded9.camel@redhat.com>
-References: <20200610113515.1497099-1-mst@redhat.com>
-         <20200610113515.1497099-5-mst@redhat.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: Re: [PATCH] s390: protvirt: virtio: Refuse device without IOMMU
+Date: Wed, 10 Jun 2020 17:27:01 +0200
+Message-ID: <8b15139d-cd38-0861-1510-9a53530a4637@linux.ibm.com>
+References: <1591794711-5915-1-git-send-email-pmorel@linux.ibm.com>
+ <20200610152431.358fded7.cohuck@redhat.com>
+ <54b28498-a6a7-4be2-9d2c-aef46c7fc642@linux.ibm.com>
+ <20200610165305.1a34c548.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200610113515.1497099-5-mst@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20200610165305.1a34c548.cohuck@redhat.com>
+Content-Language: en-US
+Sender: kvm-owner@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2020-06-10 at 07:36 -0400, Michael S. Tsirkin wrote:
-> In preparation for further cleanup, pass net specific pointer
-> to ubuf callbacks so we can move net specific fields
-> out to net structures.
+
+
+On 2020-06-10 16:53, Cornelia Huck wrote:
+> On Wed, 10 Jun 2020 16:37:55 +0200
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
 > 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/vhost/net.c | 14 +++++++-------
->  1 file changed, 7 insertions(+), 7 deletions(-)
+>> On 2020-06-10 15:24, Cornelia Huck wrote:
+>>> On Wed, 10 Jun 2020 15:11:51 +0200
+>>> Pierre Morel <pmorel@linux.ibm.com> wrote:
+>>>    
+>>>> Protected Virtualisation protects the memory of the guest and
+>>>> do not allow a the host to access all of its memory.
+>>>>
+>>>> Let's refuse a VIRTIO device which does not use IOMMU
+>>>> protected access.
+>>>>
+>>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>>>> ---
+>>>>    drivers/s390/virtio/virtio_ccw.c | 5 +++++
+>>>>    1 file changed, 5 insertions(+)
+>>>>
+>>>> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+>>>> index 5730572b52cd..06ffbc96587a 100644
+>>>> --- a/drivers/s390/virtio/virtio_ccw.c
+>>>> +++ b/drivers/s390/virtio/virtio_ccw.c
+>>>> @@ -986,6 +986,11 @@ static void virtio_ccw_set_status(struct virtio_device *vdev, u8 status)
+>>>>    	if (!ccw)
+>>>>    		return;
+>>>>    
+>>>> +	/* Protected Virtualisation guest needs IOMMU */
+>>>> +	if (is_prot_virt_guest() &&
+>>>> +	    !__virtio_test_bit(vdev, VIRTIO_F_IOMMU_PLATFORM))
+>>>> +			status &= ~VIRTIO_CONFIG_S_FEATURES_OK;
+>>>> +
+>>>
+>>> set_status seems like an odd place to look at features; shouldn't that
+>>> rather be done in finalize_features?
+>>
+>> Right, looks better to me too.
+>> What about:
+>>
+>>
+>>
+>> diff --git a/drivers/s390/virtio/virtio_ccw.c
+>> b/drivers/s390/virtio/virtio_ccw.c
+>> index 06ffbc96587a..227676297ea0 100644
+>> --- a/drivers/s390/virtio/virtio_ccw.c
+>> +++ b/drivers/s390/virtio/virtio_ccw.c
+>> @@ -833,6 +833,11 @@ static int virtio_ccw_finalize_features(struct
+>> virtio_device *vdev)
+>>                   ret = -ENOMEM;
+>>                   goto out_free;
+>>           }
+>> +
+>> +       if (is_prot_virt_guest() &&
+>> +           !__virtio_test_bit(vdev, VIRTIO_F_IOMMU_PLATFORM))
 > 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index bf5e1d81ae25..ff594eec8ae3 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -94,7 +94,7 @@ struct vhost_net_ubuf_ref {
->  	 */
->  	atomic_t refcount;
->  	wait_queue_head_t wait;
-> -	struct vhost_virtqueue *vq;
-> +	struct vhost_net_virtqueue *nvq;
->  };
->  
->  #define VHOST_NET_BATCH 64
-> @@ -231,7 +231,7 @@ static void vhost_net_enable_zcopy(int vq)
->  }
->  
->  static struct vhost_net_ubuf_ref *
-> -vhost_net_ubuf_alloc(struct vhost_virtqueue *vq, bool zcopy)
-> +vhost_net_ubuf_alloc(struct vhost_net_virtqueue *nvq, bool zcopy)
->  {
->  	struct vhost_net_ubuf_ref *ubufs;
->  	/* No zero copy backend? Nothing to count. */
-> @@ -242,7 +242,7 @@ vhost_net_ubuf_alloc(struct vhost_virtqueue *vq, bool zcopy)
->  		return ERR_PTR(-ENOMEM);
->  	atomic_set(&ubufs->refcount, 1);
->  	init_waitqueue_head(&ubufs->wait);
-> -	ubufs->vq = vq;
-> +	ubufs->nvq = nvq;
->  	return ubufs;
->  }
->  
-> @@ -384,13 +384,13 @@ static void vhost_zerocopy_signal_used(struct vhost_net *net,
->  static void vhost_zerocopy_callback(struct ubuf_info *ubuf, bool success)
->  {
->  	struct vhost_net_ubuf_ref *ubufs = ubuf->ctx;
-> -	struct vhost_virtqueue *vq = ubufs->vq;
-> +	struct vhost_net_virtqueue *nvq = ubufs->nvq;
->  	int cnt;
->  
->  	rcu_read_lock_bh();
->  
->  	/* set len to mark this desc buffers done DMA */
-> -	vq->heads[ubuf->desc].len = success ?
-> +	nvq->vq.heads[ubuf->desc].in_len = success ?
+> Add a comment, and (maybe) a message?
+> 
+> Otherwise, I think this is fine, as it should fail the probe, which is
+> what we want.
 
-Not like this matter a lot, because it will be override in next patches of the series, but `.len` has been replaced by
-`.in_len`, making compiler complain. This fixes it:
+yes right a message is needed.
+and I extend a little the comment I had before.
+thanks
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index ff594eec8ae3..fdecf39c9ac9 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -390,7 +390,7 @@ static void vhost_zerocopy_callback(struct ubuf_info *ubuf, bool success)
-        rcu_read_lock_bh();
- 
-        /* set len to mark this desc buffers done DMA */
--       nvq->vq.heads[ubuf->desc].in_len = success ?
-+       nvq->vq.heads[ubuf->desc].len = success ?
-                VHOST_DMA_DONE_LEN : VHOST_DMA_FAILED_LEN;
-        cnt = vhost_net_ubuf_put(ubufs);
+Regards,
+Pierre
 
->  		VHOST_DMA_DONE_LEN : VHOST_DMA_FAILED_LEN;
->  	cnt = vhost_net_ubuf_put(ubufs);
->  
-> @@ -402,7 +402,7 @@ static void vhost_zerocopy_callback(struct ubuf_info *ubuf, bool success)
->  	 * less than 10% of times).
->  	 */
->  	if (cnt <= 1 || !(cnt % 16))
-> -		vhost_poll_queue(&vq->poll);
-> +		vhost_poll_queue(&nvq->vq.poll);
->  
->  	rcu_read_unlock_bh();
->  }
-> @@ -1525,7 +1525,7 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
->  	/* start polling new socket */
->  	oldsock = vhost_vq_get_backend(vq);
->  	if (sock != oldsock) {
-> -		ubufs = vhost_net_ubuf_alloc(vq,
-> +		ubufs = vhost_net_ubuf_alloc(nvq,
->  					     sock && vhost_sock_zcopy(sock));
->  		if (IS_ERR(ubufs)) {
->  			r = PTR_ERR(ubufs);
+-- 
+Pierre Morel
+IBM Lab Boeblingen
