@@ -1,88 +1,134 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH] s390: protvirt: virtio: Refuse device without IOMMU
-Date: Wed, 10 Jun 2020 16:53:05 +0200
-Message-ID: <20200610165305.1a34c548.cohuck@redhat.com>
-References: <1591794711-5915-1-git-send-email-pmorel@linux.ibm.com>
-        <20200610152431.358fded7.cohuck@redhat.com>
-        <54b28498-a6a7-4be2-9d2c-aef46c7fc642@linux.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH RFC v7 03/14] vhost: use batched get_vq_desc version
+Date: Wed, 10 Jun 2020 11:08:02 -0400
+Message-ID: <20200610105829-mutt-send-email-mst@kernel.org>
+References: <20200610113515.1497099-1-mst@redhat.com>
+ <20200610113515.1497099-4-mst@redhat.com>
+ <035e82bcf4ade0017641c5b457d0c628c5915732.camel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <54b28498-a6a7-4be2-9d2c-aef46c7fc642@linux.ibm.com>
+Content-Disposition: inline
+In-Reply-To: <035e82bcf4ade0017641c5b457d0c628c5915732.camel@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Pierre Morel <pmorel@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 10 Jun 2020 16:37:55 +0200
-Pierre Morel <pmorel@linux.ibm.com> wrote:
-
-> On 2020-06-10 15:24, Cornelia Huck wrote:
-> > On Wed, 10 Jun 2020 15:11:51 +0200
-> > Pierre Morel <pmorel@linux.ibm.com> wrote:
-> >   
-> >> Protected Virtualisation protects the memory of the guest and
-> >> do not allow a the host to access all of its memory.
-> >>
-> >> Let's refuse a VIRTIO device which does not use IOMMU
-> >> protected access.
-> >>
-> >> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> >> ---
-> >>   drivers/s390/virtio/virtio_ccw.c | 5 +++++
-> >>   1 file changed, 5 insertions(+)
-> >>
-> >> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> >> index 5730572b52cd..06ffbc96587a 100644
-> >> --- a/drivers/s390/virtio/virtio_ccw.c
-> >> +++ b/drivers/s390/virtio/virtio_ccw.c
-> >> @@ -986,6 +986,11 @@ static void virtio_ccw_set_status(struct virtio_device *vdev, u8 status)
-> >>   	if (!ccw)
-> >>   		return;
-> >>   
-> >> +	/* Protected Virtualisation guest needs IOMMU */
-> >> +	if (is_prot_virt_guest() &&
-> >> +	    !__virtio_test_bit(vdev, VIRTIO_F_IOMMU_PLATFORM))
-> >> +			status &= ~VIRTIO_CONFIG_S_FEATURES_OK;
-> >> +  
+On Wed, Jun 10, 2020 at 04:29:29PM +0200, Eugenio Pérez wrote:
+> On Wed, 2020-06-10 at 07:36 -0400, Michael S. Tsirkin wrote:
+> > As testing shows no performance change, switch to that now.
 > > 
-> > set_status seems like an odd place to look at features; shouldn't that
-> > rather be done in finalize_features?  
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
+> > Link: https://lore.kernel.org/r/20200401183118.8334-3-eperezma@redhat.com
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > ---
+> >  drivers/vhost/test.c  |   2 +-
+> >  drivers/vhost/vhost.c | 318 ++++++++----------------------------------
+> >  drivers/vhost/vhost.h |   7 +-
+> >  3 files changed, 65 insertions(+), 262 deletions(-)
+> > 
+> > diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
+> > index 0466921f4772..7d69778aaa26 100644
+> > --- a/drivers/vhost/test.c
+> > +++ b/drivers/vhost/test.c
+> > @@ -119,7 +119,7 @@ static int vhost_test_open(struct inode *inode, struct file *f)
+> >  	dev = &n->dev;
+> >  	vqs[VHOST_TEST_VQ] = &n->vqs[VHOST_TEST_VQ];
+> >  	n->vqs[VHOST_TEST_VQ].handle_kick = handle_vq_kick;
+> > -	vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX, UIO_MAXIOV,
+> > +	vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX, UIO_MAXIOV + 64,
+> >  		       VHOST_TEST_PKT_WEIGHT, VHOST_TEST_WEIGHT, true, NULL);
+> >  
+> >  	f->private_data = n;
+> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> > index 11433d709651..28f324fd77df 100644
+> > --- a/drivers/vhost/vhost.c
+> > +++ b/drivers/vhost/vhost.c
+> > @@ -304,6 +304,7 @@ static void vhost_vq_reset(struct vhost_dev *dev,
+> >  {
+> >  	vq->num = 1;
+> >  	vq->ndescs = 0;
+> > +	vq->first_desc = 0;
+> >  	vq->desc = NULL;
+> >  	vq->avail = NULL;
+> >  	vq->used = NULL;
+> > @@ -372,6 +373,11 @@ static int vhost_worker(void *data)
+> >  	return 0;
+> >  }
+> >  
+> > +static int vhost_vq_num_batch_descs(struct vhost_virtqueue *vq)
+> > +{
+> > +	return vq->max_descs - UIO_MAXIOV;
+> > +}
+> > +
+> >  static void vhost_vq_free_iovecs(struct vhost_virtqueue *vq)
+> >  {
+> >  	kfree(vq->descs);
+> > @@ -394,6 +400,9 @@ static long vhost_dev_alloc_iovecs(struct vhost_dev *dev)
+> >  	for (i = 0; i < dev->nvqs; ++i) {
+> >  		vq = dev->vqs[i];
+> >  		vq->max_descs = dev->iov_limit;
+> > +		if (vhost_vq_num_batch_descs(vq) < 0) {
+> > +			return -EINVAL;
+> > +		}
+> >  		vq->descs = kmalloc_array(vq->max_descs,
+> >  					  sizeof(*vq->descs),
+> >  					  GFP_KERNEL);
+> > @@ -1610,6 +1619,7 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *arg
+> >  		vq->last_avail_idx = s.num;
+> >  		/* Forget the cached index value. */
+> >  		vq->avail_idx = vq->last_avail_idx;
+> > +		vq->ndescs = vq->first_desc = 0;
 > 
-> Right, looks better to me too.
-> What about:
+> This is not needed if it is done in vhost_vq_set_backend, as far as I can tell.
 > 
+> Actually, maybe it is even better to move `vq->avail_idx = vq->last_avail_idx;` line to vhost_vq_set_backend, it is part
+> of the backend "set up" procedure, isn't it?
 > 
-> 
-> diff --git a/drivers/s390/virtio/virtio_ccw.c 
-> b/drivers/s390/virtio/virtio_ccw.c
-> index 06ffbc96587a..227676297ea0 100644
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -833,6 +833,11 @@ static int virtio_ccw_finalize_features(struct 
-> virtio_device *vdev)
->                  ret = -ENOMEM;
->                  goto out_free;
->          }
-> +
-> +       if (is_prot_virt_guest() &&
-> +           !__virtio_test_bit(vdev, VIRTIO_F_IOMMU_PLATFORM))
+> I tested with virtio_test + batch tests sent in 
+> https://lkml.kernel.org/lkml/20200418102217.32327-1-eperezma@redhat.com/T/.
 
-Add a comment, and (maybe) a message?
+Ow did I forget to merge them for rc1?  Should I have? Maybe Linus won't
+yell to hard at me if I merge them after rc1.
 
-Otherwise, I think this is fine, as it should fail the probe, which is
-what we want.
 
-> +               return -EIO;
-> +
->          /* Give virtio_ring a chance to accept features. */
->          vring_transport_features(vdev);
+> I append here what I'm proposing in case it is clearer this way.
 > 
+> Thanks!
 > 
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 4d198994e7be..809ad2cd2879 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -1617,9 +1617,6 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *arg
+>  			break;
+>  		}
+>  		vq->last_avail_idx = s.num;
+> -		/* Forget the cached index value. */
+> -		vq->avail_idx = vq->last_avail_idx;
+> -		vq->ndescs = vq->first_desc = 0;
+>  		break;
+>  	case VHOST_GET_VRING_BASE:
+>  		s.index = idx;
+> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+> index fed36af5c444..f4902dc808e4 100644
+> --- a/drivers/vhost/vhost.h
+> +++ b/drivers/vhost/vhost.h
+> @@ -258,6 +258,7 @@ static inline void vhost_vq_set_backend(struct vhost_virtqueue *vq,
+>  					void *private_data)
+>  {
+>  	vq->private_data = private_data;
+> +	vq->avail_idx = vq->last_avail_idx;
+>  	vq->ndescs = 0;
+>  	vq->first_desc = 0;
+>  }
 > 
-> Thanks,
-> 
-> Regards,
-> Pierre
-> 
+
+Seems like a nice cleanup, though it's harmless right?
+
+
+-- 
+MST
