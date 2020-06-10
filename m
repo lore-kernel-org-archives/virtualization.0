@@ -1,58 +1,59 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
 Subject: Re: [PATCH RESEND V2] vdpa: introduce virtio pci driver
-Date: Wed, 10 Jun 2020 02:21:13 -0400
-Message-ID: <20200610022030-mutt-send-email-mst@kernel.org>
+Date: Wed, 10 Jun 2020 14:29:01 +0800
+Message-ID: <be938f8f-8f98-b55e-34b8-b0faf560ef30@redhat.com>
 References: <20200610054951.16197-1-jasowang@redhat.com>
  <20200610020728-mutt-send-email-mst@kernel.org>
  <0964bd2d-8329-a091-41ed-a9b912ec4283@redhat.com>
+ <20200610022030-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <0964bd2d-8329-a091-41ed-a9b912ec4283@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, rob.miller@broadcom.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com, zhangweining@ruijie.com.cn, eli@mellanox.com
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200610022030-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: shahafs@mellanox.com, lulu@redhat.com, saugatm@xilinx.com, mhabets@solarflare.com, vmireyno@marvell.com, linux-kernel@vger.kernel.org, gdawar@xilinx.com, virtualization@lists.linux-foundation.org, eperezma@redhat.com, hanand@xilinx.com, zhangweining@ruijie.com.cn, eli@mellanox.com, lingshan.zhu@intel.com, rob.miller@broadcom.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 10, 2020 at 02:16:26PM +0800, Jason Wang wrote:
-> 
-> On 2020/6/10 下午2:07, Michael S. Tsirkin wrote:
-> > On Wed, Jun 10, 2020 at 01:49:51PM +0800, Jason Wang wrote:
-> > > This patch introduce a vDPA driver for virtio-pci device. It bridges
-> > > the virtio-pci control command to the vDPA bus. This will be used for
-> > > developing new features for both software vDPA framework and hardware
-> > > vDPA feature.
-> > > 
-> > > Compared to vdpa_sim, it has several advantages:
-> > > 
-> > > - it's a real device driver which allow us to play with real hardware
-> > >    features
-> > > - type independent instead of networking specific
-> > > 
-> > > Note that since virtio specification does not support get/restore
-> > > virtqueue state. So we can not use this driver for VM. This can be
-> > > addressed by extending the virtio specification.
-> > > 
-> > > Consider the driver is mainly for testing and development for vDPA
-> > > features, it can only be bound via dynamic ids to make sure it's not
-> > > conflict with the drivers like virtio-pci or IFCVF.
-> > > 
-> > > Signed-off-by: Jason Wang<jasowang@redhat.com>
-> > error: sha1 information is lacking or useless (drivers/vdpa/Kconfig).
-> > 
-> > which tree is this on top of?
-> 
-> 
-> Your vhost.git vhost branch, HEAD is bbea3bcfd1d6 vdpa: fix typos in the
-> comments for __vdpa_alloc_device()
-> 
-> Do I need to use other branch?
-> 
-> Thanks
-
-No it's ok, I am just wondering why doesn't it apply then.
-
-> 
-> > 
+Ck9uIDIwMjAvNi8xMCDkuIvljYgyOjIxLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gT24g
+V2VkLCBKdW4gMTAsIDIwMjAgYXQgMDI6MTY6MjZQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToK
+Pj4gT24gMjAyMC82LzEwIOS4i+WNiDI6MDcsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPj4+
+IE9uIFdlZCwgSnVuIDEwLCAyMDIwIGF0IDAxOjQ5OjUxUE0gKzA4MDAsIEphc29uIFdhbmcgd3Jv
+dGU6Cj4+Pj4gVGhpcyBwYXRjaCBpbnRyb2R1Y2UgYSB2RFBBIGRyaXZlciBmb3IgdmlydGlvLXBj
+aSBkZXZpY2UuIEl0IGJyaWRnZXMKPj4+PiB0aGUgdmlydGlvLXBjaSBjb250cm9sIGNvbW1hbmQg
+dG8gdGhlIHZEUEEgYnVzLiBUaGlzIHdpbGwgYmUgdXNlZCBmb3IKPj4+PiBkZXZlbG9waW5nIG5l
+dyBmZWF0dXJlcyBmb3IgYm90aCBzb2Z0d2FyZSB2RFBBIGZyYW1ld29yayBhbmQgaGFyZHdhcmUK
+Pj4+PiB2RFBBIGZlYXR1cmUuCj4+Pj4KPj4+PiBDb21wYXJlZCB0byB2ZHBhX3NpbSwgaXQgaGFz
+IHNldmVyYWwgYWR2YW50YWdlczoKPj4+Pgo+Pj4+IC0gaXQncyBhIHJlYWwgZGV2aWNlIGRyaXZl
+ciB3aGljaCBhbGxvdyB1cyB0byBwbGF5IHdpdGggcmVhbCBoYXJkd2FyZQo+Pj4+ICAgICBmZWF0
+dXJlcwo+Pj4+IC0gdHlwZSBpbmRlcGVuZGVudCBpbnN0ZWFkIG9mIG5ldHdvcmtpbmcgc3BlY2lm
+aWMKPj4+Pgo+Pj4+IE5vdGUgdGhhdCBzaW5jZSB2aXJ0aW8gc3BlY2lmaWNhdGlvbiBkb2VzIG5v
+dCBzdXBwb3J0IGdldC9yZXN0b3JlCj4+Pj4gdmlydHF1ZXVlIHN0YXRlLiBTbyB3ZSBjYW4gbm90
+IHVzZSB0aGlzIGRyaXZlciBmb3IgVk0uIFRoaXMgY2FuIGJlCj4+Pj4gYWRkcmVzc2VkIGJ5IGV4
+dGVuZGluZyB0aGUgdmlydGlvIHNwZWNpZmljYXRpb24uCj4+Pj4KPj4+PiBDb25zaWRlciB0aGUg
+ZHJpdmVyIGlzIG1haW5seSBmb3IgdGVzdGluZyBhbmQgZGV2ZWxvcG1lbnQgZm9yIHZEUEEKPj4+
+PiBmZWF0dXJlcywgaXQgY2FuIG9ubHkgYmUgYm91bmQgdmlhIGR5bmFtaWMgaWRzIHRvIG1ha2Ug
+c3VyZSBpdCdzIG5vdAo+Pj4+IGNvbmZsaWN0IHdpdGggdGhlIGRyaXZlcnMgbGlrZSB2aXJ0aW8t
+cGNpIG9yIElGQ1ZGLgo+Pj4+Cj4+Pj4gU2lnbmVkLW9mZi1ieTogSmFzb24gV2FuZzxqYXNvd2Fu
+Z0ByZWRoYXQuY29tPgo+Pj4gZXJyb3I6IHNoYTEgaW5mb3JtYXRpb24gaXMgbGFja2luZyBvciB1
+c2VsZXNzIChkcml2ZXJzL3ZkcGEvS2NvbmZpZykuCj4+Pgo+Pj4gd2hpY2ggdHJlZSBpcyB0aGlz
+IG9uIHRvcCBvZj8KPj4KPj4gWW91ciB2aG9zdC5naXQgdmhvc3QgYnJhbmNoLCBIRUFEIGlzIGJi
+ZWEzYmNmZDFkNiB2ZHBhOiBmaXggdHlwb3MgaW4gdGhlCj4+IGNvbW1lbnRzIGZvciBfX3ZkcGFf
+YWxsb2NfZGV2aWNlKCkKPj4KPj4gRG8gSSBuZWVkIHRvIHVzZSBvdGhlciBicmFuY2g/Cj4+Cj4+
+IFRoYW5rcwo+IE5vIGl0J3Mgb2ssIEkgYW0ganVzdCB3b25kZXJpbmcgd2h5IGRvZXNuJ3QgaXQg
+YXBwbHkgdGhlbi4KCgpJIGZvdW5kIHRoZSByZWFzb24sIEkgZ2VuZXJhdGUgdGhlIHBhdGNoIG9u
+IGFub3RoZXIgYnJhbmNoIHdob3NlIGJhc2UgCmRvZXMgbm90IGV4aXN0ZWQgaW4gdGhlIHZob3N0
+IGJyYW5jaC4gV2lsbCByZXBvc3QuCgpTb3JyeS4KCgo+CgpfX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
+dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
+eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
