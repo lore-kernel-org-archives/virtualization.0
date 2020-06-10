@@ -1,95 +1,35 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC v7 00/14] vhost: ring format independence
-Date: Wed, 10 Jun 2020 07:35:44 -0400
-Message-ID: <20200610113515.1497099-1-mst@redhat.com>
+Subject: [PATCH RFC v7 02/14] fixup! vhost: option to fetch descriptors
+ through an independent struct
+Date: Wed, 10 Jun 2020 07:35:59 -0400
+Message-ID: <20200610113515.1497099-3-mst@redhat.com>
+References: <20200610113515.1497099-1-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <netdev-owner@vger.kernel.org>
+Return-path: <kvm-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: netdev-owner@vger.kernel.org
+In-Reply-To: <20200610113515.1497099-1-mst@redhat.com>
+Sender: kvm-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
 Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>, eperezma@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This intentionally leaves "fixup" changes separate - hopefully
-that is enough to fix vhost-net crashes reported here,
-but it helps me keep track of what changed.
-I will naturally squash them later when we are done.
+---
+ drivers/vhost/vhost.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-
-This adds infrastructure required for supporting
-multiple ring formats.
-
-The idea is as follows: we convert descriptors to an
-independent format first, and process that converting to
-iov later.
-
-Used ring is similar: we fetch into an independent struct first,
-convert that to IOV later.
-
-The point is that we have a tight loop that fetches
-descriptors, which is good for cache utilization.
-This will also allow all kind of batching tricks -
-e.g. it seems possible to keep SMAP disabled while
-we are fetching multiple descriptors.
-
-For used descriptors, this allows keeping track of the buffer length
-without need to rescan IOV.
-
-This seems to perform exactly the same as the original
-code based on a microbenchmark.
-Lightly tested.
-More testing would be very much appreciated.
-
-changes from v6:
-	- fixes some bugs introduced in v6 and v5
-
-changes from v5:
-	- addressed comments by Jason: squashed API changes, fixed up discard
-
-changes from v4:
-	- added used descriptor format independence
-	- addressed comments by jason
-	- fixed a crash detected by the lkp robot.
-
-changes from v3:
-        - fixed error handling in case of indirect descriptors
-        - add BUG_ON to detect buffer overflow in case of bugs
-                in response to comment by Jason Wang
-        - minor code tweaks
-
-Changes from v2:
-	- fixed indirect descriptor batching
-                reported by Jason Wang
-
-Changes from v1:
-	- typo fixes
-
-
-Michael S. Tsirkin (14):
-  vhost: option to fetch descriptors through an independent struct
-  fixup! vhost: option to fetch descriptors through an independent
-    struct
-  vhost: use batched get_vq_desc version
-  vhost/net: pass net specific struct pointer
-  vhost: reorder functions
-  vhost: format-independent API for used buffers
-  fixup! vhost: format-independent API for used buffers
-  fixup! vhost: use batched get_vq_desc version
-  vhost/net: convert to new API: heads->bufs
-  vhost/net: avoid iov length math
-  vhost/test: convert to the buf API
-  vhost/scsi: switch to buf APIs
-  vhost/vsock: switch to the buf API
-  vhost: drop head based APIs
-
- drivers/vhost/net.c   | 174 +++++++++----------
- drivers/vhost/scsi.c  |  73 ++++----
- drivers/vhost/test.c  |  22 +--
- drivers/vhost/vhost.c | 378 +++++++++++++++++++++++++++---------------
- drivers/vhost/vhost.h |  44 +++--
- drivers/vhost/vsock.c |  30 ++--
- 6 files changed, 439 insertions(+), 282 deletions(-)
-
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 180b7b58c76b..11433d709651 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -2614,7 +2614,7 @@ int vhost_get_vq_desc_batch(struct vhost_virtqueue *vq,
+ err_fetch:
+ 	vq->ndescs = 0;
+ 
+-	return ret;
++	return ret ? ret : vq->num;
+ }
+ EXPORT_SYMBOL_GPL(vhost_get_vq_desc_batch);
+ 
 -- 
 MST
