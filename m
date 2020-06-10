@@ -1,38 +1,81 @@
-From: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: [PATCH] vhost_vdpa: Fix potential underflow in vhost_vdpa_mmap()
-Date: Wed, 10 Jun 2020 11:58:52 +0300
-Message-ID: <20200610085852.GB5439@mwanda>
+From: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Subject: Re: [PATCH v2] mm/balloon_compaction: Fix trivial spelling
+Date: Wed, 10 Jun 2020 10:06:20 +0100
+Message-ID: <731a9af2-57eb-3b4e-458e-b652df446d04@ideasonboard.com>
+References: <20200609124610.3445662-16-kieran.bingham+renesas@ideasonboard.com>
+ <20200609143412.3456484-1-kieran.bingham+renesas@ideasonboard.com>
+ <6b13243c-db22-ef33-8aed-9b385cc10b58@cogentembedded.com>
+Reply-To: kieran.bingham+renesas@ideasonboard.com
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-Sender: kvm-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, kernel-janitors@vger.kernel.org
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+In-Reply-To: <6b13243c-db22-ef33-8aed-9b385cc10b58@cogentembedded.com>
+Content-Language: en-GB
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Sergei Shtylyov <sergei.shtylyov@cogentembedded.com>, Kieran Bingham <kieran.bingham@ideasonboard.com>, David Hildenbrand <david@redhat.com>
+Cc: linux-renesas-soc@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Jiri Kosina <trivial@kernel.org>, "open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux-foundation.org>, "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The "vma->vm_pgoff" variable is an unsigned long so if it's larger than
-INT_MAX then "index" can be negative leading to an underflow.  Fix this
-by changing the type of "index" to "unsigned long".
+Hi Sergei,
 
-Fixes: ddd89d0a059d ("vhost_vdpa: support doorbell mapping via mmap")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
----
- drivers/vhost/vdpa.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+On 10/06/2020 10:00, Sergei Shtylyov wrote:
+> Hello!
+> 
+> On 09.06.2020 17:34, Kieran Bingham wrote:
+> 
+>> The word 'descriptor' is misspelled throughout the tree.
+>>
+>> Fix it up accordingly:
+>>      decriptors -> descriptors
+> 
+>       decriptor -> descriptor really. ;-)
 
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index 7580e34f76c10..a54b60d6623f0 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -818,7 +818,7 @@ static int vhost_vdpa_mmap(struct file *file, struct vm_area_struct *vma)
- 	struct vdpa_device *vdpa = v->vdpa;
- 	const struct vdpa_config_ops *ops = vdpa->config;
- 	struct vdpa_notification_area notify;
--	int index = vma->vm_pgoff;
-+	unsigned long index = vma->vm_pgoff;
- 
- 	if (vma->vm_end - vma->vm_start != PAGE_SIZE)
- 		return -EINVAL;
--- 
-2.26.2
+Ayeee ... that's what I get for doing a batch fixup ...
+
+Which - I believe I probably actually did a sed conversion on decriptor,
+anyway, so I'm not even sure why the commit messages ended up all
+pluralised ;-)
+
+Thanks for the highlight, I'll fix up in any resends.
+--
+Kieran
+
+
+
+>> Signed-off-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+>> Reviewed-by: David Hildenbrand <david@redhat.com>
+>> ---
+>>   mm/balloon_compaction.c | 4 ++--
+>>   1 file changed, 2 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
+>> index 26de020aae7b..907fefde2572 100644
+>> --- a/mm/balloon_compaction.c
+>> +++ b/mm/balloon_compaction.c
+>> @@ -58,7 +58,7 @@ EXPORT_SYMBOL_GPL(balloon_page_list_enqueue);
+>>   /**
+>>    * balloon_page_list_dequeue() - removes pages from balloon's page
+>> list and
+>>    *                 returns a list of the pages.
+>> - * @b_dev_info: balloon device decriptor where we will grab a page from.
+>> + * @b_dev_info: balloon device descriptor where we will grab a page
+>> from.
+>>    * @pages: pointer to the list of pages that would be returned to
+>> the caller.
+>>    * @n_req_pages: number of requested pages.
+>>    *
+>> @@ -157,7 +157,7 @@ EXPORT_SYMBOL_GPL(balloon_page_enqueue);
+>>   /*
+>>    * balloon_page_dequeue - removes a page from balloon's page list
+>> and returns
+>>    *              its address to allow the driver to release the page.
+>> - * @b_dev_info: balloon device decriptor where we will grab a page from.
+>> + * @b_dev_info: balloon device descriptor where we will grab a page
+>> from.
+>>    *
+>>    * Driver must call this function to properly dequeue a previously
+>> enqueued page
+>>    * before definitively releasing it back to the guest system.
+> 
+> MBR, Sergei
