@@ -1,8 +1,7 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC v7 07/14] fixup! vhost: format-independent API for used
- buffers
-Date: Wed, 10 Jun 2020 07:36:13 -0400
-Message-ID: <20200610113515.1497099-8-mst@redhat.com>
+Subject: [PATCH RFC v7 08/14] fixup! vhost: use batched get_vq_desc version
+Date: Wed, 10 Jun 2020 07:36:16 -0400
+Message-ID: <20200610113515.1497099-9-mst@redhat.com>
 References: <20200610113515.1497099-1-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,49 +23,23 @@ Cc: netdev@vger.kernel.org, eperezma@redhat.com, kvm@vger.kernel.org, virtualiza
 List-Id: virtualization@lists.linuxfoundation.org
 
 ---
- drivers/vhost/vhost.c | 23 ++++++++++++++++++++++-
- 1 file changed, 22 insertions(+), 1 deletion(-)
+ drivers/vhost/vhost.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
 diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index e5763d81bf0f..7a587b13095c 100644
+index 7a587b13095c..03e6bca02288 100644
 --- a/drivers/vhost/vhost.c
 +++ b/drivers/vhost/vhost.c
-@@ -2421,7 +2421,7 @@ int vhost_get_avail_buf(struct vhost_virtqueue *vq, struct vhost_buf *buf,
- err:
- 	unfetch_descs(vq);
+@@ -2205,10 +2205,6 @@ static int fetch_buf(struct vhost_virtqueue *vq)
+ 	last_avail_idx = vq->last_avail_idx;
  
--	return ret ? ret : vq->num;
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(vhost_get_avail_buf);
- 
-@@ -2433,6 +2433,27 @@ void vhost_discard_avail_bufs(struct vhost_virtqueue *vq,
- }
- EXPORT_SYMBOL_GPL(vhost_discard_avail_bufs);
- 
-+/* This function returns the descriptor number found, or vq->num (which is
-+ * never a valid descriptor number) if none was found.  A negative code is
-+ * returned on error. */
-+int vhost_get_vq_desc(struct vhost_virtqueue *vq,
-+		      struct iovec iov[], unsigned int iov_size,
-+		      unsigned int *out_num, unsigned int *in_num,
-+		      struct vhost_log *log, unsigned int *log_num)
-+{
-+	struct vhost_buf buf;
-+	int ret = vhost_get_avail_buf(vq, &buf,
-+				      iov, iov_size, out_num, in_num,
-+				      log, log_num);
-+
-+	if (likely(ret > 0))
-+		return buf->id;
-+	if (likely(!ret))
-+		return vq->num;
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(vhost_get_vq_desc);
-+
- /* Reverse the effect of vhost_get_vq_desc. Useful for error handling. */
- void vhost_discard_vq_desc(struct vhost_virtqueue *vq, int n)
- {
+ 	if (unlikely(vq->avail_idx == vq->last_avail_idx)) {
+-		/* If we already have work to do, don't bother re-checking. */
+-		if (likely(vq->ndescs))
+-			return 1;
+-
+ 		if (unlikely(vhost_get_avail_idx(vq, &avail_idx))) {
+ 			vq_err(vq, "Failed to access avail idx at %p\n",
+ 				&vq->avail->idx);
 -- 
 MST
