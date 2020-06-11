@@ -1,71 +1,59 @@
-From: Tom Lendacky <thomas.lendacky@amd.com>
-Subject: Re: [PATCH v3 59/75] x86/sev-es: Handle MONITOR/MONITORX Events
-Date: Thu, 11 Jun 2020 14:33:12 -0500
-Message-ID: <eac2d02f-951c-16d4-d4f7-55357e790bcd@amd.com>
-References: <20200428151725.31091-1-joro@8bytes.org>
- <20200428151725.31091-60-joro@8bytes.org>
- <20200520063845.GC17090@linux.intel.com> <20200611131045.GE11924@8bytes.org>
- <20200611171305.GJ29918@linux.intel.com>
+From: "Derrick, Jonathan" <jonathan.derrick@intel.com>
+Subject: Re: [PATCH v3 1/2] PCI: vmd: Filter resource type bits from shadow
+ register
+Date: Thu, 11 Jun 2020 21:16:48 +0000
+Message-ID: <f1d36b8fc4ab7aacf6efca19303b04a5b4f8189c.camel@intel.com>
+References: <20200528030240.16024-1-jonathan.derrick@intel.com>
+         <20200528030240.16024-3-jonathan.derrick@intel.com>
+         <20200529103315.GC12270@e121166-lin.cambridge.arm.com>
+         <163e8cb37ece0c8daa6d6e5fd7fcae47ba4fa437.camel@intel.com>
+         <20200529161824.GA17642@e121166-lin.cambridge.arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200611171305.GJ29918@linux.intel.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <linux-pci-owner@vger.kernel.org>
+In-Reply-To: <20200529161824.GA17642@e121166-lin.cambridge.arm.com>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Sean Christopherson <sean.j.christopherson@intel.com>, Joerg Roedel <joro@8bytes.org>
-Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-ID: <66D5545A7F2B504AB19EF890BBF933F1@intel.com>
+Sender: linux-pci-owner@vger.kernel.org
+To: "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>
+Cc: "hch@lst.de" <hch@lst.de>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "helgaas@kernel.org" <helgaas@kernel.org>, "andrzej.jakowski@linux.intel.com" <andrzej.jakowski@linux.intel.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "alex.williamson@redhat.com" <alex.williamson@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On 6/11/20 12:13 PM, Sean Christopherson wrote:
-> On Thu, Jun 11, 2020 at 03:10:45PM +0200, Joerg Roedel wrote:
->> On Tue, May 19, 2020 at 11:38:45PM -0700, Sean Christopherson wrote:
->>> On Tue, Apr 28, 2020 at 05:17:09PM +0200, Joerg Roedel wrote:
->>>> +static enum es_result vc_handle_monitor(struct ghcb *ghcb,
->>>> +					struct es_em_ctxt *ctxt)
->>>> +{
->>>> +	phys_addr_t monitor_pa;
->>>> +	pgd_t *pgd;
->>>> +
->>>> +	pgd = __va(read_cr3_pa());
->>>> +	monitor_pa = vc_slow_virt_to_phys(ghcb, ctxt->regs->ax);
->>>> +
->>>> +	ghcb_set_rax(ghcb, monitor_pa);
->>>> +	ghcb_set_rcx(ghcb, ctxt->regs->cx);
->>>> +	ghcb_set_rdx(ghcb, ctxt->regs->dx);
->>>> +
->>>> +	return sev_es_ghcb_hv_call(ghcb, ctxt, SVM_EXIT_MONITOR, 0, 0);
->>>
->>> Why?  If SVM has the same behavior as VMX, the MONITOR will be disarmed on
->>> VM-Enter, i.e. the VMM can't do anything useful for MONITOR/MWAIT.  I
->>> assume that's the case given that KVM emulates MONITOR/MWAIT as NOPs on
->>> SVM.
->>
->> Not sure if it is disarmed on VMRUN, but the MONITOR/MWAIT instructions
->> are part of the GHCB spec, so they are implemented here.
-> 
-> Even if MONITOR/MWAIT somehow works across VMRUN I'm not sure it's something
-> the guest should enable by default as it leaks GPAs to the untrusted host,
-> with no benefit to the guest except in specific configurations.  Yeah, the
-> VMM can muck with page tables to trace guest to the some extent, but the
-> guest shouldn't be unnecessarily volunteering information to the host.
-> 
-> If MONITOR/MWAIT is effectively a NOP then removing this code is a no
-> brainer.
-> 
-> Can someone from AMD chime in?
-
-I don't think there is any guarantee that MONITOR/MWAIT would work within 
-a guest (I'd have to dig some more on that to get a definitive answer, but 
-probably not necessary to do). As you say, if KVM emulates it as a NOP, 
-there's no sense in exposing the GPA - make it a NOP in the handler. I 
-just need to poke some other hypervisor vendors and hear what they have to 
-say.
-
-Thanks,
-Tom
-
-
-> 
+T24gRnJpLCAyMDIwLTA1LTI5IGF0IDE3OjE4ICswMTAwLCBMb3JlbnpvIFBpZXJhbGlzaSB3cm90
+ZToNCj4gT24gRnJpLCBNYXkgMjksIDIwMjAgYXQgMDM6NTM6MzdQTSArMDAwMCwgRGVycmljaywg
+Sm9uYXRoYW4gd3JvdGU6DQo+ID4gT24gRnJpLCAyMDIwLTA1LTI5IGF0IDExOjMzICswMTAwLCBM
+b3JlbnpvIFBpZXJhbGlzaSB3cm90ZToNCj4gPiA+IE9uIFdlZCwgTWF5IDI3LCAyMDIwIGF0IDEx
+OjAyOjM5UE0gLTA0MDAsIEpvbiBEZXJyaWNrIHdyb3RlOg0KPiA+ID4gPiBWZXJzaW9ucyBvZiBW
+TUQgd2l0aCB0aGUgSG9zdCBQaHlzaWNhbCBBZGRyZXNzIHNoYWRvdyByZWdpc3RlciB1c2UgdGhp
+cw0KPiA+ID4gPiByZWdpc3RlciB0byBjYWxjdWxhdGUgdGhlIGJ1cyBhZGRyZXNzIG9mZnNldCBu
+ZWVkZWQgdG8gZG8gZ3Vlc3QNCj4gPiA+ID4gcGFzc3Rocm91Z2ggb2YgdGhlIGRvbWFpbi4gVGhp
+cyByZWdpc3RlciBzaGFkb3dzIHRoZSBIb3N0IFBoeXNpY2FsDQo+ID4gPiA+IEFkZHJlc3MgcmVn
+aXN0ZXJzIGluY2x1ZGluZyB0aGUgcmVzb3VyY2UgdHlwZSBiaXRzLiBBZnRlciBjYWxjdWxhdGlu
+Zw0KPiA+ID4gPiB0aGUgb2Zmc2V0LCB0aGUgZXh0cmEgcmVzb3VyY2UgdHlwZSBiaXRzIGxlYWQg
+dG8gdGhlIFZNRCByZXNvdXJjZXMgYmVpbmcNCj4gPiA+ID4gb3Zlci1wcm92aXNpb25lZCBhdCB0
+aGUgZnJvbnQgYW5kIHVuZGVyLXByb3Zpc2lvbmVkIGF0IHRoZSBiYWNrLg0KPiA+ID4gPiANCj4g
+PiA+ID4gRXhhbXBsZToNCj4gPiA+ID4gcGNpIDEwMDAwOjgwOjAyLjA6IHJlZyAweDEwOiBbbWVt
+IDB4ZjgwMWZmZmMtMHhmODAzZmZmYiA2NGJpdF0NCj4gPiA+ID4gDQo+ID4gPiA+IEV4cGVjdGVk
+Og0KPiA+ID4gPiBwY2kgMTAwMDA6ODA6MDIuMDogcmVnIDB4MTA6IFttZW0gMHhmODAyMDAwMC0w
+eGY4MDNmZmZmIDY0Yml0XQ0KPiA+ID4gPiANCj4gPiA+ID4gSWYgb3RoZXIgZGV2aWNlcyBhcmUg
+bWFwcGVkIGluIHRoZSBvdmVyLXByb3Zpc2lvbmVkIGZyb250LCBpdCBjb3VsZCBsZWFkDQo+ID4g
+PiA+IHRvIHJlc291cmNlIGNvbmZsaWN0IGlzc3VlcyB3aXRoIFZNRCBvciB0aG9zZSBkZXZpY2Vz
+Lg0KPiA+ID4gPiANCj4gPiA+ID4gRml4ZXM6IGExYTMwMTcwMTM4YzkgKCJQQ0k6IHZtZDogRml4
+IHNoYWRvdyBvZmZzZXRzIHRvIHJlZmxlY3Qgc3BlYyBjaGFuZ2VzIikNCj4gPiA+ID4gU2lnbmVk
+LW9mZi1ieTogSm9uIERlcnJpY2sgPGpvbmF0aGFuLmRlcnJpY2tAaW50ZWwuY29tPg0KPiA+ID4g
+PiAtLS0NCj4gPiA+ID4gIGRyaXZlcnMvcGNpL2NvbnRyb2xsZXIvdm1kLmMgfCA2ICsrKystLQ0K
+PiA+ID4gPiAgMSBmaWxlIGNoYW5nZWQsIDQgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkN
+Cj4gPiA+IA0KPiA+ID4gSGkgSm9uLA0KPiA+ID4gDQo+ID4gPiBpdCBsb29rcyBsaWtlIEkgY2Fu
+IHRha2UgdGhpcyBwYXRjaCBmb3IgdjUuOCB3aGVyZWFzIHBhdGNoIDIgZGVwZW5kcw0KPiA+ID4g
+b24gdGhlIFFFTVUgY2hhbmdlcyBhY2NlcHRhbmNlIGFuZCBzaG91bGQgcHJvYmFibHkgd2FpdC4N
+Cj4gPiA+IA0KPiA+ID4gUGxlYXNlIGxldCBtZSBrbm93IHlvdXIgdGhvdWdodHMgYXNhcCBhbmQg
+SSB3aWxsIHRyeSB0byBhdCBsZWFzdA0KPiA+ID4gc3F1ZWV6ZSB0aGlzIHBhdGNoIGluLg0KPiA+
+ID4gDQo+ID4gPiBMb3JlbnpvDQo+ID4gDQo+ID4gSGkgTG9yZW56bywNCj4gPiANCj4gPiBUaGlz
+IGlzIGZpbmUuIFBsZWFzZSB0YWtlIFBhdGNoIDEuDQo+ID4gUGF0Y2ggMiBpcyBoYXJtbGVzcyB3
+aXRob3V0IHRoZSBRRU1VIGNoYW5nZXMsIGJ1dCBtYXkgYWx3YXlzIG5lZWQgYQ0KPiA+IGRpZmZl
+cmVudCBhcHByb2FjaC4NCj4gDQo+IFB1bGxlZCBwYXRjaCAxIGludG8gcGNpL3ZtZCwgdGhhbmtz
+Lg0KPiANCj4gTG9yZW56bw0KDQpIaSBMb3JlbnpvLA0KDQpBbGV4IGhhcyBwci1lZCB0aGUgUUVN
+VSBwYXRjaCBbMV0NCklzIGl0IHRvbyBsYXRlIHRvIHB1bGwgcGF0Y2ggMi8yIGZvciB2NS44Pw0K
+DQpbMV0gDQpodHRwczovL2dpdGh1Yi5jb20vYXdpbGxpYW0vcWVtdS12ZmlvL3JlbGVhc2VzL3Rh
+Zy92ZmlvLXVwZGF0ZS0yMDIwMDYxMS4wDQo=
