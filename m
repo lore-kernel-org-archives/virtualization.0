@@ -1,124 +1,125 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC v7 03/14] vhost: use batched get_vq_desc version
-Date: Thu, 11 Jun 2020 07:30:14 -0400
-Message-ID: <20200611072702-mutt-send-email-mst@kernel.org>
-References: <20200610113515.1497099-1-mst@redhat.com>
- <20200610113515.1497099-4-mst@redhat.com>
- <CAJaqyWdGKh5gSTndGuVPyJSgt3jfjfW4xNCrJ2tQ9f+mD8=sMQ@mail.gmail.com>
- <20200610111147-mutt-send-email-mst@kernel.org>
- <CAJaqyWe6d19hFAbpqaQqOPuQQmBQyevyF4sTVkaXKhD729XDkw@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAJaqyWe6d19hFAbpqaQqOPuQQmBQyevyF4sTVkaXKhD729XDkw@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Eugenio Perez Martin <eperezma@redhat.com>
-Cc: linux-kernel@vger.kernel.org, kvm list <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH v1] virtio-mem: add memory via add_memory_driver_managed()
+Date: Thu, 11 Jun 2020 13:33:04 +0200
+Message-ID: <613382D2-5F4D-4A32-AC8E-E1D03240036F@redhat.com>
+References: <20200611071744-mutt-send-email-mst@kernel.org>
+Mime-Version: 1.0 (1.0)
+Content-Type: multipart/alternative; boundary=Apple-Mail-3BDDA998-C2BD-49D8-8575-72FA81B00AAD
+Return-path: <virtio-dev-return-7465-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+In-Reply-To: <20200611071744-mutt-send-email-mst@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Jason Wang <jasowang@redhat.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, teawater <teawaterz@linux.alibaba.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 10, 2020 at 06:18:32PM +0200, Eugenio Perez Martin wrote:
-> On Wed, Jun 10, 2020 at 5:13 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Wed, Jun 10, 2020 at 02:37:50PM +0200, Eugenio Perez Martin wrote:
-> > > > +/* This function returns a value > 0 if a descriptor was found, or 0 if none were found.
-> > > > + * A negative code is returned on error. */
-> > > > +static int fetch_descs(struct vhost_virtqueue *vq)
-> > > > +{
-> > > > +       int ret;
-> > > > +
-> > > > +       if (unlikely(vq->first_desc >= vq->ndescs)) {
-> > > > +               vq->first_desc = 0;
-> > > > +               vq->ndescs = 0;
-> > > > +       }
-> > > > +
-> > > > +       if (vq->ndescs)
-> > > > +               return 1;
-> > > > +
-> > > > +       for (ret = 1;
-> > > > +            ret > 0 && vq->ndescs <= vhost_vq_num_batch_descs(vq);
-> > > > +            ret = fetch_buf(vq))
-> > > > +               ;
-> > >
-> > > (Expanding comment in V6):
-> > >
-> > > We get an infinite loop this way:
-> > > * vq->ndescs == 0, so we call fetch_buf() here
-> > > * fetch_buf gets less than vhost_vq_num_batch_descs(vq); descriptors. ret = 1
-> > > * This loop calls again fetch_buf, but vq->ndescs > 0 (and avail_vq ==
-> > > last_avail_vq), so it just return 1
-> >
-> > That's what
-> >          [PATCH RFC v7 08/14] fixup! vhost: use batched get_vq_desc version
-> > is supposed to fix.
-> >
-> 
-> Sorry, I forgot to include that fixup.
-> 
-> With it I don't see CPU stalls, but with that version latency has
-> increased a lot and I see packet lost:
-> + ping -c 5 10.200.0.1
-> PING 10.200.0.1 (10.200.0.1) 56(84) bytes of data.
-> >From 10.200.0.2 icmp_seq=1 Destination Host Unreachable
-> >From 10.200.0.2 icmp_seq=2 Destination Host Unreachable
-> >From 10.200.0.2 icmp_seq=3 Destination Host Unreachable
-> 64 bytes from 10.200.0.1: icmp_seq=5 ttl=64 time=6848 ms
-> 
-> --- 10.200.0.1 ping statistics ---
-> 5 packets transmitted, 1 received, +3 errors, 80% packet loss, time 76ms
-> rtt min/avg/max/mdev = 6848.316/6848.316/6848.316/0.000 ms, pipe 4
-> --
-> 
-> I cannot even use netperf.
-
-OK so that's the bug to try to find and fix I think.
+--Apple-Mail-3BDDA998-C2BD-49D8-8575-72FA81B00AAD
+Content-Type: text/plain;
+	charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
 
-> If I modify with my proposed version:
-> + ping -c 5 10.200.0.1
-> PING 10.200.0.1 (10.200.0.1) 56(84) bytes of data.
-> 64 bytes from 10.200.0.1: icmp_seq=1 ttl=64 time=7.07 ms
-> 64 bytes from 10.200.0.1: icmp_seq=2 ttl=64 time=0.358 ms
-> 64 bytes from 10.200.0.1: icmp_seq=3 ttl=64 time=5.35 ms
-> 64 bytes from 10.200.0.1: icmp_seq=4 ttl=64 time=2.27 ms
-> 64 bytes from 10.200.0.1: icmp_seq=5 ttl=64 time=0.426 ms
 
+> Am 11.06.2020 um 13:18 schrieb Michael S. Tsirkin <mst@redhat.com>:
+>=20
+> =EF=BB=BFOn Thu, Jun 11, 2020 at 01:00:24PM +0200, David Hildenbrand wrot=
+e:
+>>>> I'd like to have this patch in 5.8, with the initial merge of virtio-m=
+em
+>>>> if possible (so the user space representation of virtio-mem added memo=
+ry
+>>>> resources won't change anymore).
+>>>=20
+>>> So my plan is to rebase on top of -rc1 and merge this for rc2 then.
+>>> I don't like rebase on top of tip as the results are sometimes kind of
+>>> random.
+>>=20
+>> Right, I just wanted to get this out early so we can discuss how to proc=
+eed.
+>>=20
+>>> And let's add a Fixes: tag as well, this way people will remember to
+>>> pick this.
+>>> Makes sense?
+>>=20
+>> Yes, it's somehow a fix (for kexec). So
+>>=20
+>> Fixes: 5f1f79bbc9e26 ("virtio-mem: Paravirtualized memory hotplug")
+>>=20
+>> I can respin after -rc1 with the commit id fixed as noted by Pankaj.
+>> Just let me know what you prefer.
+>>=20
+>> Thanks!
+>=20
+> Some once this commit is in Linus' tree, please ping me.
 
-Not sure which version this is.
+It already is as mentioned, only the id was wrong.
 
-> [root@localhost ~]# netperf -H 10.200.0.1 -p 12865 -l 10 -t TCP_STREAM
-> MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to
-> 10.200.0.1 () port 0 AF_INET
-> Recv   Send    Send
-> Socket Socket  Message  Elapsed
-> Size   Size    Size     Time     Throughput
-> bytes  bytes   bytes    secs.    10^6bits/sec
-> 
-> 131072  16384  16384    10.01    4742.36
-> [root@localhost ~]# netperf -H 10.200.0.1 -p 12865 -l 10 -t UDP_STREAM
-> MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to
-> 10.200.0.1 () port 0 AF_INET
-> Socket  Message  Elapsed      Messages
-> Size    Size     Time         Okay Errors   Throughput
-> bytes   bytes    secs            #      #   10^6bits/sec
-> 
-> 212992   65507   10.00        9214      0     482.83
-> 212992           10.00        9214            482.83
-> 
-> I will compare with the non-batch version for reference, but the
-> difference between the two is noticeable. Maybe it's worth finding a
-> good value for the if() inside fetch_buf?
-> 
-> Thanks!
-> 
+https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/=
+?id=3D7b7b27214bba1966772f9213cd2d8e5d67f8487f
 
-I don't think it's performance, I think it's a bug somewhere,
-e.g. maybe we corrupt a packet, or stall the queue, or
-something like this.
+>=20
+>> --=20
+>> Thanks,
+>>=20
+>> David / dhildenb
+>=20
 
-Let's do this, I will squash the fixups and post v8 so you can bisect
-and then debug cleanly.
+--Apple-Mail-3BDDA998-C2BD-49D8-8575-72FA81B00AAD
+Content-Type: text/html;
+	charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-> > --
-> > MST
-> >
+<html><head><meta http-equiv=3D"content-type" content=3D"text/html; charset=
+=3Dutf-8"></head><body dir=3D"auto"><div dir=3D"ltr"><br></div><div dir=3D"=
+ltr"><br><blockquote type=3D"cite">Am 11.06.2020 um 13:18 schrieb Michael S=
+. Tsirkin &lt;mst@redhat.com&gt;:<br><br></blockquote></div><blockquote typ=
+e=3D"cite"><div dir=3D"ltr">=EF=BB=BF<span>On Thu, Jun 11, 2020 at 01:00:24=
+PM +0200, David Hildenbrand wrote:</span><br><blockquote type=3D"cite"><blo=
+ckquote type=3D"cite"><blockquote type=3D"cite"><span>I'd like to have this=
+ patch in 5.8, with the initial merge of virtio-mem</span><br></blockquote>=
+</blockquote></blockquote><blockquote type=3D"cite"><blockquote type=3D"cit=
+e"><blockquote type=3D"cite"><span>if possible (so the user space represent=
+ation of virtio-mem added memory</span><br></blockquote></blockquote></bloc=
+kquote><blockquote type=3D"cite"><blockquote type=3D"cite"><blockquote type=
+=3D"cite"><span>resources won't change anymore).</span><br></blockquote></b=
+lockquote></blockquote><blockquote type=3D"cite"><blockquote type=3D"cite">=
+<span></span><br></blockquote></blockquote><blockquote type=3D"cite"><block=
+quote type=3D"cite"><span>So my plan is to rebase on top of -rc1 and merge =
+this for rc2 then.</span><br></blockquote></blockquote><blockquote type=3D"=
+cite"><blockquote type=3D"cite"><span>I don't like rebase on top of tip as =
+the results are sometimes kind of</span><br></blockquote></blockquote><bloc=
+kquote type=3D"cite"><blockquote type=3D"cite"><span>random.</span><br></bl=
+ockquote></blockquote><blockquote type=3D"cite"><span></span><br></blockquo=
+te><blockquote type=3D"cite"><span>Right, I just wanted to get this out ear=
+ly so we can discuss how to proceed.</span><br></blockquote><blockquote typ=
+e=3D"cite"><span></span><br></blockquote><blockquote type=3D"cite"><blockqu=
+ote type=3D"cite"><span>And let's add a Fixes: tag as well, this way people=
+ will remember to</span><br></blockquote></blockquote><blockquote type=3D"c=
+ite"><blockquote type=3D"cite"><span>pick this.</span><br></blockquote></bl=
+ockquote><blockquote type=3D"cite"><blockquote type=3D"cite"><span>Makes se=
+nse?</span><br></blockquote></blockquote><blockquote type=3D"cite"><span></=
+span><br></blockquote><blockquote type=3D"cite"><span>Yes, it's somehow a f=
+ix (for kexec). So</span><br></blockquote><blockquote type=3D"cite"><span><=
+/span><br></blockquote><blockquote type=3D"cite"><span>Fixes: 5f1f79bbc9e26=
+ ("virtio-mem: Paravirtualized memory hotplug")</span><br></blockquote><blo=
+ckquote type=3D"cite"><span></span><br></blockquote><blockquote type=3D"cit=
+e"><span>I can respin after -rc1 with the commit id fixed as noted by Panka=
+j.</span><br></blockquote><blockquote type=3D"cite"><span>Just let me know =
+what you prefer.</span><br></blockquote><blockquote type=3D"cite"><span></s=
+pan><br></blockquote><blockquote type=3D"cite"><span>Thanks!</span><br></bl=
+ockquote><span></span><br><span>Some once this commit is in Linus' tree, pl=
+ease ping me.</span><br></div></blockquote><div><br></div><div>It already i=
+s as mentioned, only the id was wrong.</div><div><br></div><div><a href=3D"=
+https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/=
+?id=3D7b7b27214bba1966772f9213cd2d8e5d67f8487f">https://git.kernel.org/pub/=
+scm/linux/kernel/git/next/linux-next.git/commit/?id=3D7b7b27214bba1966772f9=
+213cd2d8e5d67f8487f</a></div><br><blockquote type=3D"cite"><div dir=3D"ltr"=
+><span></span><br><blockquote type=3D"cite"><span>-- </span><br></blockquot=
+e><blockquote type=3D"cite"><span>Thanks,</span><br></blockquote><blockquot=
+e type=3D"cite"><span></span><br></blockquote><blockquote type=3D"cite"><sp=
+an>David / dhildenb</span><br></blockquote><span></span><br></div></blockqu=
+ote></body></html>
+--Apple-Mail-3BDDA998-C2BD-49D8-8575-72FA81B00AAD--
