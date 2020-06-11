@@ -1,63 +1,53 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH RFC v6 02/11] vhost: use batched get_vq_desc version
-Date: Thu, 11 Jun 2020 11:02:57 +0800
-Message-ID: <76b14132-407a-48bf-c4d5-9d0b2c700bb0@redhat.com>
-References: <20200608125238.728563-1-mst@redhat.com>
- <20200608125238.728563-3-mst@redhat.com>
- <81904cc5-b662-028d-3b4a-bdfdbd2deb8c@redhat.com>
- <20200610070259-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH] s390: protvirt: virtio: Refuse device without IOMMU
+Date: Thu, 11 Jun 2020 11:10:07 +0800
+Message-ID: <467d5b58-b70c-1c45-4130-76b6e18c05af@redhat.com>
+References: <1591794711-5915-1-git-send-email-pmorel@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200610070259-mutt-send-email-mst@kernel.org>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1591794711-5915-1-git-send-email-pmorel@linux.ibm.com>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, eperezma@redhat.com
+Sender: kvm-owner@vger.kernel.org
+To: Pierre Morel <pmorel@linux.ibm.com>, linux-kernel@vger.kernel.org
+Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-On 2020/6/10 下午7:05, Michael S. Tsirkin wrote:
->>> +EXPORT_SYMBOL_GPL(vhost_get_vq_desc);
->>>    /* Reverse the effect of vhost_get_vq_desc. Useful for error handling. */
->>>    void vhost_discard_vq_desc(struct vhost_virtqueue *vq, int n)
->>>    {
->>> +	unfetch_descs(vq);
->>>    	vq->last_avail_idx -= n;
->> So unfetch_descs() has decreased last_avail_idx.
->> Can we fix this by letting unfetch_descs() return the number and then we can
->> do:
->>
->> int d = unfetch_descs(vq);
->> vq->last_avail_idx -= (n > d) ? n - d: 0;
->>
->> Thanks
-> That's intentional I think - we need both.
-
-
-Yes, but:
-
-
+On 2020/6/10 下午9:11, Pierre Morel wrote:
+> Protected Virtualisation protects the memory of the guest and
+> do not allow a the host to access all of its memory.
 >
-> Unfetch_descs drops the descriptors in the cache that were
-> *not returned to caller*  through get_vq_desc.
+> Let's refuse a VIRTIO device which does not use IOMMU
+> protected access.
 >
-> vhost_discard_vq_desc drops the ones that were returned through get_vq_desc.
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> ---
+>   drivers/s390/virtio/virtio_ccw.c | 5 +++++
+>   1 file changed, 5 insertions(+)
 >
-> Did I miss anything?
+> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+> index 5730572b52cd..06ffbc96587a 100644
+> --- a/drivers/s390/virtio/virtio_ccw.c
+> +++ b/drivers/s390/virtio/virtio_ccw.c
+> @@ -986,6 +986,11 @@ static void virtio_ccw_set_status(struct virtio_device *vdev, u8 status)
+>   	if (!ccw)
+>   		return;
+>   
+> +	/* Protected Virtualisation guest needs IOMMU */
+> +	if (is_prot_virt_guest() &&
+> +	    !__virtio_test_bit(vdev, VIRTIO_F_IOMMU_PLATFORM))
+> +			status &= ~VIRTIO_CONFIG_S_FEATURES_OK;
+> +
+>   	/* Write the status to the host. */
+>   	vcdev->dma_area->status = status;
+>   	ccw->cmd_code = CCW_CMD_WRITE_STATUS;
 
-We could count some descriptors twice, consider the case e.g we only 
-cache on descriptor:
 
-fetch_descs()
-     fetch_buf()
-         last_avail_idx++;
+I wonder whether we need move it to virtio core instead of ccw.
 
-Then we want do discard it:
-vhost_discard_avail_buf(1)
-     unfetch_descs()
-         last_avail_idx--;
-     last_avail_idx -= 1;
+I think the other memory protection technologies may suffer from this as 
+well.
 
 Thanks
