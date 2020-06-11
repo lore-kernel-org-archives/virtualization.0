@@ -1,59 +1,52 @@
-From: "Derrick, Jonathan" <jonathan.derrick@intel.com>
-Subject: Re: [PATCH v3 1/2] PCI: vmd: Filter resource type bits from shadow
- register
-Date: Thu, 11 Jun 2020 21:16:48 +0000
-Message-ID: <f1d36b8fc4ab7aacf6efca19303b04a5b4f8189c.camel@intel.com>
-References: <20200528030240.16024-1-jonathan.derrick@intel.com>
-         <20200528030240.16024-3-jonathan.derrick@intel.com>
-         <20200529103315.GC12270@e121166-lin.cambridge.arm.com>
-         <163e8cb37ece0c8daa6d6e5fd7fcae47ba4fa437.camel@intel.com>
-         <20200529161824.GA17642@e121166-lin.cambridge.arm.com>
+From: "Alex Xu (Hello71)" <alex_y_xu@yahoo.ca>
+Subject: AMD IOMMU + SME + amdgpu regression
+Date: Thu, 11 Jun 2020 19:05:21 -0400
+Message-ID: <1591915710.rakbpzst8h.none@localhost>
+References: <1591915710.rakbpzst8h.none.ref@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-pci-owner@vger.kernel.org>
-In-Reply-To: <20200529161824.GA17642@e121166-lin.cambridge.arm.com>
-Content-Language: en-US
-Content-ID: <66D5545A7F2B504AB19EF890BBF933F1@intel.com>
-Sender: linux-pci-owner@vger.kernel.org
-To: "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>
-Cc: "hch@lst.de" <hch@lst.de>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "helgaas@kernel.org" <helgaas@kernel.org>, "andrzej.jakowski@linux.intel.com" <andrzej.jakowski@linux.intel.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "alex.williamson@redhat.com" <alex.williamson@redhat.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Joerg Roedel <joro@8bytes.org>, linux-kernel@vger.kernel.org, David Rientjes <rientjes@google.com>, Christoph Hellwig <hch@lst.de>
+Cc: Will Deacon <will@kernel.org>, Robin Murphy <robin.murphy@arm.com>, Marek Szyprowski <m.szyprowski@samsung.com>, Kukjin Kim <kgene@kernel.org>, Krzysztof Kozlowski <krzk@kernel.org>, David Woodhouse <dwmw2@infradead.org>, Lu Baolu <baolu.lu@linux.intel.com>, Andy Gross <agross@kernel.org>, Bjorn Andersson <bjorn.andersson@linaro.org>, Matthias Brugger <matthias.bgg@gmail.com>, Rob Clark <robdclark@gmail.com>, Heiko Stuebner <heiko@sntech.de>, Gerald Schaefer <gerald.schaefer@de.ibm.com>, Thierry Reding <thierry.reding@gmail.com>, Jonathan Hunter <jonathanh@nvidia.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, Daniel Drake <drake@endlessm.com>, jonathan.derrick@intel.com, linux-samsung-soc@vger.kernel.org, linux-arm-msm@vger.kernel.orglinux
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCAyMDIwLTA1LTI5IGF0IDE3OjE4ICswMTAwLCBMb3JlbnpvIFBpZXJhbGlzaSB3cm90
-ZToNCj4gT24gRnJpLCBNYXkgMjksIDIwMjAgYXQgMDM6NTM6MzdQTSArMDAwMCwgRGVycmljaywg
-Sm9uYXRoYW4gd3JvdGU6DQo+ID4gT24gRnJpLCAyMDIwLTA1LTI5IGF0IDExOjMzICswMTAwLCBM
-b3JlbnpvIFBpZXJhbGlzaSB3cm90ZToNCj4gPiA+IE9uIFdlZCwgTWF5IDI3LCAyMDIwIGF0IDEx
-OjAyOjM5UE0gLTA0MDAsIEpvbiBEZXJyaWNrIHdyb3RlOg0KPiA+ID4gPiBWZXJzaW9ucyBvZiBW
-TUQgd2l0aCB0aGUgSG9zdCBQaHlzaWNhbCBBZGRyZXNzIHNoYWRvdyByZWdpc3RlciB1c2UgdGhp
-cw0KPiA+ID4gPiByZWdpc3RlciB0byBjYWxjdWxhdGUgdGhlIGJ1cyBhZGRyZXNzIG9mZnNldCBu
-ZWVkZWQgdG8gZG8gZ3Vlc3QNCj4gPiA+ID4gcGFzc3Rocm91Z2ggb2YgdGhlIGRvbWFpbi4gVGhp
-cyByZWdpc3RlciBzaGFkb3dzIHRoZSBIb3N0IFBoeXNpY2FsDQo+ID4gPiA+IEFkZHJlc3MgcmVn
-aXN0ZXJzIGluY2x1ZGluZyB0aGUgcmVzb3VyY2UgdHlwZSBiaXRzLiBBZnRlciBjYWxjdWxhdGlu
-Zw0KPiA+ID4gPiB0aGUgb2Zmc2V0LCB0aGUgZXh0cmEgcmVzb3VyY2UgdHlwZSBiaXRzIGxlYWQg
-dG8gdGhlIFZNRCByZXNvdXJjZXMgYmVpbmcNCj4gPiA+ID4gb3Zlci1wcm92aXNpb25lZCBhdCB0
-aGUgZnJvbnQgYW5kIHVuZGVyLXByb3Zpc2lvbmVkIGF0IHRoZSBiYWNrLg0KPiA+ID4gPiANCj4g
-PiA+ID4gRXhhbXBsZToNCj4gPiA+ID4gcGNpIDEwMDAwOjgwOjAyLjA6IHJlZyAweDEwOiBbbWVt
-IDB4ZjgwMWZmZmMtMHhmODAzZmZmYiA2NGJpdF0NCj4gPiA+ID4gDQo+ID4gPiA+IEV4cGVjdGVk
-Og0KPiA+ID4gPiBwY2kgMTAwMDA6ODA6MDIuMDogcmVnIDB4MTA6IFttZW0gMHhmODAyMDAwMC0w
-eGY4MDNmZmZmIDY0Yml0XQ0KPiA+ID4gPiANCj4gPiA+ID4gSWYgb3RoZXIgZGV2aWNlcyBhcmUg
-bWFwcGVkIGluIHRoZSBvdmVyLXByb3Zpc2lvbmVkIGZyb250LCBpdCBjb3VsZCBsZWFkDQo+ID4g
-PiA+IHRvIHJlc291cmNlIGNvbmZsaWN0IGlzc3VlcyB3aXRoIFZNRCBvciB0aG9zZSBkZXZpY2Vz
-Lg0KPiA+ID4gPiANCj4gPiA+ID4gRml4ZXM6IGExYTMwMTcwMTM4YzkgKCJQQ0k6IHZtZDogRml4
-IHNoYWRvdyBvZmZzZXRzIHRvIHJlZmxlY3Qgc3BlYyBjaGFuZ2VzIikNCj4gPiA+ID4gU2lnbmVk
-LW9mZi1ieTogSm9uIERlcnJpY2sgPGpvbmF0aGFuLmRlcnJpY2tAaW50ZWwuY29tPg0KPiA+ID4g
-PiAtLS0NCj4gPiA+ID4gIGRyaXZlcnMvcGNpL2NvbnRyb2xsZXIvdm1kLmMgfCA2ICsrKystLQ0K
-PiA+ID4gPiAgMSBmaWxlIGNoYW5nZWQsIDQgaW5zZXJ0aW9ucygrKSwgMiBkZWxldGlvbnMoLSkN
-Cj4gPiA+IA0KPiA+ID4gSGkgSm9uLA0KPiA+ID4gDQo+ID4gPiBpdCBsb29rcyBsaWtlIEkgY2Fu
-IHRha2UgdGhpcyBwYXRjaCBmb3IgdjUuOCB3aGVyZWFzIHBhdGNoIDIgZGVwZW5kcw0KPiA+ID4g
-b24gdGhlIFFFTVUgY2hhbmdlcyBhY2NlcHRhbmNlIGFuZCBzaG91bGQgcHJvYmFibHkgd2FpdC4N
-Cj4gPiA+IA0KPiA+ID4gUGxlYXNlIGxldCBtZSBrbm93IHlvdXIgdGhvdWdodHMgYXNhcCBhbmQg
-SSB3aWxsIHRyeSB0byBhdCBsZWFzdA0KPiA+ID4gc3F1ZWV6ZSB0aGlzIHBhdGNoIGluLg0KPiA+
-ID4gDQo+ID4gPiBMb3JlbnpvDQo+ID4gDQo+ID4gSGkgTG9yZW56bywNCj4gPiANCj4gPiBUaGlz
-IGlzIGZpbmUuIFBsZWFzZSB0YWtlIFBhdGNoIDEuDQo+ID4gUGF0Y2ggMiBpcyBoYXJtbGVzcyB3
-aXRob3V0IHRoZSBRRU1VIGNoYW5nZXMsIGJ1dCBtYXkgYWx3YXlzIG5lZWQgYQ0KPiA+IGRpZmZl
-cmVudCBhcHByb2FjaC4NCj4gDQo+IFB1bGxlZCBwYXRjaCAxIGludG8gcGNpL3ZtZCwgdGhhbmtz
-Lg0KPiANCj4gTG9yZW56bw0KDQpIaSBMb3JlbnpvLA0KDQpBbGV4IGhhcyBwci1lZCB0aGUgUUVN
-VSBwYXRjaCBbMV0NCklzIGl0IHRvbyBsYXRlIHRvIHB1bGwgcGF0Y2ggMi8yIGZvciB2NS44Pw0K
-DQpbMV0gDQpodHRwczovL2dpdGh1Yi5jb20vYXdpbGxpYW0vcWVtdS12ZmlvL3JlbGVhc2VzL3Rh
-Zy92ZmlvLXVwZGF0ZS0yMDIwMDYxMS4wDQo=
+Hi,
+
+amdgpu + IOMMU + SME is now working for me on 5.7, yay! But, it is=20
+broken on torvalds master, boo. On boot, depending on which exact commit=20
+I test, it either hangs immediately (with built-in driver, before=20
+starting initramfs), displays some errors then hangs, or spams the=20
+screen with many amdgpu errors.
+
+I bisected the black screen hang to:
+
+commit dce8d6964ebdb333383bacf5e7ab8c27df151218
+Author: Joerg Roedel <jroedel@suse.de>
+Date:   Wed Apr 29 15:36:53 2020 +0200
+
+    iommu/amd: Convert to probe/release_device() call-backs
+
+    Convert the AMD IOMMU Driver to use the probe_device() and
+    release_device() call-backs of iommu_ops, so that the iommu core code
+    does the group and sysfs setup.
+
+    Signed-off-by: Joerg Roedel <jroedel@suse.de>
+    Link: https://lore.kernel.org/r/20200429133712.31431-16-joro@8bytes.org
+    Signed-off-by: Joerg Roedel <jroedel@suse.de>
+
+Testing torvalds master (623f6dc593) with the containing merge=20
+(98bdc74b36) plus the DMA mapping merge (4e94d08734) reverted allows=20
+amdgpu + IOMMU + SME to once again work.
+
+I think that nobody is really working on amdgpu + SME, but it would be a=20
+shame if it was supported and then incidentally broken by a small=20
+change.
+
+I am using an ASRock B450 Pro4 with Ryzen 1600 and ASUS RX 480. I don't=20
+understand this code at all, but let me know what I can do to=20
+troubleshoot.
+
+Thanks,
+Alex.
