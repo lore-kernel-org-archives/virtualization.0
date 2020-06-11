@@ -1,169 +1,98 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH RFC v8 11/11] vhost: drop head based APIs
-Date: Thu, 11 Jun 2020 07:34:41 -0400
-Message-ID: <20200611113404.17810-12-mst@redhat.com>
-References: <20200611113404.17810-1-mst@redhat.com>
+Subject: Re: [PATCH v1] virtio-mem: add memory via add_memory_driver_managed()
+Date: Thu, 11 Jun 2020 07:41:13 -0400
+Message-ID: <20200611073943-mutt-send-email-mst@kernel.org>
+References: <20200611071744-mutt-send-email-mst@kernel.org>
+ <613382D2-5F4D-4A32-AC8E-E1D03240036F@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <kvm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200611113404.17810-1-mst@redhat.com>
+In-Reply-To: <613382D2-5F4D-4A32-AC8E-E1D03240036F@redhat.com>
 Sender: kvm-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>, eperezma@redhat.com
+To: David Hildenbrand <david@redhat.com>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Jason Wang <jasowang@redhat.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, teawater <teawaterz@linux.alibaba.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Everyone's using buf APIs, no need for head based ones anymore.
+On Thu, Jun 11, 2020 at 01:33:04PM +0200, David Hildenbrand wrote:
+> 
+> 
+>     Am 11.06.2020 um 13:18 schrieb Michael S. Tsirkin <mst@redhat.com>:
+> 
+> 
+>     On Thu, Jun 11, 2020 at 01:00:24PM +0200, David Hildenbrand wrote:
+> 
+>                 I'd like to have this patch in 5.8, with the initial merge of
+>                 virtio-mem
+> 
+>                 if possible (so the user space representation of virtio-mem
+>                 added memory
+> 
+>                 resources won't change anymore).
+> 
+>            
+> 
+>             So my plan is to rebase on top of -rc1 and merge this for rc2 then.
+> 
+>             I don't like rebase on top of tip as the results are sometimes kind
+>             of
+> 
+>             random.
+> 
+>        
+> 
+>         Right, I just wanted to get this out early so we can discuss how to
+>         proceed.
+> 
+>        
+> 
+>             And let's add a Fixes: tag as well, this way people will remember
+>             to
+> 
+>             pick this.
+> 
+>             Makes sense?
+> 
+>        
+> 
+>         Yes, it's somehow a fix (for kexec). So
+> 
+>        
+> 
+>         Fixes: 5f1f79bbc9e26 ("virtio-mem: Paravirtualized memory hotplug")
+> 
+>        
+> 
+>         I can respin after -rc1 with the commit id fixed as noted by Pankaj.
+> 
+>         Just let me know what you prefer.
+> 
+>        
+> 
+>         Thanks!
+> 
+>    
+>     Some once this commit is in Linus' tree, please ping me.
+> 
+> 
+> It already is as mentioned, only the id was wrong.
+> 
+> https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?id=
+> 7b7b27214bba1966772f9213cd2d8e5d67f8487f
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/vhost/vhost.c | 64 ++++++-------------------------------------
- drivers/vhost/vhost.h | 12 --------
- 2 files changed, 8 insertions(+), 68 deletions(-)
+OK I pushed this into next based on tip. Let's see what happens.
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 03e6bca02288..9096bd291c91 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -2425,39 +2425,11 @@ EXPORT_SYMBOL_GPL(vhost_get_avail_buf);
- void vhost_discard_avail_bufs(struct vhost_virtqueue *vq,
- 			      struct vhost_buf *buf, unsigned count)
- {
--	vhost_discard_vq_desc(vq, count);
-+	unfetch_descs(vq);
-+	vq->last_avail_idx -= count;
- }
- EXPORT_SYMBOL_GPL(vhost_discard_avail_bufs);
- 
--/* This function returns the descriptor number found, or vq->num (which is
-- * never a valid descriptor number) if none was found.  A negative code is
-- * returned on error. */
--int vhost_get_vq_desc(struct vhost_virtqueue *vq,
--		      struct iovec iov[], unsigned int iov_size,
--		      unsigned int *out_num, unsigned int *in_num,
--		      struct vhost_log *log, unsigned int *log_num)
--{
--	struct vhost_buf buf;
--	int ret = vhost_get_avail_buf(vq, &buf,
--				      iov, iov_size, out_num, in_num,
--				      log, log_num);
--
--	if (likely(ret > 0))
--		return buf->id;
--	if (likely(!ret))
--		return vq->num;
--	return ret;
--}
--EXPORT_SYMBOL_GPL(vhost_get_vq_desc);
--
--/* Reverse the effect of vhost_get_vq_desc. Useful for error handling. */
--void vhost_discard_vq_desc(struct vhost_virtqueue *vq, int n)
--{
--	unfetch_descs(vq);
--	vq->last_avail_idx -= n;
--}
--EXPORT_SYMBOL_GPL(vhost_discard_vq_desc);
--
- static int __vhost_add_used_n(struct vhost_virtqueue *vq,
- 			    struct vring_used_elem *heads,
- 			    unsigned count)
-@@ -2490,8 +2462,7 @@ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
- 	return 0;
- }
- 
--/* After we've used one of their buffers, we tell them about it.  We'll then
-- * want to notify the guest, using eventfd. */
-+static
- int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_elem *heads,
- 		     unsigned count)
- {
-@@ -2525,10 +2496,8 @@ int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_elem *heads,
- 	}
- 	return r;
- }
--EXPORT_SYMBOL_GPL(vhost_add_used_n);
- 
--/* After we've used one of their buffers, we tell them about it.  We'll then
-- * want to notify the guest, using eventfd. */
-+static
- int vhost_add_used(struct vhost_virtqueue *vq, unsigned int head, int len)
- {
- 	struct vring_used_elem heads = {
-@@ -2538,14 +2507,17 @@ int vhost_add_used(struct vhost_virtqueue *vq, unsigned int head, int len)
- 
- 	return vhost_add_used_n(vq, &heads, 1);
- }
--EXPORT_SYMBOL_GPL(vhost_add_used);
- 
-+/* After we've used one of their buffers, we tell them about it.  We'll then
-+ * want to notify the guest, using vhost_signal. */
- int vhost_put_used_buf(struct vhost_virtqueue *vq, struct vhost_buf *buf)
- {
- 	return vhost_add_used(vq, buf->id, buf->in_len);
- }
- EXPORT_SYMBOL_GPL(vhost_put_used_buf);
- 
-+/* After we've used one of their buffers, we tell them about it.  We'll then
-+ * want to notify the guest, using vhost_signal. */
- int vhost_put_used_n_bufs(struct vhost_virtqueue *vq,
- 			  struct vhost_buf *bufs, unsigned count)
- {
-@@ -2606,26 +2578,6 @@ void vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- }
- EXPORT_SYMBOL_GPL(vhost_signal);
- 
--/* And here's the combo meal deal.  Supersize me! */
--void vhost_add_used_and_signal(struct vhost_dev *dev,
--			       struct vhost_virtqueue *vq,
--			       unsigned int head, int len)
--{
--	vhost_add_used(vq, head, len);
--	vhost_signal(dev, vq);
--}
--EXPORT_SYMBOL_GPL(vhost_add_used_and_signal);
--
--/* multi-buffer version of vhost_add_used_and_signal */
--void vhost_add_used_and_signal_n(struct vhost_dev *dev,
--				 struct vhost_virtqueue *vq,
--				 struct vring_used_elem *heads, unsigned count)
--{
--	vhost_add_used_n(vq, heads, count);
--	vhost_signal(dev, vq);
--}
--EXPORT_SYMBOL_GPL(vhost_add_used_and_signal_n);
--
- /* return true if we're sure that avaiable ring is empty */
- bool vhost_vq_avail_empty(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- {
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 28eea0155efb..264a2a2fae97 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -197,11 +197,6 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *arg
- bool vhost_vq_access_ok(struct vhost_virtqueue *vq);
- bool vhost_log_access_ok(struct vhost_dev *);
- 
--int vhost_get_vq_desc(struct vhost_virtqueue *,
--		      struct iovec iov[], unsigned int iov_count,
--		      unsigned int *out_num, unsigned int *in_num,
--		      struct vhost_log *log, unsigned int *log_num);
--void vhost_discard_vq_desc(struct vhost_virtqueue *, int n);
- int vhost_get_avail_buf(struct vhost_virtqueue *, struct vhost_buf *buf,
- 			struct iovec iov[], unsigned int iov_count,
- 			unsigned int *out_num, unsigned int *in_num,
-@@ -209,13 +204,6 @@ int vhost_get_avail_buf(struct vhost_virtqueue *, struct vhost_buf *buf,
- void vhost_discard_avail_bufs(struct vhost_virtqueue *,
- 			      struct vhost_buf *, unsigned count);
- int vhost_vq_init_access(struct vhost_virtqueue *);
--int vhost_add_used(struct vhost_virtqueue *, unsigned int head, int len);
--int vhost_add_used_n(struct vhost_virtqueue *, struct vring_used_elem *heads,
--		     unsigned count);
--void vhost_add_used_and_signal(struct vhost_dev *, struct vhost_virtqueue *,
--			       unsigned int id, int len);
--void vhost_add_used_and_signal_n(struct vhost_dev *, struct vhost_virtqueue *,
--			       struct vring_used_elem *heads, unsigned count);
- int vhost_put_used_buf(struct vhost_virtqueue *, struct vhost_buf *buf);
- int vhost_put_used_n_bufs(struct vhost_virtqueue *,
- 			  struct vhost_buf *bufs, unsigned count);
--- 
-MST
+
+> 
+>    
+> 
+>         --
+> 
+>         Thanks,
+> 
+>        
+> 
+>         David / dhildenb
+> 
+>    
+> 
