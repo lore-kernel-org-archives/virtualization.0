@@ -1,125 +1,108 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v1] virtio-mem: add memory via add_memory_driver_managed()
-Date: Thu, 11 Jun 2020 13:33:04 +0200
-Message-ID: <613382D2-5F4D-4A32-AC8E-E1D03240036F@redhat.com>
-References: <20200611071744-mutt-send-email-mst@kernel.org>
-Mime-Version: 1.0 (1.0)
-Content-Type: multipart/alternative; boundary=Apple-Mail-3BDDA998-C2BD-49D8-8575-72FA81B00AAD
-Return-path: <virtio-dev-return-7465-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <20200611071744-mutt-send-email-mst@kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: David Hildenbrand <david@redhat.com>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Jason Wang <jasowang@redhat.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, teawater <teawaterz@linux.alibaba.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH RFC v8 00/11] vhost: ring format independence
+Date: Thu, 11 Jun 2020 07:34:14 -0400
+Message-ID: <20200611113404.17810-1-mst@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org, eperezma@redhat.com, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---Apple-Mail-3BDDA998-C2BD-49D8-8575-72FA81B00AAD
-Content-Type: text/plain;
-	charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+
+This still causes corruption issues for people so don't try
+to use in production please. Posting to expedite debugging.
+
+This adds infrastructure required for supporting
+multiple ring formats.
+
+The idea is as follows: we convert descriptors to an
+independent format first, and process that converting to
+iov later.
+
+Used ring is similar: we fetch into an independent struct first,
+convert that to IOV later.
+
+The point is that we have a tight loop that fetches
+descriptors, which is good for cache utilization.
+This will also allow all kind of batching tricks -
+e.g. it seems possible to keep SMAP disabled while
+we are fetching multiple descriptors.
+
+For used descriptors, this allows keeping track of the buffer length
+without need to rescan IOV.
+
+This seems to perform exactly the same as the original
+code based on a microbenchmark.
+Lightly tested.
+More testing would be very much appreciated.
+
+changes from v8:
+	- squashed in fixes. no longer hangs but still known
+	  to cause data corruption for some people. under debug.
+
+changes from v6:
+	- fixes some bugs introduced in v6 and v5
+
+changes from v5:
+	- addressed comments by Jason: squashed API changes, fixed up discard
+
+changes from v4:
+	- added used descriptor format independence
+	- addressed comments by jason
+	- fixed a crash detected by the lkp robot.
+
+changes from v3:
+        - fixed error handling in case of indirect descriptors
+        - add BUG_ON to detect buffer overflow in case of bugs
+                in response to comment by Jason Wang
+        - minor code tweaks
+
+Changes from v2:
+	- fixed indirect descriptor batching
+                reported by Jason Wang
+
+Changes from v1:
+	- typo fixes
 
 
+Michael S. Tsirkin (14):
+  vhost: option to fetch descriptors through an independent struct
+  fixup! vhost: option to fetch descriptors through an independent
+    struct
 
-> Am 11.06.2020 um 13:18 schrieb Michael S. Tsirkin <mst@redhat.com>:
->=20
-> =EF=BB=BFOn Thu, Jun 11, 2020 at 01:00:24PM +0200, David Hildenbrand wrot=
-e:
->>>> I'd like to have this patch in 5.8, with the initial merge of virtio-m=
-em
->>>> if possible (so the user space representation of virtio-mem added memo=
-ry
->>>> resources won't change anymore).
->>>=20
->>> So my plan is to rebase on top of -rc1 and merge this for rc2 then.
->>> I don't like rebase on top of tip as the results are sometimes kind of
->>> random.
->>=20
->> Right, I just wanted to get this out early so we can discuss how to proc=
-eed.
->>=20
->>> And let's add a Fixes: tag as well, this way people will remember to
->>> pick this.
->>> Makes sense?
->>=20
->> Yes, it's somehow a fix (for kexec). So
->>=20
->> Fixes: 5f1f79bbc9e26 ("virtio-mem: Paravirtualized memory hotplug")
->>=20
->> I can respin after -rc1 with the commit id fixed as noted by Pankaj.
->> Just let me know what you prefer.
->>=20
->> Thanks!
->=20
-> Some once this commit is in Linus' tree, please ping me.
 
-It already is as mentioned, only the id was wrong.
+Michael S. Tsirkin (11):
+  vhost: option to fetch descriptors through an independent struct
+  vhost: use batched get_vq_desc version
+  vhost/net: pass net specific struct pointer
+  vhost: reorder functions
+  vhost: format-independent API for used buffers
+  vhost/net: convert to new API: heads->bufs
+  vhost/net: avoid iov length math
+  vhost/test: convert to the buf API
+  vhost/scsi: switch to buf APIs
+  vhost/vsock: switch to the buf API
+  vhost: drop head based APIs
 
-https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/=
-?id=3D7b7b27214bba1966772f9213cd2d8e5d67f8487f
+ drivers/vhost/net.c   | 174 +++++++++----------
+ drivers/vhost/scsi.c  |  73 ++++----
+ drivers/vhost/test.c  |  22 +--
+ drivers/vhost/vhost.c | 378 +++++++++++++++++++++++++++---------------
+ drivers/vhost/vhost.h |  44 +++--
+ drivers/vhost/vsock.c |  30 ++--
+ 6 files changed, 439 insertions(+), 282 deletions(-)
 
->=20
->> --=20
->> Thanks,
->>=20
->> David / dhildenb
->=20
-
---Apple-Mail-3BDDA998-C2BD-49D8-8575-72FA81B00AAD
-Content-Type: text/html;
-	charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-
-<html><head><meta http-equiv=3D"content-type" content=3D"text/html; charset=
-=3Dutf-8"></head><body dir=3D"auto"><div dir=3D"ltr"><br></div><div dir=3D"=
-ltr"><br><blockquote type=3D"cite">Am 11.06.2020 um 13:18 schrieb Michael S=
-. Tsirkin &lt;mst@redhat.com&gt;:<br><br></blockquote></div><blockquote typ=
-e=3D"cite"><div dir=3D"ltr">=EF=BB=BF<span>On Thu, Jun 11, 2020 at 01:00:24=
-PM +0200, David Hildenbrand wrote:</span><br><blockquote type=3D"cite"><blo=
-ckquote type=3D"cite"><blockquote type=3D"cite"><span>I'd like to have this=
- patch in 5.8, with the initial merge of virtio-mem</span><br></blockquote>=
-</blockquote></blockquote><blockquote type=3D"cite"><blockquote type=3D"cit=
-e"><blockquote type=3D"cite"><span>if possible (so the user space represent=
-ation of virtio-mem added memory</span><br></blockquote></blockquote></bloc=
-kquote><blockquote type=3D"cite"><blockquote type=3D"cite"><blockquote type=
-=3D"cite"><span>resources won't change anymore).</span><br></blockquote></b=
-lockquote></blockquote><blockquote type=3D"cite"><blockquote type=3D"cite">=
-<span></span><br></blockquote></blockquote><blockquote type=3D"cite"><block=
-quote type=3D"cite"><span>So my plan is to rebase on top of -rc1 and merge =
-this for rc2 then.</span><br></blockquote></blockquote><blockquote type=3D"=
-cite"><blockquote type=3D"cite"><span>I don't like rebase on top of tip as =
-the results are sometimes kind of</span><br></blockquote></blockquote><bloc=
-kquote type=3D"cite"><blockquote type=3D"cite"><span>random.</span><br></bl=
-ockquote></blockquote><blockquote type=3D"cite"><span></span><br></blockquo=
-te><blockquote type=3D"cite"><span>Right, I just wanted to get this out ear=
-ly so we can discuss how to proceed.</span><br></blockquote><blockquote typ=
-e=3D"cite"><span></span><br></blockquote><blockquote type=3D"cite"><blockqu=
-ote type=3D"cite"><span>And let's add a Fixes: tag as well, this way people=
- will remember to</span><br></blockquote></blockquote><blockquote type=3D"c=
-ite"><blockquote type=3D"cite"><span>pick this.</span><br></blockquote></bl=
-ockquote><blockquote type=3D"cite"><blockquote type=3D"cite"><span>Makes se=
-nse?</span><br></blockquote></blockquote><blockquote type=3D"cite"><span></=
-span><br></blockquote><blockquote type=3D"cite"><span>Yes, it's somehow a f=
-ix (for kexec). So</span><br></blockquote><blockquote type=3D"cite"><span><=
-/span><br></blockquote><blockquote type=3D"cite"><span>Fixes: 5f1f79bbc9e26=
- ("virtio-mem: Paravirtualized memory hotplug")</span><br></blockquote><blo=
-ckquote type=3D"cite"><span></span><br></blockquote><blockquote type=3D"cit=
-e"><span>I can respin after -rc1 with the commit id fixed as noted by Panka=
-j.</span><br></blockquote><blockquote type=3D"cite"><span>Just let me know =
-what you prefer.</span><br></blockquote><blockquote type=3D"cite"><span></s=
-pan><br></blockquote><blockquote type=3D"cite"><span>Thanks!</span><br></bl=
-ockquote><span></span><br><span>Some once this commit is in Linus' tree, pl=
-ease ping me.</span><br></div></blockquote><div><br></div><div>It already i=
-s as mentioned, only the id was wrong.</div><div><br></div><div><a href=3D"=
-https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/=
-?id=3D7b7b27214bba1966772f9213cd2d8e5d67f8487f">https://git.kernel.org/pub/=
-scm/linux/kernel/git/next/linux-next.git/commit/?id=3D7b7b27214bba1966772f9=
-213cd2d8e5d67f8487f</a></div><br><blockquote type=3D"cite"><div dir=3D"ltr"=
-><span></span><br><blockquote type=3D"cite"><span>-- </span><br></blockquot=
-e><blockquote type=3D"cite"><span>Thanks,</span><br></blockquote><blockquot=
-e type=3D"cite"><span></span><br></blockquote><blockquote type=3D"cite"><sp=
-an>David / dhildenb</span><br></blockquote><span></span><br></div></blockqu=
-ote></body></html>
---Apple-Mail-3BDDA998-C2BD-49D8-8575-72FA81B00AAD--
+-- 
+MST
