@@ -1,54 +1,54 @@
 From: Sean Christopherson <sean.j.christopherson@intel.com>
-Subject: Re: [PATCH v3 59/75] x86/sev-es: Handle MONITOR/MONITORX Events
-Date: Thu, 11 Jun 2020 10:13:05 -0700
-Message-ID: <20200611171305.GJ29918@linux.intel.com>
+Subject: Re: [PATCH v3 47/75] x86/sev-es: Add Runtime #VC Exception Handler
+Date: Thu, 11 Jun 2020 10:38:48 -0700
+Message-ID: <20200611173848.GK29918@linux.intel.com>
 References: <20200428151725.31091-1-joro@8bytes.org>
- <20200428151725.31091-60-joro@8bytes.org>
- <20200520063845.GC17090@linux.intel.com>
- <20200611131045.GE11924@8bytes.org>
+ <20200428151725.31091-48-joro@8bytes.org>
+ <20200523075924.GB27431@zn.tnic>
+ <20200611114831.GA11924@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20200611131045.GE11924@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
+In-Reply-To: <20200611114831.GA11924@8bytes.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: Joerg Roedel <joro@8bytes.org>
-Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, x86@kernel.org, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>, Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Joerg Roedel <jroedel@suse.de>, Borislav Petkov <bp@alien8.de>, Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 11, 2020 at 03:10:45PM +0200, Joerg Roedel wrote:
-> On Tue, May 19, 2020 at 11:38:45PM -0700, Sean Christopherson wrote:
-> > On Tue, Apr 28, 2020 at 05:17:09PM +0200, Joerg Roedel wrote:
-> > > +static enum es_result vc_handle_monitor(struct ghcb *ghcb,
-> > > +					struct es_em_ctxt *ctxt)
-> > > +{
-> > > +	phys_addr_t monitor_pa;
-> > > +	pgd_t *pgd;
-> > > +
-> > > +	pgd = __va(read_cr3_pa());
-> > > +	monitor_pa = vc_slow_virt_to_phys(ghcb, ctxt->regs->ax);
-> > > +
-> > > +	ghcb_set_rax(ghcb, monitor_pa);
-> > > +	ghcb_set_rcx(ghcb, ctxt->regs->cx);
-> > > +	ghcb_set_rdx(ghcb, ctxt->regs->dx);
-> > > +
-> > > +	return sev_es_ghcb_hv_call(ghcb, ctxt, SVM_EXIT_MONITOR, 0, 0);
+On Thu, Jun 11, 2020 at 01:48:31PM +0200, Joerg Roedel wrote:
+> On Sat, May 23, 2020 at 09:59:24AM +0200, Borislav Petkov wrote:
+> > On Tue, Apr 28, 2020 at 05:16:57PM +0200, Joerg Roedel wrote:
+> > > +	/*
+> > > +	 * Mark the per-cpu GHCBs as in-use to detect nested #VC exceptions.
+> > > +	 * There is no need for it to be atomic, because nothing is written to
+> > > +	 * the GHCB between the read and the write of ghcb_active. So it is safe
+> > > +	 * to use it when a nested #VC exception happens before the write.
+> > > +	 */
 > > 
-> > Why?  If SVM has the same behavior as VMX, the MONITOR will be disarmed on
-> > VM-Enter, i.e. the VMM can't do anything useful for MONITOR/MWAIT.  I
-> > assume that's the case given that KVM emulates MONITOR/MWAIT as NOPs on
-> > SVM.
+> > Looks liks that is that text... support for nested #VC exceptions.
+> > I'm sure this has come up already but why do we even want to support
+> > nested #VCs? IOW, can we do without them first or are they absolutely
+> > necessary?
+> > 
+> > I'm guessing VC exceptions inside the VC handler but what are the
+> > sensible use cases?
 > 
-> Not sure if it is disarmed on VMRUN, but the MONITOR/MWAIT instructions
-> are part of the GHCB spec, so they are implemented here.
+> The most important use-case is #VC->NMI->#VC. When an NMI hits while the
+> #VC handler uses the GHCB and the NMI handler causes another #VC, then
+> the contents of the GHCB needs to be backed up, so that it doesn't
+> destroy the GHCB contents of the first #VC handling path.
 
-Even if MONITOR/MWAIT somehow works across VMRUN I'm not sure it's something
-the guest should enable by default as it leaks GPAs to the untrusted host,
-with no benefit to the guest except in specific configurations.  Yeah, the
-VMM can muck with page tables to trace guest to the some extent, but the
-guest shouldn't be unnecessarily volunteering information to the host.
-
-If MONITOR/MWAIT is effectively a NOP then removing this code is a no
-brainer.
-
-Can someone from AMD chime in?
+Isn't it possible for the #VC handler to hit a #PF, e.g. on copy_from_user()
+in insn_fetch_from_user()?  If that happens, what prevents the #PF handler
+from hitting a #VC?  AIUI, do_vmm_communication() panics if the backup GHCB
+is already in use, e.g. #VC->#PF->#VC->NMI->#VC would be fatal.
