@@ -1,98 +1,43 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v1] virtio-mem: add memory via add_memory_driver_managed()
-Date: Thu, 11 Jun 2020 07:41:13 -0400
-Message-ID: <20200611073943-mutt-send-email-mst@kernel.org>
-References: <20200611071744-mutt-send-email-mst@kernel.org>
- <613382D2-5F4D-4A32-AC8E-E1D03240036F@redhat.com>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: Re: [PATCH v3 47/75] x86/sev-es: Add Runtime #VC Exception Handler
+Date: Thu, 11 Jun 2020 13:48:31 +0200
+Message-ID: <20200611114831.GA11924@8bytes.org>
+References: <20200428151725.31091-1-joro@8bytes.org>
+ <20200428151725.31091-48-joro@8bytes.org>
+ <20200523075924.GB27431@zn.tnic>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <kvm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <613382D2-5F4D-4A32-AC8E-E1D03240036F@redhat.com>
+In-Reply-To: <20200523075924.GB27431@zn.tnic>
 Sender: kvm-owner@vger.kernel.org
-To: David Hildenbrand <david@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Jason Wang <jasowang@redhat.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, teawater <teawaterz@linux.alibaba.com>
+To: Borislav Petkov <bp@alien8.de>
+Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 11, 2020 at 01:33:04PM +0200, David Hildenbrand wrote:
+On Sat, May 23, 2020 at 09:59:24AM +0200, Borislav Petkov wrote:
+> On Tue, Apr 28, 2020 at 05:16:57PM +0200, Joerg Roedel wrote:
+> > +	/*
+> > +	 * Mark the per-cpu GHCBs as in-use to detect nested #VC exceptions.
+> > +	 * There is no need for it to be atomic, because nothing is written to
+> > +	 * the GHCB between the read and the write of ghcb_active. So it is safe
+> > +	 * to use it when a nested #VC exception happens before the write.
+> > +	 */
 > 
+> Looks liks that is that text... support for nested #VC exceptions.
+> I'm sure this has come up already but why do we even want to support
+> nested #VCs? IOW, can we do without them first or are they absolutely
+> necessary?
 > 
->     Am 11.06.2020 um 13:18 schrieb Michael S. Tsirkin <mst@redhat.com>:
-> 
-> 
->     On Thu, Jun 11, 2020 at 01:00:24PM +0200, David Hildenbrand wrote:
-> 
->                 I'd like to have this patch in 5.8, with the initial merge of
->                 virtio-mem
-> 
->                 if possible (so the user space representation of virtio-mem
->                 added memory
-> 
->                 resources won't change anymore).
-> 
->            
-> 
->             So my plan is to rebase on top of -rc1 and merge this for rc2 then.
-> 
->             I don't like rebase on top of tip as the results are sometimes kind
->             of
-> 
->             random.
-> 
->        
-> 
->         Right, I just wanted to get this out early so we can discuss how to
->         proceed.
-> 
->        
-> 
->             And let's add a Fixes: tag as well, this way people will remember
->             to
-> 
->             pick this.
-> 
->             Makes sense?
-> 
->        
-> 
->         Yes, it's somehow a fix (for kexec). So
-> 
->        
-> 
->         Fixes: 5f1f79bbc9e26 ("virtio-mem: Paravirtualized memory hotplug")
-> 
->        
-> 
->         I can respin after -rc1 with the commit id fixed as noted by Pankaj.
-> 
->         Just let me know what you prefer.
-> 
->        
-> 
->         Thanks!
-> 
->    
->     Some once this commit is in Linus' tree, please ping me.
-> 
-> 
-> It already is as mentioned, only the id was wrong.
-> 
-> https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?id=
-> 7b7b27214bba1966772f9213cd2d8e5d67f8487f
+> I'm guessing VC exceptions inside the VC handler but what are the
+> sensible use cases?
 
-OK I pushed this into next based on tip. Let's see what happens.
+The most important use-case is #VC->NMI->#VC. When an NMI hits while the
+#VC handler uses the GHCB and the NMI handler causes another #VC, then
+the contents of the GHCB needs to be backed up, so that it doesn't
+destroy the GHCB contents of the first #VC handling path.
 
 
-> 
->    
-> 
->         --
-> 
->         Thanks,
-> 
->        
-> 
->         David / dhildenb
-> 
->    
-> 
+Regards,
+
+	Joerg
