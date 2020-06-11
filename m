@@ -1,76 +1,127 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH RFC v6 02/11] vhost: use batched get_vq_desc version
-Date: Thu, 11 Jun 2020 05:06:38 -0400
-Message-ID: <20200611050416-mutt-send-email-mst@kernel.org>
-References: <20200608125238.728563-1-mst@redhat.com>
- <20200608125238.728563-3-mst@redhat.com>
- <81904cc5-b662-028d-3b4a-bdfdbd2deb8c@redhat.com>
- <20200610070259-mutt-send-email-mst@kernel.org>
- <76b14132-407a-48bf-c4d5-9d0b2c700bb0@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: [PATCH v1] virtio-mem: add memory via add_memory_driver_managed()
+Date: Thu, 11 Jun 2020 11:35:18 +0200
+Message-ID: <20200611093518.5737-1-david@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <76b14132-407a-48bf-c4d5-9d0b2c700bb0@redhat.com>
-Sender: kvm-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, eperezma@redhat.com
+Return-path: <virtio-dev-return-7460-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+To: linux-kernel@vger.kernel.org
+Cc: linux-mm@kvack.org, virtio-dev@lists.oasis-open.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, David Hildenbrand <david@redhat.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, teawater <teawaterz@linux.alibaba.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 11, 2020 at 11:02:57AM +0800, Jason Wang wrote:
-> 
-> On 2020/6/10 下午7:05, Michael S. Tsirkin wrote:
-> > > > +EXPORT_SYMBOL_GPL(vhost_get_vq_desc);
-> > > >    /* Reverse the effect of vhost_get_vq_desc. Useful for error handling. */
-> > > >    void vhost_discard_vq_desc(struct vhost_virtqueue *vq, int n)
-> > > >    {
-> > > > +	unfetch_descs(vq);
-> > > >    	vq->last_avail_idx -= n;
-> > > So unfetch_descs() has decreased last_avail_idx.
-> > > Can we fix this by letting unfetch_descs() return the number and then we can
-> > > do:
-> > > 
-> > > int d = unfetch_descs(vq);
-> > > vq->last_avail_idx -= (n > d) ? n - d: 0;
-> > > 
-> > > Thanks
-> > That's intentional I think - we need both.
-> 
-> 
-> Yes, but:
-> 
-> 
-> > 
-> > Unfetch_descs drops the descriptors in the cache that were
-> > *not returned to caller*  through get_vq_desc.
-> > 
-> > vhost_discard_vq_desc drops the ones that were returned through get_vq_desc.
-> > 
-> > Did I miss anything?
-> 
-> We could count some descriptors twice, consider the case e.g we only cache
-> on descriptor:
-> 
-> fetch_descs()
->     fetch_buf()
->         last_avail_idx++;
-> 
-> Then we want do discard it:
-> vhost_discard_avail_buf(1)
->     unfetch_descs()
->         last_avail_idx--;
->     last_avail_idx -= 1;
-> 
-> Thanks
+Virtio-mem managed memory is always detected and added by the virtio-mem
+driver, never using something like the firmware-provided memory map.
+This is the case after an ordinary system reboot, and has to be guaranteed
+after kexec. Especially, virtio-mem added memory resources can contain
+inaccessible parts ("unblocked memory blocks"), blindly forwarding them
+to a kexec kernel is dangerous, as unplugged memory will get accessed
+(esp. written).
 
+Let's use the new way of adding special driver-managed memory introduced
+in commit 75ac4c58bc0d ("mm/memory_hotplug: introduce
+add_memory_driver_managed()").
 
-I don't think that happens. vhost_discard_avail_buf(1) is only called
-after get vhost_get_avail_buf. vhost_get_avail_buf increments
-first_desc.  unfetch_descs only counts from first_desc to ndescs.
+This will result in no entries in /sys/firmware/memmap ("raw firmware-
+provided memory map"), the memory resource will be flagged
+IORESOURCE_MEM_DRIVER_MANAGED (esp., kexec_file_load() will not place
+kexec images on this memory), and it is exposed as "System RAM
+(virtio_mem)" in /proc/iomem, so esp. kexec-tools can properly handle it.
 
-If I'm wrong, could you show values of first_desc and ndescs in this
-scenario?
+Example /proc/iomem before this change:
+  [...]
+  140000000-333ffffff : virtio0
+    140000000-147ffffff : System RAM
+  334000000-533ffffff : virtio1
+    338000000-33fffffff : System RAM
+    340000000-347ffffff : System RAM
+    348000000-34fffffff : System RAM
+  [...]
 
+Example /proc/iomem after this change:
+  [...]
+  140000000-333ffffff : virtio0
+    140000000-147ffffff : System RAM (virtio_mem)
+  334000000-533ffffff : virtio1
+    338000000-33fffffff : System RAM (virtio_mem)
+    340000000-347ffffff : System RAM (virtio_mem)
+    348000000-34fffffff : System RAM (virtio_mem)
+  [...]
+
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Cc: teawater <teawaterz@linux.alibaba.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+
+Based on latest Linus' tree (and not a tag) because
+- virtio-mem has just been merged via the vhost tree
+- add_memory_driver_managed() has been merged a week ago via the -mm tree
+
+I'd like to have this patch in 5.8, with the initial merge of virtio-mem
+if possible (so the user space representation of virtio-mem added memory
+resources won't change anymore).
+
+---
+ drivers/virtio/virtio_mem.c | 25 ++++++++++++++++++++++---
+ 1 file changed, 22 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
+index 50c689f250450..d2eab3558a9e1 100644
+--- a/drivers/virtio/virtio_mem.c
++++ b/drivers/virtio/virtio_mem.c
+@@ -101,6 +101,11 @@ struct virtio_mem {
+ 
+ 	/* The parent resource for all memory added via this device. */
+ 	struct resource *parent_resource;
++	/*
++	 * Copy of "System RAM (virtio_mem)" to be used for
++	 * add_memory_driver_managed().
++	 */
++	const char *resource_name;
+ 
+ 	/* Summary of all memory block states. */
+ 	unsigned long nb_mb_state[VIRTIO_MEM_MB_STATE_COUNT];
+@@ -414,8 +419,20 @@ static int virtio_mem_mb_add(struct virtio_mem *vm, unsigned long mb_id)
+ 	if (nid == NUMA_NO_NODE)
+ 		nid = memory_add_physaddr_to_nid(addr);
+ 
++	/*
++	 * When force-unloading the driver and we still have memory added to
++	 * Linux, the resource name has to stay.
++	 */
++	if (!vm->resource_name) {
++		vm->resource_name = kstrdup_const("System RAM (virtio_mem)",
++						  GFP_KERNEL);
++		if (!vm->resource_name)
++			return -ENOMEM;
++	}
++
+ 	dev_dbg(&vm->vdev->dev, "adding memory block: %lu\n", mb_id);
+-	return add_memory(nid, addr, memory_block_size_bytes());
++	return add_memory_driver_managed(nid, addr, memory_block_size_bytes(),
++					 vm->resource_name);
+ }
+ 
+ /*
+@@ -1890,10 +1907,12 @@ static void virtio_mem_remove(struct virtio_device *vdev)
+ 	    vm->nb_mb_state[VIRTIO_MEM_MB_STATE_OFFLINE_PARTIAL] ||
+ 	    vm->nb_mb_state[VIRTIO_MEM_MB_STATE_ONLINE] ||
+ 	    vm->nb_mb_state[VIRTIO_MEM_MB_STATE_ONLINE_PARTIAL] ||
+-	    vm->nb_mb_state[VIRTIO_MEM_MB_STATE_ONLINE_MOVABLE])
++	    vm->nb_mb_state[VIRTIO_MEM_MB_STATE_ONLINE_MOVABLE]) {
+ 		dev_warn(&vdev->dev, "device still has system memory added\n");
+-	else
++	} else {
+ 		virtio_mem_delete_resource(vm);
++		kfree_const(vm->resource_name);
++	}
+ 
+ 	/* remove all tracking data - no locking needed */
+ 	vfree(vm->mb_state);
 -- 
-MST
+2.26.2
