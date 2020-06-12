@@ -1,44 +1,82 @@
-From: "Derrick, Jonathan" <jonathan.derrick@intel.com>
-Subject: Re: [PATCH v3 1/2] PCI: vmd: Filter resource type bits from shadow
- register
-Date: Fri, 12 Jun 2020 15:11:15 +0000
-Message-ID: <8466e3ff386547a3bbaf578c3099dd12d545a7f8.camel@intel.com>
-References: <20200528030240.16024-1-jonathan.derrick@intel.com>
-         <20200528030240.16024-3-jonathan.derrick@intel.com>
-         <20200529103315.GC12270@e121166-lin.cambridge.arm.com>
-         <163e8cb37ece0c8daa6d6e5fd7fcae47ba4fa437.camel@intel.com>
-         <20200529161824.GA17642@e121166-lin.cambridge.arm.com>
-         <f1d36b8fc4ab7aacf6efca19303b04a5b4f8189c.camel@intel.com>
-         <20200612135443.GA25653@e121166-lin.cambridge.arm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: Re: [PATCH] s390: protvirt: virtio: Refuse device without IOMMU
+Date: Fri, 12 Jun 2020 17:15:07 +0200
+Message-ID: <56545c29-c906-0020-6727-0e35c21741f5@linux.ibm.com>
+References: <1591794711-5915-1-git-send-email-pmorel@linux.ibm.com>
+ <CAHEKYV6edAHyrW-VQtW5ufZkqpXbfd1sU9N4BqOktezdffHTsg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <linux-pci-owner@vger.kernel.org>
-In-Reply-To: <20200612135443.GA25653@e121166-lin.cambridge.arm.com>
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <CAHEKYV6edAHyrW-VQtW5ufZkqpXbfd1sU9N4BqOktezdffHTsg@mail.gmail.com>
 Content-Language: en-US
-Content-ID: <D2235C0C9FC0184E9366125CF83DC4A3@intel.com>
-Sender: linux-pci-owner@vger.kernel.org
-To: "lorenzo.pieralisi@arm.com" <lorenzo.pieralisi@arm.com>, "bhelgaas@google.com" <bhelgaas@google.com>
-Cc: "hch@lst.de" <hch@lst.de>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "helgaas@kernel.org" <helgaas@kernel.org>, "andrzej.jakowski@linux.intel.com" <andrzej.jakowski@linux.intel.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "alex.williamson@redhat.com" <alex.williamson@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Mauricio Tavares <raubvogel@gmail.com>
+Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gRnJpLCAyMDIwLTA2LTEyIGF0IDE0OjU0ICswMTAwLCBMb3JlbnpvIFBpZXJhbGlzaSB3cm90
-ZToNCj4gT24gVGh1LCBKdW4gMTEsIDIwMjAgYXQgMDk6MTY6NDhQTSArMDAwMCwgRGVycmljaywg
-Sm9uYXRoYW4gd3JvdGU6DQo+IA0KPiBbLi4uXQ0KPiANCj4gPiA+ID4gPiBIaSBKb24sDQo+ID4g
-PiA+ID4gDQo+ID4gPiA+ID4gaXQgbG9va3MgbGlrZSBJIGNhbiB0YWtlIHRoaXMgcGF0Y2ggZm9y
-IHY1Ljggd2hlcmVhcyBwYXRjaCAyIGRlcGVuZHMNCj4gPiA+ID4gPiBvbiB0aGUgUUVNVSBjaGFu
-Z2VzIGFjY2VwdGFuY2UgYW5kIHNob3VsZCBwcm9iYWJseSB3YWl0Lg0KPiA+ID4gPiA+IA0KPiA+
-ID4gPiA+IFBsZWFzZSBsZXQgbWUga25vdyB5b3VyIHRob3VnaHRzIGFzYXAgYW5kIEkgd2lsbCB0
-cnkgdG8gYXQgbGVhc3QNCj4gPiA+ID4gPiBzcXVlZXplIHRoaXMgcGF0Y2ggaW4uDQo+ID4gPiA+
-ID4gDQo+ID4gPiA+ID4gTG9yZW56bw0KPiA+ID4gPiANCj4gPiA+ID4gSGkgTG9yZW56bywNCj4g
-PiA+ID4gDQo+ID4gPiA+IFRoaXMgaXMgZmluZS4gUGxlYXNlIHRha2UgUGF0Y2ggMS4NCj4gPiA+
-ID4gUGF0Y2ggMiBpcyBoYXJtbGVzcyB3aXRob3V0IHRoZSBRRU1VIGNoYW5nZXMsIGJ1dCBtYXkg
-YWx3YXlzIG5lZWQgYQ0KPiA+ID4gPiBkaWZmZXJlbnQgYXBwcm9hY2guDQo+ID4gPiANCj4gPiA+
-IFB1bGxlZCBwYXRjaCAxIGludG8gcGNpL3ZtZCwgdGhhbmtzLg0KPiA+ID4gDQo+ID4gPiBMb3Jl
-bnpvDQo+ID4gDQo+ID4gSGkgTG9yZW56bywNCj4gPiANCj4gPiBBbGV4IGhhcyBwci1lZCB0aGUg
-UUVNVSBwYXRjaCBbMV0NCj4gPiBJcyBpdCB0b28gbGF0ZSB0byBwdWxsIHBhdGNoIDIvMiBmb3Ig
-djUuOD8NCj4gDQo+IEkgdGhpbmsgaXQgaXMgLSBJIGRvbid0IGtub3cgaWYgQmpvcm4gcGxhbm5l
-ZCBhIHNlY29uZCBQUiBmb3IgdGhpcw0KPiBtZXJnZSB3aW5kb3csIGlmIG5vdCBpdCBpcyB2NS45
-IG1hdGVyaWFsIEkgYW0gYWZyYWlkLg0KPiANCj4gVGhhbmtzLA0KPiBMb3JlbnpvDQo+IA0KPiA+
-IFsxXSANCj4gPiBodHRwczovL2dpdGh1Yi5jb20vYXdpbGxpYW0vcWVtdS12ZmlvL3JlbGVhc2Vz
-L3RhZy92ZmlvLXVwZGF0ZS0yMDIwMDYxMS4wDQoNCk5vIHByb2JsZW0NCkpvbg0K
+
+
+On 2020-06-12 15:45, Mauricio Tavares wrote:
+> On Wed, Jun 10, 2020 at 12:32 PM Pierre Morel <pmorel@linux.ibm.com> wrote:
+>>
+>> Protected Virtualisation protects the memory of the guest and
+>> do not allow a the host to access all of its memory.
+>>
+>> Let's refuse a VIRTIO device which does not use IOMMU
+>> protected access.
+>>
+>        Stupid questions:
+
+not stupid at all. :)
+
+> 
+> 1. Do all CPU families we care about (which are?) support IOMMU? Ex:
+> would it recognize an ARM thingie with SMMU? [1]
+
+In Message-ID: <6356ba7f-afab-75e1-05ff-4a22b88c610e@linux.ibm.com>
+(as answer to Jason) I modified the patch and propose to take care of 
+this problem by using force_dma_unencrypted() inside virtio core instead 
+of a S390 specific test.
+
+If we use force_dma_unencrypted(dev) to check if we must refuse a device 
+without the VIRTIO_F_IOMMU_PLATFORM feature, we are safe:
+only architectures defining CONFIG_ARCH_HAS_FORCE_DMA_UNENCRYPTED will 
+have to define force_dma_unencrypted(dev), and they can choose what to 
+do by checking the architecture functionalities and/or the device.
+
+> 2. Would it make sense to have some kind of
+> yes-I-know-the-consequences-but-I-need-to-have-a-virtio-device-without-iommu-in-this-guest
+> flag?
+
+Yes, two ways:
+
+Never refuse a device without VIRTIO_F_IOMMU_PLATFORM, by not defining 
+CONFIG_ARCH_HAS_FORCE_DMA_UNENCRYPTED or by always return 0 in 
+force_dma_unencrypted()
+
+have force_dma_unencrypted() selectively answer by checking the device 
+and/or architecture state.
+
+> 
+...snip...
+>>
+> 
+> [1] https://developer.arm.com/architectures/system-architectures/system-components/system-mmu-support
+> 
+
+Regards,
+Pierre
+
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
