@@ -1,56 +1,58 @@
-From: Mauricio Tavares <raubvogel@gmail.com>
-Subject: Re: [PATCH] s390: protvirt: virtio: Refuse device without IOMMU
-Date: Fri, 12 Jun 2020 09:45:42 -0400
-Message-ID: <CAHEKYV6edAHyrW-VQtW5ufZkqpXbfd1sU9N4BqOktezdffHTsg@mail.gmail.com>
-References: <1591794711-5915-1-git-send-email-pmorel@linux.ibm.com>
+From: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: Re: [PATCH v3 1/2] PCI: vmd: Filter resource type bits from shadow
+ register
+Date: Fri, 12 Jun 2020 14:54:43 +0100
+Message-ID: <20200612135443.GA25653@e121166-lin.cambridge.arm.com>
+References: <20200528030240.16024-1-jonathan.derrick@intel.com>
+ <20200528030240.16024-3-jonathan.derrick@intel.com>
+ <20200529103315.GC12270@e121166-lin.cambridge.arm.com>
+ <163e8cb37ece0c8daa6d6e5fd7fcae47ba4fa437.camel@intel.com>
+ <20200529161824.GA17642@e121166-lin.cambridge.arm.com>
+ <f1d36b8fc4ab7aacf6efca19303b04a5b4f8189c.camel@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1591794711-5915-1-git-send-email-pmorel@linux.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pierre Morel <pmorel@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-pci-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <f1d36b8fc4ab7aacf6efca19303b04a5b4f8189c.camel@intel.com>
+Sender: linux-pci-owner@vger.kernel.org
+To: "Derrick, Jonathan" <jonathan.derrick@intel.com>, Bjorn Helgaas <bhelgaas@google.com>
+Cc: "hch@lst.de" <hch@lst.de>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "helgaas@kernel.org" <helgaas@kernel.org>, "andrzej.jakowski@linux.intel.com" <andrzej.jakowski@linux.intel.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "alex.williamson@redhat.com" <alex.williamson@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 10, 2020 at 12:32 PM Pierre Morel <pmorel@linux.ibm.com> wrote:
->
-> Protected Virtualisation protects the memory of the guest and
-> do not allow a the host to access all of its memory.
->
-> Let's refuse a VIRTIO device which does not use IOMMU
-> protected access.
->
-      Stupid questions:
+On Thu, Jun 11, 2020 at 09:16:48PM +0000, Derrick, Jonathan wrote:
 
-1. Do all CPU families we care about (which are?) support IOMMU? Ex:
-would it recognize an ARM thingie with SMMU? [1]
-2. Would it make sense to have some kind of
-yes-I-know-the-consequences-but-I-need-to-have-a-virtio-device-without-iommu-in-this-guest
-flag?
+[...]
 
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> ---
->  drivers/s390/virtio/virtio_ccw.c | 5 +++++
->  1 file changed, 5 insertions(+)
->
-> diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
-> index 5730572b52cd..06ffbc96587a 100644
-> --- a/drivers/s390/virtio/virtio_ccw.c
-> +++ b/drivers/s390/virtio/virtio_ccw.c
-> @@ -986,6 +986,11 @@ static void virtio_ccw_set_status(struct virtio_device *vdev, u8 status)
->         if (!ccw)
->                 return;
->
-> +       /* Protected Virtualisation guest needs IOMMU */
-> +       if (is_prot_virt_guest() &&
-> +           !__virtio_test_bit(vdev, VIRTIO_F_IOMMU_PLATFORM))
-> +                       status &= ~VIRTIO_CONFIG_S_FEATURES_OK;
-> +
->         /* Write the status to the host. */
->         vcdev->dma_area->status = status;
->         ccw->cmd_code = CCW_CMD_WRITE_STATUS;
-> --
-> 2.25.1
->
+> > > > Hi Jon,
+> > > > 
+> > > > it looks like I can take this patch for v5.8 whereas patch 2 depends
+> > > > on the QEMU changes acceptance and should probably wait.
+> > > > 
+> > > > Please let me know your thoughts asap and I will try to at least
+> > > > squeeze this patch in.
+> > > > 
+> > > > Lorenzo
+> > > 
+> > > Hi Lorenzo,
+> > > 
+> > > This is fine. Please take Patch 1.
+> > > Patch 2 is harmless without the QEMU changes, but may always need a
+> > > different approach.
+> > 
+> > Pulled patch 1 into pci/vmd, thanks.
+> > 
+> > Lorenzo
+> 
+> Hi Lorenzo,
+> 
+> Alex has pr-ed the QEMU patch [1]
+> Is it too late to pull patch 2/2 for v5.8?
 
-[1] https://developer.arm.com/architectures/system-architectures/system-components/system-mmu-support
+I think it is - I don't know if Bjorn planned a second PR for this
+merge window, if not it is v5.9 material I am afraid.
+
+Thanks,
+Lorenzo
+
+> [1] 
+> https://github.com/awilliam/qemu-vfio/releases/tag/vfio-update-20200611.0
