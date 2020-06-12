@@ -1,58 +1,43 @@
-From: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: Re: [PATCH v3 1/2] PCI: vmd: Filter resource type bits from shadow
- register
-Date: Fri, 12 Jun 2020 14:54:43 +0100
-Message-ID: <20200612135443.GA25653@e121166-lin.cambridge.arm.com>
-References: <20200528030240.16024-1-jonathan.derrick@intel.com>
- <20200528030240.16024-3-jonathan.derrick@intel.com>
- <20200529103315.GC12270@e121166-lin.cambridge.arm.com>
- <163e8cb37ece0c8daa6d6e5fd7fcae47ba4fa437.camel@intel.com>
- <20200529161824.GA17642@e121166-lin.cambridge.arm.com>
- <f1d36b8fc4ab7aacf6efca19303b04a5b4f8189c.camel@intel.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] drivers\block: Use kobj_to_dev() API
+Date: Fri, 12 Jun 2020 10:27:14 -0400
+Message-ID: <20200612102651-mutt-send-email-mst@kernel.org>
+References: <1591945856-14749-1-git-send-email-wangqing@vivo.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-pci-owner@vger.kernel.org>
+Return-path: <linux-block-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <f1d36b8fc4ab7aacf6efca19303b04a5b4f8189c.camel@intel.com>
-Sender: linux-pci-owner@vger.kernel.org
-To: "Derrick, Jonathan" <jonathan.derrick@intel.com>, Bjorn Helgaas <bhelgaas@google.com>
-Cc: "hch@lst.de" <hch@lst.de>, "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "helgaas@kernel.org" <helgaas@kernel.org>, "andrzej.jakowski@linux.intel.com" <andrzej.jakowski@linux.intel.com>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>, "alex.williamson@redhat.com" <alex.williamson@redhat.com>
+In-Reply-To: <1591945856-14749-1-git-send-email-wangqing@vivo.com>
+Sender: linux-block-owner@vger.kernel.org
+To: Wang Qing <wangqing@vivo.com>
+Cc: Jason Wang <jasowang@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Jens Axboe <axboe@kernel.dk>, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 11, 2020 at 09:16:48PM +0000, Derrick, Jonathan wrote:
-
-[...]
-
-> > > > Hi Jon,
-> > > > 
-> > > > it looks like I can take this patch for v5.8 whereas patch 2 depends
-> > > > on the QEMU changes acceptance and should probably wait.
-> > > > 
-> > > > Please let me know your thoughts asap and I will try to at least
-> > > > squeeze this patch in.
-> > > > 
-> > > > Lorenzo
-> > > 
-> > > Hi Lorenzo,
-> > > 
-> > > This is fine. Please take Patch 1.
-> > > Patch 2 is harmless without the QEMU changes, but may always need a
-> > > different approach.
-> > 
-> > Pulled patch 1 into pci/vmd, thanks.
-> > 
-> > Lorenzo
+On Fri, Jun 12, 2020 at 03:10:56PM +0800, Wang Qing wrote:
+> Use kobj_to_dev() API instead of container_of().
 > 
-> Hi Lorenzo,
+> Signed-off-by: Wang Qing <wangqing@vivo.com>
+> ---
+>  drivers/block/virtio_blk.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>  mode change 100644 => 100755 drivers/block/virtio_blk.c
+
+
+Subject should probably use "/". Besides that - trivial tree?
+
 > 
-> Alex has pr-ed the QEMU patch [1]
-> Is it too late to pull patch 2/2 for v5.8?
-
-I think it is - I don't know if Bjorn planned a second PR for this
-merge window, if not it is v5.9 material I am afraid.
-
-Thanks,
-Lorenzo
-
-> [1] 
-> https://github.com/awilliam/qemu-vfio/releases/tag/vfio-update-20200611.0
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 9d21bf0..c808405
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -630,7 +630,7 @@ static struct attribute *virtblk_attrs[] = {
+>  static umode_t virtblk_attrs_are_visible(struct kobject *kobj,
+>  		struct attribute *a, int n)
+>  {
+> -	struct device *dev = container_of(kobj, struct device, kobj);
+> +	struct device *dev = kobj_to_dev(kobj);
+>  	struct gendisk *disk = dev_to_disk(dev);
+>  	struct virtio_blk *vblk = disk->private_data;
+>  	struct virtio_device *vdev = vblk->vdev;
+> -- 
+> 2.7.4
