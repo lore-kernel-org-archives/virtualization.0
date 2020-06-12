@@ -1,82 +1,44 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH] s390: protvirt: virtio: Refuse device without IOMMU
-Date: Fri, 12 Jun 2020 17:15:07 +0200
-Message-ID: <56545c29-c906-0020-6727-0e35c21741f5@linux.ibm.com>
-References: <1591794711-5915-1-git-send-email-pmorel@linux.ibm.com>
- <CAHEKYV6edAHyrW-VQtW5ufZkqpXbfd1sU9N4BqOktezdffHTsg@mail.gmail.com>
+From: Matthew Wilcox <willy@infradead.org>
+Subject: Re: [PATCH 1/2] docs: mm/gup: pin_user_pages.rst: add a "case 5"
+Date: Fri, 12 Jun 2020 12:24:26 -0700
+Message-ID: <20200612192426.GK8681@bombadil.infradead.org>
+References: <20200529234309.484480-1-jhubbard@nvidia.com>
+ <20200529234309.484480-2-jhubbard@nvidia.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <CAHEKYV6edAHyrW-VQtW5ufZkqpXbfd1sU9N4BqOktezdffHTsg@mail.gmail.com>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Mauricio Tavares <raubvogel@gmail.com>
-Cc: linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-doc-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200529234309.484480-2-jhubbard@nvidia.com>
+Sender: linux-doc-owner@vger.kernel.org
+To: John Hubbard <jhubbard@nvidia.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Vlastimil Babka <vbabka@suse.cz>, =?iso-8859-1?B?Suly9G1l?= Glisse <jglisse@redhat.com>, Jan Kara <jack@suse.cz>, Dave Chinner <david@fromorbit.com>, Souptick Joarder <jrdr.linux@gmail.com>, Jonathan Corbet <corbet@lwn.net>, linux-doc@vger.kernel.org, linux-fsdevel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Fri, May 29, 2020 at 04:43:08PM -0700, John Hubbard wrote:
+> +CASE 5: Pinning in order to write to the data within the page
+> +-------------------------------------------------------------
+> +Even though neither DMA nor Direct IO is involved, just a simple case of "pin,
+> +access page's data, unpin" can cause a problem. Case 5 may be considered a
+> +superset of Case 1, plus Case 2, plus anything that invokes that pattern. In
+> +other words, if the code is neither Case 1 nor Case 2, it may still require
+> +FOLL_PIN, for patterns like this:
+> +
+> +Correct (uses FOLL_PIN calls):
+> +    pin_user_pages()
+> +    access the data within the pages
+> +    set_page_dirty_lock()
+> +    unpin_user_pages()
+> +
+> +INCORRECT (uses FOLL_GET calls):
+> +    get_user_pages()
+> +    access the data within the pages
+> +    set_page_dirty_lock()
+> +    put_page()
 
+Why does this case need to pin?  Why can't it just do ...
 
-On 2020-06-12 15:45, Mauricio Tavares wrote:
-> On Wed, Jun 10, 2020 at 12:32 PM Pierre Morel <pmorel@linux.ibm.com> wrote:
->>
->> Protected Virtualisation protects the memory of the guest and
->> do not allow a the host to access all of its memory.
->>
->> Let's refuse a VIRTIO device which does not use IOMMU
->> protected access.
->>
->        Stupid questions:
-
-not stupid at all. :)
-
-> 
-> 1. Do all CPU families we care about (which are?) support IOMMU? Ex:
-> would it recognize an ARM thingie with SMMU? [1]
-
-In Message-ID: <6356ba7f-afab-75e1-05ff-4a22b88c610e@linux.ibm.com>
-(as answer to Jason) I modified the patch and propose to take care of 
-this problem by using force_dma_unencrypted() inside virtio core instead 
-of a S390 specific test.
-
-If we use force_dma_unencrypted(dev) to check if we must refuse a device 
-without the VIRTIO_F_IOMMU_PLATFORM feature, we are safe:
-only architectures defining CONFIG_ARCH_HAS_FORCE_DMA_UNENCRYPTED will 
-have to define force_dma_unencrypted(dev), and they can choose what to 
-do by checking the architecture functionalities and/or the device.
-
-> 2. Would it make sense to have some kind of
-> yes-I-know-the-consequences-but-I-need-to-have-a-virtio-device-without-iommu-in-this-guest
-> flag?
-
-Yes, two ways:
-
-Never refuse a device without VIRTIO_F_IOMMU_PLATFORM, by not defining 
-CONFIG_ARCH_HAS_FORCE_DMA_UNENCRYPTED or by always return 0 in 
-force_dma_unencrypted()
-
-have force_dma_unencrypted() selectively answer by checking the device 
-and/or architecture state.
-
-> 
-...snip...
->>
-> 
-> [1] https://developer.arm.com/architectures/system-architectures/system-components/system-mmu-support
-> 
-
-Regards,
-Pierre
-
-
--- 
-Pierre Morel
-IBM Lab Boeblingen
+	get_user_pages()
+	lock_page(page);
+	... modify the data ...
+	set_page_dirty(page);
+	unlock_page(page);
