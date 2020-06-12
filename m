@@ -1,132 +1,34 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH] s390: protvirt: virtio: Refuse device without IOMMU
-Date: Fri, 12 Jun 2020 13:38:17 +0200
-Message-ID: <6356ba7f-afab-75e1-05ff-4a22b88c610e@linux.ibm.com>
-References: <1591794711-5915-1-git-send-email-pmorel@linux.ibm.com>
- <467d5b58-b70c-1c45-4130-76b6e18c05af@redhat.com>
- <f7eb1154-0f52-0f12-129f-2b511f5a4685@linux.ibm.com>
+From: Borislav Petkov <bp@alien8.de>
+Subject: Re: [PATCH v3 47/75] x86/sev-es: Add Runtime #VC Exception Handler
+Date: Fri, 12 Jun 2020 15:13:19 +0200
+Message-ID: <20200612131310.GB22660@zn.tnic>
+References: <20200428151725.31091-1-joro@8bytes.org>
+ <20200428151725.31091-48-joro@8bytes.org>
+ <20200523075924.GB27431@zn.tnic>
+ <20200611114831.GA11924@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <f7eb1154-0f52-0f12-129f-2b511f5a4685@linux.ibm.com>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20200611114831.GA11924@8bytes.org>
 Sender: kvm-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org
-Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Joerg Roedel <joro@8bytes.org>
+Cc: x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Thu, Jun 11, 2020 at 01:48:31PM +0200, Joerg Roedel wrote:
+> The most important use-case is #VC->NMI->#VC. When an NMI hits while the
+> #VC handler uses the GHCB and the NMI handler causes another #VC, then
+> the contents of the GHCB needs to be backed up, so that it doesn't
+> destroy the GHCB contents of the first #VC handling path.
 
+That's a good example, please add it to the next version of the patch,
+preferrably in a comment somewhere.
 
-On 2020-06-12 11:21, Pierre Morel wrote:
-> 
-> 
-> On 2020-06-11 05:10, Jason Wang wrote:
->>
->> On 2020/6/10 下午9:11, Pierre Morel wrote:
->>> Protected Virtualisation protects the memory of the guest and
->>> do not allow a the host to access all of its memory.
->>>
->>> Let's refuse a VIRTIO device which does not use IOMMU
->>> protected access.
->>>
->>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->>> ---
->>>   drivers/s390/virtio/virtio_ccw.c | 5 +++++
->>>   1 file changed, 5 insertions(+)
->>>
->>> diff --git a/drivers/s390/virtio/virtio_ccw.c 
->>> b/drivers/s390/virtio/virtio_ccw.c
->>> index 5730572b52cd..06ffbc96587a 100644
->>> --- a/drivers/s390/virtio/virtio_ccw.c
->>> +++ b/drivers/s390/virtio/virtio_ccw.c
->>> @@ -986,6 +986,11 @@ static void virtio_ccw_set_status(struct 
->>> virtio_device *vdev, u8 status)
->>>       if (!ccw)
->>>           return;
->>> +    /* Protected Virtualisation guest needs IOMMU */
->>> +    if (is_prot_virt_guest() &&
->>> +        !__virtio_test_bit(vdev, VIRTIO_F_IOMMU_PLATFORM))
->>> +            status &= ~VIRTIO_CONFIG_S_FEATURES_OK;
->>> +
->>>       /* Write the status to the host. */
->>>       vcdev->dma_area->status = status;
->>>       ccw->cmd_code = CCW_CMD_WRITE_STATUS;
->>
->>
->> I wonder whether we need move it to virtio core instead of ccw.
->>
->> I think the other memory protection technologies may suffer from this 
->> as well.
->>
->> Thanks
->>
-> 
-> 
-> What would you think of the following, also taking into account Connie's 
-> comment on where the test should be done:
-> 
-> - declare a weak function in virtio.c code, returning that memory 
-> protection is not in use.
-> 
-> - overwrite the function in the arch code
-> 
-> - call this function inside core virtio_finalize_features() and if 
-> required fail if the device don't have VIRTIO_F_IOMMU_PLATFORM.
-> 
-> Alternative could be to test a global variable that the architecture 
-> would overwrite if needed but I find the weak function solution more 
-> flexible.
-> 
-> With a function, we also have the possibility to provide the device as 
-> argument and take actions depending it, this may answer Halil's concern.
-> 
-> Regards,
-> Pierre
-> 
-
-hum, in between I found another way which seems to me much better:
-
-We already have the force_dma_unencrypted() function available which 
-AFAIU is what we want for encrypted memory protection and is already 
-used by power and x86 SEV/SME in a way that seems AFAIU compatible with 
-our problem.
-
-Even DMA and IOMMU are different things, I think they should be used 
-together in our case.
-
-What do you think?
-
-The patch would then be something like:
-
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index a977e32a88f2..53476d5bbe35 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -4,6 +4,7 @@
-  #include <linux/virtio_config.h>
-  #include <linux/module.h>
-  #include <linux/idr.h>
-+#include <linux/dma-direct.h>
-  #include <uapi/linux/virtio_ids.h>
-
-  /* Unique numbering for virtio devices. */
-@@ -179,6 +180,10 @@ int virtio_finalize_features(struct virtio_device *dev)
-         if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
-                 return 0;
-
-+       if (force_dma_unencrypted(&dev->dev) &&
-+           !virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM))
-+               return -EIO;
-+
-         virtio_add_status(dev, VIRTIO_CONFIG_S_FEATURES_OK);
-         status = dev->config->get_status(dev);
-         if (!(status & VIRTIO_CONFIG_S_FEATURES_OK)) {
-
-
-Regards,
-Pierre
+Thx.
 
 -- 
-Pierre Morel
-IBM Lab Boeblingen
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
