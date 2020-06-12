@@ -1,85 +1,32 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH] s390: protvirt: virtio: Refuse device without IOMMU
-Date: Fri, 12 Jun 2020 11:21:08 +0200
-Message-ID: <f7eb1154-0f52-0f12-129f-2b511f5a4685@linux.ibm.com>
-References: <1591794711-5915-1-git-send-email-pmorel@linux.ibm.com>
- <467d5b58-b70c-1c45-4130-76b6e18c05af@redhat.com>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: Re: [PATCH v3 59/75] x86/sev-es: Handle MONITOR/MONITORX Events
+Date: Fri, 12 Jun 2020 11:25:49 +0200
+Message-ID: <20200612092549.GB3701@8bytes.org>
+References: <20200428151725.31091-1-joro@8bytes.org>
+ <20200428151725.31091-60-joro@8bytes.org>
+ <20200520063845.GC17090@linux.intel.com>
+ <20200611131045.GE11924@8bytes.org>
+ <20200611171305.GJ29918@linux.intel.com>
+ <eac2d02f-951c-16d4-d4f7-55357e790bcd@amd.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <467d5b58-b70c-1c45-4130-76b6e18c05af@redhat.com>
-Content-Language: en-US
-Sender: kvm-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org
-Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <eac2d02f-951c-16d4-d4f7-55357e790bcd@amd.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: Sean Christopherson <sean.j.christopherson@intel.com>, x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Thu, Jun 11, 2020 at 02:33:12PM -0500, Tom Lendacky wrote:
+> I don't think there is any guarantee that MONITOR/MWAIT would work within a
+> guest (I'd have to dig some more on that to get a definitive answer, but
+> probably not necessary to do). As you say, if KVM emulates it as a NOP,
+> there's no sense in exposing the GPA - make it a NOP in the handler. I just
+> need to poke some other hypervisor vendors and hear what they have to say.
 
-
-On 2020-06-11 05:10, Jason Wang wrote:
-> 
-> On 2020/6/10 下午9:11, Pierre Morel wrote:
->> Protected Virtualisation protects the memory of the guest and
->> do not allow a the host to access all of its memory.
->>
->> Let's refuse a VIRTIO device which does not use IOMMU
->> protected access.
->>
->> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->> ---
->>   drivers/s390/virtio/virtio_ccw.c | 5 +++++
->>   1 file changed, 5 insertions(+)
->>
->> diff --git a/drivers/s390/virtio/virtio_ccw.c 
->> b/drivers/s390/virtio/virtio_ccw.c
->> index 5730572b52cd..06ffbc96587a 100644
->> --- a/drivers/s390/virtio/virtio_ccw.c
->> +++ b/drivers/s390/virtio/virtio_ccw.c
->> @@ -986,6 +986,11 @@ static void virtio_ccw_set_status(struct 
->> virtio_device *vdev, u8 status)
->>       if (!ccw)
->>           return;
->> +    /* Protected Virtualisation guest needs IOMMU */
->> +    if (is_prot_virt_guest() &&
->> +        !__virtio_test_bit(vdev, VIRTIO_F_IOMMU_PLATFORM))
->> +            status &= ~VIRTIO_CONFIG_S_FEATURES_OK;
->> +
->>       /* Write the status to the host. */
->>       vcdev->dma_area->status = status;
->>       ccw->cmd_code = CCW_CMD_WRITE_STATUS;
-> 
-> 
-> I wonder whether we need move it to virtio core instead of ccw.
-> 
-> I think the other memory protection technologies may suffer from this as 
-> well.
-> 
-> Thanks
-> 
-
-
-What would you think of the following, also taking into account Connie's 
-comment on where the test should be done:
-
-- declare a weak function in virtio.c code, returning that memory 
-protection is not in use.
-
-- overwrite the function in the arch code
-
-- call this function inside core virtio_finalize_features() and if 
-required fail if the device don't have VIRTIO_F_IOMMU_PLATFORM.
-
-Alternative could be to test a global variable that the architecture 
-would overwrite if needed but I find the weak function solution more 
-flexible.
-
-With a function, we also have the possibility to provide the device as 
-argument and take actions depending it, this may answer Halil's concern.
+Okay, makes sense. I made monitor/mwait nops in the patch-set.
 
 Regards,
-Pierre
 
--- 
-Pierre Morel
-IBM Lab Boeblingen
+	Joerg
