@@ -1,43 +1,85 @@
-From: Joerg Roedel <joro@8bytes.org>
-Subject: Re: [PATCH v3 64/75] x86/sev-es: Cache CPUID results for improved
- performance
-Date: Fri, 12 Jun 2020 11:12:11 +0200
-Message-ID: <20200612091210.GA3701@8bytes.org>
-References: <20200428151725.31091-1-joro@8bytes.org>
- <20200428151725.31091-65-joro@8bytes.org>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: Re: [PATCH] s390: protvirt: virtio: Refuse device without IOMMU
+Date: Fri, 12 Jun 2020 11:21:08 +0200
+Message-ID: <f7eb1154-0f52-0f12-129f-2b511f5a4685@linux.ibm.com>
+References: <1591794711-5915-1-git-send-email-pmorel@linux.ibm.com>
+ <467d5b58-b70c-1c45-4130-76b6e18c05af@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200428151725.31091-65-joro@8bytes.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: x86@kernel.org
-Cc: hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Thomas Hellstrom <thellstrom@vmware.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Joerg Roedel <jroedel@suse.de>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <467d5b58-b70c-1c45-4130-76b6e18c05af@redhat.com>
+Content-Language: en-US
+Sender: kvm-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org
+Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Apr 28, 2020 at 05:17:14PM +0200, Joerg Roedel wrote:
-> From: Mike Stunes <mstunes@vmware.com>
-> 
-> To avoid a future VMEXIT for a subsequent CPUID function, cache the
-> results returned by CPUID into an xarray.
-> 
->  [tl: coding standard changes, register zero extension]
-> 
-> Signed-off-by: Mike Stunes <mstunes@vmware.com>
-> Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-> [ jroedel@suse.de: - Wrapped cache handling into vc_handle_cpuid_cached()
->                    - Used lower_32_bits() where applicable
-> 		   - Moved cache_index out of struct es_em_ctxt ]
-> Co-developed-by: Joerg Roedel <jroedel@suse.de>
-> Signed-off-by: Joerg Roedel <jroedel@suse.de>
-> ---
->  arch/x86/kernel/sev-es-shared.c |  12 ++--
->  arch/x86/kernel/sev-es.c        | 119 +++++++++++++++++++++++++++++++-
->  2 files changed, 124 insertions(+), 7 deletions(-)
 
-Okay, following the discussion, I am dropping this patch for now. We can
-revisit CPUID caching later when we have a better justification.
+
+On 2020-06-11 05:10, Jason Wang wrote:
+> 
+> On 2020/6/10 下午9:11, Pierre Morel wrote:
+>> Protected Virtualisation protects the memory of the guest and
+>> do not allow a the host to access all of its memory.
+>>
+>> Let's refuse a VIRTIO device which does not use IOMMU
+>> protected access.
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> ---
+>>   drivers/s390/virtio/virtio_ccw.c | 5 +++++
+>>   1 file changed, 5 insertions(+)
+>>
+>> diff --git a/drivers/s390/virtio/virtio_ccw.c 
+>> b/drivers/s390/virtio/virtio_ccw.c
+>> index 5730572b52cd..06ffbc96587a 100644
+>> --- a/drivers/s390/virtio/virtio_ccw.c
+>> +++ b/drivers/s390/virtio/virtio_ccw.c
+>> @@ -986,6 +986,11 @@ static void virtio_ccw_set_status(struct 
+>> virtio_device *vdev, u8 status)
+>>       if (!ccw)
+>>           return;
+>> +    /* Protected Virtualisation guest needs IOMMU */
+>> +    if (is_prot_virt_guest() &&
+>> +        !__virtio_test_bit(vdev, VIRTIO_F_IOMMU_PLATFORM))
+>> +            status &= ~VIRTIO_CONFIG_S_FEATURES_OK;
+>> +
+>>       /* Write the status to the host. */
+>>       vcdev->dma_area->status = status;
+>>       ccw->cmd_code = CCW_CMD_WRITE_STATUS;
+> 
+> 
+> I wonder whether we need move it to virtio core instead of ccw.
+> 
+> I think the other memory protection technologies may suffer from this as 
+> well.
+> 
+> Thanks
+> 
+
+
+What would you think of the following, also taking into account Connie's 
+comment on where the test should be done:
+
+- declare a weak function in virtio.c code, returning that memory 
+protection is not in use.
+
+- overwrite the function in the arch code
+
+- call this function inside core virtio_finalize_features() and if 
+required fail if the device don't have VIRTIO_F_IOMMU_PLATFORM.
+
+Alternative could be to test a global variable that the architecture 
+would overwrite if needed but I find the weak function solution more 
+flexible.
+
+With a function, we also have the possibility to provide the device as 
+argument and take actions depending it, this may answer Halil's concern.
 
 Regards,
+Pierre
 
-	Joerg
+-- 
+Pierre Morel
+IBM Lab Boeblingen
