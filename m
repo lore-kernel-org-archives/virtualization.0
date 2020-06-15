@@ -1,8 +1,8 @@
 From: <gregkh@linuxfoundation.org>
-Subject: Patch "crypto: virtio: Fix src/dst scatterlist calculation in
- __virtio_crypto_skcipher_do_req()" has been added to the 5.6-stable tree
+Subject: Patch "crypto: virtio: Fix use-after-free in
+ virtio_crypto_skcipher_finalize_req()" has been added to the 5.6-stable tree
 Date: Mon, 15 Jun 2020 22:31:43 +0200
-Message-ID: <1592253103122253@kroah.com>
+Message-ID: <159225310312350@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
@@ -23,38 +23,56 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 This is a note to let you know that I've just added the patch titled
 
-    crypto: virtio: Fix src/dst scatterlist calculation in __virtio_crypto_skcipher_do_req()
+    crypto: virtio: Fix use-after-free in virtio_crypto_skcipher_finalize_req()
 
 to the 5.6-stable tree which can be found at:
     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 
 The filename of the patch is:
-     crypto-virtio-fix-src-dst-scatterlist-calculation-in-__virtio_crypto_skcipher_do_req.patch
+     crypto-virtio-fix-use-after-free-in-virtio_crypto_skcipher_finalize_req.patch
 and it can be found in the queue-5.6 subdirectory.
 
 If you, or anyone else, feels it should not be added to the stable tree,
 please let <stable@vger.kernel.org> know about it.
 
 
-From b02989f37fc5e865ceeee9070907e4493b3a21e2 Mon Sep 17 00:00:00 2001
+From 8c855f0720ff006d75d0a2512c7f6c4f60ff60ee Mon Sep 17 00:00:00 2001
 From: "Longpeng(Mike)" <longpeng2@huawei.com>
-Date: Tue, 2 Jun 2020 15:04:59 +0800
-Subject: crypto: virtio: Fix src/dst scatterlist calculation in __virtio_crypto_skcipher_do_req()
+Date: Tue, 2 Jun 2020 15:05:00 +0800
+Subject: crypto: virtio: Fix use-after-free in virtio_crypto_skcipher_finalize_req()
 
 From: Longpeng(Mike) <longpeng2@huawei.com>
 
-commit b02989f37fc5e865ceeee9070907e4493b3a21e2 upstream.
+commit 8c855f0720ff006d75d0a2512c7f6c4f60ff60ee upstream.
 
-The system will crash when the users insmod crypto/tcrypt.ko with mode=38
-( testing "cts(cbc(aes))" ).
+The system'll crash when the users insmod crypto/tcrypto.ko with mode=155
+( testing "authenc(hmac(sha1),cbc(aes))" ). It's caused by reuse the memory
+of request structure.
 
-Usually the next entry of one sg will be @sg@ + 1, but if this sg element
-is part of a chained scatterlist, it could jump to the start of a new
-scatterlist array. Fix it by sg_next() on calculation of src/dst
-scatterlist.
+In crypto_authenc_init_tfm(), the reqsize is set to:
+  [PART 1] sizeof(authenc_request_ctx) +
+  [PART 2] ictx->reqoff +
+  [PART 3] MAX(ahash part, skcipher part)
+and the 'PART 3' is used by both ahash and skcipher in turn.
+
+When the virtio_crypto driver finish skcipher req, it'll call ->complete
+callback(in crypto_finalize_skcipher_request) and then free its
+resources whose pointers are recorded in 'skcipher parts'.
+
+However, the ->complete is 'crypto_authenc_encrypt_done' in this case,
+it will use the 'ahash part' of the request and change its content,
+so virtio_crypto driver will get the wrong pointer after ->complete
+finish and mistakenly free some other's memory. So the system will crash
+when these memory will be used again.
+
+The resources which need to be cleaned up are not used any more. But the
+pointers of these resources may be changed in the function
+"crypto_finalize_skcipher_request". Thus release specific resources before
+calling this function.
 
 Fixes: dbaf0624ffa5 ("crypto: add virtio-crypto driver")
 Reported-by: LABBE Corentin <clabbe@baylibre.com>
+Cc: Gonglei <arei.gonglei@huawei.com>
 Cc: Herbert Xu <herbert@gondor.apana.org.au>
 Cc: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Jason Wang <jasowang@redhat.com>
@@ -63,55 +81,32 @@ Cc: virtualization@lists.linux-foundation.org
 Cc: linux-kernel@vger.kernel.org
 Cc: stable@vger.kernel.org
 Link: https://lore.kernel.org/r/20200123101000.GB24255@Red
-Signed-off-by: Gonglei <arei.gonglei@huawei.com>
+Acked-by: Gonglei <arei.gonglei@huawei.com>
 Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
-Link: https://lore.kernel.org/r/20200602070501.2023-2-longpeng2@huawei.com
+Link: https://lore.kernel.org/r/20200602070501.2023-3-longpeng2@huawei.com
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 ---
- drivers/crypto/virtio/virtio_crypto_algs.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/crypto/virtio/virtio_crypto_algs.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 --- a/drivers/crypto/virtio/virtio_crypto_algs.c
 +++ b/drivers/crypto/virtio/virtio_crypto_algs.c
-@@ -350,13 +350,18 @@ __virtio_crypto_skcipher_do_req(struct v
- 	int err;
- 	unsigned long flags;
- 	struct scatterlist outhdr, iv_sg, status_sg, **sgs;
--	int i;
- 	u64 dst_len;
- 	unsigned int num_out = 0, num_in = 0;
- 	int sg_total;
- 	uint8_t *iv;
-+	struct scatterlist *sg;
- 
- 	src_nents = sg_nents_for_len(req->src, req->cryptlen);
-+	if (src_nents < 0) {
-+		pr_err("Invalid number of src SG.\n");
-+		return src_nents;
-+	}
+@@ -578,10 +578,11 @@ static void virtio_crypto_skcipher_final
+ 		scatterwalk_map_and_copy(req->iv, req->dst,
+ 					 req->cryptlen - AES_BLOCK_SIZE,
+ 					 AES_BLOCK_SIZE, 0);
+-	crypto_finalize_skcipher_request(vc_sym_req->base.dataq->engine,
+-					   req, err);
+ 	kzfree(vc_sym_req->iv);
+ 	virtcrypto_clear_request(&vc_sym_req->base);
 +
- 	dst_nents = sg_nents(req->dst);
++	crypto_finalize_skcipher_request(vc_sym_req->base.dataq->engine,
++					   req, err);
+ }
  
- 	pr_debug("virtio_crypto: Number of sgs (src_nents: %d, dst_nents: %d)\n",
-@@ -443,12 +448,12 @@ __virtio_crypto_skcipher_do_req(struct v
- 	vc_sym_req->iv = iv;
- 
- 	/* Source data */
--	for (i = 0; i < src_nents; i++)
--		sgs[num_out++] = &req->src[i];
-+	for (sg = req->src; src_nents; sg = sg_next(sg), src_nents--)
-+		sgs[num_out++] = sg;
- 
- 	/* Destination data */
--	for (i = 0; i < dst_nents; i++)
--		sgs[num_out + num_in++] = &req->dst[i];
-+	for (sg = req->dst; sg; sg = sg_next(sg))
-+		sgs[num_out + num_in++] = sg;
- 
- 	/* Status */
- 	sg_init_one(&status_sg, &vc_req->status, sizeof(vc_req->status));
+ static struct virtio_crypto_algo virtio_crypto_algs[] = { {
 
 
 Patches currently in stable-queue which might be from longpeng2@huawei.com are
