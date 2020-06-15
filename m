@@ -1,35 +1,36 @@
-From: Hou Tao <houtao1@huawei.com>
-Subject: [PATCH] virtio-blk: free vblk-vqs in error path of virtblk_probe()
-Date: Mon, 15 Jun 2020 12:14:59 +0800
-Message-ID: <20200615041459.22477-1-houtao1@huawei.com>
+From: =?UTF-8?B?546L5pOO?= <wangqing@vivo.com>
+Subject: =?UTF-8?B?UmU6UmU6IFtQQVRDSF0gZHJpdmVyc1xibG9jazogVXNlIGtvYmpfdG9fZGV2KCkgQVBJ?=
+Date: Mon, 15 Jun 2020 15:18:29 +0800 (GMT+08:00)
+Message-ID: <AMQAhwC7CIPskkflFGpmIqrA.3.1592205509810.Hmail.wangqing@vivo.com>
+References: <20200612102651-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: base64
 Return-path: <linux-block-owner@vger.kernel.org>
+In-Reply-To: <20200612102651-mutt-send-email-mst@kernel.org>
 Sender: linux-block-owner@vger.kernel.org
-To: linux-block@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Jens Axboe <axboe@kernel.dk>, Ming Lei <ming.lei@canonical.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Else there will be memory leak if alloc_disk() fails.
-
-Fixes: 6a27b656fc02 ("block: virtio-blk: support multi virt queues per virtio-blk device")
-Signed-off-by: Hou Tao <houtao1@huawei.com>
----
- drivers/block/virtio_blk.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-index 9d21bf0f155e..980df853ee49 100644
---- a/drivers/block/virtio_blk.c
-+++ b/drivers/block/virtio_blk.c
-@@ -878,6 +878,7 @@ static int virtblk_probe(struct virtio_device *vdev)
- 	put_disk(vblk->disk);
- out_free_vq:
- 	vdev->config->del_vqs(vdev);
-+	kfree(vblk->vqs);
- out_free_vblk:
- 	kfree(vblk);
- out_free_index:
--- 
-2.25.0.4.g0ad7144999
+ClN1YmplY3Q6IFJlOiBbUEFUQ0hdIGRyaXZlcnNcYmxvY2s6IFVzZSBrb2JqX3RvX2RldigpIEFQ
+ST5PbiBGcmksIEp1biAxMiwgMjAyMCBhdCAwMzoxMDo1NlBNICswODAwLCBXYW5nIFFpbmcgd3Jv
+dGU6Cj4+IFVzZSBrb2JqX3RvX2RldigpIEFQSSBpbnN0ZWFkIG9mIGNvbnRhaW5lcl9vZigpLgo+
+PiAKPj4gU2lnbmVkLW9mZi1ieTogV2FuZyBRaW5nIDx3YW5ncWluZ0B2aXZvLmNvbT4KPj4gLS0t
+Cj4+ICBkcml2ZXJzL2Jsb2NrL3ZpcnRpb19ibGsuYyB8IDIgKy0KPj4gIDEgZmlsZSBjaGFuZ2Vk
+LCAxIGluc2VydGlvbigrKSwgMSBkZWxldGlvbigtKQo+PiAgbW9kZSBjaGFuZ2UgMTAwNjQ0ID0+
+IDEwMDc1NSBkcml2ZXJzL2Jsb2NrL3ZpcnRpb19ibGsuYwo+Cj4KPlN1YmplY3Qgc2hvdWxkIHBy
+b2JhYmx5IHVzZSAiLyIuIEJlc2lkZXMgdGhhdCAtIHRyaXZpYWwgdHJlZT8KU29ycnksIEkgd2ls
+bCBtb2RpZnkgc3ViamVjdCB1c2luZyAiLyIuIEJ1dCB3aGF0IGRvIHlvdSBtZWFuIGFib3V0IHRy
+aXZpYWwgdHJlZT8KPgo+PiAKPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvYmxvY2svdmlydGlvX2Js
+ay5jIGIvZHJpdmVycy9ibG9jay92aXJ0aW9fYmxrLmMKPj4gaW5kZXggOWQyMWJmMC4uYzgwODQw
+NQo+PiAtLS0gYS9kcml2ZXJzL2Jsb2NrL3ZpcnRpb19ibGsuYwo+PiArKysgYi9kcml2ZXJzL2Js
+b2NrL3ZpcnRpb19ibGsuYwo+PiBAQCAtNjMwLDcgKzYzMCw3IEBAIHN0YXRpYyBzdHJ1Y3QgYXR0
+cmlidXRlICp2aXJ0YmxrX2F0dHJzW10gPSB7Cj4+ICBzdGF0aWMgdW1vZGVfdCB2aXJ0YmxrX2F0
+dHJzX2FyZV92aXNpYmxlKHN0cnVjdCBrb2JqZWN0ICprb2JqLAo+PiAgCQlzdHJ1Y3QgYXR0cmli
+dXRlICphLCBpbnQgbikKPj4gIHsKPj4gLQlzdHJ1Y3QgZGV2aWNlICpkZXYgPSBjb250YWluZXJf
+b2Yoa29iaiwgc3RydWN0IGRldmljZSwga29iaik7Cj4+ICsJc3RydWN0IGRldmljZSAqZGV2ID0g
+a29ial90b19kZXYoa29iaik7Cj4+ICAJc3RydWN0IGdlbmRpc2sgKmRpc2sgPSBkZXZfdG9fZGlz
+ayhkZXYpOwo+PiAgCXN0cnVjdCB2aXJ0aW9fYmxrICp2YmxrID0gZGlzay0+cHJpdmF0ZV9kYXRh
+Owo+PiAgCXN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2ID0gdmJsay0+dmRldjsKPj4gLS0gCj4+
+IDIuNy40Cj4KDQoNCg==
