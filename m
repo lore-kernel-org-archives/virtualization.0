@@ -1,44 +1,62 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH] virtio-blk: free vblk-vqs in error path of
- virtblk_probe()
-Date: Mon, 15 Jun 2020 09:32:19 +0200
-Message-ID: <20200615073219.eeydysnn3d3xkwzg@steredhat>
-References: <20200615041459.22477-1-houtao1@huawei.com>
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH] s390: protvirt: virtio: Refuse device without IOMMU
+Date: Mon, 15 Jun 2020 12:37:25 +0200
+Message-ID: <20200615123725.13f6a8de.pasic@linux.ibm.com>
+References: <1591794711-5915-1-git-send-email-pmorel@linux.ibm.com>
+ <467d5b58-b70c-1c45-4130-76b6e18c05af@redhat.com>
+ <f7eb1154-0f52-0f12-129f-2b511f5a4685@linux.ibm.com>
+ <6356ba7f-afab-75e1-05ff-4a22b88c610e@linux.ibm.com>
+ <a02b9f94-eb48-4ae2-0ade-a4ce26b61ad8@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-block-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200615041459.22477-1-houtao1@huawei.com>
-Sender: linux-block-owner@vger.kernel.org
-To: Hou Tao <houtao1@huawei.com>
-Cc: linux-block@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Jens Axboe <axboe@kernel.dk>, Ming Lei <ming.lei@canonical.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <a02b9f94-eb48-4ae2-0ade-a4ce26b61ad8@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Jason Wang <jasowang@redhat.com>
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, Pierre Morel <pmorel@linux.ibm.com>, mst@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, borntraeger@de.ibm.com, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 15, 2020 at 12:14:59PM +0800, Hou Tao wrote:
-> Else there will be memory leak if alloc_disk() fails.
-> 
-> Fixes: 6a27b656fc02 ("block: virtio-blk: support multi virt queues per virtio-blk device")
-> Signed-off-by: Hou Tao <houtao1@huawei.com>
-> ---
->  drivers/block/virtio_blk.c | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 9d21bf0f155e..980df853ee49 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -878,6 +878,7 @@ static int virtblk_probe(struct virtio_device *vdev)
->  	put_disk(vblk->disk);
->  out_free_vq:
->  	vdev->config->del_vqs(vdev);
-> +	kfree(vblk->vqs);
->  out_free_vblk:
->  	kfree(vblk);
->  out_free_index:
-> -- 
-> 2.25.0.4.g0ad7144999
-> 
-
-The patch LGTM:
-
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+T24gTW9uLCAxNSBKdW4gMjAyMCAxMTowMTo1NSArMDgwMApKYXNvbiBXYW5nIDxqYXNvd2FuZ0By
+ZWRoYXQuY29tPiB3cm90ZToKCj4gPiBodW0sIGluIGJldHdlZW4gSSBmb3VuZCBhbm90aGVyIHdh
+eSB3aGljaCBzZWVtcyB0byBtZSBtdWNoIGJldHRlcjoKPiA+Cj4gPiBXZSBhbHJlYWR5IGhhdmUg
+dGhlIGZvcmNlX2RtYV91bmVuY3J5cHRlZCgpIGZ1bmN0aW9uIGF2YWlsYWJsZSB3aGljaCAKPiA+
+IEFGQUlVIGlzIHdoYXQgd2Ugd2FudCBmb3IgZW5jcnlwdGVkIG1lbW9yeSBwcm90ZWN0aW9uIGFu
+ZCBpcyBhbHJlYWR5IAo+ID4gdXNlZCBieSBwb3dlciBhbmQgeDg2IFNFVi9TTUUgaW4gYSB3YXkg
+dGhhdCBzZWVtcyBBRkFJVSBjb21wYXRpYmxlIAo+ID4gd2l0aCBvdXIgcHJvYmxlbS4KPiA+Cj4g
+PiBFdmVuIERNQSBhbmQgSU9NTVUgYXJlIGRpZmZlcmVudCB0aGluZ3MsIEkgdGhpbmsgdGhleSBz
+aG91bGQgYmUgdXNlZCAKPiA+IHRvZ2V0aGVyIGluIG91ciBjYXNlLgo+ID4KPiA+IFdoYXQgZG8g
+eW91IHRoaW5rPwo+ID4KPiA+IFRoZSBwYXRjaCB3b3VsZCB0aGVuIGJlIHNvbWV0aGluZyBsaWtl
+Ogo+ID4KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW8uYyBiL2RyaXZlcnMv
+dmlydGlvL3ZpcnRpby5jCj4gPiBpbmRleCBhOTc3ZTMyYTg4ZjIuLjUzNDc2ZDViYmUzNSAxMDA2
+NDQKPiA+IC0tLSBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpby5jCj4gPiArKysgYi9kcml2ZXJzL3Zp
+cnRpby92aXJ0aW8uYwo+ID4gQEAgLTQsNiArNCw3IEBACj4gPiDCoCNpbmNsdWRlIDxsaW51eC92
+aXJ0aW9fY29uZmlnLmg+Cj4gPiDCoCNpbmNsdWRlIDxsaW51eC9tb2R1bGUuaD4KPiA+IMKgI2lu
+Y2x1ZGUgPGxpbnV4L2lkci5oPgo+ID4gKyNpbmNsdWRlIDxsaW51eC9kbWEtZGlyZWN0Lmg+Cj4g
+PiDCoCNpbmNsdWRlIDx1YXBpL2xpbnV4L3ZpcnRpb19pZHMuaD4KPiA+Cj4gPiDCoC8qIFVuaXF1
+ZSBudW1iZXJpbmcgZm9yIHZpcnRpbyBkZXZpY2VzLiAqLwo+ID4gQEAgLTE3OSw2ICsxODAsMTAg
+QEAgaW50IHZpcnRpb19maW5hbGl6ZV9mZWF0dXJlcyhzdHJ1Y3QgdmlydGlvX2RldmljZSAKPiA+
+ICpkZXYpCj4gPiDCoMKgwqDCoMKgwqDCoCBpZiAoIXZpcnRpb19oYXNfZmVhdHVyZShkZXYsIFZJ
+UlRJT19GX1ZFUlNJT05fMSkpCj4gPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgcmV0
+dXJuIDA7Cj4gPgo+ID4gK8KgwqDCoMKgwqDCoCBpZiAoZm9yY2VfZG1hX3VuZW5jcnlwdGVkKCZk
+ZXYtPmRldikgJiYKPiA+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoCAhdmlydGlvX2hhc19mZWF0dXJl
+KGRldiwgVklSVElPX0ZfSU9NTVVfUExBVEZPUk0pKQo+ID4gK8KgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqAgcmV0dXJuIC1FSU87Cj4gPiArCj4gPiDCoMKgwqDCoMKgwqDCoCB2aXJ0aW9fYWRk
+X3N0YXR1cyhkZXYsIFZJUlRJT19DT05GSUdfU19GRUFUVVJFU19PSyk7Cj4gPiDCoMKgwqDCoMKg
+wqDCoCBzdGF0dXMgPSBkZXYtPmNvbmZpZy0+Z2V0X3N0YXR1cyhkZXYpOwo+ID4gwqDCoMKgwqDC
+oMKgwqAgaWYgKCEoc3RhdHVzICYgVklSVElPX0NPTkZJR19TX0ZFQVRVUkVTX09LKSkgeyAgCj4g
+Cj4gCj4gSSB0aGluayB0aGlzIGNhbiB3b3JrIGJ1dCBuZWVkIHRvIGxpc3RlbiBmcm9tIE1pY2hh
+ZWwKCkkgZG9uJ3QgdGhpbmsgQ2hyaXN0b3BoIEhlbGx3aWcgd2lsbCBsaWtlIGZvcmNlX2RtYV91
+bmVuY3J5cHRlZCgpCmluIHZpcnRpbyBjb2RlOgpodHRwczovL2xrbWwub3JnL2xrbWwvMjAyMC8y
+LzIwLzYzMAoKUmVnYXJkcywKSGFsaWwKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
+QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
+Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
