@@ -1,102 +1,152 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v2 1/1] s390: virtio: let arch accept devices without IOMMU
- feature
-Date: Mon, 15 Jun 2020 14:39:24 +0200
-Message-ID: <1592224764-1258-2-git-send-email-pmorel@linux.ibm.com>
-References: <1592224764-1258-1-git-send-email-pmorel@linux.ibm.com>
+From: Eugenio =?ISO-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
+Subject: Re: [PATCH RFC v7 03/14] vhost: use batched get_vq_desc version
+Date: Mon, 15 Jun 2020 18:05:48 +0200
+Message-ID: <26bef3f07277b028034c019e456b4f236078c5fb.camel@redhat.com>
+References: <20200610113515.1497099-1-mst@redhat.com>
+         <20200610113515.1497099-4-mst@redhat.com>
+         <CAJaqyWdGKh5gSTndGuVPyJSgt3jfjfW4xNCrJ2tQ9f+mD8=sMQ@mail.gmail.com>
+         <20200610111147-mutt-send-email-mst@kernel.org>
+         <CAJaqyWe6d19hFAbpqaQqOPuQQmBQyevyF4sTVkaXKhD729XDkw@mail.gmail.com>
+         <20200611072702-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1592224764-1258-1-git-send-email-pmorel@linux.ibm.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: linux-kernel@vger.kernel.org
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, kvm@vger.kernel.org, mst@redhat.com, cohuck@redhat.com, virtualization@lists.linux-foundation.org, pasic@linux.ibm.com, borntraeger@de.ibm.com
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200611072702-mutt-send-email-mst@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, kvm list <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-An architecture protecting the guest memory against unauthorized host
-access may want to enforce VIRTIO I/O device protection through the
-use of VIRTIO_F_IOMMU_PLATFORM.
+On Thu, 2020-06-11 at 07:30 -0400, Michael S. Tsirkin wrote:
+> On Wed, Jun 10, 2020 at 06:18:32PM +0200, Eugenio Perez Martin wrote:
+> > On Wed, Jun 10, 2020 at 5:13 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > On Wed, Jun 10, 2020 at 02:37:50PM +0200, Eugenio Perez Martin wrote:
+> > > > > +/* This function returns a value > 0 if a descriptor was found, or 0 if none were found.
+> > > > > + * A negative code is returned on error. */
+> > > > > +static int fetch_descs(struct vhost_virtqueue *vq)
+> > > > > +{
+> > > > > +       int ret;
+> > > > > +
+> > > > > +       if (unlikely(vq->first_desc >= vq->ndescs)) {
+> > > > > +               vq->first_desc = 0;
+> > > > > +               vq->ndescs = 0;
+> > > > > +       }
+> > > > > +
+> > > > > +       if (vq->ndescs)
+> > > > > +               return 1;
+> > > > > +
+> > > > > +       for (ret = 1;
+> > > > > +            ret > 0 && vq->ndescs <= vhost_vq_num_batch_descs(vq);
+> > > > > +            ret = fetch_buf(vq))
+> > > > > +               ;
+> > > > 
+> > > > (Expanding comment in V6):
+> > > > 
+> > > > We get an infinite loop this way:
+> > > > * vq->ndescs == 0, so we call fetch_buf() here
+> > > > * fetch_buf gets less than vhost_vq_num_batch_descs(vq); descriptors. ret = 1
+> > > > * This loop calls again fetch_buf, but vq->ndescs > 0 (and avail_vq ==
+> > > > last_avail_vq), so it just return 1
+> > > 
+> > > That's what
+> > >          [PATCH RFC v7 08/14] fixup! vhost: use batched get_vq_desc version
+> > > is supposed to fix.
+> > > 
+> > 
+> > Sorry, I forgot to include that fixup.
+> > 
+> > With it I don't see CPU stalls, but with that version latency has
+> > increased a lot and I see packet lost:
+> > + ping -c 5 10.200.0.1
+> > PING 10.200.0.1 (10.200.0.1) 56(84) bytes of data.
+> > > From 10.200.0.2 icmp_seq=1 Destination Host Unreachable
+> > > From 10.200.0.2 icmp_seq=2 Destination Host Unreachable
+> > > From 10.200.0.2 icmp_seq=3 Destination Host Unreachable
+> > 64 bytes from 10.200.0.1: icmp_seq=5 ttl=64 time=6848 ms
+> > 
+> > --- 10.200.0.1 ping statistics ---
+> > 5 packets transmitted, 1 received, +3 errors, 80% packet loss, time 76ms
+> > rtt min/avg/max/mdev = 6848.316/6848.316/6848.316/0.000 ms, pipe 4
+> > --
+> > 
+> > I cannot even use netperf.
+> 
+> OK so that's the bug to try to find and fix I think.
+> 
+> 
+> > If I modify with my proposed version:
+> > + ping -c 5 10.200.0.1
+> > PING 10.200.0.1 (10.200.0.1) 56(84) bytes of data.
+> > 64 bytes from 10.200.0.1: icmp_seq=1 ttl=64 time=7.07 ms
+> > 64 bytes from 10.200.0.1: icmp_seq=2 ttl=64 time=0.358 ms
+> > 64 bytes from 10.200.0.1: icmp_seq=3 ttl=64 time=5.35 ms
+> > 64 bytes from 10.200.0.1: icmp_seq=4 ttl=64 time=2.27 ms
+> > 64 bytes from 10.200.0.1: icmp_seq=5 ttl=64 time=0.426 ms
+> 
+> Not sure which version this is.
+> 
+> > [root@localhost ~]# netperf -H 10.200.0.1 -p 12865 -l 10 -t TCP_STREAM
+> > MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to
+> > 10.200.0.1 () port 0 AF_INET
+> > Recv   Send    Send
+> > Socket Socket  Message  Elapsed
+> > Size   Size    Size     Time     Throughput
+> > bytes  bytes   bytes    secs.    10^6bits/sec
+> > 
+> > 131072  16384  16384    10.01    4742.36
+> > [root@localhost ~]# netperf -H 10.200.0.1 -p 12865 -l 10 -t UDP_STREAM
+> > MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to
+> > 10.200.0.1 () port 0 AF_INET
+> > Socket  Message  Elapsed      Messages
+> > Size    Size     Time         Okay Errors   Throughput
+> > bytes   bytes    secs            #      #   10^6bits/sec
+> > 
+> > 212992   65507   10.00        9214      0     482.83
+> > 212992           10.00        9214            482.83
+> > 
+> > I will compare with the non-batch version for reference, but the
+> > difference between the two is noticeable. Maybe it's worth finding a
+> > good value for the if() inside fetch_buf?
+> > 
+> > Thanks!
+> > 
+> 
+> I don't think it's performance, I think it's a bug somewhere,
+> e.g. maybe we corrupt a packet, or stall the queue, or
+> something like this.
+> 
+> Let's do this, I will squash the fixups and post v8 so you can bisect
+> and then debug cleanly.
 
-Let's give a chance to the architecture to accept or not devices
-without VIRTIO_F_IOMMU_PLATFORM.
+Ok, so if we apply the patch proposed in v7 08/14 (Or the version 8 of the patchset sent), this is what happens:
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
- arch/s390/mm/init.c     | 6 ++++++
- drivers/virtio/virtio.c | 9 +++++++++
- include/linux/virtio.h  | 2 ++
- 3 files changed, 17 insertions(+)
+1. Userland (virtio_test in my case) introduces just one buffer in vq, and it kicks
+2. vhost module reaches fetch_descs, called from vhost_get_vq_desc. From there we call fetch_buf in a for loop.
+3. The first time we call fetch_buf, it returns properly one buffer. However, the second time we call it, it returns 0
+because vq->avail_idx == vq->last_avail_idx and vq->avail_idx == last_avail_idx code path.
+4. fetch_descs assign ret = 0, so it returns 0. vhost_get_vq_desc will goto err, and it will signal no new buffer
+(returning vq->num).
 
-diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-index 87b2d024e75a..3f04ad09650f 100644
---- a/arch/s390/mm/init.c
-+++ b/arch/s390/mm/init.c
-@@ -46,6 +46,7 @@
- #include <asm/kasan.h>
- #include <asm/dma-mapping.h>
- #include <asm/uv.h>
-+#include <linux/virtio.h>
+So to fix it and maintain the batching maybe we could return vq->ndescs in case ret == 0:
+
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index c0dfb5e3d2af..5993d4f34ca9 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -2315,7 +2327,8 @@ static int fetch_descs(struct vhost_virtqueue *vq)
  
- pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
- 
-@@ -162,6 +163,11 @@ bool force_dma_unencrypted(struct device *dev)
- 	return is_prot_virt_guest();
+ 	/* On success we expect some descs */
+ 	BUG_ON(ret > 0 && !vq->ndescs);
+-	return ret;
++	return ret ?: vq->ndescs;
  }
  
-+int arch_needs_iommu_platform(struct virtio_device *dev) 
-+{
-+	return is_prot_virt_guest();
-+}
-+
- /* protected virtualization */
- static void pv_init(void)
- {
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index a977e32a88f2..30091089bee8 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -167,6 +167,11 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
- }
- EXPORT_SYMBOL_GPL(virtio_add_status);
- 
-+int __weak arch_needs_iommu_platform(struct virtio_device *dev)
-+{
-+	return 0;
-+}
-+
- int virtio_finalize_features(struct virtio_device *dev)
- {
- 	int ret = dev->config->finalize_features(dev);
-@@ -179,6 +184,10 @@ int virtio_finalize_features(struct virtio_device *dev)
- 	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
- 		return 0;
- 
-+	if (arch_needs_iommu_platform(dev) &&
-+		!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM))
-+		return -EIO;
-+
- 	virtio_add_status(dev, VIRTIO_CONFIG_S_FEATURES_OK);
- 	status = dev->config->get_status(dev);
- 	if (!(status & VIRTIO_CONFIG_S_FEATURES_OK)) {
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index a493eac08393..2c46b310c38c 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -195,4 +195,6 @@ void unregister_virtio_driver(struct virtio_driver *drv);
- #define module_virtio_driver(__virtio_driver) \
- 	module_driver(__virtio_driver, register_virtio_driver, \
- 			unregister_virtio_driver)
-+
-+int arch_needs_iommu_platform(struct virtio_device *dev);
- #endif /* _LINUX_VIRTIO_H */
--- 
-2.25.1
+ /* Reverse the effects of fetch_descs */
+--
+
+Another possibility could be to return different codes from fetch_buf, but I find the suggested modification easier.
+
+What do you think?
+
+Thanks!
