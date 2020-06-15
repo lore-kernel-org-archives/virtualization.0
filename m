@@ -1,62 +1,85 @@
-From: Halil Pasic <pasic@linux.ibm.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
 Subject: Re: [PATCH] s390: protvirt: virtio: Refuse device without IOMMU
-Date: Mon, 15 Jun 2020 12:37:25 +0200
-Message-ID: <20200615123725.13f6a8de.pasic@linux.ibm.com>
+Date: Mon, 15 Jun 2020 13:49:54 +0200
+Message-ID: <96a236da-7165-b59b-e013-919554fb1ac4@linux.ibm.com>
 References: <1591794711-5915-1-git-send-email-pmorel@linux.ibm.com>
  <467d5b58-b70c-1c45-4130-76b6e18c05af@redhat.com>
  <f7eb1154-0f52-0f12-129f-2b511f5a4685@linux.ibm.com>
  <6356ba7f-afab-75e1-05ff-4a22b88c610e@linux.ibm.com>
  <a02b9f94-eb48-4ae2-0ade-a4ce26b61ad8@redhat.com>
+ <20200615123725.13f6a8de.pasic@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <a02b9f94-eb48-4ae2-0ade-a4ce26b61ad8@redhat.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Jason Wang <jasowang@redhat.com>
-Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, Pierre Morel <pmorel@linux.ibm.com>, mst@redhat.com, cohuck@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, borntraeger@de.ibm.com, kvm@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20200615123725.13f6a8de.pasic@linux.ibm.com>
+Content-Language: en-US
+Sender: kvm-owner@vger.kernel.org
+To: Halil Pasic <pasic@linux.ibm.com>, Jason Wang <jasowang@redhat.com>
+Cc: linux-kernel@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-T24gTW9uLCAxNSBKdW4gMjAyMCAxMTowMTo1NSArMDgwMApKYXNvbiBXYW5nIDxqYXNvd2FuZ0By
-ZWRoYXQuY29tPiB3cm90ZToKCj4gPiBodW0sIGluIGJldHdlZW4gSSBmb3VuZCBhbm90aGVyIHdh
-eSB3aGljaCBzZWVtcyB0byBtZSBtdWNoIGJldHRlcjoKPiA+Cj4gPiBXZSBhbHJlYWR5IGhhdmUg
-dGhlIGZvcmNlX2RtYV91bmVuY3J5cHRlZCgpIGZ1bmN0aW9uIGF2YWlsYWJsZSB3aGljaCAKPiA+
-IEFGQUlVIGlzIHdoYXQgd2Ugd2FudCBmb3IgZW5jcnlwdGVkIG1lbW9yeSBwcm90ZWN0aW9uIGFu
-ZCBpcyBhbHJlYWR5IAo+ID4gdXNlZCBieSBwb3dlciBhbmQgeDg2IFNFVi9TTUUgaW4gYSB3YXkg
-dGhhdCBzZWVtcyBBRkFJVSBjb21wYXRpYmxlIAo+ID4gd2l0aCBvdXIgcHJvYmxlbS4KPiA+Cj4g
-PiBFdmVuIERNQSBhbmQgSU9NTVUgYXJlIGRpZmZlcmVudCB0aGluZ3MsIEkgdGhpbmsgdGhleSBz
-aG91bGQgYmUgdXNlZCAKPiA+IHRvZ2V0aGVyIGluIG91ciBjYXNlLgo+ID4KPiA+IFdoYXQgZG8g
-eW91IHRoaW5rPwo+ID4KPiA+IFRoZSBwYXRjaCB3b3VsZCB0aGVuIGJlIHNvbWV0aGluZyBsaWtl
-Ogo+ID4KPiA+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW8uYyBiL2RyaXZlcnMv
-dmlydGlvL3ZpcnRpby5jCj4gPiBpbmRleCBhOTc3ZTMyYTg4ZjIuLjUzNDc2ZDViYmUzNSAxMDA2
-NDQKPiA+IC0tLSBhL2RyaXZlcnMvdmlydGlvL3ZpcnRpby5jCj4gPiArKysgYi9kcml2ZXJzL3Zp
-cnRpby92aXJ0aW8uYwo+ID4gQEAgLTQsNiArNCw3IEBACj4gPiDCoCNpbmNsdWRlIDxsaW51eC92
-aXJ0aW9fY29uZmlnLmg+Cj4gPiDCoCNpbmNsdWRlIDxsaW51eC9tb2R1bGUuaD4KPiA+IMKgI2lu
-Y2x1ZGUgPGxpbnV4L2lkci5oPgo+ID4gKyNpbmNsdWRlIDxsaW51eC9kbWEtZGlyZWN0Lmg+Cj4g
-PiDCoCNpbmNsdWRlIDx1YXBpL2xpbnV4L3ZpcnRpb19pZHMuaD4KPiA+Cj4gPiDCoC8qIFVuaXF1
-ZSBudW1iZXJpbmcgZm9yIHZpcnRpbyBkZXZpY2VzLiAqLwo+ID4gQEAgLTE3OSw2ICsxODAsMTAg
-QEAgaW50IHZpcnRpb19maW5hbGl6ZV9mZWF0dXJlcyhzdHJ1Y3QgdmlydGlvX2RldmljZSAKPiA+
-ICpkZXYpCj4gPiDCoMKgwqDCoMKgwqDCoCBpZiAoIXZpcnRpb19oYXNfZmVhdHVyZShkZXYsIFZJ
-UlRJT19GX1ZFUlNJT05fMSkpCj4gPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgcmV0
-dXJuIDA7Cj4gPgo+ID4gK8KgwqDCoMKgwqDCoCBpZiAoZm9yY2VfZG1hX3VuZW5jcnlwdGVkKCZk
-ZXYtPmRldikgJiYKPiA+ICvCoMKgwqDCoMKgwqDCoMKgwqDCoCAhdmlydGlvX2hhc19mZWF0dXJl
-KGRldiwgVklSVElPX0ZfSU9NTVVfUExBVEZPUk0pKQo+ID4gK8KgwqDCoMKgwqDCoMKgwqDCoMKg
-wqDCoMKgwqAgcmV0dXJuIC1FSU87Cj4gPiArCj4gPiDCoMKgwqDCoMKgwqDCoCB2aXJ0aW9fYWRk
-X3N0YXR1cyhkZXYsIFZJUlRJT19DT05GSUdfU19GRUFUVVJFU19PSyk7Cj4gPiDCoMKgwqDCoMKg
-wqDCoCBzdGF0dXMgPSBkZXYtPmNvbmZpZy0+Z2V0X3N0YXR1cyhkZXYpOwo+ID4gwqDCoMKgwqDC
-oMKgwqAgaWYgKCEoc3RhdHVzICYgVklSVElPX0NPTkZJR19TX0ZFQVRVUkVTX09LKSkgeyAgCj4g
-Cj4gCj4gSSB0aGluayB0aGlzIGNhbiB3b3JrIGJ1dCBuZWVkIHRvIGxpc3RlbiBmcm9tIE1pY2hh
-ZWwKCkkgZG9uJ3QgdGhpbmsgQ2hyaXN0b3BoIEhlbGx3aWcgd2lsbCBsaWtlIGZvcmNlX2RtYV91
-bmVuY3J5cHRlZCgpCmluIHZpcnRpbyBjb2RlOgpodHRwczovL2xrbWwub3JnL2xrbWwvMjAyMC8y
-LzIwLzYzMAoKUmVnYXJkcywKSGFsaWwKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9u
-QGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9u
-Lm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+
+
+On 2020-06-15 12:37, Halil Pasic wrote:
+> On Mon, 15 Jun 2020 11:01:55 +0800
+> Jason Wang <jasowang@redhat.com> wrote:
+> 
+>>> hum, in between I found another way which seems to me much better:
+>>>
+>>> We already have the force_dma_unencrypted() function available which
+>>> AFAIU is what we want for encrypted memory protection and is already
+>>> used by power and x86 SEV/SME in a way that seems AFAIU compatible
+>>> with our problem.
+>>>
+>>> Even DMA and IOMMU are different things, I think they should be used
+>>> together in our case.
+>>>
+>>> What do you think?
+>>>
+>>> The patch would then be something like:
+>>>
+>>> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+>>> index a977e32a88f2..53476d5bbe35 100644
+>>> --- a/drivers/virtio/virtio.c
+>>> +++ b/drivers/virtio/virtio.c
+>>> @@ -4,6 +4,7 @@
+>>>   #include <linux/virtio_config.h>
+>>>   #include <linux/module.h>
+>>>   #include <linux/idr.h>
+>>> +#include <linux/dma-direct.h>
+>>>   #include <uapi/linux/virtio_ids.h>
+>>>
+>>>   /* Unique numbering for virtio devices. */
+>>> @@ -179,6 +180,10 @@ int virtio_finalize_features(struct virtio_device
+>>> *dev)
+>>>          if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
+>>>                  return 0;
+>>>
+>>> +       if (force_dma_unencrypted(&dev->dev) &&
+>>> +           !virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM))
+>>> +               return -EIO;
+>>> +
+>>>          virtio_add_status(dev, VIRTIO_CONFIG_S_FEATURES_OK);
+>>>          status = dev->config->get_status(dev);
+>>>          if (!(status & VIRTIO_CONFIG_S_FEATURES_OK)) {
+>>
+>>
+>> I think this can work but need to listen from Michael
+> 
+> I don't think Christoph Hellwig will like force_dma_unencrypted()
+> in virtio code:
+> https://lkml.org/lkml/2020/2/20/630
+> 
+> Regards,
+> Halil
+> 
+
+OK, then back to the first idea.
+Thanks,
+
+Pierre
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
