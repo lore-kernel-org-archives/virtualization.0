@@ -1,116 +1,51 @@
-From: <gregkh@linuxfoundation.org>
-Subject: Patch "crypto: virtio: Fix use-after-free in
- virtio_crypto_skcipher_finalize_req()" has been added to the 5.6-stable tree
-Date: Mon, 15 Jun 2020 22:31:43 +0200
-Message-ID: <159225310312350@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: arei.gonglei@huawei.com, clabbe@baylibre.com, davem@davemloft.net, gregkh@linuxfoundation.org, herbert@gondor.apana.org.au, jasowang@redhat.com, longpeng2@huawei.com, mst@redhat.com, virtualization@lists.linux-foundation.org
-Cc: stable-commits@vger.kernel.org
+From: Mark Brown <broonie@kernel.org>
+Subject: Re: [PATCH 00/17] spelling.txt: /decriptors/descriptors/
+Date: Tue, 16 Jun 2020 00:41:15 +0100
+Message-ID: <159226447507.27673.16785893373246037922.b4-ty@kernel.org>
+References: <20200609124610.3445662-1-kieran.bingham+renesas@ideasonboard.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200609124610.3445662-1-kieran.bingham+renesas@ideasonboard.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>, Kieran Bingham <kieran.bingham@ideasonboard.com>
+Cc: linux-gpio@vger.kernel.org, ath10k@lists.infradead.org, linux-mm@kvack.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, dri-devel@lists.freedesktop.org, linux-input@vger.kernel.org, linux-pm@vger.kernel.org, linux-wireless@vger.kernel.org, linux-usb@vger.kernel.org, netdev@vger.kernel.org, linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-rdma@vger.kernel.org, linux-mtd@lists.infradead.org, linux-renesas-soc@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue, 9 Jun 2020 13:45:53 +0100, Kieran Bingham wrote:
+> I wouldn't normally go through spelling fixes, but I caught sight of
+> this typo twice, and then foolishly grepped the tree for it, and saw how
+> pervasive it was.
+> 
+> so here I am ... fixing a typo globally... but with an addition in
+> scripts/spelling.txt so it shouldn't re-appear ;-)
+> 
+> [...]
 
-This is a note to let you know that I've just added the patch titled
+Applied to
 
-    crypto: virtio: Fix use-after-free in virtio_crypto_skcipher_finalize_req()
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/regulator.git for-next
 
-to the 5.6-stable tree which can be found at:
-    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+Thanks!
 
-The filename of the patch is:
-     crypto-virtio-fix-use-after-free-in-virtio_crypto_skcipher_finalize_req.patch
-and it can be found in the queue-5.6 subdirectory.
+[1/2] regulator: Fix trivial spelling
+      commit: d3f3723387f97118c337689fc73e4199fb4331ce
+[2/2] regulator: gpio: Fix trivial spelling
+      commit: 1f0b740004f09d2f1b716fd6c2fdca81004ded05
 
-If you, or anyone else, feels it should not be added to the stable tree,
-please let <stable@vger.kernel.org> know about it.
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.
 
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
 
-From 8c855f0720ff006d75d0a2512c7f6c4f60ff60ee Mon Sep 17 00:00:00 2001
-From: "Longpeng(Mike)" <longpeng2@huawei.com>
-Date: Tue, 2 Jun 2020 15:05:00 +0800
-Subject: crypto: virtio: Fix use-after-free in virtio_crypto_skcipher_finalize_req()
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
 
-From: Longpeng(Mike) <longpeng2@huawei.com>
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
 
-commit 8c855f0720ff006d75d0a2512c7f6c4f60ff60ee upstream.
-
-The system'll crash when the users insmod crypto/tcrypto.ko with mode=155
-( testing "authenc(hmac(sha1),cbc(aes))" ). It's caused by reuse the memory
-of request structure.
-
-In crypto_authenc_init_tfm(), the reqsize is set to:
-  [PART 1] sizeof(authenc_request_ctx) +
-  [PART 2] ictx->reqoff +
-  [PART 3] MAX(ahash part, skcipher part)
-and the 'PART 3' is used by both ahash and skcipher in turn.
-
-When the virtio_crypto driver finish skcipher req, it'll call ->complete
-callback(in crypto_finalize_skcipher_request) and then free its
-resources whose pointers are recorded in 'skcipher parts'.
-
-However, the ->complete is 'crypto_authenc_encrypt_done' in this case,
-it will use the 'ahash part' of the request and change its content,
-so virtio_crypto driver will get the wrong pointer after ->complete
-finish and mistakenly free some other's memory. So the system will crash
-when these memory will be used again.
-
-The resources which need to be cleaned up are not used any more. But the
-pointers of these resources may be changed in the function
-"crypto_finalize_skcipher_request". Thus release specific resources before
-calling this function.
-
-Fixes: dbaf0624ffa5 ("crypto: add virtio-crypto driver")
-Reported-by: LABBE Corentin <clabbe@baylibre.com>
-Cc: Gonglei <arei.gonglei@huawei.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: virtualization@lists.linux-foundation.org
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200123101000.GB24255@Red
-Acked-by: Gonglei <arei.gonglei@huawei.com>
-Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
-Link: https://lore.kernel.org/r/20200602070501.2023-3-longpeng2@huawei.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
----
- drivers/crypto/virtio/virtio_crypto_algs.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
-
---- a/drivers/crypto/virtio/virtio_crypto_algs.c
-+++ b/drivers/crypto/virtio/virtio_crypto_algs.c
-@@ -578,10 +578,11 @@ static void virtio_crypto_skcipher_final
- 		scatterwalk_map_and_copy(req->iv, req->dst,
- 					 req->cryptlen - AES_BLOCK_SIZE,
- 					 AES_BLOCK_SIZE, 0);
--	crypto_finalize_skcipher_request(vc_sym_req->base.dataq->engine,
--					   req, err);
- 	kzfree(vc_sym_req->iv);
- 	virtcrypto_clear_request(&vc_sym_req->base);
-+
-+	crypto_finalize_skcipher_request(vc_sym_req->base.dataq->engine,
-+					   req, err);
- }
- 
- static struct virtio_crypto_algo virtio_crypto_algs[] = { {
-
-
-Patches currently in stable-queue which might be from longpeng2@huawei.com are
-
-queue-5.6/crypto-virtio-fix-src-dst-scatterlist-calculation-in-__virtio_crypto_skcipher_do_req.patch
-queue-5.6/crypto-virtio-fix-dest-length-calculation-in-__virtio_crypto_skcipher_do_req.patch
-queue-5.6/crypto-virtio-fix-use-after-free-in-virtio_crypto_skcipher_finalize_req.patch
+Thanks,
+Mark
