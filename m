@@ -1,63 +1,146 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH RFC v6 02/11] vhost: use batched get_vq_desc version
-Date: Mon, 15 Jun 2020 10:43:42 +0800
-Message-ID: <be533349-817c-925b-43e4-899185d3fb1a@redhat.com>
-References: <20200608125238.728563-1-mst@redhat.com>
- <20200608125238.728563-3-mst@redhat.com>
- <81904cc5-b662-028d-3b4a-bdfdbd2deb8c@redhat.com>
- <20200610070259-mutt-send-email-mst@kernel.org>
- <76b14132-407a-48bf-c4d5-9d0b2c700bb0@redhat.com>
- <20200611050416-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH] s390: protvirt: virtio: Refuse device without IOMMU
+Date: Mon, 15 Jun 2020 11:01:55 +0800
+Message-ID: <a02b9f94-eb48-4ae2-0ade-a4ce26b61ad8@redhat.com>
+References: <1591794711-5915-1-git-send-email-pmorel@linux.ibm.com>
+ <467d5b58-b70c-1c45-4130-76b6e18c05af@redhat.com>
+ <f7eb1154-0f52-0f12-129f-2b511f5a4685@linux.ibm.com>
+ <6356ba7f-afab-75e1-05ff-4a22b88c610e@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200611050416-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <6356ba7f-afab-75e1-05ff-4a22b88c610e@linux.ibm.com>
 Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, eperezma@redhat.com, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Sender: linux-kernel-owner@vger.kernel.org
+To: Pierre Morel <pmorel@linux.ibm.com>, linux-kernel@vger.kernel.org
+Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMjAvNi8xMSDkuIvljYg1OjA2LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gT24g
-VGh1LCBKdW4gMTEsIDIwMjAgYXQgMTE6MDI6NTdBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToK
-Pj4gT24gMjAyMC82LzEwIOS4i+WNiDc6MDUsIE1pY2hhZWwgUy4gVHNpcmtpbiB3cm90ZToKPj4+
-Pj4gK0VYUE9SVF9TWU1CT0xfR1BMKHZob3N0X2dldF92cV9kZXNjKTsKPj4+Pj4gICAgIC8qIFJl
-dmVyc2UgdGhlIGVmZmVjdCBvZiB2aG9zdF9nZXRfdnFfZGVzYy4gVXNlZnVsIGZvciBlcnJvciBo
-YW5kbGluZy4gKi8KPj4+Pj4gICAgIHZvaWQgdmhvc3RfZGlzY2FyZF92cV9kZXNjKHN0cnVjdCB2
-aG9zdF92aXJ0cXVldWUgKnZxLCBpbnQgbikKPj4+Pj4gICAgIHsKPj4+Pj4gKwl1bmZldGNoX2Rl
-c2NzKHZxKTsKPj4+Pj4gICAgIAl2cS0+bGFzdF9hdmFpbF9pZHggLT0gbjsKPj4+PiBTbyB1bmZl
-dGNoX2Rlc2NzKCkgaGFzIGRlY3JlYXNlZCBsYXN0X2F2YWlsX2lkeC4KPj4+PiBDYW4gd2UgZml4
-IHRoaXMgYnkgbGV0dGluZyB1bmZldGNoX2Rlc2NzKCkgcmV0dXJuIHRoZSBudW1iZXIgYW5kIHRo
-ZW4gd2UgY2FuCj4+Pj4gZG86Cj4+Pj4KPj4+PiBpbnQgZCA9IHVuZmV0Y2hfZGVzY3ModnEpOwo+
-Pj4+IHZxLT5sYXN0X2F2YWlsX2lkeCAtPSAobiA+IGQpID8gbiAtIGQ6IDA7Cj4+Pj4KPj4+PiBU
-aGFua3MKPj4+IFRoYXQncyBpbnRlbnRpb25hbCBJIHRoaW5rIC0gd2UgbmVlZCBib3RoLgo+Pgo+
-PiBZZXMsIGJ1dDoKPj4KPj4KPj4+IFVuZmV0Y2hfZGVzY3MgZHJvcHMgdGhlIGRlc2NyaXB0b3Jz
-IGluIHRoZSBjYWNoZSB0aGF0IHdlcmUKPj4+ICpub3QgcmV0dXJuZWQgdG8gY2FsbGVyKiAgdGhy
-b3VnaCBnZXRfdnFfZGVzYy4KPj4+Cj4+PiB2aG9zdF9kaXNjYXJkX3ZxX2Rlc2MgZHJvcHMgdGhl
-IG9uZXMgdGhhdCB3ZXJlIHJldHVybmVkIHRocm91Z2ggZ2V0X3ZxX2Rlc2MuCj4+Pgo+Pj4gRGlk
-IEkgbWlzcyBhbnl0aGluZz8KPj4gV2UgY291bGQgY291bnQgc29tZSBkZXNjcmlwdG9ycyB0d2lj
-ZSwgY29uc2lkZXIgdGhlIGNhc2UgZS5nIHdlIG9ubHkgY2FjaGUKPj4gb24gZGVzY3JpcHRvcjoK
-Pj4KPj4gZmV0Y2hfZGVzY3MoKQo+PiAgwqDCoMKgIGZldGNoX2J1ZigpCj4+ICDCoMKgwqAgwqDC
-oMKgIGxhc3RfYXZhaWxfaWR4Kys7Cj4+Cj4+IFRoZW4gd2Ugd2FudCBkbyBkaXNjYXJkIGl0Ogo+
-PiB2aG9zdF9kaXNjYXJkX2F2YWlsX2J1ZigxKQo+PiAgwqDCoMKgIHVuZmV0Y2hfZGVzY3MoKQo+
-PiAgwqDCoMKgIMKgwqDCoCBsYXN0X2F2YWlsX2lkeC0tOwo+PiAgwqDCoMKgIGxhc3RfYXZhaWxf
-aWR4IC09IDE7Cj4+Cj4+IFRoYW5rcwo+Cj4gSSBkb24ndCB0aGluayB0aGF0IGhhcHBlbnMuIHZo
-b3N0X2Rpc2NhcmRfYXZhaWxfYnVmKDEpIGlzIG9ubHkgY2FsbGVkCj4gYWZ0ZXIgZ2V0IHZob3N0
-X2dldF9hdmFpbF9idWYuIHZob3N0X2dldF9hdmFpbF9idWYgaW5jcmVtZW50cwo+IGZpcnN0X2Rl
-c2MuICB1bmZldGNoX2Rlc2NzIG9ubHkgY291bnRzIGZyb20gZmlyc3RfZGVzYyB0byBuZGVzY3Mu
-Cj4KPiBJZiBJJ20gd3JvbmcsIGNvdWxkIHlvdSBzaG93IHZhbHVlcyBvZiBmaXJzdF9kZXNjIGFu
-ZCBuZGVzY3MgaW4gdGhpcwo+IHNjZW5hcmlvPwoKCllvdSdyZSByaWdodCwgZmV0Y2hfZGVzY3Jp
-cHRvciBjb3VsZCBub3QgYmUgY2FsbGVkIGRpcmVjdGx5IGZyb20gdGhlIApkZXZpY2UgY29kZS4K
-ClRoYW5rcwoKCj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51
-eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1h
-bi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+
+On 2020/6/12 下午7:38, Pierre Morel wrote:
+>
+>
+> On 2020-06-12 11:21, Pierre Morel wrote:
+>>
+>>
+>> On 2020-06-11 05:10, Jason Wang wrote:
+>>>
+>>> On 2020/6/10 下午9:11, Pierre Morel wrote:
+>>>> Protected Virtualisation protects the memory of the guest and
+>>>> do not allow a the host to access all of its memory.
+>>>>
+>>>> Let's refuse a VIRTIO device which does not use IOMMU
+>>>> protected access.
+>>>>
+>>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>>>> ---
+>>>>   drivers/s390/virtio/virtio_ccw.c | 5 +++++
+>>>>   1 file changed, 5 insertions(+)
+>>>>
+>>>> diff --git a/drivers/s390/virtio/virtio_ccw.c 
+>>>> b/drivers/s390/virtio/virtio_ccw.c
+>>>> index 5730572b52cd..06ffbc96587a 100644
+>>>> --- a/drivers/s390/virtio/virtio_ccw.c
+>>>> +++ b/drivers/s390/virtio/virtio_ccw.c
+>>>> @@ -986,6 +986,11 @@ static void virtio_ccw_set_status(struct 
+>>>> virtio_device *vdev, u8 status)
+>>>>       if (!ccw)
+>>>>           return;
+>>>> +    /* Protected Virtualisation guest needs IOMMU */
+>>>> +    if (is_prot_virt_guest() &&
+>>>> +        !__virtio_test_bit(vdev, VIRTIO_F_IOMMU_PLATFORM))
+>>>> +            status &= ~VIRTIO_CONFIG_S_FEATURES_OK;
+>>>> +
+>>>>       /* Write the status to the host. */
+>>>>       vcdev->dma_area->status = status;
+>>>>       ccw->cmd_code = CCW_CMD_WRITE_STATUS;
+>>>
+>>>
+>>> I wonder whether we need move it to virtio core instead of ccw.
+>>>
+>>> I think the other memory protection technologies may suffer from 
+>>> this as well.
+>>>
+>>> Thanks
+>>>
+>>
+>>
+>> What would you think of the following, also taking into account 
+>> Connie's comment on where the test should be done:
+>>
+>> - declare a weak function in virtio.c code, returning that memory 
+>> protection is not in use.
+>>
+>> - overwrite the function in the arch code
+>>
+>> - call this function inside core virtio_finalize_features() and if 
+>> required fail if the device don't have VIRTIO_F_IOMMU_PLATFORM.
+
+
+I think this is fine.
+
+
+>>
+>> Alternative could be to test a global variable that the architecture 
+>> would overwrite if needed but I find the weak function solution more 
+>> flexible.
+>>
+>> With a function, we also have the possibility to provide the device 
+>> as argument and take actions depending it, this may answer Halil's 
+>> concern.
+>>
+>> Regards,
+>> Pierre
+>>
+>
+> hum, in between I found another way which seems to me much better:
+>
+> We already have the force_dma_unencrypted() function available which 
+> AFAIU is what we want for encrypted memory protection and is already 
+> used by power and x86 SEV/SME in a way that seems AFAIU compatible 
+> with our problem.
+>
+> Even DMA and IOMMU are different things, I think they should be used 
+> together in our case.
+>
+> What do you think?
+>
+> The patch would then be something like:
+>
+> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> index a977e32a88f2..53476d5bbe35 100644
+> --- a/drivers/virtio/virtio.c
+> +++ b/drivers/virtio/virtio.c
+> @@ -4,6 +4,7 @@
+>  #include <linux/virtio_config.h>
+>  #include <linux/module.h>
+>  #include <linux/idr.h>
+> +#include <linux/dma-direct.h>
+>  #include <uapi/linux/virtio_ids.h>
+>
+>  /* Unique numbering for virtio devices. */
+> @@ -179,6 +180,10 @@ int virtio_finalize_features(struct virtio_device 
+> *dev)
+>         if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
+>                 return 0;
+>
+> +       if (force_dma_unencrypted(&dev->dev) &&
+> +           !virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM))
+> +               return -EIO;
+> +
+>         virtio_add_status(dev, VIRTIO_CONFIG_S_FEATURES_OK);
+>         status = dev->config->get_status(dev);
+>         if (!(status & VIRTIO_CONFIG_S_FEATURES_OK)) {
+
+
+I think this can work but need to listen from Michael.
+
+Thanks
+
+
+>
+>
+> Regards,
+> Pierre
+>
