@@ -1,85 +1,70 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
 Subject: Re: [PATCH] s390: protvirt: virtio: Refuse device without IOMMU
-Date: Mon, 15 Jun 2020 13:49:54 +0200
-Message-ID: <96a236da-7165-b59b-e013-919554fb1ac4@linux.ibm.com>
+Date: Mon, 15 Jun 2020 13:50:56 +0200
+Message-ID: <52cde80c-f33a-dbb7-d0b0-2733b3eb85c3@linux.ibm.com>
 References: <1591794711-5915-1-git-send-email-pmorel@linux.ibm.com>
  <467d5b58-b70c-1c45-4130-76b6e18c05af@redhat.com>
  <f7eb1154-0f52-0f12-129f-2b511f5a4685@linux.ibm.com>
  <6356ba7f-afab-75e1-05ff-4a22b88c610e@linux.ibm.com>
  <a02b9f94-eb48-4ae2-0ade-a4ce26b61ad8@redhat.com>
- <20200615123725.13f6a8de.pasic@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20200615123725.13f6a8de.pasic@linux.ibm.com>
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <a02b9f94-eb48-4ae2-0ade-a4ce26b61ad8@redhat.com>
 Content-Language: en-US
-Sender: kvm-owner@vger.kernel.org
-To: Halil Pasic <pasic@linux.ibm.com>, Jason Wang <jasowang@redhat.com>
-Cc: linux-kernel@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org
+Cc: linux-s390@vger.kernel.org, frankja@linux.ibm.com, kvm@vger.kernel.org, mst@redhat.com, cohuck@redhat.com, virtualization@lists.linux-foundation.org, pasic@linux.ibm.com, borntraeger@de.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On 2020-06-15 12:37, Halil Pasic wrote:
-> On Mon, 15 Jun 2020 11:01:55 +0800
-> Jason Wang <jasowang@redhat.com> wrote:
-> 
->>> hum, in between I found another way which seems to me much better:
->>>
->>> We already have the force_dma_unencrypted() function available which
->>> AFAIU is what we want for encrypted memory protection and is already
->>> used by power and x86 SEV/SME in a way that seems AFAIU compatible
->>> with our problem.
->>>
->>> Even DMA and IOMMU are different things, I think they should be used
->>> together in our case.
->>>
->>> What do you think?
->>>
->>> The patch would then be something like:
->>>
->>> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
->>> index a977e32a88f2..53476d5bbe35 100644
->>> --- a/drivers/virtio/virtio.c
->>> +++ b/drivers/virtio/virtio.c
->>> @@ -4,6 +4,7 @@
->>>   #include <linux/virtio_config.h>
->>>   #include <linux/module.h>
->>>   #include <linux/idr.h>
->>> +#include <linux/dma-direct.h>
->>>   #include <uapi/linux/virtio_ids.h>
->>>
->>>   /* Unique numbering for virtio devices. */
->>> @@ -179,6 +180,10 @@ int virtio_finalize_features(struct virtio_device
->>> *dev)
->>>          if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
->>>                  return 0;
->>>
->>> +       if (force_dma_unencrypted(&dev->dev) &&
->>> +           !virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM))
->>> +               return -EIO;
->>> +
->>>          virtio_add_status(dev, VIRTIO_CONFIG_S_FEATURES_OK);
->>>          status = dev->config->get_status(dev);
->>>          if (!(status & VIRTIO_CONFIG_S_FEATURES_OK)) {
->>
->>
->> I think this can work but need to listen from Michael
-> 
-> I don't think Christoph Hellwig will like force_dma_unencrypted()
-> in virtio code:
-> https://lkml.org/lkml/2020/2/20/630
-> 
-> Regards,
-> Halil
-> 
-
-OK, then back to the first idea.
-Thanks,
-
-Pierre
-
--- 
-Pierre Morel
-IBM Lab Boeblingen
+CgpPbiAyMDIwLTA2LTE1IDA1OjAxLCBKYXNvbiBXYW5nIHdyb3RlOgo+IAo+IE9uIDIwMjAvNi8x
+MiDkuIvljYg3OjM4LCBQaWVycmUgTW9yZWwgd3JvdGU6Cj4+Cj4+Cj4+IE9uIDIwMjAtMDYtMTIg
+MTE6MjEsIFBpZXJyZSBNb3JlbCB3cm90ZToKPj4+Cj4+Pgo+Pj4gT24gMjAyMC0wNi0xMSAwNTox
+MCwgSmFzb24gV2FuZyB3cm90ZToKPj4+Pgo+Pj4+IE9uIDIwMjAvNi8xMCDkuIvljYg5OjExLCBQ
+aWVycmUgTW9yZWwgd3JvdGU6Cj4+Pj4+IFByb3RlY3RlZCBWaXJ0dWFsaXNhdGlvbiBwcm90ZWN0
+cyB0aGUgbWVtb3J5IG9mIHRoZSBndWVzdCBhbmQKPj4+Pj4gZG8gbm90IGFsbG93IGEgdGhlIGhv
+c3QgdG8gYWNjZXNzIGFsbCBvZiBpdHMgbWVtb3J5Lgo+Pj4+Pgo+Pj4+PiBMZXQncyByZWZ1c2Ug
+YSBWSVJUSU8gZGV2aWNlIHdoaWNoIGRvZXMgbm90IHVzZSBJT01NVQo+Pj4+PiBwcm90ZWN0ZWQg
+YWNjZXNzLgo+Pj4+Pgo+Pj4+PiBTaWduZWQtb2ZmLWJ5OiBQaWVycmUgTW9yZWwgPHBtb3JlbEBs
+aW51eC5pYm0uY29tPgo+Pj4+PiAtLS0KPj4+Pj4gwqAgZHJpdmVycy9zMzkwL3ZpcnRpby92aXJ0
+aW9fY2N3LmMgfCA1ICsrKysrCj4+Pj4+IMKgIDEgZmlsZSBjaGFuZ2VkLCA1IGluc2VydGlvbnMo
+KykKPj4+Pj4KPj4+Pj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvczM5MC92aXJ0aW8vdmlydGlvX2Nj
+dy5jIAo+Pj4+PiBiL2RyaXZlcnMvczM5MC92aXJ0aW8vdmlydGlvX2Njdy5jCj4+Pj4+IGluZGV4
+IDU3MzA1NzJiNTJjZC4uMDZmZmJjOTY1ODdhIDEwMDY0NAo+Pj4+PiAtLS0gYS9kcml2ZXJzL3Mz
+OTAvdmlydGlvL3ZpcnRpb19jY3cuYwo+Pj4+PiArKysgYi9kcml2ZXJzL3MzOTAvdmlydGlvL3Zp
+cnRpb19jY3cuYwo+Pj4+PiBAQCAtOTg2LDYgKzk4NiwxMSBAQCBzdGF0aWMgdm9pZCB2aXJ0aW9f
+Y2N3X3NldF9zdGF0dXMoc3RydWN0IAo+Pj4+PiB2aXJ0aW9fZGV2aWNlICp2ZGV2LCB1OCBzdGF0
+dXMpCj4+Pj4+IMKgwqDCoMKgwqAgaWYgKCFjY3cpCj4+Pj4+IMKgwqDCoMKgwqDCoMKgwqDCoCBy
+ZXR1cm47Cj4+Pj4+ICvCoMKgwqAgLyogUHJvdGVjdGVkIFZpcnR1YWxpc2F0aW9uIGd1ZXN0IG5l
+ZWRzIElPTU1VICovCj4+Pj4+ICvCoMKgwqAgaWYgKGlzX3Byb3RfdmlydF9ndWVzdCgpICYmCj4+
+Pj4+ICvCoMKgwqDCoMKgwqDCoCAhX192aXJ0aW9fdGVzdF9iaXQodmRldiwgVklSVElPX0ZfSU9N
+TVVfUExBVEZPUk0pKQo+Pj4+PiArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBzdGF0dXMgJj0gflZJ
+UlRJT19DT05GSUdfU19GRUFUVVJFU19PSzsKPj4+Pj4gKwo+Pj4+PiDCoMKgwqDCoMKgIC8qIFdy
+aXRlIHRoZSBzdGF0dXMgdG8gdGhlIGhvc3QuICovCj4+Pj4+IMKgwqDCoMKgwqAgdmNkZXYtPmRt
+YV9hcmVhLT5zdGF0dXMgPSBzdGF0dXM7Cj4+Pj4+IMKgwqDCoMKgwqAgY2N3LT5jbWRfY29kZSA9
+IENDV19DTURfV1JJVEVfU1RBVFVTOwo+Pj4+Cj4+Pj4KPj4+PiBJIHdvbmRlciB3aGV0aGVyIHdl
+IG5lZWQgbW92ZSBpdCB0byB2aXJ0aW8gY29yZSBpbnN0ZWFkIG9mIGNjdy4KPj4+Pgo+Pj4+IEkg
+dGhpbmsgdGhlIG90aGVyIG1lbW9yeSBwcm90ZWN0aW9uIHRlY2hub2xvZ2llcyBtYXkgc3VmZmVy
+IGZyb20gCj4+Pj4gdGhpcyBhcyB3ZWxsLgo+Pj4+Cj4+Pj4gVGhhbmtzCj4+Pj4KPj4+Cj4+Pgo+
+Pj4gV2hhdCB3b3VsZCB5b3UgdGhpbmsgb2YgdGhlIGZvbGxvd2luZywgYWxzbyB0YWtpbmcgaW50
+byBhY2NvdW50IAo+Pj4gQ29ubmllJ3MgY29tbWVudCBvbiB3aGVyZSB0aGUgdGVzdCBzaG91bGQg
+YmUgZG9uZToKPj4+Cj4+PiAtIGRlY2xhcmUgYSB3ZWFrIGZ1bmN0aW9uIGluIHZpcnRpby5jIGNv
+ZGUsIHJldHVybmluZyB0aGF0IG1lbW9yeSAKPj4+IHByb3RlY3Rpb24gaXMgbm90IGluIHVzZS4K
+Pj4+Cj4+PiAtIG92ZXJ3cml0ZSB0aGUgZnVuY3Rpb24gaW4gdGhlIGFyY2ggY29kZQo+Pj4KPj4+
+IC0gY2FsbCB0aGlzIGZ1bmN0aW9uIGluc2lkZSBjb3JlIHZpcnRpb19maW5hbGl6ZV9mZWF0dXJl
+cygpIGFuZCBpZiAKPj4+IHJlcXVpcmVkIGZhaWwgaWYgdGhlIGRldmljZSBkb24ndCBoYXZlIFZJ
+UlRJT19GX0lPTU1VX1BMQVRGT1JNLgo+IAo+IAo+IEkgdGhpbmsgdGhpcyBpcyBmaW5lLgo+IAoK
+VGhhbmtzLApJIHRyeSB0aGlzLgoKUmVnYXJkcywKUGllcnJlCgoKCgotLSAKUGllcnJlIE1vcmVs
+CklCTSBMYWIgQm9lYmxpbmdlbgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlz
+dHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3Jn
+L21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
