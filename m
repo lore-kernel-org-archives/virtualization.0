@@ -1,152 +1,100 @@
-From: Eugenio =?ISO-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
-Subject: Re: [PATCH RFC v7 03/14] vhost: use batched get_vq_desc version
-Date: Mon, 15 Jun 2020 18:05:48 +0200
-Message-ID: <26bef3f07277b028034c019e456b4f236078c5fb.camel@redhat.com>
-References: <20200610113515.1497099-1-mst@redhat.com>
-         <20200610113515.1497099-4-mst@redhat.com>
-         <CAJaqyWdGKh5gSTndGuVPyJSgt3jfjfW4xNCrJ2tQ9f+mD8=sMQ@mail.gmail.com>
-         <20200610111147-mutt-send-email-mst@kernel.org>
-         <CAJaqyWe6d19hFAbpqaQqOPuQQmBQyevyF4sTVkaXKhD729XDkw@mail.gmail.com>
-         <20200611072702-mutt-send-email-mst@kernel.org>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Subject: Re: [PATCH RFC v8 03/11] vhost/net: pass net specific struct pointer
+Date: Mon, 15 Jun 2020 18:08:27 +0200
+Message-ID: <CAJaqyWfytTY7OvBdQNNPVDccvxbX4j-wmgUobU+OEYsOi77Mig@mail.gmail.com>
+References: <20200611113404.17810-1-mst@redhat.com> <20200611113404.17810-4-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200611072702-mutt-send-email-mst@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20200611113404.17810-4-mst@redhat.com>
+Sender: kvm-owner@vger.kernel.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-kernel@vger.kernel.org, kvm list <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2020-06-11 at 07:30 -0400, Michael S. Tsirkin wrote:
-> On Wed, Jun 10, 2020 at 06:18:32PM +0200, Eugenio Perez Martin wrote:
-> > On Wed, Jun 10, 2020 at 5:13 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > > On Wed, Jun 10, 2020 at 02:37:50PM +0200, Eugenio Perez Martin wrote:
-> > > > > +/* This function returns a value > 0 if a descriptor was found, or 0 if none were found.
-> > > > > + * A negative code is returned on error. */
-> > > > > +static int fetch_descs(struct vhost_virtqueue *vq)
-> > > > > +{
-> > > > > +       int ret;
-> > > > > +
-> > > > > +       if (unlikely(vq->first_desc >= vq->ndescs)) {
-> > > > > +               vq->first_desc = 0;
-> > > > > +               vq->ndescs = 0;
-> > > > > +       }
-> > > > > +
-> > > > > +       if (vq->ndescs)
-> > > > > +               return 1;
-> > > > > +
-> > > > > +       for (ret = 1;
-> > > > > +            ret > 0 && vq->ndescs <= vhost_vq_num_batch_descs(vq);
-> > > > > +            ret = fetch_buf(vq))
-> > > > > +               ;
-> > > > 
-> > > > (Expanding comment in V6):
-> > > > 
-> > > > We get an infinite loop this way:
-> > > > * vq->ndescs == 0, so we call fetch_buf() here
-> > > > * fetch_buf gets less than vhost_vq_num_batch_descs(vq); descriptors. ret = 1
-> > > > * This loop calls again fetch_buf, but vq->ndescs > 0 (and avail_vq ==
-> > > > last_avail_vq), so it just return 1
-> > > 
-> > > That's what
-> > >          [PATCH RFC v7 08/14] fixup! vhost: use batched get_vq_desc version
-> > > is supposed to fix.
-> > > 
-> > 
-> > Sorry, I forgot to include that fixup.
-> > 
-> > With it I don't see CPU stalls, but with that version latency has
-> > increased a lot and I see packet lost:
-> > + ping -c 5 10.200.0.1
-> > PING 10.200.0.1 (10.200.0.1) 56(84) bytes of data.
-> > > From 10.200.0.2 icmp_seq=1 Destination Host Unreachable
-> > > From 10.200.0.2 icmp_seq=2 Destination Host Unreachable
-> > > From 10.200.0.2 icmp_seq=3 Destination Host Unreachable
-> > 64 bytes from 10.200.0.1: icmp_seq=5 ttl=64 time=6848 ms
-> > 
-> > --- 10.200.0.1 ping statistics ---
-> > 5 packets transmitted, 1 received, +3 errors, 80% packet loss, time 76ms
-> > rtt min/avg/max/mdev = 6848.316/6848.316/6848.316/0.000 ms, pipe 4
-> > --
-> > 
-> > I cannot even use netperf.
-> 
-> OK so that's the bug to try to find and fix I think.
-> 
-> 
-> > If I modify with my proposed version:
-> > + ping -c 5 10.200.0.1
-> > PING 10.200.0.1 (10.200.0.1) 56(84) bytes of data.
-> > 64 bytes from 10.200.0.1: icmp_seq=1 ttl=64 time=7.07 ms
-> > 64 bytes from 10.200.0.1: icmp_seq=2 ttl=64 time=0.358 ms
-> > 64 bytes from 10.200.0.1: icmp_seq=3 ttl=64 time=5.35 ms
-> > 64 bytes from 10.200.0.1: icmp_seq=4 ttl=64 time=2.27 ms
-> > 64 bytes from 10.200.0.1: icmp_seq=5 ttl=64 time=0.426 ms
-> 
-> Not sure which version this is.
-> 
-> > [root@localhost ~]# netperf -H 10.200.0.1 -p 12865 -l 10 -t TCP_STREAM
-> > MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to
-> > 10.200.0.1 () port 0 AF_INET
-> > Recv   Send    Send
-> > Socket Socket  Message  Elapsed
-> > Size   Size    Size     Time     Throughput
-> > bytes  bytes   bytes    secs.    10^6bits/sec
-> > 
-> > 131072  16384  16384    10.01    4742.36
-> > [root@localhost ~]# netperf -H 10.200.0.1 -p 12865 -l 10 -t UDP_STREAM
-> > MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to
-> > 10.200.0.1 () port 0 AF_INET
-> > Socket  Message  Elapsed      Messages
-> > Size    Size     Time         Okay Errors   Throughput
-> > bytes   bytes    secs            #      #   10^6bits/sec
-> > 
-> > 212992   65507   10.00        9214      0     482.83
-> > 212992           10.00        9214            482.83
-> > 
-> > I will compare with the non-batch version for reference, but the
-> > difference between the two is noticeable. Maybe it's worth finding a
-> > good value for the if() inside fetch_buf?
-> > 
-> > Thanks!
-> > 
-> 
-> I don't think it's performance, I think it's a bug somewhere,
-> e.g. maybe we corrupt a packet, or stall the queue, or
-> something like this.
-> 
-> Let's do this, I will squash the fixups and post v8 so you can bisect
-> and then debug cleanly.
+On Thu, Jun 11, 2020 at 1:34 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> In preparation for further cleanup, pass net specific pointer
+> to ubuf callbacks so we can move net specific fields
+> out to net structures.
+>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  drivers/vhost/net.c | 14 +++++++-------
+>  1 file changed, 7 insertions(+), 7 deletions(-)
+>
+> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> index bf5e1d81ae25..ff594eec8ae3 100644
+> --- a/drivers/vhost/net.c
+> +++ b/drivers/vhost/net.c
+> @@ -94,7 +94,7 @@ struct vhost_net_ubuf_ref {
+>          */
+>         atomic_t refcount;
+>         wait_queue_head_t wait;
+> -       struct vhost_virtqueue *vq;
+> +       struct vhost_net_virtqueue *nvq;
+>  };
+>
+>  #define VHOST_NET_BATCH 64
+> @@ -231,7 +231,7 @@ static void vhost_net_enable_zcopy(int vq)
+>  }
+>
+>  static struct vhost_net_ubuf_ref *
+> -vhost_net_ubuf_alloc(struct vhost_virtqueue *vq, bool zcopy)
+> +vhost_net_ubuf_alloc(struct vhost_net_virtqueue *nvq, bool zcopy)
+>  {
+>         struct vhost_net_ubuf_ref *ubufs;
+>         /* No zero copy backend? Nothing to count. */
+> @@ -242,7 +242,7 @@ vhost_net_ubuf_alloc(struct vhost_virtqueue *vq, bool zcopy)
+>                 return ERR_PTR(-ENOMEM);
+>         atomic_set(&ubufs->refcount, 1);
+>         init_waitqueue_head(&ubufs->wait);
+> -       ubufs->vq = vq;
+> +       ubufs->nvq = nvq;
+>         return ubufs;
+>  }
+>
+> @@ -384,13 +384,13 @@ static void vhost_zerocopy_signal_used(struct vhost_net *net,
+>  static void vhost_zerocopy_callback(struct ubuf_info *ubuf, bool success)
+>  {
+>         struct vhost_net_ubuf_ref *ubufs = ubuf->ctx;
+> -       struct vhost_virtqueue *vq = ubufs->vq;
+> +       struct vhost_net_virtqueue *nvq = ubufs->nvq;
+>         int cnt;
+>
+>         rcu_read_lock_bh();
+>
+>         /* set len to mark this desc buffers done DMA */
+> -       vq->heads[ubuf->desc].len = success ?
+> +       nvq->vq.heads[ubuf->desc].in_len = success ?
 
-Ok, so if we apply the patch proposed in v7 08/14 (Or the version 8 of the patchset sent), this is what happens:
-
-1. Userland (virtio_test in my case) introduces just one buffer in vq, and it kicks
-2. vhost module reaches fetch_descs, called from vhost_get_vq_desc. From there we call fetch_buf in a for loop.
-3. The first time we call fetch_buf, it returns properly one buffer. However, the second time we call it, it returns 0
-because vq->avail_idx == vq->last_avail_idx and vq->avail_idx == last_avail_idx code path.
-4. fetch_descs assign ret = 0, so it returns 0. vhost_get_vq_desc will goto err, and it will signal no new buffer
-(returning vq->num).
-
-So to fix it and maintain the batching maybe we could return vq->ndescs in case ret == 0:
-
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index c0dfb5e3d2af..5993d4f34ca9 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -2315,7 +2327,8 @@ static int fetch_descs(struct vhost_virtqueue *vq)
- 
- 	/* On success we expect some descs */
- 	BUG_ON(ret > 0 && !vq->ndescs);
--	return ret;
-+	return ret ?: vq->ndescs;
- }
- 
- /* Reverse the effects of fetch_descs */
---
-
-Another possibility could be to return different codes from fetch_buf, but I find the suggested modification easier.
-
-What do you think?
+This change should access .len, not .in_len, until patch 6 (net:
+convert to new API) in this series. Not very important, but make
+easier to debug these intermediate commits.
 
 Thanks!
+
+>                 VHOST_DMA_DONE_LEN : VHOST_DMA_FAILED_LEN;
+>         cnt = vhost_net_ubuf_put(ubufs);
+>
+> @@ -402,7 +402,7 @@ static void vhost_zerocopy_callback(struct ubuf_info *ubuf, bool success)
+>          * less than 10% of times).
+>          */
+>         if (cnt <= 1 || !(cnt % 16))
+> -               vhost_poll_queue(&vq->poll);
+> +               vhost_poll_queue(&nvq->vq.poll);
+>
+>         rcu_read_unlock_bh();
+>  }
+> @@ -1525,7 +1525,7 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
+>         /* start polling new socket */
+>         oldsock = vhost_vq_get_backend(vq);
+>         if (sock != oldsock) {
+> -               ubufs = vhost_net_ubuf_alloc(vq,
+> +               ubufs = vhost_net_ubuf_alloc(nvq,
+>                                              sock && vhost_sock_zcopy(sock));
+>                 if (IS_ERR(ubufs)) {
+>                         r = PTR_ERR(ubufs);
+> --
+> MST
+>
