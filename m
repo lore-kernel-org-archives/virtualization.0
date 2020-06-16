@@ -1,73 +1,52 @@
-From: Waiman Long <longman@redhat.com>
-Subject: Re: [PATCH v4 1/3] mm/slab: Use memzero_explicit() in kzfree()
-Date: Tue, 16 Jun 2020 09:05:00 -0400
-Message-ID: <56c2304c-73cc-8f48-d8d0-5dd6c39f33f3@redhat.com>
-References: <20200616015718.7812-1-longman@redhat.com>
- <20200616015718.7812-2-longman@redhat.com>
- <20200616033035.GB902@sol.localdomain>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: Re: [PATCH v2 1/1] s390: virtio: let arch accept devices without
+ IOMMU feature
+Date: Tue, 16 Jun 2020 15:36:35 +0200
+Message-ID: <8ba494d2-ad91-bc5c-2df8-b9d81c435211@linux.ibm.com>
+References: <1592224764-1258-1-git-send-email-pmorel@linux.ibm.com>
+ <1592224764-1258-2-git-send-email-pmorel@linux.ibm.com>
+ <20200616115202.0285aa08.pasic@linux.ibm.com>
+ <ef235cc9-9d4b-1247-c01a-9dd1c63f437c@linux.ibm.com>
+ <20200616142010.04b7ba19.cohuck@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-crypto-owner@vger.kernel.org>
-In-Reply-To: <20200616033035.GB902@sol.localdomain>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20200616142010.04b7ba19.cohuck@redhat.com>
 Content-Language: en-US
-Sender: linux-crypto-owner@vger.kernel.org
-To: Eric Biggers <ebiggers@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, David Howells <dhowells@redhat.com>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, Linus Torvalds <torvalds@linux-foundation.org>, Joe Perches <joe@perches.com>, Matthew Wilcox <willy@infradead.org>, David Rientjes <rientjes@google.com>, Michal Hocko <mhocko@suse.com>, Johannes Weiner <hannes@cmpxchg.org>, Dan Carpenter <dan.carpenter@oracle.com>, David Sterba <dsterba@suse.cz>, "Jason A . Donenfeld" <Jason@zx2c4.com>, linux-mm@kvack.org, keyrings@vger.kernel.org, linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, linux-pm@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-amlogic@lists.infradead.org
+Sender: kvm-owner@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: Halil Pasic <pasic@linux.ibm.com>, linux-kernel@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, David Gibson <david@gibson.dropbear.id.au>, Ram Pai <linuxram@us.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 6/15/20 11:30 PM, Eric Biggers wrote:
-> On Mon, Jun 15, 2020 at 09:57:16PM -0400, Waiman Long wrote:
->> The kzfree() function is normally used to clear some sensitive
->> information, like encryption keys, in the buffer before freeing it back
->> to the pool. Memset() is currently used for the buffer clearing. However,
->> it is entirely possible that the compiler may choose to optimize away the
->> memory clearing especially if LTO is being used. To make sure that this
->> optimization will not happen, memzero_explicit(), which is introduced
->> in v3.18, is now used in kzfree() to do the clearing.
+
+
+On 2020-06-16 14:20, Cornelia Huck wrote:
+> On Tue, 16 Jun 2020 12:52:50 +0200
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
+> 
+>> On 2020-06-16 11:52, Halil Pasic wrote:
+>>> On Mon, 15 Jun 2020 14:39:24 +0200
+>>> Pierre Morel <pmorel@linux.ibm.com> wrote:
+> 
+>>>> @@ -162,6 +163,11 @@ bool force_dma_unencrypted(struct device *dev)
+>>>>    	return is_prot_virt_guest();
+>>>>    }
+>>>>    
+>>>> +int arch_needs_iommu_platform(struct virtio_device *dev)
+>>>
+>>> Maybe prefixing the name with virtio_ would help provide the
+>>> proper context.
 >>
->> Fixes: 3ef0e5ba4673 ("slab: introduce kzfree()")
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Waiman Long <longman@redhat.com>
->> ---
->>   mm/slab_common.c | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
+>> The virtio_dev makes it obvious and from the virtio side it should be
+>> obvious that the arch is responsible for this.
 >>
->> diff --git a/mm/slab_common.c b/mm/slab_common.c
->> index 9e72ba224175..37d48a56431d 100644
->> --- a/mm/slab_common.c
->> +++ b/mm/slab_common.c
->> @@ -1726,7 +1726,7 @@ void kzfree(const void *p)
->>   	if (unlikely(ZERO_OR_NULL_PTR(mem)))
->>   		return;
->>   	ks = ksize(mem);
->> -	memset(mem, 0, ks);
->> +	memzero_explicit(mem, ks);
->>   	kfree(mem);
->>   }
->>   EXPORT_SYMBOL(kzfree);
-> This is a good change, but the commit message isn't really accurate.  AFAIK, no
-> one has found any case where this memset() gets optimized out.  And even with
-> LTO, it would be virtually impossible due to all the synchronization and global
-> data structures that kfree() uses.  (Remember that this isn't the C standard
-> function "free()", so the compiler can't assign it any special meaning.)
-> Not to mention that LTO support isn't actually upstream yet.
->
-> I still agree with the change, but it might be helpful if the commit message
-> were honest that this is really a hardening measure and about properly conveying
-> the intent.  As-is this sounds like a critical fix, which might confuse people.
+>> However if nobody has something against I change it.
+> 
+> arch_needs_virtio_iommu_platform()?
 
-Yes, I agree that the commit log may look a bit scary. How about the 
-following:
+fine with me
 
-The kzfree() function is normally used to clear some sensitive
-information, like encryption keys, in the buffer before freeing it back
-to the pool. Memset() is currently used for buffer clearing. However
-unlikely, there is still a non-zero probability that the compiler may
-choose to optimize away the memory clearing especially if LTO is being
-used in the future. To make sure that this optimization will never
-happen, memzero_explicit(), which is introduced in v3.18, is now used
-in kzfree() to future-proof it.
-
-Cheers,
-Longman
+-- 
+Pierre Morel
+IBM Lab Boeblingen
