@@ -1,17 +1,14 @@
-From: David Howells <dhowells@redhat.com>
-Subject: Re: [PATCH v4 1/3] mm/slab: Use memzero_explicit() in kzfree()
-Date: Tue, 16 Jun 2020 16:46:40 +0100
-Message-ID: <879079.1592322400@warthog.procyon.org.uk>
-References: <56c2304c-73cc-8f48-d8d0-5dd6c39f33f3@redhat.com>
- <20200616015718.7812-1-longman@redhat.com>
- <20200616015718.7812-2-longman@redhat.com>
- <20200616033035.GB902@sol.localdomain>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH 5.6 098/161] crypto: virtio: Fix dest length calculation in
+ __virtio_crypto_skcipher_do_req()
+Date: Tue, 16 Jun 2020 17:34:48 +0200
+Message-ID: <20200616153111.045388591@linuxfoundation.org>
+References: <20200616153106.402291280@linuxfoundation.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <56c2304c-73cc-8f48-d8d0-5dd6c39f33f3@redhat.com>
-Content-ID: <879078.1592322400.1@warthog.procyon.org.uk>
+In-Reply-To: <20200616153106.402291280@linuxfoundation.org>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,37 +18,52 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Waiman Long <longman@redhat.com>
-Cc: "Jason A . Donenfeld" <Jason@zx2c4.com>, Michal Hocko <mhocko@suse.com>, linux-btrfs@vger.kernel.org, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, David Sterba <dsterba@suse.cz>, David Howells <dhowells@redhat.com>, linux-mm@kvack.org, linux-sctp@vger.kernel.org, keyrings@vger.kernel.org, kasan-dev@googlegroups.com, linux-stm32@st-md-mailman.stormreply.com, devel@driverdev.osuosl.org, linux-cifs@vger.kernel.org, linux-scsi@vger.kernel.org, James Morris <jmorris@namei.org>, Matthew Wilcox <willy@infradead.org>, ebiggers@kernel.org, linux-wpan@vger.kernel.org, David Rientjes <rientjes@google.com>, Dan Carpenter <dan.carpenter@oracle.com>, "Serge E. Hallyn" <serge@hallyn.com>, linux-pm@vger.kernel.org, ecryptfs@vger.kernel.org, linux-fscrypt@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-amlogic@lists.infradead.org, virtualization@lists.linux-foundation.org
+To: linux-kernel@vger.kernel.org
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.com>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, virtualization@lists.linux-foundation.org, "Longpeng(Mike)" <longpeng2@huawei.com>, "David S. Miller" <davem@davemloft.net>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Waiman Long <longman@redhat.com> wrote:
+From: Longpeng(Mike) <longpeng2@huawei.com>
 
-> The kzfree() function is normally used to clear some sensitive
-> information, like encryption keys, in the buffer before freeing it back
-> to the pool. Memset()
+commit d90ca42012db2863a9a30b564a2ace6016594bda upstream.
 
-"memset()" is all lowercase.
+The src/dst length is not aligned with AES_BLOCK_SIZE(which is 16) in some
+testcases in tcrypto.ko.
 
-> is currently used for buffer clearing. However unlikely, there is still a
-> non-zero probability
+For example, the src/dst length of one of cts(cbc(aes))'s testcase is 17, the
+crypto_virtio driver will set @src_data_len=16 but @dst_data_len=17 in this
+case and get a wrong at then end.
 
-I'd say "a possibility".
+  SRC: pp pp pp pp pp pp pp pp pp pp pp pp pp pp pp pp pp (17 bytes)
+  EXP: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc pp (17 bytes)
+  DST: cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc cc 00 (pollute the last bytes)
+  (pp: plaintext  cc:ciphertext)
 
-> that
+Fix this issue by limit the length of dest buffer.
 
-and I'd move "in [the] future" here.
+Fixes: dbaf0624ffa5 ("crypto: add virtio-crypto driver")
+Cc: Gonglei <arei.gonglei@huawei.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: virtualization@lists.linux-foundation.org
+Cc: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
+Link: https://lore.kernel.org/r/20200602070501.2023-4-longpeng2@huawei.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-> the compiler may choose to optimize away the
-> memory clearing especially if LTO is being used in the future. To make sure
-> that this optimization will never happen
+---
+ drivers/crypto/virtio/virtio_crypto_algs.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-"in these cases"
-
-> , memzero_explicit(), which is introduced in v3.18, is now used in
-
-"instead of"?
-
-> kzfree() to future-proof it.
-
-Davod
+--- a/drivers/crypto/virtio/virtio_crypto_algs.c
++++ b/drivers/crypto/virtio/virtio_crypto_algs.c
+@@ -402,6 +402,7 @@ __virtio_crypto_skcipher_do_req(struct v
+ 		goto free;
+ 	}
+ 
++	dst_len = min_t(unsigned int, req->cryptlen, dst_len);
+ 	pr_debug("virtio_crypto: src_len: %u, dst_len: %llu\n",
+ 			req->cryptlen, dst_len);
