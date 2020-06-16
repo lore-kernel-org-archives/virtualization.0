@@ -1,34 +1,178 @@
-From: Waiman Long <longman@redhat.com>
-Subject: Re: [PATCH v4 2/3] mm, treewide: Rename kzfree() to kfree_sensitive()
-Date: Tue, 16 Jun 2020 11:05:59 -0400
-Message-ID: <72aa954d-4933-333c-b784-f8df14e407e6@redhat.com>
-References: <20200616015718.7812-1-longman@redhat.com>
- <20200616015718.7812-3-longman@redhat.com> <20200616142624.GO4282@kadam>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Subject: Re: [PATCH RFC v7 03/14] vhost: use batched get_vq_desc version
+Date: Tue, 16 Jun 2020 17:23:43 +0200
+Message-ID: <CAJaqyWeX7knekVPcsZ2+AAf8zvZhPvt46fZncAsLhwYJ3eUa1g@mail.gmail.com>
+References: <20200610113515.1497099-1-mst@redhat.com> <20200610113515.1497099-4-mst@redhat.com>
+ <CAJaqyWdGKh5gSTndGuVPyJSgt3jfjfW4xNCrJ2tQ9f+mD8=sMQ@mail.gmail.com>
+ <20200610111147-mutt-send-email-mst@kernel.org> <CAJaqyWe6d19hFAbpqaQqOPuQQmBQyevyF4sTVkaXKhD729XDkw@mail.gmail.com>
+ <20200611072702-mutt-send-email-mst@kernel.org> <26bef3f07277b028034c019e456b4f236078c5fb.camel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <target-devel-owner@vger.kernel.org>
-In-Reply-To: <20200616142624.GO4282@kadam>
-Content-Language: en-US
-Sender: target-devel-owner@vger.kernel.org
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, David Howells <dhowells@redhat.com>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, Linus Torvalds <torvalds@linux-foundation.org>, Joe Perches <joe@perches.com>, Matthew Wilcox <willy@infradead.org>, David Rientjes <rientjes@google.com>, Michal Hocko <mhocko@suse.com>, Johannes Weiner <hannes@cmpxchg.org>, David Sterba <dsterba@suse.cz>, "Jason A . Donenfeld" <Jason@zx2c4.com>, linux-mm@kvack.org, keyrings@vger.kernel.org, linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, linux-pm@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-amlogic@lists.infradead.org, linux-mediatek@lists.infradead.org, linuxppc-dev@l
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <26bef3f07277b028034c019e456b4f236078c5fb.camel@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, kvm list <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 6/16/20 10:26 AM, Dan Carpenter wrote:
-> Last time you sent this we couldn't decide which tree it should go
-> through.  Either the crypto tree or through Andrew seems like the right
-> thing to me.
+On Mon, Jun 15, 2020 at 6:05 PM Eugenio P=C3=A9rez <eperezma@redhat.com> wr=
+ote:
 >
-> Also the other issue is that it risks breaking things if people add
-> new kzfree() instances while we are doing the transition.  Could you
-> just add a "#define kzfree kfree_sensitive" so that things continue to
-> compile and we can remove it in the next kernel release?
+> On Thu, 2020-06-11 at 07:30 -0400, Michael S. Tsirkin wrote:
+> > On Wed, Jun 10, 2020 at 06:18:32PM +0200, Eugenio Perez Martin wrote:
+> > > On Wed, Jun 10, 2020 at 5:13 PM Michael S. Tsirkin <mst@redhat.com> w=
+rote:
+> > > > On Wed, Jun 10, 2020 at 02:37:50PM +0200, Eugenio Perez Martin wrot=
+e:
+> > > > > > +/* This function returns a value > 0 if a descriptor was found=
+, or 0 if none were found.
+> > > > > > + * A negative code is returned on error. */
+> > > > > > +static int fetch_descs(struct vhost_virtqueue *vq)
+> > > > > > +{
+> > > > > > +       int ret;
+> > > > > > +
+> > > > > > +       if (unlikely(vq->first_desc >=3D vq->ndescs)) {
+> > > > > > +               vq->first_desc =3D 0;
+> > > > > > +               vq->ndescs =3D 0;
+> > > > > > +       }
+> > > > > > +
+> > > > > > +       if (vq->ndescs)
+> > > > > > +               return 1;
+> > > > > > +
+> > > > > > +       for (ret =3D 1;
+> > > > > > +            ret > 0 && vq->ndescs <=3D vhost_vq_num_batch_desc=
+s(vq);
+> > > > > > +            ret =3D fetch_buf(vq))
+> > > > > > +               ;
+> > > > >
+> > > > > (Expanding comment in V6):
+> > > > >
+> > > > > We get an infinite loop this way:
+> > > > > * vq->ndescs =3D=3D 0, so we call fetch_buf() here
+> > > > > * fetch_buf gets less than vhost_vq_num_batch_descs(vq); descript=
+ors. ret =3D 1
+> > > > > * This loop calls again fetch_buf, but vq->ndescs > 0 (and avail_=
+vq =3D=3D
+> > > > > last_avail_vq), so it just return 1
+> > > >
+> > > > That's what
+> > > >          [PATCH RFC v7 08/14] fixup! vhost: use batched get_vq_desc=
+ version
+> > > > is supposed to fix.
+> > > >
+> > >
+> > > Sorry, I forgot to include that fixup.
+> > >
+> > > With it I don't see CPU stalls, but with that version latency has
+> > > increased a lot and I see packet lost:
+> > > + ping -c 5 10.200.0.1
+> > > PING 10.200.0.1 (10.200.0.1) 56(84) bytes of data.
+> > > > From 10.200.0.2 icmp_seq=3D1 Destination Host Unreachable
+> > > > From 10.200.0.2 icmp_seq=3D2 Destination Host Unreachable
+> > > > From 10.200.0.2 icmp_seq=3D3 Destination Host Unreachable
+> > > 64 bytes from 10.200.0.1: icmp_seq=3D5 ttl=3D64 time=3D6848 ms
+> > >
+> > > --- 10.200.0.1 ping statistics ---
+> > > 5 packets transmitted, 1 received, +3 errors, 80% packet loss, time 7=
+6ms
+> > > rtt min/avg/max/mdev =3D 6848.316/6848.316/6848.316/0.000 ms, pipe 4
+> > > --
+> > >
+> > > I cannot even use netperf.
+> >
+> > OK so that's the bug to try to find and fix I think.
+> >
+> >
+> > > If I modify with my proposed version:
+> > > + ping -c 5 10.200.0.1
+> > > PING 10.200.0.1 (10.200.0.1) 56(84) bytes of data.
+> > > 64 bytes from 10.200.0.1: icmp_seq=3D1 ttl=3D64 time=3D7.07 ms
+> > > 64 bytes from 10.200.0.1: icmp_seq=3D2 ttl=3D64 time=3D0.358 ms
+> > > 64 bytes from 10.200.0.1: icmp_seq=3D3 ttl=3D64 time=3D5.35 ms
+> > > 64 bytes from 10.200.0.1: icmp_seq=3D4 ttl=3D64 time=3D2.27 ms
+> > > 64 bytes from 10.200.0.1: icmp_seq=3D5 ttl=3D64 time=3D0.426 ms
+> >
+> > Not sure which version this is.
+> >
+> > > [root@localhost ~]# netperf -H 10.200.0.1 -p 12865 -l 10 -t TCP_STREA=
+M
+> > > MIGRATED TCP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to
+> > > 10.200.0.1 () port 0 AF_INET
+> > > Recv   Send    Send
+> > > Socket Socket  Message  Elapsed
+> > > Size   Size    Size     Time     Throughput
+> > > bytes  bytes   bytes    secs.    10^6bits/sec
+> > >
+> > > 131072  16384  16384    10.01    4742.36
+> > > [root@localhost ~]# netperf -H 10.200.0.1 -p 12865 -l 10 -t UDP_STREA=
+M
+> > > MIGRATED UDP STREAM TEST from 0.0.0.0 (0.0.0.0) port 0 AF_INET to
+> > > 10.200.0.1 () port 0 AF_INET
+> > > Socket  Message  Elapsed      Messages
+> > > Size    Size     Time         Okay Errors   Throughput
+> > > bytes   bytes    secs            #      #   10^6bits/sec
+> > >
+> > > 212992   65507   10.00        9214      0     482.83
+> > > 212992           10.00        9214            482.83
+> > >
+> > > I will compare with the non-batch version for reference, but the
+> > > difference between the two is noticeable. Maybe it's worth finding a
+> > > good value for the if() inside fetch_buf?
+> > >
+> > > Thanks!
+> > >
+> >
+> > I don't think it's performance, I think it's a bug somewhere,
+> > e.g. maybe we corrupt a packet, or stall the queue, or
+> > something like this.
+> >
+> > Let's do this, I will squash the fixups and post v8 so you can bisect
+> > and then debug cleanly.
 >
-> regards,
-> dan carpenter
+> Ok, so if we apply the patch proposed in v7 08/14 (Or the version 8 of th=
+e patchset sent), this is what happens:
 >
-Yes, that make sure sense. Will send out v5 later today.
+> 1. Userland (virtio_test in my case) introduces just one buffer in vq, an=
+d it kicks
+> 2. vhost module reaches fetch_descs, called from vhost_get_vq_desc. From =
+there we call fetch_buf in a for loop.
+> 3. The first time we call fetch_buf, it returns properly one buffer. Howe=
+ver, the second time we call it, it returns 0
+> because vq->avail_idx =3D=3D vq->last_avail_idx and vq->avail_idx =3D=3D =
+last_avail_idx code path.
+> 4. fetch_descs assign ret =3D 0, so it returns 0. vhost_get_vq_desc will =
+goto err, and it will signal no new buffer
+> (returning vq->num).
+>
+> So to fix it and maintain the batching maybe we could return vq->ndescs i=
+n case ret =3D=3D 0:
+>
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index c0dfb5e3d2af..5993d4f34ca9 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -2315,7 +2327,8 @@ static int fetch_descs(struct vhost_virtqueue *vq)
+>
+>         /* On success we expect some descs */
+>         BUG_ON(ret > 0 && !vq->ndescs);
+> -       return ret;
+> +       return ret ?: vq->ndescs;
+>  }
+>
+>  /* Reverse the effects of fetch_descs */
+> --
+>
+> Another possibility could be to return different codes from fetch_buf, bu=
+t I find the suggested modification easier.
+>
+> What do you think?
+>
+> Thanks!
+>
 
-Cheers,
-Longman
+Hi!
+
+I can send a proposed RFC v9 in case it is more convenient for you.
+
+Thanks!
