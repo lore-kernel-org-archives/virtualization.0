@@ -1,58 +1,32 @@
-From: Eric Biggers <ebiggers@kernel.org>
-Subject: Re: [PATCH v4 1/3] mm/slab: Use memzero_explicit() in kzfree()
-Date: Mon, 15 Jun 2020 20:30:35 -0700
-Message-ID: <20200616033035.GB902@sol.localdomain>
-References: <20200616015718.7812-1-longman@redhat.com>
- <20200616015718.7812-2-longman@redhat.com>
+From: "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: Re: [PATCH 00/17] spelling.txt: /decriptors/descriptors/
+Date: Mon, 15 Jun 2020 23:59:55 -0400
+Message-ID: <159227986422.24883.1110692977647896521.b4-ty@oracle.com>
+References: <20200609124610.3445662-1-kieran.bingham+renesas@ideasonboard.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <ecryptfs-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200616015718.7812-2-longman@redhat.com>
-Sender: ecryptfs-owner@vger.kernel.org
-To: Waiman Long <longman@redhat.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, David Howells <dhowells@redhat.com>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, Linus Torvalds <torvalds@linux-foundation.org>, Joe Perches <joe@perches.com>, Matthew Wilcox <willy@infradead.org>, David Rientjes <rientjes@google.com>, Michal Hocko <mhocko@suse.com>, Johannes Weiner <hannes@cmpxchg.org>, Dan Carpenter <dan.carpenter@oracle.com>, David Sterba <dsterba@suse.cz>, "Jason A . Donenfeld" <Jason@zx2c4.com>, linux-mm@kvack.org, keyrings@vger.kernel.org, linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, linux-pm@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-amlogic@lists.infradead.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-renesas-soc-owner@vger.kernel.org>
+In-Reply-To: <20200609124610.3445662-1-kieran.bingham+renesas@ideasonboard.com>
+Sender: linux-renesas-soc-owner@vger.kernel.org
+To: Kieran Bingham <kieran.bingham@ideasonboard.com>, Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Cc: "Martin K . Petersen" <martin.petersen@oracle.com>, netdev@vger.kernel.org, linux-input@vger.kernel.org, linux-renesas-soc@vger.kernel.org, linux-mm@kvack.org, linux-rdma@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-mtd@lists.infradead.org, linux-wireless@vger.kernel.org, dri-devel@lists.freedesktop.org, linux-usb@vger.kernel.org, linux-gpio@vger.kernel.org, ath10k@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 15, 2020 at 09:57:16PM -0400, Waiman Long wrote:
-> The kzfree() function is normally used to clear some sensitive
-> information, like encryption keys, in the buffer before freeing it back
-> to the pool. Memset() is currently used for the buffer clearing. However,
-> it is entirely possible that the compiler may choose to optimize away the
-> memory clearing especially if LTO is being used. To make sure that this
-> optimization will not happen, memzero_explicit(), which is introduced
-> in v3.18, is now used in kzfree() to do the clearing.
+On Tue, 9 Jun 2020 13:45:53 +0100, Kieran Bingham wrote:
+
+> I wouldn't normally go through spelling fixes, but I caught sight of
+> this typo twice, and then foolishly grepped the tree for it, and saw how
+> pervasive it was.
 > 
-> Fixes: 3ef0e5ba4673 ("slab: introduce kzfree()")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Waiman Long <longman@redhat.com>
-> ---
->  mm/slab_common.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> so here I am ... fixing a typo globally... but with an addition in
+> scripts/spelling.txt so it shouldn't re-appear ;-)
 > 
-> diff --git a/mm/slab_common.c b/mm/slab_common.c
-> index 9e72ba224175..37d48a56431d 100644
-> --- a/mm/slab_common.c
-> +++ b/mm/slab_common.c
-> @@ -1726,7 +1726,7 @@ void kzfree(const void *p)
->  	if (unlikely(ZERO_OR_NULL_PTR(mem)))
->  		return;
->  	ks = ksize(mem);
-> -	memset(mem, 0, ks);
-> +	memzero_explicit(mem, ks);
->  	kfree(mem);
->  }
->  EXPORT_SYMBOL(kzfree);
+> [...]
 
-This is a good change, but the commit message isn't really accurate.  AFAIK, no
-one has found any case where this memset() gets optimized out.  And even with
-LTO, it would be virtually impossible due to all the synchronization and global
-data structures that kfree() uses.  (Remember that this isn't the C standard
-function "free()", so the compiler can't assign it any special meaning.)
-Not to mention that LTO support isn't actually upstream yet.
+Applied to 5.9/scsi-queue, thanks!
 
-I still agree with the change, but it might be helpful if the commit message
-were honest that this is really a hardening measure and about properly conveying
-the intent.  As-is this sounds like a critical fix, which might confuse people.
+[06/17] scsi: Fix trivial spelling
+        https://git.kernel.org/mkp/scsi/c/0a19a725c0ed
 
-- Eric
+-- 
+Martin K. Petersen	Oracle Linux Engineering
