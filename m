@@ -1,101 +1,67 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v2 1/1] s390: virtio: let arch accept devices without
- IOMMU feature
-Date: Tue, 16 Jun 2020 14:22:44 +0800
-Message-ID: <b45e321a-5acb-9be2-4cd6-ae75d7f78f05@redhat.com>
-References: <1592224764-1258-1-git-send-email-pmorel@linux.ibm.com>
- <1592224764-1258-2-git-send-email-pmorel@linux.ibm.com>
+From: Michal Hocko <mhocko@kernel.org>
+Subject: Re: [PATCH v4 1/3] mm/slab: Use memzero_explicit() in kzfree()
+Date: Tue, 16 Jun 2020 08:42:08 +0200
+Message-ID: <20200616064208.GA9499@dhcp22.suse.cz>
+References: <20200616015718.7812-1-longman@redhat.com>
+ <20200616015718.7812-2-longman@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1592224764-1258-2-git-send-email-pmorel@linux.ibm.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pierre Morel <pmorel@linux.ibm.com>, linux-kernel@vger.kernel.org
-Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20200616015718.7812-2-longman@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Waiman Long <longman@redhat.com>
+Cc: "Jason A . Donenfeld" <Jason@zx2c4.com>, linux-btrfs@vger.kernel.org, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, David Sterba <dsterba@suse.cz>, David Howells <dhowells@redhat.com>, linux-mm@kvack.org, linux-sctp@vger.kernel.org, keyrings@vger.kernel.org, kasan-dev@googlegroups.com, linux-stm32@st-md-mailman.stormreply.com, devel@driverdev.osuosl.org, linux-cifs@vger.kernel.org, linux-scsi@vger.kernel.org, James Morris <jmorris@namei.org>, Matthew Wilcox <willy@infradead.org>, linux-wpan@vger.kernel.org, David Rientjes <rientjes@google.com>, Dan Carpenter <dan.carpenter@oracle.com>, "Serge E. Hallyn" <serge@hallyn.com>, linux-pm@vger.kernel.org, ecryptfs@vger.kernel.org, linux-fscrypt@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-amlogic@lists.infradead.org, virtualization@lists.linux-foundation.org, linux-integrity@vger.kernel.org, linux-nfs@vger.ke
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Mon 15-06-20 21:57:16, Waiman Long wrote:
+> The kzfree() function is normally used to clear some sensitive
+> information, like encryption keys, in the buffer before freeing it back
+> to the pool. Memset() is currently used for the buffer clearing. However,
+> it is entirely possible that the compiler may choose to optimize away the
+> memory clearing especially if LTO is being used. To make sure that this
+> optimization will not happen, memzero_explicit(), which is introduced
+> in v3.18, is now used in kzfree() to do the clearing.
+> 
+> Fixes: 3ef0e5ba4673 ("slab: introduce kzfree()")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Waiman Long <longman@redhat.com>
 
-On 2020/6/15 下午8:39, Pierre Morel wrote:
-> An architecture protecting the guest memory against unauthorized host
-> access may want to enforce VIRTIO I/O device protection through the
-> use of VIRTIO_F_IOMMU_PLATFORM.
->
-> Let's give a chance to the architecture to accept or not devices
-> without VIRTIO_F_IOMMU_PLATFORM.
->
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
 
-
-Acked-by: Jason Wang <jasowang@redhat.com>
-
+Although I am not really sure this is a stable material. Is there any
+known instance where the memset was optimized out from kzfree?
 
 > ---
->   arch/s390/mm/init.c     | 6 ++++++
->   drivers/virtio/virtio.c | 9 +++++++++
->   include/linux/virtio.h  | 2 ++
->   3 files changed, 17 insertions(+)
->
-> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-> index 87b2d024e75a..3f04ad09650f 100644
-> --- a/arch/s390/mm/init.c
-> +++ b/arch/s390/mm/init.c
-> @@ -46,6 +46,7 @@
->   #include <asm/kasan.h>
->   #include <asm/dma-mapping.h>
->   #include <asm/uv.h>
-> +#include <linux/virtio.h>
->   
->   pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
->   
-> @@ -162,6 +163,11 @@ bool force_dma_unencrypted(struct device *dev)
->   	return is_prot_virt_guest();
->   }
->   
-> +int arch_needs_iommu_platform(struct virtio_device *dev)
-> +{
-> +	return is_prot_virt_guest();
-> +}
-> +
->   /* protected virtualization */
->   static void pv_init(void)
->   {
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index a977e32a88f2..30091089bee8 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -167,6 +167,11 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
->   }
->   EXPORT_SYMBOL_GPL(virtio_add_status);
->   
-> +int __weak arch_needs_iommu_platform(struct virtio_device *dev)
-> +{
-> +	return 0;
-> +}
-> +
->   int virtio_finalize_features(struct virtio_device *dev)
->   {
->   	int ret = dev->config->finalize_features(dev);
-> @@ -179,6 +184,10 @@ int virtio_finalize_features(struct virtio_device *dev)
->   	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
->   		return 0;
->   
-> +	if (arch_needs_iommu_platform(dev) &&
-> +		!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM))
-> +		return -EIO;
-> +
->   	virtio_add_status(dev, VIRTIO_CONFIG_S_FEATURES_OK);
->   	status = dev->config->get_status(dev);
->   	if (!(status & VIRTIO_CONFIG_S_FEATURES_OK)) {
-> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> index a493eac08393..2c46b310c38c 100644
-> --- a/include/linux/virtio.h
-> +++ b/include/linux/virtio.h
-> @@ -195,4 +195,6 @@ void unregister_virtio_driver(struct virtio_driver *drv);
->   #define module_virtio_driver(__virtio_driver) \
->   	module_driver(__virtio_driver, register_virtio_driver, \
->   			unregister_virtio_driver)
-> +
-> +int arch_needs_iommu_platform(struct virtio_device *dev);
->   #endif /* _LINUX_VIRTIO_H */
+>  mm/slab_common.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/mm/slab_common.c b/mm/slab_common.c
+> index 9e72ba224175..37d48a56431d 100644
+> --- a/mm/slab_common.c
+> +++ b/mm/slab_common.c
+> @@ -1726,7 +1726,7 @@ void kzfree(const void *p)
+>  	if (unlikely(ZERO_OR_NULL_PTR(mem)))
+>  		return;
+>  	ks = ksize(mem);
+> -	memset(mem, 0, ks);
+> +	memzero_explicit(mem, ks);
+>  	kfree(mem);
+>  }
+>  EXPORT_SYMBOL(kzfree);
+> -- 
+> 2.18.1
+> 
+
+-- 
+Michal Hocko
+SUSE Labs
