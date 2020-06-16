@@ -1,86 +1,57 @@
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: [PATCH 5.7 095/163] crypto: virtio: Fix src/dst scatterlist calculation in __virtio_crypto_skcipher_do_req()
-Date: Tue, 16 Jun 2020 17:34:29 +0200
-Message-ID: <20200616153111.382472195@linuxfoundation.org>
-References: <20200616153106.849127260@linuxfoundation.org>
+From: David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH v4 1/3] mm/slab: Use memzero_explicit() in kzfree()
+Date: Tue, 16 Jun 2020 16:46:40 +0100
+Message-ID: <879079.1592322400@warthog.procyon.org.uk>
+References: <56c2304c-73cc-8f48-d8d0-5dd6c39f33f3@redhat.com>
+ <20200616015718.7812-1-longman@redhat.com>
+ <20200616015718.7812-2-longman@redhat.com>
+ <20200616033035.GB902@sol.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <stable-owner@vger.kernel.org>
-In-Reply-To: <20200616153106.849127260@linuxfoundation.org>
-Sender: stable-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, stable@vger.kernel.org, LABBE Corentin <clabbe@baylibre.com>, Herbert Xu <herbert@gondor.apana.org.au>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>, virtualization@lists.linux-foundation.org, Gonglei <arei.gonglei@huawei.com>, "Longpeng(Mike)" <longpeng2@huawei.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <56c2304c-73cc-8f48-d8d0-5dd6c39f33f3@redhat.com>
+Content-ID: <879078.1592322400.1@warthog.procyon.org.uk>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Waiman Long <longman@redhat.com>
+Cc: "Jason A . Donenfeld" <Jason@zx2c4.com>, Michal Hocko <mhocko@suse.com>, linux-btrfs@vger.kernel.org, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, David Sterba <dsterba@suse.cz>, David Howells <dhowells@redhat.com>, linux-mm@kvack.org, linux-sctp@vger.kernel.org, keyrings@vger.kernel.org, kasan-dev@googlegroups.com, linux-stm32@st-md-mailman.stormreply.com, devel@driverdev.osuosl.org, linux-cifs@vger.kernel.org, linux-scsi@vger.kernel.org, James Morris <jmorris@namei.org>, Matthew Wilcox <willy@infradead.org>, ebiggers@kernel.org, linux-wpan@vger.kernel.org, David Rientjes <rientjes@google.com>, Dan Carpenter <dan.carpenter@oracle.com>, "Serge E. Hallyn" <serge@hallyn.com>, linux-pm@vger.kernel.org, ecryptfs@vger.kernel.org, linux-fscrypt@vger.kernel.org, linux-mediatek@lists.infradead.org, linux-amlogic@lists.infradead.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Longpeng(Mike) <longpeng2@huawei.com>
+Waiman Long <longman@redhat.com> wrote:
 
-commit b02989f37fc5e865ceeee9070907e4493b3a21e2 upstream.
+> The kzfree() function is normally used to clear some sensitive
+> information, like encryption keys, in the buffer before freeing it back
+> to the pool. Memset()
 
-The system will crash when the users insmod crypto/tcrypt.ko with mode=38
-( testing "cts(cbc(aes))" ).
+"memset()" is all lowercase.
 
-Usually the next entry of one sg will be @sg@ + 1, but if this sg element
-is part of a chained scatterlist, it could jump to the start of a new
-scatterlist array. Fix it by sg_next() on calculation of src/dst
-scatterlist.
+> is currently used for buffer clearing. However unlikely, there is still a
+> non-zero probability
 
-Fixes: dbaf0624ffa5 ("crypto: add virtio-crypto driver")
-Reported-by: LABBE Corentin <clabbe@baylibre.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: virtualization@lists.linux-foundation.org
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20200123101000.GB24255@Red
-Signed-off-by: Gonglei <arei.gonglei@huawei.com>
-Signed-off-by: Longpeng(Mike) <longpeng2@huawei.com>
-Link: https://lore.kernel.org/r/20200602070501.2023-2-longpeng2@huawei.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+I'd say "a possibility".
 
----
- drivers/crypto/virtio/virtio_crypto_algs.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+> that
 
---- a/drivers/crypto/virtio/virtio_crypto_algs.c
-+++ b/drivers/crypto/virtio/virtio_crypto_algs.c
-@@ -350,13 +350,18 @@ __virtio_crypto_skcipher_do_req(struct v
- 	int err;
- 	unsigned long flags;
- 	struct scatterlist outhdr, iv_sg, status_sg, **sgs;
--	int i;
- 	u64 dst_len;
- 	unsigned int num_out = 0, num_in = 0;
- 	int sg_total;
- 	uint8_t *iv;
-+	struct scatterlist *sg;
- 
- 	src_nents = sg_nents_for_len(req->src, req->cryptlen);
-+	if (src_nents < 0) {
-+		pr_err("Invalid number of src SG.\n");
-+		return src_nents;
-+	}
-+
- 	dst_nents = sg_nents(req->dst);
- 
- 	pr_debug("virtio_crypto: Number of sgs (src_nents: %d, dst_nents: %d)\n",
-@@ -443,12 +448,12 @@ __virtio_crypto_skcipher_do_req(struct v
- 	vc_sym_req->iv = iv;
- 
- 	/* Source data */
--	for (i = 0; i < src_nents; i++)
--		sgs[num_out++] = &req->src[i];
-+	for (sg = req->src; src_nents; sg = sg_next(sg), src_nents--)
-+		sgs[num_out++] = sg;
- 
- 	/* Destination data */
--	for (i = 0; i < dst_nents; i++)
--		sgs[num_out + num_in++] = &req->dst[i];
-+	for (sg = req->dst; sg; sg = sg_next(sg))
-+		sgs[num_out + num_in++] = sg;
- 
- 	/* Status */
- 	sg_init_one(&status_sg, &vc_req->status, sizeof(vc_req->status));
+and I'd move "in [the] future" here.
+
+> the compiler may choose to optimize away the
+> memory clearing especially if LTO is being used in the future. To make sure
+> that this optimization will never happen
+
+"in these cases"
+
+> , memzero_explicit(), which is introduced in v3.18, is now used in
+
+"instead of"?
+
+> kzfree() to future-proof it.
+
+Davod
