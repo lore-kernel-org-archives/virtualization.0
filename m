@@ -1,65 +1,36 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v2 1/1] s390: virtio: let arch accept devices without
- IOMMU feature
-Date: Tue, 16 Jun 2020 15:50:51 +0200
-Message-ID: <20200616155051.5b842895.cohuck@redhat.com>
-References: <1592224764-1258-1-git-send-email-pmorel@linux.ibm.com>
-        <1592224764-1258-2-git-send-email-pmorel@linux.ibm.com>
-        <20200616115202.0285aa08.pasic@linux.ibm.com>
-        <ef235cc9-9d4b-1247-c01a-9dd1c63f437c@linux.ibm.com>
-        <20200616135726.04fa8314.pasic@linux.ibm.com>
-        <20200616141744.61b3a139.cohuck@redhat.com>
-        <e130c5e7-40e5-40a8-eac3-c2d17c90ee7b@linux.ibm.com>
+From: Dan Carpenter <dan.carpenter-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>
+Subject: Re: [PATCH v4 2/3] mm, treewide: Rename kzfree() to kfree_sensitive()
+Date: Tue, 16 Jun 2020 17:26:24 +0300
+Message-ID: <20200616142624.GO4282@kadam>
+References: <20200616015718.7812-1-longman@redhat.com>
+ <20200616015718.7812-3-longman@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <e130c5e7-40e5-40a8-eac3-c2d17c90ee7b@linux.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pierre Morel <pmorel@linux.ibm.com>
-Cc: Halil Pasic <pasic@linux.ibm.com>, linux-kernel@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, David Gibson <david@gibson.dropbear.id.au>, Ram Pai <linuxram@us.ibm.com>, Heiko Carstens <heiko.carstens@de.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>
+Return-path: <linux-mediatek-bounces+glpam-linux-mediatek=m.gmane-mx.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20200616015718.7812-3-longman-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mediatek>,
+ <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.infradead.org/pipermail/linux-mediatek/>
+List-Post: <mailto:linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+List-Help: <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
+List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mediatek>,
+ <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
+Sender: "Linux-mediatek" <linux-mediatek-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Errors-To: linux-mediatek-bounces+glpam-linux-mediatek=m.gmane-mx.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+To: Waiman Long <longman-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Cc: "Jason A . Donenfeld" <Jason-OnJsPKxuuEcAvxtiuMwx3w@public.gmane.org>, Michal Hocko <mhocko-IBi9RG/b67k@public.gmane.org>, linux-btrfs-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, David Sterba <dsterba-AlSwsSmVLrQ@public.gmane.org>, David Howells <dhowells-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org, linux-sctp-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, keyrings-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, kasan-dev-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-stm32-XDFAJ8BFU24N7RejjzZ/Li2xQDfSxrLKVpNB7YpNyf8@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, linux-cifs-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-scsi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, James Morris <jmorris-gx6/JNMH7DfYtjvyW6yDsg@public.gmane.org>, Matthew Wilcox <willy-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, linux-wpan-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Rientjes <rientjes-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, "Serge E. Hallyn" <serge-A9i7LUbDfNHQT0dZR+AlfA@public.gmane.org>, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ecryptfs-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fscrypt-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-amlogic-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-integrity-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-nfs-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 16 Jun 2020 15:41:20 +0200
-Pierre Morel <pmorel@linux.ibm.com> wrote:
+Last time you sent this we couldn't decide which tree it should go
+through.  Either the crypto tree or through Andrew seems like the right
+thing to me.
 
-> On 2020-06-16 14:17, Cornelia Huck wrote:
-> > On Tue, 16 Jun 2020 13:57:26 +0200
-> > Halil Pasic <pasic@linux.ibm.com> wrote:
-> >   
-> >> On Tue, 16 Jun 2020 12:52:50 +0200
-> >> Pierre Morel <pmorel@linux.ibm.com> wrote:
-> >>  
-> >>>>>    int virtio_finalize_features(struct virtio_device *dev)
-> >>>>>    {
-> >>>>>    	int ret = dev->config->finalize_features(dev);
-> >>>>> @@ -179,6 +184,10 @@ int virtio_finalize_features(struct virtio_device *dev)
-> >>>>>    	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
-> >>>>>    		return 0;
-> >>>>>    
-> >>>>> +	if (arch_needs_iommu_platform(dev) &&
-> >>>>> +		!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM))
-> >>>>> +		return -EIO;
-> >>>>> +  
-> >>>>
-> >>>> Why EIO?  
-> >>>
-> >>> Because I/O can not occur correctly?
-> >>> I am open to suggestions.  
-> >>
-> >> We use -ENODEV if feature when the device rejects the features we
-> >> tried to negotiate (see virtio_finalize_features()) and -EINVAL when
-> >> the F_VERSION_1 and the virtio-ccw revision ain't coherent (in
-> >> virtio_ccw_finalize_features()). Any of those seems more fitting
-> >> that EIO to me. BTW does the error code itself matter in any way,
-> >> or is it just OK vs some error?  
-> > 
-> > If I haven't lost my way, we end up in the driver core probe failure
-> > handling; we probably should do -ENODEV if we just want probing to fail
-> > and -EINVAL or -EIO if we want the code to moan.
-> >   
-> 
-> what about returning -ENODEV and add a dedicated warning here?
-> 
+Also the other issue is that it risks breaking things if people add
+new kzfree() instances while we are doing the transition.  Could you
+just add a "#define kzfree kfree_sensitive" so that things continue to
+compile and we can remove it in the next kernel release?
 
-Sounds good at least to me.
+regards,
+dan carpenter
