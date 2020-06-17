@@ -1,44 +1,66 @@
-From: Matthew Wilcox <willy-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
-Subject: Re: [PATCH v4 0/3] mm, treewide: Rename kzfree() to kfree_sensitive()
-Date: Wed, 17 Jun 2020 04:08:20 -0700
-Message-ID: <20200617110820.GG8681@bombadil.infradead.org>
-References: <20200616015718.7812-1-longman@redhat.com>
- <fe3b9a437be4aeab3bac68f04193cb6daaa5bee4.camel@perches.com>
- <20200616230130.GJ27795@twin.jikos.cz>
- <20200617003711.GD8681@bombadil.infradead.org>
- <20200617071212.GJ9499@dhcp22.suse.cz>
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+Subject: Re: [PATCH v3 1/1] s390: virtio: let arch accept devices without
+ IOMMU feature
+Date: Wed, 17 Jun 2020 13:22:22 +0200
+Message-ID: <20200617112222.GF4479@osiris>
+References: <1592390637-17441-1-git-send-email-pmorel@linux.ibm.com>
+ <1592390637-17441-2-git-send-email-pmorel@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-mediatek-bounces+glpam-linux-mediatek=m.gmane-mx.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200617071212.GJ9499-2MMpYkNvuYDjFM9bn6wA6Q@public.gmane.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mediatek>,
- <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-mediatek/>
-List-Post: <mailto:linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mediatek>,
- <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "Linux-mediatek" <linux-mediatek-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: linux-mediatek-bounces+glpam-linux-mediatek=m.gmane-mx.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: Michal Hocko <mhocko-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: "Jason A . Donenfeld" <Jason-OnJsPKxuuEcAvxtiuMwx3w@public.gmane.org>, linux-btrfs-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, dsterba-AlSwsSmVLrQ@public.gmane.org, David Howells <dhowells-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org, linux-sctp-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, keyrings-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-stm32-XDFAJ8BFU24N7RejjzZ/Li2xQDfSxrLKVpNB7YpNyf8@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, linux-cifs-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-scsi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, James Morris <jmorris-gx6/JNMH7DfYtjvyW6yDsg@public.gmane.org>, kasan-dev-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-wpan-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Rientjes <rientjes-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Waiman Long <longman-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Dan Carpenter <dan.carpenter-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>, "Serge E. Hallyn" <serge-A9i7LUbDfNHQT0dZR+AlfA@public.gmane.org>, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ecryptfs-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fscrypt-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-amlogic-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-integrity-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-nfs-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus
+In-Reply-To: <1592390637-17441-2-git-send-email-pmorel@linux.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, gor@linux.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 17, 2020 at 09:12:12AM +0200, Michal Hocko wrote:
-> On Tue 16-06-20 17:37:11, Matthew Wilcox wrote:
-> > Not just performance critical, but correctness critical.  Since kvfree()
-> > may allocate from the vmalloc allocator, I really think that kvfree()
-> > should assert that it's !in_atomic().  Otherwise we can get into trouble
-> > if we end up calling vfree() and have to take the mutex.
+On Wed, Jun 17, 2020 at 12:43:57PM +0200, Pierre Morel wrote:
+> An architecture protecting the guest memory against unauthorized host
+> access may want to enforce VIRTIO I/O device protection through the
+> use of VIRTIO_F_IOMMU_PLATFORM.
 > 
-> FWIW __vfree already checks for atomic context and put the work into a
-> deferred context. So this should be safe. It should be used as a last
-> resort, though.
+> Let's give a chance to the architecture to accept or not devices
+> without VIRTIO_F_IOMMU_PLATFORM.
+> 
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> Acked-by: Jason Wang <jasowang@redhat.com>
+> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  arch/s390/mm/init.c     |  6 ++++++
+>  drivers/virtio/virtio.c | 22 ++++++++++++++++++++++
+>  include/linux/virtio.h  |  2 ++
+>  3 files changed, 30 insertions(+)
+> 
+> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+> index 6dc7c3b60ef6..215070c03226 100644
+> --- a/arch/s390/mm/init.c
+> +++ b/arch/s390/mm/init.c
+> @@ -45,6 +45,7 @@
+>  #include <asm/kasan.h>
+>  #include <asm/dma-mapping.h>
+>  #include <asm/uv.h>
+> +#include <linux/virtio.h>
+> 
+>  pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
+> 
+> @@ -161,6 +162,11 @@ bool force_dma_unencrypted(struct device *dev)
+>  	return is_prot_virt_guest();
+>  }
+> 
+> +int arch_needs_virtio_iommu_platform(struct virtio_device *dev)
+> +{
+> +	return is_prot_virt_guest();
+> +}
+> +
+>  /* protected virtualization */
+>  static void pv_init(void)
 
-Actually, it only checks for in_interrupt().  If you call vfree() under
-a spinlock, you're in trouble.  in_atomic() only knows if we hold a
-spinlock for CONFIG_PREEMPT, so it's not safe to check for in_atomic()
-in __vfree().  So we need the warning in order that preempt people can
-tell those without that there is a bug here.
+Can we please stop dumping random code to arch/s390/mm/init.c?
+
+All the protected virtualization functions should go into a separate
+file (e.g. mem_encrypt.c like on x86), some of which could also be in
+header files.
+
+Please consider this a comment for the future.. just go ahead with
+this patch as-is.
