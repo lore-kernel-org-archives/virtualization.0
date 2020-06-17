@@ -1,82 +1,54 @@
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH v3 1/1] s390: virtio: let arch accept devices without
- IOMMU feature
-Date: Thu, 18 Jun 2020 00:29:56 +0200
-Message-ID: <20200618002956.5f179de4.pasic@linux.ibm.com>
-References: <1592390637-17441-1-git-send-email-pmorel@linux.ibm.com>
-        <1592390637-17441-2-git-send-email-pmorel@linux.ibm.com>
+From: Joe Perches <joe@perches.com>
+Subject: Re: [PATCH v4 0/3] mm, treewide: Rename kzfree() to
+ kfree_sensitive()
+Date: Wed, 17 Jun 2020 16:12:06 -0700
+Message-ID: <38c5745d14cff75fe264a3bc61d19fd837baf7ad.camel@perches.com>
+References: <20200616015718.7812-1-longman@redhat.com>
+         <fe3b9a437be4aeab3bac68f04193cb6daaa5bee4.camel@perches.com>
+         <17e4fede-bab0-d93c-6964-69decc889d7d@ispras.ru>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1592390637-17441-2-git-send-email-pmorel@linux.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pierre Morel <pmorel@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
+Content-Type: text/plain; charset="ISO-8859-1"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-ppp-owner@vger.kernel.org>
+In-Reply-To: <17e4fede-bab0-d93c-6964-69decc889d7d@ispras.ru>
+Sender: linux-ppp-owner@vger.kernel.org
+To: Denis Efremov <efremov@ispras.ru>, Waiman Long <longman@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, David Howells <dhowells@redhat.com>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, Linus Torvalds <torvalds@linux-foundation.org>, Matthew Wilcox <willy@infradead.org>, David Rientjes <rientjes@google.com>
+Cc: Michal Hocko <mhocko@suse.com>, Johannes Weiner <hannes@cmpxchg.org>, Dan Carpenter <dan.carpenter@oracle.com>, David Sterba <dsterba@suse.cz>, "Jason A . Donenfeld" <Jason@zx2c4.com>, linux-mm@kvack.org, keyrings@vger.kernel.org, linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, linux-pm@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-amlogic@lists.infradead.org, linux-mediatek@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-ppp@vger.kernel.org, wireguard@lists.zx2c4.com, linux-wireless@vger.kernel.org, devel@driverdev.osuosl.org, linux-scsi@vger.kernel.org, target-devel@vger.kernel.org, linux-btrfs@vger.kernel.org, linux-cifs@vger.kernel.org, linux-fscrypt@vger.
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 17 Jun 2020 12:43:57 +0200
-Pierre Morel <pmorel@linux.ibm.com> wrote:
-
-> An architecture protecting the guest memory against unauthorized host
-> access may want to enforce VIRTIO I/O device protection through the
-> use of VIRTIO_F_IOMMU_PLATFORM.
+On Thu, 2020-06-18 at 00:31 +0300, Denis Efremov wrote:
 > 
-> Let's give a chance to the architecture to accept or not devices
-> without VIRTIO_F_IOMMU_PLATFORM.
+> On 6/16/20 9:53 PM, Joe Perches wrote:
+> > On Mon, 2020-06-15 at 21:57 -0400, Waiman Long wrote:
+> > >  v4:
+> > >   - Break out the memzero_explicit() change as suggested by Dan Carpenter
+> > >     so that it can be backported to stable.
+> > >   - Drop the "crypto: Remove unnecessary memzero_explicit()" patch for
+> > >     now as there can be a bit more discussion on what is best. It will be
+> > >     introduced as a separate patch later on after this one is merged.
+> > 
+> > To this larger audience and last week without reply:
+> > https://lore.kernel.org/lkml/573b3fbd5927c643920e1364230c296b23e7584d.camel@perches.com/
+> > 
+> > Are there _any_ fastpath uses of kfree or vfree?
+> > 
+> > Many patches have been posted recently to fix mispairings
+> > of specific types of alloc and free functions.
 > 
-[..]
+> I've prepared a coccinelle script to highlight these mispairings in a function
+> a couple of days ago: https://lkml.org/lkml/2020/6/5/953
+> I've listed all the fixes in the commit message. 
+> 
+> Not so many mispairings actually, and most of them are harmless like:
+> kmalloc(E) -> kvfree(E)
+> 
+> However, coccinelle script can't detect cross-functions mispairings, i.e.
+> allocation in one function, free in another funtion.
 
+Hey Denis, thanks for those patches.
 
-I'm still not really satisfied with your commit message, furthermore
-I did some thinking about the abstraction you introduce here. I will
-give a short analysis of that, but first things first. Your patch does
-the job of preventing calamity, and the details can be changed any time,
-thus: 
+If possible, it's probably better to not require these pairings
+and use a single standard kfree/free function.
 
-Acked-by: Halil Pasic <pasic@linux.ibm.com>
-
-Regarding the interaction of architecture specific code with virtio core,
-I believe we could have made the interface more generic.
-
-One option is to introduce virtio_arch_finalize_features(), a hook that
-could reject any feature that is inappropriate.
-
-Another option would be to find a common name for is_prot_virt_guest()
-(arch/s390) sev_active() (arch/x86) and is_secure_guest() (arch/powerpc)
-and use that instead of arch_needs_virtio_iommu_platform() and where-ever
-appropriate. Currently we seem to want this info in driver code only for
-virtio, but if the virtio driver has a legitimate need to know, other
-drivers may as well have a legitimate need to know. For example if we
-wanted to protect ourselves in ccw device drivers from somebody
-setting up a vfio-ccw device and attach it to the prot-virt guest (AFAICT
-we only lack guest enablement for this) such a function could be useful.
-
-But since this can be rewritten any time, let's go with the option
-people already agree with, instead of more discussion.
-
-Just another question. Do we want this backported? Do we need cc stable?
-[..]
-
-
->  int virtio_finalize_features(struct virtio_device *dev)
->  {
->  	int ret = dev->config->finalize_features(dev);
-> @@ -179,6 +194,13 @@ int virtio_finalize_features(struct virtio_device *dev)
->  	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
->  		return 0;
->  
-> +	if (arch_needs_virtio_iommu_platform(dev) &&
-> +		!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
-> +		dev_warn(&dev->dev,
-> +			 "virtio: device must provide VIRTIO_F_IOMMU_PLATFORM\n");
-
-I'm not sure, divulging the current Linux name of this feature bit is a
-good idea, but if everybody else is fine with this, I don't care that
-much. An alternative would be:
-"virtio: device falsely claims to have full access to the memory,
-aborting the device"
-
-
-Regards,
-Halil
+Given the existing ifs in kfree in slab/slob/slub, it seems
+likely that adding a few more wouldn't have much impact.
