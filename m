@@ -1,58 +1,118 @@
-From: Michal Hocko <mhocko-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [PATCH v4 0/3] mm, treewide: Rename kzfree() to kfree_sensitive()
-Date: Wed, 17 Jun 2020 14:55:53 +0200
-Message-ID: <20200617125553.GO9499@dhcp22.suse.cz>
-References: <20200616015718.7812-1-longman@redhat.com>
- <fe3b9a437be4aeab3bac68f04193cb6daaa5bee4.camel@perches.com>
- <20200616230130.GJ27795@twin.jikos.cz>
- <20200617003711.GD8681@bombadil.infradead.org>
- <20200617071212.GJ9499@dhcp22.suse.cz>
- <20200617110820.GG8681@bombadil.infradead.org>
- <20200617113157.GM9499@dhcp22.suse.cz>
- <20200617122321.GJ8681@bombadil.infradead.org>
+From: Tom Lendacky <thomas.lendacky@amd.com>
+Subject: Re: [PATCH v3 1/1] s390: virtio: let arch accept devices without
+ IOMMU feature
+Date: Wed, 17 Jun 2020 08:36:12 -0500
+Message-ID: <e5204218-6e93-8713-6056-2a62531c310e@amd.com>
+References: <1592390637-17441-1-git-send-email-pmorel@linux.ibm.com>
+ <1592390637-17441-2-git-send-email-pmorel@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-mediatek-bounces+glpam-linux-mediatek=m.gmane-mx.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20200617122321.GJ8681-PfSpb0PWhxZc2C7mugBRk2EX/6BAtgUQ@public.gmane.org>
-List-Unsubscribe: <http://lists.infradead.org/mailman/options/linux-mediatek>,
- <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.infradead.org/pipermail/linux-mediatek/>
-List-Post: <mailto:linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-List-Help: <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=help>
-List-Subscribe: <http://lists.infradead.org/mailman/listinfo/linux-mediatek>,
- <mailto:linux-mediatek-request-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org?subject=subscribe>
-Sender: "Linux-mediatek" <linux-mediatek-bounces-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org>
-Errors-To: linux-mediatek-bounces+glpam-linux-mediatek=m.gmane-mx.org-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
-To: Matthew Wilcox <willy-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>
-Cc: "Jason A . Donenfeld" <Jason-OnJsPKxuuEcAvxtiuMwx3w@public.gmane.org>, linux-btrfs-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Jarkko Sakkinen <jarkko.sakkinen-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, dsterba-AlSwsSmVLrQ@public.gmane.org, David Howells <dhowells-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org, linux-sctp-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, keyrings-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-stm32-XDFAJ8BFU24N7RejjzZ/Li2xQDfSxrLKVpNB7YpNyf8@public.gmane.org, devel-gWbeCf7V1WCQmaza687I9mD2FQJk+8+b@public.gmane.org, linux-cifs-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-scsi-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, James Morris <jmorris-gx6/JNMH7DfYtjvyW6yDsg@public.gmane.org>, kasan-dev-/JYPxA39Uh5TLH3MbocFFw@public.gmane.org, linux-wpan-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, David Rientjes <rientjes-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Waiman Long <longman-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Dan Carpenter <dan.carpenter-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org>, "Serge E. Hallyn" <serge-A9i7LUbDfNHQT0dZR+AlfA@public.gmane.org>, linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, ecryptfs-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-fscrypt-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-amlogic-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-integrity-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-nfs-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Linus
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1592390637-17441-2-git-send-email-pmorel@linux.ibm.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Pierre Morel <pmorel@linux.ibm.com>, linux-kernel@vger.kernel.org
+Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed 17-06-20 05:23:21, Matthew Wilcox wrote:
-> On Wed, Jun 17, 2020 at 01:31:57PM +0200, Michal Hocko wrote:
-> > On Wed 17-06-20 04:08:20, Matthew Wilcox wrote:
-> > > If you call vfree() under
-> > > a spinlock, you're in trouble.  in_atomic() only knows if we hold a
-> > > spinlock for CONFIG_PREEMPT, so it's not safe to check for in_atomic()
-> > > in __vfree().  So we need the warning in order that preempt people can
-> > > tell those without that there is a bug here.
-> > 
-> > ... Unless I am missing something in_interrupt depends on preempt_count() as
-> > well so neither of the two is reliable without PREEMPT_COUNT configured.
+On 6/17/20 5:43 AM, Pierre Morel wrote:
+> An architecture protecting the guest memory against unauthorized host
+> access may want to enforce VIRTIO I/O device protection through the
+> use of VIRTIO_F_IOMMU_PLATFORM.
 > 
-> preempt_count() always tracks whether we're in interrupt context,
-> regardless of CONFIG_PREEMPT.  The difference is that CONFIG_PREEMPT
-> will track spinlock acquisitions as well.
+> Let's give a chance to the architecture to accept or not devices
+> without VIRTIO_F_IOMMU_PLATFORM.
+> 
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> Acked-by: Jason Wang <jasowang@redhat.com>
+> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  arch/s390/mm/init.c     |  6 ++++++
+>  drivers/virtio/virtio.c | 22 ++++++++++++++++++++++
+>  include/linux/virtio.h  |  2 ++
+>  3 files changed, 30 insertions(+)
+> 
+> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+> index 6dc7c3b60ef6..215070c03226 100644
+> --- a/arch/s390/mm/init.c
+> +++ b/arch/s390/mm/init.c
+> @@ -45,6 +45,7 @@
+>  #include <asm/kasan.h>
+>  #include <asm/dma-mapping.h>
+>  #include <asm/uv.h>
+> +#include <linux/virtio.h>
+>  
+>  pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
+>  
+> @@ -161,6 +162,11 @@ bool force_dma_unencrypted(struct device *dev)
+>  	return is_prot_virt_guest();
+>  }
+>  
+> +int arch_needs_virtio_iommu_platform(struct virtio_device *dev)
+> +{
+> +	return is_prot_virt_guest();
+> +}
+> +
+>  /* protected virtualization */
+>  static void pv_init(void)
+>  {
+> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> index a977e32a88f2..aa8e01104f86 100644
+> --- a/drivers/virtio/virtio.c
+> +++ b/drivers/virtio/virtio.c
+> @@ -167,6 +167,21 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
+>  }
+>  EXPORT_SYMBOL_GPL(virtio_add_status);
+>  
+> +/*
+> + * arch_needs_virtio_iommu_platform - provide arch specific hook when finalizing
+> + *				      features for VIRTIO device dev
+> + * @dev: the VIRTIO device being added
+> + *
+> + * Permits the platform to provide architecture specific functionality when
+> + * devices features are finalized. This is the default implementation.
+> + * Architecture implementations can override this.
+> + */
+> +
+> +int __weak arch_needs_virtio_iommu_platform(struct virtio_device *dev)
+> +{
+> +	return 0;
+> +}
+> +
+>  int virtio_finalize_features(struct virtio_device *dev)
+>  {
+>  	int ret = dev->config->finalize_features(dev);
+> @@ -179,6 +194,13 @@ int virtio_finalize_features(struct virtio_device *dev)
+>  	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
+>  		return 0;
+>  
+> +	if (arch_needs_virtio_iommu_platform(dev) &&
+> +		!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
 
-Right you are! Thanks for the clarification. I find the situation
-around preempt_count quite confusing TBH. Looking at existing users
-of in_atomic() (e.g. a random one zd_usb_iowrite16v_async which check
-in_atomic and then does GFP_KERNEL allocation which would be obviously
-broken on !PREEMPT if the function can be called from an atomic
-context), I am wondering whether it would make sense to track atomic
-context also for !PREEMPT. This check is just terribly error prone.
+Just a style nit, but the "!virtio..." should be directly under the
+"arch_...", not tabbed out.
 
--- 
-Michal Hocko
-SUSE Labs
+Thanks,
+Tom
+
+> +		dev_warn(&dev->dev,
+> +			 "virtio: device must provide VIRTIO_F_IOMMU_PLATFORM\n");
+> +		return -ENODEV;
+> +	}
+> +
+>  	virtio_add_status(dev, VIRTIO_CONFIG_S_FEATURES_OK);
+>  	status = dev->config->get_status(dev);
+>  	if (!(status & VIRTIO_CONFIG_S_FEATURES_OK)) {
+> diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> index a493eac08393..e8526ae3463e 100644
+> --- a/include/linux/virtio.h
+> +++ b/include/linux/virtio.h
+> @@ -195,4 +195,6 @@ void unregister_virtio_driver(struct virtio_driver *drv);
+>  #define module_virtio_driver(__virtio_driver) \
+>  	module_driver(__virtio_driver, register_virtio_driver, \
+>  			unregister_virtio_driver)
+> +
+> +int arch_needs_virtio_iommu_platform(struct virtio_device *dev);
+>  #endif /* _LINUX_VIRTIO_H */
+> 
