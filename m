@@ -1,65 +1,105 @@
-From: Jo -l <joel.voyer@gmail.com>
-Subject: Re: [PATCH v4 0/3] mm, treewide: Rename kzfree() to kfree_sensitive()
-Date: Wed, 17 Jun 2020 10:03:30 +0200
-Message-ID: <29829792-2C3E-44D1-A337-E206F1B6C92A@gmail.com>
-References: <20200616015718.7812-1-longman@redhat.com>
- <fe3b9a437be4aeab3bac68f04193cb6daaa5bee4.camel@perches.com>
- <20200616230130.GJ27795@twin.jikos.cz>
- <20200617003711.GD8681@bombadil.infradead.org>
-Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.80.23.2.2\))
-Content-Type: text/plain;
-        charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200617003711.GD8681@bombadil.infradead.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Matthew Wilcox <willy@infradead.org>
-Cc: dsterba@suse.cz, Joe Perches <joe@perches.com>, Waiman Long <longman@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, David Howells <dhowells@redhat.com>, Jarkko Sakkinen <jarkko.sakkinen@linux.intel.com>, James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, Linus Torvalds <torvalds@linux-foundation.org>, David Rientjes <rientjes@google.com>, Michal Hocko <mhocko@suse.com>, Johannes Weiner <hannes@cmpxchg.org>, Dan Carpenter <dan.carpenter@oracle.com>, "Jason A. Donenfeld" <Jason@zx2c4.com>, linux-mm@kvack.org, keyrings@vger.kernel.org, linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org, linux-pm@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com, linux-amlogic@lists.infradead.org, linux-mediatek@lists.infrade
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH v3 1/1] s390: virtio: let arch accept devices without IOMMU feature
+Date: Wed, 17 Jun 2020 12:43:57 +0200
+Message-ID: <1592390637-17441-2-git-send-email-pmorel@linux.ibm.com>
+References: <1592390637-17441-1-git-send-email-pmorel@linux.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1592390637-17441-1-git-send-email-pmorel@linux.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Bonjour,
-D=C3=A9sol=C3=A9, aucune traduction possible,=20
-En fran=C3=A7ais pour comprendre!
-Merci
-slts
+An architecture protecting the guest memory against unauthorized host
+access may want to enforce VIRTIO I/O device protection through the
+use of VIRTIO_F_IOMMU_PLATFORM.
 
-> Le 17 06 2020 =C3=A0 02:37, Matthew Wilcox <willy@infradead.org> a =
-=C3=A9crit :
->=20
-> On Wed, Jun 17, 2020 at 01:01:30AM +0200, David Sterba wrote:
->> On Tue, Jun 16, 2020 at 11:53:50AM -0700, Joe Perches wrote:
->>> On Mon, 2020-06-15 at 21:57 -0400, Waiman Long wrote:
->>>> v4:
->>>> - Break out the memzero_explicit() change as suggested by Dan =
-Carpenter
->>>>  so that it can be backported to stable.
->>>> - Drop the "crypto: Remove unnecessary memzero_explicit()" patch =
-for
->>>>  now as there can be a bit more discussion on what is best. It will =
-be
->>>>  introduced as a separate patch later on after this one is merged.
->>>=20
->>> To this larger audience and last week without reply:
->>> =
-https://lore.kernel.org/lkml/573b3fbd5927c643920e1364230c296b23e7584d.came=
-l@perches.com/
->>>=20
->>> Are there _any_ fastpath uses of kfree or vfree?
->>=20
->> I'd consider kfree performance critical for cases where it is called
->> under locks. If possible the kfree is moved outside of the critical
->> section, but we have rbtrees or lists that get deleted under locks =
-and
->> restructuring the code to do eg. splice and free it outside of the =
-lock
->> is not always possible.
->=20
-> Not just performance critical, but correctness critical.  Since =
-kvfree()
-> may allocate from the vmalloc allocator, I really think that kvfree()
-> should assert that it's !in_atomic().  Otherwise we can get into =
-trouble
-> if we end up calling vfree() and have to take the mutex.
+Let's give a chance to the architecture to accept or not devices
+without VIRTIO_F_IOMMU_PLATFORM.
 
-Jo-l
-joel.voyer@gmail.com
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+---
+ arch/s390/mm/init.c     |  6 ++++++
+ drivers/virtio/virtio.c | 22 ++++++++++++++++++++++
+ include/linux/virtio.h  |  2 ++
+ 3 files changed, 30 insertions(+)
+
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index 6dc7c3b60ef6..215070c03226 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -45,6 +45,7 @@
+ #include <asm/kasan.h>
+ #include <asm/dma-mapping.h>
+ #include <asm/uv.h>
++#include <linux/virtio.h>
+ 
+ pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
+ 
+@@ -161,6 +162,11 @@ bool force_dma_unencrypted(struct device *dev)
+ 	return is_prot_virt_guest();
+ }
+ 
++int arch_needs_virtio_iommu_platform(struct virtio_device *dev)
++{
++	return is_prot_virt_guest();
++}
++
+ /* protected virtualization */
+ static void pv_init(void)
+ {
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index a977e32a88f2..aa8e01104f86 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -167,6 +167,21 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
+ }
+ EXPORT_SYMBOL_GPL(virtio_add_status);
+ 
++/*
++ * arch_needs_virtio_iommu_platform - provide arch specific hook when finalizing
++ *				      features for VIRTIO device dev
++ * @dev: the VIRTIO device being added
++ *
++ * Permits the platform to provide architecture specific functionality when
++ * devices features are finalized. This is the default implementation.
++ * Architecture implementations can override this.
++ */
++
++int __weak arch_needs_virtio_iommu_platform(struct virtio_device *dev)
++{
++	return 0;
++}
++
+ int virtio_finalize_features(struct virtio_device *dev)
+ {
+ 	int ret = dev->config->finalize_features(dev);
+@@ -179,6 +194,13 @@ int virtio_finalize_features(struct virtio_device *dev)
+ 	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
+ 		return 0;
+ 
++	if (arch_needs_virtio_iommu_platform(dev) &&
++		!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
++		dev_warn(&dev->dev,
++			 "virtio: device must provide VIRTIO_F_IOMMU_PLATFORM\n");
++		return -ENODEV;
++	}
++
+ 	virtio_add_status(dev, VIRTIO_CONFIG_S_FEATURES_OK);
+ 	status = dev->config->get_status(dev);
+ 	if (!(status & VIRTIO_CONFIG_S_FEATURES_OK)) {
+diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+index a493eac08393..e8526ae3463e 100644
+--- a/include/linux/virtio.h
++++ b/include/linux/virtio.h
+@@ -195,4 +195,6 @@ void unregister_virtio_driver(struct virtio_driver *drv);
+ #define module_virtio_driver(__virtio_driver) \
+ 	module_driver(__virtio_driver, register_virtio_driver, \
+ 			unregister_virtio_driver)
++
++int arch_needs_virtio_iommu_platform(struct virtio_device *dev);
+ #endif /* _LINUX_VIRTIO_H */
+-- 
+2.25.1
