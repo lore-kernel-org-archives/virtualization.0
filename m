@@ -1,269 +1,48 @@
-From: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Subject: Re: [PATCH v4 1/3] virtio: add dma-buf support for exported objects
-Date: Thu, 18 Jun 2020 14:28:56 +0200
-Message-ID: <20200618122856.GC4189@ubuntu>
-References: <20200526105811.30784-1-stevensd@chromium.org>
- <20200526105811.30784-2-stevensd@chromium.org>
- <20200604145620-mutt-send-email-mst@kernel.org>
+From: Vincent Whitchurch <vincent.whitchurch@axis.com>
+Subject: Re: [PATCH v3 5/5] vhost: add an RPMsg API
+Date: Thu, 18 Jun 2020 15:52:42 +0200
+Message-ID: <20200618135241.362iuggde3jslx3p@axis.com>
+References: <20200527180541.5570-1-guennadi.liakhovetski@linux.intel.com>
+ <20200527180541.5570-6-guennadi.liakhovetski@linux.intel.com>
+ <20200617191741.whnp7iteb36cjnia@axis.com> <20200618090341.GA4189@ubuntu>
+ <20200618093324.tu7oldr332ndfgev@axis.com> <20200618103940.GB4189@ubuntu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Return-path: <kvm-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200604145620-mutt-send-email-mst@kernel.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Maxime Ripard <mripard@kernel.org>, virtio-dev@lists.oasis-open.org, Daniel Vetter <daniel@ffwll.ch>, David Airlie <airlied@linux.ie>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linaro-mm-sig@lists.linaro.org, David Stevens <stevensd@chromium.org>, Thomas Zimmermann <tzimmermann@suse.de>, Sumit Semwal <sumit.semwal@linaro.org>, linux-media@vger.kernel.org
+In-Reply-To: <20200618103940.GB4189@ubuntu>
+Sender: kvm-owner@vger.kernel.org
+To: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "sound-open-firmware@alsa-project.org" <sound-open-firmware@alsa-project.org>, Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>, Liam Girdwood <liam.r.girdwood@linux.intel.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Ohad Ben-Cohen <ohad@wizery.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Mathieu Poirier <mathieu.poirier@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Michael,
+On Thu, Jun 18, 2020 at 12:39:40PM +0200, Guennadi Liakhovetski wrote:
+> On Thu, Jun 18, 2020 at 11:33:24AM +0200, Vincent Whitchurch wrote:
+> > By the "normal rpmsg API" I mean register_rpmsg_driver(), rpmsg_send(),
+> > etc.  That API is not tied to virtio in any way and there are other
+> > non-virtio backends for this API in the tree.  So it seems quite natural
+> > to implement a vhost backend for this API so that both sides of the link
+> > can use the same API but different backends, instead of forcing them to
+> > use of different APIs.
+> 
+> Ok, I see what you mean now. But I'm not sure this is useful or desired. I'm 
+> not an expert in KVM / VirtIO, I've only been working in the area for less 
+> than a year, so, I might well be wrong.
+> 
+> You're proposing to use the rpmsg API in vhost drivers. As far as I 
+> understand so far that API was only designated for the Linux side (in case of 
+> AMPs) which corresponds to VM guests in virtualisation case. So, I'm not sure 
+> we want to use the same API for the hosts? This can be done as you have 
+> illustrated, but is it desirable? The vhost API is far enough from the VirtIO 
+> driver API, so I'm not sure why we want the same API for rpmsg?
 
-On Thu, Jun 04, 2020 at 03:05:23PM -0400, Michael S. Tsirkin wrote:
-> On Tue, May 26, 2020 at 07:58:09PM +0900, David Stevens wrote:
-> > This change adds a new flavor of dma-bufs that can be used by virtio
-> > drivers to share exported objects. A virtio dma-buf can be queried by
-> > virtio drivers to obtain the UUID which identifies the underlying
-> > exported object.
-> > 
-> > Signed-off-by: David Stevens <stevensd@chromium.org>
-> 
-> Is this just for graphics? If yes I'd rather we put it in the graphics
-> driver. We can always move it later ...
+Note that "the Linux side" is ambiguous for AMP since both sides can be
+Linux, as they happen to be in my case.  I'm running virtio/rpmsg
+between two physical processors (of different architectures), both
+running Linux.
 
-Wouldn't this be the API that audio virtualisation will have to use to share 
-buffers between the host and any guests?
-
-Thanks
-Guennadi
-
-> > ---
-> >  drivers/virtio/Makefile         |  2 +-
-> >  drivers/virtio/virtio.c         |  6 +++
-> >  drivers/virtio/virtio_dma_buf.c | 89 +++++++++++++++++++++++++++++++++
-> >  include/linux/virtio.h          |  1 +
-> >  include/linux/virtio_dma_buf.h  | 58 +++++++++++++++++++++
-> >  5 files changed, 155 insertions(+), 1 deletion(-)
-> >  create mode 100644 drivers/virtio/virtio_dma_buf.c
-> >  create mode 100644 include/linux/virtio_dma_buf.h
-> > 
-> > diff --git a/drivers/virtio/Makefile b/drivers/virtio/Makefile
-> > index 29a1386ecc03..ecdae5b596de 100644
-> > --- a/drivers/virtio/Makefile
-> > +++ b/drivers/virtio/Makefile
-> > @@ -1,5 +1,5 @@
-> >  # SPDX-License-Identifier: GPL-2.0
-> > -obj-$(CONFIG_VIRTIO) += virtio.o virtio_ring.o
-> > +obj-$(CONFIG_VIRTIO) += virtio.o virtio_ring.o virtio_dma_buf.o
-> >  obj-$(CONFIG_VIRTIO_MMIO) += virtio_mmio.o
-> >  obj-$(CONFIG_VIRTIO_PCI) += virtio_pci.o
-> >  virtio_pci-y := virtio_pci_modern.o virtio_pci_common.o
-> > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> > index a977e32a88f2..5d46f0ded92d 100644
-> > --- a/drivers/virtio/virtio.c
-> > +++ b/drivers/virtio/virtio.c
-> > @@ -357,6 +357,12 @@ int register_virtio_device(struct virtio_device *dev)
-> >  }
-> >  EXPORT_SYMBOL_GPL(register_virtio_device);
-> >  
-> > +bool is_virtio_device(struct device *dev)
-> > +{
-> > +	return dev->bus == &virtio_bus;
-> > +}
-> > +EXPORT_SYMBOL_GPL(is_virtio_device);
-> > +
-> >  void unregister_virtio_device(struct virtio_device *dev)
-> >  {
-> >  	int index = dev->index; /* save for after device release */
-> > diff --git a/drivers/virtio/virtio_dma_buf.c b/drivers/virtio/virtio_dma_buf.c
-> > new file mode 100644
-> > index 000000000000..23e3399b11ed
-> > --- /dev/null
-> > +++ b/drivers/virtio/virtio_dma_buf.c
-> > @@ -0,0 +1,89 @@
-> > +// SPDX-License-Identifier: GPL-2.0-or-later
-> > +/*
-> > + * dma-bufs for virtio exported objects
-> > + *
-> > + * Copyright (C) 2020 Google, Inc.
-> > + */
-> > +
-> > +#include <linux/virtio_dma_buf.h>
-> > +
-> > +/**
-> > + * virtio_dma_buf_export - Creates a new dma-buf for a virtio exported object
-> > + *
-> > + * This wraps dma_buf_export() to allow virtio drivers to create a dma-buf
-> > + * for an virtio exported object that can be queried by other virtio drivers
-> > + * for the object's UUID.
-> > + */
-> > +struct dma_buf *virtio_dma_buf_export(
-> > +		const struct virtio_dma_buf_export_info *virtio_exp_info)
-> > +{
-> > +	struct dma_buf_export_info exp_info;
-> > +
-> > +	if (!virtio_exp_info->ops
-> > +		|| virtio_exp_info->ops->ops.attach != &virtio_dma_buf_attach
-> > +		|| !virtio_exp_info->ops->get_uuid) {
-> > +		return ERR_PTR(-EINVAL);
-> > +	}
-> > +
-> > +	exp_info.exp_name = virtio_exp_info->exp_name;
-> > +	exp_info.owner = virtio_exp_info->owner;
-> > +	exp_info.ops = &virtio_exp_info->ops->ops;
-> > +	exp_info.size = virtio_exp_info->size;
-> > +	exp_info.flags = virtio_exp_info->flags;
-> > +	exp_info.resv = virtio_exp_info->resv;
-> > +	exp_info.priv = virtio_exp_info->priv;
-> > +	BUILD_BUG_ON(sizeof(struct virtio_dma_buf_export_info)
-> > +		     != sizeof(struct dma_buf_export_info));
-> 
-> This is the only part that gives me pause. Why do we need this hack?
-> What's wrong with just using dma_buf_export_info directly,
-> and if you want the virtio ops, just using container_off?
-> 
-> 
-> 
-> > +
-> > +	return dma_buf_export(&exp_info);
-> > +}
-> > +EXPORT_SYMBOL(virtio_dma_buf_export);
-> > +
-> > +/**
-> > + * virtio_dma_buf_attach - mandatory attach callback for virtio dma-bufs
-> > + */
-> > +int virtio_dma_buf_attach(struct dma_buf *dma_buf,
-> > +			  struct dma_buf_attachment *attach)
-> > +{
-> > +	int ret;
-> > +	const struct virtio_dma_buf_ops *ops = container_of(
-> > +			dma_buf->ops, const struct virtio_dma_buf_ops, ops);
-> > +
-> > +	if (ops->device_attach) {
-> > +		ret = ops->device_attach(dma_buf, attach);
-> > +		if (ret)
-> > +			return ret;
-> > +	}
-> > +	return 0;
-> > +}
-> > +EXPORT_SYMBOL(virtio_dma_buf_attach);
-> > +
-> > +/**
-> > + * is_virtio_dma_buf - returns true if the given dma-buf is a virtio dma-buf
-> > + * @dma_buf: buffer to query
-> > + */
-> > +bool is_virtio_dma_buf(struct dma_buf *dma_buf)
-> > +{
-> > +	return dma_buf->ops->attach == &virtio_dma_buf_attach;
-> > +}
-> > +EXPORT_SYMBOL(is_virtio_dma_buf);
-> > +
-> > +/**
-> > + * virtio_dma_buf_get_uuid - gets the uuid of the virtio dma-buf's exported object
-> > + * @dma_buf: [in] buffer to query
-> > + * @uuid: [out] the uuid
-> > + *
-> > + * Returns: 0 on success, negative on failure.
-> > + */
-> > +int virtio_dma_buf_get_uuid(struct dma_buf *dma_buf,
-> > +			    uuid_t *uuid)
-> > +{
-> > +	const struct virtio_dma_buf_ops *ops = container_of(
-> > +			dma_buf->ops, const struct virtio_dma_buf_ops, ops);
-> > +
-> > +	if (!is_virtio_dma_buf(dma_buf))
-> > +		return -EINVAL;
-> > +
-> > +	return ops->get_uuid(dma_buf, uuid);
-> > +}
-> > +EXPORT_SYMBOL(virtio_dma_buf_get_uuid);
-> > diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-> > index 15f906e4a748..9397e25616c4 100644
-> > --- a/include/linux/virtio.h
-> > +++ b/include/linux/virtio.h
-> > @@ -128,6 +128,7 @@ static inline struct virtio_device *dev_to_virtio(struct device *_dev)
-> >  void virtio_add_status(struct virtio_device *dev, unsigned int status);
-> >  int register_virtio_device(struct virtio_device *dev);
-> >  void unregister_virtio_device(struct virtio_device *dev);
-> > +bool is_virtio_device(struct device *dev);
-> >  
-> >  void virtio_break_device(struct virtio_device *dev);
-> >  
-> > diff --git a/include/linux/virtio_dma_buf.h b/include/linux/virtio_dma_buf.h
-> > new file mode 100644
-> > index 000000000000..29fee167afbd
-> > --- /dev/null
-> > +++ b/include/linux/virtio_dma_buf.h
-> > @@ -0,0 +1,58 @@
-> > +/* SPDX-License-Identifier: GPL-2.0 */
-> > +/*
-> > + * dma-bufs for virtio exported objects
-> > + *
-> > + * Copyright (C) 2020 Google, Inc.
-> > + */
-> > +
-> > +#ifndef _LINUX_VIRTIO_DMA_BUF_H
-> > +#define _LINUX_VIRTIO_DMA_BUF_H
-> > +
-> > +#include <linux/dma-buf.h>
-> > +#include <linux/uuid.h>
-> > +#include <linux/virtio.h>
-> > +
-> > +/**
-> > + * struct virtio_dma_buf_ops - operations possible on exported object dma-buf
-> > + * @ops: the base dma_buf_ops. ops.attach MUST be virtio_dma_buf_attach.
-> > + * @device_attach: [optional] callback invoked by virtio_dma_buf_attach during
-> > + *		   all attach operations.
-> > + * @get_uid: [required] callback to get the uuid of the exported object.
-> > + */
-> > +struct virtio_dma_buf_ops {
-> > +	struct dma_buf_ops ops;
-> > +	int (*device_attach)(struct dma_buf *dma_buf,
-> > +			     struct dma_buf_attachment *attach);
-> > +	int (*get_uuid)(struct dma_buf *dma_buf, uuid_t *uuid);
-> > +};
-> > +
-> > +/**
-> > + * struct virtio_dma_buf_export_info - see struct dma_buf_export_info
-> > + */
-> > +struct virtio_dma_buf_export_info {
-> > +	const char *exp_name;
-> > +	struct module *owner;
-> > +	const struct virtio_dma_buf_ops *ops;
-> > +	size_t size;
-> > +	int flags;
-> > +	struct dma_resv *resv;
-> > +	void *priv;
-> > +};
-> > +
-> > +/**
-> > + * DEFINE_VIRTIO_DMA_BUF_EXPORT_INFO - helper macro for exporters
-> > + */
-> > +#define DEFINE_VIRTIO_DMA_BUF_EXPORT_INFO(name)	\
-> > +	struct virtio_dma_buf_export_info name = { \
-> > +		.exp_name = KBUILD_MODNAME, \
-> > +		.owner = THIS_MODULE }
-> > +
-> > +int virtio_dma_buf_attach(struct dma_buf *dma_buf,
-> > +			  struct dma_buf_attachment *attach);
-> > +
-> > +struct dma_buf *virtio_dma_buf_export(
-> > +		const struct virtio_dma_buf_export_info *virtio_exp_info);
-> > +bool is_virtio_dma_buf(struct dma_buf *dma_buf);
-> > +int virtio_dma_buf_get_uuid(struct dma_buf *dma_buf, uuid_t *uuid);
-> > +
-> > +#endif /* _LINUX_VIRTIO_DMA_BUF_H */
-> > -- 
-> > 2.27.0.rc0.183.gde8f92d652-goog
-> 
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+virtio has distinct driver and device roles so the completely different
+APIs on each side are understandable.  But I don't see that distinction
+in the rpmsg API which is why it seems like a good idea to me to make it
+work from both sides of the link and allow the reuse of drivers like
+rpmsg-char, instead of imposing virtio's distinction on rpmsg.
