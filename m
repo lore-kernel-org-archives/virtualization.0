@@ -1,223 +1,71 @@
-From: Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 096/266] virtiofs: schedule blocking async replies
- in separate worker
-Date: Wed, 17 Jun 2020 21:13:41 -0400
-Message-ID: <20200618011631.604574-96-sashal@kernel.org>
-References: <20200618011631.604574-1-sashal@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH RFC 0/5] support batched IOTLB updating in vhost-vdpa
+Date: Thu, 18 Jun 2020 13:56:21 +0800
+Message-ID: <20200618055626.25660-1-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200618011631.604574-1-sashal@kernel.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc: Sasha Levin <sashal@kernel.org>, Miklos Szeredi <mszeredi@redhat.com>, linux-fsdevel@vger.kernel.org, Vivek Goyal <vgoyal@redhat.com>, virtualization@lists.linux-foundation.org
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Cc: rob.miller@broadcom.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com, zhangweining@ruijie.com.cn, eli@mellanox.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Vivek Goyal <vgoyal@redhat.com>
+Hi all:
 
-[ Upstream commit bb737bbe48bea9854455cb61ea1dc06e92ce586c ]
+This series tries to support batched IOTLB updating vhost-vdpa.
 
-In virtiofs (unlike in regular fuse) processing of async replies is
-serialized.  This can result in a deadlock in rare corner cases when
-there's a circular dependency between the completion of two or more async
-replies.
+Currently vhost-vdpa accepts userspace mapping via IOTLB API, and it
+can only forward one mapping to IOMMU or device through IOMMU API or
+dma_map(). Though set_map() is deisgend to have the capability to pass
+an rbtree based mapping to vDPA device, it's still be called at least
+once for each VHOST_IOTLB_UPDATE or VHOST_IOTLB_INVALIDATE. This is
+because vhost-vdpa doesn't know the userspace start or stop then
+updating.
 
-Such a deadlock can be reproduced with xfstests:generic/503 if TEST_DIR ==
-SCRATCH_MNT (which is a misconfiguration):
+So this patch introduces two flags as hints for vhost-vdpa to call
+set_map() only when userspace finish a batch of IOTLB updating.
 
- - Process A is waiting for page lock in worker thread context and blocked
-   (virtio_fs_requests_done_work()).
- - Process B is holding page lock and waiting for pending writes to
-   finish (fuse_wait_on_page_writeback()).
- - Write requests are waiting in virtqueue and can't complete because
-   worker thread is blocked on page lock (process A).
+So instead of:
 
-Fix this by creating a unique work_struct for each async reply that can
-block (O_DIRECT read).
+1) VHOST_IOTLB_UPDATE/VHOST_IOTLB_INVALIDATE -> set_map() (s)
+2) VHOST_IOTLB_UPDATE/VHOST_IOTLB_INVALIDATE -> set_map() (s)
+...
+n) VHOST_IOTLB_UPDATE/VHOST_IOTLB_INVALIDATE -> set_map() (s)
 
-Fixes: a62a8ef9d97d ("virtio-fs: add virtiofs filesystem")
-Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- fs/fuse/file.c      |   1 +
- fs/fuse/fuse_i.h    |   1 +
- fs/fuse/virtio_fs.c | 106 +++++++++++++++++++++++++++++---------------
- 3 files changed, 73 insertions(+), 35 deletions(-)
+With the help of hints, we do:
 
-diff --git a/fs/fuse/file.c b/fs/fuse/file.c
-index 3dd37a998ea9..713d55a61890 100644
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -712,6 +712,7 @@ static ssize_t fuse_async_req_send(struct fuse_conn *fc,
- 	spin_unlock(&io->lock);
- 
- 	ia->ap.args.end = fuse_aio_complete_req;
-+	ia->ap.args.may_block = io->should_dirty;
- 	err = fuse_simple_background(fc, &ia->ap.args, GFP_KERNEL);
- 	if (err)
- 		fuse_aio_complete_req(fc, &ia->ap.args, err);
-diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
-index ca344bf71404..d7cde216fc87 100644
---- a/fs/fuse/fuse_i.h
-+++ b/fs/fuse/fuse_i.h
-@@ -249,6 +249,7 @@ struct fuse_args {
- 	bool out_argvar:1;
- 	bool page_zeroing:1;
- 	bool page_replace:1;
-+	bool may_block:1;
- 	struct fuse_in_arg in_args[3];
- 	struct fuse_arg out_args[2];
- 	void (*end)(struct fuse_conn *fc, struct fuse_args *args, int error);
-diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index a5c86048b96e..7505f8102762 100644
---- a/fs/fuse/virtio_fs.c
-+++ b/fs/fuse/virtio_fs.c
-@@ -55,6 +55,12 @@ struct virtio_fs_forget {
- 	struct list_head list;
- };
- 
-+struct virtio_fs_req_work {
-+	struct fuse_req *req;
-+	struct virtio_fs_vq *fsvq;
-+	struct work_struct done_work;
-+};
-+
- static int virtio_fs_enqueue_req(struct virtio_fs_vq *fsvq,
- 				 struct fuse_req *req, bool in_flight);
- 
-@@ -443,19 +449,67 @@ static void copy_args_from_argbuf(struct fuse_args *args, struct fuse_req *req)
- }
- 
- /* Work function for request completion */
-+static void virtio_fs_request_complete(struct fuse_req *req,
-+				       struct virtio_fs_vq *fsvq)
-+{
-+	struct fuse_pqueue *fpq = &fsvq->fud->pq;
-+	struct fuse_conn *fc = fsvq->fud->fc;
-+	struct fuse_args *args;
-+	struct fuse_args_pages *ap;
-+	unsigned int len, i, thislen;
-+	struct page *page;
-+
-+	/*
-+	 * TODO verify that server properly follows FUSE protocol
-+	 * (oh.uniq, oh.len)
-+	 */
-+	args = req->args;
-+	copy_args_from_argbuf(args, req);
-+
-+	if (args->out_pages && args->page_zeroing) {
-+		len = args->out_args[args->out_numargs - 1].size;
-+		ap = container_of(args, typeof(*ap), args);
-+		for (i = 0; i < ap->num_pages; i++) {
-+			thislen = ap->descs[i].length;
-+			if (len < thislen) {
-+				WARN_ON(ap->descs[i].offset);
-+				page = ap->pages[i];
-+				zero_user_segment(page, len, thislen);
-+				len = 0;
-+			} else {
-+				len -= thislen;
-+			}
-+		}
-+	}
-+
-+	spin_lock(&fpq->lock);
-+	clear_bit(FR_SENT, &req->flags);
-+	spin_unlock(&fpq->lock);
-+
-+	fuse_request_end(fc, req);
-+	spin_lock(&fsvq->lock);
-+	dec_in_flight_req(fsvq);
-+	spin_unlock(&fsvq->lock);
-+}
-+
-+static void virtio_fs_complete_req_work(struct work_struct *work)
-+{
-+	struct virtio_fs_req_work *w =
-+		container_of(work, typeof(*w), done_work);
-+
-+	virtio_fs_request_complete(w->req, w->fsvq);
-+	kfree(w);
-+}
-+
- static void virtio_fs_requests_done_work(struct work_struct *work)
- {
- 	struct virtio_fs_vq *fsvq = container_of(work, struct virtio_fs_vq,
- 						 done_work);
- 	struct fuse_pqueue *fpq = &fsvq->fud->pq;
--	struct fuse_conn *fc = fsvq->fud->fc;
- 	struct virtqueue *vq = fsvq->vq;
- 	struct fuse_req *req;
--	struct fuse_args_pages *ap;
- 	struct fuse_req *next;
--	struct fuse_args *args;
--	unsigned int len, i, thislen;
--	struct page *page;
-+	unsigned int len;
- 	LIST_HEAD(reqs);
- 
- 	/* Collect completed requests off the virtqueue */
-@@ -473,38 +527,20 @@ static void virtio_fs_requests_done_work(struct work_struct *work)
- 
- 	/* End requests */
- 	list_for_each_entry_safe(req, next, &reqs, list) {
--		/*
--		 * TODO verify that server properly follows FUSE protocol
--		 * (oh.uniq, oh.len)
--		 */
--		args = req->args;
--		copy_args_from_argbuf(args, req);
--
--		if (args->out_pages && args->page_zeroing) {
--			len = args->out_args[args->out_numargs - 1].size;
--			ap = container_of(args, typeof(*ap), args);
--			for (i = 0; i < ap->num_pages; i++) {
--				thislen = ap->descs[i].length;
--				if (len < thislen) {
--					WARN_ON(ap->descs[i].offset);
--					page = ap->pages[i];
--					zero_user_segment(page, len, thislen);
--					len = 0;
--				} else {
--					len -= thislen;
--				}
--			}
--		}
--
--		spin_lock(&fpq->lock);
--		clear_bit(FR_SENT, &req->flags);
- 		list_del_init(&req->list);
--		spin_unlock(&fpq->lock);
- 
--		fuse_request_end(fc, req);
--		spin_lock(&fsvq->lock);
--		dec_in_flight_req(fsvq);
--		spin_unlock(&fsvq->lock);
-+		/* blocking async request completes in a worker context */
-+		if (req->args->may_block) {
-+			struct virtio_fs_req_work *w;
-+
-+			w = kzalloc(sizeof(*w), GFP_NOFS | __GFP_NOFAIL);
-+			INIT_WORK(&w->done_work, virtio_fs_complete_req_work);
-+			w->fsvq = fsvq;
-+			w->req = req;
-+			schedule_work(&w->done_work);
-+		} else {
-+			virtio_fs_request_complete(req, fsvq);
-+		}
- 	}
- }
- 
+0) VHOST_IOTLB_BATCH_START
+
+1) VHOST_IOTLB_UPDATE/INVALIDATE
+...
+n) VHOST_IOTLB_UPDATE/INVALIDATE
+
+n+1) VHOST_IOTLB_BATCH_END -> set_map()
+
+One one call of set_map() to vDPA device for a batch of IOTLB
+mappings. So for the device that has its own DMA translation logic, it
+can efficiently structure the memory mapping to get best performance.
+
+Note, this only impact the devices that want its own DMA
+translation. For other type of device, no changes in behaviour.
+
+Please reivew.
+
+Jason Wang (5):
+  vhost-vdpa: refine ioctl pre-processing
+  vhost: generialize backend features setting/getting
+  vhost-vdpa: support get/set backend features
+  vhost-vdpa: support IOTLB batching hints
+  vdpasim: support batch updating
+
+ drivers/vdpa/vdpa_sim/vdpa_sim.c | 40 +++++++++++++++++++++--
+ drivers/vhost/net.c              | 18 ++---------
+ drivers/vhost/vdpa.c             | 55 ++++++++++++++++++++++++++------
+ drivers/vhost/vhost.c            | 15 +++++++++
+ drivers/vhost/vhost.h            |  2 ++
+ include/uapi/linux/vhost.h       |  2 ++
+ include/uapi/linux/vhost_types.h |  7 ++++
+ 7 files changed, 110 insertions(+), 29 deletions(-)
+
 -- 
-2.25.1
+2.20.1
