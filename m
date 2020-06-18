@@ -1,64 +1,157 @@
-From: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Subject: Re: [PATCH v3 5/5] vhost: add an RPMsg API
-Date: Thu, 18 Jun 2020 16:14:12 +0200
-Message-ID: <20200618141412.GD4189@ubuntu>
-References: <20200527180541.5570-1-guennadi.liakhovetski@linux.intel.com>
- <20200527180541.5570-6-guennadi.liakhovetski@linux.intel.com>
- <20200617191741.whnp7iteb36cjnia@axis.com>
- <20200618090341.GA4189@ubuntu>
- <20200618093324.tu7oldr332ndfgev@axis.com>
- <20200618103940.GB4189@ubuntu>
- <20200618135241.362iuggde3jslx3p@axis.com>
+From: Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH v6 22/36] drm: virtio: fix common struct sg_table related
+ issues
+Date: Thu, 18 Jun 2020 17:39:43 +0200
+Message-ID: <20200618153956.29558-23-m.szyprowski@samsung.com>
+References: <20200618153956.29558-1-m.szyprowski@samsung.com>
+ <CGME20200618154029eucas1p17fb1ca5aa5a7e12fbffd1ddb15632340@eucas1p1.samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200618135241.362iuggde3jslx3p@axis.com>
-Sender: kvm-owner@vger.kernel.org
-To: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "sound-open-firmware@alsa-project.org" <sound-open-firmware@alsa-project.org>, Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>, Liam Girdwood <liam.r.girdwood@linux.intel.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Ohad Ben-Cohen <ohad@wizery.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Mathieu Poirier <mathieu.poirier@linaro.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <20200618153956.29558-1-m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+ <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+ <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Sender: "iommu" <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+To: dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linaro-mm-sig-cunTk1MwBs8s++Sfvej+rw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Gerd Hoffmann <kraxel-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Daniel Vetter <daniel-/w4YWyX8dFk@public.gmane.org>, Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>, Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 18, 2020 at 03:52:42PM +0200, Vincent Whitchurch wrote:
-> On Thu, Jun 18, 2020 at 12:39:40PM +0200, Guennadi Liakhovetski wrote:
-> > On Thu, Jun 18, 2020 at 11:33:24AM +0200, Vincent Whitchurch wrote:
-> > > By the "normal rpmsg API" I mean register_rpmsg_driver(), rpmsg_send(),
-> > > etc.  That API is not tied to virtio in any way and there are other
-> > > non-virtio backends for this API in the tree.  So it seems quite natural
-> > > to implement a vhost backend for this API so that both sides of the link
-> > > can use the same API but different backends, instead of forcing them to
-> > > use of different APIs.
-> > 
-> > Ok, I see what you mean now. But I'm not sure this is useful or desired. I'm 
-> > not an expert in KVM / VirtIO, I've only been working in the area for less 
-> > than a year, so, I might well be wrong.
-> > 
-> > You're proposing to use the rpmsg API in vhost drivers. As far as I 
-> > understand so far that API was only designated for the Linux side (in case of 
-> > AMPs) which corresponds to VM guests in virtualisation case. So, I'm not sure 
-> > we want to use the same API for the hosts? This can be done as you have 
-> > illustrated, but is it desirable? The vhost API is far enough from the VirtIO 
-> > driver API, so I'm not sure why we want the same API for rpmsg?
-> 
-> Note that "the Linux side" is ambiguous for AMP since both sides can be
-> Linux, as they happen to be in my case.  I'm running virtio/rpmsg
-> between two physical processors (of different architectures), both
-> running Linux.
+The Documentation/DMA-API-HOWTO.txt states that the dma_map_sg() function
+returns the number of the created entries in the DMA address space.
+However the subsequent calls to the dma_sync_sg_for_{device,cpu}() and
+dma_unmap_sg must be called with the original number of the entries
+passed to the dma_map_sg().
 
-Ok, interesting, I didn't know such configurations were used too. I understood 
-the Linux rpmsg implementation in the way, that it's assumed, that the "host" 
-has to boot the "device" by sending an ELF formatted executable image to it, is 
-that optional? You aren't sending a complete Linux image to the device side, 
-are you?
+struct sg_table is a common structure used for describing a non-contiguous
+memory buffer, used commonly in the DRM and graphics subsystems. It
+consists of a scatterlist with memory pages and DMA addresses (sgl entry),
+as well as the number of scatterlist entries: CPU pages (orig_nents entry)
+and DMA mapped pages (nents entry).
 
-> virtio has distinct driver and device roles so the completely different
-> APIs on each side are understandable.  But I don't see that distinction
-> in the rpmsg API which is why it seems like a good idea to me to make it
-> work from both sides of the link and allow the reuse of drivers like
-> rpmsg-char, instead of imposing virtio's distinction on rpmsg.
+It turned out that it was a common mistake to misuse nents and orig_nents
+entries, calling DMA-mapping functions with a wrong number of entries or
+ignoring the number of mapped entries returned by the dma_map_sg()
+function.
 
-Understand. In principle I'm open to this idea, but before I implement it it 
-would be good to know what maintainers think?
+To avoid such issues, lets use a common dma-mapping wrappers operating
+directly on the struct sg_table objects and use scatterlist page
+iterators where possible. This, almost always, hides references to the
+nents and orig_nents entries, making the code robust, easier to follow
+and copy/paste safe.
 
-Thanks
-Guennadi
+Signed-off-by: Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Acked-by: Gerd Hoffmann <kraxel-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+---
+ drivers/gpu/drm/virtio/virtgpu_object.c | 36 ++++++++++++++-----------
+ drivers/gpu/drm/virtio/virtgpu_vq.c     | 12 ++++-----
+ 2 files changed, 26 insertions(+), 22 deletions(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+index 346cef5ce251..c3b9e3cf786e 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+@@ -72,9 +72,8 @@ void virtio_gpu_cleanup_object(struct virtio_gpu_object *bo)
+ 
+ 		if (shmem->pages) {
+ 			if (shmem->mapped) {
+-				dma_unmap_sg(vgdev->vdev->dev.parent,
+-					     shmem->pages->sgl, shmem->mapped,
+-					     DMA_TO_DEVICE);
++				dma_unmap_sgtable(vgdev->vdev->dev.parent,
++					     shmem->pages, DMA_TO_DEVICE, 0);
+ 				shmem->mapped = 0;
+ 			}
+ 
+@@ -157,13 +156,13 @@ static int virtio_gpu_object_shmem_init(struct virtio_gpu_device *vgdev,
+ 	}
+ 
+ 	if (use_dma_api) {
+-		shmem->mapped = dma_map_sg(vgdev->vdev->dev.parent,
+-					   shmem->pages->sgl,
+-					   shmem->pages->nents,
+-					   DMA_TO_DEVICE);
+-		*nents = shmem->mapped;
++		ret = dma_map_sgtable(vgdev->vdev->dev.parent,
++				      shmem->pages, DMA_TO_DEVICE, 0);
++		if (ret)
++			return ret;
++		*nents = shmem->mapped = shmem->pages->nents;
+ 	} else {
+-		*nents = shmem->pages->nents;
++		*nents = shmem->pages->orig_nents;
+ 	}
+ 
+ 	*ents = kmalloc_array(*nents, sizeof(struct virtio_gpu_mem_entry),
+@@ -173,13 +172,20 @@ static int virtio_gpu_object_shmem_init(struct virtio_gpu_device *vgdev,
+ 		return -ENOMEM;
+ 	}
+ 
+-	for_each_sg(shmem->pages->sgl, sg, *nents, si) {
+-		(*ents)[si].addr = cpu_to_le64(use_dma_api
+-					       ? sg_dma_address(sg)
+-					       : sg_phys(sg));
+-		(*ents)[si].length = cpu_to_le32(sg->length);
+-		(*ents)[si].padding = 0;
++	if (use_dma_api) {
++		for_each_sgtable_dma_sg(shmem->pages, sg, si) {
++			(*ents)[si].addr = cpu_to_le64(sg_dma_address(sg));
++			(*ents)[si].length = cpu_to_le32(sg_dma_len(sg));
++			(*ents)[si].padding = 0;
++		}
++	} else {
++		for_each_sgtable_sg(shmem->pages, sg, si) {
++			(*ents)[si].addr = cpu_to_le64(sg_phys(sg));
++			(*ents)[si].length = cpu_to_le32(sg->length);
++			(*ents)[si].padding = 0;
++		}
+ 	}
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 9e663a5d9952..e5765db85c20 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -302,7 +302,7 @@ static struct sg_table *vmalloc_to_sgt(char *data, uint32_t size, int *sg_ents)
+ 		return NULL;
+ 	}
+ 
+-	for_each_sg(sgt->sgl, sg, *sg_ents, i) {
++	for_each_sgtable_sg(sgt, sg, i) {
+ 		pg = vmalloc_to_page(data);
+ 		if (!pg) {
+ 			sg_free_table(sgt);
+@@ -603,9 +603,8 @@ void virtio_gpu_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
+ 	struct virtio_gpu_object_shmem *shmem = to_virtio_gpu_shmem(bo);
+ 
+ 	if (use_dma_api)
+-		dma_sync_sg_for_device(vgdev->vdev->dev.parent,
+-				       shmem->pages->sgl, shmem->pages->nents,
+-				       DMA_TO_DEVICE);
++		dma_sync_sgtable_for_device(vgdev->vdev->dev.parent,
++					    shmem->pages, DMA_TO_DEVICE);
+ 
+ 	cmd_p = virtio_gpu_alloc_cmd(vgdev, &vbuf, sizeof(*cmd_p));
+ 	memset(cmd_p, 0, sizeof(*cmd_p));
+@@ -1019,9 +1018,8 @@ void virtio_gpu_cmd_transfer_to_host_3d(struct virtio_gpu_device *vgdev,
+ 	struct virtio_gpu_object_shmem *shmem = to_virtio_gpu_shmem(bo);
+ 
+ 	if (use_dma_api)
+-		dma_sync_sg_for_device(vgdev->vdev->dev.parent,
+-				       shmem->pages->sgl, shmem->pages->nents,
+-				       DMA_TO_DEVICE);
++		dma_sync_sgtable_for_device(vgdev->vdev->dev.parent,
++					    shmem->pages, DMA_TO_DEVICE);
+ 
+ 	cmd_p = virtio_gpu_alloc_cmd(vgdev, &vbuf, sizeof(*cmd_p));
+ 	memset(cmd_p, 0, sizeof(*cmd_p));
+-- 
+2.17.1
