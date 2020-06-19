@@ -1,17 +1,12 @@
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH v3 1/1] s390: virtio: let arch accept devices without
- IOMMU feature
-Date: Fri, 19 Jun 2020 14:02:13 +0200
-Message-ID: <20200619140213.69f4992d.pasic@linux.ibm.com>
-References: <1592390637-17441-1-git-send-email-pmorel@linux.ibm.com>
- <1592390637-17441-2-git-send-email-pmorel@linux.ibm.com>
- <20200618002956.5f179de4.pasic@linux.ibm.com>
- <20200619112051.74babdb1.cohuck@redhat.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: Re: [PATCH] drivers\block: Use kobj_to_dev() API
+Date: Fri, 19 Jun 2020 13:49:38 +0100
+Message-ID: <20200619124938.GA2424182@stefanha-x1.localdomain>
+References: <1591945856-14749-1-git-send-email-wangqing@vivo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============6003003601213530443=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200619112051.74babdb1.cohuck@redhat.com>
+In-Reply-To: <1591945856-14749-1-git-send-email-wangqing@vivo.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -21,33 +16,59 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: gor@linux.ibm.com, linux-s390@vger.kernel.org, frankja@linux.ibm.com, Pierre Morel <pmorel@linux.ibm.com>, mst@redhat.com, heiko.carstens@de.ibm.com, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, borntraeger@de.ibm.com, kvm@vger.kernel.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au
+To: Wang Qing <wangqing@vivo.com>
+Cc: Jens Axboe <axboe@kernel.dk>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org, Paolo Bonzini <pbonzini@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, 19 Jun 2020 11:20:51 +0200
-Cornelia Huck <cohuck@redhat.com> wrote:
+--===============6003003601213530443==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="ZGiS0Q5IWpPtfppv"
+Content-Disposition: inline
 
-> > > +	if (arch_needs_virtio_iommu_platform(dev) &&
-> > > +		!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
-> > > +		dev_warn(&dev->dev,
-> > > +			 "virtio: device must provide VIRTIO_F_IOMMU_PLATFORM\n");    
-> > 
-> > I'm not sure, divulging the current Linux name of this feature bit is a
-> > good idea, but if everybody else is fine with this, I don't care that  
-> 
-> Not sure if that feature name will ever change, as it is exported in
-> headers. At most, we might want to add the new ACCESS_PLATFORM define
-> and keep the old one, but that would still mean some churn.
-> 
-> > much. An alternative would be:
-> > "virtio: device falsely claims to have full access to the memory,
-> > aborting the device"  
-> 
-> "virtio: device does not work with limited memory access" ?
-> 
-> But no issue with keeping the current message.
+--ZGiS0Q5IWpPtfppv
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I think I prefer Conny's version, but no strong feelings here.
+On Fri, Jun 12, 2020 at 03:10:56PM +0800, Wang Qing wrote:
+> Use kobj_to_dev() API instead of container_of().
+>=20
+> Signed-off-by: Wang Qing <wangqing@vivo.com>
+> ---
+>  drivers/block/virtio_blk.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>  mode change 100644 =3D> 100755 drivers/block/virtio_blk.c
 
-Halil
+Please fix the '\' -> '/' in the commit message. Looks good otherwise:
+
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--ZGiS0Q5IWpPtfppv
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl7stGIACgkQnKSrs4Gr
+c8iKlgf/f+yvjTB2iqqDHAxkMDvnIu83CmaNspZ6bGF/0hEaFtWKGCIiJ+uyD2ow
+HeS/6wRfIYMFpEcrwpEPWssIh/+US/957FmjIVeUU8b7jIER7VHH1BcAZq8DDKe3
+yIxlUtJPOFRUz8GyddfoWDycsSL5SCGjP8eRTJkIy93yBlw308K8h/Y0keIN3ToJ
+QYnuq143Mm0XmVk7RgkIMIM6iiDgxrU+qU5wIRg4f5UVzGWFAHIugGHEN+BMEUfv
+hXpS0Akw5CkVFSTkOewu15i52Hp4TDRyQn+A0DldsPdjnjebGaygbRH5In8NzqX/
+AACpzHtUyBhoDiAf2Ml3OAh86QIIEA==
+=eGvO
+-----END PGP SIGNATURE-----
+
+--ZGiS0Q5IWpPtfppv--
+
+
+--===============6003003601213530443==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============6003003601213530443==--
