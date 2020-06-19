@@ -1,50 +1,94 @@
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Subject: Re: [PATCH RFC v8 02/11] vhost: use batched get_vq_desc version
-Date: Fri, 19 Jun 2020 20:07:57 +0200
-Message-ID: <CAJaqyWdwgy0fmReOgLfL4dAv-E+5k_7z3d9M+vHqt0aO2SmOFg@mail.gmail.com>
-References: <20200611113404.17810-1-mst@redhat.com> <20200611113404.17810-3-mst@redhat.com>
- <20200611152257.GA1798@char.us.oracle.com> <CAJaqyWdwXMX0JGhmz6soH2ZLNdaH6HEdpBM8ozZzX9WUu8jGoQ@mail.gmail.com>
+From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+Subject: [RFC v9 00/11] vhost: ring format independence
+Date: Fri, 19 Jun 2020 20:22:51 +0200
+Message-ID: <20200619182302.850-1-eperezma@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <CAJaqyWdwXMX0JGhmz6soH2ZLNdaH6HEdpBM8ozZzX9WUu8jGoQ@mail.gmail.com>
-Sender: kvm-owner@vger.kernel.org
-To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, kvm list <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: mst@redhat.com
+Cc: kvm list <kvm@vger.kernel.org>, Stefano Garzarella <sgarzare@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Jason Wang <jasowang@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 15, 2020 at 2:28 PM Eugenio Perez Martin
-<eperezma@redhat.com> wrote:
->
-> On Thu, Jun 11, 2020 at 5:22 PM Konrad Rzeszutek Wilk
-> <konrad.wilk@oracle.com> wrote:
-> >
-> > On Thu, Jun 11, 2020 at 07:34:19AM -0400, Michael S. Tsirkin wrote:
-> > > As testing shows no performance change, switch to that now.
-> >
-> > What kind of testing? 100GiB? Low latency?
-> >
->
-> Hi Konrad.
->
-> I tested this version of the patch:
-> https://lkml.org/lkml/2019/10/13/42
->
-> It was tested for throughput with DPDK's testpmd (as described in
-> http://doc.dpdk.org/guides/howto/virtio_user_as_exceptional_path.html)
-> and kernel pktgen. No latency tests were performed by me. Maybe it is
-> interesting to perform a latency test or just a different set of tests
-> over a recent version.
->
-> Thanks!
+This adds infrastructure required for supporting
+multiple ring formats.
 
-I have repeated the tests with v9, and results are a little bit different:
-* If I test opening it with testpmd, I see no change between versions
-* If I forward packets between two vhost-net interfaces in the guest
-using a linux bridge in the host:
-  - netperf UDP_STREAM shows a performance increase of 1.8, almost
-doubling performance. This gets lower as frame size increase.
-  - rests of the test goes noticeably worse: UDP_RR goes from ~6347
-transactions/sec to 5830
-  - TCP_STREAM goes from ~10.7 gbps to ~7Gbps
-  - TCP_RR from 6223.64 transactions/sec to 5739.44
+The idea is as follows: we convert descriptors to an
+independent format first, and process that converting to
+iov later.
+
+Used ring is similar: we fetch into an independent struct first,
+convert that to IOV later.
+
+The point is that we have a tight loop that fetches
+descriptors, which is good for cache utilization.
+This will also allow all kind of batching tricks -
+e.g. it seems possible to keep SMAP disabled while
+we are fetching multiple descriptors.
+
+For used descriptors, this allows keeping track of the buffer length
+without need to rescan IOV.
+
+This seems to perform better on UDP stream tests, but a little bit worse on
+RR tests and TCP streams, based on a microbenchmark.
+More testing would be very much appreciated.
+
+changes from v8:
+        - fixes fetch_descs returning "no descriptors available" when
+          only few descriptors were available, stalling the communications.
+        - minor syntax errors in intermediate commits.
+        - skipping checking for sane max_descs if vhost device is not going to
+          use worker like vDPA devices.
+
+changes from v7:
+        - squashed in fixes. no longer hangs but still known
+          to cause data corruption for some people. under debug.
+
+changes from v6:
+        - fixes some bugs introduced in v6 and v5
+
+changes from v5:
+        - addressed comments by Jason: squashed API changes, fixed up discard
+
+changes from v4:
+        - added used descriptor format independence
+        - addressed comments by jason
+        - fixed a crash detected by the lkp robot.
+
+changes from v3:
+        - fixed error handling in case of indirect descriptors
+        - add BUG_ON to detect buffer overflow in case of bugs
+                in response to comment by Jason Wang
+        - minor code tweaks
+
+Changes from v2:
+        - fixed indirect descriptor batching
+                reported by Jason Wang
+
+Changes from v1:
+        - typo fixes
+
+Michael S. Tsirkin (11):
+  vhost: option to fetch descriptors through an independent struct
+  vhost: use batched get_vq_desc version
+  vhost/net: pass net specific struct pointer
+  vhost: reorder functions
+  vhost: format-independent API for used buffers
+  vhost/net: convert to new API: heads->bufs
+  vhost/net: avoid iov length math
+  vhost/test: convert to the buf API
+  vhost/scsi: switch to buf APIs
+  vhost/vsock: switch to the buf API
+  vhost: drop head based APIs
+
+ drivers/vhost/net.c   | 174 ++++++++++----------
+ drivers/vhost/scsi.c  |  73 +++++----
+ drivers/vhost/test.c  |  22 +--
+ drivers/vhost/vhost.c | 372 +++++++++++++++++++++++++++---------------
+ drivers/vhost/vhost.h |  44 +++--
+ drivers/vhost/vsock.c |  30 ++--
+ 6 files changed, 435 insertions(+), 280 deletions(-)
+
+-- 
+2.18.1
