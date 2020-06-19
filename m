@@ -1,94 +1,59 @@
-From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
-Subject: [RFC v9 03/11] vhost/net: pass net specific struct pointer
-Date: Fri, 19 Jun 2020 20:22:54 +0200
-Message-ID: <20200619182302.850-4-eperezma@redhat.com>
-References: <20200619182302.850-1-eperezma@redhat.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Subject: Re: [PATCH RFC v8 02/11] vhost: use batched get_vq_desc version
+Date: Fri, 19 Jun 2020 20:25:48 +0200
+Message-ID: <CAJaqyWe1+FmPC9L_+8oGfYUT63BaWuGrOnkRnUcGapvwtzqmPw@mail.gmail.com>
+References: <20200611113404.17810-1-mst@redhat.com> <20200611113404.17810-3-mst@redhat.com>
+ <20200611152257.GA1798@char.us.oracle.com> <CAJaqyWdwXMX0JGhmz6soH2ZLNdaH6HEdpBM8ozZzX9WUu8jGoQ@mail.gmail.com>
+ <CAJaqyWdwgy0fmReOgLfL4dAv-E+5k_7z3d9M+vHqt0aO2SmOFg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200619182302.850-1-eperezma@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: mst@redhat.com
-Cc: kvm list <kvm@vger.kernel.org>, Stefano Garzarella <sgarzare@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Jason Wang <jasowang@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <CAJaqyWdwgy0fmReOgLfL4dAv-E+5k_7z3d9M+vHqt0aO2SmOFg@mail.gmail.com>
+Sender: netdev-owner@vger.kernel.org
+To: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, kvm list <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: "Michael S. Tsirkin" <mst@redhat.com>
+On Fri, Jun 19, 2020 at 8:07 PM Eugenio Perez Martin
+<eperezma@redhat.com> wrote:
+>
+> On Mon, Jun 15, 2020 at 2:28 PM Eugenio Perez Martin
+> <eperezma@redhat.com> wrote:
+> >
+> > On Thu, Jun 11, 2020 at 5:22 PM Konrad Rzeszutek Wilk
+> > <konrad.wilk@oracle.com> wrote:
+> > >
+> > > On Thu, Jun 11, 2020 at 07:34:19AM -0400, Michael S. Tsirkin wrote:
+> > > > As testing shows no performance change, switch to that now.
+> > >
+> > > What kind of testing? 100GiB? Low latency?
+> > >
+> >
+> > Hi Konrad.
+> >
+> > I tested this version of the patch:
+> > https://lkml.org/lkml/2019/10/13/42
+> >
+> > It was tested for throughput with DPDK's testpmd (as described in
+> > http://doc.dpdk.org/guides/howto/virtio_user_as_exceptional_path.html)
+> > and kernel pktgen. No latency tests were performed by me. Maybe it is
+> > interesting to perform a latency test or just a different set of tests
+> > over a recent version.
+> >
+> > Thanks!
+>
+> I have repeated the tests with v9, and results are a little bit different:
+> * If I test opening it with testpmd, I see no change between versions
+> * If I forward packets between two vhost-net interfaces in the guest
+> using a linux bridge in the host:
+>   - netperf UDP_STREAM shows a performance increase of 1.8, almost
+> doubling performance. This gets lower as frame size increase.
+>   - rests of the test goes noticeably worse: UDP_RR goes from ~6347
+> transactions/sec to 5830
+>   - TCP_STREAM goes from ~10.7 gbps to ~7Gbps
+>   - TCP_RR from 6223.64 transactions/sec to 5739.44
 
-In preparation for further cleanup, pass net specific pointer
-to ubuf callbacks so we can move net specific fields
-out to net structures.
-
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
----
- drivers/vhost/net.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
-
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index e992decfec53..81900ce673b4 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -94,7 +94,7 @@ struct vhost_net_ubuf_ref {
- 	 */
- 	atomic_t refcount;
- 	wait_queue_head_t wait;
--	struct vhost_virtqueue *vq;
-+	struct vhost_net_virtqueue *nvq;
- };
- 
- #define VHOST_NET_BATCH 64
-@@ -231,7 +231,7 @@ static void vhost_net_enable_zcopy(int vq)
- }
- 
- static struct vhost_net_ubuf_ref *
--vhost_net_ubuf_alloc(struct vhost_virtqueue *vq, bool zcopy)
-+vhost_net_ubuf_alloc(struct vhost_net_virtqueue *nvq, bool zcopy)
- {
- 	struct vhost_net_ubuf_ref *ubufs;
- 	/* No zero copy backend? Nothing to count. */
-@@ -242,7 +242,7 @@ vhost_net_ubuf_alloc(struct vhost_virtqueue *vq, bool zcopy)
- 		return ERR_PTR(-ENOMEM);
- 	atomic_set(&ubufs->refcount, 1);
- 	init_waitqueue_head(&ubufs->wait);
--	ubufs->vq = vq;
-+	ubufs->nvq = nvq;
- 	return ubufs;
- }
- 
-@@ -384,13 +384,13 @@ static void vhost_zerocopy_signal_used(struct vhost_net *net,
- static void vhost_zerocopy_callback(struct ubuf_info *ubuf, bool success)
- {
- 	struct vhost_net_ubuf_ref *ubufs = ubuf->ctx;
--	struct vhost_virtqueue *vq = ubufs->vq;
-+	struct vhost_net_virtqueue *nvq = ubufs->nvq;
- 	int cnt;
- 
- 	rcu_read_lock_bh();
- 
- 	/* set len to mark this desc buffers done DMA */
--	vq->heads[ubuf->desc].len = success ?
-+	nvq->vq.heads[ubuf->desc].len = success ?
- 		VHOST_DMA_DONE_LEN : VHOST_DMA_FAILED_LEN;
- 	cnt = vhost_net_ubuf_put(ubufs);
- 
-@@ -402,7 +402,7 @@ static void vhost_zerocopy_callback(struct ubuf_info *ubuf, bool success)
- 	 * less than 10% of times).
- 	 */
- 	if (cnt <= 1 || !(cnt % 16))
--		vhost_poll_queue(&vq->poll);
-+		vhost_poll_queue(&nvq->vq.poll);
- 
- 	rcu_read_unlock_bh();
- }
-@@ -1526,7 +1526,7 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
- 	/* start polling new socket */
- 	oldsock = vhost_vq_get_backend(vq);
- 	if (sock != oldsock) {
--		ubufs = vhost_net_ubuf_alloc(vq,
-+		ubufs = vhost_net_ubuf_alloc(nvq,
- 					     sock && vhost_sock_zcopy(sock));
- 		if (IS_ERR(ubufs)) {
- 			r = PTR_ERR(ubufs);
--- 
-2.18.1
+And I forgot to add: It seems that avoiding IOV length math helps,
+since performance increases in all tests from patch 02/11 ("vhost: use
+batched get_vq_desc version") to 11/11 ("vhost: drop head based
+APIs").
