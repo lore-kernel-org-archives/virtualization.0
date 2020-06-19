@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
-Subject: [RFC v9 02/11] vhost: use batched get_vq_desc version
-Date: Fri, 19 Jun 2020 20:22:53 +0200
-Message-ID: <20200619182302.850-3-eperezma@redhat.com>
+Subject: [RFC v9 04/11] vhost: reorder functions
+Date: Fri, 19 Jun 2020 20:22:55 +0200
+Message-ID: <20200619182302.850-5-eperezma@redhat.com>
 References: <20200619182302.850-1-eperezma@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -15,478 +15,59 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: "Michael S. Tsirkin" <mst@redhat.com>
 
-As testing shows no performance change, switch to that now.
+Reorder functions in the file to not rely on forward
+declarations, in preparation to making them static
+down the road.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
-Link: https://lore.kernel.org/r/20200401183118.8334-3-eperezma@redhat.com
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
 ---
- drivers/vhost/test.c  |   2 +-
- drivers/vhost/vhost.c | 314 ++++++++----------------------------------
- drivers/vhost/vhost.h |   7 +-
- 3 files changed, 61 insertions(+), 262 deletions(-)
+ drivers/vhost/vhost.c | 26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
-index a09dedc79f68..650e69261557 100644
---- a/drivers/vhost/test.c
-+++ b/drivers/vhost/test.c
-@@ -119,7 +119,7 @@ static int vhost_test_open(struct inode *inode, struct file *f)
- 	dev = &n->dev;
- 	vqs[VHOST_TEST_VQ] = &n->vqs[VHOST_TEST_VQ];
- 	n->vqs[VHOST_TEST_VQ].handle_kick = handle_vq_kick;
--	vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX, UIO_MAXIOV,
-+	vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX, UIO_MAXIOV + 64,
- 		       VHOST_TEST_PKT_WEIGHT, VHOST_TEST_WEIGHT, true, NULL);
- 
- 	f->private_data = n;
 diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 2d784681b0fa..13021d6986eb 100644
+index 13021d6986eb..ba8da8785ede 100644
 --- a/drivers/vhost/vhost.c
 +++ b/drivers/vhost/vhost.c
-@@ -304,6 +304,7 @@ static void vhost_vq_reset(struct vhost_dev *dev,
- {
- 	vq->num = 1;
- 	vq->ndescs = 0;
-+	vq->first_desc = 0;
- 	vq->desc = NULL;
- 	vq->avail = NULL;
- 	vq->used = NULL;
-@@ -372,6 +373,11 @@ static int vhost_worker(void *data)
- 	return 0;
- }
- 
-+static int vhost_vq_num_batch_descs(struct vhost_virtqueue *vq)
-+{
-+	return vq->max_descs - UIO_MAXIOV;
-+}
-+
- static void vhost_vq_free_iovecs(struct vhost_virtqueue *vq)
- {
- 	kfree(vq->descs);
-@@ -394,6 +400,9 @@ static long vhost_dev_alloc_iovecs(struct vhost_dev *dev)
- 	for (i = 0; i < dev->nvqs; ++i) {
- 		vq = dev->vqs[i];
- 		vq->max_descs = dev->iov_limit;
-+		if (dev->use_worker && vhost_vq_num_batch_descs(vq) < 0) {
-+			return -EINVAL;
-+		}
- 		vq->descs = kmalloc_array(vq->max_descs,
- 					  sizeof(*vq->descs),
- 					  GFP_KERNEL);
-@@ -1610,6 +1619,7 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *arg
- 		vq->last_avail_idx = s.num;
- 		/* Forget the cached index value. */
- 		vq->avail_idx = vq->last_avail_idx;
-+		vq->ndescs = vq->first_desc = 0;
- 		break;
- 	case VHOST_GET_VRING_BASE:
- 		s.index = idx;
-@@ -2077,253 +2087,6 @@ static unsigned next_desc(struct vhost_virtqueue *vq, struct vring_desc *desc)
- 	return next;
- }
- 
--static int get_indirect(struct vhost_virtqueue *vq,
--			struct iovec iov[], unsigned int iov_size,
--			unsigned int *out_num, unsigned int *in_num,
--			struct vhost_log *log, unsigned int *log_num,
--			struct vring_desc *indirect)
--{
--	struct vring_desc desc;
--	unsigned int i = 0, count, found = 0;
--	u32 len = vhost32_to_cpu(vq, indirect->len);
--	struct iov_iter from;
--	int ret, access;
--
--	/* Sanity check */
--	if (unlikely(len % sizeof desc)) {
--		vq_err(vq, "Invalid length in indirect descriptor: "
--		       "len 0x%llx not multiple of 0x%zx\n",
--		       (unsigned long long)len,
--		       sizeof desc);
--		return -EINVAL;
--	}
--
--	ret = translate_desc(vq, vhost64_to_cpu(vq, indirect->addr), len, vq->indirect,
--			     UIO_MAXIOV, VHOST_ACCESS_RO);
--	if (unlikely(ret < 0)) {
--		if (ret != -EAGAIN)
--			vq_err(vq, "Translation failure %d in indirect.\n", ret);
--		return ret;
--	}
--	iov_iter_init(&from, READ, vq->indirect, ret, len);
--
--	/* We will use the result as an address to read from, so most
--	 * architectures only need a compiler barrier here. */
--	read_barrier_depends();
--
--	count = len / sizeof desc;
--	/* Buffers are chained via a 16 bit next field, so
--	 * we can have at most 2^16 of these. */
--	if (unlikely(count > USHRT_MAX + 1)) {
--		vq_err(vq, "Indirect buffer length too big: %d\n",
--		       indirect->len);
--		return -E2BIG;
--	}
--
--	do {
--		unsigned iov_count = *in_num + *out_num;
--		if (unlikely(++found > count)) {
--			vq_err(vq, "Loop detected: last one at %u "
--			       "indirect size %u\n",
--			       i, count);
--			return -EINVAL;
--		}
--		if (unlikely(!copy_from_iter_full(&desc, sizeof(desc), &from))) {
--			vq_err(vq, "Failed indirect descriptor: idx %d, %zx\n",
--			       i, (size_t)vhost64_to_cpu(vq, indirect->addr) + i * sizeof desc);
--			return -EINVAL;
--		}
--		if (unlikely(desc.flags & cpu_to_vhost16(vq, VRING_DESC_F_INDIRECT))) {
--			vq_err(vq, "Nested indirect descriptor: idx %d, %zx\n",
--			       i, (size_t)vhost64_to_cpu(vq, indirect->addr) + i * sizeof desc);
--			return -EINVAL;
--		}
--
--		if (desc.flags & cpu_to_vhost16(vq, VRING_DESC_F_WRITE))
--			access = VHOST_ACCESS_WO;
--		else
--			access = VHOST_ACCESS_RO;
--
--		ret = translate_desc(vq, vhost64_to_cpu(vq, desc.addr),
--				     vhost32_to_cpu(vq, desc.len), iov + iov_count,
--				     iov_size - iov_count, access);
--		if (unlikely(ret < 0)) {
--			if (ret != -EAGAIN)
--				vq_err(vq, "Translation failure %d indirect idx %d\n",
--					ret, i);
--			return ret;
--		}
--		/* If this is an input descriptor, increment that count. */
--		if (access == VHOST_ACCESS_WO) {
--			*in_num += ret;
--			if (unlikely(log && ret)) {
--				log[*log_num].addr = vhost64_to_cpu(vq, desc.addr);
--				log[*log_num].len = vhost32_to_cpu(vq, desc.len);
--				++*log_num;
--			}
--		} else {
--			/* If it's an output descriptor, they're all supposed
--			 * to come before any input descriptors. */
--			if (unlikely(*in_num)) {
--				vq_err(vq, "Indirect descriptor "
--				       "has out after in: idx %d\n", i);
--				return -EINVAL;
--			}
--			*out_num += ret;
--		}
--	} while ((i = next_desc(vq, &desc)) != -1);
--	return 0;
--}
--
--/* This looks in the virtqueue and for the first available buffer, and converts
-- * it to an iovec for convenient access.  Since descriptors consist of some
-- * number of output then some number of input descriptors, it's actually two
-- * iovecs, but we pack them into one and note how many of each there were.
-- *
-- * This function returns the descriptor number found, or vq->num (which is
-- * never a valid descriptor number) if none was found.  A negative code is
-- * returned on error. */
--int vhost_get_vq_desc(struct vhost_virtqueue *vq,
--		      struct iovec iov[], unsigned int iov_size,
--		      unsigned int *out_num, unsigned int *in_num,
--		      struct vhost_log *log, unsigned int *log_num)
--{
--	struct vring_desc desc;
--	unsigned int i, head, found = 0;
--	u16 last_avail_idx;
--	__virtio16 avail_idx;
--	__virtio16 ring_head;
--	int ret, access;
--
--	/* Check it isn't doing very strange things with descriptor numbers. */
--	last_avail_idx = vq->last_avail_idx;
--
--	if (vq->avail_idx == vq->last_avail_idx) {
--		if (unlikely(vhost_get_avail_idx(vq, &avail_idx))) {
--			vq_err(vq, "Failed to access avail idx at %p\n",
--				&vq->avail->idx);
--			return -EFAULT;
--		}
--		vq->avail_idx = vhost16_to_cpu(vq, avail_idx);
--
--		if (unlikely((u16)(vq->avail_idx - last_avail_idx) > vq->num)) {
--			vq_err(vq, "Guest moved used index from %u to %u",
--				last_avail_idx, vq->avail_idx);
--			return -EFAULT;
--		}
--
--		/* If there's nothing new since last we looked, return
--		 * invalid.
--		 */
--		if (vq->avail_idx == last_avail_idx)
--			return vq->num;
--
--		/* Only get avail ring entries after they have been
--		 * exposed by guest.
--		 */
--		smp_rmb();
--	}
--
--	/* Grab the next descriptor number they're advertising, and increment
--	 * the index we've seen. */
--	if (unlikely(vhost_get_avail_head(vq, &ring_head, last_avail_idx))) {
--		vq_err(vq, "Failed to read head: idx %d address %p\n",
--		       last_avail_idx,
--		       &vq->avail->ring[last_avail_idx % vq->num]);
--		return -EFAULT;
--	}
--
--	head = vhost16_to_cpu(vq, ring_head);
--
--	/* If their number is silly, that's an error. */
--	if (unlikely(head >= vq->num)) {
--		vq_err(vq, "Guest says index %u > %u is available",
--		       head, vq->num);
--		return -EINVAL;
--	}
--
--	/* When we start there are none of either input nor output. */
--	*out_num = *in_num = 0;
--	if (unlikely(log))
--		*log_num = 0;
--
--	i = head;
--	do {
--		unsigned iov_count = *in_num + *out_num;
--		if (unlikely(i >= vq->num)) {
--			vq_err(vq, "Desc index is %u > %u, head = %u",
--			       i, vq->num, head);
--			return -EINVAL;
--		}
--		if (unlikely(++found > vq->num)) {
--			vq_err(vq, "Loop detected: last one at %u "
--			       "vq size %u head %u\n",
--			       i, vq->num, head);
--			return -EINVAL;
--		}
--		ret = vhost_get_desc(vq, &desc, i);
--		if (unlikely(ret)) {
--			vq_err(vq, "Failed to get descriptor: idx %d addr %p\n",
--			       i, vq->desc + i);
--			return -EFAULT;
--		}
--		if (desc.flags & cpu_to_vhost16(vq, VRING_DESC_F_INDIRECT)) {
--			ret = get_indirect(vq, iov, iov_size,
--					   out_num, in_num,
--					   log, log_num, &desc);
--			if (unlikely(ret < 0)) {
--				if (ret != -EAGAIN)
--					vq_err(vq, "Failure detected "
--						"in indirect descriptor at idx %d\n", i);
--				return ret;
--			}
--			continue;
--		}
--
--		if (desc.flags & cpu_to_vhost16(vq, VRING_DESC_F_WRITE))
--			access = VHOST_ACCESS_WO;
--		else
--			access = VHOST_ACCESS_RO;
--		ret = translate_desc(vq, vhost64_to_cpu(vq, desc.addr),
--				     vhost32_to_cpu(vq, desc.len), iov + iov_count,
--				     iov_size - iov_count, access);
--		if (unlikely(ret < 0)) {
--			if (ret != -EAGAIN)
--				vq_err(vq, "Translation failure %d descriptor idx %d\n",
--					ret, i);
--			return ret;
--		}
--		if (access == VHOST_ACCESS_WO) {
--			/* If this is an input descriptor,
--			 * increment that count. */
--			*in_num += ret;
--			if (unlikely(log && ret)) {
--				log[*log_num].addr = vhost64_to_cpu(vq, desc.addr);
--				log[*log_num].len = vhost32_to_cpu(vq, desc.len);
--				++*log_num;
--			}
--		} else {
--			/* If it's an output descriptor, they're all supposed
--			 * to come before any input descriptors. */
--			if (unlikely(*in_num)) {
--				vq_err(vq, "Descriptor has out after in: "
--				       "idx %d\n", i);
--				return -EINVAL;
--			}
--			*out_num += ret;
--		}
--	} while ((i = next_desc(vq, &desc)) != -1);
--
--	/* On success, increment avail index. */
--	vq->last_avail_idx++;
--
--	/* Assume notifications from guest are disabled at this point,
--	 * if they aren't we would need to update avail_event index. */
--	BUG_ON(!(vq->used_flags & VRING_USED_F_NO_NOTIFY));
--	return head;
--}
--EXPORT_SYMBOL_GPL(vhost_get_vq_desc);
--
- static struct vhost_desc *peek_split_desc(struct vhost_virtqueue *vq)
- {
- 	BUG_ON(!vq->ndescs);
-@@ -2427,7 +2190,7 @@ static int fetch_indirect_descs(struct vhost_virtqueue *vq,
- 
- /* This function returns a value > 0 if a descriptor was found, or 0 if none were found.
-  * A negative code is returned on error. */
--static int fetch_descs(struct vhost_virtqueue *vq)
-+static int fetch_buf(struct vhost_virtqueue *vq)
- {
- 	unsigned int i, head, found = 0;
- 	struct vhost_desc *last;
-@@ -2440,7 +2203,7 @@ static int fetch_descs(struct vhost_virtqueue *vq)
- 	/* Check it isn't doing very strange things with descriptor numbers. */
- 	last_avail_idx = vq->last_avail_idx;
- 
--	if (vq->avail_idx == vq->last_avail_idx) {
-+	if (unlikely(vq->avail_idx == vq->last_avail_idx)) {
- 		if (unlikely(vhost_get_avail_idx(vq, &avail_idx))) {
- 			vq_err(vq, "Failed to access avail idx at %p\n",
- 				&vq->avail->idx);
-@@ -2531,6 +2294,41 @@ static int fetch_descs(struct vhost_virtqueue *vq)
- 	return 1;
- }
- 
-+/* This function returns a value > 0 if a descriptor was found, or 0 if none were found.
-+ * A negative code is returned on error. */
-+static int fetch_descs(struct vhost_virtqueue *vq)
-+{
-+	int ret;
-+
-+	if (unlikely(vq->first_desc >= vq->ndescs)) {
-+		vq->first_desc = 0;
-+		vq->ndescs = 0;
-+	}
-+
-+	if (vq->ndescs)
-+		return 1;
-+
-+	for (ret = 1;
-+	     ret > 0 && vq->ndescs <= vhost_vq_num_batch_descs(vq);
-+	     ret = fetch_buf(vq))
-+		;
-+
-+	/* On success we expect some descs */
-+	BUG_ON(ret > 0 && !vq->ndescs);
-+	return vq->ndescs ? vq->ndescs : ret;
-+}
-+
-+/* Reverse the effects of fetch_descs */
-+static void unfetch_descs(struct vhost_virtqueue *vq)
-+{
-+	int i;
-+
-+	for (i = vq->first_desc; i < vq->ndescs; ++i)
-+		if (!(vq->descs[i].flags & VRING_DESC_F_NEXT))
-+			vq->last_avail_idx -= 1;
-+	vq->ndescs = 0;
-+}
-+
- /* This looks in the virtqueue and for the first available buffer, and converts
-  * it to an iovec for convenient access.  Since descriptors consist of some
-  * number of output then some number of input descriptors, it's actually two
-@@ -2539,7 +2337,7 @@ static int fetch_descs(struct vhost_virtqueue *vq)
-  * This function returns the descriptor number found, or vq->num (which is
-  * never a valid descriptor number) if none was found.  A negative code is
-  * returned on error. */
--int vhost_get_vq_desc_batch(struct vhost_virtqueue *vq,
-+int vhost_get_vq_desc(struct vhost_virtqueue *vq,
- 		      struct iovec iov[], unsigned int iov_size,
- 		      unsigned int *out_num, unsigned int *in_num,
- 		      struct vhost_log *log, unsigned int *log_num)
-@@ -2548,7 +2346,7 @@ int vhost_get_vq_desc_batch(struct vhost_virtqueue *vq,
- 	int i;
- 
- 	if (ret <= 0)
--		goto err_fetch;
-+		goto err;
- 
- 	/* Now convert to IOV */
- 	/* When we start there are none of either input nor output. */
-@@ -2556,7 +2354,7 @@ int vhost_get_vq_desc_batch(struct vhost_virtqueue *vq,
- 	if (unlikely(log))
- 		*log_num = 0;
- 
--	for (i = 0; i < vq->ndescs; ++i) {
-+	for (i = vq->first_desc; i < vq->ndescs; ++i) {
- 		unsigned iov_count = *in_num + *out_num;
- 		struct vhost_desc *desc = &vq->descs[i];
- 		int access;
-@@ -2602,24 +2400,26 @@ int vhost_get_vq_desc_batch(struct vhost_virtqueue *vq,
- 		}
- 
- 		ret = desc->id;
-+
-+		if (!(desc->flags & VRING_DESC_F_NEXT))
-+			break;
- 	}
- 
--	vq->ndescs = 0;
-+	vq->first_desc = i + 1;
- 
- 	return ret;
- 
- err:
--	vhost_discard_vq_desc(vq, 1);
--err_fetch:
--	vq->ndescs = 0;
-+	unfetch_descs(vq);
- 
- 	return ret ? ret : vq->num;
- }
--EXPORT_SYMBOL_GPL(vhost_get_vq_desc_batch);
-+EXPORT_SYMBOL_GPL(vhost_get_vq_desc);
- 
- /* Reverse the effect of vhost_get_vq_desc. Useful for error handling. */
- void vhost_discard_vq_desc(struct vhost_virtqueue *vq, int n)
- {
-+	unfetch_descs(vq);
- 	vq->last_avail_idx -= n;
+@@ -2424,19 +2424,6 @@ void vhost_discard_vq_desc(struct vhost_virtqueue *vq, int n)
  }
  EXPORT_SYMBOL_GPL(vhost_discard_vq_desc);
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index 87089d51490d..fed36af5c444 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -81,6 +81,7 @@ struct vhost_virtqueue {
  
- 	struct vhost_desc *descs;
- 	int ndescs;
-+	int first_desc;
- 	int max_descs;
- 
- 	struct file *kick;
-@@ -189,10 +190,6 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *arg
- bool vhost_vq_access_ok(struct vhost_virtqueue *vq);
- bool vhost_log_access_ok(struct vhost_dev *);
- 
--int vhost_get_vq_desc_batch(struct vhost_virtqueue *,
--		      struct iovec iov[], unsigned int iov_count,
--		      unsigned int *out_num, unsigned int *in_num,
--		      struct vhost_log *log, unsigned int *log_num);
- int vhost_get_vq_desc(struct vhost_virtqueue *,
- 		      struct iovec iov[], unsigned int iov_count,
- 		      unsigned int *out_num, unsigned int *in_num,
-@@ -261,6 +258,8 @@ static inline void vhost_vq_set_backend(struct vhost_virtqueue *vq,
- 					void *private_data)
- {
- 	vq->private_data = private_data;
-+	vq->ndescs = 0;
-+	vq->first_desc = 0;
+-/* After we've used one of their buffers, we tell them about it.  We'll then
+- * want to notify the guest, using eventfd. */
+-int vhost_add_used(struct vhost_virtqueue *vq, unsigned int head, int len)
+-{
+-	struct vring_used_elem heads = {
+-		cpu_to_vhost32(vq, head),
+-		cpu_to_vhost32(vq, len)
+-	};
+-
+-	return vhost_add_used_n(vq, &heads, 1);
+-}
+-EXPORT_SYMBOL_GPL(vhost_add_used);
+-
+ static int __vhost_add_used_n(struct vhost_virtqueue *vq,
+ 			    struct vring_used_elem *heads,
+ 			    unsigned count)
+@@ -2506,6 +2493,19 @@ int vhost_add_used_n(struct vhost_virtqueue *vq, struct vring_used_elem *heads,
  }
+ EXPORT_SYMBOL_GPL(vhost_add_used_n);
  
- /**
++/* After we've used one of their buffers, we tell them about it.  We'll then
++ * want to notify the guest, using eventfd. */
++int vhost_add_used(struct vhost_virtqueue *vq, unsigned int head, int len)
++{
++	struct vring_used_elem heads = {
++		cpu_to_vhost32(vq, head),
++		cpu_to_vhost32(vq, len)
++	};
++
++	return vhost_add_used_n(vq, &heads, 1);
++}
++EXPORT_SYMBOL_GPL(vhost_add_used);
++
+ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+ {
+ 	__u16 old, new;
 -- 
 2.18.1
