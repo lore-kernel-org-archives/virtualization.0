@@ -1,33 +1,45 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
+From: David Hildenbrand <david@redhat.com>
 Subject: Re: [PATCH] virtio-mem: Fix build error due to improper use 'select'
-Date: Fri, 19 Jun 2020 07:39:06 -0400
-Message-ID: <20200619073841-mutt-send-email-mst@kernel.org>
+Date: Fri, 19 Jun 2020 13:49:10 +0200
+Message-ID: <d03c88ea-200d-54ab-d7f3-f3e5b7a0a9dd@redhat.com>
 References: <20200619080333.194753-1-chenweilong@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200619080333.194753-1-chenweilong@huawei.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Weilong Chen <chenweilong@huawei.com>
-Cc: jasowang@redhat.com, virtualization@lists.linux-foundation.org, lizefan@huawei.com, linux-kernel@vger.kernel.org, David Hildenbrand <david@redhat.com>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Weilong Chen <chenweilong@huawei.com>, mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, lizefan@huawei.com
+Cc: linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jun 19, 2020 at 04:03:33PM +0800, Weilong Chen wrote:
+On 19.06.20 10:03, Weilong Chen wrote:
 > As noted in:
 > https://www.kernel.org/doc/Documentation/kbuild/kconfig-language.txt
 > "select should be used with care. select will force a symbol to a
 > value without visiting the dependencies."
+
+Right, rings a bell.
+
 > Config VIRTIO_MEM should not select CONTIG_ALLOC directly.
 > Otherwise it will cause an error:
 > https://bugzilla.kernel.org/show_bug.cgi?id=208245
+
+Thanks!
+
+Acked-by: David Hildenbrand <david@redhat.com>
+
 > 
 > Signed-off-by: Weilong Chen <chenweilong@huawei.com>
-
-Cc virtio mem maintainer:
-M:      David Hildenbrand <david@redhat.com>
-
-
 > ---
 >  drivers/virtio/Kconfig | 2 +-
 >  1 file changed, 1 insertion(+), 1 deletion(-)
@@ -45,5 +57,10 @@ M:      David Hildenbrand <david@redhat.com>
 >  	help
 >  	 This driver provides access to virtio-mem paravirtualized memory
 >  	 devices, allowing to hotplug and hotunplug memory.
-> -- 
-> 2.17.1
+> 
+
+
+-- 
+Thanks,
+
+David / dhildenb
