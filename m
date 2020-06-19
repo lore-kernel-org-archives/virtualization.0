@@ -1,115 +1,157 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v3 1/1] s390: virtio: let arch accept devices without
- IOMMU feature
-Date: Fri, 19 Jun 2020 11:20:51 +0200
-Message-ID: <20200619112051.74babdb1.cohuck@redhat.com>
-References: <1592390637-17441-1-git-send-email-pmorel@linux.ibm.com>
-        <1592390637-17441-2-git-send-email-pmorel@linux.ibm.com>
-        <20200618002956.5f179de4.pasic@linux.ibm.com>
+From: Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Subject: [PATCH v7 22/36] drm: virtio: fix common struct sg_table related
+ issues
+Date: Fri, 19 Jun 2020 12:36:22 +0200
+Message-ID: <20200619103636.11974-23-m.szyprowski@samsung.com>
+References: <20200619103636.11974-1-m.szyprowski@samsung.com>
+ <CGME20200619103708eucas1p2207ebc9373b820797675b91060a2a597@eucas1p2.samsung.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200618002956.5f179de4.pasic@linux.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Halil Pasic <pasic@linux.ibm.com>
-Cc: Pierre Morel <pmorel@linux.ibm.com>, linux-kernel@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
+Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+In-Reply-To: <20200619103636.11974-1-m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
+ <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
+List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
+ <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
+Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+Sender: "iommu" <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
+To: dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linaro-mm-sig-cunTk1MwBs8s++Sfvej+rw@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Gerd Hoffmann <kraxel-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Daniel Vetter <daniel-/w4YWyX8dFk@public.gmane.org>, Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>, Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 18 Jun 2020 00:29:56 +0200
-Halil Pasic <pasic@linux.ibm.com> wrote:
+The Documentation/DMA-API-HOWTO.txt states that the dma_map_sg() function
+returns the number of the created entries in the DMA address space.
+However the subsequent calls to the dma_sync_sg_for_{device,cpu}() and
+dma_unmap_sg must be called with the original number of the entries
+passed to the dma_map_sg().
 
-> On Wed, 17 Jun 2020 12:43:57 +0200
-> Pierre Morel <pmorel@linux.ibm.com> wrote:
-> 
-> > An architecture protecting the guest memory against unauthorized host
-> > access may want to enforce VIRTIO I/O device protection through the
-> > use of VIRTIO_F_IOMMU_PLATFORM.
-> > 
-> > Let's give a chance to the architecture to accept or not devices
-> > without VIRTIO_F_IOMMU_PLATFORM.
-> >   
-> [..]
-> 
-> 
-> I'm still not really satisfied with your commit message, furthermore
-> I did some thinking about the abstraction you introduce here. I will
-> give a short analysis of that, but first things first. Your patch does
-> the job of preventing calamity, and the details can be changed any time,
-> thus: 
-> 
-> Acked-by: Halil Pasic <pasic@linux.ibm.com>
-> 
-> Regarding the interaction of architecture specific code with virtio core,
-> I believe we could have made the interface more generic.
-> 
-> One option is to introduce virtio_arch_finalize_features(), a hook that
-> could reject any feature that is inappropriate.
+struct sg_table is a common structure used for describing a non-contiguous
+memory buffer, used commonly in the DRM and graphics subsystems. It
+consists of a scatterlist with memory pages and DMA addresses (sgl entry),
+as well as the number of scatterlist entries: CPU pages (orig_nents entry)
+and DMA mapped pages (nents entry).
 
-s/any feature/any combination of features/
+It turned out that it was a common mistake to misuse nents and orig_nents
+entries, calling DMA-mapping functions with a wrong number of entries or
+ignoring the number of mapped entries returned by the dma_map_sg()
+function.
 
-This sounds like a good idea (for a later update).
+To avoid such issues, lets use a common dma-mapping wrappers operating
+directly on the struct sg_table objects and use scatterlist page
+iterators where possible. This, almost always, hides references to the
+nents and orig_nents entries, making the code robust, easier to follow
+and copy/paste safe.
 
-> 
-> Another option would be to find a common name for is_prot_virt_guest()
-> (arch/s390) sev_active() (arch/x86) and is_secure_guest() (arch/powerpc)
-> and use that instead of arch_needs_virtio_iommu_platform() and where-ever
-> appropriate. Currently we seem to want this info in driver code only for
-> virtio, but if the virtio driver has a legitimate need to know, other
-> drivers may as well have a legitimate need to know. For example if we
-> wanted to protect ourselves in ccw device drivers from somebody
-> setting up a vfio-ccw device and attach it to the prot-virt guest (AFAICT
-> we only lack guest enablement for this) such a function could be useful.
+Signed-off-by: Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>
+Acked-by: Gerd Hoffmann <kraxel-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+---
+ drivers/gpu/drm/virtio/virtgpu_object.c | 36 ++++++++++++++-----------
+ drivers/gpu/drm/virtio/virtgpu_vq.c     | 12 ++++-----
+ 2 files changed, 26 insertions(+), 22 deletions(-)
 
-I'm not really sure if we can find enough commonality between
-architectures, unless you propose to have a function for checking
-things like device memory only.
-
-> 
-> But since this can be rewritten any time, let's go with the option
-> people already agree with, instead of more discussion.
-
-Yes, there's nothing wrong with the patch as-is.
-
-Acked-by: Cornelia Huck <cohuck@redhat.com>
-
-Which tree should this go through? Virtio? s390?
-
-> 
-> Just another question. Do we want this backported? Do we need cc stable?
-
-It does change behaviour of virtio-ccw devices; but then, it only
-fences off configurations that would not have worked anyway.
-Distributions should probably pick this; but I do not consider it
-strictly a "fix" (more a mitigation for broken configurations), so I'm
-not sure whether stable applies.
-
-> [..]
-> 
-> 
-> >  int virtio_finalize_features(struct virtio_device *dev)
-> >  {
-> >  	int ret = dev->config->finalize_features(dev);
-> > @@ -179,6 +194,13 @@ int virtio_finalize_features(struct virtio_device *dev)
-> >  	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
-> >  		return 0;
-> >  
-> > +	if (arch_needs_virtio_iommu_platform(dev) &&
-> > +		!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
-> > +		dev_warn(&dev->dev,
-> > +			 "virtio: device must provide VIRTIO_F_IOMMU_PLATFORM\n");  
-> 
-> I'm not sure, divulging the current Linux name of this feature bit is a
-> good idea, but if everybody else is fine with this, I don't care that
-
-Not sure if that feature name will ever change, as it is exported in
-headers. At most, we might want to add the new ACCESS_PLATFORM define
-and keep the old one, but that would still mean some churn.
-
-> much. An alternative would be:
-> "virtio: device falsely claims to have full access to the memory,
-> aborting the device"
-
-"virtio: device does not work with limited memory access" ?
-
-But no issue with keeping the current message.
+diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
+index 346cef5ce251..c3b9e3cf786e 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+@@ -72,9 +72,8 @@ void virtio_gpu_cleanup_object(struct virtio_gpu_object *bo)
+ 
+ 		if (shmem->pages) {
+ 			if (shmem->mapped) {
+-				dma_unmap_sg(vgdev->vdev->dev.parent,
+-					     shmem->pages->sgl, shmem->mapped,
+-					     DMA_TO_DEVICE);
++				dma_unmap_sgtable(vgdev->vdev->dev.parent,
++					     shmem->pages, DMA_TO_DEVICE, 0);
+ 				shmem->mapped = 0;
+ 			}
+ 
+@@ -157,13 +156,13 @@ static int virtio_gpu_object_shmem_init(struct virtio_gpu_device *vgdev,
+ 	}
+ 
+ 	if (use_dma_api) {
+-		shmem->mapped = dma_map_sg(vgdev->vdev->dev.parent,
+-					   shmem->pages->sgl,
+-					   shmem->pages->nents,
+-					   DMA_TO_DEVICE);
+-		*nents = shmem->mapped;
++		ret = dma_map_sgtable(vgdev->vdev->dev.parent,
++				      shmem->pages, DMA_TO_DEVICE, 0);
++		if (ret)
++			return ret;
++		*nents = shmem->mapped = shmem->pages->nents;
+ 	} else {
+-		*nents = shmem->pages->nents;
++		*nents = shmem->pages->orig_nents;
+ 	}
+ 
+ 	*ents = kmalloc_array(*nents, sizeof(struct virtio_gpu_mem_entry),
+@@ -173,13 +172,20 @@ static int virtio_gpu_object_shmem_init(struct virtio_gpu_device *vgdev,
+ 		return -ENOMEM;
+ 	}
+ 
+-	for_each_sg(shmem->pages->sgl, sg, *nents, si) {
+-		(*ents)[si].addr = cpu_to_le64(use_dma_api
+-					       ? sg_dma_address(sg)
+-					       : sg_phys(sg));
+-		(*ents)[si].length = cpu_to_le32(sg->length);
+-		(*ents)[si].padding = 0;
++	if (use_dma_api) {
++		for_each_sgtable_dma_sg(shmem->pages, sg, si) {
++			(*ents)[si].addr = cpu_to_le64(sg_dma_address(sg));
++			(*ents)[si].length = cpu_to_le32(sg_dma_len(sg));
++			(*ents)[si].padding = 0;
++		}
++	} else {
++		for_each_sgtable_sg(shmem->pages, sg, si) {
++			(*ents)[si].addr = cpu_to_le64(sg_phys(sg));
++			(*ents)[si].length = cpu_to_le32(sg->length);
++			(*ents)[si].padding = 0;
++		}
+ 	}
++
+ 	return 0;
+ }
+ 
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 9e663a5d9952..e5765db85c20 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -302,7 +302,7 @@ static struct sg_table *vmalloc_to_sgt(char *data, uint32_t size, int *sg_ents)
+ 		return NULL;
+ 	}
+ 
+-	for_each_sg(sgt->sgl, sg, *sg_ents, i) {
++	for_each_sgtable_sg(sgt, sg, i) {
+ 		pg = vmalloc_to_page(data);
+ 		if (!pg) {
+ 			sg_free_table(sgt);
+@@ -603,9 +603,8 @@ void virtio_gpu_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
+ 	struct virtio_gpu_object_shmem *shmem = to_virtio_gpu_shmem(bo);
+ 
+ 	if (use_dma_api)
+-		dma_sync_sg_for_device(vgdev->vdev->dev.parent,
+-				       shmem->pages->sgl, shmem->pages->nents,
+-				       DMA_TO_DEVICE);
++		dma_sync_sgtable_for_device(vgdev->vdev->dev.parent,
++					    shmem->pages, DMA_TO_DEVICE);
+ 
+ 	cmd_p = virtio_gpu_alloc_cmd(vgdev, &vbuf, sizeof(*cmd_p));
+ 	memset(cmd_p, 0, sizeof(*cmd_p));
+@@ -1019,9 +1018,8 @@ void virtio_gpu_cmd_transfer_to_host_3d(struct virtio_gpu_device *vgdev,
+ 	struct virtio_gpu_object_shmem *shmem = to_virtio_gpu_shmem(bo);
+ 
+ 	if (use_dma_api)
+-		dma_sync_sg_for_device(vgdev->vdev->dev.parent,
+-				       shmem->pages->sgl, shmem->pages->nents,
+-				       DMA_TO_DEVICE);
++		dma_sync_sgtable_for_device(vgdev->vdev->dev.parent,
++					    shmem->pages, DMA_TO_DEVICE);
+ 
+ 	cmd_p = virtio_gpu_alloc_cmd(vgdev, &vbuf, sizeof(*cmd_p));
+ 	memset(cmd_p, 0, sizeof(*cmd_p));
+-- 
+2.17.1
