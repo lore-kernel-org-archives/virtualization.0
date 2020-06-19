@@ -1,40 +1,47 @@
-From: Weilong Chen <chenweilong@huawei.com>
-Subject: [PATCH] virtio-mem: Fix build error due to improper use 'select'
-Date: Fri, 19 Jun 2020 16:03:33 +0800
-Message-ID: <20200619080333.194753-1-chenweilong@huawei.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] virtio-mem: Fix build error due to improper use 'select'
+Date: Fri, 19 Jun 2020 15:54:19 +0800
+Message-ID: <953448d3-9e7c-3a96-b28b-edaf8b775e4d@redhat.com>
+References: <20200619080333.194753-1-chenweilong@huawei.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, lizefan@huawei.com
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200619080333.194753-1-chenweilong@huawei.com>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Weilong Chen <chenweilong@huawei.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, lizefan@huawei.com
 Cc: linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-As noted in:
-https://www.kernel.org/doc/Documentation/kbuild/kconfig-language.txt
-"select should be used with care. select will force a symbol to a
-value without visiting the dependencies."
-Config VIRTIO_MEM should not select CONTIG_ALLOC directly.
-Otherwise it will cause an error:
-https://bugzilla.kernel.org/show_bug.cgi?id=208245
-
-Signed-off-by: Weilong Chen <chenweilong@huawei.com>
----
- drivers/virtio/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-index 5809e5f5b157..5c92e4a50882 100644
---- a/drivers/virtio/Kconfig
-+++ b/drivers/virtio/Kconfig
-@@ -85,7 +85,7 @@ config VIRTIO_MEM
- 	depends on VIRTIO
- 	depends on MEMORY_HOTPLUG_SPARSE
- 	depends on MEMORY_HOTREMOVE
--	select CONTIG_ALLOC
-+	depends on CONTIG_ALLOC
- 	help
- 	 This driver provides access to virtio-mem paravirtualized memory
- 	 devices, allowing to hotplug and hotunplug memory.
--- 
-2.17.1
+Ck9uIDIwMjAvNi8xOSDkuIvljYg0OjAzLCBXZWlsb25nIENoZW4gd3JvdGU6Cj4gQXMgbm90ZWQg
+aW46Cj4gaHR0cHM6Ly93d3cua2VybmVsLm9yZy9kb2MvRG9jdW1lbnRhdGlvbi9rYnVpbGQva2Nv
+bmZpZy1sYW5ndWFnZS50eHQKPiAic2VsZWN0IHNob3VsZCBiZSB1c2VkIHdpdGggY2FyZS4gc2Vs
+ZWN0IHdpbGwgZm9yY2UgYSBzeW1ib2wgdG8gYQo+IHZhbHVlIHdpdGhvdXQgdmlzaXRpbmcgdGhl
+IGRlcGVuZGVuY2llcy4iCj4gQ29uZmlnIFZJUlRJT19NRU0gc2hvdWxkIG5vdCBzZWxlY3QgQ09O
+VElHX0FMTE9DIGRpcmVjdGx5Lgo+IE90aGVyd2lzZSBpdCB3aWxsIGNhdXNlIGFuIGVycm9yOgo+
+IGh0dHBzOi8vYnVnemlsbGEua2VybmVsLm9yZy9zaG93X2J1Zy5jZ2k/aWQ9MjA4MjQ1Cj4KPiBT
+aWduZWQtb2ZmLWJ5OiBXZWlsb25nIENoZW4gPGNoZW53ZWlsb25nQGh1YXdlaS5jb20+Cj4gLS0t
+Cj4gICBkcml2ZXJzL3ZpcnRpby9LY29uZmlnIHwgMiArLQo+ICAgMSBmaWxlIGNoYW5nZWQsIDEg
+aW5zZXJ0aW9uKCspLCAxIGRlbGV0aW9uKC0pCj4KPiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aXJ0
+aW8vS2NvbmZpZyBiL2RyaXZlcnMvdmlydGlvL0tjb25maWcKPiBpbmRleCA1ODA5ZTVmNWIxNTcu
+LjVjOTJlNGE1MDg4MiAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3ZpcnRpby9LY29uZmlnCj4gKysr
+IGIvZHJpdmVycy92aXJ0aW8vS2NvbmZpZwo+IEBAIC04NSw3ICs4NSw3IEBAIGNvbmZpZyBWSVJU
+SU9fTUVNCj4gICAJZGVwZW5kcyBvbiBWSVJUSU8KPiAgIAlkZXBlbmRzIG9uIE1FTU9SWV9IT1RQ
+TFVHX1NQQVJTRQo+ICAgCWRlcGVuZHMgb24gTUVNT1JZX0hPVFJFTU9WRQo+IC0Jc2VsZWN0IENP
+TlRJR19BTExPQwo+ICsJZGVwZW5kcyBvbiBDT05USUdfQUxMT0MKPiAgIAloZWxwCj4gICAJIFRo
+aXMgZHJpdmVyIHByb3ZpZGVzIGFjY2VzcyB0byB2aXJ0aW8tbWVtIHBhcmF2aXJ0dWFsaXplZCBt
+ZW1vcnkKPiAgIAkgZGV2aWNlcywgYWxsb3dpbmcgdG8gaG90cGx1ZyBhbmQgaG90dW5wbHVnIG1l
+bW9yeS4KCgpBY2tlZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KCl9fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
+IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
+dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
+aXphdGlvbg==
