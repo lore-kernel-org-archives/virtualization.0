@@ -1,76 +1,38 @@
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Subject: Re: [PATCH RFC v8 02/11] vhost: use batched get_vq_desc version
-Date: Mon, 22 Jun 2020 12:44:17 +0200
-Message-ID: <CAJaqyWdo1J-EoGUj3e2jM6USo0SEOM3xydoaYMhta0Y_YPyS_g@mail.gmail.com>
-References: <20200611113404.17810-1-mst@redhat.com> <20200611113404.17810-3-mst@redhat.com>
- <20200611152257.GA1798@char.us.oracle.com> <CAJaqyWdwXMX0JGhmz6soH2ZLNdaH6HEdpBM8ozZzX9WUu8jGoQ@mail.gmail.com>
- <CAJaqyWdwgy0fmReOgLfL4dAv-E+5k_7z3d9M+vHqt0aO2SmOFg@mail.gmail.com> <b6347dad-89e8-61f6-6394-65c301f91dd7@redhat.com>
+From: Joerg Roedel <jroedel@suse.de>
+Subject: Re: AMD IOMMU + SME + amdgpu regression
+Date: Mon, 22 Jun 2020 12:02:57 +0200
+Message-ID: <20200622100257.GD31822@suse.de>
+References: <1591915710.rakbpzst8h.none.ref@localhost>
+ <1591915710.rakbpzst8h.none@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <b6347dad-89e8-61f6-6394-65c301f91dd7@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, kvm list <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <1591915710.rakbpzst8h.none@localhost>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: "Alex Xu (Hello71)" <alex_y_xu@yahoo.ca>
+Cc: Heiko Stuebner <heiko@sntech.de>, Bjorn Andersson <bjorn.andersson@linaro.org>, linux-tegra@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>, Daniel Drake <drake@endlessm.com>, Will Deacon <will@kernel.org>, Christoph Hellwig <hch@lst.de>, Marek Szyprowski <m.szyprowski@samsung.com>, Jean-Philippe Brucker <jean-philippe@linaro.org>, linux-samsung-soc@vger.kernel.org, Joerg Roedel <joro@8bytes.org>, Krzysztof Kozlowski <krzk@kernel.org>, Jonathan Hunter <jonathanh@nvidia.com>, linux-rockchip@lists.infradead.org, Kukjin Kim <kgene@kernel.org>, Andy Gross <agross@kernel.org>, David Rientjes <rientjes@google.com>, linux-s390@vger.kernel.org, Gerald Schaefer <gerald.schaefer@de.ibm.com>, linux-arm-msm@vger.kernel.org, linux-mediatek@lists.infradead.org, Matthias Brugger <matthias.bgg@gmail.com>, virtualization@lists.linux-foundation.org, jonathan.derrick@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 22, 2020 at 11:07 AM Jason Wang <jasowang@redhat.com> wrote:
->
->
-> On 2020/6/20 =E4=B8=8A=E5=8D=882:07, Eugenio Perez Martin wrote:
-> > On Mon, Jun 15, 2020 at 2:28 PM Eugenio Perez Martin
-> > <eperezma@redhat.com> wrote:
-> >> On Thu, Jun 11, 2020 at 5:22 PM Konrad Rzeszutek Wilk
-> >> <konrad.wilk@oracle.com> wrote:
-> >>> On Thu, Jun 11, 2020 at 07:34:19AM -0400, Michael S. Tsirkin wrote:
-> >>>> As testing shows no performance change, switch to that now.
-> >>> What kind of testing? 100GiB? Low latency?
-> >>>
-> >> Hi Konrad.
-> >>
-> >> I tested this version of the patch:
-> >> https://lkml.org/lkml/2019/10/13/42
-> >>
-> >> It was tested for throughput with DPDK's testpmd (as described in
-> >> http://doc.dpdk.org/guides/howto/virtio_user_as_exceptional_path.html)
-> >> and kernel pktgen. No latency tests were performed by me. Maybe it is
-> >> interesting to perform a latency test or just a different set of tests
-> >> over a recent version.
-> >>
-> >> Thanks!
-> > I have repeated the tests with v9, and results are a little bit differe=
-nt:
-> > * If I test opening it with testpmd, I see no change between versions
-> > * If I forward packets between two vhost-net interfaces in the guest
-> > using a linux bridge in the host:
-> >    - netperf UDP_STREAM shows a performance increase of 1.8, almost
-> > doubling performance. This gets lower as frame size increase.
-> >    - rests of the test goes noticeably worse: UDP_RR goes from ~6347
-> > transactions/sec to 5830
-> >    - TCP_STREAM goes from ~10.7 gbps to ~7Gbps
->
->
-> Which direction did you mean here? Guest TX or RX?
+Hi Alex,
 
-Hi Jason.
+On Thu, Jun 11, 2020 at 07:05:21PM -0400, Alex Xu (Hello71) wrote:
+> I am using an ASRock B450 Pro4 with Ryzen 1600 and ASUS RX 480. I don't 
+> understand this code at all, but let me know what I can do to 
+> troubleshoot.
 
-For both I created a linux bridge in the host, attach two guest
-interfaces with vhost-net, and make the netperf run on them.
+Does it boot without SME enabled?
 
->
->
-> >    - TCP_RR from 6223.64 transactions/sec to 5739.44
->
->
-> Perf diff might help. I think we can start from the RR result which
-> should be easier. Maybe you can test it for each patch then you may see
-> which patch is the source of the regression.
->
 
-Ok, I will look for differences.
+Regards,
 
-Thanks!
-
-> Thanks
->
+	Joerg
