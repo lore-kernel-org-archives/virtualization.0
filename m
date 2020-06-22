@@ -1,70 +1,43 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH RFC v8 02/11] vhost: use batched get_vq_desc version
-Date: Mon, 22 Jun 2020 11:55:04 -0400
-Message-ID: <20200622114622-mutt-send-email-mst@kernel.org>
+Date: Mon, 22 Jun 2020 12:00:48 -0400
+Message-ID: <20200622115946-mutt-send-email-mst@kernel.org>
 References: <20200611113404.17810-1-mst@redhat.com>
  <20200611113404.17810-3-mst@redhat.com>
- <20200611152257.GA1798@char.us.oracle.com>
- <CAJaqyWdwXMX0JGhmz6soH2ZLNdaH6HEdpBM8ozZzX9WUu8jGoQ@mail.gmail.com>
- <CAJaqyWdwgy0fmReOgLfL4dAv-E+5k_7z3d9M+vHqt0aO2SmOFg@mail.gmail.com>
+ <0332b0cf-cf00-9216-042c-e870efa33626@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAJaqyWdwgy0fmReOgLfL4dAv-E+5k_7z3d9M+vHqt0aO2SmOFg@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Eugenio Perez Martin <eperezma@redhat.com>
-Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, kvm list <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>
+In-Reply-To: <0332b0cf-cf00-9216-042c-e870efa33626@redhat.com>
+Sender: netdev-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, eperezma@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jun 19, 2020 at 08:07:57PM +0200, Eugenio Perez Martin wrote:
-> On Mon, Jun 15, 2020 at 2:28 PM Eugenio Perez Martin
-> <eperezma@redhat.com> wrote:
-> >
-> > On Thu, Jun 11, 2020 at 5:22 PM Konrad Rzeszutek Wilk
-> > <konrad.wilk@oracle.com> wrote:
-> > >
-> > > On Thu, Jun 11, 2020 at 07:34:19AM -0400, Michael S. Tsirkin wrote:
-> > > > As testing shows no performance change, switch to that now.
-> > >
-> > > What kind of testing? 100GiB? Low latency?
-> > >
-> >
-> > Hi Konrad.
-> >
-> > I tested this version of the patch:
-> > https://lkml.org/lkml/2019/10/13/42
-> >
-> > It was tested for throughput with DPDK's testpmd (as described in
-> > http://doc.dpdk.org/guides/howto/virtio_user_as_exceptional_path.html)
-> > and kernel pktgen. No latency tests were performed by me. Maybe it is
-> > interesting to perform a latency test or just a different set of tests
-> > over a recent version.
-> >
-> > Thanks!
+On Wed, Jun 17, 2020 at 11:19:26AM +0800, Jason Wang wrote:
 > 
-> I have repeated the tests with v9, and results are a little bit different:
-> * If I test opening it with testpmd, I see no change between versions
+> On 2020/6/11 下午7:34, Michael S. Tsirkin wrote:
+> >   static void vhost_vq_free_iovecs(struct vhost_virtqueue *vq)
+> >   {
+> >   	kfree(vq->descs);
+> > @@ -394,6 +400,9 @@ static long vhost_dev_alloc_iovecs(struct vhost_dev *dev)
+> >   	for (i = 0; i < dev->nvqs; ++i) {
+> >   		vq = dev->vqs[i];
+> >   		vq->max_descs = dev->iov_limit;
+> > +		if (vhost_vq_num_batch_descs(vq) < 0) {
+> > +			return -EINVAL;
+> > +		}
+> 
+> 
+> This check breaks vdpa which set iov_limit to zero. Consider iov_limit is
+> meaningless to vDPA, I wonder we can skip the test when device doesn't use
+> worker.
+> 
+> Thanks
 
+It doesn't need iovecs at all, right?
 
-OK that is testpmd on guest, right? And vhost-net on the host?
-
-> * If I forward packets between two vhost-net interfaces in the guest
-> using a linux bridge in the host:
-
-And here I guess you mean virtio-net in the guest kernel?
-
->   - netperf UDP_STREAM shows a performance increase of 1.8, almost
-> doubling performance. This gets lower as frame size increase.
->   - rests of the test goes noticeably worse: UDP_RR goes from ~6347
-> transactions/sec to 5830
-
-OK so it seems plausible that we still have a bug where an interrupt
-is delayed. That is the main difference between pmd and virtio.
-Let's try disabling event index, and see what happens - that's
-the trickiest part of interrupts.
-
-
-
->   - TCP_STREAM goes from ~10.7 gbps to ~7Gbps
->   - TCP_RR from 6223.64 transactions/sec to 5739.44
+-- 
+MST
