@@ -1,57 +1,76 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [RFC v9 09/11] vhost/scsi: switch to buf APIs
-Date: Mon, 22 Jun 2020 11:01:46 +0100
-Message-ID: <20200622100146.GC6675@stefanha-x1.localdomain>
-References: <20200619182302.850-1-eperezma@redhat.com>
- <20200619182302.850-10-eperezma@redhat.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Subject: Re: [PATCH RFC v8 02/11] vhost: use batched get_vq_desc version
+Date: Mon, 22 Jun 2020 12:44:17 +0200
+Message-ID: <CAJaqyWdo1J-EoGUj3e2jM6USo0SEOM3xydoaYMhta0Y_YPyS_g@mail.gmail.com>
+References: <20200611113404.17810-1-mst@redhat.com> <20200611113404.17810-3-mst@redhat.com>
+ <20200611152257.GA1798@char.us.oracle.com> <CAJaqyWdwXMX0JGhmz6soH2ZLNdaH6HEdpBM8ozZzX9WUu8jGoQ@mail.gmail.com>
+ <CAJaqyWdwgy0fmReOgLfL4dAv-E+5k_7z3d9M+vHqt0aO2SmOFg@mail.gmail.com> <b6347dad-89e8-61f6-6394-65c301f91dd7@redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="sHrvAb52M6C8blB9"
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200619182302.850-10-eperezma@redhat.com>
-Content-Disposition: inline
+In-Reply-To: <b6347dad-89e8-61f6-6394-65c301f91dd7@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
-Cc: mst@redhat.com, kvm list <kvm@vger.kernel.org>, Stefano Garzarella <sgarzare@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, kvm list <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---sHrvAb52M6C8blB9
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Mon, Jun 22, 2020 at 11:07 AM Jason Wang <jasowang@redhat.com> wrote:
+>
+>
+> On 2020/6/20 =E4=B8=8A=E5=8D=882:07, Eugenio Perez Martin wrote:
+> > On Mon, Jun 15, 2020 at 2:28 PM Eugenio Perez Martin
+> > <eperezma@redhat.com> wrote:
+> >> On Thu, Jun 11, 2020 at 5:22 PM Konrad Rzeszutek Wilk
+> >> <konrad.wilk@oracle.com> wrote:
+> >>> On Thu, Jun 11, 2020 at 07:34:19AM -0400, Michael S. Tsirkin wrote:
+> >>>> As testing shows no performance change, switch to that now.
+> >>> What kind of testing? 100GiB? Low latency?
+> >>>
+> >> Hi Konrad.
+> >>
+> >> I tested this version of the patch:
+> >> https://lkml.org/lkml/2019/10/13/42
+> >>
+> >> It was tested for throughput with DPDK's testpmd (as described in
+> >> http://doc.dpdk.org/guides/howto/virtio_user_as_exceptional_path.html)
+> >> and kernel pktgen. No latency tests were performed by me. Maybe it is
+> >> interesting to perform a latency test or just a different set of tests
+> >> over a recent version.
+> >>
+> >> Thanks!
+> > I have repeated the tests with v9, and results are a little bit differe=
+nt:
+> > * If I test opening it with testpmd, I see no change between versions
+> > * If I forward packets between two vhost-net interfaces in the guest
+> > using a linux bridge in the host:
+> >    - netperf UDP_STREAM shows a performance increase of 1.8, almost
+> > doubling performance. This gets lower as frame size increase.
+> >    - rests of the test goes noticeably worse: UDP_RR goes from ~6347
+> > transactions/sec to 5830
+> >    - TCP_STREAM goes from ~10.7 gbps to ~7Gbps
+>
+>
+> Which direction did you mean here? Guest TX or RX?
 
-On Fri, Jun 19, 2020 at 08:23:00PM +0200, Eugenio P=E9rez wrote:
-> @@ -1139,9 +1154,9 @@ vhost_scsi_send_tmf_reject(struct vhost_scsi *vs,
->  =09iov_iter_init(&iov_iter, READ, &vq->iov[vc->out], vc->in, sizeof(rsp)=
-);
-> =20
->  =09ret =3D copy_to_iter(&rsp, sizeof(rsp), &iov_iter);
-> -=09if (likely(ret =3D=3D sizeof(rsp)))
-> -=09=09vhost_add_used_and_signal(&vs->dev, vq, vc->head, 0);
-> -=09else
-> +=09if (likely(ret =3D=3D sizeof(rsp))) {
-> +=09=09vhost_scsi_signal_noinput(&vs->dev, vq, &vc->buf);
-> +=09} else
->  =09=09pr_err("Faulted on virtio_scsi_ctrl_tmf_resp\n");
->  }
+Hi Jason.
 
-The curly brackets are not necessary, but the patch still looks fine:
+For both I created a linux bridge in the host, attach two guest
+interfaces with vhost-net, and make the netperf run on them.
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+>
+>
+> >    - TCP_RR from 6223.64 transactions/sec to 5739.44
+>
+>
+> Perf diff might help. I think we can start from the RR result which
+> should be easier. Maybe you can test it for each patch then you may see
+> which patch is the source of the regression.
+>
 
---sHrvAb52M6C8blB9
-Content-Type: application/pgp-signature; name="signature.asc"
+Ok, I will look for differences.
 
------BEGIN PGP SIGNATURE-----
+Thanks!
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl7wgYoACgkQnKSrs4Gr
-c8iU0wgAsLU1H/KwuKf6yqFN/L0od7nMvZEId3V8dwQBJLUc48Mxam6NlNI0Y/Fb
-fY8+U4GIN38UTCj3sWf9KwU/jUVxdwtFHljPNcdDG4IRARU9bLZ1Z8XDrPvXqx0L
-SiXWJRPbZhCS0vSKlStWVPsiKhntXocPX805bya3z0B5ix5U3TjfEWjmJnMtq8Vm
-RrJGKjF8TYNLCXbJWmeFCKIzZ9HNkaPlZ8X3yb7J5xoPtf7wzxoRdFXbDeJPlMsa
-JTN2jd6r8TRyN5zWukPwYe3Q5vX1QfVtCcZwNY9Iwys45cn7AoZrwhEMtDqaJCkN
-0VZfJdyLT6+w8Ns35FIqT9XGxccMMw==
-=yt/w
------END PGP SIGNATURE-----
-
---sHrvAb52M6C8blB9--
+> Thanks
+>
