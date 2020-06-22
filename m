@@ -1,34 +1,70 @@
-From: "Alex Xu (Hello71)" <alex_y_xu-FFYn/CNdgSA@public.gmane.org>
-Subject: Re: AMD IOMMU + SME + amdgpu regression
-Date: Mon, 22 Jun 2020 11:30:04 -0400
-Message-ID: <1592839701.mxvvths2x9.none@localhost>
-References: <1591915710.rakbpzst8h.none.ref@localhost>
-        <1591915710.rakbpzst8h.none@localhost> <20200622100257.GD31822@suse.de>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH RFC v8 02/11] vhost: use batched get_vq_desc version
+Date: Mon, 22 Jun 2020 11:55:04 -0400
+Message-ID: <20200622114622-mutt-send-email-mst@kernel.org>
+References: <20200611113404.17810-1-mst@redhat.com>
+ <20200611113404.17810-3-mst@redhat.com>
+ <20200611152257.GA1798@char.us.oracle.com>
+ <CAJaqyWdwXMX0JGhmz6soH2ZLNdaH6HEdpBM8ozZzX9WUu8jGoQ@mail.gmail.com>
+ <CAJaqyWdwgy0fmReOgLfL4dAv-E+5k_7z3d9M+vHqt0aO2SmOFg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20200622100257.GD31822-l3A5Bk7waGM@public.gmane.org>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>
-Cc: Andy Gross <agross-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Lu Baolu <baolu.lu-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Daniel Drake <drake-6IF/jdPJHihWk0Htik3J/w@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Gerald Schaefer <gerald.schaefer-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, jonathan.derrick-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Jonathan Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>, Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Matthias Brugger <matt>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAJaqyWdwgy0fmReOgLfL4dAv-E+5k_7z3d9M+vHqt0aO2SmOFg@mail.gmail.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Eugenio Perez Martin <eperezma@redhat.com>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, kvm list <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Excerpts from Joerg Roedel's message of June 22, 2020 6:02 am:
-> Hi Alex,
->=20
-> On Thu, Jun 11, 2020 at 07:05:21PM -0400, Alex Xu (Hello71) wrote:
->> I am using an ASRock B450 Pro4 with Ryzen 1600 and ASUS RX 480. I don't=20
->> understand this code at all, but let me know what I can do to=20
->> troubleshoot.
->=20
-> Does it boot without SME enabled?
->=20
->=20
-> Regards,
->=20
-> 	Joerg
->=20
+On Fri, Jun 19, 2020 at 08:07:57PM +0200, Eugenio Perez Martin wrote:
+> On Mon, Jun 15, 2020 at 2:28 PM Eugenio Perez Martin
+> <eperezma@redhat.com> wrote:
+> >
+> > On Thu, Jun 11, 2020 at 5:22 PM Konrad Rzeszutek Wilk
+> > <konrad.wilk@oracle.com> wrote:
+> > >
+> > > On Thu, Jun 11, 2020 at 07:34:19AM -0400, Michael S. Tsirkin wrote:
+> > > > As testing shows no performance change, switch to that now.
+> > >
+> > > What kind of testing? 100GiB? Low latency?
+> > >
+> >
+> > Hi Konrad.
+> >
+> > I tested this version of the patch:
+> > https://lkml.org/lkml/2019/10/13/42
+> >
+> > It was tested for throughput with DPDK's testpmd (as described in
+> > http://doc.dpdk.org/guides/howto/virtio_user_as_exceptional_path.html)
+> > and kernel pktgen. No latency tests were performed by me. Maybe it is
+> > interesting to perform a latency test or just a different set of tests
+> > over a recent version.
+> >
+> > Thanks!
+> 
+> I have repeated the tests with v9, and results are a little bit different:
+> * If I test opening it with testpmd, I see no change between versions
 
-Yes, it works with SME off with dbed452a078 ("dma-pool: decouple=20
-DMA_REMAP from DMA_COHERENT_POOL") applied.
+
+OK that is testpmd on guest, right? And vhost-net on the host?
+
+> * If I forward packets between two vhost-net interfaces in the guest
+> using a linux bridge in the host:
+
+And here I guess you mean virtio-net in the guest kernel?
+
+>   - netperf UDP_STREAM shows a performance increase of 1.8, almost
+> doubling performance. This gets lower as frame size increase.
+>   - rests of the test goes noticeably worse: UDP_RR goes from ~6347
+> transactions/sec to 5830
+
+OK so it seems plausible that we still have a bug where an interrupt
+is delayed. That is the main difference between pmd and virtio.
+Let's try disabling event index, and see what happens - that's
+the trickiest part of interrupts.
+
+
+
+>   - TCP_STREAM goes from ~10.7 gbps to ~7Gbps
+>   - TCP_RR from 6223.64 transactions/sec to 5739.44
