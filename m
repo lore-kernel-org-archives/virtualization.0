@@ -1,118 +1,67 @@
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Subject: Re: [RFC v9 02/11] vhost: use batched get_vq_desc version
-Date: Tue, 23 Jun 2020 18:45:36 +0200
-Message-ID: <CAJaqyWefmaENcnr+qaY3ezE2LoPp3+S_rLby_h1dRn2-N_nWfQ@mail.gmail.com>
-References: <20200619182302.850-1-eperezma@redhat.com> <20200619182302.850-3-eperezma@redhat.com>
- <20200623103746-mutt-send-email-mst@kernel.org>
+From: Andy Lutomirski <luto@kernel.org>
+Subject: Re: Should SEV-ES #VC use IST? (Re: [PATCH] Allow RDTSC and RDTSCP
+ from userspace)
+Date: Tue, 23 Jun 2020 11:26:52 -0700
+Message-ID: <CALCETrWEUXU_BYd5ypF3XC10hSQUJ=XCVz40n3VfcWELS+roTg@mail.gmail.com>
+References: <20200425202316.GL21900@8bytes.org> <CALCETrW2Y6UFC=zvGbXEYqpsDyBh0DSEM4NQ+L=_pp4aOd6Fuw@mail.gmail.com>
+ <CALCETrXGr+o1_bKbnre8cVY14c_76m8pEf3iB_i7h+zfgE5_jA@mail.gmail.com>
+ <20200623094519.GF31822@suse.de> <20200623104559.GA4817@hirez.programming.kicks-ass.net>
+ <20200623111107.GG31822@suse.de> <20200623111443.GC4817@hirez.programming.kicks-ass.net>
+ <20200623114324.GA14101@suse.de> <20200623115014.GE4817@hirez.programming.kicks-ass.net>
+ <20200623121237.GC14101@suse.de> <20200623130322.GH4817@hirez.programming.kicks-ass.net>
+ <9e3f9b2a-505e-dfd7-c936-461227b4033e@citrix.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20200623103746-mutt-send-email-mst@kernel.org>
-Sender: netdev-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kvm list <kvm@vger.kernel.org>, Stefano Garzarella <sgarzare@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Jason Wang <jasowang@redhat.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <9e3f9b2a-505e-dfd7-c936-461227b4033e@citrix.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Andrew Cooper <andrew.cooper3@citrix.com>
+Cc: Peter Zijlstra <peterz@infradead.org>, Joerg Roedel <jroedel@suse.de>, Andy Lutomirski <luto@kernel.org>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@intel.com>, Tom Lendacky <Thomas.Lendacky@amd.com>, Mike Stunes <mstunes@vmware.com>, Dan Williams <dan.j.williams@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Juergen Gross <JGross@suse.com>, Jiri Slaby <jslaby@suse.cz>, Kees Cook <keescook@chromium.org>, kvm list <kvm@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Thomas Hellstrom <thellstrom@vmware.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, X86 ML <x86@kernel.org>, Sean Christopherson <sean.j.christopherson@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 23, 2020 at 4:42 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+On Tue, Jun 23, 2020 at 8:23 AM Andrew Cooper <andrew.cooper3@citrix.com> wrote:
 >
-> On Fri, Jun 19, 2020 at 08:22:53PM +0200, Eugenio P=C3=83=C2=A9rez wrote:
-> > From: "Michael S. Tsirkin" <mst@redhat.com>
-> >
-> > As testing shows no performance change, switch to that now.
-> >
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > Signed-off-by: Eugenio P=C3=83=C2=A9rez <eperezma@redhat.com>
-> > Link: https://lore.kernel.org/r/20200401183118.8334-3-eperezma@redhat.c=
-om
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > Signed-off-by: Eugenio P=C3=83=C2=A9rez <eperezma@redhat.com>
-> > ---
-> >  drivers/vhost/test.c  |   2 +-
-> >  drivers/vhost/vhost.c | 314 ++++++++----------------------------------
-> >  drivers/vhost/vhost.h |   7 +-
-> >  3 files changed, 61 insertions(+), 262 deletions(-)
-> >
-> > diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
-> > index a09dedc79f68..650e69261557 100644
-> > --- a/drivers/vhost/test.c
-> > +++ b/drivers/vhost/test.c
-> > @@ -119,7 +119,7 @@ static int vhost_test_open(struct inode *inode, str=
-uct file *f)
-> >       dev =3D &n->dev;
-> >       vqs[VHOST_TEST_VQ] =3D &n->vqs[VHOST_TEST_VQ];
-> >       n->vqs[VHOST_TEST_VQ].handle_kick =3D handle_vq_kick;
-> > -     vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX, UIO_MAXIOV,
-> > +     vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX, UIO_MAXIOV + 64,
-> >                      VHOST_TEST_PKT_WEIGHT, VHOST_TEST_WEIGHT, true, NU=
-LL);
-> >
-> >       f->private_data =3D n;
-> > diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> > index 2d784681b0fa..13021d6986eb 100644
-> > --- a/drivers/vhost/vhost.c
-> > +++ b/drivers/vhost/vhost.c
-> > @@ -304,6 +304,7 @@ static void vhost_vq_reset(struct vhost_dev *dev,
-> >  {
-> >       vq->num =3D 1;
-> >       vq->ndescs =3D 0;
-> > +     vq->first_desc =3D 0;
-> >       vq->desc =3D NULL;
-> >       vq->avail =3D NULL;
-> >       vq->used =3D NULL;
-> > @@ -372,6 +373,11 @@ static int vhost_worker(void *data)
-> >       return 0;
-> >  }
-> >
-> > +static int vhost_vq_num_batch_descs(struct vhost_virtqueue *vq)
-> > +{
-> > +     return vq->max_descs - UIO_MAXIOV;
-> > +}
-> > +
-> >  static void vhost_vq_free_iovecs(struct vhost_virtqueue *vq)
-> >  {
-> >       kfree(vq->descs);
+> On 23/06/2020 14:03, Peter Zijlstra wrote:
+> > On Tue, Jun 23, 2020 at 02:12:37PM +0200, Joerg Roedel wrote:
+> >> On Tue, Jun 23, 2020 at 01:50:14PM +0200, Peter Zijlstra wrote:
+> >>> If SNP is the sole reason #VC needs to be IST, then I'd strongly urge
+> >>> you to only make it IST if/when you try and make SNP happen, not before.
+> >> It is not the only reason, when ES guests gain debug register support
+> >> then #VC also needs to be IST, because #DB can be promoted into #VC
+> >> then, and as #DB is IST for a reason, #VC needs to be too.
+> > Didn't I read somewhere that that is only so for Rome/Naples but not for
+> > the later chips (Milan) which have #DB pass-through?
 >
+> I don't know about hardware timelines, but some future part can now opt
+> in to having debug registers as part of the encrypted state, and swapped
+> by VMExit, which would make debug facilities generally usable, and
+> supposedly safe to the #DB infinite loop issues, at which point the
+> hypervisor need not intercept #DB for safety reasons.
 >
-> Batching is enabled if max_descs > UIO_MAXIOV.
->
-> So this uses batching for test.
->
-> But net is unchanged, so it is still not using the batched version.
-> Is that right?
->
+> Its worth nothing that on current parts, the hypervisor can set up debug
+> facilities on behalf of the guest (or behind its back) as the DR state
+> is unencrypted, but that attempting to intercept #DB will redirect to
+> #VC inside the guest and cause fun. (Also spare a thought for 32bit
+> kernels which have to cope with userspace singlestepping the SYSENTER
+> path with every #DB turning into #VC.)
 
-vhost_net already called vhost_dev_init with +VHOST_NET_BATCH (64):
-vhost_dev_init(dev, vqs, VHOST_NET_VQ_MAX,
-               UIO_MAXIOV + VHOST_NET_BATCH,
-...
-
-So it should be using batching in the same terms as vhost/test.
-However I will double check it.
-
-> I think a better subject would be "vhost/test: use batched get_vq_desc ve=
-rsion".
->
-> And that explains which testing it refers to: the one executed by vhost t=
-est.
->
-> I think there was a separate patch to enable that for net separately,
-> but it got lost - or did I miss it?
->
-
-Kind of. In V5 there were two separate commits: One adding the batch
-version and another one making them the default.
-
-Both of them were squashed in V6 but the result got the wrong commit
-message. I will fix this in the next revisions.
-
-But I don't find any specific commit to enable explicitly in net.
-
-Thanks!
+What do you mean 32-bit?  64-bit kernels have exactly the same
+problem.  At least the stack is okay, though.
 
 
+Anyway, since I'm way behind on this thread, here are some thoughts:
 
+First, I plan to implement actual precise recursion detection for the
+IST stacks.  We'll be able to reliably panic when unallowed recursion
+happens.
 
-> --
-> MST
->
+Second, I don't object *that* strongly to switching to a second #VC
+stack if an NMI or MCE happens, but we really need to make sure we
+cover *all* the bases.  And #VC is distressingly close to "happens at
+all kinds of unfortunate times and the guest doesn't actually have
+much ability to predice it" right now.  So we have #VC + #DB + #VC,
+#VC + NMI + #VC, #VC + MCE + #VC, and even worse options.  So doing
+the shift in a reliable way is not necessarily possible in a clean
+way.
+
+Let me contemplate.   And maybe produce some code soon.
