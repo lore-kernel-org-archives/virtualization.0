@@ -1,41 +1,46 @@
-From: Borislav Petkov <bp@alien8.de>
+From: Peter Zijlstra <peterz@infradead.org>
 Subject: Re: Should SEV-ES #VC use IST? (Re: [PATCH] Allow RDTSC and RDTSCP
  from userspace)
-Date: Tue, 23 Jun 2020 18:10:10 +0200
-Message-ID: <20200623161010.GE32590@zn.tnic>
-References: <20200623104559.GA4817@hirez.programming.kicks-ass.net>
- <20200623111107.GG31822@suse.de>
- <20200623111443.GC4817@hirez.programming.kicks-ass.net>
- <20200623114324.GA14101@suse.de>
- <20200623115014.GE4817@hirez.programming.kicks-ass.net>
- <20200623121237.GC14101@suse.de>
- <20200623130322.GH4817@hirez.programming.kicks-ass.net>
- <20200623144940.GE14101@suse.de>
- <20200623151607.GJ4817@hirez.programming.kicks-ass.net>
- <fe0af2c8-92c8-8d66-e9f3-5a50d64837e5@citrix.com>
+Date: Tue, 23 Jun 2020 18:13:45 +0200
+Message-ID: <20200623161345.GQ4817@hirez.programming.kicks-ass.net>
+References: <20200623120433.GB14101@suse.de>
+ <20200623125201.GG4817@hirez.programming.kicks-ass.net>
+ <20200623134003.GD14101@suse.de>
+ <20200623135916.GI4817@hirez.programming.kicks-ass.net>
+ <20200623145344.GA117543@hirez.programming.kicks-ass.net>
+ <20200623145914.GF14101@suse.de>
+ <20200623152326.GL4817@hirez.programming.kicks-ass.net>
+ <56af2f70-a1c6-aa64-006e-23f2f3880887@citrix.com>
+ <20200623155204.GO4817@hirez.programming.kicks-ass.net>
+ <dae40b7b-e584-1ab4-2ebe-13526cdec946@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <fe0af2c8-92c8-8d66-e9f3-5a50d64837e5@citrix.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Andrew Cooper <andrew.cooper3@citrix.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, Joerg Roedel <jroedel@suse.de>, Andy Lutomirski <luto@kernel.org>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@intel.com>, Tom Lendacky <Thomas.Lendacky@amd.com>, Mike Stunes <mstunes@vmware.com>, Dan Williams <dan.j.williams@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Juergen Gross <JGross@suse.com>, Jiri Slaby <jslaby@suse.cz>, Kees Cook <keescook@chromium.org>, kvm list <kvm@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Thomas Hellstrom <thellstrom@vmware.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, X86 ML <x86@kernel.org>, Sean Christopherson <sean.j.christopherson@intel.com>
+In-Reply-To: <dae40b7b-e584-1ab4-2ebe-13526cdec946@intel.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Dave Hansen <dave.hansen@intel.com>
+Cc: Juergen Gross <JGross@suse.com>, Tom Lendacky <Thomas.Lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, Joerg Roedel <jroedel@suse.de>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm list <kvm@vger.kernel.org>, Andrew Cooper <andrew.cooper3@citrix.com>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, LKML <linux-kernel@vger.kernel.org>, Sean Christopherson <sean.j.christopherson@intel.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>, X86 ML <x86@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 23, 2020 at 04:32:22PM +0100, Andrew Cooper wrote:
-> MSR_MCG_STATUS.MCIP, and yes - any #MC before that point will
-> immediately Shutdown.  Any #MC between that point and IRET will clobber
-> its IST stack and end up sad.
+On Tue, Jun 23, 2020 at 09:03:56AM -0700, Dave Hansen wrote:
+> On 6/23/20 8:52 AM, Peter Zijlstra wrote:
+> > Isn't current #MC unconditionally fatal from kernel? But yes, I was
+> > sorta aware people want that changed.
+> 
+> Not unconditionally.  copy_to_iter_mcsafe() is a good example of one
+> thing we _can_ handle.
 
-Well, at some point we should simply accept that we're living a little
-on the edge. That is, until we get IRET with a mask of to-reenable
-vectors which has #MC, NMI and whatever else vectors. It would be even
-better if that mask were configurable.
+Urgh, I thought that stuff was still pending.
 
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+Anyway, the important thing is that it is fatal if we hit early NMI.
+Which I think still holds.
