@@ -1,8 +1,8 @@
-From: Peter Zijlstra <peterz@infradead.org>
+From: Dave Hansen <dave.hansen@intel.com>
 Subject: Re: Should SEV-ES #VC use IST? (Re: [PATCH] Allow RDTSC and RDTSCP
  from userspace)
-Date: Tue, 23 Jun 2020 18:02:15 +0200
-Message-ID: <20200623160215.GP4817@hirez.programming.kicks-ass.net>
+Date: Tue, 23 Jun 2020 09:03:56 -0700
+Message-ID: <dae40b7b-e584-1ab4-2ebe-13526cdec946@intel.com>
 References: <20200623113007.GH31822@suse.de>
  <20200623114818.GD4817@hirez.programming.kicks-ass.net>
  <20200623120433.GB14101@suse.de>
@@ -12,40 +12,22 @@ References: <20200623113007.GH31822@suse.de>
  <20200623145344.GA117543@hirez.programming.kicks-ass.net>
  <20200623145914.GF14101@suse.de>
  <20200623152326.GL4817@hirez.programming.kicks-ass.net>
- <20200623153855.GM14101@suse.de>
+ <56af2f70-a1c6-aa64-006e-23f2f3880887@citrix.com>
+ <20200623155204.GO4817@hirez.programming.kicks-ass.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20200623153855.GM14101@suse.de>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Joerg Roedel <jroedel@suse.de>
-Cc: Juergen Gross <JGross@suse.com>, Tom Lendacky <Thomas.Lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, X86 ML <x86@kernel.org>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm list <kvm@vger.kernel.org>, Andrew Cooper <andrew.cooper3@citrix.com>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, LKML <linux-kernel@vger.kernel.org>, Sean Christopherson <sean.j.christopherson@intel.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Dave Hansen <dave.hansen@intel.com>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200623155204.GO4817@hirez.programming.kicks-ass.net>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Zijlstra <peterz@infradead.org>, Andrew Cooper <andrew.cooper3@citrix.com>
+Cc: Joerg Roedel <jroedel@suse.de>, Andy Lutomirski <luto@kernel.org>, Joerg Roedel <joro@8bytes.org>, Tom Lendacky <Thomas.Lendacky@amd.com>, Mike Stunes <mstunes@vmware.com>, Dan Williams <dan.j.williams@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Juergen Gross <JGross@suse.com>, Jiri Slaby <jslaby@suse.cz>, Kees Cook <keescook@chromium.org>, kvm list <kvm@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Thomas Hellstrom <thellstrom@vmware.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, X86 ML <x86@kernel.org>, Sean Christopherson <sean.j.christopherson@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 23, 2020 at 05:38:55PM +0200, Joerg Roedel wrote:
-> On Tue, Jun 23, 2020 at 05:23:26PM +0200, Peter Zijlstra wrote:
+On 6/23/20 8:52 AM, Peter Zijlstra wrote:
+> Isn't current #MC unconditionally fatal from kernel? But yes, I was
+> sorta aware people want that changed.
 
-> > Reliability of that depends on the unwinder, I wouldn't want the guess
-> > uwinder to OOPS me by accident.
-> 
-> It doesn't use the full unwinder, it just assumes that there is a
-> pt_regs struct at the top of every kernel stack and walks through them
-> until SP points to a user-space stack.
-> 
-> As long as the assumption that there is a pt_regs struct on top of every
-> stack holds, this should be safe. The assumption might be wrong when an
-> exception happens during SYSCALL/SYSENTER entry, when the return frame
-> is not written by hardware.
-
-The IRQ and SoftIRQ stacks don't have that I think. Only the task and
-exception stacks.
+Not unconditionally.  copy_to_iter_mcsafe() is a good example of one
+thing we _can_ handle.
