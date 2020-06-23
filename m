@@ -1,88 +1,66 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [RFC v9 02/11] vhost: use batched get_vq_desc version
-Date: Tue, 23 Jun 2020 10:42:06 -0400
-Message-ID: <20200623103746-mutt-send-email-mst@kernel.org>
-References: <20200619182302.850-1-eperezma@redhat.com>
- <20200619182302.850-3-eperezma@redhat.com>
+From: Joerg Roedel <jroedel@suse.de>
+Subject: Re: Should SEV-ES #VC use IST? (Re: [PATCH] Allow RDTSC and RDTSCP
+ from userspace)
+Date: Tue, 23 Jun 2020 16:49:40 +0200
+Message-ID: <20200623144940.GE14101@suse.de>
+References: <CALCETrW2Y6UFC=zvGbXEYqpsDyBh0DSEM4NQ+L=_pp4aOd6Fuw@mail.gmail.com>
+ <CALCETrXGr+o1_bKbnre8cVY14c_76m8pEf3iB_i7h+zfgE5_jA@mail.gmail.com>
+ <20200623094519.GF31822@suse.de>
+ <20200623104559.GA4817@hirez.programming.kicks-ass.net>
+ <20200623111107.GG31822@suse.de>
+ <20200623111443.GC4817@hirez.programming.kicks-ass.net>
+ <20200623114324.GA14101@suse.de>
+ <20200623115014.GE4817@hirez.programming.kicks-ass.net>
+ <20200623121237.GC14101@suse.de>
+ <20200623130322.GH4817@hirez.programming.kicks-ass.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-Return-path: <netdev-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200619182302.850-3-eperezma@redhat.com>
-Sender: netdev-owner@vger.kernel.org
-To: Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
-Cc: kvm list <kvm@vger.kernel.org>, Stefano Garzarella <sgarzare@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Jason Wang <jasowang@redhat.com>
+In-Reply-To: <20200623130322.GH4817@hirez.programming.kicks-ass.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Andy Lutomirski <luto@kernel.org>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@intel.com>, Tom Lendacky <Thomas.Lendacky@amd.com>, Mike Stunes <mstunes@vmware.com>, Dan Williams <dan.j.williams@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Juergen Gross <JGross@suse.com>, Jiri Slaby <jslaby@suse.cz>, Kees Cook <keescook@chromium.org>, kvm list <kvm@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Thomas Hellstrom <thellstrom@vmware.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, X86 ML <x86@kernel.org>, Sean Christopherson <sean.j.christopherson@intel.com>, Andrew Cooper <andrew.cooper3@citrix.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jun 19, 2020 at 08:22:53PM +0200, Eugenio Pérez wrote:
-> From: "Michael S. Tsirkin" <mst@redhat.com>
+On Tue, Jun 23, 2020 at 03:03:22PM +0200, Peter Zijlstra wrote:
+> On Tue, Jun 23, 2020 at 02:12:37PM +0200, Joerg Roedel wrote:
+> > On Tue, Jun 23, 2020 at 01:50:14PM +0200, Peter Zijlstra wrote:
+> > > If SNP is the sole reason #VC needs to be IST, then I'd strongly urge
+> > > you to only make it IST if/when you try and make SNP happen, not before.
+> > 
+> > It is not the only reason, when ES guests gain debug register support
+> > then #VC also needs to be IST, because #DB can be promoted into #VC
+> > then, and as #DB is IST for a reason, #VC needs to be too.
 > 
-> As testing shows no performance change, switch to that now.
+> Didn't I read somewhere that that is only so for Rome/Naples but not for
+> the later chips (Milan) which have #DB pass-through?
+
+Probably, not sure which chips will get debug register virtualization
+under SEV-ES. But even when it is supported, the HV can (and sometimes
+will) intercept #DB, which then causes it to be promoted to #VC.
+
+> We're talking about the 3rd case where the only reason things 'work' is
+> because we'll have to panic():
 > 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
-> Link: https://lore.kernel.org/r/20200401183118.8334-3-eperezma@redhat.com
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
-> ---
->  drivers/vhost/test.c  |   2 +-
->  drivers/vhost/vhost.c | 314 ++++++++----------------------------------
->  drivers/vhost/vhost.h |   7 +-
->  3 files changed, 61 insertions(+), 262 deletions(-)
-> 
-> diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
-> index a09dedc79f68..650e69261557 100644
-> --- a/drivers/vhost/test.c
-> +++ b/drivers/vhost/test.c
-> @@ -119,7 +119,7 @@ static int vhost_test_open(struct inode *inode, struct file *f)
->  	dev = &n->dev;
->  	vqs[VHOST_TEST_VQ] = &n->vqs[VHOST_TEST_VQ];
->  	n->vqs[VHOST_TEST_VQ].handle_kick = handle_vq_kick;
-> -	vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX, UIO_MAXIOV,
-> +	vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX, UIO_MAXIOV + 64,
->  		       VHOST_TEST_PKT_WEIGHT, VHOST_TEST_WEIGHT, true, NULL);
->  
->  	f->private_data = n;
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 2d784681b0fa..13021d6986eb 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -304,6 +304,7 @@ static void vhost_vq_reset(struct vhost_dev *dev,
->  {
->  	vq->num = 1;
->  	vq->ndescs = 0;
-> +	vq->first_desc = 0;
->  	vq->desc = NULL;
->  	vq->avail = NULL;
->  	vq->used = NULL;
-> @@ -372,6 +373,11 @@ static int vhost_worker(void *data)
->  	return 0;
->  }
->  
-> +static int vhost_vq_num_batch_descs(struct vhost_virtqueue *vq)
-> +{
-> +	return vq->max_descs - UIO_MAXIOV;
-> +}
-> +
->  static void vhost_vq_free_iovecs(struct vhost_virtqueue *vq)
->  {
->  	kfree(vq->descs);
+>  - #MC
+
+Okay, #MC is special and can only be handled on a best-effort basis, as
+#MC could happen anytime, also while already executing the #MC handler.
+
+>  - #DB with BUS LOCK DEBUG EXCEPTION
+
+If I understand the problem correctly, this can be solved by moving off
+the IST stack to the current task stack in the #DB handler, like I plan
+to do for #VC, no?
+
+>  - #VC SNP
+
+This has to panic for other reasons that can't be worked around. It
+boils down to detecting that the HV is doing something fishy and bail
+out to avoid further harm (like in the #MC handler).
 
 
-Batching is enabled if max_descs > UIO_MAXIOV.
+Regards,
 
-So this uses batching for test.
-
-But net is unchanged, so it is still not using the batched version.
-Is that right?
-
-I think a better subject would be "vhost/test: use batched get_vq_desc version".
-
-And that explains which testing it refers to: the one executed by vhost test.
-
-I think there was a separate patch to enable that for net separately,
-but it got lost - or did I miss it?
-
--- 
-MST
+	Joerg
