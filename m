@@ -1,52 +1,68 @@
-From: Peter Zijlstra <peterz@infradead.org>
+From: Andrew Cooper <andrew.cooper3@citrix.com>
 Subject: Re: Should SEV-ES #VC use IST? (Re: [PATCH] Allow RDTSC and RDTSCP
  from userspace)
-Date: Tue, 23 Jun 2020 17:23:26 +0200
-Message-ID: <20200623152326.GL4817@hirez.programming.kicks-ass.net>
-References: <20200428075512.GP30814@suse.de>
- <20200623110706.GB4817@hirez.programming.kicks-ass.net>
- <20200623113007.GH31822@suse.de>
- <20200623114818.GD4817@hirez.programming.kicks-ass.net>
- <20200623120433.GB14101@suse.de>
- <20200623125201.GG4817@hirez.programming.kicks-ass.net>
- <20200623134003.GD14101@suse.de>
- <20200623135916.GI4817@hirez.programming.kicks-ass.net>
- <20200623145344.GA117543@hirez.programming.kicks-ass.net>
- <20200623145914.GF14101@suse.de>
+Date: Tue, 23 Jun 2020 16:32:22 +0100
+Message-ID: <fe0af2c8-92c8-8d66-e9f3-5a50d64837e5@citrix.com>
+References: <CALCETrXGr+o1_bKbnre8cVY14c_76m8pEf3iB_i7h+zfgE5_jA@mail.gmail.com>
+ <20200623094519.GF31822@suse.de>
+ <20200623104559.GA4817@hirez.programming.kicks-ass.net>
+ <20200623111107.GG31822@suse.de>
+ <20200623111443.GC4817@hirez.programming.kicks-ass.net>
+ <20200623114324.GA14101@suse.de>
+ <20200623115014.GE4817@hirez.programming.kicks-ass.net>
+ <20200623121237.GC14101@suse.de>
+ <20200623130322.GH4817@hirez.programming.kicks-ass.net>
+ <20200623144940.GE14101@suse.de>
+ <20200623151607.GJ4817@hirez.programming.kicks-ass.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20200623145914.GF14101@suse.de>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Joerg Roedel <jroedel@suse.de>
-Cc: Juergen Gross <JGross@suse.com>, Tom Lendacky <Thomas.Lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, X86 ML <x86@kernel.org>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm list <kvm@vger.kernel.org>, Andrew Cooper <andrew.cooper3@citrix.com>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, LKML <linux-kernel@vger.kernel.org>, Sean Christopherson <sean.j.christopherson@intel.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Dave Hansen <dave.hansen@intel.com>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200623151607.GJ4817@hirez.programming.kicks-ass.net>
+Content-Language: en-GB
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Zijlstra <peterz@infradead.org>, Joerg Roedel <jroedel@suse.de>
+Cc: Andy Lutomirski <luto@kernel.org>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@intel.com>, Tom Lendacky <Thomas.Lendacky@amd.com>, Mike Stunes <mstunes@vmware.com>, Dan Williams <dan.j.williams@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Juergen Gross <JGross@suse.com>, Jiri Slaby <jslaby@suse.cz>, Kees Cook <keescook@chromium.org>, kvm list <kvm@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Thomas Hellstrom <thellstrom@vmware.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, X86 ML <x86@kernel.org>, Sean Christopherson <sean.j.christopherson@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 23, 2020 at 04:59:14PM +0200, Joerg Roedel wrote:
-> On Tue, Jun 23, 2020 at 04:53:44PM +0200, Peter Zijlstra wrote:
-> > +noinstr void idtentry_validate_ist(struct pt_regs *regs)
-> > +{
-> > +	if ((regs->sp & ~(EXCEPTION_STKSZ-1)) ==
-> > +	    (_RET_IP_ & ~(EXCEPTION_STKSZ-1)))
-> > +		die("IST stack recursion", regs, 0);
-> > +}
-> 
-> Yes, this is a start, it doesn't cover the case where the NMI stack is
-> in-between, so I think you need to walk down regs->sp too.
+On 23/06/2020 16:16, Peter Zijlstra wrote:
+> On Tue, Jun 23, 2020 at 04:49:40PM +0200, Joerg Roedel wrote:
+>>> We're talking about the 3rd case where the only reason things 'work' is
+>>> because we'll have to panic():
+>>>
+>>>  - #MC
+>> Okay, #MC is special and can only be handled on a best-effort basis, as
+>> #MC could happen anytime, also while already executing the #MC handler.
+> I think the hardware has a MCE-mask bit somewhere. Flaky though because
+> clearing it isn't 'atomic' with IRET, so there's a 'funny' window.
 
-That shouldn't be possible with the current code, I think.
+MSR_MCG_STATUS.MCIP, and yes - any #MC before that point will
+immediately Shutdown.  Any #MC between that point and IRET will clobber
+its IST stack and end up sad.
 
-> The dumpstack code already has some logic for this.
+> It also interacts really bad with the NMI handler. If we get an #MC
+> early in the NMI, where we hard-rely on the NMI-mask being set to set-up
+> the recursion stack, then the #MC IRET will clear the NMI-mask, and
+> we're toast.
+>
+> Andy has wild and crazy ideas, but I don't think we need more crazy
+> here.
 
-Reliability of that depends on the unwinder, I wouldn't want the guess
-uwinder to OOPS me by accident.
+Want, certainly not.  Need, maybe :-/
+>>>  - #DB with BUS LOCK DEBUG EXCEPTION
+>> If I understand the problem correctly, this can be solved by moving off
+>> the IST stack to the current task stack in the #DB handler, like I plan
+>> to do for #VC, no?
+> Hmm, probably. Would take a bit of care, but should be doable.
+
+Andy and I have spent some time considering this.
+
+Having exactly one vector move off IST and onto an in-use task-stack is
+doable, I think, so long as it can sort out self-recursion protections.
+
+Having more than one vector do this is very complicated.  You've got to
+take care to walk up the list of IST-nesting to see if any interrupted
+context is in the middle of trying to copy themselves onto the stack, so
+you don't clobber the frame they're in the middle of copying.
+
+~Andrew
