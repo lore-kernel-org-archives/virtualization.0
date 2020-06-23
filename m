@@ -1,8 +1,8 @@
-From: Joerg Roedel <jroedel@suse.de>
+From: Peter Zijlstra <peterz@infradead.org>
 Subject: Re: Should SEV-ES #VC use IST? (Re: [PATCH] Allow RDTSC and RDTSCP
  from userspace)
-Date: Tue, 23 Jun 2020 17:38:55 +0200
-Message-ID: <20200623153855.GM14101@suse.de>
+Date: Tue, 23 Jun 2020 17:38:44 +0200
+Message-ID: <20200623153844.GN4817@hirez.programming.kicks-ass.net>
 References: <20200623110706.GB4817@hirez.programming.kicks-ass.net>
  <20200623113007.GH31822@suse.de>
  <20200623114818.GD4817@hirez.programming.kicks-ass.net>
@@ -14,13 +14,22 @@ References: <20200623110706.GB4817@hirez.programming.kicks-ass.net>
  <20200623145914.GF14101@suse.de>
  <20200623152326.GL4817@hirez.programming.kicks-ass.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
 In-Reply-To: <20200623152326.GL4817@hirez.programming.kicks-ass.net>
-Sender: kvm-owner@vger.kernel.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Andy Lutomirski <luto@kernel.org>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@intel.com>, Tom Lendacky <Thomas.Lendacky@amd.com>, Mike Stunes <mstunes@vmware.com>, Dan Williams <dan.j.williams@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>, Juergen Gross <JGross@suse.com>, Jiri Slaby <jslaby@suse.cz>, Kees Cook <keescook@chromium.org>, kvm list <kvm@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>, Thomas Hellstrom <thellstrom@vmware.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, X86 ML <x86@kernel.org>, Sean Christopherson <sean.j.christopherson@intel.com>, Andrew Cooper <andrew.cooper3@citrix.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Joerg Roedel <jroedel@suse.de>
+Cc: Juergen Gross <JGross@suse.com>, Tom Lendacky <Thomas.Lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, X86 ML <x86@kernel.org>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm list <kvm@vger.kernel.org>, Andrew Cooper <andrew.cooper3@citrix.com>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, LKML <linux-kernel@vger.kernel.org>, Sean Christopherson <sean.j.christopherson@intel.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Dave Hansen <dave.hansen@intel.com>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
 On Tue, Jun 23, 2020 at 05:23:26PM +0200, Peter Zijlstra wrote:
@@ -38,29 +47,10 @@ On Tue, Jun 23, 2020 at 05:23:26PM +0200, Peter Zijlstra wrote:
 > 
 > That shouldn't be possible with the current code, I think.
 
-Not with the current code, but possibly with SNP #VC exceptions:
+To clarify, we have: NMI, MCE, DB and DF.
 
-      ->  First #VC
-	  -> NMI before VC handler switched off its IST stack
-	     (now on NMI IST stack)
-	      -> Second SNP #VC exception before the NMI handler did the
-		 #VC stack check (because HV messed around with some pages
-		 touched there).
+DF (with the exception of ESPFIX) is fatal.
+MCE from kernel is fatal (which is what makes the MCE in NMI 'work')
+NMI and DB clear DR7, which avoids DB in NMI.
 
-In the second #VC you use the same IST stack as in the first #VC, but
-the the NMI-stack in-between.
-
-> Reliability of that depends on the unwinder, I wouldn't want the guess
-> uwinder to OOPS me by accident.
-
-It doesn't use the full unwinder, it just assumes that there is a
-pt_regs struct at the top of every kernel stack and walks through them
-until SP points to a user-space stack.
-
-As long as the assumption that there is a pt_regs struct on top of every
-stack holds, this should be safe. The assumption might be wrong when an
-exception happens during SYSCALL/SYSENTER entry, when the return frame
-is not written by hardware.
-
-
-	Joerg
+So that leaves: NMI in DB, and that works.
