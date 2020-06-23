@@ -1,74 +1,51 @@
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Subject: Re: [PATCH RFC v8 02/11] vhost: use batched get_vq_desc version
-Date: Tue, 23 Jun 2020 17:54:00 +0200
-Message-ID: <CAJaqyWfKdOUwnG50a1ni=MBEwfM5qp-h+zj1xbT4xUbvKGP5iw@mail.gmail.com>
-References: <20200611113404.17810-1-mst@redhat.com> <20200611113404.17810-3-mst@redhat.com>
- <0332b0cf-cf00-9216-042c-e870efa33626@redhat.com> <20200622115946-mutt-send-email-mst@kernel.org>
- <c56cc86d-a420-79ca-8420-e99db91980fa@redhat.com> <CAJaqyWc3C_Td_SpV97CuemkQH9vH+EL3sGgeWGE82E5gYxZNCA@mail.gmail.com>
- <20200623042456-mutt-send-email-mst@kernel.org>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: Should SEV-ES #VC use IST? (Re: [PATCH] Allow RDTSC and RDTSCP
+ from userspace)
+Date: Tue, 23 Jun 2020 18:02:15 +0200
+Message-ID: <20200623160215.GP4817@hirez.programming.kicks-ass.net>
+References: <20200623113007.GH31822@suse.de>
+ <20200623114818.GD4817@hirez.programming.kicks-ass.net>
+ <20200623120433.GB14101@suse.de>
+ <20200623125201.GG4817@hirez.programming.kicks-ass.net>
+ <20200623134003.GD14101@suse.de>
+ <20200623135916.GI4817@hirez.programming.kicks-ass.net>
+ <20200623145344.GA117543@hirez.programming.kicks-ass.net>
+ <20200623145914.GF14101@suse.de>
+ <20200623152326.GL4817@hirez.programming.kicks-ass.net>
+ <20200623153855.GM14101@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20200623042456-mutt-send-email-mst@kernel.org>
-Sender: kvm-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org, kvm list <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20200623153855.GM14101@suse.de>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Joerg Roedel <jroedel@suse.de>
+Cc: Juergen Gross <JGross@suse.com>, Tom Lendacky <Thomas.Lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, X86 ML <x86@kernel.org>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm list <kvm@vger.kernel.org>, Andrew Cooper <andrew.cooper3@citrix.com>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, LKML <linux-kernel@vger.kernel.org>, Sean Christopherson <sean.j.christopherson@intel.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Dave Hansen <dave.hansen@intel.com>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 23, 2020 at 10:25 AM Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> On Tue, Jun 23, 2020 at 09:00:57AM +0200, Eugenio Perez Martin wrote:
-> > On Tue, Jun 23, 2020 at 4:51 AM Jason Wang <jasowang@redhat.com> wrote:
-> > >
-> > >
-> > > On 2020/6/23 =E4=B8=8A=E5=8D=8812:00, Michael S. Tsirkin wrote:
-> > > > On Wed, Jun 17, 2020 at 11:19:26AM +0800, Jason Wang wrote:
-> > > >> On 2020/6/11 =E4=B8=8B=E5=8D=887:34, Michael S. Tsirkin wrote:
-> > > >>>    static void vhost_vq_free_iovecs(struct vhost_virtqueue *vq)
-> > > >>>    {
-> > > >>>     kfree(vq->descs);
-> > > >>> @@ -394,6 +400,9 @@ static long vhost_dev_alloc_iovecs(struct vho=
-st_dev *dev)
-> > > >>>     for (i =3D 0; i < dev->nvqs; ++i) {
-> > > >>>             vq =3D dev->vqs[i];
-> > > >>>             vq->max_descs =3D dev->iov_limit;
-> > > >>> +           if (vhost_vq_num_batch_descs(vq) < 0) {
-> > > >>> +                   return -EINVAL;
-> > > >>> +           }
-> > > >> This check breaks vdpa which set iov_limit to zero. Consider iov_l=
-imit is
-> > > >> meaningless to vDPA, I wonder we can skip the test when device doe=
-sn't use
-> > > >> worker.
-> > > >>
-> > > >> Thanks
-> > > > It doesn't need iovecs at all, right?
-> > > >
-> > > > -- MST
-> > >
-> > >
-> > > Yes, so we may choose to bypass the iovecs as well.
-> > >
-> > > Thanks
-> > >
-> >
-> > I think that the kmalloc_array returns ZERO_SIZE_PTR for all of them
-> > in that case, so I didn't bother to skip the kmalloc_array parts.
-> > Would you prefer to skip them all and let them NULL? Or have I
-> > misunderstood what you mean?
-> >
-> > Thanks!
->
-> Sorry about being unclear. I just meant that it seems cleaner
-> to check for iov_limit being 0 not for worker thread.
+On Tue, Jun 23, 2020 at 05:38:55PM +0200, Joerg Roedel wrote:
+> On Tue, Jun 23, 2020 at 05:23:26PM +0200, Peter Zijlstra wrote:
 
-Actually yes, I also think that iov_limit =3D=3D 0 is a better check.
-Changing for the next revision if everyone agrees.
+> > Reliability of that depends on the unwinder, I wouldn't want the guess
+> > uwinder to OOPS me by accident.
+> 
+> It doesn't use the full unwinder, it just assumes that there is a
+> pt_regs struct at the top of every kernel stack and walks through them
+> until SP points to a user-space stack.
+> 
+> As long as the assumption that there is a pt_regs struct on top of every
+> stack holds, this should be safe. The assumption might be wrong when an
+> exception happens during SYSCALL/SYSENTER entry, when the return frame
+> is not written by hardware.
 
-Thanks!
-
->
-> --
-> MST
->
+The IRQ and SoftIRQ stacks don't have that I think. Only the task and
+exception stacks.
