@@ -1,24 +1,24 @@
-From: Peter Zijlstra <peterz@infradead.org>
+From: Joerg Roedel <jroedel@suse.de>
 Subject: Re: Should SEV-ES #VC use IST? (Re: [PATCH] Allow RDTSC and RDTSCP
  from userspace)
-Date: Tue, 23 Jun 2020 15:03:22 +0200
-Message-ID: <20200623130322.GH4817@hirez.programming.kicks-ass.net>
-References: <20200425202316.GL21900@8bytes.org>
+Date: Tue, 23 Jun 2020 15:40:03 +0200
+Message-ID: <20200623134003.GD14101@suse.de>
+References: <910AE5B4-4522-4133-99F7-64850181FBF9@amacapital.net>
+ <20200425202316.GL21900@8bytes.org>
  <CALCETrW2Y6UFC=zvGbXEYqpsDyBh0DSEM4NQ+L=_pp4aOd6Fuw@mail.gmail.com>
  <CALCETrXGr+o1_bKbnre8cVY14c_76m8pEf3iB_i7h+zfgE5_jA@mail.gmail.com>
- <20200623094519.GF31822@suse.de>
- <20200623104559.GA4817@hirez.programming.kicks-ass.net>
- <20200623111107.GG31822@suse.de>
- <20200623111443.GC4817@hirez.programming.kicks-ass.net>
- <20200623114324.GA14101@suse.de>
- <20200623115014.GE4817@hirez.programming.kicks-ass.net>
- <20200623121237.GC14101@suse.de>
+ <20200428075512.GP30814@suse.de>
+ <20200623110706.GB4817@hirez.programming.kicks-ass.net>
+ <20200623113007.GH31822@suse.de>
+ <20200623114818.GD4817@hirez.programming.kicks-ass.net>
+ <20200623120433.GB14101@suse.de>
+ <20200623125201.GG4817@hirez.programming.kicks-ass.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <20200623121237.GC14101@suse.de>
+In-Reply-To: <20200623125201.GG4817@hirez.programming.kicks-ass.net>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,38 +28,37 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Joerg Roedel <jroedel@suse.de>
+To: Peter Zijlstra <peterz@infradead.org>
 Cc: Juergen Gross <JGross@suse.com>, Tom Lendacky <Thomas.Lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, X86 ML <x86@kernel.org>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm list <kvm@vger.kernel.org>, Andrew Cooper <andrew.cooper3@citrix.com>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, LKML <linux-kernel@vger.kernel.org>, Sean Christopherson <sean.j.christopherson@intel.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Dave Hansen <dave.hansen@intel.com>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 23, 2020 at 02:12:37PM +0200, Joerg Roedel wrote:
-> On Tue, Jun 23, 2020 at 01:50:14PM +0200, Peter Zijlstra wrote:
-> > If SNP is the sole reason #VC needs to be IST, then I'd strongly urge
-> > you to only make it IST if/when you try and make SNP happen, not before.
+On Tue, Jun 23, 2020 at 02:52:01PM +0200, Peter Zijlstra wrote:
+> On Tue, Jun 23, 2020 at 02:04:33PM +0200, Joerg Roedel wrote:
+> > No, the recursion check is fine, because overwriting an already used IST
+> > stack doesn't matter (as long as it can be detected) if we are going to
+> > panic anyway. It doesn't matter because the kernel will not leave the
+> > currently running handler anymore.
 > 
-> It is not the only reason, when ES guests gain debug register support
-> then #VC also needs to be IST, because #DB can be promoted into #VC
-> then, and as #DB is IST for a reason, #VC needs to be too.
+> You only have that guarantee when any SNP #VC from kernel is an
+> automatic panic. But in that case, what's the point of having the
+> recursion count?
 
-Didn't I read somewhere that that is only so for Rome/Naples but not for
-the later chips (Milan) which have #DB pass-through?
+It is not a recursion count, it is a stack-recursion check. Basically
+walk down the stack and look if your current stack is already in use.
+Yes, this can be optimized, but that is what is needed.
 
-> Besides that, I am not a fan of delegating problems I already see coming
-> to future-Joerg and future-Peter, but if at all possible deal with them
-> now and be safe later.
+IIRC the current prototype code for SNP just pre-validates all memory in
+the VM and doesn't support moving pages around on the host. So any #VC
+SNP exception would be fatal, yes.
 
-Well, we could just say no :-) At some point in the very near future
-this house of cards is going to implode.
+In a scenario with on-demand validation of guest pages and support for
+guest-assisted page-moving on the HV side it would be more complicated.
+Basically all memory that is accessed during #VC exception handling must
+stay validated at all times, including the IST stack.
 
-We're talking about the 3rd case where the only reason things 'work' is
-because we'll have to panic():
+So saying this, I don't understand why _all_ SNP #VC exceptions from
+kernel space must be fatal?
 
- - #MC
- - #DB with BUS LOCK DEBUG EXCEPTION
- - #VC SNP
+Regards,
 
-(and it ain't a happy accident they're all IST)
-
-Did someone forget to pass the 'ISTs are *EVIL*' memo to the hardware
-folks? How come we're getting more and more of them? (/me puts fingers
-in ears and goes la-la-la-la in anticipation of Andrew mentioning CET)
+	Joerg
