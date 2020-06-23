@@ -1,61 +1,88 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: Should SEV-ES #VC use IST? (Re: [PATCH] Allow RDTSC and RDTSCP
- from userspace)
-Date: Tue, 23 Jun 2020 15:59:16 +0200
-Message-ID: <20200623135916.GI4817@hirez.programming.kicks-ass.net>
-References: <20200425202316.GL21900@8bytes.org>
- <CALCETrW2Y6UFC=zvGbXEYqpsDyBh0DSEM4NQ+L=_pp4aOd6Fuw@mail.gmail.com>
- <CALCETrXGr+o1_bKbnre8cVY14c_76m8pEf3iB_i7h+zfgE5_jA@mail.gmail.com>
- <20200428075512.GP30814@suse.de>
- <20200623110706.GB4817@hirez.programming.kicks-ass.net>
- <20200623113007.GH31822@suse.de>
- <20200623114818.GD4817@hirez.programming.kicks-ass.net>
- <20200623120433.GB14101@suse.de>
- <20200623125201.GG4817@hirez.programming.kicks-ass.net>
- <20200623134003.GD14101@suse.de>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC v9 02/11] vhost: use batched get_vq_desc version
+Date: Tue, 23 Jun 2020 10:42:06 -0400
+Message-ID: <20200623103746-mutt-send-email-mst@kernel.org>
+References: <20200619182302.850-1-eperezma@redhat.com>
+ <20200619182302.850-3-eperezma@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200623134003.GD14101@suse.de>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Joerg Roedel <jroedel@suse.de>
-Cc: Juergen Gross <JGross@suse.com>, Tom Lendacky <Thomas.Lendacky@amd.com>, Thomas Hellstrom <thellstrom@vmware.com>, X86 ML <x86@kernel.org>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm list <kvm@vger.kernel.org>, Andrew Cooper <andrew.cooper3@citrix.com>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, LKML <linux-kernel@vger.kernel.org>, Sean Christopherson <sean.j.christopherson@intel.com>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Dave Hansen <dave.hansen@intel.com>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
+In-Reply-To: <20200619182302.850-3-eperezma@redhat.com>
+Sender: netdev-owner@vger.kernel.org
+To: Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
+Cc: kvm list <kvm@vger.kernel.org>, Stefano Garzarella <sgarzare@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Jason Wang <jasowang@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 23, 2020 at 03:40:03PM +0200, Joerg Roedel wrote:
-> On Tue, Jun 23, 2020 at 02:52:01PM +0200, Peter Zijlstra wrote:
+On Fri, Jun 19, 2020 at 08:22:53PM +0200, Eugenio Pérez wrote:
+> From: "Michael S. Tsirkin" <mst@redhat.com>
+> 
+> As testing shows no performance change, switch to that now.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
+> Link: https://lore.kernel.org/r/20200401183118.8334-3-eperezma@redhat.com
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
+> ---
+>  drivers/vhost/test.c  |   2 +-
+>  drivers/vhost/vhost.c | 314 ++++++++----------------------------------
+>  drivers/vhost/vhost.h |   7 +-
+>  3 files changed, 61 insertions(+), 262 deletions(-)
+> 
+> diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
+> index a09dedc79f68..650e69261557 100644
+> --- a/drivers/vhost/test.c
+> +++ b/drivers/vhost/test.c
+> @@ -119,7 +119,7 @@ static int vhost_test_open(struct inode *inode, struct file *f)
+>  	dev = &n->dev;
+>  	vqs[VHOST_TEST_VQ] = &n->vqs[VHOST_TEST_VQ];
+>  	n->vqs[VHOST_TEST_VQ].handle_kick = handle_vq_kick;
+> -	vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX, UIO_MAXIOV,
+> +	vhost_dev_init(dev, vqs, VHOST_TEST_VQ_MAX, UIO_MAXIOV + 64,
+>  		       VHOST_TEST_PKT_WEIGHT, VHOST_TEST_WEIGHT, true, NULL);
+>  
+>  	f->private_data = n;
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 2d784681b0fa..13021d6986eb 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -304,6 +304,7 @@ static void vhost_vq_reset(struct vhost_dev *dev,
+>  {
+>  	vq->num = 1;
+>  	vq->ndescs = 0;
+> +	vq->first_desc = 0;
+>  	vq->desc = NULL;
+>  	vq->avail = NULL;
+>  	vq->used = NULL;
+> @@ -372,6 +373,11 @@ static int vhost_worker(void *data)
+>  	return 0;
+>  }
+>  
+> +static int vhost_vq_num_batch_descs(struct vhost_virtqueue *vq)
+> +{
+> +	return vq->max_descs - UIO_MAXIOV;
+> +}
+> +
+>  static void vhost_vq_free_iovecs(struct vhost_virtqueue *vq)
+>  {
+>  	kfree(vq->descs);
 
-> > You only have that guarantee when any SNP #VC from kernel is an
-> > automatic panic. But in that case, what's the point of having the
-> > recursion count?
-> 
-> It is not a recursion count, it is a stack-recursion check. Basically
-> walk down the stack and look if your current stack is already in use.
-> Yes, this can be optimized, but that is what is needed.
-> 
-> IIRC the current prototype code for SNP just pre-validates all memory in
-> the VM and doesn't support moving pages around on the host. So any #VC
-> SNP exception would be fatal, yes.
-> 
-> In a scenario with on-demand validation of guest pages and support for
-> guest-assisted page-moving on the HV side it would be more complicated.
-> Basically all memory that is accessed during #VC exception handling must
-> stay validated at all times, including the IST stack.
-> 
-> So saying this, I don't understand why _all_ SNP #VC exceptions from
-> kernel space must be fatal?
 
-Ah, because I hadn't thought of the stack-recursion check.
+Batching is enabled if max_descs > UIO_MAXIOV.
 
-So basically when your exception frame points to your own IST, you die.
-That sounds like something we should have in generic IST code.
+So this uses batching for test.
+
+But net is unchanged, so it is still not using the batched version.
+Is that right?
+
+I think a better subject would be "vhost/test: use batched get_vq_desc version".
+
+And that explains which testing it refers to: the one executed by vhost test.
+
+I think there was a separate patch to enable that for net separately,
+but it got lost - or did I miss it?
+
+-- 
+MST
