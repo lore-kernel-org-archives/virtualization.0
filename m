@@ -1,142 +1,192 @@
-From: "Michael S. Tsirkin" <mst-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH] xen: introduce xen_vring_use_dma
-Date: Wed, 24 Jun 2020 18:16:26 -0400
-Message-ID: <20200624181026-mutt-send-email-mst@kernel.org>
-References: <20200624091732.23944-1-peng.fan@nxp.com>
- <20200624050355-mutt-send-email-mst@kernel.org>
- <alpine.DEB.2.21.2006241047010.8121@sstabellini-ThinkPad-T480s>
- <20200624163940-mutt-send-email-mst@kernel.org>
- <alpine.DEB.2.21.2006241351430.8121@sstabellini-ThinkPad-T480s>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] virtio: VIRTIO_F_IOMMU_PLATFORM -> VIRTIO_F_ACCESS_PLATFORM
+Date: Wed, 24 Jun 2020 18:25:47 -0400
+Message-ID: <20200624222540.584772-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-In-Reply-To: <alpine.DEB.2.21.2006241351430.8121@sstabellini-ThinkPad-T480s>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/iommu>,
- <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/iommu/>
-List-Post: <mailto:iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-List-Help: <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/iommu>,
- <mailto:iommu-request-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org?subject=subscribe>
-Errors-To: iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-Sender: "iommu" <iommu-bounces-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>
-To: Stefano Stabellini <sstabellini-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: jgross-IBi9RG/b67k@public.gmane.org, Peng Fan <peng.fan-3arQi8VN3Tc@public.gmane.org>, konrad.wilk-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org, jasowang-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org, x86-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, linux-imx-3arQi8VN3Tc@public.gmane.org, xen-devel-GuqFBffKawtpuQazS67q72D2FQJk+8+b@public.gmane.org, boris.ostrovsky-QHcLZuEGTsvQT0dZR+AlfA@public.gmane.org, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org
+Sender: netdev-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, Jason Wang <jasowang@redhat.com>, David Hildenbrand <david@redhat.com>, linux-um@lists.infradead.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jun 24, 2020 at 02:53:54PM -0700, Stefano Stabellini wrote:
-> On Wed, 24 Jun 2020, Michael S. Tsirkin wrote:
-> > On Wed, Jun 24, 2020 at 10:59:47AM -0700, Stefano Stabellini wrote:
-> > > On Wed, 24 Jun 2020, Michael S. Tsirkin wrote:
-> > > > On Wed, Jun 24, 2020 at 05:17:32PM +0800, Peng Fan wrote:
-> > > > > Export xen_swiotlb for all platforms using xen swiotlb
-> > > > > 
-> > > > > Use xen_swiotlb to determine when vring should use dma APIs to map the
-> > > > > ring: when xen_swiotlb is enabled the dma API is required. When it is
-> > > > > disabled, it is not required.
-> > > > > 
-> > > > > Signed-off-by: Peng Fan <peng.fan-3arQi8VN3Tc@public.gmane.org>
-> > > > 
-> > > > Isn't there some way to use VIRTIO_F_IOMMU_PLATFORM for this?
-> > > > Xen was there first, but everyone else is using that now.
-> > > 
-> > > Unfortunately it is complicated and it is not related to
-> > > VIRTIO_F_IOMMU_PLATFORM :-(
-> > > 
-> > > 
-> > > The Xen subsystem in Linux uses dma_ops via swiotlb_xen to translate
-> > > foreign mappings (memory coming from other VMs) to physical addresses.
-> > > On x86, it also uses dma_ops to translate Linux's idea of a physical
-> > > address into a real physical address (this is unneeded on ARM.)
-> > > 
-> > > 
-> > > So regardless of VIRTIO_F_IOMMU_PLATFORM, dma_ops should be used on Xen/x86
-> > > always and on Xen/ARM if Linux is Dom0 (because it has foreign
-> > > mappings.) That is why we have the if (xen_domain) return true; in
-> > > vring_use_dma_api.
-> > 
-> > VIRTIO_F_IOMMU_PLATFORM makes guest always use DMA ops.
-> > 
-> > Xen hack predates VIRTIO_F_IOMMU_PLATFORM so it *also*
-> > forces DMA ops even if VIRTIO_F_IOMMU_PLATFORM is clear.
-> >
-> > Unfortunately as a result Xen never got around to
-> > properly setting VIRTIO_F_IOMMU_PLATFORM.
-> 
-> I don't think VIRTIO_F_IOMMU_PLATFORM would be correct for this because
-> the usage of swiotlb_xen is not a property of virtio,
+Rename the bit to match latest virtio spec.
+Add a compat macro to avoid breaking existing userspace.
 
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ arch/um/drivers/virtio_uml.c       |  2 +-
+ drivers/vdpa/ifcvf/ifcvf_base.h    |  2 +-
+ drivers/vdpa/vdpa_sim/vdpa_sim.c   |  4 ++--
+ drivers/vhost/net.c                |  4 ++--
+ drivers/vhost/vdpa.c               |  2 +-
+ drivers/virtio/virtio_balloon.c    |  2 +-
+ drivers/virtio/virtio_ring.c       |  2 +-
+ include/linux/virtio_config.h      |  2 +-
+ include/uapi/linux/virtio_config.h | 10 +++++++---
+ tools/virtio/linux/virtio_config.h |  2 +-
+ 10 files changed, 18 insertions(+), 14 deletions(-)
 
-Basically any device without VIRTIO_F_ACCESS_PLATFORM
-(that is it's name in latest virtio spec, VIRTIO_F_IOMMU_PLATFORM is
-what linux calls it) is declared as "special, don't follow normal rules
-for access".
-
-So yes swiotlb_xen is not a property of virtio, but what *is* a property
-of virtio is that it's not special, just a regular device from DMA POV.
-
-
-> it is a detail of
-> the way Linux does Xen address translations. swiotlb-xen is used to do
-> these translations and it is hooked into the dma_ops framework.
-> 
-> It would be possible to have a device in hardware that is
-> virtio-compatible and doesn't set VIRTIO_F_IOMMU_PLATFORM.
-
-That device would be basically broken, since hardware
-can't know whether it can access all memory or not.
-
-> The device
-> could be directly assigned (passthrough) to a DomU. We would still
-> have to use swiotlb_xen if Xen is running.
-> 
-> You should think of swiotlb-xen as only internal to Linux and not
-> related to whether the (virtual or non-virtual) hardware comes with an
-> IOMMU or not.
-
-IOMMU is a misnomer here.  Virtio spec now calls this bit
-VIRTIO_F_ACCESS_PLATFORM. We should have done the same a while ago -
-I'll send a patch.
-
-> 
-> > > You might have noticed that I missed one possible case above: Xen/ARM
-> > > DomU :-)
-> > > 
-> > > Xen/ARM domUs don't need swiotlb_xen, it is not even initialized. So if
-> > > (xen_domain) return true; would give the wrong answer in that case.
-> > > Linux would end up calling the "normal" dma_ops, not swiotlb-xen, and
-> > > the "normal" dma_ops fail.
-> > > 
-> > > 
-> > > The solution I suggested was to make the check in vring_use_dma_api more
-> > > flexible by returning true if the swiotlb_xen is supposed to be used,
-> > > not in general for all Xen domains, because that is what the check was
-> > > really meant to do.
-> > 
-> > Why not fix DMA ops so they DTRT (nop) on Xen/ARM DomU? What is wrong with that?
-> 
-> swiotlb-xen is not used on Xen/ARM DomU, the default dma_ops are the
-> ones that are used. So you are saying, why don't we fix the default
-> dma_ops to work with virtio?
-> 
-> It is bad that the default dma_ops crash with virtio, so yes I think it
-> would be good to fix that. However, even if we fixed that, the if
-> (xen_domain()) check in vring_use_dma_api is still a problem.
-
-Why is it a problem? It just makes virtio use DMA API.
-If that in turn works, problem solved.
-
-
-
-> 
-> Alternatively we could try to work-around it from swiotlb-xen. We could
-> enable swiotlb-xen for Xen/ARM DomUs with a different implementation so
-> that we could leave the vring_use_dma_api check unmodified.
-> 
-> It would be ugly because we would have to figure out from the new
-> swiotlb-xen functions if the device is a normal device, so we have to
-> call the regular dma_ops functions, or if the device is a virtio device,
-> in which case there is nothing to do. I think it is undesirable but
-> could probably be made to work.
+diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
+index 351aee52aca6..a6c4bb6c2c01 100644
+--- a/arch/um/drivers/virtio_uml.c
++++ b/arch/um/drivers/virtio_uml.c
+@@ -385,7 +385,7 @@ static irqreturn_t vu_req_interrupt(int irq, void *data)
+ 		}
+ 		break;
+ 	case VHOST_USER_SLAVE_IOTLB_MSG:
+-		/* not supported - VIRTIO_F_IOMMU_PLATFORM */
++		/* not supported - VIRTIO_F_ACCESS_PLATFORM */
+ 	case VHOST_USER_SLAVE_VRING_HOST_NOTIFIER_MSG:
+ 		/* not supported - VHOST_USER_PROTOCOL_F_HOST_NOTIFIER */
+ 	default:
+diff --git a/drivers/vdpa/ifcvf/ifcvf_base.h b/drivers/vdpa/ifcvf/ifcvf_base.h
+index f4554412e607..24af422b5a3e 100644
+--- a/drivers/vdpa/ifcvf/ifcvf_base.h
++++ b/drivers/vdpa/ifcvf/ifcvf_base.h
+@@ -29,7 +29,7 @@
+ 		 (1ULL << VIRTIO_F_VERSION_1)			| \
+ 		 (1ULL << VIRTIO_NET_F_STATUS)			| \
+ 		 (1ULL << VIRTIO_F_ORDER_PLATFORM)		| \
+-		 (1ULL << VIRTIO_F_IOMMU_PLATFORM)		| \
++		 (1ULL << VIRTIO_F_ACCESS_PLATFORM)		| \
+ 		 (1ULL << VIRTIO_NET_F_MRG_RXBUF))
+ 
+ /* Only one queue pair for now. */
+diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+index c7334cc65bb2..a9bc5e0fb353 100644
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+@@ -55,7 +55,7 @@ struct vdpasim_virtqueue {
+ 
+ static u64 vdpasim_features = (1ULL << VIRTIO_F_ANY_LAYOUT) |
+ 			      (1ULL << VIRTIO_F_VERSION_1)  |
+-			      (1ULL << VIRTIO_F_IOMMU_PLATFORM);
++			      (1ULL << VIRTIO_F_ACCESS_PLATFORM);
+ 
+ /* State of each vdpasim device */
+ struct vdpasim {
+@@ -450,7 +450,7 @@ static int vdpasim_set_features(struct vdpa_device *vdpa, u64 features)
+ 	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
+ 
+ 	/* DMA mapping must be done by driver */
+-	if (!(features & (1ULL << VIRTIO_F_IOMMU_PLATFORM)))
++	if (!(features & (1ULL << VIRTIO_F_ACCESS_PLATFORM)))
+ 		return -EINVAL;
+ 
+ 	vdpasim->features = features & vdpasim_features;
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index e992decfec53..8e0921d3805d 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -73,7 +73,7 @@ enum {
+ 	VHOST_NET_FEATURES = VHOST_FEATURES |
+ 			 (1ULL << VHOST_NET_F_VIRTIO_NET_HDR) |
+ 			 (1ULL << VIRTIO_NET_F_MRG_RXBUF) |
+-			 (1ULL << VIRTIO_F_IOMMU_PLATFORM)
++			 (1ULL << VIRTIO_F_ACCESS_PLATFORM)
+ };
+ 
+ enum {
+@@ -1653,7 +1653,7 @@ static int vhost_net_set_features(struct vhost_net *n, u64 features)
+ 	    !vhost_log_access_ok(&n->dev))
+ 		goto out_unlock;
+ 
+-	if ((features & (1ULL << VIRTIO_F_IOMMU_PLATFORM))) {
++	if ((features & (1ULL << VIRTIO_F_ACCESS_PLATFORM))) {
+ 		if (vhost_init_device_iotlb(&n->dev, true))
+ 			goto out_unlock;
+ 	}
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index a54b60d6623f..18869a35d408 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -31,7 +31,7 @@ enum {
+ 		(1ULL << VIRTIO_F_NOTIFY_ON_EMPTY) |
+ 		(1ULL << VIRTIO_F_ANY_LAYOUT) |
+ 		(1ULL << VIRTIO_F_VERSION_1) |
+-		(1ULL << VIRTIO_F_IOMMU_PLATFORM) |
++		(1ULL << VIRTIO_F_ACCESS_PLATFORM) |
+ 		(1ULL << VIRTIO_F_RING_PACKED) |
+ 		(1ULL << VIRTIO_F_ORDER_PLATFORM) |
+ 		(1ULL << VIRTIO_RING_F_INDIRECT_DESC) |
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 1f157d2f4952..fc7301406540 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -1120,7 +1120,7 @@ static int virtballoon_validate(struct virtio_device *vdev)
+ 	else if (!virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON))
+ 		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
+ 
+-	__virtio_clear_bit(vdev, VIRTIO_F_IOMMU_PLATFORM);
++	__virtio_clear_bit(vdev, VIRTIO_F_ACCESS_PLATFORM);
+ 	return 0;
+ }
+ 
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 58b96baa8d48..a1a5c2a91426 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -2225,7 +2225,7 @@ void vring_transport_features(struct virtio_device *vdev)
+ 			break;
+ 		case VIRTIO_F_VERSION_1:
+ 			break;
+-		case VIRTIO_F_IOMMU_PLATFORM:
++		case VIRTIO_F_ACCESS_PLATFORM:
+ 			break;
+ 		case VIRTIO_F_RING_PACKED:
+ 			break;
+diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+index bb4cc4910750..f2cc2a0df174 100644
+--- a/include/linux/virtio_config.h
++++ b/include/linux/virtio_config.h
+@@ -171,7 +171,7 @@ static inline bool virtio_has_iommu_quirk(const struct virtio_device *vdev)
+ 	 * Note the reverse polarity of the quirk feature (compared to most
+ 	 * other features), this is for compatibility with legacy systems.
+ 	 */
+-	return !virtio_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM);
++	return !virtio_has_feature(vdev, VIRTIO_F_ACCESS_PLATFORM);
+ }
+ 
+ static inline
+diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
+index ff8e7dc9d4dd..b5eda06f0d57 100644
+--- a/include/uapi/linux/virtio_config.h
++++ b/include/uapi/linux/virtio_config.h
+@@ -67,13 +67,17 @@
+ #define VIRTIO_F_VERSION_1		32
+ 
+ /*
+- * If clear - device has the IOMMU bypass quirk feature.
+- * If set - use platform tools to detect the IOMMU.
++ * If clear - device has the platform DMA (e.g. IOMMU) bypass quirk feature.
++ * If set - use platform DMA tools to access the memory.
+  *
+  * Note the reverse polarity (compared to most other features),
+  * this is for compatibility with legacy systems.
+  */
+-#define VIRTIO_F_IOMMU_PLATFORM		33
++#define VIRTIO_F_ACCESS_PLATFORM	33
++#ifndef __KERNEL__
++/* Legacy name for VIRTIO_F_ACCESS_PLATFORM (for compatibility with old userspace) */
++#define VIRTIO_F_IOMMU_PLATFORM		VIRTIO_F_ACCESS_PLATFORM
++#endif /* __KERNEL__ */
+ 
+ /* This feature indicates support for the packed virtqueue layout. */
+ #define VIRTIO_F_RING_PACKED		34
+diff --git a/tools/virtio/linux/virtio_config.h b/tools/virtio/linux/virtio_config.h
+index dbf14c1e2188..f99ae42668e0 100644
+--- a/tools/virtio/linux/virtio_config.h
++++ b/tools/virtio/linux/virtio_config.h
+@@ -51,7 +51,7 @@ static inline bool virtio_has_iommu_quirk(const struct virtio_device *vdev)
+ 	 * Note the reverse polarity of the quirk feature (compared to most
+ 	 * other features), this is for compatibility with legacy systems.
+ 	 */
+-	return !virtio_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM);
++	return !virtio_has_feature(vdev, VIRTIO_F_ACCESS_PLATFORM);
+ }
+ 
+ static inline bool virtio_is_little_endian(struct virtio_device *vdev)
+-- 
+MST
