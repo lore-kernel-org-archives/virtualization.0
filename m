@@ -1,107 +1,130 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: [RFC 2/3] virtio_ring: use NUMA-aware memory allocation in probe
-Date: Thu, 25 Jun 2020 14:57:51 +0100
-Message-ID: <20200625135752.227293-3-stefanha@redhat.com>
-References: <20200625135752.227293-1-stefanha@redhat.com>
+From: Stefano Stabellini <sstabellini@kernel.org>
+Subject: Re: [PATCH] xen: introduce xen_vring_use_dma
+Date: Thu, 25 Jun 2020 10:31:27 -0700 (PDT)
+Message-ID: <alpine.DEB.2.21.2006251014230.8121@sstabellini-ThinkPad-T480s>
+References: <20200624091732.23944-1-peng.fan@nxp.com> <20200624050355-mutt-send-email-mst@kernel.org> <alpine.DEB.2.21.2006241047010.8121@sstabellini-ThinkPad-T480s> <20200624163940-mutt-send-email-mst@kernel.org> <alpine.DEB.2.21.2006241351430.8121@sstabellini-ThinkPad-T480s>
+ <20200624181026-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: base64
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20200625135752.227293-1-stefanha@redhat.com>
-Sender: kvm-owner@vger.kernel.org
-To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200624181026-mutt-send-email-mst@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Stefano Stabellini <sstabellini@kernel.org>, Peng Fan <peng.fan@nxp.com>, boris.ostrovsky@oracle.com, jgross@suse.com, konrad.wilk@oracle.com, jasowang@redhat.com, x86@kernel.org, xen-devel@lists.xenproject.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, iommu@lists.linux-foundation.org, virtualization@lists.linux-foundation.org, linux-imx@nxp.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-QWxsb2NhdGUgZnJlcXVlbnRseS1hY2Nlc3NlZCBkYXRhIHN0cnVjdHVyZXMgZnJvbSB0aGUgTlVN
-QSBub2RlCmFzc29jaWF0ZWQgd2l0aCB0aGlzIGRldmljZSB0byBhdm9pZCBzbG93IGNyb3NzLU5V
-TUEgbm9kZSBtZW1vcnkKYWNjZXNzZXMuCgpPbmx5IHRoZSBmb2xsb3dpbmcgbWVtb3J5IGFsbG9j
-YXRpb25zIGFyZSBtYWRlIE5VTUEtYXdhcmU6CgoxLiBDYWxsZWQgZHVyaW5nIHByb2JlLiBJZiBj
-YWxsZWQgaW4gdGhlIGRhdGEgcGF0aCB0aGVuIGhvcGVmdWxseSB3ZSdyZQogICBleGVjdXRpbmcg
-b24gYSBDUFUgaW4gdGhlIHNhbWUgTlVNQSBub2RlIGFzIHRoZSBkZXZpY2UuIElmIHRoZSBDUFUg
-aXMKICAgbm90IGluIHRoZSByaWdodCBOVU1BIG5vZGUgdGhlbiBpdCdzIHVuY2xlYXIgd2hldGhl
-ciBmb3JjaW5nIG1lbW9yeQogICBhbGxvY2F0aW9ucyB0byB1c2UgdGhlIGRldmljZSdzIE5VTUEg
-bm9kZSB3aWxsIGluY3JlYXNlIG9yIGRlY3JlYXNlCiAgIHBlcmZvcm1hbmNlLgoKMi4gTWVtb3J5
-IHdpbGwgYmUgZnJlcXVlbnRseSBhY2Nlc3NlZCBmcm9tIHRoZSBkYXRhIHBhdGguIFRoZXJlIGlz
-IG5vCiAgIG5lZWQgdG8gd29ycnkgYWJvdXQgZGF0YSB0aGF0IGlzIG5vdCBhY2Nlc3NlZCBmcm9t
-CiAgIHBlcmZvcm1hbmNlLWNyaXRpY2FsIGNvZGUgcGF0aHMuCgpUaGlzIHBhdGNoIGFkZHMgYSBu
-b24tbWVtaW5pdCBhbGxvY19wYWdlc19leGFjdF9uaWQoKSBjYWxsZXIgc28gSSd2ZQpyZW1vdmVk
-IHRoZSBfX21lbWluaXQgYWRkZWQgYnkgY29tbWl0IGUxOTMxODExNjA0OCAoIm1tL3BhZ2VfYWxs
-b2MuYzoKYWRkIF9fbWVtaW5pdCB0byBhbGxvY19wYWdlc19leGFjdF9uaWQoKSIpLgoKQ2M6IEZh
-YmlhbiBGcmVkZXJpY2sgPGZhYmZAc2t5bmV0LmJlPgpDYzogQW5kcmV3IE1vcnRvbiA8YWtwbUBs
-aW51eC1mb3VuZGF0aW9uLm9yZz4KQ2M6IE1lbCBHb3JtYW4gPG1nb3JtYW5Ac3VzZS5kZT4KU2ln
-bmVkLW9mZi1ieTogU3RlZmFuIEhham5vY3ppIDxzdGVmYW5oYUByZWRoYXQuY29tPgotLS0KSSBo
-YXZlIGluY2x1ZGVkIHRoZSBhbGxvY19wYWdlc19leGFjdF9uaWQoKSBfX21lbWluaXQgcmVtb3Zh
-bCBpbiB0aGlzCnBhdGNoIHRvIHByb3ZpZGUgY29udGV4dCBmb3IgcmV2aWV3ZXJzLgotLS0KIGlu
-Y2x1ZGUvbGludXgvZ2ZwLmggICAgICAgICAgfCAgMiArLQogZHJpdmVycy92aXJ0aW8vdmlydGlv
-X3JpbmcuYyB8IDI2ICsrKysrKysrKysrKysrKysrLS0tLS0tLS0tCiBtbS9wYWdlX2FsbG9jLmMg
-ICAgICAgICAgICAgIHwgIDIgKy0KIDMgZmlsZXMgY2hhbmdlZCwgMTkgaW5zZXJ0aW9ucygrKSwg
-MTEgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC9nZnAuaCBiL2luY2x1
-ZGUvbGludXgvZ2ZwLmgKaW5kZXggNGFiYTRjODZjNjI2Li45YjY5ZGY3MDdjN2EgMTAwNjQ0Ci0t
-LSBhL2luY2x1ZGUvbGludXgvZ2ZwLmgKKysrIGIvaW5jbHVkZS9saW51eC9nZnAuaApAQCAtNTYz
-LDcgKzU2Myw3IEBAIGV4dGVybiB1bnNpZ25lZCBsb25nIGdldF96ZXJvZWRfcGFnZShnZnBfdCBn
-ZnBfbWFzayk7CiAKIHZvaWQgKmFsbG9jX3BhZ2VzX2V4YWN0KHNpemVfdCBzaXplLCBnZnBfdCBn
-ZnBfbWFzayk7CiB2b2lkIGZyZWVfcGFnZXNfZXhhY3Qodm9pZCAqdmlydCwgc2l6ZV90IHNpemUp
-Owotdm9pZCAqIF9fbWVtaW5pdCBhbGxvY19wYWdlc19leGFjdF9uaWQoaW50IG5pZCwgc2l6ZV90
-IHNpemUsIGdmcF90IGdmcF9tYXNrKTsKK3ZvaWQgKmFsbG9jX3BhZ2VzX2V4YWN0X25pZChpbnQg
-bmlkLCBzaXplX3Qgc2l6ZSwgZ2ZwX3QgZ2ZwX21hc2spOwogCiAjZGVmaW5lIF9fZ2V0X2ZyZWVf
-cGFnZShnZnBfbWFzaykgXAogCQlfX2dldF9mcmVlX3BhZ2VzKChnZnBfbWFzayksIDApCmRpZmYg
-LS1naXQgYS9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jIGIvZHJpdmVycy92aXJ0aW8vdmly
-dGlvX3JpbmcuYwppbmRleCA1OGI5NmJhYThkNDguLmQwNmI0MjMwOWJlZCAxMDA2NDQKLS0tIGEv
-ZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYworKysgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9f
-cmluZy5jCkBAIC0yNzYsNyArMjc2LDkgQEAgc3RhdGljIHZvaWQgKnZyaW5nX2FsbG9jX3F1ZXVl
-KHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2LCBzaXplX3Qgc2l6ZSwKIAkJcmV0dXJuIGRtYV9h
-bGxvY19jb2hlcmVudCh2ZGV2LT5kZXYucGFyZW50LCBzaXplLAogCQkJCQkgIGRtYV9oYW5kbGUs
-IGZsYWcpOwogCX0gZWxzZSB7Ci0JCXZvaWQgKnF1ZXVlID0gYWxsb2NfcGFnZXNfZXhhY3QoUEFH
-RV9BTElHTihzaXplKSwgZmxhZyk7CisJCWludCBub2RlID0gZGV2X3RvX25vZGUoJnZkZXYtPmRl
-dik7CisJCXZvaWQgKnF1ZXVlID0gYWxsb2NfcGFnZXNfZXhhY3RfbmlkKG5vZGUsIFBBR0VfQUxJ
-R04oc2l6ZSksCisJCQkJCQkgICAgZmxhZyk7CiAKIAkJaWYgKHF1ZXVlKSB7CiAJCQlwaHlzX2Fk
-ZHJfdCBwaHlzX2FkZHIgPSB2aXJ0X3RvX3BoeXMocXVldWUpOwpAQCAtMTU2Nyw2ICsxNTY5LDcg
-QEAgc3RhdGljIHN0cnVjdCB2aXJ0cXVldWUgKnZyaW5nX2NyZWF0ZV92aXJ0cXVldWVfcGFja2Vk
-KAogCXN0cnVjdCB2cmluZ19wYWNrZWRfZGVzY19ldmVudCAqZHJpdmVyLCAqZGV2aWNlOwogCWRt
-YV9hZGRyX3QgcmluZ19kbWFfYWRkciwgZHJpdmVyX2V2ZW50X2RtYV9hZGRyLCBkZXZpY2VfZXZl
-bnRfZG1hX2FkZHI7CiAJc2l6ZV90IHJpbmdfc2l6ZV9pbl9ieXRlcywgZXZlbnRfc2l6ZV9pbl9i
-eXRlczsKKwlpbnQgbm9kZSA9IGRldl90b19ub2RlKCZ2ZGV2LT5kZXYpOwogCXVuc2lnbmVkIGlu
-dCBpOwogCiAJcmluZ19zaXplX2luX2J5dGVzID0gbnVtICogc2l6ZW9mKHN0cnVjdCB2cmluZ19w
-YWNrZWRfZGVzYyk7CkBAIC0xNTkxLDcgKzE1OTQsNyBAQCBzdGF0aWMgc3RydWN0IHZpcnRxdWV1
-ZSAqdnJpbmdfY3JlYXRlX3ZpcnRxdWV1ZV9wYWNrZWQoCiAJaWYgKCFkZXZpY2UpCiAJCWdvdG8g
-ZXJyX2RldmljZTsKIAotCXZxID0ga21hbGxvYyhzaXplb2YoKnZxKSwgR0ZQX0tFUk5FTCk7CisJ
-dnEgPSBrbWFsbG9jX25vZGUoc2l6ZW9mKCp2cSksIEdGUF9LRVJORUwsIG5vZGUpOwogCWlmICgh
-dnEpCiAJCWdvdG8gZXJyX3ZxOwogCkBAIC0xNjM5LDkgKzE2NDIsMTAgQEAgc3RhdGljIHN0cnVj
-dCB2aXJ0cXVldWUgKnZyaW5nX2NyZWF0ZV92aXJ0cXVldWVfcGFja2VkKAogCXZxLT5wYWNrZWQu
-ZXZlbnRfZmxhZ3Nfc2hhZG93ID0gMDsKIAl2cS0+cGFja2VkLmF2YWlsX3VzZWRfZmxhZ3MgPSAx
-IDw8IFZSSU5HX1BBQ0tFRF9ERVNDX0ZfQVZBSUw7CiAKLQl2cS0+cGFja2VkLmRlc2Nfc3RhdGUg
-PSBrbWFsbG9jX2FycmF5KG51bSwKKwl2cS0+cGFja2VkLmRlc2Nfc3RhdGUgPSBrbWFsbG9jX2Fy
-cmF5X25vZGUobnVtLAogCQkJc2l6ZW9mKHN0cnVjdCB2cmluZ19kZXNjX3N0YXRlX3BhY2tlZCks
-Ci0JCQlHRlBfS0VSTkVMKTsKKwkJCUdGUF9LRVJORUwsCisJCQlub2RlKTsKIAlpZiAoIXZxLT5w
-YWNrZWQuZGVzY19zdGF0ZSkKIAkJZ290byBlcnJfZGVzY19zdGF0ZTsKIApAQCAtMTY1Myw5ICsx
-NjU3LDEwIEBAIHN0YXRpYyBzdHJ1Y3QgdmlydHF1ZXVlICp2cmluZ19jcmVhdGVfdmlydHF1ZXVl
-X3BhY2tlZCgKIAlmb3IgKGkgPSAwOyBpIDwgbnVtLTE7IGkrKykKIAkJdnEtPnBhY2tlZC5kZXNj
-X3N0YXRlW2ldLm5leHQgPSBpICsgMTsKIAotCXZxLT5wYWNrZWQuZGVzY19leHRyYSA9IGttYWxs
-b2NfYXJyYXkobnVtLAorCXZxLT5wYWNrZWQuZGVzY19leHRyYSA9IGttYWxsb2NfYXJyYXlfbm9k
-ZShudW0sCiAJCQlzaXplb2Yoc3RydWN0IHZyaW5nX2Rlc2NfZXh0cmFfcGFja2VkKSwKLQkJCUdG
-UF9LRVJORUwpOworCQkJR0ZQX0tFUk5FTCwKKwkJCW5vZGUpOwogCWlmICghdnEtPnBhY2tlZC5k
-ZXNjX2V4dHJhKQogCQlnb3RvIGVycl9kZXNjX2V4dHJhOwogCkBAIC0yMDU5LDEzICsyMDY0LDE0
-IEBAIHN0cnVjdCB2aXJ0cXVldWUgKl9fdnJpbmdfbmV3X3ZpcnRxdWV1ZSh1bnNpZ25lZCBpbnQg
-aW5kZXgsCiAJCQkJCXZvaWQgKCpjYWxsYmFjaykoc3RydWN0IHZpcnRxdWV1ZSAqKSwKIAkJCQkJ
-Y29uc3QgY2hhciAqbmFtZSkKIHsKKwlpbnQgbm9kZSA9IGRldl90b19ub2RlKCZ2ZGV2LT5kZXYp
-OwogCXVuc2lnbmVkIGludCBpOwogCXN0cnVjdCB2cmluZ192aXJ0cXVldWUgKnZxOwogCiAJaWYg
-KHZpcnRpb19oYXNfZmVhdHVyZSh2ZGV2LCBWSVJUSU9fRl9SSU5HX1BBQ0tFRCkpCiAJCXJldHVy
-biBOVUxMOwogCi0JdnEgPSBrbWFsbG9jKHNpemVvZigqdnEpLCBHRlBfS0VSTkVMKTsKKwl2cSA9
-IGttYWxsb2Nfbm9kZShzaXplb2YoKnZxKSwgR0ZQX0tFUk5FTCwgbm9kZSk7CiAJaWYgKCF2cSkK
-IAkJcmV0dXJuIE5VTEw7CiAKQEAgLTIxMTAsOCArMjExNiwxMCBAQCBzdHJ1Y3QgdmlydHF1ZXVl
-ICpfX3ZyaW5nX25ld192aXJ0cXVldWUodW5zaWduZWQgaW50IGluZGV4LAogCQkJCQl2cS0+c3Bs
-aXQuYXZhaWxfZmxhZ3Nfc2hhZG93KTsKIAl9CiAKLQl2cS0+c3BsaXQuZGVzY19zdGF0ZSA9IGtt
-YWxsb2NfYXJyYXkodnJpbmcubnVtLAotCQkJc2l6ZW9mKHN0cnVjdCB2cmluZ19kZXNjX3N0YXRl
-X3NwbGl0KSwgR0ZQX0tFUk5FTCk7CisJdnEtPnNwbGl0LmRlc2Nfc3RhdGUgPSBrbWFsbG9jX2Fy
-cmF5X25vZGUodnJpbmcubnVtLAorCQkJc2l6ZW9mKHN0cnVjdCB2cmluZ19kZXNjX3N0YXRlX3Nw
-bGl0KSwKKwkJCUdGUF9LRVJORUwsCisJCQlub2RlKTsKIAlpZiAoIXZxLT5zcGxpdC5kZXNjX3N0
-YXRlKSB7CiAJCWtmcmVlKHZxKTsKIAkJcmV0dXJuIE5VTEw7CmRpZmYgLS1naXQgYS9tbS9wYWdl
-X2FsbG9jLmMgYi9tbS9wYWdlX2FsbG9jLmMKaW5kZXggMTNjYzY1MzEyMmI3Li4yMjE2MDIyZDg5
-ODcgMTAwNjQ0Ci0tLSBhL21tL3BhZ2VfYWxsb2MuYworKysgYi9tbS9wYWdlX2FsbG9jLmMKQEAg
-LTUwNTMsNyArNTA1Myw3IEBAIEVYUE9SVF9TWU1CT0woYWxsb2NfcGFnZXNfZXhhY3QpOwogICoK
-ICAqIFJldHVybjogcG9pbnRlciB0byB0aGUgYWxsb2NhdGVkIGFyZWEgb3IgJU5VTEwgaW4gY2Fz
-ZSBvZiBlcnJvci4KICAqLwotdm9pZCAqIF9fbWVtaW5pdCBhbGxvY19wYWdlc19leGFjdF9uaWQo
-aW50IG5pZCwgc2l6ZV90IHNpemUsIGdmcF90IGdmcF9tYXNrKQordm9pZCAqYWxsb2NfcGFnZXNf
-ZXhhY3RfbmlkKGludCBuaWQsIHNpemVfdCBzaXplLCBnZnBfdCBnZnBfbWFzaykKIHsKIAl1bnNp
-Z25lZCBpbnQgb3JkZXIgPSBnZXRfb3JkZXIoc2l6ZSk7CiAJc3RydWN0IHBhZ2UgKnA7Ci0tIAoy
-LjI2LjIKCg==
+On Wed, 24 Jun 2020, Michael S. Tsirkin wrote:
+> On Wed, Jun 24, 2020 at 02:53:54PM -0700, Stefano Stabellini wrote:
+> > On Wed, 24 Jun 2020, Michael S. Tsirkin wrote:
+> > > On Wed, Jun 24, 2020 at 10:59:47AM -0700, Stefano Stabellini wrote:
+> > > > On Wed, 24 Jun 2020, Michael S. Tsirkin wrote:
+> > > > > On Wed, Jun 24, 2020 at 05:17:32PM +0800, Peng Fan wrote:
+> > > > > > Export xen_swiotlb for all platforms using xen swiotlb
+> > > > > > 
+> > > > > > Use xen_swiotlb to determine when vring should use dma APIs to map the
+> > > > > > ring: when xen_swiotlb is enabled the dma API is required. When it is
+> > > > > > disabled, it is not required.
+> > > > > > 
+> > > > > > Signed-off-by: Peng Fan <peng.fan@nxp.com>
+> > > > > 
+> > > > > Isn't there some way to use VIRTIO_F_IOMMU_PLATFORM for this?
+> > > > > Xen was there first, but everyone else is using that now.
+> > > > 
+> > > > Unfortunately it is complicated and it is not related to
+> > > > VIRTIO_F_IOMMU_PLATFORM :-(
+> > > > 
+> > > > 
+> > > > The Xen subsystem in Linux uses dma_ops via swiotlb_xen to translate
+> > > > foreign mappings (memory coming from other VMs) to physical addresses.
+> > > > On x86, it also uses dma_ops to translate Linux's idea of a physical
+> > > > address into a real physical address (this is unneeded on ARM.)
+> > > > 
+> > > > 
+> > > > So regardless of VIRTIO_F_IOMMU_PLATFORM, dma_ops should be used on Xen/x86
+> > > > always and on Xen/ARM if Linux is Dom0 (because it has foreign
+> > > > mappings.) That is why we have the if (xen_domain) return true; in
+> > > > vring_use_dma_api.
+> > > 
+> > > VIRTIO_F_IOMMU_PLATFORM makes guest always use DMA ops.
+> > > 
+> > > Xen hack predates VIRTIO_F_IOMMU_PLATFORM so it *also*
+> > > forces DMA ops even if VIRTIO_F_IOMMU_PLATFORM is clear.
+> > >
+> > > Unfortunately as a result Xen never got around to
+> > > properly setting VIRTIO_F_IOMMU_PLATFORM.
+> > 
+> > I don't think VIRTIO_F_IOMMU_PLATFORM would be correct for this because
+> > the usage of swiotlb_xen is not a property of virtio,
+> 
+> 
+> Basically any device without VIRTIO_F_ACCESS_PLATFORM
+> (that is it's name in latest virtio spec, VIRTIO_F_IOMMU_PLATFORM is
+> what linux calls it) is declared as "special, don't follow normal rules
+> for access".
+> 
+> So yes swiotlb_xen is not a property of virtio, but what *is* a property
+> of virtio is that it's not special, just a regular device from DMA POV.
+
+I am trying to understand what you meant but I think I am missing
+something.
+
+Are you saying that modern virtio should always have
+VIRTIO_F_ACCESS_PLATFORM, hence use normal dma_ops as any other devices?
+
+If that is the case, how is it possible that virtio breaks on ARM using
+the default dma_ops? The breakage is not Xen related (except that Xen
+turns dma_ops on). The original message from Peng was:
+
+  vring_map_one_sg -> vring_use_dma_api
+                   -> dma_map_page
+  		       -> __swiotlb_map_page
+  		                ->swiotlb_map_page
+  				->__dma_map_area(phys_to_virt(dma_to_phys(dev, dev_addr)), size, dir);
+  However we are using per device dma area for rpmsg, phys_to_virt
+  could not return a correct virtual address for virtual address in
+  vmalloc area. Then kernel panic.
+
+I must be missing something. Maybe it is because it has to do with RPMesg?
+ 
+
+> > > > You might have noticed that I missed one possible case above: Xen/ARM
+> > > > DomU :-)
+> > > > 
+> > > > Xen/ARM domUs don't need swiotlb_xen, it is not even initialized. So if
+> > > > (xen_domain) return true; would give the wrong answer in that case.
+> > > > Linux would end up calling the "normal" dma_ops, not swiotlb-xen, and
+> > > > the "normal" dma_ops fail.
+> > > > 
+> > > > 
+> > > > The solution I suggested was to make the check in vring_use_dma_api more
+> > > > flexible by returning true if the swiotlb_xen is supposed to be used,
+> > > > not in general for all Xen domains, because that is what the check was
+> > > > really meant to do.
+> > > 
+> > > Why not fix DMA ops so they DTRT (nop) on Xen/ARM DomU? What is wrong with that?
+> > 
+> > swiotlb-xen is not used on Xen/ARM DomU, the default dma_ops are the
+> > ones that are used. So you are saying, why don't we fix the default
+> > dma_ops to work with virtio?
+> > 
+> > It is bad that the default dma_ops crash with virtio, so yes I think it
+> > would be good to fix that. However, even if we fixed that, the if
+> > (xen_domain()) check in vring_use_dma_api is still a problem.
+> 
+> Why is it a problem? It just makes virtio use DMA API.
+> If that in turn works, problem solved.
+
+You are correct in the sense that it would work. However I do think it
+is wrong for vring_use_dma_api to enable dma_ops/swiotlb-xen for Xen/ARM
+DomUs that don't need it. There are many different types of Xen guests,
+Xen x86 is drastically different from Xen ARM, it seems wrong to treat
+them the same way.
+
+
+
+Anyway, re-reading the last messages of the original thread [1], it
+looks like Peng had a clear idea on how to fix the general issue. Peng,
+what happened with that?
+
+
+[1] https://lore.kernel.org/patchwork/patch/1033801/#1222404
