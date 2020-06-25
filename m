@@ -1,204 +1,67 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH v2 1/2] virtio: VIRTIO_F_IOMMU_PLATFORM ->
- VIRTIO_F_ACCESS_PLATFORM
-Date: Thu, 25 Jun 2020 08:50:10 +0200
-Message-ID: <dc85a45d-5507-2cb2-7e6f-2c569844914f@redhat.com>
-References: <20200624232035.704217-1-mst@redhat.com>
- <20200624232035.704217-2-mst@redhat.com>
+From: Stefan Hajnoczi <stefanha@redhat.com>
+Subject: [RFC 0/3] virtio: NUMA-aware memory allocation
+Date: Thu, 25 Jun 2020 14:57:49 +0100
+Message-ID: <20200625135752.227293-1-stefanha@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200624232035.704217-2-mst@redhat.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Jeff Dike <jdike@addtoit.com>, Richard Weinberger <richard@nod.at>, Anton Ivanov <anton.ivanov@cambridgegreys.com>, Jason Wang <jasowang@redhat.com>, linux-um@lists.infradead.org, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, netdev@vger.kernel.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: kvm@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 25.06.20 01:21, Michael S. Tsirkin wrote:
-> Rename the bit to match latest virtio spec.
-> Add a compat macro to avoid breaking existing userspace.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  arch/um/drivers/virtio_uml.c       |  2 +-
->  drivers/vdpa/ifcvf/ifcvf_base.h    |  2 +-
->  drivers/vdpa/vdpa_sim/vdpa_sim.c   |  4 ++--
->  drivers/vhost/net.c                |  4 ++--
->  drivers/vhost/vdpa.c               |  2 +-
->  drivers/virtio/virtio_balloon.c    |  2 +-
->  drivers/virtio/virtio_ring.c       |  2 +-
->  include/linux/virtio_config.h      |  2 +-
->  include/uapi/linux/virtio_config.h | 10 +++++++---
->  tools/virtio/linux/virtio_config.h |  2 +-
->  10 files changed, 18 insertions(+), 14 deletions(-)
-> 
-> diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
-> index 351aee52aca6..a6c4bb6c2c01 100644
-> --- a/arch/um/drivers/virtio_uml.c
-> +++ b/arch/um/drivers/virtio_uml.c
-> @@ -385,7 +385,7 @@ static irqreturn_t vu_req_interrupt(int irq, void *data)
->  		}
->  		break;
->  	case VHOST_USER_SLAVE_IOTLB_MSG:
-> -		/* not supported - VIRTIO_F_IOMMU_PLATFORM */
-> +		/* not supported - VIRTIO_F_ACCESS_PLATFORM */
->  	case VHOST_USER_SLAVE_VRING_HOST_NOTIFIER_MSG:
->  		/* not supported - VHOST_USER_PROTOCOL_F_HOST_NOTIFIER */
->  	default:
-> diff --git a/drivers/vdpa/ifcvf/ifcvf_base.h b/drivers/vdpa/ifcvf/ifcvf_base.h
-> index f4554412e607..24af422b5a3e 100644
-> --- a/drivers/vdpa/ifcvf/ifcvf_base.h
-> +++ b/drivers/vdpa/ifcvf/ifcvf_base.h
-> @@ -29,7 +29,7 @@
->  		 (1ULL << VIRTIO_F_VERSION_1)			| \
->  		 (1ULL << VIRTIO_NET_F_STATUS)			| \
->  		 (1ULL << VIRTIO_F_ORDER_PLATFORM)		| \
-> -		 (1ULL << VIRTIO_F_IOMMU_PLATFORM)		| \
-> +		 (1ULL << VIRTIO_F_ACCESS_PLATFORM)		| \
->  		 (1ULL << VIRTIO_NET_F_MRG_RXBUF))
->  
->  /* Only one queue pair for now. */
-> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> index c7334cc65bb2..a9bc5e0fb353 100644
-> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> @@ -55,7 +55,7 @@ struct vdpasim_virtqueue {
->  
->  static u64 vdpasim_features = (1ULL << VIRTIO_F_ANY_LAYOUT) |
->  			      (1ULL << VIRTIO_F_VERSION_1)  |
-> -			      (1ULL << VIRTIO_F_IOMMU_PLATFORM);
-> +			      (1ULL << VIRTIO_F_ACCESS_PLATFORM);
->  
->  /* State of each vdpasim device */
->  struct vdpasim {
-> @@ -450,7 +450,7 @@ static int vdpasim_set_features(struct vdpa_device *vdpa, u64 features)
->  	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
->  
->  	/* DMA mapping must be done by driver */
-> -	if (!(features & (1ULL << VIRTIO_F_IOMMU_PLATFORM)))
-> +	if (!(features & (1ULL << VIRTIO_F_ACCESS_PLATFORM)))
->  		return -EINVAL;
->  
->  	vdpasim->features = features & vdpasim_features;
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index e992decfec53..8e0921d3805d 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -73,7 +73,7 @@ enum {
->  	VHOST_NET_FEATURES = VHOST_FEATURES |
->  			 (1ULL << VHOST_NET_F_VIRTIO_NET_HDR) |
->  			 (1ULL << VIRTIO_NET_F_MRG_RXBUF) |
-> -			 (1ULL << VIRTIO_F_IOMMU_PLATFORM)
-> +			 (1ULL << VIRTIO_F_ACCESS_PLATFORM)
->  };
->  
->  enum {
-> @@ -1653,7 +1653,7 @@ static int vhost_net_set_features(struct vhost_net *n, u64 features)
->  	    !vhost_log_access_ok(&n->dev))
->  		goto out_unlock;
->  
-> -	if ((features & (1ULL << VIRTIO_F_IOMMU_PLATFORM))) {
-> +	if ((features & (1ULL << VIRTIO_F_ACCESS_PLATFORM))) {
->  		if (vhost_init_device_iotlb(&n->dev, true))
->  			goto out_unlock;
->  	}
-> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index a54b60d6623f..18869a35d408 100644
-> --- a/drivers/vhost/vdpa.c
-> +++ b/drivers/vhost/vdpa.c
-> @@ -31,7 +31,7 @@ enum {
->  		(1ULL << VIRTIO_F_NOTIFY_ON_EMPTY) |
->  		(1ULL << VIRTIO_F_ANY_LAYOUT) |
->  		(1ULL << VIRTIO_F_VERSION_1) |
-> -		(1ULL << VIRTIO_F_IOMMU_PLATFORM) |
-> +		(1ULL << VIRTIO_F_ACCESS_PLATFORM) |
->  		(1ULL << VIRTIO_F_RING_PACKED) |
->  		(1ULL << VIRTIO_F_ORDER_PLATFORM) |
->  		(1ULL << VIRTIO_RING_F_INDIRECT_DESC) |
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 1f157d2f4952..fc7301406540 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -1120,7 +1120,7 @@ static int virtballoon_validate(struct virtio_device *vdev)
->  	else if (!virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON))
->  		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
->  
-> -	__virtio_clear_bit(vdev, VIRTIO_F_IOMMU_PLATFORM);
-> +	__virtio_clear_bit(vdev, VIRTIO_F_ACCESS_PLATFORM);
->  	return 0;
->  }
->  
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 58b96baa8d48..a1a5c2a91426 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -2225,7 +2225,7 @@ void vring_transport_features(struct virtio_device *vdev)
->  			break;
->  		case VIRTIO_F_VERSION_1:
->  			break;
-> -		case VIRTIO_F_IOMMU_PLATFORM:
-> +		case VIRTIO_F_ACCESS_PLATFORM:
->  			break;
->  		case VIRTIO_F_RING_PACKED:
->  			break;
-> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> index bb4cc4910750..f2cc2a0df174 100644
-> --- a/include/linux/virtio_config.h
-> +++ b/include/linux/virtio_config.h
-> @@ -171,7 +171,7 @@ static inline bool virtio_has_iommu_quirk(const struct virtio_device *vdev)
->  	 * Note the reverse polarity of the quirk feature (compared to most
->  	 * other features), this is for compatibility with legacy systems.
->  	 */
-> -	return !virtio_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM);
-> +	return !virtio_has_feature(vdev, VIRTIO_F_ACCESS_PLATFORM);
->  }
->  
->  static inline
-> diff --git a/include/uapi/linux/virtio_config.h b/include/uapi/linux/virtio_config.h
-> index ff8e7dc9d4dd..b5eda06f0d57 100644
-> --- a/include/uapi/linux/virtio_config.h
-> +++ b/include/uapi/linux/virtio_config.h
-> @@ -67,13 +67,17 @@
->  #define VIRTIO_F_VERSION_1		32
->  
->  /*
-> - * If clear - device has the IOMMU bypass quirk feature.
-> - * If set - use platform tools to detect the IOMMU.
-> + * If clear - device has the platform DMA (e.g. IOMMU) bypass quirk feature.
-> + * If set - use platform DMA tools to access the memory.
->   *
->   * Note the reverse polarity (compared to most other features),
->   * this is for compatibility with legacy systems.
->   */
-> -#define VIRTIO_F_IOMMU_PLATFORM		33
-> +#define VIRTIO_F_ACCESS_PLATFORM	33
-> +#ifndef __KERNEL__
-> +/* Legacy name for VIRTIO_F_ACCESS_PLATFORM (for compatibility with old userspace) */
-> +#define VIRTIO_F_IOMMU_PLATFORM		VIRTIO_F_ACCESS_PLATFORM
-> +#endif /* __KERNEL__ */
->  
->  /* This feature indicates support for the packed virtqueue layout. */
->  #define VIRTIO_F_RING_PACKED		34
-> diff --git a/tools/virtio/linux/virtio_config.h b/tools/virtio/linux/virtio_config.h
-> index dbf14c1e2188..f99ae42668e0 100644
-> --- a/tools/virtio/linux/virtio_config.h
-> +++ b/tools/virtio/linux/virtio_config.h
-> @@ -51,7 +51,7 @@ static inline bool virtio_has_iommu_quirk(const struct virtio_device *vdev)
->  	 * Note the reverse polarity of the quirk feature (compared to most
->  	 * other features), this is for compatibility with legacy systems.
->  	 */
-> -	return !virtio_has_feature(vdev, VIRTIO_F_IOMMU_PLATFORM);
-> +	return !virtio_has_feature(vdev, VIRTIO_F_ACCESS_PLATFORM);
->  }
->  
->  static inline bool virtio_is_little_endian(struct virtio_device *vdev)
-> 
+These patches are not ready to be merged because I was unable to measure a
+performance improvement. I'm publishing them so they are archived in case
+someone picks up this work again in the future.
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
+The goal of these patches is to allocate virtqueues and driver state from the
+device's NUMA node for optimal memory access latency. Only guests with a vNUMA
+topology and virtio devices spread across vNUMA nodes benefit from this.  In
+other cases the memory placement is fine and we don't need to take NUMA into
+account inside the guest.
 
--- 
-Thanks,
+These patches could be extended to virtio_net.ko and other devices in the
+future. I only tested virtio_blk.ko.
 
-David / dhildenb
+The benchmark configuration was designed to trigger worst-case NUMA placement:
+ * Physical NVMe storage controller on host NUMA node 0
+ * IOThread pinned to host NUMA node 0
+ * virtio-blk-pci device in vNUMA node 1
+ * vCPU 0 on host NUMA node 1 and vCPU 1 on host NUMA node 0
+ * vCPU 0 in vNUMA node 0 and vCPU 1 in vNUMA node 1
+
+The intent is to have .probe() code run on vCPU 0 in vNUMA node 0 (host NUMA
+node 1) so that memory is in the wrong NUMA node for the virtio-blk-pci devic=
+e.
+Applying these patches fixes memory placement so that virtqueues and driver
+state is allocated in vNUMA node 1 where the virtio-blk-pci device is located.
+
+The fio 4KB randread benchmark results do not show a significant improvement:
+
+Name                  IOPS   Error
+virtio-blk        42373.79 =C2=B1 0.54%
+virtio-blk-numa   42517.07 =C2=B1 0.79%
+
+Stefan Hajnoczi (3):
+  virtio-pci: use NUMA-aware memory allocation in probe
+  virtio_ring: use NUMA-aware memory allocation in probe
+  virtio-blk: use NUMA-aware memory allocation in probe
+
+ include/linux/gfp.h                |  2 +-
+ drivers/block/virtio_blk.c         |  7 +++++--
+ drivers/virtio/virtio_pci_common.c | 16 ++++++++++++----
+ drivers/virtio/virtio_ring.c       | 26 +++++++++++++++++---------
+ mm/page_alloc.c                    |  2 +-
+ 5 files changed, 36 insertions(+), 17 deletions(-)
+
+--=20
+2.26.2
