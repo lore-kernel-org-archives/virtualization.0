@@ -1,118 +1,70 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v2 2/2] virtio: virtio_has_iommu_quirk ->
- virtio_has_dma_quirk
-Date: Sun, 28 Jun 2020 14:21:17 +0800
-Message-ID: <95941961-1c75-e2a5-d49b-7d7e204b7a41@redhat.com>
-References: <20200624232035.704217-1-mst@redhat.com>
- <20200624232035.704217-3-mst@redhat.com>
+Subject: Re: [RFC 0/3] virtio: NUMA-aware memory allocation
+Date: Sun, 28 Jun 2020 14:34:37 +0800
+Message-ID: <9cd725b5-4954-efd9-4d1b-3a448a436472@redhat.com>
+References: <20200625135752.227293-1-stefanha@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200624232035.704217-3-mst@redhat.com>
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200625135752.227293-1-stefanha@redhat.com>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>, Daniel Vetter <daniel@ffwll.ch>, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-On 2020/6/25 上午7:21, Michael S. Tsirkin wrote:
-> Now that the corresponding feature bit has been renamed,
-> rename the quirk too - it's about special ways to
-> do DMA, not necessarily about the IOMMU.
->
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->   drivers/gpu/drm/virtio/virtgpu_object.c | 2 +-
->   drivers/gpu/drm/virtio/virtgpu_vq.c     | 4 ++--
->   drivers/virtio/virtio_ring.c            | 2 +-
->   include/linux/virtio_config.h           | 4 ++--
->   tools/virtio/linux/virtio_config.h      | 4 ++--
->   5 files changed, 8 insertions(+), 8 deletions(-)
->
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-> index 6ccbd01cd888..e8799ab0c753 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_object.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-> @@ -141,7 +141,7 @@ static int virtio_gpu_object_shmem_init(struct virtio_gpu_device *vgdev,
->   					struct virtio_gpu_mem_entry **ents,
->   					unsigned int *nents)
->   {
-> -	bool use_dma_api = !virtio_has_iommu_quirk(vgdev->vdev);
-> +	bool use_dma_api = !virtio_has_dma_quirk(vgdev->vdev);
->   	struct virtio_gpu_object_shmem *shmem = to_virtio_gpu_shmem(bo);
->   	struct scatterlist *sg;
->   	int si, ret;
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> index 9e663a5d9952..53af60d484a4 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> @@ -599,7 +599,7 @@ void virtio_gpu_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
->   	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(objs->objs[0]);
->   	struct virtio_gpu_transfer_to_host_2d *cmd_p;
->   	struct virtio_gpu_vbuffer *vbuf;
-> -	bool use_dma_api = !virtio_has_iommu_quirk(vgdev->vdev);
-> +	bool use_dma_api = !virtio_has_dma_quirk(vgdev->vdev);
->   	struct virtio_gpu_object_shmem *shmem = to_virtio_gpu_shmem(bo);
->   
->   	if (use_dma_api)
-> @@ -1015,7 +1015,7 @@ void virtio_gpu_cmd_transfer_to_host_3d(struct virtio_gpu_device *vgdev,
->   	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(objs->objs[0]);
->   	struct virtio_gpu_transfer_host_3d *cmd_p;
->   	struct virtio_gpu_vbuffer *vbuf;
-> -	bool use_dma_api = !virtio_has_iommu_quirk(vgdev->vdev);
-> +	bool use_dma_api = !virtio_has_dma_quirk(vgdev->vdev);
->   	struct virtio_gpu_object_shmem *shmem = to_virtio_gpu_shmem(bo);
->   
->   	if (use_dma_api)
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index a1a5c2a91426..34253cb69cb8 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -240,7 +240,7 @@ static inline bool virtqueue_use_indirect(struct virtqueue *_vq,
->   
->   static bool vring_use_dma_api(struct virtio_device *vdev)
->   {
-> -	if (!virtio_has_iommu_quirk(vdev))
-> +	if (!virtio_has_dma_quirk(vdev))
->   		return true;
->   
->   	/* Otherwise, we are left to guess. */
-> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> index f2cc2a0df174..3b4eae5ac5e3 100644
-> --- a/include/linux/virtio_config.h
-> +++ b/include/linux/virtio_config.h
-> @@ -162,10 +162,10 @@ static inline bool virtio_has_feature(const struct virtio_device *vdev,
->   }
->   
->   /**
-> - * virtio_has_iommu_quirk - determine whether this device has the iommu quirk
-> + * virtio_has_dma_quirk - determine whether this device has the DMA quirk
->    * @vdev: the device
->    */
-> -static inline bool virtio_has_iommu_quirk(const struct virtio_device *vdev)
-> +static inline bool virtio_has_dma_quirk(const struct virtio_device *vdev)
->   {
->   	/*
->   	 * Note the reverse polarity of the quirk feature (compared to most
-> diff --git a/tools/virtio/linux/virtio_config.h b/tools/virtio/linux/virtio_config.h
-> index f99ae42668e0..f2640e505c4e 100644
-> --- a/tools/virtio/linux/virtio_config.h
-> +++ b/tools/virtio/linux/virtio_config.h
-> @@ -42,10 +42,10 @@ static inline void __virtio_clear_bit(struct virtio_device *vdev,
->   	(__virtio_test_bit((dev), feature))
->   
->   /**
-> - * virtio_has_iommu_quirk - determine whether this device has the iommu quirk
-> + * virtio_has_dma_quirk - determine whether this device has the DMA quirk
->    * @vdev: the device
->    */
-> -static inline bool virtio_has_iommu_quirk(const struct virtio_device *vdev)
-> +static inline bool virtio_has_dma_quirk(const struct virtio_device *vdev)
->   {
->   	/*
->   	 * Note the reverse polarity of the quirk feature (compared to most
-
-
-Acked-by: Jason Wang <jasowang@redhat.com>
+Ck9uIDIwMjAvNi8yNSDkuIvljYg5OjU3LCBTdGVmYW4gSGFqbm9jemkgd3JvdGU6Cj4gVGhlc2Ug
+cGF0Y2hlcyBhcmUgbm90IHJlYWR5IHRvIGJlIG1lcmdlZCBiZWNhdXNlIEkgd2FzIHVuYWJsZSB0
+byBtZWFzdXJlIGEKPiBwZXJmb3JtYW5jZSBpbXByb3ZlbWVudC4gSSdtIHB1Ymxpc2hpbmcgdGhl
+bSBzbyB0aGV5IGFyZSBhcmNoaXZlZCBpbiBjYXNlCj4gc29tZW9uZSBwaWNrcyB1cCB0aGlzIHdv
+cmsgYWdhaW4gaW4gdGhlIGZ1dHVyZS4KPgo+IFRoZSBnb2FsIG9mIHRoZXNlIHBhdGNoZXMgaXMg
+dG8gYWxsb2NhdGUgdmlydHF1ZXVlcyBhbmQgZHJpdmVyIHN0YXRlIGZyb20gdGhlCj4gZGV2aWNl
+J3MgTlVNQSBub2RlIGZvciBvcHRpbWFsIG1lbW9yeSBhY2Nlc3MgbGF0ZW5jeS4gT25seSBndWVz
+dHMgd2l0aCBhIHZOVU1BCj4gdG9wb2xvZ3kgYW5kIHZpcnRpbyBkZXZpY2VzIHNwcmVhZCBhY3Jv
+c3Mgdk5VTUEgbm9kZXMgYmVuZWZpdCBmcm9tIHRoaXMuICBJbgo+IG90aGVyIGNhc2VzIHRoZSBt
+ZW1vcnkgcGxhY2VtZW50IGlzIGZpbmUgYW5kIHdlIGRvbid0IG5lZWQgdG8gdGFrZSBOVU1BIGlu
+dG8KPiBhY2NvdW50IGluc2lkZSB0aGUgZ3Vlc3QuCj4KPiBUaGVzZSBwYXRjaGVzIGNvdWxkIGJl
+IGV4dGVuZGVkIHRvIHZpcnRpb19uZXQua28gYW5kIG90aGVyIGRldmljZXMgaW4gdGhlCj4gZnV0
+dXJlLiBJIG9ubHkgdGVzdGVkIHZpcnRpb19ibGsua28uCj4KPiBUaGUgYmVuY2htYXJrIGNvbmZp
+Z3VyYXRpb24gd2FzIGRlc2lnbmVkIHRvIHRyaWdnZXIgd29yc3QtY2FzZSBOVU1BIHBsYWNlbWVu
+dDoKPiAgICogUGh5c2ljYWwgTlZNZSBzdG9yYWdlIGNvbnRyb2xsZXIgb24gaG9zdCBOVU1BIG5v
+ZGUgMAo+ICAgKiBJT1RocmVhZCBwaW5uZWQgdG8gaG9zdCBOVU1BIG5vZGUgMAo+ICAgKiB2aXJ0
+aW8tYmxrLXBjaSBkZXZpY2UgaW4gdk5VTUEgbm9kZSAxCj4gICAqIHZDUFUgMCBvbiBob3N0IE5V
+TUEgbm9kZSAxIGFuZCB2Q1BVIDEgb24gaG9zdCBOVU1BIG5vZGUgMAo+ICAgKiB2Q1BVIDAgaW4g
+dk5VTUEgbm9kZSAwIGFuZCB2Q1BVIDEgaW4gdk5VTUEgbm9kZSAxCj4KPiBUaGUgaW50ZW50IGlz
+IHRvIGhhdmUgLnByb2JlKCkgY29kZSBydW4gb24gdkNQVSAwIGluIHZOVU1BIG5vZGUgMCAoaG9z
+dCBOVU1BCj4gbm9kZSAxKSBzbyB0aGF0IG1lbW9yeSBpcyBpbiB0aGUgd3JvbmcgTlVNQSBub2Rl
+IGZvciB0aGUgdmlydGlvLWJsay1wY2kgZGV2aWM9Cj4gZS4KPiBBcHBseWluZyB0aGVzZSBwYXRj
+aGVzIGZpeGVzIG1lbW9yeSBwbGFjZW1lbnQgc28gdGhhdCB2aXJ0cXVldWVzIGFuZCBkcml2ZXIK
+PiBzdGF0ZSBpcyBhbGxvY2F0ZWQgaW4gdk5VTUEgbm9kZSAxIHdoZXJlIHRoZSB2aXJ0aW8tYmxr
+LXBjaSBkZXZpY2UgaXMgbG9jYXRlZC4KPgo+IFRoZSBmaW8gNEtCIHJhbmRyZWFkIGJlbmNobWFy
+ayByZXN1bHRzIGRvIG5vdCBzaG93IGEgc2lnbmlmaWNhbnQgaW1wcm92ZW1lbnQ6Cj4KPiBOYW1l
+ICAgICAgICAgICAgICAgICAgSU9QUyAgIEVycm9yCj4gdmlydGlvLWJsayAgICAgICAgNDIzNzMu
+NzkgPUMyPUIxIDAuNTQlCj4gdmlydGlvLWJsay1udW1hICAgNDI1MTcuMDcgPUMyPUIxIDAuNzkl
+CgoKSSByZW1lbWJlciBJIGRpZCBzb21ldGhpbmcgc2ltaWxhciBpbiB2aG9zdCBieSB1c2luZyBw
+YWdlX3RvX25pZCgpIGZvciAKZGVzY3JpcHRvciByaW5nLiBBbmQgSSBnZXQgbGl0dGxlIGltcHJv
+dmVtZW50IGFzIHNob3duIGhlcmUuCgpNaWNoYWVsIHJlbWluZHMgdGhhdCBpdCB3YXMgcHJvYmFi
+bHkgYmVjYXVzZSBhbGwgZGF0YSB3ZXJlIGNhY2hlZC4gU28gSSAKZG91YnQgaWYgdGhlIHRlc3Qg
+bGFja3Mgc3VmZmljaWVudCBzdHJlc3Mgb24gdGhlIGNhY2hlIC4uLgoKVGhhbmtzCgoKPgo+IFN0
+ZWZhbiBIYWpub2N6aSAoMyk6Cj4gICAgdmlydGlvLXBjaTogdXNlIE5VTUEtYXdhcmUgbWVtb3J5
+IGFsbG9jYXRpb24gaW4gcHJvYmUKPiAgICB2aXJ0aW9fcmluZzogdXNlIE5VTUEtYXdhcmUgbWVt
+b3J5IGFsbG9jYXRpb24gaW4gcHJvYmUKPiAgICB2aXJ0aW8tYmxrOiB1c2UgTlVNQS1hd2FyZSBt
+ZW1vcnkgYWxsb2NhdGlvbiBpbiBwcm9iZQo+Cj4gICBpbmNsdWRlL2xpbnV4L2dmcC5oICAgICAg
+ICAgICAgICAgIHwgIDIgKy0KPiAgIGRyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jICAgICAgICAg
+fCAgNyArKysrKy0tCj4gICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX2NvbW1vbi5jIHwgMTYg
+KysrKysrKysrKysrLS0tLQo+ICAgZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYyAgICAgICB8
+IDI2ICsrKysrKysrKysrKysrKysrLS0tLS0tLS0tCj4gICBtbS9wYWdlX2FsbG9jLmMgICAgICAg
+ICAgICAgICAgICAgIHwgIDIgKy0KPiAgIDUgZmlsZXMgY2hhbmdlZCwgMzYgaW5zZXJ0aW9ucygr
+KSwgMTcgZGVsZXRpb25zKC0pCj4KPiAtLT0yMAo+IDIuMjYuMgo+CgpfX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
+c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
+cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
