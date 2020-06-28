@@ -1,70 +1,187 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [RFC 0/3] virtio: NUMA-aware memory allocation
-Date: Sun, 28 Jun 2020 14:34:37 +0800
-Message-ID: <9cd725b5-4954-efd9-4d1b-3a448a436472@redhat.com>
-References: <20200625135752.227293-1-stefanha@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH RFC 4/5] vhost-vdpa: support IOTLB batching hints
+Date: Sun, 28 Jun 2020 05:58:22 -0400
+Message-ID: <20200628054940-mutt-send-email-mst@kernel.org>
+References: <20200618055626.25660-1-jasowang@redhat.com>
+ <20200618055626.25660-5-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200625135752.227293-1-stefanha@redhat.com>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200618055626.25660-5-jasowang@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, rob.miller@broadcom.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com, zhangweining@ruijie.com.cn, eli@mellanox.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMjAvNi8yNSDkuIvljYg5OjU3LCBTdGVmYW4gSGFqbm9jemkgd3JvdGU6Cj4gVGhlc2Ug
-cGF0Y2hlcyBhcmUgbm90IHJlYWR5IHRvIGJlIG1lcmdlZCBiZWNhdXNlIEkgd2FzIHVuYWJsZSB0
-byBtZWFzdXJlIGEKPiBwZXJmb3JtYW5jZSBpbXByb3ZlbWVudC4gSSdtIHB1Ymxpc2hpbmcgdGhl
-bSBzbyB0aGV5IGFyZSBhcmNoaXZlZCBpbiBjYXNlCj4gc29tZW9uZSBwaWNrcyB1cCB0aGlzIHdv
-cmsgYWdhaW4gaW4gdGhlIGZ1dHVyZS4KPgo+IFRoZSBnb2FsIG9mIHRoZXNlIHBhdGNoZXMgaXMg
-dG8gYWxsb2NhdGUgdmlydHF1ZXVlcyBhbmQgZHJpdmVyIHN0YXRlIGZyb20gdGhlCj4gZGV2aWNl
-J3MgTlVNQSBub2RlIGZvciBvcHRpbWFsIG1lbW9yeSBhY2Nlc3MgbGF0ZW5jeS4gT25seSBndWVz
-dHMgd2l0aCBhIHZOVU1BCj4gdG9wb2xvZ3kgYW5kIHZpcnRpbyBkZXZpY2VzIHNwcmVhZCBhY3Jv
-c3Mgdk5VTUEgbm9kZXMgYmVuZWZpdCBmcm9tIHRoaXMuICBJbgo+IG90aGVyIGNhc2VzIHRoZSBt
-ZW1vcnkgcGxhY2VtZW50IGlzIGZpbmUgYW5kIHdlIGRvbid0IG5lZWQgdG8gdGFrZSBOVU1BIGlu
-dG8KPiBhY2NvdW50IGluc2lkZSB0aGUgZ3Vlc3QuCj4KPiBUaGVzZSBwYXRjaGVzIGNvdWxkIGJl
-IGV4dGVuZGVkIHRvIHZpcnRpb19uZXQua28gYW5kIG90aGVyIGRldmljZXMgaW4gdGhlCj4gZnV0
-dXJlLiBJIG9ubHkgdGVzdGVkIHZpcnRpb19ibGsua28uCj4KPiBUaGUgYmVuY2htYXJrIGNvbmZp
-Z3VyYXRpb24gd2FzIGRlc2lnbmVkIHRvIHRyaWdnZXIgd29yc3QtY2FzZSBOVU1BIHBsYWNlbWVu
-dDoKPiAgICogUGh5c2ljYWwgTlZNZSBzdG9yYWdlIGNvbnRyb2xsZXIgb24gaG9zdCBOVU1BIG5v
-ZGUgMAo+ICAgKiBJT1RocmVhZCBwaW5uZWQgdG8gaG9zdCBOVU1BIG5vZGUgMAo+ICAgKiB2aXJ0
-aW8tYmxrLXBjaSBkZXZpY2UgaW4gdk5VTUEgbm9kZSAxCj4gICAqIHZDUFUgMCBvbiBob3N0IE5V
-TUEgbm9kZSAxIGFuZCB2Q1BVIDEgb24gaG9zdCBOVU1BIG5vZGUgMAo+ICAgKiB2Q1BVIDAgaW4g
-dk5VTUEgbm9kZSAwIGFuZCB2Q1BVIDEgaW4gdk5VTUEgbm9kZSAxCj4KPiBUaGUgaW50ZW50IGlz
-IHRvIGhhdmUgLnByb2JlKCkgY29kZSBydW4gb24gdkNQVSAwIGluIHZOVU1BIG5vZGUgMCAoaG9z
-dCBOVU1BCj4gbm9kZSAxKSBzbyB0aGF0IG1lbW9yeSBpcyBpbiB0aGUgd3JvbmcgTlVNQSBub2Rl
-IGZvciB0aGUgdmlydGlvLWJsay1wY2kgZGV2aWM9Cj4gZS4KPiBBcHBseWluZyB0aGVzZSBwYXRj
-aGVzIGZpeGVzIG1lbW9yeSBwbGFjZW1lbnQgc28gdGhhdCB2aXJ0cXVldWVzIGFuZCBkcml2ZXIK
-PiBzdGF0ZSBpcyBhbGxvY2F0ZWQgaW4gdk5VTUEgbm9kZSAxIHdoZXJlIHRoZSB2aXJ0aW8tYmxr
-LXBjaSBkZXZpY2UgaXMgbG9jYXRlZC4KPgo+IFRoZSBmaW8gNEtCIHJhbmRyZWFkIGJlbmNobWFy
-ayByZXN1bHRzIGRvIG5vdCBzaG93IGEgc2lnbmlmaWNhbnQgaW1wcm92ZW1lbnQ6Cj4KPiBOYW1l
-ICAgICAgICAgICAgICAgICAgSU9QUyAgIEVycm9yCj4gdmlydGlvLWJsayAgICAgICAgNDIzNzMu
-NzkgPUMyPUIxIDAuNTQlCj4gdmlydGlvLWJsay1udW1hICAgNDI1MTcuMDcgPUMyPUIxIDAuNzkl
-CgoKSSByZW1lbWJlciBJIGRpZCBzb21ldGhpbmcgc2ltaWxhciBpbiB2aG9zdCBieSB1c2luZyBw
-YWdlX3RvX25pZCgpIGZvciAKZGVzY3JpcHRvciByaW5nLiBBbmQgSSBnZXQgbGl0dGxlIGltcHJv
-dmVtZW50IGFzIHNob3duIGhlcmUuCgpNaWNoYWVsIHJlbWluZHMgdGhhdCBpdCB3YXMgcHJvYmFi
-bHkgYmVjYXVzZSBhbGwgZGF0YSB3ZXJlIGNhY2hlZC4gU28gSSAKZG91YnQgaWYgdGhlIHRlc3Qg
-bGFja3Mgc3VmZmljaWVudCBzdHJlc3Mgb24gdGhlIGNhY2hlIC4uLgoKVGhhbmtzCgoKPgo+IFN0
-ZWZhbiBIYWpub2N6aSAoMyk6Cj4gICAgdmlydGlvLXBjaTogdXNlIE5VTUEtYXdhcmUgbWVtb3J5
-IGFsbG9jYXRpb24gaW4gcHJvYmUKPiAgICB2aXJ0aW9fcmluZzogdXNlIE5VTUEtYXdhcmUgbWVt
-b3J5IGFsbG9jYXRpb24gaW4gcHJvYmUKPiAgICB2aXJ0aW8tYmxrOiB1c2UgTlVNQS1hd2FyZSBt
-ZW1vcnkgYWxsb2NhdGlvbiBpbiBwcm9iZQo+Cj4gICBpbmNsdWRlL2xpbnV4L2dmcC5oICAgICAg
-ICAgICAgICAgIHwgIDIgKy0KPiAgIGRyaXZlcnMvYmxvY2svdmlydGlvX2Jsay5jICAgICAgICAg
-fCAgNyArKysrKy0tCj4gICBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX2NvbW1vbi5jIHwgMTYg
-KysrKysrKysrKysrLS0tLQo+ICAgZHJpdmVycy92aXJ0aW8vdmlydGlvX3JpbmcuYyAgICAgICB8
-IDI2ICsrKysrKysrKysrKysrKysrLS0tLS0tLS0tCj4gICBtbS9wYWdlX2FsbG9jLmMgICAgICAg
-ICAgICAgICAgICAgIHwgIDIgKy0KPiAgIDUgZmlsZXMgY2hhbmdlZCwgMzYgaW5zZXJ0aW9ucygr
-KSwgMTcgZGVsZXRpb25zKC0pCj4KPiAtLT0yMAo+IDIuMjYuMgo+CgpfX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
-c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
-cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Thu, Jun 18, 2020 at 01:56:25PM +0800, Jason Wang wrote:
+> This patches extend the vhost IOTLB API to accept batch updating hints
+> form userspace. When userspace wants update the device IOTLB in a
+> batch, it may do:
+> 
+> 1) Write vhost_iotlb_msg with VHOST_IOTLB_BATCH_BEGIN flag
+> 2) Perform a batch of IOTLB updating via VHOST_IOTLB_UPDATE/INVALIDATE
+> 3) Write vhost_iotlb_msg with VHOST_IOTLB_BATCH_END flag
+
+As long as we are extending the interface,
+is there some way we could cut down the number of system calls needed
+here?
+
+
+> 
+> Vhost-vdpa may decide to batch the IOMMU/IOTLB updating in step 3 when
+> vDPA device support set_map() ops. This is useful for the vDPA device
+> that want to know all the mappings to tweak their own DMA translation
+> logic.
+> 
+> For vDPA device that doesn't require set_map(), no behavior changes.
+> 
+> This capability is advertised via VHOST_BACKEND_F_IOTLB_BATCH capability.
+> 
+> Signed-off-by: Jason Wang <jasowang@redhat.com>
+> ---
+>  drivers/vhost/vdpa.c             | 30 +++++++++++++++++++++++-------
+>  include/uapi/linux/vhost.h       |  2 ++
+>  include/uapi/linux/vhost_types.h |  7 +++++++
+>  3 files changed, 32 insertions(+), 7 deletions(-)
+> 
+> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> index 453057421f80..8f624bbafee7 100644
+> --- a/drivers/vhost/vdpa.c
+> +++ b/drivers/vhost/vdpa.c
+> @@ -56,7 +56,9 @@ enum {
+>  };
+>  
+>  enum {
+> -	VHOST_VDPA_BACKEND_FEATURES = (1ULL << VHOST_BACKEND_F_IOTLB_MSG_V2)
+> +	VHOST_VDPA_BACKEND_FEATURES =
+> +	(1ULL << VHOST_BACKEND_F_IOTLB_MSG_V2) |
+> +	(1ULL << VHOST_BACKEND_F_IOTLB_BATCH),
+>  };
+>  
+>  /* Currently, only network backend w/o multiqueue is supported. */
+> @@ -77,6 +79,7 @@ struct vhost_vdpa {
+>  	int virtio_id;
+>  	int minor;
+>  	struct eventfd_ctx *config_ctx;
+> +	int in_batch;
+>  };
+>  
+>  static DEFINE_IDA(vhost_vdpa_ida);
+> @@ -125,6 +128,7 @@ static void vhost_vdpa_reset(struct vhost_vdpa *v)
+>  	const struct vdpa_config_ops *ops = vdpa->config;
+>  
+>  	ops->set_status(vdpa, 0);
+> +	v->in_batch = 0;
+>  }
+>  
+>  static long vhost_vdpa_get_device_id(struct vhost_vdpa *v, u8 __user *argp)
+> @@ -540,9 +544,10 @@ static int vhost_vdpa_map(struct vhost_vdpa *v,
+>  
+>  	if (ops->dma_map)
+>  		r = ops->dma_map(vdpa, iova, size, pa, perm);
+> -	else if (ops->set_map)
+> -		r = ops->set_map(vdpa, dev->iotlb);
+> -	else
+> +	else if (ops->set_map) {
+> +		if (!v->in_batch)
+> +			r = ops->set_map(vdpa, dev->iotlb);
+> +	} else
+>  		r = iommu_map(v->domain, iova, pa, size,
+>  			      perm_to_iommu_flags(perm));
+>  
+> @@ -559,9 +564,10 @@ static void vhost_vdpa_unmap(struct vhost_vdpa *v, u64 iova, u64 size)
+>  
+>  	if (ops->dma_map)
+>  		ops->dma_unmap(vdpa, iova, size);
+> -	else if (ops->set_map)
+> -		ops->set_map(vdpa, dev->iotlb);
+> -	else
+> +	else if (ops->set_map) {
+> +		if (!v->in_batch)
+> +			ops->set_map(vdpa, dev->iotlb);
+> +	} else
+>  		iommu_unmap(v->domain, iova, size);
+>  }
+>  
+> @@ -655,6 +661,8 @@ static int vhost_vdpa_process_iotlb_msg(struct vhost_dev *dev,
+>  					struct vhost_iotlb_msg *msg)
+>  {
+>  	struct vhost_vdpa *v = container_of(dev, struct vhost_vdpa, vdev);
+> +	struct vdpa_device *vdpa = v->vdpa;
+> +	const struct vdpa_config_ops *ops = vdpa->config;
+>  	int r = 0;
+>  
+>  	r = vhost_dev_check_owner(dev);
+> @@ -668,6 +676,14 @@ static int vhost_vdpa_process_iotlb_msg(struct vhost_dev *dev,
+>  	case VHOST_IOTLB_INVALIDATE:
+>  		vhost_vdpa_unmap(v, msg->iova, msg->size);
+>  		break;
+> +	case VHOST_IOTLB_BATCH_BEGIN:
+> +		v->in_batch = true;
+> +		break;
+> +	case VHOST_IOTLB_BATCH_END:
+> +		if (v->in_batch && ops->set_map)
+> +			ops->set_map(vdpa, dev->iotlb);
+> +		v->in_batch = false;
+> +		break;
+>  	default:
+>  		r = -EINVAL;
+>  		break;
+> diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
+> index 0c2349612e77..565da96f55d5 100644
+> --- a/include/uapi/linux/vhost.h
+> +++ b/include/uapi/linux/vhost.h
+> @@ -91,6 +91,8 @@
+>  
+>  /* Use message type V2 */
+>  #define VHOST_BACKEND_F_IOTLB_MSG_V2 0x1
+> +/* IOTLB can accpet batching hints */
+
+typo
+
+> +#define VHOST_BACKEND_F_IOTLB_BATCH  0x2
+>  
+>  #define VHOST_SET_BACKEND_FEATURES _IOW(VHOST_VIRTIO, 0x25, __u64)
+>  #define VHOST_GET_BACKEND_FEATURES _IOR(VHOST_VIRTIO, 0x26, __u64)
+> diff --git a/include/uapi/linux/vhost_types.h b/include/uapi/linux/vhost_types.h
+> index 669457ce5c48..5c12faffdde9 100644
+> --- a/include/uapi/linux/vhost_types.h
+> +++ b/include/uapi/linux/vhost_types.h
+> @@ -60,6 +60,13 @@ struct vhost_iotlb_msg {
+>  #define VHOST_IOTLB_UPDATE         2
+>  #define VHOST_IOTLB_INVALIDATE     3
+>  #define VHOST_IOTLB_ACCESS_FAIL    4
+> +/* VHOST_IOTLB_BATCH_BEGIN is a hint that userspace will update
+> + * several mappings afterwards. VHOST_IOTLB_BATCH_END is a hint that
+> + * userspace had finished the mapping updating.
+
+
+Well not just hints - in fact updates do not take place
+until _END.
+
+How about:
+
+/* VHOST_IOTLB_BATCH_BEGIN and VHOST_IOTLB_BATCH_END allow modifying
+ * multiple mappings in one go: beginning with
+ * VHOST_IOTLB_BATCH_BEGIN, followed by any number of
+   VHOST_IOTLB_UPDATE messages, and ending with VHOST_IOTLB_BATCH_END.
+ */
+
+
+> When those two flags
+> + * were set, kernel will ignore the rest fileds of the IOTLB message.
+
+how about:
+
+when one of these two values is used as the message type, the
+rest of the fields in the message are ignored.
+
+> + */
+> +#define VHOST_IOTLB_BATCH_BEGIN    5
+> +#define VHOST_IOTLB_BATCH_END      6
+>  	__u8 type;
+>  };
+>  
+> -- 
+> 2.20.1
