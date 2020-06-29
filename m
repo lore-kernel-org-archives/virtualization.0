@@ -1,51 +1,118 @@
-From: Hou Tao <houtao1@huawei.com>
-Subject: Re: [PATCH] virtio-blk: free vblk-vqs in error path of
- virtblk_probe()
-Date: Mon, 29 Jun 2020 12:28:46 +0800
-Message-ID: <92ff941c-c40a-2e59-3b97-d931e53cde11@huawei.com>
-References: <20200615041459.22477-1-houtao1@huawei.com>
- <20200615073219.eeydysnn3d3xkwzg@steredhat>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v3 1/1] s390: virtio: let arch accept devices without
+ IOMMU feature
+Date: Mon, 29 Jun 2020 17:18:09 -0400
+Message-ID: <20200629171241-mutt-send-email-mst@kernel.org>
+References: <1592390637-17441-1-git-send-email-pmorel@linux.ibm.com>
+ <1592390637-17441-2-git-send-email-pmorel@linux.ibm.com>
+ <20200629115952-mutt-send-email-mst@kernel.org>
+ <66f808f2-5dd9-9127-d0e8-6bafbf13fc62@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-block-owner@vger.kernel.org>
-In-Reply-To: <20200615073219.eeydysnn3d3xkwzg@steredhat>
-Content-Language: en-US
-Sender: linux-block-owner@vger.kernel.org
-To: Jens Axboe <axboe@kernel.dk>
-Cc: Stefano Garzarella <sgarzare@redhat.com>, linux-block@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Ming Lei <ming.lei@canonical.com>
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <66f808f2-5dd9-9127-d0e8-6bafbf13fc62@linux.ibm.com>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: gor@linux.ibm.com, linux-s390@vger.kernel.org, frankja@linux.ibm.com, kvm@vger.kernel.org, thomas.lendacky@amd.com, heiko.carstens@de.ibm.com, cohuck@redhat.com, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, david@gibson.dropbear.id.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-ping ?
+On Mon, Jun 29, 2020 at 06:48:28PM +0200, Pierre Morel wrote:
+> 
+> 
+> On 2020-06-29 18:09, Michael S. Tsirkin wrote:
+> > On Wed, Jun 17, 2020 at 12:43:57PM +0200, Pierre Morel wrote:
+> > > An architecture protecting the guest memory against unauthorized host
+> > > access may want to enforce VIRTIO I/O device protection through the
+> > > use of VIRTIO_F_IOMMU_PLATFORM.
+> > > Let's give a chance to the architecture to accept or not devices
+> > > without VIRTIO_F_IOMMU_PLATFORM.
+> > 
+> > I agree it's a bit misleading. Protection is enforced by memory
+> > encryption, you can't trust the hypervisor to report the bit correctly
+> > so using that as a securoty measure would be pointless.
+> > The real gain here is that broken configs are easier to
+> > debug.
+> > 
+> > Here's an attempt at a better description:
+> > 
+> > 	On some architectures, guest knows that VIRTIO_F_IOMMU_PLATFORM is
+> > 	required for virtio to function: e.g. this is the case on s390 protected
+> > 	virt guests, since otherwise guest passes encrypted guest memory to devices,
+> > 	which the device can't read. Without VIRTIO_F_IOMMU_PLATFORM the
+> > 	result is that affected memory (or even a whole page containing
+> > 	it is corrupted). Detect and fail probe instead - that is easier
+> > 	to debug.
+> 
+> Thanks indeed better aside from the "encrypted guest memory": the mechanism
+> used to avoid the access to the guest memory from the host by s390 is not
+> encryption but a hardware feature denying the general host access and
+> allowing pieces of memory to be shared between guest and host.
 
-On 2020/6/15 15:32, Stefano Garzarella wrote:
-> On Mon, Jun 15, 2020 at 12:14:59PM +0800, Hou Tao wrote:
->> Else there will be memory leak if alloc_disk() fails.
->>
->> Fixes: 6a27b656fc02 ("block: virtio-blk: support multi virt queues per virtio-blk device")
->> Signed-off-by: Hou Tao <houtao1@huawei.com>
->> ---
->>  drivers/block/virtio_blk.c | 1 +
->>  1 file changed, 1 insertion(+)
->>
->> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
->> index 9d21bf0f155e..980df853ee49 100644
->> --- a/drivers/block/virtio_blk.c
->> +++ b/drivers/block/virtio_blk.c
->> @@ -878,6 +878,7 @@ static int virtblk_probe(struct virtio_device *vdev)
->>  	put_disk(vblk->disk);
->>  out_free_vq:
->>  	vdev->config->del_vqs(vdev);
->> +	kfree(vblk->vqs);
->>  out_free_vblk:
->>  	kfree(vblk);
->>  out_free_index:
->> -- 
->> 2.25.0.4.g0ad7144999
->>
+s/encrypted/protected/
+
+> As a consequence the data read from memory is not corrupted but not read at
+> all and the read error kills the hypervizor with a SIGSEGV.
+
+s/(or even a whole page containing it is corrupted)/can not be
+	read and the read error kills the hypervizor with a SIGSEGV/
+
+
+As an aside, we could maybe handle that more gracefully
+on the hypervisor side.
+
 > 
-> The patch LGTM:
+> > 
+> > however, now that we have described what it is (hypervisor
+> > misconfiguration) I ask a question: can we be sure this will never
+> > ever work? E.g. what if some future hypervisor gains ability to
+> > access the protected guest memory in some abstractly secure manner?
 > 
-> Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+> The goal of the s390 PV feature is to avoid this possibility so I don't
+> think so; however, there is a possibility that some hardware VIRTIO device
+> gain access to the guest's protected memory, even such device does not exist
+> yet.
 > 
+> At the moment such device exists we will need a driver for it, at least to
+> enable the feature and apply policies, it is also one of the reasons why a
+> hook to the architecture is interesting.
+
+
+Not neessarily, it could also be fully transparent. See e.g.
+recent AMD andvances allowing unmodified guests with SEV.
+
+
+> > We are blocking this here, and it's hard to predict the future,
+> > and a broken hypervisor can always find ways to crash the guest ...
 > 
+> yes, this is also something to fix on the hypervizor side, Halil is working
+> on it.
+> 
+> > 
+> > IMHO it would be safer to just print a warning.
+> > What do you think?
+> 
+> Sadly, putting a warning may not help as qemu is killed if it accesses the
+> protected memory.
+> Also note that the crash occurs not only on start but also on hotplug.
+> 
+> Thanks,
+> Pierre
+
+Well that depends on where does the warning go. If it's on a serial port
+it might be reported host side before the crash triggers.  But
+interesting point generally. How about a feature to send a warning code
+or string to host then?
+
+> -- 
+> Pierre Morel
+> IBM Lab Boeblingen
