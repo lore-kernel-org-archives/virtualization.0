@@ -1,18 +1,16 @@
-From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v3 1/1] s390: virtio: let arch accept devices without
- IOMMU feature
-Date: Mon, 29 Jun 2020 15:44:39 +0200
-Message-ID: <20200629154439.14cc5ae7.cohuck@redhat.com>
-References: <1592390637-17441-1-git-send-email-pmorel@linux.ibm.com>
- <1592390637-17441-2-git-send-email-pmorel@linux.ibm.com>
- <20200618002956.5f179de4.pasic@linux.ibm.com>
- <20200619112051.74babdb1.cohuck@redhat.com>
- <7fe6e9ab-fd5a-3f92-1f3a-f9e6805d3730@linux.ibm.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [RFC 0/3] virtio: NUMA-aware memory allocation
+Date: Mon, 29 Jun 2020 11:28:41 -0400
+Message-ID: <20200629112212-mutt-send-email-mst@kernel.org>
+References: <20200625135752.227293-1-stefanha@redhat.com>
+ <9cd725b5-4954-efd9-4d1b-3a448a436472@redhat.com>
+ <20200629092646.GC31392@stefanha-x1.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <7fe6e9ab-fd5a-3f92-1f3a-f9e6805d3730@linux.ibm.com>
+In-Reply-To: <20200629092646.GC31392@stefanha-x1.localdomain>
+Content-Disposition: inline
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -22,55 +20,60 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Pierre Morel <pmorel@linux.ibm.com>
-Cc: gor@linux.ibm.com, linux-s390@vger.kernel.org, frankja@linux.ibm.com, kvm@vger.kernel.org, mst@redhat.com, heiko.carstens@de.ibm.com, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>, borntraeger@de.ibm.com, thomas.lendacky@amd.com, david@gibson.dropbear.id.au
+To: Stefan Hajnoczi <stefanha@gmail.com>
+Cc: kvm@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, 29 Jun 2020 15:14:04 +0200
-Pierre Morel <pmorel@linux.ibm.com> wrote:
-
-> On 2020-06-19 11:20, Cornelia Huck wrote:
-> > On Thu, 18 Jun 2020 00:29:56 +0200
-> > Halil Pasic <pasic@linux.ibm.com> wrote:
-> >   
-> >> On Wed, 17 Jun 2020 12:43:57 +0200
-> >> Pierre Morel <pmorel@linux.ibm.com> wrote:  
-
-> >>> @@ -179,6 +194,13 @@ int virtio_finalize_features(struct virtio_device *dev)
-> >>>   	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
-> >>>   		return 0;
-> >>>   
-> >>> +	if (arch_needs_virtio_iommu_platform(dev) &&
-> >>> +		!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
-> >>> +		dev_warn(&dev->dev,
-> >>> +			 "virtio: device must provide VIRTIO_F_IOMMU_PLATFORM\n");  
-
-[Side note: wasn't there a patch renaming this bit on the list? I think
-this name is only kept for userspace compat.]
-
-> >>
-> >> I'm not sure, divulging the current Linux name of this feature bit is a
-> >> good idea, but if everybody else is fine with this, I don't care that  
-> > 
-> > Not sure if that feature name will ever change, as it is exported in
-> > headers. At most, we might want to add the new ACCESS_PLATFORM define
-> > and keep the old one, but that would still mean some churn.
-> >   
-> >> much. An alternative would be:
-> >> "virtio: device falsely claims to have full access to the memory,
-> >> aborting the device"  
-> > 
-> > "virtio: device does not work with limited memory access" ?
-> > 
-> > But no issue with keeping the current message.
-> >   
-> 
-> If it is OK, I would like to specify that the arch is responsible to 
-> accept or not the device.
-> The reason why the device is not accepted without IOMMU_PLATFORM is arch 
-> specific.
-
-Hm, I'd think the reason is always the same (the device cannot access
-the memory directly), just the way to figure out whether that is the
-case or not is arch-specific, as with so many other things. No real
-need to go into detail here, I think.
+T24gTW9uLCBKdW4gMjksIDIwMjAgYXQgMTA6MjY6NDZBTSArMDEwMCwgU3RlZmFuIEhham5vY3pp
+IHdyb3RlOgo+IE9uIFN1biwgSnVuIDI4LCAyMDIwIGF0IDAyOjM0OjM3UE0gKzA4MDAsIEphc29u
+IFdhbmcgd3JvdGU6Cj4gPiAKPiA+IE9uIDIwMjAvNi8yNSDkuIvljYg5OjU3LCBTdGVmYW4gSGFq
+bm9jemkgd3JvdGU6Cj4gPiA+IFRoZXNlIHBhdGNoZXMgYXJlIG5vdCByZWFkeSB0byBiZSBtZXJn
+ZWQgYmVjYXVzZSBJIHdhcyB1bmFibGUgdG8gbWVhc3VyZSBhCj4gPiA+IHBlcmZvcm1hbmNlIGlt
+cHJvdmVtZW50LiBJJ20gcHVibGlzaGluZyB0aGVtIHNvIHRoZXkgYXJlIGFyY2hpdmVkIGluIGNh
+c2UKPiA+ID4gc29tZW9uZSBwaWNrcyB1cCB0aGlzIHdvcmsgYWdhaW4gaW4gdGhlIGZ1dHVyZS4K
+PiA+ID4gCj4gPiA+IFRoZSBnb2FsIG9mIHRoZXNlIHBhdGNoZXMgaXMgdG8gYWxsb2NhdGUgdmly
+dHF1ZXVlcyBhbmQgZHJpdmVyIHN0YXRlIGZyb20gdGhlCj4gPiA+IGRldmljZSdzIE5VTUEgbm9k
+ZSBmb3Igb3B0aW1hbCBtZW1vcnkgYWNjZXNzIGxhdGVuY3kuIE9ubHkgZ3Vlc3RzIHdpdGggYSB2
+TlVNQQo+ID4gPiB0b3BvbG9neSBhbmQgdmlydGlvIGRldmljZXMgc3ByZWFkIGFjcm9zcyB2TlVN
+QSBub2RlcyBiZW5lZml0IGZyb20gdGhpcy4gIEluCj4gPiA+IG90aGVyIGNhc2VzIHRoZSBtZW1v
+cnkgcGxhY2VtZW50IGlzIGZpbmUgYW5kIHdlIGRvbid0IG5lZWQgdG8gdGFrZSBOVU1BIGludG8K
+PiA+ID4gYWNjb3VudCBpbnNpZGUgdGhlIGd1ZXN0Lgo+ID4gPiAKPiA+ID4gVGhlc2UgcGF0Y2hl
+cyBjb3VsZCBiZSBleHRlbmRlZCB0byB2aXJ0aW9fbmV0LmtvIGFuZCBvdGhlciBkZXZpY2VzIGlu
+IHRoZQo+ID4gPiBmdXR1cmUuIEkgb25seSB0ZXN0ZWQgdmlydGlvX2Jsay5rby4KPiA+ID4gCj4g
+PiA+IFRoZSBiZW5jaG1hcmsgY29uZmlndXJhdGlvbiB3YXMgZGVzaWduZWQgdG8gdHJpZ2dlciB3
+b3JzdC1jYXNlIE5VTUEgcGxhY2VtZW50Ogo+ID4gPiAgICogUGh5c2ljYWwgTlZNZSBzdG9yYWdl
+IGNvbnRyb2xsZXIgb24gaG9zdCBOVU1BIG5vZGUgMAoKSXQncyBwb3NzaWJsZSB0aGF0IG51bWEg
+aXMgbm90IHN1Y2ggYSBiaWcgZGVhbCBmb3IgTlZNZS4KQW5kIGl0J3MgcG9zc2libGUgdGhhdCBi
+aW9zIG1pc2NvbmZpZ3VyZXMgQUNQSSByZXBvcnRpbmcgTlVNQSBwbGFjZW1lbnQKaW5jb3JyZWN0
+bHkuCkkgdGhpbmsgdGhhdCB0aGUgYmVzdCB0aGluZyB0byB0cnkgaXMgdG8gdXNlIGEgcmFtZGlz
+awpvbiBhIHNwZWNpZmljIG51bWEgbm9kZS4KCj4gPiA+ICAgKiBJT1RocmVhZCBwaW5uZWQgdG8g
+aG9zdCBOVU1BIG5vZGUgMAo+ID4gPiAgICogdmlydGlvLWJsay1wY2kgZGV2aWNlIGluIHZOVU1B
+IG5vZGUgMQo+ID4gPiAgICogdkNQVSAwIG9uIGhvc3QgTlVNQSBub2RlIDEgYW5kIHZDUFUgMSBv
+biBob3N0IE5VTUEgbm9kZSAwCj4gPiA+ICAgKiB2Q1BVIDAgaW4gdk5VTUEgbm9kZSAwIGFuZCB2
+Q1BVIDEgaW4gdk5VTUEgbm9kZSAxCj4gPiA+IAo+ID4gPiBUaGUgaW50ZW50IGlzIHRvIGhhdmUg
+LnByb2JlKCkgY29kZSBydW4gb24gdkNQVSAwIGluIHZOVU1BIG5vZGUgMCAoaG9zdCBOVU1BCj4g
+PiA+IG5vZGUgMSkgc28gdGhhdCBtZW1vcnkgaXMgaW4gdGhlIHdyb25nIE5VTUEgbm9kZSBmb3Ig
+dGhlIHZpcnRpby1ibGstcGNpIGRldmljPQo+ID4gPiBlLgo+ID4gPiBBcHBseWluZyB0aGVzZSBw
+YXRjaGVzIGZpeGVzIG1lbW9yeSBwbGFjZW1lbnQgc28gdGhhdCB2aXJ0cXVldWVzIGFuZCBkcml2
+ZXIKPiA+ID4gc3RhdGUgaXMgYWxsb2NhdGVkIGluIHZOVU1BIG5vZGUgMSB3aGVyZSB0aGUgdmly
+dGlvLWJsay1wY2kgZGV2aWNlIGlzIGxvY2F0ZWQuCj4gPiA+IAo+ID4gPiBUaGUgZmlvIDRLQiBy
+YW5kcmVhZCBiZW5jaG1hcmsgcmVzdWx0cyBkbyBub3Qgc2hvdyBhIHNpZ25pZmljYW50IGltcHJv
+dmVtZW50Ogo+ID4gPiAKPiA+ID4gTmFtZSAgICAgICAgICAgICAgICAgIElPUFMgICBFcnJvcgo+
+ID4gPiB2aXJ0aW8tYmxrICAgICAgICA0MjM3My43OSA9QzI9QjEgMC41NCUKPiA+ID4gdmlydGlv
+LWJsay1udW1hICAgNDI1MTcuMDcgPUMyPUIxIDAuNzklCj4gPiAKPiA+IAo+ID4gSSByZW1lbWJl
+ciBJIGRpZCBzb21ldGhpbmcgc2ltaWxhciBpbiB2aG9zdCBieSB1c2luZyBwYWdlX3RvX25pZCgp
+IGZvcgo+ID4gZGVzY3JpcHRvciByaW5nLiBBbmQgSSBnZXQgbGl0dGxlIGltcHJvdmVtZW50IGFz
+IHNob3duIGhlcmUuCj4gPiAKPiA+IE1pY2hhZWwgcmVtaW5kcyB0aGF0IGl0IHdhcyBwcm9iYWJs
+eSBiZWNhdXNlIGFsbCBkYXRhIHdlcmUgY2FjaGVkLiBTbyBJCj4gPiBkb3VidCBpZiB0aGUgdGVz
+dCBsYWNrcyBzdWZmaWNpZW50IHN0cmVzcyBvbiB0aGUgY2FjaGUgLi4uCj4gCj4gWWVzLCB0aGF0
+IHNvdW5kcyBsaWtlbHkuIElmIHRoZXJlJ3Mgbm8gcmVhbC13b3JsZCBwZXJmb3JtYW5jZQo+IGlt
+cHJvdmVtZW50IHRoZW4gSSdtIGhhcHB5IHRvIGxlYXZlIHRoZXNlIHBhdGNoZXMgdW5tZXJnZWQu
+Cj4gCj4gU3RlZmFuCgoKV2VsbCB0aGF0IHdhcyBmb3Igdmhvc3QgdGhvdWdoLiBUaGlzIGlzIHZp
+cnRpbywgd2hpY2ggaXMgZGlmZmVyZW50LgpEb2Vzbid0IHNvbWUgYmVuY2htYXJrIHB1dCBwcmVz
+c3VyZSBvbiB0aGUgQ1BVIGNhY2hlPwoKCkkga2luZCBvZiBmZWVsIHRoZXJlIHNob3VsZCBiZSBh
+IGRpZmZlcmVuY2UsIGFuZCB0aGUgZmFjdCB0aGVyZSBpc24ndAptZWFucyB0aGVyZSdzIHNvbWUg
+b3RoZXIgYm90dGxlbmVjayBzb21ld2hlcmUuIE1pZ2h0IGJlIHdvcnRoCmZpZ3VyaW5nIG91dC4K
+Ci0tIApNU1QKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
+b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
+aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
