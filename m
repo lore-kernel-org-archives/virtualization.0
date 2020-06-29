@@ -1,24 +1,13 @@
-From: Peng Fan <peng.fan@nxp.com>
-Subject: RE: [PATCH] xen: introduce xen_vring_use_dma
-Date: Mon, 29 Jun 2020 06:35:48 +0000
-Message-ID: <DB6PR0402MB27606A2A6308135D62476D80886E0@DB6PR0402MB2760.eurprd04.prod.outlook.com>
-References: <20200624050355-mutt-send-email-mst@kernel.org>
- <alpine.DEB.2.21.2006241047010.8121@sstabellini-ThinkPad-T480s>
- <20200624163940-mutt-send-email-mst@kernel.org>
- <alpine.DEB.2.21.2006241351430.8121@sstabellini-ThinkPad-T480s>
- <20200624181026-mutt-send-email-mst@kernel.org>
- <alpine.DEB.2.21.2006251014230.8121@sstabellini-ThinkPad-T480s>
- <20200626110629-mutt-send-email-mst@kernel.org>
- <DB6PR0402MB27601CA74B85DA5A9F5E5DD6886E0@DB6PR0402MB2760.eurprd04.prod.outlook.com>
- <20200629022124-mutt-send-email-mst@kernel.org>
- <DB6PR0402MB27602AB2A9A242D79343CE48886E0@DB6PR0402MB2760.eurprd04.prod.outlook.com>
- <20200629023225-mutt-send-email-mst@kernel.org>
+From: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [RFC 0/3] virtio: NUMA-aware memory allocation
+Date: Mon, 29 Jun 2020 10:26:46 +0100
+Message-ID: <20200629092646.GC31392@stefanha-x1.localdomain>
+References: <20200625135752.227293-1-stefanha@redhat.com>
+ <9cd725b5-4954-efd9-4d1b-3a448a436472@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; boundary="===============3542228649958609992=="
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200629023225-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
+In-Reply-To: <9cd725b5-4954-efd9-4d1b-3a448a436472@redhat.com>
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -28,40 +17,107 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "jgross@suse.com" <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, "x86@kernel.org" <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, dl-linux-imx <linux-imx@nxp.com>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, "boris.ostrovsky@oracle.com" <boris.ostrovsky@oracle.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
+To: Jason Wang <jasowang@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-> Subject: Re: [PATCH] xen: introduce xen_vring_use_dma
-> 
-> On Mon, Jun 29, 2020 at 06:25:41AM +0000, Peng Fan wrote:
-> > > > > > Anyway, re-reading the last messages of the original thread
-> > > > > > [1], it looks like Peng had a clear idea on how to fix the general issue.
-> > > > > > Peng, what happened with that?
-> > > >
-> > > > We shrinked the rpmsg reserved area to workaround the issue.
-> > > > So still use the dma apis in rpmsg.
-> > > >
-> > > > But here I am going to address domu android trusty issue using virtio.
-> > >
-> > > My suggestion is to first of all fix DMA API so it works properly.
-> >
-> > Could you please elaborate more details?
-> >
-> > You mean the DMA API usage of rpmsg? Or xen domu dma_ops?
-> >
-> > Thanks,
-> > Peng.
-> 
-> Not 100% sure but I think xen dma ops.
 
-Sorry to ask again, could you explain more details about what issues
-do you see of current xen ARM domu dma_ops? 
-Or Dom0 swiotlb xen dma_ops?
+--===============3542228649958609992==
+Content-Type: multipart/signed; micalg=pgp-sha256;
+	protocol="application/pgp-signature"; boundary="m51xatjYGsM+13rf"
+Content-Disposition: inline
 
-Thanks,
-Pen.g
 
-> 
-> --
-> MST
+--m51xatjYGsM+13rf
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Sun, Jun 28, 2020 at 02:34:37PM +0800, Jason Wang wrote:
+>=20
+> On 2020/6/25 =E4=B8=8B=E5=8D=889:57, Stefan Hajnoczi wrote:
+> > These patches are not ready to be merged because I was unable to measur=
+e a
+> > performance improvement. I'm publishing them so they are archived in ca=
+se
+> > someone picks up this work again in the future.
+> >=20
+> > The goal of these patches is to allocate virtqueues and driver state fr=
+om the
+> > device's NUMA node for optimal memory access latency. Only guests with =
+a vNUMA
+> > topology and virtio devices spread across vNUMA nodes benefit from this=
+=2E  In
+> > other cases the memory placement is fine and we don't need to take NUMA=
+ into
+> > account inside the guest.
+> >=20
+> > These patches could be extended to virtio_net.ko and other devices in t=
+he
+> > future. I only tested virtio_blk.ko.
+> >=20
+> > The benchmark configuration was designed to trigger worst-case NUMA pla=
+cement:
+> >   * Physical NVMe storage controller on host NUMA node 0
+> >   * IOThread pinned to host NUMA node 0
+> >   * virtio-blk-pci device in vNUMA node 1
+> >   * vCPU 0 on host NUMA node 1 and vCPU 1 on host NUMA node 0
+> >   * vCPU 0 in vNUMA node 0 and vCPU 1 in vNUMA node 1
+> >=20
+> > The intent is to have .probe() code run on vCPU 0 in vNUMA node 0 (host=
+ NUMA
+> > node 1) so that memory is in the wrong NUMA node for the virtio-blk-pci=
+ devic=3D
+> > e.
+> > Applying these patches fixes memory placement so that virtqueues and dr=
+iver
+> > state is allocated in vNUMA node 1 where the virtio-blk-pci device is l=
+ocated.
+> >=20
+> > The fio 4KB randread benchmark results do not show a significant improv=
+ement:
+> >=20
+> > Name                  IOPS   Error
+> > virtio-blk        42373.79 =3DC2=3DB1 0.54%
+> > virtio-blk-numa   42517.07 =3DC2=3DB1 0.79%
+>=20
+>=20
+> I remember I did something similar in vhost by using page_to_nid() for
+> descriptor ring. And I get little improvement as shown here.
+>=20
+> Michael reminds that it was probably because all data were cached. So I
+> doubt if the test lacks sufficient stress on the cache ...
+
+Yes, that sounds likely. If there's no real-world performance
+improvement then I'm happy to leave these patches unmerged.
+
+Stefan
+
+--m51xatjYGsM+13rf
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl75s9YACgkQnKSrs4Gr
+c8jAlQgAkxcrX8BwizJMukF4LIVrZHVVDcZjCvl+WEazZ8s6RpSCMj1yeg1wyplH
+lt34UesBkGMWTyRQPfQTC16lAQy9hn1nPLhrqyFPk9oiQUEK9Kzf5j7I3JnLVNnI
+jBGARfiyb0nKnhfqx0y/ixeAOLDNf9d2swoEc4lnqCo584dlMliJLIC/2jE7AvwF
+M6xsrjW6JNxLuV4shp0CaWVgsPd/6OR8PMPy9XatWVPgyF9fpPn6pZJsb6B8d+gL
+8lCvNa0+Deq/ruy67yyzenpuqvyMmA11HeQocFFqIvaEdCHA6QCGil0fmXVb0Ile
+4X2GnES1wsHbGId3ofPrpM4rjxm7Rw==
+=IwcF
+-----END PGP SIGNATURE-----
+
+--m51xatjYGsM+13rf--
+
+--===============3542228649958609992==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============3542228649958609992==--
