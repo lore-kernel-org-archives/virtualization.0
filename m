@@ -1,15 +1,17 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH RFC 4/5] vhost-vdpa: support IOTLB batching hints
-Date: Mon, 29 Jun 2020 17:26:03 +0800
-Message-ID: <a2216693-cdba-ff53-46f9-abaf47789f5a@redhat.com>
-References: <20200618055626.25660-1-jasowang@redhat.com>
- <20200618055626.25660-5-jasowang@redhat.com>
- <20200628054940-mutt-send-email-mst@kernel.org>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: Re: [PATCH v3 1/1] s390: virtio: let arch accept devices without
+ IOMMU feature
+Date: Mon, 29 Jun 2020 15:14:04 +0200
+Message-ID: <7fe6e9ab-fd5a-3f92-1f3a-f9e6805d3730@linux.ibm.com>
+References: <1592390637-17441-1-git-send-email-pmorel@linux.ibm.com>
+ <1592390637-17441-2-git-send-email-pmorel@linux.ibm.com>
+ <20200618002956.5f179de4.pasic@linux.ibm.com>
+ <20200619112051.74babdb1.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200628054940-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20200619112051.74babdb1.cohuck@redhat.com>
 Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
@@ -20,116 +22,80 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: shahafs@mellanox.com, lulu@redhat.com, saugatm@xilinx.com, mhabets@solarflare.com, vmireyno@marvell.com, linux-kernel@vger.kernel.org, gdawar@xilinx.com, virtualization@lists.linux-foundation.org, eperezma@redhat.com, hanand@xilinx.com, zhangweining@ruijie.com.cn, eli@mellanox.com, lingshan.zhu@intel.com, rob.miller@broadcom.com
+To: Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>
+Cc: gor@linux.ibm.com, linux-s390@vger.kernel.org, frankja@linux.ibm.com, kvm@vger.kernel.org, mst@redhat.com, heiko.carstens@de.ibm.com, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, borntraeger@de.ibm.com, thomas.lendacky@amd.com, david@gibson.dropbear.id.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMjAvNi8yOCDkuIvljYg1OjU4LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gT24g
-VGh1LCBKdW4gMTgsIDIwMjAgYXQgMDE6NTY6MjVQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToK
-Pj4gVGhpcyBwYXRjaGVzIGV4dGVuZCB0aGUgdmhvc3QgSU9UTEIgQVBJIHRvIGFjY2VwdCBiYXRj
-aCB1cGRhdGluZyBoaW50cwo+PiBmb3JtIHVzZXJzcGFjZS4gV2hlbiB1c2Vyc3BhY2Ugd2FudHMg
-dXBkYXRlIHRoZSBkZXZpY2UgSU9UTEIgaW4gYQo+PiBiYXRjaCwgaXQgbWF5IGRvOgo+Pgo+PiAx
-KSBXcml0ZSB2aG9zdF9pb3RsYl9tc2cgd2l0aCBWSE9TVF9JT1RMQl9CQVRDSF9CRUdJTiBmbGFn
-Cj4+IDIpIFBlcmZvcm0gYSBiYXRjaCBvZiBJT1RMQiB1cGRhdGluZyB2aWEgVkhPU1RfSU9UTEJf
-VVBEQVRFL0lOVkFMSURBVEUKPj4gMykgV3JpdGUgdmhvc3RfaW90bGJfbXNnIHdpdGggVkhPU1Rf
-SU9UTEJfQkFUQ0hfRU5EIGZsYWcKPiBBcyBsb25nIGFzIHdlIGFyZSBleHRlbmRpbmcgdGhlIGlu
-dGVyZmFjZSwKPiBpcyB0aGVyZSBzb21lIHdheSB3ZSBjb3VsZCBjdXQgZG93biB0aGUgbnVtYmVy
-IG9mIHN5c3RlbSBjYWxscyBuZWVkZWQKPiBoZXJlPwoKCkknbSBub3Qgc3VyZSBpdCdzIHdvcnRo
-IHRvIGRvIHRoYXQgc2luY2UgdXN1YWxseSB3ZSBvbmx5IGhhdmUgbGVzcyB0aGFuIAoxMCByZWdp
-b25zLgoKQSBwb3NzaWJsZSBtZXRob2QgaXMgdG8gY2FycnkgbXVsdGlwbGUgdmhvc3RfaW90bGJf
-bWVzc2FnZSBpbiBvbmUgc3lzdGVtIApjYWxsLgoKCj4KPgo+PiBWaG9zdC12ZHBhIG1heSBkZWNp
-ZGUgdG8gYmF0Y2ggdGhlIElPTU1VL0lPVExCIHVwZGF0aW5nIGluIHN0ZXAgMyB3aGVuCj4+IHZE
-UEEgZGV2aWNlIHN1cHBvcnQgc2V0X21hcCgpIG9wcy4gVGhpcyBpcyB1c2VmdWwgZm9yIHRoZSB2
-RFBBIGRldmljZQo+PiB0aGF0IHdhbnQgdG8ga25vdyBhbGwgdGhlIG1hcHBpbmdzIHRvIHR3ZWFr
-IHRoZWlyIG93biBETUEgdHJhbnNsYXRpb24KPj4gbG9naWMuCj4+Cj4+IEZvciB2RFBBIGRldmlj
-ZSB0aGF0IGRvZXNuJ3QgcmVxdWlyZSBzZXRfbWFwKCksIG5vIGJlaGF2aW9yIGNoYW5nZXMuCj4+
-Cj4+IFRoaXMgY2FwYWJpbGl0eSBpcyBhZHZlcnRpc2VkIHZpYSBWSE9TVF9CQUNLRU5EX0ZfSU9U
-TEJfQkFUQ0ggY2FwYWJpbGl0eS4KPj4KPj4gU2lnbmVkLW9mZi1ieTogSmFzb24gV2FuZyA8amFz
-b3dhbmdAcmVkaGF0LmNvbT4KPj4gLS0tCj4+ICAgZHJpdmVycy92aG9zdC92ZHBhLmMgICAgICAg
-ICAgICAgfCAzMCArKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0KPj4gICBpbmNsdWRlL3Vh
-cGkvbGludXgvdmhvc3QuaCAgICAgICB8ICAyICsrCj4+ICAgaW5jbHVkZS91YXBpL2xpbnV4L3Zo
-b3N0X3R5cGVzLmggfCAgNyArKysrKysrCj4+ICAgMyBmaWxlcyBjaGFuZ2VkLCAzMiBpbnNlcnRp
-b25zKCspLCA3IGRlbGV0aW9ucygtKQo+Pgo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aG9zdC92
-ZHBhLmMgYi9kcml2ZXJzL3Zob3N0L3ZkcGEuYwo+PiBpbmRleCA0NTMwNTc0MjFmODAuLjhmNjI0
-YmJhZmVlNyAxMDA2NDQKPj4gLS0tIGEvZHJpdmVycy92aG9zdC92ZHBhLmMKPj4gKysrIGIvZHJp
-dmVycy92aG9zdC92ZHBhLmMKPj4gQEAgLTU2LDcgKzU2LDkgQEAgZW51bSB7Cj4+ICAgfTsKPj4g
-ICAKPj4gICBlbnVtIHsKPj4gLQlWSE9TVF9WRFBBX0JBQ0tFTkRfRkVBVFVSRVMgPSAoMVVMTCA8
-PCBWSE9TVF9CQUNLRU5EX0ZfSU9UTEJfTVNHX1YyKQo+PiArCVZIT1NUX1ZEUEFfQkFDS0VORF9G
-RUFUVVJFUyA9Cj4+ICsJKDFVTEwgPDwgVkhPU1RfQkFDS0VORF9GX0lPVExCX01TR19WMikgfAo+
-PiArCSgxVUxMIDw8IFZIT1NUX0JBQ0tFTkRfRl9JT1RMQl9CQVRDSCksCj4+ICAgfTsKPj4gICAK
-Pj4gICAvKiBDdXJyZW50bHksIG9ubHkgbmV0d29yayBiYWNrZW5kIHcvbyBtdWx0aXF1ZXVlIGlz
-IHN1cHBvcnRlZC4gKi8KPj4gQEAgLTc3LDYgKzc5LDcgQEAgc3RydWN0IHZob3N0X3ZkcGEgewo+
-PiAgIAlpbnQgdmlydGlvX2lkOwo+PiAgIAlpbnQgbWlub3I7Cj4+ICAgCXN0cnVjdCBldmVudGZk
-X2N0eCAqY29uZmlnX2N0eDsKPj4gKwlpbnQgaW5fYmF0Y2g7Cj4+ICAgfTsKPj4gICAKPj4gICBz
-dGF0aWMgREVGSU5FX0lEQSh2aG9zdF92ZHBhX2lkYSk7Cj4+IEBAIC0xMjUsNiArMTI4LDcgQEAg
-c3RhdGljIHZvaWQgdmhvc3RfdmRwYV9yZXNldChzdHJ1Y3Qgdmhvc3RfdmRwYSAqdikKPj4gICAJ
-Y29uc3Qgc3RydWN0IHZkcGFfY29uZmlnX29wcyAqb3BzID0gdmRwYS0+Y29uZmlnOwo+PiAgIAo+
-PiAgIAlvcHMtPnNldF9zdGF0dXModmRwYSwgMCk7Cj4+ICsJdi0+aW5fYmF0Y2ggPSAwOwo+PiAg
-IH0KPj4gICAKPj4gICBzdGF0aWMgbG9uZyB2aG9zdF92ZHBhX2dldF9kZXZpY2VfaWQoc3RydWN0
-IHZob3N0X3ZkcGEgKnYsIHU4IF9fdXNlciAqYXJncCkKPj4gQEAgLTU0MCw5ICs1NDQsMTAgQEAg
-c3RhdGljIGludCB2aG9zdF92ZHBhX21hcChzdHJ1Y3Qgdmhvc3RfdmRwYSAqdiwKPj4gICAKPj4g
-ICAJaWYgKG9wcy0+ZG1hX21hcCkKPj4gICAJCXIgPSBvcHMtPmRtYV9tYXAodmRwYSwgaW92YSwg
-c2l6ZSwgcGEsIHBlcm0pOwo+PiAtCWVsc2UgaWYgKG9wcy0+c2V0X21hcCkKPj4gLQkJciA9IG9w
-cy0+c2V0X21hcCh2ZHBhLCBkZXYtPmlvdGxiKTsKPj4gLQllbHNlCj4+ICsJZWxzZSBpZiAob3Bz
-LT5zZXRfbWFwKSB7Cj4+ICsJCWlmICghdi0+aW5fYmF0Y2gpCj4+ICsJCQlyID0gb3BzLT5zZXRf
-bWFwKHZkcGEsIGRldi0+aW90bGIpOwo+PiArCX0gZWxzZQo+PiAgIAkJciA9IGlvbW11X21hcCh2
-LT5kb21haW4sIGlvdmEsIHBhLCBzaXplLAo+PiAgIAkJCSAgICAgIHBlcm1fdG9faW9tbXVfZmxh
-Z3MocGVybSkpOwo+PiAgIAo+PiBAQCAtNTU5LDkgKzU2NCwxMCBAQCBzdGF0aWMgdm9pZCB2aG9z
-dF92ZHBhX3VubWFwKHN0cnVjdCB2aG9zdF92ZHBhICp2LCB1NjQgaW92YSwgdTY0IHNpemUpCj4+
-ICAgCj4+ICAgCWlmIChvcHMtPmRtYV9tYXApCj4+ICAgCQlvcHMtPmRtYV91bm1hcCh2ZHBhLCBp
-b3ZhLCBzaXplKTsKPj4gLQllbHNlIGlmIChvcHMtPnNldF9tYXApCj4+IC0JCW9wcy0+c2V0X21h
-cCh2ZHBhLCBkZXYtPmlvdGxiKTsKPj4gLQllbHNlCj4+ICsJZWxzZSBpZiAob3BzLT5zZXRfbWFw
-KSB7Cj4+ICsJCWlmICghdi0+aW5fYmF0Y2gpCj4+ICsJCQlvcHMtPnNldF9tYXAodmRwYSwgZGV2
-LT5pb3RsYik7Cj4+ICsJfSBlbHNlCj4+ICAgCQlpb21tdV91bm1hcCh2LT5kb21haW4sIGlvdmEs
-IHNpemUpOwo+PiAgIH0KPj4gICAKPj4gQEAgLTY1NSw2ICs2NjEsOCBAQCBzdGF0aWMgaW50IHZo
-b3N0X3ZkcGFfcHJvY2Vzc19pb3RsYl9tc2coc3RydWN0IHZob3N0X2RldiAqZGV2LAo+PiAgIAkJ
-CQkJc3RydWN0IHZob3N0X2lvdGxiX21zZyAqbXNnKQo+PiAgIHsKPj4gICAJc3RydWN0IHZob3N0
-X3ZkcGEgKnYgPSBjb250YWluZXJfb2YoZGV2LCBzdHJ1Y3Qgdmhvc3RfdmRwYSwgdmRldik7Cj4+
-ICsJc3RydWN0IHZkcGFfZGV2aWNlICp2ZHBhID0gdi0+dmRwYTsKPj4gKwljb25zdCBzdHJ1Y3Qg
-dmRwYV9jb25maWdfb3BzICpvcHMgPSB2ZHBhLT5jb25maWc7Cj4+ICAgCWludCByID0gMDsKPj4g
-ICAKPj4gICAJciA9IHZob3N0X2Rldl9jaGVja19vd25lcihkZXYpOwo+PiBAQCAtNjY4LDYgKzY3
-NiwxNCBAQCBzdGF0aWMgaW50IHZob3N0X3ZkcGFfcHJvY2Vzc19pb3RsYl9tc2coc3RydWN0IHZo
-b3N0X2RldiAqZGV2LAo+PiAgIAljYXNlIFZIT1NUX0lPVExCX0lOVkFMSURBVEU6Cj4+ICAgCQl2
-aG9zdF92ZHBhX3VubWFwKHYsIG1zZy0+aW92YSwgbXNnLT5zaXplKTsKPj4gICAJCWJyZWFrOwo+
-PiArCWNhc2UgVkhPU1RfSU9UTEJfQkFUQ0hfQkVHSU46Cj4+ICsJCXYtPmluX2JhdGNoID0gdHJ1
-ZTsKPj4gKwkJYnJlYWs7Cj4+ICsJY2FzZSBWSE9TVF9JT1RMQl9CQVRDSF9FTkQ6Cj4+ICsJCWlm
-ICh2LT5pbl9iYXRjaCAmJiBvcHMtPnNldF9tYXApCj4+ICsJCQlvcHMtPnNldF9tYXAodmRwYSwg
-ZGV2LT5pb3RsYik7Cj4+ICsJCXYtPmluX2JhdGNoID0gZmFsc2U7Cj4+ICsJCWJyZWFrOwo+PiAg
-IAlkZWZhdWx0Ogo+PiAgIAkJciA9IC1FSU5WQUw7Cj4+ICAgCQlicmVhazsKPj4gZGlmZiAtLWdp
-dCBhL2luY2x1ZGUvdWFwaS9saW51eC92aG9zdC5oIGIvaW5jbHVkZS91YXBpL2xpbnV4L3Zob3N0
-LmgKPj4gaW5kZXggMGMyMzQ5NjEyZTc3Li41NjVkYTk2ZjU1ZDUgMTAwNjQ0Cj4+IC0tLSBhL2lu
-Y2x1ZGUvdWFwaS9saW51eC92aG9zdC5oCj4+ICsrKyBiL2luY2x1ZGUvdWFwaS9saW51eC92aG9z
-dC5oCj4+IEBAIC05MSw2ICs5MSw4IEBACj4+ICAgCj4+ICAgLyogVXNlIG1lc3NhZ2UgdHlwZSBW
-MiAqLwo+PiAgICNkZWZpbmUgVkhPU1RfQkFDS0VORF9GX0lPVExCX01TR19WMiAweDEKPj4gKy8q
-IElPVExCIGNhbiBhY2NwZXQgYmF0Y2hpbmcgaGludHMgKi8KPiB0eXBvCgoKV2lsbCBmaXguCgoK
-Pgo+PiArI2RlZmluZSBWSE9TVF9CQUNLRU5EX0ZfSU9UTEJfQkFUQ0ggIDB4Mgo+PiAgIAo+PiAg
-ICNkZWZpbmUgVkhPU1RfU0VUX0JBQ0tFTkRfRkVBVFVSRVMgX0lPVyhWSE9TVF9WSVJUSU8sIDB4
-MjUsIF9fdTY0KQo+PiAgICNkZWZpbmUgVkhPU1RfR0VUX0JBQ0tFTkRfRkVBVFVSRVMgX0lPUihW
-SE9TVF9WSVJUSU8sIDB4MjYsIF9fdTY0KQo+PiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS91YXBpL2xp
-bnV4L3Zob3N0X3R5cGVzLmggYi9pbmNsdWRlL3VhcGkvbGludXgvdmhvc3RfdHlwZXMuaAo+PiBp
-bmRleCA2Njk0NTdjZTVjNDguLjVjMTJmYWZmZGRlOSAxMDA2NDQKPj4gLS0tIGEvaW5jbHVkZS91
-YXBpL2xpbnV4L3Zob3N0X3R5cGVzLmgKPj4gKysrIGIvaW5jbHVkZS91YXBpL2xpbnV4L3Zob3N0
-X3R5cGVzLmgKPj4gQEAgLTYwLDYgKzYwLDEzIEBAIHN0cnVjdCB2aG9zdF9pb3RsYl9tc2cgewo+
-PiAgICNkZWZpbmUgVkhPU1RfSU9UTEJfVVBEQVRFICAgICAgICAgMgo+PiAgICNkZWZpbmUgVkhP
-U1RfSU9UTEJfSU5WQUxJREFURSAgICAgMwo+PiAgICNkZWZpbmUgVkhPU1RfSU9UTEJfQUNDRVNT
-X0ZBSUwgICAgNAo+PiArLyogVkhPU1RfSU9UTEJfQkFUQ0hfQkVHSU4gaXMgYSBoaW50IHRoYXQg
-dXNlcnNwYWNlIHdpbGwgdXBkYXRlCj4+ICsgKiBzZXZlcmFsIG1hcHBpbmdzIGFmdGVyd2FyZHMu
-IFZIT1NUX0lPVExCX0JBVENIX0VORCBpcyBhIGhpbnQgdGhhdAo+PiArICogdXNlcnNwYWNlIGhh
-ZCBmaW5pc2hlZCB0aGUgbWFwcGluZyB1cGRhdGluZy4KPgo+IFdlbGwgbm90IGp1c3QgaGludHMg
-LSBpbiBmYWN0IHVwZGF0ZXMgZG8gbm90IHRha2UgcGxhY2UKPiB1bnRpbCBfRU5ELgo+Cj4gSG93
-IGFib3V0Ogo+Cj4gLyogVkhPU1RfSU9UTEJfQkFUQ0hfQkVHSU4gYW5kIFZIT1NUX0lPVExCX0JB
-VENIX0VORCBhbGxvdyBtb2RpZnlpbmcKPiAgICogbXVsdGlwbGUgbWFwcGluZ3MgaW4gb25lIGdv
-OiBiZWdpbm5pbmcgd2l0aAo+ICAgKiBWSE9TVF9JT1RMQl9CQVRDSF9CRUdJTiwgZm9sbG93ZWQg
-YnkgYW55IG51bWJlciBvZgo+ICAgICBWSE9TVF9JT1RMQl9VUERBVEUgbWVzc2FnZXMsIGFuZCBl
-bmRpbmcgd2l0aCBWSE9TVF9JT1RMQl9CQVRDSF9FTkQuCj4gICAqLwoKClRoYXQncyBiZXR0ZXIu
-CgoKPgo+Cj4+IFdoZW4gdGhvc2UgdHdvIGZsYWdzCj4+ICsgKiB3ZXJlIHNldCwga2VybmVsIHdp
-bGwgaWdub3JlIHRoZSByZXN0IGZpbGVkcyBvZiB0aGUgSU9UTEIgbWVzc2FnZS4KPiBob3cgYWJv
-dXQ6Cj4KPiB3aGVuIG9uZSBvZiB0aGVzZSB0d28gdmFsdWVzIGlzIHVzZWQgYXMgdGhlIG1lc3Nh
-Z2UgdHlwZSwgdGhlCj4gcmVzdCBvZiB0aGUgZmllbGRzIGluIHRoZSBtZXNzYWdlIGFyZSBpZ25v
-cmVkLgoKClllcy4KCldpbGwgZml4LgoKVGhhbmtzCgoKPgo+PiArICovCj4+ICsjZGVmaW5lIFZI
-T1NUX0lPVExCX0JBVENIX0JFR0lOICAgIDUKPj4gKyNkZWZpbmUgVkhPU1RfSU9UTEJfQkFUQ0hf
-RU5EICAgICAgNgo+PiAgIAlfX3U4IHR5cGU7Cj4+ICAgfTsKPj4gICAKPj4gLS0gCj4+IDIuMjAu
-MQoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVh
-bGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRp
-b24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZv
-L3ZpcnR1YWxpemF0aW9u
+
+
+On 2020-06-19 11:20, Cornelia Huck wrote:
+> On Thu, 18 Jun 2020 00:29:56 +0200
+> Halil Pasic <pasic@linux.ibm.com> wrote:
+> 
+>> On Wed, 17 Jun 2020 12:43:57 +0200
+>> Pierre Morel <pmorel@linux.ibm.com> wrote:
+...
+>>
+>> But since this can be rewritten any time, let's go with the option
+>> people already agree with, instead of more discussion.
+> 
+> Yes, there's nothing wrong with the patch as-is.
+> 
+> Acked-by: Cornelia Huck <cohuck@redhat.com>
+
+Thanks,
+
+
+> 
+> Which tree should this go through? Virtio? s390? >
+>>
+>> Just another question. Do we want this backported? Do we need cc stable?
+> 
+> It does change behaviour of virtio-ccw devices; but then, it only
+> fences off configurations that would not have worked anyway.
+> Distributions should probably pick this; but I do not consider it
+> strictly a "fix" (more a mitigation for broken configurations), so I'm
+> not sure whether stable applies.
+> 
+>> [..]
+>>
+>>
+>>>   int virtio_finalize_features(struct virtio_device *dev)
+>>>   {
+>>>   	int ret = dev->config->finalize_features(dev);
+>>> @@ -179,6 +194,13 @@ int virtio_finalize_features(struct virtio_device *dev)
+>>>   	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
+>>>   		return 0;
+>>>   
+>>> +	if (arch_needs_virtio_iommu_platform(dev) &&
+>>> +		!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
+>>> +		dev_warn(&dev->dev,
+>>> +			 "virtio: device must provide VIRTIO_F_IOMMU_PLATFORM\n");
+>>
+>> I'm not sure, divulging the current Linux name of this feature bit is a
+>> good idea, but if everybody else is fine with this, I don't care that
+> 
+> Not sure if that feature name will ever change, as it is exported in
+> headers. At most, we might want to add the new ACCESS_PLATFORM define
+> and keep the old one, but that would still mean some churn.
+> 
+>> much. An alternative would be:
+>> "virtio: device falsely claims to have full access to the memory,
+>> aborting the device"
+> 
+> "virtio: device does not work with limited memory access" ?
+> 
+> But no issue with keeping the current message.
+> 
+
+If it is OK, I would like to specify that the arch is responsible to 
+accept or not the device.
+The reason why the device is not accepted without IOMMU_PLATFORM is arch 
+specific.
+
+Regards,
+Pierre
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
