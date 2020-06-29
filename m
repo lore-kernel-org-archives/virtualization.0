@@ -1,13 +1,16 @@
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Subject: Re: [RFC 0/3] virtio: NUMA-aware memory allocation
-Date: Mon, 29 Jun 2020 10:26:46 +0100
-Message-ID: <20200629092646.GC31392@stefanha-x1.localdomain>
-References: <20200625135752.227293-1-stefanha@redhat.com>
- <9cd725b5-4954-efd9-4d1b-3a448a436472@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH RFC 4/5] vhost-vdpa: support IOTLB batching hints
+Date: Mon, 29 Jun 2020 17:26:03 +0800
+Message-ID: <a2216693-cdba-ff53-46f9-abaf47789f5a@redhat.com>
+References: <20200618055626.25660-1-jasowang@redhat.com>
+ <20200618055626.25660-5-jasowang@redhat.com>
+ <20200628054940-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============3542228649958609992=="
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <9cd725b5-4954-efd9-4d1b-3a448a436472@redhat.com>
+In-Reply-To: <20200628054940-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -17,107 +20,116 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: shahafs@mellanox.com, lulu@redhat.com, saugatm@xilinx.com, mhabets@solarflare.com, vmireyno@marvell.com, linux-kernel@vger.kernel.org, gdawar@xilinx.com, virtualization@lists.linux-foundation.org, eperezma@redhat.com, hanand@xilinx.com, zhangweining@ruijie.com.cn, eli@mellanox.com, lingshan.zhu@intel.com, rob.miller@broadcom.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-
---===============3542228649958609992==
-Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="m51xatjYGsM+13rf"
-Content-Disposition: inline
-
-
---m51xatjYGsM+13rf
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Sun, Jun 28, 2020 at 02:34:37PM +0800, Jason Wang wrote:
->=20
-> On 2020/6/25 =E4=B8=8B=E5=8D=889:57, Stefan Hajnoczi wrote:
-> > These patches are not ready to be merged because I was unable to measur=
-e a
-> > performance improvement. I'm publishing them so they are archived in ca=
-se
-> > someone picks up this work again in the future.
-> >=20
-> > The goal of these patches is to allocate virtqueues and driver state fr=
-om the
-> > device's NUMA node for optimal memory access latency. Only guests with =
-a vNUMA
-> > topology and virtio devices spread across vNUMA nodes benefit from this=
-=2E  In
-> > other cases the memory placement is fine and we don't need to take NUMA=
- into
-> > account inside the guest.
-> >=20
-> > These patches could be extended to virtio_net.ko and other devices in t=
-he
-> > future. I only tested virtio_blk.ko.
-> >=20
-> > The benchmark configuration was designed to trigger worst-case NUMA pla=
-cement:
-> >   * Physical NVMe storage controller on host NUMA node 0
-> >   * IOThread pinned to host NUMA node 0
-> >   * virtio-blk-pci device in vNUMA node 1
-> >   * vCPU 0 on host NUMA node 1 and vCPU 1 on host NUMA node 0
-> >   * vCPU 0 in vNUMA node 0 and vCPU 1 in vNUMA node 1
-> >=20
-> > The intent is to have .probe() code run on vCPU 0 in vNUMA node 0 (host=
- NUMA
-> > node 1) so that memory is in the wrong NUMA node for the virtio-blk-pci=
- devic=3D
-> > e.
-> > Applying these patches fixes memory placement so that virtqueues and dr=
-iver
-> > state is allocated in vNUMA node 1 where the virtio-blk-pci device is l=
-ocated.
-> >=20
-> > The fio 4KB randread benchmark results do not show a significant improv=
-ement:
-> >=20
-> > Name                  IOPS   Error
-> > virtio-blk        42373.79 =3DC2=3DB1 0.54%
-> > virtio-blk-numa   42517.07 =3DC2=3DB1 0.79%
->=20
->=20
-> I remember I did something similar in vhost by using page_to_nid() for
-> descriptor ring. And I get little improvement as shown here.
->=20
-> Michael reminds that it was probably because all data were cached. So I
-> doubt if the test lacks sufficient stress on the cache ...
-
-Yes, that sounds likely. If there's no real-world performance
-improvement then I'm happy to leave these patches unmerged.
-
-Stefan
-
---m51xatjYGsM+13rf
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl75s9YACgkQnKSrs4Gr
-c8jAlQgAkxcrX8BwizJMukF4LIVrZHVVDcZjCvl+WEazZ8s6RpSCMj1yeg1wyplH
-lt34UesBkGMWTyRQPfQTC16lAQy9hn1nPLhrqyFPk9oiQUEK9Kzf5j7I3JnLVNnI
-jBGARfiyb0nKnhfqx0y/ixeAOLDNf9d2swoEc4lnqCo584dlMliJLIC/2jE7AvwF
-M6xsrjW6JNxLuV4shp0CaWVgsPd/6OR8PMPy9XatWVPgyF9fpPn6pZJsb6B8d+gL
-8lCvNa0+Deq/ruy67yyzenpuqvyMmA11HeQocFFqIvaEdCHA6QCGil0fmXVb0Ile
-4X2GnES1wsHbGId3ofPrpM4rjxm7Rw==
-=IwcF
------END PGP SIGNATURE-----
-
---m51xatjYGsM+13rf--
-
---===============3542228649958609992==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============3542228649958609992==--
+Ck9uIDIwMjAvNi8yOCDkuIvljYg1OjU4LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gT24g
+VGh1LCBKdW4gMTgsIDIwMjAgYXQgMDE6NTY6MjVQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToK
+Pj4gVGhpcyBwYXRjaGVzIGV4dGVuZCB0aGUgdmhvc3QgSU9UTEIgQVBJIHRvIGFjY2VwdCBiYXRj
+aCB1cGRhdGluZyBoaW50cwo+PiBmb3JtIHVzZXJzcGFjZS4gV2hlbiB1c2Vyc3BhY2Ugd2FudHMg
+dXBkYXRlIHRoZSBkZXZpY2UgSU9UTEIgaW4gYQo+PiBiYXRjaCwgaXQgbWF5IGRvOgo+Pgo+PiAx
+KSBXcml0ZSB2aG9zdF9pb3RsYl9tc2cgd2l0aCBWSE9TVF9JT1RMQl9CQVRDSF9CRUdJTiBmbGFn
+Cj4+IDIpIFBlcmZvcm0gYSBiYXRjaCBvZiBJT1RMQiB1cGRhdGluZyB2aWEgVkhPU1RfSU9UTEJf
+VVBEQVRFL0lOVkFMSURBVEUKPj4gMykgV3JpdGUgdmhvc3RfaW90bGJfbXNnIHdpdGggVkhPU1Rf
+SU9UTEJfQkFUQ0hfRU5EIGZsYWcKPiBBcyBsb25nIGFzIHdlIGFyZSBleHRlbmRpbmcgdGhlIGlu
+dGVyZmFjZSwKPiBpcyB0aGVyZSBzb21lIHdheSB3ZSBjb3VsZCBjdXQgZG93biB0aGUgbnVtYmVy
+IG9mIHN5c3RlbSBjYWxscyBuZWVkZWQKPiBoZXJlPwoKCkknbSBub3Qgc3VyZSBpdCdzIHdvcnRo
+IHRvIGRvIHRoYXQgc2luY2UgdXN1YWxseSB3ZSBvbmx5IGhhdmUgbGVzcyB0aGFuIAoxMCByZWdp
+b25zLgoKQSBwb3NzaWJsZSBtZXRob2QgaXMgdG8gY2FycnkgbXVsdGlwbGUgdmhvc3RfaW90bGJf
+bWVzc2FnZSBpbiBvbmUgc3lzdGVtIApjYWxsLgoKCj4KPgo+PiBWaG9zdC12ZHBhIG1heSBkZWNp
+ZGUgdG8gYmF0Y2ggdGhlIElPTU1VL0lPVExCIHVwZGF0aW5nIGluIHN0ZXAgMyB3aGVuCj4+IHZE
+UEEgZGV2aWNlIHN1cHBvcnQgc2V0X21hcCgpIG9wcy4gVGhpcyBpcyB1c2VmdWwgZm9yIHRoZSB2
+RFBBIGRldmljZQo+PiB0aGF0IHdhbnQgdG8ga25vdyBhbGwgdGhlIG1hcHBpbmdzIHRvIHR3ZWFr
+IHRoZWlyIG93biBETUEgdHJhbnNsYXRpb24KPj4gbG9naWMuCj4+Cj4+IEZvciB2RFBBIGRldmlj
+ZSB0aGF0IGRvZXNuJ3QgcmVxdWlyZSBzZXRfbWFwKCksIG5vIGJlaGF2aW9yIGNoYW5nZXMuCj4+
+Cj4+IFRoaXMgY2FwYWJpbGl0eSBpcyBhZHZlcnRpc2VkIHZpYSBWSE9TVF9CQUNLRU5EX0ZfSU9U
+TEJfQkFUQ0ggY2FwYWJpbGl0eS4KPj4KPj4gU2lnbmVkLW9mZi1ieTogSmFzb24gV2FuZyA8amFz
+b3dhbmdAcmVkaGF0LmNvbT4KPj4gLS0tCj4+ICAgZHJpdmVycy92aG9zdC92ZHBhLmMgICAgICAg
+ICAgICAgfCAzMCArKysrKysrKysrKysrKysrKysrKysrKy0tLS0tLS0KPj4gICBpbmNsdWRlL3Vh
+cGkvbGludXgvdmhvc3QuaCAgICAgICB8ICAyICsrCj4+ICAgaW5jbHVkZS91YXBpL2xpbnV4L3Zo
+b3N0X3R5cGVzLmggfCAgNyArKysrKysrCj4+ICAgMyBmaWxlcyBjaGFuZ2VkLCAzMiBpbnNlcnRp
+b25zKCspLCA3IGRlbGV0aW9ucygtKQo+Pgo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aG9zdC92
+ZHBhLmMgYi9kcml2ZXJzL3Zob3N0L3ZkcGEuYwo+PiBpbmRleCA0NTMwNTc0MjFmODAuLjhmNjI0
+YmJhZmVlNyAxMDA2NDQKPj4gLS0tIGEvZHJpdmVycy92aG9zdC92ZHBhLmMKPj4gKysrIGIvZHJp
+dmVycy92aG9zdC92ZHBhLmMKPj4gQEAgLTU2LDcgKzU2LDkgQEAgZW51bSB7Cj4+ICAgfTsKPj4g
+ICAKPj4gICBlbnVtIHsKPj4gLQlWSE9TVF9WRFBBX0JBQ0tFTkRfRkVBVFVSRVMgPSAoMVVMTCA8
+PCBWSE9TVF9CQUNLRU5EX0ZfSU9UTEJfTVNHX1YyKQo+PiArCVZIT1NUX1ZEUEFfQkFDS0VORF9G
+RUFUVVJFUyA9Cj4+ICsJKDFVTEwgPDwgVkhPU1RfQkFDS0VORF9GX0lPVExCX01TR19WMikgfAo+
+PiArCSgxVUxMIDw8IFZIT1NUX0JBQ0tFTkRfRl9JT1RMQl9CQVRDSCksCj4+ICAgfTsKPj4gICAK
+Pj4gICAvKiBDdXJyZW50bHksIG9ubHkgbmV0d29yayBiYWNrZW5kIHcvbyBtdWx0aXF1ZXVlIGlz
+IHN1cHBvcnRlZC4gKi8KPj4gQEAgLTc3LDYgKzc5LDcgQEAgc3RydWN0IHZob3N0X3ZkcGEgewo+
+PiAgIAlpbnQgdmlydGlvX2lkOwo+PiAgIAlpbnQgbWlub3I7Cj4+ICAgCXN0cnVjdCBldmVudGZk
+X2N0eCAqY29uZmlnX2N0eDsKPj4gKwlpbnQgaW5fYmF0Y2g7Cj4+ICAgfTsKPj4gICAKPj4gICBz
+dGF0aWMgREVGSU5FX0lEQSh2aG9zdF92ZHBhX2lkYSk7Cj4+IEBAIC0xMjUsNiArMTI4LDcgQEAg
+c3RhdGljIHZvaWQgdmhvc3RfdmRwYV9yZXNldChzdHJ1Y3Qgdmhvc3RfdmRwYSAqdikKPj4gICAJ
+Y29uc3Qgc3RydWN0IHZkcGFfY29uZmlnX29wcyAqb3BzID0gdmRwYS0+Y29uZmlnOwo+PiAgIAo+
+PiAgIAlvcHMtPnNldF9zdGF0dXModmRwYSwgMCk7Cj4+ICsJdi0+aW5fYmF0Y2ggPSAwOwo+PiAg
+IH0KPj4gICAKPj4gICBzdGF0aWMgbG9uZyB2aG9zdF92ZHBhX2dldF9kZXZpY2VfaWQoc3RydWN0
+IHZob3N0X3ZkcGEgKnYsIHU4IF9fdXNlciAqYXJncCkKPj4gQEAgLTU0MCw5ICs1NDQsMTAgQEAg
+c3RhdGljIGludCB2aG9zdF92ZHBhX21hcChzdHJ1Y3Qgdmhvc3RfdmRwYSAqdiwKPj4gICAKPj4g
+ICAJaWYgKG9wcy0+ZG1hX21hcCkKPj4gICAJCXIgPSBvcHMtPmRtYV9tYXAodmRwYSwgaW92YSwg
+c2l6ZSwgcGEsIHBlcm0pOwo+PiAtCWVsc2UgaWYgKG9wcy0+c2V0X21hcCkKPj4gLQkJciA9IG9w
+cy0+c2V0X21hcCh2ZHBhLCBkZXYtPmlvdGxiKTsKPj4gLQllbHNlCj4+ICsJZWxzZSBpZiAob3Bz
+LT5zZXRfbWFwKSB7Cj4+ICsJCWlmICghdi0+aW5fYmF0Y2gpCj4+ICsJCQlyID0gb3BzLT5zZXRf
+bWFwKHZkcGEsIGRldi0+aW90bGIpOwo+PiArCX0gZWxzZQo+PiAgIAkJciA9IGlvbW11X21hcCh2
+LT5kb21haW4sIGlvdmEsIHBhLCBzaXplLAo+PiAgIAkJCSAgICAgIHBlcm1fdG9faW9tbXVfZmxh
+Z3MocGVybSkpOwo+PiAgIAo+PiBAQCAtNTU5LDkgKzU2NCwxMCBAQCBzdGF0aWMgdm9pZCB2aG9z
+dF92ZHBhX3VubWFwKHN0cnVjdCB2aG9zdF92ZHBhICp2LCB1NjQgaW92YSwgdTY0IHNpemUpCj4+
+ICAgCj4+ICAgCWlmIChvcHMtPmRtYV9tYXApCj4+ICAgCQlvcHMtPmRtYV91bm1hcCh2ZHBhLCBp
+b3ZhLCBzaXplKTsKPj4gLQllbHNlIGlmIChvcHMtPnNldF9tYXApCj4+IC0JCW9wcy0+c2V0X21h
+cCh2ZHBhLCBkZXYtPmlvdGxiKTsKPj4gLQllbHNlCj4+ICsJZWxzZSBpZiAob3BzLT5zZXRfbWFw
+KSB7Cj4+ICsJCWlmICghdi0+aW5fYmF0Y2gpCj4+ICsJCQlvcHMtPnNldF9tYXAodmRwYSwgZGV2
+LT5pb3RsYik7Cj4+ICsJfSBlbHNlCj4+ICAgCQlpb21tdV91bm1hcCh2LT5kb21haW4sIGlvdmEs
+IHNpemUpOwo+PiAgIH0KPj4gICAKPj4gQEAgLTY1NSw2ICs2NjEsOCBAQCBzdGF0aWMgaW50IHZo
+b3N0X3ZkcGFfcHJvY2Vzc19pb3RsYl9tc2coc3RydWN0IHZob3N0X2RldiAqZGV2LAo+PiAgIAkJ
+CQkJc3RydWN0IHZob3N0X2lvdGxiX21zZyAqbXNnKQo+PiAgIHsKPj4gICAJc3RydWN0IHZob3N0
+X3ZkcGEgKnYgPSBjb250YWluZXJfb2YoZGV2LCBzdHJ1Y3Qgdmhvc3RfdmRwYSwgdmRldik7Cj4+
+ICsJc3RydWN0IHZkcGFfZGV2aWNlICp2ZHBhID0gdi0+dmRwYTsKPj4gKwljb25zdCBzdHJ1Y3Qg
+dmRwYV9jb25maWdfb3BzICpvcHMgPSB2ZHBhLT5jb25maWc7Cj4+ICAgCWludCByID0gMDsKPj4g
+ICAKPj4gICAJciA9IHZob3N0X2Rldl9jaGVja19vd25lcihkZXYpOwo+PiBAQCAtNjY4LDYgKzY3
+NiwxNCBAQCBzdGF0aWMgaW50IHZob3N0X3ZkcGFfcHJvY2Vzc19pb3RsYl9tc2coc3RydWN0IHZo
+b3N0X2RldiAqZGV2LAo+PiAgIAljYXNlIFZIT1NUX0lPVExCX0lOVkFMSURBVEU6Cj4+ICAgCQl2
+aG9zdF92ZHBhX3VubWFwKHYsIG1zZy0+aW92YSwgbXNnLT5zaXplKTsKPj4gICAJCWJyZWFrOwo+
+PiArCWNhc2UgVkhPU1RfSU9UTEJfQkFUQ0hfQkVHSU46Cj4+ICsJCXYtPmluX2JhdGNoID0gdHJ1
+ZTsKPj4gKwkJYnJlYWs7Cj4+ICsJY2FzZSBWSE9TVF9JT1RMQl9CQVRDSF9FTkQ6Cj4+ICsJCWlm
+ICh2LT5pbl9iYXRjaCAmJiBvcHMtPnNldF9tYXApCj4+ICsJCQlvcHMtPnNldF9tYXAodmRwYSwg
+ZGV2LT5pb3RsYik7Cj4+ICsJCXYtPmluX2JhdGNoID0gZmFsc2U7Cj4+ICsJCWJyZWFrOwo+PiAg
+IAlkZWZhdWx0Ogo+PiAgIAkJciA9IC1FSU5WQUw7Cj4+ICAgCQlicmVhazsKPj4gZGlmZiAtLWdp
+dCBhL2luY2x1ZGUvdWFwaS9saW51eC92aG9zdC5oIGIvaW5jbHVkZS91YXBpL2xpbnV4L3Zob3N0
+LmgKPj4gaW5kZXggMGMyMzQ5NjEyZTc3Li41NjVkYTk2ZjU1ZDUgMTAwNjQ0Cj4+IC0tLSBhL2lu
+Y2x1ZGUvdWFwaS9saW51eC92aG9zdC5oCj4+ICsrKyBiL2luY2x1ZGUvdWFwaS9saW51eC92aG9z
+dC5oCj4+IEBAIC05MSw2ICs5MSw4IEBACj4+ICAgCj4+ICAgLyogVXNlIG1lc3NhZ2UgdHlwZSBW
+MiAqLwo+PiAgICNkZWZpbmUgVkhPU1RfQkFDS0VORF9GX0lPVExCX01TR19WMiAweDEKPj4gKy8q
+IElPVExCIGNhbiBhY2NwZXQgYmF0Y2hpbmcgaGludHMgKi8KPiB0eXBvCgoKV2lsbCBmaXguCgoK
+Pgo+PiArI2RlZmluZSBWSE9TVF9CQUNLRU5EX0ZfSU9UTEJfQkFUQ0ggIDB4Mgo+PiAgIAo+PiAg
+ICNkZWZpbmUgVkhPU1RfU0VUX0JBQ0tFTkRfRkVBVFVSRVMgX0lPVyhWSE9TVF9WSVJUSU8sIDB4
+MjUsIF9fdTY0KQo+PiAgICNkZWZpbmUgVkhPU1RfR0VUX0JBQ0tFTkRfRkVBVFVSRVMgX0lPUihW
+SE9TVF9WSVJUSU8sIDB4MjYsIF9fdTY0KQo+PiBkaWZmIC0tZ2l0IGEvaW5jbHVkZS91YXBpL2xp
+bnV4L3Zob3N0X3R5cGVzLmggYi9pbmNsdWRlL3VhcGkvbGludXgvdmhvc3RfdHlwZXMuaAo+PiBp
+bmRleCA2Njk0NTdjZTVjNDguLjVjMTJmYWZmZGRlOSAxMDA2NDQKPj4gLS0tIGEvaW5jbHVkZS91
+YXBpL2xpbnV4L3Zob3N0X3R5cGVzLmgKPj4gKysrIGIvaW5jbHVkZS91YXBpL2xpbnV4L3Zob3N0
+X3R5cGVzLmgKPj4gQEAgLTYwLDYgKzYwLDEzIEBAIHN0cnVjdCB2aG9zdF9pb3RsYl9tc2cgewo+
+PiAgICNkZWZpbmUgVkhPU1RfSU9UTEJfVVBEQVRFICAgICAgICAgMgo+PiAgICNkZWZpbmUgVkhP
+U1RfSU9UTEJfSU5WQUxJREFURSAgICAgMwo+PiAgICNkZWZpbmUgVkhPU1RfSU9UTEJfQUNDRVNT
+X0ZBSUwgICAgNAo+PiArLyogVkhPU1RfSU9UTEJfQkFUQ0hfQkVHSU4gaXMgYSBoaW50IHRoYXQg
+dXNlcnNwYWNlIHdpbGwgdXBkYXRlCj4+ICsgKiBzZXZlcmFsIG1hcHBpbmdzIGFmdGVyd2FyZHMu
+IFZIT1NUX0lPVExCX0JBVENIX0VORCBpcyBhIGhpbnQgdGhhdAo+PiArICogdXNlcnNwYWNlIGhh
+ZCBmaW5pc2hlZCB0aGUgbWFwcGluZyB1cGRhdGluZy4KPgo+IFdlbGwgbm90IGp1c3QgaGludHMg
+LSBpbiBmYWN0IHVwZGF0ZXMgZG8gbm90IHRha2UgcGxhY2UKPiB1bnRpbCBfRU5ELgo+Cj4gSG93
+IGFib3V0Ogo+Cj4gLyogVkhPU1RfSU9UTEJfQkFUQ0hfQkVHSU4gYW5kIFZIT1NUX0lPVExCX0JB
+VENIX0VORCBhbGxvdyBtb2RpZnlpbmcKPiAgICogbXVsdGlwbGUgbWFwcGluZ3MgaW4gb25lIGdv
+OiBiZWdpbm5pbmcgd2l0aAo+ICAgKiBWSE9TVF9JT1RMQl9CQVRDSF9CRUdJTiwgZm9sbG93ZWQg
+YnkgYW55IG51bWJlciBvZgo+ICAgICBWSE9TVF9JT1RMQl9VUERBVEUgbWVzc2FnZXMsIGFuZCBl
+bmRpbmcgd2l0aCBWSE9TVF9JT1RMQl9CQVRDSF9FTkQuCj4gICAqLwoKClRoYXQncyBiZXR0ZXIu
+CgoKPgo+Cj4+IFdoZW4gdGhvc2UgdHdvIGZsYWdzCj4+ICsgKiB3ZXJlIHNldCwga2VybmVsIHdp
+bGwgaWdub3JlIHRoZSByZXN0IGZpbGVkcyBvZiB0aGUgSU9UTEIgbWVzc2FnZS4KPiBob3cgYWJv
+dXQ6Cj4KPiB3aGVuIG9uZSBvZiB0aGVzZSB0d28gdmFsdWVzIGlzIHVzZWQgYXMgdGhlIG1lc3Nh
+Z2UgdHlwZSwgdGhlCj4gcmVzdCBvZiB0aGUgZmllbGRzIGluIHRoZSBtZXNzYWdlIGFyZSBpZ25v
+cmVkLgoKClllcy4KCldpbGwgZml4LgoKVGhhbmtzCgoKPgo+PiArICovCj4+ICsjZGVmaW5lIFZI
+T1NUX0lPVExCX0JBVENIX0JFR0lOICAgIDUKPj4gKyNkZWZpbmUgVkhPU1RfSU9UTEJfQkFUQ0hf
+RU5EICAgICAgNgo+PiAgIAlfX3U4IHR5cGU7Cj4+ICAgfTsKPj4gICAKPj4gLS0gCj4+IDIuMjAu
+MQoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVh
+bGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRp
+b24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZv
+L3ZpcnR1YWxpemF0aW9u
