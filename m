@@ -1,75 +1,45 @@
 From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v1 1/6] mm/page_alloc: tweak comments in has_unmovable_pages()
-Date: Tue, 30 Jun 2020 16:26:34 +0200
-Message-ID: <20200630142639.22770-2-david@redhat.com>
-References: <20200630142639.22770-1-david@redhat.com>
+Subject: [PATCH v1 0/6] mm / virtio-mem: support ZONE_MOVABLE
+Date: Tue, 30 Jun 2020 16:26:33 +0200
+Message-ID: <20200630142639.22770-1-david@redhat.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200630142639.22770-1-david@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, linux-mm@kvack.org, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, "Michael S . Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, linux-mm@kvack.org, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Michal Hocko <mhocko@suse.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Let's move the split comment regarding bootmem allocations and memory
-holes, especially in the context of ZONE_MOVABLE, to the PageReserved()
-check.
+Currently, virtio-mem does not really support ZONE_MOVABLE. While it allows
+to online fully plugged memory blocks to ZONE_MOVABLE, it does not allow
+to online partially-plugged memory blocks to ZONE_MOVABLE and will never
+consider such memory blocks when unplugging memory. This might be
+surprising for users (especially, if onlining suddenly fails).
 
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- mm/page_alloc.c | 22 ++++++----------------
- 1 file changed, 6 insertions(+), 16 deletions(-)
+Let's support partially plugged memory blocks in ZONE_MOVABLE, allowing
+partially plugged memory blocks to be online to ZONE_MOVABLE and also
+unplugging from such memory blocks.
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 48eb0f1410d47..bd3ebf08f09b9 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -8207,14 +8207,6 @@ struct page *has_unmovable_pages(struct zone *zone, struct page *page,
- 	unsigned long iter = 0;
- 	unsigned long pfn = page_to_pfn(page);
- 
--	/*
--	 * TODO we could make this much more efficient by not checking every
--	 * page in the range if we know all of them are in MOVABLE_ZONE and
--	 * that the movable zone guarantees that pages are migratable but
--	 * the later is not the case right now unfortunatelly. E.g. movablecore
--	 * can still lead to having bootmem allocations in zone_movable.
--	 */
--
- 	if (is_migrate_cma_page(page)) {
- 		/*
- 		 * CMA allocations (alloc_contig_range) really need to mark
-@@ -8233,6 +8225,12 @@ struct page *has_unmovable_pages(struct zone *zone, struct page *page,
- 
- 		page = pfn_to_page(pfn + iter);
- 
-+		/*
-+		 * Both, bootmem allocations and memory holes are marked
-+		 * PG_reserved and are unmovable. We can even have unmovable
-+		 * allocations inside ZONE_MOVABLE, for example when
-+		 * specifying "movable_core".
-+		 */
- 		if (PageReserved(page))
- 			return page;
- 
-@@ -8306,14 +8304,6 @@ struct page *has_unmovable_pages(struct zone *zone, struct page *page,
- 		 * it.  But now, memory offline itself doesn't call
- 		 * shrink_node_slabs() and it still to be fixed.
- 		 */
--		/*
--		 * If the page is not RAM, page_count()should be 0.
--		 * we don't need more check. This is an _used_ not-movable page.
--		 *
--		 * The problematic thing here is PG_reserved pages. PG_reserved
--		 * is set to both of a memory hole page and a _used_ kernel
--		 * page at boot.
--		 */
- 		return page;
- 	}
- 	return NULL;
+This is especially helpful for testing, but also paves the way for
+virtio-mem optimizations, allowing more memory to get reliably unplugged.
+
+Cleanup has_unmovable_pages() and set_migratetype_isolate(), providing
+better documentation of how ZONE_MOVABLE interacts with different kind of
+unmovable pages (memory offlining vs. alloc_contig_range()).
+
+David Hildenbrand (6):
+  mm/page_alloc: tweak comments in has_unmovable_pages()
+  mm/page_isolation: don't dump_page(NULL) in set_migratetype_isolate()
+  mm/page_isolation: drop WARN_ON_ONCE() in set_migratetype_isolate()
+  mm/page_isolation: cleanup set_migratetype_isolate()
+  mm/page_alloc: restrict ZONE_MOVABLE optimization in
+    has_unmovable_pages() to memory offlining
+  virtio-mem: don't special-case ZONE_MOVABLE
+
+ drivers/virtio/virtio_mem.c | 47 +++++++------------------------------
+ mm/page_alloc.c             | 29 +++++++++--------------
+ mm/page_isolation.c         | 40 ++++++++++++++-----------------
+ 3 files changed, 36 insertions(+), 80 deletions(-)
+
 -- 
 2.26.2
