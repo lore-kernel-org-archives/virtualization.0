@@ -1,29 +1,45 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH 18/18] arm64: lto: Strengthen READ_ONCE() to acquire when
- CLANG_LTO=y
-Date: Tue, 30 Jun 2020 22:20:59 +0200
-Message-ID: <20200630202059.GE4817@hirez.programming.kicks-ass.net>
-References: <20200630173734.14057-1-will@kernel.org>
- <20200630173734.14057-19-will@kernel.org>
- <CANpmjNPOO=AVsVJMdL8sq03jwHsDR_1_FfWccwaLKEBRn1RFtA@mail.gmail.com>
+From: Ming Lei <ming.lei@redhat.com>
+Subject: Re: [PATCH] virtio-blk: free vblk-vqs in error path of
+ virtblk_probe()
+Date: Wed, 1 Jul 2020 06:30:12 +0800
+Message-ID: <20200630223012.GA2251557@T590>
+References: <20200615041459.22477-1-houtao1@huawei.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-block-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CANpmjNPOO=AVsVJMdL8sq03jwHsDR_1_FfWccwaLKEBRn1RFtA@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Marco Elver <elver@google.com>
-Cc: Will Deacon <will@kernel.org>, LKML <linux-kernel@vger.kernel.org>, Sami Tolvanen <samitolvanen@google.com>, Nick Desaulniers <ndesaulniers@google.com>, Kees Cook <keescook@chromium.org>, "Paul E. McKenney" <paulmck@kernel.org>, Josh Triplett <josh@joshtriplett.org>, Matt Turner <mattst88@gmail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Richard Henderson <rth@twiddle.net>, Alan Stern <stern@rowland.harvard.edu>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Boqun Feng <boqun.feng@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.org, virtualization@lists.linux-foundation.org
+In-Reply-To: <20200615041459.22477-1-houtao1@huawei.com>
+Sender: linux-block-owner@vger.kernel.org
+To: Hou Tao <houtao1@huawei.com>
+Cc: linux-block@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Jens Axboe <axboe@kernel.dk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 30, 2020 at 09:47:30PM +0200, Marco Elver wrote:
-> I do wonder, though, if there is some way to make the compiler do
-> something better for us. Clearly, implementing real
-> memory_order_consume hasn't worked out until today. But maybe the
-> compiler could promote dependent loads to acquires if it recognizes it
-> lost dependencies during optimizations. Just thinking out loud, it
-> probably still has some weird corner case that will break. ;-)
+On Mon, Jun 15, 2020 at 12:14:59PM +0800, Hou Tao wrote:
+> Else there will be memory leak if alloc_disk() fails.
+> 
+> Fixes: 6a27b656fc02 ("block: virtio-blk: support multi virt queues per virtio-blk device")
+> Signed-off-by: Hou Tao <houtao1@huawei.com>
+> ---
+>  drivers/block/virtio_blk.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 9d21bf0f155e..980df853ee49 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -878,6 +878,7 @@ static int virtblk_probe(struct virtio_device *vdev)
+>  	put_disk(vblk->disk);
+>  out_free_vq:
+>  	vdev->config->del_vqs(vdev);
+> +	kfree(vblk->vqs);
+>  out_free_vblk:
+>  	kfree(vblk);
+>  out_free_index:
+> -- 
+> 2.25.0.4.g0ad7144999
+> 
 
-I'd be very hesitant to let the compiler upgrade the ordering for us,
-specifically because we're not using C11 crud and are using a lot of
-inline asm.
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+
+-- 
+Ming
