@@ -1,128 +1,82 @@
 From: Will Deacon <will@kernel.org>
-Subject: [PATCH 18/18] arm64: lto: Strengthen READ_ONCE() to acquire when CLANG_LTO=y
-Date: Tue, 30 Jun 2020 18:37:34 +0100
-Message-ID: <20200630173734.14057-19-will@kernel.org>
+Subject: [PATCH 16/18] arm64: cpufeatures: Add capability for LDAPR instruction
+Date: Tue, 30 Jun 2020 18:37:32 +0100
+Message-ID: <20200630173734.14057-17-will@kernel.org>
 References: <20200630173734.14057-1-will@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-alpha-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200630173734.14057-1-will@kernel.org>
-Sender: linux-alpha-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
 Cc: Will Deacon <will@kernel.org>, Sami Tolvanen <samitolvanen@google.com>, Nick Desaulniers <ndesaulniers@google.com>, Kees Cook <keescook@chromium.org>, Marco Elver <elver@google.com>, "Paul E. McKenney" <paulmck@kernel.org>, Josh Triplett <josh@joshtriplett.org>, Matt Turner <mattst88@gmail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Richard Henderson <rth@twiddle.net>, Peter Zijlstra <peterz@infradead.org>, Alan Stern <stern@rowland.harvard.edu>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Boqun Feng <boqun.feng@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.orgv
 List-Id: virtualization@lists.linuxfoundation.org
 
-When building with LTO, there is an increased risk of the compiler
-converting an address dependency headed by a READ_ONCE() invocation
-into a control dependency and consequently allowing for harmful
-reordering by the CPU.
+Armv8.3 introduced the LDAPR instruction, which provides weaker memory
+ordering semantics than LDARi (RCpc vs RCsc). Generally, we provide an
+RCsc implementation when implementing the Linux memory model, but LDAPR
+can be used as a useful alternative to dependency ordering, particularly
+when the compiler is capable of breaking the dependencies.
 
-Ensure that such transformations are harmless by overriding the generic
-READ_ONCE() definition with one that provides acquire semantics when
-building with LTO.
+Since LDAPR is not available on all CPUs, add a cpufeature to detect it at
+runtime and allow the instruction to be used with alternative code
+patching.
 
 Signed-off-by: Will Deacon <will@kernel.org>
 ---
- arch/arm64/include/asm/rwonce.h   | 63 +++++++++++++++++++++++++++++++
- arch/arm64/kernel/vdso/Makefile   |  2 +-
- arch/arm64/kernel/vdso32/Makefile |  2 +-
- 3 files changed, 65 insertions(+), 2 deletions(-)
- create mode 100644 arch/arm64/include/asm/rwonce.h
+ arch/arm64/Kconfig               |  3 +++
+ arch/arm64/include/asm/cpucaps.h |  3 ++-
+ arch/arm64/kernel/cpufeature.c   | 10 ++++++++++
+ 3 files changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm64/include/asm/rwonce.h b/arch/arm64/include/asm/rwonce.h
-new file mode 100644
-index 000000000000..515e360b01a1
---- /dev/null
-+++ b/arch/arm64/include/asm/rwonce.h
-@@ -0,0 +1,63 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * Copyright (C) 2020 Google LLC.
-+ */
-+#ifndef __ASM_RWONCE_H
-+#define __ASM_RWONCE_H
-+
-+#ifdef CONFIG_CLANG_LTO
-+
-+#include <linux/compiler_types.h>
-+#include <asm/alternative-macros.h>
-+
-+#ifndef BUILD_VDSO
-+
-+#ifdef CONFIG_AS_HAS_LDAPR
-+#define __LOAD_RCPC(sfx, regs...)					\
-+	ALTERNATIVE(							\
-+		"ldar"	#sfx "\t" #regs,				\
-+		".arch_extension rcpc\n"				\
-+		"ldapr"	#sfx "\t" #regs,				\
-+	ARM64_HAS_LDAPR)
-+#else
-+#define __LOAD_RCPC(sfx, regs...)	"ldar" #sfx "\t" #regs
-+#endif /* CONFIG_AS_HAS_LDAPR */
-+
-+#define __READ_ONCE(x)							\
-+({									\
-+	int atomic = 1;							\
-+	union { __unqual_scalar_typeof(x) __val; char __c[1]; } __u;	\
-+	typeof(&(x)) __x = &(x);					\
-+	switch (sizeof(x)) {						\
-+	case 1:								\
-+		asm volatile(__LOAD_RCPC(b, %w0, %1)			\
-+			: "=r" (*(__u8 *)__u.__c)			\
-+			: "Q" (*__x) : "memory");			\
-+		break;							\
-+	case 2:								\
-+		asm volatile(__LOAD_RCPC(h, %w0, %1)			\
-+			: "=r" (*(__u16 *)__u.__c)			\
-+			: "Q" (*__x) : "memory");			\
-+		break;							\
-+	case 4:								\
-+		asm volatile(__LOAD_RCPC(, %w0, %1)			\
-+			: "=r" (*(__u32 *)__u.__c)			\
-+			: "Q" (*__x) : "memory");			\
-+		break;							\
-+	case 8:								\
-+		asm volatile(__LOAD_RCPC(, %0, %1)			\
-+			: "=r" (*(__u64 *)__u.__c)			\
-+			: "Q" (*__x) : "memory");			\
-+		break;							\
-+	default:							\
-+		atomic = 0;						\
-+	}								\
-+	atomic ? (typeof(x))__u.__val : (*(volatile typeof(x) *)__x);	\
-+})
-+
-+#endif	/* !BUILD_VDSO */
-+#endif	/* CONFIG_CLANG_LTO */
-+
-+#include <asm-generic/rwonce.h>
-+
-+#endif	/* __ASM_RWONCE_H */
-diff --git a/arch/arm64/kernel/vdso/Makefile b/arch/arm64/kernel/vdso/Makefile
-index 45d5cfe46429..60df97f2e7de 100644
---- a/arch/arm64/kernel/vdso/Makefile
-+++ b/arch/arm64/kernel/vdso/Makefile
-@@ -28,7 +28,7 @@ ldflags-y := -shared -nostdlib -soname=linux-vdso.so.1 --hash-style=sysv	\
- 	     $(btildflags-y) -T
+diff --git a/arch/arm64/Kconfig b/arch/arm64/Kconfig
+index 66dc41fd49f2..e1073210e70b 100644
+--- a/arch/arm64/Kconfig
++++ b/arch/arm64/Kconfig
+@@ -1409,6 +1409,9 @@ config ARM64_PAN
+ 	 The feature is detected at runtime, and will remain as a 'nop'
+ 	 instruction if the cpu does not implement the feature.
  
- ccflags-y := -fno-common -fno-builtin -fno-stack-protector -ffixed-x18
--ccflags-y += -DDISABLE_BRANCH_PROFILING
-+ccflags-y += -DDISABLE_BRANCH_PROFILING -DBUILD_VDSO
++config AS_HAS_LDAPR
++	def_bool $(as-instr,.arch_extension rcpc)
++
+ config ARM64_LSE_ATOMICS
+ 	bool
+ 	default ARM64_USE_LSE_ATOMICS
+diff --git a/arch/arm64/include/asm/cpucaps.h b/arch/arm64/include/asm/cpucaps.h
+index d7b3bb0cb180..3ff0103d4dfd 100644
+--- a/arch/arm64/include/asm/cpucaps.h
++++ b/arch/arm64/include/asm/cpucaps.h
+@@ -62,7 +62,8 @@
+ #define ARM64_HAS_GENERIC_AUTH			52
+ #define ARM64_HAS_32BIT_EL1			53
+ #define ARM64_BTI				54
++#define ARM64_HAS_LDAPR				55
  
- CFLAGS_REMOVE_vgettimeofday.o = $(CC_FLAGS_FTRACE) -Os $(CC_FLAGS_SCS) $(GCC_PLUGINS_CFLAGS)
- KBUILD_CFLAGS			+= $(DISABLE_LTO)
-diff --git a/arch/arm64/kernel/vdso32/Makefile b/arch/arm64/kernel/vdso32/Makefile
-index d88148bef6b0..4fdf3754a058 100644
---- a/arch/arm64/kernel/vdso32/Makefile
-+++ b/arch/arm64/kernel/vdso32/Makefile
-@@ -43,7 +43,7 @@ cc32-as-instr = $(call try-run,\
- # As a result we set our own flags here.
+-#define ARM64_NCAPS				55
++#define ARM64_NCAPS				56
  
- # KBUILD_CPPFLAGS and NOSTDINC_FLAGS from top-level Makefile
--VDSO_CPPFLAGS := -D__KERNEL__ -nostdinc -isystem $(shell $(CC_COMPAT) -print-file-name=include)
-+VDSO_CPPFLAGS := -DBUILD_VDSO -D__KERNEL__ -nostdinc -isystem $(shell $(CC_COMPAT) -print-file-name=include)
- VDSO_CPPFLAGS += $(LINUXINCLUDE)
+ #endif /* __ASM_CPUCAPS_H */
+diff --git a/arch/arm64/kernel/cpufeature.c b/arch/arm64/kernel/cpufeature.c
+index 9f63053a63a9..a29256a782e9 100644
+--- a/arch/arm64/kernel/cpufeature.c
++++ b/arch/arm64/kernel/cpufeature.c
+@@ -2056,6 +2056,16 @@ static const struct arm64_cpu_capabilities arm64_features[] = {
+ 		.sign = FTR_UNSIGNED,
+ 	},
+ #endif
++	{
++		.desc = "RCpc load-acquire (LDAPR)",
++		.capability = ARM64_HAS_LDAPR,
++		.type = ARM64_CPUCAP_SYSTEM_FEATURE,
++		.sys_reg = SYS_ID_AA64ISAR1_EL1,
++		.sign = FTR_UNSIGNED,
++		.field_pos = ID_AA64ISAR1_LRCPC_SHIFT,
++		.matches = has_cpuid_feature,
++		.min_field_value = 1,
++	},
+ 	{},
+ };
  
- # Common C and assembly flags
 -- 
 2.27.0.212.ge8ba1cc988-goog
