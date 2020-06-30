@@ -1,161 +1,143 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: [PATCH v1 6/6] virtio-mem: don't special-case ZONE_MOVABLE
-Date: Tue, 30 Jun 2020 16:26:39 +0200
-Message-ID: <20200630142639.22770-7-david@redhat.com>
-References: <20200630142639.22770-1-david@redhat.com>
+From: Will Deacon <will@kernel.org>
+Subject: [PATCH 00/18] Allow architectures to override __READ_ONCE()
+Date: Tue, 30 Jun 2020 18:37:16 +0100
+Message-ID: <20200630173734.14057-1-will@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200630142639.22770-1-david@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
+Return-path: <linux-alpha-owner@vger.kernel.org>
+Sender: linux-alpha-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, linux-mm@kvack.org, David Hildenbrand <david@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@suse.com>, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: Will Deacon <will@kernel.org>, Sami Tolvanen <samitolvanen@google.com>, Nick Desaulniers <ndesaulniers@google.com>, Kees Cook <keescook@chromium.org>, Marco Elver <elver@google.com>, "Paul E. McKenney" <paulmck@kernel.org>, Josh Triplett <josh@joshtriplett.org>, Matt Turner <mattst88@gmail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Richard Henderson <rth@twiddle.net>, Peter Zijlstra <peterz@infradead.org>, Alan Stern <stern@rowland.harvard.edu>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Boqun Feng <boqun.feng@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.orgv
 List-Id: virtualization@lists.linuxfoundation.org
 
-Let's allow to online partially plugged memory blocks to ZONE_MOVABLE
-and also consider memory blocks that were onlined to ZONE_MOVABLE when
-unplugging memory. While unplugged memory blocks are, in general,
-unmovable, they can be skipped when offlining memory.
+Hi everyone,
 
-virtio-mem only unplugs fairly big chunks (in the megabyte range) and
-rather tries to shrink the memory region than randomly choosing memory. In
-theory, if all other pages in the movable zone would be movable, virtio-mem
-would only shrink that zone and not create any kind of fragmentation.
+This is the long-awaited version two of the patches I previously
+posted in November last year:
 
-Note: Support for defragmentation is planned, to deal with fragmentation
-after unplug due to memory chunks within memory blocks that could not
-get unplugged before (e.g., somebody pinning pages within ZONE_MOVABLE
-for a longer time).
+  https://lore.kernel.org/lkml/20191108170120.22331-1-will@kernel.org/
 
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Michael S. Tsirkin <mst@redhat.com>
+I ended up parking the series while the READ_ONCE() implementation was
+being overhauled, but with that merged during the recent merge window
+and LTO patches being posted again [1], it was time for a refresh.
+
+The patches allow architectures to provide their own implementation of
+__READ_ONCE(). This serves two main purposes:
+
+  1. It finally allows us to remove [smp_]read_barrier_depends() from the
+     Linux memory model and make it an implementation detail of the Alpha
+     back-end.
+
+  2. It allows arm64 to upgrade __READ_ONCE() to have RCpc acquire
+     semantics when compiling with LTO, since this may enable compiler
+     optimisations that break dependency ordering and therefore we
+     require fencing to ensure ordering within the CPU.
+
+Both of these are implemented by this series.
+
+I've kept Paul's acks from v1 since, although the series has changed
+somewhat, the patches with his Ack have not changed materially in my
+opinion. I will drop them if anybody objects.
+
+In terms of merging this, my preference would be a stable branch in the
+arm64 tree, which others can pull in as they need it.
+
+Cheers,
+
+Will
+
+[1] https://lore.kernel.org/r/20200624203200.78870-1-samitolvanen@google.com
+
+Cc: Sami Tolvanen <samitolvanen@google.com>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Marco Elver <elver@google.com>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>
+Cc: Josh Triplett <josh@joshtriplett.org>
+Cc: Matt Turner <mattst88@gmail.com>
+Cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+Cc: Richard Henderson <rth@twiddle.net>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Jason Wang <jasowang@redhat.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- drivers/virtio/virtio_mem.c | 47 +++++++------------------------------
- 1 file changed, 8 insertions(+), 39 deletions(-)
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Boqun Feng <boqun.feng@gmail.com>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: linux-arm-kernel@lists.infradead.org>
+Cc: linux-alpha@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org
+Cc: kernel-team@android.com
 
-diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index f26f5f64ae822..2ddfc4a0e2ee0 100644
---- a/drivers/virtio/virtio_mem.c
-+++ b/drivers/virtio/virtio_mem.c
-@@ -36,18 +36,10 @@ enum virtio_mem_mb_state {
- 	VIRTIO_MEM_MB_STATE_OFFLINE,
- 	/* Partially plugged, fully added to Linux, offline. */
- 	VIRTIO_MEM_MB_STATE_OFFLINE_PARTIAL,
--	/* Fully plugged, fully added to Linux, online (!ZONE_MOVABLE). */
-+	/* Fully plugged, fully added to Linux, online. */
- 	VIRTIO_MEM_MB_STATE_ONLINE,
--	/* Partially plugged, fully added to Linux, online (!ZONE_MOVABLE). */
-+	/* Partially plugged, fully added to Linux, online. */
- 	VIRTIO_MEM_MB_STATE_ONLINE_PARTIAL,
--	/*
--	 * Fully plugged, fully added to Linux, online (ZONE_MOVABLE).
--	 * We are not allowed to allocate (unplug) parts of this block that
--	 * are not movable (similar to gigantic pages). We will never allow
--	 * to online OFFLINE_PARTIAL to ZONE_MOVABLE (as they would contain
--	 * unmovable parts).
--	 */
--	VIRTIO_MEM_MB_STATE_ONLINE_MOVABLE,
- 	VIRTIO_MEM_MB_STATE_COUNT
- };
- 
-@@ -526,21 +518,10 @@ static bool virtio_mem_owned_mb(struct virtio_mem *vm, unsigned long mb_id)
- }
- 
- static int virtio_mem_notify_going_online(struct virtio_mem *vm,
--					  unsigned long mb_id,
--					  enum zone_type zone)
-+					  unsigned long mb_id)
- {
- 	switch (virtio_mem_mb_get_state(vm, mb_id)) {
- 	case VIRTIO_MEM_MB_STATE_OFFLINE_PARTIAL:
--		/*
--		 * We won't allow to online a partially plugged memory block
--		 * to the MOVABLE zone - it would contain unmovable parts.
--		 */
--		if (zone == ZONE_MOVABLE) {
--			dev_warn_ratelimited(&vm->vdev->dev,
--					     "memory block has holes, MOVABLE not supported\n");
--			return NOTIFY_BAD;
--		}
--		return NOTIFY_OK;
- 	case VIRTIO_MEM_MB_STATE_OFFLINE:
- 		return NOTIFY_OK;
- 	default:
-@@ -560,7 +541,6 @@ static void virtio_mem_notify_offline(struct virtio_mem *vm,
- 					VIRTIO_MEM_MB_STATE_OFFLINE_PARTIAL);
- 		break;
- 	case VIRTIO_MEM_MB_STATE_ONLINE:
--	case VIRTIO_MEM_MB_STATE_ONLINE_MOVABLE:
- 		virtio_mem_mb_set_state(vm, mb_id,
- 					VIRTIO_MEM_MB_STATE_OFFLINE);
- 		break;
-@@ -579,24 +559,17 @@ static void virtio_mem_notify_offline(struct virtio_mem *vm,
- 	virtio_mem_retry(vm);
- }
- 
--static void virtio_mem_notify_online(struct virtio_mem *vm, unsigned long mb_id,
--				     enum zone_type zone)
-+static void virtio_mem_notify_online(struct virtio_mem *vm, unsigned long mb_id)
- {
- 	unsigned long nb_offline;
- 
- 	switch (virtio_mem_mb_get_state(vm, mb_id)) {
- 	case VIRTIO_MEM_MB_STATE_OFFLINE_PARTIAL:
--		BUG_ON(zone == ZONE_MOVABLE);
- 		virtio_mem_mb_set_state(vm, mb_id,
- 					VIRTIO_MEM_MB_STATE_ONLINE_PARTIAL);
- 		break;
- 	case VIRTIO_MEM_MB_STATE_OFFLINE:
--		if (zone == ZONE_MOVABLE)
--			virtio_mem_mb_set_state(vm, mb_id,
--					    VIRTIO_MEM_MB_STATE_ONLINE_MOVABLE);
--		else
--			virtio_mem_mb_set_state(vm, mb_id,
--						VIRTIO_MEM_MB_STATE_ONLINE);
-+		virtio_mem_mb_set_state(vm, mb_id, VIRTIO_MEM_MB_STATE_ONLINE);
- 		break;
- 	default:
- 		BUG();
-@@ -675,7 +648,6 @@ static int virtio_mem_memory_notifier_cb(struct notifier_block *nb,
- 	const unsigned long start = PFN_PHYS(mhp->start_pfn);
- 	const unsigned long size = PFN_PHYS(mhp->nr_pages);
- 	const unsigned long mb_id = virtio_mem_phys_to_mb_id(start);
--	enum zone_type zone;
- 	int rc = NOTIFY_OK;
- 
- 	if (!virtio_mem_overlaps_range(vm, start, size))
-@@ -717,8 +689,7 @@ static int virtio_mem_memory_notifier_cb(struct notifier_block *nb,
- 			break;
- 		}
- 		vm->hotplug_active = true;
--		zone = page_zonenum(pfn_to_page(mhp->start_pfn));
--		rc = virtio_mem_notify_going_online(vm, mb_id, zone);
-+		rc = virtio_mem_notify_going_online(vm, mb_id);
- 		break;
- 	case MEM_OFFLINE:
- 		virtio_mem_notify_offline(vm, mb_id);
-@@ -726,8 +697,7 @@ static int virtio_mem_memory_notifier_cb(struct notifier_block *nb,
- 		mutex_unlock(&vm->hotplug_mutex);
- 		break;
- 	case MEM_ONLINE:
--		zone = page_zonenum(pfn_to_page(mhp->start_pfn));
--		virtio_mem_notify_online(vm, mb_id, zone);
-+		virtio_mem_notify_online(vm, mb_id);
- 		vm->hotplug_active = false;
- 		mutex_unlock(&vm->hotplug_mutex);
- 		break;
-@@ -1906,8 +1876,7 @@ static void virtio_mem_remove(struct virtio_device *vdev)
- 	if (vm->nb_mb_state[VIRTIO_MEM_MB_STATE_OFFLINE] ||
- 	    vm->nb_mb_state[VIRTIO_MEM_MB_STATE_OFFLINE_PARTIAL] ||
- 	    vm->nb_mb_state[VIRTIO_MEM_MB_STATE_ONLINE] ||
--	    vm->nb_mb_state[VIRTIO_MEM_MB_STATE_ONLINE_PARTIAL] ||
--	    vm->nb_mb_state[VIRTIO_MEM_MB_STATE_ONLINE_MOVABLE]) {
-+	    vm->nb_mb_state[VIRTIO_MEM_MB_STATE_ONLINE_PARTIAL]) {
- 		dev_warn(&vdev->dev, "device still has system memory added\n");
- 	} else {
- 		virtio_mem_delete_resource(vm);
+--->8
+
+SeongJae Park (1):
+  Documentation/barriers/kokr: Remove references to
+    [smp_]read_barrier_depends()
+
+Will Deacon (17):
+  tools: bpf: Use local copy of headers including uapi/linux/filter.h
+  compiler.h: Split {READ,WRITE}_ONCE definitions out into rwonce.h
+  asm/rwonce: Allow __READ_ONCE to be overridden by the architecture
+  alpha: Override READ_ONCE() with barriered implementation
+  asm/rwonce: Remove smp_read_barrier_depends() invocation
+  vhost: Remove redundant use of read_barrier_depends() barrier
+  alpha: Replace smp_read_barrier_depends() usage with smp_[r]mb()
+  locking/barriers: Remove definitions for [smp_]read_barrier_depends()
+  Documentation/barriers: Remove references to
+    [smp_]read_barrier_depends()
+  tools/memory-model: Remove smp_read_barrier_depends() from informal
+    doc
+  include/linux: Remove smp_read_barrier_depends() from comments
+  checkpatch: Remove checks relating to [smp_]read_barrier_depends()
+  arm64: Reduce the number of header files pulled into vmlinux.lds.S
+  arm64: alternatives: Split up alternative.h
+  arm64: cpufeatures: Add capability for LDAPR instruction
+  arm64: alternatives: Remove READ_ONCE() usage during patch operation
+  arm64: lto: Strengthen READ_ONCE() to acquire when CLANG_LTO=y
+
+ .../RCU/Design/Requirements/Requirements.rst  |   2 +-
+ Documentation/memory-barriers.txt             | 156 +---------
+ .../translations/ko_KR/memory-barriers.txt    | 146 +--------
+ arch/alpha/include/asm/atomic.h               |  16 +-
+ arch/alpha/include/asm/barrier.h              |  61 +---
+ arch/alpha/include/asm/pgtable.h              |  10 +-
+ arch/alpha/include/asm/rwonce.h               |  19 ++
+ arch/arm64/Kconfig                            |   3 +
+ arch/arm64/include/asm/alternative-macros.h   | 276 ++++++++++++++++++
+ arch/arm64/include/asm/alternative.h          | 267 +----------------
+ arch/arm64/include/asm/cpucaps.h              |   3 +-
+ arch/arm64/include/asm/insn.h                 |   3 +-
+ arch/arm64/include/asm/kernel-pgtable.h       |   2 +-
+ arch/arm64/include/asm/memory.h               |  11 +-
+ arch/arm64/include/asm/rwonce.h               |  63 ++++
+ arch/arm64/include/asm/uaccess.h              |   1 +
+ arch/arm64/kernel/alternative.c               |   7 +-
+ arch/arm64/kernel/cpufeature.c                |  10 +
+ arch/arm64/kernel/entry.S                     |   1 +
+ arch/arm64/kernel/vdso/Makefile               |   2 +-
+ arch/arm64/kernel/vdso32/Makefile             |   2 +-
+ arch/arm64/kernel/vmlinux.lds.S               |   1 -
+ arch/arm64/kvm/hyp-init.S                     |   1 +
+ drivers/vhost/vhost.c                         |   5 -
+ include/asm-generic/Kbuild                    |   1 +
+ include/asm-generic/barrier.h                 |  17 --
+ include/asm-generic/rwonce.h                  |  82 ++++++
+ include/linux/compiler.h                      |  83 +-----
+ include/linux/percpu-refcount.h               |   2 +-
+ include/linux/ptr_ring.h                      |   2 +-
+ mm/memory.c                                   |   2 +-
+ scripts/checkpatch.pl                         |   9 +-
+ tools/bpf/Makefile                            |   3 +-
+ tools/include/uapi/linux/filter.h             |  90 ++++++
+ .../Documentation/explanation.txt             |  26 +-
+ 35 files changed, 617 insertions(+), 768 deletions(-)
+ create mode 100644 arch/alpha/include/asm/rwonce.h
+ create mode 100644 arch/arm64/include/asm/alternative-macros.h
+ create mode 100644 arch/arm64/include/asm/rwonce.h
+ create mode 100644 include/asm-generic/rwonce.h
+ create mode 100644 tools/include/uapi/linux/filter.h
+
 -- 
-2.26.2
+2.27.0.212.ge8ba1cc988-goog
