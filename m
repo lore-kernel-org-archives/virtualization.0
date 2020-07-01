@@ -1,72 +1,187 @@
-From: Will Deacon <will@kernel.org>
-Subject: Re: [PATCH 18/18] arm64: lto: Strengthen READ_ONCE() to acquire when
- CLANG_LTO=y
-Date: Wed, 1 Jul 2020 11:25:31 +0100
-Message-ID: <20200701102531.GE14959@willie-the-truck>
-References: <20200630173734.14057-1-will@kernel.org>
- <20200630173734.14057-19-will@kernel.org>
- <CANpmjNPOO=AVsVJMdL8sq03jwHsDR_1_FfWccwaLKEBRn1RFtA@mail.gmail.com>
- <CABCJKudxmrSNNzgPkc4NHt71rfdjAqFbb9n49S4QBDZPQ52e0w@mail.gmail.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Subject: Re: [PATCH RFC v8 02/11] vhost: use batched get_vq_desc version
+Date: Wed, 1 Jul 2020 12:43:09 +0200
+Message-ID: <CAJaqyWefMHPguj8ZGCuccTn0uyKxF9ZTEi2ASLtDSjGNb1Vwsg@mail.gmail.com>
+References: <20200611113404.17810-1-mst@redhat.com> <20200611113404.17810-3-mst@redhat.com>
+ <20200611152257.GA1798@char.us.oracle.com> <CAJaqyWdwXMX0JGhmz6soH2ZLNdaH6HEdpBM8ozZzX9WUu8jGoQ@mail.gmail.com>
+ <CAJaqyWdwgy0fmReOgLfL4dAv-E+5k_7z3d9M+vHqt0aO2SmOFg@mail.gmail.com>
+ <20200622114622-mutt-send-email-mst@kernel.org> <CAJaqyWfrf94Gc-DMaXO+f=xC8eD3DVCD9i+x1dOm5W2vUwOcGQ@mail.gmail.com>
+ <20200622122546-mutt-send-email-mst@kernel.org> <CAJaqyWfbouY4kEXkc6sYsbdCAEk0UNsS5xjqEdHTD7bcTn40Ow@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-alpha-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CABCJKudxmrSNNzgPkc4NHt71rfdjAqFbb9n49S4QBDZPQ52e0w@mail.gmail.com>
-Sender: linux-alpha-owner@vger.kernel.org
-To: Sami Tolvanen <samitolvanen@google.com>
-Cc: Marco Elver <elver@google.com>, LKML <linux-kernel@vger.kernel.org>, Nick Desaulniers <ndesaulniers@google.com>, Kees Cook <keescook@chromium.org>, "Paul E. McKenney" <paulmck@kernel.org>, Josh Triplett <josh@joshtriplett.org>, Matt Turner <mattst88@gmail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Richard Henderson <rth@twiddle.net>, Peter Zijlstra <peterz@infradead.org>, Alan Stern <stern@rowland.harvard.edu>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Boqun Feng <boqun.feng@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-alpha@vger.kernel.org, virtualization@li
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <CAJaqyWfbouY4kEXkc6sYsbdCAEk0UNsS5xjqEdHTD7bcTn40Ow@mail.gmail.com>
+Sender: netdev-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Konrad Rzeszutek Wilk <konrad.wilk@oracle.com>, linux-kernel@vger.kernel.org, kvm list <kvm@vger.kernel.org>, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 30, 2020 at 03:57:54PM -0700, Sami Tolvanen wrote:
-> On Tue, Jun 30, 2020 at 12:47 PM Marco Elver <elver@google.com> wrote:
+On Tue, Jun 23, 2020 at 6:15 PM Eugenio Perez Martin
+<eperezma@redhat.com> wrote:
+>
+> On Mon, Jun 22, 2020 at 6:29 PM Michael S. Tsirkin <mst@redhat.com> wrote:
 > >
-> > On Tue, 30 Jun 2020 at 19:39, Will Deacon <will@kernel.org> wrote:
+> > On Mon, Jun 22, 2020 at 06:11:21PM +0200, Eugenio Perez Martin wrote:
+> > > On Mon, Jun 22, 2020 at 5:55 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > >
+> > > > On Fri, Jun 19, 2020 at 08:07:57PM +0200, Eugenio Perez Martin wrote:
+> > > > > On Mon, Jun 15, 2020 at 2:28 PM Eugenio Perez Martin
+> > > > > <eperezma@redhat.com> wrote:
+> > > > > >
+> > > > > > On Thu, Jun 11, 2020 at 5:22 PM Konrad Rzeszutek Wilk
+> > > > > > <konrad.wilk@oracle.com> wrote:
+> > > > > > >
+> > > > > > > On Thu, Jun 11, 2020 at 07:34:19AM -0400, Michael S. Tsirkin wrote:
+> > > > > > > > As testing shows no performance change, switch to that now.
+> > > > > > >
+> > > > > > > What kind of testing? 100GiB? Low latency?
+> > > > > > >
+> > > > > >
+> > > > > > Hi Konrad.
+> > > > > >
+> > > > > > I tested this version of the patch:
+> > > > > > https://lkml.org/lkml/2019/10/13/42
+> > > > > >
+> > > > > > It was tested for throughput with DPDK's testpmd (as described in
+> > > > > > http://doc.dpdk.org/guides/howto/virtio_user_as_exceptional_path.html)
+> > > > > > and kernel pktgen. No latency tests were performed by me. Maybe it is
+> > > > > > interesting to perform a latency test or just a different set of tests
+> > > > > > over a recent version.
+> > > > > >
+> > > > > > Thanks!
+> > > > >
+> > > > > I have repeated the tests with v9, and results are a little bit different:
+> > > > > * If I test opening it with testpmd, I see no change between versions
+> > > >
+> > > >
+> > > > OK that is testpmd on guest, right? And vhost-net on the host?
+> > > >
 > > >
-> > > When building with LTO, there is an increased risk of the compiler
-> > > converting an address dependency headed by a READ_ONCE() invocation
-> > > into a control dependency and consequently allowing for harmful
-> > > reordering by the CPU.
+> > > Hi Michael.
 > > >
-> > > Ensure that such transformations are harmless by overriding the generic
-> > > READ_ONCE() definition with one that provides acquire semantics when
-> > > building with LTO.
+> > > No, sorry, as described in
+> > > http://doc.dpdk.org/guides/howto/virtio_user_as_exceptional_path.html.
+> > > But I could add to test it in the guest too.
 > > >
-> > > Signed-off-by: Will Deacon <will@kernel.org>
-> > > ---
-> > >  arch/arm64/include/asm/rwonce.h   | 63 +++++++++++++++++++++++++++++++
-> > >  arch/arm64/kernel/vdso/Makefile   |  2 +-
-> > >  arch/arm64/kernel/vdso32/Makefile |  2 +-
-> > >  3 files changed, 65 insertions(+), 2 deletions(-)
-> > >  create mode 100644 arch/arm64/include/asm/rwonce.h
+> > > These kinds of raw packets "bursts" do not show performance
+> > > differences, but I could test deeper if you think it would be worth
+> > > it.
 > >
-> > This seems reasonable, given we can't realistically tell the compiler
-> > about dependent loads. What (if any), is the performance impact? I
-> > guess this also heavily depends on the actual silicon.
+> > Oh ok, so this is without guest, with virtio-user.
+> > It might be worth checking dpdk within guest too just
+> > as another data point.
 > >
-> > I do wonder, though, if there is some way to make the compiler do
-> > something better for us. Clearly, implementing real
-> > memory_order_consume hasn't worked out until today. But maybe the
-> > compiler could promote dependent loads to acquires if it recognizes it
-> > lost dependencies during optimizations. Just thinking out loud, it
-> > probably still has some weird corner case that will break. ;-)
+>
+> Ok, I will do it!
+>
+> > > > > * If I forward packets between two vhost-net interfaces in the guest
+> > > > > using a linux bridge in the host:
+> > > >
+> > > > And here I guess you mean virtio-net in the guest kernel?
+> > >
+> > > Yes, sorry: Two virtio-net interfaces connected with a linux bridge in
+> > > the host. More precisely:
+> > > * Adding one of the interfaces to another namespace, assigning it an
+> > > IP, and starting netserver there.
+> > > * Assign another IP in the range manually to the other virtual net
+> > > interface, and start the desired test there.
+> > >
+> > > If you think it would be better to perform then differently please let me know.
 > >
-> > The other thing is that I'd be cautious blaming LTO, as I tried to
-> > summarize here:
-> > https://lore.kernel.org/kernel-hardening/20200630191931.GA884155@elver.google.com/
 > >
-> > The main thing is that, yes, this might be something to be worried
-> > about, but if we are worried about it, we need to be worried about it
-> > in *all* builds (LTO or not). My guess is that's not acceptable. Would
-> > it be better to just guard the promotion of READ_ONCE() to acquire
-> > behind a config option like CONFIG_ACQUIRE_READ_DEPENDENCIES, and then
-> > make LTO select that (or maybe leave it optional?). In future, for
-> > very aggressive non-LTO compilers even, one may then also select that
-> > if there is substantiated worry things do actually break.
-> 
-> I agree, a separate config option would be better here.
-> 
-> Also Will, the LTO patches use CONFIG_LTO_CLANG instead of CLANG_LTO.
+> > Not sure why you bother with namespaces since you said you are
+> > using L2 bridging. I guess it's unimportant.
+> >
+>
+> Sorry, I think I should have provided more context about that.
+>
+> The only reason to use namespaces is to force the traffic of these
+> netperf tests to go through the external bridge. To test netperf
+> different possibilities than the testpmd (or pktgen or others "blast
+> of frames unconditionally" tests).
+>
+> This way, I make sure that is the same version of everything in the
+> guest, and is a little bit easier to manage cpu affinity, start and
+> stop testing...
+>
+> I could use a different VM for sending and receiving, but I find this
+> way a faster one and it should not introduce a lot of noise. I can
+> test with two VM if you think that this use of network namespace
+> introduces too much noise.
+>
+> Thanks!
+>
+> > > >
+> > > > >   - netperf UDP_STREAM shows a performance increase of 1.8, almost
+> > > > > doubling performance. This gets lower as frame size increase.
 
-D'oh, sorry. I'll fix that (I had that #ifdef commented out for my testing).
+Regarding UDP_STREAM:
+* with event_idx=on: The performance difference is reduced a lot if
+applied affinity properly (manually assigning CPU on host/guest and
+setting IRQs on guest), making them perform equally with and without
+the patch again. Maybe the batching makes the scheduler perform
+better.
 
-Will
+> > > > >   - rests of the test goes noticeably worse: UDP_RR goes from ~6347
+> > > > > transactions/sec to 5830
+
+* Regarding UDP_RR, TCP_STREAM, and TCP_RR, proper CPU pinning makes
+them perform similarly again, only a very small performance drop
+observed. It could be just noise.
+** All of them perform better than vanilla if event_idx=off, not sure
+why. I can try to repeat them if you suspect that can be a test
+failure.
+
+* With testpmd and event_idx=off, if I send from the VM to host, I see
+a performance increment especially in small packets. The buf api also
+increases performance compared with only batching: Sending the minimum
+packet size in testpmd makes pps go from 356kpps to 473 kpps. Sending
+1024 length UDP-PDU makes it go from 570kpps to 64 kpps.
+
+Something strange I observe in these tests: I get more pps the bigger
+the transmitted buffer size is. Not sure why.
+
+** Sending from the host to the VM does not make a big change with the
+patches in small packets scenario (minimum, 64 bytes, about 645
+without the patch, ~625 with batch and batch+buf api). If the packets
+are bigger, I can see a performance increase: with 256 bits, it goes
+from 590kpps to about 600kpps, and in case of 1500 bytes payload it
+gets from 348kpps to 528kpps, so it is clearly an improvement.
+
+* with testpmd and event_idx=on, batching+buf api perform similarly in
+both directions.
+
+All of testpmd tests were performed with no linux bridge, just a
+host's tap interface (<interface type='ethernet'> in xml), with a
+testpmd txonly and another in rxonly forward mode, and using the
+receiving side packets/bytes data. Guest's rps, xps and interrupts,
+and host's vhost threads affinity were also tuned in each test to
+schedule both testpmd and vhost in different processors.
+
+I will send the v10 RFC with the small changes requested by Stefan and Jason.
+
+Thanks!
+
+
+
+
+
+
+
+> > > >
+> > > > OK so it seems plausible that we still have a bug where an interrupt
+> > > > is delayed. That is the main difference between pmd and virtio.
+> > > > Let's try disabling event index, and see what happens - that's
+> > > > the trickiest part of interrupts.
+> > > >
+> > >
+> > > Got it, will get back with the results.
+> > >
+> > > Thank you very much!
+> > >
+> > > >
+> > > >
+> > > > >   - TCP_STREAM goes from ~10.7 gbps to ~7Gbps
+> > > > >   - TCP_RR from 6223.64 transactions/sec to 5739.44
+> > > >
+> >
