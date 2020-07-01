@@ -1,48 +1,72 @@
 From: Will Deacon <will@kernel.org>
 Subject: Re: [PATCH 18/18] arm64: lto: Strengthen READ_ONCE() to acquire when
  CLANG_LTO=y
-Date: Wed, 1 Jul 2020 11:24:28 +0100
-Message-ID: <20200701102427.GD14959@willie-the-truck>
+Date: Wed, 1 Jul 2020 11:25:31 +0100
+Message-ID: <20200701102531.GE14959@willie-the-truck>
 References: <20200630173734.14057-1-will@kernel.org>
  <20200630173734.14057-19-will@kernel.org>
  <CANpmjNPOO=AVsVJMdL8sq03jwHsDR_1_FfWccwaLKEBRn1RFtA@mail.gmail.com>
+ <CABCJKudxmrSNNzgPkc4NHt71rfdjAqFbb9n49S4QBDZPQ52e0w@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-alpha-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CANpmjNPOO=AVsVJMdL8sq03jwHsDR_1_FfWccwaLKEBRn1RFtA@mail.gmail.com>
+In-Reply-To: <CABCJKudxmrSNNzgPkc4NHt71rfdjAqFbb9n49S4QBDZPQ52e0w@mail.gmail.com>
 Sender: linux-alpha-owner@vger.kernel.org
-To: Marco Elver <elver@google.com>
-Cc: Mark Rutland <mark.rutland@arm.com>, Kees Cook <keescook@chromium.org>, "Paul E. McKenney" <paulmck@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Jason Wang <jasowang@redhat.com>, Nick Desaulniers <ndesaulniers@google.com>, Josh Triplett <josh@joshtriplett.org>, LKML <linux-kernel@vger.kernel.org>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-arm-kernel@lists.infradead.org, Sami Tolvanen <samitolvanen@google.com>, linux-alpha@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>, Matt Turner <mattst88@gmail.com>, virtualization@lists.linux-foundation.org, Android Kernel Team <kernel-team@android.com>, Boqun Feng <boqun.feng@gmail.com>, Arnd
+To: Sami Tolvanen <samitolvanen@google.com>
+Cc: Marco Elver <elver@google.com>, LKML <linux-kernel@vger.kernel.org>, Nick Desaulniers <ndesaulniers@google.com>, Kees Cook <keescook@chromium.org>, "Paul E. McKenney" <paulmck@kernel.org>, Josh Triplett <josh@joshtriplett.org>, Matt Turner <mattst88@gmail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Richard Henderson <rth@twiddle.net>, Peter Zijlstra <peterz@infradead.org>, Alan Stern <stern@rowland.harvard.edu>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Boqun Feng <boqun.feng@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, linux-arm-kernel <linux-arm-kernel@lists.infradead.org>, linux-alpha@vger.kernel.org, virtualization@li
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 30, 2020 at 09:47:30PM +0200, Marco Elver wrote:
-> On Tue, 30 Jun 2020 at 19:39, Will Deacon <will@kernel.org> wrote:
+On Tue, Jun 30, 2020 at 03:57:54PM -0700, Sami Tolvanen wrote:
+> On Tue, Jun 30, 2020 at 12:47 PM Marco Elver <elver@google.com> wrote:
 > >
-> > When building with LTO, there is an increased risk of the compiler
-> > converting an address dependency headed by a READ_ONCE() invocation
-> > into a control dependency and consequently allowing for harmful
-> > reordering by the CPU.
+> > On Tue, 30 Jun 2020 at 19:39, Will Deacon <will@kernel.org> wrote:
+> > >
+> > > When building with LTO, there is an increased risk of the compiler
+> > > converting an address dependency headed by a READ_ONCE() invocation
+> > > into a control dependency and consequently allowing for harmful
+> > > reordering by the CPU.
+> > >
+> > > Ensure that such transformations are harmless by overriding the generic
+> > > READ_ONCE() definition with one that provides acquire semantics when
+> > > building with LTO.
+> > >
+> > > Signed-off-by: Will Deacon <will@kernel.org>
+> > > ---
+> > >  arch/arm64/include/asm/rwonce.h   | 63 +++++++++++++++++++++++++++++++
+> > >  arch/arm64/kernel/vdso/Makefile   |  2 +-
+> > >  arch/arm64/kernel/vdso32/Makefile |  2 +-
+> > >  3 files changed, 65 insertions(+), 2 deletions(-)
+> > >  create mode 100644 arch/arm64/include/asm/rwonce.h
 > >
-> > Ensure that such transformations are harmless by overriding the generic
-> > READ_ONCE() definition with one that provides acquire semantics when
-> > building with LTO.
+> > This seems reasonable, given we can't realistically tell the compiler
+> > about dependent loads. What (if any), is the performance impact? I
+> > guess this also heavily depends on the actual silicon.
 > >
-> > Signed-off-by: Will Deacon <will@kernel.org>
-> > ---
-> >  arch/arm64/include/asm/rwonce.h   | 63 +++++++++++++++++++++++++++++++
-> >  arch/arm64/kernel/vdso/Makefile   |  2 +-
-> >  arch/arm64/kernel/vdso32/Makefile |  2 +-
-> >  3 files changed, 65 insertions(+), 2 deletions(-)
-> >  create mode 100644 arch/arm64/include/asm/rwonce.h
+> > I do wonder, though, if there is some way to make the compiler do
+> > something better for us. Clearly, implementing real
+> > memory_order_consume hasn't worked out until today. But maybe the
+> > compiler could promote dependent loads to acquires if it recognizes it
+> > lost dependencies during optimizations. Just thinking out loud, it
+> > probably still has some weird corner case that will break. ;-)
+> >
+> > The other thing is that I'd be cautious blaming LTO, as I tried to
+> > summarize here:
+> > https://lore.kernel.org/kernel-hardening/20200630191931.GA884155@elver.google.com/
+> >
+> > The main thing is that, yes, this might be something to be worried
+> > about, but if we are worried about it, we need to be worried about it
+> > in *all* builds (LTO or not). My guess is that's not acceptable. Would
+> > it be better to just guard the promotion of READ_ONCE() to acquire
+> > behind a config option like CONFIG_ACQUIRE_READ_DEPENDENCIES, and then
+> > make LTO select that (or maybe leave it optional?). In future, for
+> > very aggressive non-LTO compilers even, one may then also select that
+> > if there is substantiated worry things do actually break.
 > 
-> This seems reasonable, given we can't realistically tell the compiler
-> about dependent loads. What (if any), is the performance impact? I
-> guess this also heavily depends on the actual silicon.
+> I agree, a separate config option would be better here.
+> 
+> Also Will, the LTO patches use CONFIG_LTO_CLANG instead of CLANG_LTO.
 
-Right, it depends both on the CPU micro-architecture and also the workload.
-When we ran some basic tests, the overhead wasn't greater than the benefit
-seen by enabling LTO, so it seems like a reasonable trade-off (given that
-LTO is a dependency for CFI, so it's not just about performance).
+D'oh, sorry. I'll fix that (I had that #ifdef commented out for my testing).
 
 Will
