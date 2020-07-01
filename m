@@ -1,7 +1,7 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH 4/5] vhost-vdpa: support IOTLB batching hints
-Date: Wed,  1 Jul 2020 17:08:38 +0800
-Message-ID: <20200701090839.12994-5-jasowang@redhat.com>
+Subject: [PATCH 5/5] vdpasim: support batch updating
+Date: Wed,  1 Jul 2020 17:08:39 +0800
+Message-ID: <20200701090839.12994-6-jasowang@redhat.com>
 References: <20200701090839.12994-1-jasowang@redhat.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,147 +12,94 @@ To: mst@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger
 Cc: rob.miller@broadcom.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com, zhangweining@ruijie.com.cn, eli@mellanox.com, Jason Wang <jasowang@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patches extend the vhost IOTLB API to accept batch updating hints
-form userspace. When userspace wants update the device IOTLB in a
-batch, it may do:
-
-1) Write vhost_iotlb_msg with VHOST_IOTLB_BATCH_BEGIN flag
-2) Perform a batch of IOTLB updating via VHOST_IOTLB_UPDATE/INVALIDATE
-3) Write vhost_iotlb_msg with VHOST_IOTLB_BATCH_END flag
-
-Vhost-vdpa may decide to batch the IOMMU/IOTLB updating in step 3 when
-vDPA device support set_map() ops. This is useful for the vDPA device
-that want to know all the mappings to tweak their own DMA translation
-logic.
-
-For vDPA device that doesn't require set_map(), no behavior changes.
-
-This capability is advertised via VHOST_BACKEND_F_IOTLB_BATCH capability.
+The vDPA simulator support both set_map() and dma_map()/dma_unmap()
+operations. But vhost-vdpa can only use one of them. So this patch
+introduce a module parameter (batch_mapping) that let vpda_sim to
+support only one of those dma operations. The batched mapping via
+set_map() is enabled by default.
 
 Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/vhost/vdpa.c             | 30 +++++++++++++++++++++++-------
- include/uapi/linux/vhost.h       |  2 ++
- include/uapi/linux/vhost_types.h | 11 +++++++++++
- 3 files changed, 36 insertions(+), 7 deletions(-)
+ drivers/vdpa/vdpa_sim/vdpa_sim.c | 40 +++++++++++++++++++++++++++++---
+ 1 file changed, 37 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index 453057421f80..8f624bbafee7 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -56,7 +56,9 @@ enum {
+diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+index c7334cc65bb2..a7a0962ed8a8 100644
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+@@ -33,6 +33,10 @@
+ #define DRV_DESC     "vDPA Device Simulator"
+ #define DRV_LICENSE  "GPL v2"
+ 
++static int batch_mapping = 1;
++module_param(batch_mapping, int, 0444);
++MODULE_PARM_DESC(batch_mapping, "Batched mapping 1 -Enable; 0 - Disable");
++
+ struct vdpasim_virtqueue {
+ 	struct vringh vring;
+ 	struct vringh_kiov iov;
+@@ -303,16 +307,22 @@ static const struct dma_map_ops vdpasim_dma_ops = {
  };
  
- enum {
--	VHOST_VDPA_BACKEND_FEATURES = (1ULL << VHOST_BACKEND_F_IOTLB_MSG_V2)
-+	VHOST_VDPA_BACKEND_FEATURES =
-+	(1ULL << VHOST_BACKEND_F_IOTLB_MSG_V2) |
-+	(1ULL << VHOST_BACKEND_F_IOTLB_BATCH),
- };
+ static const struct vdpa_config_ops vdpasim_net_config_ops;
++static const struct vdpa_config_ops vdpasim_net_batch_config_ops;
  
- /* Currently, only network backend w/o multiqueue is supported. */
-@@ -77,6 +79,7 @@ struct vhost_vdpa {
- 	int virtio_id;
- 	int minor;
- 	struct eventfd_ctx *config_ctx;
-+	int in_batch;
- };
- 
- static DEFINE_IDA(vhost_vdpa_ida);
-@@ -125,6 +128,7 @@ static void vhost_vdpa_reset(struct vhost_vdpa *v)
- 	const struct vdpa_config_ops *ops = vdpa->config;
- 
- 	ops->set_status(vdpa, 0);
-+	v->in_batch = 0;
- }
- 
- static long vhost_vdpa_get_device_id(struct vhost_vdpa *v, u8 __user *argp)
-@@ -540,9 +544,10 @@ static int vhost_vdpa_map(struct vhost_vdpa *v,
- 
- 	if (ops->dma_map)
- 		r = ops->dma_map(vdpa, iova, size, pa, perm);
--	else if (ops->set_map)
--		r = ops->set_map(vdpa, dev->iotlb);
--	else
-+	else if (ops->set_map) {
-+		if (!v->in_batch)
-+			r = ops->set_map(vdpa, dev->iotlb);
-+	} else
- 		r = iommu_map(v->domain, iova, pa, size,
- 			      perm_to_iommu_flags(perm));
- 
-@@ -559,9 +564,10 @@ static void vhost_vdpa_unmap(struct vhost_vdpa *v, u64 iova, u64 size)
- 
- 	if (ops->dma_map)
- 		ops->dma_unmap(vdpa, iova, size);
--	else if (ops->set_map)
--		ops->set_map(vdpa, dev->iotlb);
--	else
-+	else if (ops->set_map) {
-+		if (!v->in_batch)
-+			ops->set_map(vdpa, dev->iotlb);
-+	} else
- 		iommu_unmap(v->domain, iova, size);
- }
- 
-@@ -655,6 +661,8 @@ static int vhost_vdpa_process_iotlb_msg(struct vhost_dev *dev,
- 					struct vhost_iotlb_msg *msg)
+ static struct vdpasim *vdpasim_create(void)
  {
- 	struct vhost_vdpa *v = container_of(dev, struct vhost_vdpa, vdev);
-+	struct vdpa_device *vdpa = v->vdpa;
-+	const struct vdpa_config_ops *ops = vdpa->config;
- 	int r = 0;
++	const struct vdpa_config_ops *ops;
+ 	struct virtio_net_config *config;
+ 	struct vdpasim *vdpasim;
+ 	struct device *dev;
+ 	int ret = -ENOMEM;
  
- 	r = vhost_dev_check_owner(dev);
-@@ -668,6 +676,14 @@ static int vhost_vdpa_process_iotlb_msg(struct vhost_dev *dev,
- 	case VHOST_IOTLB_INVALIDATE:
- 		vhost_vdpa_unmap(v, msg->iova, msg->size);
- 		break;
-+	case VHOST_IOTLB_BATCH_BEGIN:
-+		v->in_batch = true;
-+		break;
-+	case VHOST_IOTLB_BATCH_END:
-+		if (v->in_batch && ops->set_map)
-+			ops->set_map(vdpa, dev->iotlb);
-+		v->in_batch = false;
-+		break;
- 	default:
- 		r = -EINVAL;
- 		break;
-diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-index 0c2349612e77..75232185324a 100644
---- a/include/uapi/linux/vhost.h
-+++ b/include/uapi/linux/vhost.h
-@@ -91,6 +91,8 @@
+-	vdpasim = vdpa_alloc_device(struct vdpasim, vdpa, NULL,
+-				    &vdpasim_net_config_ops);
++	if (batch_mapping)
++		ops = &vdpasim_net_batch_config_ops;
++	else
++		ops = &vdpasim_net_config_ops;
++
++	vdpasim = vdpa_alloc_device(struct vdpasim, vdpa, NULL, ops);
+ 	if (!vdpasim)
+ 		goto err_alloc;
  
- /* Use message type V2 */
- #define VHOST_BACKEND_F_IOTLB_MSG_V2 0x1
-+/* IOTLB can accept batching hints */
-+#define VHOST_BACKEND_F_IOTLB_BATCH  0x2
- 
- #define VHOST_SET_BACKEND_FEATURES _IOW(VHOST_VIRTIO, 0x25, __u64)
- #define VHOST_GET_BACKEND_FEATURES _IOR(VHOST_VIRTIO, 0x26, __u64)
-diff --git a/include/uapi/linux/vhost_types.h b/include/uapi/linux/vhost_types.h
-index 669457ce5c48..9a269a88a6ff 100644
---- a/include/uapi/linux/vhost_types.h
-+++ b/include/uapi/linux/vhost_types.h
-@@ -60,6 +60,17 @@ struct vhost_iotlb_msg {
- #define VHOST_IOTLB_UPDATE         2
- #define VHOST_IOTLB_INVALIDATE     3
- #define VHOST_IOTLB_ACCESS_FAIL    4
-+/*
-+ * VHOST_IOTLB_BATCH_BEGIN and VHOST_IOTLB_BATCH_END allow modifying
-+ * multiple mappings in one go: beginning with
-+ * VHOST_IOTLB_BATCH_BEGIN, followed by any number of
-+ * VHOST_IOTLB_UPDATE messages, and ending with VHOST_IOTLB_BATCH_END.
-+ * When one of these two values is used as the message type, the rest
-+ * of the fields in the message are ignored. There's no guarantee that
-+ * these changes take place automatically in the device.
-+ */
-+#define VHOST_IOTLB_BATCH_BEGIN    5
-+#define VHOST_IOTLB_BATCH_END      6
- 	__u8 type;
+@@ -597,12 +607,36 @@ static const struct vdpa_config_ops vdpasim_net_config_ops = {
+ 	.get_config             = vdpasim_get_config,
+ 	.set_config             = vdpasim_set_config,
+ 	.get_generation         = vdpasim_get_generation,
+-	.set_map                = vdpasim_set_map,
+ 	.dma_map                = vdpasim_dma_map,
+ 	.dma_unmap              = vdpasim_dma_unmap,
+ 	.free                   = vdpasim_free,
  };
  
++static const struct vdpa_config_ops vdpasim_net_batch_config_ops = {
++	.set_vq_address         = vdpasim_set_vq_address,
++	.set_vq_num             = vdpasim_set_vq_num,
++	.kick_vq                = vdpasim_kick_vq,
++	.set_vq_cb              = vdpasim_set_vq_cb,
++	.set_vq_ready           = vdpasim_set_vq_ready,
++	.get_vq_ready           = vdpasim_get_vq_ready,
++	.set_vq_state           = vdpasim_set_vq_state,
++	.get_vq_state           = vdpasim_get_vq_state,
++	.get_vq_align           = vdpasim_get_vq_align,
++	.get_features           = vdpasim_get_features,
++	.set_features           = vdpasim_set_features,
++	.set_config_cb          = vdpasim_set_config_cb,
++	.get_vq_num_max         = vdpasim_get_vq_num_max,
++	.get_device_id          = vdpasim_get_device_id,
++	.get_vendor_id          = vdpasim_get_vendor_id,
++	.get_status             = vdpasim_get_status,
++	.set_status             = vdpasim_set_status,
++	.get_config             = vdpasim_get_config,
++	.set_config             = vdpasim_set_config,
++	.get_generation         = vdpasim_get_generation,
++	.set_map                = vdpasim_set_map,
++	.free                   = vdpasim_free,
++};
++
+ static int __init vdpasim_dev_init(void)
+ {
+ 	vdpasim_dev = vdpasim_create();
 -- 
 2.20.1
