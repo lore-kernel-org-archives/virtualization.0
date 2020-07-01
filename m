@@ -1,65 +1,48 @@
 From: Will Deacon <will@kernel.org>
 Subject: Re: [PATCH 18/18] arm64: lto: Strengthen READ_ONCE() to acquire when
  CLANG_LTO=y
-Date: Wed, 1 Jul 2020 11:19:23 +0100
-Message-ID: <20200701101922.GC14959@willie-the-truck>
+Date: Wed, 1 Jul 2020 11:24:28 +0100
+Message-ID: <20200701102427.GD14959@willie-the-truck>
 References: <20200630173734.14057-1-will@kernel.org>
  <20200630173734.14057-19-will@kernel.org>
- <CAK8P3a2zB4z121reuy6BCqQ3-1mDBAkUkRRXeDuvSFtSr3ha2g@mail.gmail.com>
+ <CANpmjNPOO=AVsVJMdL8sq03jwHsDR_1_FfWccwaLKEBRn1RFtA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-alpha-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <CAK8P3a2zB4z121reuy6BCqQ3-1mDBAkUkRRXeDuvSFtSr3ha2g@mail.gmail.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: Mark Rutland <mark.rutland@arm.com>, Marco Elver <elver@google.com>, Kees Cook <keescook@chromium.org>, "Paul E. McKenney" <paulmck@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Nick Desaulniers <ndesaulniers@google.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Josh Triplett <josh@joshtriplett.org>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Sami Tolvanen <samitolvanen@google.com>, alpha <linux-alpha@vger.kernel.org>, Alan Stern <stern@rowland.harvard.edu>, Matt Turner <mattst88@gmail.com>, virtualization@lists.linux-foundation.org, Android Kernel Team <kernel-team@android.com>, Boqun Feng <boqun.feng@gmail.com>, Linux ARM <linux-arm-kernel@lists.infradead.org>, Richard Henderson <rth@twiddle.net>
+In-Reply-To: <CANpmjNPOO=AVsVJMdL8sq03jwHsDR_1_FfWccwaLKEBRn1RFtA@mail.gmail.com>
+Sender: linux-alpha-owner@vger.kernel.org
+To: Marco Elver <elver@google.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, Kees Cook <keescook@chromium.org>, "Paul E. McKenney" <paulmck@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Jason Wang <jasowang@redhat.com>, Nick Desaulniers <ndesaulniers@google.com>, Josh Triplett <josh@joshtriplett.org>, LKML <linux-kernel@vger.kernel.org>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-arm-kernel@lists.infradead.org, Sami Tolvanen <samitolvanen@google.com>, linux-alpha@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>, Matt Turner <mattst88@gmail.com>, virtualization@lists.linux-foundation.org, Android Kernel Team <kernel-team@android.com>, Boqun Feng <boqun.feng@gmail.com>, Arnd
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 30, 2020 at 09:25:03PM +0200, Arnd Bergmann wrote:
-> On Tue, Jun 30, 2020 at 7:39 PM Will Deacon <will@kernel.org> wrote:
-> > +#define __READ_ONCE(x)                                                 \
-> > +({                                                                     \
-> > +       int atomic = 1;                                                 \
-> > +       union { __unqual_scalar_typeof(x) __val; char __c[1]; } __u;    \
-> > +       typeof(&(x)) __x = &(x);                                        \
-> > +       switch (sizeof(x)) {                                            \
-> ...
-> > +       atomic ? (typeof(x))__u.__val : (*(volatile typeof(x) *)__x);   \
-> > +})
+On Tue, Jun 30, 2020 at 09:47:30PM +0200, Marco Elver wrote:
+> On Tue, 30 Jun 2020 at 19:39, Will Deacon <will@kernel.org> wrote:
+> >
+> > When building with LTO, there is an increased risk of the compiler
+> > converting an address dependency headed by a READ_ONCE() invocation
+> > into a control dependency and consequently allowing for harmful
+> > reordering by the CPU.
+> >
+> > Ensure that such transformations are harmless by overriding the generic
+> > READ_ONCE() definition with one that provides acquire semantics when
+> > building with LTO.
+> >
+> > Signed-off-by: Will Deacon <will@kernel.org>
+> > ---
+> >  arch/arm64/include/asm/rwonce.h   | 63 +++++++++++++++++++++++++++++++
+> >  arch/arm64/kernel/vdso/Makefile   |  2 +-
+> >  arch/arm64/kernel/vdso32/Makefile |  2 +-
+> >  3 files changed, 65 insertions(+), 2 deletions(-)
+> >  create mode 100644 arch/arm64/include/asm/rwonce.h
 > 
-> This expands (x) nine times (five in __unqual_scala_typeof()), which can
-> lead to significant code bloat after preprocessing if something passes a
-> compound expression into READ_ONCE().
-> The compiler works it out eventually, but we've seen an actual slowdown
-> in compile speed from this recently, especially on clang.
-> 
-> I think if you move the
-> 
->         typeof(&(x)) __x = &(x);
-> 
-> line first, all other instances can use typeof(*__x) instead of typeof(x)
-> and avoid this problem.
+> This seems reasonable, given we can't realistically tell the compiler
+> about dependent loads. What (if any), is the performance impact? I
+> guess this also heavily depends on the actual silicon.
 
-Cheers, I was only thinking about side-effects when I wrote this, but
-bloating built time is very unpopular, so I'll go with your suggestion.
-
-> Once we make gcc-4.9 the minimum version,
-> this could be further improved to
-> 
->        __auto_type __x = &(x);
-
-Is anybody working on moving to 4.9? I've seen the mails from Linus
-championing it, but I thought there was a RHEL in support that people
-might care about?
+Right, it depends both on the CPU micro-architecture and also the workload.
+When we ran some basic tests, the overhead wasn't greater than the benefit
+seen by enabling LTO, so it seems like a reasonable trade-off (given that
+LTO is a dependency for CFI, so it's not just about performance).
 
 Will
