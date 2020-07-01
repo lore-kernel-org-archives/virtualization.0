@@ -1,45 +1,67 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 18/18] arm64: lto: Strengthen READ_ONCE() to acquire when CLANG_LTO=y
-Date: Wed, 1 Jul 2020 12:59:36 +0200
-Message-ID: <CAK8P3a1MWBxHihcUaduqcpS2U61cKPujQG6mAfn3-pCokzLwUw@mail.gmail.com>
-References: <20200630173734.14057-1-will@kernel.org> <20200630173734.14057-19-will@kernel.org>
- <CAK8P3a2zB4z121reuy6BCqQ3-1mDBAkUkRRXeDuvSFtSr3ha2g@mail.gmail.com> <20200701101922.GC14959@willie-the-truck>
+From: Juergen Gross <jgross@suse.com>
+Subject: [PATCH v2 0/4] Remove 32-bit Xen PV guest support
+Date: Wed,  1 Jul 2020 13:06:46 +0200
+Message-ID: <20200701110650.16172-1-jgross@suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-alpha-owner@vger.kernel.org>
-In-Reply-To: <20200701101922.GC14959@willie-the-truck>
-Sender: linux-alpha-owner@vger.kernel.org
-To: Will Deacon <will@kernel.org>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Sami Tolvanen <samitolvanen@google.com>, Nick Desaulniers <ndesaulniers@google.com>, Kees Cook <keescook@chromium.org>, Marco Elver <elver@google.com>, "Paul E. McKenney" <paulmck@kernel.org>, Josh Triplett <josh@joshtriplett.org>, Matt Turner <mattst88@gmail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Richard Henderson <rth@twiddle.net>, Peter Zijlstra <peterz@infradead.org>, Alan Stern <stern@rowland.harvard.edu>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Boqun Feng <boqun.feng@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, Linux ARM <linux-arm-kernel@lists.infradead.org>, alpha <linux-alpha@vger.k>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: xen-devel@lists.xenproject.org, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Juergen Gross <jgross@suse.com>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stefano Stabellini <sstabellini@kernel.org>, Deep Shah <sdeep@vmware.com>, "VMware, Inc." <pv-drivers@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 1, 2020 at 12:19 PM Will Deacon <will@kernel.org> wrote:
-> On Tue, Jun 30, 2020 at 09:25:03PM +0200, Arnd Bergmann wrote:
-> > On Tue, Jun 30, 2020 at 7:39 PM Will Deacon <will@kernel.org> wrote:
-> > Once we make gcc-4.9 the minimum version,
-> > this could be further improved to
-> >
-> >        __auto_type __x = &(x);
->
-> Is anybody working on moving to 4.9? I've seen the mails from Linus
-> championing it, but I thought there was a RHEL in support that people
-> might care about?
+The long term plan has been to replace Xen PV guests by PVH. The first
+victim of that plan are now 32-bit PV guests, as those are used only
+rather seldom these days. Xen on x86 requires 64-bit support and with
+Grub2 now supporting PVH officially since version 2.04 there is no
+need to keep 32-bit PV guest support alive in the Linux kernel.
+Additionally Meltdown mitigation is not available in the kernel running
+as 32-bit PV guest, so dropping this mode makes sense from security
+point of view, too.
 
-I don't think there was a serious discussion about it so far, and
-we only just moved to gcc-4.8.
+Changes in V2:
+- rebase to 5.8 kernel
+- addressed comments to V1
+- new patches 3 and 4
 
-I think moving to gnu11 (gcc-4.9 or clang) instead of gnu99 has other
-benefits as well, so we may well want to do it anyway when something
-else comes up.
+Juergen Gross (4):
+  x86/xen: remove 32-bit Xen PV guest support
+  x86/paravirt: remove 32-bit support from PARAVIRT_XXL
+  x86/paravirt: cleanup paravirt macros
+  x86/paravirt: use CONFIG_PARAVIRT_XXL instead of CONFIG_PARAVIRT
 
-For __auto_type(), we could do it like
+ arch/x86/entry/entry_32.S                   | 109 +------
+ arch/x86/entry/entry_64.S                   |   4 +-
+ arch/x86/entry/vdso/vdso32/vclock_gettime.c |   1 +
+ arch/x86/include/asm/fixmap.h               |   2 +-
+ arch/x86/include/asm/paravirt.h             | 107 +-----
+ arch/x86/include/asm/paravirt_types.h       |  21 --
+ arch/x86/include/asm/pgtable-3level_types.h |   5 -
+ arch/x86/include/asm/proto.h                |   2 +-
+ arch/x86/include/asm/required-features.h    |   2 +-
+ arch/x86/include/asm/segment.h              |   6 +-
+ arch/x86/kernel/cpu/common.c                |   8 -
+ arch/x86/kernel/head_32.S                   |  31 --
+ arch/x86/kernel/kprobes/core.c              |   1 -
+ arch/x86/kernel/kprobes/opt.c               |   1 -
+ arch/x86/kernel/paravirt.c                  |  18 --
+ arch/x86/kernel/paravirt_patch.c            |  17 -
+ arch/x86/xen/Kconfig                        |   3 +-
+ arch/x86/xen/Makefile                       |   3 +-
+ arch/x86/xen/apic.c                         |  17 -
+ arch/x86/xen/enlighten_pv.c                 |  52 +--
+ arch/x86/xen/mmu_pv.c                       | 340 +++-----------------
+ arch/x86/xen/p2m.c                          |   6 +-
+ arch/x86/xen/setup.c                        |  35 +-
+ arch/x86/xen/smp_pv.c                       |  18 --
+ arch/x86/xen/xen-asm.S                      | 182 ++++++++++-
+ arch/x86/xen/xen-asm_32.S                   | 185 -----------
+ arch/x86/xen/xen-asm_64.S                   | 181 -----------
+ arch/x86/xen/xen-head.S                     |   6 -
+ drivers/xen/Kconfig                         |   4 +-
+ 29 files changed, 232 insertions(+), 1135 deletions(-)
+ delete mode 100644 arch/x86/xen/xen-asm_32.S
+ delete mode 100644 arch/x86/xen/xen-asm_64.S
 
-#if (clang or gcc-4.9+)
-#define auto_typeof(x) __auto_type
-#else
-#define auto_typeof(x) typeof(x)
-#endif
-
-which could be used in a lot of macros.
-
-     Arnd
+-- 
+2.26.2
