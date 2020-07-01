@@ -1,58 +1,68 @@
-From: Dave P Martin <dave.martin@arm.com>
-Subject: Re: [PATCH 18/18] arm64: lto: Strengthen READ_ONCE() to acquire when
- CLANG_LTO=y
-Date: Wed, 1 Jul 2020 18:07:25 +0100
-Message-ID: <20200701170722.4rte5ssnmrn2uqzg@bakewell.cambridge.arm.com>
-References: <20200630173734.14057-1-will@kernel.org>
- <20200630173734.14057-19-will@kernel.org>
+From: Stefano Stabellini <sstabellini@kernel.org>
+Subject: Re: [PATCH] xen: introduce xen_vring_use_dma
+Date: Wed, 1 Jul 2020 10:34:53 -0700 (PDT)
+Message-ID: <alpine.DEB.2.21.2007011020320.8121@sstabellini-ThinkPad-T480s>
+References: <20200624091732.23944-1-peng.fan@nxp.com> <20200624050355-mutt-send-email-mst@kernel.org> <alpine.DEB.2.21.2006241047010.8121@sstabellini-ThinkPad-T480s> <20200624163940-mutt-send-email-mst@kernel.org> <alpine.DEB.2.21.2006241351430.8121@sstabellini-ThinkPad-T480s>
+ <20200624181026-mutt-send-email-mst@kernel.org> <alpine.DEB.2.21.2006251014230.8121@sstabellini-ThinkPad-T480s> <20200626110629-mutt-send-email-mst@kernel.org> <alpine.DEB.2.21.2006291621300.8121@sstabellini-ThinkPad-T480s>
+ <20200701133456.GA23888@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-alpha-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200630173734.14057-19-will@kernel.org>
-Sender: linux-alpha-owner@vger.kernel.org
-To: Will Deacon <will@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, Arnd Bergmann <arnd@arndb.de>, Alan Stern <stern@rowland.harvard.edu>, Sami Tolvanen <samitolvanen@google.com>, Matt Turner <mattst88@gmail.com>, kernel-team@android.com, Marco Elver <elver@google.com>, Kees Cook <keescook@chromium.org>, "Paul E. McKenney" <paulmck@kernel.org>, Boqun Feng <boqun.feng@gmail.com>, Josh Triplett <josh@joshtriplett.org>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-arm-kernel@lists.infradead.org, Richard Henderson <rth@twiddle.net>, Nick
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200701133456.GA23888@infradead.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Stefano Stabellini <sstabellini@kernel.org>, jgross@suse.com, Peng Fan <peng.fan@nxp.com>, x86@kernel.org, konrad.wilk@oracle.com, jasowang@redhat.com, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org, linux-imx@nxp.com, xen-devel@lists.xenproject.org, boris.ostrovsky@oracle.com, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 30, 2020 at 06:37:34PM +0100, Will Deacon wrote:
-> When building with LTO, there is an increased risk of the compiler
-> converting an address dependency headed by a READ_ONCE() invocation
-> into a control dependency and consequently allowing for harmful
-> reordering by the CPU.
+On Wed, 1 Jul 2020, Christoph Hellwig wrote:
+> On Mon, Jun 29, 2020 at 04:46:09PM -0700, Stefano Stabellini wrote:
+> > > I could imagine some future Xen hosts setting a flag somewhere in the
+> > > platform capability saying "no xen specific flag, rely on
+> > > "VIRTIO_F_ACCESS_PLATFORM". Then you set that accordingly in QEMU.
+> > > How about that?
+> > 
+> > Yes, that would be fine and there is no problem implementing something
+> > like that when we get virtio support in Xen. Today there are still no
+> > virtio interfaces provided by Xen to ARM guests (no virtio-block/net,
+> > etc.)
+> > 
+> > In fact, in both cases we are discussing virtio is *not* provided by
+> > Xen; it is a firmware interface to something entirely different:
+> > 
+> > 1) virtio is used to talk to a remote AMP processor (RPMesg)
+> > 2) virtio is used to talk to a secure-world firmware/OS (Trusty)
+> >
+> > VIRTIO_F_ACCESS_PLATFORM is not set by Xen in these cases but by RPMesg
+> > and by Trusty respectively. I don't know if Trusty should or should not
+> > set VIRTIO_F_ACCESS_PLATFORM, but I think Linux should still work
+> > without issues.
+> > 
 > 
-> Ensure that such transformations are harmless by overriding the generic
-> READ_ONCE() definition with one that provides acquire semantics when
-> building with LTO.
+> Any virtio implementation that is not in control of the memory map
+> (aka not the hypervisor) absolutely must set VIRTIO_F_ACCESS_PLATFORM,
+> else it is completely broken.
+
+Lots of broken virtio implementations out there it would seem :-(
+
+
+> > The xen_domain() check in Linux makes it so that vring_use_dma_api
+> > returns the opposite value on native Linux compared to Linux as Xen/ARM
+> > DomU by "accident". By "accident" because there is no architectural
+> > reason why Linux Xen/ARM DomU should behave differently compared to
+> > native Linux in this regard.
+> > 
+> > I hope that now it is clearer why I think the if (xen_domain()) check
+> > needs to be improved anyway, even if we fix generic dma_ops with virtio
+> > interfaces missing VIRTIO_F_ACCESS_PLATFORM.
 > 
-> Signed-off-by: Will Deacon <will@kernel.org>
-> ---
->  arch/arm64/include/asm/rwonce.h   | 63 +++++++++++++++++++++++++++++++
->  arch/arm64/kernel/vdso/Makefile   |  2 +-
->  arch/arm64/kernel/vdso32/Makefile |  2 +-
->  3 files changed, 65 insertions(+), 2 deletions(-)
->  create mode 100644 arch/arm64/include/asm/rwonce.h
-> 
-> diff --git a/arch/arm64/include/asm/rwonce.h b/arch/arm64/include/asm/rwonce.h
-> new file mode 100644
-> index 000000000000..515e360b01a1
-> --- /dev/null
-> +++ b/arch/arm64/include/asm/rwonce.h
-> @@ -0,0 +1,63 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +/*
-> + * Copyright (C) 2020 Google LLC.
-> + */
-> +#ifndef __ASM_RWONCE_H
-> +#define __ASM_RWONCE_H
-> +
-> +#ifdef CONFIG_CLANG_LTO
+> IMHO that Xen quirk should never have been added in this form..
 
-Don't we have a generic option for LTO that's not specific to Clang.
+Would you be in favor of a more flexible check along the lines of the
+one proposed in the patch that started this thread:
 
-Also, can you illustrate code that can only be unsafe with Clang LTO?
+    if (xen_vring_use_dma())
+            return true;
 
-[...]
 
-Cheers
----Dave
+xen_vring_use_dma would be implemented so that it returns true when
+xen_swiotlb is required and false otherwise.
