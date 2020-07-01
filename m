@@ -1,24 +1,74 @@
-From: Josh Triplett <josh@joshtriplett.org>
-Subject: Re: [PATCH 00/18] Allow architectures to override __READ_ONCE()
-Date: Wed, 1 Jul 2020 00:38:46 -0700
-Message-ID: <20200701073846.GC301687@localhost>
-References: <20200630173734.14057-1-will@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH 0/5]
+Date: Wed,  1 Jul 2020 17:08:34 +0800
+Message-ID: <20200701090839.12994-1-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-alpha-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200630173734.14057-1-will@kernel.org>
-Sender: linux-alpha-owner@vger.kernel.org
-To: Will Deacon <will@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Sami Tolvanen <samitolvanen@google.com>, Nick Desaulniers <ndesaulniers@google.com>, Kees Cook <keescook@chromium.org>, Marco Elver <elver@google.com>, "Paul E. McKenney" <paulmck@kernel.org>, Matt Turner <mattst88@gmail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Richard Henderson <rth@twiddle.net>, Peter Zijlstra <peterz@infradead.org>, Alan Stern <stern@rowland.harvard.edu>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Boqun Feng <boqun.feng@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.org, virtualization@lists.linux-foundation.orgkernel
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: mst@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Cc: rob.miller@broadcom.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com, zhangweining@ruijie.com.cn, eli@mellanox.com, Jason Wang <jasowang@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 30, 2020 at 06:37:16PM +0100, Will Deacon wrote:
-> The patches allow architectures to provide their own implementation of
-> __READ_ONCE(). This serves two main purposes:
-> 
->   1. It finally allows us to remove [smp_]read_barrier_depends() from the
->      Linux memory model and make it an implementation detail of the Alpha
->      back-end.
+Hi all:
 
-And there was much rejoicing. Thank you.
+This series tries to support batched IOTLB updating vhost-vdpa.
+
+Currently vhost-vdpa accepts userspace mapping via IOTLB API, and it
+can only forward one mapping to IOMMU or device through IOMMU API or
+dma_map(). Though set_map() is designed to have the capability to pass
+an rbtree based mapping to vDPA device, it's still be called at least
+once for each VHOST_IOTLB_UPDATE or VHOST_IOTLB_INVALIDATE. This is
+because vhost-vdpa doesn't know the userspace start or stop then
+updating.
+
+So this patch introduces two flags as hints for vhost-vdpa to call
+set_map() only when userspace finish a batch of IOTLB updating.
+
+So instead of:
+
+1) VHOST_IOTLB_UPDATE/VHOST_IOTLB_INVALIDATE -> set_map() (s)
+2) VHOST_IOTLB_UPDATE/VHOST_IOTLB_INVALIDATE -> set_map() (s)
+...
+n) VHOST_IOTLB_UPDATE/VHOST_IOTLB_INVALIDATE -> set_map() (s)
+
+With the help of hints, we do:
+
+0) VHOST_IOTLB_BATCH_START
+
+1) VHOST_IOTLB_UPDATE/INVALIDATE
+...
+n) VHOST_IOTLB_UPDATE/INVALIDATE
+
+n+1) VHOST_IOTLB_BATCH_END -> set_map()
+
+One one call of set_map() to vDPA device for a batch of IOTLB
+mappings. So for the device that has its own DMA translation logic, it
+can efficiently structure the memory mapping to get best performance.
+
+Note, this only impacts the devices that want its own DMA
+translation (less times of set_map() call). For other type of devices,
+there's no changes in the behaviour.
+
+Changes from RFCV1:
+
+- tweak the comments per Michael's request
+
+Jason Wang (5):
+  vhost-vdpa: refine ioctl pre-processing
+  vhost: generialize backend features setting/getting
+  vhost-vdpa: support get/set backend features
+  vhost-vdpa: support IOTLB batching hints
+  vdpasim: support batch updating
+
+ drivers/vdpa/vdpa_sim/vdpa_sim.c | 40 +++++++++++++++++++++--
+ drivers/vhost/net.c              | 18 ++---------
+ drivers/vhost/vdpa.c             | 55 ++++++++++++++++++++++++++------
+ drivers/vhost/vhost.c            | 15 +++++++++
+ drivers/vhost/vhost.h            |  2 ++
+ include/uapi/linux/vhost.h       |  2 ++
+ include/uapi/linux/vhost_types.h | 11 +++++++
+ 7 files changed, 114 insertions(+), 29 deletions(-)
+
+-- 
+2.20.1
