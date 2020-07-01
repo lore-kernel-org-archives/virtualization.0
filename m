@@ -1,30 +1,47 @@
 From: Rikard Falkeborn <rikard.falkeborn@gmail.com>
-Subject: [PATCH 0/5] drivers/char: Constify static variables
-Date: Wed,  1 Jul 2020 22:09:45 +0200
-Message-ID: <20200701200950.30314-1-rikard.falkeborn@gmail.com>
+Subject: [PATCH] crypto: virtio - constify features[] and id_table[]
+Date: Wed,  1 Jul 2020 22:29:36 +0200
+Message-ID: <20200701202936.44156-1-rikard.falkeborn@gmail.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>
-Cc: Rikard Falkeborn <rikard.falkeborn@gmail.com>, Amit Shah <amit@kernel.org>, Matt Mackall <mpm@selenic.com>, Herbert Xu <herbert@gondor.apana.org.au>, Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, Florian Fainelli <f.fainelli@gmail.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, Corey Minyard <minyard@acm.org>, virtualization@lists.linux-foundation.org, openipmi-developer@lists.sourceforge.net, bcm-kernel-feedback-list@broadcom.com, linux-crypto@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
+Return-path: <linux-crypto-owner@vger.kernel.org>
+Sender: linux-crypto-owner@vger.kernel.org
+Cc: mst@redhat.com, jasowang@redhat.com, arei.gonglei@huawei.com, herbert@gondor.apana.org.au, davem@davemloft.net, virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, Rikard Falkeborn <rikard.falkeborn@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Constify some static variables (mostly structs) that are not modified.
+features[] and id_table[] are not modified and can be made const to
+allow the compiler to put them in read-only memory.
 
-Rikard Falkeborn (5):
-  hwrng: bcm2835 - Constify bcm2835_rng_devtype[]
-  hwrng: nomadik - Constify nmk_rng_ids[]
-  hwrng: virtio - Constify id_table[]
-  ipmi: watchdog: Constify ident
-  virtio_console: Constify some static variables
+Before:
+   text    data     bss     dec     hex filename
+  11534    2056     160   13750    35b6 drivers/crypto/virtio/virtio_crypto_core.o
 
- drivers/char/hw_random/bcm2835-rng.c | 2 +-
- drivers/char/hw_random/nomadik-rng.c | 2 +-
- drivers/char/hw_random/virtio-rng.c  | 2 +-
- drivers/char/ipmi/ipmi_watchdog.c    | 2 +-
- drivers/char/virtio_console.c        | 8 ++++----
- 5 files changed, 8 insertions(+), 8 deletions(-)
+After:
+   text    data     bss     dec     hex filename
+  11630    1992     128   13750    35b6 drivers/crypto/virtio/virtio_crypto_core.o
 
+Signed-off-by: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+---
+ drivers/crypto/virtio/virtio_crypto_core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/crypto/virtio/virtio_crypto_core.c b/drivers/crypto/virtio/virtio_crypto_core.c
+index ba8a19c72391..0c66d6193ca2 100644
+--- a/drivers/crypto/virtio/virtio_crypto_core.c
++++ b/drivers/crypto/virtio/virtio_crypto_core.c
+@@ -498,11 +498,11 @@ static int virtcrypto_restore(struct virtio_device *vdev)
+ }
+ #endif
+ 
+-static unsigned int features[] = {
++static const unsigned int features[] = {
+ 	/* none */
+ };
+ 
+-static struct virtio_device_id id_table[] = {
++static const struct virtio_device_id id_table[] = {
+ 	{ VIRTIO_ID_CRYPTO, VIRTIO_DEV_ANY_ID },
+ 	{ 0 },
+ };
 -- 
 2.27.0
