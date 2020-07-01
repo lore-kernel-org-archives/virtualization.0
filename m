@@ -1,105 +1,56 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: [PATCH 5/5] vdpasim: support batch updating
-Date: Wed,  1 Jul 2020 17:08:39 +0800
-Message-ID: <20200701090839.12994-6-jasowang@redhat.com>
-References: <20200701090839.12994-1-jasowang@redhat.com>
+From: Will Deacon <will@kernel.org>
+Subject: Re: [PATCH 02/18] compiler.h: Split {READ,WRITE}_ONCE definitions
+ out into rwonce.h
+Date: Wed, 1 Jul 2020 11:16:04 +0100
+Message-ID: <20200701101603.GB14959@willie-the-truck>
+References: <20200630173734.14057-1-will@kernel.org>
+ <20200630173734.14057-3-will@kernel.org>
+ <CAK8P3a136e2k-iGoJ4X51mnj0f0KSLJKOw6b=s4F2QHHeyAMEQ@mail.gmail.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200701090839.12994-1-jasowang@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: mst@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Cc: rob.miller@broadcom.com, lingshan.zhu@intel.com, eperezma@redhat.com, lulu@redhat.com, shahafs@mellanox.com, hanand@xilinx.com, mhabets@solarflare.com, gdawar@xilinx.com, saugatm@xilinx.com, vmireyno@marvell.com, zhangweining@ruijie.com.cn, eli@mellanox.com, Jason Wang <jasowang@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-alpha-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <CAK8P3a136e2k-iGoJ4X51mnj0f0KSLJKOw6b=s4F2QHHeyAMEQ@mail.gmail.com>
+Sender: linux-alpha-owner@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Sami Tolvanen <samitolvanen@google.com>, Nick Desaulniers <ndesaulniers@google.com>, Kees Cook <keescook@chromium.org>, Marco Elver <elver@google.com>, "Paul E. McKenney" <paulmck@kernel.org>, Josh Triplett <josh@joshtriplett.org>, Matt Turner <mattst88@gmail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Richard Henderson <rth@twiddle.net>, Peter Zijlstra <peterz@infradead.org>, Alan Stern <stern@rowland.harvard.edu>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Boqun Feng <boqun.feng@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, Linux ARM <linux-arm-kernel@lists.infradead.org>, alpha <linux-alpha@vger.k>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The vDPA simulator support both set_map() and dma_map()/dma_unmap()
-operations. But vhost-vdpa can only use one of them. So this patch
-introduce a module parameter (batch_mapping) that let vpda_sim to
-support only one of those dma operations. The batched mapping via
-set_map() is enabled by default.
+Hi Arnd,
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vdpa/vdpa_sim/vdpa_sim.c | 40 +++++++++++++++++++++++++++++---
- 1 file changed, 37 insertions(+), 3 deletions(-)
+On Tue, Jun 30, 2020 at 09:11:32PM +0200, Arnd Bergmann wrote:
+> On Tue, Jun 30, 2020 at 7:37 PM Will Deacon <will@kernel.org> wrote:
+> >
+> > In preparation for allowing architectures to define their own
+> > implementation of the READ_ONCE() macro, move the generic
+> > {READ,WRITE}_ONCE() definitions out of the unwieldy 'linux/compiler.h'
+> > file and into a new 'rwonce.h' header under 'asm-generic'.
+> >
+> > Acked-by: Paul E. McKenney <paulmck@kernel.org>
+> > Signed-off-by: Will Deacon <will@kernel.org>
+> > ---
+> >  include/asm-generic/Kbuild   |  1 +
+> >  include/asm-generic/rwonce.h | 91 ++++++++++++++++++++++++++++++++++++
+> >  include/linux/compiler.h     | 83 +-------------------------------
+> 
+> Very nice, this has the added benefit of allowing us to stop including
+> asm/barrier.h once linux/compiler.h gets changed to not include
+> asm/rwonce.h.
 
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-index c7334cc65bb2..a7a0962ed8a8 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-@@ -33,6 +33,10 @@
- #define DRV_DESC     "vDPA Device Simulator"
- #define DRV_LICENSE  "GPL v2"
- 
-+static int batch_mapping = 1;
-+module_param(batch_mapping, int, 0444);
-+MODULE_PARM_DESC(batch_mapping, "Batched mapping 1 -Enable; 0 - Disable");
-+
- struct vdpasim_virtqueue {
- 	struct vringh vring;
- 	struct vringh_kiov iov;
-@@ -303,16 +307,22 @@ static const struct dma_map_ops vdpasim_dma_ops = {
- };
- 
- static const struct vdpa_config_ops vdpasim_net_config_ops;
-+static const struct vdpa_config_ops vdpasim_net_batch_config_ops;
- 
- static struct vdpasim *vdpasim_create(void)
- {
-+	const struct vdpa_config_ops *ops;
- 	struct virtio_net_config *config;
- 	struct vdpasim *vdpasim;
- 	struct device *dev;
- 	int ret = -ENOMEM;
- 
--	vdpasim = vdpa_alloc_device(struct vdpasim, vdpa, NULL,
--				    &vdpasim_net_config_ops);
-+	if (batch_mapping)
-+		ops = &vdpasim_net_batch_config_ops;
-+	else
-+		ops = &vdpasim_net_config_ops;
-+
-+	vdpasim = vdpa_alloc_device(struct vdpasim, vdpa, NULL, ops);
- 	if (!vdpasim)
- 		goto err_alloc;
- 
-@@ -597,12 +607,36 @@ static const struct vdpa_config_ops vdpasim_net_config_ops = {
- 	.get_config             = vdpasim_get_config,
- 	.set_config             = vdpasim_set_config,
- 	.get_generation         = vdpasim_get_generation,
--	.set_map                = vdpasim_set_map,
- 	.dma_map                = vdpasim_dma_map,
- 	.dma_unmap              = vdpasim_dma_unmap,
- 	.free                   = vdpasim_free,
- };
- 
-+static const struct vdpa_config_ops vdpasim_net_batch_config_ops = {
-+	.set_vq_address         = vdpasim_set_vq_address,
-+	.set_vq_num             = vdpasim_set_vq_num,
-+	.kick_vq                = vdpasim_kick_vq,
-+	.set_vq_cb              = vdpasim_set_vq_cb,
-+	.set_vq_ready           = vdpasim_set_vq_ready,
-+	.get_vq_ready           = vdpasim_get_vq_ready,
-+	.set_vq_state           = vdpasim_set_vq_state,
-+	.get_vq_state           = vdpasim_get_vq_state,
-+	.get_vq_align           = vdpasim_get_vq_align,
-+	.get_features           = vdpasim_get_features,
-+	.set_features           = vdpasim_set_features,
-+	.set_config_cb          = vdpasim_set_config_cb,
-+	.get_vq_num_max         = vdpasim_get_vq_num_max,
-+	.get_device_id          = vdpasim_get_device_id,
-+	.get_vendor_id          = vdpasim_get_vendor_id,
-+	.get_status             = vdpasim_get_status,
-+	.set_status             = vdpasim_set_status,
-+	.get_config             = vdpasim_get_config,
-+	.set_config             = vdpasim_set_config,
-+	.get_generation         = vdpasim_get_generation,
-+	.set_map                = vdpasim_set_map,
-+	.free                   = vdpasim_free,
-+};
-+
- static int __init vdpasim_dev_init(void)
- {
- 	vdpasim_dev = vdpasim_create();
--- 
-2.20.1
+Yeah, with this series linux/compiler.h _does_ include asm/rwonce.h because
+otherwise there are many callers to fix up, but that could be addressed
+subsequently, I suppose.
+
+> The asm/barrier.h header has a circular dependency, pulling in
+> linux/compiler.h itself.
+
+Hmm. Once smp_read_barrier_depends() disappears, I could actually remove
+the include of <asm/barrier.h> from asm-generic/rwonce.h. It would have to
+remain for arch/alpha/, however, since we need the barrier definitions to
+implement READ_ONCE(). I can probably also replace the include of
+<linux/compiler.h> in asm-generic/barrier.h with <asm/rwonce.h> too (so it's
+still circular, but at least a lot simpler).
+
+I'll have a play...
+
+Will
