@@ -1,7 +1,7 @@
 From: Kishon Vijay Abraham I <kishon@ti.com>
-Subject: [RFC PATCH 03/22] vhost: Add ops for the VHOST driver to configure VHOST device
-Date: Thu, 2 Jul 2020 13:51:24 +0530
-Message-ID: <20200702082143.25259-4-kishon@ti.com>
+Subject: [RFC PATCH 05/22] vhost: Add MMIO helpers for operations on vhost virtqueue
+Date: Thu, 2 Jul 2020 13:51:26 +0530
+Message-ID: <20200702082143.25259-6-kishon@ti.com>
 References: <20200702082143.25259-1-kishon@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
@@ -12,304 +12,383 @@ To: Ohad Ben-Cohen <ohad@wizery.com>, Bjorn Andersson <bjorn.andersson@linaro.or
 Cc: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-remoteproc@vger.kernel.org, linux-ntb@googlegroups.com, linux-pci@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Add "vhost_config_ops" in *struct vhost_driver* for the VHOST driver to
-configure VHOST device and add facility for VHOST device to notify
-VHOST driver (whenever VIRTIO sets a new status or finalize features).
-This is in preparation to use the same vhost_driver across different
-VHOST devices (like PCIe or NTB or platform device).
+Add helpers for VHOST drivers to read descriptor data from
+vhost_virtqueue for IN transfers or write descriptor data to
+vhost_virtqueue for OUT transfers respectively. Also add
+helpers to enable callback, disable callback and notify remote
+virtio for events on virtqueue.
+
+This adds helpers only for virtqueue in MMIO (helpers for virtqueue
+in kernel space and user space can be added later).
 
 Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
 ---
- drivers/vhost/vhost.c | 185 ++++++++++++++++++++++++++++++++++++++++++
- include/linux/vhost.h |  57 +++++++++++++
- 2 files changed, 242 insertions(+)
+ drivers/vhost/Kconfig |   1 +
+ drivers/vhost/vhost.c | 292 ++++++++++++++++++++++++++++++++++++++++++
+ include/linux/vhost.h |  22 ++++
+ 3 files changed, 315 insertions(+)
 
+diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
+index c4f273793595..77e195a38469 100644
+--- a/drivers/vhost/Kconfig
++++ b/drivers/vhost/Kconfig
+@@ -24,6 +24,7 @@ config VHOST_DPN
+ 
+ config VHOST
+ 	tristate
++	select VHOST_RING
+ 	select VHOST_IOTLB
+ 	help
+ 	  This option is selected by any driver which needs to access
 diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index fa2bc6e68be2..f959abb0b1bb 100644
+index f959abb0b1bb..8a3ad4698393 100644
 --- a/drivers/vhost/vhost.c
 +++ b/drivers/vhost/vhost.c
-@@ -2558,6 +2558,190 @@ struct vhost_msg_node *vhost_dequeue_msg(struct vhost_dev *dev,
+@@ -2558,6 +2558,298 @@ struct vhost_msg_node *vhost_dequeue_msg(struct vhost_dev *dev,
  }
  EXPORT_SYMBOL_GPL(vhost_dequeue_msg);
  
 +/**
-+ * vhost_create_vqs() - Invoke vhost_config_ops to create virtqueue
-+ * @vdev: Vhost device that provides create_vqs() callback to create virtqueue
-+ * @nvqs: Number of vhost virtqueues to be created
-+ * @num_bufs: The number of buffers that should be supported by the vhost
-+ *   virtqueue (number of descriptors in the vhost virtqueue)
-+ * @vqs: Pointers to all the created vhost virtqueues
-+ * @callback: Callback function associated with the virtqueue
-+ * @names: Names associated with each virtqueue
++ * vhost_virtqueue_disable_cb_mmio() - Write to used ring in virtio accessed
++ *   using MMIO to stop notification
++ * @vq: vhost_virtqueue for which callbacks have to be disabled
 + *
-+ * Wrapper that invokes vhost_config_ops to create virtqueue.
++ * Write to used ring in virtio accessed using MMIO to stop sending notification
++ * to the vhost virtqueue.
 + */
-+int vhost_create_vqs(struct vhost_dev *vdev, unsigned int nvqs,
-+		     unsigned int num_bufs, struct vhost_virtqueue *vqs[],
-+		     vhost_vq_callback_t *callbacks[],
-+		     const char * const names[])
++static void vhost_virtqueue_disable_cb_mmio(struct vhost_virtqueue *vq)
 +{
-+	int ret;
++	struct vringh *vringh;
 +
-+	if (IS_ERR_OR_NULL(vdev))
-+		return -EINVAL;
-+
-+	if (!vdev->ops && !vdev->ops->create_vqs)
-+		return -EINVAL;
-+
-+	mutex_lock(&vdev->mutex);
-+	ret = vdev->ops->create_vqs(vdev, nvqs, num_bufs, vqs, callbacks,
-+				    names);
-+	mutex_unlock(&vdev->mutex);
-+
-+	return ret;
++	vringh = &vq->vringh;
++	vringh_notify_disable_mmio(vringh);
 +}
-+EXPORT_SYMBOL_GPL(vhost_create_vqs);
 +
-+/* vhost_del_vqs - Invoke vhost_config_ops to delete the created virtqueues
-+ * @vdev: Vhost device that provides del_vqs() callback to delete virtqueue
++/**
++ * vhost_virtqueue_disable_cb() - Write to used ring in virtio to stop
++ *   notification
++ * @vq: vhost_virtqueue for which callbacks have to be disabled
 + *
-+ * Wrapper that invokes vhost_config_ops to delete all the virtqueues
-+ * associated with the vhost device.
++ * Wrapper to write to used ring in virtio to stop sending notification
++ * to the vhost virtqueue.
 + */
-+void vhost_del_vqs(struct vhost_dev *vdev)
++void vhost_virtqueue_disable_cb(struct vhost_virtqueue *vq)
 +{
-+	if (IS_ERR_OR_NULL(vdev))
++	enum vhost_type type;
++
++	type = vq->type;
++
++	/* TODO: Add support for other VHOST TYPES */
++	if (type == VHOST_TYPE_MMIO)
++		return vhost_virtqueue_disable_cb_mmio(vq);
++}
++EXPORT_SYMBOL_GPL(vhost_virtqueue_disable_cb);
++
++/**
++ * vhost_virtqueue_enable_cb_mmio() - Write to used ring in virtio accessed
++ *   using MMIO to enable notification
++ * @vq: vhost_virtqueue for which callbacks have to be enabled
++ *
++ * Write to used ring in virtio accessed using MMIO to enable notification
++ * to the vhost virtqueue.
++ */
++static bool vhost_virtqueue_enable_cb_mmio(struct vhost_virtqueue *vq)
++{
++	struct vringh *vringh;
++
++	vringh = &vq->vringh;
++	return vringh_notify_enable_mmio(vringh);
++}
++
++/**
++ * vhost_virtqueue_enable_cb() - Write to used ring in virtio to enable
++ *   notification
++ * @vq: vhost_virtqueue for which callbacks have to be enabled
++ *
++ * Wrapper to write to used ring in virtio to enable notification to the
++ * vhost virtqueue.
++ */
++bool vhost_virtqueue_enable_cb(struct vhost_virtqueue *vq)
++{
++	enum vhost_type type;
++
++	type = vq->type;
++
++	/* TODO: Add support for other VHOST TYPES */
++	if (type == VHOST_TYPE_MMIO)
++		return vhost_virtqueue_enable_cb_mmio(vq);
++
++	return false;
++}
++EXPORT_SYMBOL_GPL(vhost_virtqueue_enable_cb);
++
++/**
++ * vhost_virtqueue_notify() - Send notification to the remote virtqueue
++ * @vq: vhost_virtqueue that sends the notification
++ *
++ * Invokes ->notify() callback to send notification to the remote virtqueue.
++ */
++void vhost_virtqueue_notify(struct vhost_virtqueue *vq)
++{
++	if (!vq->notify)
 +		return;
 +
-+	if (!vdev->ops && !vdev->ops->del_vqs)
++	vq->notify(vq);
++}
++EXPORT_SYMBOL_GPL(vhost_virtqueue_notify);
++
++/**
++ * vhost_virtqueue_kick_mmio() - Check if the remote virtqueue has enabled
++ *   notification (by reading available ring in virtio accessed using MMIO)
++ *   before sending notification
++ * @vq: vhost_virtqueue that sends the notification
++ *
++ * Check if the remote virtqueue has enabled notification (by reading available
++ * ring in virtio accessed using MMIO) and then invoke vhost_virtqueue_notify()
++ * to send notification to the remote virtqueue.
++ */
++static void vhost_virtqueue_kick_mmio(struct vhost_virtqueue *vq)
++{
++	if (vringh_need_notify_mmio(&vq->vringh))
++		vhost_virtqueue_notify(vq);
++}
++
++/**
++ * vhost_virtqueue_kick() - Check if the remote virtqueue has enabled
++ *   notification before sending notification
++ * @vq: vhost_virtqueue that sends the notification
++ *
++ * Wrapper to send notification to the remote virtqueue using
++ * vhost_virtqueue_kick_mmio() that checks if the remote virtqueue has
++ * enabled notification before sending the notification.
++ */
++void vhost_virtqueue_kick(struct vhost_virtqueue *vq)
++{
++	enum vhost_type type;
++
++	type = vq->type;
++
++	/* TODO: Add support for other VHOST TYPES */
++	if (type == VHOST_TYPE_MMIO)
++		return vhost_virtqueue_kick_mmio(vq);
++}
++EXPORT_SYMBOL_GPL(vhost_virtqueue_kick);
++
++/**
++ * vhost_virtqueue_callback() - Invoke vhost virtqueue callback provided by
++ *   vhost client driver
++ * @vq: vhost_virtqueue for which the callback is invoked
++ *
++ * Invoked by the driver that creates vhost device when the remote virtio
++ * driver sends notification to this virtqueue.
++ */
++void vhost_virtqueue_callback(struct vhost_virtqueue *vq)
++{
++	if (!vq->callback)
 +		return;
 +
-+	mutex_lock(&vdev->mutex);
-+	vdev->ops->del_vqs(vdev);
-+	mutex_unlock(&vdev->mutex);
++	vq->callback(vq);
 +}
-+EXPORT_SYMBOL_GPL(vhost_del_vqs);
++EXPORT_SYMBOL_GPL(vhost_virtqueue_callback);
 +
-+/* vhost_write - Invoke vhost_config_ops to write data to buffer provided
-+ *   by remote virtio driver
-+ * @vdev: Vhost device that provides write() callback to write data
-+ * @dst: Buffer address in the remote device provided by the remote virtio
-+ *   driver
-+ * @src: Buffer address in the local device provided by the vhost client driver
-+ * @len: Length of the data to be copied from @src to @dst
++/**
++ * vhost_virtqueue_get_outbuf_mmio() - Get the output buffer address by reading
++ *   virtqueue descriptor accessed using MMIO
++ * @vq: vhost_virtqueue used to access the descriptor
++ * @head: head index for passing to vhost_virtqueue_put_buf()
++ * @len: Length of the buffer
 + *
-+ * Wrapper that invokes vhost_config_ops to write data to buffer provided by
-+ * remote virtio driver from buffer provided by vhost client driver.
++ * Get the output buffer address by reading virtqueue descriptor accessed using
++ * MMIO.
 + */
-+int vhost_write(struct vhost_dev *vdev, u64 vhost_dst, void *src, int len)
++static u64 vhost_virtqueue_get_outbuf_mmio(struct vhost_virtqueue *vq,
++					   u16 *head, int *len)
 +{
-+	if (IS_ERR_OR_NULL(vdev))
-+		return -EINVAL;
++	struct vringh_mmiov wiov;
++	struct mmiovec *mmiovec;
++	struct vringh *vringh;
++	int desc;
 +
-+	if (!vdev->ops && !vdev->ops->write)
-+		return -EINVAL;
++	vringh = &vq->vringh;
++	vringh_mmiov_init(&wiov, NULL, 0);
 +
-+	return vdev->ops->write(vdev, vhost_dst, src, len);
++	desc = vringh_getdesc_mmio(vringh, NULL, &wiov, head, GFP_KERNEL);
++	if (!desc)
++		return 0;
++	mmiovec = &wiov.iov[0];
++
++	*len = mmiovec->iov_len;
++	return mmiovec->iov_base;
 +}
-+EXPORT_SYMBOL_GPL(vhost_write);
 +
-+/* vhost_read - Invoke vhost_config_ops to read data from buffers provided by
-+ *   remote virtio driver
-+ * @vdev: Vhost device that provides read() callback to read data
-+ * @dst: Buffer address in the local device provided by the vhost client driver
-+ * @src: Buffer address in the remote device provided by the remote virtio
-+ *   driver
-+ * @len: Length of the data to be copied from @src to @dst
++/**
++ * vhost_virtqueue_get_outbuf() - Get the output buffer address by reading
++ *   virtqueue descriptor
++ * @vq: vhost_virtqueue used to access the descriptor
++ * @head: head index for passing to vhost_virtqueue_put_buf()
++ * @len: Length of the buffer
 + *
-+ * Wrapper that invokes vhost_config_ops to read data from buffers provided by
-+ * remote virtio driver to the address provided by vhost client driver.
++ * Wrapper to get the output buffer address by reading virtqueue descriptor.
 + */
-+int vhost_read(struct vhost_dev *vdev, void *dst, u64 vhost_src, int len)
++u64 vhost_virtqueue_get_outbuf(struct vhost_virtqueue *vq, u16 *head, int *len)
 +{
-+	if (IS_ERR_OR_NULL(vdev))
-+		return -EINVAL;
++	enum vhost_type type;
 +
-+	if (!vdev->ops && !vdev->ops->read)
-+		return -EINVAL;
++	type = vq->type;
 +
-+	return vdev->ops->read(vdev, dst, vhost_src, len);
++	/* TODO: Add support for other VHOST TYPES */
++	if (type == VHOST_TYPE_MMIO)
++		return vhost_virtqueue_get_outbuf_mmio(vq, head, len);
++
++	return 0;
 +}
-+EXPORT_SYMBOL_GPL(vhost_read);
++EXPORT_SYMBOL_GPL(vhost_virtqueue_get_outbuf);
 +
-+/* vhost_set_status - Invoke vhost_config_ops to set vhost device status
-+ * @vdev: Vhost device that provides set_status() callback to set device status
-+ * @status: Vhost device status configured by vhost client driver
++/**
++ * vhost_virtqueue_get_inbuf_mmio() - Get the input buffer address by reading
++ *   virtqueue descriptor accessed using MMIO
++ * @vq: vhost_virtqueue used to access the descriptor
++ * @head: Head index for passing to vhost_virtqueue_put_buf()
++ * @len: Length of the buffer
 + *
-+ * Wrapper that invokes vhost_config_ops to set vhost device status.
++ * Get the input buffer address by reading virtqueue descriptor accessed using
++ * MMIO.
 + */
-+int vhost_set_status(struct vhost_dev *vdev, u8 status)
++static u64 vhost_virtqueue_get_inbuf_mmio(struct vhost_virtqueue *vq,
++					  u16 *head, int *len)
 +{
-+	int ret;
++	struct vringh_mmiov riov;
++	struct mmiovec *mmiovec;
++	struct vringh *vringh;
++	int desc;
 +
-+	if (IS_ERR_OR_NULL(vdev))
-+		return -EINVAL;
++	vringh = &vq->vringh;
++	vringh_mmiov_init(&riov, NULL, 0);
 +
-+	if (!vdev->ops && !vdev->ops->set_status)
-+		return -EINVAL;
++	desc = vringh_getdesc_mmio(vringh, &riov, NULL, head, GFP_KERNEL);
++	if (!desc)
++		return 0;
 +
-+	mutex_lock(&vdev->mutex);
-+	ret = vdev->ops->set_status(vdev, status);
-+	mutex_unlock(&vdev->mutex);
++	mmiovec = &riov.iov[0];
 +
-+	return ret;
++	*len = mmiovec->iov_len;
++	return mmiovec->iov_base;
 +}
-+EXPORT_SYMBOL_GPL(vhost_set_status);
 +
-+/* vhost_get_status - Invoke vhost_config_ops to get vhost device status
-+ * @vdev: Vhost device that provides get_status() callback to get device status
++/**
++ * vhost_virtqueue_get_inbuf() - Get the input buffer address by reading
++ *   virtqueue descriptor
++ * @vq: vhost_virtqueue used to access the descriptor
++ * @head: head index for passing to vhost_virtqueue_put_buf()
++ * @len: Length of the buffer
 + *
-+ * Wrapper that invokes vhost_config_ops to get vhost device status.
++ * Wrapper to get the input buffer address by reading virtqueue descriptor.
 + */
-+u8 vhost_get_status(struct vhost_dev *vdev)
++u64 vhost_virtqueue_get_inbuf(struct vhost_virtqueue *vq, u16 *head, int *len)
 +{
-+	u8 status;
++	enum vhost_type type;
 +
-+	if (IS_ERR_OR_NULL(vdev))
-+		return -EINVAL;
++	type = vq->type;
 +
-+	if (!vdev->ops && !vdev->ops->get_status)
-+		return -EINVAL;
++	/* TODO: Add support for other VHOST TYPES */
++	if (type == VHOST_TYPE_MMIO)
++		return vhost_virtqueue_get_inbuf_mmio(vq, head, len);
 +
-+	mutex_lock(&vdev->mutex);
-+	status = vdev->ops->get_status(vdev);
-+	mutex_unlock(&vdev->mutex);
-+
-+	return status;
++	return 0;
 +}
-+EXPORT_SYMBOL_GPL(vhost_get_status);
++EXPORT_SYMBOL_GPL(vhost_virtqueue_get_inbuf);
 +
-+/* vhost_set_features - Invoke vhost_config_ops to set vhost device features
-+ * @vdev: Vhost device that provides set_features() callback to set device
-+ *   features
++/**
++ * vhost_virtqueue_put_buf_mmio() - Publish to the remote virtio (update
++ * used ring in virtio using MMIO) to indicate the buffer has been processed
++ * @vq: vhost_virtqueue used to update the used ring
++ * @head: Head index receive from vhost_virtqueue_get_*()
++ * @len: Length of the buffer
 + *
-+ * Wrapper that invokes vhost_config_ops to set device features.
++ * Publish to the remote virtio (update used ring in virtio using MMIO) to
++ * indicate the buffer has been processed
 + */
-+int vhost_set_features(struct vhost_dev *vdev, u64 device_features)
++static void vhost_virtqueue_put_buf_mmio(struct vhost_virtqueue *vq,
++					 u16 head, int len)
 +{
-+	int ret;
++	struct vringh *vringh;
 +
-+	if (IS_ERR_OR_NULL(vdev))
-+		return -EINVAL;
++	vringh = &vq->vringh;
 +
-+	if (!vdev->ops && !vdev->ops->set_features)
-+		return -EINVAL;
-+
-+	mutex_lock(&vdev->mutex);
-+	ret = vdev->ops->set_features(vdev, device_features);
-+	mutex_unlock(&vdev->mutex);
-+
-+	return ret;
++	vringh_complete_mmio(vringh, head, len);
 +}
-+EXPORT_SYMBOL_GPL(vhost_set_features);
 +
-+/* vhost_register_notifier - Register notifier to receive notification from
-+ *   vhost device
-+ * @vdev: Vhost device from which notification has to be received.
-+ * @nb: Notifier block holding the callback function
++/**
++ * vhost_virtqueue_put_buf() - Publish to the remote virtio to indicate the
++ *   buffer has been processed
++ * @vq: vhost_virtqueue used to update the used ring
++ * @head: Head index receive from vhost_virtqueue_get_*()
++ * @len: Length of the buffer
 + *
-+ * Invoked by vhost client to receive notification from vhost device.
++ * Wrapper to publish to the remote virtio to indicate the buffer has been
++ * processed.
 + */
-+int vhost_register_notifier(struct vhost_dev *vdev, struct notifier_block *nb)
++void vhost_virtqueue_put_buf(struct vhost_virtqueue *vq, u16 head, int len)
 +{
-+	return blocking_notifier_chain_register(&vdev->notifier, nb);
-+}
-+EXPORT_SYMBOL_GPL(vhost_register_notifier);
++	enum vhost_type type;
 +
- static inline int vhost_id_match(const struct vhost_dev *vdev,
- 				 const struct vhost_device_id *id)
- {
-@@ -2669,6 +2853,7 @@ int vhost_register_device(struct vhost_dev *vdev)
- 	device_initialize(dev);
- 
- 	dev_set_name(dev, "vhost%u", ret);
-+	BLOCKING_INIT_NOTIFIER_HEAD(&vdev->notifier);
- 
- 	ret = device_add(dev);
- 	if (ret) {
++	type = vq->type;
++
++	/* TODO: Add support for other VHOST TYPES */
++	if (type == VHOST_TYPE_MMIO)
++		return vhost_virtqueue_put_buf_mmio(vq, head, len);
++}
++EXPORT_SYMBOL_GPL(vhost_virtqueue_put_buf);
++
+ /**
+  * vhost_create_vqs() - Invoke vhost_config_ops to create virtqueue
+  * @vdev: Vhost device that provides create_vqs() callback to create virtqueue
 diff --git a/include/linux/vhost.h b/include/linux/vhost.h
-index 16c374a8fa12..b22a19c66109 100644
+index b22a19c66109..8efb9829c1b1 100644
 --- a/include/linux/vhost.h
 +++ b/include/linux/vhost.h
-@@ -135,6 +135,37 @@ struct vhost_msg_node {
-   struct list_head node;
+@@ -10,6 +10,7 @@
+ #include <linux/uio.h>
+ #include <linux/virtio_config.h>
+ #include <linux/virtio_ring.h>
++#include <linux/vringh.h>
+ #include <linux/atomic.h>
+ #include <linux/vhost_iotlb.h>
+ #include <uapi/linux/vhost.h>
+@@ -60,9 +61,20 @@ enum vhost_uaddr_type {
+ 	VHOST_NUM_ADDRS = 3,
  };
  
-+enum vhost_notify_event {
-+	NOTIFY_SET_STATUS,
-+	NOTIFY_FINALIZE_FEATURES,
-+	NOTIFY_RESET,
++enum vhost_type {
++	VHOST_TYPE_UNKNOWN,
++	VHOST_TYPE_USER,
++	VHOST_TYPE_KERN,
++	VHOST_TYPE_MMIO,
 +};
 +
-+typedef void vhost_vq_callback_t(struct vhost_virtqueue *);
-+/**
-+ * struct vhost_config_ops - set of function pointers for performing vhost
-+ *   device specific operation
-+ * @create_vqs: ops to create vhost virtqueue
-+ * @del_vqs: ops to delete vhost virtqueue
-+ * @write: ops to write data to buffer provided by remote virtio driver
-+ * @read: ops to read data from buffer provided by remote virtio driver
-+ * @set_features: ops to set vhost device features
-+ * @set_status: ops to set vhost device status
-+ * @get_status: ops to get vhost device status
-+ */
-+struct vhost_config_ops {
-+	int (*create_vqs)(struct vhost_dev *vdev, unsigned int nvqs,
-+			  unsigned int num_bufs, struct vhost_virtqueue *vqs[],
-+			  vhost_vq_callback_t *callbacks[],
-+			  const char * const names[]);
-+	void (*del_vqs)(struct vhost_dev *vdev);
-+	int (*write)(struct vhost_dev *vdev, u64 vhost_dst, void *src, int len);
-+	int (*read)(struct vhost_dev *vdev, void *dst, u64 vhost_src, int len);
-+	int (*set_features)(struct vhost_dev *vdev, u64 device_features);
-+	int (*set_status)(struct vhost_dev *vdev, u8 status);
-+	u8 (*get_status)(struct vhost_dev *vdev);
-+};
-+
- struct vhost_driver {
- 	struct device_driver driver;
- 	struct vhost_device_id *id_table;
-@@ -149,6 +180,8 @@ struct vhost_dev {
- 	struct vhost_driver *driver;
- 	struct vhost_device_id id;
- 	int index;
-+	const struct vhost_config_ops *ops;
-+	struct blocking_notifier_head notifier;
- 	struct mm_struct *mm;
+ /* The virtqueue structure describes a queue attached to a device. */
+ struct vhost_virtqueue {
+ 	struct vhost_dev *dev;
++	enum vhost_type type;
++	struct vringh vringh;
++	void (*callback)(struct vhost_virtqueue *vq);
++	void (*notify)(struct vhost_virtqueue *vq);
+ 
+ 	/* The actual ring of buffers. */
  	struct mutex mutex;
- 	struct vhost_virtqueue **vqs;
-@@ -173,11 +206,35 @@ struct vhost_dev {
+@@ -235,6 +247,16 @@ u8 vhost_get_status(struct vhost_dev *vdev);
  
- #define to_vhost_dev(d) container_of((d), struct vhost_dev, dev)
+ int vhost_register_notifier(struct vhost_dev *vdev, struct notifier_block *nb);
  
-+static inline void vhost_set_drvdata(struct vhost_dev *vdev, void *data)
-+{
-+	dev_set_drvdata(&vdev->dev, data);
-+}
++u64 vhost_virtqueue_get_outbuf(struct vhost_virtqueue *vq, u16 *head, int *len);
++u64 vhost_virtqueue_get_inbuf(struct vhost_virtqueue *vq, u16 *head, int *len);
++void vhost_virtqueue_put_buf(struct vhost_virtqueue *vq, u16 head, int len);
 +
-+static inline void *vhost_get_drvdata(struct vhost_dev *vdev)
-+{
-+	return dev_get_drvdata(&vdev->dev);
-+}
-+
- int vhost_register_driver(struct vhost_driver *driver);
- void vhost_unregister_driver(struct vhost_driver *driver);
- int vhost_register_device(struct vhost_dev *vdev);
- void vhost_unregister_device(struct vhost_dev *vdev);
- 
-+int vhost_create_vqs(struct vhost_dev *vdev, unsigned int nvqs,
-+		     unsigned int num_bufs, struct vhost_virtqueue *vqs[],
-+		     vhost_vq_callback_t *callbacks[],
-+		     const char * const names[]);
-+void vhost_del_vqs(struct vhost_dev *vdev);
-+int vhost_write(struct vhost_dev *vdev, u64 vhost_dst, void *src, int len);
-+int vhost_read(struct vhost_dev *vdev, void *dst, u64 vhost_src, int len);
-+int vhost_set_features(struct vhost_dev *vdev, u64 device_features);
-+u64 vhost_get_features(struct vhost_dev *vdev);
-+int vhost_set_status(struct vhost_dev *vdev, u8 status);
-+u8 vhost_get_status(struct vhost_dev *vdev);
-+
-+int vhost_register_notifier(struct vhost_dev *vdev, struct notifier_block *nb);
++void vhost_virtqueue_disable_cb(struct vhost_virtqueue *vq);
++bool vhost_virtqueue_enable_cb(struct vhost_virtqueue *vq);
++void vhost_virtqueue_notify(struct vhost_virtqueue *vq);
++void vhost_virtqueue_kick(struct vhost_virtqueue *vq);
++void vhost_virtqueue_callback(struct vhost_virtqueue *vq);
 +
  bool vhost_exceeds_weight(struct vhost_virtqueue *vq, int pkts, int total_len);
  void vhost_dev_init(struct vhost_dev *, struct vhost_virtqueue **vqs,
