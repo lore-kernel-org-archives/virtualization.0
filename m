@@ -1,54 +1,73 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 04/18] alpha: Override READ_ONCE() with barriered implementation
-Date: Thu, 2 Jul 2020 13:39:10 +0200
-Message-ID: <CAK8P3a3VrEkDf8t1CCsY+g7rtXkqBsiPOr97b1yRbz8NpjdfFA@mail.gmail.com>
-References: <20200630173734.14057-1-will@kernel.org> <20200630173734.14057-5-will@kernel.org>
- <20200702093239.GA15391@C02TD0UTHF1T.local> <20200702094833.GA16248@willie-the-truck>
- <CAK8P3a07G1dLC+RUBDkzDbCRCP_gwZAaVK+k1UxvXT+7Kj=o+g@mail.gmail.com> <20200702111832.GC16418@willie-the-truck>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: Re: [PATCH v3 1/1] s390: virtio: let arch accept devices without
+ IOMMU feature
+Date: Thu, 2 Jul 2020 15:03:51 +0200
+Message-ID: <26ecd4c6-837b-1ce6-170b-a0155e4dd4d4@linux.ibm.com>
+References: <1592390637-17441-1-git-send-email-pmorel@linux.ibm.com>
+ <1592390637-17441-2-git-send-email-pmorel@linux.ibm.com>
+ <20200629115651-mutt-send-email-mst@kernel.org>
+ <20200629180526.41d0732b.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-alpha-owner@vger.kernel.org>
-In-Reply-To: <20200702111832.GC16418@willie-the-truck>
-Sender: linux-alpha-owner@vger.kernel.org
-To: Will Deacon <will@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Sami Tolvanen <samitolvanen@google.com>, Nick Desaulniers <ndesaulniers@google.com>, Kees Cook <keescook@chromium.org>, Marco Elver <elver@google.com>, "Paul E. McKenney" <paulmck@kernel.org>, Josh Triplett <josh@joshtriplett.org>, Matt Turner <mattst88@gmail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Richard Henderson <rth@twiddle.net>, Peter Zijlstra <peterz@infradead.org>, Alan Stern <stern@rowland.harvard.edu>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Boqun Feng <boqun.feng@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Linux ARM <linux-arm-kernel@lists.infradead.org>, alpha <linux-alpha@vger.k>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200629180526.41d0732b.cohuck@redhat.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, jasowang@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 2, 2020 at 1:18 PM Will Deacon <will@kernel.org> wrote:
-> On Thu, Jul 02, 2020 at 12:08:41PM +0200, Arnd Bergmann wrote:
-> > On Thu, Jul 2, 2020 at 11:48 AM Will Deacon <will@kernel.org> wrote:
-> > > On Thu, Jul 02, 2020 at 10:32:39AM +0100, Mark Rutland wrote:
 
-> Not sure I follow you here, but I can confirm that what you're worried
-> about doesn't happen for the usual case of a pointer-to-volatile scalar.
->
-> For example, ignoring dependency ordering:
->
-> unsigned long foo(volatile unsigned long *p)
-> {
->         return smp_load_acquire(p) + 1;
-> }
->
-> Ends up looking like:
->
->         unsigned long ___p1 = *(const volatile unsigned long *)p;
->         smp_mb();
->         (volatile unsigned long)___p1;
->
-> My understanding is that casting a non-pointer type to volatile doesn't
-> do anything, so we're good.
 
-Right, I mixed up the correct
+On 2020-06-29 18:05, Cornelia Huck wrote:
+> On Mon, 29 Jun 2020 11:57:14 -0400
+> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> 
+>> On Wed, Jun 17, 2020 at 12:43:57PM +0200, Pierre Morel wrote:
+>>> An architecture protecting the guest memory against unauthorized host
+>>> access may want to enforce VIRTIO I/O device protection through the
+>>> use of VIRTIO_F_IOMMU_PLATFORM.
+>>>
+>>> Let's give a chance to the architecture to accept or not devices
+>>> without VIRTIO_F_IOMMU_PLATFORM.
+>>>
+>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>>> Acked-by: Jason Wang <jasowang@redhat.com>
+>>> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>>> ---
+>>>   arch/s390/mm/init.c     |  6 ++++++
+>>>   drivers/virtio/virtio.c | 22 ++++++++++++++++++++++
+>>>   include/linux/virtio.h  |  2 ++
+>>>   3 files changed, 30 insertions(+)
+> 
+>>> @@ -179,6 +194,13 @@ int virtio_finalize_features(struct virtio_device *dev)
+>>>   	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
+>>>   		return 0;
+>>>   
+>>> +	if (arch_needs_virtio_iommu_platform(dev) &&
+>>> +		!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
+>>> +		dev_warn(&dev->dev,
+>>> +			 "virtio: device must provide VIRTIO_F_IOMMU_PLATFORM\n");
+>>> +		return -ENODEV;
+>>> +	}
+>>> +
+>>>   	virtio_add_status(dev, VIRTIO_CONFIG_S_FEATURES_OK);
+>>>   	status = dev->config->get_status(dev);
+>>>   	if (!(status & VIRTIO_CONFIG_S_FEATURES_OK)) {
+>>
+>> Well don't you need to check it *before* VIRTIO_F_VERSION_1, not after?
+> 
+> But it's only available with VERSION_1 anyway, isn't it? So it probably
+> also needs to fail when this feature is needed if VERSION_1 has not been
+> negotiated, I think.
+> 
 
-        (typeof(*p))___p;
+Yes, clearly, I will add this.
 
-with the incorrect
+Thanks,
+Pierre
 
-       *typeof(p)&___p;
-
-which would dereference a volatile pointer and cause the
-problem.
-
-The code is all fine then.
-
-    Arnd
+-- 
+Pierre Morel
+IBM Lab Boeblingen
