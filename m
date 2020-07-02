@@ -1,78 +1,51 @@
-From: Joel Fernandes <joelaf@google.com>
-Subject: Re: [PATCH 04/18] alpha: Override READ_ONCE() with barriered implementation
-Date: Thu, 2 Jul 2020 11:07:19 -0400
-Message-ID: <CAJWu+ooEsf70ri4J+M5+Fkz6VrH1kN5541j71LE8=y=rmSLDJQ@mail.gmail.com>
-References: <20200630173734.14057-1-will@kernel.org> <20200630173734.14057-5-will@kernel.org>
- <CAJWu+oqs-d0oDswB2Owyh-4Zo4WXAqKhKU0L=1HEwEfQbc1izw@mail.gmail.com> <20200702145532.GB16999@willie-the-truck>
+From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+Subject: Re: [PATCH v2 0/4] Remove 32-bit Xen PV guest support
+Date: Thu, 2 Jul 2020 17:45:23 +0200
+Message-ID: <e277e875-c159-4281-e9b7-08c91882d1fb@suse.com>
+References: <20200701110650.16172-1-jgross@suse.com>
+ <CAMzpN2hvK2T7Qje51MPjMyTggxT7_=EFnt7gAmJEa1Zq+t3LtA@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200702145532.GB16999@willie-the-truck>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Will Deacon <will@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Sami Tolvanen <samitolvanen@google.com>, Nick Desaulniers <ndesaulniers@google.com>, Kees Cook <keescook@chromium.org>, Marco Elver <elver@google.com>, "Paul E. McKenney" <paulmck@kernel.org>, Josh Triplett <josh@joshtriplett.org>, Matt Turner <mattst88@gmail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Richard Henderson <rth@twiddle.net>, Peter Zijlstra <peterz@infradead.org>, Alan Stern <stern@rowland.harvard.edu>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Boqun Feng <boqun.feng@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, "moderated list:ARM64 PORT (AARCH64 ARCHITECTURE)" <linux-arm>
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <CAMzpN2hvK2T7Qje51MPjMyTggxT7_=EFnt7gAmJEa1Zq+t3LtA@mail.gmail.com>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Brian Gerst <brgerst@gmail.com>
+Cc: Stefano Stabellini <sstabellini@kernel.org>, "VMware,
+ Inc." <pv-drivers@vmware.com>, the arch/x86 maintainers <x86@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>, xen-devel <xen-devel@lists.xenproject.org>, Thomas Gleixner <tglx@linutronix.de>, Boris Ostrovsky <boris.ostrovsky@oracle.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 2, 2020 at 10:55 AM Will Deacon <will@kernel.org> wrote:
-> On Thu, Jul 02, 2020 at 10:43:55AM -0400, Joel Fernandes wrote:
-> > On Tue, Jun 30, 2020 at 1:38 PM Will Deacon <will@kernel.org> wrote:
-> > > diff --git a/arch/alpha/include/asm/barrier.h b/arch/alpha/include/asm/barrier.h
-> > > index 92ec486a4f9e..2ecd068d91d1 100644
-> > > --- a/arch/alpha/include/asm/barrier.h
-> > > +++ b/arch/alpha/include/asm/barrier.h
-> > > - * For example, the following code would force ordering (the initial
-> > > - * value of "a" is zero, "b" is one, and "p" is "&a"):
-> > > - *
-> > > - * <programlisting>
-> > > - *     CPU 0                           CPU 1
-> > > - *
-> > > - *     b = 2;
-> > > - *     memory_barrier();
-> > > - *     p = &b;                         q = p;
-> > > - *                                     read_barrier_depends();
-> > > - *                                     d = *q;
-> > > - * </programlisting>
-> > > - *
-> > > - * because the read of "*q" depends on the read of "p" and these
-> > > - * two reads are separated by a read_barrier_depends().  However,
-> > > - * the following code, with the same initial values for "a" and "b":
-> > > - *
-> >
-> > Would it be Ok to keep this example in the kernel sources? I think it
-> > serves as good documentation and highlights the issue in the Alpha
-> > architecture well.
->
-> I'd _really_ like to remove it, as I think it only serves to confuse people
-> on a topic that is confusing enough already. Paul's perfbook [1] already has
-> plenty of information about this, so I don't think we need to repeat that
-> here. I could add a citation, perhaps?
+On 02.07.20 16:48, Brian Gerst wrote:
+> On Wed, Jul 1, 2020 at 7:07 AM Juergen Gross <jgross@suse.com> wrote:
+>>
+>> The long term plan has been to replace Xen PV guests by PVH. The first
+>> victim of that plan are now 32-bit PV guests, as those are used only
+>> rather seldom these days. Xen on x86 requires 64-bit support and with
+>> Grub2 now supporting PVH officially since version 2.04 there is no
+>> need to keep 32-bit PV guest support alive in the Linux kernel.
+>> Additionally Meltdown mitigation is not available in the kernel running
+>> as 32-bit PV guest, so dropping this mode makes sense from security
+>> point of view, too.
+> 
+> One thing that you missed is removing VDSO_NOTE_NONEGSEG_BIT from
+> vdso32/note.S.  With that removed there is no difference from the
+> 64-bit version.
 
-True, and also found that LKMM docs and the memory-barriers.txt talks
-about it, so removing it here sounds good to me. Maybe a reference
-here to either documentation should be Ok.
+Oh, this means we can probably remove arch/x86/xen/vdso.h completely.
 
-> > BTW,  do you know any architecture where speculative execution of
-> > address-dependent loads can cause similar misorderings? That would be
-> > pretty insane though. In Alpha's case it is not speculation but rather
-> > the split local cache design as the docs mention.   The reason I ask
-> > is it is pretty amusing that control-dependent loads do have such
-> > misordering issues due to speculative branch execution and I wondered
-> > what other games the CPUs are playing. FWIW I ran into [1] which talks
-> > about analogy between memory dependence and control dependence.
->
-> I think you're asking about value prediction, and the implications it would
-> have on address-dependent loads where the address can itself be predicted.
+> 
+> Otherwise this series looks good to me.
 
-Yes.
+Thanks,
 
-> I'm not aware of an CPUs where that is observable architecturally.
 
-I see.
-
-> arm64 has some load instructions that do not honour address dependencies,
-> but I believe that's mainly to enable alternative cache designs for things
-> like non-temporal and large vector loads.
-
-Good to know this, thanks.
-
- - Joel
+Juergen
