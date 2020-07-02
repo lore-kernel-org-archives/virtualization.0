@@ -1,73 +1,233 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v3 1/1] s390: virtio: let arch accept devices without
- IOMMU feature
-Date: Thu, 2 Jul 2020 15:03:51 +0200
-Message-ID: <26ecd4c6-837b-1ce6-170b-a0155e4dd4d4@linux.ibm.com>
-References: <1592390637-17441-1-git-send-email-pmorel@linux.ibm.com>
- <1592390637-17441-2-git-send-email-pmorel@linux.ibm.com>
- <20200629115651-mutt-send-email-mst@kernel.org>
- <20200629180526.41d0732b.cohuck@redhat.com>
+From: Kishon Vijay Abraham I <kishon@ti.com>
+Subject: Re: [RFC PATCH 00/22] Enhance VHOST to enable SoC-to-SoC
+ communication
+Date: Thu, 2 Jul 2020 19:05:35 +0530
+Message-ID: <14c6cad7-9361-7fa4-e1c6-715ccc7e5f6b@ti.com>
+References: <20200702082143.25259-1-kishon@ti.com>
+ <20200702055026-mutt-send-email-mst@kernel.org>
+ <603970f5-3289-cd53-82a9-aa62b292c552@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200629180526.41d0732b.cohuck@redhat.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-doc-owner@vger.kernel.org>
+In-Reply-To: <603970f5-3289-cd53-82a9-aa62b292c552@redhat.com>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Cornelia Huck <cohuck@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, jasowang@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
+Sender: linux-doc-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Ohad Ben-Cohen <ohad@wizery.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Jon Mason <jdmason@kudzu.us>, Dave Jiang <dave.jiang@intel.com>, Allen Hubbe <allenbh@gmail.com>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Bjorn Helgaas <bhelgaas@google.com>, Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-remoteproc@vger.kernel.org, linux-ntb@googlegroups.com, linux-pci@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+Hi Jason,
 
-
-On 2020-06-29 18:05, Cornelia Huck wrote:
-> On Mon, 29 Jun 2020 11:57:14 -0400
-> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+On 7/2/2020 3:40 PM, Jason Wang wrote:
 > 
->> On Wed, Jun 17, 2020 at 12:43:57PM +0200, Pierre Morel wrote:
->>> An architecture protecting the guest memory against unauthorized host
->>> access may want to enforce VIRTIO I/O device protection through the
->>> use of VIRTIO_F_IOMMU_PLATFORM.
+> On 2020/7/2 下午5:51, Michael S. Tsirkin wrote:
+>> On Thu, Jul 02, 2020 at 01:51:21PM +0530, Kishon Vijay Abraham I wrote:
+>>> This series enhances Linux Vhost support to enable SoC-to-SoC
+>>> communication over MMIO. This series enables rpmsg communication between
+>>> two SoCs using both PCIe RC<->EP and HOST1-NTB-HOST2
 >>>
->>> Let's give a chance to the architecture to accept or not devices
->>> without VIRTIO_F_IOMMU_PLATFORM.
+>>> 1) Modify vhost to use standard Linux driver model
+>>> 2) Add support in vring to access virtqueue over MMIO
+>>> 3) Add vhost client driver for rpmsg
+>>> 4) Add PCIe RC driver (uses virtio) and PCIe EP driver (uses vhost) for
+>>>     rpmsg communication between two SoCs connected to each other
+>>> 5) Add NTB Virtio driver and NTB Vhost driver for rpmsg communication
+>>>     between two SoCs connected via NTB
+>>> 6) Add configfs to configure the components
 >>>
->>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->>> Acked-by: Jason Wang <jasowang@redhat.com>
->>> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
->>> ---
->>>   arch/s390/mm/init.c     |  6 ++++++
->>>   drivers/virtio/virtio.c | 22 ++++++++++++++++++++++
->>>   include/linux/virtio.h  |  2 ++
->>>   3 files changed, 30 insertions(+)
-> 
->>> @@ -179,6 +194,13 @@ int virtio_finalize_features(struct virtio_device *dev)
->>>   	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
->>>   		return 0;
->>>   
->>> +	if (arch_needs_virtio_iommu_platform(dev) &&
->>> +		!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
->>> +		dev_warn(&dev->dev,
->>> +			 "virtio: device must provide VIRTIO_F_IOMMU_PLATFORM\n");
->>> +		return -ENODEV;
->>> +	}
->>> +
->>>   	virtio_add_status(dev, VIRTIO_CONFIG_S_FEATURES_OK);
->>>   	status = dev->config->get_status(dev);
->>>   	if (!(status & VIRTIO_CONFIG_S_FEATURES_OK)) {
+>>> UseCase1 :
+>>>
+>>>   VHOST RPMSG                     VIRTIO RPMSG
+>>>        +                               +
+>>>        |                               |
+>>>        |                               |
+>>>        |                               |
+>>>        |                               |
+>>> +-----v------+                 +------v-------+
+>>> |   Linux    |                 |     Linux    |
+>>> |  Endpoint  |                 | Root Complex |
+>>> |            <----------------->              |
+>>> |            |                 |              |
+>>> |    SOC1    |                 |     SOC2     |
+>>> +------------+                 +--------------+
+>>>
+>>> UseCase 2:
+>>>
+>>>       VHOST RPMSG                                      VIRTIO RPMSG
+>>>            +                                                 +
+>>>            |                                                 |
+>>>            |                                                 |
+>>>            |                                                 |
+>>>            |                                                 |
+>>>     +------v------+                                   +------v------+
+>>>     |             |                                   |             |
+>>>     |    HOST1    |                                   |    HOST2    |
+>>>     |             |                                   |             |
+>>>     +------^------+                                   +------^------+
+>>>            |                                                 |
+>>>            |                                                 |
+>>> +---------------------------------------------------------------------+
+>>> |  +------v------+                                   +------v------+  |
+>>> |  |             |                                   |             |  |
+>>> |  |     EP      |                                   |     EP      |  |
+>>> |  | CONTROLLER1 |                                   | CONTROLLER2 |  |
+>>> |  |             <----------------------------------->             |  |
+>>> |  |             |                                   |             |  |
+>>> |  |             |                                   |             |  |
+>>> |  |             |  SoC With Multiple EP Instances   |             |  |
+>>> |  |             |  (Configured using NTB Function)  |             |  |
+>>> |  +-------------+                                   +-------------+  |
+>>> +---------------------------------------------------------------------+
+>>>
+>>> Software Layering:
+>>>
+>>> The high-level SW layering should look something like below. This series
+>>> adds support only for RPMSG VHOST, however something similar should be
+>>> done for net and scsi. With that any vhost device (PCI, NTB, Platform
+>>> device, user) can use any of the vhost client driver.
+>>>
+>>>
+>>>      +----------------+  +-----------+  +------------+  +----------+
+>>>      |  RPMSG VHOST   |  | NET VHOST |  | SCSI VHOST |  |    X     |
+>>>      +-------^--------+  +-----^-----+  +-----^------+  +----^-----+
+>>>              |                 |              |              |
+>>>              |                 |              |              |
+>>>              |                 |              |              |
+>>> +-----------v-----------------v--------------v--------------v----------+
+>>> |                            VHOST CORE                                |
+>>> +--------^---------------^--------------------^------------------^-----+
+>>>           |               |                    |                  |
+>>>           |               |                    |                  |
+>>>           |               |                    |                  |
+>>> +--------v-------+  +----v------+  +----------v----------+  +----v-----+
+>>> |  PCI EPF VHOST |  | NTB VHOST |  |PLATFORM DEVICE VHOST|  |    X     |
+>>> +----------------+  +-----------+  +---------------------+  +----------+
+>>>
+>>> This was initially proposed here [1]
+>>>
+>>> [1] -> https://lore.kernel.org/r/2cf00ec4-1ed6-f66e-6897-006d1a5b6390@ti.com
 >>
->> Well don't you need to check it *before* VIRTIO_F_VERSION_1, not after?
+>> I find this very interesting. A huge patchset so will take a bit
+>> to review, but I certainly plan to do that. Thanks!
 > 
-> But it's only available with VERSION_1 anyway, isn't it? So it probably
-> also needs to fail when this feature is needed if VERSION_1 has not been
-> negotiated, I think.
 > 
+> Yes, it would be better if there's a git branch for us to have a look.
 
-Yes, clearly, I will add this.
+I've pushed the branch
+https://github.com/kishon/linux-wip.git vhost_rpmsg_pci_ntb_rfc
+> 
+> Btw, I'm not sure I get the big picture, but I vaguely feel some of the work is
+> duplicated with vDPA (e.g the epf transport or vhost bus).
 
-Thanks,
-Pierre
+This is about connecting two different HW systems both running Linux and
+doesn't necessarily involve virtualization. So there is no guest or host as in
+virtualization but two entirely different systems connected via PCIe cable, one
+acting as guest and one as host. So one system will provide virtio
+functionality reserving memory for virtqueues and the other provides vhost
+functionality providing a way to access the virtqueues in virtio memory. One is
+source and the other is sink and there is no intermediate entity. (vhost was
+probably intermediate entity in virtualization?)
 
--- 
-Pierre Morel
-IBM Lab Boeblingen
+> 
+> Have you considered to implement these through vDPA?
+
+IIUC vDPA only provides an interface to userspace and an in-kernel rpmsg driver
+or vhost net driver is not provided.
+
+The HW connection looks something like https://pasteboard.co/JfMVVHC.jpg
+(usecase2 above), all the boards run Linux. The middle board provides NTB
+functionality and board on either side provides virtio/vhost functionality and
+transfer data using rpmsg.
+
+Thanks
+Kishon
+
+> 
+> Thanks
+> 
+> 
+>>
+>>> Kishon Vijay Abraham I (22):
+>>>    vhost: Make _feature_ bits a property of vhost device
+>>>    vhost: Introduce standard Linux driver model in VHOST
+>>>    vhost: Add ops for the VHOST driver to configure VHOST device
+>>>    vringh: Add helpers to access vring in MMIO
+>>>    vhost: Add MMIO helpers for operations on vhost virtqueue
+>>>    vhost: Introduce configfs entry for configuring VHOST
+>>>    virtio_pci: Use request_threaded_irq() instead of request_irq()
+>>>    rpmsg: virtio_rpmsg_bus: Disable receive virtqueue callback when
+>>>      reading messages
+>>>    rpmsg: Introduce configfs entry for configuring rpmsg
+>>>    rpmsg: virtio_rpmsg_bus: Add Address Service Notification support
+>>>    rpmsg: virtio_rpmsg_bus: Move generic rpmsg structure to
+>>>      rpmsg_internal.h
+>>>    virtio: Add ops to allocate and free buffer
+>>>    rpmsg: virtio_rpmsg_bus: Use virtio_alloc_buffer() and
+>>>      virtio_free_buffer()
+>>>    rpmsg: Add VHOST based remote processor messaging bus
+>>>    samples/rpmsg: Setup delayed work to send message
+>>>    samples/rpmsg: Wait for address to be bound to rpdev for sending
+>>>      message
+>>>    rpmsg.txt: Add Documentation to configure rpmsg using configfs
+>>>    virtio_pci: Add VIRTIO driver for VHOST on Configurable PCIe Endpoint
+>>>      device
+>>>    PCI: endpoint: Add EP function driver to provide VHOST interface
+>>>    NTB: Add a new NTB client driver to implement VIRTIO functionality
+>>>    NTB: Add a new NTB client driver to implement VHOST functionality
+>>>    NTB: Describe the ntb_virtio and ntb_vhost client in the documentation
+>>>
+>>>   Documentation/driver-api/ntb.rst              |   11 +
+>>>   Documentation/rpmsg.txt                       |   56 +
+>>>   drivers/ntb/Kconfig                           |   18 +
+>>>   drivers/ntb/Makefile                          |    2 +
+>>>   drivers/ntb/ntb_vhost.c                       |  776 +++++++++++
+>>>   drivers/ntb/ntb_virtio.c                      |  853 ++++++++++++
+>>>   drivers/ntb/ntb_virtio.h                      |   56 +
+>>>   drivers/pci/endpoint/functions/Kconfig        |   11 +
+>>>   drivers/pci/endpoint/functions/Makefile       |    1 +
+>>>   .../pci/endpoint/functions/pci-epf-vhost.c    | 1144 ++++++++++++++++
+>>>   drivers/rpmsg/Kconfig                         |   10 +
+>>>   drivers/rpmsg/Makefile                        |    3 +-
+>>>   drivers/rpmsg/rpmsg_cfs.c                     |  394 ++++++
+>>>   drivers/rpmsg/rpmsg_core.c                    |    7 +
+>>>   drivers/rpmsg/rpmsg_internal.h                |  136 ++
+>>>   drivers/rpmsg/vhost_rpmsg_bus.c               | 1151 +++++++++++++++++
+>>>   drivers/rpmsg/virtio_rpmsg_bus.c              |  184 ++-
+>>>   drivers/vhost/Kconfig                         |    1 +
+>>>   drivers/vhost/Makefile                        |    2 +-
+>>>   drivers/vhost/net.c                           |   10 +-
+>>>   drivers/vhost/scsi.c                          |   24 +-
+>>>   drivers/vhost/test.c                          |   17 +-
+>>>   drivers/vhost/vdpa.c                          |    2 +-
+>>>   drivers/vhost/vhost.c                         |  730 ++++++++++-
+>>>   drivers/vhost/vhost_cfs.c                     |  341 +++++
+>>>   drivers/vhost/vringh.c                        |  332 +++++
+>>>   drivers/vhost/vsock.c                         |   20 +-
+>>>   drivers/virtio/Kconfig                        |    9 +
+>>>   drivers/virtio/Makefile                       |    1 +
+>>>   drivers/virtio/virtio_pci_common.c            |   25 +-
+>>>   drivers/virtio/virtio_pci_epf.c               |  670 ++++++++++
+>>>   include/linux/mod_devicetable.h               |    6 +
+>>>   include/linux/rpmsg.h                         |    6 +
+>>>   {drivers/vhost => include/linux}/vhost.h      |  132 +-
+>>>   include/linux/virtio.h                        |    3 +
+>>>   include/linux/virtio_config.h                 |   42 +
+>>>   include/linux/vringh.h                        |   46 +
+>>>   samples/rpmsg/rpmsg_client_sample.c           |   32 +-
+>>>   tools/virtio/virtio_test.c                    |    2 +-
+>>>   39 files changed, 7083 insertions(+), 183 deletions(-)
+>>>   create mode 100644 drivers/ntb/ntb_vhost.c
+>>>   create mode 100644 drivers/ntb/ntb_virtio.c
+>>>   create mode 100644 drivers/ntb/ntb_virtio.h
+>>>   create mode 100644 drivers/pci/endpoint/functions/pci-epf-vhost.c
+>>>   create mode 100644 drivers/rpmsg/rpmsg_cfs.c
+>>>   create mode 100644 drivers/rpmsg/vhost_rpmsg_bus.c
+>>>   create mode 100644 drivers/vhost/vhost_cfs.c
+>>>   create mode 100644 drivers/virtio/virtio_pci_epf.c
+>>>   rename {drivers/vhost => include/linux}/vhost.h (66%)
+>>>
+>>> -- 
+>>> 2.17.1
+>>>
+> 
