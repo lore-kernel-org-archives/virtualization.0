@@ -1,194 +1,111 @@
-From: Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: Re: [RFC PATCH 00/22] Enhance VHOST to enable SoC-to-SoC communication
-Date: Thu, 2 Jul 2020 11:31:23 -0600
-Message-ID: <CANLsYky4ZrgYGZUyg4iVwbM3TQk5dvOSBwPFER8qofixjn4vyA@mail.gmail.com>
-References: <20200702082143.25259-1-kishon@ti.com> <20200702055026-mutt-send-email-mst@kernel.org>
+From: Waiman Long <longman@redhat.com>
+Subject: Re: [PATCH 6/8] powerpc/pseries: implement paravirt qspinlocks for
+ SPLPAR
+Date: Thu, 2 Jul 2020 17:01:06 -0400
+Message-ID: <6b8ccb02-53ca-35d2-0dc6-2fc8e5523a97@redhat.com>
+References: <20200702074839.1057733-1-npiggin@gmail.com>
+ <20200702074839.1057733-7-npiggin@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200702055026-mutt-send-email-mst@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Kishon Vijay Abraham I <kishon@ti.com>, Ohad Ben-Cohen <ohad@wizery.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Jon Mason <jdmason@kudzu.us>, Dave Jiang <dave.jiang@intel.com>, Allen Hubbe <allenbh@gmail.com>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Bjorn Helgaas <bhelgaas@google.com>, Jason Wang <jasowang@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-remoteproc <linux-remoteproc@vger.kernel.org>, linux-ntb@googlegroups.com, linux-pci@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.or
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-arch-owner@vger.kernel.org>
+In-Reply-To: <20200702074839.1057733-7-npiggin@gmail.com>
+Content-Language: en-US
+Sender: linux-arch-owner@vger.kernel.org
+To: Nicholas Piggin <npiggin@gmail.com>
+Cc: Will Deacon <will@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Boqun Feng <boqun.feng@gmail.com>, Ingo Molnar <mingo@redhat.com>, Anton Blanchard <anton@ozlabs.org>, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm-ppc@vger.kernel.org, linux-arch@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 2 Jul 2020 at 03:51, Michael S. Tsirkin <mst@redhat.com> wrote:
+On 7/2/20 3:48 AM, Nicholas Piggin wrote:
+> Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+> ---
+>   arch/powerpc/include/asm/paravirt.h           | 23 ++++++++
+>   arch/powerpc/include/asm/qspinlock.h          | 55 +++++++++++++++++++
+>   arch/powerpc/include/asm/qspinlock_paravirt.h |  5 ++
+>   arch/powerpc/platforms/pseries/Kconfig        |  5 ++
+>   arch/powerpc/platforms/pseries/setup.c        |  6 +-
+>   include/asm-generic/qspinlock.h               |  2 +
+>   6 files changed, 95 insertions(+), 1 deletion(-)
+>   create mode 100644 arch/powerpc/include/asm/qspinlock_paravirt.h
 >
-> On Thu, Jul 02, 2020 at 01:51:21PM +0530, Kishon Vijay Abraham I wrote:
-> > This series enhances Linux Vhost support to enable SoC-to-SoC
-> > communication over MMIO. This series enables rpmsg communication between
-> > two SoCs using both PCIe RC<->EP and HOST1-NTB-HOST2
-> >
-> > 1) Modify vhost to use standard Linux driver model
-> > 2) Add support in vring to access virtqueue over MMIO
-> > 3) Add vhost client driver for rpmsg
-> > 4) Add PCIe RC driver (uses virtio) and PCIe EP driver (uses vhost) for
-> >    rpmsg communication between two SoCs connected to each other
-> > 5) Add NTB Virtio driver and NTB Vhost driver for rpmsg communication
-> >    between two SoCs connected via NTB
-> > 6) Add configfs to configure the components
-> >
-> > UseCase1 :
-> >
-> >  VHOST RPMSG                     VIRTIO RPMSG
-> >       +                               +
-> >       |                               |
-> >       |                               |
-> >       |                               |
-> >       |                               |
-> > +-----v------+                 +------v-------+
-> > |   Linux    |                 |     Linux    |
-> > |  Endpoint  |                 | Root Complex |
-> > |            <----------------->              |
-> > |            |                 |              |
-> > |    SOC1    |                 |     SOC2     |
-> > +------------+                 +--------------+
-> >
-> > UseCase 2:
-> >
-> >      VHOST RPMSG                                      VIRTIO RPMSG
-> >           +                                                 +
-> >           |                                                 |
-> >           |                                                 |
-> >           |                                                 |
-> >           |                                                 |
-> >    +------v------+                                   +------v------+
-> >    |             |                                   |             |
-> >    |    HOST1    |                                   |    HOST2    |
-> >    |             |                                   |             |
-> >    +------^------+                                   +------^------+
-> >           |                                                 |
-> >           |                                                 |
-> > +---------------------------------------------------------------------+
-> > |  +------v------+                                   +------v------+  |
-> > |  |             |                                   |             |  |
-> > |  |     EP      |                                   |     EP      |  |
-> > |  | CONTROLLER1 |                                   | CONTROLLER2 |  |
-> > |  |             <----------------------------------->             |  |
-> > |  |             |                                   |             |  |
-> > |  |             |                                   |             |  |
-> > |  |             |  SoC With Multiple EP Instances   |             |  |
-> > |  |             |  (Configured using NTB Function)  |             |  |
-> > |  +-------------+                                   +-------------+  |
-> > +---------------------------------------------------------------------+
-> >
-> > Software Layering:
-> >
-> > The high-level SW layering should look something like below. This series
-> > adds support only for RPMSG VHOST, however something similar should be
-> > done for net and scsi. With that any vhost device (PCI, NTB, Platform
-> > device, user) can use any of the vhost client driver.
-> >
-> >
-> >     +----------------+  +-----------+  +------------+  +----------+
-> >     |  RPMSG VHOST   |  | NET VHOST |  | SCSI VHOST |  |    X     |
-> >     +-------^--------+  +-----^-----+  +-----^------+  +----^-----+
-> >             |                 |              |              |
-> >             |                 |              |              |
-> >             |                 |              |              |
-> > +-----------v-----------------v--------------v--------------v----------+
-> > |                            VHOST CORE                                |
-> > +--------^---------------^--------------------^------------------^-----+
-> >          |               |                    |                  |
-> >          |               |                    |                  |
-> >          |               |                    |                  |
-> > +--------v-------+  +----v------+  +----------v----------+  +----v-----+
-> > |  PCI EPF VHOST |  | NTB VHOST |  |PLATFORM DEVICE VHOST|  |    X     |
-> > +----------------+  +-----------+  +---------------------+  +----------+
-> >
-> > This was initially proposed here [1]
-> >
-> > [1] -> https://lore.kernel.org/r/2cf00ec4-1ed6-f66e-6897-006d1a5b6390@ti.com
->
->
-> I find this very interesting. A huge patchset so will take a bit
-> to review, but I certainly plan to do that. Thanks!
+> diff --git a/arch/powerpc/include/asm/paravirt.h b/arch/powerpc/include/asm/paravirt.h
+> index 7a8546660a63..5fae9dfa6fe9 100644
+> --- a/arch/powerpc/include/asm/paravirt.h
+> +++ b/arch/powerpc/include/asm/paravirt.h
+> @@ -29,6 +29,16 @@ static inline void yield_to_preempted(int cpu, u32 yield_count)
+>   {
+>   	plpar_hcall_norets(H_CONFER, get_hard_smp_processor_id(cpu), yield_count);
+>   }
+> +
+> +static inline void prod_cpu(int cpu)
+> +{
+> +	plpar_hcall_norets(H_PROD, get_hard_smp_processor_id(cpu));
+> +}
+> +
+> +static inline void yield_to_any(void)
+> +{
+> +	plpar_hcall_norets(H_CONFER, -1, 0);
+> +}
+>   #else
+>   static inline bool is_shared_processor(void)
+>   {
+> @@ -45,6 +55,19 @@ static inline void yield_to_preempted(int cpu, u32 yield_count)
+>   {
+>   	___bad_yield_to_preempted(); /* This would be a bug */
+>   }
+> +
+> +extern void ___bad_yield_to_any(void);
+> +static inline void yield_to_any(void)
+> +{
+> +	___bad_yield_to_any(); /* This would be a bug */
+> +}
+> +
+> +extern void ___bad_prod_cpu(void);
+> +static inline void prod_cpu(int cpu)
+> +{
+> +	___bad_prod_cpu(); /* This would be a bug */
+> +}
+> +
+>   #endif
+>   
+>   #define vcpu_is_preempted vcpu_is_preempted
+> diff --git a/arch/powerpc/include/asm/qspinlock.h b/arch/powerpc/include/asm/qspinlock.h
+> index f84da77b6bb7..997a9a32df77 100644
+> --- a/arch/powerpc/include/asm/qspinlock.h
+> +++ b/arch/powerpc/include/asm/qspinlock.h
+> @@ -3,9 +3,36 @@
+>   #define _ASM_POWERPC_QSPINLOCK_H
+>   
+>   #include <asm-generic/qspinlock_types.h>
+> +#include <asm/paravirt.h>
+>   
+>   #define _Q_PENDING_LOOPS	(1 << 9) /* not tuned */
+>   
+> +#ifdef CONFIG_PARAVIRT_SPINLOCKS
+> +extern void native_queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
+> +extern void __pv_queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
+> +
+> +static __always_inline void queued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
+> +{
+> +	if (!is_shared_processor())
+> +		native_queued_spin_lock_slowpath(lock, val);
+> +	else
+> +		__pv_queued_spin_lock_slowpath(lock, val);
+> +}
 
-Same here - it will take time.  This patchset is sizable and sits
-behind a few others that are equally big.
+You may need to match the use of __pv_queued_spin_lock_slowpath() with 
+the corresponding __pv_queued_spin_unlock(), e.g.
 
->
-> >
-> > Kishon Vijay Abraham I (22):
-> >   vhost: Make _feature_ bits a property of vhost device
-> >   vhost: Introduce standard Linux driver model in VHOST
-> >   vhost: Add ops for the VHOST driver to configure VHOST device
-> >   vringh: Add helpers to access vring in MMIO
-> >   vhost: Add MMIO helpers for operations on vhost virtqueue
-> >   vhost: Introduce configfs entry for configuring VHOST
-> >   virtio_pci: Use request_threaded_irq() instead of request_irq()
-> >   rpmsg: virtio_rpmsg_bus: Disable receive virtqueue callback when
-> >     reading messages
-> >   rpmsg: Introduce configfs entry for configuring rpmsg
-> >   rpmsg: virtio_rpmsg_bus: Add Address Service Notification support
-> >   rpmsg: virtio_rpmsg_bus: Move generic rpmsg structure to
-> >     rpmsg_internal.h
-> >   virtio: Add ops to allocate and free buffer
-> >   rpmsg: virtio_rpmsg_bus: Use virtio_alloc_buffer() and
-> >     virtio_free_buffer()
-> >   rpmsg: Add VHOST based remote processor messaging bus
-> >   samples/rpmsg: Setup delayed work to send message
-> >   samples/rpmsg: Wait for address to be bound to rpdev for sending
-> >     message
-> >   rpmsg.txt: Add Documentation to configure rpmsg using configfs
-> >   virtio_pci: Add VIRTIO driver for VHOST on Configurable PCIe Endpoint
-> >     device
-> >   PCI: endpoint: Add EP function driver to provide VHOST interface
-> >   NTB: Add a new NTB client driver to implement VIRTIO functionality
-> >   NTB: Add a new NTB client driver to implement VHOST functionality
-> >   NTB: Describe the ntb_virtio and ntb_vhost client in the documentation
-> >
-> >  Documentation/driver-api/ntb.rst              |   11 +
-> >  Documentation/rpmsg.txt                       |   56 +
-> >  drivers/ntb/Kconfig                           |   18 +
-> >  drivers/ntb/Makefile                          |    2 +
-> >  drivers/ntb/ntb_vhost.c                       |  776 +++++++++++
-> >  drivers/ntb/ntb_virtio.c                      |  853 ++++++++++++
-> >  drivers/ntb/ntb_virtio.h                      |   56 +
-> >  drivers/pci/endpoint/functions/Kconfig        |   11 +
-> >  drivers/pci/endpoint/functions/Makefile       |    1 +
-> >  .../pci/endpoint/functions/pci-epf-vhost.c    | 1144 ++++++++++++++++
-> >  drivers/rpmsg/Kconfig                         |   10 +
-> >  drivers/rpmsg/Makefile                        |    3 +-
-> >  drivers/rpmsg/rpmsg_cfs.c                     |  394 ++++++
-> >  drivers/rpmsg/rpmsg_core.c                    |    7 +
-> >  drivers/rpmsg/rpmsg_internal.h                |  136 ++
-> >  drivers/rpmsg/vhost_rpmsg_bus.c               | 1151 +++++++++++++++++
-> >  drivers/rpmsg/virtio_rpmsg_bus.c              |  184 ++-
-> >  drivers/vhost/Kconfig                         |    1 +
-> >  drivers/vhost/Makefile                        |    2 +-
-> >  drivers/vhost/net.c                           |   10 +-
-> >  drivers/vhost/scsi.c                          |   24 +-
-> >  drivers/vhost/test.c                          |   17 +-
-> >  drivers/vhost/vdpa.c                          |    2 +-
-> >  drivers/vhost/vhost.c                         |  730 ++++++++++-
-> >  drivers/vhost/vhost_cfs.c                     |  341 +++++
-> >  drivers/vhost/vringh.c                        |  332 +++++
-> >  drivers/vhost/vsock.c                         |   20 +-
-> >  drivers/virtio/Kconfig                        |    9 +
-> >  drivers/virtio/Makefile                       |    1 +
-> >  drivers/virtio/virtio_pci_common.c            |   25 +-
-> >  drivers/virtio/virtio_pci_epf.c               |  670 ++++++++++
-> >  include/linux/mod_devicetable.h               |    6 +
-> >  include/linux/rpmsg.h                         |    6 +
-> >  {drivers/vhost => include/linux}/vhost.h      |  132 +-
-> >  include/linux/virtio.h                        |    3 +
-> >  include/linux/virtio_config.h                 |   42 +
-> >  include/linux/vringh.h                        |   46 +
-> >  samples/rpmsg/rpmsg_client_sample.c           |   32 +-
-> >  tools/virtio/virtio_test.c                    |    2 +-
-> >  39 files changed, 7083 insertions(+), 183 deletions(-)
-> >  create mode 100644 drivers/ntb/ntb_vhost.c
-> >  create mode 100644 drivers/ntb/ntb_virtio.c
-> >  create mode 100644 drivers/ntb/ntb_virtio.h
-> >  create mode 100644 drivers/pci/endpoint/functions/pci-epf-vhost.c
-> >  create mode 100644 drivers/rpmsg/rpmsg_cfs.c
-> >  create mode 100644 drivers/rpmsg/vhost_rpmsg_bus.c
-> >  create mode 100644 drivers/vhost/vhost_cfs.c
-> >  create mode 100644 drivers/virtio/virtio_pci_epf.c
-> >  rename {drivers/vhost => include/linux}/vhost.h (66%)
-> >
-> > --
-> > 2.17.1
-> >
->
+#define queued_spin_unlock queued_spin_unlock
+static inline queued_spin_unlock(struct qspinlock *lock)
+{
+         if (!is_shared_processor())
+                 smp_store_release(&lock->locked, 0);
+         else
+                 __pv_queued_spin_unlock(lock);
+}
+
+Otherwise, pv_kick() will never be called.
+
+Cheers,
+Longman
