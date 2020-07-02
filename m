@@ -1,161 +1,32 @@
-From: Joel Fernandes <joelaf@google.com>
-Subject: Re: [PATCH 04/18] alpha: Override READ_ONCE() with barriered implementation
-Date: Thu, 2 Jul 2020 10:43:55 -0400
-Message-ID: <CAJWu+oqs-d0oDswB2Owyh-4Zo4WXAqKhKU0L=1HEwEfQbc1izw@mail.gmail.com>
-References: <20200630173734.14057-1-will@kernel.org> <20200630173734.14057-5-will@kernel.org>
+From: Brian Gerst <brgerst@gmail.com>
+Subject: Re: [PATCH v2 0/4] Remove 32-bit Xen PV guest support
+Date: Thu, 2 Jul 2020 10:48:48 -0400
+Message-ID: <CAMzpN2hvK2T7Qje51MPjMyTggxT7_=EFnt7gAmJEa1Zq+t3LtA@mail.gmail.com>
+References: <20200701110650.16172-1-jgross@suse.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-alpha-owner@vger.kernel.org>
-In-Reply-To: <20200630173734.14057-5-will@kernel.org>
-Sender: linux-alpha-owner@vger.kernel.org
-To: Will Deacon <will@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Sami Tolvanen <samitolvanen@google.com>, Nick Desaulniers <ndesaulniers@google.com>, Kees Cook <keescook@chromium.org>, Marco Elver <elver@google.com>, "Paul E. McKenney" <paulmck@kernel.org>, Josh Triplett <josh@joshtriplett.org>, Matt Turner <mattst88@gmail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Richard Henderson <rth@twiddle.net>, Peter Zijlstra <peterz@infradead.org>, Alan Stern <stern@rowland.harvard.edu>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Boqun Feng <boqun.feng@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, "moderated list:ARM64 PORT (AARCH64 ARCHITECTURE)" <linux-arm>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200701110650.16172-1-jgross@suse.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Juergen Gross <jgross@suse.com>
+Cc: xen-devel <xen-devel@lists.xenproject.org>, the arch/x86 maintainers <x86@kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, Andy Lutomirski <luto@kernel.org>, Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stefano Stabellini <sstabellini@kernel.org>, Deep Shah <sdeep@vmware.com>, "VMware, Inc." <pv-drivers@vmware.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jun 30, 2020 at 1:38 PM Will Deacon <will@kernel.org> wrote:
+On Wed, Jul 1, 2020 at 7:07 AM Juergen Gross <jgross@suse.com> wrote:
 >
-> Rather then relying on the core code to use smp_read_barrier_depends()
-> as part of the READ_ONCE() definition, instead override __READ_ONCE()
-> in the Alpha code so that it is treated the same way as
-> smp_load_acquire().
->
-> Acked-by: Paul E. McKenney <paulmck@kernel.org>
-> Signed-off-by: Will Deacon <will@kernel.org>
-> ---
->  arch/alpha/include/asm/barrier.h | 61 ++++----------------------------
->  arch/alpha/include/asm/rwonce.h  | 19 ++++++++++
->  2 files changed, 26 insertions(+), 54 deletions(-)
->  create mode 100644 arch/alpha/include/asm/rwonce.h
->
-> diff --git a/arch/alpha/include/asm/barrier.h b/arch/alpha/include/asm/barrier.h
-> index 92ec486a4f9e..2ecd068d91d1 100644
-> --- a/arch/alpha/include/asm/barrier.h
-> +++ b/arch/alpha/include/asm/barrier.h
-> @@ -2,64 +2,17 @@
->  #ifndef __BARRIER_H
->  #define __BARRIER_H
->
-> -#include <asm/compiler.h>
-> -
->  #define mb()   __asm__ __volatile__("mb": : :"memory")
->  #define rmb()  __asm__ __volatile__("mb": : :"memory")
->  #define wmb()  __asm__ __volatile__("wmb": : :"memory")
->
-> -/**
-> - * read_barrier_depends - Flush all pending reads that subsequents reads
-> - * depend on.
-> - *
-> - * No data-dependent reads from memory-like regions are ever reordered
-> - * over this barrier.  All reads preceding this primitive are guaranteed
-> - * to access memory (but not necessarily other CPUs' caches) before any
-> - * reads following this primitive that depend on the data return by
-> - * any of the preceding reads.  This primitive is much lighter weight than
-> - * rmb() on most CPUs, and is never heavier weight than is
-> - * rmb().
-> - *
-> - * These ordering constraints are respected by both the local CPU
-> - * and the compiler.
-> - *
-> - * Ordering is not guaranteed by anything other than these primitives,
-> - * not even by data dependencies.  See the documentation for
-> - * memory_barrier() for examples and URLs to more information.
-> - *
-> - * For example, the following code would force ordering (the initial
-> - * value of "a" is zero, "b" is one, and "p" is "&a"):
-> - *
-> - * <programlisting>
-> - *     CPU 0                           CPU 1
-> - *
-> - *     b = 2;
-> - *     memory_barrier();
-> - *     p = &b;                         q = p;
-> - *                                     read_barrier_depends();
-> - *                                     d = *q;
-> - * </programlisting>
-> - *
-> - * because the read of "*q" depends on the read of "p" and these
-> - * two reads are separated by a read_barrier_depends().  However,
-> - * the following code, with the same initial values for "a" and "b":
-> - *
+> The long term plan has been to replace Xen PV guests by PVH. The first
+> victim of that plan are now 32-bit PV guests, as those are used only
+> rather seldom these days. Xen on x86 requires 64-bit support and with
+> Grub2 now supporting PVH officially since version 2.04 there is no
+> need to keep 32-bit PV guest support alive in the Linux kernel.
+> Additionally Meltdown mitigation is not available in the kernel running
+> as 32-bit PV guest, so dropping this mode makes sense from security
+> point of view, too.
 
-Would it be Ok to keep this example in the kernel sources? I think it
-serves as good documentation and highlights the issue in the Alpha
-architecture well.
+One thing that you missed is removing VDSO_NOTE_NONEGSEG_BIT from
+vdso32/note.S.  With that removed there is no difference from the
+64-bit version.
 
-> - * <programlisting>
-> - *     CPU 0                           CPU 1
-> - *
-> - *     a = 2;
-> - *     memory_barrier();
-> - *     b = 3;                          y = b;
-> - *                                     read_barrier_depends();
-> - *                                     x = a;
-> - * </programlisting>
-> - *
-> - * does not enforce ordering, since there is no data dependency between
-> - * the read of "a" and the read of "b".  Therefore, on some CPUs, such
-> - * as Alpha, "y" could be set to 3 and "x" to 0.  Use rmb()
-> - * in cases like this where there are no data dependencies.
-> - */
-> -#define read_barrier_depends() __asm__ __volatile__("mb": : :"memory")
-> +#define __smp_load_acquire(p)                                          \
-> +({                                                                     \
-> +       __unqual_scalar_typeof(*p) ___p1 =                              \
-> +               (*(volatile typeof(___p1) *)(p));                       \
-> +       compiletime_assert_atomic_type(*p);                             \
-> +       ___p1;                                                          \
-> +})
-
-I had the same question as Mark about the need for a memory barrier
-here, otherwise alpha will again break right? Looking forward to the
-future fix you mentioned.
-
-BTW,  do you know any architecture where speculative execution of
-address-dependent loads can cause similar misorderings? That would be
-pretty insane though. In Alpha's case it is not speculation but rather
-the split local cache design as the docs mention.   The reason I ask
-is it is pretty amusing that control-dependent loads do have such
-misordering issues due to speculative branch execution and I wondered
-what other games the CPUs are playing. FWIW I ran into [1] which talks
-about analogy between memory dependence and control dependence.
-
-[1] https://en.wikipedia.org/wiki/Memory_dependence_prediction
-
-
- - Joel
-
-
->
->  #ifdef CONFIG_SMP
->  #define __ASM_SMP_MB   "\tmb\n"
-> diff --git a/arch/alpha/include/asm/rwonce.h b/arch/alpha/include/asm/rwonce.h
-> new file mode 100644
-> index 000000000000..83a92e49a615
-> --- /dev/null
-> +++ b/arch/alpha/include/asm/rwonce.h
-> @@ -0,0 +1,19 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +/*
-> + * Copyright (C) 2019 Google LLC.
-> + */
-> +#ifndef __ASM_RWONCE_H
-> +#define __ASM_RWONCE_H
-> +
-> +#include <asm/barrier.h>
-> +
-> +/*
-> + * Alpha is apparently daft enough to reorder address-dependent loads
-> + * on some CPU implementations. Knock some common sense into it with
-> + * a memory barrier in READ_ONCE().
-> + */
-> +#define __READ_ONCE(x) __smp_load_acquire(&(x))
-> +
-> +#include <asm-generic/rwonce.h>
-> +
-> +#endif /* __ASM_RWONCE_H */
-> --
-> 2.27.0.212.ge8ba1cc988-goog
->
-> --
-> To unsubscribe from this group and stop receiving emails from it, send an email to kernel-team+unsubscribe@android.com.
->
+Otherwise this series looks good to me.
+--
+Brian Gerst
