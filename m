@@ -1,63 +1,78 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 2/2] virtio-mmio: Reject invalid IRQ 0 command line
- argument
-Date: Thu, 2 Jul 2020 11:06:11 +0800
-Message-ID: <032d0424-4876-6322-76d2-d733db28addb@redhat.com>
-References: <20200701221040.3667868-1-helgaas@kernel.org>
- <20200701221040.3667868-3-helgaas@kernel.org>
+From: Will Deacon <will@kernel.org>
+Subject: Re: [PATCH 18/18] arm64: lto: Strengthen READ_ONCE() to acquire when
+ CLANG_LTO=y
+Date: Thu, 2 Jul 2020 08:23:02 +0100
+Message-ID: <20200702072301.GA15963@willie-the-truck>
+References: <20200630173734.14057-1-will@kernel.org>
+ <20200630173734.14057-19-will@kernel.org>
+ <20200701170722.4rte5ssnmrn2uqzg@bakewell.cambridge.arm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200701221040.3667868-3-helgaas@kernel.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Bjorn Helgaas <helgaas@kernel.org>, linux-kernel@vger.kernel.org
-Cc: Bjorn Helgaas <bhelgaas@google.com>, "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-alpha-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200701170722.4rte5ssnmrn2uqzg@bakewell.cambridge.arm.com>
+Sender: linux-alpha-owner@vger.kernel.org
+To: Dave P Martin <dave.martin@arm.com>
+Cc: linux-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, Arnd Bergmann <arnd@arndb.de>, Alan Stern <stern@rowland.harvard.edu>, Sami Tolvanen <samitolvanen@google.com>, Matt Turner <mattst88@gmail.com>, kernel-team@android.com, Marco Elver <elver@google.com>, Kees Cook <keescook@chromium.org>, "Paul E. McKenney" <paulmck@kernel.org>, Boqun Feng <boqun.feng@gmail.com>, Josh Triplett <josh@joshtriplett.org>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-arm-kernel@lists.infradead.org, Richard Henderson <rth@twiddle.net>, Nick
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Wed, Jul 01, 2020 at 06:07:25PM +0100, Dave P Martin wrote:
+> On Tue, Jun 30, 2020 at 06:37:34PM +0100, Will Deacon wrote:
+> > When building with LTO, there is an increased risk of the compiler
+> > converting an address dependency headed by a READ_ONCE() invocation
+> > into a control dependency and consequently allowing for harmful
+> > reordering by the CPU.
+> > 
+> > Ensure that such transformations are harmless by overriding the generic
+> > READ_ONCE() definition with one that provides acquire semantics when
+> > building with LTO.
+> > 
+> > Signed-off-by: Will Deacon <will@kernel.org>
+> > ---
+> >  arch/arm64/include/asm/rwonce.h   | 63 +++++++++++++++++++++++++++++++
+> >  arch/arm64/kernel/vdso/Makefile   |  2 +-
+> >  arch/arm64/kernel/vdso32/Makefile |  2 +-
+> >  3 files changed, 65 insertions(+), 2 deletions(-)
+> >  create mode 100644 arch/arm64/include/asm/rwonce.h
+> > 
+> > diff --git a/arch/arm64/include/asm/rwonce.h b/arch/arm64/include/asm/rwonce.h
+> > new file mode 100644
+> > index 000000000000..515e360b01a1
+> > --- /dev/null
+> > +++ b/arch/arm64/include/asm/rwonce.h
+> > @@ -0,0 +1,63 @@
+> > +/* SPDX-License-Identifier: GPL-2.0 */
+> > +/*
+> > + * Copyright (C) 2020 Google LLC.
+> > + */
+> > +#ifndef __ASM_RWONCE_H
+> > +#define __ASM_RWONCE_H
+> > +
+> > +#ifdef CONFIG_CLANG_LTO
+> 
+> Don't we have a generic option for LTO that's not specific to Clang.
 
-On 2020/7/2 上午6:10, Bjorn Helgaas wrote:
-> From: Bjorn Helgaas <bhelgaas@google.com>
->
-> The "virtio_mmio.device=" command line argument allows a user to specify
-> the size, address, and IRQ of a virtio device.  Previously the only
-> requirement for the IRQ was that it be an unsigned integer.
->
-> Zero is an unsigned integer but an invalid IRQ number, and after
-> a85a6c86c25be ("driver core: platform: Clarify that IRQ 0 is invalid"),
-> attempts to use IRQ 0 cause warnings.
->
-> If the user specifies IRQ 0, return failure instead of registering a device
-> with IRQ 0.
->
-> Fixes: a85a6c86c25be ("driver core: platform: Clarify that IRQ 0 is invalid")
-> Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Cc: Jason Wang <jasowang@redhat.com>
-> Cc: virtualization@lists.linux-foundation.org
-> ---
->   drivers/virtio/virtio_mmio.c | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index 9d16aaffca9d..627ac0487494 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.c
-> @@ -641,11 +641,11 @@ static int vm_cmdline_set(const char *device,
->   			&vm_cmdline_id, &consumed);
->   
->   	/*
-> -	 * sscanf() must processes at least 2 chunks; also there
-> +	 * sscanf() must process at least 2 chunks; also there
->   	 * must be no extra characters after the last chunk, so
->   	 * str[consumed] must be '\0'
->   	 */
-> -	if (processed < 2 || str[consumed])
-> +	if (processed < 2 || str[consumed] || irq == 0)
->   		return -EINVAL;
->   
->   	resources[0].flags = IORESOURCE_MEM;
+/me looks at the LTO series some more
 
+Oh yeah, there's CONFIG_LTO which is selected by CONFIG_LTO_CLANG, which is
+the non-typoed version of the above. I can switch this to CONFIG_LTO.
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+> Also, can you illustrate code that can only be unsafe with Clang LTO?
+
+I don't have a concrete example, but it's an ongoing concern over on the LTO
+thread [1], so I cooked this to show one way we could deal with it. The main
+concern is that the whole-program optimisations enabled by LTO may allow the
+compiler to enumerate possible values for a pointer at link time and replace
+an address dependency between two loads with a control dependency instead,
+defeating the dependency ordering within the CPU.
+
+We likely won't realise if/when this goes wrong, other than impossible to
+debug, subtle breakage that crops up seemingly randomly. Ideally, we'd be
+able to detect this sort of thing happening at build time, and perhaps
+even prevent it with compiler options or annotations, but none of that is
+close to being available and I'm keen to progress the LTO patches in the
+meantime because they are a requirement for CFI.
+
+Will
+
+[1] https://lore.kernel.org/r/20200624203200.78870-1-samitolvanen@google.com
