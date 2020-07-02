@@ -1,56 +1,203 @@
-From: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 04/18] alpha: Override READ_ONCE() with barriered implementation
-Date: Thu, 2 Jul 2020 12:08:41 +0200
-Message-ID: <CAK8P3a07G1dLC+RUBDkzDbCRCP_gwZAaVK+k1UxvXT+7Kj=o+g@mail.gmail.com>
-References: <20200630173734.14057-1-will@kernel.org> <20200630173734.14057-5-will@kernel.org>
- <20200702093239.GA15391@C02TD0UTHF1T.local> <20200702094833.GA16248@willie-the-truck>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC PATCH 00/22] Enhance VHOST to enable SoC-to-SoC
+ communication
+Date: Thu, 2 Jul 2020 18:10:22 +0800
+Message-ID: <603970f5-3289-cd53-82a9-aa62b292c552@redhat.com>
+References: <20200702082143.25259-1-kishon@ti.com>
+ <20200702055026-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-alpha-owner@vger.kernel.org>
-In-Reply-To: <20200702094833.GA16248@willie-the-truck>
-Sender: linux-alpha-owner@vger.kernel.org
-To: Will Deacon <will@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Sami Tolvanen <samitolvanen@google.com>, Nick Desaulniers <ndesaulniers@google.com>, Kees Cook <keescook@chromium.org>, Marco Elver <elver@google.com>, "Paul E. McKenney" <paulmck@kernel.org>, Josh Triplett <josh@joshtriplett.org>, Matt Turner <mattst88@gmail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Richard Henderson <rth@twiddle.net>, Peter Zijlstra <peterz@infradead.org>, Alan Stern <stern@rowland.harvard.edu>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Boqun Feng <boqun.feng@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Linux ARM <linux-arm-kernel@lists.infradead.org>, alpha <linux-alpha@vger.k>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20200702055026-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+Sender: netdev-owner@vger.kernel.org
+To: Kishon Vijay Abraham I <kishon@ti.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Ohad Ben-Cohen <ohad@wizery.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Jon Mason <jdmason@kudzu.us>, Dave Jiang <dave.jiang@intel.com>, Allen Hubbe <allenbh@gmail.com>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Bjorn Helgaas <bhelgaas@google.com>, Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-remoteproc@vger.kernel.org, linux-ntb@googlegroups.com, linux-pci@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 2, 2020 at 11:48 AM Will Deacon <will@kernel.org> wrote:
-> On Thu, Jul 02, 2020 at 10:32:39AM +0100, Mark Rutland wrote:
-> > On Tue, Jun 30, 2020 at 06:37:20PM +0100, Will Deacon wrote:
-> > > -#define read_barrier_depends() __asm__ __volatile__("mb": : :"memory")
-> > > +#define __smp_load_acquire(p)                                              \
-> > > +({                                                                 \
-> > > +   __unqual_scalar_typeof(*p) ___p1 =                              \
-> > > +           (*(volatile typeof(___p1) *)(p));                       \
-> > > +   compiletime_assert_atomic_type(*p);                             \
-> > > +   ___p1;                                                          \
-> > > +})
-> >
-> > Sorry if I'm being thick, but doesn't this need a barrier after the
-> > volatile access to provide the acquire semantic?
-> >
-> > IIUC prior to this commit alpha would have used the asm-generic
-> > __smp_load_acquire, i.e.
-> >
-> > | #ifndef __smp_load_acquire
-> > | #define __smp_load_acquire(p)                                           \
-> > | ({                                                                      \
-> > |         __unqual_scalar_typeof(*p) ___p1 = READ_ONCE(*p);               \
-> > |         compiletime_assert_atomic_type(*p);                             \
-> > |         __smp_mb();                                                     \
-> > |         (typeof(*p))___p1;                                              \
-> > | })
-> > | #endif
 
-I also have a question that I didn't dare ask when the same
-code came up before (I guess it's also what's in the kernel today):
+On 2020/7/2 下午5:51, Michael S. Tsirkin wrote:
+> On Thu, Jul 02, 2020 at 01:51:21PM +0530, Kishon Vijay Abraham I wrote:
+>> This series enhances Linux Vhost support to enable SoC-to-SoC
+>> communication over MMIO. This series enables rpmsg communication between
+>> two SoCs using both PCIe RC<->EP and HOST1-NTB-HOST2
+>>
+>> 1) Modify vhost to use standard Linux driver model
+>> 2) Add support in vring to access virtqueue over MMIO
+>> 3) Add vhost client driver for rpmsg
+>> 4) Add PCIe RC driver (uses virtio) and PCIe EP driver (uses vhost) for
+>>     rpmsg communication between two SoCs connected to each other
+>> 5) Add NTB Virtio driver and NTB Vhost driver for rpmsg communication
+>>     between two SoCs connected via NTB
+>> 6) Add configfs to configure the components
+>>
+>> UseCase1 :
+>>
+>>   VHOST RPMSG                     VIRTIO RPMSG
+>>        +                               +
+>>        |                               |
+>>        |                               |
+>>        |                               |
+>>        |                               |
+>> +-----v------+                 +------v-------+
+>> |   Linux    |                 |     Linux    |
+>> |  Endpoint  |                 | Root Complex |
+>> |            <----------------->              |
+>> |            |                 |              |
+>> |    SOC1    |                 |     SOC2     |
+>> +------------+                 +--------------+
+>>
+>> UseCase 2:
+>>
+>>       VHOST RPMSG                                      VIRTIO RPMSG
+>>            +                                                 +
+>>            |                                                 |
+>>            |                                                 |
+>>            |                                                 |
+>>            |                                                 |
+>>     +------v------+                                   +------v------+
+>>     |             |                                   |             |
+>>     |    HOST1    |                                   |    HOST2    |
+>>     |             |                                   |             |
+>>     +------^------+                                   +------^------+
+>>            |                                                 |
+>>            |                                                 |
+>> +---------------------------------------------------------------------+
+>> |  +------v------+                                   +------v------+  |
+>> |  |             |                                   |             |  |
+>> |  |     EP      |                                   |     EP      |  |
+>> |  | CONTROLLER1 |                                   | CONTROLLER2 |  |
+>> |  |             <----------------------------------->             |  |
+>> |  |             |                                   |             |  |
+>> |  |             |                                   |             |  |
+>> |  |             |  SoC With Multiple EP Instances   |             |  |
+>> |  |             |  (Configured using NTB Function)  |             |  |
+>> |  +-------------+                                   +-------------+  |
+>> +---------------------------------------------------------------------+
+>>
+>> Software Layering:
+>>
+>> The high-level SW layering should look something like below. This series
+>> adds support only for RPMSG VHOST, however something similar should be
+>> done for net and scsi. With that any vhost device (PCI, NTB, Platform
+>> device, user) can use any of the vhost client driver.
+>>
+>>
+>>      +----------------+  +-----------+  +------------+  +----------+
+>>      |  RPMSG VHOST   |  | NET VHOST |  | SCSI VHOST |  |    X     |
+>>      +-------^--------+  +-----^-----+  +-----^------+  +----^-----+
+>>              |                 |              |              |
+>>              |                 |              |              |
+>>              |                 |              |              |
+>> +-----------v-----------------v--------------v--------------v----------+
+>> |                            VHOST CORE                                |
+>> +--------^---------------^--------------------^------------------^-----+
+>>           |               |                    |                  |
+>>           |               |                    |                  |
+>>           |               |                    |                  |
+>> +--------v-------+  +----v------+  +----------v----------+  +----v-----+
+>> |  PCI EPF VHOST |  | NTB VHOST |  |PLATFORM DEVICE VHOST|  |    X     |
+>> +----------------+  +-----------+  +---------------------+  +----------+
+>>
+>> This was initially proposed here [1]
+>>
+>> [1] -> https://lore.kernel.org/r/2cf00ec4-1ed6-f66e-6897-006d1a5b6390@ti.com
+>
+> I find this very interesting. A huge patchset so will take a bit
+> to review, but I certainly plan to do that. Thanks!
 
-With the cast to 'typeof(*p)' at the end, doesn't that mean we
-lose the effect of __unqual_scalar_typeof() again, so any "volatile"
-pointer passed into __READ_ONCE_SCALAR() or
-__smp_load_acquire() still leads to a volatile load of the original
-variable, plus another volatile access to ___p1 after
-spilling it to the stack as a non-volatile variable?
 
-I hope I'm missing something obvious here.
+Yes, it would be better if there's a git branch for us to have a look.
 
-        Arnd
+Btw, I'm not sure I get the big picture, but I vaguely feel some of the 
+work is duplicated with vDPA (e.g the epf transport or vhost bus).
+
+Have you considered to implement these through vDPA?
+
+Thanks
+
+
+>
+>> Kishon Vijay Abraham I (22):
+>>    vhost: Make _feature_ bits a property of vhost device
+>>    vhost: Introduce standard Linux driver model in VHOST
+>>    vhost: Add ops for the VHOST driver to configure VHOST device
+>>    vringh: Add helpers to access vring in MMIO
+>>    vhost: Add MMIO helpers for operations on vhost virtqueue
+>>    vhost: Introduce configfs entry for configuring VHOST
+>>    virtio_pci: Use request_threaded_irq() instead of request_irq()
+>>    rpmsg: virtio_rpmsg_bus: Disable receive virtqueue callback when
+>>      reading messages
+>>    rpmsg: Introduce configfs entry for configuring rpmsg
+>>    rpmsg: virtio_rpmsg_bus: Add Address Service Notification support
+>>    rpmsg: virtio_rpmsg_bus: Move generic rpmsg structure to
+>>      rpmsg_internal.h
+>>    virtio: Add ops to allocate and free buffer
+>>    rpmsg: virtio_rpmsg_bus: Use virtio_alloc_buffer() and
+>>      virtio_free_buffer()
+>>    rpmsg: Add VHOST based remote processor messaging bus
+>>    samples/rpmsg: Setup delayed work to send message
+>>    samples/rpmsg: Wait for address to be bound to rpdev for sending
+>>      message
+>>    rpmsg.txt: Add Documentation to configure rpmsg using configfs
+>>    virtio_pci: Add VIRTIO driver for VHOST on Configurable PCIe Endpoint
+>>      device
+>>    PCI: endpoint: Add EP function driver to provide VHOST interface
+>>    NTB: Add a new NTB client driver to implement VIRTIO functionality
+>>    NTB: Add a new NTB client driver to implement VHOST functionality
+>>    NTB: Describe the ntb_virtio and ntb_vhost client in the documentation
+>>
+>>   Documentation/driver-api/ntb.rst              |   11 +
+>>   Documentation/rpmsg.txt                       |   56 +
+>>   drivers/ntb/Kconfig                           |   18 +
+>>   drivers/ntb/Makefile                          |    2 +
+>>   drivers/ntb/ntb_vhost.c                       |  776 +++++++++++
+>>   drivers/ntb/ntb_virtio.c                      |  853 ++++++++++++
+>>   drivers/ntb/ntb_virtio.h                      |   56 +
+>>   drivers/pci/endpoint/functions/Kconfig        |   11 +
+>>   drivers/pci/endpoint/functions/Makefile       |    1 +
+>>   .../pci/endpoint/functions/pci-epf-vhost.c    | 1144 ++++++++++++++++
+>>   drivers/rpmsg/Kconfig                         |   10 +
+>>   drivers/rpmsg/Makefile                        |    3 +-
+>>   drivers/rpmsg/rpmsg_cfs.c                     |  394 ++++++
+>>   drivers/rpmsg/rpmsg_core.c                    |    7 +
+>>   drivers/rpmsg/rpmsg_internal.h                |  136 ++
+>>   drivers/rpmsg/vhost_rpmsg_bus.c               | 1151 +++++++++++++++++
+>>   drivers/rpmsg/virtio_rpmsg_bus.c              |  184 ++-
+>>   drivers/vhost/Kconfig                         |    1 +
+>>   drivers/vhost/Makefile                        |    2 +-
+>>   drivers/vhost/net.c                           |   10 +-
+>>   drivers/vhost/scsi.c                          |   24 +-
+>>   drivers/vhost/test.c                          |   17 +-
+>>   drivers/vhost/vdpa.c                          |    2 +-
+>>   drivers/vhost/vhost.c                         |  730 ++++++++++-
+>>   drivers/vhost/vhost_cfs.c                     |  341 +++++
+>>   drivers/vhost/vringh.c                        |  332 +++++
+>>   drivers/vhost/vsock.c                         |   20 +-
+>>   drivers/virtio/Kconfig                        |    9 +
+>>   drivers/virtio/Makefile                       |    1 +
+>>   drivers/virtio/virtio_pci_common.c            |   25 +-
+>>   drivers/virtio/virtio_pci_epf.c               |  670 ++++++++++
+>>   include/linux/mod_devicetable.h               |    6 +
+>>   include/linux/rpmsg.h                         |    6 +
+>>   {drivers/vhost => include/linux}/vhost.h      |  132 +-
+>>   include/linux/virtio.h                        |    3 +
+>>   include/linux/virtio_config.h                 |   42 +
+>>   include/linux/vringh.h                        |   46 +
+>>   samples/rpmsg/rpmsg_client_sample.c           |   32 +-
+>>   tools/virtio/virtio_test.c                    |    2 +-
+>>   39 files changed, 7083 insertions(+), 183 deletions(-)
+>>   create mode 100644 drivers/ntb/ntb_vhost.c
+>>   create mode 100644 drivers/ntb/ntb_virtio.c
+>>   create mode 100644 drivers/ntb/ntb_virtio.h
+>>   create mode 100644 drivers/pci/endpoint/functions/pci-epf-vhost.c
+>>   create mode 100644 drivers/rpmsg/rpmsg_cfs.c
+>>   create mode 100644 drivers/rpmsg/vhost_rpmsg_bus.c
+>>   create mode 100644 drivers/vhost/vhost_cfs.c
+>>   create mode 100644 drivers/virtio/virtio_pci_epf.c
+>>   rename {drivers/vhost => include/linux}/vhost.h (66%)
+>>
+>> -- 
+>> 2.17.1
+>>
