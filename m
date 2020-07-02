@@ -1,529 +1,461 @@
 From: Kishon Vijay Abraham I <kishon@ti.com>
-Subject: [RFC PATCH 06/22] vhost: Introduce configfs entry for configuring VHOST
-Date: Thu, 2 Jul 2020 13:51:27 +0530
-Message-ID: <20200702082143.25259-7-kishon@ti.com>
+Subject: [RFC PATCH 04/22] vringh: Add helpers to access vring in MMIO
+Date: Thu, 2 Jul 2020 13:51:25 +0530
+Message-ID: <20200702082143.25259-5-kishon@ti.com>
 References: <20200702082143.25259-1-kishon@ti.com>
 Mime-Version: 1.0
 Content-Type: text/plain
-Return-path: <linux-doc-owner@vger.kernel.org>
+Return-path: <linux-pci-owner@vger.kernel.org>
 In-Reply-To: <20200702082143.25259-1-kishon@ti.com>
-Sender: linux-doc-owner@vger.kernel.org
+Sender: linux-pci-owner@vger.kernel.org
 To: Ohad Ben-Cohen <ohad@wizery.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Jon Mason <jdmason@kudzu.us>, Dave Jiang <dave.jiang@intel.com>, Allen Hubbe <allenbh@gmail.com>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Bjorn Helgaas <bhelgaas@google.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>
 Cc: linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, linux-remoteproc@vger.kernel.org, linux-ntb@googlegroups.com, linux-pci@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Create a configfs entry for each entry populated in
-"struct vhost_device_id" in the VHOST driver and create a configfs entry
-for each VHOST device. This is used to link VHOST driver to VHOST device
-(by assigning deviceID and vendorID to the VHOST device) and register
-VHOST device, thereby letting VHOST client driver to be selected in the
-userspace.
+Add helpers to access vring in memory mapped IO. This would require
+using IO accessors to access vring and the addresses populated by
+virtio driver (in the descriptor) should be directly given to the
+vhost client driver. Even if the vhost runs in 32 bit system, it
+can access 64 bit address provided by the virtio if the vhost device
+supports translation.
+
+This is in preparation for adding VHOST devices (PCIe Endpoint or
+Host in NTB) to access vrings created by VIRTIO devices (PCIe RC or
+Host in NTB) over memory mapped IO.
 
 Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
 ---
- drivers/vhost/Makefile    |   2 +-
- drivers/vhost/vhost.c     |  63 +++++++
- drivers/vhost/vhost_cfs.c | 354 ++++++++++++++++++++++++++++++++++++++
- include/linux/vhost.h     |  11 ++
- 4 files changed, 429 insertions(+), 1 deletion(-)
- create mode 100644 drivers/vhost/vhost_cfs.c
+ drivers/vhost/vringh.c | 332 +++++++++++++++++++++++++++++++++++++++++
+ include/linux/vringh.h |  46 ++++++
+ 2 files changed, 378 insertions(+)
 
-diff --git a/drivers/vhost/Makefile b/drivers/vhost/Makefile
-index f3e1897cce85..6520c820c896 100644
---- a/drivers/vhost/Makefile
-+++ b/drivers/vhost/Makefile
-@@ -13,7 +13,7 @@ obj-$(CONFIG_VHOST_RING) += vringh.o
- obj-$(CONFIG_VHOST_VDPA) += vhost_vdpa.o
- vhost_vdpa-y := vdpa.o
+diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
+index ba8e0d6cfd97..b3f1910b99ec 100644
+--- a/drivers/vhost/vringh.c
++++ b/drivers/vhost/vringh.c
+@@ -5,6 +5,7 @@
+  * Since these may be in userspace, we use (inline) accessors.
+  */
+ #include <linux/compiler.h>
++#include <linux/io.h>
+ #include <linux/module.h>
+ #include <linux/vringh.h>
+ #include <linux/virtio_ring.h>
+@@ -188,6 +189,32 @@ static int move_to_indirect(const struct vringh *vrh,
+ 	return 0;
+ }
  
--obj-$(CONFIG_VHOST)	+= vhost.o
-+obj-$(CONFIG_VHOST)	+= vhost.o vhost_cfs.o
- 
- obj-$(CONFIG_VHOST_IOTLB) += vhost_iotlb.o
- vhost_iotlb-y := iotlb.o
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 8a3ad4698393..539619208783 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -3091,6 +3091,64 @@ static struct bus_type vhost_bus_type = {
- 	.remove = vhost_dev_remove,
- };
- 
-+/**
-+ * vhost_remove_cfs() - Remove configfs directory for vhost driver
-+ * @driver: Vhost driver for which configfs directory has to be removed
-+ *
-+ * Remove configfs directory for vhost driver.
-+ */
-+static void vhost_remove_cfs(struct vhost_driver *driver)
++static int resize_mmiovec(struct vringh_mmiov *iov, gfp_t gfp)
 +{
-+	struct config_group *driver_group, *group;
-+	struct config_item *item, *tmp;
++	unsigned int flag, new_num = (iov->max_num & ~VRINGH_IOV_ALLOCATED) * 2;
++	struct mmiovec *new;
 +
-+	driver_group = driver->group;
++	if (new_num < 8)
++		new_num = 8;
 +
-+	list_for_each_entry_safe(item, tmp, &driver_group->cg_children,
-+				 ci_entry) {
-+		group = to_config_group(item);
-+		vhost_cfs_remove_driver_item(group);
++	flag = (iov->max_num & VRINGH_IOV_ALLOCATED);
++	if (flag) {
++		new = krealloc(iov->iov, new_num * sizeof(struct iovec), gfp);
++	} else {
++		new = kmalloc_array(new_num, sizeof(struct iovec), gfp);
++		if (new) {
++			memcpy(new, iov->iov,
++			       iov->max_num * sizeof(struct iovec));
++			flag = VRINGH_IOV_ALLOCATED;
++		}
 +	}
-+
-+	vhost_cfs_remove_driver_group(driver_group);
++	if (!new)
++		return -ENOMEM;
++	iov->iov = new;
++	iov->max_num = (new_num | flag);
++	return 0;
 +}
 +
-+/**
-+ * vhost_add_cfs() - Add configfs directory for vhost driver
-+ * @driver: Vhost driver for which configfs directory has to be added
-+ *
-+ * Add configfs directory for vhost driver.
-+ */
-+static int vhost_add_cfs(struct vhost_driver *driver)
+ static int resize_iovec(struct vringh_kiov *iov, gfp_t gfp)
+ {
+ 	struct kvec *new;
+@@ -261,6 +288,142 @@ static int slow_copy(struct vringh *vrh, void *dst, const void *src,
+ 	return 0;
+ }
+ 
++static inline int
++__vringh_mmiov(struct vringh *vrh, u16 i, struct vringh_mmiov *riov,
++	       struct vringh_mmiov *wiov,
++	       bool (*rcheck)(struct vringh *vrh, u64 addr, size_t *len,
++			      struct vringh_range *range,
++			      bool (*getrange)(struct vringh *, u64,
++					       struct vringh_range *)),
++	       bool (*getrange)(struct vringh *, u64, struct vringh_range *),
++	       gfp_t gfp,
++	       int (*copy)(const struct vringh *vrh,
++			   void *dst, const void *src, size_t len))
 +{
-+	struct config_group *driver_group, *group;
-+	const struct vhost_device_id *ids;
-+	int ret, i;
++	int err, count = 0, up_next, desc_max;
++	struct vring_desc desc, *descs;
++	struct vringh_range range = { -1ULL, 0 }, slowrange;
++	bool slow = false;
 +
-+	driver_group = vhost_cfs_add_driver_group(driver->driver.name);
-+	if (IS_ERR(driver_group))
-+		return PTR_ERR(driver_group);
++	/* We start traversing vring's descriptor table. */
++	descs = vrh->vring.desc;
++	desc_max = vrh->vring.num;
++	up_next = -1;
 +
-+	driver->group = driver_group;
++	if (riov) {
++		riov->i = 0;
++		riov->used = 0;
++	} else if (wiov) {
++		wiov->i = 0;
++		wiov->used = 0;
++	} else {
++		/* You must want something! */
++		WARN_ON(1);
++	}
 +
-+	ids = driver->id_table;
-+	for (i = 0; ids[i].device; i++) {
-+		group = vhost_cfs_add_driver_item(driver_group, ids[i].vendor,
-+						  ids[i].device);
-+		if (IS_ERR(group)) {
-+			ret = PTR_ERR(driver_group);
-+			goto err;
++	for (;;) {
++		u64 addr;
++		struct vringh_mmiov *iov;
++		size_t len;
++
++		if (unlikely(slow))
++			err = slow_copy(vrh, &desc, &descs[i], rcheck, getrange,
++					&slowrange, copy);
++		else
++			err = copy(vrh, &desc, &descs[i], sizeof(desc));
++		if (unlikely(err))
++			goto fail;
++
++		if (unlikely(desc.flags &
++			     cpu_to_vringh16(vrh, VRING_DESC_F_INDIRECT))) {
++			/* VRING_DESC_F_INDIRECT is not supported */
++			err = -EINVAL;
++			goto fail;
++		}
++
++		if (count++ == vrh->vring.num) {
++			vringh_bad("Descriptor loop in %p", descs);
++			err = -ELOOP;
++			goto fail;
++		}
++
++		if (desc.flags & cpu_to_vringh16(vrh, VRING_DESC_F_WRITE)) {
++			iov = wiov;
++		} else {
++			iov = riov;
++			if (unlikely(wiov && wiov->i)) {
++				vringh_bad("Readable desc %p after writable",
++					   &descs[i]);
++				err = -EINVAL;
++				goto fail;
++			}
++		}
++
++		if (!iov) {
++			vringh_bad("Unexpected %s desc",
++				   !wiov ? "writable" : "readable");
++			err = -EPROTO;
++			goto fail;
++		}
++
++again:
++		/* Make sure it's OK, and get offset. */
++		len = vringh32_to_cpu(vrh, desc.len);
++		if (!rcheck(vrh, vringh64_to_cpu(vrh, desc.addr), &len, &range,
++			    getrange)) {
++			err = -EINVAL;
++			goto fail;
++		}
++		addr = vringh64_to_cpu(vrh, desc.addr) + range.offset;
++
++		if (unlikely(iov->used == (iov->max_num & ~VRINGH_IOV_ALLOCATED))) {
++			err = resize_mmiovec(iov, gfp);
++			if (err)
++				goto fail;
++		}
++
++		iov->iov[iov->used].iov_base = addr;
++		iov->iov[iov->used].iov_len = len;
++		iov->used++;
++
++		if (unlikely(len != vringh32_to_cpu(vrh, desc.len))) {
++			desc.len =
++				cpu_to_vringh32(vrh,
++						vringh32_to_cpu(vrh, desc.len)
++						- len);
++			desc.addr =
++				cpu_to_vringh64(vrh,
++						vringh64_to_cpu(vrh, desc.addr)
++						+ len);
++			goto again;
++		}
++
++		if (desc.flags & cpu_to_vringh16(vrh, VRING_DESC_F_NEXT)) {
++			i = vringh16_to_cpu(vrh, desc.next);
++		} else {
++			/* Just in case we need to finish traversing above. */
++			if (unlikely(up_next > 0)) {
++				i = return_from_indirect(vrh, &up_next,
++							 &descs, &desc_max);
++				slow = false;
++			} else {
++				break;
++			}
++		}
++
++		if (i >= desc_max) {
++			vringh_bad("Chained index %u > %u", i, desc_max);
++			err = -EINVAL;
++			goto fail;
 +		}
 +	}
 +
 +	return 0;
 +
-+err:
-+	vhost_remove_cfs(driver);
-+
-+	return ret;
++fail:
++	return err;
 +}
 +
- /**
-  * vhost_register_driver() - Register a vhost driver
-  * @driver: Vhost driver that has to be registered
-@@ -3107,6 +3165,10 @@ int vhost_register_driver(struct vhost_driver *driver)
- 	if (ret)
- 		return ret;
+ static inline int
+ __vringh_iov(struct vringh *vrh, u16 i,
+ 	     struct vringh_kiov *riov,
+@@ -833,6 +996,175 @@ int vringh_need_notify_user(struct vringh *vrh)
+ }
+ EXPORT_SYMBOL(vringh_need_notify_user);
  
-+	ret = vhost_add_cfs(driver);
-+	if (ret)
-+		return ret;
-+
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(vhost_register_driver);
-@@ -3119,6 +3181,7 @@ EXPORT_SYMBOL_GPL(vhost_register_driver);
-  */
- void vhost_unregister_driver(struct vhost_driver *driver)
- {
-+	vhost_remove_cfs(driver);
- 	driver_unregister(&driver->driver);
- }
- EXPORT_SYMBOL_GPL(vhost_unregister_driver);
-diff --git a/drivers/vhost/vhost_cfs.c b/drivers/vhost/vhost_cfs.c
-new file mode 100644
-index 000000000000..ae46e71968f1
---- /dev/null
-+++ b/drivers/vhost/vhost_cfs.c
-@@ -0,0 +1,354 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/**
-+ * configfs to configure VHOST
-+ *
-+ * Copyright (C) 2020 Texas Instruments
-+ * Author: Kishon Vijay Abraham I <kishon@ti.com>
-+ */
-+
-+#include <linux/configfs.h>
-+#include <linux/device.h>
-+#include <linux/module.h>
-+#include <linux/vhost.h>
-+#include <linux/slab.h>
-+
-+/* VHOST driver like net, scsi etc., */
-+static struct config_group *vhost_driver_group;
-+
-+/* VHOST device like PCIe EP, NTB etc., */
-+static struct config_group *vhost_device_group;
-+
-+struct vhost_driver_item {
-+	struct config_group group;
-+	u32 vendor;
-+	u32 device;
-+};
-+
-+struct vhost_driver_group {
-+	struct config_group group;
-+};
-+
-+struct vhost_device_item {
-+	struct config_group group;
-+	struct vhost_dev *vdev;
-+};
-+
-+static inline
-+struct vhost_driver_item *to_vhost_driver_item(struct config_item *item)
++/* MMIO access helpers */
++static inline int getu16_mmio(const struct vringh *vrh,
++			      u16 *val, const __virtio16 *p)
 +{
-+	return container_of(to_config_group(item), struct vhost_driver_item,
-+			    group);
++	*val = vringh16_to_cpu(vrh, readw(p));
++	return 0;
 +}
 +
-+static inline
-+struct vhost_device_item *to_vhost_device_item(struct config_item *item)
++static inline int putu16_mmio(const struct vringh *vrh, __virtio16 *p, u16 val)
 +{
-+	return container_of(to_config_group(item), struct vhost_device_item,
-+			    group);
++	writew(cpu_to_vringh16(vrh, val), p);
++	return 0;
 +}
 +
-+/**
-+ * vhost_cfs_device_link() - Create softlink of driver directory to device
-+ *   directory
-+ * @device_item: Represents configfs entry of vhost_dev
-+ * @driver_item: Represents configfs of a particular entry of
-+ *   vhost_device_id table in vhost driver
-+ *
-+ * Bind a vhost driver to vhost device in order to assign a particular
-+ * device ID and vendor ID
-+ */
-+static int vhost_cfs_device_link(struct config_item *device_item,
-+				 struct config_item *driver_item)
++static inline int copydesc_mmio(const struct vringh *vrh,
++				void *dst, const void *src, size_t len)
 +{
-+	struct vhost_driver_item *vdriver_item;
-+	struct vhost_device_item *vdevice_item;
-+	struct vhost_dev *vdev;
-+	int ret;
++	memcpy_fromio(dst, src, len);
++	return 0;
++}
 +
-+	vdriver_item = to_vhost_driver_item(driver_item);
-+	vdevice_item = to_vhost_device_item(device_item);
-+
-+	vdev = vdevice_item->vdev;
-+	vdev->id.device = vdriver_item->device;
-+	vdev->id.vendor = vdriver_item->vendor;
-+
-+	ret = vhost_register_device(vdev);
-+	if (ret)
-+		return ret;
-+
++static inline int putused_mmio(const struct vringh *vrh,
++			       struct vring_used_elem *dst,
++			       const struct vring_used_elem *src,
++			       unsigned int num)
++{
++	memcpy_toio(dst, src, num * sizeof(*dst));
 +	return 0;
 +}
 +
 +/**
-+ * vhost_cfs_device_unlink() - Delete softlink of driver directory from device
-+ *   directory
-+ * @device_item: Represents configfs entry of vhost_dev
-+ * @driver_item: Represents configfs of a particular entry of
-+ *   vhost_device_id table in vhost driver
++ * vringh_init_mmio - initialize a vringh for a MMIO vring.
++ * @vrh: the vringh to initialize.
++ * @features: the feature bits for this ring.
++ * @num: the number of elements.
++ * @weak_barriers: true if we only need memory barriers, not I/O.
++ * @desc: the userpace descriptor pointer.
++ * @avail: the userpace avail pointer.
++ * @used: the userpace used pointer.
 + *
-+ * Un-bind vhost driver from vhost device.
++ * Returns an error if num is invalid.
 + */
-+static void vhost_cfs_device_unlink(struct config_item *device_item,
-+				    struct config_item *driver_item)
++int vringh_init_mmio(struct vringh *vrh, u64 features,
++		     unsigned int num, bool weak_barriers,
++		     struct vring_desc *desc,
++		     struct vring_avail *avail,
++		     struct vring_used *used)
 +{
-+	struct vhost_driver_item *vdriver_item;
-+	struct vhost_device_item *vdevice_item;
-+	struct vhost_dev *vdev;
-+
-+	vdriver_item = to_vhost_driver_item(driver_item);
-+	vdevice_item = to_vhost_device_item(device_item);
-+
-+	vdev = vdevice_item->vdev;
-+	vhost_unregister_device(vdev);
-+}
-+
-+static struct configfs_item_operations vhost_cfs_device_item_ops = {
-+	.allow_link	= vhost_cfs_device_link,
-+	.drop_link	= vhost_cfs_device_unlink,
-+};
-+
-+static const struct config_item_type vhost_cfs_device_item_type = {
-+	.ct_item_ops	= &vhost_cfs_device_item_ops,
-+	.ct_owner	= THIS_MODULE,
-+};
-+
-+/**
-+ * vhost_cfs_add_device_item() - Create configfs directory for new vhost_dev
-+ * @vdev: vhost device for which configfs directory has to be created
-+ *
-+ * Create configfs directory for new vhost device. Drivers that create
-+ * vhost device can invoke this API if they require the vhost device to
-+ * be assigned a device ID and vendorID by the user.
-+ */
-+struct config_group *vhost_cfs_add_device_item(struct vhost_dev *vdev)
-+{
-+	struct device *dev = &vdev->dev;
-+	struct vhost_device_item *vdevice_item;
-+	struct config_group *group;
-+	const char *name;
-+	int ret;
-+
-+	vdevice_item = kzalloc(sizeof(*vdevice_item), GFP_KERNEL);
-+	if (!vdevice_item)
-+		return ERR_PTR(-ENOMEM);
-+
-+	name = dev_name(dev->parent);
-+	group = &vdevice_item->group;
-+	config_group_init_type_name(group, name, &vhost_cfs_device_item_type);
-+
-+	ret = configfs_register_group(vhost_device_group, group);
-+	if (ret)
-+		return ERR_PTR(ret);
-+
-+	vdevice_item->vdev = vdev;
-+
-+	return group;
-+}
-+EXPORT_SYMBOL(vhost_cfs_add_device_item);
-+
-+/**
-+ * vhost_cfs_remove_device_item() - Remove configfs directory for the vhost_dev
-+ * @vdev: vhost device for which configfs directory has to be removed
-+ *
-+ * Remove configfs directory for the vhost device.
-+ */
-+void vhost_cfs_remove_device_item(struct config_group *group)
-+{
-+	struct vhost_device_item *vdevice_item;
-+
-+	if (!group)
-+		return;
-+
-+	vdevice_item = container_of(group, struct vhost_device_item, group);
-+	configfs_unregister_group(&vdevice_item->group);
-+	kfree(vdevice_item);
-+}
-+EXPORT_SYMBOL(vhost_cfs_remove_device_item);
-+
-+static const struct config_item_type vhost_driver_item_type = {
-+	.ct_owner	= THIS_MODULE,
-+};
-+
-+/**
-+ * vhost_cfs_add_driver_item() - Add configfs directory for an entry in
-+ *   vhost_device_id
-+ * @driver_group: configfs directory corresponding to the vhost driver
-+ * @vendor: vendor ID populated in vhost_device_id table by vhost driver
-+ * @device: device ID populated in vhost_device_id table by vhost driver
-+ *
-+ * Add configfs directory for each entry in vhost_device_id populated by
-+ * vhost driver. Store the device ID and vendor ID in a local data structure
-+ * and use it when user links this directory with a vhost device configfs
-+ * directory.
-+ */
-+struct config_group *
-+vhost_cfs_add_driver_item(struct config_group *driver_group, u32 vendor,
-+			  u32 device)
-+{
-+	struct vhost_driver_item *vdriver_item;
-+	struct config_group *group;
-+	char name[20];
-+	int ret;
-+
-+	vdriver_item = kzalloc(sizeof(*vdriver_item), GFP_KERNEL);
-+	if (!vdriver_item)
-+		return ERR_PTR(-ENOMEM);
-+
-+	vdriver_item->vendor = vendor;
-+	vdriver_item->device = device;
-+
-+	snprintf(name, sizeof(name), "%08x:%08x", vendor, device);
-+	group = &vdriver_item->group;
-+
-+	config_group_init_type_name(group, name, &vhost_driver_item_type);
-+	ret = configfs_register_group(driver_group, group);
-+	if (ret)
-+		return ERR_PTR(ret);
-+
-+	return group;
-+}
-+EXPORT_SYMBOL(vhost_cfs_add_driver_item);
-+
-+/**
-+ * vhost_cfs_remove_driver_item() - Remove configfs directory corresponding
-+ *   to an entry in vhost_device_id
-+ * @group: Configfs group corresponding to an entry in vhost_device_id
-+ *
-+ * Remove configfs directory corresponding to an entry in vhost_device_id
-+ */
-+void vhost_cfs_remove_driver_item(struct config_group *group)
-+{
-+	struct vhost_driver_item *vdriver_item;
-+
-+	if (!group)
-+		return;
-+
-+	vdriver_item = container_of(group, struct vhost_driver_item, group);
-+	configfs_unregister_group(&vdriver_item->group);
-+	kfree(vdriver_item);
-+}
-+EXPORT_SYMBOL(vhost_cfs_remove_driver_item);
-+
-+static const struct config_item_type vhost_driver_group_type = {
-+	.ct_owner	= THIS_MODULE,
-+};
-+
-+/**
-+ * vhost_cfs_add_driver_group() - Add configfs directory for vhost driver
-+ * @name: Name of the vhost driver as populated in driver structure
-+ *
-+ * Add configfs directory for vhost driver.
-+ */
-+struct config_group *vhost_cfs_add_driver_group(const char *name)
-+{
-+	struct vhost_driver_group *vdriver_group;
-+	struct config_group *group;
-+
-+	vdriver_group = kzalloc(sizeof(*vdriver_group), GFP_KERNEL);
-+	if (!vdriver_group)
-+		return ERR_PTR(-ENOMEM);
-+
-+	group = &vdriver_group->group;
-+
-+	config_group_init_type_name(group, name, &vhost_driver_group_type);
-+	configfs_register_group(vhost_driver_group, group);
-+
-+	return group;
-+}
-+EXPORT_SYMBOL(vhost_cfs_add_driver_group);
-+
-+/**
-+ * vhost_cfs_remove_driver_group() - Remove configfs directory for vhost driver
-+ * @group: Configfs group corresponding to the vhost driver
-+ *
-+ * Remove configfs directory for vhost driver.
-+ */
-+void vhost_cfs_remove_driver_group(struct config_group *group)
-+{
-+	if (IS_ERR_OR_NULL(group))
-+		return;
-+
-+	configfs_unregister_default_group(group);
-+}
-+EXPORT_SYMBOL(vhost_cfs_remove_driver_group);
-+
-+static const struct config_item_type vhost_driver_type = {
-+	.ct_owner	= THIS_MODULE,
-+};
-+
-+static const struct config_item_type vhost_device_type = {
-+	.ct_owner	= THIS_MODULE,
-+};
-+
-+static const struct config_item_type vhost_type = {
-+	.ct_owner	= THIS_MODULE,
-+};
-+
-+static struct configfs_subsystem vhost_cfs_subsys = {
-+	.su_group = {
-+		.cg_item = {
-+			.ci_namebuf = "vhost",
-+			.ci_type = &vhost_type,
-+		},
-+	},
-+	.su_mutex = __MUTEX_INITIALIZER(vhost_cfs_subsys.su_mutex),
-+};
-+
-+static int __init vhost_cfs_init(void)
-+{
-+	int ret;
-+	struct config_group *root = &vhost_cfs_subsys.su_group;
-+
-+	config_group_init(root);
-+
-+	ret = configfs_register_subsystem(&vhost_cfs_subsys);
-+	if (ret) {
-+		pr_err("Error %d while registering subsystem %s\n",
-+		       ret, root->cg_item.ci_namebuf);
-+		goto err;
++	/* Sane power of 2 please! */
++	if (!num || num > 0xffff || (num & (num - 1))) {
++		vringh_bad("Bad ring size %u", num);
++		return -EINVAL;
 +	}
 +
-+	vhost_driver_group =
-+		configfs_register_default_group(root, "vhost-client",
-+						&vhost_driver_type);
-+	if (IS_ERR(vhost_driver_group)) {
-+		ret = PTR_ERR(vhost_driver_group);
-+		pr_err("Error %d while registering channel group\n",
-+		       ret);
-+		goto err_vhost_driver_group;
-+	}
-+
-+	vhost_device_group =
-+		configfs_register_default_group(root, "vhost-transport",
-+						&vhost_device_type);
-+	if (IS_ERR(vhost_device_group)) {
-+		ret = PTR_ERR(vhost_device_group);
-+		pr_err("Error %d while registering virtproc group\n",
-+		       ret);
-+		goto err_vhost_device_group;
-+	}
-+
++	vrh->little_endian = (features & (1ULL << VIRTIO_F_VERSION_1));
++	vrh->event_indices = (features & (1 << VIRTIO_RING_F_EVENT_IDX));
++	vrh->weak_barriers = weak_barriers;
++	vrh->completed = 0;
++	vrh->last_avail_idx = 0;
++	vrh->last_used_idx = 0;
++	vrh->vring.num = num;
++	vrh->vring.desc = desc;
++	vrh->vring.avail = avail;
++	vrh->vring.used = used;
 +	return 0;
-+
-+err_vhost_device_group:
-+	configfs_unregister_default_group(vhost_driver_group);
-+
-+err_vhost_driver_group:
-+	configfs_unregister_subsystem(&vhost_cfs_subsys);
-+
-+err:
-+	return ret;
 +}
-+module_init(vhost_cfs_init);
++EXPORT_SYMBOL(vringh_init_mmio);
 +
-+static void __exit vhost_cfs_exit(void)
++/**
++ * vringh_getdesc_mmio - get next available descriptor from MMIO ring.
++ * @vrh: the MMIO vring.
++ * @riov: where to put the readable descriptors (or NULL)
++ * @wiov: where to put the writable descriptors (or NULL)
++ * @head: head index we received, for passing to vringh_complete_mmio().
++ * @gfp: flags for allocating larger riov/wiov.
++ *
++ * Returns 0 if there was no descriptor, 1 if there was, or -errno.
++ *
++ * Note that on error return, you can tell the difference between an
++ * invalid ring and a single invalid descriptor: in the former case,
++ * *head will be vrh->vring.num.  You may be able to ignore an invalid
++ * descriptor, but there's not much you can do with an invalid ring.
++ *
++ * Note that you may need to clean up riov and wiov, even on error!
++ */
++int vringh_getdesc_mmio(struct vringh *vrh,
++			struct vringh_mmiov *riov,
++			struct vringh_mmiov *wiov,
++			u16 *head,
++			gfp_t gfp)
 +{
-+	configfs_unregister_default_group(vhost_device_group);
-+	configfs_unregister_default_group(vhost_driver_group);
-+	configfs_unregister_subsystem(&vhost_cfs_subsys);
-+}
-+module_exit(vhost_cfs_exit);
++	int err;
 +
-+MODULE_DESCRIPTION("PCI VHOST CONFIGFS");
-+MODULE_AUTHOR("Kishon Vijay Abraham I <kishon@ti.com>");
-+MODULE_LICENSE("GPL v2");
-diff --git a/include/linux/vhost.h b/include/linux/vhost.h
-index 8efb9829c1b1..be9341ffd266 100644
---- a/include/linux/vhost.h
-+++ b/include/linux/vhost.h
-@@ -2,6 +2,7 @@
- #ifndef _VHOST_H
- #define _VHOST_H
- 
-+#include <linux/configfs.h>
- #include <linux/eventfd.h>
- #include <linux/mm.h>
- #include <linux/mutex.h>
-@@ -181,6 +182,7 @@ struct vhost_config_ops {
- struct vhost_driver {
- 	struct device_driver driver;
- 	struct vhost_device_id *id_table;
-+	struct config_group *group;
- 	int (*probe)(struct vhost_dev *dev);
- 	int (*remove)(struct vhost_dev *dev);
++	err = __vringh_get_head(vrh, getu16_mmio, &vrh->last_avail_idx);
++	if (err < 0)
++		return err;
++
++	/* Empty... */
++	if (err == vrh->vring.num)
++		return 0;
++
++	*head = err;
++	err = __vringh_mmiov(vrh, *head, riov, wiov, no_range_check, NULL,
++			     gfp, copydesc_mmio);
++	if (err)
++		return err;
++
++	return 1;
++}
++EXPORT_SYMBOL(vringh_getdesc_mmio);
++
++/**
++ * vringh_complete_mmio - we've finished with descriptor, publish it.
++ * @vrh: the vring.
++ * @head: the head as filled in by vringh_getdesc_mmio.
++ * @len: the length of data we have written.
++ *
++ * You should check vringh_need_notify_mmio() after one or more calls
++ * to this function.
++ */
++int vringh_complete_mmio(struct vringh *vrh, u16 head, u32 len)
++{
++	struct vring_used_elem used;
++
++	used.id = cpu_to_vringh32(vrh, head);
++	used.len = cpu_to_vringh32(vrh, len);
++
++	return __vringh_complete(vrh, &used, 1, putu16_mmio, putused_mmio);
++}
++EXPORT_SYMBOL(vringh_complete_mmio);
++
++/**
++ * vringh_notify_enable_mmio - we want to know if something changes.
++ * @vrh: the vring.
++ *
++ * This always enables notifications, but returns false if there are
++ * now more buffers available in the vring.
++ */
++bool vringh_notify_enable_mmio(struct vringh *vrh)
++{
++	return __vringh_notify_enable(vrh, getu16_mmio, putu16_mmio);
++}
++EXPORT_SYMBOL(vringh_notify_enable_mmio);
++
++/**
++ * vringh_notify_disable_mmio - don't tell us if something changes.
++ * @vrh: the vring.
++ *
++ * This is our normal running state: we disable and then only enable when
++ * we're going to sleep.
++ */
++void vringh_notify_disable_mmio(struct vringh *vrh)
++{
++	__vringh_notify_disable(vrh, putu16_mmio);
++}
++EXPORT_SYMBOL(vringh_notify_disable_mmio);
++
++/**
++ * vringh_need_notify_mmio - must we tell the other side about used buffers?
++ * @vrh: the vring we've called vringh_complete_mmio() on.
++ *
++ * Returns -errno or 0 if we don't need to tell the other side, 1 if we do.
++ */
++int vringh_need_notify_mmio(struct vringh *vrh)
++{
++	return __vringh_need_notify(vrh, getu16_mmio);
++}
++EXPORT_SYMBOL(vringh_need_notify_mmio);
++
+ /* Kernelspace access helpers. */
+ static inline int getu16_kern(const struct vringh *vrh,
+ 			      u16 *val, const __virtio16 *p)
+diff --git a/include/linux/vringh.h b/include/linux/vringh.h
+index 9e2763d7c159..0ba63a72b124 100644
+--- a/include/linux/vringh.h
++++ b/include/linux/vringh.h
+@@ -99,6 +99,23 @@ struct vringh_kiov {
+ 	unsigned i, used, max_num;
  };
-@@ -233,6 +235,15 @@ void vhost_unregister_driver(struct vhost_driver *driver);
- int vhost_register_device(struct vhost_dev *vdev);
- void vhost_unregister_device(struct vhost_dev *vdev);
  
-+struct config_group *vhost_cfs_add_driver_group(const char *name);
-+void vhost_cfs_remove_driver_group(struct config_group *group);
-+struct config_group *
-+vhost_cfs_add_driver_item(struct config_group *driver_group, u32 vendor,
-+			  u32 device);
-+void vhost_cfs_remove_driver_item(struct config_group *group);
-+struct config_group *vhost_cfs_add_device_item(struct vhost_dev *vdev);
-+void vhost_cfs_remove_device_item(struct config_group *group);
++struct mmiovec {
++	u64 iov_base;
++	size_t iov_len;
++};
 +
- int vhost_create_vqs(struct vhost_dev *vdev, unsigned int nvqs,
- 		     unsigned int num_bufs, struct vhost_virtqueue *vqs[],
- 		     vhost_vq_callback_t *callbacks[],
++/**
++ * struct vringh_mmiov - mmiovec mangler.
++ *
++ * Mangles mmiovec in place, and restores it.
++ * Remaining data is iov + i, of used - i elements.
++ */
++struct vringh_mmiov {
++	struct mmiovec *iov;
++	size_t consumed; /* Within iov[i] */
++	unsigned int i, used, max_num;
++};
++
+ /* Flag on max_num to indicate we're kmalloced. */
+ #define VRINGH_IOV_ALLOCATED 0x8000000
+ 
+@@ -213,6 +230,35 @@ void vringh_notify_disable_kern(struct vringh *vrh);
+ 
+ int vringh_need_notify_kern(struct vringh *vrh);
+ 
++/* Helpers for kernelspace vrings. */
++int vringh_init_mmio(struct vringh *vrh, u64 features,
++		     unsigned int num, bool weak_barriers,
++		     struct vring_desc *desc,
++		     struct vring_avail *avail,
++		     struct vring_used *used);
++
++static inline void vringh_mmiov_init(struct vringh_mmiov *mmiov,
++				     struct mmiovec *mmiovec, unsigned int num)
++{
++	mmiov->used = 0;
++	mmiov->i = 0;
++	mmiov->consumed = 0;
++	mmiov->max_num = num;
++	mmiov->iov = mmiovec;
++}
++
++int vringh_getdesc_mmio(struct vringh *vrh,
++			struct vringh_mmiov *riov,
++			struct vringh_mmiov *wiov,
++			u16 *head,
++			gfp_t gfp);
++
++int vringh_complete_mmio(struct vringh *vrh, u16 head, u32 len);
++
++bool vringh_notify_enable_mmio(struct vringh *vrh);
++void vringh_notify_disable_mmio(struct vringh *vrh);
++int vringh_need_notify_mmio(struct vringh *vrh);
++
+ /* Notify the guest about buffers added to the used ring */
+ static inline void vringh_notify(struct vringh *vrh)
+ {
 -- 
 2.17.1
