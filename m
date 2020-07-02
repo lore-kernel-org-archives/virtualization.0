@@ -1,81 +1,89 @@
 From: Will Deacon <will@kernel.org>
-Subject: Re: [PATCH 5/8] powerpc/64s: implement queued spinlocks and rwlocks
-Date: Thu, 2 Jul 2020 11:48:46 +0100
-Message-ID: <20200702104845.GB16418@willie-the-truck>
-References: <20200702074839.1057733-1-npiggin@gmail.com>
- <20200702074839.1057733-6-npiggin@gmail.com>
- <20200702080219.GB16113@willie-the-truck>
- <1593685459.r2tfxtfdp6.astroid@bobo.none>
- <20200702103506.GA16418@willie-the-truck>
- <1593686722.w9psaqk7yp.astroid@bobo.none>
+Subject: Re: [PATCH 04/18] alpha: Override READ_ONCE() with barriered
+ implementation
+Date: Thu, 2 Jul 2020 12:18:33 +0100
+Message-ID: <20200702111832.GC16418@willie-the-truck>
+References: <20200630173734.14057-1-will@kernel.org>
+ <20200630173734.14057-5-will@kernel.org>
+ <20200702093239.GA15391@C02TD0UTHF1T.local>
+ <20200702094833.GA16248@willie-the-truck>
+ <CAK8P3a07G1dLC+RUBDkzDbCRCP_gwZAaVK+k1UxvXT+7Kj=o+g@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-alpha-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <1593686722.w9psaqk7yp.astroid@bobo.none>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Nicholas Piggin <npiggin@gmail.com>
-Cc: linux-arch@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Boqun Feng <boqun.feng@gmail.com>, linux-kernel@vger.kernel.org, kvm-ppc@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Waiman Long <longman@redhat.com>, Anton Blanchard <anton@ozlabs.org>, linuxppc-dev@lists.ozlabs.org
+In-Reply-To: <CAK8P3a07G1dLC+RUBDkzDbCRCP_gwZAaVK+k1UxvXT+7Kj=o+g@mail.gmail.com>
+Sender: linux-alpha-owner@vger.kernel.org
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: Mark Rutland <mark.rutland@arm.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, Sami Tolvanen <samitolvanen@google.com>, Nick Desaulniers <ndesaulniers@google.com>, Kees Cook <keescook@chromium.org>, Marco Elver <elver@google.com>, "Paul E. McKenney" <paulmck@kernel.org>, Josh Triplett <josh@joshtriplett.org>, Matt Turner <mattst88@gmail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Richard Henderson <rth@twiddle.net>, Peter Zijlstra <peterz@infradead.org>, Alan Stern <stern@rowland.harvard.edu>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Boqun Feng <boqun.feng@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Linux ARM <linux-arm-kernel@lists.infradead.org>, alpha <linux-alpha@vger.k>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 02, 2020 at 08:47:05PM +1000, Nicholas Piggin wrote:
-> Excerpts from Will Deacon's message of July 2, 2020 8:35 pm:
-> > On Thu, Jul 02, 2020 at 08:25:43PM +1000, Nicholas Piggin wrote:
-> >> Excerpts from Will Deacon's message of July 2, 2020 6:02 pm:
-> >> > On Thu, Jul 02, 2020 at 05:48:36PM +1000, Nicholas Piggin wrote:
-> >> >> diff --git a/arch/powerpc/include/asm/qspinlock.h b/arch/powerpc/include/asm/qspinlock.h
-> >> >> new file mode 100644
-> >> >> index 000000000000..f84da77b6bb7
-> >> >> --- /dev/null
-> >> >> +++ b/arch/powerpc/include/asm/qspinlock.h
-> >> >> @@ -0,0 +1,20 @@
-> >> >> +/* SPDX-License-Identifier: GPL-2.0 */
-> >> >> +#ifndef _ASM_POWERPC_QSPINLOCK_H
-> >> >> +#define _ASM_POWERPC_QSPINLOCK_H
-> >> >> +
-> >> >> +#include <asm-generic/qspinlock_types.h>
-> >> >> +
-> >> >> +#define _Q_PENDING_LOOPS	(1 << 9) /* not tuned */
-> >> >> +
-> >> >> +#define smp_mb__after_spinlock()   smp_mb()
-> >> >> +
-> >> >> +static __always_inline int queued_spin_is_locked(struct qspinlock *lock)
-> >> >> +{
-> >> >> +	smp_mb();
-> >> >> +	return atomic_read(&lock->val);
-> >> >> +}
-> >> > 
-> >> > Why do you need the smp_mb() here?
-> >> 
-> >> A long and sad tale that ends here 51d7d5205d338
-> >> 
-> >> Should probably at least refer to that commit from here, since this one 
-> >> is not going to git blame back there. I'll add something.
-> > 
-> > Is this still an issue, though?
-> > 
-> > See 38b850a73034 (where we added a similar barrier on arm64) and then
-> > c6f5d02b6a0f (where we removed it).
-> > 
+On Thu, Jul 02, 2020 at 12:08:41PM +0200, Arnd Bergmann wrote:
+> On Thu, Jul 2, 2020 at 11:48 AM Will Deacon <will@kernel.org> wrote:
+> > On Thu, Jul 02, 2020 at 10:32:39AM +0100, Mark Rutland wrote:
+> > > On Tue, Jun 30, 2020 at 06:37:20PM +0100, Will Deacon wrote:
+> > > > -#define read_barrier_depends() __asm__ __volatile__("mb": : :"memory")
+> > > > +#define __smp_load_acquire(p)                                              \
+> > > > +({                                                                 \
+> > > > +   __unqual_scalar_typeof(*p) ___p1 =                              \
+> > > > +           (*(volatile typeof(___p1) *)(p));                       \
+> > > > +   compiletime_assert_atomic_type(*p);                             \
+> > > > +   ___p1;                                                          \
+> > > > +})
+> > >
+> > > Sorry if I'm being thick, but doesn't this need a barrier after the
+> > > volatile access to provide the acquire semantic?
+> > >
+> > > IIUC prior to this commit alpha would have used the asm-generic
+> > > __smp_load_acquire, i.e.
+> > >
+> > > | #ifndef __smp_load_acquire
+> > > | #define __smp_load_acquire(p)                                           \
+> > > | ({                                                                      \
+> > > |         __unqual_scalar_typeof(*p) ___p1 = READ_ONCE(*p);               \
+> > > |         compiletime_assert_atomic_type(*p);                             \
+> > > |         __smp_mb();                                                     \
+> > > |         (typeof(*p))___p1;                                              \
+> > > | })
+> > > | #endif
 > 
-> Oh nice, I didn't know that went away. Thanks for the heads up.
+> I also have a question that I didn't dare ask when the same
+> code came up before (I guess it's also what's in the kernel today):
 > 
-> I'm going to say I'm too scared to remove it while changing the
-> spinlock algorithm, but I'll open an issue and we should look at 
-> removing it.
+> With the cast to 'typeof(*p)' at the end, doesn't that mean we
+> lose the effect of __unqual_scalar_typeof() again, so any "volatile"
+> pointer passed into __READ_ONCE_SCALAR() or
+> __smp_load_acquire() still leads to a volatile load of the original
+> variable, plus another volatile access to ___p1 after
+> spilling it to the stack as a non-volatile variable?
 
-Makes sense to me -- it certainly needs a deeper look! In the meantime,
-please put some of this in a comment next to the barrier.
+Not sure I follow you here, but I can confirm that what you're worried
+about doesn't happen for the usual case of a pointer-to-volatile scalar.
 
-Cheers,
+For example, ignoring dependency ordering:
+
+unsigned long foo(volatile unsigned long *p)
+{
+	return smp_load_acquire(p) + 1;
+}
+
+Ends up looking like:
+
+	unsigned long ___p1 = *(const volatile unsigned long *)p;
+	smp_mb();
+	(volatile unsigned long)___p1;
+
+My understanding is that casting a non-pointer type to volatile doesn't
+do anything, so we're good.
+
+On the other hand, you can still cause the stack reload if you use volatile
+pointers to volatile:
+
+volatile unsigned long *bar(volatile unsigned long * volatile *ptr)
+{
+	return READ_ONCE(*ptr);
+}
+
+but this is pretty weird code, I think.
 
 Will
