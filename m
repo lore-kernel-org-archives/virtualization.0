@@ -1,78 +1,65 @@
-From: Will Deacon <will@kernel.org>
-Subject: Re: [PATCH 18/18] arm64: lto: Strengthen READ_ONCE() to acquire when
- CLANG_LTO=y
-Date: Thu, 2 Jul 2020 08:23:02 +0100
-Message-ID: <20200702072301.GA15963@willie-the-truck>
-References: <20200630173734.14057-1-will@kernel.org>
- <20200630173734.14057-19-will@kernel.org>
- <20200701170722.4rte5ssnmrn2uqzg@bakewell.cambridge.arm.com>
+From: Nicholas Piggin <npiggin@gmail.com>
+Subject: [PATCH 0/8] powerpc: queued spinlocks and rwlocks
+Date: Thu,  2 Jul 2020 17:48:31 +1000
+Message-ID: <20200702074839.1057733-1-npiggin@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-alpha-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200701170722.4rte5ssnmrn2uqzg@bakewell.cambridge.arm.com>
-Sender: linux-alpha-owner@vger.kernel.org
-To: Dave P Martin <dave.martin@arm.com>
-Cc: linux-kernel@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, Arnd Bergmann <arnd@arndb.de>, Alan Stern <stern@rowland.harvard.edu>, Sami Tolvanen <samitolvanen@google.com>, Matt Turner <mattst88@gmail.com>, kernel-team@android.com, Marco Elver <elver@google.com>, Kees Cook <keescook@chromium.org>, "Paul E. McKenney" <paulmck@kernel.org>, Boqun Feng <boqun.feng@gmail.com>, Josh Triplett <josh@joshtriplett.org>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-arm-kernel@lists.infradead.org, Richard Henderson <rth@twiddle.net>, Nick
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-arch-owner@vger.kernel.org>
+Sender: linux-arch-owner@vger.kernel.org
+Cc: Nicholas Piggin <npiggin@gmail.com>, Will Deacon <will@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Boqun Feng <boqun.feng@gmail.com>, Ingo Molnar <mingo@redhat.com>, Waiman Long <longman@redhat.com>, Anton Blanchard <anton@ozlabs.org>, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm-ppc@vger.kernel.org, linux-arch@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 01, 2020 at 06:07:25PM +0100, Dave P Martin wrote:
-> On Tue, Jun 30, 2020 at 06:37:34PM +0100, Will Deacon wrote:
-> > When building with LTO, there is an increased risk of the compiler
-> > converting an address dependency headed by a READ_ONCE() invocation
-> > into a control dependency and consequently allowing for harmful
-> > reordering by the CPU.
-> > 
-> > Ensure that such transformations are harmless by overriding the generic
-> > READ_ONCE() definition with one that provides acquire semantics when
-> > building with LTO.
-> > 
-> > Signed-off-by: Will Deacon <will@kernel.org>
-> > ---
-> >  arch/arm64/include/asm/rwonce.h   | 63 +++++++++++++++++++++++++++++++
-> >  arch/arm64/kernel/vdso/Makefile   |  2 +-
-> >  arch/arm64/kernel/vdso32/Makefile |  2 +-
-> >  3 files changed, 65 insertions(+), 2 deletions(-)
-> >  create mode 100644 arch/arm64/include/asm/rwonce.h
-> > 
-> > diff --git a/arch/arm64/include/asm/rwonce.h b/arch/arm64/include/asm/rwonce.h
-> > new file mode 100644
-> > index 000000000000..515e360b01a1
-> > --- /dev/null
-> > +++ b/arch/arm64/include/asm/rwonce.h
-> > @@ -0,0 +1,63 @@
-> > +/* SPDX-License-Identifier: GPL-2.0 */
-> > +/*
-> > + * Copyright (C) 2020 Google LLC.
-> > + */
-> > +#ifndef __ASM_RWONCE_H
-> > +#define __ASM_RWONCE_H
-> > +
-> > +#ifdef CONFIG_CLANG_LTO
-> 
-> Don't we have a generic option for LTO that's not specific to Clang.
+This series adds an option to use queued spinlocks for powerpc, and
+makes it the default for the Book3S-64 subarch.
 
-/me looks at the LTO series some more
+This effort starts with the generic code so it's very simple but
+still very performant. There are optimisations that can be made to
+slowpaths, but I think it's better to attack those incrementally
+if/when we find things, and try to add the improvements to generic
+code as much as possible.
 
-Oh yeah, there's CONFIG_LTO which is selected by CONFIG_LTO_CLANG, which is
-the non-typoed version of the above. I can switch this to CONFIG_LTO.
+Still in the process of getting numbers and testing, but the
+implementation turned out to be surprisingly simple and we have a
+config option, so I think we could merge it fairly soon.
 
-> Also, can you illustrate code that can only be unsafe with Clang LTO?
+Thanks,
+Nick
 
-I don't have a concrete example, but it's an ongoing concern over on the LTO
-thread [1], so I cooked this to show one way we could deal with it. The main
-concern is that the whole-program optimisations enabled by LTO may allow the
-compiler to enumerate possible values for a pointer at link time and replace
-an address dependency between two loads with a control dependency instead,
-defeating the dependency ordering within the CPU.
+Nicholas Piggin (8):
+  powerpc/powernv: must include hvcall.h to get PAPR defines
+  powerpc/pseries: use smp_rmb() in H_CONFER spin yield
+  powerpc/pseries: move some PAPR paravirt functions to their own file
+  powerpc: move spinlock implementation to simple_spinlock
+  powerpc/64s: implement queued spinlocks and rwlocks
+  powerpc/pseries: implement paravirt qspinlocks for SPLPAR
+  powerpc/qspinlock: optimised atomic_try_cmpxchg_lock that adds the
+    lock hint
+  powerpc/64s: remove paravirt from simple spinlocks (RFC only)
 
-We likely won't realise if/when this goes wrong, other than impossible to
-debug, subtle breakage that crops up seemingly randomly. Ideally, we'd be
-able to detect this sort of thing happening at build time, and perhaps
-even prevent it with compiler options or annotations, but none of that is
-close to being available and I'm keen to progress the LTO patches in the
-meantime because they are a requirement for CFI.
+ arch/powerpc/Kconfig                          |  13 +
+ arch/powerpc/include/asm/Kbuild               |   2 +
+ arch/powerpc/include/asm/atomic.h             |  28 ++
+ arch/powerpc/include/asm/paravirt.h           |  84 +++++
+ arch/powerpc/include/asm/qspinlock.h          |  75 +++++
+ arch/powerpc/include/asm/qspinlock_paravirt.h |   5 +
+ arch/powerpc/include/asm/simple_spinlock.h    | 235 +++++++++++++
+ .../include/asm/simple_spinlock_types.h       |  21 ++
+ arch/powerpc/include/asm/spinlock.h           | 308 +-----------------
+ arch/powerpc/include/asm/spinlock_types.h     |  17 +-
+ arch/powerpc/kvm/book3s_hv_rm_mmu.c           |   6 -
+ arch/powerpc/lib/Makefile                     |   1 -
+ arch/powerpc/lib/locks.c                      |  65 ----
+ arch/powerpc/platforms/powernv/pci-ioda-tce.c |   1 +
+ arch/powerpc/platforms/pseries/Kconfig        |   5 +
+ arch/powerpc/platforms/pseries/setup.c        |   6 +-
+ include/asm-generic/qspinlock.h               |   4 +
+ 17 files changed, 488 insertions(+), 388 deletions(-)
+ create mode 100644 arch/powerpc/include/asm/paravirt.h
+ create mode 100644 arch/powerpc/include/asm/qspinlock.h
+ create mode 100644 arch/powerpc/include/asm/qspinlock_paravirt.h
+ create mode 100644 arch/powerpc/include/asm/simple_spinlock.h
+ create mode 100644 arch/powerpc/include/asm/simple_spinlock_types.h
+ delete mode 100644 arch/powerpc/lib/locks.c
 
-Will
-
-[1] https://lore.kernel.org/r/20200624203200.78870-1-samitolvanen@google.com
+-- 
+2.23.0
