@@ -1,111 +1,65 @@
 From: Waiman Long <longman@redhat.com>
 Subject: Re: [PATCH 6/8] powerpc/pseries: implement paravirt qspinlocks for
  SPLPAR
-Date: Thu, 2 Jul 2020 17:01:06 -0400
-Message-ID: <6b8ccb02-53ca-35d2-0dc6-2fc8e5523a97@redhat.com>
-References: <20200702074839.1057733-1-npiggin@gmail.com>
- <20200702074839.1057733-7-npiggin@gmail.com>
+Date: Thu, 2 Jul 2020 20:36:07 -0400
+Message-ID: <3730577a-1e14-0e3e-7f7b-0c6cb68fb1f2@redhat.com>
+References: <20200702074839.1057733-7-npiggin@gmail.com>
+ <202007030059.nT5quxzB%lkp@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=windows-1252; format=flowed
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <20200702074839.1057733-7-npiggin@gmail.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <202007030059.nT5quxzB%lkp@intel.com>
 Content-Language: en-US
-Sender: linux-arch-owner@vger.kernel.org
+Sender: linux-kernel-owner@vger.kernel.org
 To: Nicholas Piggin <npiggin@gmail.com>
-Cc: Will Deacon <will@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Boqun Feng <boqun.feng@gmail.com>, Ingo Molnar <mingo@redhat.com>, Anton Blanchard <anton@ozlabs.org>, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm-ppc@vger.kernel.org, linux-arch@vger.kernel.org
+Cc: kernel test robot <lkp@intel.com>, kbuild-all@lists.01.org, Will Deacon <will@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Boqun Feng <boqun.feng@gmail.com>, Ingo Molnar <mingo@redhat.com>, Anton Blanchard <anton@ozlabs.org>, linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 7/2/20 3:48 AM, Nicholas Piggin wrote:
-> Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-> ---
->   arch/powerpc/include/asm/paravirt.h           | 23 ++++++++
->   arch/powerpc/include/asm/qspinlock.h          | 55 +++++++++++++++++++
->   arch/powerpc/include/asm/qspinlock_paravirt.h |  5 ++
->   arch/powerpc/platforms/pseries/Kconfig        |  5 ++
->   arch/powerpc/platforms/pseries/setup.c        |  6 +-
->   include/asm-generic/qspinlock.h               |  2 +
->   6 files changed, 95 insertions(+), 1 deletion(-)
->   create mode 100644 arch/powerpc/include/asm/qspinlock_paravirt.h
+On 7/2/20 12:15 PM, kernel test robot wrote:
+> Hi Nicholas,
 >
-> diff --git a/arch/powerpc/include/asm/paravirt.h b/arch/powerpc/include/asm/paravirt.h
-> index 7a8546660a63..5fae9dfa6fe9 100644
-> --- a/arch/powerpc/include/asm/paravirt.h
-> +++ b/arch/powerpc/include/asm/paravirt.h
-> @@ -29,6 +29,16 @@ static inline void yield_to_preempted(int cpu, u32 yield_count)
->   {
->   	plpar_hcall_norets(H_CONFER, get_hard_smp_processor_id(cpu), yield_count);
->   }
-> +
-> +static inline void prod_cpu(int cpu)
-> +{
-> +	plpar_hcall_norets(H_PROD, get_hard_smp_processor_id(cpu));
-> +}
-> +
-> +static inline void yield_to_any(void)
-> +{
-> +	plpar_hcall_norets(H_CONFER, -1, 0);
-> +}
->   #else
->   static inline bool is_shared_processor(void)
->   {
-> @@ -45,6 +55,19 @@ static inline void yield_to_preempted(int cpu, u32 yield_count)
->   {
->   	___bad_yield_to_preempted(); /* This would be a bug */
->   }
-> +
-> +extern void ___bad_yield_to_any(void);
-> +static inline void yield_to_any(void)
-> +{
-> +	___bad_yield_to_any(); /* This would be a bug */
-> +}
-> +
-> +extern void ___bad_prod_cpu(void);
-> +static inline void prod_cpu(int cpu)
-> +{
-> +	___bad_prod_cpu(); /* This would be a bug */
-> +}
-> +
->   #endif
->   
->   #define vcpu_is_preempted vcpu_is_preempted
-> diff --git a/arch/powerpc/include/asm/qspinlock.h b/arch/powerpc/include/asm/qspinlock.h
-> index f84da77b6bb7..997a9a32df77 100644
-> --- a/arch/powerpc/include/asm/qspinlock.h
-> +++ b/arch/powerpc/include/asm/qspinlock.h
-> @@ -3,9 +3,36 @@
->   #define _ASM_POWERPC_QSPINLOCK_H
->   
->   #include <asm-generic/qspinlock_types.h>
-> +#include <asm/paravirt.h>
->   
->   #define _Q_PENDING_LOOPS	(1 << 9) /* not tuned */
->   
-> +#ifdef CONFIG_PARAVIRT_SPINLOCKS
-> +extern void native_queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
-> +extern void __pv_queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
-> +
-> +static __always_inline void queued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
-> +{
-> +	if (!is_shared_processor())
-> +		native_queued_spin_lock_slowpath(lock, val);
-> +	else
-> +		__pv_queued_spin_lock_slowpath(lock, val);
-> +}
+> I love your patch! Yet something to improve:
+>
+> [auto build test ERROR on powerpc/next]
+> [also build test ERROR on tip/locking/core v5.8-rc3 next-20200702]
+> [If your patch is applied to the wrong git tree, kindly drop us a note.
+> And when submitting patch, we suggest to use  as documented in
+> https://git-scm.com/docs/git-format-patch]
+>
+> url:    https://github.com/0day-ci/linux/commits/Nicholas-Piggin/powerpc-queued-spinlocks-and-rwlocks/20200702-155158
+> base:   https://git.kernel.org/pub/scm/linux/kernel/git/powerpc/linux.git next
+> config: powerpc-allyesconfig (attached as .config)
+> compiler: powerpc64-linux-gcc (GCC) 9.3.0
+> reproduce (this is a W=1 build):
+>          wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+>          chmod +x ~/bin/make.cross
+>          # save the attached .config to linux build tree
+>          COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-9.3.0 make.cross ARCH=powerpc
+>
+> If you fix the issue, kindly add following tag as appropriate
+> Reported-by: kernel test robot <lkp@intel.com>
+>
+> All errors (new ones prefixed by >>):
+>
+>     kernel/locking/lock_events.c:61:16: warning: no previous prototype for 'lockevent_read' [-Wmissing-prototypes]
+>        61 | ssize_t __weak lockevent_read(struct file *file, char __user *user_buf,
+>           |                ^~~~~~~~~~~~~~
+>     kernel/locking/lock_events.c: In function 'skip_lockevent':
+>>> kernel/locking/lock_events.c:126:12: error: implicit declaration of function 'pv_is_native_spin_unlock' [-Werror=implicit-function-declaration]
+>       126 |   pv_on = !pv_is_native_spin_unlock();
+>           |            ^~~~~~~~~~~~~~~~~~~~~~~~
+>     cc1: some warnings being treated as errors
+>
+> vim +/pv_is_native_spin_unlock +126 kernel/locking/lock_events.c
 
-You may need to match the use of __pv_queued_spin_lock_slowpath() with 
-the corresponding __pv_queued_spin_unlock(), e.g.
+I think you will need to add the following into 
+arch/powerpc/include/asm/qspinlock_paravirt.h:
 
-#define queued_spin_unlock queued_spin_unlock
-static inline queued_spin_unlock(struct qspinlock *lock)
+static inline pv_is_native_spin_unlock(void)
 {
-         if (!is_shared_processor())
-                 smp_store_release(&lock->locked, 0);
-         else
-                 __pv_queued_spin_unlock(lock);
+ ��� return !is_shared_processor();
 }
-
-Otherwise, pv_kick() will never be called.
 
 Cheers,
 Longman
