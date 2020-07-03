@@ -1,202 +1,300 @@
-From: Kishon Vijay Abraham I <kishon@ti.com>
-Subject: Re: [RFC PATCH 00/22] Enhance VHOST to enable SoC-to-SoC
- communication
-Date: Fri, 3 Jul 2020 11:47:57 +0530
-Message-ID: <9e4703f9-cf02-7aa1-1785-8cbd6ca4b26d@ti.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [RFC PATCH 00/22] Enhance VHOST to enable SoC-to-SoC communication
+Date: Fri, 3 Jul 2020 15:16:09 +0800
+Message-ID: <59fd6a0b-8566-44b7-3dae-bb52b468219b@redhat.com>
 References: <20200702082143.25259-1-kishon@ti.com>
  <20200702055026-mutt-send-email-mst@kernel.org>
- <CANLsYky4ZrgYGZUyg4iVwbM3TQk5dvOSBwPFER8qofixjn4vyA@mail.gmail.com>
+ <603970f5-3289-cd53-82a9-aa62b292c552@redhat.com>
+ <14c6cad7-9361-7fa4-e1c6-715ccc7e5f6b@ti.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-doc-owner@vger.kernel.org>
-In-Reply-To: <CANLsYky4ZrgYGZUyg4iVwbM3TQk5dvOSBwPFER8qofixjn4vyA@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <14c6cad7-9361-7fa4-e1c6-715ccc7e5f6b@ti.com>
 Content-Language: en-US
-Sender: linux-doc-owner@vger.kernel.org
-To: Mathieu Poirier <mathieu.poirier@linaro.org>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Ohad Ben-Cohen <ohad@wizery.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Jon Mason <jdmason@kudzu.us>, Dave Jiang <dave.jiang@intel.com>, Allen Hubbe <allenbh@gmail.com>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Bjorn Helgaas <bhelgaas@google.com>, Jason Wang <jasowang@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, linux-remoteproc <linux-remoteproc@vger.kernel.org>, linux-ntb@googlegroups.com, linux-pci@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, Alan Mikhak <alanmikhak@gmail.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Kishon Vijay Abraham I <kishon@ti.com>
+Cc: Ohad Ben-Cohen <ohad@wizery.com>, Allen Hubbe <allenbh@gmail.com>, Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>, Dave Jiang <dave.jiang@intel.com>, kvm@vger.kernel.org, linux-ntb@googlegroups.com, "Michael S. Tsirkin" <mst@redhat.com>, linux-pci@vger.kernel.org, linux-doc@vger.kernel.org, linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org, Bjorn Andersson <bjorn.andersson@linaro.org>, netdev@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, Jon Mason <jdmason@kudzu.us>, Bjorn Helgaas <bhelgaas@google.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-+Alan, Haotian
-
-On 7/2/2020 11:01 PM, Mathieu Poirier wrote:
-> On Thu, 2 Jul 2020 at 03:51, Michael S. Tsirkin <mst@redhat.com> wrote:
->>
->> On Thu, Jul 02, 2020 at 01:51:21PM +0530, Kishon Vijay Abraham I wrote:
->>> This series enhances Linux Vhost support to enable SoC-to-SoC
->>> communication over MMIO. This series enables rpmsg communication between
->>> two SoCs using both PCIe RC<->EP and HOST1-NTB-HOST2
->>>
->>> 1) Modify vhost to use standard Linux driver model
->>> 2) Add support in vring to access virtqueue over MMIO
->>> 3) Add vhost client driver for rpmsg
->>> 4) Add PCIe RC driver (uses virtio) and PCIe EP driver (uses vhost) for
->>>    rpmsg communication between two SoCs connected to each other
->>> 5) Add NTB Virtio driver and NTB Vhost driver for rpmsg communication
->>>    between two SoCs connected via NTB
->>> 6) Add configfs to configure the components
->>>
->>> UseCase1 :
->>>
->>>  VHOST RPMSG                     VIRTIO RPMSG
->>>       +                               +
->>>       |                               |
->>>       |                               |
->>>       |                               |
->>>       |                               |
->>> +-----v------+                 +------v-------+
->>> |   Linux    |                 |     Linux    |
->>> |  Endpoint  |                 | Root Complex |
->>> |            <----------------->              |
->>> |            |                 |              |
->>> |    SOC1    |                 |     SOC2     |
->>> +------------+                 +--------------+
->>>
->>> UseCase 2:
->>>
->>>      VHOST RPMSG                                      VIRTIO RPMSG
->>>           +                                                 +
->>>           |                                                 |
->>>           |                                                 |
->>>           |                                                 |
->>>           |                                                 |
->>>    +------v------+                                   +------v------+
->>>    |             |                                   |             |
->>>    |    HOST1    |                                   |    HOST2    |
->>>    |             |                                   |             |
->>>    +------^------+                                   +------^------+
->>>           |                                                 |
->>>           |                                                 |
->>> +---------------------------------------------------------------------+
->>> |  +------v------+                                   +------v------+  |
->>> |  |             |                                   |             |  |
->>> |  |     EP      |                                   |     EP      |  |
->>> |  | CONTROLLER1 |                                   | CONTROLLER2 |  |
->>> |  |             <----------------------------------->             |  |
->>> |  |             |                                   |             |  |
->>> |  |             |                                   |             |  |
->>> |  |             |  SoC With Multiple EP Instances   |             |  |
->>> |  |             |  (Configured using NTB Function)  |             |  |
->>> |  +-------------+                                   +-------------+  |
->>> +---------------------------------------------------------------------+
->>>
->>> Software Layering:
->>>
->>> The high-level SW layering should look something like below. This series
->>> adds support only for RPMSG VHOST, however something similar should be
->>> done for net and scsi. With that any vhost device (PCI, NTB, Platform
->>> device, user) can use any of the vhost client driver.
->>>
->>>
->>>     +----------------+  +-----------+  +------------+  +----------+
->>>     |  RPMSG VHOST   |  | NET VHOST |  | SCSI VHOST |  |    X     |
->>>     +-------^--------+  +-----^-----+  +-----^------+  +----^-----+
->>>             |                 |              |              |
->>>             |                 |              |              |
->>>             |                 |              |              |
->>> +-----------v-----------------v--------------v--------------v----------+
->>> |                            VHOST CORE                                |
->>> +--------^---------------^--------------------^------------------^-----+
->>>          |               |                    |                  |
->>>          |               |                    |                  |
->>>          |               |                    |                  |
->>> +--------v-------+  +----v------+  +----------v----------+  +----v-----+
->>> |  PCI EPF VHOST |  | NTB VHOST |  |PLATFORM DEVICE VHOST|  |    X     |
->>> +----------------+  +-----------+  +---------------------+  +----------+
->>>
->>> This was initially proposed here [1]
->>>
->>> [1] -> https://lore.kernel.org/r/2cf00ec4-1ed6-f66e-6897-006d1a5b6390@ti.com
->>
->>
->> I find this very interesting. A huge patchset so will take a bit
->> to review, but I certainly plan to do that. Thanks!
-> 
-> Same here - it will take time.  This patchset is sizable and sits
-> behind a few others that are equally big.
-> 
->>
->>>
->>> Kishon Vijay Abraham I (22):
->>>   vhost: Make _feature_ bits a property of vhost device
->>>   vhost: Introduce standard Linux driver model in VHOST
->>>   vhost: Add ops for the VHOST driver to configure VHOST device
->>>   vringh: Add helpers to access vring in MMIO
->>>   vhost: Add MMIO helpers for operations on vhost virtqueue
->>>   vhost: Introduce configfs entry for configuring VHOST
->>>   virtio_pci: Use request_threaded_irq() instead of request_irq()
->>>   rpmsg: virtio_rpmsg_bus: Disable receive virtqueue callback when
->>>     reading messages
->>>   rpmsg: Introduce configfs entry for configuring rpmsg
->>>   rpmsg: virtio_rpmsg_bus: Add Address Service Notification support
->>>   rpmsg: virtio_rpmsg_bus: Move generic rpmsg structure to
->>>     rpmsg_internal.h
->>>   virtio: Add ops to allocate and free buffer
->>>   rpmsg: virtio_rpmsg_bus: Use virtio_alloc_buffer() and
->>>     virtio_free_buffer()
->>>   rpmsg: Add VHOST based remote processor messaging bus
->>>   samples/rpmsg: Setup delayed work to send message
->>>   samples/rpmsg: Wait for address to be bound to rpdev for sending
->>>     message
->>>   rpmsg.txt: Add Documentation to configure rpmsg using configfs
->>>   virtio_pci: Add VIRTIO driver for VHOST on Configurable PCIe Endpoint
->>>     device
->>>   PCI: endpoint: Add EP function driver to provide VHOST interface
->>>   NTB: Add a new NTB client driver to implement VIRTIO functionality
->>>   NTB: Add a new NTB client driver to implement VHOST functionality
->>>   NTB: Describe the ntb_virtio and ntb_vhost client in the documentation
->>>
->>>  Documentation/driver-api/ntb.rst              |   11 +
->>>  Documentation/rpmsg.txt                       |   56 +
->>>  drivers/ntb/Kconfig                           |   18 +
->>>  drivers/ntb/Makefile                          |    2 +
->>>  drivers/ntb/ntb_vhost.c                       |  776 +++++++++++
->>>  drivers/ntb/ntb_virtio.c                      |  853 ++++++++++++
->>>  drivers/ntb/ntb_virtio.h                      |   56 +
->>>  drivers/pci/endpoint/functions/Kconfig        |   11 +
->>>  drivers/pci/endpoint/functions/Makefile       |    1 +
->>>  .../pci/endpoint/functions/pci-epf-vhost.c    | 1144 ++++++++++++++++
->>>  drivers/rpmsg/Kconfig                         |   10 +
->>>  drivers/rpmsg/Makefile                        |    3 +-
->>>  drivers/rpmsg/rpmsg_cfs.c                     |  394 ++++++
->>>  drivers/rpmsg/rpmsg_core.c                    |    7 +
->>>  drivers/rpmsg/rpmsg_internal.h                |  136 ++
->>>  drivers/rpmsg/vhost_rpmsg_bus.c               | 1151 +++++++++++++++++
->>>  drivers/rpmsg/virtio_rpmsg_bus.c              |  184 ++-
->>>  drivers/vhost/Kconfig                         |    1 +
->>>  drivers/vhost/Makefile                        |    2 +-
->>>  drivers/vhost/net.c                           |   10 +-
->>>  drivers/vhost/scsi.c                          |   24 +-
->>>  drivers/vhost/test.c                          |   17 +-
->>>  drivers/vhost/vdpa.c                          |    2 +-
->>>  drivers/vhost/vhost.c                         |  730 ++++++++++-
->>>  drivers/vhost/vhost_cfs.c                     |  341 +++++
->>>  drivers/vhost/vringh.c                        |  332 +++++
->>>  drivers/vhost/vsock.c                         |   20 +-
->>>  drivers/virtio/Kconfig                        |    9 +
->>>  drivers/virtio/Makefile                       |    1 +
->>>  drivers/virtio/virtio_pci_common.c            |   25 +-
->>>  drivers/virtio/virtio_pci_epf.c               |  670 ++++++++++
->>>  include/linux/mod_devicetable.h               |    6 +
->>>  include/linux/rpmsg.h                         |    6 +
->>>  {drivers/vhost => include/linux}/vhost.h      |  132 +-
->>>  include/linux/virtio.h                        |    3 +
->>>  include/linux/virtio_config.h                 |   42 +
->>>  include/linux/vringh.h                        |   46 +
->>>  samples/rpmsg/rpmsg_client_sample.c           |   32 +-
->>>  tools/virtio/virtio_test.c                    |    2 +-
->>>  39 files changed, 7083 insertions(+), 183 deletions(-)
->>>  create mode 100644 drivers/ntb/ntb_vhost.c
->>>  create mode 100644 drivers/ntb/ntb_virtio.c
->>>  create mode 100644 drivers/ntb/ntb_virtio.h
->>>  create mode 100644 drivers/pci/endpoint/functions/pci-epf-vhost.c
->>>  create mode 100644 drivers/rpmsg/rpmsg_cfs.c
->>>  create mode 100644 drivers/rpmsg/vhost_rpmsg_bus.c
->>>  create mode 100644 drivers/vhost/vhost_cfs.c
->>>  create mode 100644 drivers/virtio/virtio_pci_epf.c
->>>  rename {drivers/vhost => include/linux}/vhost.h (66%)
->>>
->>> --
->>> 2.17.1
->>>
->>
+Ck9uIDIwMjAvNy8yIOS4i+WNiDk6MzUsIEtpc2hvbiBWaWpheSBBYnJhaGFtIEkgd3JvdGU6Cj4g
+SGkgSmFzb24sCj4KPiBPbiA3LzIvMjAyMCAzOjQwIFBNLCBKYXNvbiBXYW5nIHdyb3RlOgo+PiBP
+biAyMDIwLzcvMiDkuIvljYg1OjUxLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4+PiBPbiBU
+aHUsIEp1bCAwMiwgMjAyMCBhdCAwMTo1MToyMVBNICswNTMwLCBLaXNob24gVmlqYXkgQWJyYWhh
+bSBJIHdyb3RlOgo+Pj4+IFRoaXMgc2VyaWVzIGVuaGFuY2VzIExpbnV4IFZob3N0IHN1cHBvcnQg
+dG8gZW5hYmxlIFNvQy10by1Tb0MKPj4+PiBjb21tdW5pY2F0aW9uIG92ZXIgTU1JTy4gVGhpcyBz
+ZXJpZXMgZW5hYmxlcyBycG1zZyBjb21tdW5pY2F0aW9uIGJldHdlZW4KPj4+PiB0d28gU29DcyB1
+c2luZyBib3RoIFBDSWUgUkM8LT5FUCBhbmQgSE9TVDEtTlRCLUhPU1QyCj4+Pj4KPj4+PiAxKSBN
+b2RpZnkgdmhvc3QgdG8gdXNlIHN0YW5kYXJkIExpbnV4IGRyaXZlciBtb2RlbAo+Pj4+IDIpIEFk
+ZCBzdXBwb3J0IGluIHZyaW5nIHRvIGFjY2VzcyB2aXJ0cXVldWUgb3ZlciBNTUlPCj4+Pj4gMykg
+QWRkIHZob3N0IGNsaWVudCBkcml2ZXIgZm9yIHJwbXNnCj4+Pj4gNCkgQWRkIFBDSWUgUkMgZHJp
+dmVyICh1c2VzIHZpcnRpbykgYW5kIFBDSWUgRVAgZHJpdmVyICh1c2VzIHZob3N0KSBmb3IKPj4+
+PiAgwqDCoMKgIHJwbXNnIGNvbW11bmljYXRpb24gYmV0d2VlbiB0d28gU29DcyBjb25uZWN0ZWQg
+dG8gZWFjaCBvdGhlcgo+Pj4+IDUpIEFkZCBOVEIgVmlydGlvIGRyaXZlciBhbmQgTlRCIFZob3N0
+IGRyaXZlciBmb3IgcnBtc2cgY29tbXVuaWNhdGlvbgo+Pj4+ICDCoMKgwqAgYmV0d2VlbiB0d28g
+U29DcyBjb25uZWN0ZWQgdmlhIE5UQgo+Pj4+IDYpIEFkZCBjb25maWdmcyB0byBjb25maWd1cmUg
+dGhlIGNvbXBvbmVudHMKPj4+Pgo+Pj4+IFVzZUNhc2UxIDoKPj4+Pgo+Pj4+ICDCoCBWSE9TVCBS
+UE1TR8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgVklSVElPIFJQTVNH
+Cj4+Pj4gIMKgwqDCoMKgwqDCoCArwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgICsKPj4+PiAgwqDCoMKgwqDCoMKgIHzCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfAo+Pj4+
+ICDCoMKgwqDCoMKgwqAgfMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoCB8Cj4+Pj4gIMKgwqDCoMKgwqDCoCB8wqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHwKPj4+PiAgwqDC
+oMKgwqDCoMKgIHzCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqAgfAo+Pj4+ICstLS0tLXYtLS0tLS0rwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqAgKy0tLS0tLXYtLS0tLS0tKwo+Pj4+IHzCoMKgIExpbnV4wqDCoMKgIHzCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqDCoMKgwqAgTGludXjCoMKgwqAgfAo+Pj4+
+IHzCoCBFbmRwb2ludMKgIHzCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8IFJvb3Qg
+Q29tcGxleCB8Cj4+Pj4gfMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgPC0tLS0tLS0tLS0tLS0tLS0t
+PsKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHwKPj4+PiB8wqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oCB8wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgIHwKPj4+PiB8wqDCoMKgIFNPQzHCoMKgwqAgfMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgIHzCoMKgwqDCoCBTT0MywqDCoMKgwqAgfAo+Pj4+ICstLS0tLS0tLS0tLS0rwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgKy0tLS0tLS0tLS0tLS0tKwo+Pj4+Cj4+Pj4g
+VXNlQ2FzZSAyOgo+Pj4+Cj4+Pj4gIMKgwqDCoMKgwqAgVkhPU1QgUlBNU0fCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoCBWSVJUSU8gUlBNU0cKPj4+PiAgwqDCoMKgwqDCoMKgwqDCoMKgwqAgK8KgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCArCj4+Pj4gIMKgwqDCoMKgwqDCoMKgwqDCoMKg
+IHzCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfAo+Pj4+ICDCoMKgwqDC
+oMKgwqDCoMKgwqDCoCB8wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHwK
+Pj4+PiAgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoCB8Cj4+Pj4gIMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfAo+Pj4+ICDCoMKgwqAgKy0tLS0tLXYtLS0tLS0rwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqAgKy0tLS0tLXYtLS0tLS0rCj4+Pj4gIMKgwqDCoCB8wqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgIHzCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoCB8wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHwKPj4+PiAgwqDC
+oMKgIHzCoMKgwqAgSE9TVDHCoMKgwqAgfMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoMKgwqAgSE9TVDLCoMKgwqAg
+fAo+Pj4+ICDCoMKgwqAgfMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8Cj4+Pj4gIMKgwqDCoCArLS0tLS0tXi0tLS0tLSvCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoCArLS0tLS0tXi0tLS0tLSsKPj4+PiAgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8Cj4+Pj4gIMKgwqDCoMKgwqDCoMKg
+wqDCoMKgIHzCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfAo+Pj4+ICst
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0rCj4+Pj4gfMKgICstLS0tLS12LS0tLS0tK8KgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgICstLS0tLS12
+LS0tLS0tK8KgIHwKPj4+PiB8wqAgfMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqAgfMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAgfAo+Pj4+IHzCoCB8wqDCoMKgwqAgRVDC
+oMKgwqDCoMKgIHzCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqDCoMKgwqAgRVDCoMKgwqDCoMKgIHzCoCB8Cj4+Pj4g
+fMKgIHwgQ09OVFJPTExFUjEgfMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHwgQ09OVFJPTExFUjIgfMKgIHwKPj4+PiB8
+wqAgfMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCA8LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCB8Cj4+Pj4gfMKgIHzCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqAgfMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAg
+fMKgIHwKPj4+PiB8wqAgfMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqAgfAo+Pj4+IHzCoCB8wqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgIHzCoCBTb0MgV2l0aCBNdWx0aXBsZSBFUCBJbnN0YW5jZXPCoMKgIHzCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqAgfMKgIHwKPj4+PiB8wqAgfMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8
+wqAgKENvbmZpZ3VyZWQgdXNpbmcgTlRCIEZ1bmN0aW9uKcKgIHzCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqAgfMKgIHwKPj4+PiB8wqAgKy0tLS0tLS0tLS0tLS0rwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgKy0tLS0tLS0t
+LS0tLS0rwqAgfAo+Pj4+ICstLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0rCj4+Pj4KPj4+PiBTb2Z0d2FyZSBMYXllcmlu
+ZzoKPj4+Pgo+Pj4+IFRoZSBoaWdoLWxldmVsIFNXIGxheWVyaW5nIHNob3VsZCBsb29rIHNvbWV0
+aGluZyBsaWtlIGJlbG93LiBUaGlzIHNlcmllcwo+Pj4+IGFkZHMgc3VwcG9ydCBvbmx5IGZvciBS
+UE1TRyBWSE9TVCwgaG93ZXZlciBzb21ldGhpbmcgc2ltaWxhciBzaG91bGQgYmUKPj4+PiBkb25l
+IGZvciBuZXQgYW5kIHNjc2kuIFdpdGggdGhhdCBhbnkgdmhvc3QgZGV2aWNlIChQQ0ksIE5UQiwg
+UGxhdGZvcm0KPj4+PiBkZXZpY2UsIHVzZXIpIGNhbiB1c2UgYW55IG9mIHRoZSB2aG9zdCBjbGll
+bnQgZHJpdmVyLgo+Pj4+Cj4+Pj4KPj4+PiAgwqDCoMKgwqAgKy0tLS0tLS0tLS0tLS0tLS0rwqAg
+Ky0tLS0tLS0tLS0tK8KgICstLS0tLS0tLS0tLS0rwqAgKy0tLS0tLS0tLS0rCj4+Pj4gIMKgwqDC
+oMKgIHzCoCBSUE1TRyBWSE9TVMKgwqAgfMKgIHwgTkVUIFZIT1NUIHzCoCB8IFNDU0kgVkhPU1Qg
+fMKgIHzCoMKgwqAgWMKgwqDCoMKgIHwKPj4+PiAgwqDCoMKgwqAgKy0tLS0tLS1eLS0tLS0tLS0r
+wqAgKy0tLS0tXi0tLS0tK8KgICstLS0tLV4tLS0tLS0rwqAgKy0tLS1eLS0tLS0rCj4+Pj4gIMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAg
+fMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8
+Cj4+Pj4gIMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqAgfMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoCB8Cj4+Pj4gIMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqAgfMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoCB8Cj4+Pj4gKy0tLS0tLS0tLS0tdi0tLS0tLS0tLS0tLS0tLS0tdi0t
+LS0tLS0tLS0tLS0tdi0tLS0tLS0tLS0tLS0tdi0tLS0tLS0tLS0rCj4+Pj4gfMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBWSE9TVCBDT1JFwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqAgfAo+Pj4+ICstLS0tLS0tLV4tLS0tLS0tLS0tLS0tLS1eLS0tLS0tLS0tLS0tLS0tLS0tLS1e
+LS0tLS0tLS0tLS0tLS0tLS0tXi0tLS0tKwo+Pj4+ICDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgIHzCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHwKPj4+PiAgwqDCoMKg
+wqDCoMKgwqDCoMKgIHzCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoCB8Cj4+Pj4gIMKgwqDCoMKgwqDCoMKgwqDCoCB8wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoCB8wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfAo+Pj4+ICstLS0tLS0tLXYtLS0tLS0tK8KgICstLS0t
+di0tLS0tLSvCoCArLS0tLS0tLS0tLXYtLS0tLS0tLS0tK8KgICstLS0tdi0tLS0tKwo+Pj4+IHzC
+oCBQQ0kgRVBGIFZIT1NUIHzCoCB8IE5UQiBWSE9TVCB8wqAgfFBMQVRGT1JNIERFVklDRSBWSE9T
+VHzCoCB8wqDCoMKgIFjCoMKgwqDCoCB8Cj4+Pj4gKy0tLS0tLS0tLS0tLS0tLS0rwqAgKy0tLS0t
+LS0tLS0tK8KgICstLS0tLS0tLS0tLS0tLS0tLS0tLS0rwqAgKy0tLS0tLS0tLS0rCj4+Pj4KPj4+
+PiBUaGlzIHdhcyBpbml0aWFsbHkgcHJvcG9zZWQgaGVyZSBbMV0KPj4+Pgo+Pj4+IFsxXSAtPiBo
+dHRwczovL2xvcmUua2VybmVsLm9yZy9yLzJjZjAwZWM0LTFlZDYtZjY2ZS02ODk3LTAwNmQxYTVi
+NjM5MEB0aS5jb20KPj4+IEkgZmluZCB0aGlzIHZlcnkgaW50ZXJlc3RpbmcuIEEgaHVnZSBwYXRj
+aHNldCBzbyB3aWxsIHRha2UgYSBiaXQKPj4+IHRvIHJldmlldywgYnV0IEkgY2VydGFpbmx5IHBs
+YW4gdG8gZG8gdGhhdC4gVGhhbmtzIQo+Pgo+PiBZZXMsIGl0IHdvdWxkIGJlIGJldHRlciBpZiB0
+aGVyZSdzIGEgZ2l0IGJyYW5jaCBmb3IgdXMgdG8gaGF2ZSBhIGxvb2suCj4gSSd2ZSBwdXNoZWQg
+dGhlIGJyYW5jaAo+IGh0dHBzOi8vZ2l0aHViLmNvbS9raXNob24vbGludXgtd2lwLmdpdCB2aG9z
+dF9ycG1zZ19wY2lfbnRiX3JmYwoKClRoYW5rcwoKCj4+IEJ0dywgSSdtIG5vdCBzdXJlIEkgZ2V0
+IHRoZSBiaWcgcGljdHVyZSwgYnV0IEkgdmFndWVseSBmZWVsIHNvbWUgb2YgdGhlIHdvcmsgaXMK
+Pj4gZHVwbGljYXRlZCB3aXRoIHZEUEEgKGUuZyB0aGUgZXBmIHRyYW5zcG9ydCBvciB2aG9zdCBi
+dXMpLgo+IFRoaXMgaXMgYWJvdXQgY29ubmVjdGluZyB0d28gZGlmZmVyZW50IEhXIHN5c3RlbXMg
+Ym90aCBydW5uaW5nIExpbnV4IGFuZAo+IGRvZXNuJ3QgbmVjZXNzYXJpbHkgaW52b2x2ZSB2aXJ0
+dWFsaXphdGlvbi4KCgpSaWdodCwgdGhpcyBpcyBzb21ldGhpbmcgc2ltaWxhciB0byBWT1AgCihE
+b2N1bWVudGF0aW9uL21pc2MtZGV2aWNlcy9taWMvbWljX292ZXJ2aWV3LnJzdCkuIFRoZSBkaWZm
+ZXJlbnQgaXMgdGhlIApoYXJkd2FyZSBJIGd1ZXNzIGFuZCBWT1AgdXNlIHVzZXJzcGFjZSBhcHBs
+aWNhdGlvbiB0byBpbXBsZW1lbnQgdGhlIGRldmljZS4KCgo+ICAgU28gdGhlcmUgaXMgbm8gZ3Vl
+c3Qgb3IgaG9zdCBhcyBpbgo+IHZpcnR1YWxpemF0aW9uIGJ1dCB0d28gZW50aXJlbHkgZGlmZmVy
+ZW50IHN5c3RlbXMgY29ubmVjdGVkIHZpYSBQQ0llIGNhYmxlLCBvbmUKPiBhY3RpbmcgYXMgZ3Vl
+c3QgYW5kIG9uZSBhcyBob3N0LiBTbyBvbmUgc3lzdGVtIHdpbGwgcHJvdmlkZSB2aXJ0aW8KPiBm
+dW5jdGlvbmFsaXR5IHJlc2VydmluZyBtZW1vcnkgZm9yIHZpcnRxdWV1ZXMgYW5kIHRoZSBvdGhl
+ciBwcm92aWRlcyB2aG9zdAo+IGZ1bmN0aW9uYWxpdHkgcHJvdmlkaW5nIGEgd2F5IHRvIGFjY2Vz
+cyB0aGUgdmlydHF1ZXVlcyBpbiB2aXJ0aW8gbWVtb3J5LiBPbmUgaXMKPiBzb3VyY2UgYW5kIHRo
+ZSBvdGhlciBpcyBzaW5rIGFuZCB0aGVyZSBpcyBubyBpbnRlcm1lZGlhdGUgZW50aXR5LiAodmhv
+c3Qgd2FzCj4gcHJvYmFibHkgaW50ZXJtZWRpYXRlIGVudGl0eSBpbiB2aXJ0dWFsaXphdGlvbj8p
+CgoKKE5vdCBhIG5hdGl2ZSBFbmdsaXNoIHNwZWFrZXIpIGJ1dCAidmhvc3QiIGNvdWxkIGludHJv
+ZHVjZSBzb21lIApjb25mdXNpb24gZm9yIG1lIHNpbmNlIGl0IHdhcyB1c2UgZm9yIGltcGxlbWVu
+dGluZyB2aXJ0aW8gYmFja2VuZCBmb3IgCnVzZXJzcGFjZSBkcml2ZXJzLiBJIGd1ZXNzICJ2cmlu
+Z2giIGNvdWxkIGJlIGJldHRlci4KCgo+Cj4+IEhhdmUgeW91IGNvbnNpZGVyZWQgdG8gaW1wbGVt
+ZW50IHRoZXNlIHRocm91Z2ggdkRQQT8KPiBJSVVDIHZEUEEgb25seSBwcm92aWRlcyBhbiBpbnRl
+cmZhY2UgdG8gdXNlcnNwYWNlIGFuZCBhbiBpbi1rZXJuZWwgcnBtc2cgZHJpdmVyCj4gb3Igdmhv
+c3QgbmV0IGRyaXZlciBpcyBub3QgcHJvdmlkZWQuCj4KPiBUaGUgSFcgY29ubmVjdGlvbiBsb29r
+cyBzb21ldGhpbmcgbGlrZSBodHRwczovL3Bhc3RlYm9hcmQuY28vSmZNVlZIQy5qcGcKPiAodXNl
+Y2FzZTIgYWJvdmUpLAoKCkkgc2VlLgoKCj4gICBhbGwgdGhlIGJvYXJkcyBydW4gTGludXguIFRo
+ZSBtaWRkbGUgYm9hcmQgcHJvdmlkZXMgTlRCCj4gZnVuY3Rpb25hbGl0eSBhbmQgYm9hcmQgb24g
+ZWl0aGVyIHNpZGUgcHJvdmlkZXMgdmlydGlvL3Zob3N0IGZ1bmN0aW9uYWxpdHkgYW5kCj4gdHJh
+bnNmZXIgZGF0YSB1c2luZyBycG1zZy4KCgpTbyBJIHdvbmRlciB3aGV0aGVyIGl0J3Mgd29ydGh3
+aGlsZSBmb3IgYSBuZXcgYnVzLiBDYW4gd2UgdXNlIHRoZSAKZXhpc3RlZCB2aXJ0aW8tYnVzL2Ry
+aXZlcnM/IEl0IG1pZ2h0IHdvcmsgYXMsIGV4Y2VwdCBmb3IgdGhlIGVwZiAKdHJhbnNwb3J0LCB3
+ZSBjYW4gaW50cm9kdWNlIGEgZXBmICJ2aG9zdCIgdHJhbnNwb3J0IGRyaXZlci4KCkl0IHdpbGwg
+aGF2ZSB2aXJ0cXVldWVzIGJ1dCBvbmx5IHVzZWQgZm9yIHRoZSBjb21tdW5pY2F0aW9uIGJldHdl
+ZW4gCml0c2VsZiBhbmQgdXBwdGVyIHZpcnRpbyBkcml2ZXIuIEFuZCBpdCB3aWxsIGhhdmUgdnJp
+bmdoIHF1ZXVlcyB3aGljaCAKd2lsbCBiZSBwcm9iZSBieSB2aXJ0aW8gZXBmIHRyYW5zcG9ydCBk
+cml2ZXJzLiBBbmQgaXQgbmVlZHMgdG8gZG8gCmRhdGFjb3B5IGJldHdlZW4gdmlydHF1ZXVlIGFu
+ZCB2cmluZ2ggcXVldWVzLgoKSXQgd29ya3MgbGlrZToKCnZpcnRpbyBkcml2ZXJzIDwtIHZpcnRx
+dWV1ZS92aXJ0aW8tYnVzIC0+IGVwZiB2aG9zdCBkcml2ZXJzIDwtIHZyaW5naCAKcXVldWUvZXBm
+PgoKVGhlIGFkdmFudGFnZXMgaXMgdGhhdCB0aGVyZSdzIG5vIG5lZWQgZm9yIHdyaXRpbmcgbmV3
+IGJ1c2VzIGFuZCBkcml2ZXJzLgoKRG9lcyB0aGlzIG1ha2Ugc2Vuc2U/CgpUaGFua3MKCgo+Cj4g
+VGhhbmtzCj4gS2lzaG9uCj4KPj4gVGhhbmtzCj4+Cj4+Cj4+Pj4gS2lzaG9uIFZpamF5IEFicmFo
+YW0gSSAoMjIpOgo+Pj4+ICDCoMKgIHZob3N0OiBNYWtlIF9mZWF0dXJlXyBiaXRzIGEgcHJvcGVy
+dHkgb2Ygdmhvc3QgZGV2aWNlCj4+Pj4gIMKgwqAgdmhvc3Q6IEludHJvZHVjZSBzdGFuZGFyZCBM
+aW51eCBkcml2ZXIgbW9kZWwgaW4gVkhPU1QKPj4+PiAgwqDCoCB2aG9zdDogQWRkIG9wcyBmb3Ig
+dGhlIFZIT1NUIGRyaXZlciB0byBjb25maWd1cmUgVkhPU1QgZGV2aWNlCj4+Pj4gIMKgwqAgdnJp
+bmdoOiBBZGQgaGVscGVycyB0byBhY2Nlc3MgdnJpbmcgaW4gTU1JTwo+Pj4+ICDCoMKgIHZob3N0
+OiBBZGQgTU1JTyBoZWxwZXJzIGZvciBvcGVyYXRpb25zIG9uIHZob3N0IHZpcnRxdWV1ZQo+Pj4+
+ICDCoMKgIHZob3N0OiBJbnRyb2R1Y2UgY29uZmlnZnMgZW50cnkgZm9yIGNvbmZpZ3VyaW5nIFZI
+T1NUCj4+Pj4gIMKgwqAgdmlydGlvX3BjaTogVXNlIHJlcXVlc3RfdGhyZWFkZWRfaXJxKCkgaW5z
+dGVhZCBvZiByZXF1ZXN0X2lycSgpCj4+Pj4gIMKgwqAgcnBtc2c6IHZpcnRpb19ycG1zZ19idXM6
+IERpc2FibGUgcmVjZWl2ZSB2aXJ0cXVldWUgY2FsbGJhY2sgd2hlbgo+Pj4+ICDCoMKgwqDCoCBy
+ZWFkaW5nIG1lc3NhZ2VzCj4+Pj4gIMKgwqAgcnBtc2c6IEludHJvZHVjZSBjb25maWdmcyBlbnRy
+eSBmb3IgY29uZmlndXJpbmcgcnBtc2cKPj4+PiAgwqDCoCBycG1zZzogdmlydGlvX3JwbXNnX2J1
+czogQWRkIEFkZHJlc3MgU2VydmljZSBOb3RpZmljYXRpb24gc3VwcG9ydAo+Pj4+ICDCoMKgIHJw
+bXNnOiB2aXJ0aW9fcnBtc2dfYnVzOiBNb3ZlIGdlbmVyaWMgcnBtc2cgc3RydWN0dXJlIHRvCj4+
+Pj4gIMKgwqDCoMKgIHJwbXNnX2ludGVybmFsLmgKPj4+PiAgwqDCoCB2aXJ0aW86IEFkZCBvcHMg
+dG8gYWxsb2NhdGUgYW5kIGZyZWUgYnVmZmVyCj4+Pj4gIMKgwqAgcnBtc2c6IHZpcnRpb19ycG1z
+Z19idXM6IFVzZSB2aXJ0aW9fYWxsb2NfYnVmZmVyKCkgYW5kCj4+Pj4gIMKgwqDCoMKgIHZpcnRp
+b19mcmVlX2J1ZmZlcigpCj4+Pj4gIMKgwqAgcnBtc2c6IEFkZCBWSE9TVCBiYXNlZCByZW1vdGUg
+cHJvY2Vzc29yIG1lc3NhZ2luZyBidXMKPj4+PiAgwqDCoCBzYW1wbGVzL3JwbXNnOiBTZXR1cCBk
+ZWxheWVkIHdvcmsgdG8gc2VuZCBtZXNzYWdlCj4+Pj4gIMKgwqAgc2FtcGxlcy9ycG1zZzogV2Fp
+dCBmb3IgYWRkcmVzcyB0byBiZSBib3VuZCB0byBycGRldiBmb3Igc2VuZGluZwo+Pj4+ICDCoMKg
+wqDCoCBtZXNzYWdlCj4+Pj4gIMKgwqAgcnBtc2cudHh0OiBBZGQgRG9jdW1lbnRhdGlvbiB0byBj
+b25maWd1cmUgcnBtc2cgdXNpbmcgY29uZmlnZnMKPj4+PiAgwqDCoCB2aXJ0aW9fcGNpOiBBZGQg
+VklSVElPIGRyaXZlciBmb3IgVkhPU1Qgb24gQ29uZmlndXJhYmxlIFBDSWUgRW5kcG9pbnQKPj4+
+PiAgwqDCoMKgwqAgZGV2aWNlCj4+Pj4gIMKgwqAgUENJOiBlbmRwb2ludDogQWRkIEVQIGZ1bmN0
+aW9uIGRyaXZlciB0byBwcm92aWRlIFZIT1NUIGludGVyZmFjZQo+Pj4+ICDCoMKgIE5UQjogQWRk
+IGEgbmV3IE5UQiBjbGllbnQgZHJpdmVyIHRvIGltcGxlbWVudCBWSVJUSU8gZnVuY3Rpb25hbGl0
+eQo+Pj4+ICDCoMKgIE5UQjogQWRkIGEgbmV3IE5UQiBjbGllbnQgZHJpdmVyIHRvIGltcGxlbWVu
+dCBWSE9TVCBmdW5jdGlvbmFsaXR5Cj4+Pj4gIMKgwqAgTlRCOiBEZXNjcmliZSB0aGUgbnRiX3Zp
+cnRpbyBhbmQgbnRiX3Zob3N0IGNsaWVudCBpbiB0aGUgZG9jdW1lbnRhdGlvbgo+Pj4+Cj4+Pj4g
+IMKgIERvY3VtZW50YXRpb24vZHJpdmVyLWFwaS9udGIucnN0wqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqAgfMKgwqAgMTEgKwo+Pj4+ICDCoCBEb2N1bWVudGF0aW9uL3JwbXNnLnR4dMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoMKgIDU2ICsKPj4+PiAgwqAg
+ZHJpdmVycy9udGIvS2NvbmZpZ8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqAgfMKgwqAgMTggKwo+Pj4+ICDCoCBkcml2ZXJzL250Yi9NYWtlZmlsZcKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoMKgwqAg
+MiArCj4+Pj4gIMKgIGRyaXZlcnMvbnRiL250Yl92aG9zdC5jwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDc3NiArKysrKysrKysrKwo+Pj4+ICDCoCBkcml2
+ZXJzL250Yi9udGJfdmlydGlvLmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqAgfMKgIDg1MyArKysrKysrKysrKysKPj4+PiAgwqAgZHJpdmVycy9udGIvbnRiX3ZpcnRp
+by5owqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoMKgIDU2ICsK
+Pj4+PiAgwqAgZHJpdmVycy9wY2kvZW5kcG9pbnQvZnVuY3Rpb25zL0tjb25maWfCoMKgwqDCoMKg
+wqDCoCB8wqDCoCAxMSArCj4+Pj4gIMKgIGRyaXZlcnMvcGNpL2VuZHBvaW50L2Z1bmN0aW9ucy9N
+YWtlZmlsZcKgwqDCoMKgwqDCoCB8wqDCoMKgIDEgKwo+Pj4+ICDCoCAuLi4vcGNpL2VuZHBvaW50
+L2Z1bmN0aW9ucy9wY2ktZXBmLXZob3N0LmPCoMKgwqAgfCAxMTQ0ICsrKysrKysrKysrKysrKysK
+Pj4+PiAgwqAgZHJpdmVycy9ycG1zZy9LY29uZmlnwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoMKgIDEwICsKPj4+PiAgwqAgZHJpdmVycy9ycG1zZy9N
+YWtlZmlsZcKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKg
+wqDCoCAzICstCj4+Pj4gIMKgIGRyaXZlcnMvcnBtc2cvcnBtc2dfY2ZzLmPCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCAzOTQgKysrKysrCj4+Pj4gIMKgIGRyaXZl
+cnMvcnBtc2cvcnBtc2dfY29yZS5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqAgfMKgwqDCoCA3ICsKPj4+PiAgwqAgZHJpdmVycy9ycG1zZy9ycG1zZ19pbnRlcm5hbC5owqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCAxMzYgKysKPj4+PiAgwqAgZHJpdmVycy9y
+cG1zZy92aG9zdF9ycG1zZ19idXMuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfCAxMTUx
+ICsrKysrKysrKysrKysrKysrCj4+Pj4gIMKgIGRyaXZlcnMvcnBtc2cvdmlydGlvX3JwbXNnX2J1
+cy5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDE4NCArKy0KPj4+PiAgwqAgZHJpdmVy
+cy92aG9zdC9LY29uZmlnwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgIHzCoMKgwqAgMSArCj4+Pj4gIMKgIGRyaXZlcnMvdmhvc3QvTWFrZWZpbGXCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoMKgwqAgMiArLQo+Pj4+
+ICDCoCBkcml2ZXJzL3Zob3N0L25ldC5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoCB8wqDCoCAxMCArLQo+Pj4+ICDCoCBkcml2ZXJzL3Zob3N0L3Nj
+c2kuY8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzC
+oMKgIDI0ICstCj4+Pj4gIMKgIGRyaXZlcnMvdmhvc3QvdGVzdC5jwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgwqAgMTcgKy0KPj4+PiAgwqAgZHJp
+dmVycy92aG9zdC92ZHBhLmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoCB8wqDCoMKgIDIgKy0KPj4+PiAgwqAgZHJpdmVycy92aG9zdC92aG9zdC5jwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCA3MzAgKysr
+KysrKysrKy0KPj4+PiAgwqAgZHJpdmVycy92aG9zdC92aG9zdF9jZnMuY8KgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgIDM0MSArKysrKwo+Pj4+ICDCoCBkcml2ZXJz
+L3Zob3N0L3ZyaW5naC5jwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoCB8wqAgMzMyICsrKysrCj4+Pj4gIMKgIGRyaXZlcnMvdmhvc3QvdnNvY2suY8KgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqDCoCAyMCArLQo+Pj4+
+ICDCoCBkcml2ZXJzL3ZpcnRpby9LY29uZmlnwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoCB8wqDCoMKgIDkgKwo+Pj4+ICDCoCBkcml2ZXJzL3ZpcnRpby9NYWtl
+ZmlsZcKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoMKgwqAg
+MSArCj4+Pj4gIMKgIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19wY2lfY29tbW9uLmPCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgIHzCoMKgIDI1ICstCj4+Pj4gIMKgIGRyaXZlcnMvdmlydGlvL3ZpcnRpb19w
+Y2lfZXBmLmPCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHzCoCA2NzAgKysrKysrKysrKwo+
+Pj4+ICDCoCBpbmNsdWRlL2xpbnV4L21vZF9kZXZpY2V0YWJsZS5owqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoCB8wqDCoMKgIDYgKwo+Pj4+ICDCoCBpbmNsdWRlL2xpbnV4L3JwbXNnLmjCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgwqDCoCA2ICsK
+Pj4+PiAgwqAge2RyaXZlcnMvdmhvc3QgPT4gaW5jbHVkZS9saW51eH0vdmhvc3QuaMKgwqDCoMKg
+wqAgfMKgIDEzMiArLQo+Pj4+ICDCoCBpbmNsdWRlL2xpbnV4L3ZpcnRpby5owqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCB8wqDCoMKgIDMgKwo+Pj4+ICDCoCBp
+bmNsdWRlL2xpbnV4L3ZpcnRpb19jb25maWcuaMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
+oMKgIHzCoMKgIDQyICsKPj4+PiAgwqAgaW5jbHVkZS9saW51eC92cmluZ2guaMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgwqAgNDYgKwo+Pj4+ICDCoCBz
+YW1wbGVzL3JwbXNnL3JwbXNnX2NsaWVudF9zYW1wbGUuY8KgwqDCoMKgwqDCoMKgwqDCoMKgIHzC
+oMKgIDMyICstCj4+Pj4gIMKgIHRvb2xzL3ZpcnRpby92aXJ0aW9fdGVzdC5jwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgfMKgwqDCoCAyICstCj4+Pj4gIMKgIDM5IGZpbGVz
+IGNoYW5nZWQsIDcwODMgaW5zZXJ0aW9ucygrKSwgMTgzIGRlbGV0aW9ucygtKQo+Pj4+ICDCoCBj
+cmVhdGUgbW9kZSAxMDA2NDQgZHJpdmVycy9udGIvbnRiX3Zob3N0LmMKPj4+PiAgwqAgY3JlYXRl
+IG1vZGUgMTAwNjQ0IGRyaXZlcnMvbnRiL250Yl92aXJ0aW8uYwo+Pj4+ICDCoCBjcmVhdGUgbW9k
+ZSAxMDA2NDQgZHJpdmVycy9udGIvbnRiX3ZpcnRpby5oCj4+Pj4gIMKgIGNyZWF0ZSBtb2RlIDEw
+MDY0NCBkcml2ZXJzL3BjaS9lbmRwb2ludC9mdW5jdGlvbnMvcGNpLWVwZi12aG9zdC5jCj4+Pj4g
+IMKgIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL3JwbXNnL3JwbXNnX2Nmcy5jCj4+Pj4gIMKg
+IGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL3JwbXNnL3Zob3N0X3JwbXNnX2J1cy5jCj4+Pj4g
+IMKgIGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL3Zob3N0L3Zob3N0X2Nmcy5jCj4+Pj4gIMKg
+IGNyZWF0ZSBtb2RlIDEwMDY0NCBkcml2ZXJzL3ZpcnRpby92aXJ0aW9fcGNpX2VwZi5jCj4+Pj4g
+IMKgIHJlbmFtZSB7ZHJpdmVycy92aG9zdCA9PiBpbmNsdWRlL2xpbnV4fS92aG9zdC5oICg2NiUp
+Cj4+Pj4KPj4+PiAtLSAKPj4+PiAyLjE3LjEKPj4+PgoKX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1
+YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhm
+b3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
