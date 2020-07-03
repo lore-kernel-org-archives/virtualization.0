@@ -1,7 +1,7 @@
-From: "Rafael J. Wysocki" <rafael-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+From: Jann Horn <jannh-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
 Subject: Re: [RFC]: mm,power: introduce MADV_WIPEONSUSPEND
-Date: Fri, 3 Jul 2020 14:17:50 +0200
-Message-ID: <CAJZ5v0g+ip-EuUsoK646W-jVSSUhbnvHKsWmFH0+F1w0oYSmGw@mail.gmail.com>
+Date: Fri, 3 Jul 2020 15:29:22 +0200
+Message-ID: <CAG48ez2O2z4L=n57Omwy6s1sWQkdTkPKiikhbfdVhiyd_TGRRw@mail.gmail.com>
 References: <B7793B7A-3660-4769-9B9A-FFCF250728BB@amazon.com> <20200703113026.GT18446@dhcp22.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="UTF-8"
@@ -13,7 +13,6 @@ Cc: "Catangiu, Adrian Costin" <acatan-vV1OtcyAfmbQT0dZR+AlfA@public.gmane.org>, 
 List-Id: virtualization@lists.linuxfoundation.org
 
 On Fri, Jul 3, 2020 at 1:30 PM Michal Hocko <mhocko-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org> wrote:
->
 > On Fri 03-07-20 10:34:09, Catangiu, Adrian Costin wrote:
 > > This patch adds logic to the kernel power code to zero out contents of
 > > all MADV_WIPEONSUSPEND VMAs present in the system during its transition
@@ -25,11 +24,7 @@ On Fri, Jul 3, 2020 at 1:30 PM Michal Hocko <mhocko-DgEjT+Ai2ygdnm+yROfE0A@publi
 > So how does the application work to prevent from corrupted state - e.g.
 > when suspended between two memory loads?
 
-This doesn't affect hibernation AFAICS, but system suspend
-(suspend-to-RAM or suspend-to-idle, or standby) is async too.
-
-I guess this calls for an interface to notify user space (that opted
-in to receive such notifications) on system-wide suspend start and
-finish.
-
-Thanks!
+You can do it seqlock-style, kind of - you reserve the first byte of
+the page or so as a "is this page initialized" marker, and after every
+read from the page, you do a compiler barrier and check whether that
+byte has been cleared.
