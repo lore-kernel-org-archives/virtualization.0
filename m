@@ -1,41 +1,94 @@
-From: Amit Shah <amitshah@gmx.net>
-Subject: Re: [PATCH 5/5] virtio_console: Constify some static variables
-Date: Sun, 5 Jul 2020 20:30:38 +0200
-Message-ID: <20200703175529.GE3150@trundl.on>
-References: <20200701200950.30314-1-rikard.falkeborn@gmail.com>
- <20200701200950.30314-6-rikard.falkeborn@gmail.com>
+From: Waiman Long <longman@redhat.com>
+Subject: Re: [PATCH v2 5/6] powerpc/pseries: implement paravirt qspinlocks for
+ SPLPAR
+Date: Sun, 5 Jul 2020 15:00:21 -0400
+Message-ID: <81d9981b-8a20-729c-b861-c7229e40bb65@redhat.com>
+References: <20200703073516.1354108-1-npiggin@gmail.com>
+ <20200703073516.1354108-6-npiggin@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200701200950.30314-6-rikard.falkeborn@gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Rikard Falkeborn <rikard.falkeborn@gmail.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200703073516.1354108-6-npiggin@gmail.com>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Nicholas Piggin <npiggin@gmail.com>
+Cc: linux-arch@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Will Deacon <will@kernel.org>, Boqun Feng <boqun.feng@gmail.com>, linux-kernel@vger.kernel.org, kvm-ppc@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Anton Blanchard <anton@ozlabs.org>, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On (Wed) 01 Jul 2020 [22:09:50], Rikard Falkeborn wrote:
-> The id_table and feature_table pointers in struct virtio_driver are
-> pointers to const. Mark the corresponding static variables const to
-> allow the compiler to put them in read-only memory.
-> 
-> Before:
->    text    data     bss     dec     hex filename
->   25447     713      76   26236    667c drivers/char/virtio_console.o
-> 
-> After:
->    text    data     bss     dec     hex filename
->   25488     673      76   26237    667d drivers/char/virtio_console.o
-> 
-> Signed-off-by: Rikard Falkeborn <rikard.falkeborn@gmail.com>
-
-Reviewed-by: Amit Shah <amit@kernel.org>
-
-Please CC me on the entire series instead of individual patches in the
-future.
-
-Thanks,
-
-		Amit
--- 
-http://amitshah.net/
+T24gNy8zLzIwIDM6MzUgQU0sIE5pY2hvbGFzIFBpZ2dpbiB3cm90ZToKPiBTaWduZWQtb2ZmLWJ5
+OiBOaWNob2xhcyBQaWdnaW4gPG5waWdnaW5AZ21haWwuY29tPgo+IC0tLQo+ICAgYXJjaC9wb3dl
+cnBjL2luY2x1ZGUvYXNtL3BhcmF2aXJ0LmggICAgICAgICAgIHwgMjggKysrKysrKysrKwo+ICAg
+YXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL3FzcGlubG9jay5oICAgICAgICAgIHwgNTUgKysrKysr
+KysrKysrKysrKysrKwo+ICAgYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL3FzcGlubG9ja19wYXJh
+dmlydC5oIHwgIDUgKysKPiAgIGFyY2gvcG93ZXJwYy9wbGF0Zm9ybXMvcHNlcmllcy9LY29uZmln
+ICAgICAgICB8ICA1ICsrCj4gICBhcmNoL3Bvd2VycGMvcGxhdGZvcm1zL3BzZXJpZXMvc2V0dXAu
+YyAgICAgICAgfCAgNiArLQo+ICAgaW5jbHVkZS9hc20tZ2VuZXJpYy9xc3BpbmxvY2suaCAgICAg
+ICAgICAgICAgIHwgIDIgKwo+ICAgNiBmaWxlcyBjaGFuZ2VkLCAxMDAgaW5zZXJ0aW9ucygrKSwg
+MSBkZWxldGlvbigtKQo+ICAgY3JlYXRlIG1vZGUgMTAwNjQ0IGFyY2gvcG93ZXJwYy9pbmNsdWRl
+L2FzbS9xc3BpbmxvY2tfcGFyYXZpcnQuaAo+Cj4gZGlmZiAtLWdpdCBhL2FyY2gvcG93ZXJwYy9p
+bmNsdWRlL2FzbS9wYXJhdmlydC5oIGIvYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL3BhcmF2aXJ0
+LmgKPiBpbmRleCA3YTg1NDY2NjBhNjMuLmYyZDUxZjkyOWNmNSAxMDA2NDQKPiAtLS0gYS9hcmNo
+L3Bvd2VycGMvaW5jbHVkZS9hc20vcGFyYXZpcnQuaAo+ICsrKyBiL2FyY2gvcG93ZXJwYy9pbmNs
+dWRlL2FzbS9wYXJhdmlydC5oCj4gQEAgLTI5LDYgKzI5LDE2IEBAIHN0YXRpYyBpbmxpbmUgdm9p
+ZCB5aWVsZF90b19wcmVlbXB0ZWQoaW50IGNwdSwgdTMyIHlpZWxkX2NvdW50KQo+ICAgewo+ICAg
+CXBscGFyX2hjYWxsX25vcmV0cyhIX0NPTkZFUiwgZ2V0X2hhcmRfc21wX3Byb2Nlc3Nvcl9pZChj
+cHUpLCB5aWVsZF9jb3VudCk7Cj4gICB9Cj4gKwo+ICtzdGF0aWMgaW5saW5lIHZvaWQgcHJvZF9j
+cHUoaW50IGNwdSkKPiArewo+ICsJcGxwYXJfaGNhbGxfbm9yZXRzKEhfUFJPRCwgZ2V0X2hhcmRf
+c21wX3Byb2Nlc3Nvcl9pZChjcHUpKTsKPiArfQo+ICsKPiArc3RhdGljIGlubGluZSB2b2lkIHlp
+ZWxkX3RvX2FueSh2b2lkKQo+ICt7Cj4gKwlwbHBhcl9oY2FsbF9ub3JldHMoSF9DT05GRVIsIC0x
+LCAwKTsKPiArfQo+ICAgI2Vsc2UKPiAgIHN0YXRpYyBpbmxpbmUgYm9vbCBpc19zaGFyZWRfcHJv
+Y2Vzc29yKHZvaWQpCj4gICB7Cj4gQEAgLTQ1LDYgKzU1LDE5IEBAIHN0YXRpYyBpbmxpbmUgdm9p
+ZCB5aWVsZF90b19wcmVlbXB0ZWQoaW50IGNwdSwgdTMyIHlpZWxkX2NvdW50KQo+ICAgewo+ICAg
+CV9fX2JhZF95aWVsZF90b19wcmVlbXB0ZWQoKTsgLyogVGhpcyB3b3VsZCBiZSBhIGJ1ZyAqLwo+
+ICAgfQo+ICsKPiArZXh0ZXJuIHZvaWQgX19fYmFkX3lpZWxkX3RvX2FueSh2b2lkKTsKPiArc3Rh
+dGljIGlubGluZSB2b2lkIHlpZWxkX3RvX2FueSh2b2lkKQo+ICt7Cj4gKwlfX19iYWRfeWllbGRf
+dG9fYW55KCk7IC8qIFRoaXMgd291bGQgYmUgYSBidWcgKi8KPiArfQo+ICsKPiArZXh0ZXJuIHZv
+aWQgX19fYmFkX3Byb2RfY3B1KHZvaWQpOwo+ICtzdGF0aWMgaW5saW5lIHZvaWQgcHJvZF9jcHUo
+aW50IGNwdSkKPiArewo+ICsJX19fYmFkX3Byb2RfY3B1KCk7IC8qIFRoaXMgd291bGQgYmUgYSBi
+dWcgKi8KPiArfQo+ICsKPiAgICNlbmRpZgo+ICAgCj4gICAjZGVmaW5lIHZjcHVfaXNfcHJlZW1w
+dGVkIHZjcHVfaXNfcHJlZW1wdGVkCj4gQEAgLTU3LDUgKzgwLDEwIEBAIHN0YXRpYyBpbmxpbmUg
+Ym9vbCB2Y3B1X2lzX3ByZWVtcHRlZChpbnQgY3B1KQo+ICAgCXJldHVybiBmYWxzZTsKPiAgIH0K
+PiAgIAo+ICtzdGF0aWMgaW5saW5lIGJvb2wgcHZfaXNfbmF0aXZlX3NwaW5fdW5sb2NrKHZvaWQp
+Cj4gK3sKPiArICAgICByZXR1cm4gIWlzX3NoYXJlZF9wcm9jZXNzb3IoKTsKPiArfQo+ICsKPiAg
+ICNlbmRpZiAvKiBfX0tFUk5FTF9fICovCj4gICAjZW5kaWYgLyogX19BU01fUEFSQVZJUlRfSCAq
+Lwo+IGRpZmYgLS1naXQgYS9hcmNoL3Bvd2VycGMvaW5jbHVkZS9hc20vcXNwaW5sb2NrLmggYi9h
+cmNoL3Bvd2VycGMvaW5jbHVkZS9hc20vcXNwaW5sb2NrLmgKPiBpbmRleCBjNDllMzNlMjRlZGQu
+LjA5NjBhMGRlMjQ2NyAxMDA2NDQKPiAtLS0gYS9hcmNoL3Bvd2VycGMvaW5jbHVkZS9hc20vcXNw
+aW5sb2NrLmgKPiArKysgYi9hcmNoL3Bvd2VycGMvaW5jbHVkZS9hc20vcXNwaW5sb2NrLmgKPiBA
+QCAtMyw5ICszLDM2IEBACj4gICAjZGVmaW5lIF9BU01fUE9XRVJQQ19RU1BJTkxPQ0tfSAo+ICAg
+Cj4gICAjaW5jbHVkZSA8YXNtLWdlbmVyaWMvcXNwaW5sb2NrX3R5cGVzLmg+Cj4gKyNpbmNsdWRl
+IDxhc20vcGFyYXZpcnQuaD4KPiAgIAo+ICAgI2RlZmluZSBfUV9QRU5ESU5HX0xPT1BTCSgxIDw8
+IDkpIC8qIG5vdCB0dW5lZCAqLwo+ICAgCj4gKyNpZmRlZiBDT05GSUdfUEFSQVZJUlRfU1BJTkxP
+Q0tTCj4gK2V4dGVybiB2b2lkIG5hdGl2ZV9xdWV1ZWRfc3Bpbl9sb2NrX3Nsb3dwYXRoKHN0cnVj
+dCBxc3BpbmxvY2sgKmxvY2ssIHUzMiB2YWwpOwo+ICtleHRlcm4gdm9pZCBfX3B2X3F1ZXVlZF9z
+cGluX2xvY2tfc2xvd3BhdGgoc3RydWN0IHFzcGlubG9jayAqbG9jaywgdTMyIHZhbCk7Cj4gKwo+
+ICtzdGF0aWMgX19hbHdheXNfaW5saW5lIHZvaWQgcXVldWVkX3NwaW5fbG9ja19zbG93cGF0aChz
+dHJ1Y3QgcXNwaW5sb2NrICpsb2NrLCB1MzIgdmFsKQo+ICt7Cj4gKwlpZiAoIWlzX3NoYXJlZF9w
+cm9jZXNzb3IoKSkKPiArCQluYXRpdmVfcXVldWVkX3NwaW5fbG9ja19zbG93cGF0aChsb2NrLCB2
+YWwpOwo+ICsJZWxzZQo+ICsJCV9fcHZfcXVldWVkX3NwaW5fbG9ja19zbG93cGF0aChsb2NrLCB2
+YWwpOwo+ICt9CgpJbiBhIHByZXZpb3VzIG1haWwsIEkgc2FpZCB0aGF0OgoKWW91IG1heSBuZWVk
+IHRvIG1hdGNoIHRoZSB1c2Ugb2YgX19wdl9xdWV1ZWRfc3Bpbl9sb2NrX3Nsb3dwYXRoKCkgd2l0
+aCAKdGhlIGNvcnJlc3BvbmRpbmcgX19wdl9xdWV1ZWRfc3Bpbl91bmxvY2soKSwgZS5nLgoKI2Rl
+ZmluZSBxdWV1ZWRfc3Bpbl91bmxvY2sgcXVldWVkX3NwaW5fdW5sb2NrCnN0YXRpYyBpbmxpbmUg
+cXVldWVkX3NwaW5fdW5sb2NrKHN0cnVjdCBxc3BpbmxvY2sgKmxvY2spCnsKIMKgwqDCoMKgwqDC
+oMKgIGlmICghaXNfc2hhcmVkX3Byb2Nlc3NvcigpKQogwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
+wqDCoMKgIHNtcF9zdG9yZV9yZWxlYXNlKCZsb2NrLT5sb2NrZWQsIDApOwogwqDCoMKgwqDCoMKg
+wqAgZWxzZQogwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIF9fcHZfcXVldWVkX3NwaW5f
+dW5sb2NrKGxvY2spOwp9CgpPdGhlcndpc2UsIHB2X2tpY2soKSB3aWxsIG5ldmVyIGJlIGNhbGxl
+ZC4KCk1heWJlIFBvd2VyUEMgSE1UIGlzIGRpZmZlcmVudCB0aGF0IHRoZSBzaGFyZWQgY3B1cyBj
+YW4gc3RpbGwgcHJvY2VzcyAKaW5zdHJ1Y3Rpb24sIHRob3VnaCBzbG93ZXIsIHRoYXQgY3B1IGtp
+Y2tpbmcgbGlrZSB3aGF0IHdhcyBkb25lIGluIGt2bSAKaXMgbm90IHJlYWxseSBuZWNlc3Nhcnku
+IElmIHRoYXQgaXMgdGhlIGNhc2UsIEkgdGhpbmsgd2Ugc2hvdWxkIGRvY3VtZW50IAp0aGF0LgoK
+Q2hlZXJzLApMb25nbWFuCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
+bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
+aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
