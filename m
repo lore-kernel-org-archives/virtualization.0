@@ -1,45 +1,99 @@
-From: Alexander Graf <graf-vV1OtcyAfmbQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [RFC]: mm,power: introduce MADV_WIPEONSUSPEND
-Date: Mon, 6 Jul 2020 15:14:34 +0200
-Message-ID: <76c0a77f-38d3-56ca-7204-f56c37981f45@amazon.com>
-References: <B7793B7A-3660-4769-9B9A-FFCF250728BB@amazon.com>
- <20200703224411.GC25072@amd>
- <CAG48ez0oWQd42a-H-Dzw1Wq7HgB5PpFRGCZeYxP8ohxaoZHmvQ@mail.gmail.com>
- <20200704114820.GA16083@amd>
- <57ab4fb3-3f82-d34f-ad74-2214b45a4dd9@amazon.com>
- <CAG48ez1tAAD+x6n07uCisXpqVpDUPX7xBWiKFkS3u2azHqd41A@mail.gmail.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: Re: [PATCH v3 1/1] s390: virtio: let arch accept devices without
+ IOMMU feature
+Date: Mon, 6 Jul 2020 15:37:37 +0200
+Message-ID: <a677decc-5be3-8095-bc33-0f95634011f6@linux.ibm.com>
+References: <1592390637-17441-1-git-send-email-pmorel@linux.ibm.com>
+ <1592390637-17441-2-git-send-email-pmorel@linux.ibm.com>
+ <20200629115651-mutt-send-email-mst@kernel.org>
+ <20200629180526.41d0732b.cohuck@redhat.com>
+ <26ecd4c6-837b-1ce6-170b-a0155e4dd4d4@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <CAG48ez1tAAD+x6n07uCisXpqVpDUPX7xBWiKFkS3u2azHqd41A-JsoAwUIsXosN+BqQ9rBEUg@public.gmane.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <26ecd4c6-837b-1ce6-170b-a0155e4dd4d4@linux.ibm.com>
 Content-Language: en-US
-Sender: linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Jann Horn <jannh-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
-Cc: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, "Catangiu, Adrian Costin" <acatan-vV1OtcyAfmbQT0dZR+AlfA@public.gmane.org>, "linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org" <linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org>, "linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, "linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org" <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, "len.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <len.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "mhocko-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <mhocko-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "fweimer-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org" <fweimer-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, "keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org" <keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org" <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>, "wad-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org" <wad-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "mingo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <mingo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "bonzini-mXXj517/zsQ@public.gmane.org" <bonzini-mXXj517/zsQ@public.gmane.org>Ma
+Sender: linux-kernel-owner@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, jasowang@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-CgpPbiAwNi4wNy4yMCAxNDo1MiwgSmFubiBIb3JuIHdyb3RlOgo+IENBVVRJT046IFRoaXMgZW1h
-aWwgb3JpZ2luYXRlZCBmcm9tIG91dHNpZGUgb2YgdGhlIG9yZ2FuaXphdGlvbi4gRG8gbm90IGNs
-aWNrIGxpbmtzIG9yIG9wZW4gYXR0YWNobWVudHMgdW5sZXNzIHlvdSBjYW4gY29uZmlybSB0aGUg
-c2VuZGVyIGFuZCBrbm93IHRoZSBjb250ZW50IGlzIHNhZmUuCj4gCj4gCj4gCj4gT24gTW9uLCBK
-dWwgNiwgMjAyMCBhdCAyOjI3IFBNIEFsZXhhbmRlciBHcmFmIDxncmFmQGFtYXpvbi5jb20+IHdy
-b3RlOgo+PiBVbmxlc3Mgd2UgY3JlYXRlIGEgdnN5c2NhbGwgdGhhdCByZXR1cm5zIGJvdGggdGhl
-IFBJRCBhcyB3ZWxsIGFzIHRoZQo+PiBlcG9jaCBhbmQgdGh1cyBoYW5kbGVzIGZvcmsgKmFuZCog
-c3VzcGVuZC4gSSBuZWVkIHRvIHRoaW5rIGFib3V0IHRoaXMgYQo+PiBiaXQgbW9yZSA6KS4KPiAK
-PiBZb3UgY2FuJ3QgcmVsaWFibHkgZGV0ZWN0IGZvcmtpbmcgYnkgY2hlY2tpbmcgdGhlIFBJRCBp
-ZiBpdCBpcwo+IHBvc3NpYmxlIGZvciBtdWx0aXBsZSBmb3JrcyB0byBiZSBjaGFpbmVkIGJlZm9y
-ZSB0aGUgcmV1c2UgY2hlY2sgcnVuczoKPiAKPiAgIC0gcGlkIDEwMDAgcmVtZW1iZXJzIGl0cyBQ
-SUQKPiAgIC0gcGlkIDEwMDAgZm9ya3MsIGNyZWF0aW5nIGNoaWxkIHBpZCAxMDAxCj4gICAtIHBp
-ZCAxMDAwIGV4aXRzIGFuZCBpcyB3YWl0ZWQgb24gYnkgaW5pdAo+ICAgLSB0aGUgcGlkIGFsbG9j
-YXRvciB3cmFwcyBhcm91bmQKPiAgIC0gcGlkIDEwMDEgZm9ya3MsIGNyZWF0aW5nIGNoaWxkIHBp
-ZCAxMDAwCj4gICAtIGNoaWxkIHdpdGggcGlkIDEwMDAgdHJpZXMgdG8gY2hlY2sgZm9yIGZvcmtp
-bmcsIGRldGVybWluZXMgdGhhdCBpdHMKPiBQSUQgaXMgMTAwMCwgYW5kIGNvbmNsdWRlcyB0aGF0
-IGl0IGlzIHN0aWxsIHRoZSBvcmlnaW5hbCBwcm9jZXNzCj4gCgpGYWlyIHBvaW50LiBIb3dldmVy
-LCB5b3UgY291bGQgYnVtcCBhbiBlcG9jaCB2YWx1ZSBvbiBmb3JrLCBubz8gSSBkb24ndCAKdGhp
-bmsgd2UgbWFwIGFueXRoaW5nIGluIHRoZSB2ZHNvIHBlci1wcm9jZXNzIHRvZGF5IHRob3VnaCAu
-Li4KCgpBbGV4CgoKCkFtYXpvbiBEZXZlbG9wbWVudCBDZW50ZXIgR2VybWFueSBHbWJICktyYXVz
-ZW5zdHIuIDM4CjEwMTE3IEJlcmxpbgpHZXNjaGFlZnRzZnVlaHJ1bmc6IENocmlzdGlhbiBTY2hs
-YWVnZXIsIEpvbmF0aGFuIFdlaXNzCkVpbmdldHJhZ2VuIGFtIEFtdHNnZXJpY2h0IENoYXJsb3R0
-ZW5idXJnIHVudGVyIEhSQiAxNDkxNzMgQgpTaXR6OiBCZXJsaW4KVXN0LUlEOiBERSAyODkgMjM3
-IDg3OQoKCg==
+
+
+On 2020-07-02 15:03, Pierre Morel wrote:
+> 
+> 
+> On 2020-06-29 18:05, Cornelia Huck wrote:
+>> On Mon, 29 Jun 2020 11:57:14 -0400
+>> "Michael S. Tsirkin" <mst@redhat.com> wrote:
+>>
+>>> On Wed, Jun 17, 2020 at 12:43:57PM +0200, Pierre Morel wrote:
+>>>> An architecture protecting the guest memory against unauthorized host
+>>>> access may want to enforce VIRTIO I/O device protection through the
+>>>> use of VIRTIO_F_IOMMU_PLATFORM.
+>>>>
+>>>> Let's give a chance to the architecture to accept or not devices
+>>>> without VIRTIO_F_IOMMU_PLATFORM.
+>>>>
+>>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>>>> Acked-by: Jason Wang <jasowang@redhat.com>
+>>>> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>>>> ---
+>>>>   arch/s390/mm/init.c     |  6 ++++++
+>>>>   drivers/virtio/virtio.c | 22 ++++++++++++++++++++++
+>>>>   include/linux/virtio.h  |  2 ++
+>>>>   3 files changed, 30 insertions(+)
+>>
+>>>> @@ -179,6 +194,13 @@ int virtio_finalize_features(struct 
+>>>> virtio_device *dev)
+>>>>       if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
+>>>>           return 0;
+>>>> +    if (arch_needs_virtio_iommu_platform(dev) &&
+>>>> +        !virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
+>>>> +        dev_warn(&dev->dev,
+>>>> +             "virtio: device must provide VIRTIO_F_IOMMU_PLATFORM\n");
+>>>> +        return -ENODEV;
+>>>> +    }
+>>>> +
+>>>>       virtio_add_status(dev, VIRTIO_CONFIG_S_FEATURES_OK);
+>>>>       status = dev->config->get_status(dev);
+>>>>       if (!(status & VIRTIO_CONFIG_S_FEATURES_OK)) {
+>>>
+>>> Well don't you need to check it *before* VIRTIO_F_VERSION_1, not after?
+>>
+>> But it's only available with VERSION_1 anyway, isn't it? So it probably
+>> also needs to fail when this feature is needed if VERSION_1 has not been
+>> negotiated, I think.
+
+
+would be something like:
+
+-       if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
+-               return 0;
++       if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
++               ret = arch_accept_virtio_features(dev);
++               if (ret)
++                       dev_warn(&dev->dev,
++                                "virtio: device must provide 
+VIRTIO_F_VERSION_1\n");
++               return ret;
++       }
+
+
+just a thought on the function name:
+It becomes more general than just IOMMU_PLATFORM related.
+
+What do you think of:
+
+arch_accept_virtio_features()
+
+?
+
+Regards,
+Pierre
+
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
