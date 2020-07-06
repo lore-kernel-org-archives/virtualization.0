@@ -1,125 +1,84 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v3 1/1] s390: virtio: let arch accept devices without
- IOMMU feature
-Date: Mon, 6 Jul 2020 17:01:47 +0200
-Message-ID: <42f3733d-9f68-91b3-29f9-e88dd4495886@linux.ibm.com>
-References: <1592390637-17441-1-git-send-email-pmorel@linux.ibm.com>
- <1592390637-17441-2-git-send-email-pmorel@linux.ibm.com>
- <20200629115651-mutt-send-email-mst@kernel.org>
- <20200629180526.41d0732b.cohuck@redhat.com>
- <26ecd4c6-837b-1ce6-170b-a0155e4dd4d4@linux.ibm.com>
- <a677decc-5be3-8095-bc33-0f95634011f6@linux.ibm.com>
- <20200706163340.2ce7a5f2.cohuck@redhat.com>
+From: Dave Martin <Dave.Martin@arm.com>
+Subject: Re: [PATCH 18/18] arm64: lto: Strengthen READ_ONCE() to acquire when
+ CLANG_LTO=y
+Date: Mon, 6 Jul 2020 17:00:23 +0100
+Message-ID: <20200706160023.GB10992@arm.com>
+References: <20200630173734.14057-1-will@kernel.org>
+ <20200630173734.14057-19-will@kernel.org>
+ <20200701170722.4rte5ssnmrn2uqzg@bakewell.cambridge.arm.com>
+ <20200702072301.GA15963@willie-the-truck>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200706163340.2ce7a5f2.cohuck@redhat.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Cornelia Huck <cohuck@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, jasowang@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-alpha-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200702072301.GA15963@willie-the-truck>
+Sender: linux-alpha-owner@vger.kernel.org
+To: Will Deacon <will@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, Arnd Bergmann <arnd@arndb.de>, Alan Stern <stern@rowland.harvard.edu>, Sami Tolvanen <samitolvanen@google.com>, Matt Turner <mattst88@gmail.com>, kernel-team@android.com, Marco Elver <elver@google.com>, Kees Cook <keescook@chromium.org>, "Paul E. McKenney" <paulmck@kernel.org>, Boqun Feng <boqun.feng@gmail.com>, Josh Triplett <josh@joshtriplett.org>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-arm-kernel@lists.infradead.org, Richard Henderson <rth@twiddle.net>, Nick Desaulniers <ndesaulniers@google.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On 2020-07-06 16:33, Cornelia Huck wrote:
-> On Mon, 6 Jul 2020 15:37:37 +0200
-> Pierre Morel <pmorel@linux.ibm.com> wrote:
+On Thu, Jul 02, 2020 at 08:23:02AM +0100, Will Deacon wrote:
+> On Wed, Jul 01, 2020 at 06:07:25PM +0100, Dave P Martin wrote:
+> > On Tue, Jun 30, 2020 at 06:37:34PM +0100, Will Deacon wrote:
+> > > When building with LTO, there is an increased risk of the compiler
+> > > converting an address dependency headed by a READ_ONCE() invocation
+> > > into a control dependency and consequently allowing for harmful
+> > > reordering by the CPU.
+> > > 
+> > > Ensure that such transformations are harmless by overriding the generic
+> > > READ_ONCE() definition with one that provides acquire semantics when
+> > > building with LTO.
+> > > 
+> > > Signed-off-by: Will Deacon <will@kernel.org>
+> > > ---
+> > >  arch/arm64/include/asm/rwonce.h   | 63 +++++++++++++++++++++++++++++++
+> > >  arch/arm64/kernel/vdso/Makefile   |  2 +-
+> > >  arch/arm64/kernel/vdso32/Makefile |  2 +-
+> > >  3 files changed, 65 insertions(+), 2 deletions(-)
+> > >  create mode 100644 arch/arm64/include/asm/rwonce.h
+> > > 
+> > > diff --git a/arch/arm64/include/asm/rwonce.h b/arch/arm64/include/asm/rwonce.h
+> > > new file mode 100644
+> > > index 000000000000..515e360b01a1
+> > > --- /dev/null
+> > > +++ b/arch/arm64/include/asm/rwonce.h
+> > > @@ -0,0 +1,63 @@
+> > > +/* SPDX-License-Identifier: GPL-2.0 */
+> > > +/*
+> > > + * Copyright (C) 2020 Google LLC.
+> > > + */
+> > > +#ifndef __ASM_RWONCE_H
+> > > +#define __ASM_RWONCE_H
+> > > +
+> > > +#ifdef CONFIG_CLANG_LTO
+> > 
+> > Don't we have a generic option for LTO that's not specific to Clang.
 > 
->> On 2020-07-02 15:03, Pierre Morel wrote:
->>>
->>>
->>> On 2020-06-29 18:05, Cornelia Huck wrote:
->>>> On Mon, 29 Jun 2020 11:57:14 -0400
->>>> "Michael S. Tsirkin" <mst@redhat.com> wrote:
->>>>   
->>>>> On Wed, Jun 17, 2020 at 12:43:57PM +0200, Pierre Morel wrote:
->>>>>> An architecture protecting the guest memory against unauthorized host
->>>>>> access may want to enforce VIRTIO I/O device protection through the
->>>>>> use of VIRTIO_F_IOMMU_PLATFORM.
->>>>>>
->>>>>> Let's give a chance to the architecture to accept or not devices
->>>>>> without VIRTIO_F_IOMMU_PLATFORM.
->>>>>>
->>>>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->>>>>> Acked-by: Jason Wang <jasowang@redhat.com>
->>>>>> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
->>>>>> ---
->>>>>>    arch/s390/mm/init.c     |  6 ++++++
->>>>>>    drivers/virtio/virtio.c | 22 ++++++++++++++++++++++
->>>>>>    include/linux/virtio.h  |  2 ++
->>>>>>    3 files changed, 30 insertions(+)
->>>>   
->>>>>> @@ -179,6 +194,13 @@ int virtio_finalize_features(struct
->>>>>> virtio_device *dev)
->>>>>>        if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
->>>>>>            return 0;
->>>>>> +    if (arch_needs_virtio_iommu_platform(dev) &&
->>>>>> +        !virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
->>>>>> +        dev_warn(&dev->dev,
->>>>>> +             "virtio: device must provide VIRTIO_F_IOMMU_PLATFORM\n");
->>>>>> +        return -ENODEV;
->>>>>> +    }
->>>>>> +
->>>>>>        virtio_add_status(dev, VIRTIO_CONFIG_S_FEATURES_OK);
->>>>>>        status = dev->config->get_status(dev);
->>>>>>        if (!(status & VIRTIO_CONFIG_S_FEATURES_OK)) {
->>>>>
->>>>> Well don't you need to check it *before* VIRTIO_F_VERSION_1, not after?
->>>>
->>>> But it's only available with VERSION_1 anyway, isn't it? So it probably
->>>> also needs to fail when this feature is needed if VERSION_1 has not been
->>>> negotiated, I think.
->>
->>
->> would be something like:
->>
->> -       if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
->> -               return 0;
->> +       if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
->> +               ret = arch_accept_virtio_features(dev);
->> +               if (ret)
->> +                       dev_warn(&dev->dev,
->> +                                "virtio: device must provide
->> VIRTIO_F_VERSION_1\n");
->> +               return ret;
->> +       }
+> /me looks at the LTO series some more
 > 
-> That looks wrong; I think we want to validate in all cases. What about:
+> Oh yeah, there's CONFIG_LTO which is selected by CONFIG_LTO_CLANG, which is
+> the non-typoed version of the above. I can switch this to CONFIG_LTO.
 > 
-> ret = arch_accept_virtio_features(dev); // this can include checking for
->                                          // older or newer features
-> if (ret)
-> 	// assume that the arch callback moaned already
-> 	return ret;
+> > Also, can you illustrate code that can only be unsafe with Clang LTO?
 > 
-> if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
-> 	return 0;
-> 
-> // do the virtio-1 only FEATURES_OK dance
+> I don't have a concrete example, but it's an ongoing concern over on the LTO
+> thread [1], so I cooked this to show one way we could deal with it. The main
+> concern is that the whole-program optimisations enabled by LTO may allow the
+> compiler to enumerate possible values for a pointer at link time and replace
+> an address dependency between two loads with a control dependency instead,
+> defeating the dependency ordering within the CPU.
 
-hum, you are right, I was too focused on keeping my simple 
-arch_accept_virtio_features() function unchanged.
-It must be more general.
+Why can't that happen without LTO?
 
-> 
->>
->>
->> just a thought on the function name:
->> It becomes more general than just IOMMU_PLATFORM related.
->>
->> What do you think of:
->>
->> arch_accept_virtio_features()
-> 
-> Or maybe arch_validate_virtio_features()?
+> We likely won't realise if/when this goes wrong, other than impossible to
+> debug, subtle breakage that crops up seemingly randomly. Ideally, we'd be
+> able to detect this sort of thing happening at build time, and perhaps
+> even prevent it with compiler options or annotations, but none of that is
+> close to being available and I'm keen to progress the LTO patches in the
+> meantime because they are a requirement for CFI.
 
-OK validated.
+My concern was not so much why LTO makes things dangerous, as why !LTO
+makes things safe...
 
-Thanks,
-Pierre
-
--- 
-Pierre Morel
-IBM Lab Boeblingen
+Cheers
+---Dave
