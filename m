@@ -1,78 +1,124 @@
-From: Nicholas Piggin <npiggin@gmail.com>
-Subject: [PATCH v3 6/6] powerpc/qspinlock: optimised atomic_try_cmpxchg_lock that adds the lock hint
-Date: Mon,  6 Jul 2020 14:35:40 +1000
-Message-ID: <20200706043540.1563616-7-npiggin@gmail.com>
-References: <20200706043540.1563616-1-npiggin@gmail.com>
+From: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: Re: [PATCH v3 2/2] PCI: vmd: Use Shadow MEMBAR registers for
+ QEMU/KVM guests
+Date: Mon, 6 Jul 2020 10:16:25 +0100
+Message-ID: <20200706091625.GA26377@e121166-lin.cambridge.arm.com>
+References: <20200528030240.16024-1-jonathan.derrick@intel.com>
+ <20200528030240.16024-4-jonathan.derrick@intel.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-ppc-owner@vger.kernel.org>
-In-Reply-To: <20200706043540.1563616-1-npiggin@gmail.com>
-Sender: kvm-ppc-owner@vger.kernel.org
-To: linuxppc-dev@lists.ozlabs.org
-Cc: Nicholas Piggin <npiggin@gmail.com>, Will Deacon <will@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Boqun Feng <boqun.feng@gmail.com>, Ingo Molnar <mingo@redhat.com>, Waiman Long <longman@redhat.com>, Anton Blanchard <anton@ozlabs.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm-ppc@vger.kernel.org, linux-arch@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-pci-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200528030240.16024-4-jonathan.derrick@intel.com>
+Sender: linux-pci-owner@vger.kernel.org
+To: Jon Derrick <jonathan.derrick@intel.com>
+Cc: linux-pci@vger.kernel.org, qemu-devel@nongnu.org, Bjorn Helgaas <helgaas@kernel.org>, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@lst.de>, Andrzej Jakowski <andrzej.jakowski@linux.intel.com>, Alex Williamson <alex.williamson@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This brings the behaviour of the uncontended fast path back to
-roughly equivalent to simple spinlocks -- a single atomic op with
-lock hint.
+On Wed, May 27, 2020 at 11:02:40PM -0400, Jon Derrick wrote:
+> VMD device 28C0 natively assists guest passthrough of the VMD endpoint
+> through the use of shadow registers that provide Host Physical Addresses
+> to correctly assign bridge windows. These shadow registers are only
+> available if VMD config space register 0x70, bit 1 is set.
+> 
+> In order to support this mode in existing VMD devices which don't
+> natively support the shadow register, it was decided that the hypervisor
+> could offer the shadow registers in a vendor-specific PCI capability.
+> 
+> QEMU has been modified to create this vendor-specific capability and
+> supply the shadow membar registers for VMDs which don't natively support
+> this feature. This patch adds this mode and updates the supported device
+> list to allow this feature to be used on these VMDs.
+> 
+> Signed-off-by: Jon Derrick <jonathan.derrick@intel.com>
+> ---
+>  drivers/pci/controller/vmd.c | 44 ++++++++++++++++++++++++++++++++++++++------
+>  1 file changed, 38 insertions(+), 6 deletions(-)
 
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
----
- arch/powerpc/include/asm/atomic.h    | 28 ++++++++++++++++++++++++++++
- arch/powerpc/include/asm/qspinlock.h |  2 +-
- 2 files changed, 29 insertions(+), 1 deletion(-)
+Applied to pci/vmd, thanks.
 
-diff --git a/arch/powerpc/include/asm/atomic.h b/arch/powerpc/include/asm/atomic.h
-index 498785ffc25f..f6a3d145ffb7 100644
---- a/arch/powerpc/include/asm/atomic.h
-+++ b/arch/powerpc/include/asm/atomic.h
-@@ -193,6 +193,34 @@ static __inline__ int atomic_dec_return_relaxed(atomic_t *v)
- #define atomic_xchg(v, new) (xchg(&((v)->counter), new))
- #define atomic_xchg_relaxed(v, new) xchg_relaxed(&((v)->counter), (new))
- 
-+/*
-+ * Don't want to override the generic atomic_try_cmpxchg_acquire, because
-+ * we add a lock hint to the lwarx, which may not be wanted for the
-+ * _acquire case (and is not used by the other _acquire variants so it
-+ * would be a surprise).
-+ */
-+static __always_inline bool
-+atomic_try_cmpxchg_lock(atomic_t *v, int *old, int new)
-+{
-+	int r, o = *old;
-+
-+	__asm__ __volatile__ (
-+"1:\t"	PPC_LWARX(%0,0,%2,1) "	# atomic_try_cmpxchg_acquire	\n"
-+"	cmpw	0,%0,%3							\n"
-+"	bne-	2f							\n"
-+"	stwcx.	%4,0,%2							\n"
-+"	bne-	1b							\n"
-+"\t"	PPC_ACQUIRE_BARRIER "						\n"
-+"2:									\n"
-+	: "=&r" (r), "+m" (v->counter)
-+	: "r" (&v->counter), "r" (o), "r" (new)
-+	: "cr0", "memory");
-+
-+	if (unlikely(r != o))
-+		*old = r;
-+	return likely(r == o);
-+}
-+
- /**
-  * atomic_fetch_add_unless - add unless the number is a given value
-  * @v: pointer of type atomic_t
-diff --git a/arch/powerpc/include/asm/qspinlock.h b/arch/powerpc/include/asm/qspinlock.h
-index f5066f00a08c..b752d34517b3 100644
---- a/arch/powerpc/include/asm/qspinlock.h
-+++ b/arch/powerpc/include/asm/qspinlock.h
-@@ -37,7 +37,7 @@ static __always_inline void queued_spin_lock(struct qspinlock *lock)
- {
- 	u32 val = 0;
- 
--	if (likely(atomic_try_cmpxchg_acquire(&lock->val, &val, _Q_LOCKED_VAL)))
-+	if (likely(atomic_try_cmpxchg_lock(&lock->val, &val, _Q_LOCKED_VAL)))
- 		return;
- 
- 	queued_spin_lock_slowpath(lock, val);
--- 
-2.23.0
+Lorenzo
+
+> diff --git a/drivers/pci/controller/vmd.c b/drivers/pci/controller/vmd.c
+> index e386d4e..76d8acb 100644
+> --- a/drivers/pci/controller/vmd.c
+> +++ b/drivers/pci/controller/vmd.c
+> @@ -40,13 +40,19 @@ enum vmd_features {
+>  	 * membars, in order to allow proper address translation during
+>  	 * resource assignment to enable guest virtualization
+>  	 */
+> -	VMD_FEAT_HAS_MEMBAR_SHADOW	= (1 << 0),
+> +	VMD_FEAT_HAS_MEMBAR_SHADOW		= (1 << 0),
+>  
+>  	/*
+>  	 * Device may provide root port configuration information which limits
+>  	 * bus numbering
+>  	 */
+> -	VMD_FEAT_HAS_BUS_RESTRICTIONS	= (1 << 1),
+> +	VMD_FEAT_HAS_BUS_RESTRICTIONS		= (1 << 1),
+> +
+> +	/*
+> +	 * Device contains physical location shadow registers in
+> +	 * vendor-specific capability space
+> +	 */
+> +	VMD_FEAT_HAS_MEMBAR_SHADOW_VSCAP	= (1 << 2),
+>  };
+>  
+>  /*
+> @@ -454,6 +460,28 @@ static int vmd_enable_domain(struct vmd_dev *vmd, unsigned long features)
+>  		}
+>  	}
+>  
+> +	if (features & VMD_FEAT_HAS_MEMBAR_SHADOW_VSCAP) {
+> +		int pos = pci_find_capability(vmd->dev, PCI_CAP_ID_VNDR);
+> +		u32 reg, regu;
+> +
+> +		pci_read_config_dword(vmd->dev, pos + 4, &reg);
+> +
+> +		/* "SHDW" */
+> +		if (pos && reg == 0x53484457) {
+> +			pci_read_config_dword(vmd->dev, pos + 8, &reg);
+> +			pci_read_config_dword(vmd->dev, pos + 12, &regu);
+> +			offset[0] = vmd->dev->resource[VMD_MEMBAR1].start -
+> +					(((u64) regu << 32 | reg) &
+> +					 PCI_BASE_ADDRESS_MEM_MASK);
+> +
+> +			pci_read_config_dword(vmd->dev, pos + 16, &reg);
+> +			pci_read_config_dword(vmd->dev, pos + 20, &regu);
+> +			offset[1] = vmd->dev->resource[VMD_MEMBAR2].start -
+> +					(((u64) regu << 32 | reg) &
+> +					 PCI_BASE_ADDRESS_MEM_MASK);
+> +		}
+> +	}
+> +
+>  	/*
+>  	 * Certain VMD devices may have a root port configuration option which
+>  	 * limits the bus range to between 0-127, 128-255, or 224-255
+> @@ -716,16 +744,20 @@ static int vmd_resume(struct device *dev)
+>  static SIMPLE_DEV_PM_OPS(vmd_dev_pm_ops, vmd_suspend, vmd_resume);
+>  
+>  static const struct pci_device_id vmd_ids[] = {
+> -	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_VMD_201D),},
+> +	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_VMD_201D),
+> +		.driver_data = VMD_FEAT_HAS_MEMBAR_SHADOW_VSCAP,},
+>  	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_VMD_28C0),
+>  		.driver_data = VMD_FEAT_HAS_MEMBAR_SHADOW |
+>  				VMD_FEAT_HAS_BUS_RESTRICTIONS,},
+>  	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x467f),
+> -		.driver_data = VMD_FEAT_HAS_BUS_RESTRICTIONS,},
+> +		.driver_data = VMD_FEAT_HAS_MEMBAR_SHADOW_VSCAP |
+> +				VMD_FEAT_HAS_BUS_RESTRICTIONS,},
+>  	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, 0x4c3d),
+> -		.driver_data = VMD_FEAT_HAS_BUS_RESTRICTIONS,},
+> +		.driver_data = VMD_FEAT_HAS_MEMBAR_SHADOW_VSCAP |
+> +				VMD_FEAT_HAS_BUS_RESTRICTIONS,},
+>  	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_VMD_9A0B),
+> -		.driver_data = VMD_FEAT_HAS_BUS_RESTRICTIONS,},
+> +		.driver_data = VMD_FEAT_HAS_MEMBAR_SHADOW_VSCAP |
+> +				VMD_FEAT_HAS_BUS_RESTRICTIONS,},
+>  	{0,}
+>  };
+>  MODULE_DEVICE_TABLE(pci, vmd_ids);
+> -- 
+> 1.8.3.1
+> 
