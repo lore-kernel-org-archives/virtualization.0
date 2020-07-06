@@ -1,97 +1,102 @@
-From: Joe Perches <joe@perches.com>
-Subject: Re: [PATCH 5/5] virtio_console: Constify some static variables
-Date: Sun, 05 Jul 2020 13:50:32 -0700
-Message-ID: <0334ec747d2e44a2ec3fd6147cfe139200d8b853.camel@perches.com>
-References: <20200701200950.30314-1-rikard.falkeborn@gmail.com>
-         <20200701200950.30314-6-rikard.falkeborn@gmail.com>
-         <20200703175529.GE3150@trundl.on>
+From: Nicholas Piggin <npiggin@gmail.com>
+Subject: Re: [PATCH v2 5/6] powerpc/pseries: implement paravirt qspinlocks for
+ SPLPAR
+Date: Mon, 06 Jul 2020 10:30:05 +1000
+Message-ID: <1593994632.syt8hwimv9.astroid@bobo.none>
+References: <20200703073516.1354108-1-npiggin@gmail.com>
+ <20200703073516.1354108-6-npiggin@gmail.com>
+ <81d9981b-8a20-729c-b861-c7229e40bb65@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="ISO-8859-1"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200703175529.GE3150@trundl.on>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Amit Shah <amitshah@gmx.net>, Rikard Falkeborn <rikard.falkeborn@gmail.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <81d9981b-8a20-729c-b861-c7229e40bb65@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Waiman Long <longman@redhat.com>
+Cc: linux-arch@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Will Deacon <will@kernel.org>, Boqun Feng <boqun.feng@gmail.com>, linux-kernel@vger.kernel.org, kvm-ppc@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Anton Blanchard <anton@ozlabs.org>, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, 2020-07-05 at 20:30 +0200, Amit Shah wrote:
-> On (Wed) 01 Jul 2020 [22:09:50], Rikard Falkeborn wrote:
-> > The id_table and feature_table pointers in struct virtio_driver are
-> > pointers to const. Mark the corresponding static variables const to
-> > allow the compiler to put them in read-only memory.
-> > 
-> > Before:
-> >    text    data     bss     dec     hex filename
-> >   25447     713      76   26236    667c drivers/char/virtio_console.o
-> > 
-> > After:
-> >    text    data     bss     dec     hex filename
-> >   25488     673      76   26237    667d drivers/char/virtio_console.o
-> > 
-> > Signed-off-by: Rikard Falkeborn <rikard.falkeborn@gmail.com>
-> 
-> Reviewed-by: Amit Shah <amit@kernel.org>
-> 
-> Please CC me on the entire series instead of individual patches in the
-> future.
-
-CC'ing individual maintainers on entire patch sets
-that span multiple subsystems doesn't scale.
-
-Given that lore.kernel.org now stores all emails
-sent to lkml, it's a reasonable thing to add a
-reference to the cover letter below the --- line
-to make it easier for individual recipients of
-patches in a series to find the entire patch set.
-
-i.e. Send emails with something like:
-
-Subject: [PATCH N/M] foo: bar
-
-commit message
-
-Signed-off-by: J. Random Developer <address@domain.tld>
----
-
-Link: https://lore.kernel.org/r/<message_id_of_cover_letter>
-
-[patch]
-
-A trivial script to insert these links if all patches
-in a series are stored in a separate directory:
-
-$ bash insert_cover_letter_link.bash <patch_directory>
-
----
-$ cat insert_cover_letter_link.bash
-#!/bin/bash
-
-find $@ -name "*.patch" | sort | \
-    while read file ; do
-
-	echo "File: <$file>"
-	if [[ $(basename $file) =~ ^0000- ]] ; then
-	    message_id=$(grep '^Message-Id: <' $file)
-	    if [ $? -ne 0 ] ; then
-		echo "Message_Id not found"
-		exit 1
-	    fi
-	    message_id=$(echo $message_id | \
-			     sed -r -e 's/^Message-Id:\s*<//' -e 's/>\s*$//')
-	    separator="-- "
-	    echo "Message_Id: <$message_id>"
-	else
-	    separator="---"
-	fi
-	
-	if [[ "$message_id" == "" ]] ; then
-	    echo "Patch series cover letter Message_Id not found"
-	    exit 1
-	fi
-
-	perl -n -i -e "if (\$_ =~ /^$separator$/) { print; print \"\\n\"; print \"Link: https://lore.kernel.org/r/\" . '$message_id' . \"\\n\"; print \"\\n\"; } else { print; }" $file
-
-    done
-
-exit 0
+RXhjZXJwdHMgZnJvbSBXYWltYW4gTG9uZydzIG1lc3NhZ2Ugb2YgSnVseSA2LCAyMDIwIDU6MDAg
+YW06Cj4gT24gNy8zLzIwIDM6MzUgQU0sIE5pY2hvbGFzIFBpZ2dpbiB3cm90ZToKPj4gU2lnbmVk
+LW9mZi1ieTogTmljaG9sYXMgUGlnZ2luIDxucGlnZ2luQGdtYWlsLmNvbT4KPj4gLS0tCj4+ICAg
+YXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL3BhcmF2aXJ0LmggICAgICAgICAgIHwgMjggKysrKysr
+KysrKwo+PiAgIGFyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9xc3BpbmxvY2suaCAgICAgICAgICB8
+IDU1ICsrKysrKysrKysrKysrKysrKysKPj4gICBhcmNoL3Bvd2VycGMvaW5jbHVkZS9hc20vcXNw
+aW5sb2NrX3BhcmF2aXJ0LmggfCAgNSArKwo+PiAgIGFyY2gvcG93ZXJwYy9wbGF0Zm9ybXMvcHNl
+cmllcy9LY29uZmlnICAgICAgICB8ICA1ICsrCj4+ICAgYXJjaC9wb3dlcnBjL3BsYXRmb3Jtcy9w
+c2VyaWVzL3NldHVwLmMgICAgICAgIHwgIDYgKy0KPj4gICBpbmNsdWRlL2FzbS1nZW5lcmljL3Fz
+cGlubG9jay5oICAgICAgICAgICAgICAgfCAgMiArCj4+ICAgNiBmaWxlcyBjaGFuZ2VkLCAxMDAg
+aW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQo+PiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBhcmNo
+L3Bvd2VycGMvaW5jbHVkZS9hc20vcXNwaW5sb2NrX3BhcmF2aXJ0LmgKPj4KPj4gZGlmZiAtLWdp
+dCBhL2FyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9wYXJhdmlydC5oIGIvYXJjaC9wb3dlcnBjL2lu
+Y2x1ZGUvYXNtL3BhcmF2aXJ0LmgKPj4gaW5kZXggN2E4NTQ2NjYwYTYzLi5mMmQ1MWY5MjljZjUg
+MTAwNjQ0Cj4+IC0tLSBhL2FyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9wYXJhdmlydC5oCj4+ICsr
+KyBiL2FyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9wYXJhdmlydC5oCj4+IEBAIC0yOSw2ICsyOSwx
+NiBAQCBzdGF0aWMgaW5saW5lIHZvaWQgeWllbGRfdG9fcHJlZW1wdGVkKGludCBjcHUsIHUzMiB5
+aWVsZF9jb3VudCkKPj4gICB7Cj4+ICAgCXBscGFyX2hjYWxsX25vcmV0cyhIX0NPTkZFUiwgZ2V0
+X2hhcmRfc21wX3Byb2Nlc3Nvcl9pZChjcHUpLCB5aWVsZF9jb3VudCk7Cj4+ICAgfQo+PiArCj4+
+ICtzdGF0aWMgaW5saW5lIHZvaWQgcHJvZF9jcHUoaW50IGNwdSkKPj4gK3sKPj4gKwlwbHBhcl9o
+Y2FsbF9ub3JldHMoSF9QUk9ELCBnZXRfaGFyZF9zbXBfcHJvY2Vzc29yX2lkKGNwdSkpOwo+PiAr
+fQo+PiArCj4+ICtzdGF0aWMgaW5saW5lIHZvaWQgeWllbGRfdG9fYW55KHZvaWQpCj4+ICt7Cj4+
+ICsJcGxwYXJfaGNhbGxfbm9yZXRzKEhfQ09ORkVSLCAtMSwgMCk7Cj4+ICt9Cj4+ICAgI2Vsc2UK
+Pj4gICBzdGF0aWMgaW5saW5lIGJvb2wgaXNfc2hhcmVkX3Byb2Nlc3Nvcih2b2lkKQo+PiAgIHsK
+Pj4gQEAgLTQ1LDYgKzU1LDE5IEBAIHN0YXRpYyBpbmxpbmUgdm9pZCB5aWVsZF90b19wcmVlbXB0
+ZWQoaW50IGNwdSwgdTMyIHlpZWxkX2NvdW50KQo+PiAgIHsKPj4gICAJX19fYmFkX3lpZWxkX3Rv
+X3ByZWVtcHRlZCgpOyAvKiBUaGlzIHdvdWxkIGJlIGEgYnVnICovCj4+ICAgfQo+PiArCj4+ICtl
+eHRlcm4gdm9pZCBfX19iYWRfeWllbGRfdG9fYW55KHZvaWQpOwo+PiArc3RhdGljIGlubGluZSB2
+b2lkIHlpZWxkX3RvX2FueSh2b2lkKQo+PiArewo+PiArCV9fX2JhZF95aWVsZF90b19hbnkoKTsg
+LyogVGhpcyB3b3VsZCBiZSBhIGJ1ZyAqLwo+PiArfQo+PiArCj4+ICtleHRlcm4gdm9pZCBfX19i
+YWRfcHJvZF9jcHUodm9pZCk7Cj4+ICtzdGF0aWMgaW5saW5lIHZvaWQgcHJvZF9jcHUoaW50IGNw
+dSkKPj4gK3sKPj4gKwlfX19iYWRfcHJvZF9jcHUoKTsgLyogVGhpcyB3b3VsZCBiZSBhIGJ1ZyAq
+Lwo+PiArfQo+PiArCj4+ICAgI2VuZGlmCj4+ICAgCj4+ICAgI2RlZmluZSB2Y3B1X2lzX3ByZWVt
+cHRlZCB2Y3B1X2lzX3ByZWVtcHRlZAo+PiBAQCAtNTcsNSArODAsMTAgQEAgc3RhdGljIGlubGlu
+ZSBib29sIHZjcHVfaXNfcHJlZW1wdGVkKGludCBjcHUpCj4+ICAgCXJldHVybiBmYWxzZTsKPj4g
+ICB9Cj4+ICAgCj4+ICtzdGF0aWMgaW5saW5lIGJvb2wgcHZfaXNfbmF0aXZlX3NwaW5fdW5sb2Nr
+KHZvaWQpCj4+ICt7Cj4+ICsgICAgIHJldHVybiAhaXNfc2hhcmVkX3Byb2Nlc3NvcigpOwo+PiAr
+fQo+PiArCj4+ICAgI2VuZGlmIC8qIF9fS0VSTkVMX18gKi8KPj4gICAjZW5kaWYgLyogX19BU01f
+UEFSQVZJUlRfSCAqLwo+PiBkaWZmIC0tZ2l0IGEvYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL3Fz
+cGlubG9jay5oIGIvYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL3FzcGlubG9jay5oCj4+IGluZGV4
+IGM0OWUzM2UyNGVkZC4uMDk2MGEwZGUyNDY3IDEwMDY0NAo+PiAtLS0gYS9hcmNoL3Bvd2VycGMv
+aW5jbHVkZS9hc20vcXNwaW5sb2NrLmgKPj4gKysrIGIvYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNt
+L3FzcGlubG9jay5oCj4+IEBAIC0zLDkgKzMsMzYgQEAKPj4gICAjZGVmaW5lIF9BU01fUE9XRVJQ
+Q19RU1BJTkxPQ0tfSAo+PiAgIAo+PiAgICNpbmNsdWRlIDxhc20tZ2VuZXJpYy9xc3BpbmxvY2tf
+dHlwZXMuaD4KPj4gKyNpbmNsdWRlIDxhc20vcGFyYXZpcnQuaD4KPj4gICAKPj4gICAjZGVmaW5l
+IF9RX1BFTkRJTkdfTE9PUFMJKDEgPDwgOSkgLyogbm90IHR1bmVkICovCj4+ICAgCj4+ICsjaWZk
+ZWYgQ09ORklHX1BBUkFWSVJUX1NQSU5MT0NLUwo+PiArZXh0ZXJuIHZvaWQgbmF0aXZlX3F1ZXVl
+ZF9zcGluX2xvY2tfc2xvd3BhdGgoc3RydWN0IHFzcGlubG9jayAqbG9jaywgdTMyIHZhbCk7Cj4+
+ICtleHRlcm4gdm9pZCBfX3B2X3F1ZXVlZF9zcGluX2xvY2tfc2xvd3BhdGgoc3RydWN0IHFzcGlu
+bG9jayAqbG9jaywgdTMyIHZhbCk7Cj4+ICsKPj4gK3N0YXRpYyBfX2Fsd2F5c19pbmxpbmUgdm9p
+ZCBxdWV1ZWRfc3Bpbl9sb2NrX3Nsb3dwYXRoKHN0cnVjdCBxc3BpbmxvY2sgKmxvY2ssIHUzMiB2
+YWwpCj4+ICt7Cj4+ICsJaWYgKCFpc19zaGFyZWRfcHJvY2Vzc29yKCkpCj4+ICsJCW5hdGl2ZV9x
+dWV1ZWRfc3Bpbl9sb2NrX3Nsb3dwYXRoKGxvY2ssIHZhbCk7Cj4+ICsJZWxzZQo+PiArCQlfX3B2
+X3F1ZXVlZF9zcGluX2xvY2tfc2xvd3BhdGgobG9jaywgdmFsKTsKPj4gK30KPiAKPiBJbiBhIHBy
+ZXZpb3VzIG1haWwsIEkgc2FpZCB0aGF0OgoKSGV5LCB5ZWFoIEkgcmVhZCB0aGF0IHJpZ2h0IGFm
+dGVyIHNlbmRpbmcgdGhlIHNlcmllcyBvdXQuIFRoYW5rcyBmb3IgdGhlIAp0aG9yb3VnaCByZXZp
+ZXcuCgo+IFlvdSBtYXkgbmVlZCB0byBtYXRjaCB0aGUgdXNlIG9mIF9fcHZfcXVldWVkX3NwaW5f
+bG9ja19zbG93cGF0aCgpIHdpdGggCj4gdGhlIGNvcnJlc3BvbmRpbmcgX19wdl9xdWV1ZWRfc3Bp
+bl91bmxvY2soKSwgZS5nLgo+IAo+ICNkZWZpbmUgcXVldWVkX3NwaW5fdW5sb2NrIHF1ZXVlZF9z
+cGluX3VubG9jawo+IHN0YXRpYyBpbmxpbmUgcXVldWVkX3NwaW5fdW5sb2NrKHN0cnVjdCBxc3Bp
+bmxvY2sgKmxvY2spCj4gewo+ICDCoMKgwqDCoMKgwqDCoCBpZiAoIWlzX3NoYXJlZF9wcm9jZXNz
+b3IoKSkKPiAgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHNtcF9zdG9yZV9yZWxlYXNl
+KCZsb2NrLT5sb2NrZWQsIDApOwo+ICDCoMKgwqDCoMKgwqDCoCBlbHNlCj4gIMKgwqDCoMKgwqDC
+oMKgwqDCoMKgwqDCoMKgwqDCoCBfX3B2X3F1ZXVlZF9zcGluX3VubG9jayhsb2NrKTsKPiB9Cj4g
+Cj4gT3RoZXJ3aXNlLCBwdl9raWNrKCkgd2lsbCBuZXZlciBiZSBjYWxsZWQuCj4gCj4gTWF5YmUg
+UG93ZXJQQyBITVQgaXMgZGlmZmVyZW50IHRoYXQgdGhlIHNoYXJlZCBjcHVzIGNhbiBzdGlsbCBw
+cm9jZXNzIAo+IGluc3RydWN0aW9uLCB0aG91Z2ggc2xvd2VyLCB0aGF0IGNwdSBraWNraW5nIGxp
+a2Ugd2hhdCB3YXMgZG9uZSBpbiBrdm0gCj4gaXMgbm90IHJlYWxseSBuZWNlc3NhcnkuIElmIHRo
+YXQgaXMgdGhlIGNhc2UsIEkgdGhpbmsgd2Ugc2hvdWxkIGRvY3VtZW50IAo+IHRoYXQuCgpJdCBk
+b2VzIHN0b3AgZGlzcGF0Y2gsIGJ1dCBpdCB3aWxsIHdha2UgdXAgYnkgaXRzZWxmIGFmdGVyIGFs
+bCBvdGhlciAKdkNQVXMgaGF2ZSBoYWQgYSBjaGFuY2UgdG8gZGlzcGF0Y2guIEkgd2lsbCByZS10
+ZXN0IHdpdGggdGhlIGZpeCBpbgpwbGFjZSBhbmQgc2VlIGlmIHRoZXJlJ3MgYW55IHNpZ25pZmlj
+YW50IHBlcmZvcm1hbmNlIGRpZmZlcmVuY2VzLgoKVGhhbmtzLApOaWNrCgpfX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
+IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
+aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
