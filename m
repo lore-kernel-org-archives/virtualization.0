@@ -1,102 +1,51 @@
 From: Nicholas Piggin <npiggin@gmail.com>
-Subject: Re: [PATCH v2 5/6] powerpc/pseries: implement paravirt qspinlocks for
- SPLPAR
-Date: Mon, 06 Jul 2020 10:30:05 +1000
-Message-ID: <1593994632.syt8hwimv9.astroid@bobo.none>
-References: <20200703073516.1354108-1-npiggin@gmail.com>
- <20200703073516.1354108-6-npiggin@gmail.com>
- <81d9981b-8a20-729c-b861-c7229e40bb65@redhat.com>
+Subject: [PATCH v3 0/6] powerpc: queued spinlocks and rwlocks
+Date: Mon,  6 Jul 2020 14:35:34 +1000
+Message-ID: <20200706043540.1563616-1-npiggin@gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <81d9981b-8a20-729c-b861-c7229e40bb65@redhat.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Waiman Long <longman@redhat.com>
-Cc: linux-arch@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Will Deacon <will@kernel.org>, Boqun Feng <boqun.feng@gmail.com>, linux-kernel@vger.kernel.org, kvm-ppc@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Anton Blanchard <anton@ozlabs.org>, linuxppc-dev@lists.ozlabs.org
+Content-Transfer-Encoding: 8bit
+Return-path: <kvm-ppc-owner@vger.kernel.org>
+Sender: kvm-ppc-owner@vger.kernel.org
+To: linuxppc-dev@lists.ozlabs.org
+Cc: Nicholas Piggin <npiggin@gmail.com>, Will Deacon <will@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Boqun Feng <boqun.feng@gmail.com>, Ingo Molnar <mingo@redhat.com>, Waiman Long <longman@redhat.com>, Anton Blanchard <anton@ozlabs.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm-ppc@vger.kernel.org, linux-arch@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-RXhjZXJwdHMgZnJvbSBXYWltYW4gTG9uZydzIG1lc3NhZ2Ugb2YgSnVseSA2LCAyMDIwIDU6MDAg
-YW06Cj4gT24gNy8zLzIwIDM6MzUgQU0sIE5pY2hvbGFzIFBpZ2dpbiB3cm90ZToKPj4gU2lnbmVk
-LW9mZi1ieTogTmljaG9sYXMgUGlnZ2luIDxucGlnZ2luQGdtYWlsLmNvbT4KPj4gLS0tCj4+ICAg
-YXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL3BhcmF2aXJ0LmggICAgICAgICAgIHwgMjggKysrKysr
-KysrKwo+PiAgIGFyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9xc3BpbmxvY2suaCAgICAgICAgICB8
-IDU1ICsrKysrKysrKysrKysrKysrKysKPj4gICBhcmNoL3Bvd2VycGMvaW5jbHVkZS9hc20vcXNw
-aW5sb2NrX3BhcmF2aXJ0LmggfCAgNSArKwo+PiAgIGFyY2gvcG93ZXJwYy9wbGF0Zm9ybXMvcHNl
-cmllcy9LY29uZmlnICAgICAgICB8ICA1ICsrCj4+ICAgYXJjaC9wb3dlcnBjL3BsYXRmb3Jtcy9w
-c2VyaWVzL3NldHVwLmMgICAgICAgIHwgIDYgKy0KPj4gICBpbmNsdWRlL2FzbS1nZW5lcmljL3Fz
-cGlubG9jay5oICAgICAgICAgICAgICAgfCAgMiArCj4+ICAgNiBmaWxlcyBjaGFuZ2VkLCAxMDAg
-aW5zZXJ0aW9ucygrKSwgMSBkZWxldGlvbigtKQo+PiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBhcmNo
-L3Bvd2VycGMvaW5jbHVkZS9hc20vcXNwaW5sb2NrX3BhcmF2aXJ0LmgKPj4KPj4gZGlmZiAtLWdp
-dCBhL2FyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9wYXJhdmlydC5oIGIvYXJjaC9wb3dlcnBjL2lu
-Y2x1ZGUvYXNtL3BhcmF2aXJ0LmgKPj4gaW5kZXggN2E4NTQ2NjYwYTYzLi5mMmQ1MWY5MjljZjUg
-MTAwNjQ0Cj4+IC0tLSBhL2FyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9wYXJhdmlydC5oCj4+ICsr
-KyBiL2FyY2gvcG93ZXJwYy9pbmNsdWRlL2FzbS9wYXJhdmlydC5oCj4+IEBAIC0yOSw2ICsyOSwx
-NiBAQCBzdGF0aWMgaW5saW5lIHZvaWQgeWllbGRfdG9fcHJlZW1wdGVkKGludCBjcHUsIHUzMiB5
-aWVsZF9jb3VudCkKPj4gICB7Cj4+ICAgCXBscGFyX2hjYWxsX25vcmV0cyhIX0NPTkZFUiwgZ2V0
-X2hhcmRfc21wX3Byb2Nlc3Nvcl9pZChjcHUpLCB5aWVsZF9jb3VudCk7Cj4+ICAgfQo+PiArCj4+
-ICtzdGF0aWMgaW5saW5lIHZvaWQgcHJvZF9jcHUoaW50IGNwdSkKPj4gK3sKPj4gKwlwbHBhcl9o
-Y2FsbF9ub3JldHMoSF9QUk9ELCBnZXRfaGFyZF9zbXBfcHJvY2Vzc29yX2lkKGNwdSkpOwo+PiAr
-fQo+PiArCj4+ICtzdGF0aWMgaW5saW5lIHZvaWQgeWllbGRfdG9fYW55KHZvaWQpCj4+ICt7Cj4+
-ICsJcGxwYXJfaGNhbGxfbm9yZXRzKEhfQ09ORkVSLCAtMSwgMCk7Cj4+ICt9Cj4+ICAgI2Vsc2UK
-Pj4gICBzdGF0aWMgaW5saW5lIGJvb2wgaXNfc2hhcmVkX3Byb2Nlc3Nvcih2b2lkKQo+PiAgIHsK
-Pj4gQEAgLTQ1LDYgKzU1LDE5IEBAIHN0YXRpYyBpbmxpbmUgdm9pZCB5aWVsZF90b19wcmVlbXB0
-ZWQoaW50IGNwdSwgdTMyIHlpZWxkX2NvdW50KQo+PiAgIHsKPj4gICAJX19fYmFkX3lpZWxkX3Rv
-X3ByZWVtcHRlZCgpOyAvKiBUaGlzIHdvdWxkIGJlIGEgYnVnICovCj4+ICAgfQo+PiArCj4+ICtl
-eHRlcm4gdm9pZCBfX19iYWRfeWllbGRfdG9fYW55KHZvaWQpOwo+PiArc3RhdGljIGlubGluZSB2
-b2lkIHlpZWxkX3RvX2FueSh2b2lkKQo+PiArewo+PiArCV9fX2JhZF95aWVsZF90b19hbnkoKTsg
-LyogVGhpcyB3b3VsZCBiZSBhIGJ1ZyAqLwo+PiArfQo+PiArCj4+ICtleHRlcm4gdm9pZCBfX19i
-YWRfcHJvZF9jcHUodm9pZCk7Cj4+ICtzdGF0aWMgaW5saW5lIHZvaWQgcHJvZF9jcHUoaW50IGNw
-dSkKPj4gK3sKPj4gKwlfX19iYWRfcHJvZF9jcHUoKTsgLyogVGhpcyB3b3VsZCBiZSBhIGJ1ZyAq
-Lwo+PiArfQo+PiArCj4+ICAgI2VuZGlmCj4+ICAgCj4+ICAgI2RlZmluZSB2Y3B1X2lzX3ByZWVt
-cHRlZCB2Y3B1X2lzX3ByZWVtcHRlZAo+PiBAQCAtNTcsNSArODAsMTAgQEAgc3RhdGljIGlubGlu
-ZSBib29sIHZjcHVfaXNfcHJlZW1wdGVkKGludCBjcHUpCj4+ICAgCXJldHVybiBmYWxzZTsKPj4g
-ICB9Cj4+ICAgCj4+ICtzdGF0aWMgaW5saW5lIGJvb2wgcHZfaXNfbmF0aXZlX3NwaW5fdW5sb2Nr
-KHZvaWQpCj4+ICt7Cj4+ICsgICAgIHJldHVybiAhaXNfc2hhcmVkX3Byb2Nlc3NvcigpOwo+PiAr
-fQo+PiArCj4+ICAgI2VuZGlmIC8qIF9fS0VSTkVMX18gKi8KPj4gICAjZW5kaWYgLyogX19BU01f
-UEFSQVZJUlRfSCAqLwo+PiBkaWZmIC0tZ2l0IGEvYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL3Fz
-cGlubG9jay5oIGIvYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNtL3FzcGlubG9jay5oCj4+IGluZGV4
-IGM0OWUzM2UyNGVkZC4uMDk2MGEwZGUyNDY3IDEwMDY0NAo+PiAtLS0gYS9hcmNoL3Bvd2VycGMv
-aW5jbHVkZS9hc20vcXNwaW5sb2NrLmgKPj4gKysrIGIvYXJjaC9wb3dlcnBjL2luY2x1ZGUvYXNt
-L3FzcGlubG9jay5oCj4+IEBAIC0zLDkgKzMsMzYgQEAKPj4gICAjZGVmaW5lIF9BU01fUE9XRVJQ
-Q19RU1BJTkxPQ0tfSAo+PiAgIAo+PiAgICNpbmNsdWRlIDxhc20tZ2VuZXJpYy9xc3BpbmxvY2tf
-dHlwZXMuaD4KPj4gKyNpbmNsdWRlIDxhc20vcGFyYXZpcnQuaD4KPj4gICAKPj4gICAjZGVmaW5l
-IF9RX1BFTkRJTkdfTE9PUFMJKDEgPDwgOSkgLyogbm90IHR1bmVkICovCj4+ICAgCj4+ICsjaWZk
-ZWYgQ09ORklHX1BBUkFWSVJUX1NQSU5MT0NLUwo+PiArZXh0ZXJuIHZvaWQgbmF0aXZlX3F1ZXVl
-ZF9zcGluX2xvY2tfc2xvd3BhdGgoc3RydWN0IHFzcGlubG9jayAqbG9jaywgdTMyIHZhbCk7Cj4+
-ICtleHRlcm4gdm9pZCBfX3B2X3F1ZXVlZF9zcGluX2xvY2tfc2xvd3BhdGgoc3RydWN0IHFzcGlu
-bG9jayAqbG9jaywgdTMyIHZhbCk7Cj4+ICsKPj4gK3N0YXRpYyBfX2Fsd2F5c19pbmxpbmUgdm9p
-ZCBxdWV1ZWRfc3Bpbl9sb2NrX3Nsb3dwYXRoKHN0cnVjdCBxc3BpbmxvY2sgKmxvY2ssIHUzMiB2
-YWwpCj4+ICt7Cj4+ICsJaWYgKCFpc19zaGFyZWRfcHJvY2Vzc29yKCkpCj4+ICsJCW5hdGl2ZV9x
-dWV1ZWRfc3Bpbl9sb2NrX3Nsb3dwYXRoKGxvY2ssIHZhbCk7Cj4+ICsJZWxzZQo+PiArCQlfX3B2
-X3F1ZXVlZF9zcGluX2xvY2tfc2xvd3BhdGgobG9jaywgdmFsKTsKPj4gK30KPiAKPiBJbiBhIHBy
-ZXZpb3VzIG1haWwsIEkgc2FpZCB0aGF0OgoKSGV5LCB5ZWFoIEkgcmVhZCB0aGF0IHJpZ2h0IGFm
-dGVyIHNlbmRpbmcgdGhlIHNlcmllcyBvdXQuIFRoYW5rcyBmb3IgdGhlIAp0aG9yb3VnaCByZXZp
-ZXcuCgo+IFlvdSBtYXkgbmVlZCB0byBtYXRjaCB0aGUgdXNlIG9mIF9fcHZfcXVldWVkX3NwaW5f
-bG9ja19zbG93cGF0aCgpIHdpdGggCj4gdGhlIGNvcnJlc3BvbmRpbmcgX19wdl9xdWV1ZWRfc3Bp
-bl91bmxvY2soKSwgZS5nLgo+IAo+ICNkZWZpbmUgcXVldWVkX3NwaW5fdW5sb2NrIHF1ZXVlZF9z
-cGluX3VubG9jawo+IHN0YXRpYyBpbmxpbmUgcXVldWVkX3NwaW5fdW5sb2NrKHN0cnVjdCBxc3Bp
-bmxvY2sgKmxvY2spCj4gewo+ICDCoMKgwqDCoMKgwqDCoCBpZiAoIWlzX3NoYXJlZF9wcm9jZXNz
-b3IoKSkKPiAgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHNtcF9zdG9yZV9yZWxlYXNl
-KCZsb2NrLT5sb2NrZWQsIDApOwo+ICDCoMKgwqDCoMKgwqDCoCBlbHNlCj4gIMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoCBfX3B2X3F1ZXVlZF9zcGluX3VubG9jayhsb2NrKTsKPiB9Cj4g
-Cj4gT3RoZXJ3aXNlLCBwdl9raWNrKCkgd2lsbCBuZXZlciBiZSBjYWxsZWQuCj4gCj4gTWF5YmUg
-UG93ZXJQQyBITVQgaXMgZGlmZmVyZW50IHRoYXQgdGhlIHNoYXJlZCBjcHVzIGNhbiBzdGlsbCBw
-cm9jZXNzIAo+IGluc3RydWN0aW9uLCB0aG91Z2ggc2xvd2VyLCB0aGF0IGNwdSBraWNraW5nIGxp
-a2Ugd2hhdCB3YXMgZG9uZSBpbiBrdm0gCj4gaXMgbm90IHJlYWxseSBuZWNlc3NhcnkuIElmIHRo
-YXQgaXMgdGhlIGNhc2UsIEkgdGhpbmsgd2Ugc2hvdWxkIGRvY3VtZW50IAo+IHRoYXQuCgpJdCBk
-b2VzIHN0b3AgZGlzcGF0Y2gsIGJ1dCBpdCB3aWxsIHdha2UgdXAgYnkgaXRzZWxmIGFmdGVyIGFs
-bCBvdGhlciAKdkNQVXMgaGF2ZSBoYWQgYSBjaGFuY2UgdG8gZGlzcGF0Y2guIEkgd2lsbCByZS10
-ZXN0IHdpdGggdGhlIGZpeCBpbgpwbGFjZSBhbmQgc2VlIGlmIHRoZXJlJ3MgYW55IHNpZ25pZmlj
-YW50IHBlcmZvcm1hbmNlIGRpZmZlcmVuY2VzLgoKVGhhbmtzLApOaWNrCgpfX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
-IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
-aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+v3 is updated to use __pv_queued_spin_unlock, noticed by Waiman (thank you).
+
+Thanks,
+Nick
+
+Nicholas Piggin (6):
+  powerpc/powernv: must include hvcall.h to get PAPR defines
+  powerpc/pseries: move some PAPR paravirt functions to their own file
+  powerpc: move spinlock implementation to simple_spinlock
+  powerpc/64s: implement queued spinlocks and rwlocks
+  powerpc/pseries: implement paravirt qspinlocks for SPLPAR
+  powerpc/qspinlock: optimised atomic_try_cmpxchg_lock that adds the
+    lock hint
+
+ arch/powerpc/Kconfig                          |  13 +
+ arch/powerpc/include/asm/Kbuild               |   2 +
+ arch/powerpc/include/asm/atomic.h             |  28 ++
+ arch/powerpc/include/asm/paravirt.h           |  89 +++++
+ arch/powerpc/include/asm/qspinlock.h          |  91 ++++++
+ arch/powerpc/include/asm/qspinlock_paravirt.h |   7 +
+ arch/powerpc/include/asm/simple_spinlock.h    | 292 +++++++++++++++++
+ .../include/asm/simple_spinlock_types.h       |  21 ++
+ arch/powerpc/include/asm/spinlock.h           | 308 +-----------------
+ arch/powerpc/include/asm/spinlock_types.h     |  17 +-
+ arch/powerpc/lib/Makefile                     |   3 +
+ arch/powerpc/lib/locks.c                      |  12 +-
+ arch/powerpc/platforms/powernv/pci-ioda-tce.c |   1 +
+ arch/powerpc/platforms/pseries/Kconfig        |   5 +
+ arch/powerpc/platforms/pseries/setup.c        |   6 +-
+ include/asm-generic/qspinlock.h               |   4 +
+ 16 files changed, 577 insertions(+), 322 deletions(-)
+ create mode 100644 arch/powerpc/include/asm/paravirt.h
+ create mode 100644 arch/powerpc/include/asm/qspinlock.h
+ create mode 100644 arch/powerpc/include/asm/qspinlock_paravirt.h
+ create mode 100644 arch/powerpc/include/asm/simple_spinlock.h
+ create mode 100644 arch/powerpc/include/asm/simple_spinlock_types.h
+
+-- 
+2.23.0
