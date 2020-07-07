@@ -1,65 +1,47 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: Re: [PATCH v4 1/2] virtio: let arch validate VIRTIO features
-Date: Tue, 7 Jul 2020 13:17:47 +0200
-Message-ID: <8dd35508-8863-9a61-9535-5fa6f6b399fa@linux.ibm.com>
+Subject: Re: [PATCH v4 2/2] s390: virtio: PV needs VIRTIO I/O device
+ protection
+Date: Tue, 7 Jul 2020 13:19:31 +0200
+Message-ID: <64057bea-2239-1374-b371-abd7256a32bf@linux.ibm.com>
 References: <1594111477-15401-1-git-send-email-pmorel@linux.ibm.com>
- <1594111477-15401-2-git-send-email-pmorel@linux.ibm.com>
- <20200707112652.42fcab80.cohuck@redhat.com>
- <afbb9979-9136-3d52-e6cb-4c6905f73b6d@de.ibm.com>
+ <1594111477-15401-3-git-send-email-pmorel@linux.ibm.com>
+ <20200707114633.68122a00.cohuck@redhat.com>
+ <20200707060838-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <afbb9979-9136-3d52-e6cb-4c6905f73b6d@de.ibm.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200707060838-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
-Sender: kvm-owner@vger.kernel.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>, Cornelia Huck <cohuck@redhat.com>
-Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Cornelia Huck <cohuck@redhat.com>
+Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, jasowang@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 
-On 2020-07-07 13:09, Christian Borntraeger wrote:
-> 
-> 
-> On 07.07.20 11:26, Cornelia Huck wrote:
->> On Tue,  7 Jul 2020 10:44:36 +0200
+On 2020-07-07 13:14, Michael S. Tsirkin wrote:
+> On Tue, Jul 07, 2020 at 11:46:33AM +0200, Cornelia Huck wrote:
+>> On Tue,  7 Jul 2020 10:44:37 +0200
 >> Pierre Morel <pmorel@linux.ibm.com> wrote:
 >>
->>> An architecture may need to validate the VIRTIO devices features
->>> based on architecture specificities.
+>>> S390, protecting the guest memory against unauthorized host access
+>>> needs to enforce VIRTIO I/O device protection through the use of
+>>> VIRTIO_F_VERSION_1 and VIRTIO_F_IOMMU_PLATFORM.
 >>
->> s/specifities/specifics/
-
-yes
-
+>> Hm... what about:
 >>
->>>
->>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->>> ---
->>>   drivers/virtio/virtio.c       | 19 +++++++++++++++++++
->>>   include/linux/virtio_config.h |  1 +
->>>   2 files changed, 20 insertions(+)
->>>
->>> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
->>> index a977e32a88f2..3179a8aa76f5 100644
->>> --- a/drivers/virtio/virtio.c
->>> +++ b/drivers/virtio/virtio.c
->>> @@ -167,6 +167,21 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
->>>   }
->>>   EXPORT_SYMBOL_GPL(virtio_add_status);
->>>   
->>> +/*
->>> + * arch_needs_virtio_iommu_platform - provide arch specific hook when finalizing
->>
->> s/arch_needs_virtio_iommu_platform/arch_validate_virtio_features/
+>> "If protected virtualization is active on s390, the virtio queues are
+>> not accessible to the host, unless VIRTIO_F_IOMMU_PLATFORM has been
+>> negotiated. Use the new arch_validate_virtio_features() interface to
+>> enforce this."
 > 
-> With the things from Conny fixed,
-> 
-> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> s/enforce this/fail probe if that's not the case, preventing a host error on access attempt/
 > 
 
-Thanks,
+yes, more complete, thanks.
+
+regards,
 Pierre
 
 -- 
