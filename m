@@ -1,91 +1,90 @@
-From: Alexander Graf <graf-vV1OtcyAfmbQT0dZR+AlfA@public.gmane.org>
+From: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
 Subject: Re: [RFC]: mm,power: introduce MADV_WIPEONSUSPEND
-Date: Tue, 7 Jul 2020 10:01:23 +0200
-Message-ID: <efa55313-ce8a-bac9-15df-167f93c672b3@amazon.com>
+Date: Tue, 7 Jul 2020 10:07:26 +0200
+Message-ID: <20200707080726.GA32357@amd>
 References: <B7793B7A-3660-4769-9B9A-FFCF250728BB@amazon.com>
- <20200703224411.GC25072@amd>
- <CAG48ez0oWQd42a-H-Dzw1Wq7HgB5PpFRGCZeYxP8ohxaoZHmvQ@mail.gmail.com>
- <20200704114820.GA16083@amd>
- <57ab4fb3-3f82-d34f-ad74-2214b45a4dd9@amazon.com>
- <CAG48ez1tAAD+x6n07uCisXpqVpDUPX7xBWiKFkS3u2azHqd41A@mail.gmail.com>
- <20200707074425.GC3820@dhcp22.suse.cz>
+ <20200703113026.GT18446@dhcp22.suse.cz>
+ <CAG48ez2O2z4L=n57Omwy6s1sWQkdTkPKiikhbfdVhiyd_TGRRw@mail.gmail.com>
+ <20200707073823.GA3820@dhcp22.suse.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="windows-1252"; format="flowed"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="LQksG6bCIzRHxTLp"
 Return-path: <linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-In-Reply-To: <20200707074425.GC3820-2MMpYkNvuYDjFM9bn6wA6Q@public.gmane.org>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20200707073823.GA3820-2MMpYkNvuYDjFM9bn6wA6Q@public.gmane.org>
 Sender: linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Michal Hocko <mhocko-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Jann Horn <jannh-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>
-Cc: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, "Catangiu, Adrian Costin" <acatan-vV1OtcyAfmbQT0dZR+AlfA@public.gmane.org>, "linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org" <linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org>, "linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, "linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org" <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, "len.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <len.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "fweimer-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org" <fweimer-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, "keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org" <keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org" <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>, "wad-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org" <wad-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "mingo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <mingo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "bonzini-mXXj517/zsQ@public.gmane.org" <bonzini-mXXj517/zsQ@public.gmane.org>, "MacCarthaigh, Colm" <colmmacc-vV1OtcyAfmbQT0dZR+AlfA@public.gmane.org>
+To: Michal Hocko <mhocko-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Cc: Jann Horn <jannh-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, "Catangiu, Adrian Costin" <acatan-vV1OtcyAfmbQT0dZR+AlfA@public.gmane.org>, "linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org" <linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org>, "linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, "linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org" <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, "len.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <len.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "fweimer-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org" <fweimer-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, "keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org" <keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org" <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>, "wad-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org" <wad-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "mingo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <mingo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "bonzini-mXXj517/zsQ@public.gmane.org" <bonzini-mXXj517/zsQ@public.gmane.org>, "Graf (AWS), Alexander" <graf-ebkRAfMGSJGzQB+pC5nmwQ@public.gmane.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
+--LQksG6bCIzRHxTLp
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On 07.07.20 09:44, Michal Hocko wrote:
-> CAUTION: This email originated from outside of the organization. Do not c=
-lick links or open attachments unless you can confirm the sender and know t=
-he content is safe.
-> =
+Hi!
 
-> =
+> > > > This patch adds logic to the kernel power code to zero out contents=
+ of
+> > > > all MADV_WIPEONSUSPEND VMAs present in the system during its transi=
+tion
+> > > > to any suspend state equal or greater/deeper than Suspend-to-memory,
+> > > > known as S3.
+> > >
+> > > How does the application learn that its memory got wiped? S2disk is an
+> > > async operation and it can happen at any time during the task executi=
+on.
+> > > So how does the application work to prevent from corrupted state - e.=
+g.
+> > > when suspended between two memory loads?
+> >=20
+> > You can do it seqlock-style, kind of - you reserve the first byte of
+> > the page or so as a "is this page initialized" marker, and after every
+> > read from the page, you do a compiler barrier and check whether that
+> > byte has been cleared.
+>=20
+> This is certainly possible yet wery awkwar interface to use IMHO.
+> MADV_EXTERNALY_VOLATILE would express the actual semantic much better.
+> I might not still understand the expected usecase but if the target
+> application has to be changed anyway then why not simply use a
+> transparent and proper signaling mechanism like poll on a fd. That
 
-> =
+The goal is to have cryprographically-safe get_random_number() with 0
+syscalls.
 
-> On Mon 06-07-20 14:52:07, Jann Horn wrote:
->> On Mon, Jul 6, 2020 at 2:27 PM Alexander Graf <graf-vV1OtcyAfmbQT0dZR+AlfA@public.gmane.org> wrote:
->>> Unless we create a vsyscall that returns both the PID as well as the
->>> epoch and thus handles fork *and* suspend. I need to think about this a
->>> bit more :).
->>
->> You can't reliably detect forking by checking the PID if it is
->> possible for multiple forks to be chained before the reuse check runs:
->>
->>   - pid 1000 remembers its PID
->>   - pid 1000 forks, creating child pid 1001
->>   - pid 1000 exits and is waited on by init
->>   - the pid allocator wraps around
->>   - pid 1001 forks, creating child pid 1000
->>   - child with pid 1000 tries to check for forking, determines that its
->> PID is 1000, and concludes that it is still the original process
-> =
+You'd need to do:
 
-> I must be really missing something here because I really fail to see why
-> there has to be something new even invented. Sure, checking for pid is
-> certainly a suboptimal solution because pids are terrible tokens to work
-> with. We do have a concept of file descriptors which a much better and
-> supports signaling. There is a clear source of the signal IIUC
-> (migration) and there are consumers to act upon that (e.g. crypto
-> backends). So what does really prevent to use a standard signal delivery
-> over fd for this usecase?
+   if (!poll(did_i_migrate)) {
+         use_prng_seed();
+	 if (poll(did_i_migrate)) {
+	       /* oops_they_migrated_me_in_middle_of_computation,
+ 	          lets_redo_it() */
+ 		  goto retry:
+	 }
+   }
 
-I wasn't part of the discussions on why things like WIPEONFORK were =
+Which means two syscalls..
 
-invented instead of just using signalling mechanisms, but the main =
-
-reason I can think of are libraries.
-
-As a library, you are under no control of the main loop usually, which =
-
-means you just don't have a way to poll for an fd. As a library author, =
-
-I would usually try to avoid very hard to create such a dependency, =
-
-because it makes it really hard to glue pieces together.
-
-The same applies to signals btw, which would also be a possible way to =
-
-propagate such events.
+Best regards,
 
 
-Alex
+									Pavel
+--=20
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
+g.html
 
+--LQksG6bCIzRHxTLp
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
-Amazon Development Center Germany GmbH
-Krausenstr. 38
-10117 Berlin
-Geschaeftsfuehrung: Christian Schlaeger, Jonathan Weiss
-Eingetragen am Amtsgericht Charlottenburg unter HRB 149173 B
-Sitz: Berlin
-Ust-ID: DE 289 237 879
+iEYEARECAAYFAl8ELT4ACgkQMOfwapXb+vLyMACgqbe6zmXiEEz8DaabrD2NC2vV
+5xgAn3dKno+G4UTAHEY2WCnK1mXkOj/5
+=rQsH
+-----END PGP SIGNATURE-----
+
+--LQksG6bCIzRHxTLp--
