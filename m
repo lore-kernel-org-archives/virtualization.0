@@ -1,83 +1,95 @@
-From: Michal Hocko <mhocko-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Subject: Re: [RFC]: mm,power: introduce MADV_WIPEONSUSPEND
-Date: Tue, 7 Jul 2020 11:14:51 +0200
-Message-ID: <20200707091451.GB5913@dhcp22.suse.cz>
-References: <B7793B7A-3660-4769-9B9A-FFCF250728BB@amazon.com>
- <20200703224411.GC25072@amd>
- <CAG48ez0oWQd42a-H-Dzw1Wq7HgB5PpFRGCZeYxP8ohxaoZHmvQ@mail.gmail.com>
- <20200704114820.GA16083@amd>
- <57ab4fb3-3f82-d34f-ad74-2214b45a4dd9@amazon.com>
- <CAG48ez1tAAD+x6n07uCisXpqVpDUPX7xBWiKFkS3u2azHqd41A@mail.gmail.com>
- <20200707074425.GC3820@dhcp22.suse.cz>
- <efa55313-ce8a-bac9-15df-167f93c672b3@amazon.com>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v4 1/2] virtio: let arch validate VIRTIO features
+Date: Tue, 7 Jul 2020 11:26:52 +0200
+Message-ID: <20200707112652.42fcab80.cohuck@redhat.com>
+References: <1594111477-15401-1-git-send-email-pmorel@linux.ibm.com>
+        <1594111477-15401-2-git-send-email-pmorel@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <efa55313-ce8a-bac9-15df-167f93c672b3-vV1OtcyAfmbQT0dZR+AlfA@public.gmane.org>
-Sender: linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Alexander Graf <graf-vV1OtcyAfmbQT0dZR+AlfA@public.gmane.org>
-Cc: Jann Horn <jannh-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>, "Catangiu, Adrian Costin" <acatan-vV1OtcyAfmbQT0dZR+AlfA@public.gmane.org>, "linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org" <linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org>, "linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, "linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org" <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, "len.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <len.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "fweimer-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org" <fweimer-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, "keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org" <keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org" <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>, "wad-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org" <wad-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "mingo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <mingo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "bonzini-mXXj517/zsQ@public.gmane.org" <bonzini-mXXj517/zsQ@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1594111477-15401-2-git-send-email-pmorel@linux.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue 07-07-20 10:01:23, Alexander Graf wrote:
-> On 07.07.20 09:44, Michal Hocko wrote:
-> > On Mon 06-07-20 14:52:07, Jann Horn wrote:
-> > > On Mon, Jul 6, 2020 at 2:27 PM Alexander Graf <graf-vV1OtcyAfmbQT0dZR+AlfA@public.gmane.org> wrote:
-> > > > Unless we create a vsyscall that returns both the PID as well as the
-> > > > epoch and thus handles fork *and* suspend. I need to think about this a
-> > > > bit more :).
-> > > 
-> > > You can't reliably detect forking by checking the PID if it is
-> > > possible for multiple forks to be chained before the reuse check runs:
-> > > 
-> > >   - pid 1000 remembers its PID
-> > >   - pid 1000 forks, creating child pid 1001
-> > >   - pid 1000 exits and is waited on by init
-> > >   - the pid allocator wraps around
-> > >   - pid 1001 forks, creating child pid 1000
-> > >   - child with pid 1000 tries to check for forking, determines that its
-> > > PID is 1000, and concludes that it is still the original process
-> > 
-> > I must be really missing something here because I really fail to see why
-> > there has to be something new even invented. Sure, checking for pid is
-> > certainly a suboptimal solution because pids are terrible tokens to work
-> > with. We do have a concept of file descriptors which a much better and
-> > supports signaling. There is a clear source of the signal IIUC
-> > (migration) and there are consumers to act upon that (e.g. crypto
-> > backends). So what does really prevent to use a standard signal delivery
-> > over fd for this usecase?
+On Tue,  7 Jul 2020 10:44:36 +0200
+Pierre Morel <pmorel@linux.ibm.com> wrote:
+
+> An architecture may need to validate the VIRTIO devices features
+> based on architecture specificities.
+
+s/specifities/specifics/
+
 > 
-> I wasn't part of the discussions on why things like WIPEONFORK were invented
-> instead of just using signalling mechanisms, but the main reason I can think
-> of are libraries.
-
-Well, I would argue that WIPEONFORK is conceptually different. It is
-one time initialization mechanism with a very clear life time semantic.
-So any programming model is really as easy as, the initial state is
-always 0 for a new task without any surprises later on because you own
-the memory (essentially an extension to initialized .data section on
-exec to any new task).
-
-Compare that to a completely async nature of this interface. Any read
-would essentially have to be properly synchronized with the external
-event otherwise the state could have been corrupted. Such a consistency
-model is really cumbersome to work with.
-
-> As a library, you are under no control of the main loop usually, which means
-> you just don't have a way to poll for an fd. As a library author, I would
-> usually try to avoid very hard to create such a dependency, because it makes
-> it really hard to glue pieces together.
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> ---
+>  drivers/virtio/virtio.c       | 19 +++++++++++++++++++
+>  include/linux/virtio_config.h |  1 +
+>  2 files changed, 20 insertions(+)
 > 
-> The same applies to signals btw, which would also be a possible way to
-> propagate such events.
+> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> index a977e32a88f2..3179a8aa76f5 100644
+> --- a/drivers/virtio/virtio.c
+> +++ b/drivers/virtio/virtio.c
+> @@ -167,6 +167,21 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
+>  }
+>  EXPORT_SYMBOL_GPL(virtio_add_status);
+>  
+> +/*
+> + * arch_needs_virtio_iommu_platform - provide arch specific hook when finalizing
 
-Just to clarify I didn't really mean posix signals here. Those would be
-quite clumsy indeed. But I can imagine that a library registers to a
-system wide means to get a notification. There are many examples for
-that, including a lot of usage inside libraries. All different *bus
-interfaces.
+s/arch_needs_virtio_iommu_platform/arch_validate_virtio_features/
 
--- 
-Michal Hocko
-SUSE Labs
+:)
+
+> + *				      features for VIRTIO device dev
+> + * @dev: the VIRTIO device being added
+> + *
+> + * Permits the platform to provide architecture specific functionality when
+
+s/provide architecture specific functionality/handle architecture-specific requirements/
+
+?
+
+> + * devices features are finalized. This is the default implementation.
+
+s/devices/device/
+
+> + * Architecture implementations can override this.
+> + */
+> +
+> +int __weak arch_validate_virtio_features(struct virtio_device *dev)
+> +{
+> +	return 0;
+> +}
+> +
+>  int virtio_finalize_features(struct virtio_device *dev)
+>  {
+>  	int ret = dev->config->finalize_features(dev);
+> @@ -176,6 +191,10 @@ int virtio_finalize_features(struct virtio_device *dev)
+>  	if (ret)
+>  		return ret;
+>  
+> +	ret = arch_validate_virtio_features(dev);
+> +	if (ret)
+> +		return ret;
+> +
+>  	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
+>  		return 0;
+>  
+> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+> index bb4cc4910750..3f4117adf311 100644
+> --- a/include/linux/virtio_config.h
+> +++ b/include/linux/virtio_config.h
+> @@ -459,4 +459,5 @@ static inline void virtio_cwrite64(struct virtio_device *vdev,
+>  		_r;							\
+>  	})
+>  
+> +int arch_validate_virtio_features(struct virtio_device *dev);
+>  #endif /* _LINUX_VIRTIO_CONFIG_H */
+
+With the wording fixed,
+
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
