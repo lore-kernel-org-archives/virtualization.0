@@ -1,70 +1,89 @@
 From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v4 1/2] virtio: let arch validate VIRTIO features
-Date: Tue,  7 Jul 2020 10:44:36 +0200
-Message-ID: <1594111477-15401-2-git-send-email-pmorel@linux.ibm.com>
-References: <1594111477-15401-1-git-send-email-pmorel@linux.ibm.com>
+Subject: [PATCH v4 0/2] s390: virtio: let arch validate VIRTIO features
+Date: Tue,  7 Jul 2020 10:44:35 +0200
+Message-ID: <1594111477-15401-1-git-send-email-pmorel@linux.ibm.com>
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <1594111477-15401-1-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
 Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-An architecture may need to validate the VIRTIO devices features
-based on architecture specificities.
+Hi all,
 
-Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
----
+I changed the patch subject to reflect the content, becoming more
+general.
+
+1) I removed the ack from Christian and Jason even far as
+   I understand they gave it for the functionality more than for the
+   implementation.
+   @Jason, @Christian, please can I get back your acked-by with these changes?
+
+2) previous patch had another name:
+   [PATCH v3 0/1] s390: virtio: let arch choose to accept devices without IOMMU feature
+   id: Message-Id: <1592390637-17441-2-git-send-email-pmorel@linux.ibm.com>
+
+3) The new version generalize the validation of the features by the
+   architecture, making it not IOMMU_PLATFORM specific anymore inside
+   virtio.c
+
+   The architecture specific code for s390 is now testing the virtio
+   features.
+
+4) Since I reworked the patch I also moved the arch specific code
+   from arch/s390/mm/init.c to arch/s390/kernel/to uv.c
+
+5) Finaly, I splitted the patch into generic virtio and arch
+   specific code.
+
+Regards,
+Pierre
+
+Pierre Morel (2):
+  virtio: let arch validate VIRTIO features
+  s390: virtio: PV needs VIRTIO I/O device protection
+
+ arch/s390/kernel/uv.c         | 25 +++++++++++++++++++++++++
  drivers/virtio/virtio.c       | 19 +++++++++++++++++++
  include/linux/virtio_config.h |  1 +
- 2 files changed, 20 insertions(+)
+ 3 files changed, 45 insertions(+)
 
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index a977e32a88f2..3179a8aa76f5 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -167,6 +167,21 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
- }
- EXPORT_SYMBOL_GPL(virtio_add_status);
- 
-+/*
-+ * arch_needs_virtio_iommu_platform - provide arch specific hook when finalizing
-+ *				      features for VIRTIO device dev
-+ * @dev: the VIRTIO device being added
-+ *
-+ * Permits the platform to provide architecture specific functionality when
-+ * devices features are finalized. This is the default implementation.
-+ * Architecture implementations can override this.
-+ */
-+
-+int __weak arch_validate_virtio_features(struct virtio_device *dev)
-+{
-+	return 0;
-+}
-+
- int virtio_finalize_features(struct virtio_device *dev)
- {
- 	int ret = dev->config->finalize_features(dev);
-@@ -176,6 +191,10 @@ int virtio_finalize_features(struct virtio_device *dev)
- 	if (ret)
- 		return ret;
- 
-+	ret = arch_validate_virtio_features(dev);
-+	if (ret)
-+		return ret;
-+
- 	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
- 		return 0;
- 
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index bb4cc4910750..3f4117adf311 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -459,4 +459,5 @@ static inline void virtio_cwrite64(struct virtio_device *vdev,
- 		_r;							\
- 	})
- 
-+int arch_validate_virtio_features(struct virtio_device *dev);
- #endif /* _LINUX_VIRTIO_CONFIG_H */
 -- 
 2.25.1
+
+Changelog
+
+to v4:
+
+- separate virtio and arch code
+  (Pierre)
+
+- moved code from arch/s390/mm/init.c to arch/s390/kernel/uv.c
+  (Heiko)
+
+- moved validation inside the arch code
+  (Connie)
+
+- moved the call to arch validation before VIRTIO_F_1 test
+  (Michael)
+
+to v3:
+
+- add warning
+  (Connie, Christian)
+
+- add comment
+  (Connie)
+
+- change hook name
+  (Halil, Connie)
+
+to v2:
+
+- put the test in virtio_finalize_features()
+  (Connie)
+
+- put the test inside VIRTIO core
+  (Jason)
+
+- pass a virtio device as parameter
+  (Halil)
