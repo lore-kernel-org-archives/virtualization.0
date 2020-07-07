@@ -1,52 +1,78 @@
 From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH v4 1/2] virtio: let arch validate VIRTIO features
-Date: Tue, 7 Jul 2020 13:09:12 +0200
-Message-ID: <afbb9979-9136-3d52-e6cb-4c6905f73b6d@de.ibm.com>
+Subject: Re: [PATCH v4 2/2] s390: virtio: PV needs VIRTIO I/O device
+ protection
+Date: Tue, 7 Jul 2020 13:12:28 +0200
+Message-ID: <862dce70-1aed-ace0-cb7b-54844e812be3@de.ibm.com>
 References: <1594111477-15401-1-git-send-email-pmorel@linux.ibm.com>
- <1594111477-15401-2-git-send-email-pmorel@linux.ibm.com>
- <20200707112652.42fcab80.cohuck@redhat.com>
+ <1594111477-15401-3-git-send-email-pmorel@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200707112652.42fcab80.cohuck@redhat.com>
+In-Reply-To: <1594111477-15401-3-git-send-email-pmorel@linux.ibm.com>
 Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Cornelia Huck <cohuck@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
+To: Pierre Morel <pmorel@linux.ibm.com>, linux-kernel@vger.kernel.org
+Cc: pasic@linux.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 
 
-On 07.07.20 11:26, Cornelia Huck wrote:
-> On Tue,  7 Jul 2020 10:44:36 +0200
-> Pierre Morel <pmorel@linux.ibm.com> wrote:
+On 07.07.20 10:44, Pierre Morel wrote:
+> S390, protecting the guest memory against unauthorized host access
+> needs to enforce VIRTIO I/O device protection through the use of
+> VIRTIO_F_VERSION_1 and VIRTIO_F_IOMMU_PLATFORM.
 > 
->> An architecture may need to validate the VIRTIO devices features
->> based on architecture specificities.
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> ---
+>  arch/s390/kernel/uv.c | 25 +++++++++++++++++++++++++
+>  1 file changed, 25 insertions(+)
 > 
-> s/specifities/specifics/
-> 
->>
->> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->> ---
->>  drivers/virtio/virtio.c       | 19 +++++++++++++++++++
->>  include/linux/virtio_config.h |  1 +
->>  2 files changed, 20 insertions(+)
->>
->> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
->> index a977e32a88f2..3179a8aa76f5 100644
->> --- a/drivers/virtio/virtio.c
->> +++ b/drivers/virtio/virtio.c
->> @@ -167,6 +167,21 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
->>  }
->>  EXPORT_SYMBOL_GPL(virtio_add_status);
->>  
->> +/*
->> + * arch_needs_virtio_iommu_platform - provide arch specific hook when finalizing
-> 
-> s/arch_needs_virtio_iommu_platform/arch_validate_virtio_features/
+> diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+> index c296e5c8dbf9..106330f6eda1 100644
+> --- a/arch/s390/kernel/uv.c
+> +++ b/arch/s390/kernel/uv.c
+> @@ -14,6 +14,7 @@
+>  #include <linux/memblock.h>
+>  #include <linux/pagemap.h>
+>  #include <linux/swap.h>
+> +#include <linux/virtio_config.h>
+>  #include <asm/facility.h>
+>  #include <asm/sections.h>
+>  #include <asm/uv.h>
+> @@ -413,3 +414,27 @@ static int __init uv_info_init(void)
+>  }
+>  device_initcall(uv_info_init);
+>  #endif
+> +
+> +/*
+> + * arch_validate_virtio_iommu_platform
+> + * @dev: the VIRTIO device being added
+> + *
+> + * Return value: returns -ENODEV if any features of the
+> + *               device breaks the protected virtualization
+> + *               0 otherwise.
+> + */
+> +int arch_validate_virtio_features(struct virtio_device *dev)
+> +{
+> +	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
+> +		dev_warn(&dev->dev, "device must provide VIRTIO_F_VERSION_1\n");
 
-With the things from Conny fixed,
+I think you only want to warn if is_prot_virt_guest is true? We certainly
+want to be able to run as a guest of older hypervisors with virtio 0.95, no?
 
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+
+> +		return is_prot_virt_guest() ? -ENODEV : 0;
+> +	}
+> +
+> +	if (!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
+> +		dev_warn(&dev->dev,
+> +			 "device must provide VIRTIO_F_IOMMU_PLATFORM\n");
+
+same here. 
+> +		return is_prot_virt_guest() ? -ENODEV : 0;
+> +	}
+> +
+> +	return 0;
+> +}
+> 
