@@ -1,90 +1,74 @@
-From: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
-Subject: Re: [RFC]: mm,power: introduce MADV_WIPEONSUSPEND
-Date: Tue, 7 Jul 2020 10:07:26 +0200
-Message-ID: <20200707080726.GA32357@amd>
-References: <B7793B7A-3660-4769-9B9A-FFCF250728BB@amazon.com>
- <20200703113026.GT18446@dhcp22.suse.cz>
- <CAG48ez2O2z4L=n57Omwy6s1sWQkdTkPKiikhbfdVhiyd_TGRRw@mail.gmail.com>
- <20200707073823.GA3820@dhcp22.suse.cz>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH v4 2/2] s390: virtio: PV needs VIRTIO I/O device protection
+Date: Tue,  7 Jul 2020 10:44:37 +0200
+Message-ID: <1594111477-15401-3-git-send-email-pmorel@linux.ibm.com>
+References: <1594111477-15401-1-git-send-email-pmorel@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="LQksG6bCIzRHxTLp"
-Return-path: <linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20200707073823.GA3820-2MMpYkNvuYDjFM9bn6wA6Q@public.gmane.org>
-Sender: linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Michal Hocko <mhocko-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Jann Horn <jannh-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, "Catangiu, Adrian Costin" <acatan-vV1OtcyAfmbQT0dZR+AlfA@public.gmane.org>, "linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org" <linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org>, "linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, "linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org" <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, "len.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <len.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "fweimer-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org" <fweimer-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, "keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org" <keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org" <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>, "wad-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org" <wad-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "mingo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <mingo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "bonzini-mXXj517/zsQ@public.gmane.org" <bonzini-mXXj517/zsQ@public.gmane.org>, "Graf (AWS), Alexander" <graf-ebkRAfMGSJGzQB+pC5nmwQ@public.gmane.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1594111477-15401-1-git-send-email-pmorel@linux.ibm.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: linux-kernel@vger.kernel.org
+Cc: gor@linux.ibm.com, linux-s390@vger.kernel.org, frankja@linux.ibm.com, kvm@vger.kernel.org, mst@redhat.com, heiko.carstens@de.ibm.com, cohuck@redhat.com, linuxram@us.ibm.com, virtualization@lists.linux-foundation.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, thomas.lendacky@amd.com, david@gibson.dropbear.id.au
 List-Id: virtualization@lists.linuxfoundation.org
 
+S390, protecting the guest memory against unauthorized host access
+needs to enforce VIRTIO I/O device protection through the use of
+VIRTIO_F_VERSION_1 and VIRTIO_F_IOMMU_PLATFORM.
 
---LQksG6bCIzRHxTLp
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+---
+ arch/s390/kernel/uv.c | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
 
-Hi!
-
-> > > > This patch adds logic to the kernel power code to zero out contents=
- of
-> > > > all MADV_WIPEONSUSPEND VMAs present in the system during its transi=
-tion
-> > > > to any suspend state equal or greater/deeper than Suspend-to-memory,
-> > > > known as S3.
-> > >
-> > > How does the application learn that its memory got wiped? S2disk is an
-> > > async operation and it can happen at any time during the task executi=
-on.
-> > > So how does the application work to prevent from corrupted state - e.=
-g.
-> > > when suspended between two memory loads?
-> >=20
-> > You can do it seqlock-style, kind of - you reserve the first byte of
-> > the page or so as a "is this page initialized" marker, and after every
-> > read from the page, you do a compiler barrier and check whether that
-> > byte has been cleared.
->=20
-> This is certainly possible yet wery awkwar interface to use IMHO.
-> MADV_EXTERNALY_VOLATILE would express the actual semantic much better.
-> I might not still understand the expected usecase but if the target
-> application has to be changed anyway then why not simply use a
-> transparent and proper signaling mechanism like poll on a fd. That
-
-The goal is to have cryprographically-safe get_random_number() with 0
-syscalls.
-
-You'd need to do:
-
-   if (!poll(did_i_migrate)) {
-         use_prng_seed();
-	 if (poll(did_i_migrate)) {
-	       /* oops_they_migrated_me_in_middle_of_computation,
- 	          lets_redo_it() */
- 		  goto retry:
-	 }
-   }
-
-Which means two syscalls..
-
-Best regards,
-
-
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
-
---LQksG6bCIzRHxTLp
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAl8ELT4ACgkQMOfwapXb+vLyMACgqbe6zmXiEEz8DaabrD2NC2vV
-5xgAn3dKno+G4UTAHEY2WCnK1mXkOj/5
-=rQsH
------END PGP SIGNATURE-----
-
---LQksG6bCIzRHxTLp--
+diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+index c296e5c8dbf9..106330f6eda1 100644
+--- a/arch/s390/kernel/uv.c
++++ b/arch/s390/kernel/uv.c
+@@ -14,6 +14,7 @@
+ #include <linux/memblock.h>
+ #include <linux/pagemap.h>
+ #include <linux/swap.h>
++#include <linux/virtio_config.h>
+ #include <asm/facility.h>
+ #include <asm/sections.h>
+ #include <asm/uv.h>
+@@ -413,3 +414,27 @@ static int __init uv_info_init(void)
+ }
+ device_initcall(uv_info_init);
+ #endif
++
++/*
++ * arch_validate_virtio_iommu_platform
++ * @dev: the VIRTIO device being added
++ *
++ * Return value: returns -ENODEV if any features of the
++ *               device breaks the protected virtualization
++ *               0 otherwise.
++ */
++int arch_validate_virtio_features(struct virtio_device *dev)
++{
++	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
++		dev_warn(&dev->dev, "device must provide VIRTIO_F_VERSION_1\n");
++		return is_prot_virt_guest() ? -ENODEV : 0;
++	}
++
++	if (!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
++		dev_warn(&dev->dev,
++			 "device must provide VIRTIO_F_IOMMU_PLATFORM\n");
++		return is_prot_virt_guest() ? -ENODEV : 0;
++	}
++
++	return 0;
++}
+-- 
+2.25.1
