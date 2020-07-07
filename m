@@ -1,89 +1,65 @@
-From: Pierre Morel <pmorel@linux.ibm.com>
-Subject: [PATCH v4 0/2] s390: virtio: let arch validate VIRTIO features
-Date: Tue,  7 Jul 2020 10:44:35 +0200
-Message-ID: <1594111477-15401-1-git-send-email-pmorel@linux.ibm.com>
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
+From: Michal Hocko <mhocko-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
+Subject: Re: [RFC]: mm,power: introduce MADV_WIPEONSUSPEND
+Date: Tue, 7 Jul 2020 10:58:47 +0200
+Message-ID: <20200707085847.GA5913@dhcp22.suse.cz>
+References: <B7793B7A-3660-4769-9B9A-FFCF250728BB@amazon.com>
+ <20200703113026.GT18446@dhcp22.suse.cz>
+ <CAG48ez2O2z4L=n57Omwy6s1sWQkdTkPKiikhbfdVhiyd_TGRRw@mail.gmail.com>
+ <20200707073823.GA3820@dhcp22.suse.cz>
+ <20200707080726.GA32357@amd>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20200707080726.GA32357@amd>
+Sender: linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
+Cc: Jann Horn <jannh-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, "Catangiu, Adrian Costin" <acatan-vV1OtcyAfmbQT0dZR+AlfA@public.gmane.org>, "linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org" <linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org>, "linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, "linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org" <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, "len.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <len.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "fweimer-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org" <fweimer-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, "keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org" <keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org" <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>, "wad-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org" <wad-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "mingo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <mingo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "bonzini-mXXj517/zsQ@public.gmane.org" <bonzini-mXXj517/zsQ@public.gmane.org>, "Graf (AWS), Alexander" <graf-ebkRAfMGSJGzQB+pC5nmwQ@public.gmane.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi all,
+On Tue 07-07-20 10:07:26, Pavel Machek wrote:
+> Hi!
+> 
+> > > > > This patch adds logic to the kernel power code to zero out contents of
+> > > > > all MADV_WIPEONSUSPEND VMAs present in the system during its transition
+> > > > > to any suspend state equal or greater/deeper than Suspend-to-memory,
+> > > > > known as S3.
+> > > >
+> > > > How does the application learn that its memory got wiped? S2disk is an
+> > > > async operation and it can happen at any time during the task execution.
+> > > > So how does the application work to prevent from corrupted state - e.g.
+> > > > when suspended between two memory loads?
+> > > 
+> > > You can do it seqlock-style, kind of - you reserve the first byte of
+> > > the page or so as a "is this page initialized" marker, and after every
+> > > read from the page, you do a compiler barrier and check whether that
+> > > byte has been cleared.
+> > 
+> > This is certainly possible yet wery awkwar interface to use IMHO.
+> > MADV_EXTERNALY_VOLATILE would express the actual semantic much better.
+> > I might not still understand the expected usecase but if the target
+> > application has to be changed anyway then why not simply use a
+> > transparent and proper signaling mechanism like poll on a fd. That
+> 
+> The goal is to have cryprographically-safe get_random_number() with 0
+> syscalls.
+> 
+> You'd need to do:
+> 
+>    if (!poll(did_i_migrate)) {
+>          use_prng_seed();
+> 	 if (poll(did_i_migrate)) {
+> 	       /* oops_they_migrated_me_in_middle_of_computation,
+>  	          lets_redo_it() */
+>  		  goto retry:
+> 	 }
+>    }
+> 
+> Which means two syscalls..
 
-I changed the patch subject to reflect the content, becoming more
-general.
-
-1) I removed the ack from Christian and Jason even far as
-   I understand they gave it for the functionality more than for the
-   implementation.
-   @Jason, @Christian, please can I get back your acked-by with these changes?
-
-2) previous patch had another name:
-   [PATCH v3 0/1] s390: virtio: let arch choose to accept devices without IOMMU feature
-   id: Message-Id: <1592390637-17441-2-git-send-email-pmorel@linux.ibm.com>
-
-3) The new version generalize the validation of the features by the
-   architecture, making it not IOMMU_PLATFORM specific anymore inside
-   virtio.c
-
-   The architecture specific code for s390 is now testing the virtio
-   features.
-
-4) Since I reworked the patch I also moved the arch specific code
-   from arch/s390/mm/init.c to arch/s390/kernel/to uv.c
-
-5) Finaly, I splitted the patch into generic virtio and arch
-   specific code.
-
-Regards,
-Pierre
-
-Pierre Morel (2):
-  virtio: let arch validate VIRTIO features
-  s390: virtio: PV needs VIRTIO I/O device protection
-
- arch/s390/kernel/uv.c         | 25 +++++++++++++++++++++++++
- drivers/virtio/virtio.c       | 19 +++++++++++++++++++
- include/linux/virtio_config.h |  1 +
- 3 files changed, 45 insertions(+)
-
+Is this a real problem though? Do we have any actual numbers? E.g. how
+often does the migration happen so that 2 syscalls would be visible in
+actual workloads?
 -- 
-2.25.1
-
-Changelog
-
-to v4:
-
-- separate virtio and arch code
-  (Pierre)
-
-- moved code from arch/s390/mm/init.c to arch/s390/kernel/uv.c
-  (Heiko)
-
-- moved validation inside the arch code
-  (Connie)
-
-- moved the call to arch validation before VIRTIO_F_1 test
-  (Michael)
-
-to v3:
-
-- add warning
-  (Connie, Christian)
-
-- add comment
-  (Connie)
-
-- change hook name
-  (Halil, Connie)
-
-to v2:
-
-- put the test in virtio_finalize_features()
-  (Connie)
-
-- put the test inside VIRTIO core
-  (Jason)
-
-- pass a virtio device as parameter
-  (Halil)
+Michal Hocko
+SUSE Labs
