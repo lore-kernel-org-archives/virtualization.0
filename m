@@ -1,95 +1,112 @@
 From: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v4 1/2] virtio: let arch validate VIRTIO features
-Date: Tue, 7 Jul 2020 11:26:52 +0200
-Message-ID: <20200707112652.42fcab80.cohuck@redhat.com>
+Subject: Re: [PATCH v4 2/2] s390: virtio: PV needs VIRTIO I/O device protection
+Date: Tue, 7 Jul 2020 11:46:33 +0200
+Message-ID: <20200707114633.68122a00.cohuck@redhat.com>
 References: <1594111477-15401-1-git-send-email-pmorel@linux.ibm.com>
-        <1594111477-15401-2-git-send-email-pmorel@linux.ibm.com>
+ <1594111477-15401-3-git-send-email-pmorel@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1594111477-15401-2-git-send-email-pmorel@linux.ibm.com>
-Sender: kvm-owner@vger.kernel.org
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <1594111477-15401-3-git-send-email-pmorel@linux.ibm.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: Pierre Morel <pmorel@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
+Cc: gor@linux.ibm.com, linux-s390@vger.kernel.org, frankja@linux.ibm.com, kvm@vger.kernel.org, mst@redhat.com, heiko.carstens@de.ibm.com, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, thomas.lendacky@amd.com, david@gibson.dropbear.id.au
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue,  7 Jul 2020 10:44:36 +0200
+On Tue,  7 Jul 2020 10:44:37 +0200
 Pierre Morel <pmorel@linux.ibm.com> wrote:
 
-> An architecture may need to validate the VIRTIO devices features
-> based on architecture specificities.
+> S390, protecting the guest memory against unauthorized host access
+> needs to enforce VIRTIO I/O device protection through the use of
+> VIRTIO_F_VERSION_1 and VIRTIO_F_IOMMU_PLATFORM.
 
-s/specifities/specifics/
+Hm... what about:
+
+"If protected virtualization is active on s390, the virtio queues are
+not accessible to the host, unless VIRTIO_F_IOMMU_PLATFORM has been
+negotiated. Use the new arch_validate_virtio_features() interface to
+enforce this."
 
 > 
 > Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 > ---
->  drivers/virtio/virtio.c       | 19 +++++++++++++++++++
->  include/linux/virtio_config.h |  1 +
->  2 files changed, 20 insertions(+)
+>  arch/s390/kernel/uv.c | 25 +++++++++++++++++++++++++
+>  1 file changed, 25 insertions(+)
 > 
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index a977e32a88f2..3179a8aa76f5 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -167,6 +167,21 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
+> diff --git a/arch/s390/kernel/uv.c b/arch/s390/kernel/uv.c
+> index c296e5c8dbf9..106330f6eda1 100644
+> --- a/arch/s390/kernel/uv.c
+> +++ b/arch/s390/kernel/uv.c
+> @@ -14,6 +14,7 @@
+>  #include <linux/memblock.h>
+>  #include <linux/pagemap.h>
+>  #include <linux/swap.h>
+> +#include <linux/virtio_config.h>
+>  #include <asm/facility.h>
+>  #include <asm/sections.h>
+>  #include <asm/uv.h>
+> @@ -413,3 +414,27 @@ static int __init uv_info_init(void)
 >  }
->  EXPORT_SYMBOL_GPL(virtio_add_status);
->  
+>  device_initcall(uv_info_init);
+>  #endif
+> +
 > +/*
-> + * arch_needs_virtio_iommu_platform - provide arch specific hook when finalizing
+> + * arch_validate_virtio_iommu_platform
 
-s/arch_needs_virtio_iommu_platform/arch_validate_virtio_features/
+s/arch_validate_virtio_iommu_platform/arch_validate_virtio_features/
 
-:)
-
-> + *				      features for VIRTIO device dev
 > + * @dev: the VIRTIO device being added
 > + *
-> + * Permits the platform to provide architecture specific functionality when
+> + * Return value: returns -ENODEV if any features of the
+> + *               device breaks the protected virtualization
+> + *               0 otherwise.
 
-s/provide architecture specific functionality/handle architecture-specific requirements/
+I don't think you need to specify the contract here: that belongs to
+the definition in the virtio core. What about simply adding a sentence
+"Return an error if required features are missing on a guest running
+with protected virtualization." ?
 
-?
-
-> + * devices features are finalized. This is the default implementation.
-
-s/devices/device/
-
-> + * Architecture implementations can override this.
 > + */
-> +
-> +int __weak arch_validate_virtio_features(struct virtio_device *dev)
+> +int arch_validate_virtio_features(struct virtio_device *dev)
 > +{
+
+Maybe jump out immediately if the guest is not protected?
+
+> +	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
+> +		dev_warn(&dev->dev, "device must provide VIRTIO_F_VERSION_1\n");
+> +		return is_prot_virt_guest() ? -ENODEV : 0;
+> +	}
+> +
+> +	if (!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
+> +		dev_warn(&dev->dev,
+> +			 "device must provide VIRTIO_F_IOMMU_PLATFORM\n");
+> +		return is_prot_virt_guest() ? -ENODEV : 0;
+> +	}
+
+if (!is_prot_virt_guest())
+	return 0;
+
+if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
+	dev_warn(&dev->dev,
+                 "legacy virtio is incompatible with protected guests");
+	return -ENODEV;
+}
+
+if (!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
+	dev_warn(&dev->dev,
+		 "device does not work with limited memory access in protected guests");
+	return -ENODEV;
+}
+
+> +
 > +	return 0;
 > +}
-> +
->  int virtio_finalize_features(struct virtio_device *dev)
->  {
->  	int ret = dev->config->finalize_features(dev);
-> @@ -176,6 +191,10 @@ int virtio_finalize_features(struct virtio_device *dev)
->  	if (ret)
->  		return ret;
->  
-> +	ret = arch_validate_virtio_features(dev);
-> +	if (ret)
-> +		return ret;
-> +
->  	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
->  		return 0;
->  
-> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> index bb4cc4910750..3f4117adf311 100644
-> --- a/include/linux/virtio_config.h
-> +++ b/include/linux/virtio_config.h
-> @@ -459,4 +459,5 @@ static inline void virtio_cwrite64(struct virtio_device *vdev,
->  		_r;							\
->  	})
->  
-> +int arch_validate_virtio_features(struct virtio_device *dev);
->  #endif /* _LINUX_VIRTIO_CONFIG_H */
-
-With the wording fixed,
-
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
