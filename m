@@ -1,84 +1,110 @@
-From: Pavel Machek <pavel-+ZI9xUNit7I@public.gmane.org>
-Subject: Re: [RFC]: mm,power: introduce MADV_WIPEONSUSPEND
-Date: Tue, 7 Jul 2020 18:37:58 +0200
-Message-ID: <20200707163758.GA1947@amd>
-References: <B7793B7A-3660-4769-9B9A-FFCF250728BB@amazon.com>
- <20200703113026.GT18446@dhcp22.suse.cz>
- <CAG48ez2O2z4L=n57Omwy6s1sWQkdTkPKiikhbfdVhiyd_TGRRw@mail.gmail.com>
- <20200707073823.GA3820@dhcp22.suse.cz>
- <20200707080726.GA32357@amd>
- <20200707085847.GA5913@dhcp22.suse.cz>
+From: "Paul E. McKenney" <paulmck@kernel.org>
+Subject: Re: [PATCH 18/18] arm64: lto: Strengthen READ_ONCE() to acquire when
+ CLANG_LTO=y
+Date: Tue, 7 Jul 2020 15:51:22 -0700
+Message-ID: <20200707225122.GJ9247@paulmck-ThinkPad-P72>
+References: <20200630173734.14057-1-will@kernel.org>
+ <20200630173734.14057-19-will@kernel.org>
+ <20200701170722.4rte5ssnmrn2uqzg@bakewell.cambridge.arm.com>
+ <20200702072301.GA15963@willie-the-truck>
+ <20200706160023.GB10992@arm.com>
+ <20200706163455.GV9247@paulmck-ThinkPad-P72>
+ <20200706170556.GE10992@arm.com>
+ <20200706173628.GZ9247@paulmck-ThinkPad-P72>
+ <20200707102915.GI10992@arm.com>
+Reply-To: paulmck@kernel.org
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="cWoXeonUoKmBZSoM"
-Return-path: <linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-alpha-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200707085847.GA5913-2MMpYkNvuYDjFM9bn6wA6Q@public.gmane.org>
-Sender: linux-api-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Michal Hocko <mhocko-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>
-Cc: Jann Horn <jannh-hpIqsD4AKlfQT0dZR+AlfA@public.gmane.org>, "Catangiu, Adrian Costin" <acatan-vV1OtcyAfmbQT0dZR+AlfA@public.gmane.org>, "linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org" <linux-mm-Bw31MaZKKs3YtjvyW6yDsg@public.gmane.org>, "linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-pm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org" <virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org>, "linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org" <linux-api-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, "akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org" <akpm-de/tnXTf+JLsfHDXvbKv3WD2FQJk+8+b@public.gmane.org>, "rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org" <rjw-LthD3rsA81gm4RdzfppkhA@public.gmane.org>, "len.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org" <len.brown-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, "fweimer-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org" <fweimer-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, "keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org" <keescook-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org" <luto-kltTT9wpgjJwATOyAt5JVQ@public.gmane.org>, "wad-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org" <wad-F7+t8E8rja9g9hUCZPvPmw@public.gmane.org>, "mingo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org" <mingo-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, "bonzini-mXXj517/zsQ@public.gmane.org" <bonzini-mXXj517/zsQ@public.gmane.org>, "Graf (AWS), Alexander" <graf-ebkRAfMGSJGzQB+pC5nmwQ@public.gmane.org>
+In-Reply-To: <20200707102915.GI10992@arm.com>
+Sender: linux-alpha-owner@vger.kernel.org
+To: Dave Martin <Dave.Martin@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, Will Deacon <will@kernel.org>, Alan Stern <stern@rowland.harvard.edu>, Sami Tolvanen <samitolvanen@google.com>, Matt Turner <mattst88@gmail.com>, kernel-team@android.com, Marco Elver <elver@google.com>, Kees Cook <keescook@chromium.org>, Arnd Bergmann <arnd@arndb.de>, Boqun Feng <boqun.feng@gmail.com>, Josh Triplett <josh@joshtriplett.org>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-arm-kernel@lists.infradead.org, Richard Henderson <rth@twiddle.net>, Nick Desaulniers <ndesaulniers@google.com>lin
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue, Jul 07, 2020 at 11:29:15AM +0100, Dave Martin wrote:
+> On Mon, Jul 06, 2020 at 10:36:28AM -0700, Paul E. McKenney wrote:
+> > On Mon, Jul 06, 2020 at 06:05:57PM +0100, Dave Martin wrote:
 
---cWoXeonUoKmBZSoM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+[ . . . ]
 
-Hi!
+> > > The underlying problem here seems to be that the necessary ordering
+> > > rule is not part of what passes for the C memory model prior to C11.
+> > > If we want to control the data flow, don't we have to wrap the entire
+> > > dereference in a macro?
+> > 
+> > Yes, exactly.  Because we are relying on things that are not guaranteed
+> > by the C memory model, we need to pay attention to the implementations.
+> > As I have said elsewhere, the price of control dependencies is eternal
+> > vigilance.
+> > 
+> > And this also applies, to a lesser extent, to address and data
+> > dependencies, which are also not well supported by the C standard.
+> > 
+> > There is one important case in which the C memory model -does- support
+> > control dependencies, and that is when the dependent write is a normal
+> > C-language write that is not involved in a data race.  In that case,
+> > if the compiler broke the control dependency, it might have introduced
+> > a data race, which it is forbidden to do.  However, this rule can also
+> > be broken when the compiler knows too much, as it might be able to prove
+> > that breaking the dependency won't introduce a data race.  In that case,
+> > according to the standard, it is free to break the dependency.
+> 
+> Which only matters because the C abstract machine may not match reality.
+> 
+> LTO has no bearing on the abstract machine though.
+> 
+> If specific compiler options etc. can be added to inhibit the
+> problematic optimisations, that would be ideal.  I guess that can't
+> happen overnight though.
 
-> > > > You can do it seqlock-style, kind of - you reserve the first byte of
-> > > > the page or so as a "is this page initialized" marker, and after ev=
-ery
-> > > > read from the page, you do a compiler barrier and check whether that
-> > > > byte has been cleared.
-> > >=20
-> > > This is certainly possible yet wery awkwar interface to use IMHO.
-> > > MADV_EXTERNALY_VOLATILE would express the actual semantic much better.
-> > > I might not still understand the expected usecase but if the target
-> > > application has to be changed anyway then why not simply use a
-> > > transparent and proper signaling mechanism like poll on a fd. That
-> >=20
-> > The goal is to have cryprographically-safe get_random_number() with 0
-> > syscalls.
-> >=20
-> > You'd need to do:
-> >=20
-> >    if (!poll(did_i_migrate)) {
-> >          use_prng_seed();
-> > 	 if (poll(did_i_migrate)) {
-> > 	       /* oops_they_migrated_me_in_middle_of_computation,
-> >  	          lets_redo_it() */
-> >  		  goto retry:
-> > 	 }
-> >    }
-> >=20
-> > Which means two syscalls..
->=20
-> Is this a real problem though? Do we have any actual numbers? E.g. how
-> often does the migration happen so that 2 syscalls would be visible in
-> actual workloads?
+Sadly, I must agree.
 
-Please go through the thread and try to understand it.
+> > > > > > We likely won't realise if/when this goes wrong, other than impossible to
+> > > > > > debug, subtle breakage that crops up seemingly randomly. Ideally, we'd be
+> > > > > > able to detect this sort of thing happening at build time, and perhaps
+> > > > > > even prevent it with compiler options or annotations, but none of that is
+> > > > > > close to being available and I'm keen to progress the LTO patches in the
+> > > > > > meantime because they are a requirement for CFI.
+> > > > > 
+> > > > > My concern was not so much why LTO makes things dangerous, as why !LTO
+> > > > > makes things safe...
+> > > > 
+> > > > Because ignorant compilers are safe compilers!  ;-)
+> > > 
+> > > AFAICT ignorance is no gurantee of ordering in general -- the compiler
+> > > is free to speculatively invent knowledge any place that the language
+> > > spec allows it to.  !LTO doesn't stop this happening.
+> > 
+> > Agreed, according to the standard, the compiler has great freedom.
+> > 
+> > We have two choices: (1) Restrict ourselves to live within the confines of
+> > the standard or (2) Pay continued close attention to the implementation.
+> > We have made different choices at different times, but for many ordering
+> > situations we have gone with door #2.
+> > 
+> > Me, I have been working to get the standard to better support our
+> > use case.  This is at best slow going.  But don't take my word for it,
+> > ask Will.
+> 
+> I can believe it.  They want to enable optimisations rather than prevent
+> them...
 
-You'd need syscalls per get_randomness(), not per migration.
+Right in one!  ;-)
 
-									Pavel
---=20
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blo=
-g.html
+> > > Hopefully some of the knowledge I invented in my reply is valid...
+> > 
+> > It is.  It is just that there are multiple valid strategies, and the
+> > Linux kernel is currently taking a mixed-strategy approach.
+> 
+> Ack.  The hope that there is a correct way to fix everything dies
+> hard ;)
 
---cWoXeonUoKmBZSoM
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+Either that, or one slowly degrades ones definition of "correct".  :-/
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+> Life was cosier before I started trying to reason about language specs.
 
-iEYEARECAAYFAl8EpOUACgkQMOfwapXb+vIrGQCfa8t3eRPUQJN4sgdBPhRqIXIN
-Md0AoL/VSUKG0fqXzutn3A1vlMnmAH5A
-=B3/F
------END PGP SIGNATURE-----
+Same here!
 
---cWoXeonUoKmBZSoM--
+							Thanx, Paul
