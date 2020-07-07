@@ -1,70 +1,143 @@
-From: "Paul E. McKenney" <paulmck@kernel.org>
-Subject: Re: [PATCH 18/18] arm64: lto: Strengthen READ_ONCE() to acquire when
- CLANG_LTO=y
-Date: Mon, 6 Jul 2020 12:42:37 -0700
-Message-ID: <20200706194237.GF9247@paulmck-ThinkPad-P72>
-References: <20200630173734.14057-1-will@kernel.org>
- <20200630173734.14057-19-will@kernel.org>
- <20200701170722.4rte5ssnmrn2uqzg@bakewell.cambridge.arm.com>
- <20200702072301.GA15963@willie-the-truck>
- <20200706160023.GB10992@arm.com>
- <20200706183542.GB23766@willie-the-truck>
- <CANpmjNP9pb4_2S8sf+Ty2ZqtMxWSrBEosDx2wuL2OQnA9YFt9A@mail.gmail.com>
-Reply-To: paulmck@kernel.org
+From: Nicholas Piggin <npiggin@gmail.com>
+Subject: Re: [PATCH v3 0/6] powerpc: queued spinlocks and rwlocks
+Date: Tue, 07 Jul 2020 15:57:06 +1000
+Message-ID: <1594101082.hfq9x5yact.astroid@bobo.none>
+References: <20200706043540.1563616-1-npiggin@gmail.com>
+        <24f75d2c-60cd-2766-4aab-1a3b1c80646e@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CANpmjNP9pb4_2S8sf+Ty2ZqtMxWSrBEosDx2wuL2OQnA9YFt9A@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Marco Elver <elver@google.com>
-Cc: Will Deacon <will@kernel.org>, Dave Martin <Dave.Martin@arm.com>, Mark Rutland <mark.rutland@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, Arnd Bergmann <arnd@arndb.de>, Alan Stern <stern@rowland.harvard.edu>, Sami Tolvanen <samitolvanen@google.com>, Matt Turner <mattst88@gmail.com>, Android Kernel Team <kernel-team@android.com>, Kees Cook <keescook@chromium.org>, Boqun Feng <boqun.feng@gmail.com>, Josh Triplett <josh@joshtriplett.org>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Linux ARM <linux-arm-kernel@lists.infradead.org>, Richard Henderson <rth@twiddle.net>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-arch-owner@vger.kernel.org>
+In-Reply-To: <24f75d2c-60cd-2766-4aab-1a3b1c80646e@redhat.com>
+Sender: linux-arch-owner@vger.kernel.org
+To: linuxppc-dev@lists.ozlabs.org, Waiman Long <longman@redhat.com>
+Cc: Anton Blanchard <anton@ozlabs.org>, Boqun Feng <boqun.feng@gmail.com>, kvm-ppc@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, Will Deacon <will@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 06, 2020 at 09:23:26PM +0200, Marco Elver wrote:
-> On Mon, 6 Jul 2020 at 20:35, Will Deacon <will@kernel.org> wrote:
-> > On Mon, Jul 06, 2020 at 05:00:23PM +0100, Dave Martin wrote:
-> > > On Thu, Jul 02, 2020 at 08:23:02AM +0100, Will Deacon wrote:
-> > > > On Wed, Jul 01, 2020 at 06:07:25PM +0100, Dave P Martin wrote:
-> > > > > Also, can you illustrate code that can only be unsafe with Clang LTO?
-> > > >
-> > > > I don't have a concrete example, but it's an ongoing concern over on the LTO
-> > > > thread [1], so I cooked this to show one way we could deal with it. The main
-> > > > concern is that the whole-program optimisations enabled by LTO may allow the
-> > > > compiler to enumerate possible values for a pointer at link time and replace
-> > > > an address dependency between two loads with a control dependency instead,
-> > > > defeating the dependency ordering within the CPU.
-> > >
-> > > Why can't that happen without LTO?
-> >
-> > It could, but I'd argue that it's considerably less likely because there
-> > is less information available to the compiler to perform these sorts of
-> > optimisations. It also doesn't appear to be happening in practice.
-> >
-> > The current state of affairs is that, if/when we catch the compiler
-> > performing harmful optimistations, we look for a way to disable them.
-> > However, there are good reasons to enable LTO, so this is one way to
-> > do that without having to worry about the potential impact on dependency
-> > ordering.
-> 
-> If it's of any help, I'll see if we can implement that warning in LLVM
-> if data dependencies somehow disappear (although I don't have any
-> cycles to pursue right now myself). Until then, short of manual
-> inspection or encountering a bug in the wild, there is no proof any of
-> this happens or doesn't happen.
-> 
-> Also, as some anecdotal evidence it's extremely unlikely, even with
-> LTO: looking at the passes that LLVM runs, there are a number of
-> passes that seem to want to eliminate basic blocks, thereby getting
-> rid of branches. Intuitively, it makes sense, because branches are
-> expensive on most architectures (for GPU targets, I think it tries
-> even harder to get rid of branches). If we extend our reasoning and
-> assumptions of LTO's aggressiveness in that direction, we might
-> actually end up with fewer branches. That might be beneficial for the
-> data dependencies we worry about (but not so much for control
-> dependencies we want to keep). Still, no point in speculating (no pun
-> intended) until we have hard data what actually happens. :-)
+Excerpts from Waiman Long's message of July 7, 2020 4:39 am:
+> On 7/6/20 12:35 AM, Nicholas Piggin wrote:
+>> v3 is updated to use __pv_queued_spin_unlock, noticed by Waiman (thank y=
+ou).
+>>
+>> Thanks,
+>> Nick
+>>
+>> Nicholas Piggin (6):
+>>    powerpc/powernv: must include hvcall.h to get PAPR defines
+>>    powerpc/pseries: move some PAPR paravirt functions to their own file
+>>    powerpc: move spinlock implementation to simple_spinlock
+>>    powerpc/64s: implement queued spinlocks and rwlocks
+>>    powerpc/pseries: implement paravirt qspinlocks for SPLPAR
+>>    powerpc/qspinlock: optimised atomic_try_cmpxchg_lock that adds the
+>>      lock hint
+>>
+>>   arch/powerpc/Kconfig                          |  13 +
+>>   arch/powerpc/include/asm/Kbuild               |   2 +
+>>   arch/powerpc/include/asm/atomic.h             |  28 ++
+>>   arch/powerpc/include/asm/paravirt.h           |  89 +++++
+>>   arch/powerpc/include/asm/qspinlock.h          |  91 ++++++
+>>   arch/powerpc/include/asm/qspinlock_paravirt.h |   7 +
+>>   arch/powerpc/include/asm/simple_spinlock.h    | 292 +++++++++++++++++
+>>   .../include/asm/simple_spinlock_types.h       |  21 ++
+>>   arch/powerpc/include/asm/spinlock.h           | 308 +-----------------
+>>   arch/powerpc/include/asm/spinlock_types.h     |  17 +-
+>>   arch/powerpc/lib/Makefile                     |   3 +
+>>   arch/powerpc/lib/locks.c                      |  12 +-
+>>   arch/powerpc/platforms/powernv/pci-ioda-tce.c |   1 +
+>>   arch/powerpc/platforms/pseries/Kconfig        |   5 +
+>>   arch/powerpc/platforms/pseries/setup.c        |   6 +-
+>>   include/asm-generic/qspinlock.h               |   4 +
+>>   16 files changed, 577 insertions(+), 322 deletions(-)
+>>   create mode 100644 arch/powerpc/include/asm/paravirt.h
+>>   create mode 100644 arch/powerpc/include/asm/qspinlock.h
+>>   create mode 100644 arch/powerpc/include/asm/qspinlock_paravirt.h
+>>   create mode 100644 arch/powerpc/include/asm/simple_spinlock.h
+>>   create mode 100644 arch/powerpc/include/asm/simple_spinlock_types.h
+>>
+> This patch looks OK to me.
 
-Anything along these lines would be very welcome!!!
+Thanks for reviewing and testing.
 
-							Thanx, Paul
+> I had run some microbenchmark on powerpc system with or w/o the patch.
+>=20
+> On a 2-socket 160-thread SMT4 POWER9 system (not virtualized):
+>=20
+> 5.8.0-rc4
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D
+>=20
+> Running locktest with spinlock [runtime =3D 10s, load =3D 1]
+> Threads =3D 160, Min/Mean/Max =3D 77,665/90,153/106,895
+> Threads =3D 160, Total Rate =3D 1,441,759 op/s; Percpu Rate =3D 9,011 op/=
+s
+>=20
+> Running locktest with rwlock [runtime =3D 10s, r% =3D 50%, load =3D 1]
+> Threads =3D 160, Min/Mean/Max =3D 47,879/53,807/63,689
+> Threads =3D 160, Total Rate =3D 860,192 op/s; Percpu Rate =3D 5,376 op/s
+>=20
+> Running locktest with spinlock [runtime =3D 10s, load =3D 1]
+> Threads =3D 80, Min/Mean/Max =3D 242,907/319,514/463,161
+> Threads =3D 80, Total Rate =3D 2,555 kop/s; Percpu Rate =3D 32 kop/s
+>=20
+> Running locktest with rwlock [runtime =3D 10s, r% =3D 50%, load =3D 1]
+> Threads =3D 80, Min/Mean/Max =3D 146,161/187,474/259,270
+> Threads =3D 80, Total Rate =3D 1,498 kop/s; Percpu Rate =3D 19 kop/s
+>=20
+> Running locktest with spinlock [runtime =3D 10s, load =3D 1]
+> Threads =3D 40, Min/Mean/Max =3D 646,639/1,000,817/1,455,205
+> Threads =3D 40, Total Rate =3D 4,001 kop/s; Percpu Rate =3D 100 kop/s
+>=20
+> Running locktest with rwlock [runtime =3D 10s, r% =3D 50%, load =3D 1]
+> Threads =3D 40, Min/Mean/Max =3D 402,165/597,132/814,555
+> Threads =3D 40, Total Rate =3D 2,388 kop/s; Percpu Rate =3D 60 kop/s
+>=20
+> 5.8.0-rc4-qlock+
+> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+>=20
+> Running locktest with spinlock [runtime =3D 10s, load =3D 1]
+> Threads =3D 160, Min/Mean/Max =3D 123,835/124,580/124,587
+> Threads =3D 160, Total Rate =3D 1,992 kop/s; Percpu Rate =3D 12 kop/s
+>=20
+> Running locktest with rwlock [runtime =3D 10s, r% =3D 50%, load =3D 1]
+> Threads =3D 160, Min/Mean/Max =3D 254,210/264,714/276,784
+> Threads =3D 160, Total Rate =3D 4,231 kop/s; Percpu Rate =3D 26 kop/s
+>=20
+> Running locktest with spinlock [runtime =3D 10s, load =3D 1]
+> Threads =3D 80, Min/Mean/Max =3D 599,715/603,397/603,450
+> Threads =3D 80, Total Rate =3D 4,825 kop/s; Percpu Rate =3D 60 kop/s
+>=20
+> Running locktest with rwlock [runtime =3D 10s, r% =3D 50%, load =3D 1]
+> Threads =3D 80, Min/Mean/Max =3D 492,687/525,224/567,456
+> Threads =3D 80, Total Rate =3D 4,199 kop/s; Percpu Rate =3D 52 kop/s
+>=20
+> Running locktest with spinlock [runtime =3D 10s, load =3D 1]
+> Threads =3D 40, Min/Mean/Max =3D 1,325,623/1,325,628/1,325,636
+> Threads =3D 40, Total Rate =3D 5,299 kop/s; Percpu Rate =3D 132 kop/s
+>=20
+> Running locktest with rwlock [runtime =3D 10s, r% =3D 50%, load =3D 1]
+> Threads =3D 40, Min/Mean/Max =3D 1,249,731/1,292,977/1,342,815
+> Threads =3D 40, Total Rate =3D 5,168 kop/s; Percpu Rate =3D 129 kop/s
+>=20
+> On systems on large number of cpus, qspinlock lock is faster and more fai=
+r.
+>=20
+> With some tuning, we may be able to squeeze out more performance.
+
+Yes, powerpc could certainly get more performance out of the slow
+paths, and then there are a few parameters to tune.
+
+We don't have a good alternate patching for function calls yet, but
+that would be something to do for native vs pv.
+
+And then there seem to be one or two tunable parameters we could
+experiment with.
+
+The paravirt locks may need a bit more tuning. Some simple testing
+under KVM shows we might be a bit slower in some cases. Whether this
+is fairness or something else I'm not sure. The current simple pv
+spinlock code can do a directed yield to the lock holder CPU, whereas=20
+the pv qspl here just does a general yield. I think we might actually
+be able to change that to also support directed yield. Though I'm
+not sure if this is actually the cause of the slowdown yet.
+
+Thanks,
+Nick
