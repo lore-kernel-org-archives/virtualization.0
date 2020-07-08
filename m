@@ -1,43 +1,85 @@
-From: "Paul E. McKenney" <paulmck@kernel.org>
-Subject: Re: [PATCH 18/18] arm64: lto: Strengthen READ_ONCE() to acquire when
- CLANG_LTO=y
-Date: Wed, 8 Jul 2020 11:20:36 -0700
-Message-ID: <20200708182036.GR9247@paulmck-ThinkPad-P72>
-References: <20200701170722.4rte5ssnmrn2uqzg@bakewell.cambridge.arm.com>
- <20200702072301.GA15963@willie-the-truck>
- <20200706160023.GB10992@arm.com>
- <20200706163455.GV9247@paulmck-ThinkPad-P72>
- <20200706170556.GE10992@arm.com>
- <20200706173628.GZ9247@paulmck-ThinkPad-P72>
- <20200707102915.GI10992@arm.com>
- <20200707225122.GJ9247@paulmck-ThinkPad-P72>
- <CAKwvOdkW__H21m8vqqk1-n6-KK67HBk=YbA+MkUS7igxfjV1iw@mail.gmail.com>
- <20200708091620.GF597537@hirez.programming.kicks-ass.net>
-Reply-To: paulmck@kernel.org
+From: Waiman Long <longman@redhat.com>
+Subject: Re: [PATCH v3 0/6] powerpc: queued spinlocks and rwlocks
+Date: Wed, 8 Jul 2020 19:50:05 -0400
+Message-ID: <62fa6343-e084-75c3-01c9-349a4617e67c@redhat.com>
+References: <20200706043540.1563616-1-npiggin@gmail.com>
+ <24f75d2c-60cd-2766-4aab-1a3b1c80646e@redhat.com>
+ <1594101082.hfq9x5yact.astroid@bobo.none>
+ <de3ead58-7f81-8ebd-754d-244f6be24af4@redhat.com>
+ <1594184204.ncuq7vstsz.astroid@bobo.none>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-alpha-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200708091620.GF597537@hirez.programming.kicks-ass.net>
-Sender: linux-alpha-owner@vger.kernel.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>, Dave Martin <Dave.Martin@arm.com>, Will Deacon <will@kernel.org>, Sami Tolvanen <samitolvanen@google.com>, Marco Elver <elver@google.com>, Mark Rutland <mark.rutland@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Catalin Marinas <catalin.marinas@arm.com>, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, Alan Stern <stern@rowland.harvard.edu>, Matt Turner <mattst88@gmail.com>, kernel-team <kernel-team@android.com>, Kees Cook <keescook@chromium.org>, Arnd Bergmann <arnd@arndb.de>, Boqun Feng <boqun.feng@gmail.com>, Josh Triplett <josh@joshtriplett.org>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Linux ARM <linux-arm-kernel@lists.infradead.org>, Richard
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <kvm-ppc-owner@vger.kernel.org>
+In-Reply-To: <1594184204.ncuq7vstsz.astroid@bobo.none>
+Content-Language: en-US
+Sender: kvm-ppc-owner@vger.kernel.org
+To: Nicholas Piggin <npiggin@gmail.com>, linuxppc-dev@lists.ozlabs.org
+Cc: Anton Blanchard <anton@ozlabs.org>, Boqun Feng <boqun.feng@gmail.com>, kvm-ppc@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, Ingo Molnar <mingo@redhat.com>, Peter Zijlstra <peterz@infradead.org>, virtualization@lists.linux-foundation.org, Will Deacon <will@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 08, 2020 at 11:16:20AM +0200, Peter Zijlstra wrote:
-> On Tue, Jul 07, 2020 at 04:01:28PM -0700, Nick Desaulniers wrote:
-> > I'm trying to put together a Micro Conference for Linux Plumbers
-> > conference focused on "make LLVM slightly less shitty."  Do you all
-> > plan on attending the conference? Would it be worthwhile to hold a
-> > session focused on discussing this (LTO and memory models) be
-> > worthwhile?
-> 
-> I'd love to have a session about compilers and memory ordering with both
-> GCC and CLANG in attendance.
-> 
-> We need a solution for dependent-loads and control-dependencies for both
-> toolchains.
+On 7/8/20 1:10 AM, Nicholas Piggin wrote:
+> Excerpts from Waiman Long's message of July 8, 2020 1:33 pm:
+>> On 7/7/20 1:57 AM, Nicholas Piggin wrote:
+>>> Yes, powerpc could certainly get more performance out of the slow
+>>> paths, and then there are a few parameters to tune.
+>>>
+>>> We don't have a good alternate patching for function calls yet, but
+>>> that would be something to do for native vs pv.
+>>>
+>>> And then there seem to be one or two tunable parameters we could
+>>> experiment with.
+>>>
+>>> The paravirt locks may need a bit more tuning. Some simple testing
+>>> under KVM shows we might be a bit slower in some cases. Whether this
+>>> is fairness or something else I'm not sure. The current simple pv
+>>> spinlock code can do a directed yield to the lock holder CPU, whereas
+>>> the pv qspl here just does a general yield. I think we might actually
+>>> be able to change that to also support directed yield. Though I'm
+>>> not sure if this is actually the cause of the slowdown yet.
+>> Regarding the paravirt lock, I have taken a further look into the
+>> current PPC spinlock code. There is an equivalent of pv_wait() but no
+>> pv_kick(). Maybe PPC doesn't really need that.
+> So powerpc has two types of wait, either undirected "all processors" or
+> directed to a specific processor which has been preempted by the
+> hypervisor.
+>
+> The simple spinlock code does a directed wait, because it knows the CPU
+> which is holding the lock. In this case, there is a sequence that is
+> used to ensure we don't wait if the condition has become true, and the
+> target CPU does not need to kick the waiter it will happen automatically
+> (see splpar_spin_yield). This is preferable because we only wait as
+> needed and don't require the kick operation.
+Thanks for the explanation.
+>
+> The pv spinlock code I did uses the undirected wait, because we don't
+> know the CPU number which we are waiting on. This is undesirable because
+> it's higher overhead and the wait is not so accurate.
+>
+> I think perhaps we could change things so we wait on the correct CPU
+> when queued, which might be good enough (we could also put the lock
+> owner CPU in the spinlock word, if we add another format).
 
-What Peter said!  ;-)
+The LS byte of the lock word is used to indicate locking status. If we 
+have less than 255 cpus, we can put the (cpu_nr + 1) into the lock byte. 
+The special 0xff value can be used to indicate a cpu number >= 255 for 
+indirect yield. The required change to the qspinlock code will be 
+minimal, I think.
 
-							Thanx, Paul
+
+>> Attached are two
+>> additional qspinlock patches that adds a CONFIG_PARAVIRT_QSPINLOCKS_LITE
+>> option to not require pv_kick(). There is also a fixup patch to be
+>> applied after your patchset.
+>>
+>> I don't have access to a PPC LPAR with shared processor at the moment,
+>> so I can't test the performance of the paravirt code. Would you mind
+>> adding my patches and do some performance test on your end to see if it
+>> gives better result?
+> Great, I'll do some tests. Any suggestions for what to try?
+
+I will just like to see if it will produce some better performance 
+result compared with your current version.
+
+Cheers,
+Longman
