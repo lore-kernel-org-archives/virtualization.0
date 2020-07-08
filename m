@@ -1,49 +1,48 @@
-From: Marco Elver <elver@google.com>
-Subject: Re: [PATCH 18/18] arm64: lto: Strengthen READ_ONCE() to acquire when CLANG_LTO=y
-Date: Wed, 8 Jul 2020 09:15:44 +0200
-Message-ID: <CANpmjNP8xwyjiDRgzWO13K3rPbxM0gRwTvMvX3Amm-QOWD0_tQ@mail.gmail.com>
-References: <20200630173734.14057-1-will@kernel.org> <20200630173734.14057-19-will@kernel.org>
- <20200701170722.4rte5ssnmrn2uqzg@bakewell.cambridge.arm.com>
- <20200702072301.GA15963@willie-the-truck> <20200706160023.GB10992@arm.com>
- <20200706163455.GV9247@paulmck-ThinkPad-P72> <20200706170556.GE10992@arm.com>
- <20200706173628.GZ9247@paulmck-ThinkPad-P72> <20200707102915.GI10992@arm.com>
- <20200707225122.GJ9247@paulmck-ThinkPad-P72> <CAKwvOdkW__H21m8vqqk1-n6-KK67HBk=YbA+MkUS7igxfjV1iw@mail.gmail.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v3 0/6] powerpc: queued spinlocks and rwlocks
+Date: Wed, 8 Jul 2020 10:32:10 +0200
+Message-ID: <20200708083210.GD597537@hirez.programming.kicks-ass.net>
+References: <20200706043540.1563616-1-npiggin@gmail.com>
+ <24f75d2c-60cd-2766-4aab-1a3b1c80646e@redhat.com>
+ <1594101082.hfq9x5yact.astroid@bobo.none>
+ <de3ead58-7f81-8ebd-754d-244f6be24af4@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-alpha-owner@vger.kernel.org>
-In-Reply-To: <CAKwvOdkW__H21m8vqqk1-n6-KK67HBk=YbA+MkUS7igxfjV1iw@mail.gmail.com>
-Sender: linux-alpha-owner@vger.kernel.org
-To: Nick Desaulniers <ndesaulniers@google.com>
-Cc: "Paul E. McKenney" <paulmck@kernel.org>, Dave Martin <Dave.Martin@arm.com>, Peter Zijlstra <peterz@infradead.org>, Will Deacon <will@kernel.org>, Sami Tolvanen <samitolvanen@google.com>, Mark Rutland <mark.rutland@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Catalin Marinas <catalin.marinas@arm.com>, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, Alan Stern <stern@rowland.harvard.edu>, Matt Turner <mattst88@gmail.com>, kernel-team <kernel-team@android.com>, Kees Cook <keescook@chromium.org>, Arnd Bergmann <arnd@arndb.de>, Boqun Feng <boqun.feng@gmail.com>, Josh Triplett <josh@joshtriplett.org>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Linux ARM <linux-arm-kernel@lists.infradead.org>, Richard
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <de3ead58-7f81-8ebd-754d-244f6be24af4@redhat.com>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Waiman Long <longman@redhat.com>
+Cc: linux-arch@vger.kernel.org, Will Deacon <will@kernel.org>, Boqun Feng <boqun.feng@gmail.com>, linux-kernel@vger.kernel.org, kvm-ppc@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Nicholas Piggin <npiggin@gmail.com>, Anton Blanchard <anton@ozlabs.org>, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 8 Jul 2020 at 01:01, Nick Desaulniers <ndesaulniers@google.com> wrote:
->
-> I'm trying to put together a Micro Conference for Linux Plumbers
-> conference focused on "make LLVM slightly less shitty."  Do you all
-> plan on attending the conference? Would it be worthwhile to hold a
-> session focused on discussing this (LTO and memory models) be
-> worthwhile?
+On Tue, Jul 07, 2020 at 11:33:45PM -0400, Waiman Long wrote:
+> From 5d7941a498935fb225b2c7a3108cbf590114c3db Mon Sep 17 00:00:00 2001
+> From: Waiman Long <longman@redhat.com>
+> Date: Tue, 7 Jul 2020 22:29:16 -0400
+> Subject: [PATCH 2/9] locking/pvqspinlock: Introduce
+>  CONFIG_PARAVIRT_QSPINLOCKS_LITE
+> 
+> Add a new PARAVIRT_QSPINLOCKS_LITE config option that allows
+> architectures to use the PV qspinlock code without the need to use or
+> implement a pv_kick() function, thus eliminating the atomic unlock
+> overhead. The non-atomic queued_spin_unlock() can be used instead.
+> The pv_wait() function will still be needed, but it can be a dummy
+> function.
+> 
+> With that option set, the hybrid PV queued/unfair locking code should
+> still be able to make it performant enough in a paravirtualized
 
-I would welcome sessions on LLVM, and would try to attend. Apart from
-general improvements to the LLVM ecosystem, we should also emphasize
-the benefits LLVM provides and how we can enable them (one reason we
-want LTO is to get CFI).
+How is this supposed to work? If there is no kick, you have no control
+over who wakes up and fairness goes out the window entirely.
 
-Regarding LTO and memory models, I'm not sure. Given the current state
-of things, such a discussion needs to be carefully framed to not go in
-circles, because we're trying to figure out things at the intersection
-of architecture, what the compiler does, the C standard, and the
-kernel wants. And because some of these boxes are difficult to change
-(standard, arch, compiler) or difficult to precisely define behaviour
-(compiler), we might end up going in circles. From what I see there
-are efforts to fix the situation at the root (standard), and we might
-have means to get the compiler to tell us what it's doing. But these
-happen extremely slowly.
-
-So, if we do this, we need to be careful to not end up re-discussing
-what we discussed here, but rather try and make it a continuation that
-hopefully leads to some constructive output.
-
-Thanks,
--- Marco
+You don't even begin to explain...
