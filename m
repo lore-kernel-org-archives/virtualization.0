@@ -1,114 +1,110 @@
-From: Michael Ellerman <mpe@ellerman.id.au>
-Subject: Re: [PATCH v3 5/6] powerpc/pseries: implement paravirt qspinlocks for SPLPAR
-Date: Thu, 09 Jul 2020 20:53:16 +1000
-Message-ID: <874kqhvu1v.fsf@mpe.ellerman.id.au>
-References: <20200706043540.1563616-1-npiggin@gmail.com> <20200706043540.1563616-6-npiggin@gmail.com>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: Re: [PATCH v5 2/2] s390: virtio: PV needs VIRTIO I/O device
+ protection
+Date: Thu, 9 Jul 2020 12:51:58 +0200
+Message-ID: <270d8674-0f73-0a38-a2a7-fbc1caa44301@linux.ibm.com>
+References: <1594283959-13742-1-git-send-email-pmorel@linux.ibm.com>
+ <1594283959-13742-3-git-send-email-pmorel@linux.ibm.com>
+ <20200709105733.6d68fa53.cohuck@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <20200706043540.1563616-6-npiggin@gmail.com>
-Sender: linux-arch-owner@vger.kernel.org
-To: linuxppc-dev@lists.ozlabs.org
-Cc: Nicholas Piggin <npiggin@gmail.com>, Will Deacon <will@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Boqun Feng <boqun.feng@gmail.com>, Ingo Molnar <mingo@redhat.com>, Waiman Long <longman@redhat.com>, Anton Blanchard <anton@ozlabs.org>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, kvm-ppc@vger.kernel.org, linux-arch@vger.kernel.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200709105733.6d68fa53.cohuck@redhat.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: Cornelia Huck <cohuck@redhat.com>
+Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Nicholas Piggin <npiggin@gmail.com> writes:
-
-> Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-> ---
->  arch/powerpc/include/asm/paravirt.h           | 28 ++++++++
->  arch/powerpc/include/asm/qspinlock.h          | 66 +++++++++++++++++++
->  arch/powerpc/include/asm/qspinlock_paravirt.h |  7 ++
->  arch/powerpc/platforms/pseries/Kconfig        |  5 ++
->  arch/powerpc/platforms/pseries/setup.c        |  6 +-
->  include/asm-generic/qspinlock.h               |  2 +
-
-Another ack?
-
-> diff --git a/arch/powerpc/include/asm/paravirt.h b/arch/powerpc/include/asm/paravirt.h
-> index 7a8546660a63..f2d51f929cf5 100644
-> --- a/arch/powerpc/include/asm/paravirt.h
-> +++ b/arch/powerpc/include/asm/paravirt.h
-> @@ -45,6 +55,19 @@ static inline void yield_to_preempted(int cpu, u32 yield_count)
->  {
->  	___bad_yield_to_preempted(); /* This would be a bug */
->  }
-> +
-> +extern void ___bad_yield_to_any(void);
-> +static inline void yield_to_any(void)
-> +{
-> +	___bad_yield_to_any(); /* This would be a bug */
-> +}
-
-Why do we do that rather than just not defining yield_to_any() at all
-and letting the build fail on that?
-
-There's a condition somewhere that we know will false at compile time
-and drop the call before linking?
-
-> diff --git a/arch/powerpc/include/asm/qspinlock_paravirt.h b/arch/powerpc/include/asm/qspinlock_paravirt.h
-> new file mode 100644
-> index 000000000000..750d1b5e0202
-> --- /dev/null
-> +++ b/arch/powerpc/include/asm/qspinlock_paravirt.h
-> @@ -0,0 +1,7 @@
-> +/* SPDX-License-Identifier: GPL-2.0-or-later */
-> +#ifndef __ASM_QSPINLOCK_PARAVIRT_H
-> +#define __ASM_QSPINLOCK_PARAVIRT_H
-
-_ASM_POWERPC_QSPINLOCK_PARAVIRT_H please.
-
-> +
-> +EXPORT_SYMBOL(__pv_queued_spin_unlock);
-
-Why's that in a header? Should that (eventually) go with the generic implementation?
-
-> diff --git a/arch/powerpc/platforms/pseries/Kconfig b/arch/powerpc/platforms/pseries/Kconfig
-> index 24c18362e5ea..756e727b383f 100644
-> --- a/arch/powerpc/platforms/pseries/Kconfig
-> +++ b/arch/powerpc/platforms/pseries/Kconfig
-> @@ -25,9 +25,14 @@ config PPC_PSERIES
->  	select SWIOTLB
->  	default y
->  
-> +config PARAVIRT_SPINLOCKS
-> +	bool
-> +	default n
-
-default n is the default.
-
-> diff --git a/arch/powerpc/platforms/pseries/setup.c b/arch/powerpc/platforms/pseries/setup.c
-> index 2db8469e475f..747a203d9453 100644
-> --- a/arch/powerpc/platforms/pseries/setup.c
-> +++ b/arch/powerpc/platforms/pseries/setup.c
-> @@ -771,8 +771,12 @@ static void __init pSeries_setup_arch(void)
->  	if (firmware_has_feature(FW_FEATURE_LPAR)) {
->  		vpa_init(boot_cpuid);
->  
-> -		if (lppaca_shared_proc(get_lppaca()))
-> +		if (lppaca_shared_proc(get_lppaca())) {
->  			static_branch_enable(&shared_processor);
-> +#ifdef CONFIG_PARAVIRT_SPINLOCKS
-> +			pv_spinlocks_init();
-> +#endif
-> +		}
-
-We could avoid the ifdef with this I think?
-
-diff --git a/arch/powerpc/include/asm/spinlock.h b/arch/powerpc/include/asm/spinlock.h
-index 434615f1d761..6ec72282888d 100644
---- a/arch/powerpc/include/asm/spinlock.h
-+++ b/arch/powerpc/include/asm/spinlock.h
-@@ -10,5 +10,9 @@
- #include <asm/simple_spinlock.h>
- #endif
-
-+#ifndef CONFIG_PARAVIRT_SPINLOCKS
-+static inline void pv_spinlocks_init(void) { }
-+#endif
-+
- #endif /* __KERNEL__ */
- #endif /* __ASM_SPINLOCK_H */
 
 
-cheers
+On 2020-07-09 10:57, Cornelia Huck wrote:
+> On Thu,  9 Jul 2020 10:39:19 +0200
+> Pierre Morel <pmorel@linux.ibm.com> wrote:
+> 
+>> If protected virtualization is active on s390, the virtio queues are
+>> not accessible to the host, unless VIRTIO_F_IOMMU_PLATFORM has been
+>> negotiated. Use the new arch_validate_virtio_features() interface to
+>> fail probe if that's not the case, preventing a host error on access
+>> attempt
+>>
+>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>> ---
+>>   arch/s390/mm/init.c | 27 +++++++++++++++++++++++++++
+>>   1 file changed, 27 insertions(+)
+>>
+>> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+>> index 6dc7c3b60ef6..b8e6f90117da 100644
+>> --- a/arch/s390/mm/init.c
+>> +++ b/arch/s390/mm/init.c
+>> @@ -45,6 +45,7 @@
+>>   #include <asm/kasan.h>
+>>   #include <asm/dma-mapping.h>
+>>   #include <asm/uv.h>
+>> +#include <linux/virtio_config.h>
+>>   
+>>   pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
+>>   
+>> @@ -161,6 +162,32 @@ bool force_dma_unencrypted(struct device *dev)
+>>   	return is_prot_virt_guest();
+>>   }
+>>   
+>> +/*
+>> + * arch_validate_virtio_features
+>> + * @dev: the VIRTIO device being added
+>> + *
+>> + * Return an error if required features are missing on a guest running
+>> + * with protected virtualization.
+>> + */
+>> +int arch_validate_virtio_features(struct virtio_device *dev)
+>> +{
+>> +	if (!is_prot_virt_guest())
+>> +		return 0;
+>> +
+>> +	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
+>> +		dev_warn(&dev->dev, "device must provide VIRTIO_F_VERSION_1\n");
+> 
+> I'd probably use "legacy virtio not supported with protected
+> virtualization".
+> 
+>> +		return -ENODEV;
+>> +	}
+>> +
+>> +	if (!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
+>> +		dev_warn(&dev->dev,
+>> +			 "device must provide VIRTIO_F_IOMMU_PLATFORM\n");
+> 
+> "support for limited memory access required for protected
+> virtualization"
+> 
+> ?
+> 
+> Mentioning the feature flag is shorter in both cases, though.
+
+And I think easier to look for in case of debugging purpose.
+I change it if there is more demands.
+
+> 
+>> +		return -ENODEV;
+>> +	}
+>> +
+>> +	return 0;
+>> +}
+>> +
+>>   /* protected virtualization */
+>>   static void pv_init(void)
+>>   {
+> 
+> Either way,
+> 
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> 
+
+Thanks,
+Pierre
+
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
