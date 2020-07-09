@@ -1,53 +1,39 @@
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 12/24] scsi: virtio_scsi: Demote seemingly unintentional
- kerneldoc header
-Date: Thu, 9 Jul 2020 20:01:25 +0200
-Message-ID: <ab85392c-2095-4023-4e20-503ee248a538@redhat.com>
-References: <20200709174556.7651-1-lee.jones@linaro.org>
- <20200709174556.7651-13-lee.jones@linaro.org>
+From: Markus Elfring <Markus.Elfring@web.de>
+Subject: Re: [PATCH] scsi: virtio_scsi: Remove unnecessary condition checks
+Date: Thu, 9 Jul 2020 22:55:46 +0200
+Message-ID: <072edd61-9b00-4c63-804f-e98bf271b683@web.de>
+References: <a197f532-7020-0d8e-21bf-42bb66e8daec@web.de>
+ <e87746e6-813e-7c0e-e21e-5921e759da5d@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-scsi-owner@vger.kernel.org>
-In-Reply-To: <20200709174556.7651-13-lee.jones@linaro.org>
-Content-Language: en-US
-Sender: linux-scsi-owner@vger.kernel.org
-To: Lee Jones <lee.jones@linaro.org>, jejb@linux.ibm.com, martin.petersen@oracle.com, linux-scsi@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <e87746e6-813e-7c0e-e21e-5921e759da5d@redhat.com>
+Content-Language: en-GB
+Sender: linux-kernel-owner@vger.kernel.org
+To: Paolo Bonzini <pbonzini@redhat.com>, Xianting Tian <xianting_tian@126.com>, linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, "James E. J. Bottomley" <jejb@linux.ibm.com>, Jason Wang <jasowang@redhat.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 09/07/20 19:45, Lee Jones wrote:
-> This is the only use of kerneldoc in the sourcefile and no
-> descriptions are provided.
-> 
-> Fixes the following W=1 kernel build warning(s):
-> 
->  drivers/scsi/virtio_scsi.c:109: warning: Function parameter or member 'vscsi' not described in 'virtscsi_complete_cmd'
->  drivers/scsi/virtio_scsi.c:109: warning: Function parameter or member 'buf' not described in 'virtscsi_complete_cmd'
-> 
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: Jason Wang <jasowang@redhat.com>
-> Cc: Paolo Bonzini <pbonzini@redhat.com>
-> Cc: Stefan Hajnoczi <stefanha@redhat.com>
-> Cc: virtualization@lists.linux-foundation.org
-> Signed-off-by: Lee Jones <lee.jones@linaro.org>
-> ---
->  drivers/scsi/virtio_scsi.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-> index 0e0910c5b9424..56875467e4984 100644
-> --- a/drivers/scsi/virtio_scsi.c
-> +++ b/drivers/scsi/virtio_scsi.c
-> @@ -100,7 +100,7 @@ static void virtscsi_compute_resid(struct scsi_cmnd *sc, u32 resid)
->  		scsi_set_resid(sc, resid);
->  }
->  
-> -/**
-> +/*
->   * virtscsi_complete_cmd - finish a scsi_cmd and invoke scsi_done
->   *
->   * Called with vq_lock held.
-> 
+>>> +	mempool_destroy(virtscsi_cmd_pool);
+>>> +	virtscsi_cmd_pool =3D NULL;
+>>> +	kmem_cache_destroy(virtscsi_cmd_cache);
+>>> +	virtscsi_cmd_cache =3D NULL;
+>>>  	return ret;
+>>>  }
+>>
+>> How do you think about to add a jump target so that the execution
+>> of a few statements can be avoided according to a previous
+>> null pointer check?
+>
+> The point of the patch is precisely to simplify the code,
 
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+I propose another bit of fine-tuning there.
+
+
+> executing a couple more instruction is not an issue.
+
+Can an additional label help here besides a possible identifier renaming?
+
+Regards,
+Markus
