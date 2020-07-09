@@ -1,36 +1,36 @@
 From: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: [PATCH] crypto: virtio - constify features[] and id_table[]
-Date: Thu, 9 Jul 2020 22:55:00 +1000
-Message-ID: <20200709125500.GE31057@gondor.apana.org.au>
-References: <20200701202936.44156-1-rikard.falkeborn@gmail.com>
+Subject: Re: [PATCH 0/5] drivers/char: Constify static variables
+Date: Thu, 9 Jul 2020 22:54:47 +1000
+Message-ID: <20200709125447.GD31057@gondor.apana.org.au>
+References: <20200701200950.30314-1-rikard.falkeborn@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-crypto-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200701202936.44156-1-rikard.falkeborn@gmail.com>
+In-Reply-To: <20200701200950.30314-1-rikard.falkeborn@gmail.com>
 Sender: linux-crypto-owner@vger.kernel.org
 To: Rikard Falkeborn <rikard.falkeborn@gmail.com>
-Cc: mst@redhat.com, jasowang@redhat.com, arei.gonglei@huawei.com, davem@davemloft.net, virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Arnd Bergmann <arnd@arndb.de>, Amit Shah <amit@kernel.org>, Matt Mackall <mpm@selenic.com>, Nicolas Saenz Julienne <nsaenzjulienne@suse.de>, Florian Fainelli <f.fainelli@gmail.com>, Ray Jui <rjui@broadcom.com>, Scott Branden <sbranden@broadcom.com>, Corey Minyard <minyard@acm.org>, virtualization@lists.linux-foundation.org, openipmi-developer@lists.sourceforge.net, bcm-kernel-feedback-list@broadcom.com, linux-crypto@vger.kernel.org, linux-rpi-kernel@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 01, 2020 at 10:29:36PM +0200, Rikard Falkeborn wrote:
-> features[] and id_table[] are not modified and can be made const to
-> allow the compiler to put them in read-only memory.
+On Wed, Jul 01, 2020 at 10:09:45PM +0200, Rikard Falkeborn wrote:
+> Constify some static variables (mostly structs) that are not modified.
 > 
-> Before:
->    text    data     bss     dec     hex filename
->   11534    2056     160   13750    35b6 drivers/crypto/virtio/virtio_crypto_core.o
+> Rikard Falkeborn (5):
+>   hwrng: bcm2835 - Constify bcm2835_rng_devtype[]
+>   hwrng: nomadik - Constify nmk_rng_ids[]
+>   hwrng: virtio - Constify id_table[]
+>   ipmi: watchdog: Constify ident
+>   virtio_console: Constify some static variables
 > 
-> After:
->    text    data     bss     dec     hex filename
->   11630    1992     128   13750    35b6 drivers/crypto/virtio/virtio_crypto_core.o
-> 
-> Signed-off-by: Rikard Falkeborn <rikard.falkeborn@gmail.com>
-> ---
->  drivers/crypto/virtio/virtio_crypto_core.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+>  drivers/char/hw_random/bcm2835-rng.c | 2 +-
+>  drivers/char/hw_random/nomadik-rng.c | 2 +-
+>  drivers/char/hw_random/virtio-rng.c  | 2 +-
+>  drivers/char/ipmi/ipmi_watchdog.c    | 2 +-
+>  drivers/char/virtio_console.c        | 8 ++++----
+>  5 files changed, 8 insertions(+), 8 deletions(-)
 
-Patch applied.  Thanks.
+Patches 1-3 applied.  Thanks.
 -- 
 Email: Herbert Xu <herbert@gondor.apana.org.au>
 Home Page: http://gondor.apana.org.au/~herbert/
