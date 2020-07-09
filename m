@@ -1,29 +1,37 @@
-From: Gerd Hoffmann <kraxel-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-Subject: Re: [PATCH 2/2] drm/virtio: Remove open-coded commit-tail function
-Date: Thu, 9 Jul 2020 14:48:28 +0200
-Message-ID: <20200709124828.4qgbafyobms5yx5g@sirius.home.kraxel.org>
-References: <20200707201229.472834-4-daniel.vetter@ffwll.ch>
- <20200709123339.547390-1-daniel.vetter@ffwll.ch>
- <20200709123339.547390-2-daniel.vetter@ffwll.ch>
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Subject: Re: [PATCH] crypto: virtio - constify features[] and id_table[]
+Date: Thu, 9 Jul 2020 22:55:00 +1000
+Message-ID: <20200709125500.GE31057@gondor.apana.org.au>
+References: <20200701202936.44156-1-rikard.falkeborn@gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-rdma-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Return-path: <linux-crypto-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200709123339.547390-2-daniel.vetter-/w4YWyX8dFk@public.gmane.org>
-Sender: linux-rdma-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
-Cc: DRI Development <dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, Intel Graphics Development <intel-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, linux-rdma-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel Vetter <daniel.vetter-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+In-Reply-To: <20200701202936.44156-1-rikard.falkeborn@gmail.com>
+Sender: linux-crypto-owner@vger.kernel.org
+To: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+Cc: mst@redhat.com, jasowang@redhat.com, arei.gonglei@huawei.com, davem@davemloft.net, virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 09, 2020 at 02:33:39PM +0200, Daniel Vetter wrote:
-> Exactly matches the one in the helpers.
+On Wed, Jul 01, 2020 at 10:29:36PM +0200, Rikard Falkeborn wrote:
+> features[] and id_table[] are not modified and can be made const to
+> allow the compiler to put them in read-only memory.
 > 
-> This avoids me having to roll out dma-fence critical section
-> annotations to this copy.
+> Before:
+>    text    data     bss     dec     hex filename
+>   11534    2056     160   13750    35b6 drivers/crypto/virtio/virtio_crypto_core.o
 > 
-> Signed-off-by: Daniel Vetter <daniel.vetter-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> Cc: David Airlie <airlied-cv59FeDIM0c@public.gmane.org>
-> Cc: Gerd Hoffmann <kraxel-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-> Cc: virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
+> After:
+>    text    data     bss     dec     hex filename
+>   11630    1992     128   13750    35b6 drivers/crypto/virtio/virtio_crypto_core.o
+> 
+> Signed-off-by: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+> ---
+>  drivers/crypto/virtio/virtio_crypto_core.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
 
-Acked-by: Gerd Hoffmann <kraxel-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
+Patch applied.  Thanks.
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
