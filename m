@@ -1,58 +1,70 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v3 0/6] powerpc: queued spinlocks and rwlocks
-Date: Thu, 9 Jul 2020 10:31:13 +0200
-Message-ID: <20200709083113.GI597537@hirez.programming.kicks-ass.net>
-References: <20200706043540.1563616-1-npiggin@gmail.com>
- <24f75d2c-60cd-2766-4aab-1a3b1c80646e@redhat.com>
- <1594101082.hfq9x5yact.astroid@bobo.none>
- <20200708084106.GE597537@hirez.programming.kicks-ass.net>
- <a9834278-25bf-90e9-10f2-cd10e5407ff6@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <a9834278-25bf-90e9-10f2-cd10e5407ff6@redhat.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Waiman Long <longman@redhat.com>
-Cc: linux-arch@vger.kernel.org, Will Deacon <will@kernel.org>, Boqun Feng <boqun.feng@gmail.com>, linux-kernel@vger.kernel.org, kvm-ppc@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Nicholas Piggin <npiggin@gmail.com>, Anton Blanchard <anton@ozlabs.org>, linuxppc-dev@lists.ozlabs.org
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH v5 2/2] s390: virtio: PV needs VIRTIO I/O device protection
+Date: Thu,  9 Jul 2020 10:39:19 +0200
+Message-ID: <1594283959-13742-3-git-send-email-pmorel@linux.ibm.com>
+References: <1594283959-13742-1-git-send-email-pmorel@linux.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1594283959-13742-1-git-send-email-pmorel@linux.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 08, 2020 at 07:54:34PM -0400, Waiman Long wrote:
-> On 7/8/20 4:41 AM, Peter Zijlstra wrote:
-> > On Tue, Jul 07, 2020 at 03:57:06PM +1000, Nicholas Piggin wrote:
-> > > Yes, powerpc could certainly get more performance out of the slow
-> > > paths, and then there are a few parameters to tune.
-> > Can you clarify? The slow path is already in use on ARM64 which is weak,
-> > so I doubt there's superfluous serialization present. And Will spend a
-> > fair amount of time on making that thing guarantee forward progressm, so
-> > there just isn't too much room to play.
-> > 
-> > > We don't have a good alternate patching for function calls yet, but
-> > > that would be something to do for native vs pv.
-> > Going by your jump_label implementation, support for static_call should
-> > be fairly straight forward too, no?
-> > 
-> >    https://lkml.kernel.org/r/20200624153024.794671356@infradead.org
-> > 
-> Speaking of static_call, I am also looking forward to it. Do you have an
-> idea when that will be merged?
+If protected virtualization is active on s390, the virtio queues are
+not accessible to the host, unless VIRTIO_F_IOMMU_PLATFORM has been
+negotiated. Use the new arch_validate_virtio_features() interface to
+fail probe if that's not the case, preventing a host error on access
+attempt
 
-0day had one crash on the last round, I think Steve send a fix for that
-last night and I'll go look at it.
+Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+---
+ arch/s390/mm/init.c | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
-That said, the last posting got 0 feedback, so either everybody is
-really happy with it, or not interested. So let us know in the thread,
-with some review feedback.
-
-Once I get through enough of the inbox to actually find the fix and test
-it, I'll also update the thread, and maybe threaten to merge it if
-everybody stays silent :-)
+diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+index 6dc7c3b60ef6..b8e6f90117da 100644
+--- a/arch/s390/mm/init.c
++++ b/arch/s390/mm/init.c
+@@ -45,6 +45,7 @@
+ #include <asm/kasan.h>
+ #include <asm/dma-mapping.h>
+ #include <asm/uv.h>
++#include <linux/virtio_config.h>
+ 
+ pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
+ 
+@@ -161,6 +162,32 @@ bool force_dma_unencrypted(struct device *dev)
+ 	return is_prot_virt_guest();
+ }
+ 
++/*
++ * arch_validate_virtio_features
++ * @dev: the VIRTIO device being added
++ *
++ * Return an error if required features are missing on a guest running
++ * with protected virtualization.
++ */
++int arch_validate_virtio_features(struct virtio_device *dev)
++{
++	if (!is_prot_virt_guest())
++		return 0;
++
++	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
++		dev_warn(&dev->dev, "device must provide VIRTIO_F_VERSION_1\n");
++		return -ENODEV;
++	}
++
++	if (!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
++		dev_warn(&dev->dev,
++			 "device must provide VIRTIO_F_IOMMU_PLATFORM\n");
++		return -ENODEV;
++	}
++
++	return 0;
++}
++
+ /* protected virtualization */
+ static void pv_init(void)
+ {
+-- 
+2.25.1
