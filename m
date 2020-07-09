@@ -1,38 +1,28 @@
-From: Xianting Tian <xianting_tian@126.com>
-Subject: [PATCH] scsi: virtio_scsi: remove unnecessary condition check
-Date: Thu,  9 Jul 2020 10:46:32 -0400
-Message-ID: <1594305992-8458-1-git-send-email-xianting_tian@126.com>
-Return-path: <linux-scsi-owner@vger.kernel.org>
-Sender: linux-scsi-owner@vger.kernel.org
-To: mst@redhat.com, jasowang@redhat.com, pbonzini@redhat.com, stefanha@redhat.com, jejb@linux.ibm.com, martin.petersen@oracle.com
-Cc: virtualization@lists.linux-foundation.org, linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+From: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
+Subject: Re: [PATCH v3 00/34] iommu: Move iommu_group setup to IOMMU core code
+Date: Thu, 9 Jul 2020 17:24:50 +0200
+Message-ID: <20200709152450.GC27672@8bytes.org>
+References: <20200429133712.31431-1-joro@8bytes.org>
+ <20200701004020.GA6221@lca.pw>
+ <20200704001709.GA1502@lca.pw>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+Content-Disposition: inline
+In-Reply-To: <20200704001709.GA1502-J5quhbR+WMc@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Qian Cai <cai-J5quhbR+WMc@public.gmane.org>
+Cc: Will Deacon <will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>, Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Lu Baolu <baolu.lu-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Andy Gross <agross-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Clark <robdclark-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Gerald Schaefer <gerald.schaefer-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Daniel
 List-Id: virtualization@lists.linuxfoundation.org
 
-kmem_cache_destroy can correctly handle null pointer parameter,
-so there is no need to check if the parameter is null before
-calling kmem_cache_destroy.
+On Fri, Jul 03, 2020 at 08:17:09PM -0400, Qian Cai wrote:
+> FYI, I have just sent a patch to fix this,
+> 
+> https://lore.kernel.org/linux-iommu/20200704001003.2303-1-cai-J5quhbR+WMc@public.gmane.org/
 
-Signed-off-by: Xianting Tian <xianting_tian@126.com>
----
- drivers/scsi/virtio_scsi.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+Just queued that fix, thanks. Please don't send patches to my suse
+email address, use only the 8bytes.org one.
 
-diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-index bfec84a..5bc288f 100644
---- a/drivers/scsi/virtio_scsi.c
-+++ b/drivers/scsi/virtio_scsi.c
-@@ -1007,10 +1007,8 @@ static int __init init(void)
- 		mempool_destroy(virtscsi_cmd_pool);
- 		virtscsi_cmd_pool = NULL;
- 	}
--	if (virtscsi_cmd_cache) {
--		kmem_cache_destroy(virtscsi_cmd_cache);
--		virtscsi_cmd_cache = NULL;
--	}
-+	kmem_cache_destroy(virtscsi_cmd_cache);
-+	virtscsi_cmd_cache = NULL;
- 	return ret;
- }
- 
--- 
-1.8.3.1
+Thanks,
+
+	Joerg
