@@ -1,116 +1,80 @@
 From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH v5 2/2] s390: virtio: PV needs VIRTIO I/O device
- protection
-Date: Thu, 9 Jul 2020 11:55:53 +0200
-Message-ID: <20200709115553.2dde6ab1.pasic@linux.ibm.com>
+Subject: Re: [PATCH v5 1/2] virtio: let arch validate VIRTIO features
+Date: Thu, 9 Jul 2020 11:58:00 +0200
+Message-ID: <20200709115800.7a6e93c8.pasic@linux.ibm.com>
 References: <1594283959-13742-1-git-send-email-pmorel@linux.ibm.com>
-        <1594283959-13742-3-git-send-email-pmorel@linux.ibm.com>
-        <20200709105733.6d68fa53.cohuck@redhat.com>
+        <1594283959-13742-2-git-send-email-pmorel@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20200709105733.6d68fa53.cohuck@redhat.com>
-Sender: kvm-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <1594283959-13742-2-git-send-email-pmorel@linux.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: Pierre Morel <pmorel@linux.ibm.com>
-Cc: Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
+Cc: linux-kernel@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 9 Jul 2020 10:57:33 +0200
-Cornelia Huck <cohuck@redhat.com> wrote:
+On Thu,  9 Jul 2020 10:39:18 +0200
+Pierre Morel <pmorel@linux.ibm.com> wrote:
 
-> On Thu,  9 Jul 2020 10:39:19 +0200
-> Pierre Morel <pmorel@linux.ibm.com> wrote:
+> An architecture may need to validate the VIRTIO devices features
+> based on architecture specifics.
 > 
-> > If protected virtualization is active on s390, the virtio queues are
-> > not accessible to the host, unless VIRTIO_F_IOMMU_PLATFORM has been
-> > negotiated. Use the new arch_validate_virtio_features() interface to
-> > fail probe if that's not the case, preventing a host error on access
-> > attempt
-
-Punctuation at the end?
-
-Also 'that's not the case' refers to the negation
-'VIRTIO_F_IOMMU_PLATFORM has been negotiated',
-arch_validate_virtio_features() is however part of
-virtio_finalize_features(), which is in turn part of the feature
-negotiation. But that is details. I'm fine with keeping the message as
-is. 
-
-> > 
-> > Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> > ---
-> >  arch/s390/mm/init.c | 27 +++++++++++++++++++++++++++
-> >  1 file changed, 27 insertions(+)
-> > 
-> > diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-> > index 6dc7c3b60ef6..b8e6f90117da 100644
-> > --- a/arch/s390/mm/init.c
-> > +++ b/arch/s390/mm/init.c
-> > @@ -45,6 +45,7 @@
-> >  #include <asm/kasan.h>
-> >  #include <asm/dma-mapping.h>
-> >  #include <asm/uv.h>
-> > +#include <linux/virtio_config.h>
-> >  
-> >  pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
-> >  
-> > @@ -161,6 +162,32 @@ bool force_dma_unencrypted(struct device *dev)
-> >  	return is_prot_virt_guest();
-> >  }
-> >  
-> > +/*
-> > + * arch_validate_virtio_features
-> > + * @dev: the VIRTIO device being added
-> > + *
-> > + * Return an error if required features are missing on a guest running
-> > + * with protected virtualization.
-> > + */
-> > +int arch_validate_virtio_features(struct virtio_device *dev)
-> > +{
-> > +	if (!is_prot_virt_guest())
-> > +		return 0;
-> > +
-> > +	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
-> > +		dev_warn(&dev->dev, "device must provide VIRTIO_F_VERSION_1\n");
-> 
-> I'd probably use "legacy virtio not supported with protected
-> virtualization".
-> 
-> > +		return -ENODEV;
-> > +	}
-> > +
-> > +	if (!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
-> > +		dev_warn(&dev->dev,
-> > +			 "device must provide VIRTIO_F_IOMMU_PLATFORM\n");
-> 
-> "support for limited memory access required for protected
-> virtualization"
-> 
-> ?
-> 
-> Mentioning the feature flag is shorter in both cases, though.
-
-I liked the messages in v4. Why did we change those? Did somebody
-complain?
-
-I prefer the old ones, but it any case:
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 
 Acked-by: Halil Pasic <pasic@linux.ibm.com>
 
-
+> ---
+>  drivers/virtio/virtio.c       | 19 +++++++++++++++++++
+>  include/linux/virtio_config.h |  1 +
+>  2 files changed, 20 insertions(+)
 > 
-> > +		return -ENODEV;
-> > +	}
-> > +
-> > +	return 0;
-> > +}
-> > +
-> >  /* protected virtualization */
-> >  static void pv_init(void)
-> >  {
-> 
-> Either way,
-> 
-> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-> 
+> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> index a977e32a88f2..c4e14d46a5b6 100644
+> --- a/drivers/virtio/virtio.c
+> +++ b/drivers/virtio/virtio.c
+> @@ -167,6 +167,21 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
+>  }
+>  EXPORT_SYMBOL_GPL(virtio_add_status);
+>  
+> +/*
+> + * arch_validate_virtio_features - provide arch specific hook when finalizing
+> + *				   features for VIRTIO device dev
+> + * @dev: the VIRTIO device being added
+> + *
+> + * Permits the platform to handle architecture-specific requirements when
+> + * device features are finalized. This is the default implementation.
+> + * Architecture implementations can override this.
+> + */
+> +
+> +int __weak arch_validate_virtio_features(struct virtio_device *dev)
+> +{
+> +	return 0;
+> +}
+> +
+>  int virtio_finalize_features(struct virtio_device *dev)
+>  {
+>  	int ret = dev->config->finalize_features(dev);
+> @@ -176,6 +191,10 @@ int virtio_finalize_features(struct virtio_device *dev)
+>  	if (ret)
+>  		return ret;
+>  
+> +	ret = arch_validate_virtio_features(dev);
+> +	if (ret)
+> +		return ret;
+> +
+>  	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
+>  		return 0;
+>  
+> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+> index bb4cc4910750..3f4117adf311 100644
+> --- a/include/linux/virtio_config.h
+> +++ b/include/linux/virtio_config.h
+> @@ -459,4 +459,5 @@ static inline void virtio_cwrite64(struct virtio_device *vdev,
+>  		_r;							\
+>  	})
+>  
+> +int arch_validate_virtio_features(struct virtio_device *dev);
+>  #endif /* _LINUX_VIRTIO_CONFIG_H */
