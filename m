@@ -1,79 +1,55 @@
-From: Sam Ravnborg <sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org>
-Subject: Re: [PATCH 2/2] drm/virtio: Remove open-coded commit-tail function
-Date: Thu, 9 Jul 2020 16:05:31 +0200
-Message-ID: <20200709140531.GA220817@ravnborg.org>
-References: <20200707201229.472834-4-daniel.vetter@ffwll.ch>
- <20200709123339.547390-1-daniel.vetter@ffwll.ch>
- <20200709123339.547390-2-daniel.vetter@ffwll.ch>
+From: Halil Pasic <pasic@linux.ibm.com>
+Subject: Re: [PATCH v5 2/2] s390: virtio: PV needs VIRTIO I/O device
+ protection
+Date: Thu, 9 Jul 2020 16:47:00 +0200
+Message-ID: <20200709164700.09a83069.pasic@linux.ibm.com>
+References: <1594283959-13742-1-git-send-email-pmorel@linux.ibm.com>
+        <1594283959-13742-3-git-send-email-pmorel@linux.ibm.com>
+        <20200709105733.6d68fa53.cohuck@redhat.com>
+        <270d8674-0f73-0a38-a2a7-fbc1caa44301@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-rdma-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20200709123339.547390-2-daniel.vetter-/w4YWyX8dFk@public.gmane.org>
-Sender: linux-rdma-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>
-Cc: DRI Development <dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, linux-rdma-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Intel Graphics Development <intel-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, Gerd Hoffmann <kraxel-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Daniel Vetter <daniel.vetter-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <270d8674-0f73-0a38-a2a7-fbc1caa44301@linux.ibm.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 09, 2020 at 02:33:39PM +0200, Daniel Vetter wrote:
-> Exactly matches the one in the helpers.
-> 
-> This avoids me having to roll out dma-fence critical section
-> annotations to this copy.
-> 
-> Signed-off-by: Daniel Vetter <daniel.vetter-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> Cc: David Airlie <airlied-cv59FeDIM0c@public.gmane.org>
-> Cc: Gerd Hoffmann <kraxel-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-> Cc: virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-> ---
->  drivers/gpu/drm/virtio/virtgpu_display.c | 20 --------------------
->  1 file changed, 20 deletions(-)
-Very nice catch:
-Reviewed-by: Sam Ravnborg <sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org>
+On Thu, 9 Jul 2020 12:51:58 +0200
+Pierre Morel <pmorel@linux.ibm.com> wrote:
 
+> >> +int arch_validate_virtio_features(struct virtio_device *dev)
+> >> +{
+> >> +	if (!is_prot_virt_guest())
+> >> +		return 0;
+> >> +
+> >> +	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
+> >> +		dev_warn(&dev->dev, "device must provide VIRTIO_F_VERSION_1\n");  
+> > 
+> > I'd probably use "legacy virtio not supported with protected
+> > virtualization".
+> >   
+> >> +		return -ENODEV;
+> >> +	}
+> >> +
+> >> +	if (!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
+> >> +		dev_warn(&dev->dev,
+> >> +			 "device must provide VIRTIO_F_IOMMU_PLATFORM\n");  
+> > 
+> > "support for limited memory access required for protected
+> > virtualization"
+> > 
+> > ?
+> > 
+> > Mentioning the feature flag is shorter in both cases, though.  
 > 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-> index f3ce49c5a34c..af55b334be2f 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_display.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-> @@ -314,25 +314,6 @@ virtio_gpu_user_framebuffer_create(struct drm_device *dev,
->  	return &virtio_gpu_fb->base;
->  }
->  
-> -static void vgdev_atomic_commit_tail(struct drm_atomic_state *state)
-> -{
-> -	struct drm_device *dev = state->dev;
-> -
-> -	drm_atomic_helper_commit_modeset_disables(dev, state);
-> -	drm_atomic_helper_commit_modeset_enables(dev, state);
-> -	drm_atomic_helper_commit_planes(dev, state, 0);
-> -
-> -	drm_atomic_helper_fake_vblank(state);
-> -	drm_atomic_helper_commit_hw_done(state);
-> -
-> -	drm_atomic_helper_wait_for_vblanks(dev, state);
-> -	drm_atomic_helper_cleanup_planes(dev, state);
-> -}
-> -
-> -static const struct drm_mode_config_helper_funcs virtio_mode_config_helpers = {
-> -	.atomic_commit_tail = vgdev_atomic_commit_tail,
-> -};
-> -
->  static const struct drm_mode_config_funcs virtio_gpu_mode_funcs = {
->  	.fb_create = virtio_gpu_user_framebuffer_create,
->  	.atomic_check = drm_atomic_helper_check,
-> @@ -346,7 +327,6 @@ void virtio_gpu_modeset_init(struct virtio_gpu_device *vgdev)
->  	drm_mode_config_init(vgdev->ddev);
->  	vgdev->ddev->mode_config.quirk_addfb_prefer_host_byte_order = true;
->  	vgdev->ddev->mode_config.funcs = &virtio_gpu_mode_funcs;
-> -	vgdev->ddev->mode_config.helper_private = &virtio_mode_config_helpers;
->  
->  	/* modes will be validated against the framebuffer size */
->  	vgdev->ddev->mode_config.min_width = XRES_MIN;
-> -- 
-> 2.27.0
-> 
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+> And I think easier to look for in case of debugging purpose.
+> I change it if there is more demands.
+
+Not all our end users are kernel and/or qemu developers. I find the
+messages from v4 less technical, more informative, and way better.
+
+Regards,
+Halil
