@@ -1,80 +1,38 @@
-From: Halil Pasic <pasic@linux.ibm.com>
-Subject: Re: [PATCH v5 2/2] s390: virtio: PV needs VIRTIO I/O device
- protection
-Date: Thu, 9 Jul 2020 17:06:15 +0200
-Message-ID: <20200709170615.468236da.pasic@linux.ibm.com>
-References: <1594283959-13742-1-git-send-email-pmorel@linux.ibm.com>
-        <1594283959-13742-3-git-send-email-pmorel@linux.ibm.com>
-        <20200709105733.6d68fa53.cohuck@redhat.com>
-        <270d8674-0f73-0a38-a2a7-fbc1caa44301@linux.ibm.com>
-        <20200709164700.09a83069.pasic@linux.ibm.com>
-        <c9be019f-236e-5e44-64b6-0875cd40ab11@linux.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <c9be019f-236e-5e44-64b6-0875cd40ab11@linux.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pierre Morel <pmorel@linux.ibm.com>
-Cc: Cornelia Huck <cohuck@redhat.com>, linux-kernel@vger.kernel.org, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, heiko.carstens@de.ibm.com, gor@linux.ibm.com
+From: Xianting Tian <xianting_tian@126.com>
+Subject: [PATCH] scsi: virtio_scsi: remove unnecessary condition check
+Date: Thu,  9 Jul 2020 10:46:32 -0400
+Message-ID: <1594305992-8458-1-git-send-email-xianting_tian@126.com>
+Return-path: <linux-scsi-owner@vger.kernel.org>
+Sender: linux-scsi-owner@vger.kernel.org
+To: mst@redhat.com, jasowang@redhat.com, pbonzini@redhat.com, stefanha@redhat.com, jejb@linux.ibm.com, martin.petersen@oracle.com
+Cc: virtualization@lists.linux-foundation.org, linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, 9 Jul 2020 16:51:04 +0200
-Pierre Morel <pmorel@linux.ibm.com> wrote:
+kmem_cache_destroy can correctly handle null pointer parameter,
+so there is no need to check if the parameter is null before
+calling kmem_cache_destroy.
 
-> 
-> 
-> On 2020-07-09 16:47, Halil Pasic wrote:
-> > On Thu, 9 Jul 2020 12:51:58 +0200
-> > Pierre Morel <pmorel@linux.ibm.com> wrote:
-> > 
-> >>>> +int arch_validate_virtio_features(struct virtio_device *dev)
-> >>>> +{
-> >>>> +	if (!is_prot_virt_guest())
-> >>>> +		return 0;
-> >>>> +
-> >>>> +	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
-> >>>> +		dev_warn(&dev->dev, "device must provide VIRTIO_F_VERSION_1\n");
-> >>>
-> >>> I'd probably use "legacy virtio not supported with protected
-> >>> virtualization".
-> >>>    
-> >>>> +		return -ENODEV;
-> >>>> +	}
-> >>>> +
-> >>>> +	if (!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
-> >>>> +		dev_warn(&dev->dev,
-> >>>> +			 "device must provide VIRTIO_F_IOMMU_PLATFORM\n");
-> >>>
-> >>> "support for limited memory access required for protected
-> >>> virtualization"
-> >>>
-> >>> ?
-> >>>
-> >>> Mentioning the feature flag is shorter in both cases, though.
-> >>
-> >> And I think easier to look for in case of debugging purpose.
-> >> I change it if there is more demands.
-> > 
-> > Not all our end users are kernel and/or qemu developers. I find the
-> > messages from v4 less technical, more informative, and way better.
-> > 
-> > Regards,
-> > Halil
-> > 
-> 
-> Can you please tell me the messages you are speaking of, because for me 
-> the warning's messages are exactly the same in v4 and v5!?
-> 
-> I checked many times, but may be I still missed something.
-> 
+Signed-off-by: Xianting Tian <xianting_tian@126.com>
+---
+ drivers/scsi/virtio_scsi.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-Sorry, my bad. My brain is over-generating. The messages where discussed
-at v3 and Connie made a very similar proposal to the one above which I
-seconded (for reference look at Message-ID:
-<833c71f2-0057-896a-5e21-2c6263834402@linux.ibm.com>). I was under the
-impression that it got implemented in v4, but it was not. That's why I
-ended up talking bs.
-
-Regards,
-Halil
+diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+index bfec84a..5bc288f 100644
+--- a/drivers/scsi/virtio_scsi.c
++++ b/drivers/scsi/virtio_scsi.c
+@@ -1007,10 +1007,8 @@ static int __init init(void)
+ 		mempool_destroy(virtscsi_cmd_pool);
+ 		virtscsi_cmd_pool = NULL;
+ 	}
+-	if (virtscsi_cmd_cache) {
+-		kmem_cache_destroy(virtscsi_cmd_cache);
+-		virtscsi_cmd_cache = NULL;
+-	}
++	kmem_cache_destroy(virtscsi_cmd_cache);
++	virtscsi_cmd_cache = NULL;
+ 	return ret;
+ }
+ 
+-- 
+1.8.3.1
