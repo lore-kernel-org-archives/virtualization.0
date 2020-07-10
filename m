@@ -1,64 +1,48 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH] virtio_ring: sparse warning fixup
-Date: Fri, 10 Jul 2020 06:49:01 -0400
-Message-ID: <20200710104900.406084-1-mst@redhat.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH] virtio_balloon: fix sparse warning
+Date: Fri, 10 Jul 2020 13:27:21 +0200
+Message-ID: <a292ea69-9bc4-4703-2593-e701bc6ad2b1@redhat.com>
+References: <20200710104837.405966-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200710104837.405966-1-mst@redhat.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-virtio_store_mb was built with split ring in mind so it accepts
-__virtio16 arguments. Packed ring uses __le16 values, so sparse
-complains.  It's just a store with some barriers so let's convert it to
-a macro, we don't loose too much type safety by doing that.
+On 10.07.20 12:48, Michael S. Tsirkin wrote:
+> balloon uses virtio32_to_cpu instead of cpu_to_virtio32
+> to convert a native endian number to virtio.
+> No practical difference but makes sparse warn.
+> Fix it up.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  drivers/virtio/virtio_balloon.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index fc7301406540..5d4b891bf84f 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -596,7 +596,7 @@ static int send_cmd_id_start(struct virtio_balloon *vb)
+>  	while (virtqueue_get_buf(vq, &unused))
+>  		;
+>  
+> -	vb->cmd_id_active = virtio32_to_cpu(vb->vdev,
+> +	vb->cmd_id_active = cpu_to_virtio32(vb->vdev,
+>  					virtio_balloon_cmd_id_received(vb));
+>  	sg_init_one(&sg, &vb->cmd_id_active, sizeof(vb->cmd_id_active));
+>  	err = virtqueue_add_outbuf(vq, &sg, 1, &vb->cmd_id_active, GFP_KERNEL);
+> 
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- include/linux/virtio_ring.h | 19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
-diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-index 3dc70adfe5f5..b485b13fa50b 100644
---- a/include/linux/virtio_ring.h
-+++ b/include/linux/virtio_ring.h
-@@ -46,16 +46,15 @@ static inline void virtio_wmb(bool weak_barriers)
- 		dma_wmb();
- }
- 
--static inline void virtio_store_mb(bool weak_barriers,
--				   __virtio16 *p, __virtio16 v)
--{
--	if (weak_barriers) {
--		virt_store_mb(*p, v);
--	} else {
--		WRITE_ONCE(*p, v);
--		mb();
--	}
--}
-+#define virtio_store_mb(weak_barriers, p, v) \
-+do { \
-+	if (weak_barriers) { \
-+		virt_store_mb(*p, v); \
-+	} else { \
-+		WRITE_ONCE(*p, v); \
-+		mb(); \
-+	} \
-+} while (0) \
- 
- struct virtio_device;
- struct virtqueue;
 -- 
-MST
+Thanks,
+
+David / dhildenb
