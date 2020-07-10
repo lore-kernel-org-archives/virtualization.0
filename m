@@ -1,94 +1,59 @@
 From: Will Deacon <will@kernel.org>
-Subject: [PATCH v3 10/19] Documentation/barriers: Remove references to
- [smp_]read_barrier_depends()
-Date: Fri, 10 Jul 2020 17:51:54 +0100
-Message-ID: <20200710165203.31284-11-will@kernel.org>
+Subject: [PATCH v3 11/19] Documentation/barriers/kokr: Remove references to [smp_]read_barrier_depends()
+Date: Fri, 10 Jul 2020 17:51:55 +0100
+Message-ID: <20200710165203.31284-12-will@kernel.org>
 References: <20200710165203.31284-1-will@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200710165203.31284-1-will@kernel.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: Joel Fernandes <joelaf@google.com>, Mark Rutland <mark.rutland@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, virtualization@lists.linux-foundation.org, Will Deacon <will@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Alan Stern <stern@rowland.harvard.edu>, Sami Tolvanen <samitolvanen@google.com>, Matt Turner <mattst88@gmail.com>, kernel-team@android.com, Marco Elver <elver@google.com>, Kees Cook <keescook@chromium.org>, "Paul E. McKenney" <paulmck@kernel.org>, Boqun Feng <boqun.feng@gmail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-arm-kernel@lists.infradead.org, Richard Henderson <rth@twiddle.net>, Nick Desaulniers <ndesaulniers@google.com>, linux-alpha@vger.kernel.org
+Cc: Will Deacon <will@kernel.org>, Joel Fernandes <joelaf@google.com>, Sami Tolvanen <samitolvanen@google.com>, Nick Desaulniers <ndesaulniers@google.com>, Kees Cook <keescook@chromium.org>, Marco Elver <elver@google.com>, "Paul E. McKenney" <paulmck@kernel.org>, Matt Turner <mattst88@gmail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Richard Henderson <rth@twiddle.net>, Peter Zijlstra <peterz@infradead.org>, Alan Stern <stern@rowland.harvard.edu>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Boqun Feng <boqun.feng@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.org, virtualizati
 List-Id: virtualization@lists.linuxfoundation.org
 
-The [smp_]read_barrier_depends() barrier macros no longer exist as
-part of the Linux memory model, so remove all references to them from
-the Documentation/ directory.
+From: SeongJae Park <sj38.park@gmail.com>
 
-Although this is fairly mechanical on the whole, we drop the "CACHE
-COHERENCY" section entirely from 'memory-barriers.txt' as it doesn't
-make any sense now that the dependency barriers have been removed.
+This commit translates commit ("Documentation/barriers: Remove references to
+[smp_]read_barrier_depends()") into Korean.
 
-Acked-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: SeongJae Park <sjpark@amazon.de>
+Reviewed-by: Yunjae Lee <lyj7694@gmail.com>
 Signed-off-by: Will Deacon <will@kernel.org>
 ---
- .../RCU/Design/Requirements/Requirements.rst  |   2 +-
- Documentation/memory-barriers.txt             | 156 +-----------------
- 2 files changed, 9 insertions(+), 149 deletions(-)
+ .../translations/ko_KR/memory-barriers.txt    | 146 +-----------------
+ 1 file changed, 3 insertions(+), 143 deletions(-)
 
-diff --git a/Documentation/RCU/Design/Requirements/Requirements.rst b/Documentation/RCU/Design/Requirements/Requirements.rst
-index 75b8ca007a11..50d5c43c48b0 100644
---- a/Documentation/RCU/Design/Requirements/Requirements.rst
-+++ b/Documentation/RCU/Design/Requirements/Requirements.rst
-@@ -463,7 +463,7 @@ again without disrupting RCU readers.
- This guarantee was only partially premeditated. DYNIX/ptx used an
- explicit memory barrier for publication, but had nothing resembling
- ``rcu_dereference()`` for subscription, nor did it have anything
--resembling the ``smp_read_barrier_depends()`` that was later subsumed
-+resembling the dependency-ordering barrier that was later subsumed
- into ``rcu_dereference()`` and later still into ``READ_ONCE()``. The
- need for these operations made itself known quite suddenly at a
- late-1990s meeting with the DEC Alpha architects, back in the days when
-diff --git a/Documentation/memory-barriers.txt b/Documentation/memory-barriers.txt
-index eaabc3134294..4e55aba3eb4a 100644
---- a/Documentation/memory-barriers.txt
-+++ b/Documentation/memory-barriers.txt
-@@ -553,12 +553,12 @@ There are certain things that the Linux kernel memory barriers do not guarantee:
- DATA DEPENDENCY BARRIERS (HISTORICAL)
- -------------------------------------
+diff --git a/Documentation/translations/ko_KR/memory-barriers.txt b/Documentation/translations/ko_KR/memory-barriers.txt
+index 34d041d68f78..a1f772ef622c 100644
+--- a/Documentation/translations/ko_KR/memory-barriers.txt
++++ b/Documentation/translations/ko_KR/memory-barriers.txt
+@@ -577,7 +577,7 @@ ACQUIRE 는 해당 오퍼레이션의 로드 부분에만 적용되고 RELEASE 
+ 데이터 의존성 배리어 (역사적)
+ -----------------------------
  
--As of v4.15 of the Linux kernel, an smp_read_barrier_depends() was
--added to READ_ONCE(), which means that about the only people who
--need to pay attention to this section are those working on DEC Alpha
--architecture-specific code and those working on READ_ONCE() itself.
--For those who need it, and for those who are interested in the history,
--here is the story of data-dependency barriers.
-+As of v4.15 of the Linux kernel, an smp_mb() was added to READ_ONCE() for
-+DEC Alpha, which means that about the only people who need to pay attention
-+to this section are those working on DEC Alpha architecture-specific code
-+and those working on READ_ONCE() itself.  For those who need it, and for
-+those who are interested in the history, here is the story of
-+data-dependency barriers.
- 
- The usage requirements of data dependency barriers are a little subtle, and
- it's not always obvious that they're needed.  To illustrate, consider the
-@@ -2708,144 +2708,6 @@ the properties of the memory window through which devices are accessed and/or
- the use of any special device communication instructions the CPU may have.
+-리눅스 커널 v4.15 기준으로, smp_read_barrier_depends() 가 READ_ONCE() 에
++리눅스 커널 v4.15 기준으로, smp_mb() 가 DEC Alpha 용 READ_ONCE() 코드에
+ 추가되었는데, 이는 이 섹션에 주의를 기울여야 하는 사람들은 DEC Alpha 아키텍쳐
+ 전용 코드를 만드는 사람들과 READ_ONCE() 자체를 만드는 사람들 뿐임을 의미합니다.
+ 그런 분들을 위해, 그리고 역사에 관심 있는 분들을 위해, 여기 데이터 의존성
+@@ -2664,144 +2664,6 @@ CPU 코어는 프로그램의 인과성이 유지된다고만 여겨진다면 
+ 수도 있습니다.
  
  
--CACHE COHERENCY
-----------------
+-캐시 일관성
+------------
 -
--Life isn't quite as simple as it may appear above, however: for while the
--caches are expected to be coherent, there's no guarantee that that coherency
--will be ordered.  This means that while changes made on one CPU will
--eventually become visible on all CPUs, there's no guarantee that they will
--become apparent in the same order on those other CPUs.
+-하지만 삶은 앞에서 이야기한 것처럼 단순하지 않습니다: 캐시들은 일관적일 것으로
+-기대되지만, 그 일관성이 순서에도 적용될 거라는 보장은 없습니다.  한 CPU 에서
+-만들어진 변경 사항은 최종적으로는 시스템의 모든 CPU 에게 보여지게 되지만, 다른
+-CPU 들에게도 같은 순서로 보이게 될 거라는 보장은 없다는 뜻입니다.
 -
 -
--Consider dealing with a system that has a pair of CPUs (1 & 2), each of which
--has a pair of parallel data caches (CPU 1 has A/B, and CPU 2 has C/D):
+-두개의 CPU (1 & 2) 가 달려 있고, 각 CPU 에 두개의 데이터 캐시(CPU 1 은 A/B 를,
+-CPU 2 는 C/D 를 갖습니다)가 병렬로 연결되어 있는 시스템을 다룬다고 생각해
+-봅시다:
 -
 -	            :
 -	            :                          +--------+
@@ -110,42 +75,40 @@ index eaabc3134294..4e55aba3eb4a 100644
 -	            :                          +--------+
 -	            :
 -
--Imagine the system has the following properties:
+-이 시스템이 다음과 같은 특성을 갖는다 생각해 봅시다:
 -
-- (*) an odd-numbered cache line may be in cache A, cache C or it may still be
--     resident in memory;
+- (*) 홀수번 캐시라인은 캐시 A, 캐시 C 또는 메모리에 위치할 수 있음;
 -
-- (*) an even-numbered cache line may be in cache B, cache D or it may still be
--     resident in memory;
+- (*) 짝수번 캐시라인은 캐시 B, 캐시 D 또는 메모리에 위치할 수 있음;
 -
-- (*) while the CPU core is interrogating one cache, the other cache may be
--     making use of the bus to access the rest of the system - perhaps to
--     displace a dirty cacheline or to do a speculative load;
+- (*) CPU 코어가 한개의 캐시에 접근하는 동안, 다른 캐시는 - 더티 캐시라인을
+-     메모리에 내리거나 추측성 로드를 하거나 하기 위해 - 시스템의 다른 부분에
+-     액세스 하기 위해 버스를 사용할 수 있음;
 -
-- (*) each cache has a queue of operations that need to be applied to that cache
--     to maintain coherency with the rest of the system;
+- (*) 각 캐시는 시스템의 나머지 부분들과 일관성을 맞추기 위해 해당 캐시에
+-     적용되어야 할 오퍼레이션들의 큐를 가짐;
 -
-- (*) the coherency queue is not flushed by normal loads to lines already
--     present in the cache, even though the contents of the queue may
--     potentially affect those loads.
+- (*) 이 일관성 큐는 캐시에 이미 존재하는 라인에 가해지는 평범한 로드에 의해서는
+-     비워지지 않는데, 큐의 오퍼레이션들이 이 로드의 결과에 영향을 끼칠 수 있다
+-     할지라도 그러함.
 -
--Imagine, then, that two writes are made on the first CPU, with a write barrier
--between them to guarantee that they will appear to reach that CPU's caches in
--the requisite order:
+-이제, 첫번째 CPU 에서 두개의 쓰기 오퍼레이션을 만드는데, 해당 CPU 의 캐시에
+-요청된 순서로 오퍼레이션이 도달됨을 보장하기 위해 두 오퍼레이션 사이에 쓰기
+-배리어를 사용하는 상황을 상상해 봅시다:
 -
 -	CPU 1		CPU 2		COMMENT
 -	===============	===============	=======================================
 -					u == 0, v == 1 and p == &u, q == &u
 -	v = 2;
--	smp_wmb();			Make sure change to v is visible before
--					 change to p
--	<A:modify v=2>			v is now in cache A exclusively
+-	smp_wmb();			v 의 변경이 p 의 변경 전에 보일 것을
+-					 분명히 함
+-	<A:modify v=2>			v 는 이제 캐시 A 에 독점적으로 존재함
 -	p = &v;
--	<B:modify p=&v>			p is now in cache B exclusively
+-	<B:modify p=&v>			p 는 이제 캐시 B 에 독점적으로 존재함
 -
--The write memory barrier forces the other CPUs in the system to perceive that
--the local CPU's caches have apparently been updated in the correct order.  But
--now imagine that the second CPU wants to read those values:
+-여기서의 쓰기 메모리 배리어는 CPU 1 의 캐시가 올바른 순서로 업데이트 된 것으로
+-시스템의 다른 CPU 들이 인지하게 만듭니다.  하지만, 이제 두번째 CPU 가 그 값들을
+-읽으려 하는 상황을 생각해 봅시다:
 -
 -	CPU 1		CPU 2		COMMENT
 -	===============	===============	=======================================
@@ -153,10 +116,10 @@ index eaabc3134294..4e55aba3eb4a 100644
 -			q = p;
 -			x = *q;
 -
--The above pair of reads may then fail to happen in the expected order, as the
--cacheline holding p may get updated in one of the second CPU's caches while
--the update to the cacheline holding v is delayed in the other of the second
--CPU's caches by some other cache event:
+-위의 두개의 읽기 오퍼레이션은 예상된 순서로 일어나지 못할 수 있는데, 두번째 CPU
+-의 한 캐시에 다른 캐시 이벤트가 발생해 v 를 담고 있는 캐시라인의 해당 캐시에의
+-업데이트가 지연되는 사이, p 를 담고 있는 캐시라인은 두번째 CPU 의 다른 캐시에
+-업데이트 되어버렸을 수 있기 때문입니다.
 -
 -	CPU 1		CPU 2		COMMENT
 -	===============	===============	=======================================
@@ -170,19 +133,19 @@ index eaabc3134294..4e55aba3eb4a 100644
 -	<B:modify p=&v>	<D:commit p=&v>
 -			<D:read p>
 -			x = *q;
--			<C:read *q>	Reads from v before v updated in cache
+-			<C:read *q>	캐시에 업데이트 되기 전의 v 를 읽음
 -			<C:unbusy>
 -			<C:commit v=2>
 -
--Basically, while both cachelines will be updated on CPU 2 eventually, there's
--no guarantee that, without intervention, the order of update will be the same
--as that committed on CPU 1.
+-기본적으로, 두개의 캐시라인 모두 CPU 2 에 최종적으로는 업데이트 될 것이지만,
+-별도의 개입 없이는, 업데이트의 순서가 CPU 1 에서 만들어진 순서와 동일할
+-것이라는 보장이 없습니다.
 -
 -
--To intervene, we need to interpolate a data dependency barrier or a read
--barrier between the loads (which as of v4.15 is supplied unconditionally
--by the READ_ONCE() macro).  This will force the cache to commit its
--coherency queue before processing any further requests:
+-여기에 개입하기 위해선, 데이터 의존성 배리어나 읽기 배리어를 로드 오퍼레이션들
+-사이에 넣어야 합니다 (v4.15 부터는 READ_ONCE() 매크로에 의해 무조건적으로
+-그렇게 됩니다).  이렇게 함으로써 캐시가 다음 요청을 처리하기 전에 일관성 큐를
+-처리하도록 강제하게 됩니다.
 -
 -	CPU 1		CPU 2		COMMENT
 -	===============	===============	=======================================
@@ -199,37 +162,39 @@ index eaabc3134294..4e55aba3eb4a 100644
 -			<C:unbusy>
 -			<C:commit v=2>
 -			x = *q;
--			<C:read *q>	Reads from v after v updated in cache
+-			<C:read *q>	캐시에 업데이트 된 v 를 읽음
 -
 -
--This sort of problem can be encountered on DEC Alpha processors as they have a
--split cache that improves performance by making better use of the data bus.
--While most CPUs do imply a data dependency barrier on the read when a memory
--access depends on a read, not all do, so it may not be relied on.
+-이런 부류의 문제는 DEC Alpha 계열 프로세서들에서 발견될 수 있는데, 이들은
+-데이터 버스를 좀 더 잘 사용해 성능을 개선할 수 있는, 분할된 캐시를 가지고 있기
+-때문입니다.  대부분의 CPU 는 하나의 읽기 오퍼레이션의 메모리 액세스가 다른 읽기
+-오퍼레이션에 의존적이라면 데이터 의존성 배리어를 내포시킵니다만, 모두가 그런건
+-아니기 때문에 이점에 의존해선 안됩니다.
 -
--Other CPUs may also have split caches, but must coordinate between the various
--cachelets for normal memory accesses.  The semantics of the Alpha removes the
--need for hardware coordination in the absence of memory barriers, which
--permitted Alpha to sport higher CPU clock rates back in the day.  However,
--please note that (again, as of v4.15) smp_read_barrier_depends() should not
--be used except in Alpha arch-specific code and within the READ_ONCE() macro.
+-다른 CPU 들도 분할된 캐시를 가지고 있을 수 있지만, 그런 CPU 들은 평범한 메모리
+-액세스를 위해서도 이 분할된 캐시들 사이의 조정을 해야만 합니다.  Alpha 는 가장
+-약한 메모리 순서 시맨틱 (semantic) 을 선택함으로써 메모리 배리어가 명시적으로
+-사용되지 않았을 때에는 그런 조정이 필요하지 않게 했으며, 이는 Alpha 가 당시에
+-더 높은 CPU 클락 속도를 가질 수 있게 했습니다.  하지만, (다시 말하건대, v4.15
+-이후부터는) Alpha 아키텍쳐 전용 코드와 READ_ONCE() 매크로 내부에서를 제외하고는
+-smp_read_barrier_depends() 가 사용되지 않아야 함을 알아두시기 바랍니다.
 -
 -
- CACHE COHERENCY VS DMA
- ----------------------
+ 캐시 일관성 VS DMA
+ ------------------
  
-@@ -3009,10 +2871,8 @@ caches with the memory coherence system, thus making it seem like pointer
- changes vs new data occur in the right order.
+@@ -2962,10 +2824,8 @@ Alpha CPU 의 일부 버전은 분할된 데이터 캐시를 가지고 있어서
+ 데이터의 발견을 올바른 순서로 일어나게 하기 때문입니다.
  
- The Alpha defines the Linux kernel's memory model, although as of v4.15
--the Linux kernel's addition of smp_read_barrier_depends() to READ_ONCE()
--greatly reduced Alpha's impact on the memory model.
+ 리눅스 커널의 메모리 배리어 모델은 Alpha 에 기초해서 정의되었습니다만, v4.15
+-부터는 리눅스 커널이 READ_ONCE() 내에 smp_read_barrier_depends() 를 추가해서
+-Alpha 의 메모리 모델로의 영향력이 크게 줄어들긴 했습니다.
 -
--See the subsection on "Cache Coherency" above.
-+the Linux kernel's addition of smp_mb() to READ_ONCE() on Alpha greatly
-+reduced its impact on the memory model.
+-위의 "캐시 일관성" 서브섹션을 참고하세요.
++부터는 Alpha 용 READ_ONCE() 코드 내에 smp_mb() 가 추가되어서 메모리 모델로의
++Alpha 의 영향력이 크게 줄어들었습니다.
  
  
- VIRTUAL MACHINE GUESTS
+ 가상 머신 게스트
 -- 
 2.27.0.383.g050319c2ae-goog
