@@ -1,44 +1,29 @@
-From: Stefano Stabellini <sstabellini@kernel.org>
-Subject: Re: [PATCH] xen: introduce xen_vring_use_dma
-Date: Fri, 10 Jul 2020 10:23:22 -0700 (PDT)
-Message-ID: <alpine.DEB.2.21.2007101019340.4124@sstabellini-ThinkPad-T480s>
-References: <20200624050355-mutt-send-email-mst@kernel.org> <alpine.DEB.2.21.2006241047010.8121@sstabellini-ThinkPad-T480s> <20200624163940-mutt-send-email-mst@kernel.org> <alpine.DEB.2.21.2006241351430.8121@sstabellini-ThinkPad-T480s>
- <20200624181026-mutt-send-email-mst@kernel.org> <alpine.DEB.2.21.2006251014230.8121@sstabellini-ThinkPad-T480s> <20200626110629-mutt-send-email-mst@kernel.org> <alpine.DEB.2.21.2006291621300.8121@sstabellini-ThinkPad-T480s> <20200701133456.GA23888@infradead.org>
- <alpine.DEB.2.21.2007011020320.8121@sstabellini-ThinkPad-T480s> <20200701172219-mutt-send-email-mst@kernel.org>
+From: Tom Murphy <murphyt7-/Zw1syy4LHg@public.gmane.org>
+Subject: Re: [PATCH V6 4/5] iommu/dma-iommu: Use the dev->coherent_dma_mask
+Date: Fri, 10 Jul 2020 12:18:15 -0700
+Message-ID: <CALQxJuumgH9xR-J1Nj3LQsLW6k+4ie_0Ho3N9UJiN4R0JBGYoQ@mail.gmail.com>
+References: <20190908165642.22253-1-murphyt7@tcd.ie> <20190908165642.22253-5-murphyt7@tcd.ie>
+ <20200710155933.GA20886@lst.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200701172219-mutt-send-email-mst@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Stefano Stabellini <sstabellini@kernel.org>, jgross@suse.com, Peng Fan <peng.fan@nxp.com>, konrad.wilk@oracle.com, jasowang@redhat.com, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, iommu@lists.linux-foundation.org, linux-imx@nxp.com, xen-devel@lists.xenproject.org, boris.ostrovsky@oracle.com, linux-arm-kernel@lists.infradead.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
+In-Reply-To: <20200710155933.GA20886-jcswGhMUV9g@public.gmane.org>
+Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
+To: Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>
+Cc: iommu-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, Robin Murphy <robin.murphy-5wv7dgnIgG8@public.gmane.org>, Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>, Will Deacon <will-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Marek Szyprowski <m.szyprowski-Sze3O3UU22JBDgjK7y7TUQ@public.gmane.org>, Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Andy Gross <agross-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Matthias Brugger <matthias.bgg-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Rob Clark <robdclark-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Gerald Schaefer <gerald.schaefer-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, Thierry Reding <thierry.reding-Re5JQEeQqe8AvxtiuMwx3w@public.gmane.org>, Jonathan Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Linux Kernel Mailing List <linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>, linux-arm-kernel-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-arm-msm@vger.k
 List-Id: virtualization@lists.linuxfoundation.org
 
-Sorry for the late reply -- a couple of conferences kept me busy.
+>Btw, what is the current state of converting intel-iommu to the dma-iommu
 
+These changes expose a bug in the i915 intel driver which hasn't been
+fixed yet. I don't think anyone is actively working on it but I plan
+on merging as many patches as I can so it's easier to do the
+intel-iommu -> dma-iommu conversion once the bug is fixed.
 
-On Wed, 1 Jul 2020, Michael S. Tsirkin wrote:
-> On Wed, Jul 01, 2020 at 10:34:53AM -0700, Stefano Stabellini wrote:
-> > Would you be in favor of a more flexible check along the lines of the
-> > one proposed in the patch that started this thread:
-> > 
-> >     if (xen_vring_use_dma())
-> >             return true;
-> > 
-> > 
-> > xen_vring_use_dma would be implemented so that it returns true when
-> > xen_swiotlb is required and false otherwise.
-> 
-> Just to stress - with a patch like this virtio can *still* use DMA API
-> if PLATFORM_ACCESS is set. So if DMA API is broken on some platforms
-> as you seem to be saying, you guys should fix it before doing something
-> like this..
+You can read more about it here:
+https://patchwork.kernel.org/cover/11306999/
 
-Yes, DMA API is broken with some interfaces (specifically: rpmesg and
-trusty), but for them PLATFORM_ACCESS is never set. That is why the
-errors weren't reported before. Xen special case aside, there is no
-problem under normal circumstances.
-
-
-If you are OK with this patch (after a little bit of clean-up), Peng,
-are you OK with sending an update or do you want me to?
+On Fri, 10 Jul 2020 at 08:59, Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org> wrote:
+>
+> Btw, what is the current state of converting intel-iommu to the dma-iommu
+> code?
