@@ -1,48 +1,47 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH] virtio_balloon: fix sparse warning
-Date: Fri, 10 Jul 2020 13:27:21 +0200
-Message-ID: <a292ea69-9bc4-4703-2593-e701bc6ad2b1@redhat.com>
-References: <20200710104837.405966-1-mst@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH] virtio_balloon: clear modern features under legacy
+Date: Fri, 10 Jul 2020 07:31:34 -0400
+Message-ID: <20200710113046.421366-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200710104837.405966-1-mst@redhat.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <stable-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: stable-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org, David Hildenbrand <david@redhat.com>, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, Alexander Duyck <alexander.duyck@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10.07.20 12:48, Michael S. Tsirkin wrote:
-> balloon uses virtio32_to_cpu instead of cpu_to_virtio32
-> to convert a native endian number to virtio.
-> No practical difference but makes sparse warn.
-> Fix it up.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/virtio/virtio_balloon.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index fc7301406540..5d4b891bf84f 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -596,7 +596,7 @@ static int send_cmd_id_start(struct virtio_balloon *vb)
->  	while (virtqueue_get_buf(vq, &unused))
->  		;
->  
-> -	vb->cmd_id_active = virtio32_to_cpu(vb->vdev,
-> +	vb->cmd_id_active = cpu_to_virtio32(vb->vdev,
->  					virtio_balloon_cmd_id_received(vb));
->  	sg_init_one(&sg, &vb->cmd_id_active, sizeof(vb->cmd_id_active));
->  	err = virtqueue_add_outbuf(vq, &sg, 1, &vb->cmd_id_active, GFP_KERNEL);
-> 
+Page reporting features were never supported by legacy hypervisors.
+Supporting them poses a problem: should we use native endian-ness (like
+current code assumes)? Or little endian-ness like the virtio spec says?
+Rather than try to figure out, and since results of
+incorrect endian-ness are dire, let's just block this configuration.
 
-Reviewed-by: David Hildenbrand <david@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/virtio/virtio_balloon.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 5d4b891bf84f..b9bc03345157 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -1107,6 +1107,15 @@ static int virtballoon_restore(struct virtio_device *vdev)
+ 
+ static int virtballoon_validate(struct virtio_device *vdev)
+ {
++	/*
++	 * Legacy devices never specified how modern features should behave.
++	 * E.g. which endian-ness to use? Better not to assume anything.
++	 */
++	if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
++		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT);
++		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_PAGE_POISON);
++		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
++	}
+ 	/*
+ 	 * Inform the hypervisor that our pages are poisoned or
+ 	 * initialized. If we cannot do that then we should disable
 -- 
-Thanks,
-
-David / dhildenb
+MST
