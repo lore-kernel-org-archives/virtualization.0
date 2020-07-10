@@ -1,45 +1,44 @@
-From: Will Deacon <will@kernel.org>
-Subject: Re: [PATCH v3 06/19] asm/rwonce: Don't pull <asm/barrier.h> into
- 'asm-generic/rwonce.h'
-Date: Fri, 10 Jul 2020 18:15:09 +0100
-Message-ID: <20200710171508.GA31366@willie-the-truck>
-References: <20200710165203.31284-1-will@kernel.org>
- <20200710165203.31284-7-will@kernel.org>
- <CAKwvOd=HJye0iHr=9=7EMytO8ycFNJEsHHe1m64uT8s0jOQw0Q@mail.gmail.com>
+From: Stefano Stabellini <sstabellini@kernel.org>
+Subject: Re: [PATCH] xen: introduce xen_vring_use_dma
+Date: Fri, 10 Jul 2020 10:23:22 -0700 (PDT)
+Message-ID: <alpine.DEB.2.21.2007101019340.4124@sstabellini-ThinkPad-T480s>
+References: <20200624050355-mutt-send-email-mst@kernel.org> <alpine.DEB.2.21.2006241047010.8121@sstabellini-ThinkPad-T480s> <20200624163940-mutt-send-email-mst@kernel.org> <alpine.DEB.2.21.2006241351430.8121@sstabellini-ThinkPad-T480s>
+ <20200624181026-mutt-send-email-mst@kernel.org> <alpine.DEB.2.21.2006251014230.8121@sstabellini-ThinkPad-T480s> <20200626110629-mutt-send-email-mst@kernel.org> <alpine.DEB.2.21.2006291621300.8121@sstabellini-ThinkPad-T480s> <20200701133456.GA23888@infradead.org>
+ <alpine.DEB.2.21.2007011020320.8121@sstabellini-ThinkPad-T480s> <20200701172219-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-alpha-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAKwvOd=HJye0iHr=9=7EMytO8ycFNJEsHHe1m64uT8s0jOQw0Q@mail.gmail.com>
-Sender: linux-alpha-owner@vger.kernel.org
-To: Nick Desaulniers <ndesaulniers@google.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, Joel Fernandes <joelaf@google.com>, Sami Tolvanen <samitolvanen@google.com>, Kees Cook <keescook@chromium.org>, Marco Elver <elver@google.com>, "Paul E. McKenney" <paulmck@kernel.org>, Matt Turner <mattst88@gmail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Richard Henderson <rth@twiddle.net>, Peter Zijlstra <peterz@infradead.org>, Alan Stern <stern@rowland.harvard.edu>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Boqun Feng <boqun.feng@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-alpha@vger.kernel.org, virtualization@lists.linux-fou
+Content-Type: text/plain; charset=US-ASCII
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200701172219-mutt-send-email-mst@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Stefano Stabellini <sstabellini@kernel.org>, jgross@suse.com, Peng Fan <peng.fan@nxp.com>, konrad.wilk@oracle.com, jasowang@redhat.com, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, iommu@lists.linux-foundation.org, linux-imx@nxp.com, xen-devel@lists.xenproject.org, boris.ostrovsky@oracle.com, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jul 10, 2020 at 10:06:12AM -0700, Nick Desaulniers wrote:
-> On Fri, Jul 10, 2020 at 9:52 AM Will Deacon <will@kernel.org> wrote:
-> > diff --git a/include/linux/nospec.h b/include/linux/nospec.h
-> > index 0c5ef54fd416..c1e79f72cd89 100644
-> > --- a/include/linux/nospec.h
-> > +++ b/include/linux/nospec.h
-> > @@ -5,6 +5,8 @@
-> >
-> >  #ifndef _LINUX_NOSPEC_H
-> >  #define _LINUX_NOSPEC_H
-> > +
-> > +#include <linux/compiler.h>
+Sorry for the late reply -- a couple of conferences kept me busy.
+
+
+On Wed, 1 Jul 2020, Michael S. Tsirkin wrote:
+> On Wed, Jul 01, 2020 at 10:34:53AM -0700, Stefano Stabellini wrote:
+> > Would you be in favor of a more flexible check along the lines of the
+> > one proposed in the patch that started this thread:
+> > 
+> >     if (xen_vring_use_dma())
+> >             return true;
+> > 
+> > 
+> > xen_vring_use_dma would be implemented so that it returns true when
+> > xen_swiotlb is required and false otherwise.
 > 
-> The other hunks LGTM, but this one is a little more curious to me. Can
-> you walk me through this addition?
+> Just to stress - with a patch like this virtio can *still* use DMA API
+> if PLATFORM_ACCESS is set. So if DMA API is broken on some platforms
+> as you seem to be saying, you guys should fix it before doing something
+> like this..
 
-Sure. Without it, the build breaks on riscv because it includes this header
-without first including <linux/compiler.h>, and this header relies on
-OPTIMIZER_HIDE_VAR() being to defined as it is used in static inline
-functions.
+Yes, DMA API is broken with some interfaces (specifically: rpmesg and
+trusty), but for them PLATFORM_ACCESS is never set. That is why the
+errors weren't reported before. Xen special case aside, there is no
+problem under normal circumstances.
 
-Perhaps I should squash this hunk into "compiler.h: Split {READ,WRITE}_ONCE
-definitions out into rwonce.h" instead, as that is where I remove the
-include of <linux/compiler.h> from 'asm-generic/barrier.h'. I'll check
-the bisection on riscv...
 
-Will
+If you are OK with this patch (after a little bit of clean-up), Peng,
+are you OK with sending an update or do you want me to?
