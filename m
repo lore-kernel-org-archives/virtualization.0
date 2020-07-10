@@ -1,47 +1,38 @@
-From: Markus Elfring <Markus.Elfring@web.de>
-Subject: Re: scsi: virtio_scsi: Remove unnecessary condition checks
-Date: Fri, 10 Jul 2020 10:11:00 +0200
-Message-ID: <39c76c43-cd5f-40cb-7225-e2e143f8c131@web.de>
-References: <a197f532-7020-0d8e-21bf-42bb66e8daec@web.de>
- <e87746e6-813e-7c0e-e21e-5921e759da5d@redhat.com>
- <8eb9a827-45f1-e71c-0cbf-1c29acd8e310@web.de>
- <58e3feb8-1ffb-f77f-cf3a-75222b3cd524@redhat.com>
- <9815ef2d-d0da-d197-49d7-83559d750ff1@web.de>
- <d052b441-cc4d-4b2b-1442-b1a30bed2fdb@redhat.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: sparse warnings in net/vmw_vsock/virtio_transport.c
+Date: Fri, 10 Jul 2020 06:24:51 -0400
+Message-ID: <20200710062421-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <d052b441-cc4d-4b2b-1442-b1a30bed2fdb@redhat.com>
-Content-Language: en-GB
-Sender: linux-kernel-owner@vger.kernel.org
-To: Paolo Bonzini <pbonzini@redhat.com>, Xianting Tian <xianting_tian@126.com>, linux-scsi@vger.kernel.org, virtualization@lists.linux-foundation.org
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org, "James E. J. Bottomley" <jejb@linux.ibm.com>, Jason Wang <jasowang@redhat.com>, "Martin K. Petersen" <martin.petersen@oracle.com>, "Michael S. Tsirkin" <mst@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <netdev-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: netdev-owner@vger.kernel.org
+To: stefanha@redhat.com, sgarzare@redhat.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
->> Can a bit more =E2=80=9Ccompliance=E2=80=9D (with the Linux coding styl=
-e) matter here?
->
-> No.
+RCU trickery:
 
-Please take another look at the corresponding software documentation.
+net/vmw_vsock/virtio_transport.c:73:17: error: incompatible types in comparison expression (different address spaces):
+net/vmw_vsock/virtio_transport.c:73:17:    struct virtio_vsock [noderef] __rcu *
+net/vmw_vsock/virtio_transport.c:73:17:    struct virtio_vsock *
+net/vmw_vsock/virtio_transport.c:171:17: error: incompatible types in comparison expression (different address spaces):
+net/vmw_vsock/virtio_transport.c:171:17:    struct virtio_vsock [noderef] __rcu *
+net/vmw_vsock/virtio_transport.c:171:17:    struct virtio_vsock *
+net/vmw_vsock/virtio_transport.c:207:17: error: incompatible types in comparison expression (different address spaces):
+net/vmw_vsock/virtio_transport.c:207:17:    struct virtio_vsock [noderef] __rcu *
+net/vmw_vsock/virtio_transport.c:207:17:    struct virtio_vsock *
+net/vmw_vsock/virtio_transport.c:561:13: error: incompatible types in comparison expression (different address spaces):
+net/vmw_vsock/virtio_transport.c:561:13:    struct virtio_vsock [noderef] __rcu *
+net/vmw_vsock/virtio_transport.c:561:13:    struct virtio_vsock *
+net/vmw_vsock/virtio_transport.c:612:9: error: incompatible types in comparison expression (different address spaces):
+net/vmw_vsock/virtio_transport.c:612:9:    struct virtio_vsock [noderef] __rcu *
+net/vmw_vsock/virtio_transport.c:612:9:    struct virtio_vsock *
+net/vmw_vsock/virtio_transport.c:631:9: error: incompatible types in comparison expression (different address spaces):
+net/vmw_vsock/virtio_transport.c:631:9:    struct virtio_vsock [noderef] __rcu *
+net/vmw_vsock/virtio_transport.c:631:9:    struct virtio_vsock *
+  CC [M]  net/vmw_vsock/virtio_transport.o
 
+can you take a look at fixing this pls?
 
->>> Having a single error loop is an advantage by itself.
->>
->> I do not see that a loop is involved in the implementation of the funct=
-ion =E2=80=9Cinit=E2=80=9D.
->
-> s/loop/label/ sorry.
-
-Thanks for this information.
-
-Can the development attention grow for corresponding implementation detail=
-s
-around the specifcation of efficient exception handling?
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do=
-cumentation/process/coding-style.rst?id=3D42f82040ee66db13525dc6f14b855989=
-0b2f4c1c#n465
-
-Regards,
-Markus
+-- 
+MST
