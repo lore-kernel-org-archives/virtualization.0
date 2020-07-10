@@ -1,82 +1,106 @@
 From: Will Deacon <will@kernel.org>
-Subject: [PATCH v3 05/19] asm/rwonce: Remove smp_read_barrier_depends()
- invocation
-Date: Fri, 10 Jul 2020 17:51:49 +0100
-Message-ID: <20200710165203.31284-6-will@kernel.org>
+Subject: [PATCH v3 06/19] asm/rwonce: Don't pull <asm/barrier.h> into 'asm-generic/rwonce.h'
+Date: Fri, 10 Jul 2020 17:51:50 +0100
+Message-ID: <20200710165203.31284-7-will@kernel.org>
 References: <20200710165203.31284-1-will@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200710165203.31284-1-will@kernel.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
-Cc: Joel Fernandes <joelaf@google.com>, Mark Rutland <mark.rutland@arm.com>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, virtualization@lists.linux-foundation.org, Will Deacon <will@kernel.org>, Arnd Bergmann <arnd@arndb.de>, Alan Stern <stern@rowland.harvard.edu>, Sami Tolvanen <samitolvanen@google.com>, Matt Turner <mattst88@gmail.com>, kernel-team@android.com, Marco Elver <elver@google.com>, Kees Cook <keescook@chromium.org>, "Paul E. McKenney" <paulmck@kernel.org>, Boqun Feng <boqun.feng@gmail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-arm-kernel@lists.infradead.org, Richard Henderson <rth@twiddle.net>, Nick Desaulniers <ndesaulniers@google.com>, linux-alpha@vger.kernel.org
+Cc: Will Deacon <will@kernel.org>, Joel Fernandes <joelaf@google.com>, Sami Tolvanen <samitolvanen@google.com>, Nick Desaulniers <ndesaulniers@google.com>, Kees Cook <keescook@chromium.org>, Marco Elver <elver@google.com>, "Paul E. McKenney" <paulmck@kernel.org>, Matt Turner <mattst88@gmail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Richard Henderson <rth@twiddle.net>, Peter Zijlstra <peterz@infradead.org>, Alan Stern <stern@rowland.harvard.edu>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Boqun Feng <boqun.feng@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.org, virtualizati
 List-Id: virtualization@lists.linuxfoundation.org
 
-Alpha overrides __READ_ONCE() directly, so there's no need to use
-smp_read_barrier_depends() in the core code. This also means that
-__READ_ONCE() can be relied upon to provide dependency ordering.
+Now that 'smp_read_barrier_depends()' has gone the way of the Norwegian
+Blue, drop the inclusion of <asm/barrier.h> in 'asm-generic/rwonce.h'.
 
-Acked-by: Paul E. McKenney <paulmck@kernel.org>
+This requires fixups to some architecture vdso headers which were
+previously relying on 'asm/barrier.h' coming in via 'linux/compiler.h'.
+
 Signed-off-by: Will Deacon <will@kernel.org>
 ---
- include/asm-generic/rwonce.h | 19 ++++---------------
- 1 file changed, 4 insertions(+), 15 deletions(-)
+ arch/arm/include/asm/vdso/gettimeofday.h          | 1 +
+ arch/arm64/include/asm/vdso/compat_gettimeofday.h | 1 +
+ arch/arm64/include/asm/vdso/gettimeofday.h        | 1 +
+ arch/riscv/include/asm/vdso/gettimeofday.h        | 1 +
+ include/asm-generic/rwonce.h                      | 2 --
+ include/linux/nospec.h                            | 2 ++
+ 6 files changed, 6 insertions(+), 2 deletions(-)
 
+diff --git a/arch/arm/include/asm/vdso/gettimeofday.h b/arch/arm/include/asm/vdso/gettimeofday.h
+index 36dc18553ed8..1b207cf07697 100644
+--- a/arch/arm/include/asm/vdso/gettimeofday.h
++++ b/arch/arm/include/asm/vdso/gettimeofday.h
+@@ -7,6 +7,7 @@
+ 
+ #ifndef __ASSEMBLY__
+ 
++#include <asm/barrier.h>
+ #include <asm/errno.h>
+ #include <asm/unistd.h>
+ #include <asm/vdso/cp15.h>
+diff --git a/arch/arm64/include/asm/vdso/compat_gettimeofday.h b/arch/arm64/include/asm/vdso/compat_gettimeofday.h
+index b6907ae78e53..bcf7649999a4 100644
+--- a/arch/arm64/include/asm/vdso/compat_gettimeofday.h
++++ b/arch/arm64/include/asm/vdso/compat_gettimeofday.h
+@@ -7,6 +7,7 @@
+ 
+ #ifndef __ASSEMBLY__
+ 
++#include <asm/barrier.h>
+ #include <asm/unistd.h>
+ #include <asm/errno.h>
+ 
+diff --git a/arch/arm64/include/asm/vdso/gettimeofday.h b/arch/arm64/include/asm/vdso/gettimeofday.h
+index afba6ba332f8..127fa63893e2 100644
+--- a/arch/arm64/include/asm/vdso/gettimeofday.h
++++ b/arch/arm64/include/asm/vdso/gettimeofday.h
+@@ -7,6 +7,7 @@
+ 
+ #ifndef __ASSEMBLY__
+ 
++#include <asm/barrier.h>
+ #include <asm/unistd.h>
+ 
+ #define VDSO_HAS_CLOCK_GETRES		1
+diff --git a/arch/riscv/include/asm/vdso/gettimeofday.h b/arch/riscv/include/asm/vdso/gettimeofday.h
+index c8e818688ec1..3099362d9f26 100644
+--- a/arch/riscv/include/asm/vdso/gettimeofday.h
++++ b/arch/riscv/include/asm/vdso/gettimeofday.h
+@@ -4,6 +4,7 @@
+ 
+ #ifndef __ASSEMBLY__
+ 
++#include <asm/barrier.h>
+ #include <asm/unistd.h>
+ #include <asm/csr.h>
+ #include <uapi/linux/time.h>
 diff --git a/include/asm-generic/rwonce.h b/include/asm-generic/rwonce.h
-index f9dfa88fc04d..cc810f1f18ca 100644
+index cc810f1f18ca..cd0302746fb4 100644
 --- a/include/asm-generic/rwonce.h
 +++ b/include/asm-generic/rwonce.h
-@@ -30,24 +30,16 @@
+@@ -26,8 +26,6 @@
+ #include <linux/kasan-checks.h>
+ #include <linux/kcsan-checks.h>
  
+-#include <asm/barrier.h>
+-
  /*
   * Use __READ_ONCE() instead of READ_ONCE() if you do not require any
-- * atomicity or dependency ordering guarantees. Note that this may result
-- * in tears!
-+ * atomicity. Note that this may result in tears!
-  */
- #ifndef __READ_ONCE
- #define __READ_ONCE(x)	(*(const volatile __unqual_scalar_typeof(x) *)&(x))
- #endif
+  * atomicity. Note that this may result in tears!
+diff --git a/include/linux/nospec.h b/include/linux/nospec.h
+index 0c5ef54fd416..c1e79f72cd89 100644
+--- a/include/linux/nospec.h
++++ b/include/linux/nospec.h
+@@ -5,6 +5,8 @@
  
--#define __READ_ONCE_SCALAR(x)						\
--({									\
--	__unqual_scalar_typeof(x) __x = __READ_ONCE(x);			\
--	smp_read_barrier_depends();					\
--	(typeof(x))__x;							\
--})
--
- #define READ_ONCE(x)							\
- ({									\
- 	compiletime_assert_rwonce_type(x);				\
--	__READ_ONCE_SCALAR(x);						\
-+	__READ_ONCE(x);							\
- })
+ #ifndef _LINUX_NOSPEC_H
+ #define _LINUX_NOSPEC_H
++
++#include <linux/compiler.h>
+ #include <asm/barrier.h>
  
- #define __WRITE_ONCE(x, val)						\
-@@ -74,12 +66,9 @@ unsigned long __read_once_word_nocheck(const void *addr)
-  */
- #define READ_ONCE_NOCHECK(x)						\
- ({									\
--	unsigned long __x;						\
--	compiletime_assert(sizeof(x) == sizeof(__x),			\
-+	compiletime_assert(sizeof(x) == sizeof(unsigned long),		\
- 		"Unsupported access size for READ_ONCE_NOCHECK().");	\
--	__x = __read_once_word_nocheck(&(x));				\
--	smp_read_barrier_depends();					\
--	(typeof(x))__x;							\
-+	(typeof(x))__read_once_word_nocheck(&(x));			\
- })
- 
- static __no_kasan_or_inline
+ struct task_struct;
 -- 
 2.27.0.383.g050319c2ae-goog
