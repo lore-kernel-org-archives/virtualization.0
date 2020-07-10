@@ -1,59 +1,59 @@
-From: David Hildenbrand <david@redhat.com>
-Subject: Re: [PATCH] virtio_balloon: clear modern features under legacy
-Date: Fri, 10 Jul 2020 13:32:13 +0200
-Message-ID: <66bb116a-9742-a81f-0173-d78541ea9d47@redhat.com>
-References: <20200710113046.421366-1-mst@redhat.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: [PATCH] vsock/virtio: annotate 'the_virtio_vsock' RCU pointer
+Date: Fri, 10 Jul 2020 14:12:43 +0200
+Message-ID: <20200710121243.120096-1-sgarzare@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200710113046.421366-1-mst@redhat.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, Alexander Duyck <alexander.duyck@gmail.com>
+To: davem@davemloft.net
+Cc: Stefano Garzarella <sgarzare@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 10.07.20 13:31, Michael S. Tsirkin wrote:
-> Page reporting features were never supported by legacy hypervisors.
-> Supporting them poses a problem: should we use native endian-ness (like
-> current code assumes)? Or little endian-ness like the virtio spec says?
-> Rather than try to figure out, and since results of
-> incorrect endian-ness are dire, let's just block this configuration.
-> 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/virtio/virtio_balloon.c | 9 +++++++++
->  1 file changed, 9 insertions(+)
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 5d4b891bf84f..b9bc03345157 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -1107,6 +1107,15 @@ static int virtballoon_restore(struct virtio_device *vdev)
->  
->  static int virtballoon_validate(struct virtio_device *vdev)
->  {
-> +	/*
-> +	 * Legacy devices never specified how modern features should behave.
-> +	 * E.g. which endian-ness to use? Better not to assume anything.
-> +	 */
-> +	if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
-> +		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT);
-> +		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_PAGE_POISON);
-> +		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
-> +	}
->  	/*
->  	 * Inform the hypervisor that our pages are poisoned or
->  	 * initialized. If we cannot do that then we should disable
-> 
+Commit 0deab087b16a ("vsock/virtio: use RCU to avoid use-after-free
+on the_virtio_vsock") starts to use RCU to protect 'the_virtio_vsock'
+pointer, but we forgot to annotate it.
 
-Very right
+This patch adds the annotation to fix the following sparse errors:
 
-Acked-by: David Hildenbrand <david@redhat.com>
+    net/vmw_vsock/virtio_transport.c:73:17: error: incompatible types in comparison expression (different address spaces):
+    net/vmw_vsock/virtio_transport.c:73:17:    struct virtio_vsock [noderef] __rcu *
+    net/vmw_vsock/virtio_transport.c:73:17:    struct virtio_vsock *
+    net/vmw_vsock/virtio_transport.c:171:17: error: incompatible types in comparison expression (different address spaces):
+    net/vmw_vsock/virtio_transport.c:171:17:    struct virtio_vsock [noderef] __rcu *
+    net/vmw_vsock/virtio_transport.c:171:17:    struct virtio_vsock *
+    net/vmw_vsock/virtio_transport.c:207:17: error: incompatible types in comparison expression (different address spaces):
+    net/vmw_vsock/virtio_transport.c:207:17:    struct virtio_vsock [noderef] __rcu *
+    net/vmw_vsock/virtio_transport.c:207:17:    struct virtio_vsock *
+    net/vmw_vsock/virtio_transport.c:561:13: error: incompatible types in comparison expression (different address spaces):
+    net/vmw_vsock/virtio_transport.c:561:13:    struct virtio_vsock [noderef] __rcu *
+    net/vmw_vsock/virtio_transport.c:561:13:    struct virtio_vsock *
+    net/vmw_vsock/virtio_transport.c:612:9: error: incompatible types in comparison expression (different address spaces):
+    net/vmw_vsock/virtio_transport.c:612:9:    struct virtio_vsock [noderef] __rcu *
+    net/vmw_vsock/virtio_transport.c:612:9:    struct virtio_vsock *
+    net/vmw_vsock/virtio_transport.c:631:9: error: incompatible types in comparison expression (different address spaces):
+    net/vmw_vsock/virtio_transport.c:631:9:    struct virtio_vsock [noderef] __rcu *
+    net/vmw_vsock/virtio_transport.c:631:9:    struct virtio_vsock *
 
+Fixes: 0deab087b16a ("vsock/virtio: use RCU to avoid use-after-free on the_virtio_vsock")
+Reported-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+---
+ net/vmw_vsock/virtio_transport.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+index dfbaf6bd8b1c..2700a63ab095 100644
+--- a/net/vmw_vsock/virtio_transport.c
++++ b/net/vmw_vsock/virtio_transport.c
+@@ -22,7 +22,7 @@
+ #include <net/af_vsock.h>
+ 
+ static struct workqueue_struct *virtio_vsock_workqueue;
+-static struct virtio_vsock *the_virtio_vsock;
++static struct virtio_vsock __rcu *the_virtio_vsock;
+ static DEFINE_MUTEX(the_virtio_vsock_mutex); /* protects the_virtio_vsock */
+ 
+ struct virtio_vsock {
 -- 
-Thanks,
-
-David / dhildenb
+2.26.2
