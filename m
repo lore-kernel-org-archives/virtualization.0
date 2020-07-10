@@ -1,164 +1,259 @@
 From: Will Deacon <will@kernel.org>
-Subject: [PATCH v3 01/19] tools: bpf: Use local copy of headers including uapi/linux/filter.h
-Date: Fri, 10 Jul 2020 17:51:45 +0100
-Message-ID: <20200710165203.31284-2-will@kernel.org>
+Subject: [PATCH v3 02/19] compiler.h: Split {READ,WRITE}_ONCE definitions out into rwonce.h
+Date: Fri, 10 Jul 2020 17:51:46 +0100
+Message-ID: <20200710165203.31284-3-will@kernel.org>
 References: <20200710165203.31284-1-will@kernel.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Return-path: <linux-alpha-owner@vger.kernel.org>
 In-Reply-To: <20200710165203.31284-1-will@kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: linux-alpha-owner@vger.kernel.org
 To: linux-kernel@vger.kernel.org
 Cc: Will Deacon <will@kernel.org>, Joel Fernandes <joelaf@google.com>, Sami Tolvanen <samitolvanen@google.com>, Nick Desaulniers <ndesaulniers@google.com>, Kees Cook <keescook@chromium.org>, Marco Elver <elver@google.com>, "Paul E. McKenney" <paulmck@kernel.org>, Matt Turner <mattst88@gmail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Richard Henderson <rth@twiddle.net>, Peter Zijlstra <peterz@infradead.org>, Alan Stern <stern@rowland.harvard.edu>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Boqun Feng <boqun.feng@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.org, virtualizati
 List-Id: virtualization@lists.linuxfoundation.org
 
-Pulling header files directly out of the kernel sources for inclusion in
-userspace programs is highly error prone, not least because it bypasses
-the kbuild infrastructure entirely and so may end up referencing other
-header files that have not been generated.
+In preparation for allowing architectures to define their own
+implementation of the READ_ONCE() macro, move the generic
+{READ,WRITE}_ONCE() definitions out of the unwieldy 'linux/compiler.h'
+file and into a new 'rwonce.h' header under 'asm-generic'.
 
-Subsequent patches will cause compiler.h to pull in the ungenerated
-asm/rwonce.h file via filter.h, breaking the build for tools/bpf:
-
-  | $ make -C tools/bpf
-  | make: Entering directory '/linux/tools/bpf'
-  |   CC       bpf_jit_disasm.o
-  |   LINK     bpf_jit_disasm
-  |   CC       bpf_dbg.o
-  | In file included from /linux/include/uapi/linux/filter.h:9,
-  |                  from /linux/tools/bpf/bpf_dbg.c:41:
-  | /linux/include/linux/compiler.h:247:10: fatal error: asm/rwonce.h: No such file or directory
-  |  #include <asm/rwonce.h>
-  |           ^~~~~~~~~~~~~~
-  | compilation terminated.
-  | make: *** [Makefile:61: bpf_dbg.o] Error 1
-  | make: Leaving directory '/linux/tools/bpf'
-
-Take a copy of the installed version of linux/filter.h  (i.e. the one
-created by the 'headers_install' target) into tools/include/uapi/linux/
-and adjust the BPF tool Makefile to reference the local include
-directories instead of those in the main source tree.
-
-Cc: Masahiro Yamada <yamada.masahiro@socionext.com>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
-Suggested-by: Daniel Borkmann <daniel@iogearbox.net>
-Reported-by: Xiao Yang <ice_yangxiao@163.com>
+Acked-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Will Deacon <will@kernel.org>
 ---
- tools/bpf/Makefile                |  3 +-
- tools/include/uapi/linux/filter.h | 90 +++++++++++++++++++++++++++++++
- 2 files changed, 92 insertions(+), 1 deletion(-)
- create mode 100644 tools/include/uapi/linux/filter.h
+ include/asm-generic/Kbuild    |  1 +
+ include/asm-generic/barrier.h |  2 +-
+ include/asm-generic/rwonce.h  | 91 +++++++++++++++++++++++++++++++++++
+ include/linux/compiler.h      | 83 +-------------------------------
+ 4 files changed, 95 insertions(+), 82 deletions(-)
+ create mode 100644 include/asm-generic/rwonce.h
 
-diff --git a/tools/bpf/Makefile b/tools/bpf/Makefile
-index 6df1850f8353..8a69258fd8aa 100644
---- a/tools/bpf/Makefile
-+++ b/tools/bpf/Makefile
-@@ -9,7 +9,8 @@ MAKE = make
- INSTALL ?= install
+diff --git a/include/asm-generic/Kbuild b/include/asm-generic/Kbuild
+index 44ec80e70518..74b0612601dd 100644
+--- a/include/asm-generic/Kbuild
++++ b/include/asm-generic/Kbuild
+@@ -45,6 +45,7 @@ mandatory-y += pci.h
+ mandatory-y += percpu.h
+ mandatory-y += pgalloc.h
+ mandatory-y += preempt.h
++mandatory-y += rwonce.h
+ mandatory-y += sections.h
+ mandatory-y += serial.h
+ mandatory-y += shmparam.h
+diff --git a/include/asm-generic/barrier.h b/include/asm-generic/barrier.h
+index 2eacaf7d62f6..8116744bb82c 100644
+--- a/include/asm-generic/barrier.h
++++ b/include/asm-generic/barrier.h
+@@ -13,7 +13,7 @@
  
- CFLAGS += -Wall -O2
--CFLAGS += -D__EXPORTED_HEADERS__ -I$(srctree)/include/uapi -I$(srctree)/include
-+CFLAGS += -D__EXPORTED_HEADERS__ -I$(srctree)/tools/include/uapi \
-+	  -I$(srctree)/tools/include
+ #ifndef __ASSEMBLY__
  
- # This will work when bpf is built in tools env. where srctree
- # isn't set and when invoked from selftests build, where srctree
-diff --git a/tools/include/uapi/linux/filter.h b/tools/include/uapi/linux/filter.h
+-#include <linux/compiler.h>
++#include <asm/rwonce.h>
+ 
+ #ifndef nop
+ #define nop()	asm volatile ("nop")
+diff --git a/include/asm-generic/rwonce.h b/include/asm-generic/rwonce.h
 new file mode 100644
-index 000000000000..eaef459e7bd4
+index 000000000000..92cc2f223cb3
 --- /dev/null
-+++ b/tools/include/uapi/linux/filter.h
-@@ -0,0 +1,90 @@
-+/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
++++ b/include/asm-generic/rwonce.h
+@@ -0,0 +1,91 @@
++/* SPDX-License-Identifier: GPL-2.0 */
 +/*
-+ * Linux Socket Filter Data Structures
++ * Prevent the compiler from merging or refetching reads or writes. The
++ * compiler is also forbidden from reordering successive instances of
++ * READ_ONCE and WRITE_ONCE, but only when the compiler is aware of some
++ * particular ordering. One way to make the compiler aware of ordering is to
++ * put the two invocations of READ_ONCE or WRITE_ONCE in different C
++ * statements.
++ *
++ * These two macros will also work on aggregate data types like structs or
++ * unions.
++ *
++ * Their two major use cases are: (1) Mediating communication between
++ * process-level code and irq/NMI handlers, all running on the same CPU,
++ * and (2) Ensuring that the compiler does not fold, spindle, or otherwise
++ * mutilate accesses that either do not require ordering or that interact
++ * with an explicit memory barrier or atomic instruction that provides the
++ * required ordering.
 + */
++#ifndef __ASM_GENERIC_RWONCE_H
++#define __ASM_GENERIC_RWONCE_H
 +
-+#ifndef __LINUX_FILTER_H__
-+#define __LINUX_FILTER_H__
++#ifndef __ASSEMBLY__
 +
++#include <linux/compiler_types.h>
++#include <linux/kasan-checks.h>
++#include <linux/kcsan-checks.h>
 +
-+#include <linux/types.h>
-+#include <linux/bpf_common.h>
-+
-+/*
-+ * Current version of the filter code architecture.
-+ */
-+#define BPF_MAJOR_VERSION 1
-+#define BPF_MINOR_VERSION 1
-+
-+/*
-+ *	Try and keep these values and structures similar to BSD, especially
-+ *	the BPF code definitions which need to match so you can share filters
-+ */
-+ 
-+struct sock_filter {	/* Filter block */
-+	__u16	code;   /* Actual filter code */
-+	__u8	jt;	/* Jump true */
-+	__u8	jf;	/* Jump false */
-+	__u32	k;      /* Generic multiuse field */
-+};
-+
-+struct sock_fprog {	/* Required for SO_ATTACH_FILTER. */
-+	unsigned short		len;	/* Number of filter blocks */
-+	struct sock_filter *filter;
-+};
-+
-+/* ret - BPF_K and BPF_X also apply */
-+#define BPF_RVAL(code)  ((code) & 0x18)
-+#define         BPF_A           0x10
-+
-+/* misc */
-+#define BPF_MISCOP(code) ((code) & 0xf8)
-+#define         BPF_TAX         0x00
-+#define         BPF_TXA         0x80
++#include <asm/barrier.h>
 +
 +/*
-+ * Macros for filter block array initializers.
++ * Use __READ_ONCE() instead of READ_ONCE() if you do not require any
++ * atomicity or dependency ordering guarantees. Note that this may result
++ * in tears!
 + */
-+#ifndef BPF_STMT
-+#define BPF_STMT(code, k) { (unsigned short)(code), 0, 0, k }
-+#endif
-+#ifndef BPF_JUMP
-+#define BPF_JUMP(code, k, jt, jf) { (unsigned short)(code), jt, jf, k }
-+#endif
++#define __READ_ONCE(x)	(*(const volatile __unqual_scalar_typeof(x) *)&(x))
++
++#define __READ_ONCE_SCALAR(x)						\
++({									\
++	__unqual_scalar_typeof(x) __x = __READ_ONCE(x);			\
++	smp_read_barrier_depends();					\
++	(typeof(x))__x;							\
++})
++
++#define READ_ONCE(x)							\
++({									\
++	compiletime_assert_rwonce_type(x);				\
++	__READ_ONCE_SCALAR(x);						\
++})
++
++#define __WRITE_ONCE(x, val)						\
++do {									\
++	*(volatile typeof(x) *)&(x) = (val);				\
++} while (0)
++
++#define WRITE_ONCE(x, val)						\
++do {									\
++	compiletime_assert_rwonce_type(x);				\
++	__WRITE_ONCE(x, val);						\
++} while (0)
++
++static __no_sanitize_or_inline
++unsigned long __read_once_word_nocheck(const void *addr)
++{
++	return __READ_ONCE(*(unsigned long *)addr);
++}
 +
 +/*
-+ * Number of scratch memory words for: BPF_ST and BPF_STX
++ * Use READ_ONCE_NOCHECK() instead of READ_ONCE() if you need to load a
++ * word from memory atomically but without telling KASAN/KCSAN. This is
++ * usually used by unwinding code when walking the stack of a running process.
 + */
-+#define BPF_MEMWORDS 16
++#define READ_ONCE_NOCHECK(x)						\
++({									\
++	unsigned long __x;						\
++	compiletime_assert(sizeof(x) == sizeof(__x),			\
++		"Unsupported access size for READ_ONCE_NOCHECK().");	\
++	__x = __read_once_word_nocheck(&(x));				\
++	smp_read_barrier_depends();					\
++	(typeof(x))__x;							\
++})
 +
-+/* RATIONALE. Negative offsets are invalid in BPF.
-+   We use them to reference ancillary data.
-+   Unlike introduction new instructions, it does not break
-+   existing compilers/optimizers.
-+ */
-+#define SKF_AD_OFF    (-0x1000)
-+#define SKF_AD_PROTOCOL 0
-+#define SKF_AD_PKTTYPE 	4
-+#define SKF_AD_IFINDEX 	8
-+#define SKF_AD_NLATTR	12
-+#define SKF_AD_NLATTR_NEST	16
-+#define SKF_AD_MARK 	20
-+#define SKF_AD_QUEUE	24
-+#define SKF_AD_HATYPE	28
-+#define SKF_AD_RXHASH	32
-+#define SKF_AD_CPU	36
-+#define SKF_AD_ALU_XOR_X	40
-+#define SKF_AD_VLAN_TAG	44
-+#define SKF_AD_VLAN_TAG_PRESENT 48
-+#define SKF_AD_PAY_OFFSET	52
-+#define SKF_AD_RANDOM	56
-+#define SKF_AD_VLAN_TPID	60
-+#define SKF_AD_MAX	64
++static __no_kasan_or_inline
++unsigned long read_word_at_a_time(const void *addr)
++{
++	kasan_check_read(addr, 1);
++	return *(unsigned long *)addr;
++}
 +
-+#define SKF_NET_OFF	(-0x100000)
-+#define SKF_LL_OFF	(-0x200000)
++#endif /* __ASSEMBLY__ */
++#endif	/* __ASM_GENERIC_RWONCE_H */
+diff --git a/include/linux/compiler.h b/include/linux/compiler.h
+index 204e76856435..718b4357af32 100644
+--- a/include/linux/compiler.h
++++ b/include/linux/compiler.h
+@@ -230,28 +230,6 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
+ # define __UNIQUE_ID(prefix) __PASTE(__PASTE(__UNIQUE_ID_, prefix), __LINE__)
+ #endif
+ 
+-/*
+- * Prevent the compiler from merging or refetching reads or writes. The
+- * compiler is also forbidden from reordering successive instances of
+- * READ_ONCE and WRITE_ONCE, but only when the compiler is aware of some
+- * particular ordering. One way to make the compiler aware of ordering is to
+- * put the two invocations of READ_ONCE or WRITE_ONCE in different C
+- * statements.
+- *
+- * These two macros will also work on aggregate data types like structs or
+- * unions.
+- *
+- * Their two major use cases are: (1) Mediating communication between
+- * process-level code and irq/NMI handlers, all running on the same CPU,
+- * and (2) Ensuring that the compiler does not fold, spindle, or otherwise
+- * mutilate accesses that either do not require ordering or that interact
+- * with an explicit memory barrier or atomic instruction that provides the
+- * required ordering.
+- */
+-#include <asm/barrier.h>
+-#include <linux/kasan-checks.h>
+-#include <linux/kcsan-checks.h>
+-
+ /**
+  * data_race - mark an expression as containing intentional data races
+  *
+@@ -272,65 +250,6 @@ void ftrace_likely_update(struct ftrace_likely_data *f, int val,
+ 	__v;								\
+ })
+ 
+-/*
+- * Use __READ_ONCE() instead of READ_ONCE() if you do not require any
+- * atomicity or dependency ordering guarantees. Note that this may result
+- * in tears!
+- */
+-#define __READ_ONCE(x)	(*(const volatile __unqual_scalar_typeof(x) *)&(x))
+-
+-#define __READ_ONCE_SCALAR(x)						\
+-({									\
+-	__unqual_scalar_typeof(x) __x = __READ_ONCE(x);			\
+-	smp_read_barrier_depends();					\
+-	(typeof(x))__x;							\
+-})
+-
+-#define READ_ONCE(x)							\
+-({									\
+-	compiletime_assert_rwonce_type(x);				\
+-	__READ_ONCE_SCALAR(x);						\
+-})
+-
+-#define __WRITE_ONCE(x, val)						\
+-do {									\
+-	*(volatile typeof(x) *)&(x) = (val);				\
+-} while (0)
+-
+-#define WRITE_ONCE(x, val)						\
+-do {									\
+-	compiletime_assert_rwonce_type(x);				\
+-	__WRITE_ONCE(x, val);						\
+-} while (0)
+-
+-static __no_sanitize_or_inline
+-unsigned long __read_once_word_nocheck(const void *addr)
+-{
+-	return __READ_ONCE(*(unsigned long *)addr);
+-}
+-
+-/*
+- * Use READ_ONCE_NOCHECK() instead of READ_ONCE() if you need to load a
+- * word from memory atomically but without telling KASAN/KCSAN. This is
+- * usually used by unwinding code when walking the stack of a running process.
+- */
+-#define READ_ONCE_NOCHECK(x)						\
+-({									\
+-	unsigned long __x;						\
+-	compiletime_assert(sizeof(x) == sizeof(__x),			\
+-		"Unsupported access size for READ_ONCE_NOCHECK().");	\
+-	__x = __read_once_word_nocheck(&(x));				\
+-	smp_read_barrier_depends();					\
+-	(typeof(x))__x;							\
+-})
+-
+-static __no_kasan_or_inline
+-unsigned long read_word_at_a_time(const void *addr)
+-{
+-	kasan_check_read(addr, 1);
+-	return *(unsigned long *)addr;
+-}
+-
+ #endif /* __KERNEL__ */
+ 
+ /*
+@@ -414,4 +333,6 @@ static inline void *offset_to_ptr(const int *off)
+  */
+ #define prevent_tail_call_optimization()	mb()
+ 
++#include <asm/rwonce.h>
 +
-+#define BPF_NET_OFF	SKF_NET_OFF
-+#define BPF_LL_OFF	SKF_LL_OFF
-+
-+#endif /* __LINUX_FILTER_H__ */
+ #endif /* __LINUX_COMPILER_H */
 -- 
 2.27.0.383.g050319c2ae-goog
