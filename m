@@ -1,52 +1,44 @@
-From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH] vhost/scsi: fix up req type endian-ness
-Date: Mon, 13 Jul 2020 10:29:49 +0100
-Message-ID: <20200713092949.GE28639@stefanha-x1.localdomain>
-References: <20200710104849.406023-1-mst@redhat.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH 00/18] Allow architectures to override __READ_ONCE()
+Date: Mon, 13 Jul 2020 12:34:43 +0200
+Message-ID: <20200713103443.GE10769@hirez.programming.kicks-ass.net>
+References: <20200710165203.31284-1-will@kernel.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="n+lFg1Zro7sl44OB"
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20200710104849.406023-1-mst@redhat.com>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-alpha-owner@vger.kernel.org>
 Content-Disposition: inline
-Sender: kvm-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, netdev@vger.kernel.org
+In-Reply-To: <20200710165203.31284-1-will@kernel.org>
+Sender: linux-alpha-owner@vger.kernel.org
+To: Will Deacon <will@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Joel Fernandes <joelaf@google.com>, Sami Tolvanen <samitolvanen@google.com>, Nick Desaulniers <ndesaulniers@google.com>, Kees Cook <keescook@chromium.org>, Marco Elver <elver@google.com>, "Paul E. McKenney" <paulmck@kernel.org>, Matt Turner <mattst88@gmail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Richard Henderson <rth@twiddle.net>, Alan Stern <stern@rowland.harvard.edu>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Boqun Feng <boqun.feng@gmail.com>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.org, virtualization@lists.linux-foundation.org, kernel-team@andro
 List-Id: virtualization@lists.linuxfoundation.org
 
---n+lFg1Zro7sl44OB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Fri, Jul 10, 2020 at 05:51:44PM +0100, Will Deacon wrote:
 
-On Fri, Jul 10, 2020 at 06:48:51AM -0400, Michael S. Tsirkin wrote:
-> vhost/scsi doesn't handle type conversion correctly
-> for request type when using virtio 1.0 and up for BE,
-> or cross-endian platforms.
->=20
-> Fix it up using vhost_32_to_cpu.
->=20
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/vhost/scsi.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> SeongJae Park (1):
+>   Documentation/barriers/kokr: Remove references to
+>     [smp_]read_barrier_depends()
+> 
+> Will Deacon (18):
+>   tools: bpf: Use local copy of headers including uapi/linux/filter.h
+>   compiler.h: Split {READ,WRITE}_ONCE definitions out into rwonce.h
+>   asm/rwonce: Allow __READ_ONCE to be overridden by the architecture
+>   alpha: Override READ_ONCE() with barriered implementation
+>   asm/rwonce: Remove smp_read_barrier_depends() invocation
+>   asm/rwonce: Don't pull <asm/barrier.h> into 'asm-generic/rwonce.h'
+>   vhost: Remove redundant use of read_barrier_depends() barrier
+>   alpha: Replace smp_read_barrier_depends() usage with smp_[r]mb()
+>   locking/barriers: Remove definitions for [smp_]read_barrier_depends()
+>   Documentation/barriers: Remove references to
+>     [smp_]read_barrier_depends()
+>   tools/memory-model: Remove smp_read_barrier_depends() from informal
+>     doc
+>   include/linux: Remove smp_read_barrier_depends() from comments
+>   checkpatch: Remove checks relating to [smp_]read_barrier_depends()
+>   arm64: Reduce the number of header files pulled into vmlinux.lds.S
+>   arm64: alternatives: Split up alternative.h
+>   arm64: cpufeatures: Add capability for LDAPR instruction
+>   arm64: alternatives: Remove READ_ONCE() usage during patch operation
+>   arm64: lto: Strengthen READ_ONCE() to acquire when CONFIG_LTO=y
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-
---n+lFg1Zro7sl44OB
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl8MKY0ACgkQnKSrs4Gr
-c8gQOQf+KmgjzVnEXU62hGmZBNsGZ9+2r2VBviBdhlBL0AB0927CK0A8v4HXZ/5+
-8Y6UwKNT0GZnj67/+PBXAVvJm4Jny+4TTgTafuZY0gnlNZKS6PpmSoztnzwjqtgI
-ddm2TVEWDF/lDZNRcWZ1a0cURg8If2ZQPxNepxT3uqa5LnbYXiwuIlnFG6eetsHV
-Cl751SmdjCSXzCDBvEE6eboXtzt3ok1TWIx3L2jU034AyexssehBz6C0G9LVQhau
-pVJs0q2BfsF95xxX6k2Bo/8Paj4EqzUKxG4jEXteR9SIHwZH3anw0PKPygh96FWF
-XrsnZG1MAaXY8ybmuVlQkaJofLFlMA==
-=4fi+
------END PGP SIGNATURE-----
-
---n+lFg1Zro7sl44OB--
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
