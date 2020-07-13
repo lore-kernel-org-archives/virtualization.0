@@ -1,60 +1,105 @@
-From: Michal Hocko <mhocko@kernel.org>
-Subject: Re: [RFC]: mm,power: introduce MADV_WIPEONSUSPEND
-Date: Mon, 13 Jul 2020 10:02:06 +0200
-Message-ID: <20200713080206.GD16783@dhcp22.suse.cz>
-References: <B7793B7A-3660-4769-9B9A-FFCF250728BB@amazon.com>
- <20200703113026.GT18446@dhcp22.suse.cz>
- <CAG48ez2O2z4L=n57Omwy6s1sWQkdTkPKiikhbfdVhiyd_TGRRw@mail.gmail.com>
- <20200707073823.GA3820@dhcp22.suse.cz> <20200707080726.GA32357@amd>
- <20200707085847.GA5913@dhcp22.suse.cz> <20200707163758.GA1947@amd>
- <E6B41570-E206-4458-921B-465B9EF74949@amazon.com>
- <20200712072228.GB4721@duo.ucw.cz>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 2/7] kvm/vfio: detect assigned device via irqbypass
+ manager
+Date: Mon, 13 Jul 2020 16:13:35 +0800
+Message-ID: <bcb03e95-d8b9-6e19-5b0e-0119d3f43d6d@redhat.com>
+References: <1594565366-3195-1-git-send-email-lingshan.zhu@intel.com>
+ <1594565366-3195-2-git-send-email-lingshan.zhu@intel.com>
+ <20200712170518-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <20200712072228.GB4721@duo.ucw.cz>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Weiss, Radu" <raduweis@amazon.com>, virtualization@lists.linux-foundation.org, linux-mm@kvack.org, mingo@kernel.org, Jann Horn <jannh@google.com>, "Brooker,
- Marc" <mbrooker@amazon.com>, "Singh, Balbir" <sblbir@amazon.com>, len.brown@intel.com, bonzini@gnu.org, "Graf (AWS),
- Alexander" <graf@amazon.de>, keescook@chromium.org, linux-pm@vger.kernel.org, "Catangiu, Adrian Costin" <acatan@amazon.com>, Colm MacCarthaigh <colmmacc@amazon.com>, fweimer@redhat.com, wad@chromium.org, linux-api@vger.kernel.org, "Manwaring, Derek" <derekmn@amazon.com>, rjw@rjwysocki.net, luto@amacapital.net, "Sandu, Andrei" <sandreim@amazon.com>, akpm@linux-foundation.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20200712170518-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+Sender: netdev-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Zhu Lingshan <lingshan.zhu@intel.com>
+Cc: alex.williamson@redhat.com, pbonzini@redhat.com, sean.j.christopherson@intel.com, wanpengli@tencent.com, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, netdev@vger.kernel.org, dan.daly@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun 12-07-20 09:22:28, Pavel Machek wrote:
-> On Tue 2020-07-07 12:00:41, Colm MacCarthaigh wrote:
-> > 
-> > 
-> > On 7 Jul 2020, at 9:37, Pavel Machek wrote:
-> > > Please go through the thread and try to understand it.
-> > > 
-> > > You'd need syscalls per get_randomness(), not per migration.
-> > 
-> > I think one check per get_randomness() is sufficient, though putting it at
-> > the end of the critical section rather than the beginning helps.
-> 
-> Yeah, well, one syscall is still enough to make it useless.
 
-I am sorry but I really do not follow. Why would you want to call a
-syscall on each get_randomness invocation? Why is it not enough to
-simply have a flag that tells that an external event has happened
-and reinitialize if the flag is set? Yes this wouldn't be really sync
-operation but does that matter? Is using a few random numbers from the
-old pool just because the notifier hasn't processed and flag the
-situation a major security concern?
+On 2020/7/13 上午5:06, Michael S. Tsirkin wrote:
+> On Sun, Jul 12, 2020 at 10:49:21PM +0800, Zhu Lingshan wrote:
+>> We used to detect assigned device via VFIO manipulated device
+>> conters. This is less flexible consider VFIO is not the only
+>> interface for assigned device. vDPA devices has dedicated
+>> backed hardware as well. So this patch tries to detect
+>> the assigned device via irqbypass manager.
+>>
+>> We will increase/decrease the assigned device counter in kvm/x86.
+>> Both vDPA and VFIO would go through this code path.
+>>
+>> This code path only affect x86 for now.
+>>
+>> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+>
+> I think it's best to leave VFIO alone. Add appropriate APIs for VDPA,
+> worry about converting existing users later.
 
-Btw. let me just clarify that I am not by any means pushing a solution
-like that. All I am saying is that MADV_WIPEONSUSPEND is inherently
-subtle interface that we likely want to avoid.
--- 
-Michal Hocko
-SUSE Labs
+
+
+Just to make sure I understand, did you mean:
+
+1) introduce another bridge for vDPA
+
+or
+
+2) only detect vDPA via bypass manager? (we can leave VFIO code as is, 
+then the assigned device counter may increase/decrease twice if VFIO use 
+irq bypass manager which should be no harm).
+
+Thanks
+
+
+>
+>> ---
+>>   arch/x86/kvm/x86.c | 10 ++++++++--
+>>   virt/kvm/vfio.c    |  2 --
+>>   2 files changed, 8 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+>> index 00c88c2..20c07d3 100644
+>> --- a/arch/x86/kvm/x86.c
+>> +++ b/arch/x86/kvm/x86.c
+>> @@ -10624,11 +10624,17 @@ int kvm_arch_irq_bypass_add_producer(struct irq_bypass_consumer *cons,
+>>   {
+>>   	struct kvm_kernel_irqfd *irqfd =
+>>   		container_of(cons, struct kvm_kernel_irqfd, consumer);
+>> +	int ret;
+>>   
+>>   	irqfd->producer = prod;
+>> +	kvm_arch_start_assignment(irqfd->kvm);
+>> +	ret = kvm_x86_ops.update_pi_irte(irqfd->kvm,
+>> +					 prod->irq, irqfd->gsi, 1);
+>> +
+>> +	if (ret)
+>> +		kvm_arch_end_assignment(irqfd->kvm);
+>>   
+>> -	return kvm_x86_ops.update_pi_irte(irqfd->kvm,
+>> -					   prod->irq, irqfd->gsi, 1);
+>> +	return ret;
+>>   }
+>>   
+>>   void kvm_arch_irq_bypass_del_producer(struct irq_bypass_consumer *cons,
+>> diff --git a/virt/kvm/vfio.c b/virt/kvm/vfio.c
+>> index 8fcbc50..111da52 100644
+>> --- a/virt/kvm/vfio.c
+>> +++ b/virt/kvm/vfio.c
+>> @@ -226,7 +226,6 @@ static int kvm_vfio_set_group(struct kvm_device *dev, long attr, u64 arg)
+>>   		list_add_tail(&kvg->node, &kv->group_list);
+>>   		kvg->vfio_group = vfio_group;
+>>   
+>> -		kvm_arch_start_assignment(dev->kvm);
+>>   
+>>   		mutex_unlock(&kv->lock);
+>>   
+>> @@ -254,7 +253,6 @@ static int kvm_vfio_set_group(struct kvm_device *dev, long attr, u64 arg)
+>>   				continue;
+>>   
+>>   			list_del(&kvg->node);
+>> -			kvm_arch_end_assignment(dev->kvm);
+>>   #ifdef CONFIG_SPAPR_TCE_IOMMU
+>>   			kvm_spapr_tce_release_vfio_group(dev->kvm,
+>>   							 kvg->vfio_group);
+>> -- 
+>> 1.8.3.1
