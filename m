@@ -1,123 +1,154 @@
-From: boqun.feng@gmail.com
-Subject: Re: [PATCH v3 02/19] compiler.h: Split {READ,WRITE}_ONCE definitions
- out into rwonce.h
-Date: Mon, 13 Jul 2020 20:23:22 +0800
-Message-ID: <20200713122322.GD72639@debian-boqun.qqnc3lrjykvubdpftowmye0fmh.lx.internal.cloudapp.net>
-References: <20200710165203.31284-1-will@kernel.org>
- <20200710165203.31284-3-will@kernel.org>
+From: Alexander Duyck <alexander.duyck@gmail.com>
+Subject: Re: [PATCH] virtio_balloon: clear modern features under legacy
+Date: Mon, 13 Jul 2020 08:10:14 -0700
+Message-ID: <CAKgT0UdY1xpEH1Hg4HWJEkGwH5s64sm1y4O_XmHe8P_f=tDhpg@mail.gmail.com>
+References: <20200710113046.421366-1-mst@redhat.com> <CAKgT0UeZN+mOWNhgiT0btZTyki3TPoj7pbqA+__GkCxoifPqeg@mail.gmail.com>
+ <20200712105926-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-alpha-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200710165203.31284-3-will@kernel.org>
-Sender: linux-alpha-owner@vger.kernel.org
-To: Will Deacon <will@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Joel Fernandes <joelaf@google.com>, Sami Tolvanen <samitolvanen@google.com>, Nick Desaulniers <ndesaulniers@google.com>, Kees Cook <keescook@chromium.org>, Marco Elver <elver@google.com>, "Paul E. McKenney" <paulmck@kernel.org>, Matt Turner <mattst88@gmail.com>, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, Richard Henderson <rth@twiddle.net>, Peter Zijlstra <peterz@infradead.org>, Alan Stern <stern@rowland.harvard.edu>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Arnd Bergmann <arnd@arndb.de>, Catalin Marinas <catalin.marinas@arm.com>, Mark Rutland <mark.rutland@arm.com>, linux-arm-kernel@lists.infradead.org, linux-alpha@vger.kernel.org, virtualization@lists.linux-foundation.org, kernel-team@a
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20200712105926-mutt-send-email-mst@kernel.org>
+Sender: stable-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org, David Hildenbrand <david@redhat.com>, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jul 10, 2020 at 05:51:46PM +0100, Will Deacon wrote:
-> In preparation for allowing architectures to define their own
-> implementation of the READ_ONCE() macro, move the generic
-> {READ,WRITE}_ONCE() definitions out of the unwieldy 'linux/compiler.h'
-> file and into a new 'rwonce.h' header under 'asm-generic'.
-> 
-> Acked-by: Paul E. McKenney <paulmck@kernel.org>
-> Signed-off-by: Will Deacon <will@kernel.org>
-> ---
->  include/asm-generic/Kbuild    |  1 +
->  include/asm-generic/barrier.h |  2 +-
->  include/asm-generic/rwonce.h  | 91 +++++++++++++++++++++++++++++++++++
->  include/linux/compiler.h      | 83 +-------------------------------
->  4 files changed, 95 insertions(+), 82 deletions(-)
->  create mode 100644 include/asm-generic/rwonce.h
-> 
-> diff --git a/include/asm-generic/Kbuild b/include/asm-generic/Kbuild
-> index 44ec80e70518..74b0612601dd 100644
-> --- a/include/asm-generic/Kbuild
-> +++ b/include/asm-generic/Kbuild
-> @@ -45,6 +45,7 @@ mandatory-y += pci.h
->  mandatory-y += percpu.h
->  mandatory-y += pgalloc.h
->  mandatory-y += preempt.h
-> +mandatory-y += rwonce.h
->  mandatory-y += sections.h
->  mandatory-y += serial.h
->  mandatory-y += shmparam.h
-> diff --git a/include/asm-generic/barrier.h b/include/asm-generic/barrier.h
-> index 2eacaf7d62f6..8116744bb82c 100644
-> --- a/include/asm-generic/barrier.h
-> +++ b/include/asm-generic/barrier.h
-> @@ -13,7 +13,7 @@
->  
->  #ifndef __ASSEMBLY__
->  
-> -#include <linux/compiler.h>
-> +#include <asm/rwonce.h>
->  
->  #ifndef nop
->  #define nop()	asm volatile ("nop")
-> diff --git a/include/asm-generic/rwonce.h b/include/asm-generic/rwonce.h
-> new file mode 100644
-> index 000000000000..92cc2f223cb3
-> --- /dev/null
-> +++ b/include/asm-generic/rwonce.h
-> @@ -0,0 +1,91 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +/*
-> + * Prevent the compiler from merging or refetching reads or writes. The
-> + * compiler is also forbidden from reordering successive instances of
-> + * READ_ONCE and WRITE_ONCE, but only when the compiler is aware of some
-> + * particular ordering. One way to make the compiler aware of ordering is to
-> + * put the two invocations of READ_ONCE or WRITE_ONCE in different C
-> + * statements.
-> + *
-> + * These two macros will also work on aggregate data types like structs or
-> + * unions.
-> + *
-> + * Their two major use cases are: (1) Mediating communication between
-> + * process-level code and irq/NMI handlers, all running on the same CPU,
-> + * and (2) Ensuring that the compiler does not fold, spindle, or otherwise
-> + * mutilate accesses that either do not require ordering or that interact
-> + * with an explicit memory barrier or atomic instruction that provides the
-> + * required ordering.
-> + */
-> +#ifndef __ASM_GENERIC_RWONCE_H
-> +#define __ASM_GENERIC_RWONCE_H
-> +
-> +#ifndef __ASSEMBLY__
-> +
-> +#include <linux/compiler_types.h>
-> +#include <linux/kasan-checks.h>
-> +#include <linux/kcsan-checks.h>
-> +
-> +#include <asm/barrier.h>
-> +
-> +/*
-> + * Use __READ_ONCE() instead of READ_ONCE() if you do not require any
-> + * atomicity or dependency ordering guarantees. Note that this may result
-> + * in tears!
-> + */
-> +#define __READ_ONCE(x)	(*(const volatile __unqual_scalar_typeof(x) *)&(x))
-> +
-> +#define __READ_ONCE_SCALAR(x)						\
-> +({									\
-> +	__unqual_scalar_typeof(x) __x = __READ_ONCE(x);			\
-> +	smp_read_barrier_depends();					\
-> +	(typeof(x))__x;							\
-> +})
-> +
-> +#define READ_ONCE(x)							\
-> +({									\
-> +	compiletime_assert_rwonce_type(x);				\
+On Sun, Jul 12, 2020 at 8:10 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> On Fri, Jul 10, 2020 at 09:13:41AM -0700, Alexander Duyck wrote:
+> > On Fri, Jul 10, 2020 at 4:31 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > >
+> > > Page reporting features were never supported by legacy hypervisors.
+> > > Supporting them poses a problem: should we use native endian-ness (like
+> > > current code assumes)? Or little endian-ness like the virtio spec says?
+> > > Rather than try to figure out, and since results of
+> > > incorrect endian-ness are dire, let's just block this configuration.
+> > >
+> > > Cc: stable@vger.kernel.org
+> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> >
+> > So I am not sure about the patch description. In the case of page
+> > poison and free page reporting I don't think we are defining anything
+> > that doesn't already have a definition of how to use in legacy.
+> > Specifically the virtio_balloon_config is already defined as having
+> > all fields as little endian in legacy mode, and there is a definition
+> > for all of the fields in a virtqueue and how they behave in legacy
+> > mode.
+> >
+> > As far as I can see the only item that may be an issue is the command
+> > ID being supplied via the virtqueue for free page hinting, which
+> > appears to be in native endian-ness. Otherwise it would have fallen
+> > into the same category since it is making use of virtio_balloon_config
+> > and a virtqueue for supplying the page location and length.
+>
+>
+>
+> So as you point out correctly balloon spec says all fields are little
+> endian.  Fair enough.
+> Problem is when virtio 1 is not negotiated, then this is not what the
+> driver assumes for any except a handlful of fields.
+>
+> But yes it mostly works out.
+>
+> For example:
+>
+>
+> static void update_balloon_size(struct virtio_balloon *vb)
+> {
+>         u32 actual = vb->num_pages;
+>
+>         /* Legacy balloon config space is LE, unlike all other devices. */
+>         if (!virtio_has_feature(vb->vdev, VIRTIO_F_VERSION_1))
+>                 actual = (__force u32)cpu_to_le32(actual);
+>
+>         virtio_cwrite(vb->vdev, struct virtio_balloon_config, actual,
+>                       &actual);
+> }
+>
+>
+> this is LE even without VIRTIO_F_VERSION_1, so matches spec.
+>
+>                 /* Start with poison val of 0 representing general init */
+>                 __u32 poison_val = 0;
+>
+>                 /*
+>                  * Let the hypervisor know that we are expecting a
+>                  * specific value to be written back in balloon pages.
+>                  */
+>                 if (!want_init_on_free())
+>                         memset(&poison_val, PAGE_POISON, sizeof(poison_val));
+>
+>                 virtio_cwrite(vb->vdev, struct virtio_balloon_config,
+>                               poison_val, &poison_val);
+>
+>
+> actually this writes a native endian-ness value. All bytes happen to be
+> the same though, and host only cares about 0 or non 0 ATM.
 
-Does it make sense if we also move the definition of this compile time
-assertion into rwonce.h too?
+So we are safe assuming it is a repeating value, but for correctness
+maybe we should make certain to cast this as a le32 value. I can
+submit a patch to do that.
 
-Regards,
-Boqun
+> As you say correctly the command id is actually assumed native endian:
+>
+>
+> static u32 virtio_balloon_cmd_id_received(struct virtio_balloon *vb)
+> {
+>         if (test_and_clear_bit(VIRTIO_BALLOON_CONFIG_READ_CMD_ID,
+>                                &vb->config_read_bitmap))
+>                 virtio_cread(vb->vdev, struct virtio_balloon_config,
+>                              free_page_hint_cmd_id,
+>                              &vb->cmd_id_received_cache);
+>
+>         return vb->cmd_id_received_cache;
+> }
+>
+>
+> So guest assumes native, host assumes LE.
 
-> +	__READ_ONCE_SCALAR(x);						\
-> +})
-> +
+This wasn't even the one I was talking about, but now that you point
+it out this is definately bug. The command ID I was talking about was
+the one being passed via the descriptor ring. That one I believe is
+native on both sides.
 
-[...]
+>
+>
+>
+> > > ---
+> > >  drivers/virtio/virtio_balloon.c | 9 +++++++++
+> > >  1 file changed, 9 insertions(+)
+> > >
+> > > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> > > index 5d4b891bf84f..b9bc03345157 100644
+> > > --- a/drivers/virtio/virtio_balloon.c
+> > > +++ b/drivers/virtio/virtio_balloon.c
+> > > @@ -1107,6 +1107,15 @@ static int virtballoon_restore(struct virtio_device *vdev)
+> > >
+> > >  static int virtballoon_validate(struct virtio_device *vdev)
+> > >  {
+> > > +       /*
+> > > +        * Legacy devices never specified how modern features should behave.
+> > > +        * E.g. which endian-ness to use? Better not to assume anything.
+> > > +        */
+> > > +       if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
+> > > +               __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT);
+> > > +               __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_PAGE_POISON);
+> > > +               __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
+> > > +       }
+> > >         /*
+> > >          * Inform the hypervisor that our pages are poisoned or
+> > >          * initialized. If we cannot do that then we should disable
+> >
+> > The patch content itself I am fine with since odds are nobody would
+> > expect to use these features with a legacy device.
+> >
+> > Acked-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+>
+> Hmm so now you pointed out it's just cmd id, maybe I should just fix it
+> instead? what do you say?
+
+So the config issues are bugs, but I don't think you saw the one I was
+talking about. In the function send_cmd_id_start the cmd_id_active
+value which is initialized as a virtio32 is added as a sg entry and
+then sent as an outbuf to the device. I'm assuming virtio32 is a host
+native byte ordering.
