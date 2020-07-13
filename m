@@ -1,61 +1,53 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH] virtio_ring: sparse warning fixup
-Date: Mon, 13 Jul 2020 11:34:54 +0800
-Message-ID: <64117f46-6cad-afd0-7753-1636d6474731@redhat.com>
-References: <20200710104900.406084-1-mst@redhat.com>
+Subject: Re: [PATCH] virtio_balloon: clear modern features under legacy
+Date: Mon, 13 Jul 2020 11:36:51 +0800
+Message-ID: <c0863b67-bd97-63a8-ff11-4f1b0fb655a3@redhat.com>
+References: <20200710113046.421366-1-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200710104900.406084-1-mst@redhat.com>
+Return-path: <stable-owner@vger.kernel.org>
+In-Reply-To: <20200710113046.421366-1-mst@redhat.com>
 Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
+Sender: stable-owner@vger.kernel.org
 To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
+Cc: stable@vger.kernel.org, David Hildenbrand <david@redhat.com>, virtualization@lists.linux-foundation.org, Alexander Duyck <alexander.duyck@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-On 2020/7/10 下午6:49, Michael S. Tsirkin wrote:
-> virtio_store_mb was built with split ring in mind so it accepts
-> __virtio16 arguments. Packed ring uses __le16 values, so sparse
-> complains.  It's just a store with some barriers so let's convert it to
-> a macro, we don't loose too much type safety by doing that.
+On 2020/7/10 下午7:31, Michael S. Tsirkin wrote:
+> Page reporting features were never supported by legacy hypervisors.
+> Supporting them poses a problem: should we use native endian-ness (like
+> current code assumes)? Or little endian-ness like the virtio spec says?
+> Rather than try to figure out, and since results of
+> incorrect endian-ness are dire, let's just block this configuration.
 >
+> Cc: stable@vger.kernel.org
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > ---
->   include/linux/virtio_ring.h | 19 +++++++++----------
->   1 file changed, 9 insertions(+), 10 deletions(-)
+>   drivers/virtio/virtio_balloon.c | 9 +++++++++
+>   1 file changed, 9 insertions(+)
 >
-> diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
-> index 3dc70adfe5f5..b485b13fa50b 100644
-> --- a/include/linux/virtio_ring.h
-> +++ b/include/linux/virtio_ring.h
-> @@ -46,16 +46,15 @@ static inline void virtio_wmb(bool weak_barriers)
->   		dma_wmb();
->   }
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 5d4b891bf84f..b9bc03345157 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -1107,6 +1107,15 @@ static int virtballoon_restore(struct virtio_device *vdev)
 >   
-> -static inline void virtio_store_mb(bool weak_barriers,
-> -				   __virtio16 *p, __virtio16 v)
-> -{
-> -	if (weak_barriers) {
-> -		virt_store_mb(*p, v);
-> -	} else {
-> -		WRITE_ONCE(*p, v);
-> -		mb();
-> -	}
-> -}
-> +#define virtio_store_mb(weak_barriers, p, v) \
-> +do { \
-> +	if (weak_barriers) { \
-> +		virt_store_mb(*p, v); \
-> +	} else { \
-> +		WRITE_ONCE(*p, v); \
-> +		mb(); \
-> +	} \
-> +} while (0) \
->   
->   struct virtio_device;
->   struct virtqueue;
+>   static int virtballoon_validate(struct virtio_device *vdev)
+>   {
+> +	/*
+> +	 * Legacy devices never specified how modern features should behave.
+> +	 * E.g. which endian-ness to use? Better not to assume anything.
+> +	 */
+> +	if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
+> +		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT);
+> +		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_PAGE_POISON);
+> +		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
+> +	}
+>   	/*
+>   	 * Inform the hypervisor that our pages are poisoned or
+>   	 * initialized. If we cannot do that then we should disable
 
 
 Acked-by: Jason Wang <jasowang@redhat.com>
