@@ -1,94 +1,72 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 2/7] kvm/vfio: detect assigned device via irqbypass manager
-Date: Sun, 12 Jul 2020 17:06:27 -0400
-Message-ID: <20200712170518-mutt-send-email-mst@kernel.org>
-References: <1594565366-3195-1-git-send-email-lingshan.zhu@intel.com>
- <1594565366-3195-2-git-send-email-lingshan.zhu@intel.com>
+From: Peng Fan <peng.fan@nxp.com>
+Subject: RE: [PATCH] xen: introduce xen_vring_use_dma
+Date: Mon, 13 Jul 2020 01:53:46 +0000
+Message-ID: <DB6PR0402MB2760A98A427AA48FA325635288600@DB6PR0402MB2760.eurprd04.prod.outlook.com>
+References: <20200624050355-mutt-send-email-mst@kernel.org>
+ <alpine.DEB.2.21.2006241047010.8121@sstabellini-ThinkPad-T480s>
+ <20200624163940-mutt-send-email-mst@kernel.org>
+ <alpine.DEB.2.21.2006241351430.8121@sstabellini-ThinkPad-T480s>
+ <20200624181026-mutt-send-email-mst@kernel.org>
+ <alpine.DEB.2.21.2006251014230.8121@sstabellini-ThinkPad-T480s>
+ <20200626110629-mutt-send-email-mst@kernel.org>
+ <alpine.DEB.2.21.2006291621300.8121@sstabellini-ThinkPad-T480s>
+ <20200701133456.GA23888@infradead.org>
+ <alpine.DEB.2.21.2007011020320.8121@sstabellini-ThinkPad-T480s>
+ <20200701172219-mutt-send-email-mst@kernel.org>
+ <alpine.DEB.2.21.2007101019340.4124@sstabellini-ThinkPad-T480s>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <1594565366-3195-2-git-send-email-lingshan.zhu@intel.com>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Zhu Lingshan <lingshan.zhu@intel.com>
-Cc: wanpengli@tencent.com, kvm@vger.kernel.org, netdev@vger.kernel.org, sean.j.christopherson@intel.com, virtualization@lists.linux-foundation.org, pbonzini@redhat.com, "./0000-cover-letter.patch"@redhat.com
+Content-Transfer-Encoding: quoted-printable
+Return-path: <xen-devel-bounces@lists.xenproject.org>
+In-Reply-To: <alpine.DEB.2.21.2007101019340.4124@sstabellini-ThinkPad-T480s>
+Content-Language: en-US
+List-Unsubscribe: <https://lists.xenproject.org/mailman/options/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=unsubscribe>
+List-Post: <mailto:xen-devel@lists.xenproject.org>
+List-Help: <mailto:xen-devel-request@lists.xenproject.org?subject=help>
+List-Subscribe: <https://lists.xenproject.org/mailman/listinfo/xen-devel>,
+ <mailto:xen-devel-request@lists.xenproject.org?subject=subscribe>
+Errors-To: xen-devel-bounces@lists.xenproject.org
+Sender: "Xen-devel" <xen-devel-bounces@lists.xenproject.org>
+To: Stefano Stabellini <sstabellini@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "jgross@suse.com" <jgross@suse.com>, "konrad.wilk@oracle.com" <konrad.wilk@oracle.com>, "jasowang@redhat.com" <jasowang@redhat.com>, "x86@kernel.org" <x86@kernel.org>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, Christoph Hellwig <hch@infradead.org>, "iommu@lists.linux-foundation.org" <iommu@lists.linux-foundation.org>, dl-linux-imx <linux-imx@nxp.com>, "xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, "boris.ostrovsky@oracle.com" <boris.ostrovsky@oracle.com>, "linux-arm-kernel@lists.infradead.org" <linux-arm-kernel@lists.infradead.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Sun, Jul 12, 2020 at 10:49:21PM +0800, Zhu Lingshan wrote:
-> We used to detect assigned device via VFIO manipulated device
-> conters. This is less flexible consider VFIO is not the only
-> interface for assigned device. vDPA devices has dedicated
-> backed hardware as well. So this patch tries to detect
-> the assigned device via irqbypass manager.
-> 
-> We will increase/decrease the assigned device counter in kvm/x86.
-> Both vDPA and VFIO would go through this code path.
-> 
-> This code path only affect x86 for now.
-> 
-> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+> Subject: Re: [PATCH] xen: introduce xen_vring_use_dma
+>=20
+> Sorry for the late reply -- a couple of conferences kept me busy.
+>=20
+>=20
+> On Wed, 1 Jul 2020, Michael S. Tsirkin wrote:
+> > On Wed, Jul 01, 2020 at 10:34:53AM -0700, Stefano Stabellini wrote:
+> > > Would you be in favor of a more flexible check along the lines of
+> > > the one proposed in the patch that started this thread:
+> > >
+> > >     if (xen_vring_use_dma())
+> > >             return true;
+> > >
+> > >
+> > > xen_vring_use_dma would be implemented so that it returns true when
+> > > xen_swiotlb is required and false otherwise.
+> >
+> > Just to stress - with a patch like this virtio can *still* use DMA API
+> > if PLATFORM_ACCESS is set. So if DMA API is broken on some platforms
+> > as you seem to be saying, you guys should fix it before doing
+> > something like this..
+>=20
+> Yes, DMA API is broken with some interfaces (specifically: rpmesg and tru=
+sty),
+> but for them PLATFORM_ACCESS is never set. That is why the errors weren't
+> reported before. Xen special case aside, there is no problem under normal
+> circumstances.
+>=20
+>=20
+> If you are OK with this patch (after a little bit of clean-up), Peng, are=
+ you OK
+> with sending an update or do you want me to?
 
+If you could help, that would be great. You have more expertise in knowing
+the whole picture.
 
-I think it's best to leave VFIO alone. Add appropriate APIs for VDPA,
-worry about converting existing users later.
-
-> ---
->  arch/x86/kvm/x86.c | 10 ++++++++--
->  virt/kvm/vfio.c    |  2 --
->  2 files changed, 8 insertions(+), 4 deletions(-)
-> 
-> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-> index 00c88c2..20c07d3 100644
-> --- a/arch/x86/kvm/x86.c
-> +++ b/arch/x86/kvm/x86.c
-> @@ -10624,11 +10624,17 @@ int kvm_arch_irq_bypass_add_producer(struct irq_bypass_consumer *cons,
->  {
->  	struct kvm_kernel_irqfd *irqfd =
->  		container_of(cons, struct kvm_kernel_irqfd, consumer);
-> +	int ret;
->  
->  	irqfd->producer = prod;
-> +	kvm_arch_start_assignment(irqfd->kvm);
-> +	ret = kvm_x86_ops.update_pi_irte(irqfd->kvm,
-> +					 prod->irq, irqfd->gsi, 1);
-> +
-> +	if (ret)
-> +		kvm_arch_end_assignment(irqfd->kvm);
->  
-> -	return kvm_x86_ops.update_pi_irte(irqfd->kvm,
-> -					   prod->irq, irqfd->gsi, 1);
-> +	return ret;
->  }
->  
->  void kvm_arch_irq_bypass_del_producer(struct irq_bypass_consumer *cons,
-> diff --git a/virt/kvm/vfio.c b/virt/kvm/vfio.c
-> index 8fcbc50..111da52 100644
-> --- a/virt/kvm/vfio.c
-> +++ b/virt/kvm/vfio.c
-> @@ -226,7 +226,6 @@ static int kvm_vfio_set_group(struct kvm_device *dev, long attr, u64 arg)
->  		list_add_tail(&kvg->node, &kv->group_list);
->  		kvg->vfio_group = vfio_group;
->  
-> -		kvm_arch_start_assignment(dev->kvm);
->  
->  		mutex_unlock(&kv->lock);
->  
-> @@ -254,7 +253,6 @@ static int kvm_vfio_set_group(struct kvm_device *dev, long attr, u64 arg)
->  				continue;
->  
->  			list_del(&kvg->node);
-> -			kvm_arch_end_assignment(dev->kvm);
->  #ifdef CONFIG_SPAPR_TCE_IOMMU
->  			kvm_spapr_tce_release_vfio_group(dev->kvm,
->  							 kvg->vfio_group);
-> -- 
-> 1.8.3.1
+Thanks,
+Peng.
