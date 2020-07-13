@@ -1,85 +1,52 @@
 From: Stefan Hajnoczi <stefanha@redhat.com>
-Subject: Re: [PATCH] vsock/virtio: annotate 'the_virtio_vsock' RCU pointer
-Date: Mon, 13 Jul 2020 10:28:39 +0100
-Message-ID: <20200713092839.GD28639@stefanha-x1.localdomain>
-References: <20200710121243.120096-1-sgarzare@redhat.com>
+Subject: Re: [PATCH] vhost/scsi: fix up req type endian-ness
+Date: Mon, 13 Jul 2020 10:29:49 +0100
+Message-ID: <20200713092949.GE28639@stefanha-x1.localdomain>
+References: <20200710104849.406023-1-mst@redhat.com>
 Mime-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="YToU2i3Vx8H2dn7O"
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200710121243.120096-1-sgarzare@redhat.com>
+        protocol="application/pgp-signature"; boundary="n+lFg1Zro7sl44OB"
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20200710104849.406023-1-mst@redhat.com>
 Content-Disposition: inline
-Sender: linux-kernel-owner@vger.kernel.org
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: davem@davemloft.net, virtualization@lists.linux-foundation.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, kvm@vger.kernel.org
+Sender: kvm-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, stable@vger.kernel.org, Jason Wang <jasowang@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, netdev@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
---YToU2i3Vx8H2dn7O
+--n+lFg1Zro7sl44OB
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jul 10, 2020 at 02:12:43PM +0200, Stefano Garzarella wrote:
-> Commit 0deab087b16a ("vsock/virtio: use RCU to avoid use-after-free
-> on the_virtio_vsock") starts to use RCU to protect 'the_virtio_vsock'
-> pointer, but we forgot to annotate it.
+On Fri, Jul 10, 2020 at 06:48:51AM -0400, Michael S. Tsirkin wrote:
+> vhost/scsi doesn't handle type conversion correctly
+> for request type when using virtio 1.0 and up for BE,
+> or cross-endian platforms.
 >=20
-> This patch adds the annotation to fix the following sparse errors:
+> Fix it up using vhost_32_to_cpu.
 >=20
->     net/vmw_vsock/virtio_transport.c:73:17: error: incompatible types in =
-comparison expression (different address spaces):
->     net/vmw_vsock/virtio_transport.c:73:17:    struct virtio_vsock [noder=
-ef] __rcu *
->     net/vmw_vsock/virtio_transport.c:73:17:    struct virtio_vsock *
->     net/vmw_vsock/virtio_transport.c:171:17: error: incompatible types in=
- comparison expression (different address spaces):
->     net/vmw_vsock/virtio_transport.c:171:17:    struct virtio_vsock [node=
-ref] __rcu *
->     net/vmw_vsock/virtio_transport.c:171:17:    struct virtio_vsock *
->     net/vmw_vsock/virtio_transport.c:207:17: error: incompatible types in=
- comparison expression (different address spaces):
->     net/vmw_vsock/virtio_transport.c:207:17:    struct virtio_vsock [node=
-ref] __rcu *
->     net/vmw_vsock/virtio_transport.c:207:17:    struct virtio_vsock *
->     net/vmw_vsock/virtio_transport.c:561:13: error: incompatible types in=
- comparison expression (different address spaces):
->     net/vmw_vsock/virtio_transport.c:561:13:    struct virtio_vsock [node=
-ref] __rcu *
->     net/vmw_vsock/virtio_transport.c:561:13:    struct virtio_vsock *
->     net/vmw_vsock/virtio_transport.c:612:9: error: incompatible types in =
-comparison expression (different address spaces):
->     net/vmw_vsock/virtio_transport.c:612:9:    struct virtio_vsock [noder=
-ef] __rcu *
->     net/vmw_vsock/virtio_transport.c:612:9:    struct virtio_vsock *
->     net/vmw_vsock/virtio_transport.c:631:9: error: incompatible types in =
-comparison expression (different address spaces):
->     net/vmw_vsock/virtio_transport.c:631:9:    struct virtio_vsock [noder=
-ef] __rcu *
->     net/vmw_vsock/virtio_transport.c:631:9:    struct virtio_vsock *
->=20
-> Fixes: 0deab087b16a ("vsock/virtio: use RCU to avoid use-after-free on th=
-e_virtio_vsock")
-> Reported-by: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > ---
->  net/vmw_vsock/virtio_transport.c | 2 +-
+>  drivers/vhost/scsi.c | 2 +-
 >  1 file changed, 1 insertion(+), 1 deletion(-)
 
 Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
---YToU2i3Vx8H2dn7O
+--n+lFg1Zro7sl44OB
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl8MKUcACgkQnKSrs4Gr
-c8iLnAf9E+pOReZB1uxaaxHt2z9HjKmxjs6nY1gK0E/aNHGD4C4ZQFpkMMYrgACn
-mTAJbmWJG/694IDC1i803aGbRKIq0VIyrezJtZWH7e8KTMG77U1YEDUr/T6yTAqf
-MYrz9ylRKbEHjzAmRQtnQGJ/YtshXFVHISJf6maySSPuHHInz+n/rUlXFxxmrOme
-x8cvGFTQ71RZUEWpIQxTL2vp4BEob1aIvrrFREvqgR9Xh4W1ZV641dP50QqjkJf9
-ebLfHIpb+n9ZrYNa/+WwEZvMhw8r+hWA3giUXEuSwkGZkoi9s5d6WfZYeU7Lcbr7
-0VLfCa/y5QsWouWZkkMZ7nLfxrMEsg==
-=2Mf5
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl8MKY0ACgkQnKSrs4Gr
+c8gQOQf+KmgjzVnEXU62hGmZBNsGZ9+2r2VBviBdhlBL0AB0927CK0A8v4HXZ/5+
+8Y6UwKNT0GZnj67/+PBXAVvJm4Jny+4TTgTafuZY0gnlNZKS6PpmSoztnzwjqtgI
+ddm2TVEWDF/lDZNRcWZ1a0cURg8If2ZQPxNepxT3uqa5LnbYXiwuIlnFG6eetsHV
+Cl751SmdjCSXzCDBvEE6eboXtzt3ok1TWIx3L2jU034AyexssehBz6C0G9LVQhau
+pVJs0q2BfsF95xxX6k2Bo/8Paj4EqzUKxG4jEXteR9SIHwZH3anw0PKPygh96FWF
+XrsnZG1MAaXY8ybmuVlQkaJofLFlMA==
+=4fi+
 -----END PGP SIGNATURE-----
 
---YToU2i3Vx8H2dn7O--
+--n+lFg1Zro7sl44OB--
