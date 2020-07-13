@@ -1,106 +1,57 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 2/7] kvm/vfio: detect assigned device via irqbypass
- manager
-Date: Mon, 13 Jul 2020 15:57:14 +0800
-Message-ID: <4890e4da-f011-159c-31ec-0ddbbe20bab1@redhat.com>
-References: <1594565366-3195-1-git-send-email-lingshan.zhu@intel.com>
- <1594565366-3195-2-git-send-email-lingshan.zhu@intel.com>
- <20200712092902.5960f340@x1.home>
+From: Lee Jones <lee.jones@linaro.org>
+Subject: [PATCH v2 12/24] scsi: virtio_scsi: Demote seemingly unintentional
+ kerneldoc header
+Date: Mon, 13 Jul 2020 08:59:49 +0100
+Message-ID: <20200713080001.128044-13-lee.jones@linaro.org>
+References: <20200713080001.128044-1-lee.jones@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20200712092902.5960f340@x1.home>
-Content-Language: en-US
-Sender: kvm-owner@vger.kernel.org
-To: Alex Williamson <alex.williamson@redhat.com>, Zhu Lingshan <lingshan.zhu@intel.com>
-Cc: mst@redhat.com, pbonzini@redhat.com, sean.j.christopherson@intel.com, wanpengli@tencent.com, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, netdev@vger.kernel.org, dan.daly@intel.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200713080001.128044-1-lee.jones@linaro.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: jejb@linux.ibm.com, martin.petersen@oracle.com
+Cc: linux-scsi@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Lee Jones <lee.jones@linaro.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
+This is the only use of kerneldoc in the sourcefile and no
+descriptions are provided.
 
-On 2020/7/12 下午11:29, Alex Williamson wrote:
-> On Sun, 12 Jul 2020 22:49:21 +0800
-> Zhu Lingshan <lingshan.zhu@intel.com> wrote:
->
->> We used to detect assigned device via VFIO manipulated device
->> conters. This is less flexible consider VFIO is not the only
->> interface for assigned device. vDPA devices has dedicated
->> backed hardware as well. So this patch tries to detect
->> the assigned device via irqbypass manager.
->>
->> We will increase/decrease the assigned device counter in kvm/x86.
->> Both vDPA and VFIO would go through this code path.
->>
->> This code path only affect x86 for now.
-> No it doesn't, it only adds VFIO support to x86, but it removes it from
-> architecture neutral code.
+Fixes the following W=1 kernel build warning(s):
 
+ drivers/scsi/virtio_scsi.c:109: warning: Function parameter or member 'vscsi' not described in 'virtscsi_complete_cmd'
+ drivers/scsi/virtio_scsi.c:109: warning: Function parameter or member 'buf' not described in 'virtscsi_complete_cmd'
 
-Do you mean we should introduce a kvm_irq_bypass_add_producer and do 
-kvm_arch_start_assignment( ) there?
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+---
+ drivers/scsi/virtio_scsi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-
-> Also a VFIO device does not necessarily
-> make use of the irqbypass manager, this depends on platform support and
-> enablement of this feature.
-
-
-Yes, we should keep the VFIO part unchanged.
-
-Thanks
-
-
->    Therefore, NAK.  Thanks,
->
-> Alex
->   
->> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
->> ---
->>   arch/x86/kvm/x86.c | 10 ++++++++--
->>   virt/kvm/vfio.c    |  2 --
->>   2 files changed, 8 insertions(+), 4 deletions(-)
->>
->> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
->> index 00c88c2..20c07d3 100644
->> --- a/arch/x86/kvm/x86.c
->> +++ b/arch/x86/kvm/x86.c
->> @@ -10624,11 +10624,17 @@ int kvm_arch_irq_bypass_add_producer(struct irq_bypass_consumer *cons,
->>   {
->>   	struct kvm_kernel_irqfd *irqfd =
->>   		container_of(cons, struct kvm_kernel_irqfd, consumer);
->> +	int ret;
->>   
->>   	irqfd->producer = prod;
->> +	kvm_arch_start_assignment(irqfd->kvm);
->> +	ret = kvm_x86_ops.update_pi_irte(irqfd->kvm,
->> +					 prod->irq, irqfd->gsi, 1);
->> +
->> +	if (ret)
->> +		kvm_arch_end_assignment(irqfd->kvm);
->>   
->> -	return kvm_x86_ops.update_pi_irte(irqfd->kvm,
->> -					   prod->irq, irqfd->gsi, 1);
->> +	return ret;
->>   }
->>   
->>   void kvm_arch_irq_bypass_del_producer(struct irq_bypass_consumer *cons,
->> diff --git a/virt/kvm/vfio.c b/virt/kvm/vfio.c
->> index 8fcbc50..111da52 100644
->> --- a/virt/kvm/vfio.c
->> +++ b/virt/kvm/vfio.c
->> @@ -226,7 +226,6 @@ static int kvm_vfio_set_group(struct kvm_device *dev, long attr, u64 arg)
->>   		list_add_tail(&kvg->node, &kv->group_list);
->>   		kvg->vfio_group = vfio_group;
->>   
->> -		kvm_arch_start_assignment(dev->kvm);
->>   
->>   		mutex_unlock(&kv->lock);
->>   
->> @@ -254,7 +253,6 @@ static int kvm_vfio_set_group(struct kvm_device *dev, long attr, u64 arg)
->>   				continue;
->>   
->>   			list_del(&kvg->node);
->> -			kvm_arch_end_assignment(dev->kvm);
->>   #ifdef CONFIG_SPAPR_TCE_IOMMU
->>   			kvm_spapr_tce_release_vfio_group(dev->kvm,
->>   							 kvg->vfio_group);
+diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+index 0e0910c5b9424..56875467e4984 100644
+--- a/drivers/scsi/virtio_scsi.c
++++ b/drivers/scsi/virtio_scsi.c
+@@ -100,7 +100,7 @@ static void virtscsi_compute_resid(struct scsi_cmnd *sc, u32 resid)
+ 		scsi_set_resid(sc, resid);
+ }
+ 
+-/**
++/*
+  * virtscsi_complete_cmd - finish a scsi_cmd and invoke scsi_done
+  *
+  * Called with vq_lock held.
+-- 
+2.25.1
