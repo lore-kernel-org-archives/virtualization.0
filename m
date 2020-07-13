@@ -1,69 +1,65 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] vsock/virtio: annotate 'the_virtio_vsock' RCU pointer
-Date: Mon, 13 Jul 2020 06:54:43 -0400
-Message-ID: <20200713065423-mutt-send-email-mst@kernel.org>
-References: <20200710121243.120096-1-sgarzare@redhat.com>
+Subject: Re: [PATCH v2 12/24] scsi: virtio_scsi: Demote seemingly
+ unintentional kerneldoc header
+Date: Mon, 13 Jul 2020 07:23:13 -0400
+Message-ID: <20200713071453-mutt-send-email-mst@kernel.org>
+References: <20200713080001.128044-1-lee.jones@linaro.org>
+ <20200713080001.128044-13-lee.jones@linaro.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200713080001.128044-13-lee.jones@linaro.org>
 Content-Disposition: inline
-In-Reply-To: <20200710121243.120096-1-sgarzare@redhat.com>
-Sender: kvm-owner@vger.kernel.org
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: davem@davemloft.net, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, kvm@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Lee Jones <lee.jones@linaro.org>
+Cc: linux-scsi@vger.kernel.org, martin.petersen@oracle.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, jejb@linux.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Fri, Jul 10, 2020 at 02:12:43PM +0200, Stefano Garzarella wrote:
-> Commit 0deab087b16a ("vsock/virtio: use RCU to avoid use-after-free
-> on the_virtio_vsock") starts to use RCU to protect 'the_virtio_vsock'
-> pointer, but we forgot to annotate it.
+On Mon, Jul 13, 2020 at 08:59:49AM +0100, Lee Jones wrote:
+> This is the only use of kerneldoc in the sourcefile and no
+> descriptions are provided.
 > 
-> This patch adds the annotation to fix the following sparse errors:
+> Fixes the following W=1 kernel build warning(s):
 > 
->     net/vmw_vsock/virtio_transport.c:73:17: error: incompatible types in comparison expression (different address spaces):
->     net/vmw_vsock/virtio_transport.c:73:17:    struct virtio_vsock [noderef] __rcu *
->     net/vmw_vsock/virtio_transport.c:73:17:    struct virtio_vsock *
->     net/vmw_vsock/virtio_transport.c:171:17: error: incompatible types in comparison expression (different address spaces):
->     net/vmw_vsock/virtio_transport.c:171:17:    struct virtio_vsock [noderef] __rcu *
->     net/vmw_vsock/virtio_transport.c:171:17:    struct virtio_vsock *
->     net/vmw_vsock/virtio_transport.c:207:17: error: incompatible types in comparison expression (different address spaces):
->     net/vmw_vsock/virtio_transport.c:207:17:    struct virtio_vsock [noderef] __rcu *
->     net/vmw_vsock/virtio_transport.c:207:17:    struct virtio_vsock *
->     net/vmw_vsock/virtio_transport.c:561:13: error: incompatible types in comparison expression (different address spaces):
->     net/vmw_vsock/virtio_transport.c:561:13:    struct virtio_vsock [noderef] __rcu *
->     net/vmw_vsock/virtio_transport.c:561:13:    struct virtio_vsock *
->     net/vmw_vsock/virtio_transport.c:612:9: error: incompatible types in comparison expression (different address spaces):
->     net/vmw_vsock/virtio_transport.c:612:9:    struct virtio_vsock [noderef] __rcu *
->     net/vmw_vsock/virtio_transport.c:612:9:    struct virtio_vsock *
->     net/vmw_vsock/virtio_transport.c:631:9: error: incompatible types in comparison expression (different address spaces):
->     net/vmw_vsock/virtio_transport.c:631:9:    struct virtio_vsock [noderef] __rcu *
->     net/vmw_vsock/virtio_transport.c:631:9:    struct virtio_vsock *
+>  drivers/scsi/virtio_scsi.c:109: warning: Function parameter or member 'vscsi' not described in 'virtscsi_complete_cmd'
+>  drivers/scsi/virtio_scsi.c:109: warning: Function parameter or member 'buf' not described in 'virtscsi_complete_cmd'
 > 
-> Fixes: 0deab087b16a ("vsock/virtio: use RCU to avoid use-after-free on the_virtio_vsock")
-> Reported-by: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-
+> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+> Cc: Jason Wang <jasowang@redhat.com>
+> Cc: Stefan Hajnoczi <stefanha@redhat.com>
+> Cc: virtualization@lists.linux-foundation.org
+> Signed-off-by: Lee Jones <lee.jones@linaro.org>
+> Acked-by: Paolo Bonzini <pbonzini@redhat.com>
 
 Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-who's merging this? Dave?
+Pls merge with the rest of the patches (which tree is this for?)
 
 > ---
->  net/vmw_vsock/virtio_transport.c | 2 +-
+>  drivers/scsi/virtio_scsi.c | 2 +-
 >  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
-> index dfbaf6bd8b1c..2700a63ab095 100644
-> --- a/net/vmw_vsock/virtio_transport.c
-> +++ b/net/vmw_vsock/virtio_transport.c
-> @@ -22,7 +22,7 @@
->  #include <net/af_vsock.h>
+> diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+> index 0e0910c5b9424..56875467e4984 100644
+> --- a/drivers/scsi/virtio_scsi.c
+> +++ b/drivers/scsi/virtio_scsi.c
+> @@ -100,7 +100,7 @@ static void virtscsi_compute_resid(struct scsi_cmnd *sc, u32 resid)
+>  		scsi_set_resid(sc, resid);
+>  }
 >  
->  static struct workqueue_struct *virtio_vsock_workqueue;
-> -static struct virtio_vsock *the_virtio_vsock;
-> +static struct virtio_vsock __rcu *the_virtio_vsock;
->  static DEFINE_MUTEX(the_virtio_vsock_mutex); /* protects the_virtio_vsock */
->  
->  struct virtio_vsock {
+> -/**
+> +/*
+>   * virtscsi_complete_cmd - finish a scsi_cmd and invoke scsi_done
+>   *
+>   * Called with vq_lock held.
 > -- 
-> 2.26.2
+> 2.25.1
