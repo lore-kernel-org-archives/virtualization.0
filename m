@@ -1,106 +1,130 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v4 32/75] x86/head/64: Load segment registers earlier
-Date: Tue, 14 Jul 2020 14:08:34 +0200
-Message-ID: <20200714120917.11253-33-joro@8bytes.org>
+Subject: [PATCH v4 72/75] x86/sev-es: Support CPU offline/online
+Date: Tue, 14 Jul 2020 14:09:14 +0200
+Message-ID: <20200714120917.11253-73-joro@8bytes.org>
 References: <20200714120917.11253-1-joro@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200714120917.11253-1-joro@8bytes.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Sender: linux-kernel-owner@vger.kernel.org
 To: x86@kernel.org
-Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Joerg Roedel <jroedel@suse.de>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, Sean Christopherson <sean.j.christopherson@intel.com>, virtualization@lists.linux-foundation.org, Martin Radev <martin.b.radev@gmail.com>, Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
+Cc: Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Sean Christopherson <sean.j.christopherson@intel.com>, Martin Radev <martin.b.radev@gmail.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Make sure segments are properly set up before setting up an IDT and
-doing anything that might cause a #VC exception. This is later needed
-for early exception handling.
+Add a play_dead handler when running under SEV-ES. This is needed
+because the hypervisor can't deliver an SIPI request to restart the AP.
+Instead the kernel has to issue a VMGEXIT to halt the VCPU until the
+hypervisor wakes it up again.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/head_64.S | 52 +++++++++++++++++++--------------------
- 1 file changed, 26 insertions(+), 26 deletions(-)
+ arch/x86/include/uapi/asm/svm.h |  1 +
+ arch/x86/kernel/sev-es.c        | 64 +++++++++++++++++++++++++++++++++
+ 2 files changed, 65 insertions(+)
 
-diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
-index 87ea9f540608..61aa1e56fc9c 100644
---- a/arch/x86/kernel/head_64.S
-+++ b/arch/x86/kernel/head_64.S
-@@ -169,6 +169,32 @@ SYM_CODE_START(secondary_startup_64)
- 	movq	%rax, boot_gdt_descr+2(%rip)
- 	lgdt	boot_gdt_descr(%rip)
+diff --git a/arch/x86/include/uapi/asm/svm.h b/arch/x86/include/uapi/asm/svm.h
+index a19ce9681ec2..20a05839dd9a 100644
+--- a/arch/x86/include/uapi/asm/svm.h
++++ b/arch/x86/include/uapi/asm/svm.h
+@@ -84,6 +84,7 @@
+ /* SEV-ES software-defined VMGEXIT events */
+ #define SVM_VMGEXIT_MMIO_READ			0x80000001
+ #define SVM_VMGEXIT_MMIO_WRITE			0x80000002
++#define SVM_VMGEXIT_AP_HLT_LOOP			0x80000004
+ #define SVM_VMGEXIT_AP_JUMP_TABLE		0x80000005
+ #define		SVM_VMGEXIT_SET_AP_JUMP_TABLE			0
+ #define		SVM_VMGEXIT_GET_AP_JUMP_TABLE			1
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+index 370cf9bf2c88..b147d97856c3 100644
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -29,6 +29,8 @@
+ #include <asm/processor.h>
+ #include <asm/traps.h>
+ #include <asm/svm.h>
++#include <asm/smp.h>
++#include <asm/cpu.h>
  
-+	/* set up data segments */
-+	xorl %eax,%eax
-+	movl %eax,%ds
-+	movl %eax,%ss
-+	movl %eax,%es
+ #define DR7_RESET_VALUE        0x400
+ 
+@@ -531,6 +533,66 @@ static bool __init sev_es_setup_ghcb(void)
+ 	return true;
+ }
+ 
++#ifdef CONFIG_HOTPLUG_CPU
++static void sev_es_ap_hlt_loop(void)
++{
++	struct ghcb_state state;
++	struct ghcb *ghcb;
++
++	ghcb = sev_es_get_ghcb(&state);
++
++	while (true) {
++		vc_ghcb_invalidate(ghcb);
++		ghcb_set_sw_exit_code(ghcb, SVM_VMGEXIT_AP_HLT_LOOP);
++		ghcb_set_sw_exit_info_1(ghcb, 0);
++		ghcb_set_sw_exit_info_2(ghcb, 0);
++
++		sev_es_wr_ghcb_msr(__pa(ghcb));
++		VMGEXIT();
++
++		/* Wakeup signal? */
++		if (ghcb_is_valid_sw_exit_info_2(ghcb) &&
++		    ghcb->save.sw_exit_info_2)
++			break;
++	}
++
++	sev_es_put_ghcb(&state);
++}
++
++/*
++ * Play_dead handler when running under SEV-ES. This is needed because
++ * the hypervisor can't deliver an SIPI request to restart the AP.
++ * Instead the kernel has to issue a VMGEXIT to halt the VCPU until the
++ * hypervisor wakes it up again.
++ */
++static void sev_es_play_dead(void)
++{
++	play_dead_common();
++
++	/* IRQs now disabled */
++
++	sev_es_ap_hlt_loop();
 +
 +	/*
-+	 * We don't really need to load %fs or %gs, but load them anyway
-+	 * to kill any stale realmode selectors.  This allows execution
-+	 * under VT hardware.
++	 * If we get here, the VCPU was woken up again. Jump to CPU
++	 * startup code to get it back online.
 +	 */
-+	movl %eax,%fs
-+	movl %eax,%gs
 +
-+	/* Set up %gs.
-+	 *
-+	 * The base of %gs always points to fixed_percpu_data. If the
-+	 * stack protector canary is enabled, it is located at %gs:40.
-+	 * Note that, on SMP, the boot cpu uses init data section until
-+	 * the per cpu areas are set up.
-+	 */
-+	movl	$MSR_GS_BASE,%ecx
-+	movl	initial_gs(%rip),%eax
-+	movl	initial_gs+4(%rip),%edx
-+	wrmsr
++	start_cpu();
++}
++#else  /* CONFIG_HOTPLUG_CPU */
++#define sev_es_play_dead	native_play_dead
++#endif /* CONFIG_HOTPLUG_CPU */
 +
- 	/* Check if nx is implemented */
- 	movl	$0x80000001, %eax
- 	cpuid
-@@ -204,32 +230,6 @@ SYM_CODE_START(secondary_startup_64)
- 	 */
- 	lgdt	early_gdt_descr(%rip)
++#ifdef CONFIG_SMP
++static void __init sev_es_setup_play_dead(void)
++{
++	smp_ops.play_dead = sev_es_play_dead;
++}
++#else
++static inline void sev_es_setup_play_dead(void) { }
++#endif
++
+ static void __init sev_es_alloc_runtime_data(int cpu)
+ {
+ 	struct sev_es_runtime_data *data;
+@@ -575,6 +637,8 @@ void __init sev_es_init_vc_handling(void)
+ 		sev_es_init_ghcb(cpu);
+ 		sev_es_setup_vc_stacks(cpu);
+ 	}
++
++	sev_es_setup_play_dead();
+ }
  
--	/* set up data segments */
--	xorl %eax,%eax
--	movl %eax,%ds
--	movl %eax,%ss
--	movl %eax,%es
--
--	/*
--	 * We don't really need to load %fs or %gs, but load them anyway
--	 * to kill any stale realmode selectors.  This allows execution
--	 * under VT hardware.
--	 */
--	movl %eax,%fs
--	movl %eax,%gs
--
--	/* Set up %gs.
--	 *
--	 * The base of %gs always points to fixed_percpu_data. If the
--	 * stack protector canary is enabled, it is located at %gs:40.
--	 * Note that, on SMP, the boot cpu uses init data section until
--	 * the per cpu areas are set up.
--	 */
--	movl	$MSR_GS_BASE,%ecx
--	movl	initial_gs(%rip),%eax
--	movl	initial_gs+4(%rip),%edx
--	wrmsr
--
- 	/* rsi is pointer to real mode structure with interesting info.
- 	   pass it to C */
- 	movq	%rsi, %rdi
+ static void __init vc_early_forward_exception(struct es_em_ctxt *ctxt)
 -- 
 2.27.0
