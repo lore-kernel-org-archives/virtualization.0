@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v4 07/75] x86/umip: Factor out instruction fetch
-Date: Tue, 14 Jul 2020 14:08:09 +0200
-Message-ID: <20200714120917.11253-8-joro@8bytes.org>
+Subject: [PATCH v4 25/75] x86/fpu: Move xgetbv()/xsetbv() into separate header
+Date: Tue, 14 Jul 2020 14:08:27 +0200
+Message-ID: <20200714120917.11253-26-joro@8bytes.org>
 References: <20200714120917.11253-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,124 +23,112 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Factor out the code to fetch the instruction from user-space to a helper
-function.
+The xgetbv() function is needed in pre-decompression boot code, but
+asm/fpu/internal.h can't be included there directly. Doing so opens
+the door to include-hell due to various include-magic in
+boot/compressed/misc.h.
 
-No functional changes.
+Avoid that by moving xgetbv()/xsetbv() to a separate header file and
+include this instead.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/insn-eval.h |  2 ++
- arch/x86/kernel/umip.c           | 26 +++++-----------------
- arch/x86/lib/insn-eval.c         | 38 ++++++++++++++++++++++++++++++++
- 3 files changed, 46 insertions(+), 20 deletions(-)
+ arch/x86/include/asm/fpu/internal.h | 33 +------------------------
+ arch/x86/include/asm/fpu/xcr.h      | 37 +++++++++++++++++++++++++++++
+ 2 files changed, 38 insertions(+), 32 deletions(-)
+ create mode 100644 arch/x86/include/asm/fpu/xcr.h
 
-diff --git a/arch/x86/include/asm/insn-eval.h b/arch/x86/include/asm/insn-eval.h
-index 2b6ccf2c49f1..b8b9ef1bbd06 100644
---- a/arch/x86/include/asm/insn-eval.h
-+++ b/arch/x86/include/asm/insn-eval.h
-@@ -19,5 +19,7 @@ void __user *insn_get_addr_ref(struct insn *insn, struct pt_regs *regs);
- int insn_get_modrm_rm_off(struct insn *insn, struct pt_regs *regs);
- unsigned long insn_get_seg_base(struct pt_regs *regs, int seg_reg_idx);
- int insn_get_code_seg_params(struct pt_regs *regs);
-+int insn_fetch_from_user(struct pt_regs *regs,
-+			 unsigned char buf[MAX_INSN_SIZE]);
+diff --git a/arch/x86/include/asm/fpu/internal.h b/arch/x86/include/asm/fpu/internal.h
+index 845e7481ab77..1c724bbace04 100644
+--- a/arch/x86/include/asm/fpu/internal.h
++++ b/arch/x86/include/asm/fpu/internal.h
+@@ -19,6 +19,7 @@
+ #include <asm/user.h>
+ #include <asm/fpu/api.h>
+ #include <asm/fpu/xstate.h>
++#include <asm/fpu/xcr.h>
+ #include <asm/cpufeature.h>
+ #include <asm/trace/fpu.h>
  
- #endif /* _ASM_X86_INSN_EVAL_H */
-diff --git a/arch/x86/kernel/umip.c b/arch/x86/kernel/umip.c
-index 8d5cbe1bbb3b..c9e5345da793 100644
---- a/arch/x86/kernel/umip.c
-+++ b/arch/x86/kernel/umip.c
-@@ -317,11 +317,11 @@ static void force_sig_info_umip_fault(void __user *addr, struct pt_regs *regs)
-  */
- bool fixup_umip_exception(struct pt_regs *regs)
- {
--	int not_copied, nr_copied, reg_offset, dummy_data_size, umip_inst;
--	unsigned long seg_base = 0, *reg_addr;
-+	int nr_copied, reg_offset, dummy_data_size, umip_inst;
- 	/* 10 bytes is the maximum size of the result of UMIP instructions */
- 	unsigned char dummy_data[10] = { 0 };
- 	unsigned char buf[MAX_INSN_SIZE];
-+	unsigned long *reg_addr;
- 	void __user *uaddr;
- 	struct insn insn;
- 	int seg_defs;
-@@ -329,26 +329,12 @@ bool fixup_umip_exception(struct pt_regs *regs)
- 	if (!regs)
- 		return false;
- 
--	/*
--	 * If not in user-space long mode, a custom code segment could be in
--	 * use. This is true in protected mode (if the process defined a local
--	 * descriptor table), or virtual-8086 mode. In most of the cases
--	 * seg_base will be zero as in USER_CS.
--	 */
--	if (!user_64bit_mode(regs))
--		seg_base = insn_get_seg_base(regs, INAT_SEG_REG_CS);
--
--	if (seg_base == -1L)
--		return false;
--
--	not_copied = copy_from_user(buf, (void __user *)(seg_base + regs->ip),
--				    sizeof(buf));
--	nr_copied = sizeof(buf) - not_copied;
-+	nr_copied = insn_fetch_from_user(regs, buf);
- 
- 	/*
--	 * The copy_from_user above could have failed if user code is protected
--	 * by a memory protection key. Give up on emulation in such a case.
--	 * Should we issue a page fault?
-+	 * The insn_fetch_from_user above could have failed if user code
-+	 * is protected by a memory protection key. Give up on emulation
-+	 * in such a case.  Should we issue a page fault?
- 	 */
- 	if (!nr_copied)
- 		return false;
-diff --git a/arch/x86/lib/insn-eval.c b/arch/x86/lib/insn-eval.c
-index 31600d851fd8..0c4f7ebc261b 100644
---- a/arch/x86/lib/insn-eval.c
-+++ b/arch/x86/lib/insn-eval.c
-@@ -1369,3 +1369,41 @@ void __user *insn_get_addr_ref(struct insn *insn, struct pt_regs *regs)
- 		return (void __user *)-1L;
- 	}
+@@ -619,36 +620,4 @@ static inline void switch_fpu_finish(struct fpu *new_fpu)
+ 	__write_pkru(pkru_val);
  }
+ 
+-/*
+- * MXCSR and XCR definitions:
+- */
+-
+-static inline void ldmxcsr(u32 mxcsr)
+-{
+-	asm volatile("ldmxcsr %0" :: "m" (mxcsr));
+-}
+-
+-extern unsigned int mxcsr_feature_mask;
+-
+-#define XCR_XFEATURE_ENABLED_MASK	0x00000000
+-
+-static inline u64 xgetbv(u32 index)
+-{
+-	u32 eax, edx;
+-
+-	asm volatile(".byte 0x0f,0x01,0xd0" /* xgetbv */
+-		     : "=a" (eax), "=d" (edx)
+-		     : "c" (index));
+-	return eax + ((u64)edx << 32);
+-}
+-
+-static inline void xsetbv(u32 index, u64 value)
+-{
+-	u32 eax = value;
+-	u32 edx = value >> 32;
+-
+-	asm volatile(".byte 0x0f,0x01,0xd1" /* xsetbv */
+-		     : : "a" (eax), "d" (edx), "c" (index));
+-}
+-
+ #endif /* _ASM_X86_FPU_INTERNAL_H */
+diff --git a/arch/x86/include/asm/fpu/xcr.h b/arch/x86/include/asm/fpu/xcr.h
+new file mode 100644
+index 000000000000..d8e8fafebfdc
+--- /dev/null
++++ b/arch/x86/include/asm/fpu/xcr.h
+@@ -0,0 +1,37 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _ASM_X86_FPU_XCR_H
++#define _ASM_X86_FPU_XCR_H
 +
-+/**
-+ * insn_fetch_from_user() - Copy instruction bytes from user-space memory
-+ * @regs:	Structure with register values as seen when entering kernel mode
-+ * @buf:	Array to store the fetched instruction
-+ *
-+ * Gets the linear address of the instruction and copies the instruction bytes
-+ * to the buf.
-+ *
-+ * Returns:
-+ *
-+ * Number of instruction bytes copied.
-+ *
-+ * 0 if nothing was copied.
++/*
++ * MXCSR and XCR definitions:
 + */
-+int insn_fetch_from_user(struct pt_regs *regs, unsigned char buf[MAX_INSN_SIZE])
++
++static inline void ldmxcsr(u32 mxcsr)
 +{
-+	unsigned long seg_base = 0;
-+	int not_copied;
-+
-+	/*
-+	 * If not in user-space long mode, a custom code segment could be in
-+	 * use. This is true in protected mode (if the process defined a local
-+	 * descriptor table), or virtual-8086 mode. In most of the cases
-+	 * seg_base will be zero as in USER_CS.
-+	 */
-+	if (!user_64bit_mode(regs)) {
-+		seg_base = insn_get_seg_base(regs, INAT_SEG_REG_CS);
-+		if (seg_base == -1L)
-+			return 0;
-+	}
-+
-+
-+	not_copied = copy_from_user(buf, (void __user *)(seg_base + regs->ip),
-+				    MAX_INSN_SIZE);
-+
-+	return MAX_INSN_SIZE - not_copied;
++	asm volatile("ldmxcsr %0" :: "m" (mxcsr));
 +}
++
++extern unsigned int mxcsr_feature_mask;
++
++#define XCR_XFEATURE_ENABLED_MASK	0x00000000
++
++static inline u64 xgetbv(u32 index)
++{
++	u32 eax, edx;
++
++	asm volatile(".byte 0x0f,0x01,0xd0" /* xgetbv */
++		     : "=a" (eax), "=d" (edx)
++		     : "c" (index));
++	return eax + ((u64)edx << 32);
++}
++
++static inline void xsetbv(u32 index, u64 value)
++{
++	u32 eax = value;
++	u32 edx = value >> 32;
++
++	asm volatile(".byte 0x0f,0x01,0xd1" /* xsetbv */
++		     : : "a" (eax), "d" (edx), "c" (index));
++}
++
++#endif /* _ASM_X86_FPU_XCR_H */
 -- 
 2.27.0
