@@ -1,7 +1,8 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v4 10/75] x86/insn: Add insn_has_rep_prefix() helper
-Date: Tue, 14 Jul 2020 14:08:12 +0200
-Message-ID: <20200714120917.11253-11-joro@8bytes.org>
+Subject: [PATCH v4 20/75] x86/boot/compressed/64: Check return value of
+ kernel_ident_mapping_init()
+Date: Tue, 14 Jul 2020 14:08:22 +0200
+Message-ID: <20200714120917.11253-21-joro@8bytes.org>
 References: <20200714120917.11253-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,60 +24,38 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Add a function to check whether an instruction has a REP prefix.
+The function can fail to create an identity mapping, check for that
+and bail out if it happens.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/insn-eval.h |  1 +
- arch/x86/lib/insn-eval.c         | 24 ++++++++++++++++++++++++
- 2 files changed, 25 insertions(+)
+ arch/x86/boot/compressed/ident_map_64.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/include/asm/insn-eval.h b/arch/x86/include/asm/insn-eval.h
-index f748f57f1491..a0f839aa144d 100644
---- a/arch/x86/include/asm/insn-eval.h
-+++ b/arch/x86/include/asm/insn-eval.h
-@@ -15,6 +15,7 @@
- #define INSN_CODE_SEG_OPND_SZ(params) (params & 0xf)
- #define INSN_CODE_SEG_PARAMS(oper_sz, addr_sz) (oper_sz | (addr_sz << 4))
+diff --git a/arch/x86/boot/compressed/ident_map_64.c b/arch/x86/boot/compressed/ident_map_64.c
+index b4f2a5f503cd..aa91bebc0fe9 100644
+--- a/arch/x86/boot/compressed/ident_map_64.c
++++ b/arch/x86/boot/compressed/ident_map_64.c
+@@ -91,6 +91,8 @@ static struct x86_mapping_info mapping_info;
+  */
+ static void add_identity_map(unsigned long start, unsigned long end)
+ {
++	int ret;
++
+ 	/* Align boundary to 2M. */
+ 	start = round_down(start, PMD_SIZE);
+ 	end = round_up(end, PMD_SIZE);
+@@ -98,8 +100,9 @@ static void add_identity_map(unsigned long start, unsigned long end)
+ 		return;
  
-+bool insn_has_rep_prefix(struct insn *insn);
- void __user *insn_get_addr_ref(struct insn *insn, struct pt_regs *regs);
- int insn_get_modrm_rm_off(struct insn *insn, struct pt_regs *regs);
- int insn_get_modrm_reg_off(struct insn *insn, struct pt_regs *regs);
-diff --git a/arch/x86/lib/insn-eval.c b/arch/x86/lib/insn-eval.c
-index a8ac5c5e94f0..8ed9d645259c 100644
---- a/arch/x86/lib/insn-eval.c
-+++ b/arch/x86/lib/insn-eval.c
-@@ -53,6 +53,30 @@ static bool is_string_insn(struct insn *insn)
- 	}
+ 	/* Build the mapping. */
+-	kernel_ident_mapping_init(&mapping_info, (pgd_t *)top_level_pgt,
+-				  start, end);
++	ret = kernel_ident_mapping_init(&mapping_info, (pgd_t *)top_level_pgt, start, end);
++	if (ret)
++		error("Error: kernel_ident_mapping_init() failed\n");
  }
  
-+/**
-+ * insn_has_rep_prefix() - Determine if instruction has a REP prefix
-+ * @insn:	Instruction containing the prefix to inspect
-+ *
-+ * Returns:
-+ *
-+ * true if the instruction has a REP prefix, false if not.
-+ */
-+bool insn_has_rep_prefix(struct insn *insn)
-+{
-+	int i;
-+
-+	insn_get_prefixes(insn);
-+
-+	for (i = 0; i < insn->prefixes.nbytes; i++) {
-+		insn_byte_t p = insn->prefixes.bytes[i];
-+
-+		if (p == 0xf2 || p == 0xf3)
-+			return true;
-+	}
-+
-+	return false;
-+}
-+
- /**
-  * get_seg_reg_override_idx() - obtain segment register override index
-  * @insn:	Valid instruction with segment override prefixes
+ /* Locates and clears a region for a new top level page table. */
 -- 
 2.27.0
