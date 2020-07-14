@@ -1,7 +1,8 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v4 27/75] x86/idt: Move IDT to data segment
-Date: Tue, 14 Jul 2020 14:08:29 +0200
-Message-ID: <20200714120917.11253-28-joro@8bytes.org>
+Subject: [PATCH v4 19/75] x86/boot/compressed/64: Call set_sev_encryption_mask
+ earlier
+Date: Tue, 14 Jul 2020 14:08:21 +0200
+Message-ID: <20200714120917.11253-20-joro@8bytes.org>
 References: <20200714120917.11253-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,27 +24,50 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-With SEV-ES, exception handling is needed very early, even before the
-kernel has cleared the bss segment. In order to prevent clearing the
-currently used IDT, move the IDT to the data segment.
+Call set_sev_encryption_mask() while still on the stage 1 #VC-handler,
+because the stage 2 handler needs our own page-tables to be set up, to
+which calling set_sev_encryption_mask() is a prerequisite.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/idt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/boot/compressed/head_64.S      | 8 +++++++-
+ arch/x86/boot/compressed/ident_map_64.c | 3 ---
+ 2 files changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/kernel/idt.c b/arch/x86/kernel/idt.c
-index 0db21206f2f3..b920f2352df5 100644
---- a/arch/x86/kernel/idt.c
-+++ b/arch/x86/kernel/idt.c
-@@ -158,7 +158,7 @@ static const __initconst struct idt_data apic_idts[] = {
- };
+diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
+index 36f18d5592f4..963bf2ce11cf 100644
+--- a/arch/x86/boot/compressed/head_64.S
++++ b/arch/x86/boot/compressed/head_64.S
+@@ -543,9 +543,15 @@ SYM_FUNC_START_LOCAL_NOALIGN(.Lrelocated)
+ 	rep	stosq
  
- /* Must be page-aligned because the real IDT is used in the cpu entry area */
--static gate_desc idt_table[IDT_ENTRIES] __page_aligned_bss;
-+static gate_desc idt_table[IDT_ENTRIES] __page_aligned_data;
+ /*
+- * Load stage2 IDT and switch to our own page-table
++ * If running as an SEV guest, the encryption mask is required in the
++ * page-table setup code below. When the guest also has SEV-ES enabled
++ * set_sev_encryption_mask() will cause #VC exceptions, but the stage2
++ * handler can't map its GHCB because the page-table is not set up yet.
++ * So set up the encryption mask here while still on the stage1 #VC
++ * handler. Then load stage2 IDT and switch to our own page-table.
+  */
+ 	pushq	%rsi
++	call	set_sev_encryption_mask
+ 	call	load_stage2_idt
+ 	call	initialize_identity_maps
+ 	popq	%rsi
+diff --git a/arch/x86/boot/compressed/ident_map_64.c b/arch/x86/boot/compressed/ident_map_64.c
+index 62e42c11a336..b4f2a5f503cd 100644
+--- a/arch/x86/boot/compressed/ident_map_64.c
++++ b/arch/x86/boot/compressed/ident_map_64.c
+@@ -105,9 +105,6 @@ static void add_identity_map(unsigned long start, unsigned long end)
+ /* Locates and clears a region for a new top level page table. */
+ void initialize_identity_maps(void)
+ {
+-	/* If running as an SEV guest, the encryption mask is required. */
+-	set_sev_encryption_mask();
+-
+ 	/* Exclude the encryption mask from __PHYSICAL_MASK */
+ 	physical_mask &= ~sme_me_mask;
  
- struct desc_ptr idt_descr __ro_after_init = {
- 	.size		= IDT_TABLE_SIZE - 1,
 -- 
 2.27.0
