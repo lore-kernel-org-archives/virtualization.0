@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v4 65/75] x86/kvm: Add KVM specific VMMCALL handling under SEV-ES
-Date: Tue, 14 Jul 2020 14:09:07 +0200
-Message-ID: <20200714120917.11253-66-joro@8bytes.org>
+Subject: [PATCH v4 62/75] x86/sev-es: Handle #AC Events
+Date: Tue, 14 Jul 2020 14:09:04 +0200
+Message-ID: <20200714120917.11253-63-joro@8bytes.org>
 References: <20200714120917.11253-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -9,76 +9,64 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200714120917.11253-1-joro@8bytes.org>
 Sender: linux-kernel-owner@vger.kernel.org
 To: x86@kernel.org
-Cc: Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>, Tom Lendacky <thomas.lendacky@amd.com>, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Sean Christopherson <sean.j.christopherson@intel.com>, Martin Radev <martin.b.radev@gmail.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Sean Christopherson <sean.j.christopherson@intel.com>, Martin Radev <martin.b.radev@gmail.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-Implement the callbacks to copy the processor state required by KVM to
-the GHCB.
+Implement a handler for #VC exceptions caused by #AC exceptions. The #AC
+exception is just forwarded to do_alignment_check() and not pushed down
+to the hypervisor, as requested by the SEV-ES GHCB Standardization
+Specification.
 
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-[ jroedel@suse.de: - Split out of a larger patch
-                   - Adapt to different callback functions ]
-Co-developed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/kvm.c | 35 +++++++++++++++++++++++++++++------
- 1 file changed, 29 insertions(+), 6 deletions(-)
+ arch/x86/kernel/sev-es.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
-diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-index df63786e7bfa..553d6b4eeaa2 100644
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -33,6 +33,8 @@
- #include <asm/hypervisor.h>
- #include <asm/tlb.h>
- #include <asm/cpuidle_haltpoll.h>
-+#include <asm/ptrace.h>
-+#include <asm/svm.h>
- 
- DEFINE_STATIC_KEY_FALSE(kvm_async_pf_enabled);
- 
-@@ -729,13 +731,34 @@ static void __init kvm_init_platform(void)
- 	x86_platform.apic_post_init = kvm_apic_init;
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+index 013dcdfeb613..8f275e5d1ce7 100644
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -915,6 +915,19 @@ static enum es_result vc_handle_vmmcall(struct ghcb *ghcb,
+ 	return ES_OK;
  }
  
-+#if defined(CONFIG_AMD_MEM_ENCRYPT)
-+static void kvm_sev_es_hcall_prepare(struct ghcb *ghcb, struct pt_regs *regs)
++static enum es_result vc_handle_trap_ac(struct ghcb *ghcb,
++					struct es_em_ctxt *ctxt)
 +{
-+	/* RAX and CPL are already in the GHCB */
-+	ghcb_set_rbx(ghcb, regs->bx);
-+	ghcb_set_rcx(ghcb, regs->cx);
-+	ghcb_set_rdx(ghcb, regs->dx);
-+	ghcb_set_rsi(ghcb, regs->si);
++	/*
++	 * Calling ecx_alignment_check() directly does not work, because it
++	 * enables IRQs and the GHCB is active. Forward the exception and call
++	 * it later from vc_forward_exception().
++	 */
++	ctxt->fi.vector = X86_TRAP_AC;
++	ctxt->fi.error_code = 0;
++	return ES_EXCEPTION;
 +}
 +
-+static bool kvm_sev_es_hcall_finish(struct ghcb *ghcb, struct pt_regs *regs)
-+{
-+	/* No checking of the return state needed */
-+	return true;
-+}
-+#endif
-+
- const __initconst struct hypervisor_x86 x86_hyper_kvm = {
--	.name			= "KVM",
--	.detect			= kvm_detect,
--	.type			= X86_HYPER_KVM,
--	.init.guest_late_init	= kvm_guest_init,
--	.init.x2apic_available	= kvm_para_available,
--	.init.init_platform	= kvm_init_platform,
-+	.name				= "KVM",
-+	.detect				= kvm_detect,
-+	.type				= X86_HYPER_KVM,
-+	.init.guest_late_init		= kvm_guest_init,
-+	.init.x2apic_available		= kvm_para_available,
-+	.init.init_platform		= kvm_init_platform,
-+#if defined(CONFIG_AMD_MEM_ENCRYPT)
-+	.runtime.sev_es_hcall_prepare	= kvm_sev_es_hcall_prepare,
-+	.runtime.sev_es_hcall_finish	= kvm_sev_es_hcall_finish,
-+#endif
- };
- 
- static __init int activate_jump_labels(void)
+ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
+ 					 struct ghcb *ghcb,
+ 					 unsigned long exit_code)
+@@ -928,6 +941,9 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
+ 	case SVM_EXIT_WRITE_DR7:
+ 		result = vc_handle_dr7_write(ghcb, ctxt);
+ 		break;
++	case SVM_EXIT_EXCP_BASE + X86_TRAP_AC:
++		result = vc_handle_trap_ac(ghcb, ctxt);
++		break;
+ 	case SVM_EXIT_RDTSC:
+ 	case SVM_EXIT_RDTSCP:
+ 		result = vc_handle_rdtsc(ghcb, ctxt, exit_code);
+@@ -987,6 +1003,9 @@ static __always_inline void vc_forward_exception(struct es_em_ctxt *ctxt)
+ 	case X86_TRAP_UD:
+ 		exc_invalid_op(ctxt->regs);
+ 		break;
++	case X86_TRAP_AC:
++		exc_alignment_check(ctxt->regs, error_code);
++		break;
+ 	default:
+ 		pr_emerg("Unsupported exception in #VC instruction emulation - can't continue\n");
+ 		BUG();
 -- 
 2.27.0
