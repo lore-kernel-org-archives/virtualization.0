@@ -1,47 +1,180 @@
-From: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Subject: Re: [PATCH v3 5/5] vhost: add an RPMsg API
-Date: Tue, 14 Jul 2020 10:33:59 +0200
-Message-ID: <20200714083359.wn4uoq3d7zzsddkc@axis.com>
-References: <20200527180541.5570-1-guennadi.liakhovetski@linux.intel.com>
- <20200527180541.5570-6-guennadi.liakhovetski@linux.intel.com>
- <20200617191741.whnp7iteb36cjnia@axis.com> <20200618090341.GA4189@ubuntu>
- <20200618093324.tu7oldr332ndfgev@axis.com> <20200618103940.GB4189@ubuntu>
- <20200618135241.362iuggde3jslx3p@axis.com> <20200618141412.GD4189@ubuntu>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio_balloon: clear modern features under legacy
+Date: Tue, 14 Jul 2020 04:45:21 -0400
+Message-ID: <20200714044017-mutt-send-email-mst@kernel.org>
+References: <20200710113046.421366-1-mst@redhat.com>
+ <CAKgT0UeZN+mOWNhgiT0btZTyki3TPoj7pbqA+__GkCxoifPqeg@mail.gmail.com>
+ <20200712105926-mutt-send-email-mst@kernel.org>
+ <CAKgT0UdY1xpEH1Hg4HWJEkGwH5s64sm1y4O_XmHe8P_f=tDhpg@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Return-path: <kvm-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <stable-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200618141412.GD4189@ubuntu>
-Sender: kvm-owner@vger.kernel.org
-To: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Cc: "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, "sound-open-firmware@alsa-project.org" <sound-open-firmware@alsa-project.org>, Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>, Liam Girdwood <liam.r.girdwood@linux.intel.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Ohad Ben-Cohen <ohad@wizery.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Mathieu Poirier <mathieu.poirier@linaro.org>
+In-Reply-To: <CAKgT0UdY1xpEH1Hg4HWJEkGwH5s64sm1y4O_XmHe8P_f=tDhpg@mail.gmail.com>
+Sender: stable-owner@vger.kernel.org
+To: Alexander Duyck <alexander.duyck@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org, David Hildenbrand <david@redhat.com>, Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jun 18, 2020 at 04:14:12PM +0200, Guennadi Liakhovetski wrote:
-> On Thu, Jun 18, 2020 at 03:52:42PM +0200, Vincent Whitchurch wrote:
-> > Note that "the Linux side" is ambiguous for AMP since both sides can be
-> > Linux, as they happen to be in my case.  I'm running virtio/rpmsg
-> > between two physical processors (of different architectures), both
-> > running Linux.
+On Mon, Jul 13, 2020 at 08:10:14AM -0700, Alexander Duyck wrote:
+> On Sun, Jul 12, 2020 at 8:10 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> > On Fri, Jul 10, 2020 at 09:13:41AM -0700, Alexander Duyck wrote:
+> > > On Fri, Jul 10, 2020 at 4:31 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+> > > >
+> > > > Page reporting features were never supported by legacy hypervisors.
+> > > > Supporting them poses a problem: should we use native endian-ness (like
+> > > > current code assumes)? Or little endian-ness like the virtio spec says?
+> > > > Rather than try to figure out, and since results of
+> > > > incorrect endian-ness are dire, let's just block this configuration.
+> > > >
+> > > > Cc: stable@vger.kernel.org
+> > > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > >
+> > > So I am not sure about the patch description. In the case of page
+> > > poison and free page reporting I don't think we are defining anything
+> > > that doesn't already have a definition of how to use in legacy.
+> > > Specifically the virtio_balloon_config is already defined as having
+> > > all fields as little endian in legacy mode, and there is a definition
+> > > for all of the fields in a virtqueue and how they behave in legacy
+> > > mode.
+> > >
+> > > As far as I can see the only item that may be an issue is the command
+> > > ID being supplied via the virtqueue for free page hinting, which
+> > > appears to be in native endian-ness. Otherwise it would have fallen
+> > > into the same category since it is making use of virtio_balloon_config
+> > > and a virtqueue for supplying the page location and length.
+> >
+> >
+> >
+> > So as you point out correctly balloon spec says all fields are little
+> > endian.  Fair enough.
+> > Problem is when virtio 1 is not negotiated, then this is not what the
+> > driver assumes for any except a handlful of fields.
+> >
+> > But yes it mostly works out.
+> >
+> > For example:
+> >
+> >
+> > static void update_balloon_size(struct virtio_balloon *vb)
+> > {
+> >         u32 actual = vb->num_pages;
+> >
+> >         /* Legacy balloon config space is LE, unlike all other devices. */
+> >         if (!virtio_has_feature(vb->vdev, VIRTIO_F_VERSION_1))
+> >                 actual = (__force u32)cpu_to_le32(actual);
+> >
+> >         virtio_cwrite(vb->vdev, struct virtio_balloon_config, actual,
+> >                       &actual);
+> > }
+> >
+> >
+> > this is LE even without VIRTIO_F_VERSION_1, so matches spec.
+> >
+> >                 /* Start with poison val of 0 representing general init */
+> >                 __u32 poison_val = 0;
+> >
+> >                 /*
+> >                  * Let the hypervisor know that we are expecting a
+> >                  * specific value to be written back in balloon pages.
+> >                  */
+> >                 if (!want_init_on_free())
+> >                         memset(&poison_val, PAGE_POISON, sizeof(poison_val));
+> >
+> >                 virtio_cwrite(vb->vdev, struct virtio_balloon_config,
+> >                               poison_val, &poison_val);
+> >
+> >
+> > actually this writes a native endian-ness value. All bytes happen to be
+> > the same though, and host only cares about 0 or non 0 ATM.
 > 
-> Ok, interesting, I didn't know such configurations were used too. I understood 
-> the Linux rpmsg implementation in the way, that it's assumed, that the "host" 
-> has to boot the "device" by sending an ELF formatted executable image to it, is 
-> that optional? You aren't sending a complete Linux image to the device side, 
-> are you?
+> So we are safe assuming it is a repeating value, but for correctness
+> maybe we should make certain to cast this as a le32 value. I can
+> submit a patch to do that.
 
-I do pack the zImage, the dtb, and the initramfs into an ELF (along with
-a tiny "bootloader" with just a handful of instructions), but the
-remoteproc framework is not tied to the ELF format since ->parse_fw()
-and friends are overridable by the remoteproc driver.
+Thanks! But not yet - I am poking at the endian-ness things right now!
 
-> > virtio has distinct driver and device roles so the completely different
-> > APIs on each side are understandable.  But I don't see that distinction
-> > in the rpmsg API which is why it seems like a good idea to me to make it
-> > work from both sides of the link and allow the reuse of drivers like
-> > rpmsg-char, instead of imposing virtio's distinction on rpmsg.
+> > As you say correctly the command id is actually assumed native endian:
+> >
+> >
+> > static u32 virtio_balloon_cmd_id_received(struct virtio_balloon *vb)
+> > {
+> >         if (test_and_clear_bit(VIRTIO_BALLOON_CONFIG_READ_CMD_ID,
+> >                                &vb->config_read_bitmap))
+> >                 virtio_cread(vb->vdev, struct virtio_balloon_config,
+> >                              free_page_hint_cmd_id,
+> >                              &vb->cmd_id_received_cache);
+> >
+> >         return vb->cmd_id_received_cache;
+> > }
+> >
+> >
+> > So guest assumes native, host assumes LE.
 > 
-> Understand. In principle I'm open to this idea, but before I implement it it 
-> would be good to know what maintainers think?
+> This wasn't even the one I was talking about, but now that you point
+> it out this is definately bug. The command ID I was talking about was
+> the one being passed via the descriptor ring. That one I believe is
+> native on both sides.
 
-Certainly.
+Well qemu swaps it for modern devices:
+
+        virtio_tswap32s(vdev, &id);
+
+guest swaps it too:
+        vb->cmd_id_active = cpu_to_virtio32(vb->vdev,
+                                        virtio_balloon_cmd_id_received(vb));
+        sg_init_one(&sg, &vb->cmd_id_active, sizeof(vb->cmd_id_active));
+        err = virtqueue_add_outbuf(vq, &sg, 1, &vb->cmd_id_active, GFP_KERNEL);
+
+So it's native for legacy.
+
+
+
+> >
+> >
+> >
+> > > > ---
+> > > >  drivers/virtio/virtio_balloon.c | 9 +++++++++
+> > > >  1 file changed, 9 insertions(+)
+> > > >
+> > > > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> > > > index 5d4b891bf84f..b9bc03345157 100644
+> > > > --- a/drivers/virtio/virtio_balloon.c
+> > > > +++ b/drivers/virtio/virtio_balloon.c
+> > > > @@ -1107,6 +1107,15 @@ static int virtballoon_restore(struct virtio_device *vdev)
+> > > >
+> > > >  static int virtballoon_validate(struct virtio_device *vdev)
+> > > >  {
+> > > > +       /*
+> > > > +        * Legacy devices never specified how modern features should behave.
+> > > > +        * E.g. which endian-ness to use? Better not to assume anything.
+> > > > +        */
+> > > > +       if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1)) {
+> > > > +               __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT);
+> > > > +               __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_PAGE_POISON);
+> > > > +               __virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
+> > > > +       }
+> > > >         /*
+> > > >          * Inform the hypervisor that our pages are poisoned or
+> > > >          * initialized. If we cannot do that then we should disable
+> > >
+> > > The patch content itself I am fine with since odds are nobody would
+> > > expect to use these features with a legacy device.
+> > >
+> > > Acked-by: Alexander Duyck <alexander.h.duyck@linux.intel.com>
+> >
+> > Hmm so now you pointed out it's just cmd id, maybe I should just fix it
+> > instead? what do you say?
+> 
+> So the config issues are bugs, but I don't think you saw the one I was
+> talking about. In the function send_cmd_id_start the cmd_id_active
+> value which is initialized as a virtio32 is added as a sg entry and
+> then sent as an outbuf to the device. I'm assuming virtio32 is a host
+> native byte ordering.
+
+IIUC it isn't :) virtio32 is guest native if device is legacy, and LE if
+device is modern.
+
+-- 
+MST
