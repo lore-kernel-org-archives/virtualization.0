@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v4 36/75] x86/head/64: Move early exception dispatch to C code
-Date: Tue, 14 Jul 2020 14:08:38 +0200
-Message-ID: <20200714120917.11253-37-joro@8bytes.org>
+Subject: [PATCH v4 29/75] x86/idt: Move two function from k/idt.c to i/a/desc.h
+Date: Tue, 14 Jul 2020 14:08:31 +0200
+Message-ID: <20200714120917.11253-30-joro@8bytes.org>
 References: <20200714120917.11253-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,128 +23,138 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Move the assembly coded dispatch between page-faults and all other
-exceptions to C code to make it easier to maintain and extend.
+Move these two functions from kernel/idt.c to include/asm/desc.h:
 
-Also change the return-type of early_make_pgtable() to bool and make it
-static.
+	* init_idt_data()
+	* idt_init_desc()
+
+These functions are needed to setup IDT entries very early and need to
+be called from head64.c. To be usable this early these functions need to
+be compiled without instrumentation and the stack-protector feature.
+These features need to be kept enabled for kernel/idt.c, so head64.c
+must use its own versions.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/pgtable.h |  2 +-
- arch/x86/include/asm/setup.h   |  1 -
- arch/x86/kernel/head64.c       | 19 +++++++++++++++----
- arch/x86/kernel/head_64.S      | 11 +----------
- 4 files changed, 17 insertions(+), 16 deletions(-)
+ arch/x86/include/asm/desc.h      | 27 +++++++++++++++++++++++++
+ arch/x86/include/asm/desc_defs.h |  7 +++++++
+ arch/x86/kernel/idt.c            | 34 --------------------------------
+ 3 files changed, 34 insertions(+), 34 deletions(-)
 
-diff --git a/arch/x86/include/asm/pgtable.h b/arch/x86/include/asm/pgtable.h
-index 76aa21e8128d..001b719a5e29 100644
---- a/arch/x86/include/asm/pgtable.h
-+++ b/arch/x86/include/asm/pgtable.h
-@@ -28,7 +28,7 @@
- #include <asm-generic/pgtable_uffd.h>
+diff --git a/arch/x86/include/asm/desc.h b/arch/x86/include/asm/desc.h
+index 1ced11d31932..476082a83d1c 100644
+--- a/arch/x86/include/asm/desc.h
++++ b/arch/x86/include/asm/desc.h
+@@ -383,6 +383,33 @@ static inline void set_desc_limit(struct desc_struct *desc, unsigned long limit)
  
- extern pgd_t early_top_pgt[PTRS_PER_PGD];
--int __init __early_make_pgtable(unsigned long address, pmdval_t pmd);
-+bool __init __early_make_pgtable(unsigned long address, pmdval_t pmd);
+ void alloc_intr_gate(unsigned int n, const void *addr);
  
- void ptdump_walk_pgd_level(struct seq_file *m, struct mm_struct *mm);
- void ptdump_walk_pgd_level_debugfs(struct seq_file *m, struct mm_struct *mm,
-diff --git a/arch/x86/include/asm/setup.h b/arch/x86/include/asm/setup.h
-index 19ccb1211004..5b3a9883ecc7 100644
---- a/arch/x86/include/asm/setup.h
-+++ b/arch/x86/include/asm/setup.h
-@@ -49,7 +49,6 @@ extern void reserve_standard_io_resources(void);
- extern void i386_reserve_resources(void);
- extern unsigned long __startup_64(unsigned long physaddr, struct boot_params *bp);
- extern unsigned long __startup_secondary_64(void);
--extern int early_make_pgtable(unsigned long address);
- extern void early_idt_setup_early_handler(unsigned long descr_addr, unsigned long physaddr);
- 
- #ifdef CONFIG_X86_INTEL_MID
-diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
-index 3598c091ff24..32080e34ba92 100644
---- a/arch/x86/kernel/head64.c
-+++ b/arch/x86/kernel/head64.c
-@@ -36,6 +36,8 @@
- #include <asm/microcode.h>
- #include <asm/kasan.h>
- #include <asm/fixmap.h>
-+#include <asm/extable.h>
-+#include <asm/trapnr.h>
- 
- /*
-  * Manage page tables very early on.
-@@ -316,7 +318,7 @@ static void __init reset_early_page_tables(void)
- }
- 
- /* Create a new PMD entry */
--int __init __early_make_pgtable(unsigned long address, pmdval_t pmd)
-+bool __init __early_make_pgtable(unsigned long address, pmdval_t pmd)
- {
- 	unsigned long physaddr = address - __PAGE_OFFSET;
- 	pgdval_t pgd, *pgd_p;
-@@ -326,7 +328,7 @@ int __init __early_make_pgtable(unsigned long address, pmdval_t pmd)
- 
- 	/* Invalid address or early pgt is done ?  */
- 	if (physaddr >= MAXMEM || read_cr3_pa() != __pa_nodebug(early_top_pgt))
--		return -1;
-+		return false;
- 
- again:
- 	pgd_p = &early_top_pgt[pgd_index(address)].pgd;
-@@ -383,10 +385,10 @@ int __init __early_make_pgtable(unsigned long address, pmdval_t pmd)
- 	}
- 	pmd_p[pmd_index(address)] = pmd;
- 
--	return 0;
-+	return true;
- }
- 
--int __init early_make_pgtable(unsigned long address)
-+static bool __init early_make_pgtable(unsigned long address)
- {
- 	unsigned long physaddr = address - __PAGE_OFFSET;
- 	pmdval_t pmd;
-@@ -396,6 +398,15 @@ int __init early_make_pgtable(unsigned long address)
- 	return __early_make_pgtable(address, pmd);
- }
- 
-+void __init do_early_exception(struct pt_regs *regs, int trapnr)
++static inline void init_idt_data(struct idt_data *data, unsigned int n,
++				 const void *addr)
 +{
-+	if (trapnr == X86_TRAP_PF &&
-+	    early_make_pgtable(native_read_cr2()))
-+		return;
++	BUG_ON(n > 0xFF);
 +
-+	early_fixup_exception(regs, trapnr);
++	memset(data, 0, sizeof(*data));
++	data->vector	= n;
++	data->addr	= addr;
++	data->segment	= __KERNEL_CS;
++	data->bits.type	= GATE_INTERRUPT;
++	data->bits.p	= 1;
 +}
 +
- /* Don't add a printk in there. printk relies on the PDA which is not initialized 
-    yet. */
- static void __init clear_bss(void)
-diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
-index 8f9548071e84..86473d49619d 100644
---- a/arch/x86/kernel/head_64.S
-+++ b/arch/x86/kernel/head_64.S
-@@ -375,18 +375,9 @@ SYM_CODE_START_LOCAL(early_idt_handler_common)
- 	pushq %r15				/* pt_regs->r15 */
- 	UNWIND_HINT_REGS
++static inline void idt_init_desc(gate_desc *gate, const struct idt_data *d)
++{
++	unsigned long addr = (unsigned long) d->addr;
++
++	gate->offset_low	= (u16) addr;
++	gate->segment		= (u16) d->segment;
++	gate->bits		= d->bits;
++	gate->offset_middle	= (u16) (addr >> 16);
++#ifdef CONFIG_X86_64
++	gate->offset_high	= (u32) (addr >> 32);
++	gate->reserved		= 0;
++#endif
++}
++
+ extern unsigned long system_vectors[];
  
--	cmpq $14,%rsi		/* Page fault? */
--	jnz 10f
--	GET_CR2_INTO(%rdi)	/* can clobber %rax if pv */
--	call early_make_pgtable
--	andl %eax,%eax
--	jz 20f			/* All good */
+ extern void load_current_idt(void);
+diff --git a/arch/x86/include/asm/desc_defs.h b/arch/x86/include/asm/desc_defs.h
+index 5621fb3f2d1a..f7e7099af595 100644
+--- a/arch/x86/include/asm/desc_defs.h
++++ b/arch/x86/include/asm/desc_defs.h
+@@ -74,6 +74,13 @@ struct idt_bits {
+ 			p	: 1;
+ } __attribute__((packed));
+ 
++struct idt_data {
++	unsigned int	vector;
++	unsigned int	segment;
++	struct idt_bits	bits;
++	const void	*addr;
++};
++
+ struct gate_struct {
+ 	u16		offset_low;
+ 	u16		segment;
+diff --git a/arch/x86/kernel/idt.c b/arch/x86/kernel/idt.c
+index 367eb6a593dd..d3f0c8133300 100644
+--- a/arch/x86/kernel/idt.c
++++ b/arch/x86/kernel/idt.c
+@@ -11,13 +11,6 @@
+ #include <asm/desc.h>
+ #include <asm/hw_irq.h>
+ 
+-struct idt_data {
+-	unsigned int	vector;
+-	unsigned int	segment;
+-	struct idt_bits	bits;
+-	const void	*addr;
+-};
 -
--10:
- 	movq %rsp,%rdi		/* RDI = pt_regs; RSI is already trapnr */
--	call early_fixup_exception
-+	call do_early_exception
+ #define DPL0		0x0
+ #define DPL3		0x3
  
--20:
- 	decl early_recursion_flag(%rip)
- 	jmp restore_regs_and_return_to_kernel
- SYM_CODE_END(early_idt_handler_common)
+@@ -178,20 +171,6 @@ bool idt_is_f00f_address(unsigned long address)
+ }
+ #endif
+ 
+-static inline void idt_init_desc(gate_desc *gate, const struct idt_data *d)
+-{
+-	unsigned long addr = (unsigned long) d->addr;
+-
+-	gate->offset_low	= (u16) addr;
+-	gate->segment		= (u16) d->segment;
+-	gate->bits		= d->bits;
+-	gate->offset_middle	= (u16) (addr >> 16);
+-#ifdef CONFIG_X86_64
+-	gate->offset_high	= (u32) (addr >> 32);
+-	gate->reserved		= 0;
+-#endif
+-}
+-
+ static __init void
+ idt_setup_from_table(gate_desc *idt, const struct idt_data *t, int size, bool sys)
+ {
+@@ -205,19 +184,6 @@ idt_setup_from_table(gate_desc *idt, const struct idt_data *t, int size, bool sy
+ 	}
+ }
+ 
+-static void init_idt_data(struct idt_data *data, unsigned int n,
+-			  const void *addr)
+-{
+-	BUG_ON(n > 0xFF);
+-
+-	memset(data, 0, sizeof(*data));
+-	data->vector	= n;
+-	data->addr	= addr;
+-	data->segment	= __KERNEL_CS;
+-	data->bits.type	= GATE_INTERRUPT;
+-	data->bits.p	= 1;
+-}
+-
+ static __init void set_intr_gate(unsigned int n, const void *addr)
+ {
+ 	struct idt_data data;
 -- 
 2.27.0
