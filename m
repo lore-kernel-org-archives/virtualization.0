@@ -1,291 +1,103 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v4 51/75] x86/sev-es: Handle MMIO events
-Date: Tue, 14 Jul 2020 14:08:53 +0200
-Message-ID: <20200714120917.11253-52-joro@8bytes.org>
+Subject: [PATCH v4 05/75] x86/traps: Move pf error codes to <asm/trap_pf.h>
+Date: Tue, 14 Jul 2020 14:08:07 +0200
+Message-ID: <20200714120917.11253-6-joro@8bytes.org>
 References: <20200714120917.11253-1-joro@8bytes.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200714120917.11253-1-joro@8bytes.org>
-Sender: kvm-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: x86@kernel.org
-Cc: Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>, Tom Lendacky <thomas.lendacky@amd.com>, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Sean Christopherson <sean.j.christopherson@intel.com>, Martin Radev <martin.b.radev@gmail.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Joerg Roedel <jroedel@suse.de>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, Sean Christopherson <sean.j.christopherson@intel.com>, virtualization@lists.linux-foundation.org, Martin Radev <martin.b.radev@gmail.com>, Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-Add handler for VC exceptions caused by MMIO intercepts. These
-intercepts come along as nested page faults on pages with reserved
-bits set.
+Move the definition of the x86 page-fault error code bits to the new
+header file asm/trap_pf.h. This makes it easier to include them into
+pre-decompression boot code. No functional changes.
 
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-[ jroedel@suse.de: Adapt to VC handling framework ]
-Co-developed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/uapi/asm/svm.h |   5 +
- arch/x86/kernel/sev-es.c        | 219 ++++++++++++++++++++++++++++++++
- 2 files changed, 224 insertions(+)
+ arch/x86/include/asm/trap_pf.h | 24 ++++++++++++++++++++++++
+ arch/x86/include/asm/traps.h   | 19 +------------------
+ 2 files changed, 25 insertions(+), 18 deletions(-)
+ create mode 100644 arch/x86/include/asm/trap_pf.h
 
-diff --git a/arch/x86/include/uapi/asm/svm.h b/arch/x86/include/uapi/asm/svm.h
-index c68d1618c9b0..8f36ae021a7f 100644
---- a/arch/x86/include/uapi/asm/svm.h
-+++ b/arch/x86/include/uapi/asm/svm.h
-@@ -81,6 +81,11 @@
- #define SVM_EXIT_AVIC_INCOMPLETE_IPI		0x401
- #define SVM_EXIT_AVIC_UNACCELERATED_ACCESS	0x402
+diff --git a/arch/x86/include/asm/trap_pf.h b/arch/x86/include/asm/trap_pf.h
+new file mode 100644
+index 000000000000..305bc1214aef
+--- /dev/null
++++ b/arch/x86/include/asm/trap_pf.h
+@@ -0,0 +1,24 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _ASM_X86_TRAP_PF_H
++#define _ASM_X86_TRAP_PF_H
++
++/*
++ * Page fault error code bits:
++ *
++ *   bit 0 ==	 0: no page found	1: protection fault
++ *   bit 1 ==	 0: read access		1: write access
++ *   bit 2 ==	 0: kernel-mode access	1: user-mode access
++ *   bit 3 ==				1: use of reserved bit detected
++ *   bit 4 ==				1: fault was an instruction fetch
++ *   bit 5 ==				1: protection keys block access
++ */
++enum x86_pf_error_code {
++	X86_PF_PROT	=		1 << 0,
++	X86_PF_WRITE	=		1 << 1,
++	X86_PF_USER	=		1 << 2,
++	X86_PF_RSVD	=		1 << 3,
++	X86_PF_INSTR	=		1 << 4,
++	X86_PF_PK	=		1 << 5,
++};
++
++#endif /* _ASM_X86_TRAP_PF_H */
+diff --git a/arch/x86/include/asm/traps.h b/arch/x86/include/asm/traps.h
+index 714b1a30e7b0..6a308355ea29 100644
+--- a/arch/x86/include/asm/traps.h
++++ b/arch/x86/include/asm/traps.h
+@@ -8,6 +8,7 @@
+ #include <asm/debugreg.h>
+ #include <asm/idtentry.h>
+ #include <asm/siginfo.h>			/* TRAP_TRACE, ... */
++#include <asm/trap_pf.h>
  
-+/* SEV-ES software-defined VMGEXIT events */
-+#define SVM_VMGEXIT_MMIO_READ			0x80000001
-+#define SVM_VMGEXIT_MMIO_WRITE			0x80000002
-+#define SVM_VMGEXIT_UNSUPPORTED_EVENT		0x8000ffff
-+
- #define SVM_EXIT_ERR           -1
+ #ifdef CONFIG_X86_64
+ asmlinkage __visible notrace struct pt_regs *sync_regs(struct pt_regs *eregs);
+@@ -41,22 +42,4 @@ void __noreturn handle_stack_overflow(const char *message,
+ 				      unsigned long fault_address);
+ #endif
  
- #define SVM_EXIT_REASONS \
-diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index 08b66fd5ae9a..44995c3ad17e 100644
---- a/arch/x86/kernel/sev-es.c
-+++ b/arch/x86/kernel/sev-es.c
-@@ -374,6 +374,36 @@ static enum es_result vc_read_mem(struct es_em_ctxt *ctxt,
- 	return ES_EXCEPTION;
- }
- 
-+static bool vc_slow_virt_to_phys(struct ghcb *ghcb, struct es_em_ctxt *ctxt,
-+				 unsigned long vaddr, phys_addr_t *paddr)
-+{
-+	unsigned long va = (unsigned long)vaddr;
-+	unsigned int level;
-+	phys_addr_t pa;
-+	pgd_t *pgd;
-+	pte_t *pte;
-+
-+	pgd = pgd_offset(current->active_mm, va);
-+	pte = lookup_address_in_pgd(pgd, va, &level);
-+	if (!pte) {
-+		ctxt->fi.vector     = X86_TRAP_PF;
-+		ctxt->fi.cr2        = vaddr;
-+		ctxt->fi.error_code = 0;
-+
-+		if (user_mode(ctxt->regs))
-+			ctxt->fi.error_code |= X86_PF_USER;
-+
-+		return false;
-+	}
-+
-+	pa = (phys_addr_t)pte_pfn(*pte) << PAGE_SHIFT;
-+	pa |= va & ~page_level_mask(level);
-+
-+	*paddr = pa;
-+
-+	return true;
-+}
-+
- /* Include code shared with pre-decompression boot stage */
- #include "sev-es-shared.c"
- 
-@@ -456,6 +486,192 @@ static void __init vc_early_forward_exception(struct es_em_ctxt *ctxt)
- 	do_early_exception(ctxt->regs, trapnr);
- }
- 
-+static long *vc_insn_get_reg(struct es_em_ctxt *ctxt)
-+{
-+	long *reg_array;
-+	int offset;
-+
-+	reg_array = (long *)ctxt->regs;
-+	offset    = insn_get_modrm_reg_off(&ctxt->insn, ctxt->regs);
-+
-+	if (offset < 0)
-+		return NULL;
-+
-+	offset /= sizeof(long);
-+
-+	return reg_array + offset;
-+}
-+
-+static enum es_result vc_do_mmio(struct ghcb *ghcb, struct es_em_ctxt *ctxt,
-+				 unsigned int bytes, bool read)
-+{
-+	u64 exit_code, exit_info_1, exit_info_2;
-+	unsigned long ghcb_pa = __pa(ghcb);
-+	phys_addr_t paddr;
-+	void __user *ref;
-+
-+	ref = insn_get_addr_ref(&ctxt->insn, ctxt->regs);
-+	if (ref == (void __user *)-1L)
-+		return ES_UNSUPPORTED;
-+
-+	exit_code = read ? SVM_VMGEXIT_MMIO_READ : SVM_VMGEXIT_MMIO_WRITE;
-+
-+	if (!vc_slow_virt_to_phys(ghcb, ctxt, (unsigned long)ref, &paddr)) {
-+		if (!read)
-+			ctxt->fi.error_code |= X86_PF_WRITE;
-+
-+		return ES_EXCEPTION;
-+	}
-+
-+	exit_info_1 = paddr;
-+	exit_info_2 = bytes;    /* Can never be greater than 8 */
-+
-+	ghcb->save.sw_scratch = ghcb_pa + offsetof(struct ghcb, shared_buffer);
-+
-+	return sev_es_ghcb_hv_call(ghcb, ctxt, exit_code, exit_info_1, exit_info_2);
-+}
-+
-+static enum es_result vc_handle_mmio_twobyte_ops(struct ghcb *ghcb,
-+						 struct es_em_ctxt *ctxt)
-+{
-+	struct insn *insn = &ctxt->insn;
-+	unsigned int bytes = 0;
-+	enum es_result ret;
-+	int sign_byte;
-+	long *reg_data;
-+
-+	switch (insn->opcode.bytes[1]) {
-+		/* MMIO Read w/ zero-extension */
-+	case 0xb6:
-+		bytes = 1;
-+		fallthrough;
-+	case 0xb7:
-+		if (!bytes)
-+			bytes = 2;
-+
-+		ret = vc_do_mmio(ghcb, ctxt, bytes, true);
-+		if (ret)
-+			break;
-+
-+		/* Zero extend based on operand size */
-+		reg_data = vc_insn_get_reg(ctxt);
-+		if (!reg_data)
-+			return ES_DECODE_FAILED;
-+
-+		memset(reg_data, 0, insn->opnd_bytes);
-+
-+		memcpy(reg_data, ghcb->shared_buffer, bytes);
-+		break;
-+
-+		/* MMIO Read w/ sign-extension */
-+	case 0xbe:
-+		bytes = 1;
-+		fallthrough;
-+	case 0xbf:
-+		if (!bytes)
-+			bytes = 2;
-+
-+		ret = vc_do_mmio(ghcb, ctxt, bytes, true);
-+		if (ret)
-+			break;
-+
-+		/* Sign extend based on operand size */
-+		reg_data = vc_insn_get_reg(ctxt);
-+		if (!reg_data)
-+			return ES_DECODE_FAILED;
-+
-+		if (bytes == 1) {
-+			u8 *val = (u8 *)ghcb->shared_buffer;
-+
-+			sign_byte = (*val & 0x80) ? 0xff : 0x00;
-+		} else {
-+			u16 *val = (u16 *)ghcb->shared_buffer;
-+
-+			sign_byte = (*val & 0x8000) ? 0xff : 0x00;
-+		}
-+		memset(reg_data, sign_byte, insn->opnd_bytes);
-+
-+		memcpy(reg_data, ghcb->shared_buffer, bytes);
-+		break;
-+
-+	default:
-+		ret = ES_UNSUPPORTED;
-+	}
-+
-+	return ret;
-+}
-+
-+static enum es_result vc_handle_mmio(struct ghcb *ghcb,
-+				     struct es_em_ctxt *ctxt)
-+{
-+	struct insn *insn = &ctxt->insn;
-+	unsigned int bytes = 0;
-+	enum es_result ret;
-+	long *reg_data;
-+
-+	switch (insn->opcode.bytes[0]) {
-+	/* MMIO Write */
-+	case 0x88:
-+		bytes = 1;
-+		fallthrough;
-+	case 0x89:
-+		if (!bytes)
-+			bytes = insn->opnd_bytes;
-+
-+		reg_data = vc_insn_get_reg(ctxt);
-+		if (!reg_data)
-+			return ES_DECODE_FAILED;
-+
-+		memcpy(ghcb->shared_buffer, reg_data, bytes);
-+
-+		ret = vc_do_mmio(ghcb, ctxt, bytes, false);
-+		break;
-+
-+	case 0xc6:
-+		bytes = 1;
-+		fallthrough;
-+	case 0xc7:
-+		if (!bytes)
-+			bytes = insn->opnd_bytes;
-+
-+		memcpy(ghcb->shared_buffer, insn->immediate1.bytes, bytes);
-+
-+		ret = vc_do_mmio(ghcb, ctxt, bytes, false);
-+		break;
-+
-+		/* MMIO Read */
-+	case 0x8a:
-+		bytes = 1;
-+		fallthrough;
-+	case 0x8b:
-+		if (!bytes)
-+			bytes = insn->opnd_bytes;
-+
-+		ret = vc_do_mmio(ghcb, ctxt, bytes, true);
-+		if (ret)
-+			break;
-+
-+		reg_data = vc_insn_get_reg(ctxt);
-+		if (!reg_data)
-+			return ES_DECODE_FAILED;
-+
-+		if (bytes == 4)
-+			*reg_data = 0;  /* Zero-extend for 32-bit operation */
-+
-+		memcpy(reg_data, ghcb->shared_buffer, bytes);
-+		break;
-+
-+		/* Two-Byte Opcodes */
-+	case 0x0f:
-+		ret = vc_handle_mmio_twobyte_ops(ghcb, ctxt);
-+		break;
-+	default:
-+		ret = ES_UNSUPPORTED;
-+	}
-+
-+	return ret;
-+}
-+
- static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
- 					 struct ghcb *ghcb,
- 					 unsigned long exit_code)
-@@ -469,6 +685,9 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
- 	case SVM_EXIT_IOIO:
- 		result = vc_handle_ioio(ghcb, ctxt);
- 		break;
-+	case SVM_EXIT_NPF:
-+		result = vc_handle_mmio(ghcb, ctxt);
-+		break;
- 	default:
- 		/*
- 		 * Unexpected #VC exception
+-/*
+- * Page fault error code bits:
+- *
+- *   bit 0 ==	 0: no page found	1: protection fault
+- *   bit 1 ==	 0: read access		1: write access
+- *   bit 2 ==	 0: kernel-mode access	1: user-mode access
+- *   bit 3 ==				1: use of reserved bit detected
+- *   bit 4 ==				1: fault was an instruction fetch
+- *   bit 5 ==				1: protection keys block access
+- */
+-enum x86_pf_error_code {
+-	X86_PF_PROT	=		1 << 0,
+-	X86_PF_WRITE	=		1 << 1,
+-	X86_PF_USER	=		1 << 2,
+-	X86_PF_RSVD	=		1 << 3,
+-	X86_PF_INSTR	=		1 << 4,
+-	X86_PF_PK	=		1 << 5,
+-};
+ #endif /* _ASM_X86_TRAPS_H */
 -- 
 2.27.0
