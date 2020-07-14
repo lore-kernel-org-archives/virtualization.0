@@ -1,122 +1,112 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v4 23/75] x86/boot/compressed/64: Unmap GHCB page before booting the kernel
-Date: Tue, 14 Jul 2020 14:08:25 +0200
-Message-ID: <20200714120917.11253-24-joro@8bytes.org>
+Subject: [PATCH v4 01/75] KVM: SVM: Add GHCB definitions
+Date: Tue, 14 Jul 2020 14:08:03 +0200
+Message-ID: <20200714120917.11253-2-joro@8bytes.org>
 References: <20200714120917.11253-1-joro@8bytes.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200714120917.11253-1-joro@8bytes.org>
-Sender: kvm-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: x86@kernel.org
-Cc: Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Sean Christopherson <sean.j.christopherson@intel.com>, Martin Radev <martin.b.radev@gmail.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Joerg Roedel <jroedel@suse.de>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, Sean Christopherson <sean.j.christopherson@intel.com>, virtualization@lists.linux-foundation.org, Martin Radev <martin.b.radev@gmail.com>, Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-Force a page-fault on any further accesses to the GHCB page when they
-shouldn't happen anymore. This will catch the bugs where a #VC exception
-is raised when no one is expected anymore.
+Extend the vmcb_safe_area with SEV-ES fields and add a new
+'struct ghcb' which will be used for guest-hypervisor communication.
 
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/compressed/ident_map_64.c | 17 +++++++++++++++--
- arch/x86/boot/compressed/misc.h         |  6 ++++++
- arch/x86/boot/compressed/sev-es.c       | 14 ++++++++++++++
- 3 files changed, 35 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/svm.h | 45 +++++++++++++++++++++++++++++++++++++-
+ arch/x86/kvm/svm/svm.c     |  2 ++
+ 2 files changed, 46 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/boot/compressed/ident_map_64.c b/arch/x86/boot/compressed/ident_map_64.c
-index 05742f641a06..063a60edcf99 100644
---- a/arch/x86/boot/compressed/ident_map_64.c
-+++ b/arch/x86/boot/compressed/ident_map_64.c
-@@ -298,6 +298,11 @@ int set_page_encrypted(unsigned long address)
- 	return set_clr_page_flags(&mapping_info, address, _PAGE_ENC, 0);
- }
- 
-+int set_page_non_present(unsigned long address)
-+{
-+	return set_clr_page_flags(&mapping_info, address, 0, _PAGE_PRESENT);
-+}
-+
- static void do_pf_error(const char *msg, unsigned long error_code,
- 			unsigned long address, unsigned long ip)
- {
-@@ -316,8 +321,14 @@ static void do_pf_error(const char *msg, unsigned long error_code,
- 
- void do_boot_page_fault(struct pt_regs *regs, unsigned long error_code)
- {
--	unsigned long address = native_read_cr2() & PMD_MASK;
--	unsigned long end = address + PMD_SIZE;
-+	unsigned long address = native_read_cr2();
-+	unsigned long end;
-+	bool ghcb_fault;
-+
-+	ghcb_fault = sev_es_check_ghcb_fault(address);
-+
-+	address   &= PMD_MASK;
-+	end        = address + PMD_SIZE;
- 
- 	/*
- 	 * Check for unexpected error codes. Unexpected are:
-@@ -327,6 +338,8 @@ void do_boot_page_fault(struct pt_regs *regs, unsigned long error_code)
- 	 */
- 	if (error_code & (X86_PF_PROT | X86_PF_USER | X86_PF_RSVD))
- 		do_pf_error("Unexpected page-fault:", error_code, address, regs->ip);
-+	else if (ghcb_fault)
-+		do_pf_error("Page-fault on GHCB page:", error_code, address, regs->ip);
- 
- 	/*
- 	 * Error code is sane - now identity map the 2M region around
-diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
-index 4d37a28370ed..2e5f82acc122 100644
---- a/arch/x86/boot/compressed/misc.h
-+++ b/arch/x86/boot/compressed/misc.h
-@@ -100,6 +100,7 @@ static inline void choose_random_location(unsigned long input,
- #ifdef CONFIG_X86_64
- extern int set_page_decrypted(unsigned long address);
- extern int set_page_encrypted(unsigned long address);
-+extern int set_page_non_present(unsigned long address);
- extern unsigned char _pgtable[];
- #endif
- 
-@@ -117,8 +118,13 @@ void set_sev_encryption_mask(void);
- 
- #ifdef CONFIG_AMD_MEM_ENCRYPT
- void sev_es_shutdown_ghcb(void);
-+extern bool sev_es_check_ghcb_fault(unsigned long address);
- #else
- static inline void sev_es_shutdown_ghcb(void) { }
-+static inline bool sev_es_check_ghcb_fault(unsigned long address)
-+{
-+	return false;
-+}
- #endif
- 
- /* acpi.c */
-diff --git a/arch/x86/boot/compressed/sev-es.c b/arch/x86/boot/compressed/sev-es.c
-index 7e2cec170026..e3abf8737015 100644
---- a/arch/x86/boot/compressed/sev-es.c
-+++ b/arch/x86/boot/compressed/sev-es.c
-@@ -121,6 +121,20 @@ void sev_es_shutdown_ghcb(void)
- 	 */
- 	if (set_page_encrypted((unsigned long)&boot_ghcb_page))
- 		error("Can't map GHCB page encrypted");
+diff --git a/arch/x86/include/asm/svm.h b/arch/x86/include/asm/svm.h
+index 8a1f5382a4ea..9a3e0b802716 100644
+--- a/arch/x86/include/asm/svm.h
++++ b/arch/x86/include/asm/svm.h
+@@ -200,13 +200,56 @@ struct __attribute__ ((__packed__)) vmcb_save_area {
+ 	u64 br_to;
+ 	u64 last_excp_from;
+ 	u64 last_excp_to;
 +
 +	/*
-+	 * GHCB page is mapped encrypted again and flushed from the cache.
-+	 * Mark it non-present now to catch bugs when #VC exceptions trigger
-+	 * after this point.
++	 * The following part of the save area is valid only for
++	 * SEV-ES guests when referenced through the GHCB.
 +	 */
-+	if (set_page_non_present((unsigned long)&boot_ghcb_page))
-+		error("Can't unmap GHCB page");
-+}
++	u8 reserved_7[104];
++	u64 reserved_8;		/* rax already available at 0x01f8 */
++	u64 rcx;
++	u64 rdx;
++	u64 rbx;
++	u64 reserved_9;		/* rsp already available at 0x01d8 */
++	u64 rbp;
++	u64 rsi;
++	u64 rdi;
++	u64 r8;
++	u64 r9;
++	u64 r10;
++	u64 r11;
++	u64 r12;
++	u64 r13;
++	u64 r14;
++	u64 r15;
++	u8 reserved_10[16];
++	u64 sw_exit_code;
++	u64 sw_exit_info_1;
++	u64 sw_exit_info_2;
++	u64 sw_scratch;
++	u8 reserved_11[56];
++	u64 xcr0;
++	u8 valid_bitmap[16];
++	u64 x87_state_gpa;
++};
 +
-+bool sev_es_check_ghcb_fault(unsigned long address)
-+{
-+	/* Check whether the fault was on the GHCB page */
-+	return ((address & PAGE_MASK) == (unsigned long)&boot_ghcb_page);
++struct __attribute__ ((__packed__)) ghcb {
++	struct vmcb_save_area save;
++	u8 reserved_save[2048 - sizeof(struct vmcb_save_area)];
++
++	u8 shared_buffer[2032];
++
++	u8 reserved_1[10];
++	u16 protocol_version;	/* negotiated SEV-ES/GHCB protocol version */
++	u32 ghcb_usage;
+ };
+ 
+ 
+ static inline void __unused_size_checks(void)
+ {
+-	BUILD_BUG_ON(sizeof(struct vmcb_save_area) != 0x298);
++	BUILD_BUG_ON(sizeof(struct vmcb_save_area) != 1032);
+ 	BUILD_BUG_ON(sizeof(struct vmcb_control_area) != 256);
++	BUILD_BUG_ON(sizeof(struct ghcb) != 4096);
  }
  
- void do_boot_stage2_vc(struct pt_regs *regs, unsigned long exit_code)
+ struct __attribute__ ((__packed__)) vmcb {
+diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+index c0da4dd78ac5..af6dc22437c1 100644
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -4099,6 +4099,8 @@ static struct kvm_x86_init_ops svm_init_ops __initdata = {
+ 
+ static int __init svm_init(void)
+ {
++	__unused_size_checks();
++
+ 	return kvm_init(&svm_init_ops, sizeof(struct vcpu_svm),
+ 			__alignof__(struct vcpu_svm), THIS_MODULE);
+ }
 -- 
 2.27.0
