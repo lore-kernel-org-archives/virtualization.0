@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v4 35/75] x86/head/64: Load IDT earlier
-Date: Tue, 14 Jul 2020 14:08:37 +0200
-Message-ID: <20200714120917.11253-36-joro@8bytes.org>
+Subject: [PATCH v4 32/75] x86/head/64: Load segment registers earlier
+Date: Tue, 14 Jul 2020 14:08:34 +0200
+Message-ID: <20200714120917.11253-33-joro@8bytes.org>
 References: <20200714120917.11253-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,107 +23,84 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Load the IDT right after switching to virtual addresses in head_64.S
-so that the kernel can handle #VC exceptions.
+Make sure segments are properly set up before setting up an IDT and
+doing anything that might cause a #VC exception. This is later needed
+for early exception handling.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/setup.h |  2 ++
- arch/x86/kernel/head64.c     | 18 ++++++++++++++++++
- arch/x86/kernel/head_64.S    | 28 ++++++++++++++++++++++++++++
- 3 files changed, 48 insertions(+)
+ arch/x86/kernel/head_64.S | 52 +++++++++++++++++++--------------------
+ 1 file changed, 26 insertions(+), 26 deletions(-)
 
-diff --git a/arch/x86/include/asm/setup.h b/arch/x86/include/asm/setup.h
-index 84b645cc8bc9..19ccb1211004 100644
---- a/arch/x86/include/asm/setup.h
-+++ b/arch/x86/include/asm/setup.h
-@@ -39,6 +39,7 @@ void vsmp_init(void);
- static inline void vsmp_init(void) { }
- #endif
- 
-+
- void setup_bios_corruption_check(void);
- void early_platform_quirks(void);
- 
-@@ -49,6 +50,7 @@ extern void i386_reserve_resources(void);
- extern unsigned long __startup_64(unsigned long physaddr, struct boot_params *bp);
- extern unsigned long __startup_secondary_64(void);
- extern int early_make_pgtable(unsigned long address);
-+extern void early_idt_setup_early_handler(unsigned long descr_addr, unsigned long physaddr);
- 
- #ifdef CONFIG_X86_INTEL_MID
- extern void x86_intel_mid_early_setup(void);
-diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
-index 51059bfd4b99..3598c091ff24 100644
---- a/arch/x86/kernel/head64.c
-+++ b/arch/x86/kernel/head64.c
-@@ -508,3 +508,21 @@ void __init x86_64_start_reservations(char *real_mode_data)
- 
- 	start_kernel();
- }
-+
-+void __head early_idt_setup_early_handler(unsigned long descr_addr, unsigned long physaddr)
-+{
-+	struct desc_ptr *descr = (struct desc_ptr *)descr_addr;
-+	gate_desc *idt = (gate_desc *)descr->address;
-+	int i;
-+
-+	idt = fixup_pointer(idt, physaddr);
-+
-+	for (i = 0; i < NUM_EXCEPTION_VECTORS; i++) {
-+		struct idt_data data;
-+		gate_desc desc;
-+
-+		init_idt_data(&data, i, early_idt_handler_array[i]);
-+		idt_init_desc(&desc, &data);
-+		native_write_idt_entry(idt, i, &desc);
-+	}
-+}
 diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
-index fcaa5dbd728a..8f9548071e84 100644
+index 87ea9f540608..61aa1e56fc9c 100644
 --- a/arch/x86/kernel/head_64.S
 +++ b/arch/x86/kernel/head_64.S
-@@ -105,6 +105,31 @@ SYM_CODE_START_NOALIGN(startup_64)
- 	leaq	_text(%rip), %rdi
- 	pushq	%rsi
- 	call	__startup_64
-+	/* Save return value */
-+	pushq	%rax
+@@ -169,6 +169,32 @@ SYM_CODE_START(secondary_startup_64)
+ 	movq	%rax, boot_gdt_descr+2(%rip)
+ 	lgdt	boot_gdt_descr(%rip)
+ 
++	/* set up data segments */
++	xorl %eax,%eax
++	movl %eax,%ds
++	movl %eax,%ss
++	movl %eax,%es
 +
 +	/*
-+	 * Load IDT with early handlers - needed for SEV-ES
-+	 * Do this here because this must only happen on the boot CPU
-+	 * and the code below is shared with secondary CPU bringup.
++	 * We don't really need to load %fs or %gs, but load them anyway
++	 * to kill any stale realmode selectors.  This allows execution
++	 * under VT hardware.
 +	 */
++	movl %eax,%fs
++	movl %eax,%gs
 +
-+	/* IDT descriptor with pointer to IDT table as first parameter */
-+	leaq	idt_descr(%rip), %rdi
-+
-+	/* Kernel _text offset as second parameter */
-+	leaq	_text(%rip), %rsi
-+
-+	/*
-+	 * Setup IDT with early entries - The entries already use virtual
-+	 * addresses, so the IDT can't be used until the kernel switched to
-+	 * virtual addresses too.
++	/* Set up %gs.
++	 *
++	 * The base of %gs always points to fixed_percpu_data. If the
++	 * stack protector canary is enabled, it is located at %gs:40.
++	 * Note that, on SMP, the boot cpu uses init data section until
++	 * the per cpu areas are set up.
 +	 */
-+	call	early_idt_setup_early_handler
-+
-+	/* Restore __startup_64 return value*/
-+	popq	%rax
-+	/* Restore pointer to real_mode_data */
- 	popq	%rsi
- 
- 	/* Form the CR3 value being sure to include the CR3 modifier */
-@@ -201,6 +226,9 @@ SYM_CODE_START(secondary_startup_64)
- 	 */
- 	movq initial_stack(%rip), %rsp
- 
-+	/* Load IDT */
-+	lidt	idt_descr(%rip)
++	movl	$MSR_GS_BASE,%ecx
++	movl	initial_gs(%rip),%eax
++	movl	initial_gs+4(%rip),%edx
++	wrmsr
 +
  	/* Check if nx is implemented */
  	movl	$0x80000001, %eax
  	cpuid
+@@ -204,32 +230,6 @@ SYM_CODE_START(secondary_startup_64)
+ 	 */
+ 	lgdt	early_gdt_descr(%rip)
+ 
+-	/* set up data segments */
+-	xorl %eax,%eax
+-	movl %eax,%ds
+-	movl %eax,%ss
+-	movl %eax,%es
+-
+-	/*
+-	 * We don't really need to load %fs or %gs, but load them anyway
+-	 * to kill any stale realmode selectors.  This allows execution
+-	 * under VT hardware.
+-	 */
+-	movl %eax,%fs
+-	movl %eax,%gs
+-
+-	/* Set up %gs.
+-	 *
+-	 * The base of %gs always points to fixed_percpu_data. If the
+-	 * stack protector canary is enabled, it is located at %gs:40.
+-	 * Note that, on SMP, the boot cpu uses init data section until
+-	 * the per cpu areas are set up.
+-	 */
+-	movl	$MSR_GS_BASE,%ecx
+-	movl	initial_gs(%rip),%eax
+-	movl	initial_gs+4(%rip),%edx
+-	wrmsr
+-
+ 	/* rsi is pointer to real mode structure with interesting info.
+ 	   pass it to C */
+ 	movq	%rsi, %rdi
 -- 
 2.27.0
