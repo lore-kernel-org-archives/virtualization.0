@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v4 60/75] x86/sev-es: Handle MWAIT/MWAITX Events
-Date: Tue, 14 Jul 2020 14:09:02 +0200
-Message-ID: <20200714120917.11253-61-joro@8bytes.org>
+Subject: [PATCH v4 58/75] x86/sev-es: Handle INVD Events
+Date: Tue, 14 Jul 2020 14:09:00 +0200
+Message-ID: <20200714120917.11253-59-joro@8bytes.org>
 References: <20200714120917.11253-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -14,44 +14,31 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Tom Lendacky <thomas.lendacky@amd.com>
 
-Implement a handler for #VC exceptions caused by MWAIT and MWAITX
-instructions.
+Implement a handler for #VC exceptions caused by INVD instructions.
+Since Linux should never use INVD, just mark it as unsupported.
 
 Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
 [ jroedel@suse.de: Adapt to #VC handling infrastructure ]
 Co-developed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev-es.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/x86/kernel/sev-es.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index c0977bdc400e..541f8994eb21 100644
+index 6258bc8074fd..30d6161deada 100644
 --- a/arch/x86/kernel/sev-es.c
 +++ b/arch/x86/kernel/sev-es.c
-@@ -888,6 +888,13 @@ static enum es_result vc_handle_monitor(struct ghcb *ghcb,
- 	return ES_OK;
- }
- 
-+static enum es_result vc_handle_mwait(struct ghcb *ghcb,
-+				      struct es_em_ctxt *ctxt)
-+{
-+	/* Treat the same as MONITOR/MONITORX */
-+	return ES_OK;
-+}
-+
- static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
- 					 struct ghcb *ghcb,
- 					 unsigned long exit_code)
-@@ -927,6 +934,9 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
- 	case SVM_EXIT_MONITOR:
- 		result = vc_handle_monitor(ghcb, ctxt);
+@@ -898,6 +898,10 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
+ 	case SVM_EXIT_RDPMC:
+ 		result = vc_handle_rdpmc(ghcb, ctxt);
  		break;
-+	case SVM_EXIT_MWAIT:
-+		result = vc_handle_mwait(ghcb, ctxt);
++	case SVM_EXIT_INVD:
++		pr_err_ratelimited("#VC exception for INVD??? Seriously???\n");
++		result = ES_UNSUPPORTED;
 +		break;
- 	case SVM_EXIT_NPF:
- 		result = vc_handle_mmio(ghcb, ctxt);
+ 	case SVM_EXIT_CPUID:
+ 		result = vc_handle_cpuid(ghcb, ctxt);
  		break;
 -- 
 2.27.0
