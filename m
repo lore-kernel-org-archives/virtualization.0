@@ -1,8 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v4 13/75] x86/boot/compressed/64: Rename kaslr_64.c to
- ident_map_64.c
-Date: Tue, 14 Jul 2020 14:08:15 +0200
-Message-ID: <20200714120917.11253-14-joro@8bytes.org>
+Subject: [PATCH v4 37/75] x86/sev-es: Add SEV-ES Feature Detection
+Date: Tue, 14 Jul 2020 14:08:39 +0200
+Message-ID: <20200714120917.11253-38-joro@8bytes.org>
 References: <20200714120917.11253-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -24,94 +23,100 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-The file contains only code related to identity mapped page-tables.
-Rename the file and compile it always in.
+Add the sev_es_active function for checking whether SEV-ES is enabled.
+Also cache the value of MSR_AMD64_SEV at boot to speed up the feature
+checking in the running code.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/compressed/Makefile                       | 2 +-
- arch/x86/boot/compressed/{kaslr_64.c => ident_map_64.c} | 9 +++++++++
- arch/x86/boot/compressed/kaslr.c                        | 9 ---------
- arch/x86/boot/compressed/misc.h                         | 8 ++++++++
- 4 files changed, 18 insertions(+), 10 deletions(-)
- rename arch/x86/boot/compressed/{kaslr_64.c => ident_map_64.c} (95%)
+ arch/x86/include/asm/mem_encrypt.h | 3 +++
+ arch/x86/include/asm/msr-index.h   | 2 ++
+ arch/x86/mm/mem_encrypt.c          | 9 ++++++++-
+ arch/x86/mm/mem_encrypt_identity.c | 3 +++
+ 4 files changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
-index 46928cb90d19..c825c95d13b9 100644
---- a/arch/x86/boot/compressed/Makefile
-+++ b/arch/x86/boot/compressed/Makefile
-@@ -83,7 +83,7 @@ vmlinux-objs-y := $(obj)/vmlinux.lds $(obj)/kernel_info.o $(obj)/head_$(BITS).o
- vmlinux-objs-$(CONFIG_EARLY_PRINTK) += $(obj)/early_serial_console.o
- vmlinux-objs-$(CONFIG_RANDOMIZE_BASE) += $(obj)/kaslr.o
- ifdef CONFIG_X86_64
--	vmlinux-objs-$(CONFIG_RANDOMIZE_BASE) += $(obj)/kaslr_64.o
-+	vmlinux-objs-y += $(obj)/ident_map_64.o
- 	vmlinux-objs-y += $(obj)/idt_64.o $(obj)/idt_handlers_64.o
- 	vmlinux-objs-y += $(obj)/mem_encrypt.o
- 	vmlinux-objs-y += $(obj)/pgtable_64.o
-diff --git a/arch/x86/boot/compressed/kaslr_64.c b/arch/x86/boot/compressed/ident_map_64.c
-similarity index 95%
-rename from arch/x86/boot/compressed/kaslr_64.c
-rename to arch/x86/boot/compressed/ident_map_64.c
-index f9c5c13d979b..d9932a133ac9 100644
---- a/arch/x86/boot/compressed/kaslr_64.c
-+++ b/arch/x86/boot/compressed/ident_map_64.c
-@@ -29,6 +29,15 @@
- #define __PAGE_OFFSET __PAGE_OFFSET_BASE
- #include "../../mm/ident_map.c"
+diff --git a/arch/x86/include/asm/mem_encrypt.h b/arch/x86/include/asm/mem_encrypt.h
+index 848ce43b9040..6f61bb93366a 100644
+--- a/arch/x86/include/asm/mem_encrypt.h
++++ b/arch/x86/include/asm/mem_encrypt.h
+@@ -19,6 +19,7 @@
+ #ifdef CONFIG_AMD_MEM_ENCRYPT
  
-+#ifdef CONFIG_X86_5LEVEL
-+unsigned int __pgtable_l5_enabled;
-+unsigned int pgdir_shift = 39;
-+unsigned int ptrs_per_p4d = 1;
-+#endif
-+
-+/* Used by PAGE_KERN* macros: */
-+pteval_t __default_kernel_pte_mask __read_mostly = ~0;
-+
- /* Used to track our page table allocation area. */
- struct alloc_pgt_data {
- 	unsigned char *pgt_buf;
-diff --git a/arch/x86/boot/compressed/kaslr.c b/arch/x86/boot/compressed/kaslr.c
-index d7408af55738..7c61a8c5b9cf 100644
---- a/arch/x86/boot/compressed/kaslr.c
-+++ b/arch/x86/boot/compressed/kaslr.c
-@@ -43,17 +43,8 @@
- #define STATIC
- #include <linux/decompress/mm.h>
+ extern u64 sme_me_mask;
++extern u64 sev_status;
+ extern bool sev_enabled;
  
--#ifdef CONFIG_X86_5LEVEL
--unsigned int __pgtable_l5_enabled;
--unsigned int pgdir_shift __ro_after_init = 39;
--unsigned int ptrs_per_p4d __ro_after_init = 1;
--#endif
--
- extern unsigned long get_cmd_line_ptr(void);
+ void sme_encrypt_execute(unsigned long encrypted_kernel_vaddr,
+@@ -49,6 +50,7 @@ void __init mem_encrypt_free_decrypted_mem(void);
  
--/* Used by PAGE_KERN* macros: */
--pteval_t __default_kernel_pte_mask __read_mostly = ~0;
--
- /* Simplified build-specific string for starting entropy. */
- static const char build_str[] = UTS_RELEASE " (" LINUX_COMPILE_BY "@"
- 		LINUX_COMPILE_HOST ") (" LINUX_COMPILER ") " UTS_VERSION;
-diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
-index 062ae3ae6930..3a030a878d53 100644
---- a/arch/x86/boot/compressed/misc.h
-+++ b/arch/x86/boot/compressed/misc.h
-@@ -134,6 +134,14 @@ int count_immovable_mem_regions(void);
- static inline int count_immovable_mem_regions(void) { return 0; }
- #endif
+ bool sme_active(void);
+ bool sev_active(void);
++bool sev_es_active(void);
  
-+/* ident_map_64.c */
-+#ifdef CONFIG_X86_5LEVEL
-+extern unsigned int __pgtable_l5_enabled, pgdir_shift, ptrs_per_p4d;
-+#endif
+ #define __bss_decrypted __attribute__((__section__(".bss..decrypted")))
+ 
+@@ -71,6 +73,7 @@ static inline void __init sme_enable(struct boot_params *bp) { }
+ 
+ static inline bool sme_active(void) { return false; }
+ static inline bool sev_active(void) { return false; }
++static inline bool sev_es_active(void) { return false; }
+ 
+ static inline int __init
+ early_set_memory_decrypted(unsigned long vaddr, unsigned long size) { return 0; }
+diff --git a/arch/x86/include/asm/msr-index.h b/arch/x86/include/asm/msr-index.h
+index 2816eb01463f..cac329037777 100644
+--- a/arch/x86/include/asm/msr-index.h
++++ b/arch/x86/include/asm/msr-index.h
+@@ -451,7 +451,9 @@
+ #define MSR_AMD64_SEV_ES_GHCB		0xc0010130
+ #define MSR_AMD64_SEV			0xc0010131
+ #define MSR_AMD64_SEV_ENABLED_BIT	0
++#define MSR_AMD64_SEV_ES_ENABLED_BIT	1
+ #define MSR_AMD64_SEV_ENABLED		BIT_ULL(MSR_AMD64_SEV_ENABLED_BIT)
++#define MSR_AMD64_SEV_ES_ENABLED	BIT_ULL(MSR_AMD64_SEV_ES_ENABLED_BIT)
+ 
+ #define MSR_AMD64_VIRT_SPEC_CTRL	0xc001011f
+ 
+diff --git a/arch/x86/mm/mem_encrypt.c b/arch/x86/mm/mem_encrypt.c
+index 4a781cf99e92..21be138ceef6 100644
+--- a/arch/x86/mm/mem_encrypt.c
++++ b/arch/x86/mm/mem_encrypt.c
+@@ -38,6 +38,7 @@
+  * section is later cleared.
+  */
+ u64 sme_me_mask __section(.data) = 0;
++u64 sev_status __section(.data) = 0;
+ EXPORT_SYMBOL(sme_me_mask);
+ DEFINE_STATIC_KEY_FALSE(sev_enable_key);
+ EXPORT_SYMBOL_GPL(sev_enable_key);
+@@ -347,7 +348,13 @@ bool sme_active(void)
+ 
+ bool sev_active(void)
+ {
+-	return sme_me_mask && sev_enabled;
++	return !!(sev_status & MSR_AMD64_SEV_ENABLED);
++}
 +
-+/* Used by PAGE_KERN* macros: */
-+extern pteval_t __default_kernel_pte_mask;
++/* Needs to be called from non-instrumentable code */
++bool noinstr sev_es_active(void)
++{
++	return !!(sev_status & MSR_AMD64_SEV_ES_ENABLED);
+ }
+ 
+ /* Override for DMA direct allocation check - ARCH_HAS_FORCE_DMA_UNENCRYPTED */
+diff --git a/arch/x86/mm/mem_encrypt_identity.c b/arch/x86/mm/mem_encrypt_identity.c
+index e2b0e2ac07bb..68d75379e06a 100644
+--- a/arch/x86/mm/mem_encrypt_identity.c
++++ b/arch/x86/mm/mem_encrypt_identity.c
+@@ -540,6 +540,9 @@ void __init sme_enable(struct boot_params *bp)
+ 		if (!(msr & MSR_AMD64_SEV_ENABLED))
+ 			return;
+ 
++		/* Save SEV_STATUS to avoid reading MSR again */
++		sev_status = msr;
 +
- /* idt_64.c */
- extern gate_desc boot_idt[BOOT_IDT_ENTRIES];
- extern struct desc_ptr boot_idt_desc;
+ 		/* SEV state cannot be controlled by a command line option */
+ 		sme_me_mask = me_mask;
+ 		sev_enabled = true;
 -- 
 2.27.0
