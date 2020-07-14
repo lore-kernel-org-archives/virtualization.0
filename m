@@ -1,160 +1,111 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v4 29/75] x86/idt: Move two function from k/idt.c to i/a/desc.h
-Date: Tue, 14 Jul 2020 14:08:31 +0200
-Message-ID: <20200714120917.11253-30-joro@8bytes.org>
+Subject: [PATCH v4 73/75] x86/sev-es: Handle NMI State
+Date: Tue, 14 Jul 2020 14:09:15 +0200
+Message-ID: <20200714120917.11253-74-joro@8bytes.org>
 References: <20200714120917.11253-1-joro@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Transfer-Encoding: 8bit
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200714120917.11253-1-joro@8bytes.org>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Sender: kvm-owner@vger.kernel.org
 To: x86@kernel.org
-Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Joerg Roedel <jroedel@suse.de>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, Sean Christopherson <sean.j.christopherson@intel.com>, virtualization@lists.linux-foundation.org, Martin Radev <martin.b.radev@gmail.com>, Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
+Cc: Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Sean Christopherson <sean.j.christopherson@intel.com>, Martin Radev <martin.b.radev@gmail.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Move these two functions from kernel/idt.c to include/asm/desc.h:
+When running under SEV-ES the kernel has to tell the hypervisor when to
+open the NMI window again after an NMI was injected. This is done with
+an NMI-complete message to the hypervisor.
 
-	* init_idt_data()
-	* idt_init_desc()
-
-These functions are needed to setup IDT entries very early and need to
-be called from head64.c. To be usable this early these functions need to
-be compiled without instrumentation and the stack-protector feature.
-These features need to be kept enabled for kernel/idt.c, so head64.c
-must use its own versions.
+Add code to the kernels NMI handler to send this message right at the
+beginning of do_nmi(). This always allows nesting NMIs.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/desc.h      | 27 +++++++++++++++++++++++++
- arch/x86/include/asm/desc_defs.h |  7 +++++++
- arch/x86/kernel/idt.c            | 34 --------------------------------
- 3 files changed, 34 insertions(+), 34 deletions(-)
+ arch/x86/include/asm/sev-es.h   |  2 ++
+ arch/x86/include/uapi/asm/svm.h |  1 +
+ arch/x86/kernel/nmi.c           |  6 ++++++
+ arch/x86/kernel/sev-es.c        | 21 +++++++++++++++++++++
+ 4 files changed, 30 insertions(+)
 
-diff --git a/arch/x86/include/asm/desc.h b/arch/x86/include/asm/desc.h
-index 1ced11d31932..476082a83d1c 100644
---- a/arch/x86/include/asm/desc.h
-+++ b/arch/x86/include/asm/desc.h
-@@ -383,6 +383,33 @@ static inline void set_desc_limit(struct desc_struct *desc, unsigned long limit)
- 
- void alloc_intr_gate(unsigned int n, const void *addr);
- 
-+static inline void init_idt_data(struct idt_data *data, unsigned int n,
-+				 const void *addr)
-+{
-+	BUG_ON(n > 0xFF);
-+
-+	memset(data, 0, sizeof(*data));
-+	data->vector	= n;
-+	data->addr	= addr;
-+	data->segment	= __KERNEL_CS;
-+	data->bits.type	= GATE_INTERRUPT;
-+	data->bits.p	= 1;
-+}
-+
-+static inline void idt_init_desc(gate_desc *gate, const struct idt_data *d)
-+{
-+	unsigned long addr = (unsigned long) d->addr;
-+
-+	gate->offset_low	= (u16) addr;
-+	gate->segment		= (u16) d->segment;
-+	gate->bits		= d->bits;
-+	gate->offset_middle	= (u16) (addr >> 16);
-+#ifdef CONFIG_X86_64
-+	gate->offset_high	= (u32) (addr >> 32);
-+	gate->reserved		= 0;
-+#endif
-+}
-+
- extern unsigned long system_vectors[];
- 
- extern void load_current_idt(void);
-diff --git a/arch/x86/include/asm/desc_defs.h b/arch/x86/include/asm/desc_defs.h
-index 5621fb3f2d1a..f7e7099af595 100644
---- a/arch/x86/include/asm/desc_defs.h
-+++ b/arch/x86/include/asm/desc_defs.h
-@@ -74,6 +74,13 @@ struct idt_bits {
- 			p	: 1;
- } __attribute__((packed));
- 
-+struct idt_data {
-+	unsigned int	vector;
-+	unsigned int	segment;
-+	struct idt_bits	bits;
-+	const void	*addr;
-+};
-+
- struct gate_struct {
- 	u16		offset_low;
- 	u16		segment;
-diff --git a/arch/x86/kernel/idt.c b/arch/x86/kernel/idt.c
-index 367eb6a593dd..d3f0c8133300 100644
---- a/arch/x86/kernel/idt.c
-+++ b/arch/x86/kernel/idt.c
-@@ -11,13 +11,6 @@
- #include <asm/desc.h>
- #include <asm/hw_irq.h>
- 
--struct idt_data {
--	unsigned int	vector;
--	unsigned int	segment;
--	struct idt_bits	bits;
--	const void	*addr;
--};
--
- #define DPL0		0x0
- #define DPL3		0x3
- 
-@@ -178,20 +171,6 @@ bool idt_is_f00f_address(unsigned long address)
- }
+diff --git a/arch/x86/include/asm/sev-es.h b/arch/x86/include/asm/sev-es.h
+index 25ab44f977db..de4d3f63fdf8 100644
+--- a/arch/x86/include/asm/sev-es.h
++++ b/arch/x86/include/asm/sev-es.h
+@@ -84,10 +84,12 @@ extern bool handle_vc_boot_ghcb(struct pt_regs *regs);
+ extern void sev_es_ist_enter(struct pt_regs *regs);
+ extern void sev_es_ist_exit(void);
+ extern int sev_es_setup_ap_jump_table(struct real_mode_header *rmh);
++extern void sev_es_nmi_complete(void);
+ #else
+ static inline void sev_es_ist_enter(struct pt_regs *regs) { }
+ static inline void sev_es_ist_exit(void) { }
+ static inline int sev_es_setup_ap_jump_table(struct real_mode_header *rmh) { return 0; }
++static inline void sev_es_nmi_complete(void) { }
  #endif
  
--static inline void idt_init_desc(gate_desc *gate, const struct idt_data *d)
--{
--	unsigned long addr = (unsigned long) d->addr;
--
--	gate->offset_low	= (u16) addr;
--	gate->segment		= (u16) d->segment;
--	gate->bits		= d->bits;
--	gate->offset_middle	= (u16) (addr >> 16);
--#ifdef CONFIG_X86_64
--	gate->offset_high	= (u32) (addr >> 32);
--	gate->reserved		= 0;
--#endif
--}
--
- static __init void
- idt_setup_from_table(gate_desc *idt, const struct idt_data *t, int size, bool sys)
- {
-@@ -205,19 +184,6 @@ idt_setup_from_table(gate_desc *idt, const struct idt_data *t, int size, bool sy
- 	}
- }
+ #endif
+diff --git a/arch/x86/include/uapi/asm/svm.h b/arch/x86/include/uapi/asm/svm.h
+index 20a05839dd9a..0f837339db66 100644
+--- a/arch/x86/include/uapi/asm/svm.h
++++ b/arch/x86/include/uapi/asm/svm.h
+@@ -84,6 +84,7 @@
+ /* SEV-ES software-defined VMGEXIT events */
+ #define SVM_VMGEXIT_MMIO_READ			0x80000001
+ #define SVM_VMGEXIT_MMIO_WRITE			0x80000002
++#define SVM_VMGEXIT_NMI_COMPLETE		0x80000003
+ #define SVM_VMGEXIT_AP_HLT_LOOP			0x80000004
+ #define SVM_VMGEXIT_AP_JUMP_TABLE		0x80000005
+ #define		SVM_VMGEXIT_SET_AP_JUMP_TABLE			0
+diff --git a/arch/x86/kernel/nmi.c b/arch/x86/kernel/nmi.c
+index d94a5bb0bebc..2d60220bf6d5 100644
+--- a/arch/x86/kernel/nmi.c
++++ b/arch/x86/kernel/nmi.c
+@@ -479,6 +479,12 @@ static DEFINE_PER_CPU(unsigned long, nmi_dr7);
  
--static void init_idt_data(struct idt_data *data, unsigned int n,
--			  const void *addr)
--{
--	BUG_ON(n > 0xFF);
--
--	memset(data, 0, sizeof(*data));
--	data->vector	= n;
--	data->addr	= addr;
--	data->segment	= __KERNEL_CS;
--	data->bits.type	= GATE_INTERRUPT;
--	data->bits.p	= 1;
--}
--
- static __init void set_intr_gate(unsigned int n, const void *addr)
+ DEFINE_IDTENTRY_RAW(exc_nmi)
  {
- 	struct idt_data data;
++	/*
++	 * Re-enable NMIs right here when running as an SEV-ES guest. This might
++	 * cause nested NMIs, but those can be handled safely.
++	 */
++	sev_es_nmi_complete();
++
+ 	if (IS_ENABLED(CONFIG_SMP) && arch_cpu_is_offline(smp_processor_id()))
+ 		return;
+ 
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+index b147d97856c3..ff440b6e5e78 100644
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -423,6 +423,27 @@ static bool vc_slow_virt_to_phys(struct ghcb *ghcb, struct es_em_ctxt *ctxt,
+ /* Include code shared with pre-decompression boot stage */
+ #include "sev-es-shared.c"
+ 
++void sev_es_nmi_complete(void)
++{
++	struct ghcb_state state;
++	struct ghcb *ghcb;
++
++	if (!sev_es_active())
++		return;
++
++	ghcb = sev_es_get_ghcb(&state);
++
++	vc_ghcb_invalidate(ghcb);
++	ghcb_set_sw_exit_code(ghcb, SVM_VMGEXIT_NMI_COMPLETE);
++	ghcb_set_sw_exit_info_1(ghcb, 0);
++	ghcb_set_sw_exit_info_2(ghcb, 0);
++
++	sev_es_wr_ghcb_msr(__pa(ghcb));
++	VMGEXIT();
++
++	sev_es_put_ghcb(&state);
++}
++
+ static u64 sev_es_get_jump_table_addr(void)
+ {
+ 	struct ghcb_state state;
 -- 
 2.27.0
