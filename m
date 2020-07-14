@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v4 05/75] x86/traps: Move pf error codes to <asm/trap_pf.h>
-Date: Tue, 14 Jul 2020 14:08:07 +0200
-Message-ID: <20200714120917.11253-6-joro@8bytes.org>
+Subject: [PATCH v4 10/75] x86/insn: Add insn_has_rep_prefix() helper
+Date: Tue, 14 Jul 2020 14:08:12 +0200
+Message-ID: <20200714120917.11253-11-joro@8bytes.org>
 References: <20200714120917.11253-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,81 +23,60 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Move the definition of the x86 page-fault error code bits to the new
-header file asm/trap_pf.h. This makes it easier to include them into
-pre-decompression boot code. No functional changes.
+Add a function to check whether an instruction has a REP prefix.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/trap_pf.h | 24 ++++++++++++++++++++++++
- arch/x86/include/asm/traps.h   | 19 +------------------
- 2 files changed, 25 insertions(+), 18 deletions(-)
- create mode 100644 arch/x86/include/asm/trap_pf.h
+ arch/x86/include/asm/insn-eval.h |  1 +
+ arch/x86/lib/insn-eval.c         | 24 ++++++++++++++++++++++++
+ 2 files changed, 25 insertions(+)
 
-diff --git a/arch/x86/include/asm/trap_pf.h b/arch/x86/include/asm/trap_pf.h
-new file mode 100644
-index 000000000000..305bc1214aef
---- /dev/null
-+++ b/arch/x86/include/asm/trap_pf.h
-@@ -0,0 +1,24 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _ASM_X86_TRAP_PF_H
-+#define _ASM_X86_TRAP_PF_H
-+
-+/*
-+ * Page fault error code bits:
+diff --git a/arch/x86/include/asm/insn-eval.h b/arch/x86/include/asm/insn-eval.h
+index f748f57f1491..a0f839aa144d 100644
+--- a/arch/x86/include/asm/insn-eval.h
++++ b/arch/x86/include/asm/insn-eval.h
+@@ -15,6 +15,7 @@
+ #define INSN_CODE_SEG_OPND_SZ(params) (params & 0xf)
+ #define INSN_CODE_SEG_PARAMS(oper_sz, addr_sz) (oper_sz | (addr_sz << 4))
+ 
++bool insn_has_rep_prefix(struct insn *insn);
+ void __user *insn_get_addr_ref(struct insn *insn, struct pt_regs *regs);
+ int insn_get_modrm_rm_off(struct insn *insn, struct pt_regs *regs);
+ int insn_get_modrm_reg_off(struct insn *insn, struct pt_regs *regs);
+diff --git a/arch/x86/lib/insn-eval.c b/arch/x86/lib/insn-eval.c
+index a8ac5c5e94f0..8ed9d645259c 100644
+--- a/arch/x86/lib/insn-eval.c
++++ b/arch/x86/lib/insn-eval.c
+@@ -53,6 +53,30 @@ static bool is_string_insn(struct insn *insn)
+ 	}
+ }
+ 
++/**
++ * insn_has_rep_prefix() - Determine if instruction has a REP prefix
++ * @insn:	Instruction containing the prefix to inspect
 + *
-+ *   bit 0 ==	 0: no page found	1: protection fault
-+ *   bit 1 ==	 0: read access		1: write access
-+ *   bit 2 ==	 0: kernel-mode access	1: user-mode access
-+ *   bit 3 ==				1: use of reserved bit detected
-+ *   bit 4 ==				1: fault was an instruction fetch
-+ *   bit 5 ==				1: protection keys block access
++ * Returns:
++ *
++ * true if the instruction has a REP prefix, false if not.
 + */
-+enum x86_pf_error_code {
-+	X86_PF_PROT	=		1 << 0,
-+	X86_PF_WRITE	=		1 << 1,
-+	X86_PF_USER	=		1 << 2,
-+	X86_PF_RSVD	=		1 << 3,
-+	X86_PF_INSTR	=		1 << 4,
-+	X86_PF_PK	=		1 << 5,
-+};
++bool insn_has_rep_prefix(struct insn *insn)
++{
++	int i;
 +
-+#endif /* _ASM_X86_TRAP_PF_H */
-diff --git a/arch/x86/include/asm/traps.h b/arch/x86/include/asm/traps.h
-index 714b1a30e7b0..6a308355ea29 100644
---- a/arch/x86/include/asm/traps.h
-+++ b/arch/x86/include/asm/traps.h
-@@ -8,6 +8,7 @@
- #include <asm/debugreg.h>
- #include <asm/idtentry.h>
- #include <asm/siginfo.h>			/* TRAP_TRACE, ... */
-+#include <asm/trap_pf.h>
- 
- #ifdef CONFIG_X86_64
- asmlinkage __visible notrace struct pt_regs *sync_regs(struct pt_regs *eregs);
-@@ -41,22 +42,4 @@ void __noreturn handle_stack_overflow(const char *message,
- 				      unsigned long fault_address);
- #endif
- 
--/*
-- * Page fault error code bits:
-- *
-- *   bit 0 ==	 0: no page found	1: protection fault
-- *   bit 1 ==	 0: read access		1: write access
-- *   bit 2 ==	 0: kernel-mode access	1: user-mode access
-- *   bit 3 ==				1: use of reserved bit detected
-- *   bit 4 ==				1: fault was an instruction fetch
-- *   bit 5 ==				1: protection keys block access
-- */
--enum x86_pf_error_code {
--	X86_PF_PROT	=		1 << 0,
--	X86_PF_WRITE	=		1 << 1,
--	X86_PF_USER	=		1 << 2,
--	X86_PF_RSVD	=		1 << 3,
--	X86_PF_INSTR	=		1 << 4,
--	X86_PF_PK	=		1 << 5,
--};
- #endif /* _ASM_X86_TRAPS_H */
++	insn_get_prefixes(insn);
++
++	for (i = 0; i < insn->prefixes.nbytes; i++) {
++		insn_byte_t p = insn->prefixes.bytes[i];
++
++		if (p == 0xf2 || p == 0xf3)
++			return true;
++	}
++
++	return false;
++}
++
+ /**
+  * get_seg_reg_override_idx() - obtain segment register override index
+  * @insn:	Valid instruction with segment override prefixes
 -- 
 2.27.0
