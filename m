@@ -1,7 +1,7 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v4 45/75] x86/sev-es: Adjust #VC IST Stack on entering NMI handler
-Date: Tue, 14 Jul 2020 14:08:47 +0200
-Message-ID: <20200714120917.11253-46-joro@8bytes.org>
+Subject: [PATCH v4 43/75] x86/sev-es: Allocate and Map stacks for #VC handler
+Date: Tue, 14 Jul 2020 14:08:45 +0200
+Message-ID: <20200714120917.11253-44-joro@8bytes.org>
 References: <20200714120917.11253-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -14,160 +14,184 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-When an NMI hits in the #VC handler entry code before it switched to
-another stack, any subsequent #VC exception in the NMI code-path will
-overwrite the interrupted #VC handlers stack.
+Allocate and map an IST stack and a fall-back stack for the #VC handler.
+The memory for the stacks is allocated only when SEV-ES is active.
 
-Make sure this doesn't happen by  explicitly adjusting the #VC IST entry
-in the NMI handler for the time in can cause #VC exceptions.
+The #VC handler needs to use an IST stack because it could be raised
+from kernel space with unsafe stack, e.g. in the SYSCALL entry path.
+
+Since the #VC exception can be nested, the #VC handler switches back to
+the interrupted stack when entered from kernel space. If switching back
+is not possible the fall-back stack will be used.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/sev-es.h |  8 +++++
- arch/x86/kernel/nmi.c         |  6 ++++
- arch/x86/kernel/sev-es.c      | 61 +++++++++++++++++++++++++++++++++++
- arch/x86/kernel/traps.c       |  2 ++
- 4 files changed, 77 insertions(+)
+ arch/x86/include/asm/cpu_entry_area.h | 33 +++++++++++++++++----------
+ arch/x86/kernel/dumpstack_64.c        |  8 +++++--
+ arch/x86/kernel/sev-es.c              | 33 +++++++++++++++++++++++++++
+ 3 files changed, 60 insertions(+), 14 deletions(-)
 
-diff --git a/arch/x86/include/asm/sev-es.h b/arch/x86/include/asm/sev-es.h
-index 824e9e6b067c..330140a189be 100644
---- a/arch/x86/include/asm/sev-es.h
-+++ b/arch/x86/include/asm/sev-es.h
-@@ -77,4 +77,12 @@ static inline u64 lower_bits(u64 val, unsigned int bits)
- extern void vc_no_ghcb(void);
- extern bool handle_vc_boot_ghcb(struct pt_regs *regs);
+diff --git a/arch/x86/include/asm/cpu_entry_area.h b/arch/x86/include/asm/cpu_entry_area.h
+index 8902fdb7de13..f87e4c0c16f4 100644
+--- a/arch/x86/include/asm/cpu_entry_area.h
++++ b/arch/x86/include/asm/cpu_entry_area.h
+@@ -11,25 +11,29 @@
+ #ifdef CONFIG_X86_64
  
-+#ifdef CONFIG_AMD_MEM_ENCRYPT
-+extern void sev_es_ist_enter(struct pt_regs *regs);
-+extern void sev_es_ist_exit(void);
-+#else
-+static inline void sev_es_ist_enter(struct pt_regs *regs) { }
-+static inline void sev_es_ist_exit(void) { }
-+#endif
+ /* Macro to enforce the same ordering and stack sizes */
+-#define ESTACKS_MEMBERS(guardsize)		\
+-	char	DF_stack_guard[guardsize];	\
+-	char	DF_stack[EXCEPTION_STKSZ];	\
+-	char	NMI_stack_guard[guardsize];	\
+-	char	NMI_stack[EXCEPTION_STKSZ];	\
+-	char	DB_stack_guard[guardsize];	\
+-	char	DB_stack[EXCEPTION_STKSZ];	\
+-	char	MCE_stack_guard[guardsize];	\
+-	char	MCE_stack[EXCEPTION_STKSZ];	\
+-	char	IST_top_guard[guardsize];	\
++#define ESTACKS_MEMBERS(guardsize, optional_stack_size)		\
++	char	DF_stack_guard[guardsize];			\
++	char	DF_stack[EXCEPTION_STKSZ];			\
++	char	NMI_stack_guard[guardsize];			\
++	char	NMI_stack[EXCEPTION_STKSZ];			\
++	char	DB_stack_guard[guardsize];			\
++	char	DB_stack[EXCEPTION_STKSZ];			\
++	char	MCE_stack_guard[guardsize];			\
++	char	MCE_stack[EXCEPTION_STKSZ];			\
++	char	VC_stack_guard[guardsize];			\
++	char	VC_stack[optional_stack_size];			\
++	char	VC2_stack_guard[guardsize];			\
++	char	VC2_stack[optional_stack_size];			\
++	char	IST_top_guard[guardsize];			\
+ 
+ /* The exception stacks' physical storage. No guard pages required */
+ struct exception_stacks {
+-	ESTACKS_MEMBERS(0)
++	ESTACKS_MEMBERS(0, 0)
+ };
+ 
+ /* The effective cpu entry area mapping with guard pages. */
+ struct cea_exception_stacks {
+-	ESTACKS_MEMBERS(PAGE_SIZE)
++	ESTACKS_MEMBERS(PAGE_SIZE, EXCEPTION_STKSZ)
+ };
+ 
+ /*
+@@ -40,6 +44,8 @@ enum exception_stack_ordering {
+ 	ESTACK_NMI,
+ 	ESTACK_DB,
+ 	ESTACK_MCE,
++	ESTACK_VC,
++	ESTACK_VC2,
+ 	N_EXCEPTION_STACKS
+ };
+ 
+@@ -139,4 +145,7 @@ static inline struct entry_stack *cpu_entry_stack(int cpu)
+ #define __this_cpu_ist_top_va(name)					\
+ 	CEA_ESTACK_TOP(__this_cpu_read(cea_exception_stacks), name)
+ 
++#define __this_cpu_ist_bot_va(name)					\
++	CEA_ESTACK_BOT(__this_cpu_read(cea_exception_stacks), name)
 +
  #endif
-diff --git a/arch/x86/kernel/nmi.c b/arch/x86/kernel/nmi.c
-index d7c5e44b26f7..d94a5bb0bebc 100644
---- a/arch/x86/kernel/nmi.c
-+++ b/arch/x86/kernel/nmi.c
-@@ -33,6 +33,7 @@
- #include <asm/reboot.h>
- #include <asm/cache.h>
- #include <asm/nospec-branch.h>
-+#include <asm/sev-es.h>
+diff --git a/arch/x86/kernel/dumpstack_64.c b/arch/x86/kernel/dumpstack_64.c
+index 4a94d38cd141..c49cf594714b 100644
+--- a/arch/x86/kernel/dumpstack_64.c
++++ b/arch/x86/kernel/dumpstack_64.c
+@@ -24,11 +24,13 @@ static const char * const exception_stack_names[] = {
+ 		[ ESTACK_NMI	]	= "NMI",
+ 		[ ESTACK_DB	]	= "#DB",
+ 		[ ESTACK_MCE	]	= "#MC",
++		[ ESTACK_VC	]	= "#VC",
++		[ ESTACK_VC2	]	= "#VC2",
+ };
  
- #define CREATE_TRACE_POINTS
- #include <trace/events/nmi.h>
-@@ -489,6 +490,9 @@ DEFINE_IDTENTRY_RAW(exc_nmi)
- 	this_cpu_write(nmi_cr2, read_cr2());
- nmi_restart:
+ const char *stack_type_name(enum stack_type type)
+ {
+-	BUILD_BUG_ON(N_EXCEPTION_STACKS != 4);
++	BUILD_BUG_ON(N_EXCEPTION_STACKS != 6);
  
-+	/* Needs to happen before DR7 is accessed */
-+	sev_es_ist_enter(regs);
-+
- 	this_cpu_write(nmi_dr7, local_db_save());
+ 	if (type == STACK_TYPE_IRQ)
+ 		return "IRQ";
+@@ -79,6 +81,8 @@ struct estack_pages estack_pages[CEA_ESTACK_PAGES] ____cacheline_aligned = {
+ 	EPAGERANGE(NMI),
+ 	EPAGERANGE(DB),
+ 	EPAGERANGE(MCE),
++	EPAGERANGE(VC),
++	EPAGERANGE(VC2),
+ };
  
- 	nmi_enter();
-@@ -502,6 +506,8 @@ DEFINE_IDTENTRY_RAW(exc_nmi)
+ static bool in_exception_stack(unsigned long *stack, struct stack_info *info)
+@@ -88,7 +92,7 @@ static bool in_exception_stack(unsigned long *stack, struct stack_info *info)
+ 	struct pt_regs *regs;
+ 	unsigned int k;
  
- 	local_db_restore(this_cpu_read(nmi_dr7));
+-	BUILD_BUG_ON(N_EXCEPTION_STACKS != 4);
++	BUILD_BUG_ON(N_EXCEPTION_STACKS != 6);
  
-+	sev_es_ist_exit();
-+
- 	if (unlikely(this_cpu_read(nmi_cr2) != read_cr2()))
- 		write_cr2(this_cpu_read(nmi_cr2));
- 	if (this_cpu_dec_return(nmi_state))
+ 	begin = (unsigned long)__this_cpu_read(cea_exception_stacks);
+ 	/*
 diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index d415368f16ec..2a7cc72db1d5 100644
+index 734afaee378d..64002d86a237 100644
 --- a/arch/x86/kernel/sev-es.c
 +++ b/arch/x86/kernel/sev-es.c
-@@ -78,6 +78,67 @@ static void __init sev_es_setup_vc_stacks(int cpu)
- 	tss->x86_tss.ist[IST_INDEX_VC] = CEA_ESTACK_TOP(&cea->estacks, VC);
- }
+@@ -17,6 +17,7 @@
+ #include <linux/kernel.h>
+ #include <linux/mm.h>
  
-+static bool on_vc_stack(unsigned long sp)
++#include <asm/cpu_entry_area.h>
+ #include <asm/sev-es.h>
+ #include <asm/insn-eval.h>
+ #include <asm/fpu/internal.h>
+@@ -37,10 +38,41 @@ static struct ghcb __initdata *boot_ghcb;
+ /* #VC handler runtime per-cpu data */
+ struct sev_es_runtime_data {
+ 	struct ghcb ghcb_page;
++
++	/* Physical storage for the per-cpu IST stack of the #VC handler */
++	char ist_stack[EXCEPTION_STKSZ] __aligned(PAGE_SIZE);
++
++	/*
++	 * Physical storage for the per-cpu fall-back stack of the #VC handler.
++	 * The fall-back stack is used when it is not safe to switch back to the
++	 * interrupted stack in the #VC entry code.
++	 */
++	char fallback_stack[EXCEPTION_STKSZ] __aligned(PAGE_SIZE);
+ };
+ 
+ static DEFINE_PER_CPU(struct sev_es_runtime_data*, runtime_data);
+ 
++static void __init sev_es_setup_vc_stacks(int cpu)
 +{
-+	return ((sp >= __this_cpu_ist_bot_va(VC)) && (sp < __this_cpu_ist_top_va(VC)));
-+}
++	struct sev_es_runtime_data *data;
++	struct cpu_entry_area *cea;
++	unsigned long vaddr;
++	phys_addr_t pa;
 +
-+/*
-+ * This function handles the case when an NMI or an NMI-like exception
-+ * like #DB is raised in the #VC exception handler entry code. In this
-+ * case the IST entry for VC must be adjusted, so that any subsequent VC
-+ * exception will not overwrite the stack contents of the interrupted VC
-+ * handler.
-+ *
-+ * The IST entry is adjusted unconditionally so that it can be also be
-+ * unconditionally back-adjusted in sev_es_nmi_exit(). Otherwise a
-+ * nested nmi_exit() call (#VC->NMI->#DB) may back-adjust the IST entry
-+ * too early.
-+ */
-+void noinstr sev_es_ist_enter(struct pt_regs *regs)
-+{
-+	unsigned long old_ist, new_ist;
-+	unsigned long *p;
++	data = per_cpu(runtime_data, cpu);
++	cea  = get_cpu_entry_area(cpu);
 +
-+	if (!sev_es_active())
-+		return;
++	/* Map #VC IST stack */
++	vaddr = CEA_ESTACK_BOT(&cea->estacks, VC);
++	pa    = __pa(data->ist_stack);
++	cea_set_pte((void *)vaddr, pa, PAGE_KERNEL);
 +
-+	/* Read old IST entry */
-+	old_ist = __this_cpu_read(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC]);
-+
-+	/* Make room on the IST stack */
-+	if (on_vc_stack(regs->sp))
-+		new_ist = ALIGN_DOWN(regs->sp, 8) - sizeof(old_ist);
-+	else
-+		new_ist = old_ist - sizeof(old_ist);
-+
-+	/* Store old IST entry */
-+	p       = (unsigned long *)new_ist;
-+	*p      = old_ist;
-+
-+	/* Set new IST entry */
-+	this_cpu_write(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC], new_ist);
-+}
-+
-+void noinstr sev_es_ist_exit(void)
-+{
-+	unsigned long ist;
-+	unsigned long *p;
-+
-+	if (!sev_es_active())
-+		return;
-+
-+	/* Read IST entry */
-+	ist = __this_cpu_read(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC]);
-+
-+	if (WARN_ON(ist == __this_cpu_ist_top_va(VC)))
-+		return;
-+
-+	/* Read back old IST entry and write it to the TSS */
-+	p = (unsigned long *)ist;
-+	this_cpu_write(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC], *p);
++	/* Map VC fall-back stack */
++	vaddr = CEA_ESTACK_BOT(&cea->estacks, VC2);
++	pa    = __pa(data->fallback_stack);
++	cea_set_pte((void *)vaddr, pa, PAGE_KERNEL);
 +}
 +
  /* Needed in vc_early_forward_exception */
  void do_early_exception(struct pt_regs *regs, int trapnr);
  
-diff --git a/arch/x86/kernel/traps.c b/arch/x86/kernel/traps.c
-index 907ac2b378a8..59d17e541df9 100644
---- a/arch/x86/kernel/traps.c
-+++ b/arch/x86/kernel/traps.c
-@@ -59,6 +59,7 @@
- #include <asm/umip.h>
- #include <asm/insn.h>
- #include <asm/insn-eval.h>
-+#include <asm/sev-es.h>
+@@ -249,6 +281,7 @@ void __init sev_es_init_vc_handling(void)
+ 	for_each_possible_cpu(cpu) {
+ 		sev_es_alloc_runtime_data(cpu);
+ 		sev_es_init_ghcb(cpu);
++		sev_es_setup_vc_stacks(cpu);
+ 	}
+ }
  
- #ifdef CONFIG_X86_64
- #include <asm/x86_init.h>
-@@ -733,6 +734,7 @@ static bool is_sysenter_singlestep(struct pt_regs *regs)
- 
- static __always_inline void debug_enter(unsigned long *dr6, unsigned long *dr7)
- {
-+
- 	/*
- 	 * Disable breakpoints during exception handling; recursive exceptions
- 	 * are exceedingly 'fun'.
 -- 
 2.27.0
