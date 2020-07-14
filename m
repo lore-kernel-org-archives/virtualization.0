@@ -1,71 +1,67 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v4 50/75] x86/sev-es: Handle instruction fetches from user-space
-Date: Tue, 14 Jul 2020 14:08:52 +0200
-Message-ID: <20200714120917.11253-51-joro@8bytes.org>
+Subject: [PATCH v4 33/75] x86/head/64: Switch to initial stack earlier
+Date: Tue, 14 Jul 2020 14:08:35 +0200
+Message-ID: <20200714120917.11253-34-joro@8bytes.org>
 References: <20200714120917.11253-1-joro@8bytes.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200714120917.11253-1-joro@8bytes.org>
-Sender: kvm-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: x86@kernel.org
-Cc: Joerg Roedel <joro@8bytes.org>, Joerg Roedel <jroedel@suse.de>, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Sean Christopherson <sean.j.christopherson@intel.com>, Martin Radev <martin.b.radev@gmail.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Joerg Roedel <jroedel@suse.de>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>, Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org, Sean Christopherson <sean.j.christopherson@intel.com>, virtualization@lists.linux-foundation.org, Martin Radev <martin.b.radev@gmail.com>, Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-When a #VC exception is triggered by user-space the instruction decoder
-needs to read the instruction bytes from user addresses.  Enhance
-vc_decode_insn() to safely fetch kernel and user instructions.
+Make sure there is a stack once the kernel runs from virual addresses.
+At this stage any secondary CPU which boots will have lost its stack
+because the kernel switched to a new page-table which does not map the
+real-mode stack anymore.
+
+This is needed for handling early #VC exceptions caused by instructions
+like CPUID.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev-es.c | 31 ++++++++++++++++++++++---------
- 1 file changed, 22 insertions(+), 9 deletions(-)
+ arch/x86/kernel/head_64.S | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index e04a1868905b..08b66fd5ae9a 100644
---- a/arch/x86/kernel/sev-es.c
-+++ b/arch/x86/kernel/sev-es.c
-@@ -247,17 +247,30 @@ static enum es_result vc_decode_insn(struct es_em_ctxt *ctxt)
- 	enum es_result ret;
- 	int res;
+diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
+index 61aa1e56fc9c..fcaa5dbd728a 100644
+--- a/arch/x86/kernel/head_64.S
++++ b/arch/x86/kernel/head_64.S
+@@ -195,6 +195,12 @@ SYM_CODE_START(secondary_startup_64)
+ 	movl	initial_gs+4(%rip),%edx
+ 	wrmsr
  
--	res = vc_fetch_insn_kernel(ctxt, buffer);
--	if (unlikely(res == -EFAULT)) {
--		ctxt->fi.vector     = X86_TRAP_PF;
--		ctxt->fi.error_code = 0;
--		ctxt->fi.cr2        = ctxt->regs->ip;
--		return ES_EXCEPTION;
-+	if (user_mode(ctxt->regs)) {
-+		res = insn_fetch_from_user(ctxt->regs, buffer);
-+		if (!res) {
-+			ctxt->fi.vector     = X86_TRAP_PF;
-+			ctxt->fi.error_code = X86_PF_INSTR | X86_PF_USER;
-+			ctxt->fi.cr2        = ctxt->regs->ip;
-+			return ES_EXCEPTION;
-+		}
++	/*
++	 * Setup a boot time stack - Any secondary CPU will have lost its stack
++	 * by now because the cr3-switch above unmaps the real-mode stack
++	 */
++	movq initial_stack(%rip), %rsp
 +
-+		if (!insn_decode(&ctxt->insn, ctxt->regs, buffer, res))
-+			return ES_DECODE_FAILED;
-+	} else {
-+		res = vc_fetch_insn_kernel(ctxt, buffer);
-+		if (res) {
-+			ctxt->fi.vector     = X86_TRAP_PF;
-+			ctxt->fi.error_code = X86_PF_INSTR;
-+			ctxt->fi.cr2        = ctxt->regs->ip;
-+			return ES_EXCEPTION;
-+		}
-+
-+		insn_init(&ctxt->insn, buffer, MAX_INSN_SIZE - res, 1);
-+		insn_get_length(&ctxt->insn);
- 	}
+ 	/* Check if nx is implemented */
+ 	movl	$0x80000001, %eax
+ 	cpuid
+@@ -215,9 +221,6 @@ SYM_CODE_START(secondary_startup_64)
+ 	/* Make changes effective */
+ 	movq	%rax, %cr0
  
--	insn_init(&ctxt->insn, buffer, MAX_INSN_SIZE - res, 1);
--	insn_get_length(&ctxt->insn);
+-	/* Setup a boot time stack */
+-	movq initial_stack(%rip), %rsp
 -
- 	ret = ctxt->insn.immediate.got ? ES_OK : ES_DECODE_FAILED;
- 
- 	return ret;
+ 	/* zero EFLAGS after setting rsp */
+ 	pushq $0
+ 	popfq
 -- 
 2.27.0
