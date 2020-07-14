@@ -1,88 +1,93 @@
-From: Daniel Vetter <daniel-/w4YWyX8dFk@public.gmane.org>
-Subject: Re: [PATCH 2/2] drm/virtio: Remove open-coded commit-tail function
-Date: Tue, 14 Jul 2020 11:13:35 +0200
-Message-ID: <20200714091335.GY3278063@phenom.ffwll.local>
-References: <20200707201229.472834-4-daniel.vetter@ffwll.ch>
- <20200709123339.547390-1-daniel.vetter@ffwll.ch>
- <20200709123339.547390-2-daniel.vetter@ffwll.ch>
- <20200709140531.GA220817@ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-rdma-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <20200709140531.GA220817-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org>
-Sender: linux-rdma-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: Sam Ravnborg <sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org>
-Cc: Daniel Vetter <daniel.vetter-/w4YWyX8dFk@public.gmane.org>, DRI Development <dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, linux-rdma-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Intel Graphics Development <intel-gfx-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org>, virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org, David Airlie <airlied-cv59FeDIM0c@public.gmane.org>, Gerd Hoffmann <kraxel-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>, Daniel Vetter <daniel.vetter-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: [PATCH v6 0/2] s390: virtio: let arch validate VIRTIO features
+Date: Tue, 14 Jul 2020 13:38:00 +0200
+Message-ID: <1594726682-12076-1-git-send-email-pmorel@linux.ibm.com>
+Return-path: <kvm-owner@vger.kernel.org>
+Sender: kvm-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 09, 2020 at 04:05:31PM +0200, Sam Ravnborg wrote:
-> On Thu, Jul 09, 2020 at 02:33:39PM +0200, Daniel Vetter wrote:
-> > Exactly matches the one in the helpers.
-> > 
-> > This avoids me having to roll out dma-fence critical section
-> > annotations to this copy.
-> > 
-> > Signed-off-by: Daniel Vetter <daniel.vetter-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org>
-> > Cc: David Airlie <airlied-cv59FeDIM0c@public.gmane.org>
-> > Cc: Gerd Hoffmann <kraxel-H+wXaHxf7aLQT0dZR+AlfA@public.gmane.org>
-> > Cc: virtualization-cunTk1MwBs9QetFLy7KEm3xJsTq8ys+cHZ5vskTnxNA@public.gmane.org
-> > ---
-> >  drivers/gpu/drm/virtio/virtgpu_display.c | 20 --------------------
-> >  1 file changed, 20 deletions(-)
-> Very nice catch:
-> Reviewed-by: Sam Ravnborg <sam-uyr5N9Q2VtJg9hUCZPvPmw@public.gmane.org>
+Hi all,
 
-Patch applied, thanks for reviewing.
+The goal of the series is to give a chance to the architecture
+to validate VIRTIO device features.
 
-> > 
-> > diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-> > index f3ce49c5a34c..af55b334be2f 100644
-> > --- a/drivers/gpu/drm/virtio/virtgpu_display.c
-> > +++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-> > @@ -314,25 +314,6 @@ virtio_gpu_user_framebuffer_create(struct drm_device *dev,
-> >  	return &virtio_gpu_fb->base;
-> >  }
-> >  
-> > -static void vgdev_atomic_commit_tail(struct drm_atomic_state *state)
-> > -{
-> > -	struct drm_device *dev = state->dev;
-> > -
-> > -	drm_atomic_helper_commit_modeset_disables(dev, state);
-> > -	drm_atomic_helper_commit_modeset_enables(dev, state);
-> > -	drm_atomic_helper_commit_planes(dev, state, 0);
-> > -
-> > -	drm_atomic_helper_fake_vblank(state);
-> > -	drm_atomic_helper_commit_hw_done(state);
-> > -
-> > -	drm_atomic_helper_wait_for_vblanks(dev, state);
-> > -	drm_atomic_helper_cleanup_planes(dev, state);
-> > -}
-> > -
-> > -static const struct drm_mode_config_helper_funcs virtio_mode_config_helpers = {
-> > -	.atomic_commit_tail = vgdev_atomic_commit_tail,
-> > -};
-> > -
-> >  static const struct drm_mode_config_funcs virtio_gpu_mode_funcs = {
-> >  	.fb_create = virtio_gpu_user_framebuffer_create,
-> >  	.atomic_check = drm_atomic_helper_check,
-> > @@ -346,7 +327,6 @@ void virtio_gpu_modeset_init(struct virtio_gpu_device *vgdev)
-> >  	drm_mode_config_init(vgdev->ddev);
-> >  	vgdev->ddev->mode_config.quirk_addfb_prefer_host_byte_order = true;
-> >  	vgdev->ddev->mode_config.funcs = &virtio_gpu_mode_funcs;
-> > -	vgdev->ddev->mode_config.helper_private = &virtio_mode_config_helpers;
-> >  
-> >  	/* modes will be validated against the framebuffer size */
-> >  	vgdev->ddev->mode_config.min_width = XRES_MIN;
-> > -- 
-> > 2.27.0
-> > 
-> > _______________________________________________
-> > dri-devel mailing list
-> > dri-devel-PD4FTy7X32lNgt0PjOBp9y5qC8QIuHrW@public.gmane.org
-> > https://lists.freedesktop.org/mailman/listinfo/dri-devel
+in this respin:
+
+1) I kept removed the ack from Jason as I reworked the patch
+   @Jason, the nature and goal of the patch did not really changed
+           please can I get back your acked-by with these changes?
+
+2) Rewording for warning messages
+
+Regards,
+Pierre
+
+
+Pierre Morel (2):
+  virtio: let arch validate VIRTIO features
+  s390: virtio: PV needs VIRTIO I/O device protection
+
+ arch/s390/mm/init.c           | 28 ++++++++++++++++++++++++++++
+ drivers/virtio/virtio.c       | 19 +++++++++++++++++++
+ include/linux/virtio_config.h |  1 +
+ 3 files changed, 48 insertions(+)
 
 -- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
+2.25.1
+
+Changelog
+
+to v6:
+
+- rewording warning messages
+  (Connie, Halil)
+
+to v5:
+
+- return directly from S390 arch_validate_virtio_features()
+  when the guest is not protected.
+  (Connie)
+
+- Somme rewording
+  (Connie, Michael)
+
+- moved back code from arch/s390/ ...kernel/uv.c to ...mm/init.c
+  (Christian)
+
+to v4:
+
+- separate virtio and arch code
+  (Pierre)
+
+- moved code from arch/s390/mm/init.c to arch/s390/kernel/uv.c
+  (as interpreted from Heiko's comment)
+
+- moved validation inside the arch code
+  (Connie)
+
+- moved the call to arch validation before VIRTIO_F_1 test
+  (Michael)
+
+to v3:
+
+- add warning
+  (Connie, Christian)
+
+- add comment
+  (Connie)
+
+- change hook name
+  (Halil, Connie)
+
+to v2:
+
+- put the test in virtio_finalize_features()
+  (Connie)
+
+- put the test inside VIRTIO core
+  (Jason)
+
+- pass a virtio device as parameter
+  (Halil)
