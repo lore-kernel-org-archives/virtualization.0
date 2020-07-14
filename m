@@ -1,7 +1,8 @@
 From: Joerg Roedel <joro@8bytes.org>
-Subject: [PATCH v4 28/75] x86/idt: Split idt_data setup out of set_intr_gate()
-Date: Tue, 14 Jul 2020 14:08:30 +0200
-Message-ID: <20200714120917.11253-29-joro@8bytes.org>
+Subject: [PATCH v4 16/75] x86/boot/compressed/64: Don't pre-map memory in
+ KASLR code
+Date: Tue, 14 Jul 2020 14:08:18 +0200
+Message-ID: <20200714120917.11253-17-joro@8bytes.org>
 References: <20200714120917.11253-1-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -23,54 +24,117 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Joerg Roedel <jroedel@suse.de>
 
-The code to setup idt_data is needed for early exception handling, but
-set_intr_gate() can't be used that early because it has pv-ops in its
-code path, which don't work that early.
-
-Split out the idt_data initialization part from set_intr_gate() so
-that it can be used separatly.
+With the page-fault handler in place the identity mapping can be built
+on-demand. So remove the code which manually creates the mappings and
+unexport/remove the functions used for it.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/idt.c | 22 ++++++++++++++--------
- 1 file changed, 14 insertions(+), 8 deletions(-)
+ arch/x86/boot/compressed/ident_map_64.c |  6 ++----
+ arch/x86/boot/compressed/kaslr.c        | 24 +-----------------------
+ arch/x86/boot/compressed/misc.h         | 10 ----------
+ 3 files changed, 3 insertions(+), 37 deletions(-)
 
-diff --git a/arch/x86/kernel/idt.c b/arch/x86/kernel/idt.c
-index b920f2352df5..367eb6a593dd 100644
---- a/arch/x86/kernel/idt.c
-+++ b/arch/x86/kernel/idt.c
-@@ -205,18 +205,24 @@ idt_setup_from_table(gate_desc *idt, const struct idt_data *t, int size, bool sy
- 	}
- }
+diff --git a/arch/x86/boot/compressed/ident_map_64.c b/arch/x86/boot/compressed/ident_map_64.c
+index ecf9353b064d..c63257bf8373 100644
+--- a/arch/x86/boot/compressed/ident_map_64.c
++++ b/arch/x86/boot/compressed/ident_map_64.c
+@@ -87,11 +87,9 @@ phys_addr_t physical_mask = (1ULL << __PHYSICAL_MASK_SHIFT) - 1;
+ static struct x86_mapping_info mapping_info;
  
-+static void init_idt_data(struct idt_data *data, unsigned int n,
-+			  const void *addr)
-+{
-+	BUG_ON(n > 0xFF);
-+
-+	memset(data, 0, sizeof(*data));
-+	data->vector	= n;
-+	data->addr	= addr;
-+	data->segment	= __KERNEL_CS;
-+	data->bits.type	= GATE_INTERRUPT;
-+	data->bits.p	= 1;
-+}
-+
- static __init void set_intr_gate(unsigned int n, const void *addr)
+ /*
+- * Adds the specified range to what will become the new identity mappings.
+- * Once all ranges have been added, the new mapping is activated by calling
+- * finalize_identity_maps() below.
++ * Adds the specified range to the identity mappings.
+  */
+-void add_identity_map(unsigned long start, unsigned long size)
++static void add_identity_map(unsigned long start, unsigned long size)
  {
- 	struct idt_data data;
+ 	unsigned long end = start + size;
  
--	BUG_ON(n > 0xFF);
+diff --git a/arch/x86/boot/compressed/kaslr.c b/arch/x86/boot/compressed/kaslr.c
+index 856dc1c9bb0d..c466fb738de0 100644
+--- a/arch/x86/boot/compressed/kaslr.c
++++ b/arch/x86/boot/compressed/kaslr.c
+@@ -399,8 +399,6 @@ static void mem_avoid_init(unsigned long input, unsigned long input_size,
+ 	 */
+ 	mem_avoid[MEM_AVOID_ZO_RANGE].start = input;
+ 	mem_avoid[MEM_AVOID_ZO_RANGE].size = (output + init_size) - input;
+-	add_identity_map(mem_avoid[MEM_AVOID_ZO_RANGE].start,
+-			 mem_avoid[MEM_AVOID_ZO_RANGE].size);
+ 
+ 	/* Avoid initrd. */
+ 	initrd_start  = (u64)boot_params->ext_ramdisk_image << 32;
+@@ -420,14 +418,10 @@ static void mem_avoid_init(unsigned long input, unsigned long input_size,
+ 		;
+ 	mem_avoid[MEM_AVOID_CMDLINE].start = cmd_line;
+ 	mem_avoid[MEM_AVOID_CMDLINE].size = cmd_line_size;
+-	add_identity_map(mem_avoid[MEM_AVOID_CMDLINE].start,
+-			 mem_avoid[MEM_AVOID_CMDLINE].size);
+ 
+ 	/* Avoid boot parameters. */
+ 	mem_avoid[MEM_AVOID_BOOTPARAMS].start = (unsigned long)boot_params;
+ 	mem_avoid[MEM_AVOID_BOOTPARAMS].size = sizeof(*boot_params);
+-	add_identity_map(mem_avoid[MEM_AVOID_BOOTPARAMS].start,
+-			 mem_avoid[MEM_AVOID_BOOTPARAMS].size);
+ 
+ 	/* We don't need to set a mapping for setup_data. */
+ 
+@@ -436,11 +430,6 @@ static void mem_avoid_init(unsigned long input, unsigned long input_size,
+ 
+ 	/* Enumerate the immovable memory regions */
+ 	num_immovable_mem = count_immovable_mem_regions();
 -
--	memset(&data, 0, sizeof(data));
--	data.vector	= n;
--	data.addr	= addr;
--	data.segment	= __KERNEL_CS;
--	data.bits.type	= GATE_INTERRUPT;
--	data.bits.p	= 1;
-+	init_idt_data(&data, n, addr);
- 
- 	idt_setup_from_table(idt_table, &data, 1, false);
+-#ifdef CONFIG_X86_VERBOSE_BOOTUP
+-	/* Make sure video RAM can be used. */
+-	add_identity_map(0, PMD_SIZE);
+-#endif
  }
+ 
+ /*
+@@ -919,19 +908,8 @@ void choose_random_location(unsigned long input,
+ 		warn("Physical KASLR disabled: no suitable memory region!");
+ 	} else {
+ 		/* Update the new physical address location. */
+-		if (*output != random_addr) {
+-			add_identity_map(random_addr, output_size);
++		if (*output != random_addr)
+ 			*output = random_addr;
+-		}
+-
+-		/*
+-		 * This loads the identity mapping page table.
+-		 * This should only be done if a new physical address
+-		 * is found for the kernel, otherwise we should keep
+-		 * the old page table to make it be like the "nokaslr"
+-		 * case.
+-		 */
+-		finalize_identity_maps();
+ 	}
+ 
+ 
+diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
+index 345c90fbc500..ea6174bad699 100644
+--- a/arch/x86/boot/compressed/misc.h
++++ b/arch/x86/boot/compressed/misc.h
+@@ -98,17 +98,7 @@ static inline void choose_random_location(unsigned long input,
+ #endif
+ 
+ #ifdef CONFIG_X86_64
+-void initialize_identity_maps(void);
+-void add_identity_map(unsigned long start, unsigned long size);
+-void finalize_identity_maps(void);
+ extern unsigned char _pgtable[];
+-#else
+-static inline void initialize_identity_maps(void)
+-{ }
+-static inline void add_identity_map(unsigned long start, unsigned long size)
+-{ }
+-static inline void finalize_identity_maps(void)
+-{ }
+ #endif
+ 
+ #ifdef CONFIG_EARLY_PRINTK
 -- 
 2.27.0
