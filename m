@@ -1,76 +1,111 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH v7 2/2] s390: virtio: PV needs VIRTIO I/O device protection
-Date: Wed, 15 Jul 2020 18:16:59 +0800
-Message-ID: <bc5e09ad-faaf-8b38-83e0-5f4a4b1daeb0@redhat.com>
-References: <1594801869-13365-1-git-send-email-pmorel@linux.ibm.com>
- <1594801869-13365-3-git-send-email-pmorel@linux.ibm.com>
- <20200715054807-mutt-send-email-mst@kernel.org>
+From: Maxim Levitsky <mlevitsk@redhat.com>
+Subject: Re: [PATCH] virtio-blk: check host supplied logical block size
+Date: Wed, 15 Jul 2020 13:19:55 +0300
+Message-ID: <5dd5af8032160eb49a4f0e38749e2d9cd968a0d6.camel@redhat.com>
+References: <20200715095518.3724-1-mlevitsk@redhat.com>
+         <20200715060233-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200715054807-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>
-Cc: gor@linux.ibm.com, linux-s390@vger.kernel.org, frankja@linux.ibm.com, kvm@vger.kernel.org, thomas.lendacky@amd.com, hca@linux.ibm.com, cohuck@redhat.com, linuxram@us.ibm.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, david@gibson.dropbear.id.au
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-block-owner@vger.kernel.org>
+In-Reply-To: <20200715060233-mutt-send-email-mst@kernel.org>
+Sender: linux-block-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, "open list:BLOCK LAYER" <linux-block@vger.kernel.org>, "open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux-foundation.org>, Paolo Bonzini <pbonzini@redhat.com>, Jason Wang <jasowang@redhat.com>, Jens Axboe <axboe@kernel.dk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMjAvNy8xNSDkuIvljYg1OjUwLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gT24g
-V2VkLCBKdWwgMTUsIDIwMjAgYXQgMTA6MzE6MDlBTSArMDIwMCwgUGllcnJlIE1vcmVsIHdyb3Rl
-Ogo+PiBJZiBwcm90ZWN0ZWQgdmlydHVhbGl6YXRpb24gaXMgYWN0aXZlIG9uIHMzOTAsIHRoZSB2
-aXJ0aW8gcXVldWVzIGFyZQo+PiBub3QgYWNjZXNzaWJsZSB0byB0aGUgaG9zdCwgdW5sZXNzIFZJ
-UlRJT19GX0lPTU1VX1BMQVRGT1JNIGhhcyBiZWVuCj4+IG5lZ290aWF0ZWQuIFVzZSB0aGUgbmV3
-IGFyY2hfdmFsaWRhdGVfdmlydGlvX2ZlYXR1cmVzKCkgaW50ZXJmYWNlIHRvCj4+IGZhaWwgcHJv
-YmUgaWYgdGhhdCdzIG5vdCB0aGUgY2FzZSwgcHJldmVudGluZyBhIGhvc3QgZXJyb3Igb24gYWNj
-ZXNzCj4+IGF0dGVtcHQuCj4+Cj4+IFNpZ25lZC1vZmYtYnk6IFBpZXJyZSBNb3JlbCA8cG1vcmVs
-QGxpbnV4LmlibS5jb20+Cj4+IFJldmlld2VkLWJ5OiBDb3JuZWxpYSBIdWNrIDxjb2h1Y2tAcmVk
-aGF0LmNvbT4KPj4gQWNrZWQtYnk6IEhhbGlsIFBhc2ljIDxwYXNpY0BsaW51eC5pYm0uY29tPgo+
-PiBBY2tlZC1ieTogQ2hyaXN0aWFuIEJvcm50cmFlZ2VyIDxib3JudHJhZWdlckBkZS5pYm0uY29t
-Pgo+PiAtLS0KPj4gICBhcmNoL3MzOTAvbW0vaW5pdC5jIHwgMjggKysrKysrKysrKysrKysrKysr
-KysrKysrKysrKwo+PiAgIDEgZmlsZSBjaGFuZ2VkLCAyOCBpbnNlcnRpb25zKCspCj4+Cj4+IGRp
-ZmYgLS1naXQgYS9hcmNoL3MzOTAvbW0vaW5pdC5jIGIvYXJjaC9zMzkwL21tL2luaXQuYwo+PiBp
-bmRleCA2ZGM3YzNiNjBlZjYuLmQzOWFmNjU1NGQ0ZiAxMDA2NDQKPj4gLS0tIGEvYXJjaC9zMzkw
-L21tL2luaXQuYwo+PiArKysgYi9hcmNoL3MzOTAvbW0vaW5pdC5jCj4+IEBAIC00NSw2ICs0NSw3
-IEBACj4+ICAgI2luY2x1ZGUgPGFzbS9rYXNhbi5oPgo+PiAgICNpbmNsdWRlIDxhc20vZG1hLW1h
-cHBpbmcuaD4KPj4gICAjaW5jbHVkZSA8YXNtL3V2Lmg+Cj4+ICsjaW5jbHVkZSA8bGludXgvdmly
-dGlvX2NvbmZpZy5oPgo+PiAgIAo+PiAgIHBnZF90IHN3YXBwZXJfcGdfZGlyW1BUUlNfUEVSX1BH
-RF0gX19zZWN0aW9uKC5ic3MuLnN3YXBwZXJfcGdfZGlyKTsKPj4gICAKPj4gQEAgLTE2MSw2ICsx
-NjIsMzMgQEAgYm9vbCBmb3JjZV9kbWFfdW5lbmNyeXB0ZWQoc3RydWN0IGRldmljZSAqZGV2KQo+
-PiAgIAlyZXR1cm4gaXNfcHJvdF92aXJ0X2d1ZXN0KCk7Cj4+ICAgfQo+PiAgIAo+PiArLyoKPj4g
-KyAqIGFyY2hfdmFsaWRhdGVfdmlydGlvX2ZlYXR1cmVzCj4+ICsgKiBAZGV2OiB0aGUgVklSVElP
-IGRldmljZSBiZWluZyBhZGRlZAo+PiArICoKPj4gKyAqIFJldHVybiBhbiBlcnJvciBpZiByZXF1
-aXJlZCBmZWF0dXJlcyBhcmUgbWlzc2luZyBvbiBhIGd1ZXN0IHJ1bm5pbmcKPj4gKyAqIHdpdGgg
-cHJvdGVjdGVkIHZpcnR1YWxpemF0aW9uLgo+PiArICovCj4+ICtpbnQgYXJjaF92YWxpZGF0ZV92
-aXJ0aW9fZmVhdHVyZXMoc3RydWN0IHZpcnRpb19kZXZpY2UgKmRldikKPj4gK3sKPj4gKwlpZiAo
-IWlzX3Byb3RfdmlydF9ndWVzdCgpKQo+PiArCQlyZXR1cm4gMDsKPj4gKwo+PiArCWlmICghdmly
-dGlvX2hhc19mZWF0dXJlKGRldiwgVklSVElPX0ZfVkVSU0lPTl8xKSkgewo+PiArCQlkZXZfd2Fy
-bigmZGV2LT5kZXYsCj4+ICsJCQkgImxlZ2FjeSB2aXJ0aW8gbm90IHN1cHBvcnRlZCB3aXRoIHBy
-b3RlY3RlZCB2aXJ0dWFsaXphdGlvblxuIik7Cj4+ICsJCXJldHVybiAtRU5PREVWOwo+PiArCX0K
-Pj4gKwo+PiArCWlmICghdmlydGlvX2hhc19mZWF0dXJlKGRldiwgVklSVElPX0ZfSU9NTVVfUExB
-VEZPUk0pKSB7Cj4+ICsJCWRldl93YXJuKCZkZXYtPmRldiwKPj4gKwkJCSAic3VwcG9ydCBmb3Ig
-bGltaXRlZCBtZW1vcnkgYWNjZXNzIHJlcXVpcmVkIGZvciBwcm90ZWN0ZWQgdmlydHVhbGl6YXRp
-b25cbiIpOwo+PiArCQlyZXR1cm4gLUVOT0RFVjsKPj4gKwl9Cj4+ICsKPj4gKwlyZXR1cm4gMDsK
-Pj4gK30KPj4gKwo+PiAgIC8qIHByb3RlY3RlZCB2aXJ0dWFsaXphdGlvbiAqLwo+PiAgIHN0YXRp
-YyB2b2lkIHB2X2luaXQodm9pZCkKPj4gICB7Cj4gV2hhdCBib3RoZXJzIG1lIGhlcmUgaXMgdGhh
-dCBhcmNoIGNvZGUgZGVwZW5kcyBvbiB2aXJ0aW8gbm93Lgo+IEl0IHdvcmtzIGV2ZW4gd2l0aCBh
-IG1vZHVsYXIgdmlydGlvIHdoZW4gZnVuY3Rpb25zIGFyZSBpbmxpbmUsCj4gYnV0IGl0IHNlZW1z
-IGZyYWdpbGU6IGUuZy4gaXQgYnJlYWtzIHZpcnRpbyBhcyBhbiBvdXQgb2YgdHJlZSBtb2R1bGUs
-Cj4gc2luY2UgbGF5b3V0IG9mIHN0cnVjdCB2aXJ0aW9fZGV2aWNlIGNhbiBjaGFuZ2UuCgoKVGhl
-IGNvZGUgd2FzIG9ubHkgY2FsbGVkIGZyb20gdmlydGlvLmMgc28gaXQgc2hvdWxkIGJlIGZpbmUu
-CgpBbmQgbXkgdW5kZXJzdGFuZGluZyBpcyB0aGF0IHdlIGRvbid0IG5lZWQgdG8gY2FyZSBhYm91
-dCB0aGUga0FCSSBpc3N1ZSAKZHVyaW5nIHVwc3RyZWFtIGRldmVsb3BtZW50PwoKVGhhbmtzCgoK
-Pgo+IEknbSBub3Qgc3VyZSB3aGF0IHRvIGRvIHdpdGggdGhpcyB5ZXQsIHdpbGwgdHJ5IHRvIHRo
-aW5rIGFib3V0IGl0Cj4gb3ZlciB0aGUgd2Vla2VuZC4gVGhhbmtzIQo+Cj4KPj4gLS0gCj4+IDIu
-MjUuMQoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
-dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
-YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
-bmZvL3ZpcnR1YWxpemF0aW9u
+On Wed, 2020-07-15 at 06:06 -0400, Michael S. Tsirkin wrote:
+> On Wed, Jul 15, 2020 at 12:55:18PM +0300, Maxim Levitsky wrote:
+> > Linux kernel only supports logical block sizes which are power of
+> > two,
+> > at least 512 bytes and no more that PAGE_SIZE.
+> > 
+> > Check this instead of crashing later on.
+> > 
+> > Note that there is no need to check physical block size since it is
+> > only a hint, and virtio-blk already only supports power of two
+> > values.
+> > 
+> > Bugzilla link: https://bugzilla.redhat.com/show_bug.cgi?id=1664619
+> > 
+> > Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+> > ---
+> >  drivers/block/virtio_blk.c | 20 ++++++++++++++++++--
+> >  1 file changed, 18 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> > index 980df853ee497..36dda31cc4e96 100644
+> > --- a/drivers/block/virtio_blk.c
+> > +++ b/drivers/block/virtio_blk.c
+> > @@ -681,6 +681,12 @@ static const struct blk_mq_ops virtio_mq_ops =
+> > {
+> >  static unsigned int virtblk_queue_depth;
+> >  module_param_named(queue_depth, virtblk_queue_depth, uint, 0444);
+> >  
+> > +
+> > +static bool virtblk_valid_block_size(unsigned int blksize)
+> > +{
+> > +	return blksize >= 512 && blksize <= PAGE_SIZE &&
+> > is_power_of_2(blksize);
+> > +}
+> > +
+> 
+> Is this a blk core assumption? in that case, does not this belong
+> in blk core?
+
+It is a blk core assumption. 
+I had checked other drivers and these that have variable block size all
+check this manually like that.
+
+I don't mind fixing all of them but I am a bit afraid to create
+too much mess.
+
+> 
+> >  static int virtblk_probe(struct virtio_device *vdev)
+> >  {
+> >  	struct virtio_blk *vblk;
+> > @@ -809,9 +815,16 @@ static int virtblk_probe(struct virtio_device
+> > *vdev)
+> >  	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_BLK_SIZE,
+> >  				   struct virtio_blk_config, blk_size,
+> >  				   &blk_size);
+> > -	if (!err)
+> > +	if (!err) {
+> > +		if (!virtblk_valid_block_size(blk_size)) {
+> > +			dev_err(&vdev->dev,
+> > +				"%s failure: unsupported logical block
+> > size %d\n",
+> > +				__func__, blk_size);
+> > +			err = -EINVAL;
+> > +			goto out_cleanup_queue;
+> > +		}
+> >  		blk_queue_logical_block_size(q, blk_size);
+> > -	else
+> > +	} else
+> >  		blk_size = queue_logical_block_size(q);
+> >  
+> >  	/* Use topology information if available */
+> 
+> OK so if we are doing this pls add {} around  blk_size =
+> queue_logical_block_size(q);
+> too.
+Will do.
+
+> 
+> > @@ -872,6 +885,9 @@ static int virtblk_probe(struct virtio_device
+> > *vdev)
+> >  	device_add_disk(&vdev->dev, vblk->disk, virtblk_attr_groups);
+> >  	return 0;
+> >  
+> > +out_cleanup_queue:
+> > +	blk_cleanup_queue(vblk->disk->queue);
+> > +	vblk->disk->queue = NULL;
+> >  out_free_tags:
+> >  	blk_mq_free_tag_set(&vblk->tag_set);
+> >  out_put_disk:
+> > -- 
+> > 2.26.2
+
+
+Best regards,
+	Maxim Levitsky
