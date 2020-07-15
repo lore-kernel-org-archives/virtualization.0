@@ -1,90 +1,60 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v7 2/2] s390: virtio: PV needs VIRTIO I/O device
- protection
-Date: Wed, 15 Jul 2020 05:50:19 -0400
-Message-ID: <20200715054807-mutt-send-email-mst@kernel.org>
-References: <1594801869-13365-1-git-send-email-pmorel@linux.ibm.com>
- <1594801869-13365-3-git-send-email-pmorel@linux.ibm.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v4 63/75] x86/sev-es: Handle #DB Events
+Date: Wed, 15 Jul 2020 11:51:36 +0200
+Message-ID: <20200715095136.GG10769@hirez.programming.kicks-ass.net>
+References: <20200714120917.11253-1-joro@8bytes.org>
+ <20200714120917.11253-64-joro@8bytes.org>
+ <20200715084752.GD10769@hirez.programming.kicks-ass.net>
+ <20200715091337.GI16200@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 Content-Disposition: inline
-In-Reply-To: <1594801869-13365-3-git-send-email-pmorel@linux.ibm.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Pierre Morel <pmorel@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
+In-Reply-To: <20200715091337.GI16200@suse.de>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Joerg Roedel <jroedel@suse.de>
+Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Dave Hansen <dave.hansen@linux.intel.com>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Cfir Cohen <cfir@google.com>, Joerg Roedel <joro@8bytes.org>, x86@kernel.org, linux-kernel@vger.kernel.org, Sean Christopherson <sean.j.christopherson@intel.com>, virtualization@lists.linux-foundation.org, Martin Radev <martin.b.radev@gmail.com>, Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 15, 2020 at 10:31:09AM +0200, Pierre Morel wrote:
-> If protected virtualization is active on s390, the virtio queues are
-> not accessible to the host, unless VIRTIO_F_IOMMU_PLATFORM has been
-> negotiated. Use the new arch_validate_virtio_features() interface to
-> fail probe if that's not the case, preventing a host error on access
-> attempt.
+On Wed, Jul 15, 2020 at 11:13:37AM +0200, Joerg Roedel wrote:
+> On Wed, Jul 15, 2020 at 10:47:52AM +0200, Peter Zijlstra wrote:
+> > On Tue, Jul 14, 2020 at 02:09:05PM +0200, Joerg Roedel wrote:
+> > 
+> > > @@ -1028,6 +1036,16 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
+> > >  	struct ghcb *ghcb;
+> > >  
+> > >  	lockdep_assert_irqs_disabled();
+> > > +
+> > > +	/*
+> > > +	 * #DB is special and needs to be handled outside of the intrumentation_begin()/end().
+> > > +	 * Otherwise the #VC handler could be raised recursivly.
+> > > +	 */
+> > > +	if (error_code == SVM_EXIT_EXCP_BASE + X86_TRAP_DB) {
+> > > +		vc_handle_trap_db(regs);
+> > > +		return;
+> > > +	}
+> > > +
+> > >  	instrumentation_begin();
+> > 
+> > Wait what?! That makes no sense what so ever.
 > 
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-> Acked-by: Halil Pasic <pasic@linux.ibm.com>
-> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> ---
->  arch/s390/mm/init.c | 28 ++++++++++++++++++++++++++++
->  1 file changed, 28 insertions(+)
-> 
-> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-> index 6dc7c3b60ef6..d39af6554d4f 100644
-> --- a/arch/s390/mm/init.c
-> +++ b/arch/s390/mm/init.c
-> @@ -45,6 +45,7 @@
->  #include <asm/kasan.h>
->  #include <asm/dma-mapping.h>
->  #include <asm/uv.h>
-> +#include <linux/virtio_config.h>
->  
->  pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
->  
-> @@ -161,6 +162,33 @@ bool force_dma_unencrypted(struct device *dev)
->  	return is_prot_virt_guest();
->  }
->  
-> +/*
-> + * arch_validate_virtio_features
-> + * @dev: the VIRTIO device being added
-> + *
-> + * Return an error if required features are missing on a guest running
-> + * with protected virtualization.
-> + */
-> +int arch_validate_virtio_features(struct virtio_device *dev)
-> +{
-> +	if (!is_prot_virt_guest())
-> +		return 0;
-> +
-> +	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
-> +		dev_warn(&dev->dev,
-> +			 "legacy virtio not supported with protected virtualization\n");
-> +		return -ENODEV;
-> +	}
-> +
-> +	if (!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
-> +		dev_warn(&dev->dev,
-> +			 "support for limited memory access required for protected virtualization\n");
-> +		return -ENODEV;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
->  /* protected virtualization */
->  static void pv_init(void)
->  {
+> Then my understanding of intrumentation_begin/end() is wrong, I thought
+> that the kernel will forbid setting breakpoints before
+> instrumentation_begin(), which is necessary here because a break-point
+> in the #VC handler might cause recursive #VC-exceptions when #DB is
+> intercepted.
+> Maybe you can elaborate on why this makes no sense?
 
-What bothers me here is that arch code depends on virtio now.
-It works even with a modular virtio when functions are inline,
-but it seems fragile: e.g. it breaks virtio as an out of tree module,
-since layout of struct virtio_device can change.
+Kernel avoids breakpoints in any noinstr text, irrespective of
+instrumentation_begin().
 
-I'm not sure what to do with this yet, will try to think about it
-over the weekend. Thanks!
-
-
-> -- 
-> 2.25.1
+instrumentation_begin() merely allows one to call !noinstr functions.
