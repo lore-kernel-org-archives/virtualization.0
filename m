@@ -1,72 +1,44 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 5/7] virtio_vdpa: init IRQ offloading function pointers to
- NULL.
-Date: Wed, 15 Jul 2020 16:43:05 +0800
-Message-ID: <d5b12368-7d78-6c0b-e593-289594d11985@redhat.com>
-References: <1594565366-3195-1-git-send-email-lingshan.zhu@intel.com>
- <1594565366-3195-5-git-send-email-lingshan.zhu@intel.com>
- <276bf939-8e12-e28a-64f7-1767851e0db5@redhat.com>
- <ba1ea94c-b0ae-8bd8-8425-64b096512d3d@intel.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v4 63/75] x86/sev-es: Handle #DB Events
+Date: Wed, 15 Jul 2020 10:47:52 +0200
+Message-ID: <20200715084752.GD10769@hirez.programming.kicks-ass.net>
+References: <20200714120917.11253-1-joro@8bytes.org>
+ <20200714120917.11253-64-joro@8bytes.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <ba1ea94c-b0ae-8bd8-8425-64b096512d3d@intel.com>
-Content-Language: en-US
-Sender: kvm-owner@vger.kernel.org
-To: "Zhu, Lingshan" <lingshan.zhu@intel.com>, mst@redhat.com, alex.williamson@redhat.com, pbonzini@redhat.com, sean.j.christopherson@intel.com, wanpengli@tencent.com
-Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, netdev@vger.kernel.org, dan.daly@intel.com
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20200714120917.11253-64-joro@8bytes.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Joerg Roedel <joro@8bytes.org>
+Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Dave Hansen <dave.hansen@linux.intel.com>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Cfir Cohen <cfir@google.com>, x86@kernel.org, linux-kernel@vger.kernel.org, Sean Christopherson <sean.j.christopherson@intel.com>, virtualization@lists.linux-foundation.org, Martin Radev <martin.b.radev@gmail.com>, Joerg Roedel <jroedel@suse.de>, Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Tue, Jul 14, 2020 at 02:09:05PM +0200, Joerg Roedel wrote:
 
-On 2020/7/13 下午6:20, Zhu, Lingshan wrote:
->
->
-> On 7/13/2020 4:28 PM, Jason Wang wrote:
->>
->> On 2020/7/12 下午10:49, Zhu Lingshan wrote:
->>> This commit initialize IRQ offloading function pointers in
->>> virtio_vdpa_driver to NULL. Becasue irq offloading only focus
->>> on VMs for vhost_vdpa.
->>>
->>> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
->>> ---
->>>   drivers/virtio/virtio_vdpa.c | 2 ++
->>>   1 file changed, 2 insertions(+)
->>>
->>> diff --git a/drivers/virtio/virtio_vdpa.c 
->>> b/drivers/virtio/virtio_vdpa.c
->>> index c30eb55..1e8acb9 100644
->>> --- a/drivers/virtio/virtio_vdpa.c
->>> +++ b/drivers/virtio/virtio_vdpa.c
->>> @@ -386,6 +386,8 @@ static void virtio_vdpa_remove(struct 
->>> vdpa_device *vdpa)
->>>       },
->>>       .probe    = virtio_vdpa_probe,
->>>       .remove = virtio_vdpa_remove,
->>> +    .setup_vq_irq = NULL,
->>> +    .unsetup_vq_irq = NULL,
->>>   };
->>
->>
->> Is this really needed consider the it's static?
->>
->> Thanks
-> This is for readability, to show they are NULL, so virtio_vdpa would not go through irq forwarding / offloading.
->
-> Does this make sense?
+> @@ -1028,6 +1036,16 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
+>  	struct ghcb *ghcb;
+>  
+>  	lockdep_assert_irqs_disabled();
+> +
+> +	/*
+> +	 * #DB is special and needs to be handled outside of the intrumentation_begin()/end().
+> +	 * Otherwise the #VC handler could be raised recursivly.
+> +	 */
+> +	if (error_code == SVM_EXIT_EXCP_BASE + X86_TRAP_DB) {
+> +		vc_handle_trap_db(regs);
+> +		return;
+> +	}
+> +
+>  	instrumentation_begin();
 
-
-Probably not, please refer what is done by other subsystems.
-
-Thanks
-
-
->
-> Thanks,
-> BR
-> Zhu Lingshan
->>
->>
->>> module_vdpa_driver(virtio_vdpa_driver);
->>
+Wait what?! That makes no sense what so ever.
