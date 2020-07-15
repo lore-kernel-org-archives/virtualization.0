@@ -1,84 +1,72 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 6/7] ifcvf: replace irq_request/free with helpers in vDPA
- core.
-Date: Wed, 15 Jul 2020 16:40:17 +0800
-Message-ID: <09e67c20-dda1-97a2-1858-6a543c64fba6@redhat.com>
+Subject: Re: [PATCH 5/7] virtio_vdpa: init IRQ offloading function pointers to
+ NULL.
+Date: Wed, 15 Jul 2020 16:43:05 +0800
+Message-ID: <d5b12368-7d78-6c0b-e593-289594d11985@redhat.com>
 References: <1594565366-3195-1-git-send-email-lingshan.zhu@intel.com>
- <1594565366-3195-6-git-send-email-lingshan.zhu@intel.com>
- <c7d4eca1-b65a-b795-dfa6-fe7658716cb1@redhat.com>
- <f6fc09e2-7a45-aaa5-2b4a-f1f963c5ce2c@intel.com>
+ <1594565366-3195-5-git-send-email-lingshan.zhu@intel.com>
+ <276bf939-8e12-e28a-64f7-1767851e0db5@redhat.com>
+ <ba1ea94c-b0ae-8bd8-8425-64b096512d3d@intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <f6fc09e2-7a45-aaa5-2b4a-f1f963c5ce2c@intel.com>
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <ba1ea94c-b0ae-8bd8-8425-64b096512d3d@intel.com>
 Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
+Sender: kvm-owner@vger.kernel.org
 To: "Zhu, Lingshan" <lingshan.zhu@intel.com>, mst@redhat.com, alex.williamson@redhat.com, pbonzini@redhat.com, sean.j.christopherson@intel.com, wanpengli@tencent.com
 Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, netdev@vger.kernel.org, dan.daly@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-On 2020/7/13 下午6:22, Zhu, Lingshan wrote:
+On 2020/7/13 下午6:20, Zhu, Lingshan wrote:
 >
 >
-> On 7/13/2020 4:33 PM, Jason Wang wrote:
+> On 7/13/2020 4:28 PM, Jason Wang wrote:
 >>
 >> On 2020/7/12 下午10:49, Zhu Lingshan wrote:
->>> This commit replaced irq_request/free() with helpers in vDPA
->>> core, so that it can request/free irq and setup irq offloading
->>> on order.
+>>> This commit initialize IRQ offloading function pointers in
+>>> virtio_vdpa_driver to NULL. Becasue irq offloading only focus
+>>> on VMs for vhost_vdpa.
 >>>
 >>> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
 >>> ---
->>>   drivers/vdpa/ifcvf/ifcvf_main.c | 11 ++++++-----
->>>   1 file changed, 6 insertions(+), 5 deletions(-)
+>>>   drivers/virtio/virtio_vdpa.c | 2 ++
+>>>   1 file changed, 2 insertions(+)
 >>>
->>> diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c 
->>> b/drivers/vdpa/ifcvf/ifcvf_main.c
->>> index f5a60c1..65b84e1 100644
->>> --- a/drivers/vdpa/ifcvf/ifcvf_main.c
->>> +++ b/drivers/vdpa/ifcvf/ifcvf_main.c
->>> @@ -47,11 +47,12 @@ static void ifcvf_free_irq(struct ifcvf_adapter 
->>> *adapter, int queues)
->>>   {
->>>       struct pci_dev *pdev = adapter->pdev;
->>>       struct ifcvf_hw *vf = &adapter->vf;
->>> +    struct vdpa_device *vdpa = &adapter->vdpa;
->>>       int i;
->>>           for (i = 0; i < queues; i++)
->>> -        devm_free_irq(&pdev->dev, vf->vring[i].irq, &vf->vring[i]);
->>> +        vdpa_free_vq_irq(&pdev->dev, vdpa, vf->vring[i].irq, i, 
->>> &vf->vring[i]);
->>>         ifcvf_free_irq_vectors(pdev);
->>>   }
->>> @@ -60,6 +61,7 @@ static int ifcvf_request_irq(struct ifcvf_adapter 
->>> *adapter)
->>>   {
->>>       struct pci_dev *pdev = adapter->pdev;
->>>       struct ifcvf_hw *vf = &adapter->vf;
->>> +    struct vdpa_device *vdpa = &adapter->vdpa;
->>>       int vector, i, ret, irq;
->>>         ret = pci_alloc_irq_vectors(pdev, IFCVF_MAX_INTR,
->>> @@ -73,6 +75,7 @@ static int ifcvf_request_irq(struct ifcvf_adapter 
->>> *adapter)
->>>            pci_name(pdev));
->>>       vector = 0;
->>>       irq = pci_irq_vector(pdev, vector);
->>> +    /* config interrupt */
+>>> diff --git a/drivers/virtio/virtio_vdpa.c 
+>>> b/drivers/virtio/virtio_vdpa.c
+>>> index c30eb55..1e8acb9 100644
+>>> --- a/drivers/virtio/virtio_vdpa.c
+>>> +++ b/drivers/virtio/virtio_vdpa.c
+>>> @@ -386,6 +386,8 @@ static void virtio_vdpa_remove(struct 
+>>> vdpa_device *vdpa)
+>>>       },
+>>>       .probe    = virtio_vdpa_probe,
+>>>       .remove = virtio_vdpa_remove,
+>>> +    .setup_vq_irq = NULL,
+>>> +    .unsetup_vq_irq = NULL,
+>>>   };
 >>
 >>
->> Unnecessary changes.
-> This is to show we did not setup this irq offloading for config 
-> interrupt, only setup irq offloading for data vq. But can remove this 
-> since we have config_msix_name in code to show what it is
+>> Is this really needed consider the it's static?
+>>
+>> Thanks
+> This is for readability, to show they are NULL, so virtio_vdpa would not go through irq forwarding / offloading.
+>
+> Does this make sense?
 
 
-Btw, any reason for not making config interrupt work for irq offloading? 
-I don't see any thing that blocks this.
+Probably not, please refer what is done by other subsystems.
 
 Thanks
 
 
-> Thanks BR Zhu Lingshan
+>
+> Thanks,
+> BR
+> Zhu Lingshan
+>>
+>>
+>>> module_vdpa_driver(virtio_vdpa_driver);
 >>
