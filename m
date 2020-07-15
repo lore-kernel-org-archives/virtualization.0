@@ -1,100 +1,38 @@
-From: mwilck@suse.com
-Subject: [PATCH] virtio-rng: return available data with O_NONBLOCK
-Date: Wed, 15 Jul 2020 00:00:19 +0200
-Message-ID: <20200714220019.10854-1-mwilck@suse.com>
+From: Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH v4 13/75] x86/boot/compressed/64: Rename kaslr_64.c to
+ ident_map_64.c
+Date: Tue, 14 Jul 2020 18:23:14 -0700
+Message-ID: <202007141823.65F31DE0@keescook>
+References: <20200714120917.11253-1-joro@8bytes.org>
+ <20200714120917.11253-14-joro@8bytes.org>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane-mx.org@nongnu.org>
-List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
- <mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
-List-Archive: <https://lists.nongnu.org/archive/html/qemu-devel>
-List-Post: <mailto:qemu-devel@nongnu.org>
-List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
-List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
- <mailto:qemu-devel-request@nongnu.org?subject=subscribe>
-Errors-To: qemu-devel-bounces+gceq-qemu-devel2=m.gmane-mx.org@nongnu.org
-Sender: "Qemu-devel"
- <qemu-devel-bounces+gceq-qemu-devel2=m.gmane-mx.org@nongnu.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: Martin Wilck <mwilck@suse.com>, qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20200714120917.11253-14-joro@8bytes.org>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Joerg Roedel <joro@8bytes.org>
+Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Dave Hansen <dave.hansen@linux.intel.com>, Mike Stunes <mstunes@vmware.com>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>, x86@kernel.org, linux-kernel@vger.kernel.org, Sean Christopherson <sean.j.christopherson@intel.com>, virtualization@lists.linux-foundation.org, Martin Radev <martin.b.radev@gmail.com>, Joerg Roedel <jroedel@suse.de>, Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Martin Wilck <mwilck@suse.com>
+On Tue, Jul 14, 2020 at 02:08:15PM +0200, Joerg Roedel wrote:
+> From: Joerg Roedel <jroedel@suse.de>
+> 
+> The file contains only code related to identity mapped page-tables.
+> Rename the file and compile it always in.
+> 
+> Signed-off-by: Joerg Roedel <jroedel@suse.de>
 
-If a program opens /dev/hwrng with O_NONBLOCK and uses poll() and
-non-blocking read() to retrieve random data, it ends up in a tight
-loop with poll() always returning POLLIN and read() returning EAGAIN.
-This repeats forever until some process makes a blocking read() call.
-The reason is that virtio_read() always returns 0 in non-blocking mode,
-even if data is available.
+Reviewed-by: Kees Cook <keescook@chromium.org>
 
-The following test program illustrates the behavior.
-
-void loop(int fd)
-{
-        struct pollfd pfd0 = { .fd = fd, .events  = POLLIN, };
-        int rc;
-        unsigned int n;
-
-        for (n = LOOPS; n > 0; n--) {
-                struct pollfd pfd = pfd0;
-                char buf[SIZE];
-
-                rc = poll(&pfd, 1, 1);
-                if (rc > 0) {
-                        int rd = read(fd, buf, sizeof(buf));
-
-                        if (rd == -1)
-                                perror("read");
-                        else
-                                printf("read %d bytes\n", rd);
-                } else if (rc == -1)
-                        perror("poll");
-                else
-                        fprintf(stderr, "timeout\n");
-
-        }
-}
-
-int main(void)
-{
-        int fd;
-
-        fd = open("/dev/hwrng", O_RDONLY|O_NONBLOCK);
-        if (fd == -1) {
-                perror("open");
-                return 1;
-        };
-        loop(fd);
-        close(fd);
-        return 0;
-}
-
-This can be observed in the real word e.g. with nested qemu/KVM virtual
-machines, if both the "outer" and "inner" VMs have a virtio-rng device.
-If the "inner" VM requests random data, qemu running in the "outer" VM
-uses this device in a non-blocking manner like the test program above.
-
-Fix it by returning available data if it exists.
-
-Signed-off-by: Martin Wilck <mwilck@suse.com>
----
- drivers/char/hw_random/virtio-rng.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
-index 79a6e47b5fbc..94806308d814 100644
---- a/drivers/char/hw_random/virtio-rng.c
-+++ b/drivers/char/hw_random/virtio-rng.c
-@@ -59,6 +59,9 @@ static int virtio_read(struct hwrng *rng, void *buf, size_t size, bool wait)
- 	if (vi->hwrng_removed)
- 		return -ENODEV;
- 
-+	if (vi->data_avail >= size || (vi->data_avail && !wait))
-+		return vi->data_avail;
-+
- 	if (!vi->busy) {
- 		vi->busy = true;
- 		reinit_completion(&vi->have_data);
 -- 
-2.26.2
+Kees Cook
