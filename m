@@ -1,88 +1,87 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 6/7] ifcvf: replace irq_request/free with helpers in vDPA
- core.
-Date: Wed, 15 Jul 2020 18:04:11 +0800
-Message-ID: <eefc2969-c91e-059e-ed4a-20ce8fa6dfe9@redhat.com>
-References: <1594565366-3195-1-git-send-email-lingshan.zhu@intel.com>
- <1594565366-3195-6-git-send-email-lingshan.zhu@intel.com>
- <c7d4eca1-b65a-b795-dfa6-fe7658716cb1@redhat.com>
- <f6fc09e2-7a45-aaa5-2b4a-f1f963c5ce2c@intel.com>
- <09e67c20-dda1-97a2-1858-6a543c64fba6@redhat.com>
- <20200715055538-mutt-send-email-mst@kernel.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH] virtio-blk: check host supplied logical block size
+Date: Wed, 15 Jul 2020 06:06:14 -0400
+Message-ID: <20200715060233-mutt-send-email-mst@kernel.org>
+References: <20200715095518.3724-1-mlevitsk@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20200715055538-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "Zhu, Lingshan" <lingshan.zhu@intel.com>, alex.williamson@redhat.com, pbonzini@redhat.com, sean.j.christopherson@intel.com, wanpengli@tencent.com, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, netdev@vger.kernel.org, dan.daly@intel.com
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-block-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200715095518.3724-1-mlevitsk@redhat.com>
+Sender: linux-block-owner@vger.kernel.org
+To: Maxim Levitsky <mlevitsk@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, "open list:BLOCK LAYER" <linux-block@vger.kernel.org>, "open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux-foundation.org>, Paolo Bonzini <pbonzini@redhat.com>, Jason Wang <jasowang@redhat.com>, Jens Axboe <axboe@kernel.dk>
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Wed, Jul 15, 2020 at 12:55:18PM +0300, Maxim Levitsky wrote:
+> Linux kernel only supports logical block sizes which are power of two,
+> at least 512 bytes and no more that PAGE_SIZE.
+> 
+> Check this instead of crashing later on.
+> 
+> Note that there is no need to check physical block size since it is
+> only a hint, and virtio-blk already only supports power of two values.
+> 
+> Bugzilla link: https://bugzilla.redhat.com/show_bug.cgi?id=1664619
+> 
+> Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+> ---
+>  drivers/block/virtio_blk.c | 20 ++++++++++++++++++--
+>  1 file changed, 18 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index 980df853ee497..36dda31cc4e96 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -681,6 +681,12 @@ static const struct blk_mq_ops virtio_mq_ops = {
+>  static unsigned int virtblk_queue_depth;
+>  module_param_named(queue_depth, virtblk_queue_depth, uint, 0444);
+>  
+> +
+> +static bool virtblk_valid_block_size(unsigned int blksize)
+> +{
+> +	return blksize >= 512 && blksize <= PAGE_SIZE && is_power_of_2(blksize);
+> +}
+> +
 
-On 2020/7/15 下午6:01, Michael S. Tsirkin wrote:
-> On Wed, Jul 15, 2020 at 04:40:17PM +0800, Jason Wang wrote:
->> On 2020/7/13 下午6:22, Zhu, Lingshan wrote:
->>> On 7/13/2020 4:33 PM, Jason Wang wrote:
->>>> On 2020/7/12 下午10:49, Zhu Lingshan wrote:
->>>>> This commit replaced irq_request/free() with helpers in vDPA
->>>>> core, so that it can request/free irq and setup irq offloading
->>>>> on order.
->>>>>
->>>>> Signed-off-by: Zhu Lingshan<lingshan.zhu@intel.com>
->>>>> ---
->>>>>    drivers/vdpa/ifcvf/ifcvf_main.c | 11 ++++++-----
->>>>>    1 file changed, 6 insertions(+), 5 deletions(-)
->>>>>
->>>>> diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c
->>>>> b/drivers/vdpa/ifcvf/ifcvf_main.c
->>>>> index f5a60c1..65b84e1 100644
->>>>> --- a/drivers/vdpa/ifcvf/ifcvf_main.c
->>>>> +++ b/drivers/vdpa/ifcvf/ifcvf_main.c
->>>>> @@ -47,11 +47,12 @@ static void ifcvf_free_irq(struct
->>>>> ifcvf_adapter *adapter, int queues)
->>>>>    {
->>>>>        struct pci_dev *pdev = adapter->pdev;
->>>>>        struct ifcvf_hw *vf = &adapter->vf;
->>>>> +    struct vdpa_device *vdpa = &adapter->vdpa;
->>>>>        int i;
->>>>>            for (i = 0; i < queues; i++)
->>>>> -        devm_free_irq(&pdev->dev, vf->vring[i].irq, &vf->vring[i]);
->>>>> +        vdpa_free_vq_irq(&pdev->dev, vdpa, vf->vring[i].irq, i,
->>>>> &vf->vring[i]);
->>>>>          ifcvf_free_irq_vectors(pdev);
->>>>>    }
->>>>> @@ -60,6 +61,7 @@ static int ifcvf_request_irq(struct
->>>>> ifcvf_adapter *adapter)
->>>>>    {
->>>>>        struct pci_dev *pdev = adapter->pdev;
->>>>>        struct ifcvf_hw *vf = &adapter->vf;
->>>>> +    struct vdpa_device *vdpa = &adapter->vdpa;
->>>>>        int vector, i, ret, irq;
->>>>>          ret = pci_alloc_irq_vectors(pdev, IFCVF_MAX_INTR,
->>>>> @@ -73,6 +75,7 @@ static int ifcvf_request_irq(struct
->>>>> ifcvf_adapter *adapter)
->>>>>             pci_name(pdev));
->>>>>        vector = 0;
->>>>>        irq = pci_irq_vector(pdev, vector);
->>>>> +    /* config interrupt */
->>>> Unnecessary changes.
->>> This is to show we did not setup this irq offloading for config
->>> interrupt, only setup irq offloading for data vq. But can remove this
->>> since we have config_msix_name in code to show what it is
->> Btw, any reason for not making config interrupt work for irq offloading? I
->> don't see any thing that blocks this.
->>
->> Thanks
-> Well config accesses all go through userspace right?
-> Doing config interrupt directly would just be messy ...
+Is this a blk core assumption? in that case, does not this belong
+in blk core?
 
+>  static int virtblk_probe(struct virtio_device *vdev)
+>  {
+>  	struct virtio_blk *vblk;
+> @@ -809,9 +815,16 @@ static int virtblk_probe(struct virtio_device *vdev)
+>  	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_BLK_SIZE,
+>  				   struct virtio_blk_config, blk_size,
+>  				   &blk_size);
+> -	if (!err)
+> +	if (!err) {
+> +		if (!virtblk_valid_block_size(blk_size)) {
+> +			dev_err(&vdev->dev,
+> +				"%s failure: unsupported logical block size %d\n",
+> +				__func__, blk_size);
+> +			err = -EINVAL;
+> +			goto out_cleanup_queue;
+> +		}
+>  		blk_queue_logical_block_size(q, blk_size);
+> -	else
+> +	} else
+>  		blk_size = queue_logical_block_size(q);
+>  
+>  	/* Use topology information if available */
 
-Right, so I think we need a better comment here.
+OK so if we are doing this pls add {} around  blk_size = queue_logical_block_size(q);
+too.
 
-Thanks
-
-
->
->
+> @@ -872,6 +885,9 @@ static int virtblk_probe(struct virtio_device *vdev)
+>  	device_add_disk(&vdev->dev, vblk->disk, virtblk_attr_groups);
+>  	return 0;
+>  
+> +out_cleanup_queue:
+> +	blk_cleanup_queue(vblk->disk->queue);
+> +	vblk->disk->queue = NULL;
+>  out_free_tags:
+>  	blk_mq_free_tag_set(&vblk->tag_set);
+>  out_put_disk:
+> -- 
+> 2.26.2
