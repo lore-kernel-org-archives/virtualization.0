@@ -1,59 +1,58 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH] vsock/virtio: annotate 'the_virtio_vsock' RCU pointer
-Date: Wed, 15 Jul 2020 16:34:46 +0200
-Message-ID: <20200715143446.kfl3zb4vwkk4ic4r@steredhat>
-References: <20200710121243.120096-1-sgarzare@redhat.com>
- <20200713065423-mutt-send-email-mst@kernel.org>
+From: Kees Cook <keescook@chromium.org>
+Subject: Re: [PATCH v4 70/75] x86/head/64: Don't call verify_cpu() on
+ starting APs
+Date: Wed, 15 Jul 2020 08:26:14 -0700
+Message-ID: <202007150815.A81E879@keescook>
+References: <20200714120917.11253-1-joro@8bytes.org>
+ <20200714120917.11253-71-joro@8bytes.org>
+ <202007141837.2B93BBD78@keescook>
+ <20200715092638.GJ16200@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200713065423-mutt-send-email-mst@kernel.org>
-Sender: kvm-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: davem@davemloft.net, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, kvm@vger.kernel.org
+In-Reply-To: <20200715092638.GJ16200@suse.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Joerg Roedel <jroedel@suse.de>
+Cc: Joerg Roedel <joro@8bytes.org>, x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Sean Christopherson <sean.j.christopherson@intel.com>, Martin Radev <martin.b.radev@gmail.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 13, 2020 at 06:54:43AM -0400, Michael S. Tsirkin wrote:
-> On Fri, Jul 10, 2020 at 02:12:43PM +0200, Stefano Garzarella wrote:
-> > Commit 0deab087b16a ("vsock/virtio: use RCU to avoid use-after-free
-> > on the_virtio_vsock") starts to use RCU to protect 'the_virtio_vsock'
-> > pointer, but we forgot to annotate it.
-> > 
-> > This patch adds the annotation to fix the following sparse errors:
-> > 
-> >     net/vmw_vsock/virtio_transport.c:73:17: error: incompatible types in comparison expression (different address spaces):
-> >     net/vmw_vsock/virtio_transport.c:73:17:    struct virtio_vsock [noderef] __rcu *
-> >     net/vmw_vsock/virtio_transport.c:73:17:    struct virtio_vsock *
-> >     net/vmw_vsock/virtio_transport.c:171:17: error: incompatible types in comparison expression (different address spaces):
-> >     net/vmw_vsock/virtio_transport.c:171:17:    struct virtio_vsock [noderef] __rcu *
-> >     net/vmw_vsock/virtio_transport.c:171:17:    struct virtio_vsock *
-> >     net/vmw_vsock/virtio_transport.c:207:17: error: incompatible types in comparison expression (different address spaces):
-> >     net/vmw_vsock/virtio_transport.c:207:17:    struct virtio_vsock [noderef] __rcu *
-> >     net/vmw_vsock/virtio_transport.c:207:17:    struct virtio_vsock *
-> >     net/vmw_vsock/virtio_transport.c:561:13: error: incompatible types in comparison expression (different address spaces):
-> >     net/vmw_vsock/virtio_transport.c:561:13:    struct virtio_vsock [noderef] __rcu *
-> >     net/vmw_vsock/virtio_transport.c:561:13:    struct virtio_vsock *
-> >     net/vmw_vsock/virtio_transport.c:612:9: error: incompatible types in comparison expression (different address spaces):
-> >     net/vmw_vsock/virtio_transport.c:612:9:    struct virtio_vsock [noderef] __rcu *
-> >     net/vmw_vsock/virtio_transport.c:612:9:    struct virtio_vsock *
-> >     net/vmw_vsock/virtio_transport.c:631:9: error: incompatible types in comparison expression (different address spaces):
-> >     net/vmw_vsock/virtio_transport.c:631:9:    struct virtio_vsock [noderef] __rcu *
-> >     net/vmw_vsock/virtio_transport.c:631:9:    struct virtio_vsock *
-> > 
-> > Fixes: 0deab087b16a ("vsock/virtio: use RCU to avoid use-after-free on the_virtio_vsock")
-> > Reported-by: Michael S. Tsirkin <mst@redhat.com>
-> > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+On Wed, Jul 15, 2020 at 11:26:38AM +0200, Joerg Roedel wrote:
+> Hi Kees,
 > 
+> thanks for your reviews!
 > 
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> On Tue, Jul 14, 2020 at 06:40:30PM -0700, Kees Cook wrote:
+> > Eek, no. MSR_IA32_MISC_ENABLE_XD_DISABLE needs to be cleared very early
+> > during CPU startup; this can't just be skipped.
 > 
-> who's merging this? Dave?
+> That MSR is Intel-only, right? The boot-path installed here is only used
+> for SEV-ES guests, running on AMD systems, so this MSR is not even
+> accessed during boot on those VMs.
 
-I think so, but I forgot the 'net' tag :-(
+Oh, hrm, yes, that's true. If other x86 maintainers are comfortable with
+this, then okay. My sense is that changing the early CPU startup paths
+will cause trouble down the line.
 
-I'll wait to see if Dave will queue this, otherwise I'll resend with
-the 'net' tag.
+> The alternative is to set up exception handling prior to calling
+> verify_cpu, including segments, stack and IDT. Given that verify_cpu()
+> does not add much value to SEV-ES guests, I'd like to avoid adding this
+> complexity.
 
-Thanks,
-Stefano
+So, going back to the requirements here ... what things in verify_cpu()
+can cause exceptions? AFAICT, cpuid is safely handled (i.e. it is
+detected and only run in a way to avoid exceptions and the MSR
+reads/writes are similarly bound by CPU family/id range checks). I must
+be missing something. :)
+
+> 
+> > Also, is UNWIND_HINT_EMPTY needed for the new target?
+> 
+> Yes, I think it is, will add it in the next version.
+> 
+> Regards,
+> 
+> 	Joerg
+
+-- 
+Kees Cook
