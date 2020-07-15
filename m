@@ -1,111 +1,121 @@
-From: Maxim Levitsky <mlevitsk@redhat.com>
-Subject: Re: [PATCH] virtio-blk: check host supplied logical block size
-Date: Wed, 15 Jul 2020 13:19:55 +0300
-Message-ID: <5dd5af8032160eb49a4f0e38749e2d9cd968a0d6.camel@redhat.com>
-References: <20200715095518.3724-1-mlevitsk@redhat.com>
-         <20200715060233-mutt-send-email-mst@kernel.org>
+From: Joerg Roedel <jroedel@suse.de>
+Subject: Re: [PATCH v4 45/75] x86/sev-es: Adjust #VC IST Stack on entering
+ NMI handler
+Date: Wed, 15 Jul 2020 12:26:53 +0200
+Message-ID: <20200715102653.GN16200@suse.de>
+References: <20200714120917.11253-1-joro@8bytes.org>
+ <20200714120917.11253-46-joro@8bytes.org>
+ <20200715094702.GF10769@hirez.programming.kicks-ass.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-block-owner@vger.kernel.org>
-In-Reply-To: <20200715060233-mutt-send-email-mst@kernel.org>
-Sender: linux-block-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, "open list:BLOCK LAYER" <linux-block@vger.kernel.org>, "open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux-foundation.org>, Paolo Bonzini <pbonzini@redhat.com>, Jason Wang <jasowang@redhat.com>, Jens Axboe <axboe@kernel.dk>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200715094702.GF10769@hirez.programming.kicks-ass.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Joerg Roedel <joro@8bytes.org>, x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Sean Christopherson <sean.j.christopherson@intel.com>, Martin Radev <martin.b.radev@gmail.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, 2020-07-15 at 06:06 -0400, Michael S. Tsirkin wrote:
-> On Wed, Jul 15, 2020 at 12:55:18PM +0300, Maxim Levitsky wrote:
-> > Linux kernel only supports logical block sizes which are power of
-> > two,
-> > at least 512 bytes and no more that PAGE_SIZE.
-> > 
-> > Check this instead of crashing later on.
-> > 
-> > Note that there is no need to check physical block size since it is
-> > only a hint, and virtio-blk already only supports power of two
-> > values.
-> > 
-> > Bugzilla link: https://bugzilla.redhat.com/show_bug.cgi?id=1664619
-> > 
-> > Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-> > ---
-> >  drivers/block/virtio_blk.c | 20 ++++++++++++++++++--
-> >  1 file changed, 18 insertions(+), 2 deletions(-)
-> > 
-> > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> > index 980df853ee497..36dda31cc4e96 100644
-> > --- a/drivers/block/virtio_blk.c
-> > +++ b/drivers/block/virtio_blk.c
-> > @@ -681,6 +681,12 @@ static const struct blk_mq_ops virtio_mq_ops =
-> > {
-> >  static unsigned int virtblk_queue_depth;
-> >  module_param_named(queue_depth, virtblk_queue_depth, uint, 0444);
-> >  
-> > +
-> > +static bool virtblk_valid_block_size(unsigned int blksize)
+On Wed, Jul 15, 2020 at 11:47:02AM +0200, Peter Zijlstra wrote:
+> On Tue, Jul 14, 2020 at 02:08:47PM +0200, Joerg Roedel wrote:
+
+> DECLARE_STATIC_KEY_FALSE(sev_es_enabled_key);
+> 
+> static __always_inline void sev_es_foo()
+> {
+> 	if (static_branch_unlikely(&sev_es_enabled_key))
+> 		__sev_es_foo();
+> }
+> 
+> So that normal people will only see an extra NOP?
+
+Yes, that is a good idea, I will use a static key for these cases.
+
+> > +static bool on_vc_stack(unsigned long sp)
+> 
+> noinstr or __always_inline
+
+Will add __always_inline, thanks.
+
+> > +/*
+> > + * This function handles the case when an NMI or an NMI-like exception
+> > + * like #DB is raised in the #VC exception handler entry code. In this
+> 
+> I've yet to find you handle the NMI-like cases..
+
+The comment is not 100% accurate anymore, I will update it. Initially
+#DB was an NMI-like case, but I figured that with .text.noinstr and the
+way the #VC entry code switches stacks, there is no #DB special handling
+necessary anymore.
+
+> > + * case the IST entry for VC must be adjusted, so that any subsequent VC
+> > + * exception will not overwrite the stack contents of the interrupted VC
+> > + * handler.
+> > + *
+> > + * The IST entry is adjusted unconditionally so that it can be also be
+> > + * unconditionally back-adjusted in sev_es_nmi_exit(). Otherwise a
+> > + * nested nmi_exit() call (#VC->NMI->#DB) may back-adjust the IST entry
+> > + * too early.
+> 
+> Is this comment accurate, I cannot find the patch touching
+> nmi_enter/exit()?
+
+Right, will update that too. I had the sev-es NMI stack adjustment in
+nmi_enter/exit first, but needed to move it out because the possible DR7
+access needs the #VC stack already adjusted.
+
+> > + */
+> > +void noinstr sev_es_ist_enter(struct pt_regs *regs)
 > > +{
-> > +	return blksize >= 512 && blksize <= PAGE_SIZE &&
-> > is_power_of_2(blksize);
+> > +	unsigned long old_ist, new_ist;
+> > +	unsigned long *p;
+> > +
+> > +	if (!sev_es_active())
+> > +		return;
+> > +
+> > +	/* Read old IST entry */
+> > +	old_ist = __this_cpu_read(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC]);
+> > +
+> > +	/* Make room on the IST stack */
+> > +	if (on_vc_stack(regs->sp))
+> > +		new_ist = ALIGN_DOWN(regs->sp, 8) - sizeof(old_ist);
+> > +	else
+> > +		new_ist = old_ist - sizeof(old_ist);
+> > +
+> > +	/* Store old IST entry */
+> > +	p       = (unsigned long *)new_ist;
+> > +	*p      = old_ist;
+> > +
+> > +	/* Set new IST entry */
+> > +	this_cpu_write(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC], new_ist);
 > > +}
 > > +
+> > +void noinstr sev_es_ist_exit(void)
+> > +{
+> > +	unsigned long ist;
+> > +	unsigned long *p;
+> > +
+> > +	if (!sev_es_active())
+> > +		return;
+> > +
+> > +	/* Read IST entry */
+> > +	ist = __this_cpu_read(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC]);
+> > +
+> > +	if (WARN_ON(ist == __this_cpu_ist_top_va(VC)))
+> > +		return;
+> > +
+> > +	/* Read back old IST entry and write it to the TSS */
+> > +	p = (unsigned long *)ist;
+> > +	this_cpu_write(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC], *p);
+> > +}
 > 
-> Is this a blk core assumption? in that case, does not this belong
-> in blk core?
+> That's pretty disguisting :-(
 
-It is a blk core assumption. 
-I had checked other drivers and these that have variable block size all
-check this manually like that.
+Yeah, but its needed because ... IST :(
+I am open for suggestions on how to make it less disgusting. Or maybe
+you like it more if you think of it as a software implementation of what
+hardware should actually do to make IST less painful.
 
-I don't mind fixing all of them but I am a bit afraid to create
-too much mess.
+Regards,
 
-> 
-> >  static int virtblk_probe(struct virtio_device *vdev)
-> >  {
-> >  	struct virtio_blk *vblk;
-> > @@ -809,9 +815,16 @@ static int virtblk_probe(struct virtio_device
-> > *vdev)
-> >  	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_BLK_SIZE,
-> >  				   struct virtio_blk_config, blk_size,
-> >  				   &blk_size);
-> > -	if (!err)
-> > +	if (!err) {
-> > +		if (!virtblk_valid_block_size(blk_size)) {
-> > +			dev_err(&vdev->dev,
-> > +				"%s failure: unsupported logical block
-> > size %d\n",
-> > +				__func__, blk_size);
-> > +			err = -EINVAL;
-> > +			goto out_cleanup_queue;
-> > +		}
-> >  		blk_queue_logical_block_size(q, blk_size);
-> > -	else
-> > +	} else
-> >  		blk_size = queue_logical_block_size(q);
-> >  
-> >  	/* Use topology information if available */
-> 
-> OK so if we are doing this pls add {} around  blk_size =
-> queue_logical_block_size(q);
-> too.
-Will do.
-
-> 
-> > @@ -872,6 +885,9 @@ static int virtblk_probe(struct virtio_device
-> > *vdev)
-> >  	device_add_disk(&vdev->dev, vblk->disk, virtblk_attr_groups);
-> >  	return 0;
-> >  
-> > +out_cleanup_queue:
-> > +	blk_cleanup_queue(vblk->disk->queue);
-> > +	vblk->disk->queue = NULL;
-> >  out_free_tags:
-> >  	blk_mq_free_tag_set(&vblk->tag_set);
-> >  out_put_disk:
-> > -- 
-> > 2.26.2
-
-
-Best regards,
-	Maxim Levitsky
+	Joerg
