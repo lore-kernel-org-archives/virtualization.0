@@ -1,87 +1,43 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH] virtio-blk: check host supplied logical block size
-Date: Wed, 15 Jul 2020 06:06:14 -0400
-Message-ID: <20200715060233-mutt-send-email-mst@kernel.org>
-References: <20200715095518.3724-1-mlevitsk@redhat.com>
+From: Joerg Roedel <jroedel@suse.de>
+Subject: Re: [PATCH v4 63/75] x86/sev-es: Handle #DB Events
+Date: Wed, 15 Jul 2020 12:08:08 +0200
+Message-ID: <20200715100808.GL16200@suse.de>
+References: <20200714120917.11253-1-joro@8bytes.org>
+ <20200714120917.11253-64-joro@8bytes.org>
+ <20200715084752.GD10769@hirez.programming.kicks-ass.net>
+ <20200715091337.GI16200@suse.de>
+ <20200715095136.GG10769@hirez.programming.kicks-ass.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-block-owner@vger.kernel.org>
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200715095518.3724-1-mlevitsk@redhat.com>
-Sender: linux-block-owner@vger.kernel.org
-To: Maxim Levitsky <mlevitsk@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, "open list:BLOCK LAYER" <linux-block@vger.kernel.org>, "open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux-foundation.org>, Paolo Bonzini <pbonzini@redhat.com>, Jason Wang <jasowang@redhat.com>, Jens Axboe <axboe@kernel.dk>
+In-Reply-To: <20200715095136.GG10769@hirez.programming.kicks-ass.net>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: Joerg Roedel <joro@8bytes.org>, x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Sean Christopherson <sean.j.christopherson@intel.com>, Martin Radev <martin.b.radev@gmail.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 15, 2020 at 12:55:18PM +0300, Maxim Levitsky wrote:
-> Linux kernel only supports logical block sizes which are power of two,
-> at least 512 bytes and no more that PAGE_SIZE.
+On Wed, Jul 15, 2020 at 11:51:36AM +0200, Peter Zijlstra wrote:
+> On Wed, Jul 15, 2020 at 11:13:37AM +0200, Joerg Roedel wrote:
+> > Then my understanding of intrumentation_begin/end() is wrong, I thought
+> > that the kernel will forbid setting breakpoints before
+> > instrumentation_begin(), which is necessary here because a break-point
+> > in the #VC handler might cause recursive #VC-exceptions when #DB is
+> > intercepted.
+> > Maybe you can elaborate on why this makes no sense?
 > 
-> Check this instead of crashing later on.
+> Kernel avoids breakpoints in any noinstr text, irrespective of
+> instrumentation_begin().
 > 
-> Note that there is no need to check physical block size since it is
-> only a hint, and virtio-blk already only supports power of two values.
-> 
-> Bugzilla link: https://bugzilla.redhat.com/show_bug.cgi?id=1664619
-> 
-> Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-> ---
->  drivers/block/virtio_blk.c | 20 ++++++++++++++++++--
->  1 file changed, 18 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 980df853ee497..36dda31cc4e96 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -681,6 +681,12 @@ static const struct blk_mq_ops virtio_mq_ops = {
->  static unsigned int virtblk_queue_depth;
->  module_param_named(queue_depth, virtblk_queue_depth, uint, 0444);
->  
-> +
-> +static bool virtblk_valid_block_size(unsigned int blksize)
-> +{
-> +	return blksize >= 512 && blksize <= PAGE_SIZE && is_power_of_2(blksize);
-> +}
-> +
+> instrumentation_begin() merely allows one to call !noinstr functions.
 
-Is this a blk core assumption? in that case, does not this belong
-in blk core?
+Right, but the handler calls into various other functions. I actually
+started to annotate them all with noinstr, but that was a can of worms
+when calling into generic kernel functions. And the only problem with
+intrumentation in the #VC handler is the #VC-for-#DB exit-code, so I
+decided to only handle this one with instrumentation forbidden and allow
+it for the rest of the handler.
 
->  static int virtblk_probe(struct virtio_device *vdev)
->  {
->  	struct virtio_blk *vblk;
-> @@ -809,9 +815,16 @@ static int virtblk_probe(struct virtio_device *vdev)
->  	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_BLK_SIZE,
->  				   struct virtio_blk_config, blk_size,
->  				   &blk_size);
-> -	if (!err)
-> +	if (!err) {
-> +		if (!virtblk_valid_block_size(blk_size)) {
-> +			dev_err(&vdev->dev,
-> +				"%s failure: unsupported logical block size %d\n",
-> +				__func__, blk_size);
-> +			err = -EINVAL;
-> +			goto out_cleanup_queue;
-> +		}
->  		blk_queue_logical_block_size(q, blk_size);
-> -	else
-> +	} else
->  		blk_size = queue_logical_block_size(q);
->  
->  	/* Use topology information if available */
+Regards,
 
-OK so if we are doing this pls add {} around  blk_size = queue_logical_block_size(q);
-too.
-
-> @@ -872,6 +885,9 @@ static int virtblk_probe(struct virtio_device *vdev)
->  	device_add_disk(&vdev->dev, vblk->disk, virtblk_attr_groups);
->  	return 0;
->  
-> +out_cleanup_queue:
-> +	blk_cleanup_queue(vblk->disk->queue);
-> +	vblk->disk->queue = NULL;
->  out_free_tags:
->  	blk_mq_free_tag_set(&vblk->tag_set);
->  out_put_disk:
-> -- 
-> 2.26.2
+	Joerg
