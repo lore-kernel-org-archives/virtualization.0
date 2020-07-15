@@ -1,78 +1,77 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH 0/7] *** IRQ offloading for vDPA ***
-Date: Wed, 15 Jul 2020 21:43:56 +0800
-Message-ID: <70244d80-08a4-da91-3226-7bfd2019467e@redhat.com>
-References: <1594565524-3394-1-git-send-email-lingshan.zhu@intel.com>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH RFC don't apply] vdpa_sim: endian-ness for config space
+Date: Wed, 15 Jul 2020 09:58:08 -0400
+Message-ID: <20200715135540.22832-1-mst@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1594565524-3394-1-git-send-email-lingshan.zhu@intel.com>
-Content-Language: en-US
-Sender: kvm-owner@vger.kernel.org
-To: Zhu Lingshan <lingshan.zhu@intel.com>, mst@redhat.com, alex.williamson@redhat.com, pbonzini@redhat.com, sean.j.christopherson@intel.com, wanpengli@tencent.com
-Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, netdev@vger.kernel.org, dan.daly@intel.com
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+VDPA sim stores config space as native endian, but that
+is wrong: modern guests expect LE.
+I coded up the following to fix it up, but it is wrong too:
+vdpasim_create is called before guest features are known.
 
-On 2020/7/12 下午10:52, Zhu Lingshan wrote:
-> Hi All,
->
-> This series intends to implement IRQ offloading for
-> vhost_vdpa.
->
-> By the feat of irq forwarding facilities like posted
-> interrupt on X86, irq bypass can  help deliver
-> interrupts to vCPU directly.
->
-> vDPA devices have dedicated hardware backends like VFIO
-> pass-throughed devices. So it would be possible to setup
-> irq offloading(irq bypass) for vDPA devices and gain
-> performance improvements.
->
-> In my testing, with this feature, we can save 0.1ms
-> in a ping between two VFs on average.
+So what should we do? New ioctl to specify the interface used?
+More ideas?
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
 
-Hi Lingshan:
+---
+ drivers/vdpa/vdpa_sim/vdpa_sim.c | 22 ++++++++++++++++++++--
+ 1 file changed, 20 insertions(+), 2 deletions(-)
 
-During the virtio-networking meeting, Michael spots two possible issues:
-
-1) do we need an new uAPI to stop the irq offloading?
-2) can interrupt lost during the eventfd ctx?
-
-For 1) I think we probably not, we can allocate an independent eventfd 
-which does not map to MSIX. So the consumer can't match the producer and 
-we fallback to eventfd based irq.
-For 2) it looks to me guest should deal with the irq synchronization 
-when mask or unmask MSIX vectors.
-
-What's your thought?
-
-Thanks
-
-
->
->
-> Zhu Lingshan (7):
->    vhost: introduce vhost_call_ctx
->    kvm/vfio: detect assigned device via irqbypass manager
->    vhost_vdpa: implement IRQ offloading functions in vhost_vdpa
->    vDPA: implement IRQ offloading helpers in vDPA core
->    virtio_vdpa: init IRQ offloading function pointers to NULL.
->    ifcvf: replace irq_request/free with helpers in vDPA core.
->    irqbypass: do not start consumer or producer when failed to connect
->
->   arch/x86/kvm/x86.c              | 10 ++++--
->   drivers/vdpa/ifcvf/ifcvf_main.c | 11 +++---
->   drivers/vdpa/vdpa.c             | 46 +++++++++++++++++++++++++
->   drivers/vhost/Kconfig           |  1 +
->   drivers/vhost/vdpa.c            | 75 +++++++++++++++++++++++++++++++++++++++--
->   drivers/vhost/vhost.c           | 22 ++++++++----
->   drivers/vhost/vhost.h           |  9 ++++-
->   drivers/virtio/virtio_vdpa.c    |  2 ++
->   include/linux/vdpa.h            | 11 ++++++
->   virt/kvm/vfio.c                 |  2 --
->   virt/lib/irqbypass.c            | 16 +++++----
->   11 files changed, 181 insertions(+), 24 deletions(-)
->
+diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+index a9bc5e0fb353..cc754ae0ec15 100644
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+@@ -24,6 +24,7 @@
+ #include <linux/etherdevice.h>
+ #include <linux/vringh.h>
+ #include <linux/vdpa.h>
++#include <linux/virtio_byteorder.h>
+ #include <linux/vhost_iotlb.h>
+ #include <uapi/linux/virtio_config.h>
+ #include <uapi/linux/virtio_net.h>
+@@ -72,6 +73,23 @@ struct vdpasim {
+ 	u64 features;
+ };
+ 
++/* TODO: cross-endian support */
++static inline bool vdpasim_is_little_endian(struct vdpasim *vdpasim)
++{
++	return virtio_legacy_is_little_endian() ||
++		(vdpasim->features & (1ULL << VIRTIO_F_VERSION_1));
++}
++
++static inline u16 vdpasim16_to_cpu(struct vdpasim *vdpasim, __virtio16 val)
++{
++	return __virtio16_to_cpu(vdpasim_is_little_endian(vdpasim), val);
++}
++
++static inline __virtio16 cpu_to_vdpasim16(struct vdpasim *vdpasim, u16 val)
++{
++	return __cpu_to_virtio16(vdpasim_is_little_endian(vdpasim), val);
++}
++
+ static struct vdpasim *vdpasim_dev;
+ 
+ static struct vdpasim *vdpa_to_sim(struct vdpa_device *vdpa)
+@@ -332,8 +350,8 @@ static struct vdpasim *vdpasim_create(void)
+ 		goto err_iommu;
+ 
+ 	config = &vdpasim->config;
+-	config->mtu = 1500;
+-	config->status = VIRTIO_NET_S_LINK_UP;
++	config->mtu = cpu_to_vdpasim16(vdpasim, 1500);
++	config->status = cpu_to_vdpasim16(vdpasim, VIRTIO_NET_S_LINK_UP);
+ 	eth_random_addr(config->mac);
+ 
+ 	vringh_set_iotlb(&vdpasim->vqs[0].vring, vdpasim->iommu);
+-- 
+MST
