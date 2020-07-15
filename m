@@ -1,30 +1,48 @@
-From: Joerg Roedel <joro-zLv9SwRftAIdnm+yROfE0A@public.gmane.org>
-Subject: Re: AMD IOMMU + SME + amdgpu regression
-Date: Wed, 15 Jul 2020 11:17:20 +0200
-Message-ID: <20200715091720.GV27672@8bytes.org>
-References: <1591915710.rakbpzst8h.none.ref@localhost>
- <1591915710.rakbpzst8h.none@localhost>
- <20200622100257.GD31822@suse.de>
- <1592839701.mxvvths2x9.none@localhost>
+From: Cornelia Huck <cohuck@redhat.com>
+Subject: Re: [PATCH v7 0/2] s390: virtio: let arch validate VIRTIO features
+Date: Wed, 15 Jul 2020 11:20:14 +0200
+Message-ID: <20200715112014.7a196261.cohuck@redhat.com>
+References: <1594801869-13365-1-git-send-email-pmorel@linux.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org>
-Content-Disposition: inline
-In-Reply-To: <1592839701.mxvvths2x9.none@localhost>
-Sender: linux-tegra-owner-u79uwXL29TY76Z2rM5mHXA@public.gmane.org
-To: "Alex Xu (Hello71)" <alex_y_xu-FFYn/CNdgSA@public.gmane.org>
-Cc: Joerg Roedel <jroedel-l3A5Bk7waGM@public.gmane.org>, Andy Gross <agross-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Lu Baolu <baolu.lu-VuQAYsv1563Yd54FQh9/CA@public.gmane.org>, Bjorn Andersson <bjorn.andersson-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, Daniel Drake <drake-6IF/jdPJHihWk0Htik3J/w@public.gmane.org>, David Woodhouse <dwmw2-wEGCiKHe2LqWVfeAwA7xHQ@public.gmane.org>, Gerald Schaefer <gerald.schaefer-tA70FqPdS9bQT0dZR+AlfA@public.gmane.org>, Christoph Hellwig <hch-jcswGhMUV9g@public.gmane.org>, Heiko Stuebner <heiko-4mtYJXux2i+zQB+pC5nmwQ@public.gmane.org>, Jean-Philippe Brucker <jean-philippe-QSEj5FYQhm4dnm+yROfE0A@public.gmane.org>, jonathan.derrick-ral2JQCrhuEAvxtiuMwx3w@public.gmane.org, Jonathan Hunter <jonathanh-DDmLM1+adcrQT0dZR+AlfA@public.gmane.org>, Kukjin Kim <kgene-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, Krzysztof Kozlowski <krzk-DgEjT+Ai2ygdnm+yROfE0A@public.gmane.org>, linux-arm-msm-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-kernel-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-mediatek-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-rockchip-IAPFreCvJWM7uuMidbF8XUB+6BGkLq7r@public.gmane.org, linux-s390-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-samsung-soc-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, linux-tegra-u79uwXL29TY76Z2rM5mHXA@public.gmane.org, Matthias Brugger <matt>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <1594801869-13365-1-git-send-email-pmorel@linux.ibm.com>
+Sender: kvm-owner@vger.kernel.org
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jun 22, 2020 at 11:30:04AM -0400, Alex Xu (Hello71) wrote:
-> Yes, it works with SME off with dbed452a078 ("dma-pool: decouple 
-> DMA_REMAP from DMA_COHERENT_POOL") applied.
+On Wed, 15 Jul 2020 10:31:07 +0200
+Pierre Morel <pmorel@linux.ibm.com> wrote:
 
-Okay, I can reproduce the problem on my Ryzen System, and the boot log
-shows various warnings/bugs from the amdgpu driver. I think this should
-be looked at by the AMDGPU folks first, as I didn't really got far
-looking into the GPU drivers code.
+> Hi all,
+> 
+> The goal of the series is to give a chance to the architecture
+> to validate VIRTIO device features.
+> 
+> in this respin:
+> 
+> 1) I kept removed the ack from Jason as I reworked the patch
+>    @Jason, the nature and goal of the patch did not really changed
+>            please can I get back your acked-by with these changes?
+> 
+> 2) Rewording for warning messages
+> 
+> Regards,
+> Pierre
+> 
+> Pierre Morel (2):
+>   virtio: let arch validate VIRTIO features
+>   s390: virtio: PV needs VIRTIO I/O device protection
+> 
+>  arch/s390/mm/init.c           | 28 ++++++++++++++++++++++++++++
+>  drivers/virtio/virtio.c       | 19 +++++++++++++++++++
+>  include/linux/virtio_config.h |  1 +
+>  3 files changed, 48 insertions(+)
+> 
 
-Regards,
+LGTM.
 
-	Joerg
+I assume that this will go either via the virtio tree or via the s390
+arch tree, i.e. not through virtio-ccw, right?
