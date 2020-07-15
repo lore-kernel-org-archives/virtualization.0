@@ -1,51 +1,90 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v4 00/75] x86: SEV-ES Guest Support
-Date: Wed, 15 Jul 2020 11:55:56 +0200
-Message-ID: <20200715095556.GI10769@hirez.programming.kicks-ass.net>
-References: <20200714120917.11253-1-joro@8bytes.org>
- <20200715092456.GE10769@hirez.programming.kicks-ass.net>
- <20200715093426.GK16200@suse.de>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH 6/7] ifcvf: replace irq_request/free with helpers in vDPA
+ core.
+Date: Wed, 15 Jul 2020 06:01:29 -0400
+Message-ID: <20200715055538-mutt-send-email-mst@kernel.org>
+References: <1594565366-3195-1-git-send-email-lingshan.zhu@intel.com>
+ <1594565366-3195-6-git-send-email-lingshan.zhu@intel.com>
+ <c7d4eca1-b65a-b795-dfa6-fe7658716cb1@redhat.com>
+ <f6fc09e2-7a45-aaa5-2b4a-f1f963c5ce2c@intel.com>
+ <09e67c20-dda1-97a2-1858-6a543c64fba6@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 8bit
+Return-path: <netdev-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200715093426.GK16200@suse.de>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Joerg Roedel <jroedel@suse.de>
-Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Dave Hansen <dave.hansen@linux.intel.com>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Cfir Cohen <cfir@google.com>, Joerg Roedel <joro@8bytes.org>, x86@kernel.org, linux-kernel@vger.kernel.org, Sean Christopherson <sean.j.christopherson@intel.com>, virtualization@lists.linux-foundation.org, Martin Radev <martin.b.radev@gmail.com>, Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
+In-Reply-To: <09e67c20-dda1-97a2-1858-6a543c64fba6@redhat.com>
+Sender: netdev-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Zhu, Lingshan" <lingshan.zhu@intel.com>, alex.williamson@redhat.com, pbonzini@redhat.com, sean.j.christopherson@intel.com, wanpengli@tencent.com, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, netdev@vger.kernel.org, dan.daly@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 15, 2020 at 11:34:26AM +0200, Joerg Roedel wrote:
-> On Wed, Jul 15, 2020 at 11:24:56AM +0200, Peter Zijlstra wrote:
-> > Can we get some more words -- preferably in actual code comments, on
-> > when exactly #VC happens?
+On Wed, Jul 15, 2020 at 04:40:17PM +0800, Jason Wang wrote:
 > 
-> Sure, will add this as a comment before the actual runtime VC handler.
-
-Thanks!
-
-> > Because the only thing I remember is that #VC could happen on any memop,
-> > but I also have vague memories of that being a later extention.
+> On 2020/7/13 下午6:22, Zhu, Lingshan wrote:
+> > 
+> > 
+> > On 7/13/2020 4:33 PM, Jason Wang wrote:
+> > > 
+> > > On 2020/7/12 下午10:49, Zhu Lingshan wrote:
+> > > > This commit replaced irq_request/free() with helpers in vDPA
+> > > > core, so that it can request/free irq and setup irq offloading
+> > > > on order.
+> > > > 
+> > > > Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+> > > > ---
+> > > >   drivers/vdpa/ifcvf/ifcvf_main.c | 11 ++++++-----
+> > > >   1 file changed, 6 insertions(+), 5 deletions(-)
+> > > > 
+> > > > diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c
+> > > > b/drivers/vdpa/ifcvf/ifcvf_main.c
+> > > > index f5a60c1..65b84e1 100644
+> > > > --- a/drivers/vdpa/ifcvf/ifcvf_main.c
+> > > > +++ b/drivers/vdpa/ifcvf/ifcvf_main.c
+> > > > @@ -47,11 +47,12 @@ static void ifcvf_free_irq(struct
+> > > > ifcvf_adapter *adapter, int queues)
+> > > >   {
+> > > >       struct pci_dev *pdev = adapter->pdev;
+> > > >       struct ifcvf_hw *vf = &adapter->vf;
+> > > > +    struct vdpa_device *vdpa = &adapter->vdpa;
+> > > >       int i;
+> > > >           for (i = 0; i < queues; i++)
+> > > > -        devm_free_irq(&pdev->dev, vf->vring[i].irq, &vf->vring[i]);
+> > > > +        vdpa_free_vq_irq(&pdev->dev, vdpa, vf->vring[i].irq, i,
+> > > > &vf->vring[i]);
+> > > >         ifcvf_free_irq_vectors(pdev);
+> > > >   }
+> > > > @@ -60,6 +61,7 @@ static int ifcvf_request_irq(struct
+> > > > ifcvf_adapter *adapter)
+> > > >   {
+> > > >       struct pci_dev *pdev = adapter->pdev;
+> > > >       struct ifcvf_hw *vf = &adapter->vf;
+> > > > +    struct vdpa_device *vdpa = &adapter->vdpa;
+> > > >       int vector, i, ret, irq;
+> > > >         ret = pci_alloc_irq_vectors(pdev, IFCVF_MAX_INTR,
+> > > > @@ -73,6 +75,7 @@ static int ifcvf_request_irq(struct
+> > > > ifcvf_adapter *adapter)
+> > > >            pci_name(pdev));
+> > > >       vector = 0;
+> > > >       irq = pci_irq_vector(pdev, vector);
+> > > > +    /* config interrupt */
+> > > 
+> > > 
+> > > Unnecessary changes.
+> > This is to show we did not setup this irq offloading for config
+> > interrupt, only setup irq offloading for data vq. But can remove this
+> > since we have config_msix_name in code to show what it is
 > 
-> Currently it is only raised when something happens that the hypervisor
-> intercepts, for example on a couple of instructions like CPUID,
-> RD/WRMSR, ..., or on MMIO/IOIO accesses.
 > 
-> With Secure Nested Paging (SNP), which needs additional enablement, a #VC can
-> happen on any memory access. I wrote the IST handling entry code for #VC
-> with that in mind, but do not actually enable it. This is the reason why
-> the #VC handler just panics the system when it ends up on the fall-back
-> (VC2) stack, with SNP enabled it needs to handle the SNP exit-codes in
-> that path.
+> Btw, any reason for not making config interrupt work for irq offloading? I
+> don't see any thing that blocks this.
+> 
+> Thanks
 
-And recursive #VC was instant death, right? Because there's no way to
-avoid IST stack corruption in that case.
+Well config accesses all go through userspace right?
+Doing config interrupt directly would just be messy ...
+
+
+> 
+> > Thanks BR Zhu Lingshan
+> > > 
