@@ -1,49 +1,54 @@
-From: Joerg Roedel <jroedel@suse.de>
-Subject: Re: [PATCH v4 34/75] x86/head/64: Build k/head64.c with
- -fno-stack-protector
-Date: Wed, 15 Jul 2020 18:34:47 +0200
-Message-ID: <20200715163446.GB24822@suse.de>
-References: <20200714120917.11253-1-joro@8bytes.org>
- <20200714120917.11253-35-joro@8bytes.org>
- <202007141831.F3165F22@keescook>
+From: Stefano Stabellini <sstabellini@kernel.org>
+Subject: Re: [PATCH] xen: introduce xen_vring_use_dma
+Date: Wed, 15 Jul 2020 10:06:00 -0700 (PDT)
+Message-ID: <alpine.DEB.2.21.2007151001140.4124@sstabellini-ThinkPad-T480s>
+References: <20200624163940-mutt-send-email-mst@kernel.org> <alpine.DEB.2.21.2006241351430.8121@sstabellini-ThinkPad-T480s> <20200624181026-mutt-send-email-mst@kernel.org> <alpine.DEB.2.21.2006251014230.8121@sstabellini-ThinkPad-T480s>
+ <20200626110629-mutt-send-email-mst@kernel.org> <alpine.DEB.2.21.2006291621300.8121@sstabellini-ThinkPad-T480s> <20200701133456.GA23888@infradead.org> <alpine.DEB.2.21.2007011020320.8121@sstabellini-ThinkPad-T480s> <20200701172219-mutt-send-email-mst@kernel.org>
+ <alpine.DEB.2.21.2007101019340.4124@sstabellini-ThinkPad-T480s> <20200711144334-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <202007141831.F3165F22@keescook>
+In-Reply-To: <20200711144334-mutt-send-email-mst@kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Kees Cook <keescook@chromium.org>
-Cc: Joerg Roedel <joro@8bytes.org>, x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Sean Christopherson <sean.j.christopherson@intel.com>, Martin Radev <martin.b.radev@gmail.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Stefano Stabellini <sstabellini@kernel.org>, jgross@suse.com, Peng Fan <peng.fan@nxp.com>, konrad.wilk@oracle.com, jasowang@redhat.com, x86@kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Christoph Hellwig <hch@infradead.org>, iommu@lists.linux-foundation.org, linux-imx@nxp.com, xen-devel@lists.xenproject.org, boris.ostrovsky@oracle.com, linux-arm-kernel@lists.infradead.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 14, 2020 at 06:34:24PM -0700, Kees Cook wrote:
-> On Tue, Jul 14, 2020 at 02:08:36PM +0200, Joerg Roedel wrote:
-> > +# make sure head64.c is built without stack protector
-> > +nostackp := $(call cc-option, -fno-stack-protector)
-> > +CFLAGS_head64.o		:= $(nostackp)
+On Sat, 11 Jul 2020, Michael S. Tsirkin wrote:
+> On Fri, Jul 10, 2020 at 10:23:22AM -0700, Stefano Stabellini wrote:
+> > Sorry for the late reply -- a couple of conferences kept me busy.
+> > 
+> > 
+> > On Wed, 1 Jul 2020, Michael S. Tsirkin wrote:
+> > > On Wed, Jul 01, 2020 at 10:34:53AM -0700, Stefano Stabellini wrote:
+> > > > Would you be in favor of a more flexible check along the lines of the
+> > > > one proposed in the patch that started this thread:
+> > > > 
+> > > >     if (xen_vring_use_dma())
+> > > >             return true;
+> > > > 
+> > > > 
+> > > > xen_vring_use_dma would be implemented so that it returns true when
+> > > > xen_swiotlb is required and false otherwise.
+> > > 
+> > > Just to stress - with a patch like this virtio can *still* use DMA API
+> > > if PLATFORM_ACCESS is set. So if DMA API is broken on some platforms
+> > > as you seem to be saying, you guys should fix it before doing something
+> > > like this..
+> > 
+> > Yes, DMA API is broken with some interfaces (specifically: rpmesg and
+> > trusty), but for them PLATFORM_ACCESS is never set. That is why the
+> > errors weren't reported before. Xen special case aside, there is no
+> > problem under normal circumstances.
 > 
-> Recent refactoring[1] for stack protector suggests this should just
-> unconditionally be:
-> 
-> CFLAGS_head64.o			+= -fno-stack-protector
-> 
-> But otherwise, yeah, this should be fine here -- it's all early init
-> stuff.
-> 
-> Reviewed-by: Kees Cook <keescook@chromium.org>
+> So why not fix DMA API? Then this patch is not needed.
 
-Thanks, I am not sure this patch will be needed in the next version, as
-I am currently rebasing to tip/master, which also made idt_descr static
-in kernel/idt.c.
+It looks like the conversation is going in circles :-)
 
-So with that I think I have to move the early IDT init functions to
-kernel/idt.c too and setup %gs earlier in head_64.S to make
-stack-protector happy.
+I tried to explain the reason why, even if we fixed the DMA API to work
+with rpmesg and trusty, we still need this patch with the following
+email:  https://marc.info/?l=linux-kernel&m=159347446709625&w=2
 
-The %gs setup actually needs to happen two times, one time when the
-kernel still runs identity mapped and then again when it switched to
-virtual addresses.
 
-Regards,
-
-	Joerg
+At that time it looked like you agreed that we needed to improve this
+check?  (https://marc.info/?l=linux-kernel&m=159363662418250&w=2)
