@@ -1,87 +1,59 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH RFC don't apply] vdpa_sim: endian-ness for config space
-Date: Wed, 15 Jul 2020 22:02:32 +0800
-Message-ID: <8f39dcc1-0899-7ed8-8a6e-75672417b9e3@redhat.com>
-References: <20200715135540.22832-1-mst@redhat.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH] vsock/virtio: annotate 'the_virtio_vsock' RCU pointer
+Date: Wed, 15 Jul 2020 16:34:46 +0200
+Message-ID: <20200715143446.kfl3zb4vwkk4ic4r@steredhat>
+References: <20200710121243.120096-1-sgarzare@redhat.com>
+ <20200713065423-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200715135540.22832-1-mst@redhat.com>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <kvm-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <20200713065423-mutt-send-email-mst@kernel.org>
+Sender: kvm-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: davem@davemloft.net, Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
+On Mon, Jul 13, 2020 at 06:54:43AM -0400, Michael S. Tsirkin wrote:
+> On Fri, Jul 10, 2020 at 02:12:43PM +0200, Stefano Garzarella wrote:
+> > Commit 0deab087b16a ("vsock/virtio: use RCU to avoid use-after-free
+> > on the_virtio_vsock") starts to use RCU to protect 'the_virtio_vsock'
+> > pointer, but we forgot to annotate it.
+> > 
+> > This patch adds the annotation to fix the following sparse errors:
+> > 
+> >     net/vmw_vsock/virtio_transport.c:73:17: error: incompatible types in comparison expression (different address spaces):
+> >     net/vmw_vsock/virtio_transport.c:73:17:    struct virtio_vsock [noderef] __rcu *
+> >     net/vmw_vsock/virtio_transport.c:73:17:    struct virtio_vsock *
+> >     net/vmw_vsock/virtio_transport.c:171:17: error: incompatible types in comparison expression (different address spaces):
+> >     net/vmw_vsock/virtio_transport.c:171:17:    struct virtio_vsock [noderef] __rcu *
+> >     net/vmw_vsock/virtio_transport.c:171:17:    struct virtio_vsock *
+> >     net/vmw_vsock/virtio_transport.c:207:17: error: incompatible types in comparison expression (different address spaces):
+> >     net/vmw_vsock/virtio_transport.c:207:17:    struct virtio_vsock [noderef] __rcu *
+> >     net/vmw_vsock/virtio_transport.c:207:17:    struct virtio_vsock *
+> >     net/vmw_vsock/virtio_transport.c:561:13: error: incompatible types in comparison expression (different address spaces):
+> >     net/vmw_vsock/virtio_transport.c:561:13:    struct virtio_vsock [noderef] __rcu *
+> >     net/vmw_vsock/virtio_transport.c:561:13:    struct virtio_vsock *
+> >     net/vmw_vsock/virtio_transport.c:612:9: error: incompatible types in comparison expression (different address spaces):
+> >     net/vmw_vsock/virtio_transport.c:612:9:    struct virtio_vsock [noderef] __rcu *
+> >     net/vmw_vsock/virtio_transport.c:612:9:    struct virtio_vsock *
+> >     net/vmw_vsock/virtio_transport.c:631:9: error: incompatible types in comparison expression (different address spaces):
+> >     net/vmw_vsock/virtio_transport.c:631:9:    struct virtio_vsock [noderef] __rcu *
+> >     net/vmw_vsock/virtio_transport.c:631:9:    struct virtio_vsock *
+> > 
+> > Fixes: 0deab087b16a ("vsock/virtio: use RCU to avoid use-after-free on the_virtio_vsock")
+> > Reported-by: Michael S. Tsirkin <mst@redhat.com>
+> > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> 
+> 
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> 
+> who's merging this? Dave?
 
-On 2020/7/15 下午9:58, Michael S. Tsirkin wrote:
-> VDPA sim stores config space as native endian, but that
-> is wrong: modern guests expect LE.
-> I coded up the following to fix it up, but it is wrong too:
-> vdpasim_create is called before guest features are known.
->
-> So what should we do? New ioctl to specify the interface used?
-> More ideas?
->
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+I think so, but I forgot the 'net' tag :-(
 
+I'll wait to see if Dave will queue this, otherwise I'll resend with
+the 'net' tag.
 
-Can we do the endian conversion in set_config/get_config()?
-
-Thanks
-
-
->
->
-> ---
->   drivers/vdpa/vdpa_sim/vdpa_sim.c | 22 ++++++++++++++++++++--
->   1 file changed, 20 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> index a9bc5e0fb353..cc754ae0ec15 100644
-> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> @@ -24,6 +24,7 @@
->   #include <linux/etherdevice.h>
->   #include <linux/vringh.h>
->   #include <linux/vdpa.h>
-> +#include <linux/virtio_byteorder.h>
->   #include <linux/vhost_iotlb.h>
->   #include <uapi/linux/virtio_config.h>
->   #include <uapi/linux/virtio_net.h>
-> @@ -72,6 +73,23 @@ struct vdpasim {
->   	u64 features;
->   };
->   
-> +/* TODO: cross-endian support */
-> +static inline bool vdpasim_is_little_endian(struct vdpasim *vdpasim)
-> +{
-> +	return virtio_legacy_is_little_endian() ||
-> +		(vdpasim->features & (1ULL << VIRTIO_F_VERSION_1));
-> +}
-> +
-> +static inline u16 vdpasim16_to_cpu(struct vdpasim *vdpasim, __virtio16 val)
-> +{
-> +	return __virtio16_to_cpu(vdpasim_is_little_endian(vdpasim), val);
-> +}
-> +
-> +static inline __virtio16 cpu_to_vdpasim16(struct vdpasim *vdpasim, u16 val)
-> +{
-> +	return __cpu_to_virtio16(vdpasim_is_little_endian(vdpasim), val);
-> +}
-> +
->   static struct vdpasim *vdpasim_dev;
->   
->   static struct vdpasim *vdpa_to_sim(struct vdpa_device *vdpa)
-> @@ -332,8 +350,8 @@ static struct vdpasim *vdpasim_create(void)
->   		goto err_iommu;
->   
->   	config = &vdpasim->config;
-> -	config->mtu = 1500;
-> -	config->status = VIRTIO_NET_S_LINK_UP;
-> +	config->mtu = cpu_to_vdpasim16(vdpasim, 1500);
-> +	config->status = cpu_to_vdpasim16(vdpasim, VIRTIO_NET_S_LINK_UP);
->   	eth_random_addr(config->mac);
->   
->   	vringh_set_iotlb(&vdpasim->vqs[0].vring, vdpasim->iommu);
+Thanks,
+Stefano
