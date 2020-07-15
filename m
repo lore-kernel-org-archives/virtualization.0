@@ -1,137 +1,90 @@
-From: Peter Zijlstra <peterz@infradead.org>
-Subject: Re: [PATCH v4 45/75] x86/sev-es: Adjust #VC IST Stack on entering
- NMI handler
-Date: Wed, 15 Jul 2020 11:47:02 +0200
-Message-ID: <20200715094702.GF10769@hirez.programming.kicks-ass.net>
-References: <20200714120917.11253-1-joro@8bytes.org>
- <20200714120917.11253-46-joro@8bytes.org>
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v7 2/2] s390: virtio: PV needs VIRTIO I/O device
+ protection
+Date: Wed, 15 Jul 2020 05:50:19 -0400
+Message-ID: <20200715054807-mutt-send-email-mst@kernel.org>
+References: <1594801869-13365-1-git-send-email-pmorel@linux.ibm.com>
+ <1594801869-13365-3-git-send-email-pmorel@linux.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200714120917.11253-46-joro@8bytes.org>
+In-Reply-To: <1594801869-13365-3-git-send-email-pmorel@linux.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
-To: Joerg Roedel <joro@8bytes.org>
-Cc: x86@kernel.org, Joerg Roedel <jroedel@suse.de>, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Sean Christopherson <sean.j.christopherson@intel.com>, Martin Radev <martin.b.radev@gmail.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+To: Pierre Morel <pmorel@linux.ibm.com>
+Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, jasowang@redhat.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 14, 2020 at 02:08:47PM +0200, Joerg Roedel wrote:
-
-> @@ -489,6 +490,9 @@ DEFINE_IDTENTRY_RAW(exc_nmi)
->  	this_cpu_write(nmi_cr2, read_cr2());
->  nmi_restart:
+On Wed, Jul 15, 2020 at 10:31:09AM +0200, Pierre Morel wrote:
+> If protected virtualization is active on s390, the virtio queues are
+> not accessible to the host, unless VIRTIO_F_IOMMU_PLATFORM has been
+> negotiated. Use the new arch_validate_virtio_features() interface to
+> fail probe if that's not the case, preventing a host error on access
+> attempt.
+> 
+> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+> Acked-by: Halil Pasic <pasic@linux.ibm.com>
+> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> ---
+>  arch/s390/mm/init.c | 28 ++++++++++++++++++++++++++++
+>  1 file changed, 28 insertions(+)
+> 
+> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+> index 6dc7c3b60ef6..d39af6554d4f 100644
+> --- a/arch/s390/mm/init.c
+> +++ b/arch/s390/mm/init.c
+> @@ -45,6 +45,7 @@
+>  #include <asm/kasan.h>
+>  #include <asm/dma-mapping.h>
+>  #include <asm/uv.h>
+> +#include <linux/virtio_config.h>
 >  
-> +	/* Needs to happen before DR7 is accessed */
-> +	sev_es_ist_enter(regs);
-> +
->  	this_cpu_write(nmi_dr7, local_db_save());
+>  pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
 >  
->  	nmi_enter();
-> @@ -502,6 +506,8 @@ DEFINE_IDTENTRY_RAW(exc_nmi)
->  
->  	local_db_restore(this_cpu_read(nmi_dr7));
->  
-> +	sev_es_ist_exit();
-> +
->  	if (unlikely(this_cpu_read(nmi_cr2) != read_cr2()))
->  		write_cr2(this_cpu_read(nmi_cr2));
->  	if (this_cpu_dec_return(nmi_state))
-
-I really hate all this #VC stuff :-(
-
-So the above will make the NMI do 4 unconditional extra CALL+RET, a LOAD
-(which will potentially miss) and a compare and branch.
-
-How's that a win for normal people? Can we please turn all these
-sev_es_*() hooks into something like:
-
-DECLARE_STATIC_KEY_FALSE(sev_es_enabled_key);
-
-static __always_inline void sev_es_foo()
-{
-	if (static_branch_unlikely(&sev_es_enabled_key))
-		__sev_es_foo();
-}
-
-So that normal people will only see an extra NOP?
-
-> diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-> index d415368f16ec..2a7cc72db1d5 100644
-> --- a/arch/x86/kernel/sev-es.c
-> +++ b/arch/x86/kernel/sev-es.c
-> @@ -78,6 +78,67 @@ static void __init sev_es_setup_vc_stacks(int cpu)
->  	tss->x86_tss.ist[IST_INDEX_VC] = CEA_ESTACK_TOP(&cea->estacks, VC);
+> @@ -161,6 +162,33 @@ bool force_dma_unencrypted(struct device *dev)
+>  	return is_prot_virt_guest();
 >  }
 >  
-> +static bool on_vc_stack(unsigned long sp)
-
-noinstr or __always_inline
-
-> +{
-> +	return ((sp >= __this_cpu_ist_bot_va(VC)) && (sp < __this_cpu_ist_top_va(VC)));
-> +}
-> +
 > +/*
-> + * This function handles the case when an NMI or an NMI-like exception
-> + * like #DB is raised in the #VC exception handler entry code. In this
-
-I've yet to find you handle the NMI-like cases..
-
-> + * case the IST entry for VC must be adjusted, so that any subsequent VC
-> + * exception will not overwrite the stack contents of the interrupted VC
-> + * handler.
+> + * arch_validate_virtio_features
+> + * @dev: the VIRTIO device being added
 > + *
-> + * The IST entry is adjusted unconditionally so that it can be also be
-> + * unconditionally back-adjusted in sev_es_nmi_exit(). Otherwise a
-> + * nested nmi_exit() call (#VC->NMI->#DB) may back-adjust the IST entry
-> + * too early.
-
-Is this comment accurate, I cannot find the patch touching
-nmi_enter/exit()?
-
+> + * Return an error if required features are missing on a guest running
+> + * with protected virtualization.
 > + */
-> +void noinstr sev_es_ist_enter(struct pt_regs *regs)
+> +int arch_validate_virtio_features(struct virtio_device *dev)
 > +{
-> +	unsigned long old_ist, new_ist;
-> +	unsigned long *p;
+> +	if (!is_prot_virt_guest())
+> +		return 0;
 > +
-> +	if (!sev_es_active())
-> +		return;
+> +	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
+> +		dev_warn(&dev->dev,
+> +			 "legacy virtio not supported with protected virtualization\n");
+> +		return -ENODEV;
+> +	}
 > +
-> +	/* Read old IST entry */
-> +	old_ist = __this_cpu_read(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC]);
+> +	if (!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
+> +		dev_warn(&dev->dev,
+> +			 "support for limited memory access required for protected virtualization\n");
+> +		return -ENODEV;
+> +	}
 > +
-> +	/* Make room on the IST stack */
-> +	if (on_vc_stack(regs->sp))
-> +		new_ist = ALIGN_DOWN(regs->sp, 8) - sizeof(old_ist);
-> +	else
-> +		new_ist = old_ist - sizeof(old_ist);
-> +
-> +	/* Store old IST entry */
-> +	p       = (unsigned long *)new_ist;
-> +	*p      = old_ist;
-> +
-> +	/* Set new IST entry */
-> +	this_cpu_write(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC], new_ist);
+> +	return 0;
 > +}
 > +
-> +void noinstr sev_es_ist_exit(void)
-> +{
-> +	unsigned long ist;
-> +	unsigned long *p;
-> +
-> +	if (!sev_es_active())
-> +		return;
-> +
-> +	/* Read IST entry */
-> +	ist = __this_cpu_read(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC]);
-> +
-> +	if (WARN_ON(ist == __this_cpu_ist_top_va(VC)))
-> +		return;
-> +
-> +	/* Read back old IST entry and write it to the TSS */
-> +	p = (unsigned long *)ist;
-> +	this_cpu_write(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC], *p);
-> +}
+>  /* protected virtualization */
+>  static void pv_init(void)
+>  {
 
-That's pretty disguisting :-(
+What bothers me here is that arch code depends on virtio now.
+It works even with a modular virtio when functions are inline,
+but it seems fragile: e.g. it breaks virtio as an out of tree module,
+since layout of struct virtio_device can change.
+
+I'm not sure what to do with this yet, will try to think about it
+over the weekend. Thanks!
+
+
+> -- 
+> 2.25.1
