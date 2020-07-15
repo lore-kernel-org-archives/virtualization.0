@@ -1,58 +1,54 @@
 From: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Subject: [PATCH v2 0/8] spelling.txt: /decriptors/descriptors/
-Date: Wed, 15 Jul 2020 13:48:31 +0100
-Message-ID: <20200715124839.252822-1-kieran.bingham+renesas@ideasonboard.com>
+Subject: [PATCH v2 7/8] mm/balloon_compaction: Fix trivial spelling
+Date: Wed, 15 Jul 2020 13:48:38 +0100
+Message-ID: <20200715124839.252822-8-kieran.bingham+renesas@ideasonboard.com>
+References: <20200715124839.252822-1-kieran.bingham+renesas@ideasonboard.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Return-path: <linux-input-owner@vger.kernel.org>
-Sender: linux-input-owner@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200715124839.252822-1-kieran.bingham+renesas@ideasonboard.com>
+Sender: linux-kernel-owner@vger.kernel.org
 To: trivial@kernel.org
-Cc: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, linux-input@vger.kernel.org, netdev@vger.kernel.org, ath10k@lists.infradead.org, linux-wireless@vger.kernel.org, virtualization@lists.linux-foundation.org, linux-mm@kvack.org
+Cc: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>, David Hildenbrand <david@redhat.com>, Souptick Joarder <jrdr.linux@gmail.com>, "Michael S . Tsirkin" <mst@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, "open list:VIRTIO BALLOON" <virtualization@lists.linux-foundation.org>, "open list:MEMORY MANAGEMENT" <linux-mm@kvack.org>, open list <linux-kernel@vger.kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-I wouldn't normally go through spelling fixes, but I caught sight of
-this typo twice, and then foolishly grepped the tree for it, and saw how
-pervasive it was.
+The word 'descriptor' is misspelled throughout the tree.
 
-so here I am ... fixing a typo globally... but with an addition in
-scripts/spelling.txt so it shouldn't re-appear ;-)
+Fix it up accordingly:
+    decriptor -> descriptor
 
-V2: Posting before the merge windows close to pick up the last few
-non-merged patches, and ideally - to get the actaul spelling.txt entry
-picked up, and this time including trivial@kernel.org to let these get
-head through that tree if required.
+Signed-off-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Acked-by: Souptick Joarder <jrdr.linux@gmail.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+---
+v2:
+ - Fix commit message to reflect actual word replaced
+---
+ mm/balloon_compaction.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Cc: trivial@kernel.org
-Cc: linux-arm-kernel@lists.infradead.org (moderated list:ARM SUB-ARCHITECTURES)
-Cc: linux-kernel@vger.kernel.org (open list)
-Cc: linux-input@vger.kernel.org (open list:INPUT (KEYBOARD, MOUSE, JOYSTICK, TOUCHSCREEN)...)
-Cc: netdev@vger.kernel.org (open list:NETWORKING DRIVERS)
-Cc: ath10k@lists.infradead.org (open list:QUALCOMM ATHEROS ATH10K WIRELESS DRIVER)
-Cc: linux-wireless@vger.kernel.org (open list:NETWORKING DRIVERS (WIRELESS))
-Cc: virtualization@lists.linux-foundation.org (open list:VIRTIO BALLOON)
-Cc: linux-mm@kvack.org (open list:MEMORY MANAGEMENT)
-
-Kieran Bingham (17):
-  arch: arm: mach-davinci: Fix trivial spelling
-  drivers: input: joystick: Fix trivial spelling
-  drivers: net: wan: Fix trivial spelling
-  drivers: net: wireless: Fix trivial spelling
-  include: dynamic_debug.h: Fix trivial spelling
-  kernel: trace: Fix trivial spelling
-  mm/balloon_compaction: Fix trivial spelling
-  scripts/spelling.txt: Add descriptors correction
-
- arch/arm/mach-davinci/board-da830-evm.c | 2 +-
- drivers/input/joystick/spaceball.c      | 2 +-
- drivers/net/wan/lmc/lmc_main.c          | 2 +-
- drivers/net/wireless/ath/ath10k/usb.c   | 2 +-
- drivers/net/wireless/ath/ath6kl/usb.c   | 2 +-
- drivers/net/wireless/cisco/airo.c       | 2 +-
- include/linux/dynamic_debug.h           | 2 +-
- kernel/trace/trace_events.c             | 2 +-
- mm/balloon_compaction.c                 | 4 ++--
- scripts/spelling.txt                    | 2 ++
- 10 files changed, 12 insertions(+), 10 deletions(-)
-
+diff --git a/mm/balloon_compaction.c b/mm/balloon_compaction.c
+index 26de020aae7b..907fefde2572 100644
+--- a/mm/balloon_compaction.c
++++ b/mm/balloon_compaction.c
+@@ -58,7 +58,7 @@ EXPORT_SYMBOL_GPL(balloon_page_list_enqueue);
+ /**
+  * balloon_page_list_dequeue() - removes pages from balloon's page list and
+  *				 returns a list of the pages.
+- * @b_dev_info: balloon device decriptor where we will grab a page from.
++ * @b_dev_info: balloon device descriptor where we will grab a page from.
+  * @pages: pointer to the list of pages that would be returned to the caller.
+  * @n_req_pages: number of requested pages.
+  *
+@@ -157,7 +157,7 @@ EXPORT_SYMBOL_GPL(balloon_page_enqueue);
+ /*
+  * balloon_page_dequeue - removes a page from balloon's page list and returns
+  *			  its address to allow the driver to release the page.
+- * @b_dev_info: balloon device decriptor where we will grab a page from.
++ * @b_dev_info: balloon device descriptor where we will grab a page from.
+  *
+  * Driver must call this function to properly dequeue a previously enqueued page
+  * before definitively releasing it back to the guest system.
 -- 
 2.25.1
