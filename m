@@ -1,106 +1,116 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v7 2/2] s390: virtio: PV needs VIRTIO I/O device
- protection
-Date: Wed, 15 Jul 2020 07:51:28 -0400
-Message-ID: <20200715074917-mutt-send-email-mst@kernel.org>
-References: <1594801869-13365-1-git-send-email-pmorel@linux.ibm.com>
- <1594801869-13365-3-git-send-email-pmorel@linux.ibm.com>
- <20200715054807-mutt-send-email-mst@kernel.org>
- <bc5e09ad-faaf-8b38-83e0-5f4a4b1daeb0@redhat.com>
+Subject: Re: [PATCH] virtio-blk: check host supplied logical block size
+Date: Wed, 15 Jul 2020 07:53:04 -0400
+Message-ID: <20200715075151-mutt-send-email-mst@kernel.org>
+References: <20200715095518.3724-1-mlevitsk@redhat.com>
+ <20200715060233-mutt-send-email-mst@kernel.org>
+ <5dd5af8032160eb49a4f0e38749e2d9cd968a0d6.camel@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-block-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <bc5e09ad-faaf-8b38-83e0-5f4a4b1daeb0@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: Pierre Morel <pmorel@linux.ibm.com>, linux-kernel@vger.kernel.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
+In-Reply-To: <5dd5af8032160eb49a4f0e38749e2d9cd968a0d6.camel@redhat.com>
+Sender: linux-block-owner@vger.kernel.org
+To: Maxim Levitsky <mlevitsk@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, "open list:BLOCK LAYER" <linux-block@vger.kernel.org>, "open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux-foundation.org>, Paolo Bonzini <pbonzini@redhat.com>, Jason Wang <jasowang@redhat.com>, Jens Axboe <axboe@kernel.dk>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 15, 2020 at 06:16:59PM +0800, Jason Wang wrote:
-> 
-> On 2020/7/15 下午5:50, Michael S. Tsirkin wrote:
-> > On Wed, Jul 15, 2020 at 10:31:09AM +0200, Pierre Morel wrote:
-> > > If protected virtualization is active on s390, the virtio queues are
-> > > not accessible to the host, unless VIRTIO_F_IOMMU_PLATFORM has been
-> > > negotiated. Use the new arch_validate_virtio_features() interface to
-> > > fail probe if that's not the case, preventing a host error on access
-> > > attempt.
+On Wed, Jul 15, 2020 at 01:19:55PM +0300, Maxim Levitsky wrote:
+> On Wed, 2020-07-15 at 06:06 -0400, Michael S. Tsirkin wrote:
+> > On Wed, Jul 15, 2020 at 12:55:18PM +0300, Maxim Levitsky wrote:
+> > > Linux kernel only supports logical block sizes which are power of
+> > > two,
+> > > at least 512 bytes and no more that PAGE_SIZE.
 > > > 
-> > > Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> > > Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-> > > Acked-by: Halil Pasic <pasic@linux.ibm.com>
-> > > Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+> > > Check this instead of crashing later on.
+> > > 
+> > > Note that there is no need to check physical block size since it is
+> > > only a hint, and virtio-blk already only supports power of two
+> > > values.
+> > > 
+> > > Bugzilla link: https://bugzilla.redhat.com/show_bug.cgi?id=1664619
+> > > 
+> > > Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
 > > > ---
-> > >   arch/s390/mm/init.c | 28 ++++++++++++++++++++++++++++
-> > >   1 file changed, 28 insertions(+)
+> > >  drivers/block/virtio_blk.c | 20 ++++++++++++++++++--
+> > >  1 file changed, 18 insertions(+), 2 deletions(-)
 > > > 
-> > > diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-> > > index 6dc7c3b60ef6..d39af6554d4f 100644
-> > > --- a/arch/s390/mm/init.c
-> > > +++ b/arch/s390/mm/init.c
-> > > @@ -45,6 +45,7 @@
-> > >   #include <asm/kasan.h>
-> > >   #include <asm/dma-mapping.h>
-> > >   #include <asm/uv.h>
-> > > +#include <linux/virtio_config.h>
-> > >   pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
-> > > @@ -161,6 +162,33 @@ bool force_dma_unencrypted(struct device *dev)
-> > >   	return is_prot_virt_guest();
-> > >   }
-> > > +/*
-> > > + * arch_validate_virtio_features
-> > > + * @dev: the VIRTIO device being added
-> > > + *
-> > > + * Return an error if required features are missing on a guest running
-> > > + * with protected virtualization.
-> > > + */
-> > > +int arch_validate_virtio_features(struct virtio_device *dev)
+> > > diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> > > index 980df853ee497..36dda31cc4e96 100644
+> > > --- a/drivers/block/virtio_blk.c
+> > > +++ b/drivers/block/virtio_blk.c
+> > > @@ -681,6 +681,12 @@ static const struct blk_mq_ops virtio_mq_ops =
+> > > {
+> > >  static unsigned int virtblk_queue_depth;
+> > >  module_param_named(queue_depth, virtblk_queue_depth, uint, 0444);
+> > >  
+> > > +
+> > > +static bool virtblk_valid_block_size(unsigned int blksize)
 > > > +{
-> > > +	if (!is_prot_virt_guest())
-> > > +		return 0;
-> > > +
-> > > +	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
-> > > +		dev_warn(&dev->dev,
-> > > +			 "legacy virtio not supported with protected virtualization\n");
-> > > +		return -ENODEV;
-> > > +	}
-> > > +
-> > > +	if (!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
-> > > +		dev_warn(&dev->dev,
-> > > +			 "support for limited memory access required for protected virtualization\n");
-> > > +		return -ENODEV;
-> > > +	}
-> > > +
-> > > +	return 0;
+> > > +	return blksize >= 512 && blksize <= PAGE_SIZE &&
+> > > is_power_of_2(blksize);
 > > > +}
 > > > +
-> > >   /* protected virtualization */
-> > >   static void pv_init(void)
-> > >   {
-> > What bothers me here is that arch code depends on virtio now.
-> > It works even with a modular virtio when functions are inline,
-> > but it seems fragile: e.g. it breaks virtio as an out of tree module,
-> > since layout of struct virtio_device can change.
+> > 
+> > Is this a blk core assumption? in that case, does not this belong
+> > in blk core?
 > 
+> It is a blk core assumption. 
+> I had checked other drivers and these that have variable block size all
+> check this manually like that.
 > 
-> The code was only called from virtio.c so it should be fine.
-> 
-> And my understanding is that we don't need to care about the kABI issue
-> during upstream development?
-> 
-> Thanks
+> I don't mind fixing all of them but I am a bit afraid to create
+> too much mess.
 
-No, but so far it has been convenient at least for me, for development,
-to just be able to unload all of virtio and load a different version.
+You don't have to, start by adding this in blk core and using in virtio.
+Patches to update all drivers can then come separately.
 
-
+> > 
+> > >  static int virtblk_probe(struct virtio_device *vdev)
+> > >  {
+> > >  	struct virtio_blk *vblk;
+> > > @@ -809,9 +815,16 @@ static int virtblk_probe(struct virtio_device
+> > > *vdev)
+> > >  	err = virtio_cread_feature(vdev, VIRTIO_BLK_F_BLK_SIZE,
+> > >  				   struct virtio_blk_config, blk_size,
+> > >  				   &blk_size);
+> > > -	if (!err)
+> > > +	if (!err) {
+> > > +		if (!virtblk_valid_block_size(blk_size)) {
+> > > +			dev_err(&vdev->dev,
+> > > +				"%s failure: unsupported logical block
+> > > size %d\n",
+> > > +				__func__, blk_size);
+> > > +			err = -EINVAL;
+> > > +			goto out_cleanup_queue;
+> > > +		}
+> > >  		blk_queue_logical_block_size(q, blk_size);
+> > > -	else
+> > > +	} else
+> > >  		blk_size = queue_logical_block_size(q);
+> > >  
+> > >  	/* Use topology information if available */
+> > 
+> > OK so if we are doing this pls add {} around  blk_size =
+> > queue_logical_block_size(q);
+> > too.
+> Will do.
 > 
 > > 
-> > I'm not sure what to do with this yet, will try to think about it
-> > over the weekend. Thanks!
-> > 
-> > 
+> > > @@ -872,6 +885,9 @@ static int virtblk_probe(struct virtio_device
+> > > *vdev)
+> > >  	device_add_disk(&vdev->dev, vblk->disk, virtblk_attr_groups);
+> > >  	return 0;
+> > >  
+> > > +out_cleanup_queue:
+> > > +	blk_cleanup_queue(vblk->disk->queue);
+> > > +	vblk->disk->queue = NULL;
+> > >  out_free_tags:
+> > >  	blk_mq_free_tag_set(&vblk->tag_set);
+> > >  out_put_disk:
 > > > -- 
-> > > 2.25.1
+> > > 2.26.2
+> 
+> 
+> Best regards,
+> 	Maxim Levitsky
