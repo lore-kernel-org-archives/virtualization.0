@@ -1,91 +1,39 @@
-From: Ming Lei <tom.leiming@gmail.com>
-Subject: Re: [PATCH] virtio-blk: check host supplied logical block size
-Date: Wed, 15 Jul 2020 18:33:56 +0800
-Message-ID: <CACVXFVNu+HjGJUvAEK96TB7pOC=k=p5f0Yg3K6t_13qudDAjjw@mail.gmail.com>
-References: <20200715095518.3724-1-mlevitsk@redhat.com>
+From: Peter Zijlstra <peterz@infradead.org>
+Subject: Re: [PATCH v4 45/75] x86/sev-es: Adjust #VC IST Stack on entering
+ NMI handler
+Date: Wed, 15 Jul 2020 12:56:29 +0200
+Message-ID: <20200715105629.GK10769@hirez.programming.kicks-ass.net>
+References: <20200714120917.11253-1-joro@8bytes.org>
+ <20200714120917.11253-46-joro@8bytes.org>
+ <20200715094702.GF10769@hirez.programming.kicks-ass.net>
+ <20200715102653.GN16200@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Return-path: <linux-block-owner@vger.kernel.org>
-In-Reply-To: <20200715095518.3724-1-mlevitsk@redhat.com>
-Sender: linux-block-owner@vger.kernel.org
-To: Maxim Levitsky <mlevitsk@redhat.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, Jens Axboe <axboe@kernel.dk>, "Michael S. Tsirkin" <mst@redhat.com>, "open list:VIRTIO CORE AND NET DRIVERS" <virtualization@lists.linux-foundation.org>, "open list:BLOCK LAYER" <linux-block@vger.kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Disposition: inline
+In-Reply-To: <20200715102653.GN16200@suse.de>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Joerg Roedel <jroedel@suse.de>
+Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Dave Hansen <dave.hansen@linux.intel.com>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Cfir Cohen <cfir@google.com>, Joerg Roedel <joro@8bytes.org>, x86@kernel.org, linux-kernel@vger.kernel.org, Sean Christopherson <sean.j.christopherson@intel.com>, virtualization@lists.linux-foundation.org, Martin Radev <martin.b.radev@gmail.com>, Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 15, 2020 at 5:55 PM Maxim Levitsky <mlevitsk@redhat.com> wrote:
->
-> Linux kernel only supports logical block sizes which are power of two,
-> at least 512 bytes and no more that PAGE_SIZE.
->
-> Check this instead of crashing later on.
->
-> Note that there is no need to check physical block size since it is
-> only a hint, and virtio-blk already only supports power of two values.
->
-> Bugzilla link: https://bugzilla.redhat.com/show_bug.cgi?id=1664619
->
-> Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-> ---
->  drivers/block/virtio_blk.c | 20 ++++++++++++++++++--
->  1 file changed, 18 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 980df853ee497..36dda31cc4e96 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -681,6 +681,12 @@ static const struct blk_mq_ops virtio_mq_ops = {
->  static unsigned int virtblk_queue_depth;
->  module_param_named(queue_depth, virtblk_queue_depth, uint, 0444);
->
-> +
-> +static bool virtblk_valid_block_size(unsigned int blksize)
-> +{
-> +       return blksize >= 512 && blksize <= PAGE_SIZE && is_power_of_2(blksize);
-> +}
-> +
->  static int virtblk_probe(struct virtio_device *vdev)
->  {
->         struct virtio_blk *vblk;
-> @@ -809,9 +815,16 @@ static int virtblk_probe(struct virtio_device *vdev)
->         err = virtio_cread_feature(vdev, VIRTIO_BLK_F_BLK_SIZE,
->                                    struct virtio_blk_config, blk_size,
->                                    &blk_size);
-> -       if (!err)
-> +       if (!err) {
-> +               if (!virtblk_valid_block_size(blk_size)) {
-> +                       dev_err(&vdev->dev,
-> +                               "%s failure: unsupported logical block size %d\n",
-> +                               __func__, blk_size);
-> +                       err = -EINVAL;
-> +                       goto out_cleanup_queue;
-> +               }
->                 blk_queue_logical_block_size(q, blk_size);
-> -       else
-> +       } else
->                 blk_size = queue_logical_block_size(q);
->
->         /* Use topology information if available */
-> @@ -872,6 +885,9 @@ static int virtblk_probe(struct virtio_device *vdev)
->         device_add_disk(&vdev->dev, vblk->disk, virtblk_attr_groups);
->         return 0;
->
-> +out_cleanup_queue:
-> +       blk_cleanup_queue(vblk->disk->queue);
-> +       vblk->disk->queue = NULL;
->  out_free_tags:
->         blk_mq_free_tag_set(&vblk->tag_set);
->  out_put_disk:
-> --
-> 2.26.2
->
-> _______________________________________________
-> Virtualization mailing list
-> Virtualization@lists.linux-foundation.org
-> https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+On Wed, Jul 15, 2020 at 12:26:53PM +0200, Joerg Roedel wrote:
+> On Wed, Jul 15, 2020 at 11:47:02AM +0200, Peter Zijlstra wrote:
 
-Looks fine,
+> > That's pretty disguisting :-(
+> 
+> Yeah, but its needed because ... IST :(
+> I am open for suggestions on how to make it less disgusting. Or maybe
+> you like it more if you think of it as a software implementation of what
+> hardware should actually do to make IST less painful.
 
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-
--- 
-Ming Lei
+No bright ideas, sadly..
