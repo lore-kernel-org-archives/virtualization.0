@@ -1,39 +1,76 @@
-From: Joerg Roedel <jroedel@suse.de>
-Subject: Re: [PATCH v4 00/75] x86: SEV-ES Guest Support
-Date: Wed, 15 Jul 2020 11:34:26 +0200
-Message-ID: <20200715093426.GK16200@suse.de>
-References: <20200714120917.11253-1-joro@8bytes.org>
- <20200715092456.GE10769@hirez.programming.kicks-ass.net>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 3/7] vhost_vdpa: implement IRQ offloading functions in
+ vhost_vdpa
+Date: Wed, 15 Jul 2020 17:42:33 +0800
+Message-ID: <c9f2ffb0-adc0-8846-9578-1f75a4374df1@redhat.com>
+References: <1594565366-3195-1-git-send-email-lingshan.zhu@intel.com>
+ <1594565366-3195-3-git-send-email-lingshan.zhu@intel.com>
+ <3fb9ecfc-a325-69b5-f5b7-476a5683a324@redhat.com>
+ <e06f9706-441f-0d7a-c8c0-cd43a26c5296@intel.com>
+ <f352a1d1-6732-3237-c85e-ffca085195ff@redhat.com>
+ <8f52ee3a-7a08-db14-9194-8085432481a4@intel.com>
+ <2bd946e3-1524-efa5-df2b-3f6da66d2069@redhat.com>
+ <61c1753a-43dc-e448-6ece-13a19058e621@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200715092456.GE10769@hirez.programming.kicks-ass.net>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Joerg Roedel <joro@8bytes.org>, x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Sean Christopherson <sean.j.christopherson@intel.com>, Martin Radev <martin.b.radev@gmail.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <61c1753a-43dc-e448-6ece-13a19058e621@intel.com>
+Content-Language: en-US
+Sender: netdev-owner@vger.kernel.org
+To: "Zhu, Lingshan" <lingshan.zhu@intel.com>, mst@redhat.com, alex.williamson@redhat.com, pbonzini@redhat.com, sean.j.christopherson@intel.com, wanpengli@tencent.com
+Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, netdev@vger.kernel.org, dan.daly@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 15, 2020 at 11:24:56AM +0200, Peter Zijlstra wrote:
-> Can we get some more words -- preferably in actual code comments, on
-> when exactly #VC happens?
 
-Sure, will add this as a comment before the actual runtime VC handler.
+On 2020/7/15 下午5:20, Zhu, Lingshan wrote:
+>>>>
+>>>> I meant something like:
+>>>>
+>>>> unregister();
+>>>> vq->call_ctx.producer.token = ctx;
+>>>> register();
+>>> This is what we are doing now, or I must missed somethig:
+>>> if (ctx && ctx != token) {
+>>>     irq_bypass_unregister_producer(&vq->call_ctx.producer);
+>>>     vq->call_ctx.producer.token = ctx;
+>>>     irq_bypass_register_producer(&vq->call_ctx.producer);
+>>>
+>>> }
+>>>
+>>> It just unregister and register.
+>>
+>>
+>> I meant there's probably no need for the check and another check and 
+>> unregister before. The whole function is as simple as I suggested above.
+>>
+>> Thanks
+> IMHO we still need the checks, this function handles three cases:
+> (1)if the ctx == token, we do nothing. For this unregister and register can work, but waste of time.
 
-> Because the only thing I remember is that #VC could happen on any memop,
-> but I also have vague memories of that being a later extention.
 
-Currently it is only raised when something happens that the hypervisor
-intercepts, for example on a couple of instructions like CPUID,
-RD/WRMSR, ..., or on MMIO/IOIO accesses.
+But we have a more simple code and we don't care about the performance 
+here since the operations is rare.
 
-With Secure Nested Paging (SNP), which needs additional enablement, a #VC can
-happen on any memory access. I wrote the IST handling entry code for #VC
-with that in mind, but do not actually enable it. This is the reason why
-the #VC handler just panics the system when it ends up on the fall-back
-(VC2) stack, with SNP enabled it needs to handle the SNP exit-codes in
-that path.
 
-Regards,
+> (2)if token exists but ctx is NULL, this means user space issued an unbind, so we need to only unregister the producer.
 
-	Joerg
+
+Note that the register/unregister have a graceful check of whether or 
+not there's a token.
+
+
+> (3)if ctx exists and ctx!=token, this means there is a new ctx, we need to update producer by unregister and register.
+>
+> I think we can not simply handle all these cases by "unregister and register".
+
+
+So it looks to me the functions are equivalent.
+
+Thanks
+
+
+>
+> Thanks,
+> BR
+> Zhu Lingshan
