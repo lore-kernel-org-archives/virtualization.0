@@ -1,85 +1,75 @@
-From: Kees Cook <keescook@chromium.org>
-Subject: Re: [PATCH v4 70/75] x86/head/64: Don't call verify_cpu() on
- starting APs
-Date: Tue, 14 Jul 2020 18:40:30 -0700
-Message-ID: <202007141837.2B93BBD78@keescook>
-References: <20200714120917.11253-1-joro@8bytes.org>
- <20200714120917.11253-71-joro@8bytes.org>
+From: Martin Wilck <mwilck@suse.com>
+Subject: Re: [PATCH] virtio-rng: return available data with O_NONBLOCK
+Date: Wed, 15 Jul 2020 09:05:56 +0200
+Message-ID: <4b9cc7d60fdbd8fa41686fb94ed55e354fe6fa20.camel@suse.com>
+References: <20200714220019.10854-1-mwilck@suse.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200714120917.11253-71-joro@8bytes.org>
-Sender: kvm-owner@vger.kernel.org
-To: Joerg Roedel <joro@8bytes.org>
-Cc: x86@kernel.org, Joerg Roedel <jroedel@suse.de>, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Sean Christopherson <sean.j.christopherson@intel.com>, Martin Radev <martin.b.radev@gmail.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset="ISO-8859-15"
+Content-Transfer-Encoding: 7bit
+Return-path: <qemu-devel-bounces+gceq-qemu-devel2=m.gmane-mx.org@nongnu.org>
+In-Reply-To: <20200714220019.10854-1-mwilck@suse.com>
+List-Unsubscribe: <https://lists.nongnu.org/mailman/options/qemu-devel>,
+ <mailto:qemu-devel-request@nongnu.org?subject=unsubscribe>
+List-Archive: <https://lists.nongnu.org/archive/html/qemu-devel>
+List-Post: <mailto:qemu-devel@nongnu.org>
+List-Help: <mailto:qemu-devel-request@nongnu.org?subject=help>
+List-Subscribe: <https://lists.nongnu.org/mailman/listinfo/qemu-devel>,
+ <mailto:qemu-devel-request@nongnu.org?subject=subscribe>
+Errors-To: qemu-devel-bounces+gceq-qemu-devel2=m.gmane-mx.org@nongnu.org
+Sender: "Qemu-devel"
+ <qemu-devel-bounces+gceq-qemu-devel2=m.gmane-mx.org@nongnu.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 14, 2020 at 02:09:12PM +0200, Joerg Roedel wrote:
-> From: Joerg Roedel <jroedel@suse.de>
+On Wed, 2020-07-15 at 00:00 +0200, mwilck@suse.com wrote:
+> From: Martin Wilck <mwilck@suse.com>
 > 
-> The APs are not ready to handle exceptions when verify_cpu() is called
-> in secondary_startup_64.
-
-Eek, no. MSR_IA32_MISC_ENABLE_XD_DISABLE needs to be cleared very early
-during CPU startup; this can't just be skipped.
-
-Also, is UNWIND_HINT_EMPTY needed for the new target?
-
--Kees
-
+> If a program opens /dev/hwrng with O_NONBLOCK and uses poll() and
+> non-blocking read() to retrieve random data, it ends up in a tight
+> loop with poll() always returning POLLIN and read() returning EAGAIN.
+> This repeats forever until some process makes a blocking read() call.
+> The reason is that virtio_read() always returns 0 in non-blocking
+> mode,
+> even if data is available.
 > 
-> Signed-off-by: Joerg Roedel <jroedel@suse.de>
+> The following test program illustrates the behavior.
+
+...
+
+> This can be observed in the real word e.g. with nested qemu/KVM
+> virtual
+> machines, if both the "outer" and "inner" VMs have a virtio-rng
+> device.
+> If the "inner" VM requests random data, qemu running in the "outer"
+> VM
+> uses this device in a non-blocking manner like the test program
+> above.
+> 
+> Fix it by returning available data if it exists.
+> 
+> Signed-off-by: Martin Wilck <mwilck@suse.com>
 > ---
->  arch/x86/include/asm/realmode.h | 1 +
->  arch/x86/kernel/head_64.S       | 1 +
->  arch/x86/realmode/init.c        | 6 ++++++
->  3 files changed, 8 insertions(+)
+>  drivers/char/hw_random/virtio-rng.c | 3 +++
+>  1 file changed, 3 insertions(+)
 > 
-> diff --git a/arch/x86/include/asm/realmode.h b/arch/x86/include/asm/realmode.h
-> index 6590394af309..5c97807c38a4 100644
-> --- a/arch/x86/include/asm/realmode.h
-> +++ b/arch/x86/include/asm/realmode.h
-> @@ -69,6 +69,7 @@ extern unsigned char startup_32_smp[];
->  extern unsigned char boot_gdt[];
->  #else
->  extern unsigned char secondary_startup_64[];
-> +extern unsigned char secondary_startup_64_no_verify[];
->  #endif
+> diff --git a/drivers/char/hw_random/virtio-rng.c
+> b/drivers/char/hw_random/virtio-rng.c
+> index 79a6e47b5fbc..94806308d814 100644
+> --- a/drivers/char/hw_random/virtio-rng.c
+> +++ b/drivers/char/hw_random/virtio-rng.c
+> @@ -59,6 +59,9 @@ static int virtio_read(struct hwrng *rng, void
+> *buf, size_t size, bool wait)
+>  	if (vi->hwrng_removed)
+>  		return -ENODEV;
 >  
->  static inline size_t real_mode_size_needed(void)
-> diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
-> index 5b577d6bce7a..8b43ed0592e8 100644
-> --- a/arch/x86/kernel/head_64.S
-> +++ b/arch/x86/kernel/head_64.S
-> @@ -165,6 +165,7 @@ SYM_CODE_START(secondary_startup_64)
->  	/* Sanitize CPU configuration */
->  	call verify_cpu
->  
-> +SYM_INNER_LABEL(secondary_startup_64_no_verify, SYM_L_GLOBAL)
->  	/*
->  	 * Retrieve the modifier (SME encryption mask if SME is active) to be
->  	 * added to the initial pgdir entry that will be programmed into CR3.
-> diff --git a/arch/x86/realmode/init.c b/arch/x86/realmode/init.c
-> index 61a52b925d15..df701f87ddef 100644
-> --- a/arch/x86/realmode/init.c
-> +++ b/arch/x86/realmode/init.c
-> @@ -46,6 +46,12 @@ static void sme_sev_setup_real_mode(struct trampoline_header *th)
->  		th->flags |= TH_FLAGS_SME_ACTIVE;
->  
->  	if (sev_es_active()) {
-> +		/*
-> +		 * Skip the call to verify_cpu() in secondary_startup_64 as it
-> +		 * will cause #VC exceptions when the AP can't handle them yet.
-> +		 */
-> +		th->start = (u64) secondary_startup_64_no_verify;
+> +	if (vi->data_avail >= size || (vi->data_avail && !wait))
+> +		return vi->data_avail;
 > +
->  		if (sev_es_setup_ap_jump_table(real_mode_header))
->  			panic("Failed to update SEV-ES AP Jump Table");
->  	}
-> -- 
-> 2.27.0
-> 
+>  	if (!vi->busy) {
+>  		vi->busy = true;
+>  		reinit_completion(&vi->have_data);
 
--- 
-Kees Cook
+This patch was nonsense. I'm sorry. Looking into it again.
+
+Martin
