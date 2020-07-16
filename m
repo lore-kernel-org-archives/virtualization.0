@@ -1,55 +1,202 @@
-From: Zhu Lingshan <lingshan.zhu@intel.com>
-Subject: [PATCH V2 6/6] irqbypass: do not start cons/prod when failed connect
-Date: Thu, 16 Jul 2020 19:23:49 +0800
-Message-ID: <1594898629-18790-7-git-send-email-lingshan.zhu@intel.com>
-References: <1594898629-18790-1-git-send-email-lingshan.zhu@intel.com>
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1594898629-18790-1-git-send-email-lingshan.zhu@intel.com>
-Sender: kvm-owner@vger.kernel.org
-To: mst@redhat.com, alex.williamson@redhat.com, pbonzini@redhat.com, sean.j.christopherson@intel.com, wanpengli@tencent.com, jasowang@redhat.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, kvm@vger.kernel.org, Zhu Lingshan <lingshan.zhu@intel.com>
+From: Eli Cohen <eli@mellanox.com>
+Subject: Re: [PATCH vhost next 10/10] vdpa/mlx5: Add VDPA driver for
+ supported mlx5 devices
+Date: Thu, 16 Jul 2020 14:54:28 +0300
+Message-ID: <20200716115428.GC186790@mtl-vdi-166.wap.labs.mlnx>
+References: <20200716072327.5359-1-eli@mellanox.com>
+ <20200716072327.5359-11-eli@mellanox.com>
+ <454850cc-269b-72aa-4511-2bf793a215cc@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <454850cc-269b-72aa-4511-2bf793a215cc@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, shahafs@mellanox.com, saeedm@mellanox.com, Parav Pandit <parav@mellanox.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-If failed to connect, there is no need to start consumer nor
-producer.
+On Thu, Jul 16, 2020 at 05:14:32PM +0800, Jason Wang wrote:
+> 
+> >+static void suspend_vqs(struct mlx5_vdpa_net *ndev)
+> >+{
+> >+	int i;
+> >+
+> >+	for (i = 0; i < MLX5_MAX_SUPPORTED_VQS; i++)
+> >+		suspend_vq(ndev, &ndev->vqs[i]);
+> 
+> 
+> In teardown_virtqueues() it has a check of mvq->num_ent, any reason
+> not doing it here?
+> 
 
-Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
-Suggested-by: Jason Wang <jasowang@redhat.com>
----
- virt/lib/irqbypass.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+Looks like checking intialized is enough. Will fix this.
+ 
+> >+
+> >+static void mlx5_vdpa_set_vq_ready(struct vdpa_device *vdev, u16 idx, bool ready)
+> >+{
+> >+	struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
+> >+	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
+> >+	struct mlx5_vdpa_virtqueue *mvq = &ndev->vqs[idx];
+> >+	int err;
+> >+
+> >+	if (!mvq->ready && ready && mvq->fw_state != MLX5_VIRTIO_NET_Q_OBJECT_STATE_RDY) {
+> >+		err = modify_virtqueue(ndev, mvq, MLX5_VIRTIO_NET_Q_OBJECT_STATE_RDY);
+> >+		if (err) {
+> >+			mlx5_vdpa_warn(mvdev, "failed to modify virtqueue(%d)\n", err);
+> >+			return;
+> >+		}
+> >+	}
+> 
+> 
+> I wonder what's the reason of changing vq state on the hardware
+> here. I think we can defer it to set_status().
+> 
 
-diff --git a/virt/lib/irqbypass.c b/virt/lib/irqbypass.c
-index 28fda42..c9bb395 100644
---- a/virt/lib/irqbypass.c
-+++ b/virt/lib/irqbypass.c
-@@ -40,17 +40,21 @@ static int __connect(struct irq_bypass_producer *prod,
- 	if (prod->add_consumer)
- 		ret = prod->add_consumer(prod, cons);
- 
--	if (!ret) {
--		ret = cons->add_producer(cons, prod);
--		if (ret && prod->del_consumer)
--			prod->del_consumer(prod, cons);
--	}
-+	if (ret)
-+		goto err_add_consumer;
-+
-+	ret = cons->add_producer(cons, prod);
-+	if (ret)
-+		goto err_add_producer;
- 
- 	if (cons->start)
- 		cons->start(cons);
- 	if (prod->start)
- 		prod->start(prod);
--
-+err_add_producer:
-+	if (prod->del_consumer)
-+		prod->del_consumer(prod, cons);
-+err_add_consumer:
- 	return ret;
- }
- 
--- 
-1.8.3.1
+I can defer this to set status.
+
+I just wonder if it is possible that the core vdpa driver may call this
+function with ready equals false and after some time call it with ready
+equals true.
+
+
+> (Anyhow we don't sync vq address in set_vq_address()).
+> 
+> 
+> >+static u64 mlx5_vdpa_get_features(struct vdpa_device *vdev)
+> >+{
+> >+	struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
+> >+	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
+> >+	u16 dev_features;
+> >+
+> >+	dev_features = MLX5_CAP_DEV_VDPA_EMULATION(mvdev->mdev, device_features_bits_mask);
+> >+	ndev->mvdev.mlx_features = mlx_to_vritio_features(dev_features);
+> >+	if (MLX5_CAP_DEV_VDPA_EMULATION(mvdev->mdev, virtio_version_1_0))
+> >+		ndev->mvdev.mlx_features |= BIT(VIRTIO_F_VERSION_1);
+> 
+> 
+> This is interesting. This suggests !VIRTIO_F_VERSION_1 &&
+> VIRTIO_F_IOMMU_PLATFORM is valid. But virito spec doesn't allow such
+> configuration.
+
+Will fix
+> 
+> So I think you need either:
+> 
+> 1) Fail vDPA device probe when VERSION_1 is not supported
+> 2) clear IOMMU_PLATFORM if VERSION_1 is not negotiated
+> 
+> For 2) I guess it can't work, according to the spec, without
+> IOMMU_PLATFORM, device need to use PA to access the memory
+> 
+> 
+> >+	ndev->mvdev.mlx_features |= BIT(VIRTIO_F_ANY_LAYOUT);
+I think this should be removed too
+
+> >+	ndev->mvdev.mlx_features |= BIT(VIRTIO_F_IOMMU_PLATFORM);
+> >+	if (mlx5_vdpa_max_qps(ndev->mvdev.max_vqs) > 1)
+> >+		ndev->mvdev.mlx_features |= BIT(VIRTIO_NET_F_MQ);
+Also this, since multqueue requires configuration vq which is not
+supported in this version.
+
+> >+
+> >+	print_features(mvdev, ndev->mvdev.mlx_features, false);
+> >+	return ndev->mvdev.mlx_features;
+> >+}
+> >+
+> >+static int verify_min_features(struct mlx5_vdpa_dev *mvdev, u64 features)
+> >+{
+> >+	/* FIXME: qemu currently does not set all the feaures due to a bug.
+> >+	 * Add checks when this is fixed.
+> >+	 */
+> 
+> 
+> I think we should add the check now then qemu can get notified. (E.g
+> IOMMU_PLATFORM)
+
+Will do.
+> 
+> 
+> >+}
+> >+
+> >+#define MLX5_VDPA_MAX_VQ_ENTRIES 256
+> 
+> 
+> Is this a hardware limitation, qemu can support up to 1K which the
+> requirement of some NFV cases.
+> 
+
+Theoretically the device is limit is much higher. In the near future we
+will have a device capability for this. I wanted to stay on the safe side
+with this but I can change this if you think it's necessary.
+> 
+> >+
+> >+static void mlx5_vdpa_get_config(struct vdpa_device *vdev, unsigned int offset, void *buf,
+> >+				 unsigned int len)
+> >+{
+> >+	struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
+> >+	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
+> >+
+> >+	if (offset + len < sizeof(struct virtio_net_config))
+> >+		memcpy(buf, &ndev->config + offset, len);
+> 
+> 
+> Note that guest expect LE, what's the endian for ndev->config?
+This is struct virtio_net_config from include/uapi/linux/virtio_net.h.
+Looking there I see it has mixed endianess. I currently don't touch it
+but if I do, I should follow endianess guidance per the struct
+definition. So I don't think I should care about endianess when copying.
+
+> 
+> 
+> >+}
+> >+
+> >+static void mlx5_vdpa_set_config(struct vdpa_device *vdev, unsigned int offset, const void *buf,
+> >+				 unsigned int len)
+> >+{
+> >+	/* not supported */
+> >+}
+> >+
+> >+static u32 mlx5_vdpa_get_generation(struct vdpa_device *vdev)
+> >+{
+> >+	struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
+> >+
+> >+	return mvdev->generation;
+> >+}
+> >+
+> >+static int mlx5_vdpa_set_map(struct vdpa_device *vdev, struct vhost_iotlb *iotlb)
+> >+{
+> >+	struct mlx5_vdpa_dev *mvdev = to_mvdev(vdev);
+> >+	struct mlx5_vdpa_net *ndev = to_mlx5_vdpa_ndev(mvdev);
+> >+	bool change_map;
+> >+	int err;
+> >+
+> >+	err = mlx5_vdpa_handle_set_map(mvdev, iotlb, &change_map);
+> >+	if (err) {
+> >+		mlx5_vdpa_warn(mvdev, "set map failed(%d)\n", err);
+> >+		return err;
+> >+	}
+> >+
+> >+	if (change_map)
+> >+		return mlx5_vdpa_change_map(ndev, iotlb);
+> 
+> 
+> Any reason for not doing this inside mlx5_handle_set_map()?
+> 
+
+All memory registration related operations are done inside mr.c in the
+common code directory. But change map involves operations on other
+objects managed in this file.
+
+> >+
+> >+void mlx5_vdpa_remove_dev(struct mlx5_vdpa_dev *mvdev)
+> >+{
+> >+	struct mlx5_vdpa_net *ndev;
+> >+
+> >+	mvdev->status = 0;
+> 
+> 
+> This is probably unnecessary.
+> 
+
+Right, will remove.
