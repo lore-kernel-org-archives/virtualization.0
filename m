@@ -1,108 +1,75 @@
 From: Eli Cohen <eli@mellanox.com>
-Subject: [PATCH vhost next 00/10] VDPA support for Mellanox ConnectX devices
-Date: Thu, 16 Jul 2020 10:23:17 +0300
-Message-ID: <20200716072327.5359-1-eli@mellanox.com>
+Subject: [PATCH vhost next 02/10] vdpa_sim: use the batching API
+Date: Thu, 16 Jul 2020 10:23:19 +0300
+Message-ID: <20200716072327.5359-3-eli@mellanox.com>
+References: <20200716072327.5359-1-eli@mellanox.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200716072327.5359-1-eli@mellanox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Cc: shahafs@mellanox.com, saeedm@mellanox.com, Eli Cohen <eli@mellanox.com>
+Cc: shahafs@mellanox.com, saeedm@mellanox.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Michael,
-please note that this series depends on mlx5 core device driver patches
-in mlx5-next branch in
-git://git.kernel.org/pub/scm/linux/kernel/git/mellanox/linux.git.
+From: Jason Wang <jasowang@redhat.com>
 
-git pull git://git.kernel.org/pub/scm/linux/kernel/git/mellanox/linux.git mlx5-next 
+Change-Id: I3751f1aecce285e0f61530c69616852d49e5f547
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vdpa/vdpa_sim/vdpa_sim.c | 20 --------------------
+ drivers/vhost/vdpa.c             |  1 -
+ 2 files changed, 21 deletions(-)
 
-They also depend Jason Wang's patches submitted a couple of weeks ago. I
-included them in this series.
-
-vdpa_sim: use the batching API
-vhost-vdpa: support batch updating
-
-
-The following series of patches provide VDPA support for Mellanox
-devices. The supported devices are ConnectX6 DX and newer.
-
-Currently, only a network driver is implemented; future patches will
-introduce a block device driver. iperf performance on a single queue is
-around 12 Gbps.  Future patches will introduce multi queue support.
-
-The files are organized in such a way that code that can be used by
-different VDPA implementations will be placed in a common are resides in
-drivers/vdpa/mlx5/core.
-
-Only virtual functions are currently supported. Also, certain firmware
-capabilities must be set to enable the driver. Physical functions (PFs)
-are skipped by the driver.
-
-To make use of the VDPA net driver, one must load mlx5_vdpa. In such
-case, VFs will be operated by the VDPA driver. Although one can see a
-regular instance of a network driver on the VF, the VDPA driver takes
-precedence over the NIC driver, steering-wize.
-
-Currently, the device/interface infrastructure in mlx5_core is used to
-probe drivers. Future patches will introduce virtbus as a means to
-register devices and drivers and VDPA will be adapted to it.
-
-The mlx5 mode of operation required to support VDPA is switchdev mode.
-Once can use Linux or OVS bridge to take care of layer 2 switching.
-
-In order to provide virtio networking to a guest, an updated version of
-qemu is required. This version has been tested by the following quemu
-version:
-
-url: https://github.com/jasowang/qemu.git
-branch: vdpa
-Commit ID: 6f4e59b807db
-
-Eli Cohen (7):
-  net/vdpa: Use struct for set/get vq state
-  vhost: Fix documentation
-  vdpa: Add means to communicate vq status on get_vq_state
-  vdpa/mlx5: Add hardware descriptive header file
-  vdpa/mlx5: Add support library for mlx5 VDPA implementation
-  vdpa/mlx5: Add shared memory registration code
-  vdpa/mlx5: Add VDPA driver for supported mlx5 devices
-
-Jason Wang (2):
-  vhost-vdpa: support batch updating
-  vdpa_sim: use the batching API
-
-Max Gurtovoy (1):
-  vdpa: remove hard coded virtq num
-
- drivers/vdpa/Kconfig                   |   18 +
- drivers/vdpa/Makefile                  |    1 +
- drivers/vdpa/ifcvf/ifcvf_base.c        |    4 +-
- drivers/vdpa/ifcvf/ifcvf_base.h        |    4 +-
- drivers/vdpa/ifcvf/ifcvf_main.c        |   13 +-
- drivers/vdpa/mlx5/Makefile             |    4 +
- drivers/vdpa/mlx5/core/mlx5_vdpa.h     |   89 ++
- drivers/vdpa/mlx5/core/mlx5_vdpa_ifc.h |  168 ++
- drivers/vdpa/mlx5/core/mr.c            |  473 ++++++
- drivers/vdpa/mlx5/core/resources.c     |  284 ++++
- drivers/vdpa/mlx5/net/main.c           |   76 +
- drivers/vdpa/mlx5/net/mlx5_vnet.c      | 1966 ++++++++++++++++++++++++
- drivers/vdpa/mlx5/net/mlx5_vnet.h      |   32 +
- drivers/vdpa/vdpa.c                    |    3 +
- drivers/vdpa/vdpa_sim/vdpa_sim.c       |   35 +-
- drivers/vhost/iotlb.c                  |    4 +-
- drivers/vhost/vdpa.c                   |   43 +-
- include/linux/vdpa.h                   |   33 +-
- include/uapi/linux/vhost_types.h       |    2 +
- 19 files changed, 3193 insertions(+), 59 deletions(-)
- create mode 100644 drivers/vdpa/mlx5/Makefile
- create mode 100644 drivers/vdpa/mlx5/core/mlx5_vdpa.h
- create mode 100644 drivers/vdpa/mlx5/core/mlx5_vdpa_ifc.h
- create mode 100644 drivers/vdpa/mlx5/core/mr.c
- create mode 100644 drivers/vdpa/mlx5/core/resources.c
- create mode 100644 drivers/vdpa/mlx5/net/main.c
- create mode 100644 drivers/vdpa/mlx5/net/mlx5_vnet.c
- create mode 100644 drivers/vdpa/mlx5/net/mlx5_vnet.h
-
+diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+index c7334cc65bb2..82d1068af3ef 100644
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+@@ -548,24 +548,6 @@ static int vdpasim_set_map(struct vdpa_device *vdpa,
+ 	return ret;
+ }
+ 
+-static int vdpasim_dma_map(struct vdpa_device *vdpa, u64 iova, u64 size,
+-			   u64 pa, u32 perm)
+-{
+-	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
+-
+-	return vhost_iotlb_add_range(vdpasim->iommu, iova,
+-				     iova + size - 1, pa, perm);
+-}
+-
+-static int vdpasim_dma_unmap(struct vdpa_device *vdpa, u64 iova, u64 size)
+-{
+-	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
+-
+-	vhost_iotlb_del_range(vdpasim->iommu, iova, iova + size - 1);
+-
+-	return 0;
+-}
+-
+ static void vdpasim_free(struct vdpa_device *vdpa)
+ {
+ 	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
+@@ -598,8 +580,6 @@ static const struct vdpa_config_ops vdpasim_net_config_ops = {
+ 	.set_config             = vdpasim_set_config,
+ 	.get_generation         = vdpasim_get_generation,
+ 	.set_map                = vdpasim_set_map,
+-	.dma_map                = vdpasim_dma_map,
+-	.dma_unmap              = vdpasim_dma_unmap,
+ 	.free                   = vdpasim_free,
+ };
+ 
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index 8827ae31f96d..65195b30133b 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -533,7 +533,6 @@ static int vhost_vdpa_map(struct vhost_vdpa *v,
+ 
+ static void vhost_vdpa_unmap(struct vhost_vdpa *v, u64 iova, u64 size)
+ {
+-	struct vhost_dev *dev = &v->vdev;
+ 	struct vdpa_device *vdpa = v->vdpa;
+ 	const struct vdpa_config_ops *ops = vdpa->config;
+ 
 -- 
 2.27.0
