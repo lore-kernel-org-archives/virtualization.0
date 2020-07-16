@@ -1,207 +1,100 @@
-From: teawater <teawaterz@linux.alibaba.com>
-Subject: Re: [RFC for Linux v4 0/2] virtio_balloon: Add
- VIRTIO_BALLOON_F_CONT_PAGES to report continuous pages
-Date: Thu, 16 Jul 2020 15:01:18 +0800
-Message-ID: <744230FA-78D8-4568-8188-683087065E84@linux.alibaba.com>
-References: <1594867315-8626-1-git-send-email-teawater@gmail.com>
- <20200716021929-mutt-send-email-mst@kernel.org>
-Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.80.23.2.2\))
-Content-Type: text/plain;
-	charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-Return-path: <virtio-dev-return-7567-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <20200716021929-mutt-send-email-mst@kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Hui Zhu <teawater@gmail.com>, david@redhat.com, jasowang@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, qemu-devel@nongnu.org, virtio-dev@lists.oasis-open.org, Andrea Arcangeli <aarcange@redhat.com>
+From: Eli Cohen <eli@mellanox.com>
+Subject: [PATCH vhost next 01/10] vhost-vdpa: support batch updating
+Date: Thu, 16 Jul 2020 10:23:18 +0300
+Message-ID: <20200716072327.5359-2-eli@mellanox.com>
+References: <20200716072327.5359-1-eli@mellanox.com>
+Mime-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200716072327.5359-1-eli@mellanox.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Cc: shahafs@mellanox.com, saeedm@mellanox.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+From: Jason Wang <jasowang@redhat.com>
 
+Change-Id: Ifd7139cfbd122dc22493f4bb93fa884f8edbddb6
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vhost/vdpa.c             | 23 +++++++++++++++++------
+ include/uapi/linux/vhost_types.h |  2 ++
+ 2 files changed, 19 insertions(+), 6 deletions(-)
 
-> 2020=E5=B9=B47=E6=9C=8816=E6=97=A5 14:38=EF=BC=8CMichael S. Tsirkin =
-<mst@redhat.com> =E5=86=99=E9=81=93=EF=BC=9A
->=20
-> On Thu, Jul 16, 2020 at 10:41:50AM +0800, Hui Zhu wrote:
->> The first, second and third version are in [1], [2] and [3].
->> Code of current version for Linux and qemu is available in [4] and =
-[5].
->> Update of this version:
->> 1. Report continuous pages will increase the speed.  So added deflate
->>   continuous pages.
->> 2. According to the comments from David in [6], added 2 new vqs =
-inflate_cont_vq
->>   and deflate_cont_vq to report continuous pages with format 32 bits =
-pfn and 32
->>   bits size.
->> Following is the introduction of the function.
->> These patches add VIRTIO_BALLOON_F_CONT_PAGES to virtio_balloon. With =
-this
->> flag, balloon tries to use continuous pages to inflate and deflate.
->> Opening this flag can bring two benefits:
->> 1. Report continuous pages will increase memory report size of each =
-time
->>   call tell_host.  Then it will increase the speed of balloon inflate =
-and
->>   deflate.
->> 2. Host THPs will be splitted when qemu release the page of balloon =
-inflate.
->>   Inflate balloon with continuous pages will let QEMU release the =
-pages
->>   of same THPs.  That will help decrease the splitted THPs number in
->>   the host.
->>   Following is an example in a VM with 1G memory 1CPU.  This test =
-setups an
->>   environment that has a lot of fragmentation pages.  Then inflate =
-balloon will
->>   split the THPs.
-
-
->> // This is the THP number before VM execution in the host.
->> // None use THP.
->> cat /proc/meminfo | grep AnonHugePages:
->> AnonHugePages:         0 kB
-These lines are from host.
-
->> // After VM start, use usemem
->> // =
-(https://git.kernel.org/pub/scm/linux/kernel/git/wfg/vm-scalability.git)
->> // punch-holes function generates 400m fragmentation pages in the =
-guest
->> // kernel.
->> usemem --punch-holes -s -1 800m &
-These lines are from guest.  They setups the environment that has a lot =
-of fragmentation pages.
-
->> // This is the THP number after this command in the host.
->> // Some THP is used by VM because usemem will access 800M memory
->> // in the guest.
->> cat /proc/meminfo | grep AnonHugePages:
->> AnonHugePages:    911360 kB
-These lines are from host.
-
->> // Connect to the QEMU monitor, setup balloon, and set it size to =
-600M.
->> (qemu) device_add virtio-balloon-pci,id=3Dballoon1
->> (qemu) info balloon
->> balloon: actual=3D1024
->> (qemu) balloon 600
->> (qemu) info balloon
->> balloon: actual=3D600
-These lines are from host.
-
->> // This is the THP number after inflate the balloon in the host.
->> cat /proc/meminfo | grep AnonHugePages:
->> AnonHugePages:     88064 kB
-These lines are from host.
-
->> // Set the size back to 1024M in the QEMU monitor.
->> (qemu) balloon 1024
->> (qemu) info balloon
->> balloon: actual=3D1024
-These lines are from host.
-
->> // Use usemem to increase the memory usage of QEMU.
->> killall usemem
->> usemem 800m
-These lines are from guest.
-
->> // This is the THP number after this operation.
->> cat /proc/meminfo | grep AnonHugePages:
->> AnonHugePages:     65536 kB
-These lines are from host.
-
-
-
->>=20
->> Following example change to use continuous pages balloon.  The number =
-of
->> splitted THPs is decreased.
->> // This is the THP number before VM execution in the host.
->> // None use THP.
->> cat /proc/meminfo | grep AnonHugePages:
->> AnonHugePages:         0 kB
-These lines are from host.
-
->> // After VM start, use usemem punch-holes function generates 400M
->> // fragmentation pages in the guest kernel.
->> usemem --punch-holes -s -1 800m &
-These lines are from guest.  They setups the environment that has a lot =
-of fragmentation pages.
-
->> // This is the THP number after this command in the host.
->> // Some THP is used by VM because usemem will access 800M memory
->> // in the guest.
->> cat /proc/meminfo | grep AnonHugePages:
->> AnonHugePages:    911360 kB
-These lines are from host.
-
->> // Connect to the QEMU monitor, setup balloon, and set it size to =
-600M.
->> (qemu) device_add virtio-balloon-pci,id=3Dballoon1,cont-pages=3Don
->> (qemu) info balloon
->> balloon: actual=3D1024
->> (qemu) balloon 600
->> (qemu) info balloon
->> balloon: actual=3D600
-These lines are from host.
-
->> // This is the THP number after inflate the balloon in the host.
->> cat /proc/meminfo | grep AnonHugePages:
->> AnonHugePages:    616448 kB
->> // Set the size back to 1024M in the QEMU monitor.
->> (qemu) balloon 1024
->> (qemu) info balloon
->> balloon: actual=3D1024
-These lines are from host.
-
->> // Use usemem to increase the memory usage of QEMU.
->> killall usemem
->> usemem 800m
-These lines are from guest.
-
->> // This is the THP number after this operation.
->> cat /proc/meminfo | grep AnonHugePages:
->> AnonHugePages:    907264 kB
-These lines are from host.
-
->=20
-> I'm a bit confused about which of the above run within guest,
-> and which run within host. Could you explain pls?
->=20
->=20
-
-I added some introduction to show where these lines is get from.
-
-Best,
-Hui
-
-
->=20
->> [1] https://lkml.org/lkml/2020/3/12/144
->> [2] =
-https://lore.kernel.org/linux-mm/1584893097-12317-1-git-send-email-teawate=
-r@gmail.com/
->> [3] https://lkml.org/lkml/2020/5/12/324
->> [4] https://github.com/teawater/linux/tree/balloon_conts
->> [5] https://github.com/teawater/qemu/tree/balloon_conts
->> [6] https://lkml.org/lkml/2020/5/13/1211
->>=20
->> Hui Zhu (2):
->>  virtio_balloon: Add VIRTIO_BALLOON_F_CONT_PAGES and inflate_cont_vq
->>  virtio_balloon: Add deflate_cont_vq to deflate continuous pages
->>=20
->> drivers/virtio/virtio_balloon.c     |  180 =
-+++++++++++++++++++++++++++++++-----
->> include/linux/balloon_compaction.h  |   12 ++
->> include/uapi/linux/virtio_balloon.h |    1
->> mm/balloon_compaction.c             |  117 +++++++++++++++++++++--
->> 4 files changed, 280 insertions(+), 30 deletions(-)
->=20
->=20
-> ---------------------------------------------------------------------
-> To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
-> For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index a54b60d6623f..8827ae31f96d 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -73,6 +73,7 @@ struct vhost_vdpa {
+ 	int virtio_id;
+ 	int minor;
+ 	struct eventfd_ctx *config_ctx;
++	bool in_batch;
+ };
+ 
+ static DEFINE_IDA(vhost_vdpa_ida);
+@@ -521,9 +522,9 @@ static int vhost_vdpa_map(struct vhost_vdpa *v,
+ 
+ 	if (ops->dma_map)
+ 		r = ops->dma_map(vdpa, iova, size, pa, perm);
+-	else if (ops->set_map)
+-		r = ops->set_map(vdpa, dev->iotlb);
+-	else
++	else if (ops->set_map) {
++
++	} else
+ 		r = iommu_map(v->domain, iova, pa, size,
+ 			      perm_to_iommu_flags(perm));
+ 
+@@ -540,9 +541,8 @@ static void vhost_vdpa_unmap(struct vhost_vdpa *v, u64 iova, u64 size)
+ 
+ 	if (ops->dma_map)
+ 		ops->dma_unmap(vdpa, iova, size);
+-	else if (ops->set_map)
+-		ops->set_map(vdpa, dev->iotlb);
+-	else
++	else if (ops->set_map) {
++	} else
+ 		iommu_unmap(v->domain, iova, size);
+ }
+ 
+@@ -636,6 +636,8 @@ static int vhost_vdpa_process_iotlb_msg(struct vhost_dev *dev,
+ 					struct vhost_iotlb_msg *msg)
+ {
+ 	struct vhost_vdpa *v = container_of(dev, struct vhost_vdpa, vdev);
++	struct vdpa_device *vdpa = v->vdpa;
++	const struct vdpa_config_ops *ops = vdpa->config;
+ 	int r = 0;
+ 
+ 	r = vhost_dev_check_owner(dev);
+@@ -649,6 +651,15 @@ static int vhost_vdpa_process_iotlb_msg(struct vhost_dev *dev,
+ 	case VHOST_IOTLB_INVALIDATE:
+ 		vhost_vdpa_unmap(v, msg->iova, msg->size);
+ 		break;
++	case VHOST_IOTLB_BATCH_BEGIN:
++		v->in_batch = true;
++		break;
++	case VHOST_IOTLB_BATCH_END:
++		if (v->in_batch && ops->set_map) {
++			ops->set_map(vdpa, dev->iotlb);
++		}
++		v->in_batch = false;
++		break;
+ 	default:
+ 		r = -EINVAL;
+ 		break;
+diff --git a/include/uapi/linux/vhost_types.h b/include/uapi/linux/vhost_types.h
+index 669457ce5c48..7f52245f8d5d 100644
+--- a/include/uapi/linux/vhost_types.h
++++ b/include/uapi/linux/vhost_types.h
+@@ -60,6 +60,8 @@ struct vhost_iotlb_msg {
+ #define VHOST_IOTLB_UPDATE         2
+ #define VHOST_IOTLB_INVALIDATE     3
+ #define VHOST_IOTLB_ACCESS_FAIL    4
++#define VHOST_IOTLB_BATCH_BEGIN    5
++#define VHOST_IOTLB_BATCH_END      6
+ 	__u8 type;
+ };
+ 
+-- 
+2.27.0
