@@ -1,94 +1,84 @@
-From: Eli Cohen <eli@mellanox.com>
-Subject: Re: [PATCH vhost next 06/10] vdpa: Add means to communicate vq
- status on get_vq_state
-Date: Thu, 16 Jul 2020 11:21:16 +0300
-Message-ID: <20200716082116.GA182860@mtl-vdi-166.wap.labs.mlnx>
-References: <20200716072327.5359-1-eli@mellanox.com>
- <20200716072327.5359-7-eli@mellanox.com>
- <cb9bced7-1a7e-150a-875c-1b75f77ee853@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <cb9bced7-1a7e-150a-875c-1b75f77ee853@redhat.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>
-Cc: mst@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, shahafs@mellanox.com, saeedm@mellanox.com, Parav Pandit <parav@mellanox.com>
+From: teawater <teawaterz@linux.alibaba.com>
+Subject: Re: [RFC for Linux v4 1/2] virtio_balloon: Add
+ VIRTIO_BALLOON_F_CONT_PAGES and inflate_cont_vq
+Date: Thu, 16 Jul 2020 16:25:00 +0800
+Message-ID: <CEB4BCB7-E146-4F62-A8AC-8641B5469963@linux.alibaba.com>
+References: <1594867315-8626-1-git-send-email-teawater@gmail.com>
+ <1594867315-8626-2-git-send-email-teawater@gmail.com>
+ <20200716024114-mutt-send-email-mst@kernel.org>
+Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.80.23.2.2\))
+Content-Type: text/plain;
+	charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <virtio-dev-return-7569-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
+Sender: <virtio-dev@lists.oasis-open.org>
+List-Post: <mailto:virtio-dev@lists.oasis-open.org>
+List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
+List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
+List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
+In-Reply-To: <20200716024114-mutt-send-email-mst@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Hui Zhu <teawater@gmail.com>, David Hildenbrand <david@redhat.com>, Jason Wang <jasowang@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, Linux Virtualization <virtualization@lists.linux-foundation.org>, linux-kernel@vger.kernel.org, linux-mm@kvack.org, qemu-devel@nongnu.org, virtio-dev@lists.oasis-open.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 16, 2020 at 04:11:00PM +0800, Jason Wang wrote:
-> 
-> On 2020/7/16 下午3:23, Eli Cohen wrote:
-> >Currently, get_vq_state() is used only to pass the available index value
-> >of a vq. Extend the struct to return status on the VQ to the caller.
-> >For now, define VQ_STATE_NOT_READY. In the future it will be extended to
-> >include other infomration.
-> >
-> >Modify current vdpa driver to update this field.
-> >
-> >Reviewed-by: Parav Pandit <parav@mellanox.com>
-> >Signed-off-by: Eli Cohen <eli@mellanox.com>
-> 
-> 
-> What's the difference between this and get_vq_ready()?
-> 
-> Thanks
-> 
 
-There is no difference. It is just a way to communicate a problem to
-with the state of the VQ back to the caller. This is not available now.
-I think an asynchronous is preferred but that is not available
-currently.
-> 
-> >---
-> >  drivers/vdpa/ifcvf/ifcvf_main.c  | 1 +
-> >  drivers/vdpa/vdpa_sim/vdpa_sim.c | 1 +
-> >  include/linux/vdpa.h             | 9 +++++++++
-> >  3 files changed, 11 insertions(+)
-> >
-> >diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
-> >index 69032ee97824..77e3b3d91167 100644
-> >--- a/drivers/vdpa/ifcvf/ifcvf_main.c
-> >+++ b/drivers/vdpa/ifcvf/ifcvf_main.c
-> >@@ -240,6 +240,7 @@ static void ifcvf_vdpa_get_vq_state(struct vdpa_device *vdpa_dev, u16 qid,
-> >  {
-> >  	struct ifcvf_hw *vf = vdpa_to_vf(vdpa_dev);
-> >+	state->state = vf->vring[qid].ready ? 0 : BIT(VQ_STATE_NOT_READY);
-> >  	state->avail_index = ifcvf_get_vq_state(vf, qid);
-> >  }
-> >diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> >index 599519039f8d..06d974b4bd7b 100644
-> >--- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> >+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-> >@@ -434,6 +434,7 @@ static void vdpasim_get_vq_state(struct vdpa_device *vdpa, u16 idx,
-> >  	struct vdpasim_virtqueue *vq = &vdpasim->vqs[idx];
-> >  	struct vringh *vrh = &vq->vring;
-> >+	state->state = vq->ready ? 0 : BIT(VQ_STATE_NOT_READY);
-> >  	state->avail_index = vrh->last_avail_idx;
-> >  }
-> >diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
-> >index 7b088bebffe8..bcefa30a3b2f 100644
-> >--- a/include/linux/vdpa.h
-> >+++ b/include/linux/vdpa.h
-> >@@ -27,12 +27,21 @@ struct vdpa_notification_area {
-> >  	resource_size_t size;
-> >  };
-> >+/**
-> >+ * Bitmask describing the status of the vq
-> >+ */
-> >+enum {
-> >+	VQ_STATE_NOT_READY = 0,
-> >+};
-> >+
-> >  /**
-> >   * vDPA vq_state definition
-> >   * @avail_index: available index
-> >+ * @state: returned status from get_vq_state
-> >   */
-> >  struct vdpa_vq_state {
-> >  	u16	avail_index;
-> >+	u32	state;
-> >  };
-> >  /**
-> 
+
+> 2020=E5=B9=B47=E6=9C=8816=E6=97=A5 14:43=EF=BC=8CMichael S. Tsirkin =
+<mst@redhat.com> =E5=86=99=E9=81=93=EF=BC=9A
+>=20
+> On Thu, Jul 16, 2020 at 10:41:51AM +0800, Hui Zhu wrote:
+>> diff --git a/include/uapi/linux/virtio_balloon.h =
+b/include/uapi/linux/virtio_balloon.h
+>> index dc3e656..4d0151a 100644
+>> --- a/include/uapi/linux/virtio_balloon.h
+>> +++ b/include/uapi/linux/virtio_balloon.h
+>> @@ -37,6 +37,7 @@
+>> #define VIRTIO_BALLOON_F_FREE_PAGE_HINT	3 /* VQ to report free =
+pages */
+>> #define VIRTIO_BALLOON_F_PAGE_POISON	4 /* Guest is using page =
+poisoning */
+>> #define VIRTIO_BALLOON_F_REPORTING	5 /* Page reporting virtqueue */
+>> +#define VIRTIO_BALLOON_F_CONT_PAGES	6 /* VQ to report continuous =
+pages */
+>>=20
+>> /* Size of a PFN in the balloon interface. */
+>> #define VIRTIO_BALLOON_PFN_SHIFT 12
+>=20
+> So how does the guest/host interface look like?
+> Could you write up something about it?
+
+Continuous pages are report by num_pfns and pfns in virtio_balloon too.
+The function to set pfns is set_page_pfns_size in =
+https://github.com/teawater/linux/blob/balloon_conts/drivers/virtio/virtio=
+_balloon.c#L221
+
+static void set_page_pfns_size(struct virtio_balloon *vb,
+                               __virtio32 pfns[], struct page *page,
+                               size_t size)
+{
+        /* Set the first pfn of the continuous pages.  */
+        pfns[0] =3D cpu_to_virtio32(vb->vdev, =
+page_to_balloon_pfn(page));
+        /* Set the size of the continuous pages.  */
+        pfns[1] =3D (__virtio32) size;
+}
+
+Each of continuous pages need 2 pfn.
+The first pfn of the pages is set to pfns[0].  The size of the pages is =
+set to pfns[1].
+
+The pfn is 32 bits.
+So the max order of inflate continuous pages is =
+VIRTIO_BALLOON_INFLATE_MAX_ORDER.
+#define VIRTIO_BALLOON_INFLATE_MAX_ORDER min((int) (sizeof(__virtio32) * =
+BITS_PER_BYTE - \
+                                                    1 - PAGE_SHIFT), =
+(MAX_ORDER-1))
+
+The max page number of deflate continuous pages is =
+VIRTIO_BALLOON_DEFLATE_MAX_PAGES_NUM.
+#define VIRTIO_BALLOON_DEFLATE_MAX_PAGES_NUM (((__virtio32)~0U) >> =
+PAGE_SHIFT)
+
+Best,
+Hui=
