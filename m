@@ -1,92 +1,53 @@
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: Re: [PATCH v7 2/2] s390: virtio: PV needs VIRTIO I/O device
- protection
-Date: Thu, 16 Jul 2020 13:19:55 +0200
-Message-ID: <3782338a-6491-dc35-7c66-97b91a20df0d@de.ibm.com>
-References: <1594801869-13365-1-git-send-email-pmorel@linux.ibm.com>
- <1594801869-13365-3-git-send-email-pmorel@linux.ibm.com>
- <20200715054807-mutt-send-email-mst@kernel.org>
- <bc5e09ad-faaf-8b38-83e0-5f4a4b1daeb0@redhat.com>
- <20200715074917-mutt-send-email-mst@kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200715074917-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: Pierre Morel <pmorel@linux.ibm.com>, linux-kernel@vger.kernel.org, pasic@linux.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
+From: Zhu Lingshan <lingshan.zhu@intel.com>
+Subject: [PATCH V2 0/6] IRQ offloading for vDPA
+Date: Thu, 16 Jul 2020 19:23:43 +0800
+Message-ID: <1594898629-18790-1-git-send-email-lingshan.zhu@intel.com>
+Return-path: <netdev-owner@vger.kernel.org>
+Sender: netdev-owner@vger.kernel.org
+To: mst@redhat.com, alex.williamson@redhat.com, pbonzini@redhat.com, sean.j.christopherson@intel.com, wanpengli@tencent.com, jasowang@redhat.com
+Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, kvm@vger.kernel.org, Zhu Lingshan <lingshan.zhu@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+This series intends to implement IRQ offloading for
+vhost_vdpa.
 
+By the feat of irq forwarding facilities like posted
+interrupt on X86, irq bypass can  help deliver
+interrupts to vCPU directly.
 
-On 15.07.20 13:51, Michael S. Tsirkin wrote:
-> On Wed, Jul 15, 2020 at 06:16:59PM +0800, Jason Wang wrote:
->>
->> On 2020/7/15 下午5:50, Michael S. Tsirkin wrote:
->>> On Wed, Jul 15, 2020 at 10:31:09AM +0200, Pierre Morel wrote:
->>>> If protected virtualization is active on s390, the virtio queues are
->>>> not accessible to the host, unless VIRTIO_F_IOMMU_PLATFORM has been
->>>> negotiated. Use the new arch_validate_virtio_features() interface to
->>>> fail probe if that's not the case, preventing a host error on access
->>>> attempt.
->>>>
->>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
->>>> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
->>>> Acked-by: Halil Pasic <pasic@linux.ibm.com>
->>>> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
->>>> ---
->>>>   arch/s390/mm/init.c | 28 ++++++++++++++++++++++++++++
->>>>   1 file changed, 28 insertions(+)
->>>>
->>>> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
->>>> index 6dc7c3b60ef6..d39af6554d4f 100644
->>>> --- a/arch/s390/mm/init.c
->>>> +++ b/arch/s390/mm/init.c
->>>> @@ -45,6 +45,7 @@
->>>>   #include <asm/kasan.h>
->>>>   #include <asm/dma-mapping.h>
->>>>   #include <asm/uv.h>
->>>> +#include <linux/virtio_config.h>
->>>>   pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
->>>> @@ -161,6 +162,33 @@ bool force_dma_unencrypted(struct device *dev)
->>>>   	return is_prot_virt_guest();
->>>>   }
->>>> +/*
->>>> + * arch_validate_virtio_features
->>>> + * @dev: the VIRTIO device being added
->>>> + *
->>>> + * Return an error if required features are missing on a guest running
->>>> + * with protected virtualization.
->>>> + */
->>>> +int arch_validate_virtio_features(struct virtio_device *dev)
->>>> +{
->>>> +	if (!is_prot_virt_guest())
->>>> +		return 0;
->>>> +
->>>> +	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
->>>> +		dev_warn(&dev->dev,
->>>> +			 "legacy virtio not supported with protected virtualization\n");
->>>> +		return -ENODEV;
->>>> +	}
->>>> +
->>>> +	if (!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
->>>> +		dev_warn(&dev->dev,
->>>> +			 "support for limited memory access required for protected virtualization\n");
->>>> +		return -ENODEV;
->>>> +	}
->>>> +
->>>> +	return 0;
->>>> +}
->>>> +
->>>>   /* protected virtualization */
->>>>   static void pv_init(void)
->>>>   {
->>> What bothers me here is that arch code depends on virtio now.
->>> It works even with a modular virtio when functions are inline,
->>> but it seems fragile: e.g. it breaks virtio as an out of tree module,
->>> since layout of struct virtio_device can change.
->>
+vDPA devices have dedicated hardware backends like VFIO
+pass-throughed devices. So it would be possible to setup
+irq offloading(irq bypass) for vDPA devices and gain
+performance improvements.
 
-If you prefer that, we can simply create an arch/s390/kernel/virtio.c ?
+In my testing, with this feature, we can save 0.1ms
+in a ping between two VFs on average.
+
+changes from V1:
+(1)dropped vfio changes.
+(3)removed KVM_HVAE_IRQ_BYPASS checks
+(4)locking fixes
+(5)simplified vhost_vdpa_update_vq_irq()
+(6)minor improvements
+
+Zhu Lingshan (6):
+  vhost: introduce vhost_call_ctx
+  kvm: detect assigned device via irqbypass manager
+  vDPA: implement IRQ offloading helpers in vDPA core
+  vhost_vdpa: implement IRQ offloading in vhost_vdpa
+  ifcvf: replace irq_request/free with vDPA helpers
+  irqbypass: do not start cons/prod when failed connect
+
+ arch/x86/kvm/x86.c              | 10 ++++++--
+ drivers/vdpa/ifcvf/ifcvf_main.c | 14 +++++++----
+ drivers/vdpa/vdpa.c             | 42 +++++++++++++++++++++++++++++++++
+ drivers/vhost/Kconfig           |  1 +
+ drivers/vhost/vdpa.c            | 52 +++++++++++++++++++++++++++++++++++++++--
+ drivers/vhost/vhost.c           | 22 ++++++++++++-----
+ drivers/vhost/vhost.h           |  9 ++++++-
+ include/linux/vdpa.h            | 13 +++++++++++
+ virt/lib/irqbypass.c            | 16 ++++++++-----
+ 9 files changed, 157 insertions(+), 22 deletions(-)
+
+-- 
+1.8.3.1
