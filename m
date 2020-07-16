@@ -1,7 +1,7 @@
 From: Eli Cohen <eli@mellanox.com>
-Subject: [PATCH vhost next 05/10] vhost: Fix documentation
-Date: Thu, 16 Jul 2020 10:23:22 +0300
-Message-ID: <20200716072327.5359-6-eli@mellanox.com>
+Subject: [PATCH vhost next 06/10] vdpa: Add means to communicate vq status on get_vq_state
+Date: Thu, 16 Jul 2020 10:23:23 +0300
+Message-ID: <20200716072327.5359-7-eli@mellanox.com>
 References: <20200716072327.5359-1-eli@mellanox.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -12,35 +12,70 @@ To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.o
 Cc: shahafs@mellanox.com, saeedm@mellanox.com, Eli Cohen <eli@mellanox.com>, Parav Pandit <parav@mellanox.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Fix documentation to match actual function prototypes.
+Currently, get_vq_state() is used only to pass the available index value
+of a vq. Extend the struct to return status on the VQ to the caller.
+For now, define VQ_STATE_NOT_READY. In the future it will be extended to
+include other infomration.
+
+Modify current vdpa driver to update this field.
 
 Reviewed-by: Parav Pandit <parav@mellanox.com>
 Signed-off-by: Eli Cohen <eli@mellanox.com>
 ---
- drivers/vhost/iotlb.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/vdpa/ifcvf/ifcvf_main.c  | 1 +
+ drivers/vdpa/vdpa_sim/vdpa_sim.c | 1 +
+ include/linux/vdpa.h             | 9 +++++++++
+ 3 files changed, 11 insertions(+)
 
-diff --git a/drivers/vhost/iotlb.c b/drivers/vhost/iotlb.c
-index 1f0ca6e44410..0d4213a54a88 100644
---- a/drivers/vhost/iotlb.c
-+++ b/drivers/vhost/iotlb.c
-@@ -149,7 +149,7 @@ EXPORT_SYMBOL_GPL(vhost_iotlb_free);
-  * vhost_iotlb_itree_first - return the first overlapped range
-  * @iotlb: the IOTLB
-  * @start: start of IOVA range
-- * @end: end of IOVA range
-+ * @last: last byte in IOVA range
+diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
+index 69032ee97824..77e3b3d91167 100644
+--- a/drivers/vdpa/ifcvf/ifcvf_main.c
++++ b/drivers/vdpa/ifcvf/ifcvf_main.c
+@@ -240,6 +240,7 @@ static void ifcvf_vdpa_get_vq_state(struct vdpa_device *vdpa_dev, u16 qid,
+ {
+ 	struct ifcvf_hw *vf = vdpa_to_vf(vdpa_dev);
+ 
++	state->state = vf->vring[qid].ready ? 0 : BIT(VQ_STATE_NOT_READY);
+ 	state->avail_index = ifcvf_get_vq_state(vf, qid);
+ }
+ 
+diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+index 599519039f8d..06d974b4bd7b 100644
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+@@ -434,6 +434,7 @@ static void vdpasim_get_vq_state(struct vdpa_device *vdpa, u16 idx,
+ 	struct vdpasim_virtqueue *vq = &vdpasim->vqs[idx];
+ 	struct vringh *vrh = &vq->vring;
+ 
++	state->state = vq->ready ? 0 : BIT(VQ_STATE_NOT_READY);
+ 	state->avail_index = vrh->last_avail_idx;
+ }
+ 
+diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
+index 7b088bebffe8..bcefa30a3b2f 100644
+--- a/include/linux/vdpa.h
++++ b/include/linux/vdpa.h
+@@ -27,12 +27,21 @@ struct vdpa_notification_area {
+ 	resource_size_t size;
+ };
+ 
++/**
++ * Bitmask describing the status of the vq
++ */
++enum {
++	VQ_STATE_NOT_READY = 0,
++};
++
+ /**
+  * vDPA vq_state definition
+  * @avail_index: available index
++ * @state: returned status from get_vq_state
   */
- struct vhost_iotlb_map *
- vhost_iotlb_itree_first(struct vhost_iotlb *iotlb, u64 start, u64 last)
-@@ -162,7 +162,7 @@ EXPORT_SYMBOL_GPL(vhost_iotlb_itree_first);
-  * vhost_iotlb_itree_first - return the next overlapped range
-  * @iotlb: the IOTLB
-  * @start: start of IOVA range
-- * @end: end of IOVA range
-+ * @last: last byte IOVA range
-  */
- struct vhost_iotlb_map *
- vhost_iotlb_itree_next(struct vhost_iotlb_map *map, u64 start, u64 last)
+ struct vdpa_vq_state {
+ 	u16	avail_index;
++	u32	state;
+ };
+ 
+ /**
 -- 
 2.27.0
