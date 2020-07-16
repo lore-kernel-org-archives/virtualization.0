@@ -1,108 +1,91 @@
 From: "Michael S. Tsirkin" <mst@redhat.com>
 Subject: Re: [PATCH 0/7] *** IRQ offloading for vDPA ***
-Date: Thu, 16 Jul 2020 02:13:00 -0400
-Message-ID: <20200716021111-mutt-send-email-mst@kernel.org>
+Date: Thu, 16 Jul 2020 02:15:24 -0400
+Message-ID: <20200716021435-mutt-send-email-mst@kernel.org>
 References: <1594565524-3394-1-git-send-email-lingshan.zhu@intel.com>
  <70244d80-08a4-da91-3226-7bfd2019467e@redhat.com>
  <97032c51-3265-c94a-9ce1-f42fcc6d3075@intel.com>
+ <77318609-85ef-f169-2a1e-500473976d84@redhat.com>
+ <29ab6da8-ed8e-6b91-d658-f3d240543b29@intel.com>
+ <1e91d9dd-d787-beff-2c14-9c76ffc3b285@redhat.com>
+ <a319cba3-8b3d-8968-0fb7-48a1d34042bf@intel.com>
+ <67c4c41d-9e95-2270-4acb-6f04668c34fa@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-Return-path: <netdev-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <67c4c41d-9e95-2270-4acb-6f04668c34fa@redhat.com>
 Content-Disposition: inline
-In-Reply-To: <97032c51-3265-c94a-9ce1-f42fcc6d3075@intel.com>
-Sender: netdev-owner@vger.kernel.org
-To: "Zhu, Lingshan" <lingshan.zhu@intel.com>
-Cc: Jason Wang <jasowang@redhat.com>, alex.williamson@redhat.com, pbonzini@redhat.com, sean.j.christopherson@intel.com, wanpengli@tencent.com, virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, netdev@vger.kernel.org, dan.daly@intel.com
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Jason Wang <jasowang@redhat.com>
+Cc: wanpengli@tencent.com, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>, sean.j.christopherson@intel.com, "virtualization@lists.linux-foundation.org" <virtualization@lists.linux-foundation.org>, pbonzini@redhat.com, "Zhu,
+ Lingshan" <lingshan.zhu@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 16, 2020 at 09:39:17AM +0800, Zhu, Lingshan wrote:
-> 
-> On 7/15/2020 9:43 PM, Jason Wang wrote:
-> 
-> 
->     On 2020/7/12 下午10:52, Zhu Lingshan wrote:
-> 
->         Hi All,
-> 
->         This series intends to implement IRQ offloading for
->         vhost_vdpa.
-> 
->         By the feat of irq forwarding facilities like posted
->         interrupt on X86, irq bypass can  help deliver
->         interrupts to vCPU directly.
-> 
->         vDPA devices have dedicated hardware backends like VFIO
->         pass-throughed devices. So it would be possible to setup
->         irq offloading(irq bypass) for vDPA devices and gain
->         performance improvements.
-> 
->         In my testing, with this feature, we can save 0.1ms
->         in a ping between two VFs on average.
-> 
-> 
-> 
->     Hi Lingshan:
-> 
->     During the virtio-networking meeting, Michael spots two possible issues:
-> 
->     1) do we need an new uAPI to stop the irq offloading?
->     2) can interrupt lost during the eventfd ctx?
-> 
->     For 1) I think we probably not, we can allocate an independent eventfd
->     which does not map to MSIX. So the consumer can't match the producer and we
->     fallback to eventfd based irq.
-> 
-> Hi Jason,
-> 
-> I wonder why we need to stop irq offloading, but if we need to do so, maybe a new uAPI would be more intuitive to me,
-> but why and who(user? qemu?) shall initialize this process, based on what kinda of basis to make the decision?
-> 
->     For 2) it looks to me guest should deal with the irq synchronization when
->     mask or unmask MSIX vectors.
-> 
-> Agreed!
-
-Well we need to make sure during a switch each interrupt is reported
-*somewhere*: either irq or eventfd - and not lost.
-
-
-> Thanks,
-> BR
-> Zhu Lingshan
-> 
-> 
->     What's your thought?
-> 
->     Thanks
-> 
-> 
-> 
-> 
-> 
->         Zhu Lingshan (7):
->            vhost: introduce vhost_call_ctx
->            kvm/vfio: detect assigned device via irqbypass manager
->            vhost_vdpa: implement IRQ offloading functions in vhost_vdpa
->            vDPA: implement IRQ offloading helpers in vDPA core
->            virtio_vdpa: init IRQ offloading function pointers to NULL.
->            ifcvf: replace irq_request/free with helpers in vDPA core.
->            irqbypass: do not start consumer or producer when failed to connect
-> 
->           arch/x86/kvm/x86.c              | 10 ++++--
->           drivers/vdpa/ifcvf/ifcvf_main.c | 11 +++---
->           drivers/vdpa/vdpa.c             | 46 +++++++++++++++++++++++++
->           drivers/vhost/Kconfig           |  1 +
->           drivers/vhost/vdpa.c            | 75
->         +++++++++++++++++++++++++++++++++++++++--
->           drivers/vhost/vhost.c           | 22 ++++++++----
->           drivers/vhost/vhost.h           |  9 ++++-
->           drivers/virtio/virtio_vdpa.c    |  2 ++
->           include/linux/vdpa.h            | 11 ++++++
->           virt/kvm/vfio.c                 |  2 --
->           virt/lib/irqbypass.c            | 16 +++++----
->           11 files changed, 181 insertions(+), 24 deletions(-)
-> 
-> 
-> 
-> 
+T24gVGh1LCBKdWwgMTYsIDIwMjAgYXQgMTI6MjA6MDlQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiBPbiAyMDIwLzcvMTYg5LiL5Y2IMTI6MTMsIFpodSwgTGluZ3NoYW4gd3JvdGU6Cj4g
+PiAKPiA+IAo+ID4gT24gNy8xNi8yMDIwIDEyOjAyIFBNLCBKYXNvbiBXYW5nIHdyb3RlOgo+ID4g
+PiAKPiA+ID4gT24gMjAyMC83LzE2IOS4iuWNiDExOjU5LCBaaHUsIExpbmdzaGFuIHdyb3RlOgo+
+ID4gPiA+IAo+ID4gPiA+IE9uIDcvMTYvMjAyMCAxMDo1OSBBTSwgSmFzb24gV2FuZyB3cm90ZToK
+PiA+ID4gPiA+IAo+ID4gPiA+ID4gT24gMjAyMC83LzE2IOS4iuWNiDk6MzksIFpodSwgTGluZ3No
+YW4gd3JvdGU6Cj4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gT24gNy8xNS8y
+MDIwIDk6NDMgUE0sIEphc29uIFdhbmcgd3JvdGU6Cj4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+
+ID4gT24gMjAyMC83LzEyIOS4i+WNiDEwOjUyLCBaaHUgTGluZ3NoYW4gd3JvdGU6Cj4gPiA+ID4g
+PiA+ID4gPiBIaSBBbGwsCj4gPiA+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gPiA+IFRoaXMgc2Vy
+aWVzIGludGVuZHMgdG8gaW1wbGVtZW50IElSUSBvZmZsb2FkaW5nIGZvcgo+ID4gPiA+ID4gPiA+
+ID4gdmhvc3RfdmRwYS4KPiA+ID4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiA+ID4gQnkgdGhlIGZl
+YXQgb2YgaXJxIGZvcndhcmRpbmcgZmFjaWxpdGllcyBsaWtlIHBvc3RlZAo+ID4gPiA+ID4gPiA+
+ID4gaW50ZXJydXB0IG9uIFg4NiwgaXJxIGJ5cGFzcyBjYW7CoCBoZWxwIGRlbGl2ZXIKPiA+ID4g
+PiA+ID4gPiA+IGludGVycnVwdHMgdG8gdkNQVSBkaXJlY3RseS4KPiA+ID4gPiA+ID4gPiA+IAo+
+ID4gPiA+ID4gPiA+ID4gdkRQQSBkZXZpY2VzIGhhdmUgZGVkaWNhdGVkIGhhcmR3YXJlIGJhY2tl
+bmRzIGxpa2UgVkZJTwo+ID4gPiA+ID4gPiA+ID4gcGFzcy10aHJvdWdoZWQgZGV2aWNlcy4gU28g
+aXQgd291bGQgYmUgcG9zc2libGUgdG8gc2V0dXAKPiA+ID4gPiA+ID4gPiA+IGlycSBvZmZsb2Fk
+aW5nKGlycSBieXBhc3MpIGZvciB2RFBBIGRldmljZXMgYW5kIGdhaW4KPiA+ID4gPiA+ID4gPiA+
+IHBlcmZvcm1hbmNlIGltcHJvdmVtZW50cy4KPiA+ID4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiA+
+ID4gSW4gbXkgdGVzdGluZywgd2l0aCB0aGlzIGZlYXR1cmUsIHdlIGNhbiBzYXZlIDAuMW1zCj4g
+PiA+ID4gPiA+ID4gPiBpbiBhIHBpbmcgYmV0d2VlbiB0d28gVkZzIG9uIGF2ZXJhZ2UuCj4gPiA+
+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gSGkgTGluZ3NoYW46Cj4gPiA+
+ID4gPiA+ID4gCj4gPiA+ID4gPiA+ID4gRHVyaW5nIHRoZSB2aXJ0aW8tbmV0d29ya2luZyBtZWV0
+aW5nLCBNaWNoYWVsIHNwb3RzCj4gPiA+ID4gPiA+ID4gdHdvIHBvc3NpYmxlIGlzc3VlczoKPiA+
+ID4gPiA+ID4gPiAKPiA+ID4gPiA+ID4gPiAxKSBkbyB3ZSBuZWVkIGFuIG5ldyB1QVBJIHRvIHN0
+b3AgdGhlIGlycSBvZmZsb2FkaW5nPwo+ID4gPiA+ID4gPiA+IDIpIGNhbiBpbnRlcnJ1cHQgbG9z
+dCBkdXJpbmcgdGhlIGV2ZW50ZmQgY3R4Pwo+ID4gPiA+ID4gPiA+IAo+ID4gPiA+ID4gPiA+IEZv
+ciAxKSBJIHRoaW5rIHdlIHByb2JhYmx5IG5vdCwgd2UgY2FuIGFsbG9jYXRlIGFuCj4gPiA+ID4g
+PiA+ID4gaW5kZXBlbmRlbnQgZXZlbnRmZCB3aGljaCBkb2VzIG5vdCBtYXAgdG8gTVNJWC4gU28K
+PiA+ID4gPiA+ID4gPiB0aGUgY29uc3VtZXIgY2FuJ3QgbWF0Y2ggdGhlIHByb2R1Y2VyIGFuZCB3
+ZQo+ID4gPiA+ID4gPiA+IGZhbGxiYWNrIHRvIGV2ZW50ZmQgYmFzZWQgaXJxLgo+ID4gPiA+ID4g
+PiBIaSBKYXNvbiwKPiA+ID4gPiA+ID4gCj4gPiA+ID4gPiA+IEkgd29uZGVyIHdoeSB3ZSBuZWVk
+IHRvIHN0b3AgaXJxIG9mZmxvYWRpbmcsIGJ1dCBpZiB3ZQo+ID4gPiA+ID4gPiBuZWVkIHRvIGRv
+IHNvLCBtYXliZSBhIG5ldyB1QVBJIHdvdWxkIGJlIG1vcmUgaW50dWl0aXZlCj4gPiA+ID4gPiA+
+IHRvIG1lLAo+ID4gPiA+ID4gPiBidXQgd2h5IGFuZCB3aG8odXNlcj8gcWVtdT8pIHNoYWxsIGlu
+aXRpYWxpemUgdGhpcwo+ID4gPiA+ID4gPiBwcm9jZXNzLCBiYXNlZCBvbiB3aGF0IGtpbmRhIG9m
+IGJhc2lzIHRvIG1ha2UgdGhlCj4gPiA+ID4gPiA+IGRlY2lzaW9uPwo+ID4gPiA+ID4gCj4gPiA+
+ID4gPiAKPiA+ID4gPiA+IFRoZSByZWFzb24gaXMgd2UgbWF5IHdhbnQgdG8gZmFsbGJhY2sgdG8g
+c29mdHdhcmUgZGF0YXBhdGgKPiA+ID4gPiA+IGZvciBzb21lIHJlYXNvbiAoZS5nIHNvZnR3YXJl
+IGFzc2lzdGVkIGxpdmUgbWlncmF0aW9uKS4gSW4KPiA+ID4gPiA+IHRoaXMgY2FzZSB3ZSBuZWVk
+IGludGVyY2VwdCBkZXZpY2Ugd3JpdGUgdG8gdXNlZCByaW5nIHNvIHdlCj4gPiA+ID4gPiBjYW4g
+bm90IG9mZmxvYWRpbmcgdmlydHF1ZXVlIGludGVycnVwdCBpbiB0aGlzIGNhc2UuCj4gPiA+ID4g
+c28gYWRkIGEgVkhPU1RfVkRQQV9TVE9QX0lSUV9PRkZMT0FESU5HPyBUaGVuIGRvIHdlIG5lZWQg
+YQo+ID4gPiA+IFZIT1NUX1ZEUEFfU1RBUlRfSVJRX09GRkxPQURJTkcsIHRoZW4gbGV0IHVzZXJz
+cGFjZSBmdWxseQo+ID4gPiA+IGNvbnRyb2wgdGhpcz8gT3IgYW55IGJldHRlciBhcHByb2FjaGVz
+Pwo+ID4gPiAKPiA+ID4gCj4gPiA+IFByb2JhYmx5IG5vdCwgaXQncyBhcyBzaW1wbGUgYXMgYWxs
+b2NhdGluZyBhbm90aGVyIGV2ZW50ZmQgKGJ1dCBub3QKPiA+ID4gaXJxZmQpLCBhbmQgcGFzcyBp
+dCB0byB2aG9zdC12ZHBhLiBUaGVuIHRoZSBvZmZsb2FkaW5nIGlzIGRpc2FibGVkCj4gPiA+IHNp
+bmNlIGl0IGRvZXNuJ3QgaGF2ZSBhIGNvbnN1bWVyLgo+ID4gT0ssIHNvdW5kcyBsaWtlIFFFTVUg
+d29yaywgbm8gbmVlZCB0byB0YWtlIGNhcmUgaW4gdGhpcyBzZXJpZXMsIHJpZ2h0Pwo+IAo+IAo+
+IFRoYXQncyBteSB1bmRlcnN0YW5kaW5nLgo+IAo+IFRoYW5rcwoKTGV0J3MgY29uZmlybSBhIHN3
+aXRjaCBoYXBwZW5zIGF0b21pY2FsbHkgc28gZWFjaCBpbnRlcnJ1cHQKaXMgc2VudCBlaXRoZXIg
+dG8gZXZlbnRmZCB0byBndWVzdCBkaXJlY3RseSB0aG91Z2guCgo+IAo+ID4gCj4gPiBUaGFua3Ms
+Cj4gPiBCUgo+ID4gWmh1IExpbmdzaGFuCj4gPiA+IAo+ID4gPiBUaGFua3MKPiA+ID4gCj4gPiA+
+IAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVh
+bGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRp
+b24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZv
+L3ZpcnR1YWxpemF0aW9u
