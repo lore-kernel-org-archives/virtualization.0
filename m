@@ -1,97 +1,111 @@
-From: Hui Zhu <teawater@gmail.com>
-Subject: [RFC for qemu v4 2/2] virtio_balloon: Add dcvq to deflate continuous pages
-Date: Thu, 16 Jul 2020 10:41:55 +0800
-Message-ID: <1594867315-8626-6-git-send-email-teawater@gmail.com>
-References: <1594867315-8626-1-git-send-email-teawater@gmail.com>
-Return-path: <virtio-dev-return-7562-gcvd-virtio-dev=m.gmane-mx.org@lists.oasis-open.org>
-Sender: <virtio-dev@lists.oasis-open.org>
-List-Post: <mailto:virtio-dev@lists.oasis-open.org>
-List-Help: <mailto:virtio-dev-help@lists.oasis-open.org>
-List-Unsubscribe: <mailto:virtio-dev-unsubscribe@lists.oasis-open.org>
-List-Subscribe: <mailto:virtio-dev-subscribe@lists.oasis-open.org>
-In-Reply-To: <1594867315-8626-1-git-send-email-teawater@gmail.com>
-To: mst@redhat.com, david@redhat.com, jasowang@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, qemu-devel@nongnu.org, virtio-dev@lists.oasis-open.org
-Cc: Hui Zhu <teawater@gmail.com>, Hui Zhu <teawaterz@linux.alibaba.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH 0/7] *** IRQ offloading for vDPA ***
+Date: Thu, 16 Jul 2020 10:59:36 +0800
+Message-ID: <77318609-85ef-f169-2a1e-500473976d84@redhat.com>
+References: <1594565524-3394-1-git-send-email-lingshan.zhu@intel.com>
+ <70244d80-08a4-da91-3226-7bfd2019467e@redhat.com>
+ <97032c51-3265-c94a-9ce1-f42fcc6d3075@intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <97032c51-3265-c94a-9ce1-f42fcc6d3075@intel.com>
+Content-Language: en-US
+Sender: kvm-owner@vger.kernel.org
+To: "Zhu, Lingshan" <lingshan.zhu@intel.com>, mst@redhat.com, alex.williamson@redhat.com, pbonzini@redhat.com, sean.j.christopherson@intel.com, wanpengli@tencent.com
+Cc: virtualization@lists.linux-foundation.org, kvm@vger.kernel.org, netdev@vger.kernel.org, dan.daly@intel.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-This commit adds a vq dcvq to deflate continuous pages.
-When VIRTIO_BALLOON_F_CONT_PAGES is set, try to get continuous pages
-from icvq and use madvise MADV_WILLNEED with the pages.
 
-Signed-off-by: Hui Zhu <teawaterz@linux.alibaba.com>
----
- hw/virtio/virtio-balloon.c         | 14 +++++++++-----
- include/hw/virtio/virtio-balloon.h |  2 +-
- 2 files changed, 10 insertions(+), 6 deletions(-)
+On 2020/7/16 上午9:39, Zhu, Lingshan wrote:
+>
+>
+> On 7/15/2020 9:43 PM, Jason Wang wrote:
+>>
+>> On 2020/7/12 下午10:52, Zhu Lingshan wrote:
+>>> Hi All,
+>>>
+>>> This series intends to implement IRQ offloading for
+>>> vhost_vdpa.
+>>>
+>>> By the feat of irq forwarding facilities like posted
+>>> interrupt on X86, irq bypass can  help deliver
+>>> interrupts to vCPU directly.
+>>>
+>>> vDPA devices have dedicated hardware backends like VFIO
+>>> pass-throughed devices. So it would be possible to setup
+>>> irq offloading(irq bypass) for vDPA devices and gain
+>>> performance improvements.
+>>>
+>>> In my testing, with this feature, we can save 0.1ms
+>>> in a ping between two VFs on average.
+>>
+>>
+>> Hi Lingshan:
+>>
+>> During the virtio-networking meeting, Michael spots two possible issues:
+>>
+>> 1) do we need an new uAPI to stop the irq offloading?
+>> 2) can interrupt lost during the eventfd ctx?
+>>
+>> For 1) I think we probably not, we can allocate an independent 
+>> eventfd which does not map to MSIX. So the consumer can't match the 
+>> producer and we fallback to eventfd based irq.
+> Hi Jason,
+>
+> I wonder why we need to stop irq offloading, but if we need to do so, maybe a new uAPI would be more intuitive to me,
+> but why and who(user? qemu?) shall initialize this process, based on what kinda of basis to make the decision?
 
-diff --git a/hw/virtio/virtio-balloon.c b/hw/virtio/virtio-balloon.c
-index d36a5c8..165adf7 100644
---- a/hw/virtio/virtio-balloon.c
-+++ b/hw/virtio/virtio-balloon.c
-@@ -138,7 +138,8 @@ static void balloon_inflate_page(VirtIOBalloon *balloon,
- }
- 
- static void balloon_deflate_page(VirtIOBalloon *balloon,
--                                 MemoryRegion *mr, hwaddr mr_offset)
-+                                 MemoryRegion *mr, hwaddr mr_offset,
-+                                 size_t size)
- {
-     void *addr = memory_region_get_ram_ptr(mr) + mr_offset;
-     ram_addr_t rb_offset;
-@@ -153,10 +154,11 @@ static void balloon_deflate_page(VirtIOBalloon *balloon,
-     rb_page_size = qemu_ram_pagesize(rb);
- 
-     host_addr = (void *)((uintptr_t)addr & ~(rb_page_size - 1));
-+    size &= ~(rb_page_size - 1);
- 
-     /* When a page is deflated, we hint the whole host page it lives
-      * on, since we can't do anything smaller */
--    ret = qemu_madvise(host_addr, rb_page_size, QEMU_MADV_WILLNEED);
-+    ret = qemu_madvise(host_addr, size, QEMU_MADV_WILLNEED);
-     if (ret != 0) {
-         warn_report("Couldn't MADV_WILLNEED on balloon deflate: %s",
-                     strerror(errno));
-@@ -354,7 +356,7 @@ static void virtio_balloon_handle_output(VirtIODevice *vdev, VirtQueue *vq)
-             pa = (hwaddr) p << VIRTIO_BALLOON_PFN_SHIFT;
-             offset += 4;
- 
--            if (vq == s->icvq) {
-+            if (vq == s->icvq || vq == s->dcvq) {
-                 uint32_t psize_ptr;
-                 if (iov_to_buf(elem->out_sg, elem->out_num, offset, &psize_ptr, 4) != 4) {
-                     break;
-@@ -383,8 +385,9 @@ static void virtio_balloon_handle_output(VirtIODevice *vdev, VirtQueue *vq)
-                     balloon_inflate_page(s, section.mr,
-                                          section.offset_within_region,
-                                          psize, &pbp);
--                } else if (vq == s->dvq) {
--                    balloon_deflate_page(s, section.mr, section.offset_within_region);
-+                } else if (vq == s->dvq || vq == s->dcvq) {
-+                    balloon_deflate_page(s, section.mr, section.offset_within_region,
-+                                         psize);
-                 } else {
-                     g_assert_not_reached();
-                 }
-@@ -838,6 +841,7 @@ static void virtio_balloon_device_realize(DeviceState *dev, Error **errp)
- 
-     if (virtio_has_feature(s->host_features, VIRTIO_BALLOON_F_CONT_PAGES)) {
-         s->icvq = virtio_add_queue(vdev, 128, virtio_balloon_handle_output);
-+        s->dcvq = virtio_add_queue(vdev, 128, virtio_balloon_handle_output);
-     }
- 
-     reset_stats(s);
-diff --git a/include/hw/virtio/virtio-balloon.h b/include/hw/virtio/virtio-balloon.h
-index 6a2514d..848a7fb 100644
---- a/include/hw/virtio/virtio-balloon.h
-+++ b/include/hw/virtio/virtio-balloon.h
-@@ -42,7 +42,7 @@ enum virtio_balloon_free_page_report_status {
- 
- typedef struct VirtIOBalloon {
-     VirtIODevice parent_obj;
--    VirtQueue *ivq, *dvq, *svq, *free_page_vq, *icvq;
-+    VirtQueue *ivq, *dvq, *svq, *free_page_vq, *icvq, *dcvq;
-     uint32_t free_page_report_status;
-     uint32_t num_pages;
-     uint32_t actual;
--- 
-2.7.4
+
+The reason is we may want to fallback to software datapath for some 
+reason (e.g software assisted live migration). In this case we need 
+intercept device write to used ring so we can not offloading virtqueue 
+interrupt in this case.
+
+
+>> For 2) it looks to me guest should deal with the irq synchronization 
+>> when mask or unmask MSIX vectors.
+> Agreed!
+
+
+It's better to double check for this.
+
+Thanks
+
+
+>
+> Thanks,
+> BR
+> Zhu Lingshan
+>>
+>> What's your thought?
+>>
+>> Thanks
+>>
+>>
+>>>
+>>>
+>>> Zhu Lingshan (7):
+>>>    vhost: introduce vhost_call_ctx
+>>>    kvm/vfio: detect assigned device via irqbypass manager
+>>>    vhost_vdpa: implement IRQ offloading functions in vhost_vdpa
+>>>    vDPA: implement IRQ offloading helpers in vDPA core
+>>>    virtio_vdpa: init IRQ offloading function pointers to NULL.
+>>>    ifcvf: replace irq_request/free with helpers in vDPA core.
+>>>    irqbypass: do not start consumer or producer when failed to connect
+>>>
+>>>   arch/x86/kvm/x86.c              | 10 ++++--
+>>>   drivers/vdpa/ifcvf/ifcvf_main.c | 11 +++---
+>>>   drivers/vdpa/vdpa.c             | 46 +++++++++++++++++++++++++
+>>>   drivers/vhost/Kconfig           |  1 +
+>>>   drivers/vhost/vdpa.c            | 75 
+>>> +++++++++++++++++++++++++++++++++++++++--
+>>>   drivers/vhost/vhost.c           | 22 ++++++++----
+>>>   drivers/vhost/vhost.h           |  9 ++++-
+>>>   drivers/virtio/virtio_vdpa.c    |  2 ++
+>>>   include/linux/vdpa.h            | 11 ++++++
+>>>   virt/kvm/vfio.c                 |  2 --
+>>>   virt/lib/irqbypass.c            | 16 +++++----
+>>>   11 files changed, 181 insertions(+), 24 deletions(-)
+>>>
+>>
