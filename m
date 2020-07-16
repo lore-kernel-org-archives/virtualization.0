@@ -1,45 +1,51 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH vhost next 09/10] vdpa/mlx5: Add shared memory
- registration code
-Date: Thu, 16 Jul 2020 17:32:38 +0800
-Message-ID: <ad3c6157-2224-8e1f-7afb-deb9b45f568e@redhat.com>
-References: <20200716072327.5359-1-eli@mellanox.com>
- <20200716072327.5359-10-eli@mellanox.com>
- <61765932-5411-9f37-3a4a-ca5ac5daa28e@redhat.com>
- <20200716082840.GB182860@mtl-vdi-166.wap.labs.mlnx>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: Interesting qemu/virt-manager bug about the "rotational"
+ attribute on virtio-blk disks
+Date: Thu, 16 Jul 2020 11:33:44 +0200
+Message-ID: <20200716093344.7molwklwco4sdtvs@steredhat>
+References: <20200716080614.GA18456@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200716082840.GB182860@mtl-vdi-166.wap.labs.mlnx>
-Content-Language: en-US
-Sender: linux-kernel-owner@vger.kernel.org
-To: Eli Cohen <eli@mellanox.com>
-Cc: mst@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, shahafs@mellanox.com, saeedm@mellanox.com, Parav Pandit <parav@mellanox.com>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200716080614.GA18456@redhat.com>
+Content-Disposition: inline
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: "Richard W.M. Jones" <rjones@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, Stefan Hajnoczi <stefanha@redhat.com>, qemu-discuss@nongnu.org
 List-Id: virtualization@lists.linuxfoundation.org
 
++Cc Michael, Stefan, virtualization@lists.linux-foundation.org
 
-On 2020/7/16 下午4:28, Eli Cohen wrote:
-> On Thu, Jul 16, 2020 at 04:13:21PM +0800, Jason Wang wrote:
->> On 2020/7/16 下午3:23, Eli Cohen wrote:
->>> Add code to support registering guest's memory region for the device.
->>
->> It would be better to use "userspace" memory here since vhost-vDPA
->> could be used by e.g dpdk application on the host in the future.
->>
-> How about replaciing "guest's memory" with "address space". It is more
-> general and aligns with the with the fact that virio driver can run in
-> the guest's kernel.
+On Thu, Jul 16, 2020 at 09:06:14AM +0100, Richard W.M. Jones wrote:
+> 
+> https://bugzilla.redhat.com/show_bug.cgi?id=1857515
+> 
+> A virtio-blk disk which is backed by a raw file on an SSD,
+> inside the guest shows rotational = 1.
+> 
+> I assumed that qemu must have a "rotational" property for disks and
+> this would be communicated by virtio to the guest, but qemu and virtio
+> don't seem to have this.  Pretty surprising!  Is it called something
+> other than "rotational"?
+> 
 
+I'm not sure if we need to add this property in QEMU, but in Linux
+I found these flags (include/linux/blkdev.h) for the block queues:
 
-Probably but note that guest driver is not the only user for this. It 
-could be either:
+    #define QUEUE_FLAG_NONROT	6	/* non-rotational device (SSD) */
+    #define QUEUE_FLAG_VIRT		QUEUE_FLAG_NONROT /* paravirt device */
 
-1) Guest virtio driver
-2) Userspace virtio driver on the host
-3) Kernel virtio driver on the host.
+xen-blkfront driver is the only one that sets the QUEUE_FLAG_VIRT,
+should we do the same in the virtio-blk driver regardless of the backend?
 
-Thanks
-
-
->
+Thanks,
+Stefano
