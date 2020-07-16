@@ -1,77 +1,55 @@
 From: Zhu Lingshan <lingshan.zhu@intel.com>
-Subject: [PATCH V2 5/6] ifcvf: replace irq_request/free with vDPA helpers
-Date: Thu, 16 Jul 2020 19:23:48 +0800
-Message-ID: <1594898629-18790-6-git-send-email-lingshan.zhu@intel.com>
+Subject: [PATCH V2 6/6] irqbypass: do not start cons/prod when failed connect
+Date: Thu, 16 Jul 2020 19:23:49 +0800
+Message-ID: <1594898629-18790-7-git-send-email-lingshan.zhu@intel.com>
 References: <1594898629-18790-1-git-send-email-lingshan.zhu@intel.com>
-Return-path: <netdev-owner@vger.kernel.org>
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <1594898629-18790-1-git-send-email-lingshan.zhu@intel.com>
-Sender: netdev-owner@vger.kernel.org
+Sender: kvm-owner@vger.kernel.org
 To: mst@redhat.com, alex.williamson@redhat.com, pbonzini@redhat.com, sean.j.christopherson@intel.com, wanpengli@tencent.com, jasowang@redhat.com
 Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, kvm@vger.kernel.org, Zhu Lingshan <lingshan.zhu@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This commit replaced irq_request/free() with helpers in vDPA
-core, so that it can request/free irq and setup irq offloading
-on order.
+If failed to connect, there is no need to start consumer nor
+producer.
 
 Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
 Suggested-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/vdpa/ifcvf/ifcvf_main.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ virt/lib/irqbypass.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
-index f5a60c1..bd2a317 100644
---- a/drivers/vdpa/ifcvf/ifcvf_main.c
-+++ b/drivers/vdpa/ifcvf/ifcvf_main.c
-@@ -47,11 +47,12 @@ static void ifcvf_free_irq(struct ifcvf_adapter *adapter, int queues)
- {
- 	struct pci_dev *pdev = adapter->pdev;
- 	struct ifcvf_hw *vf = &adapter->vf;
-+	struct vdpa_device *vdpa = &adapter->vdpa;
- 	int i;
+diff --git a/virt/lib/irqbypass.c b/virt/lib/irqbypass.c
+index 28fda42..c9bb395 100644
+--- a/virt/lib/irqbypass.c
++++ b/virt/lib/irqbypass.c
+@@ -40,17 +40,21 @@ static int __connect(struct irq_bypass_producer *prod,
+ 	if (prod->add_consumer)
+ 		ret = prod->add_consumer(prod, cons);
  
+-	if (!ret) {
+-		ret = cons->add_producer(cons, prod);
+-		if (ret && prod->del_consumer)
+-			prod->del_consumer(prod, cons);
+-	}
++	if (ret)
++		goto err_add_consumer;
++
++	ret = cons->add_producer(cons, prod);
++	if (ret)
++		goto err_add_producer;
  
- 	for (i = 0; i < queues; i++)
--		devm_free_irq(&pdev->dev, vf->vring[i].irq, &vf->vring[i]);
-+		vdpa_free_vq_irq(&pdev->dev, vdpa, vf->vring[i].irq, i, &vf->vring[i]);
- 
- 	ifcvf_free_irq_vectors(pdev);
+ 	if (cons->start)
+ 		cons->start(cons);
+ 	if (prod->start)
+ 		prod->start(prod);
+-
++err_add_producer:
++	if (prod->del_consumer)
++		prod->del_consumer(prod, cons);
++err_add_consumer:
+ 	return ret;
  }
-@@ -60,6 +61,7 @@ static int ifcvf_request_irq(struct ifcvf_adapter *adapter)
- {
- 	struct pci_dev *pdev = adapter->pdev;
- 	struct ifcvf_hw *vf = &adapter->vf;
-+	struct vdpa_device *vdpa = &adapter->vdpa;
- 	int vector, i, ret, irq;
  
- 	ret = pci_alloc_irq_vectors(pdev, IFCVF_MAX_INTR,
-@@ -73,6 +75,10 @@ static int ifcvf_request_irq(struct ifcvf_adapter *adapter)
- 		 pci_name(pdev));
- 	vector = 0;
- 	irq = pci_irq_vector(pdev, vector);
-+	/* This isconfig interrupt, config accesses all go
-+	 * through userspace, so no need to setup
-+	 * config interrupt offloading.
-+	 */
- 	ret = devm_request_irq(&pdev->dev, irq,
- 			       ifcvf_config_changed, 0,
- 			       vf->config_msix_name, vf);
-@@ -82,13 +88,11 @@ static int ifcvf_request_irq(struct ifcvf_adapter *adapter)
- 			 pci_name(pdev), i);
- 		vector = i + IFCVF_MSI_QUEUE_OFF;
- 		irq = pci_irq_vector(pdev, vector);
--		ret = devm_request_irq(&pdev->dev, irq,
-+		ret = vdpa_alloc_vq_irq(&pdev->dev, vdpa, irq,
- 				       ifcvf_intr_handler, 0,
- 				       vf->vring[i].msix_name,
--				       &vf->vring[i]);
-+				       &vf->vring[i], i);
- 		if (ret) {
--			IFCVF_ERR(pdev,
--				  "Failed to request irq for vq %d\n", i);
- 			ifcvf_free_irq(adapter, i);
- 
- 			return ret;
 -- 
 1.8.3.1
