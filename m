@@ -1,124 +1,117 @@
-From: teawater <teawaterz@linux.alibaba.com>
-Subject: Re: [virtio-dev] [RFC for qemu v4 2/2] virtio_balloon: Add dcvq to
- deflate continuous pages
-Date: Thu, 16 Jul 2020 15:32:30 +0800
-Message-ID: <4F64B592-03CF-46F5-B761-78B4EBA5028E@linux.alibaba.com>
-References: <1594867315-8626-1-git-send-email-teawater@gmail.com>
- <1594867315-8626-6-git-send-email-teawater@gmail.com>
- <20200716023910-mutt-send-email-mst@kernel.org>
-Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.80.23.2.2\))
-Content-Type: text/plain;
-        charset=utf-8
-Content-Transfer-Encoding: 8BIT
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH RFC don't apply] vdpa_sim: endian-ness for config space
+Date: Thu, 16 Jul 2020 15:42:52 +0800
+Message-ID: <b3872628-5cf2-911b-4e3b-748824243366@redhat.com>
+References: <20200715135540.22832-1-mst@redhat.com>
+ <8f39dcc1-0899-7ed8-8a6e-75672417b9e3@redhat.com>
+ <20200716013306-mutt-send-email-mst@kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200716023910-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20200716013306-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Hui Zhu <teawater@gmail.com>, david@redhat.com, jasowang@redhat.com, akpm@linux-foundation.org, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, qemu-devel@nongnu.org, virtio-dev@lists.oasis-open.org
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
+On 2020/7/16 下午1:42, Michael S. Tsirkin wrote:
+> On Wed, Jul 15, 2020 at 10:02:32PM +0800, Jason Wang wrote:
+>> On 2020/7/15 下午9:58, Michael S. Tsirkin wrote:
+>>> VDPA sim stores config space as native endian, but that
+>>> is wrong: modern guests expect LE.
+>>> I coded up the following to fix it up, but it is wrong too:
+>>> vdpasim_create is called before guest features are known.
+>>>
+>>> So what should we do? New ioctl to specify the interface used?
+>>> More ideas?
+>>>
+>>> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>>
+>> Can we do the endian conversion in set_config/get_config()?
+>>
+>> Thanks
+> That is problematic at least from static checking point of view.
 
-> 2020年7月16日 14:39，Michael S. Tsirkin <mst@redhat.com> 写道：
-> 
-> On Thu, Jul 16, 2020 at 10:41:55AM +0800, Hui Zhu wrote:
->> This commit adds a vq dcvq to deflate continuous pages.
->> When VIRTIO_BALLOON_F_CONT_PAGES is set, try to get continuous pages
->> from icvq and use madvise MADV_WILLNEED with the pages.
->> 
->> Signed-off-by: Hui Zhu <teawaterz@linux.alibaba.com>
-> 
-> This is arguably something to benchmark. Does guest benefit
-> from MADV_WILLNEED or loose performance?
 
-MADV_WILLNEED will call madvise_willneed in the host kernel.
-madvise_willneed will schedule all required I/O operations (swap in or vfs_fadvise POSIX_FADV_WILLNEED) of the address.
+I don't get here. I thought it's just leXX_to_cpu() conversion in 
+set_config()/get_config() as what is done in MMIO's vm_set/vm_get.
 
-But the pages of the balloon are released by MADV_DONTNEED.
-So I think MADV_WILLNEED will not affect the performance of the guest in the most of situations.
 
-Best,
-Hui
+> It would be reasonable to do it in vdpasim_set_features, except
+> legacy guests might not set features at all.
+> So my proposal is:
+> - set config in vdpasim_set_features
 
-> 
->> ---
->> hw/virtio/virtio-balloon.c         | 14 +++++++++-----
->> include/hw/virtio/virtio-balloon.h |  2 +-
->> 2 files changed, 10 insertions(+), 6 deletions(-)
->> 
->> diff --git a/hw/virtio/virtio-balloon.c b/hw/virtio/virtio-balloon.c
->> index d36a5c8..165adf7 100644
->> --- a/hw/virtio/virtio-balloon.c
->> +++ b/hw/virtio/virtio-balloon.c
->> @@ -138,7 +138,8 @@ static void balloon_inflate_page(VirtIOBalloon *balloon,
->> }
->> 
->> static void balloon_deflate_page(VirtIOBalloon *balloon,
->> -                                 MemoryRegion *mr, hwaddr mr_offset)
->> +                                 MemoryRegion *mr, hwaddr mr_offset,
->> +                                 size_t size)
->> {
->>     void *addr = memory_region_get_ram_ptr(mr) + mr_offset;
->>     ram_addr_t rb_offset;
->> @@ -153,10 +154,11 @@ static void balloon_deflate_page(VirtIOBalloon *balloon,
->>     rb_page_size = qemu_ram_pagesize(rb);
->> 
->>     host_addr = (void *)((uintptr_t)addr & ~(rb_page_size - 1));
->> +    size &= ~(rb_page_size - 1);
->> 
->>     /* When a page is deflated, we hint the whole host page it lives
->>      * on, since we can't do anything smaller */
->> -    ret = qemu_madvise(host_addr, rb_page_size, QEMU_MADV_WILLNEED);
->> +    ret = qemu_madvise(host_addr, size, QEMU_MADV_WILLNEED);
->>     if (ret != 0) {
->>         warn_report("Couldn't MADV_WILLNEED on balloon deflate: %s",
->>                     strerror(errno));
->> @@ -354,7 +356,7 @@ static void virtio_balloon_handle_output(VirtIODevice *vdev, VirtQueue *vq)
->>             pa = (hwaddr) p << VIRTIO_BALLOON_PFN_SHIFT;
->>             offset += 4;
->> 
->> -            if (vq == s->icvq) {
->> +            if (vq == s->icvq || vq == s->dcvq) {
->>                 uint32_t psize_ptr;
->>                 if (iov_to_buf(elem->out_sg, elem->out_num, offset, &psize_ptr, 4) != 4) {
->>                     break;
->> @@ -383,8 +385,9 @@ static void virtio_balloon_handle_output(VirtIODevice *vdev, VirtQueue *vq)
->>                     balloon_inflate_page(s, section.mr,
->>                                          section.offset_within_region,
->>                                          psize, &pbp);
->> -                } else if (vq == s->dvq) {
->> -                    balloon_deflate_page(s, section.mr, section.offset_within_region);
->> +                } else if (vq == s->dvq || vq == s->dcvq) {
->> +                    balloon_deflate_page(s, section.mr, section.offset_within_region,
->> +                                         psize);
->>                 } else {
->>                     g_assert_not_reached();
->>                 }
->> @@ -838,6 +841,7 @@ static void virtio_balloon_device_realize(DeviceState *dev, Error **errp)
->> 
->>     if (virtio_has_feature(s->host_features, VIRTIO_BALLOON_F_CONT_PAGES)) {
->>         s->icvq = virtio_add_queue(vdev, 128, virtio_balloon_handle_output);
->> +        s->dcvq = virtio_add_queue(vdev, 128, virtio_balloon_handle_output);
->>     }
->> 
->>     reset_stats(s);
->> diff --git a/include/hw/virtio/virtio-balloon.h b/include/hw/virtio/virtio-balloon.h
->> index 6a2514d..848a7fb 100644
->> --- a/include/hw/virtio/virtio-balloon.h
->> +++ b/include/hw/virtio/virtio-balloon.h
->> @@ -42,7 +42,7 @@ enum virtio_balloon_free_page_report_status {
->> 
->> typedef struct VirtIOBalloon {
->>     VirtIODevice parent_obj;
->> -    VirtQueue *ivq, *dvq, *svq, *free_page_vq, *icvq;
->> +    VirtQueue *ivq, *dvq, *svq, *free_page_vq, *icvq, *dcvq;
->>     uint32_t free_page_report_status;
->>     uint32_t num_pages;
->>     uint32_t actual;
->> -- 
->> 2.7.4
-> 
-> 
-> ---------------------------------------------------------------------
-> To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
-> For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
+
+Just to make sure I understand here. What's the meaning of "set config" 
+do you mean setup the config space? If yes, and if there's a device 
+config space, we still need to do the endian conversion?
+
+
+> - document that this is where devices should initialize config
+> - vdpa core will maintain a "features set" flag, if get/set config
+>    is called without set features, core will call set features
+>    automatically with 0 value.
+
+
+Ok, I think you meant checking FEATURE_OK via get_status in vDPA core?
+
+Thanks
+
+
+
+>
+> Thoughts?
+>
+>
+>>>
+>>> ---
+>>>    drivers/vdpa/vdpa_sim/vdpa_sim.c | 22 ++++++++++++++++++++--
+>>>    1 file changed, 20 insertions(+), 2 deletions(-)
+>>>
+>>> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+>>> index a9bc5e0fb353..cc754ae0ec15 100644
+>>> --- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
+>>> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+>>> @@ -24,6 +24,7 @@
+>>>    #include <linux/etherdevice.h>
+>>>    #include <linux/vringh.h>
+>>>    #include <linux/vdpa.h>
+>>> +#include <linux/virtio_byteorder.h>
+>>>    #include <linux/vhost_iotlb.h>
+>>>    #include <uapi/linux/virtio_config.h>
+>>>    #include <uapi/linux/virtio_net.h>
+>>> @@ -72,6 +73,23 @@ struct vdpasim {
+>>>    	u64 features;
+>>>    };
+>>> +/* TODO: cross-endian support */
+>>> +static inline bool vdpasim_is_little_endian(struct vdpasim *vdpasim)
+>>> +{
+>>> +	return virtio_legacy_is_little_endian() ||
+>>> +		(vdpasim->features & (1ULL << VIRTIO_F_VERSION_1));
+>>> +}
+>>> +
+>>> +static inline u16 vdpasim16_to_cpu(struct vdpasim *vdpasim, __virtio16 val)
+>>> +{
+>>> +	return __virtio16_to_cpu(vdpasim_is_little_endian(vdpasim), val);
+>>> +}
+>>> +
+>>> +static inline __virtio16 cpu_to_vdpasim16(struct vdpasim *vdpasim, u16 val)
+>>> +{
+>>> +	return __cpu_to_virtio16(vdpasim_is_little_endian(vdpasim), val);
+>>> +}
+>>> +
+>>>    static struct vdpasim *vdpasim_dev;
+>>>    static struct vdpasim *vdpa_to_sim(struct vdpa_device *vdpa)
+>>> @@ -332,8 +350,8 @@ static struct vdpasim *vdpasim_create(void)
+>>>    		goto err_iommu;
+>>>    	config = &vdpasim->config;
+>>> -	config->mtu = 1500;
+>>> -	config->status = VIRTIO_NET_S_LINK_UP;
+>>> +	config->mtu = cpu_to_vdpasim16(vdpasim, 1500);
+>>> +	config->status = cpu_to_vdpasim16(vdpasim, VIRTIO_NET_S_LINK_UP);
+>>>    	eth_random_addr(config->mac);
+>>>    	vringh_set_iotlb(&vdpasim->vqs[0].vring, vdpasim->iommu);
