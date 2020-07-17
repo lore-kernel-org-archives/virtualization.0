@@ -1,163 +1,239 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V2 1/6] vhost: introduce vhost_call_ctx
-Date: Fri, 17 Jul 2020 11:32:08 +0800
-Message-ID: <871ee1c1-8cf7-3d9d-1892-5991b92e5db3@redhat.com>
-References: <1594898629-18790-1-git-send-email-lingshan.zhu@intel.com>
- <1594898629-18790-2-git-send-email-lingshan.zhu@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <1594898629-18790-2-git-send-email-lingshan.zhu@intel.com>
-Content-Language: en-US
-Sender: kvm-owner@vger.kernel.org
-To: Zhu Lingshan <lingshan.zhu@intel.com>, mst@redhat.com, alex.williamson@redhat.com, pbonzini@redhat.com, sean.j.christopherson@intel.com, wanpengli@tencent.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, kvm@vger.kernel.org
+From: teawater <teawaterz@linux.alibaba.com>
+Subject: Re: [virtio-dev] [RFC for Linux v4 0/2] virtio_balloon: Add
+ VIRTIO_BALLOON_F_CONT_PAGES to report continuous pages
+Date: Fri, 17 Jul 2020 11:52:42 +0800
+Message-ID: <A8B48063-59E3-4398-B41F-9CABA9DFA7AC@linux.alibaba.com>
+References: <1594867315-8626-1-git-send-email-teawater@gmail.com>
+ <20200716021929-mutt-send-email-mst@kernel.org>
+ <744230FA-78D8-4568-8188-683087065E84@linux.alibaba.com>
+ <20200716064340-mutt-send-email-mst@kernel.org>
+Mime-Version: 1.0 (Mac OS X Mail 13.4 \(3608.80.23.2.2\))
+Content-Type: text/plain;
+        charset=utf-8
+Content-Transfer-Encoding: 8BIT
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200716064340-mutt-send-email-mst@kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Hui Zhu <teawater@gmail.com>, David Hildenbrand <david@redhat.com>, Jason Wang <jasowang@redhat.com>, Andrew Morton <akpm@linux-foundation.org>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, linux-mm@kvack.org, qemu-devel@nongnu.org, virtio-dev@lists.oasis-open.org, Andrea Arcangeli <aarcange@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
 
-On 2020/7/16 下午7:23, Zhu Lingshan wrote:
-> This commit introduces struct vhost_call_ctx which replaced
-> raw struct eventfd_ctx *call_ctx in struct vhost_virtqueue.
-> Besides eventfd_ctx, it contains a spin lock and an
-> irq_bypass_producer in its structure.
->
-> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
-> Suggested-by: Jason Wang <jasowang@redhat.com>
-> ---
->   drivers/vhost/vdpa.c  |  4 ++--
->   drivers/vhost/vhost.c | 22 ++++++++++++++++------
->   drivers/vhost/vhost.h |  9 ++++++++-
->   3 files changed, 26 insertions(+), 9 deletions(-)
->
-> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index 7580e34..2fcc422 100644
-> --- a/drivers/vhost/vdpa.c
-> +++ b/drivers/vhost/vdpa.c
-> @@ -96,7 +96,7 @@ static void handle_vq_kick(struct vhost_work *work)
->   static irqreturn_t vhost_vdpa_virtqueue_cb(void *private)
->   {
->   	struct vhost_virtqueue *vq = private;
-> -	struct eventfd_ctx *call_ctx = vq->call_ctx;
-> +	struct eventfd_ctx *call_ctx = vq->call_ctx.ctx;
->   
->   	if (call_ctx)
->   		eventfd_signal(call_ctx, 1);
-> @@ -382,7 +382,7 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
->   		break;
->   
->   	case VHOST_SET_VRING_CALL:
-> -		if (vq->call_ctx) {
-> +		if (vq->call_ctx.ctx) {
->   			cb.callback = vhost_vdpa_virtqueue_cb;
->   			cb.private = vq;
->   		} else {
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index d7b8df3..4004e94 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -298,6 +298,13 @@ static void vhost_vq_meta_reset(struct vhost_dev *d)
->   		__vhost_vq_meta_reset(d->vqs[i]);
->   }
->   
-> +static void vhost_call_ctx_reset(struct vhost_call_ctx *call_ctx)
-> +{
-> +	call_ctx->ctx = NULL;
-> +	memset(&call_ctx->producer, 0x0, sizeof(struct irq_bypass_producer));
-> +	spin_lock_init(&call_ctx->ctx_lock);
-> +}
-> +
->   static void vhost_vq_reset(struct vhost_dev *dev,
->   			   struct vhost_virtqueue *vq)
->   {
-> @@ -319,13 +326,13 @@ static void vhost_vq_reset(struct vhost_dev *dev,
->   	vq->log_base = NULL;
->   	vq->error_ctx = NULL;
->   	vq->kick = NULL;
-> -	vq->call_ctx = NULL;
->   	vq->log_ctx = NULL;
->   	vhost_reset_is_le(vq);
->   	vhost_disable_cross_endian(vq);
->   	vq->busyloop_timeout = 0;
->   	vq->umem = NULL;
->   	vq->iotlb = NULL;
-> +	vhost_call_ctx_reset(&vq->call_ctx);
->   	__vhost_vq_meta_reset(vq);
->   }
->   
-> @@ -685,8 +692,8 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
->   			eventfd_ctx_put(dev->vqs[i]->error_ctx);
->   		if (dev->vqs[i]->kick)
->   			fput(dev->vqs[i]->kick);
-> -		if (dev->vqs[i]->call_ctx)
-> -			eventfd_ctx_put(dev->vqs[i]->call_ctx);
-> +		if (dev->vqs[i]->call_ctx.ctx)
-> +			eventfd_ctx_put(dev->vqs[i]->call_ctx.ctx);
->   		vhost_vq_reset(dev, dev->vqs[i]);
->   	}
->   	vhost_dev_free_iovecs(dev);
-> @@ -1629,7 +1636,10 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *arg
->   			r = PTR_ERR(ctx);
->   			break;
->   		}
-> -		swap(ctx, vq->call_ctx);
-> +
-> +		spin_lock(&vq->call_ctx.ctx_lock);
-> +		swap(ctx, vq->call_ctx.ctx);
-> +		spin_unlock(&vq->call_ctx.ctx_lock);
->   		break;
->   	case VHOST_SET_VRING_ERR:
->   		if (copy_from_user(&f, argp, sizeof f)) {
-> @@ -2440,8 +2450,8 @@ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
->   void vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
->   {
->   	/* Signal the Guest tell them we used something up. */
-> -	if (vq->call_ctx && vhost_notify(dev, vq))
-> -		eventfd_signal(vq->call_ctx, 1);
-> +	if (vq->call_ctx.ctx && vhost_notify(dev, vq))
-> +		eventfd_signal(vq->call_ctx.ctx, 1);
->   }
->   EXPORT_SYMBOL_GPL(vhost_signal);
->   
-> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-> index c8e96a0..402c62e 100644
-> --- a/drivers/vhost/vhost.h
-> +++ b/drivers/vhost/vhost.h
-> @@ -13,6 +13,7 @@
->   #include <linux/virtio_ring.h>
->   #include <linux/atomic.h>
->   #include <linux/vhost_iotlb.h>
-> +#include <linux/irqbypass.h>
->   
->   struct vhost_work;
->   typedef void (*vhost_work_fn_t)(struct vhost_work *work);
-> @@ -60,6 +61,12 @@ enum vhost_uaddr_type {
->   	VHOST_NUM_ADDRS = 3,
->   };
->   
-> +struct vhost_call_ctx {
+
+> 2020年7月16日 18:45，Michael S. Tsirkin <mst@redhat.com> 写道：
+> 
+> On Thu, Jul 16, 2020 at 03:01:18PM +0800, teawater wrote:
+>> 
+>> 
+>>> 2020年7月16日 14:38，Michael S. Tsirkin <mst@redhat.com> 写道：
+>>> 
+>>> On Thu, Jul 16, 2020 at 10:41:50AM +0800, Hui Zhu wrote:
+>>>> The first, second and third version are in [1], [2] and [3].
+>>>> Code of current version for Linux and qemu is available in [4] and [5].
+>>>> Update of this version:
+>>>> 1. Report continuous pages will increase the speed.  So added deflate
+>>>>  continuous pages.
+>>>> 2. According to the comments from David in [6], added 2 new vqs inflate_cont_vq
+>>>>  and deflate_cont_vq to report continuous pages with format 32 bits pfn and 32
+>>>>  bits size.
+>>>> Following is the introduction of the function.
+>>>> These patches add VIRTIO_BALLOON_F_CONT_PAGES to virtio_balloon. With this
+>>>> flag, balloon tries to use continuous pages to inflate and deflate.
+>>>> Opening this flag can bring two benefits:
+>>>> 1. Report continuous pages will increase memory report size of each time
+>>>>  call tell_host.  Then it will increase the speed of balloon inflate and
+>>>>  deflate.
+>>>> 2. Host THPs will be splitted when qemu release the page of balloon inflate.
+>>>>  Inflate balloon with continuous pages will let QEMU release the pages
+>>>>  of same THPs.  That will help decrease the splitted THPs number in
+>>>>  the host.
+>>>>  Following is an example in a VM with 1G memory 1CPU.  This test setups an
+>>>>  environment that has a lot of fragmentation pages.  Then inflate balloon will
+>>>>  split the THPs.
+>> 
+>> 
+>>>> // This is the THP number before VM execution in the host.
+>>>> // None use THP.
+>>>> cat /proc/meminfo | grep AnonHugePages:
+>>>> AnonHugePages:         0 kB
+>> These lines are from host.
+>> 
+>>>> // After VM start, use usemem
+>>>> // (https://git.kernel.org/pub/scm/linux/kernel/git/wfg/vm-scalability.git)
+>>>> // punch-holes function generates 400m fragmentation pages in the guest
+>>>> // kernel.
+>>>> usemem --punch-holes -s -1 800m &
+>> These lines are from guest.  They setups the environment that has a lot of fragmentation pages.
+>> 
+>>>> // This is the THP number after this command in the host.
+>>>> // Some THP is used by VM because usemem will access 800M memory
+>>>> // in the guest.
+>>>> cat /proc/meminfo | grep AnonHugePages:
+>>>> AnonHugePages:    911360 kB
+>> These lines are from host.
+>> 
+>>>> // Connect to the QEMU monitor, setup balloon, and set it size to 600M.
+>>>> (qemu) device_add virtio-balloon-pci,id=balloon1
+>>>> (qemu) info balloon
+>>>> balloon: actual=1024
+>>>> (qemu) balloon 600
+>>>> (qemu) info balloon
+>>>> balloon: actual=600
+>> These lines are from host.
+>> 
+>>>> // This is the THP number after inflate the balloon in the host.
+>>>> cat /proc/meminfo | grep AnonHugePages:
+>>>> AnonHugePages:     88064 kB
+>> These lines are from host.
+>> 
+>>>> // Set the size back to 1024M in the QEMU monitor.
+>>>> (qemu) balloon 1024
+>>>> (qemu) info balloon
+>>>> balloon: actual=1024
+>> These lines are from host.
+>> 
+>>>> // Use usemem to increase the memory usage of QEMU.
+>>>> killall usemem
+>>>> usemem 800m
+>> These lines are from guest.
+>> 
+>>>> // This is the THP number after this operation.
+>>>> cat /proc/meminfo | grep AnonHugePages:
+>>>> AnonHugePages:     65536 kB
+>> These lines are from host.
+>> 
+>> 
+>> 
+>>>> 
+>>>> Following example change to use continuous pages balloon.  The number of
+>>>> splitted THPs is decreased.
+>>>> // This is the THP number before VM execution in the host.
+>>>> // None use THP.
+>>>> cat /proc/meminfo | grep AnonHugePages:
+>>>> AnonHugePages:         0 kB
+>> These lines are from host.
+>> 
+>>>> // After VM start, use usemem punch-holes function generates 400M
+>>>> // fragmentation pages in the guest kernel.
+>>>> usemem --punch-holes -s -1 800m &
+>> These lines are from guest.  They setups the environment that has a lot of fragmentation pages.
+>> 
+>>>> // This is the THP number after this command in the host.
+>>>> // Some THP is used by VM because usemem will access 800M memory
+>>>> // in the guest.
+>>>> cat /proc/meminfo | grep AnonHugePages:
+>>>> AnonHugePages:    911360 kB
+>> These lines are from host.
+>> 
+>>>> // Connect to the QEMU monitor, setup balloon, and set it size to 600M.
+>>>> (qemu) device_add virtio-balloon-pci,id=balloon1,cont-pages=on
+>>>> (qemu) info balloon
+>>>> balloon: actual=1024
+>>>> (qemu) balloon 600
+>>>> (qemu) info balloon
+>>>> balloon: actual=600
+>> These lines are from host.
+>> 
+>>>> // This is the THP number after inflate the balloon in the host.
+>>>> cat /proc/meminfo | grep AnonHugePages:
+>>>> AnonHugePages:    616448 kB
+>>>> // Set the size back to 1024M in the QEMU monitor.
+>>>> (qemu) balloon 1024
+>>>> (qemu) info balloon
+>>>> balloon: actual=1024
+>> These lines are from host.
+>> 
+>>>> // Use usemem to increase the memory usage of QEMU.
+>>>> killall usemem
+>>>> usemem 800m
+>> These lines are from guest.
+>> 
+>>>> // This is the THP number after this operation.
+>>>> cat /proc/meminfo | grep AnonHugePages:
+>>>> AnonHugePages:    907264 kB
+>> These lines are from host.
+>> 
+>>> 
+>>> I'm a bit confused about which of the above run within guest,
+>>> and which run within host. Could you explain pls?
+>>> 
+>>> 
+>> 
+>> I added some introduction to show where these lines is get from.
+>> 
+>> Best,
+>> Hui
+> 
+> 
+> OK so we see host has more free THPs. But guest has presumably less now - so
+> the total page table depth is the same. Did we gain anything?
+> 
 
 
-I think maybe "vhost_vring_call" is a better name since it contains not 
-only the eventfd_ctx now.
+cat /proc/meminfo | grep AnonHugePages:
+This command will output how many THPs is used by current system.
+There is no program using THPs except qemu.
+So this command will show how many THPs is used by qemu.
 
-Thanks
+The last outout of “cat /proc/meminfo | grep AnonHugePages:” show how many THPs is used by qemu when this 2 qemu’s anon page number is same.
+Without “cont-pages=on”, qemu keep 65536kb THPs.
+Wiht “cont-pages=on”, qemu keep 907264kb THPs.
+Keep more THPs will make memory access speed high.
+
+This is a test record use this 1G 1 cpu qemu after the fragmentation balloon test:
+Without “cont-pages=on”, qemu keep 81920kB THPs.
+/ # usemem 800m
+943718400 bytes / 489412 usecs = 1883076 KB/s
+18725 usecs to free memory
+/ # usemem 800m
+943718400 bytes / 487070 usecs = 1892130 KB/s
+18913 usecs to free memory
+/ # usemem 800m
+943718400 bytes / 484234 usecs = 1903212 KB/s
+18538 usecs to free memory
+/ # usemem 800m
+943718400 bytes / 486568 usecs = 1894082 KB/s
+18982 usecs to free memory
+
+With “cont-pages=on”, qemu keep 907264kb THPs.
+/ # usemem 800m
+943718400 bytes / 479098 usecs = 1923614 KB/s
+18980 usecs to free memory
+/ # usemem 800m
+943718400 bytes / 477433 usecs = 1930323 KB/s
+18562 usecs to free memory
+/ # usemem 800m
+943718400 bytes / 479790 usecs = 1920840 KB/s
+18663 usecs to free memory
+/ # usemem 800m
+943718400 bytes / 480253 usecs = 1918988 KB/s
+19011 usecs to free memory
+
+Best,
+Hui
 
 
-> +	struct eventfd_ctx *ctx;
-> +	struct irq_bypass_producer producer;
-> +	spinlock_t ctx_lock;
-> +};
-> +
->   /* The virtqueue structure describes a queue attached to a device. */
->   struct vhost_virtqueue {
->   	struct vhost_dev *dev;
-> @@ -72,7 +79,7 @@ struct vhost_virtqueue {
->   	vring_used_t __user *used;
->   	const struct vhost_iotlb_map *meta_iotlb[VHOST_NUM_ADDRS];
->   	struct file *kick;
-> -	struct eventfd_ctx *call_ctx;
-> +	struct vhost_call_ctx call_ctx;
->   	struct eventfd_ctx *error_ctx;
->   	struct eventfd_ctx *log_ctx;
->   
+
+>> 
+>>> 
+>>>> [1] https://lkml.org/lkml/2020/3/12/144
+>>>> [2] https://lore.kernel.org/linux-mm/1584893097-12317-1-git-send-email-teawater@gmail.com/
+>>>> [3] https://lkml.org/lkml/2020/5/12/324
+>>>> [4] https://github.com/teawater/linux/tree/balloon_conts
+>>>> [5] https://github.com/teawater/qemu/tree/balloon_conts
+>>>> [6] https://lkml.org/lkml/2020/5/13/1211
+>>>> 
+>>>> Hui Zhu (2):
+>>>> virtio_balloon: Add VIRTIO_BALLOON_F_CONT_PAGES and inflate_cont_vq
+>>>> virtio_balloon: Add deflate_cont_vq to deflate continuous pages
+>>>> 
+>>>> drivers/virtio/virtio_balloon.c     |  180 +++++++++++++++++++++++++++++++-----
+>>>> include/linux/balloon_compaction.h  |   12 ++
+>>>> include/uapi/linux/virtio_balloon.h |    1
+>>>> mm/balloon_compaction.c             |  117 +++++++++++++++++++++--
+>>>> 4 files changed, 280 insertions(+), 30 deletions(-)
+>>> 
+>>> 
+>>> ---------------------------------------------------------------------
+>>> To unsubscribe, e-mail: virtio-dev-unsubscribe@lists.oasis-open.org
+>>> For additional commands, e-mail: virtio-dev-help@lists.oasis-open.org
