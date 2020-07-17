@@ -1,181 +1,86 @@
 From: Masami Hiramatsu <mhiramat@kernel.org>
-Subject: Re: [PATCH v4 06/75] x86/insn: Make inat-tables.c suitable for
- pre-decompression code
-Date: Fri, 17 Jul 2020 22:58:26 +0900
-Message-ID: <20200717225826.3b16e168de2a1573150e7952@kernel.org>
+Subject: Re: [PATCH v4 10/75] x86/insn: Add insn_has_rep_prefix() helper
+Date: Fri, 17 Jul 2020 23:06:22 +0900
+Message-ID: <20200717230622.5be651b71711368acbfe6bb0@kernel.org>
 References: <20200714120917.11253-1-joro@8bytes.org>
-        <20200714120917.11253-7-joro@8bytes.org>
+        <20200714120917.11253-11-joro@8bytes.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20200714120917.11253-7-joro@8bytes.org>
+In-Reply-To: <20200714120917.11253-11-joro@8bytes.org>
 Sender: kvm-owner@vger.kernel.org
 To: Joerg Roedel <joro@8bytes.org>
 Cc: x86@kernel.org, Joerg Roedel <jroedel@suse.de>, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Sean Christopherson <sean.j.christopherson@intel.com>, Martin Radev <martin.b.radev@gmail.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 14 Jul 2020 14:08:08 +0200
+On Tue, 14 Jul 2020 14:08:12 +0200
 Joerg Roedel <joro@8bytes.org> wrote:
 
 > From: Joerg Roedel <jroedel@suse.de>
 > 
-> The inat-tables.c file has some arrays in it that contain pointers to
-> other arrays. These pointers need to be relocated when the kernel
-> image is moved to a different location.
-> 
-> The pre-decompression boot-code has no support for applying ELF
-> relocations, so initialize these arrays at runtime in the
-> pre-decompression code to make sure all pointers are correctly
-> initialized.
+> Add a function to check whether an instruction has a REP prefix.
 
-OK, This looks good to me.
+This looks good to me.
 
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-
+Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
+ 
 Thank you,
 
 > 
 > Signed-off-by: Joerg Roedel <jroedel@suse.de>
 > ---
->  arch/x86/tools/gen-insn-attr-x86.awk       | 50 +++++++++++++++++++++-
->  tools/arch/x86/tools/gen-insn-attr-x86.awk | 50 +++++++++++++++++++++-
->  2 files changed, 98 insertions(+), 2 deletions(-)
+>  arch/x86/include/asm/insn-eval.h |  1 +
+>  arch/x86/lib/insn-eval.c         | 24 ++++++++++++++++++++++++
+>  2 files changed, 25 insertions(+)
 > 
-> diff --git a/arch/x86/tools/gen-insn-attr-x86.awk b/arch/x86/tools/gen-insn-attr-x86.awk
-> index a42015b305f4..af38469afd14 100644
-> --- a/arch/x86/tools/gen-insn-attr-x86.awk
-> +++ b/arch/x86/tools/gen-insn-attr-x86.awk
-> @@ -362,6 +362,9 @@ function convert_operands(count,opnd,       i,j,imm,mod)
->  END {
->  	if (awkchecked != "")
->  		exit 1
-> +
-> +	print "#ifndef __BOOT_COMPRESSED\n"
-> +
->  	# print escape opcode map's array
->  	print "/* Escape opcode map array */"
->  	print "const insn_attr_t * const inat_escape_tables[INAT_ESC_MAX + 1]" \
-> @@ -388,6 +391,51 @@ END {
->  		for (j = 0; j < max_lprefix; j++)
->  			if (atable[i,j])
->  				print "	["i"]["j"] = "atable[i,j]","
-> -	print "};"
-> +	print "};\n"
-> +
-> +	print "#else /* !__BOOT_COMPRESSED */\n"
-> +
-> +	print "/* Escape opcode map array */"
-> +	print "static const insn_attr_t *inat_escape_tables[INAT_ESC_MAX + 1]" \
-> +	      "[INAT_LSTPFX_MAX + 1];"
-> +	print ""
-> +
-> +	print "/* Group opcode map array */"
-> +	print "static const insn_attr_t *inat_group_tables[INAT_GRP_MAX + 1]"\
-> +	      "[INAT_LSTPFX_MAX + 1];"
-> +	print ""
-> +
-> +	print "/* AVX opcode map array */"
-> +	print "static const insn_attr_t *inat_avx_tables[X86_VEX_M_MAX + 1]"\
-> +	      "[INAT_LSTPFX_MAX + 1];"
-> +	print ""
-> +
-> +	print "static void inat_init_tables(void)"
-> +	print "{"
-> +
-> +	# print escape opcode map's array
-> +	print "\t/* Print Escape opcode map array */"
-> +	for (i = 0; i < geid; i++)
-> +		for (j = 0; j < max_lprefix; j++)
-> +			if (etable[i,j])
-> +				print "\tinat_escape_tables["i"]["j"] = "etable[i,j]";"
-> +	print ""
-> +
-> +	# print group opcode map's array
-> +	print "\t/* Print Group opcode map array */"
-> +	for (i = 0; i < ggid; i++)
-> +		for (j = 0; j < max_lprefix; j++)
-> +			if (gtable[i,j])
-> +				print "\tinat_group_tables["i"]["j"] = "gtable[i,j]";"
-> +	print ""
-> +	# print AVX opcode map's array
-> +	print "\t/* Print AVX opcode map array */"
-> +	for (i = 0; i < gaid; i++)
-> +		for (j = 0; j < max_lprefix; j++)
-> +			if (atable[i,j])
-> +				print "\tinat_avx_tables["i"]["j"] = "atable[i,j]";"
-> +
-> +	print "}"
-> +	print "#endif"
+> diff --git a/arch/x86/include/asm/insn-eval.h b/arch/x86/include/asm/insn-eval.h
+> index f748f57f1491..a0f839aa144d 100644
+> --- a/arch/x86/include/asm/insn-eval.h
+> +++ b/arch/x86/include/asm/insn-eval.h
+> @@ -15,6 +15,7 @@
+>  #define INSN_CODE_SEG_OPND_SZ(params) (params & 0xf)
+>  #define INSN_CODE_SEG_PARAMS(oper_sz, addr_sz) (oper_sz | (addr_sz << 4))
+>  
+> +bool insn_has_rep_prefix(struct insn *insn);
+>  void __user *insn_get_addr_ref(struct insn *insn, struct pt_regs *regs);
+>  int insn_get_modrm_rm_off(struct insn *insn, struct pt_regs *regs);
+>  int insn_get_modrm_reg_off(struct insn *insn, struct pt_regs *regs);
+> diff --git a/arch/x86/lib/insn-eval.c b/arch/x86/lib/insn-eval.c
+> index a8ac5c5e94f0..8ed9d645259c 100644
+> --- a/arch/x86/lib/insn-eval.c
+> +++ b/arch/x86/lib/insn-eval.c
+> @@ -53,6 +53,30 @@ static bool is_string_insn(struct insn *insn)
+>  	}
 >  }
 >  
-> diff --git a/tools/arch/x86/tools/gen-insn-attr-x86.awk b/tools/arch/x86/tools/gen-insn-attr-x86.awk
-> index a42015b305f4..af38469afd14 100644
-> --- a/tools/arch/x86/tools/gen-insn-attr-x86.awk
-> +++ b/tools/arch/x86/tools/gen-insn-attr-x86.awk
-> @@ -362,6 +362,9 @@ function convert_operands(count,opnd,       i,j,imm,mod)
->  END {
->  	if (awkchecked != "")
->  		exit 1
+> +/**
+> + * insn_has_rep_prefix() - Determine if instruction has a REP prefix
+> + * @insn:	Instruction containing the prefix to inspect
+> + *
+> + * Returns:
+> + *
+> + * true if the instruction has a REP prefix, false if not.
+> + */
+> +bool insn_has_rep_prefix(struct insn *insn)
+> +{
+> +	int i;
 > +
-> +	print "#ifndef __BOOT_COMPRESSED\n"
+> +	insn_get_prefixes(insn);
 > +
->  	# print escape opcode map's array
->  	print "/* Escape opcode map array */"
->  	print "const insn_attr_t * const inat_escape_tables[INAT_ESC_MAX + 1]" \
-> @@ -388,6 +391,51 @@ END {
->  		for (j = 0; j < max_lprefix; j++)
->  			if (atable[i,j])
->  				print "	["i"]["j"] = "atable[i,j]","
-> -	print "};"
-> +	print "};\n"
+> +	for (i = 0; i < insn->prefixes.nbytes; i++) {
+> +		insn_byte_t p = insn->prefixes.bytes[i];
 > +
-> +	print "#else /* !__BOOT_COMPRESSED */\n"
+> +		if (p == 0xf2 || p == 0xf3)
+> +			return true;
+> +	}
 > +
-> +	print "/* Escape opcode map array */"
-> +	print "static const insn_attr_t *inat_escape_tables[INAT_ESC_MAX + 1]" \
-> +	      "[INAT_LSTPFX_MAX + 1];"
-> +	print ""
+> +	return false;
+> +}
 > +
-> +	print "/* Group opcode map array */"
-> +	print "static const insn_attr_t *inat_group_tables[INAT_GRP_MAX + 1]"\
-> +	      "[INAT_LSTPFX_MAX + 1];"
-> +	print ""
-> +
-> +	print "/* AVX opcode map array */"
-> +	print "static const insn_attr_t *inat_avx_tables[X86_VEX_M_MAX + 1]"\
-> +	      "[INAT_LSTPFX_MAX + 1];"
-> +	print ""
-> +
-> +	print "static void inat_init_tables(void)"
-> +	print "{"
-> +
-> +	# print escape opcode map's array
-> +	print "\t/* Print Escape opcode map array */"
-> +	for (i = 0; i < geid; i++)
-> +		for (j = 0; j < max_lprefix; j++)
-> +			if (etable[i,j])
-> +				print "\tinat_escape_tables["i"]["j"] = "etable[i,j]";"
-> +	print ""
-> +
-> +	# print group opcode map's array
-> +	print "\t/* Print Group opcode map array */"
-> +	for (i = 0; i < ggid; i++)
-> +		for (j = 0; j < max_lprefix; j++)
-> +			if (gtable[i,j])
-> +				print "\tinat_group_tables["i"]["j"] = "gtable[i,j]";"
-> +	print ""
-> +	# print AVX opcode map's array
-> +	print "\t/* Print AVX opcode map array */"
-> +	for (i = 0; i < gaid; i++)
-> +		for (j = 0; j < max_lprefix; j++)
-> +			if (atable[i,j])
-> +				print "\tinat_avx_tables["i"]["j"] = "atable[i,j]";"
-> +
-> +	print "}"
-> +	print "#endif"
->  }
->  
+>  /**
+>   * get_seg_reg_override_idx() - obtain segment register override index
+>   * @insn:	Valid instruction with segment override prefixes
 > -- 
 > 2.27.0
 > 
