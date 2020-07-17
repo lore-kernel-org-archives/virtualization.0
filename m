@@ -1,96 +1,163 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v7 2/2] s390: virtio: PV needs VIRTIO I/O device
- protection
-Date: Thu, 16 Jul 2020 17:46:15 -0400
-Message-ID: <20200716174603-mutt-send-email-mst@kernel.org>
-References: <1594801869-13365-1-git-send-email-pmorel@linux.ibm.com>
- <1594801869-13365-3-git-send-email-pmorel@linux.ibm.com>
- <20200715054807-mutt-send-email-mst@kernel.org>
- <bc5e09ad-faaf-8b38-83e0-5f4a4b1daeb0@redhat.com>
- <20200715074917-mutt-send-email-mst@kernel.org>
- <3782338a-6491-dc35-7c66-97b91a20df0d@de.ibm.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V2 1/6] vhost: introduce vhost_call_ctx
+Date: Fri, 17 Jul 2020 11:32:08 +0800
+Message-ID: <871ee1c1-8cf7-3d9d-1892-5991b92e5db3@redhat.com>
+References: <1594898629-18790-1-git-send-email-lingshan.zhu@intel.com>
+ <1594898629-18790-2-git-send-email-lingshan.zhu@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <3782338a-6491-dc35-7c66-97b91a20df0d@de.ibm.com>
+In-Reply-To: <1594898629-18790-2-git-send-email-lingshan.zhu@intel.com>
+Content-Language: en-US
 Sender: kvm-owner@vger.kernel.org
-To: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: Jason Wang <jasowang@redhat.com>, Pierre Morel <pmorel@linux.ibm.com>, linux-kernel@vger.kernel.org, pasic@linux.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
+To: Zhu Lingshan <lingshan.zhu@intel.com>, mst@redhat.com, alex.williamson@redhat.com, pbonzini@redhat.com, sean.j.christopherson@intel.com, wanpengli@tencent.com
+Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 16, 2020 at 01:19:55PM +0200, Christian Borntraeger wrote:
-> 
-> 
-> On 15.07.20 13:51, Michael S. Tsirkin wrote:
-> > On Wed, Jul 15, 2020 at 06:16:59PM +0800, Jason Wang wrote:
-> >>
-> >> On 2020/7/15 下午5:50, Michael S. Tsirkin wrote:
-> >>> On Wed, Jul 15, 2020 at 10:31:09AM +0200, Pierre Morel wrote:
-> >>>> If protected virtualization is active on s390, the virtio queues are
-> >>>> not accessible to the host, unless VIRTIO_F_IOMMU_PLATFORM has been
-> >>>> negotiated. Use the new arch_validate_virtio_features() interface to
-> >>>> fail probe if that's not the case, preventing a host error on access
-> >>>> attempt.
-> >>>>
-> >>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> >>>> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-> >>>> Acked-by: Halil Pasic <pasic@linux.ibm.com>
-> >>>> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
-> >>>> ---
-> >>>>   arch/s390/mm/init.c | 28 ++++++++++++++++++++++++++++
-> >>>>   1 file changed, 28 insertions(+)
-> >>>>
-> >>>> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-> >>>> index 6dc7c3b60ef6..d39af6554d4f 100644
-> >>>> --- a/arch/s390/mm/init.c
-> >>>> +++ b/arch/s390/mm/init.c
-> >>>> @@ -45,6 +45,7 @@
-> >>>>   #include <asm/kasan.h>
-> >>>>   #include <asm/dma-mapping.h>
-> >>>>   #include <asm/uv.h>
-> >>>> +#include <linux/virtio_config.h>
-> >>>>   pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
-> >>>> @@ -161,6 +162,33 @@ bool force_dma_unencrypted(struct device *dev)
-> >>>>   	return is_prot_virt_guest();
-> >>>>   }
-> >>>> +/*
-> >>>> + * arch_validate_virtio_features
-> >>>> + * @dev: the VIRTIO device being added
-> >>>> + *
-> >>>> + * Return an error if required features are missing on a guest running
-> >>>> + * with protected virtualization.
-> >>>> + */
-> >>>> +int arch_validate_virtio_features(struct virtio_device *dev)
-> >>>> +{
-> >>>> +	if (!is_prot_virt_guest())
-> >>>> +		return 0;
-> >>>> +
-> >>>> +	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
-> >>>> +		dev_warn(&dev->dev,
-> >>>> +			 "legacy virtio not supported with protected virtualization\n");
-> >>>> +		return -ENODEV;
-> >>>> +	}
-> >>>> +
-> >>>> +	if (!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
-> >>>> +		dev_warn(&dev->dev,
-> >>>> +			 "support for limited memory access required for protected virtualization\n");
-> >>>> +		return -ENODEV;
-> >>>> +	}
-> >>>> +
-> >>>> +	return 0;
-> >>>> +}
-> >>>> +
-> >>>>   /* protected virtualization */
-> >>>>   static void pv_init(void)
-> >>>>   {
-> >>> What bothers me here is that arch code depends on virtio now.
-> >>> It works even with a modular virtio when functions are inline,
-> >>> but it seems fragile: e.g. it breaks virtio as an out of tree module,
-> >>> since layout of struct virtio_device can change.
-> >>
-> 
-> If you prefer that, we can simply create an arch/s390/kernel/virtio.c ?
 
-How would that address the issues above?
+On 2020/7/16 下午7:23, Zhu Lingshan wrote:
+> This commit introduces struct vhost_call_ctx which replaced
+> raw struct eventfd_ctx *call_ctx in struct vhost_virtqueue.
+> Besides eventfd_ctx, it contains a spin lock and an
+> irq_bypass_producer in its structure.
+>
+> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+> Suggested-by: Jason Wang <jasowang@redhat.com>
+> ---
+>   drivers/vhost/vdpa.c  |  4 ++--
+>   drivers/vhost/vhost.c | 22 ++++++++++++++++------
+>   drivers/vhost/vhost.h |  9 ++++++++-
+>   3 files changed, 26 insertions(+), 9 deletions(-)
+>
+> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> index 7580e34..2fcc422 100644
+> --- a/drivers/vhost/vdpa.c
+> +++ b/drivers/vhost/vdpa.c
+> @@ -96,7 +96,7 @@ static void handle_vq_kick(struct vhost_work *work)
+>   static irqreturn_t vhost_vdpa_virtqueue_cb(void *private)
+>   {
+>   	struct vhost_virtqueue *vq = private;
+> -	struct eventfd_ctx *call_ctx = vq->call_ctx;
+> +	struct eventfd_ctx *call_ctx = vq->call_ctx.ctx;
+>   
+>   	if (call_ctx)
+>   		eventfd_signal(call_ctx, 1);
+> @@ -382,7 +382,7 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
+>   		break;
+>   
+>   	case VHOST_SET_VRING_CALL:
+> -		if (vq->call_ctx) {
+> +		if (vq->call_ctx.ctx) {
+>   			cb.callback = vhost_vdpa_virtqueue_cb;
+>   			cb.private = vq;
+>   		} else {
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index d7b8df3..4004e94 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -298,6 +298,13 @@ static void vhost_vq_meta_reset(struct vhost_dev *d)
+>   		__vhost_vq_meta_reset(d->vqs[i]);
+>   }
+>   
+> +static void vhost_call_ctx_reset(struct vhost_call_ctx *call_ctx)
+> +{
+> +	call_ctx->ctx = NULL;
+> +	memset(&call_ctx->producer, 0x0, sizeof(struct irq_bypass_producer));
+> +	spin_lock_init(&call_ctx->ctx_lock);
+> +}
+> +
+>   static void vhost_vq_reset(struct vhost_dev *dev,
+>   			   struct vhost_virtqueue *vq)
+>   {
+> @@ -319,13 +326,13 @@ static void vhost_vq_reset(struct vhost_dev *dev,
+>   	vq->log_base = NULL;
+>   	vq->error_ctx = NULL;
+>   	vq->kick = NULL;
+> -	vq->call_ctx = NULL;
+>   	vq->log_ctx = NULL;
+>   	vhost_reset_is_le(vq);
+>   	vhost_disable_cross_endian(vq);
+>   	vq->busyloop_timeout = 0;
+>   	vq->umem = NULL;
+>   	vq->iotlb = NULL;
+> +	vhost_call_ctx_reset(&vq->call_ctx);
+>   	__vhost_vq_meta_reset(vq);
+>   }
+>   
+> @@ -685,8 +692,8 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
+>   			eventfd_ctx_put(dev->vqs[i]->error_ctx);
+>   		if (dev->vqs[i]->kick)
+>   			fput(dev->vqs[i]->kick);
+> -		if (dev->vqs[i]->call_ctx)
+> -			eventfd_ctx_put(dev->vqs[i]->call_ctx);
+> +		if (dev->vqs[i]->call_ctx.ctx)
+> +			eventfd_ctx_put(dev->vqs[i]->call_ctx.ctx);
+>   		vhost_vq_reset(dev, dev->vqs[i]);
+>   	}
+>   	vhost_dev_free_iovecs(dev);
+> @@ -1629,7 +1636,10 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *arg
+>   			r = PTR_ERR(ctx);
+>   			break;
+>   		}
+> -		swap(ctx, vq->call_ctx);
+> +
+> +		spin_lock(&vq->call_ctx.ctx_lock);
+> +		swap(ctx, vq->call_ctx.ctx);
+> +		spin_unlock(&vq->call_ctx.ctx_lock);
+>   		break;
+>   	case VHOST_SET_VRING_ERR:
+>   		if (copy_from_user(&f, argp, sizeof f)) {
+> @@ -2440,8 +2450,8 @@ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+>   void vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+>   {
+>   	/* Signal the Guest tell them we used something up. */
+> -	if (vq->call_ctx && vhost_notify(dev, vq))
+> -		eventfd_signal(vq->call_ctx, 1);
+> +	if (vq->call_ctx.ctx && vhost_notify(dev, vq))
+> +		eventfd_signal(vq->call_ctx.ctx, 1);
+>   }
+>   EXPORT_SYMBOL_GPL(vhost_signal);
+>   
+> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+> index c8e96a0..402c62e 100644
+> --- a/drivers/vhost/vhost.h
+> +++ b/drivers/vhost/vhost.h
+> @@ -13,6 +13,7 @@
+>   #include <linux/virtio_ring.h>
+>   #include <linux/atomic.h>
+>   #include <linux/vhost_iotlb.h>
+> +#include <linux/irqbypass.h>
+>   
+>   struct vhost_work;
+>   typedef void (*vhost_work_fn_t)(struct vhost_work *work);
+> @@ -60,6 +61,12 @@ enum vhost_uaddr_type {
+>   	VHOST_NUM_ADDRS = 3,
+>   };
+>   
+> +struct vhost_call_ctx {
+
+
+I think maybe "vhost_vring_call" is a better name since it contains not 
+only the eventfd_ctx now.
+
+Thanks
+
+
+> +	struct eventfd_ctx *ctx;
+> +	struct irq_bypass_producer producer;
+> +	spinlock_t ctx_lock;
+> +};
+> +
+>   /* The virtqueue structure describes a queue attached to a device. */
+>   struct vhost_virtqueue {
+>   	struct vhost_dev *dev;
+> @@ -72,7 +79,7 @@ struct vhost_virtqueue {
+>   	vring_used_t __user *used;
+>   	const struct vhost_iotlb_map *meta_iotlb[VHOST_NUM_ADDRS];
+>   	struct file *kick;
+> -	struct eventfd_ctx *call_ctx;
+> +	struct vhost_call_ctx call_ctx;
+>   	struct eventfd_ctx *error_ctx;
+>   	struct eventfd_ctx *log_ctx;
+>   
