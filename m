@@ -1,91 +1,53 @@
-From: Will Deacon <will@kernel.org>
-Subject: Re: [PATCH v3 02/19] compiler.h: Split {READ, WRITE}_ONCE definitions
- out into rwonce.h
-Date: Mon, 20 Jul 2020 16:55:02 +0100
-Message-ID: <20200720155501.GA12064@willie-the-truck>
-References: <20200710165203.31284-1-will@kernel.org>
- <20200710165203.31284-3-will@kernel.org>
- <20200713122322.GD72639@debian-boqun.qqnc3lrjykvubdpftowmye0fmh.lx.internal.cloudapp.net>
+From: Rob Herring <robh@kernel.org>
+Subject: Re: [PATCH] VIRTIO CORE AND NET DRIVERS: Replace HTTP links with
+ HTTPS ones
+Date: Mon, 20 Jul 2020 16:22:13 -0600
+Message-ID: <20200720222213.GA3056536@bogus>
+References: <20200709064755.24051-1-grandmaster@al2klimov.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
 Content-Disposition: inline
-In-Reply-To: <20200713122322.GD72639@debian-boqun.qqnc3lrjykvubdpftowmye0fmh.lx.internal.cloudapp.net>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: boqun.feng@gmail.com
-Cc: Joel Fernandes <joelaf@google.com>, Mark Rutland <mark.rutland@arm.com>, Marco Elver <elver@google.com>, Kees Cook <keescook@chromium.org>, "Paul E. McKenney" <paulmck@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Peter Zijlstra <peterz@infradead.org>, Catalin Marinas <catalin.marinas@arm.com>, Nick Desaulniers <ndesaulniers@google.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, Ivan Kokshaysky <ink@jurassic.park.msu.ru>, linux-arm-kernel@lists.infradead.org, Sami Tolvanen <samitolvanen@google.com>, linux-alpha@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>, Matt Turner <mattst88@gmail.com>, kernel-team@android.com, Arnd Bergmann <arnd@arndb.de>, Richard Henderson <rth@twiddle.net>
+In-Reply-To: <20200709064755.24051-1-grandmaster@al2klimov.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Alexander A. Klimov" <grandmaster@al2klimov.de>
+Cc: virtualization@lists.linux-foundation.org, robh+dt@kernel.org, linux-kernel@vger.kernel.org, mst@redhat.com, devicetree@vger.kernel.org, jasowang@redhat.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Mon, Jul 13, 2020 at 08:23:22PM +0800, boqun.feng@gmail.com wrote:
-> On Fri, Jul 10, 2020 at 05:51:46PM +0100, Will Deacon wrote:
-> > diff --git a/include/asm-generic/rwonce.h b/include/asm-generic/rwonce.h
-> > new file mode 100644
-> > index 000000000000..92cc2f223cb3
-> > --- /dev/null
-> > +++ b/include/asm-generic/rwonce.h
-> > @@ -0,0 +1,91 @@
-> > +/* SPDX-License-Identifier: GPL-2.0 */
-> > +/*
-> > + * Prevent the compiler from merging or refetching reads or writes. The
-> > + * compiler is also forbidden from reordering successive instances of
-> > + * READ_ONCE and WRITE_ONCE, but only when the compiler is aware of some
-> > + * particular ordering. One way to make the compiler aware of ordering is to
-> > + * put the two invocations of READ_ONCE or WRITE_ONCE in different C
-> > + * statements.
-> > + *
-> > + * These two macros will also work on aggregate data types like structs or
-> > + * unions.
-> > + *
-> > + * Their two major use cases are: (1) Mediating communication between
-> > + * process-level code and irq/NMI handlers, all running on the same CPU,
-> > + * and (2) Ensuring that the compiler does not fold, spindle, or otherwise
-> > + * mutilate accesses that either do not require ordering or that interact
-> > + * with an explicit memory barrier or atomic instruction that provides the
-> > + * required ordering.
-> > + */
-> > +#ifndef __ASM_GENERIC_RWONCE_H
-> > +#define __ASM_GENERIC_RWONCE_H
-> > +
-> > +#ifndef __ASSEMBLY__
-> > +
-> > +#include <linux/compiler_types.h>
-> > +#include <linux/kasan-checks.h>
-> > +#include <linux/kcsan-checks.h>
-> > +
-> > +#include <asm/barrier.h>
-> > +
-> > +/*
-> > + * Use __READ_ONCE() instead of READ_ONCE() if you do not require any
-> > + * atomicity or dependency ordering guarantees. Note that this may result
-> > + * in tears!
-> > + */
-> > +#define __READ_ONCE(x)	(*(const volatile __unqual_scalar_typeof(x) *)&(x))
-> > +
-> > +#define __READ_ONCE_SCALAR(x)						\
-> > +({									\
-> > +	__unqual_scalar_typeof(x) __x = __READ_ONCE(x);			\
-> > +	smp_read_barrier_depends();					\
-> > +	(typeof(x))__x;							\
-> > +})
-> > +
-> > +#define READ_ONCE(x)							\
-> > +({									\
-> > +	compiletime_assert_rwonce_type(x);				\
+On Thu, 09 Jul 2020 08:47:55 +0200, Alexander A. Klimov wrote:
+> Rationale:
+> Reduces attack surface on kernel devs opening the links for MITM
+> as HTTPS traffic is much harder to manipulate.
 > 
-> Does it make sense if we also move the definition of this compile time
-> assertion into rwonce.h too?
+> Deterministic algorithm:
+> For each file:
+>   If not .svg:
+>     For each line:
+>       If doesn't contain `\bxmlns\b`:
+>         For each link, `\bhttp://[^# \t\r\n]*(?:\w|/)`:
+> 	  If neither `\bgnu\.org/license`, nor `\bmozilla\.org/MPL\b`:
+>             If both the HTTP and HTTPS versions
+>             return 200 OK and serve the same content:
+>               Replace HTTP with HTTPS.
+> 
+> Signed-off-by: Alexander A. Klimov <grandmaster@al2klimov.de>
+> ---
+>  Continuing my work started at 93431e0607e5.
+>  See also: git log --oneline '--author=Alexander A. Klimov <grandmaster@al2klimov.de>' v5.7..master
+>  (Actually letting a shell for loop submit all this stuff for me.)
+> 
+>  If there are any URLs to be removed completely or at least not HTTPSified:
+>  Just clearly say so and I'll *undo my change*.
+>  See also: https://lkml.org/lkml/2020/6/27/64
+> 
+>  If there are any valid, but yet not changed URLs:
+>  See: https://lkml.org/lkml/2020/6/26/837
+> 
+>  If you apply the patch, please let me know.
+> 
+> 
+>  Documentation/devicetree/bindings/virtio/mmio.txt | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
 
-Yes, that looks straightforward enough. Thanks for the suggestion!
-
-I'll also try to get this lot into -next this week.
-
-Will
+Applied, thanks!
