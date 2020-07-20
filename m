@@ -1,11 +1,20 @@
-From: "Lemos" <marialemos72@gmail.com>
-Subject: Call for Workshops Proposals - WorldCIST'21, Terceira Island, Azores
-Date: Sun, 19 Jul 2020 16:01:00 +0100
-Message-ID: <13800312181765@gmail-com>
-Reply-To: worldcist@gmail.com
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH vhost next 10/10] vdpa/mlx5: Add VDPA driver for supported
+ mlx5 devices
+Date: Mon, 20 Jul 2020 12:12:30 +0800
+Message-ID: <ed10cb66-174f-ec5c-8043-4e18de65fb99@redhat.com>
+References: <20200716072327.5359-1-eli@mellanox.com>
+ <20200716072327.5359-11-eli@mellanox.com>
+ <454850cc-269b-72aa-4511-2bf793a215cc@redhat.com>
+ <20200716115428.GC186790@mtl-vdi-166.wap.labs.mlnx>
+ <b85ecb97-2120-f63f-f5f4-01d90f88d666@redhat.com>
+ <20200718194902.GA52765@mtl-vdi-166.wap.labs.mlnx>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="===============1033171263448341983=="
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Transfer-Encoding: base64
 Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200718194902.GA52765@mtl-vdi-166.wap.labs.mlnx>
+Content-Language: en-US
 List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
  <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
 List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
@@ -15,194 +24,48 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: virtualization@lists.linux-foundation.org
+To: Eli Cohen <eli@mellanox.com>
+Cc: shahafs@mellanox.com, Parav Pandit <parav@mellanox.com>, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, saeedm@mellanox.com, Eugenio Perez Martin <eperezma@redhat.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This is a multi-part message in MIME format
-
---===============1033171263448341983==
-Content-Type: multipart/alternative; charset=utf-8; boundary="orSNbHuWqCJc=_Jq8mHDu9TL7cSXn0WsTE"
-
-This is a multi-part message in MIME format
-
---orSNbHuWqCJc=_Jq8mHDu9TL7cSXn0WsTE
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-
-
--- 
-This email has been checked for viruses by AVG.
-https://www.avg.com
-
---orSNbHuWqCJc=_Jq8mHDu9TL7cSXn0WsTE
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<html>
-  <head>
-    <title></title>
-    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
-" />
-  </head>
-  <body>
-    <div dir=3D"ltr">* Proceedings published by Springer, in a book of the =
-AISC series</div>
-    <div dir=3D"ltr">* Indexed in Scopus, WoS, DBLP, Ei-Compendex, etc</div=
->
-    <div dir=3D"ltr">* Conference with a Google Scholar H5-Index =3D 19</di=
-v>
-    <div dir=3D"ltr">* A CORE Ranking conference</div>
-    <div dir=3D"ltr">* Extended versions of best articles published in JCR/=
-SCI journals</div>
-    <div dir=3D"ltr">&nbsp;</div>
-    <div dir=3D"ltr"><br /></div>
-    <div dir=3D"ltr">------------------------------ &nbsp;-----------------=
-------------
-      <wbr>&nbsp;</wbr>- &nbsp;-----------------------------
-      <wbr>&nbsp;</wbr>-- 
-    </div>
-    <p>Call for Workshops Proposals</p>
-    <p><span class=3D"il">WorldCIST</span>'21&nbsp;- 9th <span class=3D"il"=
->World</span> Conference on Information Systems and Technologies<br />30-31=
- March to 1-2 April 2021 | Terceira Island, Azores, Portugal<br /><a href=
-=3D"http://www.worldcist.org/" target=3D"_blank" data-saferedirecturl=3D"ht=
-tps://www.google.com/url?q=3Dhttp://www.worldcist.org/&source=3Dgmail&ust=
-=3D1595244885522000&usg=3DAFQjCNFXmEEcY0g07fwEj5ypcaZ1kzw-jA">http://www.<s=
-pan class=3D"il">worldcist</span>.org/</a></p>
-    <div dir=3D"ltr">------------------------------ &nbsp;-----------------=
-------------
-      <wbr>&nbsp;</wbr>- &nbsp;-----------------------------
-      <wbr>&nbsp;</wbr>----------- 
-    </div>
-    <div dir=3D"ltr"><br />
-      <p>The Information Systems and Technologies research and industrial c=
-ommunity is invited to submit proposals for the organization of Workshops a=
-t <span class=3D"il">WorldCist</span>'21 - 9th <span class=3D"il">World</sp=
-an> Conference on Information Systems and Technologies, to be held at Terce=
-ira Island, Azores, Portugal, 30-31 March to 1-2 April 2021. <span class=3D=
-"il">WorldCist</span> is a global forum for researchers and practitioners t=
-o present and discuss the most recent innovations, trends, results, experie=
-nces and concerns in the several perspectives of Information Systems and Te=
-chnologies. <br /><br /><br /><strong>WORKSHOP FORMAT</strong><br /><br />W=
-orkshops should focus on a specific scientific subject on the scope of <spa=
-n class=3D"il">WorldCist</span>'21 but not directly included on the main co=
-nference areas. Each workshop will be coordinated by an Organizing Committe=
-e composed of, at least, two researchers in the field, preferably from diff=
-erent institutions and different countries. The organizers should create an=
- international Program Committee for the Workshop, with recognized research=
-ers within the specific Workshop scientific area. Each workshop should have=
- at least ten submissions and five accepted papers in order to be conducted=
- at <span class=3D"il">WorldCist</span>'21.<br /><br />The selection of Wor=
-kshops will be performed by <span class=3D"il">WorldCist</span>'21 Conferen=
-ce/Workshop Chairs. Each Workshop will have 1 article offered for 10 articl=
-es with paid registration, 2 articles offered for 20 articles with paid reg=
-istration, and 3 articles offered for 40 articles with paid registration.</=
-p>
-      <p>Workshops full and short papers will be published in the conferenc=
-e main proceedings in specific Workshop chapters published by Springer in a=
- book of the AISC series. Proceedings will be submitted for indexation by I=
-SI, SCOPUS, DBLP, EI-Compendex among several other scientific databases. Ex=
-tended versions of best selected papers will be published in journals index=
-ed by ISI/SCI, SCOPUS and DBLP. Detailed and up-to-date information may be =
-found at <span class=3D"il">WorldCist</span>'21 website: <a href=3D"http://=
-worldcist.org/" target=3D"_blank" data-saferedirecturl=3D"https://www.googl=
-e.com/url?q=3Dhttp://worldcist.org/&source=3Dgmail&ust=3D1595244885522000&u=
-sg=3DAFQjCNHEcqDwJFgleRUvuOnARJHBAZ8W5w">http://<span class=3D"il">worldcis=
-t</span>.org/</a></p>
-      <p><br /><strong>WORKSHOP ORGANIZATION</strong><br /><br />The Organi=
-zing Committee of each Workshop will be responsible for:<br /><br />- Produ=
-cing and distributing the Workshop Call for Papers (CFP);<br />- Coordinati=
-ng the review and selection process for the papers submitted to the Worksho=
-p, as Workshop chairs (on the paper submission system to be installed);<br =
-/>- Delivering the final versions of the papers accepted for the Workshop i=
-n accordance with the guidelines and deadlines defined by <span class=3D"il=
-">WorldCist</span>'21 organizers;<br />- Coordinating and chairing the Work=
-shop sessions at the conference.<br /><br /><span class=3D"il">WorldCist</s=
-pan>'21 organizers reserve the right to cancel any Workshop if deadlines ar=
-e missed or if the number of registered attendees is too low to support the=
- costs associated with the Workshop.<br /><br /><br /><strong>PROPOSAL CONT=
-ENT</strong><br /><br />Workshop proposals should contain the following inf=
-ormation:<br /><br />- Workshop title;<br />- Brief description of the spec=
-ific scientific scope of the Workshop;<br />- List of topics of interest (m=
-ax 15 topics);<br />- Reasons the Workshop should be held within <span clas=
-s=3D"il">WorldCist</span>&rsquo;21;<br />- Name, postal address, phone and =
-email of all the members of the Workshop Organizing Committee;<br />- Preli=
-minary proposal for the Workshop Program Committee (Names and affiliations)=
-=2E<br /><br />Proposals should be submitted at <a href=3D"https://easychai=
-r.org/conferences/?conf=3Dworldcistworkshops2021" target=3D"_blank" data-sa=
-feredirecturl=3D"https://www.google.com/url?q=3Dhttps://easychair.org/confe=
-rences/?conf%3Dworldcistworkshops2021&source=3Dgmail&ust=3D1595244885522000=
-&usg=3DAFQjCNH8VNOe_lquP65XGg592S1jvFwfEQ">https://easychair.org/
-          <wbr>&nbsp;</wbr>conferences/?conf=3D
-          <wbr>&nbsp;</wbr>worldcistworkshops2021</a> in PDF (in English), =
-by August 23, 2020.<br /><br /><br /><strong>IMPORTANT DATES</strong><br />=
-<br />- Deadline for Workshop proposals: August 23, 2020<br />- Notificatio=
-n of Workshop acceptance: September 4, 2020<br />- Workshop Final Informati=
-on and Program Committee: September 25, 2020<br />- Deadline for paper subm=
-ission: November 30, 2020<br />- Notification of paper acceptance: December=
- 23, 2020<br />- Deadline for final versions and conference registration: J=
-anuary 2, 2021<br />- Conference dates: 30-31 March to 1-2 April 2021<br />=
-
-      </p>
-    </div>
-    <div dir=3D"ltr"><br /></div>
-    <div dir=3D"ltr">&nbsp;</div>
-    <div dir=3D"ltr">Website of <span class=3D"il">WorldCIST</span>'21: <a =
-href=3D"http://www.worldcist.org/" target=3D"_blank" data-saferedirecturl=
-=3D"https://www.google.com/url?q=3Dhttp://www.worldcist.org/&source=3Dgmail=
-&ust=3D1595244885522000&usg=3DAFQjCNFXmEEcY0g07fwEj5ypcaZ1kzw-jA">http://ww=
-w.<span class=3D"il">worldcist</span>.org/</a>&nbsp;</div>
-    <div dir=3D"ltr">&nbsp;</div>
-    <div dir=3D"ltr"><br /></div>
-    <div dir=3D"ltr"><span class=3D"il">WorldCIST</span>'21 Team<br /><a hr=
-ef=3D"http://www.worldcist.org/" target=3D"_blank" data-saferedirecturl=3D"=
-https://www.google.com/url?q=3Dhttp://www.worldcist.org/&source=3Dgmail&ust=
-=3D1595244885522000&usg=3DAFQjCNFXmEEcY0g07fwEj5ypcaZ1kzw-jA">http://www.<s=
-pan class=3D"il">worldcist</span>.org/</a></div>
-    <p>&nbsp;</p>
-    <p>--------------</p>
-    <div>
-      <p>PS: If you do not wish to receive more notices from&nbsp;<span cla=
-ss=3D"il">WorldCIST</span> (<a href=3D"http://www.worldcist.org/" target=3D=
-"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3Dhttp://www.=
-worldcist.org/&source=3Dgmail&ust=3D1595244885522000&usg=3DAFQjCNFXmEEcY0g0=
-7fwEj5ypcaZ1kzw-jA">http://www.<span class=3D"il">worldcist</span>.org/</a>=
-) just reply this message with the word REMOVE in the subject line</p>
-    </div>
-  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br />
-<table style=3D"border-top: 1px solid #D3D4DE;">
-	<tr>
-        <td style=3D"width: 55px; padding-top: 13px;"><a href=3D"http://www=
-=2Eavg.com/email-signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaig=
-n=3Dsig-email&utm_content=3Demailclient" target=3D"_blank"><img src=3D"http=
-s://ipmcdn.avast.com/images/icons/icon-envelope-tick-green-avg-v1.png" alt=
-=3D""  width=3D"46" height=3D"29" style=3D"width: 46px; height: 29px;" /></=
-a></td>
-		<td style=3D"width: 470px; padding-top: 12px; color: #41424e; font-size: =
-13px; font-family: Arial, Helvetica, sans-serif; line-height: 18px;">Virus-=
-free. <a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_=
-source=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D=
-"_blank" style=3D"color: #4453ea;">www.avg.com</a>
-		</td>
-	</tr>
-</table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2" width=3D"1" heigh=
-t=3D"1"> </a></div></body>
-</html>
-
---orSNbHuWqCJc=_Jq8mHDu9TL7cSXn0WsTE--
-
-
---===============1033171263448341983==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============1033171263448341983==--
+Ck9uIDIwMjAvNy8xOSDkuIrljYgzOjQ5LCBFbGkgQ29oZW4gd3JvdGU6Cj4gT24gRnJpLCBKdWwg
+MTcsIDIwMjAgYXQgMDQ6NTc6MjlQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPj4+IExvb2tz
+IGxpa2UgY2hlY2tpbmcgaW50aWFsaXplZCBpcyBlbm91Z2guIFdpbGwgZml4IHRoaXMuCj4+Pj4+
+ICsKPj4+Pj4gK3N0YXRpYyB2b2lkIG1seDVfdmRwYV9zZXRfdnFfcmVhZHkoc3RydWN0IHZkcGFf
+ZGV2aWNlICp2ZGV2LCB1MTYgaWR4LCBib29sIHJlYWR5KQo+Pj4+PiArewo+Pj4+PiArCXN0cnVj
+dCBtbHg1X3ZkcGFfZGV2ICptdmRldiA9IHRvX212ZGV2KHZkZXYpOwo+Pj4+PiArCXN0cnVjdCBt
+bHg1X3ZkcGFfbmV0ICpuZGV2ID0gdG9fbWx4NV92ZHBhX25kZXYobXZkZXYpOwo+Pj4+PiArCXN0
+cnVjdCBtbHg1X3ZkcGFfdmlydHF1ZXVlICptdnEgPSAmbmRldi0+dnFzW2lkeF07Cj4+Pj4+ICsJ
+aW50IGVycjsKPj4+Pj4gKwo+Pj4+PiArCWlmICghbXZxLT5yZWFkeSAmJiByZWFkeSAmJiBtdnEt
+PmZ3X3N0YXRlICE9IE1MWDVfVklSVElPX05FVF9RX09CSkVDVF9TVEFURV9SRFkpIHsKPj4+Pj4g
+KwkJZXJyID0gbW9kaWZ5X3ZpcnRxdWV1ZShuZGV2LCBtdnEsIE1MWDVfVklSVElPX05FVF9RX09C
+SkVDVF9TVEFURV9SRFkpOwo+Pj4+PiArCQlpZiAoZXJyKSB7Cj4+Pj4+ICsJCQltbHg1X3ZkcGFf
+d2FybihtdmRldiwgImZhaWxlZCB0byBtb2RpZnkgdmlydHF1ZXVlKCVkKVxuIiwgZXJyKTsKPj4+
+Pj4gKwkJCXJldHVybjsKPj4+Pj4gKwkJfQo+Pj4+PiArCX0KPj4+PiBJIHdvbmRlciB3aGF0J3Mg
+dGhlIHJlYXNvbiBvZiBjaGFuZ2luZyB2cSBzdGF0ZSBvbiB0aGUgaGFyZHdhcmUKPj4+PiBoZXJl
+LiBJIHRoaW5rIHdlIGNhbiBkZWZlciBpdCB0byBzZXRfc3RhdHVzKCkuCj4+Pj4KPj4+IEkgY2Fu
+IGRlZmVyIHRoaXMgdG8gc2V0IHN0YXR1cy4KPj4+Cj4+PiBJIGp1c3Qgd29uZGVyIGlmIGl0IGlz
+IHBvc3NpYmxlIHRoYXQgdGhlIGNvcmUgdmRwYSBkcml2ZXIgbWF5IGNhbGwgdGhpcwo+Pj4gZnVu
+Y3Rpb24gd2l0aCByZWFkeSBlcXVhbHMgZmFsc2UgYW5kIGFmdGVyIHNvbWUgdGltZSBjYWxsIGl0
+IHdpdGggcmVhZHkKPj4+IGVxdWFscyB0cnVlLgo+Pgo+PiBHb29kIHBvaW50LCBzbyBJIHRoaW5r
+IHdlIGNhbiBrZWVwIHRoZSBsb2dpYy4gQnV0IGxvb2tzIGxpa2UgdGhlCj4+IGNvZGUgY2FuIG5v
+dCB3b3JrIGlmIHJlYWR5IGVxdWFscyBmYWxzZSBzaW5jZSBpdCBvbmx5IHRyaWVzIHRvCj4+IG1v
+ZGlmeSB2cSBzdGF0ZSB0byBSRFkuCj4+Cj4gVGhlIHBvaW50IGlzIHRoYXQgeW91IGNhbm5vdCBt
+b2RpZnkgdGhlIHZpcnRxdWV1ZSB0byAibm90IHJlYWR5Ii4KCgpJcyB0aGlzIGEgaGFyZHdhcmUg
+bGltaXRhdGlvbiBvZiBzb2Z0d2FyZSBvbmU/CgpJJ20gYXNraW5nIHNpbmNlIHdlIG5lZWQgc3Vw
+cG9ydCBsaXZlIG1pZ3JhdGlvbi4gQnV0IGEgcXVlc3Rpb25zIGlzIGhvdyAKdG8gc3RvcCB0aGUg
+ZGV2aWNlIGJ1dCBub3QgcmVzZXQsIHNpbmNlIHdlIG5lZWQgZ2V0IGUuZyBsYXN0X2F2YWlsX2lk
+eCAKZnJvbSB0aGUgZGV2aWNlLgoKSXQgY291bGQgYmUgZWl0aGVyOgoKMSkgc2V0X3N0YXR1cygw
+KQoyKSBnZXRfdnFfc3RhdGUoKQoKb3IKCjEpIHNldF9xdWV1ZV9yZWFkeSgwKQoyKSBnZXRfdnFf
+c3RhdGUoKQoKU2V0X3N0YXR1cygwKSBtZWFucyByZXNldCB0aGUgdmlydGlvIGRldmljZSBidXQg
+bGFzdF9hdmFpbF9pZHggaXMgCnNvbWV0aGluZyBvdXQgb2YgdmlydGlvIHNwZWMuIEkgZ3Vlc3Mg
+dXNpbmcgc2V0X3F1ZXVlX3JlYWR5KCkgaXMgYmV0dGVyLgoKV2hhdCdzIHlvdSBvcGluaW9uPwoK
+VGhhbmtzCgoKPiAgIFRoZQo+IG9ubHkgb3B0aW9uIGlzIHRvIGRlc3Ryb3kgaXQgYW5kIGNyZWF0
+ZSBhIG5ldyBvbmUuIFRoaXMgbWVhbnMgdGhhdCBpZiBJCj4gZ2V0IHJlYWR5IGVxdWFscyBmYWxz
+ZSBhZnRlciB0aGUgdmlydHF1ZXVlIGhhcyBiZWVuIGNyZWF0ZWQgSSBuZWVkIHRvCj4gdGVhcmRv
+d24gdGhlIGRyaXZlciBhbmQgc2V0IGl0IHVwIGFnYWluLgo+Cj4gR2l2ZW4gdGhhdCwgSSB0aGlu
+ayB5b3VyIG9yaWdpbmFsIHN1Z2dlc3Rpb24gdG8gZGVmZXIgdGhpcyBsb2dpYyBpcwo+IHJlYXNv
+bmFibGUuCj4KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
+b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
+aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
