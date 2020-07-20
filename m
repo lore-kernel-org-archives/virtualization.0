@@ -1,7 +1,7 @@
 From: Eli Cohen <eli@mellanox.com>
-Subject: [PATCH V2 vhost next 06/10] vdpa: Modify get_vq_state() to return error code
-Date: Mon, 20 Jul 2020 09:54:39 +0300
-Message-ID: <20200720065443.31112-7-eli@mellanox.com>
+Subject: [PATCH V2 vhost next 01/10] vhost-vdpa: support batch updating
+Date: Mon, 20 Jul 2020 09:54:34 +0300
+Message-ID: <20200720065443.31112-2-eli@mellanox.com>
 References: <20200720065443.31112-1-eli@mellanox.com>
 Mime-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -9,94 +9,92 @@ Return-path: <linux-kernel-owner@vger.kernel.org>
 In-Reply-To: <20200720065443.31112-1-eli@mellanox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Cc: shahafs@mellanox.com, saeedm@mellanox.com, parav@mellanox.com, Eli Cohen <eli@mellanox.com>
+Cc: shahafs@mellanox.com, saeedm@mellanox.com, parav@mellanox.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-Modify get_vq_state() so it returns an error code. In case of hardware
-acceleration, the available index may be retrieved from the device, an
-operation that can possibly fail.
+From: Jason Wang <jasowang@redhat.com>
 
-Reviewed-by: Parav Pandit <parav@mellanox.com>
-Signed-off-by: Eli Cohen <eli@mellanox.com>
+Change-Id: Ifd7139cfbd122dc22493f4bb93fa884f8edbddb6
+Signed-off-by: Jason Wang <jasowang@redhat.com>
 ---
- drivers/vdpa/ifcvf/ifcvf_main.c  | 5 +++--
- drivers/vdpa/vdpa_sim/vdpa_sim.c | 5 +++--
- drivers/vhost/vdpa.c             | 5 ++++-
- include/linux/vdpa.h             | 4 ++--
- 4 files changed, 12 insertions(+), 7 deletions(-)
+ drivers/vhost/vdpa.c             | 23 +++++++++++++++++------
+ include/uapi/linux/vhost_types.h |  2 ++
+ 2 files changed, 19 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
-index 69032ee97824..d9b5f465ac81 100644
---- a/drivers/vdpa/ifcvf/ifcvf_main.c
-+++ b/drivers/vdpa/ifcvf/ifcvf_main.c
-@@ -235,12 +235,13 @@ static u16 ifcvf_vdpa_get_vq_num_max(struct vdpa_device *vdpa_dev)
- 	return IFCVF_QUEUE_MAX;
- }
- 
--static void ifcvf_vdpa_get_vq_state(struct vdpa_device *vdpa_dev, u16 qid,
--				    struct vdpa_vq_state *state)
-+static int ifcvf_vdpa_get_vq_state(struct vdpa_device *vdpa_dev, u16 qid,
-+				   struct vdpa_vq_state *state)
- {
- 	struct ifcvf_hw *vf = vdpa_to_vf(vdpa_dev);
- 
- 	state->avail_index = ifcvf_get_vq_state(vf, qid);
-+	return 0;
- }
- 
- static int ifcvf_vdpa_set_vq_state(struct vdpa_device *vdpa_dev, u16 qid,
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-index 599519039f8d..ddf6086d43c2 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-@@ -427,14 +427,15 @@ static int vdpasim_set_vq_state(struct vdpa_device *vdpa, u16 idx,
- 	return 0;
- }
- 
--static void vdpasim_get_vq_state(struct vdpa_device *vdpa, u16 idx,
--				 struct vdpa_vq_state *state)
-+static int vdpasim_get_vq_state(struct vdpa_device *vdpa, u16 idx,
-+				struct vdpa_vq_state *state)
- {
- 	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
- 	struct vdpasim_virtqueue *vq = &vdpasim->vqs[idx];
- 	struct vringh *vrh = &vq->vring;
- 
- 	state->avail_index = vrh->last_avail_idx;
-+	return 0;
- }
- 
- static u32 vdpasim_get_vq_align(struct vdpa_device *vdpa)
 diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index af98c11c9d26..fadad74f882e 100644
+index a54b60d6623f..8827ae31f96d 100644
 --- a/drivers/vhost/vdpa.c
 +++ b/drivers/vhost/vdpa.c
-@@ -360,7 +360,10 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
- 	}
+@@ -73,6 +73,7 @@ struct vhost_vdpa {
+ 	int virtio_id;
+ 	int minor;
+ 	struct eventfd_ctx *config_ctx;
++	bool in_batch;
+ };
  
- 	if (cmd == VHOST_GET_VRING_BASE) {
--		ops->get_vq_state(v->vdpa, idx, &vq_state);
-+		r = ops->get_vq_state(v->vdpa, idx, &vq_state);
-+		if (r)
-+			return r;
+ static DEFINE_IDA(vhost_vdpa_ida);
+@@ -521,9 +522,9 @@ static int vhost_vdpa_map(struct vhost_vdpa *v,
+ 
+ 	if (ops->dma_map)
+ 		r = ops->dma_map(vdpa, iova, size, pa, perm);
+-	else if (ops->set_map)
+-		r = ops->set_map(vdpa, dev->iotlb);
+-	else
++	else if (ops->set_map) {
 +
- 		vq->last_avail_idx = vq_state.avail_index;
- 	}
++	} else
+ 		r = iommu_map(v->domain, iova, pa, size,
+ 			      perm_to_iommu_flags(perm));
  
-diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
-index 7b088bebffe8..000d71a9f988 100644
---- a/include/linux/vdpa.h
-+++ b/include/linux/vdpa.h
-@@ -185,8 +185,8 @@ struct vdpa_config_ops {
- 	bool (*get_vq_ready)(struct vdpa_device *vdev, u16 idx);
- 	int (*set_vq_state)(struct vdpa_device *vdev, u16 idx,
- 			    const struct vdpa_vq_state *state);
--	void (*get_vq_state)(struct vdpa_device *vdev, u16 idx,
--			     struct vdpa_vq_state *state);
-+	int (*get_vq_state)(struct vdpa_device *vdev, u16 idx,
-+			    struct vdpa_vq_state *state);
- 	struct vdpa_notification_area
- 	(*get_vq_notification)(struct vdpa_device *vdev, u16 idx);
+@@ -540,9 +541,8 @@ static void vhost_vdpa_unmap(struct vhost_vdpa *v, u64 iova, u64 size)
+ 
+ 	if (ops->dma_map)
+ 		ops->dma_unmap(vdpa, iova, size);
+-	else if (ops->set_map)
+-		ops->set_map(vdpa, dev->iotlb);
+-	else
++	else if (ops->set_map) {
++	} else
+ 		iommu_unmap(v->domain, iova, size);
+ }
+ 
+@@ -636,6 +636,8 @@ static int vhost_vdpa_process_iotlb_msg(struct vhost_dev *dev,
+ 					struct vhost_iotlb_msg *msg)
+ {
+ 	struct vhost_vdpa *v = container_of(dev, struct vhost_vdpa, vdev);
++	struct vdpa_device *vdpa = v->vdpa;
++	const struct vdpa_config_ops *ops = vdpa->config;
+ 	int r = 0;
+ 
+ 	r = vhost_dev_check_owner(dev);
+@@ -649,6 +651,15 @@ static int vhost_vdpa_process_iotlb_msg(struct vhost_dev *dev,
+ 	case VHOST_IOTLB_INVALIDATE:
+ 		vhost_vdpa_unmap(v, msg->iova, msg->size);
+ 		break;
++	case VHOST_IOTLB_BATCH_BEGIN:
++		v->in_batch = true;
++		break;
++	case VHOST_IOTLB_BATCH_END:
++		if (v->in_batch && ops->set_map) {
++			ops->set_map(vdpa, dev->iotlb);
++		}
++		v->in_batch = false;
++		break;
+ 	default:
+ 		r = -EINVAL;
+ 		break;
+diff --git a/include/uapi/linux/vhost_types.h b/include/uapi/linux/vhost_types.h
+index 669457ce5c48..7f52245f8d5d 100644
+--- a/include/uapi/linux/vhost_types.h
++++ b/include/uapi/linux/vhost_types.h
+@@ -60,6 +60,8 @@ struct vhost_iotlb_msg {
+ #define VHOST_IOTLB_UPDATE         2
+ #define VHOST_IOTLB_INVALIDATE     3
+ #define VHOST_IOTLB_ACCESS_FAIL    4
++#define VHOST_IOTLB_BATCH_BEGIN    5
++#define VHOST_IOTLB_BATCH_END      6
+ 	__u8 type;
+ };
  
 -- 
 2.26.0
