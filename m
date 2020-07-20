@@ -1,59 +1,76 @@
 From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH vhost next 06/10] vdpa: Add means to communicate vq status
- on get_vq_state
-Date: Mon, 20 Jul 2020 12:13:24 +0800
-Message-ID: <0ed28d74-cb0c-89af-61dd-9256e8bb2328@redhat.com>
-References: <20200716072327.5359-1-eli@mellanox.com>
- <20200716072327.5359-7-eli@mellanox.com>
- <cb9bced7-1a7e-150a-875c-1b75f77ee853@redhat.com>
- <20200716082116.GA182860@mtl-vdi-166.wap.labs.mlnx>
- <296e6fcb-946c-f577-2e22-46528f78fda9@redhat.com>
- <20200716102533.GB186790@mtl-vdi-166.wap.labs.mlnx>
+Subject: Re: [PATCH V2 2/6] kvm: detect assigned device via irqbypass manager
+Date: Mon, 20 Jul 2020 12:19:37 +0800
+Message-ID: <c46dc561-610e-e992-8bb9-e7286a560971@redhat.com>
+References: <1594898629-18790-1-git-send-email-lingshan.zhu@intel.com>
+ <1594898629-18790-3-git-send-email-lingshan.zhu@intel.com>
+ <20200717120821.3c2a56db@x1.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200716102533.GB186790@mtl-vdi-166.wap.labs.mlnx>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20200717120821.3c2a56db@x1.home>
 Content-Language: en-US
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Eli Cohen <eli@mellanox.com>
-Cc: shahafs@mellanox.com, Parav Pandit <parav@mellanox.com>, mst@redhat.com, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org, saeedm@mellanox.com
+Sender: netdev-owner@vger.kernel.org
+To: Alex Williamson <alex.williamson@redhat.com>, Zhu Lingshan <lingshan.zhu@intel.com>
+Cc: mst@redhat.com, pbonzini@redhat.com, sean.j.christopherson@intel.com, wanpengli@tencent.com, virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-Ck9uIDIwMjAvNy8xNiDkuIvljYg2OjI1LCBFbGkgQ29oZW4gd3JvdGU6Cj4gT24gVGh1LCBKdWwg
-MTYsIDIwMjAgYXQgMDU6MzU6MThQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPj4gT24gMjAy
-MC83LzE2IOS4i+WNiDQ6MjEsIEVsaSBDb2hlbiB3cm90ZToKPj4+IE9uIFRodSwgSnVsIDE2LCAy
-MDIwIGF0IDA0OjExOjAwUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+Pj4gT24gMjAyMC83
-LzE2IOS4i+WNiDM6MjMsIEVsaSBDb2hlbiB3cm90ZToKPj4+Pj4gQ3VycmVudGx5LCBnZXRfdnFf
-c3RhdGUoKSBpcyB1c2VkIG9ubHkgdG8gcGFzcyB0aGUgYXZhaWxhYmxlIGluZGV4IHZhbHVlCj4+
-Pj4+IG9mIGEgdnEuIEV4dGVuZCB0aGUgc3RydWN0IHRvIHJldHVybiBzdGF0dXMgb24gdGhlIFZR
-IHRvIHRoZSBjYWxsZXIuCj4+Pj4+IEZvciBub3csIGRlZmluZSBWUV9TVEFURV9OT1RfUkVBRFku
-IEluIHRoZSBmdXR1cmUgaXQgd2lsbCBiZSBleHRlbmRlZCB0bwo+Pj4+PiBpbmNsdWRlIG90aGVy
-IGluZm9tcmF0aW9uLgo+Pj4+Pgo+Pj4+PiBNb2RpZnkgY3VycmVudCB2ZHBhIGRyaXZlciB0byB1
-cGRhdGUgdGhpcyBmaWVsZC4KPj4+Pj4KPj4+Pj4gUmV2aWV3ZWQtYnk6IFBhcmF2IFBhbmRpdDxw
-YXJhdkBtZWxsYW5veC5jb20+Cj4+Pj4+IFNpZ25lZC1vZmYtYnk6IEVsaSBDb2hlbjxlbGlAbWVs
-bGFub3guY29tPgo+Pj4+IFdoYXQncyB0aGUgZGlmZmVyZW5jZSBiZXR3ZWVuIHRoaXMgYW5kIGdl
-dF92cV9yZWFkeSgpPwo+Pj4+Cj4+Pj4gVGhhbmtzCj4+Pj4KPj4+IFRoZXJlIGlzIG5vIGRpZmZl
-cmVuY2UuIEl0IGlzIGp1c3QgYSB3YXkgdG8gY29tbXVuaWNhdGUgYSBwcm9ibGVtIHRvCj4+PiB3
-aXRoIHRoZSBzdGF0ZSBvZiB0aGUgVlEgYmFjayB0byB0aGUgY2FsbGVyLiBUaGlzIGlzIG5vdCBh
-dmFpbGFibGUgbm93Lgo+Pj4gSSB0aGluayBhbiBhc3luY2hyb25vdXMgaXMgcHJlZmVycmVkIGJ1
-dCB0aGF0IGlzIG5vdCBhdmFpbGFibGUKPj4+IGN1cnJlbnRseS4KPj4KPj4gSSBzdGlsbCBkb24n
-dCBzZWUgdGhlIHJlYXNvbiwgbWF5YmUgeW91IGNhbiBnaXZlIG1lIGFuIGV4YW1wbGU/Cj4+Cj4+
-Cj4gTXkgaW50ZW50aW9uIHdhcyB0byBwcm92aWRlIGEgbWVjaGFpbnNtIHRvIHJldHVybiBtZWFu
-aW5nZnVsIGluZm9ybWF0aW9uCj4gb24gdGhlIHN0YXRlIG9mIHRoZSB2cS4gRm9yIGV4YW1wbGUs
-IHdoZW4geW91IGZhaWwgdG8gZ2V0IHRoZSBzdGF0ZSBvZgo+IHRoZSBWUS4KPgo+IE1heWJlIEkg
-Y291bGQganVzdCBjaGFuZ2UgdGhlIHByb3RvdHlwZSBvZiB0aGUgZnVuY3Rpb24gdG8gcmV0dXJu
-IGludAo+IGFuZCB0aGUgZHJpdmVyIGNvdWxkIHB1dCBhbiBlcnJvciBpZiBpdCBoYXMgdHJvdWJs
-ZSByZXR1cm5pbmcgdGhlIHZxCj4gc3RhdGUuCgoKVGhhdCdzIGZpbmUuCgpUaGFua3MKCgpfX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
-biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
-aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
-bGl6YXRpb24=
+
+On 2020/7/18 上午2:08, Alex Williamson wrote:
+> On Thu, 16 Jul 2020 19:23:45 +0800
+> Zhu Lingshan <lingshan.zhu@intel.com> wrote:
+>
+>> vDPA devices has dedicated backed hardware like
+>> passthrough-ed devices. Then it is possible to setup irq
+>> offloading to vCPU for vDPA devices. Thus this patch tries to
+>> manipulated assigned device counters via irqbypass manager.
+>>
+>> We will increase/decrease the assigned device counter in kvm/x86.
+>> Both vDPA and VFIO would go through this code path.
+>>
+>> This code path only affect x86 for now.
+>>
+>> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
+>> Suggested-by: Jason Wang <jasowang@redhat.com>
+>> ---
+>>   arch/x86/kvm/x86.c | 10 ++++++++--
+>>   1 file changed, 8 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+>> index 00c88c2..20c07d3 100644
+>> --- a/arch/x86/kvm/x86.c
+>> +++ b/arch/x86/kvm/x86.c
+>> @@ -10624,11 +10624,17 @@ int kvm_arch_irq_bypass_add_producer(struct irq_bypass_consumer *cons,
+>>   {
+>>   	struct kvm_kernel_irqfd *irqfd =
+>>   		container_of(cons, struct kvm_kernel_irqfd, consumer);
+>> +	int ret;
+>>   
+>>   	irqfd->producer = prod;
+>> +	kvm_arch_start_assignment(irqfd->kvm);
+>> +	ret = kvm_x86_ops.update_pi_irte(irqfd->kvm,
+>> +					 prod->irq, irqfd->gsi, 1);
+>> +
+>> +	if (ret)
+>> +		kvm_arch_end_assignment(irqfd->kvm);
+>>   
+>> -	return kvm_x86_ops.update_pi_irte(irqfd->kvm,
+>> -					   prod->irq, irqfd->gsi, 1);
+>> +	return ret;
+>>   }
+>>   
+>>   void kvm_arch_irq_bypass_del_producer(struct irq_bypass_consumer *cons,
+>
+> Why isn't there a matching end-assignment in the del_producer path?  It
+> seems this only goes one-way, what happens when a device is
+> hot-unplugged from the VM or the device interrupt configuration changes.
+> This will still break vfio if it's not guaranteed to be symmetric.
+> Thanks,
+>
+> Alex
+
+
+Yes, we need add logic in the del_producer path.
+
+Thanks
