@@ -1,28 +1,40 @@
-From: Markus Elfring <Markus.Elfring@web.de>
-Subject: Re: [PATCH v2] drm/virtio: Fix memory leak in
- virtio_gpu_execbuffer_ioctl()
-Date: Mon, 20 Jul 2020 17:29:01 +0200
-Message-ID: <4c3fb9c5-b386-64d7-5d3f-d8633b881222@web.de>
-References: <20200720144407.13706-1-hexin.op@bytedance.com>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: Re: [PATCH v4 70/75] x86/head/64: Don't call verify_cpu() on
+ starting APs
+Date: Mon, 20 Jul 2020 17:29:55 +0200
+Message-ID: <20200720152955.GA620@8bytes.org>
+References: <20200714120917.11253-1-joro@8bytes.org>
+ <20200714120917.11253-71-joro@8bytes.org>
+ <202007141837.2B93BBD78@keescook>
+ <20200715092638.GJ16200@suse.de>
+ <202007150815.A81E879@keescook>
+ <20200715154856.GA24822@suse.de>
+ <202007151244.315DCBAE@keescook>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200720144407.13706-1-hexin.op@bytedance.com>
-Content-Language: en-GB
+Content-Disposition: inline
+In-Reply-To: <202007151244.315DCBAE@keescook>
 Sender: linux-kernel-owner@vger.kernel.org
-To: hexin.op@bytedance.com, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org
-Cc: =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>, Daniel Vetter <daniel@ffwll.ch>, David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>, Sumit Semwal <sumit.semwal@linaro.org>, Liu Qi <liuqi.16@bytedance.com>, linux-kernel@vger.kernel.org
+To: Kees Cook <keescook@chromium.org>
+Cc: Joerg Roedel <jroedel@suse.de>, x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Sean Christopherson <sean.j.christopherson@intel.com>, Martin Radev <martin.b.radev@gmail.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-> =E2=80=A6 To balance the reference
-> count initialized when allocating fence, dma_fence_put()
-> should not be deleted.
+On Wed, Jul 15, 2020 at 12:49:23PM -0700, Kees Cook wrote:
+> Aaah. I see. Thanks for the details there. So ... can you add a bunch
+> more comments about why/when the new entry path is being used? I really
+> don't want to accidentally discover some unrelated refactoring down
+> the road (in months, years, unrelated to SEV, etc) starts to also skip
+> verify_cpu() on Intel systems. There had been a lot of BIOSes that set
+> this MSR to disable NX, and I don't want to repeat that pain: Linux must
+> never start an Intel CPU with that MSR set. :P
 
-* Would an imperative wording be more appropriate for the change descripti=
-on?
+Understood :)
 
-* Is the information =E2=80=9Chexin=E2=80=9D sufficient for a real name?
+I added a comment above the label explaining why it is only used for
+SEV-ES guests and pointing out the importance of running verify_cpu() on
+all other systems, especially if they are Intel based.
 
 Regards,
-Markus
+
+	Joerg
