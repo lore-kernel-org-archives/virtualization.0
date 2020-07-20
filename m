@@ -1,76 +1,75 @@
-From: "Zhu, Lingshan" <lingshan.zhu@intel.com>
-Subject: Re: [PATCH V2 2/6] kvm: detect assigned device via irqbypass manager
-Date: Mon, 20 Jul 2020 15:40:46 +0800
-Message-ID: <d58a86b7-b7de-65d8-dbd8-174c4f305d8f@intel.com>
-References: <1594898629-18790-1-git-send-email-lingshan.zhu@intel.com>
- <1594898629-18790-3-git-send-email-lingshan.zhu@intel.com>
- <f8e0ced4-2883-e022-8fd0-1224987ebef1@redhat.com>
+From: Eli Cohen <eli@mellanox.com>
+Subject: [PATCH V2 vhost next 02/10] vdpa_sim: use the batching API
+Date: Mon, 20 Jul 2020 10:14:08 +0300
+Message-ID: <20200720071416.32112-3-eli@mellanox.com>
+References: <20200720071416.32112-1-eli@mellanox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <f8e0ced4-2883-e022-8fd0-1224987ebef1@redhat.com>
-Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
-To: Jason Wang <jasowang@redhat.com>, mst@redhat.com, alex.williamson@redhat.com, pbonzini@redhat.com, sean.j.christopherson@intel.com, wanpengli@tencent.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, kvm@vger.kernel.org
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200720071416.32112-1-eli@mellanox.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Cc: shahafs@mellanox.com, saeedm@mellanox.com, parav@mellanox.com
 List-Id: virtualization@lists.linuxfoundation.org
 
+From: Jason Wang <jasowang@redhat.com>
 
-On 7/17/2020 12:01 PM, Jason Wang wrote:
->
-> On 2020/7/16 下午7:23, Zhu Lingshan wrote:
->> vDPA devices has dedicated backed hardware like
->> passthrough-ed devices. Then it is possible to setup irq
->> offloading to vCPU for vDPA devices. Thus this patch tries to
->> manipulated assigned device counters via irqbypass manager.
->
->
-> This part needs some tweak, e.g why assigned device could be detected 
-> through this way.
->
->
->>
->> We will increase/decrease the assigned device counter in kvm/x86.
->
->
-> And you need explain why we don't need similar thing in other arch.
->
-> Thanks
-OK Thanks!
->
->
->> Both vDPA and VFIO would go through this code path.
->>
->> This code path only affect x86 for now.
->>
->> Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
->> Suggested-by: Jason Wang <jasowang@redhat.com>
->> ---
->>   arch/x86/kvm/x86.c | 10 ++++++++--
->>   1 file changed, 8 insertions(+), 2 deletions(-)
->>
->> diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
->> index 00c88c2..20c07d3 100644
->> --- a/arch/x86/kvm/x86.c
->> +++ b/arch/x86/kvm/x86.c
->> @@ -10624,11 +10624,17 @@ int kvm_arch_irq_bypass_add_producer(struct 
->> irq_bypass_consumer *cons,
->>   {
->>       struct kvm_kernel_irqfd *irqfd =
->>           container_of(cons, struct kvm_kernel_irqfd, consumer);
->> +    int ret;
->>         irqfd->producer = prod;
->> +    kvm_arch_start_assignment(irqfd->kvm);
->> +    ret = kvm_x86_ops.update_pi_irte(irqfd->kvm,
->> +                     prod->irq, irqfd->gsi, 1);
->> +
->> +    if (ret)
->> +        kvm_arch_end_assignment(irqfd->kvm);
->>   -    return kvm_x86_ops.update_pi_irte(irqfd->kvm,
->> -                       prod->irq, irqfd->gsi, 1);
->> +    return ret;
->>   }
->>     void kvm_arch_irq_bypass_del_producer(struct irq_bypass_consumer 
->> *cons,
->
+Change-Id: I3751f1aecce285e0f61530c69616852d49e5f547
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vdpa/vdpa_sim/vdpa_sim.c | 20 --------------------
+ drivers/vhost/vdpa.c             |  1 -
+ 2 files changed, 21 deletions(-)
+
+diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+index c7334cc65bb2..82d1068af3ef 100644
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+@@ -548,24 +548,6 @@ static int vdpasim_set_map(struct vdpa_device *vdpa,
+ 	return ret;
+ }
+ 
+-static int vdpasim_dma_map(struct vdpa_device *vdpa, u64 iova, u64 size,
+-			   u64 pa, u32 perm)
+-{
+-	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
+-
+-	return vhost_iotlb_add_range(vdpasim->iommu, iova,
+-				     iova + size - 1, pa, perm);
+-}
+-
+-static int vdpasim_dma_unmap(struct vdpa_device *vdpa, u64 iova, u64 size)
+-{
+-	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
+-
+-	vhost_iotlb_del_range(vdpasim->iommu, iova, iova + size - 1);
+-
+-	return 0;
+-}
+-
+ static void vdpasim_free(struct vdpa_device *vdpa)
+ {
+ 	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
+@@ -598,8 +580,6 @@ static const struct vdpa_config_ops vdpasim_net_config_ops = {
+ 	.set_config             = vdpasim_set_config,
+ 	.get_generation         = vdpasim_get_generation,
+ 	.set_map                = vdpasim_set_map,
+-	.dma_map                = vdpasim_dma_map,
+-	.dma_unmap              = vdpasim_dma_unmap,
+ 	.free                   = vdpasim_free,
+ };
+ 
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index 8827ae31f96d..65195b30133b 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -533,7 +533,6 @@ static int vhost_vdpa_map(struct vhost_vdpa *v,
+ 
+ static void vhost_vdpa_unmap(struct vhost_vdpa *v, u64 iova, u64 size)
+ {
+-	struct vhost_dev *dev = &v->vdev;
+ 	struct vdpa_device *vdpa = v->vdpa;
+ 	const struct vdpa_config_ops *ops = vdpa->config;
+ 
+-- 
+2.26.0
