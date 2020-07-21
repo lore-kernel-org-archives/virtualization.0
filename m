@@ -1,154 +1,94 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH v9 17/84] KVM: x86: use MSR_TYPE_R, MSR_TYPE_W and MSR_TYPE_RW with AMD
-Date: Wed, 22 Jul 2020 00:08:15 +0300
-Message-ID: <20200721210922.7646-18-alazar@bitdefender.com>
+Subject: [PATCH v9 15/84] KVM: x86: add .desc_intercepted()
+Date: Wed, 22 Jul 2020 00:08:13 +0300
+Message-ID: <20200721210922.7646-16-alazar@bitdefender.com>
 References: <20200721210922.7646-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200721210922.7646-1-alazar@bitdefender.com>
-Sender: kvm-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Nicușor Cîțu <ncitu@bitdefender.com>
-
-This is a preparatory patch in order to use a common interface to
-enable/disable the MSR interception.
-
-Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
-Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
----
- arch/x86/include/asm/kvm_host.h |  4 +++
- arch/x86/kvm/svm/svm.c          | 43 ++++++++++++++++++++++-----------
- arch/x86/kvm/vmx/vmx.h          |  4 ---
- 3 files changed, 33 insertions(+), 18 deletions(-)
-
-diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index 6be832ba9c97..a3230ab377db 100644
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -140,6 +140,10 @@ static inline gfn_t gfn_to_index(gfn_t gfn, gfn_t base_gfn, int level)
- #define CR_TYPE_W	2
- #define CR_TYPE_RW	3
- 
-+#define MSR_TYPE_R	1
-+#define MSR_TYPE_W	2
-+#define MSR_TYPE_RW	3
-+
- #define ASYNC_PF_PER_VCPU 64
- 
- enum kvm_reg {
-diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index 4e5b07606891..e16be80edd7e 100644
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -584,7 +584,7 @@ static bool msr_write_intercepted(struct kvm_vcpu *vcpu, unsigned msr)
- }
- 
- static void set_msr_interception(u32 *msrpm, unsigned msr,
--				 int read, int write)
-+				 int type, bool value)
- {
- 	u8 bit_read, bit_write;
- 	unsigned long tmp;
-@@ -603,8 +603,10 @@ static void set_msr_interception(u32 *msrpm, unsigned msr,
- 
- 	BUG_ON(offset == MSR_INVALID);
- 
--	read  ? clear_bit(bit_read,  &tmp) : set_bit(bit_read,  &tmp);
--	write ? clear_bit(bit_write, &tmp) : set_bit(bit_write, &tmp);
-+	if (type & MSR_TYPE_R)
-+		value ? clear_bit(bit_read,  &tmp) : set_bit(bit_read,  &tmp);
-+	if (type & MSR_TYPE_W)
-+		value ? clear_bit(bit_write, &tmp) : set_bit(bit_write, &tmp);
- 
- 	msrpm[offset] = tmp;
- }
-@@ -619,7 +621,8 @@ static void svm_vcpu_init_msrpm(u32 *msrpm)
- 		if (!direct_access_msrs[i].always)
- 			continue;
- 
--		set_msr_interception(msrpm, direct_access_msrs[i].index, 1, 1);
-+		set_msr_interception(msrpm, direct_access_msrs[i].index,
-+				     MSR_TYPE_RW, 1);
- 	}
- }
- 
-@@ -671,10 +674,14 @@ static void svm_enable_lbrv(struct vcpu_svm *svm)
- 	u32 *msrpm = svm->msrpm;
- 
- 	svm->vmcb->control.virt_ext |= LBR_CTL_ENABLE_MASK;
--	set_msr_interception(msrpm, MSR_IA32_LASTBRANCHFROMIP, 1, 1);
--	set_msr_interception(msrpm, MSR_IA32_LASTBRANCHTOIP, 1, 1);
--	set_msr_interception(msrpm, MSR_IA32_LASTINTFROMIP, 1, 1);
--	set_msr_interception(msrpm, MSR_IA32_LASTINTTOIP, 1, 1);
-+	set_msr_interception(msrpm, MSR_IA32_LASTBRANCHFROMIP,
-+			     MSR_TYPE_RW, 1);
-+	set_msr_interception(msrpm, MSR_IA32_LASTBRANCHTOIP,
-+			     MSR_TYPE_RW, 1);
-+	set_msr_interception(msrpm, MSR_IA32_LASTINTFROMIP,
-+			     MSR_TYPE_RW, 1);
-+	set_msr_interception(msrpm, MSR_IA32_LASTINTTOIP,
-+			     MSR_TYPE_RW, 1);
- }
- 
- static void svm_disable_lbrv(struct vcpu_svm *svm)
-@@ -682,10 +689,14 @@ static void svm_disable_lbrv(struct vcpu_svm *svm)
- 	u32 *msrpm = svm->msrpm;
- 
- 	svm->vmcb->control.virt_ext &= ~LBR_CTL_ENABLE_MASK;
--	set_msr_interception(msrpm, MSR_IA32_LASTBRANCHFROMIP, 0, 0);
--	set_msr_interception(msrpm, MSR_IA32_LASTBRANCHTOIP, 0, 0);
--	set_msr_interception(msrpm, MSR_IA32_LASTINTFROMIP, 0, 0);
--	set_msr_interception(msrpm, MSR_IA32_LASTINTTOIP, 0, 0);
-+	set_msr_interception(msrpm, MSR_IA32_LASTBRANCHFROMIP,
-+			     MSR_TYPE_RW, 0);
-+	set_msr_interception(msrpm, MSR_IA32_LASTBRANCHTOIP,
-+			     MSR_TYPE_RW, 0);
-+	set_msr_interception(msrpm, MSR_IA32_LASTINTFROMIP,
-+			     MSR_TYPE_RW, 0);
-+	set_msr_interception(msrpm, MSR_IA32_LASTINTTOIP,
-+			     MSR_TYPE_RW, 0);
- }
- 
- void disable_nmi_singlestep(struct vcpu_svm *svm)
-@@ -2618,7 +2629,8 @@ static int svm_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr)
- 		 * We update the L1 MSR bit as well since it will end up
- 		 * touching the MSR anyway now.
- 		 */
--		set_msr_interception(svm->msrpm, MSR_IA32_SPEC_CTRL, 1, 1);
-+		set_msr_interception(svm->msrpm, MSR_IA32_SPEC_CTRL,
-+				     MSR_TYPE_RW, 1);
- 		break;
- 	case MSR_IA32_PRED_CMD:
- 		if (!msr->host_initiated &&
-@@ -2633,7 +2645,10 @@ static int svm_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr)
- 			break;
- 
- 		wrmsrl(MSR_IA32_PRED_CMD, PRED_CMD_IBPB);
--		set_msr_interception(svm->msrpm, MSR_IA32_PRED_CMD, 0, 1);
-+		set_msr_interception(svm->msrpm, MSR_IA32_PRED_CMD,
-+				     MSR_TYPE_R, 0);
-+		set_msr_interception(svm->msrpm, MSR_IA32_PRED_CMD,
-+				     MSR_TYPE_W, 1);
- 		break;
- 	case MSR_AMD64_VIRT_SPEC_CTRL:
- 		if (!msr->host_initiated &&
-diff --git a/arch/x86/kvm/vmx/vmx.h b/arch/x86/kvm/vmx/vmx.h
-index 639798e4a6ca..aa0c7ffd588b 100644
---- a/arch/x86/kvm/vmx/vmx.h
-+++ b/arch/x86/kvm/vmx/vmx.h
-@@ -14,10 +14,6 @@
- 
- extern const u32 vmx_msr_index[];
- 
--#define MSR_TYPE_R	1
--#define MSR_TYPE_W	2
--#define MSR_TYPE_RW	3
--
- #define X2APIC_MSR(r) (APIC_BASE_MSR + ((r) >> 4))
- 
- #ifdef CONFIG_X86_64
+RnJvbTogTmljdciZb3IgQ8OuyJt1IDxuY2l0dUBiaXRkZWZlbmRlci5jb20+CgpUaGlzIGZ1bmN0
+aW9uIHdpbGwgYmUgdXNlZCB0byB0ZXN0IGlmIHRoZSBkZXNjcmlwdG9yLXRhYmxlIHJlZ2lzdGVy
+cwphY2Nlc3MgaXMgYWxyZWFkeSB0cmFja2VkIGJ5IGFub3RoZXIgdXNlci4KClNpZ25lZC1vZmYt
+Ynk6IE5pY3XImW9yIEPDrsibdSA8bmNpdHVAYml0ZGVmZW5kZXIuY29tPgpTaWduZWQtb2ZmLWJ5
+OiBBZGFsYmVydCBMYXrEg3IgPGFsYXphckBiaXRkZWZlbmRlci5jb20+Ci0tLQogYXJjaC94ODYv
+aW5jbHVkZS9hc20va3ZtX2hvc3QuaCB8ICAxICsKIGFyY2gveDg2L2t2bS9zdm0vc3ZtLmMgICAg
+ICAgICAgfCAxNSArKysrKysrKysrKysrKysKIGFyY2gveDg2L2t2bS9zdm0vc3ZtLmggICAgICAg
+ICAgfCAgNyArKysrKysrCiBhcmNoL3g4Ni9rdm0vdm14L3ZteC5jICAgICAgICAgIHwgIDggKysr
+KysrKysKIDQgZmlsZXMgY2hhbmdlZCwgMzEgaW5zZXJ0aW9ucygrKQoKZGlmZiAtLWdpdCBhL2Fy
+Y2gveDg2L2luY2x1ZGUvYXNtL2t2bV9ob3N0LmggYi9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9rdm1f
+aG9zdC5oCmluZGV4IDgzZGZhMDI0NzEzMC4uMmVkMWU1NjIxY2NmIDEwMDY0NAotLS0gYS9hcmNo
+L3g4Ni9pbmNsdWRlL2FzbS9rdm1faG9zdC5oCisrKyBiL2FyY2gveDg2L2luY2x1ZGUvYXNtL2t2
+bV9ob3N0LmgKQEAgLTExMjUsNiArMTEyNSw3IEBAIHN0cnVjdCBrdm1feDg2X29wcyB7CiAJdm9p
+ZCAoKnNldF9nZHQpKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSwgc3RydWN0IGRlc2NfcHRyICpkdCk7
+CiAJYm9vbCAoKmRlc2NfY3RybF9zdXBwb3J0ZWQpKHZvaWQpOwogCXZvaWQgKCpjb250cm9sX2Rl
+c2NfaW50ZXJjZXB0KShzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUsIGJvb2wgZW5hYmxlKTsKKwlib29s
+ICgqZGVzY19pbnRlcmNlcHRlZCkoc3RydWN0IGt2bV92Y3B1ICp2Y3B1KTsKIAl2b2lkICgqc3lu
+Y19kaXJ0eV9kZWJ1Z19yZWdzKShzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpOwogCXZvaWQgKCpzZXRf
+ZHI3KShzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUsIHVuc2lnbmVkIGxvbmcgdmFsdWUpOwogCXZvaWQg
+KCpjYWNoZV9yZWcpKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSwgZW51bSBrdm1fcmVnIHJlZyk7CmRp
+ZmYgLS1naXQgYS9hcmNoL3g4Ni9rdm0vc3ZtL3N2bS5jIGIvYXJjaC94ODYva3ZtL3N2bS9zdm0u
+YwppbmRleCBjNzBjMTQ0NjE0ODMuLmNjNTVjNTcxZmU4NiAxMDA2NDQKLS0tIGEvYXJjaC94ODYv
+a3ZtL3N2bS9zdm0uYworKysgYi9hcmNoL3g4Ni9rdm0vc3ZtL3N2bS5jCkBAIC0xNTUzLDYgKzE1
+NTMsMjAgQEAgc3RhdGljIHZvaWQgc3ZtX2NvbnRyb2xfZGVzY19pbnRlcmNlcHQoc3RydWN0IGt2
+bV92Y3B1ICp2Y3B1LCBib29sIGVuYWJsZSkKIAl9CiB9CiAKK3N0YXRpYyBpbmxpbmUgYm9vbCBz
+dm1fZGVzY19pbnRlcmNlcHRlZChzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpCit7CisJc3RydWN0IHZj
+cHVfc3ZtICpzdm0gPSB0b19zdm0odmNwdSk7CisKKwlyZXR1cm4gKGdldF9pbnRlcmNlcHQoc3Zt
+LCBJTlRFUkNFUFRfU1RPUkVfSURUUikgfHwKKwkJZ2V0X2ludGVyY2VwdChzdm0sIElOVEVSQ0VQ
+VF9TVE9SRV9HRFRSKSB8fAorCQlnZXRfaW50ZXJjZXB0KHN2bSwgSU5URVJDRVBUX1NUT1JFX0xE
+VFIpIHx8CisJCWdldF9pbnRlcmNlcHQoc3ZtLCBJTlRFUkNFUFRfU1RPUkVfVFIpIHx8CisJCWdl
+dF9pbnRlcmNlcHQoc3ZtLCBJTlRFUkNFUFRfTE9BRF9JRFRSKSB8fAorCQlnZXRfaW50ZXJjZXB0
+KHN2bSwgSU5URVJDRVBUX0xPQURfR0RUUikgfHwKKwkJZ2V0X2ludGVyY2VwdChzdm0sIElOVEVS
+Q0VQVF9MT0FEX0xEVFIpIHx8CisJCWdldF9pbnRlcmNlcHQoc3ZtLCBJTlRFUkNFUFRfTE9BRF9U
+UikpOworfQorCiBzdGF0aWMgdm9pZCB1cGRhdGVfY3IwX2ludGVyY2VwdChzdHJ1Y3QgdmNwdV9z
+dm0gKnN2bSkKIHsKIAl1bG9uZyBnY3IwID0gc3ZtLT52Y3B1LmFyY2guY3IwOwpAQCAtNDA4Miw2
+ICs0MDk2LDcgQEAgc3RhdGljIHN0cnVjdCBrdm1feDg2X29wcyBzdm1feDg2X29wcyBfX2luaXRk
+YXRhID0gewogCS5zZXRfZ2R0ID0gc3ZtX3NldF9nZHQsCiAJLmRlc2NfY3RybF9zdXBwb3J0ZWQg
+PSBzdm1fZGVzY19jdHJsX3N1cHBvcnRlZCwKIAkuY29udHJvbF9kZXNjX2ludGVyY2VwdCA9IHN2
+bV9jb250cm9sX2Rlc2NfaW50ZXJjZXB0LAorCS5kZXNjX2ludGVyY2VwdGVkID0gc3ZtX2Rlc2Nf
+aW50ZXJjZXB0ZWQsCiAJLnNldF9kcjcgPSBzdm1fc2V0X2RyNywKIAkuc3luY19kaXJ0eV9kZWJ1
+Z19yZWdzID0gc3ZtX3N5bmNfZGlydHlfZGVidWdfcmVncywKIAkuY2FjaGVfcmVnID0gc3ZtX2Nh
+Y2hlX3JlZywKZGlmZiAtLWdpdCBhL2FyY2gveDg2L2t2bS9zdm0vc3ZtLmggYi9hcmNoL3g4Ni9r
+dm0vc3ZtL3N2bS5oCmluZGV4IGQ1Yzk1NmUwN2MxMi4uZjg2ZmFiYWJlNDEzIDEwMDY0NAotLS0g
+YS9hcmNoL3g4Ni9rdm0vc3ZtL3N2bS5oCisrKyBiL2FyY2gveDg2L2t2bS9zdm0vc3ZtLmgKQEAg
+LTMxOCw2ICszMTgsMTMgQEAgc3RhdGljIGlubGluZSB2b2lkIGNscl9pbnRlcmNlcHQoc3RydWN0
+IHZjcHVfc3ZtICpzdm0sIGludCBiaXQpCiAJcmVjYWxjX2ludGVyY2VwdHMoc3ZtKTsKIH0KIAor
+c3RhdGljIGlubGluZSBib29sIGdldF9pbnRlcmNlcHQoc3RydWN0IHZjcHVfc3ZtICpzdm0sIGlu
+dCBiaXQpCit7CisJc3RydWN0IHZtY2IgKnZtY2IgPSBnZXRfaG9zdF92bWNiKHN2bSk7CisKKwly
+ZXR1cm4gKHZtY2ItPmNvbnRyb2wuaW50ZXJjZXB0ICYgKDFVTEwgPDwgYml0KSk7Cit9CisKIHN0
+YXRpYyBpbmxpbmUgYm9vbCBpc19pbnRlcmNlcHQoc3RydWN0IHZjcHVfc3ZtICpzdm0sIGludCBi
+aXQpCiB7CiAJcmV0dXJuIChzdm0tPnZtY2ItPmNvbnRyb2wuaW50ZXJjZXB0ICYgKDFVTEwgPDwg
+Yml0KSkgIT0gMDsKZGlmZiAtLWdpdCBhL2FyY2gveDg2L2t2bS92bXgvdm14LmMgYi9hcmNoL3g4
+Ni9rdm0vdm14L3ZteC5jCmluZGV4IDE5OWZmZDMxODE0NS4uM2I1Nzc4MDAzYjU4IDEwMDY0NAot
+LS0gYS9hcmNoL3g4Ni9rdm0vdm14L3ZteC5jCisrKyBiL2FyY2gveDg2L2t2bS92bXgvdm14LmMK
+QEAgLTMzODgsNiArMzM4OCwxMyBAQCBzdGF0aWMgdm9pZCB2bXhfc2V0X2dkdChzdHJ1Y3Qga3Zt
+X3ZjcHUgKnZjcHUsIHN0cnVjdCBkZXNjX3B0ciAqZHQpCiAJdm1jc193cml0ZWwoR1VFU1RfR0RU
+Ul9CQVNFLCBkdC0+YWRkcmVzcyk7CiB9CiAKK3N0YXRpYyBib29sIHZteF9kZXNjX2ludGVyY2Vw
+dGVkKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSkKK3sKKwlzdHJ1Y3QgdmNwdV92bXggKnZteCA9IHRv
+X3ZteCh2Y3B1KTsKKworCXJldHVybiAhIShzZWNvbmRhcnlfZXhlY19jb250cm9sc19nZXQodm14
+KSAmIFNFQ09OREFSWV9FWEVDX0RFU0MpOworfQorCiBzdGF0aWMgYm9vbCBybW9kZV9zZWdtZW50
+X3ZhbGlkKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSwgaW50IHNlZykKIHsKIAlzdHJ1Y3Qga3ZtX3Nl
+Z21lbnQgdmFyOwpAQCAtNzkxNSw2ICs3OTIyLDcgQEAgc3RhdGljIHN0cnVjdCBrdm1feDg2X29w
+cyB2bXhfeDg2X29wcyBfX2luaXRkYXRhID0gewogCS5zZXRfZ2R0ID0gdm14X3NldF9nZHQsCiAJ
+LmRlc2NfY3RybF9zdXBwb3J0ZWQgPSB2bXhfZGVzY19jdHJsX3N1cHBvcnRlZCwKIAkuY29udHJv
+bF9kZXNjX2ludGVyY2VwdCA9IHZteF9jb250cm9sX2Rlc2NfaW50ZXJjZXB0LAorCS5kZXNjX2lu
+dGVyY2VwdGVkID0gdm14X2Rlc2NfaW50ZXJjZXB0ZWQsCiAJLnNldF9kcjcgPSB2bXhfc2V0X2Ry
+NywKIAkuc3luY19kaXJ0eV9kZWJ1Z19yZWdzID0gdm14X3N5bmNfZGlydHlfZGVidWdfcmVncywK
+IAkuY2FjaGVfcmVnID0gdm14X2NhY2hlX3JlZywKX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxp
+emF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3Vu
+ZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
