@@ -1,83 +1,91 @@
-From: Shile Zhang <shile.zhang@linux.alibaba.com>
-Subject: Re: [PATCH v2] virtio_ring: use alloc_pages_node for NUMA-aware
- allocation
-Date: Tue, 21 Jul 2020 19:28:28 +0800
-Message-ID: <d16c8191-3837-8734-8cdf-ae6dd75725f7@linux.alibaba.com>
-References: <20200721070013.62894-1-shile.zhang@linux.alibaba.com>
- <20200721041550-mutt-send-email-mst@kernel.org>
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Subject: Re: [PATCH 10/10] block: scsi: sr: use
+ blk_is_valid_logical_block_size
+Date: Tue, 21 Jul 2020 11:29:48 +0000
+Message-ID: <CY4PR04MB37517861074A4A448180E136E7780@CY4PR04MB3751.namprd04.prod.outlook.com>
+References: <20200721105239.8270-1-mlevitsk@redhat.com>
+ <20200721105239.8270-11-mlevitsk@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-pci-owner@vger.kernel.org>
-In-Reply-To: <20200721041550-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-mmc-owner@vger.kernel.org>
 Content-Language: en-US
-Sender: linux-pci-owner@vger.kernel.org
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kernel test robot <lkp@intel.com>, Jiang Liu <liuj97@gmail.com>, linux-pci@vger.kernel.org, bhelgaas@google.com
+Sender: linux-mmc-owner@vger.kernel.org
+To: Maxim Levitsky <mlevitsk@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Keith Busch <kbusch@kernel.org>, Josef Bacik <josef@toxicpanda.com>, "open list:BLOCK LAYER" <linux-block@vger.kernel.org>, Sagi Grimberg <sagi@grimberg.me>, Jens Axboe <axboe@kernel.dk>, "open list:NVM EXPRESS DRIVER" <linux-nvme@lists.infradead.org>, "open list:SCSI CDROM DRIVER" <linux-scsi@vger.kernel.org>, Tejun Heo <tj@kernel.org>, Bart Van Assche <bvanassche@acm.org>, "Martin K. Petersen" <martin.petersen@oracle.com>, Jason Wang <jasowang@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, Colin Ian King <colin.king@canonical.com>, "Michael S. Tsirkin" <mst@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Ulf Hansson <ulf.hansson@linaro.org>, Ajay Joshi <Ajay.Joshi@wdc.com>, Ming Lei <ming.lei@redhat.>
 List-Id: virtualization@lists.linuxfoundation.org
 
-
-
-On 2020/7/21 16:18, Michael S. Tsirkin wrote:
-> On Tue, Jul 21, 2020 at 03:00:13PM +0800, Shile Zhang wrote:
->> Use alloc_pages_node() allocate memory for vring queue with proper
->> NUMA affinity.
->>
->> Reported-by: kernel test robot <lkp@intel.com>
->> Suggested-by: Jiang Liu <liuj97@gmail.com>
->> Signed-off-by: Shile Zhang <shile.zhang@linux.alibaba.com>
-> 
-> Do you observe any performance gains from this patch?
-
-Thanks for your comments!
-Yes, the bandwidth can boost more than doubled (from 30Gbps to 80GBps) 
-with this changes in my test env (8 numa nodes), with netperf test.
-
-> 
-> I also wonder why isn't the probe code run on the correct numa node?
-> That would fix a wide class of issues like this without need to tweak
-> drivers.
-
-Good point, I'll check this, thanks!
-
-> 
-> Bjorn, what do you think? Was this considered?
-> 
->> ---
->> Changelog
->> v1 -> v2:
->> - fixed compile warning reported by LKP.
->> ---
->>   drivers/virtio/virtio_ring.c | 10 ++++++----
->>   1 file changed, 6 insertions(+), 4 deletions(-)
->>
->> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
->> index 58b96baa8d48..d38fd6872c8c 100644
->> --- a/drivers/virtio/virtio_ring.c
->> +++ b/drivers/virtio/virtio_ring.c
->> @@ -276,9 +276,11 @@ static void *vring_alloc_queue(struct virtio_device *vdev, size_t size,
->>   		return dma_alloc_coherent(vdev->dev.parent, size,
->>   					  dma_handle, flag);
->>   	} else {
->> -		void *queue = alloc_pages_exact(PAGE_ALIGN(size), flag);
->> -
->> -		if (queue) {
->> +		void *queue = NULL;
->> +		struct page *page = alloc_pages_node(dev_to_node(vdev->dev.parent),
->> +						     flag, get_order(size));
->> +		if (page) {
->> +			queue = page_address(page);
->>   			phys_addr_t phys_addr = virt_to_phys(queue);
->>   			*dma_handle = (dma_addr_t)phys_addr;
->>   
->> @@ -308,7 +310,7 @@ static void vring_free_queue(struct virtio_device *vdev, size_t size,
->>   	if (vring_use_dma_api(vdev))
->>   		dma_free_coherent(vdev->dev.parent, size, queue, dma_handle);
->>   	else
->> -		free_pages_exact(queue, PAGE_ALIGN(size));
->> +		free_pages((unsigned long)queue, get_order(size));
->>   }
->>   
->>   /*
->> -- 
->> 2.24.0.rc2
+On 2020/07/21 19:55, Maxim Levitsky wrote:=0A=
+> Plus some tiny refactoring.=0A=
+> =0A=
+> Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>=0A=
+> ---=0A=
+>  drivers/scsi/sr.c | 31 +++++++++++++------------------=0A=
+>  1 file changed, 13 insertions(+), 18 deletions(-)=0A=
+> =0A=
+> diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c=0A=
+> index 0c4aa4665a2f9..0e96338029310 100644=0A=
+> --- a/drivers/scsi/sr.c=0A=
+> +++ b/drivers/scsi/sr.c=0A=
+> @@ -866,31 +866,26 @@ static void get_sectorsize(struct scsi_cd *cd)=0A=
+>  			cd->capacity =3D max_t(long, cd->capacity, last_written);=0A=
+>  =0A=
+>  		sector_size =3D get_unaligned_be32(&buffer[4]);=0A=
+> -		switch (sector_size) {=0A=
+> -			/*=0A=
+> -			 * HP 4020i CD-Recorder reports 2340 byte sectors=0A=
+> -			 * Philips CD-Writers report 2352 byte sectors=0A=
+> -			 *=0A=
+> -			 * Use 2k sectors for them..=0A=
+> -			 */=0A=
+> -		case 0:=0A=
+> -		case 2340:=0A=
+> -		case 2352:=0A=
+> +=0A=
+> +		/*=0A=
+> +		 * HP 4020i CD-Recorder reports 2340 byte sectors=0A=
+> +		 * Philips CD-Writers report 2352 byte sectors=0A=
+> +		 *=0A=
+> +		 * Use 2k sectors for them..=0A=
+> +		 */=0A=
+> +=0A=
+=0A=
+No need for the blank line here.=0A=
+=0A=
+> +		if (!sector_size || sector_size =3D=3D 2340 || sector_size =3D=3D 2352=
+)=0A=
+>  			sector_size =3D 2048;=0A=
+> -			/* fall through */=0A=
+> -		case 2048:=0A=
+> -			cd->capacity *=3D 4;=0A=
+> -			/* fall through */=0A=
+> -		case 512:=0A=
+> -			break;=0A=
+> -		default:=0A=
+> +=0A=
+> +		cd->capacity *=3D (sector_size >> SECTOR_SHIFT);=0A=
+=0A=
+Where does this come from ? There is no such code in sr get_sectorsize()...=
+=0A=
+=0A=
+> +=0A=
+> +		if (!blk_is_valid_logical_block_size(sector_size)) {=0A=
+>  			sr_printk(KERN_INFO, cd,=0A=
+>  				  "unsupported sector size %d.", sector_size);=0A=
+>  			cd->capacity =3D 0;=0A=
+>  		}=0A=
+>  =0A=
+>  		cd->device->sector_size =3D sector_size;=0A=
+> -=0A=
+=0A=
+White line change.=0A=
+=0A=
+>  		/*=0A=
+>  		 * Add this so that we have the ability to correctly gauge=0A=
+>  		 * what the device is capable of.=0A=
+> =0A=
+=0A=
+=0A=
+-- =0A=
+Damien Le Moal=0A=
+Western Digital Research=0A=
