@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH v9 41/84] KVM: introspection: add KVMI_GET_VERSION
-Date: Wed, 22 Jul 2020 00:08:39 +0300
-Message-ID: <20200721210922.7646-42-alazar@bitdefender.com>
+Subject: [PATCH v9 48/84] KVM: introspection: add a jobs list to every introspected vCPU
+Date: Wed, 22 Jul 2020 00:08:46 +0300
+Message-ID: <20200721210922.7646-49-alazar@bitdefender.com>
 References: <20200721210922.7646-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -10,260 +10,174 @@ Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200721210922.7646-1-alazar@bitdefender.com>
 Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-The kernel side will accept older and newer versions of an introspection
-command (having a smaller/larger message size), but it will not
-accept newer versions for event replies (larger messages). Even if the
-introspection tool can use the KVMI_GET_VERSION command to check the
-supported features of the introspection API, the most important usage
-of this command is to avoid sending newer versions of event replies that
-the kernel side doesn't know.
+Every vCPU has a lock-protected list in which the receiving thread
+places the jobs that has to be done by the vCPU thread
+once it is kicked out of guest (KVM_REQ_INTROSPECTION).
 
-Any attempt from the device manager to explicitly disallow this command
-through the KVM_INTROSPECTION_COMMAND ioctl will get -EPERM, unless all
-commands are disallowed (using id=-1) in which case KVMI_GET_VERSION is
-silently allowed, without error.
-
+Co-developed-by: Nicușor Cîțu <ncitu@bitdefender.com>
+Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- Documentation/virt/kvm/kvmi.rst               | 37 +++++++++++++++++++
- include/uapi/linux/kvmi.h                     | 10 +++++
- .../testing/selftests/kvm/x86_64/kvmi_test.c  | 26 +++++++++++++
- virt/kvm/introspection/kvmi.c                 | 27 ++++++++++++--
- virt/kvm/introspection/kvmi_msg.c             | 12 ++++++
- 5 files changed, 108 insertions(+), 4 deletions(-)
+ include/linux/kvmi_host.h         | 10 +++++
+ virt/kvm/introspection/kvmi.c     | 72 ++++++++++++++++++++++++++++++-
+ virt/kvm/introspection/kvmi_int.h |  1 +
+ 3 files changed, 81 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/virt/kvm/kvmi.rst b/Documentation/virt/kvm/kvmi.rst
-index f3d16971ba2b..41fd48222bcb 100644
---- a/Documentation/virt/kvm/kvmi.rst
-+++ b/Documentation/virt/kvm/kvmi.rst
-@@ -224,3 +224,40 @@ device-specific memory (DMA, emulated MMIO, reserved by a passthrough
- device etc.). It is up to the user to determine, using the guest operating
- system data structures, the areas that are safe to access (code, stack, heap
- etc.).
-+
-+Commands
-+--------
-+
-+The following C structures are meant to be used directly when communicating
-+over the wire. The peer that detects any size mismatch should simply close
-+the connection and report the error.
-+
-+1. KVMI_GET_VERSION
-+-------------------
-+
-+:Architectures: all
-+:Versions: >= 1
-+:Parameters: none
-+:Returns:
-+
-+::
-+
-+	struct kvmi_error_code;
-+	struct kvmi_get_version_reply {
-+		__u32 version;
-+		__u32 padding;
-+	};
-+
-+Returns the introspection API version.
-+
-+This command is always allowed and successful.
-+
-+The messages used for introspection commands/events might be extended
-+in future versions and while the kernel will accept commands with
-+shorter messages (older versions) or larger messages (newer versions,
-+ignoring the extra information), it will not accept event replies with
-+larger/newer messages.
-+
-+The introspection tool should use this command to identify the features
-+supported by the kernel side and what messages must be used for event
-+replies.
-diff --git a/include/uapi/linux/kvmi.h b/include/uapi/linux/kvmi.h
-index 9bfff484fd6f..896fcb6abf2c 100644
---- a/include/uapi/linux/kvmi.h
-+++ b/include/uapi/linux/kvmi.h
-@@ -6,11 +6,16 @@
-  * KVMI structures and definitions
-  */
+diff --git a/include/linux/kvmi_host.h b/include/linux/kvmi_host.h
+index f96a9a3cfdd4..d3242a99f891 100644
+--- a/include/linux/kvmi_host.h
++++ b/include/linux/kvmi_host.h
+@@ -6,8 +6,18 @@
  
-+#include <linux/kernel.h>
-+#include <linux/types.h>
-+
- enum {
- 	KVMI_VERSION = 0x00000001
- };
+ #include <asm/kvmi_host.h>
  
- enum {
-+	KVMI_GET_VERSION = 1,
-+
- 	KVMI_NUM_MESSAGES
- };
- 
-@@ -39,4 +44,9 @@ struct kvmi_error_code {
- 	__u32 padding;
- };
- 
-+struct kvmi_get_version_reply {
-+	__u32 version;
-+	__u32 padding;
++struct kvmi_job {
++	struct list_head link;
++	void *ctx;
++	void (*fct)(struct kvm_vcpu *vcpu, void *ctx);
++	void (*free_fct)(void *ctx);
 +};
 +
- #endif /* _UAPI__LINUX_KVMI_H */
-diff --git a/tools/testing/selftests/kvm/x86_64/kvmi_test.c b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-index 9c591e0d9c8a..d15eccc330e5 100644
---- a/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-+++ b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-@@ -98,6 +98,7 @@ static void hook_introspection(struct kvm_vm *vm)
- 	do_hook_ioctl(vm, Kvm_socket, no_padding, 0);
- 	do_hook_ioctl(vm, Kvm_socket, no_padding, EEXIST);
- 
-+	set_command_perm(vm, KVMI_GET_VERSION, disallow, EPERM);
- 	set_command_perm(vm, all_IDs, allow_inval, EINVAL);
- 	set_command_perm(vm, all_IDs, disallow, 0);
- 	set_command_perm(vm, all_IDs, allow, 0);
-@@ -213,12 +214,37 @@ static void test_cmd_invalid(void)
- 		-r, kvm_strerror(-r));
- }
- 
-+static void test_vm_command(int cmd_id, struct kvmi_msg_hdr *req,
-+			    size_t req_size, void *rpl, size_t rpl_size)
-+{
-+	int r;
+ struct kvm_vcpu_introspection {
+ 	struct kvm_vcpu_arch_introspection arch;
 +
-+	r = do_command(cmd_id, req, req_size, rpl, rpl_size);
-+	TEST_ASSERT(r == 0,
-+		    "Command %d failed, error %d (%s)\n",
-+		    cmd_id, -r, kvm_strerror(-r));
-+}
-+
-+static void test_cmd_get_version(void)
-+{
-+	struct kvmi_get_version_reply rpl;
-+	struct kvmi_msg_hdr req;
-+
-+	test_vm_command(KVMI_GET_VERSION, &req, sizeof(req), &rpl, sizeof(rpl));
-+	TEST_ASSERT(rpl.version == KVMI_VERSION,
-+		    "Unexpected KVMI version %d, expecting %d\n",
-+		    rpl.version, KVMI_VERSION);
-+
-+	pr_info("KVMI version: %u\n", rpl.version);
-+}
-+
- static void test_introspection(struct kvm_vm *vm)
- {
- 	setup_socket();
- 	hook_introspection(vm);
- 
- 	test_cmd_invalid();
-+	test_cmd_get_version();
- 
- 	unhook_introspection(vm);
- }
-diff --git a/virt/kvm/introspection/kvmi.c b/virt/kvm/introspection/kvmi.c
-index 547d3388ff8a..c44aa49dc6b5 100644
---- a/virt/kvm/introspection/kvmi.c
-+++ b/virt/kvm/introspection/kvmi.c
-@@ -11,6 +11,8 @@
- #define KVMI_NUM_COMMANDS KVMI_NUM_MESSAGES
- #define KVMI_MSG_SIZE_ALLOC (sizeof(struct kvmi_msg_hdr) + KVMI_MSG_SIZE)
- 
-+static DECLARE_BITMAP(Kvmi_always_allowed_commands, KVMI_NUM_COMMANDS);
-+
- static struct kmem_cache *msg_cache;
- 
- void *kvmi_msg_alloc(void)
-@@ -49,8 +51,16 @@ bool kvmi_is_command_allowed(struct kvm_introspection *kvmi, u16 id)
- 	return id < KVMI_NUM_COMMANDS && test_bit(id, kvmi->cmd_allow_mask);
- }
- 
-+static void setup_always_allowed_commands(void)
-+{
-+	bitmap_zero(Kvmi_always_allowed_commands, KVMI_NUM_COMMANDS);
-+	set_bit(KVMI_GET_VERSION, Kvmi_always_allowed_commands);
-+}
-+
- int kvmi_init(void)
- {
-+	setup_always_allowed_commands();
-+
- 	return kvmi_cache_create();
- }
- 
-@@ -94,6 +104,9 @@ alloc_kvmi(struct kvm *kvm, const struct kvm_introspection_hook *hook)
- 	BUILD_BUG_ON(sizeof(hook->uuid) != sizeof(kvmi->uuid));
- 	memcpy(&kvmi->uuid, &hook->uuid, sizeof(kvmi->uuid));
- 
-+	bitmap_copy(kvmi->cmd_allow_mask, Kvmi_always_allowed_commands,
-+		    KVMI_NUM_COMMANDS);
-+
- 	kvmi->kvm = kvm;
- 
- 	return kvmi;
-@@ -303,8 +316,8 @@ int kvmi_ioctl_event(struct kvm *kvm,
- 	return err;
- }
- 
--static void kvmi_control_allowed_commands(struct kvm_introspection *kvmi,
--					  s32 id, bool allow)
-+static int kvmi_control_allowed_commands(struct kvm_introspection *kvmi,
-+					 s32 id, bool allow)
- {
- 	s32 all_commands = -1;
- 
-@@ -315,10 +328,16 @@ static void kvmi_control_allowed_commands(struct kvm_introspection *kvmi,
- 			set_bit(id, kvmi->cmd_allow_mask);
- 	} else {
- 		if (id == all_commands)
--			bitmap_zero(kvmi->cmd_allow_mask, KVMI_NUM_COMMANDS);
-+			bitmap_copy(kvmi->cmd_allow_mask,
-+				    Kvmi_always_allowed_commands,
-+				    KVMI_NUM_COMMANDS);
-+		else if (test_bit(id, Kvmi_always_allowed_commands))
-+			return -EPERM;
- 		else
- 			clear_bit(id, kvmi->cmd_allow_mask);
- 	}
-+
-+	return 0;
- }
- 
- int kvmi_ioctl_command(struct kvm *kvm,
-@@ -337,7 +356,7 @@ int kvmi_ioctl_command(struct kvm *kvm,
- 
- 	kvmi = KVMI(kvm);
- 	if (kvmi)
--		kvmi_control_allowed_commands(kvmi, id, allow);
-+		err = kvmi_control_allowed_commands(kvmi, id, allow);
- 	else
- 		err = -EFAULT;
- 
-diff --git a/virt/kvm/introspection/kvmi_msg.c b/virt/kvm/introspection/kvmi_msg.c
-index 4e7b55ec7071..386636aa9832 100644
---- a/virt/kvm/introspection/kvmi_msg.c
-+++ b/virt/kvm/introspection/kvmi_msg.c
-@@ -98,11 +98,23 @@ static int kvmi_msg_vm_reply(struct kvm_introspection *kvmi,
- 	return kvmi_msg_reply(kvmi, msg, err, rpl, rpl_size);
- }
- 
-+static int handle_get_version(struct kvm_introspection *kvmi,
-+			      const struct kvmi_msg_hdr *msg, const void *req)
-+{
-+	struct kvmi_get_version_reply rpl;
-+
-+	memset(&rpl, 0, sizeof(rpl));
-+	rpl.version = kvmi_version();
-+
-+	return kvmi_msg_vm_reply(kvmi, msg, 0, &rpl, sizeof(rpl));
-+}
-+
- /*
-  * These commands are executed by the receiving thread.
-  */
- static int(*const msg_vm[])(struct kvm_introspection *,
- 			    const struct kvmi_msg_hdr *, const void *) = {
-+	[KVMI_GET_VERSION] = handle_get_version,
++	struct list_head job_list;
++	spinlock_t job_lock;
  };
  
- static bool is_vm_command(u16 id)
+ struct kvm_introspection {
+diff --git a/virt/kvm/introspection/kvmi.c b/virt/kvm/introspection/kvmi.c
+index a51e7342f837..b6595bca99f7 100644
+--- a/virt/kvm/introspection/kvmi.c
++++ b/virt/kvm/introspection/kvmi.c
+@@ -18,6 +18,7 @@ static DECLARE_BITMAP(Kvmi_known_vm_events, KVMI_NUM_EVENTS);
+ static DECLARE_BITMAP(Kvmi_known_vcpu_events, KVMI_NUM_EVENTS);
+ 
+ static struct kmem_cache *msg_cache;
++static struct kmem_cache *job_cache;
+ 
+ void *kvmi_msg_alloc(void)
+ {
+@@ -34,14 +35,19 @@ static void kvmi_cache_destroy(void)
+ {
+ 	kmem_cache_destroy(msg_cache);
+ 	msg_cache = NULL;
++	kmem_cache_destroy(job_cache);
++	job_cache = NULL;
+ }
+ 
+ static int kvmi_cache_create(void)
+ {
+ 	msg_cache = kmem_cache_create("kvmi_msg", KVMI_MSG_SIZE_ALLOC,
+ 				      4096, SLAB_ACCOUNT, NULL);
++	job_cache = kmem_cache_create("kvmi_job",
++				      sizeof(struct kvmi_job),
++				      0, SLAB_ACCOUNT, NULL);
+ 
+-	if (!msg_cache) {
++	if (!msg_cache || !job_cache) {
+ 		kvmi_cache_destroy();
+ 
+ 		return -1;
+@@ -107,6 +113,48 @@ void kvmi_uninit(void)
+ 	kvmi_cache_destroy();
+ }
+ 
++static int __kvmi_add_job(struct kvm_vcpu *vcpu,
++			  void (*fct)(struct kvm_vcpu *vcpu, void *ctx),
++			  void *ctx, void (*free_fct)(void *ctx))
++{
++	struct kvm_vcpu_introspection *vcpui = VCPUI(vcpu);
++	struct kvmi_job *job;
++
++	job = kmem_cache_zalloc(job_cache, GFP_KERNEL);
++	if (unlikely(!job))
++		return -ENOMEM;
++
++	INIT_LIST_HEAD(&job->link);
++	job->fct = fct;
++	job->ctx = ctx;
++	job->free_fct = free_fct;
++
++	spin_lock(&vcpui->job_lock);
++	list_add_tail(&job->link, &vcpui->job_list);
++	spin_unlock(&vcpui->job_lock);
++
++	return 0;
++}
++
++int kvmi_add_job(struct kvm_vcpu *vcpu,
++		 void (*fct)(struct kvm_vcpu *vcpu, void *ctx),
++		 void *ctx, void (*free_fct)(void *ctx))
++{
++	int err;
++
++	err = __kvmi_add_job(vcpu, fct, ctx, free_fct);
++
++	return err;
++}
++
++static void kvmi_free_job(struct kvmi_job *job)
++{
++	if (job->free_fct)
++		job->free_fct(job->ctx);
++
++	kmem_cache_free(job_cache, job);
++}
++
+ static bool alloc_vcpui(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm_vcpu_introspection *vcpui;
+@@ -115,6 +163,9 @@ static bool alloc_vcpui(struct kvm_vcpu *vcpu)
+ 	if (!vcpui)
+ 		return false;
+ 
++	INIT_LIST_HEAD(&vcpui->job_list);
++	spin_lock_init(&vcpui->job_lock);
++
+ 	vcpu->kvmi = vcpui;
+ 
+ 	return true;
+@@ -128,9 +179,26 @@ static int create_vcpui(struct kvm_vcpu *vcpu)
+ 	return 0;
+ }
+ 
++static void free_vcpu_jobs(struct kvm_vcpu_introspection *vcpui)
++{
++	struct kvmi_job *cur, *next;
++
++	list_for_each_entry_safe(cur, next, &vcpui->job_list, link) {
++		list_del(&cur->link);
++		kvmi_free_job(cur);
++	}
++}
++
+ static void free_vcpui(struct kvm_vcpu *vcpu)
+ {
+-	kfree(vcpu->kvmi);
++	struct kvm_vcpu_introspection *vcpui = VCPUI(vcpu);
++
++	if (!vcpui)
++		return;
++
++	free_vcpu_jobs(vcpui);
++
++	kfree(vcpui);
+ 	vcpu->kvmi = NULL;
+ }
+ 
+diff --git a/virt/kvm/introspection/kvmi_int.h b/virt/kvm/introspection/kvmi_int.h
+index 40e8647a6fd4..ceed50722dc1 100644
+--- a/virt/kvm/introspection/kvmi_int.h
++++ b/virt/kvm/introspection/kvmi_int.h
+@@ -19,6 +19,7 @@
+ 	kvm_info("%pU ERROR: " fmt, &kvmi->uuid, ## __VA_ARGS__)
+ 
+ #define KVMI(kvm) ((kvm)->kvmi)
++#define VCPUI(vcpu) ((vcpu)->kvmi)
+ 
+ /* kvmi_msg.c */
+ bool kvmi_sock_get(struct kvm_introspection *kvmi, int fd);
