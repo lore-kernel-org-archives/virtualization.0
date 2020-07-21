@@ -1,105 +1,386 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH v9 10/84] KVM: x86: add .control_cr3_intercept() to struct
- kvm_x86_ops
-Date: Wed, 22 Jul 2020 00:08:08 +0300
-Message-ID: <20200721210922.7646-11-alazar@bitdefender.com>
+Subject: [PATCH v9 80/84] KVM: introspection: add KVMI_VCPU_CONTROL_SINGLESTEP
+Date: Wed, 22 Jul 2020 00:09:18 +0300
+Message-ID: <20200721210922.7646-81-alazar@bitdefender.com>
 References: <20200721210922.7646-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200721210922.7646-1-alazar@bitdefender.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-VGhpcyBmdW5jdGlvbiBpcyBuZWVkZWQgZm9yIHRoZSBLVk1JX1ZDUFVfQ09OVFJPTF9DUiBjb21t
-YW5kLCB3aGVuIHRoZQppbnRyb3NwZWN0aW9uIHRvb2wgaGFzIHRvIGludGVyY2VwdCB0aGUgcmVh
-ZC93cml0ZSBhY2Nlc3MgdG8gQ1IzLgoKQ28tZGV2ZWxvcGVkLWJ5OiBOaWN1yJlvciBDw67Im3Ug
-PG5jaXR1QGJpdGRlZmVuZGVyLmNvbT4KU2lnbmVkLW9mZi1ieTogTmljdciZb3IgQ8OuyJt1IDxu
-Y2l0dUBiaXRkZWZlbmRlci5jb20+ClNpZ25lZC1vZmYtYnk6IEFkYWxiZXJ0IExhesSDciA8YWxh
-emFyQGJpdGRlZmVuZGVyLmNvbT4KLS0tCiBhcmNoL3g4Ni9pbmNsdWRlL2FzbS9rdm1faG9zdC5o
-IHwgIDYgKysrKysrCiBhcmNoL3g4Ni9rdm0vc3ZtL3N2bS5jICAgICAgICAgIHwgMTQgKysrKysr
-KysrKysrKysKIGFyY2gveDg2L2t2bS92bXgvdm14LmMgICAgICAgICAgfCAyNiArKysrKysrKysr
-KysrKysrKysrKy0tLS0tLQogMyBmaWxlcyBjaGFuZ2VkLCA0MCBpbnNlcnRpb25zKCspLCA2IGRl
-bGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL2FyY2gveDg2L2luY2x1ZGUvYXNtL2t2bV9ob3N0Lmgg
-Yi9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9rdm1faG9zdC5oCmluZGV4IDc4ZmUzYzdjODE0Yy4uODlj
-MGJkNjUyOWE1IDEwMDY0NAotLS0gYS9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9rdm1faG9zdC5oCisr
-KyBiL2FyY2gveDg2L2luY2x1ZGUvYXNtL2t2bV9ob3N0LmgKQEAgLTEzNiw2ICsxMzYsMTAgQEAg
-c3RhdGljIGlubGluZSBnZm5fdCBnZm5fdG9faW5kZXgoZ2ZuX3QgZ2ZuLCBnZm5fdCBiYXNlX2dm
-biwgaW50IGxldmVsKQogI2RlZmluZSBLVk1fTlJfRklYRURfTVRSUl9SRUdJT04gODgKICNkZWZp
-bmUgS1ZNX05SX1ZBUl9NVFJSIDgKIAorI2RlZmluZSBDUl9UWVBFX1IJMQorI2RlZmluZSBDUl9U
-WVBFX1cJMgorI2RlZmluZSBDUl9UWVBFX1JXCTMKKwogI2RlZmluZSBBU1lOQ19QRl9QRVJfVkNQ
-VSA2NAogCiBlbnVtIGt2bV9yZWcgewpAQCAtMTExMSw2ICsxMTE1LDggQEAgc3RydWN0IGt2bV94
-ODZfb3BzIHsKIAl2b2lkICgqZ2V0X2NzX2RiX2xfYml0cykoc3RydWN0IGt2bV92Y3B1ICp2Y3B1
-LCBpbnQgKmRiLCBpbnQgKmwpOwogCXZvaWQgKCpzZXRfY3IwKShzdHJ1Y3Qga3ZtX3ZjcHUgKnZj
-cHUsIHVuc2lnbmVkIGxvbmcgY3IwKTsKIAlpbnQgKCpzZXRfY3I0KShzdHJ1Y3Qga3ZtX3ZjcHUg
-KnZjcHUsIHVuc2lnbmVkIGxvbmcgY3I0KTsKKwl2b2lkICgqY29udHJvbF9jcjNfaW50ZXJjZXB0
-KShzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUsIGludCB0eXBlLAorCQkJCSAgICAgIGJvb2wgZW5hYmxl
-KTsKIAl2b2lkICgqc2V0X2VmZXIpKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSwgdTY0IGVmZXIpOwog
-CXZvaWQgKCpnZXRfaWR0KShzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUsIHN0cnVjdCBkZXNjX3B0ciAq
-ZHQpOwogCXZvaWQgKCpzZXRfaWR0KShzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUsIHN0cnVjdCBkZXNj
-X3B0ciAqZHQpOwpkaWZmIC0tZ2l0IGEvYXJjaC94ODYva3ZtL3N2bS9zdm0uYyBiL2FyY2gveDg2
-L2t2bS9zdm0vc3ZtLmMKaW5kZXggMjNiM2NkMDU3NzUzLi5mMTRmYzk0MDUzOGIgMTAwNjQ0Ci0t
-LSBhL2FyY2gveDg2L2t2bS9zdm0vc3ZtLmMKKysrIGIvYXJjaC94ODYva3ZtL3N2bS9zdm0uYwpA
-QCAtMTU5Niw2ICsxNTk2LDE5IEBAIGludCBzdm1fc2V0X2NyNChzdHJ1Y3Qga3ZtX3ZjcHUgKnZj
-cHUsIHVuc2lnbmVkIGxvbmcgY3I0KQogCXJldHVybiAwOwogfQogCitzdGF0aWMgdm9pZCBzdm1f
-Y29udHJvbF9jcjNfaW50ZXJjZXB0KHN0cnVjdCBrdm1fdmNwdSAqdmNwdSwgaW50IHR5cGUsCisJ
-CQkJICAgICAgYm9vbCBlbmFibGUpCit7CisJc3RydWN0IHZjcHVfc3ZtICpzdm0gPSB0b19zdm0o
-dmNwdSk7CisKKwlpZiAodHlwZSAmIENSX1RZUEVfUikKKwkJZW5hYmxlID8gc2V0X2NyX2ludGVy
-Y2VwdChzdm0sIElOVEVSQ0VQVF9DUjNfUkVBRCkgOgorCQkJIGNscl9jcl9pbnRlcmNlcHQoc3Zt
-LCBJTlRFUkNFUFRfQ1IzX1JFQUQpOworCWlmICh0eXBlICYgQ1JfVFlQRV9XKQorCQllbmFibGUg
-PyBzZXRfY3JfaW50ZXJjZXB0KHN2bSwgSU5URVJDRVBUX0NSM19XUklURSkgOgorCQkJIGNscl9j
-cl9pbnRlcmNlcHQoc3ZtLCBJTlRFUkNFUFRfQ1IzX1dSSVRFKTsKK30KKwogc3RhdGljIHZvaWQg
-c3ZtX3NldF9zZWdtZW50KHN0cnVjdCBrdm1fdmNwdSAqdmNwdSwKIAkJCSAgICBzdHJ1Y3Qga3Zt
-X3NlZ21lbnQgKnZhciwgaW50IHNlZykKIHsKQEAgLTQwMDgsNiArNDAyMSw3IEBAIHN0YXRpYyBz
-dHJ1Y3Qga3ZtX3g4Nl9vcHMgc3ZtX3g4Nl9vcHMgX19pbml0ZGF0YSA9IHsKIAkuZ2V0X2NzX2Ri
-X2xfYml0cyA9IGt2bV9nZXRfY3NfZGJfbF9iaXRzLAogCS5zZXRfY3IwID0gc3ZtX3NldF9jcjAs
-CiAJLnNldF9jcjQgPSBzdm1fc2V0X2NyNCwKKwkuY29udHJvbF9jcjNfaW50ZXJjZXB0ID0gc3Zt
-X2NvbnRyb2xfY3IzX2ludGVyY2VwdCwKIAkuc2V0X2VmZXIgPSBzdm1fc2V0X2VmZXIsCiAJLmdl
-dF9pZHQgPSBzdm1fZ2V0X2lkdCwKIAkuc2V0X2lkdCA9IHN2bV9zZXRfaWR0LApkaWZmIC0tZ2l0
-IGEvYXJjaC94ODYva3ZtL3ZteC92bXguYyBiL2FyY2gveDg2L2t2bS92bXgvdm14LmMKaW5kZXgg
-MDY5NTkzZjJmNTA0Li42Yjk2Mzk3MDM1NjAgMTAwNjQ0Ci0tLSBhL2FyY2gveDg2L2t2bS92bXgv
-dm14LmMKKysrIGIvYXJjaC94ODYva3ZtL3ZteC92bXguYwpAQCAtMzAwMywyNCArMzAwMywzNyBA
-QCB2b2lkIGVwdF9zYXZlX3BkcHRycyhzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpCiAJa3ZtX3JlZ2lz
-dGVyX21hcmtfZGlydHkodmNwdSwgVkNQVV9FWFJFR19QRFBUUik7CiB9CiAKK3N0YXRpYyB2b2lk
-IHZteF9jb250cm9sX2NyM19pbnRlcmNlcHQoc3RydWN0IGt2bV92Y3B1ICp2Y3B1LCBpbnQgdHlw
-ZSwKKwkJCQkgICAgICBib29sIGVuYWJsZSkKK3sKKwlzdHJ1Y3QgdmNwdV92bXggKnZteCA9IHRv
-X3ZteCh2Y3B1KTsKKwl1MzIgY3IzX2V4ZWNfY29udHJvbCA9IDA7CisKKwlpZiAodHlwZSAmIENS
-X1RZUEVfUikKKwkJY3IzX2V4ZWNfY29udHJvbCB8PSBDUFVfQkFTRURfQ1IzX1NUT1JFX0VYSVRJ
-Tkc7CisJaWYgKHR5cGUgJiBDUl9UWVBFX1cpCisJCWNyM19leGVjX2NvbnRyb2wgfD0gQ1BVX0JB
-U0VEX0NSM19MT0FEX0VYSVRJTkc7CisKKwlpZiAoZW5hYmxlKQorCQlleGVjX2NvbnRyb2xzX3Nl
-dGJpdCh2bXgsIGNyM19leGVjX2NvbnRyb2wpOworCWVsc2UKKwkJZXhlY19jb250cm9sc19jbGVh
-cmJpdCh2bXgsIGNyM19leGVjX2NvbnRyb2wpOworfQorCiBzdGF0aWMgdm9pZCBlcHRfdXBkYXRl
-X3BhZ2luZ19tb2RlX2NyMCh1bnNpZ25lZCBsb25nICpod19jcjAsCiAJCQkJCXVuc2lnbmVkIGxv
-bmcgY3IwLAogCQkJCQlzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpCiB7Ci0Jc3RydWN0IHZjcHVfdm14
-ICp2bXggPSB0b192bXgodmNwdSk7Ci0KIAlpZiAoIWt2bV9yZWdpc3Rlcl9pc19hdmFpbGFibGUo
-dmNwdSwgVkNQVV9FWFJFR19DUjMpKQogCQl2bXhfY2FjaGVfcmVnKHZjcHUsIFZDUFVfRVhSRUdf
-Q1IzKTsKIAlpZiAoIShjcjAgJiBYODZfQ1IwX1BHKSkgewogCQkvKiBGcm9tIHBhZ2luZy9zdGFy
-dGluZyB0byBub25wYWdpbmcgKi8KLQkJZXhlY19jb250cm9sc19zZXRiaXQodm14LCBDUFVfQkFT
-RURfQ1IzX0xPQURfRVhJVElORyB8Ci0JCQkJCSAgQ1BVX0JBU0VEX0NSM19TVE9SRV9FWElUSU5H
-KTsKKwkJdm14X2NvbnRyb2xfY3IzX2ludGVyY2VwdCh2Y3B1LCBDUl9UWVBFX1JXLCB0cnVlKTsK
-IAkJdmNwdS0+YXJjaC5jcjAgPSBjcjA7CiAJCXZteF9zZXRfY3I0KHZjcHUsIGt2bV9yZWFkX2Ny
-NCh2Y3B1KSk7CiAJfSBlbHNlIGlmICghaXNfcGFnaW5nKHZjcHUpKSB7CiAJCS8qIEZyb20gbm9u
-cGFnaW5nIHRvIHBhZ2luZyAqLwotCQlleGVjX2NvbnRyb2xzX2NsZWFyYml0KHZteCwgQ1BVX0JB
-U0VEX0NSM19MT0FEX0VYSVRJTkcgfAotCQkJCQkgICAgQ1BVX0JBU0VEX0NSM19TVE9SRV9FWElU
-SU5HKTsKKwkJdm14X2NvbnRyb2xfY3IzX2ludGVyY2VwdCh2Y3B1LCBDUl9UWVBFX1JXLCBmYWxz
-ZSk7CiAJCXZjcHUtPmFyY2guY3IwID0gY3IwOwogCQl2bXhfc2V0X2NyNCh2Y3B1LCBrdm1fcmVh
-ZF9jcjQodmNwdSkpOwogCX0KQEAgLTc4NzYsNiArNzg4OSw3IEBAIHN0YXRpYyBzdHJ1Y3Qga3Zt
-X3g4Nl9vcHMgdm14X3g4Nl9vcHMgX19pbml0ZGF0YSA9IHsKIAkuZ2V0X2NzX2RiX2xfYml0cyA9
-IHZteF9nZXRfY3NfZGJfbF9iaXRzLAogCS5zZXRfY3IwID0gdm14X3NldF9jcjAsCiAJLnNldF9j
-cjQgPSB2bXhfc2V0X2NyNCwKKwkuY29udHJvbF9jcjNfaW50ZXJjZXB0ID0gdm14X2NvbnRyb2xf
-Y3IzX2ludGVyY2VwdCwKIAkuc2V0X2VmZXIgPSB2bXhfc2V0X2VmZXIsCiAJLmdldF9pZHQgPSB2
-bXhfZ2V0X2lkdCwKIAkuc2V0X2lkdCA9IHZteF9zZXRfaWR0LApfX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QK
-VmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5s
-aW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+From: Nicușor Cîțu <ncitu@bitdefender.com>
+
+The next commit that adds the KVMI_EVENT_SINGLESTEP event will make this
+command more useful.
+
+Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
+Co-developed-by: Adalbert Lazăr <alazar@bitdefender.com>
+Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
+---
+ Documentation/virt/kvm/kvmi.rst               | 32 ++++++++++
+ arch/x86/kvm/kvmi.c                           | 18 ++++++
+ arch/x86/kvm/x86.c                            | 12 +++-
+ include/linux/kvmi_host.h                     |  7 +++
+ include/uapi/linux/kvmi.h                     |  7 +++
+ .../testing/selftests/kvm/x86_64/kvmi_test.c  | 46 ++++++++++++++
+ virt/kvm/introspection/kvmi.c                 | 26 +++++++-
+ virt/kvm/introspection/kvmi_int.h             |  2 +
+ virt/kvm/introspection/kvmi_msg.c             | 60 +++++++++++++++----
+ 9 files changed, 193 insertions(+), 17 deletions(-)
+
+diff --git a/Documentation/virt/kvm/kvmi.rst b/Documentation/virt/kvm/kvmi.rst
+index 47387f297029..0a07ef101302 100644
+--- a/Documentation/virt/kvm/kvmi.rst
++++ b/Documentation/virt/kvm/kvmi.rst
+@@ -1049,6 +1049,38 @@ In order to 'forget' an address, all three bits ('rwx') must be set.
+ * -KVM_EAGAIN - the selected vCPU can't be introspected yet
+ * -KVM_ENOMEM - there is not enough memory to add the page tracking structures
+ 
++24. KVMI_VCPU_CONTROL_SINGLESTEP
++--------------------------------
++
++:Architectures: x86 (vmx)
++:Versions: >= 1
++:Parameters:
++
++::
++
++	struct kvmi_vcpu_hdr;
++	struct kvmi_vcpu_control_singlestep {
++		__u8 enable;
++		__u8 padding[7];
++	};
++
++:Returns:
++
++::
++
++	struct kvmi_error_code;
++
++Enables/disables singlestep for the selected vCPU.
++
++The introspection tool should use *KVMI_GET_VERSION*, to check
++if the hardware supports singlestep (see **KVMI_GET_VERSION**).
++
++:Errors:
++
++* -KVM_EOPNOTSUPP - the hardware doesn't support singlestep
++* -KVM_EINVAL - the padding is not zero
++* -KVM_EAGAIN - the selected vCPU can't be introspected yet
++
+ Events
+ ======
+ 
+diff --git a/arch/x86/kvm/kvmi.c b/arch/x86/kvm/kvmi.c
+index 672a113b3bf4..18713004152d 100644
+--- a/arch/x86/kvm/kvmi.c
++++ b/arch/x86/kvm/kvmi.c
+@@ -1355,3 +1355,21 @@ void kvmi_arch_features(struct kvmi_features *feat)
+ {
+ 	feat->singlestep = !!kvm_x86_ops.control_singlestep;
+ }
++
++bool kvmi_arch_start_singlestep(struct kvm_vcpu *vcpu)
++{
++	if (!kvm_x86_ops.control_singlestep)
++		return false;
++
++	kvm_x86_ops.control_singlestep(vcpu, true);
++	return true;
++}
++
++bool kvmi_arch_stop_singlestep(struct kvm_vcpu *vcpu)
++{
++	if (!kvm_x86_ops.control_singlestep)
++		return false;
++
++	kvm_x86_ops.control_singlestep(vcpu, false);
++	return true;
++}
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 0add0b0b8f2d..02b74a57ca01 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -8515,9 +8515,15 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
+ 			goto out;
+ 		}
+ 
+-		inject_pending_event(vcpu, &req_immediate_exit);
+-		if (req_int_win)
+-			kvm_x86_ops.enable_irq_window(vcpu);
++		if (!kvmi_vcpu_running_singlestep(vcpu)) {
++			/*
++			 * We cannot inject events during single-stepping.
++			 * Try again later.
++			 */
++			inject_pending_event(vcpu, &req_immediate_exit);
++			if (req_int_win)
++				kvm_x86_ops.enable_irq_window(vcpu);
++		}
+ 
+ 		if (kvm_lapic_enabled(vcpu)) {
+ 			update_cr8_intercept(vcpu);
+diff --git a/include/linux/kvmi_host.h b/include/linux/kvmi_host.h
+index 11eb9b1c3c5e..a641768027cc 100644
+--- a/include/linux/kvmi_host.h
++++ b/include/linux/kvmi_host.h
+@@ -45,6 +45,10 @@ struct kvm_vcpu_introspection {
+ 		bool pending;
+ 		bool send_event;
+ 	} exception;
++
++	struct {
++		bool loop;
++	} singlestep;
+ };
+ 
+ struct kvm_introspection {
+@@ -89,6 +93,7 @@ void kvmi_handle_requests(struct kvm_vcpu *vcpu);
+ bool kvmi_hypercall_event(struct kvm_vcpu *vcpu);
+ bool kvmi_breakpoint_event(struct kvm_vcpu *vcpu, u64 gva, u8 insn_len);
+ bool kvmi_enter_guest(struct kvm_vcpu *vcpu);
++bool kvmi_vcpu_running_singlestep(struct kvm_vcpu *vcpu);
+ 
+ #else
+ 
+@@ -105,6 +110,8 @@ static inline bool kvmi_breakpoint_event(struct kvm_vcpu *vcpu, u64 gva,
+ 			{ return true; }
+ static inline bool kvmi_enter_guest(struct kvm_vcpu *vcpu)
+ 			{ return true; }
++static inline bool kvmi_vcpu_running_singlestep(struct kvm_vcpu *vcpu)
++			{ return false; }
+ 
+ #endif /* CONFIG_KVM_INTROSPECTION */
+ 
+diff --git a/include/uapi/linux/kvmi.h b/include/uapi/linux/kvmi.h
+index a84affbafa67..bc515237612a 100644
+--- a/include/uapi/linux/kvmi.h
++++ b/include/uapi/linux/kvmi.h
+@@ -47,6 +47,8 @@ enum {
+ 
+ 	KVMI_VM_SET_PAGE_ACCESS = 23,
+ 
++	KVMI_VCPU_CONTROL_SINGLESTEP = 24,
++
+ 	KVMI_NUM_MESSAGES
+ };
+ 
+@@ -189,6 +191,11 @@ struct kvmi_vm_set_page_access {
+ 	struct kvmi_page_access_entry entries[0];
+ };
+ 
++struct kvmi_vcpu_control_singlestep {
++	__u8 enable;
++	__u8 padding[7];
++};
++
+ struct kvmi_event {
+ 	__u16 size;
+ 	__u16 vcpu;
+diff --git a/tools/testing/selftests/kvm/x86_64/kvmi_test.c b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
+index eabe7dae149e..0803d7e5af1e 100644
+--- a/tools/testing/selftests/kvm/x86_64/kvmi_test.c
++++ b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
+@@ -1940,6 +1940,51 @@ static void test_event_pf(struct kvm_vm *vm)
+ 	test_pf(vm, cbk_test_event_pf);
+ }
+ 
++static void cmd_vcpu_singlestep(struct kvm_vm *vm, __u8 enable, __u8 padding,
++				int expected_err)
++{
++	struct {
++		struct kvmi_msg_hdr hdr;
++		struct kvmi_vcpu_hdr vcpu_hdr;
++		struct kvmi_vcpu_control_singlestep cmd;
++	} req = {};
++	int r;
++
++	req.cmd.enable = enable;
++	req.cmd.padding[6] = padding;
++
++	r = do_vcpu0_command(vm, KVMI_VCPU_CONTROL_SINGLESTEP,
++			     &req.hdr, sizeof(req), NULL, 0);
++	TEST_ASSERT(r == expected_err,
++		"KVMI_VCPU_CONTROL_SINGLESTEP failed, error %d(%s), expected error %d\n",
++		-r, kvm_strerror(-r), expected_err);
++}
++
++static void test_supported_singlestep(struct kvm_vm *vm)
++{
++	__u8 disable = 0, enable = 1, enable_inval = 2;
++	__u8 padding = 1, no_padding = 0;
++
++	cmd_vcpu_singlestep(vm, enable, no_padding, 0);
++	cmd_vcpu_singlestep(vm, disable, no_padding, 0);
++
++	cmd_vcpu_singlestep(vm, enable, padding, -KVM_EINVAL);
++	cmd_vcpu_singlestep(vm, enable_inval, no_padding, -KVM_EINVAL);
++}
++
++static void test_unsupported_singlestep(struct kvm_vm *vm)
++{
++	cmd_vcpu_singlestep(vm, 1, 0, -KVM_EOPNOTSUPP);
++}
++
++static void test_cmd_vcpu_control_singlestep(struct kvm_vm *vm)
++{
++	if (features.singlestep)
++		test_supported_singlestep(vm);
++	else
++		test_unsupported_singlestep(vm);
++}
++
+ static void test_introspection(struct kvm_vm *vm)
+ {
+ 	srandom(time(0));
+@@ -1974,6 +2019,7 @@ static void test_introspection(struct kvm_vm *vm)
+ 	test_cmd_vcpu_control_msr(vm);
+ 	test_cmd_vm_set_page_access(vm);
+ 	test_event_pf(vm);
++	test_cmd_vcpu_control_singlestep(vm);
+ 
+ 	unhook_introspection(vm);
+ }
+diff --git a/virt/kvm/introspection/kvmi.c b/virt/kvm/introspection/kvmi.c
+index 99c88e182587..2c7533a966f9 100644
+--- a/virt/kvm/introspection/kvmi.c
++++ b/virt/kvm/introspection/kvmi.c
+@@ -429,6 +429,11 @@ static void kvmi_job_release_vcpu(struct kvm_vcpu *vcpu, void *ctx)
+ 
+ 	atomic_set(&vcpui->pause_requests, 0);
+ 	vcpui->waiting_for_reply = false;
++
++	if (vcpui->singlestep.loop) {
++		kvmi_arch_stop_singlestep(vcpu);
++		vcpui->singlestep.loop = false;
++	}
+ }
+ 
+ static void kvmi_release_vcpus(struct kvm *kvm)
+@@ -1047,7 +1052,9 @@ bool kvmi_enter_guest(struct kvm_vcpu *vcpu)
+ 
+ 	vcpui = VCPUI(vcpu);
+ 
+-	if (vcpui->exception.pending) {
++	if (vcpui->singlestep.loop) {
++		kvmi_arch_start_singlestep(vcpu);
++	} else if (vcpui->exception.pending) {
+ 		kvmi_inject_pending_exception(vcpu);
+ 		r = false;
+ 	}
+@@ -1297,3 +1304,20 @@ void kvmi_remove_memslot(struct kvm *kvm, struct kvm_memory_slot *slot)
+ 	spin_unlock(&kvm->mmu_lock);
+ 	srcu_read_unlock(&kvm->srcu, idx);
+ }
++
++bool kvmi_vcpu_running_singlestep(struct kvm_vcpu *vcpu)
++{
++	struct kvm_introspection *kvmi;
++	bool ret;
++
++	kvmi = kvmi_get(vcpu->kvm);
++	if (!kvmi)
++		return false;
++
++	ret = VCPUI(vcpu)->singlestep.loop;
++
++	kvmi_put(vcpu->kvm);
++
++	return ret;
++}
++EXPORT_SYMBOL(kvmi_vcpu_running_singlestep);
+diff --git a/virt/kvm/introspection/kvmi_int.h b/virt/kvm/introspection/kvmi_int.h
+index 68b8d60a7fac..e5fca3502bab 100644
+--- a/virt/kvm/introspection/kvmi_int.h
++++ b/virt/kvm/introspection/kvmi_int.h
+@@ -139,5 +139,7 @@ void kvmi_arch_update_page_tracking(struct kvm *kvm,
+ void kvmi_arch_hook(struct kvm *kvm);
+ void kvmi_arch_unhook(struct kvm *kvm);
+ void kvmi_arch_features(struct kvmi_features *feat);
++bool kvmi_arch_start_singlestep(struct kvm_vcpu *vcpu);
++bool kvmi_arch_stop_singlestep(struct kvm_vcpu *vcpu);
+ 
+ #endif
+diff --git a/virt/kvm/introspection/kvmi_msg.c b/virt/kvm/introspection/kvmi_msg.c
+index e754cee48912..04e7511a9777 100644
+--- a/virt/kvm/introspection/kvmi_msg.c
++++ b/virt/kvm/introspection/kvmi_msg.c
+@@ -609,6 +609,39 @@ static int handle_vcpu_control_msr(const struct kvmi_vcpu_msg_job *job,
+ 	return kvmi_msg_vcpu_reply(job, msg, ec, NULL, 0);
+ }
+ 
++static int handle_vcpu_control_singlestep(const struct kvmi_vcpu_msg_job *job,
++					  const struct kvmi_msg_hdr *msg,
++					  const void *_req)
++{
++	const struct kvmi_vcpu_control_singlestep *req = _req;
++	struct kvm_vcpu *vcpu = job->vcpu;
++	int ec = -KVM_EINVAL;
++	bool done;
++	int i;
++
++	if (req->enable > 1)
++		goto reply;
++
++	for (i = 0; i < sizeof(req->padding); i++)
++		if (req->padding[i])
++			goto reply;
++
++	if (req->enable)
++		done = kvmi_arch_start_singlestep(vcpu);
++	else
++		done = kvmi_arch_stop_singlestep(vcpu);
++
++	if (done) {
++		ec = 0;
++		VCPUI(vcpu)->singlestep.loop = !!req->enable;
++	} else {
++		ec = -KVM_EOPNOTSUPP;
++	}
++
++reply:
++	return kvmi_msg_vcpu_reply(job, msg, ec, NULL, 0);
++}
++
+ /*
+  * These functions are executed from the vCPU thread. The receiving thread
+  * passes the messages using a newly allocated 'struct kvmi_vcpu_msg_job'
+@@ -617,19 +650,20 @@ static int handle_vcpu_control_msr(const struct kvmi_vcpu_msg_job *job,
+  */
+ static int(*const msg_vcpu[])(const struct kvmi_vcpu_msg_job *,
+ 			      const struct kvmi_msg_hdr *, const void *) = {
+-	[KVMI_EVENT]                 = handle_vcpu_event_reply,
+-	[KVMI_VCPU_CONTROL_CR]       = handle_vcpu_control_cr,
+-	[KVMI_VCPU_CONTROL_EVENTS]   = handle_vcpu_control_events,
+-	[KVMI_VCPU_CONTROL_MSR]      = handle_vcpu_control_msr,
+-	[KVMI_VCPU_GET_CPUID]        = handle_vcpu_get_cpuid,
+-	[KVMI_VCPU_GET_INFO]         = handle_vcpu_get_info,
+-	[KVMI_VCPU_GET_MTRR_TYPE]    = handle_vcpu_get_mtrr_type,
+-	[KVMI_VCPU_GET_REGISTERS]    = handle_vcpu_get_registers,
+-	[KVMI_VCPU_GET_XCR]          = handle_vcpu_get_xcr,
+-	[KVMI_VCPU_GET_XSAVE]        = handle_vcpu_get_xsave,
+-	[KVMI_VCPU_INJECT_EXCEPTION] = handle_vcpu_inject_exception,
+-	[KVMI_VCPU_SET_REGISTERS]    = handle_vcpu_set_registers,
+-	[KVMI_VCPU_SET_XSAVE]        = handle_vcpu_set_xsave,
++	[KVMI_EVENT]                   = handle_vcpu_event_reply,
++	[KVMI_VCPU_CONTROL_CR]         = handle_vcpu_control_cr,
++	[KVMI_VCPU_CONTROL_EVENTS]     = handle_vcpu_control_events,
++	[KVMI_VCPU_CONTROL_MSR]        = handle_vcpu_control_msr,
++	[KVMI_VCPU_CONTROL_SINGLESTEP] = handle_vcpu_control_singlestep,
++	[KVMI_VCPU_GET_CPUID]          = handle_vcpu_get_cpuid,
++	[KVMI_VCPU_GET_INFO]           = handle_vcpu_get_info,
++	[KVMI_VCPU_GET_MTRR_TYPE]      = handle_vcpu_get_mtrr_type,
++	[KVMI_VCPU_GET_REGISTERS]      = handle_vcpu_get_registers,
++	[KVMI_VCPU_GET_XCR]            = handle_vcpu_get_xcr,
++	[KVMI_VCPU_GET_XSAVE]          = handle_vcpu_get_xsave,
++	[KVMI_VCPU_INJECT_EXCEPTION]   = handle_vcpu_inject_exception,
++	[KVMI_VCPU_SET_REGISTERS]      = handle_vcpu_set_registers,
++	[KVMI_VCPU_SET_XSAVE]          = handle_vcpu_set_xsave,
+ };
+ 
+ static bool is_vcpu_command(u16 id)
