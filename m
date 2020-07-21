@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH v9 66/84] KVM: introspection: add KVMI_VCPU_INJECT_EXCEPTION + KVMI_EVENT_TRAP
-Date: Wed, 22 Jul 2020 00:09:04 +0300
-Message-ID: <20200721210922.7646-67-alazar@bitdefender.com>
+Subject: [PATCH v9 75/84] KVM: introspection: add KVMI_VCPU_CONTROL_MSR and KVMI_EVENT_MSR
+Date: Wed, 22 Jul 2020 00:09:13 +0300
+Message-ID: <20200721210922.7646-76-alazar@bitdefender.com>
 References: <20200721210922.7646-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -15,13 +15,13 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Mihai Donțu <mdontu@bitdefender.com>
 
-The KVMI_VCPU_INJECT_EXCEPTION command is used by the introspection tool
-to inject exceptions, for example, to get a page from swap.
+This command is used to enable/disable introspection for a specific
+MSR. The KVMI_EVENT_MSR event is sent when the tracked MSR is going to
+be changed. The introspection tool can respond by allowing the guest to
+continue with normal execution or by discarding the change.
 
-The exception is queued right before entering in guest unless there is
-already an exception pending. The introspection tool is notified with
-an KVMI_EVENT_TRAP event about the success of the injection.  In case
-of failure, the introspecion tool is expected to try again later.
+This is meant to prevent malicious changes to MSRs
+such as MSR_IA32_SYSENTER_EIP.
 
 Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
 Co-developed-by: Nicușor Cîțu <ncitu@bitdefender.com>
@@ -29,49 +29,49 @@ Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
 Co-developed-by: Adalbert Lazăr <alazar@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- Documentation/virt/kvm/kvmi.rst               |  74 +++++++++++
- arch/x86/kvm/kvmi.c                           | 103 ++++++++++++++++
+ Documentation/virt/kvm/kvmi.rst               |  75 +++++++++
+ arch/x86/include/asm/kvmi_host.h              |  12 ++
+ arch/x86/include/uapi/asm/kvmi.h              |  18 ++
+ arch/x86/kvm/kvmi.c                           | 159 ++++++++++++++++++
  arch/x86/kvm/x86.c                            |   3 +
- include/linux/kvmi_host.h                     |  12 ++
- include/uapi/linux/kvmi.h                     |  20 ++-
- .../testing/selftests/kvm/x86_64/kvmi_test.c  | 115 +++++++++++++++++-
- virt/kvm/introspection/kvmi.c                 |  45 +++++++
- virt/kvm/introspection/kvmi_int.h             |   8 ++
- virt/kvm/introspection/kvmi_msg.c             |  50 ++++++--
- 9 files changed, 418 insertions(+), 12 deletions(-)
+ include/uapi/linux/kvmi.h                     |   2 +
+ .../testing/selftests/kvm/x86_64/kvmi_test.c  | 119 +++++++++++++
+ virt/kvm/introspection/kvmi.c                 |   1 +
+ virt/kvm/introspection/kvmi_int.h             |   2 +
+ virt/kvm/introspection/kvmi_msg.c             |  12 ++
+ 10 files changed, 403 insertions(+)
 
 diff --git a/Documentation/virt/kvm/kvmi.rst b/Documentation/virt/kvm/kvmi.rst
-index e1f978fc799b..4263a9ac90e4 100644
+index 0294c141eb0a..536d6ecec026 100644
 --- a/Documentation/virt/kvm/kvmi.rst
 +++ b/Documentation/virt/kvm/kvmi.rst
-@@ -561,6 +561,7 @@ because these are sent as a result of certain commands (but they can be
- disallowed by the device manager) ::
+@@ -553,6 +553,7 @@ the following events::
+ 	KVMI_EVENT_CR
+ 	KVMI_EVENT_DESCRIPTOR
+ 	KVMI_EVENT_HYPERCALL
++	KVMI_EVENT_MSR
+ 	KVMI_EVENT_XSETBV
  
- 	KVMI_EVENT_PAUSE_VCPU
-+	KVMI_EVENT_TRAP
- 
- The VM events (e.g. *KVMI_EVENT_UNHOOK*) are controlled with
- the *KVMI_VM_CONTROL_EVENTS* command.
-@@ -749,6 +750,45 @@ ID set.
+ When an event is enabled, the introspection tool is notified and
+@@ -937,6 +938,45 @@ Returns the guest memory type for a specific physical address.
  * -KVM_EINVAL - the padding is not zero
  * -KVM_EAGAIN - the selected vCPU can't be introspected yet
  
-+16. KVMI_VCPU_INJECT_EXCEPTION
-+------------------------------
++22. KVMI_VCPU_CONTROL_MSR
++-------------------------
 +
-+:Architectures: all
++:Architectures: x86
 +:Versions: >= 1
 +:Parameters:
 +
 +::
 +
 +	struct kvmi_vcpu_hdr;
-+	struct kvmi_vcpu_inject_exception {
-+		__u8 nr;
++	struct kvmi_vcpu_control_msr {
++		__u8 enable;
 +		__u8 padding1;
 +		__u16 padding2;
-+		__u32 error_code;
-+		__u64 address;
++		__u32 msr;
 +	};
 +
 +:Returns:
@@ -80,33 +80,34 @@ index e1f978fc799b..4263a9ac90e4 100644
 +
 +	struct kvmi_error_code
 +
-+Injects a vCPU exception with or without an error code. In case of page fault
-+exception, the guest virtual address has to be specified.
++Enables/disables introspection for a specific MSR and must be used
++in addition to *KVMI_VCPU_CONTROL_EVENTS* with the *KVMI_EVENT_MSR* ID set.
 +
-+The *KVMI_EVENT_TRAP* event will be sent with the effective injected
-+exception.
++Currently, only MSRs within the following two ranges are supported. Trying
++to control events for any other register will fail with -KVM_EINVAL::
++
++	0          ... 0x00001fff
++	0xc0000000 ... 0xc0001fff
 +
 +:Errors:
 +
-+* -KVM_EPERM  - the *KVMI_EVENT_TRAP* event is disallowed
 +* -KVM_EINVAL - the selected vCPU is invalid
++* -KVM_EINVAL - the specified MSR is invalid
 +* -KVM_EINVAL - the padding is not zero
 +* -KVM_EAGAIN - the selected vCPU can't be introspected yet
-+* -KVM_EBUSY - another *KVMI_VCPU_INJECT_EXCEPTION*-*KVMI_EVENT_TRAP* pair
-+               is in progress
 +
  Events
  ======
  
-@@ -960,3 +1000,37 @@ register (see **KVMI_VCPU_CONTROL_EVENTS**).
+@@ -1252,3 +1292,38 @@ introspection has been enabled for this event (see **KVMI_VCPU_CONTROL_EVENTS**)
+ 	KVMI_DESC_TR
  
- ``kvmi_event``, the control register number, the old value and the new value
- are sent to the introspection tool. The *CONTINUE* action will set the ``new_val``.
+ ``write`` is 1 if the descriptor was written, 0 otherwise.
 +
-+6. KVMI_EVENT_TRAP
-+------------------
++9. KVMI_EVENT_MSR
++-----------------
 +
-+:Architectures: all
++:Architectures: x86
 +:Versions: >= 1
 +:Actions: CONTINUE, CRASH
 +:Parameters:
@@ -114,12 +115,11 @@ index e1f978fc799b..4263a9ac90e4 100644
 +::
 +
 +	struct kvmi_event;
-+	struct kvmi_event_trap {
-+		__u8 nr;
-+		__u8 padding1;
-+		__u16 padding2;
-+		__u32 error_code;
-+		__u64 address;
++	struct kvmi_event_msr {
++		__u32 msr;
++		__u32 padding;
++		__u64 old_value;
++		__u64 new_value;
 +	};
 +
 +:Returns:
@@ -128,499 +128,503 @@ index e1f978fc799b..4263a9ac90e4 100644
 +
 +	struct kvmi_vcpu_hdr;
 +	struct kvmi_event_reply;
++	struct kvmi_event_msr_reply {
++		__u64 new_val;
++	};
 +
-+This event is sent if a previous *KVMI_VCPU_INJECT_EXCEPTION* command
-+took place. Because it has a high priority, it will be sent before any
-+other vCPU introspection event.
++This event is sent when a model specific register is going to be changed
++and the introspection has been enabled for this event and for this specific
++register (see **KVMI_VCPU_CONTROL_EVENTS**).
 +
-+``kvmi_event``, exception/interrupt number, exception code
-+(``error_code``) and address are sent to the introspection tool,
-+which should check if its exception has been injected or overridden.
++``kvmi_event``, the MSR number, the old value and the new value are
++sent to the introspection tool. The *CONTINUE* action will set the ``new_val``.
+diff --git a/arch/x86/include/asm/kvmi_host.h b/arch/x86/include/asm/kvmi_host.h
+index 0ed1879fd250..5f2967d86b72 100644
+--- a/arch/x86/include/asm/kvmi_host.h
++++ b/arch/x86/include/asm/kvmi_host.h
+@@ -4,7 +4,10 @@
+ 
+ #include <asm/kvmi.h>
+ 
++struct msr_data;
++
+ #define KVMI_NUM_CR 5
++#define KVMI_NUM_MSR 0x2000
+ 
+ struct kvmi_monitor_interception {
+ 	bool kvmi_intercepted;
+@@ -18,6 +21,12 @@ struct kvmi_interception {
+ 	struct kvmi_monitor_interception breakpoint;
+ 	struct kvmi_monitor_interception cr3w;
+ 	struct kvmi_monitor_interception descriptor;
++	struct {
++		struct {
++			DECLARE_BITMAP(low, KVMI_NUM_MSR);
++			DECLARE_BITMAP(high, KVMI_NUM_MSR);
++		} kvmi_mask;
++	} msrw;
+ };
+ 
+ struct kvm_vcpu_arch_introspection {
+@@ -38,6 +47,7 @@ void kvmi_xsetbv_event(struct kvm_vcpu *vcpu, u8 xcr,
+ 		       u64 old_value, u64 new_value);
+ bool kvmi_monitor_desc_intercept(struct kvm_vcpu *vcpu, bool enable);
+ bool kvmi_descriptor_event(struct kvm_vcpu *vcpu, u8 descriptor, bool write);
++bool kvmi_msr_event(struct kvm_vcpu *vcpu, struct msr_data *msr);
+ 
+ #else /* CONFIG_KVM_INTROSPECTION */
+ 
+@@ -56,6 +66,8 @@ static inline bool kvmi_monitor_desc_intercept(struct kvm_vcpu *vcpu,
+ 					       bool enable) { return false; }
+ static inline bool kvmi_descriptor_event(struct kvm_vcpu *vcpu, u8 descriptor,
+ 					 bool write) { return true; }
++static inline bool kvmi_msr_event(struct kvm_vcpu *vcpu, struct msr_data *msr)
++				{ return true; }
+ 
+ #endif /* CONFIG_KVM_INTROSPECTION */
+ 
+diff --git a/arch/x86/include/uapi/asm/kvmi.h b/arch/x86/include/uapi/asm/kvmi.h
+index b6ff39ba0ab3..1bb13da61dbf 100644
+--- a/arch/x86/include/uapi/asm/kvmi.h
++++ b/arch/x86/include/uapi/asm/kvmi.h
+@@ -127,4 +127,22 @@ struct kvmi_event_descriptor {
+ 	__u8 padding[6];
+ };
+ 
++struct kvmi_vcpu_control_msr {
++	__u8 enable;
++	__u8 padding1;
++	__u16 padding2;
++	__u32 msr;
++};
++
++struct kvmi_event_msr {
++	__u32 msr;
++	__u32 padding;
++	__u64 old_value;
++	__u64 new_value;
++};
++
++struct kvmi_event_msr_reply {
++	__u64 new_val;
++};
++
+ #endif /* _UAPI_ASM_X86_KVMI_H */
 diff --git a/arch/x86/kvm/kvmi.c b/arch/x86/kvm/kvmi.c
-index e340a2c3500f..0c6ab136084f 100644
+index dfe1b887b4f3..a48e72f520da 100644
 --- a/arch/x86/kvm/kvmi.c
 +++ b/arch/x86/kvm/kvmi.c
-@@ -569,3 +569,106 @@ bool kvmi_cr3_intercepted(struct kvm_vcpu *vcpu)
- 	return ret;
+@@ -419,6 +419,76 @@ static void kvmi_arch_disable_desc_intercept(struct kvm_vcpu *vcpu)
+ 	vcpu->arch.kvmi->descriptor.kvm_intercepted = false;
  }
- EXPORT_SYMBOL(kvmi_cr3_intercepted);
-+
-+int kvmi_arch_cmd_vcpu_inject_exception(struct kvm_vcpu *vcpu, u8 vector,
-+					u32 error_code, u64 address)
+ 
++static bool kvmi_msr_valid(unsigned int msr)
 +{
-+	struct kvm_vcpu_introspection *vcpui = VCPUI(vcpu);
-+	bool has_error;
++	return msr <= 0x1fff || (msr >= 0xc0000000 && msr <= 0xc0001fff);
++}
 +
-+	if (vcpui->exception.pending || vcpui->exception.send_event)
-+		return -KVM_EBUSY;
++static unsigned long *msr_mask(struct kvm_vcpu *vcpu, unsigned int *msr)
++{
++	switch (*msr) {
++	case 0 ... 0x1fff:
++		return vcpu->arch.kvmi->msrw.kvmi_mask.low;
++	case 0xc0000000 ... 0xc0001fff:
++		*msr &= 0x1fff;
++		return vcpu->arch.kvmi->msrw.kvmi_mask.high;
++	}
 +
-+	vcpui->exception.pending = true;
++	return NULL;
++}
 +
-+	has_error = x86_exception_has_error_code(vector);
++static bool test_msr_mask(struct kvm_vcpu *vcpu, unsigned int msr)
++{
++	unsigned long *mask = msr_mask(vcpu, &msr);
 +
-+	vcpui->exception.nr = vector;
-+	vcpui->exception.error_code = has_error ? error_code : 0;
-+	vcpui->exception.error_code_valid = has_error;
-+	vcpui->exception.address = address;
++	if (!mask)
++		return false;
++
++	return !!test_bit(msr, mask);
++}
++
++static bool msr_control(struct kvm_vcpu *vcpu, unsigned int msr, bool enable)
++{
++	unsigned long *mask = msr_mask(vcpu, &msr);
++
++	if (!mask)
++		return false;
++
++	if (enable)
++		set_bit(msr, mask);
++	else
++		clear_bit(msr, mask);
++
++	return true;
++}
++
++static unsigned int msr_mask_to_base(struct kvm_vcpu *vcpu, unsigned long *mask)
++{
++	if (mask == vcpu->arch.kvmi->msrw.kvmi_mask.high)
++		return 0xc0000000;
 +
 +	return 0;
 +}
 +
-+static void kvmi_arch_queue_exception(struct kvm_vcpu *vcpu)
++static void kvmi_arch_disable_msr_intercept(struct kvm_vcpu *vcpu,
++					    unsigned long *mask)
 +{
-+	struct kvm_vcpu_introspection *vcpui = VCPUI(vcpu);
-+	struct x86_exception e = {
-+		.vector = vcpui->exception.nr,
-+		.error_code_valid = vcpui->exception.error_code_valid,
-+		.error_code = vcpui->exception.error_code,
-+		.address = vcpui->exception.address,
-+	};
++	unsigned int msr_base = msr_mask_to_base(vcpu, mask);
++	int offset = -1;
 +
-+	if (e.vector == PF_VECTOR)
-+		kvm_inject_page_fault(vcpu, &e);
-+	else if (e.error_code_valid)
-+		kvm_queue_exception_e(vcpu, e.vector, e.error_code);
-+	else
-+		kvm_queue_exception(vcpu, e.vector);
-+}
++	for (;;) {
++		offset = find_next_bit(mask, KVMI_NUM_MSR, offset + 1);
 +
-+static void kvmi_arch_save_injected_event(struct kvm_vcpu *vcpu)
-+{
-+	struct kvm_vcpu_introspection *vcpui = VCPUI(vcpu);
++		if (offset >= KVMI_NUM_MSR)
++			break;
 +
-+	vcpui->exception.error_code = 0;
-+	vcpui->exception.error_code_valid = false;
-+
-+	vcpui->exception.address = vcpu->arch.cr2;
-+	if (vcpu->arch.exception.injected) {
-+		vcpui->exception.nr = vcpu->arch.exception.nr;
-+		vcpui->exception.error_code_valid =
-+			x86_exception_has_error_code(vcpu->arch.exception.nr);
-+		vcpui->exception.error_code = vcpu->arch.exception.error_code;
-+	} else if (vcpu->arch.interrupt.injected) {
-+		vcpui->exception.nr = vcpu->arch.interrupt.nr;
-+	}
-+}
-+
-+void kvmi_arch_inject_exception(struct kvm_vcpu *vcpu)
-+{
-+	if (!kvm_event_needs_reinjection(vcpu)) {
-+		kvmi_arch_queue_exception(vcpu);
-+		kvm_inject_pending_exception(vcpu);
++		kvm_x86_ops.control_msr_intercept(vcpu, msr_base + offset,
++						   MSR_TYPE_W, false);
 +	}
 +
-+	kvmi_arch_save_injected_event(vcpu);
++	bitmap_zero(mask, KVMI_NUM_MSR);
 +}
 +
-+static u32 kvmi_send_trap(struct kvm_vcpu *vcpu, u8 nr,
-+			  u32 error_code, u64 addr)
+ int kvmi_arch_cmd_control_intercept(struct kvm_vcpu *vcpu,
+ 				    unsigned int event_id, bool enable)
+ {
+@@ -460,9 +530,13 @@ void kvmi_arch_breakpoint_event(struct kvm_vcpu *vcpu, u64 gva, u8 insn_len)
+ 
+ static void kvmi_arch_restore_interception(struct kvm_vcpu *vcpu)
+ {
++	struct kvmi_interception *arch_vcpui = vcpu->arch.kvmi;
++
+ 	kvmi_arch_disable_bp_intercept(vcpu);
+ 	kvmi_arch_disable_cr3w_intercept(vcpu);
+ 	kvmi_arch_disable_desc_intercept(vcpu);
++	kvmi_arch_disable_msr_intercept(vcpu, arch_vcpui->msrw.kvmi_mask.low);
++	kvmi_arch_disable_msr_intercept(vcpu, arch_vcpui->msrw.kvmi_mask.high);
+ }
+ 
+ bool kvmi_arch_clean_up_interception(struct kvm_vcpu *vcpu)
+@@ -911,3 +985,88 @@ bool kvmi_descriptor_event(struct kvm_vcpu *vcpu, u8 descriptor, bool write)
+ 	return ret;
+ }
+ EXPORT_SYMBOL(kvmi_descriptor_event);
++
++int kvmi_arch_cmd_vcpu_control_msr(struct kvm_vcpu *vcpu,
++				   const struct kvmi_vcpu_control_msr *req)
 +{
-+	struct kvmi_event_trap e;
++	if (req->padding1 || req->padding2 || req->enable > 1)
++		return -KVM_EINVAL;
++
++	if (!kvmi_msr_valid(req->msr))
++		return -KVM_EINVAL;
++
++	kvm_x86_ops.control_msr_intercept(vcpu, req->msr, MSR_TYPE_W,
++					  req->enable == 1);
++	msr_control(vcpu, req->msr, req->enable);
++
++	return 0;
++}
++
++static u32 kvmi_send_msr(struct kvm_vcpu *vcpu, u32 msr, u64 old_value,
++			 u64 new_value, u64 *ret_value)
++{
++	struct kvmi_event_msr e;
++	struct kvmi_event_msr_reply r;
 +	int err, action;
 +
 +	memset(&e, 0, sizeof(e));
-+	e.nr = nr;
-+	e.error_code = error_code;
-+	e.address = addr;
++	e.msr = msr;
++	e.old_value = old_value;
++	e.new_value = new_value;
 +
-+	err = __kvmi_send_event(vcpu, KVMI_EVENT_TRAP, &e, sizeof(e),
-+				NULL, 0, &action);
++	err = kvmi_send_event(vcpu, KVMI_EVENT_MSR, &e, sizeof(e),
++			      &r, sizeof(r), &action);
 +	if (err)
 +		return KVMI_EVENT_ACTION_CONTINUE;
 +
++	*ret_value = r.new_val;
 +	return action;
 +}
 +
-+void kvmi_arch_send_trap_event(struct kvm_vcpu *vcpu)
++static bool __kvmi_msr_event(struct kvm_vcpu *vcpu, struct msr_data *msr)
 +{
-+	struct kvm_vcpu_introspection *vcpui = VCPUI(vcpu);
++	struct msr_data old_msr = {
++		.host_initiated = true,
++		.index = msr->index,
++	};
++	bool ret = false;
++	u64 ret_value = msr->data;
 +	u32 action;
 +
-+	action = kvmi_send_trap(vcpu, vcpui->exception.nr,
-+				vcpui->exception.error_code,
-+				vcpui->exception.address);
++	if (!test_msr_mask(vcpu, msr->index))
++		return true;
++	if (kvm_x86_ops.get_msr(vcpu, &old_msr))
++		return true;
++	if (old_msr.data == msr->data)
++		return true;
 +
++	action = kvmi_send_msr(vcpu, msr->index, old_msr.data, msr->data,
++			       &ret_value);
 +	switch (action) {
 +	case KVMI_EVENT_ACTION_CONTINUE:
++		msr->data = ret_value;
++		ret = true;
 +		break;
 +	default:
 +		kvmi_handle_common_event_actions(vcpu->kvm, action);
 +	}
-+}
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index a12aa8e125d3..af987ad1a174 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -8566,6 +8566,9 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
- 		goto cancel_injection;
- 	}
- 
-+	if (!kvmi_enter_guest(vcpu))
-+		req_immediate_exit = true;
 +
- 	if (req_immediate_exit) {
- 		kvm_make_request(KVM_REQ_EVENT, vcpu);
- 		kvm_x86_ops.request_immediate_exit(vcpu);
-diff --git a/include/linux/kvmi_host.h b/include/linux/kvmi_host.h
-index 01219c56d042..1fae589d9d35 100644
---- a/include/linux/kvmi_host.h
-+++ b/include/linux/kvmi_host.h
-@@ -36,6 +36,15 @@ struct kvm_vcpu_introspection {
- 
- 	struct kvm_regs delayed_regs;
- 	bool have_delayed_regs;
-+
-+	struct {
-+		u8 nr;
-+		u32 error_code;
-+		bool error_code_valid;
-+		u64 address;
-+		bool pending;
-+		bool send_event;
-+	} exception;
- };
- 
- struct kvm_introspection {
-@@ -76,6 +85,7 @@ int kvmi_ioctl_preunhook(struct kvm *kvm);
- void kvmi_handle_requests(struct kvm_vcpu *vcpu);
- bool kvmi_hypercall_event(struct kvm_vcpu *vcpu);
- bool kvmi_breakpoint_event(struct kvm_vcpu *vcpu, u64 gva, u8 insn_len);
-+bool kvmi_enter_guest(struct kvm_vcpu *vcpu);
- 
- #else
- 
-@@ -90,6 +100,8 @@ static inline bool kvmi_hypercall_event(struct kvm_vcpu *vcpu) { return false; }
- static inline bool kvmi_breakpoint_event(struct kvm_vcpu *vcpu, u64 gva,
- 					 u8 insn_len)
- 			{ return true; }
-+static inline bool kvmi_enter_guest(struct kvm_vcpu *vcpu)
-+			{ return true; }
- 
- #endif /* CONFIG_KVM_INTROSPECTION */
- 
-diff --git a/include/uapi/linux/kvmi.h b/include/uapi/linux/kvmi.h
-index e31b474e3496..faf4624d7a97 100644
---- a/include/uapi/linux/kvmi.h
-+++ b/include/uapi/linux/kvmi.h
-@@ -34,7 +34,8 @@ enum {
- 
- 	KVMI_VM_CONTROL_CLEANUP = 14,
- 
--	KVMI_VCPU_CONTROL_CR = 15,
-+	KVMI_VCPU_CONTROL_CR       = 15,
-+	KVMI_VCPU_INJECT_EXCEPTION = 16,
- 
- 	KVMI_NUM_MESSAGES
- };
-@@ -45,6 +46,7 @@ enum {
- 	KVMI_EVENT_HYPERCALL  = 2,
- 	KVMI_EVENT_BREAKPOINT = 3,
- 	KVMI_EVENT_CR         = 4,
-+	KVMI_EVENT_TRAP       = 5,
- 
- 	KVMI_NUM_EVENTS
- };
-@@ -162,4 +164,20 @@ struct kvmi_event_reply {
- 	__u32 padding2;
- };
- 
-+struct kvmi_event_trap {
-+	__u8 nr;
-+	__u8 padding1;
-+	__u16 padding2;
-+	__u32 error_code;
-+	__u64 address;
-+};
-+
-+struct kvmi_vcpu_inject_exception {
-+	__u8 nr;
-+	__u8 padding1;
-+	__u16 padding2;
-+	__u32 error_code;
-+	__u64 address;
-+};
-+
- #endif /* _UAPI__LINUX_KVMI_H */
-diff --git a/tools/testing/selftests/kvm/x86_64/kvmi_test.c b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-index 7694fa8fef89..9abf4ec0d09a 100644
---- a/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-+++ b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-@@ -45,6 +45,8 @@ struct vcpu_worker_data {
- 	int vcpu_id;
- 	int test_id;
- 	bool stop;
-+	bool shutdown;
-+	bool restart_on_shutdown;
- };
- 
- enum {
-@@ -687,11 +689,19 @@ static void *vcpu_worker(void *data)
- 
- 		vcpu_run(ctx->vm, ctx->vcpu_id);
- 
--		TEST_ASSERT(run->exit_reason == KVM_EXIT_IO,
-+		TEST_ASSERT(run->exit_reason == KVM_EXIT_IO
-+			|| (run->exit_reason == KVM_EXIT_SHUTDOWN
-+				&& ctx->shutdown),
- 			"vcpu_run() failed, test_id %d, exit reason %u (%s)\n",
- 			ctx->test_id, run->exit_reason,
- 			exit_reason_str(run->exit_reason));
- 
-+		if (run->exit_reason == KVM_EXIT_SHUTDOWN) {
-+			if (ctx->restart_on_shutdown)
-+				continue;
-+			break;
-+		}
-+
- 		TEST_ASSERT(get_ucall(ctx->vm, ctx->vcpu_id, &uc),
- 			"No guest request\n");
- 
-@@ -1308,6 +1318,108 @@ static void test_cmd_vcpu_control_cr(struct kvm_vm *vm)
- 	test_invalid_vcpu_control_cr(vm);
- }
- 
-+static void __inject_exception(int nr)
-+{
-+	struct {
-+		struct kvmi_msg_hdr hdr;
-+		struct kvmi_vcpu_hdr vcpu_hdr;
-+		struct kvmi_vcpu_inject_exception cmd;
-+	} req = {};
-+	int r;
-+
-+	req.cmd.nr = nr;
-+
-+	r = __do_vcpu0_command(KVMI_VCPU_INJECT_EXCEPTION,
-+			       &req.hdr, sizeof(req), NULL, 0);
-+	TEST_ASSERT(r == 0,
-+		"KVMI_VCPU_INJECT_EXCEPTION failed, error %d(%s)\n",
-+		-r, kvm_strerror(-r));
++	return ret;
 +}
 +
-+static void receive_exception_event(int nr)
++bool kvmi_msr_event(struct kvm_vcpu *vcpu, struct msr_data *msr)
 +{
-+	struct kvmi_msg_hdr hdr;
-+	struct {
-+		struct kvmi_event common;
-+		struct kvmi_event_trap trap;
-+	} ev;
-+	struct vcpu_reply rpl = {};
-+
-+	receive_event(&hdr, &ev.common, sizeof(ev), KVMI_EVENT_TRAP);
-+
-+	pr_info("Exception event: vector %u, error_code 0x%x, address 0x%llx\n",
-+		ev.trap.nr, ev.trap.error_code, ev.trap.address);
-+
-+	TEST_ASSERT(ev.trap.nr == nr,
-+		"Injected exception %u instead of %u\n",
-+		ev.trap.nr, nr);
-+
-+	reply_to_event(&hdr, &ev.common, KVMI_EVENT_ACTION_CONTINUE,
-+			&rpl, sizeof(rpl));
-+}
-+
-+static void test_succeded_ud_injection(void)
-+{
-+	__u8 ud_vector = 6;
-+
-+	__inject_exception(ud_vector);
-+
-+	receive_exception_event(ud_vector);
-+}
-+
-+static void test_failed_ud_injection(struct kvm_vm *vm,
-+				     struct vcpu_worker_data *data)
-+{
-+	struct kvmi_msg_hdr hdr;
-+	struct {
-+		struct kvmi_event common;
-+		struct kvmi_event_breakpoint bp;
-+	} ev;
-+	struct vcpu_reply rpl = {};
-+	__u8 ud_vector = 6, bp_vector = 3;
-+
-+	WRITE_ONCE(data->test_id, GUEST_TEST_BP);
-+
-+	receive_event(&hdr, &ev.common, sizeof(ev), KVMI_EVENT_BREAKPOINT);
-+
-+	/* skip the breakpoint instruction, next time guest_bp_test() runs */
-+	ev.common.arch.regs.rip += ev.bp.insn_len;
-+	__set_registers(vm, &ev.common.arch.regs);
-+
-+	__inject_exception(ud_vector);
-+
-+	/* reinject the #BP exception because of the continue action */
-+	reply_to_event(&hdr, &ev.common, KVMI_EVENT_ACTION_CONTINUE,
-+			&rpl, sizeof(rpl));
-+
-+	receive_exception_event(bp_vector);
-+}
-+
-+static void test_cmd_vcpu_inject_exception(struct kvm_vm *vm)
-+{
-+	struct vcpu_worker_data data = {
-+		.vm = vm,
-+		.vcpu_id = VCPU_ID,
-+		.shutdown = true,
-+		.restart_on_shutdown = true,
-+	};
-+	pthread_t vcpu_thread;
-+
-+	if (!is_intel_cpu()) {
-+		print_skip("TODO: %s() - make it work with AMD", __func__);
-+		return;
-+	}
-+
-+	enable_vcpu_event(vm, KVMI_EVENT_BREAKPOINT);
-+	vcpu_thread = start_vcpu_worker(&data);
-+
-+	test_succeded_ud_injection();
-+	test_failed_ud_injection(vm, &data);
-+
-+	stop_vcpu_worker(vcpu_thread, &data);
-+	disable_vcpu_event(vm, KVMI_EVENT_BREAKPOINT);
-+}
-+
- static void test_introspection(struct kvm_vm *vm)
- {
- 	srandom(time(0));
-@@ -1332,6 +1444,7 @@ static void test_introspection(struct kvm_vm *vm)
- 	test_event_breakpoint(vm);
- 	test_cmd_vm_control_cleanup(vm);
- 	test_cmd_vcpu_control_cr(vm);
-+	test_cmd_vcpu_inject_exception(vm);
- 
- 	unhook_introspection(vm);
- }
-diff --git a/virt/kvm/introspection/kvmi.c b/virt/kvm/introspection/kvmi.c
-index 2dd82aa5e11c..d4b39d0800ee 100644
---- a/virt/kvm/introspection/kvmi.c
-+++ b/virt/kvm/introspection/kvmi.c
-@@ -101,6 +101,7 @@ static void setup_known_events(void)
- 	set_bit(KVMI_EVENT_CR, Kvmi_known_vcpu_events);
- 	set_bit(KVMI_EVENT_HYPERCALL, Kvmi_known_vcpu_events);
- 	set_bit(KVMI_EVENT_PAUSE_VCPU, Kvmi_known_vcpu_events);
-+	set_bit(KVMI_EVENT_TRAP, Kvmi_known_vcpu_events);
- 
- 	bitmap_or(Kvmi_known_events, Kvmi_known_vm_events,
- 		  Kvmi_known_vcpu_events, KVMI_NUM_EVENTS);
-@@ -855,6 +856,16 @@ static void kvmi_vcpu_pause_event(struct kvm_vcpu *vcpu)
- 	}
- }
- 
-+void kvmi_send_pending_event(struct kvm_vcpu *vcpu)
-+{
-+	struct kvm_vcpu_introspection *vcpui = VCPUI(vcpu);
-+
-+	if (vcpui->exception.send_event) {
-+		vcpui->exception.send_event = false;
-+		kvmi_arch_send_trap_event(vcpu);
-+	}
-+}
-+
- void kvmi_handle_requests(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_vcpu_introspection *vcpui = VCPUI(vcpu);
-@@ -864,6 +875,8 @@ void kvmi_handle_requests(struct kvm_vcpu *vcpu)
- 	if (!kvmi)
- 		goto out;
- 
-+	kvmi_send_pending_event(vcpu);
-+
- 	for (;;) {
- 		kvmi_run_jobs(vcpu);
- 
-@@ -962,3 +975,35 @@ bool kvmi_breakpoint_event(struct kvm_vcpu *vcpu, u64 gva, u8 insn_len)
- 	return ret;
- }
- EXPORT_SYMBOL(kvmi_breakpoint_event);
-+
-+static void kvmi_inject_pending_exception(struct kvm_vcpu *vcpu)
-+{
-+	struct kvm_vcpu_introspection *vcpui = VCPUI(vcpu);
-+
-+	kvmi_arch_inject_exception(vcpu);
-+
-+	vcpui->exception.pending = false;
-+	vcpui->exception.send_event = true;
-+	kvm_make_request(KVM_REQ_INTROSPECTION, vcpu);
-+}
-+
-+bool kvmi_enter_guest(struct kvm_vcpu *vcpu)
-+{
-+	struct kvm_vcpu_introspection *vcpui;
 +	struct kvm_introspection *kvmi;
-+	bool r = true;
++	bool ret = true;
 +
 +	kvmi = kvmi_get(vcpu->kvm);
 +	if (!kvmi)
 +		return true;
 +
-+	vcpui = VCPUI(vcpu);
-+
-+	if (vcpui->exception.pending) {
-+		kvmi_inject_pending_exception(vcpu);
-+		r = false;
-+	}
++	if (is_event_enabled(vcpu, KVMI_EVENT_MSR))
++		ret = __kvmi_msr_event(vcpu, msr);
 +
 +	kvmi_put(vcpu->kvm);
-+	return r;
++
++	return ret;
 +}
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index c3557a11817f..0add0b0b8f2d 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -1530,6 +1530,9 @@ static int __kvm_set_msr(struct kvm_vcpu *vcpu, u32 index, u64 data,
+ 	msr.index = index;
+ 	msr.host_initiated = host_initiated;
+ 
++	if (!host_initiated && !kvmi_msr_event(vcpu, &msr))
++		return 1;
++
+ 	return kvm_x86_ops.set_msr(vcpu, &msr);
+ }
+ 
+diff --git a/include/uapi/linux/kvmi.h b/include/uapi/linux/kvmi.h
+index f2e802d2b712..2872f90ff092 100644
+--- a/include/uapi/linux/kvmi.h
++++ b/include/uapi/linux/kvmi.h
+@@ -43,6 +43,7 @@ enum {
+ 	KVMI_VCPU_GET_XSAVE     = 19,
+ 	KVMI_VCPU_SET_XSAVE     = 20,
+ 	KVMI_VCPU_GET_MTRR_TYPE = 21,
++	KVMI_VCPU_CONTROL_MSR   = 22,
+ 
+ 	KVMI_NUM_MESSAGES
+ };
+@@ -56,6 +57,7 @@ enum {
+ 	KVMI_EVENT_TRAP       = 5,
+ 	KVMI_EVENT_XSETBV     = 6,
+ 	KVMI_EVENT_DESCRIPTOR = 7,
++	KVMI_EVENT_MSR        = 8,
+ 
+ 	KVMI_NUM_EVENTS
+ };
+diff --git a/tools/testing/selftests/kvm/x86_64/kvmi_test.c b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
+index 0087b91574f0..0ddc0029e3e5 100644
+--- a/tools/testing/selftests/kvm/x86_64/kvmi_test.c
++++ b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
+@@ -57,6 +57,7 @@ enum {
+ 	GUEST_TEST_CR,
+ 	GUEST_TEST_DESCRIPTOR,
+ 	GUEST_TEST_HYPERCALL,
++	GUEST_TEST_MSR,
+ 	GUEST_TEST_XSETBV,
+ };
+ 
+@@ -101,6 +102,15 @@ static void guest_hypercall_test(void)
+ 	asm volatile(".byte 0x0f,0x01,0xc1");
+ }
+ 
++static void guest_msr_test(void)
++{
++	uint64_t msr;
++
++	msr = rdmsr(MSR_MISC_FEATURES_ENABLES);
++	msr |= 1; /* MSR_MISC_FEATURES_ENABLES_CPUID_FAULT */
++	wrmsr(MSR_MISC_FEATURES_ENABLES, msr);
++}
++
+ /* from fpu/internal.h */
+ static u64 xgetbv(u32 index)
+ {
+@@ -158,6 +168,9 @@ static void guest_code(void)
+ 		case GUEST_TEST_HYPERCALL:
+ 			guest_hypercall_test();
+ 			break;
++		case GUEST_TEST_MSR:
++			guest_msr_test();
++			break;
+ 		case GUEST_TEST_XSETBV:
+ 			guest_xsetbv_test();
+ 			break;
+@@ -1691,6 +1704,111 @@ static void test_event_descriptor(struct kvm_vm *vm)
+ 	disable_vcpu_event(vm, event_id);
+ }
+ 
++static void cmd_control_msr(struct kvm_vm *vm, __u32 msr, __u8 enable,
++			    __u8 padding, int expected_err)
++{
++	struct {
++		struct kvmi_msg_hdr hdr;
++		struct kvmi_vcpu_hdr vcpu_hdr;
++		struct kvmi_vcpu_control_msr cmd;
++	} req = {};
++	int r;
++
++	req.cmd.msr = msr;
++	req.cmd.enable = enable;
++	req.cmd.padding1 = padding;
++	req.cmd.padding2 = padding;
++
++	r = do_vcpu0_command(vm, KVMI_VCPU_CONTROL_MSR, &req.hdr, sizeof(req),
++			     NULL, 0);
++	TEST_ASSERT(r == expected_err,
++		"KVMI_VCPU_CONTROL_MSR failed, error %d(%s), expected error %d\n",
++		-r, kvm_strerror(-r), expected_err);
++}
++
++static void enable_msr_events(struct kvm_vm *vm, __u32 msr)
++{
++	enable_vcpu_event(vm, KVMI_EVENT_MSR);
++	cmd_control_msr(vm, msr, 1, 0, 0);
++}
++
++static void disable_msr_events(struct kvm_vm *vm, __u32 msr)
++{
++	cmd_control_msr(vm, msr, 0, 0, 0);
++	disable_vcpu_event(vm, KVMI_EVENT_MSR);
++}
++
++static void handle_msr_event(struct kvm_vm *vm, __u16 event_id, __u32 msr,
++			     __u64 *old_value)
++{
++	struct kvmi_msg_hdr hdr;
++	struct {
++		struct kvmi_event common;
++		struct kvmi_event_msr msr;
++	} ev;
++	struct {
++		struct vcpu_reply common;
++		struct kvmi_event_msr_reply msr;
++	} rpl = {};
++
++	receive_event(&hdr, &ev.common, sizeof(ev), event_id);
++
++	pr_info("MSR 0x%x, old 0x%llx, new 0x%llx\n",
++		ev.msr.msr, ev.msr.old_value, ev.msr.new_value);
++
++	TEST_ASSERT(ev.msr.msr == msr,
++		"Unexpected MSR event, received MSR 0x%x, expected MSR 0x%x",
++		ev.msr.msr, msr);
++
++	*old_value = rpl.msr.new_val = ev.msr.old_value;
++
++	reply_to_event(&hdr, &ev.common, KVMI_EVENT_ACTION_CONTINUE,
++			&rpl.common, sizeof(rpl));
++}
++
++static void test_invalid_control_msr(struct kvm_vm *vm, __u32 msr)
++{
++	__u8 enable = 1, enable_inval = 2;
++	__u8 no_padding = 0, padding = 1;
++	int expected_err = -KVM_EINVAL;
++	__u32 msr_inval = -1;
++
++	cmd_control_msr(vm, msr, enable_inval, no_padding, expected_err);
++	cmd_control_msr(vm, msr, enable, padding, expected_err);
++	cmd_control_msr(vm, msr_inval, enable, no_padding, expected_err);
++}
++
++static void test_cmd_vcpu_control_msr(struct kvm_vm *vm)
++{
++	struct vcpu_worker_data data = {
++		.vm = vm,
++		.vcpu_id = VCPU_ID,
++		.test_id = GUEST_TEST_MSR,
++	};
++	__u16 event_id = KVMI_EVENT_MSR;
++	__u32 msr = MSR_MISC_FEATURES_ENABLES;
++	pthread_t vcpu_thread;
++	uint64_t msr_data;
++	__u64 old_value;
++
++	enable_msr_events(vm, msr);
++
++	vcpu_thread = start_vcpu_worker(&data);
++
++	handle_msr_event(vm, event_id, msr, &old_value);
++
++	stop_vcpu_worker(vcpu_thread, &data);
++
++	disable_msr_events(vm, msr);
++
++	msr_data = vcpu_get_msr(vm, VCPU_ID, msr);
++	TEST_ASSERT(msr_data == old_value,
++		"Failed to block MSR 0x%x update, value 0x%lx, expected 0x%llx",
++		msr, msr_data, old_value);
++
++	test_invalid_control_msr(vm, msr);
++}
++
+ static void test_introspection(struct kvm_vm *vm)
+ {
+ 	srandom(time(0));
+@@ -1722,6 +1840,7 @@ static void test_introspection(struct kvm_vm *vm)
+ 	test_cmd_vcpu_xsave(vm);
+ 	test_cmd_vcpu_get_mtrr_type(vm);
+ 	test_event_descriptor(vm);
++	test_cmd_vcpu_control_msr(vm);
+ 
+ 	unhook_introspection(vm);
+ }
+diff --git a/virt/kvm/introspection/kvmi.c b/virt/kvm/introspection/kvmi.c
+index a1bc9570ac1c..aa8a0708cc1c 100644
+--- a/virt/kvm/introspection/kvmi.c
++++ b/virt/kvm/introspection/kvmi.c
+@@ -101,6 +101,7 @@ static void setup_known_events(void)
+ 	set_bit(KVMI_EVENT_CR, Kvmi_known_vcpu_events);
+ 	set_bit(KVMI_EVENT_DESCRIPTOR, Kvmi_known_vcpu_events);
+ 	set_bit(KVMI_EVENT_HYPERCALL, Kvmi_known_vcpu_events);
++	set_bit(KVMI_EVENT_MSR, Kvmi_known_vcpu_events);
+ 	set_bit(KVMI_EVENT_PAUSE_VCPU, Kvmi_known_vcpu_events);
+ 	set_bit(KVMI_EVENT_TRAP, Kvmi_known_vcpu_events);
+ 	set_bit(KVMI_EVENT_XSETBV, Kvmi_known_vcpu_events);
 diff --git a/virt/kvm/introspection/kvmi_int.h b/virt/kvm/introspection/kvmi_int.h
-index c206376eb0ad..51c03097a7d5 100644
+index a9664d255d6d..8f8557bd8ab0 100644
 --- a/virt/kvm/introspection/kvmi_int.h
 +++ b/virt/kvm/introspection/kvmi_int.h
-@@ -34,6 +34,9 @@ bool kvmi_msg_process(struct kvm_introspection *kvmi);
- int kvmi_send_event(struct kvm_vcpu *vcpu, u32 ev_id,
- 		    void *ev, size_t ev_size,
- 		    void *rpl, size_t rpl_size, int *action);
-+int __kvmi_send_event(struct kvm_vcpu *vcpu, u32 ev_id,
-+		      void *ev, size_t ev_size,
-+		      void *rpl, size_t rpl_size, int *action);
- int kvmi_msg_send_unhook(struct kvm_introspection *kvmi);
- u32 kvmi_msg_send_vcpu_pause(struct kvm_vcpu *vcpu);
- u32 kvmi_msg_send_hypercall(struct kvm_vcpu *vcpu);
-@@ -55,6 +58,7 @@ void kvmi_handle_common_event_actions(struct kvm *kvm, u32 action);
- void kvmi_cmd_vm_control_cleanup(struct kvm_introspection *kvmi, bool enable);
- struct kvm_introspection * __must_check kvmi_get(struct kvm *kvm);
- void kvmi_put(struct kvm *kvm);
-+void kvmi_send_pending_event(struct kvm_vcpu *vcpu);
- int kvmi_cmd_vm_control_events(struct kvm_introspection *kvmi,
- 				unsigned int event_id, bool enable);
- int kvmi_cmd_vcpu_control_events(struct kvm_vcpu *vcpu,
-@@ -97,5 +101,9 @@ int kvmi_arch_cmd_control_intercept(struct kvm_vcpu *vcpu,
- 				    unsigned int event_id, bool enable);
- int kvmi_arch_cmd_vcpu_control_cr(struct kvm_vcpu *vcpu,
- 				  const struct kvmi_vcpu_control_cr *req);
-+int kvmi_arch_cmd_vcpu_inject_exception(struct kvm_vcpu *vcpu, u8 vector,
-+					u32 error_code, u64 address);
-+void kvmi_arch_send_trap_event(struct kvm_vcpu *vcpu);
-+void kvmi_arch_inject_exception(struct kvm_vcpu *vcpu);
+@@ -115,5 +115,7 @@ int kvmi_arch_cmd_vcpu_set_xsave(struct kvm_vcpu *vcpu,
+ 				 const struct kvmi_vcpu_set_xsave *req,
+ 				 size_t req_size);
+ int kvmi_arch_cmd_vcpu_get_mtrr_type(struct kvm_vcpu *vcpu, u64 gpa, u8 *type);
++int kvmi_arch_cmd_vcpu_control_msr(struct kvm_vcpu *vcpu,
++				   const struct kvmi_vcpu_control_msr *req);
  
  #endif
 diff --git a/virt/kvm/introspection/kvmi_msg.c b/virt/kvm/introspection/kvmi_msg.c
-index 330fad27e1df..63efb85ff1ae 100644
+index 36819b54b3a0..d9cbbefb9993 100644
 --- a/virt/kvm/introspection/kvmi_msg.c
 +++ b/virt/kvm/introspection/kvmi_msg.c
-@@ -492,6 +492,25 @@ static int handle_vcpu_control_cr(const struct kvmi_vcpu_msg_job *job,
- 	return kvmi_msg_vcpu_reply(job, msg, ec, NULL, 0);
+@@ -584,6 +584,17 @@ static int handle_vcpu_get_mtrr_type(const struct kvmi_vcpu_msg_job *job,
+ 	return kvmi_msg_vcpu_reply(job, msg, ec, &rpl, sizeof(rpl));
  }
  
-+static int handle_vcpu_inject_exception(const struct kvmi_vcpu_msg_job *job,
-+					const struct kvmi_msg_hdr *msg,
-+					const void *_req)
++static int handle_vcpu_control_msr(const struct kvmi_vcpu_msg_job *job,
++				   const struct kvmi_msg_hdr *msg,
++				   const void *req)
 +{
-+	const struct kvmi_vcpu_inject_exception *req = _req;
 +	int ec;
 +
-+	if (!is_event_allowed(KVMI(job->vcpu->kvm), KVMI_EVENT_TRAP))
-+		ec = -KVM_EPERM;
-+	else if (req->padding1 || req->padding2)
-+		ec = -KVM_EINVAL;
-+	else
-+		ec = kvmi_arch_cmd_vcpu_inject_exception(job->vcpu, req->nr,
-+							 req->error_code,
-+							 req->address);
++	ec = kvmi_arch_cmd_vcpu_control_msr(job->vcpu, req);
 +
 +	return kvmi_msg_vcpu_reply(job, msg, ec, NULL, 0);
 +}
@@ -628,55 +632,11 @@ index 330fad27e1df..63efb85ff1ae 100644
  /*
   * These functions are executed from the vCPU thread. The receiving thread
   * passes the messages using a newly allocated 'struct kvmi_vcpu_msg_job'
-@@ -500,13 +519,14 @@ static int handle_vcpu_control_cr(const struct kvmi_vcpu_msg_job *job,
-  */
- static int(*const msg_vcpu[])(const struct kvmi_vcpu_msg_job *,
- 			      const struct kvmi_msg_hdr *, const void *) = {
--	[KVMI_EVENT]               = handle_vcpu_event_reply,
--	[KVMI_VCPU_CONTROL_CR]     = handle_vcpu_control_cr,
--	[KVMI_VCPU_CONTROL_EVENTS] = handle_vcpu_control_events,
--	[KVMI_VCPU_GET_CPUID]      = handle_vcpu_get_cpuid,
--	[KVMI_VCPU_GET_INFO]       = handle_vcpu_get_info,
--	[KVMI_VCPU_GET_REGISTERS]  = handle_vcpu_get_registers,
--	[KVMI_VCPU_SET_REGISTERS]  = handle_vcpu_set_registers,
-+	[KVMI_EVENT]                 = handle_vcpu_event_reply,
-+	[KVMI_VCPU_CONTROL_CR]       = handle_vcpu_control_cr,
-+	[KVMI_VCPU_CONTROL_EVENTS]   = handle_vcpu_control_events,
-+	[KVMI_VCPU_GET_CPUID]        = handle_vcpu_get_cpuid,
-+	[KVMI_VCPU_GET_INFO]         = handle_vcpu_get_info,
-+	[KVMI_VCPU_GET_REGISTERS]    = handle_vcpu_get_registers,
-+	[KVMI_VCPU_INJECT_EXCEPTION] = handle_vcpu_inject_exception,
-+	[KVMI_VCPU_SET_REGISTERS]    = handle_vcpu_set_registers,
- };
- 
- static bool is_vcpu_command(u16 id)
-@@ -770,9 +790,9 @@ static void kvmi_setup_vcpu_reply(struct kvm_vcpu_introspection *vcpui,
- 	vcpui->waiting_for_reply = true;
- }
- 
--int kvmi_send_event(struct kvm_vcpu *vcpu, u32 ev_id,
--		    void *ev, size_t ev_size,
--		    void *rpl, size_t rpl_size, int *action)
-+int __kvmi_send_event(struct kvm_vcpu *vcpu, u32 ev_id,
-+		      void *ev, size_t ev_size,
-+		      void *rpl, size_t rpl_size, int *action)
- {
- 	struct kvmi_msg_hdr hdr;
- 	struct kvmi_event common;
-@@ -812,6 +832,16 @@ int kvmi_send_event(struct kvm_vcpu *vcpu, u32 ev_id,
- 	return err;
- }
- 
-+int kvmi_send_event(struct kvm_vcpu *vcpu, u32 ev_id,
-+		    void *ev, size_t ev_size,
-+		    void *rpl, size_t rpl_size, int *action)
-+{
-+	kvmi_send_pending_event(vcpu);
-+
-+	return __kvmi_send_event(vcpu, ev_id, ev, ev_size,
-+				 rpl, rpl_size, action);
-+}
-+
- u32 kvmi_msg_send_vcpu_pause(struct kvm_vcpu *vcpu)
- {
- 	int err, action;
+@@ -595,6 +606,7 @@ static int(*const msg_vcpu[])(const struct kvmi_vcpu_msg_job *,
+ 	[KVMI_EVENT]                 = handle_vcpu_event_reply,
+ 	[KVMI_VCPU_CONTROL_CR]       = handle_vcpu_control_cr,
+ 	[KVMI_VCPU_CONTROL_EVENTS]   = handle_vcpu_control_events,
++	[KVMI_VCPU_CONTROL_MSR]      = handle_vcpu_control_msr,
+ 	[KVMI_VCPU_GET_CPUID]        = handle_vcpu_get_cpuid,
+ 	[KVMI_VCPU_GET_INFO]         = handle_vcpu_get_info,
+ 	[KVMI_VCPU_GET_MTRR_TYPE]    = handle_vcpu_get_mtrr_type,
