@@ -1,70 +1,56 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v2] virtio_ring: use alloc_pages_node for NUMA-aware
- allocation
-Date: Tue, 21 Jul 2020 04:18:51 -0400
-Message-ID: <20200721041550-mutt-send-email-mst@kernel.org>
-References: <20200721070013.62894-1-shile.zhang@linux.alibaba.com>
+From: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH v1 0/6] mm / virtio-mem: support ZONE_MOVABLE
+Date: Tue, 21 Jul 2020 11:59:08 +0200
+Message-ID: <cbf39311-6992-84ee-725a-5c738f6afb9e@redhat.com>
+References: <20200630142639.22770-1-david@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-pci-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200721070013.62894-1-shile.zhang@linux.alibaba.com>
-Sender: linux-pci-owner@vger.kernel.org
-To: Shile Zhang <shile.zhang@linux.alibaba.com>
-Cc: Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kernel test robot <lkp@intel.com>, Jiang Liu <liuj97@gmail.com>, linux-pci@vger.kernel.org, bhelgaas@google.com
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200630142639.22770-1-david@redhat.com>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, linux-mm@kvack.org, Andrew Morton <akpm@linux-foundation.org>, Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Michal Hocko <mhocko@suse.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, Jul 21, 2020 at 03:00:13PM +0800, Shile Zhang wrote:
-> Use alloc_pages_node() allocate memory for vring queue with proper
-> NUMA affinity.
+On 30.06.20 16:26, David Hildenbrand wrote:
+> Currently, virtio-mem does not really support ZONE_MOVABLE. While it allows
+> to online fully plugged memory blocks to ZONE_MOVABLE, it does not allow
+> to online partially-plugged memory blocks to ZONE_MOVABLE and will never
+> consider such memory blocks when unplugging memory. This might be
+> surprising for users (especially, if onlining suddenly fails).
 > 
-> Reported-by: kernel test robot <lkp@intel.com>
-> Suggested-by: Jiang Liu <liuj97@gmail.com>
-> Signed-off-by: Shile Zhang <shile.zhang@linux.alibaba.com>
-
-Do you observe any performance gains from this patch?
-
-I also wonder why isn't the probe code run on the correct numa node?
-That would fix a wide class of issues like this without need to tweak
-drivers.
-
-Bjorn, what do you think? Was this considered?
-
-> ---
-> Changelog
-> v1 -> v2:
-> - fixed compile warning reported by LKP.
-> ---
->  drivers/virtio/virtio_ring.c | 10 ++++++----
->  1 file changed, 6 insertions(+), 4 deletions(-)
+> Let's support partially plugged memory blocks in ZONE_MOVABLE, allowing
+> partially plugged memory blocks to be online to ZONE_MOVABLE and also
+> unplugging from such memory blocks.
 > 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 58b96baa8d48..d38fd6872c8c 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -276,9 +276,11 @@ static void *vring_alloc_queue(struct virtio_device *vdev, size_t size,
->  		return dma_alloc_coherent(vdev->dev.parent, size,
->  					  dma_handle, flag);
->  	} else {
-> -		void *queue = alloc_pages_exact(PAGE_ALIGN(size), flag);
-> -
-> -		if (queue) {
-> +		void *queue = NULL;
-> +		struct page *page = alloc_pages_node(dev_to_node(vdev->dev.parent),
-> +						     flag, get_order(size));
-> +		if (page) {
-> +			queue = page_address(page);
->  			phys_addr_t phys_addr = virt_to_phys(queue);
->  			*dma_handle = (dma_addr_t)phys_addr;
->  
-> @@ -308,7 +310,7 @@ static void vring_free_queue(struct virtio_device *vdev, size_t size,
->  	if (vring_use_dma_api(vdev))
->  		dma_free_coherent(vdev->dev.parent, size, queue, dma_handle);
->  	else
-> -		free_pages_exact(queue, PAGE_ALIGN(size));
-> +		free_pages((unsigned long)queue, get_order(size));
->  }
->  
->  /*
-> -- 
-> 2.24.0.rc2
+> This is especially helpful for testing, but also paves the way for
+> virtio-mem optimizations, allowing more memory to get reliably unplugged.
+> 
+> Cleanup has_unmovable_pages() and set_migratetype_isolate(), providing
+> better documentation of how ZONE_MOVABLE interacts with different kind of
+> unmovable pages (memory offlining vs. alloc_contig_range()).
+> 
+> David Hildenbrand (6):
+>   mm/page_alloc: tweak comments in has_unmovable_pages()
+>   mm/page_isolation: don't dump_page(NULL) in set_migratetype_isolate()
+>   mm/page_isolation: drop WARN_ON_ONCE() in set_migratetype_isolate()
+>   mm/page_isolation: cleanup set_migratetype_isolate()
+>   mm/page_alloc: restrict ZONE_MOVABLE optimization in
+>     has_unmovable_pages() to memory offlining
+>   virtio-mem: don't special-case ZONE_MOVABLE
+> 
+>  drivers/virtio/virtio_mem.c | 47 +++++++------------------------------
+>  mm/page_alloc.c             | 29 +++++++++--------------
+>  mm/page_isolation.c         | 40 ++++++++++++++-----------------
+>  3 files changed, 36 insertions(+), 80 deletions(-)
+> 
+
+
+Gentle ping, patch #1-#5 should be easy to review.
+
+-- 
+Thanks,
+
+David / dhildenb
