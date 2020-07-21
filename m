@@ -1,563 +1,120 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH v9 46/84] KVM: introspection: add KVMI_VM_READ_PHYSICAL/KVMI_VM_WRITE_PHYSICAL
-Date: Wed, 22 Jul 2020 00:08:44 +0300
-Message-ID: <20200721210922.7646-47-alazar@bitdefender.com>
+Subject: [PATCH v9 74/84] KVM: introspection: restore the state of
+ descriptor-table register interception on unhook
+Date: Wed, 22 Jul 2020 00:09:12 +0300
+Message-ID: <20200721210922.7646-75-alazar@bitdefender.com>
 References: <20200721210922.7646-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200721210922.7646-1-alazar@bitdefender.com>
-Sender: kvm-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Mihai Donțu <mdontu@bitdefender.com>
-
-These commands allow the introspection tool to read/write from/to
-the guest memory.
-
-Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
-Co-developed-by: Adalbert Lazăr <alazar@bitdefender.com>
-Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
----
- Documentation/virt/kvm/kvmi.rst               |  68 +++++++
- include/uapi/linux/kvmi.h                     |  17 ++
- .../testing/selftests/kvm/x86_64/kvmi_test.c  | 170 ++++++++++++++++++
- virt/kvm/introspection/kvmi.c                 | 108 +++++++++++
- virt/kvm/introspection/kvmi_int.h             |   7 +
- virt/kvm/introspection/kvmi_msg.c             |  44 +++++
- 6 files changed, 414 insertions(+)
-
-diff --git a/Documentation/virt/kvm/kvmi.rst b/Documentation/virt/kvm/kvmi.rst
-index 4ec0046b4138..be5a92e20173 100644
---- a/Documentation/virt/kvm/kvmi.rst
-+++ b/Documentation/virt/kvm/kvmi.rst
-@@ -375,6 +375,74 @@ the following events::
- * -KVM_EINVAL - the event ID is unknown (use *KVMI_VM_CHECK_EVENT* first)
- * -KVM_EPERM - the access is disallowed (use *KVMI_VM_CHECK_EVENT* first)
- 
-+6. KVMI_VM_READ_PHYSICAL
-+------------------------
-+
-+:Architectures: all
-+:Versions: >= 1
-+:Parameters:
-+
-+::
-+
-+	struct kvmi_vm_read_physical {
-+		__u64 gpa;
-+		__u16 size;
-+		__u16 padding1;
-+		__u32 padding2;
-+	};
-+
-+:Returns:
-+
-+::
-+
-+	struct kvmi_error_code;
-+	__u8 data[0];
-+
-+Reads from the guest memory.
-+
-+Currently, the size must be non-zero and the read must be restricted to
-+one page (offset + size <= PAGE_SIZE).
-+
-+:Errors:
-+
-+* -KVM_ENOENT - the guest page doesn't exists
-+* -KVM_EINVAL - the specified gpa/size pair is invalid
-+* -KVM_EINVAL - the padding is not zero
-+
-+7. KVMI_VM_WRITE_PHYSICAL
-+-------------------------
-+
-+:Architectures: all
-+:Versions: >= 1
-+:Parameters:
-+
-+::
-+
-+	struct kvmi_vm_write_physical {
-+		__u64 gpa;
-+		__u16 size;
-+		__u16 padding1;
-+		__u32 padding2;
-+		__u8  data[0];
-+	};
-+
-+:Returns:
-+
-+::
-+
-+	struct kvmi_error_code
-+
-+Writes into the guest memory.
-+
-+Currently, the size must be non-zero and the write must be restricted to
-+one page (offset + size <= PAGE_SIZE).
-+
-+:Errors:
-+
-+* -KVM_ENOENT - the guest page doesn't exists
-+* -KVM_EINVAL - the specified gpa/size pair is invalid
-+* -KVM_EINVAL - the padding is not zero
-+
- Events
- ======
- 
-diff --git a/include/uapi/linux/kvmi.h b/include/uapi/linux/kvmi.h
-index f9e2cb8a2c5e..9b2428963994 100644
---- a/include/uapi/linux/kvmi.h
-+++ b/include/uapi/linux/kvmi.h
-@@ -22,6 +22,8 @@ enum {
- 	KVMI_VM_CHECK_EVENT    = 3,
- 	KVMI_VM_GET_INFO       = 4,
- 	KVMI_VM_CONTROL_EVENTS = 5,
-+	KVMI_VM_READ_PHYSICAL  = 6,
-+	KVMI_VM_WRITE_PHYSICAL = 7,
- 
- 	KVMI_NUM_MESSAGES
- };
-@@ -82,6 +84,21 @@ struct kvmi_vm_control_events {
- 	__u32 padding2;
- };
- 
-+struct kvmi_vm_read_physical {
-+	__u64 gpa;
-+	__u16 size;
-+	__u16 padding1;
-+	__u32 padding2;
-+};
-+
-+struct kvmi_vm_write_physical {
-+	__u64 gpa;
-+	__u16 size;
-+	__u16 padding1;
-+	__u32 padding2;
-+	__u8  data[0];
-+};
-+
- struct kvmi_event {
- 	__u16 size;
- 	__u16 vcpu;
-diff --git a/tools/testing/selftests/kvm/x86_64/kvmi_test.c b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-index bb2daaca0291..97dec49d52b7 100644
---- a/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-+++ b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-@@ -8,6 +8,7 @@
- #define _GNU_SOURCE /* for program_invocation_short_name */
- #include <sys/types.h>
- #include <sys/socket.h>
-+#include <time.h>
- 
- #include "test_util.h"
- 
-@@ -24,6 +25,13 @@ static int socket_pair[2];
- #define Kvm_socket       socket_pair[0]
- #define Userspace_socket socket_pair[1]
- 
-+static vm_vaddr_t test_gva;
-+static void *test_hva;
-+static vm_paddr_t test_gpa;
-+
-+static uint8_t test_write_pattern;
-+static int page_size;
-+
- void setup_socket(void)
- {
- 	int r;
-@@ -434,8 +442,154 @@ static void test_cmd_vm_control_events(struct kvm_vm *vm)
- 	allow_event(vm, id);
- }
- 
-+static void cmd_vm_write_page(__u64 gpa, __u64 size, void *p, __u16 padding,
-+			      int expected_err)
-+{
-+	struct kvmi_vm_write_physical *cmd;
-+	struct kvmi_msg_hdr *req;
-+	size_t req_size;
-+	int r;
-+
-+	req_size = sizeof(*req) + sizeof(*cmd) + size;
-+
-+	req = calloc(1, req_size);
-+	TEST_ASSERT(req, "Insufficient Memory\n");
-+
-+	cmd = (struct kvmi_vm_write_physical *)(req + 1);
-+	cmd->gpa = gpa;
-+	cmd->size = size;
-+	cmd->padding1 = padding;
-+	cmd->padding2 = padding;
-+
-+	memcpy(cmd + 1, p, size);
-+
-+	r = do_command(KVMI_VM_WRITE_PHYSICAL, req, req_size, NULL, 0);
-+
-+	free(req);
-+
-+	TEST_ASSERT(r == expected_err,
-+		"KVMI_VM_WRITE_PHYSICAL failed, gpa 0x%llx, error %d (%s), expected error %d\n",
-+		gpa, -r, kvm_strerror(-r), expected_err);
-+}
-+
-+static void write_guest_page(__u64 gpa, void *p)
-+{
-+	cmd_vm_write_page(gpa, page_size, p, 0, 0);
-+}
-+
-+static void write_with_invalid_arguments(__u64 gpa, __u64 size, void *p)
-+{
-+	cmd_vm_write_page(gpa, size, p, 0, -KVM_EINVAL);
-+}
-+
-+static void write_with_invalid_padding(__u64 gpa, void *p)
-+{
-+	__u16 padding = 1;
-+
-+	cmd_vm_write_page(gpa, page_size, p, padding, -KVM_EINVAL);
-+}
-+
-+static void write_invalid_guest_page(struct kvm_vm *vm, void *p)
-+{
-+	__u64 gpa = vm->max_gfn << vm->page_shift;
-+	__u64 size = 1;
-+
-+	cmd_vm_write_page(gpa, size, p, 0, -KVM_ENOENT);
-+}
-+
-+static void cmd_vm_read_page(__u64 gpa, __u64 size, void *p, __u16 padding,
-+			     int expected_err)
-+{
-+	struct {
-+		struct kvmi_msg_hdr hdr;
-+		struct kvmi_vm_read_physical cmd;
-+	} req = { };
-+	int r;
-+
-+	req.cmd.gpa = gpa;
-+	req.cmd.size = size;
-+	req.cmd.padding1 = padding;
-+	req.cmd.padding2 = padding;
-+
-+	r = do_command(KVMI_VM_READ_PHYSICAL, &req.hdr, sizeof(req), p, size);
-+	TEST_ASSERT(r == expected_err,
-+		"KVMI_VM_READ_PHYSICAL failed, gpa 0x%llx, error %d (%s), expected error %d\n",
-+		gpa, -r, kvm_strerror(-r), expected_err);
-+}
-+
-+static void read_guest_page(__u64 gpa, void *p)
-+{
-+	cmd_vm_read_page(gpa, page_size, p, 0, 0);
-+}
-+
-+static void read_with_invalid_arguments(__u64 gpa, __u64 size, void *p)
-+{
-+	cmd_vm_read_page(gpa, size, p, 0, -KVM_EINVAL);
-+}
-+
-+static void read_with_invalid_padding(__u64 gpa, void *p)
-+{
-+	__u16 padding = 1;
-+
-+	cmd_vm_read_page(gpa, page_size, p, padding, -KVM_EINVAL);
-+}
-+
-+static void read_invalid_guest_page(struct kvm_vm *vm)
-+{
-+	__u64 gpa = vm->max_gfn << vm->page_shift;
-+	__u64 size = 1;
-+
-+	cmd_vm_read_page(gpa, size, NULL, 0, -KVM_ENOENT);
-+}
-+
-+static void new_test_write_pattern(struct kvm_vm *vm)
-+{
-+	uint8_t n;
-+
-+	do {
-+		n = random();
-+	} while (n == 0 || n == test_write_pattern);
-+
-+	test_write_pattern = n;
-+	sync_global_to_guest(vm, test_write_pattern);
-+}
-+
-+static void test_memory_access(struct kvm_vm *vm)
-+{
-+	void *pw, *pr;
-+
-+	new_test_write_pattern(vm);
-+
-+	pw = malloc(page_size);
-+	TEST_ASSERT(pw, "Insufficient Memory\n");
-+
-+	memset(pw, test_write_pattern, page_size);
-+
-+	write_guest_page(test_gpa, pw);
-+	TEST_ASSERT(memcmp(pw, test_hva, page_size) == 0,
-+		"Write page test failed");
-+
-+	pr = malloc(page_size);
-+	TEST_ASSERT(pr, "Insufficient Memory\n");
-+
-+	read_guest_page(test_gpa, pr);
-+	TEST_ASSERT(memcmp(pw, pr, page_size) == 0,
-+		"Read page test failed");
-+
-+	read_with_invalid_arguments(test_gpa, 0, pr);
-+	read_with_invalid_padding(test_gpa, pr);
-+	write_with_invalid_arguments(test_gpa, 0, pw);
-+	write_with_invalid_padding(test_gpa, pw);
-+	write_invalid_guest_page(vm, pw);
-+
-+	free(pw);
-+	free(pr);
-+
-+	read_invalid_guest_page(vm);
-+}
- static void test_introspection(struct kvm_vm *vm)
- {
-+	srandom(time(0));
- 	setup_socket();
- 	hook_introspection(vm);
- 
-@@ -446,10 +600,23 @@ static void test_introspection(struct kvm_vm *vm)
- 	test_cmd_vm_get_info();
- 	test_event_unhook(vm);
- 	test_cmd_vm_control_events(vm);
-+	test_memory_access(vm);
- 
- 	unhook_introspection(vm);
- }
- 
-+static void setup_test_pages(struct kvm_vm *vm)
-+{
-+	test_gva = vm_vaddr_alloc(vm, page_size, KVM_UTIL_MIN_VADDR, 0, 0);
-+
-+	sync_global_to_guest(vm, test_gva);
-+
-+	test_hva = addr_gva2hva(vm, test_gva);
-+	memset(test_hva, 0, page_size);
-+
-+	test_gpa = addr_gva2gpa(vm, test_gva);
-+}
-+
- int main(int argc, char *argv[])
- {
- 	struct kvm_vm *vm;
-@@ -462,6 +629,9 @@ int main(int argc, char *argv[])
- 	vm = vm_create_default(VCPU_ID, 0, NULL);
- 	vcpu_set_cpuid(vm, VCPU_ID, kvm_get_supported_cpuid());
- 
-+	page_size = getpagesize();
-+	setup_test_pages(vm);
-+
- 	test_introspection(vm);
- 
- 	kvm_vm_free(vm);
-diff --git a/virt/kvm/introspection/kvmi.c b/virt/kvm/introspection/kvmi.c
-index 5af6ea041035..354dea276347 100644
---- a/virt/kvm/introspection/kvmi.c
-+++ b/virt/kvm/introspection/kvmi.c
-@@ -5,6 +5,7 @@
-  * Copyright (C) 2017-2020 Bitdefender S.R.L.
-  *
-  */
-+#include <linux/mmu_context.h>
- #include <linux/kthread.h>
- #include "kvmi_int.h"
- 
-@@ -445,3 +446,110 @@ int kvmi_cmd_vm_control_events(struct kvm_introspection *kvmi,
- 
- 	return 0;
- }
-+
-+static unsigned long gfn_to_hva_safe(struct kvm *kvm, gfn_t gfn)
-+{
-+	unsigned long hva;
-+	int srcu_idx;
-+
-+	srcu_idx = srcu_read_lock(&kvm->srcu);
-+	hva = gfn_to_hva(kvm, gfn);
-+	srcu_read_unlock(&kvm->srcu, srcu_idx);
-+
-+	return hva;
-+}
-+
-+static long
-+get_user_pages_remote_unlocked(struct mm_struct *mm, unsigned long start,
-+				unsigned long nr_pages, unsigned int gup_flags,
-+				struct page **pages)
-+{
-+	struct vm_area_struct **vmas = NULL;
-+	struct task_struct *tsk = NULL;
-+	int locked = 1;
-+	long r;
-+
-+	mmap_read_lock(mm);
-+	r = get_user_pages_remote(tsk, mm, start, nr_pages, gup_flags,
-+				  pages, vmas, &locked);
-+	if (locked)
-+		mmap_read_unlock(mm);
-+
-+	return r;
-+}
-+
-+static void *get_page_ptr(struct kvm *kvm, gpa_t gpa, struct page **page,
-+			  bool write)
-+{
-+	unsigned int flags = write ? FOLL_WRITE : 0;
-+	unsigned long hva;
-+
-+	*page = NULL;
-+
-+	hva = gfn_to_hva_safe(kvm, gpa_to_gfn(gpa));
-+
-+	if (kvm_is_error_hva(hva))
-+		return NULL;
-+
-+	if (get_user_pages_remote_unlocked(kvm->mm, hva, 1, flags, page) != 1)
-+		return NULL;
-+
-+	return write ? kmap_atomic(*page) : kmap(*page);
-+}
-+
-+static void put_page_ptr(void *ptr, struct page *page, bool write)
-+{
-+	if (ptr) {
-+		if (write)
-+			kunmap_atomic(ptr);
-+		else
-+			kunmap(ptr);
-+	}
-+	if (page)
-+		put_page(page);
-+}
-+
-+int kvmi_cmd_read_physical(struct kvm *kvm, u64 gpa, size_t size,
-+			   int (*send)(struct kvm_introspection *,
-+					const struct kvmi_msg_hdr *,
-+					int err, const void *buf, size_t),
-+			   const struct kvmi_msg_hdr *ctx)
-+{
-+	void *ptr_page = NULL, *ptr;
-+	struct page *page = NULL;
-+	size_t ptr_size;
-+	int err, ec;
-+
-+	ptr_page = get_page_ptr(kvm, gpa, &page, false);
-+	if (ptr_page) {
-+		ptr = ptr_page + (gpa & ~PAGE_MASK);
-+		ptr_size = size;
-+		ec = 0;
-+	} else {
-+		ptr = NULL;
-+		ptr_size = 0;
-+		ec = -KVM_ENOENT;
-+	}
-+
-+	err = send(KVMI(kvm), ctx, ec, ptr, ptr_size);
-+
-+	put_page_ptr(ptr_page, page, false);
-+	return err;
-+}
-+
-+int kvmi_cmd_write_physical(struct kvm *kvm, u64 gpa, size_t size,
-+			    const void *buf)
-+{
-+	struct page *page;
-+	void *ptr;
-+
-+	ptr = get_page_ptr(kvm, gpa, &page, true);
-+	if (!ptr)
-+		return -KVM_ENOENT;
-+
-+	memcpy(ptr + (gpa & ~PAGE_MASK), buf, size);
-+
-+	put_page_ptr(ptr, page, true);
-+
-+	return 0;
-+}
-diff --git a/virt/kvm/introspection/kvmi_int.h b/virt/kvm/introspection/kvmi_int.h
-index 7c503b8ca043..40e8647a6fd4 100644
---- a/virt/kvm/introspection/kvmi_int.h
-+++ b/virt/kvm/introspection/kvmi_int.h
-@@ -35,5 +35,12 @@ bool kvmi_is_known_event(u8 id);
- bool kvmi_is_known_vm_event(u8 id);
- int kvmi_cmd_vm_control_events(struct kvm_introspection *kvmi,
- 				unsigned int event_id, bool enable);
-+int kvmi_cmd_read_physical(struct kvm *kvm, u64 gpa, size_t size,
-+			   int (*send)(struct kvm_introspection *,
-+					const struct kvmi_msg_hdr*,
-+					int err, const void *buf, size_t),
-+			   const struct kvmi_msg_hdr *ctx);
-+int kvmi_cmd_write_physical(struct kvm *kvm, u64 gpa, size_t size,
-+			    const void *buf);
- 
- #endif
-diff --git a/virt/kvm/introspection/kvmi_msg.c b/virt/kvm/introspection/kvmi_msg.c
-index a148ed1e767c..de9e38e8e24b 100644
---- a/virt/kvm/introspection/kvmi_msg.c
-+++ b/virt/kvm/introspection/kvmi_msg.c
-@@ -182,6 +182,48 @@ static int handle_vm_control_events(struct kvm_introspection *kvmi,
- 	return kvmi_msg_vm_reply(kvmi, msg, ec, NULL, 0);
- }
- 
-+static bool invalid_page_access(u64 gpa, u64 size)
-+{
-+	u64 off = gpa & ~PAGE_MASK;
-+
-+	return (size == 0 || size > PAGE_SIZE || off + size > PAGE_SIZE);
-+}
-+
-+static int handle_vm_read_physical(struct kvm_introspection *kvmi,
-+				   const struct kvmi_msg_hdr *msg,
-+				   const void *_req)
-+{
-+	const struct kvmi_vm_read_physical *req = _req;
-+
-+	if (invalid_page_access(req->gpa, req->size)
-+			|| req->padding1 || req->padding2)
-+		return kvmi_msg_vm_reply(kvmi, msg, -KVM_EINVAL, NULL, 0);
-+
-+	return kvmi_cmd_read_physical(kvmi->kvm, req->gpa, req->size,
-+				      kvmi_msg_vm_reply, msg);
-+}
-+
-+static int handle_vm_write_physical(struct kvm_introspection *kvmi,
-+				    const struct kvmi_msg_hdr *msg,
-+				    const void *_req)
-+{
-+	const struct kvmi_vm_write_physical *req = _req;
-+	int ec;
-+
-+	if (msg->size < struct_size(req, data, req->size))
-+		return -EINVAL;
-+
-+	if (invalid_page_access(req->gpa, req->size))
-+		ec = -KVM_EINVAL;
-+	else if (req->padding1 || req->padding2)
-+		ec = -KVM_EINVAL;
-+	else
-+		ec = kvmi_cmd_write_physical(kvmi->kvm, req->gpa,
-+					     req->size, req->data);
-+
-+	return kvmi_msg_vm_reply(kvmi, msg, ec, NULL, 0);
-+}
-+
- /*
-  * These commands are executed by the receiving thread.
-  */
-@@ -192,6 +234,8 @@ static int(*const msg_vm[])(struct kvm_introspection *,
- 	[KVMI_VM_CHECK_EVENT]    = handle_vm_check_event,
- 	[KVMI_VM_CONTROL_EVENTS] = handle_vm_control_events,
- 	[KVMI_VM_GET_INFO]       = handle_vm_get_info,
-+	[KVMI_VM_READ_PHYSICAL]  = handle_vm_read_physical,
-+	[KVMI_VM_WRITE_PHYSICAL] = handle_vm_write_physical,
- };
- 
- static bool is_vm_command(u16 id)
+RnJvbTogTmljdciZb3IgQ8OuyJt1IDxuY2l0dUBiaXRkZWZlbmRlci5jb20+CgpUaGlzIGNvbW1p
+dCBhbHNvIGVuc3VyZXMgdGhhdCB0aGUgaW50cm9zcGVjdGlvbiB0b29sIGFuZCB0aGUgdXNlcnNw
+YWNlCmRvIG5vdCBkaXNhYmxlIGVhY2ggb3RoZXIgdGhlIGRlc2NyaXB0b3ItdGFibGUgYWNjZXNz
+IFZNLWV4aXQuCgpTaWduZWQtb2ZmLWJ5OiBOaWN1yJlvciBDw67Im3UgPG5jaXR1QGJpdGRlZmVu
+ZGVyLmNvbT4KU2lnbmVkLW9mZi1ieTogQWRhbGJlcnQgTGF6xINyIDxhbGF6YXJAYml0ZGVmZW5k
+ZXIuY29tPgotLS0KIGFyY2gveDg2L2luY2x1ZGUvYXNtL2t2bWlfaG9zdC5oIHwgIDQgKysrCiBh
+cmNoL3g4Ni9rdm0va3ZtaS5jICAgICAgICAgICAgICB8IDQ1ICsrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrCiBhcmNoL3g4Ni9rdm0vc3ZtL3N2bS5jICAgICAgICAgICB8ICAzICsrKwog
+YXJjaC94ODYva3ZtL3ZteC92bXguYyAgICAgICAgICAgfCAgMyArKysKIDQgZmlsZXMgY2hhbmdl
+ZCwgNTUgaW5zZXJ0aW9ucygrKQoKZGlmZiAtLWdpdCBhL2FyY2gveDg2L2luY2x1ZGUvYXNtL2t2
+bWlfaG9zdC5oIGIvYXJjaC94ODYvaW5jbHVkZS9hc20va3ZtaV9ob3N0LmgKaW5kZXggMDllYmVk
+ODBhOGNjLi4wZWQxODc5ZmQyNTAgMTAwNjQ0Ci0tLSBhL2FyY2gveDg2L2luY2x1ZGUvYXNtL2t2
+bWlfaG9zdC5oCisrKyBiL2FyY2gveDg2L2luY2x1ZGUvYXNtL2t2bWlfaG9zdC5oCkBAIC0xNyw2
+ICsxNyw3IEBAIHN0cnVjdCBrdm1pX2ludGVyY2VwdGlvbiB7CiAJYm9vbCByZXN0b3JlX2ludGVy
+Y2VwdGlvbjsKIAlzdHJ1Y3Qga3ZtaV9tb25pdG9yX2ludGVyY2VwdGlvbiBicmVha3BvaW50Owog
+CXN0cnVjdCBrdm1pX21vbml0b3JfaW50ZXJjZXB0aW9uIGNyM3c7CisJc3RydWN0IGt2bWlfbW9u
+aXRvcl9pbnRlcmNlcHRpb24gZGVzY3JpcHRvcjsKIH07CiAKIHN0cnVjdCBrdm1fdmNwdV9hcmNo
+X2ludHJvc3BlY3Rpb24gewpAQCAtMzUsNiArMzYsNyBAQCBib29sIGt2bWlfY3IzX2ludGVyY2Vw
+dGVkKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSk7CiBib29sIGt2bWlfbW9uaXRvcl9jcjN3X2ludGVy
+Y2VwdChzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUsIGJvb2wgZW5hYmxlKTsKIHZvaWQga3ZtaV94c2V0
+YnZfZXZlbnQoc3RydWN0IGt2bV92Y3B1ICp2Y3B1LCB1OCB4Y3IsCiAJCSAgICAgICB1NjQgb2xk
+X3ZhbHVlLCB1NjQgbmV3X3ZhbHVlKTsKK2Jvb2wga3ZtaV9tb25pdG9yX2Rlc2NfaW50ZXJjZXB0
+KHN0cnVjdCBrdm1fdmNwdSAqdmNwdSwgYm9vbCBlbmFibGUpOwogYm9vbCBrdm1pX2Rlc2NyaXB0
+b3JfZXZlbnQoc3RydWN0IGt2bV92Y3B1ICp2Y3B1LCB1OCBkZXNjcmlwdG9yLCBib29sIHdyaXRl
+KTsKIAogI2Vsc2UgLyogQ09ORklHX0tWTV9JTlRST1NQRUNUSU9OICovCkBAIC01MCw2ICs1Miw4
+IEBAIHN0YXRpYyBpbmxpbmUgYm9vbCBrdm1pX21vbml0b3JfY3Izd19pbnRlcmNlcHQoc3RydWN0
+IGt2bV92Y3B1ICp2Y3B1LAogCQkJCQkJYm9vbCBlbmFibGUpIHsgcmV0dXJuIGZhbHNlOyB9CiBz
+dGF0aWMgaW5saW5lIHZvaWQga3ZtaV94c2V0YnZfZXZlbnQoc3RydWN0IGt2bV92Y3B1ICp2Y3B1
+LCB1OCB4Y3IsCiAJCQkJCXU2NCBvbGRfdmFsdWUsIHU2NCBuZXdfdmFsdWUpIHsgfQorc3RhdGlj
+IGlubGluZSBib29sIGt2bWlfbW9uaXRvcl9kZXNjX2ludGVyY2VwdChzdHJ1Y3Qga3ZtX3ZjcHUg
+KnZjcHUsCisJCQkJCSAgICAgICBib29sIGVuYWJsZSkgeyByZXR1cm4gZmFsc2U7IH0KIHN0YXRp
+YyBpbmxpbmUgYm9vbCBrdm1pX2Rlc2NyaXB0b3JfZXZlbnQoc3RydWN0IGt2bV92Y3B1ICp2Y3B1
+LCB1OCBkZXNjcmlwdG9yLAogCQkJCQkgYm9vbCB3cml0ZSkgeyByZXR1cm4gdHJ1ZTsgfQogCmRp
+ZmYgLS1naXQgYS9hcmNoL3g4Ni9rdm0va3ZtaS5jIGIvYXJjaC94ODYva3ZtL2t2bWkuYwppbmRl
+eCAzYWU0M2E0Yzg3NjQuLmRmZTFiODg3YjRmMyAxMDA2NDQKLS0tIGEvYXJjaC94ODYva3ZtL2t2
+bWkuYworKysgYi9hcmNoL3g4Ni9rdm0va3ZtaS5jCkBAIC0zNjEsMTIgKzM2MSw1MiBAQCBzdGF0
+aWMgdm9pZCBrdm1pX2FyY2hfZGlzYWJsZV9jcjN3X2ludGVyY2VwdChzdHJ1Y3Qga3ZtX3ZjcHUg
+KnZjcHUpCiAJdmNwdS0+YXJjaC5rdm1pLT5jcjN3Lmt2bV9pbnRlcmNlcHRlZCA9IGZhbHNlOwog
+fQogCisvKgorICogUmV0dXJucyB0cnVlIGlmIG9uZSBzaWRlIChrdm0gb3Iga3ZtaSkgdHJpZXMg
+dG8gZGlzYWJsZSB0aGUgZGVzY3JpcHRvcgorICogaW50ZXJjZXB0aW9uIHdoaWxlIHRoZSBvdGhl
+ciBzaWRlIGlzIHN0aWxsIHRyYWNraW5nIGl0LgorICovCitib29sIGt2bWlfbW9uaXRvcl9kZXNj
+X2ludGVyY2VwdChzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUsIGJvb2wgZW5hYmxlKQoreworCXN0cnVj
+dCBrdm1pX2ludGVyY2VwdGlvbiAqYXJjaF92Y3B1aSA9IFJFQURfT05DRSh2Y3B1LT5hcmNoLmt2
+bWkpOworCisJcmV0dXJuIChhcmNoX3ZjcHVpICYmIGFyY2hfdmNwdWktPmRlc2NyaXB0b3IubW9u
+aXRvcl9mY3QodmNwdSwgZW5hYmxlKSk7Cit9CitFWFBPUlRfU1lNQk9MKGt2bWlfbW9uaXRvcl9k
+ZXNjX2ludGVyY2VwdCk7CisKK3N0YXRpYyBib29sIG1vbml0b3JfZGVzY19mY3Rfa3ZtaShzdHJ1
+Y3Qga3ZtX3ZjcHUgKnZjcHUsIGJvb2wgZW5hYmxlKQoreworCXZjcHUtPmFyY2gua3ZtaS0+ZGVz
+Y3JpcHRvci5rdm1pX2ludGVyY2VwdGVkID0gZW5hYmxlOworCisJaWYgKGVuYWJsZSkKKwkJdmNw
+dS0+YXJjaC5rdm1pLT5kZXNjcmlwdG9yLmt2bV9pbnRlcmNlcHRlZCA9CisJCQlrdm1feDg2X29w
+cy5kZXNjX2ludGVyY2VwdGVkKHZjcHUpOworCWVsc2UgaWYgKHZjcHUtPmFyY2gua3ZtaS0+ZGVz
+Y3JpcHRvci5rdm1faW50ZXJjZXB0ZWQpCisJCXJldHVybiB0cnVlOworCisJcmV0dXJuIGZhbHNl
+OworfQorCitzdGF0aWMgYm9vbCBtb25pdG9yX2Rlc2NfZmN0X2t2bShzdHJ1Y3Qga3ZtX3ZjcHUg
+KnZjcHUsIGJvb2wgZW5hYmxlKQoreworCWlmICghdmNwdS0+YXJjaC5rdm1pLT5kZXNjcmlwdG9y
+Lmt2bWlfaW50ZXJjZXB0ZWQpCisJCXJldHVybiBmYWxzZTsKKworCXZjcHUtPmFyY2gua3ZtaS0+
+ZGVzY3JpcHRvci5rdm1faW50ZXJjZXB0ZWQgPSBlbmFibGU7CisKKwlpZiAoIWVuYWJsZSkKKwkJ
+cmV0dXJuIHRydWU7CisKKwlyZXR1cm4gZmFsc2U7Cit9CisKIHN0YXRpYyBpbnQga3ZtaV9jb250
+cm9sX2Rlc2NfaW50ZXJjZXB0KHN0cnVjdCBrdm1fdmNwdSAqdmNwdSwgYm9vbCBlbmFibGUpCiB7
+CiAJaWYgKCFrdm1feDg2X29wcy5kZXNjX2N0cmxfc3VwcG9ydGVkKCkpCiAJCXJldHVybiAtS1ZN
+X0VPUE5PVFNVUFA7CiAKKwl2Y3B1LT5hcmNoLmt2bWktPmRlc2NyaXB0b3IubW9uaXRvcl9mY3Qg
+PSBtb25pdG9yX2Rlc2NfZmN0X2t2bWk7CiAJa3ZtX3g4Nl9vcHMuY29udHJvbF9kZXNjX2ludGVy
+Y2VwdCh2Y3B1LCBlbmFibGUpOworCXZjcHUtPmFyY2gua3ZtaS0+ZGVzY3JpcHRvci5tb25pdG9y
+X2ZjdCA9IG1vbml0b3JfZGVzY19mY3Rfa3ZtOwogCiAJcmV0dXJuIDA7CiB9CkBAIC0zNzQsNiAr
+NDE0LDkgQEAgc3RhdGljIGludCBrdm1pX2NvbnRyb2xfZGVzY19pbnRlcmNlcHQoc3RydWN0IGt2
+bV92Y3B1ICp2Y3B1LCBib29sIGVuYWJsZSkKIHN0YXRpYyB2b2lkIGt2bWlfYXJjaF9kaXNhYmxl
+X2Rlc2NfaW50ZXJjZXB0KHN0cnVjdCBrdm1fdmNwdSAqdmNwdSkKIHsKIAlrdm1pX2NvbnRyb2xf
+ZGVzY19pbnRlcmNlcHQodmNwdSwgZmFsc2UpOworCisJdmNwdS0+YXJjaC5rdm1pLT5kZXNjcmlw
+dG9yLmt2bWlfaW50ZXJjZXB0ZWQgPSBmYWxzZTsKKwl2Y3B1LT5hcmNoLmt2bWktPmRlc2NyaXB0
+b3Iua3ZtX2ludGVyY2VwdGVkID0gZmFsc2U7CiB9CiAKIGludCBrdm1pX2FyY2hfY21kX2NvbnRy
+b2xfaW50ZXJjZXB0KHN0cnVjdCBrdm1fdmNwdSAqdmNwdSwKQEAgLTQ0NSwxMSArNDg4LDEzIEBA
+IGJvb2wga3ZtaV9hcmNoX3ZjcHVfYWxsb2NfaW50ZXJjZXB0aW9uKHN0cnVjdCBrdm1fdmNwdSAq
+dmNwdSkKIAogCWFyY2hfdmNwdWktPmJyZWFrcG9pbnQubW9uaXRvcl9mY3QgPSBtb25pdG9yX2Jw
+X2ZjdF9rdm07CiAJYXJjaF92Y3B1aS0+Y3Izdy5tb25pdG9yX2ZjdCA9IG1vbml0b3JfY3Izd19m
+Y3Rfa3ZtOworCWFyY2hfdmNwdWktPmRlc2NyaXB0b3IubW9uaXRvcl9mY3QgPSBtb25pdG9yX2Rl
+c2NfZmN0X2t2bTsKIAogCS8qCiAJICogcGFpcmVkIHdpdGg6CiAJICogIC0ga3ZtaV9tb25pdG9y
+X2JwX2ludGVyY2VwdCgpCiAJICogIC0ga3ZtaV9tb25pdG9yX2NyM3dfaW50ZXJjZXB0KCkKKwkg
+KiAgLSBrdm1pX21vbml0b3JfZGVzY19pbnRlcmNlcHQoKQogCSAqLwogCXNtcF93bWIoKTsKIAlX
+UklURV9PTkNFKHZjcHUtPmFyY2gua3ZtaSwgYXJjaF92Y3B1aSk7CmRpZmYgLS1naXQgYS9hcmNo
+L3g4Ni9rdm0vc3ZtL3N2bS5jIGIvYXJjaC94ODYva3ZtL3N2bS9zdm0uYwppbmRleCBhMGI5MTAw
+N2U0ODQuLjIwZjY5MDViNDVhYSAxMDA2NDQKLS0tIGEvYXJjaC94ODYva3ZtL3N2bS9zdm0uYwor
+KysgYi9hcmNoL3g4Ni9rdm0vc3ZtL3N2bS5jCkBAIC0xNTU1LDYgKzE1NTUsOSBAQCBzdGF0aWMg
+dm9pZCBzdm1fY29udHJvbF9kZXNjX2ludGVyY2VwdChzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUsIGJv
+b2wgZW5hYmxlKQogewogCXN0cnVjdCB2Y3B1X3N2bSAqc3ZtID0gdG9fc3ZtKHZjcHUpOwogCisJ
+aWYgKGt2bWlfbW9uaXRvcl9kZXNjX2ludGVyY2VwdCh2Y3B1LCBlbmFibGUpKQorCQlyZXR1cm47
+CisKIAlpZiAoZW5hYmxlKSB7CiAJCXNldF9pbnRlcmNlcHQoc3ZtLCBJTlRFUkNFUFRfU1RPUkVf
+SURUUik7CiAJCXNldF9pbnRlcmNlcHQoc3ZtLCBJTlRFUkNFUFRfU1RPUkVfR0RUUik7CmRpZmYg
+LS1naXQgYS9hcmNoL3g4Ni9rdm0vdm14L3ZteC5jIGIvYXJjaC94ODYva3ZtL3ZteC92bXguYwpp
+bmRleCA3NGJkY2Q0OTY2Y2EuLjhkMzk2YTJkMjMwOSAxMDA2NDQKLS0tIGEvYXJjaC94ODYva3Zt
+L3ZteC92bXguYworKysgYi9hcmNoL3g4Ni9rdm0vdm14L3ZteC5jCkBAIC0zMTYyLDYgKzMxNjIs
+OSBAQCBzdGF0aWMgdm9pZCB2bXhfY29udHJvbF9kZXNjX2ludGVyY2VwdChzdHJ1Y3Qga3ZtX3Zj
+cHUgKnZjcHUsIGJvb2wgZW5hYmxlKQogewogCXN0cnVjdCB2Y3B1X3ZteCAqdm14ID0gdG9fdm14
+KHZjcHUpOwogCisJaWYgKGt2bWlfbW9uaXRvcl9kZXNjX2ludGVyY2VwdCh2Y3B1LCBlbmFibGUp
+KQorCQlyZXR1cm47CisKIAlpZiAoZW5hYmxlKQogCQlzZWNvbmRhcnlfZXhlY19jb250cm9sc19z
+ZXRiaXQodm14LCBTRUNPTkRBUllfRVhFQ19ERVNDKTsKIAllbHNlCl9fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlz
+dApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3Rz
+LmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
