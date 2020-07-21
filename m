@@ -1,193 +1,84 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH v9 32/84] KVM: x86: page track: provide all callbacks with the guest virtual address
-Date: Wed, 22 Jul 2020 00:08:30 +0300
-Message-ID: <20200721210922.7646-33-alazar@bitdefender.com>
+Subject: [PATCH v9 20/84] KVM: x86: add .control_msr_intercept()
+Date: Wed, 22 Jul 2020 00:08:18 +0300
+Message-ID: <20200721210922.7646-21-alazar@bitdefender.com>
 References: <20200721210922.7646-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200721210922.7646-1-alazar@bitdefender.com>
-Sender: kvm-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Mihai Donțu <mdontu@bitdefender.com>
-
-This is needed because the emulator calls the page tracking code
-irrespective of the current VM-exit reason or available information.
-
-Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
-Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
----
- arch/x86/include/asm/kvm_host.h       |  2 +-
- arch/x86/include/asm/kvm_page_track.h | 10 ++++++----
- arch/x86/kvm/mmu/mmu.c                |  2 +-
- arch/x86/kvm/mmu/page_track.c         |  6 +++---
- arch/x86/kvm/x86.c                    | 16 ++++++++--------
- drivers/gpu/drm/i915/gvt/kvmgt.c      |  2 +-
- 6 files changed, 20 insertions(+), 18 deletions(-)
-
-diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index 4992afc19cf6..b6a1704e0f89 100644
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -1384,7 +1384,7 @@ void kvm_mmu_change_mmu_pages(struct kvm *kvm, unsigned long kvm_nr_mmu_pages);
- int load_pdptrs(struct kvm_vcpu *vcpu, struct kvm_mmu *mmu, unsigned long cr3);
- bool pdptrs_changed(struct kvm_vcpu *vcpu);
- 
--int emulator_write_phys(struct kvm_vcpu *vcpu, gpa_t gpa,
-+int emulator_write_phys(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
- 			  const void *val, int bytes);
- 
- struct kvm_irq_mask_notifier {
-diff --git a/arch/x86/include/asm/kvm_page_track.h b/arch/x86/include/asm/kvm_page_track.h
-index 87bd6025d91d..9a261e463eb3 100644
---- a/arch/x86/include/asm/kvm_page_track.h
-+++ b/arch/x86/include/asm/kvm_page_track.h
-@@ -28,12 +28,14 @@ struct kvm_page_track_notifier_node {
- 	 *
- 	 * @vcpu: the vcpu where the write access happened.
- 	 * @gpa: the physical address written by guest.
-+	 * @gva: the virtual address written by guest.
- 	 * @new: the data was written to the address.
- 	 * @bytes: the written length.
- 	 * @node: this node
- 	 */
--	void (*track_write)(struct kvm_vcpu *vcpu, gpa_t gpa, const u8 *new,
--			    int bytes, struct kvm_page_track_notifier_node *node);
-+	void (*track_write)(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
-+			    const u8 *new, int bytes,
-+			    struct kvm_page_track_notifier_node *node);
- 	/*
- 	 * It is called when memory slot is being moved or removed
- 	 * users can drop write-protection for the pages in that memory slot
-@@ -68,7 +70,7 @@ kvm_page_track_register_notifier(struct kvm *kvm,
- void
- kvm_page_track_unregister_notifier(struct kvm *kvm,
- 				   struct kvm_page_track_notifier_node *n);
--void kvm_page_track_write(struct kvm_vcpu *vcpu, gpa_t gpa, const u8 *new,
--			  int bytes);
-+void kvm_page_track_write(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
-+			  const u8 *new, int bytes);
- void kvm_page_track_flush_slot(struct kvm *kvm, struct kvm_memory_slot *slot);
- #endif
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index 6d6a0ae7800c..038a0e028e77 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -5318,7 +5318,7 @@ static const union kvm_mmu_page_role role_ign = {
- 	.invalid = 0x1,
- };
- 
--static void kvm_mmu_pte_write(struct kvm_vcpu *vcpu, gpa_t gpa,
-+static void kvm_mmu_pte_write(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
- 			      const u8 *new, int bytes,
- 			      struct kvm_page_track_notifier_node *node)
- {
-diff --git a/arch/x86/kvm/mmu/page_track.c b/arch/x86/kvm/mmu/page_track.c
-index a7bcde34d1f2..9642af1b2c21 100644
---- a/arch/x86/kvm/mmu/page_track.c
-+++ b/arch/x86/kvm/mmu/page_track.c
-@@ -216,8 +216,8 @@ EXPORT_SYMBOL_GPL(kvm_page_track_unregister_notifier);
-  * The node should figure out if the written page is the one that node is
-  * interested in by itself.
-  */
--void kvm_page_track_write(struct kvm_vcpu *vcpu, gpa_t gpa, const u8 *new,
--			  int bytes)
-+void kvm_page_track_write(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
-+			  const u8 *new, int bytes)
- {
- 	struct kvm_page_track_notifier_head *head;
- 	struct kvm_page_track_notifier_node *n;
-@@ -231,7 +231,7 @@ void kvm_page_track_write(struct kvm_vcpu *vcpu, gpa_t gpa, const u8 *new,
- 	idx = srcu_read_lock(&head->track_srcu);
- 	hlist_for_each_entry_rcu(n, &head->track_notifier_list, node)
- 		if (n->track_write)
--			n->track_write(vcpu, gpa, new, bytes, n);
-+			n->track_write(vcpu, gpa, gva, new, bytes, n);
- 	srcu_read_unlock(&head->track_srcu, idx);
- }
- 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index b7eb223dc1aa..a59c935f4bbe 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -5720,7 +5720,7 @@ static int vcpu_mmio_gva_to_gpa(struct kvm_vcpu *vcpu, unsigned long gva,
- 	return vcpu_is_mmio_gpa(vcpu, gva, *gpa, write);
- }
- 
--int emulator_write_phys(struct kvm_vcpu *vcpu, gpa_t gpa,
-+int emulator_write_phys(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
- 			const void *val, int bytes)
- {
- 	int ret;
-@@ -5728,14 +5728,14 @@ int emulator_write_phys(struct kvm_vcpu *vcpu, gpa_t gpa,
- 	ret = kvm_vcpu_write_guest(vcpu, gpa, val, bytes);
- 	if (ret < 0)
- 		return 0;
--	kvm_page_track_write(vcpu, gpa, val, bytes);
-+	kvm_page_track_write(vcpu, gpa, gva, val, bytes);
- 	return 1;
- }
- 
- struct read_write_emulator_ops {
- 	int (*read_write_prepare)(struct kvm_vcpu *vcpu, void *val,
- 				  int bytes);
--	int (*read_write_emulate)(struct kvm_vcpu *vcpu, gpa_t gpa,
-+	int (*read_write_emulate)(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
- 				  void *val, int bytes);
- 	int (*read_write_mmio)(struct kvm_vcpu *vcpu, gpa_t gpa,
- 			       int bytes, void *val);
-@@ -5756,16 +5756,16 @@ static int read_prepare(struct kvm_vcpu *vcpu, void *val, int bytes)
- 	return 0;
- }
- 
--static int read_emulate(struct kvm_vcpu *vcpu, gpa_t gpa,
-+static int read_emulate(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
- 			void *val, int bytes)
- {
- 	return !kvm_vcpu_read_guest(vcpu, gpa, val, bytes);
- }
- 
--static int write_emulate(struct kvm_vcpu *vcpu, gpa_t gpa,
-+static int write_emulate(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
- 			 void *val, int bytes)
- {
--	return emulator_write_phys(vcpu, gpa, val, bytes);
-+	return emulator_write_phys(vcpu, gpa, gva, val, bytes);
- }
- 
- static int write_mmio(struct kvm_vcpu *vcpu, gpa_t gpa, int bytes, void *val)
-@@ -5833,7 +5833,7 @@ static int emulator_read_write_onepage(unsigned long addr, void *val,
- 			return X86EMUL_PROPAGATE_FAULT;
- 	}
- 
--	if (!ret && ops->read_write_emulate(vcpu, gpa, val, bytes))
-+	if (!ret && ops->read_write_emulate(vcpu, gpa, addr, val, bytes))
- 		return X86EMUL_CONTINUE;
- 
- 	/*
-@@ -6002,7 +6002,7 @@ static int emulator_cmpxchg_emulated(struct x86_emulate_ctxt *ctxt,
- 	if (!exchanged)
- 		return X86EMUL_CMPXCHG_FAILED;
- 
--	kvm_page_track_write(vcpu, gpa, new, bytes);
-+	kvm_page_track_write(vcpu, gpa, addr, new, bytes);
- 
- 	return X86EMUL_CONTINUE;
- 
-diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kvmgt.c
-index ad8a9df49f29..4e370b216365 100644
---- a/drivers/gpu/drm/i915/gvt/kvmgt.c
-+++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
-@@ -1749,7 +1749,7 @@ static int kvmgt_page_track_remove(unsigned long handle, u64 gfn)
- 	return 0;
- }
- 
--static void kvmgt_page_track_write(struct kvm_vcpu *vcpu, gpa_t gpa,
-+static void kvmgt_page_track_write(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
- 		const u8 *val, int len,
- 		struct kvm_page_track_notifier_node *node)
- {
+RnJvbTogTWloYWkgRG9uyJt1IDxtZG9udHVAYml0ZGVmZW5kZXIuY29tPgoKVGhpcyBpcyBuZWVk
+ZWQgZm9yIHRoZSBLVk1JX0VWRU5UX01TUiBldmVudCwgd2hpY2ggaXMgdXNlZCBub3RpZnkgdGhl
+CmludHJvc3BlY3Rpb24gdG9vbCBhYm91dCBhbnkgY2hhbmdlIG1hZGUgdG8gYSBNU1Igb2YgaW50
+ZXJlc3QuCgpTaWduZWQtb2ZmLWJ5OiBNaWhhaSBEb27Im3UgPG1kb250dUBiaXRkZWZlbmRlci5j
+b20+CkNvLWRldmVsb3BlZC1ieTogTmljdciZb3IgQ8OuyJt1IDxuY2l0dUBiaXRkZWZlbmRlci5j
+b20+ClNpZ25lZC1vZmYtYnk6IE5pY3XImW9yIEPDrsibdSA8bmNpdHVAYml0ZGVmZW5kZXIuY29t
+PgpTaWduZWQtb2ZmLWJ5OiBBZGFsYmVydCBMYXrEg3IgPGFsYXphckBiaXRkZWZlbmRlci5jb20+
+Ci0tLQogYXJjaC94ODYvaW5jbHVkZS9hc20va3ZtX2hvc3QuaCB8ICAyICsrCiBhcmNoL3g4Ni9r
+dm0vc3ZtL3N2bS5jICAgICAgICAgIHwgMTEgKysrKysrKysrKysKIGFyY2gveDg2L2t2bS92bXgv
+dm14LmMgICAgICAgICAgfCAxMCArKysrKysrKysrCiAzIGZpbGVzIGNoYW5nZWQsIDIzIGluc2Vy
+dGlvbnMoKykKCmRpZmYgLS1naXQgYS9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9rdm1faG9zdC5oIGIv
+YXJjaC94ODYvaW5jbHVkZS9hc20va3ZtX2hvc3QuaAppbmRleCBhMzIzMGFiMzc3ZGIuLmYwNGEw
+MWRhYzQyMyAxMDA2NDQKLS0tIGEvYXJjaC94ODYvaW5jbHVkZS9hc20va3ZtX2hvc3QuaAorKysg
+Yi9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9rdm1faG9zdC5oCkBAIC0xMTEwLDYgKzExMTAsOCBAQCBz
+dHJ1Y3Qga3ZtX3g4Nl9vcHMgewogCXZvaWQgKCp1cGRhdGVfYnBfaW50ZXJjZXB0KShzdHJ1Y3Qg
+a3ZtX3ZjcHUgKnZjcHUpOwogCWludCAoKmdldF9tc3IpKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSwg
+c3RydWN0IG1zcl9kYXRhICptc3IpOwogCWludCAoKnNldF9tc3IpKHN0cnVjdCBrdm1fdmNwdSAq
+dmNwdSwgc3RydWN0IG1zcl9kYXRhICptc3IpOworCXZvaWQgKCpjb250cm9sX21zcl9pbnRlcmNl
+cHQpKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSwgdW5zaWduZWQgaW50IG1zciwKKwkJCQkgICAgICBp
+bnQgdHlwZSwgYm9vbCBlbmFibGUpOwogCWJvb2wgKCptc3Jfd3JpdGVfaW50ZXJjZXB0ZWQpKHN0
+cnVjdCBrdm1fdmNwdSAqdmNwdSwgdTMyIG1zcik7CiAJdTY0ICgqZ2V0X3NlZ21lbnRfYmFzZSko
+c3RydWN0IGt2bV92Y3B1ICp2Y3B1LCBpbnQgc2VnKTsKIAl2b2lkICgqZ2V0X3NlZ21lbnQpKHN0
+cnVjdCBrdm1fdmNwdSAqdmNwdSwKZGlmZiAtLWdpdCBhL2FyY2gveDg2L2t2bS9zdm0vc3ZtLmMg
+Yi9hcmNoL3g4Ni9rdm0vc3ZtL3N2bS5jCmluZGV4IGRmYTFhNmU3NGJmNy4uOWM4ZTc3MTkzZjk4
+IDEwMDY0NAotLS0gYS9hcmNoL3g4Ni9rdm0vc3ZtL3N2bS5jCisrKyBiL2FyY2gveDg2L2t2bS9z
+dm0vc3ZtLmMKQEAgLTYxMiw2ICs2MTIsMTYgQEAgc3RhdGljIHZvaWQgc2V0X21zcl9pbnRlcmNl
+cHRpb24oc3RydWN0IGt2bV92Y3B1ICp2Y3B1LAogCW1zcnBtW29mZnNldF0gPSB0bXA7CiB9CiAK
+K3N0YXRpYyB2b2lkIHN2bV9jb250cm9sX21zcl9pbnRlcmNlcHQoc3RydWN0IGt2bV92Y3B1ICp2
+Y3B1LCB1bnNpZ25lZCBpbnQgbXNyLAorCQkJCSAgICAgIGludCB0eXBlLCBib29sIGVuYWJsZSkK
+K3sKKwljb25zdCBzdHJ1Y3QgdmNwdV9zdm0gKnN2bSA9IHRvX3N2bSh2Y3B1KTsKKwl1MzIgKm1z
+cnBtID0gaXNfZ3Vlc3RfbW9kZSh2Y3B1KSA/IHN2bS0+bmVzdGVkLm1zcnBtIDoKKwkJCQkJICAg
+c3ZtLT5tc3JwbTsKKworCXNldF9tc3JfaW50ZXJjZXB0aW9uKHZjcHUsIG1zcnBtLCBtc3IsIHR5
+cGUsICFlbmFibGUpOworfQorCiBzdGF0aWMgdm9pZCBzdm1fdmNwdV9pbml0X21zcnBtKHUzMiAq
+bXNycG0pCiB7CiAJaW50IGk7CkBAIC00MDk2LDYgKzQxMDYsNyBAQCBzdGF0aWMgc3RydWN0IGt2
+bV94ODZfb3BzIHN2bV94ODZfb3BzIF9faW5pdGRhdGEgPSB7CiAJLmdldF9tc3JfZmVhdHVyZSA9
+IHN2bV9nZXRfbXNyX2ZlYXR1cmUsCiAJLmdldF9tc3IgPSBzdm1fZ2V0X21zciwKIAkuc2V0X21z
+ciA9IHN2bV9zZXRfbXNyLAorCS5jb250cm9sX21zcl9pbnRlcmNlcHQgPSBzdm1fY29udHJvbF9t
+c3JfaW50ZXJjZXB0LAogCS5tc3Jfd3JpdGVfaW50ZXJjZXB0ZWQgPSBtc3Jfd3JpdGVfaW50ZXJj
+ZXB0ZWQsCiAJLmdldF9zZWdtZW50X2Jhc2UgPSBzdm1fZ2V0X3NlZ21lbnRfYmFzZSwKIAkuZ2V0
+X3NlZ21lbnQgPSBzdm1fZ2V0X3NlZ21lbnQsCmRpZmYgLS1naXQgYS9hcmNoL3g4Ni9rdm0vdm14
+L3ZteC5jIGIvYXJjaC94ODYva3ZtL3ZteC92bXguYwppbmRleCBlY2Y3ZmIyMWI4MTIuLmZlZDY2
+MWViNjVhNyAxMDA2NDQKLS0tIGEvYXJjaC94ODYva3ZtL3ZteC92bXguYworKysgYi9hcmNoL3g4
+Ni9rdm0vdm14L3ZteC5jCkBAIC0zODIyLDYgKzM4MjIsMTUgQEAgc3RhdGljIF9fYWx3YXlzX2lu
+bGluZSB2b2lkIHZteF9zZXRfaW50ZXJjZXB0X2Zvcl9tc3Ioc3RydWN0IGt2bV92Y3B1ICp2Y3B1
+LAogCQl2bXhfZGlzYWJsZV9pbnRlcmNlcHRfZm9yX21zcih2Y3B1LCBtc3JfYml0bWFwLCBtc3Is
+IHR5cGUpOwogfQogCitzdGF0aWMgdm9pZCB2bXhfY29udHJvbF9tc3JfaW50ZXJjZXB0KHN0cnVj
+dCBrdm1fdmNwdSAqdmNwdSwgdW5zaWduZWQgaW50IG1zciwKKwkJCQkgICAgICBpbnQgdHlwZSwg
+Ym9vbCBlbmFibGUpCit7CisJc3RydWN0IHZjcHVfdm14ICp2bXggPSB0b192bXgodmNwdSk7CisJ
+dW5zaWduZWQgbG9uZyAqbXNyX2JpdG1hcCA9IHZteC0+dm1jczAxLm1zcl9iaXRtYXA7CisKKwl2
+bXhfc2V0X2ludGVyY2VwdF9mb3JfbXNyKHZjcHUsIG1zcl9iaXRtYXAsIG1zciwgdHlwZSwgZW5h
+YmxlKTsKK30KKwogc3RhdGljIHU4IHZteF9tc3JfYml0bWFwX21vZGUoc3RydWN0IGt2bV92Y3B1
+ICp2Y3B1KQogewogCXU4IG1vZGUgPSAwOwpAQCAtNzkxNiw2ICs3OTI1LDcgQEAgc3RhdGljIHN0
+cnVjdCBrdm1feDg2X29wcyB2bXhfeDg2X29wcyBfX2luaXRkYXRhID0gewogCS5nZXRfbXNyX2Zl
+YXR1cmUgPSB2bXhfZ2V0X21zcl9mZWF0dXJlLAogCS5nZXRfbXNyID0gdm14X2dldF9tc3IsCiAJ
+LnNldF9tc3IgPSB2bXhfc2V0X21zciwKKwkuY29udHJvbF9tc3JfaW50ZXJjZXB0ID0gdm14X2Nv
+bnRyb2xfbXNyX2ludGVyY2VwdCwKIAkubXNyX3dyaXRlX2ludGVyY2VwdGVkID0gbXNyX3dyaXRl
+X2ludGVyY2VwdGVkLAogCS5nZXRfc2VnbWVudF9iYXNlID0gdm14X2dldF9zZWdtZW50X2Jhc2Us
+CiAJLmdldF9zZWdtZW50ID0gdm14X2dldF9zZWdtZW50LApfX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmly
+dHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51
+eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
