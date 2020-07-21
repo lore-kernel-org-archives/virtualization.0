@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH v9 60/84] KVM: introspection: add KVMI_EVENT_BREAKPOINT
-Date: Wed, 22 Jul 2020 00:08:58 +0300
-Message-ID: <20200721210922.7646-61-alazar@bitdefender.com>
+Subject: [PATCH v9 39/84] KVM: introspection: add permission access ioctls
+Date: Wed, 22 Jul 2020 00:08:37 +0300
+Message-ID: <20200721210922.7646-40-alazar@bitdefender.com>
 References: <20200721210922.7646-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -10,484 +10,404 @@ Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200721210922.7646-1-alazar@bitdefender.com>
 Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Mihai Donțu <mdontu@bitdefender.com>
+KVM_INTROSPECTION_COMMAND and KVM_INTROSPECTION_EVENTS ioctls are used
+by the device manager to allow/disallow access to specific (or all)
+introspection commands and events. The introspection tool will get the
+KVM_EPERM error code on any attempt to use a disallowed command.
 
-This event is sent when a breakpoint was reached.
+By default, all events and almost all commands are disallowed.
+Some commands, those querying the introspection capabilities,
+are always allowed.
 
-The introspection tool can place breakpoints and use them as notification
-for when the OS or an application has reached a certain state or is
-trying to perform a certain operation (eg. create a process).
-
-Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
-Co-developed-by: Nicușor Cîțu <ncitu@bitdefender.com>
-Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
-Co-developed-by: Adalbert Lazăr <alazar@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- Documentation/virt/kvm/kvmi.rst               | 40 ++++++++++++++++
- arch/x86/include/uapi/asm/kvmi.h              |  6 +++
- arch/x86/kvm/kvmi.c                           | 48 +++++++++++++++++++
- arch/x86/kvm/svm/svm.c                        | 34 +++++++++++++
- arch/x86/kvm/vmx/vmx.c                        | 17 +++++--
- include/linux/kvmi_host.h                     |  4 ++
- include/uapi/linux/kvmi.h                     |  1 +
- .../testing/selftests/kvm/x86_64/kvmi_test.c  | 46 ++++++++++++++++++
- virt/kvm/introspection/kvmi.c                 | 23 ++++++++-
- virt/kvm/introspection/kvmi_int.h             |  4 ++
- virt/kvm/introspection/kvmi_msg.c             | 17 +++++++
- 11 files changed, 235 insertions(+), 5 deletions(-)
+ Documentation/virt/kvm/api.rst                |  66 ++++++++++
+ include/linux/kvmi_host.h                     |   7 ++
+ include/uapi/linux/kvm.h                      |   8 ++
+ include/uapi/linux/kvmi.h                     |   8 ++
+ .../testing/selftests/kvm/x86_64/kvmi_test.c  |  48 +++++++
+ virt/kvm/introspection/kvmi.c                 | 119 ++++++++++++++++++
+ virt/kvm/kvm_main.c                           |  14 +++
+ 7 files changed, 270 insertions(+)
 
-diff --git a/Documentation/virt/kvm/kvmi.rst b/Documentation/virt/kvm/kvmi.rst
-index d062f2ccf365..110a6e7a7d2a 100644
---- a/Documentation/virt/kvm/kvmi.rst
-+++ b/Documentation/virt/kvm/kvmi.rst
-@@ -549,6 +549,7 @@ command) before returning to guest.
- Enables/disables vCPU introspection events. This command can be used with
- the following events::
+diff --git a/Documentation/virt/kvm/api.rst b/Documentation/virt/kvm/api.rst
+index e34f20430eb1..174f13f2389d 100644
+--- a/Documentation/virt/kvm/api.rst
++++ b/Documentation/virt/kvm/api.rst
+@@ -4753,6 +4753,72 @@ Errors:
+ This ioctl is used to free all introspection structures
+ related to this VM.
  
-+	KVMI_EVENT_BREAKPOINT
- 	KVMI_EVENT_HYPERCALL
- 
- When an event is enabled, the introspection tool is notified and
-@@ -570,6 +571,9 @@ the *KVMI_VM_CONTROL_EVENTS* command.
- * -KVM_EINVAL - the event ID is unknown (use *KVMI_VM_CHECK_EVENT* first)
- * -KVM_EPERM - the access is disallowed (use *KVMI_VM_CHECK_EVENT* first)
- * -KVM_EAGAIN - the selected vCPU can't be introspected yet
-+* -KVM_EBUSY - the event can't be intercepted right now
-+               (e.g. KVMI_EVENT_BREAKPOINT if the #BP event is already intercepted
-+                by userspace)
- 
- 11. KVMI_VCPU_GET_REGISTERS
- ---------------------------
-@@ -820,3 +824,39 @@ It is used by the code residing inside the introspected guest to call the
- introspection tool and to report certain details about its operation. For
- example, a classic antimalware remediation tool can report what it has
- found during a scan.
++4.128 KVM_INTROSPECTION_COMMAND
++-------------------------------
 +
-+4. KVMI_EVENT_BREAKPOINT
-+------------------------
-+
++:Capability: KVM_CAP_INTROSPECTION
 +:Architectures: x86
-+:Versions: >= 1
-+:Actions: CONTINUE, CRASH, RETRY
-+:Parameters:
++:Type: vm ioctl
++:Parameters: struct kvm_introspection_feature (in)
++:Returns: 0 on success, a negative value on error
++
++Errors:
++
++  ======     ===========================================================
++  EFAULT     the VM is not introspected yet (use KVM_INTROSPECTION_HOOK)
++  EINVAL     the command is unknown
++  EPERM      the command can't be disallowed (e.g. KVMI_GET_VERSION)
++  ======     ===========================================================
++
++This ioctl is used to allow or disallow introspection commands
++for the current VM. By default, almost all commands are disallowed
++except for those used to query the API.
 +
 +::
 +
-+	struct kvmi_event;
-+	struct kvmi_event_breakpoint {
-+		__u64 gpa;
-+		__u8 insn_len;
-+		__u8 padding[7];
-+	};
++  struct kvm_introspection_feature {
++	__u32 allow;
++	__s32 id;
++  };
 +
-+:Returns:
++If allow is 1, the command specified by id is allowed. If allow is 0,
++the command is disallowed.
++
++Unless set to -1 (meaning all commands), id must be a command ID
++(e.g. KVMI_GET_VERSION)
++
++4.129 KVM_INTROSPECTION_EVENT
++-----------------------------
++
++:Capability: KVM_CAP_INTROSPECTION
++:Architectures: x86
++:Type: vm ioctl
++:Parameters: struct kvm_introspection_feature (in)
++:Returns: 0 on success, a negative value on error
++
++Errors:
++
++  ======     ===========================================================
++  EFAULT     the VM is not introspected yet (use KVM_INTROSPECTION_HOOK)
++  EINVAL     the event is unknown
++  ======     ===========================================================
++
++This ioctl is used to allow or disallow introspection events
++for the current VM. By default, all events are disallowed.
 +
 +::
 +
-+	struct kvmi_vcpu_hdr;
-+	struct kvmi_event_reply;
++  struct kvm_introspection_feature {
++	__u32 allow;
++	__s32 id;
++  };
 +
-+This event is sent when a breakpoint was reached and the introspection has
-+been enabled for this event (see *KVMI_VCPU_CONTROL_EVENTS*).
++If allow is 1, the event specified by id is allowed. If allow is 0,
++the event is disallowed.
 +
-+Some of these breakpoints could have been injected by the introspection tool,
-+placed in the slack space of various functions and used as notification
-+for when the OS or an application has reached a certain state or is
-+trying to perform a certain operation (like creating a process).
++Unless set to -1 (meaning all events), id must be a event ID
++(e.g. KVMI_EVENT_UNHOOK, KVMI_EVENT_CR, etc.)
 +
-+``kvmi_event`` and the guest physical address are sent to the introspection tool.
-+
-+The *RETRY* action is used by the introspection tool for its own breakpoints.
-diff --git a/arch/x86/include/uapi/asm/kvmi.h b/arch/x86/include/uapi/asm/kvmi.h
-index 9882e68cab75..1605777256a3 100644
---- a/arch/x86/include/uapi/asm/kvmi.h
-+++ b/arch/x86/include/uapi/asm/kvmi.h
-@@ -59,4 +59,10 @@ struct kvmi_vcpu_get_cpuid_reply {
- 	__u32 edx;
- };
+ 5. The kvm_run structure
+ ========================
  
-+struct kvmi_event_breakpoint {
-+	__u64 gpa;
-+	__u8 insn_len;
-+	__u8 padding[7];
-+};
-+
- #endif /* _UAPI_ASM_X86_KVMI_H */
-diff --git a/arch/x86/kvm/kvmi.c b/arch/x86/kvm/kvmi.c
-index 45f1a45d5c0f..f13272350bc9 100644
---- a/arch/x86/kvm/kvmi.c
-+++ b/arch/x86/kvm/kvmi.c
-@@ -242,3 +242,51 @@ void kvmi_arch_hypercall_event(struct kvm_vcpu *vcpu)
- 		kvmi_handle_common_event_actions(vcpu->kvm, action);
- 	}
- }
-+
-+static int kvmi_control_bp_intercept(struct kvm_vcpu *vcpu, bool enable)
-+{
-+	struct kvm_guest_debug dbg = {};
-+	int err = 0;
-+
-+	if (enable)
-+		dbg.control = KVM_GUESTDBG_ENABLE | KVM_GUESTDBG_USE_SW_BP;
-+	err = kvm_arch_vcpu_set_guest_debug(vcpu, &dbg);
-+
-+	return err;
-+}
-+
-+int kvmi_arch_cmd_control_intercept(struct kvm_vcpu *vcpu,
-+				    unsigned int event_id, bool enable)
-+{
-+	int err = 0;
-+
-+	switch (event_id) {
-+	case KVMI_EVENT_BREAKPOINT:
-+		err = kvmi_control_bp_intercept(vcpu, enable);
-+		break;
-+	default:
-+		break;
-+	}
-+
-+	return err;
-+}
-+
-+void kvmi_arch_breakpoint_event(struct kvm_vcpu *vcpu, u64 gva, u8 insn_len)
-+{
-+	u32 action;
-+	u64 gpa;
-+
-+	gpa = kvm_mmu_gva_to_gpa_system(vcpu, gva, 0, NULL);
-+
-+	action = kvmi_msg_send_bp(vcpu, gpa, insn_len);
-+	switch (action) {
-+	case KVMI_EVENT_ACTION_CONTINUE:
-+		kvm_queue_exception(vcpu, BP_VECTOR);
-+		break;
-+	case KVMI_EVENT_ACTION_RETRY:
-+		/* rip was most likely adjusted past the INT 3 instruction */
-+		break;
-+	default:
-+		kvmi_handle_common_event_actions(vcpu->kvm, action);
-+	}
-+}
-diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index 580997701b1c..47c50e2f0f86 100644
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -25,6 +25,7 @@
- #include <linux/pagemap.h>
- #include <linux/swap.h>
- #include <linux/rwsem.h>
-+#include <linux/kvmi_host.h>
- 
- #include <asm/apic.h>
- #include <asm/perf_event.h>
-@@ -1841,10 +1842,43 @@ static int db_interception(struct vcpu_svm *svm)
- 	return 1;
- }
- 
-+static unsigned svm_get_instruction_len(struct kvm_vcpu *vcpu)
-+{
-+	struct vcpu_svm *svm = to_svm(vcpu);
-+	unsigned long rip = kvm_rip_read(vcpu);
-+	unsigned long next_rip = 0;
-+	unsigned insn_len;
-+
-+	if (static_cpu_has(X86_FEATURE_NRIPS))
-+		next_rip = svm->vmcb->control.next_rip;
-+
-+	if (!next_rip) {
-+		if (!kvm_emulate_instruction(vcpu, EMULTYPE_SKIP))
-+			return 0;
-+
-+		next_rip = kvm_rip_read(vcpu);
-+		kvm_rip_write(vcpu, rip);
-+	}
-+
-+	insn_len = next_rip - rip;
-+	if (insn_len > MAX_INST_SIZE) {
-+		pr_err("%s: ip 0x%lx next 0x%lx\n",
-+		       __func__, rip, next_rip);
-+		return 0;
-+	}
-+
-+	return insn_len;
-+}
-+
- static int bp_interception(struct vcpu_svm *svm)
- {
- 	struct kvm_run *kvm_run = svm->vcpu.run;
- 
-+	if (!kvmi_breakpoint_event(&svm->vcpu, svm->vmcb->save.cs.base +
-+					       svm->vmcb->save.rip,
-+				   svm_get_instruction_len(&svm->vcpu)))
-+		return 1;
-+
- 	kvm_run->exit_reason = KVM_EXIT_DEBUG;
- 	kvm_run->debug.arch.pc = svm->vmcb->save.cs.base + svm->vmcb->save.rip;
- 	kvm_run->debug.arch.exception = BP_VECTOR;
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 4ef4f3c1b78a..9e1bea74b74c 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -27,6 +27,7 @@
- #include <linux/slab.h>
- #include <linux/tboot.h>
- #include <linux/trace_events.h>
-+#include <linux/kvmi_host.h>
- 
- #include <asm/apic.h>
- #include <asm/asm.h>
-@@ -4798,7 +4799,7 @@ static int handle_exception_nmi(struct kvm_vcpu *vcpu)
- 	struct vcpu_vmx *vmx = to_vmx(vcpu);
- 	struct kvm_run *kvm_run = vcpu->run;
- 	u32 intr_info, ex_no, error_code;
--	unsigned long cr2, rip, dr6;
-+	unsigned long cr2, dr6;
- 	u32 vect_info;
- 
- 	vect_info = vmx->idt_vectoring_info;
-@@ -4871,7 +4872,10 @@ static int handle_exception_nmi(struct kvm_vcpu *vcpu)
- 		kvm_run->debug.arch.dr6 = dr6 | DR6_FIXED_1 | DR6_RTM;
- 		kvm_run->debug.arch.dr7 = vmcs_readl(GUEST_DR7);
- 		/* fall through */
--	case BP_VECTOR:
-+	case BP_VECTOR: {
-+		unsigned long gva = vmcs_readl(GUEST_CS_BASE) +
-+			kvm_rip_read(vcpu);
-+
- 		/*
- 		 * Update instruction length as we may reinject #BP from
- 		 * user space while in guest debugging mode. Reading it for
-@@ -4879,11 +4883,16 @@ static int handle_exception_nmi(struct kvm_vcpu *vcpu)
- 		 */
- 		vmx->vcpu.arch.event_exit_inst_len =
- 			vmcs_read32(VM_EXIT_INSTRUCTION_LEN);
-+
-+		if (!kvmi_breakpoint_event(vcpu, gva,
-+					   vmx->vcpu.arch.event_exit_inst_len))
-+			return 1;
-+
- 		kvm_run->exit_reason = KVM_EXIT_DEBUG;
--		rip = kvm_rip_read(vcpu);
--		kvm_run->debug.arch.pc = vmcs_readl(GUEST_CS_BASE) + rip;
-+		kvm_run->debug.arch.pc = gva;
- 		kvm_run->debug.arch.exception = ex_no;
- 		break;
-+	}
- 	case AC_VECTOR:
- 		if (guest_inject_ac(vcpu)) {
- 			kvm_queue_exception_e(vcpu, AC_VECTOR, error_code);
 diff --git a/include/linux/kvmi_host.h b/include/linux/kvmi_host.h
-index 5c4b9c160019..c4fac41bd5c7 100644
+index 55ff571db40d..7efd071e398d 100644
 --- a/include/linux/kvmi_host.h
 +++ b/include/linux/kvmi_host.h
-@@ -73,6 +73,7 @@ int kvmi_ioctl_preunhook(struct kvm *kvm);
+@@ -14,6 +14,9 @@ struct kvm_introspection {
  
- void kvmi_handle_requests(struct kvm_vcpu *vcpu);
- bool kvmi_hypercall_event(struct kvm_vcpu *vcpu);
-+bool kvmi_breakpoint_event(struct kvm_vcpu *vcpu, u64 gva, u8 insn_len);
+ 	struct socket *sock;
+ 	struct task_struct *recv;
++
++	unsigned long *cmd_allow_mask;
++	unsigned long *event_allow_mask;
+ };
+ 
+ int kvmi_version(void);
+@@ -25,6 +28,10 @@ void kvmi_destroy_vm(struct kvm *kvm);
+ int kvmi_ioctl_hook(struct kvm *kvm,
+ 		    const struct kvm_introspection_hook *hook);
+ int kvmi_ioctl_unhook(struct kvm *kvm);
++int kvmi_ioctl_command(struct kvm *kvm,
++		       const struct kvm_introspection_feature *feat);
++int kvmi_ioctl_event(struct kvm *kvm,
++		     const struct kvm_introspection_feature *feat);
  
  #else
  
-@@ -84,6 +85,9 @@ static inline void kvmi_vcpu_uninit(struct kvm_vcpu *vcpu) { }
+diff --git a/include/uapi/linux/kvm.h b/include/uapi/linux/kvm.h
+index dd84ebdfcd6d..17df03ceb483 100644
+--- a/include/uapi/linux/kvm.h
++++ b/include/uapi/linux/kvm.h
+@@ -1622,6 +1622,14 @@ struct kvm_introspection_hook {
+ #define KVM_INTROSPECTION_HOOK    _IOW(KVMIO, 0xc3, struct kvm_introspection_hook)
+ #define KVM_INTROSPECTION_UNHOOK  _IO(KVMIO, 0xc4)
  
- static inline void kvmi_handle_requests(struct kvm_vcpu *vcpu) { }
- static inline bool kvmi_hypercall_event(struct kvm_vcpu *vcpu) { return false; }
-+static inline bool kvmi_breakpoint_event(struct kvm_vcpu *vcpu, u64 gva,
-+					 u8 insn_len)
-+			{ return true; }
- 
- #endif /* CONFIG_KVM_INTROSPECTION */
- 
++struct kvm_introspection_feature {
++	__u32 allow;
++	__s32 id;
++};
++
++#define KVM_INTROSPECTION_COMMAND _IOW(KVMIO, 0xc5, struct kvm_introspection_feature)
++#define KVM_INTROSPECTION_EVENT   _IOW(KVMIO, 0xc6, struct kvm_introspection_feature)
++
+ #define KVM_DEV_ASSIGN_ENABLE_IOMMU	(1 << 0)
+ #define KVM_DEV_ASSIGN_PCI_2_3		(1 << 1)
+ #define KVM_DEV_ASSIGN_MASK_INTX	(1 << 2)
 diff --git a/include/uapi/linux/kvmi.h b/include/uapi/linux/kvmi.h
-index 7d1febd671d7..026ae5911b1c 100644
+index 34dda91016db..d7b18ffef4fa 100644
 --- a/include/uapi/linux/kvmi.h
 +++ b/include/uapi/linux/kvmi.h
-@@ -39,6 +39,7 @@ enum {
- 	KVMI_EVENT_UNHOOK     = 0,
- 	KVMI_EVENT_PAUSE_VCPU = 1,
- 	KVMI_EVENT_HYPERCALL  = 2,
-+	KVMI_EVENT_BREAKPOINT = 3,
- 
- 	KVMI_NUM_EVENTS
+@@ -10,4 +10,12 @@ enum {
+ 	KVMI_VERSION = 0x00000001
  };
+ 
++enum {
++	KVMI_NUM_MESSAGES
++};
++
++enum {
++	KVMI_NUM_EVENTS
++};
++
+ #endif /* _UAPI__LINUX_KVMI_H */
 diff --git a/tools/testing/selftests/kvm/x86_64/kvmi_test.c b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-index 3a76842e48c6..3b921e3cf958 100644
+index 08ca4701c440..09b8989317d7 100644
 --- a/tools/testing/selftests/kvm/x86_64/kvmi_test.c
 +++ b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-@@ -49,6 +49,7 @@ struct vcpu_worker_data {
- 
- enum {
- 	GUEST_TEST_NOOP = 0,
-+	GUEST_TEST_BP,
- 	GUEST_TEST_HYPERCALL,
- };
- 
-@@ -63,6 +64,11 @@ static int guest_test_id(void)
- 	return READ_ONCE(test_id);
+@@ -48,14 +48,62 @@ static void do_hook_ioctl(struct kvm_vm *vm, __s32 fd, __u32 padding,
+ 		errno, strerror(errno), expected_err, fd, padding);
  }
  
-+static void guest_bp_test(void)
++static void set_perm(struct kvm_vm *vm, __s32 id, __u32 allow,
++		     int expected_err, int ioctl_id,
++		     const char *ioctl_str)
 +{
-+	asm volatile("int3");
-+}
-+
- static void guest_hypercall_test(void)
- {
- 	asm volatile("mov $34, %rax");
-@@ -77,6 +83,9 @@ static void guest_code(void)
- 		switch (guest_test_id()) {
- 		case GUEST_TEST_NOOP:
- 			break;
-+		case GUEST_TEST_BP:
-+			guest_bp_test();
-+			break;
- 		case GUEST_TEST_HYPERCALL:
- 			guest_hypercall_test();
- 			break;
-@@ -1107,6 +1116,42 @@ static void test_event_hypercall(struct kvm_vm *vm)
- 	disable_vcpu_event(vm, event_id);
- }
- 
-+static void test_event_breakpoint(struct kvm_vm *vm)
-+{
-+	struct vcpu_worker_data data = {
-+		.vm = vm,
-+		.vcpu_id = VCPU_ID,
-+		.test_id = GUEST_TEST_BP,
++	struct kvm_introspection_feature feat = {
++		.allow = allow,
++		.id = id
 +	};
-+	struct kvmi_msg_hdr hdr;
-+	struct {
-+		struct kvmi_event common;
-+		struct kvmi_event_breakpoint bp;
-+	} ev;
-+	struct vcpu_reply rpl = {};
-+	__u16 event_id = KVMI_EVENT_BREAKPOINT;
-+	pthread_t vcpu_thread;
++	int r;
 +
-+	enable_vcpu_event(vm, event_id);
-+
-+	vcpu_thread = start_vcpu_worker(&data);
-+
-+	receive_event(&hdr, &ev.common, sizeof(ev), event_id);
-+
-+	pr_info("Breakpoint event, rip 0x%llx, len %u\n",
-+		ev.common.arch.regs.rip, ev.bp.insn_len);
-+
-+	ev.common.arch.regs.rip += ev.bp.insn_len;
-+	__set_registers(vm, &ev.common.arch.regs);
-+
-+	reply_to_event(&hdr, &ev.common, KVMI_EVENT_ACTION_RETRY,
-+			&rpl, sizeof(rpl));
-+
-+	stop_vcpu_worker(vcpu_thread, &data);
-+
-+	disable_vcpu_event(vm, event_id);
++	r = ioctl(vm->fd, ioctl_id, &feat);
++	TEST_ASSERT(r == 0 || errno == expected_err,
++		"%s failed, id %d, errno %d (%s), expected %d\n",
++		ioctl_str, id, errno, strerror(errno), expected_err);
 +}
 +
- static void test_introspection(struct kvm_vm *vm)
++static void set_event_perm(struct kvm_vm *vm, __s32 id, __u32 allow,
++			   int expected_err)
++{
++	set_perm(vm, id, allow, expected_err, KVM_INTROSPECTION_EVENT,
++		 "KVM_INTROSPECTION_EVENT");
++}
++
++static void allow_event(struct kvm_vm *vm, __s32 event_id)
++{
++	set_event_perm(vm, event_id, 1, 0);
++}
++
++static void set_command_perm(struct kvm_vm *vm, __s32 id, __u32 allow,
++			     int expected_err)
++{
++	set_perm(vm, id, allow, expected_err, KVM_INTROSPECTION_COMMAND,
++		 "KVM_INTROSPECTION_COMMAND");
++}
++
+ static void hook_introspection(struct kvm_vm *vm)
  {
- 	srandom(time(0));
-@@ -1128,6 +1173,7 @@ static void test_introspection(struct kvm_vm *vm)
- 	test_cmd_vcpu_set_registers(vm);
- 	test_cmd_vcpu_get_cpuid(vm);
- 	test_event_hypercall(vm);
-+	test_event_breakpoint(vm);
++	__u32 allow = 1, disallow = 0, allow_inval = 2;
+ 	__u32 padding = 1, no_padding = 0;
++	__s32 all_IDs = -1;
++
++	set_command_perm(vm, all_IDs, allow, EFAULT);
++	set_event_perm(vm, all_IDs, allow, EFAULT);
  
- 	unhook_introspection(vm);
+ 	do_hook_ioctl(vm, Kvm_socket, padding, EINVAL);
+ 	do_hook_ioctl(vm, -1, no_padding, EINVAL);
+ 	do_hook_ioctl(vm, Kvm_socket, no_padding, 0);
+ 	do_hook_ioctl(vm, Kvm_socket, no_padding, EEXIST);
++
++	set_command_perm(vm, all_IDs, allow_inval, EINVAL);
++	set_command_perm(vm, all_IDs, disallow, 0);
++	set_command_perm(vm, all_IDs, allow, 0);
++
++	set_event_perm(vm, all_IDs, allow_inval, EINVAL);
++	set_event_perm(vm, all_IDs, disallow, 0);
++	allow_event(vm, all_IDs);
  }
+ 
+ static void unhook_introspection(struct kvm_vm *vm)
 diff --git a/virt/kvm/introspection/kvmi.c b/virt/kvm/introspection/kvmi.c
-index 571b79c52353..a5264696c630 100644
+index 5d9bc4ed5060..b1ea39f35481 100644
 --- a/virt/kvm/introspection/kvmi.c
 +++ b/virt/kvm/introspection/kvmi.c
-@@ -97,6 +97,7 @@ static void setup_known_events(void)
- 	set_bit(KVMI_EVENT_UNHOOK, Kvmi_known_vm_events);
+@@ -8,6 +8,8 @@
+ #include <linux/kthread.h>
+ #include "kvmi_int.h"
  
- 	bitmap_zero(Kvmi_known_vcpu_events, KVMI_NUM_EVENTS);
-+	set_bit(KVMI_EVENT_BREAKPOINT, Kvmi_known_vcpu_events);
- 	set_bit(KVMI_EVENT_HYPERCALL, Kvmi_known_vcpu_events);
- 	set_bit(KVMI_EVENT_PAUSE_VCPU, Kvmi_known_vcpu_events);
++#define KVMI_NUM_COMMANDS KVMI_NUM_MESSAGES
++
+ int kvmi_init(void)
+ {
+ 	return 0;
+@@ -24,6 +26,9 @@ void kvmi_uninit(void)
  
-@@ -637,7 +638,7 @@ int kvmi_cmd_vcpu_control_events(struct kvm_vcpu *vcpu,
- 	else
- 		clear_bit(event_id, vcpui->ev_enable_mask);
- 
--	return 0;
-+	return kvmi_arch_cmd_control_intercept(vcpu, event_id, enable);
+ static void free_kvmi(struct kvm *kvm)
+ {
++	bitmap_free(kvm->kvmi->cmd_allow_mask);
++	bitmap_free(kvm->kvmi->event_allow_mask);
++
+ 	kfree(kvm->kvmi);
+ 	kvm->kvmi = NULL;
  }
+@@ -37,6 +42,15 @@ alloc_kvmi(struct kvm *kvm, const struct kvm_introspection_hook *hook)
+ 	if (!kvmi)
+ 		return NULL;
  
- static unsigned long gfn_to_hva_safe(struct kvm *kvm, gfn_t gfn)
-@@ -908,3 +909,23 @@ bool kvmi_hypercall_event(struct kvm_vcpu *vcpu)
++	kvmi->cmd_allow_mask = bitmap_zalloc(KVMI_NUM_COMMANDS, GFP_KERNEL);
++	kvmi->event_allow_mask = bitmap_zalloc(KVMI_NUM_EVENTS, GFP_KERNEL);
++	if (!kvmi->cmd_allow_mask || !kvmi->event_allow_mask) {
++		bitmap_free(kvmi->cmd_allow_mask);
++		bitmap_free(kvmi->event_allow_mask);
++		kfree(kvmi);
++		return NULL;
++	}
++
+ 	BUILD_BUG_ON(sizeof(hook->uuid) != sizeof(kvmi->uuid));
+ 	memcpy(&kvmi->uuid, &hook->uuid, sizeof(kvmi->uuid));
  
- 	return ret;
+@@ -185,3 +199,108 @@ void kvmi_destroy_vm(struct kvm *kvm)
+ {
+ 	kvmi_unhook(kvm);
  }
 +
-+bool kvmi_breakpoint_event(struct kvm_vcpu *vcpu, u64 gva, u8 insn_len)
++static int
++kvmi_ioctl_get_feature(const struct kvm_introspection_feature *feat,
++		       bool *allow, s32 *id, unsigned int nbits)
++{
++	s32 all_bits = -1;
++
++	if (feat->id < 0 && feat->id != all_bits)
++		return -EINVAL;
++
++	if (feat->id > 0 && feat->id >= nbits)
++		return -EINVAL;
++
++	if (feat->allow > 1)
++		return -EINVAL;
++
++	*allow = feat->allow == 1;
++	*id = feat->id;
++
++	return 0;
++}
++
++static void kvmi_control_allowed_events(struct kvm_introspection *kvmi,
++					s32 id, bool allow)
++{
++	s32 all_events = -1;
++
++	if (allow) {
++		if (id == all_events)
++			bitmap_fill(kvmi->event_allow_mask, KVMI_NUM_EVENTS);
++		else
++			set_bit(id, kvmi->event_allow_mask);
++	} else {
++		if (id == all_events)
++			bitmap_zero(kvmi->event_allow_mask, KVMI_NUM_EVENTS);
++		else
++			clear_bit(id, kvmi->event_allow_mask);
++	}
++}
++
++int kvmi_ioctl_event(struct kvm *kvm,
++		     const struct kvm_introspection_feature *feat)
 +{
 +	struct kvm_introspection *kvmi;
-+	bool ret = false;
++	bool allow;
++	int err;
++	s32 id;
 +
-+	kvmi = kvmi_get(vcpu->kvm);
-+	if (!kvmi)
-+		return true;
-+
-+	if (is_event_enabled(vcpu, KVMI_EVENT_BREAKPOINT))
-+		kvmi_arch_breakpoint_event(vcpu, gva, insn_len);
-+	else
-+		ret = true;
-+
-+	kvmi_put(vcpu->kvm);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL(kvmi_breakpoint_event);
-diff --git a/virt/kvm/introspection/kvmi_int.h b/virt/kvm/introspection/kvmi_int.h
-index 8c02528e3056..810dde913ad6 100644
---- a/virt/kvm/introspection/kvmi_int.h
-+++ b/virt/kvm/introspection/kvmi_int.h
-@@ -34,6 +34,7 @@ bool kvmi_msg_process(struct kvm_introspection *kvmi);
- int kvmi_msg_send_unhook(struct kvm_introspection *kvmi);
- u32 kvmi_msg_send_vcpu_pause(struct kvm_vcpu *vcpu);
- u32 kvmi_msg_send_hypercall(struct kvm_vcpu *vcpu);
-+u32 kvmi_msg_send_bp(struct kvm_vcpu *vcpu, u64 gpa, u8 insn_len);
- 
- /* kvmi.c */
- void *kvmi_msg_alloc(void);
-@@ -79,5 +80,8 @@ int kvmi_arch_cmd_vcpu_get_cpuid(struct kvm_vcpu *vcpu,
- 				 struct kvmi_vcpu_get_cpuid_reply *rpl);
- bool kvmi_arch_is_agent_hypercall(struct kvm_vcpu *vcpu);
- void kvmi_arch_hypercall_event(struct kvm_vcpu *vcpu);
-+void kvmi_arch_breakpoint_event(struct kvm_vcpu *vcpu, u64 gva, u8 insn_len);
-+int kvmi_arch_cmd_control_intercept(struct kvm_vcpu *vcpu,
-+				    unsigned int event_id, bool enable);
- 
- #endif
-diff --git a/virt/kvm/introspection/kvmi_msg.c b/virt/kvm/introspection/kvmi_msg.c
-index 80ade6055747..4a03980e0bbb 100644
---- a/virt/kvm/introspection/kvmi_msg.c
-+++ b/virt/kvm/introspection/kvmi_msg.c
-@@ -805,3 +805,20 @@ u32 kvmi_msg_send_hypercall(struct kvm_vcpu *vcpu)
- 
- 	return action;
- }
-+
-+u32 kvmi_msg_send_bp(struct kvm_vcpu *vcpu, u64 gpa, u8 insn_len)
-+{
-+	struct kvmi_event_breakpoint e;
-+	int err, action;
-+
-+	memset(&e, 0, sizeof(e));
-+	e.gpa = gpa;
-+	e.insn_len = insn_len;
-+
-+	err = kvmi_send_event(vcpu, KVMI_EVENT_BREAKPOINT, &e, sizeof(e),
-+			      NULL, 0, &action);
++	err = kvmi_ioctl_get_feature(feat, &allow, &id, KVMI_NUM_EVENTS);
 +	if (err)
-+		return KVMI_EVENT_ACTION_CONTINUE;
++		return err;
 +
-+	return action;
++	mutex_lock(&kvm->kvmi_lock);
++
++	kvmi = KVMI(kvm);
++	if (kvmi)
++		kvmi_control_allowed_events(kvmi, id, allow);
++	else
++		err = -EFAULT;
++
++	mutex_unlock(&kvm->kvmi_lock);
++	return err;
 +}
++
++static void kvmi_control_allowed_commands(struct kvm_introspection *kvmi,
++					  s32 id, bool allow)
++{
++	s32 all_commands = -1;
++
++	if (allow) {
++		if (id == all_commands)
++			bitmap_fill(kvmi->cmd_allow_mask, KVMI_NUM_COMMANDS);
++		else
++			set_bit(id, kvmi->cmd_allow_mask);
++	} else {
++		if (id == all_commands)
++			bitmap_zero(kvmi->cmd_allow_mask, KVMI_NUM_COMMANDS);
++		else
++			clear_bit(id, kvmi->cmd_allow_mask);
++	}
++}
++
++int kvmi_ioctl_command(struct kvm *kvm,
++		       const struct kvm_introspection_feature *feat)
++{
++	struct kvm_introspection *kvmi;
++	bool allow;
++	int err;
++	s32 id;
++
++	err = kvmi_ioctl_get_feature(feat, &allow, &id, KVMI_NUM_COMMANDS);
++	if (err)
++		return err;
++
++	mutex_lock(&kvm->kvmi_lock);
++
++	kvmi = KVMI(kvm);
++	if (kvmi)
++		kvmi_control_allowed_commands(kvmi, id, allow);
++	else
++		err = -EFAULT;
++
++	mutex_unlock(&kvm->kvmi_lock);
++	return err;
++}
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 0d2da77ccb12..9aeb57e93165 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -3847,6 +3847,20 @@ static long kvm_vm_ioctl(struct file *filp,
+ 		else
+ 			r = -EPERM;
+ 		break;
++	case KVM_INTROSPECTION_COMMAND:
++	case KVM_INTROSPECTION_EVENT:
++		r = -EPERM;
++		if (enable_introspection) {
++			struct kvm_introspection_feature feat;
++
++			if (copy_from_user(&feat, argp, sizeof(feat)))
++				r = -EFAULT;
++			else if (ioctl == KVM_INTROSPECTION_EVENT)
++				r = kvmi_ioctl_event(kvm, &feat);
++			else
++				r = kvmi_ioctl_command(kvm, &feat);
++		}
++		break;
+ #endif /* CONFIG_KVM_INTROSPECTION */
+ 	default:
+ 		r = kvm_arch_vm_ioctl(filp, ioctl, arg);
