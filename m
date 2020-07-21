@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH v9 59/84] KVM: introspection: add KVMI_EVENT_HYPERCALL
-Date: Wed, 22 Jul 2020 00:08:57 +0300
-Message-ID: <20200721210922.7646-60-alazar@bitdefender.com>
+Subject: [PATCH v9 33/84] KVM: x86: page track: add track_create_slot() callback
+Date: Wed, 22 Jul 2020 00:08:31 +0300
+Message-ID: <20200721210922.7646-34-alazar@bitdefender.com>
 References: <20200721210922.7646-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -15,442 +15,112 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Mihai Donțu <mdontu@bitdefender.com>
 
-This event is sent on a specific hypercall.
-
-It is used by the code residing inside the introspected guest to call the
-introspection tool and to report certain details about its operation.
-For example, a classic antimalware remediation tool can report
-what it has found during a scan.
+This is used to add page access notifications as soon as a slot appears.
 
 Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
-Co-developed-by: Adalbert Lazăr <alazar@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- Documentation/virt/kvm/hypercalls.rst         | 35 ++++++++++++++++
- Documentation/virt/kvm/kvmi.rst               | 36 +++++++++++++++-
- arch/x86/include/uapi/asm/kvmi.h              |  2 +
- arch/x86/kvm/kvmi.c                           | 32 ++++++++++++++
- arch/x86/kvm/x86.c                            | 18 ++++++--
- include/linux/kvmi_host.h                     |  2 +
- include/uapi/linux/kvm_para.h                 |  1 +
- include/uapi/linux/kvmi.h                     |  1 +
- .../testing/selftests/kvm/x86_64/kvmi_test.c  | 42 +++++++++++++++++++
- virt/kvm/introspection/kvmi.c                 | 23 ++++++++++
- virt/kvm/introspection/kvmi_int.h             |  9 ++++
- virt/kvm/introspection/kvmi_msg.c             | 12 ++++++
- 12 files changed, 208 insertions(+), 5 deletions(-)
+ arch/x86/include/asm/kvm_page_track.h | 13 ++++++++++++-
+ arch/x86/kvm/mmu/page_track.c         | 16 +++++++++++++++-
+ arch/x86/kvm/x86.c                    |  7 ++++---
+ 3 files changed, 31 insertions(+), 5 deletions(-)
 
-diff --git a/Documentation/virt/kvm/hypercalls.rst b/Documentation/virt/kvm/hypercalls.rst
-index 70e77c66b64c..abfbff96b9e3 100644
---- a/Documentation/virt/kvm/hypercalls.rst
-+++ b/Documentation/virt/kvm/hypercalls.rst
-@@ -169,3 +169,38 @@ a0: destination APIC ID
+diff --git a/arch/x86/include/asm/kvm_page_track.h b/arch/x86/include/asm/kvm_page_track.h
+index 9a261e463eb3..00a66c4d4d3c 100644
+--- a/arch/x86/include/asm/kvm_page_track.h
++++ b/arch/x86/include/asm/kvm_page_track.h
+@@ -36,6 +36,17 @@ struct kvm_page_track_notifier_node {
+ 	void (*track_write)(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva,
+ 			    const u8 *new, int bytes,
+ 			    struct kvm_page_track_notifier_node *node);
++	/*
++	 * It is called when memory slot is being created
++	 *
++	 * @kvm: the kvm where memory slot being moved or removed
++	 * @slot: the memory slot being moved or removed
++	 * @npages: the number of pages
++	 * @node: this node
++	 */
++	void (*track_create_slot)(struct kvm *kvm, struct kvm_memory_slot *slot,
++				  unsigned long npages,
++				  struct kvm_page_track_notifier_node *node);
+ 	/*
+ 	 * It is called when memory slot is being moved or removed
+ 	 * users can drop write-protection for the pages in that memory slot
+@@ -52,7 +63,7 @@ void kvm_page_track_init(struct kvm *kvm);
+ void kvm_page_track_cleanup(struct kvm *kvm);
  
- :Usage example: When sending a call-function IPI-many to vCPUs, yield if
- 	        any of the IPI target vCPUs was preempted.
-+
-+9. KVM_HC_XEN_HVM_OP
-+--------------------
-+
-+:Architecture: x86
-+:Status: active
-+:Purpose: To enable communication between a guest agent and a VMI application
-+
-+Usage:
-+
-+An event will be sent to the VMI application (see kvmi.rst) if the following
-+registers, which differ between 32bit and 64bit, have the following values:
-+
-+       ========    =====     =====
-+       32bit       64bit     value
-+       ========    =====     =====
-+       ebx (a0)    rdi       KVM_HC_XEN_HVM_OP_GUEST_REQUEST_VM_EVENT
-+       ecx (a1)    rsi       0
-+       ========    =====     =====
-+
-+This specification copies Xen's { __HYPERVISOR_hvm_op,
-+HVMOP_guest_request_vm_event } hypercall and can originate from kernel or
-+userspace.
-+
-+It returns 0 if successful, or a negative POSIX.1 error code if it fails. The
-+absence of an active VMI application is not signaled in any way.
-+
-+The following registers are clobbered:
-+
-+  * 32bit: edx, esi, edi, ebp
-+  * 64bit: rdx, r10, r8, r9
-+
-+In particular, for KVM_HC_XEN_HVM_OP_GUEST_REQUEST_VM_EVENT, the last two
-+registers can be poisoned deliberately and cannot be used for passing
-+information.
-diff --git a/Documentation/virt/kvm/kvmi.rst b/Documentation/virt/kvm/kvmi.rst
-index fc2e8c756191..d062f2ccf365 100644
---- a/Documentation/virt/kvm/kvmi.rst
-+++ b/Documentation/virt/kvm/kvmi.rst
-@@ -546,7 +546,10 @@ command) before returning to guest.
+ void kvm_page_track_free_memslot(struct kvm_memory_slot *slot);
+-int kvm_page_track_create_memslot(struct kvm_memory_slot *slot,
++int kvm_page_track_create_memslot(struct kvm *kvm, struct kvm_memory_slot *slot,
+ 				  unsigned long npages);
  
- 	struct kvmi_error_code
- 
--Enables/disables vCPU introspection events.
-+Enables/disables vCPU introspection events. This command can be used with
-+the following events::
-+
-+	KVMI_EVENT_HYPERCALL
- 
- When an event is enabled, the introspection tool is notified and
- must reply with: continue, retry, crash, etc. (see **Events** below).
-@@ -786,3 +789,34 @@ cannot be controlled with *KVMI_VCPU_CONTROL_EVENTS*.
- Because it has a low priority, it will be sent after any other vCPU
- introspection event and when no other vCPU introspection command is
- queued.
-+
-+3. KVMI_EVENT_HYPERCALL
-+-----------------------
-+
-+:Architectures: x86
-+:Versions: >= 1
-+:Actions: CONTINUE, CRASH
-+:Parameters:
-+
-+::
-+
-+	struct kvmi_event;
-+
-+:Returns:
-+
-+::
-+
-+	struct kvmi_vcpu_hdr;
-+	struct kvmi_event_reply;
-+
-+This event is sent on a specific user hypercall when the introspection has
-+been enabled for this event (see *KVMI_VCPU_CONTROL_EVENTS*).
-+
-+The hypercall number must be ``KVM_HC_XEN_HVM_OP`` with the
-+``KVM_HC_XEN_HVM_OP_GUEST_REQUEST_VM_EVENT`` sub-function
-+(see hypercalls.rst).
-+
-+It is used by the code residing inside the introspected guest to call the
-+introspection tool and to report certain details about its operation. For
-+example, a classic antimalware remediation tool can report what it has
-+found during a scan.
-diff --git a/arch/x86/include/uapi/asm/kvmi.h b/arch/x86/include/uapi/asm/kvmi.h
-index 57c48ace417f..9882e68cab75 100644
---- a/arch/x86/include/uapi/asm/kvmi.h
-+++ b/arch/x86/include/uapi/asm/kvmi.h
-@@ -8,6 +8,8 @@
- 
- #include <asm/kvm.h>
- 
-+#define KVM_HC_XEN_HVM_OP_GUEST_REQUEST_VM_EVENT 24
-+
- struct kvmi_event_arch {
- 	__u8 mode;		/* 2, 4 or 8 */
- 	__u8 padding[7];
-diff --git a/arch/x86/kvm/kvmi.c b/arch/x86/kvm/kvmi.c
-index 53c4a37e10c6..45f1a45d5c0f 100644
---- a/arch/x86/kvm/kvmi.c
-+++ b/arch/x86/kvm/kvmi.c
-@@ -210,3 +210,35 @@ int kvmi_arch_cmd_vcpu_get_cpuid(struct kvm_vcpu *vcpu,
- 
- 	return 0;
+ void kvm_slot_page_track_add_page(struct kvm *kvm,
+diff --git a/arch/x86/kvm/mmu/page_track.c b/arch/x86/kvm/mmu/page_track.c
+index 9642af1b2c21..02759b81a04c 100644
+--- a/arch/x86/kvm/mmu/page_track.c
++++ b/arch/x86/kvm/mmu/page_track.c
+@@ -28,9 +28,12 @@ void kvm_page_track_free_memslot(struct kvm_memory_slot *slot)
+ 	}
  }
+ 
+-int kvm_page_track_create_memslot(struct kvm_memory_slot *slot,
++int kvm_page_track_create_memslot(struct kvm *kvm, struct kvm_memory_slot *slot,
+ 				  unsigned long npages)
+ {
++	struct kvm_page_track_notifier_head *head;
++	struct kvm_page_track_notifier_node *n;
++	int idx;
+ 	int  i;
+ 
+ 	for (i = 0; i < KVM_PAGE_TRACK_MAX; i++) {
+@@ -41,6 +44,17 @@ int kvm_page_track_create_memslot(struct kvm_memory_slot *slot,
+ 			goto track_free;
+ 	}
+ 
++	head = &kvm->arch.track_notifier_head;
 +
-+bool kvmi_arch_is_agent_hypercall(struct kvm_vcpu *vcpu)
-+{
-+	unsigned long subfunc1, subfunc2;
-+	bool longmode = is_64_bit_mode(vcpu);
++	if (hlist_empty(&head->track_notifier_list))
++		return 0;
 +
-+	if (longmode) {
-+		subfunc1 = kvm_rdi_read(vcpu);
-+		subfunc2 = kvm_rsi_read(vcpu);
-+	} else {
-+		subfunc1 = kvm_rbx_read(vcpu);
-+		subfunc1 &= 0xFFFFFFFF;
-+		subfunc2 = kvm_rcx_read(vcpu);
-+		subfunc2 &= 0xFFFFFFFF;
-+	}
++	idx = srcu_read_lock(&head->track_srcu);
++	hlist_for_each_entry_rcu(n, &head->track_notifier_list, node)
++		if (n->track_create_slot)
++			n->track_create_slot(kvm, slot, npages, n);
++	srcu_read_unlock(&head->track_srcu, idx);
 +
-+	return (subfunc1 == KVM_HC_XEN_HVM_OP_GUEST_REQUEST_VM_EVENT
-+		&& subfunc2 == 0);
-+}
-+
-+void kvmi_arch_hypercall_event(struct kvm_vcpu *vcpu)
-+{
-+	u32 action;
-+
-+	action = kvmi_msg_send_hypercall(vcpu);
-+	switch (action) {
-+	case KVMI_EVENT_ACTION_CONTINUE:
-+		break;
-+	default:
-+		kvmi_handle_common_event_actions(vcpu->kvm, action);
-+	}
-+}
+ 	return 0;
+ 
+ track_free:
 diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 7f56e2149f18..0d5ce07c4164 100644
+index a59c935f4bbe..83424339ea9d 100644
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -7681,11 +7681,14 @@ int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
- {
- 	unsigned long nr, a0, a1, a2, a3, ret;
- 	int op_64_bit;
--
--	if (kvm_hv_hypercall_enabled(vcpu->kvm))
--		return kvm_hv_hypercall(vcpu);
-+	bool kvmi_hc;
- 
- 	nr = kvm_rax_read(vcpu);
-+	kvmi_hc = (u32)nr == KVM_HC_XEN_HVM_OP;
-+
-+	if (kvm_hv_hypercall_enabled(vcpu->kvm) && !kvmi_hc)
-+		return kvm_hv_hypercall(vcpu);
-+
- 	a0 = kvm_rbx_read(vcpu);
- 	a1 = kvm_rcx_read(vcpu);
- 	a2 = kvm_rdx_read(vcpu);
-@@ -7702,7 +7705,7 @@ int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
- 		a3 &= 0xFFFFFFFF;
- 	}
- 
--	if (kvm_x86_ops.get_cpl(vcpu) != 0) {
-+	if (kvm_x86_ops.get_cpl(vcpu) != 0 && !kvmi_hc) {
- 		ret = -KVM_EPERM;
- 		goto out;
- 	}
-@@ -7728,6 +7731,13 @@ int kvm_emulate_hypercall(struct kvm_vcpu *vcpu)
- 		kvm_sched_yield(vcpu->kvm, a0);
- 		ret = 0;
- 		break;
-+#ifdef CONFIG_KVM_INTROSPECTION
-+	case KVM_HC_XEN_HVM_OP:
-+		ret = 0;
-+		if (!kvmi_hypercall_event(vcpu))
-+			ret = -KVM_ENOSYS;
-+		break;
-+#endif /* CONFIG_KVM_INTROSPECTION */
- 	default:
- 		ret = -KVM_ENOSYS;
- 		break;
-diff --git a/include/linux/kvmi_host.h b/include/linux/kvmi_host.h
-index 857b75a2664a..5c4b9c160019 100644
---- a/include/linux/kvmi_host.h
-+++ b/include/linux/kvmi_host.h
-@@ -72,6 +72,7 @@ int kvmi_ioctl_event(struct kvm *kvm,
- int kvmi_ioctl_preunhook(struct kvm *kvm);
- 
- void kvmi_handle_requests(struct kvm_vcpu *vcpu);
-+bool kvmi_hypercall_event(struct kvm_vcpu *vcpu);
- 
- #else
- 
-@@ -82,6 +83,7 @@ static inline void kvmi_destroy_vm(struct kvm *kvm) { }
- static inline void kvmi_vcpu_uninit(struct kvm_vcpu *vcpu) { }
- 
- static inline void kvmi_handle_requests(struct kvm_vcpu *vcpu) { }
-+static inline bool kvmi_hypercall_event(struct kvm_vcpu *vcpu) { return false; }
- 
- #endif /* CONFIG_KVM_INTROSPECTION */
- 
-diff --git a/include/uapi/linux/kvm_para.h b/include/uapi/linux/kvm_para.h
-index 3ce388249682..53cebbe22099 100644
---- a/include/uapi/linux/kvm_para.h
-+++ b/include/uapi/linux/kvm_para.h
-@@ -33,6 +33,7 @@
- #define KVM_HC_CLOCK_PAIRING		9
- #define KVM_HC_SEND_IPI		10
- #define KVM_HC_SCHED_YIELD		11
-+#define KVM_HC_XEN_HVM_OP		34 /* Xen's __HYPERVISOR_hvm_op */
- 
- /*
-  * hypercalls use architecture specific
-diff --git a/include/uapi/linux/kvmi.h b/include/uapi/linux/kvmi.h
-index d7f4360e609e..7d1febd671d7 100644
---- a/include/uapi/linux/kvmi.h
-+++ b/include/uapi/linux/kvmi.h
-@@ -38,6 +38,7 @@ enum {
- enum {
- 	KVMI_EVENT_UNHOOK     = 0,
- 	KVMI_EVENT_PAUSE_VCPU = 1,
-+	KVMI_EVENT_HYPERCALL  = 2,
- 
- 	KVMI_NUM_EVENTS
- };
-diff --git a/tools/testing/selftests/kvm/x86_64/kvmi_test.c b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-index 7269afd4c36d..3a76842e48c6 100644
---- a/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-+++ b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-@@ -49,6 +49,7 @@ struct vcpu_worker_data {
- 
- enum {
- 	GUEST_TEST_NOOP = 0,
-+	GUEST_TEST_HYPERCALL,
- };
- 
- #define GUEST_REQUEST_TEST()     GUEST_SYNC(0)
-@@ -62,12 +63,23 @@ static int guest_test_id(void)
- 	return READ_ONCE(test_id);
+@@ -10070,7 +10070,8 @@ void kvm_arch_free_memslot(struct kvm *kvm, struct kvm_memory_slot *slot)
+ 	kvm_page_track_free_memslot(slot);
  }
  
-+static void guest_hypercall_test(void)
-+{
-+	asm volatile("mov $34, %rax");
-+	asm volatile("mov $24, %rdi");
-+	asm volatile("mov $0, %rsi");
-+	asm volatile(".byte 0x0f,0x01,0xc1");
-+}
-+
- static void guest_code(void)
+-static int kvm_alloc_memslot_metadata(struct kvm_memory_slot *slot,
++static int kvm_alloc_memslot_metadata(struct kvm *kvm,
++				      struct kvm_memory_slot *slot,
+ 				      unsigned long npages)
  {
- 	while (true) {
- 		switch (guest_test_id()) {
- 		case GUEST_TEST_NOOP:
- 			break;
-+		case GUEST_TEST_HYPERCALL:
-+			guest_hypercall_test();
-+			break;
+ 	int i;
+@@ -10122,7 +10123,7 @@ static int kvm_alloc_memslot_metadata(struct kvm_memory_slot *slot,
  		}
- 		GUEST_SIGNAL_TEST_DONE();
  	}
-@@ -1066,6 +1078,35 @@ static void test_cmd_vcpu_get_cpuid(struct kvm_vm *vm)
- 	      function, index, rpl.eax, rpl.ebx, rpl.ecx, rpl.edx);
- }
  
-+static void test_event_hypercall(struct kvm_vm *vm)
-+{
-+	struct vcpu_worker_data data = {
-+		.vm = vm,
-+		.vcpu_id = VCPU_ID,
-+		.test_id = GUEST_TEST_HYPERCALL,
-+	};
-+	struct kvmi_msg_hdr hdr;
-+	struct kvmi_event ev;
-+	struct vcpu_reply rpl = {};
-+	__u16 event_id = KVMI_EVENT_HYPERCALL;
-+	pthread_t vcpu_thread;
-+
-+	enable_vcpu_event(vm, event_id);
-+
-+	vcpu_thread = start_vcpu_worker(&data);
-+
-+	receive_event(&hdr, &ev, sizeof(ev), event_id);
-+
-+	pr_info("Hypercall event, rip 0x%llx\n", ev.arch.regs.rip);
-+
-+	reply_to_event(&hdr, &ev, KVMI_EVENT_ACTION_CONTINUE,
-+			&rpl, sizeof(rpl));
-+
-+	stop_vcpu_worker(vcpu_thread, &data);
-+
-+	disable_vcpu_event(vm, event_id);
-+}
-+
- static void test_introspection(struct kvm_vm *vm)
+-	if (kvm_page_track_create_memslot(slot, npages))
++	if (kvm_page_track_create_memslot(kvm, slot, npages))
+ 		goto out_free;
+ 
+ 	return 0;
+@@ -10162,7 +10163,7 @@ int kvm_arch_prepare_memory_region(struct kvm *kvm,
+ 				enum kvm_mr_change change)
  {
- 	srandom(time(0));
-@@ -1086,6 +1127,7 @@ static void test_introspection(struct kvm_vm *vm)
- 	test_cmd_vcpu_get_registers(vm);
- 	test_cmd_vcpu_set_registers(vm);
- 	test_cmd_vcpu_get_cpuid(vm);
-+	test_event_hypercall(vm);
- 
- 	unhook_introspection(vm);
+ 	if (change == KVM_MR_CREATE || change == KVM_MR_MOVE)
+-		return kvm_alloc_memslot_metadata(memslot,
++		return kvm_alloc_memslot_metadata(kvm, memslot,
+ 						  mem->memory_size >> PAGE_SHIFT);
+ 	return 0;
  }
-diff --git a/virt/kvm/introspection/kvmi.c b/virt/kvm/introspection/kvmi.c
-index 2bffe9ee5b69..571b79c52353 100644
---- a/virt/kvm/introspection/kvmi.c
-+++ b/virt/kvm/introspection/kvmi.c
-@@ -97,6 +97,7 @@ static void setup_known_events(void)
- 	set_bit(KVMI_EVENT_UNHOOK, Kvmi_known_vm_events);
- 
- 	bitmap_zero(Kvmi_known_vcpu_events, KVMI_NUM_EVENTS);
-+	set_bit(KVMI_EVENT_HYPERCALL, Kvmi_known_vcpu_events);
- 	set_bit(KVMI_EVENT_PAUSE_VCPU, Kvmi_known_vcpu_events);
- 
- 	bitmap_or(Kvmi_known_events, Kvmi_known_vm_events,
-@@ -885,3 +886,25 @@ void kvmi_post_reply(struct kvm_vcpu *vcpu)
- 		vcpui->have_delayed_regs = false;
- 	}
- }
-+
-+bool kvmi_hypercall_event(struct kvm_vcpu *vcpu)
-+{
-+	struct kvm_introspection *kvmi;
-+	bool ret = false;
-+
-+	if (!kvmi_arch_is_agent_hypercall(vcpu))
-+		return ret;
-+
-+	kvmi = kvmi_get(vcpu->kvm);
-+	if (!kvmi)
-+		return ret;
-+
-+	if (is_event_enabled(vcpu, KVMI_EVENT_HYPERCALL)) {
-+		kvmi_arch_hypercall_event(vcpu);
-+		ret = true;
-+	}
-+
-+	kvmi_put(vcpu->kvm);
-+
-+	return ret;
-+}
-diff --git a/virt/kvm/introspection/kvmi_int.h b/virt/kvm/introspection/kvmi_int.h
-index bc8b5c03b057..8c02528e3056 100644
---- a/virt/kvm/introspection/kvmi_int.h
-+++ b/virt/kvm/introspection/kvmi_int.h
-@@ -21,6 +21,11 @@
- #define KVMI(kvm) ((kvm)->kvmi)
- #define VCPUI(vcpu) ((vcpu)->kvmi)
- 
-+static inline bool is_event_enabled(struct kvm_vcpu *vcpu, int event)
-+{
-+	return test_bit(event, VCPUI(vcpu)->ev_enable_mask);
-+}
-+
- /* kvmi_msg.c */
- bool kvmi_sock_get(struct kvm_introspection *kvmi, int fd);
- void kvmi_sock_shutdown(struct kvm_introspection *kvmi);
-@@ -28,6 +33,7 @@ void kvmi_sock_put(struct kvm_introspection *kvmi);
- bool kvmi_msg_process(struct kvm_introspection *kvmi);
- int kvmi_msg_send_unhook(struct kvm_introspection *kvmi);
- u32 kvmi_msg_send_vcpu_pause(struct kvm_vcpu *vcpu);
-+u32 kvmi_msg_send_hypercall(struct kvm_vcpu *vcpu);
- 
- /* kvmi.c */
- void *kvmi_msg_alloc(void);
-@@ -41,6 +47,7 @@ int kvmi_add_job(struct kvm_vcpu *vcpu,
- 		 void *ctx, void (*free_fct)(void *ctx));
- void kvmi_run_jobs(struct kvm_vcpu *vcpu);
- void kvmi_post_reply(struct kvm_vcpu *vcpu);
-+void kvmi_handle_common_event_actions(struct kvm *kvm, u32 action);
- int kvmi_cmd_vm_control_events(struct kvm_introspection *kvmi,
- 				unsigned int event_id, bool enable);
- int kvmi_cmd_vcpu_control_events(struct kvm_vcpu *vcpu,
-@@ -70,5 +77,7 @@ int kvmi_arch_cmd_vcpu_get_registers(struct kvm_vcpu *vcpu,
- int kvmi_arch_cmd_vcpu_get_cpuid(struct kvm_vcpu *vcpu,
- 				 const struct kvmi_vcpu_get_cpuid *req,
- 				 struct kvmi_vcpu_get_cpuid_reply *rpl);
-+bool kvmi_arch_is_agent_hypercall(struct kvm_vcpu *vcpu);
-+void kvmi_arch_hypercall_event(struct kvm_vcpu *vcpu);
- 
- #endif
-diff --git a/virt/kvm/introspection/kvmi_msg.c b/virt/kvm/introspection/kvmi_msg.c
-index 61c96a24a730..80ade6055747 100644
---- a/virt/kvm/introspection/kvmi_msg.c
-+++ b/virt/kvm/introspection/kvmi_msg.c
-@@ -793,3 +793,15 @@ u32 kvmi_msg_send_vcpu_pause(struct kvm_vcpu *vcpu)
- 
- 	return action;
- }
-+
-+u32 kvmi_msg_send_hypercall(struct kvm_vcpu *vcpu)
-+{
-+	int err, action;
-+
-+	err = kvmi_send_event(vcpu, KVMI_EVENT_HYPERCALL, NULL, 0,
-+			      NULL, 0, &action);
-+	if (err)
-+		return KVMI_EVENT_ACTION_CONTINUE;
-+
-+	return action;
-+}
