@@ -1,190 +1,142 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH v9 42/84] KVM: introspection: add KVMI_VM_CHECK_COMMAND and
- KVMI_VM_CHECK_EVENT
-Date: Wed, 22 Jul 2020 00:08:40 +0300
-Message-ID: <20200721210922.7646-43-alazar@bitdefender.com>
+Subject: [PATCH v9 79/84] KVM: introspection: extend KVMI_GET_VERSION with struct kvmi_features
+Date: Wed, 22 Jul 2020 00:09:17 +0300
+Message-ID: <20200721210922.7646-80-alazar@bitdefender.com>
 References: <20200721210922.7646-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200721210922.7646-1-alazar@bitdefender.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-VGhlc2UgY29tbWFuZHMgYXJlIHVzZWQgdG8gY2hlY2sgd2hhdCBpbnRyb3NwZWN0aW9uIGNvbW1h
-bmRzIGFuZCBldmVudHMKYXJlIHN1cHBvcnRlZCAoa2VybmVsKSBhbmQgYWxsb3dlZCAoZGV2aWNl
-IG1hbmFnZXIpLgoKVGhlc2UgYXJlIGFsdGVybmF0aXZlIG1ldGhvZHMgdG8gS1ZNSV9HRVRfVkVS
-U0lPTiBpbiBjaGVja2luZyBpZiB0aGUKaW50cm9zcGVjdGlvbiBzdXBwb3J0cyBhIHNwZWNpZmlj
-IGNvbW1hbmQvZXZlbnQuCgpBcyB3aXRoIHRoZSBLVk1JX0dFVF9WRVJTSU9OIGNvbW1hbmQsIHRo
-ZXNlIHR3byBjb21tYW5kcyBjYW4gbmV2ZXIgYmUKZGlzYWxsb3dlZCBieSB0aGUgZGV2aWNlIG1h
-bmFnZXIuCgpTaWduZWQtb2ZmLWJ5OiBBZGFsYmVydCBMYXrEg3IgPGFsYXphckBiaXRkZWZlbmRl
-ci5jb20+Ci0tLQogRG9jdW1lbnRhdGlvbi92aXJ0L2t2bS9rdm1pLnJzdCAgICAgICAgICAgICAg
-IHwgNjIgKysrKysrKysrKysrKysrKysrKwogaW5jbHVkZS91YXBpL2xpbnV4L2t2bWkuaCAgICAg
-ICAgICAgICAgICAgICAgIHwgMTYgKysrKy0KIC4uLi90ZXN0aW5nL3NlbGZ0ZXN0cy9rdm0veDg2
-XzY0L2t2bWlfdGVzdC5jICB8IDU5ICsrKysrKysrKysrKysrKysrKwogdmlydC9rdm0vaW50cm9z
-cGVjdGlvbi9rdm1pLmMgICAgICAgICAgICAgICAgIHwgMTQgKysrKysKIHZpcnQva3ZtL2ludHJv
-c3BlY3Rpb24va3ZtaV9pbnQuaCAgICAgICAgICAgICB8ICAxICsKIHZpcnQva3ZtL2ludHJvc3Bl
-Y3Rpb24va3ZtaV9tc2cuYyAgICAgICAgICAgICB8IDQ1ICsrKysrKysrKysrKystCiA2IGZpbGVz
-IGNoYW5nZWQsIDE5NSBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBh
-L0RvY3VtZW50YXRpb24vdmlydC9rdm0va3ZtaS5yc3QgYi9Eb2N1bWVudGF0aW9uL3ZpcnQva3Zt
-L2t2bWkucnN0CmluZGV4IDQxZmQ0ODIyMmJjYi4uYTJjZGEzMjY4ZGEwIDEwMDY0NAotLS0gYS9E
-b2N1bWVudGF0aW9uL3ZpcnQva3ZtL2t2bWkucnN0CisrKyBiL0RvY3VtZW50YXRpb24vdmlydC9r
-dm0va3ZtaS5yc3QKQEAgLTI2MSwzICsyNjEsNjUgQEAgbGFyZ2VyL25ld2VyIG1lc3NhZ2VzLgog
-VGhlIGludHJvc3BlY3Rpb24gdG9vbCBzaG91bGQgdXNlIHRoaXMgY29tbWFuZCB0byBpZGVudGlm
-eSB0aGUgZmVhdHVyZXMKIHN1cHBvcnRlZCBieSB0aGUga2VybmVsIHNpZGUgYW5kIHdoYXQgbWVz
-c2FnZXMgbXVzdCBiZSB1c2VkIGZvciBldmVudAogcmVwbGllcy4KKworMi4gS1ZNSV9WTV9DSEVD
-S19DT01NQU5ECistLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KKworOkFyY2hpdGVjdHVyZXM6IGFs
-bAorOlZlcnNpb25zOiA+PSAxCis6UGFyYW1ldGVyczoKKworOjoKKworCXN0cnVjdCBrdm1pX3Zt
-X2NoZWNrX2NvbW1hbmQgeworCQlfX3UxNiBpZDsKKwkJX191MTYgcGFkZGluZzE7CisJCV9fdTMy
-IHBhZGRpbmcyOworCX07CisKKzpSZXR1cm5zOgorCis6OgorCisJc3RydWN0IGt2bWlfZXJyb3Jf
-Y29kZTsKKworQ2hlY2tzIGlmIHRoZSBjb21tYW5kIHNwZWNpZmllZCBieSBgYGlkYGAgaXMgc3Vw
-cG9ydGVkIGFuZCBhbGxvd2VkLgorCitUaGlzIGNvbW1hbmQgaXMgYWx3YXlzIGFsbG93ZWQuCisK
-KzpFcnJvcnM6CisKKyogLUtWTV9FTk9FTlQgLSB0aGUgY29tbWFuZCBzcGVjaWZpZWQgYnkgYGBp
-ZGBgIGlzIHVuc3VwcG9ydGVkCisqIC1LVk1fRVBFUk0gLSB0aGUgY29tbWFuZCBzcGVjaWZpZWQg
-YnkgYGBpZGBgIGlzIGRpc2FsbG93ZWQKKyogLUtWTV9FSU5WQUwgLSB0aGUgcGFkZGluZyBpcyBu
-b3QgemVybworCiszLiBLVk1JX1ZNX0NIRUNLX0VWRU5UCistLS0tLS0tLS0tLS0tLS0tLS0tLS0t
-CisKKzpBcmNoaXRlY3R1cmVzOiBhbGwKKzpWZXJzaW9uczogPj0gMQorOlBhcmFtZXRlcnM6CisK
-Kzo6CisKKwlzdHJ1Y3Qga3ZtaV92bV9jaGVja19ldmVudCB7CisJCV9fdTE2IGlkOworCQlfX3Ux
-NiBwYWRkaW5nMTsKKwkJX191MzIgcGFkZGluZzI7CisJfTsKKworOlJldHVybnM6CisKKzo6CisK
-KwlzdHJ1Y3Qga3ZtaV9lcnJvcl9jb2RlOworCitDaGVja3MgaWYgdGhlIGV2ZW50IHNwZWNpZmll
-ZCBieSBgYGlkYGAgaXMgc3VwcG9ydGVkIGFuZCBhbGxvd2VkLgorCitUaGlzIGNvbW1hbmQgaXMg
-YWx3YXlzIGFsbG93ZWQuCisKKzpFcnJvcnM6CisKKyogLUtWTV9FTk9FTlQgLSB0aGUgZXZlbnQg
-c3BlY2lmaWVkIGJ5IGBgaWRgYCBpcyB1bnN1cHBvcnRlZAorKiAtS1ZNX0VQRVJNIC0gdGhlIGV2
-ZW50IHNwZWNpZmllZCBieSBgYGlkYGAgaXMgZGlzYWxsb3dlZAorKiAtS1ZNX0VJTlZBTCAtIHRo
-ZSBwYWRkaW5nIGlzIG5vdCB6ZXJvCmRpZmYgLS1naXQgYS9pbmNsdWRlL3VhcGkvbGludXgva3Zt
-aS5oIGIvaW5jbHVkZS91YXBpL2xpbnV4L2t2bWkuaAppbmRleCA4OTZmY2I2YWJmMmMuLmU1NWEw
-ZmE2NmFjNSAxMDA2NDQKLS0tIGEvaW5jbHVkZS91YXBpL2xpbnV4L2t2bWkuaAorKysgYi9pbmNs
-dWRlL3VhcGkvbGludXgva3ZtaS5oCkBAIC0xNCw3ICsxNCw5IEBAIGVudW0gewogfTsKIAogZW51
-bSB7Ci0JS1ZNSV9HRVRfVkVSU0lPTiA9IDEsCisJS1ZNSV9HRVRfVkVSU0lPTiAgICAgID0gMSwK
-KwlLVk1JX1ZNX0NIRUNLX0NPTU1BTkQgPSAyLAorCUtWTUlfVk1fQ0hFQ0tfRVZFTlQgICA9IDMs
-CiAKIAlLVk1JX05VTV9NRVNTQUdFUwogfTsKQEAgLTQ5LDQgKzUxLDE2IEBAIHN0cnVjdCBrdm1p
-X2dldF92ZXJzaW9uX3JlcGx5IHsKIAlfX3UzMiBwYWRkaW5nOwogfTsKIAorc3RydWN0IGt2bWlf
-dm1fY2hlY2tfY29tbWFuZCB7CisJX191MTYgaWQ7CisJX191MTYgcGFkZGluZzE7CisJX191MzIg
-cGFkZGluZzI7Cit9OworCitzdHJ1Y3Qga3ZtaV92bV9jaGVja19ldmVudCB7CisJX191MTYgaWQ7
-CisJX191MTYgcGFkZGluZzE7CisJX191MzIgcGFkZGluZzI7Cit9OworCiAjZW5kaWYgLyogX1VB
-UElfX0xJTlVYX0tWTUlfSCAqLwpkaWZmIC0tZ2l0IGEvdG9vbHMvdGVzdGluZy9zZWxmdGVzdHMv
-a3ZtL3g4Nl82NC9rdm1pX3Rlc3QuYyBiL3Rvb2xzL3Rlc3Rpbmcvc2VsZnRlc3RzL2t2bS94ODZf
-NjQva3ZtaV90ZXN0LmMKaW5kZXggZDE1ZWNjYzMzMGU1Li4yODIxNmM0ZThiOWQgMTAwNjQ0Ci0t
-LSBhL3Rvb2xzL3Rlc3Rpbmcvc2VsZnRlc3RzL2t2bS94ODZfNjQva3ZtaV90ZXN0LmMKKysrIGIv
-dG9vbHMvdGVzdGluZy9zZWxmdGVzdHMva3ZtL3g4Nl82NC9rdm1pX3Rlc3QuYwpAQCAtOTksNiAr
-OTksOCBAQCBzdGF0aWMgdm9pZCBob29rX2ludHJvc3BlY3Rpb24oc3RydWN0IGt2bV92bSAqdm0p
-CiAJZG9faG9va19pb2N0bCh2bSwgS3ZtX3NvY2tldCwgbm9fcGFkZGluZywgRUVYSVNUKTsKIAog
-CXNldF9jb21tYW5kX3Blcm0odm0sIEtWTUlfR0VUX1ZFUlNJT04sIGRpc2FsbG93LCBFUEVSTSk7
-CisJc2V0X2NvbW1hbmRfcGVybSh2bSwgS1ZNSV9WTV9DSEVDS19DT01NQU5ELCBkaXNhbGxvdywg
-RVBFUk0pOworCXNldF9jb21tYW5kX3Blcm0odm0sIEtWTUlfVk1fQ0hFQ0tfRVZFTlQsIGRpc2Fs
-bG93LCBFUEVSTSk7CiAJc2V0X2NvbW1hbmRfcGVybSh2bSwgYWxsX0lEcywgYWxsb3dfaW52YWws
-IEVJTlZBTCk7CiAJc2V0X2NvbW1hbmRfcGVybSh2bSwgYWxsX0lEcywgZGlzYWxsb3csIDApOwog
-CXNldF9jb21tYW5kX3Blcm0odm0sIGFsbF9JRHMsIGFsbG93LCAwKTsKQEAgLTIzOCw2ICsyNDAs
-NjEgQEAgc3RhdGljIHZvaWQgdGVzdF9jbWRfZ2V0X3ZlcnNpb24odm9pZCkKIAlwcl9pbmZvKCJL
-Vk1JIHZlcnNpb246ICV1XG4iLCBycGwudmVyc2lvbik7CiB9CiAKK3N0YXRpYyB2b2lkIGNtZF92
-bV9jaGVja19jb21tYW5kKF9fdTE2IGlkLCBfX3UxNiBwYWRkaW5nLCBpbnQgZXhwZWN0ZWRfZXJy
-KQoreworCXN0cnVjdCB7CisJCXN0cnVjdCBrdm1pX21zZ19oZHIgaGRyOworCQlzdHJ1Y3Qga3Zt
-aV92bV9jaGVja19jb21tYW5kIGNtZDsKKwl9IHJlcSA9IHt9OworCWludCByOworCisJcmVxLmNt
-ZC5pZCA9IGlkOworCXJlcS5jbWQucGFkZGluZzEgPSBwYWRkaW5nOworCXJlcS5jbWQucGFkZGlu
-ZzIgPSBwYWRkaW5nOworCisJciA9IGRvX2NvbW1hbmQoS1ZNSV9WTV9DSEVDS19DT01NQU5ELCAm
-cmVxLmhkciwgc2l6ZW9mKHJlcSksIE5VTEwsIDApOworCVRFU1RfQVNTRVJUKHIgPT0gZXhwZWN0
-ZWRfZXJyLAorCQkiS1ZNSV9WTV9DSEVDS19DT01NQU5EIGZhaWxlZCwgZXJyb3IgJWQgKCVzKSwg
-ZXhwZWN0ZWQgJWRcbiIsCisJCS1yLCBrdm1fc3RyZXJyb3IoLXIpLCBleHBlY3RlZF9lcnIpOwor
-fQorCitzdGF0aWMgdm9pZCB0ZXN0X2NtZF92bV9jaGVja19jb21tYW5kKHZvaWQpCit7CisJX191
-MTYgdmFsaWRfaWQgPSBLVk1JX0dFVF9WRVJTSU9OLCBpbnZhbGlkX2lkID0gMHhmZmZmOworCV9f
-dTE2IHBhZGRpbmcgPSAxLCBub19wYWRkaW5nID0gMDsKKworCWNtZF92bV9jaGVja19jb21tYW5k
-KHZhbGlkX2lkLCBub19wYWRkaW5nLCAwKTsKKwljbWRfdm1fY2hlY2tfY29tbWFuZCh2YWxpZF9p
-ZCwgcGFkZGluZywgLUtWTV9FSU5WQUwpOworCWNtZF92bV9jaGVja19jb21tYW5kKGludmFsaWRf
-aWQsIG5vX3BhZGRpbmcsIC1LVk1fRU5PRU5UKTsKK30KKworc3RhdGljIHZvaWQgY21kX3ZtX2No
-ZWNrX2V2ZW50KF9fdTE2IGlkLCBfX3UxNiBwYWRkaW5nLCBpbnQgZXhwZWN0ZWRfZXJyKQorewor
-CXN0cnVjdCB7CisJCXN0cnVjdCBrdm1pX21zZ19oZHIgaGRyOworCQlzdHJ1Y3Qga3ZtaV92bV9j
-aGVja19ldmVudCBjbWQ7CisJfSByZXEgPSB7fTsKKwlpbnQgcjsKKworCXJlcS5jbWQuaWQgPSBp
-ZDsKKwlyZXEuY21kLnBhZGRpbmcxID0gcGFkZGluZzsKKwlyZXEuY21kLnBhZGRpbmcyID0gcGFk
-ZGluZzsKKworCXIgPSBkb19jb21tYW5kKEtWTUlfVk1fQ0hFQ0tfRVZFTlQsICZyZXEuaGRyLCBz
-aXplb2YocmVxKSwgTlVMTCwgMCk7CisJVEVTVF9BU1NFUlQociA9PSBleHBlY3RlZF9lcnIsCisJ
-CSJLVk1JX1ZNX0NIRUNLX0VWRU5UIGZhaWxlZCwgZXJyb3IgJWQgKCVzKSwgZXhwZWN0ZWQgJWRc
-biIsCisJCS1yLCBrdm1fc3RyZXJyb3IoLXIpLCBleHBlY3RlZF9lcnIpOworfQorCitzdGF0aWMg
-dm9pZCB0ZXN0X2NtZF92bV9jaGVja19ldmVudCh2b2lkKQoreworCV9fdTE2IGludmFsaWRfaWQg
-PSAweGZmZmY7CisJX191MTYgcGFkZGluZyA9IDEsIG5vX3BhZGRpbmcgPSAwOworCisJY21kX3Zt
-X2NoZWNrX2V2ZW50KGludmFsaWRfaWQsIHBhZGRpbmcsIC1LVk1fRUlOVkFMKTsKKwljbWRfdm1f
-Y2hlY2tfZXZlbnQoaW52YWxpZF9pZCwgbm9fcGFkZGluZywgLUtWTV9FTk9FTlQpOworfQorCiBz
-dGF0aWMgdm9pZCB0ZXN0X2ludHJvc3BlY3Rpb24oc3RydWN0IGt2bV92bSAqdm0pCiB7CiAJc2V0
-dXBfc29ja2V0KCk7CkBAIC0yNDUsNiArMzAyLDggQEAgc3RhdGljIHZvaWQgdGVzdF9pbnRyb3Nw
-ZWN0aW9uKHN0cnVjdCBrdm1fdm0gKnZtKQogCiAJdGVzdF9jbWRfaW52YWxpZCgpOwogCXRlc3Rf
-Y21kX2dldF92ZXJzaW9uKCk7CisJdGVzdF9jbWRfdm1fY2hlY2tfY29tbWFuZCgpOworCXRlc3Rf
-Y21kX3ZtX2NoZWNrX2V2ZW50KCk7CiAKIAl1bmhvb2tfaW50cm9zcGVjdGlvbih2bSk7CiB9CmRp
-ZmYgLS1naXQgYS92aXJ0L2t2bS9pbnRyb3NwZWN0aW9uL2t2bWkuYyBiL3ZpcnQva3ZtL2ludHJv
-c3BlY3Rpb24va3ZtaS5jCmluZGV4IGM0NGFhNDlkYzZiNS4uZjVjYTQ5MTY3ZjcwIDEwMDY0NAot
-LS0gYS92aXJ0L2t2bS9pbnRyb3NwZWN0aW9uL2t2bWkuYworKysgYi92aXJ0L2t2bS9pbnRyb3Nw
-ZWN0aW9uL2t2bWkuYwpAQCAtMTIsNiArMTIsNyBAQAogI2RlZmluZSBLVk1JX01TR19TSVpFX0FM
-TE9DIChzaXplb2Yoc3RydWN0IGt2bWlfbXNnX2hkcikgKyBLVk1JX01TR19TSVpFKQogCiBzdGF0
-aWMgREVDTEFSRV9CSVRNQVAoS3ZtaV9hbHdheXNfYWxsb3dlZF9jb21tYW5kcywgS1ZNSV9OVU1f
-Q09NTUFORFMpOworc3RhdGljIERFQ0xBUkVfQklUTUFQKEt2bWlfa25vd25fZXZlbnRzLCBLVk1J
-X05VTV9FVkVOVFMpOwogCiBzdGF0aWMgc3RydWN0IGttZW1fY2FjaGUgKm1zZ19jYWNoZTsKIApA
-QCAtNTEsMTUgKzUyLDI4IEBAIGJvb2wga3ZtaV9pc19jb21tYW5kX2FsbG93ZWQoc3RydWN0IGt2
-bV9pbnRyb3NwZWN0aW9uICprdm1pLCB1MTYgaWQpCiAJcmV0dXJuIGlkIDwgS1ZNSV9OVU1fQ09N
-TUFORFMgJiYgdGVzdF9iaXQoaWQsIGt2bWktPmNtZF9hbGxvd19tYXNrKTsKIH0KIAorYm9vbCBr
-dm1pX2lzX2tub3duX2V2ZW50KHU4IGlkKQoreworCXJldHVybiBpZCA8IEtWTUlfTlVNX0VWRU5U
-UyAmJiB0ZXN0X2JpdChpZCwgS3ZtaV9rbm93bl9ldmVudHMpOworfQorCiBzdGF0aWMgdm9pZCBz
-ZXR1cF9hbHdheXNfYWxsb3dlZF9jb21tYW5kcyh2b2lkKQogewogCWJpdG1hcF96ZXJvKEt2bWlf
-YWx3YXlzX2FsbG93ZWRfY29tbWFuZHMsIEtWTUlfTlVNX0NPTU1BTkRTKTsKIAlzZXRfYml0KEtW
-TUlfR0VUX1ZFUlNJT04sIEt2bWlfYWx3YXlzX2FsbG93ZWRfY29tbWFuZHMpOworCXNldF9iaXQo
-S1ZNSV9WTV9DSEVDS19DT01NQU5ELCBLdm1pX2Fsd2F5c19hbGxvd2VkX2NvbW1hbmRzKTsKKwlz
-ZXRfYml0KEtWTUlfVk1fQ0hFQ0tfRVZFTlQsIEt2bWlfYWx3YXlzX2FsbG93ZWRfY29tbWFuZHMp
-OworfQorCitzdGF0aWMgdm9pZCBzZXR1cF9rbm93bl9ldmVudHModm9pZCkKK3sKKwliaXRtYXBf
-emVybyhLdm1pX2tub3duX2V2ZW50cywgS1ZNSV9OVU1fRVZFTlRTKTsKIH0KIAogaW50IGt2bWlf
-aW5pdCh2b2lkKQogewogCXNldHVwX2Fsd2F5c19hbGxvd2VkX2NvbW1hbmRzKCk7CisJc2V0dXBf
-a25vd25fZXZlbnRzKCk7CiAKIAlyZXR1cm4ga3ZtaV9jYWNoZV9jcmVhdGUoKTsKIH0KZGlmZiAt
-LWdpdCBhL3ZpcnQva3ZtL2ludHJvc3BlY3Rpb24va3ZtaV9pbnQuaCBiL3ZpcnQva3ZtL2ludHJv
-c3BlY3Rpb24va3ZtaV9pbnQuaAppbmRleCA1ZTRlYWJlZWZjNWIuLjBiY2E0YmQwYTQxNSAxMDA2
-NDQKLS0tIGEvdmlydC9rdm0vaW50cm9zcGVjdGlvbi9rdm1pX2ludC5oCisrKyBiL3ZpcnQva3Zt
-L2ludHJvc3BlY3Rpb24va3ZtaV9pbnQuaApAQCAtMzAsNSArMzAsNiBAQCBib29sIGt2bWlfbXNn
-X3Byb2Nlc3Moc3RydWN0IGt2bV9pbnRyb3NwZWN0aW9uICprdm1pKTsKIHZvaWQgKmt2bWlfbXNn
-X2FsbG9jKHZvaWQpOwogdm9pZCBrdm1pX21zZ19mcmVlKHZvaWQgKmFkZHIpOwogYm9vbCBrdm1p
-X2lzX2NvbW1hbmRfYWxsb3dlZChzdHJ1Y3Qga3ZtX2ludHJvc3BlY3Rpb24gKmt2bWksIHUxNiBp
-ZCk7Citib29sIGt2bWlfaXNfa25vd25fZXZlbnQodTggaWQpOwogCiAjZW5kaWYKZGlmZiAtLWdp
-dCBhL3ZpcnQva3ZtL2ludHJvc3BlY3Rpb24va3ZtaV9tc2cuYyBiL3ZpcnQva3ZtL2ludHJvc3Bl
-Y3Rpb24va3ZtaV9tc2cuYwppbmRleCAzODY2MzZhYTk4MzIuLjg2YzM1NmFmYzE1NCAxMDA2NDQK
-LS0tIGEvdmlydC9rdm0vaW50cm9zcGVjdGlvbi9rdm1pX21zZy5jCisrKyBiL3ZpcnQva3ZtL2lu
-dHJvc3BlY3Rpb24va3ZtaV9tc2cuYwpAQCAtOCw2ICs4LDggQEAKICNpbmNsdWRlIDxsaW51eC9u
-ZXQuaD4KICNpbmNsdWRlICJrdm1pX2ludC5oIgogCitzdGF0aWMgYm9vbCBpc192bV9jb21tYW5k
-KHUxNiBpZCk7CisKIGJvb2wga3ZtaV9zb2NrX2dldChzdHJ1Y3Qga3ZtX2ludHJvc3BlY3Rpb24g
-Kmt2bWksIGludCBmZCkKIHsKIAlzdHJ1Y3Qgc29ja2V0ICpzb2NrOwpAQCAtMTA5LDEyICsxMTEs
-NTMgQEAgc3RhdGljIGludCBoYW5kbGVfZ2V0X3ZlcnNpb24oc3RydWN0IGt2bV9pbnRyb3NwZWN0
-aW9uICprdm1pLAogCXJldHVybiBrdm1pX21zZ192bV9yZXBseShrdm1pLCBtc2csIDAsICZycGws
-IHNpemVvZihycGwpKTsKIH0KIAorc3RhdGljIGludCBoYW5kbGVfdm1fY2hlY2tfY29tbWFuZChz
-dHJ1Y3Qga3ZtX2ludHJvc3BlY3Rpb24gKmt2bWksCisJCQkJICAgY29uc3Qgc3RydWN0IGt2bWlf
-bXNnX2hkciAqbXNnLAorCQkJCSAgIGNvbnN0IHZvaWQgKl9yZXEpCit7CisJY29uc3Qgc3RydWN0
-IGt2bWlfdm1fY2hlY2tfY29tbWFuZCAqcmVxID0gX3JlcTsKKwlpbnQgZWMgPSAwOworCisJaWYg
-KHJlcS0+cGFkZGluZzEgfHwgcmVxLT5wYWRkaW5nMikKKwkJZWMgPSAtS1ZNX0VJTlZBTDsKKwll
-bHNlIGlmICghaXNfdm1fY29tbWFuZChyZXEtPmlkKSkKKwkJZWMgPSAtS1ZNX0VOT0VOVDsKKwll
-bHNlIGlmICgha3ZtaV9pc19jb21tYW5kX2FsbG93ZWQoa3ZtaSwgcmVxLT5pZCkpCisJCWVjID0g
-LUtWTV9FUEVSTTsKKworCXJldHVybiBrdm1pX21zZ192bV9yZXBseShrdm1pLCBtc2csIGVjLCBO
-VUxMLCAwKTsKK30KKworc3RhdGljIGJvb2wgaXNfZXZlbnRfYWxsb3dlZChzdHJ1Y3Qga3ZtX2lu
-dHJvc3BlY3Rpb24gKmt2bWksIHUxNiBpZCkKK3sKKwlyZXR1cm4gaWQgPCBLVk1JX05VTV9FVkVO
-VFMgJiYgdGVzdF9iaXQoaWQsIGt2bWktPmV2ZW50X2FsbG93X21hc2spOworfQorCitzdGF0aWMg
-aW50IGhhbmRsZV92bV9jaGVja19ldmVudChzdHJ1Y3Qga3ZtX2ludHJvc3BlY3Rpb24gKmt2bWks
-CisJCQkJIGNvbnN0IHN0cnVjdCBrdm1pX21zZ19oZHIgKm1zZywKKwkJCQkgY29uc3Qgdm9pZCAq
-X3JlcSkKK3sKKwljb25zdCBzdHJ1Y3Qga3ZtaV92bV9jaGVja19ldmVudCAqcmVxID0gX3JlcTsK
-KwlpbnQgZWMgPSAwOworCisJaWYgKHJlcS0+cGFkZGluZzEgfHwgcmVxLT5wYWRkaW5nMikKKwkJ
-ZWMgPSAtS1ZNX0VJTlZBTDsKKwllbHNlIGlmICgha3ZtaV9pc19rbm93bl9ldmVudChyZXEtPmlk
-KSkKKwkJZWMgPSAtS1ZNX0VOT0VOVDsKKwllbHNlIGlmICghaXNfZXZlbnRfYWxsb3dlZChrdm1p
-LCByZXEtPmlkKSkKKwkJZWMgPSAtS1ZNX0VQRVJNOworCisJcmV0dXJuIGt2bWlfbXNnX3ZtX3Jl
-cGx5KGt2bWksIG1zZywgZWMsIE5VTEwsIDApOworfQorCiAvKgogICogVGhlc2UgY29tbWFuZHMg
-YXJlIGV4ZWN1dGVkIGJ5IHRoZSByZWNlaXZpbmcgdGhyZWFkLgogICovCiBzdGF0aWMgaW50KCpj
-b25zdCBtc2dfdm1bXSkoc3RydWN0IGt2bV9pbnRyb3NwZWN0aW9uICosCiAJCQkgICAgY29uc3Qg
-c3RydWN0IGt2bWlfbXNnX2hkciAqLCBjb25zdCB2b2lkICopID0gewotCVtLVk1JX0dFVF9WRVJT
-SU9OXSA9IGhhbmRsZV9nZXRfdmVyc2lvbiwKKwlbS1ZNSV9HRVRfVkVSU0lPTl0gICAgICA9IGhh
-bmRsZV9nZXRfdmVyc2lvbiwKKwlbS1ZNSV9WTV9DSEVDS19DT01NQU5EXSA9IGhhbmRsZV92bV9j
-aGVja19jb21tYW5kLAorCVtLVk1JX1ZNX0NIRUNLX0VWRU5UXSAgID0gaGFuZGxlX3ZtX2NoZWNr
-X2V2ZW50LAogfTsKIAogc3RhdGljIGJvb2wgaXNfdm1fY29tbWFuZCh1MTYgaWQpCl9fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
-aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
-czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
-dGlvbg==
+This is used by the introspection tool to check the hardware support
+for the single step feature.
+
+Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
+---
+ Documentation/virt/kvm/kvmi.rst                | 13 ++++++++++++-
+ arch/x86/include/uapi/asm/kvmi.h               |  5 +++++
+ arch/x86/kvm/kvmi.c                            |  5 +++++
+ include/uapi/linux/kvmi.h                      |  1 +
+ tools/testing/selftests/kvm/x86_64/kvmi_test.c |  5 +++++
+ virt/kvm/introspection/kvmi_int.h              |  1 +
+ virt/kvm/introspection/kvmi_msg.c              |  2 ++
+ 7 files changed, 31 insertions(+), 1 deletion(-)
+
+diff --git a/Documentation/virt/kvm/kvmi.rst b/Documentation/virt/kvm/kvmi.rst
+index b2e2a9edda77..47387f297029 100644
+--- a/Documentation/virt/kvm/kvmi.rst
++++ b/Documentation/virt/kvm/kvmi.rst
+@@ -254,9 +254,20 @@ The vCPU commands start with::
+ 	struct kvmi_get_version_reply {
+ 		__u32 version;
+ 		__u32 padding;
++		struct kvmi_features features;
+ 	};
+ 
+-Returns the introspection API version.
++For x86
++
++::
++
++	struct kvmi_features {
++		__u8 singlestep;
++		__u8 padding[7];
++	};
++
++Returns the introspection API version and some of the features supported
++by the hardware.
+ 
+ This command is always allowed and successful.
+ 
+diff --git a/arch/x86/include/uapi/asm/kvmi.h b/arch/x86/include/uapi/asm/kvmi.h
+index 1bb13da61dbf..32af803f1d70 100644
+--- a/arch/x86/include/uapi/asm/kvmi.h
++++ b/arch/x86/include/uapi/asm/kvmi.h
+@@ -145,4 +145,9 @@ struct kvmi_event_msr_reply {
+ 	__u64 new_val;
+ };
+ 
++struct kvmi_features {
++	__u8 singlestep;
++	__u8 padding[7];
++};
++
+ #endif /* _UAPI_ASM_X86_KVMI_H */
+diff --git a/arch/x86/kvm/kvmi.c b/arch/x86/kvm/kvmi.c
+index 8fbf1720749b..672a113b3bf4 100644
+--- a/arch/x86/kvm/kvmi.c
++++ b/arch/x86/kvm/kvmi.c
+@@ -1350,3 +1350,8 @@ static void kvmi_track_flush_slot(struct kvm *kvm, struct kvm_memory_slot *slot,
+ 
+ 	kvmi_put(kvm);
+ }
++
++void kvmi_arch_features(struct kvmi_features *feat)
++{
++	feat->singlestep = !!kvm_x86_ops.control_singlestep;
++}
+diff --git a/include/uapi/linux/kvmi.h b/include/uapi/linux/kvmi.h
+index dc7ba12498b7..a84affbafa67 100644
+--- a/include/uapi/linux/kvmi.h
++++ b/include/uapi/linux/kvmi.h
+@@ -101,6 +101,7 @@ struct kvmi_error_code {
+ struct kvmi_get_version_reply {
+ 	__u32 version;
+ 	__u32 padding;
++	struct kvmi_features features;
+ };
+ 
+ struct kvmi_vm_check_command {
+diff --git a/tools/testing/selftests/kvm/x86_64/kvmi_test.c b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
+index 21b3f7a459c8..eabe7dae149e 100644
+--- a/tools/testing/selftests/kvm/x86_64/kvmi_test.c
++++ b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
+@@ -56,6 +56,8 @@ struct vcpu_worker_data {
+ 	bool restart_on_shutdown;
+ };
+ 
++static struct kvmi_features features;
++
+ typedef void (*fct_pf_event)(struct kvm_vm *vm, struct kvmi_msg_hdr *hdr,
+ 				struct pf_ev *ev,
+ 				struct vcpu_reply *rpl);
+@@ -437,7 +439,10 @@ static void test_cmd_get_version(void)
+ 		    "Unexpected KVMI version %d, expecting %d\n",
+ 		    rpl.version, KVMI_VERSION);
+ 
++	features = rpl.features;
++
+ 	pr_info("KVMI version: %u\n", rpl.version);
++	pr_info("\tsinglestep: %u\n", features.singlestep);
+ }
+ 
+ static void cmd_vm_check_command(__u16 id, __u16 padding, int expected_err)
+diff --git a/virt/kvm/introspection/kvmi_int.h b/virt/kvm/introspection/kvmi_int.h
+index 9f2341fe21d5..68b8d60a7fac 100644
+--- a/virt/kvm/introspection/kvmi_int.h
++++ b/virt/kvm/introspection/kvmi_int.h
+@@ -138,5 +138,6 @@ void kvmi_arch_update_page_tracking(struct kvm *kvm,
+ 				    struct kvmi_mem_access *m);
+ void kvmi_arch_hook(struct kvm *kvm);
+ void kvmi_arch_unhook(struct kvm *kvm);
++void kvmi_arch_features(struct kvmi_features *feat);
+ 
+ #endif
+diff --git a/virt/kvm/introspection/kvmi_msg.c b/virt/kvm/introspection/kvmi_msg.c
+index 0a0d10b43f2d..e754cee48912 100644
+--- a/virt/kvm/introspection/kvmi_msg.c
++++ b/virt/kvm/introspection/kvmi_msg.c
+@@ -148,6 +148,8 @@ static int handle_get_version(struct kvm_introspection *kvmi,
+ 	memset(&rpl, 0, sizeof(rpl));
+ 	rpl.version = kvmi_version();
+ 
++	kvmi_arch_features(&rpl.features);
++
+ 	return kvmi_msg_vm_reply(kvmi, msg, 0, &rpl, sizeof(rpl));
+ }
+ 
