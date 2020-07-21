@@ -1,59 +1,57 @@
-From: Joerg Roedel <jroedel@suse.de>
-Subject: Re: [PATCH v4 00/75] x86: SEV-ES Guest Support
-Date: Tue, 21 Jul 2020 14:49:57 +0200
-Message-ID: <20200721124957.GD6132@suse.de>
-References: <20200714120917.11253-1-joro@8bytes.org>
- <20200715092456.GE10769@hirez.programming.kicks-ass.net>
- <20200715093426.GK16200@suse.de>
- <20200715095556.GI10769@hirez.programming.kicks-ass.net>
- <20200715101034.GM16200@suse.de>
- <CAAYXXYxJf8sr6fvbZK=t6o_to4Ov_yvZ91Hf6ZqQ-_i-HKO2VA@mail.gmail.com>
+From: Maxim Levitsky <mlevitsk@redhat.com>
+Subject: Re: [PATCH 09/10] block: scsi: sd: use
+ blk_is_valid_logical_block_size
+Date: Tue, 21 Jul 2020 15:55:37 +0300
+Message-ID: <155668af6420a6516ded0e9101e0a47401a928d9.camel@redhat.com>
+References: <20200721105239.8270-1-mlevitsk@redhat.com>
+         <20200721105239.8270-10-mlevitsk@redhat.com>
+         <CY4PR04MB375113B7D781BF2949FE5B33E7780@CY4PR04MB3751.namprd04.prod.outlook.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-Content-Disposition: inline
-In-Reply-To: <CAAYXXYxJf8sr6fvbZK=t6o_to4Ov_yvZ91Hf6ZqQ-_i-HKO2VA@mail.gmail.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Erdem Aktas <erdemaktas@google.com>
-Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>, Dave Hansen <dave.hansen@linux.intel.com>, Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>, Joerg Roedel <joro@8bytes.org>, x86@kernel.org, linux-kernel@vger.kernel.org, Sean Christopherson <sean.j.christopherson@intel.com>, virtualization@lists.linux-foundation.org, Martin Radev <martin.b.radev@gmail.com>, Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>, hpa@zytor.com, David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>, Jiri Slaby <jslaby@suse.cz>
+Return-path: <linux-block-owner@vger.kernel.org>
+In-Reply-To: <CY4PR04MB375113B7D781BF2949FE5B33E7780@CY4PR04MB3751.namprd04.prod.outlook.com>
+Sender: linux-block-owner@vger.kernel.org
+To: Damien Le Moal <Damien.LeMoal@wdc.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Keith Busch <kbusch@kernel.org>, Josef Bacik <josef@toxicpanda.com>, "open list:BLOCK LAYER" <linux-block@vger.kernel.org>, Sagi Grimberg <sagi@grimberg.me>, Jens Axboe <axboe@kernel.dk>, "open list:NVM EXPRESS DRIVER" <linux-nvme@lists.infradead.org>, "open list:SCSI CDROM DRIVER" <linux-scsi@vger.kernel.org>, Tejun Heo <tj@kernel.org>, Bart Van Assche <bvanassche@acm.org>, "Martin K. Petersen" <martin.petersen@oracle.com>, Jason Wang <jasowang@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, Colin Ian King <colin.king@canonical.com>, "Michael S. Tsirkin" <mst@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Ulf Hansson <ulf.hansson@linaro.org>, Ajay Joshi <Ajay.Joshi@wdc.com>, Ming Lei <ming.lei@redhat.>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi,
+On Tue, 2020-07-21 at 11:25 +0000, Damien Le Moal wrote:
+> On 2020/07/21 19:55, Maxim Levitsky wrote:
+> > Use blk_is_valid_logical_block_size instead of hardcoded list
+> 
+> s/hardcoded list/hardcoded checks./
+Done, thanks!
 
-On Mon, Jul 20, 2020 at 06:09:19PM -0700, Erdem Aktas wrote:
-> It looks like there is an expectation that the bootloader will start
-> from the 64bit entry point in header_64.S. With the current patch
-> series, it will not boot up if the bootloader jumps to the startup_32
-> entry, which might break some default distro images.
-> What are supported bootloaders and configurations?
-> I am using grub ( 2.02-2ubuntu8.15) and it fails to boot because of
-> this reason. I am not a grub expert, so I would appreciate any
-> pointers on this.
-
-This is right, the only supported boot path is via the 64bit EFI entry
-point. The reason is that SEV-ES requires support in the firmware too,
-and currently only OVMF is supported in that regard. The firmware needs
-to setup the AP jump-table, for example.
-
-Other boot-paths have not been implemented. Booting via startup_32 would
-require exception handling in the 32bit-part of the boot-strap code,
-because verify_cpu is called there. Also an AMD specific MSR can't be
-accessed there because this would #GP on non-AMD/SEV-ES machines and,
-as I said, there is no way yet to handle them.
-
-How did you get into the startup_32 entry-point, do you have an SEV-ES
-BIOS supporting this? If it is really needed it could be implemented at
-a later point.
-
-Regards,
-
-	Joerg
+Best regards,
+	Maxim Levitsky
+> 
+> > Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+> > ---
+> >  drivers/scsi/sd.c | 5 +----
+> >  1 file changed, 1 insertion(+), 4 deletions(-)
+> > 
+> > diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
+> > index d90fefffe31b7..f012e7397b058 100644
+> > --- a/drivers/scsi/sd.c
+> > +++ b/drivers/scsi/sd.c
+> > @@ -2520,10 +2520,7 @@ sd_read_capacity(struct scsi_disk *sdkp,
+> > unsigned char *buffer)
+> >  			  "assuming 512.\n");
+> >  	}
+> >  
+> > -	if (sector_size != 512 &&
+> > -	    sector_size != 1024 &&
+> > -	    sector_size != 2048 &&
+> > -	    sector_size != 4096) {
+> > +	if (!blk_is_valid_logical_block_size(sector_size)) {
+> >  		sd_printk(KERN_NOTICE, sdkp, "Unsupported sector size
+> > %d.\n",
+> >  			  sector_size);
+> >  		/*
+> > 
+> 
+> With the commit message fixed, looks OK.
+> 
+> Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+> 
