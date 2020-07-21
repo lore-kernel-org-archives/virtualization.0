@@ -1,57 +1,166 @@
-From: Maxim Levitsky <mlevitsk@redhat.com>
-Subject: Re: [PATCH 09/10] block: scsi: sd: use
- blk_is_valid_logical_block_size
-Date: Tue, 21 Jul 2020 15:55:37 +0300
-Message-ID: <155668af6420a6516ded0e9101e0a47401a928d9.camel@redhat.com>
-References: <20200721105239.8270-1-mlevitsk@redhat.com>
-         <20200721105239.8270-10-mlevitsk@redhat.com>
-         <CY4PR04MB375113B7D781BF2949FE5B33E7780@CY4PR04MB3751.namprd04.prod.outlook.com>
+From: Waiman Long <longman@redhat.com>
+Subject: Re: [PATCH v3 0/6] powerpc: queued spinlocks and rwlocks
+Date: Tue, 21 Jul 2020 10:36:16 -0400
+Message-ID: <eaabf501-80fe-dd15-c03c-f75ce4f75877@redhat.com>
+References: <20200706043540.1563616-1-npiggin@gmail.com>
+ <24f75d2c-60cd-2766-4aab-1a3b1c80646e@redhat.com>
+ <1594101082.hfq9x5yact.astroid@bobo.none>
+ <20200708084106.GE597537@hirez.programming.kicks-ass.net>
+ <1595327263.lk78cqolxm.astroid@bobo.none>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Return-path: <linux-block-owner@vger.kernel.org>
-In-Reply-To: <CY4PR04MB375113B7D781BF2949FE5B33E7780@CY4PR04MB3751.namprd04.prod.outlook.com>
-Sender: linux-block-owner@vger.kernel.org
-To: Damien Le Moal <Damien.LeMoal@wdc.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Keith Busch <kbusch@kernel.org>, Josef Bacik <josef@toxicpanda.com>, "open list:BLOCK LAYER" <linux-block@vger.kernel.org>, Sagi Grimberg <sagi@grimberg.me>, Jens Axboe <axboe@kernel.dk>, "open list:NVM EXPRESS DRIVER" <linux-nvme@lists.infradead.org>, "open list:SCSI CDROM DRIVER" <linux-scsi@vger.kernel.org>, Tejun Heo <tj@kernel.org>, Bart Van Assche <bvanassche@acm.org>, "Martin K. Petersen" <martin.petersen@oracle.com>, Jason Wang <jasowang@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, Colin Ian King <colin.king@canonical.com>, "Michael S. Tsirkin" <mst@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Ulf Hansson <ulf.hansson@linaro.org>, Ajay Joshi <Ajay.Joshi@wdc.com>, Ming Lei <ming.lei@redhat.>
+Return-path: <linux-arch-owner@vger.kernel.org>
+In-Reply-To: <1595327263.lk78cqolxm.astroid@bobo.none>
+Content-Language: en-US
+Sender: linux-arch-owner@vger.kernel.org
+To: Nicholas Piggin <npiggin@gmail.com>, Peter Zijlstra <peterz@infradead.org>
+Cc: Anton Blanchard <anton@ozlabs.org>, Boqun Feng <boqun.feng@gmail.com>, kvm-ppc@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Ingo Molnar <mingo@redhat.com>, virtualization@lists.linux-foundation.org, Will Deacon <will@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2020-07-21 at 11:25 +0000, Damien Le Moal wrote:
-> On 2020/07/21 19:55, Maxim Levitsky wrote:
-> > Use blk_is_valid_logical_block_size instead of hardcoded list
-> 
-> s/hardcoded list/hardcoded checks./
-Done, thanks!
+On 7/21/20 7:08 AM, Nicholas Piggin wrote:
+> diff --git a/arch/powerpc/include/asm/qspinlock.h b/arch/powerpc/include/asm/qspinlock.h
+> index b752d34517b3..26d8766a1106 100644
+> --- a/arch/powerpc/include/asm/qspinlock.h
+> +++ b/arch/powerpc/include/asm/qspinlock.h
+> @@ -31,16 +31,57 @@ static inline void queued_spin_unlock(struct qspinlock *lock)
+>   
+>   #else
+>   extern void queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
+> +extern void queued_spin_lock_slowpath_queue(struct qspinlock *lock);
+>   #endif
+>   
+>   static __always_inline void queued_spin_lock(struct qspinlock *lock)
+>   {
+> -	u32 val = 0;
+> -
+> -	if (likely(atomic_try_cmpxchg_lock(&lock->val, &val, _Q_LOCKED_VAL)))
+> +	atomic_t *a = &lock->val;
+> +	u32 val;
+> +
+> +again:
+> +	asm volatile(
+> +"1:\t"	PPC_LWARX(%0,0,%1,1) "	# queued_spin_lock			\n"
+> +	: "=&r" (val)
+> +	: "r" (&a->counter)
+> +	: "memory");
+> +
+> +	if (likely(val == 0)) {
+> +		asm_volatile_goto(
+> +	"	stwcx.	%0,0,%1							\n"
+> +	"	bne-	%l[again]						\n"
+> +	"\t"	PPC_ACQUIRE_BARRIER "						\n"
+> +		:
+> +		: "r"(_Q_LOCKED_VAL), "r" (&a->counter)
+> +		: "cr0", "memory"
+> +		: again );
+>   		return;
+> -
+> -	queued_spin_lock_slowpath(lock, val);
+> +	}
+> +
+> +	if (likely(val == _Q_LOCKED_VAL)) {
+> +		asm_volatile_goto(
+> +	"	stwcx.	%0,0,%1							\n"
+> +	"	bne-	%l[again]						\n"
+> +		:
+> +		: "r"(_Q_LOCKED_VAL | _Q_PENDING_VAL), "r" (&a->counter)
+> +		: "cr0", "memory"
+> +		: again );
+> +
+> +		atomic_cond_read_acquire(a, !(VAL & _Q_LOCKED_MASK));
+> +//		clear_pending_set_locked(lock);
+> +		WRITE_ONCE(lock->locked_pending, _Q_LOCKED_VAL);
+> +//		lockevent_inc(lock_pending);
+> +		return;
+> +	}
+> +
+> +	if (val == _Q_PENDING_VAL) {
+> +		int cnt = _Q_PENDING_LOOPS;
+> +		val = atomic_cond_read_relaxed(a,
+> +					       (VAL != _Q_PENDING_VAL) || !cnt--);
+> +		if (!(val & ~_Q_LOCKED_MASK))
+> +			goto again;
+> +        }
+> +	queued_spin_lock_slowpath_queue(lock);
+>   }
+>   #define queued_spin_lock queued_spin_lock
+>   
 
-Best regards,
-	Maxim Levitsky
-> 
-> > Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
-> > ---
-> >  drivers/scsi/sd.c | 5 +----
-> >  1 file changed, 1 insertion(+), 4 deletions(-)
-> > 
-> > diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
-> > index d90fefffe31b7..f012e7397b058 100644
-> > --- a/drivers/scsi/sd.c
-> > +++ b/drivers/scsi/sd.c
-> > @@ -2520,10 +2520,7 @@ sd_read_capacity(struct scsi_disk *sdkp,
-> > unsigned char *buffer)
-> >  			  "assuming 512.\n");
-> >  	}
-> >  
-> > -	if (sector_size != 512 &&
-> > -	    sector_size != 1024 &&
-> > -	    sector_size != 2048 &&
-> > -	    sector_size != 4096) {
-> > +	if (!blk_is_valid_logical_block_size(sector_size)) {
-> >  		sd_printk(KERN_NOTICE, sdkp, "Unsupported sector size
-> > %d.\n",
-> >  			  sector_size);
-> >  		/*
-> > 
-> 
-> With the commit message fixed, looks OK.
-> 
-> Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
-> 
+I am fine with the arch code override some part of the generic code.
+
+
+> diff --git a/kernel/locking/qspinlock.c b/kernel/locking/qspinlock.c
+> index b9515fcc9b29..ebcc6f5d99d5 100644
+> --- a/kernel/locking/qspinlock.c
+> +++ b/kernel/locking/qspinlock.c
+> @@ -287,10 +287,14 @@ static __always_inline u32  __pv_wait_head_or_lock(struct qspinlock *lock,
+>   
+>   #ifdef CONFIG_PARAVIRT_SPINLOCKS
+>   #define queued_spin_lock_slowpath	native_queued_spin_lock_slowpath
+> +#define queued_spin_lock_slowpath_queue	native_queued_spin_lock_slowpath_queue
+>   #endif
+>   
+>   #endif /* _GEN_PV_LOCK_SLOWPATH */
+>   
+> +void queued_spin_lock_slowpath_queue(struct qspinlock *lock);
+> +static void __queued_spin_lock_slowpath_queue(struct qspinlock *lock);
+> +
+>   /**
+>    * queued_spin_lock_slowpath - acquire the queued spinlock
+>    * @lock: Pointer to queued spinlock structure
+> @@ -314,12 +318,6 @@ static __always_inline u32  __pv_wait_head_or_lock(struct qspinlock *lock,
+>    */
+>   void queued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
+>   {
+> -	struct mcs_spinlock *prev, *next, *node;
+> -	u32 old, tail;
+> -	int idx;
+> -
+> -	BUILD_BUG_ON(CONFIG_NR_CPUS >= (1U << _Q_TAIL_CPU_BITS));
+> -
+>   	if (pv_enabled())
+>   		goto pv_queue;
+>   
+> @@ -397,6 +395,26 @@ void queued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
+>   queue:
+>   	lockevent_inc(lock_slowpath);
+>   pv_queue:
+> +	__queued_spin_lock_slowpath_queue(lock);
+> +}
+> +EXPORT_SYMBOL(queued_spin_lock_slowpath);
+> +
+> +void queued_spin_lock_slowpath_queue(struct qspinlock *lock)
+> +{
+> +	lockevent_inc(lock_slowpath);
+> +	__queued_spin_lock_slowpath_queue(lock);
+> +}
+> +EXPORT_SYMBOL(queued_spin_lock_slowpath_queue);
+> +
+> +static void __queued_spin_lock_slowpath_queue(struct qspinlock *lock)
+> +{
+> +	struct mcs_spinlock *prev, *next, *node;
+> +	u32 old, tail;
+> +	u32 val;
+> +	int idx;
+> +
+> +	BUILD_BUG_ON(CONFIG_NR_CPUS >= (1U << _Q_TAIL_CPU_BITS));
+> +
+>   	node = this_cpu_ptr(&qnodes[0].mcs);
+>   	idx = node->count++;
+>   	tail = encode_tail(smp_processor_id(), idx);
+> @@ -559,7 +577,6 @@ void queued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
+>   	 */
+>   	__this_cpu_dec(qnodes[0].mcs.count);
+>   }
+> -EXPORT_SYMBOL(queued_spin_lock_slowpath);
+>   
+>   /*
+>    * Generate the paravirt code for queued_spin_unlock_slowpath().
+>
+I would prefer to extract out the pending bit handling code out into a 
+separate helper function which can be overridden by the arch code 
+instead of breaking the slowpath into 2 pieces.
+
+Cheers,
+Longman
