@@ -1,40 +1,73 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH v9 21/84] KVM: x86: vmx: use a symbolic constant when checking the exit qualifications
-Date: Wed, 22 Jul 2020 00:08:19 +0300
-Message-ID: <20200721210922.7646-22-alazar@bitdefender.com>
+Subject: [PATCH v9 07/84] KVM: x86: add kvm_arch_vcpu_set_regs()
+Date: Wed, 22 Jul 2020 00:08:05 +0300
+Message-ID: <20200721210922.7646-8-alazar@bitdefender.com>
 References: <20200721210922.7646-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200721210922.7646-1-alazar@bitdefender.com>
-Sender: kvm-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Mihai Donțu <mdontu@bitdefender.com>
-
-This should make the code more readable.
-
-Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
-Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
----
- arch/x86/kvm/vmx/vmx.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index fed661eb65a7..cd498ece8b52 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -5361,8 +5361,8 @@ static int handle_ept_violation(struct kvm_vcpu *vcpu)
- 			EPT_VIOLATION_EXECUTABLE))
- 		      ? PFERR_PRESENT_MASK : 0;
- 
--	error_code |= (exit_qualification & 0x100) != 0 ?
--	       PFERR_GUEST_FINAL_MASK : PFERR_GUEST_PAGE_MASK;
-+	error_code |= (exit_qualification & EPT_VIOLATION_GVA_TRANSLATED)
-+		      ? PFERR_GUEST_FINAL_MASK : PFERR_GUEST_PAGE_MASK;
- 
- 	vcpu->arch.exit_qualification = exit_qualification;
- 	return kvm_mmu_page_fault(vcpu, gpa, error_code, NULL, 0);
+RnJvbTogTmljdciZb3IgQ8OuyJt1IDxuY2l0dUBiaXRkZWZlbmRlci5jb20+CgpUaGlzIGlzIG5l
+ZWRlZCBmb3IgdGhlIEtWTUlfVkNQVV9TRVRfUkVHSVNURVJTIGNvbW1hbmQsCndpdGhvdXQgY2xl
+YXJpbmcgdGhlIHBlbmRpbmcgZXhjZXB0aW9uLgoKVGhlIEtWTUlfVkNQVV9TRVRfUkVHSVNURVJT
+IGNvbW1tYW5kIGFsbG93cyB0aGUgaW50cm9zcGVjdGlvbnQgdG9vbCB0bwpvdmVycmlkZSB0aGUg
+a3ZtX3JlZ3Mgc3RydWN0dXJlIG9mIGEgc3BlY2lmaWMgdkNQVS4gQnV0IGluIG1vc3QgY2FzZXMK
+dGhpcyBpcyB1c2VkIHRvIGluY3JlbWVudCB0aGUgcHJvZ3JhbSBjb3VudGVyLgoKU2lnbmVkLW9m
+Zi1ieTogTmljdciZb3IgQ8OuyJt1IDxuY2l0dUBiaXRkZWZlbmRlci5jb20+ClNpZ25lZC1vZmYt
+Ynk6IEFkYWxiZXJ0IExhesSDciA8YWxhemFyQGJpdGRlZmVuZGVyLmNvbT4KLS0tCiBhcmNoL3g4
+Ni9rdm0veDg2LmMgICAgICAgfCAyMSArKysrKysrKysrKysrKy0tLS0tLS0KIGluY2x1ZGUvbGlu
+dXgva3ZtX2hvc3QuaCB8ICAyICsrCiAyIGZpbGVzIGNoYW5nZWQsIDE2IGluc2VydGlvbnMoKyks
+IDcgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvYXJjaC94ODYva3ZtL3g4Ni5jIGIvYXJjaC94
+ODYva3ZtL3g4Ni5jCmluZGV4IDEwNDEwZWJkYTAzNC4uZTk3M2ZmZTA0ZDU0IDEwMDY0NAotLS0g
+YS9hcmNoL3g4Ni9rdm0veDg2LmMKKysrIGIvYXJjaC94ODYva3ZtL3g4Ni5jCkBAIC04OTcwLDE2
+ICs4OTcwLDIzIEBAIHN0YXRpYyB2b2lkIF9fc2V0X3JlZ3Moc3RydWN0IGt2bV92Y3B1ICp2Y3B1
+LCBzdHJ1Y3Qga3ZtX3JlZ3MgKnJlZ3MpCiAKIAlrdm1fcmlwX3dyaXRlKHZjcHUsIHJlZ3MtPnJp
+cCk7CiAJa3ZtX3NldF9yZmxhZ3ModmNwdSwgcmVncy0+cmZsYWdzIHwgWDg2X0VGTEFHU19GSVhF
+RCk7Ci0KLQl2Y3B1LT5hcmNoLmV4Y2VwdGlvbi5wZW5kaW5nID0gZmFsc2U7Ci0KLQlrdm1fbWFr
+ZV9yZXF1ZXN0KEtWTV9SRVFfRVZFTlQsIHZjcHUpOwogfQogCi1pbnQga3ZtX2FyY2hfdmNwdV9p
+b2N0bF9zZXRfcmVncyhzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUsIHN0cnVjdCBrdm1fcmVncyAqcmVn
+cykKK3ZvaWQga3ZtX2FyY2hfdmNwdV9zZXRfcmVncyhzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUsIHN0
+cnVjdCBrdm1fcmVncyAqcmVncywKKwkJCSAgICBib29sIGNsZWFyX2V4Y2VwdGlvbikKIHsKLQl2
+Y3B1X2xvYWQodmNwdSk7CiAJX19zZXRfcmVncyh2Y3B1LCByZWdzKTsKKworCWlmIChjbGVhcl9l
+eGNlcHRpb24pCisJCXZjcHUtPmFyY2guZXhjZXB0aW9uLnBlbmRpbmcgPSBmYWxzZTsKKworCWt2
+bV9tYWtlX3JlcXVlc3QoS1ZNX1JFUV9FVkVOVCwgdmNwdSk7Cit9CisKK2ludCBrdm1fYXJjaF92
+Y3B1X2lvY3RsX3NldF9yZWdzKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSwgc3RydWN0IGt2bV9yZWdz
+ICpyZWdzKQoreworCXZjcHVfbG9hZCh2Y3B1KTsKKwlrdm1fYXJjaF92Y3B1X3NldF9yZWdzKHZj
+cHUsIHJlZ3MsIHRydWUpOwogCXZjcHVfcHV0KHZjcHUpOwogCXJldHVybiAwOwogfQpAQCAtOTM4
+Niw3ICs5MzkzLDcgQEAgc3RhdGljIGludCBzeW5jX3JlZ3Moc3RydWN0IGt2bV92Y3B1ICp2Y3B1
+KQogCQlyZXR1cm4gLUVJTlZBTDsKIAogCWlmICh2Y3B1LT5ydW4tPmt2bV9kaXJ0eV9yZWdzICYg
+S1ZNX1NZTkNfWDg2X1JFR1MpIHsKLQkJX19zZXRfcmVncyh2Y3B1LCAmdmNwdS0+cnVuLT5zLnJl
+Z3MucmVncyk7CisJCWt2bV9hcmNoX3ZjcHVfc2V0X3JlZ3ModmNwdSwgJnZjcHUtPnJ1bi0+cy5y
+ZWdzLnJlZ3MsIHRydWUpOwogCQl2Y3B1LT5ydW4tPmt2bV9kaXJ0eV9yZWdzICY9IH5LVk1fU1lO
+Q19YODZfUkVHUzsKIAl9CiAJaWYgKHZjcHUtPnJ1bi0+a3ZtX2RpcnR5X3JlZ3MgJiBLVk1fU1lO
+Q19YODZfU1JFR1MpIHsKZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgva3ZtX2hvc3QuaCBiL2lu
+Y2x1ZGUvbGludXgva3ZtX2hvc3QuaAppbmRleCAyM2FiNDkzMmY3ZTcuLjQ5Y2JkMTc1ZjQ1YiAx
+MDA2NDQKLS0tIGEvaW5jbHVkZS9saW51eC9rdm1faG9zdC5oCisrKyBiL2luY2x1ZGUvbGludXgv
+a3ZtX2hvc3QuaApAQCAtODY2LDYgKzg2Niw4IEBAIGludCBrdm1fYXJjaF92Y3B1X2lvY3RsX3Ry
+YW5zbGF0ZShzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUsCiBpbnQga3ZtX2FyY2hfdmNwdV9pb2N0bF9n
+ZXRfcmVncyhzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUsIHN0cnVjdCBrdm1fcmVncyAqcmVncyk7CiB2
+b2lkIGt2bV9hcmNoX3ZjcHVfZ2V0X3JlZ3Moc3RydWN0IGt2bV92Y3B1ICp2Y3B1LCBzdHJ1Y3Qg
+a3ZtX3JlZ3MgKnJlZ3MpOwogaW50IGt2bV9hcmNoX3ZjcHVfaW9jdGxfc2V0X3JlZ3Moc3RydWN0
+IGt2bV92Y3B1ICp2Y3B1LCBzdHJ1Y3Qga3ZtX3JlZ3MgKnJlZ3MpOwordm9pZCBrdm1fYXJjaF92
+Y3B1X3NldF9yZWdzKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSwgc3RydWN0IGt2bV9yZWdzICpyZWdz
+LAorCQkJICAgIGJvb2wgY2xlYXJfZXhjZXB0aW9uKTsKIGludCBrdm1fYXJjaF92Y3B1X2lvY3Rs
+X2dldF9zcmVncyhzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUsCiAJCQkJICBzdHJ1Y3Qga3ZtX3NyZWdz
+ICpzcmVncyk7CiB2b2lkIGt2bV9hcmNoX3ZjcHVfZ2V0X3NyZWdzKHN0cnVjdCBrdm1fdmNwdSAq
+dmNwdSwKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
+dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
+YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
+bmZvL3ZpcnR1YWxpemF0aW9u
