@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH v9 24/84] KVM: x86: add .spt_fault()
-Date: Wed, 22 Jul 2020 00:08:22 +0300
-Message-ID: <20200721210922.7646-25-alazar@bitdefender.com>
+Subject: [PATCH v9 30/84] KVM: x86: export kvm_vcpu_ioctl_x86_get_xsave()
+Date: Wed, 22 Jul 2020 00:08:28 +0300
+Message-ID: <20200721210922.7646-31-alazar@bitdefender.com>
 References: <20200721210922.7646-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -10,87 +10,45 @@ Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200721210922.7646-1-alazar@bitdefender.com>
 Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Mihai Donțu <mdontu@bitdefender.com>
+From: Nicușor Cîțu <ncitu@bitdefender.com>
 
-This function is needed for the KVMI_EVENT_PF event, to avoid sending
-such events to the introspection tool if not caused by a SPT page fault.
+This function is needed for the KVMI_VCPU_GET_XSAVE command.
 
-The code path is: emulator -> {read,write,fetch} callbacks -> page tracking
--> page tracking callbacks -> KVMI_EVENT_PF.
-
-Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
+Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- arch/x86/include/asm/kvm_host.h | 1 +
- arch/x86/kvm/svm/svm.c          | 9 +++++++++
- arch/x86/kvm/vmx/vmx.c          | 8 ++++++++
- 3 files changed, 18 insertions(+)
+ arch/x86/kvm/x86.c       | 4 ++--
+ include/linux/kvm_host.h | 2 ++
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index ccf2804f46b9..fb41199b33fc 100644
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -1292,6 +1292,7 @@ struct kvm_x86_ops {
- 	void (*migrate_timers)(struct kvm_vcpu *vcpu);
- 
- 	u64 (*fault_gla)(struct kvm_vcpu *vcpu);
-+	bool (*spt_fault)(struct kvm_vcpu *vcpu);
- };
- 
- struct kvm_x86_nested_ops {
-diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index 86b670ff33dd..7ecfa10dce5d 100644
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -4089,6 +4089,14 @@ static u64 svm_fault_gla(struct kvm_vcpu *vcpu)
- 	return svm->vcpu.arch.cr2 ? svm->vcpu.arch.cr2 : ~0ull;
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 52181eb131dd..4d5be48b5239 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -4207,8 +4207,8 @@ static void load_xsave(struct kvm_vcpu *vcpu, u8 *src)
+ 	}
  }
  
-+static bool svm_spt_fault(struct kvm_vcpu *vcpu)
-+{
-+	struct vcpu_svm *svm = to_svm(vcpu);
-+	struct vmcb *vmcb = get_host_vmcb(svm);
-+
-+	return (vmcb->control.exit_code == SVM_EXIT_NPF);
-+}
-+
- static struct kvm_x86_ops svm_x86_ops __initdata = {
- 	.hardware_unsetup = svm_hardware_teardown,
- 	.hardware_enable = svm_hardware_enable,
-@@ -4217,6 +4225,7 @@ static struct kvm_x86_ops svm_x86_ops __initdata = {
- 	.apic_init_signal_blocked = svm_apic_init_signal_blocked,
+-static void kvm_vcpu_ioctl_x86_get_xsave(struct kvm_vcpu *vcpu,
+-					 struct kvm_xsave *guest_xsave)
++void kvm_vcpu_ioctl_x86_get_xsave(struct kvm_vcpu *vcpu,
++				  struct kvm_xsave *guest_xsave)
+ {
+ 	if (boot_cpu_has(X86_FEATURE_XSAVE)) {
+ 		memset(guest_xsave, 0, sizeof(struct kvm_xsave));
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 01628f7bcbcd..f138d56450c0 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -883,6 +883,8 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
+ int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu);
+ int kvm_arch_vcpu_set_guest_debug(struct kvm_vcpu *vcpu,
+ 				  struct kvm_guest_debug *dbg);
++void kvm_vcpu_ioctl_x86_get_xsave(struct kvm_vcpu *vcpu,
++				  struct kvm_xsave *guest_xsave);
  
- 	.fault_gla = svm_fault_gla,
-+	.spt_fault = svm_spt_fault,
- };
- 
- static struct kvm_x86_init_ops svm_init_ops __initdata = {
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index a04c46cde5b3..17b88345dfb5 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -7909,6 +7909,13 @@ static u64 vmx_fault_gla(struct kvm_vcpu *vcpu)
- 	return ~0ull;
- }
- 
-+static bool vmx_spt_fault(struct kvm_vcpu *vcpu)
-+{
-+	const struct vcpu_vmx *vmx = to_vmx(vcpu);
-+
-+	return (vmx->exit_reason == EXIT_REASON_EPT_VIOLATION);
-+}
-+
- static struct kvm_x86_ops vmx_x86_ops __initdata = {
- 	.hardware_unsetup = hardware_unsetup,
- 
-@@ -8047,6 +8054,7 @@ static struct kvm_x86_ops vmx_x86_ops __initdata = {
- 	.migrate_timers = vmx_migrate_timers,
- 
- 	.fault_gla = vmx_fault_gla,
-+	.spt_fault = vmx_spt_fault,
- };
- 
- static __init int hardware_setup(void)
+ int kvm_arch_init(void *opaque);
+ void kvm_arch_exit(void);
