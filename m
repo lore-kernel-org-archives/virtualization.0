@@ -1,103 +1,64 @@
-From: Maxim Levitsky <mlevitsk@redhat.com>
-Subject: Re: [PATCH 01/10] block: introduce blk_is_valid_logical_block_size
-Date: Tue, 21 Jul 2020 14:09:16 +0300
-Message-ID: <cef747910431d81524e455e6380df1c610d1884c.camel@redhat.com>
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Subject: Re: [PATCH 05/10] block: null: use blk_is_valid_logical_block_size
+Date: Tue, 21 Jul 2020 11:15:51 +0000
+Message-ID: <CY4PR04MB3751882A6BDF7C073D6ECF88E7780@CY4PR04MB3751.namprd04.prod.outlook.com>
 References: <20200721105239.8270-1-mlevitsk@redhat.com>
-         <20200721105239.8270-2-mlevitsk@redhat.com>
-         <CY4PR04MB37512BDEFD7B977FCD32A10AE7780@CY4PR04MB3751.namprd04.prod.outlook.com>
+ <20200721105239.8270-6-mlevitsk@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Return-path: <linux-mmc-owner@vger.kernel.org>
-In-Reply-To: <CY4PR04MB37512BDEFD7B977FCD32A10AE7780@CY4PR04MB3751.namprd04.prod.outlook.com>
+Content-Language: en-US
 Sender: linux-mmc-owner@vger.kernel.org
-To: Damien Le Moal <Damien.LeMoal@wdc.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+To: Maxim Levitsky <mlevitsk@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Cc: Keith Busch <kbusch@kernel.org>, Josef Bacik <josef@toxicpanda.com>, "open list:BLOCK LAYER" <linux-block@vger.kernel.org>, Sagi Grimberg <sagi@grimberg.me>, Jens Axboe <axboe@kernel.dk>, "open list:NVM EXPRESS DRIVER" <linux-nvme@lists.infradead.org>, "open list:SCSI CDROM DRIVER" <linux-scsi@vger.kernel.org>, Tejun Heo <tj@kernel.org>, Bart Van Assche <bvanassche@acm.org>, "Martin K. Petersen" <martin.petersen@oracle.com>, Jason Wang <jasowang@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, Colin Ian King <colin.king@canonical.com>, "Michael S. Tsirkin" <mst@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Ulf Hansson <ulf.hansson@linaro.org>, Ajay Joshi <Ajay.Joshi@wdc.com>, Ming Lei <ming.lei@redhat.>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2020-07-21 at 11:05 +0000, Damien Le Moal wrote:
-> On 2020/07/21 19:53, Maxim Levitsky wrote:
-> > Kernel block layer has never supported logical block
-> > sizes less that SECTOR_SIZE nor larger that PAGE_SIZE.
-> > 
-> > Some drivers have runtime configurable block size,
-> > so it makes sense to have common helper for that.
-> 
-> ...common helper to check the validity of the logical block size set by the driver.
-Agree, will fix.
-> 
-> ("for that" does not refer to a clear action)
-> 
-> > Signed-off-by: Maxim Levitsky  <mlevitsk@redhat.com>
-> > ---
-> >  block/blk-settings.c   | 18 ++++++++++++++++++
-> >  include/linux/blkdev.h |  1 +
-> >  2 files changed, 19 insertions(+)
-> > 
-> > diff --git a/block/blk-settings.c b/block/blk-settings.c
-> > index 9a2c23cd97007..3c4ef0d00c2bc 100644
-> > --- a/block/blk-settings.c
-> > +++ b/block/blk-settings.c
-> > @@ -311,6 +311,21 @@ void blk_queue_max_segment_size(struct request_queue *q, unsigned int max_size)
-> >  }
-> >  EXPORT_SYMBOL(blk_queue_max_segment_size);
-> >  
-> > +
-> > +/**
-> > + * blk_check_logical_block_size - check if logical block size is supported
-> > + * by the kernel
-> > + * @size:  the logical block size, in bytes
-> > + *
-> > + * Description:
-> > + *   This function checks if the block layers supports given block size
-> > + **/
-> > +bool blk_is_valid_logical_block_size(unsigned int size)
-> > +{
-> > +	return size >= SECTOR_SIZE && size <= PAGE_SIZE && !is_power_of_2(size);
-Note here a typo, made in last minute change which I didn't test.
-It should be without '!'
-
-Best regards,
-	Maxim Levitsky
-
-> > +}
-> > +EXPORT_SYMBOL(blk_is_valid_logical_block_size);
-> > +
-> >  /**
-> >   * blk_queue_logical_block_size - set logical block size for the queue
-> >   * @q:  the request queue for the device
-> > @@ -323,6 +338,8 @@ EXPORT_SYMBOL(blk_queue_max_segment_size);
-> >   **/
-> >  void blk_queue_logical_block_size(struct request_queue *q, unsigned int size)
-> >  {
-> > +	WARN_ON(!blk_is_valid_logical_block_size(size));
-> > +
-> >  	q->limits.logical_block_size = size;
-> >  
-> >  	if (q->limits.physical_block_size < size)
-> > @@ -330,6 +347,7 @@ void blk_queue_logical_block_size(struct request_queue *q, unsigned int size)
-> >  
-> >  	if (q->limits.io_min < q->limits.physical_block_size)
-> >  		q->limits.io_min = q->limits.physical_block_size;
-> > +
-> 
-> white line change.
-> 
-> >  }
-> >  EXPORT_SYMBOL(blk_queue_logical_block_size);
-> >  
-> > diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-> > index 57241417ff2f8..2ed3151397e41 100644
-> > --- a/include/linux/blkdev.h
-> > +++ b/include/linux/blkdev.h
-> > @@ -1099,6 +1099,7 @@ extern void blk_queue_max_write_same_sectors(struct request_queue *q,
-> >  		unsigned int max_write_same_sectors);
-> >  extern void blk_queue_max_write_zeroes_sectors(struct request_queue *q,
-> >  		unsigned int max_write_same_sectors);
-> > +extern bool blk_is_valid_logical_block_size(unsigned int size);
-> >  extern void blk_queue_logical_block_size(struct request_queue *, unsigned int);
-> >  extern void blk_queue_max_zone_append_sectors(struct request_queue *q,
-> >  		unsigned int max_zone_append_sectors);
-> > 
-> 
-> 
+On 2020/07/21 19:54, Maxim Levitsky wrote:=0A=
+> This slightly changes the behavier of the driver,=0A=
+=0A=
+s/behavier/behavior=0A=
+=0A=
+> when given invalid block size (non power of two, or below 512 bytes),=0A=
+> but shoudn't matter.=0A=
+> =0A=
+> Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>=0A=
+> ---=0A=
+>  drivers/block/null_blk_main.c | 6 +++---=0A=
+>  1 file changed, 3 insertions(+), 3 deletions(-)=0A=
+> =0A=
+> diff --git a/drivers/block/null_blk_main.c b/drivers/block/null_blk_main.=
+c=0A=
+> index 87b31f9ca362e..e4df4b903b90b 100644=0A=
+> --- a/drivers/block/null_blk_main.c=0A=
+> +++ b/drivers/block/null_blk_main.c=0A=
+> @@ -1684,8 +1684,8 @@ static int null_init_tag_set(struct nullb *nullb, s=
+truct blk_mq_tag_set *set)=0A=
+>  =0A=
+>  static int null_validate_conf(struct nullb_device *dev)=0A=
+>  {=0A=
+> -	dev->blocksize =3D round_down(dev->blocksize, 512);=0A=
+> -	dev->blocksize =3D clamp_t(unsigned int, dev->blocksize, 512, 4096);=0A=
+> +	if (!blk_is_valid_logical_block_size(dev->blocksize))=0A=
+> +		return -ENODEV;=0A=
+>  =0A=
+>  	if (dev->queue_mode =3D=3D NULL_Q_MQ && dev->use_per_node_hctx) {=0A=
+>  		if (dev->submit_queues !=3D nr_online_nodes)=0A=
+> @@ -1865,7 +1865,7 @@ static int __init null_init(void)=0A=
+>  	struct nullb *nullb;=0A=
+>  	struct nullb_device *dev;=0A=
+>  =0A=
+> -	if (g_bs > PAGE_SIZE) {=0A=
+> +	if (!blk_is_valid_logical_block_size(g_bs)) {=0A=
+>  		pr_warn("invalid block size\n");=0A=
+>  		pr_warn("defaults block size to %lu\n", PAGE_SIZE);=0A=
+>  		g_bs =3D PAGE_SIZE;=0A=
+=0A=
+Not sure if this change is OK. Shouldn't the if here be kept as is and=0A=
+blk_is_valid_logical_block_size() called after it to check values lower tha=
+n 4K ?=0A=
+=0A=
+=0A=
+-- =0A=
+Damien Le Moal=0A=
+Western Digital Research=0A=
