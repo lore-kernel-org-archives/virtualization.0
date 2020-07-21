@@ -1,146 +1,44 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH v9 67/84] KVM: introspection: add KVMI_VM_GET_MAX_GFN
-Date: Wed, 22 Jul 2020 00:09:05 +0300
-Message-ID: <20200721210922.7646-68-alazar@bitdefender.com>
+Subject: [PATCH v9 05/84] KVM: doc: fix the hypercall numbering
+Date: Wed, 22 Jul 2020 00:08:03 +0300
+Message-ID: <20200721210922.7646-6-alazar@bitdefender.com>
 References: <20200721210922.7646-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200721210922.7646-1-alazar@bitdefender.com>
-Sender: kvm-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?=C8=98tefan=20=C8=98icleru?= <ssicleru@bitdefender.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Ștefan Șicleru <ssicleru@bitdefender.com>
-
-The introspection tool will use this command to get the memory address
-range for which it can set access restrictions.
-
-Signed-off-by: Ștefan Șicleru <ssicleru@bitdefender.com>
-Co-developed-by: Nicușor Cîțu <ncitu@bitdefender.com>
-Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
-Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
----
- Documentation/virt/kvm/kvmi.rst               | 19 +++++++++++++++++++
- include/uapi/linux/kvmi.h                     |  6 ++++++
- .../testing/selftests/kvm/x86_64/kvmi_test.c  | 12 ++++++++++++
- virt/kvm/introspection/kvmi_msg.c             | 13 +++++++++++++
- 4 files changed, 50 insertions(+)
-
-diff --git a/Documentation/virt/kvm/kvmi.rst b/Documentation/virt/kvm/kvmi.rst
-index 4263a9ac90e4..7da8efd18b89 100644
---- a/Documentation/virt/kvm/kvmi.rst
-+++ b/Documentation/virt/kvm/kvmi.rst
-@@ -789,6 +789,25 @@ exception.
- * -KVM_EBUSY - another *KVMI_VCPU_INJECT_EXCEPTION*-*KVMI_EVENT_TRAP* pair
-                is in progress
- 
-+17. KVMI_VM_GET_MAX_GFN
-+-----------------------
-+
-+:Architecture: all
-+:Versions: >= 1
-+:Parameters: none
-+:Returns:
-+
-+::
-+
-+        struct kvmi_error_code;
-+        struct kvmi_vm_get_max_gfn_reply {
-+                __u64 gfn;
-+        };
-+
-+Provides the maximum GFN allocated to the VM by walking through all
-+memory slots allocated by KVM. Stricly speaking, the returned value refers
-+to the first inaccessible GFN, next to the maximum accessible GFN.
-+
- Events
- ======
- 
-diff --git a/include/uapi/linux/kvmi.h b/include/uapi/linux/kvmi.h
-index faf4624d7a97..2a4cc8c41465 100644
---- a/include/uapi/linux/kvmi.h
-+++ b/include/uapi/linux/kvmi.h
-@@ -37,6 +37,8 @@ enum {
- 	KVMI_VCPU_CONTROL_CR       = 15,
- 	KVMI_VCPU_INJECT_EXCEPTION = 16,
- 
-+	KVMI_VM_GET_MAX_GFN = 17,
-+
- 	KVMI_NUM_MESSAGES
- };
- 
-@@ -149,6 +151,10 @@ struct kvmi_vm_control_cleanup {
- 	__u32 padding3;
- };
- 
-+struct kvmi_vm_get_max_gfn_reply {
-+	__u64 gfn;
-+};
-+
- struct kvmi_event {
- 	__u16 size;
- 	__u16 vcpu;
-diff --git a/tools/testing/selftests/kvm/x86_64/kvmi_test.c b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-index 9abf4ec0d09a..105adf75a68d 100644
---- a/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-+++ b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-@@ -1420,6 +1420,17 @@ static void test_cmd_vcpu_inject_exception(struct kvm_vm *vm)
- 	disable_vcpu_event(vm, KVMI_EVENT_BREAKPOINT);
- }
- 
-+static void test_cmd_vm_get_max_gfn(void)
-+{
-+	struct kvmi_vm_get_max_gfn_reply rpl;
-+	struct kvmi_msg_hdr req;
-+
-+	test_vm_command(KVMI_VM_GET_MAX_GFN, &req, sizeof(req),
-+			&rpl, sizeof(rpl));
-+
-+	pr_info("max_gfn: 0x%llx\n", rpl.gfn);
-+}
-+
- static void test_introspection(struct kvm_vm *vm)
- {
- 	srandom(time(0));
-@@ -1445,6 +1456,7 @@ static void test_introspection(struct kvm_vm *vm)
- 	test_cmd_vm_control_cleanup(vm);
- 	test_cmd_vcpu_control_cr(vm);
- 	test_cmd_vcpu_inject_exception(vm);
-+	test_cmd_vm_get_max_gfn();
- 
- 	unhook_introspection(vm);
- }
-diff --git a/virt/kvm/introspection/kvmi_msg.c b/virt/kvm/introspection/kvmi_msg.c
-index 63efb85ff1ae..18bc1a711845 100644
---- a/virt/kvm/introspection/kvmi_msg.c
-+++ b/virt/kvm/introspection/kvmi_msg.c
-@@ -322,6 +322,18 @@ static int handle_vm_control_cleanup(struct kvm_introspection *kvmi,
- 	return kvmi_msg_vm_reply(kvmi, msg, ec, NULL, 0);
- }
- 
-+static int handle_vm_get_max_gfn(struct kvm_introspection *kvmi,
-+				 const struct kvmi_msg_hdr *msg,
-+				 const void *req)
-+{
-+	struct kvmi_vm_get_max_gfn_reply rpl;
-+
-+	memset(&rpl, 0, sizeof(rpl));
-+	rpl.gfn = kvm_get_max_gfn(kvmi->kvm);
-+
-+	return kvmi_msg_vm_reply(kvmi, msg, 0, &rpl, sizeof(rpl));
-+}
-+
- /*
-  * These commands are executed by the receiving thread.
-  */
-@@ -334,6 +346,7 @@ static int(*const msg_vm[])(struct kvm_introspection *,
- 	[KVMI_VM_CONTROL_CLEANUP] = handle_vm_control_cleanup,
- 	[KVMI_VM_CONTROL_EVENTS]  = handle_vm_control_events,
- 	[KVMI_VM_GET_INFO]        = handle_vm_get_info,
-+	[KVMI_VM_GET_MAX_GFN]     = handle_vm_get_max_gfn,
- 	[KVMI_VM_READ_PHYSICAL]   = handle_vm_read_physical,
- 	[KVMI_VM_WRITE_PHYSICAL]  = handle_vm_write_physical,
- };
+VGhlIG5leHQgaHlwZXJjYWxscyB3aWxsIGJlIGNvcnJlY3RseSBudW1iZXJlZC4KClNpZ25lZC1v
+ZmYtYnk6IEFkYWxiZXJ0IExhesSDciA8YWxhemFyQGJpdGRlZmVuZGVyLmNvbT4KLS0tCiBEb2N1
+bWVudGF0aW9uL3ZpcnQva3ZtL2h5cGVyY2FsbHMucnN0IHwgNCArKy0tCiAxIGZpbGUgY2hhbmdl
+ZCwgMiBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdpdCBhL0RvY3VtZW50
+YXRpb24vdmlydC9rdm0vaHlwZXJjYWxscy5yc3QgYi9Eb2N1bWVudGF0aW9uL3ZpcnQva3ZtL2h5
+cGVyY2FsbHMucnN0CmluZGV4IGVkNGZkZGQzNjRlYS4uNzBlNzdjNjZiNjRjIDEwMDY0NAotLS0g
+YS9Eb2N1bWVudGF0aW9uL3ZpcnQva3ZtL2h5cGVyY2FsbHMucnN0CisrKyBiL0RvY3VtZW50YXRp
+b24vdmlydC9rdm0vaHlwZXJjYWxscy5yc3QKQEAgLTEzNyw3ICsxMzcsNyBAQCBjb21wdXRlIHRo
+ZSBDTE9DS19SRUFMVElNRSBmb3IgaXRzIGNsb2NrLCBhdCB0aGUgc2FtZSBpbnN0YW50LgogUmV0
+dXJucyBLVk1fRU9QTk9UU1VQUCBpZiB0aGUgaG9zdCBkb2VzIG5vdCB1c2UgVFNDIGNsb2Nrc291
+cmNlLAogb3IgaWYgY2xvY2sgdHlwZSBpcyBkaWZmZXJlbnQgdGhhbiBLVk1fQ0xPQ0tfUEFJUklO
+R19XQUxMQ0xPQ0suCiAKLTYuIEtWTV9IQ19TRU5EX0lQSQorNy4gS1ZNX0hDX1NFTkRfSVBJCiAt
+LS0tLS0tLS0tLS0tLS0tLS0KIAogOkFyY2hpdGVjdHVyZTogeDg2CkBAIC0xNTgsNyArMTU4LDcg
+QEAgY29ycmVzcG9uZHMgdG8gdGhlIEFQSUMgSUQgYTIrMSwgYW5kIHNvIG9uLgogCiBSZXR1cm5z
+IHRoZSBudW1iZXIgb2YgQ1BVcyB0byB3aGljaCB0aGUgSVBJcyB3ZXJlIGRlbGl2ZXJlZCBzdWNj
+ZXNzZnVsbHkuCiAKLTcuIEtWTV9IQ19TQ0hFRF9ZSUVMRAorOC4gS1ZNX0hDX1NDSEVEX1lJRUxE
+CiAtLS0tLS0tLS0tLS0tLS0tLS0tLS0KIAogOkFyY2hpdGVjdHVyZTogeDg2Cl9fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
+bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
+L2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlv
+bg==
