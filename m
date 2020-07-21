@@ -1,54 +1,83 @@
-From: Damien Le Moal <Damien.LeMoal@wdc.com>
-Subject: Re: [PATCH 09/10] block: scsi: sd: use
- blk_is_valid_logical_block_size
-Date: Tue, 21 Jul 2020 11:25:06 +0000
-Message-ID: <CY4PR04MB375113B7D781BF2949FE5B33E7780@CY4PR04MB3751.namprd04.prod.outlook.com>
-References: <20200721105239.8270-1-mlevitsk@redhat.com>
- <20200721105239.8270-10-mlevitsk@redhat.com>
+From: Shile Zhang <shile.zhang@linux.alibaba.com>
+Subject: Re: [PATCH v2] virtio_ring: use alloc_pages_node for NUMA-aware
+ allocation
+Date: Tue, 21 Jul 2020 19:28:28 +0800
+Message-ID: <d16c8191-3837-8734-8cdf-ae6dd75725f7@linux.alibaba.com>
+References: <20200721070013.62894-1-shile.zhang@linux.alibaba.com>
+ <20200721041550-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-block-owner@vger.kernel.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-pci-owner@vger.kernel.org>
+In-Reply-To: <20200721041550-mutt-send-email-mst@kernel.org>
 Content-Language: en-US
-Sender: linux-block-owner@vger.kernel.org
-To: Maxim Levitsky <mlevitsk@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Keith Busch <kbusch@kernel.org>, Josef Bacik <josef@toxicpanda.com>, "open list:BLOCK LAYER" <linux-block@vger.kernel.org>, Sagi Grimberg <sagi@grimberg.me>, Jens Axboe <axboe@kernel.dk>, "open list:NVM EXPRESS DRIVER" <linux-nvme@lists.infradead.org>, "open list:SCSI CDROM DRIVER" <linux-scsi@vger.kernel.org>, Tejun Heo <tj@kernel.org>, Bart Van Assche <bvanassche@acm.org>, "Martin K. Petersen" <martin.petersen@oracle.com>, Jason Wang <jasowang@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, Colin Ian King <colin.king@canonical.com>, "Michael S. Tsirkin" <mst@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Ulf Hansson <ulf.hansson@linaro.org>, Ajay Joshi <Ajay.Joshi@wdc.com>, Ming Lei <ming.lei@redhat.>
+Sender: linux-pci-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, kernel test robot <lkp@intel.com>, Jiang Liu <liuj97@gmail.com>, linux-pci@vger.kernel.org, bhelgaas@google.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2020/07/21 19:55, Maxim Levitsky wrote:=0A=
-> Use blk_is_valid_logical_block_size instead of hardcoded list=0A=
-=0A=
-s/hardcoded list/hardcoded checks./=0A=
-=0A=
-> =0A=
-> Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>=0A=
-> ---=0A=
->  drivers/scsi/sd.c | 5 +----=0A=
->  1 file changed, 1 insertion(+), 4 deletions(-)=0A=
-> =0A=
-> diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c=0A=
-> index d90fefffe31b7..f012e7397b058 100644=0A=
-> --- a/drivers/scsi/sd.c=0A=
-> +++ b/drivers/scsi/sd.c=0A=
-> @@ -2520,10 +2520,7 @@ sd_read_capacity(struct scsi_disk *sdkp, unsigned =
-char *buffer)=0A=
->  			  "assuming 512.\n");=0A=
->  	}=0A=
->  =0A=
-> -	if (sector_size !=3D 512 &&=0A=
-> -	    sector_size !=3D 1024 &&=0A=
-> -	    sector_size !=3D 2048 &&=0A=
-> -	    sector_size !=3D 4096) {=0A=
-> +	if (!blk_is_valid_logical_block_size(sector_size)) {=0A=
->  		sd_printk(KERN_NOTICE, sdkp, "Unsupported sector size %d.\n",=0A=
->  			  sector_size);=0A=
->  		/*=0A=
-> =0A=
-=0A=
-With the commit message fixed, looks OK.=0A=
-=0A=
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>=0A=
-=0A=
--- =0A=
-Damien Le Moal=0A=
-Western Digital Research=0A=
+
+
+On 2020/7/21 16:18, Michael S. Tsirkin wrote:
+> On Tue, Jul 21, 2020 at 03:00:13PM +0800, Shile Zhang wrote:
+>> Use alloc_pages_node() allocate memory for vring queue with proper
+>> NUMA affinity.
+>>
+>> Reported-by: kernel test robot <lkp@intel.com>
+>> Suggested-by: Jiang Liu <liuj97@gmail.com>
+>> Signed-off-by: Shile Zhang <shile.zhang@linux.alibaba.com>
+> 
+> Do you observe any performance gains from this patch?
+
+Thanks for your comments!
+Yes, the bandwidth can boost more than doubled (from 30Gbps to 80GBps) 
+with this changes in my test env (8 numa nodes), with netperf test.
+
+> 
+> I also wonder why isn't the probe code run on the correct numa node?
+> That would fix a wide class of issues like this without need to tweak
+> drivers.
+
+Good point, I'll check this, thanks!
+
+> 
+> Bjorn, what do you think? Was this considered?
+> 
+>> ---
+>> Changelog
+>> v1 -> v2:
+>> - fixed compile warning reported by LKP.
+>> ---
+>>   drivers/virtio/virtio_ring.c | 10 ++++++----
+>>   1 file changed, 6 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+>> index 58b96baa8d48..d38fd6872c8c 100644
+>> --- a/drivers/virtio/virtio_ring.c
+>> +++ b/drivers/virtio/virtio_ring.c
+>> @@ -276,9 +276,11 @@ static void *vring_alloc_queue(struct virtio_device *vdev, size_t size,
+>>   		return dma_alloc_coherent(vdev->dev.parent, size,
+>>   					  dma_handle, flag);
+>>   	} else {
+>> -		void *queue = alloc_pages_exact(PAGE_ALIGN(size), flag);
+>> -
+>> -		if (queue) {
+>> +		void *queue = NULL;
+>> +		struct page *page = alloc_pages_node(dev_to_node(vdev->dev.parent),
+>> +						     flag, get_order(size));
+>> +		if (page) {
+>> +			queue = page_address(page);
+>>   			phys_addr_t phys_addr = virt_to_phys(queue);
+>>   			*dma_handle = (dma_addr_t)phys_addr;
+>>   
+>> @@ -308,7 +310,7 @@ static void vring_free_queue(struct virtio_device *vdev, size_t size,
+>>   	if (vring_use_dma_api(vdev))
+>>   		dma_free_coherent(vdev->dev.parent, size, queue, dma_handle);
+>>   	else
+>> -		free_pages_exact(queue, PAGE_ALIGN(size));
+>> +		free_pages((unsigned long)queue, get_order(size));
+>>   }
+>>   
+>>   /*
+>> -- 
+>> 2.24.0.rc2
