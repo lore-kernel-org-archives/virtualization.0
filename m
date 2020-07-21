@@ -1,190 +1,82 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH v9 49/84] KVM: introspection: handle vCPU introspection requests
-Date: Wed, 22 Jul 2020 00:08:47 +0300
-Message-ID: <20200721210922.7646-50-alazar@bitdefender.com>
+Subject: [PATCH v9 29/84] KVM: x86: export kvm_inject_pending_exception()
+Date: Wed, 22 Jul 2020 00:08:27 +0300
+Message-ID: <20200721210922.7646-30-alazar@bitdefender.com>
 References: <20200721210922.7646-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200721210922.7646-1-alazar@bitdefender.com>
-Sender: kvm-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Mircea=20C=C3=AErjaliu?= <mcirjaliu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Mihai Donțu <mdontu@bitdefender.com>
-
-The receiving thread dispatches the vCPU introspection commands by
-adding them to the vCPU's jobs list and kicking the vCPU. Before
-entering in guest, the vCPU thread checks the introspection request
-(KVM_REQ_INTROSPECTION) and runs its queued jobs.
-
-Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
-Co-developed-by: Mircea Cîrjaliu <mcirjaliu@bitdefender.com>
-Signed-off-by: Mircea Cîrjaliu <mcirjaliu@bitdefender.com>
-Co-developed-by: Adalbert Lazăr <alazar@bitdefender.com>
-Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
----
- arch/x86/kvm/x86.c            |  3 ++
- include/linux/kvm_host.h      |  1 +
- include/linux/kvmi_host.h     |  4 +++
- virt/kvm/introspection/kvmi.c | 58 +++++++++++++++++++++++++++++++++++
- virt/kvm/kvm_main.c           |  2 ++
- 5 files changed, 68 insertions(+)
-
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index ff0d3c82de64..7f56e2149f18 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -8706,6 +8706,9 @@ static int vcpu_run(struct kvm_vcpu *vcpu)
- 	vcpu->arch.l1tf_flush_l1d = true;
- 
- 	for (;;) {
-+		if (kvm_check_request(KVM_REQ_INTROSPECTION, vcpu))
-+			kvmi_handle_requests(vcpu);
-+
- 		if (kvm_vcpu_running(vcpu)) {
- 			r = vcpu_enter_guest(vcpu);
- 		} else {
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index 8509d8272466..296b59ecc540 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -146,6 +146,7 @@ static inline bool is_error_page(struct page *page)
- #define KVM_REQ_MMU_RELOAD        (1 | KVM_REQUEST_WAIT | KVM_REQUEST_NO_WAKEUP)
- #define KVM_REQ_PENDING_TIMER     2
- #define KVM_REQ_UNHALT            3
-+#define KVM_REQ_INTROSPECTION     4
- #define KVM_REQUEST_ARCH_BASE     8
- 
- #define KVM_ARCH_REQ_FLAGS(nr, flags) ({ \
-diff --git a/include/linux/kvmi_host.h b/include/linux/kvmi_host.h
-index d3242a99f891..956b8d5c51e3 100644
---- a/include/linux/kvmi_host.h
-+++ b/include/linux/kvmi_host.h
-@@ -53,6 +53,8 @@ int kvmi_ioctl_event(struct kvm *kvm,
- 		     const struct kvm_introspection_feature *feat);
- int kvmi_ioctl_preunhook(struct kvm *kvm);
- 
-+void kvmi_handle_requests(struct kvm_vcpu *vcpu);
-+
- #else
- 
- static inline int kvmi_init(void) { return 0; }
-@@ -61,6 +63,8 @@ static inline void kvmi_create_vm(struct kvm *kvm) { }
- static inline void kvmi_destroy_vm(struct kvm *kvm) { }
- static inline void kvmi_vcpu_uninit(struct kvm_vcpu *vcpu) { }
- 
-+static inline void kvmi_handle_requests(struct kvm_vcpu *vcpu) { }
-+
- #endif /* CONFIG_KVM_INTROSPECTION */
- 
- #endif
-diff --git a/virt/kvm/introspection/kvmi.c b/virt/kvm/introspection/kvmi.c
-index b6595bca99f7..a9d406f276f5 100644
---- a/virt/kvm/introspection/kvmi.c
-+++ b/virt/kvm/introspection/kvmi.c
-@@ -113,6 +113,12 @@ void kvmi_uninit(void)
- 	kvmi_cache_destroy();
- }
- 
-+static void kvmi_make_request(struct kvm_vcpu *vcpu)
-+{
-+	kvm_make_request(KVM_REQ_INTROSPECTION, vcpu);
-+	kvm_vcpu_kick(vcpu);
-+}
-+
- static int __kvmi_add_job(struct kvm_vcpu *vcpu,
- 			  void (*fct)(struct kvm_vcpu *vcpu, void *ctx),
- 			  void *ctx, void (*free_fct)(void *ctx))
-@@ -144,6 +150,9 @@ int kvmi_add_job(struct kvm_vcpu *vcpu,
- 
- 	err = __kvmi_add_job(vcpu, fct, ctx, free_fct);
- 
-+	if (!err)
-+		kvmi_make_request(vcpu);
-+
- 	return err;
- }
- 
-@@ -312,6 +321,14 @@ int kvmi_ioctl_unhook(struct kvm *kvm)
- 	return 0;
- }
- 
-+struct kvm_introspection * __must_check kvmi_get(struct kvm *kvm)
-+{
-+	if (refcount_inc_not_zero(&kvm->kvmi_ref))
-+		return kvm->kvmi;
-+
-+	return NULL;
-+}
-+
- void kvmi_put(struct kvm *kvm)
- {
- 	if (refcount_dec_and_test(&kvm->kvmi_ref))
-@@ -373,6 +390,10 @@ int kvmi_hook(struct kvm *kvm, const struct kvm_introspection_hook *hook)
- 	init_completion(&kvm->kvmi_complete);
- 
- 	refcount_set(&kvm->kvmi_ref, 1);
-+	/*
-+	 * Paired with refcount_inc_not_zero() from kvmi_get().
-+	 */
-+	smp_wmb();
- 
- 	kvmi->recv = kthread_run(kvmi_recv_thread, kvmi, "kvmi-recv");
- 	if (IS_ERR(kvmi->recv)) {
-@@ -672,3 +693,40 @@ int kvmi_cmd_write_physical(struct kvm *kvm, u64 gpa, size_t size,
- 
- 	return 0;
- }
-+
-+static struct kvmi_job *kvmi_pull_job(struct kvm_vcpu_introspection *vcpui)
-+{
-+	struct kvmi_job *job = NULL;
-+
-+	spin_lock(&vcpui->job_lock);
-+	job = list_first_entry_or_null(&vcpui->job_list, typeof(*job), link);
-+	if (job)
-+		list_del(&job->link);
-+	spin_unlock(&vcpui->job_lock);
-+
-+	return job;
-+}
-+
-+void kvmi_run_jobs(struct kvm_vcpu *vcpu)
-+{
-+	struct kvm_vcpu_introspection *vcpui = VCPUI(vcpu);
-+	struct kvmi_job *job;
-+
-+	while ((job = kvmi_pull_job(vcpui))) {
-+		job->fct(vcpu, job->ctx);
-+		kvmi_free_job(job);
-+	}
-+}
-+
-+void kvmi_handle_requests(struct kvm_vcpu *vcpu)
-+{
-+	struct kvm_introspection *kvmi;
-+
-+	kvmi = kvmi_get(vcpu->kvm);
-+	if (!kvmi)
-+		return;
-+
-+	kvmi_run_jobs(vcpu);
-+
-+	kvmi_put(vcpu->kvm);
-+}
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 1f199da03aa4..92d662e7269f 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -2710,6 +2710,8 @@ static int kvm_vcpu_check_block(struct kvm_vcpu *vcpu)
- 		goto out;
- 	if (signal_pending(current))
- 		goto out;
-+	if (kvm_test_request(KVM_REQ_INTROSPECTION, vcpu))
-+		goto out;
- 
- 	ret = 0;
- out:
+RnJvbTogTmljdciZb3IgQ8OuyJt1IDxuY2l0dUBiaXRkZWZlbmRlci5jb20+CgpUaGlzIGZ1bmN0
+aW9uIGlzIG5lZWRlZCBmb3IgdGhlIEtWTUlfVkNQVV9JTkpFQ1RfRVhDRVBUSU9OIGNvbW1hbmQu
+CgpTaWduZWQtb2ZmLWJ5OiBOaWN1yJlvciBDw67Im3UgPG5jaXR1QGJpdGRlZmVuZGVyLmNvbT4K
+U2lnbmVkLW9mZi1ieTogQWRhbGJlcnQgTGF6xINyIDxhbGF6YXJAYml0ZGVmZW5kZXIuY29tPgot
+LS0KIGFyY2gveDg2L2luY2x1ZGUvYXNtL2t2bV9ob3N0LmggfCAgMSArCiBhcmNoL3g4Ni9rdm0v
+eDg2LmMgICAgICAgICAgICAgIHwgNTMgKysrKysrKysrKysrKysrKysrKy0tLS0tLS0tLS0tLS0t
+CiAyIGZpbGVzIGNoYW5nZWQsIDMyIGluc2VydGlvbnMoKyksIDIyIGRlbGV0aW9ucygtKQoKZGlm
+ZiAtLWdpdCBhL2FyY2gveDg2L2luY2x1ZGUvYXNtL2t2bV9ob3N0LmggYi9hcmNoL3g4Ni9pbmNs
+dWRlL2FzbS9rdm1faG9zdC5oCmluZGV4IGU5MmExMjY0N2Y0ZC4uNDk5MmFmYzE5Y2Y2IDEwMDY0
+NAotLS0gYS9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9rdm1faG9zdC5oCisrKyBiL2FyY2gveDg2L2lu
+Y2x1ZGUvYXNtL2t2bV9ob3N0LmgKQEAgLTE1MDIsNiArMTUwMiw3IEBAIHVuc2lnbmVkIGxvbmcg
+a3ZtX2dldF9yZmxhZ3Moc3RydWN0IGt2bV92Y3B1ICp2Y3B1KTsKIHZvaWQga3ZtX3NldF9yZmxh
+Z3Moc3RydWN0IGt2bV92Y3B1ICp2Y3B1LCB1bnNpZ25lZCBsb25nIHJmbGFncyk7CiBib29sIGt2
+bV9yZHBtYyhzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpOwogCitib29sIGt2bV9pbmplY3RfcGVuZGlu
+Z19leGNlcHRpb24oc3RydWN0IGt2bV92Y3B1ICp2Y3B1KTsKIHZvaWQga3ZtX3F1ZXVlX2V4Y2Vw
+dGlvbihzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUsIHVuc2lnbmVkIG5yKTsKIHZvaWQga3ZtX3F1ZXVl
+X2V4Y2VwdGlvbl9lKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSwgdW5zaWduZWQgbnIsIHUzMiBlcnJv
+cl9jb2RlKTsKIHZvaWQga3ZtX3F1ZXVlX2V4Y2VwdGlvbl9wKHN0cnVjdCBrdm1fdmNwdSAqdmNw
+dSwgdW5zaWduZWQgbnIsIHVuc2lnbmVkIGxvbmcgcGF5bG9hZCk7CmRpZmYgLS1naXQgYS9hcmNo
+L3g4Ni9rdm0veDg2LmMgYi9hcmNoL3g4Ni9rdm0veDg2LmMKaW5kZXggMGJmYTgwMGQwY2E4Li41
+MjE4MWViMTMxZGQgMTAwNjQ0Ci0tLSBhL2FyY2gveDg2L2t2bS94ODYuYworKysgYi9hcmNoL3g4
+Ni9rdm0veDg2LmMKQEAgLTc3NzAsNiArNzc3MCwzNiBAQCBzdGF0aWMgdm9pZCB1cGRhdGVfY3I4
+X2ludGVyY2VwdChzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpCiAJa3ZtX3g4Nl9vcHMudXBkYXRlX2Ny
+OF9pbnRlcmNlcHQodmNwdSwgdHByLCBtYXhfaXJyKTsKIH0KIAorYm9vbCBrdm1faW5qZWN0X3Bl
+bmRpbmdfZXhjZXB0aW9uKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSkKK3sKKwlpZiAodmNwdS0+YXJj
+aC5leGNlcHRpb24ucGVuZGluZykgeworCQl0cmFjZV9rdm1faW5qX2V4Y2VwdGlvbih2Y3B1LT5h
+cmNoLmV4Y2VwdGlvbi5uciwKKwkJCQkJdmNwdS0+YXJjaC5leGNlcHRpb24uaGFzX2Vycm9yX2Nv
+ZGUsCisJCQkJCXZjcHUtPmFyY2guZXhjZXB0aW9uLmVycm9yX2NvZGUpOworCisJCVdBUk5fT05f
+T05DRSh2Y3B1LT5hcmNoLmV4Y2VwdGlvbi5pbmplY3RlZCk7CisJCXZjcHUtPmFyY2guZXhjZXB0
+aW9uLnBlbmRpbmcgPSBmYWxzZTsKKwkJdmNwdS0+YXJjaC5leGNlcHRpb24uaW5qZWN0ZWQgPSB0
+cnVlOworCisJCWlmIChleGNlcHRpb25fdHlwZSh2Y3B1LT5hcmNoLmV4Y2VwdGlvbi5ucikgPT0g
+RVhDUFRfRkFVTFQpCisJCQlfX2t2bV9zZXRfcmZsYWdzKHZjcHUsIGt2bV9nZXRfcmZsYWdzKHZj
+cHUpIHwKKwkJCQkJICAgICBYODZfRUZMQUdTX1JGKTsKKworCQlpZiAodmNwdS0+YXJjaC5leGNl
+cHRpb24ubnIgPT0gREJfVkVDVE9SKSB7CisJCQlrdm1fZGVsaXZlcl9leGNlcHRpb25fcGF5bG9h
+ZCh2Y3B1KTsKKwkJCWlmICh2Y3B1LT5hcmNoLmRyNyAmIERSN19HRCkgeworCQkJCXZjcHUtPmFy
+Y2guZHI3ICY9IH5EUjdfR0Q7CisJCQkJa3ZtX3VwZGF0ZV9kcjcodmNwdSk7CisJCQl9CisJCX0K
+KworCQlrdm1feDg2X29wcy5xdWV1ZV9leGNlcHRpb24odmNwdSk7CisJCXJldHVybiB0cnVlOwor
+CX0KKworCXJldHVybiBmYWxzZTsKK30KKwogc3RhdGljIHZvaWQgaW5qZWN0X3BlbmRpbmdfZXZl
+bnQoc3RydWN0IGt2bV92Y3B1ICp2Y3B1LCBib29sICpyZXFfaW1tZWRpYXRlX2V4aXQpCiB7CiAJ
+aW50IHI7CkBAIC03ODIxLDI5ICs3ODUxLDggQEAgc3RhdGljIHZvaWQgaW5qZWN0X3BlbmRpbmdf
+ZXZlbnQoc3RydWN0IGt2bV92Y3B1ICp2Y3B1LCBib29sICpyZXFfaW1tZWRpYXRlX2V4aXQKIAl9
+CiAKIAkvKiB0cnkgdG8gaW5qZWN0IG5ldyBldmVudCBpZiBwZW5kaW5nICovCi0JaWYgKHZjcHUt
+PmFyY2guZXhjZXB0aW9uLnBlbmRpbmcpIHsKLQkJdHJhY2Vfa3ZtX2lual9leGNlcHRpb24odmNw
+dS0+YXJjaC5leGNlcHRpb24ubnIsCi0JCQkJCXZjcHUtPmFyY2guZXhjZXB0aW9uLmhhc19lcnJv
+cl9jb2RlLAotCQkJCQl2Y3B1LT5hcmNoLmV4Y2VwdGlvbi5lcnJvcl9jb2RlKTsKLQotCQl2Y3B1
+LT5hcmNoLmV4Y2VwdGlvbi5wZW5kaW5nID0gZmFsc2U7Ci0JCXZjcHUtPmFyY2guZXhjZXB0aW9u
+LmluamVjdGVkID0gdHJ1ZTsKLQotCQlpZiAoZXhjZXB0aW9uX3R5cGUodmNwdS0+YXJjaC5leGNl
+cHRpb24ubnIpID09IEVYQ1BUX0ZBVUxUKQotCQkJX19rdm1fc2V0X3JmbGFncyh2Y3B1LCBrdm1f
+Z2V0X3JmbGFncyh2Y3B1KSB8Ci0JCQkJCSAgICAgWDg2X0VGTEFHU19SRik7Ci0KLQkJaWYgKHZj
+cHUtPmFyY2guZXhjZXB0aW9uLm5yID09IERCX1ZFQ1RPUikgewotCQkJa3ZtX2RlbGl2ZXJfZXhj
+ZXB0aW9uX3BheWxvYWQodmNwdSk7Ci0JCQlpZiAodmNwdS0+YXJjaC5kcjcgJiBEUjdfR0QpIHsK
+LQkJCQl2Y3B1LT5hcmNoLmRyNyAmPSB+RFI3X0dEOwotCQkJCWt2bV91cGRhdGVfZHI3KHZjcHUp
+OwotCQkJfQotCQl9Ci0KLQkJa3ZtX3g4Nl9vcHMucXVldWVfZXhjZXB0aW9uKHZjcHUpOworCWlm
+IChrdm1faW5qZWN0X3BlbmRpbmdfZXhjZXB0aW9uKHZjcHUpKQogCQljYW5faW5qZWN0ID0gZmFs
+c2U7Ci0JfQogCiAJLyoKIAkgKiBGaW5hbGx5LCBpbmplY3QgaW50ZXJydXB0IGV2ZW50cy4gIElm
+IGFuIGV2ZW50IGNhbm5vdCBiZSBpbmplY3RlZApfX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6
+YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5k
+YXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
