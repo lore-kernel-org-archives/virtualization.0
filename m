@@ -1,65 +1,61 @@
-From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH v9 28/84] KVM: x86: extend kvm_mmu_gva_to_gpa_system() with the 'access' parameter
-Date: Wed, 22 Jul 2020 00:08:26 +0300
-Message-ID: <20200721210922.7646-29-alazar@bitdefender.com>
-References: <20200721210922.7646-1-alazar@bitdefender.com>
+From: Bjorn Helgaas <helgaas@kernel.org>
+Subject: Re: [PATCH 2/2] virtio-mmio: Reject invalid IRQ 0 command line
+ argument
+Date: Tue, 21 Jul 2020 17:12:51 -0500
+Message-ID: <20200721221251.GA1164301@bjorn-Precision-5520>
+References: <032d0424-4876-6322-76d2-d733db28addb@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20200721210922.7646-1-alazar@bitdefender.com>
-Sender: kvm-owner@vger.kernel.org
-To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <032d0424-4876-6322-76d2-d733db28addb@redhat.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Jason Wang <jasowang@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Bjorn Helgaas <bhelgaas@google.com>, "Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Mihai Donțu <mdontu@bitdefender.com>
+On Thu, Jul 02, 2020 at 11:06:11AM +0800, Jason Wang wrote:
+> On 2020/7/2 上午6:10, Bjorn Helgaas wrote:
+> > From: Bjorn Helgaas <bhelgaas@google.com>
+> > 
+> > The "virtio_mmio.device=" command line argument allows a user to specify
+> > the size, address, and IRQ of a virtio device.  Previously the only
+> > requirement for the IRQ was that it be an unsigned integer.
+> > 
+> > Zero is an unsigned integer but an invalid IRQ number, and after
+> > a85a6c86c25be ("driver core: platform: Clarify that IRQ 0 is invalid"),
+> > attempts to use IRQ 0 cause warnings.
+> > 
+> > If the user specifies IRQ 0, return failure instead of registering a device
+> > with IRQ 0.
+> > 
+> > Fixes: a85a6c86c25be ("driver core: platform: Clarify that IRQ 0 is invalid")
+> > Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+> > Cc: Michael S. Tsirkin <mst@redhat.com>
+> > Cc: Jason Wang <jasowang@redhat.com>
+> > Cc: virtualization@lists.linux-foundation.org
+> > ---
+> >   drivers/virtio/virtio_mmio.c | 4 ++--
+> >   1 file changed, 2 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+> > index 9d16aaffca9d..627ac0487494 100644
+> > --- a/drivers/virtio/virtio_mmio.c
+> > +++ b/drivers/virtio/virtio_mmio.c
+> > @@ -641,11 +641,11 @@ static int vm_cmdline_set(const char *device,
+> >   			&vm_cmdline_id, &consumed);
+> >   	/*
+> > -	 * sscanf() must processes at least 2 chunks; also there
+> > +	 * sscanf() must process at least 2 chunks; also there
+> >   	 * must be no extra characters after the last chunk, so
+> >   	 * str[consumed] must be '\0'
+> >   	 */
+> > -	if (processed < 2 || str[consumed])
+> > +	if (processed < 2 || str[consumed] || irq == 0)
+> >   		return -EINVAL;
+> >   	resources[0].flags = IORESOURCE_MEM;
+> 
+> Acked-by: Jason Wang <jasowang@redhat.com>
 
-This is needed for kvmi_update_ad_flags() to emulate a guest page
-table walk on SPT violations due to A/D bit updates.
-
-Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
-Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
----
- arch/x86/include/asm/kvm_host.h | 2 +-
- arch/x86/kvm/x86.c              | 6 +++---
- 2 files changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index 487d1fa6e76d..e92a12647f4d 100644
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -1556,7 +1556,7 @@ gpa_t kvm_mmu_gva_to_gpa_fetch(struct kvm_vcpu *vcpu, gva_t gva,
- gpa_t kvm_mmu_gva_to_gpa_write(struct kvm_vcpu *vcpu, gva_t gva,
- 			       struct x86_exception *exception);
- gpa_t kvm_mmu_gva_to_gpa_system(struct kvm_vcpu *vcpu, gva_t gva,
--				struct x86_exception *exception);
-+				u32 access, struct x86_exception *exception);
- 
- bool kvm_apicv_activated(struct kvm *kvm);
- void kvm_apicv_init(struct kvm *kvm, bool enable);
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 5611b6cd6d19..0bfa800d0ca8 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -5498,9 +5498,9 @@ gpa_t kvm_mmu_gva_to_gpa_write(struct kvm_vcpu *vcpu, gva_t gva,
- 
- /* uses this to access any guest's mapped memory without checking CPL */
- gpa_t kvm_mmu_gva_to_gpa_system(struct kvm_vcpu *vcpu, gva_t gva,
--				struct x86_exception *exception)
-+				u32 access, struct x86_exception *exception)
- {
--	return vcpu->arch.walk_mmu->gva_to_gpa(vcpu, gva, 0, exception);
-+	return vcpu->arch.walk_mmu->gva_to_gpa(vcpu, gva, access, exception);
- }
- 
- static int kvm_read_guest_virt_helper(gva_t addr, void *val, unsigned int bytes,
-@@ -9332,7 +9332,7 @@ int kvm_arch_vcpu_ioctl_translate(struct kvm_vcpu *vcpu,
- 	vcpu_load(vcpu);
- 
- 	idx = srcu_read_lock(&vcpu->kvm->srcu);
--	gpa = kvm_mmu_gva_to_gpa_system(vcpu, vaddr, NULL);
-+	gpa = kvm_mmu_gva_to_gpa_system(vcpu, vaddr, 0, NULL);
- 	srcu_read_unlock(&vcpu->kvm->srcu, idx);
- 	tr->physical_address = gpa;
- 	tr->valid = gpa != UNMAPPED_GVA;
+Thanks, I applied this to my for-linus branch for v5.8.
