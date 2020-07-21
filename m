@@ -1,85 +1,205 @@
-From: Damien Le Moal <Damien.LeMoal@wdc.com>
-Subject: Re: [PATCH 03/10] block: loop: use blk_is_valid_logical_block_size
-Date: Tue, 21 Jul 2020 11:08:40 +0000
-Message-ID: <CY4PR04MB375172789B9725F132B94216E7780@CY4PR04MB3751.namprd04.prod.outlook.com>
-References: <20200721105239.8270-1-mlevitsk@redhat.com>
- <20200721105239.8270-4-mlevitsk@redhat.com>
+From: Nicholas Piggin <npiggin@gmail.com>
+Subject: Re: [PATCH v3 0/6] powerpc: queued spinlocks and rwlocks
+Date: Tue, 21 Jul 2020 21:08:47 +1000
+Message-ID: <1595327263.lk78cqolxm.astroid@bobo.none>
+References: <20200706043540.1563616-1-npiggin@gmail.com>
+ <24f75d2c-60cd-2766-4aab-1a3b1c80646e@redhat.com>
+ <1594101082.hfq9x5yact.astroid@bobo.none>
+ <20200708084106.GE597537@hirez.programming.kicks-ass.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-block-owner@vger.kernel.org>
-Content-Language: en-US
-Sender: linux-block-owner@vger.kernel.org
-To: Maxim Levitsky <mlevitsk@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: Keith Busch <kbusch@kernel.org>, Josef Bacik <josef@toxicpanda.com>, "open list:BLOCK LAYER" <linux-block@vger.kernel.org>, Sagi Grimberg <sagi@grimberg.me>, Jens Axboe <axboe@kernel.dk>, "open list:NVM EXPRESS DRIVER" <linux-nvme@lists.infradead.org>, "open list:SCSI CDROM DRIVER" <linux-scsi@vger.kernel.org>, Tejun Heo <tj@kernel.org>, Bart Van Assche <bvanassche@acm.org>, "Martin K. Petersen" <martin.petersen@oracle.com>, Jason Wang <jasowang@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, Colin Ian King <colin.king@canonical.com>, "Michael S. Tsirkin" <mst@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Ulf Hansson <ulf.hansson@linaro.org>, Ajay Joshi <Ajay.Joshi@wdc.com>, Ming Lei <ming.lei@redhat.>
+Content-Transfer-Encoding: 7bit
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
+In-Reply-To: <20200708084106.GE597537@hirez.programming.kicks-ass.net>
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+To: Peter Zijlstra <peterz@infradead.org>
+Cc: linux-arch@vger.kernel.org, Will Deacon <will@kernel.org>, Boqun Feng <boqun.feng@gmail.com>, linux-kernel@vger.kernel.org, kvm-ppc@vger.kernel.org, virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>, Waiman Long <longman@redhat.com>, Anton Blanchard <anton@ozlabs.org>, linuxppc-dev@lists.ozlabs.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2020/07/21 19:54, Maxim Levitsky wrote:=0A=
-> This allows to remove loop's own check for supported block size=0A=
-> =0A=
-> Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>=0A=
-> ---=0A=
->  drivers/block/loop.c | 23 +++++------------------=0A=
->  1 file changed, 5 insertions(+), 18 deletions(-)=0A=
-> =0A=
-> diff --git a/drivers/block/loop.c b/drivers/block/loop.c=0A=
-> index 475e1a738560d..9984c8f824271 100644=0A=
-> --- a/drivers/block/loop.c=0A=
-> +++ b/drivers/block/loop.c=0A=
-> @@ -228,19 +228,6 @@ static void __loop_update_dio(struct loop_device *lo=
-, bool dio)=0A=
->  		blk_mq_unfreeze_queue(lo->lo_queue);=0A=
->  }=0A=
->  =0A=
-> -/**=0A=
-> - * loop_validate_block_size() - validates the passed in block size=0A=
-> - * @bsize: size to validate=0A=
-> - */=0A=
-> -static int=0A=
-> -loop_validate_block_size(unsigned short bsize)=0A=
-> -{=0A=
-> -	if (bsize < 512 || bsize > PAGE_SIZE || !is_power_of_2(bsize))=0A=
-> -		return -EINVAL;=0A=
-> -=0A=
-> -	return 0;=0A=
-> -}=0A=
-> -=0A=
->  /**=0A=
->   * loop_set_size() - sets device size and notifies userspace=0A=
->   * @lo: struct loop_device to set the size for=0A=
-> @@ -1119,9 +1106,10 @@ static int loop_configure(struct loop_device *lo, =
-fmode_t mode,=0A=
->  	}=0A=
->  =0A=
->  	if (config->block_size) {=0A=
-> -		error =3D loop_validate_block_size(config->block_size);=0A=
-> -		if (error)=0A=
-> +		if (!blk_is_valid_logical_block_size(config->block_size)) {=0A=
-> +			error =3D -EINVAL;=0A=
->  			goto out_unlock;=0A=
-> +		}=0A=
->  	}=0A=
->  =0A=
->  	error =3D loop_set_status_from_info(lo, &config->info);=0A=
-> @@ -1607,9 +1595,8 @@ static int loop_set_block_size(struct loop_device *=
-lo, unsigned long arg)=0A=
->  	if (lo->lo_state !=3D Lo_bound)=0A=
->  		return -ENXIO;=0A=
->  =0A=
-> -	err =3D loop_validate_block_size(arg);=0A=
-> -	if (err)=0A=
-> -		return err;=0A=
-> +	if (!blk_is_valid_logical_block_size(arg))=0A=
-> +		return -EINVAL;=0A=
->  =0A=
->  	if (lo->lo_queue->limits.logical_block_size =3D=3D arg)=0A=
->  		return 0;=0A=
-> =0A=
-=0A=
-Looks good to me.=0A=
-=0A=
-Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>=0A=
-=0A=
--- =0A=
-Damien Le Moal=0A=
-Western Digital Research=0A=
+Excerpts from Peter Zijlstra's message of July 8, 2020 6:41 pm:
+> On Tue, Jul 07, 2020 at 03:57:06PM +1000, Nicholas Piggin wrote:
+>> Yes, powerpc could certainly get more performance out of the slow
+>> paths, and then there are a few parameters to tune.
+> 
+
+Sorry for the delay, got bogged down and distracted by other things :(
+
+> Can you clarify? The slow path is already in use on ARM64 which is weak,
+> so I doubt there's superfluous serialization present. And Will spend a
+> fair amount of time on making that thing guarantee forward progressm, so
+> there just isn't too much room to play.
+
+Sure, the way the pending not-queued slowpath (which I guess is the
+medium-path) is implemented is just poorly structured for LL/SC. It
+has one more atomic than necessary (queued_fetch_set_pending_acquire),
+and a lot of branches in suboptimal order.
+
+Attached patch (completely untested just compiled and looked at asm
+so far) is a way we can fix this on powerpc I think. It's actually
+very little generic code change which is good, duplicated medium-path
+logic unfortunately but that's no worse than something like x86
+really.
+
+>> We don't have a good alternate patching for function calls yet, but
+>> that would be something to do for native vs pv.
+> 
+> Going by your jump_label implementation, support for static_call should
+> be fairly straight forward too, no?
+> 
+>   https://lkml.kernel.org/r/20200624153024.794671356@infradead.org
+
+Nice, yeah it should be. I've wanted this for ages!
+
+powerpc is kind of annoying to implement that with limited call range,
+Hmm, not sure if we'd need a new linker feature to support it. We'd
+provide call site patch space for indirect branches for those out of
+range of direct call, so that should work fine. The trick would be 
+patching in the TOC lookup for the function... should be doable somehow.
+
+Thanks,
+Nick
+
+---
+
+diff --git a/arch/powerpc/include/asm/qspinlock.h b/arch/powerpc/include/asm/qspinlock.h
+index b752d34517b3..26d8766a1106 100644
+--- a/arch/powerpc/include/asm/qspinlock.h
++++ b/arch/powerpc/include/asm/qspinlock.h
+@@ -31,16 +31,57 @@ static inline void queued_spin_unlock(struct qspinlock *lock)
+ 
+ #else
+ extern void queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
++extern void queued_spin_lock_slowpath_queue(struct qspinlock *lock);
+ #endif
+ 
+ static __always_inline void queued_spin_lock(struct qspinlock *lock)
+ {
+-	u32 val = 0;
+-
+-	if (likely(atomic_try_cmpxchg_lock(&lock->val, &val, _Q_LOCKED_VAL)))
++	atomic_t *a = &lock->val;
++	u32 val;
++
++again:
++	asm volatile(
++"1:\t"	PPC_LWARX(%0,0,%1,1) "	# queued_spin_lock			\n"
++	: "=&r" (val)
++	: "r" (&a->counter)
++	: "memory");
++
++	if (likely(val == 0)) {
++		asm_volatile_goto(
++	"	stwcx.	%0,0,%1							\n"
++	"	bne-	%l[again]						\n"
++	"\t"	PPC_ACQUIRE_BARRIER "						\n"
++		:
++		: "r"(_Q_LOCKED_VAL), "r" (&a->counter)
++		: "cr0", "memory"
++		: again );
+ 		return;
+-
+-	queued_spin_lock_slowpath(lock, val);
++	}
++
++	if (likely(val == _Q_LOCKED_VAL)) {
++		asm_volatile_goto(
++	"	stwcx.	%0,0,%1							\n"
++	"	bne-	%l[again]						\n"
++		:
++		: "r"(_Q_LOCKED_VAL | _Q_PENDING_VAL), "r" (&a->counter)
++		: "cr0", "memory"
++		: again );
++
++		atomic_cond_read_acquire(a, !(VAL & _Q_LOCKED_MASK));
++//		clear_pending_set_locked(lock);
++		WRITE_ONCE(lock->locked_pending, _Q_LOCKED_VAL);
++//		lockevent_inc(lock_pending);
++		return;
++	}
++
++	if (val == _Q_PENDING_VAL) {
++		int cnt = _Q_PENDING_LOOPS;
++		val = atomic_cond_read_relaxed(a,
++					       (VAL != _Q_PENDING_VAL) || !cnt--);
++		if (!(val & ~_Q_LOCKED_MASK))
++			goto again;
++        }
++	queued_spin_lock_slowpath_queue(lock);
+ }
+ #define queued_spin_lock queued_spin_lock
+ 
+diff --git a/kernel/locking/qspinlock.c b/kernel/locking/qspinlock.c
+index b9515fcc9b29..ebcc6f5d99d5 100644
+--- a/kernel/locking/qspinlock.c
++++ b/kernel/locking/qspinlock.c
+@@ -287,10 +287,14 @@ static __always_inline u32  __pv_wait_head_or_lock(struct qspinlock *lock,
+ 
+ #ifdef CONFIG_PARAVIRT_SPINLOCKS
+ #define queued_spin_lock_slowpath	native_queued_spin_lock_slowpath
++#define queued_spin_lock_slowpath_queue	native_queued_spin_lock_slowpath_queue
+ #endif
+ 
+ #endif /* _GEN_PV_LOCK_SLOWPATH */
+ 
++void queued_spin_lock_slowpath_queue(struct qspinlock *lock);
++static void __queued_spin_lock_slowpath_queue(struct qspinlock *lock);
++
+ /**
+  * queued_spin_lock_slowpath - acquire the queued spinlock
+  * @lock: Pointer to queued spinlock structure
+@@ -314,12 +318,6 @@ static __always_inline u32  __pv_wait_head_or_lock(struct qspinlock *lock,
+  */
+ void queued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
+ {
+-	struct mcs_spinlock *prev, *next, *node;
+-	u32 old, tail;
+-	int idx;
+-
+-	BUILD_BUG_ON(CONFIG_NR_CPUS >= (1U << _Q_TAIL_CPU_BITS));
+-
+ 	if (pv_enabled())
+ 		goto pv_queue;
+ 
+@@ -397,6 +395,26 @@ void queued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
+ queue:
+ 	lockevent_inc(lock_slowpath);
+ pv_queue:
++	__queued_spin_lock_slowpath_queue(lock);
++}
++EXPORT_SYMBOL(queued_spin_lock_slowpath);
++
++void queued_spin_lock_slowpath_queue(struct qspinlock *lock)
++{
++	lockevent_inc(lock_slowpath);
++	__queued_spin_lock_slowpath_queue(lock);
++}
++EXPORT_SYMBOL(queued_spin_lock_slowpath_queue);
++
++static void __queued_spin_lock_slowpath_queue(struct qspinlock *lock)
++{
++	struct mcs_spinlock *prev, *next, *node;
++	u32 old, tail;
++	u32 val;
++	int idx;
++
++	BUILD_BUG_ON(CONFIG_NR_CPUS >= (1U << _Q_TAIL_CPU_BITS));
++
+ 	node = this_cpu_ptr(&qnodes[0].mcs);
+ 	idx = node->count++;
+ 	tail = encode_tail(smp_processor_id(), idx);
+@@ -559,7 +577,6 @@ void queued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
+ 	 */
+ 	__this_cpu_dec(qnodes[0].mcs.count);
+ }
+-EXPORT_SYMBOL(queued_spin_lock_slowpath);
+ 
+ /*
+  * Generate the paravirt code for queued_spin_unlock_slowpath().
