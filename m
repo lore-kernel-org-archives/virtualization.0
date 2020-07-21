@@ -1,9 +1,9 @@
 From: Damien Le Moal <Damien.LeMoal@wdc.com>
-Subject: Re: [PATCH 01/10] block: introduce blk_is_valid_logical_block_size
-Date: Tue, 21 Jul 2020 11:05:55 +0000
-Message-ID: <CY4PR04MB37512BDEFD7B977FCD32A10AE7780@CY4PR04MB3751.namprd04.prod.outlook.com>
+Subject: Re: [PATCH 02/10] block: virtio-blk: check logical block size
+Date: Tue, 21 Jul 2020 11:07:36 +0000
+Message-ID: <CY4PR04MB375159E32C34FD487EB33C5CE7780@CY4PR04MB3751.namprd04.prod.outlook.com>
 References: <20200721105239.8270-1-mlevitsk@redhat.com>
- <20200721105239.8270-2-mlevitsk@redhat.com>
+ <20200721105239.8270-3-mlevitsk@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
@@ -14,96 +14,64 @@ To: Maxim Levitsky <mlevitsk@redhat.com>, "linux-kernel@vger.kernel.org" <linux-
 Cc: Keith Busch <kbusch@kernel.org>, Josef Bacik <josef@toxicpanda.com>, "open list:BLOCK LAYER" <linux-block@vger.kernel.org>, Sagi Grimberg <sagi@grimberg.me>, Jens Axboe <axboe@kernel.dk>, "open list:NVM EXPRESS DRIVER" <linux-nvme@lists.infradead.org>, "open list:SCSI CDROM DRIVER" <linux-scsi@vger.kernel.org>, Tejun Heo <tj@kernel.org>, Bart Van Assche <bvanassche@acm.org>, "Martin K. Petersen" <martin.petersen@oracle.com>, Jason Wang <jasowang@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, Colin Ian King <colin.king@canonical.com>, "Michael S. Tsirkin" <mst@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Ulf Hansson <ulf.hansson@linaro.org>, Ajay Joshi <Ajay.Joshi@wdc.com>, Ming Lei <ming.lei@redhat.>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2020/07/21 19:53, Maxim Levitsky wrote:=0A=
-> Kernel block layer has never supported logical block=0A=
-> sizes less that SECTOR_SIZE nor larger that PAGE_SIZE.=0A=
+On 2020/07/21 19:54, Maxim Levitsky wrote:=0A=
+> Linux kernel only supports logical block sizes which are power of two,=0A=
+> at least 512 bytes and no more that PAGE_SIZE.=0A=
 > =0A=
-> Some drivers have runtime configurable block size,=0A=
-> so it makes sense to have common helper for that.=0A=
-=0A=
-...common helper to check the validity of the logical block size set by the=
- driver.=0A=
-=0A=
-("for that" does not refer to a clear action)=0A=
-=0A=
+> Check this instead of crashing later on.=0A=
 > =0A=
-> Signed-off-by: Maxim Levitsky  <mlevitsk@redhat.com>=0A=
+> Note that there is no need to check physical block size since it is=0A=
+> only a hint, and virtio-blk already only supports power of two values.=0A=
+> =0A=
+> Bugzilla link: https://bugzilla.redhat.com/show_bug.cgi?id=3D1664619=0A=
+> =0A=
+> Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>=0A=
 > ---=0A=
->  block/blk-settings.c   | 18 ++++++++++++++++++=0A=
->  include/linux/blkdev.h |  1 +=0A=
->  2 files changed, 19 insertions(+)=0A=
+>  drivers/block/virtio_blk.c | 15 +++++++++++++--=0A=
+>  1 file changed, 13 insertions(+), 2 deletions(-)=0A=
 > =0A=
-> diff --git a/block/blk-settings.c b/block/blk-settings.c=0A=
-> index 9a2c23cd97007..3c4ef0d00c2bc 100644=0A=
-> --- a/block/blk-settings.c=0A=
-> +++ b/block/blk-settings.c=0A=
-> @@ -311,6 +311,21 @@ void blk_queue_max_segment_size(struct request_queue=
- *q, unsigned int max_size)=0A=
->  }=0A=
->  EXPORT_SYMBOL(blk_queue_max_segment_size);=0A=
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c=0A=
+> index 980df853ee497..b5ee87cba00ed 100644=0A=
+> --- a/drivers/block/virtio_blk.c=0A=
+> +++ b/drivers/block/virtio_blk.c=0A=
+> @@ -809,10 +809,18 @@ static int virtblk_probe(struct virtio_device *vdev=
+)=0A=
+>  	err =3D virtio_cread_feature(vdev, VIRTIO_BLK_F_BLK_SIZE,=0A=
+>  				   struct virtio_blk_config, blk_size,=0A=
+>  				   &blk_size);=0A=
+> -	if (!err)=0A=
+> +	if (!err) {=0A=
+> +		if (!blk_is_valid_logical_block_size(blk_size)) {=0A=
+> +			dev_err(&vdev->dev,=0A=
+> +				"%s failure: invalid logical block size %d\n",=0A=
+> +				__func__, blk_size);=0A=
+> +			err =3D -EINVAL;=0A=
+> +			goto out_cleanup_queue;=0A=
+> +		}=0A=
+>  		blk_queue_logical_block_size(q, blk_size);=0A=
+> -	else=0A=
+> +	} else {=0A=
+>  		blk_size =3D queue_logical_block_size(q);=0A=
+> +	}=0A=
 >  =0A=
-> +=0A=
-> +/**=0A=
-> + * blk_check_logical_block_size - check if logical block size is support=
-ed=0A=
-> + * by the kernel=0A=
-> + * @size:  the logical block size, in bytes=0A=
-> + *=0A=
-> + * Description:=0A=
-> + *   This function checks if the block layers supports given block size=
+>  	/* Use topology information if available */=0A=
+>  	err =3D virtio_cread_feature(vdev, VIRTIO_BLK_F_TOPOLOGY,=0A=
+> @@ -872,6 +880,9 @@ static int virtblk_probe(struct virtio_device *vdev)=
 =0A=
-> + **/=0A=
-> +bool blk_is_valid_logical_block_size(unsigned int size)=0A=
-> +{=0A=
-> +	return size >=3D SECTOR_SIZE && size <=3D PAGE_SIZE && !is_power_of_2(s=
-ize);=0A=
-> +}=0A=
-> +EXPORT_SYMBOL(blk_is_valid_logical_block_size);=0A=
-> +=0A=
->  /**=0A=
->   * blk_queue_logical_block_size - set logical block size for the queue=
-=0A=
->   * @q:  the request queue for the device=0A=
-> @@ -323,6 +338,8 @@ EXPORT_SYMBOL(blk_queue_max_segment_size);=0A=
->   **/=0A=
->  void blk_queue_logical_block_size(struct request_queue *q, unsigned int =
-size)=0A=
->  {=0A=
-> +	WARN_ON(!blk_is_valid_logical_block_size(size));=0A=
-> +=0A=
->  	q->limits.logical_block_size =3D size;=0A=
+>  	device_add_disk(&vdev->dev, vblk->disk, virtblk_attr_groups);=0A=
+>  	return 0;=0A=
 >  =0A=
->  	if (q->limits.physical_block_size < size)=0A=
-> @@ -330,6 +347,7 @@ void blk_queue_logical_block_size(struct request_queu=
-e *q, unsigned int size)=0A=
->  =0A=
->  	if (q->limits.io_min < q->limits.physical_block_size)=0A=
->  		q->limits.io_min =3D q->limits.physical_block_size;=0A=
-> +=0A=
-=0A=
-white line change.=0A=
-=0A=
->  }=0A=
->  EXPORT_SYMBOL(blk_queue_logical_block_size);=0A=
->  =0A=
-> diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h=0A=
-> index 57241417ff2f8..2ed3151397e41 100644=0A=
-> --- a/include/linux/blkdev.h=0A=
-> +++ b/include/linux/blkdev.h=0A=
-> @@ -1099,6 +1099,7 @@ extern void blk_queue_max_write_same_sectors(struct=
- request_queue *q,=0A=
->  		unsigned int max_write_same_sectors);=0A=
->  extern void blk_queue_max_write_zeroes_sectors(struct request_queue *q,=
-=0A=
->  		unsigned int max_write_same_sectors);=0A=
-> +extern bool blk_is_valid_logical_block_size(unsigned int size);=0A=
->  extern void blk_queue_logical_block_size(struct request_queue *, unsigne=
-d int);=0A=
->  extern void blk_queue_max_zone_append_sectors(struct request_queue *q,=
-=0A=
->  		unsigned int max_zone_append_sectors);=0A=
+> +out_cleanup_queue:=0A=
+> +	blk_cleanup_queue(vblk->disk->queue);=0A=
+> +	vblk->disk->queue =3D NULL;=0A=
+>  out_free_tags:=0A=
+>  	blk_mq_free_tag_set(&vblk->tag_set);=0A=
+>  out_put_disk:=0A=
 > =0A=
 =0A=
+Looks good to me.=0A=
+=0A=
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>=0A=
 =0A=
 -- =0A=
 Damien Le Moal=0A=
