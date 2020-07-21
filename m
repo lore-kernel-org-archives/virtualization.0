@@ -1,88 +1,125 @@
 From: Damien Le Moal <Damien.LeMoal@wdc.com>
-Subject: Re: [PATCH 10/10] block: scsi: sr: use
- blk_is_valid_logical_block_size
-Date: Tue, 21 Jul 2020 11:29:48 +0000
-Message-ID: <CY4PR04MB37517861074A4A448180E136E7780@CY4PR04MB3751.namprd04.prod.outlook.com>
+Subject: Re: [PATCH 01/10] block: introduce blk_is_valid_logical_block_size
+Date: Tue, 21 Jul 2020 11:31:10 +0000
+Message-ID: <CY4PR04MB37515A4950060845E5860755E7780@CY4PR04MB3751.namprd04.prod.outlook.com>
 References: <20200721105239.8270-1-mlevitsk@redhat.com>
- <20200721105239.8270-11-mlevitsk@redhat.com>
+ <20200721105239.8270-2-mlevitsk@redhat.com>
+ <CY4PR04MB37512BDEFD7B977FCD32A10AE7780@CY4PR04MB3751.namprd04.prod.outlook.com>
+ <cef747910431d81524e455e6380df1c610d1884c.camel@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-mmc-owner@vger.kernel.org>
+Return-path: <linux-block-owner@vger.kernel.org>
 Content-Language: en-US
-Sender: linux-mmc-owner@vger.kernel.org
+Sender: linux-block-owner@vger.kernel.org
 To: Maxim Levitsky <mlevitsk@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
 Cc: Keith Busch <kbusch@kernel.org>, Josef Bacik <josef@toxicpanda.com>, "open list:BLOCK LAYER" <linux-block@vger.kernel.org>, Sagi Grimberg <sagi@grimberg.me>, Jens Axboe <axboe@kernel.dk>, "open list:NVM EXPRESS DRIVER" <linux-nvme@lists.infradead.org>, "open list:SCSI CDROM DRIVER" <linux-scsi@vger.kernel.org>, Tejun Heo <tj@kernel.org>, Bart Van Assche <bvanassche@acm.org>, "Martin K. Petersen" <martin.petersen@oracle.com>, Jason Wang <jasowang@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, Colin Ian King <colin.king@canonical.com>, "Michael S. Tsirkin" <mst@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Ulf Hansson <ulf.hansson@linaro.org>, Ajay Joshi <Ajay.Joshi@wdc.com>, Ming Lei <ming.lei@redhat.>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On 2020/07/21 19:55, Maxim Levitsky wrote:=0A=
-> Plus some tiny refactoring.=0A=
+On 2020/07/21 20:09, Maxim Levitsky wrote:=0A=
+> On Tue, 2020-07-21 at 11:05 +0000, Damien Le Moal wrote:=0A=
+>> On 2020/07/21 19:53, Maxim Levitsky wrote:=0A=
+>>> Kernel block layer has never supported logical block=0A=
+>>> sizes less that SECTOR_SIZE nor larger that PAGE_SIZE.=0A=
+>>>=0A=
+>>> Some drivers have runtime configurable block size,=0A=
+>>> so it makes sense to have common helper for that.=0A=
+>>=0A=
+>> ...common helper to check the validity of the logical block size set by =
+the driver.=0A=
+> Agree, will fix.=0A=
+>>=0A=
+>> ("for that" does not refer to a clear action)=0A=
+>>=0A=
+>>> Signed-off-by: Maxim Levitsky  <mlevitsk@redhat.com>=0A=
+>>> ---=0A=
+>>>  block/blk-settings.c   | 18 ++++++++++++++++++=0A=
+>>>  include/linux/blkdev.h |  1 +=0A=
+>>>  2 files changed, 19 insertions(+)=0A=
+>>>=0A=
+>>> diff --git a/block/blk-settings.c b/block/blk-settings.c=0A=
+>>> index 9a2c23cd97007..3c4ef0d00c2bc 100644=0A=
+>>> --- a/block/blk-settings.c=0A=
+>>> +++ b/block/blk-settings.c=0A=
+>>> @@ -311,6 +311,21 @@ void blk_queue_max_segment_size(struct request_que=
+ue *q, unsigned int max_size)=0A=
+>>>  }=0A=
+>>>  EXPORT_SYMBOL(blk_queue_max_segment_size);=0A=
+>>>  =0A=
+>>> +=0A=
+>>> +/**=0A=
+>>> + * blk_check_logical_block_size - check if logical block size is suppo=
+rted=0A=
+>>> + * by the kernel=0A=
+>>> + * @size:  the logical block size, in bytes=0A=
+>>> + *=0A=
+>>> + * Description:=0A=
+>>> + *   This function checks if the block layers supports given block siz=
+e=0A=
+>>> + **/=0A=
+>>> +bool blk_is_valid_logical_block_size(unsigned int size)=0A=
+>>> +{=0A=
+>>> +	return size >=3D SECTOR_SIZE && size <=3D PAGE_SIZE && !is_power_of_2=
+(size);=0A=
+> Note here a typo, made in last minute change which I didn't test.=0A=
+> It should be without '!'=0A=
+=0A=
+Oh ! Indeed. I missed that.=0A=
+=0A=
 > =0A=
-> Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>=0A=
-> ---=0A=
->  drivers/scsi/sr.c | 31 +++++++++++++------------------=0A=
->  1 file changed, 13 insertions(+), 18 deletions(-)=0A=
+> Best regards,=0A=
+> 	Maxim Levitsky=0A=
 > =0A=
-> diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c=0A=
-> index 0c4aa4665a2f9..0e96338029310 100644=0A=
-> --- a/drivers/scsi/sr.c=0A=
-> +++ b/drivers/scsi/sr.c=0A=
-> @@ -866,31 +866,26 @@ static void get_sectorsize(struct scsi_cd *cd)=0A=
->  			cd->capacity =3D max_t(long, cd->capacity, last_written);=0A=
->  =0A=
->  		sector_size =3D get_unaligned_be32(&buffer[4]);=0A=
-> -		switch (sector_size) {=0A=
-> -			/*=0A=
-> -			 * HP 4020i CD-Recorder reports 2340 byte sectors=0A=
-> -			 * Philips CD-Writers report 2352 byte sectors=0A=
-> -			 *=0A=
-> -			 * Use 2k sectors for them..=0A=
-> -			 */=0A=
-> -		case 0:=0A=
-> -		case 2340:=0A=
-> -		case 2352:=0A=
-> +=0A=
-> +		/*=0A=
-> +		 * HP 4020i CD-Recorder reports 2340 byte sectors=0A=
-> +		 * Philips CD-Writers report 2352 byte sectors=0A=
-> +		 *=0A=
-> +		 * Use 2k sectors for them..=0A=
-> +		 */=0A=
-> +=0A=
+>>> +}=0A=
+>>> +EXPORT_SYMBOL(blk_is_valid_logical_block_size);=0A=
+>>> +=0A=
+>>>  /**=0A=
+>>>   * blk_queue_logical_block_size - set logical block size for the queue=
 =0A=
-No need for the blank line here.=0A=
+>>>   * @q:  the request queue for the device=0A=
+>>> @@ -323,6 +338,8 @@ EXPORT_SYMBOL(blk_queue_max_segment_size);=0A=
+>>>   **/=0A=
+>>>  void blk_queue_logical_block_size(struct request_queue *q, unsigned in=
+t size)=0A=
+>>>  {=0A=
+>>> +	WARN_ON(!blk_is_valid_logical_block_size(size));=0A=
+>>> +=0A=
+>>>  	q->limits.logical_block_size =3D size;=0A=
+>>>  =0A=
+>>>  	if (q->limits.physical_block_size < size)=0A=
+>>> @@ -330,6 +347,7 @@ void blk_queue_logical_block_size(struct request_qu=
+eue *q, unsigned int size)=0A=
+>>>  =0A=
+>>>  	if (q->limits.io_min < q->limits.physical_block_size)=0A=
+>>>  		q->limits.io_min =3D q->limits.physical_block_size;=0A=
+>>> +=0A=
+>>=0A=
+>> white line change.=0A=
+>>=0A=
+>>>  }=0A=
+>>>  EXPORT_SYMBOL(blk_queue_logical_block_size);=0A=
+>>>  =0A=
+>>> diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h=0A=
+>>> index 57241417ff2f8..2ed3151397e41 100644=0A=
+>>> --- a/include/linux/blkdev.h=0A=
+>>> +++ b/include/linux/blkdev.h=0A=
+>>> @@ -1099,6 +1099,7 @@ extern void blk_queue_max_write_same_sectors(stru=
+ct request_queue *q,=0A=
+>>>  		unsigned int max_write_same_sectors);=0A=
+>>>  extern void blk_queue_max_write_zeroes_sectors(struct request_queue *q=
+,=0A=
+>>>  		unsigned int max_write_same_sectors);=0A=
+>>> +extern bool blk_is_valid_logical_block_size(unsigned int size);=0A=
+>>>  extern void blk_queue_logical_block_size(struct request_queue *, unsig=
+ned int);=0A=
+>>>  extern void blk_queue_max_zone_append_sectors(struct request_queue *q,=
 =0A=
-> +		if (!sector_size || sector_size =3D=3D 2340 || sector_size =3D=3D 2352=
-)=0A=
->  			sector_size =3D 2048;=0A=
-> -			/* fall through */=0A=
-> -		case 2048:=0A=
-> -			cd->capacity *=3D 4;=0A=
-> -			/* fall through */=0A=
-> -		case 512:=0A=
-> -			break;=0A=
-> -		default:=0A=
-> +=0A=
-> +		cd->capacity *=3D (sector_size >> SECTOR_SHIFT);=0A=
-=0A=
-Where does this come from ? There is no such code in sr get_sectorsize()...=
-=0A=
-=0A=
-> +=0A=
-> +		if (!blk_is_valid_logical_block_size(sector_size)) {=0A=
->  			sr_printk(KERN_INFO, cd,=0A=
->  				  "unsupported sector size %d.", sector_size);=0A=
->  			cd->capacity =3D 0;=0A=
->  		}=0A=
->  =0A=
->  		cd->device->sector_size =3D sector_size;=0A=
-> -=0A=
-=0A=
-White line change.=0A=
-=0A=
->  		/*=0A=
->  		 * Add this so that we have the ability to correctly gauge=0A=
->  		 * what the device is capable of.=0A=
+>>>  		unsigned int max_zone_append_sectors);=0A=
+>>>=0A=
+>>=0A=
+>>=0A=
+> =0A=
+> =0A=
 > =0A=
 =0A=
 =0A=
