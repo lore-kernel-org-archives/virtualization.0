@@ -1,225 +1,123 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH v9 61/84] KVM: introspection: add cleanup support for vCPUs
-Date: Wed, 22 Jul 2020 00:08:59 +0300
-Message-ID: <20200721210922.7646-62-alazar@bitdefender.com>
+Subject: [PATCH v9 83/84] KVM: introspection: emulate a guest page table walk
+ on SPT violations due to A/D bit updates
+Date: Wed, 22 Jul 2020 00:09:21 +0300
+Message-ID: <20200721210922.7646-84-alazar@bitdefender.com>
 References: <20200721210922.7646-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200721210922.7646-1-alazar@bitdefender.com>
-Sender: kvm-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Nicușor Cîțu <ncitu@bitdefender.com>
-
-On unhook the introspection channel is closed. This will signal the
-receiving thread to call kvmi_put() and exit. There might be vCPU threads
-handling introspection commands or waiting for event replies. These will
-also call kvmi_put() and re-enter in guest. Once the reference counter
-reaches zero, the structures keeping the introspection data will be freed.
-
-In order to restore the interception of CRs, MSRs, BP, descriptor-table
-registers, from all vCPUs (some of which might run from userspace),
-we keep the needed information in another structure (kvmi_interception)
-which will be used and freed by each of them before re-entering in guest.
-
-Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
-Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
----
- arch/x86/include/asm/kvm_host.h   |  3 ++
- arch/x86/include/asm/kvmi_host.h  |  4 +++
- arch/x86/kvm/kvmi.c               | 49 +++++++++++++++++++++++++++++++
- virt/kvm/introspection/kvmi.c     | 32 ++++++++++++++++++--
- virt/kvm/introspection/kvmi_int.h |  5 ++++
- 5 files changed, 90 insertions(+), 3 deletions(-)
-
-diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index 8a119fb7c623..acfcebce51dd 100644
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -840,6 +840,9 @@ struct kvm_vcpu_arch {
- 
- 	/* #PF translated error code from EPT/NPT exit reason */
- 	u64 error_code;
-+
-+	/* Control the interception for KVM Introspection */
-+	struct kvmi_interception *kvmi;
- };
- 
- struct kvm_lpage_info {
-diff --git a/arch/x86/include/asm/kvmi_host.h b/arch/x86/include/asm/kvmi_host.h
-index 05ade3a16b24..6d274f173fb5 100644
---- a/arch/x86/include/asm/kvmi_host.h
-+++ b/arch/x86/include/asm/kvmi_host.h
-@@ -4,6 +4,10 @@
- 
- #include <asm/kvmi.h>
- 
-+struct kvmi_interception {
-+	bool restore_interception;
-+};
-+
- struct kvm_vcpu_arch_introspection {
- };
- 
-diff --git a/arch/x86/kvm/kvmi.c b/arch/x86/kvm/kvmi.c
-index f13272350bc9..ca2ce7498cfe 100644
---- a/arch/x86/kvm/kvmi.c
-+++ b/arch/x86/kvm/kvmi.c
-@@ -290,3 +290,52 @@ void kvmi_arch_breakpoint_event(struct kvm_vcpu *vcpu, u64 gva, u8 insn_len)
- 		kvmi_handle_common_event_actions(vcpu->kvm, action);
- 	}
- }
-+
-+static void kvmi_arch_restore_interception(struct kvm_vcpu *vcpu)
-+{
-+}
-+
-+bool kvmi_arch_clean_up_interception(struct kvm_vcpu *vcpu)
-+{
-+	struct kvmi_interception *arch_vcpui = vcpu->arch.kvmi;
-+
-+	if (!arch_vcpui)
-+		return false;
-+
-+	if (!arch_vcpui->restore_interception)
-+		return false;
-+
-+	kvmi_arch_restore_interception(vcpu);
-+
-+	return true;
-+}
-+
-+bool kvmi_arch_vcpu_alloc_interception(struct kvm_vcpu *vcpu)
-+{
-+	struct kvmi_interception *arch_vcpui;
-+
-+	arch_vcpui = kzalloc(sizeof(*arch_vcpui), GFP_KERNEL);
-+	if (!arch_vcpui)
-+		return false;
-+
-+	return true;
-+}
-+
-+void kvmi_arch_vcpu_free_interception(struct kvm_vcpu *vcpu)
-+{
-+	kfree(vcpu->arch.kvmi);
-+	WRITE_ONCE(vcpu->arch.kvmi, NULL);
-+}
-+
-+bool kvmi_arch_vcpu_introspected(struct kvm_vcpu *vcpu)
-+{
-+	return !!READ_ONCE(vcpu->arch.kvmi);
-+}
-+
-+void kvmi_arch_request_interception_cleanup(struct kvm_vcpu *vcpu)
-+{
-+	struct kvmi_interception *arch_vcpui = READ_ONCE(vcpu->arch.kvmi);
-+
-+	if (arch_vcpui)
-+		arch_vcpui->restore_interception = true;
-+}
-diff --git a/virt/kvm/introspection/kvmi.c b/virt/kvm/introspection/kvmi.c
-index a5264696c630..083dd8be9252 100644
---- a/virt/kvm/introspection/kvmi.c
-+++ b/virt/kvm/introspection/kvmi.c
-@@ -197,7 +197,7 @@ static bool alloc_vcpui(struct kvm_vcpu *vcpu)
- 
- 	vcpu->kvmi = vcpui;
- 
--	return true;
-+	return kvmi_arch_vcpu_alloc_interception(vcpu);
- }
- 
- static int create_vcpui(struct kvm_vcpu *vcpu)
-@@ -231,6 +231,9 @@ static void free_vcpui(struct kvm_vcpu *vcpu)
- 
- 	kfree(vcpui);
- 	vcpu->kvmi = NULL;
-+
-+	kvmi_arch_request_interception_cleanup(vcpu);
-+	kvmi_make_request(vcpu, false);
- }
- 
- static void free_kvmi(struct kvm *kvm)
-@@ -253,6 +256,7 @@ void kvmi_vcpu_uninit(struct kvm_vcpu *vcpu)
- {
- 	mutex_lock(&vcpu->kvm->kvmi_lock);
- 	free_vcpui(vcpu);
-+	kvmi_arch_vcpu_free_interception(vcpu);
- 	mutex_unlock(&vcpu->kvm->kvmi_lock);
- }
- 
-@@ -404,6 +408,21 @@ static int kvmi_recv_thread(void *arg)
- 	return 0;
- }
- 
-+static bool ready_to_hook(struct kvm *kvm)
-+{
-+	struct kvm_vcpu *vcpu;
-+	int i;
-+
-+	if (kvm->kvmi)
-+		return false;
-+
-+	kvm_for_each_vcpu(i, vcpu, kvm)
-+		if (kvmi_arch_vcpu_introspected(vcpu))
-+			return false;
-+
-+	return true;
-+}
-+
- int kvmi_hook(struct kvm *kvm, const struct kvm_introspection_hook *hook)
- {
- 	struct kvm_introspection *kvmi;
-@@ -411,7 +430,7 @@ int kvmi_hook(struct kvm *kvm, const struct kvm_introspection_hook *hook)
- 
- 	mutex_lock(&kvm->kvmi_lock);
- 
--	if (kvm->kvmi) {
-+	if (!ready_to_hook(kvm)) {
- 		err = -EEXIST;
- 		goto out;
- 	}
-@@ -836,7 +855,7 @@ void kvmi_handle_requests(struct kvm_vcpu *vcpu)
- 
- 	kvmi = kvmi_get(vcpu->kvm);
- 	if (!kvmi)
--		return;
-+		goto out;
- 
- 	for (;;) {
- 		kvmi_run_jobs(vcpu);
-@@ -848,6 +867,13 @@ void kvmi_handle_requests(struct kvm_vcpu *vcpu)
- 	}
- 
- 	kvmi_put(vcpu->kvm);
-+
-+out:
-+	if (kvmi_arch_clean_up_interception(vcpu)) {
-+		mutex_lock(&vcpu->kvm->kvmi_lock);
-+		kvmi_arch_vcpu_free_interception(vcpu);
-+		mutex_unlock(&vcpu->kvm->kvmi_lock);
-+	}
- }
- 
- int kvmi_cmd_vcpu_pause(struct kvm_vcpu *vcpu, bool wait)
-diff --git a/virt/kvm/introspection/kvmi_int.h b/virt/kvm/introspection/kvmi_int.h
-index 810dde913ad6..05bfde7d7f1a 100644
---- a/virt/kvm/introspection/kvmi_int.h
-+++ b/virt/kvm/introspection/kvmi_int.h
-@@ -65,6 +65,11 @@ int kvmi_cmd_vcpu_set_registers(struct kvm_vcpu *vcpu,
- 				const struct kvm_regs *regs);
- 
- /* arch */
-+bool kvmi_arch_vcpu_alloc_interception(struct kvm_vcpu *vcpu);
-+void kvmi_arch_vcpu_free_interception(struct kvm_vcpu *vcpu);
-+bool kvmi_arch_vcpu_introspected(struct kvm_vcpu *vcpu);
-+void kvmi_arch_request_interception_cleanup(struct kvm_vcpu *vcpu);
-+bool kvmi_arch_clean_up_interception(struct kvm_vcpu *vcpu);
- int kvmi_arch_cmd_vcpu_get_info(struct kvm_vcpu *vcpu,
- 				struct kvmi_vcpu_get_info_reply *rpl);
- void kvmi_arch_setup_event(struct kvm_vcpu *vcpu, struct kvmi_event *ev);
+RnJvbTogTWloYWkgRG9uyJt1IDxtZG9udHVAYml0ZGVmZW5kZXIuY29tPgoKT24gU1BUIHBhZ2Ug
+ZmF1bHRzIGNhdXNlZCBieSBndWVzdCBwYWdlIHRhYmxlIHdhbGtzLCB1c2UgdGhlIGV4aXN0aW5n
+Cmd1ZXN0IHBhZ2UgdGFibGUgd2FsayBjb2RlIHRvIG1ha2UgdGhlIG5lY2Vzc2FyeSBhZGp1c3Rt
+ZW50cyB0byB0aGUgQS9ECmJpdHMgYW5kIHJldHVybiB0byBndWVzdC4gVGhpcyBlZmZlY3RpdmVs
+eSBieXBhc3NlcyB0aGUgeDg2IGVtdWxhdG9yCndobyB3YXMgbWFraW5nIHRoZSB3cm9uZyBtb2Rp
+ZmljYXRpb25zIGxlYWRpbmcgb25lIE9TIChXaW5kb3dzIDguMSB4NjQpCnRvIHRyaXBsZS1mYXVs
+dCB2ZXJ5IGVhcmx5IGluIHRoZSBib290IHByb2Nlc3Mgd2l0aCB0aGUgaW50cm9zcGVjdGlvbgpl
+bmFibGVkLgoKV2l0aCBpbnRyb3NwZWN0aW9uIGRpc2FibGVkLCB0aGVzZSBmYXVsdHMgYXJlIGhh
+bmRsZWQgYnkgc2ltcGx5IHJlbW92aW5nCnRoZSBwcm90ZWN0aW9uIGZyb20gdGhlIGFmZmVjdGVk
+IGd1ZXN0IHBhZ2UgYW5kIHJldHVybmluZyB0byBndWVzdC4KClNpZ25lZC1vZmYtYnk6IE1paGFp
+IERvbsibdSA8bWRvbnR1QGJpdGRlZmVuZGVyLmNvbT4KU2lnbmVkLW9mZi1ieTogQWRhbGJlcnQg
+TGF6xINyIDxhbGF6YXJAYml0ZGVmZW5kZXIuY29tPgotLS0KIGFyY2gveDg2L2luY2x1ZGUvYXNt
+L2t2bWlfaG9zdC5oIHwgIDIgKysKIGFyY2gveDg2L2t2bS9rdm1pLmMgICAgICAgICAgICAgIHwg
+MzMgKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysKIGFyY2gveDg2L2t2bS9tbXUvbW11
+LmMgICAgICAgICAgIHwgMTIgKysrKysrKysrKy0tCiBpbmNsdWRlL2xpbnV4L2t2bWlfaG9zdC5o
+ICAgICAgICB8ICAzICsrKwogdmlydC9rdm0vaW50cm9zcGVjdGlvbi9rdm1pLmMgICAgfCAyNiAr
+KysrKysrKysrKysrKysrKysrKysrKysrCiA1IGZpbGVzIGNoYW5nZWQsIDc0IGluc2VydGlvbnMo
+KyksIDIgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEvYXJjaC94ODYvaW5jbHVkZS9hc20va3Zt
+aV9ob3N0LmggYi9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9rdm1pX2hvc3QuaAppbmRleCAyNWM3YmI4
+YTkwODIuLjUwOWZhM2ZmZjVlNyAxMDA2NDQKLS0tIGEvYXJjaC94ODYvaW5jbHVkZS9hc20va3Zt
+aV9ob3N0LmgKKysrIGIvYXJjaC94ODYvaW5jbHVkZS9hc20va3ZtaV9ob3N0LmgKQEAgLTY0LDYg
+KzY0LDcgQEAgYm9vbCBrdm1pX2Rlc2NyaXB0b3JfZXZlbnQoc3RydWN0IGt2bV92Y3B1ICp2Y3B1
+LCB1OCBkZXNjcmlwdG9yLCBib29sIHdyaXRlKTsKIGJvb2wga3ZtaV9tc3JfZXZlbnQoc3RydWN0
+IGt2bV92Y3B1ICp2Y3B1LCBzdHJ1Y3QgbXNyX2RhdGEgKm1zcik7CiBib29sIGt2bWlfbW9uaXRv
+cl9tc3J3X2ludGVyY2VwdChzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUsIHUzMiBtc3IsIGJvb2wgZW5h
+YmxlKTsKIGJvb2wga3ZtaV9tc3J3X2ludGVyY2VwdF9vcmlnaW5hdG9yKHN0cnVjdCBrdm1fdmNw
+dSAqdmNwdSk7Citib29sIGt2bWlfdXBkYXRlX2FkX2ZsYWdzKHN0cnVjdCBrdm1fdmNwdSAqdmNw
+dSk7CiAKICNlbHNlIC8qIENPTkZJR19LVk1fSU5UUk9TUEVDVElPTiAqLwogCkBAIC04OCw2ICs4
+OSw3IEBAIHN0YXRpYyBpbmxpbmUgYm9vbCBrdm1pX21vbml0b3JfbXNyd19pbnRlcmNlcHQoc3Ry
+dWN0IGt2bV92Y3B1ICp2Y3B1LCB1MzIgbXNyLAogCQkJCQkgICAgICAgYm9vbCBlbmFibGUpIHsg
+cmV0dXJuIGZhbHNlOyB9CiBzdGF0aWMgaW5saW5lIGJvb2wga3ZtaV9tc3J3X2ludGVyY2VwdF9v
+cmlnaW5hdG9yKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSkKIAkJCQl7IHJldHVybiBmYWxzZTsgfQor
+c3RhdGljIGlubGluZSBib29sIGt2bWlfdXBkYXRlX2FkX2ZsYWdzKHN0cnVjdCBrdm1fdmNwdSAq
+dmNwdSkgeyByZXR1cm4gZmFsc2U7IH0KIAogI2VuZGlmIC8qIENPTkZJR19LVk1fSU5UUk9TUEVD
+VElPTiAqLwogCmRpZmYgLS1naXQgYS9hcmNoL3g4Ni9rdm0va3ZtaS5jIGIvYXJjaC94ODYva3Zt
+L2t2bWkuYwppbmRleCA4MDUxZDA2MDY0YWIuLjRlNzU4NThjMDNiNCAxMDA2NDQKLS0tIGEvYXJj
+aC94ODYva3ZtL2t2bWkuYworKysgYi9hcmNoL3g4Ni9rdm0va3ZtaS5jCkBAIC0xMzc4LDMgKzEz
+NzgsMzYgQEAgZ3BhX3Qga3ZtaV9hcmNoX2NtZF90cmFuc2xhdGVfZ3ZhKHN0cnVjdCBrdm1fdmNw
+dSAqdmNwdSwgZ3ZhX3QgZ3ZhKQogewogCXJldHVybiBrdm1fbW11X2d2YV90b19ncGFfc3lzdGVt
+KHZjcHUsIGd2YSwgMCwgTlVMTCk7CiB9CisKK2Jvb2wga3ZtaV91cGRhdGVfYWRfZmxhZ3Moc3Ry
+dWN0IGt2bV92Y3B1ICp2Y3B1KQoreworCXN0cnVjdCBrdm1faW50cm9zcGVjdGlvbiAqa3ZtaTsK
+Kwlib29sIHJldCA9IGZhbHNlOworCWd2YV90IGd2YTsKKwlncGFfdCBncGE7CisKKwlrdm1pID0g
+a3ZtaV9nZXQodmNwdS0+a3ZtKTsKKwlpZiAoIWt2bWkpCisJCXJldHVybiBmYWxzZTsKKworCWd2
+YSA9IGt2bV94ODZfb3BzLmZhdWx0X2dsYSh2Y3B1KTsKKwlpZiAoZ3ZhID09IH4wdWxsKSB7CisJ
+CWt2bWlfd2Fybl9vbmNlKGt2bWksICIlczogY2Fubm90IHBlcmZvcm0gdHJhbnNsYXRpb25cbiIs
+CisJCQkgICAgICAgX19mdW5jX18pOworCQlnb3RvIG91dDsKKwl9CisKKwlncGEgPSBrdm1fbW11
+X2d2YV90b19ncGFfc3lzdGVtKHZjcHUsIGd2YSwgUEZFUlJfV1JJVEVfTUFTSywgTlVMTCk7CisJ
+aWYgKGdwYSA9PSBVTk1BUFBFRF9HVkEpIHsKKwkJc3RydWN0IHg4Nl9leGNlcHRpb24gZXhjZXB0
+aW9uID0geyB9OworCisJCWdwYSA9IGt2bV9tbXVfZ3ZhX3RvX2dwYV9zeXN0ZW0odmNwdSwgZ3Zh
+LCAwLCAmZXhjZXB0aW9uKTsKKwl9CisKKwlyZXQgPSAoZ3BhICE9IFVOTUFQUEVEX0dWQSk7CisK
+K291dDoKKwlrdm1pX3B1dCh2Y3B1LT5rdm0pOworCisJcmV0dXJuIHJldDsKK30KZGlmZiAtLWdp
+dCBhL2FyY2gveDg2L2t2bS9tbXUvbW11LmMgYi9hcmNoL3g4Ni9rdm0vbW11L21tdS5jCmluZGV4
+IDRkZjViNzI5ZTJjNS4uOTc3NjZmMzQ5MTBkIDEwMDY0NAotLS0gYS9hcmNoL3g4Ni9rdm0vbW11
+L21tdS5jCisrKyBiL2FyY2gveDg2L2t2bS9tbXUvbW11LmMKQEAgLTQwLDYgKzQwLDcgQEAKICNp
+bmNsdWRlIDxsaW51eC9oYXNoLmg+CiAjaW5jbHVkZSA8bGludXgva2Vybl9sZXZlbHMuaD4KICNp
+bmNsdWRlIDxsaW51eC9rdGhyZWFkLmg+CisjaW5jbHVkZSA8bGludXgva3ZtaV9ob3N0Lmg+CiAK
+ICNpbmNsdWRlIDxhc20vcGFnZS5oPgogI2luY2x1ZGUgPGFzbS9tZW10eXBlLmg+CkBAIC01NTQ5
+LDggKzU1NTAsMTUgQEAgaW50IGt2bV9tbXVfcGFnZV9mYXVsdChzdHJ1Y3Qga3ZtX3ZjcHUgKnZj
+cHUsIGdwYV90IGNyMl9vcl9ncGEsIHU2NCBlcnJvcl9jb2RlLAogCSAqLwogCWlmICh2Y3B1LT5h
+cmNoLm1tdS0+ZGlyZWN0X21hcCAmJgogCSAgICAoZXJyb3JfY29kZSAmIFBGRVJSX05FU1RFRF9H
+VUVTVF9QQUdFKSA9PSBQRkVSUl9ORVNURURfR1VFU1RfUEFHRSkgewotCQlrdm1fbW11X3VucHJv
+dGVjdF9wYWdlKHZjcHUtPmt2bSwgZ3BhX3RvX2dmbihjcjJfb3JfZ3BhKSk7Ci0JCXJldHVybiAx
+OworCQlnZm5fdCBnZm4gPSBncGFfdG9fZ2ZuKGNyMl9vcl9ncGEpOworCisJCWlmIChrdm1pX3Ry
+YWNrZWRfZ2ZuKHZjcHUsIGdmbikpIHsKKwkJCWlmIChrdm1pX3VwZGF0ZV9hZF9mbGFncyh2Y3B1
+KSkKKwkJCQlyZXR1cm4gMTsKKwkJfSBlbHNlIHsKKwkJCWt2bV9tbXVfdW5wcm90ZWN0X3BhZ2Uo
+dmNwdS0+a3ZtLCBnZm4pOworCQkJcmV0dXJuIDE7CisJCX0KIAl9CiAKIAkvKgpkaWZmIC0tZ2l0
+IGEvaW5jbHVkZS9saW51eC9rdm1pX2hvc3QuaCBiL2luY2x1ZGUvbGludXgva3ZtaV9ob3N0LmgK
+aW5kZXggYjAxZTg1MDVmNDkzLi41YmFlZjY4ZDhjYmUgMTAwNjQ0Ci0tLSBhL2luY2x1ZGUvbGlu
+dXgva3ZtaV9ob3N0LmgKKysrIGIvaW5jbHVkZS9saW51eC9rdm1pX2hvc3QuaApAQCAtOTYsNiAr
+OTYsNyBAQCBib29sIGt2bWlfZW50ZXJfZ3Vlc3Qoc3RydWN0IGt2bV92Y3B1ICp2Y3B1KTsKIGJv
+b2wga3ZtaV92Y3B1X3J1bm5pbmdfc2luZ2xlc3RlcChzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpOwog
+dm9pZCBrdm1pX3NpbmdsZXN0ZXBfZG9uZShzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpOwogdm9pZCBr
+dm1pX3NpbmdsZXN0ZXBfZmFpbGVkKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSk7Citib29sIGt2bWlf
+dHJhY2tlZF9nZm4oc3RydWN0IGt2bV92Y3B1ICp2Y3B1LCBnZm5fdCBnZm4pOwogCiAjZWxzZQog
+CkBAIC0xMTYsNiArMTE3LDggQEAgc3RhdGljIGlubGluZSBib29sIGt2bWlfdmNwdV9ydW5uaW5n
+X3NpbmdsZXN0ZXAoc3RydWN0IGt2bV92Y3B1ICp2Y3B1KQogCQkJeyByZXR1cm4gZmFsc2U7IH0K
+IHN0YXRpYyBpbmxpbmUgdm9pZCBrdm1pX3NpbmdsZXN0ZXBfZG9uZShzdHJ1Y3Qga3ZtX3ZjcHUg
+KnZjcHUpIHsgfQogc3RhdGljIGlubGluZSB2b2lkIGt2bWlfc2luZ2xlc3RlcF9mYWlsZWQoc3Ry
+dWN0IGt2bV92Y3B1ICp2Y3B1KSB7IH0KK3N0YXRpYyBpbmxpbmUgYm9vbCBrdm1pX3RyYWNrZWRf
+Z2ZuKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSwgZ2ZuX3QgZ2ZuKQorCQkJeyByZXR1cm4gZmFsc2U7
+IH0KIAogI2VuZGlmIC8qIENPTkZJR19LVk1fSU5UUk9TUEVDVElPTiAqLwogCmRpZmYgLS1naXQg
+YS92aXJ0L2t2bS9pbnRyb3NwZWN0aW9uL2t2bWkuYyBiL3ZpcnQva3ZtL2ludHJvc3BlY3Rpb24v
+a3ZtaS5jCmluZGV4IDUzODI1NjliMTkwYi4uMmE5NmI4MGJkZGIyIDEwMDY0NAotLS0gYS92aXJ0
+L2t2bS9pbnRyb3NwZWN0aW9uL2t2bWkuYworKysgYi92aXJ0L2t2bS9pbnRyb3NwZWN0aW9uL2t2
+bWkuYwpAQCAtMTM4MSwzICsxMzgxLDI5IEBAIHZvaWQga3ZtaV9zaW5nbGVzdGVwX2ZhaWxlZChz
+dHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpCiAJa3ZtaV9oYW5kbGVfc2luZ2xlc3RlcF9leGl0KHZjcHUs
+IGZhbHNlKTsKIH0KIEVYUE9SVF9TWU1CT0woa3ZtaV9zaW5nbGVzdGVwX2ZhaWxlZCk7CisKK3N0
+YXRpYyBib29sIF9fa3ZtaV90cmFja2VkX2dmbihzdHJ1Y3Qga3ZtX2ludHJvc3BlY3Rpb24gKmt2
+bWksIGdmbl90IGdmbikKK3sKKwl1OCBpZ25vcmVkX2FjY2VzczsKKworCWlmIChrdm1pX2dldF9n
+Zm5fYWNjZXNzKGt2bWksIGdmbiwgJmlnbm9yZWRfYWNjZXNzKSkKKwkJcmV0dXJuIGZhbHNlOwor
+CisJcmV0dXJuIHRydWU7Cit9CisKK2Jvb2wga3ZtaV90cmFja2VkX2dmbihzdHJ1Y3Qga3ZtX3Zj
+cHUgKnZjcHUsIGdmbl90IGdmbikKK3sKKwlzdHJ1Y3Qga3ZtX2ludHJvc3BlY3Rpb24gKmt2bWk7
+CisJYm9vbCByZXQ7CisKKwlrdm1pID0ga3ZtaV9nZXQodmNwdS0+a3ZtKTsKKwlpZiAoIWt2bWkp
+CisJCXJldHVybiBmYWxzZTsKKworCXJldCA9IF9fa3ZtaV90cmFja2VkX2dmbihrdm1pLCBnZm4p
+OworCisJa3ZtaV9wdXQodmNwdS0+a3ZtKTsKKworCXJldHVybiByZXQ7Cit9Cl9fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxp
+bmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczov
+L2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlv
+bg==
