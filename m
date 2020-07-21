@@ -1,162 +1,184 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH v9 50/84] KVM: introspection: handle vCPU commands
-Date: Wed, 22 Jul 2020 00:08:48 +0300
-Message-ID: <20200721210922.7646-51-alazar@bitdefender.com>
+Subject: [PATCH v9 43/84] KVM: introspection: add KVMI_VM_GET_INFO
+Date: Wed, 22 Jul 2020 00:08:41 +0300
+Message-ID: <20200721210922.7646-44-alazar@bitdefender.com>
 References: <20200721210922.7646-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200721210922.7646-1-alazar@bitdefender.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogTWloYWkgRG9uyJt1IDxtZG9udHVAYml0ZGVmZW5kZXIuY29tPgoKQmFzZWQgb24gdGhl
-IGNvbW1vbiBzdHJ1Y3R1cmUgKGt2bWlfdmNwdV9oZHIpIHVzZWQgZm9yIGFsbCB2Q1BVIGNvbW1h
-bmRzLAp0aGUgcmVjZWl2aW5nIHRocmVhZCB2YWxpZGF0ZXMgYW5kIGRpc3BhdGNoZXMgdGhlIG1l
-c3NhZ2UgdG8gdGhlIHByb3Blcgp2Q1BVIChhZGRpbmcgdGhlIGhhbmRsaW5nIGZ1bmN0aW9uIHRv
-IGl0cyBqb2JzIGxpc3QpLgoKU2lnbmVkLW9mZi1ieTogTWloYWkgRG9uyJt1IDxtZG9udHVAYml0
-ZGVmZW5kZXIuY29tPgpDby1kZXZlbG9wZWQtYnk6IE5pY3XImW9yIEPDrsibdSA8bmNpdHVAYml0
-ZGVmZW5kZXIuY29tPgpTaWduZWQtb2ZmLWJ5OiBOaWN1yJlvciBDw67Im3UgPG5jaXR1QGJpdGRl
-ZmVuZGVyLmNvbT4KQ28tZGV2ZWxvcGVkLWJ5OiBBZGFsYmVydCBMYXrEg3IgPGFsYXphckBiaXRk
-ZWZlbmRlci5jb20+ClNpZ25lZC1vZmYtYnk6IEFkYWxiZXJ0IExhesSDciA8YWxhemFyQGJpdGRl
-ZmVuZGVyLmNvbT4KLS0tCiBEb2N1bWVudGF0aW9uL3ZpcnQva3ZtL2t2bWkucnN0ICAgfCAgIDgg
-KysKIGluY2x1ZGUvdWFwaS9saW51eC9rdm1pLmggICAgICAgICB8ICAgNiArKwogdmlydC9rdm0v
-aW50cm9zcGVjdGlvbi9rdm1pX2ludC5oIHwgICAzICsKIHZpcnQva3ZtL2ludHJvc3BlY3Rpb24v
-a3ZtaV9tc2cuYyB8IDE1NSArKysrKysrKysrKysrKysrKysrKysrKysrKysrKy0KIDQgZmlsZXMg
-Y2hhbmdlZCwgMTcwIGluc2VydGlvbnMoKyksIDIgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEv
-RG9jdW1lbnRhdGlvbi92aXJ0L2t2bS9rdm1pLnJzdCBiL0RvY3VtZW50YXRpb24vdmlydC9rdm0v
-a3ZtaS5yc3QKaW5kZXggYmU1YTkyZTIwMTczLi4zODNiZjM5ZWMxZTQgMTAwNjQ0Ci0tLSBhL0Rv
-Y3VtZW50YXRpb24vdmlydC9rdm0va3ZtaS5yc3QKKysrIGIvRG9jdW1lbnRhdGlvbi92aXJ0L2t2
-bS9rdm1pLnJzdApAQCAtMjMyLDYgKzIzMiwxNCBAQCBUaGUgZm9sbG93aW5nIEMgc3RydWN0dXJl
-cyBhcmUgbWVhbnQgdG8gYmUgdXNlZCBkaXJlY3RseSB3aGVuIGNvbW11bmljYXRpbmcKIG92ZXIg
-dGhlIHdpcmUuIFRoZSBwZWVyIHRoYXQgZGV0ZWN0cyBhbnkgc2l6ZSBtaXNtYXRjaCBzaG91bGQg
-c2ltcGx5IGNsb3NlCiB0aGUgY29ubmVjdGlvbiBhbmQgcmVwb3J0IHRoZSBlcnJvci4KIAorVGhl
-IHZDUFUgY29tbWFuZHMgc3RhcnQgd2l0aDo6CisKKwlzdHJ1Y3Qga3ZtaV92Y3B1X2hkciB7CisJ
-CV9fdTE2IHZjcHU7CisJCV9fdTE2IHBhZGRpbmcxOworCQlfX3UzMiBwYWRkaW5nMjsKKwl9CisK
-IDEuIEtWTUlfR0VUX1ZFUlNJT04KIC0tLS0tLS0tLS0tLS0tLS0tLS0KIApkaWZmIC0tZ2l0IGEv
-aW5jbHVkZS91YXBpL2xpbnV4L2t2bWkuaCBiL2luY2x1ZGUvdWFwaS9saW51eC9rdm1pLmgKaW5k
-ZXggOWIyNDI4OTYzOTk0Li5iMjA2Yjc0NDE4NTkgMTAwNjQ0Ci0tLSBhL2luY2x1ZGUvdWFwaS9s
-aW51eC9rdm1pLmgKKysrIGIvaW5jbHVkZS91YXBpL2xpbnV4L2t2bWkuaApAQCAtOTksNiArOTks
-MTIgQEAgc3RydWN0IGt2bWlfdm1fd3JpdGVfcGh5c2ljYWwgewogCV9fdTggIGRhdGFbMF07CiB9
-OwogCitzdHJ1Y3Qga3ZtaV92Y3B1X2hkciB7CisJX191MTYgdmNwdTsKKwlfX3UxNiBwYWRkaW5n
-MTsKKwlfX3UzMiBwYWRkaW5nMjsKK307CisKIHN0cnVjdCBrdm1pX2V2ZW50IHsKIAlfX3UxNiBz
-aXplOwogCV9fdTE2IHZjcHU7CmRpZmYgLS1naXQgYS92aXJ0L2t2bS9pbnRyb3NwZWN0aW9uL2t2
-bWlfaW50LmggYi92aXJ0L2t2bS9pbnRyb3NwZWN0aW9uL2t2bWlfaW50LmgKaW5kZXggY2VlZDUw
-NzIyZGMxLi5mZTUxOTBhYjMxZDYgMTAwNjQ0Ci0tLSBhL3ZpcnQva3ZtL2ludHJvc3BlY3Rpb24v
-a3ZtaV9pbnQuaAorKysgYi92aXJ0L2t2bS9pbnRyb3NwZWN0aW9uL2t2bWlfaW50LmgKQEAgLTM0
-LDYgKzM0LDkgQEAgdm9pZCBrdm1pX21zZ19mcmVlKHZvaWQgKmFkZHIpOwogYm9vbCBrdm1pX2lz
-X2NvbW1hbmRfYWxsb3dlZChzdHJ1Y3Qga3ZtX2ludHJvc3BlY3Rpb24gKmt2bWksIHUxNiBpZCk7
-CiBib29sIGt2bWlfaXNfa25vd25fZXZlbnQodTggaWQpOwogYm9vbCBrdm1pX2lzX2tub3duX3Zt
-X2V2ZW50KHU4IGlkKTsKK2ludCBrdm1pX2FkZF9qb2Ioc3RydWN0IGt2bV92Y3B1ICp2Y3B1LAor
-CQkgdm9pZCAoKmZjdCkoc3RydWN0IGt2bV92Y3B1ICp2Y3B1LCB2b2lkICpjdHgpLAorCQkgdm9p
-ZCAqY3R4LCB2b2lkICgqZnJlZV9mY3QpKHZvaWQgKmN0eCkpOwogaW50IGt2bWlfY21kX3ZtX2Nv
-bnRyb2xfZXZlbnRzKHN0cnVjdCBrdm1faW50cm9zcGVjdGlvbiAqa3ZtaSwKIAkJCQl1bnNpZ25l
-ZCBpbnQgZXZlbnRfaWQsIGJvb2wgZW5hYmxlKTsKIGludCBrdm1pX2NtZF9yZWFkX3BoeXNpY2Fs
-KHN0cnVjdCBrdm0gKmt2bSwgdTY0IGdwYSwgc2l6ZV90IHNpemUsCmRpZmYgLS1naXQgYS92aXJ0
-L2t2bS9pbnRyb3NwZWN0aW9uL2t2bWlfbXNnLmMgYi92aXJ0L2t2bS9pbnRyb3NwZWN0aW9uL2t2
-bWlfbXNnLmMKaW5kZXggZGU5ZTM4ZThlMjRiLi4zMWE0NzFkZjRiMTIgMTAwNjQ0Ci0tLSBhL3Zp
-cnQva3ZtL2ludHJvc3BlY3Rpb24va3ZtaV9tc2cuYworKysgYi92aXJ0L2t2bS9pbnRyb3NwZWN0
-aW9uL2t2bWlfbXNnLmMKQEAgLTksNiArOSwxNSBAQAogI2luY2x1ZGUgImt2bWlfaW50LmgiCiAK
-IHN0YXRpYyBib29sIGlzX3ZtX2NvbW1hbmQodTE2IGlkKTsKK3N0YXRpYyBib29sIGlzX3ZjcHVf
-Y29tbWFuZCh1MTYgaWQpOworCitzdHJ1Y3Qga3ZtaV92Y3B1X21zZ19qb2IgeworCXN0cnVjdCB7
-CisJCXN0cnVjdCBrdm1pX21zZ19oZHIgaGRyOworCQlzdHJ1Y3Qga3ZtaV92Y3B1X2hkciB2Y3B1
-X2hkcjsKKwl9ICptc2c7CisJc3RydWN0IGt2bV92Y3B1ICp2Y3B1OworfTsKIAogYm9vbCBrdm1p
-X3NvY2tfZ2V0KHN0cnVjdCBrdm1faW50cm9zcGVjdGlvbiAqa3ZtaSwgaW50IGZkKQogewpAQCAt
-MTAwLDYgKzEwOSwyOCBAQCBzdGF0aWMgaW50IGt2bWlfbXNnX3ZtX3JlcGx5KHN0cnVjdCBrdm1f
-aW50cm9zcGVjdGlvbiAqa3ZtaSwKIAlyZXR1cm4ga3ZtaV9tc2dfcmVwbHkoa3ZtaSwgbXNnLCBl
-cnIsIHJwbCwgcnBsX3NpemUpOwogfQogCitzdGF0aWMgYm9vbCBpbnZhbGlkX3ZjcHVfaGRyKGNv
-bnN0IHN0cnVjdCBrdm1pX3ZjcHVfaGRyICpoZHIpCit7CisJcmV0dXJuIGhkci0+cGFkZGluZzEg
-fHwgaGRyLT5wYWRkaW5nMjsKK30KKworc3RhdGljIGludCBrdm1pX2dldF92Y3B1KHN0cnVjdCBr
-dm1faW50cm9zcGVjdGlvbiAqa3ZtaSwgdW5zaWduZWQgaW50IHZjcHVfaWR4LAorCQkJIHN0cnVj
-dCBrdm1fdmNwdSAqKmRlc3QpCit7CisJc3RydWN0IGt2bSAqa3ZtID0ga3ZtaS0+a3ZtOworCXN0
-cnVjdCBrdm1fdmNwdSAqdmNwdTsKKworCWlmICh2Y3B1X2lkeCA+PSBhdG9taWNfcmVhZCgma3Zt
-LT5vbmxpbmVfdmNwdXMpKQorCQlyZXR1cm4gLUtWTV9FSU5WQUw7CisKKwl2Y3B1ID0ga3ZtX2dl
-dF92Y3B1KGt2bSwgdmNwdV9pZHgpOworCWlmICghdmNwdSkKKwkJcmV0dXJuIC1LVk1fRUlOVkFM
-OworCisJKmRlc3QgPSB2Y3B1OworCXJldHVybiAwOworfQorCiBzdGF0aWMgaW50IGhhbmRsZV9n
-ZXRfdmVyc2lvbihzdHJ1Y3Qga3ZtX2ludHJvc3BlY3Rpb24gKmt2bWksCiAJCQkgICAgICBjb25z
-dCBzdHJ1Y3Qga3ZtaV9tc2dfaGRyICptc2csIGNvbnN0IHZvaWQgKnJlcSkKIHsKQEAgLTEyMCw3
-ICsxNTEsNyBAQCBzdGF0aWMgaW50IGhhbmRsZV92bV9jaGVja19jb21tYW5kKHN0cnVjdCBrdm1f
-aW50cm9zcGVjdGlvbiAqa3ZtaSwKIAogCWlmIChyZXEtPnBhZGRpbmcxIHx8IHJlcS0+cGFkZGlu
-ZzIpCiAJCWVjID0gLUtWTV9FSU5WQUw7Ci0JZWxzZSBpZiAoIWlzX3ZtX2NvbW1hbmQocmVxLT5p
-ZCkpCisJZWxzZSBpZiAoIWlzX3ZtX2NvbW1hbmQocmVxLT5pZCkgJiYgIWlzX3ZjcHVfY29tbWFu
-ZChyZXEtPmlkKSkKIAkJZWMgPSAtS1ZNX0VOT0VOVDsKIAllbHNlIGlmICgha3ZtaV9pc19jb21t
-YW5kX2FsbG93ZWQoa3ZtaSwgcmVxLT5pZCkpCiAJCWVjID0gLUtWTV9FUEVSTTsKQEAgLTI0Myw2
-ICsyNzQsNjAgQEAgc3RhdGljIGJvb2wgaXNfdm1fY29tbWFuZCh1MTYgaWQpCiAJcmV0dXJuIGlk
-IDwgQVJSQVlfU0laRShtc2dfdm0pICYmICEhbXNnX3ZtW2lkXTsKIH0KIAorLyoKKyAqIFRoZXNl
-IGZ1bmN0aW9ucyBhcmUgZXhlY3V0ZWQgZnJvbSB0aGUgdkNQVSB0aHJlYWQuIFRoZSByZWNlaXZp
-bmcgdGhyZWFkCisgKiBwYXNzZXMgdGhlIG1lc3NhZ2VzIHVzaW5nIGEgbmV3bHkgYWxsb2NhdGVk
-ICdzdHJ1Y3Qga3ZtaV92Y3B1X21zZ19qb2InCisgKiBhbmQgc2lnbmFscyB0aGUgdkNQVSB0byBo
-YW5kbGUgdGhlIG1lc3NhZ2UgKHdoaWNoIGluY2x1ZGVzCisgKiBzZW5kaW5nIGJhY2sgdGhlIHJl
-cGx5IGlmIG5lZWRlZCkuCisgKi8KK3N0YXRpYyBpbnQoKmNvbnN0IG1zZ192Y3B1W10pKGNvbnN0
-IHN0cnVjdCBrdm1pX3ZjcHVfbXNnX2pvYiAqLAorCQkJICAgICAgY29uc3Qgc3RydWN0IGt2bWlf
-bXNnX2hkciAqLCBjb25zdCB2b2lkICopID0geworfTsKKworc3RhdGljIGJvb2wgaXNfdmNwdV9j
-b21tYW5kKHUxNiBpZCkKK3sKKwlyZXR1cm4gaWQgPCBBUlJBWV9TSVpFKG1zZ192Y3B1KSAmJiAh
-IW1zZ192Y3B1W2lkXTsKK30KKworc3RhdGljIHZvaWQga3ZtaV9qb2JfdmNwdV9tc2coc3RydWN0
-IGt2bV92Y3B1ICp2Y3B1LCB2b2lkICpjdHgpCit7CisJc3RydWN0IGt2bWlfdmNwdV9tc2dfam9i
-ICpqb2IgPSBjdHg7CisJc2l6ZV90IGlkID0gam9iLT5tc2ctPmhkci5pZDsKKwlpbnQgZXJyOwor
-CisJam9iLT52Y3B1ID0gdmNwdTsKKworCWVyciA9IG1zZ192Y3B1W2lkXShqb2IsICZqb2ItPm1z
-Zy0+aGRyLCBqb2ItPm1zZyArIDEpOworCisJLyoKKwkgKiBUaGlzIGlzIHJ1bm5pbmcgZnJvbSB0
-aGUgdkNQVSB0aHJlYWQuCisJICogQW55IGVycm9yIHRoYXQgaXMgbm90IHNlbnQgd2l0aCB0aGUg
-cmVwbHkKKwkgKiB3aWxsIHNodXQgZG93biB0aGUgc29ja2V0LgorCSAqLworCWlmIChlcnIpCisJ
-CWt2bWlfc29ja19zaHV0ZG93bihLVk1JKHZjcHUtPmt2bSkpOworfQorCitzdGF0aWMgdm9pZCBr
-dm1pX2ZyZWVfY3R4KHZvaWQgKl9jdHgpCit7CisJY29uc3Qgc3RydWN0IGt2bWlfdmNwdV9tc2df
-am9iICpjdHggPSBfY3R4OworCisJa3ZtaV9tc2dfZnJlZShjdHgtPm1zZyk7CisJa2ZyZWUoY3R4
-KTsKK30KKworc3RhdGljIGludCBrdm1pX21zZ19xdWV1ZV90b192Y3B1KHN0cnVjdCBrdm1fdmNw
-dSAqdmNwdSwKKwkJCQkgIGNvbnN0IHN0cnVjdCBrdm1pX3ZjcHVfbXNnX2pvYiAqY21kKQorewor
-CXJldHVybiBrdm1pX2FkZF9qb2IodmNwdSwga3ZtaV9qb2JfdmNwdV9tc2csICh2b2lkICopY21k
-LAorCQkJICAgIGt2bWlfZnJlZV9jdHgpOworfQorCitzdGF0aWMgYm9vbCBpc192Y3B1X21lc3Nh
-Z2UodTE2IGlkKQoreworCXJldHVybiBpc192Y3B1X2NvbW1hbmQoaWQpOworfQorCiBzdGF0aWMg
-c3RydWN0IGt2bWlfbXNnX2hkciAqa3ZtaV9tc2dfcmVjdihzdHJ1Y3Qga3ZtX2ludHJvc3BlY3Rp
-b24gKmt2bWkpCiB7CiAJc3RydWN0IGt2bWlfbXNnX2hkciAqbXNnOwpAQCAtMjk5LDkgKzM4NCw3
-MiBAQCBzdGF0aWMgaW50IGt2bWlfbXNnX2hhbmRsZV92bV9jbWQoc3RydWN0IGt2bV9pbnRyb3Nw
-ZWN0aW9uICprdm1pLAogCXJldHVybiBrdm1pX21zZ19kb192bV9jbWQoa3ZtaSwgbXNnKTsKIH0K
-IAorc3RhdGljIGJvb2wgdmNwdV9jYW5faGFuZGxlX21lc3NhZ2VzKHN0cnVjdCBrdm1fdmNwdSAq
-dmNwdSkKK3sKKwlyZXR1cm4gdmNwdS0+YXJjaC5tcF9zdGF0ZSAhPSBLVk1fTVBfU1RBVEVfVU5J
-TklUSUFMSVpFRDsKK30KKworc3RhdGljIGludCBrdm1pX2dldF92Y3B1X2lmX3JlYWR5KHN0cnVj
-dCBrdm1faW50cm9zcGVjdGlvbiAqa3ZtaSwKKwkJCQkgIHVuc2lnbmVkIGludCB2Y3B1X2lkeCwK
-KwkJCQkgIHN0cnVjdCBrdm1fdmNwdSAqKnZjcHUpCit7CisJaW50IGVycjsKKworCWVyciA9IGt2
-bWlfZ2V0X3ZjcHUoa3ZtaSwgdmNwdV9pZHgsIHZjcHUpOworCisJaWYgKCFlcnIgJiYgIXZjcHVf
-Y2FuX2hhbmRsZV9tZXNzYWdlcygqdmNwdSkpCisJCWVyciA9IC1LVk1fRUFHQUlOOworCisJcmV0
-dXJuIGVycjsKK30KKworc3RhdGljIGludCBrdm1pX21zZ19kaXNwYXRjaF92Y3B1X21zZyhzdHJ1
-Y3Qga3ZtX2ludHJvc3BlY3Rpb24gKmt2bWksCisJCQkJICAgICAgc3RydWN0IGt2bWlfbXNnX2hk
-ciAqbXNnLAorCQkJCSAgICAgIHN0cnVjdCBrdm1fdmNwdSAqdmNwdSkKK3sKKwlzdHJ1Y3Qga3Zt
-aV92Y3B1X21zZ19qb2IgKmpvYl9jbWQ7CisJaW50IGVycjsKKworCWpvYl9jbWQgPSBremFsbG9j
-KHNpemVvZigqam9iX2NtZCksIEdGUF9LRVJORUwpOworCWlmICgham9iX2NtZCkKKwkJcmV0dXJu
-IC1FTk9NRU07CisKKwlqb2JfY21kLT5tc2cgPSAodm9pZCAqKW1zZzsKKworCWVyciA9IGt2bWlf
-bXNnX3F1ZXVlX3RvX3ZjcHUodmNwdSwgam9iX2NtZCk7CisJaWYgKGVycikKKwkJa2ZyZWUoam9i
-X2NtZCk7CisKKwlyZXR1cm4gZXJyOworfQorCitzdGF0aWMgaW50IGt2bWlfbXNnX2hhbmRsZV92
-Y3B1X21zZyhzdHJ1Y3Qga3ZtX2ludHJvc3BlY3Rpb24gKmt2bWksCisJCQkJICAgIHN0cnVjdCBr
-dm1pX21zZ19oZHIgKm1zZywKKwkJCQkgICAgYm9vbCAqcXVldWVkKQoreworCXN0cnVjdCBrdm1p
-X3ZjcHVfaGRyICp2Y3B1X2hkciA9IChzdHJ1Y3Qga3ZtaV92Y3B1X2hkciAqKShtc2cgKyAxKTsK
-KwlzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUgPSBOVUxMOworCWludCBlcnIsIGVjOworCisJaWYgKCFp
-c19tZXNzYWdlX2FsbG93ZWQoa3ZtaSwgbXNnLT5pZCkpCisJCXJldHVybiBrdm1pX21zZ192bV9y
-ZXBseV9lYyhrdm1pLCBtc2csIC1LVk1fRVBFUk0pOworCisJaWYgKGludmFsaWRfdmNwdV9oZHIo
-dmNwdV9oZHIpKQorCQlyZXR1cm4ga3ZtaV9tc2dfdm1fcmVwbHlfZWMoa3ZtaSwgbXNnLCAtS1ZN
-X0VJTlZBTCk7CisKKwllYyA9IGt2bWlfZ2V0X3ZjcHVfaWZfcmVhZHkoa3ZtaSwgdmNwdV9oZHIt
-PnZjcHUsICZ2Y3B1KTsKKwlpZiAoZWMpCisJCXJldHVybiBrdm1pX21zZ192bV9yZXBseV9lYyhr
-dm1pLCBtc2csIGVjKTsKKworCWVyciA9IGt2bWlfbXNnX2Rpc3BhdGNoX3ZjcHVfbXNnKGt2bWks
-IG1zZywgdmNwdSk7CisJKnF1ZXVlZCA9IGVyciA9PSAwOworCXJldHVybiBlcnI7Cit9CisKIGJv
-b2wga3ZtaV9tc2dfcHJvY2VzcyhzdHJ1Y3Qga3ZtX2ludHJvc3BlY3Rpb24gKmt2bWkpCiB7CiAJ
-c3RydWN0IGt2bWlfbXNnX2hkciAqbXNnOworCWJvb2wgcXVldWVkID0gZmFsc2U7CiAJaW50IGVy
-ciA9IC0xOwogCiAJbXNnID0ga3ZtaV9tc2dfcmVjdihrdm1pKTsKQEAgLTMxMCwxMCArNDU4LDEz
-IEBAIGJvb2wga3ZtaV9tc2dfcHJvY2VzcyhzdHJ1Y3Qga3ZtX2ludHJvc3BlY3Rpb24gKmt2bWkp
-CiAKIAlpZiAoaXNfdm1fY29tbWFuZChtc2ctPmlkKSkKIAkJZXJyID0ga3ZtaV9tc2dfaGFuZGxl
-X3ZtX2NtZChrdm1pLCBtc2cpOworCWVsc2UgaWYgKGlzX3ZjcHVfbWVzc2FnZShtc2ctPmlkKSkK
-KwkJZXJyID0ga3ZtaV9tc2dfaGFuZGxlX3ZjcHVfbXNnKGt2bWksIG1zZywgJnF1ZXVlZCk7CiAJ
-ZWxzZQogCQllcnIgPSBrdm1pX21zZ192bV9yZXBseV9lYyhrdm1pLCBtc2csIC1LVk1fRU5PU1lT
-KTsKIAotCWt2bWlfbXNnX2ZyZWUobXNnKTsKKwlpZiAoIXF1ZXVlZCkKKwkJa3ZtaV9tc2dfZnJl
-ZShtc2cpOwogb3V0OgogCXJldHVybiBlcnIgPT0gMDsKIH0KX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
-cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
-dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+From: Mihai Donțu <mdontu@bitdefender.com>
+
+For now, this command returns only the number of online vCPUs.
+
+The introspection tool uses the vCPU index to specify to which vCPU
+the introspection command applies to.
+
+Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
+Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
+---
+ Documentation/virt/kvm/kvmi.rst               | 18 ++++++++++
+ include/uapi/linux/kvmi.h                     |  6 ++++
+ .../testing/selftests/kvm/x86_64/kvmi_test.c  | 35 +++++++++++++++++--
+ virt/kvm/introspection/kvmi_msg.c             | 13 +++++++
+ 4 files changed, 69 insertions(+), 3 deletions(-)
+
+diff --git a/Documentation/virt/kvm/kvmi.rst b/Documentation/virt/kvm/kvmi.rst
+index a2cda3268da0..a81f22cb8c18 100644
+--- a/Documentation/virt/kvm/kvmi.rst
++++ b/Documentation/virt/kvm/kvmi.rst
+@@ -323,3 +323,21 @@ This command is always allowed.
+ * -KVM_ENOENT - the event specified by ``id`` is unsupported
+ * -KVM_EPERM - the event specified by ``id`` is disallowed
+ * -KVM_EINVAL - the padding is not zero
++
++4. KVMI_VM_GET_INFO
++-------------------
++
++:Architectures: all
++:Versions: >= 1
++:Parameters: none
++:Returns:
++
++::
++
++	struct kvmi_error_code;
++	struct kvmi_vm_get_info_reply {
++		__u32 vcpu_count;
++		__u32 padding[3];
++	};
++
++Returns the number of online vCPUs.
+diff --git a/include/uapi/linux/kvmi.h b/include/uapi/linux/kvmi.h
+index e55a0fa66ac5..eabaf7cea1df 100644
+--- a/include/uapi/linux/kvmi.h
++++ b/include/uapi/linux/kvmi.h
+@@ -17,6 +17,7 @@ enum {
+ 	KVMI_GET_VERSION      = 1,
+ 	KVMI_VM_CHECK_COMMAND = 2,
+ 	KVMI_VM_CHECK_EVENT   = 3,
++	KVMI_VM_GET_INFO      = 4,
+ 
+ 	KVMI_NUM_MESSAGES
+ };
+@@ -63,4 +64,9 @@ struct kvmi_vm_check_event {
+ 	__u32 padding2;
+ };
+ 
++struct kvmi_vm_get_info_reply {
++	__u32 vcpu_count;
++	__u32 padding[3];
++};
++
+ #endif /* _UAPI__LINUX_KVMI_H */
+diff --git a/tools/testing/selftests/kvm/x86_64/kvmi_test.c b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
+index 28216c4e8b9d..1f4a165ab640 100644
+--- a/tools/testing/selftests/kvm/x86_64/kvmi_test.c
++++ b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
+@@ -84,6 +84,16 @@ static void set_command_perm(struct kvm_vm *vm, __s32 id, __u32 allow,
+ 		 "KVM_INTROSPECTION_COMMAND");
+ }
+ 
++static void disallow_command(struct kvm_vm *vm, __s32 id)
++{
++	set_command_perm(vm, id, 0, 0);
++}
++
++static void allow_command(struct kvm_vm *vm, __s32 id)
++{
++	set_command_perm(vm, id, 1, 0);
++}
++
+ static void hook_introspection(struct kvm_vm *vm)
+ {
+ 	__u32 allow = 1, disallow = 0, allow_inval = 2;
+@@ -258,14 +268,18 @@ static void cmd_vm_check_command(__u16 id, __u16 padding, int expected_err)
+ 		-r, kvm_strerror(-r), expected_err);
+ }
+ 
+-static void test_cmd_vm_check_command(void)
++static void test_cmd_vm_check_command(struct kvm_vm *vm)
+ {
+-	__u16 valid_id = KVMI_GET_VERSION, invalid_id = 0xffff;
++	__u16 valid_id = KVMI_VM_GET_INFO, invalid_id = 0xffff;
+ 	__u16 padding = 1, no_padding = 0;
+ 
+ 	cmd_vm_check_command(valid_id, no_padding, 0);
+ 	cmd_vm_check_command(valid_id, padding, -KVM_EINVAL);
+ 	cmd_vm_check_command(invalid_id, no_padding, -KVM_ENOENT);
++
++	disallow_command(vm, valid_id);
++	cmd_vm_check_command(valid_id, no_padding, -KVM_EPERM);
++	allow_command(vm, valid_id);
+ }
+ 
+ static void cmd_vm_check_event(__u16 id, __u16 padding, int expected_err)
+@@ -295,6 +309,20 @@ static void test_cmd_vm_check_event(void)
+ 	cmd_vm_check_event(invalid_id, no_padding, -KVM_ENOENT);
+ }
+ 
++static void test_cmd_vm_get_info(void)
++{
++	struct kvmi_vm_get_info_reply rpl;
++	struct kvmi_msg_hdr req;
++
++	test_vm_command(KVMI_VM_GET_INFO, &req, sizeof(req), &rpl,
++			sizeof(rpl));
++	TEST_ASSERT(rpl.vcpu_count == 1,
++		    "Unexpected number of vCPU count %u\n",
++		    rpl.vcpu_count);
++
++	pr_info("vcpu count: %u\n", rpl.vcpu_count);
++}
++
+ static void test_introspection(struct kvm_vm *vm)
+ {
+ 	setup_socket();
+@@ -302,8 +330,9 @@ static void test_introspection(struct kvm_vm *vm)
+ 
+ 	test_cmd_invalid();
+ 	test_cmd_get_version();
+-	test_cmd_vm_check_command();
++	test_cmd_vm_check_command(vm);
+ 	test_cmd_vm_check_event();
++	test_cmd_vm_get_info();
+ 
+ 	unhook_introspection(vm);
+ }
+diff --git a/virt/kvm/introspection/kvmi_msg.c b/virt/kvm/introspection/kvmi_msg.c
+index 86c356afc154..3df18f7965c0 100644
+--- a/virt/kvm/introspection/kvmi_msg.c
++++ b/virt/kvm/introspection/kvmi_msg.c
+@@ -150,6 +150,18 @@ static int handle_vm_check_event(struct kvm_introspection *kvmi,
+ 	return kvmi_msg_vm_reply(kvmi, msg, ec, NULL, 0);
+ }
+ 
++static int handle_vm_get_info(struct kvm_introspection *kvmi,
++			      const struct kvmi_msg_hdr *msg,
++			      const void *req)
++{
++	struct kvmi_vm_get_info_reply rpl;
++
++	memset(&rpl, 0, sizeof(rpl));
++	rpl.vcpu_count = atomic_read(&kvmi->kvm->online_vcpus);
++
++	return kvmi_msg_vm_reply(kvmi, msg, 0, &rpl, sizeof(rpl));
++}
++
+ /*
+  * These commands are executed by the receiving thread.
+  */
+@@ -158,6 +170,7 @@ static int(*const msg_vm[])(struct kvm_introspection *,
+ 	[KVMI_GET_VERSION]      = handle_get_version,
+ 	[KVMI_VM_CHECK_COMMAND] = handle_vm_check_command,
+ 	[KVMI_VM_CHECK_EVENT]   = handle_vm_check_event,
++	[KVMI_VM_GET_INFO]      = handle_vm_get_info,
+ };
+ 
+ static bool is_vm_command(u16 id)
