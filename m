@@ -1,141 +1,243 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH v9 69/84] KVM: introspection: add KVMI_VCPU_GET_XCR
-Date: Wed, 22 Jul 2020 00:09:07 +0300
-Message-ID: <20200721210922.7646-70-alazar@bitdefender.com>
+Subject: [PATCH v9 71/84] KVM: introspection: add KVMI_VCPU_SET_XSAVE
+Date: Wed, 22 Jul 2020 00:09:09 +0300
+Message-ID: <20200721210922.7646-72-alazar@bitdefender.com>
 References: <20200721210922.7646-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200721210922.7646-1-alazar@bitdefender.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-VGhpcyBjYW4gYmUgdXNlZCBieSB0aGUgaW50cm9zcGVjdGlvbiB0b29sIHRvIGVtdWxhdGUgU1NF
-IGluc3RydWN0aW9ucy4KClNpZ25lZC1vZmYtYnk6IEFkYWxiZXJ0IExhesSDciA8YWxhemFyQGJp
-dGRlZmVuZGVyLmNvbT4KLS0tCiBEb2N1bWVudGF0aW9uL3ZpcnQva3ZtL2t2bWkucnN0ICAgICAg
-ICAgICAgICAgfCAzMyArKysrKysrKysrKysrKysrCiBhcmNoL3g4Ni9pbmNsdWRlL3VhcGkvYXNt
-L2t2bWkuaCAgICAgICAgICAgICAgfCAgOSArKysrKwogYXJjaC94ODYva3ZtL2t2bWkuYyAgICAg
-ICAgICAgICAgICAgICAgICAgICAgIHwgMTcgKysrKysrKysrCiBpbmNsdWRlL3VhcGkvbGludXgv
-a3ZtaS5oICAgICAgICAgICAgICAgICAgICAgfCAgMiArCiAuLi4vdGVzdGluZy9zZWxmdGVzdHMv
-a3ZtL3g4Nl82NC9rdm1pX3Rlc3QuYyAgfCAzOCArKysrKysrKysrKysrKysrKysrCiB2aXJ0L2t2
-bS9pbnRyb3NwZWN0aW9uL2t2bWlfaW50LmggICAgICAgICAgICAgfCAgMyArKwogdmlydC9rdm0v
-aW50cm9zcGVjdGlvbi9rdm1pX21zZy5jICAgICAgICAgICAgIHwgMTUgKysrKysrKysKIDcgZmls
-ZXMgY2hhbmdlZCwgMTE3IGluc2VydGlvbnMoKykKCmRpZmYgLS1naXQgYS9Eb2N1bWVudGF0aW9u
-L3ZpcnQva3ZtL2t2bWkucnN0IGIvRG9jdW1lbnRhdGlvbi92aXJ0L2t2bS9rdm1pLnJzdAppbmRl
-eCAyODNlOWEyZGZkYTEuLjFmZGI3M2M2YTZmZiAxMDA2NDQKLS0tIGEvRG9jdW1lbnRhdGlvbi92
-aXJ0L2t2bS9rdm1pLnJzdAorKysgYi9Eb2N1bWVudGF0aW9uL3ZpcnQva3ZtL2t2bWkucnN0CkBA
-IC04MDksNiArODA5LDM5IEBAIFByb3ZpZGVzIHRoZSBtYXhpbXVtIEdGTiBhbGxvY2F0ZWQgdG8g
-dGhlIFZNIGJ5IHdhbGtpbmcgdGhyb3VnaCBhbGwKIG1lbW9yeSBzbG90cyBhbGxvY2F0ZWQgYnkg
-S1ZNLiBTdHJpY2x5IHNwZWFraW5nLCB0aGUgcmV0dXJuZWQgdmFsdWUgcmVmZXJzCiB0byB0aGUg
-Zmlyc3QgaW5hY2Nlc3NpYmxlIEdGTiwgbmV4dCB0byB0aGUgbWF4aW11bSBhY2Nlc3NpYmxlIEdG
-Ti4KIAorMTguIEtWTUlfVkNQVV9HRVRfWENSCistLS0tLS0tLS0tLS0tLS0tLS0tLS0KKworOkFy
-Y2hpdGVjdHVyZTogeDg2Cis6VmVyc2lvbnM6ID49IDEKKzpQYXJhbWV0ZXJzOgorCis6OgorCisJ
-c3RydWN0IGt2bWlfdmNwdV9oZHI7CisJc3RydWN0IGt2bWlfdmNwdV9nZXRfeGNyIHsKKwkJX191
-OCB4Y3I7CisJCV9fdTggcGFkZGluZ1s3XTsKKwl9OworCis6UmV0dXJuczoKKworOjoKKworICAg
-ICAgICBzdHJ1Y3Qga3ZtaV9lcnJvcl9jb2RlOworCXN0cnVjdCBrdm1pX3ZjcHVfZ2V0X3hjcl9y
-ZXBseSB7CisJCXU2NCB2YWx1ZTsKKwl9OworCitSZXR1cm5zIHRoZSB2YWx1ZSBvZiBhbiBleHRl
-bmRlZCBjb250cm9sIHJlZ2lzdGVyIFhDUi4KKworOkVycm9yczoKKworKiAtS1ZNX0VJTlZBTCAt
-IHRoZSBzZWxlY3RlZCB2Q1BVIGlzIGludmFsaWQKKyogLUtWTV9FSU5WQUwgLSB0aGUgc3BlY2lm
-aWVkIGNvbnRyb2wgcmVnaXN0ZXIgaXMgbm90IFhDUjAKKyogLUtWTV9FSU5WQUwgLSB0aGUgcGFk
-ZGluZyBpcyBub3QgemVybworKiAtS1ZNX0VBR0FJTiAtIHRoZSBzZWxlY3RlZCB2Q1BVIGNhbid0
-IGJlIGludHJvc3BlY3RlZCB5ZXQKKwogRXZlbnRzCiA9PT09PT0KIApkaWZmIC0tZ2l0IGEvYXJj
-aC94ODYvaW5jbHVkZS91YXBpL2FzbS9rdm1pLmggYi9hcmNoL3g4Ni9pbmNsdWRlL3VhcGkvYXNt
-L2t2bWkuaAppbmRleCAyZjY5YTRmNWQyZTAuLmNjNGNiODUzNjZjOCAxMDA2NDQKLS0tIGEvYXJj
-aC94ODYvaW5jbHVkZS91YXBpL2FzbS9rdm1pLmgKKysrIGIvYXJjaC94ODYvaW5jbHVkZS91YXBp
-L2FzbS9rdm1pLmgKQEAgLTkwLDQgKzkwLDEzIEBAIHN0cnVjdCBrdm1pX2V2ZW50X3hzZXRidiB7
-CiAJX191NjQgbmV3X3ZhbHVlOwogfTsKIAorc3RydWN0IGt2bWlfdmNwdV9nZXRfeGNyIHsKKwlf
-X3U4IHhjcjsKKwlfX3U4IHBhZGRpbmdbN107Cit9OworCitzdHJ1Y3Qga3ZtaV92Y3B1X2dldF94
-Y3JfcmVwbHkgeworCXU2NCB2YWx1ZTsKK307CisKICNlbmRpZiAvKiBfVUFQSV9BU01fWDg2X0tW
-TUlfSCAqLwpkaWZmIC0tZ2l0IGEvYXJjaC94ODYva3ZtL2t2bWkuYyBiL2FyY2gveDg2L2t2bS9r
-dm1pLmMKaW5kZXggNTVjNWUyOTA3MzBjLi5mZjcwYzlhMzNjY2YgMTAwNjQ0Ci0tLSBhL2FyY2gv
-eDg2L2t2bS9rdm1pLmMKKysrIGIvYXJjaC94ODYva3ZtL2t2bWkuYwpAQCAtNzIwLDMgKzcyMCwy
-MCBAQCB2b2lkIGt2bWlfeHNldGJ2X2V2ZW50KHN0cnVjdCBrdm1fdmNwdSAqdmNwdSwgdTggeGNy
-LAogCiAJa3ZtaV9wdXQodmNwdS0+a3ZtKTsKIH0KKworaW50IGt2bWlfYXJjaF9jbWRfdmNwdV9n
-ZXRfeGNyKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSwKKwkJCSAgICAgICBjb25zdCBzdHJ1Y3Qga3Zt
-aV92Y3B1X2dldF94Y3IgKnJlcSwKKwkJCSAgICAgICBzdHJ1Y3Qga3ZtaV92Y3B1X2dldF94Y3Jf
-cmVwbHkgKnJwbCkKK3sKKwlpbnQgaTsKKworCWZvciAoaSA9IDA7IGkgPCBBUlJBWV9TSVpFKHJl
-cS0+cGFkZGluZyk7IGkrKykKKwkJaWYgKHJlcS0+cGFkZGluZ1tpXSkKKwkJCXJldHVybiAtS1ZN
-X0VJTlZBTDsKKworCWlmIChyZXEtPnhjciAhPSAwKQorCQlyZXR1cm4gLUtWTV9FSU5WQUw7CisK
-KwlycGwtPnZhbHVlID0gdmNwdS0+YXJjaC54Y3IwOworCXJldHVybiAwOworfQpkaWZmIC0tZ2l0
-IGEvaW5jbHVkZS91YXBpL2xpbnV4L2t2bWkuaCBiL2luY2x1ZGUvdWFwaS9saW51eC9rdm1pLmgK
-aW5kZXggMzQ4YTlhNTUxMDkxLi5kMWM1NjRmZjNkNmMgMTAwNjQ0Ci0tLSBhL2luY2x1ZGUvdWFw
-aS9saW51eC9rdm1pLmgKKysrIGIvaW5jbHVkZS91YXBpL2xpbnV4L2t2bWkuaApAQCAtMzksNiAr
-MzksOCBAQCBlbnVtIHsKIAogCUtWTUlfVk1fR0VUX01BWF9HRk4gPSAxNywKIAorCUtWTUlfVkNQ
-VV9HRVRfWENSID0gMTgsCisKIAlLVk1JX05VTV9NRVNTQUdFUwogfTsKIApkaWZmIC0tZ2l0IGEv
-dG9vbHMvdGVzdGluZy9zZWxmdGVzdHMva3ZtL3g4Nl82NC9rdm1pX3Rlc3QuYyBiL3Rvb2xzL3Rl
-c3Rpbmcvc2VsZnRlc3RzL2t2bS94ODZfNjQva3ZtaV90ZXN0LmMKaW5kZXggMDU2OTE4NWE3MDY0
-Li44YjkyZmY3Y2VlNmIgMTAwNjQ0Ci0tLSBhL3Rvb2xzL3Rlc3Rpbmcvc2VsZnRlc3RzL2t2bS94
-ODZfNjQva3ZtaV90ZXN0LmMKKysrIGIvdG9vbHMvdGVzdGluZy9zZWxmdGVzdHMva3ZtL3g4Nl82
-NC9rdm1pX3Rlc3QuYwpAQCAtMTUxNCw2ICsxNTE0LDQzIEBAIHN0YXRpYyB2b2lkIHRlc3RfZXZl
-bnRfeHNldGJ2KHN0cnVjdCBrdm1fdm0gKnZtKQogCWRpc2FibGVfdmNwdV9ldmVudCh2bSwgZXZl
-bnRfaWQpOwogfQogCitzdGF0aWMgdm9pZCBjbWRfdmNwdV9nZXRfeGNyKHN0cnVjdCBrdm1fdm0g
-KnZtLCB1OCB4Y3IsIHU2NCAqdmFsdWUsCisJCQkgICAgIHU4IHBhZGRpbmcsIGludCBleHBlY3Rl
-ZF9lcnIpCit7CisJc3RydWN0IHsKKwkJc3RydWN0IGt2bWlfbXNnX2hkciBoZHI7CisJCXN0cnVj
-dCBrdm1pX3ZjcHVfaGRyIHZjcHVfaGRyOworCQlzdHJ1Y3Qga3ZtaV92Y3B1X2dldF94Y3IgY21k
-OworCX0gcmVxID0geyAwIH07CisJc3RydWN0IGt2bWlfdmNwdV9nZXRfeGNyX3JlcGx5IHJwbCA9
-IHsgMCB9OworCWludCByOworCisJcmVxLmNtZC54Y3IgPSB4Y3I7CisJcmVxLmNtZC5wYWRkaW5n
-WzZdID0gcGFkZGluZzsKKworCXIgPSBkb192Y3B1MF9jb21tYW5kKHZtLCBLVk1JX1ZDUFVfR0VU
-X1hDUiwgJnJlcS5oZHIsIHNpemVvZihyZXEpLAorCQkJICAgICAmcnBsLCBzaXplb2YocnBsKSk7
-CisKKwlURVNUX0FTU0VSVChyID09IGV4cGVjdGVkX2VyciwKKwkJICAgICJLVk1JX1ZDUFVfR0VU
-X1hDUiBmYWlsZWQgd2l0aCBlcnJvciAlZCAoJXMpLCBleHBlY3RlZCBlcnIgJWRcbiIsCisJCSAg
-ICAtciwga3ZtX3N0cmVycm9yKC1yKSwgZXhwZWN0ZWRfZXJyKTsKKworCSp2YWx1ZSA9IHIgPT0g
-MCA/IHJwbC52YWx1ZSA6IDA7Cit9CisKK3N0YXRpYyB2b2lkIHRlc3RfY21kX3ZjcHVfZ2V0X3hj
-cihzdHJ1Y3Qga3ZtX3ZtICp2bSkKK3sKKwl1OCBub19wYWRkaW5nID0gMCwgcGFkZGluZyA9IDE7
-CisJdTggeGNyMCA9IDAsIHhjcjEgPSAxOworCXU2NCB2YWx1ZTsKKworCWNtZF92Y3B1X2dldF94
-Y3Iodm0sIHhjcjAsICZ2YWx1ZSwgbm9fcGFkZGluZywgMCk7CisJcHJfaW5mbygiWENSMCAweCVs
-eFxuIiwgdmFsdWUpOworCisJY21kX3ZjcHVfZ2V0X3hjcih2bSwgeGNyMCwgJnZhbHVlLCBwYWRk
-aW5nLCAtS1ZNX0VJTlZBTCk7CisJY21kX3ZjcHVfZ2V0X3hjcih2bSwgeGNyMSwgJnZhbHVlLCBu
-b19wYWRkaW5nLCAtS1ZNX0VJTlZBTCk7Cit9CisKIHN0YXRpYyB2b2lkIHRlc3RfaW50cm9zcGVj
-dGlvbihzdHJ1Y3Qga3ZtX3ZtICp2bSkKIHsKIAlzcmFuZG9tKHRpbWUoMCkpOwpAQCAtMTU0MSw2
-ICsxNTc4LDcgQEAgc3RhdGljIHZvaWQgdGVzdF9pbnRyb3NwZWN0aW9uKHN0cnVjdCBrdm1fdm0g
-KnZtKQogCXRlc3RfY21kX3ZjcHVfaW5qZWN0X2V4Y2VwdGlvbih2bSk7CiAJdGVzdF9jbWRfdm1f
-Z2V0X21heF9nZm4oKTsKIAl0ZXN0X2V2ZW50X3hzZXRidih2bSk7CisJdGVzdF9jbWRfdmNwdV9n
-ZXRfeGNyKHZtKTsKIAogCXVuaG9va19pbnRyb3NwZWN0aW9uKHZtKTsKIH0KZGlmZiAtLWdpdCBh
-L3ZpcnQva3ZtL2ludHJvc3BlY3Rpb24va3ZtaV9pbnQuaCBiL3ZpcnQva3ZtL2ludHJvc3BlY3Rp
-b24va3ZtaV9pbnQuaAppbmRleCA1MWMwMzA5N2E3ZDUuLjBiODRhYzM2NWFlNyAxMDA2NDQKLS0t
-IGEvdmlydC9rdm0vaW50cm9zcGVjdGlvbi9rdm1pX2ludC5oCisrKyBiL3ZpcnQva3ZtL2ludHJv
-c3BlY3Rpb24va3ZtaV9pbnQuaApAQCAtMTA1LDUgKzEwNSw4IEBAIGludCBrdm1pX2FyY2hfY21k
-X3ZjcHVfaW5qZWN0X2V4Y2VwdGlvbihzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUsIHU4IHZlY3RvciwK
-IAkJCQkJdTMyIGVycm9yX2NvZGUsIHU2NCBhZGRyZXNzKTsKIHZvaWQga3ZtaV9hcmNoX3NlbmRf
-dHJhcF9ldmVudChzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpOwogdm9pZCBrdm1pX2FyY2hfaW5qZWN0
-X2V4Y2VwdGlvbihzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpOworaW50IGt2bWlfYXJjaF9jbWRfdmNw
-dV9nZXRfeGNyKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSwKKwkJCSAgICAgICBjb25zdCBzdHJ1Y3Qg
-a3ZtaV92Y3B1X2dldF94Y3IgKnJlcSwKKwkJCSAgICAgICBzdHJ1Y3Qga3ZtaV92Y3B1X2dldF94
-Y3JfcmVwbHkgKnJwbCk7CiAKICNlbmRpZgpkaWZmIC0tZ2l0IGEvdmlydC9rdm0vaW50cm9zcGVj
-dGlvbi9rdm1pX21zZy5jIGIvdmlydC9rdm0vaW50cm9zcGVjdGlvbi9rdm1pX21zZy5jCmluZGV4
-IDE4YmMxYTcxMTg0NS4uYWE0ZmIyMDIxMTVlIDEwMDY0NAotLS0gYS92aXJ0L2t2bS9pbnRyb3Nw
-ZWN0aW9uL2t2bWlfbXNnLmMKKysrIGIvdmlydC9rdm0vaW50cm9zcGVjdGlvbi9rdm1pX21zZy5j
-CkBAIC01MjQsNiArNTI0LDIwIEBAIHN0YXRpYyBpbnQgaGFuZGxlX3ZjcHVfaW5qZWN0X2V4Y2Vw
-dGlvbihjb25zdCBzdHJ1Y3Qga3ZtaV92Y3B1X21zZ19qb2IgKmpvYiwKIAlyZXR1cm4ga3ZtaV9t
-c2dfdmNwdV9yZXBseShqb2IsIG1zZywgZWMsIE5VTEwsIDApOwogfQogCitzdGF0aWMgaW50IGhh
-bmRsZV92Y3B1X2dldF94Y3IoY29uc3Qgc3RydWN0IGt2bWlfdmNwdV9tc2dfam9iICpqb2IsCisJ
-CQkgICAgICAgY29uc3Qgc3RydWN0IGt2bWlfbXNnX2hkciAqbXNnLAorCQkJICAgICAgIGNvbnN0
-IHZvaWQgKnJlcSkKK3sKKwlzdHJ1Y3Qga3ZtaV92Y3B1X2dldF94Y3JfcmVwbHkgcnBsOworCWlu
-dCBlYzsKKworCW1lbXNldCgmcnBsLCAwLCBzaXplb2YocnBsKSk7CisKKwllYyA9IGt2bWlfYXJj
-aF9jbWRfdmNwdV9nZXRfeGNyKGpvYi0+dmNwdSwgcmVxLCAmcnBsKTsKKworCXJldHVybiBrdm1p
-X21zZ192Y3B1X3JlcGx5KGpvYiwgbXNnLCBlYywgJnJwbCwgc2l6ZW9mKHJwbCkpOworfQorCiAv
-KgogICogVGhlc2UgZnVuY3Rpb25zIGFyZSBleGVjdXRlZCBmcm9tIHRoZSB2Q1BVIHRocmVhZC4g
-VGhlIHJlY2VpdmluZyB0aHJlYWQKICAqIHBhc3NlcyB0aGUgbWVzc2FnZXMgdXNpbmcgYSBuZXds
-eSBhbGxvY2F0ZWQgJ3N0cnVjdCBrdm1pX3ZjcHVfbXNnX2pvYicKQEAgLTUzOCw2ICs1NTIsNyBA
-QCBzdGF0aWMgaW50KCpjb25zdCBtc2dfdmNwdVtdKShjb25zdCBzdHJ1Y3Qga3ZtaV92Y3B1X21z
-Z19qb2IgKiwKIAlbS1ZNSV9WQ1BVX0dFVF9DUFVJRF0gICAgICAgID0gaGFuZGxlX3ZjcHVfZ2V0
-X2NwdWlkLAogCVtLVk1JX1ZDUFVfR0VUX0lORk9dICAgICAgICAgPSBoYW5kbGVfdmNwdV9nZXRf
-aW5mbywKIAlbS1ZNSV9WQ1BVX0dFVF9SRUdJU1RFUlNdICAgID0gaGFuZGxlX3ZjcHVfZ2V0X3Jl
-Z2lzdGVycywKKwlbS1ZNSV9WQ1BVX0dFVF9YQ1JdICAgICAgICAgID0gaGFuZGxlX3ZjcHVfZ2V0
-X3hjciwKIAlbS1ZNSV9WQ1BVX0lOSkVDVF9FWENFUFRJT05dID0gaGFuZGxlX3ZjcHVfaW5qZWN0
-X2V4Y2VwdGlvbiwKIAlbS1ZNSV9WQ1BVX1NFVF9SRUdJU1RFUlNdICAgID0gaGFuZGxlX3ZjcHVf
-c2V0X3JlZ2lzdGVycywKIH07Cl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
-cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
-bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+This can be used by the introspection tool to emulate SSE instructions.
+
+Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
+---
+ Documentation/virt/kvm/kvmi.rst               | 29 +++++++++++++++++
+ arch/x86/include/uapi/asm/kvmi.h              |  4 +++
+ arch/x86/kvm/kvmi.c                           | 23 ++++++++++++++
+ include/uapi/linux/kvmi.h                     |  1 +
+ .../testing/selftests/kvm/x86_64/kvmi_test.c  | 31 +++++++++++++++----
+ virt/kvm/introspection/kvmi_int.h             |  3 ++
+ virt/kvm/introspection/kvmi_msg.c             | 17 ++++++++++
+ 7 files changed, 102 insertions(+), 6 deletions(-)
+
+diff --git a/Documentation/virt/kvm/kvmi.rst b/Documentation/virt/kvm/kvmi.rst
+index 9bf8b08eb585..24605aaede9a 100644
+--- a/Documentation/virt/kvm/kvmi.rst
++++ b/Documentation/virt/kvm/kvmi.rst
+@@ -873,6 +873,35 @@ the buffer size from the message size (kvmi_msg_hdr.size).
+ * -KVM_EAGAIN - the selected vCPU can't be introspected yet
+ * -KVM_ENOMEM - there is not enough memory to allocate the reply
+ 
++20. KVMI_VCPU_SET_XSAVE
++-----------------------
++
++:Architecture: x86
++:Versions: >= 1
++:Parameters:
++
++::
++
++	struct kvmi_vcpu_hdr;
++	struct kvmi_vcpu_set_xsave {
++		__u32 region[0];
++	};
++
++:Returns:
++
++::
++
++	struct kvmi_error_code;
++
++Modifies the XSAVE area.
++
++:Errors:
++
++* -KVM_EINVAL - the buffer is larger than ``struct kvm_xsave``
++* -KVM_EINVAL - the selected vCPU is invalid
++* -KVM_EINVAL - the padding is not zero
++* -KVM_EAGAIN - the selected vCPU can't be introspected yet
++
+ Events
+ ======
+ 
+diff --git a/arch/x86/include/uapi/asm/kvmi.h b/arch/x86/include/uapi/asm/kvmi.h
+index a165c259ba0e..71206206973c 100644
+--- a/arch/x86/include/uapi/asm/kvmi.h
++++ b/arch/x86/include/uapi/asm/kvmi.h
+@@ -103,4 +103,8 @@ struct kvmi_vcpu_get_xsave_reply {
+ 	__u32 region[0];
+ };
+ 
++struct kvmi_vcpu_set_xsave {
++	__u32 region[0];
++};
++
+ #endif /* _UAPI_ASM_X86_KVMI_H */
+diff --git a/arch/x86/kvm/kvmi.c b/arch/x86/kvm/kvmi.c
+index 7b7122784f0f..0776be48ada1 100644
+--- a/arch/x86/kvm/kvmi.c
++++ b/arch/x86/kvm/kvmi.c
+@@ -761,3 +761,26 @@ int kvmi_arch_cmd_vcpu_get_xsave(struct kvm_vcpu *vcpu,
+ 
+ 	return 0;
+ }
++
++int kvmi_arch_cmd_vcpu_set_xsave(struct kvm_vcpu *vcpu,
++				 const struct kvmi_vcpu_set_xsave *req,
++				 size_t req_size)
++{
++	struct kvm_xsave *area;
++	size_t dest_size = sizeof(*area);
++	int err;
++
++	if (req_size > dest_size)
++		return -KVM_EINVAL;
++
++	area = kzalloc(dest_size, GFP_KERNEL);
++	if (!area)
++		return -KVM_ENOMEM;
++
++	memcpy(area, req, min(req_size, dest_size));
++
++	err = kvm_vcpu_ioctl_x86_set_xsave(vcpu, area);
++	kfree(area);
++
++	return err ? -KVM_EINVAL : 0;
++}
+diff --git a/include/uapi/linux/kvmi.h b/include/uapi/linux/kvmi.h
+index 6b5662f54ba1..441586cec238 100644
+--- a/include/uapi/linux/kvmi.h
++++ b/include/uapi/linux/kvmi.h
+@@ -41,6 +41,7 @@ enum {
+ 
+ 	KVMI_VCPU_GET_XCR = 18,
+ 	KVMI_VCPU_GET_XSAVE = 19,
++	KVMI_VCPU_SET_XSAVE = 20,
+ 
+ 	KVMI_NUM_MESSAGES
+ };
+diff --git a/tools/testing/selftests/kvm/x86_64/kvmi_test.c b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
+index 657684ec6ff5..30741983a3ab 100644
+--- a/tools/testing/selftests/kvm/x86_64/kvmi_test.c
++++ b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
+@@ -1551,25 +1551,43 @@ static void test_cmd_vcpu_get_xcr(struct kvm_vm *vm)
+ 	cmd_vcpu_get_xcr(vm, xcr1, &value, no_padding, -KVM_EINVAL);
+ }
+ 
+-static void cmd_vcpu_get_xsave(struct kvm_vm *vm)
++static void cmd_vcpu_get_xsave(struct kvm_vm *vm, struct kvm_xsave *rpl)
+ {
+ 	struct {
+ 		struct kvmi_msg_hdr hdr;
+ 		struct kvmi_vcpu_hdr vcpu_hdr;
+ 	} req = {};
+-	struct kvm_xsave rpl;
+ 	int r;
+ 
+ 	r = do_vcpu0_command(vm, KVMI_VCPU_GET_XSAVE, &req.hdr, sizeof(req),
+-			     &rpl, sizeof(rpl));
++			     rpl, sizeof(*rpl));
+ 	TEST_ASSERT(r == 0,
+ 		    "KVMI_VCPU_GET_XSAVE failed with error %d (%s)\n",
+ 		    -r, kvm_strerror(-r));
+ }
+ 
+-static void test_cmd_vcpu_get_xsave(struct kvm_vm *vm)
++static void cmd_vcpu_set_xsave(struct kvm_vm *vm, struct kvm_xsave *rpl)
++{
++	struct {
++		struct kvmi_msg_hdr hdr;
++		struct kvmi_vcpu_hdr vcpu_hdr;
++		struct kvm_xsave xsave;
++	} req = {};
++	int r;
++
++	memcpy(&req.xsave, rpl, sizeof(*rpl));
++
++	r = do_vcpu0_command(vm, KVMI_VCPU_SET_XSAVE, &req.hdr, sizeof(req),
++			     NULL, 0);
++	TEST_ASSERT(r == 0,
++		    "KVMI_VCPU_SET_XSAVE failed with error %d (%s)\n",
++		    -r, kvm_strerror(-r));
++}
++
++static void test_cmd_vcpu_xsave(struct kvm_vm *vm)
+ {
+ 	struct kvm_cpuid_entry2 *entry;
++	struct kvm_xsave xsave;
+ 
+ 	entry = kvm_get_supported_cpuid_entry(1);
+ 	if (!(entry->ecx & X86_FEATURE_XSAVE)) {
+@@ -1577,7 +1595,8 @@ static void test_cmd_vcpu_get_xsave(struct kvm_vm *vm)
+ 		return;
+ 	}
+ 
+-	cmd_vcpu_get_xsave(vm);
++	cmd_vcpu_get_xsave(vm, &xsave);
++	cmd_vcpu_set_xsave(vm, &xsave);
+ }
+ 
+ static void test_introspection(struct kvm_vm *vm)
+@@ -1608,7 +1627,7 @@ static void test_introspection(struct kvm_vm *vm)
+ 	test_cmd_vm_get_max_gfn();
+ 	test_event_xsetbv(vm);
+ 	test_cmd_vcpu_get_xcr(vm);
+-	test_cmd_vcpu_get_xsave(vm);
++	test_cmd_vcpu_xsave(vm);
+ 
+ 	unhook_introspection(vm);
+ }
+diff --git a/virt/kvm/introspection/kvmi_int.h b/virt/kvm/introspection/kvmi_int.h
+index 26fc27f3fddc..f358ef1c0c73 100644
+--- a/virt/kvm/introspection/kvmi_int.h
++++ b/virt/kvm/introspection/kvmi_int.h
+@@ -111,5 +111,8 @@ int kvmi_arch_cmd_vcpu_get_xcr(struct kvm_vcpu *vcpu,
+ int kvmi_arch_cmd_vcpu_get_xsave(struct kvm_vcpu *vcpu,
+ 				 struct kvmi_vcpu_get_xsave_reply **dest,
+ 				 size_t *dest_size);
++int kvmi_arch_cmd_vcpu_set_xsave(struct kvm_vcpu *vcpu,
++				 const struct kvmi_vcpu_set_xsave *req,
++				 size_t req_size);
+ 
+ #endif
+diff --git a/virt/kvm/introspection/kvmi_msg.c b/virt/kvm/introspection/kvmi_msg.c
+index 06a8fbb5c86d..c8fe55c3d5c7 100644
+--- a/virt/kvm/introspection/kvmi_msg.c
++++ b/virt/kvm/introspection/kvmi_msg.c
+@@ -553,6 +553,22 @@ static int handle_vcpu_get_xsave(const struct kvmi_vcpu_msg_job *job,
+ 	return err;
+ }
+ 
++static int handle_vcpu_set_xsave(const struct kvmi_vcpu_msg_job *job,
++				 const struct kvmi_msg_hdr *msg,
++				 const void *req)
++{
++	size_t msg_size = msg->size, xsave_size;
++	int ec;
++
++	if (check_sub_overflow(msg_size, sizeof(struct kvmi_vcpu_hdr),
++				&xsave_size))
++		return -EINVAL;
++
++	ec = kvmi_arch_cmd_vcpu_set_xsave(job->vcpu, req, xsave_size);
++
++	return kvmi_msg_vcpu_reply(job, msg, ec, NULL, 0);
++}
++
+ /*
+  * These functions are executed from the vCPU thread. The receiving thread
+  * passes the messages using a newly allocated 'struct kvmi_vcpu_msg_job'
+@@ -571,6 +587,7 @@ static int(*const msg_vcpu[])(const struct kvmi_vcpu_msg_job *,
+ 	[KVMI_VCPU_GET_XSAVE]        = handle_vcpu_get_xsave,
+ 	[KVMI_VCPU_INJECT_EXCEPTION] = handle_vcpu_inject_exception,
+ 	[KVMI_VCPU_SET_REGISTERS]    = handle_vcpu_set_registers,
++	[KVMI_VCPU_SET_XSAVE]        = handle_vcpu_set_xsave,
+ };
+ 
+ static bool is_vcpu_command(u16 id)
