@@ -1,49 +1,58 @@
-From: Xin He <hexin.op@bytedance.com>
-Subject: [PATCH v3] drm/virtio: fix missing dma_fence_put() in virtio_gpu_execbuffer_ioctl()
-Date: Tue, 21 Jul 2020 18:16:47 +0800
-Message-ID: <20200721101647.42653-1-hexin.op@bytedance.com>
+From: Maxim Levitsky <mlevitsk@redhat.com>
+Subject: [PATCH 00/10] RFC: move logical block size checking to the block core
+Date: Tue, 21 Jul 2020 13:52:29 +0300
+Message-ID: <20200721105239.8270-1-mlevitsk@redhat.com>
 Mime-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Sender: linux-kernel-owner@vger.kernel.org
-To: daniel@ffwll.ch, airlied@linux.ie, kraxel@redhat.com, sumit.semwal@linaro.org
-Cc: linux-kernel@vger.kernel.org, dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org, linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org, Qi Liu <liuqi.16@bytedance.com>, Xin He <hexin.op@bytedance.com>, Muchun Song <songmuchun@bytedance.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Return-path: <linux-block-owner@vger.kernel.org>
+Sender: linux-block-owner@vger.kernel.org
+To: linux-kernel@vger.kernel.org
+Cc: Keith Busch <kbusch@kernel.org>, Josef Bacik <josef@toxicpanda.com>, "open list:BLOCK LAYER" <linux-block@vger.kernel.org>, Sagi Grimberg <sagi@grimberg.me>, Jens Axboe <axboe@kernel.dk>, "open list:NVM EXPRESS DRIVER" <linux-nvme@lists.infradead.org>, "open list:SCSI CDROM DRIVER" <linux-scsi@vger.kernel.org>, Tejun Heo <tj@kernel.org>, Bart Van Assche <bvanassche@acm.org>, "Martin K. Petersen" <martin.petersen@oracle.com>, Damien Le Moal <damien.lemoal@wdc.com>, Jason Wang <jasowang@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, Colin Ian King <colin.king@canonical.com>, "Michael S. Tsirkin" <mst@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Ulf Hansson <ulf.hansson@linaro.org>, Ajay Joshi <ajay.joshi@wd>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Qi Liu <liuqi.16@bytedance.com>
-
-We should put the reference count of the fence after calling
-virtio_gpu_cmd_submit(). So add the missing dma_fence_put().
-
-Fixes: 2cd7b6f08bc4 ("drm/virtio: add in/out fence support for explicit synchronization")
-Co-developed-by: Xin He <hexin.op@bytedance.com>
-Signed-off-by: Xin He <hexin.op@bytedance.com>
-Signed-off-by: Qi Liu <liuqi.16@bytedance.com>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
----
-
-changelog in v3:
-1) Change the subject from "drm/virtio: fixed memory leak in virtio_gpu_execbuffer_ioctl()" to 
-   "drm/virtio: fix missing dma_fence_put() in virtio_gpu_execbuffer_ioctl()"
-2) Rework the commit log
-
-changelog in v2:
-1) Add a change description 
-
- drivers/gpu/drm/virtio/virtgpu_ioctl.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index 5df722072ba0..19c5bc01eb79 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -179,6 +179,7 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
- 
- 	virtio_gpu_cmd_submit(vgdev, buf, exbuf->size,
- 			      vfpriv->ctx_id, buflist, out_fence);
-+	dma_fence_put(&out_fence->f);
- 	virtio_gpu_notify(vgdev);
- 	return 0;
- 
--- 
-2.21.1 (Apple Git-122.3)
+This patch series aims to move the logical block size checking to the=0D
+block code.=0D
+=0D
+This was inspired by missing check for valid logical block size in=0D
+virtio-blk which causes the kernel to crash in a weird way later on=0D
+when it is invalid.=0D
+=0D
+I added blk_is_valid_logical_block_size which returns true iff the=0D
+block size is one of supported sizes.=0D
+=0D
+I added this check to virtio-blk, and also converted  few block drivers=0D
+that I am familiar with to use this interface instead of their=0D
+own implementation.=0D
+=0D
+Best regards,=0D
+	Maxim Levitsky=0D
+=0D
+Maxim Levitsky (10):=0D
+  block: introduce blk_is_valid_logical_block_size=0D
+  block: virtio-blk: check logical block size=0D
+  block: loop: use blk_is_valid_logical_block_size=0D
+  block: nbd: use blk_is_valid_logical_block_size=0D
+  block: null: use blk_is_valid_logical_block_size=0D
+  block: ms_block: use blk_is_valid_logical_block_size=0D
+  block: mspro_blk: use blk_is_valid_logical_block_size=0D
+  block: nvme: use blk_is_valid_logical_block_size=0D
+  block: scsi: sd: use blk_is_valid_logical_block_size=0D
+  block: scsi: sr: use blk_is_valid_logical_block_size=0D
+=0D
+ block/blk-settings.c                | 18 +++++++++++++++++=0D
+ drivers/block/loop.c                | 23 +++++----------------=0D
+ drivers/block/nbd.c                 | 12 ++---------=0D
+ drivers/block/null_blk_main.c       |  6 +++---=0D
+ drivers/block/virtio_blk.c          | 15 ++++++++++++--=0D
+ drivers/memstick/core/ms_block.c    |  2 +-=0D
+ drivers/memstick/core/mspro_block.c |  6 ++++++=0D
+ drivers/nvme/host/core.c            | 17 ++++++++--------=0D
+ drivers/scsi/sd.c                   |  5 +----=0D
+ drivers/scsi/sr.c                   | 31 ++++++++++++-----------------=0D
+ include/linux/blkdev.h              |  1 +=0D
+ 11 files changed, 71 insertions(+), 65 deletions(-)=0D
+=0D
+-- =0D
+2.26.2=0D
+=0D
