@@ -1,68 +1,76 @@
-From: Nicholas Piggin <npiggin@gmail.com>
-Subject: Re: [PATCH v3 0/6] powerpc: queued spinlocks and rwlocks
-Date: Tue, 21 Jul 2020 21:20:09 +1000
-Message-ID: <1595329799.y24rka8cv4.astroid@bobo.none>
-References: <20200706043540.1563616-1-npiggin@gmail.com>
-        <24f75d2c-60cd-2766-4aab-1a3b1c80646e@redhat.com>
-        <1594101082.hfq9x5yact.astroid@bobo.none>
-        <20200708084106.GE597537@hirez.programming.kicks-ass.net>
-        <a9834278-25bf-90e9-10f2-cd10e5407ff6@redhat.com>
-        <20200709083113.GI597537@hirez.programming.kicks-ass.net>
+From: Damien Le Moal <Damien.LeMoal@wdc.com>
+Subject: Re: [PATCH 08/10] block: nvme: use blk_is_valid_logical_block_size
+Date: Tue, 21 Jul 2020 11:23:36 +0000
+Message-ID: <CY4PR04MB3751AA85412F2B654286ED2BE7780@CY4PR04MB3751.namprd04.prod.outlook.com>
+References: <20200721105239.8270-1-mlevitsk@redhat.com>
+ <20200721105239.8270-9-mlevitsk@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-arch-owner@vger.kernel.org>
-In-Reply-To: <20200709083113.GI597537@hirez.programming.kicks-ass.net>
-Sender: linux-arch-owner@vger.kernel.org
-To: Waiman Long <longman@redhat.com>, Peter Zijlstra <peterz@infradead.org>
-Cc: Anton Blanchard <anton@ozlabs.org>, Boqun Feng <boqun.feng@gmail.com>, kvm-ppc@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Ingo Molnar <mingo@redhat.com>, virtualization@lists.linux-foundation.org, Will Deacon <will@kernel.org>
+Return-path: <linux-mmc-owner@vger.kernel.org>
+Content-Language: en-US
+Sender: linux-mmc-owner@vger.kernel.org
+To: Maxim Levitsky <mlevitsk@redhat.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Cc: Keith Busch <kbusch@kernel.org>, Josef Bacik <josef@toxicpanda.com>, "open list:BLOCK LAYER" <linux-block@vger.kernel.org>, Sagi Grimberg <sagi@grimberg.me>, Jens Axboe <axboe@kernel.dk>, "open list:NVM EXPRESS DRIVER" <linux-nvme@lists.infradead.org>, "open list:SCSI CDROM DRIVER" <linux-scsi@vger.kernel.org>, Tejun Heo <tj@kernel.org>, Bart Van Assche <bvanassche@acm.org>, "Martin K. Petersen" <martin.petersen@oracle.com>, Jason Wang <jasowang@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, Colin Ian King <colin.king@canonical.com>, "Michael S. Tsirkin" <mst@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Ulf Hansson <ulf.hansson@linaro.org>, Ajay Joshi <Ajay.Joshi@wdc.com>, Ming Lei <ming.lei@redhat.>
 List-Id: virtualization@lists.linuxfoundation.org
 
-Excerpts from Peter Zijlstra's message of July 9, 2020 6:31 pm:
-> On Wed, Jul 08, 2020 at 07:54:34PM -0400, Waiman Long wrote:
->> On 7/8/20 4:41 AM, Peter Zijlstra wrote:
->> > On Tue, Jul 07, 2020 at 03:57:06PM +1000, Nicholas Piggin wrote:
->> > > Yes, powerpc could certainly get more performance out of the slow
->> > > paths, and then there are a few parameters to tune.
->> > Can you clarify? The slow path is already in use on ARM64 which is wea=
-k,
->> > so I doubt there's superfluous serialization present. And Will spend a
->> > fair amount of time on making that thing guarantee forward progressm, =
-so
->> > there just isn't too much room to play.
->> >=20
->> > > We don't have a good alternate patching for function calls yet, but
->> > > that would be something to do for native vs pv.
->> > Going by your jump_label implementation, support for static_call shoul=
-d
->> > be fairly straight forward too, no?
->> >=20
->> >    https://lkml.kernel.org/r/20200624153024.794671356@infradead.org
->> >=20
->> Speaking of static_call, I am also looking forward to it. Do you have an
->> idea when that will be merged?
->=20
-> 0day had one crash on the last round, I think Steve send a fix for that
-> last night and I'll go look at it.
->=20
-> That said, the last posting got 0 feedback, so either everybody is
-> really happy with it, or not interested. So let us know in the thread,
-> with some review feedback.
->=20
-> Once I get through enough of the inbox to actually find the fix and test
-> it, I'll also update the thread, and maybe threaten to merge it if
-> everybody stays silent :-)
-
-I'd like to use it in powerpc. We have code now for example that patches=20
-a branch immediately at the top of memcpy which branches to a different=20
-version of the function. pv queued spinlock selection obviously, and
-there's a bunch of platform ops struct things that get filled in at boot=20
-time, etc.
-
-So +1 here if you can get them through. I'm not 100% sure we can do
-it with existing toolchain and no ugly hacks, but there's no way to
-structure things that can get around that AFAIKS. We'd eventually
-use it though, I'd say.
-
-Thanks,
-Nick
+On 2020/07/21 19:55, Maxim Levitsky wrote:=0A=
+> This replaces manual checking in the driver=0A=
+> =0A=
+> Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>=0A=
+> ---=0A=
+>  drivers/nvme/host/core.c | 17 ++++++++---------=0A=
+>  1 file changed, 8 insertions(+), 9 deletions(-)=0A=
+> =0A=
+> diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c=0A=
+> index add040168e67e..8014b3046992a 100644=0A=
+> --- a/drivers/nvme/host/core.c=0A=
+> +++ b/drivers/nvme/host/core.c=0A=
+> @@ -1849,10 +1849,16 @@ static void nvme_update_disk_info(struct gendisk =
+*disk,=0A=
+>  	unsigned short bs =3D 1 << ns->lba_shift;=0A=
+>  	u32 atomic_bs, phys_bs, io_opt =3D 0;=0A=
+>  =0A=
+> -	if (ns->lba_shift > PAGE_SHIFT) {=0A=
+> -		/* unsupported block size, set capacity to 0 later */=0A=
+> +	/*=0A=
+> +	 * The block layer can't support LBA sizes larger than the page size=0A=
+> +	 * yet, so catch this early and don't allow block I/O.=0A=
+> +	 */=0A=
+> +=0A=
+=0A=
+No need for the blank line here.=0A=
+=0A=
+> +	if (!blk_is_valid_logical_block_size(bs)) {=0A=
+>  		bs =3D (1 << 9);=0A=
+> +		capacity =3D 0;>  	}=0A=
+> +=0A=
+>  	blk_mq_freeze_queue(disk->queue);=0A=
+>  	blk_integrity_unregister(disk);=0A=
+>  =0A=
+> @@ -1887,13 +1893,6 @@ static void nvme_update_disk_info(struct gendisk *=
+disk,=0A=
+>  	blk_queue_io_min(disk->queue, phys_bs);=0A=
+>  	blk_queue_io_opt(disk->queue, io_opt);=0A=
+>  =0A=
+> -	/*=0A=
+> -	 * The block layer can't support LBA sizes larger than the page size=0A=
+> -	 * yet, so catch this early and don't allow block I/O.=0A=
+> -	 */=0A=
+> -	if (ns->lba_shift > PAGE_SHIFT)=0A=
+> -		capacity =3D 0;=0A=
+> -=0A=
+>  	/*=0A=
+>  	 * Register a metadata profile for PI, or the plain non-integrity NVMe=
+=0A=
+>  	 * metadata masquerading as Type 0 if supported, otherwise reject block=
+=0A=
+> =0A=
+=0A=
+Apart from the nit above, this looks OK to me.=0A=
+=0A=
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>=0A=
+=0A=
+-- =0A=
+Damien Le Moal=0A=
+Western Digital Research=0A=
