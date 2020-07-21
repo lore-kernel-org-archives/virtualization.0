@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH v9 65/84] KVM: introspection: restore the state of CR3 interception on unhook
-Date: Wed, 22 Jul 2020 00:09:03 +0300
-Message-ID: <20200721210922.7646-66-alazar@bitdefender.com>
+Subject: [PATCH v9 22/84] KVM: x86: save the error code during EPT/NPF exits handling
+Date: Wed, 22 Jul 2020 00:08:20 +0300
+Message-ID: <20200721210922.7646-23-alazar@bitdefender.com>
 References: <20200721210922.7646-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -10,178 +10,66 @@ Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200721210922.7646-1-alazar@bitdefender.com>
 Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Nicușor Cîțu <ncitu@bitdefender.com>
+From: Mihai Donțu <mdontu@bitdefender.com>
 
-This commit also ensures that the introspection tool and the userspace
-do not disable each other the CR3-write VM-exit.
+This is needed for kvm_page_track_emulation_failure().
 
-Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
+When the introspection tool {read,write,exec}-protect a guest memory
+page, it is notified from the read/write/fetch callbacks used by
+the KVM emulator. If the emulation fails it is possible that the
+read/write callbacks were not used. In such cases, the emulator will
+call kvm_page_track_emulation_failure() to ensure that the introspection
+tool is notified of the read/write #PF (based on this saved error code),
+which in turn can emulate the instruction or unprotect the memory page
+(and let the guest execute the instruction).
+
+Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- arch/x86/include/asm/kvmi_host.h |  4 ++
- arch/x86/kvm/kvmi.c              | 64 ++++++++++++++++++++++++++++++--
- arch/x86/kvm/svm/svm.c           |  5 +++
- arch/x86/kvm/vmx/vmx.c           |  5 +++
- 4 files changed, 75 insertions(+), 3 deletions(-)
+ arch/x86/include/asm/kvm_host.h | 3 +++
+ arch/x86/kvm/svm/svm.c          | 2 ++
+ arch/x86/kvm/vmx/vmx.c          | 1 +
+ 3 files changed, 6 insertions(+)
 
-diff --git a/arch/x86/include/asm/kvmi_host.h b/arch/x86/include/asm/kvmi_host.h
-index 1aff91ef8475..44580f77e34e 100644
---- a/arch/x86/include/asm/kvmi_host.h
-+++ b/arch/x86/include/asm/kvmi_host.h
-@@ -16,6 +16,7 @@ struct kvmi_interception {
- 	bool cleanup;
- 	bool restore_interception;
- 	struct kvmi_monitor_interception breakpoint;
-+	struct kvmi_monitor_interception cr3w;
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index f04a01dac423..2530af4420cf 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -837,6 +837,9 @@ struct kvm_vcpu_arch {
+ 
+ 	/* AMD MSRC001_0015 Hardware Configuration */
+ 	u64 msr_hwcr;
++
++	/* #PF translated error code from EPT/NPT exit reason */
++	u64 error_code;
  };
  
- struct kvm_vcpu_arch_introspection {
-@@ -31,6 +32,7 @@ bool kvmi_monitor_bp_intercept(struct kvm_vcpu *vcpu, u32 dbg);
- bool kvmi_cr_event(struct kvm_vcpu *vcpu, unsigned int cr,
- 		   unsigned long old_value, unsigned long *new_value);
- bool kvmi_cr3_intercepted(struct kvm_vcpu *vcpu);
-+bool kvmi_monitor_cr3w_intercept(struct kvm_vcpu *vcpu, bool enable);
- 
- #else /* CONFIG_KVM_INTROSPECTION */
- 
-@@ -41,6 +43,8 @@ static inline bool kvmi_cr_event(struct kvm_vcpu *vcpu, unsigned int cr,
- 				 unsigned long *new_value)
- 			{ return true; }
- static inline bool kvmi_cr3_intercepted(struct kvm_vcpu *vcpu) { return false; }
-+static inline bool kvmi_monitor_cr3w_intercept(struct kvm_vcpu *vcpu,
-+						bool enable) { return false; }
- 
- #endif /* CONFIG_KVM_INTROSPECTION */
- 
-diff --git a/arch/x86/kvm/kvmi.c b/arch/x86/kvm/kvmi.c
-index e72b2ef5b28a..e340a2c3500f 100644
---- a/arch/x86/kvm/kvmi.c
-+++ b/arch/x86/kvm/kvmi.c
-@@ -308,6 +308,59 @@ static void kvmi_arch_disable_bp_intercept(struct kvm_vcpu *vcpu)
- 	vcpu->arch.kvmi->breakpoint.kvm_intercepted = false;
- }
- 
-+static bool monitor_cr3w_fct_kvmi(struct kvm_vcpu *vcpu, bool enable)
-+{
-+	vcpu->arch.kvmi->cr3w.kvmi_intercepted = enable;
-+
-+	if (enable)
-+		vcpu->arch.kvmi->cr3w.kvm_intercepted =
-+			kvm_x86_ops.cr3_write_intercepted(vcpu);
-+	else if (vcpu->arch.kvmi->cr3w.kvm_intercepted)
-+		return true;
-+
-+	return false;
-+}
-+
-+static bool monitor_cr3w_fct_kvm(struct kvm_vcpu *vcpu, bool enable)
-+{
-+	if (!vcpu->arch.kvmi->cr3w.kvmi_intercepted)
-+		return false;
-+
-+	vcpu->arch.kvmi->cr3w.kvm_intercepted = enable;
-+
-+	if (!enable)
-+		return true;
-+
-+	return false;
-+}
-+
-+/*
-+ * Returns true if one side (kvm or kvmi) tries to disable the CR3 write
-+ * interception while the other side is still tracking it.
-+ */
-+bool kvmi_monitor_cr3w_intercept(struct kvm_vcpu *vcpu, bool enable)
-+{
-+	struct kvmi_interception *arch_vcpui = READ_ONCE(vcpu->arch.kvmi);
-+
-+	return (arch_vcpui && arch_vcpui->cr3w.monitor_fct(vcpu, enable));
-+}
-+EXPORT_SYMBOL(kvmi_monitor_cr3w_intercept);
-+
-+static void kvmi_control_cr3w_intercept(struct kvm_vcpu *vcpu, bool enable)
-+{
-+	vcpu->arch.kvmi->cr3w.monitor_fct = monitor_cr3w_fct_kvmi;
-+	kvm_x86_ops.control_cr3_intercept(vcpu, CR_TYPE_W, enable);
-+	vcpu->arch.kvmi->cr3w.monitor_fct = monitor_cr3w_fct_kvm;
-+}
-+
-+static void kvmi_arch_disable_cr3w_intercept(struct kvm_vcpu *vcpu)
-+{
-+	kvmi_control_cr3w_intercept(vcpu, false);
-+
-+	vcpu->arch.kvmi->cr3w.kvmi_intercepted = false;
-+	vcpu->arch.kvmi->cr3w.kvm_intercepted = false;
-+}
-+
- int kvmi_arch_cmd_control_intercept(struct kvm_vcpu *vcpu,
- 				    unsigned int event_id, bool enable)
- {
-@@ -347,6 +400,7 @@ void kvmi_arch_breakpoint_event(struct kvm_vcpu *vcpu, u64 gva, u8 insn_len)
- static void kvmi_arch_restore_interception(struct kvm_vcpu *vcpu)
- {
- 	kvmi_arch_disable_bp_intercept(vcpu);
-+	kvmi_arch_disable_cr3w_intercept(vcpu);
- }
- 
- bool kvmi_arch_clean_up_interception(struct kvm_vcpu *vcpu)
-@@ -371,8 +425,13 @@ bool kvmi_arch_vcpu_alloc_interception(struct kvm_vcpu *vcpu)
- 		return false;
- 
- 	arch_vcpui->breakpoint.monitor_fct = monitor_bp_fct_kvm;
-+	arch_vcpui->cr3w.monitor_fct = monitor_cr3w_fct_kvm;
- 
--	/* pair with kvmi_monitor_bp_intercept() */
-+	/*
-+	 * paired with:
-+	 *  - kvmi_monitor_bp_intercept()
-+	 *  - kvmi_monitor_cr3w_intercept()
-+	 */
- 	smp_wmb();
- 	WRITE_ONCE(vcpu->arch.kvmi, arch_vcpui);
- 
-@@ -413,8 +472,7 @@ int kvmi_arch_cmd_vcpu_control_cr(struct kvm_vcpu *vcpu,
- 	case 0:
- 		break;
- 	case 3:
--		kvm_x86_ops.control_cr3_intercept(vcpu, CR_TYPE_W,
--						  req->enable == 1);
-+		kvmi_control_cr3w_intercept(vcpu, req->enable == 1);
- 		break;
- 	case 4:
- 		break;
+ struct kvm_lpage_info {
 diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index 47c50e2f0f86..bc886cedf45c 100644
+index 9c8e77193f98..1ec88ff241ab 100644
 --- a/arch/x86/kvm/svm/svm.c
 +++ b/arch/x86/kvm/svm/svm.c
-@@ -1668,6 +1668,11 @@ static void svm_control_cr3_intercept(struct kvm_vcpu *vcpu, int type,
- {
- 	struct vcpu_svm *svm = to_svm(vcpu);
+@@ -1799,6 +1799,8 @@ static int npf_interception(struct vcpu_svm *svm)
+ 	u64 fault_address = __sme_clr(svm->vmcb->control.exit_info_2);
+ 	u64 error_code = svm->vmcb->control.exit_info_1;
  
-+#ifdef CONFIG_KVM_INTROSPECTION
-+	if ((type & CR_TYPE_W) && kvmi_monitor_cr3w_intercept(vcpu, enable))
-+		type &= ~CR_TYPE_W;
-+#endif /* CONFIG_KVM_INTROSPECTION */
++	svm->vcpu.arch.error_code = error_code;
 +
- 	if (type & CR_TYPE_R)
- 		enable ? set_cr_intercept(svm, INTERCEPT_CR3_READ) :
- 			 clr_cr_intercept(svm, INTERCEPT_CR3_READ);
+ 	trace_kvm_page_fault(fault_address, error_code);
+ 	return kvm_mmu_page_fault(&svm->vcpu, fault_address, error_code,
+ 			static_cpu_has(X86_FEATURE_DECODEASSISTS) ?
 diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 5d0876420dd9..69aa1157a0f0 100644
+index cd498ece8b52..6554c2278176 100644
 --- a/arch/x86/kvm/vmx/vmx.c
 +++ b/arch/x86/kvm/vmx/vmx.c
-@@ -3011,6 +3011,11 @@ static void vmx_control_cr3_intercept(struct kvm_vcpu *vcpu, int type,
- 	struct vcpu_vmx *vmx = to_vmx(vcpu);
- 	u32 cr3_exec_control = 0;
+@@ -5365,6 +5365,7 @@ static int handle_ept_violation(struct kvm_vcpu *vcpu)
+ 		      ? PFERR_GUEST_FINAL_MASK : PFERR_GUEST_PAGE_MASK;
  
-+#ifdef CONFIG_KVM_INTROSPECTION
-+	if ((type & CR_TYPE_W) && kvmi_monitor_cr3w_intercept(vcpu, enable))
-+		type &= ~CR_TYPE_W;
-+#endif /* CONFIG_KVM_INTROSPECTION */
-+
- 	if (type & CR_TYPE_R)
- 		cr3_exec_control |= CPU_BASED_CR3_STORE_EXITING;
- 	if (type & CR_TYPE_W)
+ 	vcpu->arch.exit_qualification = exit_qualification;
++	vcpu->arch.error_code = error_code;
+ 	return kvm_mmu_page_fault(vcpu, gpa, error_code, NULL, 0);
+ }
+ 
