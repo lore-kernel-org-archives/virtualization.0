@@ -1,99 +1,79 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH v9 23/84] KVM: x86: add .fault_gla()
-Date: Wed, 22 Jul 2020 00:08:21 +0300
-Message-ID: <20200721210922.7646-24-alazar@bitdefender.com>
+Subject: [PATCH v9 03/84] KVM: add kvm_vcpu_kick_and_wait()
+Date: Wed, 22 Jul 2020 00:08:01 +0300
+Message-ID: <20200721210922.7646-4-alazar@bitdefender.com>
 References: <20200721210922.7646-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200721210922.7646-1-alazar@bitdefender.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogTWloYWkgRG9uyJt1IDxtZG9udHVAYml0ZGVmZW5kZXIuY29tPgoKVGhpcyBmdW5jdGlv
-biBpcyBuZWVkZWQgZm9yIGt2bWlfdXBkYXRlX2FkX2ZsYWdzKCkKYW5kIGt2bV9wYWdlX3RyYWNr
-X2VtdWxhdGlvbl9mYWlsdXJlKCkuCgprdm1pX3VwZGF0ZV9hZF9mbGFncygpIHVzZXMgdGhlIHRo
-ZSBleGlzdGluZyBndWVzdCBwYWdlIHRhYmxlIHdhbGsgY29kZQp0byB1cGRhdGUgdGhlIEEvRCBi
-aXRzIGFuZCByZXR1cm4gdG8gZ3Vlc3QgKG9uIFNQVCBwYWdlIGZhdWx0cyBjYXVzZWQKYnkgZ3Vl
-c3QgcGFnZSB0YWJsZSB3YWxrcyB3aGVuIHRoZSBpbnRyb3NwZWN0aW9uIHRvb2wgd3JpdGUtcHJv
-dGVjdHMKdGhlIGd1ZXN0IHBhZ2UgdGFibGVzKS4KCmt2bV9wYWdlX3RyYWNrX2VtdWxhdGlvbl9m
-YWlsdXJlKCkgY2FsbHMgdGhlIHBhZ2UgdHJhY2tpbmcgY29kZSwgd2hpY2gKd2lsbCBiZSBjaGFu
-Z2VkIHdpdGggYSBmb2xsb3dpbmcgcGF0Y2ggdG8gcmVjZWl2ZSB0aGUgR1ZBIGluIGFkZGl0aW9u
-IHRvCnRoZSBHUEEuIEJvdGggbWlnaHQgYmUgbmVlZGVkIGJ5IHRoZSBpbnRyb3NwZWN0aW9uIHRv
-b2wuCgpTaWduZWQtb2ZmLWJ5OiBNaWhhaSBEb27Im3UgPG1kb250dUBiaXRkZWZlbmRlci5jb20+
-CkNvLWRldmVsb3BlZC1ieTogTmljdciZb3IgQ8OuyJt1IDxuY2l0dUBiaXRkZWZlbmRlci5jb20+
-ClNpZ25lZC1vZmYtYnk6IE5pY3XImW9yIEPDrsibdSA8bmNpdHVAYml0ZGVmZW5kZXIuY29tPgpT
-aWduZWQtb2ZmLWJ5OiBBZGFsYmVydCBMYXrEg3IgPGFsYXphckBiaXRkZWZlbmRlci5jb20+Ci0t
-LQogYXJjaC94ODYvaW5jbHVkZS9hc20va3ZtX2hvc3QuaCB8IDIgKysKIGFyY2gveDg2L2luY2x1
-ZGUvYXNtL3ZteC5oICAgICAgfCAyICsrCiBhcmNoL3g4Ni9rdm0vc3ZtL3N2bS5jICAgICAgICAg
-IHwgOSArKysrKysrKysKIGFyY2gveDg2L2t2bS92bXgvdm14LmMgICAgICAgICAgfCA5ICsrKysr
-KysrKwogNCBmaWxlcyBjaGFuZ2VkLCAyMiBpbnNlcnRpb25zKCspCgpkaWZmIC0tZ2l0IGEvYXJj
-aC94ODYvaW5jbHVkZS9hc20va3ZtX2hvc3QuaCBiL2FyY2gveDg2L2luY2x1ZGUvYXNtL2t2bV9o
-b3N0LmgKaW5kZXggMjUzMGFmNDQyMGNmLi5jY2YyODA0ZjQ2YjkgMTAwNjQ0Ci0tLSBhL2FyY2gv
-eDg2L2luY2x1ZGUvYXNtL2t2bV9ob3N0LmgKKysrIGIvYXJjaC94ODYvaW5jbHVkZS9hc20va3Zt
-X2hvc3QuaApAQCAtMTI5MCw2ICsxMjkwLDggQEAgc3RydWN0IGt2bV94ODZfb3BzIHsKIAlpbnQg
-KCplbmFibGVfZGlyZWN0X3RsYmZsdXNoKShzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpOwogCiAJdm9p
-ZCAoKm1pZ3JhdGVfdGltZXJzKShzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpOworCisJdTY0ICgqZmF1
-bHRfZ2xhKShzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpOwogfTsKIAogc3RydWN0IGt2bV94ODZfbmVz
-dGVkX29wcyB7CmRpZmYgLS1naXQgYS9hcmNoL3g4Ni9pbmNsdWRlL2FzbS92bXguaCBiL2FyY2gv
-eDg2L2luY2x1ZGUvYXNtL3ZteC5oCmluZGV4IGNkN2RlNGI0MDFmZS4uMDQ0ODdlYjM4YjVjIDEw
-MDY0NAotLS0gYS9hcmNoL3g4Ni9pbmNsdWRlL2FzbS92bXguaAorKysgYi9hcmNoL3g4Ni9pbmNs
-dWRlL2FzbS92bXguaApAQCAtNTQzLDYgKzU0Myw3IEBAIGVudW0gdm1fZW50cnlfZmFpbHVyZV9j
-b2RlIHsKICNkZWZpbmUgRVBUX1ZJT0xBVElPTl9SRUFEQUJMRV9CSVQJMwogI2RlZmluZSBFUFRf
-VklPTEFUSU9OX1dSSVRBQkxFX0JJVAk0CiAjZGVmaW5lIEVQVF9WSU9MQVRJT05fRVhFQ1VUQUJM
-RV9CSVQJNQorI2RlZmluZSBFUFRfVklPTEFUSU9OX0dMQV9WQUxJRF9CSVQJNwogI2RlZmluZSBF
-UFRfVklPTEFUSU9OX0dWQV9UUkFOU0xBVEVEX0JJVCA4CiAjZGVmaW5lIEVQVF9WSU9MQVRJT05f
-QUNDX1JFQUQJCSgxIDw8IEVQVF9WSU9MQVRJT05fQUNDX1JFQURfQklUKQogI2RlZmluZSBFUFRf
-VklPTEFUSU9OX0FDQ19XUklURQkJKDEgPDwgRVBUX1ZJT0xBVElPTl9BQ0NfV1JJVEVfQklUKQpA
-QCAtNTUwLDYgKzU1MSw3IEBAIGVudW0gdm1fZW50cnlfZmFpbHVyZV9jb2RlIHsKICNkZWZpbmUg
-RVBUX1ZJT0xBVElPTl9SRUFEQUJMRQkJKDEgPDwgRVBUX1ZJT0xBVElPTl9SRUFEQUJMRV9CSVQp
-CiAjZGVmaW5lIEVQVF9WSU9MQVRJT05fV1JJVEFCTEUJCSgxIDw8IEVQVF9WSU9MQVRJT05fV1JJ
-VEFCTEVfQklUKQogI2RlZmluZSBFUFRfVklPTEFUSU9OX0VYRUNVVEFCTEUJKDEgPDwgRVBUX1ZJ
-T0xBVElPTl9FWEVDVVRBQkxFX0JJVCkKKyNkZWZpbmUgRVBUX1ZJT0xBVElPTl9HTEFfVkFMSUQJ
-CSgxIDw8IEVQVF9WSU9MQVRJT05fR0xBX1ZBTElEX0JJVCkKICNkZWZpbmUgRVBUX1ZJT0xBVElP
-Tl9HVkFfVFJBTlNMQVRFRAkoMSA8PCBFUFRfVklPTEFUSU9OX0dWQV9UUkFOU0xBVEVEX0JJVCkK
-IAogLyoKZGlmZiAtLWdpdCBhL2FyY2gveDg2L2t2bS9zdm0vc3ZtLmMgYi9hcmNoL3g4Ni9rdm0v
-c3ZtL3N2bS5jCmluZGV4IDFlYzg4ZmYyNDFhYi4uODZiNjcwZmYzM2RkIDEwMDY0NAotLS0gYS9h
-cmNoL3g4Ni9rdm0vc3ZtL3N2bS5jCisrKyBiL2FyY2gveDg2L2t2bS9zdm0vc3ZtLmMKQEAgLTQw
-ODIsNiArNDA4MiwxMyBAQCBzdGF0aWMgaW50IHN2bV92bV9pbml0KHN0cnVjdCBrdm0gKmt2bSkK
-IAlyZXR1cm4gMDsKIH0KIAorc3RhdGljIHU2NCBzdm1fZmF1bHRfZ2xhKHN0cnVjdCBrdm1fdmNw
-dSAqdmNwdSkKK3sKKwljb25zdCBzdHJ1Y3QgdmNwdV9zdm0gKnN2bSA9IHRvX3N2bSh2Y3B1KTsK
-KworCXJldHVybiBzdm0tPnZjcHUuYXJjaC5jcjIgPyBzdm0tPnZjcHUuYXJjaC5jcjIgOiB+MHVs
-bDsKK30KKwogc3RhdGljIHN0cnVjdCBrdm1feDg2X29wcyBzdm1feDg2X29wcyBfX2luaXRkYXRh
-ID0gewogCS5oYXJkd2FyZV91bnNldHVwID0gc3ZtX2hhcmR3YXJlX3RlYXJkb3duLAogCS5oYXJk
-d2FyZV9lbmFibGUgPSBzdm1faGFyZHdhcmVfZW5hYmxlLApAQCAtNDIwOCw2ICs0MjE1LDggQEAg
-c3RhdGljIHN0cnVjdCBrdm1feDg2X29wcyBzdm1feDg2X29wcyBfX2luaXRkYXRhID0gewogCS5u
-ZWVkX2VtdWxhdGlvbl9vbl9wYWdlX2ZhdWx0ID0gc3ZtX25lZWRfZW11bGF0aW9uX29uX3BhZ2Vf
-ZmF1bHQsCiAKIAkuYXBpY19pbml0X3NpZ25hbF9ibG9ja2VkID0gc3ZtX2FwaWNfaW5pdF9zaWdu
-YWxfYmxvY2tlZCwKKworCS5mYXVsdF9nbGEgPSBzdm1fZmF1bHRfZ2xhLAogfTsKIAogc3RhdGlj
-IHN0cnVjdCBrdm1feDg2X2luaXRfb3BzIHN2bV9pbml0X29wcyBfX2luaXRkYXRhID0gewpkaWZm
-IC0tZ2l0IGEvYXJjaC94ODYva3ZtL3ZteC92bXguYyBiL2FyY2gveDg2L2t2bS92bXgvdm14LmMK
-aW5kZXggNjU1NGMyMjc4MTc2Li5hMDRjNDZjZGU1YjMgMTAwNjQ0Ci0tLSBhL2FyY2gveDg2L2t2
-bS92bXgvdm14LmMKKysrIGIvYXJjaC94ODYva3ZtL3ZteC92bXguYwpAQCAtNzkwMiw2ICs3OTAy
-LDEzIEBAIHN0YXRpYyBib29sIHZteF9jaGVja19hcGljdl9pbmhpYml0X3JlYXNvbnModWxvbmcg
-Yml0KQogCXJldHVybiBzdXBwb3J0ZWQgJiBCSVQoYml0KTsKIH0KIAorc3RhdGljIHU2NCB2bXhf
-ZmF1bHRfZ2xhKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSkKK3sKKwlpZiAodmNwdS0+YXJjaC5leGl0
-X3F1YWxpZmljYXRpb24gJiBFUFRfVklPTEFUSU9OX0dMQV9WQUxJRCkKKwkJcmV0dXJuIHZtY3Nf
-cmVhZGwoR1VFU1RfTElORUFSX0FERFJFU1MpOworCXJldHVybiB+MHVsbDsKK30KKwogc3RhdGlj
-IHN0cnVjdCBrdm1feDg2X29wcyB2bXhfeDg2X29wcyBfX2luaXRkYXRhID0gewogCS5oYXJkd2Fy
-ZV91bnNldHVwID0gaGFyZHdhcmVfdW5zZXR1cCwKIApAQCAtODAzOCw2ICs4MDQ1LDggQEAgc3Rh
-dGljIHN0cnVjdCBrdm1feDg2X29wcyB2bXhfeDg2X29wcyBfX2luaXRkYXRhID0gewogCS5uZWVk
-X2VtdWxhdGlvbl9vbl9wYWdlX2ZhdWx0ID0gdm14X25lZWRfZW11bGF0aW9uX29uX3BhZ2VfZmF1
-bHQsCiAJLmFwaWNfaW5pdF9zaWduYWxfYmxvY2tlZCA9IHZteF9hcGljX2luaXRfc2lnbmFsX2Js
-b2NrZWQsCiAJLm1pZ3JhdGVfdGltZXJzID0gdm14X21pZ3JhdGVfdGltZXJzLAorCisJLmZhdWx0
-X2dsYSA9IHZteF9mYXVsdF9nbGEsCiB9OwogCiBzdGF0aWMgX19pbml0IGludCBoYXJkd2FyZV9z
-ZXR1cCh2b2lkKQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-XwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgt
-Zm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4v
-bGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+This function is needed for the KVMI_VCPU_PAUSE command, which sets the
+introspection request flag, kicks the vCPU out of guest and returns a
+success error code (0). The vCPU will send the KVMI_EVENT_PAUSE event
+as soon as possible. Once the introspection tool receives the event, it
+knows that the vCPU doesn't run guest code and can handle introspection
+commands (until the reply for the pause event is sent).
+
+To implement the "pause VM" command, the userspace code will send a
+KVMI_VCPU_PAUSE command for every vCPU. To know when the VM is paused,
+userspace has to receive and "parse" all events. For example, with a
+4 vCPU VM, if the "pause VM" was sent by userspace while handling an event
+from vCPU0 and at the same time a new vCPU was hot-plugged (which could
+send another event for vCPU4), the "pause VM" command has to receive
+and check all events until it gets the pause events for vCPU1, vCPU2
+and vCPU3 before returning to the upper layer.
+
+In order to make it easier for userspace to implement the "pause VM"
+command, the KVMI_VCPU_PAUSE has an optional 'wait' parameter. If this is
+set, kvm_vcpu_kick_and_wait() will be used instead of kvm_vcpu_kick().
+And because this vCPU command (KVMI_VCPU_PAUSE) is handled by the
+receiving thread (instead of the vCPU thread), once a string of
+KVMI_VCPU_PAUSE commands with the 'wait' flag set is handled, the
+introspection tool can consider the VM paused, without the need to wait
+and check events.
+
+Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
+---
+ include/linux/kvm_host.h |  1 +
+ virt/kvm/kvm_main.c      | 10 ++++++++++
+ 2 files changed, 11 insertions(+)
+
+diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
+index 62ec926c78a0..92490279d65a 100644
+--- a/include/linux/kvm_host.h
++++ b/include/linux/kvm_host.h
+@@ -810,6 +810,7 @@ void kvm_arch_vcpu_blocking(struct kvm_vcpu *vcpu);
+ void kvm_arch_vcpu_unblocking(struct kvm_vcpu *vcpu);
+ bool kvm_vcpu_wake_up(struct kvm_vcpu *vcpu);
+ void kvm_vcpu_kick(struct kvm_vcpu *vcpu);
++void kvm_vcpu_kick_and_wait(struct kvm_vcpu *vcpu);
+ int kvm_vcpu_yield_to(struct kvm_vcpu *target);
+ void kvm_vcpu_on_spin(struct kvm_vcpu *vcpu, bool usermode_vcpu_not_eligible);
+ 
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index 0a68c9d3d3ab..4d965913d347 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -2802,6 +2802,16 @@ void kvm_vcpu_kick(struct kvm_vcpu *vcpu)
+ EXPORT_SYMBOL_GPL(kvm_vcpu_kick);
+ #endif /* !CONFIG_S390 */
+ 
++void kvm_vcpu_kick_and_wait(struct kvm_vcpu *vcpu)
++{
++	if (kvm_vcpu_wake_up(vcpu))
++		return;
++
++	if (kvm_request_needs_ipi(vcpu, KVM_REQUEST_WAIT))
++		smp_call_function_single(vcpu->cpu, ack_flush, NULL, 1);
++}
++EXPORT_SYMBOL_GPL(kvm_vcpu_kick_and_wait);
++
+ int kvm_vcpu_yield_to(struct kvm_vcpu *target)
+ {
+ 	struct pid *pid;
