@@ -1,47 +1,56 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V2 vhost next 10/10] vdpa/mlx5: Add VDPA driver for
- supported mlx5 devices
-Date: Tue, 21 Jul 2020 13:51:54 +0800
-Message-ID: <73209efd-f513-fec2-e4f7-51e71f08c9fe@redhat.com>
-References: <20200720071416.32112-1-eli@mellanox.com>
- <20200720071416.32112-11-eli@mellanox.com>
+From: Shile Zhang <shile.zhang@linux.alibaba.com>
+Subject: [PATCH v2] virtio_ring: use alloc_pages_node for NUMA-aware allocation
+Date: Tue, 21 Jul 2020 15:00:13 +0800
+Message-ID: <20200721070013.62894-1-shile.zhang@linux.alibaba.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200720071416.32112-11-eli@mellanox.com>
-Content-Language: en-US
 Sender: linux-kernel-owner@vger.kernel.org
-To: Eli Cohen <eli@mellanox.com>, mst@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Cc: shahafs@mellanox.com, saeedm@mellanox.com, parav@mellanox.com
+To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org, Shile Zhang <shile.zhang@linux.alibaba.com>, kernel test robot <lkp@intel.com>, Jiang Liu <liuj97@gmail.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
+Use alloc_pages_node() allocate memory for vring queue with proper
+NUMA affinity.
 
-On 2020/7/20 下午3:14, Eli Cohen wrote:
-> Add a front end VDPA driver that registers in the VDPA bus and provides
-> networking to a guest. The VDPA driver creates the necessary resources
-> on the VF it is driving such that data path will be offloaded.
->
-> Notifications are being communicated through the driver.
->
-> Currently, only VFs are supported. In subsequent patches we will have
-> devlink support to control which VF is used for VDPA and which function
-> is used for regular networking.
->
-> Reviewed-by: Parav Pandit<parav@mellanox.com>
-> Signed-off-by: Eli Cohen<eli@mellanox.com>
-> ---
-> Changes from V0:
-> 1. Fix include path usage
-> 2. Fix use after free in qp_create()
-> 3. Consistently use mvq->initialized to check if a vq was initialized.
-> 4. Remove unused local variable.
-> 5. Defer modifyig vq to ready to driver ok
-> 6. suspend hardware vq in set_vq_ready(0)
-> 7. Remove reservation for control VQ since it multi queue is not supported in this version
-> 8. Avoid call put_device() since this is not a pci device driver.
+Reported-by: kernel test robot <lkp@intel.com>
+Suggested-by: Jiang Liu <liuj97@gmail.com>
+Signed-off-by: Shile Zhang <shile.zhang@linux.alibaba.com>
+---
+Changelog
+v1 -> v2:
+- fixed compile warning reported by LKP.
+---
+ drivers/virtio/virtio_ring.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-
-Looks good to me.
-
-Acked-by: Jason Wang <jasowang@redhat.com>
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index 58b96baa8d48..d38fd6872c8c 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -276,9 +276,11 @@ static void *vring_alloc_queue(struct virtio_device *vdev, size_t size,
+ 		return dma_alloc_coherent(vdev->dev.parent, size,
+ 					  dma_handle, flag);
+ 	} else {
+-		void *queue = alloc_pages_exact(PAGE_ALIGN(size), flag);
+-
+-		if (queue) {
++		void *queue = NULL;
++		struct page *page = alloc_pages_node(dev_to_node(vdev->dev.parent),
++						     flag, get_order(size));
++		if (page) {
++			queue = page_address(page);
+ 			phys_addr_t phys_addr = virt_to_phys(queue);
+ 			*dma_handle = (dma_addr_t)phys_addr;
+ 
+@@ -308,7 +310,7 @@ static void vring_free_queue(struct virtio_device *vdev, size_t size,
+ 	if (vring_use_dma_api(vdev))
+ 		dma_free_coherent(vdev->dev.parent, size, queue, dma_handle);
+ 	else
+-		free_pages_exact(queue, PAGE_ALIGN(size));
++		free_pages((unsigned long)queue, get_order(size));
+ }
+ 
+ /*
+-- 
+2.24.0.rc2
