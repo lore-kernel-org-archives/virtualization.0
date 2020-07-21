@@ -1,75 +1,352 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH v9 25/84] KVM: x86: add .gpt_translation_fault()
-Date: Wed, 22 Jul 2020 00:08:23 +0300
-Message-ID: <20200721210922.7646-26-alazar@bitdefender.com>
+Subject: [PATCH v9 55/84] KVM: introspection: add KVMI_VCPU_CONTROL_EVENTS
+Date: Wed, 22 Jul 2020 00:08:53 +0300
+Message-ID: <20200721210922.7646-56-alazar@bitdefender.com>
 References: <20200721210922.7646-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200721210922.7646-1-alazar@bitdefender.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Mihai=20Don=C8=9Bu?= <mdontu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogTWloYWkgRG9uyJt1IDxtZG9udHVAYml0ZGVmZW5kZXIuY29tPgoKVGhpcyBmdW5jdGlv
-biBpcyBuZWVkZWQgZm9yIHRoZSBLVk1JX0VWRU5UX1BGIGV2ZW50LCB0byBhdm9pZCBzZW5kaW5n
-CnN1Y2ggZXZlbnRzIHRvIHRoZSBpbnRyb3NwZWN0aW9uIHRvb2wgaWYgY2F1c2VkIGJ5IGEgZ3Vl
-c3QgcGFnZSB0YWJsZSB3YWxrLgoKVGhlIGNvZGUgcGF0aCBpczogZW11bGF0b3IgLT4ge3JlYWQs
-d3JpdGUsZmV0Y2h9IGNhbGxiYWNrcyAtPiBwYWdlIHRyYWNraW5nCi0+IHBhZ2UgdHJhY2tpbmcg
-Y2FsbGJhY2tzIC0+IEtWTUlfRVZFTlRfUEYuCgpTaWduZWQtb2ZmLWJ5OiBNaWhhaSBEb27Im3Ug
-PG1kb250dUBiaXRkZWZlbmRlci5jb20+ClNpZ25lZC1vZmYtYnk6IEFkYWxiZXJ0IExhesSDciA8
-YWxhemFyQGJpdGRlZmVuZGVyLmNvbT4KLS0tCiBhcmNoL3g4Ni9pbmNsdWRlL2FzbS9rdm1faG9z
-dC5oIHwgIDEgKwogYXJjaC94ODYva3ZtL3N2bS9zdm0uYyAgICAgICAgICB8IDEyICsrKysrKysr
-KysrKwogYXJjaC94ODYva3ZtL3ZteC92bXguYyAgICAgICAgICB8ICA4ICsrKysrKysrCiAzIGZp
-bGVzIGNoYW5nZWQsIDIxIGluc2VydGlvbnMoKykKCmRpZmYgLS1naXQgYS9hcmNoL3g4Ni9pbmNs
-dWRlL2FzbS9rdm1faG9zdC5oIGIvYXJjaC94ODYvaW5jbHVkZS9hc20va3ZtX2hvc3QuaAppbmRl
-eCBmYjQxMTk5YjMzZmMuLmE5MDVlMTRlNGM3NSAxMDA2NDQKLS0tIGEvYXJjaC94ODYvaW5jbHVk
-ZS9hc20va3ZtX2hvc3QuaAorKysgYi9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9rdm1faG9zdC5oCkBA
-IC0xMjkzLDYgKzEyOTMsNyBAQCBzdHJ1Y3Qga3ZtX3g4Nl9vcHMgewogCiAJdTY0ICgqZmF1bHRf
-Z2xhKShzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpOwogCWJvb2wgKCpzcHRfZmF1bHQpKHN0cnVjdCBr
-dm1fdmNwdSAqdmNwdSk7CisJYm9vbCAoKmdwdF90cmFuc2xhdGlvbl9mYXVsdCkoc3RydWN0IGt2
-bV92Y3B1ICp2Y3B1KTsKIH07CiAKIHN0cnVjdCBrdm1feDg2X25lc3RlZF9vcHMgewpkaWZmIC0t
-Z2l0IGEvYXJjaC94ODYva3ZtL3N2bS9zdm0uYyBiL2FyY2gveDg2L2t2bS9zdm0vc3ZtLmMKaW5k
-ZXggN2VjZmExMGRjZTVkLi41ODA5OTc3MDFiMWMgMTAwNjQ0Ci0tLSBhL2FyY2gveDg2L2t2bS9z
-dm0vc3ZtLmMKKysrIGIvYXJjaC94ODYva3ZtL3N2bS9zdm0uYwpAQCAtNDA5Nyw2ICs0MDk3LDE3
-IEBAIHN0YXRpYyBib29sIHN2bV9zcHRfZmF1bHQoc3RydWN0IGt2bV92Y3B1ICp2Y3B1KQogCXJl
-dHVybiAodm1jYi0+Y29udHJvbC5leGl0X2NvZGUgPT0gU1ZNX0VYSVRfTlBGKTsKIH0KIAorc3Rh
-dGljIGJvb2wgc3ZtX2dwdF90cmFuc2xhdGlvbl9mYXVsdChzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUp
-Cit7CisJc3RydWN0IHZjcHVfc3ZtICpzdm0gPSB0b19zdm0odmNwdSk7CisJc3RydWN0IHZtY2Ig
-KnZtY2IgPSBnZXRfaG9zdF92bWNiKHN2bSk7CisKKwlpZiAodm1jYi0+Y29udHJvbC5leGl0X2lu
-Zm9fMSAmIFBGRVJSX0dVRVNUX1BBR0VfTUFTSykKKwkJcmV0dXJuIHRydWU7CisKKwlyZXR1cm4g
-ZmFsc2U7Cit9CisKIHN0YXRpYyBzdHJ1Y3Qga3ZtX3g4Nl9vcHMgc3ZtX3g4Nl9vcHMgX19pbml0
-ZGF0YSA9IHsKIAkuaGFyZHdhcmVfdW5zZXR1cCA9IHN2bV9oYXJkd2FyZV90ZWFyZG93biwKIAku
-aGFyZHdhcmVfZW5hYmxlID0gc3ZtX2hhcmR3YXJlX2VuYWJsZSwKQEAgLTQyMjYsNiArNDIzNyw3
-IEBAIHN0YXRpYyBzdHJ1Y3Qga3ZtX3g4Nl9vcHMgc3ZtX3g4Nl9vcHMgX19pbml0ZGF0YSA9IHsK
-IAogCS5mYXVsdF9nbGEgPSBzdm1fZmF1bHRfZ2xhLAogCS5zcHRfZmF1bHQgPSBzdm1fc3B0X2Zh
-dWx0LAorCS5ncHRfdHJhbnNsYXRpb25fZmF1bHQgPSBzdm1fZ3B0X3RyYW5zbGF0aW9uX2ZhdWx0
-LAogfTsKIAogc3RhdGljIHN0cnVjdCBrdm1feDg2X2luaXRfb3BzIHN2bV9pbml0X29wcyBfX2lu
-aXRkYXRhID0gewpkaWZmIC0tZ2l0IGEvYXJjaC94ODYva3ZtL3ZteC92bXguYyBiL2FyY2gveDg2
-L2t2bS92bXgvdm14LmMKaW5kZXggMTdiODgzNDVkZmI1Li5hMDQzZTNlN2QwOWEgMTAwNjQ0Ci0t
-LSBhL2FyY2gveDg2L2t2bS92bXgvdm14LmMKKysrIGIvYXJjaC94ODYva3ZtL3ZteC92bXguYwpA
-QCAtNzkxNiw2ICs3OTE2LDEzIEBAIHN0YXRpYyBib29sIHZteF9zcHRfZmF1bHQoc3RydWN0IGt2
-bV92Y3B1ICp2Y3B1KQogCXJldHVybiAodm14LT5leGl0X3JlYXNvbiA9PSBFWElUX1JFQVNPTl9F
-UFRfVklPTEFUSU9OKTsKIH0KIAorc3RhdGljIGJvb2wgdm14X2dwdF90cmFuc2xhdGlvbl9mYXVs
-dChzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpCit7CisJaWYgKHZjcHUtPmFyY2guZXhpdF9xdWFsaWZp
-Y2F0aW9uICYgRVBUX1ZJT0xBVElPTl9HVkFfVFJBTlNMQVRFRCkKKwkJcmV0dXJuIGZhbHNlOwor
-CXJldHVybiB0cnVlOworfQorCiBzdGF0aWMgc3RydWN0IGt2bV94ODZfb3BzIHZteF94ODZfb3Bz
-IF9faW5pdGRhdGEgPSB7CiAJLmhhcmR3YXJlX3Vuc2V0dXAgPSBoYXJkd2FyZV91bnNldHVwLAog
-CkBAIC04MDU1LDYgKzgwNjIsNyBAQCBzdGF0aWMgc3RydWN0IGt2bV94ODZfb3BzIHZteF94ODZf
-b3BzIF9faW5pdGRhdGEgPSB7CiAKIAkuZmF1bHRfZ2xhID0gdm14X2ZhdWx0X2dsYSwKIAkuc3B0
-X2ZhdWx0ID0gdm14X3NwdF9mYXVsdCwKKwkuZ3B0X3RyYW5zbGF0aW9uX2ZhdWx0ID0gdm14X2dw
-dF90cmFuc2xhdGlvbl9mYXVsdCwKIH07CiAKIHN0YXRpYyBfX2luaXQgaW50IGhhcmR3YXJlX3Nl
-dHVwKHZvaWQpCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
-b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
-aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+From: Mihai Donțu <mdontu@bitdefender.com>
+
+By default, all introspection vCPU events are disabled. The introspection
+tool must explicitly enable the vCPU events it wants to receive. With
+this command (KVMI_VCPU_CONTROL_EVENTS) it can enable/disable any vCPU
+event if allowed by the device manager.
+
+Some vCPU events doesn't have to be explicitly enabled (and can't be
+disabled) with this command because they are implicitly enabled/requested
+by the use of certain commands. For example, if the introspection
+tool uses the KVMI_VCPU_PAUSE command, it wants to receive an
+KVMI_EVENT_PAUSE_VCPU event.
+
+Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
+Co-developed-by: Adalbert Lazăr <alazar@bitdefender.com>
+Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
+---
+ Documentation/virt/kvm/kvmi.rst               | 51 +++++++++++++++++-
+ include/linux/kvmi_host.h                     |  2 +
+ include/uapi/linux/kvmi.h                     | 12 ++++-
+ .../testing/selftests/kvm/x86_64/kvmi_test.c  | 54 +++++++++++++++++++
+ virt/kvm/introspection/kvmi.c                 | 26 +++++++++
+ virt/kvm/introspection/kvmi_int.h             |  3 ++
+ virt/kvm/introspection/kvmi_msg.c             | 26 ++++++++-
+ 7 files changed, 169 insertions(+), 5 deletions(-)
+
+diff --git a/Documentation/virt/kvm/kvmi.rst b/Documentation/virt/kvm/kvmi.rst
+index 06c1cb34209e..4393ce89b2fa 100644
+--- a/Documentation/virt/kvm/kvmi.rst
++++ b/Documentation/virt/kvm/kvmi.rst
+@@ -377,6 +377,9 @@ the following events::
+ 
+ 	KVMI_EVENT_UNHOOK
+ 
++The vCPU events (e.g. *KVMI_EVENT_PAUSE_VCPU*) are controlled with
++the *KVMI_VCPU_CONTROL_EVENTS* command.
++
+ :Errors:
+ 
+ * -KVM_EINVAL - the padding is not zero
+@@ -520,12 +523,58 @@ command) before returning to guest.
+                 *KVMI_EVENT_PAUSE_VCPU* events
+ * -KVM_EPERM  - the *KVMI_EVENT_PAUSE_VCPU* event is disallowed
+ 
++10. KVMI_VCPU_CONTROL_EVENTS
++----------------------------
++
++:Architectures: all
++:Versions: >= 1
++:Parameters:
++
++::
++
++	struct kvmi_vcpu_hdr;
++	struct kvmi_vcpu_control_events {
++		__u16 event_id;
++		__u8 enable;
++		__u8 padding1;
++		__u32 padding2;
++	};
++
++:Returns:
++
++::
++
++	struct kvmi_error_code
++
++Enables/disables vCPU introspection events.
++
++When an event is enabled, the introspection tool is notified and
++must reply with: continue, retry, crash, etc. (see **Events** below).
++
++The following vCPU events doesn't have to be enabled and can't be disabled,
++because these are sent as a result of certain commands (but they can be
++disallowed by the device manager) ::
++
++	KVMI_EVENT_PAUSE_VCPU
++
++The VM events (e.g. *KVMI_EVENT_UNHOOK*) are controlled with
++the *KVMI_VM_CONTROL_EVENTS* command.
++
++:Errors:
++
++* -KVM_EINVAL - the padding is not zero
++* -KVM_EINVAL - the selected vCPU is invalid
++* -KVM_EINVAL - the event ID is unknown (use *KVMI_VM_CHECK_EVENT* first)
++* -KVM_EPERM - the access is disallowed (use *KVMI_VM_CHECK_EVENT* first)
++* -KVM_EAGAIN - the selected vCPU can't be introspected yet
++
+ Events
+ ======
+ 
+ All introspection events (VM or vCPU related) are sent
+ using the *KVMI_EVENT* message id. No event will be sent unless
+-it is explicitly enabled or requested (eg. *KVMI_EVENT_PAUSE_VCPU*).
++it is explicitly enabled (see *KVMI_VM_CONTROL_EVENTS*
++and *KVMI_VCPU_CONTROL_EVENTS*) or requested (eg. *KVMI_EVENT_PAUSE_VCPU*).
+ 
+ The *KVMI_EVENT_UNHOOK* event doesn't have a reply and share the kvmi_event
+ structure, for consistency with the vCPU events.
+diff --git a/include/linux/kvmi_host.h b/include/linux/kvmi_host.h
+index a87f0322c584..9625c8f19379 100644
+--- a/include/linux/kvmi_host.h
++++ b/include/linux/kvmi_host.h
+@@ -31,6 +31,8 @@ struct kvm_vcpu_introspection {
+ 
+ 	struct kvmi_vcpu_reply reply;
+ 	bool waiting_for_reply;
++
++	unsigned long *ev_enable_mask;
+ };
+ 
+ struct kvm_introspection {
+diff --git a/include/uapi/linux/kvmi.h b/include/uapi/linux/kvmi.h
+index 5a5b01df7e3e..9ebf17fa9564 100644
+--- a/include/uapi/linux/kvmi.h
++++ b/include/uapi/linux/kvmi.h
+@@ -25,8 +25,9 @@ enum {
+ 	KVMI_VM_READ_PHYSICAL  = 6,
+ 	KVMI_VM_WRITE_PHYSICAL = 7,
+ 
+-	KVMI_VCPU_GET_INFO     = 8,
+-	KVMI_VCPU_PAUSE        = 9,
++	KVMI_VCPU_GET_INFO       = 8,
++	KVMI_VCPU_PAUSE          = 9,
++	KVMI_VCPU_CONTROL_EVENTS = 10,
+ 
+ 	KVMI_NUM_MESSAGES
+ };
+@@ -122,6 +123,13 @@ struct kvmi_vcpu_pause {
+ 	__u32 padding3;
+ };
+ 
++struct kvmi_vcpu_control_events {
++	__u16 event_id;
++	__u8 enable;
++	__u8 padding1;
++	__u32 padding2;
++};
++
+ struct kvmi_event {
+ 	__u16 size;
+ 	__u16 vcpu;
+diff --git a/tools/testing/selftests/kvm/x86_64/kvmi_test.c b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
+index 5c5c5018832d..da6a06fa0baa 100644
+--- a/tools/testing/selftests/kvm/x86_64/kvmi_test.c
++++ b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
+@@ -834,6 +834,59 @@ static void test_pause(struct kvm_vm *vm)
+ 	allow_event(vm, KVMI_EVENT_PAUSE_VCPU);
+ }
+ 
++static void cmd_vcpu_control_event(struct kvm_vm *vm, __u16 event_id,
++				   __u8 enable, __u16 padding,
++				   int expected_err)
++{
++	struct {
++		struct kvmi_msg_hdr hdr;
++		struct kvmi_vcpu_hdr vcpu_hdr;
++		struct kvmi_vcpu_control_events cmd;
++	} req = {};
++	int r;
++
++	req.cmd.event_id = event_id;
++	req.cmd.enable = enable;
++	req.cmd.padding1 = padding;
++	req.cmd.padding2 = padding;
++
++	r = do_vcpu0_command(vm, KVMI_VCPU_CONTROL_EVENTS,
++			     &req.hdr, sizeof(req), NULL, 0);
++	TEST_ASSERT(r == expected_err,
++		"KVMI_VCPU_CONTROL_EVENTS failed to enable vCPU event %d, error %d (%s), expected error %d\n",
++		event_id, -r, kvm_strerror(-r), expected_err);
++}
++
++
++static void enable_vcpu_event(struct kvm_vm *vm, __u16 event_id)
++{
++	cmd_vcpu_control_event(vm, event_id, 1, 0, 0);
++}
++
++static void disable_vcpu_event(struct kvm_vm *vm, __u16 event_id)
++{
++	cmd_vcpu_control_event(vm, event_id, 0, 0, 0);
++}
++
++static void test_cmd_vcpu_control_events(struct kvm_vm *vm)
++{
++	__u16 id = KVMI_EVENT_PAUSE_VCPU, invalid_id = 0xffff;
++	__u16 padding = 1, no_padding = 0;
++	__u8 enable = 1, enable_inval = 2;
++
++	enable_vcpu_event(vm, id);
++	disable_vcpu_event(vm, id);
++
++	cmd_vcpu_control_event(vm, id, enable, padding, -KVM_EINVAL);
++	cmd_vcpu_control_event(vm, id, enable_inval, no_padding, -KVM_EINVAL);
++	cmd_vcpu_control_event(vm, invalid_id, enable, no_padding, -KVM_EINVAL);
++
++	disallow_event(vm, id);
++	cmd_vcpu_control_event(vm, id, enable, no_padding, -KVM_EPERM);
++	allow_event(vm, id);
++
++}
++
+ static void test_introspection(struct kvm_vm *vm)
+ {
+ 	srandom(time(0));
+@@ -850,6 +903,7 @@ static void test_introspection(struct kvm_vm *vm)
+ 	test_memory_access(vm);
+ 	test_cmd_vcpu_get_info(vm);
+ 	test_pause(vm);
++	test_cmd_vcpu_control_events(vm);
+ 
+ 	unhook_introspection(vm);
+ }
+diff --git a/virt/kvm/introspection/kvmi.c b/virt/kvm/introspection/kvmi.c
+index 9e0014bbf9a6..286a81e55d9d 100644
+--- a/virt/kvm/introspection/kvmi.c
++++ b/virt/kvm/introspection/kvmi.c
+@@ -73,6 +73,11 @@ bool kvmi_is_known_vm_event(u8 id)
+ 	return id < KVMI_NUM_EVENTS && test_bit(id, Kvmi_known_vm_events);
+ }
+ 
++bool kvmi_is_known_vcpu_event(u8 id)
++{
++	return id < KVMI_NUM_EVENTS && test_bit(id, Kvmi_known_vcpu_events);
++}
++
+ static bool is_vm_event_enabled(struct kvm_introspection *kvmi, int event)
+ {
+ 	return test_bit(event, kvmi->vm_event_enable_mask);
+@@ -179,6 +184,12 @@ static bool alloc_vcpui(struct kvm_vcpu *vcpu)
+ 	if (!vcpui)
+ 		return false;
+ 
++	vcpui->ev_enable_mask = bitmap_zalloc(KVMI_NUM_EVENTS, GFP_KERNEL);
++	if (!vcpui->ev_enable_mask) {
++		kfree(vcpu);
++		return false;
++	}
++
+ 	INIT_LIST_HEAD(&vcpui->job_list);
+ 	spin_lock_init(&vcpui->job_lock);
+ 
+@@ -214,6 +225,8 @@ static void free_vcpui(struct kvm_vcpu *vcpu)
+ 
+ 	free_vcpu_jobs(vcpui);
+ 
++	bitmap_free(vcpui->ev_enable_mask);
++
+ 	kfree(vcpui);
+ 	vcpu->kvmi = NULL;
+ }
+@@ -613,6 +626,19 @@ int kvmi_cmd_vm_control_events(struct kvm_introspection *kvmi,
+ 	return 0;
+ }
+ 
++int kvmi_cmd_vcpu_control_events(struct kvm_vcpu *vcpu,
++				 unsigned int event_id, bool enable)
++{
++	struct kvm_vcpu_introspection *vcpui = VCPUI(vcpu);
++
++	if (enable)
++		set_bit(event_id, vcpui->ev_enable_mask);
++	else
++		clear_bit(event_id, vcpui->ev_enable_mask);
++
++	return 0;
++}
++
+ static unsigned long gfn_to_hva_safe(struct kvm *kvm, gfn_t gfn)
+ {
+ 	unsigned long hva;
+diff --git a/virt/kvm/introspection/kvmi_int.h b/virt/kvm/introspection/kvmi_int.h
+index f73596032883..57a62ebadd94 100644
+--- a/virt/kvm/introspection/kvmi_int.h
++++ b/virt/kvm/introspection/kvmi_int.h
+@@ -35,12 +35,15 @@ void kvmi_msg_free(void *addr);
+ bool kvmi_is_command_allowed(struct kvm_introspection *kvmi, u16 id);
+ bool kvmi_is_known_event(u8 id);
+ bool kvmi_is_known_vm_event(u8 id);
++bool kvmi_is_known_vcpu_event(u8 id);
+ int kvmi_add_job(struct kvm_vcpu *vcpu,
+ 		 void (*fct)(struct kvm_vcpu *vcpu, void *ctx),
+ 		 void *ctx, void (*free_fct)(void *ctx));
+ void kvmi_run_jobs(struct kvm_vcpu *vcpu);
+ int kvmi_cmd_vm_control_events(struct kvm_introspection *kvmi,
+ 				unsigned int event_id, bool enable);
++int kvmi_cmd_vcpu_control_events(struct kvm_vcpu *vcpu,
++				 unsigned int event_id, bool enable);
+ int kvmi_cmd_read_physical(struct kvm *kvm, u64 gpa, size_t size,
+ 			   int (*send)(struct kvm_introspection *,
+ 					const struct kvmi_msg_hdr*,
+diff --git a/virt/kvm/introspection/kvmi_msg.c b/virt/kvm/introspection/kvmi_msg.c
+index 1dcd3db75ff1..20ef4a44d3a2 100644
+--- a/virt/kvm/introspection/kvmi_msg.c
++++ b/virt/kvm/introspection/kvmi_msg.c
+@@ -397,6 +397,27 @@ static int handle_vcpu_event_reply(const struct kvmi_vcpu_msg_job *job,
+ 	return expected->error;
+ }
+ 
++static int handle_vcpu_control_events(const struct kvmi_vcpu_msg_job *job,
++				      const struct kvmi_msg_hdr *msg,
++				      const void *_req)
++{
++	struct kvm_introspection *kvmi = KVMI(job->vcpu->kvm);
++	const struct kvmi_vcpu_control_events *req = _req;
++	int ec;
++
++	if (req->padding1 || req->padding2 || req->enable > 1)
++		ec = -KVM_EINVAL;
++	else if (!kvmi_is_known_vcpu_event(req->event_id))
++		ec = -KVM_EINVAL;
++	else if (!is_event_allowed(kvmi, req->event_id))
++		ec = -KVM_EPERM;
++	else
++		ec = kvmi_cmd_vcpu_control_events(job->vcpu, req->event_id,
++						  req->enable == 1);
++
++	return kvmi_msg_vcpu_reply(job, msg, ec, NULL, 0);
++}
++
+ /*
+  * These functions are executed from the vCPU thread. The receiving thread
+  * passes the messages using a newly allocated 'struct kvmi_vcpu_msg_job'
+@@ -405,8 +426,9 @@ static int handle_vcpu_event_reply(const struct kvmi_vcpu_msg_job *job,
+  */
+ static int(*const msg_vcpu[])(const struct kvmi_vcpu_msg_job *,
+ 			      const struct kvmi_msg_hdr *, const void *) = {
+-	[KVMI_EVENT]         = handle_vcpu_event_reply,
+-	[KVMI_VCPU_GET_INFO] = handle_vcpu_get_info,
++	[KVMI_EVENT]               = handle_vcpu_event_reply,
++	[KVMI_VCPU_CONTROL_EVENTS] = handle_vcpu_control_events,
++	[KVMI_VCPU_GET_INFO]       = handle_vcpu_get_info,
+ };
+ 
+ static bool is_vcpu_command(u16 id)
