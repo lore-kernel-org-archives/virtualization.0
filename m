@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH v9 06/84] KVM: x86: add kvm_arch_vcpu_get_regs() and kvm_arch_vcpu_get_sregs()
-Date: Wed, 22 Jul 2020 00:08:04 +0300
-Message-ID: <20200721210922.7646-7-alazar@bitdefender.com>
+Subject: [PATCH v9 24/84] KVM: x86: add .spt_fault()
+Date: Wed, 22 Jul 2020 00:08:22 +0300
+Message-ID: <20200721210922.7646-25-alazar@bitdefender.com>
 References: <20200721210922.7646-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -15,59 +15,82 @@ List-Id: virtualization@lists.linuxfoundation.org
 
 From: Mihai Donțu <mdontu@bitdefender.com>
 
-These functions are used by the VM introspection code
-(for the KVMI_VCPU_GET_REGISTERS command and all events sending the vCPU
-registers to the introspection tool).
+This function is needed for the KVMI_EVENT_PF event, to avoid sending
+such events to the introspection tool if not caused by a SPT page fault.
+
+The code path is: emulator -> {read,write,fetch} callbacks -> page tracking
+-> page tracking callbacks -> KVMI_EVENT_PF.
 
 Signed-off-by: Mihai Donțu <mdontu@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- arch/x86/kvm/x86.c       | 10 ++++++++++
- include/linux/kvm_host.h |  3 +++
- 2 files changed, 13 insertions(+)
+ arch/x86/include/asm/kvm_host.h | 1 +
+ arch/x86/kvm/svm/svm.c          | 9 +++++++++
+ arch/x86/kvm/vmx/vmx.c          | 8 ++++++++
+ 3 files changed, 18 insertions(+)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 88c593f83b28..10410ebda034 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -8939,6 +8939,11 @@ int kvm_arch_vcpu_ioctl_get_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
- 	return 0;
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index ccf2804f46b9..fb41199b33fc 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1292,6 +1292,7 @@ struct kvm_x86_ops {
+ 	void (*migrate_timers)(struct kvm_vcpu *vcpu);
+ 
+ 	u64 (*fault_gla)(struct kvm_vcpu *vcpu);
++	bool (*spt_fault)(struct kvm_vcpu *vcpu);
+ };
+ 
+ struct kvm_x86_nested_ops {
+diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+index 86b670ff33dd..7ecfa10dce5d 100644
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -4089,6 +4089,14 @@ static u64 svm_fault_gla(struct kvm_vcpu *vcpu)
+ 	return svm->vcpu.arch.cr2 ? svm->vcpu.arch.cr2 : ~0ull;
  }
  
-+void kvm_arch_vcpu_get_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
++static bool svm_spt_fault(struct kvm_vcpu *vcpu)
 +{
-+	__get_regs(vcpu, regs);
++	struct vcpu_svm *svm = to_svm(vcpu);
++	struct vmcb *vmcb = get_host_vmcb(svm);
++
++	return (vmcb->control.exit_code == SVM_EXIT_NPF);
 +}
 +
- static void __set_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs)
- {
- 	vcpu->arch.emulate_regs_need_sync_from_vcpu = true;
-@@ -9034,6 +9039,11 @@ int kvm_arch_vcpu_ioctl_get_sregs(struct kvm_vcpu *vcpu,
- 	return 0;
+ static struct kvm_x86_ops svm_x86_ops __initdata = {
+ 	.hardware_unsetup = svm_hardware_teardown,
+ 	.hardware_enable = svm_hardware_enable,
+@@ -4217,6 +4225,7 @@ static struct kvm_x86_ops svm_x86_ops __initdata = {
+ 	.apic_init_signal_blocked = svm_apic_init_signal_blocked,
+ 
+ 	.fault_gla = svm_fault_gla,
++	.spt_fault = svm_spt_fault,
+ };
+ 
+ static struct kvm_x86_init_ops svm_init_ops __initdata = {
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index a04c46cde5b3..17b88345dfb5 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -7909,6 +7909,13 @@ static u64 vmx_fault_gla(struct kvm_vcpu *vcpu)
+ 	return ~0ull;
  }
  
-+void kvm_arch_vcpu_get_sregs(struct kvm_vcpu *vcpu, struct kvm_sregs *sregs)
++static bool vmx_spt_fault(struct kvm_vcpu *vcpu)
 +{
-+	__get_sregs(vcpu, sregs);
++	const struct vcpu_vmx *vmx = to_vmx(vcpu);
++
++	return (vmx->exit_reason == EXIT_REASON_EPT_VIOLATION);
 +}
 +
- int kvm_arch_vcpu_ioctl_get_mpstate(struct kvm_vcpu *vcpu,
- 				    struct kvm_mp_state *mp_state)
- {
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index a4249fc88fc2..23ab4932f7e7 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -864,9 +864,12 @@ int kvm_arch_vcpu_ioctl_translate(struct kvm_vcpu *vcpu,
- 				    struct kvm_translation *tr);
+ static struct kvm_x86_ops vmx_x86_ops __initdata = {
+ 	.hardware_unsetup = hardware_unsetup,
  
- int kvm_arch_vcpu_ioctl_get_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs);
-+void kvm_arch_vcpu_get_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs);
- int kvm_arch_vcpu_ioctl_set_regs(struct kvm_vcpu *vcpu, struct kvm_regs *regs);
- int kvm_arch_vcpu_ioctl_get_sregs(struct kvm_vcpu *vcpu,
- 				  struct kvm_sregs *sregs);
-+void kvm_arch_vcpu_get_sregs(struct kvm_vcpu *vcpu,
-+				  struct kvm_sregs *sregs);
- int kvm_arch_vcpu_ioctl_set_sregs(struct kvm_vcpu *vcpu,
- 				  struct kvm_sregs *sregs);
- int kvm_arch_vcpu_ioctl_get_mpstate(struct kvm_vcpu *vcpu,
+@@ -8047,6 +8054,7 @@ static struct kvm_x86_ops vmx_x86_ops __initdata = {
+ 	.migrate_timers = vmx_migrate_timers,
+ 
+ 	.fault_gla = vmx_fault_gla,
++	.spt_fault = vmx_spt_fault,
+ };
+ 
+ static __init int hardware_setup(void)
