@@ -1,204 +1,199 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH v9 81/84] KVM: introspection: add KVMI_EVENT_SINGLESTEP
-Date: Wed, 22 Jul 2020 00:09:19 +0300
-Message-ID: <20200721210922.7646-82-alazar@bitdefender.com>
+Subject: [PATCH v9 19/84] KVM: vmx: pass struct kvm_vcpu to the intercept msr related functions
+Date: Wed, 22 Jul 2020 00:08:17 +0300
+Message-ID: <20200721210922.7646-20-alazar@bitdefender.com>
 References: <20200721210922.7646-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200721210922.7646-1-alazar@bitdefender.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogTmljdciZb3IgQ8OuyJt1IDxuY2l0dUBiaXRkZWZlbmRlci5jb20+CgpUaGlzIGV2ZW50
-IGlzIHNlbnQgYWZ0ZXIgZWFjaCBpbnN0cnVjdGlvbiB3aGVuIHRoZSBzaW5nbGVzdGVwIGhhcyBi
-ZWVuCmVuYWJsZWQgZm9yIGEgdkNQVS4KClNpZ25lZC1vZmYtYnk6IE5pY3XImW9yIEPDrsibdSA8
-bmNpdHVAYml0ZGVmZW5kZXIuY29tPgpDby1kZXZlbG9wZWQtYnk6IEFkYWxiZXJ0IExhesSDciA8
-YWxhemFyQGJpdGRlZmVuZGVyLmNvbT4KU2lnbmVkLW9mZi1ieTogQWRhbGJlcnQgTGF6xINyIDxh
-bGF6YXJAYml0ZGVmZW5kZXIuY29tPgotLS0KIERvY3VtZW50YXRpb24vdmlydC9rdm0va3ZtaS5y
-c3QgICAgICAgICAgICAgICB8IDMxICsrKysrKysrKwogYXJjaC94ODYva3ZtL3ZteC92bXguYyAg
-ICAgICAgICAgICAgICAgICAgICAgIHwgIDYgKysKIGluY2x1ZGUvbGludXgva3ZtaV9ob3N0Lmgg
-ICAgICAgICAgICAgICAgICAgICB8ICA0ICsrCiBpbmNsdWRlL3VhcGkvbGludXgva3ZtaS5oICAg
-ICAgICAgICAgICAgICAgICAgfCAgNiArKwogLi4uL3Rlc3Rpbmcvc2VsZnRlc3RzL2t2bS94ODZf
-NjQva3ZtaV90ZXN0LmMgIHwgNjUgKysrKysrKysrKysrKysrKystLQogdmlydC9rdm0vaW50cm9z
-cGVjdGlvbi9rdm1pLmMgICAgICAgICAgICAgICAgIHwgNjAgKysrKysrKysrKysrKysrKysKIHZp
-cnQva3ZtL2ludHJvc3BlY3Rpb24va3ZtaV9tc2cuYyAgICAgICAgICAgICB8ICA1ICsrCiA3IGZp
-bGVzIGNoYW5nZWQsIDE3MiBpbnNlcnRpb25zKCspLCA1IGRlbGV0aW9ucygtKQoKZGlmZiAtLWdp
-dCBhL0RvY3VtZW50YXRpb24vdmlydC9rdm0va3ZtaS5yc3QgYi9Eb2N1bWVudGF0aW9uL3ZpcnQv
-a3ZtL2t2bWkucnN0CmluZGV4IDBhMDdlZjEwMTMwMi4uM2M0ODFjMWIyMTg2IDEwMDY0NAotLS0g
-YS9Eb2N1bWVudGF0aW9uL3ZpcnQva3ZtL2t2bWkucnN0CisrKyBiL0RvY3VtZW50YXRpb24vdmly
-dC9rdm0va3ZtaS5yc3QKQEAgLTU3Niw2ICs1NzYsNyBAQCBiZWNhdXNlIHRoZXNlIGFyZSBzZW50
-IGFzIGEgcmVzdWx0IG9mIGNlcnRhaW4gY29tbWFuZHMgKGJ1dCB0aGV5IGNhbiBiZQogZGlzYWxs
-b3dlZCBieSB0aGUgZGV2aWNlIG1hbmFnZXIpIDo6CiAKIAlLVk1JX0VWRU5UX1BBVVNFX1ZDUFUK
-KwlLVk1JX0VWRU5UX1NJTkdMRVNURVAKIAlLVk1JX0VWRU5UX1RSQVAKIAogVGhlIFZNIGV2ZW50
-cyAoZS5nLiAqS1ZNSV9FVkVOVF9VTkhPT0sqKSBhcmUgY29udHJvbGxlZCB3aXRoCkBAIC0xMDc1
-LDggKzEwNzYsMTIgQEAgRW5hYmxlcy9kaXNhYmxlcyBzaW5nbGVzdGVwIGZvciB0aGUgc2VsZWN0
-ZWQgdkNQVS4KIFRoZSBpbnRyb3NwZWN0aW9uIHRvb2wgc2hvdWxkIHVzZSAqS1ZNSV9HRVRfVkVS
-U0lPTiosIHRvIGNoZWNrCiBpZiB0aGUgaGFyZHdhcmUgc3VwcG9ydHMgc2luZ2xlc3RlcCAoc2Vl
-ICoqS1ZNSV9HRVRfVkVSU0lPTioqKS4KIAorQWZ0ZXIgZXZlcnkgaW5zdHJ1Y3Rpb24sIGEgKktW
-TUlfRVZFTlRfU0lOR0xFU1RFUCogZXZlbnQgaXMgc2VudAordG8gdGhlIGludHJvc3BlY3Rpb24g
-dG9vbC4KKwogOkVycm9yczoKIAorKiAtS1ZNX0VQRVJNICAtIHRoZSAqS1ZNSV9FVkVOVF9TSU5H
-TEVTVEVQKiBldmVudCBpcyBkaXNhbGxvd2VkCiAqIC1LVk1fRU9QTk9UU1VQUCAtIHRoZSBoYXJk
-d2FyZSBkb2Vzbid0IHN1cHBvcnQgc2luZ2xlc3RlcAogKiAtS1ZNX0VJTlZBTCAtIHRoZSBwYWRk
-aW5nIGlzIG5vdCB6ZXJvCiAqIC1LVk1fRUFHQUlOIC0gdGhlIHNlbGVjdGVkIHZDUFUgY2FuJ3Qg
-YmUgaW50cm9zcGVjdGVkIHlldApAQCAtMTQ4MSwzICsxNDg2LDI5IEBAIGVtdWxhdGlvbikuCiBU
-aGUgKlJFVFJZKiBhY3Rpb24gaXMgdXNlZCBieSB0aGUgaW50cm9zcGVjdGlvbiB0b29sIHRvIHJl
-dHJ5IHRoZQogZXhlY3V0aW9uIG9mIHRoZSBjdXJyZW50IGluc3RydWN0aW9uLCB1c3VhbGx5IGJl
-Y2F1c2UgaXQgY2hhbmdlZCB0aGUKIGluc3RydWN0aW9uIHBvaW50ZXIgb3IgdGhlIHBhZ2UgcmVz
-dHJpY3Rpb25zLgorCisxMS4gS1ZNSV9FVkVOVF9TSU5HTEVTVEVQCistLS0tLS0tLS0tLS0tLS0t
-LS0tLS0tLS0tCisKKzpBcmNoaXRlY3R1cmVzOiB4ODYKKzpWZXJzaW9uczogPj0gMQorOkFjdGlv
-bnM6IENPTlRJTlVFLCBDUkFTSAorOlBhcmFtZXRlcnM6CisKKzo6CisKKwlzdHJ1Y3Qga3ZtaV9l
-dmVudDsKKworOlJldHVybnM6CisKKzo6CisKKwlzdHJ1Y3Qga3ZtaV92Y3B1X2hkcjsKKwlzdHJ1
-Y3Qga3ZtaV9ldmVudF9yZXBseTsKKwlzdHJ1Y3Qga3ZtaV9ldmVudF9zaW5nbGVzdGVwIHsKKwkJ
-X191OCBmYWlsZWQ7CisJCV9fdTggcGFkZGluZ1s3XTsKKwl9OworCitUaGlzIGV2ZW50IGlzIHNl
-bnQgYWZ0ZXIgZWFjaCBpbnN0cnVjdGlvbiwgYXMgbG9uZyBhcyB0aGUgc2luZ2xlc3RlcCBpcwor
-ZW5hYmxlZCBmb3IgdGhlIGN1cnJlbnQgdkNQVSAoc2VlICoqS1ZNSV9WQ1BVX0NPTlRST0xfU0lO
-R0xFU1RFUCoqKS4KZGlmZiAtLWdpdCBhL2FyY2gveDg2L2t2bS92bXgvdm14LmMgYi9hcmNoL3g4
-Ni9rdm0vdm14L3ZteC5jCmluZGV4IGY1NzU4N2RkYjNiZS4uOGM5Y2NkMWJhMGYwIDEwMDY0NAot
-LS0gYS9hcmNoL3g4Ni9rdm0vdm14L3ZteC5jCisrKyBiL2FyY2gveDg2L2t2bS92bXgvdm14LmMK
-QEAgLTU1OTgsNiArNTU5OCw3IEBAIHN0YXRpYyBpbnQgaGFuZGxlX2ludmFsaWRfb3Aoc3RydWN0
-IGt2bV92Y3B1ICp2Y3B1KQogCiBzdGF0aWMgaW50IGhhbmRsZV9tb25pdG9yX3RyYXAoc3RydWN0
-IGt2bV92Y3B1ICp2Y3B1KQogeworCWt2bWlfc2luZ2xlc3RlcF9kb25lKHZjcHUpOwogCXJldHVy
-biAxOwogfQogCkBAIC02MTczLDYgKzYxNzQsMTEgQEAgc3RhdGljIGludCB2bXhfaGFuZGxlX2V4
-aXQoc3RydWN0IGt2bV92Y3B1ICp2Y3B1LCBmYXN0cGF0aF90IGV4aXRfZmFzdHBhdGgpCiAJCX0K
-IAl9CiAKKwlpZiAoa3ZtaV92Y3B1X3J1bm5pbmdfc2luZ2xlc3RlcCh2Y3B1KSAmJgorCSAgICBl
-eGl0X3JlYXNvbiAhPSBFWElUX1JFQVNPTl9FUFRfVklPTEFUSU9OICYmCisJICAgIGV4aXRfcmVh
-c29uICE9IEVYSVRfUkVBU09OX01PTklUT1JfVFJBUF9GTEFHKQorCQlrdm1pX3NpbmdsZXN0ZXBf
-ZmFpbGVkKHZjcHUpOworCiAJaWYgKGV4aXRfZmFzdHBhdGggIT0gRVhJVF9GQVNUUEFUSF9OT05F
-KQogCQlyZXR1cm4gMTsKIApkaWZmIC0tZ2l0IGEvaW5jbHVkZS9saW51eC9rdm1pX2hvc3QuaCBi
-L2luY2x1ZGUvbGludXgva3ZtaV9ob3N0LmgKaW5kZXggYTY0MTc2ODAyN2NjLi5iMDFlODUwNWY0
-OTMgMTAwNjQ0Ci0tLSBhL2luY2x1ZGUvbGludXgva3ZtaV9ob3N0LmgKKysrIGIvaW5jbHVkZS9s
-aW51eC9rdm1pX2hvc3QuaApAQCAtOTQsNiArOTQsOCBAQCBib29sIGt2bWlfaHlwZXJjYWxsX2V2
-ZW50KHN0cnVjdCBrdm1fdmNwdSAqdmNwdSk7CiBib29sIGt2bWlfYnJlYWtwb2ludF9ldmVudChz
-dHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUsIHU2NCBndmEsIHU4IGluc25fbGVuKTsKIGJvb2wga3ZtaV9l
-bnRlcl9ndWVzdChzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpOwogYm9vbCBrdm1pX3ZjcHVfcnVubmlu
-Z19zaW5nbGVzdGVwKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSk7Cit2b2lkIGt2bWlfc2luZ2xlc3Rl
-cF9kb25lKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSk7Cit2b2lkIGt2bWlfc2luZ2xlc3RlcF9mYWls
-ZWQoc3RydWN0IGt2bV92Y3B1ICp2Y3B1KTsKIAogI2Vsc2UKIApAQCAtMTEyLDYgKzExNCw4IEBA
-IHN0YXRpYyBpbmxpbmUgYm9vbCBrdm1pX2VudGVyX2d1ZXN0KHN0cnVjdCBrdm1fdmNwdSAqdmNw
-dSkKIAkJCXsgcmV0dXJuIHRydWU7IH0KIHN0YXRpYyBpbmxpbmUgYm9vbCBrdm1pX3ZjcHVfcnVu
-bmluZ19zaW5nbGVzdGVwKHN0cnVjdCBrdm1fdmNwdSAqdmNwdSkKIAkJCXsgcmV0dXJuIGZhbHNl
-OyB9CitzdGF0aWMgaW5saW5lIHZvaWQga3ZtaV9zaW5nbGVzdGVwX2RvbmUoc3RydWN0IGt2bV92
-Y3B1ICp2Y3B1KSB7IH0KK3N0YXRpYyBpbmxpbmUgdm9pZCBrdm1pX3NpbmdsZXN0ZXBfZmFpbGVk
-KHN0cnVjdCBrdm1fdmNwdSAqdmNwdSkgeyB9CiAKICNlbmRpZiAvKiBDT05GSUdfS1ZNX0lOVFJP
-U1BFQ1RJT04gKi8KIApkaWZmIC0tZ2l0IGEvaW5jbHVkZS91YXBpL2xpbnV4L2t2bWkuaCBiL2lu
-Y2x1ZGUvdWFwaS9saW51eC9rdm1pLmgKaW5kZXggYmM1MTUyMzc2MTJhLi4wNDAwNDlhYmQ0NTAg
-MTAwNjQ0Ci0tLSBhL2luY2x1ZGUvdWFwaS9saW51eC9rdm1pLmgKKysrIGIvaW5jbHVkZS91YXBp
-L2xpbnV4L2t2bWkuaApAQCAtNjMsNiArNjMsNyBAQCBlbnVtIHsKIAlLVk1JX0VWRU5UX0RFU0NS
-SVBUT1IgPSA3LAogCUtWTUlfRVZFTlRfTVNSICAgICAgICA9IDgsCiAJS1ZNSV9FVkVOVF9QRiAg
-ICAgICAgID0gOSwKKwlLVk1JX0VWRU5UX1NJTkdMRVNURVAgPSAxMCwKIAogCUtWTUlfTlVNX0VW
-RU5UUwogfTsKQEAgLTIzNiw0ICsyMzcsOSBAQCBzdHJ1Y3Qga3ZtaV9ldmVudF9wZiB7CiAJX191
-MzIgcGFkZGluZzM7CiB9OwogCitzdHJ1Y3Qga3ZtaV9ldmVudF9zaW5nbGVzdGVwIHsKKwlfX3U4
-IGZhaWxlZDsKKwlfX3U4IHBhZGRpbmdbN107Cit9OworCiAjZW5kaWYgLyogX1VBUElfX0xJTlVY
-X0tWTUlfSCAqLwpkaWZmIC0tZ2l0IGEvdG9vbHMvdGVzdGluZy9zZWxmdGVzdHMva3ZtL3g4Nl82
-NC9rdm1pX3Rlc3QuYyBiL3Rvb2xzL3Rlc3Rpbmcvc2VsZnRlc3RzL2t2bS94ODZfNjQva3ZtaV90
-ZXN0LmMKaW5kZXggMDgwM2Q3ZTVhZjFlLi45NjdlYTU2OGQ5M2MgMTAwNjQ0Ci0tLSBhL3Rvb2xz
-L3Rlc3Rpbmcvc2VsZnRlc3RzL2t2bS94ODZfNjQva3ZtaV90ZXN0LmMKKysrIGIvdG9vbHMvdGVz
-dGluZy9zZWxmdGVzdHMva3ZtL3g4Nl82NC9rdm1pX3Rlc3QuYwpAQCAtODI5LDYgKzgyOSwxNCBA
-QCBzdGF0aWMgdm9pZCBzdG9wX3ZjcHVfd29ya2VyKHB0aHJlYWRfdCB2Y3B1X3RocmVhZCwKIAl3
-YWl0X3ZjcHVfd29ya2VyKHZjcHVfdGhyZWFkKTsKIH0KIAorc3RhdGljIGludCBfX2RvX3ZjcHVf
-Y29tbWFuZChzdHJ1Y3Qga3ZtX3ZtICp2bSwgaW50IGNtZF9pZCwKKwkJCSAgICAgc3RydWN0IGt2
-bWlfbXNnX2hkciAqcmVxLCBzaXplX3QgcmVxX3NpemUsCisJCQkgICAgIHZvaWQgKnJwbCwgc2l6
-ZV90IHJwbF9zaXplKQoreworCXNlbmRfbWVzc2FnZShjbWRfaWQsIHJlcSwgcmVxX3NpemUpOwor
-CXJldHVybiByZWNlaXZlX2NtZF9yZXBseShyZXEsIHJwbCwgcnBsX3NpemUpOworfQorCiBzdGF0
-aWMgaW50IGRvX3ZjcHVfY29tbWFuZChzdHJ1Y3Qga3ZtX3ZtICp2bSwgaW50IGNtZF9pZCwKIAkJ
-CSAgIHN0cnVjdCBrdm1pX21zZ19oZHIgKnJlcSwgc2l6ZV90IHJlcV9zaXplLAogCQkJICAgdm9p
-ZCAqcnBsLCBzaXplX3QgcnBsX3NpemUpCkBAIC04MzksOCArODQ3LDcgQEAgc3RhdGljIGludCBk
-b192Y3B1X2NvbW1hbmQoc3RydWN0IGt2bV92bSAqdm0sIGludCBjbWRfaWQsCiAKIAl2Y3B1X3Ro
-cmVhZCA9IHN0YXJ0X3ZjcHVfd29ya2VyKCZkYXRhKTsKIAotCXNlbmRfbWVzc2FnZShjbWRfaWQs
-IHJlcSwgcmVxX3NpemUpOwotCXIgPSByZWNlaXZlX2NtZF9yZXBseShyZXEsIHJwbCwgcnBsX3Np
-emUpOworCXIgPSBfX2RvX3ZjcHVfY29tbWFuZCh2bSwgY21kX2lkLCByZXEsIHJlcV9zaXplLCBy
-cGwsIHJwbF9zaXplKTsKIAogCXN0b3BfdmNwdV93b3JrZXIodmNwdV90aHJlYWQsICZkYXRhKTsK
-IAlyZXR1cm4gcjsKQEAgLTE5NjAsMTMgKzE5NjcsNjEgQEAgc3RhdGljIHZvaWQgY21kX3ZjcHVf
-c2luZ2xlc3RlcChzdHJ1Y3Qga3ZtX3ZtICp2bSwgX191OCBlbmFibGUsIF9fdTggcGFkZGluZywK
-IAkJLXIsIGt2bV9zdHJlcnJvcigtciksIGV4cGVjdGVkX2Vycik7CiB9CiAKK3N0YXRpYyB2b2lk
-IF9fY29udHJvbF9zaW5nbGVzdGVwKGJvb2wgZW5hYmxlKQoreworCXN0cnVjdCB7CisJCXN0cnVj
-dCBrdm1pX21zZ19oZHIgaGRyOworCQlzdHJ1Y3Qga3ZtaV92Y3B1X2hkciB2Y3B1X2hkcjsKKwkJ
-c3RydWN0IGt2bWlfdmNwdV9jb250cm9sX3NpbmdsZXN0ZXAgY21kOworCX0gcmVxID0ge307CisJ
-aW50IHI7CisKKwlyZXEuY21kLmVuYWJsZSA9IGVuYWJsZSA/IDEgOiAwOworCisJciA9IF9fZG9f
-dmNwdTBfY29tbWFuZChLVk1JX1ZDUFVfQ09OVFJPTF9TSU5HTEVTVEVQLAorCQkJICAgICAmcmVx
-Lmhkciwgc2l6ZW9mKHJlcSksIE5VTEwsIDApOworCVRFU1RfQVNTRVJUKHIgPT0gMCwKKwkJIktW
-TUlfVkNQVV9DT05UUk9MX1NJTkdMRVNURVAgZmFpbGVkLCBlcnJvciAlZCglcylcbiIsCisJCS1y
-LCBrdm1fc3RyZXJyb3IoLXIpKTsKK30KKworc3RhdGljIHZvaWQgdGVzdF9zaW5nbGVzdGVwX2V2
-ZW50KF9fdTE2IGV2ZW50X2lkKQoreworCXN0cnVjdCB7CisJCXN0cnVjdCBrdm1pX2V2ZW50IGNv
-bW1vbjsKKwkJc3RydWN0IGt2bWlfZXZlbnRfc2luZ2xlc3RlcCBzaW5nbGVzdGVwOworCX0gZXY7
-CisJYm9vbCBlbmFibGUgPSB0cnVlLCBkaXNhYmxlID0gZmFsc2U7CisJc3RydWN0IHZjcHVfcmVw
-bHkgcnBsID0geyB9OworCXN0cnVjdCBrdm1pX21zZ19oZHIgaGRyOworCisJX19jb250cm9sX3Np
-bmdsZXN0ZXAoZW5hYmxlKTsKKworCXJlY2VpdmVfZXZlbnQoJmhkciwgJmV2LmNvbW1vbiwgc2l6
-ZW9mKGV2KSwgZXZlbnRfaWQpOworCisJcHJfaW5mbygiU0lOR0xFU1RFUCBldmVudCwgcmlwIDB4
-JWxseCBzdWNjZXNzICVkXG4iLAorCQlldi5jb21tb24uYXJjaC5yZWdzLnJpcCwgIWV2LnNpbmds
-ZXN0ZXAuZmFpbGVkKTsKKwlURVNUX0FTU0VSVCghZXYuc2luZ2xlc3RlcC5mYWlsZWQsICJTaW5n
-bGVzdGVwIGZhaWxlZCIpOworCisJX19jb250cm9sX3NpbmdsZXN0ZXAoZGlzYWJsZSk7CisKKwly
-ZXBseV90b19ldmVudCgmaGRyLCAmZXYuY29tbW9uLCBLVk1JX0VWRU5UX0FDVElPTl9DT05USU5V
-RSwKKwkJICAgICAgICZycGwsIHNpemVvZihycGwpKTsKK30KKwogc3RhdGljIHZvaWQgdGVzdF9z
-dXBwb3J0ZWRfc2luZ2xlc3RlcChzdHJ1Y3Qga3ZtX3ZtICp2bSkKIHsKLQlfX3U4IGRpc2FibGUg
-PSAwLCBlbmFibGUgPSAxLCBlbmFibGVfaW52YWwgPSAyOworCXN0cnVjdCB2Y3B1X3dvcmtlcl9k
-YXRhIGRhdGEgPSB7LnZtID0gdm0sIC52Y3B1X2lkID0gVkNQVV9JRCB9OworCV9fdTE2IGV2ZW50
-X2lkID0gS1ZNSV9FVkVOVF9TSU5HTEVTVEVQOworCV9fdTggZW5hYmxlID0gMSwgZW5hYmxlX2lu
-dmFsID0gMjsKIAlfX3U4IHBhZGRpbmcgPSAxLCBub19wYWRkaW5nID0gMDsKKwlwdGhyZWFkX3Qg
-dmNwdV90aHJlYWQ7CiAKLQljbWRfdmNwdV9zaW5nbGVzdGVwKHZtLCBlbmFibGUsIG5vX3BhZGRp
-bmcsIDApOwotCWNtZF92Y3B1X3NpbmdsZXN0ZXAodm0sIGRpc2FibGUsIG5vX3BhZGRpbmcsIDAp
-OworCWVuYWJsZV92Y3B1X2V2ZW50KHZtLCBldmVudF9pZCk7CisJdmNwdV90aHJlYWQgPSBzdGFy
-dF92Y3B1X3dvcmtlcigmZGF0YSk7CisJdGVzdF9zaW5nbGVzdGVwX2V2ZW50KGV2ZW50X2lkKTsK
-KwlzdG9wX3ZjcHVfd29ya2VyKHZjcHVfdGhyZWFkLCAmZGF0YSk7CisJZGlzYWJsZV92Y3B1X2V2
-ZW50KHZtLCBldmVudF9pZCk7CiAKIAljbWRfdmNwdV9zaW5nbGVzdGVwKHZtLCBlbmFibGUsIHBh
-ZGRpbmcsIC1LVk1fRUlOVkFMKTsKIAljbWRfdmNwdV9zaW5nbGVzdGVwKHZtLCBlbmFibGVfaW52
-YWwsIG5vX3BhZGRpbmcsIC1LVk1fRUlOVkFMKTsKZGlmZiAtLWdpdCBhL3ZpcnQva3ZtL2ludHJv
-c3BlY3Rpb24va3ZtaS5jIGIvdmlydC9rdm0vaW50cm9zcGVjdGlvbi9rdm1pLmMKaW5kZXggMmM3
-NTMzYTk2NmY5Li41MzgyNTY5YjE5MGIgMTAwNjQ0Ci0tLSBhL3ZpcnQva3ZtL2ludHJvc3BlY3Rp
-b24va3ZtaS5jCisrKyBiL3ZpcnQva3ZtL2ludHJvc3BlY3Rpb24va3ZtaS5jCkBAIC0xMTQsNiAr
-MTE0LDcgQEAgc3RhdGljIHZvaWQgc2V0dXBfa25vd25fZXZlbnRzKHZvaWQpCiAJc2V0X2JpdChL
-Vk1JX0VWRU5UX01TUiwgS3ZtaV9rbm93bl92Y3B1X2V2ZW50cyk7CiAJc2V0X2JpdChLVk1JX0VW
-RU5UX1BBVVNFX1ZDUFUsIEt2bWlfa25vd25fdmNwdV9ldmVudHMpOwogCXNldF9iaXQoS1ZNSV9F
-VkVOVF9QRiwgS3ZtaV9rbm93bl92Y3B1X2V2ZW50cyk7CisJc2V0X2JpdChLVk1JX0VWRU5UX1NJ
-TkdMRVNURVAsIEt2bWlfa25vd25fdmNwdV9ldmVudHMpOwogCXNldF9iaXQoS1ZNSV9FVkVOVF9U
-UkFQLCBLdm1pX2tub3duX3ZjcHVfZXZlbnRzKTsKIAlzZXRfYml0KEtWTUlfRVZFTlRfWFNFVEJW
-LCBLdm1pX2tub3duX3ZjcHVfZXZlbnRzKTsKIApAQCAtMTMyMSwzICsxMzIyLDYyIEBAIGJvb2wg
-a3ZtaV92Y3B1X3J1bm5pbmdfc2luZ2xlc3RlcChzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpCiAJcmV0
-dXJuIHJldDsKIH0KIEVYUE9SVF9TWU1CT0woa3ZtaV92Y3B1X3J1bm5pbmdfc2luZ2xlc3RlcCk7
-CisKK3N0YXRpYyB1MzIga3ZtaV9zZW5kX3NpbmdsZXN0ZXAoc3RydWN0IGt2bV92Y3B1ICp2Y3B1
-LCBib29sIHN1Y2Nlc3MpCit7CisJc3RydWN0IGt2bWlfZXZlbnRfc2luZ2xlc3RlcCBlOworCWlu
-dCBlcnIsIGFjdGlvbjsKKworCW1lbXNldCgmZSwgMCwgc2l6ZW9mKGUpKTsKKwllLmZhaWxlZCA9
-IHN1Y2Nlc3MgPyAwIDogMTsKKworCWVyciA9IGt2bWlfc2VuZF9ldmVudCh2Y3B1LCBLVk1JX0VW
-RU5UX1NJTkdMRVNURVAsICZlLCBzaXplb2YoZSksCisJCQkgICAgICBOVUxMLCAwLCAmYWN0aW9u
-KTsKKwlpZiAoZXJyKQorCQlyZXR1cm4gS1ZNSV9FVkVOVF9BQ1RJT05fQ09OVElOVUU7CisKKwly
-ZXR1cm4gYWN0aW9uOworfQorCitzdGF0aWMgdm9pZCBrdm1pX3NpbmdsZXN0ZXBfZXZlbnQoc3Ry
-dWN0IGt2bV92Y3B1ICp2Y3B1LCBib29sIHN1Y2Nlc3MpCit7CisJdTMyIGFjdGlvbjsKKworCWFj
-dGlvbiA9IGt2bWlfc2VuZF9zaW5nbGVzdGVwKHZjcHUsIHN1Y2Nlc3MpOworCXN3aXRjaCAoYWN0
-aW9uKSB7CisJY2FzZSBLVk1JX0VWRU5UX0FDVElPTl9DT05USU5VRToKKwkJYnJlYWs7CisJZGVm
-YXVsdDoKKwkJa3ZtaV9oYW5kbGVfY29tbW9uX2V2ZW50X2FjdGlvbnModmNwdS0+a3ZtLCBhY3Rp
-b24pOworCX0KK30KKworc3RhdGljIHZvaWQga3ZtaV9oYW5kbGVfc2luZ2xlc3RlcF9leGl0KHN0
-cnVjdCBrdm1fdmNwdSAqdmNwdSwgYm9vbCBzdWNjZXNzKQoreworCXN0cnVjdCBrdm1fdmNwdV9p
-bnRyb3NwZWN0aW9uICp2Y3B1aTsKKwlzdHJ1Y3Qga3ZtX2ludHJvc3BlY3Rpb24gKmt2bWk7CisJ
-c3RydWN0IGt2bSAqa3ZtID0gdmNwdS0+a3ZtOworCisJa3ZtaSA9IGt2bWlfZ2V0KGt2bSk7CisJ
-aWYgKCFrdm1pKQorCQlyZXR1cm47CisKKwl2Y3B1aSA9IFZDUFVJKHZjcHUpOworCisJaWYgKHZj
-cHVpLT5zaW5nbGVzdGVwLmxvb3ApCisJCWt2bWlfc2luZ2xlc3RlcF9ldmVudCh2Y3B1LCBzdWNj
-ZXNzKTsKKworCWt2bWlfcHV0KGt2bSk7Cit9CisKK3ZvaWQga3ZtaV9zaW5nbGVzdGVwX2RvbmUo
-c3RydWN0IGt2bV92Y3B1ICp2Y3B1KQoreworCWt2bWlfaGFuZGxlX3NpbmdsZXN0ZXBfZXhpdCh2
-Y3B1LCB0cnVlKTsKK30KK0VYUE9SVF9TWU1CT0woa3ZtaV9zaW5nbGVzdGVwX2RvbmUpOworCit2
-b2lkIGt2bWlfc2luZ2xlc3RlcF9mYWlsZWQoc3RydWN0IGt2bV92Y3B1ICp2Y3B1KQoreworCWt2
-bWlfaGFuZGxlX3NpbmdsZXN0ZXBfZXhpdCh2Y3B1LCBmYWxzZSk7Cit9CitFWFBPUlRfU1lNQk9M
-KGt2bWlfc2luZ2xlc3RlcF9mYWlsZWQpOwpkaWZmIC0tZ2l0IGEvdmlydC9rdm0vaW50cm9zcGVj
-dGlvbi9rdm1pX21zZy5jIGIvdmlydC9rdm0vaW50cm9zcGVjdGlvbi9rdm1pX21zZy5jCmluZGV4
-IDA0ZTc1MTFhOTc3Ny4uNjQ1ZGViYzQ3ZjEzIDEwMDY0NAotLS0gYS92aXJ0L2t2bS9pbnRyb3Nw
-ZWN0aW9uL2t2bWlfbXNnLmMKKysrIGIvdmlydC9rdm0vaW50cm9zcGVjdGlvbi9rdm1pX21zZy5j
-CkBAIC02MjYsNiArNjI2LDExIEBAIHN0YXRpYyBpbnQgaGFuZGxlX3ZjcHVfY29udHJvbF9zaW5n
-bGVzdGVwKGNvbnN0IHN0cnVjdCBrdm1pX3ZjcHVfbXNnX2pvYiAqam9iLAogCQlpZiAocmVxLT5w
-YWRkaW5nW2ldKQogCQkJZ290byByZXBseTsKIAorCWlmICghaXNfZXZlbnRfYWxsb3dlZChLVk1J
-KHZjcHUtPmt2bSksIEtWTUlfRVZFTlRfU0lOR0xFU1RFUCkpIHsKKwkJZWMgPSAtS1ZNX0VQRVJN
-OworCQlnb3RvIHJlcGx5OworCX0KKwogCWlmIChyZXEtPmVuYWJsZSkKIAkJZG9uZSA9IGt2bWlf
-YXJjaF9zdGFydF9zaW5nbGVzdGVwKHZjcHUpOwogCWVsc2UKX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
-cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
-dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+From: Nicușor Cîțu <ncitu@bitdefender.com>
+
+This is preparatory patch to mediate the MSR interception between
+the introspection tool and the device manager (one must not disable
+the interception if the other one has enabled the interception).
+
+Passing NULL during initialization is OK because a vCPU can be
+introspected only after initialization.
+
+Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
+Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
+---
+ arch/x86/kvm/vmx/vmx.c | 74 ++++++++++++++++++++++++------------------
+ 1 file changed, 42 insertions(+), 32 deletions(-)
+
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index cf07db129670..ecf7fb21b812 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -342,7 +342,8 @@ module_param_cb(vmentry_l1d_flush, &vmentry_l1d_flush_ops, NULL, 0644);
+ 
+ static bool guest_state_valid(struct kvm_vcpu *vcpu);
+ static u32 vmx_segment_access_rights(struct kvm_segment *var);
+-static __always_inline void vmx_disable_intercept_for_msr(unsigned long *msr_bitmap,
++static __always_inline void vmx_disable_intercept_for_msr(struct kvm_vcpu *vcpu,
++							  unsigned long *msr_bitmap,
+ 							  u32 msr, int type);
+ 
+ void vmx_vmexit(void);
+@@ -2086,7 +2087,7 @@ static int vmx_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
+ 		 * in the merging. We update the vmcs01 here for L1 as well
+ 		 * since it will end up touching the MSR anyway now.
+ 		 */
+-		vmx_disable_intercept_for_msr(vmx->vmcs01.msr_bitmap,
++		vmx_disable_intercept_for_msr(vcpu, vmx->vmcs01.msr_bitmap,
+ 					      MSR_IA32_SPEC_CTRL,
+ 					      MSR_TYPE_RW);
+ 		break;
+@@ -2122,8 +2123,8 @@ static int vmx_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
+ 		 * vmcs02.msr_bitmap here since it gets completely overwritten
+ 		 * in the merging.
+ 		 */
+-		vmx_disable_intercept_for_msr(vmx->vmcs01.msr_bitmap, MSR_IA32_PRED_CMD,
+-					      MSR_TYPE_W);
++		vmx_disable_intercept_for_msr(vcpu, vmx->vmcs01.msr_bitmap,
++					      MSR_IA32_PRED_CMD, MSR_TYPE_W);
+ 		break;
+ 	case MSR_IA32_CR_PAT:
+ 		if (!kvm_pat_valid(data))
+@@ -3733,7 +3734,8 @@ void free_vpid(int vpid)
+ 	spin_unlock(&vmx_vpid_lock);
+ }
+ 
+-static __always_inline void vmx_disable_intercept_for_msr(unsigned long *msr_bitmap,
++static __always_inline void vmx_disable_intercept_for_msr(struct kvm_vcpu *vcpu,
++							  unsigned long *msr_bitmap,
+ 							  u32 msr, int type)
+ {
+ 	int f = sizeof(unsigned long);
+@@ -3771,7 +3773,8 @@ static __always_inline void vmx_disable_intercept_for_msr(unsigned long *msr_bit
+ 	}
+ }
+ 
+-static __always_inline void vmx_enable_intercept_for_msr(unsigned long *msr_bitmap,
++static __always_inline void vmx_enable_intercept_for_msr(struct kvm_vcpu *vcpu,
++							 unsigned long *msr_bitmap,
+ 							 u32 msr, int type)
+ {
+ 	int f = sizeof(unsigned long);
+@@ -3809,13 +3812,14 @@ static __always_inline void vmx_enable_intercept_for_msr(unsigned long *msr_bitm
+ 	}
+ }
+ 
+-static __always_inline void vmx_set_intercept_for_msr(unsigned long *msr_bitmap,
++static __always_inline void vmx_set_intercept_for_msr(struct kvm_vcpu *vcpu,
++						      unsigned long *msr_bitmap,
+ 			     			      u32 msr, int type, bool value)
+ {
+ 	if (value)
+-		vmx_enable_intercept_for_msr(msr_bitmap, msr, type);
++		vmx_enable_intercept_for_msr(vcpu, msr_bitmap, msr, type);
+ 	else
+-		vmx_disable_intercept_for_msr(msr_bitmap, msr, type);
++		vmx_disable_intercept_for_msr(vcpu, msr_bitmap, msr, type);
+ }
+ 
+ static u8 vmx_msr_bitmap_mode(struct kvm_vcpu *vcpu)
+@@ -3833,7 +3837,8 @@ static u8 vmx_msr_bitmap_mode(struct kvm_vcpu *vcpu)
+ 	return mode;
+ }
+ 
+-static void vmx_update_msr_bitmap_x2apic(unsigned long *msr_bitmap,
++static void vmx_update_msr_bitmap_x2apic(struct kvm_vcpu *vcpu,
++					 unsigned long *msr_bitmap,
+ 					 u8 mode)
+ {
+ 	int msr;
+@@ -3849,11 +3854,11 @@ static void vmx_update_msr_bitmap_x2apic(unsigned long *msr_bitmap,
+ 		 * TPR reads and writes can be virtualized even if virtual interrupt
+ 		 * delivery is not in use.
+ 		 */
+-		vmx_disable_intercept_for_msr(msr_bitmap, X2APIC_MSR(APIC_TASKPRI), MSR_TYPE_RW);
++		vmx_disable_intercept_for_msr(vcpu, msr_bitmap, X2APIC_MSR(APIC_TASKPRI), MSR_TYPE_RW);
+ 		if (mode & MSR_BITMAP_MODE_X2APIC_APICV) {
+-			vmx_enable_intercept_for_msr(msr_bitmap, X2APIC_MSR(APIC_TMCCT), MSR_TYPE_R);
+-			vmx_disable_intercept_for_msr(msr_bitmap, X2APIC_MSR(APIC_EOI), MSR_TYPE_W);
+-			vmx_disable_intercept_for_msr(msr_bitmap, X2APIC_MSR(APIC_SELF_IPI), MSR_TYPE_W);
++			vmx_enable_intercept_for_msr(vcpu, msr_bitmap, X2APIC_MSR(APIC_TMCCT), MSR_TYPE_R);
++			vmx_disable_intercept_for_msr(vcpu, msr_bitmap, X2APIC_MSR(APIC_EOI), MSR_TYPE_W);
++			vmx_disable_intercept_for_msr(vcpu, msr_bitmap, X2APIC_MSR(APIC_SELF_IPI), MSR_TYPE_W);
+ 		}
+ 	}
+ }
+@@ -3869,7 +3874,7 @@ void vmx_update_msr_bitmap(struct kvm_vcpu *vcpu)
+ 		return;
+ 
+ 	if (changed & (MSR_BITMAP_MODE_X2APIC | MSR_BITMAP_MODE_X2APIC_APICV))
+-		vmx_update_msr_bitmap_x2apic(msr_bitmap, mode);
++		vmx_update_msr_bitmap_x2apic(vcpu, msr_bitmap, mode);
+ 
+ 	vmx->msr_bitmap_mode = mode;
+ }
+@@ -3878,20 +3883,21 @@ void pt_update_intercept_for_msr(struct vcpu_vmx *vmx)
+ {
+ 	unsigned long *msr_bitmap = vmx->vmcs01.msr_bitmap;
+ 	bool flag = !(vmx->pt_desc.guest.ctl & RTIT_CTL_TRACEEN);
++	struct kvm_vcpu *vcpu = &vmx->vcpu;
+ 	u32 i;
+ 
+-	vmx_set_intercept_for_msr(msr_bitmap, MSR_IA32_RTIT_STATUS,
++	vmx_set_intercept_for_msr(vcpu, msr_bitmap, MSR_IA32_RTIT_STATUS,
+ 							MSR_TYPE_RW, flag);
+-	vmx_set_intercept_for_msr(msr_bitmap, MSR_IA32_RTIT_OUTPUT_BASE,
++	vmx_set_intercept_for_msr(vcpu, msr_bitmap, MSR_IA32_RTIT_OUTPUT_BASE,
+ 							MSR_TYPE_RW, flag);
+-	vmx_set_intercept_for_msr(msr_bitmap, MSR_IA32_RTIT_OUTPUT_MASK,
++	vmx_set_intercept_for_msr(vcpu, msr_bitmap, MSR_IA32_RTIT_OUTPUT_MASK,
+ 							MSR_TYPE_RW, flag);
+-	vmx_set_intercept_for_msr(msr_bitmap, MSR_IA32_RTIT_CR3_MATCH,
++	vmx_set_intercept_for_msr(vcpu, msr_bitmap, MSR_IA32_RTIT_CR3_MATCH,
+ 							MSR_TYPE_RW, flag);
+ 	for (i = 0; i < vmx->pt_desc.addr_range; i++) {
+-		vmx_set_intercept_for_msr(msr_bitmap,
++		vmx_set_intercept_for_msr(vcpu, msr_bitmap,
+ 			MSR_IA32_RTIT_ADDR0_A + i * 2, MSR_TYPE_RW, flag);
+-		vmx_set_intercept_for_msr(msr_bitmap,
++		vmx_set_intercept_for_msr(vcpu, msr_bitmap,
+ 			MSR_IA32_RTIT_ADDR0_B + i * 2, MSR_TYPE_RW, flag);
+ 	}
+ }
+@@ -6947,18 +6953,22 @@ static int vmx_create_vcpu(struct kvm_vcpu *vcpu)
+ 		goto free_pml;
+ 
+ 	msr_bitmap = vmx->vmcs01.msr_bitmap;
+-	vmx_disable_intercept_for_msr(msr_bitmap, MSR_IA32_TSC, MSR_TYPE_R);
+-	vmx_disable_intercept_for_msr(msr_bitmap, MSR_FS_BASE, MSR_TYPE_RW);
+-	vmx_disable_intercept_for_msr(msr_bitmap, MSR_GS_BASE, MSR_TYPE_RW);
+-	vmx_disable_intercept_for_msr(msr_bitmap, MSR_KERNEL_GS_BASE, MSR_TYPE_RW);
+-	vmx_disable_intercept_for_msr(msr_bitmap, MSR_IA32_SYSENTER_CS, MSR_TYPE_RW);
+-	vmx_disable_intercept_for_msr(msr_bitmap, MSR_IA32_SYSENTER_ESP, MSR_TYPE_RW);
+-	vmx_disable_intercept_for_msr(msr_bitmap, MSR_IA32_SYSENTER_EIP, MSR_TYPE_RW);
++	vmx_disable_intercept_for_msr(NULL, msr_bitmap, MSR_IA32_TSC, MSR_TYPE_R);
++	vmx_disable_intercept_for_msr(NULL, msr_bitmap, MSR_FS_BASE, MSR_TYPE_RW);
++	vmx_disable_intercept_for_msr(NULL, msr_bitmap, MSR_GS_BASE, MSR_TYPE_RW);
++	vmx_disable_intercept_for_msr(NULL, msr_bitmap, MSR_KERNEL_GS_BASE, MSR_TYPE_RW);
++	vmx_disable_intercept_for_msr(NULL, msr_bitmap, MSR_IA32_SYSENTER_CS, MSR_TYPE_RW);
++	vmx_disable_intercept_for_msr(NULL, msr_bitmap, MSR_IA32_SYSENTER_ESP, MSR_TYPE_RW);
++	vmx_disable_intercept_for_msr(NULL, msr_bitmap, MSR_IA32_SYSENTER_EIP, MSR_TYPE_RW);
+ 	if (kvm_cstate_in_guest(vcpu->kvm)) {
+-		vmx_disable_intercept_for_msr(msr_bitmap, MSR_CORE_C1_RES, MSR_TYPE_R);
+-		vmx_disable_intercept_for_msr(msr_bitmap, MSR_CORE_C3_RESIDENCY, MSR_TYPE_R);
+-		vmx_disable_intercept_for_msr(msr_bitmap, MSR_CORE_C6_RESIDENCY, MSR_TYPE_R);
+-		vmx_disable_intercept_for_msr(msr_bitmap, MSR_CORE_C7_RESIDENCY, MSR_TYPE_R);
++		vmx_disable_intercept_for_msr(NULL, msr_bitmap, MSR_CORE_C1_RES,
++					      MSR_TYPE_R);
++		vmx_disable_intercept_for_msr(NULL, msr_bitmap, MSR_CORE_C3_RESIDENCY,
++					      MSR_TYPE_R);
++		vmx_disable_intercept_for_msr(NULL, msr_bitmap, MSR_CORE_C6_RESIDENCY,
++					      MSR_TYPE_R);
++		vmx_disable_intercept_for_msr(NULL, msr_bitmap, MSR_CORE_C7_RESIDENCY,
++					      MSR_TYPE_R);
+ 	}
+ 	vmx->msr_bitmap_mode = 0;
+ 
