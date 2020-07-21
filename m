@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [PATCH v9 30/84] KVM: x86: export kvm_vcpu_ioctl_x86_get_xsave()
-Date: Wed, 22 Jul 2020 00:08:28 +0300
-Message-ID: <20200721210922.7646-31-alazar@bitdefender.com>
+Subject: [PATCH v9 82/84] KVM: introspection: add KVMI_VCPU_TRANSLATE_GVA
+Date: Wed, 22 Jul 2020 00:09:20 +0300
+Message-ID: <20200721210922.7646-83-alazar@bitdefender.com>
 References: <20200721210922.7646-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -10,45 +10,192 @@ Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200721210922.7646-1-alazar@bitdefender.com>
 Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Nicușor Cîțu <ncitu@bitdefender.com>
+This helps the introspection tool with the GVA to GPA translations
+without the need to read or monitor the guest page tables.
 
-This function is needed for the KVMI_VCPU_GET_XSAVE command.
-
-Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- arch/x86/kvm/x86.c       | 4 ++--
- include/linux/kvm_host.h | 2 ++
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ Documentation/virt/kvm/kvmi.rst               | 32 +++++++++++++++++++
+ arch/x86/kvm/kvmi.c                           |  5 +++
+ include/uapi/linux/kvmi.h                     |  9 ++++++
+ .../testing/selftests/kvm/x86_64/kvmi_test.c  | 30 +++++++++++++++++
+ virt/kvm/introspection/kvmi_int.h             |  1 +
+ virt/kvm/introspection/kvmi_msg.c             | 15 +++++++++
+ 6 files changed, 92 insertions(+)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 52181eb131dd..4d5be48b5239 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -4207,8 +4207,8 @@ static void load_xsave(struct kvm_vcpu *vcpu, u8 *src)
- 	}
+diff --git a/Documentation/virt/kvm/kvmi.rst b/Documentation/virt/kvm/kvmi.rst
+index 3c481c1b2186..62138fa4b65c 100644
+--- a/Documentation/virt/kvm/kvmi.rst
++++ b/Documentation/virt/kvm/kvmi.rst
+@@ -1086,6 +1086,38 @@ to the introspection tool.
+ * -KVM_EINVAL - the padding is not zero
+ * -KVM_EAGAIN - the selected vCPU can't be introspected yet
+ 
++25. KVMI_VCPU_TRANSLATE_GVA
++---------------------------
++
++:Architecture: x86
++:Versions: >= 1
++:Parameters:
++
++::
++
++	struct kvmi_vcpu_hdr;
++	struct kvmi_vcpu_translate_gva {
++		__u64 gva;
++	};
++
++:Returns:
++
++::
++
++	struct kvmi_error_code;
++	struct kvmi_vcpu_translate_gva_reply {
++		__u64 gpa;
++	};
++
++Translates a guest virtual address to a guest physical address or ~0 if
++the address cannot be translated.
++
++:Errors:
++
++* -KVM_EINVAL - the selected vCPU is invalid
++* -KVM_EINVAL - the padding is not zero
++* -KVM_EAGAIN - the selected vCPU can't be introspected yet
++
+ Events
+ ======
+ 
+diff --git a/arch/x86/kvm/kvmi.c b/arch/x86/kvm/kvmi.c
+index 18713004152d..8051d06064ab 100644
+--- a/arch/x86/kvm/kvmi.c
++++ b/arch/x86/kvm/kvmi.c
+@@ -1373,3 +1373,8 @@ bool kvmi_arch_stop_singlestep(struct kvm_vcpu *vcpu)
+ 	kvm_x86_ops.control_singlestep(vcpu, false);
+ 	return true;
+ }
++
++gpa_t kvmi_arch_cmd_translate_gva(struct kvm_vcpu *vcpu, gva_t gva)
++{
++	return kvm_mmu_gva_to_gpa_system(vcpu, gva, 0, NULL);
++}
+diff --git a/include/uapi/linux/kvmi.h b/include/uapi/linux/kvmi.h
+index 040049abd450..3c15c17d28e3 100644
+--- a/include/uapi/linux/kvmi.h
++++ b/include/uapi/linux/kvmi.h
+@@ -48,6 +48,7 @@ enum {
+ 	KVMI_VM_SET_PAGE_ACCESS = 23,
+ 
+ 	KVMI_VCPU_CONTROL_SINGLESTEP = 24,
++	KVMI_VCPU_TRANSLATE_GVA      = 25,
+ 
+ 	KVMI_NUM_MESSAGES
+ };
+@@ -242,4 +243,12 @@ struct kvmi_event_singlestep {
+ 	__u8 padding[7];
+ };
+ 
++struct kvmi_vcpu_translate_gva {
++	__u64 gva;
++};
++
++struct kvmi_vcpu_translate_gva_reply {
++	__u64 gpa;
++};
++
+ #endif /* _UAPI__LINUX_KVMI_H */
+diff --git a/tools/testing/selftests/kvm/x86_64/kvmi_test.c b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
+index 967ea568d93c..e968b1a6f969 100644
+--- a/tools/testing/selftests/kvm/x86_64/kvmi_test.c
++++ b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
+@@ -2040,6 +2040,35 @@ static void test_cmd_vcpu_control_singlestep(struct kvm_vm *vm)
+ 		test_unsupported_singlestep(vm);
  }
  
--static void kvm_vcpu_ioctl_x86_get_xsave(struct kvm_vcpu *vcpu,
--					 struct kvm_xsave *guest_xsave)
-+void kvm_vcpu_ioctl_x86_get_xsave(struct kvm_vcpu *vcpu,
-+				  struct kvm_xsave *guest_xsave)
++static void cmd_translate_gva(struct kvm_vm *vm, vm_vaddr_t gva,
++			      vm_paddr_t expected_gpa)
++{
++	struct {
++		struct kvmi_msg_hdr hdr;
++		struct kvmi_vcpu_hdr vcpu_hdr;
++		struct kvmi_vcpu_translate_gva cmd;
++	} req = { 0 };
++	struct kvmi_vcpu_translate_gva_reply rpl;
++
++	req.cmd.gva = gva;
++
++	test_vcpu0_command(vm, KVMI_VCPU_TRANSLATE_GVA, &req.hdr, sizeof(req),
++			  &rpl, sizeof(rpl));
++	TEST_ASSERT(rpl.gpa == expected_gpa,
++		    "Translation failed for gva 0x%lx -> gpa 0x%llx instead of 0x%lx\n",
++		    gva, rpl.gpa, expected_gpa);
++}
++
++static void test_cmd_translate_gva(struct kvm_vm *vm)
++{
++	cmd_translate_gva(vm, test_gva, test_gpa);
++	pr_info("Tested gva 0x%lx to gpa 0x%lx\n", test_gva, test_gpa);
++
++	cmd_translate_gva(vm, -1, ~0);
++	pr_info("Tested gva 0x%lx to gpa 0x%lx\n",
++		(vm_vaddr_t)-1, (vm_paddr_t)-1);
++}
++
+ static void test_introspection(struct kvm_vm *vm)
  {
- 	if (boot_cpu_has(X86_FEATURE_XSAVE)) {
- 		memset(guest_xsave, 0, sizeof(struct kvm_xsave));
-diff --git a/include/linux/kvm_host.h b/include/linux/kvm_host.h
-index 01628f7bcbcd..f138d56450c0 100644
---- a/include/linux/kvm_host.h
-+++ b/include/linux/kvm_host.h
-@@ -883,6 +883,8 @@ int kvm_arch_vcpu_ioctl_set_guest_debug(struct kvm_vcpu *vcpu,
- int kvm_arch_vcpu_ioctl_run(struct kvm_vcpu *vcpu);
- int kvm_arch_vcpu_set_guest_debug(struct kvm_vcpu *vcpu,
- 				  struct kvm_guest_debug *dbg);
-+void kvm_vcpu_ioctl_x86_get_xsave(struct kvm_vcpu *vcpu,
-+				  struct kvm_xsave *guest_xsave);
+ 	srandom(time(0));
+@@ -2075,6 +2104,7 @@ static void test_introspection(struct kvm_vm *vm)
+ 	test_cmd_vm_set_page_access(vm);
+ 	test_event_pf(vm);
+ 	test_cmd_vcpu_control_singlestep(vm);
++	test_cmd_translate_gva(vm);
  
- int kvm_arch_init(void *opaque);
- void kvm_arch_exit(void);
+ 	unhook_introspection(vm);
+ }
+diff --git a/virt/kvm/introspection/kvmi_int.h b/virt/kvm/introspection/kvmi_int.h
+index e5fca3502bab..cb8453f0fb87 100644
+--- a/virt/kvm/introspection/kvmi_int.h
++++ b/virt/kvm/introspection/kvmi_int.h
+@@ -141,5 +141,6 @@ void kvmi_arch_unhook(struct kvm *kvm);
+ void kvmi_arch_features(struct kvmi_features *feat);
+ bool kvmi_arch_start_singlestep(struct kvm_vcpu *vcpu);
+ bool kvmi_arch_stop_singlestep(struct kvm_vcpu *vcpu);
++gpa_t kvmi_arch_cmd_translate_gva(struct kvm_vcpu *vcpu, gva_t gva);
+ 
+ #endif
+diff --git a/virt/kvm/introspection/kvmi_msg.c b/virt/kvm/introspection/kvmi_msg.c
+index 645debc47f13..d8874bd7a8b7 100644
+--- a/virt/kvm/introspection/kvmi_msg.c
++++ b/virt/kvm/introspection/kvmi_msg.c
+@@ -647,6 +647,20 @@ static int handle_vcpu_control_singlestep(const struct kvmi_vcpu_msg_job *job,
+ 	return kvmi_msg_vcpu_reply(job, msg, ec, NULL, 0);
+ }
+ 
++static int handle_vcpu_translate_gva(const struct kvmi_vcpu_msg_job *job,
++				     const struct kvmi_msg_hdr *msg,
++				     const void *_req)
++{
++	const struct kvmi_vcpu_translate_gva *req = _req;
++	struct kvmi_vcpu_translate_gva_reply rpl;
++
++	memset(&rpl, 0, sizeof(rpl));
++
++	rpl.gpa = kvmi_arch_cmd_translate_gva(job->vcpu, req->gva);
++
++	return kvmi_msg_vcpu_reply(job, msg, 0, &rpl, sizeof(rpl));
++}
++
+ /*
+  * These functions are executed from the vCPU thread. The receiving thread
+  * passes the messages using a newly allocated 'struct kvmi_vcpu_msg_job'
+@@ -669,6 +683,7 @@ static int(*const msg_vcpu[])(const struct kvmi_vcpu_msg_job *,
+ 	[KVMI_VCPU_INJECT_EXCEPTION]   = handle_vcpu_inject_exception,
+ 	[KVMI_VCPU_SET_REGISTERS]      = handle_vcpu_set_registers,
+ 	[KVMI_VCPU_SET_XSAVE]          = handle_vcpu_set_xsave,
++	[KVMI_VCPU_TRANSLATE_GVA]      = handle_vcpu_translate_gva,
+ };
+ 
+ static bool is_vcpu_command(u16 id)
