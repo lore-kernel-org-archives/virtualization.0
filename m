@@ -1,51 +1,67 @@
-From: Mike Stunes <mstunes@vmware.com>
-Subject: Re: [PATCH v4 51/75] x86/sev-es: Handle MMIO events
-Date: Tue, 21 Jul 2020 21:01:44 +0000
-Message-ID: <40D5C698-1ED2-4CCE-9C1D-07620A021A6A@vmware.com>
-References: <20200714120917.11253-1-joro@8bytes.org>
- <20200714120917.11253-52-joro@8bytes.org>
+From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Subject: [PATCH v9 26/84] KVM: x86: add .control_singlestep()
+Date: Wed, 22 Jul 2020 00:08:24 +0300
+Message-ID: <20200721210922.7646-27-alazar@bitdefender.com>
+References: <20200721210922.7646-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Return-path: <kvm-owner@vger.kernel.org>
-In-Reply-To: <20200714120917.11253-52-joro@8bytes.org>
-Content-Language: en-US
-Content-ID: <FF0E2EA999EC494A816392FBDBBA1035@namprd05.prod.outlook.com>
+In-Reply-To: <20200721210922.7646-1-alazar@bitdefender.com>
 Sender: kvm-owner@vger.kernel.org
-To: Joerg Roedel <joro@8bytes.org>
-Cc: "x86@kernel.org" <x86@kernel.org>, Joerg Roedel <jroedel@suse.de>, Tom Lendacky <thomas.lendacky@amd.com>, "hpa@zytor.com" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Sean Christopherson <sean.j.christopherson@intel.com>, Martin Radev <martin.b.radev@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, virtualization@
+To: kvm@vger.kernel.org
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Nicu=C8=99or=20C=C3=AE=C8=9Bu?= <ncitu@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-SGkgSm9lcmcsDQoNClRoYW5rcyBmb3IgdGhlIG5ldyBwYXRjaC1zZXQhDQoNCj4gT24gSnVsIDE0
-LCAyMDIwLCBhdCA1OjA4IEFNLCBKb2VyZyBSb2VkZWwgPGpvcm9AOGJ5dGVzLm9yZz4gd3JvdGU6
-DQo+IA0KPiBGcm9tOiBUb20gTGVuZGFja3kgPHRob21hcy5sZW5kYWNreUBhbWQuY29tPg0KPiAN
-Cj4gQWRkIGhhbmRsZXIgZm9yIFZDIGV4Y2VwdGlvbnMgY2F1c2VkIGJ5IE1NSU8gaW50ZXJjZXB0
-cy4gVGhlc2UNCj4gaW50ZXJjZXB0cyBjb21lIGFsb25nIGFzIG5lc3RlZCBwYWdlIGZhdWx0cyBv
-biBwYWdlcyB3aXRoIHJlc2VydmVkDQo+IGJpdHMgc2V0Lg0KPiANCj4gU2lnbmVkLW9mZi1ieTog
-VG9tIExlbmRhY2t5IDx0aG9tYXMubGVuZGFja3lAYW1kLmNvbT4NCj4gWyBqcm9lZGVsQHN1c2Uu
-ZGU6IEFkYXB0IHRvIFZDIGhhbmRsaW5nIGZyYW1ld29yayBdDQo+IENvLWRldmVsb3BlZC1ieTog
-Sm9lcmcgUm9lZGVsIDxqcm9lZGVsQHN1c2UuZGU+DQo+IFNpZ25lZC1vZmYtYnk6IEpvZXJnIFJv
-ZWRlbCA8anJvZWRlbEBzdXNlLmRlPg0KPiANCj4gPHNuaXA+DQoNCknigJltIHJ1bm5pbmcgaW50
-byBhbiBNTUlPLXJlbGF0ZWQgYnVnIHdoZW4gSSB0cnkgdGVzdGluZyB0aGlzIG9uIG91ciBoeXBl
-cnZpc29yLg0KDQpEdXJpbmcgYm9vdCwgcHJvYmVfcm9tcyAoYXJjaC94ODYva2VybmVsL3Byb2Jl
-X3JvbXMuYykgdXNlcyByb21jaGVja3N1bSBvdmVyIHRoZSB2aWRlbyBST00gYW5kIGV4dGVuc2lv
-biBST00gcmVnaW9ucy4gSW4gbXkgdGVzdCBWTSwgdGhlIHZpZGVvIFJPTSByb21jaGVja3N1bSBz
-dGFydHMgYXQgdmlydHVhbCBhZGRyZXNzIDB4ZmZmZjg4ODAwMDBjMDAwMCBhbmQgaGFzIGxlbmd0
-aCA2NTUzNi4gQnV0LCBhdCBhZGRyZXNzIDB4ZmZmZjg4ODAwMDBjNDAwMCwgd2Ugc3dpdGNoIGZy
-b20gYmVpbmcgdmlkZW8tUk9NLWJhY2tlZCB0byBiZWluZyB1bmJhY2tlZCBieSBhbnl0aGluZy4N
-Cg0KV2l0aCBTRVYtRVMgZW5hYmxlZCwgb3VyIHBsYXRmb3JtIGhhbmRsZXMgcmVhZHMgYW5kIHdy
-aXRlcyB0byB1bmJhY2tlZCBtZW1vcnkgYnkgdHJlYXRpbmcgdGhlbSBhcyBNTUlPLiBTbywgdGhl
-IHJlYWQgZnJvbSAweGZmZmY4ODgwMDAwYzQwMDAgY2F1c2VzIGEgI1ZDLCB3aGljaCBpcyBoYW5k
-bGVkIGJ5IGRvX2Vhcmx5X2V4Y2VwdGlvbi4NCg0KSW4gaGFuZGxpbmcgdGhlICNWQywgdmNfc2xv
-d192aXJ0X3RvX3BoeXMgZmFpbHMgZm9yIHRoYXQgYWRkcmVzcy4gTXkgdW5kZXJzdGFuZGluZyBp
-cyB0aGF0IHRoZSAjVkMgaGFuZGxlciBzaG91bGQgdGhlbiBhZGQgYW4gZW50cnkgdG8gdGhlIHBh
-Z2UgdGFibGVzIGFuZCByZXRyeSB0aGUgZmF1bHRpbmcgYWNjZXNzLiBTb21laG93LCB0aGF0IGlz
-buKAmXQgaGFwcGVuaW5nLiBGcm9tIHRoZSBoeXBlcnZpc29yIHNpZGUsIGl0IGxvb2tzIGxpa2Ug
-dGhlIGd1ZXN0IGlzIGxvb3Bpbmcgc29tZWhvdy4gKEkgdGhpbmsgdGhlIFZDUFUgaXMgbW9zdGx5
-IHVuaGFsdGVkIGFuZCBtYWtpbmcgcHJvZ3Jlc3MsIGJ1dCB0aGUgZ3Vlc3QgbmV2ZXIgZ2V0cyBw
-YXN0IHRoYXQgcm9tY2hlY2tzdW0uKSBUaGUgZ3Vlc3QgbmV2ZXIgYWN0dWFsbHkgbWFrZXMgYW4g
-TU1JTyB2bWdleGl0IGZvciB0aGF0IGFkZHJlc3MuDQoNCklmIEkgcmVtb3ZlIHRoZSBjYWxsIHRv
-IHByb2JlX3JvbXMgZnJvbSBzZXR1cF9hcmNoLCBvciByZW1vdmUgdGhlIGNhbGxzIHRvIHJvbWNo
-ZWNrc3VtIGZyb20gcHJvYmVfcm9tcywgdGhpcyBrZXJuZWwgYm9vdHMgbm9ybWFsbHkuDQoNClBs
-ZWFzZSBsZXQgbWUga25vdyBvZiBvdGhlciB0ZXN0cyBJIHNob3VsZCBydW4gb3IgZGF0YSB0aGF0
-IEkgY2FuIGNvbGxlY3QuIFRoYW5rcyENCg0KTWlrZQ==
+From: Nicușor Cîțu <ncitu@bitdefender.com>
+
+This function is needed for KVMI_VCPU_CONTROL_SINGLESTEP.
+
+Signed-off-by: Nicușor Cîțu <ncitu@bitdefender.com>
+Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
+---
+ arch/x86/include/asm/kvm_host.h |  1 +
+ arch/x86/kvm/vmx/vmx.c          | 11 +++++++++++
+ 2 files changed, 12 insertions(+)
+
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index a905e14e4c75..487d1fa6e76d 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1294,6 +1294,7 @@ struct kvm_x86_ops {
+ 	u64 (*fault_gla)(struct kvm_vcpu *vcpu);
+ 	bool (*spt_fault)(struct kvm_vcpu *vcpu);
+ 	bool (*gpt_translation_fault)(struct kvm_vcpu *vcpu);
++	void (*control_singlestep)(struct kvm_vcpu *vcpu, bool enable);
+ };
+ 
+ struct kvm_x86_nested_ops {
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index a043e3e7d09a..4ef4f3c1b78a 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -7923,6 +7923,16 @@ static bool vmx_gpt_translation_fault(struct kvm_vcpu *vcpu)
+ 	return true;
+ }
+ 
++static void vmx_control_singlestep(struct kvm_vcpu *vcpu, bool enable)
++{
++	if (enable)
++		exec_controls_setbit(to_vmx(vcpu),
++			      CPU_BASED_MONITOR_TRAP_FLAG);
++	else
++		exec_controls_clearbit(to_vmx(vcpu),
++				CPU_BASED_MONITOR_TRAP_FLAG);
++}
++
+ static struct kvm_x86_ops vmx_x86_ops __initdata = {
+ 	.hardware_unsetup = hardware_unsetup,
+ 
+@@ -8063,6 +8073,7 @@ static struct kvm_x86_ops vmx_x86_ops __initdata = {
+ 	.fault_gla = vmx_fault_gla,
+ 	.spt_fault = vmx_spt_fault,
+ 	.gpt_translation_fault = vmx_gpt_translation_fault,
++	.control_singlestep = vmx_control_singlestep,
+ };
+ 
+ static __init int hardware_setup(void)
