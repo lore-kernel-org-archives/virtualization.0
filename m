@@ -1,47 +1,58 @@
-From: Joerg Roedel <jroedel@suse.de>
-Subject: Re: [PATCH v4 00/75] x86: SEV-ES Guest Support
-Date: Wed, 22 Jul 2020 11:04:42 +0200
-Message-ID: <20200722090442.GI6132@suse.de>
-References: <20200714120917.11253-1-joro@8bytes.org>
- <20200715092456.GE10769@hirez.programming.kicks-ass.net>
- <20200715093426.GK16200@suse.de>
- <20200715095556.GI10769@hirez.programming.kicks-ass.net>
- <20200715101034.GM16200@suse.de>
- <CAAYXXYxJf8sr6fvbZK=t6o_to4Ov_yvZ91Hf6ZqQ-_i-HKO2VA@mail.gmail.com>
- <20200721124957.GD6132@suse.de>
- <CAAYXXYwVV_g8pGL52W9vxkgdNxg1dNKq_OBsXKZ_QizdXiTx2g@mail.gmail.com>
+From: Maxim Levitsky <mlevitsk@redhat.com>
+Subject: Re: [PATCH 02/10] block: virtio-blk: check logical block size
+Date: Wed, 22 Jul 2020 12:11:17 +0300
+Message-ID: <f16aba1020019530564f0869a67951282104a5d2.camel@redhat.com>
+References: <20200721105239.8270-1-mlevitsk@redhat.com>
+         <20200721105239.8270-3-mlevitsk@redhat.com> <20200721151437.GB10620@lst.de>
+         <yq1zh7sfedj.fsf@ca-mkp.ca.oracle.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <linux-kernel-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <CAAYXXYwVV_g8pGL52W9vxkgdNxg1dNKq_OBsXKZ_QizdXiTx2g@mail.gmail.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Erdem Aktas <erdemaktas@google.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, Joerg Roedel <joro@8bytes.org>, x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Sean Christopherson <sean.j.christopherson@intel.com>, Martin Radev <martin.b.radev@gmail.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+Return-path: <linux-scsi-owner@vger.kernel.org>
+In-Reply-To: <yq1zh7sfedj.fsf@ca-mkp.ca.oracle.com>
+Sender: linux-scsi-owner@vger.kernel.org
+To: "Martin K. Petersen" <martin.petersen@oracle.com>, Christoph Hellwig <hch@lst.de>
+Cc: linux-kernel@vger.kernel.org, Keith Busch <kbusch@kernel.org>, Josef Bacik <josef@toxicpanda.com>, "open list:BLOCK LAYER" <linux-block@vger.kernel.org>, Sagi Grimberg <sagi@grimberg.me>, Jens Axboe <axboe@kernel.dk>, "open list:NVM EXPRESS DRIVER" <linux-nvme@lists.infradead.org>, "open list:SCSI CDROM DRIVER" <linux-scsi@vger.kernel.org>, Tejun Heo <tj@kernel.org>, Bart Van Assche <bvanassche@acm.org>, Damien Le Moal <damien.lemoal@wdc.com>, Jason Wang <jasowang@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, Colin Ian King <colin.king@canonical.com>, "Michael S. Tsirkin" <mst@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Ulf Hansson <ulf.hansson@linaro.org>, Ajay Joshi <ajay.joshi@wdc.com>, Ming
 List-Id: virtualization@lists.linuxfoundation.org
 
-Hi Erdem,
+On Tue, 2020-07-21 at 22:55 -0400, Martin K. Petersen wrote:
+> Christoph,
+> 
+> > Hmm, I wonder if we should simply add the check and warning to
+> > blk_queue_logical_block_size and add an error in that case.  Then
+> > drivers only have to check the error return, which might add a lot
+> > less boiler plate code.
+> 
+> Yep, I agree.
+> 
 
-On Tue, Jul 21, 2020 at 09:48:51AM -0700, Erdem Aktas wrote:
-> Yes, I am using OVMF with SEV-ES (sev-es-v12 patches applied). I am
-> running Ubuntu 18.04 distro. My grub target is x86_64-efi. I also
-> tried installing the grub-efi-amd64 package. In all cases, the grub is
-> running in 64bit but enters the startup_32 in 32 bit mode. I think
-> there should be a 32bit #VC handler just something very similar in the
-> OVMF patches to handle the cpuid when the CPU is still in 32bit mode.
-> As it is now, it will be a huge problem to support different distro images.
-> I wonder if I am the only one having this problem.
+I also agree that this would be cleaner (I actually tried to implement
+this the way you suggest), but let me explain my reasoning for doing it
+this way.
 
-I havn't heard from anyone else that the startup_32 boot-path is being
-used for SEV-ES. What OVMF binary do you use for your guest?
+The problem is that most current users of blk_queue_logical_block_size
+(43 uses in the tree, out of which only 9 use constant block size) check
+for the block size relatively early, often store it in some internal
+struct etc, prior to calling blk_queue_logical_block_size thus making
+them only to rely on blk_queue_logical_block_size as the check for 
+block size validity will need non-trivial changes in their code.
 
-In general it is not that difficult to support that boot-path too, but
-I'd like to keep that as a future addition, as the patch-set is already
-quite large. In the startup_32 path there is already a GDT set up, so
-whats needed is an IDT and a 32-bit #VC handler using the MRS-based
-protocol (and hoping that there will only be CPUID intercepts until it
-reaches long-mode).
+Instead of this adding blk_is_valid_logical_block_size allowed me
+to trivially convert most of the uses.
 
-Regards,
+For RFC I converted only some drivers that I am more familiar with
+and/or can test but I can remove the driver's own checks in most other
+drivers with low chance of introducing a bug, even if I can't test the
+driver.
 
-	Joerg
+What do you think?
+
+I can also both make blk_queue_logical_block_size return an error value,
+and have blk_is_valid_logical_block_size and use either of these checks,
+depending on the driver with eventual goal of un-exporting
+blk_is_valid_logical_block_size.
+
+Also note that I did add WARN_ON to blk_queue_logical_block_size.
+
+Best regards,
+	Maxim Levitsky
