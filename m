@@ -1,72 +1,131 @@
-From: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH 2/2] virtio-mmio: Reject invalid IRQ 0 command line
- argument
-Date: Wed, 22 Jul 2020 07:46:36 -0400
-Message-ID: <20200722074630-mutt-send-email-mst@kernel.org>
-References: <20200701221040.3667868-1-helgaas@kernel.org>
- <20200701221040.3667868-3-helgaas@kernel.org>
+From: Pierre Morel <pmorel@linux.ibm.com>
+Subject: Re: [PATCH v7 2/2] s390: virtio: PV needs VIRTIO I/O device
+ protection
+Date: Wed, 22 Jul 2020 13:48:24 +0200
+Message-ID: <be992b00-de1d-4499-ee7f-b2b2b5a8879d@linux.ibm.com>
+References: <1594801869-13365-1-git-send-email-pmorel@linux.ibm.com>
+ <1594801869-13365-3-git-send-email-pmorel@linux.ibm.com>
+ <20200715054807-mutt-send-email-mst@kernel.org>
+ <bc5e09ad-faaf-8b38-83e0-5f4a4b1daeb0@redhat.com>
+ <20200715074917-mutt-send-email-mst@kernel.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200701221040.3667868-3-helgaas@kernel.org>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: Bjorn Helgaas <helgaas@kernel.org>
-Cc: Bjorn Helgaas <bhelgaas@google.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200715074917-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+Sender: linux-kernel-owner@vger.kernel.org
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: linux-kernel@vger.kernel.org, pasic@linux.ibm.com, borntraeger@de.ibm.com, frankja@linux.ibm.com, cohuck@redhat.com, kvm@vger.kernel.org, linux-s390@vger.kernel.org, virtualization@lists.linux-foundation.org, thomas.lendacky@amd.com, david@gibson.dropbear.id.au, linuxram@us.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 01, 2020 at 05:10:40PM -0500, Bjorn Helgaas wrote:
-> From: Bjorn Helgaas <bhelgaas@google.com>
-> 
-> The "virtio_mmio.device=" command line argument allows a user to specify
-> the size, address, and IRQ of a virtio device.  Previously the only
-> requirement for the IRQ was that it be an unsigned integer.
-> 
-> Zero is an unsigned integer but an invalid IRQ number, and after
-> a85a6c86c25be ("driver core: platform: Clarify that IRQ 0 is invalid"),
-> attempts to use IRQ 0 cause warnings.
-> 
-> If the user specifies IRQ 0, return failure instead of registering a device
-> with IRQ 0.
-> 
-> Fixes: a85a6c86c25be ("driver core: platform: Clarify that IRQ 0 is invalid")
-> Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-> Cc: Michael S. Tsirkin <mst@redhat.com>
-> Cc: Jason Wang <jasowang@redhat.com>
-> Cc: virtualization@lists.linux-foundation.org
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-> ---
->  drivers/virtio/virtio_mmio.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+On 2020-07-15 13:51, Michael S. Tsirkin wrote:
+> On Wed, Jul 15, 2020 at 06:16:59PM +0800, Jason Wang wrote:
+>>
+>> On 2020/7/15 下午5:50, Michael S. Tsirkin wrote:
+>>> On Wed, Jul 15, 2020 at 10:31:09AM +0200, Pierre Morel wrote:
+>>>> If protected virtualization is active on s390, the virtio queues are
+>>>> not accessible to the host, unless VIRTIO_F_IOMMU_PLATFORM has been
+>>>> negotiated. Use the new arch_validate_virtio_features() interface to
+>>>> fail probe if that's not the case, preventing a host error on access
+>>>> attempt.
+>>>>
+>>>> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
+>>>> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+>>>> Acked-by: Halil Pasic <pasic@linux.ibm.com>
+>>>> Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+>>>> ---
+>>>>    arch/s390/mm/init.c | 28 ++++++++++++++++++++++++++++
+>>>>    1 file changed, 28 insertions(+)
+>>>>
+>>>> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+>>>> index 6dc7c3b60ef6..d39af6554d4f 100644
+>>>> --- a/arch/s390/mm/init.c
+>>>> +++ b/arch/s390/mm/init.c
+>>>> @@ -45,6 +45,7 @@
+>>>>    #include <asm/kasan.h>
+>>>>    #include <asm/dma-mapping.h>
+>>>>    #include <asm/uv.h>
+>>>> +#include <linux/virtio_config.h>
+>>>>    pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
+>>>> @@ -161,6 +162,33 @@ bool force_dma_unencrypted(struct device *dev)
+>>>>    	return is_prot_virt_guest();
+>>>>    }
+>>>> +/*
+>>>> + * arch_validate_virtio_features
+>>>> + * @dev: the VIRTIO device being added
+>>>> + *
+>>>> + * Return an error if required features are missing on a guest running
+>>>> + * with protected virtualization.
+>>>> + */
+>>>> +int arch_validate_virtio_features(struct virtio_device *dev)
+>>>> +{
+>>>> +	if (!is_prot_virt_guest())
+>>>> +		return 0;
+>>>> +
+>>>> +	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
+>>>> +		dev_warn(&dev->dev,
+>>>> +			 "legacy virtio not supported with protected virtualization\n");
+>>>> +		return -ENODEV;
+>>>> +	}
+>>>> +
+>>>> +	if (!virtio_has_feature(dev, VIRTIO_F_IOMMU_PLATFORM)) {
+>>>> +		dev_warn(&dev->dev,
+>>>> +			 "support for limited memory access required for protected virtualization\n");
+>>>> +		return -ENODEV;
+>>>> +	}
+>>>> +
+>>>> +	return 0;
+>>>> +}
+>>>> +
+>>>>    /* protected virtualization */
+>>>>    static void pv_init(void)
+>>>>    {
+>>> What bothers me here is that arch code depends on virtio now.
+>>> It works even with a modular virtio when functions are inline,
+>>> but it seems fragile: e.g. it breaks virtio as an out of tree module,
+>>> since layout of struct virtio_device can change.
+>>
+>>
+>> The code was only called from virtio.c so it should be fine.
+>>
+>> And my understanding is that we don't need to care about the kABI issue
+>> during upstream development?
+>>
+>> Thanks
 > 
-> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-> index 9d16aaffca9d..627ac0487494 100644
-> --- a/drivers/virtio/virtio_mmio.c
-> +++ b/drivers/virtio/virtio_mmio.c
-> @@ -641,11 +641,11 @@ static int vm_cmdline_set(const char *device,
->  			&vm_cmdline_id, &consumed);
->  
->  	/*
-> -	 * sscanf() must processes at least 2 chunks; also there
-> +	 * sscanf() must process at least 2 chunks; also there
->  	 * must be no extra characters after the last chunk, so
->  	 * str[consumed] must be '\0'
->  	 */
-> -	if (processed < 2 || str[consumed])
-> +	if (processed < 2 || str[consumed] || irq == 0)
->  		return -EINVAL;
->  
->  	resources[0].flags = IORESOURCE_MEM;
-> -- 
-> 2.25.1
+> No, but so far it has been convenient at least for me, for development,
+> to just be able to unload all of virtio and load a different version.
+> 
+> 
+>>
+>>>
+>>> I'm not sure what to do with this yet, will try to think about it
+>>> over the weekend. Thanks!
+>>>
+>>>
+>>>> -- 
+>>>> 2.25.1
+> 
+
+Hi Michael,
+
+I am not sure to understand the problem so I may propose a wrong 
+solution but, let's try:
+
+Would a callback registration instead of a weak function solve the problem?
+The registrating function in core could test a parameter to check if the 
+callback is in sync with the VIRTIO core.
+
+What do you think?
+
+Regards,
+Pierre
+
+
+
+-- 
+Pierre Morel
+IBM Lab Boeblingen
