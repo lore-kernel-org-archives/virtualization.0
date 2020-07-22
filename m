@@ -1,137 +1,72 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v1 28/34] KVM: x86: page_track: add support for suppress #VE bit
-Date: Wed, 22 Jul 2020 19:01:15 +0300
-Message-ID: <20200722160121.9601-29-alazar@bitdefender.com>
+Subject: [RFC PATCH v1 11/34] KVM: x86: mmu: allow zapping shadow pages for
+ specific EPT views
+Date: Wed, 22 Jul 2020 19:00:58 +0300
+Message-ID: <20200722160121.9601-12-alazar@bitdefender.com>
 References: <20200722160121.9601-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200722160121.9601-1-alazar@bitdefender.com>
-Sender: kvm-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?=C8=98tefan=20=C8=98icleru?= <ssicleru@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?=C8=98tefan=20=C8=98icleru?= <ssicleru@bitdefender.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Ștefan Șicleru <ssicleru@bitdefender.com>
-
-Setting SPTEs from rmaps is not enough because rmaps contain only
-present SPTEs. If there is no mapping created for the GFN, SPTEs must
-be configured when they are created. Use the page tracking mechanism in
-order to configure the SVE bit when a PF occurs. This is similar to how
-access rights are configured using the page tracking mechanism.
-
-Signed-off-by: Ștefan Șicleru <ssicleru@bitdefender.com>
-Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
----
- arch/x86/include/asm/kvm_page_track.h |  1 +
- arch/x86/kvm/mmu.h                    |  2 ++
- arch/x86/kvm/mmu/mmu.c                | 38 +++++++++++++++++++++++++++
- arch/x86/kvm/mmu/page_track.c         |  7 +++++
- 4 files changed, 48 insertions(+)
-
-diff --git a/arch/x86/include/asm/kvm_page_track.h b/arch/x86/include/asm/kvm_page_track.h
-index 96d2ab7da4a7..108161f63a44 100644
---- a/arch/x86/include/asm/kvm_page_track.h
-+++ b/arch/x86/include/asm/kvm_page_track.h
-@@ -7,6 +7,7 @@ enum kvm_page_track_mode {
- 	KVM_PAGE_TRACK_PREWRITE,
- 	KVM_PAGE_TRACK_WRITE,
- 	KVM_PAGE_TRACK_PREEXEC,
-+	KVM_PAGE_TRACK_SVE,
- 	KVM_PAGE_TRACK_MAX,
- };
- 
-diff --git a/arch/x86/kvm/mmu.h b/arch/x86/kvm/mmu.h
-index 02fa0d30407f..160e66ae9852 100644
---- a/arch/x86/kvm/mmu.h
-+++ b/arch/x86/kvm/mmu.h
-@@ -234,5 +234,7 @@ int kvm_arch_write_log_dirty(struct kvm_vcpu *vcpu, gpa_t l2_gpa);
- 
- int kvm_mmu_post_init_vm(struct kvm *kvm);
- void kvm_mmu_pre_destroy_vm(struct kvm *kvm);
-+bool kvm_mmu_set_ept_page_sve(struct kvm *kvm, struct kvm_memory_slot *slot,
-+			      gfn_t gfn, u16 index, bool suppress);
- 
- #endif
-diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
-index 28ab4a1ba25a..7254f5679828 100644
---- a/arch/x86/kvm/mmu/mmu.c
-+++ b/arch/x86/kvm/mmu/mmu.c
-@@ -1890,6 +1890,41 @@ bool kvm_mmu_slot_gfn_exec_protect(struct kvm *kvm,
- 	return exec_protected;
- }
- 
-+static bool spte_suppress_ve(u64 *sptep, bool suppress)
-+{
-+	u64 spte = *sptep;
-+
-+	if (suppress)
-+		spte |= VMX_EPT_SUPPRESS_VE_BIT;
-+	else
-+		spte &= ~VMX_EPT_SUPPRESS_VE_BIT;
-+
-+	return mmu_spte_update(sptep, spte);
-+}
-+
-+bool kvm_mmu_set_ept_page_sve(struct kvm *kvm, struct kvm_memory_slot *slot,
-+			      gfn_t gfn, u16 index, bool suppress)
-+{
-+	struct kvm_rmap_head *rmap_head;
-+	struct rmap_iterator iter;
-+	struct kvm_mmu_page *sp;
-+	bool flush = false;
-+	u64 *sptep;
-+	int i;
-+
-+	for (i = PG_LEVEL_4K; i <= KVM_MAX_HUGEPAGE_LEVEL; i++) {
-+		rmap_head = __gfn_to_rmap(gfn, i, slot);
-+		for_each_rmap_spte(rmap_head, &iter, sptep) {
-+			sp = page_header(__pa(sptep));
-+			if (index == 0 || (index > 0 && index == sp->view))
-+				flush |= spte_suppress_ve(sptep, suppress);
-+		}
-+	}
-+
-+	return flush;
-+}
-+EXPORT_SYMBOL_GPL(kvm_mmu_set_ept_page_sve);
-+
- static bool rmap_write_protect(struct kvm_vcpu *vcpu, u64 gfn)
- {
- 	struct kvm_memory_slot *slot;
-@@ -3171,6 +3206,9 @@ static int set_spte(struct kvm_vcpu *vcpu, u64 *sptep,
- 
- 	spte |= (u64)pfn << PAGE_SHIFT;
- 
-+	if (kvm_page_track_is_active(vcpu, gfn, KVM_PAGE_TRACK_SVE))
-+		spte &= ~VMX_EPT_SUPPRESS_VE_BIT;
-+
- 	if (pte_access & ACC_WRITE_MASK) {
- 		spte |= PT_WRITABLE_MASK | SPTE_MMU_WRITEABLE;
- 
-diff --git a/arch/x86/kvm/mmu/page_track.c b/arch/x86/kvm/mmu/page_track.c
-index bf26b21cfeb8..153c5285361f 100644
---- a/arch/x86/kvm/mmu/page_track.c
-+++ b/arch/x86/kvm/mmu/page_track.c
-@@ -125,6 +125,9 @@ void kvm_slot_page_track_add_page(struct kvm *kvm,
- 	} else if (mode == KVM_PAGE_TRACK_PREEXEC) {
- 		if (kvm_mmu_slot_gfn_exec_protect(kvm, slot, gfn, view))
- 			kvm_flush_remote_tlbs(kvm);
-+	} else if (mode == KVM_PAGE_TRACK_SVE) {
-+		if (kvm_mmu_set_ept_page_sve(kvm, slot, gfn, view, false))
-+			kvm_flush_remote_tlbs(kvm);
- 	}
- }
- EXPORT_SYMBOL_GPL(kvm_slot_page_track_add_page);
-@@ -151,6 +154,10 @@ void kvm_slot_page_track_remove_page(struct kvm *kvm,
- 
- 	update_gfn_track(slot, gfn, mode, -1, view);
- 
-+	if (mode == KVM_PAGE_TRACK_SVE)
-+		if (kvm_mmu_set_ept_page_sve(kvm, slot, gfn, view, true))
-+			kvm_flush_remote_tlbs(kvm);
-+
- 	/*
- 	 * allow large page mapping for the tracked page
- 	 * after the tracker is gone.
+RnJvbTogyJh0ZWZhbiDImGljbGVydSA8c3NpY2xlcnVAYml0ZGVmZW5kZXIuY29tPgoKQWRkIGEg
+dmlldyBtYXNrIGZvciBrdm1fbW11X3phcF9hbGwoKSBpbiBvcmRlciB0byBhbGxvdyB6YXBwaW5n
+CnNoYWRvdyBwYWdlcyBmb3Igc3BlY2lmaWMgRVBUIHZpZXdzLiBUaGlzIGlzIHJlcXVpcmVkIHdo
+ZW4gYW4KaW50cm9zcGVjdGVkIFZNIGlzIHVuaG9va2VkLiBJbiB0aGF0IGNhc2UsIHNoYWRvdyBw
+YWdlcyB0aGF0CmJlbG9uZyB0byBub24tZGVmYXVsdCB2aWV3cyB3aWxsIGJlIHphcHBlZC4KClNp
+Z25lZC1vZmYtYnk6IMiYdGVmYW4gyJhpY2xlcnUgPHNzaWNsZXJ1QGJpdGRlZmVuZGVyLmNvbT4K
+U2lnbmVkLW9mZi1ieTogQWRhbGJlcnQgTGF6xINyIDxhbGF6YXJAYml0ZGVmZW5kZXIuY29tPgot
+LS0KIGFyY2gveDg2L2luY2x1ZGUvYXNtL2t2bV9ob3N0LmggfCAyICstCiBhcmNoL3g4Ni9rdm0v
+bW11L21tdS5jICAgICAgICAgIHwgNCArKystCiBhcmNoL3g4Ni9rdm0veDg2LmMgICAgICAgICAg
+ICAgIHwgNCArKystCiAzIGZpbGVzIGNoYW5nZWQsIDcgaW5zZXJ0aW9ucygrKSwgMyBkZWxldGlv
+bnMoLSkKCmRpZmYgLS1naXQgYS9hcmNoL3g4Ni9pbmNsdWRlL2FzbS9rdm1faG9zdC5oIGIvYXJj
+aC94ODYvaW5jbHVkZS9hc20va3ZtX2hvc3QuaAppbmRleCAyZmJiMjZiNTRjZjEuLjUxOWI4MjEw
+YjhlZiAxMDA2NDQKLS0tIGEvYXJjaC94ODYvaW5jbHVkZS9hc20va3ZtX2hvc3QuaAorKysgYi9h
+cmNoL3g4Ni9pbmNsdWRlL2FzbS9rdm1faG9zdC5oCkBAIC0xMzkyLDcgKzEzOTIsNyBAQCB2b2lk
+IGt2bV9tbXVfc2xvdF9zZXRfZGlydHkoc3RydWN0IGt2bSAqa3ZtLAogdm9pZCBrdm1fbW11X2Ns
+ZWFyX2RpcnR5X3B0X21hc2tlZChzdHJ1Y3Qga3ZtICprdm0sCiAJCQkJICAgc3RydWN0IGt2bV9t
+ZW1vcnlfc2xvdCAqc2xvdCwKIAkJCQkgICBnZm5fdCBnZm5fb2Zmc2V0LCB1bnNpZ25lZCBsb25n
+IG1hc2spOwotdm9pZCBrdm1fbW11X3phcF9hbGwoc3RydWN0IGt2bSAqa3ZtKTsKK3ZvaWQga3Zt
+X21tdV96YXBfYWxsKHN0cnVjdCBrdm0gKmt2bSwgdTE2IHZpZXdfbWFzayk7CiB2b2lkIGt2bV9t
+bXVfaW52YWxpZGF0ZV9tbWlvX3NwdGVzKHN0cnVjdCBrdm0gKmt2bSwgdTY0IGdlbik7CiB1bnNp
+Z25lZCBsb25nIGt2bV9tbXVfY2FsY3VsYXRlX2RlZmF1bHRfbW11X3BhZ2VzKHN0cnVjdCBrdm0g
+Kmt2bSk7CiB2b2lkIGt2bV9tbXVfY2hhbmdlX21tdV9wYWdlcyhzdHJ1Y3Qga3ZtICprdm0sIHVu
+c2lnbmVkIGxvbmcga3ZtX25yX21tdV9wYWdlcyk7CmRpZmYgLS1naXQgYS9hcmNoL3g4Ni9rdm0v
+bW11L21tdS5jIGIvYXJjaC94ODYva3ZtL21tdS9tbXUuYwppbmRleCBjY2ExMjk4MmI3OTUuLjIy
+YzgzMTkyYmJhMSAxMDA2NDQKLS0tIGEvYXJjaC94ODYva3ZtL21tdS9tbXUuYworKysgYi9hcmNo
+L3g4Ni9rdm0vbW11L21tdS5jCkBAIC02MTY2LDcgKzYxNjYsNyBAQCB2b2lkIGt2bV9tbXVfc2xv
+dF9zZXRfZGlydHkoc3RydWN0IGt2bSAqa3ZtLAogfQogRVhQT1JUX1NZTUJPTF9HUEwoa3ZtX21t
+dV9zbG90X3NldF9kaXJ0eSk7CiAKLXZvaWQga3ZtX21tdV96YXBfYWxsKHN0cnVjdCBrdm0gKmt2
+bSkKK3ZvaWQga3ZtX21tdV96YXBfYWxsKHN0cnVjdCBrdm0gKmt2bSwgdTE2IHZpZXdfbWFzaykK
+IHsKIAlzdHJ1Y3Qga3ZtX21tdV9wYWdlICpzcCwgKm5vZGU7CiAJTElTVF9IRUFEKGludmFsaWRf
+bGlzdCk7CkBAIC02MTc1LDYgKzYxNzUsOCBAQCB2b2lkIGt2bV9tbXVfemFwX2FsbChzdHJ1Y3Qg
+a3ZtICprdm0pCiAJc3Bpbl9sb2NrKCZrdm0tPm1tdV9sb2NrKTsKIHJlc3RhcnQ6CiAJbGlzdF9m
+b3JfZWFjaF9lbnRyeV9zYWZlKHNwLCBub2RlLCAma3ZtLT5hcmNoLmFjdGl2ZV9tbXVfcGFnZXMs
+IGxpbmspIHsKKwkJaWYgKCF0ZXN0X2JpdChzcC0+dmlldywgKHVuc2lnbmVkIGxvbmcgKikmdmll
+d19tYXNrKSkKKwkJCWNvbnRpbnVlOwogCQlpZiAoc3AtPnJvbGUuaW52YWxpZCAmJiBzcC0+cm9v
+dF9jb3VudCkKIAkJCWNvbnRpbnVlOwogCQlpZiAoX19rdm1fbW11X3ByZXBhcmVfemFwX3BhZ2Uo
+a3ZtLCBzcCwgJmludmFsaWRfbGlzdCwgJmlnbikpCmRpZmYgLS1naXQgYS9hcmNoL3g4Ni9rdm0v
+eDg2LmMgYi9hcmNoL3g4Ni9rdm0veDg2LmMKaW5kZXggMmUyYzU2YTM3YmRiLi43OGFhY2FjODM5
+YmIgMTAwNjQ0Ci0tLSBhL2FyY2gveDg2L2t2bS94ODYuYworKysgYi9hcmNoL3g4Ni9rdm0veDg2
+LmMKQEAgLTEwNDA2LDcgKzEwNDA2LDkgQEAgdm9pZCBrdm1fYXJjaF9jb21taXRfbWVtb3J5X3Jl
+Z2lvbihzdHJ1Y3Qga3ZtICprdm0sCiAKIHZvaWQga3ZtX2FyY2hfZmx1c2hfc2hhZG93X2FsbChz
+dHJ1Y3Qga3ZtICprdm0pCiB7Ci0Ja3ZtX21tdV96YXBfYWxsKGt2bSk7CisJdTE2IGVwdF92aWV3
+c190b19rZWVwID0gMDsKKworCWt2bV9tbXVfemFwX2FsbChrdm0sIH5lcHRfdmlld3NfdG9fa2Vl
+cCk7CiB9CiAKIHZvaWQga3ZtX2FyY2hfZmx1c2hfc2hhZG93X21lbXNsb3Qoc3RydWN0IGt2bSAq
+a3ZtLApfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0
+dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRh
+dGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGlu
+Zm8vdmlydHVhbGl6YXRpb24=
