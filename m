@@ -1,89 +1,120 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v1 02/34] KVM: x86: export .get_eptp_switching_status()
-Date: Wed, 22 Jul 2020 19:00:49 +0300
-Message-ID: <20200722160121.9601-3-alazar@bitdefender.com>
-References: <20200722160121.9601-1-alazar@bitdefender.com>
+Subject: [RFC PATCH v1 00/34] VM introspection - EPT Views and Virtualization Exceptions
+Date: Wed, 22 Jul 2020 19:00:47 +0300
+Message-ID: <20200722160121.9601-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200722160121.9601-1-alazar@bitdefender.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <kvm-owner@vger.kernel.org>
+Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Paolo Bonzini <pbonzini@redhat.com>, Marian Rotariu <marian.c.rotariu@gmail.com>, =?UTF-8?q?=C8=98tefan=20=C8=98icleru?= <ssicleru@bitdefender.com>, virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Sean Christopherson <sean.j.christopherson@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogTWFyaWFuIFJvdGFyaXUgPG1hcmlhbi5jLnJvdGFyaXVAZ21haWwuY29tPgoKVGhlIGlu
-dHJvc3BlY3Rpb24gdG9vbCB1c2VzIHRoaXMgZnVuY3Rpb24gdG8gY2hlY2sgdGhlIGhhcmR3YXJl
-IHN1cHBvcnQKZm9yIEVQVCBzd2l0Y2hpbmcsIHdoaWNoIGNhbiBiZSB1c2VkIGVpdGhlciB0byBz
-aW5nbGVzdGVwIHZDUFVzCm9uIGEgdW5wcm90ZWN0ZWQgRVBUIHZpZXcgb3IgdG8gdXNlICNWRSBp
-biBvcmRlciB0byBhdm9pZCBmaWx0ZXIgb3V0ClZNLWV4aXRzIGNhdXNlZCBieSBFUFQgdmlvbGF0
-aW9ucy4KClNpZ25lZC1vZmYtYnk6IE1hcmlhbiBSb3Rhcml1IDxtYXJpYW4uYy5yb3Rhcml1QGdt
-YWlsLmNvbT4KQ28tZGV2ZWxvcGVkLWJ5OiDImHRlZmFuIMiYaWNsZXJ1IDxzc2ljbGVydUBiaXRk
-ZWZlbmRlci5jb20+ClNpZ25lZC1vZmYtYnk6IMiYdGVmYW4gyJhpY2xlcnUgPHNzaWNsZXJ1QGJp
-dGRlZmVuZGVyLmNvbT4KU2lnbmVkLW9mZi1ieTogQWRhbGJlcnQgTGF6xINyIDxhbGF6YXJAYml0
-ZGVmZW5kZXIuY29tPgotLS0KIGFyY2gveDg2L2luY2x1ZGUvYXNtL2t2bV9ob3N0LmggfCAyICsr
-CiBhcmNoL3g4Ni9rdm0vdm14L2NhcGFiaWxpdGllcy5oIHwgOCArKysrKysrKwogYXJjaC94ODYv
-a3ZtL3ZteC92bXguYyAgICAgICAgICB8IDggKysrKysrKysKIGFyY2gveDg2L2t2bS94ODYuYyAg
-ICAgICAgICAgICAgfCAzICsrKwogNCBmaWxlcyBjaGFuZ2VkLCAyMSBpbnNlcnRpb25zKCspCgpk
-aWZmIC0tZ2l0IGEvYXJjaC94ODYvaW5jbHVkZS9hc20va3ZtX2hvc3QuaCBiL2FyY2gveDg2L2lu
-Y2x1ZGUvYXNtL2t2bV9ob3N0LmgKaW5kZXggYWI2OTg5NzQ1ZjljLi41ZWIyNjEzNWU4MWIgMTAw
-NjQ0Ci0tLSBhL2FyY2gveDg2L2luY2x1ZGUvYXNtL2t2bV9ob3N0LmgKKysrIGIvYXJjaC94ODYv
-aW5jbHVkZS9hc20va3ZtX2hvc3QuaApAQCAtMTMwMSw2ICsxMzAxLDcgQEAgc3RydWN0IGt2bV94
-ODZfb3BzIHsKIAlib29sICgqZ3B0X3RyYW5zbGF0aW9uX2ZhdWx0KShzdHJ1Y3Qga3ZtX3ZjcHUg
-KnZjcHUpOwogCXZvaWQgKCpjb250cm9sX3NpbmdsZXN0ZXApKHN0cnVjdCBrdm1fdmNwdSAqdmNw
-dSwgYm9vbCBlbmFibGUpOwogCWJvb2wgKCpnZXRfdm1mdW5jX3N0YXR1cykodm9pZCk7CisJYm9v
-bCAoKmdldF9lcHRwX3N3aXRjaGluZ19zdGF0dXMpKHZvaWQpOwogfTsKIAogc3RydWN0IGt2bV94
-ODZfbmVzdGVkX29wcyB7CkBAIC0xNDIyLDYgKzE0MjMsNyBAQCBleHRlcm4gdTY0ICBrdm1fbWF4
-X3RzY19zY2FsaW5nX3JhdGlvOwogZXh0ZXJuIHU2NCAga3ZtX2RlZmF1bHRfdHNjX3NjYWxpbmdf
-cmF0aW87CiAKIGV4dGVybiB1NjQga3ZtX21jZV9jYXBfc3VwcG9ydGVkOworZXh0ZXJuIGJvb2wg
-a3ZtX2VwdHBfc3dpdGNoaW5nX3N1cHBvcnRlZDsKIAogLyoKICAqIEVNVUxUWVBFX05PX0RFQ09E
-RSAtIFNldCB3aGVuIHJlLWVtdWxhdGluZyBhbiBpbnN0cnVjdGlvbiAoYWZ0ZXIgY29tcGxldGlu
-ZwpkaWZmIC0tZ2l0IGEvYXJjaC94ODYva3ZtL3ZteC9jYXBhYmlsaXRpZXMuaCBiL2FyY2gveDg2
-L2t2bS92bXgvY2FwYWJpbGl0aWVzLmgKaW5kZXggZTdkN2ZjYjdlMTdmLi45Mjc4MWUyYzUyM2Ug
-MTAwNjQ0Ci0tLSBhL2FyY2gveDg2L2t2bS92bXgvY2FwYWJpbGl0aWVzLmgKKysrIGIvYXJjaC94
-ODYva3ZtL3ZteC9jYXBhYmlsaXRpZXMuaApAQCAtMjE5LDYgKzIxOSwxNCBAQCBzdGF0aWMgaW5s
-aW5lIGJvb2wgY3B1X2hhc192bXhfdm1mdW5jKHZvaWQpCiAJCVNFQ09OREFSWV9FWEVDX0VOQUJM
-RV9WTUZVTkM7CiB9CiAKK3N0YXRpYyBpbmxpbmUgYm9vbCBjcHVfaGFzX3ZteF9lcHRwX3N3aXRj
-aGluZyh2b2lkKQoreworCXU2NCB2bXhfbXNyOworCisJcmRtc3JsKE1TUl9JQTMyX1ZNWF9WTUZV
-TkMsIHZteF9tc3IpOworCXJldHVybiB2bXhfbXNyICYgVk1YX1ZNRlVOQ19FUFRQX1NXSVRDSElO
-RzsKK30KKwogc3RhdGljIGlubGluZSBib29sIGNwdV9oYXNfdm14X3NoYWRvd192bWNzKHZvaWQp
-CiB7CiAJdTY0IHZteF9tc3I7CmRpZmYgLS1naXQgYS9hcmNoL3g4Ni9rdm0vdm14L3ZteC5jIGIv
-YXJjaC94ODYva3ZtL3ZteC92bXguYwppbmRleCBlYzQzOTZkNWYzNmYuLmNjYmY1NjFiMGZjNCAx
-MDA2NDQKLS0tIGEvYXJjaC94ODYva3ZtL3ZteC92bXguYworKysgYi9hcmNoL3g4Ni9rdm0vdm14
-L3ZteC5jCkBAIC03OTk3LDYgKzc5OTcsMTEgQEAgc3RhdGljIGJvb2wgdm14X2dldF92bWZ1bmNf
-c3RhdHVzKHZvaWQpCiAJcmV0dXJuIGNwdV9oYXNfdm14X3ZtZnVuYygpOwogfQogCitzdGF0aWMg
-Ym9vbCB2bXhfZ2V0X2VwdHBfc3dpdGNoaW5nX3N0YXR1cyh2b2lkKQoreworCXJldHVybiBrdm1f
-ZXB0cF9zd2l0Y2hpbmdfc3VwcG9ydGVkOworfQorCiBzdGF0aWMgc3RydWN0IGt2bV94ODZfb3Bz
-IHZteF94ODZfb3BzIF9faW5pdGRhdGEgPSB7CiAJLmhhcmR3YXJlX3Vuc2V0dXAgPSBoYXJkd2Fy
-ZV91bnNldHVwLAogCkBAIC04MTM5LDYgKzgxNDQsNyBAQCBzdGF0aWMgc3RydWN0IGt2bV94ODZf
-b3BzIHZteF94ODZfb3BzIF9faW5pdGRhdGEgPSB7CiAJLmdwdF90cmFuc2xhdGlvbl9mYXVsdCA9
-IHZteF9ncHRfdHJhbnNsYXRpb25fZmF1bHQsCiAJLmNvbnRyb2xfc2luZ2xlc3RlcCA9IHZteF9j
-b250cm9sX3NpbmdsZXN0ZXAsCiAJLmdldF92bWZ1bmNfc3RhdHVzID0gdm14X2dldF92bWZ1bmNf
-c3RhdHVzLAorCS5nZXRfZXB0cF9zd2l0Y2hpbmdfc3RhdHVzID0gdm14X2dldF9lcHRwX3N3aXRj
-aGluZ19zdGF0dXMsCiB9OwogCiBzdGF0aWMgX19pbml0IGludCBoYXJkd2FyZV9zZXR1cCh2b2lk
-KQpAQCAtODE3OCw2ICs4MTg0LDggQEAgc3RhdGljIF9faW5pdCBpbnQgaGFyZHdhcmVfc2V0dXAo
-dm9pZCkKIAkgICAgIWNwdV9oYXNfdm14X2ludmVwdF9nbG9iYWwoKSkKIAkJZW5hYmxlX2VwdCA9
-IDA7CiAKKwlrdm1fZXB0cF9zd2l0Y2hpbmdfc3VwcG9ydGVkID0gY3B1X2hhc192bXhfZXB0cF9z
-d2l0Y2hpbmcoKTsKKwogCWlmICghY3B1X2hhc192bXhfZXB0X2FkX2JpdHMoKSB8fCAhZW5hYmxl
-X2VwdCkKIAkJZW5hYmxlX2VwdF9hZF9iaXRzID0gMDsKIApkaWZmIC0tZ2l0IGEvYXJjaC94ODYv
-a3ZtL3g4Ni5jIGIvYXJjaC94ODYva3ZtL3g4Ni5jCmluZGV4IGZlYjIwYjI5YmI5Mi4uYjE2YjAx
-OGM3NGNjIDEwMDY0NAotLS0gYS9hcmNoL3g4Ni9rdm0veDg2LmMKKysrIGIvYXJjaC94ODYva3Zt
-L3g4Ni5jCkBAIC0xNjEsNiArMTYxLDkgQEAgbW9kdWxlX3BhcmFtKGZvcmNlX2VtdWxhdGlvbl9w
-cmVmaXgsIGJvb2wsIFNfSVJVR08pOwogaW50IF9fcmVhZF9tb3N0bHkgcGlfaW5qZWN0X3RpbWVy
-ID0gLTE7CiBtb2R1bGVfcGFyYW0ocGlfaW5qZWN0X3RpbWVyLCBiaW50LCBTX0lSVUdPIHwgU19J
-V1VTUik7CiAKK2Jvb2wgX19yZWFkX21vc3RseSBrdm1fZXB0cF9zd2l0Y2hpbmdfc3VwcG9ydGVk
-OworRVhQT1JUX1NZTUJPTF9HUEwoa3ZtX2VwdHBfc3dpdGNoaW5nX3N1cHBvcnRlZCk7CisKICNk
-ZWZpbmUgS1ZNX05SX1NIQVJFRF9NU1JTIDE2CiAKIHN0cnVjdCBrdm1fc2hhcmVkX21zcnNfZ2xv
-YmFsIHsKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
-dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
-YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
-bmZvL3ZpcnR1YWxpemF0aW9u
+This patch series is based on the VM introspection patches
+(https://lore.kernel.org/kvm/20200721210922.7646-1-alazar@bitdefender.com/),
+extending the introspection API with EPT Views and Virtualization
+Exceptions (#VE) support.
+
+The purpose of this series is to get an initial feedback and to see if
+we are on the right track, especially because the changes made to add
+the EPT views are not small (even if they add support only for different
+access rights for now, not for different content).
+
+One use case for these extensions is to run a guest agent, isolated in
+another EPT view and using Virtualization Exceptions (#VE), to reduce
+the number of VM-Exits caused by EPT violations.
+
+Another case for EPT views is to single-step one vCPU on a different view
+(with more relaxed page access restrictions) while all the others run
+on a main/restricted view.
+
+Patches 1-11 make preparatory changes for EPT views.
+
+Patches 12-19 extend the VM introspection API with EPT-views related
+commands and data. The Get/Set/Control EPT view commands are added,
+the KVMI_VM_SET_PAGE_ACCESS command and the vCPU introspection events
+are extended with the EPT view.
+
+Patches 20-30 make preparatory changes for #VE.
+
+Patches 31-34 extend the VM introspection API with #VE related commands.
+
+Adalbert Lazăr (2):
+  KVM: x86: mmu: reindent to avoid lines longer than 80 chars
+  KVM: introspection: mask out non-rwx flags when reading/writing
+    from/to the internal database
+
+Marian Rotariu (5):
+  KVM: x86: export .get_vmfunc_status()
+  KVM: x86: export .get_eptp_switching_status()
+  KVM: x86: mmu: add support for EPT switching
+  KVM: x86: add .set_ept_view()
+  KVM: x86: vmx: add support for virtualization exceptions
+
+Sean Christopherson (2):
+  KVM: VMX: Define EPT suppress #VE bit (bit 63 in EPT leaf entries)
+  KVM: VMX: Suppress EPT violation #VE by default (when enabled)
+
+Ștefan Șicleru (25):
+  KVM: x86: add kvm_get_ept_view()
+  KVM: x86: mmu: add EPT view parameter to kvm_mmu_get_page()
+  KVM: x86: mmu: increase mmu_memory_cache size
+  KVM: x86: add .control_ept_view()
+  KVM: x86: page track: allow page tracking for different EPT views
+  KVM: x86: mmu: allow zapping shadow pages for specific EPT views
+  KVM: introspection: extend struct kvmi_features with the EPT views
+    status support
+  KVM: introspection: add KVMI_VCPU_GET_EPT_VIEW
+  KVM: introspection: add 'view' field to struct kvmi_event_arch
+  KVM: introspection: add KVMI_VCPU_SET_EPT_VIEW
+  KVM: introspection: add KVMI_VCPU_CONTROL_EPT_VIEW
+  KVM: introspection: extend the access rights database with EPT view
+    info
+  KVM: introspection: extend KVMI_VM_SET_PAGE_ACCESS with EPT view info
+  KVM: introspection: clean non-default EPTs on unhook
+  KVM: x86: mmu: fix: update present_mask in spte_read_protect()
+  KVM: vmx: trigger vm-exits for mmio sptes by default when #VE is
+    enabled
+  KVM: x86: svm: set .clear_page()
+  KVM: x86: add .set_ve_info()
+  KVM: x86: add .disable_ve()
+  KVM: x86: page_track: add support for suppress #VE bit
+  KVM: vmx: make use of EPTP_INDEX in vmx_handle_exit()
+  KVM: vmx: make use of EPTP_INDEX in vmx_set_ept_view()
+  KVM: introspection: add #VE host capability checker
+  KVM: introspection: add KVMI_VCPU_SET_VE_INFO/KVMI_VCPU_DISABLE_VE
+  KVM: introspection: add KVMI_VM_SET_PAGE_SVE
+
+ Documentation/virt/kvm/kvmi.rst               | 227 +++++++++++-
+ arch/x86/include/asm/kvm_host.h               |  27 +-
+ arch/x86/include/asm/kvm_page_track.h         |   5 +-
+ arch/x86/include/asm/kvmi_host.h              |   1 +
+ arch/x86/include/asm/vmx.h                    |   5 +
+ arch/x86/include/uapi/asm/kvmi.h              |  44 ++-
+ arch/x86/kvm/Makefile                         |   2 +-
+ arch/x86/kvm/kvmi.c                           |  83 ++++-
+ arch/x86/kvm/mmu.h                            |  12 +-
+ arch/x86/kvm/mmu/mmu.c                        | 191 +++++++---
+ arch/x86/kvm/mmu/page_track.c                 |  63 ++--
+ arch/x86/kvm/mmu/paging_tmpl.h                |   6 +-
+ arch/x86/kvm/svm/svm.c                        |   1 +
+ arch/x86/kvm/vmx/capabilities.h               |  13 +
+ arch/x86/kvm/vmx/clear_page.S                 |  17 +
+ arch/x86/kvm/vmx/vmx.c                        | 291 ++++++++++++++-
+ arch/x86/kvm/vmx/vmx.h                        |  18 +
+ arch/x86/kvm/x86.c                            |  20 +-
+ drivers/gpu/drm/i915/gvt/kvmgt.c              |   8 +-
+ include/linux/kvmi_host.h                     |   2 +-
+ include/uapi/linux/kvmi.h                     |  12 +-
+ .../testing/selftests/kvm/x86_64/kvmi_test.c  | 335 +++++++++++++++++-
+ virt/kvm/introspection/kvmi.c                 | 175 ++++++---
+ virt/kvm/introspection/kvmi_int.h             |  17 +-
+ virt/kvm/introspection/kvmi_msg.c             | 106 ++++++
+ 25 files changed, 1512 insertions(+), 169 deletions(-)
+ create mode 100644 arch/x86/kvm/vmx/clear_page.S
+
+
+base-commit: d9da9f5842e0697564f0f3e586d858f2626e8f92
+Based-on: <20200721210922.7646-1-alazar@bitdefender.com>
+CC: Sean Christopherson <sean.j.christopherson@intel.com>
