@@ -1,352 +1,136 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v1 16/34] KVM: introspection: add KVMI_VCPU_CONTROL_EPT_VIEW
-Date: Wed, 22 Jul 2020 19:01:03 +0300
-Message-ID: <20200722160121.9601-17-alazar@bitdefender.com>
+Subject: [RFC PATCH v1 13/34] KVM: introspection: add KVMI_VCPU_GET_EPT_VIEW
+Date: Wed, 22 Jul 2020 19:01:00 +0300
+Message-ID: <20200722160121.9601-14-alazar@bitdefender.com>
 References: <20200722160121.9601-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200722160121.9601-1-alazar@bitdefender.com>
-Sender: kvm-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?=C8=98tefan=20=C8=98icleru?= <ssicleru@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?=C8=98tefan=20=C8=98icleru?= <ssicleru@bitdefender.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Ștefan Șicleru <ssicleru@bitdefender.com>
-
-This will be used by the introspection tool to control the EPT views to
-which the guest is allowed to switch.
-
-Signed-off-by: Ștefan Șicleru <ssicleru@bitdefender.com>
-Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
----
- Documentation/virt/kvm/kvmi.rst               |  37 ++++++
- arch/x86/include/uapi/asm/kvmi.h              |   7 ++
- arch/x86/kvm/kvmi.c                           |   9 ++
- include/uapi/linux/kvmi.h                     |   1 +
- .../testing/selftests/kvm/x86_64/kvmi_test.c  | 118 ++++++++++++++++++
- virt/kvm/introspection/kvmi_int.h             |   2 +
- virt/kvm/introspection/kvmi_msg.c             |  19 +++
- 7 files changed, 193 insertions(+)
-
-diff --git a/Documentation/virt/kvm/kvmi.rst b/Documentation/virt/kvm/kvmi.rst
-index 02f03c62adef..f4c60aba9b53 100644
---- a/Documentation/virt/kvm/kvmi.rst
-+++ b/Documentation/virt/kvm/kvmi.rst
-@@ -1190,6 +1190,43 @@ EPTP switching mechanism (see **KVMI_GET_VERSION**).
- * -KVM_EAGAIN - the selected vCPU can't be introspected yet
- * -KVM_EOPNOTSUPP - an EPT view was selected but the hardware doesn't support it
- 
-+28. KVMI_VCPU_CONTROL_EPT_VIEW
-+------------------------------
-+
-+:Architecture: x86
-+:Versions: >= 1
-+:Parameters:
-+
-+::
-+
-+	struct kvmi_vcpu_hdr;
-+	struct kvmi_vcpu_control_ept_view {
-+		__u16 view;
-+		__u8  visible;
-+		__u8  padding1;
-+		__u32 padding2;
-+	};
-+
-+:Returns:
-+
-+::
-+
-+	struct kvmi_error_code;
-+
-+Controls the capability of the guest to successfully change EPT views
-+through VMFUNC instruction without triggering a vm-exit. If ``visible``
-+is true, the guest will be capable to change EPT views through VMFUNC(0,
-+``view``). If ``visible`` is false, VMFUNC(0, ``view``) triggers a
-+vm-exit, a #UD exception is injected to guest and the guest application
-+is terminated.
-+
-+:Errors:
-+
-+* -KVM_EINVAL - the selected vCPU is invalid
-+* -KVM_EAGAIN - the selected vCPU can't be introspected yet
-+* -KVM_EINVAL - padding is not zero
-+* -KVM_EINVAL - the selected EPT view is not valid
-+
- Events
- ======
- 
-diff --git a/arch/x86/include/uapi/asm/kvmi.h b/arch/x86/include/uapi/asm/kvmi.h
-index f7a080d5e227..fc35da900778 100644
---- a/arch/x86/include/uapi/asm/kvmi.h
-+++ b/arch/x86/include/uapi/asm/kvmi.h
-@@ -166,4 +166,11 @@ struct kvmi_vcpu_set_ept_view {
- 	__u32 padding2;
- };
- 
-+struct kvmi_vcpu_control_ept_view {
-+	__u16 view;
-+	__u8  visible;
-+	__u8  padding1;
-+	__u32 padding2;
-+};
-+
- #endif /* _UAPI_ASM_X86_KVMI_H */
-diff --git a/arch/x86/kvm/kvmi.c b/arch/x86/kvm/kvmi.c
-index 99ea8ef70be2..06357b8ab54a 100644
---- a/arch/x86/kvm/kvmi.c
-+++ b/arch/x86/kvm/kvmi.c
-@@ -1432,3 +1432,12 @@ int kvmi_arch_cmd_set_ept_view(struct kvm_vcpu *vcpu, u16 view)
- 
- 	return kvm_x86_ops.set_ept_view(vcpu, view);
- }
-+
-+int kvmi_arch_cmd_control_ept_view(struct kvm_vcpu *vcpu, u16 view,
-+				   bool visible)
-+{
-+	if (!kvm_x86_ops.control_ept_view)
-+		return -KVM_EINVAL;
-+
-+	return kvm_x86_ops.control_ept_view(vcpu, view, visible);
-+}
-diff --git a/include/uapi/linux/kvmi.h b/include/uapi/linux/kvmi.h
-index 8204661d944d..a72c536a2c80 100644
---- a/include/uapi/linux/kvmi.h
-+++ b/include/uapi/linux/kvmi.h
-@@ -51,6 +51,7 @@ enum {
- 	KVMI_VCPU_TRANSLATE_GVA      = 25,
- 	KVMI_VCPU_GET_EPT_VIEW       = 26,
- 	KVMI_VCPU_SET_EPT_VIEW       = 27,
-+	KVMI_VCPU_CONTROL_EPT_VIEW   = 28,
- 
- 	KVMI_NUM_MESSAGES
- };
-diff --git a/tools/testing/selftests/kvm/x86_64/kvmi_test.c b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-index c6f7d10563db..d808cb61463d 100644
---- a/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-+++ b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
-@@ -56,6 +56,7 @@ struct vcpu_worker_data {
- 	bool stop;
- 	bool shutdown;
- 	bool restart_on_shutdown;
-+	bool run_guest_once;
- };
- 
- static struct kvmi_features features;
-@@ -72,6 +73,7 @@ enum {
- 	GUEST_TEST_HYPERCALL,
- 	GUEST_TEST_MSR,
- 	GUEST_TEST_PF,
-+	GUEST_TEST_VMFUNC,
- 	GUEST_TEST_XSETBV,
- };
- 
-@@ -130,6 +132,13 @@ static void guest_pf_test(void)
- 	*((uint8_t *)test_gva) = READ_ONCE(test_write_pattern);
- }
- 
-+static void guest_vmfunc_test(void)
-+{
-+	asm volatile("mov $0, %rax");
-+	asm volatile("mov $1, %rcx");
-+	asm volatile(".byte 0x0f,0x01,0xd4");
-+}
-+
- /* from fpu/internal.h */
- static u64 xgetbv(u32 index)
- {
-@@ -193,6 +202,9 @@ static void guest_code(void)
- 		case GUEST_TEST_PF:
- 			guest_pf_test();
- 			break;
-+		case GUEST_TEST_VMFUNC:
-+			guest_vmfunc_test();
-+			break;
- 		case GUEST_TEST_XSETBV:
- 			guest_xsetbv_test();
- 			break;
-@@ -777,6 +789,7 @@ static void test_memory_access(struct kvm_vm *vm)
- static void *vcpu_worker(void *data)
- {
- 	struct vcpu_worker_data *ctx = data;
-+	bool first_run = false;
- 	struct kvm_run *run;
- 
- 	run = vcpu_state(ctx->vm, ctx->vcpu_id);
-@@ -805,6 +818,13 @@ static void *vcpu_worker(void *data)
- 		if (HOST_SEND_TEST(uc)) {
- 			test_id = READ_ONCE(ctx->test_id);
- 			sync_global_to_guest(ctx->vm, test_id);
-+			if (run->exit_reason == KVM_EXIT_IO &&
-+			    ctx->run_guest_once) {
-+				if (!first_run)
-+					first_run = true;
-+				else
-+					break;
-+			}
- 		}
- 	}
- 
-@@ -2140,6 +2160,103 @@ static void test_cmd_vcpu_set_ept_view(struct kvm_vm *vm)
- 	set_ept_view(vm, old_view);
- }
- 
-+static void check_expected_view(struct kvm_vm *vm,
-+				__u16 check_view)
-+{
-+	__u16 found_view = get_ept_view(vm);
-+
-+	TEST_ASSERT(check_view == found_view,
-+			"Unexpected EPT view, found ept view (%u), expected view (%u)\n",
-+			found_view, check_view);
-+}
-+
-+static void test_guest_switch_to_invisible_view(struct kvm_vm *vm)
-+{
-+	struct vcpu_worker_data data = {
-+		.vm = vm,
-+		.vcpu_id = VCPU_ID,
-+		.shutdown = true,
-+		.test_id = GUEST_TEST_VMFUNC,
-+	};
-+	pthread_t vcpu_thread;
-+	struct kvm_regs regs;
-+	__u16 view = 0;
-+
-+	check_expected_view(vm, view);
-+
-+	vcpu_thread = start_vcpu_worker(&data);
-+	wait_vcpu_worker(vcpu_thread);
-+
-+	/*
-+	 * Move to the next instruction, so the guest would not
-+	 * re-execute VMFUNC again when vcpu_run() is called.
-+	 */
-+	vcpu_regs_get(vm, VCPU_ID, &regs);
-+	regs.rip += 3;
-+	vcpu_regs_set(vm, VCPU_ID, &regs);
-+
-+	check_expected_view(vm, view);
-+}
-+
-+static void test_control_ept_view(struct kvm_vm *vm, __u16 view, bool visible)
-+{
-+	struct {
-+		struct kvmi_msg_hdr hdr;
-+		struct kvmi_vcpu_hdr vcpu_hdr;
-+		struct kvmi_vcpu_control_ept_view cmd;
-+	} req = {};
-+
-+	req.cmd.view = view;
-+	req.cmd.visible = visible;
-+
-+	test_vcpu0_command(vm, KVMI_VCPU_CONTROL_EPT_VIEW,
-+			   &req.hdr, sizeof(req), NULL, 0);
-+}
-+
-+static void enable_ept_view_visibility(struct kvm_vm *vm, __u16 view)
-+{
-+	test_control_ept_view(vm, view, true);
-+}
-+
-+static void disable_ept_view_visibility(struct kvm_vm *vm, __u16 view)
-+{
-+	test_control_ept_view(vm, view, false);
-+}
-+
-+static void test_guest_switch_to_visible_view(struct kvm_vm *vm)
-+{
-+	struct vcpu_worker_data data = {
-+		.vm = vm,
-+		.vcpu_id = VCPU_ID,
-+		.run_guest_once = true,
-+		.test_id = GUEST_TEST_VMFUNC,
-+	};
-+	pthread_t vcpu_thread;
-+	__u16 old_view = 0, new_view = 1;
-+
-+	enable_ept_view_visibility(vm, new_view);
-+
-+	vcpu_thread = start_vcpu_worker(&data);
-+	wait_vcpu_worker(vcpu_thread);
-+
-+	check_expected_view(vm, new_view);
-+
-+	disable_ept_view_visibility(vm, new_view);
-+
-+	set_ept_view(vm, old_view);
-+}
-+
-+static void test_cmd_vcpu_vmfunc(struct kvm_vm *vm)
-+{
-+	if (!features.vmfunc) {
-+		print_skip("EPT views not supported");
-+		return;
-+	}
-+
-+	test_guest_switch_to_invisible_view(vm);
-+	test_guest_switch_to_visible_view(vm);
-+}
-+
- static void test_introspection(struct kvm_vm *vm)
- {
- 	srandom(time(0));
-@@ -2178,6 +2295,7 @@ static void test_introspection(struct kvm_vm *vm)
- 	test_cmd_translate_gva(vm);
- 	test_cmd_vcpu_get_ept_view(vm);
- 	test_cmd_vcpu_set_ept_view(vm);
-+	test_cmd_vcpu_vmfunc(vm);
- 
- 	unhook_introspection(vm);
- }
-diff --git a/virt/kvm/introspection/kvmi_int.h b/virt/kvm/introspection/kvmi_int.h
-index f093aad2f804..d78116442ddd 100644
---- a/virt/kvm/introspection/kvmi_int.h
-+++ b/virt/kvm/introspection/kvmi_int.h
-@@ -149,5 +149,7 @@ bool kvmi_arch_stop_singlestep(struct kvm_vcpu *vcpu);
- gpa_t kvmi_arch_cmd_translate_gva(struct kvm_vcpu *vcpu, gva_t gva);
- u16 kvmi_arch_cmd_get_ept_view(struct kvm_vcpu *vcpu);
- int kvmi_arch_cmd_set_ept_view(struct kvm_vcpu *vcpu, u16 view);
-+int kvmi_arch_cmd_control_ept_view(struct kvm_vcpu *vcpu, u16 view,
-+				   bool visible);
- 
- #endif
-diff --git a/virt/kvm/introspection/kvmi_msg.c b/virt/kvm/introspection/kvmi_msg.c
-index 73a7179f7031..696857f6d008 100644
---- a/virt/kvm/introspection/kvmi_msg.c
-+++ b/virt/kvm/introspection/kvmi_msg.c
-@@ -693,6 +693,24 @@ static int handle_vcpu_set_ept_view(const struct kvmi_vcpu_msg_job *job,
- 	return kvmi_msg_vcpu_reply(job, msg, ec, NULL, 0);
- }
- 
-+static int handle_vcpu_control_ept_view(const struct kvmi_vcpu_msg_job *job,
-+					const struct kvmi_msg_hdr *msg,
-+					const void *_req)
-+{
-+	const struct kvmi_vcpu_control_ept_view *req = _req;
-+	int ec;
-+
-+	if (req->padding1 || req->padding2)
-+		ec = -KVM_EINVAL;
-+	else if (!is_valid_view(req->view))
-+		ec = -KVM_EINVAL;
-+	else
-+		ec = kvmi_arch_cmd_control_ept_view(job->vcpu, req->view,
-+						    req->visible);
-+
-+	return kvmi_msg_vcpu_reply(job, msg, ec, NULL, 0);
-+}
-+
- /*
-  * These functions are executed from the vCPU thread. The receiving thread
-  * passes the messages using a newly allocated 'struct kvmi_vcpu_msg_job'
-@@ -703,6 +721,7 @@ static int(*const msg_vcpu[])(const struct kvmi_vcpu_msg_job *,
- 			      const struct kvmi_msg_hdr *, const void *) = {
- 	[KVMI_EVENT]                   = handle_vcpu_event_reply,
- 	[KVMI_VCPU_CONTROL_CR]         = handle_vcpu_control_cr,
-+	[KVMI_VCPU_CONTROL_EPT_VIEW]   = handle_vcpu_control_ept_view,
- 	[KVMI_VCPU_CONTROL_EVENTS]     = handle_vcpu_control_events,
- 	[KVMI_VCPU_CONTROL_MSR]        = handle_vcpu_control_msr,
- 	[KVMI_VCPU_CONTROL_SINGLESTEP] = handle_vcpu_control_singlestep,
+RnJvbTogyJh0ZWZhbiDImGljbGVydSA8c3NpY2xlcnVAYml0ZGVmZW5kZXIuY29tPgoKVGhlIGlu
+dHJvc3BlY3Rpb24gdG9vbCB1c2VzIHRoaXMgZnVuY3Rpb24gdG8gY2hlY2sgdGhlIGhhcmR3YXJl
+IHN1cHBvcnQKZm9yIEVQVCBzd2l0Y2hpbmcsIHdoaWNoIGNhbiBiZSB1c2VkIGVpdGhlciB0byBz
+aW5nbGVzdGVwIHZDUFVzCm9uIGEgdW5wcm90ZWN0ZWQgRVBUIHZpZXcgb3IgdG8gdXNlICNWRSBp
+biBvcmRlciB0byBhdm9pZCBmaWx0ZXIgb3V0ClZNLWV4aXRzIGNhdXNlZCBieSBFUFQgdmlvbGF0
+aW9ucy4KClNpZ25lZC1vZmYtYnk6IMiYdGVmYW4gyJhpY2xlcnUgPHNzaWNsZXJ1QGJpdGRlZmVu
+ZGVyLmNvbT4KU2lnbmVkLW9mZi1ieTogQWRhbGJlcnQgTGF6xINyIDxhbGF6YXJAYml0ZGVmZW5k
+ZXIuY29tPgotLS0KIERvY3VtZW50YXRpb24vdmlydC9rdm0va3ZtaS5yc3QgICAgICAgICAgICAg
+ICB8IDM0ICsrKysrKysrKysrKysrKysrKysKIGFyY2gveDg2L2luY2x1ZGUvdWFwaS9hc20va3Zt
+aS5oICAgICAgICAgICAgICB8ICA2ICsrKysKIGFyY2gveDg2L2t2bS9rdm1pLmMgICAgICAgICAg
+ICAgICAgICAgICAgICAgICB8ICA1ICsrKwogaW5jbHVkZS91YXBpL2xpbnV4L2t2bWkuaCAgICAg
+ICAgICAgICAgICAgICAgIHwgIDEgKwogLi4uL3Rlc3Rpbmcvc2VsZnRlc3RzL2t2bS94ODZfNjQv
+a3ZtaV90ZXN0LmMgIHwgMjggKysrKysrKysrKysrKysrCiB2aXJ0L2t2bS9pbnRyb3NwZWN0aW9u
+L2t2bWlfaW50LmggICAgICAgICAgICAgfCAgMSArCiB2aXJ0L2t2bS9pbnRyb3NwZWN0aW9uL2t2
+bWlfbXNnLmMgICAgICAgICAgICAgfCAxNCArKysrKysrKwogNyBmaWxlcyBjaGFuZ2VkLCA4OSBp
+bnNlcnRpb25zKCspCgpkaWZmIC0tZ2l0IGEvRG9jdW1lbnRhdGlvbi92aXJ0L2t2bS9rdm1pLnJz
+dCBiL0RvY3VtZW50YXRpb24vdmlydC9rdm0va3ZtaS5yc3QKaW5kZXggMjM0ZWFjZWM0ZGIxLi43
+NmEyZDAxMjVmNzggMTAwNjQ0Ci0tLSBhL0RvY3VtZW50YXRpb24vdmlydC9rdm0va3ZtaS5yc3QK
+KysrIGIvRG9jdW1lbnRhdGlvbi92aXJ0L2t2bS9rdm1pLnJzdApAQCAtMTEyMCw2ICsxMTIwLDQw
+IEBAIHRoZSBhZGRyZXNzIGNhbm5vdCBiZSB0cmFuc2xhdGVkLgogKiAtS1ZNX0VJTlZBTCAtIHRo
+ZSBwYWRkaW5nIGlzIG5vdCB6ZXJvCiAqIC1LVk1fRUFHQUlOIC0gdGhlIHNlbGVjdGVkIHZDUFUg
+Y2FuJ3QgYmUgaW50cm9zcGVjdGVkIHlldAogCisyNi4gS1ZNSV9WQ1BVX0dFVF9FUFRfVklFVwor
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0KKworOkFyY2hpdGVjdHVyZTogeDg2Cis6VmVyc2lv
+bnM6ID49IDEKKzpQYXJhbWV0ZXJzOgorCis6OgorCisJc3RydWN0IGt2bWlfdmNwdV9oZHI7CisK
+KzpSZXR1cm5zOgorCis6OgorCisJc3RydWN0IGt2bWlfZXJyb3JfY29kZTsKKwlzdHJ1Y3Qga3Zt
+aV92Y3B1X2dldF9lcHRfdmlld19yZXBseSB7CisJCV9fdTE2IHZpZXc7CisJCV9fdTE2IHBhZGRp
+bmcxOworCQlfX3UzMiBwYWRkaW5nMjsKKwl9OworCitSZXR1cm5zIHRoZSBFUFQgYGB2aWV3YGAg
+dGhlIHByb3ZpZGVkIHZDUFUgb3BlcmF0ZXMgb24uCisKK0JlZm9yZSBnZXR0aW5nIEVQVCB2aWV3
+cywgdGhlIGludHJvc3BlY3Rpb24gdG9vbCBzaG91bGQgdXNlCisqS1ZNSV9HRVRfVkVSU0lPTiog
+dG8gY2hlY2sgaWYgdGhlIGhhcmR3YXJlIGhhcyBzdXBwb3J0IGZvciBWTUZVTkMgYW5kCitFUFRQ
+IHN3aXRjaGluZyBtZWNoYW5pc20gKHNlZSAqKktWTUlfR0VUX1ZFUlNJT04qKikuICBJZiB0aGUg
+aGFyZHdhcmUKK2RvZXMgbm90IHByb3ZpZGUgc3VwcG9ydCBmb3IgdGhlc2UgZmVhdHVyZXMsIHRo
+ZSByZXR1cm5lZCBFUFQgdmlldyB3aWxsCitiZSB6ZXJvLgorCisqIC1LVk1fRUlOVkFMIC0gdGhl
+IHNlbGVjdGVkIHZDUFUgaXMgaW52YWxpZAorKiAtS1ZNX0VJTlZBTCAtIHRoZSBwYWRkaW5nIGlz
+IG5vdCB6ZXJvCisqIC1LVk1fRUFHQUlOIC0gdGhlIHNlbGVjdGVkIHZDUFUgY2FuJ3QgYmUgaW50
+cm9zcGVjdGVkIHlldAorCiBFdmVudHMKID09PT09PQogCmRpZmYgLS1naXQgYS9hcmNoL3g4Ni9p
+bmNsdWRlL3VhcGkvYXNtL2t2bWkuaCBiL2FyY2gveDg2L2luY2x1ZGUvdWFwaS9hc20va3ZtaS5o
+CmluZGV4IDUxYjM5OWQ1MGEyYS4uMzA4N2M2ODVjMjMyIDEwMDY0NAotLS0gYS9hcmNoL3g4Ni9p
+bmNsdWRlL3VhcGkvYXNtL2t2bWkuaAorKysgYi9hcmNoL3g4Ni9pbmNsdWRlL3VhcGkvYXNtL2t2
+bWkuaApAQCAtMTUyLDQgKzE1MiwxMCBAQCBzdHJ1Y3Qga3ZtaV9mZWF0dXJlcyB7CiAJX191OCBw
+YWRkaW5nWzVdOwogfTsKIAorc3RydWN0IGt2bWlfdmNwdV9nZXRfZXB0X3ZpZXdfcmVwbHkgewor
+CV9fdTE2IHZpZXc7CisJX191MTYgcGFkZGluZzE7CisJX191MzIgcGFkZGluZzI7Cit9OworCiAj
+ZW5kaWYgLyogX1VBUElfQVNNX1g4Nl9LVk1JX0ggKi8KZGlmZiAtLWdpdCBhL2FyY2gveDg2L2t2
+bS9rdm1pLmMgYi9hcmNoL3g4Ni9rdm0va3ZtaS5jCmluZGV4IDI1YzFmOGYyZTIyMS4uYmQzMTgw
+OWZmODEyIDEwMDY0NAotLS0gYS9hcmNoL3g4Ni9rdm0va3ZtaS5jCisrKyBiL2FyY2gveDg2L2t2
+bS9rdm1pLmMKQEAgLTE0MTcsMyArMTQxNyw4IEBAIGJvb2wga3ZtaV91cGRhdGVfYWRfZmxhZ3Mo
+c3RydWN0IGt2bV92Y3B1ICp2Y3B1KQogCiAJcmV0dXJuIHJldDsKIH0KKwordTE2IGt2bWlfYXJj
+aF9jbWRfZ2V0X2VwdF92aWV3KHN0cnVjdCBrdm1fdmNwdSAqdmNwdSkKK3sKKwlyZXR1cm4ga3Zt
+X2dldF9lcHRfdmlldyh2Y3B1KTsKK30KZGlmZiAtLWdpdCBhL2luY2x1ZGUvdWFwaS9saW51eC9r
+dm1pLmggYi9pbmNsdWRlL3VhcGkvbGludXgva3ZtaS5oCmluZGV4IDNjMTVjMTdkMjhlMy4uY2Yz
+NDIyZWM2MGE4IDEwMDY0NAotLS0gYS9pbmNsdWRlL3VhcGkvbGludXgva3ZtaS5oCisrKyBiL2lu
+Y2x1ZGUvdWFwaS9saW51eC9rdm1pLmgKQEAgLTQ5LDYgKzQ5LDcgQEAgZW51bSB7CiAKIAlLVk1J
+X1ZDUFVfQ09OVFJPTF9TSU5HTEVTVEVQID0gMjQsCiAJS1ZNSV9WQ1BVX1RSQU5TTEFURV9HVkEg
+ICAgICA9IDI1LAorCUtWTUlfVkNQVV9HRVRfRVBUX1ZJRVcgICAgICAgPSAyNiwKIAogCUtWTUlf
+TlVNX01FU1NBR0VTCiB9OwpkaWZmIC0tZ2l0IGEvdG9vbHMvdGVzdGluZy9zZWxmdGVzdHMva3Zt
+L3g4Nl82NC9rdm1pX3Rlc3QuYyBiL3Rvb2xzL3Rlc3Rpbmcvc2VsZnRlc3RzL2t2bS94ODZfNjQv
+a3ZtaV90ZXN0LmMKaW5kZXggMzNmZmZjYjNhMTcxLi43NGVhZmJjYWUxNGEgMTAwNjQ0Ci0tLSBh
+L3Rvb2xzL3Rlc3Rpbmcvc2VsZnRlc3RzL2t2bS94ODZfNjQva3ZtaV90ZXN0LmMKKysrIGIvdG9v
+bHMvdGVzdGluZy9zZWxmdGVzdHMva3ZtL3g4Nl82NC9rdm1pX3Rlc3QuYwpAQCAtMjA3MSw2ICsy
+MDcxLDMzIEBAIHN0YXRpYyB2b2lkIHRlc3RfY21kX3RyYW5zbGF0ZV9ndmEoc3RydWN0IGt2bV92
+bSAqdm0pCiAJCSh2bV92YWRkcl90KS0xLCAodm1fcGFkZHJfdCktMSk7CiB9CiAKK3N0YXRpYyBf
+X3UxNiBnZXRfZXB0X3ZpZXcoc3RydWN0IGt2bV92bSAqdm0pCit7CisJc3RydWN0IHsKKwkJc3Ry
+dWN0IGt2bWlfbXNnX2hkciBoZHI7CisJCXN0cnVjdCBrdm1pX3ZjcHVfaGRyIHZjcHVfaGRyOwor
+CX0gcmVxID0ge307CisJc3RydWN0IGt2bWlfdmNwdV9nZXRfZXB0X3ZpZXdfcmVwbHkgcnBsOwor
+CisJdGVzdF92Y3B1MF9jb21tYW5kKHZtLCBLVk1JX1ZDUFVfR0VUX0VQVF9WSUVXLAorCQkJICAg
+JnJlcS5oZHIsIHNpemVvZihyZXEpLCAmcnBsLCBzaXplb2YocnBsKSk7CisKKwlyZXR1cm4gcnBs
+LnZpZXc7Cit9CisKK3N0YXRpYyB2b2lkIHRlc3RfY21kX3ZjcHVfZ2V0X2VwdF92aWV3KHN0cnVj
+dCBrdm1fdm0gKnZtKQoreworCV9fdTE2IHZpZXc7CisKKwlpZiAoIWZlYXR1cmVzLmVwdHApIHsK
+KwkJcHJpbnRfc2tpcCgiRVBUIHZpZXdzIG5vdCBzdXBwb3J0ZWQiKTsKKwkJcmV0dXJuOworCX0K
+KworCXZpZXcgPSBnZXRfZXB0X3ZpZXcodm0pOworCXByX2luZm8oIkVQVCB2aWV3ICV1XG4iLCB2
+aWV3KTsKK30KKwogc3RhdGljIHZvaWQgdGVzdF9pbnRyb3NwZWN0aW9uKHN0cnVjdCBrdm1fdm0g
+KnZtKQogewogCXNyYW5kb20odGltZSgwKSk7CkBAIC0yMTA3LDYgKzIxMzQsNyBAQCBzdGF0aWMg
+dm9pZCB0ZXN0X2ludHJvc3BlY3Rpb24oc3RydWN0IGt2bV92bSAqdm0pCiAJdGVzdF9ldmVudF9w
+Zih2bSk7CiAJdGVzdF9jbWRfdmNwdV9jb250cm9sX3NpbmdsZXN0ZXAodm0pOwogCXRlc3RfY21k
+X3RyYW5zbGF0ZV9ndmEodm0pOworCXRlc3RfY21kX3ZjcHVfZ2V0X2VwdF92aWV3KHZtKTsKIAog
+CXVuaG9va19pbnRyb3NwZWN0aW9uKHZtKTsKIH0KZGlmZiAtLWdpdCBhL3ZpcnQva3ZtL2ludHJv
+c3BlY3Rpb24va3ZtaV9pbnQuaCBiL3ZpcnQva3ZtL2ludHJvc3BlY3Rpb24va3ZtaV9pbnQuaApp
+bmRleCBjYjg0NTNmMGZiODcuLmY4ODk5OWJmNTllOCAxMDA2NDQKLS0tIGEvdmlydC9rdm0vaW50
+cm9zcGVjdGlvbi9rdm1pX2ludC5oCisrKyBiL3ZpcnQva3ZtL2ludHJvc3BlY3Rpb24va3ZtaV9p
+bnQuaApAQCAtMTQyLDUgKzE0Miw2IEBAIHZvaWQga3ZtaV9hcmNoX2ZlYXR1cmVzKHN0cnVjdCBr
+dm1pX2ZlYXR1cmVzICpmZWF0KTsKIGJvb2wga3ZtaV9hcmNoX3N0YXJ0X3NpbmdsZXN0ZXAoc3Ry
+dWN0IGt2bV92Y3B1ICp2Y3B1KTsKIGJvb2wga3ZtaV9hcmNoX3N0b3Bfc2luZ2xlc3RlcChzdHJ1
+Y3Qga3ZtX3ZjcHUgKnZjcHUpOwogZ3BhX3Qga3ZtaV9hcmNoX2NtZF90cmFuc2xhdGVfZ3ZhKHN0
+cnVjdCBrdm1fdmNwdSAqdmNwdSwgZ3ZhX3QgZ3ZhKTsKK3UxNiBrdm1pX2FyY2hfY21kX2dldF9l
+cHRfdmlldyhzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUpOwogCiAjZW5kaWYKZGlmZiAtLWdpdCBhL3Zp
+cnQva3ZtL2ludHJvc3BlY3Rpb24va3ZtaV9tc2cuYyBiL3ZpcnQva3ZtL2ludHJvc3BlY3Rpb24v
+a3ZtaV9tc2cuYwppbmRleCBkODg3NGJkN2E4YjcuLjZjYjM0NzMxOTBkYiAxMDA2NDQKLS0tIGEv
+dmlydC9rdm0vaW50cm9zcGVjdGlvbi9rdm1pX21zZy5jCisrKyBiL3ZpcnQva3ZtL2ludHJvc3Bl
+Y3Rpb24va3ZtaV9tc2cuYwpAQCAtNjYxLDYgKzY2MSwxOSBAQCBzdGF0aWMgaW50IGhhbmRsZV92
+Y3B1X3RyYW5zbGF0ZV9ndmEoY29uc3Qgc3RydWN0IGt2bWlfdmNwdV9tc2dfam9iICpqb2IsCiAJ
+cmV0dXJuIGt2bWlfbXNnX3ZjcHVfcmVwbHkoam9iLCBtc2csIDAsICZycGwsIHNpemVvZihycGwp
+KTsKIH0KIAorc3RhdGljIGludCBoYW5kbGVfdmNwdV9nZXRfZXB0X3ZpZXcoY29uc3Qgc3RydWN0
+IGt2bWlfdmNwdV9tc2dfam9iICpqb2IsCisJCQkJICAgIGNvbnN0IHN0cnVjdCBrdm1pX21zZ19o
+ZHIgKm1zZywKKwkJCQkgICAgY29uc3Qgdm9pZCAqcmVxKQoreworCXN0cnVjdCBrdm1pX3ZjcHVf
+Z2V0X2VwdF92aWV3X3JlcGx5IHJwbDsKKworCW1lbXNldCgmcnBsLCAwLCBzaXplb2YocnBsKSk7
+CisKKwlycGwudmlldyA9IGt2bWlfYXJjaF9jbWRfZ2V0X2VwdF92aWV3KGpvYi0+dmNwdSk7CisK
+KwlyZXR1cm4ga3ZtaV9tc2dfdmNwdV9yZXBseShqb2IsIG1zZywgMCwgJnJwbCwgc2l6ZW9mKHJw
+bCkpOworfQorCiAvKgogICogVGhlc2UgZnVuY3Rpb25zIGFyZSBleGVjdXRlZCBmcm9tIHRoZSB2
+Q1BVIHRocmVhZC4gVGhlIHJlY2VpdmluZyB0aHJlYWQKICAqIHBhc3NlcyB0aGUgbWVzc2FnZXMg
+dXNpbmcgYSBuZXdseSBhbGxvY2F0ZWQgJ3N0cnVjdCBrdm1pX3ZjcHVfbXNnX2pvYicKQEAgLTY3
+NSw2ICs2ODgsNyBAQCBzdGF0aWMgaW50KCpjb25zdCBtc2dfdmNwdVtdKShjb25zdCBzdHJ1Y3Qg
+a3ZtaV92Y3B1X21zZ19qb2IgKiwKIAlbS1ZNSV9WQ1BVX0NPTlRST0xfTVNSXSAgICAgICAgPSBo
+YW5kbGVfdmNwdV9jb250cm9sX21zciwKIAlbS1ZNSV9WQ1BVX0NPTlRST0xfU0lOR0xFU1RFUF0g
+PSBoYW5kbGVfdmNwdV9jb250cm9sX3NpbmdsZXN0ZXAsCiAJW0tWTUlfVkNQVV9HRVRfQ1BVSURd
+ICAgICAgICAgID0gaGFuZGxlX3ZjcHVfZ2V0X2NwdWlkLAorCVtLVk1JX1ZDUFVfR0VUX0VQVF9W
+SUVXXSAgICAgICA9IGhhbmRsZV92Y3B1X2dldF9lcHRfdmlldywKIAlbS1ZNSV9WQ1BVX0dFVF9J
+TkZPXSAgICAgICAgICAgPSBoYW5kbGVfdmNwdV9nZXRfaW5mbywKIAlbS1ZNSV9WQ1BVX0dFVF9N
+VFJSX1RZUEVdICAgICAgPSBoYW5kbGVfdmNwdV9nZXRfbXRycl90eXBlLAogCVtLVk1JX1ZDUFVf
+R0VUX1JFR0lTVEVSU10gICAgICA9IGhhbmRsZV92Y3B1X2dldF9yZWdpc3RlcnMsCl9fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1h
+aWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRw
+czovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXph
+dGlvbg==
