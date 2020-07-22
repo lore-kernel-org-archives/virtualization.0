@@ -1,76 +1,155 @@
 From: Zhu Lingshan <lingshan.zhu@intel.com>
-Subject: [PATCH V3 5/6] ifcvf: replace irq_request/free with vDPA helpers
-Date: Wed, 22 Jul 2020 18:08:58 +0800
-Message-ID: <20200722100859.221669-6-lingshan.zhu@intel.com>
+Subject: [PATCH V3 4/6] vhost_vdpa: implement IRQ offloading in vhost_vdpa
+Date: Wed, 22 Jul 2020 18:08:57 +0800
+Message-ID: <20200722100859.221669-5-lingshan.zhu@intel.com>
 References: <20200722100859.221669-1-lingshan.zhu@intel.com>
-Return-path: <netdev-owner@vger.kernel.org>
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200722100859.221669-1-lingshan.zhu@intel.com>
-Sender: netdev-owner@vger.kernel.org
+Sender: kvm-owner@vger.kernel.org
 To: jasowang@redhat.com, alex.williamson@redhat.com, mst@redhat.com, pbonzini@redhat.com, sean.j.christopherson@intel.com, wanpengli@tencent.com
 Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, kvm@vger.kernel.org, Zhu Lingshan <lingshan.zhu@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This commit replaced irq_request/free() with vDPA helpers
-vdpa_devm_request/free_irq() so that it can request/free
-irq and setup irq offloading on order.
+This patch introduce a set of functions for setup/unsetup
+and update irq offloading respectively by register/unregister
+and re-register the irq_bypass_producer.
 
 Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
 ---
- drivers/vdpa/ifcvf/ifcvf_main.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/vhost/Kconfig |  1 +
+ drivers/vhost/vdpa.c  | 66 ++++++++++++++++++++++++++++++++++++++++++-
+ 2 files changed, 66 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
-index f5a60c14b979..65aab6bcaccb 100644
---- a/drivers/vdpa/ifcvf/ifcvf_main.c
-+++ b/drivers/vdpa/ifcvf/ifcvf_main.c
-@@ -47,11 +47,12 @@ static void ifcvf_free_irq(struct ifcvf_adapter *adapter, int queues)
- {
- 	struct pci_dev *pdev = adapter->pdev;
- 	struct ifcvf_hw *vf = &adapter->vf;
-+	struct vdpa_device *vdpa = &adapter->vdpa;
- 	int i;
- 
- 
- 	for (i = 0; i < queues; i++)
--		devm_free_irq(&pdev->dev, vf->vring[i].irq, &vf->vring[i]);
-+		vdpa_devm_free_irq(&pdev->dev, vdpa, vf->vring[i].irq, i, &vf->vring[i]);
- 
- 	ifcvf_free_irq_vectors(pdev);
+diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
+index d3688c6afb87..587fbae06182 100644
+--- a/drivers/vhost/Kconfig
++++ b/drivers/vhost/Kconfig
+@@ -65,6 +65,7 @@ config VHOST_VDPA
+ 	tristate "Vhost driver for vDPA-based backend"
+ 	depends on EVENTFD
+ 	select VHOST
++	select IRQ_BYPASS_MANAGER
+ 	depends on VDPA
+ 	help
+ 	  This kernel module can be loaded in host kernel to accelerate
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index df3cf386b0cd..558cf0863126 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -115,6 +115,54 @@ static irqreturn_t vhost_vdpa_config_cb(void *private)
+ 	return IRQ_HANDLED;
  }
-@@ -60,6 +61,7 @@ static int ifcvf_request_irq(struct ifcvf_adapter *adapter)
- {
- 	struct pci_dev *pdev = adapter->pdev;
- 	struct ifcvf_hw *vf = &adapter->vf;
-+	struct vdpa_device *vdpa = &adapter->vdpa;
- 	int vector, i, ret, irq;
  
- 	ret = pci_alloc_irq_vectors(pdev, IFCVF_MAX_INTR,
-@@ -73,6 +75,10 @@ static int ifcvf_request_irq(struct ifcvf_adapter *adapter)
- 		 pci_name(pdev));
- 	vector = 0;
- 	irq = pci_irq_vector(pdev, vector);
-+	/* This is config interrupt, config accesses all go
-+	 * through userspace, so no need to setup
-+	 * config interrupt offloading.
++static void vhost_vdpa_setup_vq_irq(struct vdpa_device *dev, int qid, int irq)
++{
++	struct vhost_vdpa *v = vdpa_get_drvdata(dev);
++	struct vhost_virtqueue *vq = &v->vqs[qid];
++	int ret;
++
++	spin_lock(&vq->call_ctx.ctx_lock);
++	if (!vq->call_ctx.ctx) {
++		spin_unlock(&vq->call_ctx.ctx_lock);
++		return;
++	}
++
++	vq->call_ctx.producer.token = vq->call_ctx.ctx;
++	vq->call_ctx.producer.irq = irq;
++	ret = irq_bypass_register_producer(&vq->call_ctx.producer);
++	spin_unlock(&vq->call_ctx.ctx_lock);
++}
++
++static void vhost_vdpa_unsetup_vq_irq(struct vdpa_device *dev, int qid)
++{
++	struct vhost_vdpa *v = vdpa_get_drvdata(dev);
++	struct vhost_virtqueue *vq = &v->vqs[qid];
++
++	spin_lock(&vq->call_ctx.ctx_lock);
++	irq_bypass_unregister_producer(&vq->call_ctx.producer);
++	spin_unlock(&vq->call_ctx.ctx_lock);
++}
++
++static void vhost_vdpa_update_vq_irq(struct vhost_virtqueue *vq)
++{
++	spin_lock(&vq->call_ctx.ctx_lock);
++	/*
++	 * if it has a non-zero irq, means there is a
++	 * previsouly registered irq_bypass_producer,
++	 * we should update it when ctx (its token)
++	 * changes.
 +	 */
- 	ret = devm_request_irq(&pdev->dev, irq,
- 			       ifcvf_config_changed, 0,
- 			       vf->config_msix_name, vf);
-@@ -82,13 +88,11 @@ static int ifcvf_request_irq(struct ifcvf_adapter *adapter)
- 			 pci_name(pdev), i);
- 		vector = i + IFCVF_MSI_QUEUE_OFF;
- 		irq = pci_irq_vector(pdev, vector);
--		ret = devm_request_irq(&pdev->dev, irq,
-+		ret = vdpa_devm_request_irq(&pdev->dev, vdpa, irq,
- 				       ifcvf_intr_handler, 0,
- 				       vf->vring[i].msix_name,
--				       &vf->vring[i]);
-+				       &vf->vring[i], i);
- 		if (ret) {
--			IFCVF_ERR(pdev,
--				  "Failed to request irq for vq %d\n", i);
- 			ifcvf_free_irq(adapter, i);
++	if (!vq->call_ctx.producer.irq) {
++		spin_unlock(&vq->call_ctx.ctx_lock);
++		return;
++	}
++
++	irq_bypass_unregister_producer(&vq->call_ctx.producer);
++	vq->call_ctx.producer.token = vq->call_ctx.ctx;
++	irq_bypass_register_producer(&vq->call_ctx.producer);
++	spin_unlock(&vq->call_ctx.ctx_lock);
++}
++
+ static void vhost_vdpa_reset(struct vhost_vdpa *v)
+ {
+ 	struct vdpa_device *vdpa = v->vdpa;
+@@ -122,7 +170,6 @@ static void vhost_vdpa_reset(struct vhost_vdpa *v)
  
- 			return ret;
+ 	ops->set_status(vdpa, 0);
+ }
+-
+ static long vhost_vdpa_get_device_id(struct vhost_vdpa *v, u8 __user *argp)
+ {
+ 	struct vdpa_device *vdpa = v->vdpa;
+@@ -332,6 +379,7 @@ static long vhost_vdpa_set_config_call(struct vhost_vdpa *v, u32 __user *argp)
+ 
+ 	return 0;
+ }
++
+ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
+ 				   void __user *argp)
+ {
+@@ -390,6 +438,7 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
+ 			cb.private = NULL;
+ 		}
+ 		ops->set_vq_cb(vdpa, idx, &cb);
++		vhost_vdpa_update_vq_irq(vq);
+ 		break;
+ 
+ 	case VHOST_SET_VRING_NUM:
+@@ -765,6 +814,18 @@ static int vhost_vdpa_open(struct inode *inode, struct file *filep)
+ 	return r;
+ }
+ 
++static void vhost_vdpa_clean_irq(struct vhost_vdpa *v)
++{
++	struct vhost_virtqueue *vq;
++	int i;
++
++	for (i = 0; i < v->nvqs; i++) {
++		vq = &v->vqs[i];
++		if (vq->call_ctx.producer.irq)
++			irq_bypass_unregister_producer(&vq->call_ctx.producer);
++	}
++}
++
+ static int vhost_vdpa_release(struct inode *inode, struct file *filep)
+ {
+ 	struct vhost_vdpa *v = filep->private_data;
+@@ -777,6 +838,7 @@ static int vhost_vdpa_release(struct inode *inode, struct file *filep)
+ 	vhost_vdpa_iotlb_free(v);
+ 	vhost_vdpa_free_domain(v);
+ 	vhost_vdpa_config_put(v);
++	vhost_vdpa_clean_irq(v);
+ 	vhost_dev_cleanup(&v->vdev);
+ 	kfree(v->vdev.vqs);
+ 	mutex_unlock(&d->mutex);
+@@ -951,6 +1013,8 @@ static struct vdpa_driver vhost_vdpa_driver = {
+ 	},
+ 	.probe	= vhost_vdpa_probe,
+ 	.remove	= vhost_vdpa_remove,
++	.setup_vq_irq = vhost_vdpa_setup_vq_irq,
++	.unsetup_vq_irq = vhost_vdpa_unsetup_vq_irq,
+ };
+ 
+ static int __init vhost_vdpa_init(void)
 -- 
 2.18.4
