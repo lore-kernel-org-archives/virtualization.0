@@ -1,110 +1,46 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v1 26/34] KVM: x86: add .set_ve_info()
-Date: Wed, 22 Jul 2020 19:01:13 +0300
-Message-ID: <20200722160121.9601-27-alazar@bitdefender.com>
+Subject: [RFC PATCH v1 23/34] KVM: x86: mmu: fix: update present_mask in
+ spte_read_protect()
+Date: Wed, 22 Jul 2020 19:01:10 +0300
+Message-ID: <20200722160121.9601-24-alazar@bitdefender.com>
 References: <20200722160121.9601-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200722160121.9601-1-alazar@bitdefender.com>
-Sender: kvm-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?=C8=98tefan=20=C8=98icleru?= <ssicleru@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?=C8=98tefan=20=C8=98icleru?= <ssicleru@bitdefender.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Ștefan Șicleru <ssicleru@bitdefender.com>
-
-This function is needed for the KVMI_VCPU_SET_VE_INFO command.
-
-Signed-off-by: Ștefan Șicleru <ssicleru@bitdefender.com>
-Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
----
- arch/x86/include/asm/kvm_host.h |  2 ++
- arch/x86/include/asm/vmx.h      |  1 +
- arch/x86/kvm/vmx/vmx.c          | 40 +++++++++++++++++++++++++++++++++
- 3 files changed, 43 insertions(+)
-
-diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index e89cea041ec9..4cee641af48e 100644
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -1314,6 +1314,8 @@ struct kvm_x86_ops {
- 	u16 (*get_ept_view)(struct kvm_vcpu *vcpu);
- 	int (*set_ept_view)(struct kvm_vcpu *vcpu, u16 view);
- 	int (*control_ept_view)(struct kvm_vcpu *vcpu, u16 view, u8 visible);
-+	int (*set_ve_info)(struct kvm_vcpu *vcpu, unsigned long ve_info,
-+				bool trigger_vmexit);
- };
- 
- struct kvm_x86_nested_ops {
-diff --git a/arch/x86/include/asm/vmx.h b/arch/x86/include/asm/vmx.h
-index 8082158e3e96..222fe9c7f463 100644
---- a/arch/x86/include/asm/vmx.h
-+++ b/arch/x86/include/asm/vmx.h
-@@ -157,6 +157,7 @@ static inline int vmx_misc_mseg_revid(u64 vmx_misc)
- enum vmcs_field {
- 	VIRTUAL_PROCESSOR_ID            = 0x00000000,
- 	POSTED_INTR_NV                  = 0x00000002,
-+	EPTP_INDEX			= 0x00000004,
- 	GUEST_ES_SELECTOR               = 0x00000800,
- 	GUEST_CS_SELECTOR               = 0x00000802,
- 	GUEST_SS_SELECTOR               = 0x00000804,
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index b65bd0d144e5..871cc49063d8 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -4425,6 +4425,45 @@ static int vmx_control_ept_view(struct kvm_vcpu *vcpu, u16 view, u8 visible)
- 	return 0;
- }
- 
-+static int vmx_set_ve_info(struct kvm_vcpu *vcpu, unsigned long ve_info,
-+				bool trigger_vmexit)
-+{
-+	struct page *ve_info_pg;
-+	struct vcpu_vmx *vmx = to_vmx(vcpu);
-+	int idx;
-+	u32 eb;
-+
-+	if (!kvm_ve_supported)
-+		return -KVM_EOPNOTSUPP;
-+
-+	idx = srcu_read_lock(&vcpu->kvm->srcu);
-+	ve_info_pg = kvm_vcpu_gpa_to_page(vcpu, ve_info);
-+	srcu_read_unlock(&vcpu->kvm->srcu, idx);
-+
-+	if (is_error_page(ve_info_pg))
-+		return -KVM_EINVAL;
-+
-+	vmcs_write64(VE_INFO_ADDRESS, page_to_phys(ve_info_pg));
-+
-+	/* Make sure EPTP_INDEX is up-to-date before enabling #VE */
-+	vmcs_write16(EPTP_INDEX, vmx->view);
-+
-+	/* Enable #VE mechanism */
-+	secondary_exec_controls_setbit(vmx, SECONDARY_EXEC_EPT_VE);
-+
-+	/* Decide if #VE exception should trigger a VM exit */
-+	eb = vmcs_read32(EXCEPTION_BITMAP);
-+
-+	if (trigger_vmexit)
-+		eb |= (1u << VE_VECTOR);
-+	else
-+		eb &= ~(1u << VE_VECTOR);
-+
-+	vmcs_write32(EXCEPTION_BITMAP, eb);
-+
-+	return 0;
-+}
-+
- #define VMX_XSS_EXIT_BITMAP 0
- 
- /*
-@@ -8350,6 +8389,7 @@ static struct kvm_x86_ops vmx_x86_ops __initdata = {
- 	.get_ept_view = vmx_get_ept_view,
- 	.set_ept_view = vmx_set_ept_view,
- 	.control_ept_view = vmx_control_ept_view,
-+	.set_ve_info = vmx_set_ve_info,
- };
- 
- static __init int hardware_setup(void)
+RnJvbTogyJh0ZWZhbiDImGljbGVydSA8c3NpY2xlcnVAYml0ZGVmZW5kZXIuY29tPgoKc2hhZG93
+X3ByZXNlbnRfbWFzayBpcyBub3QgMHVsbCBpZiAjVkUgc3VwcG9ydCBpcyBlbmFibGVkLgpJZiAj
+VkUgc3VwcG9ydCBpcyBlbmFibGVkLCBzaGFkb3dfcHJlc2VudF9tYXNrIGlzIHVwZGF0ZWQgaW4K
+dm14X2VuYWJsZV90ZHAoKSB3aXRoIFZNWF9FUFRfU1VQUFJFU1NfVkVfQklULgoKU2lnbmVkLW9m
+Zi1ieTogyJh0ZWZhbiDImGljbGVydSA8c3NpY2xlcnVAYml0ZGVmZW5kZXIuY29tPgpTaWduZWQt
+b2ZmLWJ5OiBBZGFsYmVydCBMYXrEg3IgPGFsYXphckBiaXRkZWZlbmRlci5jb20+Ci0tLQogYXJj
+aC94ODYva3ZtL21tdS9tbXUuYyB8IDggKysrKysrKy0KIDEgZmlsZSBjaGFuZ2VkLCA3IGluc2Vy
+dGlvbnMoKyksIDEgZGVsZXRpb24oLSkKCmRpZmYgLS1naXQgYS9hcmNoL3g4Ni9rdm0vbW11L21t
+dS5jIGIvYXJjaC94ODYva3ZtL21tdS9tbXUuYwppbmRleCA4MTBlMjJmNDEzMDYuLjI4YWI0YTFi
+YTI1YSAxMDA2NDQKLS0tIGEvYXJjaC94ODYva3ZtL21tdS9tbXUuYworKysgYi9hcmNoL3g4Ni9r
+dm0vbW11L21tdS5jCkBAIC0xNjAxLDcgKzE2MDEsMTMgQEAgc3RhdGljIGJvb2wgc3B0ZV93cml0
+ZV9wcm90ZWN0KHU2NCAqc3B0ZXAsIGJvb2wgcHRfcHJvdGVjdCkKIHN0YXRpYyBib29sIHNwdGVf
+cmVhZF9wcm90ZWN0KHU2NCAqc3B0ZXApCiB7CiAJdTY0IHNwdGUgPSAqc3B0ZXA7Ci0JYm9vbCBl
+eGVjX29ubHlfc3VwcG9ydGVkID0gKHNoYWRvd19wcmVzZW50X21hc2sgPT0gMHVsbCk7CisJYm9v
+bCBleGVjX29ubHlfc3VwcG9ydGVkOworCisJaWYgKGt2bV92ZV9zdXBwb3J0ZWQpCisJCWV4ZWNf
+b25seV9zdXBwb3J0ZWQgPQorCQkgICAgKHNoYWRvd19wcmVzZW50X21hc2sgPT0gVk1YX0VQVF9T
+VVBQUkVTU19WRV9CSVQpOworCWVsc2UKKwkJZXhlY19vbmx5X3N1cHBvcnRlZCA9IChzaGFkb3df
+cHJlc2VudF9tYXNrID09IDB1bGwpOwogCiAJcm1hcF9wcmludGsoInJtYXBfcmVhZF9wcm90ZWN0
+OiBzcHRlICVwICVsbHhcbiIsIHNwdGVwLCAqc3B0ZXApOwogCl9fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
+aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
+bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
