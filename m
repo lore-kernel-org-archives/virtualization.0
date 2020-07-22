@@ -1,53 +1,80 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v1 24/34] KVM: vmx: trigger vm-exits for mmio sptes by default when #VE is enabled
-Date: Wed, 22 Jul 2020 19:01:11 +0300
-Message-ID: <20200722160121.9601-25-alazar@bitdefender.com>
+Subject: [RFC PATCH v1 08/34] KVM: x86: add .set_ept_view()
+Date: Wed, 22 Jul 2020 19:00:55 +0300
+Message-ID: <20200722160121.9601-9-alazar@bitdefender.com>
 References: <20200722160121.9601-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200722160121.9601-1-alazar@bitdefender.com>
-Sender: kvm-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?=C8=98tefan=20=C8=98icleru?= <ssicleru@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Paolo Bonzini <pbonzini@redhat.com>, Marian Rotariu <marian.c.rotariu@gmail.com>, =?UTF-8?q?=C8=98tefan=20=C8=98icleru?= <ssicleru@bitdefender.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Ștefan Șicleru <ssicleru@bitdefender.com>
-
-All sptes, including mmio sptes must have SVE bit set by default, in
-order to trigger vm-exits instead of #VEs (in case of an EPT violation).
-MMIO sptes were overlooked in commit 28b8bc704111 ("KVM: VMX: Suppress EPT violation #VE by default (when enabled)")
-which provided a new mask for non-mmio sptes.
-
-Signed-off-by: Ștefan Șicleru <ssicleru@bitdefender.com>
-Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
----
- arch/x86/kvm/vmx/vmx.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
-
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 3428857c6157..b65bd0d144e5 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -4367,11 +4367,19 @@ static void vmx_compute_secondary_exec_control(struct vcpu_vmx *vmx)
- 
- static void ept_set_mmio_spte_mask(void)
- {
-+	u64 mmio_value = VMX_EPT_MISCONFIG_WX_VALUE;
-+
-+	/* All sptes, including mmio sptes should trigger vm-exits by
-+	 * default, instead of #VE (when supported)
-+	 */
-+	if (kvm_ve_supported)
-+		mmio_value |= VMX_EPT_SUPPRESS_VE_BIT;
-+
- 	/*
- 	 * EPT Misconfigurations can be generated if the value of bits 2:0
- 	 * of an EPT paging-structure entry is 110b (write/execute).
- 	 */
--	kvm_mmu_set_mmio_spte_mask(VMX_EPT_MISCONFIG_WX_VALUE, 0);
-+	kvm_mmu_set_mmio_spte_mask(mmio_value, 0);
- }
- 
- static int vmx_alloc_eptp_list_page(struct vcpu_vmx *vmx)
+RnJvbTogTWFyaWFuIFJvdGFyaXUgPG1hcmlhbi5jLnJvdGFyaXVAZ21haWwuY29tPgoKVGhlIGlu
+dHJvc3BlY3Rpb24gdG9vbCB1c2VzIHRoaXMgZnVuY3Rpb24gdG8gY2hlY2sgdGhlIGhhcmR3YXJl
+IHN1cHBvcnQKZm9yIEVQVCBzd2l0Y2hpbmcsIHdoaWNoIGNhbiBiZSB1c2VkIGVpdGhlciB0byBz
+aW5nbGVzdGVwIHZDUFVzCm9uIGEgdW5wcm90ZWN0ZWQgRVBUIHZpZXcuCgpTaWduZWQtb2ZmLWJ5
+OiBNYXJpYW4gUm90YXJpdSA8bWFyaWFuLmMucm90YXJpdUBnbWFpbC5jb20+CkNvLWRldmVsb3Bl
+ZC1ieTogyJh0ZWZhbiDImGljbGVydSA8c3NpY2xlcnVAYml0ZGVmZW5kZXIuY29tPgpTaWduZWQt
+b2ZmLWJ5OiDImHRlZmFuIMiYaWNsZXJ1IDxzc2ljbGVydUBiaXRkZWZlbmRlci5jb20+ClNpZ25l
+ZC1vZmYtYnk6IEFkYWxiZXJ0IExhesSDciA8YWxhemFyQGJpdGRlZmVuZGVyLmNvbT4KLS0tCiBh
+cmNoL3g4Ni9pbmNsdWRlL2FzbS9rdm1faG9zdC5oIHwgIDEgKwogYXJjaC94ODYva3ZtL3ZteC92
+bXguYyAgICAgICAgICB8IDM1ICsrKysrKysrKysrKysrKysrKysrKysrKysrKysrKysrLQogMiBm
+aWxlcyBjaGFuZ2VkLCAzNSBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCgpkaWZmIC0tZ2l0
+IGEvYXJjaC94ODYvaW5jbHVkZS9hc20va3ZtX2hvc3QuaCBiL2FyY2gveDg2L2luY2x1ZGUvYXNt
+L2t2bV9ob3N0LmgKaW5kZXggMTAzNTMwODk0MGZlLi4zMDBmN2ZjNDM5ODcgMTAwNjQ0Ci0tLSBh
+L2FyY2gveDg2L2luY2x1ZGUvYXNtL2t2bV9ob3N0LmgKKysrIGIvYXJjaC94ODYvaW5jbHVkZS9h
+c20va3ZtX2hvc3QuaApAQCAtMTMwOSw2ICsxMzA5LDcgQEAgc3RydWN0IGt2bV94ODZfb3BzIHsK
+IAlib29sICgqZ2V0X3ZtZnVuY19zdGF0dXMpKHZvaWQpOwogCWJvb2wgKCpnZXRfZXB0cF9zd2l0
+Y2hpbmdfc3RhdHVzKSh2b2lkKTsKIAl1MTYgKCpnZXRfZXB0X3ZpZXcpKHN0cnVjdCBrdm1fdmNw
+dSAqdmNwdSk7CisJaW50ICgqc2V0X2VwdF92aWV3KShzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUsIHUx
+NiB2aWV3KTsKIH07CiAKIHN0cnVjdCBrdm1feDg2X25lc3RlZF9vcHMgewpkaWZmIC0tZ2l0IGEv
+YXJjaC94ODYva3ZtL3ZteC92bXguYyBiL2FyY2gveDg2L2t2bS92bXgvdm14LmMKaW5kZXggMjAy
+NGVmNGQ5YTc0Li4wZDM5NDg3Y2U1YzYgMTAwNjQ0Ci0tLSBhL2FyY2gveDg2L2t2bS92bXgvdm14
+LmMKKysrIGIvYXJjaC94ODYva3ZtL3ZteC92bXguYwpAQCAtNDM3Myw2ICs0MzczLDI4IEBAIHN0
+YXRpYyBpbnQgdm14X2FsbG9jX2VwdHBfbGlzdF9wYWdlKHN0cnVjdCB2Y3B1X3ZteCAqdm14KQog
+CXJldHVybiAwOwogfQogCitzdGF0aWMgaW50IHZteF9zZXRfZXB0X3ZpZXcoc3RydWN0IGt2bV92
+Y3B1ICp2Y3B1LCB1MTYgdmlldykKK3sKKwlpZiAodmlldyA+PSBLVk1fTUFYX0VQVF9WSUVXUykK
+KwkJcmV0dXJuIC1FSU5WQUw7CisKKwlpZiAodG9fdm14KHZjcHUpLT5lcHRwX2xpc3RfcGcpIHsK
+KwkJaW50IHI7CisKKwkJdG9fdm14KHZjcHUpLT52aWV3ID0gdmlldzsKKworCQkvKgorCQkgKiBS
+ZWxvYWQgbW11IGFuZCBtYWtlIHN1cmUgdm14X2xvYWRfbW11X3BnZCgpIGlzIGNhbGxlZCBzbyB0
+aGF0CisJCSAqIFZNQ1M6OkVQVF9QT0lOVEVSIGlzIHVwZGF0ZWQgYWNjb3JkaW5nbHkKKwkJICov
+CisJCWt2bV9tbXVfdW5sb2FkKHZjcHUpOworCQlyID0ga3ZtX21tdV9yZWxvYWQodmNwdSk7CisJ
+CVdBUk5fT05fT05DRShyKTsKKwl9CisKKwlyZXR1cm4gMDsKK30KKwogI2RlZmluZSBWTVhfWFNT
+X0VYSVRfQklUTUFQIDAKIAogLyoKQEAgLTQ0NjMsOSArNDQ4NSwxNSBAQCBzdGF0aWMgdm9pZCBp
+bml0X3ZtY3Moc3RydWN0IHZjcHVfdm14ICp2bXgpCiAJaWYgKGNwdV9oYXNfdm14X2VuY2xzX3Zt
+ZXhpdCgpKQogCQl2bWNzX3dyaXRlNjQoRU5DTFNfRVhJVElOR19CSVRNQVAsIC0xdWxsKTsKIAot
+CWlmICh2bXgtPmVwdHBfbGlzdF9wZykKKwlpZiAodm14LT5lcHRwX2xpc3RfcGcpIHsKKwkJdTY0
+IHZtX2Z1bmN0aW9uX2NvbnRyb2w7CisKIAkJdm1jc193cml0ZTY0KEVQVFBfTElTVF9BRERSRVNT
+LAogCQkJCXBhZ2VfdG9fcGh5cyh2bXgtPmVwdHBfbGlzdF9wZykpOworCQl2bV9mdW5jdGlvbl9j
+b250cm9sID0gdm1jc19yZWFkNjQoVk1fRlVOQ1RJT05fQ09OVFJPTCk7CisJCXZtX2Z1bmN0aW9u
+X2NvbnRyb2wgfD0gVk1YX1ZNRlVOQ19FUFRQX1NXSVRDSElORzsKKwkJdm1jc193cml0ZTY0KFZN
+X0ZVTkNUSU9OX0NPTlRST0wsIHZtX2Z1bmN0aW9uX2NvbnRyb2wpOworCX0KIAogCWlmICh2bXhf
+cHRfbW9kZV9pc19ob3N0X2d1ZXN0KCkpIHsKIAkJbWVtc2V0KCZ2bXgtPnB0X2Rlc2MsIDAsIHNp
+emVvZih2bXgtPnB0X2Rlc2MpKTsKQEAgLTU5NjUsNiArNTk5MywxMCBAQCBzdGF0aWMgdm9pZCBk
+dW1wX2VwdHBfbGlzdCh2b2lkKQogCiAJZXB0cF9saXN0ID0gcGh5c190b192aXJ0KGVwdHBfbGlz
+dF9waHlzKTsKIAorCXByX2VycigiVk1GdW5jdGlvbkNvbnRyb2w9JTA4eCBWTUZ1bmN0aW9uQ29u
+dHJvbEhpZ2g9JTA4eFxuIiwKKwkgICAgICAgdm1jc19yZWFkMzIoVk1fRlVOQ1RJT05fQ09OVFJP
+TCksCisJICAgICAgIHZtY3NfcmVhZDMyKFZNX0ZVTkNUSU9OX0NPTlRST0xfSElHSCkpOworCiAJ
+cHJfZXJyKCIqKiogRVBUUCBTd2l0Y2hpbmcgKioqXG4iKTsKIAlwcl9lcnIoIkVQVFAgTGlzdCBB
+ZGRyZXNzOiAlcCAocGh5cyAlcClcbiIsCiAJCWVwdHBfbGlzdCwgKHZvaWQgKillcHRwX2xpc3Rf
+cGh5cyk7CkBAIC04MjUxLDYgKzgyODMsNyBAQCBzdGF0aWMgc3RydWN0IGt2bV94ODZfb3BzIHZt
+eF94ODZfb3BzIF9faW5pdGRhdGEgPSB7CiAJLmdldF92bWZ1bmNfc3RhdHVzID0gdm14X2dldF92
+bWZ1bmNfc3RhdHVzLAogCS5nZXRfZXB0cF9zd2l0Y2hpbmdfc3RhdHVzID0gdm14X2dldF9lcHRw
+X3N3aXRjaGluZ19zdGF0dXMsCiAJLmdldF9lcHRfdmlldyA9IHZteF9nZXRfZXB0X3ZpZXcsCisJ
+LnNldF9lcHRfdmlldyA9IHZteF9zZXRfZXB0X3ZpZXcsCiB9OwogCiBzdGF0aWMgX19pbml0IGlu
+dCBoYXJkd2FyZV9zZXR1cCh2b2lkKQpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25A
+bGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24u
+b3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
