@@ -1,58 +1,71 @@
-From: Maxim Levitsky <mlevitsk@redhat.com>
-Subject: Re: [PATCH 02/10] block: virtio-blk: check logical block size
-Date: Wed, 22 Jul 2020 12:11:17 +0300
-Message-ID: <f16aba1020019530564f0869a67951282104a5d2.camel@redhat.com>
-References: <20200721105239.8270-1-mlevitsk@redhat.com>
-         <20200721105239.8270-3-mlevitsk@redhat.com> <20200721151437.GB10620@lst.de>
-         <yq1zh7sfedj.fsf@ca-mkp.ca.oracle.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-Return-path: <linux-scsi-owner@vger.kernel.org>
-In-Reply-To: <yq1zh7sfedj.fsf@ca-mkp.ca.oracle.com>
-Sender: linux-scsi-owner@vger.kernel.org
-To: "Martin K. Petersen" <martin.petersen@oracle.com>, Christoph Hellwig <hch@lst.de>
-Cc: linux-kernel@vger.kernel.org, Keith Busch <kbusch@kernel.org>, Josef Bacik <josef@toxicpanda.com>, "open list:BLOCK LAYER" <linux-block@vger.kernel.org>, Sagi Grimberg <sagi@grimberg.me>, Jens Axboe <axboe@kernel.dk>, "open list:NVM EXPRESS DRIVER" <linux-nvme@lists.infradead.org>, "open list:SCSI CDROM DRIVER" <linux-scsi@vger.kernel.org>, Tejun Heo <tj@kernel.org>, Bart Van Assche <bvanassche@acm.org>, Damien Le Moal <damien.lemoal@wdc.com>, Jason Wang <jasowang@redhat.com>, Maxim Levitsky <maximlevitsky@gmail.com>, Stefan Hajnoczi <stefanha@redhat.com>, Colin Ian King <colin.king@canonical.com>, "Michael S. Tsirkin" <mst@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, Ulf Hansson <ulf.hansson@linaro.org>, Ajay Joshi <ajay.joshi@wdc.com>, Ming
+From: Zhu Lingshan <lingshan.zhu@live.com>
+Subject: [PATCH V3 0/6] IRQ offloading for vDPA
+Date: Wed, 22 Jul 2020 17:49:04 +0800
+Message-ID: <20200722094910.218014-1-lingshan.zhu@live.com>
+Return-path: <kvm-owner@vger.kernel.org>
+Sender: kvm-owner@vger.kernel.org
+To: jasowang@redhat.com, alex.williamson@redhat.com, mst@redhat.com, pbonzini@redhat.com, sean.j.christopherson@intel.com, wanpengli@tencent.com
+Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, kvm@vger.kernel.org, Zhu Lingshan <lingshan.zhu@live.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Tue, 2020-07-21 at 22:55 -0400, Martin K. Petersen wrote:
-> Christoph,
-> 
-> > Hmm, I wonder if we should simply add the check and warning to
-> > blk_queue_logical_block_size and add an error in that case.  Then
-> > drivers only have to check the error return, which might add a lot
-> > less boiler plate code.
-> 
-> Yep, I agree.
-> 
 
-I also agree that this would be cleaner (I actually tried to implement
-this the way you suggest), but let me explain my reasoning for doing it
-this way.
+This series intends to implement IRQ offloading for
+vhost_vdpa.
 
-The problem is that most current users of blk_queue_logical_block_size
-(43 uses in the tree, out of which only 9 use constant block size) check
-for the block size relatively early, often store it in some internal
-struct etc, prior to calling blk_queue_logical_block_size thus making
-them only to rely on blk_queue_logical_block_size as the check for 
-block size validity will need non-trivial changes in their code.
+By the feat of irq forwarding facilities like posted
+interrupt on X86, irq bypass can  help deliver
+interrupts to vCPU directly.
 
-Instead of this adding blk_is_valid_logical_block_size allowed me
-to trivially convert most of the uses.
+vDPA devices have dedicated hardware backends like VFIO
+pass-throughed devices. So it would be possible to setup
+irq offloading(irq bypass) for vDPA devices and gain
+performance improvements.
 
-For RFC I converted only some drivers that I am more familiar with
-and/or can test but I can remove the driver's own checks in most other
-drivers with low chance of introducing a bug, even if I can't test the
-driver.
+In my testing, with this feature, we can save 0.1ms
+in a ping between two VFs on average.
 
-What do you think?
+changes from V2:
+(1)rename struct vhost_call_ctx to vhost_vring_call
+(2)add kvm_arch_end_assignment() in del_producer()
+code path
+(3)rename vDPA helpers to vdpa_devm_request_irq()
+and vdpa_devm_free_irq(). Add better comments
+for them.
+(4)better comments for setup_vq_irq() and
+unsetup_vq_irq()
+(5)In vDPA VHOST_SET_VRING_CALL, will call vhost_vdpa_update_vq_irq()
+without checking producer.irq, move this check into
+vhost_vdpa_update_vq_irq(), so that get advantage of the spinlock.
+(6)Add a function vhost_vdpa_clean_irq(), this function will unregister
+the producer of vqs when vhost_vdpa_release(). This is safe
+for control vq.
+(7) minor improvements
 
-I can also both make blk_queue_logical_block_size return an error value,
-and have blk_is_valid_logical_block_size and use either of these checks,
-depending on the driver with eventual goal of un-exporting
-blk_is_valid_logical_block_size.
+changes from V1:
+(1)dropped vfio changes.
+(3)removed KVM_HVAE_IRQ_BYPASS checks
+(4)locking fixes
+(5)simplified vhost_vdpa_update_vq_irq()
+(6)minor improvements
 
-Also note that I did add WARN_ON to blk_queue_logical_block_size.
+Zhu Lingshan (6):
+  vhost: introduce vhost_vring_call
+  kvm: detect assigned device via irqbypass manager
+  vDPA: implement vq IRQ allocate/free helpers in vDPA core
+  vhost_vdpa: implement IRQ offloading in vhost_vdpa
+  ifcvf: replace irq_request/free with vDPA helpers
+  irqbypass: do not start cons/prod when failed connect
 
-Best regards,
-	Maxim Levitsky
+ arch/x86/kvm/x86.c              | 11 +++++-
+ drivers/vdpa/ifcvf/ifcvf_main.c | 14 ++++---
+ drivers/vdpa/vdpa.c             | 49 +++++++++++++++++++++++
+ drivers/vhost/Kconfig           |  1 +
+ drivers/vhost/vdpa.c            | 70 +++++++++++++++++++++++++++++++--
+ drivers/vhost/vhost.c           | 22 ++++++++---
+ drivers/vhost/vhost.h           |  9 ++++-
+ include/linux/vdpa.h            | 13 ++++++
+ virt/lib/irqbypass.c            | 16 +++++---
+ 9 files changed, 182 insertions(+), 23 deletions(-)
+
+-- 
+2.18.4
