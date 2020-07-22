@@ -1,97 +1,44 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v1 09/34] KVM: x86: add .control_ept_view()
-Date: Wed, 22 Jul 2020 19:00:56 +0300
-Message-ID: <20200722160121.9601-10-alazar@bitdefender.com>
+Subject: [RFC PATCH v1 04/34] KVM: x86: mmu: reindent to avoid lines longer
+ than 80 chars
+Date: Wed, 22 Jul 2020 19:00:51 +0300
+Message-ID: <20200722160121.9601-5-alazar@bitdefender.com>
 References: <20200722160121.9601-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-Return-path: <kvm-owner@vger.kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+Return-path: <virtualization-bounces@lists.linux-foundation.org>
 In-Reply-To: <20200722160121.9601-1-alazar@bitdefender.com>
-Sender: kvm-owner@vger.kernel.org
+List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
+List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
+List-Post: <mailto:virtualization@lists.linux-foundation.org>
+List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
+List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
+ <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+Errors-To: virtualization-bounces@lists.linux-foundation.org
+Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?=C8=98tefan=20=C8=98icleru?= <ssicleru@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Ștefan Șicleru <ssicleru@bitdefender.com>
-
-This will be used by the introspection tool to control the EPT views to
-which the guest is allowed to switch.
-
-Signed-off-by: Ștefan Șicleru <ssicleru@bitdefender.com>
-Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
----
- arch/x86/include/asm/kvm_host.h |  1 +
- arch/x86/kvm/vmx/vmx.c          | 18 +++++++++++++++++-
- arch/x86/kvm/vmx/vmx.h          |  2 ++
- 3 files changed, 20 insertions(+), 1 deletion(-)
-
-diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index 300f7fc43987..5e241863153f 100644
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -1310,6 +1310,7 @@ struct kvm_x86_ops {
- 	bool (*get_eptp_switching_status)(void);
- 	u16 (*get_ept_view)(struct kvm_vcpu *vcpu);
- 	int (*set_ept_view)(struct kvm_vcpu *vcpu, u16 view);
-+	int (*control_ept_view)(struct kvm_vcpu *vcpu, u16 view, u8 visible);
- };
- 
- struct kvm_x86_nested_ops {
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 0d39487ce5c6..cbc943d217e3 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -3138,8 +3138,11 @@ static void vmx_construct_eptp_with_index(struct kvm_vcpu *vcpu,
- 	if (!eptp_list)
- 		return;
- 
--	eptp_list[view] = construct_eptp(vcpu,
-+	if (test_bit(view, &vmx->allowed_views))
-+		eptp_list[view] = construct_eptp(vcpu,
- 				vcpu->arch.mmu->root_hpa_altviews[view]);
-+	else
-+		eptp_list[view] = (~0ULL);
- }
- 
- static void vmx_construct_eptp_list(struct kvm_vcpu *vcpu)
-@@ -4395,6 +4398,18 @@ static int vmx_set_ept_view(struct kvm_vcpu *vcpu, u16 view)
- 	return 0;
- }
- 
-+static int vmx_control_ept_view(struct kvm_vcpu *vcpu, u16 view, u8 visible)
-+{
-+	if (visible)
-+		set_bit(view, &to_vmx(vcpu)->allowed_views);
-+	else
-+		clear_bit(view, &to_vmx(vcpu)->allowed_views);
-+
-+	vmx_construct_eptp_with_index(vcpu, view);
-+
-+	return 0;
-+}
-+
- #define VMX_XSS_EXIT_BITMAP 0
- 
- /*
-@@ -8284,6 +8299,7 @@ static struct kvm_x86_ops vmx_x86_ops __initdata = {
- 	.get_eptp_switching_status = vmx_get_eptp_switching_status,
- 	.get_ept_view = vmx_get_ept_view,
- 	.set_ept_view = vmx_set_ept_view,
-+	.control_ept_view = vmx_control_ept_view,
- };
- 
- static __init int hardware_setup(void)
-diff --git a/arch/x86/kvm/vmx/vmx.h b/arch/x86/kvm/vmx/vmx.h
-index 4e2f86458ca2..38d50fc7357b 100644
---- a/arch/x86/kvm/vmx/vmx.h
-+++ b/arch/x86/kvm/vmx/vmx.h
-@@ -300,6 +300,8 @@ struct vcpu_vmx {
- 	struct page *eptp_list_pg;
- 	/* The view this vcpu operates on. */
- 	u16 view;
-+	/* Visible EPT views bitmap for in-guest VMFUNC. */
-+	unsigned long allowed_views;
- };
- 
- enum ept_pointers_status {
+U2lnbmVkLW9mZi1ieTogQWRhbGJlcnQgTGF6xINyIDxhbGF6YXJAYml0ZGVmZW5kZXIuY29tPgot
+LS0KIGFyY2gveDg2L2t2bS9tbXUvbW11LmMgfCA0ICsrKy0KIDEgZmlsZSBjaGFuZ2VkLCAzIGlu
+c2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkKCmRpZmYgLS1naXQgYS9hcmNoL3g4Ni9rdm0vbW11
+L21tdS5jIGIvYXJjaC94ODYva3ZtL21tdS9tbXUuYwppbmRleCA5Nzc2NmYzNDkxMGQuLmYzYmE0
+ZDA0NTJjOSAxMDA2NDQKLS0tIGEvYXJjaC94ODYva3ZtL21tdS9tbXUuYworKysgYi9hcmNoL3g4
+Ni9rdm0vbW11L21tdS5jCkBAIC0yNTczLDYgKzI1NzMsNyBAQCBzdGF0aWMgc3RydWN0IGt2bV9t
+bXVfcGFnZSAqa3ZtX21tdV9nZXRfcGFnZShzdHJ1Y3Qga3ZtX3ZjcHUgKnZjcHUsCiAJYm9vbCBm
+bHVzaCA9IGZhbHNlOwogCWludCBjb2xsaXNpb25zID0gMDsKIAlMSVNUX0hFQUQoaW52YWxpZF9s
+aXN0KTsKKwl1bnNpZ25lZCBpbnQgcGdfaGFzaDsKIAogCXJvbGUgPSB2Y3B1LT5hcmNoLm1tdS0+
+bW11X3JvbGUuYmFzZTsKIAlyb2xlLmxldmVsID0gbGV2ZWw7CkBAIC0yNjIzLDggKzI2MjQsOSBA
+QCBzdGF0aWMgc3RydWN0IGt2bV9tbXVfcGFnZSAqa3ZtX21tdV9nZXRfcGFnZShzdHJ1Y3Qga3Zt
+X3ZjcHUgKnZjcHUsCiAKIAlzcC0+Z2ZuID0gZ2ZuOwogCXNwLT5yb2xlID0gcm9sZTsKKwlwZ19o
+YXNoID0ga3ZtX3BhZ2VfdGFibGVfaGFzaGZuKGdmbik7CiAJaGxpc3RfYWRkX2hlYWQoJnNwLT5o
+YXNoX2xpbmssCi0JCSZ2Y3B1LT5rdm0tPmFyY2gubW11X3BhZ2VfaGFzaFtrdm1fcGFnZV90YWJs
+ZV9oYXNoZm4oZ2ZuKV0pOworCQkmdmNwdS0+a3ZtLT5hcmNoLm1tdV9wYWdlX2hhc2hbcGdfaGFz
+aF0pOwogCWlmICghZGlyZWN0KSB7CiAJCS8qCiAJCSAqIHdlIHNob3VsZCBkbyB3cml0ZSBwcm90
+ZWN0aW9uIGJlZm9yZSBzeW5jaW5nIHBhZ2VzCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
+dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
+dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
