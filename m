@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v1 03/34] KVM: x86: add kvm_get_ept_view()
-Date: Wed, 22 Jul 2020 19:00:50 +0300
-Message-ID: <20200722160121.9601-4-alazar@bitdefender.com>
+Subject: [RFC PATCH v1 01/34] KVM: x86: export .get_vmfunc_status()
+Date: Wed, 22 Jul 2020 19:00:48 +0300
+Message-ID: <20200722160121.9601-2-alazar@bitdefender.com>
 References: <20200722160121.9601-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -10,100 +10,58 @@ Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200722160121.9601-1-alazar@bitdefender.com>
 Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?=C8=98tefan=20=C8=98icleru?= <ssicleru@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Marian Rotariu <marian.c.rotariu@gmail.com>, =?UTF-8?q?=C8=98tefan=20=C8=98icleru?= <ssicleru@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Ștefan Șicleru <ssicleru@bitdefender.com>
+From: Marian Rotariu <marian.c.rotariu@gmail.com>
 
-This function returns the EPT view of the current vCPU
-or 0 if the hardware support is missing.
+The introspection tool uses this function to check the hardware support
+for VMFUNC, which can be used either to singlestep vCPUs
+on a unprotected EPT view or to use #VE in order to filter out
+VM-exits caused by EPT violations.
 
+Signed-off-by: Marian Rotariu <marian.c.rotariu@gmail.com>
+Co-developed-by: Ștefan Șicleru <ssicleru@bitdefender.com>
 Signed-off-by: Ștefan Șicleru <ssicleru@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- arch/x86/include/asm/kvm_host.h |  3 +++
- arch/x86/kvm/vmx/vmx.c          |  8 ++++++++
- arch/x86/kvm/vmx/vmx.h          |  3 +++
- arch/x86/kvm/x86.c              | 10 ++++++++++
- 4 files changed, 24 insertions(+)
+ arch/x86/include/asm/kvm_host.h | 1 +
+ arch/x86/kvm/vmx/vmx.c          | 6 ++++++
+ 2 files changed, 7 insertions(+)
 
 diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
-index 5eb26135e81b..0acc21087caf 100644
+index d96bf0e15ea2..ab6989745f9c 100644
 --- a/arch/x86/include/asm/kvm_host.h
 +++ b/arch/x86/include/asm/kvm_host.h
-@@ -1302,6 +1302,7 @@ struct kvm_x86_ops {
+@@ -1300,6 +1300,7 @@ struct kvm_x86_ops {
+ 	bool (*spt_fault)(struct kvm_vcpu *vcpu);
+ 	bool (*gpt_translation_fault)(struct kvm_vcpu *vcpu);
  	void (*control_singlestep)(struct kvm_vcpu *vcpu, bool enable);
- 	bool (*get_vmfunc_status)(void);
- 	bool (*get_eptp_switching_status)(void);
-+	u16 (*get_ept_view)(struct kvm_vcpu *vcpu);
++	bool (*get_vmfunc_status)(void);
  };
  
  struct kvm_x86_nested_ops {
-@@ -1773,4 +1774,6 @@ static inline int kvm_cpu_get_apicid(int mps_cpu)
- #define GET_SMSTATE(type, buf, offset)		\
- 	(*(type *)((buf) + (offset) - 0x7e00))
- 
-+u16 kvm_get_ept_view(struct kvm_vcpu *vcpu);
-+
- #endif /* _ASM_X86_KVM_HOST_H */
 diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index ccbf561b0fc4..0256c3a93c87 100644
+index 8c9ccd1ba0f0..ec4396d5f36f 100644
 --- a/arch/x86/kvm/vmx/vmx.c
 +++ b/arch/x86/kvm/vmx/vmx.c
-@@ -8002,6 +8002,13 @@ static bool vmx_get_eptp_switching_status(void)
- 	return kvm_eptp_switching_supported;
+@@ -7992,6 +7992,11 @@ static void vmx_control_singlestep(struct kvm_vcpu *vcpu, bool enable)
+ 				CPU_BASED_MONITOR_TRAP_FLAG);
  }
  
-+static u16 vmx_get_ept_view(struct kvm_vcpu *vcpu)
++static bool vmx_get_vmfunc_status(void)
 +{
-+	const struct vcpu_vmx *vmx = to_vmx(vcpu);
-+
-+	return vmx->view;
++	return cpu_has_vmx_vmfunc();
 +}
 +
  static struct kvm_x86_ops vmx_x86_ops __initdata = {
  	.hardware_unsetup = hardware_unsetup,
  
-@@ -8145,6 +8152,7 @@ static struct kvm_x86_ops vmx_x86_ops __initdata = {
+@@ -8133,6 +8138,7 @@ static struct kvm_x86_ops vmx_x86_ops __initdata = {
+ 	.spt_fault = vmx_spt_fault,
+ 	.gpt_translation_fault = vmx_gpt_translation_fault,
  	.control_singlestep = vmx_control_singlestep,
- 	.get_vmfunc_status = vmx_get_vmfunc_status,
- 	.get_eptp_switching_status = vmx_get_eptp_switching_status,
-+	.get_ept_view = vmx_get_ept_view,
++	.get_vmfunc_status = vmx_get_vmfunc_status,
  };
  
  static __init int hardware_setup(void)
-diff --git a/arch/x86/kvm/vmx/vmx.h b/arch/x86/kvm/vmx/vmx.h
-index aa0c7ffd588b..14f0b9102d58 100644
---- a/arch/x86/kvm/vmx/vmx.h
-+++ b/arch/x86/kvm/vmx/vmx.h
-@@ -296,6 +296,9 @@ struct vcpu_vmx {
- 	u64 ept_pointer;
- 
- 	struct pt_desc pt_desc;
-+
-+	/* The view this vcpu operates on. */
-+	u16 view;
- };
- 
- enum ept_pointers_status {
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index b16b018c74cc..2e2c56a37bdb 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -10869,6 +10869,16 @@ u64 kvm_spec_ctrl_valid_bits(struct kvm_vcpu *vcpu)
- }
- EXPORT_SYMBOL_GPL(kvm_spec_ctrl_valid_bits);
- 
-+u16 kvm_get_ept_view(struct kvm_vcpu *vcpu)
-+{
-+	if (!kvm_x86_ops.get_ept_view)
-+		return 0;
-+
-+	return kvm_x86_ops.get_ept_view(vcpu);
-+}
-+EXPORT_SYMBOL_GPL(kvm_get_ept_view);
-+
-+
- EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_exit);
- EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_fast_mmio);
- EXPORT_TRACEPOINT_SYMBOL_GPL(kvm_inj_virq);
