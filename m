@@ -1,42 +1,386 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v1 30/34] KVM: vmx: make use of EPTP_INDEX in
- vmx_set_ept_view()
-Date: Wed, 22 Jul 2020 19:01:17 +0300
-Message-ID: <20200722160121.9601-31-alazar@bitdefender.com>
+Subject: [RFC PATCH v1 34/34] KVM: introspection: add KVMI_VM_SET_PAGE_SVE
+Date: Wed, 22 Jul 2020 19:01:21 +0300
+Message-ID: <20200722160121.9601-35-alazar@bitdefender.com>
 References: <20200722160121.9601-1-alazar@bitdefender.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200722160121.9601-1-alazar@bitdefender.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
+Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?=C8=98tefan=20=C8=98icleru?= <ssicleru@bitdefender.com>, virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?=C8=98tefan=20=C8=98icleru?= <ssicleru@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogyJh0ZWZhbiDImGljbGVydSA8c3NpY2xlcnVAYml0ZGVmZW5kZXIuY29tPgoKU2lnbmVk
-LW9mZi1ieTogyJh0ZWZhbiDImGljbGVydSA8c3NpY2xlcnVAYml0ZGVmZW5kZXIuY29tPgpTaWdu
-ZWQtb2ZmLWJ5OiBBZGFsYmVydCBMYXrEg3IgPGFsYXphckBiaXRkZWZlbmRlci5jb20+Ci0tLQog
-YXJjaC94ODYva3ZtL3ZteC92bXguYyB8IDcgKysrKysrKwogMSBmaWxlIGNoYW5nZWQsIDcgaW5z
-ZXJ0aW9ucygrKQoKZGlmZiAtLWdpdCBhL2FyY2gveDg2L2t2bS92bXgvdm14LmMgYi9hcmNoL3g4
-Ni9rdm0vdm14L3ZteC5jCmluZGV4IDAzNWY2YzQzYTJhNC4uNzM2YjZjYzZjYThmIDEwMDY0NAot
-LS0gYS9hcmNoL3g4Ni9rdm0vdm14L3ZteC5jCisrKyBiL2FyY2gveDg2L2t2bS92bXgvdm14LmMK
-QEAgLTQ0MDgsNiArNDQwOCwxMyBAQCBzdGF0aWMgaW50IHZteF9zZXRfZXB0X3ZpZXcoc3RydWN0
-IGt2bV92Y3B1ICp2Y3B1LCB1MTYgdmlldykKIAkJa3ZtX21tdV91bmxvYWQodmNwdSk7CiAJCXIg
-PSBrdm1fbW11X3JlbG9hZCh2Y3B1KTsKIAkJV0FSTl9PTl9PTkNFKHIpOworCisJCS8qIFdoZW4g
-I1ZFIGhhcHBlbnMsIGN1cnJlbnQgRVBUIGluZGV4IHdpbGwgYmUgc2F2ZWQKKwkJICogYnkgdGhl
-IGxvZ2ljYWwgcHJvY2Vzc29yIGludG8gVkUgaW5mb3JtYXRpb24gYXJlYSwKKwkJICogc2VlIGNo
-YXB0ZXIgMjQuNi4xOCBhbmQgMjUuNS42LjIgZnJvbSBJbnRlbCBTRE0uCisJCSAqLworCQlpZiAo
-a3ZtX3ZlX3N1cHBvcnRlZCkKKwkJCXZtY3Nfd3JpdGUxNihFUFRQX0lOREVYLCB2aWV3KTsKIAl9
-CiAKIAlyZXR1cm4gMDsKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
-bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+From: Ștefan Șicleru <ssicleru@bitdefender.com>
+
+This command is used by the introspection tool to set/clear
+the suppress-VE bit for specific guest memory pages.
+
+Signed-off-by: Ștefan Șicleru <ssicleru@bitdefender.com>
+Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
+---
+ Documentation/virt/kvm/kvmi.rst               | 42 +++++++++
+ arch/x86/include/uapi/asm/kvmi.h              |  8 ++
+ arch/x86/kvm/kvmi.c                           |  1 +
+ include/uapi/linux/kvmi.h                     |  3 +
+ .../testing/selftests/kvm/x86_64/kvmi_test.c  | 91 ++++++++++++++++++-
+ virt/kvm/introspection/kvmi.c                 | 29 +++++-
+ virt/kvm/introspection/kvmi_int.h             |  1 +
+ virt/kvm/introspection/kvmi_msg.c             | 23 +++++
+ 8 files changed, 196 insertions(+), 2 deletions(-)
+
+diff --git a/Documentation/virt/kvm/kvmi.rst b/Documentation/virt/kvm/kvmi.rst
+index c50c40638d46..0f87442f6881 100644
+--- a/Documentation/virt/kvm/kvmi.rst
++++ b/Documentation/virt/kvm/kvmi.rst
+@@ -1293,6 +1293,48 @@ triggered the EPT violation within a specific EPT view.
+ * -KVM_EINVAL - the selected vCPU is invalid
+ * -KVM_EAGAIN - the selected vCPU can't be introspected yet
+ 
++31. KVMI_VM_SET_PAGE_SVE
++------------------------
++
++:Architecture: x86
++:Versions: >= 1
++:Parameters:
++
++::
++
++	struct kvmi_vm_set_page_sve {
++		__u16 view;
++		__u8 suppress;
++		__u8 padding1;
++		__u32 padding2;
++		__u64 gpa;
++	};
++
++:Returns:
++
++::
++
++        struct kvmi_error_code;
++
++Configures the spte 63rd bit (Suppress #VE, SVE) for ``gpa`` on the
++provided EPT ``view``. If ``suppress`` field is 1, the SVE bit will be set.
++If it is 0, the SVE it will be cleared.
++
++If the SVE bit is cleared, EPT violations generated by the provided
++guest physical address will trigger a #VE instead of a #PF, which is
++delivered using gate descriptor 20 in the IDT.
++
++Before configuring the SVE bit, the introspection tool should use
++*KVMI_GET_VERSION* to check if the hardware has support for the #VE
++mechanism (see **KVMI_GET_VERSION**).
++
++:Errors:
++
++* -KVM_EINVAL - padding is not zero
++* -KVM_ENOMEM - not enough memory to add the page tracking structures
++* -KVM_EOPNOTSUPP - an EPT view was selected but the hardware doesn't support it
++* -KVM_EINVAL - the selected EPT view is not valid
++
+ Events
+ ======
+ 
+diff --git a/arch/x86/include/uapi/asm/kvmi.h b/arch/x86/include/uapi/asm/kvmi.h
+index d925e6d49f50..17b02624cb4d 100644
+--- a/arch/x86/include/uapi/asm/kvmi.h
++++ b/arch/x86/include/uapi/asm/kvmi.h
+@@ -182,4 +182,12 @@ struct kvmi_vcpu_set_ve_info {
+ 	__u32 padding3;
+ };
+ 
++struct kvmi_vm_set_page_sve {
++	__u16 view;
++	__u8 suppress;
++	__u8 padding1;
++	__u32 padding2;
++	__u64 gpa;
++};
++
+ #endif /* _UAPI_ASM_X86_KVMI_H */
+diff --git a/arch/x86/kvm/kvmi.c b/arch/x86/kvm/kvmi.c
+index e101ac390809..f3c488f703ec 100644
+--- a/arch/x86/kvm/kvmi.c
++++ b/arch/x86/kvm/kvmi.c
+@@ -1214,6 +1214,7 @@ static const struct {
+ 	{ KVMI_PAGE_ACCESS_R, KVM_PAGE_TRACK_PREREAD },
+ 	{ KVMI_PAGE_ACCESS_W, KVM_PAGE_TRACK_PREWRITE },
+ 	{ KVMI_PAGE_ACCESS_X, KVM_PAGE_TRACK_PREEXEC },
++	{ KVMI_PAGE_SVE,      KVM_PAGE_TRACK_SVE },
+ };
+ 
+ void kvmi_arch_update_page_tracking(struct kvm *kvm,
+diff --git a/include/uapi/linux/kvmi.h b/include/uapi/linux/kvmi.h
+index a17cd1fa16d0..110fb011260b 100644
+--- a/include/uapi/linux/kvmi.h
++++ b/include/uapi/linux/kvmi.h
+@@ -55,6 +55,8 @@ enum {
+ 	KVMI_VCPU_SET_VE_INFO        = 29,
+ 	KVMI_VCPU_DISABLE_VE         = 30,
+ 
++	KVMI_VM_SET_PAGE_SVE = 31,
++
+ 	KVMI_NUM_MESSAGES
+ };
+ 
+@@ -84,6 +86,7 @@ enum {
+ 	KVMI_PAGE_ACCESS_R = 1 << 0,
+ 	KVMI_PAGE_ACCESS_W = 1 << 1,
+ 	KVMI_PAGE_ACCESS_X = 1 << 2,
++	KVMI_PAGE_SVE      = 1 << 3,
+ };
+ 
+ struct kvmi_msg_hdr {
+diff --git a/tools/testing/selftests/kvm/x86_64/kvmi_test.c b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
+index a3ea22f546ec..0dc5b150a739 100644
+--- a/tools/testing/selftests/kvm/x86_64/kvmi_test.c
++++ b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
+@@ -19,6 +19,7 @@
+ 
+ #include "linux/kvm_para.h"
+ #include "linux/kvmi.h"
++#include "asm/kvmi.h"
+ 
+ #define KVM_MAX_EPT_VIEWS 3
+ 
+@@ -39,6 +40,15 @@ static vm_vaddr_t test_ve_info_gva;
+ static void *test_ve_info_hva;
+ static vm_paddr_t test_ve_info_gpa;
+ 
++struct vcpu_ve_info {
++	u32 exit_reason;
++	u32 unused;
++	u64 exit_qualification;
++	u64 gva;
++	u64 gpa;
++	u16 eptp_index;
++};
++
+ static uint8_t test_write_pattern;
+ static int page_size;
+ 
+@@ -53,6 +63,11 @@ struct pf_ev {
+ 	struct kvmi_event_pf pf;
+ };
+ 
++struct exception {
++	uint32_t exception;
++	uint32_t error_code;
++};
++
+ struct vcpu_worker_data {
+ 	struct kvm_vm *vm;
+ 	int vcpu_id;
+@@ -61,6 +76,8 @@ struct vcpu_worker_data {
+ 	bool shutdown;
+ 	bool restart_on_shutdown;
+ 	bool run_guest_once;
++	bool expect_exception;
++	struct exception ex;
+ };
+ 
+ static struct kvmi_features features;
+@@ -806,7 +823,9 @@ static void *vcpu_worker(void *data)
+ 
+ 		TEST_ASSERT(run->exit_reason == KVM_EXIT_IO
+ 			|| (run->exit_reason == KVM_EXIT_SHUTDOWN
+-				&& ctx->shutdown),
++				&& ctx->shutdown)
++			|| (run->exit_reason == KVM_EXIT_EXCEPTION
++				&& ctx->expect_exception),
+ 			"vcpu_run() failed, test_id %d, exit reason %u (%s)\n",
+ 			ctx->test_id, run->exit_reason,
+ 			exit_reason_str(run->exit_reason));
+@@ -817,6 +836,12 @@ static void *vcpu_worker(void *data)
+ 			break;
+ 		}
+ 
++		if (run->exit_reason == KVM_EXIT_EXCEPTION) {
++			ctx->ex.exception = run->ex.exception;
++			ctx->ex.error_code = run->ex.error_code;
++			break;
++		}
++
+ 		TEST_ASSERT(get_ucall(ctx->vm, ctx->vcpu_id, &uc),
+ 			"No guest request\n");
+ 
+@@ -2288,15 +2313,79 @@ static void disable_ve(struct kvm_vm *vm)
+ 				sizeof(req), NULL, 0);
+ }
+ 
++static void set_page_sve(__u64 gpa, bool sve)
++{
++	struct {
++		struct kvmi_msg_hdr hdr;
++		struct kvmi_vm_set_page_sve cmd;
++	} req = {};
++
++	req.cmd.gpa = gpa;
++	req.cmd.suppress = sve;
++
++	test_vm_command(KVMI_VM_SET_PAGE_SVE, &req.hdr, sizeof(req),
++			NULL, 0);
++}
++
+ static void test_virtualization_exceptions(struct kvm_vm *vm)
+ {
++	struct vcpu_worker_data data = {
++		.vm = vm,
++		.vcpu_id = VCPU_ID,
++		.test_id = GUEST_TEST_PF,
++		.expect_exception = true,
++	};
++	pthread_t vcpu_thread;
++	struct vcpu_ve_info *ve_info;
++
+ 	if (!features.ve) {
+ 		print_skip("#VE not supported");
+ 		return;
+ 	}
+ 
++	set_page_access(test_gpa, KVMI_PAGE_ACCESS_R);
++	set_page_sve(test_gpa, false);
++
++	new_test_write_pattern(vm);
++
+ 	enable_ve(vm);
++
++	vcpu_thread = start_vcpu_worker(&data);
++
++	wait_vcpu_worker(vcpu_thread);
++
++	TEST_ASSERT(data.ex.exception == VE_VECTOR &&
++		    data.ex.error_code == 0,
++			"Unexpected exception, vector %u (expected %u), error code %u (expected 0)\n",
++			data.ex.exception, VE_VECTOR, data.ex.error_code);
++
++	ve_info = (struct vcpu_ve_info *)test_ve_info_hva;
++
++	TEST_ASSERT(ve_info->exit_reason == 48 && /* EPT violation */
++			(ve_info->exit_qualification & 0x18a) &&
++			ve_info->gva == test_gva &&
++			ve_info->gpa == test_gpa &&
++			ve_info->eptp_index == 0,
++			"#VE exit_reason %u (expected 48), exit qualification 0x%lx (expected mask 0x18a), gva %lx (expected %lx), gpa %lx (expected %lx), ept index %u (expected 0)\n",
++			ve_info->exit_reason,
++			ve_info->exit_qualification,
++			ve_info->gva, test_gva,
++			ve_info->gpa, test_gpa,
++			ve_info->eptp_index);
++
++	/* When vcpu_run() is called next, guest will re-execute the
++	 * last instruction that triggered a #VE, so the guest
++	 * remains in a clean state before executing other tests.
++	 * But not before adding write access to test_gpa.
++	 */
++	set_page_access(test_gpa, KVMI_PAGE_ACCESS_R | KVMI_PAGE_ACCESS_W);
++
++	/* Disable #VE and and check that a #PF is triggered
++	 * instead of a #VE, even though test_gpa is convertible;
++	 * here vcpu_run() is called as well.
++	 */
+ 	disable_ve(vm);
++	test_event_pf(vm);
+ }
+ 
+ static void test_introspection(struct kvm_vm *vm)
+diff --git a/virt/kvm/introspection/kvmi.c b/virt/kvm/introspection/kvmi.c
+index 6bae2981cda7..665ff223ce84 100644
+--- a/virt/kvm/introspection/kvmi.c
++++ b/virt/kvm/introspection/kvmi.c
+@@ -28,7 +28,7 @@ static const u8 rwx_access = KVMI_PAGE_ACCESS_R |
+ 			     KVMI_PAGE_ACCESS_X;
+ static const u8 full_access = KVMI_PAGE_ACCESS_R |
+ 			     KVMI_PAGE_ACCESS_W |
+-			     KVMI_PAGE_ACCESS_X;
++			     KVMI_PAGE_ACCESS_X | KVMI_PAGE_SVE;
+ 
+ void *kvmi_msg_alloc(void)
+ {
+@@ -1447,3 +1447,30 @@ bool kvmi_tracked_gfn(struct kvm_vcpu *vcpu, gfn_t gfn)
+ 
+ 	return ret;
+ }
++
++int kvmi_cmd_set_page_sve(struct kvm *kvm, gpa_t gpa, u16 view, bool suppress)
++{
++	struct kvmi_mem_access *m;
++	u8 mask = KVMI_PAGE_SVE;
++	bool used = false;
++	int err = 0;
++
++	m = kmem_cache_zalloc(radix_cache, GFP_KERNEL);
++	if (!m)
++		return -KVM_ENOMEM;
++
++	m->gfn = gpa_to_gfn(gpa);
++	m->access = suppress ? KVMI_PAGE_SVE : 0;
++
++	if (radix_tree_preload(GFP_KERNEL))
++		err = -KVM_ENOMEM;
++	else
++		kvmi_set_mem_access(kvm, m, mask, view, &used);
++
++	radix_tree_preload_end();
++
++	if (!used)
++		kmem_cache_free(radix_cache, m);
++
++	return err;
++}
+diff --git a/virt/kvm/introspection/kvmi_int.h b/virt/kvm/introspection/kvmi_int.h
+index a0062fbde49e..915ac75321da 100644
+--- a/virt/kvm/introspection/kvmi_int.h
++++ b/virt/kvm/introspection/kvmi_int.h
+@@ -88,6 +88,7 @@ int kvmi_cmd_vcpu_set_registers(struct kvm_vcpu *vcpu,
+ int kvmi_cmd_set_page_access(struct kvm_introspection *kvmi,
+ 			     const struct kvmi_msg_hdr *msg,
+ 			     const struct kvmi_vm_set_page_access *req);
++int kvmi_cmd_set_page_sve(struct kvm *kvm, gpa_t gpa, u16 view, bool suppress);
+ bool kvmi_restricted_page_access(struct kvm_introspection *kvmi, gpa_t gpa,
+ 				 u8 access, u16 view);
+ bool kvmi_pf_event(struct kvm_vcpu *vcpu, gpa_t gpa, gva_t gva, u8 access);
+diff --git a/virt/kvm/introspection/kvmi_msg.c b/virt/kvm/introspection/kvmi_msg.c
+index 664b78d545c3..2b31b117401b 100644
+--- a/virt/kvm/introspection/kvmi_msg.c
++++ b/virt/kvm/introspection/kvmi_msg.c
+@@ -347,6 +347,28 @@ static int handle_vm_set_page_access(struct kvm_introspection *kvmi,
+ 	return kvmi_msg_vm_reply(kvmi, msg, ec, NULL, 0);
+ }
+ 
++static int handle_vm_set_page_sve(struct kvm_introspection *kvmi,
++				  const struct kvmi_msg_hdr *msg,
++				  const void *_req)
++{
++	const struct kvmi_vm_set_page_sve *req = _req;
++	int ec;
++
++	if (!is_valid_view(req->view))
++		ec = -KVM_EINVAL;
++	else if (req->suppress > 1)
++		ec = -KVM_EINVAL;
++	else if (req->padding1 || req->padding2)
++		ec = -KVM_EINVAL;
++	else if (req->view != 0 && !kvm_eptp_switching_supported)
++		ec = -KVM_EOPNOTSUPP;
++	else
++		ec = kvmi_cmd_set_page_sve(kvmi->kvm, req->gpa, req->view,
++					   req->suppress == 1);
++
++	return kvmi_msg_vm_reply(kvmi, msg, ec, NULL, 0);
++}
++
+ /*
+  * These commands are executed by the receiving thread.
+  */
+@@ -362,6 +384,7 @@ static int(*const msg_vm[])(struct kvm_introspection *,
+ 	[KVMI_VM_GET_MAX_GFN]     = handle_vm_get_max_gfn,
+ 	[KVMI_VM_READ_PHYSICAL]   = handle_vm_read_physical,
+ 	[KVMI_VM_SET_PAGE_ACCESS] = handle_vm_set_page_access,
++	[KVMI_VM_SET_PAGE_SVE]    = handle_vm_set_page_sve,
+ 	[KVMI_VM_WRITE_PHYSICAL]  = handle_vm_write_physical,
+ };
+ 
