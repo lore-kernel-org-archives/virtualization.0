@@ -1,7 +1,7 @@
 From: Zhu Lingshan <lingshan.zhu@intel.com>
-Subject: [PATCH V3 1/6] vhost: introduce vhost_vring_call
-Date: Wed, 22 Jul 2020 18:08:54 +0800
-Message-ID: <20200722100859.221669-2-lingshan.zhu@intel.com>
+Subject: [PATCH V3 2/6] kvm: detect assigned device via irqbypass manager
+Date: Wed, 22 Jul 2020 18:08:55 +0800
+Message-ID: <20200722100859.221669-3-lingshan.zhu@intel.com>
 References: <20200722100859.221669-1-lingshan.zhu@intel.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20200722100859.221669-1-lingshan.zhu@intel.com>
@@ -10,140 +10,55 @@ To: jasowang@redhat.com, alex.williamson@redhat.com, mst@redhat.com, pbonzini@re
 Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, kvm@vger.kernel.org, Zhu Lingshan <lingshan.zhu@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This commit introduces struct vhost_vring_call which replaced
-raw struct eventfd_ctx *call_ctx in struct vhost_virtqueue.
-Besides eventfd_ctx, it contains a spin lock and an
-irq_bypass_producer in its structure.
+vDPA devices has dedicated backed hardware like
+passthrough-ed devices. Then it is possible to setup irq
+offloading to vCPU for vDPA devices. Thus this patch tries to
+manipulated assigned device counters by
+kvm_arch_start/end_assignment() in irqbypass manager, so that
+assigned devices could be detected in update_pi_irte()
+
+We will increase/decrease the assigned device counter in kvm/x86.
+Both vDPA and VFIO would go through this code path.
+
+Only X86 uses these counters and kvm_arch_start/end_assignment(),
+so this code path only affect x86 for now.
 
 Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
 ---
- drivers/vhost/vdpa.c  |  4 ++--
- drivers/vhost/vhost.c | 22 ++++++++++++++++------
- drivers/vhost/vhost.h |  9 ++++++++-
- 3 files changed, 26 insertions(+), 9 deletions(-)
+ arch/x86/kvm/x86.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index a54b60d6623f..df3cf386b0cd 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -96,7 +96,7 @@ static void handle_vq_kick(struct vhost_work *work)
- static irqreturn_t vhost_vdpa_virtqueue_cb(void *private)
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 88c593f83b28..b2bf17f808b6 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -10630,11 +10630,17 @@ int kvm_arch_irq_bypass_add_producer(struct irq_bypass_consumer *cons,
  {
- 	struct vhost_virtqueue *vq = private;
--	struct eventfd_ctx *call_ctx = vq->call_ctx;
-+	struct eventfd_ctx *call_ctx = vq->call_ctx.ctx;
+ 	struct kvm_kernel_irqfd *irqfd =
+ 		container_of(cons, struct kvm_kernel_irqfd, consumer);
++	int ret;
  
- 	if (call_ctx)
- 		eventfd_signal(call_ctx, 1);
-@@ -382,7 +382,7 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
- 		break;
+ 	irqfd->producer = prod;
++	kvm_arch_start_assignment(irqfd->kvm);
++	ret = kvm_x86_ops.update_pi_irte(irqfd->kvm,
++					 prod->irq, irqfd->gsi, 1);
++
++	if (ret)
++		kvm_arch_end_assignment(irqfd->kvm);
  
- 	case VHOST_SET_VRING_CALL:
--		if (vq->call_ctx) {
-+		if (vq->call_ctx.ctx) {
- 			cb.callback = vhost_vdpa_virtqueue_cb;
- 			cb.private = vq;
- 		} else {
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index d7b8df3edffc..9f1a845a9302 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -298,6 +298,13 @@ static void vhost_vq_meta_reset(struct vhost_dev *d)
- 		__vhost_vq_meta_reset(d->vqs[i]);
+-	return kvm_x86_ops.update_pi_irte(irqfd->kvm,
+-					   prod->irq, irqfd->gsi, 1);
++	return ret;
  }
  
-+static void vhost_vring_call_reset(struct vhost_vring_call *call_ctx)
-+{
-+	call_ctx->ctx = NULL;
-+	memset(&call_ctx->producer, 0x0, sizeof(struct irq_bypass_producer));
-+	spin_lock_init(&call_ctx->ctx_lock);
-+}
-+
- static void vhost_vq_reset(struct vhost_dev *dev,
- 			   struct vhost_virtqueue *vq)
- {
-@@ -319,13 +326,13 @@ static void vhost_vq_reset(struct vhost_dev *dev,
- 	vq->log_base = NULL;
- 	vq->error_ctx = NULL;
- 	vq->kick = NULL;
--	vq->call_ctx = NULL;
- 	vq->log_ctx = NULL;
- 	vhost_reset_is_le(vq);
- 	vhost_disable_cross_endian(vq);
- 	vq->busyloop_timeout = 0;
- 	vq->umem = NULL;
- 	vq->iotlb = NULL;
-+	vhost_vring_call_reset(&vq->call_ctx);
- 	__vhost_vq_meta_reset(vq);
- }
+ void kvm_arch_irq_bypass_del_producer(struct irq_bypass_consumer *cons,
+@@ -10645,6 +10651,7 @@ void kvm_arch_irq_bypass_del_producer(struct irq_bypass_consumer *cons,
+ 		container_of(cons, struct kvm_kernel_irqfd, consumer);
  
-@@ -685,8 +692,8 @@ void vhost_dev_cleanup(struct vhost_dev *dev)
- 			eventfd_ctx_put(dev->vqs[i]->error_ctx);
- 		if (dev->vqs[i]->kick)
- 			fput(dev->vqs[i]->kick);
--		if (dev->vqs[i]->call_ctx)
--			eventfd_ctx_put(dev->vqs[i]->call_ctx);
-+		if (dev->vqs[i]->call_ctx.ctx)
-+			eventfd_ctx_put(dev->vqs[i]->call_ctx.ctx);
- 		vhost_vq_reset(dev, dev->vqs[i]);
- 	}
- 	vhost_dev_free_iovecs(dev);
-@@ -1629,7 +1636,10 @@ long vhost_vring_ioctl(struct vhost_dev *d, unsigned int ioctl, void __user *arg
- 			r = PTR_ERR(ctx);
- 			break;
- 		}
--		swap(ctx, vq->call_ctx);
-+
-+		spin_lock(&vq->call_ctx.ctx_lock);
-+		swap(ctx, vq->call_ctx.ctx);
-+		spin_unlock(&vq->call_ctx.ctx_lock);
- 		break;
- 	case VHOST_SET_VRING_ERR:
- 		if (copy_from_user(&f, argp, sizeof f)) {
-@@ -2440,8 +2450,8 @@ static bool vhost_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- void vhost_signal(struct vhost_dev *dev, struct vhost_virtqueue *vq)
- {
- 	/* Signal the Guest tell them we used something up. */
--	if (vq->call_ctx && vhost_notify(dev, vq))
--		eventfd_signal(vq->call_ctx, 1);
-+	if (vq->call_ctx.ctx && vhost_notify(dev, vq))
-+		eventfd_signal(vq->call_ctx.ctx, 1);
- }
- EXPORT_SYMBOL_GPL(vhost_signal);
+ 	WARN_ON(irqfd->producer != prod);
++	kvm_arch_end_assignment(irqfd->kvm);
+ 	irqfd->producer = NULL;
  
-diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
-index c8e96a095d3b..38eb1aa3b68d 100644
---- a/drivers/vhost/vhost.h
-+++ b/drivers/vhost/vhost.h
-@@ -13,6 +13,7 @@
- #include <linux/virtio_ring.h>
- #include <linux/atomic.h>
- #include <linux/vhost_iotlb.h>
-+#include <linux/irqbypass.h>
- 
- struct vhost_work;
- typedef void (*vhost_work_fn_t)(struct vhost_work *work);
-@@ -60,6 +61,12 @@ enum vhost_uaddr_type {
- 	VHOST_NUM_ADDRS = 3,
- };
- 
-+struct vhost_vring_call {
-+	struct eventfd_ctx *ctx;
-+	struct irq_bypass_producer producer;
-+	spinlock_t ctx_lock;
-+};
-+
- /* The virtqueue structure describes a queue attached to a device. */
- struct vhost_virtqueue {
- 	struct vhost_dev *dev;
-@@ -72,7 +79,7 @@ struct vhost_virtqueue {
- 	vring_used_t __user *used;
- 	const struct vhost_iotlb_map *meta_iotlb[VHOST_NUM_ADDRS];
- 	struct file *kick;
--	struct eventfd_ctx *call_ctx;
-+	struct vhost_vring_call call_ctx;
- 	struct eventfd_ctx *error_ctx;
- 	struct eventfd_ctx *log_ctx;
- 
+ 	/*
 -- 
 2.18.4
