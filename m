@@ -1,50 +1,56 @@
-From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v1 14/34] KVM: introspection: add 'view' field to struct
- kvmi_event_arch
-Date: Wed, 22 Jul 2020 19:01:01 +0300
-Message-ID: <20200722160121.9601-15-alazar@bitdefender.com>
-References: <20200722160121.9601-1-alazar@bitdefender.com>
+From: Erdem Aktas <erdemaktas@google.com>
+Subject: Re: [PATCH v4 00/75] x86: SEV-ES Guest Support
+Date: Wed, 22 Jul 2020 09:54:40 -0700
+Message-ID: <CAAYXXYxRzO+hFvge4sKvNyH64iW9N2eLNbbKOR2DZf0DDL6CUw@mail.gmail.com>
+References: <20200714120917.11253-1-joro@8bytes.org> <20200715092456.GE10769@hirez.programming.kicks-ass.net>
+ <20200715093426.GK16200@suse.de> <20200715095556.GI10769@hirez.programming.kicks-ass.net>
+ <20200715101034.GM16200@suse.de> <CAAYXXYxJf8sr6fvbZK=t6o_to4Ov_yvZ91Hf6ZqQ-_i-HKO2VA@mail.gmail.com>
+ <20200721124957.GD6132@suse.de> <CAAYXXYwVV_g8pGL52W9vxkgdNxg1dNKq_OBsXKZ_QizdXiTx2g@mail.gmail.com>
+ <20200722090442.GI6132@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200722160121.9601-1-alazar@bitdefender.com>
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: kvm@vger.kernel.org
-Cc: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?=C8=98tefan=20=C8=98icleru?= <ssicleru@bitdefender.com>, virtualization@lists.linux-foundation.org
+Content-Type: text/plain; charset="UTF-8"
+Return-path: <linux-kernel-owner@vger.kernel.org>
+In-Reply-To: <20200722090442.GI6132@suse.de>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Joerg Roedel <jroedel@suse.de>
+Cc: Peter Zijlstra <peterz@infradead.org>, Joerg Roedel <joro@8bytes.org>, x86@kernel.org, hpa@zytor.com, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Tom Lendacky <thomas.lendacky@amd.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Mike Stunes <mstunes@vmware.com>, Sean Christopherson <sean.j.christopherson@intel.com>, Martin Radev <martin.b.radev@gmail.com>, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 List-Id: virtualization@lists.linuxfoundation.org
 
-RnJvbTogyJh0ZWZhbiDImGljbGVydSA8c3NpY2xlcnVAYml0ZGVmZW5kZXIuY29tPgoKUmVwb3J0
-IHRoZSB2aWV3IGEgdkNQVSBvcGVyYXRlcyBvbiB3aGVuIHNlbmRpbmcgZXZlbnRzIHRvIHRoZQpp
-bnRyb3NwZWN0aW9uIHRvb2wuCgpTaWduZWQtb2ZmLWJ5OiDImHRlZmFuIMiYaWNsZXJ1IDxzc2lj
-bGVydUBiaXRkZWZlbmRlci5jb20+ClNpZ25lZC1vZmYtYnk6IEFkYWxiZXJ0IExhesSDciA8YWxh
-emFyQGJpdGRlZmVuZGVyLmNvbT4KLS0tCiBhcmNoL3g4Ni9pbmNsdWRlL3VhcGkvYXNtL2t2bWku
-aCB8IDQgKysrLQogYXJjaC94ODYva3ZtL2t2bWkuYyAgICAgICAgICAgICAgfCAxICsKIDIgZmls
-ZXMgY2hhbmdlZCwgNCBpbnNlcnRpb25zKCspLCAxIGRlbGV0aW9uKC0pCgpkaWZmIC0tZ2l0IGEv
-YXJjaC94ODYvaW5jbHVkZS91YXBpL2FzbS9rdm1pLmggYi9hcmNoL3g4Ni9pbmNsdWRlL3VhcGkv
-YXNtL2t2bWkuaAppbmRleCAzMDg3YzY4NWMyMzIuLmExM2E5OGZhODYzZiAxMDA2NDQKLS0tIGEv
-YXJjaC94ODYvaW5jbHVkZS91YXBpL2FzbS9rdm1pLmgKKysrIGIvYXJjaC94ODYvaW5jbHVkZS91
-YXBpL2FzbS9rdm1pLmgKQEAgLTEyLDcgKzEyLDkgQEAKIAogc3RydWN0IGt2bWlfZXZlbnRfYXJj
-aCB7CiAJX191OCBtb2RlOwkJLyogMiwgNCBvciA4ICovCi0JX191OCBwYWRkaW5nWzddOworCV9f
-dTggcGFkZGluZzE7CisJX191MTYgdmlldzsKKwlfX3UzMiBwYWRkaW5nMjsKIAlzdHJ1Y3Qga3Zt
-X3JlZ3MgcmVnczsKIAlzdHJ1Y3Qga3ZtX3NyZWdzIHNyZWdzOwogCXN0cnVjdCB7CmRpZmYgLS1n
-aXQgYS9hcmNoL3g4Ni9rdm0va3ZtaS5jIGIvYXJjaC94ODYva3ZtL2t2bWkuYwppbmRleCBiZDMx
-ODA5ZmY4MTIuLjI5MjYwNjkwMjMzOCAxMDA2NDQKLS0tIGEvYXJjaC94ODYva3ZtL2t2bWkuYwor
-KysgYi9hcmNoL3g4Ni9rdm0va3ZtaS5jCkBAIC0xMDIsNiArMTAyLDcgQEAgdm9pZCBrdm1pX2Fy
-Y2hfc2V0dXBfZXZlbnQoc3RydWN0IGt2bV92Y3B1ICp2Y3B1LCBzdHJ1Y3Qga3ZtaV9ldmVudCAq
-ZXYpCiAJa3ZtX2FyY2hfdmNwdV9nZXRfc3JlZ3ModmNwdSwgJmV2ZW50LT5zcmVncyk7CiAJZXYt
-PmFyY2gubW9kZSA9IGt2bWlfdmNwdV9tb2RlKHZjcHUsICZldmVudC0+c3JlZ3MpOwogCWt2bWlf
-Z2V0X21zcnModmNwdSwgZXZlbnQpOworCWV2ZW50LT52aWV3ID0ga3ZtX2dldF9lcHRfdmlldyh2
-Y3B1KTsKIH0KIAogaW50IGt2bWlfYXJjaF9jbWRfdmNwdV9nZXRfaW5mbyhzdHJ1Y3Qga3ZtX3Zj
-cHUgKnZjcHUsCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-ClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1m
-b3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9s
-aXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+I am using a custom, optimized and stripped down version, OVMF build.
+Do you think it is because of the OVMF or grub?
+
+In my case, there are 2 places where the CPUID is called: the first
+one is to decide if long mode is supported, along with few other
+features like SSE support and the second one is to retrieve the
+encryption bit location.
+
+-Erdem
+
+On Wed, Jul 22, 2020 at 2:04 AM Joerg Roedel <jroedel@suse.de> wrote:
+>
+> Hi Erdem,
+>
+> On Tue, Jul 21, 2020 at 09:48:51AM -0700, Erdem Aktas wrote:
+> > Yes, I am using OVMF with SEV-ES (sev-es-v12 patches applied). I am
+> > running Ubuntu 18.04 distro. My grub target is x86_64-efi. I also
+> > tried installing the grub-efi-amd64 package. In all cases, the grub is
+> > running in 64bit but enters the startup_32 in 32 bit mode. I think
+> > there should be a 32bit #VC handler just something very similar in the
+> > OVMF patches to handle the cpuid when the CPU is still in 32bit mode.
+> > As it is now, it will be a huge problem to support different distro images.
+> > I wonder if I am the only one having this problem.
+>
+> I havn't heard from anyone else that the startup_32 boot-path is being
+> used for SEV-ES. What OVMF binary do you use for your guest?
+>
+> In general it is not that difficult to support that boot-path too, but
+> I'd like to keep that as a future addition, as the patch-set is already
+> quite large. In the startup_32 path there is already a GDT set up, so
+> whats needed is an IDT and a 32-bit #VC handler using the MRS-based
+> protocol (and hoping that there will only be CPUID intercepts until it
+> reaches long-mode).
+>
+> Regards,
+>
+>         Joerg
+>
