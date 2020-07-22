@@ -1,120 +1,450 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v1 00/34] VM introspection - EPT Views and Virtualization Exceptions
-Date: Wed, 22 Jul 2020 19:00:47 +0300
-Message-ID: <20200722160121.9601-1-alazar@bitdefender.com>
+Subject: [RFC PATCH v1 10/34] KVM: x86: page track: allow page tracking for different EPT views
+Date: Wed, 22 Jul 2020 19:00:57 +0300
+Message-ID: <20200722160121.9601-11-alazar@bitdefender.com>
+References: <20200722160121.9601-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Return-path: <kvm-owner@vger.kernel.org>
+In-Reply-To: <20200722160121.9601-1-alazar@bitdefender.com>
 Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>, Sean Christopherson <sean.j.christopherson@intel.com>
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?=C8=98tefan=20=C8=98icleru?= <ssicleru@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This patch series is based on the VM introspection patches
-(https://lore.kernel.org/kvm/20200721210922.7646-1-alazar@bitdefender.com/),
-extending the introspection API with EPT Views and Virtualization
-Exceptions (#VE) support.
+From: Ștefan Șicleru <ssicleru@bitdefender.com>
 
-The purpose of this series is to get an initial feedback and to see if
-we are on the right track, especially because the changes made to add
-the EPT views are not small (even if they add support only for different
-access rights for now, not for different content).
+The introspection tool uses this to set distinct access rights on
+different EPT views.
 
-One use case for these extensions is to run a guest agent, isolated in
-another EPT view and using Virtualization Exceptions (#VE), to reduce
-the number of VM-Exits caused by EPT violations.
+Signed-off-by: Ștefan Șicleru <ssicleru@bitdefender.com>
+Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
+---
+ arch/x86/include/asm/kvm_host.h       |  2 +-
+ arch/x86/include/asm/kvm_page_track.h |  4 +-
+ arch/x86/kvm/kvmi.c                   |  6 ++-
+ arch/x86/kvm/mmu.h                    |  9 ++--
+ arch/x86/kvm/mmu/mmu.c                | 60 +++++++++++++++++----------
+ arch/x86/kvm/mmu/page_track.c         | 56 +++++++++++++------------
+ drivers/gpu/drm/i915/gvt/kvmgt.c      |  8 ++--
+ 7 files changed, 86 insertions(+), 59 deletions(-)
 
-Another case for EPT views is to single-step one vCPU on a different view
-(with more relaxed page access restrictions) while all the others run
-on a main/restricted view.
-
-Patches 1-11 make preparatory changes for EPT views.
-
-Patches 12-19 extend the VM introspection API with EPT-views related
-commands and data. The Get/Set/Control EPT view commands are added,
-the KVMI_VM_SET_PAGE_ACCESS command and the vCPU introspection events
-are extended with the EPT view.
-
-Patches 20-30 make preparatory changes for #VE.
-
-Patches 31-34 extend the VM introspection API with #VE related commands.
-
-Adalbert Lazăr (2):
-  KVM: x86: mmu: reindent to avoid lines longer than 80 chars
-  KVM: introspection: mask out non-rwx flags when reading/writing
-    from/to the internal database
-
-Marian Rotariu (5):
-  KVM: x86: export .get_vmfunc_status()
-  KVM: x86: export .get_eptp_switching_status()
-  KVM: x86: mmu: add support for EPT switching
-  KVM: x86: add .set_ept_view()
-  KVM: x86: vmx: add support for virtualization exceptions
-
-Sean Christopherson (2):
-  KVM: VMX: Define EPT suppress #VE bit (bit 63 in EPT leaf entries)
-  KVM: VMX: Suppress EPT violation #VE by default (when enabled)
-
-Ștefan Șicleru (25):
-  KVM: x86: add kvm_get_ept_view()
-  KVM: x86: mmu: add EPT view parameter to kvm_mmu_get_page()
-  KVM: x86: mmu: increase mmu_memory_cache size
-  KVM: x86: add .control_ept_view()
-  KVM: x86: page track: allow page tracking for different EPT views
-  KVM: x86: mmu: allow zapping shadow pages for specific EPT views
-  KVM: introspection: extend struct kvmi_features with the EPT views
-    status support
-  KVM: introspection: add KVMI_VCPU_GET_EPT_VIEW
-  KVM: introspection: add 'view' field to struct kvmi_event_arch
-  KVM: introspection: add KVMI_VCPU_SET_EPT_VIEW
-  KVM: introspection: add KVMI_VCPU_CONTROL_EPT_VIEW
-  KVM: introspection: extend the access rights database with EPT view
-    info
-  KVM: introspection: extend KVMI_VM_SET_PAGE_ACCESS with EPT view info
-  KVM: introspection: clean non-default EPTs on unhook
-  KVM: x86: mmu: fix: update present_mask in spte_read_protect()
-  KVM: vmx: trigger vm-exits for mmio sptes by default when #VE is
-    enabled
-  KVM: x86: svm: set .clear_page()
-  KVM: x86: add .set_ve_info()
-  KVM: x86: add .disable_ve()
-  KVM: x86: page_track: add support for suppress #VE bit
-  KVM: vmx: make use of EPTP_INDEX in vmx_handle_exit()
-  KVM: vmx: make use of EPTP_INDEX in vmx_set_ept_view()
-  KVM: introspection: add #VE host capability checker
-  KVM: introspection: add KVMI_VCPU_SET_VE_INFO/KVMI_VCPU_DISABLE_VE
-  KVM: introspection: add KVMI_VM_SET_PAGE_SVE
-
- Documentation/virt/kvm/kvmi.rst               | 227 +++++++++++-
- arch/x86/include/asm/kvm_host.h               |  27 +-
- arch/x86/include/asm/kvm_page_track.h         |   5 +-
- arch/x86/include/asm/kvmi_host.h              |   1 +
- arch/x86/include/asm/vmx.h                    |   5 +
- arch/x86/include/uapi/asm/kvmi.h              |  44 ++-
- arch/x86/kvm/Makefile                         |   2 +-
- arch/x86/kvm/kvmi.c                           |  83 ++++-
- arch/x86/kvm/mmu.h                            |  12 +-
- arch/x86/kvm/mmu/mmu.c                        | 191 +++++++---
- arch/x86/kvm/mmu/page_track.c                 |  63 ++--
- arch/x86/kvm/mmu/paging_tmpl.h                |   6 +-
- arch/x86/kvm/svm/svm.c                        |   1 +
- arch/x86/kvm/vmx/capabilities.h               |  13 +
- arch/x86/kvm/vmx/clear_page.S                 |  17 +
- arch/x86/kvm/vmx/vmx.c                        | 291 ++++++++++++++-
- arch/x86/kvm/vmx/vmx.h                        |  18 +
- arch/x86/kvm/x86.c                            |  20 +-
- drivers/gpu/drm/i915/gvt/kvmgt.c              |   8 +-
- include/linux/kvmi_host.h                     |   2 +-
- include/uapi/linux/kvmi.h                     |  12 +-
- .../testing/selftests/kvm/x86_64/kvmi_test.c  | 335 +++++++++++++++++-
- virt/kvm/introspection/kvmi.c                 | 175 ++++++---
- virt/kvm/introspection/kvmi_int.h             |  17 +-
- virt/kvm/introspection/kvmi_msg.c             | 106 ++++++
- 25 files changed, 1512 insertions(+), 169 deletions(-)
- create mode 100644 arch/x86/kvm/vmx/clear_page.S
-
-
-base-commit: d9da9f5842e0697564f0f3e586d858f2626e8f92
-Based-on: <20200721210922.7646-1-alazar@bitdefender.com>
-CC: Sean Christopherson <sean.j.christopherson@intel.com>
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index 5e241863153f..2fbb26b54cf1 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -860,7 +860,7 @@ struct kvm_lpage_info {
+ struct kvm_arch_memory_slot {
+ 	struct kvm_rmap_head *rmap[KVM_NR_PAGE_SIZES];
+ 	struct kvm_lpage_info *lpage_info[KVM_NR_PAGE_SIZES - 1];
+-	unsigned short *gfn_track[KVM_PAGE_TRACK_MAX];
++	unsigned short *gfn_track[KVM_MAX_EPT_VIEWS][KVM_PAGE_TRACK_MAX];
+ };
+ 
+ /*
+diff --git a/arch/x86/include/asm/kvm_page_track.h b/arch/x86/include/asm/kvm_page_track.h
+index c10f0f65c77a..96d2ab7da4a7 100644
+--- a/arch/x86/include/asm/kvm_page_track.h
++++ b/arch/x86/include/asm/kvm_page_track.h
+@@ -109,10 +109,10 @@ int kvm_page_track_create_memslot(struct kvm *kvm, struct kvm_memory_slot *slot,
+ 
+ void kvm_slot_page_track_add_page(struct kvm *kvm,
+ 				  struct kvm_memory_slot *slot, gfn_t gfn,
+-				  enum kvm_page_track_mode mode);
++				  enum kvm_page_track_mode mode, u16 view);
+ void kvm_slot_page_track_remove_page(struct kvm *kvm,
+ 				     struct kvm_memory_slot *slot, gfn_t gfn,
+-				     enum kvm_page_track_mode mode);
++				     enum kvm_page_track_mode mode, u16 view);
+ bool kvm_page_track_is_active(struct kvm_vcpu *vcpu, gfn_t gfn,
+ 			      enum kvm_page_track_mode mode);
+ 
+diff --git a/arch/x86/kvm/kvmi.c b/arch/x86/kvm/kvmi.c
+index 4e75858c03b4..7b3b64d27d18 100644
+--- a/arch/x86/kvm/kvmi.c
++++ b/arch/x86/kvm/kvmi.c
+@@ -1215,11 +1215,13 @@ void kvmi_arch_update_page_tracking(struct kvm *kvm,
+ 		if (m->access & allow_bit) {
+ 			if (slot_tracked) {
+ 				kvm_slot_page_track_remove_page(kvm, slot,
+-								m->gfn, mode);
++								m->gfn, mode,
++								0);
+ 				clear_bit(slot->id, arch->active[mode]);
+ 			}
+ 		} else if (!slot_tracked) {
+-			kvm_slot_page_track_add_page(kvm, slot, m->gfn, mode);
++			kvm_slot_page_track_add_page(kvm, slot, m->gfn, mode,
++						     0);
+ 			set_bit(slot->id, arch->active[mode]);
+ 		}
+ 	}
+diff --git a/arch/x86/kvm/mmu.h b/arch/x86/kvm/mmu.h
+index e2c0518af750..2692b14fb605 100644
+--- a/arch/x86/kvm/mmu.h
++++ b/arch/x86/kvm/mmu.h
+@@ -221,11 +221,14 @@ void kvm_zap_gfn_range(struct kvm *kvm, gfn_t gfn_start, gfn_t gfn_end);
+ void kvm_mmu_gfn_disallow_lpage(struct kvm_memory_slot *slot, gfn_t gfn);
+ void kvm_mmu_gfn_allow_lpage(struct kvm_memory_slot *slot, gfn_t gfn);
+ bool kvm_mmu_slot_gfn_write_protect(struct kvm *kvm,
+-				    struct kvm_memory_slot *slot, u64 gfn);
++				    struct kvm_memory_slot *slot, u64 gfn,
++				    u16 view);
+ bool kvm_mmu_slot_gfn_read_protect(struct kvm *kvm,
+-				   struct kvm_memory_slot *slot, u64 gfn);
++				   struct kvm_memory_slot *slot, u64 gfn,
++				   u16 view);
+ bool kvm_mmu_slot_gfn_exec_protect(struct kvm *kvm,
+-				   struct kvm_memory_slot *slot, u64 gfn);
++				   struct kvm_memory_slot *slot, u64 gfn,
++				   u16 view);
+ int kvm_arch_write_log_dirty(struct kvm_vcpu *vcpu, gpa_t l2_gpa);
+ 
+ int kvm_mmu_post_init_vm(struct kvm *kvm);
+diff --git a/arch/x86/kvm/mmu/mmu.c b/arch/x86/kvm/mmu/mmu.c
+index 70461c7ef58c..cca12982b795 100644
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -1231,9 +1231,9 @@ static void account_shadowed(struct kvm *kvm, struct kvm_mmu_page *sp)
+ 	/* the non-leaf shadow pages are keeping readonly. */
+ 	if (sp->role.level > PG_LEVEL_4K) {
+ 		kvm_slot_page_track_add_page(kvm, slot, gfn,
+-					     KVM_PAGE_TRACK_PREWRITE);
++					     KVM_PAGE_TRACK_PREWRITE, 0);
+ 		kvm_slot_page_track_add_page(kvm, slot, gfn,
+-					     KVM_PAGE_TRACK_WRITE);
++					     KVM_PAGE_TRACK_WRITE, 0);
+ 		return;
+ 	}
+ 
+@@ -1263,9 +1263,9 @@ static void unaccount_shadowed(struct kvm *kvm, struct kvm_mmu_page *sp)
+ 	slot = __gfn_to_memslot(slots, gfn);
+ 	if (sp->role.level > PG_LEVEL_4K) {
+ 		kvm_slot_page_track_remove_page(kvm, slot, gfn,
+-						KVM_PAGE_TRACK_PREWRITE);
++						KVM_PAGE_TRACK_PREWRITE, 0);
+ 		kvm_slot_page_track_remove_page(kvm, slot, gfn,
+-						KVM_PAGE_TRACK_WRITE);
++						KVM_PAGE_TRACK_WRITE, 0);
+ 		return;
+ 	}
+ 
+@@ -1617,40 +1617,52 @@ static bool spte_exec_protect(u64 *sptep)
+ 
+ static bool __rmap_write_protect(struct kvm *kvm,
+ 				 struct kvm_rmap_head *rmap_head,
+-				 bool pt_protect)
++				 bool pt_protect, u16 view)
+ {
+ 	u64 *sptep;
+ 	struct rmap_iterator iter;
+ 	bool flush = false;
++	struct kvm_mmu_page *sp;
+ 
+-	for_each_rmap_spte(rmap_head, &iter, sptep)
+-		flush |= spte_write_protect(sptep, pt_protect);
++	for_each_rmap_spte(rmap_head, &iter, sptep) {
++		sp = page_header(__pa(sptep));
++		if (view == 0 || (view > 0 && sp->view == view))
++			flush |= spte_write_protect(sptep, pt_protect);
++	}
+ 
+ 	return flush;
+ }
+ 
+ static bool __rmap_read_protect(struct kvm *kvm,
+-				struct kvm_rmap_head *rmap_head)
++				struct kvm_rmap_head *rmap_head, u16 view)
+ {
+ 	struct rmap_iterator iter;
++	struct kvm_mmu_page *sp;
+ 	bool flush = false;
+ 	u64 *sptep;
+ 
+-	for_each_rmap_spte(rmap_head, &iter, sptep)
+-		flush |= spte_read_protect(sptep);
++	for_each_rmap_spte(rmap_head, &iter, sptep) {
++		sp = page_header(__pa(sptep));
++		if (view == 0 || (view > 0 && sp->view == view))
++			flush |= spte_read_protect(sptep);
++	}
+ 
+ 	return flush;
+ }
+ 
+ static bool __rmap_exec_protect(struct kvm *kvm,
+-				struct kvm_rmap_head *rmap_head)
++				struct kvm_rmap_head *rmap_head, u16 view)
+ {
+ 	struct rmap_iterator iter;
++	struct kvm_mmu_page *sp;
+ 	bool flush = false;
+ 	u64 *sptep;
+ 
+-	for_each_rmap_spte(rmap_head, &iter, sptep)
+-		flush |= spte_exec_protect(sptep);
++	for_each_rmap_spte(rmap_head, &iter, sptep) {
++		sp = page_header(__pa(sptep));
++		if (view == 0 || (view > 0 && sp->view == view))
++			flush |= spte_exec_protect(sptep);
++	}
+ 
+ 	return flush;
+ }
+@@ -1745,7 +1757,7 @@ static void kvm_mmu_write_protect_pt_masked(struct kvm *kvm,
+ 	while (mask) {
+ 		rmap_head = __gfn_to_rmap(slot->base_gfn + gfn_offset + __ffs(mask),
+ 					  PG_LEVEL_4K, slot);
+-		__rmap_write_protect(kvm, rmap_head, false);
++		__rmap_write_protect(kvm, rmap_head, false, 0);
+ 
+ 		/* clear the first set bit */
+ 		mask &= mask - 1;
+@@ -1816,7 +1828,8 @@ int kvm_arch_write_log_dirty(struct kvm_vcpu *vcpu, gpa_t l2_gpa)
+ }
+ 
+ bool kvm_mmu_slot_gfn_write_protect(struct kvm *kvm,
+-				    struct kvm_memory_slot *slot, u64 gfn)
++				    struct kvm_memory_slot *slot, u64 gfn,
++				    u16 view)
+ {
+ 	struct kvm_rmap_head *rmap_head;
+ 	int i;
+@@ -1824,14 +1837,16 @@ bool kvm_mmu_slot_gfn_write_protect(struct kvm *kvm,
+ 
+ 	for (i = PG_LEVEL_4K; i <= KVM_MAX_HUGEPAGE_LEVEL; ++i) {
+ 		rmap_head = __gfn_to_rmap(gfn, i, slot);
+-		write_protected |= __rmap_write_protect(kvm, rmap_head, true);
++		write_protected |= __rmap_write_protect(kvm, rmap_head, true,
++							view);
+ 	}
+ 
+ 	return write_protected;
+ }
+ 
+ bool kvm_mmu_slot_gfn_read_protect(struct kvm *kvm,
+-				   struct kvm_memory_slot *slot, u64 gfn)
++				   struct kvm_memory_slot *slot, u64 gfn,
++				   u16 view)
+ {
+ 	struct kvm_rmap_head *rmap_head;
+ 	bool read_protected = false;
+@@ -1839,14 +1854,15 @@ bool kvm_mmu_slot_gfn_read_protect(struct kvm *kvm,
+ 
+ 	for (i = PG_LEVEL_4K; i <= KVM_MAX_HUGEPAGE_LEVEL; ++i) {
+ 		rmap_head = __gfn_to_rmap(gfn, i, slot);
+-		read_protected |= __rmap_read_protect(kvm, rmap_head);
++		read_protected |= __rmap_read_protect(kvm, rmap_head, view);
+ 	}
+ 
+ 	return read_protected;
+ }
+ 
+ bool kvm_mmu_slot_gfn_exec_protect(struct kvm *kvm,
+-				   struct kvm_memory_slot *slot, u64 gfn)
++				   struct kvm_memory_slot *slot, u64 gfn,
++				   u16 view)
+ {
+ 	struct kvm_rmap_head *rmap_head;
+ 	bool exec_protected = false;
+@@ -1854,7 +1870,7 @@ bool kvm_mmu_slot_gfn_exec_protect(struct kvm *kvm,
+ 
+ 	for (i = PG_LEVEL_4K; i <= KVM_MAX_HUGEPAGE_LEVEL; ++i) {
+ 		rmap_head = __gfn_to_rmap(gfn, i, slot);
+-		exec_protected |= __rmap_exec_protect(kvm, rmap_head);
++		exec_protected |= __rmap_exec_protect(kvm, rmap_head, view);
+ 	}
+ 
+ 	return exec_protected;
+@@ -1865,7 +1881,7 @@ static bool rmap_write_protect(struct kvm_vcpu *vcpu, u64 gfn)
+ 	struct kvm_memory_slot *slot;
+ 
+ 	slot = kvm_vcpu_gfn_to_memslot(vcpu, gfn);
+-	return kvm_mmu_slot_gfn_write_protect(vcpu->kvm, slot, gfn);
++	return kvm_mmu_slot_gfn_write_protect(vcpu->kvm, slot, gfn, 0);
+ }
+ 
+ static bool kvm_zap_rmapp(struct kvm *kvm, struct kvm_rmap_head *rmap_head)
+@@ -6008,7 +6024,7 @@ void kvm_zap_gfn_range(struct kvm *kvm, gfn_t gfn_start, gfn_t gfn_end)
+ static bool slot_rmap_write_protect(struct kvm *kvm,
+ 				    struct kvm_rmap_head *rmap_head)
+ {
+-	return __rmap_write_protect(kvm, rmap_head, false);
++	return __rmap_write_protect(kvm, rmap_head, false, 0);
+ }
+ 
+ void kvm_mmu_slot_remove_write_access(struct kvm *kvm,
+diff --git a/arch/x86/kvm/mmu/page_track.c b/arch/x86/kvm/mmu/page_track.c
+index b593bcf80be0..bf26b21cfeb8 100644
+--- a/arch/x86/kvm/mmu/page_track.c
++++ b/arch/x86/kvm/mmu/page_track.c
+@@ -20,12 +20,13 @@
+ 
+ void kvm_page_track_free_memslot(struct kvm_memory_slot *slot)
+ {
+-	int i;
++	int i, view;
+ 
+-	for (i = 0; i < KVM_PAGE_TRACK_MAX; i++) {
+-		kvfree(slot->arch.gfn_track[i]);
+-		slot->arch.gfn_track[i] = NULL;
+-	}
++	for (view = 0; view < KVM_MAX_EPT_VIEWS; view++)
++		for (i = 0; i < KVM_PAGE_TRACK_MAX; i++) {
++			kvfree(slot->arch.gfn_track[view][i]);
++			slot->arch.gfn_track[view][i] = NULL;
++		}
+ }
+ 
+ int kvm_page_track_create_memslot(struct kvm *kvm, struct kvm_memory_slot *slot,
+@@ -33,16 +34,17 @@ int kvm_page_track_create_memslot(struct kvm *kvm, struct kvm_memory_slot *slot,
+ {
+ 	struct kvm_page_track_notifier_head *head;
+ 	struct kvm_page_track_notifier_node *n;
+-	int idx;
+-	int  i;
++	int view, idx, i;
+ 
+-	for (i = 0; i < KVM_PAGE_TRACK_MAX; i++) {
+-		slot->arch.gfn_track[i] =
+-			kvcalloc(npages, sizeof(*slot->arch.gfn_track[i]),
+-				 GFP_KERNEL_ACCOUNT);
+-		if (!slot->arch.gfn_track[i])
+-			goto track_free;
+-	}
++	for (view = 0; view < KVM_MAX_EPT_VIEWS; view++)
++		for (i = 0; i < KVM_PAGE_TRACK_MAX; i++) {
++			slot->arch.gfn_track[view][i] =
++				kvcalloc(npages,
++					 sizeof(*slot->arch.gfn_track[view][i]),
++					 GFP_KERNEL_ACCOUNT);
++			if (!slot->arch.gfn_track[view][i])
++				goto track_free;
++		}
+ 
+ 	head = &kvm->arch.track_notifier_head;
+ 
+@@ -71,18 +73,19 @@ static inline bool page_track_mode_is_valid(enum kvm_page_track_mode mode)
+ }
+ 
+ static void update_gfn_track(struct kvm_memory_slot *slot, gfn_t gfn,
+-			     enum kvm_page_track_mode mode, short count)
++			     enum kvm_page_track_mode mode, short count,
++			     u16 view)
+ {
+ 	int index, val;
+ 
+ 	index = gfn_to_index(gfn, slot->base_gfn, PG_LEVEL_4K);
+ 
+-	val = slot->arch.gfn_track[mode][index];
++	val = slot->arch.gfn_track[view][mode][index];
+ 
+ 	if (WARN_ON(val + count < 0 || val + count > USHRT_MAX))
+ 		return;
+ 
+-	slot->arch.gfn_track[mode][index] += count;
++	slot->arch.gfn_track[view][mode][index] += count;
+ }
+ 
+ /*
+@@ -99,13 +102,13 @@ static void update_gfn_track(struct kvm_memory_slot *slot, gfn_t gfn,
+  */
+ void kvm_slot_page_track_add_page(struct kvm *kvm,
+ 				  struct kvm_memory_slot *slot, gfn_t gfn,
+-				  enum kvm_page_track_mode mode)
++				  enum kvm_page_track_mode mode, u16 view)
+ {
+ 
+ 	if (WARN_ON(!page_track_mode_is_valid(mode)))
+ 		return;
+ 
+-	update_gfn_track(slot, gfn, mode, 1);
++	update_gfn_track(slot, gfn, mode, 1, view);
+ 
+ 	/*
+ 	 * new track stops large page mapping for the
+@@ -114,13 +117,13 @@ void kvm_slot_page_track_add_page(struct kvm *kvm,
+ 	kvm_mmu_gfn_disallow_lpage(slot, gfn);
+ 
+ 	if (mode == KVM_PAGE_TRACK_PREWRITE || mode == KVM_PAGE_TRACK_WRITE) {
+-		if (kvm_mmu_slot_gfn_write_protect(kvm, slot, gfn))
++		if (kvm_mmu_slot_gfn_write_protect(kvm, slot, gfn, view))
+ 			kvm_flush_remote_tlbs(kvm);
+ 	} else if (mode == KVM_PAGE_TRACK_PREREAD) {
+-		if (kvm_mmu_slot_gfn_read_protect(kvm, slot, gfn))
++		if (kvm_mmu_slot_gfn_read_protect(kvm, slot, gfn, view))
+ 			kvm_flush_remote_tlbs(kvm);
+ 	} else if (mode == KVM_PAGE_TRACK_PREEXEC) {
+-		if (kvm_mmu_slot_gfn_exec_protect(kvm, slot, gfn))
++		if (kvm_mmu_slot_gfn_exec_protect(kvm, slot, gfn, view))
+ 			kvm_flush_remote_tlbs(kvm);
+ 	}
+ }
+@@ -141,12 +144,12 @@ EXPORT_SYMBOL_GPL(kvm_slot_page_track_add_page);
+  */
+ void kvm_slot_page_track_remove_page(struct kvm *kvm,
+ 				     struct kvm_memory_slot *slot, gfn_t gfn,
+-				     enum kvm_page_track_mode mode)
++				     enum kvm_page_track_mode mode, u16 view)
+ {
+ 	if (WARN_ON(!page_track_mode_is_valid(mode)))
+ 		return;
+ 
+-	update_gfn_track(slot, gfn, mode, -1);
++	update_gfn_track(slot, gfn, mode, -1, view);
+ 
+ 	/*
+ 	 * allow large page mapping for the tracked page
+@@ -163,7 +166,7 @@ bool kvm_page_track_is_active(struct kvm_vcpu *vcpu, gfn_t gfn,
+ 			      enum kvm_page_track_mode mode)
+ {
+ 	struct kvm_memory_slot *slot;
+-	int index;
++	int index, view;
+ 
+ 	if (WARN_ON(!page_track_mode_is_valid(mode)))
+ 		return false;
+@@ -173,7 +176,8 @@ bool kvm_page_track_is_active(struct kvm_vcpu *vcpu, gfn_t gfn,
+ 		return false;
+ 
+ 	index = gfn_to_index(gfn, slot->base_gfn, PG_LEVEL_4K);
+-	return !!READ_ONCE(slot->arch.gfn_track[mode][index]);
++	view = kvm_get_ept_view(vcpu);
++	return !!READ_ONCE(slot->arch.gfn_track[view][mode][index]);
+ }
+ 
+ void kvm_page_track_cleanup(struct kvm *kvm)
+diff --git a/drivers/gpu/drm/i915/gvt/kvmgt.c b/drivers/gpu/drm/i915/gvt/kvmgt.c
+index 4e370b216365..98e2e75c0d22 100644
+--- a/drivers/gpu/drm/i915/gvt/kvmgt.c
++++ b/drivers/gpu/drm/i915/gvt/kvmgt.c
+@@ -1706,7 +1706,8 @@ static int kvmgt_page_track_add(unsigned long handle, u64 gfn)
+ 	if (kvmgt_gfn_is_write_protected(info, gfn))
+ 		goto out;
+ 
+-	kvm_slot_page_track_add_page(kvm, slot, gfn, KVM_PAGE_TRACK_WRITE);
++	kvm_slot_page_track_add_page(kvm, slot, gfn,
++				     KVM_PAGE_TRACK_WRITE, 0);
+ 	kvmgt_protect_table_add(info, gfn);
+ 
+ out:
+@@ -1740,7 +1741,8 @@ static int kvmgt_page_track_remove(unsigned long handle, u64 gfn)
+ 	if (!kvmgt_gfn_is_write_protected(info, gfn))
+ 		goto out;
+ 
+-	kvm_slot_page_track_remove_page(kvm, slot, gfn, KVM_PAGE_TRACK_WRITE);
++	kvm_slot_page_track_remove_page(kvm, slot, gfn,
++					KVM_PAGE_TRACK_WRITE, 0);
+ 	kvmgt_protect_table_del(info, gfn);
+ 
+ out:
+@@ -1775,7 +1777,7 @@ static void kvmgt_page_track_flush_slot(struct kvm *kvm,
+ 		gfn = slot->base_gfn + i;
+ 		if (kvmgt_gfn_is_write_protected(info, gfn)) {
+ 			kvm_slot_page_track_remove_page(kvm, slot, gfn,
+-						KVM_PAGE_TRACK_WRITE);
++						KVM_PAGE_TRACK_WRITE, 0);
+ 			kvmgt_protect_table_del(info, gfn);
+ 		}
+ 	}
