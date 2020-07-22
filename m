@@ -1,7 +1,7 @@
 From: =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
-Subject: [RFC PATCH v1 21/34] KVM: VMX: Define EPT suppress #VE bit (bit 63 in EPT leaf entries)
-Date: Wed, 22 Jul 2020 19:01:08 +0300
-Message-ID: <20200722160121.9601-22-alazar@bitdefender.com>
+Subject: [RFC PATCH v1 31/34] KVM: introspection: add #VE host capability checker
+Date: Wed, 22 Jul 2020 19:01:18 +0300
+Message-ID: <20200722160121.9601-32-alazar@bitdefender.com>
 References: <20200722160121.9601-1-alazar@bitdefender.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -10,42 +10,77 @@ Return-path: <kvm-owner@vger.kernel.org>
 In-Reply-To: <20200722160121.9601-1-alazar@bitdefender.com>
 Sender: kvm-owner@vger.kernel.org
 To: kvm@vger.kernel.org
-Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, Sean Christopherson <sean.j.christopherson@intel.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
+Cc: virtualization@lists.linux-foundation.org, Paolo Bonzini <pbonzini@redhat.com>, =?UTF-8?q?=C8=98tefan=20=C8=98icleru?= <ssicleru@bitdefender.com>, =?UTF-8?q?Adalbert=20Laz=C4=83r?= <alazar@bitdefender.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-From: Sean Christopherson <sean.j.christopherson@intel.com>
+From: Ștefan Șicleru <ssicleru@bitdefender.com>
 
-VMX provides a capability that allows EPT violations to be reflected
-into the guest as Virtualization Exceptions (#VE).  The primary use case
-of EPT violation #VEs is to improve the performance of virtualization-
-based security solutions, e.g. eliminate a VM-Exit -> VM-Exit roundtrip
-when utilizing EPT to protect priveleged data structures or code.
+Add one more field to struct kvmi_features in order to publish #VE
+capabilities on the host as indicated by kvm_ve_supported flag.
 
-The "Suppress #VE" bit allows a VMM to opt-out of EPT violation #VEs on
-a per page basis, e.g. when a page is marked not-present due to lazy
-installation or is write-protected for dirty page logging.
-
-The "Suppress #VE" bit is ignored:
-
-  - By hardware that does not support EPT violation #VEs
-  - When the EPT violation #VE VMCS control is disabled
-  - On non-leaf EPT entries
-
-Signed-off-by: Sean Christopherson <sean.j.christopherson@intel.com>
+Signed-off-by: Ștefan Șicleru <ssicleru@bitdefender.com>
 Signed-off-by: Adalbert Lazăr <alazar@bitdefender.com>
 ---
- arch/x86/include/asm/vmx.h | 1 +
- 1 file changed, 1 insertion(+)
+ Documentation/virt/kvm/kvmi.rst                | 5 +++--
+ arch/x86/include/uapi/asm/kvmi.h               | 3 ++-
+ arch/x86/kvm/kvmi.c                            | 1 +
+ tools/testing/selftests/kvm/x86_64/kvmi_test.c | 1 +
+ 4 files changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/include/asm/vmx.h b/arch/x86/include/asm/vmx.h
-index 177500e9e68c..8082158e3e96 100644
---- a/arch/x86/include/asm/vmx.h
-+++ b/arch/x86/include/asm/vmx.h
-@@ -498,6 +498,7 @@ enum vmcs_field {
- #define VMX_EPT_IPAT_BIT    			(1ull << 6)
- #define VMX_EPT_ACCESS_BIT			(1ull << 8)
- #define VMX_EPT_DIRTY_BIT			(1ull << 9)
-+#define VMX_EPT_SUPPRESS_VE_BIT			(1ull << 63)
- #define VMX_EPT_RWX_MASK                        (VMX_EPT_READABLE_MASK |       \
- 						 VMX_EPT_WRITABLE_MASK |       \
- 						 VMX_EPT_EXECUTABLE_MASK)
+diff --git a/Documentation/virt/kvm/kvmi.rst b/Documentation/virt/kvm/kvmi.rst
+index 658c9df01469..caa51fccc463 100644
+--- a/Documentation/virt/kvm/kvmi.rst
++++ b/Documentation/virt/kvm/kvmi.rst
+@@ -265,11 +265,12 @@ For x86
+ 		__u8 singlestep;
+ 		__u8 vmfunc;
+ 		__u8 eptp;
+-		__u8 padding[5];
++		__u8 ve;
++		__u8 padding[4];
+ 	};
+ 
+ Returns the introspection API version and some of the features supported
+-by the hardware (eg. alternate EPT views).
++by the hardware (eg. alternate EPT views, virtualization exception).
+ 
+ This command is always allowed and successful.
+ 
+diff --git a/arch/x86/include/uapi/asm/kvmi.h b/arch/x86/include/uapi/asm/kvmi.h
+index fc35da900778..56992dacfb69 100644
+--- a/arch/x86/include/uapi/asm/kvmi.h
++++ b/arch/x86/include/uapi/asm/kvmi.h
+@@ -151,7 +151,8 @@ struct kvmi_features {
+ 	__u8 singlestep;
+ 	__u8 vmfunc;
+ 	__u8 eptp;
+-	__u8 padding[5];
++	__u8 ve;
++	__u8 padding[4];
+ };
+ 
+ struct kvmi_vcpu_get_ept_view_reply {
+diff --git a/arch/x86/kvm/kvmi.c b/arch/x86/kvm/kvmi.c
+index 27fd732cff29..3e8c83623703 100644
+--- a/arch/x86/kvm/kvmi.c
++++ b/arch/x86/kvm/kvmi.c
+@@ -1383,6 +1383,7 @@ void kvmi_arch_features(struct kvmi_features *feat)
+ 			kvm_x86_ops.get_vmfunc_status();
+ 	feat->eptp = kvm_x86_ops.get_eptp_switching_status &&
+ 			kvm_x86_ops.get_eptp_switching_status();
++	feat->ve = kvm_ve_supported;
+ }
+ 
+ bool kvmi_arch_start_singlestep(struct kvm_vcpu *vcpu)
+diff --git a/tools/testing/selftests/kvm/x86_64/kvmi_test.c b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
+index d808cb61463d..4e099cbfcf4e 100644
+--- a/tools/testing/selftests/kvm/x86_64/kvmi_test.c
++++ b/tools/testing/selftests/kvm/x86_64/kvmi_test.c
+@@ -459,6 +459,7 @@ static void test_cmd_get_version(void)
+ 	pr_info("\tsinglestep: %u\n", features.singlestep);
+ 	pr_info("\tvmfunc: %u\n", features.vmfunc);
+ 	pr_info("\teptp: %u\n", features.eptp);
++	pr_info("\tve: %u\n", features.ve);
+ }
+ 
+ static void cmd_vm_check_command(__u16 id, __u16 padding, int expected_err)
