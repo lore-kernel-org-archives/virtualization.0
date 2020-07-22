@@ -1,7 +1,7 @@
 From: Zhu Lingshan <lingshan.zhu@intel.com>
-Subject: [PATCH V3 3/6] vDPA: implement vq IRQ allocate/free helpers in vDPA core
-Date: Wed, 22 Jul 2020 18:08:56 +0800
-Message-ID: <20200722100859.221669-4-lingshan.zhu@intel.com>
+Subject: [PATCH V3 5/6] ifcvf: replace irq_request/free with vDPA helpers
+Date: Wed, 22 Jul 2020 18:08:58 +0800
+Message-ID: <20200722100859.221669-6-lingshan.zhu@intel.com>
 References: <20200722100859.221669-1-lingshan.zhu@intel.com>
 Return-path: <netdev-owner@vger.kernel.org>
 In-Reply-To: <20200722100859.221669-1-lingshan.zhu@intel.com>
@@ -10,115 +10,67 @@ To: jasowang@redhat.com, alex.williamson@redhat.com, mst@redhat.com, pbonzini@re
 Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, kvm@vger.kernel.org, Zhu Lingshan <lingshan.zhu@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-This commit implements vq IRQ allocate/free helpers in vDPA
-core by introducing two couple of functions:
-
-vdpa_devm_request_Irq() and vdpa_devm_free_irq(): request irq and free
-irq, and setup irq offloading.
-
-vdpa_setup_irq() and vdpa_unsetup_irq(): supportive functions,
-will call vhost_vdpa helpers.
+This commit replaced irq_request/free() with vDPA helpers
+vdpa_devm_request/free_irq() so that it can request/free
+irq and setup irq offloading on order.
 
 Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
 ---
- drivers/vdpa/vdpa.c  | 49 ++++++++++++++++++++++++++++++++++++++++++++
- include/linux/vdpa.h | 13 ++++++++++++
- 2 files changed, 62 insertions(+)
+ drivers/vdpa/ifcvf/ifcvf_main.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
-index de211ef3738c..4dfc86eba0f6 100644
---- a/drivers/vdpa/vdpa.c
-+++ b/drivers/vdpa/vdpa.c
-@@ -163,6 +163,55 @@ void vdpa_unregister_driver(struct vdpa_driver *drv)
- }
- EXPORT_SYMBOL_GPL(vdpa_unregister_driver);
- 
-+static void vdpa_setup_irq(struct vdpa_device *vdev, int qid, int irq)
-+{
-+	struct vdpa_driver *drv = drv_to_vdpa(vdev->dev.driver);
-+
-+	if (drv->setup_vq_irq)
-+		drv->setup_vq_irq(vdev, qid, irq);
-+}
-+
-+static void vdpa_unsetup_irq(struct vdpa_device *vdev, int qid)
-+{
-+	struct vdpa_driver *drv = drv_to_vdpa(vdev->dev.driver);
-+
-+	if (drv && drv->unsetup_vq_irq)
-+		drv->unsetup_vq_irq(vdev, qid);
-+}
-+
-+/*
-+ * Request irq for a vq, setup irq offloading if its a vhost_vdpa vq.
-+ * This function should be only called through setting virtio DRIVER_OK.
-+ * If you want to request irq during probe, you should use raw APIs
-+ * like request_irq() or devm_request_irq().
-+ */
-+int vdpa_devm_request_irq(struct device *dev, struct vdpa_device *vdev,
-+			  unsigned int irq, irq_handler_t handler,
-+			  unsigned long irqflags, const char *devname, void *dev_id,
-+			  int qid)
-+{
-+	int ret;
-+
-+	ret = devm_request_irq(dev, irq, handler, irqflags, devname, dev_id);
-+	if (ret)
-+		dev_err(dev, "Failed to request irq for vq %d\n", qid);
-+	else
-+		vdpa_setup_irq(vdev, qid, irq);
-+
-+	return ret;
-+
-+}
-+EXPORT_SYMBOL_GPL(vdpa_devm_request_irq);
-+
-+/* free irq for a vq, unsetup irq offloading if its a vhost_vdpa vq */
-+void vdpa_devm_free_irq(struct device *dev, struct vdpa_device *vdev, int irq,
-+			int qid, void *dev_id)
-+{
-+	devm_free_irq(dev, irq, dev_id);
-+	vdpa_unsetup_irq(vdev, qid);
-+}
-+EXPORT_SYMBOL_GPL(vdpa_devm_free_irq);
-+
- static int vdpa_init(void)
+diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
+index f5a60c14b979..65aab6bcaccb 100644
+--- a/drivers/vdpa/ifcvf/ifcvf_main.c
++++ b/drivers/vdpa/ifcvf/ifcvf_main.c
+@@ -47,11 +47,12 @@ static void ifcvf_free_irq(struct ifcvf_adapter *adapter, int queues)
  {
- 	return bus_register(&vdpa_bus);
-diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
-index 239db794357c..9412e3b56589 100644
---- a/include/linux/vdpa.h
-+++ b/include/linux/vdpa.h
-@@ -220,17 +220,30 @@ struct vdpa_device *__vdpa_alloc_device(struct device *parent,
+ 	struct pci_dev *pdev = adapter->pdev;
+ 	struct ifcvf_hw *vf = &adapter->vf;
++	struct vdpa_device *vdpa = &adapter->vdpa;
+ 	int i;
  
- int vdpa_register_device(struct vdpa_device *vdev);
- void vdpa_unregister_device(struct vdpa_device *vdev);
-+int vdpa_devm_request_irq(struct device *dev, struct vdpa_device *vdev,
-+			  unsigned int irq, irq_handler_t handler,
-+			  unsigned long irqflags, const char *devname, void *dev_id,
-+			  int qid);
-+void vdpa_devm_free_irq(struct device *dev, struct vdpa_device *vdev, int irq,
-+			int qid, void *dev_id);
-+
  
- /**
-  * vdpa_driver - operations for a vDPA driver
-  * @driver: underlying device driver
-  * @probe: the function to call when a device is found.  Returns 0 or -errno.
-  * @remove: the function to call when a device is removed.
-+ * @setup_vq_irq: the function to call after request irq for a vhost_vdpa vq,
-+ * do setup works e.g irq offloading.
-+ * @unsetup_vq_irq: the function to call after free irq for a vhost_vdpa vq,
-+ * do unsetup works e.g relieve irq offloading.
-  */
- struct vdpa_driver {
- 	struct device_driver driver;
- 	int (*probe)(struct vdpa_device *vdev);
- 	void (*remove)(struct vdpa_device *vdev);
-+	void (*setup_vq_irq)(struct vdpa_device *vdev, int qid, int irq);
-+	void (*unsetup_vq_irq)(struct vdpa_device *vdev, int qid);
- };
+ 	for (i = 0; i < queues; i++)
+-		devm_free_irq(&pdev->dev, vf->vring[i].irq, &vf->vring[i]);
++		vdpa_devm_free_irq(&pdev->dev, vdpa, vf->vring[i].irq, i, &vf->vring[i]);
  
- #define vdpa_register_driver(drv) \
+ 	ifcvf_free_irq_vectors(pdev);
+ }
+@@ -60,6 +61,7 @@ static int ifcvf_request_irq(struct ifcvf_adapter *adapter)
+ {
+ 	struct pci_dev *pdev = adapter->pdev;
+ 	struct ifcvf_hw *vf = &adapter->vf;
++	struct vdpa_device *vdpa = &adapter->vdpa;
+ 	int vector, i, ret, irq;
+ 
+ 	ret = pci_alloc_irq_vectors(pdev, IFCVF_MAX_INTR,
+@@ -73,6 +75,10 @@ static int ifcvf_request_irq(struct ifcvf_adapter *adapter)
+ 		 pci_name(pdev));
+ 	vector = 0;
+ 	irq = pci_irq_vector(pdev, vector);
++	/* This is config interrupt, config accesses all go
++	 * through userspace, so no need to setup
++	 * config interrupt offloading.
++	 */
+ 	ret = devm_request_irq(&pdev->dev, irq,
+ 			       ifcvf_config_changed, 0,
+ 			       vf->config_msix_name, vf);
+@@ -82,13 +88,11 @@ static int ifcvf_request_irq(struct ifcvf_adapter *adapter)
+ 			 pci_name(pdev), i);
+ 		vector = i + IFCVF_MSI_QUEUE_OFF;
+ 		irq = pci_irq_vector(pdev, vector);
+-		ret = devm_request_irq(&pdev->dev, irq,
++		ret = vdpa_devm_request_irq(&pdev->dev, vdpa, irq,
+ 				       ifcvf_intr_handler, 0,
+ 				       vf->vring[i].msix_name,
+-				       &vf->vring[i]);
++				       &vf->vring[i], i);
+ 		if (ret) {
+-			IFCVF_ERR(pdev,
+-				  "Failed to request irq for vq %d\n", i);
+ 			ifcvf_free_irq(adapter, i);
+ 
+ 			return ret;
 -- 
 2.18.4
