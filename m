@@ -1,62 +1,36 @@
-From: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH V3 3/6] vDPA: implement vq IRQ allocate/free helpers in
- vDPA core
-Date: Thu, 23 Jul 2020 12:19:42 +0800
-Message-ID: <a3c05c65-74bf-6250-5f4a-3b6cf60f4474@redhat.com>
-References: <20200722100859.221669-1-lingshan.zhu@intel.com>
- <20200722100859.221669-4-lingshan.zhu@intel.com>
+From: Joerg Roedel <joro@8bytes.org>
+Subject: Re: [PATCH v4 51/75] x86/sev-es: Handle MMIO events
+Date: Thu, 23 Jul 2020 09:21:02 +0200
+Message-ID: <20200723072102.GN27672@8bytes.org>
+References: <20200714120917.11253-1-joro@8bytes.org>
+ <20200714120917.11253-52-joro@8bytes.org>
+ <40D5C698-1ED2-4CCE-9C1D-07620A021A6A@vmware.com>
+ <20200722080530.GH6132@suse.de>
+ <7020C1D2-5900-4AD8-ADCD-04A571DF2EA7@vmware.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Return-path: <netdev-owner@vger.kernel.org>
-In-Reply-To: <20200722100859.221669-4-lingshan.zhu@intel.com>
-Content-Language: en-US
-Sender: netdev-owner@vger.kernel.org
-To: Zhu Lingshan <lingshan.zhu@intel.com>, alex.williamson@redhat.com, mst@redhat.com, pbonzini@redhat.com, sean.j.christopherson@intel.com, wanpengli@tencent.com
-Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, kvm@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Content-Disposition: inline
+In-Reply-To: <7020C1D2-5900-4AD8-ADCD-04A571DF2EA7@vmware.com>
+Sender: linux-kernel-owner@vger.kernel.org
+To: Mike Stunes <mstunes@vmware.com>
+Cc: Joerg Roedel <jroedel@suse.de>, "x86@kernel.org" <x86@kernel.org>, Tom Lendacky <thomas.lendacky@amd.com>, "hpa@zytor.com" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Sean Christopherson <sean.j.christopherson@intel.com>, Martin Radev <martin.b.radev@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, virtualization@
 List-Id: virtualization@lists.linuxfoundation.org
 
+Hi Mike,
 
-On 2020/7/22 下午6:08, Zhu Lingshan wrote:
-> +/*
-> + * Request irq for a vq, setup irq offloading if its a vhost_vdpa vq.
-> + * This function should be only called through setting virtio DRIVER_OK.
-> + * If you want to request irq during probe, you should use raw APIs
-> + * like request_irq() or devm_request_irq().
+On Wed, Jul 22, 2020 at 10:53:02PM +0000, Mike Stunes wrote:
+> Thanks Joerg! With that change in place, this kernel boots normally.
+> What was the problem?
 
+The problem was that the code got its page-table from
+current->active_mm. But these pointers are not set up during early boot,
+so that the #VC handler can't walk the page-table and propagates a
+page-fault every time. This loops forever.
 
-This makes the API less flexibile. The reason is we store the irq in 
-vhost-vdpa not vDPA.
+Getting the page-table from CR3 instead works at all stages of the
+systems runtime.
 
-I wonder whether the following looks better:
+Regards,
 
-1) store irq in vdpa device
-2) register producer when DRIVER_OK and unregister producer when 
-!DRIVER_OK in vhost-vDPA
-3) deal with the synchronization with SET_VRING_CALL
-4) document that irq is not expected to be changed during DRIVER_OK
-
-This can make sure the API works during driver probe, and we don't need 
-the setup_irq and unsetup_irq method in vdpa_driver
-
-Thanks
-
-
-> + */
-> +int vdpa_devm_request_irq(struct device *dev, struct vdpa_device *vdev,
-> +			  unsigned int irq, irq_handler_t handler,
-> +			  unsigned long irqflags, const char *devname, void *dev_id,
-> +			  int qid)
-> +{
-> +	int ret;
-> +
-> +	ret = devm_request_irq(dev, irq, handler, irqflags, devname, dev_id);
-> +	if (ret)
-> +		dev_err(dev, "Failed to request irq for vq %d\n", qid);
-> +	else
-> +		vdpa_setup_irq(vdev, qid, irq);
-> +
-> +	return ret;
-> +
-> +}
-> +EXPORT_SYMBOL_GPL(vdpa_devm_request_irq);
+	Joerg
