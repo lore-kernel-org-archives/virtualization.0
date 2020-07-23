@@ -1,58 +1,38 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH v4 1/4] vhost: convert VHOST_VSOCK_SET_RUNNING to a
- generic ioctl
-Date: Thu, 23 Jul 2020 10:34:35 +0200
-Message-ID: <20200723083435.3rjn5qiqhxcvxxwk@steredhat.lan>
-References: <20200722150927.15587-1-guennadi.liakhovetski@linux.intel.com>
- <20200722150927.15587-2-guennadi.liakhovetski@linux.intel.com>
+From: Jason Wang <jasowang@redhat.com>
+Subject: [PATCH 1/2] vdpa: ifcvf: return err when fail to request config irq
+Date: Thu, 23 Jul 2020 17:12:53 +0800
+Message-ID: <20200723091254.20617-1-jasowang@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Return-path: <kvm-owner@vger.kernel.org>
-Content-Disposition: inline
-In-Reply-To: <20200722150927.15587-2-guennadi.liakhovetski@linux.intel.com>
-Sender: kvm-owner@vger.kernel.org
-To: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-Cc: kvm@vger.kernel.org, linux-remoteproc@vger.kernel.org, virtualization@lists.linux-foundation.org, sound-open-firmware@alsa-project.org, Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>, Liam Girdwood <liam.r.girdwood@linux.intel.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Ohad Ben-Cohen <ohad@wizery.com>, Bjorn Andersson <bjorn.andersson@linaro.org>, Mathieu Poirier <mathieu.poirier@linaro.org>, Vincent Whitchurch <vincent.whitchurch@axis.com>
+Content-Transfer-Encoding: 8bit
+Return-path: <linux-kernel-owner@vger.kernel.org>
+Sender: linux-kernel-owner@vger.kernel.org
+To: mst@redhat.com, jasowang@redhat.com, virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
+Cc: Zhu Lingshan <lingshan.zhu@intel.com>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Wed, Jul 22, 2020 at 05:09:24PM +0200, Guennadi Liakhovetski wrote:
-> VHOST_VSOCK_SET_RUNNING is used by the vhost vsock driver to perform
-> crucial VirtQueue initialisation, like assigning .private fields and
-> calling vhost_vq_init_access(), and clean up. However, this ioctl is
-> actually extremely useful for any vhost driver, that doesn't have a
-> side channel to inform it of a status change, e.g. upon a guest
-> reboot. This patch makes that ioctl generic, while preserving its
-> numeric value and also keeping the original alias.
-> 
-> Signed-off-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-> ---
->  include/uapi/linux/vhost.h | 4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-> index 0c2349612e77..5d9254e2a6b6 100644
-> --- a/include/uapi/linux/vhost.h
-> +++ b/include/uapi/linux/vhost.h
-> @@ -95,6 +95,8 @@
->  #define VHOST_SET_BACKEND_FEATURES _IOW(VHOST_VIRTIO, 0x25, __u64)
->  #define VHOST_GET_BACKEND_FEATURES _IOR(VHOST_VIRTIO, 0x26, __u64)
->  
-> +#define VHOST_SET_RUNNING _IOW(VHOST_VIRTIO, 0x61, int)
-> +
->  /* VHOST_NET specific defines */
->  
->  /* Attach virtio net ring to a raw socket, or tap device.
-> @@ -116,7 +118,7 @@
->  /* VHOST_VSOCK specific defines */
->  
->  #define VHOST_VSOCK_SET_GUEST_CID	_IOW(VHOST_VIRTIO, 0x60, __u64)
-> -#define VHOST_VSOCK_SET_RUNNING		_IOW(VHOST_VIRTIO, 0x61, int)
-> +#define VHOST_VSOCK_SET_RUNNING		VHOST_SET_RUNNING
->  
->  /* VHOST_VDPA specific defines */
->  
-> -- 
-> 2.27.0
-> 
+We ignore the err of requesting config interrupt, fix this.
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Fixes: e7991f376a4d ("ifcvf: implement config interrupt in IFCVF")
+Cc: Zhu Lingshan <lingshan.zhu@intel.com>
+Signed-off-by: Jason Wang <jasowang@redhat.com>
+---
+ drivers/vdpa/ifcvf/ifcvf_main.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/vdpa/ifcvf/ifcvf_main.c b/drivers/vdpa/ifcvf/ifcvf_main.c
+index f5a60c14b979..ae7110955a44 100644
+--- a/drivers/vdpa/ifcvf/ifcvf_main.c
++++ b/drivers/vdpa/ifcvf/ifcvf_main.c
+@@ -76,6 +76,10 @@ static int ifcvf_request_irq(struct ifcvf_adapter *adapter)
+ 	ret = devm_request_irq(&pdev->dev, irq,
+ 			       ifcvf_config_changed, 0,
+ 			       vf->config_msix_name, vf);
++	if (ret) {
++		IFCVF_ERR(pdev, "Failed to request config irq\n");
++		return ret;
++	}
+ 
+ 	for (i = 0; i < IFCVF_MAX_QUEUE_PAIRS * 2; i++) {
+ 		snprintf(vf->vring[i].msix_name, 256, "ifcvf[%s]-%d\n",
+-- 
+2.20.1
