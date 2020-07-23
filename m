@@ -1,84 +1,187 @@
-From: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: Interesting qemu/virt-manager bug about the "rotational"
- attribute on virtio-blk disks
-Date: Thu, 23 Jul 2020 13:15:14 +0200
-Message-ID: <20200723111514.eobzyktmpxi3fsez@steredhat.lan>
-References: <20200716080614.GA18456@redhat.com>
- <20200716093344.7molwklwco4sdtvs@steredhat>
- <20200723103239.GD186372@stefanha-x1.localdomain>
- <20200723104056.GN3888@redhat.com>
+From: Nicholas Piggin <npiggin@gmail.com>
+Subject: Re: [PATCH v3 0/6] powerpc: queued spinlocks and rwlocks
+Date: Thu, 23 Jul 2020 23:30:09 +1000
+Message-ID: <1595510571.u39qfc8d1o.astroid@bobo.none>
+References: <20200706043540.1563616-1-npiggin@gmail.com>
+        <24f75d2c-60cd-2766-4aab-1a3b1c80646e@redhat.com>
+        <1594101082.hfq9x5yact.astroid@bobo.none>
+        <20200708084106.GE597537@hirez.programming.kicks-ass.net>
+        <1595327263.lk78cqolxm.astroid@bobo.none>
+        <eaabf501-80fe-dd15-c03c-f75ce4f75877@redhat.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Return-path: <virtualization-bounces@lists.linux-foundation.org>
-In-Reply-To: <20200723104056.GN3888@redhat.com>
-Content-Disposition: inline
-List-Unsubscribe: <https://lists.linuxfoundation.org/mailman/options/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=unsubscribe>
-List-Archive: <http://lists.linuxfoundation.org/pipermail/virtualization/>
-List-Post: <mailto:virtualization@lists.linux-foundation.org>
-List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
-List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>,
- <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Errors-To: virtualization-bounces@lists.linux-foundation.org
-Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-To: "Richard W.M. Jones" <rjones@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux-foundation.org, qemu-discuss@nongnu.org
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+Return-path: <kvm-ppc-owner@vger.kernel.org>
+In-Reply-To: <eaabf501-80fe-dd15-c03c-f75ce4f75877@redhat.com>
+Sender: kvm-ppc-owner@vger.kernel.org
+To: Waiman Long <longman@redhat.com>, Peter Zijlstra <peterz@infradead.org>
+Cc: Anton Blanchard <anton@ozlabs.org>, Boqun Feng <boqun.feng@gmail.com>, kvm-ppc@vger.kernel.org, linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, Ingo Molnar <mingo@redhat.com>, virtualization@lists.linux-foundation.org, Will Deacon <will@kernel.org>
 List-Id: virtualization@lists.linuxfoundation.org
 
-On Thu, Jul 23, 2020 at 11:40:56AM +0100, Richard W.M. Jones wrote:
-> On Thu, Jul 23, 2020 at 11:32:39AM +0100, Stefan Hajnoczi wrote:
-> > On Thu, Jul 16, 2020 at 11:33:44AM +0200, Stefano Garzarella wrote:
-> > > +Cc Michael, Stefan, virtualization@lists.linux-foundation.org
-> > > 
-> > > On Thu, Jul 16, 2020 at 09:06:14AM +0100, Richard W.M. Jones wrote:
-> > > > 
-> > > > https://bugzilla.redhat.com/show_bug.cgi?id=1857515
-> > > > 
-> > > > A virtio-blk disk which is backed by a raw file on an SSD,
-> > > > inside the guest shows rotational = 1.
-> > > > 
-> > > > I assumed that qemu must have a "rotational" property for disks and
-> > > > this would be communicated by virtio to the guest, but qemu and virtio
-> > > > don't seem to have this.  Pretty surprising!  Is it called something
-> > > > other than "rotational"?
-> > > > 
-> > > 
-> > > I'm not sure if we need to add this property in QEMU, but in Linux
-> > > I found these flags (include/linux/blkdev.h) for the block queues:
-> > > 
-> > >     #define QUEUE_FLAG_NONROT	6	/* non-rotational device (SSD) */
-> > >     #define QUEUE_FLAG_VIRT		QUEUE_FLAG_NONROT /* paravirt device */
-> > > 
-> > > xen-blkfront driver is the only one that sets the QUEUE_FLAG_VIRT,
-> > > should we do the same in the virtio-blk driver regardless of the backend?
-> > 
-> > The ability to control this flag would be interesting for performance
-> > experiments.
-> 
-> I expect there's a pretty strong interaction between this feature and
-> the shared guest io_uring stuff isn't there?  I'm not sure if it'll be
-> a positive or negative effect though.
+Excerpts from Waiman Long's message of July 22, 2020 12:36 am:
+> On 7/21/20 7:08 AM, Nicholas Piggin wrote:
+>> diff --git a/arch/powerpc/include/asm/qspinlock.h b/arch/powerpc/include=
+/asm/qspinlock.h
+>> index b752d34517b3..26d8766a1106 100644
+>> --- a/arch/powerpc/include/asm/qspinlock.h
+>> +++ b/arch/powerpc/include/asm/qspinlock.h
+>> @@ -31,16 +31,57 @@ static inline void queued_spin_unlock(struct qspinlo=
+ck *lock)
+>>  =20
+>>   #else
+>>   extern void queued_spin_lock_slowpath(struct qspinlock *lock, u32 val)=
+;
+>> +extern void queued_spin_lock_slowpath_queue(struct qspinlock *lock);
+>>   #endif
+>>  =20
+>>   static __always_inline void queued_spin_lock(struct qspinlock *lock)
+>>   {
+>> -	u32 val =3D 0;
+>> -
+>> -	if (likely(atomic_try_cmpxchg_lock(&lock->val, &val, _Q_LOCKED_VAL)))
+>> +	atomic_t *a =3D &lock->val;
+>> +	u32 val;
+>> +
+>> +again:
+>> +	asm volatile(
+>> +"1:\t"	PPC_LWARX(%0,0,%1,1) "	# queued_spin_lock			\n"
+>> +	: "=3D&r" (val)
+>> +	: "r" (&a->counter)
+>> +	: "memory");
+>> +
+>> +	if (likely(val =3D=3D 0)) {
+>> +		asm_volatile_goto(
+>> +	"	stwcx.	%0,0,%1							\n"
+>> +	"	bne-	%l[again]						\n"
+>> +	"\t"	PPC_ACQUIRE_BARRIER "						\n"
+>> +		:
+>> +		: "r"(_Q_LOCKED_VAL), "r" (&a->counter)
+>> +		: "cr0", "memory"
+>> +		: again );
+>>   		return;
+>> -
+>> -	queued_spin_lock_slowpath(lock, val);
+>> +	}
+>> +
+>> +	if (likely(val =3D=3D _Q_LOCKED_VAL)) {
+>> +		asm_volatile_goto(
+>> +	"	stwcx.	%0,0,%1							\n"
+>> +	"	bne-	%l[again]						\n"
+>> +		:
+>> +		: "r"(_Q_LOCKED_VAL | _Q_PENDING_VAL), "r" (&a->counter)
+>> +		: "cr0", "memory"
+>> +		: again );
+>> +
+>> +		atomic_cond_read_acquire(a, !(VAL & _Q_LOCKED_MASK));
+>> +//		clear_pending_set_locked(lock);
+>> +		WRITE_ONCE(lock->locked_pending, _Q_LOCKED_VAL);
+>> +//		lockevent_inc(lock_pending);
+>> +		return;
+>> +	}
+>> +
+>> +	if (val =3D=3D _Q_PENDING_VAL) {
+>> +		int cnt =3D _Q_PENDING_LOOPS;
+>> +		val =3D atomic_cond_read_relaxed(a,
+>> +					       (VAL !=3D _Q_PENDING_VAL) || !cnt--);
+>> +		if (!(val & ~_Q_LOCKED_MASK))
+>> +			goto again;
+>> +        }
+>> +	queued_spin_lock_slowpath_queue(lock);
+>>   }
+>>   #define queued_spin_lock queued_spin_lock
+>>  =20
+>=20
+> I am fine with the arch code override some part of the generic code.
 
-Yeah, it could be! I'll try it out in the next days.
+Cool.
 
-> 
-> Rich.
-> 
-> > The problem with changing the default is that regressions can be
-> > expected. Certain workloads benefit while others regress.
-> > 
-> > I suggest:
-> > 1. Make it controllable so that QUEUE_FLAG_NONROT can be set or clear
-> >    (not hardcoded to a single value).
-> > 2. The device can communicate the optimal setting from the host. The
-> >    SCSI protocol already conveys this information. Virtio-blk needs a
-> >    feature bit and possibly config space field.
-> > 3. Make it migration-safe. It needs to be configured explicitly so the
-> >    value doesn't change suddenly across migration.
+>> diff --git a/kernel/locking/qspinlock.c b/kernel/locking/qspinlock.c
+>> index b9515fcc9b29..ebcc6f5d99d5 100644
+>> --- a/kernel/locking/qspinlock.c
+>> +++ b/kernel/locking/qspinlock.c
+>> @@ -287,10 +287,14 @@ static __always_inline u32  __pv_wait_head_or_lock=
+(struct qspinlock *lock,
+>>  =20
+>>   #ifdef CONFIG_PARAVIRT_SPINLOCKS
+>>   #define queued_spin_lock_slowpath	native_queued_spin_lock_slowpath
+>> +#define queued_spin_lock_slowpath_queue	native_queued_spin_lock_slowpat=
+h_queue
+>>   #endif
+>>  =20
+>>   #endif /* _GEN_PV_LOCK_SLOWPATH */
+>>  =20
+>> +void queued_spin_lock_slowpath_queue(struct qspinlock *lock);
+>> +static void __queued_spin_lock_slowpath_queue(struct qspinlock *lock);
+>> +
+>>   /**
+>>    * queued_spin_lock_slowpath - acquire the queued spinlock
+>>    * @lock: Pointer to queued spinlock structure
+>> @@ -314,12 +318,6 @@ static __always_inline u32  __pv_wait_head_or_lock(=
+struct qspinlock *lock,
+>>    */
+>>   void queued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
+>>   {
+>> -	struct mcs_spinlock *prev, *next, *node;
+>> -	u32 old, tail;
+>> -	int idx;
+>> -
+>> -	BUILD_BUG_ON(CONFIG_NR_CPUS >=3D (1U << _Q_TAIL_CPU_BITS));
+>> -
+>>   	if (pv_enabled())
+>>   		goto pv_queue;
+>>  =20
+>> @@ -397,6 +395,26 @@ void queued_spin_lock_slowpath(struct qspinlock *lo=
+ck, u32 val)
+>>   queue:
+>>   	lockevent_inc(lock_slowpath);
+>>   pv_queue:
+>> +	__queued_spin_lock_slowpath_queue(lock);
+>> +}
+>> +EXPORT_SYMBOL(queued_spin_lock_slowpath);
+>> +
+>> +void queued_spin_lock_slowpath_queue(struct qspinlock *lock)
+>> +{
+>> +	lockevent_inc(lock_slowpath);
+>> +	__queued_spin_lock_slowpath_queue(lock);
+>> +}
+>> +EXPORT_SYMBOL(queued_spin_lock_slowpath_queue);
+>> +
+>> +static void __queued_spin_lock_slowpath_queue(struct qspinlock *lock)
+>> +{
+>> +	struct mcs_spinlock *prev, *next, *node;
+>> +	u32 old, tail;
+>> +	u32 val;
+>> +	int idx;
+>> +
+>> +	BUILD_BUG_ON(CONFIG_NR_CPUS >=3D (1U << _Q_TAIL_CPU_BITS));
+>> +
+>>   	node =3D this_cpu_ptr(&qnodes[0].mcs);
+>>   	idx =3D node->count++;
+>>   	tail =3D encode_tail(smp_processor_id(), idx);
+>> @@ -559,7 +577,6 @@ void queued_spin_lock_slowpath(struct qspinlock *loc=
+k, u32 val)
+>>   	 */
+>>   	__this_cpu_dec(qnodes[0].mcs.count);
+>>   }
+>> -EXPORT_SYMBOL(queued_spin_lock_slowpath);
+>>  =20
+>>   /*
+>>    * Generate the paravirt code for queued_spin_unlock_slowpath().
+>>
+> I would prefer to extract out the pending bit handling code out into a=20
+> separate helper function which can be overridden by the arch code=20
+> instead of breaking the slowpath into 2 pieces.
 
-Thanks for the suggestions.
+You mean have the arch provide a queued_spin_lock_slowpath_pending=20
+function that the slow path calls?
 
-I'll spend some time on this.
+I would actually prefer the pending handling can be made inline in
+the queued_spin_lock function, especially with out-of-line locks it=20
+makes sense to put it there.
 
-Stefano
+We could ifdef out queued_spin_lock_slowpath_queue if it's not used,
+then __queued_spin_lock_slowpath_queue would be inlined into the
+caller so there would be no split?
+
+Thanks,
+Nick
