@@ -1,53 +1,62 @@
-From: Mike Stunes <mstunes@vmware.com>
-Subject: Re: [PATCH v4 51/75] x86/sev-es: Handle MMIO events
-Date: Wed, 22 Jul 2020 22:53:02 +0000
-Message-ID: <7020C1D2-5900-4AD8-ADCD-04A571DF2EA7@vmware.com>
-References: <20200714120917.11253-1-joro@8bytes.org>
- <20200714120917.11253-52-joro@8bytes.org>
- <40D5C698-1ED2-4CCE-9C1D-07620A021A6A@vmware.com>
- <20200722080530.GH6132@suse.de>
+From: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH V3 3/6] vDPA: implement vq IRQ allocate/free helpers in
+ vDPA core
+Date: Thu, 23 Jul 2020 12:19:42 +0800
+Message-ID: <a3c05c65-74bf-6250-5f4a-3b6cf60f4474@redhat.com>
+References: <20200722100859.221669-1-lingshan.zhu@intel.com>
+ <20200722100859.221669-4-lingshan.zhu@intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Return-path: <linux-kernel-owner@vger.kernel.org>
-In-Reply-To: <20200722080530.GH6132@suse.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Return-path: <netdev-owner@vger.kernel.org>
+In-Reply-To: <20200722100859.221669-4-lingshan.zhu@intel.com>
 Content-Language: en-US
-Content-ID: <51B15EE8EF8CB4429AD15694F86720A0@namprd05.prod.outlook.com>
-Sender: linux-kernel-owner@vger.kernel.org
-To: Joerg Roedel <jroedel@suse.de>
-Cc: Joerg Roedel <joro@8bytes.org>, "x86@kernel.org" <x86@kernel.org>, Tom Lendacky <thomas.lendacky@amd.com>, "hpa@zytor.com" <hpa@zytor.com>, Andy Lutomirski <luto@kernel.org>, Dave Hansen <dave.hansen@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, Jiri Slaby <jslaby@suse.cz>, Dan Williams <dan.j.williams@intel.com>, Juergen Gross <jgross@suse.com>, Kees Cook <keescook@chromium.org>, David Rientjes <rientjes@google.com>, Cfir Cohen <cfir@google.com>, Erdem Aktas <erdemaktas@google.com>, Masami Hiramatsu <mhiramat@kernel.org>, Sean Christopherson <sean.j.christopherson@intel.com>, Martin Radev <martin.b.radev@gmail.com>, "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, virtualization@
+Sender: netdev-owner@vger.kernel.org
+To: Zhu Lingshan <lingshan.zhu@intel.com>, alex.williamson@redhat.com, mst@redhat.com, pbonzini@redhat.com, sean.j.christopherson@intel.com, wanpengli@tencent.com
+Cc: virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, kvm@vger.kernel.org
 List-Id: virtualization@lists.linuxfoundation.org
 
 
+On 2020/7/22 下午6:08, Zhu Lingshan wrote:
+> +/*
+> + * Request irq for a vq, setup irq offloading if its a vhost_vdpa vq.
+> + * This function should be only called through setting virtio DRIVER_OK.
+> + * If you want to request irq during probe, you should use raw APIs
+> + * like request_irq() or devm_request_irq().
 
-> On Jul 22, 2020, at 1:05 AM, Joerg Roedel <jroedel@suse.de> wrote:
->=20
-> Hmm, I have a theory ...
->=20
-> On Tue, Jul 21, 2020 at 09:01:44PM +0000, Mike Stunes wrote:
->> If I remove the call to probe_roms from setup_arch, or remove the calls =
-to romchecksum from probe_roms, this kernel boots normally.
->>=20
->> Please let me know of other tests I should run or data that I can collec=
-t. Thanks!
->=20
-> ... can you please try the attached diff?
->=20
-> diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-> index 251d0aabc55a..e1fea7a38019 100644
-> --- a/arch/x86/kernel/sev-es.c
-> +++ b/arch/x86/kernel/sev-es.c
-> @@ -389,7 +389,8 @@ static bool vc_slow_virt_to_phys(struct ghcb *ghcb, s=
-truct es_em_ctxt *ctxt,
-> 	pgd_t *pgd;
-> 	pte_t *pte;
->=20
-> -	pgd =3D pgd_offset(current->active_mm, va);
-> +	pgd =3D __va(read_cr3_pa());
-> +	pgd =3D &pgd[pgd_index(va)];
-> 	pte =3D lookup_address_in_pgd(pgd, va, &level);
-> 	if (!pte) {
-> 		ctxt->fi.vector     =3D X86_TRAP_PF;
 
-Thanks Joerg! With that change in place, this kernel boots normally. What w=
-as the problem?
+This makes the API less flexibile. The reason is we store the irq in 
+vhost-vdpa not vDPA.
+
+I wonder whether the following looks better:
+
+1) store irq in vdpa device
+2) register producer when DRIVER_OK and unregister producer when 
+!DRIVER_OK in vhost-vDPA
+3) deal with the synchronization with SET_VRING_CALL
+4) document that irq is not expected to be changed during DRIVER_OK
+
+This can make sure the API works during driver probe, and we don't need 
+the setup_irq and unsetup_irq method in vdpa_driver
+
+Thanks
+
+
+> + */
+> +int vdpa_devm_request_irq(struct device *dev, struct vdpa_device *vdev,
+> +			  unsigned int irq, irq_handler_t handler,
+> +			  unsigned long irqflags, const char *devname, void *dev_id,
+> +			  int qid)
+> +{
+> +	int ret;
+> +
+> +	ret = devm_request_irq(dev, irq, handler, irqflags, devname, dev_id);
+> +	if (ret)
+> +		dev_err(dev, "Failed to request irq for vq %d\n", qid);
+> +	else
+> +		vdpa_setup_irq(vdev, qid, irq);
+> +
+> +	return ret;
+> +
+> +}
+> +EXPORT_SYMBOL_GPL(vdpa_devm_request_irq);
