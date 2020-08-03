@@ -7,110 +7,105 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A4E3EC433DF
-	for <virtualization@archiver.kernel.org>; Mon,  3 Aug 2020 20:59:37 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 10EC0C433E0
+	for <virtualization@archiver.kernel.org>; Mon,  3 Aug 2020 20:59:45 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A362F22C9F
-	for <virtualization@archiver.kernel.org>; Mon,  3 Aug 2020 20:59:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 130C222C9F
+	for <virtualization@archiver.kernel.org>; Mon,  3 Aug 2020 20:59:45 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fFF/k5Ht"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A362F22C9F
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aow/cB0Y"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 130C222C9F
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 5F28E85C9E;
-	Mon,  3 Aug 2020 20:59:37 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id DPz56rVNyw9L; Mon,  3 Aug 2020 20:59:37 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id F0BD38557B;
-	Mon,  3 Aug 2020 20:59:36 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DD0CBC0050;
-	Mon,  3 Aug 2020 20:59:36 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EA750C004C
- for <virtualization@lists.linux-foundation.org>;
- Mon,  3 Aug 2020 20:59:35 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id DE64820482
- for <virtualization@lists.linux-foundation.org>;
- Mon,  3 Aug 2020 20:59:35 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id A65DA20482;
+	Mon,  3 Aug 2020 20:59:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id EOOZXhSuiaOl; Mon,  3 Aug 2020 20:59:43 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by silver.osuosl.org (Postfix) with ESMTP id 20B7F204C7;
+	Mon,  3 Aug 2020 20:59:43 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1901EC0050;
+	Mon,  3 Aug 2020 20:59:43 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B5A51C004C
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  3 Aug 2020 20:59:42 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 9CD1485D7E
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  3 Aug 2020 20:59:42 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 1Yxe0VE-56KU
+ with ESMTP id MELHSEpQ-0R8
  for <virtualization@lists.linux-foundation.org>;
- Mon,  3 Aug 2020 20:59:35 +0000 (UTC)
+ Mon,  3 Aug 2020 20:59:42 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-1.mimecast.com (us-smtp-delivery-1.mimecast.com
- [207.211.31.120])
- by silver.osuosl.org (Postfix) with ESMTPS id D1A1A204CB
+Received: from us-smtp-delivery-1.mimecast.com (us-smtp-1.mimecast.com
+ [207.211.31.81])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id CCB87844C9
  for <virtualization@lists.linux-foundation.org>;
- Mon,  3 Aug 2020 20:59:34 +0000 (UTC)
+ Mon,  3 Aug 2020 20:59:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1596488373;
+ s=mimecast20190719; t=1596488380;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=1xI/ZbWF2py8QNl8K4JvYs5q6EbwT+mCnh8MoqYwvB8=;
- b=fFF/k5HtgospneUQ+q4pSYX+vihS62/ZCBS1wyD9EcpPRHlb1OfpVcjnfv4E3eDCR0Mxkz
- 3NaBkYSZvxhHq7PJVdsh5ZjJOOJof2bLOzYBo0iUoKKEIH5ItqM1VcbuQXc0G0smZPw3Ev
- tcFoJhtW4uaWDOqShbT+pUGRNhsIqt0=
-Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
- [209.85.222.199]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-109-rCsueNW7N26zjSZGOWhqag-1; Mon, 03 Aug 2020 16:59:32 -0400
-X-MC-Unique: rCsueNW7N26zjSZGOWhqag-1
-Received: by mail-qk1-f199.google.com with SMTP id 1so13761239qki.22
+ bh=Rgbr3S7Op26qakIXtpfCwbs62McqD9fRJN/CcHSJJtk=;
+ b=aow/cB0YSeVgVJrK2AEsh/dos7Ud6/GDtlBoHzpwm2Mi3DDX/+zAGWNfEaCSSiLL5SVQ8C
+ DoOf8FTSGqG83IQROSxF+PyHZBQHL6PVObPJp8pDyM6Ej5IhlNoc/56zJf9tFr96lPdwFk
+ 7zLyrptHEzGaoOHzX9w6QUolAqeAGsY=
+Received: from mail-qv1-f69.google.com (mail-qv1-f69.google.com
+ [209.85.219.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-141-vo_6XXHfO0Wg4an0DGfntQ-1; Mon, 03 Aug 2020 16:59:37 -0400
+X-MC-Unique: vo_6XXHfO0Wg4an0DGfntQ-1
+Received: by mail-qv1-f69.google.com with SMTP id h6so5133234qvz.14
  for <virtualization@lists.linux-foundation.org>;
- Mon, 03 Aug 2020 13:59:32 -0700 (PDT)
+ Mon, 03 Aug 2020 13:59:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=1xI/ZbWF2py8QNl8K4JvYs5q6EbwT+mCnh8MoqYwvB8=;
- b=TW7DxlxXrmMnFWpsYd9R1bhvQRCdRC+3ZWwckHNtOk2qIWJR3BjsPu9j0MobL1tLLk
- UVefUVKSm2oJT+zy3Hl4efB/bh0qLxK9WeajGLrBykzhyAX/s/BkJ/KakTvNYGLvKdh4
- hL8hPMadLU/VVNukfyHkse7cFwHc4VrAQy/sknRCnhti9KB7a9mXLi8n6y4O4zlM8b9j
- ySz5P+0acet68PjpVTvxyBB7KV+QCG0UL/AtO0wop1Y1q/yj5lJjiih+xiiNYIYlSFVn
- ERwo5FAkcgqaz7+RZYx1JUaZwwP7096vx2+6Lm2P11VuFQPe3oF/SouWEqfLWvLdxyR3
- c9ig==
-X-Gm-Message-State: AOAM533aYHwStl9XEel5AauEXNQWhlUoWQRdE0z8AD2qbK0NpvD80+6s
- QUue34WalnaHK2d+Arwm1QS0++aAiOBlk7BhNiASZRiuT4mb6p1JyaEEyFx4Ci2QhkbYOgv9fPy
- 40PeHP2sH2mEHqKwkIpiL3BpMRj+VOPMJERnksJ4blw==
-X-Received: by 2002:a05:6214:2a4:: with SMTP id
- m4mr19500146qvv.120.1596488371967; 
- Mon, 03 Aug 2020 13:59:31 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJynR48xJ6D4DOziFIFJBOXMH9jlnKkDjS+iRN3OJhEHYTDmDbmB5mxmE4Lvgl56jXzaOzntUQ==
-X-Received: by 2002:a05:6214:2a4:: with SMTP id
- m4mr19500129qvv.120.1596488371743; 
- Mon, 03 Aug 2020 13:59:31 -0700 (PDT)
+ bh=Rgbr3S7Op26qakIXtpfCwbs62McqD9fRJN/CcHSJJtk=;
+ b=iDr0Dy9np/GHA90587eajn3A6ih1euF8haADeEAnDuV1kIWlL5ayO04wiLq/r2AkRK
+ 4E1lZCUIia3LX42F7fzqpo1/1ePdEuj4wRBN1mV5uzop6ZYpYj80vctZUpRFDyaq9yW7
+ CGdXKPFgSwivIszGI/MGw4ffmO+V/xR/sRtDRbq3y2J3Fv1sN72RCS7pvgtJaTn9liam
+ G374aYWdd55EfPZ6GouUdtxqcfi/NPJVXDAMOC9JzYxpymL4j0WdzuFDA/eWnN9pTrRx
+ a3qjMGDmjR1ArjP9BZ6qJCITSyA0QNR7BWFmqRFeLBFz+6i5rw68tWDpYGVabvHG7T7Y
+ 6YNA==
+X-Gm-Message-State: AOAM5314srMP6olC4hhauHu/0kSkshUW42rg9LHbO75cYqrdN0suphBu
+ SiJXjdf6JIfm1e7hgNzlF3+ZDoNIcg1/RsbQVuUf1BxZYiGAdN2YvsxA+mmP7duaLDuBqMb3b82
+ t19TP7NUX7NlTkvjPViooIN5lEgatTFnaIYPaepwTYw==
+X-Received: by 2002:a37:e04:: with SMTP id 4mr17763981qko.269.1596488376481;
+ Mon, 03 Aug 2020 13:59:36 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJydECTgbLYKr4hjShvtJWKB8TcEkpEIhhziBGJusR6Qak9+rn18ZeFUCSzURruspK65XnYsog==
+X-Received: by 2002:a37:e04:: with SMTP id 4mr17763967qko.269.1596488376274;
+ Mon, 03 Aug 2020 13:59:36 -0700 (PDT)
 Received: from redhat.com (bzq-79-177-102-128.red.bezeqint.net.
  [79.177.102.128])
- by smtp.gmail.com with ESMTPSA id b23sm19696745qtp.41.2020.08.03.13.59.29
+ by smtp.gmail.com with ESMTPSA id x13sm21991885qts.23.2020.08.03.13.59.34
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 03 Aug 2020 13:59:31 -0700 (PDT)
-Date: Mon, 3 Aug 2020 16:59:27 -0400
+ Mon, 03 Aug 2020 13:59:35 -0700 (PDT)
+Date: Mon, 3 Aug 2020 16:59:32 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH v2 12/24] virtio_iommu: correct tags for config space fields
-Message-ID: <20200803205814.540410-13-mst@redhat.com>
+Subject: [PATCH v2 13/24] virtio_mem: correct tags for config space fields
+Message-ID: <20200803205814.540410-14-mst@redhat.com>
 References: <20200803205814.540410-1-mst@redhat.com>
 MIME-Version: 1.0
 In-Reply-To: <20200803205814.540410-1-mst@redhat.com>
 X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
 X-Mutt-Fcc: =sent
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>,
- virtualization@lists.linux-foundation.org
+Cc: virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -130,46 +125,53 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 Since this is a modern-only device,
 tag config space fields as having little endian-ness.
 
+TODO: check other uses of __virtioXX types in this header,
+should probably be __leXX.
+
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- include/uapi/linux/virtio_iommu.h | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ include/uapi/linux/virtio_mem.h | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/include/uapi/linux/virtio_iommu.h b/include/uapi/linux/virtio_iommu.h
-index 48e3c29223b5..237e36a280cb 100644
---- a/include/uapi/linux/virtio_iommu.h
-+++ b/include/uapi/linux/virtio_iommu.h
-@@ -18,24 +18,24 @@
- #define VIRTIO_IOMMU_F_MMIO			5
+diff --git a/include/uapi/linux/virtio_mem.h b/include/uapi/linux/virtio_mem.h
+index a9ffe041843c..70e01c687d5e 100644
+--- a/include/uapi/linux/virtio_mem.h
++++ b/include/uapi/linux/virtio_mem.h
+@@ -185,27 +185,27 @@ struct virtio_mem_resp {
  
- struct virtio_iommu_range_64 {
--	__u64					start;
--	__u64					end;
-+	__le64					start;
-+	__le64					end;
+ struct virtio_mem_config {
+ 	/* Block size and alignment. Cannot change. */
+-	__u64 block_size;
++	__le64 block_size;
+ 	/* Valid with VIRTIO_MEM_F_ACPI_PXM. Cannot change. */
+-	__u16 node_id;
++	__le16 node_id;
+ 	__u8 padding[6];
+ 	/* Start address of the memory region. Cannot change. */
+-	__u64 addr;
++	__le64 addr;
+ 	/* Region size (maximum). Cannot change. */
+-	__u64 region_size;
++	__le64 region_size;
+ 	/*
+ 	 * Currently usable region size. Can grow up to region_size. Can
+ 	 * shrink due to VIRTIO_MEM_REQ_UNPLUG_ALL (in which case no config
+ 	 * update will be sent).
+ 	 */
+-	__u64 usable_region_size;
++	__le64 usable_region_size;
+ 	/*
+ 	 * Currently used size. Changes due to plug/unplug requests, but no
+ 	 * config updates will be sent.
+ 	 */
+-	__u64 plugged_size;
++	__le64 plugged_size;
+ 	/* Requested size. New plug requests cannot exceed it. Can change. */
+-	__u64 requested_size;
++	__le64 requested_size;
  };
  
- struct virtio_iommu_range_32 {
--	__u32					start;
--	__u32					end;
-+	__le32					start;
-+	__le32					end;
- };
- 
- struct virtio_iommu_config {
- 	/* Supported page sizes */
--	__u64					page_size_mask;
-+	__le64					page_size_mask;
- 	/* Supported IOVA range */
- 	struct virtio_iommu_range_64		input_range;
- 	/* Max domain ID size */
- 	struct virtio_iommu_range_32		domain_range;
- 	/* Probe buffer size */
--	__u32					probe_size;
-+	__le32					probe_size;
- };
- 
- /* Request types */
+ #endif /* _LINUX_VIRTIO_MEM_H */
 -- 
 MST
 
