@@ -4,115 +4,116 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EEB70C433DF
-	for <virtualization@archiver.kernel.org>; Mon,  3 Aug 2020 20:35:06 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 56320C433E0
+	for <virtualization@archiver.kernel.org>; Mon,  3 Aug 2020 20:47:09 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E101322CB1
-	for <virtualization@archiver.kernel.org>; Mon,  3 Aug 2020 20:35:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 51135207DF
+	for <virtualization@archiver.kernel.org>; Mon,  3 Aug 2020 20:47:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bvliKX02"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E101322CB1
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IXch8zKf"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 51135207DF
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 6686085A37;
-	Mon,  3 Aug 2020 20:35:06 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id A42E820502;
+	Mon,  3 Aug 2020 20:47:08 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id M-lvAGF1H5sD; Mon,  3 Aug 2020 20:35:05 +0000 (UTC)
+	with ESMTP id paEKXCpawMnw; Mon,  3 Aug 2020 20:47:05 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id DC3C48583F;
-	Mon,  3 Aug 2020 20:35:05 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id A29262010F;
+	Mon,  3 Aug 2020 20:47:05 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CC336C0050;
-	Mon,  3 Aug 2020 20:35:05 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DF4F3C004C
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 80C69C0050;
+	Mon,  3 Aug 2020 20:47:05 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 64000C004C
  for <virtualization@lists.linux-foundation.org>;
- Mon,  3 Aug 2020 20:35:04 +0000 (UTC)
+ Mon,  3 Aug 2020 20:47:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id C7B458586A
+ by hemlock.osuosl.org (Postfix) with ESMTP id 4CBE48739E
  for <virtualization@lists.linux-foundation.org>;
- Mon,  3 Aug 2020 20:35:04 +0000 (UTC)
+ Mon,  3 Aug 2020 20:47:04 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id pACLenpL-Ux4
+ with ESMTP id pcw0dUNp5RLQ
  for <virtualization@lists.linux-foundation.org>;
- Mon,  3 Aug 2020 20:35:02 +0000 (UTC)
+ Mon,  3 Aug 2020 20:47:03 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-1.mimecast.com (us-smtp-delivery-1.mimecast.com
- [205.139.110.120])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 757798583F
+ [207.211.31.120])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 861EA86DCA
  for <virtualization@lists.linux-foundation.org>;
- Mon,  3 Aug 2020 20:35:02 +0000 (UTC)
+ Mon,  3 Aug 2020 20:47:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1596486901;
+ s=mimecast20190719; t=1596487622;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=J++JsNedboNVUbv/gxh63osNPbWqGD9pU0YvctCeDm0=;
- b=bvliKX02As9udwaEMi0P2nKKE8bMVJEFKftQZYpEPE1pPTAd0KGB3zP6q5t4QccG8yghYo
- PpIulptU0HEASv78n/NawPQgb5WxxE1RRNNtH1qIB754ApM2kQFcsmsHCHBU2Iqq4ulOHi
- 0w0m+TAJaP/voJGzk/sMpIH6E/5bpOw=
-Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
- [209.85.222.200]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-348-ga6UsPUHNF2K3-pEnMsrhg-1; Mon, 03 Aug 2020 16:34:57 -0400
-X-MC-Unique: ga6UsPUHNF2K3-pEnMsrhg-1
-Received: by mail-qk1-f200.google.com with SMTP id k142so26975199qke.7
+ bh=YWSXpH5LufLhcUK5++dpDgIe+PU/a2RiJP9vO4xSyb8=;
+ b=IXch8zKfr1HMFS+ToTrnJQ6JGtKpZahN7oe/bHcBKOfOwzskNfEYCmWm+JYA65MqVD9kSN
+ vF6Eey6lhgLOjZXBCH0z3EWBKUWIW7Y9VqbkAAPuZIbCZ9S1fPXu+fmEsntknU9VTTr6FS
+ rjtxjZ5GbYxOvK1TA0B/XArNwLbk4cw=
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
+ [209.85.222.199]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-371-aexK-zDOPAO5b6ZI7apWFQ-1; Mon, 03 Aug 2020 16:46:58 -0400
+X-MC-Unique: aexK-zDOPAO5b6ZI7apWFQ-1
+Received: by mail-qk1-f199.google.com with SMTP id 1so27067251qkm.19
  for <virtualization@lists.linux-foundation.org>;
- Mon, 03 Aug 2020 13:34:57 -0700 (PDT)
+ Mon, 03 Aug 2020 13:46:58 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to;
- bh=w4BJWn0OFbloyNEKW+pvD9R5ezJo0Picl13T+Bha9IM=;
- b=Hv1XfN95RFlTrF6SvXKnd9cgOaVO5IKUgE/hSJYMATxe7KxJeSeLqFS1J3PBN2V8GC
- ugmqgIqT6hyQIKButDvYB6DyjmddrupQSci+YAsJclCDkQbndiOO7p4f478uW+34J01Y
- aUs/ZWa4jGAewM55c8x/juQ6Qftpku2N6N1iQjZMUBNfQWmzDbbv59Tt7J+7TQ+EZNPv
- uQ0H69t9IGRAbzaijDOP9/jciaD6FqfEIgcX+oZlQHTflbQL/Yrg8OPCMKPJYkBlHTVF
- XhLesdQ4Xsxjl4jMRoZr0OQFHrkvkA83HfNwQ95J9GM9I4PTlWE3eVLGhNAqohArqwcS
- hQSQ==
-X-Gm-Message-State: AOAM5307qEGHb1oi3sDXdIip1NAsm0Cwz2LMPCz0t5nEPFKQWl7u5YBE
- cVmE3WzfOJh8W9CvvC5c/+KsoIwuFJLHs8A1eWx9hVchSBMmhOlIvV2P6c1tqVeENlnlX52zn+A
- U2L3CMeEdSJ3AUxv5H5JRWeiGqEHqwxNn9vD4ozJ7XA==
-X-Received: by 2002:a0c:9b85:: with SMTP id o5mr18907113qve.11.1596486897282; 
- Mon, 03 Aug 2020 13:34:57 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxvGy1muSaAsUQEYp2jWmeN6mFZFo5SHwfathQRXjTM8ZraPWxB2MOxfd/RWjT4CwEPQBY29w==
-X-Received: by 2002:a0c:9b85:: with SMTP id o5mr18907092qve.11.1596486897049; 
- Mon, 03 Aug 2020 13:34:57 -0700 (PDT)
+ :mime-version:content-disposition:in-reply-to;
+ bh=YWSXpH5LufLhcUK5++dpDgIe+PU/a2RiJP9vO4xSyb8=;
+ b=ihHm4IvySereW0Rux1H9Qv/8JnULFJHsErLONakInD/qcJZQ6b5OZ6gz8cpxqhqDaj
+ Qg2y4Mdy3k0YPGOkZ+o0Y08+6a/fuhTSXyTGBGQ28wqbwR3JLyzT0shvLpKByIjOpnE/
+ 15vRQtAyxaBy6bEecAgviGLxfSly9v3uec2laXIbZgF6v3mO0cUYhC/lZ8jQDsZO+X4B
+ nBtXVJvYeM9/7t+sKfMylg24K4RAuPtryxJ2QDXZzMvZVEyHM4ROhqIfPO9LECWakP46
+ SLxlCnokx0TB8eDwTb207I0ZpIvZJSL59j/XhGs0uu1lncy7HMrK5e8PMzuXPg9be7Uw
+ 78AQ==
+X-Gm-Message-State: AOAM532SlRBGcy2Q6hnkZPeUQHFIZgvj82QNJaYgdUz/b+FGoiSPcnXN
+ I53ScIgRpUC4B2yBv3dRHJPjjzDOCbtDLMx+b4iTpHbwDU/e8/vwCMRBphSM24r0gRwyD662hQg
+ ZhtQNbVvsaHdiliWbPmYjshlqsk6Cdkv5lE0kq4edmQ==
+X-Received: by 2002:ac8:7a95:: with SMTP id x21mr18296175qtr.135.1596487618311; 
+ Mon, 03 Aug 2020 13:46:58 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJz5fxnaL6Ri46pS/AV+1q2qnTh3NBSJWvAJ/JhDs1vxf+Hn61PqhkFs+LWvi9B3V915cqgzgQ==
+X-Received: by 2002:ac8:7a95:: with SMTP id x21mr18296141qtr.135.1596487617954; 
+ Mon, 03 Aug 2020 13:46:57 -0700 (PDT)
 Received: from redhat.com (bzq-79-177-102-128.red.bezeqint.net.
  [79.177.102.128])
- by smtp.gmail.com with ESMTPSA id j16sm20957593qke.87.2020.08.03.13.34.52
+ by smtp.gmail.com with ESMTPSA id w44sm23855273qtj.86.2020.08.03.13.46.53
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 03 Aug 2020 13:34:55 -0700 (PDT)
-Date: Mon, 3 Aug 2020 16:34:50 -0400
+ Mon, 03 Aug 2020 13:46:56 -0700 (PDT)
+Date: Mon, 3 Aug 2020 16:46:51 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Eli Cohen <eli@mellanox.com>
-Subject: Re: [PATCH V3 vhost next 00/10] VDPA support for Mellanox ConnectX
- devices
-Message-ID: <20200803163235-mutt-send-email-mst@kernel.org>
-References: <20200728060539.4163-1-eli@mellanox.com>
- <1dbac14a-5909-ff0a-8e90-534847f93d50@redhat.com>
- <20200728063211.GA229972@mtl-vdi-166.wap.labs.mlnx>
- <ef857921-4b9a-8e48-d5cd-5ef585e8f15c@redhat.com>
- <83eb3fdc-83d5-7f88-bef4-602e60c19662@redhat.com>
- <20200729055452.GA31247@mtl-vdi-166.wap.labs.mlnx>
+To: Mathieu Poirier <mathieu.poirier@linaro.org>
+Subject: Re: [PATCH v4 0/4] Add a vhost RPMsg API
+Message-ID: <20200803164605-mutt-send-email-mst@kernel.org>
+References: <20200722150927.15587-1-guennadi.liakhovetski@linux.intel.com>
+ <20200730120805-mutt-send-email-mst@kernel.org>
+ <20200731054752.GA28005@ubuntu>
+ <CANLsYkxuCf6yeoqJ-T2x3LHvr9+DuxFdcsxJPmrh9A4H8yNr3w@mail.gmail.com>
 MIME-Version: 1.0
-In-Reply-To: <20200729055452.GA31247@mtl-vdi-166.wap.labs.mlnx>
+In-Reply-To: <CANLsYkxuCf6yeoqJ-T2x3LHvr9+DuxFdcsxJPmrh9A4H8yNr3w@mail.gmail.com>
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: shahafs@mellanox.com, parav@mellanox.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, saeedm@mellanox.com
+Cc: Ohad Ben-Cohen <ohad@wizery.com>, kvm@vger.kernel.org,
+ Vincent Whitchurch <vincent.whitchurch@axis.com>,
+ linux-remoteproc <linux-remoteproc@vger.kernel.org>,
+ Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+ virtualization@lists.linux-foundation.org,
+ Liam Girdwood <liam.r.girdwood@linux.intel.com>,
+ Bjorn Andersson <bjorn.andersson@linaro.org>,
+ sound-open-firmware@alsa-project.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -124,51 +125,94 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Jul 29, 2020 at 08:54:52AM +0300, Eli Cohen wrote:
-> On Tue, Jul 28, 2020 at 02:53:34PM +0800, Jason Wang wrote:
-> > =
-
-> > Just notice Michael's vhost branch can not compile due to this commit:
-> > =
-
-> > commit fee8fe6bd8ccacd27e963b71b4f943be3721779e
-> > Author: Michael S. Tsirkin <mst@redhat.com>
-> > Date:=C2=A0=C2=A0 Mon Jul 27 10:51:55 2020 -0400
-> > =
-
-> > =C2=A0=C2=A0=C2=A0 vdpa: make sure set_features in invoked for legacy
-> > =
-
-> > Let's wait for Michael to clarify the correct branch to use then.
+On Mon, Aug 03, 2020 at 07:25:24AM -0600, Mathieu Poirier wrote:
+> On Thu, 30 Jul 2020 at 23:47, Guennadi Liakhovetski
+> <guennadi.liakhovetski@linux.intel.com> wrote:
 > >
-> =
+> > Hi Michael,
+> >
+> > On Thu, Jul 30, 2020 at 12:08:29PM -0400, Michael S. Tsirkin wrote:
+> > > On Wed, Jul 22, 2020 at 05:09:23PM +0200, Guennadi Liakhovetski wrote:
+> > > > Hi,
+> > > >
+> > > > Now that virtio-rpmsg endianness fixes have been merged we can
+> > > > proceed with the next step.
+> > >
+> > > Which tree is this for?
+> >
+> > The essential part of this series is for drivers/vhost, so, I presume
+> > that should be the target tree as well. There is however a small part
+> > for the drivers/rpmsg, should I split this series in two or shall we
+> > first review is as a whole to make its goals clearer?
+> 
+> I suggest to keep it whole for now.
 
-> Michael, are you going to send a path to a git tree that I can rebase my
-> series on top of it, or maybe you can just take my v3 and apply them on
-> the right tree? If you do, you can take Jason's patches from the series
-> he posted here https://lkml.org/lkml/2020/7/1/301 and take my 0003-0010
-> patches.
-> =
 
-> Let me know.
+Ok can I get some acks please?
+Also, I put this in my linux-next branch on 
 
-It's a bit too hard to figure out how to put these pieces together, when
-I tried I run into some conflicts, and given I can't test them I'd
-rather you did this.  Please also note kbuild test bot reported a build
-failure on mips.
+https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git
 
-A good tree to base your work on is the linux-next branch
-in https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git
+there were some conflicts - could you pls test and report it's ok?
 
-Thanks!
--- =
-
-MST
+> >
+> > Thanks
+> > Guennadi
+> >
+> > > > v4:
+> > > > - add endianness conversions to comply with the VirtIO standard
+> > > >
+> > > > v3:
+> > > > - address several checkpatch warnings
+> > > > - address comments from Mathieu Poirier
+> > > >
+> > > > v2:
+> > > > - update patch #5 with a correct vhost_dev_init() prototype
+> > > > - drop patch #6 - it depends on a different patch, that is currently
+> > > >   an RFC
+> > > > - address comments from Pierre-Louis Bossart:
+> > > >   * remove "default n" from Kconfig
+> > > >
+> > > > Linux supports RPMsg over VirtIO for "remote processor" / AMP use
+> > > > cases. It can however also be used for virtualisation scenarios,
+> > > > e.g. when using KVM to run Linux on both the host and the guests.
+> > > > This patch set adds a wrapper API to facilitate writing vhost
+> > > > drivers for such RPMsg-based solutions. The first use case is an
+> > > > audio DSP virtualisation project, currently under development, ready
+> > > > for review and submission, available at
+> > > > https://github.com/thesofproject/linux/pull/1501/commits
+> > > >
+> > > > Thanks
+> > > > Guennadi
+> > > >
+> > > > Guennadi Liakhovetski (4):
+> > > >   vhost: convert VHOST_VSOCK_SET_RUNNING to a generic ioctl
+> > > >   rpmsg: move common structures and defines to headers
+> > > >   rpmsg: update documentation
+> > > >   vhost: add an RPMsg API
+> > > >
+> > > >  Documentation/rpmsg.txt          |   6 +-
+> > > >  drivers/rpmsg/virtio_rpmsg_bus.c |  78 +------
+> > > >  drivers/vhost/Kconfig            |   7 +
+> > > >  drivers/vhost/Makefile           |   3 +
+> > > >  drivers/vhost/rpmsg.c            | 375 +++++++++++++++++++++++++++++++
+> > > >  drivers/vhost/vhost_rpmsg.h      |  74 ++++++
+> > > >  include/linux/virtio_rpmsg.h     |  83 +++++++
+> > > >  include/uapi/linux/rpmsg.h       |   3 +
+> > > >  include/uapi/linux/vhost.h       |   4 +-
+> > > >  9 files changed, 553 insertions(+), 80 deletions(-)
+> > > >  create mode 100644 drivers/vhost/rpmsg.c
+> > > >  create mode 100644 drivers/vhost/vhost_rpmsg.h
+> > > >  create mode 100644 include/linux/virtio_rpmsg.h
+> > > >
+> > > > --
+> > > > 2.27.0
+> > >
 
 _______________________________________________
 Virtualization mailing list
