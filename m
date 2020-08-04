@@ -2,90 +2,90 @@ Return-Path: <SRS0=iZVf=BO=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.5 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D09E9C433DF
-	for <virtualization@archiver.kernel.org>; Tue,  4 Aug 2020 15:19:30 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF46CC433E0
+	for <virtualization@archiver.kernel.org>; Tue,  4 Aug 2020 19:42:03 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B3F842086A
-	for <virtualization@archiver.kernel.org>; Tue,  4 Aug 2020 15:19:30 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B3F842086A
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id A47DB22CA1
+	for <virtualization@archiver.kernel.org>; Tue,  4 Aug 2020 19:42:03 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FRcYs850"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A47DB22CA1
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 405AC21080;
-	Tue,  4 Aug 2020 15:19:30 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 06606862E4;
+	Tue,  4 Aug 2020 19:42:03 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from fraxinus.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id hvEy-Lq8kOhj; Tue,  4 Aug 2020 19:42:02 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 6B344844AB;
+	Tue,  4 Aug 2020 19:42:02 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4C178C0050;
+	Tue,  4 Aug 2020 19:42:02 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 92986C004C
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  4 Aug 2020 19:42:00 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by silver.osuosl.org (Postfix) with ESMTP id 7E76D20798
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  4 Aug 2020 19:42:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 15K-SMPbocKm; Tue,  4 Aug 2020 15:19:24 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id B5BCC214EC;
-	Tue,  4 Aug 2020 15:19:24 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8436AC0050;
-	Tue,  4 Aug 2020 15:19:24 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 39817C004C
- for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Aug 2020 15:19:23 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 2930187D65
- for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Aug 2020 15:19:23 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id vqxtEhiwR9t4
+ with ESMTP id CGwPYFdAlSNH
  for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Aug 2020 15:19:22 +0000 (UTC)
+ Tue,  4 Aug 2020 19:41:59 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
- by hemlock.osuosl.org (Postfix) with ESMTPS id E5C4187D60
+Received: from us-smtp-1.mimecast.com (us-smtp-delivery-1.mimecast.com
+ [207.211.31.120])
+ by silver.osuosl.org (Postfix) with ESMTPS id 2E6992002C
  for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Aug 2020 15:19:21 +0000 (UTC)
-IronPort-SDR: nEdfSGCD5mZpK7AWUoH/UUN+GCW0PENvutW/uNSa81JBVtCH0BFV36QXvUu65T26M82VhPP4WH
- ezBVbKN1GDEQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9703"; a="237188542"
-X-IronPort-AV: E=Sophos;i="5.75,434,1589266800"; d="scan'208";a="237188542"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
- by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 04 Aug 2020 08:19:21 -0700
-IronPort-SDR: W+0vT9pAMJBlKPN8WWB96VYU+kRNXdEUZ7vCtbaQQAlMLFNnvV0fPnuBjQUVihn0RRt51v9QU5
- 8jZKh7RTmSTA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.75,434,1589266800"; d="scan'208";a="292606786"
-Received: from gliakhov-mobl2.ger.corp.intel.com (HELO ubuntu)
- ([10.252.37.210])
- by orsmga006.jf.intel.com with ESMTP; 04 Aug 2020 08:19:18 -0700
-Date: Tue, 4 Aug 2020 17:19:17 +0200
-From: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v4 4/4] vhost: add an RPMsg API
-Message-ID: <20200804151916.GC19025@ubuntu>
-References: <20200722150927.15587-1-guennadi.liakhovetski@linux.intel.com>
- <20200722150927.15587-5-guennadi.liakhovetski@linux.intel.com>
- <20200804102132-mutt-send-email-mst@kernel.org>
+ Tue,  4 Aug 2020 19:41:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1596570118;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=pa4qNJzeWyr5swO/Fgzdcp9uwaMLEtjwjzZ0NY9JDmI=;
+ b=FRcYs850o6tiTOt54OqtXHENi7np2Hsmg6XN7S5rkQKD80so0hhWWjuB5OiayC0jpkJenS
+ 1b3pMt5EyewQHd2eVTnth55Hb/Ku6I3VGBQPBQxYH9913qhUV2B3u4sJ2kEJaKD+OpXWMt
+ Kd3Z8I3SzKEkDckEGMgEkXL6iu9OxQY=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-435-6RGpfs2yNAmXmZGGCCkU8g-1; Tue, 04 Aug 2020 15:41:56 -0400
+X-MC-Unique: 6RGpfs2yNAmXmZGGCCkU8g-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
+ [10.5.11.11])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6F94B1DE1;
+ Tue,  4 Aug 2020 19:41:54 +0000 (UTC)
+Received: from t480s.redhat.com (ovpn-113-95.ams2.redhat.com [10.36.113.95])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id EB10D88D71;
+ Tue,  4 Aug 2020 19:41:42 +0000 (UTC)
+From: David Hildenbrand <david@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH v4 0/6] mm / virtio-mem: support ZONE_MOVABLE
+Date: Tue,  4 Aug 2020 21:41:36 +0200
+Message-Id: <20200804194142.28279-1-david@redhat.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20200804102132-mutt-send-email-mst@kernel.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-Cc: Ohad Ben-Cohen <ohad@wizery.com>,
- Mathieu Poirier <mathieu.poirier@linaro.org>, kvm@vger.kernel.org,
- Vincent Whitchurch <vincent.whitchurch@axis.com>,
- linux-remoteproc@vger.kernel.org,
- Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
- virtualization@lists.linux-foundation.org,
- Liam Girdwood <liam.r.girdwood@linux.intel.com>,
- Bjorn Andersson <bjorn.andersson@linaro.org>,
- sound-open-firmware@alsa-project.org
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Michal Hocko <mhocko@suse.com>,
+ Baoquan He <bhe@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
+ Qian Cai <cai@lca.pw>, Andrew Morton <akpm@linux-foundation.org>,
+ Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>,
+ Mike Kravetz <mike.kravetz@oracle.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -102,190 +102,72 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Aug 04, 2020 at 10:27:08AM -0400, Michael S. Tsirkin wrote:
-> On Wed, Jul 22, 2020 at 05:09:27PM +0200, Guennadi Liakhovetski wrote:
-> > Linux supports running the RPMsg protocol over the VirtIO transport
-> > protocol, but currently there is only support for VirtIO clients and
-> > no support for a VirtIO server. This patch adds a vhost-based RPMsg
-> > server implementation.
-> > 
-> > Signed-off-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-> > ---
-> >  drivers/vhost/Kconfig       |   7 +
-> >  drivers/vhost/Makefile      |   3 +
-> >  drivers/vhost/rpmsg.c       | 375 ++++++++++++++++++++++++++++++++++++
-> >  drivers/vhost/vhost_rpmsg.h |  74 +++++++
-> >  4 files changed, 459 insertions(+)
-> >  create mode 100644 drivers/vhost/rpmsg.c
-> >  create mode 100644 drivers/vhost/vhost_rpmsg.h
-> > 
-> > diff --git a/drivers/vhost/Kconfig b/drivers/vhost/Kconfig
-> > index d3688c6afb87..602421bf1d03 100644
-> > --- a/drivers/vhost/Kconfig
-> > +++ b/drivers/vhost/Kconfig
-> > @@ -38,6 +38,13 @@ config VHOST_NET
-> >  	  To compile this driver as a module, choose M here: the module will
-> >  	  be called vhost_net.
-> >  
-> > +config VHOST_RPMSG
-> > +	tristate
-> 
-> So this lacks a description line so it does not appear
-> in menuconfig. How is user supposed to set it?
-> I added a one-line description.
+@Andrew can we give this a churn and consider it for v5.9 in case there
+are no more comments?
 
-That was on purpose. I don't think there's any value in this API stand-alone, 
-so I let users select it as needed. But we can change that too, id desired.
+Patch #1-#4,#6 have RBss or ACKs, patch #5 is virtio-mem stuff maintained
+by me (and MST is aware).
 
-> > +	depends on VHOST
-> 
-> Other drivers select VHOST instead. Any reason not to
-> do it like this here?
+---
 
-I have
+When introducing virtio-mem, the semantics of ZONE_MOVABLE were rather
+unclear, which is why we special-cased ZONE_MOVABLE such that partially
+plugged blocks would never end up in ZONE_MOVABLE.
 
-+	select VHOST
-+	select VHOST_RPMSG
+Now that the semantics are much clearer (and are documented in patch #6),
+let's support partially plugged memory blocks in ZONE_MOVABLE, allowing
+partially plugged memory blocks to be online to ZONE_MOVABLE and also
+unplugging from such memory blocks. This avoids surprises when onlining
+of memory blocks suddenly fails, just because they are not completely
+populated by virtio-mem (yet).
 
-in my client driver patch.
+This is especially helpful for testing, but also paves the way for
+virtio-mem optimizations, allowing more memory to get reliably unplugged.
 
-> > +	help
-> > +	  Vhost RPMsg API allows vhost drivers to communicate with VirtIO
-> > +	  drivers, using the RPMsg over VirtIO protocol.
-> > +
-> 
-> >  config VHOST_SCSI
-> >  	tristate "VHOST_SCSI TCM fabric driver"
-> >  	depends on TARGET_CORE && EVENTFD
-> > diff --git a/drivers/vhost/Makefile b/drivers/vhost/Makefile
-> > index f3e1897cce85..9cf459d59f97 100644
-> > --- a/drivers/vhost/Makefile
-> > +++ b/drivers/vhost/Makefile
-> > @@ -2,6 +2,9 @@
-> >  obj-$(CONFIG_VHOST_NET) += vhost_net.o
-> >  vhost_net-y := net.o
-> >  
-> > +obj-$(CONFIG_VHOST_RPMSG) += vhost_rpmsg.o
-> > +vhost_rpmsg-y := rpmsg.o
-> > +
-> >  obj-$(CONFIG_VHOST_SCSI) += vhost_scsi.o
-> >  vhost_scsi-y := scsi.o
-> >  
-> > diff --git a/drivers/vhost/rpmsg.c b/drivers/vhost/rpmsg.c
-> > new file mode 100644
-> > index 000000000000..d7ab48414224
-> > --- /dev/null
-> > +++ b/drivers/vhost/rpmsg.c
-> > @@ -0,0 +1,375 @@
-> > +// SPDX-License-Identifier: GPL-2.0-only
-> > +/*
-> > + * Copyright(c) 2020 Intel Corporation. All rights reserved.
-> > + *
-> > + * Author: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-> > + *
-> > + * Vhost RPMsg VirtIO interface. It provides a set of functions to match the
-> > + * guest side RPMsg VirtIO API, provided by drivers/rpmsg/virtio_rpmsg_bus.c
-> > + * These functions handle creation of 2 virtual queues, handling of endpoint
-> > + * addresses, sending a name-space announcement to the guest as well as any
-> > + * user messages. This API can be used by any vhost driver to handle RPMsg
-> > + * specific processing.
-> > + * Specific vhost drivers, using this API will use their own VirtIO device
-> > + * IDs, that should then also be added to the ID table in virtio_rpmsg_bus.c
-> > + */
-> > +
-> > +#include <linux/compat.h>
-> > +#include <linux/file.h>
-> > +#include <linux/miscdevice.h>
-> > +#include <linux/module.h>
-> > +#include <linux/mutex.h>
-> > +#include <linux/vhost.h>
-> > +#include <linux/virtio_rpmsg.h>
-> > +#include <uapi/linux/rpmsg.h>
-> > +
-> > +#include "vhost.h"
-> > +#include "vhost_rpmsg.h"
-> > +
-> > +/*
-> > + * All virtio-rpmsg virtual queue kicks always come with just one buffer -
-> > + * either input or output
-> > + */
-> > +static int vhost_rpmsg_get_single(struct vhost_virtqueue *vq)
-> > +{
-> > +	struct vhost_rpmsg *vr = container_of(vq->dev, struct vhost_rpmsg, dev);
-> > +	unsigned int out, in;
-> > +	int head = vhost_get_vq_desc(vq, vq->iov, ARRAY_SIZE(vq->iov), &out, &in,
-> > +				     NULL, NULL);
-> > +	if (head < 0) {
-> > +		vq_err(vq, "%s(): error %d getting buffer\n",
-> > +		       __func__, head);
-> > +		return head;
-> > +	}
-> > +
-> > +	/* Nothing new? */
-> > +	if (head == vq->num)
-> > +		return head;
-> > +
-> > +	if (vq == &vr->vq[VIRTIO_RPMSG_RESPONSE] && (out || in != 1)) {
-> 
-> This in != 1 looks like a dependency on a specific message layout.
-> virtio spec says to avoid these. Using iov iters it's not too hard to do
-> ...
+Cleanup has_unmovable_pages() and set_migratetype_isolate(), providing
+better documentation of how ZONE_MOVABLE interacts with different kind of
+unmovable pages (memory offlining vs. alloc_contig_range()).
 
-This is an RPMsg VirtIO implementation, and it has to match the virtio_rpmsg_bus.c 
-driver, and that one has specific VirtIO queue and message usage patterns.
+v3 -> v4:
+- "mm/page_isolation: drop WARN_ON_ONCE() in set_migratetype_isolate()"
+-- Fix typo in description
+- "virtio-mem: don't special-case ZONE_MOVABLE"
+-- Add more details why we initialli special-cased ZONE_MOVABLE (via MST)
+- "mm: document semantics of ZONE_MOVABLE"
+-- Rephrase some parts of documentation (via Mike)
 
-> > +		vq_err(vq,
-> > +		       "%s(): invalid %d input and %d output in response queue\n",
-> > +		       __func__, in, out);
-> > +		goto return_buf;
-> > +	}
-> > +
-> > +	if (vq == &vr->vq[VIRTIO_RPMSG_REQUEST] && (in || out != 1)) {
-> > +		vq_err(vq,
-> > +		       "%s(): invalid %d input and %d output in request queue\n",
-> > +		       __func__, in, out);
-> > +		goto return_buf;
-> > +	}
-> > +
-> > +	return head;
-> > +
-> > +return_buf:
-> > +	/*
-> > +	 * FIXME: might need to return the buffer using vhost_add_used()
-> > +	 * or vhost_discard_vq_desc(). vhost_discard_vq_desc() is
-> > +	 * described as "being useful for error handling," but it makes
-> > +	 * the thus discarded buffers "unseen," so next time we look we
-> > +	 * retrieve them again?
-> 
-> 
-> Yes. It's your decision what to do on error. if you also signal
-> an eventfd using vq_err, then discarding will
-> make it so userspace can poke at ring and hopefully fix it ...
+v2 -> v3:
+- "mm: document semantics of ZONE_MOVABLE"
+-- Fix a typo
 
-I assume the user-space in this case is QEMU. Would it be the safest to use 
-vhost_add_used() then?
+v1 -> v2:
+- "mm/page_isolation: don't dump_page(NULL) in set_migratetype_isolate()"
+-- Move to position 1, add Fixes: tag
+-- Drop unused "out:" label
+- "mm/page_isolation: drop WARN_ON_ONCE() in set_migratetype_isolate()"
+-- Keep curly braces on "else" case
+- Replace "[PATCH v1 5/6] mm/page_alloc: restrict ZONE_MOVABLE optimization
+           in has_unmovable_pages() to memory offlining"
+  by "mm: document semantics of ZONE_MOVABLE"
+-- Brain dump of what I know about ZONE_MOVABLE
 
-> > +	 */
-> > +	return -EINVAL;
-> > +}
+David Hildenbrand (6):
+  mm/page_isolation: don't dump_page(NULL) in set_migratetype_isolate()
+  mm/page_alloc: tweak comments in has_unmovable_pages()
+  mm/page_isolation: drop WARN_ON_ONCE() in set_migratetype_isolate()
+  mm/page_isolation: cleanup set_migratetype_isolate()
+  virtio-mem: don't special-case ZONE_MOVABLE
+  mm: document semantics of ZONE_MOVABLE
 
-[snip]
+ drivers/virtio/virtio_mem.c | 47 +++++++------------------------------
+ include/linux/mmzone.h      | 35 +++++++++++++++++++++++++++
+ mm/page_alloc.c             | 22 +++++------------
+ mm/page_isolation.c         | 39 ++++++++++++++----------------
+ 4 files changed, 66 insertions(+), 77 deletions(-)
 
-> > +	return 0;
-> > +
-> > +return_buf:
-> > +	/*
-> > +	 * FIXME: vhost_discard_vq_desc() or vhost_add_used(), see comment in
-> > +	 * vhost_rpmsg_get_single()
-> > +	 */
-> 
-> What's to be done with this FIXME?
+-- 
+2.26.2
 
-This is the same question as above - I just wasn't sure which error handling 
-was appropriate here, don't think many vhost drivers do any od this...
-
-Thanks
-Guennadi
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
