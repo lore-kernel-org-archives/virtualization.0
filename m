@@ -5,80 +5,82 @@ X-Spam-Level:
 X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
 	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5AFDC433DF
-	for <virtualization@archiver.kernel.org>; Tue,  4 Aug 2020 09:55:28 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E218FC433DF
+	for <virtualization@archiver.kernel.org>; Tue,  4 Aug 2020 10:04:30 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id CC11D206D8
-	for <virtualization@archiver.kernel.org>; Tue,  4 Aug 2020 09:55:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id D0A202070A
+	for <virtualization@archiver.kernel.org>; Tue,  4 Aug 2020 10:04:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="e+gxgcRf"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CC11D206D8
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QSik9qiq"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D0A202070A
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 68B318663C;
-	Tue,  4 Aug 2020 09:55:28 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 1OTnj5VsS6et; Tue,  4 Aug 2020 09:55:27 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 871CF86569;
-	Tue,  4 Aug 2020 09:55:27 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6B4A1C0050;
-	Tue,  4 Aug 2020 09:55:27 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6E328C004C
- for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Aug 2020 09:55:26 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 6AAF487A52
- for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Aug 2020 09:55:26 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 8E59187BD7;
+	Tue,  4 Aug 2020 10:04:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 1uBf1wTcrVJJ; Tue,  4 Aug 2020 10:04:29 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by hemlock.osuosl.org (Postfix) with ESMTP id CD46F86E6E;
+	Tue,  4 Aug 2020 10:04:29 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AE848C0050;
+	Tue,  4 Aug 2020 10:04:29 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 59B91C004C
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  4 Aug 2020 10:04:28 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 4900684DF6
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  4 Aug 2020 10:04:28 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id GTr322wjl7YU
+ with ESMTP id XxqXnuMDDDgZ
  for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Aug 2020 09:55:23 +0000 (UTC)
+ Tue,  4 Aug 2020 10:04:27 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-1.mimecast.com (us-smtp-delivery-1.mimecast.com
- [207.211.31.120])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 962B587A2F
+Received: from us-smtp-delivery-1.mimecast.com (us-smtp-2.mimecast.com
+ [205.139.110.61])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 97ABD84A05
  for <virtualization@lists.linux-foundation.org>;
- Tue,  4 Aug 2020 09:55:23 +0000 (UTC)
+ Tue,  4 Aug 2020 10:04:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1596534922;
+ s=mimecast20190719; t=1596535466;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
- bh=AYtBkHdsq8844gq2EZ0Iszz7yUjWZo1nxRQ835rbqmk=;
- b=e+gxgcRfECPF22a0xMhBq8EC5Zr6eGIerGg0M4OyBjFEDddyQaVnMW2i67Ry88rgmLgk/z
- pBXSK8F2biVOrbAXKXfZ4aDJxyN2+uTP6CMMCzHqVUfQXgSjEfAhQZVWTF2pQT7vXtXgZC
- 0Nu0H1G8AzFaFDWWVZHHquoAwpCxMqY=
+ bh=pe+hNlBlJokGLROd+OkEWWry9BPX/DPDTBCU01H/1hU=;
+ b=QSik9qiqRGJNw9K/LkoLf/VVtOTau7Iih7oy/EqP05P1kEwg/b57hWRo/ya/oABjWOLs0B
+ KcfvxDX0KBOlBuIkPbj+laoJCAnavK9O7zEG1rfbAdM7p4SDHUOBYntilPQqQRGn3885AT
+ XaxyG57CY1jXVcfC2xXv4l8x2762Fws=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-15-tMkYF3e9MK-mS8oUAzQZmw-1; Tue, 04 Aug 2020 05:55:17 -0400
-X-MC-Unique: tMkYF3e9MK-mS8oUAzQZmw-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
- [10.5.11.15])
+ us-mta-330-o-0RnCYpO9iZCunD2zEs-Q-1; Tue, 04 Aug 2020 06:04:24 -0400
+X-MC-Unique: o-0RnCYpO9iZCunD2zEs-Q-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
+ [10.5.11.14])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4ABE1800473;
- Tue,  4 Aug 2020 09:55:16 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A4059100CCC8;
+ Tue,  4 Aug 2020 10:04:22 +0000 (UTC)
 Received: from [10.36.113.95] (ovpn-113-95.ams2.redhat.com [10.36.113.95])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 598AC71764;
- Tue,  4 Aug 2020 09:55:11 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 7FC1C5D9F7;
+ Tue,  4 Aug 2020 10:04:15 +0000 (UTC)
 Subject: Re: [PATCH v3 6/6] mm: document semantics of ZONE_MOVABLE
 To: Mike Rapoport <rppt@kernel.org>
 References: <20200804072408.5481-1-david@redhat.com>
  <20200804072408.5481-7-david@redhat.com> <20200804093323.GB8243@kernel.org>
+ <65deeb21-63fe-d1c1-bb87-74a08035f79a@redhat.com>
+ <20200804100333.GC8243@kernel.org>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
  mQINBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -125,14 +127,14 @@ Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat GmbH
-Message-ID: <65deeb21-63fe-d1c1-bb87-74a08035f79a@redhat.com>
-Date: Tue, 4 Aug 2020 11:55:10 +0200
+Message-ID: <dbca0807-7bd0-02cc-fe5a-920d5524a9b0@redhat.com>
+Date: Tue, 4 Aug 2020 12:04:14 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20200804093323.GB8243@kernel.org>
+In-Reply-To: <20200804100333.GC8243@kernel.org>
 Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Michal Hocko <mhocko@suse.com>,
  Baoquan He <bhe@redhat.com>, "Michael S . Tsirkin" <mst@redhat.com>,
  linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
@@ -154,84 +156,94 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 04.08.20 11:33, Mike Rapoport wrote:
-> On Tue, Aug 04, 2020 at 09:24:08AM +0200, David Hildenbrand wrote:
->> Let's document what ZONE_MOVABLE means, how it's used, and which special
->> cases we have regarding unmovable pages (memory offlining vs. migration /
->> allocations).
+On 04.08.20 12:03, Mike Rapoport wrote:
+> On Tue, Aug 04, 2020 at 11:55:10AM +0200, David Hildenbrand wrote:
+>> On 04.08.20 11:33, Mike Rapoport wrote:
+>>> On Tue, Aug 04, 2020 at 09:24:08AM +0200, David Hildenbrand wrote:
+>>>> Let's document what ZONE_MOVABLE means, how it's used, and which special
+>>>> cases we have regarding unmovable pages (memory offlining vs. migration /
+>>>> allocations).
+>>>>
+>>>> Cc: Andrew Morton <akpm@linux-foundation.org>
+>>>> Cc: Michal Hocko <mhocko@suse.com>
+>>>> Cc: Michael S. Tsirkin <mst@redhat.com>
+>>>> Cc: Mike Kravetz <mike.kravetz@oracle.com>
+>>>> Cc: Mike Rapoport <rppt@kernel.org>
+>>>> Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+>>>> Cc: Baoquan He <bhe@redhat.com>
+>>>> Signed-off-by: David Hildenbrand <david@redhat.com>
+>>>
+>>> Several nits below, othersize
+>>>
+>>> Acked-by: Mike Rapoport <rppt@linux.ibm.com>
+>>>
+>>>> ---
+>>>>  include/linux/mmzone.h | 34 ++++++++++++++++++++++++++++++++++
+>>>>  1 file changed, 34 insertions(+)
+>>>>
+>>>> diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
+>>>> index f6f884970511d..600d449e7d9e9 100644
+>>>> --- a/include/linux/mmzone.h
+>>>> +++ b/include/linux/mmzone.h
+>>>> @@ -372,6 +372,40 @@ enum zone_type {
+>>>>  	 */
+>>>>  	ZONE_HIGHMEM,
+>>>>  #endif
+>>>> +	/*
+>>>> +	 * ZONE_MOVABLE is similar to ZONE_NORMAL, except that it *primarily*
+>>>> +	 * only contains movable pages. Main use cases are to make memory
+>>>
+>>> "Primarily only" sounds awkward. Maybe
+>>>
+>>> 	... except that it only contains movable pages with few exceptional
+>>> 	cases described below. 
+>>>
+>>> And then 
+>>>
+>>> 	Main use cases for ZONE_MOVABLE are ...
 >>
->> Cc: Andrew Morton <akpm@linux-foundation.org>
->> Cc: Michal Hocko <mhocko@suse.com>
->> Cc: Michael S. Tsirkin <mst@redhat.com>
->> Cc: Mike Kravetz <mike.kravetz@oracle.com>
->> Cc: Mike Rapoport <rppt@kernel.org>
->> Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
->> Cc: Baoquan He <bhe@redhat.com>
->> Signed-off-by: David Hildenbrand <david@redhat.com>
-> 
-> Several nits below, othersize
-> 
-> Acked-by: Mike Rapoport <rppt@linux.ibm.com>
-> 
->> ---
->>  include/linux/mmzone.h | 34 ++++++++++++++++++++++++++++++++++
->>  1 file changed, 34 insertions(+)
+>> Ack!
 >>
->> diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
->> index f6f884970511d..600d449e7d9e9 100644
->> --- a/include/linux/mmzone.h
->> +++ b/include/linux/mmzone.h
->> @@ -372,6 +372,40 @@ enum zone_type {
->>  	 */
->>  	ZONE_HIGHMEM,
->>  #endif
->> +	/*
->> +	 * ZONE_MOVABLE is similar to ZONE_NORMAL, except that it *primarily*
->> +	 * only contains movable pages. Main use cases are to make memory
+>>>
+>>>> +	 * offlining more likely to succeed, and to locally limit unmovable
+>>>> +	 * allocations - e.g., to increase the number of THP/huge pages.
+>>>> +	 * Notable special cases are:
+>>>> +	 *
+>>>> +	 * 1. Pinned pages: (Long-term) pinning of movable pages might
+>>>
+>>> 		            ^long, capital L looked out of place for me
+>>
+>> Ack!
+>>
+>>>
+>>>> +	 *    essentially turn such pages unmovable. Memory offlining might
+>>>> +	 *    retry a long time.
+>>>> +	 * 2. memblock allocations: kernelcore/movablecore setups might create
+>>>> +	 *    situations where ZONE_MOVABLE contains unmovable allocations
+>>>> +	 *    after boot. Memory offlining and allocations fail early.
+>>>> +	 * 3. Memory holes: Such pages cannot be allocated. Applies only to
+>>>> +	 *    boot memory, not hotplugged memory. Memory offlining and
+>>>> +	 *    allocations fail early.
+>>>
+>>> I would clarify where page struct for abscent memory come from
+>>
+>> Something like:
+>>
+>> Memory holes: We might have a memmap for memory holes, for example, if
 > 
-> "Primarily only" sounds awkward. Maybe
+>                ^w ;-)
 > 
-> 	... except that it only contains movable pages with few exceptional
-> 	cases described below. 
+>> we have sections that are only partially System RAM. Such pages cannot
+>> be ...
 > 
-> And then 
+> How about
 > 
-> 	Main use cases for ZONE_MOVABLE are ...
-
-Ack!
-
+> ... sections that are only partially populated 
 > 
->> +	 * offlining more likely to succeed, and to locally limit unmovable
->> +	 * allocations - e.g., to increase the number of THP/huge pages.
->> +	 * Notable special cases are:
->> +	 *
->> +	 * 1. Pinned pages: (Long-term) pinning of movable pages might
-> 
-> 		            ^long, capital L looked out of place for me
+> ?
 
-Ack!
+Yeah, shorter. Thanks!
 
-> 
->> +	 *    essentially turn such pages unmovable. Memory offlining might
->> +	 *    retry a long time.
->> +	 * 2. memblock allocations: kernelcore/movablecore setups might create
->> +	 *    situations where ZONE_MOVABLE contains unmovable allocations
->> +	 *    after boot. Memory offlining and allocations fail early.
->> +	 * 3. Memory holes: Such pages cannot be allocated. Applies only to
->> +	 *    boot memory, not hotplugged memory. Memory offlining and
->> +	 *    allocations fail early.
-> 
-> I would clarify where page struct for abscent memory come from
-
-Something like:
-
-Memory holes: We might have a memmap for memory holes, for example, if
-we have sections that are only partially System RAM. Such pages cannot
-be ...
-
-?
-
-Thanks!
 
 -- 
 Thanks,
