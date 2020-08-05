@@ -2,110 +2,93 @@ Return-Path: <SRS0=Keeg=BP=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DF381C433DF
-	for <virtualization@archiver.kernel.org>; Wed,  5 Aug 2020 13:39:00 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 86635C433DF
+	for <virtualization@archiver.kernel.org>; Wed,  5 Aug 2020 13:42:51 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A76CA2312D
-	for <virtualization@archiver.kernel.org>; Wed,  5 Aug 2020 13:39:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 4FBD42065C
+	for <virtualization@archiver.kernel.org>; Wed,  5 Aug 2020 13:42:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HSjPGDNR"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A76CA2312D
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="DxVHatqg"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4FBD42065C
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 701ED8815C;
-	Wed,  5 Aug 2020 13:39:00 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id jCRwIFDPxjzC; Wed,  5 Aug 2020 13:38:59 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id E9F098809E;
-	Wed,  5 Aug 2020 13:38:59 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BAE73C0051;
-	Wed,  5 Aug 2020 13:38:59 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CDEFBC004C
- for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Aug 2020 13:38:58 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id B5E6885625
- for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Aug 2020 13:38:58 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 3A07086644;
+	Wed,  5 Aug 2020 13:42:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id NJQHlyOdQkht; Wed,  5 Aug 2020 13:42:50 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 97FEF86559;
+	Wed,  5 Aug 2020 13:42:50 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8BA9AC0051;
+	Wed,  5 Aug 2020 13:42:50 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0FBEFC004C
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  5 Aug 2020 13:42:49 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by silver.osuosl.org (Postfix) with ESMTP id E60A72036E
+ for <virtualization@lists.linux-foundation.org>;
+ Wed,  5 Aug 2020 13:42:48 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 98vlbwVSbLtZ
+ with ESMTP id HhP9mQtIJud7
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Aug 2020 13:38:58 +0000 (UTC)
+ Wed,  5 Aug 2020 13:42:48 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-1.mimecast.com (us-smtp-2.mimecast.com
- [207.211.31.81])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id E6185855CB
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+ by silver.osuosl.org (Postfix) with ESMTPS id C57112034F
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Aug 2020 13:38:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1596634736;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type;
- bh=nsePUp5bwDzPkeGMt9DhuoyzhxlPvsYKTxQ+QKtzY8M=;
- b=HSjPGDNRXvI0K3rnlZeBjV06upD3Dawu5Y6K65n16DbUBGg3ePorOujesAgUyqbowrbJE9
- l5GxfgvECPoV9wi6f8uzfWH0YXX34HyI/tLHwOjO6wTEPR7KSLpP4AEikqiJjeZ/Seqn9/
- XYhnALd3CJVGRyEXUg1DPPE7rZR76hI=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-429-6M2tFbOGNXSMU-i4BJRksA-1; Wed, 05 Aug 2020 09:38:54 -0400
-X-MC-Unique: 6M2tFbOGNXSMU-i4BJRksA-1
-Received: by mail-wr1-f71.google.com with SMTP id w7so13640688wrt.9
- for <virtualization@lists.linux-foundation.org>;
- Wed, 05 Aug 2020 06:38:54 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
- :content-disposition;
- bh=nsePUp5bwDzPkeGMt9DhuoyzhxlPvsYKTxQ+QKtzY8M=;
- b=TJPikuiDo7o5MyAZoqv2jSay/Fe29AoAxa/A/FA0wQw71T00BaZzvxesd0sHwXjiIp
- /ZkqWuYwWwSQg1ZRRZmLrl6rQOggpYA4HDporNYOWrbSC/+MKxKSxvVW8zHGzTIP8p+8
- 9kM0/tixl8ApERgIzG4N8ZXhyj2NF8nD0j+8s72EEBlmiqgrR8C20e97eazr4lOkco7d
- HLvEXaJcISRiGarHkF6YBOyCJniYuENb0NSV8DCDpYVeNAcsCdQHBvqgyuMakOo+BdtL
- hUvCc7+sJiGa7O9TuKNuSj5jYgFX5KzIO3daYy7Sjx43Qb7EEhNqo+p8Q2h6DYHOqC88
- OsLQ==
-X-Gm-Message-State: AOAM530fltkTHeUtphNRf2kZAXzCBazpQGy2paWE4ljor6/bFmdZ8sGX
- kDXuGc8xw3kCgSjBadLe4+1WdgobAxe30PEgwgB+FrKJ5AQI43GvwT2sDFYMfUSWuUbmjebCwoZ
- yzddYY7AsRCbcGfx8azNmOGXfJuPntpE29jmPrLtgSQ==
-X-Received: by 2002:adf:f486:: with SMTP id l6mr2832110wro.265.1596634733652; 
- Wed, 05 Aug 2020 06:38:53 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyrJHbiAkvwUZChxw62cK2kQ+h4SfhhoyHmbeMJJ3IoB9ua448nhQGhAU9Dt58uSQD6O7qCdw==
-X-Received: by 2002:adf:f486:: with SMTP id l6mr2832102wro.265.1596634733486; 
- Wed, 05 Aug 2020 06:38:53 -0700 (PDT)
-Received: from redhat.com ([192.117.173.58])
- by smtp.gmail.com with ESMTPSA id w1sm2855531wmc.18.2020.08.05.06.38.50
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 05 Aug 2020 06:38:52 -0700 (PDT)
-Date: Wed, 5 Aug 2020 09:38:49 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] virtio_net: use LE accessors for speed/duplex
-Message-ID: <20200805133843.1105808-1-mst@redhat.com>
+ Wed,  5 Aug 2020 13:42:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+ References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=+g3sbWo8Ja9JxjGyq6mVY0ZEJVqeXUqG7DKAaCqdzBs=; b=DxVHatqgIQwBZ9FahPp33QYiaL
+ JbNRhIZx5Otc3laDLk3mLlio8sKrClfiK3w6vfg8u/tcF+CsHN4mmwJX24Bvyq9gY/PRmRm1u1slB
+ 9ejtKcqY8ZCJXw1thk0kKk64siUhx+DnaTaqBajAHqkVT1HrqFCMfTtpvu3WeZ3gKSYvjpEfcFnIk
+ wpawZvrPIG1AHJSRuXQfe99zAXxoQ5PCuvWzPgVhrj0HEfSPGtLFS/AXi5m/ep7C5WxXRtVMFI/29
+ mG8qdeu/pQIoWeTQJUcYY3sG0PfCvQk/m7owy3dyLHE4PFN0y9i9k1u4w1om/1Cp74XO9XPsY0+9d
+ r4m56qwQ==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100]
+ helo=noisy.programming.kicks-ass.net)
+ by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+ id 1k3Jgf-0005Ka-Cp; Wed, 05 Aug 2020 13:42:33 +0000
+Received: from hirez.programming.kicks-ass.net
+ (hirez.programming.kicks-ass.net [192.168.1.225])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (Client did not present a certificate)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 846953012DC;
+ Wed,  5 Aug 2020 15:42:32 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+ id 71A9A22B957CE; Wed,  5 Aug 2020 15:42:32 +0200 (CEST)
+Date: Wed, 5 Aug 2020 15:42:32 +0200
+From: peterz@infradead.org
+To: Marco Elver <elver@google.com>
+Subject: Re: [PATCH] x86/paravirt: Add missing noinstr to arch_local*() helpers
+Message-ID: <20200805134232.GR2674@hirez.programming.kicks-ass.net>
+References: <0000000000007d3b2d05ac1c303e@google.com>
+ <20200805132629.GA87338@elver.google.com>
 MIME-Version: 1.0
-X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
-X-Mutt-Fcc: =sent
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: netdev@vger.kernel.org, Cornelia Huck <cohuck@redhat.com>,
- virtualization@lists.linux-foundation.org, Jakub Kicinski <kuba@kernel.org>,
- "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20200805132629.GA87338@elver.google.com>
+Cc: jgross@suse.com, fenghua.yu@intel.com, yu-cheng.yu@intel.com,
+ tony.luck@intel.com, dave.hansen@linux.intel.com,
+ syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org,
+ kasan-dev@googlegroups.com, virtualization@lists.linux-foundation.org,
+ mingo@redhat.com, bp@alien8.de, hpa@zytor.com, tglx@linutronix.de,
+ syzbot <syzbot+8db9e1ecde74e590a657@syzkaller.appspotmail.com>, x86@kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -122,56 +105,55 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Speed and duplex config fields depend on VIRTIO_NET_F_SPEED_DUPLEX
-which being 63>31 depends on VIRTIO_F_VERSION_1.
+On Wed, Aug 05, 2020 at 03:26:29PM +0200, Marco Elver wrote:
+> Add missing noinstr to arch_local*() helpers, as they may be called from
+> noinstr code.
+> 
+> On a KCSAN config with CONFIG_PARAVIRT=y, syzbot stumbled across corrupt
 
-Accordingly, use LE accessors for these fields.
+Cute, so I've been working on adding objtool support for this a little:
 
-Reported-by: Cornelia Huck <cohuck@redhat.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- drivers/net/virtio_net.c        | 9 +++++----
- include/uapi/linux/virtio_net.h | 2 +-
- 2 files changed, 6 insertions(+), 5 deletions(-)
+  https://lkml.kernel.org/r/20200803143231.GE2674@hirez.programming.kicks-ass.net
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index ba38765dc490..0934b1ec5320 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -2264,12 +2264,13 @@ static void virtnet_update_settings(struct virtnet_info *vi)
- 	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_SPEED_DUPLEX))
- 		return;
- 
--	speed = virtio_cread32(vi->vdev, offsetof(struct virtio_net_config,
--						  speed));
-+	virtio_cread_le(vi->vdev, struct virtio_net_config, speed, &speed);
-+
- 	if (ethtool_validate_speed(speed))
- 		vi->speed = speed;
--	duplex = virtio_cread8(vi->vdev, offsetof(struct virtio_net_config,
--						  duplex));
-+
-+	virtio_cread_le(vi->vdev, struct virtio_net_config, duplex, &duplex);
-+
- 	if (ethtool_validate_duplex(duplex))
- 		vi->duplex = duplex;
- }
-diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
-index 27d996f29dd1..3f55a4215f11 100644
---- a/include/uapi/linux/virtio_net.h
-+++ b/include/uapi/linux/virtio_net.h
-@@ -99,7 +99,7 @@ struct virtio_net_config {
- 	 * speed, in units of 1Mb. All values 0 to INT_MAX are legal.
- 	 * Any other value stands for unknown.
- 	 */
--	__virtio32 speed;
-+	__le32 speed;
- 	/*
- 	 * 0x00 - half duplex
- 	 * 0x01 - full duplex
--- 
-MST
+> diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+> index 3d2afecde50c..a606f2ba2b5e 100644
+> --- a/arch/x86/include/asm/paravirt.h
+> +++ b/arch/x86/include/asm/paravirt.h
+> @@ -760,27 +760,27 @@ bool __raw_callee_save___native_vcpu_is_preempted(long cpu);
+>  	((struct paravirt_callee_save) { func })
+>  
+>  #ifdef CONFIG_PARAVIRT_XXL
+> -static inline notrace unsigned long arch_local_save_flags(void)
+> +static inline noinstr unsigned long arch_local_save_flags(void)
+>  {
+>  	return PVOP_CALLEE0(unsigned long, irq.save_fl);
+>  }
+>  
+> -static inline notrace void arch_local_irq_restore(unsigned long f)
+> +static inline noinstr void arch_local_irq_restore(unsigned long f)
+>  {
+>  	PVOP_VCALLEE1(irq.restore_fl, f);
+>  }
+>  
+> -static inline notrace void arch_local_irq_disable(void)
+> +static inline noinstr void arch_local_irq_disable(void)
+>  {
+>  	PVOP_VCALLEE0(irq.irq_disable);
+>  }
+>  
+> -static inline notrace void arch_local_irq_enable(void)
+> +static inline noinstr void arch_local_irq_enable(void)
+>  {
+>  	PVOP_VCALLEE0(irq.irq_enable);
+>  }
+>  
+> -static inline notrace unsigned long arch_local_irq_save(void)
+> +static inline noinstr unsigned long arch_local_irq_save(void)
+>  {
+>  	unsigned long f;
+>  
 
+Shouldn't we __always_inline those? They're going to be really small.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
