@@ -7,96 +7,96 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3F47C433E0
-	for <virtualization@archiver.kernel.org>; Wed,  5 Aug 2020 13:44:15 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3D75C433DF
+	for <virtualization@archiver.kernel.org>; Wed,  5 Aug 2020 13:44:19 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C57722065C
-	for <virtualization@archiver.kernel.org>; Wed,  5 Aug 2020 13:44:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 99D982065C
+	for <virtualization@archiver.kernel.org>; Wed,  5 Aug 2020 13:44:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fGrcCO3l"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C57722065C
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RFKcUIC3"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 99D982065C
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id A34B122219;
-	Wed,  5 Aug 2020 13:44:15 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 7DAD6226A0;
+	Wed,  5 Aug 2020 13:44:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id w2u7lms6rDG0; Wed,  5 Aug 2020 13:44:11 +0000 (UTC)
+	with ESMTP id k6ZBIaLYifao; Wed,  5 Aug 2020 13:44:18 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id B14502083F;
-	Wed,  5 Aug 2020 13:44:11 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 04D4522660;
+	Wed,  5 Aug 2020 13:44:18 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 95C68C0051;
-	Wed,  5 Aug 2020 13:44:11 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D92F1C0051;
+	Wed,  5 Aug 2020 13:44:17 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E1FC7C004C
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DA177C004C
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Aug 2020 13:44:10 +0000 (UTC)
+ Wed,  5 Aug 2020 13:44:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id CFB1D2034F
+ by silver.osuosl.org (Postfix) with ESMTP id D692520BF8
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Aug 2020 13:44:10 +0000 (UTC)
+ Wed,  5 Aug 2020 13:44:16 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id T0Ef3QnIfcxk
+ with ESMTP id 0tvxNFhj8XAB
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Aug 2020 13:44:08 +0000 (UTC)
+ Wed,  5 Aug 2020 13:44:14 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-1.mimecast.com (us-smtp-delivery-1.mimecast.com
- [207.211.31.120])
- by silver.osuosl.org (Postfix) with ESMTPS id 64E0220BF8
+Received: from us-smtp-delivery-1.mimecast.com (us-smtp-2.mimecast.com
+ [205.139.110.61])
+ by silver.osuosl.org (Postfix) with ESMTPS id 1370B226A0
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Aug 2020 13:44:08 +0000 (UTC)
+ Wed,  5 Aug 2020 13:44:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1596635047;
+ s=mimecast20190719; t=1596635053;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=QhVm0jpCx0j1VjzEJrlev45JExYE6+1Gd5oJ2Fv0G+k=;
- b=fGrcCO3lJ9Cm1xcgMxSIhZzvfYNvcj7oGAxKWsp9CJs0f+IkFtgsIJXM99jCUCsJ7pCdwf
- a4jfN83xwMVZmRKESchbqtH1o/uOwmlmhkw9PjnS3zzScGcxs2MGdKl9ctE0S/6YoCctM1
- UbKC13frA1qnyn2jsp3O90sbmFwFies=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-433-C-FjoeguMMCxAiGvj7dcCA-1; Wed, 05 Aug 2020 09:44:05 -0400
-X-MC-Unique: C-FjoeguMMCxAiGvj7dcCA-1
-Received: by mail-wr1-f69.google.com with SMTP id r14so1528859wrq.3
+ bh=zXTzwQncFETdoKYzPm5tvIQfmxAfJtNu07ODUBYdb0E=;
+ b=RFKcUIC3DwE45aTNcYbJ0m3/A4eyEmgiRPxHAJbb4DoVjf8xYk8Ie/ngRgjev0h9pEZzdD
+ yxkFnYyoe5ibwYScN4vNhicVv3Nt08WCCO3Ehw4nmiQGYz4gusxu4a9wS2f7pqAXtOF7K+
+ C99QFF4sJeBXOIVYSWtj5dNPx8v/nHE=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-180-9PICJM6cNmG11Qbzz7lrPg-1; Wed, 05 Aug 2020 09:44:11 -0400
+X-MC-Unique: 9PICJM6cNmG11Qbzz7lrPg-1
+Received: by mail-wr1-f72.google.com with SMTP id w7so13646099wrt.9
  for <virtualization@lists.linux-foundation.org>;
- Wed, 05 Aug 2020 06:44:05 -0700 (PDT)
+ Wed, 05 Aug 2020 06:44:11 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=QhVm0jpCx0j1VjzEJrlev45JExYE6+1Gd5oJ2Fv0G+k=;
- b=K8U0a2jVQsY2ZLuKg/SONFnLjrYYFDe2RAZUCbvyOhY7gdxBmh4Z4iJunMDWNJYpxq
- s1Tjc5vMqhqg8C3yycxbqBwDweY98nq4vOuBotTdHzypZber2flPBzGin1QeLfxDDk9c
- 2VmbH+mEt7vpZArQE4c2zYPfY2ZAu+HLJWcgEgDNHDRLOXo964gFmMSPFSP89GjUBObX
- nbc7aaFUS1ReRPP5OkSY3N/iEBOJvtduim/adCAQhzFhhUA+BffdGnRw98N6Uq1Q4pxy
- W5D+zm6VoO5EAGJ0YSiUwmgbfsIGaChiHekrFY3oIIIqDt5aN5w5l8ZjPWAzkxTkol+W
- pi2g==
-X-Gm-Message-State: AOAM530/jY3u3m0AJHZwV4jYdroUtN1aXYZrsjvi9Wj7uRVGiCXqRxVS
- GqvmX8/BWWPkH3JKIf5TVht9YpvUKP5bWElWfd5s0wOytD6KVRBsfijj2Ut5H5DSt/GMvNj7cDd
- 9jn2Lg9nBVZ8Su8Kndvm09vftDjYljihtl6lGFGx7kw==
-X-Received: by 2002:a1c:e912:: with SMTP id q18mr3340534wmc.130.1596635044511; 
- Wed, 05 Aug 2020 06:44:04 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyNXwX/2HYdrh9bva0R4SCALRC4UH6tOenG7WilayDF9QXu8qTNoQRaplyGLd1b/SDfI6ylAQ==
-X-Received: by 2002:a1c:e912:: with SMTP id q18mr3340516wmc.130.1596635044293; 
- Wed, 05 Aug 2020 06:44:04 -0700 (PDT)
-Received: from redhat.com (bzq-79-178-123-8.red.bezeqint.net. [79.178.123.8])
+ bh=zXTzwQncFETdoKYzPm5tvIQfmxAfJtNu07ODUBYdb0E=;
+ b=gmnQGvs6yXqWyDGAD9lK0C0Eg6QO+zi6rPD0plTgx1erJH+sQvA1j4/VqE525Y3pOD
+ ZImVKmVfQ0A1E8ftwlftk3aC/BXJObGpEHq+icasR6dn9CaXpcMC4kLTS52HlQfCCw79
+ XOozGWgPn24UH9fDfWSQG1/OTnE818ydZU0GZfiOxSQW0+bphxpErb0jtzGGfjvOF6ao
+ JkIkzglrz2e2B3J691ghG5c5H8FtoZ+M850wckAYnUKCp86dhorUhQrdd7Y+pPGFVJB5
+ lOsT8phbi3yxfbKkXH/0SJqMZVVvZdAG0NptBzOtH2IvzaGF0AObvDCPZwhbCswSMn50
+ FPgg==
+X-Gm-Message-State: AOAM532B6/b27IR3KiUm0LSq0b0l4GdU1V+qRQgx80Sicp5XIoV6Eg/A
+ PBLwH/vCVFr12OEzGFvRCa+WdtJREZnRQp1P2NlNvtl2jIIwuZbnPaZTUvWEmzzSXqmDLYo9PeH
+ CH7r9akGtb0rrVMY2R7+t1d9wVNkEzYcWknZQBRwL8Q==
+X-Received: by 2002:adf:ebc5:: with SMTP id v5mr2874753wrn.100.1596635050288; 
+ Wed, 05 Aug 2020 06:44:10 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzN15n3nk3moRyvVlKfo0eUXQqSTsa3wGWLzNDiCq5dlFLmjNv9TM2NLycLh5wHgFYsktf9nw==
+X-Received: by 2002:adf:ebc5:: with SMTP id v5mr2874729wrn.100.1596635049955; 
+ Wed, 05 Aug 2020 06:44:09 -0700 (PDT)
+Received: from redhat.com (bzq-79-180-0-181.red.bezeqint.net. [79.180.0.181])
  by smtp.gmail.com with ESMTPSA id
- t189sm2914860wmf.47.2020.08.05.06.44.03
+ l11sm2746431wme.11.2020.08.05.06.44.08
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 05 Aug 2020 06:44:03 -0700 (PDT)
-Date: Wed, 5 Aug 2020 09:44:02 -0400
+ Wed, 05 Aug 2020 06:44:09 -0700 (PDT)
+Date: Wed, 5 Aug 2020 09:44:07 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH v3 17/38] virtio_config: disallow native type fields
-Message-ID: <20200805134226.1106164-18-mst@redhat.com>
+Subject: [PATCH v3 19/38] vdpa: make sure set_features is invoked for legacy
+Message-ID: <20200805134226.1106164-20-mst@redhat.com>
 References: <20200805134226.1106164-1-mst@redhat.com>
 MIME-Version: 1.0
 In-Reply-To: <20200805134226.1106164-1-mst@redhat.com>
@@ -124,33 +124,86 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Transitional devices should all use __virtioXX types (and __leXX for
-fields not present in legacy devices).
-Modern ones should use __leXX.
-_uXX type would be a bug.
-Let's prevent that.
+Some legacy guests just assume features are 0 after reset.
+We detect that config space is accessed before features are
+set and set features to 0 automatically.
+Note: some legacy guests might not even access config space, if this is
+reported in the field we might need to catch a kick to handle these.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- include/linux/virtio_config.h | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/vdpa/vdpa.c  |  1 +
+ include/linux/vdpa.h | 34 ++++++++++++++++++++++++++++++++++
+ 2 files changed, 35 insertions(+)
 
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index 64da491936f7..c68f58f3bf34 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -319,9 +319,8 @@ static inline __virtio64 cpu_to_virtio64(struct virtio_device *vdev, u64 val)
- 	__virtio_pick_type(x, __u8, __u8,					\
- 		__virtio_pick_endian(x, __virtio16, __virtio32, __virtio64,	\
- 			__virtio_pick_endian(x, __le16, __le32, __le64,		\
--				__virtio_pick_endian(x, __u16, __u32, __u64,	\
--					/* No other type allowed */		\
--					(void)0)))))
-+				/* No other type allowed */			\
-+				(void)0))))
+diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+index de211ef3738c..7105265e4793 100644
+--- a/drivers/vdpa/vdpa.c
++++ b/drivers/vdpa/vdpa.c
+@@ -96,6 +96,7 @@ struct vdpa_device *__vdpa_alloc_device(struct device *parent,
+ 	vdev->dev.release = vdpa_release_dev;
+ 	vdev->index = err;
+ 	vdev->config = config;
++	vdev->features_valid = false;
  
- #endif
+ 	err = dev_set_name(&vdev->dev, "vdpa%u", vdev->index);
+ 	if (err)
+diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
+index 239db794357c..29b8296f1414 100644
+--- a/include/linux/vdpa.h
++++ b/include/linux/vdpa.h
+@@ -33,12 +33,14 @@ struct vdpa_notification_area {
+  * @dma_dev: the actual device that is performing DMA
+  * @config: the configuration ops for this device.
+  * @index: device index
++ * @features_valid: were features initialized? for legacy guests
+  */
+ struct vdpa_device {
+ 	struct device dev;
+ 	struct device *dma_dev;
+ 	const struct vdpa_config_ops *config;
+ 	unsigned int index;
++	bool features_valid;
+ };
  
+ /**
+@@ -266,4 +268,36 @@ static inline struct device *vdpa_get_dma_dev(struct vdpa_device *vdev)
+ {
+ 	return vdev->dma_dev;
+ }
++
++static inline void vdpa_reset(struct vdpa_device *vdev)
++{
++        const struct vdpa_config_ops *ops = vdev->config;
++
++	vdev->features_valid = false;
++        ops->set_status(vdev, 0);
++}
++
++static inline int vdpa_set_features(struct vdpa_device *vdev, u64 features)
++{
++        const struct vdpa_config_ops *ops = vdev->config;
++
++	vdev->features_valid = true;
++        return ops->set_features(vdev, features);
++}
++
++
++static inline void vdpa_get_config(struct vdpa_device *vdev, unsigned offset,
++				   void *buf, unsigned int len)
++{
++        const struct vdpa_config_ops *ops = vdev->config;
++
++	/*
++	 * Config accesses aren't supposed to trigger before features are set.
++	 * If it does happen we assume a legacy guest.
++	 */
++	if (!vdev->features_valid)
++		vdpa_set_features(vdev, 0);
++	ops->get_config(vdev, offset, buf, len);
++}
++
+ #endif /* _LINUX_VDPA_H */
 -- 
 MST
 
