@@ -2,93 +2,94 @@ Return-Path: <SRS0=Keeg=BP=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA35BC433E0
-	for <virtualization@archiver.kernel.org>; Wed,  5 Aug 2020 14:00:04 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7534EC433DF
+	for <virtualization@archiver.kernel.org>; Wed,  5 Aug 2020 14:13:03 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9234C2312D
-	for <virtualization@archiver.kernel.org>; Wed,  5 Aug 2020 14:00:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 35D8C23120
+	for <virtualization@archiver.kernel.org>; Wed,  5 Aug 2020 14:13:03 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="baC8TH2P"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9234C2312D
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="xZgN77rc"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 35D8C23120
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 44F7A8689B;
-	Wed,  5 Aug 2020 14:00:04 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id DF73F881DC;
+	Wed,  5 Aug 2020 14:13:02 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id w867Lgp0Jc4N; Wed,  5 Aug 2020 14:00:03 +0000 (UTC)
+	with ESMTP id RM0d6ovA7Cz4; Wed,  5 Aug 2020 14:13:02 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id B442A86203;
-	Wed,  5 Aug 2020 14:00:03 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 52EBF880CC;
+	Wed,  5 Aug 2020 14:13:02 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 82403C0051;
-	Wed,  5 Aug 2020 14:00:03 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D0DF5C004C
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 34D89C0051;
+	Wed,  5 Aug 2020 14:13:02 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DA6A4C004C
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Aug 2020 14:00:02 +0000 (UTC)
+ Wed,  5 Aug 2020 14:13:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id C8E78214FD
+ by hemlock.osuosl.org (Postfix) with ESMTP id BFA88880E2
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Aug 2020 14:00:02 +0000 (UTC)
+ Wed,  5 Aug 2020 14:13:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id WYDIoy3fVhTh
+ with ESMTP id lkurbyntoiJY
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Aug 2020 14:00:01 +0000 (UTC)
+ Wed,  5 Aug 2020 14:12:56 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-1.mimecast.com (us-smtp-delivery-1.mimecast.com
- [207.211.31.120])
- by silver.osuosl.org (Postfix) with ESMTPS id 7A0D52051E
+Received: from merlin.infradead.org (merlin.infradead.org [205.233.59.134])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 6CAFF880CC
  for <virtualization@lists.linux-foundation.org>;
- Wed,  5 Aug 2020 14:00:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1596636000;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=u6BgoSObisAMVxaJpQKxat6BIIq50UZiECX71HIFPB8=;
- b=baC8TH2PSDSmQgarJdzmEVj++ygt7Pyi5f4bkZr0ZP4owxrLZWG4YATuFKZa0makMfVMU8
- kyHL7Su3h9jV+YnZRwznA387f46E0Im08oPFr6m/FZdUcREzj5TUGIxe5+r7bmKSRCJaV5
- T4cDCLS9ghrojWIWiji6iotiv6bx0X8=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-457-EMfVmt2BMeOPnRR1pJUjkQ-1; Wed, 05 Aug 2020 09:59:56 -0400
-X-MC-Unique: EMfVmt2BMeOPnRR1pJUjkQ-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
- [10.5.11.23])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3D27D80183C;
- Wed,  5 Aug 2020 13:59:55 +0000 (UTC)
-Received: from gondolin (ovpn-113-4.ams2.redhat.com [10.36.113.4])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 943062B6D9;
- Wed,  5 Aug 2020 13:59:50 +0000 (UTC)
-Date: Wed, 5 Aug 2020 15:59:48 +0200
-From: Cornelia Huck <cohuck@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3 38/38] virtio_net: use LE accessors for speed/duplex
-Message-ID: <20200805155948.4869b0cc.cohuck@redhat.com>
-In-Reply-To: <20200805134226.1106164-39-mst@redhat.com>
-References: <20200805134226.1106164-1-mst@redhat.com>
- <20200805134226.1106164-39-mst@redhat.com>
-Organization: Red Hat GmbH
+ Wed,  5 Aug 2020 14:12:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+ References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=RIIneg+7/mEtbE19meMAOfaXXJsMYVcX3DCzixtwFp4=; b=xZgN77rc7QTu2SUz2Txvp07BQa
+ rEKwKgC5ctZBRSV40lDEvZPvCZt5LmfeV/pyQOmnZC6mdVXAcchmO14bFXVpo3vNwueBX+BKFPz14
+ f3/FLmbDBzST8oOh2reniGLLG9o+E1Ce7vjg6GOkTdUF+fQZiWJ9F00Wkv+lyojL6bu8DUzqsLlUx
+ eS124XSyfJ6v5oa2y7SUVKVHMHUjRsHW1rss0vou12PBoO3y4ruAdOXLDdQounpE76OtzNK7a5JeY
+ JNab3EZGOKfbwCt7HaeJUJEm5q3n4ieRvin6IaqQqHS17pXADia68KF231yRUFKPInlpMI0WxtlyC
+ GXTIOgJw==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100]
+ helo=noisy.programming.kicks-ass.net)
+ by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+ id 1k3K9p-0000Mo-TQ; Wed, 05 Aug 2020 14:12:42 +0000
+Received: from hirez.programming.kicks-ass.net
+ (hirez.programming.kicks-ass.net [192.168.1.225])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (Client did not present a certificate)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id B13C7301E02;
+ Wed,  5 Aug 2020 16:12:37 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+ id A584823D7A30F; Wed,  5 Aug 2020 16:12:37 +0200 (CEST)
+Date: Wed, 5 Aug 2020 16:12:37 +0200
+From: peterz@infradead.org
+To: Marco Elver <elver@google.com>
+Subject: Re: [PATCH] x86/paravirt: Add missing noinstr to arch_local*() helpers
+Message-ID: <20200805141237.GS2674@hirez.programming.kicks-ass.net>
+References: <0000000000007d3b2d05ac1c303e@google.com>
+ <20200805132629.GA87338@elver.google.com>
+ <20200805134232.GR2674@hirez.programming.kicks-ass.net>
+ <20200805135940.GA156343@elver.google.com>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, Jakub Kicinski <kuba@kernel.org>,
- "David S. Miller" <davem@davemloft.net>
+Content-Disposition: inline
+In-Reply-To: <20200805135940.GA156343@elver.google.com>
+Cc: jgross@suse.com, fenghua.yu@intel.com, yu-cheng.yu@intel.com,
+ tony.luck@intel.com, dave.hansen@linux.intel.com,
+ syzkaller-bugs@googlegroups.com, linux-kernel@vger.kernel.org,
+ kasan-dev@googlegroups.com, virtualization@lists.linux-foundation.org,
+ mingo@redhat.com, bp@alien8.de, hpa@zytor.com, tglx@linutronix.de,
+ syzbot <syzbot+8db9e1ecde74e590a657@syzkaller.appspotmail.com>, x86@kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -105,62 +106,42 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, 5 Aug 2020 09:45:00 -0400
-"Michael S. Tsirkin" <mst@redhat.com> wrote:
+On Wed, Aug 05, 2020 at 03:59:40PM +0200, Marco Elver wrote:
+> On Wed, Aug 05, 2020 at 03:42PM +0200, peterz@infradead.org wrote:
 
-> Speed and duplex config fields depend on VIRTIO_NET_F_SPEED_DUPLEX
-> which being 63>31 depends on VIRTIO_F_VERSION_1.
+> > Shouldn't we __always_inline those? They're going to be really small.
 > 
-> Accordingly, use LE accessors for these fields.
+> I can send a v2, and you can choose. For reference, though:
 > 
-> Reported-by: Cornelia Huck <cohuck@redhat.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
->  drivers/net/virtio_net.c        | 9 +++++----
->  include/uapi/linux/virtio_net.h | 2 +-
->  2 files changed, 6 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index ba38765dc490..0934b1ec5320 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -2264,12 +2264,13 @@ static void virtnet_update_settings(struct virtnet_info *vi)
->  	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_SPEED_DUPLEX))
->  		return;
->  
-> -	speed = virtio_cread32(vi->vdev, offsetof(struct virtio_net_config,
-> -						  speed));
-> +	virtio_cread_le(vi->vdev, struct virtio_net_config, speed, &speed);
-> +
->  	if (ethtool_validate_speed(speed))
->  		vi->speed = speed;
-> -	duplex = virtio_cread8(vi->vdev, offsetof(struct virtio_net_config,
-> -						  duplex));
-> +
-> +	virtio_cread_le(vi->vdev, struct virtio_net_config, duplex, &duplex);
+> 	ffffffff86271ee0 <arch_local_save_flags>:
+> 	ffffffff86271ee0:       0f 1f 44 00 00          nopl   0x0(%rax,%rax,1)
+> 	ffffffff86271ee5:       48 83 3d 43 87 e4 01    cmpq   $0x0,0x1e48743(%rip)        # ffffffff880ba630 <pv_ops+0x120>
+> 	ffffffff86271eec:       00
+> 	ffffffff86271eed:       74 0d                   je     ffffffff86271efc <arch_local_save_flags+0x1c>
+> 	ffffffff86271eef:       0f 1f 44 00 00          nopl   0x0(%rax,%rax,1)
+> 	ffffffff86271ef4:       ff 14 25 30 a6 0b 88    callq  *0xffffffff880ba630
+> 	ffffffff86271efb:       c3                      retq
+> 	ffffffff86271efc:       0f 1f 44 00 00          nopl   0x0(%rax,%rax,1)
+> 	ffffffff86271f01:       0f 0b                   ud2
 
-Looks a bit odd for an u8, but does not really hurt.
+> 	ffffffff86271a90 <arch_local_irq_restore>:
+> 	ffffffff86271a90:       53                      push   %rbx
+> 	ffffffff86271a91:       48 89 fb                mov    %rdi,%rbx
+> 	ffffffff86271a94:       0f 1f 44 00 00          nopl   0x0(%rax,%rax,1)
+> 	ffffffff86271a99:       48 83 3d 97 8b e4 01    cmpq   $0x0,0x1e48b97(%rip)        # ffffffff880ba638 <pv_ops+0x128>
+> 	ffffffff86271aa0:       00
+> 	ffffffff86271aa1:       74 11                   je     ffffffff86271ab4 <arch_local_irq_restore+0x24>
+> 	ffffffff86271aa3:       0f 1f 44 00 00          nopl   0x0(%rax,%rax,1)
+> 	ffffffff86271aa8:       48 89 df                mov    %rbx,%rdi
+> 	ffffffff86271aab:       ff 14 25 38 a6 0b 88    callq  *0xffffffff880ba638
+> 	ffffffff86271ab2:       5b                      pop    %rbx
+> 	ffffffff86271ab3:       c3                      retq
+> 	ffffffff86271ab4:       0f 1f 44 00 00          nopl   0x0(%rax,%rax,1)
+> 	ffffffff86271ab9:       0f 0b                   ud2
 
-> +
->  	if (ethtool_validate_duplex(duplex))
->  		vi->duplex = duplex;
->  }
-> diff --git a/include/uapi/linux/virtio_net.h b/include/uapi/linux/virtio_net.h
-> index 27d996f29dd1..3f55a4215f11 100644
-> --- a/include/uapi/linux/virtio_net.h
-> +++ b/include/uapi/linux/virtio_net.h
-> @@ -99,7 +99,7 @@ struct virtio_net_config {
->  	 * speed, in units of 1Mb. All values 0 to INT_MAX are legal.
->  	 * Any other value stands for unknown.
->  	 */
-> -	__virtio32 speed;
-> +	__le32 speed;
->  	/*
->  	 * 0x00 - half duplex
->  	 * 0x01 - full duplex
 
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-
+Blergh, that's abysmall. In part I suspect because you have
+CONFIG_PARAVIRT_DEBUG, let me try and untangle that PV macro maze.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
