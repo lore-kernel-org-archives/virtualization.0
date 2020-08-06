@@ -2,69 +2,94 @@ Return-Path: <SRS0=OwTx=BQ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.0 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DC182C433E0
-	for <virtualization@archiver.kernel.org>; Thu,  6 Aug 2020 16:08:38 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 62FAFC433DF
+	for <virtualization@archiver.kernel.org>; Thu,  6 Aug 2020 17:28:17 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id F1AE023132
-	for <virtualization@archiver.kernel.org>; Thu,  6 Aug 2020 16:08:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org F1AE023132
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=canonical.com
+	by mail.kernel.org (Postfix) with ESMTPS id AC598221E3
+	for <virtualization@archiver.kernel.org>; Thu,  6 Aug 2020 17:28:17 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Wzydsvz+"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AC598221E3
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 44B9524B3A;
-	Thu,  6 Aug 2020 16:08:38 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 086F586A01;
+	Thu,  6 Aug 2020 17:28:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Cvl0cJNRHzgW; Thu,  6 Aug 2020 16:08:37 +0000 (UTC)
+	with ESMTP id ycT1McipMpGf; Thu,  6 Aug 2020 17:28:16 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 3F040204B2;
-	Thu,  6 Aug 2020 16:08:37 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 89FD6869F4;
+	Thu,  6 Aug 2020 17:28:16 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2326AC0051;
-	Thu,  6 Aug 2020 16:08:37 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 56E5EC004C
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 69816C0050;
+	Thu,  6 Aug 2020 17:28:15 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4F2D1C004C
  for <virtualization@lists.linux-foundation.org>;
- Thu,  6 Aug 2020 16:08:35 +0000 (UTC)
+ Thu,  6 Aug 2020 17:28:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 44ACD88574
+ by whitealder.osuosl.org (Postfix) with ESMTP id 3812C883D1
  for <virtualization@lists.linux-foundation.org>;
- Thu,  6 Aug 2020 16:08:35 +0000 (UTC)
+ Thu,  6 Aug 2020 17:28:14 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0jC-tBT0QBWc
+ with ESMTP id tovLtTKL5krW
  for <virtualization@lists.linux-foundation.org>;
- Thu,  6 Aug 2020 16:08:34 +0000 (UTC)
+ Thu,  6 Aug 2020 17:28:13 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from youngberry.canonical.com (youngberry.canonical.com
- [91.189.89.112])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 43B2C8855F
+Received: from us-smtp-delivery-1.mimecast.com (us-smtp-2.mimecast.com
+ [207.211.31.81])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 92BA7883C4
  for <virtualization@lists.linux-foundation.org>;
- Thu,  6 Aug 2020 16:08:34 +0000 (UTC)
-Received: from 1.general.cking.uk.vpn ([10.172.193.212] helo=localhost)
- by youngberry.canonical.com with esmtpsa
- (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128) (Exim 4.86_2)
- (envelope-from <colin.king@canonical.com>)
- id 1k3iRR-0001NL-01; Thu, 06 Aug 2020 16:08:29 +0000
-From: Colin King <colin.king@canonical.com>
-To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Eli Cohen <eli@mellanox.com>, Parav Pandit <parav@mellanox.com>,
- virtualization@lists.linux-foundation.org
-Subject: [PATCH][next] vdpa/mlx5: fix memory allocation failure checks
-Date: Thu,  6 Aug 2020 17:08:28 +0100
-Message-Id: <20200806160828.90463-1-colin.king@canonical.com>
-X-Mailer: git-send-email 2.27.0
+ Thu,  6 Aug 2020 17:28:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1596734892;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=MwHd6CcJYEmEuf+YoO55dE8m5E0R87S7YH74U/aXf1A=;
+ b=Wzydsvz+CgFV08PnSwCga3m51Yl0+Yh98F/ELo+/7zTJMQIwrdni7S5cuddE4bVPl3k70D
+ n7zVtcl+KMA1fkDj25156nCeq6nH3cMzzsmOXalPwxzAMLxPGgsTZEPwKSpXJi7vQYUdBg
+ cUUxwACifn8/+2iPNocajYDVCPiq6Zc=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-121-yw4yRZZJNTKvU8TjJjHtNg-1; Thu, 06 Aug 2020 13:28:10 -0400
+X-MC-Unique: yw4yRZZJNTKvU8TjJjHtNg-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
+ [10.5.11.13])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 34FF6106F8C4;
+ Thu,  6 Aug 2020 17:28:09 +0000 (UTC)
+Received: from horse.redhat.com (ovpn-112-23.rdu2.redhat.com [10.10.112.23])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id D74767C0E5;
+ Thu,  6 Aug 2020 17:28:02 +0000 (UTC)
+Received: by horse.redhat.com (Postfix, from userid 10451)
+ id 47886220441; Thu,  6 Aug 2020 13:28:02 -0400 (EDT)
+Date: Thu, 6 Aug 2020 13:28:02 -0400
+From: Vivek Goyal <vgoyal@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v3 31/38] virtio_fs: convert to LE accessors
+Message-ID: <20200806172802.GD367847@redhat.com>
+References: <20200805134226.1106164-1-mst@redhat.com>
+ <20200805134226.1106164-32-mst@redhat.com>
 MIME-Version: 1.0
-Cc: kernel-janitors@vger.kernel.org, linux-kernel@vger.kernel.org
+Content-Disposition: inline
+In-Reply-To: <20200805134226.1106164-32-mst@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+Cc: linux-fsdevel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ linux-kernel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
+ Miklos Szeredi <miklos@szeredi.hu>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -81,85 +106,37 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Colin Ian King <colin.king@canonical.com>
+On Wed, Aug 05, 2020 at 09:44:39AM -0400, Michael S. Tsirkin wrote:
+> Virtio fs is modern-only. Use LE accessors for config space.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-The memory allocation failure checking for in and out is currently
-checking if the pointers are valid rather than the contents of what
-they point to. Hence the null check on failed memory allocations is
-incorrect.  Fix this by adding the missing indirection in the check.
-Also for the default case, just set the *in and *out to null as
-these don't have any thing allocated to kfree. Finally remove the
-redundant *in and *out check as these have been already done on each
-allocation in the case statement.
+Acked-by: Vivek Goyal <vgoyal@redhat.com>
 
-Addresses-Coverity: ("Null pointer dereference")
-Fixes: 1a86b377aa21 ("vdpa/mlx5: Add VDPA driver for supported mlx5 devices")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
----
- drivers/vdpa/mlx5/net/mlx5_vnet.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+Vivek
 
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index 3ec44a4f0e45..55bc58e1dae9 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -867,7 +867,7 @@ static void alloc_inout(struct mlx5_vdpa_net *ndev, int cmd, void **in, int *inl
- 		*outlen = MLX5_ST_SZ_BYTES(qp_2rst_out);
- 		*in = kzalloc(*inlen, GFP_KERNEL);
- 		*out = kzalloc(*outlen, GFP_KERNEL);
--		if (!in || !out)
-+		if (!*in || !*out)
- 			goto outerr;
- 
- 		MLX5_SET(qp_2rst_in, *in, opcode, cmd);
-@@ -879,7 +879,7 @@ static void alloc_inout(struct mlx5_vdpa_net *ndev, int cmd, void **in, int *inl
- 		*outlen = MLX5_ST_SZ_BYTES(rst2init_qp_out);
- 		*in = kzalloc(*inlen, GFP_KERNEL);
- 		*out = kzalloc(MLX5_ST_SZ_BYTES(rst2init_qp_out), GFP_KERNEL);
--		if (!in || !out)
-+		if (!*in || !*out)
- 			goto outerr;
- 
- 		MLX5_SET(rst2init_qp_in, *in, opcode, cmd);
-@@ -896,7 +896,7 @@ static void alloc_inout(struct mlx5_vdpa_net *ndev, int cmd, void **in, int *inl
- 		*outlen = MLX5_ST_SZ_BYTES(init2rtr_qp_out);
- 		*in = kzalloc(*inlen, GFP_KERNEL);
- 		*out = kzalloc(MLX5_ST_SZ_BYTES(init2rtr_qp_out), GFP_KERNEL);
--		if (!in || !out)
-+		if (!*in || !*out)
- 			goto outerr;
- 
- 		MLX5_SET(init2rtr_qp_in, *in, opcode, cmd);
-@@ -914,7 +914,7 @@ static void alloc_inout(struct mlx5_vdpa_net *ndev, int cmd, void **in, int *inl
- 		*outlen = MLX5_ST_SZ_BYTES(rtr2rts_qp_out);
- 		*in = kzalloc(*inlen, GFP_KERNEL);
- 		*out = kzalloc(MLX5_ST_SZ_BYTES(rtr2rts_qp_out), GFP_KERNEL);
--		if (!in || !out)
-+		if (!*in || !*out)
- 			goto outerr;
- 
- 		MLX5_SET(rtr2rts_qp_in, *in, opcode, cmd);
-@@ -927,16 +927,15 @@ static void alloc_inout(struct mlx5_vdpa_net *ndev, int cmd, void **in, int *inl
- 		MLX5_SET(qpc, qpc, rnr_retry, 7);
- 		break;
- 	default:
--		goto outerr;
-+		goto outerr_nullify;
- 	}
--	if (!*in || !*out)
--		goto outerr;
- 
- 	return;
- 
- outerr:
- 	kfree(*in);
- 	kfree(*out);
-+outerr_nullify:
- 	*in = NULL;
- 	*out = NULL;
- }
--- 
-2.27.0
+> ---
+>  fs/fuse/virtio_fs.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+> index 4c4ef5d69298..104f35de5270 100644
+> --- a/fs/fuse/virtio_fs.c
+> +++ b/fs/fuse/virtio_fs.c
+> @@ -606,8 +606,8 @@ static int virtio_fs_setup_vqs(struct virtio_device *vdev,
+>  	unsigned int i;
+>  	int ret = 0;
+>  
+> -	virtio_cread(vdev, struct virtio_fs_config, num_request_queues,
+> -		     &fs->num_request_queues);
+> +	virtio_cread_le(vdev, struct virtio_fs_config, num_request_queues,
+> +			&fs->num_request_queues);
+>  	if (fs->num_request_queues == 0)
+>  		return -EINVAL;
+>  
+> -- 
+> MST
+> 
 
 _______________________________________________
 Virtualization mailing list
