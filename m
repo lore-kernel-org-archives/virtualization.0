@@ -2,103 +2,116 @@ Return-Path: <SRS0=OwTx=BQ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1589AC433DF
-	for <virtualization@archiver.kernel.org>; Thu,  6 Aug 2020 11:32:59 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6684C433E0
+	for <virtualization@archiver.kernel.org>; Thu,  6 Aug 2020 11:51:05 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A24ED22D04
-	for <virtualization@archiver.kernel.org>; Thu,  6 Aug 2020 11:32:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 6AD1922CF7
+	for <virtualization@archiver.kernel.org>; Thu,  6 Aug 2020 11:51:05 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="0sTLMzAi"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A24ED22D04
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fJSZquCO"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6AD1922CF7
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 77EB62035D;
-	Thu,  6 Aug 2020 11:32:58 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 0DC0E887C1;
+	Thu,  6 Aug 2020 05:53:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Uw4OTsy6Qick; Thu,  6 Aug 2020 11:32:55 +0000 (UTC)
+	with ESMTP id BoEL08MLd-8o; Thu,  6 Aug 2020 05:53:19 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id A861B203C8;
-	Thu,  6 Aug 2020 11:32:55 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 28DC288780;
+	Thu,  6 Aug 2020 05:53:19 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 51F00C0050;
-	Thu,  6 Aug 2020 11:32:55 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 12411C004C
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1693BC0050;
+	Thu,  6 Aug 2020 05:53:19 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DC5C8C004C
  for <virtualization@lists.linux-foundation.org>;
- Thu,  6 Aug 2020 11:32:54 +0000 (UTC)
+ Thu,  6 Aug 2020 05:53:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id F33B688270
+ by hemlock.osuosl.org (Postfix) with ESMTP id CFC2A88782
  for <virtualization@lists.linux-foundation.org>;
- Thu,  6 Aug 2020 11:32:53 +0000 (UTC)
+ Thu,  6 Aug 2020 05:53:16 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Zspz68LaYQpi
+ with ESMTP id R+R8YCw6gtdo
  for <virtualization@lists.linux-foundation.org>;
- Thu,  6 Aug 2020 11:32:52 +0000 (UTC)
+ Thu,  6 Aug 2020 05:53:16 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from merlin.infradead.org (merlin.infradead.org [205.233.59.134])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 4A8BA88267
+Received: from us-smtp-delivery-1.mimecast.com (us-smtp-1.mimecast.com
+ [207.211.31.81])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id E1AA088780
  for <virtualization@lists.linux-foundation.org>;
- Thu,  6 Aug 2020 11:32:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
- References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
- Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=HOHNK/Wwh4r+dLOwnbPsU+//UraXJR2JWx5StwnIbMY=; b=0sTLMzAiW/vkKYsNYbSBHPq85f
- 7mIVV3rtllIgLSoMUwHAx9bADSCyheIH3Vr9XuIsGYReUNEAeMFktXRBu1XGBWeKZkxtRReusdh5U
- JP2iR2+gZwXB7UvdMSRaKIlxmNQzO4osCTSBUOsGVvHgXjH/oys9VGYosHPXvwyai9EngYMt+4WJ1
- Lqj0FhWGWo/eSn4zUPc+aABDW5olIlv2gNInI59OVWK28yozeQFOlUGnqVEd3qFbE+rc462ZjgGNA
- mtKAu9/0zoXyyrb+scimVCT3nXnZz/RDf8/lv9RxevxiT/NPDVfZn41zArdgtRIFA3o4G3bZXHiyU
- YgEHUOZw==;
-Received: from j217100.upc-j.chello.nl ([24.132.217.100]
- helo=noisy.programming.kicks-ass.net)
- by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
- id 1k3e8V-0006OU-91; Thu, 06 Aug 2020 11:32:39 +0000
-Received: from hirez.programming.kicks-ass.net
- (hirez.programming.kicks-ass.net [192.168.1.225])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 33BE7300446;
- Thu,  6 Aug 2020 13:32:36 +0200 (CEST)
-Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
- id 0DD6F2B61F1E7; Thu,  6 Aug 2020 13:32:36 +0200 (CEST)
-Date: Thu, 6 Aug 2020 13:32:36 +0200
-From: peterz@infradead.org
-To: Marco Elver <elver@google.com>
-Subject: Re: [PATCH] x86/paravirt: Add missing noinstr to arch_local*() helpers
-Message-ID: <20200806113236.GZ2674@hirez.programming.kicks-ass.net>
-References: <0000000000007d3b2d05ac1c303e@google.com>
- <20200805132629.GA87338@elver.google.com>
- <20200805134232.GR2674@hirez.programming.kicks-ass.net>
- <20200805135940.GA156343@elver.google.com>
- <20200805141237.GS2674@hirez.programming.kicks-ass.net>
- <20200805141709.GD35926@hirez.programming.kicks-ass.net>
- <CANpmjNN6FWZ+MsAn3Pj+WEez97diHzqF8hjONtHG15C2gSpSgw@mail.gmail.com>
- <CANpmjNNy3XKQqgrjGPPKKvXhAoF=mae7dk8hmoS4k4oNnnB=KA@mail.gmail.com>
- <20200806074723.GA2364872@elver.google.com>
+ Thu,  6 Aug 2020 05:53:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1596693194;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=g0AG8W/Xs0dRN98tWfYfSB2XGEBT9FxGN8gSm2qY254=;
+ b=fJSZquCOxOFKzkNh2x7kOF0rJB5tTrsnLAsR0MS33EU49omBMjxD0wq0lQ1wFGk+CRAre+
+ wqZIpKTleMxHPQnkOe0n1xMklAEfFvCJHhsIjVq3rB6tuSQhtzd/Uq7hYpVk1w4YXSTzAj
+ oM37i24buqvz+o5xUol1988Q+lU5H8g=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-207-OlXg88TCOGyurV3I9SsErA-1; Thu, 06 Aug 2020 01:53:12 -0400
+X-MC-Unique: OlXg88TCOGyurV3I9SsErA-1
+Received: by mail-wr1-f70.google.com with SMTP id f14so14232634wrm.22
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 05 Aug 2020 22:53:12 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to;
+ bh=g0AG8W/Xs0dRN98tWfYfSB2XGEBT9FxGN8gSm2qY254=;
+ b=e/KutIgVfwiad2X0q26sXBYE6McsliU2kJPGbtVwPEQqGVcFs/ym9rYtKlIlQCd5Zf
+ kqRXtMJEQrjNdRib9VECAw2MqERVAsp9gt52KXTl+dG5PQoXTzd8FLg8+dBuH/epmbAt
+ wyJN2/TJrJckrydsm/aUbCPrucr4/Ow24yctP2K7KzOf0PEorB3C6IXCakmUOErt4EKP
+ U0qyJdgf/lClEJCPVxDhsZbsstKkpXNKQQT3+oTteBXZ8TQXg60qq2kik75RIKzwU4Pa
+ m4VYivFzfBgmHIrhlmcwyL2lFZjOiwGzIlEvKPiVwnyAjMZ7jpkLhXz+8dsrS8GWB+GU
+ BcaQ==
+X-Gm-Message-State: AOAM531xLX1LtH0GSw7u5i7wp6cRaNkoOZ3A7ILlCmb+X08bdWjBVc6i
+ 2phO3Jw2OV/T+kLF7M2Wvyb6KJwDQlw1wBKdDaDgSf2h3/Lxs1zqXnD7EeJ4OdGyvHF/9GuvCS/
+ YObGSgIyghCz53y6RnSZirRGmZRyXnM6mdgpeeL5nEQ==
+X-Received: by 2002:a7b:c7c6:: with SMTP id z6mr6718363wmk.17.1596693191726;
+ Wed, 05 Aug 2020 22:53:11 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJx8a6tMavB7+5XSSwiab+2Y4P011aP3x8ME+5gxJCOmpF1HTdWOiE5IV+wyb5jc2wMEZEBy6w==
+X-Received: by 2002:a7b:c7c6:: with SMTP id z6mr6718355wmk.17.1596693191496;
+ Wed, 05 Aug 2020 22:53:11 -0700 (PDT)
+Received: from redhat.com (bzq-79-177-102-128.red.bezeqint.net.
+ [79.177.102.128])
+ by smtp.gmail.com with ESMTPSA id f15sm4931149wmj.39.2020.08.05.22.53.10
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 05 Aug 2020 22:53:10 -0700 (PDT)
+Date: Thu, 6 Aug 2020 01:53:08 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH v2 19/24] vdpa: make sure set_features in invoked for
+ legacy
+Message-ID: <20200806015112-mutt-send-email-mst@kernel.org>
+References: <20200803205814.540410-1-mst@redhat.com>
+ <20200803205814.540410-20-mst@redhat.com>
+ <9e47d227-f220-4651-dcb9-7a11f059a715@redhat.com>
+ <20200805073929-mutt-send-email-mst@kernel.org>
+ <bd915b30-0604-da1b-343f-e228bce4d1d8@redhat.com>
 MIME-Version: 1.0
+In-Reply-To: <bd915b30-0604-da1b-343f-e228bce4d1d8@redhat.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <20200806074723.GA2364872@elver.google.com>
-Cc: jgross@suse.com, fenghua.yu@intel.com, yu-cheng.yu@intel.com, "Luck,
- Tony" <tony.luck@intel.com>, Dave Hansen <dave.hansen@linux.intel.com>,
- syzkaller-bugs <syzkaller-bugs@googlegroups.com>,
- LKML <linux-kernel@vger.kernel.org>, kasan-dev <kasan-dev@googlegroups.com>,
- virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>,
- Thomas Gleixner <tglx@linutronix.de>,
- syzbot <syzbot+8db9e1ecde74e590a657@syzkaller.appspotmail.com>,
- the arch/x86 maintainers <x86@kernel.org>
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -110,199 +123,32 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Aug 06, 2020 at 09:47:23AM +0200, Marco Elver wrote:
-> Testing my hypothesis that raw then nested non-raw
-> local_irq_save/restore() breaks IRQ state tracking -- see the reproducer
-> below. This is at least 1 case I can think of that we're bound to hit.
-
-Aaargh!
-
-> diff --git a/init/main.c b/init/main.c
-> index 15bd0efff3df..0873319dcff4 100644
-> --- a/init/main.c
-> +++ b/init/main.c
-> @@ -1041,6 +1041,22 @@ asmlinkage __visible void __init start_kernel(void)
->  	sfi_init_late();
->  	kcsan_init();
->  
-> +	/* DEBUG CODE */
-> +	lockdep_assert_irqs_enabled(); /* Pass. */
-> +	{
-> +		unsigned long flags1;
-> +		raw_local_irq_save(flags1);
-
-This disables IRQs but doesn't trace..
-
-> +		{
-> +			unsigned long flags2;
-> +			lockdep_assert_irqs_enabled(); /* Pass - expectedly blind. */
-
-Indeed, we didn't trace the above disable, so software state is still
-on.
-
-> +			local_irq_save(flags2);
-
-So here we save IRQ state, and unconditionally disable IRQs and trace
-them disabled.
-
-> +			lockdep_assert_irqs_disabled(); /* Pass. */
-> +			local_irq_restore(flags2);
-
-But here, we restore IRQ state to 'disabled' and explicitly trace it
-disabled *again* (which is a bit daft, but whatever).
-
-> +		}
-> +		raw_local_irq_restore(flags1);
-
-This then restores the IRQ state to enable, but no tracing.
-
-> +	}
-> +	lockdep_assert_irqs_enabled(); /* FAIL! */
-
-And we're out of sync... :/
-
-/me goes ponder things...
-
-How's something like this then?
-
----
- include/linux/sched.h |  3 ---
- kernel/kcsan/core.c   | 62 ++++++++++++++++++++++++++++++++++++---------------
- 2 files changed, 44 insertions(+), 21 deletions(-)
-
-diff --git a/include/linux/sched.h b/include/linux/sched.h
-index 06ec60462af0..2f5aef57e687 100644
---- a/include/linux/sched.h
-+++ b/include/linux/sched.h
-@@ -1193,9 +1193,6 @@ struct task_struct {
- 
- #ifdef CONFIG_KCSAN
- 	struct kcsan_ctx		kcsan_ctx;
--#ifdef CONFIG_TRACE_IRQFLAGS
--	struct irqtrace_events		kcsan_save_irqtrace;
--#endif
- #endif
- 
- #ifdef CONFIG_FUNCTION_GRAPH_TRACER
-diff --git a/kernel/kcsan/core.c b/kernel/kcsan/core.c
-index 9147ff6a12e5..9c4436bf0561 100644
---- a/kernel/kcsan/core.c
-+++ b/kernel/kcsan/core.c
-@@ -291,17 +291,50 @@ static inline unsigned int get_delay(void)
- 				0);
- }
- 
--void kcsan_save_irqtrace(struct task_struct *task)
-+/*
-+ * KCSAN hooks are everywhere, which means they're NMI like for interrupt
-+ * tracing. In order to present a 'normal' as possible context to the code
-+ * called by KCSAN when reporting errors we need to update the irq-tracing
-+ * state.
-+ *
-+ * Save and restore the IRQ state trace touched by KCSAN, since KCSAN's
-+ * runtime is entered for every memory access, and potentially useful
-+ * information is lost if dirtied by KCSAN.
-+ */
-+
-+struct kcsan_irq_state {
-+	unsigned long		flags;
-+#ifdef CONFIG_TRACE_IRQFLAGS
-+	int			hardirqs;
-+	struct irqtrace_events	irqtrace;
-+#endif
-+};
-+
-+void kcsan_save_irqtrace(struct kcsan_irq_state *irq_state)
- {
- #ifdef CONFIG_TRACE_IRQFLAGS
--	task->kcsan_save_irqtrace = task->irqtrace;
-+	irq_state->irqtrace = task->irqtrace;
-+	irq_state->hardirq = lockdep_hardirqs_enabled();
- #endif
-+	if (!kcsan_interrupt_watcher) {
-+		raw_local_irq_save(irq_state->flags);
-+		lockdep_hardirqs_off(CALLER_ADDR0);
-+	}
- }
- 
--void kcsan_restore_irqtrace(struct task_struct *task)
-+void kcsan_restore_irqtrace(struct kcsan_irq_state *irq_state)
- {
-+	if (!kcsan_interrupt_watcher) {
-+#ifdef CONFIG_TRACE_IRQFLAGS
-+		if (irq_state->hardirqs) {
-+			lockdep_hardirqs_on_prepare(CALLER_ADDR0);
-+			lockdep_hardirqs_on(CALLER_ADDR0);
-+		}
-+#endif
-+		raw_local_irq_restore(irq_state->flags);
-+	}
- #ifdef CONFIG_TRACE_IRQFLAGS
--	task->irqtrace = task->kcsan_save_irqtrace;
-+	task->irqtrace = irq_state->irqtrace;
- #endif
- }
- 
-@@ -350,11 +383,13 @@ static noinline void kcsan_found_watchpoint(const volatile void *ptr,
- 	flags = user_access_save();
- 
- 	if (consumed) {
--		kcsan_save_irqtrace(current);
-+		struct kcsan_irq_state irqstate;
-+
-+		kcsan_save_irqtrace(&irqstate);
- 		kcsan_report(ptr, size, type, KCSAN_VALUE_CHANGE_MAYBE,
- 			     KCSAN_REPORT_CONSUMED_WATCHPOINT,
- 			     watchpoint - watchpoints);
--		kcsan_restore_irqtrace(current);
-+		kcsan_restore_irqtrace(&irqstate);
- 	} else {
- 		/*
- 		 * The other thread may not print any diagnostics, as it has
-@@ -387,7 +422,7 @@ kcsan_setup_watchpoint(const volatile void *ptr, size_t size, int type)
- 	unsigned long access_mask;
- 	enum kcsan_value_change value_change = KCSAN_VALUE_CHANGE_MAYBE;
- 	unsigned long ua_flags = user_access_save();
--	unsigned long irq_flags = 0;
-+	struct kcsan_irq_state irqstate;
- 
- 	/*
- 	 * Always reset kcsan_skip counter in slow-path to avoid underflow; see
-@@ -412,14 +447,7 @@ kcsan_setup_watchpoint(const volatile void *ptr, size_t size, int type)
- 		goto out;
- 	}
- 
--	/*
--	 * Save and restore the IRQ state trace touched by KCSAN, since KCSAN's
--	 * runtime is entered for every memory access, and potentially useful
--	 * information is lost if dirtied by KCSAN.
--	 */
--	kcsan_save_irqtrace(current);
--	if (!kcsan_interrupt_watcher)
--		local_irq_save(irq_flags);
-+	kcsan_save_irqtrace(&irqstate);
- 
- 	watchpoint = insert_watchpoint((unsigned long)ptr, size, is_write);
- 	if (watchpoint == NULL) {
-@@ -559,9 +587,7 @@ kcsan_setup_watchpoint(const volatile void *ptr, size_t size, int type)
- 	remove_watchpoint(watchpoint);
- 	kcsan_counter_dec(KCSAN_COUNTER_USED_WATCHPOINTS);
- out_unlock:
--	if (!kcsan_interrupt_watcher)
--		local_irq_restore(irq_flags);
--	kcsan_restore_irqtrace(current);
-+	kcsan_restore_irqtrace(&irqstate);
- out:
- 	user_access_restore(ua_flags);
- }
-
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gVGh1LCBBdWcgMDYsIDIwMjAgYXQgMTE6MjM6MDVBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPiAKPiBPbiAyMDIwLzgvNSDkuIvljYg3OjQwLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6
+Cj4gPiBPbiBXZWQsIEF1ZyAwNSwgMjAyMCBhdCAwMjoxNDowN1BNICswODAwLCBKYXNvbiBXYW5n
+IHdyb3RlOgo+ID4gPiBPbiAyMDIwLzgvNCDkuIrljYg1OjAwLCBNaWNoYWVsIFMuIFRzaXJraW4g
+d3JvdGU6Cj4gPiA+ID4gU29tZSBsZWdhY3kgZ3Vlc3RzIGp1c3QgYXNzdW1lIGZlYXR1cmVzIGFy
+ZSAwIGFmdGVyIHJlc2V0Lgo+ID4gPiA+IFdlIGRldGVjdCB0aGF0IGNvbmZpZyBzcGFjZSBpcyBh
+Y2Nlc3NlZCBiZWZvcmUgZmVhdHVyZXMgYXJlCj4gPiA+ID4gc2V0IGFuZCBzZXQgZmVhdHVyZXMg
+dG8gMCBhdXRvbWF0aWNhbGx5Lgo+ID4gPiA+IE5vdGU6IHNvbWUgbGVnYWN5IGd1ZXN0cyBtaWdo
+dCBub3QgZXZlbiBhY2Nlc3MgY29uZmlnIHNwYWNlLCBpZiB0aGlzIGlzCj4gPiA+ID4gcmVwb3J0
+ZWQgaW4gdGhlIGZpZWxkIHdlIG1pZ2h0IG5lZWQgdG8gY2F0Y2ggYSBraWNrIHRvIGhhbmRsZSB0
+aGVzZS4KPiA+ID4gSSB3b25kZXIgd2hldGhlciBpdCdzIGVhc2llciB0byBqdXN0IHN1cHBvcnQg
+bW9kZXJuIGRldmljZT8KPiA+ID4gCj4gPiA+IFRoYW5rcwo+ID4gV2VsbCBoYXJkd2FyZSB2ZW5k
+b3JzIGFyZSBJIHRoaW5rIGludGVyZXN0ZWQgaW4gc3VwcG9ydGluZyBsZWdhY3kKPiA+IGd1ZXN0
+cy4gTGltaXRpbmcgdmRwYSB0byBtb2Rlcm4gb25seSB3b3VsZCBtYWtlIGl0IHVuY29tcGV0aXRp
+dmUuCj4gCj4gCj4gTXkgdW5kZXJzdGFuZGluZyBpcyB0aGF0LCBJT01NVV9QTEFURk9STSBpcyBt
+YW5kYXRvcnkgZm9yIGhhcmR3YXJlIHZEUEEgdG8KPiB3b3JrLgoKSG1tIEkgZG9uJ3QgcmVhbGx5
+IHNlZSB3aHkuIEFzc3VtZSBob3N0IG1hcHMgZ3Vlc3QgbWVtb3J5IHByb3Blcmx5LApWTSBkb2Vz
+IG5vdCBoYXZlIGFuIElPTU1VLCBsZWdhY3kgZ3Vlc3QgY2FuIGp1c3Qgd29yay4KCkNhcmUgZXhw
+bGFpbmluZyB3aGF0J3Mgd3Jvbmcgd2l0aCB0aGlzIHBpY3R1cmU/CgoKPiBTbyBpdCBjYW4gb25s
+eSB3b3JrIGZvciBtb2Rlcm4gZGV2aWNlIC4uLgo+IAo+IFRoYW5rcwo+IAo+IAo+ID4gCj4gPiAK
+PiA+IAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmly
+dHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5k
+YXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3Rp
+bmZvL3ZpcnR1YWxpemF0aW9u
