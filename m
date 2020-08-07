@@ -7,84 +7,85 @@ X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 797E1C433DF
-	for <virtualization@archiver.kernel.org>; Fri,  7 Aug 2020 10:54:47 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8B7BBC433DF
+	for <virtualization@archiver.kernel.org>; Fri,  7 Aug 2020 10:55:15 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 45BA620866
-	for <virtualization@archiver.kernel.org>; Fri,  7 Aug 2020 10:54:47 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 5876E20866
+	for <virtualization@archiver.kernel.org>; Fri,  7 Aug 2020 10:55:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WvePP41L"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 45BA620866
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VqghNvZx"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5876E20866
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id F099388736;
-	Fri,  7 Aug 2020 10:54:46 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id E4E44872EA;
+	Fri,  7 Aug 2020 10:55:14 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id VaDNiN3FizvZ; Fri,  7 Aug 2020 10:54:46 +0000 (UTC)
+	with ESMTP id phU7f9TEVCBA; Fri,  7 Aug 2020 10:55:14 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 2EA22886F9;
-	Fri,  7 Aug 2020 10:54:46 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 82505872DC;
+	Fri,  7 Aug 2020 10:55:14 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0FDE1C0050;
-	Fri,  7 Aug 2020 10:54:46 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 59E60C004C
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6A8A8C0050;
+	Fri,  7 Aug 2020 10:55:14 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E30F4C004C
  for <virtualization@lists.linux-foundation.org>;
- Fri,  7 Aug 2020 10:54:45 +0000 (UTC)
+ Fri,  7 Aug 2020 10:55:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 4E71B888DF
+ by fraxinus.osuosl.org (Postfix) with ESMTP id D3103872E2
  for <virtualization@lists.linux-foundation.org>;
- Fri,  7 Aug 2020 10:54:45 +0000 (UTC)
+ Fri,  7 Aug 2020 10:55:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id tLlpvUtutkNd
+ with ESMTP id 5LGL8NIbQbEp
  for <virtualization@lists.linux-foundation.org>;
- Fri,  7 Aug 2020 10:54:44 +0000 (UTC)
+ Fri,  7 Aug 2020 10:55:12 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-1.mimecast.com (us-smtp-1.mimecast.com
- [205.139.110.61])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 59DFA888C5
+Received: from us-smtp-1.mimecast.com (us-smtp-delivery-1.mimecast.com
+ [207.211.31.120])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 2C558872DC
  for <virtualization@lists.linux-foundation.org>;
- Fri,  7 Aug 2020 10:54:44 +0000 (UTC)
+ Fri,  7 Aug 2020 10:55:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1596797682;
+ s=mimecast20190719; t=1596797710;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc; bh=SebiSFSvaUNdq26nIA+KqtCZ23a0eXZDimZTww2A8Sg=;
- b=WvePP41L6Mg4GsWkttV1cVn11DQlAWzKz4WlMT8Jj+1JSXoPECwGy402l3jMsY0E9JHDbs
- IOBkrUjlLqpieG/73CWxjSviqfKZojFVQdIV+kj5/Qfr9CquJZCSBQZJcRIIXyaVH5vFAF
- ARwGTGpBt5blmXSmhmVdujFr9/kV2iQ=
+ to:to:cc:cc; bh=dwLIkWycUo2T9/Q0kymfmBAUfQhGmHg/IIypAw8eWxY=;
+ b=VqghNvZxS2h1eIkucRh6l64wAocX2aC+Ltrf3P5BRbJZI4BJLm83wBXmXGGp1nuqF53Y2I
+ uB3OxxWD3X9wP8+ZE7JtZAPFLve5lDbIPS3zVpWZP/mhotN45EggmK6bS8/FboZHFRMjb4
+ YX4iOdffwIiYYG1/qst+3/FndW4DUuI=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-112-UU5rZ_o5N1-B9dA0K-2Xzw-1; Fri, 07 Aug 2020 06:54:37 -0400
-X-MC-Unique: UU5rZ_o5N1-B9dA0K-2Xzw-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
- [10.5.11.12])
+ us-mta-297-n8usaWB9OYGy695j6f2rgw-1; Fri, 07 Aug 2020 06:55:09 -0400
+X-MC-Unique: n8usaWB9OYGy695j6f2rgw-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
+ [10.5.11.16])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6A2998005B0;
- Fri,  7 Aug 2020 10:54:35 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 50D5080BCAB;
+ Fri,  7 Aug 2020 10:55:06 +0000 (UTC)
 Received: from sirius.home.kraxel.org (ovpn-112-195.ams2.redhat.com
  [10.36.112.195])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 6B2F661176;
- Fri,  7 Aug 2020 10:54:30 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 621086179D;
+ Fri,  7 Aug 2020 10:55:02 +0000 (UTC)
 Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
- id 5A1689CBC; Fri,  7 Aug 2020 12:54:29 +0200 (CEST)
+ id 9513F9CBC; Fri,  7 Aug 2020 12:55:01 +0200 (CEST)
 From: Gerd Hoffmann <kraxel@redhat.com>
 To: dri-devel@lists.freedesktop.org
-Subject: [PATCH] drm/virtio: fix unblank
-Date: Fri,  7 Aug 2020 12:54:29 +0200
-Message-Id: <20200807105429.24208-1-kraxel@redhat.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Subject: [PATCH v2] drm/qxl: don't take vga ports on rev5+
+Date: Fri,  7 Aug 2020 12:55:01 +0200
+Message-Id: <20200807105501.24599-1-kraxel@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>,
- "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>,
- Daniel Vetter <daniel@ffwll.ch>, Chia-I Wu <olvaffe@gmail.com>,
- 1882851@bugs.launchpad.net
+ "open list:DRM DRIVER FOR QXL VIRTUAL GPU"
+ <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>,
+ "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>,
+ Dave Airlie <airlied@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -102,66 +103,47 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-When going through a disable/enable cycle without changing the
-framebuffer the optimization added by commit 3954ff10e06e ("drm/virtio:
-skip set_scanout if framebuffer didn't change") causes the screen stay
-blank.  Add a bool to force an update to fix that.
+qemu 5.0 introduces a new qxl hardware revision 5.  Unlike revision 4
+(and below) the device doesn't switch back into vga compatibility mode
+when someone touches the vga ports.  So we don't have to reserve the
+vga ports any more to avoid that happening.
 
-Cc: 1882851@bugs.launchpad.net
-Fixes: 3954ff10e06e ("drm/virtio: skip set_scanout if framebuffer didn't change")
 Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_drv.h     | 1 +
- drivers/gpu/drm/virtio/virtgpu_display.c | 1 +
- drivers/gpu/drm/virtio/virtgpu_plane.c   | 4 +++-
- 3 files changed, 5 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/qxl/qxl_drv.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 9ff9f4ac0522..7b0c319f23c9 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -138,6 +138,7 @@ struct virtio_gpu_output {
- 	int cur_x;
- 	int cur_y;
- 	bool enabled;
-+	bool need_update;
- };
- #define drm_crtc_to_virtio_gpu_output(x) \
- 	container_of(x, struct virtio_gpu_output, crtc)
-diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-index cc7fd957a307..378be5956b30 100644
---- a/drivers/gpu/drm/virtio/virtgpu_display.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-@@ -100,6 +100,7 @@ static void virtio_gpu_crtc_atomic_enable(struct drm_crtc *crtc,
- 	struct virtio_gpu_output *output = drm_crtc_to_virtio_gpu_output(crtc);
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
+index 13872b882775..6e7f16f4cec7 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.c
++++ b/drivers/gpu/drm/qxl/qxl_drv.c
+@@ -96,7 +96,7 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	if (ret)
+ 		goto disable_pci;
  
- 	output->enabled = true;
-+	output->need_update = true;
+-	if (is_vga(pdev)) {
++	if (is_vga(pdev) && pdev->revision < 5) {
+ 		ret = vga_get_interruptible(pdev, VGA_RSRC_LEGACY_IO);
+ 		if (ret) {
+ 			DRM_ERROR("can't get legacy vga ioports\n");
+@@ -127,7 +127,7 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ unload:
+ 	qxl_device_fini(qdev);
+ put_vga:
+-	if (is_vga(pdev))
++	if (is_vga(pdev) && pdev->revision < 5)
+ 		vga_put(pdev, VGA_RSRC_LEGACY_IO);
+ disable_pci:
+ 	pci_disable_device(pdev);
+@@ -155,7 +155,7 @@ qxl_pci_remove(struct pci_dev *pdev)
+ 
+ 	drm_dev_unregister(dev);
+ 	drm_atomic_helper_shutdown(dev);
+-	if (is_vga(pdev))
++	if (is_vga(pdev) && pdev->revision < 5)
+ 		vga_put(pdev, VGA_RSRC_LEGACY_IO);
  }
  
- static void virtio_gpu_crtc_atomic_disable(struct drm_crtc *crtc,
-diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-index 52d24179bcec..5948031a9ce8 100644
---- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-@@ -163,7 +163,8 @@ static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
- 	    plane->state->src_w != old_state->src_w ||
- 	    plane->state->src_h != old_state->src_h ||
- 	    plane->state->src_x != old_state->src_x ||
--	    plane->state->src_y != old_state->src_y) {
-+	    plane->state->src_y != old_state->src_y ||
-+	    output->need_update) {
- 		DRM_DEBUG("handle 0x%x, crtc %dx%d+%d+%d, src %dx%d+%d+%d\n",
- 			  bo->hw_res_handle,
- 			  plane->state->crtc_w, plane->state->crtc_h,
-@@ -178,6 +179,7 @@ static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
- 					   plane->state->src_h >> 16,
- 					   plane->state->src_x >> 16,
- 					   plane->state->src_y >> 16);
-+		output->need_update = false;
- 	}
- 
- 	virtio_gpu_cmd_resource_flush(vgdev, bo->hw_res_handle,
 -- 
 2.18.4
 
