@@ -2,71 +2,89 @@ Return-Path: <SRS0=Ra46=BR=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.0 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 08669C433DF
-	for <virtualization@archiver.kernel.org>; Fri,  7 Aug 2020 10:03:10 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2078C433DF
+	for <virtualization@archiver.kernel.org>; Fri,  7 Aug 2020 10:22:11 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B922020748
-	for <virtualization@archiver.kernel.org>; Fri,  7 Aug 2020 10:03:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B922020748
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.com
+	by mail.kernel.org (Postfix) with ESMTPS id 97BE42075D
+	for <virtualization@archiver.kernel.org>; Fri,  7 Aug 2020 10:22:11 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="XJSka808"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 97BE42075D
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 70356872CE;
-	Fri,  7 Aug 2020 10:03:09 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 4B42088528;
+	Fri,  7 Aug 2020 10:22:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id vNUu3hkQOkCH; Fri,  7 Aug 2020 10:03:07 +0000 (UTC)
+	with ESMTP id JuM1sJgWQqkm; Fri,  7 Aug 2020 10:22:10 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 6F32F872CA;
-	Fri,  7 Aug 2020 10:03:07 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 8139F88367;
+	Fri,  7 Aug 2020 10:22:10 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 448E8C0051;
-	Fri,  7 Aug 2020 10:03:07 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 59661C0050;
+	Fri,  7 Aug 2020 10:22:10 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4ECD2C004C
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0B928C004C
  for <virtualization@lists.linux-foundation.org>;
- Fri,  7 Aug 2020 10:03:05 +0000 (UTC)
+ Fri,  7 Aug 2020 10:22:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 8AF3020370
+ by silver.osuosl.org (Postfix) with ESMTP id CC3D22561C
  for <virtualization@lists.linux-foundation.org>;
- Fri,  7 Aug 2020 10:03:03 +0000 (UTC)
+ Fri,  7 Aug 2020 10:22:08 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 15v33sEzdeEd
+ with ESMTP id Znp9PngQOujD
  for <virtualization@lists.linux-foundation.org>;
- Fri,  7 Aug 2020 10:03:02 +0000 (UTC)
+ Fri,  7 Aug 2020 10:22:07 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by silver.osuosl.org (Postfix) with ESMTPS id EC19225281
+Received: from merlin.infradead.org (merlin.infradead.org [205.233.59.134])
+ by silver.osuosl.org (Postfix) with ESMTPS id 300FE254B8
  for <virtualization@lists.linux-foundation.org>;
- Fri,  7 Aug 2020 10:03:01 +0000 (UTC)
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id DAF6FAB9F;
- Fri,  7 Aug 2020 10:03:17 +0000 (UTC)
+ Fri,  7 Aug 2020 10:22:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Transfer-Encoding:
+ Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
+ Sender:Reply-To:Content-ID:Content-Description;
+ bh=4/VCHM/wzhSgd4qyRAmAC4AWdDxulH6gS0+92poTPxI=; b=XJSka808E+4ltstGU3BqwdVOtZ
+ hXkd+8kwG+mMF3YBC9gYdFKqQ0shdnwEeGlVgLK2rKX9zQM0cV+cX2kJ4LmaDy9pbGemoN/OFohKt
+ qnuXOPc82zBE1eZRt+Hlbu7DoTyuXW9ud2aYWjPMUx5Dw/3JDO4mQ3YCdTM4HEoCeY/awHrW5ttq7
+ yGPXiF6gmAUlT3tKwYWzxUSDGRDD8KGANnAswpVZO8evJINZiqIYWUR2sglBnT5anAp66EWDa3CPF
+ 1DOFDSa4vUFlAE+qdQ+8lQ3yc5sir2LRPdpMuROK+/SSyWXy9+HBgPYjDo4knnSw2IjRdxZeDX7ZH
+ TrODYMfA==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100]
+ helo=noisy.programming.kicks-ass.net)
+ by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+ id 1k3zVg-0002mK-4n; Fri, 07 Aug 2020 10:22:00 +0000
+Received: from hirez.programming.kicks-ass.net
+ (hirez.programming.kicks-ass.net [192.168.1.225])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (Client did not present a certificate)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id A12A33012DC;
+ Fri,  7 Aug 2020 12:21:58 +0200 (CEST)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+ id 89ED32B84E245; Fri,  7 Aug 2020 12:21:58 +0200 (CEST)
+Date: Fri, 7 Aug 2020 12:21:58 +0200
+From: peterz@infradead.org
+To: =?iso-8859-1?Q?J=FCrgen_Gro=DF?= <jgross@suse.com>
 Subject: Re: [PATCH v3 4/7] x86/paravirt: remove 32-bit support from
  PARAVIRT_XXL
-To: peterz@infradead.org
+Message-ID: <20200807102158.GG2674@hirez.programming.kicks-ass.net>
 References: <20200807083826.16794-1-jgross@suse.com>
  <20200807083826.16794-5-jgross@suse.com>
  <20200807093916.GF2674@hirez.programming.kicks-ass.net>
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-Message-ID: <3a0712ee-efca-5684-d321-3b789e01fc16@suse.com>
-Date: Fri, 7 Aug 2020 12:02:59 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+ <3a0712ee-efca-5684-d321-3b789e01fc16@suse.com>
 MIME-Version: 1.0
-In-Reply-To: <20200807093916.GF2674@hirez.programming.kicks-ass.net>
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <3a0712ee-efca-5684-d321-3b789e01fc16@suse.com>
 Cc: Stefano Stabellini <sstabellini@kernel.org>, "VMware,
  Inc." <pv-drivers@vmware.com>, x86@kernel.org, linux-kernel@vger.kernel.org,
  virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>,
@@ -85,59 +103,54 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="us-ascii"; Format="flowed"
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 07.08.20 11:39, peterz@infradead.org wrote:
-> On Fri, Aug 07, 2020 at 10:38:23AM +0200, Juergen Gross wrote:
-> 
->> -# else
->> -	const unsigned char	cpu_iret[1];
->> -# endif
->>   };
->>   
->>   static const struct patch_xxl patch_data_xxl = {
->> @@ -42,7 +38,6 @@ static const struct patch_xxl patch_data_xxl = {
->>   	.irq_save_fl		= { 0x9c, 0x58 },	// pushf; pop %[re]ax
->>   	.mmu_read_cr2		= { 0x0f, 0x20, 0xd0 },	// mov %cr2, %[re]ax
->>   	.mmu_read_cr3		= { 0x0f, 0x20, 0xd8 },	// mov %cr3, %[re]ax
->> -# ifdef CONFIG_X86_64
->>   	.mmu_write_cr3		= { 0x0f, 0x22, 0xdf },	// mov %rdi, %cr3
->>   	.irq_restore_fl		= { 0x57, 0x9d },	// push %rdi; popfq
->>   	.cpu_wbinvd		= { 0x0f, 0x09 },	// wbinvd
->> @@ -50,19 +45,11 @@ static const struct patch_xxl patch_data_xxl = {
->>   				    0x48, 0x0f, 0x07 },	// swapgs; sysretq
->>   	.cpu_swapgs		= { 0x0f, 0x01, 0xf8 },	// swapgs
->>   	.mov64			= { 0x48, 0x89, 0xf8 },	// mov %rdi, %rax
->> -# else
->> -	.mmu_write_cr3		= { 0x0f, 0x22, 0xd8 },	// mov %eax, %cr3
->> -	.irq_restore_fl		= { 0x50, 0x9d },	// push %eax; popf
->> -	.cpu_iret		= { 0xcf },		// iret
->> -# endif
-> 
-> I was looking at x86_64 paravirt the other day and found we actually
-> have pv_ops.cpu.iret users there..
+On Fri, Aug 07, 2020 at 12:02:59PM +0200, J=FCrgen Gro=DF wrote:
+> On 07.08.20 11:39, peterz@infradead.org wrote:
+> > On Fri, Aug 07, 2020 at 10:38:23AM +0200, Juergen Gross wrote:
+> > =
 
-On x86_64 we have (without PARAVIRT_XXL):
+> > > -# else
+> > > -	const unsigned char	cpu_iret[1];
+> > > -# endif
+> > >   };
+> > >   static const struct patch_xxl patch_data_xxl =3D {
+> > > @@ -42,7 +38,6 @@ static const struct patch_xxl patch_data_xxl =3D {
+> > >   	.irq_save_fl		=3D { 0x9c, 0x58 },	// pushf; pop %[re]ax
+> > >   	.mmu_read_cr2		=3D { 0x0f, 0x20, 0xd0 },	// mov %cr2, %[re]ax
+> > >   	.mmu_read_cr3		=3D { 0x0f, 0x20, 0xd8 },	// mov %cr3, %[re]ax
+> > > -# ifdef CONFIG_X86_64
+> > >   	.mmu_write_cr3		=3D { 0x0f, 0x22, 0xdf },	// mov %rdi, %cr3
+> > >   	.irq_restore_fl		=3D { 0x57, 0x9d },	// push %rdi; popfq
+> > >   	.cpu_wbinvd		=3D { 0x0f, 0x09 },	// wbinvd
+> > > @@ -50,19 +45,11 @@ static const struct patch_xxl patch_data_xxl =3D {
+> > >   				    0x48, 0x0f, 0x07 },	// swapgs; sysretq
+> > >   	.cpu_swapgs		=3D { 0x0f, 0x01, 0xf8 },	// swapgs
+> > >   	.mov64			=3D { 0x48, 0x89, 0xf8 },	// mov %rdi, %rax
+> > > -# else
+> > > -	.mmu_write_cr3		=3D { 0x0f, 0x22, 0xd8 },	// mov %eax, %cr3
+> > > -	.irq_restore_fl		=3D { 0x50, 0x9d },	// push %eax; popf
+> > > -	.cpu_iret		=3D { 0xcf },		// iret
+> > > -# endif
+> > =
 
-#define INTERRUPT_RETURN        jmp native_iret
+> > I was looking at x86_64 paravirt the other day and found we actually
+> > have pv_ops.cpu.iret users there..
+> =
 
-and with PARAVIRT_XXL this is basically a jmp *pv_ops.cpu.iret which
-will then be patched to either jmp native_iret or jmp xen_iret.
+> On x86_64 we have (without PARAVIRT_XXL):
+> =
 
-On x86_32 INTERRUPT_RETURN was just "iret" for the non-paravirt case.
-This is the reason for above dropping of the static patch data.
+> #define INTERRUPT_RETURN        jmp native_iret
+> =
 
-> So we want to change the above to also patch iret on x86_64 or do we
-> need to fix x86_64 to not have pv-iret?
+> and with PARAVIRT_XXL this is basically a jmp *pv_ops.cpu.iret which
+> will then be patched to either jmp native_iret or jmp xen_iret.
 
-We want it to stay how it is. This will let both variants (PARVIRT y/n)
-continue to work.
-
-
-Juergen
+Ah, okay. Clearly I didn't look hard enough. Thanks!
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
