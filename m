@@ -2,82 +2,83 @@ Return-Path: <SRS0=GaRw=BU=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E99D7C433E0
-	for <virtualization@archiver.kernel.org>; Mon, 10 Aug 2020 07:56:55 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2EA44C433E0
+	for <virtualization@archiver.kernel.org>; Mon, 10 Aug 2020 07:57:48 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id AD6452065C
-	for <virtualization@archiver.kernel.org>; Mon, 10 Aug 2020 07:56:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 03AD72065C
+	for <virtualization@archiver.kernel.org>; Mon, 10 Aug 2020 07:57:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="caF/oSET"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AD6452065C
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ATKeEPkd"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 03AD72065C
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 5FB9722618;
-	Mon, 10 Aug 2020 07:56:55 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id KEuqBPOAW0fX; Mon, 10 Aug 2020 07:56:51 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id D4C80204F5;
-	Mon, 10 Aug 2020 07:56:51 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C8817C0864;
-	Mon, 10 Aug 2020 07:56:51 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4A824C004D
- for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Aug 2020 07:56:51 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 406A58650A
- for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Aug 2020 07:56:51 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id CAF248651A;
+	Mon, 10 Aug 2020 07:57:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 3VkpTsEYhqyD
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id eyEOpGsLbuGL; Mon, 10 Aug 2020 07:57:47 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 374608650A;
+	Mon, 10 Aug 2020 07:57:47 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 21BB0C0864;
+	Mon, 10 Aug 2020 07:57:47 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6BC0EC004D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Aug 2020 07:56:50 +0000 (UTC)
+ Mon, 10 Aug 2020 07:57:46 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by hemlock.osuosl.org (Postfix) with ESMTP id 59D9288552
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 10 Aug 2020 07:57:46 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from hemlock.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id wjR5hyt6DT5w
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 10 Aug 2020 07:57:44 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-1.mimecast.com (us-smtp-1.mimecast.com
  [207.211.31.81])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 4574F864F4
+ by hemlock.osuosl.org (Postfix) with ESMTPS id C655488541
  for <virtualization@lists.linux-foundation.org>;
- Mon, 10 Aug 2020 07:56:50 +0000 (UTC)
+ Mon, 10 Aug 2020 07:57:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1597046208;
+ s=mimecast20190719; t=1597046262;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
- bh=3gHZrGopRj+/QtDb/9N2USnjAmR/1np+CUt5Rx5vS9w=;
- b=caF/oSETzApJmuRC5VDdcjQAl8SK+i7GM+TUYttFanaBHLN/w6+f58MPD37O8NxvZbOIHw
- B4fBq5By1DemO2rScyNJJhahcBT92H+ynAErH1OLU/oVYK/ZkmnV/NOvTZAI/y19NKgD6s
- qz/GI9gKm6cumjxJ+g0CFOZJdMNFPAA=
+ bh=cZPezFbWiT9PkK+wa2QAJSnHNLCxBL+dXB3lxWNvMYw=;
+ b=ATKeEPkdOeqGJ5mEEied6uvp+fRrvfc9JGsUPqAHEHM3PCTjU9MlvoGobOgh1EO+fnadbF
+ I4sUfRKIO6UBVZtBnLzXiC0uoT8XuxY3RaW/iK/7Gl3/VtxWgu5SvLLRG5/7t+KHR4pPmt
+ RFynA8aT9iewxCWVUrWmRvhzOwMZBw4=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-241-CWsEjFvDOfab41_2em0s8w-1; Mon, 10 Aug 2020 03:56:44 -0400
-X-MC-Unique: CWsEjFvDOfab41_2em0s8w-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
- [10.5.11.14])
+ us-mta-305-BQ-i2sU1ORmz7J_ofidLRw-1; Mon, 10 Aug 2020 03:57:40 -0400
+X-MC-Unique: BQ-i2sU1ORmz7J_ofidLRw-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
+ [10.5.11.12])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6078B800474;
- Mon, 10 Aug 2020 07:56:42 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B3699800465;
+ Mon, 10 Aug 2020 07:57:39 +0000 (UTC)
 Received: from [10.36.113.172] (ovpn-113-172.ams2.redhat.com [10.36.113.172])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 181075D9E7;
- Mon, 10 Aug 2020 07:56:33 +0000 (UTC)
-Subject: Re: [PATCH v4 0/6] mm / virtio-mem: support ZONE_MOVABLE
-To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>
-References: <20200804194142.28279-1-david@redhat.com>
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 7695560BE2;
+ Mon, 10 Aug 2020 07:57:34 +0000 (UTC)
+Subject: Re: [PATCH v3 35/38] virtio_mem: convert to LE accessors
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+References: <20200805134226.1106164-1-mst@redhat.com>
+ <20200805134226.1106164-36-mst@redhat.com>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
  mQINBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -124,19 +125,15 @@ Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat GmbH
-Message-ID: <baaf5992-cf43-69c1-7257-a5aa0a470ab8@redhat.com>
-Date: Mon, 10 Aug 2020 09:56:32 +0200
+Message-ID: <c9de539a-609d-957b-8e08-befd4a17b7e7@redhat.com>
+Date: Mon, 10 Aug 2020 09:57:33 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20200804194142.28279-1-david@redhat.com>
+In-Reply-To: <20200805134226.1106164-36-mst@redhat.com>
 Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Michal Hocko <mhocko@suse.com>,
- Baoquan He <bhe@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
- Qian Cai <cai@lca.pw>, Mike Rapoport <rppt@linux.ibm.com>,
- Mike Rapoport <rppt@kernel.org>, Mike Kravetz <mike.kravetz@oracle.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Cc: virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -153,75 +150,75 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 04.08.20 21:41, David Hildenbrand wrote:
-> @Andrew can we give this a churn and consider it for v5.9 in case there
-> are no more comments?
-
-@Andrew, Ping, so I assume we'll target v5.10?
-
-
+On 05.08.20 15:44, Michael S. Tsirkin wrote:
+> Virtio mem is modern-only. Use LE accessors for config space.
 > 
-> Patch #1-#4,#6 have RBss or ACKs, patch #5 is virtio-mem stuff maintained
-> by me (and MST is aware).
-> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > ---
+>  drivers/virtio/virtio_mem.c | 30 +++++++++++++++---------------
+>  1 file changed, 15 insertions(+), 15 deletions(-)
 > 
-> When introducing virtio-mem, the semantics of ZONE_MOVABLE were rather
-> unclear, which is why we special-cased ZONE_MOVABLE such that partially
-> plugged blocks would never end up in ZONE_MOVABLE.
-> 
-> Now that the semantics are much clearer (and are documented in patch #6),
-> let's support partially plugged memory blocks in ZONE_MOVABLE, allowing
-> partially plugged memory blocks to be online to ZONE_MOVABLE and also
-> unplugging from such memory blocks. This avoids surprises when onlining
-> of memory blocks suddenly fails, just because they are not completely
-> populated by virtio-mem (yet).
-> 
-> This is especially helpful for testing, but also paves the way for
-> virtio-mem optimizations, allowing more memory to get reliably unplugged.
-> 
-> Cleanup has_unmovable_pages() and set_migratetype_isolate(), providing
-> better documentation of how ZONE_MOVABLE interacts with different kind of
-> unmovable pages (memory offlining vs. alloc_contig_range()).
-> 
-> v3 -> v4:
-> - "mm/page_isolation: drop WARN_ON_ONCE() in set_migratetype_isolate()"
-> -- Fix typo in description
-> - "virtio-mem: don't special-case ZONE_MOVABLE"
-> -- Add more details why we initialli special-cased ZONE_MOVABLE (via MST)
-> - "mm: document semantics of ZONE_MOVABLE"
-> -- Rephrase some parts of documentation (via Mike)
-> 
-> v2 -> v3:
-> - "mm: document semantics of ZONE_MOVABLE"
-> -- Fix a typo
-> 
-> v1 -> v2:
-> - "mm/page_isolation: don't dump_page(NULL) in set_migratetype_isolate()"
-> -- Move to position 1, add Fixes: tag
-> -- Drop unused "out:" label
-> - "mm/page_isolation: drop WARN_ON_ONCE() in set_migratetype_isolate()"
-> -- Keep curly braces on "else" case
-> - Replace "[PATCH v1 5/6] mm/page_alloc: restrict ZONE_MOVABLE optimization
->            in has_unmovable_pages() to memory offlining"
->   by "mm: document semantics of ZONE_MOVABLE"
-> -- Brain dump of what I know about ZONE_MOVABLE
-> 
-> David Hildenbrand (6):
->   mm/page_isolation: don't dump_page(NULL) in set_migratetype_isolate()
->   mm/page_alloc: tweak comments in has_unmovable_pages()
->   mm/page_isolation: drop WARN_ON_ONCE() in set_migratetype_isolate()
->   mm/page_isolation: cleanup set_migratetype_isolate()
->   virtio-mem: don't special-case ZONE_MOVABLE
->   mm: document semantics of ZONE_MOVABLE
-> 
->  drivers/virtio/virtio_mem.c | 47 +++++++------------------------------
->  include/linux/mmzone.h      | 35 +++++++++++++++++++++++++++
->  mm/page_alloc.c             | 22 +++++------------
->  mm/page_isolation.c         | 39 ++++++++++++++----------------
->  4 files changed, 66 insertions(+), 77 deletions(-)
+> diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
+> index f26f5f64ae82..c08512fcea90 100644
+> --- a/drivers/virtio/virtio_mem.c
+> +++ b/drivers/virtio/virtio_mem.c
+> @@ -1530,21 +1530,21 @@ static void virtio_mem_refresh_config(struct virtio_mem *vm)
+>  	uint64_t new_plugged_size, usable_region_size, end_addr;
+>  
+>  	/* the plugged_size is just a reflection of what _we_ did previously */
+> -	virtio_cread(vm->vdev, struct virtio_mem_config, plugged_size,
+> -		     &new_plugged_size);
+> +	virtio_cread_le(vm->vdev, struct virtio_mem_config, plugged_size,
+> +			&new_plugged_size);
+>  	if (WARN_ON_ONCE(new_plugged_size != vm->plugged_size))
+>  		vm->plugged_size = new_plugged_size;
+>  
+>  	/* calculate the last usable memory block id */
+> -	virtio_cread(vm->vdev, struct virtio_mem_config,
+> -		     usable_region_size, &usable_region_size);
+> +	virtio_cread_le(vm->vdev, struct virtio_mem_config,
+> +			usable_region_size, &usable_region_size);
+>  	end_addr = vm->addr + usable_region_size;
+>  	end_addr = min(end_addr, phys_limit);
+>  	vm->last_usable_mb_id = virtio_mem_phys_to_mb_id(end_addr) - 1;
+>  
+>  	/* see if there is a request to change the size */
+> -	virtio_cread(vm->vdev, struct virtio_mem_config, requested_size,
+> -		     &vm->requested_size);
+> +	virtio_cread_le(vm->vdev, struct virtio_mem_config, requested_size,
+> +			&vm->requested_size);
+>  
+>  	dev_info(&vm->vdev->dev, "plugged size: 0x%llx", vm->plugged_size);
+>  	dev_info(&vm->vdev->dev, "requested size: 0x%llx", vm->requested_size);
+> @@ -1677,16 +1677,16 @@ static int virtio_mem_init(struct virtio_mem *vm)
+>  	}
+>  
+>  	/* Fetch all properties that can't change. */
+> -	virtio_cread(vm->vdev, struct virtio_mem_config, plugged_size,
+> -		     &vm->plugged_size);
+> -	virtio_cread(vm->vdev, struct virtio_mem_config, block_size,
+> -		     &vm->device_block_size);
+> -	virtio_cread(vm->vdev, struct virtio_mem_config, node_id,
+> -		     &node_id);
+> +	virtio_cread_le(vm->vdev, struct virtio_mem_config, plugged_size,
+> +			&vm->plugged_size);
+> +	virtio_cread_le(vm->vdev, struct virtio_mem_config, block_size,
+> +			&vm->device_block_size);
+> +	virtio_cread_le(vm->vdev, struct virtio_mem_config, node_id,
+> +			&node_id);
+>  	vm->nid = virtio_mem_translate_node_id(vm, node_id);
+> -	virtio_cread(vm->vdev, struct virtio_mem_config, addr, &vm->addr);
+> -	virtio_cread(vm->vdev, struct virtio_mem_config, region_size,
+> -		     &vm->region_size);
+> +	virtio_cread_le(vm->vdev, struct virtio_mem_config, addr, &vm->addr);
+> +	virtio_cread_le(vm->vdev, struct virtio_mem_config, region_size,
+> +			&vm->region_size);
+>  
+>  	/*
+>  	 * We always hotplug memory in memory block granularity. This way,
 > 
 
+Acked-by: David Hildenbrand <david@redhat.com>
 
 -- 
 Thanks,
