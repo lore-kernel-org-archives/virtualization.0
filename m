@@ -2,89 +2,84 @@ Return-Path: <SRS0=ofWe=BV=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EEBB9C433E0
-	for <virtualization@archiver.kernel.org>; Tue, 11 Aug 2020 13:54:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 00C08C433E1
+	for <virtualization@archiver.kernel.org>; Tue, 11 Aug 2020 14:42:54 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B3053204FD
-	for <virtualization@archiver.kernel.org>; Tue, 11 Aug 2020 13:54:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id C5A1E206C3
+	for <virtualization@archiver.kernel.org>; Tue, 11 Aug 2020 14:42:53 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="e8L8L86W"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B3053204FD
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IZfhERIK"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C5A1E206C3
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 3B4FE2041F;
-	Tue, 11 Aug 2020 13:54:11 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 7B4AE2282E;
+	Tue, 11 Aug 2020 14:42:53 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id s0cQyd1M-2-6; Tue, 11 Aug 2020 13:54:10 +0000 (UTC)
+	with ESMTP id 4Zi2+-OpA2cG; Tue, 11 Aug 2020 14:42:46 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 669B320016;
-	Tue, 11 Aug 2020 13:54:10 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 12BE92280D;
+	Tue, 11 Aug 2020 14:42:45 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 475CAC013C;
-	Tue, 11 Aug 2020 13:54:10 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 336F0C004D
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DDBE5C0864;
+	Tue, 11 Aug 2020 14:42:44 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 11990C004D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Aug 2020 13:54:09 +0000 (UTC)
+ Tue, 11 Aug 2020 14:42:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 2FA4885531
+ by whitealder.osuosl.org (Postfix) with ESMTP id F17A487A47
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Aug 2020 13:54:09 +0000 (UTC)
+ Tue, 11 Aug 2020 14:42:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id VszWZSSpmlxJ
+ with ESMTP id HaFDMi3MFhrv
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Aug 2020 13:54:08 +0000 (UTC)
+ Tue, 11 Aug 2020 14:42:42 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 5BAE085513
+Received: from us-smtp-delivery-1.mimecast.com (us-smtp-1.mimecast.com
+ [205.139.110.61])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 6BB0E864D8
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Aug 2020 13:54:08 +0000 (UTC)
+ Tue, 11 Aug 2020 14:42:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1597154046;
+ s=mimecast20190719; t=1597156961;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
- bh=jFIsotAOztqQN5Xmp7XFAJvSetescfVPeYp2nzDwnKA=;
- b=e8L8L86WZs2F8zZPknJPnxuADh84wJ2h4nLxJk4tlhqaR165PZhXLE88fCA/ScRXhFxews
- 82bKUqqVVUQMcRPHSKrpmhFs/8HB4g3bpZ3Tl3Zm+N8k/BMxlAHGI32yeFCETHTx39SH5n
- UhLwhT2h/fWouD1Dt1bUS0LqkrxmIzk=
+ bh=UIUkunl9JQebhCaMqZI0eNoKo1oNJsUIOnIbZMHGat4=;
+ b=IZfhERIK3OXjOLsSust1fOuffO+S+mFx/sY75Ityl6WvTkqPrxBTsGu8ahqFHNgzNoeMuy
+ RPrlqoJMT5pXHkHbYB56SlyEcCPI0GNKsKoSGTnCwlVotxZO9+b7e7Vps8XN2eIoRpTxlm
+ 3KZyKGuf2qevMzoItNZcg3OorEdrBaA=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-513-Gvk8o4RYMtGpzj6t5wA46w-1; Tue, 11 Aug 2020 09:54:03 -0400
-X-MC-Unique: Gvk8o4RYMtGpzj6t5wA46w-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
- [10.5.11.11])
+ us-mta-216-w8Q4N_N8NUSzY88bmHrFEg-1; Tue, 11 Aug 2020 10:42:39 -0400
+X-MC-Unique: w8Q4N_N8NUSzY88bmHrFEg-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
+ [10.5.11.14])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0D5411009441;
- Tue, 11 Aug 2020 13:54:02 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BB0651005504;
+ Tue, 11 Aug 2020 14:42:38 +0000 (UTC)
 Received: from [10.36.112.235] (ovpn-112-235.ams2.redhat.com [10.36.112.235])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 26DDF6F14B;
- Tue, 11 Aug 2020 13:53:55 +0000 (UTC)
-Subject: Re: [PATCH v2] virtio-rng: return available data with O_NONBLOCK
-To: "Michael S. Tsirkin" <mst@redhat.com>
-References: <20200715133255.10526-1-mwilck@suse.com>
- <7cfc4316-922b-8606-72ce-80205ef55572@redhat.com>
- <7affb721-9686-1262-b7cf-d9681646b602@redhat.com>
- <810451cf80032d131d5d3feb4fc8300549516f3d.camel@suse.com>
- <b764a4bb-b81f-b14f-9b7f-d6d087a8b1ea@redhat.com>
- <b8b19be7fd9b3fab629506eb30d9f0c820aa57d2.camel@suse.com>
- <085f699b-e391-7363-b63e-3b11cc04e50d@redhat.com>
- <20200811090814-mutt-send-email-mst@kernel.org>
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 02E175D9D7;
+ Tue, 11 Aug 2020 14:42:32 +0000 (UTC)
+Subject: Re: [PATCH v3] virtio-rng: return available data with O_NONBLOCK
+To: mwilck@suse.com, "Michael S. Tsirkin" <mst@redhat.com>,
+ =?UTF-8?Q?Philippe_Mathieu-Daud=c3=a9?= <philmd@redhat.com>,
+ Jason Wang <jasowang@redhat.com>
+References: <20200811142821.12323-1-mwilck@suse.com>
 From: Laurent Vivier <lvivier@redhat.com>
 Autocrypt: addr=lvivier@redhat.com; prefer-encrypt=mutual; keydata=
  mQINBFYFJhkBEAC2me7w2+RizYOKZM+vZCx69GTewOwqzHrrHSG07MUAxJ6AY29/+HYf6EY2
@@ -140,22 +135,20 @@ Autocrypt: addr=lvivier@redhat.com; prefer-encrypt=mutual; keydata=
  pt0DCMMTbiYIUcrhX8eveCJtY7NGWNyxFCRkhxRuGcpwPmRVDwOl39MB3iTsRighiMnijkbL
  XiKoJ5CDVvX5yicNqYJPKh5MFXN1bvsBkmYiStMRbrD0HoY1kx5/VozBtc70OU0EB8Wrv9hZ
  D+Ofp0T3KOr1RUHvCZoLURfFhSQ=
-Message-ID: <a9179d2b-35fb-26ab-1afd-9952cc3ae008@redhat.com>
-Date: Tue, 11 Aug 2020 15:53:54 +0200
+Message-ID: <4ae4f348-c186-f7e4-f7e3-b1f1e4a4b408@redhat.com>
+Date: Tue, 11 Aug 2020 16:42:32 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <20200811090814-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20200811142821.12323-1-mwilck@suse.com>
 Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=lvivier@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Cc: Amit Shah <amit@kernel.org>, qemu-devel@nongnu.org,
- virtualization@lists.linux-foundation.org,
- =?UTF-8?Q?Philippe_Mathieu-Daud=c3=a9?= <philmd@redhat.com>,
- Martin Wilck <mwilck@suse.com>
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -172,53 +165,167 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 11/08/2020 15:14, Michael S. Tsirkin wrote:
-> On Tue, Aug 11, 2020 at 03:00:14PM +0200, Laurent Vivier wrote:
->> No problem. This code is tricky and it took me several months to really
->> start to understand it ...
+On 11/08/2020 16:28, mwilck@suse.com wrote:
+> From: Martin Wilck <mwilck@suse.com>
 > 
-> Oh great, we actually have someone who understands the code!
-> Maybe you can help me understand: virtio_read
-> takes the buf pointer and puts it in the vq.
-> It can then return to caller (e.g. on a signal).
-> Device can meanwhile write into the buffer.
+> If a program opens /dev/hwrng with O_NONBLOCK and uses poll() and
+> non-blocking read() to retrieve random data, it ends up in a tight
+> loop with poll() always returning POLLIN and read() returning EAGAIN.
+> This repeats forever until some process makes a blocking read() call.
+> The reason is that virtio_read() always returns 0 in non-blocking mode,
+> even if data is available. Worse, it fetches random data from the
+> hypervisor after every non-blocking call, without ever using this data.
 > 
-> It looks like if another call then happens, and that
-> other call uses a different buffer, virtio rng
-> will happily return the data written into the
-> original buf pointer, confusing the caller.
+> The following test program illustrates the behavior and can be used
+> for testing and experiments. The problem will only be seen if all
+> tasks use non-blocking access; otherwise the blocking reads will
+> "recharge" the random pool and cause other, non-blocking reads to
+> succeed at least sometimes.
 > 
-> Is that right?
+> /* Whether to use non-blocking mode in a task, problem occurs if CONDITION is 1 */
+> //#define CONDITION (getpid() % 2 != 0)
+> 
+> static volatile sig_atomic_t stop;
+> static void handler(int sig __attribute__((unused))) { stop = 1; }
+> 
+> static void loop(int fd, int sec)
+> {
+> 	struct pollfd pfd = { .fd = fd, .events  = POLLIN, };
+> 	unsigned long errors = 0, eagains = 0, bytes = 0, succ = 0;
+> 	int size, rc, rd;
+> 
+> 	srandom(getpid());
+> 	if (CONDITION && fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK) == -1)
+> 		perror("fcntl");
+> 	size = MINBUFSIZ + random() % (MAXBUFSIZ - MINBUFSIZ + 1);
+> 
+> 	for(;;) {
+> 		char buf[size];
+> 
+> 		if (stop)
+> 			break;
+> 		rc = poll(&pfd, 1, sec);
+> 		if (rc > 0) {
+> 			rd = read(fd, buf, sizeof(buf));
+> 			if (rd == -1 && errno == EAGAIN)
+> 				eagains++;
+> 			else if (rd == -1)
+> 				errors++;
+> 			else {
+> 				succ++;
+> 				bytes += rd;
+> 				write(1, buf, sizeof(buf));
+> 			}
+> 		} else if (rc == -1) {
+> 			if (errno != EINTR)
+> 				perror("poll");
+> 			break;
+> 		} else
+> 			fprintf(stderr, "poll: timeout\n");
+> 	}
+> 	fprintf(stderr,
+> 		"pid %d %sblocking, bufsize %d, %d seconds, %lu bytes read, %lu success, %lu eagain, %lu errors\n",
+> 		getpid(), CONDITION ? "non-" : "", size, sec, bytes, succ, eagains, errors);
+> }
+> 
+> int main(void)
+> {
+> 	int fd;
+> 
+> 	fork(); fork();
+> 	fd = open("/dev/hwrng", O_RDONLY);
+> 	if (fd == -1) {
+> 		perror("open");
+> 		return 1;
+> 	};
+> 	signal(SIGALRM, handler);
+> 	alarm(SECONDS);
+> 	loop(fd, SECONDS);
+> 	close(fd);
+> 	wait(NULL);
+> 	return 0;
+> }
+> 
+> void loop(int fd)
+> {
+>         struct pollfd pfd0 = { .fd = fd, .events  = POLLIN, };
+>         int rc;
+>         unsigned int n;
+> 
+>         for (n = LOOPS; n > 0; n--) {
+>                 struct pollfd pfd = pfd0;
+>                 char buf[SIZE];
+> 
+>                 rc = poll(&pfd, 1, 1);
+>                 if (rc > 0) {
+>                         int rd = read(fd, buf, sizeof(buf));
+> 
+>                         if (rd == -1)
+>                                 perror("read");
+>                         else
+>                                 printf("read %d bytes\n", rd);
+>                 } else if (rc == -1)
+>                         perror("poll");
+>                 else
+>                         fprintf(stderr, "timeout\n");
+> 
+>         }
+> }
+> 
+> int main(void)
+> {
+>         int fd;
+> 
+>         fd = open("/dev/hwrng", O_RDONLY|O_NONBLOCK);
+>         if (fd == -1) {
+>                 perror("open");
+>                 return 1;
+>         };
+>         loop(fd);
+>         close(fd);
+>         return 0;
+> }
+> 
+> This can be observed in the real word e.g. with nested qemu/KVM virtual
+> machines, if both the "outer" and "inner" VMs have a virtio-rng device.
+> If the "inner" VM requests random data, qemu running in the "outer" VM
+> uses this device in a non-blocking manner like the test program above.
+> 
+> Fix it by returning available data if a previous hypervisor call has
+> completed. I tested this patch with the program above, and with rng-tools.
+> 
+> v2 -> v3: Simplified the implementation as suggested by Laurent Vivier
+> 
+> Signed-off-by: Martin Wilck <mwilck@suse.com>
+> ---
+>  drivers/char/hw_random/virtio-rng.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
+> index a90001e02bf7..8eaeceecb41e 100644
+> --- a/drivers/char/hw_random/virtio-rng.c
+> +++ b/drivers/char/hw_random/virtio-rng.c
+> @@ -65,7 +65,7 @@ static int virtio_read(struct hwrng *rng, void *buf, size_t size, bool wait)
+>  		register_buffer(vi, buf, size);
+>  	}
+>  
+> -	if (!wait)
+> +	if (!wait && !completion_done(&vi->have_data))
+>  		return 0;
+>  
+>  	ret = wait_for_completion_killable(&vi->have_data);
+> @@ -74,7 +74,7 @@ static int virtio_read(struct hwrng *rng, void *buf, size_t size, bool wait)
+>  
+>  	vi->busy = false;
+>  
+> -	return vi->data_avail;
+> +	return min_t(size_t, size, vi->data_avail);
+>  }
+>  
+>  static void virtio_cleanup(struct hwrng *rng)
 > 
 
-Yes.
-
-hw_random core uses two bufers:
-
-- rng_fillbuf that is used with a blocking access and protected by the
-reading_mutex. I think this cannot be interrupted by a kill because it's
-in  hwrng_fillfn() and it's kthread.
-
-- rng_buffer that is used in rng_dev_read() and can be interrupted (it
-is also protected by reading_mutex)
-
-But if rng_dev_read() is called with O_NONBLOCK or interrupted and then
-rng_fillbuf starts they can be mixed.
-
-We have also the first use of rng_buffer in add_early_randomness() that
-use a different size than in rng_dev_read() with the same buffer (and
-this size is 16 whereas the hwrng read API says it must be at least 32...).
-
-The problem here is core has been developped with synchronicity in mind,
-whereas virtio is asynchronous by definition.
-
-I think we should add some internal buffers in virtio-rng backend. This
-would improve performance (we are at 1 MB/s, I sent a patch to improve
-that, but this doesn't fix the problems above), and allows hw_random
-core to use memory that doesn't need to be compatible with virt_to_page().
-
-Thanks,
-Laurent
+Reviewed-by: Laurent Vivier <lvivier@redhat.com>
 
 _______________________________________________
 Virtualization mailing list
