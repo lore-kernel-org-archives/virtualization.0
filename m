@@ -2,85 +2,87 @@ Return-Path: <SRS0=ofWe=BV=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-8.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 24E20C433E0
-	for <virtualization@archiver.kernel.org>; Tue, 11 Aug 2020 12:02:39 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 07B64C433E0
+	for <virtualization@archiver.kernel.org>; Tue, 11 Aug 2020 12:40:02 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E4CB72075D
-	for <virtualization@archiver.kernel.org>; Tue, 11 Aug 2020 12:02:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id B9A4F20756
+	for <virtualization@archiver.kernel.org>; Tue, 11 Aug 2020 12:40:01 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="R+ECLTVR"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E4CB72075D
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MtfHrR9Z"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B9A4F20756
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id AD49C876A5;
-	Tue, 11 Aug 2020 12:02:38 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 1053A87D09;
+	Tue, 11 Aug 2020 12:40:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Hn7ulXyLtVxY; Tue, 11 Aug 2020 12:02:37 +0000 (UTC)
+	with ESMTP id dDAqlnixZck2; Tue, 11 Aug 2020 12:39:59 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id E1F44875B7;
-	Tue, 11 Aug 2020 12:02:37 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id DB84A87CB1;
+	Tue, 11 Aug 2020 12:39:59 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D07BAC013C;
-	Tue, 11 Aug 2020 12:02:37 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CA688C07FF;
+	Tue, 11 Aug 2020 12:39:59 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2D186C004D
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DC60DC004D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Aug 2020 12:02:37 +0000 (UTC)
+ Tue, 11 Aug 2020 12:39:57 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 162E92154F
+ by silver.osuosl.org (Postfix) with ESMTP id CD55221FF8
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Aug 2020 12:02:37 +0000 (UTC)
+ Tue, 11 Aug 2020 12:39:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id pQ4eExLIoj5f
+ with ESMTP id rKLqrUPPuh1M
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Aug 2020 12:02:23 +0000 (UTC)
+ Tue, 11 Aug 2020 12:39:55 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-1.mimecast.com (us-smtp-delivery-1.mimecast.com
- [207.211.31.120])
- by silver.osuosl.org (Postfix) with ESMTPS id D090B204EF
+Received: from us-smtp-delivery-1.mimecast.com (us-smtp-1.mimecast.com
+ [205.139.110.61])
+ by silver.osuosl.org (Postfix) with ESMTPS id 4A408203BE
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Aug 2020 12:02:22 +0000 (UTC)
+ Tue, 11 Aug 2020 12:39:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1597147341;
+ s=mimecast20190719; t=1597149593;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
- bh=XRE32AsdoxPjsDiqDcFNatTyYtDw1PEuBrES1gt7Vas=;
- b=R+ECLTVRCLK1XtHeTiqh6p8fG+HkHmcggt8Vh5VrN1wsen02JIfJLKx2l/jfAvd2DX7zFr
- xW2+hWcPn/B7XuX/Rv8sfwkAyay1cDHvScsvRIXrrGOdpgW9zwGBS9S88OV+vScluOVugt
- hqXVeHfTUoegprFQEwwgRcZTX5cBEek=
+ bh=/5hOlCZMG8DNmJ1TQvH9Cq9bbbXC72juV9G4hcgQwf0=;
+ b=MtfHrR9ZOzmpdvIv14ACxyX3lyPC3NRJut+zM1ifV7ZzIwcJLA/J9p8ASOmC+iGvMnDHIH
+ 7/I4AAaTbzC8rZb4rToJuqlC5B6oNzNImcW32jL00Yep+89DrFl9b1/OQMQ12k9O04yzSZ
+ 6Mij2XYT/kKRShSRdnFlpzpgjzCt3u8=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-541-akHCSct9M5ezJP-CgLkTJQ-1; Tue, 11 Aug 2020 08:02:19 -0400
-X-MC-Unique: akHCSct9M5ezJP-CgLkTJQ-1
+ us-mta-152-uJqB23gPM2q8Cyjmd8h2hA-1; Tue, 11 Aug 2020 08:39:52 -0400
+X-MC-Unique: uJqB23gPM2q8Cyjmd8h2hA-1
 Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
  [10.5.11.11])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id DF0621009443;
- Tue, 11 Aug 2020 12:02:17 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 400371932482;
+ Tue, 11 Aug 2020 12:39:51 +0000 (UTC)
 Received: from [10.36.112.235] (ovpn-112-235.ams2.redhat.com [10.36.112.235])
- by smtp.corp.redhat.com (Postfix) with ESMTP id DDDD56F136;
- Tue, 11 Aug 2020 12:02:07 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 82C2E6F120;
+ Tue, 11 Aug 2020 12:39:46 +0000 (UTC)
 Subject: Re: [PATCH v2] virtio-rng: return available data with O_NONBLOCK
-To: =?UTF-8?Q?Philippe_Mathieu-Daud=c3=a9?= <philmd@redhat.com>,
- mwilck@suse.com, "Michael S. Tsirkin" <mst@redhat.com>,
+To: Martin Wilck <mwilck@suse.com>, =?UTF-8?Q?Philippe_Mathieu-Daud=c3=a9?=
+ <philmd@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
  Jason Wang <jasowang@redhat.com>
 References: <20200715133255.10526-1-mwilck@suse.com>
  <7cfc4316-922b-8606-72ce-80205ef55572@redhat.com>
+ <7affb721-9686-1262-b7cf-d9681646b602@redhat.com>
+ <810451cf80032d131d5d3feb4fc8300549516f3d.camel@suse.com>
 From: Laurent Vivier <lvivier@redhat.com>
 Autocrypt: addr=lvivier@redhat.com; prefer-encrypt=mutual; keydata=
  mQINBFYFJhkBEAC2me7w2+RizYOKZM+vZCx69GTewOwqzHrrHSG07MUAxJ6AY29/+HYf6EY2
@@ -136,12 +138,12 @@ Autocrypt: addr=lvivier@redhat.com; prefer-encrypt=mutual; keydata=
  pt0DCMMTbiYIUcrhX8eveCJtY7NGWNyxFCRkhxRuGcpwPmRVDwOl39MB3iTsRighiMnijkbL
  XiKoJ5CDVvX5yicNqYJPKh5MFXN1bvsBkmYiStMRbrD0HoY1kx5/VozBtc70OU0EB8Wrv9hZ
  D+Ofp0T3KOr1RUHvCZoLURfFhSQ=
-Message-ID: <7affb721-9686-1262-b7cf-d9681646b602@redhat.com>
-Date: Tue, 11 Aug 2020 14:02:06 +0200
+Message-ID: <b764a4bb-b81f-b14f-9b7f-d6d087a8b1ea@redhat.com>
+Date: Tue, 11 Aug 2020 14:39:45 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <7cfc4316-922b-8606-72ce-80205ef55572@redhat.com>
+In-Reply-To: <810451cf80032d131d5d3feb4fc8300549516f3d.camel@suse.com>
 Content-Language: en-US
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Authentication-Results: relay.mimecast.com;
@@ -161,110 +163,92 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gMTEvMDgvMjAyMCAxMjozNywgUGhpbGlwcGUgTWF0aGlldS1EYXVkw6kgd3JvdGU6Cj4gWW91
-IENjJ2VkIHFlbXUtZGV2ZWwsIHNvIENjJ2luZyB0aGUgdmlydGlvLXJuZyBtYWludGFpbmVycy4K
-PiAKPiBPbiA3LzE1LzIwIDM6MzIgUE0sIG13aWxja0BzdXNlLmNvbSB3cm90ZToKPj4gRnJvbTog
-TWFydGluIFdpbGNrIDxtd2lsY2tAc3VzZS5jb20+Cj4+Cj4+IElmIGEgcHJvZ3JhbSBvcGVucyAv
-ZGV2L2h3cm5nIHdpdGggT19OT05CTE9DSyBhbmQgdXNlcyBwb2xsKCkgYW5kCj4+IG5vbi1ibG9j
-a2luZyByZWFkKCkgdG8gcmV0cmlldmUgcmFuZG9tIGRhdGEsIGl0IGVuZHMgdXAgaW4gYSB0aWdo
-dAo+PiBsb29wIHdpdGggcG9sbCgpIGFsd2F5cyByZXR1cm5pbmcgUE9MTElOIGFuZCByZWFkKCkg
-cmV0dXJuaW5nIEVBR0FJTi4KPj4gVGhpcyByZXBlYXRzIGZvcmV2ZXIgdW50aWwgc29tZSBwcm9j
-ZXNzIG1ha2VzIGEgYmxvY2tpbmcgcmVhZCgpIGNhbGwuCj4+IFRoZSByZWFzb24gaXMgdGhhdCB2
-aXJ0aW9fcmVhZCgpIGFsd2F5cyByZXR1cm5zIDAgaW4gbm9uLWJsb2NraW5nIG1vZGUsCj4+IGV2
-ZW4gaWYgZGF0YSBpcyBhdmFpbGFibGUuIFdvcnNlLCBpdCBmZXRjaGVzIHJhbmRvbSBkYXRhIGZy
-b20gdGhlCj4+IGh5cGVydmlzb3IgYWZ0ZXIgZXZlcnkgbm9uLWJsb2NraW5nIGNhbGwsIHdpdGhv
-dXQgZXZlciB1c2luZyB0aGlzIGRhdGEuCj4+Cj4+IFRoZSBmb2xsb3dpbmcgdGVzdCBwcm9ncmFt
-IGlsbHVzdHJhdGVzIHRoZSBiZWhhdmlvciBhbmQgY2FuIGJlIHVzZWQKPj4gZm9yIHRlc3Rpbmcg
-YW5kIGV4cGVyaW1lbnRzLiBUaGUgcHJvYmxlbSB3aWxsIG9ubHkgYmUgc2VlbiBpZiBhbGwKPj4g
-dGFza3MgdXNlIG5vbi1ibG9ja2luZyBhY2Nlc3M7IG90aGVyd2lzZSB0aGUgYmxvY2tpbmcgcmVh
-ZHMgd2lsbAo+PiAicmVjaGFyZ2UiIHRoZSByYW5kb20gcG9vbCBhbmQgY2F1c2Ugb3RoZXIsIG5v
-bi1ibG9ja2luZyByZWFkcyB0bwo+PiBzdWNjZWVkIGF0IGxlYXN0IHNvbWV0aW1lcy4KPj4KPj4g
-LyogV2hldGhlciB0byB1c2Ugbm9uLWJsb2NraW5nIG1vZGUgaW4gYSB0YXNrLCBwcm9ibGVtIG9j
-Y3VycyBpZiBDT05ESVRJT04gaXMgMSAqLwo+PiAvLyNkZWZpbmUgQ09ORElUSU9OIChnZXRwaWQo
-KSAlIDIgIT0gMCkKPj4KPj4gc3RhdGljIHZvbGF0aWxlIHNpZ19hdG9taWNfdCBzdG9wOwo+PiBz
-dGF0aWMgdm9pZCBoYW5kbGVyKGludCBzaWcgX19hdHRyaWJ1dGVfXygodW51c2VkKSkpIHsgc3Rv
-cCA9IDE7IH0KPj4KPj4gc3RhdGljIHZvaWQgbG9vcChpbnQgZmQsIGludCBzZWMpCj4+IHsKPj4g
-CXN0cnVjdCBwb2xsZmQgcGZkID0geyAuZmQgPSBmZCwgLmV2ZW50cyAgPSBQT0xMSU4sIH07Cj4+
-IAl1bnNpZ25lZCBsb25nIGVycm9ycyA9IDAsIGVhZ2FpbnMgPSAwLCBieXRlcyA9IDAsIHN1Y2Mg
-PSAwOwo+PiAJaW50IHNpemUsIHJjLCByZDsKPj4KPj4gCXNyYW5kb20oZ2V0cGlkKCkpOwo+PiAJ
-aWYgKENPTkRJVElPTiAmJiBmY250bChmZCwgRl9TRVRGTCwgZmNudGwoZmQsIEZfR0VURkwpIHwg
-T19OT05CTE9DSykgPT0gLTEpCj4+IAkJcGVycm9yKCJmY250bCIpOwo+PiAJc2l6ZSA9IE1JTkJV
-RlNJWiArIHJhbmRvbSgpICUgKE1BWEJVRlNJWiAtIE1JTkJVRlNJWiArIDEpOwo+Pgo+PiAJZm9y
-KDs7KSB7Cj4+IAkJY2hhciBidWZbc2l6ZV07Cj4+Cj4+IAkJaWYgKHN0b3ApCj4+IAkJCWJyZWFr
-Owo+PiAJCXJjID0gcG9sbCgmcGZkLCAxLCBzZWMpOwo+PiAJCWlmIChyYyA+IDApIHsKPj4gCQkJ
-cmQgPSByZWFkKGZkLCBidWYsIHNpemVvZihidWYpKTsKPj4gCQkJaWYgKHJkID09IC0xICYmIGVy
-cm5vID09IEVBR0FJTikKPj4gCQkJCWVhZ2FpbnMrKzsKPj4gCQkJZWxzZSBpZiAocmQgPT0gLTEp
-Cj4+IAkJCQllcnJvcnMrKzsKPj4gCQkJZWxzZSB7Cj4+IAkJCQlzdWNjKys7Cj4+IAkJCQlieXRl
-cyArPSByZDsKPj4gCQkJCXdyaXRlKDEsIGJ1Ziwgc2l6ZW9mKGJ1ZikpOwo+PiAJCQl9Cj4+IAkJ
-fSBlbHNlIGlmIChyYyA9PSAtMSkgewo+PiAJCQlpZiAoZXJybm8gIT0gRUlOVFIpCj4+IAkJCQlw
-ZXJyb3IoInBvbGwiKTsKPj4gCQkJYnJlYWs7Cj4+IAkJfSBlbHNlCj4+IAkJCWZwcmludGYoc3Rk
-ZXJyLCAicG9sbDogdGltZW91dFxuIik7Cj4+IAl9Cj4+IAlmcHJpbnRmKHN0ZGVyciwKPj4gCQki
-cGlkICVkICVzYmxvY2tpbmcsIGJ1ZnNpemUgJWQsICVkIHNlY29uZHMsICVsdSBieXRlcyByZWFk
-LCAlbHUgc3VjY2VzcywgJWx1IGVhZ2FpbiwgJWx1IGVycm9yc1xuIiwKPj4gCQlnZXRwaWQoKSwg
-Q09ORElUSU9OID8gIm5vbi0iIDogIiIsIHNpemUsIHNlYywgYnl0ZXMsIHN1Y2MsIGVhZ2FpbnMs
-IGVycm9ycyk7Cj4+IH0KPj4KPj4gaW50IG1haW4odm9pZCkKPj4gewo+PiAJaW50IGZkOwo+Pgo+
-PiAJZm9yaygpOyBmb3JrKCk7Cj4+IAlmZCA9IG9wZW4oIi9kZXYvaHdybmciLCBPX1JET05MWSk7
-Cj4+IAlpZiAoZmQgPT0gLTEpIHsKPj4gCQlwZXJyb3IoIm9wZW4iKTsKPj4gCQlyZXR1cm4gMTsK
-Pj4gCX07Cj4+IAlzaWduYWwoU0lHQUxSTSwgaGFuZGxlcik7Cj4+IAlhbGFybShTRUNPTkRTKTsK
-Pj4gCWxvb3AoZmQsIFNFQ09ORFMpOwo+PiAJY2xvc2UoZmQpOwo+PiAJd2FpdChOVUxMKTsKPj4g
-CXJldHVybiAwOwo+PiB9Cj4+Cj4+IHZvaWQgbG9vcChpbnQgZmQpCj4+IHsKPj4gICAgICAgICBz
-dHJ1Y3QgcG9sbGZkIHBmZDAgPSB7IC5mZCA9IGZkLCAuZXZlbnRzICA9IFBPTExJTiwgfTsKPj4g
-ICAgICAgICBpbnQgcmM7Cj4+ICAgICAgICAgdW5zaWduZWQgaW50IG47Cj4+Cj4+ICAgICAgICAg
-Zm9yIChuID0gTE9PUFM7IG4gPiAwOyBuLS0pIHsKPj4gICAgICAgICAgICAgICAgIHN0cnVjdCBw
-b2xsZmQgcGZkID0gcGZkMDsKPj4gICAgICAgICAgICAgICAgIGNoYXIgYnVmW1NJWkVdOwo+Pgo+
-PiAgICAgICAgICAgICAgICAgcmMgPSBwb2xsKCZwZmQsIDEsIDEpOwo+PiAgICAgICAgICAgICAg
-ICAgaWYgKHJjID4gMCkgewo+PiAgICAgICAgICAgICAgICAgICAgICAgICBpbnQgcmQgPSByZWFk
-KGZkLCBidWYsIHNpemVvZihidWYpKTsKPj4KPj4gICAgICAgICAgICAgICAgICAgICAgICAgaWYg
-KHJkID09IC0xKQo+PiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHBlcnJvcigicmVh
-ZCIpOwo+PiAgICAgICAgICAgICAgICAgICAgICAgICBlbHNlCj4+ICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgcHJpbnRmKCJyZWFkICVkIGJ5dGVzXG4iLCByZCk7Cj4+ICAgICAgICAg
-ICAgICAgICB9IGVsc2UgaWYgKHJjID09IC0xKQo+PiAgICAgICAgICAgICAgICAgICAgICAgICBw
-ZXJyb3IoInBvbGwiKTsKPj4gICAgICAgICAgICAgICAgIGVsc2UKPj4gICAgICAgICAgICAgICAg
-ICAgICAgICAgZnByaW50ZihzdGRlcnIsICJ0aW1lb3V0XG4iKTsKPj4KPj4gICAgICAgICB9Cj4+
-IH0KPj4KPj4gaW50IG1haW4odm9pZCkKPj4gewo+PiAgICAgICAgIGludCBmZDsKPj4KPj4gICAg
-ICAgICBmZCA9IG9wZW4oIi9kZXYvaHdybmciLCBPX1JET05MWXxPX05PTkJMT0NLKTsKPj4gICAg
-ICAgICBpZiAoZmQgPT0gLTEpIHsKPj4gICAgICAgICAgICAgICAgIHBlcnJvcigib3BlbiIpOwo+
-PiAgICAgICAgICAgICAgICAgcmV0dXJuIDE7Cj4+ICAgICAgICAgfTsKPj4gICAgICAgICBsb29w
-KGZkKTsKPj4gICAgICAgICBjbG9zZShmZCk7Cj4+ICAgICAgICAgcmV0dXJuIDA7Cj4+IH0KPj4K
-Pj4gVGhpcyBjYW4gYmUgb2JzZXJ2ZWQgaW4gdGhlIHJlYWwgd29yZCBlLmcuIHdpdGggbmVzdGVk
-IHFlbXUvS1ZNIHZpcnR1YWwKPj4gbWFjaGluZXMsIGlmIGJvdGggdGhlICJvdXRlciIgYW5kICJp
-bm5lciIgVk1zIGhhdmUgYSB2aXJ0aW8tcm5nIGRldmljZS4KPj4gSWYgdGhlICJpbm5lciIgVk0g
-cmVxdWVzdHMgcmFuZG9tIGRhdGEsIHFlbXUgcnVubmluZyBpbiB0aGUgIm91dGVyIiBWTQo+PiB1
-c2VzIHRoaXMgZGV2aWNlIGluIGEgbm9uLWJsb2NraW5nIG1hbm5lciBsaWtlIHRoZSB0ZXN0IHBy
-b2dyYW0gYWJvdmUuCj4+Cj4+IEZpeCBpdCBieSByZXR1cm5pbmcgYXZhaWxhYmxlIGRhdGEgaWYg
-YSBwcmV2aW91cyBoeXBlcnZpc29yIGNhbGwgaGFzCj4+IGNvbXBsZXRlZCBpbiB0aGUgbWVhbnRp
-bWUuIEkgdGVzdGVkIHRoZSBwYXRjaCB3aXRoIHRoZSBwcm9ncmFtIGFib3ZlLAo+PiBhbmQgd2l0
-aCBybmctdG9vbHMuCj4+Cj4+IFNpZ25lZC1vZmYtYnk6IE1hcnRpbiBXaWxjayA8bXdpbGNrQHN1
-c2UuY29tPgo+PiAtLS0KPj4gIGRyaXZlcnMvY2hhci9od19yYW5kb20vdmlydGlvLXJuZy5jIHwg
-MTQgKysrKysrKysrKysrKysKPj4gIDEgZmlsZSBjaGFuZ2VkLCAxNCBpbnNlcnRpb25zKCspCj4+
-Cj4+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2NoYXIvaHdfcmFuZG9tL3ZpcnRpby1ybmcuYyBiL2Ry
-aXZlcnMvY2hhci9od19yYW5kb20vdmlydGlvLXJuZy5jCj4+IGluZGV4IDc5YTZlNDdiNWZiYy4u
-OTg0NzEzYjM1ODkyIDEwMDY0NAo+PiAtLS0gYS9kcml2ZXJzL2NoYXIvaHdfcmFuZG9tL3ZpcnRp
-by1ybmcuYwo+PiArKysgYi9kcml2ZXJzL2NoYXIvaHdfcmFuZG9tL3ZpcnRpby1ybmcuYwo+PiBA
-QCAtNTksNiArNTksMjAgQEAgc3RhdGljIGludCB2aXJ0aW9fcmVhZChzdHJ1Y3QgaHdybmcgKnJu
-Zywgdm9pZCAqYnVmLCBzaXplX3Qgc2l6ZSwgYm9vbCB3YWl0KQo+PiAgCWlmICh2aS0+aHdybmdf
-cmVtb3ZlZCkKPj4gIAkJcmV0dXJuIC1FTk9ERVY7Cj4+ICAKPj4gKwkvKgo+PiArCSAqIElmIHRo
-ZSBwcmV2aW91cyBjYWxsIHdhcyBub24tYmxvY2tpbmcsIHdlIG1heSBoYXZlIGdvdCBzb21lCj4+
-ICsJICogcmFuZG9tbmVzcyBhbHJlYWR5Lgo+PiArCSAqLwo+PiArCWlmICh2aS0+YnVzeSAmJiBj
-b21wbGV0aW9uX2RvbmUoJnZpLT5oYXZlX2RhdGEpKSB7Cj4+ICsJCXVuc2lnbmVkIGludCBsZW47
-Cj4+ICsKPj4gKwkJdmktPmJ1c3kgPSBmYWxzZTsKPj4gKwkJbGVuID0gdmktPmRhdGFfYXZhaWwg
-PiBzaXplID8gc2l6ZSA6IHZpLT5kYXRhX2F2YWlsOwo+PiArCQl2aS0+ZGF0YV9hdmFpbCAtPSBs
-ZW47CgpZb3UgZG9uJ3QgbmVlZCB0byBtb2RpZnkgZGF0YV9hdmFpbC4gQXMgYnVzeSBpcyBzZXQg
-dG8gZmFsc2UsIHRoZSBidWZmZXIKd2lsbCBiZSByZXVzZWQuIGFuZCBpdCBpcyBhbHdheXMgb3Zl
-cndyaXR0ZW4gYnkgdmlydHF1ZXVlX2dldF9idWYoKS4KQW5kIG1vcmVvdmVyLCBpZiBpdCB3YXMg
-cmV1c2VkIGl0IHdvdWxkIGJlIGFsd2F5cyB0aGUgYmVnaW5uaW5nLgoKPj4gKwkJaWYgKGxlbikK
-Pj4gKwkJCXJldHVybiBsZW47Cj4+ICsJfQo+PiArCj4+ICAJaWYgKCF2aS0+YnVzeSkgewo+PiAg
-CQl2aS0+YnVzeSA9IHRydWU7Cj4+ICAJCXJlaW5pdF9jb21wbGV0aW9uKCZ2aS0+aGF2ZV9kYXRh
-KTsKPj4KPiAKCldoeSBkb24ndCB5b3UgbW9kaWZ5IG9ubHkgdGhlIHdhaXQgY2FzZT8KClNvbWV0
-aGluZyBsaWtlOgoKCWlmICghd2FpdCAmJiAhY29tcGxldGlvbl9kb25lKCZ2aS0+aGF2ZV9kYXRh
-KSkgewoJCXJldHVybiAwOwogICAgICAgIH0KCnRoZW4gYXQgdGhlIGVuZCB5b3UgY2FuIGRvICJy
-ZXR1cm4gbWluKHNpemUsIHZpLT5kYXRhX2F2YWlsKTsiLgoKVGhhbmtzLApMYXVyZW50CgpfX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
-biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
-aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
-bGl6YXRpb24=
+On 11/08/2020 14:22, Martin Wilck wrote:
+> On Tue, 2020-08-11 at 14:02 +0200, Laurent Vivier wrote:
+>>
+>>>>  drivers/char/hw_random/virtio-rng.c | 14 ++++++++++++++
+>>>>  1 file changed, 14 insertions(+)
+>>>>
+>>>> diff --git a/drivers/char/hw_random/virtio-rng.c
+>>>> b/drivers/char/hw_random/virtio-rng.c
+>>>> index 79a6e47b5fbc..984713b35892 100644
+>>>> --- a/drivers/char/hw_random/virtio-rng.c
+>>>> +++ b/drivers/char/hw_random/virtio-rng.c
+>>>> @@ -59,6 +59,20 @@ static int virtio_read(struct hwrng *rng, void
+>>>> *buf, size_t size, bool wait)
+>>>>  	if (vi->hwrng_removed)
+>>>>  		return -ENODEV;
+>>>>  
+>>>> +	/*
+>>>> +	 * If the previous call was non-blocking, we may have got some
+>>>> +	 * randomness already.
+>>>> +	 */
+>>>> +	if (vi->busy && completion_done(&vi->have_data)) {
+>>>> +		unsigned int len;
+>>>> +
+>>>> +		vi->busy = false;
+>>>> +		len = vi->data_avail > size ? size : vi->data_avail;
+>>>> +		vi->data_avail -= len;
+>>
+>> You don't need to modify data_avail. As busy is set to false, the
+>> buffer
+>> will be reused. and it is always overwritten by virtqueue_get_buf().
+>> And moreover, if it was reused it would be always the beginning.
+> 
+> Ok.
+> 
+>>
+>>>> +		if (len)
+>>>> +			return len;
+>>>> +	}
+>>>> +
+>>>>  	if (!vi->busy) {
+>>>>  		vi->busy = true;
+>>>>  		reinit_completion(&vi->have_data);
+>>>>
+>>
+>> Why don't you modify only the wait case?
+>>
+>> Something like:
+>>
+>> 	if (!wait && !completion_done(&vi->have_data)) {
+>> 		return 0;
+>>         }
+>>
+>> then at the end you can do "return min(size, vi->data_avail);".
+> 
+> Sorry, I don't understand what you mean. Where would you insert the
+> above "if" clause? Are you saying I should call
+> wait_for_completion_killable() also in the (!wait) case?
+
+Yes, but only if a the completion is done, so it will not wait.
+
+> 
+> I must call check completion_done() before calling reinit_completion().
+
+Normally, the busy flag is here for that. If busy is true, a buffer is
+already registered. reinit_completion() must not be called if busy is
+true. busy becomes false when the before is ready to be reused.
+
+> OTOH, if completion_done() returns false, I can't simply return 0, I
+> must at least start fetching new random data, so that a subsequent
+> virtio_read() call has a chance to return something.
+
+if you modify "if (!wait)" to becomes "if (!wait &&
+!completion_done(&vi->have_data))", either we have already a registered
+buffer from a previous call or the one we have registered if busy is
+false. So you can return 0 as nothing is ready but we have a registered
+buffer for the next time.
+
+Thanks,
+Laurent
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
