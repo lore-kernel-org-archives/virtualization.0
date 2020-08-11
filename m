@@ -2,156 +2,120 @@ Return-Path: <SRS0=ofWe=BV=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 07B64C433E0
-	for <virtualization@archiver.kernel.org>; Tue, 11 Aug 2020 12:40:02 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ADF55C433E0
+	for <virtualization@archiver.kernel.org>; Tue, 11 Aug 2020 12:44:58 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B9A4F20756
-	for <virtualization@archiver.kernel.org>; Tue, 11 Aug 2020 12:40:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 7D8CF20756
+	for <virtualization@archiver.kernel.org>; Tue, 11 Aug 2020 12:44:58 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MtfHrR9Z"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B9A4F20756
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QvUZBAyB"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7D8CF20756
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 1053A87D09;
-	Tue, 11 Aug 2020 12:40:01 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id dDAqlnixZck2; Tue, 11 Aug 2020 12:39:59 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id DB84A87CB1;
-	Tue, 11 Aug 2020 12:39:59 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CA688C07FF;
-	Tue, 11 Aug 2020 12:39:59 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DC60DC004D
- for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Aug 2020 12:39:57 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id CD55221FF8
- for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Aug 2020 12:39:57 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 4767820004;
+	Tue, 11 Aug 2020 12:44:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id mLBB3zVwp7r9; Tue, 11 Aug 2020 12:44:55 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by silver.osuosl.org (Postfix) with ESMTP id A8369203BE;
+	Tue, 11 Aug 2020 12:44:55 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8DD70C07FF;
+	Tue, 11 Aug 2020 12:44:55 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 96241C004D
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 11 Aug 2020 12:44:54 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 848CB85BC4
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 11 Aug 2020 12:44:54 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id rKLqrUPPuh1M
+ with ESMTP id dP6-iaVwr0fv
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Aug 2020 12:39:55 +0000 (UTC)
+ Tue, 11 Aug 2020 12:44:53 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-1.mimecast.com (us-smtp-1.mimecast.com
- [205.139.110.61])
- by silver.osuosl.org (Postfix) with ESMTPS id 4A408203BE
+Received: from us-smtp-1.mimecast.com (us-smtp-delivery-1.mimecast.com
+ [205.139.110.120])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 34AA9855A1
  for <virtualization@lists.linux-foundation.org>;
- Tue, 11 Aug 2020 12:39:55 +0000 (UTC)
+ Tue, 11 Aug 2020 12:44:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1597149593;
+ s=mimecast20190719; t=1597149892;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
- bh=/5hOlCZMG8DNmJ1TQvH9Cq9bbbXC72juV9G4hcgQwf0=;
- b=MtfHrR9ZOzmpdvIv14ACxyX3lyPC3NRJut+zM1ifV7ZzIwcJLA/J9p8ASOmC+iGvMnDHIH
- 7/I4AAaTbzC8rZb4rToJuqlC5B6oNzNImcW32jL00Yep+89DrFl9b1/OQMQ12k9O04yzSZ
- 6Mij2XYT/kKRShSRdnFlpzpgjzCt3u8=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-152-uJqB23gPM2q8Cyjmd8h2hA-1; Tue, 11 Aug 2020 08:39:52 -0400
-X-MC-Unique: uJqB23gPM2q8Cyjmd8h2hA-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
- [10.5.11.11])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 400371932482;
- Tue, 11 Aug 2020 12:39:51 +0000 (UTC)
-Received: from [10.36.112.235] (ovpn-112-235.ams2.redhat.com [10.36.112.235])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 82C2E6F120;
- Tue, 11 Aug 2020 12:39:46 +0000 (UTC)
-Subject: Re: [PATCH v2] virtio-rng: return available data with O_NONBLOCK
-To: Martin Wilck <mwilck@suse.com>, =?UTF-8?Q?Philippe_Mathieu-Daud=c3=a9?=
- <philmd@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>
-References: <20200715133255.10526-1-mwilck@suse.com>
- <7cfc4316-922b-8606-72ce-80205ef55572@redhat.com>
- <7affb721-9686-1262-b7cf-d9681646b602@redhat.com>
- <810451cf80032d131d5d3feb4fc8300549516f3d.camel@suse.com>
-From: Laurent Vivier <lvivier@redhat.com>
-Autocrypt: addr=lvivier@redhat.com; prefer-encrypt=mutual; keydata=
- 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
- D+Ofp0T3KOr1RUHvCZoLURfFhSQ=
-Message-ID: <b764a4bb-b81f-b14f-9b7f-d6d087a8b1ea@redhat.com>
-Date: Tue, 11 Aug 2020 14:39:45 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+ in-reply-to:in-reply-to:references:references;
+ bh=4gObRQ0Fq7QQ6hAOg5wupZW2BNQ64paK3yGpxjhjhBc=;
+ b=QvUZBAyBKO9JidjPSh1HzuNbnTiDtcHLyj5dNp2XPrzm9Q5A8JufdEnAACXiQ/hDDoktH+
+ tRhhYSShmXyy/t66mwC5KyY6Yh2qy/3u5FmH6PkXSJpWSmzPPn0O+gibPuUtFBB3BjgeCz
+ 76UbbjIeifrrwb/D9X1N7qu8ZYawgV0=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-532-tC7DkTpbPbCeeseU05_OtA-1; Tue, 11 Aug 2020 08:44:49 -0400
+X-MC-Unique: tC7DkTpbPbCeeseU05_OtA-1
+Received: by mail-ed1-f71.google.com with SMTP id b39so4580553edf.15
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 11 Aug 2020 05:44:49 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=4gObRQ0Fq7QQ6hAOg5wupZW2BNQ64paK3yGpxjhjhBc=;
+ b=gtavI7+Nn2Wj+74W1DXVifxZ09YrDdLHEao2AYWLRIbHXFaQBlsWJ0b/l1whCpSEZ/
+ SR+XyPGKI7/lzGQ3MRWU0Ib7I3YcY97pSORCV9nLNcsrRnbm+PSAEubQj0rXTJjaLe5c
+ WfsttDHgjFGDQROAFKC6Xf1tG+EXYIHjC7Xbx7RB71fbDdEn2B0FSyI7DDkSaqlOFXMf
+ fO8AGSRGKjeF0pNEFoGghcYXZFsjGNB0XOuqSRT9WQFUCu1DQ4mzzzu81hV3++tjq7TY
+ FoJZRIC3F2ITaA2DoYou8g4jFyX5+Il+1gqLxIOcM/01xUpZNqv96v3oAuunY/Ezvgd3
+ EcSw==
+X-Gm-Message-State: AOAM530sGZgmN+iGpRnDbYutBib5zKcybo+SPM+lHpD/HnIXcY76uv3N
+ M91/P91tDSsxifMsg0SHj6kaCH/4Ppm8BN2KNi6mOY7ycjRVOni4YdOTVWEkSvcGJx3TUW/R55j
+ kz9PduEgtlC//KhYNw5m6lBF/68SD7OjL06Fg7XHDFg==
+X-Received: by 2002:a05:6402:1218:: with SMTP id
+ c24mr25203349edw.44.1597149888491; 
+ Tue, 11 Aug 2020 05:44:48 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzIaQixLajacpoqLdEsULPbWw/H9fIINTYi9tun3K98B+6Mv/G3SkYZ35zHOyX7A3SBCMINnQ==
+X-Received: by 2002:a05:6402:1218:: with SMTP id
+ c24mr25203332edw.44.1597149888269; 
+ Tue, 11 Aug 2020 05:44:48 -0700 (PDT)
+Received: from redhat.com ([147.161.12.106])
+ by smtp.gmail.com with ESMTPSA id q11sm14418807edn.12.2020.08.11.05.44.45
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 11 Aug 2020 05:44:47 -0700 (PDT)
+Date: Tue, 11 Aug 2020 08:44:43 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Eli Cohen <elic@nvidia.com>
+Subject: Re: VDPA Debug/Statistics
+Message-ID: <20200811083803-mutt-send-email-mst@kernel.org>
+References: <BN8PR12MB342559414BE03DFC992AD03DAB450@BN8PR12MB3425.namprd12.prod.outlook.com>
+ <20200811073144-mutt-send-email-mst@kernel.org>
+ <BN8PR12MB34259F2AE1FDAF2D40E48C5BAB450@BN8PR12MB3425.namprd12.prod.outlook.com>
 MIME-Version: 1.0
-In-Reply-To: <810451cf80032d131d5d3feb4fc8300549516f3d.camel@suse.com>
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+In-Reply-To: <BN8PR12MB34259F2AE1FDAF2D40E48C5BAB450@BN8PR12MB3425.namprd12.prod.outlook.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=lvivier@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: Amit Shah <amit@kernel.org>, qemu-devel@nongnu.org,
- virtualization@lists.linux-foundation.org
+Content-Disposition: inline
+Cc: Shahaf Shuler <shahafs@mellanox.com>, "lulu@redhat.com" <lulu@redhat.com>,
+ "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+ "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ Majd Dibbiny <majd@nvidia.com>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ "eli@mellanox.com" <eli@mellanox.com>, Maor Dickman <maord@nvidia.com>,
+ Parav Pandit <parav@mellanox.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -168,85 +132,48 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 11/08/2020 14:22, Martin Wilck wrote:
-> On Tue, 2020-08-11 at 14:02 +0200, Laurent Vivier wrote:
->>
->>>>  drivers/char/hw_random/virtio-rng.c | 14 ++++++++++++++
->>>>  1 file changed, 14 insertions(+)
->>>>
->>>> diff --git a/drivers/char/hw_random/virtio-rng.c
->>>> b/drivers/char/hw_random/virtio-rng.c
->>>> index 79a6e47b5fbc..984713b35892 100644
->>>> --- a/drivers/char/hw_random/virtio-rng.c
->>>> +++ b/drivers/char/hw_random/virtio-rng.c
->>>> @@ -59,6 +59,20 @@ static int virtio_read(struct hwrng *rng, void
->>>> *buf, size_t size, bool wait)
->>>>  	if (vi->hwrng_removed)
->>>>  		return -ENODEV;
->>>>  
->>>> +	/*
->>>> +	 * If the previous call was non-blocking, we may have got some
->>>> +	 * randomness already.
->>>> +	 */
->>>> +	if (vi->busy && completion_done(&vi->have_data)) {
->>>> +		unsigned int len;
->>>> +
->>>> +		vi->busy = false;
->>>> +		len = vi->data_avail > size ? size : vi->data_avail;
->>>> +		vi->data_avail -= len;
->>
->> You don't need to modify data_avail. As busy is set to false, the
->> buffer
->> will be reused. and it is always overwritten by virtqueue_get_buf().
->> And moreover, if it was reused it would be always the beginning.
+On Tue, Aug 11, 2020 at 11:58:23AM +0000, Eli Cohen wrote:
+> On Tue, Aug 11, 2020 at 11:26:20AM +0000, Eli Cohen wrote:
+> > Hi All
+> > 
+> > Currently, the only statistics we get for a VDPA instance comes from the virtio_net device instance. Since VDPA involves hardware acceleration, there can be quite a lot of information that can be fetched from the underlying device. Currently there is no generic method to fetch this information.
+> > 
+> > One way of doing this can be to create a the host, a net device for 
+> > each VDPA instance, and use it to get this information or do some 
+> > configuration. Ethtool can be used in such a case
+> > 
+> > I would like to hear what you think about this or maybe you have some other ideas to address this topic.
+> > 
+> > Thanks,
+> > Eli
 > 
-> Ok.
+> Something I'm not sure I understand is how are vdpa instances created on mellanox cards? There's a devlink command for that, is that right?
+> Can that be extended for stats?
 > 
->>
->>>> +		if (len)
->>>> +			return len;
->>>> +	}
->>>> +
->>>>  	if (!vi->busy) {
->>>>  		vi->busy = true;
->>>>  		reinit_completion(&vi->have_data);
->>>>
->>
->> Why don't you modify only the wait case?
->>
->> Something like:
->>
->> 	if (!wait && !completion_done(&vi->have_data)) {
->> 		return 0;
->>         }
->>
->> then at the end you can do "return min(size, vi->data_avail);".
-> 
-> Sorry, I don't understand what you mean. Where would you insert the
-> above "if" clause? Are you saying I should call
-> wait_for_completion_killable() also in the (!wait) case?
+> Currently any VF will be probed as VDPA device. We're adding devlink support but I am not sure if devlink is suitable for displaying statistics. We will discuss internally but I wanted to know why you guys think.
 
-Yes, but only if a the completion is done, so it will not wait.
+OK still things like specifying the mac are managed through rtnetlink,
+right?
 
-> 
-> I must call check completion_done() before calling reinit_completion().
+Right now it does not look like you can mix stats and vf, they are
+handled separately:
 
-Normally, the busy flag is here for that. If busy is true, a buffer is
-already registered. reinit_completion() must not be called if busy is
-true. busy becomes false when the before is ready to be reused.
+        if (rtnl_fill_stats(skb, dev))
+                goto nla_put_failure;
 
-> OTOH, if completion_done() returns false, I can't simply return 0, I
-> must at least start fetching new random data, so that a subsequent
-> virtio_read() call has a chance to return something.
+        if (rtnl_fill_vf(skb, dev, ext_filter_mask))
+                goto nla_put_failure;
 
-if you modify "if (!wait)" to becomes "if (!wait &&
-!completion_done(&vi->have_data))", either we have already a registered
-buffer from a previous call or the one we have registered if busy is
-false. So you can return 0 as nothing is ready but we have a registered
-buffer for the next time.
+but ability to query vf stats on the host sounds useful generally.
 
-Thanks,
-Laurent
+As another option, we could use a vdpa specific way to retrieve stats,
+and teach qemu to report them.
+
+
+
+
+> --
+> MST
 
 _______________________________________________
 Virtualization mailing list
