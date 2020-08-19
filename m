@@ -2,93 +2,93 @@ Return-Path: <SRS0=s1EX=B5=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.9 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CEAE3C433DF
-	for <virtualization@archiver.kernel.org>; Wed, 19 Aug 2020 02:55:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 65839C433E1
+	for <virtualization@archiver.kernel.org>; Wed, 19 Aug 2020 05:59:49 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9EE422076E
-	for <virtualization@archiver.kernel.org>; Wed, 19 Aug 2020 02:55:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 31984207FF
+	for <virtualization@archiver.kernel.org>; Wed, 19 Aug 2020 05:59:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gMmkOu5V"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9EE422076E
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="R+5TGRi7"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 31984207FF
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 7AFD587823;
-	Wed, 19 Aug 2020 02:55:48 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id EFD20873CE;
+	Wed, 19 Aug 2020 05:59:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id reesduOlJbI3; Wed, 19 Aug 2020 02:55:47 +0000 (UTC)
+	with ESMTP id plpKPL+3Qgj1; Wed, 19 Aug 2020 05:59:48 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id DB02686BC1;
-	Wed, 19 Aug 2020 02:55:47 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 7C0318735E;
+	Wed, 19 Aug 2020 05:59:48 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C098DC088B;
-	Wed, 19 Aug 2020 02:55:47 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 338E3C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 58B83C0889;
+	Wed, 19 Aug 2020 05:59:48 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5E768C0051
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Aug 2020 02:55:47 +0000 (UTC)
+ Wed, 19 Aug 2020 05:59:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 2287285C92
+ by hemlock.osuosl.org (Postfix) with ESMTP id 46D488739D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Aug 2020 02:55:47 +0000 (UTC)
+ Wed, 19 Aug 2020 05:59:46 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 2kZYfmq4hJt5
+ with ESMTP id JCux8kD7S2T0
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Aug 2020 02:55:46 +0000 (UTC)
+ Wed, 19 Aug 2020 05:59:45 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-1.mimecast.com (us-smtp-2.mimecast.com
- [205.139.110.61])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 648BA85C28
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 2A9048735E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 19 Aug 2020 02:55:46 +0000 (UTC)
+ Wed, 19 Aug 2020 05:59:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1597805745;
+ s=mimecast20190719; t=1597816783;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=wzuFejnUa6/7SvIdePc4Dxw6u4PQ7TGHV2322mPlU3g=;
- b=gMmkOu5V/eNtPmyqlVoLZHPFBLJJpxvBw0knrjoPuFjYFXeZVbg4UP/HyGnVVNW+LlgHTZ
- J+MtH4Pb9BaesQzPWrbb2FcZcVGgVwq4MopVRbLOeNczpOBu8zyJTLX9Pp0WeSr87yBoqv
- zFNRAsUxEgU5PF6FCRIK270+RXbO3j0=
+ bh=Z0zCJ2NK5Z+fl5pnDgfA8+GQ4DbNrhn0PYxAHaqZv20=;
+ b=R+5TGRi74sNzgF2qRelzquYpeUGZ7pbo2zsD2NcMHLrAn1xELB/IErJ+ifO0yLmL/fkDL3
+ 4VU2EkeTp4v+FhNkjS7sFctkhpmYvccfNY3oq7MZ0vNpedjdxK/cJtQG7FzQkWhpsUWiLL
+ SGOEY/BgOLbltJNbuJZMGWz2MjgTVVM=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-524-oPiGWvAuMPyaXe1nKkF9KA-1; Tue, 18 Aug 2020 22:55:40 -0400
-X-MC-Unique: oPiGWvAuMPyaXe1nKkF9KA-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
- [10.5.11.12])
+ us-mta-501-w0vSojaiMqKKKPAZ3GVM5g-1; Wed, 19 Aug 2020 01:59:41 -0400
+X-MC-Unique: w0vSojaiMqKKKPAZ3GVM5g-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
+ [10.5.11.16])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 817141DDF4;
- Wed, 19 Aug 2020 02:55:39 +0000 (UTC)
-Received: from [10.72.13.88] (ovpn-13-88.pek2.redhat.com [10.72.13.88])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 22C73BA63;
- Wed, 19 Aug 2020 02:55:33 +0000 (UTC)
-Subject: Re: [PATCH -next] vdpa: Remove duplicate include
-To: YueHaibing <yuehaibing@huawei.com>, mst@redhat.com, tiwei.bie@intel.com
-References: <20200818114906.58304-1-yuehaibing@huawei.com>
-From: Jason Wang <jasowang@redhat.com>
-Message-ID: <13e0a08e-abda-9b0d-53b0-03f6948a80f3@redhat.com>
-Date: Wed, 19 Aug 2020 10:55:32 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 448CD873159;
+ Wed, 19 Aug 2020 05:59:40 +0000 (UTC)
+Received: from sirius.home.kraxel.org (ovpn-112-195.ams2.redhat.com
+ [10.36.112.195])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 1DC755C1D0;
+ Wed, 19 Aug 2020 05:59:37 +0000 (UTC)
+Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
+ id 45C2731E21; Wed, 19 Aug 2020 07:59:36 +0200 (CEST)
+Date: Wed, 19 Aug 2020 07:59:36 +0200
+From: Gerd Hoffmann <kraxel@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v3 30/38] virtio_input: convert to LE accessors
+Message-ID: <20200819055936.bnb5of7yxl5i57hc@sirius.home.kraxel.org>
+References: <20200805134226.1106164-1-mst@redhat.com>
+ <20200805134226.1106164-31-mst@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20200818114906.58304-1-yuehaibing@huawei.com>
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
- virtualization@lists.linux-foundation.org
+Content-Disposition: inline
+In-Reply-To: <20200805134226.1106164-31-mst@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -100,22 +100,19 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Ck9uIDIwMjAvOC8xOCDkuIvljYg3OjQ5LCBZdWVIYWliaW5nIHdyb3RlOgo+IFJlbW92ZSBkdXBs
-aWNhdGUgaW5jbHVkZSBmaWxlCj4KPiBTaWduZWQtb2ZmLWJ5OiBZdWVIYWliaW5nIDx5dWVoYWli
-aW5nQGh1YXdlaS5jb20+Cj4gLS0tCj4gICBkcml2ZXJzL3Zob3N0L3ZkcGEuYyB8IDEgLQo+ICAg
-MSBmaWxlIGNoYW5nZWQsIDEgZGVsZXRpb24oLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zo
-b3N0L3ZkcGEuYyBiL2RyaXZlcnMvdmhvc3QvdmRwYS5jCj4gaW5kZXggM2ZhYjk0Zjg4ODk0Li45
-NWUyYjgzMDdhMmEgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92aG9zdC92ZHBhLmMKPiArKysgYi9k
-cml2ZXJzL3Zob3N0L3ZkcGEuYwo+IEBAIC0yMiw3ICsyMiw2IEBACj4gICAjaW5jbHVkZSA8bGlu
-dXgvbm9zcGVjLmg+Cj4gICAjaW5jbHVkZSA8bGludXgvdmhvc3QuaD4KPiAgICNpbmNsdWRlIDxs
-aW51eC92aXJ0aW9fbmV0Lmg+Cj4gLSNpbmNsdWRlIDxsaW51eC9rZXJuZWwuaD4KPiAgIAo+ICAg
-I2luY2x1ZGUgInZob3N0LmgiCj4gICAKCgpBY2tlZC1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdA
-cmVkaGF0LmNvbT4KCgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGlu
-dXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxt
-YW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Wed, Aug 05, 2020 at 09:44:36AM -0400, Michael S. Tsirkin wrote:
+> Virtio input is modern-only. Use LE accessors for config space.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+Reviewed-by: Gerd Hoffmann <kraxel@redhat.com>
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
