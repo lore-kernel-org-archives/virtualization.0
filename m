@@ -7,73 +7,73 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B6CBC433DF
-	for <virtualization@archiver.kernel.org>; Thu, 20 Aug 2020 00:02:24 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 29612C433E3
+	for <virtualization@archiver.kernel.org>; Thu, 20 Aug 2020 00:02:56 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1E5F0207FB
-	for <virtualization@archiver.kernel.org>; Thu, 20 Aug 2020 00:02:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id E99E1208E4
+	for <virtualization@archiver.kernel.org>; Thu, 20 Aug 2020 00:02:55 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="YDYUK/RH"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1E5F0207FB
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="QayRX6Yg"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E99E1208E4
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id CC5F287F63;
-	Thu, 20 Aug 2020 00:02:23 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id A2265221AB;
+	Thu, 20 Aug 2020 00:02:55 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id QhWJXnZbtdmL; Thu, 20 Aug 2020 00:02:23 +0000 (UTC)
+	with ESMTP id eugWM0SKU46G; Thu, 20 Aug 2020 00:02:55 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id A1F7A87F60;
-	Thu, 20 Aug 2020 00:02:23 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 58A1A21FAC;
+	Thu, 20 Aug 2020 00:02:55 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 80BBFC0889;
-	Thu, 20 Aug 2020 00:02:23 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 919E3C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 41AA3C0889;
+	Thu, 20 Aug 2020 00:02:55 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D002CC0051
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Aug 2020 00:02:21 +0000 (UTC)
+ Thu, 20 Aug 2020 00:02:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 871F6866F2
+ by hemlock.osuosl.org (Postfix) with ESMTP id BC9EE88256
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Aug 2020 00:02:21 +0000 (UTC)
+ Thu, 20 Aug 2020 00:02:53 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qotk9yafQkHW
+ with ESMTP id CmTtI+Q3cKUM
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Aug 2020 00:02:21 +0000 (UTC)
+ Thu, 20 Aug 2020 00:02:53 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 2390986644
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 5117A8820B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 20 Aug 2020 00:02:21 +0000 (UTC)
+ Thu, 20 Aug 2020 00:02:53 +0000 (UTC)
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net
  [73.47.72.35])
  (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
  (No client certificate requested)
- by mail.kernel.org (Postfix) with ESMTPSA id 3171620FC3;
- Thu, 20 Aug 2020 00:02:20 +0000 (UTC)
+ by mail.kernel.org (Postfix) with ESMTPSA id 3134A21741;
+ Thu, 20 Aug 2020 00:02:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1597881741;
+ s=default; t=1597881773;
  bh=iXmAtY7BG2mwDIC/wHHpkcNbC6q/kDidRTK1GVKOgL8=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=YDYUK/RHw5xaHRxm8q2SJunZwIwB/3cQ0ZyuuyWstiTy7tnoJCFdAY9RbBm05/3o2
- m9/p2/9mX/Xw4xltwT0brxZAPfsAQsWra/GQ3jKq68cRjLBrUvMKQt7Nq4haPKsTLg
- 58nL4wAtPXfe29xBZggZx/paXf8MYXqWGq5AOeM8=
+ b=QayRX6YgQBKiVZlmXRpI7rhoc3rgfkCEaRt5nggW5EQPRNQE5V/APGlEiNAgz0VOT
+ XrrIWlBRJwP7AzHXUKsPaybT/V7ddpQt06lBGFPE2l8n5ipiNIv5HZB7Tt3I1CmTjT
+ rZZy5XpppDKkSKnPobGaiNePBR/yuwlg7DR8B2zc=
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.7 19/24] virtio_ring: Avoid loop when vq is broken
+Subject: [PATCH AUTOSEL 5.4 17/22] virtio_ring: Avoid loop when vq is broken
  in virtqueue_poll
-Date: Wed, 19 Aug 2020 20:01:50 -0400
-Message-Id: <20200820000155.215089-19-sashal@kernel.org>
+Date: Wed, 19 Aug 2020 20:02:24 -0400
+Message-Id: <20200820000229.215333-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20200820000155.215089-1-sashal@kernel.org>
-References: <20200820000155.215089-1-sashal@kernel.org>
+In-Reply-To: <20200820000229.215333-1-sashal@kernel.org>
+References: <20200820000229.215333-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
