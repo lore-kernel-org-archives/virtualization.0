@@ -4,82 +4,83 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 51FEDC433DF
-	for <virtualization@archiver.kernel.org>; Fri, 21 Aug 2020 08:45:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 99173C433E1
+	for <virtualization@archiver.kernel.org>; Fri, 21 Aug 2020 08:48:56 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2046420720
-	for <virtualization@archiver.kernel.org>; Fri, 21 Aug 2020 08:45:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 6496322B4D
+	for <virtualization@archiver.kernel.org>; Fri, 21 Aug 2020 08:48:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="f4bDS9l1"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2046420720
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="g3VFJ0jD"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6496322B4D
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id E8FC48868A;
-	Fri, 21 Aug 2020 08:45:48 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 3C964886D2;
+	Fri, 21 Aug 2020 08:48:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Vt4Ltqqj+HA8; Fri, 21 Aug 2020 08:45:48 +0000 (UTC)
+	with ESMTP id o02Xdar5AV1G; Fri, 21 Aug 2020 08:48:55 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 2A39A886A9;
-	Fri, 21 Aug 2020 08:45:48 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 0FDDE886D1;
+	Fri, 21 Aug 2020 08:48:55 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 11824C07FF;
-	Fri, 21 Aug 2020 08:45:48 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E45C7C07FF;
+	Fri, 21 Aug 2020 08:48:54 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 39631C0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 67D06C0051
  for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Aug 2020 08:45:47 +0000 (UTC)
+ Fri, 21 Aug 2020 08:48:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 21CB5886A9
+ by whitealder.osuosl.org (Postfix) with ESMTP id 52531886D2
  for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Aug 2020 08:45:47 +0000 (UTC)
+ Fri, 21 Aug 2020 08:48:53 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id abIpkwoGfeRE
+ with ESMTP id 2MqRMy+eNFIQ
  for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Aug 2020 08:45:45 +0000 (UTC)
+ Fri, 21 Aug 2020 08:48:52 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-1.mimecast.com (us-smtp-2.mimecast.com
- [205.139.110.61])
- by whitealder.osuosl.org (Postfix) with ESMTPS id D3ABF8868A
+Received: from us-smtp-1.mimecast.com (us-smtp-delivery-1.mimecast.com
+ [207.211.31.120])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id CD4A4886D1
  for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Aug 2020 08:45:44 +0000 (UTC)
+ Fri, 21 Aug 2020 08:48:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1597999543;
+ s=mimecast20190719; t=1597999730;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
- bh=bMa0juqRVQ5IbmdW8R1Vv2ADDAvCjpcydINKzV0mRXg=;
- b=f4bDS9l1TwJBZn1MIGLpO1x1798B6FIWKY+4f2s+YqffKdvPv158LLbJLArVjz+OtvMHR4
- JvyI0aRrwMheySYBp3toAYUvyrTGkIFDpieAEENrl1W3purQE65TT0uAmd7N9Z84ZclTn4
- 4Jh/FQg5VaK76MYzXkmpIpqG2O7vZzQ=
+ bh=GXzl5egpJaoVvFDQIADLlbFUzyei3+2kPPTfeDBFLu8=;
+ b=g3VFJ0jDqycJ1JGr6WykNadQj7vG9j3SeWK9y5D4X7Kd02XIzta5rIBLXY3Dpz+JmLCq1O
+ DNk9hxM8Ko1O3RHX/wjiHdJKILEmcjMQEo5P9HrA0eb0U+M3xvh2pmqFgwJaD86mZ/VpRQ
+ zDlfiTIJ4Pg8Lui8aUUpET1hzAXQKko=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-34-vNr2_OKqOdaYP3mbw5jKXQ-1; Fri, 21 Aug 2020 04:45:41 -0400
-X-MC-Unique: vNr2_OKqOdaYP3mbw5jKXQ-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
- [10.5.11.13])
+ us-mta-545-Ve6wBMDEP3-a05eRv0vu9g-1; Fri, 21 Aug 2020 04:48:48 -0400
+X-MC-Unique: Ve6wBMDEP3-a05eRv0vu9g-1
+Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
+ [10.5.11.11])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E14E410055B5;
- Fri, 21 Aug 2020 08:45:39 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C50A434914;
+ Fri, 21 Aug 2020 08:48:46 +0000 (UTC)
 Received: from [10.36.114.87] (ovpn-114-87.ams2.redhat.com [10.36.114.87])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 4916074E2A;
- Fri, 21 Aug 2020 08:45:34 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 02B1A7C0B6;
+ Fri, 21 Aug 2020 08:48:40 +0000 (UTC)
 Subject: Re: [PATCH v5 0/6] mm / virtio-mem: support ZONE_MOVABLE
-From: David Hildenbrand <david@redhat.com>
-To: linux-kernel@vger.kernel.org
+To: Baoquan He <bhe@redhat.com>
 References: <20200816125333.7434-1-david@redhat.com>
  <552a2a55-6082-d286-1cd4-7f7e368eebb4@redhat.com>
+ <20200821084610.GH10792@MiWiFi-R3L-srv>
+From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
  mQINBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
  dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
@@ -125,16 +126,16 @@ Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat GmbH
-Message-ID: <bb7cad5a-daa3-132e-1bc1-19110476b55e@redhat.com>
-Date: Fri, 21 Aug 2020 10:45:33 +0200
+Message-ID: <4ceb9aa5-2a6b-b788-8467-f9820d2c094f@redhat.com>
+Date: Fri, 21 Aug 2020 10:48:40 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.10.0
 MIME-Version: 1.0
-In-Reply-To: <552a2a55-6082-d286-1cd4-7f7e368eebb4@redhat.com>
+In-Reply-To: <20200821084610.GH10792@MiWiFi-R3L-srv>
 Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
 Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Michal Hocko <mhocko@suse.com>,
- Baoquan He <bhe@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
  virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
  Qian Cai <cai@lca.pw>, Andrew Morton <akpm@linux-foundation.org>,
  Mike Rapoport <rppt@linux.ibm.com>, Mike Rapoport <rppt@kernel.org>,
@@ -155,16 +156,18 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 21.08.20 10:31, David Hildenbrand wrote:
-> On 16.08.20 14:53, David Hildenbrand wrote:
->> For 5.10. Patch #1-#4,#6 have RBs or ACKs, patch #5 is virtio-mem stuff
->> maintained by me. This should go via the -mm tree.
+On 21.08.20 10:46, Baoquan He wrote:
+> On 08/21/20 at 10:31am, David Hildenbrand wrote:
+>> On 16.08.20 14:53, David Hildenbrand wrote:
+>>> For 5.10. Patch #1-#4,#6 have RBs or ACKs, patch #5 is virtio-mem stuff
+>>> maintained by me. This should go via the -mm tree.
+>>>
 >>
+>> @Andrew, can we give this a churn if there are no further comments? Thanks!
 > 
-> @Andrew, can we give this a churn if there are no further comments? Thanks!
+> Saw this series in next already.
 
-... I just spotted the patches in -next, strange I didn't get an email
-notification. Thanks :)
+Hehe, yeah I also just stumbled over them while rebasing :)
 
 -- 
 Thanks,
