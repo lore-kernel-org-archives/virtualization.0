@@ -2,106 +2,84 @@ Return-Path: <SRS0=hbIa=B7=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-7.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-5.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CD2EC433E1
-	for <virtualization@archiver.kernel.org>; Fri, 21 Aug 2020 14:45:10 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D1051C433DF
+	for <virtualization@archiver.kernel.org>; Fri, 21 Aug 2020 20:55:11 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id EFC392086A
-	for <virtualization@archiver.kernel.org>; Fri, 21 Aug 2020 14:45:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 91AED20738
+	for <virtualization@archiver.kernel.org>; Fri, 21 Aug 2020 20:55:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=kernel-dk.20150623.gappssmtp.com header.i=@kernel-dk.20150623.gappssmtp.com header.b="WZPAanfw"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EFC392086A
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.dk
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="2rw4RRpE"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 91AED20738
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id B72FF87F0C;
-	Fri, 21 Aug 2020 14:45:09 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 5B2078879C;
+	Fri, 21 Aug 2020 20:55:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id HNWS1Xjow6-i; Fri, 21 Aug 2020 14:45:08 +0000 (UTC)
+	with ESMTP id J08Wg146X7N4; Fri, 21 Aug 2020 20:55:10 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id BE9B787ED7;
-	Fri, 21 Aug 2020 14:45:08 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id A6B5288794;
+	Fri, 21 Aug 2020 20:55:10 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A7E8CC07FF;
-	Fri, 21 Aug 2020 14:45:08 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 36834C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 99282C07FF;
+	Fri, 21 Aug 2020 20:55:10 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DE138C0051
  for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Aug 2020 14:45:07 +0000 (UTC)
+ Fri, 21 Aug 2020 20:55:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 321D387FBF
+ by silver.osuosl.org (Postfix) with ESMTP id BC188231A0
  for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Aug 2020 14:45:07 +0000 (UTC)
+ Fri, 21 Aug 2020 20:55:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 09i5y5FqudSp
+ with ESMTP id luClguWYzlwP
  for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Aug 2020 14:45:05 +0000 (UTC)
+ Fri, 21 Aug 2020 20:55:08 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-il1-f193.google.com (mail-il1-f193.google.com
- [209.85.166.193])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 657228830F
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+ by silver.osuosl.org (Postfix) with ESMTPS id D23E3230FE
  for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Aug 2020 14:45:05 +0000 (UTC)
-Received: by mail-il1-f193.google.com with SMTP id v2so1601826ilq.4
- for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Aug 2020 07:45:05 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=kernel-dk.20150623.gappssmtp.com; s=20150623;
- h=subject:to:cc:references:from:message-id:date:user-agent
- :mime-version:in-reply-to:content-language:content-transfer-encoding;
- bh=C90nSWF13UnmUXT/t6zouheV3b/caGvmm+rEBKqVpdg=;
- b=WZPAanfw3FhXa7h3fxpfrymu1+iAfN7jYZZcDC1ZwufOlcLwlqqC5JQ2Jdaa7axmC/
- AuKMmUn6G9SHn8uiHiSKtQMcKmXt4qJnS6XfrG5tH/F6ZqV3GjPWYDc8S9VMsqwuj4fV
- 6+e5S2jm62HjwvxTNFR+qtMpHYZegRDCQMV3NIelDb+CZcphTnuK8QJcZnufxa59Xgzw
- 6LY26EQ0sduFkqL66yNRVSu0VnzkIRq8w0QDD/s+udlfz3bK6/yqg7LAN3a8nAsf0Nuw
- +g0YGzid/aIb0K/qP+EjYkCkDGRtudkM4AUj2vRZDEX+cRQXswzarbNLHhDu+3bRbWns
- eC4w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:subject:to:cc:references:from:message-id:date
- :user-agent:mime-version:in-reply-to:content-language
- :content-transfer-encoding;
- bh=C90nSWF13UnmUXT/t6zouheV3b/caGvmm+rEBKqVpdg=;
- b=lTLEakeeJYkjrD1gk6mCutrcn+Nv/T97UX4LFE8p+CMTj6fsSDLlxdRUllSwhXsFJV
- lzYqbZMF1m5xqR9soAZppsfny3qkl/EggRBSNiavMzB9BwX/tSLfPDO3bLAhX5GBd3Ar
- 9Q1VwBazq8wtxgeFafT4xvtv36TEb/jMWoL7151nt2cc1Oz5LfYfwvg2HNPYE0bFETS7
- lkzq4jYwQ5Ju1toL1Kt3dk+PSn/zH3AIDzapn2mfE1k8aw6IjGA6iJaISiZcRA4E69Ie
- sB61lqK3PX8ugYKoytlHSr9ZKuSy5+FUzMZW34C3jHZgiUx54+aAZGRMPBXt1j7A/SGb
- IGvA==
-X-Gm-Message-State: AOAM530SfuK4vuMBLmGkx3A+EFTEo4S/hNGCG1NbTKVBJIPSlarNopSv
- 7YxqHD6XvfyFJwOFVEQ38SUc2g==
-X-Google-Smtp-Source: ABdhPJzv5Uro5gqLH9Madfn+I7njnS1pYD1IAyxJA8wxLh1cPMqD/A08/j+1u985vO8tNXtdISywww==
-X-Received: by 2002:a05:6e02:d44:: with SMTP id
- h4mr2812734ilj.296.1598021104562; 
- Fri, 21 Aug 2020 07:45:04 -0700 (PDT)
-Received: from [192.168.1.58] ([65.144.74.34])
- by smtp.gmail.com with ESMTPSA id u89sm1313919ili.87.2020.08.21.07.45.03
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Fri, 21 Aug 2020 07:45:04 -0700 (PDT)
-Subject: Re: [PATCH] virtio-blk: Use kobj_to_dev() instead of container_of()
-To: Tian Tao <tiantao6@hisilicon.com>, mst@redhat.com, jasowang@redhat.com,
- pbonzini@redhat.com, stefanha@redhat.com,
- virtualization@lists.linux-foundation.org, linux-block@vger.kernel.org
-References: <1597972755-60633-1-git-send-email-tiantao6@hisilicon.com>
-From: Jens Axboe <axboe@kernel.dk>
-Message-ID: <0d6b9b5b-cf44-6d77-8d3c-7a9f6063d457@kernel.dk>
-Date: Fri, 21 Aug 2020 08:45:03 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
-In-Reply-To: <1597972755-60633-1-git-send-email-tiantao6@hisilicon.com>
-Content-Language: en-US
-Cc: linuxarm@huawei.com
+ Fri, 21 Aug 2020 20:55:08 +0000 (UTC)
+Received: from localhost.localdomain (c-73-231-172-41.hsd1.ca.comcast.net
+ [73.231.172.41])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mail.kernel.org (Postfix) with ESMTPSA id 22FAA20724;
+ Fri, 21 Aug 2020 20:55:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=default; t=1598043308;
+ bh=lFPj1Yo752ipcEnQysJGQoRPKTfWhUtUxBkOy91w4Yo=;
+ h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+ b=2rw4RRpEhcqRsgt+VQ4jfF+2tRRhajw6yJRuUnhFQsLTtoFnaRW6qqDqAr5/uXXEw
+ +d+C4ucs0OPpmEOAxsGMX3KgECAuC7XRSkLBNhGUVUGd4rztm3r7KuadavCpY7CNco
+ HFfp93yR2RGpqbDsS/6IyB8pLajVOEUu/lqSJpYc=
+Date: Fri, 21 Aug 2020 13:55:07 -0700
+From: Andrew Morton <akpm@linux-foundation.org>
+To: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH v5 0/6] mm / virtio-mem: support ZONE_MOVABLE
+Message-Id: <20200821135507.cc20edbdd11205257cfd86e5@linux-foundation.org>
+In-Reply-To: <bb7cad5a-daa3-132e-1bc1-19110476b55e@redhat.com>
+References: <20200816125333.7434-1-david@redhat.com>
+ <552a2a55-6082-d286-1cd4-7f7e368eebb4@redhat.com>
+ <bb7cad5a-daa3-132e-1bc1-19110476b55e@redhat.com>
+X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Michal Hocko <mhocko@suse.com>,
+ Baoquan He <bhe@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ linux-mm@kvack.org, Qian Cai <cai@lca.pw>, Mike Rapoport <rppt@linux.ibm.com>,
+ Mike Rapoport <rppt@kernel.org>, Mike Kravetz <mike.kravetz@oracle.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -118,14 +96,22 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 8/20/20 7:19 PM, Tian Tao wrote:
-> Use kobj_to_dev() instead of container_of()
+On Fri, 21 Aug 2020 10:45:33 +0200 David Hildenbrand <david@redhat.com> wrote:
 
-Applied, thanks.
+> On 21.08.20 10:31, David Hildenbrand wrote:
+> > On 16.08.20 14:53, David Hildenbrand wrote:
+> >> For 5.10. Patch #1-#4,#6 have RBs or ACKs, patch #5 is virtio-mem stuff
+> >> maintained by me. This should go via the -mm tree.
+> >>
+> > 
+> > @Andrew, can we give this a churn if there are no further comments? Thanks!
+> 
+> ... I just spotted the patches in -next, strange I didn't get an email
+> notification. Thanks :)
 
--- 
-Jens Axboe
+https://lore.kernel.org/mm-commits/20200819025501.gJhZlolfC%25akpm@linux-foundation.org/
 
+akpm!=spam :)
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
