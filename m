@@ -7,90 +7,92 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 258DBC433DF
-	for <virtualization@archiver.kernel.org>; Fri, 21 Aug 2020 10:35:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 11C9BC433DF
+	for <virtualization@archiver.kernel.org>; Fri, 21 Aug 2020 10:35:18 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D79ED204EA
-	for <virtualization@archiver.kernel.org>; Fri, 21 Aug 2020 10:35:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id D3BF9207DA
+	for <virtualization@archiver.kernel.org>; Fri, 21 Aug 2020 10:35:17 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Z+whIEeF"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D79ED204EA
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Jo8saM4U"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D3BF9207DA
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id B53DD86D2A;
-	Fri, 21 Aug 2020 10:35:15 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id BD88A86D36;
+	Fri, 21 Aug 2020 10:35:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gfUIO7LZhEEh; Fri, 21 Aug 2020 10:35:15 +0000 (UTC)
+	with ESMTP id qJQ20JCqohmp; Fri, 21 Aug 2020 10:35:17 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 0FBAC86C06;
-	Fri, 21 Aug 2020 10:35:15 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 461A086CF9;
+	Fri, 21 Aug 2020 10:35:17 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E9DC7C07FF;
-	Fri, 21 Aug 2020 10:35:14 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B00B7C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 36B1EC07FF;
+	Fri, 21 Aug 2020 10:35:17 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D87F4C0051
  for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Aug 2020 10:35:12 +0000 (UTC)
+ Fri, 21 Aug 2020 10:35:15 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 95F68203C8
+ by whitealder.osuosl.org (Postfix) with ESMTP id C6FBC88646
  for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Aug 2020 10:35:12 +0000 (UTC)
+ Fri, 21 Aug 2020 10:35:15 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 7KbgScc2hZq6
+ with ESMTP id 9DfMbQsZR5Gu
  for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Aug 2020 10:35:11 +0000 (UTC)
+ Fri, 21 Aug 2020 10:35:15 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-1.mimecast.com (us-smtp-delivery-1.mimecast.com
- [205.139.110.120])
- by silver.osuosl.org (Postfix) with ESMTPS id 3ED7C203B4
+Received: from us-smtp-delivery-1.mimecast.com (us-smtp-1.mimecast.com
+ [207.211.31.81])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 2E98888656
  for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Aug 2020 10:35:11 +0000 (UTC)
+ Fri, 21 Aug 2020 10:35:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1598006110;
+ s=mimecast20190719; t=1598006114;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=a286TBwbZ7ci6RWhKZMWDqKWC78sTVuqH/ttlMVxfUs=;
- b=Z+whIEeFsJbcZWTC14b1kwV1djiU7QE3/k/MTYSHgu9WuhqsgaFcoOUmQqIzzp55Nc0tqt
- +JdPHKGFUXjNI5Q8vBZQWYliivKyzHj4ynaBeqK3QS1A8YOWJ/PfNbfNlMmENeFHgk07He
- JPJh/lRWGKfkImCDkViiVGFEq2N1J/Y=
+ bh=OKy/5qBO5o//LYJ+b8xL+LjmCbIRLl1gm4kTDHiwBRU=;
+ b=Jo8saM4UNjHiC4EZEAFEskIbChLagMMeOzkPTPti40L2A+VOx7dFIpHmc/U7BQBbQTJ+nZ
+ jY3u3YRGVmr4GRbFzgRn0Y6WShyYDbxHxK3CaouxgAzP/U4AM8HZkkBQBdiThVT3cPq6oD
+ 2HuiQqnJ3dHCXRcyW7HAOQIJCZGLo9w=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-144-Gn4EHG4jOouXnffn-SpIAw-1; Fri, 21 Aug 2020 06:35:05 -0400
-X-MC-Unique: Gn4EHG4jOouXnffn-SpIAw-1
+ us-mta-133-2VGBU1yXNXyePjxSO5BEig-1; Fri, 21 Aug 2020 06:35:12 -0400
+X-MC-Unique: 2VGBU1yXNXyePjxSO5BEig-1
 Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
  [10.5.11.12])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4707F18A2241;
- Fri, 21 Aug 2020 10:35:04 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 002AE80733A;
+ Fri, 21 Aug 2020 10:35:10 +0000 (UTC)
 Received: from t480s.redhat.com (ovpn-114-87.ams2.redhat.com [10.36.114.87])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 449F960BF1;
- Fri, 21 Aug 2020 10:34:55 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 9887C756DD;
+ Fri, 21 Aug 2020 10:35:04 +0000 (UTC)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH v1 3/5] virtio-mem: try to merge system ram resources
-Date: Fri, 21 Aug 2020 12:34:29 +0200
-Message-Id: <20200821103431.13481-4-david@redhat.com>
+Subject: [PATCH v1 4/5] xen/balloon: try to merge system ram resources
+Date: Fri, 21 Aug 2020 12:34:30 +0200
+Message-Id: <20200821103431.13481-5-david@redhat.com>
 In-Reply-To: <20200821103431.13481-1-david@redhat.com>
 References: <20200821103431.13481-1-david@redhat.com>
 MIME-Version: 1.0
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>, linux-hyperv@vger.kernel.org,
- Michal Hocko <mhocko@suse.com>, Baoquan He <bhe@redhat.com>,
- "Michael S . Tsirkin" <mst@redhat.com>,
- virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
+Cc: Juergen Gross <jgross@suse.com>,
+ Pankaj Gupta <pankaj.gupta.linux@gmail.com>, linux-hyperv@vger.kernel.org,
+ Michal Hocko <mhocko@suse.com>, Julien Grall <julien@xen.org>,
+ Baoquan He <bhe@redhat.com>, virtualization@lists.linux-foundation.org,
+ linux-mm@kvack.org, Stefano Stabellini <sstabellini@kernel.org>,
  Wei Yang <richardw.yang@linux.intel.com>, xen-devel@lists.xenproject.org,
  Andrew Morton <akpm@linux-foundation.org>,
- Dan Williams <dan.j.williams@intel.com>
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -102,104 +104,33 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-virtio-mem adds memory in memory block granularity, to be able to
-remove it in the same granularity again later, and to grow slowly on
-demand. This, however, results in quite a lot of resources when
-adding a lot of memory. Resources are effectively stored in a list-based
-tree. Having a lot of resources not only wastes memory, it also makes
-traversing that tree more expensive, and makes /proc/iomem explode in
-size (e.g., requiring kexec-tools to manually merge resources later
-when e.g., trying to create a kdump header).
-
-Before this patch, we get (/proc/iomem) when hotplugging 2G via virtio-mem
-on x86-64:
-        [...]
-        100000000-13fffffff : System RAM
-        140000000-33fffffff : virtio0
-          140000000-147ffffff : System RAM (virtio_mem)
-          148000000-14fffffff : System RAM (virtio_mem)
-          150000000-157ffffff : System RAM (virtio_mem)
-          158000000-15fffffff : System RAM (virtio_mem)
-          160000000-167ffffff : System RAM (virtio_mem)
-          168000000-16fffffff : System RAM (virtio_mem)
-          170000000-177ffffff : System RAM (virtio_mem)
-          178000000-17fffffff : System RAM (virtio_mem)
-          180000000-187ffffff : System RAM (virtio_mem)
-          188000000-18fffffff : System RAM (virtio_mem)
-          190000000-197ffffff : System RAM (virtio_mem)
-          198000000-19fffffff : System RAM (virtio_mem)
-          1a0000000-1a7ffffff : System RAM (virtio_mem)
-          1a8000000-1afffffff : System RAM (virtio_mem)
-          1b0000000-1b7ffffff : System RAM (virtio_mem)
-          1b8000000-1bfffffff : System RAM (virtio_mem)
-        3280000000-32ffffffff : PCI Bus 0000:00
-
-With this patch, we get (/proc/iomem):
-        [...]
-        fffc0000-ffffffff : Reserved
-        100000000-13fffffff : System RAM
-        140000000-33fffffff : virtio0
-          140000000-1bfffffff : System RAM (virtio_mem)
-        3280000000-32ffffffff : PCI Bus 0000:00
-
-Of course, with more hotplugged memory, it gets worse. When unplugging
-memory blocks again, try_remove_memory() (via
-offline_and_remove_memory()) will properly split the resource up again.
-
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Michael S. Tsirkin <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: Baoquan He <bhe@redhat.com>
-Cc: Wei Yang <richardw.yang@linux.intel.com>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- drivers/virtio/virtio_mem.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index 834b7c13ef3dc..3aae0f87073a8 100644
---- a/drivers/virtio/virtio_mem.c
-+++ b/drivers/virtio/virtio_mem.c
-@@ -407,6 +407,7 @@ static int virtio_mem_mb_add(struct virtio_mem *vm, unsigned long mb_id)
- {
- 	const uint64_t addr = virtio_mem_mb_id_to_phys(mb_id);
- 	int nid = vm->nid;
-+	int rc;
- 
- 	if (nid == NUMA_NO_NODE)
- 		nid = memory_add_physaddr_to_nid(addr);
-@@ -423,8 +424,17 @@ static int virtio_mem_mb_add(struct virtio_mem *vm, unsigned long mb_id)
- 	}
- 
- 	dev_dbg(&vm->vdev->dev, "adding memory block: %lu\n", mb_id);
--	return add_memory_driver_managed(nid, addr, memory_block_size_bytes(),
--					 vm->resource_name);
-+	rc = add_memory_driver_managed(nid, addr, memory_block_size_bytes(),
-+				       vm->resource_name);
-+	if (!rc) {
-+		/*
-+		 * Try to reduce the number of system ram resources in our
-+		 * resource container. The memory removal path will properly
-+		 * split them up again.
-+		 */
-+		merge_system_ram_resources(vm->parent_resource);
-+	}
-+	return rc;
- }
- 
- /*
--- 
-2.26.2
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+TGV0J3MgcmV1c2UgdGhlIG5ldyBtZWNoYW5pc20gdG8gbWVyZ2Ugc3lzdGVtIHJhbSByZXNvdXJj
+ZXMgYmVsb3cgdGhlCnJvb3QuIFdlIGFyZSB0aGUgb25seSBvbmUgaG90cGx1Z2dpbmcgc3lzdGVt
+IHJhbSAoZS5nLiwgRElNTXMgZG9uJ3QgYXBwbHkpLApzbyB0aGlzIGlzIHNhZmUgdG8gYmUgdXNl
+ZC4KCkNjOiBBbmRyZXcgTW9ydG9uIDxha3BtQGxpbnV4LWZvdW5kYXRpb24ub3JnPgpDYzogTWlj
+aGFsIEhvY2tvIDxtaG9ja29Ac3VzZS5jb20+CkNjOiBCb3JpcyBPc3Ryb3Zza3kgPGJvcmlzLm9z
+dHJvdnNreUBvcmFjbGUuY29tPgpDYzogSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuY29tPgpD
+YzogU3RlZmFubyBTdGFiZWxsaW5pIDxzc3RhYmVsbGluaUBrZXJuZWwub3JnPgpDYzogUm9nZXIg
+UGF1IE1vbm7DqSA8cm9nZXIucGF1QGNpdHJpeC5jb20+CkNjOiBKdWxpZW4gR3JhbGwgPGp1bGll
+bkB4ZW4ub3JnPgpDYzogUGFua2FqIEd1cHRhIDxwYW5rYWouZ3VwdGEubGludXhAZ21haWwuY29t
+PgpDYzogQmFvcXVhbiBIZSA8YmhlQHJlZGhhdC5jb20+CkNjOiBXZWkgWWFuZyA8cmljaGFyZHcu
+eWFuZ0BsaW51eC5pbnRlbC5jb20+ClNpZ25lZC1vZmYtYnk6IERhdmlkIEhpbGRlbmJyYW5kIDxk
+YXZpZEByZWRoYXQuY29tPgotLS0KIGRyaXZlcnMveGVuL2JhbGxvb24uYyB8IDQgKysrKwogMSBm
+aWxlIGNoYW5nZWQsIDQgaW5zZXJ0aW9ucygrKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMveGVuL2Jh
+bGxvb24uYyBiL2RyaXZlcnMveGVuL2JhbGxvb24uYwppbmRleCAzN2ZmY2NkYThiYjg3Li41ZWM3
+M2Y3NTJiOGE3IDEwMDY0NAotLS0gYS9kcml2ZXJzL3hlbi9iYWxsb29uLmMKKysrIGIvZHJpdmVy
+cy94ZW4vYmFsbG9vbi5jCkBAIC0zMzgsNiArMzM4LDEwIEBAIHN0YXRpYyBlbnVtIGJwX3N0YXRl
+IHJlc2VydmVfYWRkaXRpb25hbF9tZW1vcnkodm9pZCkKIAlpZiAocmMpIHsKIAkJcHJfd2Fybigi
+Q2Fubm90IGFkZCBhZGRpdGlvbmFsIG1lbW9yeSAoJWkpXG4iLCByYyk7CiAJCWdvdG8gZXJyOwor
+CX0gZWxzZSB7CisJCXJlc291cmNlID0gTlVMTDsKKwkJLyogVHJ5IHRvIHJlZHVjZSB0aGUgbnVt
+YmVyIG9mIHN5c3RlbSByYW0gcmVzb3VyY2VzLiAqLworCQltZXJnZV9zeXN0ZW1fcmFtX3Jlc291
+cmNlcygmaW9tZW1fcmVzb3VyY2UpOwogCX0KIAogCWJhbGxvb25fc3RhdHMudG90YWxfcGFnZXMg
+Kz0gYmFsbG9vbl9ob3RwbHVnOwotLSAKMi4yNi4yCgpfX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
+bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZv
+dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
