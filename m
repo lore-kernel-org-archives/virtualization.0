@@ -2,101 +2,98 @@ Return-Path: <SRS0=hbIa=B7=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0469BC433DF
-	for <virtualization@archiver.kernel.org>; Fri, 21 Aug 2020 13:16:14 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B368C433E4
+	for <virtualization@archiver.kernel.org>; Fri, 21 Aug 2020 13:16:15 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C326420724
-	for <virtualization@archiver.kernel.org>; Fri, 21 Aug 2020 13:16:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 1FF12207DA
+	for <virtualization@archiver.kernel.org>; Fri, 21 Aug 2020 13:16:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="NpM+QAeA"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C326420724
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="EYBouRuv"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1FF12207DA
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 8C04A8862D;
-	Fri, 21 Aug 2020 13:16:13 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id CFB6520476;
+	Fri, 21 Aug 2020 13:16:14 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 2S+Agwhl4GJ8; Fri, 21 Aug 2020 13:16:12 +0000 (UTC)
+	with ESMTP id FMtum5Y6P32J; Fri, 21 Aug 2020 13:16:11 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 9B9E38819B;
-	Fri, 21 Aug 2020 13:16:12 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 60F1720482;
+	Fri, 21 Aug 2020 13:16:11 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 81DCAC0889;
-	Fri, 21 Aug 2020 13:16:12 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 424CEC0889;
+	Fri, 21 Aug 2020 13:16:11 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9CD1EC0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1BAEEC0051
  for <virtualization@lists.linux-foundation.org>;
  Fri, 21 Aug 2020 13:16:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 8BEC588360
+ by hemlock.osuosl.org (Postfix) with ESMTP id 097DB88360
  for <virtualization@lists.linux-foundation.org>;
  Fri, 21 Aug 2020 13:16:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id sCWdA6OJjqmw
- for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Aug 2020 13:16:10 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-ed1-f68.google.com (mail-ed1-f68.google.com
- [209.85.208.68])
- by hemlock.osuosl.org (Postfix) with ESMTPS id CB2908832D
+ with ESMTP id yXxEz--02Tpk
  for <virtualization@lists.linux-foundation.org>;
  Fri, 21 Aug 2020 13:16:09 +0000 (UTC)
-Received: by mail-ed1-f68.google.com with SMTP id m20so1395817eds.2
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+Received: from mail-ej1-f65.google.com (mail-ej1-f65.google.com
+ [209.85.218.65])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id E890D87CB8
  for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Aug 2020 06:16:09 -0700 (PDT)
+ Fri, 21 Aug 2020 13:16:08 +0000 (UTC)
+Received: by mail-ej1-f65.google.com with SMTP id o23so2257216ejr.1
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 21 Aug 2020 06:16:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=CGfR6v3AK9RiKFWmVUt4OX8zldgtD7R209TqBrFRf6A=;
- b=NpM+QAeAtDS+vuHr/qsAxLGz0RzOZbBpb7eNNFUK3Kan9Wha3FSnGrRgODlSfxTHji
- jqPHivHK0RsfnSvZINhMJVXV5ePliRbvAny/XW+puDQKC9eSaVAT90nZ237E34X+jPYz
- kqcNeVfjnEsJ8Zd/HJrDBnyrln9AFE9kVmyfgvbVnVxLMTT6NChJuydDWP2g8r/bs627
- o/8F+GSTZ5LbFww31m11upQpAqghI7vnm3FSwkHTJlg1f7RR+pI4bBJ3Zi1Je66cAb+E
- K1wzyw+hhAwliNdzhiHjWsJXWyJbMOjB6LnZIj4Kyg9JvalM3Q+LR0JUdr19byex8jUC
- RJ7Q==
+ h=from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=Y/asOEQ7I5lK9SCfOrPxX9Ij7ThPhJXGbgb9Vg60QdU=;
+ b=EYBouRuvx7C7M1g4+Ts8UzFEMdS8ULDwuOJEs1eOkgISO70lUT/4Bvu/b1h1GvERCl
+ rKI7LPJD38AhqdjZ/lSpOArHlbNCvqLuAHOWkeu+OWoua5ljvoIl8M1kqX/r2VxoBq//
+ SOrSe/51+7gXMFValJMarQpshl2SpMbFVAkyEvvD59ixQdldOvOWlq7nETtEXla4XPyN
+ AOPoYkrkNhg9tMEXekpD3atg/nxtUf5yS1cQz2fuBJq10wwAV6IE3DZy7UnG8q5Z3oJ/
+ 3TWv1ugObjE4oa7EDAXgTv8M7m8QyMKkjXIbXeNK8e3KaTGVDHRHUbJcfn9TlVH9F4AV
+ YDEg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
- :references:mime-version:content-transfer-encoding;
- bh=CGfR6v3AK9RiKFWmVUt4OX8zldgtD7R209TqBrFRf6A=;
- b=eYl4v6dW32hcow9utU1IUC0nqyKs5SXEo4BK1/8SJVIZDa7RjRjHUzPLg/ePPhau+v
- g4IDo+VwIilqfsrm9PITE8Y5EPZnnf+JAv6oIIirj3qBmVQQ6hmNMeBddXwvumJYt8sc
- DdNGs5RJOj2D5ueRScz/+MyCyA8/0uGcJ/45zVoQ8Mitf10RGlNfn1FzD5hrrSDfw0Zz
- rW26+9vGYK2RTNzlKqHiMzXGnU8ruXCESTj8gcSeyltlkPzZDTzHSUP1XT8/FRYB9aPq
- gtx75Z5dCB4jicsSKGUUoT8FGMa70Yh9w5O7Iab3hF4hP9rdxRmg3iWrcuUGGx7KdabY
- 3nFw==
-X-Gm-Message-State: AOAM533D+VEBzmdJR4E3YraeIe8YwEbv4rPSrhkpLKr9sBS1YpjMYK9m
- Yr1eXhJ/oCR237fCtzflRkTe6w==
-X-Google-Smtp-Source: ABdhPJxokcQ0IuXysG4c3tg0Qxks3XmbNzQjbGHqNkBr899EEr9X26aBW5gNkvYxSfGRWPA0z+/VaA==
-X-Received: by 2002:a05:6402:b1c:: with SMTP id
- bm28mr2790782edb.116.1598015768219; 
- Fri, 21 Aug 2020 06:16:08 -0700 (PDT)
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+ :content-transfer-encoding;
+ bh=Y/asOEQ7I5lK9SCfOrPxX9Ij7ThPhJXGbgb9Vg60QdU=;
+ b=WzxoRIqWE6ZrU1wuLdKWOECdwYfrh+wZ7FMM90Pe0JzhBaPeKSEKbqXPEqMRxM2A+w
+ kqp9AGloQzGUXYETLEoyDPWhnF/PN/X0a56VDwA61KjFIrqtG2IBn841b7/TBKJEIIpI
+ s460G1Fiw0eXKHylusjlwcKRCeEeZBEF+4tUWttctFKYWUhWnKOwMOvgsRss6wSBpryN
+ L6piY5i+oR0PP+YSpDMhie7OUX+ww7y0oxJuvFkoLhEFFbAvD9GvlJmO1js3MsBcBDIf
+ oQB2x9t0LiCyrgh7C/AFPoFCBeFrK/eMAHKceJZkuKbpTJQNbS2IKU6geUWTmoBWyHEs
+ zVsQ==
+X-Gm-Message-State: AOAM530vUmitegxNMDNIZT1XSyhCxEVoY+IhWAFVCl5Ukrbl6HVVUj6K
+ J3f58tRGCr5KOY8yjKca/9S+oQ==
+X-Google-Smtp-Source: ABdhPJwOy/5jkRbdPAXN7lLeuSinZ0dNBsa/xxJXp4vx3NLHlrjucaVJpRbbUOOksUhqw9JvR5D63A==
+X-Received: by 2002:a17:906:dbd2:: with SMTP id
+ yc18mr2371358ejb.394.1598015767083; 
+ Fri, 21 Aug 2020 06:16:07 -0700 (PDT)
 Received: from localhost.localdomain
  ([2001:1715:4e26:a7e0:116c:c27a:3e7f:5eaf])
- by smtp.gmail.com with ESMTPSA id v4sm1299748eje.39.2020.08.21.06.16.07
+ by smtp.gmail.com with ESMTPSA id v4sm1299748eje.39.2020.08.21.06.16.05
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 21 Aug 2020 06:16:07 -0700 (PDT)
+ Fri, 21 Aug 2020 06:16:06 -0700 (PDT)
 From: Jean-Philippe Brucker <jean-philippe@linaro.org>
 To: iommu@lists.linux-foundation.org,
  virtualization@lists.linux-foundation.org, virtio-dev@lists.oasis-open.org,
  linux-pci@vger.kernel.org
-Subject: [PATCH v3 1/6] iommu/virtio: Move to drivers/iommu/virtio/
-Date: Fri, 21 Aug 2020 15:15:35 +0200
-Message-Id: <20200821131540.2801801-2-jean-philippe@linaro.org>
+Subject: [PATCH v3 0/6] Add virtio-iommu built-in topology
+Date: Fri, 21 Aug 2020 15:15:34 +0200
+Message-Id: <20200821131540.2801801-1-jean-philippe@linaro.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200821131540.2801801-1-jean-philippe@linaro.org>
-References: <20200821131540.2801801-1-jean-philippe@linaro.org>
 MIME-Version: 1.0
 Cc: Jean-Philippe Brucker <jean-philippe@linaro.org>, lorenzo.pieralisi@arm.com,
  mst@redhat.com, joro@8bytes.org, eric.auger@redhat.com,
@@ -117,60 +114,64 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Before adding new files to the virtio-iommu driver, move it to its own
-subfolder, similarly to other IOMMU drivers.
+Add a topology description to the virtio-iommu driver and enable x86
+platforms.
 
-Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
----
- drivers/iommu/Makefile                    | 3 +--
- drivers/iommu/virtio/Makefile             | 2 ++
- drivers/iommu/{ => virtio}/virtio-iommu.c | 0
- MAINTAINERS                               | 2 +-
- 4 files changed, 4 insertions(+), 3 deletions(-)
+Since [v2] we have made some progress on adding ACPI support for
+virtio-iommu, which is the preferred boot method on x86. It will be a
+new vendor-agnostic table describing para-virtual topologies in a
+minimal format. However some platforms don't use either ACPI or DT for
+booting (for example microvm), and will need the alternative topology
+description method proposed here. In addition, since the process to get
+a new ACPI table will take a long time, this provides a boot method even
+to ACPI-based platforms, if only temporarily for testing and
+development.
+
+v3:
+* Add patch 1 that moves virtio-iommu to a subfolder.
+* Split the rest:
+  * Patch 2 adds topology-helper.c, which will be shared with the ACPI
+    support.
+  * Patch 4 adds definitions.
+  * Patch 5 adds parser in topology.c.
+* Address other comments.
+
+Linux and QEMU patches available at:
+https://jpbrucker.net/git/linux virtio-iommu/devel
+https://jpbrucker.net/git/qemu virtio-iommu/devel
+
+[spec] https://lists.oasis-open.org/archives/virtio-dev/202008/msg00067.html
+[v2] https://lore.kernel.org/linux-iommu/20200228172537.377327-1-jean-philippe@linaro.org/
+[v1] https://lore.kernel.org/linux-iommu/20200214160413.1475396-1-jean-philippe@linaro.org/
+[rfc] https://lore.kernel.org/linux-iommu/20191122105000.800410-1-jean-philippe@linaro.org/
+
+Jean-Philippe Brucker (6):
+  iommu/virtio: Move to drivers/iommu/virtio/
+  iommu/virtio: Add topology helpers
+  PCI: Add DMA configuration for virtual platforms
+  iommu/virtio: Add topology definitions
+  iommu/virtio: Support topology description in config space
+  iommu/virtio: Enable x86 support
+
+ drivers/iommu/Kconfig                     |  18 +-
+ drivers/iommu/Makefile                    |   3 +-
+ drivers/iommu/virtio/Makefile             |   4 +
+ drivers/iommu/virtio/topology-helpers.h   |  50 +++++
+ include/linux/virt_iommu.h                |  15 ++
+ include/uapi/linux/virtio_iommu.h         |  44 ++++
+ drivers/iommu/virtio/topology-helpers.c   | 196 ++++++++++++++++
+ drivers/iommu/virtio/topology.c           | 259 ++++++++++++++++++++++
+ drivers/iommu/{ => virtio}/virtio-iommu.c |   4 +
+ drivers/pci/pci-driver.c                  |   5 +
+ MAINTAINERS                               |   3 +-
+ 11 files changed, 597 insertions(+), 4 deletions(-)
  create mode 100644 drivers/iommu/virtio/Makefile
- rename drivers/iommu/{ => virtio}/virtio-iommu.c (100%)
+ create mode 100644 drivers/iommu/virtio/topology-helpers.h
+ create mode 100644 include/linux/virt_iommu.h
+ create mode 100644 drivers/iommu/virtio/topology-helpers.c
+ create mode 100644 drivers/iommu/virtio/topology.c
+ rename drivers/iommu/{ => virtio}/virtio-iommu.c (99%)
 
-diff --git a/drivers/iommu/Makefile b/drivers/iommu/Makefile
-index 11f1771104f3..fc7523042512 100644
---- a/drivers/iommu/Makefile
-+++ b/drivers/iommu/Makefile
-@@ -1,5 +1,5 @@
- # SPDX-License-Identifier: GPL-2.0
--obj-y += amd/ intel/ arm/
-+obj-y += amd/ intel/ arm/ virtio/
- obj-$(CONFIG_IOMMU_API) += iommu.o
- obj-$(CONFIG_IOMMU_API) += iommu-traces.o
- obj-$(CONFIG_IOMMU_API) += iommu-sysfs.o
-@@ -26,4 +26,3 @@ obj-$(CONFIG_EXYNOS_IOMMU) += exynos-iommu.o
- obj-$(CONFIG_FSL_PAMU) += fsl_pamu.o fsl_pamu_domain.o
- obj-$(CONFIG_S390_IOMMU) += s390-iommu.o
- obj-$(CONFIG_HYPERV_IOMMU) += hyperv-iommu.o
--obj-$(CONFIG_VIRTIO_IOMMU) += virtio-iommu.o
-diff --git a/drivers/iommu/virtio/Makefile b/drivers/iommu/virtio/Makefile
-new file mode 100644
-index 000000000000..279368fcc074
---- /dev/null
-+++ b/drivers/iommu/virtio/Makefile
-@@ -0,0 +1,2 @@
-+# SPDX-License-Identifier: GPL-2.0
-+obj-$(CONFIG_VIRTIO_IOMMU) += virtio-iommu.o
-diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio/virtio-iommu.c
-similarity index 100%
-rename from drivers/iommu/virtio-iommu.c
-rename to drivers/iommu/virtio/virtio-iommu.c
-diff --git a/MAINTAINERS b/MAINTAINERS
-index deaafb617361..3602b223c9b2 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -18451,7 +18451,7 @@ VIRTIO IOMMU DRIVER
- M:	Jean-Philippe Brucker <jean-philippe@linaro.org>
- L:	virtualization@lists.linux-foundation.org
- S:	Maintained
--F:	drivers/iommu/virtio-iommu.c
-+F:	drivers/iommu/virtio/
- F:	include/uapi/linux/virtio_iommu.h
- 
- VIRTIO MEM DRIVER
 -- 
 2.28.0
 
