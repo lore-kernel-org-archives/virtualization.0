@@ -2,71 +2,83 @@ Return-Path: <SRS0=hbIa=B7=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,FAKE_REPLY_C,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8FA9AC433DF
-	for <virtualization@archiver.kernel.org>; Fri, 21 Aug 2020 08:02:50 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6BFABC433DF
+	for <virtualization@archiver.kernel.org>; Fri, 21 Aug 2020 08:05:43 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 5E0052078D
-	for <virtualization@archiver.kernel.org>; Fri, 21 Aug 2020 08:02:50 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5E0052078D
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=gondor.apana.org.au
+	by mail.kernel.org (Postfix) with ESMTPS id 41F162078D
+	for <virtualization@archiver.kernel.org>; Fri, 21 Aug 2020 08:05:43 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 41F162078D
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 3006786C40;
-	Fri, 21 Aug 2020 08:02:50 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 0999188672;
+	Fri, 21 Aug 2020 08:05:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id GRPd_Yx8lMeu; Fri, 21 Aug 2020 08:02:49 +0000 (UTC)
+	with ESMTP id SmAgzvTnOMPg; Fri, 21 Aug 2020 08:05:41 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 83D5086C2D;
-	Fri, 21 Aug 2020 08:02:49 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 0F7A38863E;
+	Fri, 21 Aug 2020 08:05:41 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6D132C0889;
-	Fri, 21 Aug 2020 08:02:49 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 51CE9C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F33B4C0889;
+	Fri, 21 Aug 2020 08:05:40 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BE477C0051
  for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Aug 2020 08:02:47 +0000 (UTC)
+ Fri, 21 Aug 2020 08:05:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 17F5B203C8
+ by whitealder.osuosl.org (Postfix) with ESMTP id B9C468864B
  for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Aug 2020 08:02:47 +0000 (UTC)
+ Fri, 21 Aug 2020 08:05:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Ktm0KJGJBQe9
+ with ESMTP id fWuJsdfLRP+p
  for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Aug 2020 08:02:39 +0000 (UTC)
+ Fri, 21 Aug 2020 08:05:38 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
-Received: from fornost.hmeau.com (helcar.hmeau.com [216.24.177.18])
- by silver.osuosl.org (Postfix) with ESMTPS id 6A3592313B
+Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id D7A158863E
  for <virtualization@lists.linux-foundation.org>;
- Fri, 21 Aug 2020 08:01:33 +0000 (UTC)
-Received: from gwarestrin.arnor.me.apana.org.au ([192.168.0.7])
- by fornost.hmeau.com with smtp (Exim 4.92 #5 (Debian))
- id 1k91zF-00049M-O4; Fri, 21 Aug 2020 18:01:22 +1000
-Received: by gwarestrin.arnor.me.apana.org.au (sSMTP sendmail emulation);
- Fri, 21 Aug 2020 18:01:21 +1000
-Date: Fri, 21 Aug 2020 18:01:21 +1000
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Eric Biggers <ebiggers@kernel.org>
-Subject: Re: [PATCH] crypto: virtio - don't use 'default m'
-Message-ID: <20200821080121.GA25399@gondor.apana.org.au>
+ Fri, 21 Aug 2020 08:05:37 +0000 (UTC)
+Received: by theia.8bytes.org (Postfix, from userid 1000)
+ id 744CF2AC; Fri, 21 Aug 2020 10:05:34 +0200 (CEST)
+Date: Fri, 21 Aug 2020 10:05:31 +0200
+From: Joerg Roedel <joro@8bytes.org>
+To: Mike Stunes <mstunes@vmware.com>
+Subject: Re: [PATCH v5 00/75] x86: SEV-ES Guest Support
+Message-ID: <20200821080531.GC3319@8bytes.org>
+References: <20200724160336.5435-1-joro@8bytes.org>
+ <B65392F4-FD42-4AA3-8AA8-6C0C0D1FF007@vmware.com>
+ <20200730122645.GA3257@8bytes.org>
+ <F5603CBB-31FB-4EE8-B67A-A1F2DBEE28D8@vmware.com>
+ <20200818150746.GA3319@8bytes.org>
+ <6F9275F4-D5A4-4D30-8729-A57989568CA7@vmware.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20200812192053.1769235-1-ebiggers@kernel.org>
-X-Newsgroups: apana.lists.os.linux.cryptoapi,
- apana.lists.os.linux.virtualization
+In-Reply-To: <6F9275F4-D5A4-4D30-8729-A57989568CA7@vmware.com>
 User-Agent: Mutt/1.10.1 (2018-07-13)
-Cc: mst@redhat.com, rammuthiah@google.com,
- virtualization@lists.linux-foundation.org, linux-crypto@vger.kernel.org
+Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, Kees Cook <keescook@chromium.org>,
+ "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+ Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>,
+ "x86@kernel.org" <x86@kernel.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ Sean Christopherson <sean.j.christopherson@intel.com>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ Martin Radev <martin.b.radev@gmail.com>, Joerg Roedel <jroedel@suse.de>,
+ Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>,
+ "hpa@zytor.com" <hpa@zytor.com>, Erdem Aktas <erdemaktas@google.com>,
+ David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>,
+ Jiri Slaby <jslaby@suse.cz>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -78,31 +90,20 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Eric Biggers <ebiggers@kernel.org> wrote:
-> From: Ram Muthiah <rammuthiah@google.com>
-> 
-> Drivers shouldn't be enabled by default unless there is a very good
-> reason to do so.  There doesn't seem to be any such reason for the
-> virtio crypto driver, so change it to the default of 'n'.
-> 
-> Signed-off-by: Ram Muthiah <rammuthiah@google.com>
-> [EB: adjusted commit message]
-> Signed-off-by: Eric Biggers <ebiggers@google.com>
-> ---
-> drivers/crypto/virtio/Kconfig | 1 -
-> 1 file changed, 1 deletion(-)
-
-Patch applied.  Thanks.
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+SGkgTWlrZSwKCk9uIFRodSwgQXVnIDIwLCAyMDIwIGF0IDEyOjU4OjEzQU0gKzAwMDAsIE1pa2Ug
+U3R1bmVzIHdyb3RlOgo+IFllcywgSSBzdGlsbCBzZWUgdGhlIGlzc3VlIOKAlCBBUHMgYXJlIG9m
+ZmxpbmUgYWZ0ZXIgYm9vdC4gSeKAmWxsIHNwZW5kCj4gc29tZSB0aW1lIHNlZWluZyBpZiBJIGNh
+biBmaWd1cmUgb3V0IHdoYXQgdGhlIHByb2JsZW0gaXMuIFRoYW5rcyEKClRvbSBhbmQgYSBmZXcg
+b3RoZXJzIGRlYnVnZ2VkIGFub3RoZXIgRlNHU0JBU0UgaXNzdWUgeWVzdGVyZGF5LCB3aGljaCBJ
+CnRoaW5rIG1pZ2h0IGFsc28gYmUgdGhlIGNhdXNlIGZvciB0aGUgQVAgc3RhcnR1cCBwcm9ibGVt
+cyB5b3UgYXJlCnNlZWluZyAoaWYgeW91IHRlc3Qgb24gUm9tZSkuCgpDYW4geW91IHRyeSB0byBk
+aXNhYmxlIHN1cHBvcnQgZm9yIFJEUElEIGluIHRoZSBndWVzdCwgYnV0IGtlZXAgZnNnc2Jhc2UK
+ZW5hYmxlZD8KClRoYW5rcywKCglKb2VyZwpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRp
+b25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRp
+b24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
