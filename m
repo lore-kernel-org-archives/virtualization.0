@@ -7,59 +7,59 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 93433C433E1
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:43 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 39A05C433E3
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:53 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 732D4206F0
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 732D4206F0
+	by mail.kernel.org (Postfix) with ESMTPS id 18ED72072D
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 18ED72072D
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 5897D878AF;
-	Mon, 24 Aug 2020 08:56:43 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 59CAA20491;
+	Mon, 24 Aug 2020 08:56:52 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id LbefiUc1Xh77; Mon, 24 Aug 2020 08:56:42 +0000 (UTC)
+	with ESMTP id ePlTGx78IzoA; Mon, 24 Aug 2020 08:56:40 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id AFBBD8778F;
-	Mon, 24 Aug 2020 08:56:42 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id E12A0204B7;
+	Mon, 24 Aug 2020 08:56:24 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A77FAC016F;
-	Mon, 24 Aug 2020 08:56:42 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D81E8C016F;
+	Mon, 24 Aug 2020 08:56:24 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2CF95C016F
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E6C14C0051
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:56:41 +0000 (UTC)
+ Mon, 24 Aug 2020 08:56:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id F2F812051A
+ by silver.osuosl.org (Postfix) with ESMTP id C7CD5204E8
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:56:40 +0000 (UTC)
+ Mon, 24 Aug 2020 08:56:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id TEnNUph0h-QV
+ with ESMTP id QLMmdeuvSVPl
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:56:34 +0000 (UTC)
+ Mon, 24 Aug 2020 08:56:14 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by silver.osuosl.org (Postfix) with ESMTPS id 363C1207A9
+ by silver.osuosl.org (Postfix) with ESMTPS id 0E70A20514
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:56:16 +0000 (UTC)
+ Mon, 24 Aug 2020 08:56:05 +0000 (UTC)
 Received: from cap.home.8bytes.org (p4ff2bb8d.dip0.t-ipconnect.de
  [79.242.187.141])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id DB23EF6F;
- Mon, 24 Aug 2020 10:56:06 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id ABCE1E50;
+ Mon, 24 Aug 2020 10:56:00 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v6 36/76] x86/head/64: Load IDT earlier
-Date: Mon, 24 Aug 2020 10:54:31 +0200
-Message-Id: <20200824085511.7553-37-joro@8bytes.org>
+Subject: [PATCH v6 27/76] x86/sev-es: Add CPUID handling to #VC handler
+Date: Mon, 24 Aug 2020 10:54:22 +0200
+Message-Id: <20200824085511.7553-28-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824085511.7553-1-joro@8bytes.org>
 References: <20200824085511.7553-1-joro@8bytes.org>
@@ -93,108 +93,85 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-Load the IDT right after switching to virtual addresses in head_64.S
-so that the kernel can handle #VC exceptions.
+Handle #VC exceptions caused by CPUID instructions. These happen in
+early boot code when the KASLR code checks for RDTSC.
 
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+[ jroedel@suse.de: Adapt to #VC handling framework ]
+Co-developed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Link: https://lore.kernel.org/r/20200724160336.5435-36-joro@8bytes.org
+Link: https://lore.kernel.org/r/20200724160336.5435-27-joro@8bytes.org
 ---
- arch/x86/include/asm/setup.h |  3 +++
- arch/x86/kernel/head64.c     |  3 +++
- arch/x86/kernel/head_64.S    |  5 +++++
- arch/x86/kernel/idt.c        | 23 +++++++++++++++++++++++
- 4 files changed, 34 insertions(+)
+ arch/x86/boot/compressed/sev-es.c |  4 ++++
+ arch/x86/kernel/sev-es-shared.c   | 35 +++++++++++++++++++++++++++++++
+ 2 files changed, 39 insertions(+)
 
-diff --git a/arch/x86/include/asm/setup.h b/arch/x86/include/asm/setup.h
-index 8aa6ba0427b0..5c09f50ecf1c 100644
---- a/arch/x86/include/asm/setup.h
-+++ b/arch/x86/include/asm/setup.h
-@@ -50,6 +50,8 @@ extern unsigned long __startup_64(unsigned long physaddr, struct boot_params *bp
- extern unsigned long __startup_secondary_64(void);
- extern void startup_64_setup_env(unsigned long physbase);
- extern int early_make_pgtable(unsigned long address);
-+extern void early_idt_setup_early_handler(unsigned long physaddr);
-+extern void early_load_idt(void);
+diff --git a/arch/x86/boot/compressed/sev-es.c b/arch/x86/boot/compressed/sev-es.c
+index 4f2fc7a85c2f..851d7af29d79 100644
+--- a/arch/x86/boot/compressed/sev-es.c
++++ b/arch/x86/boot/compressed/sev-es.c
+@@ -16,6 +16,7 @@
+ #include <asm/trapnr.h>
+ #include <asm/trap_pf.h>
+ #include <asm/msr-index.h>
++#include <asm/fpu/xcr.h>
+ #include <asm/ptrace.h>
+ #include <asm/svm.h>
  
- #ifdef CONFIG_X86_INTEL_MID
- extern void x86_intel_mid_early_setup(void);
-@@ -66,6 +68,7 @@ static inline void x86_ce4100_early_setup(void) { }
- #ifndef _SETUP
+@@ -183,6 +184,9 @@ void do_boot_stage2_vc(struct pt_regs *regs, unsigned long exit_code)
+ 	case SVM_EXIT_IOIO:
+ 		result = vc_handle_ioio(boot_ghcb, &ctxt);
+ 		break;
++	case SVM_EXIT_CPUID:
++		result = vc_handle_cpuid(boot_ghcb, &ctxt);
++		break;
+ 	default:
+ 		result = ES_UNSUPPORTED;
+ 		break;
+diff --git a/arch/x86/kernel/sev-es-shared.c b/arch/x86/kernel/sev-es-shared.c
+index bae7cf28455b..a6b41910b8ab 100644
+--- a/arch/x86/kernel/sev-es-shared.c
++++ b/arch/x86/kernel/sev-es-shared.c
+@@ -432,3 +432,38 @@ static enum es_result vc_handle_ioio(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
  
- #include <asm/espfix.h>
-+#include <asm/sections.h>
- #include <linux/kernel.h>
- 
- /*
-diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
-index 8703292a35e9..096b09d06d1c 100644
---- a/arch/x86/kernel/head64.c
-+++ b/arch/x86/kernel/head64.c
-@@ -286,6 +286,9 @@ unsigned long __head __startup_64(unsigned long physaddr,
- 		}
- 	}
- 
-+	/* Setup IDT with early handlers */
-+	early_idt_setup_early_handler(physaddr);
-+
- 	/*
- 	 * Return the SME encryption mask (if SME is active) to be used as a
- 	 * modifier for the initial pgdir entry programmed into CR3.
-diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
-index a5e1939d1dc9..28de83fecda3 100644
---- a/arch/x86/kernel/head_64.S
-+++ b/arch/x86/kernel/head_64.S
-@@ -206,6 +206,11 @@ SYM_CODE_START(secondary_startup_64)
- 	 */
- 	movq initial_stack(%rip), %rsp
- 
-+	/* Load IDT */
-+	pushq	%rsi
-+	call	early_load_idt
-+	popq	%rsi
-+
- 	/* Check if nx is implemented */
- 	movl	$0x80000001, %eax
- 	cpuid
-diff --git a/arch/x86/kernel/idt.c b/arch/x86/kernel/idt.c
-index c19773174221..e2777cc264f5 100644
---- a/arch/x86/kernel/idt.c
-+++ b/arch/x86/kernel/idt.c
-@@ -10,6 +10,7 @@
- #include <asm/proto.h>
- #include <asm/desc.h>
- #include <asm/hw_irq.h>
-+#include <asm/setup.h>
- 
- struct idt_data {
- 	unsigned int	vector;
-@@ -385,3 +386,25 @@ void __init alloc_intr_gate(unsigned int n, const void *addr)
- 	if (!WARN_ON(test_and_set_bit(n, system_vectors)))
- 		set_intr_gate(n, addr);
+ 	return ret;
  }
 +
-+void __init early_idt_setup_early_handler(unsigned long physaddr)
++static enum es_result vc_handle_cpuid(struct ghcb *ghcb,
++				      struct es_em_ctxt *ctxt)
 +{
-+	gate_desc *idt;
-+	int i;
++	struct pt_regs *regs = ctxt->regs;
++	u32 cr4 = native_read_cr4();
++	enum es_result ret;
 +
-+	idt = fixup_pointer(idt_table, physaddr);
++	ghcb_set_rax(ghcb, regs->ax);
++	ghcb_set_rcx(ghcb, regs->cx);
 +
-+	for (i = 0; i < NUM_EXCEPTION_VECTORS; i++) {
-+		struct idt_data data;
-+		gate_desc desc;
++	if (cr4 & X86_CR4_OSXSAVE)
++		/* Safe to read xcr0 */
++		ghcb_set_xcr0(ghcb, xgetbv(XCR_XFEATURE_ENABLED_MASK));
++	else
++		/* xgetbv will cause #GP - use reset value for xcr0 */
++		ghcb_set_xcr0(ghcb, 1);
 +
-+		init_idt_data(&data, i, early_idt_handler_array[i]);
-+		idt_init_desc(&desc, &data);
-+		native_write_idt_entry(idt, i, &desc);
-+	}
-+}
++	ret = sev_es_ghcb_hv_call(ghcb, ctxt, SVM_EXIT_CPUID, 0, 0);
++	if (ret != ES_OK)
++		return ret;
 +
-+void early_load_idt(void)
-+{
-+	load_idt(&idt_descr);
++	if (!(ghcb_rax_is_valid(ghcb) &&
++	      ghcb_rbx_is_valid(ghcb) &&
++	      ghcb_rcx_is_valid(ghcb) &&
++	      ghcb_rdx_is_valid(ghcb)))
++		return ES_VMM_ERROR;
++
++	regs->ax = ghcb->save.rax;
++	regs->bx = ghcb->save.rbx;
++	regs->cx = ghcb->save.rcx;
++	regs->dx = ghcb->save.rdx;
++
++	return ES_OK;
 +}
 -- 
 2.28.0
