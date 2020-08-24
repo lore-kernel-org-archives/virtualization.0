@@ -7,59 +7,59 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3681DC433DF
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BA1FC433E8
 	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:06 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 12945204FD
+	by mail.kernel.org (Postfix) with ESMTPS id 7CA79204FD
 	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 12945204FD
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7CA79204FD
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id E15B585D54;
-	Mon, 24 Aug 2020 08:56:05 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 55AD088183;
+	Mon, 24 Aug 2020 08:56:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id orMZBh_ggXCF; Mon, 24 Aug 2020 08:56:03 +0000 (UTC)
+	with ESMTP id A-bENnj3arOg; Mon, 24 Aug 2020 08:56:03 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 636B885F4D;
-	Mon, 24 Aug 2020 08:56:02 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 348528821B;
+	Mon, 24 Aug 2020 08:56:03 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4E5C4C016F;
-	Mon, 24 Aug 2020 08:56:02 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EF330C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1E9F8C089F;
+	Mon, 24 Aug 2020 08:56:03 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 18F52C08A2
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:55:56 +0000 (UTC)
+ Mon, 24 Aug 2020 08:55:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id E986285D8D
+ by whitealder.osuosl.org (Postfix) with ESMTP id 02BD8877BF
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:55:56 +0000 (UTC)
+ Mon, 24 Aug 2020 08:55:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id oeyMgLPm21Rb
+ with ESMTP id z+H8Q5XwqHPH
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:55:56 +0000 (UTC)
+ Mon, 24 Aug 2020 08:55:57 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id D35D185E09
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 405A887747
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:55:55 +0000 (UTC)
+ Mon, 24 Aug 2020 08:55:57 +0000 (UTC)
 Received: from cap.home.8bytes.org (p4ff2bb8d.dip0.t-ipconnect.de
  [79.242.187.141])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 7C1C87D9;
- Mon, 24 Aug 2020 10:55:52 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 26B1A915;
+ Mon, 24 Aug 2020 10:55:54 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v6 12/76] x86/boot/compressed/64: Disable red-zone usage
-Date: Mon, 24 Aug 2020 10:54:07 +0200
-Message-Id: <20200824085511.7553-13-joro@8bytes.org>
+Subject: [PATCH v6 15/76] x86/boot/compressed/64: Add page-fault handler
+Date: Mon, 24 Aug 2020 10:54:10 +0200
+Message-Id: <20200824085511.7553-16-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824085511.7553-1-joro@8bytes.org>
 References: <20200824085511.7553-1-joro@8bytes.org>
@@ -95,42 +95,125 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-The x86-64 ABI defines a red-zone on the stack:
+Install a page-fault handler to add an identity mapping to addresses
+not yet mapped. Also do some checking whether the error code is sane.
 
-  The 128-byte area beyond the location pointed to by %rsp is considered
-  to be reserved and shall not be modified by signal or interrupt
-  handlers. Therefore, functions may use this area for temporary data
-  that is not needed across function calls. In particular, leaf
-  functions may use this area for their entire stack frame, rather than
-  adjusting the stack pointer in the prologue and epilogue. This area is
-  known as the red zone.
-
-This is not compatible with exception handling, because the IRET frame
-written by the hardware at the stack pointer and the functions to handle
-the exception will overwrite the temporary variables of the interrupted
-function, causing undefined behavior. So disable red-zones for the
-pre-decompression boot code.
+This makes non SEV-ES machines use the exception handling
+infrastructure in the pre-decompressions boot code too, making it less
+likely to break in the future.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Reviewed-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20200724160336.5435-12-joro@8bytes.org
+Link: https://lore.kernel.org/r/20200724160336.5435-15-joro@8bytes.org
 ---
- arch/x86/boot/compressed/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/boot/compressed/ident_map_64.c    | 39 ++++++++++++++++++++++
+ arch/x86/boot/compressed/idt_64.c          |  2 ++
+ arch/x86/boot/compressed/idt_handlers_64.S |  2 ++
+ arch/x86/boot/compressed/misc.h            |  6 ++++
+ 4 files changed, 49 insertions(+)
 
-diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
-index 753d57266757..0acdaa8a7dab 100644
---- a/arch/x86/boot/compressed/Makefile
-+++ b/arch/x86/boot/compressed/Makefile
-@@ -32,7 +32,7 @@ KBUILD_CFLAGS := -m$(BITS) -O2
- KBUILD_CFLAGS += -fno-strict-aliasing -fPIE
- KBUILD_CFLAGS += -DDISABLE_BRANCH_PROFILING
- cflags-$(CONFIG_X86_32) := -march=i386
--cflags-$(CONFIG_X86_64) := -mcmodel=small
-+cflags-$(CONFIG_X86_64) := -mcmodel=small -mno-red-zone
- KBUILD_CFLAGS += $(cflags-y)
- KBUILD_CFLAGS += -mno-mmx -mno-sse
- KBUILD_CFLAGS += -ffreestanding
+diff --git a/arch/x86/boot/compressed/ident_map_64.c b/arch/x86/boot/compressed/ident_map_64.c
+index d9932a133ac9..e3d980ae9c2b 100644
+--- a/arch/x86/boot/compressed/ident_map_64.c
++++ b/arch/x86/boot/compressed/ident_map_64.c
+@@ -19,10 +19,13 @@
+ /* No PAGE_TABLE_ISOLATION support needed either: */
+ #undef CONFIG_PAGE_TABLE_ISOLATION
+ 
++#include "error.h"
+ #include "misc.h"
+ 
+ /* These actually do the work of building the kernel identity maps. */
+ #include <linux/pgtable.h>
++#include <asm/trap_pf.h>
++#include <asm/trapnr.h>
+ #include <asm/init.h>
+ /* Use the static base for this part of the boot process */
+ #undef __PAGE_OFFSET
+@@ -160,3 +163,39 @@ void finalize_identity_maps(void)
+ {
+ 	write_cr3(top_level_pgt);
+ }
++
++static void do_pf_error(const char *msg, unsigned long error_code,
++			unsigned long address, unsigned long ip)
++{
++	error_putstr(msg);
++
++	error_putstr("\nError Code: ");
++	error_puthex(error_code);
++	error_putstr("\nCR2: 0x");
++	error_puthex(address);
++	error_putstr("\nRIP relative to _head: 0x");
++	error_puthex(ip - (unsigned long)_head);
++	error_putstr("\n");
++
++	error("Stopping.\n");
++}
++
++void do_boot_page_fault(struct pt_regs *regs, unsigned long error_code)
++{
++	unsigned long address = native_read_cr2();
++
++	/*
++	 * Check for unexpected error codes. Unexpected are:
++	 *	- Faults on present pages
++	 *	- User faults
++	 *	- Reserved bits set
++	 */
++	if (error_code & (X86_PF_PROT | X86_PF_USER | X86_PF_RSVD))
++		do_pf_error("Unexpected page-fault:", error_code, address, regs->ip);
++
++	/*
++	 * Error code is sane - now identity map the 2M region around
++	 * the faulting address.
++	 */
++	add_identity_map(address & PMD_MASK, PMD_SIZE);
++}
+diff --git a/arch/x86/boot/compressed/idt_64.c b/arch/x86/boot/compressed/idt_64.c
+index 082cd6bca033..5f083092a86d 100644
+--- a/arch/x86/boot/compressed/idt_64.c
++++ b/arch/x86/boot/compressed/idt_64.c
+@@ -40,5 +40,7 @@ void load_stage2_idt(void)
+ {
+ 	boot_idt_desc.address = (unsigned long)boot_idt;
+ 
++	set_idt_entry(X86_TRAP_PF, boot_page_fault);
++
+ 	load_boot_idt(&boot_idt_desc);
+ }
+diff --git a/arch/x86/boot/compressed/idt_handlers_64.S b/arch/x86/boot/compressed/idt_handlers_64.S
+index 36dee2f40a8b..b20e57504a94 100644
+--- a/arch/x86/boot/compressed/idt_handlers_64.S
++++ b/arch/x86/boot/compressed/idt_handlers_64.S
+@@ -68,3 +68,5 @@ SYM_FUNC_END(\name)
+ 
+ 	.text
+ 	.code64
++
++EXCEPTION_HANDLER	boot_page_fault do_boot_page_fault error_code=1
+diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
+index 98b7a1df9c59..f0e199174c5f 100644
+--- a/arch/x86/boot/compressed/misc.h
++++ b/arch/x86/boot/compressed/misc.h
+@@ -37,6 +37,9 @@
+ #define memptr unsigned
+ #endif
+ 
++/* boot/compressed/vmlinux start and end markers */
++extern char _head[], _end[];
++
+ /* misc.c */
+ extern memptr free_mem_ptr;
+ extern memptr free_mem_end_ptr;
+@@ -146,4 +149,7 @@ extern pteval_t __default_kernel_pte_mask;
+ extern gate_desc boot_idt[BOOT_IDT_ENTRIES];
+ extern struct desc_ptr boot_idt_desc;
+ 
++/* IDT Entry Points */
++void boot_page_fault(void);
++
+ #endif /* BOOT_COMPRESSED_MISC_H */
 -- 
 2.28.0
 
