@@ -7,59 +7,60 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 851E3C433DF
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:22 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AD173C433E1
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:24 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 65C1420FC3
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:22 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 65C1420FC3
+	by mail.kernel.org (Postfix) with ESMTPS id 8E06D2087D
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8E06D2087D
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 45D39878B7;
-	Mon, 24 Aug 2020 08:56:22 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 4E01287942;
+	Mon, 24 Aug 2020 08:56:24 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 39QFdMCqyYMk; Mon, 24 Aug 2020 08:56:18 +0000 (UTC)
+	with ESMTP id 4hXsdR2Cd2Pf; Mon, 24 Aug 2020 08:56:21 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 1C03687942;
-	Mon, 24 Aug 2020 08:56:14 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id A1A4E877F1;
+	Mon, 24 Aug 2020 08:56:16 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E44C1C0895;
-	Mon, 24 Aug 2020 08:56:13 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3C176C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8B2F2C08A2;
+	Mon, 24 Aug 2020 08:56:16 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EC67AC0051
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:56:12 +0000 (UTC)
+ Mon, 24 Aug 2020 08:56:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 2BABD85F59
+ by hemlock.osuosl.org (Postfix) with ESMTP id D7F6988171
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:56:12 +0000 (UTC)
+ Mon, 24 Aug 2020 08:56:14 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 9ZSKqBbek5BB
+ with ESMTP id BTU0inx77uhY
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:56:06 +0000 (UTC)
+ Mon, 24 Aug 2020 08:56:10 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 7AD8A85F45
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 5C148880E7
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:56:05 +0000 (UTC)
+ Mon, 24 Aug 2020 08:56:10 +0000 (UTC)
 Received: from cap.home.8bytes.org (p4ff2bb8d.dip0.t-ipconnect.de
  [79.242.187.141])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 36D06E67;
- Mon, 24 Aug 2020 10:56:01 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 939BDF24;
+ Mon, 24 Aug 2020 10:56:04 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v6 28/76] x86/idt: Move IDT to data segment
-Date: Mon, 24 Aug 2020 10:54:23 +0200
-Message-Id: <20200824085511.7553-29-joro@8bytes.org>
+Subject: [PATCH v6 32/76] x86/head/64: Load GDT after switch to virtual
+ addresses
+Date: Mon, 24 Aug 2020 10:54:27 +0200
+Message-Id: <20200824085511.7553-33-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824085511.7553-1-joro@8bytes.org>
 References: <20200824085511.7553-1-joro@8bytes.org>
@@ -95,30 +96,50 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-With SEV-ES, exception handling is needed very early, even before the
-kernel has cleared the bss segment. In order to prevent clearing the
-currently used IDT, move the IDT to the data segment.
+Load the GDT right after switching to virtual addresses to make sure
+there is a defined GDT for exception handling.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Reviewed-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20200724160336.5435-28-joro@8bytes.org
+Link: https://lore.kernel.org/r/20200724160336.5435-32-joro@8bytes.org
 ---
- arch/x86/kernel/idt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/head_64.S | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/arch/x86/kernel/idt.c b/arch/x86/kernel/idt.c
-index 7ecf9babf0cb..34fcc58b81b5 100644
---- a/arch/x86/kernel/idt.c
-+++ b/arch/x86/kernel/idt.c
-@@ -158,7 +158,7 @@ static const __initconst struct idt_data apic_idts[] = {
- };
+diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
+index 800053219054..f958d4e4ee08 100644
+--- a/arch/x86/kernel/head_64.S
++++ b/arch/x86/kernel/head_64.S
+@@ -166,6 +166,14 @@ SYM_CODE_START(secondary_startup_64)
+ 1:
+ 	UNWIND_HINT_EMPTY
  
- /* Must be page-aligned because the real IDT is used in the cpu entry area */
--static gate_desc idt_table[IDT_ENTRIES] __page_aligned_bss;
-+static gate_desc idt_table[IDT_ENTRIES] __page_aligned_data;
++	/*
++	 * We must switch to a new descriptor in kernel space for the GDT
++	 * because soon the kernel won't have access anymore to the userspace
++	 * addresses where we're currently running on. We have to do that here
++	 * because in 32bit we couldn't load a 64bit linear address.
++	 */
++	lgdt	early_gdt_descr(%rip)
++
+ 	/* Check if nx is implemented */
+ 	movl	$0x80000001, %eax
+ 	cpuid
+@@ -193,14 +201,6 @@ SYM_CODE_START(secondary_startup_64)
+ 	pushq $0
+ 	popfq
  
- static struct desc_ptr idt_descr __ro_after_init = {
- 	.size		= IDT_TABLE_SIZE - 1,
+-	/*
+-	 * We must switch to a new descriptor in kernel space for the GDT
+-	 * because soon the kernel won't have access anymore to the userspace
+-	 * addresses where we're currently running on. We have to do that here
+-	 * because in 32bit we couldn't load a 64bit linear address.
+-	 */
+-	lgdt	early_gdt_descr(%rip)
+-
+ 	/* set up data segments */
+ 	xorl %eax,%eax
+ 	movl %eax,%ds
 -- 
 2.28.0
 
