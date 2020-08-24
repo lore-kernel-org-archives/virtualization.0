@@ -7,60 +7,59 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BCEB8C433E3
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:07:18 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 292BFC433DF
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:07:20 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9C0302072D
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:07:18 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9C0302072D
+	by mail.kernel.org (Postfix) with ESMTPS id 09153207D3
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:07:19 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 09153207D3
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 6280787C30;
-	Mon, 24 Aug 2020 09:07:18 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id B08432052E;
+	Mon, 24 Aug 2020 09:07:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id sa3szxqo1mGE; Mon, 24 Aug 2020 09:07:13 +0000 (UTC)
+	with ESMTP id cg2k2X+B6KTX; Mon, 24 Aug 2020 09:07:10 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id C242587CB6;
+	by silver.osuosl.org (Postfix) with ESMTP id 36FB22077C;
 	Mon, 24 Aug 2020 09:06:55 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 99352C08A2;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 21154C089F;
 	Mon, 24 Aug 2020 09:06:55 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9BD89C0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 84B4CC0051
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:06:52 +0000 (UTC)
+ Mon, 24 Aug 2020 09:06:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 94F4085F5C
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 64A9C85F37
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:06:52 +0000 (UTC)
+ Mon, 24 Aug 2020 09:06:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id nJwBznxU6PfL
+ with ESMTP id KhyKny4BPk1k
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:06:51 +0000 (UTC)
+ Mon, 24 Aug 2020 09:06:50 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id BB45585F5F
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 0121385F59
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:06:51 +0000 (UTC)
+ Mon, 24 Aug 2020 09:06:49 +0000 (UTC)
 Received: from cap.home.8bytes.org (p4ff2bb8d.dip0.t-ipconnect.de
  [79.242.187.141])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 6CF09FDF;
- Mon, 24 Aug 2020 10:56:18 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id E42951017;
+ Mon, 24 Aug 2020 10:56:22 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v6 51/76] x86/sev-es: Handle instruction fetches from
- user-space
-Date: Mon, 24 Aug 2020 10:54:46 +0200
-Message-Id: <20200824085511.7553-52-joro@8bytes.org>
+Subject: [PATCH v6 59/76] x86/sev-es: Handle INVD Events
+Date: Mon, 24 Aug 2020 10:54:54 +0200
+Message-Id: <20200824085511.7553-60-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824085511.7553-1-joro@8bytes.org>
 References: <20200824085511.7553-1-joro@8bytes.org>
@@ -94,62 +93,35 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-When a #VC exception is triggered by user-space the instruction decoder
-needs to read the instruction bytes from user addresses.  Enhance
-vc_decode_insn() to safely fetch kernel and user instructions.
+Implement a handler for #VC exceptions caused by INVD instructions.
+Since Linux should never use INVD, just mark it as unsupported.
 
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+[ jroedel@suse.de: Adapt to #VC handling infrastructure ]
+Co-developed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Link: https://lore.kernel.org/r/20200724160336.5435-51-joro@8bytes.org
+Link: https://lore.kernel.org/r/20200724160336.5435-59-joro@8bytes.org
 ---
- arch/x86/kernel/sev-es.c | 31 ++++++++++++++++++++++---------
- 1 file changed, 22 insertions(+), 9 deletions(-)
+ arch/x86/kernel/sev-es.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index 81d94f78d2d4..1493e8cf14f2 100644
+index e098d1e71a3e..4e1989c58df8 100644
 --- a/arch/x86/kernel/sev-es.c
 +++ b/arch/x86/kernel/sev-es.c
-@@ -237,17 +237,30 @@ static enum es_result vc_decode_insn(struct es_em_ctxt *ctxt)
- 	enum es_result ret;
- 	int res;
- 
--	res = vc_fetch_insn_kernel(ctxt, buffer);
--	if (unlikely(res == -EFAULT)) {
--		ctxt->fi.vector     = X86_TRAP_PF;
--		ctxt->fi.error_code = 0;
--		ctxt->fi.cr2        = ctxt->regs->ip;
--		return ES_EXCEPTION;
-+	if (user_mode(ctxt->regs)) {
-+		res = insn_fetch_from_user(ctxt->regs, buffer);
-+		if (!res) {
-+			ctxt->fi.vector     = X86_TRAP_PF;
-+			ctxt->fi.error_code = X86_PF_INSTR | X86_PF_USER;
-+			ctxt->fi.cr2        = ctxt->regs->ip;
-+			return ES_EXCEPTION;
-+		}
-+
-+		if (!insn_decode(&ctxt->insn, ctxt->regs, buffer, res))
-+			return ES_DECODE_FAILED;
-+	} else {
-+		res = vc_fetch_insn_kernel(ctxt, buffer);
-+		if (res) {
-+			ctxt->fi.vector     = X86_TRAP_PF;
-+			ctxt->fi.error_code = X86_PF_INSTR;
-+			ctxt->fi.cr2        = ctxt->regs->ip;
-+			return ES_EXCEPTION;
-+		}
-+
-+		insn_init(&ctxt->insn, buffer, MAX_INSN_SIZE - res, 1);
-+		insn_get_length(&ctxt->insn);
- 	}
- 
--	insn_init(&ctxt->insn, buffer, MAX_INSN_SIZE - res, 1);
--	insn_get_length(&ctxt->insn);
--
- 	ret = ctxt->insn.immediate.got ? ES_OK : ES_DECODE_FAILED;
- 
- 	return ret;
+@@ -892,6 +892,10 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
+ 	case SVM_EXIT_RDPMC:
+ 		result = vc_handle_rdpmc(ghcb, ctxt);
+ 		break;
++	case SVM_EXIT_INVD:
++		pr_err_ratelimited("#VC exception for INVD??? Seriously???\n");
++		result = ES_UNSUPPORTED;
++		break;
+ 	case SVM_EXIT_CPUID:
+ 		result = vc_handle_cpuid(ghcb, ctxt);
+ 		break;
 -- 
 2.28.0
 
