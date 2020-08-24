@@ -7,60 +7,59 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A83B5C433E3
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:05 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3681DC433DF
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:06 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 86ACE204FD
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 86ACE204FD
+	by mail.kernel.org (Postfix) with ESMTPS id 12945204FD
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:06 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 12945204FD
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 6ACE887804;
+	by fraxinus.osuosl.org (Postfix) with ESMTP id E15B585D54;
 	Mon, 24 Aug 2020 08:56:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bFYTlt-75gtQ; Mon, 24 Aug 2020 08:56:02 +0000 (UTC)
+	with ESMTP id orMZBh_ggXCF; Mon, 24 Aug 2020 08:56:03 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id AA7E88784C;
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 636B885F4D;
 	Mon, 24 Aug 2020 08:56:02 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8C2B7C089F;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4E5C4C016F;
 	Mon, 24 Aug 2020 08:56:02 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E32FAC0051
- for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:55:57 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id B976887EB5
- for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:55:57 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 8cu4+PoXKXuq
- for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:55:57 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
-Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by hemlock.osuosl.org (Postfix) with ESMTPS id E779787D9F
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EF330C0051
  for <virtualization@lists.linux-foundation.org>;
  Mon, 24 Aug 2020 08:55:56 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by fraxinus.osuosl.org (Postfix) with ESMTP id E986285D8D
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 24 Aug 2020 08:55:56 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from fraxinus.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id oeyMgLPm21Rb
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 24 Aug 2020 08:55:56 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
+Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id D35D185E09
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 24 Aug 2020 08:55:55 +0000 (UTC)
 Received: from cap.home.8bytes.org (p4ff2bb8d.dip0.t-ipconnect.de
  [79.242.187.141])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 9C6FB869;
- Mon, 24 Aug 2020 10:55:53 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 7C1C87D9;
+ Mon, 24 Aug 2020 10:55:52 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v6 14/76] x86/boot/compressed/64: Rename kaslr_64.c to
- ident_map_64.c
-Date: Mon, 24 Aug 2020 10:54:09 +0200
-Message-Id: <20200824085511.7553-15-joro@8bytes.org>
+Subject: [PATCH v6 12/76] x86/boot/compressed/64: Disable red-zone usage
+Date: Mon, 24 Aug 2020 10:54:07 +0200
+Message-Id: <20200824085511.7553-13-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824085511.7553-1-joro@8bytes.org>
 References: <20200824085511.7553-1-joro@8bytes.org>
@@ -96,97 +95,42 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-The file contains only code related to identity mapped page-tables.
-Rename the file and compile it always in.
+The x86-64 ABI defines a red-zone on the stack:
+
+  The 128-byte area beyond the location pointed to by %rsp is considered
+  to be reserved and shall not be modified by signal or interrupt
+  handlers. Therefore, functions may use this area for temporary data
+  that is not needed across function calls. In particular, leaf
+  functions may use this area for their entire stack frame, rather than
+  adjusting the stack pointer in the prologue and epilogue. This area is
+  known as the red zone.
+
+This is not compatible with exception handling, because the IRET frame
+written by the hardware at the stack pointer and the functions to handle
+the exception will overwrite the temporary variables of the interrupted
+function, causing undefined behavior. So disable red-zones for the
+pre-decompression boot code.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Reviewed-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20200724160336.5435-14-joro@8bytes.org
+Link: https://lore.kernel.org/r/20200724160336.5435-12-joro@8bytes.org
 ---
- arch/x86/boot/compressed/Makefile                       | 2 +-
- arch/x86/boot/compressed/{kaslr_64.c => ident_map_64.c} | 9 +++++++++
- arch/x86/boot/compressed/kaslr.c                        | 9 ---------
- arch/x86/boot/compressed/misc.h                         | 8 ++++++++
- 4 files changed, 18 insertions(+), 10 deletions(-)
- rename arch/x86/boot/compressed/{kaslr_64.c => ident_map_64.c} (95%)
+ arch/x86/boot/compressed/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
-index ce85b24898b8..822e61a0d51b 100644
+index 753d57266757..0acdaa8a7dab 100644
 --- a/arch/x86/boot/compressed/Makefile
 +++ b/arch/x86/boot/compressed/Makefile
-@@ -77,7 +77,7 @@ vmlinux-objs-y := $(obj)/vmlinux.lds $(obj)/kernel_info.o $(obj)/head_$(BITS).o
- vmlinux-objs-$(CONFIG_EARLY_PRINTK) += $(obj)/early_serial_console.o
- vmlinux-objs-$(CONFIG_RANDOMIZE_BASE) += $(obj)/kaslr.o
- ifdef CONFIG_X86_64
--	vmlinux-objs-$(CONFIG_RANDOMIZE_BASE) += $(obj)/kaslr_64.o
-+	vmlinux-objs-y += $(obj)/ident_map_64.o
- 	vmlinux-objs-y += $(obj)/idt_64.o $(obj)/idt_handlers_64.o
- 	vmlinux-objs-y += $(obj)/mem_encrypt.o
- 	vmlinux-objs-y += $(obj)/pgtable_64.o
-diff --git a/arch/x86/boot/compressed/kaslr_64.c b/arch/x86/boot/compressed/ident_map_64.c
-similarity index 95%
-rename from arch/x86/boot/compressed/kaslr_64.c
-rename to arch/x86/boot/compressed/ident_map_64.c
-index f9c5c13d979b..d9932a133ac9 100644
---- a/arch/x86/boot/compressed/kaslr_64.c
-+++ b/arch/x86/boot/compressed/ident_map_64.c
-@@ -29,6 +29,15 @@
- #define __PAGE_OFFSET __PAGE_OFFSET_BASE
- #include "../../mm/ident_map.c"
- 
-+#ifdef CONFIG_X86_5LEVEL
-+unsigned int __pgtable_l5_enabled;
-+unsigned int pgdir_shift = 39;
-+unsigned int ptrs_per_p4d = 1;
-+#endif
-+
-+/* Used by PAGE_KERN* macros: */
-+pteval_t __default_kernel_pte_mask __read_mostly = ~0;
-+
- /* Used to track our page table allocation area. */
- struct alloc_pgt_data {
- 	unsigned char *pgt_buf;
-diff --git a/arch/x86/boot/compressed/kaslr.c b/arch/x86/boot/compressed/kaslr.c
-index 0e9fbc90ddc4..0b1551f19920 100644
---- a/arch/x86/boot/compressed/kaslr.c
-+++ b/arch/x86/boot/compressed/kaslr.c
-@@ -40,17 +40,8 @@
- #include <asm/setup.h>	/* For COMMAND_LINE_SIZE */
- #undef _SETUP
- 
--#ifdef CONFIG_X86_5LEVEL
--unsigned int __pgtable_l5_enabled;
--unsigned int pgdir_shift __ro_after_init = 39;
--unsigned int ptrs_per_p4d __ro_after_init = 1;
--#endif
--
- extern unsigned long get_cmd_line_ptr(void);
- 
--/* Used by PAGE_KERN* macros: */
--pteval_t __default_kernel_pte_mask __read_mostly = ~0;
--
- /* Simplified build-specific string for starting entropy. */
- static const char build_str[] = UTS_RELEASE " (" LINUX_COMPILE_BY "@"
- 		LINUX_COMPILE_HOST ") (" LINUX_COMPILER ") " UTS_VERSION;
-diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
-index 8feb5f6f329e..98b7a1df9c59 100644
---- a/arch/x86/boot/compressed/misc.h
-+++ b/arch/x86/boot/compressed/misc.h
-@@ -134,6 +134,14 @@ int count_immovable_mem_regions(void);
- static inline int count_immovable_mem_regions(void) { return 0; }
- #endif
- 
-+/* ident_map_64.c */
-+#ifdef CONFIG_X86_5LEVEL
-+extern unsigned int __pgtable_l5_enabled, pgdir_shift, ptrs_per_p4d;
-+#endif
-+
-+/* Used by PAGE_KERN* macros: */
-+extern pteval_t __default_kernel_pte_mask;
-+
- /* idt_64.c */
- extern gate_desc boot_idt[BOOT_IDT_ENTRIES];
- extern struct desc_ptr boot_idt_desc;
+@@ -32,7 +32,7 @@ KBUILD_CFLAGS := -m$(BITS) -O2
+ KBUILD_CFLAGS += -fno-strict-aliasing -fPIE
+ KBUILD_CFLAGS += -DDISABLE_BRANCH_PROFILING
+ cflags-$(CONFIG_X86_32) := -march=i386
+-cflags-$(CONFIG_X86_64) := -mcmodel=small
++cflags-$(CONFIG_X86_64) := -mcmodel=small -mno-red-zone
+ KBUILD_CFLAGS += $(cflags-y)
+ KBUILD_CFLAGS += -mno-mmx -mno-sse
+ KBUILD_CFLAGS += -ffreestanding
 -- 
 2.28.0
 
