@@ -4,63 +4,62 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB394C433E3
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:07:11 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A50FCC433ED
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:07:12 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 84E7C206F0
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:07:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 84E7C206F0
+	by mail.kernel.org (Postfix) with ESMTPS id 71BF320738
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:07:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 71BF320738
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 696EA883BC;
-	Mon, 24 Aug 2020 09:07:11 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 605898843F;
+	Mon, 24 Aug 2020 09:07:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 01-8U5Uk0DCd; Mon, 24 Aug 2020 09:07:09 +0000 (UTC)
+	with ESMTP id gafB-D5-7+1a; Mon, 24 Aug 2020 09:07:08 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 178F4883C1;
-	Mon, 24 Aug 2020 09:07:07 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id F343BC0895;
+	by hemlock.osuosl.org (Postfix) with ESMTP id DBE3A883B8;
 	Mon, 24 Aug 2020 09:07:06 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C21D3C016F
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C453EC0895;
+	Mon, 24 Aug 2020 09:07:06 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AEB74C0051
  for <virtualization@lists.linux-foundation.org>;
  Mon, 24 Aug 2020 09:07:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 9C2E3204F8
+ by whitealder.osuosl.org (Postfix) with ESMTP id AA1E687904
  for <virtualization@lists.linux-foundation.org>;
  Mon, 24 Aug 2020 09:07:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qEcZzaPzF5rR
+ with ESMTP id 255eko7gKy4h
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:06:54 +0000 (UTC)
+ Mon, 24 Aug 2020 09:06:53 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by silver.osuosl.org (Postfix) with ESMTPS id 1320B204FF
+ by whitealder.osuosl.org (Postfix) with ESMTPS id ACA8387960
  for <virtualization@lists.linux-foundation.org>;
  Mon, 24 Aug 2020 09:06:51 +0000 (UTC)
 Received: from cap.home.8bytes.org (p4ff2bb8d.dip0.t-ipconnect.de
  [79.242.187.141])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id E7AF112E0;
- Mon, 24 Aug 2020 10:56:27 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id E29D2F91;
+ Mon, 24 Aug 2020 10:56:12 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v6 68/76] x86/realmode: Add SEV-ES specific trampoline entry
- point
-Date: Mon, 24 Aug 2020 10:55:03 +0200
-Message-Id: <20200824085511.7553-69-joro@8bytes.org>
+Subject: [PATCH v6 43/76] x86/sev-es: Setup GHCB based boot #VC handler
+Date: Mon, 24 Aug 2020 10:54:38 +0200
+Message-Id: <20200824085511.7553-44-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824085511.7553-1-joro@8bytes.org>
 References: <20200824085511.7553-1-joro@8bytes.org>
@@ -96,88 +95,266 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-The code at the trampoline entry point is executed in real-mode. In
-real-mode #VC exceptions can't be handled, so anything that might cause
-such an exception must be avoided.
-
-In the standard trampoline entry code this is the WBINVD instruction and
-the call to verify_cpu(), which are both not needed anyway when running
-as an SEV-ES guest.
+Add the infrastructure to handle #VC exceptions when the kernel runs
+on virtual addresses and has a GHCB mapped. This handler will be used
+until the runtime #VC handler takes over.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Link: https://lore.kernel.org/r/20200724160336.5435-68-joro@8bytes.org
+Link: https://lore.kernel.org/r/20200724160336.5435-43-joro@8bytes.org
 ---
- arch/x86/include/asm/realmode.h      |  3 +++
- arch/x86/realmode/rm/header.S        |  3 +++
- arch/x86/realmode/rm/trampoline_64.S | 20 ++++++++++++++++++++
- 3 files changed, 26 insertions(+)
+ arch/x86/include/asm/segment.h  |   2 +-
+ arch/x86/include/asm/sev-es.h   |   1 +
+ arch/x86/kernel/head64.c        |   6 ++
+ arch/x86/kernel/sev-es-shared.c |  14 ++--
+ arch/x86/kernel/sev-es.c        | 116 ++++++++++++++++++++++++++++++++
+ arch/x86/mm/extable.c           |   1 +
+ 6 files changed, 132 insertions(+), 8 deletions(-)
 
-diff --git a/arch/x86/include/asm/realmode.h b/arch/x86/include/asm/realmode.h
-index b35030eeec36..6590394af309 100644
---- a/arch/x86/include/asm/realmode.h
-+++ b/arch/x86/include/asm/realmode.h
-@@ -21,6 +21,9 @@ struct real_mode_header {
- 	/* SMP trampoline */
- 	u32	trampoline_start;
- 	u32	trampoline_header;
-+#ifdef CONFIG_AMD_MEM_ENCRYPT
-+	u32	sev_es_trampoline_start;
-+#endif
- #ifdef CONFIG_X86_64
- 	u32	trampoline_pgd;
+diff --git a/arch/x86/include/asm/segment.h b/arch/x86/include/asm/segment.h
+index 517920928989..7fdd4facfce7 100644
+--- a/arch/x86/include/asm/segment.h
++++ b/arch/x86/include/asm/segment.h
+@@ -226,7 +226,7 @@
+ #define NUM_EXCEPTION_VECTORS		32
+ 
+ /* Bitmask of exception vectors which push an error code on the stack: */
+-#define EXCEPTION_ERRCODE_MASK		0x00027d00
++#define EXCEPTION_ERRCODE_MASK		0x20027d00
+ 
+ #define GDT_SIZE			(GDT_ENTRIES*8)
+ #define GDT_ENTRY_TLS_ENTRIES		3
+diff --git a/arch/x86/include/asm/sev-es.h b/arch/x86/include/asm/sev-es.h
+index ec0e112a742b..824e9e6b067c 100644
+--- a/arch/x86/include/asm/sev-es.h
++++ b/arch/x86/include/asm/sev-es.h
+@@ -75,5 +75,6 @@ static inline u64 lower_bits(u64 val, unsigned int bits)
+ 
+ /* Early IDT entry points for #VC handler */
+ extern void vc_no_ghcb(void);
++extern bool handle_vc_boot_ghcb(struct pt_regs *regs);
+ 
  #endif
-diff --git a/arch/x86/realmode/rm/header.S b/arch/x86/realmode/rm/header.S
-index af04512c02d9..8c1db5bf5d78 100644
---- a/arch/x86/realmode/rm/header.S
-+++ b/arch/x86/realmode/rm/header.S
-@@ -20,6 +20,9 @@ SYM_DATA_START(real_mode_header)
- 	/* SMP trampoline */
- 	.long	pa_trampoline_start
- 	.long	pa_trampoline_header
+diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
+index 250fae33bf66..ce2d8284edb9 100644
+--- a/arch/x86/kernel/head64.c
++++ b/arch/x86/kernel/head64.c
+@@ -403,6 +403,12 @@ void __init do_early_exception(struct pt_regs *regs, int trapnr)
+ 	    early_make_pgtable(native_read_cr2()))
+ 		return;
+ 
 +#ifdef CONFIG_AMD_MEM_ENCRYPT
-+	.long	pa_sev_es_trampoline_start
++	if (trapnr == X86_TRAP_VC &&
++	    handle_vc_boot_ghcb(regs))
++		return;
 +#endif
- #ifdef CONFIG_X86_64
- 	.long	pa_trampoline_pgd;
- #endif
-diff --git a/arch/x86/realmode/rm/trampoline_64.S b/arch/x86/realmode/rm/trampoline_64.S
-index 251758ed7443..84c5d1b33d10 100644
---- a/arch/x86/realmode/rm/trampoline_64.S
-+++ b/arch/x86/realmode/rm/trampoline_64.S
-@@ -56,6 +56,7 @@ SYM_CODE_START(trampoline_start)
- 	testl   %eax, %eax		# Check for return code
- 	jnz	no_longmode
++
+ 	early_fixup_exception(regs, trapnr);
+ }
  
-+.Lswitch_to_protected:
- 	/*
- 	 * GDT tables in non default location kernel can be beyond 16MB and
- 	 * lgdt will not be able to load the address as in real mode default
-@@ -80,6 +81,25 @@ no_longmode:
- 	jmp no_longmode
- SYM_CODE_END(trampoline_start)
+diff --git a/arch/x86/kernel/sev-es-shared.c b/arch/x86/kernel/sev-es-shared.c
+index 18619279a46f..aa77f2eb8d88 100644
+--- a/arch/x86/kernel/sev-es-shared.c
++++ b/arch/x86/kernel/sev-es-shared.c
+@@ -9,7 +9,7 @@
+  * and is included directly into both code-bases.
+  */
  
-+#ifdef CONFIG_AMD_MEM_ENCRYPT
-+/* SEV-ES supports non-zero IP for entry points - no alignment needed */
-+SYM_CODE_START(sev_es_trampoline_start)
-+	cli			# We should be safe anyway
-+
-+	LJMPW_RM(1f)
-+1:
-+	mov	%cs, %ax	# Code and data in the same place
-+	mov	%ax, %ds
-+	mov	%ax, %es
-+	mov	%ax, %ss
-+
-+	# Setup stack
-+	movl	$rm_stack_end, %esp
-+
-+	jmp	.Lswitch_to_protected
-+SYM_CODE_END(sev_es_trampoline_start)
-+#endif	/* CONFIG_AMD_MEM_ENCRYPT */
-+
- #include "../kernel/verify_cpu.S"
+-static void __maybe_unused sev_es_terminate(unsigned int reason)
++static void sev_es_terminate(unsigned int reason)
+ {
+ 	u64 val = GHCB_SEV_TERMINATE;
  
- 	.section ".text32","ax"
+@@ -27,7 +27,7 @@ static void __maybe_unused sev_es_terminate(unsigned int reason)
+ 		asm volatile("hlt\n" : : : "memory");
+ }
+ 
+-static bool __maybe_unused sev_es_negotiate_protocol(void)
++static bool sev_es_negotiate_protocol(void)
+ {
+ 	u64 val;
+ 
+@@ -46,7 +46,7 @@ static bool __maybe_unused sev_es_negotiate_protocol(void)
+ 	return true;
+ }
+ 
+-static void __maybe_unused vc_ghcb_invalidate(struct ghcb *ghcb)
++static void vc_ghcb_invalidate(struct ghcb *ghcb)
+ {
+ 	memset(ghcb->save.valid_bitmap, 0, sizeof(ghcb->save.valid_bitmap));
+ }
+@@ -58,9 +58,9 @@ static bool vc_decoding_needed(unsigned long exit_code)
+ 		 exit_code <= SVM_EXIT_LAST_EXCP);
+ }
+ 
+-static enum es_result __maybe_unused vc_init_em_ctxt(struct es_em_ctxt *ctxt,
+-						     struct pt_regs *regs,
+-						     unsigned long exit_code)
++static enum es_result vc_init_em_ctxt(struct es_em_ctxt *ctxt,
++				      struct pt_regs *regs,
++				      unsigned long exit_code)
+ {
+ 	enum es_result ret = ES_OK;
+ 
+@@ -73,7 +73,7 @@ static enum es_result __maybe_unused vc_init_em_ctxt(struct es_em_ctxt *ctxt,
+ 	return ret;
+ }
+ 
+-static void __maybe_unused vc_finish_insn(struct es_em_ctxt *ctxt)
++static void vc_finish_insn(struct es_em_ctxt *ctxt)
+ {
+ 	ctxt->regs->ip += ctxt->insn.length;
+ }
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+index 0b698b653c0b..bb3e702a71eb 100644
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -7,7 +7,9 @@
+  * Author: Joerg Roedel <jroedel@suse.de>
+  */
+ 
++#include <linux/sched/debug.h>	/* For show_regs() */
+ #include <linux/kernel.h>
++#include <linux/printk.h>
+ #include <linux/mm.h>
+ 
+ #include <asm/sev-es.h>
+@@ -18,6 +20,18 @@
+ #include <asm/trapnr.h>
+ #include <asm/svm.h>
+ 
++/* For early boot hypervisor communication in SEV-ES enabled guests */
++static struct ghcb boot_ghcb_page __bss_decrypted __aligned(PAGE_SIZE);
++
++/*
++ * Needs to be in the .data section because we need it NULL before bss is
++ * cleared
++ */
++static struct ghcb __initdata *boot_ghcb;
++
++/* Needed in vc_early_forward_exception */
++void do_early_exception(struct pt_regs *regs, int trapnr);
++
+ static inline u64 sev_es_rd_ghcb_msr(void)
+ {
+ 	return native_read_msr(MSR_AMD64_SEV_ES_GHCB);
+@@ -161,3 +175,105 @@ static enum es_result vc_read_mem(struct es_em_ctxt *ctxt,
+ 
+ /* Include code shared with pre-decompression boot stage */
+ #include "sev-es-shared.c"
++
++/*
++ * This function runs on the first #VC exception after the kernel
++ * switched to virtual addresses.
++ */
++static bool __init sev_es_setup_ghcb(void)
++{
++	/* First make sure the hypervisor talks a supported protocol. */
++	if (!sev_es_negotiate_protocol())
++		return false;
++
++	/*
++	 * Clear the boot_ghcb. The first exception comes in before the bss
++	 * section is cleared.
++	 */
++	memset(&boot_ghcb_page, 0, PAGE_SIZE);
++
++	/* Alright - Make the boot-ghcb public */
++	boot_ghcb = &boot_ghcb_page;
++
++	return true;
++}
++
++static void __init vc_early_forward_exception(struct es_em_ctxt *ctxt)
++{
++	int trapnr = ctxt->fi.vector;
++
++	if (trapnr == X86_TRAP_PF)
++		native_write_cr2(ctxt->fi.cr2);
++
++	ctxt->regs->orig_ax = ctxt->fi.error_code;
++	do_early_exception(ctxt->regs, trapnr);
++}
++
++static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
++					 struct ghcb *ghcb,
++					 unsigned long exit_code)
++{
++	enum es_result result;
++
++	switch (exit_code) {
++	default:
++		/*
++		 * Unexpected #VC exception
++		 */
++		result = ES_UNSUPPORTED;
++	}
++
++	return result;
++}
++
++bool __init handle_vc_boot_ghcb(struct pt_regs *regs)
++{
++	unsigned long exit_code = regs->orig_ax;
++	struct es_em_ctxt ctxt;
++	enum es_result result;
++
++	/* Do initial setup or terminate the guest */
++	if (unlikely(boot_ghcb == NULL && !sev_es_setup_ghcb()))
++		sev_es_terminate(GHCB_SEV_ES_REASON_GENERAL_REQUEST);
++
++	vc_ghcb_invalidate(boot_ghcb);
++
++	result = vc_init_em_ctxt(&ctxt, regs, exit_code);
++	if (result == ES_OK)
++		result = vc_handle_exitcode(&ctxt, boot_ghcb, exit_code);
++
++	/* Done - now check the result */
++	switch (result) {
++	case ES_OK:
++		vc_finish_insn(&ctxt);
++		break;
++	case ES_UNSUPPORTED:
++		early_printk("PANIC: Unsupported exit-code 0x%02lx in early #VC exception (IP: 0x%lx)\n",
++				exit_code, regs->ip);
++		goto fail;
++	case ES_VMM_ERROR:
++		early_printk("PANIC: Failure in communication with VMM (exit-code 0x%02lx IP: 0x%lx)\n",
++				exit_code, regs->ip);
++		goto fail;
++	case ES_DECODE_FAILED:
++		early_printk("PANIC: Failed to decode instruction (exit-code 0x%02lx IP: 0x%lx)\n",
++				exit_code, regs->ip);
++		goto fail;
++	case ES_EXCEPTION:
++		vc_early_forward_exception(&ctxt);
++		break;
++	case ES_RETRY:
++		/* Nothing to do */
++		break;
++	default:
++		BUG();
++	}
++
++	return true;
++
++fail:
++	show_regs(regs);
++
++	while (true)
++		halt();
++}
+diff --git a/arch/x86/mm/extable.c b/arch/x86/mm/extable.c
+index 1d6cb07f4f86..3966749d07ac 100644
+--- a/arch/x86/mm/extable.c
++++ b/arch/x86/mm/extable.c
+@@ -5,6 +5,7 @@
+ #include <xen/xen.h>
+ 
+ #include <asm/fpu/internal.h>
++#include <asm/sev-es.h>
+ #include <asm/traps.h>
+ #include <asm/kdebug.h>
+ 
 -- 
 2.28.0
 
