@@ -7,59 +7,60 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 57C81C433E4
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:10 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 32BD9C433E3
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:13 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 3822B2074D
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:10 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3822B2074D
+	by mail.kernel.org (Postfix) with ESMTPS id 117EE22CF8
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:12 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 117EE22CF8
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id CE0C987D9F;
-	Mon, 24 Aug 2020 08:56:09 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id D9D1F85F9D;
+	Mon, 24 Aug 2020 08:56:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id WiGX36RXLF4Y; Mon, 24 Aug 2020 08:56:08 +0000 (UTC)
+	with ESMTP id kBLCAcyMbsqK; Mon, 24 Aug 2020 08:56:11 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 9FFAA880E7;
-	Mon, 24 Aug 2020 08:56:08 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 0113785EAF;
+	Mon, 24 Aug 2020 08:56:09 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 97082C016F;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CA4C7C089F;
 	Mon, 24 Aug 2020 08:56:08 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 85D37C016F
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B0A51C0051
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:56:02 +0000 (UTC)
+ Mon, 24 Aug 2020 08:56:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 7FEAF88137
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 9A5D985F92
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 24 Aug 2020 08:56:04 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from fraxinus.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 6XhAAdmkjWCz
  for <virtualization@lists.linux-foundation.org>;
  Mon, 24 Aug 2020 08:56:02 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id UrfS7ghJ03Uy
- for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:56:00 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 8A96A88127
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id A791685F05
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:55:59 +0000 (UTC)
+ Mon, 24 Aug 2020 08:56:01 +0000 (UTC)
 Received: from cap.home.8bytes.org (p4ff2bb8d.dip0.t-ipconnect.de
  [79.242.187.141])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 50A31B70;
- Mon, 24 Aug 2020 10:55:56 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 0343FD13;
+ Mon, 24 Aug 2020 10:55:57 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v6 19/76] x86/boot/compressed/64: Add stage1 #VC handler
-Date: Mon, 24 Aug 2020 10:54:14 +0200
-Message-Id: <20200824085511.7553-20-joro@8bytes.org>
+Subject: [PATCH v6 22/76] x86/boot/compressed/64: Add set_page_en/decrypted()
+ helpers
+Date: Mon, 24 Aug 2020 10:54:17 +0200
+Message-Id: <20200824085511.7553-23-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824085511.7553-1-joro@8bytes.org>
 References: <20200824085511.7553-1-joro@8bytes.org>
@@ -95,270 +96,183 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Add the first handler for #VC exceptions. At stage 1 there is no GHCB
-yet becaue the kernel might still be running on the EFI page table.
-
-The stage 1 handler is limited to the MSR based protocol to talk to
-the hypervisor and can only support CPUID exit-codes, but that is
-enough to get to stage 2.
+The functions are needed to map the GHCB for SEV-ES guests. The GHCB is
+used for communication with the hypervisor, so its content must not be
+encrypted. After the GHCB is not needed anymore it must be mapped
+encrypted again so that the running kernel image can safely re-use the
+memory.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Link: https://lore.kernel.org/r/20200724160336.5435-19-joro@8bytes.org
+Link: https://lore.kernel.org/r/20200724160336.5435-22-joro@8bytes.org
 ---
- arch/x86/boot/compressed/Makefile          |  1 +
- arch/x86/boot/compressed/idt_64.c          |  4 ++
- arch/x86/boot/compressed/idt_handlers_64.S |  4 ++
- arch/x86/boot/compressed/misc.h            |  1 +
- arch/x86/boot/compressed/sev-es.c          | 45 +++++++++++++++
- arch/x86/include/asm/msr-index.h           |  1 +
- arch/x86/include/asm/sev-es.h              | 37 ++++++++++++
- arch/x86/include/asm/trapnr.h              |  1 +
- arch/x86/kernel/sev-es-shared.c            | 66 ++++++++++++++++++++++
- 9 files changed, 160 insertions(+)
- create mode 100644 arch/x86/boot/compressed/sev-es.c
- create mode 100644 arch/x86/include/asm/sev-es.h
- create mode 100644 arch/x86/kernel/sev-es-shared.c
+ arch/x86/boot/compressed/ident_map_64.c | 133 ++++++++++++++++++++++++
+ arch/x86/boot/compressed/misc.h         |   2 +
+ 2 files changed, 135 insertions(+)
 
-diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
-index 822e61a0d51b..a7b8c6e59e58 100644
---- a/arch/x86/boot/compressed/Makefile
-+++ b/arch/x86/boot/compressed/Makefile
-@@ -81,6 +81,7 @@ ifdef CONFIG_X86_64
- 	vmlinux-objs-y += $(obj)/idt_64.o $(obj)/idt_handlers_64.o
- 	vmlinux-objs-y += $(obj)/mem_encrypt.o
- 	vmlinux-objs-y += $(obj)/pgtable_64.o
-+	vmlinux-objs-$(CONFIG_AMD_MEM_ENCRYPT) += $(obj)/sev-es.o
- endif
+diff --git a/arch/x86/boot/compressed/ident_map_64.c b/arch/x86/boot/compressed/ident_map_64.c
+index aa91bebc0fe9..05742f641a06 100644
+--- a/arch/x86/boot/compressed/ident_map_64.c
++++ b/arch/x86/boot/compressed/ident_map_64.c
+@@ -24,6 +24,7 @@
  
- vmlinux-objs-$(CONFIG_ACPI) += $(obj)/acpi.o
-diff --git a/arch/x86/boot/compressed/idt_64.c b/arch/x86/boot/compressed/idt_64.c
-index 5f083092a86d..f3ca7324be44 100644
---- a/arch/x86/boot/compressed/idt_64.c
-+++ b/arch/x86/boot/compressed/idt_64.c
-@@ -32,6 +32,10 @@ void load_stage1_idt(void)
- {
- 	boot_idt_desc.address = (unsigned long)boot_idt;
- 
-+
-+	if (IS_ENABLED(CONFIG_AMD_MEM_ENCRYPT))
-+		set_idt_entry(X86_TRAP_VC, boot_stage1_vc);
-+
- 	load_boot_idt(&boot_idt_desc);
+ /* These actually do the work of building the kernel identity maps. */
+ #include <linux/pgtable.h>
++#include <asm/cmpxchg.h>
+ #include <asm/trap_pf.h>
+ #include <asm/trapnr.h>
+ #include <asm/init.h>
+@@ -165,6 +166,138 @@ void finalize_identity_maps(void)
+ 	write_cr3(top_level_pgt);
  }
  
-diff --git a/arch/x86/boot/compressed/idt_handlers_64.S b/arch/x86/boot/compressed/idt_handlers_64.S
-index b20e57504a94..92eb4df478a1 100644
---- a/arch/x86/boot/compressed/idt_handlers_64.S
-+++ b/arch/x86/boot/compressed/idt_handlers_64.S
-@@ -70,3 +70,7 @@ SYM_FUNC_END(\name)
- 	.code64
- 
- EXCEPTION_HANDLER	boot_page_fault do_boot_page_fault error_code=1
++static pte_t *split_large_pmd(struct x86_mapping_info *info,
++			      pmd_t *pmdp, unsigned long __address)
++{
++	unsigned long page_flags;
++	unsigned long address;
++	pte_t *pte;
++	pmd_t pmd;
++	int i;
 +
-+#ifdef CONFIG_AMD_MEM_ENCRYPT
-+EXCEPTION_HANDLER	boot_stage1_vc do_vc_no_ghcb error_code=1
-+#endif
++	pte = (pte_t *)info->alloc_pgt_page(info->context);
++	if (!pte)
++		return NULL;
++
++	address     = __address & PMD_MASK;
++	/* No large page - clear PSE flag */
++	page_flags  = info->page_flag & ~_PAGE_PSE;
++
++	/* Populate the PTEs */
++	for (i = 0; i < PTRS_PER_PMD; i++) {
++		set_pte(&pte[i], __pte(address | page_flags));
++		address += PAGE_SIZE;
++	}
++
++	/*
++	 * Ideally we need to clear the large PMD first and do a TLB
++	 * flush before we write the new PMD. But the 2M range of the
++	 * PMD might contain the code we execute and/or the stack
++	 * we are on, so we can't do that. But that should be safe here
++	 * because we are going from large to small mappings and we are
++	 * also the only user of the page-table, so there is no chance
++	 * of a TLB multihit.
++	 */
++	pmd = __pmd((unsigned long)pte | info->kernpg_flag);
++	set_pmd(pmdp, pmd);
++	/* Flush TLB to establish the new PMD */
++	write_cr3(top_level_pgt);
++
++	return pte + pte_index(__address);
++}
++
++static void clflush_page(unsigned long address)
++{
++	unsigned int flush_size;
++	char *cl, *start, *end;
++
++	/*
++	 * Hardcode cl-size to 64 - CPUID can't be used here because that might
++	 * cause another #VC exception and the GHCB is not ready to use yet.
++	 */
++	flush_size = 64;
++	start      = (char *)(address & PAGE_MASK);
++	end        = start + PAGE_SIZE;
++
++	/*
++	 * First make sure there are no pending writes on the cache-lines to
++	 * flush.
++	 */
++	asm volatile("mfence" : : : "memory");
++
++	for (cl = start; cl != end; cl += flush_size)
++		clflush(cl);
++}
++
++static int set_clr_page_flags(struct x86_mapping_info *info,
++			      unsigned long address,
++			      pteval_t set, pteval_t clr)
++{
++	pgd_t *pgdp = (pgd_t *)top_level_pgt;
++	p4d_t *p4dp;
++	pud_t *pudp;
++	pmd_t *pmdp;
++	pte_t *ptep, pte;
++
++	/*
++	 * First make sure there is a PMD mapping for 'address'.
++	 * It should already exist, but keep things generic.
++	 *
++	 * To map the page just read from it and fault it in if there is no
++	 * mapping yet. add_identity_map() can't be called here because that
++	 * would unconditionally map the address on PMD level, destroying any
++	 * PTE-level mappings that might already exist. Use assembly here so
++	 * the access won't be optimized away.
++	 */
++	asm volatile("mov %[address], %%r9"
++		     :: [address] "g" (*(unsigned long *)address)
++		     : "r9", "memory");
++
++	/*
++	 * The page is mapped at least with PMD size - so skip checks and walk
++	 * directly to the PMD.
++	 */
++	p4dp = p4d_offset(pgdp, address);
++	pudp = pud_offset(p4dp, address);
++	pmdp = pmd_offset(pudp, address);
++
++	if (pmd_large(*pmdp))
++		ptep = split_large_pmd(info, pmdp, address);
++	else
++		ptep = pte_offset_kernel(pmdp, address);
++
++	if (!ptep)
++		return -ENOMEM;
++
++	/*
++	 * Changing encryption attributes of a page requires to flush it from
++	 * the caches.
++	 */
++	if ((set | clr) & _PAGE_ENC)
++		clflush_page(address);
++
++	/* Update PTE */
++	pte = *ptep;
++	pte = pte_set_flags(pte, set);
++	pte = pte_clear_flags(pte, clr);
++	set_pte(ptep, pte);
++
++	/* Flush TLB after changing encryption attribute */
++	write_cr3(top_level_pgt);
++
++	return 0;
++}
++
++int set_page_decrypted(unsigned long address)
++{
++	return set_clr_page_flags(&mapping_info, address, 0, _PAGE_ENC);
++}
++
++int set_page_encrypted(unsigned long address)
++{
++	return set_clr_page_flags(&mapping_info, address, _PAGE_ENC, 0);
++}
++
+ static void do_pf_error(const char *msg, unsigned long error_code,
+ 			unsigned long address, unsigned long ip)
+ {
 diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
-index 9840c82a39f1..eaa8b45ebccb 100644
+index eaa8b45ebccb..01c0fb3417ca 100644
 --- a/arch/x86/boot/compressed/misc.h
 +++ b/arch/x86/boot/compressed/misc.h
-@@ -141,5 +141,6 @@ extern struct desc_ptr boot_idt_desc;
- 
- /* IDT Entry Points */
- void boot_page_fault(void);
-+void boot_stage1_vc(void);
- 
- #endif /* BOOT_COMPRESSED_MISC_H */
-diff --git a/arch/x86/boot/compressed/sev-es.c b/arch/x86/boot/compressed/sev-es.c
-new file mode 100644
-index 000000000000..bb91cbb5920e
---- /dev/null
-+++ b/arch/x86/boot/compressed/sev-es.c
-@@ -0,0 +1,45 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * AMD Encrypted Register State Support
-+ *
-+ * Author: Joerg Roedel <jroedel@suse.de>
-+ */
-+
-+/*
-+ * misc.h needs to be first because it knows how to include the other kernel
-+ * headers in the pre-decompression code in a way that does not break
-+ * compilation.
-+ */
-+#include "misc.h"
-+
-+#include <asm/sev-es.h>
-+#include <asm/msr-index.h>
-+#include <asm/ptrace.h>
-+#include <asm/svm.h>
-+
-+static inline u64 sev_es_rd_ghcb_msr(void)
-+{
-+	unsigned long low, high;
-+
-+	asm volatile("rdmsr\n" : "=a" (low), "=d" (high) :
-+			"c" (MSR_AMD64_SEV_ES_GHCB));
-+
-+	return ((high << 32) | low);
-+}
-+
-+static inline void sev_es_wr_ghcb_msr(u64 val)
-+{
-+	u32 low, high;
-+
-+	low  = val & 0xffffffffUL;
-+	high = val >> 32;
-+
-+	asm volatile("wrmsr\n" : : "c" (MSR_AMD64_SEV_ES_GHCB),
-+			"a"(low), "d" (high) : "memory");
-+}
-+
-+#undef __init
-+#define __init
-+
-+/* Include code for early handlers */
-+#include "../../kernel/sev-es-shared.c"
-diff --git a/arch/x86/include/asm/msr-index.h b/arch/x86/include/asm/msr-index.h
-index dc131b84ac3a..cd6d651ff730 100644
---- a/arch/x86/include/asm/msr-index.h
-+++ b/arch/x86/include/asm/msr-index.h
-@@ -466,6 +466,7 @@
- #define MSR_AMD64_IBSBRTARGET		0xc001103b
- #define MSR_AMD64_IBSOPDATA4		0xc001103d
- #define MSR_AMD64_IBS_REG_COUNT_MAX	8 /* includes MSR_AMD64_IBSBRTARGET */
-+#define MSR_AMD64_SEV_ES_GHCB		0xc0010130
- #define MSR_AMD64_SEV			0xc0010131
- #define MSR_AMD64_SEV_ENABLED_BIT	0
- #define MSR_AMD64_SEV_ENABLED		BIT_ULL(MSR_AMD64_SEV_ENABLED_BIT)
-diff --git a/arch/x86/include/asm/sev-es.h b/arch/x86/include/asm/sev-es.h
-new file mode 100644
-index 000000000000..5d49a8a429d3
---- /dev/null
-+++ b/arch/x86/include/asm/sev-es.h
-@@ -0,0 +1,37 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+/*
-+ * AMD Encrypted Register State Support
-+ *
-+ * Author: Joerg Roedel <jroedel@suse.de>
-+ */
-+
-+#ifndef __ASM_ENCRYPTED_STATE_H
-+#define __ASM_ENCRYPTED_STATE_H
-+
-+#include <linux/types.h>
-+
-+#define GHCB_SEV_CPUID_REQ	0x004UL
-+#define		GHCB_CPUID_REQ_EAX	0
-+#define		GHCB_CPUID_REQ_EBX	1
-+#define		GHCB_CPUID_REQ_ECX	2
-+#define		GHCB_CPUID_REQ_EDX	3
-+#define		GHCB_CPUID_REQ(fn, reg) (GHCB_SEV_CPUID_REQ | \
-+					(((unsigned long)reg & 3) << 30) | \
-+					(((unsigned long)fn) << 32))
-+
-+#define GHCB_SEV_CPUID_RESP	0x005UL
-+#define GHCB_SEV_TERMINATE	0x100UL
-+
-+#define	GHCB_SEV_GHCB_RESP_CODE(v)	((v) & 0xfff)
-+#define	VMGEXIT()			{ asm volatile("rep; vmmcall\n\r"); }
-+
-+void __init do_vc_no_ghcb(struct pt_regs *regs, unsigned long exit_code);
-+
-+static inline u64 lower_bits(u64 val, unsigned int bits)
-+{
-+	u64 mask = (1ULL << bits) - 1;
-+
-+	return (val & mask);
-+}
-+
-+#endif
-diff --git a/arch/x86/include/asm/trapnr.h b/arch/x86/include/asm/trapnr.h
-index 082f45631fa9..f5d2325aa0b7 100644
---- a/arch/x86/include/asm/trapnr.h
-+++ b/arch/x86/include/asm/trapnr.h
-@@ -26,6 +26,7 @@
- #define X86_TRAP_XF		19	/* SIMD Floating-Point Exception */
- #define X86_TRAP_VE		20	/* Virtualization Exception */
- #define X86_TRAP_CP		21	/* Control Protection Exception */
-+#define X86_TRAP_VC		29	/* VMM Communication Exception */
- #define X86_TRAP_IRET		32	/* IRET Exception */
- 
+@@ -98,6 +98,8 @@ static inline void choose_random_location(unsigned long input,
  #endif
-diff --git a/arch/x86/kernel/sev-es-shared.c b/arch/x86/kernel/sev-es-shared.c
-new file mode 100644
-index 000000000000..0bea32341afa
---- /dev/null
-+++ b/arch/x86/kernel/sev-es-shared.c
-@@ -0,0 +1,66 @@
-+// SPDX-License-Identifier: GPL-2.0
-+/*
-+ * AMD Encrypted Register State Support
-+ *
-+ * Author: Joerg Roedel <jroedel@suse.de>
-+ *
-+ * This file is not compiled stand-alone. It contains code shared
-+ * between the pre-decompression boot code and the running Linux kernel
-+ * and is included directly into both code-bases.
-+ */
-+
-+/*
-+ * Boot VC Handler - This is the first VC handler during boot, there is no GHCB
-+ * page yet, so it only supports the MSR based communication with the
-+ * hypervisor and only the CPUID exit-code.
-+ */
-+void __init do_vc_no_ghcb(struct pt_regs *regs, unsigned long exit_code)
-+{
-+	unsigned int fn = lower_bits(regs->ax, 32);
-+	unsigned long val;
-+
-+	/* Only CPUID is supported via MSR protocol */
-+	if (exit_code != SVM_EXIT_CPUID)
-+		goto fail;
-+
-+	sev_es_wr_ghcb_msr(GHCB_CPUID_REQ(fn, GHCB_CPUID_REQ_EAX));
-+	VMGEXIT();
-+	val = sev_es_rd_ghcb_msr();
-+	if (GHCB_SEV_GHCB_RESP_CODE(val) != GHCB_SEV_CPUID_RESP)
-+		goto fail;
-+	regs->ax = val >> 32;
-+
-+	sev_es_wr_ghcb_msr(GHCB_CPUID_REQ(fn, GHCB_CPUID_REQ_EBX));
-+	VMGEXIT();
-+	val = sev_es_rd_ghcb_msr();
-+	if (GHCB_SEV_GHCB_RESP_CODE(val) != GHCB_SEV_CPUID_RESP)
-+		goto fail;
-+	regs->bx = val >> 32;
-+
-+	sev_es_wr_ghcb_msr(GHCB_CPUID_REQ(fn, GHCB_CPUID_REQ_ECX));
-+	VMGEXIT();
-+	val = sev_es_rd_ghcb_msr();
-+	if (GHCB_SEV_GHCB_RESP_CODE(val) != GHCB_SEV_CPUID_RESP)
-+		goto fail;
-+	regs->cx = val >> 32;
-+
-+	sev_es_wr_ghcb_msr(GHCB_CPUID_REQ(fn, GHCB_CPUID_REQ_EDX));
-+	VMGEXIT();
-+	val = sev_es_rd_ghcb_msr();
-+	if (GHCB_SEV_GHCB_RESP_CODE(val) != GHCB_SEV_CPUID_RESP)
-+		goto fail;
-+	regs->dx = val >> 32;
-+
-+	/* Skip over the CPUID two-byte opcode */
-+	regs->ip += 2;
-+
-+	return;
-+
-+fail:
-+	sev_es_wr_ghcb_msr(GHCB_SEV_TERMINATE);
-+	VMGEXIT();
-+
-+	/* Shouldn't get here - if we do halt the machine */
-+	while (true)
-+		asm volatile("hlt\n");
-+}
+ 
+ #ifdef CONFIG_X86_64
++extern int set_page_decrypted(unsigned long address);
++extern int set_page_encrypted(unsigned long address);
+ extern unsigned char _pgtable[];
+ #endif
+ 
 -- 
 2.28.0
 
