@@ -4,62 +4,62 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F368CC433E4
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:07:33 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D300C433E5
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:07:34 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C8334206F0
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:07:33 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C8334206F0
+	by mail.kernel.org (Postfix) with ESMTPS id 375C4206F0
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:07:34 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 375C4206F0
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 98FA887D98;
+	by silver.osuosl.org (Postfix) with ESMTP id C7F4820796;
 	Mon, 24 Aug 2020 09:07:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id pDbUMxye5hPv; Mon, 24 Aug 2020 09:07:27 +0000 (UTC)
+	with ESMTP id 0hBeUV7eGfOm; Mon, 24 Aug 2020 09:07:20 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id A04D687EA3;
-	Mon, 24 Aug 2020 09:06:58 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 6FC802094D;
+	Mon, 24 Aug 2020 09:06:57 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7F5E1C0895;
-	Mon, 24 Aug 2020 09:06:58 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4723FC0895
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5382BC0051;
+	Mon, 24 Aug 2020 09:06:57 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 80BE3C089F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:06:54 +0000 (UTC)
+ Mon, 24 Aug 2020 09:06:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 4235285F7E
+ by hemlock.osuosl.org (Postfix) with ESMTP id 6F9818829F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:06:54 +0000 (UTC)
+ Mon, 24 Aug 2020 09:06:53 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 8HrvxMR2G-7g
+ with ESMTP id oKWK1VsTcH8L
  for <virtualization@lists.linux-foundation.org>;
  Mon, 24 Aug 2020 09:06:51 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id A686385F4D
+ by hemlock.osuosl.org (Postfix) with ESMTPS id C2122881BB
  for <virtualization@lists.linux-foundation.org>;
  Mon, 24 Aug 2020 09:06:51 +0000 (UTC)
 Received: from cap.home.8bytes.org (p4ff2bb8d.dip0.t-ipconnect.de
  [79.242.187.141])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id B13861004;
- Mon, 24 Aug 2020 10:56:20 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 6575736B;
+ Mon, 24 Aug 2020 10:56:12 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v6 55/76] x86/sev-es: Handle DR7 read/write events
-Date: Mon, 24 Aug 2020 10:54:50 +0200
-Message-Id: <20200824085511.7553-56-joro@8bytes.org>
+Subject: [PATCH v6 42/76] x86/sev-es: Setup early #VC handler
+Date: Mon, 24 Aug 2020 10:54:37 +0200
+Message-Id: <20200824085511.7553-43-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824085511.7553-1-joro@8bytes.org>
 References: <20200824085511.7553-1-joro@8bytes.org>
@@ -93,150 +93,162 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-Add code to handle #VC exceptions on DR7 register reads and writes.
-This is needed early because show_regs() reads DR7 to print it out.
+Setup an early handler for #VC exceptions. There is no GHCB mapped
+yet, so just re-use the vc_no_ghcb_handler. It can only handle CPUID
+exit-codes, but that should be enough to get the kernel through
+verify_cpu() and __startup_64() until it runs on virtual addresses.
 
-Under SEV-ES there is currently no support for saving/restoring the
-DRx registers, but software expects to be able to write to the DR7
-register. For now, cache the value written to DR7 and return it on
-read attempts, but do not touch the real hardware DR7.
-
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-[ jroedel@suse.de: - Adapt to #VC handling framework
-                   - Support early usage ]
-Co-developed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Link: https://lore.kernel.org/r/20200724160336.5435-55-joro@8bytes.org
+Link: https://lore.kernel.org/r/20200724160336.5435-42-joro@8bytes.org
 ---
- arch/x86/kernel/sev-es.c | 85 ++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 85 insertions(+)
+ arch/x86/include/asm/setup.h  |  1 +
+ arch/x86/include/asm/sev-es.h |  3 +++
+ arch/x86/kernel/head64.c      |  1 +
+ arch/x86/kernel/head_64.S     | 34 +++++++++++++++++++++++++++++++++
+ arch/x86/kernel/idt.c         | 36 +++++++++++++++++++++++++++++++++++
+ 5 files changed, 75 insertions(+)
 
-diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index 379f9ad63ce8..1a7bfcb37602 100644
---- a/arch/x86/kernel/sev-es.c
-+++ b/arch/x86/kernel/sev-es.c
-@@ -28,6 +28,8 @@
- #include <asm/traps.h>
- #include <asm/svm.h>
+diff --git a/arch/x86/include/asm/setup.h b/arch/x86/include/asm/setup.h
+index cafae86813ae..0ce6453c9272 100644
+--- a/arch/x86/include/asm/setup.h
++++ b/arch/x86/include/asm/setup.h
+@@ -53,6 +53,7 @@ extern unsigned long __startup_secondary_64(void);
+ extern void startup_64_setup_env(unsigned long physbase);
+ extern void early_idt_setup_early_handler(unsigned long physaddr);
+ extern void early_load_idt(void);
++extern void early_idt_setup(unsigned long physbase);
+ extern void __init do_early_exception(struct pt_regs *regs, int trapnr);
  
-+#define DR7_RESET_VALUE        0x400
-+
- /* For early boot hypervisor communication in SEV-ES enabled guests */
- static struct ghcb boot_ghcb_page __bss_decrypted __aligned(PAGE_SIZE);
- 
-@@ -75,6 +77,13 @@ struct sev_es_runtime_data {
- 	 */
- 	bool ghcb_active;
- 	bool backup_ghcb_active;
-+
-+	/*
-+	 * Cached DR7 value - write it on DR7 writes and return it on reads.
-+	 * That value will never make it to the real hardware DR7 as debugging
-+	 * is currently unsupported in SEV-ES guests.
-+	 */
-+	unsigned long dr7;
- };
- 
- struct ghcb_state {
-@@ -521,6 +530,21 @@ static long *vc_insn_get_reg(struct es_em_ctxt *ctxt)
- 	return reg_array + offset;
+ #ifdef CONFIG_X86_INTEL_MID
+diff --git a/arch/x86/include/asm/sev-es.h b/arch/x86/include/asm/sev-es.h
+index 7c0807b84546..ec0e112a742b 100644
+--- a/arch/x86/include/asm/sev-es.h
++++ b/arch/x86/include/asm/sev-es.h
+@@ -73,4 +73,7 @@ static inline u64 lower_bits(u64 val, unsigned int bits)
+ 	return (val & mask);
  }
  
-+static long *vc_insn_get_rm(struct es_em_ctxt *ctxt)
-+{
-+	long *reg_array;
-+	int offset;
++/* Early IDT entry points for #VC handler */
++extern void vc_no_ghcb(void);
 +
-+	reg_array = (long *)ctxt->regs;
-+	offset    = insn_get_modrm_rm_off(&ctxt->insn, ctxt->regs);
+ #endif
+diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
+index 41514ec1e6f0..250fae33bf66 100644
+--- a/arch/x86/kernel/head64.c
++++ b/arch/x86/kernel/head64.c
+@@ -39,6 +39,7 @@
+ #include <asm/realmode.h>
+ #include <asm/extable.h>
+ #include <asm/trapnr.h>
++#include <asm/sev-es.h>
+ 
+ /*
+  * Manage page tables very early on.
+diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
+index 4622940134a5..12bf6f11fd83 100644
+--- a/arch/x86/kernel/head_64.S
++++ b/arch/x86/kernel/head_64.S
+@@ -95,6 +95,13 @@ SYM_CODE_START_NOALIGN(startup_64)
+ .Lon_kernel_cs:
+ 	UNWIND_HINT_EMPTY
+ 
++	/* Setup IDT - Needed for SEV-ES */
++	pushq	%rsi
++	/* early_idt_setup - physbase as first parameter */
++	leaq	_text(%rip), %rdi
++	call	early_idt_setup
++	popq	%rsi
 +
-+	if (offset < 0)
-+		return NULL;
+ 	/* Sanitize CPU configuration */
+ 	call verify_cpu
+ 
+@@ -363,6 +370,33 @@ SYM_CODE_START_LOCAL(early_idt_handler_common)
+ 	jmp restore_regs_and_return_to_kernel
+ SYM_CODE_END(early_idt_handler_common)
+ 
++#ifdef CONFIG_AMD_MEM_ENCRYPT
++/*
++ * VC Exception handler used during very early boot. The
++ * early_idt_handler_array can't be used because it returns via the
++ * paravirtualized INTERRUPT_RETURN and pv-ops don't work that early.
++ */
++SYM_CODE_START_NOALIGN(vc_no_ghcb)
++	UNWIND_HINT_IRET_REGS offset=8
 +
-+	offset /= sizeof(long);
++	/* Build pt_regs */
++	PUSH_AND_CLEAR_REGS
 +
-+	return reg_array + offset;
-+}
- static enum es_result vc_do_mmio(struct ghcb *ghcb, struct es_em_ctxt *ctxt,
- 				 unsigned int bytes, bool read)
++	/* Call C handler */
++	movq    %rsp, %rdi
++	movq	ORIG_RAX(%rsp), %rsi
++	call    do_vc_no_ghcb
++
++	/* Unwind pt_regs */
++	POP_REGS
++
++	/* Remove Error Code */
++	addq    $8, %rsp
++
++	/* Pure iret required here - don't use INTERRUPT_RETURN */
++	iretq
++SYM_CODE_END(vc_no_ghcb)
++#endif
+ 
+ #define SYM_DATA_START_PAGE_ALIGNED(name)			\
+ 	SYM_START(name, SYM_L_GLOBAL, .balign PAGE_SIZE)
+diff --git a/arch/x86/kernel/idt.c b/arch/x86/kernel/idt.c
+index e2777cc264f5..0d560a1218e1 100644
+--- a/arch/x86/kernel/idt.c
++++ b/arch/x86/kernel/idt.c
+@@ -11,6 +11,7 @@
+ #include <asm/desc.h>
+ #include <asm/hw_irq.h>
+ #include <asm/setup.h>
++#include <asm/sev-es.h>
+ 
+ struct idt_data {
+ 	unsigned int	vector;
+@@ -408,3 +409,38 @@ void early_load_idt(void)
  {
-@@ -768,6 +792,61 @@ static enum es_result vc_handle_mmio(struct ghcb *ghcb,
- 	return ret;
+ 	load_idt(&idt_descr);
  }
- 
-+static enum es_result vc_handle_dr7_write(struct ghcb *ghcb,
-+					  struct es_em_ctxt *ctxt)
++
++#ifdef CONFIG_AMD_MEM_ENCRYPT
++static void set_early_idt_handler(gate_desc *idt, int n, void *handler)
 +{
-+	struct sev_es_runtime_data *data = this_cpu_read(runtime_data);
-+	long val, *reg = vc_insn_get_rm(ctxt);
-+	enum es_result ret;
++	struct idt_data data;
++	gate_desc desc;
 +
-+	if (!reg)
-+		return ES_DECODE_FAILED;
-+
-+	val = *reg;
-+
-+	/* Upper 32 bits must be written as zeroes */
-+	if (val >> 32) {
-+		ctxt->fi.vector = X86_TRAP_GP;
-+		ctxt->fi.error_code = 0;
-+		return ES_EXCEPTION;
-+	}
-+
-+	/* Clear out other reserved bits and set bit 10 */
-+	val = (val & 0xffff23ffL) | BIT(10);
-+
-+	/* Early non-zero writes to DR7 are not supported */
-+	if (!data && (val & ~DR7_RESET_VALUE))
-+		return ES_UNSUPPORTED;
-+
-+	/* Using a value of 0 for ExitInfo1 means RAX holds the value */
-+	ghcb_set_rax(ghcb, val);
-+	ret = sev_es_ghcb_hv_call(ghcb, ctxt, SVM_EXIT_WRITE_DR7, 0, 0);
-+	if (ret != ES_OK)
-+		return ret;
-+
-+	if (data)
-+		data->dr7 = val;
-+
-+	return ES_OK;
++	init_idt_data(&data, n, handler);
++	idt_init_desc(&desc, &data);
++	native_write_idt_entry(idt, n, &desc);
 +}
++#endif
 +
-+static enum es_result vc_handle_dr7_read(struct ghcb *ghcb,
-+					 struct es_em_ctxt *ctxt)
++static struct desc_ptr early_idt_descr __initdata = {
++	.size		= IDT_TABLE_SIZE - 1,
++	.address	= 0 /* Needs physical address of idt_table - initialized at runtime. */,
++};
++
++void __init early_idt_setup(unsigned long physbase)
 +{
-+	struct sev_es_runtime_data *data = this_cpu_read(runtime_data);
-+	long *reg = vc_insn_get_rm(ctxt);
++	void __maybe_unused *handler;
++	gate_desc *idt;
 +
-+	if (!reg)
-+		return ES_DECODE_FAILED;
++	idt = fixup_pointer(idt_table, physbase);
 +
-+	if (data)
-+		*reg = data->dr7;
-+	else
-+		*reg = DR7_RESET_VALUE;
++#ifdef CONFIG_AMD_MEM_ENCRYPT
++	/* VMM Communication Exception */
++	handler = fixup_pointer(vc_no_ghcb, physbase);
++	set_early_idt_handler(idt, X86_TRAP_VC, handler);
++#endif
 +
-+	return ES_OK;
++	/* Initialize IDT descriptor and load IDT */
++	early_idt_descr.address = (unsigned long)idt;
++	native_load_idt(&early_idt_descr);
 +}
-+
- static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
- 					 struct ghcb *ghcb,
- 					 unsigned long exit_code)
-@@ -775,6 +854,12 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
- 	enum es_result result;
- 
- 	switch (exit_code) {
-+	case SVM_EXIT_READ_DR7:
-+		result = vc_handle_dr7_read(ghcb, ctxt);
-+		break;
-+	case SVM_EXIT_WRITE_DR7:
-+		result = vc_handle_dr7_write(ghcb, ctxt);
-+		break;
- 	case SVM_EXIT_CPUID:
- 		result = vc_handle_cpuid(ghcb, ctxt);
- 		break;
 -- 
 2.28.0
 
