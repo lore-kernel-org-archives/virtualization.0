@@ -7,60 +7,59 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1A23AC433E5
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 851E3C433DF
 	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:22 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id EDB9322D2C
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:21 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EDB9322D2C
+	by mail.kernel.org (Postfix) with ESMTPS id 65C1420FC3
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:22 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 65C1420FC3
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id C5AD787943;
-	Mon, 24 Aug 2020 08:56:21 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 45D39878B7;
+	Mon, 24 Aug 2020 08:56:22 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nCp17s35iVDl; Mon, 24 Aug 2020 08:56:15 +0000 (UTC)
+	with ESMTP id 39QFdMCqyYMk; Mon, 24 Aug 2020 08:56:18 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 91741878B0;
-	Mon, 24 Aug 2020 08:56:13 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 1C03687942;
+	Mon, 24 Aug 2020 08:56:14 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 52B81C089F;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E44C1C0895;
 	Mon, 24 Aug 2020 08:56:13 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C37A1C0051
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3C176C0051
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:56:11 +0000 (UTC)
+ Mon, 24 Aug 2020 08:56:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id A18CE204E1
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 2BABD85F59
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:56:11 +0000 (UTC)
+ Mon, 24 Aug 2020 08:56:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id I69LI+uorJdz
+ with ESMTP id 9ZSKqBbek5BB
  for <virtualization@lists.linux-foundation.org>;
  Mon, 24 Aug 2020 08:56:06 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by silver.osuosl.org (Postfix) with ESMTPS id A6CCF204F1
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 7AD8A85F45
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:56:00 +0000 (UTC)
+ Mon, 24 Aug 2020 08:56:05 +0000 (UTC)
 Received: from cap.home.8bytes.org (p4ff2bb8d.dip0.t-ipconnect.de
  [79.242.187.141])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id D6183BBE;
- Mon, 24 Aug 2020 10:55:56 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 36D06E67;
+ Mon, 24 Aug 2020 10:56:01 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v6 20/76] x86/boot/compressed/64: Call set_sev_encryption_mask
- earlier
-Date: Mon, 24 Aug 2020 10:54:15 +0200
-Message-Id: <20200824085511.7553-21-joro@8bytes.org>
+Subject: [PATCH v6 28/76] x86/idt: Move IDT to data segment
+Date: Mon, 24 Aug 2020 10:54:23 +0200
+Message-Id: <20200824085511.7553-29-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824085511.7553-1-joro@8bytes.org>
 References: <20200824085511.7553-1-joro@8bytes.org>
@@ -96,52 +95,30 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Call set_sev_encryption_mask() while still on the stage 1 #VC-handler,
-because the stage 2 handler needs our own page-tables to be set up, to
-which calling set_sev_encryption_mask() is a prerequisite.
+With SEV-ES, exception handling is needed very early, even before the
+kernel has cleared the bss segment. In order to prevent clearing the
+currently used IDT, move the IDT to the data segment.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Link: https://lore.kernel.org/r/20200724160336.5435-20-joro@8bytes.org
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20200724160336.5435-28-joro@8bytes.org
 ---
- arch/x86/boot/compressed/head_64.S      | 8 +++++++-
- arch/x86/boot/compressed/ident_map_64.c | 3 ---
- 2 files changed, 7 insertions(+), 4 deletions(-)
+ arch/x86/kernel/idt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
-index 013b29921836..c7fcf60cbd08 100644
---- a/arch/x86/boot/compressed/head_64.S
-+++ b/arch/x86/boot/compressed/head_64.S
-@@ -533,9 +533,15 @@ SYM_FUNC_START_LOCAL_NOALIGN(.Lrelocated)
- 	rep	stosq
+diff --git a/arch/x86/kernel/idt.c b/arch/x86/kernel/idt.c
+index 7ecf9babf0cb..34fcc58b81b5 100644
+--- a/arch/x86/kernel/idt.c
++++ b/arch/x86/kernel/idt.c
+@@ -158,7 +158,7 @@ static const __initconst struct idt_data apic_idts[] = {
+ };
  
- /*
-- * Load stage2 IDT and switch to our own page-table
-+ * If running as an SEV guest, the encryption mask is required in the
-+ * page-table setup code below. When the guest also has SEV-ES enabled
-+ * set_sev_encryption_mask() will cause #VC exceptions, but the stage2
-+ * handler can't map its GHCB because the page-table is not set up yet.
-+ * So set up the encryption mask here while still on the stage1 #VC
-+ * handler. Then load stage2 IDT and switch to our own page-table.
-  */
- 	pushq	%rsi
-+	call	set_sev_encryption_mask
- 	call	load_stage2_idt
- 	call	initialize_identity_maps
- 	popq	%rsi
-diff --git a/arch/x86/boot/compressed/ident_map_64.c b/arch/x86/boot/compressed/ident_map_64.c
-index 62e42c11a336..b4f2a5f503cd 100644
---- a/arch/x86/boot/compressed/ident_map_64.c
-+++ b/arch/x86/boot/compressed/ident_map_64.c
-@@ -105,9 +105,6 @@ static void add_identity_map(unsigned long start, unsigned long end)
- /* Locates and clears a region for a new top level page table. */
- void initialize_identity_maps(void)
- {
--	/* If running as an SEV guest, the encryption mask is required. */
--	set_sev_encryption_mask();
--
- 	/* Exclude the encryption mask from __PHYSICAL_MASK */
- 	physical_mask &= ~sme_me_mask;
+ /* Must be page-aligned because the real IDT is used in the cpu entry area */
+-static gate_desc idt_table[IDT_ENTRIES] __page_aligned_bss;
++static gate_desc idt_table[IDT_ENTRIES] __page_aligned_data;
  
+ static struct desc_ptr idt_descr __ro_after_init = {
+ 	.size		= IDT_TABLE_SIZE - 1,
 -- 
 2.28.0
 
