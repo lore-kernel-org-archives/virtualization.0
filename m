@@ -7,59 +7,60 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5D300C433E5
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:07:34 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 469D7C433E1
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:08:07 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 375C4206F0
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:07:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 375C4206F0
+	by mail.kernel.org (Postfix) with ESMTPS id 1CF44206F0
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:08:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1CF44206F0
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id C7F4820796;
-	Mon, 24 Aug 2020 09:07:33 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id B342420535;
+	Mon, 24 Aug 2020 09:08:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0hBeUV7eGfOm; Mon, 24 Aug 2020 09:07:20 +0000 (UTC)
+	with ESMTP id dwCiKZF0iCUp; Mon, 24 Aug 2020 09:07:52 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 6FC802094D;
-	Mon, 24 Aug 2020 09:06:57 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id A5AE82076B;
+	Mon, 24 Aug 2020 09:07:14 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5382BC0051;
-	Mon, 24 Aug 2020 09:06:57 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 80BE3C089F
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 904EDC089E;
+	Mon, 24 Aug 2020 09:07:14 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F27A1C016F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:06:53 +0000 (UTC)
+ Mon, 24 Aug 2020 09:07:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 6F9818829F
+ by silver.osuosl.org (Postfix) with ESMTP id D42042052C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:06:53 +0000 (UTC)
+ Mon, 24 Aug 2020 09:07:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id oKWK1VsTcH8L
+ with ESMTP id WZ346m22dnUA
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:06:51 +0000 (UTC)
+ Mon, 24 Aug 2020 09:06:55 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by hemlock.osuosl.org (Postfix) with ESMTPS id C2122881BB
+ by silver.osuosl.org (Postfix) with ESMTPS id 158D520516
  for <virtualization@lists.linux-foundation.org>;
  Mon, 24 Aug 2020 09:06:51 +0000 (UTC)
 Received: from cap.home.8bytes.org (p4ff2bb8d.dip0.t-ipconnect.de
  [79.242.187.141])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 6575736B;
- Mon, 24 Aug 2020 10:56:12 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 53DCCF8E;
+ Mon, 24 Aug 2020 10:56:14 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v6 42/76] x86/sev-es: Setup early #VC handler
-Date: Mon, 24 Aug 2020 10:54:37 +0200
-Message-Id: <20200824085511.7553-43-joro@8bytes.org>
+Subject: [PATCH v6 45/76] x86/sev-es: Allocate and Map IST stack for #VC
+ handler
+Date: Mon, 24 Aug 2020 10:54:40 +0200
+Message-Id: <20200824085511.7553-46-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824085511.7553-1-joro@8bytes.org>
 References: <20200824085511.7553-1-joro@8bytes.org>
@@ -95,160 +96,214 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Setup an early handler for #VC exceptions. There is no GHCB mapped
-yet, so just re-use the vc_no_ghcb_handler. It can only handle CPUID
-exit-codes, but that should be enough to get the kernel through
-verify_cpu() and __startup_64() until it runs on virtual addresses.
+Allocate and map an IST stack and an additional fall-back stack for
+the #VC handler.  The memory for the stacks is allocated only when
+SEV-ES is active.
+
+The #VC handler needs to use an IST stack because it could be raised
+from kernel space with unsafe stack, e.g. in the SYSCALL entry path.
+
+Since the #VC exception can be nested, the #VC handler switches back to
+the interrupted stack when entered from kernel space. If switching back
+is not possible the fall-back stack is used.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Link: https://lore.kernel.org/r/20200724160336.5435-42-joro@8bytes.org
+Link: https://lore.kernel.org/r/20200724160336.5435-45-joro@8bytes.org
 ---
- arch/x86/include/asm/setup.h  |  1 +
- arch/x86/include/asm/sev-es.h |  3 +++
- arch/x86/kernel/head64.c      |  1 +
- arch/x86/kernel/head_64.S     | 34 +++++++++++++++++++++++++++++++++
- arch/x86/kernel/idt.c         | 36 +++++++++++++++++++++++++++++++++++
- 5 files changed, 75 insertions(+)
+ arch/x86/include/asm/cpu_entry_area.h | 33 +++++++++++++++++----------
+ arch/x86/include/asm/page_64_types.h  |  1 +
+ arch/x86/kernel/cpu/common.c          |  2 ++
+ arch/x86/kernel/dumpstack_64.c        |  8 +++++--
+ arch/x86/kernel/sev-es.c              | 33 +++++++++++++++++++++++++++
+ 5 files changed, 63 insertions(+), 14 deletions(-)
 
-diff --git a/arch/x86/include/asm/setup.h b/arch/x86/include/asm/setup.h
-index cafae86813ae..0ce6453c9272 100644
---- a/arch/x86/include/asm/setup.h
-+++ b/arch/x86/include/asm/setup.h
-@@ -53,6 +53,7 @@ extern unsigned long __startup_secondary_64(void);
- extern void startup_64_setup_env(unsigned long physbase);
- extern void early_idt_setup_early_handler(unsigned long physaddr);
- extern void early_load_idt(void);
-+extern void early_idt_setup(unsigned long physbase);
- extern void __init do_early_exception(struct pt_regs *regs, int trapnr);
+diff --git a/arch/x86/include/asm/cpu_entry_area.h b/arch/x86/include/asm/cpu_entry_area.h
+index 8902fdb7de13..f87e4c0c16f4 100644
+--- a/arch/x86/include/asm/cpu_entry_area.h
++++ b/arch/x86/include/asm/cpu_entry_area.h
+@@ -11,25 +11,29 @@
+ #ifdef CONFIG_X86_64
  
- #ifdef CONFIG_X86_INTEL_MID
-diff --git a/arch/x86/include/asm/sev-es.h b/arch/x86/include/asm/sev-es.h
-index 7c0807b84546..ec0e112a742b 100644
---- a/arch/x86/include/asm/sev-es.h
-+++ b/arch/x86/include/asm/sev-es.h
-@@ -73,4 +73,7 @@ static inline u64 lower_bits(u64 val, unsigned int bits)
- 	return (val & mask);
- }
+ /* Macro to enforce the same ordering and stack sizes */
+-#define ESTACKS_MEMBERS(guardsize)		\
+-	char	DF_stack_guard[guardsize];	\
+-	char	DF_stack[EXCEPTION_STKSZ];	\
+-	char	NMI_stack_guard[guardsize];	\
+-	char	NMI_stack[EXCEPTION_STKSZ];	\
+-	char	DB_stack_guard[guardsize];	\
+-	char	DB_stack[EXCEPTION_STKSZ];	\
+-	char	MCE_stack_guard[guardsize];	\
+-	char	MCE_stack[EXCEPTION_STKSZ];	\
+-	char	IST_top_guard[guardsize];	\
++#define ESTACKS_MEMBERS(guardsize, optional_stack_size)		\
++	char	DF_stack_guard[guardsize];			\
++	char	DF_stack[EXCEPTION_STKSZ];			\
++	char	NMI_stack_guard[guardsize];			\
++	char	NMI_stack[EXCEPTION_STKSZ];			\
++	char	DB_stack_guard[guardsize];			\
++	char	DB_stack[EXCEPTION_STKSZ];			\
++	char	MCE_stack_guard[guardsize];			\
++	char	MCE_stack[EXCEPTION_STKSZ];			\
++	char	VC_stack_guard[guardsize];			\
++	char	VC_stack[optional_stack_size];			\
++	char	VC2_stack_guard[guardsize];			\
++	char	VC2_stack[optional_stack_size];			\
++	char	IST_top_guard[guardsize];			\
  
-+/* Early IDT entry points for #VC handler */
-+extern void vc_no_ghcb(void);
-+
- #endif
-diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
-index 41514ec1e6f0..250fae33bf66 100644
---- a/arch/x86/kernel/head64.c
-+++ b/arch/x86/kernel/head64.c
-@@ -39,6 +39,7 @@
- #include <asm/realmode.h>
- #include <asm/extable.h>
- #include <asm/trapnr.h>
-+#include <asm/sev-es.h>
+ /* The exception stacks' physical storage. No guard pages required */
+ struct exception_stacks {
+-	ESTACKS_MEMBERS(0)
++	ESTACKS_MEMBERS(0, 0)
+ };
+ 
+ /* The effective cpu entry area mapping with guard pages. */
+ struct cea_exception_stacks {
+-	ESTACKS_MEMBERS(PAGE_SIZE)
++	ESTACKS_MEMBERS(PAGE_SIZE, EXCEPTION_STKSZ)
+ };
  
  /*
-  * Manage page tables very early on.
-diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
-index 4622940134a5..12bf6f11fd83 100644
---- a/arch/x86/kernel/head_64.S
-+++ b/arch/x86/kernel/head_64.S
-@@ -95,6 +95,13 @@ SYM_CODE_START_NOALIGN(startup_64)
- .Lon_kernel_cs:
- 	UNWIND_HINT_EMPTY
+@@ -40,6 +44,8 @@ enum exception_stack_ordering {
+ 	ESTACK_NMI,
+ 	ESTACK_DB,
+ 	ESTACK_MCE,
++	ESTACK_VC,
++	ESTACK_VC2,
+ 	N_EXCEPTION_STACKS
+ };
  
-+	/* Setup IDT - Needed for SEV-ES */
-+	pushq	%rsi
-+	/* early_idt_setup - physbase as first parameter */
-+	leaq	_text(%rip), %rdi
-+	call	early_idt_setup
-+	popq	%rsi
-+
- 	/* Sanitize CPU configuration */
- 	call verify_cpu
+@@ -139,4 +145,7 @@ static inline struct entry_stack *cpu_entry_stack(int cpu)
+ #define __this_cpu_ist_top_va(name)					\
+ 	CEA_ESTACK_TOP(__this_cpu_read(cea_exception_stacks), name)
  
-@@ -363,6 +370,33 @@ SYM_CODE_START_LOCAL(early_idt_handler_common)
- 	jmp restore_regs_and_return_to_kernel
- SYM_CODE_END(early_idt_handler_common)
++#define __this_cpu_ist_bot_va(name)					\
++	CEA_ESTACK_BOT(__this_cpu_read(cea_exception_stacks), name)
++
+ #endif
+diff --git a/arch/x86/include/asm/page_64_types.h b/arch/x86/include/asm/page_64_types.h
+index 288b065955b7..d0c6c10c18a0 100644
+--- a/arch/x86/include/asm/page_64_types.h
++++ b/arch/x86/include/asm/page_64_types.h
+@@ -28,6 +28,7 @@
+ #define	IST_INDEX_NMI		1
+ #define	IST_INDEX_DB		2
+ #define	IST_INDEX_MCE		3
++#define	IST_INDEX_VC		4
  
-+#ifdef CONFIG_AMD_MEM_ENCRYPT
-+/*
-+ * VC Exception handler used during very early boot. The
-+ * early_idt_handler_array can't be used because it returns via the
-+ * paravirtualized INTERRUPT_RETURN and pv-ops don't work that early.
-+ */
-+SYM_CODE_START_NOALIGN(vc_no_ghcb)
-+	UNWIND_HINT_IRET_REGS offset=8
-+
-+	/* Build pt_regs */
-+	PUSH_AND_CLEAR_REGS
-+
-+	/* Call C handler */
-+	movq    %rsp, %rdi
-+	movq	ORIG_RAX(%rsp), %rsi
-+	call    do_vc_no_ghcb
-+
-+	/* Unwind pt_regs */
-+	POP_REGS
-+
-+	/* Remove Error Code */
-+	addq    $8, %rsp
-+
-+	/* Pure iret required here - don't use INTERRUPT_RETURN */
-+	iretq
-+SYM_CODE_END(vc_no_ghcb)
-+#endif
- 
- #define SYM_DATA_START_PAGE_ALIGNED(name)			\
- 	SYM_START(name, SYM_L_GLOBAL, .balign PAGE_SIZE)
-diff --git a/arch/x86/kernel/idt.c b/arch/x86/kernel/idt.c
-index e2777cc264f5..0d560a1218e1 100644
---- a/arch/x86/kernel/idt.c
-+++ b/arch/x86/kernel/idt.c
-@@ -11,6 +11,7 @@
- #include <asm/desc.h>
- #include <asm/hw_irq.h>
- #include <asm/setup.h>
-+#include <asm/sev-es.h>
- 
- struct idt_data {
- 	unsigned int	vector;
-@@ -408,3 +409,38 @@ void early_load_idt(void)
- {
- 	load_idt(&idt_descr);
+ /*
+  * Set __PAGE_OFFSET to the most negative possible address +
+diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
+index 8aa20bc2f1ca..1d65365363a1 100644
+--- a/arch/x86/kernel/cpu/common.c
++++ b/arch/x86/kernel/cpu/common.c
+@@ -1821,6 +1821,8 @@ static inline void tss_setup_ist(struct tss_struct *tss)
+ 	tss->x86_tss.ist[IST_INDEX_NMI] = __this_cpu_ist_top_va(NMI);
+ 	tss->x86_tss.ist[IST_INDEX_DB] = __this_cpu_ist_top_va(DB);
+ 	tss->x86_tss.ist[IST_INDEX_MCE] = __this_cpu_ist_top_va(MCE);
++	/* Only mapped when SEV-ES is active */
++	tss->x86_tss.ist[IST_INDEX_VC] = __this_cpu_ist_top_va(VC);
  }
+ 
+ #else /* CONFIG_X86_64 */
+diff --git a/arch/x86/kernel/dumpstack_64.c b/arch/x86/kernel/dumpstack_64.c
+index 4a94d38cd141..c49cf594714b 100644
+--- a/arch/x86/kernel/dumpstack_64.c
++++ b/arch/x86/kernel/dumpstack_64.c
+@@ -24,11 +24,13 @@ static const char * const exception_stack_names[] = {
+ 		[ ESTACK_NMI	]	= "NMI",
+ 		[ ESTACK_DB	]	= "#DB",
+ 		[ ESTACK_MCE	]	= "#MC",
++		[ ESTACK_VC	]	= "#VC",
++		[ ESTACK_VC2	]	= "#VC2",
+ };
+ 
+ const char *stack_type_name(enum stack_type type)
+ {
+-	BUILD_BUG_ON(N_EXCEPTION_STACKS != 4);
++	BUILD_BUG_ON(N_EXCEPTION_STACKS != 6);
+ 
+ 	if (type == STACK_TYPE_IRQ)
+ 		return "IRQ";
+@@ -79,6 +81,8 @@ struct estack_pages estack_pages[CEA_ESTACK_PAGES] ____cacheline_aligned = {
+ 	EPAGERANGE(NMI),
+ 	EPAGERANGE(DB),
+ 	EPAGERANGE(MCE),
++	EPAGERANGE(VC),
++	EPAGERANGE(VC2),
+ };
+ 
+ static bool in_exception_stack(unsigned long *stack, struct stack_info *info)
+@@ -88,7 +92,7 @@ static bool in_exception_stack(unsigned long *stack, struct stack_info *info)
+ 	struct pt_regs *regs;
+ 	unsigned int k;
+ 
+-	BUILD_BUG_ON(N_EXCEPTION_STACKS != 4);
++	BUILD_BUG_ON(N_EXCEPTION_STACKS != 6);
+ 
+ 	begin = (unsigned long)__this_cpu_read(cea_exception_stacks);
+ 	/*
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+index 734afaee378d..64002d86a237 100644
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -17,6 +17,7 @@
+ #include <linux/kernel.h>
+ #include <linux/mm.h>
+ 
++#include <asm/cpu_entry_area.h>
+ #include <asm/sev-es.h>
+ #include <asm/insn-eval.h>
+ #include <asm/fpu/internal.h>
+@@ -37,10 +38,41 @@ static struct ghcb __initdata *boot_ghcb;
+ /* #VC handler runtime per-cpu data */
+ struct sev_es_runtime_data {
+ 	struct ghcb ghcb_page;
 +
-+#ifdef CONFIG_AMD_MEM_ENCRYPT
-+static void set_early_idt_handler(gate_desc *idt, int n, void *handler)
++	/* Physical storage for the per-cpu IST stack of the #VC handler */
++	char ist_stack[EXCEPTION_STKSZ] __aligned(PAGE_SIZE);
++
++	/*
++	 * Physical storage for the per-cpu fall-back stack of the #VC handler.
++	 * The fall-back stack is used when it is not safe to switch back to the
++	 * interrupted stack in the #VC entry code.
++	 */
++	char fallback_stack[EXCEPTION_STKSZ] __aligned(PAGE_SIZE);
+ };
+ 
+ static DEFINE_PER_CPU(struct sev_es_runtime_data*, runtime_data);
+ 
++static void __init sev_es_setup_vc_stacks(int cpu)
 +{
-+	struct idt_data data;
-+	gate_desc desc;
++	struct sev_es_runtime_data *data;
++	struct cpu_entry_area *cea;
++	unsigned long vaddr;
++	phys_addr_t pa;
 +
-+	init_idt_data(&data, n, handler);
-+	idt_init_desc(&desc, &data);
-+	native_write_idt_entry(idt, n, &desc);
++	data = per_cpu(runtime_data, cpu);
++	cea  = get_cpu_entry_area(cpu);
++
++	/* Map #VC IST stack */
++	vaddr = CEA_ESTACK_BOT(&cea->estacks, VC);
++	pa    = __pa(data->ist_stack);
++	cea_set_pte((void *)vaddr, pa, PAGE_KERNEL);
++
++	/* Map VC fall-back stack */
++	vaddr = CEA_ESTACK_BOT(&cea->estacks, VC2);
++	pa    = __pa(data->fallback_stack);
++	cea_set_pte((void *)vaddr, pa, PAGE_KERNEL);
 +}
-+#endif
 +
-+static struct desc_ptr early_idt_descr __initdata = {
-+	.size		= IDT_TABLE_SIZE - 1,
-+	.address	= 0 /* Needs physical address of idt_table - initialized at runtime. */,
-+};
-+
-+void __init early_idt_setup(unsigned long physbase)
-+{
-+	void __maybe_unused *handler;
-+	gate_desc *idt;
-+
-+	idt = fixup_pointer(idt_table, physbase);
-+
-+#ifdef CONFIG_AMD_MEM_ENCRYPT
-+	/* VMM Communication Exception */
-+	handler = fixup_pointer(vc_no_ghcb, physbase);
-+	set_early_idt_handler(idt, X86_TRAP_VC, handler);
-+#endif
-+
-+	/* Initialize IDT descriptor and load IDT */
-+	early_idt_descr.address = (unsigned long)idt;
-+	native_load_idt(&early_idt_descr);
-+}
+ /* Needed in vc_early_forward_exception */
+ void do_early_exception(struct pt_regs *regs, int trapnr);
+ 
+@@ -249,6 +281,7 @@ void __init sev_es_init_vc_handling(void)
+ 	for_each_possible_cpu(cpu) {
+ 		sev_es_alloc_runtime_data(cpu);
+ 		sev_es_init_ghcb(cpu);
++		sev_es_setup_vc_stacks(cpu);
+ 	}
+ }
+ 
 -- 
 2.28.0
 
