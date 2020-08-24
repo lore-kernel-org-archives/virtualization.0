@@ -7,59 +7,60 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72484C433EC
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB394C433E3
 	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:07:11 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4C03A2072D
+	by mail.kernel.org (Postfix) with ESMTPS id 84E7C206F0
 	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:07:11 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4C03A2072D
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 84E7C206F0
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 2CCDB882A7;
+	by hemlock.osuosl.org (Postfix) with ESMTP id 696EA883BC;
 	Mon, 24 Aug 2020 09:07:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id QHNj7aMUKGO6; Mon, 24 Aug 2020 09:07:09 +0000 (UTC)
+	with ESMTP id 01-8U5Uk0DCd; Mon, 24 Aug 2020 09:07:09 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 4D8AB883CD;
+	by hemlock.osuosl.org (Postfix) with ESMTP id 178F4883C1;
 	Mon, 24 Aug 2020 09:07:07 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3639EC0895;
-	Mon, 24 Aug 2020 09:07:07 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F343BC0895;
+	Mon, 24 Aug 2020 09:07:06 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5D7B4C0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C21D3C016F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:07:03 +0000 (UTC)
+ Mon, 24 Aug 2020 09:07:01 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 46849204F8
+ by silver.osuosl.org (Postfix) with ESMTP id 9C2E3204F8
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:07:03 +0000 (UTC)
+ Mon, 24 Aug 2020 09:07:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id VHLpO6U3eFL9
+ with ESMTP id qEcZzaPzF5rR
  for <virtualization@lists.linux-foundation.org>;
  Mon, 24 Aug 2020 09:06:54 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by silver.osuosl.org (Postfix) with ESMTPS id 141032050A
+ by silver.osuosl.org (Postfix) with ESMTPS id 1320B204FF
  for <virtualization@lists.linux-foundation.org>;
  Mon, 24 Aug 2020 09:06:51 +0000 (UTC)
 Received: from cap.home.8bytes.org (p4ff2bb8d.dip0.t-ipconnect.de
  [79.242.187.141])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id E9D8B1823;
- Mon, 24 Aug 2020 10:56:31 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id E7AF112E0;
+ Mon, 24 Aug 2020 10:56:27 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v6 75/76] x86/efi: Add GHCB mappings when SEV-ES is active
-Date: Mon, 24 Aug 2020 10:55:10 +0200
-Message-Id: <20200824085511.7553-76-joro@8bytes.org>
+Subject: [PATCH v6 68/76] x86/realmode: Add SEV-ES specific trampoline entry
+ point
+Date: Mon, 24 Aug 2020 10:55:03 +0200
+Message-Id: <20200824085511.7553-69-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824085511.7553-1-joro@8bytes.org>
 References: <20200824085511.7553-1-joro@8bytes.org>
@@ -93,123 +94,90 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-Calling down to EFI runtime services can result in the firmware performing
-VMGEXIT calls. The firmware is likely to use the GHCB of the OS (e.g., for
-setting EFI variables), so each GHCB in the system needs to be identity
-mapped in the EFI page tables, as unencrypted, to avoid page faults.
+The code at the trampoline entry point is executed in real-mode. In
+real-mode #VC exceptions can't be handled, so anything that might cause
+such an exception must be avoided.
 
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-[ jroedel@suse.de: Moved GHCB mapping loop to sev-es.c ]
+In the standard trampoline entry code this is the WBINVD instruction and
+the call to verify_cpu(), which are both not needed anyway when running
+as an SEV-ES guest.
+
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Link: https://lore.kernel.org/r/20200724160336.5435-75-joro@8bytes.org
+Link: https://lore.kernel.org/r/20200724160336.5435-68-joro@8bytes.org
 ---
- arch/x86/boot/compressed/sev-es.c |  1 +
- arch/x86/include/asm/sev-es.h     |  2 ++
- arch/x86/kernel/sev-es.c          | 30 ++++++++++++++++++++++++++++++
- arch/x86/platform/efi/efi_64.c    | 10 ++++++++++
- 4 files changed, 43 insertions(+)
+ arch/x86/include/asm/realmode.h      |  3 +++
+ arch/x86/realmode/rm/header.S        |  3 +++
+ arch/x86/realmode/rm/trampoline_64.S | 20 ++++++++++++++++++++
+ 3 files changed, 26 insertions(+)
 
-diff --git a/arch/x86/boot/compressed/sev-es.c b/arch/x86/boot/compressed/sev-es.c
-index 1ce144e0ddc3..b522c18c0588 100644
---- a/arch/x86/boot/compressed/sev-es.c
-+++ b/arch/x86/boot/compressed/sev-es.c
-@@ -12,6 +12,7 @@
-  */
- #include "misc.h"
- 
-+#include <asm/pgtable_types.h>
- #include <asm/sev-es.h>
- #include <asm/trapnr.h>
- #include <asm/trap_pf.h>
-diff --git a/arch/x86/include/asm/sev-es.h b/arch/x86/include/asm/sev-es.h
-index 21fdee11ac83..f22c4531624c 100644
---- a/arch/x86/include/asm/sev-es.h
-+++ b/arch/x86/include/asm/sev-es.h
-@@ -101,11 +101,13 @@ static __always_inline void sev_es_nmi_complete(void)
- 	if (static_branch_unlikely(&sev_es_enable_key))
- 		__sev_es_nmi_complete();
- }
-+extern int __init sev_es_efi_map_ghcbs(pgd_t *pgd);
- #else
- static inline void sev_es_ist_enter(struct pt_regs *regs) { }
- static inline void sev_es_ist_exit(void) { }
- static inline int sev_es_setup_ap_jump_table(struct real_mode_header *rmh) { return 0; }
- static inline void sev_es_nmi_complete(void) { }
-+static inline int sev_es_efi_map_ghcbs(pgd_t *pgd) { return 0; }
+diff --git a/arch/x86/include/asm/realmode.h b/arch/x86/include/asm/realmode.h
+index b35030eeec36..6590394af309 100644
+--- a/arch/x86/include/asm/realmode.h
++++ b/arch/x86/include/asm/realmode.h
+@@ -21,6 +21,9 @@ struct real_mode_header {
+ 	/* SMP trampoline */
+ 	u32	trampoline_start;
+ 	u32	trampoline_header;
++#ifdef CONFIG_AMD_MEM_ENCRYPT
++	u32	sev_es_trampoline_start;
++#endif
+ #ifdef CONFIG_X86_64
+ 	u32	trampoline_pgd;
  #endif
- 
+diff --git a/arch/x86/realmode/rm/header.S b/arch/x86/realmode/rm/header.S
+index af04512c02d9..8c1db5bf5d78 100644
+--- a/arch/x86/realmode/rm/header.S
++++ b/arch/x86/realmode/rm/header.S
+@@ -20,6 +20,9 @@ SYM_DATA_START(real_mode_header)
+ 	/* SMP trampoline */
+ 	.long	pa_trampoline_start
+ 	.long	pa_trampoline_header
++#ifdef CONFIG_AMD_MEM_ENCRYPT
++	.long	pa_sev_es_trampoline_start
++#endif
+ #ifdef CONFIG_X86_64
+ 	.long	pa_trampoline_pgd;
  #endif
-diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index 7202d2f5deb8..2d73f5abe04b 100644
---- a/arch/x86/kernel/sev-es.c
-+++ b/arch/x86/kernel/sev-es.c
-@@ -495,6 +495,36 @@ int sev_es_setup_ap_jump_table(struct real_mode_header *rmh)
- 	return 0;
- }
+diff --git a/arch/x86/realmode/rm/trampoline_64.S b/arch/x86/realmode/rm/trampoline_64.S
+index 251758ed7443..84c5d1b33d10 100644
+--- a/arch/x86/realmode/rm/trampoline_64.S
++++ b/arch/x86/realmode/rm/trampoline_64.S
+@@ -56,6 +56,7 @@ SYM_CODE_START(trampoline_start)
+ 	testl   %eax, %eax		# Check for return code
+ 	jnz	no_longmode
  
-+/*
-+ * This is needed by the OVMF UEFI firmware which will use whatever it finds in
-+ * the GHCB MSR as its GHCB to talk to the hypervisor. So make sure the per-cpu
-+ * runtime GHCBs used by the kernel are also mapped in the EFI page-table.
-+ */
-+int __init sev_es_efi_map_ghcbs(pgd_t *pgd)
-+{
-+	struct sev_es_runtime_data *data;
-+	unsigned long address, pflags;
-+	int cpu;
-+	u64 pfn;
-+
-+	if (!sev_es_active())
-+		return 0;
-+
-+	pflags = _PAGE_NX | _PAGE_RW;
-+
-+	for_each_possible_cpu(cpu) {
-+		data = per_cpu(runtime_data, cpu);
-+
-+		address = __pa(&data->ghcb_page);
-+		pfn = address >> PAGE_SHIFT;
-+
-+		if (kernel_map_pages_in_pgd(pgd, pfn, address, 1, pflags))
-+			return 1;
-+	}
-+
-+	return 0;
-+}
-+
- static enum es_result vc_handle_msr(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
- {
- 	struct pt_regs *regs = ctxt->regs;
-diff --git a/arch/x86/platform/efi/efi_64.c b/arch/x86/platform/efi/efi_64.c
-index 6af4da1149ba..8f5759df7776 100644
---- a/arch/x86/platform/efi/efi_64.c
-+++ b/arch/x86/platform/efi/efi_64.c
-@@ -47,6 +47,7 @@
- #include <asm/realmode.h>
- #include <asm/time.h>
- #include <asm/pgalloc.h>
-+#include <asm/sev-es.h>
- 
- /*
-  * We allocate runtime services regions top-down, starting from -4G, i.e.
-@@ -229,6 +230,15 @@ int __init efi_setup_page_tables(unsigned long pa_memmap, unsigned num_pages)
- 		return 1;
- 	}
- 
-+	/*
-+	 * When SEV-ES is active, the GHCB as set by the kernel will be used
-+	 * by firmware. Create a 1:1 unencrypted mapping for each GHCB.
-+	 */
-+	if (sev_es_efi_map_ghcbs(pgd)) {
-+		pr_err("Failed to create 1:1 mapping for the GHCBs!\n");
-+		return 1;
-+	}
-+
++.Lswitch_to_protected:
  	/*
- 	 * When making calls to the firmware everything needs to be 1:1
- 	 * mapped and addressable with 32-bit pointers. Map the kernel
+ 	 * GDT tables in non default location kernel can be beyond 16MB and
+ 	 * lgdt will not be able to load the address as in real mode default
+@@ -80,6 +81,25 @@ no_longmode:
+ 	jmp no_longmode
+ SYM_CODE_END(trampoline_start)
+ 
++#ifdef CONFIG_AMD_MEM_ENCRYPT
++/* SEV-ES supports non-zero IP for entry points - no alignment needed */
++SYM_CODE_START(sev_es_trampoline_start)
++	cli			# We should be safe anyway
++
++	LJMPW_RM(1f)
++1:
++	mov	%cs, %ax	# Code and data in the same place
++	mov	%ax, %ds
++	mov	%ax, %es
++	mov	%ax, %ss
++
++	# Setup stack
++	movl	$rm_stack_end, %esp
++
++	jmp	.Lswitch_to_protected
++SYM_CODE_END(sev_es_trampoline_start)
++#endif	/* CONFIG_AMD_MEM_ENCRYPT */
++
+ #include "../kernel/verify_cpu.S"
+ 
+ 	.section ".text32","ax"
 -- 
 2.28.0
 
