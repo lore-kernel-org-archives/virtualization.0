@@ -7,76 +7,75 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E74D7C433DF
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:55:56 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D0220C433E5
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:55:57 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C64C022CB2
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:55:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C64C022CB2
+	by mail.kernel.org (Postfix) with ESMTPS id ABEF62072D
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:55:57 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org ABEF62072D
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 426E485D90;
-	Mon, 24 Aug 2020 08:55:56 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 34CC285DC4;
+	Mon, 24 Aug 2020 08:55:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id cLo8w6i3sbDl; Mon, 24 Aug 2020 08:55:55 +0000 (UTC)
+	with ESMTP id lyNpOJl0nWGd; Mon, 24 Aug 2020 08:55:55 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 4977A85DC4;
-	Mon, 24 Aug 2020 08:55:55 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id EED6885D94;
+	Mon, 24 Aug 2020 08:55:54 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2A63CC0895;
-	Mon, 24 Aug 2020 08:55:55 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 07241C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BBD68C08A2;
+	Mon, 24 Aug 2020 08:55:54 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6B07EC0051
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:55:53 +0000 (UTC)
+ Mon, 24 Aug 2020 08:55:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id E025B204B1
+ by whitealder.osuosl.org (Postfix) with ESMTP id 591BC87775
  for <virtualization@lists.linux-foundation.org>;
  Mon, 24 Aug 2020 08:55:52 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id KS0vqwO1vGpv
+ with ESMTP id ltMARMS-GydD
  for <virtualization@lists.linux-foundation.org>;
  Mon, 24 Aug 2020 08:55:51 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by silver.osuosl.org (Postfix) with ESMTPS id 1430020491
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 69B3B87779
  for <virtualization@lists.linux-foundation.org>;
  Mon, 24 Aug 2020 08:55:51 +0000 (UTC)
 Received: from cap.home.8bytes.org (p4ff2bb8d.dip0.t-ipconnect.de
  [79.242.187.141])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id C056348C;
- Mon, 24 Aug 2020 10:55:47 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 5A5B04BB;
+ Mon, 24 Aug 2020 10:55:48 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v6 03/76] KVM: SVM: Add GHCB Accessor functions
-Date: Mon, 24 Aug 2020 10:53:58 +0200
-Message-Id: <20200824085511.7553-4-joro@8bytes.org>
+Subject: [PATCH v6 04/76] KVM: SVM: Use __packed shorthand
+Date: Mon, 24 Aug 2020 10:53:59 +0200
+Message-Id: <20200824085511.7553-5-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824085511.7553-1-joro@8bytes.org>
 References: <20200824085511.7553-1-joro@8bytes.org>
 MIME-Version: 1.0
-Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>,
- Joerg Roedel <jroedel@suse.de>, Mike Stunes <mstunes@vmware.com>,
- Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org,
- Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>,
- Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>,
- linux-kernel@vger.kernel.org,
+Cc: kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ virtualization@lists.linux-foundation.org, hpa@zytor.com,
+ Jiri Slaby <jslaby@suse.cz>, Joerg Roedel <joro@8bytes.org>,
+ David Rientjes <rientjes@google.com>, Martin Radev <martin.b.radev@gmail.com>,
+ Tom Lendacky <thomas.lendacky@amd.com>, Joerg Roedel <jroedel@suse.de>,
+ Kees Cook <keescook@chromium.org>, Cfir Cohen <cfir@google.com>,
+ Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>,
+ Dan Williams <dan.j.williams@intel.com>, Juergen Gross <jgross@suse.com>,
+ Mike Stunes <mstunes@vmware.com>, linux-kernel@vger.kernel.org,
  Sean Christopherson <sean.j.christopherson@intel.com>,
- virtualization@lists.linux-foundation.org,
- Martin Radev <martin.b.radev@gmail.com>,
- Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>,
- hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>,
- David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>,
- Jiri Slaby <jslaby@suse.cz>
+ Masami Hiramatsu <mhiramat@kernel.org>, Erdem Aktas <erdemaktas@google.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -93,70 +92,63 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Borislav Petkov <bp@alien8.de>
 
-Building a correct GHCB for the hypervisor requires setting valid bits
-in the GHCB. Simplify that process by providing accessor functions to
-set values and to update the valid bitmap and to check the valid bitmap
-in KVM.
+Use the shorthand to make it more readable.
 
+No functional changes.
+
+Signed-off-by: Borislav Petkov <bp@alien8.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/svm.h | 43 ++++++++++++++++++++++++++++++++++++++
- 1 file changed, 43 insertions(+)
+ arch/x86/include/asm/svm.h | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
 diff --git a/arch/x86/include/asm/svm.h b/arch/x86/include/asm/svm.h
-index 094b8f8fb1d4..50e5fa8d3249 100644
+index 50e5fa8d3249..da38eb195355 100644
 --- a/arch/x86/include/asm/svm.h
 +++ b/arch/x86/include/asm/svm.h
-@@ -341,4 +341,47 @@ struct __attribute__ ((__packed__)) vmcb {
+@@ -150,14 +150,14 @@ struct __attribute__ ((__packed__)) vmcb_control_area {
+ #define SVM_NESTED_CTL_NP_ENABLE	BIT(0)
+ #define SVM_NESTED_CTL_SEV_ENABLE	BIT(1)
  
- #define SVM_CR0_SELECTIVE_MASK (X86_CR0_TS | X86_CR0_MP)
+-struct __attribute__ ((__packed__)) vmcb_seg {
++struct vmcb_seg {
+ 	u16 selector;
+ 	u16 attrib;
+ 	u32 limit;
+ 	u64 base;
+-};
++} __packed;
  
-+/* GHCB Accessor functions */
-+
-+#define GHCB_BITMAP_IDX(field)							\
-+	(offsetof(struct vmcb_save_area, field) / sizeof(u64))
-+
-+#define DEFINE_GHCB_ACCESSORS(field)						\
-+	static inline bool ghcb_##field##_is_valid(const struct ghcb *ghcb)	\
-+	{									\
-+		return test_bit(GHCB_BITMAP_IDX(field),				\
-+				(unsigned long *)&ghcb->save.valid_bitmap);	\
-+	}									\
-+										\
-+	static inline void ghcb_set_##field(struct ghcb *ghcb, u64 value)	\
-+	{									\
-+		__set_bit(GHCB_BITMAP_IDX(field),				\
-+			  (unsigned long *)&ghcb->save.valid_bitmap);		\
-+		ghcb->save.field = value;					\
-+	}
-+
-+DEFINE_GHCB_ACCESSORS(cpl)
-+DEFINE_GHCB_ACCESSORS(rip)
-+DEFINE_GHCB_ACCESSORS(rsp)
-+DEFINE_GHCB_ACCESSORS(rax)
-+DEFINE_GHCB_ACCESSORS(rcx)
-+DEFINE_GHCB_ACCESSORS(rdx)
-+DEFINE_GHCB_ACCESSORS(rbx)
-+DEFINE_GHCB_ACCESSORS(rbp)
-+DEFINE_GHCB_ACCESSORS(rsi)
-+DEFINE_GHCB_ACCESSORS(rdi)
-+DEFINE_GHCB_ACCESSORS(r8)
-+DEFINE_GHCB_ACCESSORS(r9)
-+DEFINE_GHCB_ACCESSORS(r10)
-+DEFINE_GHCB_ACCESSORS(r11)
-+DEFINE_GHCB_ACCESSORS(r12)
-+DEFINE_GHCB_ACCESSORS(r13)
-+DEFINE_GHCB_ACCESSORS(r14)
-+DEFINE_GHCB_ACCESSORS(r15)
-+DEFINE_GHCB_ACCESSORS(sw_exit_code)
-+DEFINE_GHCB_ACCESSORS(sw_exit_info_1)
-+DEFINE_GHCB_ACCESSORS(sw_exit_info_2)
-+DEFINE_GHCB_ACCESSORS(sw_scratch)
-+DEFINE_GHCB_ACCESSORS(xcr0)
-+
- #endif
+-struct __attribute__ ((__packed__)) vmcb_save_area {
++struct vmcb_save_area {
+ 	struct vmcb_seg es;
+ 	struct vmcb_seg cs;
+ 	struct vmcb_seg ss;
+@@ -231,7 +231,7 @@ struct __attribute__ ((__packed__)) vmcb_save_area {
+ 	u64 xcr0;
+ 	u8 valid_bitmap[16];
+ 	u64 x87_state_gpa;
+-};
++} __packed;
+ 
+ struct ghcb {
+ 	struct vmcb_save_area save;
+@@ -252,11 +252,11 @@ static inline void __unused_size_checks(void)
+ 	BUILD_BUG_ON(sizeof(struct ghcb) != 4096);
+ }
+ 
+-struct __attribute__ ((__packed__)) vmcb {
++struct vmcb {
+ 	struct vmcb_control_area control;
+ 	u8 reserved_control[1024 - sizeof(struct vmcb_control_area)];
+ 	struct vmcb_save_area save;
+-};
++} __packed;
+ 
+ #define SVM_CPUID_FUNC 0x8000000a
+ 
 -- 
 2.28.0
 
