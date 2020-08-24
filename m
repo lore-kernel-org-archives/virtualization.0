@@ -4,63 +4,62 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A694AC433E5
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:07:09 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 419D1C433E1
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:07:10 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 77D39206F0
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:07:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 77D39206F0
+	by mail.kernel.org (Postfix) with ESMTPS id 14AE8206F0
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:07:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 14AE8206F0
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 41E0385F9C;
+	by hemlock.osuosl.org (Postfix) with ESMTP id DD7C68835E;
 	Mon, 24 Aug 2020 09:07:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id OISwE4CNoDsE; Mon, 24 Aug 2020 09:07:05 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 1A2D785F92;
-	Mon, 24 Aug 2020 09:07:05 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 02B23C089E;
-	Mon, 24 Aug 2020 09:07:05 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7B329C0051
- for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:06:55 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 6A786882F0
- for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:06:55 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id LySSB1Z--z2e
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id pXrIxY+Z6PHv; Mon, 24 Aug 2020 09:07:08 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by hemlock.osuosl.org (Postfix) with ESMTP id AA46688395;
+	Mon, 24 Aug 2020 09:07:06 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8ED1CC016F;
+	Mon, 24 Aug 2020 09:07:06 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 19F81C0051
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:06:52 +0000 (UTC)
+ Mon, 24 Aug 2020 09:07:00 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by whitealder.osuosl.org (Postfix) with ESMTP id F2BD5878D6
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 24 Aug 2020 09:06:59 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from whitealder.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id sZo+W-sKddqi
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 24 Aug 2020 09:06:53 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by hemlock.osuosl.org (Postfix) with ESMTPS id C77108828E
+ by whitealder.osuosl.org (Postfix) with ESMTPS id C0F1D879A1
  for <virtualization@lists.linux-foundation.org>;
  Mon, 24 Aug 2020 09:06:51 +0000 (UTC)
 Received: from cap.home.8bytes.org (p4ff2bb8d.dip0.t-ipconnect.de
  [79.242.187.141])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id DA81AFB9;
- Mon, 24 Aug 2020 10:56:14 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id DCC6F1007;
+ Mon, 24 Aug 2020 10:56:21 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v6 46/76] x86/sev-es: Adjust #VC IST Stack on entering NMI
- handler
-Date: Mon, 24 Aug 2020 10:54:41 +0200
-Message-Id: <20200824085511.7553-47-joro@8bytes.org>
+Subject: [PATCH v6 57/76] x86/sev-es: Handle RDTSC(P) Events
+Date: Mon, 24 Aug 2020 10:54:52 +0200
+Message-Id: <20200824085511.7553-58-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824085511.7553-1-joro@8bytes.org>
 References: <20200824085511.7553-1-joro@8bytes.org>
@@ -94,187 +93,86 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-When an NMI hits in the #VC handler entry code before it switched to
-another stack, any subsequent #VC exception in the NMI code-path will
-overwrite the interrupted #VC handlers stack.
+Implement a handler for #VC exceptions caused by RDTSC and RDTSCP
+instructions. Also make it available in the pre-decompression stage
+because the KASLR code used RDTSC/RDTSCP to gather entropy and some
+hypervisors intercept these instructions.
 
-Make sure this doesn't happen by  explicitly adjusting the #VC IST entry
-in the NMI handler for the time in can cause #VC exceptions.
-
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+[ jroedel@suse.de: - Adapt to #VC handling infrastructure
+                   - Make it available early ]
+Co-developed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Link: https://lore.kernel.org/r/20200724160336.5435-46-joro@8bytes.org
+Link: https://lore.kernel.org/r/20200724160336.5435-57-joro@8bytes.org
 ---
- arch/x86/include/asm/sev-es.h | 19 +++++++++++
- arch/x86/kernel/nmi.c         |  6 ++++
- arch/x86/kernel/sev-es.c      | 59 +++++++++++++++++++++++++++++++++++
- arch/x86/kernel/traps.c       |  2 ++
- 4 files changed, 86 insertions(+)
+ arch/x86/boot/compressed/sev-es.c |  4 ++++
+ arch/x86/kernel/sev-es-shared.c   | 23 +++++++++++++++++++++++
+ arch/x86/kernel/sev-es.c          |  4 ++++
+ 3 files changed, 31 insertions(+)
 
-diff --git a/arch/x86/include/asm/sev-es.h b/arch/x86/include/asm/sev-es.h
-index 824e9e6b067c..2dd19932a60d 100644
---- a/arch/x86/include/asm/sev-es.h
-+++ b/arch/x86/include/asm/sev-es.h
-@@ -77,4 +77,23 @@ static inline u64 lower_bits(u64 val, unsigned int bits)
- extern void vc_no_ghcb(void);
- extern bool handle_vc_boot_ghcb(struct pt_regs *regs);
+diff --git a/arch/x86/boot/compressed/sev-es.c b/arch/x86/boot/compressed/sev-es.c
+index 851d7af29d79..1ce144e0ddc3 100644
+--- a/arch/x86/boot/compressed/sev-es.c
++++ b/arch/x86/boot/compressed/sev-es.c
+@@ -181,6 +181,10 @@ void do_boot_stage2_vc(struct pt_regs *regs, unsigned long exit_code)
+ 		goto finish;
  
-+#ifdef CONFIG_AMD_MEM_ENCRYPT
-+extern struct static_key_false sev_es_enable_key;
-+extern void __sev_es_ist_enter(struct pt_regs *regs);
-+extern void __sev_es_ist_exit(void);
-+static __always_inline void sev_es_ist_enter(struct pt_regs *regs)
+ 	switch (exit_code) {
++	case SVM_EXIT_RDTSC:
++	case SVM_EXIT_RDTSCP:
++		result = vc_handle_rdtsc(boot_ghcb, &ctxt, exit_code);
++		break;
+ 	case SVM_EXIT_IOIO:
+ 		result = vc_handle_ioio(boot_ghcb, &ctxt);
+ 		break;
+diff --git a/arch/x86/kernel/sev-es-shared.c b/arch/x86/kernel/sev-es-shared.c
+index a6b41910b8ab..92d77b725ccb 100644
+--- a/arch/x86/kernel/sev-es-shared.c
++++ b/arch/x86/kernel/sev-es-shared.c
+@@ -467,3 +467,26 @@ static enum es_result vc_handle_cpuid(struct ghcb *ghcb,
+ 
+ 	return ES_OK;
+ }
++
++static enum es_result vc_handle_rdtsc(struct ghcb *ghcb,
++				      struct es_em_ctxt *ctxt,
++				      unsigned long exit_code)
 +{
-+	if (static_branch_unlikely(&sev_es_enable_key))
-+		__sev_es_ist_enter(regs);
++	bool rdtscp = (exit_code == SVM_EXIT_RDTSCP);
++	enum es_result ret;
++
++	ret = sev_es_ghcb_hv_call(ghcb, ctxt, exit_code, 0, 0);
++	if (ret != ES_OK)
++		return ret;
++
++	if (!(ghcb_rax_is_valid(ghcb) && ghcb_rdx_is_valid(ghcb) &&
++	     (!rdtscp || ghcb_rcx_is_valid(ghcb))))
++		return ES_VMM_ERROR;
++
++	ctxt->regs->ax = ghcb->save.rax;
++	ctxt->regs->dx = ghcb->save.rdx;
++	if (rdtscp)
++		ctxt->regs->cx = ghcb->save.rcx;
++
++	return ES_OK;
 +}
-+static __always_inline void sev_es_ist_exit(void)
-+{
-+	if (static_branch_unlikely(&sev_es_enable_key))
-+		__sev_es_ist_exit();
-+}
-+#else
-+static inline void sev_es_ist_enter(struct pt_regs *regs) { }
-+static inline void sev_es_ist_exit(void) { }
-+#endif
-+
- #endif
-diff --git a/arch/x86/kernel/nmi.c b/arch/x86/kernel/nmi.c
-index 4fc9954a9560..951f098a4bf5 100644
---- a/arch/x86/kernel/nmi.c
-+++ b/arch/x86/kernel/nmi.c
-@@ -33,6 +33,7 @@
- #include <asm/reboot.h>
- #include <asm/cache.h>
- #include <asm/nospec-branch.h>
-+#include <asm/sev-es.h>
- 
- #define CREATE_TRACE_POINTS
- #include <trace/events/nmi.h>
-@@ -488,6 +489,9 @@ DEFINE_IDTENTRY_RAW(exc_nmi)
- 	this_cpu_write(nmi_cr2, read_cr2());
- nmi_restart:
- 
-+	/* Needs to happen before DR7 is accessed */
-+	sev_es_ist_enter(regs);
-+
- 	this_cpu_write(nmi_dr7, local_db_save());
- 
- 	irq_state = idtentry_enter_nmi(regs);
-@@ -501,6 +505,8 @@ DEFINE_IDTENTRY_RAW(exc_nmi)
- 
- 	local_db_restore(this_cpu_read(nmi_dr7));
- 
-+	sev_es_ist_exit();
-+
- 	if (unlikely(this_cpu_read(nmi_cr2) != read_cr2()))
- 		write_cr2(this_cpu_read(nmi_cr2));
- 	if (this_cpu_dec_return(nmi_state))
 diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index 64002d86a237..95831d103418 100644
+index 2e83bbc330c9..0d8103a87ff1 100644
 --- a/arch/x86/kernel/sev-es.c
 +++ b/arch/x86/kernel/sev-es.c
-@@ -52,6 +52,9 @@ struct sev_es_runtime_data {
- 
- static DEFINE_PER_CPU(struct sev_es_runtime_data*, runtime_data);
- 
-+DEFINE_STATIC_KEY_FALSE(sev_es_enable_key);
-+EXPORT_SYMBOL_GPL(sev_es_enable_key);
-+
- static void __init sev_es_setup_vc_stacks(int cpu)
- {
- 	struct sev_es_runtime_data *data;
-@@ -73,6 +76,59 @@ static void __init sev_es_setup_vc_stacks(int cpu)
- 	cea_set_pte((void *)vaddr, pa, PAGE_KERNEL);
- }
- 
-+static __always_inline bool on_vc_stack(unsigned long sp)
-+{
-+	return ((sp >= __this_cpu_ist_bot_va(VC)) && (sp < __this_cpu_ist_top_va(VC)));
-+}
-+
-+/*
-+ * This function handles the case when an NM is raised in the #VC exception
-+ * handler entry code. In this case the IST entry for VC must be adjusted, so
-+ * that any subsequent VC exception will not overwrite the stack contents of the
-+ * interrupted VC handler.
-+ *
-+ * The IST entry is adjusted unconditionally so that it can be also be
-+ * unconditionally back-adjusted in sev_es_ist_exit(). Otherwise a nested
-+ * sev_es_ist_exit() call may back-adjust the IST entry too early.
-+ */
-+void noinstr __sev_es_ist_enter(struct pt_regs *regs)
-+{
-+	unsigned long old_ist, new_ist;
-+	unsigned long *p;
-+
-+	/* Read old IST entry */
-+	old_ist = __this_cpu_read(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC]);
-+
-+	/* Make room on the IST stack */
-+	if (on_vc_stack(regs->sp))
-+		new_ist = ALIGN_DOWN(regs->sp, 8) - sizeof(old_ist);
-+	else
-+		new_ist = old_ist - sizeof(old_ist);
-+
-+	/* Store old IST entry */
-+	p       = (unsigned long *)new_ist;
-+	*p      = old_ist;
-+
-+	/* Set new IST entry */
-+	this_cpu_write(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC], new_ist);
-+}
-+
-+void noinstr __sev_es_ist_exit(void)
-+{
-+	unsigned long ist;
-+	unsigned long *p;
-+
-+	/* Read IST entry */
-+	ist = __this_cpu_read(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC]);
-+
-+	if (WARN_ON(ist == __this_cpu_ist_top_va(VC)))
-+		return;
-+
-+	/* Read back old IST entry and write it to the TSS */
-+	p = (unsigned long *)ist;
-+	this_cpu_write(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC], *p);
-+}
-+
- /* Needed in vc_early_forward_exception */
- void do_early_exception(struct pt_regs *regs, int trapnr);
- 
-@@ -277,6 +333,9 @@ void __init sev_es_init_vc_handling(void)
- 	if (!sev_es_active())
- 		return;
- 
-+	/* Enable SEV-ES special handling */
-+	static_branch_enable(&sev_es_enable_key);
-+
- 	/* Initialize per-cpu GHCB pages */
- 	for_each_possible_cpu(cpu) {
- 		sev_es_alloc_runtime_data(cpu);
-diff --git a/arch/x86/kernel/traps.c b/arch/x86/kernel/traps.c
-index 74cfe6eb7ebb..030d882eaad1 100644
---- a/arch/x86/kernel/traps.c
-+++ b/arch/x86/kernel/traps.c
-@@ -59,6 +59,7 @@
- #include <asm/umip.h>
- #include <asm/insn.h>
- #include <asm/insn-eval.h>
-+#include <asm/sev-es.h>
- 
- #ifdef CONFIG_X86_64
- #include <asm/x86_init.h>
-@@ -731,6 +732,7 @@ static bool is_sysenter_singlestep(struct pt_regs *regs)
- 
- static __always_inline void debug_enter(unsigned long *dr6, unsigned long *dr7)
- {
-+
- 	/*
- 	 * Disable breakpoints during exception handling; recursive exceptions
- 	 * are exceedingly 'fun'.
+@@ -866,6 +866,10 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
+ 	case SVM_EXIT_WRITE_DR7:
+ 		result = vc_handle_dr7_write(ghcb, ctxt);
+ 		break;
++	case SVM_EXIT_RDTSC:
++	case SVM_EXIT_RDTSCP:
++		result = vc_handle_rdtsc(ghcb, ctxt, exit_code);
++		break;
+ 	case SVM_EXIT_CPUID:
+ 		result = vc_handle_cpuid(ghcb, ctxt);
+ 		break;
 -- 
 2.28.0
 
