@@ -7,59 +7,59 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BB29C433E3
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DB164C433DF
 	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:06:56 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 613DB20738
+	by mail.kernel.org (Postfix) with ESMTPS id B7769206F0
 	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:06:56 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 613DB20738
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B7769206F0
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 35EE4882F0;
+	by silver.osuosl.org (Postfix) with ESMTP id 6C6552079C;
 	Mon, 24 Aug 2020 09:06:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ed3o3YkVoYMe; Mon, 24 Aug 2020 09:06:53 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 5148188196;
-	Mon, 24 Aug 2020 09:06:53 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 37921C016F;
-	Mon, 24 Aug 2020 09:06:53 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 68C08C089F
- for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:06:50 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 4A53C204F7
- for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:06:50 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id gax5y6XmD0OM
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id vEdYPRfYkMzS; Mon, 24 Aug 2020 09:06:50 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by silver.osuosl.org (Postfix) with ESMTP id 941A2204E4;
+	Mon, 24 Aug 2020 09:06:50 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 627D5C089E;
+	Mon, 24 Aug 2020 09:06:50 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EB88AC016F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:06:50 +0000 (UTC)
+ Mon, 24 Aug 2020 09:06:48 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by whitealder.osuosl.org (Postfix) with ESMTP id DDFF1878DE
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 24 Aug 2020 09:06:48 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from whitealder.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id XWG8hGZm-y6z
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 24 Aug 2020 09:06:48 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by silver.osuosl.org (Postfix) with ESMTPS id E640E204E4
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 263FE878D6
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:06:49 +0000 (UTC)
+ Mon, 24 Aug 2020 09:06:48 +0000 (UTC)
 Received: from cap.home.8bytes.org (p4ff2bb8d.dip0.t-ipconnect.de
  [79.242.187.141])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 9C03112C7;
- Mon, 24 Aug 2020 10:56:25 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 7D6BFFDC;
+ Mon, 24 Aug 2020 10:56:17 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v6 64/76] x86/sev-es: Handle #DB Events
-Date: Mon, 24 Aug 2020 10:54:59 +0200
-Message-Id: <20200824085511.7553-65-joro@8bytes.org>
+Subject: [PATCH v6 50/76] x86/sev-es: Wire up existing #VC exit-code handlers
+Date: Mon, 24 Aug 2020 10:54:45 +0200
+Message-Id: <20200824085511.7553-51-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824085511.7553-1-joro@8bytes.org>
 References: <20200824085511.7553-1-joro@8bytes.org>
@@ -95,53 +95,58 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Handle #VC exceptions caused by #DB exceptions in the guest. Those
-must be handled outside of instrumentation_begin()/end() so that the
-handler will not be raised recursivly.
-
-Handle them by calling the kernels debug exception handler.
+Re-use the handlers for CPUID and IOIO caused #VC exceptions in the
+early boot handler.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Link: https://lore.kernel.org/r/20200724160336.5435-64-joro@8bytes.org
+Link: https://lore.kernel.org/r/20200724160336.5435-50-joro@8bytes.org
 ---
- arch/x86/kernel/sev-es.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ arch/x86/kernel/sev-es-shared.c | 7 +++----
+ arch/x86/kernel/sev-es.c        | 6 ++++++
+ 2 files changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index ee0950f01590..e1f3ebbcc122 100644
---- a/arch/x86/kernel/sev-es.c
-+++ b/arch/x86/kernel/sev-es.c
-@@ -922,6 +922,14 @@ static enum es_result vc_handle_trap_ac(struct ghcb *ghcb,
- 	return ES_EXCEPTION;
+diff --git a/arch/x86/kernel/sev-es-shared.c b/arch/x86/kernel/sev-es-shared.c
+index aa77f2eb8d88..a6b41910b8ab 100644
+--- a/arch/x86/kernel/sev-es-shared.c
++++ b/arch/x86/kernel/sev-es-shared.c
+@@ -325,8 +325,7 @@ static enum es_result vc_ioio_exitinfo(struct es_em_ctxt *ctxt, u64 *exitinfo)
+ 	return ES_OK;
  }
  
-+static __always_inline void vc_handle_trap_db(struct pt_regs *regs)
-+{
-+	if (user_mode(regs))
-+		noist_exc_debug(regs);
-+	else
-+		exc_debug(regs);
-+}
-+
- static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
- 					 struct ghcb *ghcb,
- 					 unsigned long exit_code)
-@@ -1033,6 +1041,15 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
- 	struct ghcb *ghcb;
+-static enum es_result __maybe_unused
+-vc_handle_ioio(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
++static enum es_result vc_handle_ioio(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
+ {
+ 	struct pt_regs *regs = ctxt->regs;
+ 	u64 exit_info_1, exit_info_2;
+@@ -434,8 +433,8 @@ vc_handle_ioio(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
+ 	return ret;
+ }
  
- 	lockdep_assert_irqs_disabled();
-+
-+	/*
-+	 * Handle #DB before calling into !noinstr code to avoid recursive #DB.
-+	 */
-+	if (error_code == SVM_EXIT_EXCP_BASE + X86_TRAP_DB) {
-+		vc_handle_trap_db(regs);
-+		return;
-+	}
-+
- 	instrumentation_begin();
+-static enum es_result __maybe_unused vc_handle_cpuid(struct ghcb *ghcb,
+-						     struct es_em_ctxt *ctxt)
++static enum es_result vc_handle_cpuid(struct ghcb *ghcb,
++				      struct es_em_ctxt *ctxt)
+ {
+ 	struct pt_regs *regs = ctxt->regs;
+ 	u32 cr4 = native_read_cr4();
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+index be4b00d18923..81d94f78d2d4 100644
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -443,6 +443,12 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
+ 	enum es_result result;
  
- 	/*
+ 	switch (exit_code) {
++	case SVM_EXIT_CPUID:
++		result = vc_handle_cpuid(ghcb, ctxt);
++		break;
++	case SVM_EXIT_IOIO:
++		result = vc_handle_ioio(ghcb, ctxt);
++		break;
+ 	default:
+ 		/*
+ 		 * Unexpected #VC exception
 -- 
 2.28.0
 
