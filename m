@@ -7,59 +7,59 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F0967C433DF
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:25 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 32C57C433E3
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:26 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D0F25204FD
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:25 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D0F25204FD
+	by mail.kernel.org (Postfix) with ESMTPS id 0E8F2204FD
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:26 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0E8F2204FD
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id AAD5A85F6C;
+	by fraxinus.osuosl.org (Postfix) with ESMTP id DFF0E85D7D;
 	Mon, 24 Aug 2020 08:56:25 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id kofRa8YtWJxK; Mon, 24 Aug 2020 08:56:23 +0000 (UTC)
+	with ESMTP id MaChSdhO7oyY; Mon, 24 Aug 2020 08:56:24 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 537DA85D7D;
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 95AEF85F9C;
 	Mon, 24 Aug 2020 08:56:23 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1C2C7C089E;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 771D1C089E;
 	Mon, 24 Aug 2020 08:56:23 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 46464C016F
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 732A3C0895
  for <virtualization@lists.linux-foundation.org>;
  Mon, 24 Aug 2020 08:56:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 2A66085F32
+ by silver.osuosl.org (Postfix) with ESMTP id 55834204B7
  for <virtualization@lists.linux-foundation.org>;
  Mon, 24 Aug 2020 08:56:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id eYPCrzybehE6
+ with ESMTP id BhDkKs0QqgBQ
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:56:20 +0000 (UTC)
+ Mon, 24 Aug 2020 08:56:13 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 7AED885F6C
+ by silver.osuosl.org (Postfix) with ESMTPS id 0E92220516
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:56:20 +0000 (UTC)
+ Mon, 24 Aug 2020 08:56:05 +0000 (UTC)
 Received: from cap.home.8bytes.org (p4ff2bb8d.dip0.t-ipconnect.de
  [79.242.187.141])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 2D4B185;
- Mon, 24 Aug 2020 10:56:10 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 2F29AE46;
+ Mon, 24 Aug 2020 10:56:00 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v6 39/76] x86/sev-es: Add SEV-ES Feature Detection
-Date: Mon, 24 Aug 2020 10:54:34 +0200
-Message-Id: <20200824085511.7553-40-joro@8bytes.org>
+Subject: [PATCH v6 26/76] x86/fpu: Move xgetbv()/xsetbv() into separate header
+Date: Mon, 24 Aug 2020 10:54:21 +0200
+Message-Id: <20200824085511.7553-27-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824085511.7553-1-joro@8bytes.org>
 References: <20200824085511.7553-1-joro@8bytes.org>
@@ -95,103 +95,108 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Add the sev_es_active function for checking whether SEV-ES is enabled.
-Also cache the value of MSR_AMD64_SEV at boot to speed up the feature
-checking in the running code.
+The xgetbv() function is needed in pre-decompression boot code, but
+asm/fpu/internal.h can't be included there directly. Doing so opens
+the door to include-hell due to various include-magic in
+boot/compressed/misc.h.
+
+Avoid that by moving xgetbv()/xsetbv() to a separate header file and
+include this instead.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20200724160336.5435-39-joro@8bytes.org
+Link: https://lore.kernel.org/r/20200724160336.5435-26-joro@8bytes.org
 ---
- arch/x86/include/asm/mem_encrypt.h | 3 +++
- arch/x86/include/asm/msr-index.h   | 2 ++
- arch/x86/mm/mem_encrypt.c          | 9 ++++++++-
- arch/x86/mm/mem_encrypt_identity.c | 3 +++
- 4 files changed, 16 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/fpu/internal.h | 30 +------------------------
+ arch/x86/include/asm/fpu/xcr.h      | 34 +++++++++++++++++++++++++++++
+ 2 files changed, 35 insertions(+), 29 deletions(-)
+ create mode 100644 arch/x86/include/asm/fpu/xcr.h
 
-diff --git a/arch/x86/include/asm/mem_encrypt.h b/arch/x86/include/asm/mem_encrypt.h
-index 5049f6c22683..4e72b73a9cb5 100644
---- a/arch/x86/include/asm/mem_encrypt.h
-+++ b/arch/x86/include/asm/mem_encrypt.h
+diff --git a/arch/x86/include/asm/fpu/internal.h b/arch/x86/include/asm/fpu/internal.h
+index 21a8b5259477..ceeba9f63172 100644
+--- a/arch/x86/include/asm/fpu/internal.h
++++ b/arch/x86/include/asm/fpu/internal.h
 @@ -19,6 +19,7 @@
- #ifdef CONFIG_AMD_MEM_ENCRYPT
+ #include <asm/user.h>
+ #include <asm/fpu/api.h>
+ #include <asm/fpu/xstate.h>
++#include <asm/fpu/xcr.h>
+ #include <asm/cpufeature.h>
+ #include <asm/trace/fpu.h>
  
- extern u64 sme_me_mask;
-+extern u64 sev_status;
- extern bool sev_enabled;
- 
- void sme_encrypt_execute(unsigned long encrypted_kernel_vaddr,
-@@ -50,6 +51,7 @@ void __init mem_encrypt_init(void);
- 
- bool sme_active(void);
- bool sev_active(void);
-+bool sev_es_active(void);
- 
- #define __bss_decrypted __attribute__((__section__(".bss..decrypted")))
- 
-@@ -72,6 +74,7 @@ static inline void __init sme_enable(struct boot_params *bp) { }
- 
- static inline bool sme_active(void) { return false; }
- static inline bool sev_active(void) { return false; }
-+static inline bool sev_es_active(void) { return false; }
- 
- static inline int __init
- early_set_memory_decrypted(unsigned long vaddr, unsigned long size) { return 0; }
-diff --git a/arch/x86/include/asm/msr-index.h b/arch/x86/include/asm/msr-index.h
-index cd6d651ff730..95871defba91 100644
---- a/arch/x86/include/asm/msr-index.h
-+++ b/arch/x86/include/asm/msr-index.h
-@@ -469,7 +469,9 @@
- #define MSR_AMD64_SEV_ES_GHCB		0xc0010130
- #define MSR_AMD64_SEV			0xc0010131
- #define MSR_AMD64_SEV_ENABLED_BIT	0
-+#define MSR_AMD64_SEV_ES_ENABLED_BIT	1
- #define MSR_AMD64_SEV_ENABLED		BIT_ULL(MSR_AMD64_SEV_ENABLED_BIT)
-+#define MSR_AMD64_SEV_ES_ENABLED	BIT_ULL(MSR_AMD64_SEV_ES_ENABLED_BIT)
- 
- #define MSR_AMD64_VIRT_SPEC_CTRL	0xc001011f
- 
-diff --git a/arch/x86/mm/mem_encrypt.c b/arch/x86/mm/mem_encrypt.c
-index 9f1177edc2e7..232d6e1bcfc6 100644
---- a/arch/x86/mm/mem_encrypt.c
-+++ b/arch/x86/mm/mem_encrypt.c
-@@ -38,6 +38,7 @@
-  * section is later cleared.
-  */
- u64 sme_me_mask __section(.data) = 0;
-+u64 sev_status __section(.data) = 0;
- EXPORT_SYMBOL(sme_me_mask);
- DEFINE_STATIC_KEY_FALSE(sev_enable_key);
- EXPORT_SYMBOL_GPL(sev_enable_key);
-@@ -347,7 +348,13 @@ bool sme_active(void)
- 
- bool sev_active(void)
- {
--	return sme_me_mask && sev_enabled;
-+	return !!(sev_status & MSR_AMD64_SEV_ENABLED);
-+}
-+
-+/* Needs to be called from non-instrumentable code */
-+bool noinstr sev_es_active(void)
-+{
-+	return !!(sev_status & MSR_AMD64_SEV_ES_ENABLED);
+@@ -585,33 +586,4 @@ static inline void switch_fpu_finish(struct fpu *new_fpu)
+ 	__write_pkru(pkru_val);
  }
  
- /* Override for DMA direct allocation check - ARCH_HAS_FORCE_DMA_UNENCRYPTED */
-diff --git a/arch/x86/mm/mem_encrypt_identity.c b/arch/x86/mm/mem_encrypt_identity.c
-index e2b0e2ac07bb..68d75379e06a 100644
---- a/arch/x86/mm/mem_encrypt_identity.c
-+++ b/arch/x86/mm/mem_encrypt_identity.c
-@@ -540,6 +540,9 @@ void __init sme_enable(struct boot_params *bp)
- 		if (!(msr & MSR_AMD64_SEV_ENABLED))
- 			return;
- 
-+		/* Save SEV_STATUS to avoid reading MSR again */
-+		sev_status = msr;
+-/*
+- * MXCSR and XCR definitions:
+- */
+-
+-static inline void ldmxcsr(u32 mxcsr)
+-{
+-	asm volatile("ldmxcsr %0" :: "m" (mxcsr));
+-}
+-
+-extern unsigned int mxcsr_feature_mask;
+-
+-#define XCR_XFEATURE_ENABLED_MASK	0x00000000
+-
+-static inline u64 xgetbv(u32 index)
+-{
+-	u32 eax, edx;
+-
+-	asm volatile("xgetbv" : "=a" (eax), "=d" (edx) : "c" (index));
+-	return eax + ((u64)edx << 32);
+-}
+-
+-static inline void xsetbv(u32 index, u64 value)
+-{
+-	u32 eax = value;
+-	u32 edx = value >> 32;
+-
+-	asm volatile("xsetbv" :: "a" (eax), "d" (edx), "c" (index));
+-}
+-
+ #endif /* _ASM_X86_FPU_INTERNAL_H */
+diff --git a/arch/x86/include/asm/fpu/xcr.h b/arch/x86/include/asm/fpu/xcr.h
+new file mode 100644
+index 000000000000..1c7ab8d95da5
+--- /dev/null
++++ b/arch/x86/include/asm/fpu/xcr.h
+@@ -0,0 +1,34 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _ASM_X86_FPU_XCR_H
++#define _ASM_X86_FPU_XCR_H
 +
- 		/* SEV state cannot be controlled by a command line option */
- 		sme_me_mask = me_mask;
- 		sev_enabled = true;
++/*
++ * MXCSR and XCR definitions:
++ */
++
++static inline void ldmxcsr(u32 mxcsr)
++{
++	asm volatile("ldmxcsr %0" :: "m" (mxcsr));
++}
++
++extern unsigned int mxcsr_feature_mask;
++
++#define XCR_XFEATURE_ENABLED_MASK	0x00000000
++
++static inline u64 xgetbv(u32 index)
++{
++	u32 eax, edx;
++
++	asm volatile("xgetbv" : "=a" (eax), "=d" (edx) : "c" (index));
++	return eax + ((u64)edx << 32);
++}
++
++static inline void xsetbv(u32 index, u64 value)
++{
++	u32 eax = value;
++	u32 edx = value >> 32;
++
++	asm volatile("xsetbv" :: "a" (eax), "d" (edx), "c" (index));
++}
++
++#endif /* _ASM_X86_FPU_XCR_H */
 -- 
 2.28.0
 
