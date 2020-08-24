@@ -7,59 +7,59 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1E5CFC433DF
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:09 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 57C81C433E4
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:10 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id F25662074D
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:08 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org F25662074D
+	by mail.kernel.org (Postfix) with ESMTPS id 3822B2074D
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:10 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3822B2074D
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id D5CEB87903;
-	Mon, 24 Aug 2020 08:56:08 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id CE0C987D9F;
+	Mon, 24 Aug 2020 08:56:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id e5DaJDdRpwGr; Mon, 24 Aug 2020 08:56:02 +0000 (UTC)
+	with ESMTP id WiGX36RXLF4Y; Mon, 24 Aug 2020 08:56:08 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id EBC8B8786B;
-	Mon, 24 Aug 2020 08:56:02 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 9FFAA880E7;
+	Mon, 24 Aug 2020 08:56:08 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CF9F7C089E;
-	Mon, 24 Aug 2020 08:56:02 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0C9F3C0895
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 97082C016F;
+	Mon, 24 Aug 2020 08:56:08 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 85D37C016F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:55:58 +0000 (UTC)
+ Mon, 24 Aug 2020 08:56:02 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id A1A41204BD
+ by hemlock.osuosl.org (Postfix) with ESMTP id 7FEAF88137
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:55:57 +0000 (UTC)
+ Mon, 24 Aug 2020 08:56:02 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Oci5JNaoT8Hl
+ with ESMTP id UrfS7ghJ03Uy
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:55:56 +0000 (UTC)
+ Mon, 24 Aug 2020 08:56:00 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by silver.osuosl.org (Postfix) with ESMTPS id CF223204B7
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 8A96A88127
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:55:55 +0000 (UTC)
+ Mon, 24 Aug 2020 08:55:59 +0000 (UTC)
 Received: from cap.home.8bytes.org (p4ff2bb8d.dip0.t-ipconnect.de
  [79.242.187.141])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 182F4847;
- Mon, 24 Aug 2020 10:55:53 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 50A31B70;
+ Mon, 24 Aug 2020 10:55:56 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v6 13/76] x86/boot/compressed/64: Add IDT Infrastructure
-Date: Mon, 24 Aug 2020 10:54:08 +0200
-Message-Id: <20200824085511.7553-14-joro@8bytes.org>
+Subject: [PATCH v6 19/76] x86/boot/compressed/64: Add stage1 #VC handler
+Date: Mon, 24 Aug 2020 10:54:14 +0200
+Message-Id: <20200824085511.7553-20-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824085511.7553-1-joro@8bytes.org>
 References: <20200824085511.7553-1-joro@8bytes.org>
@@ -95,260 +95,270 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Add code needed to setup an IDT in the early pre-decompression
-boot-code. The IDT is loaded first in startup_64, which is after
-EfiExitBootServices() has been called, and later reloaded when the
-kernel image has been relocated to the end of the decompression area.
+Add the first handler for #VC exceptions. At stage 1 there is no GHCB
+yet becaue the kernel might still be running on the EFI page table.
 
-This allows to setup different IDT handlers before and after the
-relocation.
+The stage 1 handler is limited to the MSR based protocol to talk to
+the hypervisor and can only support CPUID exit-codes, but that is
+enough to get to stage 2.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Link: https://lore.kernel.org/r/20200724160336.5435-13-joro@8bytes.org
+Link: https://lore.kernel.org/r/20200724160336.5435-19-joro@8bytes.org
 ---
  arch/x86/boot/compressed/Makefile          |  1 +
- arch/x86/boot/compressed/head_64.S         | 25 +++++++-
- arch/x86/boot/compressed/idt_64.c          | 44 ++++++++++++++
- arch/x86/boot/compressed/idt_handlers_64.S | 70 ++++++++++++++++++++++
- arch/x86/boot/compressed/misc.h            |  5 ++
- arch/x86/include/asm/desc_defs.h           |  3 +
- 6 files changed, 147 insertions(+), 1 deletion(-)
- create mode 100644 arch/x86/boot/compressed/idt_64.c
- create mode 100644 arch/x86/boot/compressed/idt_handlers_64.S
+ arch/x86/boot/compressed/idt_64.c          |  4 ++
+ arch/x86/boot/compressed/idt_handlers_64.S |  4 ++
+ arch/x86/boot/compressed/misc.h            |  1 +
+ arch/x86/boot/compressed/sev-es.c          | 45 +++++++++++++++
+ arch/x86/include/asm/msr-index.h           |  1 +
+ arch/x86/include/asm/sev-es.h              | 37 ++++++++++++
+ arch/x86/include/asm/trapnr.h              |  1 +
+ arch/x86/kernel/sev-es-shared.c            | 66 ++++++++++++++++++++++
+ 9 files changed, 160 insertions(+)
+ create mode 100644 arch/x86/boot/compressed/sev-es.c
+ create mode 100644 arch/x86/include/asm/sev-es.h
+ create mode 100644 arch/x86/kernel/sev-es-shared.c
 
 diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
-index 0acdaa8a7dab..ce85b24898b8 100644
+index 822e61a0d51b..a7b8c6e59e58 100644
 --- a/arch/x86/boot/compressed/Makefile
 +++ b/arch/x86/boot/compressed/Makefile
-@@ -78,6 +78,7 @@ vmlinux-objs-$(CONFIG_EARLY_PRINTK) += $(obj)/early_serial_console.o
- vmlinux-objs-$(CONFIG_RANDOMIZE_BASE) += $(obj)/kaslr.o
- ifdef CONFIG_X86_64
- 	vmlinux-objs-$(CONFIG_RANDOMIZE_BASE) += $(obj)/kaslr_64.o
-+	vmlinux-objs-y += $(obj)/idt_64.o $(obj)/idt_handlers_64.o
+@@ -81,6 +81,7 @@ ifdef CONFIG_X86_64
+ 	vmlinux-objs-y += $(obj)/idt_64.o $(obj)/idt_handlers_64.o
  	vmlinux-objs-y += $(obj)/mem_encrypt.o
  	vmlinux-objs-y += $(obj)/pgtable_64.o
++	vmlinux-objs-$(CONFIG_AMD_MEM_ENCRYPT) += $(obj)/sev-es.o
  endif
-diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
-index 9e46729cf162..260c7940f960 100644
---- a/arch/x86/boot/compressed/head_64.S
-+++ b/arch/x86/boot/compressed/head_64.S
-@@ -33,6 +33,7 @@
- #include <asm/processor-flags.h>
- #include <asm/asm-offsets.h>
- #include <asm/bootparam.h>
-+#include <asm/desc_defs.h>
- #include "pgtable.h"
  
- /*
-@@ -415,6 +416,10 @@ SYM_CODE_START(startup_64)
- 
- .Lon_kernel_cs:
- 
-+	pushq	%rsi
-+	call	load_stage1_idt
-+	popq	%rsi
-+
- 	/*
- 	 * paging_prepare() sets up the trampoline and checks if we need to
- 	 * enable 5-level paging.
-@@ -527,6 +532,13 @@ SYM_FUNC_START_LOCAL_NOALIGN(.Lrelocated)
- 	shrq	$3, %rcx
- 	rep	stosq
- 
-+/*
-+ * Load stage2 IDT
-+ */
-+	pushq	%rsi
-+	call	load_stage2_idt
-+	popq	%rsi
-+
- /*
-  * Do the extraction, and jump to the new kernel..
-  */
-@@ -659,10 +671,21 @@ SYM_DATA_START_LOCAL(gdt)
- 	.quad   0x0000000000000000	/* TS continued */
- SYM_DATA_END_LABEL(gdt, SYM_L_LOCAL, gdt_end)
- 
-+SYM_DATA_START(boot_idt_desc)
-+	.word	boot_idt_end - boot_idt
-+	.quad	0
-+SYM_DATA_END(boot_idt_desc)
-+	.balign 8
-+SYM_DATA_START(boot_idt)
-+	.rept	BOOT_IDT_ENTRIES
-+	.quad	0
-+	.quad	0
-+	.endr
-+SYM_DATA_END_LABEL(boot_idt, SYM_L_GLOBAL, boot_idt_end)
-+
- #ifdef CONFIG_EFI_STUB
- SYM_DATA(image_offset, .long 0)
- #endif
--
- #ifdef CONFIG_EFI_MIXED
- SYM_DATA_LOCAL(efi32_boot_args, .long 0, 0, 0)
- SYM_DATA(efi_is64, .byte 1)
+ vmlinux-objs-$(CONFIG_ACPI) += $(obj)/acpi.o
 diff --git a/arch/x86/boot/compressed/idt_64.c b/arch/x86/boot/compressed/idt_64.c
-new file mode 100644
-index 000000000000..082cd6bca033
---- /dev/null
+index 5f083092a86d..f3ca7324be44 100644
+--- a/arch/x86/boot/compressed/idt_64.c
 +++ b/arch/x86/boot/compressed/idt_64.c
-@@ -0,0 +1,44 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+#include <asm/trap_pf.h>
-+#include <asm/segment.h>
-+#include <asm/trapnr.h>
-+#include "misc.h"
+@@ -32,6 +32,10 @@ void load_stage1_idt(void)
+ {
+ 	boot_idt_desc.address = (unsigned long)boot_idt;
+ 
 +
-+static void set_idt_entry(int vector, void (*handler)(void))
-+{
-+	unsigned long address = (unsigned long)handler;
-+	gate_desc entry;
++	if (IS_ENABLED(CONFIG_AMD_MEM_ENCRYPT))
++		set_idt_entry(X86_TRAP_VC, boot_stage1_vc);
 +
-+	memset(&entry, 0, sizeof(entry));
-+
-+	entry.offset_low    = (u16)(address & 0xffff);
-+	entry.segment       = __KERNEL_CS;
-+	entry.bits.type     = GATE_TRAP;
-+	entry.bits.p        = 1;
-+	entry.offset_middle = (u16)((address >> 16) & 0xffff);
-+	entry.offset_high   = (u32)(address >> 32);
-+
-+	memcpy(&boot_idt[vector], &entry, sizeof(entry));
-+}
-+
-+/* Have this here so we don't need to include <asm/desc.h> */
-+static void load_boot_idt(const struct desc_ptr *dtr)
-+{
-+	asm volatile("lidt %0"::"m" (*dtr));
-+}
-+
-+/* Setup IDT before kernel jumping to  .Lrelocated */
-+void load_stage1_idt(void)
-+{
-+	boot_idt_desc.address = (unsigned long)boot_idt;
-+
-+	load_boot_idt(&boot_idt_desc);
-+}
-+
-+/* Setup IDT after kernel jumping to  .Lrelocated */
-+void load_stage2_idt(void)
-+{
-+	boot_idt_desc.address = (unsigned long)boot_idt;
-+
-+	load_boot_idt(&boot_idt_desc);
-+}
+ 	load_boot_idt(&boot_idt_desc);
+ }
+ 
 diff --git a/arch/x86/boot/compressed/idt_handlers_64.S b/arch/x86/boot/compressed/idt_handlers_64.S
-new file mode 100644
-index 000000000000..36dee2f40a8b
---- /dev/null
+index b20e57504a94..92eb4df478a1 100644
+--- a/arch/x86/boot/compressed/idt_handlers_64.S
 +++ b/arch/x86/boot/compressed/idt_handlers_64.S
-@@ -0,0 +1,70 @@
-+/* SPDX-License-Identifier: GPL-2.0-only */
+@@ -70,3 +70,7 @@ SYM_FUNC_END(\name)
+ 	.code64
+ 
+ EXCEPTION_HANDLER	boot_page_fault do_boot_page_fault error_code=1
++
++#ifdef CONFIG_AMD_MEM_ENCRYPT
++EXCEPTION_HANDLER	boot_stage1_vc do_vc_no_ghcb error_code=1
++#endif
+diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
+index 9840c82a39f1..eaa8b45ebccb 100644
+--- a/arch/x86/boot/compressed/misc.h
++++ b/arch/x86/boot/compressed/misc.h
+@@ -141,5 +141,6 @@ extern struct desc_ptr boot_idt_desc;
+ 
+ /* IDT Entry Points */
+ void boot_page_fault(void);
++void boot_stage1_vc(void);
+ 
+ #endif /* BOOT_COMPRESSED_MISC_H */
+diff --git a/arch/x86/boot/compressed/sev-es.c b/arch/x86/boot/compressed/sev-es.c
+new file mode 100644
+index 000000000000..bb91cbb5920e
+--- /dev/null
++++ b/arch/x86/boot/compressed/sev-es.c
+@@ -0,0 +1,45 @@
++// SPDX-License-Identifier: GPL-2.0
 +/*
-+ * Early IDT handler entry points
-+ *
-+ * Copyright (C) 2019 SUSE
++ * AMD Encrypted Register State Support
 + *
 + * Author: Joerg Roedel <jroedel@suse.de>
 + */
 +
-+#include <asm/segment.h>
++/*
++ * misc.h needs to be first because it knows how to include the other kernel
++ * headers in the pre-decompression code in a way that does not break
++ * compilation.
++ */
++#include "misc.h"
 +
-+/* For ORIG_RAX */
-+#include "../../entry/calling.h"
++#include <asm/sev-es.h>
++#include <asm/msr-index.h>
++#include <asm/ptrace.h>
++#include <asm/svm.h>
 +
-+.macro EXCEPTION_HANDLER name function error_code=0
-+SYM_FUNC_START(\name)
++static inline u64 sev_es_rd_ghcb_msr(void)
++{
++	unsigned long low, high;
 +
-+	/* Build pt_regs */
-+	.if \error_code == 0
-+	pushq   $0
-+	.endif
++	asm volatile("rdmsr\n" : "=a" (low), "=d" (high) :
++			"c" (MSR_AMD64_SEV_ES_GHCB));
 +
-+	pushq   %rdi
-+	pushq   %rsi
-+	pushq   %rdx
-+	pushq   %rcx
-+	pushq   %rax
-+	pushq   %r8
-+	pushq   %r9
-+	pushq   %r10
-+	pushq   %r11
-+	pushq   %rbx
-+	pushq   %rbp
-+	pushq   %r12
-+	pushq   %r13
-+	pushq   %r14
-+	pushq   %r15
++	return ((high << 32) | low);
++}
 +
-+	/* Call handler with pt_regs */
-+	movq    %rsp, %rdi
-+	/* Error code is second parameter */
-+	movq	ORIG_RAX(%rsp), %rsi
-+	call    \function
++static inline void sev_es_wr_ghcb_msr(u64 val)
++{
++	u32 low, high;
 +
-+	/* Restore regs */
-+	popq    %r15
-+	popq    %r14
-+	popq    %r13
-+	popq    %r12
-+	popq    %rbp
-+	popq    %rbx
-+	popq    %r11
-+	popq    %r10
-+	popq    %r9
-+	popq    %r8
-+	popq    %rax
-+	popq    %rcx
-+	popq    %rdx
-+	popq    %rsi
-+	popq    %rdi
++	low  = val & 0xffffffffUL;
++	high = val >> 32;
 +
-+	/* Remove error code and return */
-+	addq    $8, %rsp
++	asm volatile("wrmsr\n" : : "c" (MSR_AMD64_SEV_ES_GHCB),
++			"a"(low), "d" (high) : "memory");
++}
 +
-+	iretq
-+SYM_FUNC_END(\name)
-+	.endm
++#undef __init
++#define __init
 +
-+	.text
-+	.code64
-diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
-index 3efce27ba35c..8feb5f6f329e 100644
---- a/arch/x86/boot/compressed/misc.h
-+++ b/arch/x86/boot/compressed/misc.h
-@@ -23,6 +23,7 @@
- #include <asm/page.h>
- #include <asm/boot.h>
- #include <asm/bootparam.h>
-+#include <asm/desc_defs.h>
++/* Include code for early handlers */
++#include "../../kernel/sev-es-shared.c"
+diff --git a/arch/x86/include/asm/msr-index.h b/arch/x86/include/asm/msr-index.h
+index dc131b84ac3a..cd6d651ff730 100644
+--- a/arch/x86/include/asm/msr-index.h
++++ b/arch/x86/include/asm/msr-index.h
+@@ -466,6 +466,7 @@
+ #define MSR_AMD64_IBSBRTARGET		0xc001103b
+ #define MSR_AMD64_IBSOPDATA4		0xc001103d
+ #define MSR_AMD64_IBS_REG_COUNT_MAX	8 /* includes MSR_AMD64_IBSBRTARGET */
++#define MSR_AMD64_SEV_ES_GHCB		0xc0010130
+ #define MSR_AMD64_SEV			0xc0010131
+ #define MSR_AMD64_SEV_ENABLED_BIT	0
+ #define MSR_AMD64_SEV_ENABLED		BIT_ULL(MSR_AMD64_SEV_ENABLED_BIT)
+diff --git a/arch/x86/include/asm/sev-es.h b/arch/x86/include/asm/sev-es.h
+new file mode 100644
+index 000000000000..5d49a8a429d3
+--- /dev/null
++++ b/arch/x86/include/asm/sev-es.h
+@@ -0,0 +1,37 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++/*
++ * AMD Encrypted Register State Support
++ *
++ * Author: Joerg Roedel <jroedel@suse.de>
++ */
++
++#ifndef __ASM_ENCRYPTED_STATE_H
++#define __ASM_ENCRYPTED_STATE_H
++
++#include <linux/types.h>
++
++#define GHCB_SEV_CPUID_REQ	0x004UL
++#define		GHCB_CPUID_REQ_EAX	0
++#define		GHCB_CPUID_REQ_EBX	1
++#define		GHCB_CPUID_REQ_ECX	2
++#define		GHCB_CPUID_REQ_EDX	3
++#define		GHCB_CPUID_REQ(fn, reg) (GHCB_SEV_CPUID_REQ | \
++					(((unsigned long)reg & 3) << 30) | \
++					(((unsigned long)fn) << 32))
++
++#define GHCB_SEV_CPUID_RESP	0x005UL
++#define GHCB_SEV_TERMINATE	0x100UL
++
++#define	GHCB_SEV_GHCB_RESP_CODE(v)	((v) & 0xfff)
++#define	VMGEXIT()			{ asm volatile("rep; vmmcall\n\r"); }
++
++void __init do_vc_no_ghcb(struct pt_regs *regs, unsigned long exit_code);
++
++static inline u64 lower_bits(u64 val, unsigned int bits)
++{
++	u64 mask = (1ULL << bits) - 1;
++
++	return (val & mask);
++}
++
++#endif
+diff --git a/arch/x86/include/asm/trapnr.h b/arch/x86/include/asm/trapnr.h
+index 082f45631fa9..f5d2325aa0b7 100644
+--- a/arch/x86/include/asm/trapnr.h
++++ b/arch/x86/include/asm/trapnr.h
+@@ -26,6 +26,7 @@
+ #define X86_TRAP_XF		19	/* SIMD Floating-Point Exception */
+ #define X86_TRAP_VE		20	/* Virtualization Exception */
+ #define X86_TRAP_CP		21	/* Control Protection Exception */
++#define X86_TRAP_VC		29	/* VMM Communication Exception */
+ #define X86_TRAP_IRET		32	/* IRET Exception */
  
- #define BOOT_CTYPE_H
- #include <linux/acpi.h>
-@@ -133,4 +134,8 @@ int count_immovable_mem_regions(void);
- static inline int count_immovable_mem_regions(void) { return 0; }
  #endif
- 
-+/* idt_64.c */
-+extern gate_desc boot_idt[BOOT_IDT_ENTRIES];
-+extern struct desc_ptr boot_idt_desc;
+diff --git a/arch/x86/kernel/sev-es-shared.c b/arch/x86/kernel/sev-es-shared.c
+new file mode 100644
+index 000000000000..0bea32341afa
+--- /dev/null
++++ b/arch/x86/kernel/sev-es-shared.c
+@@ -0,0 +1,66 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * AMD Encrypted Register State Support
++ *
++ * Author: Joerg Roedel <jroedel@suse.de>
++ *
++ * This file is not compiled stand-alone. It contains code shared
++ * between the pre-decompression boot code and the running Linux kernel
++ * and is included directly into both code-bases.
++ */
 +
- #endif /* BOOT_COMPRESSED_MISC_H */
-diff --git a/arch/x86/include/asm/desc_defs.h b/arch/x86/include/asm/desc_defs.h
-index a91f3b6e4f2a..5621fb3f2d1a 100644
---- a/arch/x86/include/asm/desc_defs.h
-+++ b/arch/x86/include/asm/desc_defs.h
-@@ -109,6 +109,9 @@ struct desc_ptr {
- 
- #endif /* !__ASSEMBLY__ */
- 
-+/* Boot IDT definitions */
-+#define	BOOT_IDT_ENTRIES	32
++/*
++ * Boot VC Handler - This is the first VC handler during boot, there is no GHCB
++ * page yet, so it only supports the MSR based communication with the
++ * hypervisor and only the CPUID exit-code.
++ */
++void __init do_vc_no_ghcb(struct pt_regs *regs, unsigned long exit_code)
++{
++	unsigned int fn = lower_bits(regs->ax, 32);
++	unsigned long val;
 +
- /* Access rights as returned by LAR */
- #define AR_TYPE_RODATA		(0 * (1 << 9))
- #define AR_TYPE_RWDATA		(1 * (1 << 9))
++	/* Only CPUID is supported via MSR protocol */
++	if (exit_code != SVM_EXIT_CPUID)
++		goto fail;
++
++	sev_es_wr_ghcb_msr(GHCB_CPUID_REQ(fn, GHCB_CPUID_REQ_EAX));
++	VMGEXIT();
++	val = sev_es_rd_ghcb_msr();
++	if (GHCB_SEV_GHCB_RESP_CODE(val) != GHCB_SEV_CPUID_RESP)
++		goto fail;
++	regs->ax = val >> 32;
++
++	sev_es_wr_ghcb_msr(GHCB_CPUID_REQ(fn, GHCB_CPUID_REQ_EBX));
++	VMGEXIT();
++	val = sev_es_rd_ghcb_msr();
++	if (GHCB_SEV_GHCB_RESP_CODE(val) != GHCB_SEV_CPUID_RESP)
++		goto fail;
++	regs->bx = val >> 32;
++
++	sev_es_wr_ghcb_msr(GHCB_CPUID_REQ(fn, GHCB_CPUID_REQ_ECX));
++	VMGEXIT();
++	val = sev_es_rd_ghcb_msr();
++	if (GHCB_SEV_GHCB_RESP_CODE(val) != GHCB_SEV_CPUID_RESP)
++		goto fail;
++	regs->cx = val >> 32;
++
++	sev_es_wr_ghcb_msr(GHCB_CPUID_REQ(fn, GHCB_CPUID_REQ_EDX));
++	VMGEXIT();
++	val = sev_es_rd_ghcb_msr();
++	if (GHCB_SEV_GHCB_RESP_CODE(val) != GHCB_SEV_CPUID_RESP)
++		goto fail;
++	regs->dx = val >> 32;
++
++	/* Skip over the CPUID two-byte opcode */
++	regs->ip += 2;
++
++	return;
++
++fail:
++	sev_es_wr_ghcb_msr(GHCB_SEV_TERMINATE);
++	VMGEXIT();
++
++	/* Shouldn't get here - if we do halt the machine */
++	while (true)
++		asm volatile("hlt\n");
++}
 -- 
 2.28.0
 
