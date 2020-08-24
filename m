@@ -7,59 +7,60 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4F9CEC433E8
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C8FDDC433EA
 	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:07:10 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1EE2C2072D
+	by mail.kernel.org (Postfix) with ESMTPS id A8219206F0
 	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:07:10 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1EE2C2072D
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A8219206F0
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id E12E7878D6;
-	Mon, 24 Aug 2020 09:07:09 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id FFPZtxTV16L7; Mon, 24 Aug 2020 09:07:05 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id C305D87A1A;
-	Mon, 24 Aug 2020 09:06:54 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A926EC089E;
-	Mon, 24 Aug 2020 09:06:54 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0344CC08A5
- for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:06:51 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id E074585F37
- for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:06:50 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 8B0CA85FB4;
+	Mon, 24 Aug 2020 09:07:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id s45nNSziJp3j
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id VeSt8q98m8n2; Mon, 24 Aug 2020 09:07:08 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 4B24C85FB9;
+	Mon, 24 Aug 2020 09:07:06 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2AF35C089E;
+	Mon, 24 Aug 2020 09:07:06 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6659FC089E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:06:50 +0000 (UTC)
+ Mon, 24 Aug 2020 09:06:58 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by whitealder.osuosl.org (Postfix) with ESMTP id 439BF87E24
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 24 Aug 2020 09:06:58 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from whitealder.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id NLJLWqgMGNCI
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 24 Aug 2020 09:06:52 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id EAFC085F4D
+ by whitealder.osuosl.org (Postfix) with ESMTPS id B40E88798E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:06:49 +0000 (UTC)
+ Mon, 24 Aug 2020 09:06:51 +0000 (UTC)
 Received: from cap.home.8bytes.org (p4ff2bb8d.dip0.t-ipconnect.de
  [79.242.187.141])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 99CB612E3;
- Mon, 24 Aug 2020 10:56:29 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 3B75CE67;
+ Mon, 24 Aug 2020 10:56:26 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v6 71/76] x86/head/64: Don't call verify_cpu() on starting APs
-Date: Mon, 24 Aug 2020 10:55:06 +0200
-Message-Id: <20200824085511.7553-72-joro@8bytes.org>
+Subject: [PATCH v6 65/76] x86/paravirt: Allow hypervisor specific VMMCALL
+ handling under SEV-ES
+Date: Mon, 24 Aug 2020 10:55:00 +0200
+Message-Id: <20200824085511.7553-66-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824085511.7553-1-joro@8bytes.org>
 References: <20200824085511.7553-1-joro@8bytes.org>
@@ -95,70 +96,86 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-The APs are not ready to handle exceptions when verify_cpu() is called
-in secondary_startup_64.
+Add two new paravirt callbacks to provide hypervisor specific processor
+state in the GHCB and to copy state from the hypervisor back to the
+processor.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20200724160336.5435-71-joro@8bytes.org
+Link: https://lore.kernel.org/r/20200724160336.5435-65-joro@8bytes.org
 ---
- arch/x86/include/asm/realmode.h |  1 +
- arch/x86/kernel/head_64.S       | 12 ++++++++++++
- arch/x86/realmode/init.c        |  6 ++++++
- 3 files changed, 19 insertions(+)
+ arch/x86/include/asm/x86_init.h | 16 +++++++++++++++-
+ arch/x86/kernel/sev-es.c        | 12 ++++++++++++
+ 2 files changed, 27 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/realmode.h b/arch/x86/include/asm/realmode.h
-index 6590394af309..5c97807c38a4 100644
---- a/arch/x86/include/asm/realmode.h
-+++ b/arch/x86/include/asm/realmode.h
-@@ -69,6 +69,7 @@ extern unsigned char startup_32_smp[];
- extern unsigned char boot_gdt[];
- #else
- extern unsigned char secondary_startup_64[];
-+extern unsigned char secondary_startup_64_no_verify[];
- #endif
+diff --git a/arch/x86/include/asm/x86_init.h b/arch/x86/include/asm/x86_init.h
+index 6807153c0410..0304e2931cd3 100644
+--- a/arch/x86/include/asm/x86_init.h
++++ b/arch/x86/include/asm/x86_init.h
+@@ -4,8 +4,10 @@
  
- static inline size_t real_mode_size_needed(void)
-diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
-index 8d5bf7c568a4..a708107688a2 100644
---- a/arch/x86/kernel/head_64.S
-+++ b/arch/x86/kernel/head_64.S
-@@ -140,6 +140,18 @@ SYM_CODE_START(secondary_startup_64)
- 	/* Sanitize CPU configuration */
- 	call verify_cpu
+ #include <asm/bootparam.h>
+ 
++struct ghcb;
+ struct mpc_bus;
+ struct mpc_cpu;
++struct pt_regs;
+ struct mpc_table;
+ struct cpuinfo_x86;
+ 
+@@ -236,10 +238,22 @@ struct x86_legacy_features {
+ /**
+  * struct x86_hyper_runtime - x86 hypervisor specific runtime callbacks
+  *
+- * @pin_vcpu:		pin current vcpu to specified physical cpu (run rarely)
++ * @pin_vcpu:			pin current vcpu to specified physical
++ *				cpu (run rarely)
++ * @sev_es_hcall_prepare:	Load additional hypervisor-specific
++ *				state into the GHCB when doing a VMMCALL under
++ *				SEV-ES. Called from the #VC exception handler.
++ * @sev_es_hcall_finish:	Copies state from the GHCB back into the
++ *				processor (or pt_regs). Also runs checks on the
++ *				state returned from the hypervisor after a
++ *				VMMCALL under SEV-ES.  Needs to return 'false'
++ *				if the checks fail.  Called from the #VC
++ *				exception handler.
+  */
+ struct x86_hyper_runtime {
+ 	void (*pin_vcpu)(int cpu);
++	void (*sev_es_hcall_prepare)(struct ghcb *ghcb, struct pt_regs *regs);
++	bool (*sev_es_hcall_finish)(struct ghcb *ghcb, struct pt_regs *regs);
+ };
+ 
+ /**
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+index e1f3ebbcc122..28fe95ecd508 100644
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -897,6 +897,9 @@ static enum es_result vc_handle_vmmcall(struct ghcb *ghcb,
+ 	ghcb_set_rax(ghcb, ctxt->regs->ax);
+ 	ghcb_set_cpl(ghcb, user_mode(ctxt->regs) ? 3 : 0);
+ 
++	if (x86_platform.hyper.sev_es_hcall_prepare)
++		x86_platform.hyper.sev_es_hcall_prepare(ghcb, ctxt->regs);
++
+ 	ret = sev_es_ghcb_hv_call(ghcb, ctxt, SVM_EXIT_VMMCALL, 0, 0);
+ 	if (ret != ES_OK)
+ 		return ret;
+@@ -906,6 +909,15 @@ static enum es_result vc_handle_vmmcall(struct ghcb *ghcb,
+ 
+ 	ctxt->regs->ax = ghcb->save.rax;
  
 +	/*
-+	 * The secondary_startup_64_no_verify entry point is only used by
-+	 * SEV-ES guests. In those guests the call to verify_cpu() would cause
-+	 * #VC exceptions which can not be handled at this stage of secondary
-+	 * CPU bringup.
-+	 *
-+	 * All non SEV-ES systems, especially Intel systems, need to execute
-+	 * verify_cpu() above to make sure NX is enabled.
++	 * Call sev_es_hcall_finish() after regs->ax is already set.
++	 * This allows the hypervisor handler to overwrite it again if
++	 * necessary.
 +	 */
-+SYM_INNER_LABEL(secondary_startup_64_no_verify, SYM_L_GLOBAL)
-+	UNWIND_HINT_EMPTY
++	if (x86_platform.hyper.sev_es_hcall_finish &&
++	    !x86_platform.hyper.sev_es_hcall_finish(ghcb, ctxt->regs))
++		return ES_VMM_ERROR;
 +
- 	/*
- 	 * Retrieve the modifier (SME encryption mask if SME is active) to be
- 	 * added to the initial pgdir entry that will be programmed into CR3.
-diff --git a/arch/x86/realmode/init.c b/arch/x86/realmode/init.c
-index 61a52b925d15..df701f87ddef 100644
---- a/arch/x86/realmode/init.c
-+++ b/arch/x86/realmode/init.c
-@@ -46,6 +46,12 @@ static void sme_sev_setup_real_mode(struct trampoline_header *th)
- 		th->flags |= TH_FLAGS_SME_ACTIVE;
+ 	return ES_OK;
+ }
  
- 	if (sev_es_active()) {
-+		/*
-+		 * Skip the call to verify_cpu() in secondary_startup_64 as it
-+		 * will cause #VC exceptions when the AP can't handle them yet.
-+		 */
-+		th->start = (u64) secondary_startup_64_no_verify;
-+
- 		if (sev_es_setup_ap_jump_table(real_mode_header))
- 			panic("Failed to update SEV-ES AP Jump Table");
- 	}
 -- 
 2.28.0
 
