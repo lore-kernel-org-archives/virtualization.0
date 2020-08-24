@@ -2,67 +2,64 @@ Return-Path: <SRS0=nl1Y=CC=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9BA1FC433E8
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:06 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C2537C433E4
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:07 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7CA79204FD
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7CA79204FD
+	by mail.kernel.org (Postfix) with ESMTPS id A0BBF206F0
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 08:56:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A0BBF206F0
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 55AD088183;
-	Mon, 24 Aug 2020 08:56:06 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 73E6C204B1;
+	Mon, 24 Aug 2020 08:56:07 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id A-bENnj3arOg; Mon, 24 Aug 2020 08:56:03 +0000 (UTC)
+	with ESMTP id uNo83AHduKze; Mon, 24 Aug 2020 08:55:57 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 348528821B;
-	Mon, 24 Aug 2020 08:56:03 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id A2BC4204C0;
+	Mon, 24 Aug 2020 08:55:57 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1E9F8C089F;
-	Mon, 24 Aug 2020 08:56:03 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 78741C016F;
+	Mon, 24 Aug 2020 08:55:57 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 18F52C08A2
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 03149C0051
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:55:58 +0000 (UTC)
+ Mon, 24 Aug 2020 08:55:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 02BD8877BF
+ by whitealder.osuosl.org (Postfix) with ESMTP id F235D8777F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:55:58 +0000 (UTC)
+ Mon, 24 Aug 2020 08:55:53 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id z+H8Q5XwqHPH
+ with ESMTP id aX8pYQAtWbxo
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:55:57 +0000 (UTC)
+ Mon, 24 Aug 2020 08:55:50 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 405A887747
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 2683587747
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 08:55:57 +0000 (UTC)
+ Mon, 24 Aug 2020 08:55:49 +0000 (UTC)
 Received: from cap.home.8bytes.org (p4ff2bb8d.dip0.t-ipconnect.de
  [79.242.187.141])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 26B1A915;
- Mon, 24 Aug 2020 10:55:54 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 2A0AA2DA;
+ Mon, 24 Aug 2020 10:55:46 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v6 15/76] x86/boot/compressed/64: Add page-fault handler
-Date: Mon, 24 Aug 2020 10:54:10 +0200
-Message-Id: <20200824085511.7553-16-joro@8bytes.org>
+Subject: [PATCH v6 00/76] x86: SEV-ES Guest Support
+Date: Mon, 24 Aug 2020 10:53:55 +0200
+Message-Id: <20200824085511.7553-1-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20200824085511.7553-1-joro@8bytes.org>
-References: <20200824085511.7553-1-joro@8bytes.org>
 MIME-Version: 1.0
 Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>,
  Joerg Roedel <jroedel@suse.de>, Mike Stunes <mstunes@vmware.com>,
@@ -95,125 +92,200 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Install a page-fault handler to add an identity mapping to addresses
-not yet mapped. Also do some checking whether the error code is sane.
+Hi,
 
-This makes non SEV-ES machines use the exception handling
-infrastructure in the pre-decompressions boot code too, making it less
-likely to break in the future.
+here is the new version of the SEV-ES client enabling patch-set. It is
+based on the latest tip/master branch and contains the necessary
+changes. In particular those ar:
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20200724160336.5435-15-joro@8bytes.org
----
- arch/x86/boot/compressed/ident_map_64.c    | 39 ++++++++++++++++++++++
- arch/x86/boot/compressed/idt_64.c          |  2 ++
- arch/x86/boot/compressed/idt_handlers_64.S |  2 ++
- arch/x86/boot/compressed/misc.h            |  6 ++++
- 4 files changed, 49 insertions(+)
+	- Enabling CR4.FSGSBASE early on supported processors so that
+	  early #VC exceptions on APs can be handled.
 
-diff --git a/arch/x86/boot/compressed/ident_map_64.c b/arch/x86/boot/compressed/ident_map_64.c
-index d9932a133ac9..e3d980ae9c2b 100644
---- a/arch/x86/boot/compressed/ident_map_64.c
-+++ b/arch/x86/boot/compressed/ident_map_64.c
-@@ -19,10 +19,13 @@
- /* No PAGE_TABLE_ISOLATION support needed either: */
- #undef CONFIG_PAGE_TABLE_ISOLATION
- 
-+#include "error.h"
- #include "misc.h"
- 
- /* These actually do the work of building the kernel identity maps. */
- #include <linux/pgtable.h>
-+#include <asm/trap_pf.h>
-+#include <asm/trapnr.h>
- #include <asm/init.h>
- /* Use the static base for this part of the boot process */
- #undef __PAGE_OFFSET
-@@ -160,3 +163,39 @@ void finalize_identity_maps(void)
- {
- 	write_cr3(top_level_pgt);
- }
-+
-+static void do_pf_error(const char *msg, unsigned long error_code,
-+			unsigned long address, unsigned long ip)
-+{
-+	error_putstr(msg);
-+
-+	error_putstr("\nError Code: ");
-+	error_puthex(error_code);
-+	error_putstr("\nCR2: 0x");
-+	error_puthex(address);
-+	error_putstr("\nRIP relative to _head: 0x");
-+	error_puthex(ip - (unsigned long)_head);
-+	error_putstr("\n");
-+
-+	error("Stopping.\n");
-+}
-+
-+void do_boot_page_fault(struct pt_regs *regs, unsigned long error_code)
-+{
-+	unsigned long address = native_read_cr2();
-+
-+	/*
-+	 * Check for unexpected error codes. Unexpected are:
-+	 *	- Faults on present pages
-+	 *	- User faults
-+	 *	- Reserved bits set
-+	 */
-+	if (error_code & (X86_PF_PROT | X86_PF_USER | X86_PF_RSVD))
-+		do_pf_error("Unexpected page-fault:", error_code, address, regs->ip);
-+
-+	/*
-+	 * Error code is sane - now identity map the 2M region around
-+	 * the faulting address.
-+	 */
-+	add_identity_map(address & PMD_MASK, PMD_SIZE);
-+}
-diff --git a/arch/x86/boot/compressed/idt_64.c b/arch/x86/boot/compressed/idt_64.c
-index 082cd6bca033..5f083092a86d 100644
---- a/arch/x86/boot/compressed/idt_64.c
-+++ b/arch/x86/boot/compressed/idt_64.c
-@@ -40,5 +40,7 @@ void load_stage2_idt(void)
- {
- 	boot_idt_desc.address = (unsigned long)boot_idt;
- 
-+	set_idt_entry(X86_TRAP_PF, boot_page_fault);
-+
- 	load_boot_idt(&boot_idt_desc);
- }
-diff --git a/arch/x86/boot/compressed/idt_handlers_64.S b/arch/x86/boot/compressed/idt_handlers_64.S
-index 36dee2f40a8b..b20e57504a94 100644
---- a/arch/x86/boot/compressed/idt_handlers_64.S
-+++ b/arch/x86/boot/compressed/idt_handlers_64.S
-@@ -68,3 +68,5 @@ SYM_FUNC_END(\name)
- 
- 	.text
- 	.code64
-+
-+EXCEPTION_HANDLER	boot_page_fault do_boot_page_fault error_code=1
-diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
-index 98b7a1df9c59..f0e199174c5f 100644
---- a/arch/x86/boot/compressed/misc.h
-+++ b/arch/x86/boot/compressed/misc.h
-@@ -37,6 +37,9 @@
- #define memptr unsigned
- #endif
- 
-+/* boot/compressed/vmlinux start and end markers */
-+extern char _head[], _end[];
-+
- /* misc.c */
- extern memptr free_mem_ptr;
- extern memptr free_mem_end_ptr;
-@@ -146,4 +149,7 @@ extern pteval_t __default_kernel_pte_mask;
- extern gate_desc boot_idt[BOOT_IDT_ENTRIES];
- extern struct desc_ptr boot_idt_desc;
- 
-+/* IDT Entry Points */
-+void boot_page_fault(void);
-+
- #endif /* BOOT_COMPRESSED_MISC_H */
+	- Add another patch (patch 1) to fix a KVM frame-size build
+	  warning on 32bit.
+
+The previous versions can be found as a linked-list starting here:
+
+	https://lore.kernel.org/lkml/20200724160336.5435-1-joro@8bytes.org/
+
+There you also find more detailed information about SEV-ES in general
+and its implications.
+
+Please review.
+
+Thanks,
+
+	Joerg
+
+Borislav Petkov (1):
+  KVM: SVM: Use __packed shorthand
+
+Doug Covelli (1):
+  x86/vmware: Add VMware specific handling for VMMCALL under SEV-ES
+
+Joerg Roedel (54):
+  KVM: SVM: nested: Don't allocate VMCB structures on stack
+  KVM: SVM: Add GHCB Accessor functions
+  x86/traps: Move pf error codes to <asm/trap_pf.h>
+  x86/insn: Make inat-tables.c suitable for pre-decompression code
+  x86/umip: Factor out instruction fetch
+  x86/umip: Factor out instruction decoding
+  x86/insn: Add insn_get_modrm_reg_off()
+  x86/insn: Add insn_has_rep_prefix() helper
+  x86/boot/compressed/64: Disable red-zone usage
+  x86/boot/compressed/64: Add IDT Infrastructure
+  x86/boot/compressed/64: Rename kaslr_64.c to ident_map_64.c
+  x86/boot/compressed/64: Add page-fault handler
+  x86/boot/compressed/64: Always switch to own page-table
+  x86/boot/compressed/64: Don't pre-map memory in KASLR code
+  x86/boot/compressed/64: Change add_identity_map() to take start and
+    end
+  x86/boot/compressed/64: Add stage1 #VC handler
+  x86/boot/compressed/64: Call set_sev_encryption_mask earlier
+  x86/boot/compressed/64: Check return value of
+    kernel_ident_mapping_init()
+  x86/boot/compressed/64: Add set_page_en/decrypted() helpers
+  x86/boot/compressed/64: Setup GHCB Based VC Exception handler
+  x86/boot/compressed/64: Unmap GHCB page before booting the kernel
+  x86/fpu: Move xgetbv()/xsetbv() into separate header
+  x86/idt: Move IDT to data segment
+  x86/idt: Split idt_data setup out of set_intr_gate()
+  x86/head/64: Install startup GDT
+  x86/head/64: Setup MSR_GS_BASE before calling into C code
+  x86/head/64: Load GDT after switch to virtual addresses
+  x86/head/64: Load segment registers earlier
+  x86/head/64: Switch to initial stack earlier
+  x86/head/64: Make fixup_pointer() static inline
+  x86/head/64: Load IDT earlier
+  x86/head/64: Move early exception dispatch to C code
+  x86/head/64: Set CR4.FSGSBASE early
+  x86/sev-es: Add SEV-ES Feature Detection
+  x86/sev-es: Print SEV-ES info into kernel log
+  x86/sev-es: Compile early handler code into kernel image
+  x86/sev-es: Setup early #VC handler
+  x86/sev-es: Setup GHCB based boot #VC handler
+  x86/sev-es: Allocate and Map IST stack for #VC handler
+  x86/sev-es: Adjust #VC IST Stack on entering NMI handler
+  x86/dumpstack/64: Add noinstr version of get_stack_info()
+  x86/entry/64: Add entry code for #VC handler
+  x86/sev-es: Wire up existing #VC exit-code handlers
+  x86/sev-es: Handle instruction fetches from user-space
+  x86/sev-es: Handle MMIO String Instructions
+  x86/sev-es: Handle #AC Events
+  x86/sev-es: Handle #DB Events
+  x86/paravirt: Allow hypervisor specific VMMCALL handling under SEV-ES
+  x86/realmode: Add SEV-ES specific trampoline entry point
+  x86/smpboot: Setup TSS for starting AP
+  x86/head/64: Don't call verify_cpu() on starting APs
+  x86/head/64: Rename start_cpu0
+  x86/sev-es: Support CPU offline/online
+  x86/sev-es: Handle NMI State
+
+Martin Radev (1):
+  x86/sev-es: Check required CPU features for SEV-ES
+
+Tom Lendacky (19):
+  KVM: SVM: Add GHCB definitions
+  x86/cpufeatures: Add SEV-ES CPU feature
+  x86/sev-es: Add support for handling IOIO exceptions
+  x86/sev-es: Add CPUID handling to #VC handler
+  x86/sev-es: Setup per-cpu GHCBs for the runtime handler
+  x86/sev-es: Add Runtime #VC Exception Handler
+  x86/sev-es: Handle MMIO events
+  x86/sev-es: Handle MSR events
+  x86/sev-es: Handle DR7 read/write events
+  x86/sev-es: Handle WBINVD Events
+  x86/sev-es: Handle RDTSC(P) Events
+  x86/sev-es: Handle RDPMC Events
+  x86/sev-es: Handle INVD Events
+  x86/sev-es: Handle MONITOR/MONITORX Events
+  x86/sev-es: Handle MWAIT/MWAITX Events
+  x86/sev-es: Handle VMMCALL Events
+  x86/kvm: Add KVM specific VMMCALL handling under SEV-ES
+  x86/realmode: Setup AP jump table
+  x86/efi: Add GHCB mappings when SEV-ES is active
+
+ arch/x86/Kconfig                           |    1 +
+ arch/x86/boot/compressed/Makefile          |    9 +-
+ arch/x86/boot/compressed/cpuflags.c        |    4 -
+ arch/x86/boot/compressed/head_64.S         |   32 +-
+ arch/x86/boot/compressed/ident_map_64.c    |  349 +++++
+ arch/x86/boot/compressed/idt_64.c          |   54 +
+ arch/x86/boot/compressed/idt_handlers_64.S |   77 ++
+ arch/x86/boot/compressed/kaslr.c           |   36 +-
+ arch/x86/boot/compressed/kaslr_64.c        |  153 ---
+ arch/x86/boot/compressed/misc.c            |    7 +
+ arch/x86/boot/compressed/misc.h            |   50 +-
+ arch/x86/boot/compressed/sev-es.c          |  214 +++
+ arch/x86/entry/entry_64.S                  |   78 ++
+ arch/x86/include/asm/cpu.h                 |    2 +-
+ arch/x86/include/asm/cpu_entry_area.h      |   33 +-
+ arch/x86/include/asm/cpufeatures.h         |    1 +
+ arch/x86/include/asm/desc_defs.h           |    3 +
+ arch/x86/include/asm/fpu/internal.h        |   30 +-
+ arch/x86/include/asm/fpu/xcr.h             |   34 +
+ arch/x86/include/asm/idtentry.h            |   50 +
+ arch/x86/include/asm/insn-eval.h           |    6 +
+ arch/x86/include/asm/mem_encrypt.h         |    5 +
+ arch/x86/include/asm/msr-index.h           |    3 +
+ arch/x86/include/asm/page_64_types.h       |    1 +
+ arch/x86/include/asm/pgtable.h             |    2 +-
+ arch/x86/include/asm/processor.h           |    7 +
+ arch/x86/include/asm/proto.h               |    1 +
+ arch/x86/include/asm/realmode.h            |    4 +
+ arch/x86/include/asm/segment.h             |    2 +-
+ arch/x86/include/asm/setup.h               |   20 +-
+ arch/x86/include/asm/sev-es.h              |  113 ++
+ arch/x86/include/asm/stacktrace.h          |    2 +
+ arch/x86/include/asm/svm.h                 |  100 +-
+ arch/x86/include/asm/trap_pf.h             |   24 +
+ arch/x86/include/asm/trapnr.h              |    1 +
+ arch/x86/include/asm/traps.h               |   20 +-
+ arch/x86/include/asm/x86_init.h            |   16 +-
+ arch/x86/include/uapi/asm/svm.h            |   11 +
+ arch/x86/kernel/Makefile                   |    1 +
+ arch/x86/kernel/cpu/amd.c                  |    3 +-
+ arch/x86/kernel/cpu/common.c               |   37 +-
+ arch/x86/kernel/cpu/scattered.c            |    1 +
+ arch/x86/kernel/cpu/vmware.c               |   50 +-
+ arch/x86/kernel/dumpstack.c                |    7 +-
+ arch/x86/kernel/dumpstack_64.c             |   47 +-
+ arch/x86/kernel/head64.c                   |   85 +-
+ arch/x86/kernel/head_32.S                  |    4 +-
+ arch/x86/kernel/head_64.S                  |  159 ++-
+ arch/x86/kernel/idt.c                      |   94 +-
+ arch/x86/kernel/kvm.c                      |   35 +-
+ arch/x86/kernel/nmi.c                      |   12 +
+ arch/x86/kernel/sev-es-shared.c            |  507 +++++++
+ arch/x86/kernel/sev-es.c                   | 1404 ++++++++++++++++++++
+ arch/x86/kernel/smpboot.c                  |   10 +-
+ arch/x86/kernel/traps.c                    |   56 +
+ arch/x86/kernel/umip.c                     |   49 +-
+ arch/x86/kvm/svm/nested.c                  |   47 +-
+ arch/x86/kvm/svm/svm.c                     |    2 +
+ arch/x86/lib/insn-eval.c                   |  130 ++
+ arch/x86/mm/cpu_entry_area.c               |    3 +-
+ arch/x86/mm/extable.c                      |    1 +
+ arch/x86/mm/mem_encrypt.c                  |   38 +-
+ arch/x86/mm/mem_encrypt_identity.c         |    3 +
+ arch/x86/platform/efi/efi_64.c             |   10 +
+ arch/x86/realmode/init.c                   |   24 +-
+ arch/x86/realmode/rm/header.S              |    3 +
+ arch/x86/realmode/rm/trampoline_64.S       |   20 +
+ arch/x86/tools/gen-insn-attr-x86.awk       |   50 +-
+ tools/arch/x86/tools/gen-insn-attr-x86.awk |   50 +-
+ 69 files changed, 4041 insertions(+), 456 deletions(-)
+ create mode 100644 arch/x86/boot/compressed/ident_map_64.c
+ create mode 100644 arch/x86/boot/compressed/idt_64.c
+ create mode 100644 arch/x86/boot/compressed/idt_handlers_64.S
+ delete mode 100644 arch/x86/boot/compressed/kaslr_64.c
+ create mode 100644 arch/x86/boot/compressed/sev-es.c
+ create mode 100644 arch/x86/include/asm/fpu/xcr.h
+ create mode 100644 arch/x86/include/asm/sev-es.h
+ create mode 100644 arch/x86/include/asm/trap_pf.h
+ create mode 100644 arch/x86/kernel/sev-es-shared.c
+ create mode 100644 arch/x86/kernel/sev-es.c
+
 -- 
 2.28.0
 
