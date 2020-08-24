@@ -7,59 +7,59 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ED2CCC433DF
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:06:52 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8BB29C433E3
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:06:56 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C644C206F0
-	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:06:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C644C206F0
+	by mail.kernel.org (Postfix) with ESMTPS id 613DB20738
+	for <virtualization@archiver.kernel.org>; Mon, 24 Aug 2020 09:06:56 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 613DB20738
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 7EE2185F4C;
-	Mon, 24 Aug 2020 09:06:52 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 35EE4882F0;
+	Mon, 24 Aug 2020 09:06:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id hzQ1_db5187s; Mon, 24 Aug 2020 09:06:50 +0000 (UTC)
+	with ESMTP id ed3o3YkVoYMe; Mon, 24 Aug 2020 09:06:53 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 2AC7485F5C;
-	Mon, 24 Aug 2020 09:06:50 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 5148188196;
+	Mon, 24 Aug 2020 09:06:53 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0F694C016F;
-	Mon, 24 Aug 2020 09:06:50 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D443FC0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 37921C016F;
+	Mon, 24 Aug 2020 09:06:53 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 68C08C089F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:06:48 +0000 (UTC)
+ Mon, 24 Aug 2020 09:06:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id CFFB385F4C
+ by silver.osuosl.org (Postfix) with ESMTP id 4A53C204F7
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:06:48 +0000 (UTC)
+ Mon, 24 Aug 2020 09:06:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JLeSXtxpbbmC
+ with ESMTP id gax5y6XmD0OM
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:06:48 +0000 (UTC)
+ Mon, 24 Aug 2020 09:06:50 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 2772F85F37
+ by silver.osuosl.org (Postfix) with ESMTPS id E640E204E4
  for <virtualization@lists.linux-foundation.org>;
- Mon, 24 Aug 2020 09:06:48 +0000 (UTC)
+ Mon, 24 Aug 2020 09:06:49 +0000 (UTC)
 Received: from cap.home.8bytes.org (p4ff2bb8d.dip0.t-ipconnect.de
  [79.242.187.141])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 70E0C101A;
- Mon, 24 Aug 2020 10:56:23 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 9C03112C7;
+ Mon, 24 Aug 2020 10:56:25 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v6 60/76] x86/sev-es: Handle MONITOR/MONITORX Events
-Date: Mon, 24 Aug 2020 10:54:55 +0200
-Message-Id: <20200824085511.7553-61-joro@8bytes.org>
+Subject: [PATCH v6 64/76] x86/sev-es: Handle #DB Events
+Date: Mon, 24 Aug 2020 10:54:59 +0200
+Message-Id: <20200824085511.7553-65-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200824085511.7553-1-joro@8bytes.org>
 References: <20200824085511.7553-1-joro@8bytes.org>
@@ -93,51 +93,55 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-Implement a handler for #VC exceptions caused by MONITOR and MONITORX
-instructions.
+Handle #VC exceptions caused by #DB exceptions in the guest. Those
+must be handled outside of instrumentation_begin()/end() so that the
+handler will not be raised recursivly.
 
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-[ jroedel@suse.de: Adapt to #VC handling infrastructure ]
-Co-developed-by: Joerg Roedel <jroedel@suse.de>
+Handle them by calling the kernels debug exception handler.
+
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Link: https://lore.kernel.org/r/20200724160336.5435-60-joro@8bytes.org
+Link: https://lore.kernel.org/r/20200724160336.5435-64-joro@8bytes.org
 ---
- arch/x86/kernel/sev-es.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ arch/x86/kernel/sev-es.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
 diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index 4e1989c58df8..c7324cd0a4d6 100644
+index ee0950f01590..e1f3ebbcc122 100644
 --- a/arch/x86/kernel/sev-es.c
 +++ b/arch/x86/kernel/sev-es.c
-@@ -872,6 +872,16 @@ static enum es_result vc_handle_rdpmc(struct ghcb *ghcb, struct es_em_ctxt *ctxt
- 	return ES_OK;
+@@ -922,6 +922,14 @@ static enum es_result vc_handle_trap_ac(struct ghcb *ghcb,
+ 	return ES_EXCEPTION;
  }
  
-+static enum es_result vc_handle_monitor(struct ghcb *ghcb,
-+					struct es_em_ctxt *ctxt)
++static __always_inline void vc_handle_trap_db(struct pt_regs *regs)
 +{
-+	/*
-+	 * Treat it as a NOP and do not leak a physical address to the
-+	 * hypervisor
-+	 */
-+	return ES_OK;
++	if (user_mode(regs))
++		noist_exc_debug(regs);
++	else
++		exc_debug(regs);
 +}
 +
  static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
  					 struct ghcb *ghcb,
  					 unsigned long exit_code)
-@@ -908,6 +918,9 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
- 	case SVM_EXIT_WBINVD:
- 		result = vc_handle_wbinvd(ghcb, ctxt);
- 		break;
-+	case SVM_EXIT_MONITOR:
-+		result = vc_handle_monitor(ghcb, ctxt);
-+		break;
- 	case SVM_EXIT_NPF:
- 		result = vc_handle_mmio(ghcb, ctxt);
- 		break;
+@@ -1033,6 +1041,15 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
+ 	struct ghcb *ghcb;
+ 
+ 	lockdep_assert_irqs_disabled();
++
++	/*
++	 * Handle #DB before calling into !noinstr code to avoid recursive #DB.
++	 */
++	if (error_code == SVM_EXIT_EXCP_BASE + X86_TRAP_DB) {
++		vc_handle_trap_db(regs);
++		return;
++	}
++
+ 	instrumentation_begin();
+ 
+ 	/*
 -- 
 2.28.0
 
