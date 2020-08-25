@@ -2,66 +2,80 @@ Return-Path: <SRS0=1X+q=CD=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C41ADC433DF
-	for <virtualization@archiver.kernel.org>; Tue, 25 Aug 2020 09:22:35 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A3E63C433DF
+	for <virtualization@archiver.kernel.org>; Tue, 25 Aug 2020 11:04:58 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 990EF2068F
-	for <virtualization@archiver.kernel.org>; Tue, 25 Aug 2020 09:22:35 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 990EF2068F
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
+	by mail.kernel.org (Postfix) with ESMTPS id 6F4F620715
+	for <virtualization@archiver.kernel.org>; Tue, 25 Aug 2020 11:04:58 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=alien8.de header.i=@alien8.de header.b="bLUbdTQq"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6F4F620715
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=alien8.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 6B30088173;
-	Tue, 25 Aug 2020 09:22:35 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 3226C8808E;
+	Tue, 25 Aug 2020 11:04:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id eur++dDldGGC; Tue, 25 Aug 2020 09:22:35 +0000 (UTC)
+	with ESMTP id hTcA6R111fn3; Tue, 25 Aug 2020 11:04:55 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 05F5587BB1;
-	Tue, 25 Aug 2020 09:22:35 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 49880878EA;
+	Tue, 25 Aug 2020 11:04:55 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C7456C016F;
-	Tue, 25 Aug 2020 09:22:34 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 71F64C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1BE92C088B;
+	Tue, 25 Aug 2020 11:04:55 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6F119C016F
  for <virtualization@lists.linux-foundation.org>;
- Tue, 25 Aug 2020 09:22:33 +0000 (UTC)
+ Tue, 25 Aug 2020 11:04:53 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 5BB4687BB1
+ by silver.osuosl.org (Postfix) with ESMTP id 3A96A22886
  for <virtualization@lists.linux-foundation.org>;
- Tue, 25 Aug 2020 09:22:33 +0000 (UTC)
+ Tue, 25 Aug 2020 11:04:53 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 551Un0TEBdAC
+ with ESMTP id pIjCAucbfXzA
  for <virtualization@lists.linux-foundation.org>;
- Tue, 25 Aug 2020 09:22:32 +0000 (UTC)
+ Tue, 25 Aug 2020 11:04:49 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
-Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by hemlock.osuosl.org (Postfix) with ESMTPS id F287587BA6
+Received: from mail.skyhub.de (mail.skyhub.de [5.9.137.197])
+ by silver.osuosl.org (Postfix) with ESMTPS id 46B882034F
  for <virtualization@lists.linux-foundation.org>;
- Tue, 25 Aug 2020 09:22:31 +0000 (UTC)
-Received: by theia.8bytes.org (Postfix, from userid 1000)
- id 840D829A; Tue, 25 Aug 2020 11:22:27 +0200 (CEST)
-Date: Tue, 25 Aug 2020 11:22:24 +0200
-From: Joerg Roedel <joro@8bytes.org>
-To: Borislav Petkov <bp@alien8.de>
+ Tue, 25 Aug 2020 11:04:48 +0000 (UTC)
+Received: from zn.tnic (p200300ec2f0c5a0001535c65a93122e2.dip0.t-ipconnect.de
+ [IPv6:2003:ec:2f0c:5a00:153:5c65:a931:22e2])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id AEAED1EC0299;
+ Tue, 25 Aug 2020 13:04:45 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+ t=1598353485;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+ bh=M3DtE2HDJMaftMHgyeELlhmPqaW7/VgBKsyLltgJBkY=;
+ b=bLUbdTQqHXoJunltKk2lQ/8OSisXCWByt7CjiA/EG6fD8SiJ5w8owNkA/vwdkjt0o4JFdA
+ hGvlX4TGZXnuGdSGbqcreYTAKxVCmwrnxnfiD+buOP9AE9EAlLGjP+eSW+W3udaoPbTYYn
+ Xst5bBJiQsVyCEm46KyE3CCo0pkdJqA=
+Date: Tue, 25 Aug 2020 13:04:46 +0200
+From: Borislav Petkov <bp@alien8.de>
+To: Joerg Roedel <joro@8bytes.org>
 Subject: Re: [PATCH v6 02/76] KVM: SVM: Add GHCB definitions
-Message-ID: <20200825092224.GF3319@8bytes.org>
+Message-ID: <20200825110446.GC12107@zn.tnic>
 References: <20200824085511.7553-1-joro@8bytes.org>
  <20200824085511.7553-3-joro@8bytes.org>
- <20200824104451.GA4732@zn.tnic>
+ <20200824104451.GA4732@zn.tnic> <20200825092224.GF3319@8bytes.org>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20200824104451.GA4732@zn.tnic>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+In-Reply-To: <20200825092224.GF3319@8bytes.org>
 Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>,
  Dave Hansen <dave.hansen@linux.intel.com>, Mike Stunes <mstunes@vmware.com>,
  Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org,
@@ -90,25 +104,25 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Aug 24, 2020 at 12:44:51PM +0200, Borislav Petkov wrote:
-> On Mon, Aug 24, 2020 at 10:53:57AM +0200, Joerg Roedel wrote:
-> >  static inline void __unused_size_checks(void)
-> >  {
-> > -	BUILD_BUG_ON(sizeof(struct vmcb_save_area) != 0x298);
-> > +	BUILD_BUG_ON(sizeof(struct vmcb_save_area) != 1032);
-> >  	BUILD_BUG_ON(sizeof(struct vmcb_control_area) != 256);
-> > +	BUILD_BUG_ON(sizeof(struct ghcb) != 4096);
-> 
-> Could those naked numbers be proper, meaningfully named defines?
+On Tue, Aug 25, 2020 at 11:22:24AM +0200, Joerg Roedel wrote:
+> I don't think so, if I look at the history of these checks their whole
+> purpose seems to be to alert the developer/maintainer when their size
+> changes and that they might not fit on the stack anymore. But that is
+> taken care of in patch 1.
 
-I don't think so, if I look at the history of these checks their whole
-purpose seems to be to alert the developer/maintainer when their size
-changes and that they might not fit on the stack anymore. But that is
-taken care of in patch 1.
+Why? What's wrong with:
 
-Regards,
+	BUILD_BUG_ON(sizeof(struct vmcb_save_area) != VMCB_SAVE_AREA_SIZE);
+	BUILD_BUG_ON(sizeof(struct vmcb_control_area) != VMCB_CONTROL_AREA_SIZE);
+	BUILD_BUG_ON(sizeof(struct ghcb) != PAGE_SIZE);
 
-	Joerg
+?
+
+-- 
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
