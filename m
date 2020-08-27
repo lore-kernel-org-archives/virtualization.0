@@ -1,69 +1,103 @@
-Return-Path: <SRS0=/kjp=CE=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=mw42=CF=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.5 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
-	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-	HTML_MESSAGE,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F80CC433E1
-	for <virtualization@archiver.kernel.org>; Wed, 26 Aug 2020 20:24:26 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D952C433E1
+	for <virtualization@archiver.kernel.org>; Thu, 27 Aug 2020 08:01:49 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 6BFFA2076C
-	for <virtualization@archiver.kernel.org>; Wed, 26 Aug 2020 20:24:26 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6BFFA2076C
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTPS id DD29422BF3
+	for <virtualization@archiver.kernel.org>; Thu, 27 Aug 2020 08:01:48 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="lksoy1ND"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DD29422BF3
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 1BEE785D37;
-	Wed, 26 Aug 2020 20:24:26 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id WWmHhtr5e1cF; Wed, 26 Aug 2020 20:24:22 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 2A07785C4A;
-	Wed, 26 Aug 2020 20:24:22 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1CAD8C016F;
-	Wed, 26 Aug 2020 20:24:22 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 40DC8C0051
- for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Aug 2020 20:24:21 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 3AA9D86233
- for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Aug 2020 20:24:21 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id A76BA87E91;
+	Thu, 27 Aug 2020 08:01:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id NDja1Bczua+6; Thu, 27 Aug 2020 08:01:48 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by whitealder.osuosl.org (Postfix) with ESMTP id E1C3487DB7;
+	Thu, 27 Aug 2020 08:01:47 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CCAA3C016F;
+	Thu, 27 Aug 2020 08:01:47 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 96EA0C0051
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 27 Aug 2020 08:01:46 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by hemlock.osuosl.org (Postfix) with ESMTP id 84B418820F
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 27 Aug 2020 08:01:46 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id YXLDtkjL2zSr
+ with ESMTP id rEyrpApmGgPa
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Aug 2020 20:24:16 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
-Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
- [5.45.125.222])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 7F09B86146
+ Thu, 27 Aug 2020 08:01:45 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+Received: from mail-ej1-f65.google.com (mail-ej1-f65.google.com
+ [209.85.218.65])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 27B9787AC9
  for <virtualization@lists.linux-foundation.org>;
- Wed, 26 Aug 2020 20:24:16 +0000 (UTC)
-Received: from [37.189.17.205] (helo=LAPTOP-EPOV2LRR)
- by s052d7dde.fastvps-server.com with esmtpsa
- (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256) (Exim 4.89)
- (envelope-from <marle@saisti.eu>) id 1kB0vM-0007I3-11
- for virtualization@lists.linux-foundation.org; Wed, 26 Aug 2020 22:17:32 +0300
-From: "MariaL" <marialemos72@gmail.com>
-Subject: ICITS'21 - 4th Int. Conference on Information Technology & Systems,
- Santa Elena, Ecuador
-To: virtualization@lists.linux-foundation.org
+ Thu, 27 Aug 2020 08:01:45 +0000 (UTC)
+Received: by mail-ej1-f65.google.com with SMTP id d11so6352479ejt.13
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 27 Aug 2020 01:01:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
+ h=date:from:to:cc:subject:message-id:references:mime-version
+ :content-disposition:in-reply-to;
+ bh=KLXKGCMrEd+HEPdG/6Veb0H0KiwUV4QwzjuW5uI1H7Y=;
+ b=lksoy1NDScckuAYD4sTllL1Iurtev0e+pvnwfQDJMxCxa7JLt2eW5ZALN6jCFFbZwt
+ rnEIqFZ/Kn7iFNQBzR0yn6m4899J5aaMisCuWUNBKBwGamGybczhroFIaIi7M4S6KV5c
+ S+kw8klrcatEGIZexnu+yfdz1Z8LWp5yN2mGP2UZC2fgzT1VNci0x8Xk2e6UkXtkY3Xz
+ tckKKot1hODrYWrRvUV2p46fu3xJLkQSm2MOsm3V+N4oOz00v50T77zCoYVtf5I2MypU
+ G0P7T05k6eFA6lGOrHA5r0uEGiMiQ7ECn6imLPHHN+m6uzMSJMTGSN11V00WRZOer7LJ
+ SfVw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=KLXKGCMrEd+HEPdG/6Veb0H0KiwUV4QwzjuW5uI1H7Y=;
+ b=GznI3m9Rd4MJvqZKdf+Bidck0p13WpV11ZAeStGVAu2YQIGdU2wGClEhIKFjnjjV+T
+ y5FlKGxcjnU9TUUFmuA0zQt8UqAoWpK+0fpgU/3x8Pf68Eode89uXEKY/V2J5xeKs9DM
+ 033ocxvbMoOkPKrmA+O5shQeADtxPzIsahENbNTeDvo31+Czuz1ZwBUXc2V3KjBQipEs
+ OMD/cIpprjPXQMGFtdI4ybXJ9avlpqc/jT1tnSI8dvPDwxNoJ6+8YzFiDZNJj2Scgh09
+ FVJHVGpEJdtJq6Sn8mJ/CYf8BuabtkjqJmBmCQVNs8b4K4RHqzed8hy+va0m0WQf/G/4
+ i4ow==
+X-Gm-Message-State: AOAM53135kt4CceRgcAUtlZ775HQe8pYzmZPHT54EUcv8Gl0m0+YuOA4
+ T6IhTvxXUpOG/ummDaWIh4Z29A==
+X-Google-Smtp-Source: ABdhPJy3u3bRyTUX8lEQynqXU4hAdCiT/PYeb2x0IdTm6vsd6r4sfZTB0YNbGlWTbOWqcKJT0ea+2Q==
+X-Received: by 2002:a17:906:fa15:: with SMTP id
+ lo21mr20503865ejb.42.1598515303348; 
+ Thu, 27 Aug 2020 01:01:43 -0700 (PDT)
+Received: from myrica ([2001:1715:4e26:a7e0:116c:c27a:3e7f:5eaf])
+ by smtp.gmail.com with ESMTPSA id i25sm954760edt.1.2020.08.27.01.01.41
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 27 Aug 2020 01:01:42 -0700 (PDT)
+Date: Thu, 27 Aug 2020 10:01:25 +0200
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Subject: Re: [PATCH v3 0/6] Add virtio-iommu built-in topology
+Message-ID: <20200827080125.GC3399702@myrica>
+References: <20200821131540.2801801-1-jean-philippe@linaro.org>
+ <20200826092542-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-Date: Wed, 26 Aug 2020 20:17:30 +0100
-Message-ID: <2868329633625@gmail-com>
-X-Antivirus: AVG (VPS 200825-2, 25/08/2020), Outbound message
-X-Antivirus-Status: Clean
+Content-Disposition: inline
+In-Reply-To: <20200826092542-mutt-send-email-mst@kernel.org>
+Cc: virtio-dev@lists.oasis-open.org, linux-pci@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, iommu@lists.linux-foundation.org,
+ sebastien.boeuf@intel.com, bhelgaas@google.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -75,334 +109,34 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Reply-To: intercits@gmail.com
-Content-Type: multipart/mixed; boundary="===============4982636446264089392=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is a multi-part message in MIME format
+On Wed, Aug 26, 2020 at 09:26:02AM -0400, Michael S. Tsirkin wrote:
+> On Fri, Aug 21, 2020 at 03:15:34PM +0200, Jean-Philippe Brucker wrote:
+> > Add a topology description to the virtio-iommu driver and enable x86
+> > platforms.
+> > 
+> > Since [v2] we have made some progress on adding ACPI support for
+> > virtio-iommu, which is the preferred boot method on x86. It will be a
+> > new vendor-agnostic table describing para-virtual topologies in a
+> > minimal format. However some platforms don't use either ACPI or DT for
+> > booting (for example microvm), and will need the alternative topology
+> > description method proposed here. In addition, since the process to get
+> > a new ACPI table will take a long time, this provides a boot method even
+> > to ACPI-based platforms, if only temporarily for testing and
+> > development.
+> 
+> OK should I park this in next now? Seems appropriate ...
 
---===============4982636446264089392==
-Content-Type: multipart/alternative; charset=utf-8; boundary="4A5l7DZJxB5uBTpgDspNl1i6Vf=_3DzUwo"
+Yes that sounds like a good idea. It could uncover new bugs since there is
+more automated testing happening for x86.
 
-This is a multi-part message in MIME format
-
---4A5l7DZJxB5uBTpgDspNl1i6Vf=_3DzUwo
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-* Published by Springer in a book of the AISC series
-* SCIMago H-Index =3D 34
-
-* Indexed in Scopus, WoS, DBLP, Ei-Compendex, etc
-
-
--------------------------------------    ----------------------------------=
---    ----------- 
-ICITS'21 - 4th International Conference on Information Technology & Systems=
-
-4 - 6 February 2021 | Peninsula de Santa Elena, Ecuador
-http://www.icits.me/ <http://www.icits.me/>
-
------------------------------------    ------------------------------------=
--    ------------------------- 
-
-ICITS'21 - The 2021 International Conference on Information Technology & Sy=
-stems, to be held in Pen=C3=ADnsula de Santa Elena, Ecuador, 4 - 6 February=
- 2021, is an international forum for researchers and practitioners to prese=
-nt and discuss the most recent innovations, trends, results, experiences an=
-d concerns in the several perspectives of Information Technology & Systems.=
- 
-
-We are pleased to invite you to submit your papers to ICITS'21. They can be=
- written in English, Spanish or Portuguese. All submissions will be reviewe=
-d on the basis of relevance, originality, importance and clarity. 
-
-
-
-
-
-TOPICS
-
-
-Submitted papers should be related with one or more of the main themes prop=
-osed for the Conference:
-
-A) Information and Knowledge Management (IKM); 
-B) Organizational Models and Information Systems (OMIS); 
-C) Software and Systems Modeling (SSM); 
-D) Software Systems, Architectures, Applications and Tools (SSAAT); 
-E) Multimedia Systems and Applications (MSA); 
-F) Computer Networks, Mobility and Pervasive Systems (CNMPS); 
-G) Intelligent and Decision Support Systems (IDSS); 
-H) Big Data Analytics and Applications (BDAA); 
-I) Human-Computer Interaction (HCI); 
-J) Ethics, Computers and Security (ECS) 
-K) Health Informatics (HIS); 
-L) Information Technologies in Education (ITE); 
- 
-
-SUBMISSION AND DECISION 
-
-Submitted papers written in English (until 10-page limit) must comply with =
-the format of Advances in Intelligent Systems and Computing series (see Ins=
-tructions for Authors at Springer Website), must not have been published be=
-fore, not be under review for any other conference or publication and not i=
-nclude any information leading to the authors=E2=80=99 identification. Ther=
-efore, the authors=E2=80=99 names and affiliations should not be included i=
-n the version for evaluation by the Scientific Committee. This information =
-should only be included in the camera-ready version, saved in Word or Latex=
- format and also in PDF format. These files must be accompanied by the Cons=
-ent to Publish form filled out, in a ZIP file, and uploaded at the conferen=
-ce management system. 
-
-Submitted papers written in Spanish or Portuguese (until 15-page limit) mus=
-t comply with the format of RISTI - Revista Ib=C3=A9rica de Sistemas e Tecn=
-ologias de Informa=C3=A7=C3=A3o (download instructions/template for authors=
- in Spanish or Portuguese), must not have been published before, not be und=
-er review for any other conference or publication and not include any infor=
-mation leading to the authors=E2=80=99 identification. Therefore, the autho=
-rs=E2=80=99 names and affiliations should not be included in the version fo=
-r evaluation by the Scientific Committee. This information should only be i=
-ncluded in the camera-ready version, saved in Word. These files must be upl=
-oaded at the conference management system in a ZIP file. 
-
-All papers will be subjected to a =E2=80=9Cdouble-blind review=E2=80=9D by =
-at least two members of the Scientific Committee. 
-
-Based on Scientific Committee evaluation, a paper can be rejected or accept=
-ed by the Conference Chairs. In the later case, it can be accepted as paper=
- or poster. 
-
-The authors of papers accepted as posters must build and print a poster to =
-be exhibited during the Conference. This poster must follow an A1 or A2 ver=
-tical format. The Conference can include Work Sessions where these posters =
-are presented and orally discussed, with a 7 minute limit per poster. 
-
-The authors of accepted papers will have 15 minutes to present their work i=
-n a Conference Work Session; approximately 5 minutes of discussion will fol=
-low each presentation. 
-
-
-PUBLICATION AND INDEXING
-
-Papers accepted as posters are not published; they are only exhibited, pres=
-ented and discussed during the conference. 
-
-To ensure that a paper accepted as paper is published, at least one of the =
-authors must be fully registered by the 6th of November 2020, and the paper=
- must comply with the suggested layout and page-limit. Additionally, all re=
-commended changes must be addressed by the authors before they submit the c=
-amera-ready version. 
-
-No more than one paper per registration will be published. An extra fee mus=
-t be paid for publication of additional papers, with a maximum of one addit=
-ional paper per registration. One registration permits only the participati=
-on of one author in the conference. 
-
-Papers written in English and accepted and registered will be published in =
-Proceedings by Springer, in a book of the Advances in Intelligent Systems a=
-nd Computing series, will  be submitted for indexation by ISI, EI-Compendex=
-, SCOPUS and DBLP, among others, and will be available in the SpringerLink =
-Digital Library. 
-
-Papers written in Spanish or Portuguese and accepted and registered will be=
- published in a Special Issue of RISTI and will be submitted for indexation=
- by SCOPUS, among others. 
-
-
-IMPORTANT DATES
-
-Paper Submission: September 6, 2020 
-
-Notification of Acceptance: October 18, 2020 
-
-Payment of Registration, to ensure the inclusion of an accepted paper in th=
-e conference proceedings: November 6, 2020. 
-
-Camera-ready Submission: November 6, 2020
-
-
-
-
-
-Website of ICITS'21: http://www.icits.me/ <http://www.icits.me/> 
-
-ICITS'21 Team
-http://www.icits.me/ <http://www.icits.me/> 
- 
-
---------------
-
-PS: If you do not wish to receive more notices from ICITS (http://icits.me =
-<http://icits.me/>) just reply this message with the word REMOVE in the sub=
-ject line
-
-
--- 
-This email has been checked for viruses by AVG.
-https://www.avg.com
-
---4A5l7DZJxB5uBTpgDspNl1i6Vf=_3DzUwo
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<html>
-  <head>
-    <title></title>
-    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
-" />
-  </head>
-  <body>
-    <div dir=3D"ltr">
-      <div>
-        <div>* Published by Springer in&nbsp;a book of the AISC series</div=
->
-        <div>* SCIMago H-Index =3D 34<br /></div>
-        <div>* Indexed in Scopus, WoS, DBLP, Ei-Compendex, etc</div>
-      </div>
-      <div><br /></div>
-      <div>------------------------------------- 
-        <wbr>&nbsp;</wbr>&nbsp;&nbsp;------------------------------------ 
-        <wbr>&nbsp;</wbr>&nbsp;&nbsp;----------- 
-      </div>ICITS'21 - 4th International Conference on Information Technolo=
-gy &amp; Systems<br />4 - 6 February 2021 | Peninsula de Santa Elena, Ecuad=
-or<br /><a href=3D"http://www.icits.me/" target=3D"_blank" data-saferedirec=
-turl=3D"https://www.google.com/url?q=3Dhttp://www.icits.me/&source=3Dgmail&=
-ust=3D1594645922276000&usg=3DAFQjCNG72Fdl_4RlHj0rqlAgkSrBbssDNw">http://www=
-=2Eicits.me/</a><br />
-      <div>----------------------------------- 
-        <wbr>&nbsp;</wbr>&nbsp;&nbsp;------------------------------------- =
-
-        <wbr>&nbsp;</wbr>&nbsp;&nbsp;------------------------- 
-      </div><br />ICITS'21 - The 2021 International Conference on Informati=
-on Technology &amp; Systems, to be held in Pen&iacute;nsula de Santa Elena,=
- Ecuador, 4 - 6 February 2021, is an international forum for researchers an=
-d practitioners to present and discuss the most recent innovations, trends,=
- results, experiences and concerns in the several perspectives of Informati=
-on Technology &amp; Systems. <br /><br />We are pleased to invite you to su=
-bmit your papers to ICITS'21. They can be written in English, Spanish or Po=
-rtuguese. All submissions will be reviewed on the basis of relevance, origi=
-nality, importance and clarity. <br />
-      <div><br /></div>
-      <div><br /></div>
-      <div>TOPICS</div>
-      <div><br /></div>
-      <div>Submitted papers should be related with one or more of the main =
-themes proposed for the Conference:</div><br />A) Information and Knowledge=
- Management (IKM); <br />B) Organizational Models and Information Systems (=
-OMIS); <br />C) Software and Systems Modeling (SSM); <br />D) Software Syst=
-ems, Architectures, Applications and Tools (SSAAT); <br />E) Multimedia Sys=
-tems and Applications (MSA); <br />F) Computer Networks, Mobility and Perva=
-sive Systems (CNMPS); <br />G) Intelligent and Decision Support Systems (ID=
-SS); <br />H) Big Data Analytics and Applications (BDAA); <br />I) Human-Co=
-mputer Interaction (HCI); <br />J) Ethics, Computers and Security (ECS) <br=
- />K) Health Informatics (HIS); <br />L) Information Technologies in Educat=
-ion (ITE); <br />&nbsp;<br /><br />SUBMISSION AND DECISION <br /><br />Subm=
-itted papers written in English (until 10-page limit) must comply with the =
-format of Advances in Intelligent Systems and Computing series (see Instruc=
-tions for Authors at Springer Website), must not have been published before=
-, not be under review for any other conference or publication and not inclu=
-de any information leading to the authors&rsquo; identification. Therefore,=
- the authors&rsquo; names and affiliations should not be included in the ve=
-rsion for evaluation by the Scientific Committee. This information should o=
-nly be included in the camera-ready version, saved in Word or Latex format =
-and also in PDF format. These files must be accompanied by the Consent to P=
-ublish form filled out, in a ZIP file, and uploaded at the conference manag=
-ement system. <br /><br />Submitted papers written in Spanish or Portuguese=
- (until 15-page limit) must comply with the format of RISTI - Revista Ib&ea=
-cute;rica de Sistemas e Tecnologias de Informa&ccedil;&atilde;o (download i=
-nstructions/template for authors in Spanish or Portuguese), must not have b=
-een published before, not be under review for any other conference or publi=
-cation and not include any information leading to the authors&rsquo; identi=
-fication. Therefore, the authors&rsquo; names and affiliations should not b=
-e included in the version for evaluation by the Scientific Committee. This =
-information should only be included in the camera-ready version, saved in W=
-ord. These files must be uploaded at the conference management system in a =
-ZIP file. <br /><br />All papers will be subjected to a &ldquo;double-blind=
- review&rdquo; by at least two members of the Scientific Committee. <br /><=
-br />Based on Scientific Committee evaluation, a paper can be rejected or a=
-ccepted by the Conference Chairs. In the later case, it can be accepted as =
-paper or poster. <br /><br />The authors of papers accepted as posters must=
- build and print a poster to be exhibited during the Conference. This poste=
-r must follow an A1 or A2 vertical format. The Conference can include Work =
-Sessions where these posters are presented and orally discussed, with a 7 m=
-inute limit per poster. <br /><br />The authors of accepted papers will hav=
-e 15 minutes to present their work in a Conference Work Session; approximat=
-ely 5 minutes of discussion will follow each presentation. <br /><br /><br =
-/>PUBLICATION AND INDEXING<br /><br />Papers accepted as posters are not pu=
-blished; they are only exhibited, presented and discussed during the confer=
-ence. <br /><br />To ensure that a paper accepted as paper is published, at=
- least one of the authors must be fully registered by the 6th of November 2=
-020, and the paper must comply with the suggested layout and page-limit. Ad=
-ditionally, all recommended changes must be addressed by the authors before=
- they submit the camera-ready version. <br /><br />No more than one paper p=
-er registration will be published. An extra fee must be paid for publicatio=
-n of additional papers, with a maximum of one additional paper per registra=
-tion. One registration permits only the participation of one author in the =
-conference. <br /><br />Papers written in English and accepted and register=
-ed will be published in Proceedings by Springer, in a book of the Advances =
-in Intelligent Systems and Computing series, will &nbsp;be submitted for in=
-dexation by ISI, EI-Compendex, SCOPUS and DBLP, among others, and will be a=
-vailable in the SpringerLink Digital Library. <br /><br />Papers written in=
- Spanish or Portuguese and accepted and registered will be published in a S=
-pecial Issue of RISTI and will be submitted for indexation by SCOPUS, among=
- others. <br /><br /><br />IMPORTANT DATES<br /><br />Paper Submission: Sep=
-tember 6, 2020 <br /><br />Notification of Acceptance: October 18, 2020 <br=
- /><br />Payment of Registration, to ensure the inclusion of an accepted pa=
-per in the conference proceedings: November 6, 2020. <br /><br />Camera-rea=
-dy Submission: November 6, 2020<br />
-      <div><br /></div>
-      <div><br /></div>Website of ICITS'21: <a href=3D"http://www.icits.me/=
-" target=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3D=
-http://www.icits.me/&source=3Dgmail&ust=3D1594645922276000&usg=3DAFQjCNG72F=
-dl_4RlHj0rqlAgkSrBbssDNw">http://www.icits.me/</a> <br /><br />ICITS'21 Tea=
-m<br /><a href=3D"http://www.icits.me/" target=3D"_blank" data-saferedirect=
-url=3D"https://www.google.com/url?q=3Dhttp://www.icits.me/&source=3Dgmail&u=
-st=3D1594645922276000&usg=3DAFQjCNG72Fdl_4RlHj0rqlAgkSrBbssDNw">http://www.=
-icits.me/</a> 
-    </div>
-    <p>&nbsp;</p>
-    <p>--------------</p>
-    <div itemprop=3D"articleBody">
-      <p>PS: If you do not wish to receive more notices from ICITS (<a href=
-=3D"http://icits.me/">http://icits.me</a>) just reply this message with the=
- word REMOVE in the subject line</p>
-    </div>
-  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br />
-<table style=3D"border-top: 1px solid #D3D4DE;">
-	<tr>
-        <td style=3D"width: 55px; padding-top: 13px;"><a href=3D"http://www=
-=2Eavg.com/email-signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaig=
-n=3Dsig-email&utm_content=3Demailclient" target=3D"_blank"><img src=3D"http=
-s://ipmcdn.avast.com/images/icons/icon-envelope-tick-green-avg-v1.png" alt=
-=3D""  width=3D"46" height=3D"29" style=3D"width: 46px; height: 29px;" /></=
-a></td>
-		<td style=3D"width: 470px; padding-top: 12px; color: #41424e; font-size: =
-13px; font-family: Arial, Helvetica, sans-serif; line-height: 18px;">Virus-=
-free. <a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_=
-source=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D=
-"_blank" style=3D"color: #4453ea;">www.avg.com</a>
-		</td>
-	</tr>
-</table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2" width=3D"1" heigh=
-t=3D"1"> </a></div></body>
-</html>
-
---4A5l7DZJxB5uBTpgDspNl1i6Vf=_3DzUwo--
-
-
---===============4982636446264089392==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
+Thanks,
+Jean
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============4982636446264089392==--
-
