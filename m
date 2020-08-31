@@ -2,81 +2,79 @@ Return-Path: <SRS0=Psgj=CJ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 63200C433E2
-	for <virtualization@archiver.kernel.org>; Mon, 31 Aug 2020 11:11:28 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A693BC433E2
+	for <virtualization@archiver.kernel.org>; Mon, 31 Aug 2020 11:30:13 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 313122072D
-	for <virtualization@archiver.kernel.org>; Mon, 31 Aug 2020 11:11:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 6F5D12098B
+	for <virtualization@archiver.kernel.org>; Mon, 31 Aug 2020 11:30:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=alien8.de header.i=@alien8.de header.b="jDIns6L2"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 313122072D
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=alien8.de header.i=@alien8.de header.b="SenbmO87"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6F5D12098B
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=alien8.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 075B48633B;
-	Mon, 31 Aug 2020 11:11:28 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 4777985C2E;
+	Mon, 31 Aug 2020 11:30:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id i53qswE5o+Ka; Mon, 31 Aug 2020 11:11:27 +0000 (UTC)
+	with ESMTP id 8dm4FQ4cDX3o; Mon, 31 Aug 2020 11:30:12 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 804EF863E0;
-	Mon, 31 Aug 2020 11:11:27 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id B68B983773;
+	Mon, 31 Aug 2020 11:30:12 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 68E97C07FF;
-	Mon, 31 Aug 2020 11:11:27 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C8EB8C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 99928C0052;
+	Mon, 31 Aug 2020 11:30:12 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3F84CC0051
  for <virtualization@lists.linux-foundation.org>;
- Mon, 31 Aug 2020 11:11:25 +0000 (UTC)
+ Mon, 31 Aug 2020 11:30:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id C552D863E0
+ by whitealder.osuosl.org (Postfix) with ESMTP id 3C04085C56
  for <virtualization@lists.linux-foundation.org>;
- Mon, 31 Aug 2020 11:11:25 +0000 (UTC)
+ Mon, 31 Aug 2020 11:30:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 76VxF3uGTu-l
+ with ESMTP id yTgGPlbFCvtt
  for <virtualization@lists.linux-foundation.org>;
- Mon, 31 Aug 2020 11:11:24 +0000 (UTC)
+ Mon, 31 Aug 2020 11:30:09 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from mail.skyhub.de (mail.skyhub.de [5.9.137.197])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 11FB08633B
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 9A8AC8636A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 31 Aug 2020 11:11:24 +0000 (UTC)
+ Mon, 31 Aug 2020 11:30:09 +0000 (UTC)
 Received: from zn.tnic (p200300ec2f085000329c23fffea6a903.dip0.t-ipconnect.de
  [IPv6:2003:ec:2f08:5000:329c:23ff:fea6:a903])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 747751EC02C1;
- Mon, 31 Aug 2020 13:11:22 +0200 (CEST)
+ by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 4F12D1EC02C1;
+ Mon, 31 Aug 2020 13:30:06 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
- t=1598872282;
+ t=1598873406;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
- bh=6DWUFpLyD0dihOF5P86+PovaOqwSm4uuphdxui7Xrvw=;
- b=jDIns6L2Fow2zYngKM/z6o3+stBkjSGWtG75dZ7oqtqaPxtxigor349Wn+PgLw4keVwjjp
- aGyvQWklsUrmaMPkcUNbJSsd80F8bQK6/LPR2n+OcCBSaZdvuOTAI5qxMjjzxfkNrMnbvY
- xet6+Btlqkzw/ZLmYY6co4sAhcafvDM=
-Date: Mon, 31 Aug 2020 13:11:23 +0200
+ bh=Xc+Pd4QRnfNfg4+7CpZrHisRsqB1SyQ+tI27GhvzMCQ=;
+ b=SenbmO87jXBqpXwojhBpSHQnEP4BtnTmjZyLxOz7tyqmb6JwiuipB0Ll5jgUTJzOB5CVQI
+ gqH0XdsTxrHF2XN6Q8OMqK5PJ0qdVeME1fBmi9+KIvMkE1t9bJ3vKpQFj/q/RLBwVVakrk
+ U7cWe9EJ9E3Y7cK1nNtroJ067GRc6f8=
+Date: Mon, 31 Aug 2020 13:30:02 +0200
 From: Borislav Petkov <bp@alien8.de>
 To: Joerg Roedel <joro@8bytes.org>
-Subject: Re: [PATCH v6 47/76] x86/dumpstack/64: Add noinstr version of
- get_stack_info()
-Message-ID: <20200831111123.GG27517@zn.tnic>
+Subject: Re: [PATCH v6 48/76] x86/entry/64: Add entry code for #VC handler
+Message-ID: <20200831113002.GH27517@zn.tnic>
 References: <20200824085511.7553-1-joro@8bytes.org>
- <20200824085511.7553-48-joro@8bytes.org>
+ <20200824085511.7553-49-joro@8bytes.org>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20200824085511.7553-48-joro@8bytes.org>
+In-Reply-To: <20200824085511.7553-49-joro@8bytes.org>
 Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>,
  Dave Hansen <dave.hansen@linux.intel.com>, Mike Stunes <mstunes@vmware.com>,
  Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org,
@@ -105,49 +103,105 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Aug 24, 2020 at 10:54:42AM +0200, Joerg Roedel wrote:
-> diff --git a/arch/x86/kernel/dumpstack_64.c b/arch/x86/kernel/dumpstack_64.c
-> index c49cf594714b..5a85730eb0ca 100644
-> --- a/arch/x86/kernel/dumpstack_64.c
-> +++ b/arch/x86/kernel/dumpstack_64.c
-> @@ -85,7 +85,7 @@ struct estack_pages estack_pages[CEA_ESTACK_PAGES] ____cacheline_aligned = {
->  	EPAGERANGE(VC2),
->  };
+On Mon, Aug 24, 2020 at 10:54:43AM +0200, Joerg Roedel wrote:
+> @@ -446,6 +448,82 @@ _ASM_NOKPROBE(\asmsym)
+>  SYM_CODE_END(\asmsym)
+>  .endm
 >  
-> -static bool in_exception_stack(unsigned long *stack, struct stack_info *info)
-> +static bool __always_inline in_exception_stack(unsigned long *stack, struct stack_info *info)
 
-Yeah, checkpatch seems to complain correctly here:
+ifdeffery pls...
 
-ERROR: inline keyword should sit between storage class and type
-#88: FILE: arch/x86/kernel/dumpstack_64.c:88:
-+static bool __always_inline in_exception_stack(unsigned long *stack, struct stack_info *info)
+> +/**
+> + * idtentry_vc - Macro to generate entry stub for #VC
+> + * @vector:		Vector number
+> + * @asmsym:		ASM symbol for the entry point
+> + * @cfunc:		C function to be called
+> + *
+> + * The macro emits code to set up the kernel context for #VC. The #VC handler
+> + * runs on an IST stack and needs to be able to cause nested #VC exceptions.
+> + *
+> + * To make this work the #VC entry code tries its best to pretend it doesn't use
+> + * an IST stack by switching to the task stack if coming from user-space (which
+> + * includes early SYSCALL entry path) or back to the stack in the IRET frame if
+> + * entered from kernel-mode.
+> + *
+> + * If entered from kernel-mode the return stack is validated first, and if it is
+> + * not safe to use (e.g. because it points to the entry stack) the #VC handler
+> + * will switch to a fall-back stack (VC2) and call a special handler function.
+> + *
+> + * The macro is only used for one vector, but it is planned to extend it in the
+								^^^^^^^^^^^
 
-ERROR: inline keyword should sit between storage class and type
-#97: FILE: arch/x86/kernel/dumpstack_64.c:129:
-+static bool __always_inline in_irq_stack(unsigned long *stack, struct stack_info *info)
+"... to be extended..."
 
-> +int get_stack_info(unsigned long *stack, struct task_struct *task,
-> +		   struct stack_info *info, unsigned long *visit_mask)
+...
+
+> @@ -674,6 +675,56 @@ asmlinkage __visible noinstr struct pt_regs *sync_regs(struct pt_regs *eregs)
+>  	return regs;
+>  }
+>  
+> +#ifdef CONFIG_AMD_MEM_ENCRYPT
+> +asmlinkage __visible noinstr struct pt_regs *vc_switch_off_ist(struct pt_regs *eregs)
 > +{
-> +	task = task ? : current;
+> +	unsigned long sp, *stack;
+> +	struct stack_info info;
+> +	struct pt_regs *regs;
+
+Let's call those "regs_ret" or so, so that the argument can be "regs" by
+convention and for better differentiation.
+
+> +	/*
+> +	 * In the SYSCALL entry path the RSP value comes from user-space - don't
+> +	 * trust it and switch to the current kernel stack
+> +	 */
+> +	if (eregs->ip >= (unsigned long)entry_SYSCALL_64 &&
+> +	    eregs->ip <  (unsigned long)entry_SYSCALL_64_safe_stack) {
+> +		sp = this_cpu_read(cpu_current_top_of_stack);
+> +		goto sync;
+> +	}
 > +
-> +	if (!stack)
-> +		goto unknown;
+> +	/*
+> +	 * From here on the the RSP value is trusted - more RSP sanity checks
+> +	 * need to happen above.
+> +	 *
+> +	 * Check whether entry happened from a safe stack.
+> +	 */
+> +	sp    = eregs->sp;
+> +	stack = (unsigned long *)sp;
+> +	get_stack_info_noinstr(stack, current, &info);
 > +
-> +	if (!get_stack_info_noinstr(stack, task, info))
-> +		goto unknown;
->  
-> -recursion_check:
->  	/*
->  	 * Make sure we don't iterate through any given stack more than once.
->  	 * If it comes up a second time then there's something wrong going on:
-> @@ -196,4 +202,5 @@ int get_stack_info(unsigned long *stack, struct task_struct *task,
->  unknown:
->  	info->type = STACK_TYPE_UNKNOWN;
->  	return -EINVAL;
+> +	/*
+> +	 * Don't sync to entry stack or other unknown stacks - use the fall-back
+> +	 * stack instead.
+> +	 */
+> +	if (info.type == STACK_TYPE_UNKNOWN || info.type == STACK_TYPE_ENTRY ||
+
+AFAICT, that STACK_TYPE_UNKNOWN gets set only by the plain
+get_stack_info() function - not by the _noinstr() variant so you'd need
+to check the return value of latter...
+
+> +	    info.type >= STACK_TYPE_EXCEPTION_LAST)
+> +		sp = __this_cpu_ist_top_va(VC2);
 > +
-^ Superfluous newline.
+> +sync:
+> +	/*
+> +	 * Found a safe stack - switch to it as if the entry didn't happen via
+> +	 * IST stack. The code below only copies pt_regs, the real switch happens
+> +	 * in assembly code.
+> +	 */
+> +	sp = ALIGN_DOWN(sp, 8) - sizeof(*regs);
+> +
+> +	regs = (struct pt_regs *)sp;
+> +	*regs = *eregs;
+> +
+> +	return regs;
+> +}
+> +#endif
+> +
+>  struct bad_iret_stack {
+>  	void *error_entry_ret;
+>  	struct pt_regs regs;
+> -- 
 
 -- 
 Regards/Gruss,
