@@ -4,82 +4,82 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31F61C433E2
-	for <virtualization@archiver.kernel.org>; Mon, 31 Aug 2020 17:25:30 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CCAA1C433E6
+	for <virtualization@archiver.kernel.org>; Mon, 31 Aug 2020 17:29:40 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 006A7207DA
-	for <virtualization@archiver.kernel.org>; Mon, 31 Aug 2020 17:25:29 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 9D8772083E
+	for <virtualization@archiver.kernel.org>; Mon, 31 Aug 2020 17:29:40 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=alien8.de header.i=@alien8.de header.b="KKOc6D3l"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 006A7207DA
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=alien8.de header.i=@alien8.de header.b="ElyeizVP"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9D8772083E
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=alien8.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 860E322011;
-	Mon, 31 Aug 2020 17:25:29 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 6BBEF86FFA;
+	Mon, 31 Aug 2020 17:29:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id DfHniBBpO4JA; Mon, 31 Aug 2020 17:25:27 +0000 (UTC)
+	with ESMTP id Pbf7KZe4ZC5C; Mon, 31 Aug 2020 17:29:39 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 1E0362044B;
-	Mon, 31 Aug 2020 17:25:27 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id E1B5D86FF2;
+	Mon, 31 Aug 2020 17:29:39 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0473FC0052;
-	Mon, 31 Aug 2020 17:25:27 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BBC16C0052;
+	Mon, 31 Aug 2020 17:29:39 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 12032C0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 364D9C0051
  for <virtualization@lists.linux-foundation.org>;
- Mon, 31 Aug 2020 17:25:25 +0000 (UTC)
+ Mon, 31 Aug 2020 17:29:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 009C7853E3
+ by whitealder.osuosl.org (Postfix) with ESMTP id 25147853E3
  for <virtualization@lists.linux-foundation.org>;
- Mon, 31 Aug 2020 17:25:25 +0000 (UTC)
+ Mon, 31 Aug 2020 17:29:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id M9IuJndm6nJ7
+ with ESMTP id Fk9NC7jt-K9C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 31 Aug 2020 17:25:24 +0000 (UTC)
+ Mon, 31 Aug 2020 17:29:38 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from mail.skyhub.de (mail.skyhub.de [5.9.137.197])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 6468B8507B
+ by whitealder.osuosl.org (Postfix) with ESMTPS id D84C9848A9
  for <virtualization@lists.linux-foundation.org>;
- Mon, 31 Aug 2020 17:25:24 +0000 (UTC)
+ Mon, 31 Aug 2020 17:29:37 +0000 (UTC)
 Received: from zn.tnic (p200300ec2f085000329c23fffea6a903.dip0.t-ipconnect.de
  [IPv6:2003:ec:2f08:5000:329c:23ff:fea6:a903])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id B10141EC0428;
- Mon, 31 Aug 2020 19:25:22 +0200 (CEST)
+ by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 4D07B1EC046E;
+ Mon, 31 Aug 2020 19:29:36 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
- t=1598894722;
+ t=1598894976;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
- bh=55N3m19xFX+WeTO1FbLrZJGhHueve9LBb3xbHqo4WZc=;
- b=KKOc6D3lpnJoODJ4KbKeLr28wdnjbr7+fuvuUwJFH3E1UBaA9FaDiFbEBYxtFN6cvGCm+R
- FuSByUuFImwEoa9FnyY60HLjv3klMPCT+V7r1V+IretyrkuZfTUATjBpn2jIqUjwG4iJmH
- ebRA+zcZsrYhOplPjtq9nsOHjKNQP5k=
-Date: Mon, 31 Aug 2020 19:25:19 +0200
+ bh=O+3kGo9AcF/oQlR2tC8jA9namYjaga9k9yudwhiCdVM=;
+ b=ElyeizVP/gBBpMUDymDy6CopTQOFNofQEJLEKvHVg4Q5dCwCu2XHKbCs1/DtSTkEc3WVzI
+ Az6tEuTeHKezXKztzXk6SN0j+1k1K60M8VItZXESp9Y+I0yC1lv4Sp1jSHJUNksIkEj3El
+ pD+kbT5hnIRkGoCVZni2rs5BoVzKsF0=
+Date: Mon, 31 Aug 2020 19:29:37 +0200
 From: Borislav Petkov <bp@alien8.de>
 To: Joerg Roedel <joro@8bytes.org>
-Subject: Re: [PATCH v6 70/76] x86/smpboot: Setup TSS for starting AP
-Message-ID: <20200831172519.GL27517@zn.tnic>
+Subject: Re: [PATCH v6 72/76] x86/head/64: Rename start_cpu0
+Message-ID: <20200831172937.GM27517@zn.tnic>
 References: <20200824085511.7553-1-joro@8bytes.org>
- <20200824085511.7553-71-joro@8bytes.org>
+ <20200824085511.7553-73-joro@8bytes.org>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20200824085511.7553-71-joro@8bytes.org>
+In-Reply-To: <20200824085511.7553-73-joro@8bytes.org>
 Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>,
- Dave Hansen <dave.hansen@linux.intel.com>, Mike Stunes <mstunes@vmware.com>,
+ x86@kernel.org, Mike Stunes <mstunes@vmware.com>,
  Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org,
  Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>,
- x86@kernel.org, linux-kernel@vger.kernel.org,
+ Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org,
  Sean Christopherson <sean.j.christopherson@intel.com>,
  virtualization@lists.linux-foundation.org,
  Martin Radev <martin.b.radev@gmail.com>, Joerg Roedel <jroedel@suse.de>,
@@ -103,32 +103,15 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Aug 24, 2020 at 10:55:05AM +0200, Joerg Roedel wrote:
-> @@ -1814,27 +1814,26 @@ static inline void ucode_cpu_init(int cpu)
->  		load_ucode_ap();
->  }
->  
-> -static inline void tss_setup_ist(struct tss_struct *tss)
-> +static inline void tss_setup_ist(struct tss_struct *tss,
-> +				 struct cpu_entry_area *cea)
->  {
->  	/* Set up the per-CPU TSS IST stacks */
-> -	tss->x86_tss.ist[IST_INDEX_DF] = __this_cpu_ist_top_va(DF);
-> -	tss->x86_tss.ist[IST_INDEX_NMI] = __this_cpu_ist_top_va(NMI);
-> -	tss->x86_tss.ist[IST_INDEX_DB] = __this_cpu_ist_top_va(DB);
-> -	tss->x86_tss.ist[IST_INDEX_MCE] = __this_cpu_ist_top_va(MCE);
-> +	tss->x86_tss.ist[IST_INDEX_DF]  = CEA_ESTACK_TOP(&cea->estacks, DF);
-> +	tss->x86_tss.ist[IST_INDEX_NMI] = CEA_ESTACK_TOP(&cea->estacks, NMI);
-> +	tss->x86_tss.ist[IST_INDEX_DB]  = CEA_ESTACK_TOP(&cea->estacks, DB);
-> +	tss->x86_tss.ist[IST_INDEX_MCE] = CEA_ESTACK_TOP(&cea->estacks, MCE);
+On Mon, Aug 24, 2020 at 10:55:07AM +0200, Joerg Roedel wrote:
+> From: Joerg Roedel <jroedel@suse.de>
+> 
+> For SEV-ES this entry point will be used for restarting APs after they
+> have been offlined. Remove the '0' from the name to reflect that.
 
-#ifdef CONFIG_AMD_MEM_ENCRYPT
-
->  	/* Only mapped when SEV-ES is active */
-> -	tss->x86_tss.ist[IST_INDEX_VC] = __this_cpu_ist_top_va(VC);
-> +	tss->x86_tss.ist[IST_INDEX_VC]	= CEA_ESTACK_TOP(&cea->estacks, VC);
-
-#endif
+Sure but only for SEV-ES guests and your change is unconditional. I
+think you can drop this patch - it doesn't really matter what the
+function is called.
 
 -- 
 Regards/Gruss,
