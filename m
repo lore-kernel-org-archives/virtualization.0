@@ -2,111 +2,78 @@ Return-Path: <SRS0=JuYR=CK=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E81A7C433E2
-	for <virtualization@archiver.kernel.org>; Tue,  1 Sep 2020 11:14:48 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2C7BC433E6
+	for <virtualization@archiver.kernel.org>; Tue,  1 Sep 2020 12:10:05 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A1770214D8
-	for <virtualization@archiver.kernel.org>; Tue,  1 Sep 2020 11:14:48 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eflOJVhF"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A1770214D8
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id BA32B206EF
+	for <virtualization@archiver.kernel.org>; Tue,  1 Sep 2020 12:10:05 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BA32B206EF
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 5FC92869F0;
-	Tue,  1 Sep 2020 11:14:48 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 93CA48709C;
+	Tue,  1 Sep 2020 12:10:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id zK2nDIVf0NsO; Tue,  1 Sep 2020 11:14:47 +0000 (UTC)
+	with ESMTP id 8AhrL3ujQdoB; Tue,  1 Sep 2020 12:10:04 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 8AB8286957;
-	Tue,  1 Sep 2020 11:14:47 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id B84AC8708F;
+	Tue,  1 Sep 2020 12:10:04 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 701D4C07FF;
-	Tue,  1 Sep 2020 11:14:47 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 79BDBC0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8EB56C0052;
+	Tue,  1 Sep 2020 12:10:04 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1CD9AC0051
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Sep 2020 11:14:46 +0000 (UTC)
+ Tue,  1 Sep 2020 12:10:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 680AB86148
+ by silver.osuosl.org (Postfix) with ESMTP id 0C46620427
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Sep 2020 11:14:46 +0000 (UTC)
+ Tue,  1 Sep 2020 12:10:03 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JPomd7vcAm50
+ with ESMTP id i2TRq9PdKwGG
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Sep 2020 11:14:43 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-1.mimecast.com (us-smtp-delivery-1.mimecast.com
- [207.211.31.120])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 8057286119
+ Tue,  1 Sep 2020 12:10:01 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
+Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
+ by silver.osuosl.org (Postfix) with ESMTPS id 47838203CE
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Sep 2020 11:14:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1598958882;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=STUtmyXZIT8KzVqJU5XU2kgQYureljA3Ku1GnLyYimw=;
- b=eflOJVhF4wU+cFqUufWQbmr0ly5UkDL027i6zHChfvAQluBtOVBB4t57Etw0iwiwLuknIz
- C6FLshb30wE32PSSs983xOx0tIM6rykIBvq30gSH9SFKbVc3QUbXjr9TdjJVwszXqM9Emt
- w5CIgpqc5ub7CF0uOXucpuBdge+yn2I=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-483-zaz7e_rwMfiUPBFTgDmOgQ-1; Tue, 01 Sep 2020 07:14:40 -0400
-X-MC-Unique: zaz7e_rwMfiUPBFTgDmOgQ-1
-Received: by mail-wm1-f69.google.com with SMTP id b73so280479wmb.0
- for <virtualization@lists.linux-foundation.org>;
- Tue, 01 Sep 2020 04:14:40 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=STUtmyXZIT8KzVqJU5XU2kgQYureljA3Ku1GnLyYimw=;
- b=lXmp4O7K07eU5qN0n03xQo/QBq4ggpsIXwiItS8qDXTNAG3/Mtqbw9x1sS9oWP+N+v
- 704b7T+H5TGCrZkB10UHvTHfpVj9Kca9HztLsahKnUnbNZr2elyKFuO/CYlFBtmsHEPc
- 14uCGwyl2CVn06qPk3S8D7AKzaFp06MeVY+HGjYOj/VOgT1RGN01zJ8MPW8e6zPbQJyt
- If1SXzPNsOAJ4TvpGmInHfE7klO3upynEdJf8oZ0bs+4YGiFXXmJvc59GtHxBUiuHyjC
- pNvbE4VKmD+FJ1qZ6KBjDXSaFNsPbdWc3rMvmXgJM+reae89lTVo6eR9Yjg9DDKF8DAy
- 7jug==
-X-Gm-Message-State: AOAM532BXGVcn3VOb0P9uIb42erpGE+1eAZGeMsis3Z3uMH6PE6QfRXy
- itwAboHxuS6HSWZ2euEugeBEY/hbNUhUmDfT4n8YYrZDIn1BB1bKHc64iOZBwbbNsembSG4kZUR
- EzUY1MQfyXBd0sw4LAsjucwvY+HoATHBuq2VsVEc1DA==
-X-Received: by 2002:a7b:c925:: with SMTP id h5mr1261019wml.28.1598958879546;
- Tue, 01 Sep 2020 04:14:39 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJyhiep0HYoVEPjzoTxNmrDMLvfem8Qoq1Zugr1LpbcVQJKpBDMnkFnDG0mj5yp0i4zCh7HKeg==
-X-Received: by 2002:a7b:c925:: with SMTP id h5mr1261007wml.28.1598958879391;
- Tue, 01 Sep 2020 04:14:39 -0700 (PDT)
-Received: from redhat.com (bzq-79-181-14-13.red.bezeqint.net. [79.181.14.13])
- by smtp.gmail.com with ESMTPSA id
- d18sm1614949wrm.10.2020.09.01.04.14.37
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 01 Sep 2020 04:14:38 -0700 (PDT)
-Date: Tue, 1 Sep 2020 07:14:35 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Yunsheng Lin <linyunsheng@huawei.com>
-Subject: Re: [PATCH net-next] vhost: fix typo in error message
-Message-ID: <20200901071400-mutt-send-email-mst@kernel.org>
-References: <1598927949-201997-1-git-send-email-linyunsheng@huawei.com>
+ Tue,  1 Sep 2020 12:10:01 +0000 (UTC)
+Received: by theia.8bytes.org (Postfix, from userid 1000)
+ id 8132A391; Tue,  1 Sep 2020 14:09:57 +0200 (CEST)
+Date: Tue, 1 Sep 2020 14:09:56 +0200
+From: Joerg Roedel <joro@8bytes.org>
+To: Borislav Petkov <bp@alien8.de>
+Subject: Re: [PATCH v6 31/76] x86/head/64: Setup MSR_GS_BASE before calling
+ into C code
+Message-ID: <20200901120956.GA22385@8bytes.org>
+References: <20200824085511.7553-1-joro@8bytes.org>
+ <20200824085511.7553-32-joro@8bytes.org>
+ <20200828181346.GB19342@zn.tnic>
 MIME-Version: 1.0
-In-Reply-To: <1598927949-201997-1-git-send-email-linyunsheng@huawei.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0.002
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linuxarm@huawei.com,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
+In-Reply-To: <20200828181346.GB19342@zn.tnic>
+Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>,
+ x86@kernel.org, Mike Stunes <mstunes@vmware.com>,
+ Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org,
+ Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org,
+ Sean Christopherson <sean.j.christopherson@intel.com>,
+ virtualization@lists.linux-foundation.org,
+ Martin Radev <martin.b.radev@gmail.com>, Joerg Roedel <jroedel@suse.de>,
+ Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>,
+ hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>,
+ David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>,
+ Jiri Slaby <jslaby@suse.cz>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,36 +90,24 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Sep 01, 2020 at 10:39:09AM +0800, Yunsheng Lin wrote:
-> "enable" should be "disable" when the function name is
-> vhost_disable_notify(), which does the disabling work.
+On Fri, Aug 28, 2020 at 08:13:46PM +0200, Borislav Petkov wrote:
+> On Mon, Aug 24, 2020 at 10:54:26AM +0200, Joerg Roedel wrote:
+> > +	movl	$MSR_GS_BASE,%ecx
 > 
-> Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-Why net-next though? It's a bugfix, can go into net.
-
-
-> ---
->  drivers/vhost/vhost.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> I'm confused: is this missing those three lines:
 > 
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 5857d4e..b45519c 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -2537,7 +2537,7 @@ void vhost_disable_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
->  	if (!vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX)) {
->  		r = vhost_update_used_flags(vq);
->  		if (r)
-> -			vq_err(vq, "Failed to enable notification at %p: %d\n",
-> +			vq_err(vq, "Failed to disable notification at %p: %d\n",
->  			       &vq->used->flags, r);
->  	}
->  }
-> -- 
-> 2.8.1
+>         movl    initial_gs(%rip),%eax
+>         movl    initial_gs+4(%rip),%edx
+>         wrmsr
+> 
+> as it is done in secondary_startup_64 ?
+
+No, it is a leftover from before I moved the MSR write into
+startup_64_setup_env(). I removed it, thanks for catching this.
+
+Regards,
+
+	Joerg
 
 _______________________________________________
 Virtualization mailing list
