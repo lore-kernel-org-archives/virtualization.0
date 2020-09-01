@@ -3,70 +3,69 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
 X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2C7BC433E6
-	for <virtualization@archiver.kernel.org>; Tue,  1 Sep 2020 12:10:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 799EBC433E2
+	for <virtualization@archiver.kernel.org>; Tue,  1 Sep 2020 12:13:59 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id BA32B206EF
-	for <virtualization@archiver.kernel.org>; Tue,  1 Sep 2020 12:10:05 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BA32B206EF
+	by mail.kernel.org (Postfix) with ESMTPS id 47724206EB
+	for <virtualization@archiver.kernel.org>; Tue,  1 Sep 2020 12:13:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 47724206EB
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 93CA48709C;
-	Tue,  1 Sep 2020 12:10:05 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 2464A870A8;
+	Tue,  1 Sep 2020 12:13:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8AhrL3ujQdoB; Tue,  1 Sep 2020 12:10:04 +0000 (UTC)
+	with ESMTP id qTGuDBYDALhY; Tue,  1 Sep 2020 12:13:58 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id B84AC8708F;
-	Tue,  1 Sep 2020 12:10:04 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 75CC187066;
+	Tue,  1 Sep 2020 12:13:58 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8EB56C0052;
-	Tue,  1 Sep 2020 12:10:04 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1CD9AC0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5F30BC0052;
+	Tue,  1 Sep 2020 12:13:58 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 842B9C0051
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Sep 2020 12:10:03 +0000 (UTC)
+ Tue,  1 Sep 2020 12:13:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 0C46620427
+ by whitealder.osuosl.org (Postfix) with ESMTP id 70F7086BEA
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Sep 2020 12:10:03 +0000 (UTC)
+ Tue,  1 Sep 2020 12:13:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id i2TRq9PdKwGG
+ with ESMTP id PPcYIeE1I8xj
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Sep 2020 12:10:01 +0000 (UTC)
+ Tue,  1 Sep 2020 12:13:55 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by silver.osuosl.org (Postfix) with ESMTPS id 47838203CE
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 2FE4484FC0
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Sep 2020 12:10:01 +0000 (UTC)
+ Tue,  1 Sep 2020 12:13:55 +0000 (UTC)
 Received: by theia.8bytes.org (Postfix, from userid 1000)
- id 8132A391; Tue,  1 Sep 2020 14:09:57 +0200 (CEST)
-Date: Tue, 1 Sep 2020 14:09:56 +0200
+ id AB1D6391; Tue,  1 Sep 2020 14:13:52 +0200 (CEST)
+Date: Tue, 1 Sep 2020 14:13:51 +0200
 From: Joerg Roedel <joro@8bytes.org>
 To: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH v6 31/76] x86/head/64: Setup MSR_GS_BASE before calling
- into C code
-Message-ID: <20200901120956.GA22385@8bytes.org>
+Subject: Re: [PATCH v6 36/76] x86/head/64: Load IDT earlier
+Message-ID: <20200901121351.GB22385@8bytes.org>
 References: <20200824085511.7553-1-joro@8bytes.org>
- <20200824085511.7553-32-joro@8bytes.org>
- <20200828181346.GB19342@zn.tnic>
+ <20200824085511.7553-37-joro@8bytes.org>
+ <20200829102405.GA29091@zn.tnic>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20200828181346.GB19342@zn.tnic>
+In-Reply-To: <20200829102405.GA29091@zn.tnic>
 Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>,
- x86@kernel.org, Mike Stunes <mstunes@vmware.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, Mike Stunes <mstunes@vmware.com>,
  Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org,
  Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>,
- Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org,
+ x86@kernel.org, linux-kernel@vger.kernel.org,
  Sean Christopherson <sean.j.christopherson@intel.com>,
  virtualization@lists.linux-foundation.org,
  Martin Radev <martin.b.radev@gmail.com>, Joerg Roedel <jroedel@suse.de>,
@@ -90,25 +89,31 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Aug 28, 2020 at 08:13:46PM +0200, Borislav Petkov wrote:
-> On Mon, Aug 24, 2020 at 10:54:26AM +0200, Joerg Roedel wrote:
-> > +	movl	$MSR_GS_BASE,%ecx
+On Sat, Aug 29, 2020 at 12:24:05PM +0200, Borislav Petkov wrote:
+> On Mon, Aug 24, 2020 at 10:54:31AM +0200, Joerg Roedel wrote:
+> > @@ -385,3 +386,25 @@ void __init alloc_intr_gate(unsigned int n, const void *addr)
+> >  	if (!WARN_ON(test_and_set_bit(n, system_vectors)))
+> >  		set_intr_gate(n, addr);
+> >  }
+> > +
+> > +void __init early_idt_setup_early_handler(unsigned long physaddr)
 > 
-> I'm confused: is this missing those three lines:
+> I wonder if you could drop one of the "early"es:
 > 
->         movl    initial_gs(%rip),%eax
->         movl    initial_gs+4(%rip),%edx
->         wrmsr
+> idt_setup_early_handler()
 > 
-> as it is done in secondary_startup_64 ?
+> for example looks ok to me. Or
+> 
+> early_setup_idt_handler()
+> 
+> if you wanna have "early" as prefix...
 
-No, it is a leftover from before I moved the MSR write into
-startup_64_setup_env(). I removed it, thanks for catching this.
+Yeah, makes sense. I settled with the second version.
 
-Regards,
+
+Thanks,
 
 	Joerg
-
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
