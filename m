@@ -4,106 +4,109 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 343DBC433E2
-	for <virtualization@archiver.kernel.org>; Tue,  1 Sep 2020 10:20:16 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E81A7C433E2
+	for <virtualization@archiver.kernel.org>; Tue,  1 Sep 2020 11:14:48 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E0355206FA
-	for <virtualization@archiver.kernel.org>; Tue,  1 Sep 2020 10:20:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id A1770214D8
+	for <virtualization@archiver.kernel.org>; Tue,  1 Sep 2020 11:14:48 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b="XFND8mCw"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E0355206FA
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eflOJVhF"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A1770214D8
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 803AA86BF2;
-	Tue,  1 Sep 2020 10:20:15 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 5FC92869F0;
+	Tue,  1 Sep 2020 11:14:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id dSxRtmQILdf2; Tue,  1 Sep 2020 10:20:14 +0000 (UTC)
+	with ESMTP id zK2nDIVf0NsO; Tue,  1 Sep 2020 11:14:47 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 6A22586BAC;
-	Tue,  1 Sep 2020 10:20:14 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 8AB8286957;
+	Tue,  1 Sep 2020 11:14:47 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5DE1EC088B;
-	Tue,  1 Sep 2020 10:20:14 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 701D4C07FF;
+	Tue,  1 Sep 2020 11:14:47 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CBC59C0052
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 79BDBC0051
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Sep 2020 10:20:12 +0000 (UTC)
+ Tue,  1 Sep 2020 11:14:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id BAB1185EA5
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 680AB86148
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Sep 2020 10:20:12 +0000 (UTC)
+ Tue,  1 Sep 2020 11:14:46 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id zBa1mT_FGSxk
+ with ESMTP id JPomd7vcAm50
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Sep 2020 10:20:11 +0000 (UTC)
+ Tue,  1 Sep 2020 11:14:43 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-wm1-f67.google.com (mail-wm1-f67.google.com
- [209.85.128.67])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 926A285E25
+Received: from us-smtp-1.mimecast.com (us-smtp-delivery-1.mimecast.com
+ [207.211.31.120])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 8057286119
  for <virtualization@lists.linux-foundation.org>;
- Tue,  1 Sep 2020 10:20:11 +0000 (UTC)
-Received: by mail-wm1-f67.google.com with SMTP id u18so589864wmc.3
+ Tue,  1 Sep 2020 11:14:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1598958882;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=STUtmyXZIT8KzVqJU5XU2kgQYureljA3Ku1GnLyYimw=;
+ b=eflOJVhF4wU+cFqUufWQbmr0ly5UkDL027i6zHChfvAQluBtOVBB4t57Etw0iwiwLuknIz
+ C6FLshb30wE32PSSs983xOx0tIM6rykIBvq30gSH9SFKbVc3QUbXjr9TdjJVwszXqM9Emt
+ w5CIgpqc5ub7CF0uOXucpuBdge+yn2I=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-483-zaz7e_rwMfiUPBFTgDmOgQ-1; Tue, 01 Sep 2020 07:14:40 -0400
+X-MC-Unique: zaz7e_rwMfiUPBFTgDmOgQ-1
+Received: by mail-wm1-f69.google.com with SMTP id b73so280479wmb.0
  for <virtualization@lists.linux-foundation.org>;
- Tue, 01 Sep 2020 03:20:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ffwll.ch; s=google;
- h=date:from:to:cc:subject:message-id:mail-followup-to:references
- :mime-version:content-disposition:in-reply-to;
- bh=3GIpy2hsxgFsBlpT+dsHbTbTluNWsmd1rZYjI09Uxc8=;
- b=XFND8mCwVNeeDtS+fg/HptRv9VEH756A1a+vj+5/P2wZZxyQEM2/bjCp/FcbmjsIPk
- r64cPgQLvDI8oXcy561SiPfA8aV7kY+UBcCu0AQ8GiBSuWvXWuc3bEsCZpZl1y0NbLne
- 1C+QAYiqTPu98hOOlMgeWNFespOaXxl3tzfzg=
+ Tue, 01 Sep 2020 04:14:40 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id
- :mail-followup-to:references:mime-version:content-disposition
- :in-reply-to;
- bh=3GIpy2hsxgFsBlpT+dsHbTbTluNWsmd1rZYjI09Uxc8=;
- b=Vofk5gKFuSjl21+za8i5PZl5dsAIBk24QwhWNBQa8gKUCz+Of0xkrPeVKWhjSCv+Wg
- lklEpmbI77Hx+Nf0C1BBL/AQ4eQgf5nHuw5tKQlykt07AQ33sm5jXN1QN428LO6+XOyH
- GBbq0EeFsKfs5k0E+P2Gqz1PbjanEDFZGhaltBIlv8y2b+MNZ0yJzNPj2yvE4RY94rZX
- 5yNZRcxW3Fzo8Ye8L+UVO130md3kxuPfK9CPJPTGPY5NV7/+v3GGYRiS1syJr/daBqzK
- NPSP5DoOI/6eAPl3dX0F6GOUqBiHrYBmx3mpk+h7lgIXjTfDin/kvTi+pcQ7/bDc4Hqb
- YDFw==
-X-Gm-Message-State: AOAM531cq/4JYlb/f9LLnQK0FvAx9ApbqkJhS1R4dfjLUYpUJRFvXj78
- sXHcgoKePlTnteuWXiL+/Fu+Rw==
-X-Google-Smtp-Source: ABdhPJy0gJSV+RL3QsNU+fR8THpAo9rjW3MvBEvOVXFmBzuJReNfV54lLhSlHCW2A7mUll0ZBu5M0g==
-X-Received: by 2002:a1c:f207:: with SMTP id s7mr1096430wmc.22.1598955609706;
- Tue, 01 Sep 2020 03:20:09 -0700 (PDT)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
- by smtp.gmail.com with ESMTPSA id m3sm800807wmb.26.2020.09.01.03.20.08
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=STUtmyXZIT8KzVqJU5XU2kgQYureljA3Ku1GnLyYimw=;
+ b=lXmp4O7K07eU5qN0n03xQo/QBq4ggpsIXwiItS8qDXTNAG3/Mtqbw9x1sS9oWP+N+v
+ 704b7T+H5TGCrZkB10UHvTHfpVj9Kca9HztLsahKnUnbNZr2elyKFuO/CYlFBtmsHEPc
+ 14uCGwyl2CVn06qPk3S8D7AKzaFp06MeVY+HGjYOj/VOgT1RGN01zJ8MPW8e6zPbQJyt
+ If1SXzPNsOAJ4TvpGmInHfE7klO3upynEdJf8oZ0bs+4YGiFXXmJvc59GtHxBUiuHyjC
+ pNvbE4VKmD+FJ1qZ6KBjDXSaFNsPbdWc3rMvmXgJM+reae89lTVo6eR9Yjg9DDKF8DAy
+ 7jug==
+X-Gm-Message-State: AOAM532BXGVcn3VOb0P9uIb42erpGE+1eAZGeMsis3Z3uMH6PE6QfRXy
+ itwAboHxuS6HSWZ2euEugeBEY/hbNUhUmDfT4n8YYrZDIn1BB1bKHc64iOZBwbbNsembSG4kZUR
+ EzUY1MQfyXBd0sw4LAsjucwvY+HoATHBuq2VsVEc1DA==
+X-Received: by 2002:a7b:c925:: with SMTP id h5mr1261019wml.28.1598958879546;
+ Tue, 01 Sep 2020 04:14:39 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyhiep0HYoVEPjzoTxNmrDMLvfem8Qoq1Zugr1LpbcVQJKpBDMnkFnDG0mj5yp0i4zCh7HKeg==
+X-Received: by 2002:a7b:c925:: with SMTP id h5mr1261007wml.28.1598958879391;
+ Tue, 01 Sep 2020 04:14:39 -0700 (PDT)
+Received: from redhat.com (bzq-79-181-14-13.red.bezeqint.net. [79.181.14.13])
+ by smtp.gmail.com with ESMTPSA id
+ d18sm1614949wrm.10.2020.09.01.04.14.37
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 01 Sep 2020 03:20:08 -0700 (PDT)
-Date: Tue, 1 Sep 2020 12:20:06 +0200
-From: Daniel Vetter <daniel@ffwll.ch>
-To: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH 1/2] drm/virtio: fix unblank
-Message-ID: <20200901102006.GZ2352366@phenom.ffwll.local>
-Mail-Followup-To: Gerd Hoffmann <kraxel@redhat.com>,
- dri-devel@lists.freedesktop.org, 1882851@bugs.launchpad.net,
- David Airlie <airlied@linux.ie>, Chia-I Wu <olvaffe@gmail.com>,
- "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>,
- open list <linux-kernel@vger.kernel.org>
-References: <20200818072511.6745-1-kraxel@redhat.com>
- <20200818072511.6745-2-kraxel@redhat.com>
+ Tue, 01 Sep 2020 04:14:38 -0700 (PDT)
+Date: Tue, 1 Sep 2020 07:14:35 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Yunsheng Lin <linyunsheng@huawei.com>
+Subject: Re: [PATCH net-next] vhost: fix typo in error message
+Message-ID: <20200901071400-mutt-send-email-mst@kernel.org>
+References: <1598927949-201997-1-git-send-email-linyunsheng@huawei.com>
 MIME-Version: 1.0
+In-Reply-To: <1598927949-201997-1-git-send-email-linyunsheng@huawei.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0.002
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <20200818072511.6745-2-kraxel@redhat.com>
-X-Operating-System: Linux phenom 5.7.0-1-amd64 
-Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>,
- dri-devel@lists.freedesktop.org,
- "open list:VIRTIO GPU DRIVER" <virtualization@lists.linux-foundation.org>,
- Daniel Vetter <daniel@ffwll.ch>, Chia-I Wu <olvaffe@gmail.com>,
- 1882851@bugs.launchpad.net
+Cc: kvm@vger.kernel.org, netdev@vger.kernel.org, linuxarm@huawei.com,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -120,92 +123,37 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Aug 18, 2020 at 09:25:10AM +0200, Gerd Hoffmann wrote:
-> When going through a disable/enable cycle without changing the
-> framebuffer the optimization added by commit 3954ff10e06e ("drm/virtio:
-> skip set_scanout if framebuffer didn't change") causes the screen stay
-> blank.  Add a bool to force an update to fix that.
+On Tue, Sep 01, 2020 at 10:39:09AM +0800, Yunsheng Lin wrote:
+> "enable" should be "disable" when the function name is
+> vhost_disable_notify(), which does the disabling work.
 > 
-> v2: use drm_atomic_crtc_needs_modeset() (Daniel).
-> 
-> Cc: 1882851@bugs.launchpad.net
-> Fixes: 3954ff10e06e ("drm/virtio: skip set_scanout if framebuffer didn't change")
-> Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+> Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+Why net-next though? It's a bugfix, can go into net.
+
+
 > ---
->  drivers/gpu/drm/virtio/virtgpu_drv.h     |  1 +
->  drivers/gpu/drm/virtio/virtgpu_display.c | 11 +++++++++++
->  drivers/gpu/drm/virtio/virtgpu_plane.c   |  4 +++-
->  3 files changed, 15 insertions(+), 1 deletion(-)
+>  drivers/vhost/vhost.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> index 9ff9f4ac0522..4ab1b0ba2925 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> @@ -138,6 +138,7 @@ struct virtio_gpu_output {
->  	int cur_x;
->  	int cur_y;
->  	bool enabled;
-> +	bool needs_modeset;
-
-Maybe for a follow-up in -next: The clean atomic way of doing this is to
-put this into a virtio_crtc_state, compute it in atomic_check, and then
-fish it out (through old_state->state lookup, somewhat contrived I know)
-in the commit side. Putting random atomic commit state tracking stuff into
-non-state structures without appropriate amounts of locks is kinda iffy
-and means more work for reviewers pondering whether it all works
-correctly.
-
-Cheers, Daniel
-
-
->  };
->  #define drm_crtc_to_virtio_gpu_output(x) \
->  	container_of(x, struct virtio_gpu_output, crtc)
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_display.c b/drivers/gpu/drm/virtio/virtgpu_display.c
-> index 2c2742b8d657..6c26b41f4e0d 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_display.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_display.c
-> @@ -123,6 +123,17 @@ static int virtio_gpu_crtc_atomic_check(struct drm_crtc *crtc,
->  static void virtio_gpu_crtc_atomic_flush(struct drm_crtc *crtc,
->  					 struct drm_crtc_state *old_state)
->  {
-> +	struct virtio_gpu_output *output = drm_crtc_to_virtio_gpu_output(crtc);
-> +
-> +	/*
-> +	 * virtio-gpu can't do modeset and plane update operations
-> +	 * independant from each other.  So the actual modeset happens
-> +	 * in the plane update callback, and here we just check
-> +	 * whenever we must force the modeset.
-> +	 */
-> +	if (drm_atomic_crtc_needs_modeset(crtc->state)) {
-> +		output->needs_modeset = true;
-> +	}
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 5857d4e..b45519c 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -2537,7 +2537,7 @@ void vhost_disable_notify(struct vhost_dev *dev, struct vhost_virtqueue *vq)
+>  	if (!vhost_has_feature(vq, VIRTIO_RING_F_EVENT_IDX)) {
+>  		r = vhost_update_used_flags(vq);
+>  		if (r)
+> -			vq_err(vq, "Failed to enable notification at %p: %d\n",
+> +			vq_err(vq, "Failed to disable notification at %p: %d\n",
+>  			       &vq->used->flags, r);
+>  	}
 >  }
->  
->  static const struct drm_crtc_helper_funcs virtio_gpu_crtc_helper_funcs = {
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-> index 52d24179bcec..65757409d9ed 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-> @@ -163,7 +163,9 @@ static void virtio_gpu_primary_plane_update(struct drm_plane *plane,
->  	    plane->state->src_w != old_state->src_w ||
->  	    plane->state->src_h != old_state->src_h ||
->  	    plane->state->src_x != old_state->src_x ||
-> -	    plane->state->src_y != old_state->src_y) {
-> +	    plane->state->src_y != old_state->src_y ||
-> +	    output->needs_modeset) {
-> +		output->needs_modeset = false;
->  		DRM_DEBUG("handle 0x%x, crtc %dx%d+%d+%d, src %dx%d+%d+%d\n",
->  			  bo->hw_res_handle,
->  			  plane->state->crtc_w, plane->state->crtc_h,
 > -- 
-> 2.18.4
-> 
+> 2.8.1
 
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
