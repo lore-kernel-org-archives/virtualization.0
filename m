@@ -1,92 +1,94 @@
-Return-Path: <SRS0=Psgj=CJ=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=JuYR=CK=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.4 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CD2DAC433E6
-	for <virtualization@archiver.kernel.org>; Mon, 31 Aug 2020 17:30:31 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8947EC433E6
+	for <virtualization@archiver.kernel.org>; Tue,  1 Sep 2020 03:07:15 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9F42D2071B
-	for <virtualization@archiver.kernel.org>; Mon, 31 Aug 2020 17:30:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 5379F2073A
+	for <virtualization@archiver.kernel.org>; Tue,  1 Sep 2020 03:07:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=alien8.de header.i=@alien8.de header.b="SOAc1nvr"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9F42D2071B
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=alien8.de
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YHptFupO"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5379F2073A
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 04F9827236;
-	Mon, 31 Aug 2020 17:30:31 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 223F386FC5;
+	Tue,  1 Sep 2020 03:07:15 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8k5MsRYPkiH0; Mon, 31 Aug 2020 17:30:28 +0000 (UTC)
+	with ESMTP id lf6BXUaMBVix; Tue,  1 Sep 2020 03:07:13 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 53A0B21FA8;
-	Mon, 31 Aug 2020 17:30:28 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id C891D86F95;
+	Tue,  1 Sep 2020 03:07:13 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3CB7FC0052;
-	Mon, 31 Aug 2020 17:30:28 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AF692C0052;
+	Tue,  1 Sep 2020 03:07:13 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 584BFC0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BF016C0051
  for <virtualization@lists.linux-foundation.org>;
- Mon, 31 Aug 2020 17:30:26 +0000 (UTC)
+ Tue,  1 Sep 2020 03:07:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 46D2886FF2
+ by hemlock.osuosl.org (Postfix) with ESMTP id BB84486F95
  for <virtualization@lists.linux-foundation.org>;
- Mon, 31 Aug 2020 17:30:26 +0000 (UTC)
+ Tue,  1 Sep 2020 03:07:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id g+WfkVSLiVWk
+ with ESMTP id 7O5iG6JrHXUe
  for <virtualization@lists.linux-foundation.org>;
- Mon, 31 Aug 2020 17:30:25 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
-Received: from mail.skyhub.de (mail.skyhub.de [5.9.137.197])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 4777886FF0
+ Tue,  1 Sep 2020 03:07:10 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id DD9DA86F92
  for <virtualization@lists.linux-foundation.org>;
- Mon, 31 Aug 2020 17:30:25 +0000 (UTC)
-Received: from zn.tnic (p200300ec2f085000329c23fffea6a903.dip0.t-ipconnect.de
- [IPv6:2003:ec:2f08:5000:329c:23ff:fea6:a903])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id B3FAD1EC046E;
- Mon, 31 Aug 2020 19:30:23 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
- t=1598895023;
+ Tue,  1 Sep 2020 03:07:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1598929628;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
- bh=NdaGU+Hkbaybz0GoT3aHi/t/rgpmP7RP+3/Ipunfh/s=;
- b=SOAc1nvrUv0yGPmWnySfFR0uzO5RbSckRMdNlvPmn1cdv1ZopXZOW0MyVLNbsVS9+SRuF+
- k9HZkAUK1eDERF9CLBEUW8pC9MIKsTgAPgA+HnghQ8Pcc3wvNuGXCQ/ik4+hD7oRG1a9nF
- sKuNteWGs2emV5F6vs97T6ZZj0FlPi4=
-Date: Mon, 31 Aug 2020 19:30:24 +0200
-From: Borislav Petkov <bp@alien8.de>
-To: Joerg Roedel <joro@8bytes.org>
-Subject: Re: [PATCH v6 48/76] x86/entry/64: Add entry code for #VC handler
-Message-ID: <20200831173024.GN27517@zn.tnic>
-References: <20200824085511.7553-1-joro@8bytes.org>
- <20200824085511.7553-49-joro@8bytes.org>
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=NiMSZ2Bp0rwp10xCJBRx9TIWLthoqJ/GxVfGBmzS4Dk=;
+ b=YHptFupOLGc7iYhOHOb6+kywhm8QS3EWM9PJytBXzethlOQnH+0tU0LO0V6MRXL54tiZJv
+ Z/RVT60Nof2H3f7t8//Ja0k1qn+cJ/AulIle86V8LsJPi+mrJP3henJcFdqE8xlzgy2o2t
+ XNo97GGLExPvpFRV38wMUG2H2si2qTM=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-205-G9NcSATZMni7qWSgOVtv-A-1; Mon, 31 Aug 2020 23:07:04 -0400
+X-MC-Unique: G9NcSATZMni7qWSgOVtv-A-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
+ [10.5.11.13])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id EE84C1888A1E;
+ Tue,  1 Sep 2020 03:07:02 +0000 (UTC)
+Received: from [10.72.13.164] (ovpn-13-164.pek2.redhat.com [10.72.13.164])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id B891A7EB8A;
+ Tue,  1 Sep 2020 03:06:57 +0000 (UTC)
+Subject: Re: [PATCH net-next] vhost: fix typo in error message
+To: Yunsheng Lin <linyunsheng@huawei.com>, mst@redhat.com
+References: <1598927949-201997-1-git-send-email-linyunsheng@huawei.com>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <26f844a5-c7de-cb0b-35eb-e6e30425ed35@redhat.com>
+Date: Tue, 1 Sep 2020 11:06:55 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20200824085511.7553-49-joro@8bytes.org>
-Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>,
- Dave Hansen <dave.hansen@linux.intel.com>, Mike Stunes <mstunes@vmware.com>,
- Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org,
- Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>,
- x86@kernel.org, linux-kernel@vger.kernel.org,
- Sean Christopherson <sean.j.christopherson@intel.com>,
- virtualization@lists.linux-foundation.org,
- Martin Radev <martin.b.radev@gmail.com>, Joerg Roedel <jroedel@suse.de>,
- Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>,
- hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>,
- David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>,
- Jiri Slaby <jslaby@suse.cz>
+In-Reply-To: <1598927949-201997-1-git-send-email-linyunsheng@huawei.com>
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+Cc: netdev@vger.kernel.org, linuxarm@huawei.com, linux-kernel@vger.kernel.org,
+ kvm@vger.kernel.org, virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -98,54 +100,27 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Aug 24, 2020 at 10:54:43AM +0200, Joerg Roedel wrote:
-> @@ -674,6 +675,56 @@ asmlinkage __visible noinstr struct pt_regs *sync_regs(struct pt_regs *eregs)
->  	return regs;
->  }
->  
-> +#ifdef CONFIG_AMD_MEM_ENCRYPT
-> +asmlinkage __visible noinstr struct pt_regs *vc_switch_off_ist(struct pt_regs *eregs)
-> +{
-> +	unsigned long sp, *stack;
-> +	struct stack_info info;
-> +	struct pt_regs *regs;
-> +
-> +	/*
-> +	 * In the SYSCALL entry path the RSP value comes from user-space - don't
-> +	 * trust it and switch to the current kernel stack
-> +	 */
-> +	if (eregs->ip >= (unsigned long)entry_SYSCALL_64 &&
-> +	    eregs->ip <  (unsigned long)entry_SYSCALL_64_safe_stack) {
-> +		sp = this_cpu_read(cpu_current_top_of_stack);
-> +		goto sync;
-> +	}
-> +
-> +	/*
-> +	 * From here on the the RSP value is trusted - more RSP sanity checks
-			^^^^^^^
-
-Fished out one valid warning from the confused blabla checkpatch spits out:
-
-WARNING: Possible repeated word: 'the'
-#276: FILE: arch/x86/kernel/traps.c:696:
-+        * From here on the the RSP value is trusted - more RSP sanity checks
-
-IOW, as I tell other submitters:
-
-Please integrate scripts/checkpatch.pl into your patch creation
-workflow. Some of the warnings/errors *actually* make sense.
-
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+Ck9uIDIwMjAvOS8xIOS4iuWNiDEwOjM5LCBZdW5zaGVuZyBMaW4gd3JvdGU6Cj4gImVuYWJsZSIg
+c2hvdWxkIGJlICJkaXNhYmxlIiB3aGVuIHRoZSBmdW5jdGlvbiBuYW1lIGlzCj4gdmhvc3RfZGlz
+YWJsZV9ub3RpZnkoKSwgd2hpY2ggZG9lcyB0aGUgZGlzYWJsaW5nIHdvcmsuCj4KPiBTaWduZWQt
+b2ZmLWJ5OiBZdW5zaGVuZyBMaW4gPGxpbnl1bnNoZW5nQGh1YXdlaS5jb20+Cj4gLS0tCj4gICBk
+cml2ZXJzL3Zob3N0L3Zob3N0LmMgfCAyICstCj4gICAxIGZpbGUgY2hhbmdlZCwgMSBpbnNlcnRp
+b24oKyksIDEgZGVsZXRpb24oLSkKPgo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3Zob3N0L3Zob3N0
+LmMgYi9kcml2ZXJzL3Zob3N0L3Zob3N0LmMKPiBpbmRleCA1ODU3ZDRlLi5iNDU1MTljIDEwMDY0
+NAo+IC0tLSBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYwo+ICsrKyBiL2RyaXZlcnMvdmhvc3Qvdmhv
+c3QuYwo+IEBAIC0yNTM3LDcgKzI1MzcsNyBAQCB2b2lkIHZob3N0X2Rpc2FibGVfbm90aWZ5KHN0
+cnVjdCB2aG9zdF9kZXYgKmRldiwgc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEpCj4gICAJaWYg
+KCF2aG9zdF9oYXNfZmVhdHVyZSh2cSwgVklSVElPX1JJTkdfRl9FVkVOVF9JRFgpKSB7Cj4gICAJ
+CXIgPSB2aG9zdF91cGRhdGVfdXNlZF9mbGFncyh2cSk7Cj4gICAJCWlmIChyKQo+IC0JCQl2cV9l
+cnIodnEsICJGYWlsZWQgdG8gZW5hYmxlIG5vdGlmaWNhdGlvbiBhdCAlcDogJWRcbiIsCj4gKwkJ
+CXZxX2Vycih2cSwgIkZhaWxlZCB0byBkaXNhYmxlIG5vdGlmaWNhdGlvbiBhdCAlcDogJWRcbiIs
+Cj4gICAJCQkgICAgICAgJnZxLT51c2VkLT5mbGFncywgcik7Cj4gICAJfQo+ICAgfQoKCkFja2Vk
+LWJ5OiBKYXNvbiBXYW5nIDxqYXNvd2FuZ0ByZWRoYXQuY29tPgoKCgpfX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxp
+c3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0
+cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
