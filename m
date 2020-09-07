@@ -7,59 +7,59 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 09ACEC2D0E2
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:28:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 26EBCC2D0E1
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:28:02 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B98EC215A4
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:27:59 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B98EC215A4
+	by mail.kernel.org (Postfix) with ESMTPS id D79A62168B
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:28:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D79A62168B
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 3F9C0862C9;
-	Mon,  7 Sep 2020 13:27:59 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 9852286168;
+	Mon,  7 Sep 2020 13:28:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Hp5aklbZpy1s; Mon,  7 Sep 2020 13:27:56 +0000 (UTC)
+	with ESMTP id navJEkIKZ4m6; Mon,  7 Sep 2020 13:28:00 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 4CCEA860C8;
-	Mon,  7 Sep 2020 13:27:53 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 4A5F2861A3;
+	Mon,  7 Sep 2020 13:27:55 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 27476C0895;
-	Mon,  7 Sep 2020 13:27:53 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 42224C0051;
+	Mon,  7 Sep 2020 13:27:55 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D6423C0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3F11FC08A5
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:49 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id BE3AD860C4
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 1E00C86099
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:49 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id gPYXDUj92DjZ
+ with ESMTP id QqEGpdEzMssv
  for <virtualization@lists.linux-foundation.org>;
  Mon,  7 Sep 2020 13:27:47 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 957EA85FD7
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id A3F8D85FE6
  for <virtualization@lists.linux-foundation.org>;
  Mon,  7 Sep 2020 13:27:47 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549add56.dip0.t-ipconnect.de
  [84.154.221.86])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id F1CD33AB0;
- Mon,  7 Sep 2020 15:17:19 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id E514012D3;
+ Mon,  7 Sep 2020 15:17:07 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v7 71/72] x86/efi: Add GHCB mappings when SEV-ES is active
-Date: Mon,  7 Sep 2020 15:16:12 +0200
-Message-Id: <20200907131613.12703-72-joro@8bytes.org>
+Subject: [PATCH v7 50/72] x86/sev-es: Handle MMIO String Instructions
+Date: Mon,  7 Sep 2020 15:15:51 +0200
+Message-Id: <20200907131613.12703-51-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200907131613.12703-1-joro@8bytes.org>
 References: <20200907131613.12703-1-joro@8bytes.org>
@@ -93,122 +93,111 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-Calling down to EFI runtime services can result in the firmware performing
-VMGEXIT calls. The firmware is likely to use the GHCB of the OS (e.g., for
-setting EFI variables), so each GHCB in the system needs to be identity
-mapped in the EFI page tables, as unencrypted, to avoid page faults.
+Add handling for emulation the MOVS instruction on MMIO regions, as done
+by the memcpy_toio() and memcpy_fromio() functions.
 
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-[ jroedel@suse.de: Moved GHCB mapping loop to sev-es.c ]
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/compressed/sev-es.c |  1 +
- arch/x86/include/asm/sev-es.h     |  2 ++
- arch/x86/kernel/sev-es.c          | 30 ++++++++++++++++++++++++++++++
- arch/x86/platform/efi/efi_64.c    | 10 ++++++++++
- 4 files changed, 43 insertions(+)
+ arch/x86/kernel/sev-es.c | 77 ++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 77 insertions(+)
 
-diff --git a/arch/x86/boot/compressed/sev-es.c b/arch/x86/boot/compressed/sev-es.c
-index 45702b866c33..0a9a248ca33d 100644
---- a/arch/x86/boot/compressed/sev-es.c
-+++ b/arch/x86/boot/compressed/sev-es.c
-@@ -12,6 +12,7 @@
-  */
- #include "misc.h"
- 
-+#include <asm/pgtable_types.h>
- #include <asm/sev-es.h>
- #include <asm/trapnr.h>
- #include <asm/trap_pf.h>
-diff --git a/arch/x86/include/asm/sev-es.h b/arch/x86/include/asm/sev-es.h
-index e919f09ae33c..cf1d957c7091 100644
---- a/arch/x86/include/asm/sev-es.h
-+++ b/arch/x86/include/asm/sev-es.h
-@@ -102,11 +102,13 @@ static __always_inline void sev_es_nmi_complete(void)
- 	if (static_branch_unlikely(&sev_es_enable_key))
- 		__sev_es_nmi_complete();
- }
-+extern int __init sev_es_efi_map_ghcbs(pgd_t *pgd);
- #else
- static inline void sev_es_ist_enter(struct pt_regs *regs) { }
- static inline void sev_es_ist_exit(void) { }
- static inline int sev_es_setup_ap_jump_table(struct real_mode_header *rmh) { return 0; }
- static inline void sev_es_nmi_complete(void) { }
-+static inline int sev_es_efi_map_ghcbs(pgd_t *pgd) { return 0; }
- #endif
- 
- #endif
 diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index 9ab3a4dfecd8..4e2b7e4d9b87 100644
+index 62fd0ebf2a67..a79c7fc32bc6 100644
 --- a/arch/x86/kernel/sev-es.c
 +++ b/arch/x86/kernel/sev-es.c
-@@ -491,6 +491,36 @@ int sev_es_setup_ap_jump_table(struct real_mode_header *rmh)
- 	return 0;
+@@ -594,6 +594,73 @@ static enum es_result vc_handle_mmio_twobyte_ops(struct ghcb *ghcb,
+ 	return ret;
  }
  
 +/*
-+ * This is needed by the OVMF UEFI firmware which will use whatever it finds in
-+ * the GHCB MSR as its GHCB to talk to the hypervisor. So make sure the per-cpu
-+ * runtime GHCBs used by the kernel are also mapped in the EFI page-table.
++ * The MOVS instruction has two memory operands, which raises the
++ * problem that it is not known whether the access to the source or the
++ * destination caused the #VC exception (and hence whether an MMIO read
++ * or write operation needs to be emulated).
++ *
++ * Instead of playing games with walking page-tables and trying to guess
++ * whether the source or destination is an MMIO range, split the move
++ * into two operations, a read and a write with only one memory operand.
++ * This will cause a nested #VC exception on the MMIO address which can
++ * then be handled.
++ *
++ * This implementation has the benefit that it also supports MOVS where
++ * source _and_ destination are MMIO regions.
++ *
++ * It will slow MOVS on MMIO down a lot, but in SEV-ES guests it is a
++ * rare operation. If it turns out to be a performance problem the split
++ * operations can be moved to memcpy_fromio() and memcpy_toio().
 + */
-+int __init sev_es_efi_map_ghcbs(pgd_t *pgd)
++static enum es_result vc_handle_mmio_movs(struct es_em_ctxt *ctxt,
++					  unsigned int bytes)
 +{
-+	struct sev_es_runtime_data *data;
-+	unsigned long address, pflags;
-+	int cpu;
-+	u64 pfn;
++	unsigned long ds_base, es_base;
++	unsigned char *src, *dst;
++	unsigned char buffer[8];
++	enum es_result ret;
++	bool rep;
++	int off;
 +
-+	if (!sev_es_active())
-+		return 0;
++	ds_base = insn_get_seg_base(ctxt->regs, INAT_SEG_REG_DS);
++	es_base = insn_get_seg_base(ctxt->regs, INAT_SEG_REG_ES);
 +
-+	pflags = _PAGE_NX | _PAGE_RW;
-+
-+	for_each_possible_cpu(cpu) {
-+		data = per_cpu(runtime_data, cpu);
-+
-+		address = __pa(&data->ghcb_page);
-+		pfn = address >> PAGE_SHIFT;
-+
-+		if (kernel_map_pages_in_pgd(pgd, pfn, address, 1, pflags))
-+			return 1;
++	if (ds_base == -1L || es_base == -1L) {
++		ctxt->fi.vector = X86_TRAP_GP;
++		ctxt->fi.error_code = 0;
++		return ES_EXCEPTION;
 +	}
 +
-+	return 0;
++	src = ds_base + (unsigned char *)ctxt->regs->si;
++	dst = es_base + (unsigned char *)ctxt->regs->di;
++
++	ret = vc_read_mem(ctxt, src, buffer, bytes);
++	if (ret != ES_OK)
++		return ret;
++
++	ret = vc_write_mem(ctxt, dst, buffer, bytes);
++	if (ret != ES_OK)
++		return ret;
++
++	if (ctxt->regs->flags & X86_EFLAGS_DF)
++		off = -bytes;
++	else
++		off =  bytes;
++
++	ctxt->regs->si += off;
++	ctxt->regs->di += off;
++
++	rep = insn_has_rep_prefix(&ctxt->insn);
++	if (rep)
++		ctxt->regs->cx -= 1;
++
++	if (!rep || ctxt->regs->cx == 0)
++		return ES_OK;
++	else
++		return ES_RETRY;
 +}
 +
- static enum es_result vc_handle_msr(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
+ static enum es_result vc_handle_mmio(struct ghcb *ghcb,
+ 				     struct es_em_ctxt *ctxt)
  {
- 	struct pt_regs *regs = ctxt->regs;
-diff --git a/arch/x86/platform/efi/efi_64.c b/arch/x86/platform/efi/efi_64.c
-index 6af4da1149ba..8f5759df7776 100644
---- a/arch/x86/platform/efi/efi_64.c
-+++ b/arch/x86/platform/efi/efi_64.c
-@@ -47,6 +47,7 @@
- #include <asm/realmode.h>
- #include <asm/time.h>
- #include <asm/pgalloc.h>
-+#include <asm/sev-es.h>
+@@ -655,6 +722,16 @@ static enum es_result vc_handle_mmio(struct ghcb *ghcb,
+ 		memcpy(reg_data, ghcb->shared_buffer, bytes);
+ 		break;
  
- /*
-  * We allocate runtime services regions top-down, starting from -4G, i.e.
-@@ -229,6 +230,15 @@ int __init efi_setup_page_tables(unsigned long pa_memmap, unsigned num_pages)
- 		return 1;
- 	}
- 
-+	/*
-+	 * When SEV-ES is active, the GHCB as set by the kernel will be used
-+	 * by firmware. Create a 1:1 unencrypted mapping for each GHCB.
-+	 */
-+	if (sev_es_efi_map_ghcbs(pgd)) {
-+		pr_err("Failed to create 1:1 mapping for the GHCBs!\n");
-+		return 1;
-+	}
++		/* MOVS instruction */
++	case 0xa4:
++		bytes = 1;
++		fallthrough;
++	case 0xa5:
++		if (!bytes)
++			bytes = insn->opnd_bytes;
 +
- 	/*
- 	 * When making calls to the firmware everything needs to be 1:1
- 	 * mapped and addressable with 32-bit pointers. Map the kernel
++		ret = vc_handle_mmio_movs(ctxt, bytes);
++		break;
+ 		/* Two-Byte Opcodes */
+ 	case 0x0f:
+ 		ret = vc_handle_mmio_twobyte_ops(ghcb, ctxt);
 -- 
 2.28.0
 
