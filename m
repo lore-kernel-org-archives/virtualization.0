@@ -7,59 +7,60 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E15CEC43461
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:27:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05929C433E2
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:27:52 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4FD24215A4
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:27:49 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4FD24215A4
+	by mail.kernel.org (Postfix) with ESMTPS id 73A37215A4
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:27:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 73A37215A4
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id ECE9C8600D;
-	Mon,  7 Sep 2020 13:27:48 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 3B529860C6;
+	Mon,  7 Sep 2020 13:27:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id RWOfE37Rfz5s; Mon,  7 Sep 2020 13:27:48 +0000 (UTC)
+	with ESMTP id O_MO1Y1y69Qt; Mon,  7 Sep 2020 13:27:50 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 6A50F85FD6;
-	Mon,  7 Sep 2020 13:27:48 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id D835085FD7;
+	Mon,  7 Sep 2020 13:27:49 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 59750C0891;
-	Mon,  7 Sep 2020 13:27:48 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6E75AC0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A2C7AC08A6;
+	Mon,  7 Sep 2020 13:27:49 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6BB12C0051
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:46 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 5DD9385FD7
+ by silver.osuosl.org (Postfix) with ESMTP id 44CE320522
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  7 Sep 2020 13:27:47 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from silver.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id P3nnwE6YODuL
  for <virtualization@lists.linux-foundation.org>;
  Mon,  7 Sep 2020 13:27:46 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id UcsECKoBZrCE
- for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:45 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id A253F85FD6
+ by silver.osuosl.org (Postfix) with ESMTPS id A5CB920508
  for <virtualization@lists.linux-foundation.org>;
  Mon,  7 Sep 2020 13:27:45 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549add56.dip0.t-ipconnect.de
  [84.154.221.86])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 775FD3AAF;
- Mon,  7 Sep 2020 15:17:19 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 708EA3AA3;
+ Mon,  7 Sep 2020 15:17:15 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v7 70/72] x86/sev-es: Handle NMI State
-Date: Mon,  7 Sep 2020 15:16:11 +0200
-Message-Id: <20200907131613.12703-71-joro@8bytes.org>
+Subject: [PATCH v7 63/72] x86/kvm: Add KVM specific VMMCALL handling under
+ SEV-ES
+Date: Mon,  7 Sep 2020 15:16:04 +0200
+Message-Id: <20200907131613.12703-64-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200907131613.12703-1-joro@8bytes.org>
 References: <20200907131613.12703-1-joro@8bytes.org>
@@ -93,103 +94,74 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-When running under SEV-ES the kernel has to tell the hypervisor when to
-open the NMI window again after an NMI was injected. This is done with
-an NMI-complete message to the hypervisor.
+Implement the callbacks to copy the processor state required by KVM to
+the GHCB.
 
-Add code to the kernels NMI handler to send this message right at the
-beginning of do_nmi(). This always allows nesting NMIs.
-
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+[ jroedel@suse.de: - Split out of a larger patch
+                   - Adapt to different callback functions ]
+Co-developed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/sev-es.h   |  7 +++++++
- arch/x86/include/uapi/asm/svm.h |  1 +
- arch/x86/kernel/nmi.c           |  6 ++++++
- arch/x86/kernel/sev-es.c        | 18 ++++++++++++++++++
- 4 files changed, 32 insertions(+)
+ arch/x86/kernel/kvm.c | 35 +++++++++++++++++++++++++++++------
+ 1 file changed, 29 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/include/asm/sev-es.h b/arch/x86/include/asm/sev-es.h
-index db88e1c3442d..e919f09ae33c 100644
---- a/arch/x86/include/asm/sev-es.h
-+++ b/arch/x86/include/asm/sev-es.h
-@@ -96,10 +96,17 @@ static __always_inline void sev_es_ist_exit(void)
- 		__sev_es_ist_exit();
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index 08320b0b2b27..0f9597275e9c 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -36,6 +36,8 @@
+ #include <asm/hypervisor.h>
+ #include <asm/tlb.h>
+ #include <asm/cpuidle_haltpoll.h>
++#include <asm/ptrace.h>
++#include <asm/svm.h>
+ 
+ DEFINE_STATIC_KEY_FALSE(kvm_async_pf_enabled);
+ 
+@@ -746,13 +748,34 @@ static void __init kvm_init_platform(void)
+ 	x86_platform.apic_post_init = kvm_apic_init;
  }
- extern int sev_es_setup_ap_jump_table(struct real_mode_header *rmh);
-+extern void __sev_es_nmi_complete(void);
-+static __always_inline void sev_es_nmi_complete(void)
+ 
++#if defined(CONFIG_AMD_MEM_ENCRYPT)
++static void kvm_sev_es_hcall_prepare(struct ghcb *ghcb, struct pt_regs *regs)
 +{
-+	if (static_branch_unlikely(&sev_es_enable_key))
-+		__sev_es_nmi_complete();
-+}
- #else
- static inline void sev_es_ist_enter(struct pt_regs *regs) { }
- static inline void sev_es_ist_exit(void) { }
- static inline int sev_es_setup_ap_jump_table(struct real_mode_header *rmh) { return 0; }
-+static inline void sev_es_nmi_complete(void) { }
- #endif
- 
- #endif
-diff --git a/arch/x86/include/uapi/asm/svm.h b/arch/x86/include/uapi/asm/svm.h
-index c1dcf3e114e4..a7a3403645e5 100644
---- a/arch/x86/include/uapi/asm/svm.h
-+++ b/arch/x86/include/uapi/asm/svm.h
-@@ -84,6 +84,7 @@
- /* SEV-ES software-defined VMGEXIT events */
- #define SVM_VMGEXIT_MMIO_READ			0x80000001
- #define SVM_VMGEXIT_MMIO_WRITE			0x80000002
-+#define SVM_VMGEXIT_NMI_COMPLETE		0x80000003
- #define SVM_VMGEXIT_AP_HLT_LOOP			0x80000004
- #define SVM_VMGEXIT_AP_JUMP_TABLE		0x80000005
- #define SVM_VMGEXIT_SET_AP_JUMP_TABLE		0
-diff --git a/arch/x86/kernel/nmi.c b/arch/x86/kernel/nmi.c
-index 5859cec774a4..d961f1b3e251 100644
---- a/arch/x86/kernel/nmi.c
-+++ b/arch/x86/kernel/nmi.c
-@@ -478,6 +478,12 @@ DEFINE_IDTENTRY_RAW(exc_nmi)
- {
- 	bool irq_state;
- 
-+	/*
-+	 * Re-enable NMIs right here when running as an SEV-ES guest. This might
-+	 * cause nested NMIs, but those can be handled safely.
-+	 */
-+	sev_es_nmi_complete();
-+
- 	if (IS_ENABLED(CONFIG_SMP) && arch_cpu_is_offline(smp_processor_id()))
- 		return;
- 
-diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index 0b6c4f46ddfc..9ab3a4dfecd8 100644
---- a/arch/x86/kernel/sev-es.c
-+++ b/arch/x86/kernel/sev-es.c
-@@ -408,6 +408,24 @@ static bool vc_slow_virt_to_phys(struct ghcb *ghcb, struct es_em_ctxt *ctxt,
- /* Include code shared with pre-decompression boot stage */
- #include "sev-es-shared.c"
- 
-+void __sev_es_nmi_complete(void)
-+{
-+	struct ghcb_state state;
-+	struct ghcb *ghcb;
-+
-+	ghcb = sev_es_get_ghcb(&state);
-+
-+	vc_ghcb_invalidate(ghcb);
-+	ghcb_set_sw_exit_code(ghcb, SVM_VMGEXIT_NMI_COMPLETE);
-+	ghcb_set_sw_exit_info_1(ghcb, 0);
-+	ghcb_set_sw_exit_info_2(ghcb, 0);
-+
-+	sev_es_wr_ghcb_msr(__pa(ghcb));
-+	VMGEXIT();
-+
-+	sev_es_put_ghcb(&state);
++	/* RAX and CPL are already in the GHCB */
++	ghcb_set_rbx(ghcb, regs->bx);
++	ghcb_set_rcx(ghcb, regs->cx);
++	ghcb_set_rdx(ghcb, regs->dx);
++	ghcb_set_rsi(ghcb, regs->si);
 +}
 +
- static u64 get_jump_table_addr(void)
- {
- 	struct ghcb_state state;
++static bool kvm_sev_es_hcall_finish(struct ghcb *ghcb, struct pt_regs *regs)
++{
++	/* No checking of the return state needed */
++	return true;
++}
++#endif
++
+ const __initconst struct hypervisor_x86 x86_hyper_kvm = {
+-	.name			= "KVM",
+-	.detect			= kvm_detect,
+-	.type			= X86_HYPER_KVM,
+-	.init.guest_late_init	= kvm_guest_init,
+-	.init.x2apic_available	= kvm_para_available,
+-	.init.init_platform	= kvm_init_platform,
++	.name				= "KVM",
++	.detect				= kvm_detect,
++	.type				= X86_HYPER_KVM,
++	.init.guest_late_init		= kvm_guest_init,
++	.init.x2apic_available		= kvm_para_available,
++	.init.init_platform		= kvm_init_platform,
++#if defined(CONFIG_AMD_MEM_ENCRYPT)
++	.runtime.sev_es_hcall_prepare	= kvm_sev_es_hcall_prepare,
++	.runtime.sev_es_hcall_finish	= kvm_sev_es_hcall_finish,
++#endif
+ };
+ 
+ static __init int activate_jump_labels(void)
 -- 
 2.28.0
 
