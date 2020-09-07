@@ -4,88 +4,96 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C065C433E2
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 10:44:04 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 596EAC43461
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 10:53:31 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B6A6520738
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 10:44:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id D2545206D4
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 10:53:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="c+5E/3yD"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B6A6520738
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gRGmlq/U"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D2545206D4
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 60A6D859D5;
-	Mon,  7 Sep 2020 10:44:03 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 8388487115;
+	Mon,  7 Sep 2020 10:53:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9yfeJW3ZW4f0; Mon,  7 Sep 2020 10:44:01 +0000 (UTC)
+	with ESMTP id aStG9vVfH9a2; Mon,  7 Sep 2020 10:53:29 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 68A1C84C33;
-	Mon,  7 Sep 2020 10:44:01 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id E535B87103;
+	Mon,  7 Sep 2020 10:53:29 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 57CC9C0052;
-	Mon,  7 Sep 2020 10:44:01 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C6D76C0052;
+	Mon,  7 Sep 2020 10:53:29 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0DF38C0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CE8CBC0051
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 10:44:00 +0000 (UTC)
+ Mon,  7 Sep 2020 10:53:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 03B2C8664B
+ by whitealder.osuosl.org (Postfix) with ESMTP id BEB7384A75
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 10:44:00 +0000 (UTC)
+ Mon,  7 Sep 2020 10:53:28 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 7YXJuvSij1jF
+ with ESMTP id mhrfl3cgM+b4
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 10:43:59 +0000 (UTC)
+ Mon,  7 Sep 2020 10:53:27 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-1.mimecast.com (us-smtp-delivery-1.mimecast.com
- [205.139.110.120])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 337CF86044
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id A71D2847D9
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 10:43:59 +0000 (UTC)
+ Mon,  7 Sep 2020 10:53:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1599475437;
+ s=mimecast20190719; t=1599476006;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding;
- bh=c1vAH2sOnIecyBuC1bgws2niE0JgFrbZ244nIj8c+DU=;
- b=c+5E/3yDO70ZbiPkNa4L/2zeH2iwZBcd7wMROQUnARLBqwCuoRIH1UmMPM9MaCyL6hygbc
- /gKJh82BFaNuxRl/5qRvxwWHSpVbUVADcKZ4Q86TFfCxKrtESJvR0mnPyo1Wvcb10B72Sf
- om54B/+N5s8aC/YlCJ5Iy8E+eQPqFIk=
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=i89UCCXKKan+5I1+ppu2tBoEuwjXgdxp6aLWE1Reto8=;
+ b=gRGmlq/U+L+tQL8KaUbH/3POvcZJWhXQ/z/awG/CusomwnUk/EEMwyoP2il5LlghsR7CYk
+ v8QBBBj6wl2fSSsGO62/JVz26ZeRK30dSyqvwoB86NlnV4k6XJD6EmINA0q4RtjZQpXBk7
+ 5X6hVe7n1AxhyrBSM5Eo210kyiuyIXk=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-404-uykzQjHlNiu2lD-lNSLY4w-1; Mon, 07 Sep 2020 06:43:54 -0400
-X-MC-Unique: uykzQjHlNiu2lD-lNSLY4w-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
- [10.5.11.12])
+ us-mta-109-nUGUxhcHPwyWfgbwno-P9Q-1; Mon, 07 Sep 2020 06:53:24 -0400
+X-MC-Unique: nUGUxhcHPwyWfgbwno-P9Q-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
+ [10.5.11.14])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BA64E1084CA6;
- Mon,  7 Sep 2020 10:43:52 +0000 (UTC)
-Received: from jason-ThinkPad-X1-Carbon-6th.redhat.com
- (ovpn-12-108.pek2.redhat.com [10.72.12.108])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 4BEAA60C0F;
- Mon,  7 Sep 2020 10:43:45 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7DE2D8030BD;
+ Mon,  7 Sep 2020 10:53:23 +0000 (UTC)
+Received: from colo-mx.corp.redhat.com
+ (colo-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.21])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 7677A5D9D2;
+ Mon,  7 Sep 2020 10:53:23 +0000 (UTC)
+Received: from zmail21.collab.prod.int.phx2.redhat.com
+ (zmail21.collab.prod.int.phx2.redhat.com [10.5.83.24])
+ by colo-mx.corp.redhat.com (Postfix) with ESMTP id 5FDCC79A16;
+ Mon,  7 Sep 2020 10:53:23 +0000 (UTC)
+Date: Mon, 7 Sep 2020 06:53:23 -0400 (EDT)
 From: Jason Wang <jasowang@redhat.com>
-To: mst@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org,
- virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Subject: [PATCH] vhost-vdpa: fix backend feature ioctls
-Date: Mon,  7 Sep 2020 18:43:43 +0800
-Message-Id: <20200907104343.31141-1-jasowang@redhat.com>
+To: Eli Cohen <elic@nvidia.com>
+Message-ID: <507166908.16038290.1599476003292.JavaMail.zimbra@redhat.com>
+In-Reply-To: <20200907075136.GA114876@mtl-vdi-166.wap.labs.mlnx>
+References: <20200907075136.GA114876@mtl-vdi-166.wap.labs.mlnx>
+Subject: Re: [PATCH] vdpa/mlx5: Setup driver only if VIRTIO_CONFIG_S_DRIVER_OK
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-Cc: Eli Cohen <elic@nvidia.com>, Zhu Lingshan <lingshan.zhu@intel.com>,
- lulu@redhat.com
+X-Originating-IP: [10.68.5.20, 10.4.195.28]
+Thread-Topic: vdpa/mlx5: Setup driver only if VIRTIO_CONFIG_S_DRIVER_OK
+Thread-Index: lEsps6GGs64HEps5Kq4yQPAU9yMKuQ==
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Cc: netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org,
+ Cindy Lu <lulu@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -102,90 +110,48 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Commit 653055b9acd4 ("vhost-vdpa: support get/set backend features")
-introduces two malfunction backend features ioctls:
 
-1) the ioctls was blindly added to vring ioctl instead of vdpa device
-   ioctl
-2) vhost_set_backend_features() was called when dev mutex has already
-   been held which will lead a deadlock
 
-This patch fixes the above issues.
+----- Original Message -----
+> If the memory map changes before the driver status is
+> VIRTIO_CONFIG_S_DRIVER_OK, don't attempt to create resources because it
+> may fail. For example, if the VQ is not ready there is no point in
+> creating resources.
+> 
+> Fixes: 1a86b377aa21 ("vdpa/mlx5: Add VDPA driver for supported mlx5 devices")
+> Signed-off-by: Eli Cohen <elic@nvidia.com>
+> ---
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> index 9df69d5efe8c..c89cd48a0aab 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -1645,6 +1645,9 @@ static int mlx5_vdpa_change_map(struct mlx5_vdpa_net
+> *ndev, struct vhost_iotlb *
+>  	if (err)
+>  		goto err_mr;
+>  
+> +	if (!(ndev->mvdev.status & VIRTIO_CONFIG_S_DRIVER_OK))
+> +		return 0;
+> +
 
-Cc: Eli Cohen <elic@nvidia.com>
-Reported-by: Zhu Lingshan <lingshan.zhu@intel.com>
-Fixes: 653055b9acd4 ("vhost-vdpa: support get/set backend features")
-Signed-off-by: Jason Wang <jasowang@redhat.com>
----
- drivers/vhost/vdpa.c | 30 ++++++++++++++++--------------
- 1 file changed, 16 insertions(+), 14 deletions(-)
+I'm not sure I get this.
 
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index 3fab94f88894..796fe979f997 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -353,8 +353,6 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
- 	struct vdpa_callback cb;
- 	struct vhost_virtqueue *vq;
- 	struct vhost_vring_state s;
--	u64 __user *featurep = argp;
--	u64 features;
- 	u32 idx;
- 	long r;
- 
-@@ -381,18 +379,6 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
- 
- 		vq->last_avail_idx = vq_state.avail_index;
- 		break;
--	case VHOST_GET_BACKEND_FEATURES:
--		features = VHOST_VDPA_BACKEND_FEATURES;
--		if (copy_to_user(featurep, &features, sizeof(features)))
--			return -EFAULT;
--		return 0;
--	case VHOST_SET_BACKEND_FEATURES:
--		if (copy_from_user(&features, featurep, sizeof(features)))
--			return -EFAULT;
--		if (features & ~VHOST_VDPA_BACKEND_FEATURES)
--			return -EOPNOTSUPP;
--		vhost_set_backend_features(&v->vdev, features);
--		return 0;
- 	}
- 
- 	r = vhost_vring_ioctl(&v->vdev, cmd, argp);
-@@ -440,8 +426,20 @@ static long vhost_vdpa_unlocked_ioctl(struct file *filep,
- 	struct vhost_vdpa *v = filep->private_data;
- 	struct vhost_dev *d = &v->vdev;
- 	void __user *argp = (void __user *)arg;
-+	u64 __user *featurep = argp;
-+	u64 features;
- 	long r;
- 
-+	if (cmd == VHOST_SET_BACKEND_FEATURES) {
-+		r = copy_from_user(&features, featurep, sizeof(features));
-+		if (r)
-+			return r;
-+		if (features & ~VHOST_VDPA_BACKEND_FEATURES)
-+			return -EOPNOTSUPP;
-+		vhost_set_backend_features(&v->vdev, features);
-+		return 0;
-+	}
-+
- 	mutex_lock(&d->mutex);
- 
- 	switch (cmd) {
-@@ -476,6 +474,10 @@ static long vhost_vdpa_unlocked_ioctl(struct file *filep,
- 	case VHOST_VDPA_SET_CONFIG_CALL:
- 		r = vhost_vdpa_set_config_call(v, argp);
- 		break;
-+	case VHOST_GET_BACKEND_FEATURES:
-+		features = VHOST_VDPA_BACKEND_FEATURES;
-+		r = copy_to_user(featurep, &features, sizeof(features));
-+		break;
- 	default:
- 		r = vhost_dev_ioctl(&v->vdev, cmd, argp);
- 		if (r == -ENOIOCTLCMD)
--- 
-2.20.1
+It looks to me if set_map() is called before DRIVER_OK, we won't build
+any mapping?
+
+Thanks
+
+>  	restore_channels_info(ndev);
+>  	err = setup_driver(ndev);
+>  	if (err)
+> --
+> 2.26.0
+> 
+> 
 
 _______________________________________________
 Virtualization mailing list
