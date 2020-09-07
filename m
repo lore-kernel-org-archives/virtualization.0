@@ -7,60 +7,59 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 85AE9C433E2
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:28:06 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CD45C2D0E3
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:28:07 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2B6D22166E
+	by mail.kernel.org (Postfix) with ESMTPS id 0F951215A4
 	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:28:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2B6D22166E
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0F951215A4
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 146AD86214;
+	by hemlock.osuosl.org (Postfix) with ESMTP id 5D448871AD;
 	Mon,  7 Sep 2020 13:28:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id hmV1X47zwvuw; Mon,  7 Sep 2020 13:28:04 +0000 (UTC)
+	with ESMTP id EyTRR0p103cr; Mon,  7 Sep 2020 13:28:03 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 66FA486248;
-	Mon,  7 Sep 2020 13:27:57 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 61534871CC;
+	Mon,  7 Sep 2020 13:28:00 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 51533C0893;
-	Mon,  7 Sep 2020 13:27:57 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 089D6C0895
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 20CDBC0894;
+	Mon,  7 Sep 2020 13:28:00 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AA756C0894
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:52 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id E674187196
+ by whitealder.osuosl.org (Postfix) with ESMTP id 96281867F4
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  7 Sep 2020 13:27:56 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from whitealder.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id HB+Ym6dPQYE6
  for <virtualization@lists.linux-foundation.org>;
  Mon,  7 Sep 2020 13:27:51 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id vov81jrX5g5o
- for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:49 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 637B587199
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 6C01F867D7
  for <virtualization@lists.linux-foundation.org>;
  Mon,  7 Sep 2020 13:27:49 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549add56.dip0.t-ipconnect.de
  [84.154.221.86])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id DD13A3AA1;
+ by theia.8bytes.org (Postfix) with ESMTPSA id 5DE823A56;
  Mon,  7 Sep 2020 15:17:14 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v7 62/72] x86/paravirt: Allow hypervisor specific VMMCALL
- handling under SEV-ES
-Date: Mon,  7 Sep 2020 15:16:03 +0200
-Message-Id: <20200907131613.12703-63-joro@8bytes.org>
+Subject: [PATCH v7 61/72] x86/sev-es: Handle #DB Events
+Date: Mon,  7 Sep 2020 15:16:02 +0200
+Message-Id: <20200907131613.12703-62-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200907131613.12703-1-joro@8bytes.org>
 References: <20200907131613.12703-1-joro@8bytes.org>
@@ -96,85 +95,52 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Add two new paravirt callbacks to provide hypervisor specific processor
-state in the GHCB and to copy state from the hypervisor back to the
-processor.
+Handle #VC exceptions caused by #DB exceptions in the guest. Those
+must be handled outside of instrumentation_begin()/end() so that the
+handler will not be raised recursively.
+
+Handle them by calling the kernels debug exception handler.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/x86_init.h | 16 +++++++++++++++-
- arch/x86/kernel/sev-es.c        | 12 ++++++++++++
- 2 files changed, 27 insertions(+), 1 deletion(-)
+ arch/x86/kernel/sev-es.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/arch/x86/include/asm/x86_init.h b/arch/x86/include/asm/x86_init.h
-index 6807153c0410..0304e2931cd3 100644
---- a/arch/x86/include/asm/x86_init.h
-+++ b/arch/x86/include/asm/x86_init.h
-@@ -4,8 +4,10 @@
- 
- #include <asm/bootparam.h>
- 
-+struct ghcb;
- struct mpc_bus;
- struct mpc_cpu;
-+struct pt_regs;
- struct mpc_table;
- struct cpuinfo_x86;
- 
-@@ -236,10 +238,22 @@ struct x86_legacy_features {
- /**
-  * struct x86_hyper_runtime - x86 hypervisor specific runtime callbacks
-  *
-- * @pin_vcpu:		pin current vcpu to specified physical cpu (run rarely)
-+ * @pin_vcpu:			pin current vcpu to specified physical
-+ *				cpu (run rarely)
-+ * @sev_es_hcall_prepare:	Load additional hypervisor-specific
-+ *				state into the GHCB when doing a VMMCALL under
-+ *				SEV-ES. Called from the #VC exception handler.
-+ * @sev_es_hcall_finish:	Copies state from the GHCB back into the
-+ *				processor (or pt_regs). Also runs checks on the
-+ *				state returned from the hypervisor after a
-+ *				VMMCALL under SEV-ES.  Needs to return 'false'
-+ *				if the checks fail.  Called from the #VC
-+ *				exception handler.
-  */
- struct x86_hyper_runtime {
- 	void (*pin_vcpu)(int cpu);
-+	void (*sev_es_hcall_prepare)(struct ghcb *ghcb, struct pt_regs *regs);
-+	bool (*sev_es_hcall_finish)(struct ghcb *ghcb, struct pt_regs *regs);
- };
- 
- /**
 diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index 3eea4e910fc1..9814ac99aea1 100644
+index f78ab9369b9c..3eea4e910fc1 100644
 --- a/arch/x86/kernel/sev-es.c
 +++ b/arch/x86/kernel/sev-es.c
-@@ -897,6 +897,9 @@ static enum es_result vc_handle_vmmcall(struct ghcb *ghcb,
- 	ghcb_set_rax(ghcb, ctxt->regs->ax);
- 	ghcb_set_cpl(ghcb, user_mode(ctxt->regs) ? 3 : 0);
- 
-+	if (x86_platform.hyper.sev_es_hcall_prepare)
-+		x86_platform.hyper.sev_es_hcall_prepare(ghcb, ctxt->regs);
-+
- 	ret = sev_es_ghcb_hv_call(ghcb, ctxt, SVM_EXIT_VMMCALL, 0, 0);
- 	if (ret != ES_OK)
- 		return ret;
-@@ -906,6 +909,15 @@ static enum es_result vc_handle_vmmcall(struct ghcb *ghcb,
- 
- 	ctxt->regs->ax = ghcb->save.rax;
- 
-+	/*
-+	 * Call sev_es_hcall_finish() after regs->ax is already set.
-+	 * This allows the hypervisor handler to overwrite it again if
-+	 * necessary.
-+	 */
-+	if (x86_platform.hyper.sev_es_hcall_finish &&
-+	    !x86_platform.hyper.sev_es_hcall_finish(ghcb, ctxt->regs))
-+		return ES_VMM_ERROR;
-+
- 	return ES_OK;
+@@ -922,6 +922,14 @@ static enum es_result vc_handle_trap_ac(struct ghcb *ghcb,
+ 	return ES_EXCEPTION;
  }
  
++static __always_inline void vc_handle_trap_db(struct pt_regs *regs)
++{
++	if (user_mode(regs))
++		noist_exc_debug(regs);
++	else
++		exc_debug(regs);
++}
++
+ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
+ 					 struct ghcb *ghcb,
+ 					 unsigned long exit_code)
+@@ -1033,6 +1041,15 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
+ 	struct ghcb *ghcb;
+ 
+ 	lockdep_assert_irqs_disabled();
++
++	/*
++	 * Handle #DB before calling into !noinstr code to avoid recursive #DB.
++	 */
++	if (error_code == SVM_EXIT_EXCP_BASE + X86_TRAP_DB) {
++		vc_handle_trap_db(regs);
++		return;
++	}
++
+ 	instrumentation_begin();
+ 
+ 	/*
 -- 
 2.28.0
 
