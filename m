@@ -7,59 +7,60 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F36F2C2D0F6
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:28:02 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 37598C43461
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:28:01 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id AC22C2166E
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:28:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AC22C2166E
+	by mail.kernel.org (Postfix) with ESMTPS id F154E215A4
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:28:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org F154E215A4
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 3E6A1871BB;
-	Mon,  7 Sep 2020 13:28:02 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id C7A9D86362;
+	Mon,  7 Sep 2020 13:28:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Sxw6G3ORsvrE; Mon,  7 Sep 2020 13:27:57 +0000 (UTC)
+	with ESMTP id xWe7QZSq4Nih; Mon,  7 Sep 2020 13:27:58 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 6120D871A2;
-	Mon,  7 Sep 2020 13:27:56 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id D329F8618D;
+	Mon,  7 Sep 2020 13:27:54 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2AE5EC0894;
-	Mon,  7 Sep 2020 13:27:56 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 86E33C08A6
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CB330C0891;
+	Mon,  7 Sep 2020 13:27:54 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 91A61C0051
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:51 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 6AB5E867F7
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 78A9486099
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:51 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id uuHQtTMxr4Hb
+ with ESMTP id 3YmhfFFYDIuI
  for <virtualization@lists.linux-foundation.org>;
  Mon,  7 Sep 2020 13:27:49 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 4715E867C6
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 3AD8B86079
  for <virtualization@lists.linux-foundation.org>;
  Mon,  7 Sep 2020 13:27:49 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549add56.dip0.t-ipconnect.de
  [84.154.221.86])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 8B9AC168B;
- Mon,  7 Sep 2020 15:17:10 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 8F1453AA6;
+ Mon,  7 Sep 2020 15:17:16 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v7 55/72] x86/sev-es: Handle RDPMC Events
-Date: Mon,  7 Sep 2020 15:15:56 +0200
-Message-Id: <20200907131613.12703-56-joro@8bytes.org>
+Subject: [PATCH v7 65/72] x86/realmode: Add SEV-ES specific trampoline entry
+ point
+Date: Mon,  7 Sep 2020 15:16:06 +0200
+Message-Id: <20200907131613.12703-66-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200907131613.12703-1-joro@8bytes.org>
 References: <20200907131613.12703-1-joro@8bytes.org>
@@ -93,58 +94,89 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-Implement a handler for #VC exceptions caused by RDPMC instructions.
+The code at the trampoline entry point is executed in real-mode. In
+real-mode #VC exceptions can't be handled, so anything that might cause
+such an exception must be avoided.
 
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-[ jroedel@suse.de: Adapt to #VC handling infrastructure ]
-Co-developed-by: Joerg Roedel <jroedel@suse.de>
+In the standard trampoline entry code this is the WBINVD instruction and
+the call to verify_cpu(), which are both not needed anyway when running
+as an SEV-ES guest.
+
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev-es.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ arch/x86/include/asm/realmode.h      |  3 +++
+ arch/x86/realmode/rm/header.S        |  3 +++
+ arch/x86/realmode/rm/trampoline_64.S | 20 ++++++++++++++++++++
+ 3 files changed, 26 insertions(+)
 
-diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index 5c155f307129..2ee600f3184b 100644
---- a/arch/x86/kernel/sev-es.c
-+++ b/arch/x86/kernel/sev-es.c
-@@ -853,6 +853,25 @@ static enum es_result vc_handle_wbinvd(struct ghcb *ghcb,
- 	return sev_es_ghcb_hv_call(ghcb, ctxt, SVM_EXIT_WBINVD, 0, 0);
- }
+diff --git a/arch/x86/include/asm/realmode.h b/arch/x86/include/asm/realmode.h
+index 96118fb041b8..4d4d853f6841 100644
+--- a/arch/x86/include/asm/realmode.h
++++ b/arch/x86/include/asm/realmode.h
+@@ -21,6 +21,9 @@ struct real_mode_header {
+ 	/* SMP trampoline */
+ 	u32	trampoline_start;
+ 	u32	trampoline_header;
++#ifdef CONFIG_AMD_MEM_ENCRYPT
++	u32	sev_es_trampoline_start;
++#endif
+ #ifdef CONFIG_X86_64
+ 	u32	trampoline_pgd;
+ #endif
+diff --git a/arch/x86/realmode/rm/header.S b/arch/x86/realmode/rm/header.S
+index af04512c02d9..8c1db5bf5d78 100644
+--- a/arch/x86/realmode/rm/header.S
++++ b/arch/x86/realmode/rm/header.S
+@@ -20,6 +20,9 @@ SYM_DATA_START(real_mode_header)
+ 	/* SMP trampoline */
+ 	.long	pa_trampoline_start
+ 	.long	pa_trampoline_header
++#ifdef CONFIG_AMD_MEM_ENCRYPT
++	.long	pa_sev_es_trampoline_start
++#endif
+ #ifdef CONFIG_X86_64
+ 	.long	pa_trampoline_pgd;
+ #endif
+diff --git a/arch/x86/realmode/rm/trampoline_64.S b/arch/x86/realmode/rm/trampoline_64.S
+index 251758ed7443..84c5d1b33d10 100644
+--- a/arch/x86/realmode/rm/trampoline_64.S
++++ b/arch/x86/realmode/rm/trampoline_64.S
+@@ -56,6 +56,7 @@ SYM_CODE_START(trampoline_start)
+ 	testl   %eax, %eax		# Check for return code
+ 	jnz	no_longmode
  
-+static enum es_result vc_handle_rdpmc(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
-+{
-+	enum es_result ret;
++.Lswitch_to_protected:
+ 	/*
+ 	 * GDT tables in non default location kernel can be beyond 16MB and
+ 	 * lgdt will not be able to load the address as in real mode default
+@@ -80,6 +81,25 @@ no_longmode:
+ 	jmp no_longmode
+ SYM_CODE_END(trampoline_start)
+ 
++#ifdef CONFIG_AMD_MEM_ENCRYPT
++/* SEV-ES supports non-zero IP for entry points - no alignment needed */
++SYM_CODE_START(sev_es_trampoline_start)
++	cli			# We should be safe anyway
 +
-+	ghcb_set_rcx(ghcb, ctxt->regs->cx);
++	LJMPW_RM(1f)
++1:
++	mov	%cs, %ax	# Code and data in the same place
++	mov	%ax, %ds
++	mov	%ax, %es
++	mov	%ax, %ss
 +
-+	ret = sev_es_ghcb_hv_call(ghcb, ctxt, SVM_EXIT_RDPMC, 0, 0);
-+	if (ret != ES_OK)
-+		return ret;
++	# Setup stack
++	movl	$rm_stack_end, %esp
 +
-+	if (!(ghcb_rax_is_valid(ghcb) && ghcb_rdx_is_valid(ghcb)))
-+		return ES_VMM_ERROR;
++	jmp	.Lswitch_to_protected
++SYM_CODE_END(sev_es_trampoline_start)
++#endif	/* CONFIG_AMD_MEM_ENCRYPT */
 +
-+	ctxt->regs->ax = ghcb->save.rax;
-+	ctxt->regs->dx = ghcb->save.rdx;
-+
-+	return ES_OK;
-+}
-+
- static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
- 					 struct ghcb *ghcb,
- 					 unsigned long exit_code)
-@@ -870,6 +889,9 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
- 	case SVM_EXIT_RDTSCP:
- 		result = vc_handle_rdtsc(ghcb, ctxt, exit_code);
- 		break;
-+	case SVM_EXIT_RDPMC:
-+		result = vc_handle_rdpmc(ghcb, ctxt);
-+		break;
- 	case SVM_EXIT_CPUID:
- 		result = vc_handle_cpuid(ghcb, ctxt);
- 		break;
+ #include "../kernel/verify_cpu.S"
+ 
+ 	.section ".text32","ax"
 -- 
 2.28.0
 
