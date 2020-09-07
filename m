@@ -7,59 +7,59 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 14EB0C2D0E0
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB43BC433E2
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:07 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D2C2B20838
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:03 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D2C2B20838
+	by mail.kernel.org (Postfix) with ESMTPS id 6770520838
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:07 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6770520838
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 86D11867D1;
-	Mon,  7 Sep 2020 13:17:03 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 4054E86757;
+	Mon,  7 Sep 2020 13:17:07 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ILTGtPtUqax1; Mon,  7 Sep 2020 13:16:57 +0000 (UTC)
+	with ESMTP id lP1BFfhksPwa; Mon,  7 Sep 2020 13:17:02 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 600428678A;
-	Mon,  7 Sep 2020 13:16:56 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 0808B86749;
+	Mon,  7 Sep 2020 13:16:59 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4F317C0893;
-	Mon,  7 Sep 2020 13:16:56 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2CF9AC0895
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F3911C0891;
+	Mon,  7 Sep 2020 13:16:58 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3EAC8C0051
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:16:54 +0000 (UTC)
+ Mon,  7 Sep 2020 13:16:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 167848713A
+ by silver.osuosl.org (Postfix) with ESMTP id 0EBAB2151E
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:16:54 +0000 (UTC)
+ Mon,  7 Sep 2020 13:16:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id W6rg-26PDJsg
+ with ESMTP id 0C8EzwGTFxTb
  for <virtualization@lists.linux-foundation.org>;
  Mon,  7 Sep 2020 13:16:53 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 4319D8714C
+ by silver.osuosl.org (Postfix) with ESMTPS id 3F3C520517
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:16:53 +0000 (UTC)
+ Mon,  7 Sep 2020 13:16:50 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549add56.dip0.t-ipconnect.de
  [84.154.221.86])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id D89A7E60;
- Mon,  7 Sep 2020 15:16:49 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 4EFC4D3B;
+ Mon,  7 Sep 2020 15:16:47 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v7 15/72] x86/boot/compressed/64: Add page-fault handler
-Date: Mon,  7 Sep 2020 15:15:16 +0200
-Message-Id: <20200907131613.12703-16-joro@8bytes.org>
+Subject: [PATCH v7 10/72] x86/insn: Add insn_get_modrm_reg_off()
+Date: Mon,  7 Sep 2020 15:15:11 +0200
+Message-Id: <20200907131613.12703-11-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200907131613.12703-1-joro@8bytes.org>
 References: <20200907131613.12703-1-joro@8bytes.org>
@@ -95,124 +95,76 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Install a page-fault handler to add an identity mapping to addresses
-not yet mapped. Also do some checking whether the error code is sane.
-
-This makes non SEV-ES machines use the exception handling
-infrastructure in the pre-decompressions boot code too, making it less
-likely to break in the future.
+Add a function to the instruction decoder which returns the pt_regs
+offset of the register specified in the reg field of the modrm byte.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Reviewed-by: Kees Cook <keescook@chromium.org>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
 ---
- arch/x86/boot/compressed/ident_map_64.c    | 39 ++++++++++++++++++++++
- arch/x86/boot/compressed/idt_64.c          |  2 ++
- arch/x86/boot/compressed/idt_handlers_64.S |  2 ++
- arch/x86/boot/compressed/misc.h            |  6 ++++
- 4 files changed, 49 insertions(+)
+ arch/x86/include/asm/insn-eval.h |  1 +
+ arch/x86/lib/insn-eval.c         | 23 +++++++++++++++++++++++
+ 2 files changed, 24 insertions(+)
 
-diff --git a/arch/x86/boot/compressed/ident_map_64.c b/arch/x86/boot/compressed/ident_map_64.c
-index d9932a133ac9..e3d980ae9c2b 100644
---- a/arch/x86/boot/compressed/ident_map_64.c
-+++ b/arch/x86/boot/compressed/ident_map_64.c
-@@ -19,10 +19,13 @@
- /* No PAGE_TABLE_ISOLATION support needed either: */
- #undef CONFIG_PAGE_TABLE_ISOLATION
+diff --git a/arch/x86/include/asm/insn-eval.h b/arch/x86/include/asm/insn-eval.h
+index 392b4fe377f9..f748f57f1491 100644
+--- a/arch/x86/include/asm/insn-eval.h
++++ b/arch/x86/include/asm/insn-eval.h
+@@ -17,6 +17,7 @@
  
-+#include "error.h"
- #include "misc.h"
+ void __user *insn_get_addr_ref(struct insn *insn, struct pt_regs *regs);
+ int insn_get_modrm_rm_off(struct insn *insn, struct pt_regs *regs);
++int insn_get_modrm_reg_off(struct insn *insn, struct pt_regs *regs);
+ unsigned long insn_get_seg_base(struct pt_regs *regs, int seg_reg_idx);
+ int insn_get_code_seg_params(struct pt_regs *regs);
+ int insn_fetch_from_user(struct pt_regs *regs,
+diff --git a/arch/x86/lib/insn-eval.c b/arch/x86/lib/insn-eval.c
+index 2323c85132cf..f20942ce76c6 100644
+--- a/arch/x86/lib/insn-eval.c
++++ b/arch/x86/lib/insn-eval.c
+@@ -20,6 +20,7 @@
  
- /* These actually do the work of building the kernel identity maps. */
- #include <linux/pgtable.h>
-+#include <asm/trap_pf.h>
-+#include <asm/trapnr.h>
- #include <asm/init.h>
- /* Use the static base for this part of the boot process */
- #undef __PAGE_OFFSET
-@@ -160,3 +163,39 @@ void finalize_identity_maps(void)
- {
- 	write_cr3(top_level_pgt);
+ enum reg_type {
+ 	REG_TYPE_RM = 0,
++	REG_TYPE_REG,
+ 	REG_TYPE_INDEX,
+ 	REG_TYPE_BASE,
+ };
+@@ -439,6 +440,13 @@ static int get_reg_offset(struct insn *insn, struct pt_regs *regs,
+ 			regno += 8;
+ 		break;
+ 
++	case REG_TYPE_REG:
++		regno = X86_MODRM_REG(insn->modrm.value);
++
++		if (X86_REX_R(insn->rex_prefix.value))
++			regno += 8;
++		break;
++
+ 	case REG_TYPE_INDEX:
+ 		regno = X86_SIB_INDEX(insn->sib.value);
+ 		if (X86_REX_X(insn->rex_prefix.value))
+@@ -807,6 +815,21 @@ int insn_get_modrm_rm_off(struct insn *insn, struct pt_regs *regs)
+ 	return get_reg_offset(insn, regs, REG_TYPE_RM);
  }
-+
-+static void do_pf_error(const char *msg, unsigned long error_code,
-+			unsigned long address, unsigned long ip)
+ 
++/**
++ * insn_get_modrm_reg_off() - Obtain register in reg part of the ModRM byte
++ * @insn:	Instruction containing the ModRM byte
++ * @regs:	Register values as seen when entering kernel mode
++ *
++ * Returns:
++ *
++ * The register indicated by the reg part of the ModRM byte. The
++ * register is obtained as an offset from the base of pt_regs.
++ */
++int insn_get_modrm_reg_off(struct insn *insn, struct pt_regs *regs)
 +{
-+	error_putstr(msg);
-+
-+	error_putstr("\nError Code: ");
-+	error_puthex(error_code);
-+	error_putstr("\nCR2: 0x");
-+	error_puthex(address);
-+	error_putstr("\nRIP relative to _head: 0x");
-+	error_puthex(ip - (unsigned long)_head);
-+	error_putstr("\n");
-+
-+	error("Stopping.\n");
++	return get_reg_offset(insn, regs, REG_TYPE_REG);
 +}
 +
-+void do_boot_page_fault(struct pt_regs *regs, unsigned long error_code)
-+{
-+	unsigned long address = native_read_cr2();
-+
-+	/*
-+	 * Check for unexpected error codes. Unexpected are:
-+	 *	- Faults on present pages
-+	 *	- User faults
-+	 *	- Reserved bits set
-+	 */
-+	if (error_code & (X86_PF_PROT | X86_PF_USER | X86_PF_RSVD))
-+		do_pf_error("Unexpected page-fault:", error_code, address, regs->ip);
-+
-+	/*
-+	 * Error code is sane - now identity map the 2M region around
-+	 * the faulting address.
-+	 */
-+	add_identity_map(address & PMD_MASK, PMD_SIZE);
-+}
-diff --git a/arch/x86/boot/compressed/idt_64.c b/arch/x86/boot/compressed/idt_64.c
-index 082cd6bca033..5f083092a86d 100644
---- a/arch/x86/boot/compressed/idt_64.c
-+++ b/arch/x86/boot/compressed/idt_64.c
-@@ -40,5 +40,7 @@ void load_stage2_idt(void)
- {
- 	boot_idt_desc.address = (unsigned long)boot_idt;
- 
-+	set_idt_entry(X86_TRAP_PF, boot_page_fault);
-+
- 	load_boot_idt(&boot_idt_desc);
- }
-diff --git a/arch/x86/boot/compressed/idt_handlers_64.S b/arch/x86/boot/compressed/idt_handlers_64.S
-index 36dee2f40a8b..b20e57504a94 100644
---- a/arch/x86/boot/compressed/idt_handlers_64.S
-+++ b/arch/x86/boot/compressed/idt_handlers_64.S
-@@ -68,3 +68,5 @@ SYM_FUNC_END(\name)
- 
- 	.text
- 	.code64
-+
-+EXCEPTION_HANDLER	boot_page_fault do_boot_page_fault error_code=1
-diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
-index 98b7a1df9c59..f0e199174c5f 100644
---- a/arch/x86/boot/compressed/misc.h
-+++ b/arch/x86/boot/compressed/misc.h
-@@ -37,6 +37,9 @@
- #define memptr unsigned
- #endif
- 
-+/* boot/compressed/vmlinux start and end markers */
-+extern char _head[], _end[];
-+
- /* misc.c */
- extern memptr free_mem_ptr;
- extern memptr free_mem_end_ptr;
-@@ -146,4 +149,7 @@ extern pteval_t __default_kernel_pte_mask;
- extern gate_desc boot_idt[BOOT_IDT_ENTRIES];
- extern struct desc_ptr boot_idt_desc;
- 
-+/* IDT Entry Points */
-+void boot_page_fault(void);
-+
- #endif /* BOOT_COMPRESSED_MISC_H */
+ /**
+  * get_seg_base_limit() - obtain base address and limit of a segment
+  * @insn:	Instruction. Must be valid.
 -- 
 2.28.0
 
