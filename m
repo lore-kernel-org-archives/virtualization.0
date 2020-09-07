@@ -7,60 +7,59 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05929C433E2
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 82DDBC43461
 	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:27:52 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 73A37215A4
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:27:51 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 73A37215A4
+	by mail.kernel.org (Postfix) with ESMTPS id 3E919215A4
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:27:52 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3E919215A4
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 3B529860C6;
-	Mon,  7 Sep 2020 13:27:51 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 0612885FFC;
+	Mon,  7 Sep 2020 13:27:52 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id O_MO1Y1y69Qt; Mon,  7 Sep 2020 13:27:50 +0000 (UTC)
+	with ESMTP id z_4w9Ioy-FYA; Mon,  7 Sep 2020 13:27:49 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id D835085FD7;
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 6D8AE860AD;
 	Mon,  7 Sep 2020 13:27:49 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A2C7AC08A6;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 48D4FC0891;
 	Mon,  7 Sep 2020 13:27:49 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6BB12C0051
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9BCFFC0051
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:47 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 44CE320522
+ by hemlock.osuosl.org (Postfix) with ESMTP id 89E6587186
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:47 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:46 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id P3nnwE6YODuL
+ with ESMTP id virlHpJmRq4c
  for <virtualization@lists.linux-foundation.org>;
  Mon,  7 Sep 2020 13:27:46 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by silver.osuosl.org (Postfix) with ESMTPS id A5CB920508
+ by hemlock.osuosl.org (Postfix) with ESMTPS id B63F387184
  for <virtualization@lists.linux-foundation.org>;
  Mon,  7 Sep 2020 13:27:45 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549add56.dip0.t-ipconnect.de
  [84.154.221.86])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 708EA3AA3;
- Mon,  7 Sep 2020 15:17:15 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id AFD322CEB;
+ Mon,  7 Sep 2020 15:17:12 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v7 63/72] x86/kvm: Add KVM specific VMMCALL handling under
- SEV-ES
-Date: Mon,  7 Sep 2020 15:16:04 +0200
-Message-Id: <20200907131613.12703-64-joro@8bytes.org>
+Subject: [PATCH v7 59/72] x86/sev-es: Handle VMMCALL Events
+Date: Mon,  7 Sep 2020 15:16:00 +0200
+Message-Id: <20200907131613.12703-60-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200907131613.12703-1-joro@8bytes.org>
 References: <20200907131613.12703-1-joro@8bytes.org>
@@ -96,72 +95,59 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Tom Lendacky <thomas.lendacky@amd.com>
 
-Implement the callbacks to copy the processor state required by KVM to
-the GHCB.
+Implement a handler for #VC exceptions caused by VMMCALL instructions.
+This patch is only a starting point, VMMCALL emulation under SEV-ES
+needs further hypervisor-specific changes to provide additional state.
 
 Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-[ jroedel@suse.de: - Split out of a larger patch
-                   - Adapt to different callback functions ]
+[ jroedel@suse.de: Adapt to #VC handling infrastructure ]
 Co-developed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/kvm.c | 35 +++++++++++++++++++++++++++++------
- 1 file changed, 29 insertions(+), 6 deletions(-)
+ arch/x86/kernel/sev-es.c | 23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-index 08320b0b2b27..0f9597275e9c 100644
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -36,6 +36,8 @@
- #include <asm/hypervisor.h>
- #include <asm/tlb.h>
- #include <asm/cpuidle_haltpoll.h>
-+#include <asm/ptrace.h>
-+#include <asm/svm.h>
- 
- DEFINE_STATIC_KEY_FALSE(kvm_async_pf_enabled);
- 
-@@ -746,13 +748,34 @@ static void __init kvm_init_platform(void)
- 	x86_platform.apic_post_init = kvm_apic_init;
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+index 0d0b6e15f7d9..db8e33280f7a 100644
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -889,6 +889,26 @@ static enum es_result vc_handle_mwait(struct ghcb *ghcb,
+ 	return ES_OK;
  }
  
-+#if defined(CONFIG_AMD_MEM_ENCRYPT)
-+static void kvm_sev_es_hcall_prepare(struct ghcb *ghcb, struct pt_regs *regs)
++static enum es_result vc_handle_vmmcall(struct ghcb *ghcb,
++					struct es_em_ctxt *ctxt)
 +{
-+	/* RAX and CPL are already in the GHCB */
-+	ghcb_set_rbx(ghcb, regs->bx);
-+	ghcb_set_rcx(ghcb, regs->cx);
-+	ghcb_set_rdx(ghcb, regs->dx);
-+	ghcb_set_rsi(ghcb, regs->si);
++	enum es_result ret;
++
++	ghcb_set_rax(ghcb, ctxt->regs->ax);
++	ghcb_set_cpl(ghcb, user_mode(ctxt->regs) ? 3 : 0);
++
++	ret = sev_es_ghcb_hv_call(ghcb, ctxt, SVM_EXIT_VMMCALL, 0, 0);
++	if (ret != ES_OK)
++		return ret;
++
++	if (!ghcb_rax_is_valid(ghcb))
++		return ES_VMM_ERROR;
++
++	ctxt->regs->ax = ghcb->save.rax;
++
++	return ES_OK;
 +}
 +
-+static bool kvm_sev_es_hcall_finish(struct ghcb *ghcb, struct pt_regs *regs)
-+{
-+	/* No checking of the return state needed */
-+	return true;
-+}
-+#endif
-+
- const __initconst struct hypervisor_x86 x86_hyper_kvm = {
--	.name			= "KVM",
--	.detect			= kvm_detect,
--	.type			= X86_HYPER_KVM,
--	.init.guest_late_init	= kvm_guest_init,
--	.init.x2apic_available	= kvm_para_available,
--	.init.init_platform	= kvm_init_platform,
-+	.name				= "KVM",
-+	.detect				= kvm_detect,
-+	.type				= X86_HYPER_KVM,
-+	.init.guest_late_init		= kvm_guest_init,
-+	.init.x2apic_available		= kvm_para_available,
-+	.init.init_platform		= kvm_init_platform,
-+#if defined(CONFIG_AMD_MEM_ENCRYPT)
-+	.runtime.sev_es_hcall_prepare	= kvm_sev_es_hcall_prepare,
-+	.runtime.sev_es_hcall_finish	= kvm_sev_es_hcall_finish,
-+#endif
- };
- 
- static __init int activate_jump_labels(void)
+ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
+ 					 struct ghcb *ghcb,
+ 					 unsigned long exit_code)
+@@ -922,6 +942,9 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
+ 	case SVM_EXIT_MSR:
+ 		result = vc_handle_msr(ghcb, ctxt);
+ 		break;
++	case SVM_EXIT_VMMCALL:
++		result = vc_handle_vmmcall(ghcb, ctxt);
++		break;
+ 	case SVM_EXIT_WBINVD:
+ 		result = vc_handle_wbinvd(ghcb, ctxt);
+ 		break;
 -- 
 2.28.0
 
