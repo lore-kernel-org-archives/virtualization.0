@@ -2,65 +2,65 @@ Return-Path: <SRS0=oNZg=CQ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
+X-Spam-Status: No, score=-9.9 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+	SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E086C43461
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:27:58 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A5AF0C2D0E0
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:27:59 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2B0552166E
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:27:58 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2B0552166E
+	by mail.kernel.org (Postfix) with ESMTPS id 6191E2168B
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:27:59 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6191E2168B
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id CFBC885FDE;
-	Mon,  7 Sep 2020 13:27:57 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 286A6862C7;
+	Mon,  7 Sep 2020 13:27:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id TCdmq5UKeNlI; Mon,  7 Sep 2020 13:27:53 +0000 (UTC)
+	with ESMTP id sGE20cngm5az; Mon,  7 Sep 2020 13:27:55 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 9A0EB86101;
-	Mon,  7 Sep 2020 13:27:52 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 1932886141;
+	Mon,  7 Sep 2020 13:27:53 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 71108C0894;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EFC94C0891;
 	Mon,  7 Sep 2020 13:27:52 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AD9FAC0051
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A2BE2C08A5
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:48 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 940C7867BD
+ by hemlock.osuosl.org (Postfix) with ESMTP id 8C57587188
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:48 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:49 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id LwU4FBlhR0AF
+ with ESMTP id X6jFLpZqwzBM
  for <virtualization@lists.linux-foundation.org>;
  Mon,  7 Sep 2020 13:27:47 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 92C70867B7
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 7657487186
  for <virtualization@lists.linux-foundation.org>;
  Mon,  7 Sep 2020 13:27:47 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549add56.dip0.t-ipconnect.de
  [84.154.221.86])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 298771017;
- Mon,  7 Sep 2020 15:17:04 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 27013100F;
+ Mon,  7 Sep 2020 15:17:03 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v7 43/72] x86/sev-es: Adjust #VC IST Stack on entering NMI
+Subject: [PATCH v7 41/72] x86/sev-es: Setup per-cpu GHCBs for the runtime
  handler
-Date: Mon,  7 Sep 2020 15:15:44 +0200
-Message-Id: <20200907131613.12703-44-joro@8bytes.org>
+Date: Mon,  7 Sep 2020 15:15:42 +0200
+Message-Id: <20200907131613.12703-42-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200907131613.12703-1-joro@8bytes.org>
 References: <20200907131613.12703-1-joro@8bytes.org>
@@ -94,162 +94,135 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-When an NMI hits in the #VC handler entry code before it switched to
-another stack, any subsequent #VC exception in the NMI code-path will
-overwrite the interrupted #VC handlers stack.
+The runtime handler needs a GHCB per CPU. Set them up and map them
+unencrypted.
 
-Make sure this doesn't happen by  explicitly adjusting the #VC IST entry
-in the NMI handler for the time in can cause #VC exceptions.
-
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/sev-es.h | 19 +++++++++++++
- arch/x86/kernel/nmi.c         |  9 ++++++
- arch/x86/kernel/sev-es.c      | 53 +++++++++++++++++++++++++++++++++++
- 3 files changed, 81 insertions(+)
+ arch/x86/include/asm/mem_encrypt.h |  2 ++
+ arch/x86/kernel/sev-es.c           | 56 +++++++++++++++++++++++++++++-
+ arch/x86/kernel/traps.c            |  3 ++
+ 3 files changed, 60 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/sev-es.h b/arch/x86/include/asm/sev-es.h
-index 9fbeedaa66ee..59176e8c6b81 100644
---- a/arch/x86/include/asm/sev-es.h
-+++ b/arch/x86/include/asm/sev-es.h
-@@ -78,4 +78,23 @@ extern void vc_no_ghcb(void);
- extern void vc_boot_ghcb(void);
- extern bool handle_vc_boot_ghcb(struct pt_regs *regs);
+diff --git a/arch/x86/include/asm/mem_encrypt.h b/arch/x86/include/asm/mem_encrypt.h
+index 4e72b73a9cb5..c9f5df0a1c10 100644
+--- a/arch/x86/include/asm/mem_encrypt.h
++++ b/arch/x86/include/asm/mem_encrypt.h
+@@ -49,6 +49,7 @@ void __init mem_encrypt_free_decrypted_mem(void);
+ /* Architecture __weak replacement functions */
+ void __init mem_encrypt_init(void);
  
-+#ifdef CONFIG_AMD_MEM_ENCRYPT
-+extern struct static_key_false sev_es_enable_key;
-+extern void __sev_es_ist_enter(struct pt_regs *regs);
-+extern void __sev_es_ist_exit(void);
-+static __always_inline void sev_es_ist_enter(struct pt_regs *regs)
-+{
-+	if (static_branch_unlikely(&sev_es_enable_key))
-+		__sev_es_ist_enter(regs);
-+}
-+static __always_inline void sev_es_ist_exit(void)
-+{
-+	if (static_branch_unlikely(&sev_es_enable_key))
-+		__sev_es_ist_exit();
-+}
-+#else
-+static inline void sev_es_ist_enter(struct pt_regs *regs) { }
-+static inline void sev_es_ist_exit(void) { }
-+#endif
-+
- #endif
-diff --git a/arch/x86/kernel/nmi.c b/arch/x86/kernel/nmi.c
-index 4fc9954a9560..5859cec774a4 100644
---- a/arch/x86/kernel/nmi.c
-+++ b/arch/x86/kernel/nmi.c
-@@ -33,6 +33,7 @@
- #include <asm/reboot.h>
- #include <asm/cache.h>
- #include <asm/nospec-branch.h>
-+#include <asm/sev-es.h>
++void __init sev_es_init_vc_handling(void);
+ bool sme_active(void);
+ bool sev_active(void);
+ bool sev_es_active(void);
+@@ -72,6 +73,7 @@ static inline void __init sme_early_init(void) { }
+ static inline void __init sme_encrypt_kernel(struct boot_params *bp) { }
+ static inline void __init sme_enable(struct boot_params *bp) { }
  
- #define CREATE_TRACE_POINTS
- #include <trace/events/nmi.h>
-@@ -488,6 +489,12 @@ DEFINE_IDTENTRY_RAW(exc_nmi)
- 	this_cpu_write(nmi_cr2, read_cr2());
- nmi_restart:
- 
-+	/*
-+	 * Needs to happen before DR7 is accessed, because the hypervisor can
-+	 * intercept DR7 reads/writes, turings those into #VC exceptions.
-+	 */
-+	sev_es_ist_enter(regs);
-+
- 	this_cpu_write(nmi_dr7, local_db_save());
- 
- 	irq_state = idtentry_enter_nmi(regs);
-@@ -501,6 +508,8 @@ DEFINE_IDTENTRY_RAW(exc_nmi)
- 
- 	local_db_restore(this_cpu_read(nmi_dr7));
- 
-+	sev_es_ist_exit();
-+
- 	if (unlikely(this_cpu_read(nmi_cr2) != read_cr2()))
- 		write_cr2(this_cpu_read(nmi_cr2));
- 	if (this_cpu_dec_return(nmi_state))
++static inline void sev_es_init_vc_handling(void) { }
+ static inline bool sme_active(void) { return false; }
+ static inline bool sev_active(void) { return false; }
+ static inline bool sev_es_active(void) { return false; }
 diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index 5541788420ce..69c55f0fdf6a 100644
+index bb3e702a71eb..0f28bb1c0022 100644
 --- a/arch/x86/kernel/sev-es.c
 +++ b/arch/x86/kernel/sev-es.c
-@@ -51,6 +51,7 @@ struct sev_es_runtime_data {
- };
+@@ -8,8 +8,13 @@
+  */
  
- static DEFINE_PER_CPU(struct sev_es_runtime_data*, runtime_data);
-+DEFINE_STATIC_KEY_FALSE(sev_es_enable_key);
+ #include <linux/sched/debug.h>	/* For show_regs() */
+-#include <linux/kernel.h>
++#include <linux/percpu-defs.h>
++#include <linux/mem_encrypt.h>
+ #include <linux/printk.h>
++#include <linux/mm_types.h>
++#include <linux/set_memory.h>
++#include <linux/memblock.h>
++#include <linux/kernel.h>
+ #include <linux/mm.h>
  
- static void __init setup_vc_stacks(int cpu)
- {
-@@ -73,6 +74,55 @@ static void __init setup_vc_stacks(int cpu)
- 	cea_set_pte((void *)vaddr, pa, PAGE_KERNEL);
- }
+ #include <asm/sev-es.h>
+@@ -29,6 +34,13 @@ static struct ghcb boot_ghcb_page __bss_decrypted __aligned(PAGE_SIZE);
+  */
+ static struct ghcb __initdata *boot_ghcb;
  
-+static __always_inline bool on_vc_stack(unsigned long sp)
-+{
-+	return ((sp >= __this_cpu_ist_bottom_va(VC)) && (sp < __this_cpu_ist_top_va(VC)));
-+}
++/* #VC handler runtime per-cpu data */
++struct sev_es_runtime_data {
++	struct ghcb ghcb_page;
++};
 +
-+/*
-+ * This function handles the case when an NM is raised in the #VC exception
-+ * handler entry code. In this case the IST entry for #VC must be adjusted, so
-+ * that any subsequent #VC exception will not overwrite the stack contents of the
-+ * interrupted #VC handler.
-+ *
-+ * The IST entry is adjusted unconditionally so that it can be also be
-+ * unconditionally adjusted back in sev_es_ist_exit(). Otherwise a nested
-+ * sev_es_ist_exit() call may adjust back the IST entry too early.
-+ */
-+void noinstr __sev_es_ist_enter(struct pt_regs *regs)
-+{
-+	unsigned long old_ist, new_ist;
-+
-+	/* Read old IST entry */
-+	old_ist = __this_cpu_read(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC]);
-+
-+	/* Make room on the IST stack */
-+	if (on_vc_stack(regs->sp))
-+		new_ist = ALIGN_DOWN(regs->sp, 8) - sizeof(old_ist);
-+	else
-+		new_ist = old_ist - sizeof(old_ist);
-+
-+	/* Store old IST entry */
-+	*(unsigned long *)new_ist = old_ist;
-+
-+	/* Set new IST entry */
-+	this_cpu_write(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC], new_ist);
-+}
-+
-+void noinstr __sev_es_ist_exit(void)
-+{
-+	unsigned long ist;
-+
-+	/* Read IST entry */
-+	ist = __this_cpu_read(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC]);
-+
-+	if (WARN_ON(ist == __this_cpu_ist_top_va(VC)))
-+		return;
-+
-+	/* Read back old IST entry and write it to the TSS */
-+	this_cpu_write(cpu_tss_rw.x86_tss.ist[IST_INDEX_VC], *(unsigned long *)ist);
-+}
++static DEFINE_PER_CPU(struct sev_es_runtime_data*, runtime_data);
 +
  /* Needed in vc_early_forward_exception */
  void do_early_exception(struct pt_regs *regs, int trapnr);
  
-@@ -277,6 +327,9 @@ void __init sev_es_init_vc_handling(void)
- 	if (!sev_es_active())
- 		return;
+@@ -198,6 +210,48 @@ static bool __init sev_es_setup_ghcb(void)
+ 	return true;
+ }
  
-+	/* Enable SEV-ES special handling */
-+	static_branch_enable(&sev_es_enable_key);
++static void __init alloc_runtime_data(int cpu)
++{
++	struct sev_es_runtime_data *data;
 +
- 	/* Initialize per-cpu GHCB pages */
- 	for_each_possible_cpu(cpu) {
- 		alloc_runtime_data(cpu);
++	data = memblock_alloc(sizeof(*data), PAGE_SIZE);
++	if (!data)
++		panic("Can't allocate SEV-ES runtime data");
++
++	per_cpu(runtime_data, cpu) = data;
++}
++
++static void __init init_ghcb(int cpu)
++{
++	struct sev_es_runtime_data *data;
++	int err;
++
++	data = per_cpu(runtime_data, cpu);
++
++	err = early_set_memory_decrypted((unsigned long)&data->ghcb_page,
++					 sizeof(data->ghcb_page));
++	if (err)
++		panic("Can not map GHCBs unencrypted");
++
++	memset(&data->ghcb_page, 0, sizeof(data->ghcb_page));
++}
++
++void __init sev_es_init_vc_handling(void)
++{
++	int cpu;
++
++	BUILD_BUG_ON((offsetof(struct sev_es_runtime_data, ghcb_page) % PAGE_SIZE) != 0);
++
++	if (!sev_es_active())
++		return;
++
++	/* Initialize per-cpu GHCB pages */
++	for_each_possible_cpu(cpu) {
++		alloc_runtime_data(cpu);
++		init_ghcb(cpu);
++	}
++}
++
+ static void __init vc_early_forward_exception(struct es_em_ctxt *ctxt)
+ {
+ 	int trapnr = ctxt->fi.vector;
+diff --git a/arch/x86/kernel/traps.c b/arch/x86/kernel/traps.c
+index df9c6554f83e..e121e7c5f831 100644
+--- a/arch/x86/kernel/traps.c
++++ b/arch/x86/kernel/traps.c
+@@ -1082,6 +1082,9 @@ void __init trap_init(void)
+ 	/* Init cpu_entry_area before IST entries are set up */
+ 	setup_cpu_entry_areas();
+ 
++	/* Init GHCB memory pages when running as an SEV-ES guest */
++	sev_es_init_vc_handling();
++
+ 	idt_setup_traps();
+ 
+ 	/*
 -- 
 2.28.0
 
