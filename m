@@ -7,59 +7,60 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0ADFCC433E2
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:28 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1740BC43461
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:38 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C5644207C3
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:27 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C5644207C3
+	by mail.kernel.org (Postfix) with ESMTPS id C9462207C3
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:37 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C9462207C3
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id A423F86759;
-	Mon,  7 Sep 2020 13:17:27 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id AEFCD867A1;
+	Mon,  7 Sep 2020 13:17:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id d9CzKdR9baCk; Mon,  7 Sep 2020 13:17:25 +0000 (UTC)
+	with ESMTP id zc99utwDhtRH; Mon,  7 Sep 2020 13:17:36 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id BB1DE867E7;
-	Mon,  7 Sep 2020 13:17:24 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 5A5258670C;
+	Mon,  7 Sep 2020 13:17:36 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A5CFFC0859;
-	Mon,  7 Sep 2020 13:17:24 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 51693C0859;
+	Mon,  7 Sep 2020 13:17:36 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 60CC3C0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 40D97C0051
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:17:23 +0000 (UTC)
+ Mon,  7 Sep 2020 13:17:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 49555214EB
+ by silver.osuosl.org (Postfix) with ESMTP id 1C3BE20398
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:17:23 +0000 (UTC)
+ Mon,  7 Sep 2020 13:17:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JTsb4tKuVxZx
+ with ESMTP id JIerc71FO-Fv
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:17:15 +0000 (UTC)
+ Mon,  7 Sep 2020 13:17:29 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by silver.osuosl.org (Postfix) with ESMTPS id 142AE2151F
+ by silver.osuosl.org (Postfix) with ESMTPS id 136EB1FD7D
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:16:58 +0000 (UTC)
+ Mon,  7 Sep 2020 13:17:00 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549add56.dip0.t-ipconnect.de
  [84.154.221.86])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 6B709FC8;
- Mon,  7 Sep 2020 15:16:55 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 7EE22FDC;
+ Mon,  7 Sep 2020 15:16:57 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v7 26/72] x86/fpu: Move xgetbv()/xsetbv() into separate header
-Date: Mon,  7 Sep 2020 15:15:27 +0200
-Message-Id: <20200907131613.12703-27-joro@8bytes.org>
+Subject: [PATCH v7 30/72] x86/head/64: Load GDT after switch to virtual
+ addresses
+Date: Mon,  7 Sep 2020 15:15:31 +0200
+Message-Id: <20200907131613.12703-31-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200907131613.12703-1-joro@8bytes.org>
 References: <20200907131613.12703-1-joro@8bytes.org>
@@ -95,107 +96,49 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-The xgetbv() function is needed in pre-decompression boot code, but
-asm/fpu/internal.h can't be included there directly. Doing so opens
-the door to include-hell due to various include-magic in
-boot/compressed/misc.h.
-
-Avoid that by moving xgetbv()/xsetbv() to a separate header file and
-include this instead.
+Load the GDT right after switching to virtual addresses to make sure
+there is a defined GDT for exception handling.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Reviewed-by: Kees Cook <keescook@chromium.org>
 ---
- arch/x86/include/asm/fpu/internal.h | 30 +------------------------
- arch/x86/include/asm/fpu/xcr.h      | 34 +++++++++++++++++++++++++++++
- 2 files changed, 35 insertions(+), 29 deletions(-)
- create mode 100644 arch/x86/include/asm/fpu/xcr.h
+ arch/x86/kernel/head_64.S | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/arch/x86/include/asm/fpu/internal.h b/arch/x86/include/asm/fpu/internal.h
-index 21a8b5259477..ceeba9f63172 100644
---- a/arch/x86/include/asm/fpu/internal.h
-+++ b/arch/x86/include/asm/fpu/internal.h
-@@ -19,6 +19,7 @@
- #include <asm/user.h>
- #include <asm/fpu/api.h>
- #include <asm/fpu/xstate.h>
-+#include <asm/fpu/xcr.h>
- #include <asm/cpufeature.h>
- #include <asm/trace/fpu.h>
+diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
+index 2b2e91627221..03b03f266dc1 100644
+--- a/arch/x86/kernel/head_64.S
++++ b/arch/x86/kernel/head_64.S
+@@ -158,6 +158,14 @@ SYM_CODE_START(secondary_startup_64)
+ 1:
+ 	UNWIND_HINT_EMPTY
  
-@@ -585,33 +586,4 @@ static inline void switch_fpu_finish(struct fpu *new_fpu)
- 	__write_pkru(pkru_val);
- }
++	/*
++	 * We must switch to a new descriptor in kernel space for the GDT
++	 * because soon the kernel won't have access anymore to the userspace
++	 * addresses where we're currently running on. We have to do that here
++	 * because in 32bit we couldn't load a 64bit linear address.
++	 */
++	lgdt	early_gdt_descr(%rip)
++
+ 	/* Check if nx is implemented */
+ 	movl	$0x80000001, %eax
+ 	cpuid
+@@ -185,14 +193,6 @@ SYM_CODE_START(secondary_startup_64)
+ 	pushq $0
+ 	popfq
  
--/*
-- * MXCSR and XCR definitions:
-- */
+-	/*
+-	 * We must switch to a new descriptor in kernel space for the GDT
+-	 * because soon the kernel won't have access anymore to the userspace
+-	 * addresses where we're currently running on. We have to do that here
+-	 * because in 32bit we couldn't load a 64bit linear address.
+-	 */
+-	lgdt	early_gdt_descr(%rip)
 -
--static inline void ldmxcsr(u32 mxcsr)
--{
--	asm volatile("ldmxcsr %0" :: "m" (mxcsr));
--}
--
--extern unsigned int mxcsr_feature_mask;
--
--#define XCR_XFEATURE_ENABLED_MASK	0x00000000
--
--static inline u64 xgetbv(u32 index)
--{
--	u32 eax, edx;
--
--	asm volatile("xgetbv" : "=a" (eax), "=d" (edx) : "c" (index));
--	return eax + ((u64)edx << 32);
--}
--
--static inline void xsetbv(u32 index, u64 value)
--{
--	u32 eax = value;
--	u32 edx = value >> 32;
--
--	asm volatile("xsetbv" :: "a" (eax), "d" (edx), "c" (index));
--}
--
- #endif /* _ASM_X86_FPU_INTERNAL_H */
-diff --git a/arch/x86/include/asm/fpu/xcr.h b/arch/x86/include/asm/fpu/xcr.h
-new file mode 100644
-index 000000000000..1c7ab8d95da5
---- /dev/null
-+++ b/arch/x86/include/asm/fpu/xcr.h
-@@ -0,0 +1,34 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _ASM_X86_FPU_XCR_H
-+#define _ASM_X86_FPU_XCR_H
-+
-+/*
-+ * MXCSR and XCR definitions:
-+ */
-+
-+static inline void ldmxcsr(u32 mxcsr)
-+{
-+	asm volatile("ldmxcsr %0" :: "m" (mxcsr));
-+}
-+
-+extern unsigned int mxcsr_feature_mask;
-+
-+#define XCR_XFEATURE_ENABLED_MASK	0x00000000
-+
-+static inline u64 xgetbv(u32 index)
-+{
-+	u32 eax, edx;
-+
-+	asm volatile("xgetbv" : "=a" (eax), "=d" (edx) : "c" (index));
-+	return eax + ((u64)edx << 32);
-+}
-+
-+static inline void xsetbv(u32 index, u64 value)
-+{
-+	u32 eax = value;
-+	u32 edx = value >> 32;
-+
-+	asm volatile("xsetbv" :: "a" (eax), "d" (edx), "c" (index));
-+}
-+
-+#endif /* _ASM_X86_FPU_XCR_H */
+ 	/* set up data segments */
+ 	xorl %eax,%eax
+ 	movl %eax,%ds
 -- 
 2.28.0
 
