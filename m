@@ -7,60 +7,60 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B18AC2BB84
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3D51C2D0A7
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:00 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C568D21775
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C568D21775
+	by mail.kernel.org (Postfix) with ESMTPS id 90D8520838
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:00 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 90D8520838
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id B0E4086073;
-	Mon,  7 Sep 2020 13:17:01 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 4451B8605E;
+	Mon,  7 Sep 2020 13:17:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id zzc_cgO3jpEJ; Mon,  7 Sep 2020 13:17:00 +0000 (UTC)
+	with ESMTP id vKa-MUGkVG3v; Mon,  7 Sep 2020 13:16:58 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id CE2AC8604A;
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 7A7CB85FD7;
 	Mon,  7 Sep 2020 13:16:58 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BB2ABC0893;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4D0A0C0893;
 	Mon,  7 Sep 2020 13:16:58 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CECCAC0859
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F201DC0051
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:16:57 +0000 (UTC)
+ Mon,  7 Sep 2020 13:16:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id A7474867B6
+ by fraxinus.osuosl.org (Postfix) with ESMTP id E1D0885F93
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:16:57 +0000 (UTC)
+ Mon,  7 Sep 2020 13:16:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id uWc4CZfruC7K
+ with ESMTP id Z-5g2fKiT0Gb
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:16:54 +0000 (UTC)
+ Mon,  7 Sep 2020 13:16:55 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 46F318676F
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 4AB8585FA3
  for <virtualization@lists.linux-foundation.org>;
  Mon,  7 Sep 2020 13:16:54 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549add56.dip0.t-ipconnect.de
  [84.154.221.86])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 5B5F5F13;
- Mon,  7 Sep 2020 15:16:51 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id D9277EFF;
+ Mon,  7 Sep 2020 15:16:50 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v7 18/72] x86/boot/compressed/64: Change add_identity_map() to
- take start and end
-Date: Mon,  7 Sep 2020 15:15:19 +0200
-Message-Id: <20200907131613.12703-19-joro@8bytes.org>
+Subject: [PATCH v7 17/72] x86/boot/compressed/64: Don't pre-map memory in
+ KASLR code
+Date: Mon,  7 Sep 2020 15:15:18 +0200
+Message-Id: <20200907131613.12703-18-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200907131613.12703-1-joro@8bytes.org>
 References: <20200907131613.12703-1-joro@8bytes.org>
@@ -96,69 +96,120 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Changing the function to take start and end as parameters instead of
-start and size simplifies the callers, which don't need to calculate
-the size if they already have start and end.
+With the page-fault handler in place the identity mapping can be built
+on-demand. So remove the code which manually creates the mappings and
+unexport/remove the functions used for it.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Reviewed-by: Kees Cook <keescook@chromium.org>
 ---
- arch/x86/boot/compressed/ident_map_64.c | 15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ arch/x86/boot/compressed/ident_map_64.c |  6 ++----
+ arch/x86/boot/compressed/kaslr.c        | 24 +-----------------------
+ arch/x86/boot/compressed/misc.h         | 10 ----------
+ 3 files changed, 3 insertions(+), 37 deletions(-)
 
 diff --git a/arch/x86/boot/compressed/ident_map_64.c b/arch/x86/boot/compressed/ident_map_64.c
-index c63257bf8373..62e42c11a336 100644
+index ecf9353b064d..c63257bf8373 100644
 --- a/arch/x86/boot/compressed/ident_map_64.c
 +++ b/arch/x86/boot/compressed/ident_map_64.c
-@@ -89,10 +89,8 @@ static struct x86_mapping_info mapping_info;
+@@ -87,11 +87,9 @@ phys_addr_t physical_mask = (1ULL << __PHYSICAL_MASK_SHIFT) - 1;
+ static struct x86_mapping_info mapping_info;
+ 
  /*
-  * Adds the specified range to the identity mappings.
+- * Adds the specified range to what will become the new identity mappings.
+- * Once all ranges have been added, the new mapping is activated by calling
+- * finalize_identity_maps() below.
++ * Adds the specified range to the identity mappings.
   */
--static void add_identity_map(unsigned long start, unsigned long size)
-+static void add_identity_map(unsigned long start, unsigned long end)
+-void add_identity_map(unsigned long start, unsigned long size)
++static void add_identity_map(unsigned long start, unsigned long size)
  {
--	unsigned long end = start + size;
--
- 	/* Align boundary to 2M. */
- 	start = round_down(start, PMD_SIZE);
- 	end = round_up(end, PMD_SIZE);
-@@ -107,8 +105,6 @@ static void add_identity_map(unsigned long start, unsigned long size)
- /* Locates and clears a region for a new top level page table. */
- void initialize_identity_maps(void)
- {
--	unsigned long start, size;
--
- 	/* If running as an SEV guest, the encryption mask is required. */
- 	set_sev_encryption_mask();
+ 	unsigned long end = start + size;
  
-@@ -155,9 +151,7 @@ void initialize_identity_maps(void)
- 	 * New page-table is set up - map the kernel image and load it
- 	 * into cr3.
+diff --git a/arch/x86/boot/compressed/kaslr.c b/arch/x86/boot/compressed/kaslr.c
+index 82662869c4cb..b59547ce5b19 100644
+--- a/arch/x86/boot/compressed/kaslr.c
++++ b/arch/x86/boot/compressed/kaslr.c
+@@ -397,8 +397,6 @@ static void mem_avoid_init(unsigned long input, unsigned long input_size,
  	 */
--	start = (unsigned long)_head;
--	size  = _end - _head;
--	add_identity_map(start, size);
-+	add_identity_map((unsigned long)_head, (unsigned long)_end);
- 	write_cr3(top_level_pgt);
+ 	mem_avoid[MEM_AVOID_ZO_RANGE].start = input;
+ 	mem_avoid[MEM_AVOID_ZO_RANGE].size = (output + init_size) - input;
+-	add_identity_map(mem_avoid[MEM_AVOID_ZO_RANGE].start,
+-			 mem_avoid[MEM_AVOID_ZO_RANGE].size);
+ 
+ 	/* Avoid initrd. */
+ 	initrd_start  = (u64)boot_params->ext_ramdisk_image << 32;
+@@ -416,15 +414,11 @@ static void mem_avoid_init(unsigned long input, unsigned long input_size,
+ 		cmd_line_size = strnlen((char *)cmd_line, COMMAND_LINE_SIZE-1) + 1;
+ 		mem_avoid[MEM_AVOID_CMDLINE].start = cmd_line;
+ 		mem_avoid[MEM_AVOID_CMDLINE].size = cmd_line_size;
+-		add_identity_map(mem_avoid[MEM_AVOID_CMDLINE].start,
+-				 mem_avoid[MEM_AVOID_CMDLINE].size);
+ 	}
+ 
+ 	/* Avoid boot parameters. */
+ 	mem_avoid[MEM_AVOID_BOOTPARAMS].start = (unsigned long)boot_params;
+ 	mem_avoid[MEM_AVOID_BOOTPARAMS].size = sizeof(*boot_params);
+-	add_identity_map(mem_avoid[MEM_AVOID_BOOTPARAMS].start,
+-			 mem_avoid[MEM_AVOID_BOOTPARAMS].size);
+ 
+ 	/* We don't need to set a mapping for setup_data. */
+ 
+@@ -433,11 +427,6 @@ static void mem_avoid_init(unsigned long input, unsigned long input_size,
+ 
+ 	/* Enumerate the immovable memory regions */
+ 	num_immovable_mem = count_immovable_mem_regions();
+-
+-#ifdef CONFIG_X86_VERBOSE_BOOTUP
+-	/* Make sure video RAM can be used. */
+-	add_identity_map(0, PMD_SIZE);
+-#endif
  }
  
-@@ -189,7 +183,8 @@ static void do_pf_error(const char *msg, unsigned long error_code,
+ /*
+@@ -884,19 +873,8 @@ void choose_random_location(unsigned long input,
+ 		warn("Physical KASLR disabled: no suitable memory region!");
+ 	} else {
+ 		/* Update the new physical address location. */
+-		if (*output != random_addr) {
+-			add_identity_map(random_addr, output_size);
++		if (*output != random_addr)
+ 			*output = random_addr;
+-		}
+-
+-		/*
+-		 * This loads the identity mapping page table.
+-		 * This should only be done if a new physical address
+-		 * is found for the kernel, otherwise we should keep
+-		 * the old page table to make it be like the "nokaslr"
+-		 * case.
+-		 */
+-		finalize_identity_maps();
+ 	}
  
- void do_boot_page_fault(struct pt_regs *regs, unsigned long error_code)
- {
--	unsigned long address = native_read_cr2();
-+	unsigned long address = native_read_cr2() & PMD_MASK;
-+	unsigned long end = address + PMD_SIZE;
  
- 	/*
- 	 * Check for unexpected error codes. Unexpected are:
-@@ -204,5 +199,5 @@ void do_boot_page_fault(struct pt_regs *regs, unsigned long error_code)
- 	 * Error code is sane - now identity map the 2M region around
- 	 * the faulting address.
- 	 */
--	add_identity_map(address & PMD_MASK, PMD_SIZE);
-+	add_identity_map(address, end);
- }
+diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
+index f0e199174c5f..9840c82a39f1 100644
+--- a/arch/x86/boot/compressed/misc.h
++++ b/arch/x86/boot/compressed/misc.h
+@@ -98,17 +98,7 @@ static inline void choose_random_location(unsigned long input,
+ #endif
+ 
+ #ifdef CONFIG_X86_64
+-void initialize_identity_maps(void);
+-void add_identity_map(unsigned long start, unsigned long size);
+-void finalize_identity_maps(void);
+ extern unsigned char _pgtable[];
+-#else
+-static inline void initialize_identity_maps(void)
+-{ }
+-static inline void add_identity_map(unsigned long start, unsigned long size)
+-{ }
+-static inline void finalize_identity_maps(void)
+-{ }
+ #endif
+ 
+ #ifdef CONFIG_EARLY_PRINTK
 -- 
 2.28.0
 
