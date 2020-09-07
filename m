@@ -7,59 +7,59 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1FF72C43461
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:15 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5632C2BB84
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:19 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D498E20838
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D498E20838
+	by mail.kernel.org (Postfix) with ESMTPS id 78BC520838
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:19 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 78BC520838
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 9283986053;
-	Mon,  7 Sep 2020 13:17:14 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 6375085335;
+	Mon,  7 Sep 2020 13:17:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id wu0UTj5UShqd; Mon,  7 Sep 2020 13:17:11 +0000 (UTC)
+	with ESMTP id ogHW4uueR4OG; Mon,  7 Sep 2020 13:17:14 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 8048485F56;
-	Mon,  7 Sep 2020 13:17:11 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 81F478680C;
+	Mon,  7 Sep 2020 13:17:06 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6B37EC0891;
-	Mon,  7 Sep 2020 13:17:11 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A86DDC0051
- for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:17:10 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id A52E685FAD
- for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:17:10 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 3RWLBrL3LVwG
- for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:17:04 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
-Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id DF20386053
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 786E5C0894;
+	Mon,  7 Sep 2020 13:17:06 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 58E88C0893
  for <virtualization@lists.linux-foundation.org>;
  Mon,  7 Sep 2020 13:17:03 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by hemlock.osuosl.org (Postfix) with ESMTP id 53D3B87141
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  7 Sep 2020 13:17:03 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from hemlock.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id VzG4jCjba6lf
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  7 Sep 2020 13:17:02 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
+Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 6E7868714E
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  7 Sep 2020 13:17:02 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549add56.dip0.t-ipconnect.de
  [84.154.221.86])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 9056AFFC;
- Mon,  7 Sep 2020 15:17:00 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 05E3BFF4;
+ Mon,  7 Sep 2020 15:16:59 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v7 36/72] x86/sev-es: Add SEV-ES Feature Detection
-Date: Mon,  7 Sep 2020 15:15:37 +0200
-Message-Id: <20200907131613.12703-37-joro@8bytes.org>
+Subject: [PATCH v7 33/72] x86/head/64: Install a CPU bringup IDT
+Date: Mon,  7 Sep 2020 15:15:34 +0200
+Message-Id: <20200907131613.12703-34-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200907131613.12703-1-joro@8bytes.org>
 References: <20200907131613.12703-1-joro@8bytes.org>
@@ -95,102 +95,130 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Add the sev_es_active function for checking whether SEV-ES is enabled.
-Also cache the value of MSR_AMD64_SEV at boot to speed up the feature
-checking in the running code.
+Add a separate bringup IDT used by CPU bringup code that will be used
+until the kernel switches to the idt_table. There are two reasons for
+a separate IDT:
+
+	1) When the idt_table is set up and the secondary CPUs are
+	   booted, it contains entries (e.g. IST entries) which
+	   require certain CPU state to be set up. This includes a
+	   working TSS (for IST), MSR_GS_BASE (for stack protector) or
+	   CR4.FSGSBASE (for paranoid_entry) path. By using a
+	   dedicated IDT for early boot this state need not to be set
+	   up early.
+
+	2) The idt_table is static to idt.c, so any function
+	   using/modifying must be in idt.c too. That means that all
+	   compiler driven instrumentation like tracing or KASAN is
+	   also active in this code. But during early CPU bringup the
+	   environment is not set up for this instrumentation to work
+	   correctly.
+
+To avoid all of these hassles and make early exception handling
+robust, use a dedicated bringup IDT.
+
+The IDT is loaded two times, first on the boot CPU while the kernel is
+still running on direct mapped addresses, and again later when the
+switch to kernel addresses happened. The second IDT load happens on
+the boot and secondary CPUs.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Reviewed-by: Kees Cook <keescook@chromium.org>
 ---
- arch/x86/include/asm/mem_encrypt.h | 3 +++
- arch/x86/include/asm/msr-index.h   | 2 ++
- arch/x86/mm/mem_encrypt.c          | 9 ++++++++-
- arch/x86/mm/mem_encrypt_identity.c | 3 +++
- 4 files changed, 16 insertions(+), 1 deletion(-)
+ arch/x86/include/asm/setup.h |  1 +
+ arch/x86/kernel/head64.c     | 39 ++++++++++++++++++++++++++++++++++++
+ arch/x86/kernel/head_64.S    |  5 +++++
+ 3 files changed, 45 insertions(+)
 
-diff --git a/arch/x86/include/asm/mem_encrypt.h b/arch/x86/include/asm/mem_encrypt.h
-index 5049f6c22683..4e72b73a9cb5 100644
---- a/arch/x86/include/asm/mem_encrypt.h
-+++ b/arch/x86/include/asm/mem_encrypt.h
-@@ -19,6 +19,7 @@
- #ifdef CONFIG_AMD_MEM_ENCRYPT
+diff --git a/arch/x86/include/asm/setup.h b/arch/x86/include/asm/setup.h
+index 5c2fd05bd52c..4b3ca5ade2fd 100644
+--- a/arch/x86/include/asm/setup.h
++++ b/arch/x86/include/asm/setup.h
+@@ -50,6 +50,7 @@ extern unsigned long __startup_64(unsigned long physaddr, struct boot_params *bp
+ extern unsigned long __startup_secondary_64(void);
+ extern void startup_64_setup_env(unsigned long physbase);
+ extern int early_make_pgtable(unsigned long address);
++extern void early_setup_idt(void);
  
- extern u64 sme_me_mask;
-+extern u64 sev_status;
- extern bool sev_enabled;
+ #ifdef CONFIG_X86_INTEL_MID
+ extern void x86_intel_mid_early_setup(void);
+diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
+index 8c82be44be94..7bfd5c27c773 100644
+--- a/arch/x86/kernel/head64.c
++++ b/arch/x86/kernel/head64.c
+@@ -36,6 +36,8 @@
+ #include <asm/microcode.h>
+ #include <asm/kasan.h>
+ #include <asm/fixmap.h>
++#include <asm/realmode.h>
++#include <asm/desc.h>
  
- void sme_encrypt_execute(unsigned long encrypted_kernel_vaddr,
-@@ -50,6 +51,7 @@ void __init mem_encrypt_init(void);
- 
- bool sme_active(void);
- bool sev_active(void);
-+bool sev_es_active(void);
- 
- #define __bss_decrypted __attribute__((__section__(".bss..decrypted")))
- 
-@@ -72,6 +74,7 @@ static inline void __init sme_enable(struct boot_params *bp) { }
- 
- static inline bool sme_active(void) { return false; }
- static inline bool sev_active(void) { return false; }
-+static inline bool sev_es_active(void) { return false; }
- 
- static inline int __init
- early_set_memory_decrypted(unsigned long vaddr, unsigned long size) { return 0; }
-diff --git a/arch/x86/include/asm/msr-index.h b/arch/x86/include/asm/msr-index.h
-index cd6d651ff730..95871defba91 100644
---- a/arch/x86/include/asm/msr-index.h
-+++ b/arch/x86/include/asm/msr-index.h
-@@ -469,7 +469,9 @@
- #define MSR_AMD64_SEV_ES_GHCB		0xc0010130
- #define MSR_AMD64_SEV			0xc0010131
- #define MSR_AMD64_SEV_ENABLED_BIT	0
-+#define MSR_AMD64_SEV_ES_ENABLED_BIT	1
- #define MSR_AMD64_SEV_ENABLED		BIT_ULL(MSR_AMD64_SEV_ENABLED_BIT)
-+#define MSR_AMD64_SEV_ES_ENABLED	BIT_ULL(MSR_AMD64_SEV_ES_ENABLED_BIT)
- 
- #define MSR_AMD64_VIRT_SPEC_CTRL	0xc001011f
- 
-diff --git a/arch/x86/mm/mem_encrypt.c b/arch/x86/mm/mem_encrypt.c
-index 9f1177edc2e7..d0d4ebcec1be 100644
---- a/arch/x86/mm/mem_encrypt.c
-+++ b/arch/x86/mm/mem_encrypt.c
-@@ -38,6 +38,7 @@
-  * section is later cleared.
-  */
- u64 sme_me_mask __section(.data) = 0;
-+u64 sev_status __section(.data) = 0;
- EXPORT_SYMBOL(sme_me_mask);
- DEFINE_STATIC_KEY_FALSE(sev_enable_key);
- EXPORT_SYMBOL_GPL(sev_enable_key);
-@@ -347,7 +348,13 @@ bool sme_active(void)
- 
- bool sev_active(void)
- {
--	return sme_me_mask && sev_enabled;
-+	return !!(sev_status & MSR_AMD64_SEV_ENABLED);
-+}
-+
-+/* Needs to be called from non-instrumentable code */
-+bool noinstr sev_es_active(void)
-+{
-+	return sev_status & MSR_AMD64_SEV_ES_ENABLED;
+ /*
+  * Manage page tables very early on.
+@@ -508,6 +510,41 @@ void __init x86_64_start_reservations(char *real_mode_data)
+ 	start_kernel();
  }
  
- /* Override for DMA direct allocation check - ARCH_HAS_FORCE_DMA_UNENCRYPTED */
-diff --git a/arch/x86/mm/mem_encrypt_identity.c b/arch/x86/mm/mem_encrypt_identity.c
-index e2b0e2ac07bb..68d75379e06a 100644
---- a/arch/x86/mm/mem_encrypt_identity.c
-+++ b/arch/x86/mm/mem_encrypt_identity.c
-@@ -540,6 +540,9 @@ void __init sme_enable(struct boot_params *bp)
- 		if (!(msr & MSR_AMD64_SEV_ENABLED))
- 			return;
- 
-+		/* Save SEV_STATUS to avoid reading MSR again */
-+		sev_status = msr;
++/*
++ * Data structures and code used for IDT setup in head_64.S. The bringup-IDT is
++ * used until the idt_table takes over. On the boot CPU this happens in
++ * x86_64_start_kernel(), on secondary CPUs in start_secondary(). In both cases
++ * this happens in the functions called from head_64.S.
++ *
++ * The idt_table can't be used that early because all the code modifying it is
++ * in idt.c and can be instrumented by tracing or KASAN, which both don't work
++ * during early CPU bringup. Also the idt_table has the runtime vectors
++ * configured which require certain CPU state to be setup already (like TSS),
++ * which also hasn't happened yet in early CPU bringup.
++ */
++static gate_desc bringup_idt_table[NUM_EXCEPTION_VECTORS] __page_aligned_data;
 +
- 		/* SEV state cannot be controlled by a command line option */
- 		sme_me_mask = me_mask;
- 		sev_enabled = true;
++static struct desc_ptr bringup_idt_descr = {
++	.size		= (NUM_EXCEPTION_VECTORS * sizeof(gate_desc)) - 1,
++	.address	= 0, /* Set at runtime */
++};
++
++/* This runs while still in the direct mapping */
++static void startup_64_load_idt(unsigned long physbase)
++{
++	struct desc_ptr *desc = fixup_pointer(&bringup_idt_descr, physbase);
++
++	desc->address = (unsigned long)fixup_pointer(bringup_idt_table, physbase);
++	native_load_idt(desc);
++}
++
++/* This is used when running on kernel addresses */
++void early_setup_idt(void)
++{
++	bringup_idt_descr.address = (unsigned long)bringup_idt_table;
++	native_load_idt(&bringup_idt_descr);
++}
++
+ /*
+  * Setup boot CPU state needed before kernel switches to virtual addresses.
+  */
+@@ -521,4 +558,6 @@ void __head startup_64_setup_env(unsigned long physbase)
+ 	asm volatile("movl %%eax, %%ds\n"
+ 		     "movl %%eax, %%ss\n"
+ 		     "movl %%eax, %%es\n" : : "a"(__KERNEL_DS) : "memory");
++
++	startup_64_load_idt(physbase);
+ }
+diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
+index 83050c9e54d9..1de09b58e578 100644
+--- a/arch/x86/kernel/head_64.S
++++ b/arch/x86/kernel/head_64.S
+@@ -198,6 +198,11 @@ SYM_CODE_START(secondary_startup_64)
+ 	 */
+ 	movq initial_stack(%rip), %rsp
+ 
++	/* Setup and Load IDT */
++	pushq	%rsi
++	call	early_setup_idt
++	popq	%rsi
++
+ 	/* Check if nx is implemented */
+ 	movl	$0x80000001, %eax
+ 	cpuid
 -- 
 2.28.0
 
