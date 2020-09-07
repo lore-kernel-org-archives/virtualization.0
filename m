@@ -7,60 +7,60 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4EDE2C2D0E4
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:28:02 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 50B1BC2BB84
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:28:04 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 092E9215A4
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:28:01 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 092E9215A4
+	by mail.kernel.org (Postfix) with ESMTPS id 11DB02166E
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:28:04 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 11DB02166E
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 2961E867D8;
-	Mon,  7 Sep 2020 13:28:01 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id DBD54861FF;
+	Mon,  7 Sep 2020 13:28:03 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id zmhE1RhbPqAY; Mon,  7 Sep 2020 13:27:53 +0000 (UTC)
+	with ESMTP id Z5I9swakCUG9; Mon,  7 Sep 2020 13:28:02 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 1B5ED867BF;
-	Mon,  7 Sep 2020 13:27:52 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 7FDEC860DE;
+	Mon,  7 Sep 2020 13:27:56 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 064C5C0893;
-	Mon,  7 Sep 2020 13:27:52 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6971CC0893;
+	Mon,  7 Sep 2020 13:27:56 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 64C65C0895
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B92C5C0894
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:48 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 4E1C785FFC
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 96134860D2
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:48 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id nn3ZAemZwbFJ
+ with ESMTP id K5gBXjhzMXYc
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:47 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:49 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 7260E85FD6
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 6F085860AE
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:47 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:49 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549add56.dip0.t-ipconnect.de
  [84.154.221.86])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id A4F581011;
- Mon,  7 Sep 2020 15:17:03 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id C630B3AAA;
+ Mon,  7 Sep 2020 15:17:17 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v7 42/72] x86/sev-es: Allocate and Map IST stack for #VC
- handler
-Date: Mon,  7 Sep 2020 15:15:43 +0200
-Message-Id: <20200907131613.12703-43-joro@8bytes.org>
+Subject: [PATCH v7 67/72] x86/smpboot: Load TSS and getcpu GDT entry before
+ loading IDT
+Date: Mon,  7 Sep 2020 15:16:08 +0200
+Message-Id: <20200907131613.12703-68-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200907131613.12703-1-joro@8bytes.org>
 References: <20200907131613.12703-1-joro@8bytes.org>
@@ -96,213 +96,76 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Allocate and map an IST stack and an additional fall-back stack for
-the #VC handler.  The memory for the stacks is allocated only when
-SEV-ES is active.
-
-The #VC handler needs to use an IST stack because it could be raised
-from kernel space with unsafe stack, e.g. in the SYSCALL entry path.
-
-Since the #VC exception can be nested, the #VC handler switches back to
-the interrupted stack when entered from kernel space. If switching back
-is not possible the fall-back stack is used.
+The IDT on 64bit contains vectors which use paranoid_entry() and/or IST
+stacks. To make these vectors work the TSS and the getcpu GDT entry need
+to be set up before the IDT is loaded.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/cpu_entry_area.h | 33 +++++++++++++++++----------
- arch/x86/include/asm/page_64_types.h  |  1 +
- arch/x86/kernel/cpu/common.c          |  2 ++
- arch/x86/kernel/dumpstack_64.c        |  8 +++++--
- arch/x86/kernel/sev-es.c              | 33 +++++++++++++++++++++++++++
- 5 files changed, 63 insertions(+), 14 deletions(-)
+ arch/x86/include/asm/processor.h |  1 +
+ arch/x86/kernel/cpu/common.c     | 23 +++++++++++++++++++++++
+ arch/x86/kernel/smpboot.c        |  2 +-
+ 3 files changed, 25 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/cpu_entry_area.h b/arch/x86/include/asm/cpu_entry_area.h
-index 8902fdb7de13..3d52b094850a 100644
---- a/arch/x86/include/asm/cpu_entry_area.h
-+++ b/arch/x86/include/asm/cpu_entry_area.h
-@@ -11,25 +11,29 @@
- #ifdef CONFIG_X86_64
+diff --git a/arch/x86/include/asm/processor.h b/arch/x86/include/asm/processor.h
+index d8a82e650810..5ac507586769 100644
+--- a/arch/x86/include/asm/processor.h
++++ b/arch/x86/include/asm/processor.h
+@@ -696,6 +696,7 @@ extern void load_direct_gdt(int);
+ extern void load_fixmap_gdt(int);
+ extern void load_percpu_segment(int);
+ extern void cpu_init(void);
++extern void cpu_init_exception_handling(void);
+ extern void cr4_init(void);
  
- /* Macro to enforce the same ordering and stack sizes */
--#define ESTACKS_MEMBERS(guardsize)		\
--	char	DF_stack_guard[guardsize];	\
--	char	DF_stack[EXCEPTION_STKSZ];	\
--	char	NMI_stack_guard[guardsize];	\
--	char	NMI_stack[EXCEPTION_STKSZ];	\
--	char	DB_stack_guard[guardsize];	\
--	char	DB_stack[EXCEPTION_STKSZ];	\
--	char	MCE_stack_guard[guardsize];	\
--	char	MCE_stack[EXCEPTION_STKSZ];	\
--	char	IST_top_guard[guardsize];	\
-+#define ESTACKS_MEMBERS(guardsize, optional_stack_size)		\
-+	char	DF_stack_guard[guardsize];			\
-+	char	DF_stack[EXCEPTION_STKSZ];			\
-+	char	NMI_stack_guard[guardsize];			\
-+	char	NMI_stack[EXCEPTION_STKSZ];			\
-+	char	DB_stack_guard[guardsize];			\
-+	char	DB_stack[EXCEPTION_STKSZ];			\
-+	char	MCE_stack_guard[guardsize];			\
-+	char	MCE_stack[EXCEPTION_STKSZ];			\
-+	char	VC_stack_guard[guardsize];			\
-+	char	VC_stack[optional_stack_size];			\
-+	char	VC2_stack_guard[guardsize];			\
-+	char	VC2_stack[optional_stack_size];			\
-+	char	IST_top_guard[guardsize];			\
- 
- /* The exception stacks' physical storage. No guard pages required */
- struct exception_stacks {
--	ESTACKS_MEMBERS(0)
-+	ESTACKS_MEMBERS(0, 0)
- };
- 
- /* The effective cpu entry area mapping with guard pages. */
- struct cea_exception_stacks {
--	ESTACKS_MEMBERS(PAGE_SIZE)
-+	ESTACKS_MEMBERS(PAGE_SIZE, EXCEPTION_STKSZ)
- };
- 
- /*
-@@ -40,6 +44,8 @@ enum exception_stack_ordering {
- 	ESTACK_NMI,
- 	ESTACK_DB,
- 	ESTACK_MCE,
-+	ESTACK_VC,
-+	ESTACK_VC2,
- 	N_EXCEPTION_STACKS
- };
- 
-@@ -139,4 +145,7 @@ static inline struct entry_stack *cpu_entry_stack(int cpu)
- #define __this_cpu_ist_top_va(name)					\
- 	CEA_ESTACK_TOP(__this_cpu_read(cea_exception_stacks), name)
- 
-+#define __this_cpu_ist_bottom_va(name)					\
-+	CEA_ESTACK_BOT(__this_cpu_read(cea_exception_stacks), name)
-+
- #endif
-diff --git a/arch/x86/include/asm/page_64_types.h b/arch/x86/include/asm/page_64_types.h
-index 288b065955b7..d0c6c10c18a0 100644
---- a/arch/x86/include/asm/page_64_types.h
-+++ b/arch/x86/include/asm/page_64_types.h
-@@ -28,6 +28,7 @@
- #define	IST_INDEX_NMI		1
- #define	IST_INDEX_DB		2
- #define	IST_INDEX_MCE		3
-+#define	IST_INDEX_VC		4
- 
- /*
-  * Set __PAGE_OFFSET to the most negative possible address +
+ static inline unsigned long get_debugctlmsr(void)
 diff --git a/arch/x86/kernel/cpu/common.c b/arch/x86/kernel/cpu/common.c
-index 8aa20bc2f1ca..1d65365363a1 100644
+index 1d65365363a1..a9527c0c38fb 100644
 --- a/arch/x86/kernel/cpu/common.c
 +++ b/arch/x86/kernel/cpu/common.c
-@@ -1821,6 +1821,8 @@ static inline void tss_setup_ist(struct tss_struct *tss)
- 	tss->x86_tss.ist[IST_INDEX_NMI] = __this_cpu_ist_top_va(NMI);
- 	tss->x86_tss.ist[IST_INDEX_DB] = __this_cpu_ist_top_va(DB);
- 	tss->x86_tss.ist[IST_INDEX_MCE] = __this_cpu_ist_top_va(MCE);
-+	/* Only mapped when SEV-ES is active */
-+	tss->x86_tss.ist[IST_INDEX_VC] = __this_cpu_ist_top_va(VC);
+@@ -1854,6 +1854,29 @@ static inline void tss_setup_io_bitmap(struct tss_struct *tss)
+ #endif
  }
  
- #else /* CONFIG_X86_64 */
-diff --git a/arch/x86/kernel/dumpstack_64.c b/arch/x86/kernel/dumpstack_64.c
-index 4a94d38cd141..c49cf594714b 100644
---- a/arch/x86/kernel/dumpstack_64.c
-+++ b/arch/x86/kernel/dumpstack_64.c
-@@ -24,11 +24,13 @@ static const char * const exception_stack_names[] = {
- 		[ ESTACK_NMI	]	= "NMI",
- 		[ ESTACK_DB	]	= "#DB",
- 		[ ESTACK_MCE	]	= "#MC",
-+		[ ESTACK_VC	]	= "#VC",
-+		[ ESTACK_VC2	]	= "#VC2",
- };
- 
- const char *stack_type_name(enum stack_type type)
- {
--	BUILD_BUG_ON(N_EXCEPTION_STACKS != 4);
-+	BUILD_BUG_ON(N_EXCEPTION_STACKS != 6);
- 
- 	if (type == STACK_TYPE_IRQ)
- 		return "IRQ";
-@@ -79,6 +81,8 @@ struct estack_pages estack_pages[CEA_ESTACK_PAGES] ____cacheline_aligned = {
- 	EPAGERANGE(NMI),
- 	EPAGERANGE(DB),
- 	EPAGERANGE(MCE),
-+	EPAGERANGE(VC),
-+	EPAGERANGE(VC2),
- };
- 
- static bool in_exception_stack(unsigned long *stack, struct stack_info *info)
-@@ -88,7 +92,7 @@ static bool in_exception_stack(unsigned long *stack, struct stack_info *info)
- 	struct pt_regs *regs;
- 	unsigned int k;
- 
--	BUILD_BUG_ON(N_EXCEPTION_STACKS != 4);
-+	BUILD_BUG_ON(N_EXCEPTION_STACKS != 6);
- 
- 	begin = (unsigned long)__this_cpu_read(cea_exception_stacks);
- 	/*
-diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index 0f28bb1c0022..5541788420ce 100644
---- a/arch/x86/kernel/sev-es.c
-+++ b/arch/x86/kernel/sev-es.c
-@@ -17,6 +17,7 @@
- #include <linux/kernel.h>
- #include <linux/mm.h>
- 
-+#include <asm/cpu_entry_area.h>
- #include <asm/sev-es.h>
- #include <asm/insn-eval.h>
- #include <asm/fpu/internal.h>
-@@ -37,10 +38,41 @@ static struct ghcb __initdata *boot_ghcb;
- /* #VC handler runtime per-cpu data */
- struct sev_es_runtime_data {
- 	struct ghcb ghcb_page;
-+
-+	/* Physical storage for the per-cpu IST stack of the #VC handler */
-+	char ist_stack[EXCEPTION_STKSZ] __aligned(PAGE_SIZE);
-+
-+	/*
-+	 * Physical storage for the per-cpu fall-back stack of the #VC handler.
-+	 * The fall-back stack is used when it is not safe to switch back to the
-+	 * interrupted stack in the #VC entry code.
-+	 */
-+	char fallback_stack[EXCEPTION_STKSZ] __aligned(PAGE_SIZE);
- };
- 
- static DEFINE_PER_CPU(struct sev_es_runtime_data*, runtime_data);
- 
-+static void __init setup_vc_stacks(int cpu)
++/*
++ * Setup everything needed to handle exceptions from the IDT, including the IST
++ * exceptions which use paranoid_entry()
++ */
++void cpu_init_exception_handling(void)
 +{
-+	struct sev_es_runtime_data *data;
-+	struct cpu_entry_area *cea;
-+	unsigned long vaddr;
-+	phys_addr_t pa;
++	struct tss_struct *tss = this_cpu_ptr(&cpu_tss_rw);
++	int cpu = raw_smp_processor_id();
 +
-+	data = per_cpu(runtime_data, cpu);
-+	cea  = get_cpu_entry_area(cpu);
++	/* paranoid_entry() gets the CPU number from the GDT */
++	setup_getcpu(cpu);
 +
-+	/* Map #VC IST stack */
-+	vaddr = CEA_ESTACK_BOT(&cea->estacks, VC);
-+	pa    = __pa(data->ist_stack);
-+	cea_set_pte((void *)vaddr, pa, PAGE_KERNEL);
++	/* IST vectors need TSS to be set up. */
++	tss_setup_ist(tss);
++	tss_setup_io_bitmap(tss);
++	set_tss_desc(cpu, &get_cpu_entry_area(cpu)->tss.x86_tss);
 +
-+	/* Map VC fall-back stack */
-+	vaddr = CEA_ESTACK_BOT(&cea->estacks, VC2);
-+	pa    = __pa(data->fallback_stack);
-+	cea_set_pte((void *)vaddr, pa, PAGE_KERNEL);
++	load_TR_desc();
++
++	/* Finally load the IDT */
++	load_current_idt();
 +}
 +
- /* Needed in vc_early_forward_exception */
- void do_early_exception(struct pt_regs *regs, int trapnr);
- 
-@@ -249,6 +281,7 @@ void __init sev_es_init_vc_handling(void)
- 	for_each_possible_cpu(cpu) {
- 		alloc_runtime_data(cpu);
- 		init_ghcb(cpu);
-+		setup_vc_stacks(cpu);
- 	}
- }
- 
+ /*
+  * cpu_init() initializes state that is per-CPU. Some data is already
+  * initialized (naturally) in the bootstrap process, such as the GDT
+diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
+index f5ef689dd62a..de776b2e6046 100644
+--- a/arch/x86/kernel/smpboot.c
++++ b/arch/x86/kernel/smpboot.c
+@@ -227,7 +227,7 @@ static void notrace start_secondary(void *unused)
+ 	load_cr3(swapper_pg_dir);
+ 	__flush_tlb_all();
+ #endif
+-	load_current_idt();
++	cpu_init_exception_handling();
+ 	cpu_init();
+ 	x86_cpuinit.early_percpu_clock_init();
+ 	preempt_disable();
 -- 
 2.28.0
 
