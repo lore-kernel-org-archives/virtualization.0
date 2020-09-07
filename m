@@ -7,60 +7,59 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B0882C2D0E2
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:28:06 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4D247C2BB84
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:28:09 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 77168215A4
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:28:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 77168215A4
+	by mail.kernel.org (Postfix) with ESMTPS id 020382166E
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:28:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 020382166E
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 38563867F1;
-	Mon,  7 Sep 2020 13:28:06 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id D03D586090;
+	Mon,  7 Sep 2020 13:28:08 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from fraxinus.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id lFmf_vySERMg; Mon,  7 Sep 2020 13:28:04 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by fraxinus.osuosl.org (Postfix) with ESMTP id B33EA8625D;
+	Mon,  7 Sep 2020 13:27:57 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A88C4C0891;
+	Mon,  7 Sep 2020 13:27:57 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4090AC0051
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  7 Sep 2020 13:27:52 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by whitealder.osuosl.org (Postfix) with ESMTP id 2945F867C6
+ for <virtualization@lists.linux-foundation.org>;
+ Mon,  7 Sep 2020 13:27:52 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id RvKF8HWMNzGd; Mon,  7 Sep 2020 13:28:01 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id A23AC86817;
-	Mon,  7 Sep 2020 13:27:55 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 800F4C0893;
-	Mon,  7 Sep 2020 13:27:55 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 81789C0893
- for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:51 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 622EB87196
- for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:51 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ap+ivsjKH0b9
+ with ESMTP id lQjsiy9dvezc
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:49 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:50 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 5EE5587198
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 582A1867C8
  for <virtualization@lists.linux-foundation.org>;
  Mon,  7 Sep 2020 13:27:49 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549add56.dip0.t-ipconnect.de
  [84.154.221.86])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id C481812AA;
- Mon,  7 Sep 2020 15:17:06 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 6977E12DF;
+ Mon,  7 Sep 2020 15:17:08 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v7 48/72] x86/sev-es: Handle instruction fetches from
- user-space
-Date: Mon,  7 Sep 2020 15:15:49 +0200
-Message-Id: <20200907131613.12703-49-joro@8bytes.org>
+Subject: [PATCH v7 51/72] x86/sev-es: Handle MSR events
+Date: Mon,  7 Sep 2020 15:15:52 +0200
+Message-Id: <20200907131613.12703-52-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200907131613.12703-1-joro@8bytes.org>
 References: <20200907131613.12703-1-joro@8bytes.org>
@@ -94,61 +93,65 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-When a #VC exception is triggered by user-space the instruction decoder
-needs to read the instruction bytes from user addresses.  Enhance
-vc_decode_insn() to safely fetch kernel and user instructions.
+Implement a handler for #VC exceptions caused by RDMSR/WRMSR
+instructions.
 
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+[ jroedel@suse.de: Adapt to #VC handling infrastructure ]
+Co-developed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev-es.c | 31 ++++++++++++++++++++++---------
- 1 file changed, 22 insertions(+), 9 deletions(-)
+ arch/x86/kernel/sev-es.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
 diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index 42c84b9b6b4f..bc2854b81a51 100644
+index a79c7fc32bc6..439b963ed52b 100644
 --- a/arch/x86/kernel/sev-es.c
 +++ b/arch/x86/kernel/sev-es.c
-@@ -232,17 +232,30 @@ static enum es_result vc_decode_insn(struct es_em_ctxt *ctxt)
- 	enum es_result ret;
- 	int res;
+@@ -393,6 +393,31 @@ static bool vc_slow_virt_to_phys(struct ghcb *ghcb, struct es_em_ctxt *ctxt,
+ /* Include code shared with pre-decompression boot stage */
+ #include "sev-es-shared.c"
  
--	res = vc_fetch_insn_kernel(ctxt, buffer);
--	if (unlikely(res == -EFAULT)) {
--		ctxt->fi.vector     = X86_TRAP_PF;
--		ctxt->fi.error_code = 0;
--		ctxt->fi.cr2        = ctxt->regs->ip;
--		return ES_EXCEPTION;
-+	if (user_mode(ctxt->regs)) {
-+		res = insn_fetch_from_user(ctxt->regs, buffer);
-+		if (!res) {
-+			ctxt->fi.vector     = X86_TRAP_PF;
-+			ctxt->fi.error_code = X86_PF_INSTR | X86_PF_USER;
-+			ctxt->fi.cr2        = ctxt->regs->ip;
-+			return ES_EXCEPTION;
-+		}
++static enum es_result vc_handle_msr(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
++{
++	struct pt_regs *regs = ctxt->regs;
++	enum es_result ret;
++	u64 exit_info_1;
 +
-+		if (!insn_decode(&ctxt->insn, ctxt->regs, buffer, res))
-+			return ES_DECODE_FAILED;
-+	} else {
-+		res = vc_fetch_insn_kernel(ctxt, buffer);
-+		if (res) {
-+			ctxt->fi.vector     = X86_TRAP_PF;
-+			ctxt->fi.error_code = X86_PF_INSTR;
-+			ctxt->fi.cr2        = ctxt->regs->ip;
-+			return ES_EXCEPTION;
-+		}
++	/* Is it a WRMSR? */
++	exit_info_1 = (ctxt->insn.opcode.bytes[1] == 0x30) ? 1 : 0;
 +
-+		insn_init(&ctxt->insn, buffer, MAX_INSN_SIZE - res, 1);
-+		insn_get_length(&ctxt->insn);
- 	}
- 
--	insn_init(&ctxt->insn, buffer, MAX_INSN_SIZE - res, 1);
--	insn_get_length(&ctxt->insn);
--
- 	ret = ctxt->insn.immediate.got ? ES_OK : ES_DECODE_FAILED;
- 
- 	return ret;
++	ghcb_set_rcx(ghcb, regs->cx);
++	if (exit_info_1) {
++		ghcb_set_rax(ghcb, regs->ax);
++		ghcb_set_rdx(ghcb, regs->dx);
++	}
++
++	ret = sev_es_ghcb_hv_call(ghcb, ctxt, SVM_EXIT_MSR, exit_info_1, 0);
++
++	if ((ret == ES_OK) && (!exit_info_1)) {
++		regs->ax = ghcb->save.rax;
++		regs->dx = ghcb->save.rdx;
++	}
++
++	return ret;
++}
++
+ /*
+  * This function runs on the first #VC exception after the kernel
+  * switched to virtual addresses.
+@@ -756,6 +781,9 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
+ 	case SVM_EXIT_IOIO:
+ 		result = vc_handle_ioio(ghcb, ctxt);
+ 		break;
++	case SVM_EXIT_MSR:
++		result = vc_handle_msr(ghcb, ctxt);
++		break;
+ 	case SVM_EXIT_NPF:
+ 		result = vc_handle_mmio(ghcb, ctxt);
+ 		break;
 -- 
 2.28.0
 
