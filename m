@@ -7,59 +7,60 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 82DDBC43461
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:27:52 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CB23C2D0A7
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:27:53 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 3E919215A4
+	by mail.kernel.org (Postfix) with ESMTPS id 045A8215A4
 	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:27:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3E919215A4
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 045A8215A4
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 0612885FFC;
+	by fraxinus.osuosl.org (Postfix) with ESMTP id CE7FF8610E;
 	Mon,  7 Sep 2020 13:27:52 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id z_4w9Ioy-FYA; Mon,  7 Sep 2020 13:27:49 +0000 (UTC)
+	with ESMTP id PugJhbiVeP32; Mon,  7 Sep 2020 13:27:51 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 6D8AE860AD;
-	Mon,  7 Sep 2020 13:27:49 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 124DB86090;
+	Mon,  7 Sep 2020 13:27:51 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 48D4FC0891;
-	Mon,  7 Sep 2020 13:27:49 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E9070C0859;
+	Mon,  7 Sep 2020 13:27:50 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 9BCFFC0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 320D1C0051
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:46 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 89E6587186
+ by hemlock.osuosl.org (Postfix) with ESMTP id 2C8BF8718A
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:46 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id virlHpJmRq4c
+ with ESMTP id a4e6DSaNgODC
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:46 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:47 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by hemlock.osuosl.org (Postfix) with ESMTPS id B63F387184
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 6BF3487184
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:45 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:47 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549add56.dip0.t-ipconnect.de
  [84.154.221.86])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id AFD322CEB;
- Mon,  7 Sep 2020 15:17:12 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id A028C101A;
+ Mon,  7 Sep 2020 15:17:04 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v7 59/72] x86/sev-es: Handle VMMCALL Events
-Date: Mon,  7 Sep 2020 15:16:00 +0200
-Message-Id: <20200907131613.12703-60-joro@8bytes.org>
+Subject: [PATCH v7 44/72] x86/dumpstack/64: Add noinstr version of
+ get_stack_info()
+Date: Mon,  7 Sep 2020 15:15:45 +0200
+Message-Id: <20200907131613.12703-45-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200907131613.12703-1-joro@8bytes.org>
 References: <20200907131613.12703-1-joro@8bytes.org>
@@ -93,61 +94,147 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-Implement a handler for #VC exceptions caused by VMMCALL instructions.
-This patch is only a starting point, VMMCALL emulation under SEV-ES
-needs further hypervisor-specific changes to provide additional state.
+The get_stack_info functionality is needed in the entry code for the #VC
+exception handler. Provide a version of it in the .text.noinstr
+section which can be called safely from there.
 
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-[ jroedel@suse.de: Adapt to #VC handling infrastructure ]
-Co-developed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev-es.c | 23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ arch/x86/include/asm/stacktrace.h |  2 ++
+ arch/x86/kernel/dumpstack.c       |  7 +++---
+ arch/x86/kernel/dumpstack_64.c    | 38 ++++++++++++++++++-------------
+ arch/x86/mm/cpu_entry_area.c      |  3 ++-
+ 4 files changed, 30 insertions(+), 20 deletions(-)
 
-diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index 0d0b6e15f7d9..db8e33280f7a 100644
---- a/arch/x86/kernel/sev-es.c
-+++ b/arch/x86/kernel/sev-es.c
-@@ -889,6 +889,26 @@ static enum es_result vc_handle_mwait(struct ghcb *ghcb,
- 	return ES_OK;
+diff --git a/arch/x86/include/asm/stacktrace.h b/arch/x86/include/asm/stacktrace.h
+index 5ae5a68e469d..49600643faba 100644
+--- a/arch/x86/include/asm/stacktrace.h
++++ b/arch/x86/include/asm/stacktrace.h
+@@ -35,6 +35,8 @@ bool in_entry_stack(unsigned long *stack, struct stack_info *info);
+ 
+ int get_stack_info(unsigned long *stack, struct task_struct *task,
+ 		   struct stack_info *info, unsigned long *visit_mask);
++bool get_stack_info_noinstr(unsigned long *stack, struct task_struct *task,
++			    struct stack_info *info);
+ 
+ const char *stack_type_name(enum stack_type type);
+ 
+diff --git a/arch/x86/kernel/dumpstack.c b/arch/x86/kernel/dumpstack.c
+index 48ce44576947..74147f7b3d82 100644
+--- a/arch/x86/kernel/dumpstack.c
++++ b/arch/x86/kernel/dumpstack.c
+@@ -29,8 +29,8 @@ static int die_counter;
+ 
+ static struct pt_regs exec_summary_regs;
+ 
+-bool in_task_stack(unsigned long *stack, struct task_struct *task,
+-		   struct stack_info *info)
++bool noinstr in_task_stack(unsigned long *stack, struct task_struct *task,
++			   struct stack_info *info)
+ {
+ 	unsigned long *begin = task_stack_page(task);
+ 	unsigned long *end   = task_stack_page(task) + THREAD_SIZE;
+@@ -46,7 +46,8 @@ bool in_task_stack(unsigned long *stack, struct task_struct *task,
+ 	return true;
  }
  
-+static enum es_result vc_handle_vmmcall(struct ghcb *ghcb,
-+					struct es_em_ctxt *ctxt)
-+{
-+	enum es_result ret;
+-bool in_entry_stack(unsigned long *stack, struct stack_info *info)
++/* Called from get_stack_info_noinstr - so must be noinstr too */
++bool noinstr in_entry_stack(unsigned long *stack, struct stack_info *info)
+ {
+ 	struct entry_stack *ss = cpu_entry_stack(smp_processor_id());
+ 
+diff --git a/arch/x86/kernel/dumpstack_64.c b/arch/x86/kernel/dumpstack_64.c
+index c49cf594714b..1dd851397bd9 100644
+--- a/arch/x86/kernel/dumpstack_64.c
++++ b/arch/x86/kernel/dumpstack_64.c
+@@ -85,7 +85,7 @@ struct estack_pages estack_pages[CEA_ESTACK_PAGES] ____cacheline_aligned = {
+ 	EPAGERANGE(VC2),
+ };
+ 
+-static bool in_exception_stack(unsigned long *stack, struct stack_info *info)
++static __always_inline bool in_exception_stack(unsigned long *stack, struct stack_info *info)
+ {
+ 	unsigned long begin, end, stk = (unsigned long)stack;
+ 	const struct estack_pages *ep;
+@@ -126,7 +126,7 @@ static bool in_exception_stack(unsigned long *stack, struct stack_info *info)
+ 	return true;
+ }
+ 
+-static bool in_irq_stack(unsigned long *stack, struct stack_info *info)
++static __always_inline bool in_irq_stack(unsigned long *stack, struct stack_info *info)
+ {
+ 	unsigned long *end   = (unsigned long *)this_cpu_read(hardirq_stack_ptr);
+ 	unsigned long *begin = end - (IRQ_STACK_SIZE / sizeof(long));
+@@ -151,32 +151,38 @@ static bool in_irq_stack(unsigned long *stack, struct stack_info *info)
+ 	return true;
+ }
+ 
+-int get_stack_info(unsigned long *stack, struct task_struct *task,
+-		   struct stack_info *info, unsigned long *visit_mask)
++bool noinstr get_stack_info_noinstr(unsigned long *stack, struct task_struct *task,
++				    struct stack_info *info)
+ {
+-	if (!stack)
+-		goto unknown;
+-
+-	task = task ? : current;
+-
+ 	if (in_task_stack(stack, task, info))
+-		goto recursion_check;
++		return true;
+ 
+ 	if (task != current)
+-		goto unknown;
++		return false;
+ 
+ 	if (in_exception_stack(stack, info))
+-		goto recursion_check;
++		return true;
+ 
+ 	if (in_irq_stack(stack, info))
+-		goto recursion_check;
++		return true;
+ 
+ 	if (in_entry_stack(stack, info))
+-		goto recursion_check;
++		return true;
 +
-+	ghcb_set_rax(ghcb, ctxt->regs->ax);
-+	ghcb_set_cpl(ghcb, user_mode(ctxt->regs) ? 3 : 0);
-+
-+	ret = sev_es_ghcb_hv_call(ghcb, ctxt, SVM_EXIT_VMMCALL, 0, 0);
-+	if (ret != ES_OK)
-+		return ret;
-+
-+	if (!ghcb_rax_is_valid(ghcb))
-+		return ES_VMM_ERROR;
-+
-+	ctxt->regs->ax = ghcb->save.rax;
-+
-+	return ES_OK;
++	return false;
 +}
 +
- static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
- 					 struct ghcb *ghcb,
- 					 unsigned long exit_code)
-@@ -922,6 +942,9 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
- 	case SVM_EXIT_MSR:
- 		result = vc_handle_msr(ghcb, ctxt);
- 		break;
-+	case SVM_EXIT_VMMCALL:
-+		result = vc_handle_vmmcall(ghcb, ctxt);
-+		break;
- 	case SVM_EXIT_WBINVD:
- 		result = vc_handle_wbinvd(ghcb, ctxt);
- 		break;
++int get_stack_info(unsigned long *stack, struct task_struct *task,
++		   struct stack_info *info, unsigned long *visit_mask)
++{
++	task = task ? : current;
+ 
+-	goto unknown;
++	if (!stack)
++		goto unknown;
++
++	if (!get_stack_info_noinstr(stack, task, info))
++		goto unknown;
+ 
+-recursion_check:
+ 	/*
+ 	 * Make sure we don't iterate through any given stack more than once.
+ 	 * If it comes up a second time then there's something wrong going on:
+diff --git a/arch/x86/mm/cpu_entry_area.c b/arch/x86/mm/cpu_entry_area.c
+index 770b613790b3..f5e1e60c9095 100644
+--- a/arch/x86/mm/cpu_entry_area.c
++++ b/arch/x86/mm/cpu_entry_area.c
+@@ -21,7 +21,8 @@ DEFINE_PER_CPU(struct cea_exception_stacks*, cea_exception_stacks);
+ DECLARE_PER_CPU_PAGE_ALIGNED(struct doublefault_stack, doublefault_stack);
+ #endif
+ 
+-struct cpu_entry_area *get_cpu_entry_area(int cpu)
++/* Is called from entry code, so must be noinstr */
++noinstr struct cpu_entry_area *get_cpu_entry_area(int cpu)
+ {
+ 	unsigned long va = CPU_ENTRY_AREA_PER_CPU + cpu * CPU_ENTRY_AREA_SIZE;
+ 	BUILD_BUG_ON(sizeof(struct cpu_entry_area) % PAGE_SIZE != 0);
 -- 
 2.28.0
 
