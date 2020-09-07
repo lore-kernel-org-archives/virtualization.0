@@ -7,77 +7,75 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CB23C2D0A7
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:27:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 233FEC2BB84
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:27:54 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 045A8215A4
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:27:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 045A8215A4
+	by mail.kernel.org (Postfix) with ESMTPS id C050C215A4
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:27:53 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C050C215A4
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id CE7FF8610E;
-	Mon,  7 Sep 2020 13:27:52 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id A524586149;
+	Mon,  7 Sep 2020 13:27:53 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id PugJhbiVeP32; Mon,  7 Sep 2020 13:27:51 +0000 (UTC)
+	with ESMTP id fDGrlutae28o; Mon,  7 Sep 2020 13:27:51 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 124DB86090;
+	by fraxinus.osuosl.org (Postfix) with ESMTP id A57B3860AE;
 	Mon,  7 Sep 2020 13:27:51 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E9070C0859;
-	Mon,  7 Sep 2020 13:27:50 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 320D1C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9670EC0894;
+	Mon,  7 Sep 2020 13:27:51 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 61D53C0893
  for <virtualization@lists.linux-foundation.org>;
  Mon,  7 Sep 2020 13:27:48 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 2C8BF8718A
+ by silver.osuosl.org (Postfix) with ESMTP id 52E6120522
  for <virtualization@lists.linux-foundation.org>;
  Mon,  7 Sep 2020 13:27:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id a4e6DSaNgODC
+ with ESMTP id ToKTaHfcXVxS
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:47 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:45 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 6BF3487184
+ by silver.osuosl.org (Postfix) with ESMTPS id 9C635203E1
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:47 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:45 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549add56.dip0.t-ipconnect.de
  [84.154.221.86])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id A028C101A;
- Mon,  7 Sep 2020 15:17:04 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 793183AB2;
+ Mon,  7 Sep 2020 15:17:20 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v7 44/72] x86/dumpstack/64: Add noinstr version of
- get_stack_info()
-Date: Mon,  7 Sep 2020 15:15:45 +0200
-Message-Id: <20200907131613.12703-45-joro@8bytes.org>
+Subject: [PATCH v7 72/72] x86/sev-es: Check required CPU features for SEV-ES
+Date: Mon,  7 Sep 2020 15:16:13 +0200
+Message-Id: <20200907131613.12703-73-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200907131613.12703-1-joro@8bytes.org>
 References: <20200907131613.12703-1-joro@8bytes.org>
 MIME-Version: 1.0
-Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>,
- Joerg Roedel <jroedel@suse.de>, Mike Stunes <mstunes@vmware.com>,
- Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org,
- Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>,
- Joerg Roedel <joro@8bytes.org>, Dave Hansen <dave.hansen@linux.intel.com>,
- linux-kernel@vger.kernel.org,
+Cc: Martin Radev <martin.b.radev@gmail.com>,
+ Tom Lendacky <thomas.lendacky@amd.com>, Joerg Roedel <jroedel@suse.de>,
+ Mike Stunes <mstunes@vmware.com>, Kees Cook <keescook@chromium.org>,
+ kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+ Cfir Cohen <cfir@google.com>, Joerg Roedel <joro@8bytes.org>,
+ Dave Hansen <dave.hansen@linux.intel.com>, Juergen Gross <jgross@suse.com>,
  Sean Christopherson <sean.j.christopherson@intel.com>,
- virtualization@lists.linux-foundation.org,
- Martin Radev <martin.b.radev@gmail.com>,
- Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>,
- hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>,
- David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>,
- Jiri Slaby <jslaby@suse.cz>
+ linux-kernel@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+ Andy Lutomirski <luto@kernel.org>, hpa@zytor.com,
+ Erdem Aktas <erdemaktas@google.com>, David Rientjes <rientjes@google.com>,
+ Dan Williams <dan.j.williams@intel.com>,
+ virtualization@lists.linux-foundation.org, Jiri Slaby <jslaby@suse.cz>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -94,147 +92,119 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Martin Radev <martin.b.radev@gmail.com>
 
-The get_stack_info functionality is needed in the entry code for the #VC
-exception handler. Provide a version of it in the .text.noinstr
-section which can be called safely from there.
+Make sure the machine supports RDRAND, otherwise there is no trusted
+source of of randomness in the system.
 
+To also check this in the pre-decompression stage, make has_cpuflag
+not depend on CONFIG_RANDOMIZE_BASE anymore.
+
+Signed-off-by: Martin Radev <martin.b.radev@gmail.com>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Reviewed-by: Kees Cook <keescook@chromium.org>
 ---
- arch/x86/include/asm/stacktrace.h |  2 ++
- arch/x86/kernel/dumpstack.c       |  7 +++---
- arch/x86/kernel/dumpstack_64.c    | 38 ++++++++++++++++++-------------
- arch/x86/mm/cpu_entry_area.c      |  3 ++-
- 4 files changed, 30 insertions(+), 20 deletions(-)
+ arch/x86/boot/compressed/cpuflags.c |  4 ----
+ arch/x86/boot/compressed/misc.h     |  5 +++--
+ arch/x86/boot/compressed/sev-es.c   |  3 +++
+ arch/x86/kernel/sev-es-shared.c     | 15 +++++++++++++++
+ arch/x86/kernel/sev-es.c            |  3 +++
+ 5 files changed, 24 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/include/asm/stacktrace.h b/arch/x86/include/asm/stacktrace.h
-index 5ae5a68e469d..49600643faba 100644
---- a/arch/x86/include/asm/stacktrace.h
-+++ b/arch/x86/include/asm/stacktrace.h
-@@ -35,6 +35,8 @@ bool in_entry_stack(unsigned long *stack, struct stack_info *info);
- 
- int get_stack_info(unsigned long *stack, struct task_struct *task,
- 		   struct stack_info *info, unsigned long *visit_mask);
-+bool get_stack_info_noinstr(unsigned long *stack, struct task_struct *task,
-+			    struct stack_info *info);
- 
- const char *stack_type_name(enum stack_type type);
- 
-diff --git a/arch/x86/kernel/dumpstack.c b/arch/x86/kernel/dumpstack.c
-index 48ce44576947..74147f7b3d82 100644
---- a/arch/x86/kernel/dumpstack.c
-+++ b/arch/x86/kernel/dumpstack.c
-@@ -29,8 +29,8 @@ static int die_counter;
- 
- static struct pt_regs exec_summary_regs;
- 
--bool in_task_stack(unsigned long *stack, struct task_struct *task,
--		   struct stack_info *info)
-+bool noinstr in_task_stack(unsigned long *stack, struct task_struct *task,
-+			   struct stack_info *info)
- {
- 	unsigned long *begin = task_stack_page(task);
- 	unsigned long *end   = task_stack_page(task) + THREAD_SIZE;
-@@ -46,7 +46,8 @@ bool in_task_stack(unsigned long *stack, struct task_struct *task,
- 	return true;
- }
- 
--bool in_entry_stack(unsigned long *stack, struct stack_info *info)
-+/* Called from get_stack_info_noinstr - so must be noinstr too */
-+bool noinstr in_entry_stack(unsigned long *stack, struct stack_info *info)
- {
- 	struct entry_stack *ss = cpu_entry_stack(smp_processor_id());
- 
-diff --git a/arch/x86/kernel/dumpstack_64.c b/arch/x86/kernel/dumpstack_64.c
-index c49cf594714b..1dd851397bd9 100644
---- a/arch/x86/kernel/dumpstack_64.c
-+++ b/arch/x86/kernel/dumpstack_64.c
-@@ -85,7 +85,7 @@ struct estack_pages estack_pages[CEA_ESTACK_PAGES] ____cacheline_aligned = {
- 	EPAGERANGE(VC2),
- };
- 
--static bool in_exception_stack(unsigned long *stack, struct stack_info *info)
-+static __always_inline bool in_exception_stack(unsigned long *stack, struct stack_info *info)
- {
- 	unsigned long begin, end, stk = (unsigned long)stack;
- 	const struct estack_pages *ep;
-@@ -126,7 +126,7 @@ static bool in_exception_stack(unsigned long *stack, struct stack_info *info)
- 	return true;
- }
- 
--static bool in_irq_stack(unsigned long *stack, struct stack_info *info)
-+static __always_inline bool in_irq_stack(unsigned long *stack, struct stack_info *info)
- {
- 	unsigned long *end   = (unsigned long *)this_cpu_read(hardirq_stack_ptr);
- 	unsigned long *begin = end - (IRQ_STACK_SIZE / sizeof(long));
-@@ -151,32 +151,38 @@ static bool in_irq_stack(unsigned long *stack, struct stack_info *info)
- 	return true;
- }
- 
--int get_stack_info(unsigned long *stack, struct task_struct *task,
--		   struct stack_info *info, unsigned long *visit_mask)
-+bool noinstr get_stack_info_noinstr(unsigned long *stack, struct task_struct *task,
-+				    struct stack_info *info)
- {
--	if (!stack)
--		goto unknown;
+diff --git a/arch/x86/boot/compressed/cpuflags.c b/arch/x86/boot/compressed/cpuflags.c
+index 6448a8196d32..0cc1323896d1 100644
+--- a/arch/x86/boot/compressed/cpuflags.c
++++ b/arch/x86/boot/compressed/cpuflags.c
+@@ -1,6 +1,4 @@
+ // SPDX-License-Identifier: GPL-2.0
+-#ifdef CONFIG_RANDOMIZE_BASE
 -
--	task = task ? : current;
+ #include "../cpuflags.c"
+ 
+ bool has_cpuflag(int flag)
+@@ -9,5 +7,3 @@ bool has_cpuflag(int flag)
+ 
+ 	return test_bit(flag, cpu.flags);
+ }
 -
- 	if (in_task_stack(stack, task, info))
--		goto recursion_check;
-+		return true;
- 
- 	if (task != current)
--		goto unknown;
-+		return false;
- 
- 	if (in_exception_stack(stack, info))
--		goto recursion_check;
-+		return true;
- 
- 	if (in_irq_stack(stack, info))
--		goto recursion_check;
-+		return true;
- 
- 	if (in_entry_stack(stack, info))
--		goto recursion_check;
-+		return true;
-+
-+	return false;
-+}
-+
-+int get_stack_info(unsigned long *stack, struct task_struct *task,
-+		   struct stack_info *info, unsigned long *visit_mask)
-+{
-+	task = task ? : current;
- 
--	goto unknown;
-+	if (!stack)
-+		goto unknown;
-+
-+	if (!get_stack_info_noinstr(stack, task, info))
-+		goto unknown;
- 
--recursion_check:
- 	/*
- 	 * Make sure we don't iterate through any given stack more than once.
- 	 * If it comes up a second time then there's something wrong going on:
-diff --git a/arch/x86/mm/cpu_entry_area.c b/arch/x86/mm/cpu_entry_area.c
-index 770b613790b3..f5e1e60c9095 100644
---- a/arch/x86/mm/cpu_entry_area.c
-+++ b/arch/x86/mm/cpu_entry_area.c
-@@ -21,7 +21,8 @@ DEFINE_PER_CPU(struct cea_exception_stacks*, cea_exception_stacks);
- DECLARE_PER_CPU_PAGE_ALIGNED(struct doublefault_stack, doublefault_stack);
+-#endif
+diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
+index c0e0ffeee50a..6d31f1b4c4d1 100644
+--- a/arch/x86/boot/compressed/misc.h
++++ b/arch/x86/boot/compressed/misc.h
+@@ -85,8 +85,6 @@ void choose_random_location(unsigned long input,
+ 			    unsigned long *output,
+ 			    unsigned long output_size,
+ 			    unsigned long *virt_addr);
+-/* cpuflags.c */
+-bool has_cpuflag(int flag);
+ #else
+ static inline void choose_random_location(unsigned long input,
+ 					  unsigned long input_size,
+@@ -97,6 +95,9 @@ static inline void choose_random_location(unsigned long input,
+ }
  #endif
  
--struct cpu_entry_area *get_cpu_entry_area(int cpu)
-+/* Is called from entry code, so must be noinstr */
-+noinstr struct cpu_entry_area *get_cpu_entry_area(int cpu)
++/* cpuflags.c */
++bool has_cpuflag(int flag);
++
+ #ifdef CONFIG_X86_64
+ extern int set_page_decrypted(unsigned long address);
+ extern int set_page_encrypted(unsigned long address);
+diff --git a/arch/x86/boot/compressed/sev-es.c b/arch/x86/boot/compressed/sev-es.c
+index 0a9a248ca33d..3c66dad4e62e 100644
+--- a/arch/x86/boot/compressed/sev-es.c
++++ b/arch/x86/boot/compressed/sev-es.c
+@@ -145,6 +145,9 @@ void sev_es_shutdown_ghcb(void)
+ 	if (!boot_ghcb)
+ 		return;
+ 
++	if (!sev_es_check_cpu_features())
++		error("SEV-ES CPU Features missing.");
++
+ 	/*
+ 	 * GHCB Page must be flushed from the cache and mapped encrypted again.
+ 	 * Otherwise the running kernel will see strange cache effects when
+diff --git a/arch/x86/kernel/sev-es-shared.c b/arch/x86/kernel/sev-es-shared.c
+index 92d77b725ccb..ce86d2c9ca7b 100644
+--- a/arch/x86/kernel/sev-es-shared.c
++++ b/arch/x86/kernel/sev-es-shared.c
+@@ -9,6 +9,21 @@
+  * and is included directly into both code-bases.
+  */
+ 
++#ifndef __BOOT_COMPRESSED
++#define error(v)	pr_err(v)
++#define has_cpuflag(f)	boot_cpu_has(f)
++#endif
++
++static bool __init sev_es_check_cpu_features(void)
++{
++	if (!has_cpuflag(X86_FEATURE_RDRAND)) {
++		error("RDRAND instruction not supported - no trusted source of randomness available\n");
++		return false;
++	}
++
++	return true;
++}
++
+ static void sev_es_terminate(unsigned int reason)
  {
- 	unsigned long va = CPU_ENTRY_AREA_PER_CPU + cpu * CPU_ENTRY_AREA_SIZE;
- 	BUILD_BUG_ON(sizeof(struct cpu_entry_area) % PAGE_SIZE != 0);
+ 	u64 val = GHCB_SEV_TERMINATE;
+diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+index 4e2b7e4d9b87..70623bbce062 100644
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -665,6 +665,9 @@ void __init sev_es_init_vc_handling(void)
+ 	if (!sev_es_active())
+ 		return;
+ 
++	if (!sev_es_check_cpu_features())
++		panic("SEV-ES CPU Features missing");
++
+ 	/* Enable SEV-ES special handling */
+ 	static_branch_enable(&sev_es_enable_key);
+ 
 -- 
 2.28.0
 
