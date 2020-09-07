@@ -7,60 +7,59 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 31431C2D0E3
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:03 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2190C2D0E2
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:01 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E87AE20838
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E87AE20838
+	by mail.kernel.org (Postfix) with ESMTPS id 8B1AF20838
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:01 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8B1AF20838
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id A5C9087168;
-	Mon,  7 Sep 2020 13:17:02 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 6EFE0867BB;
+	Mon,  7 Sep 2020 13:17:01 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 3JAl14ihyCLd; Mon,  7 Sep 2020 13:17:01 +0000 (UTC)
+	with ESMTP id 6H26yu8S3pFn; Mon,  7 Sep 2020 13:16:54 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 958F987160;
-	Mon,  7 Sep 2020 13:17:01 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 98C3E86778;
+	Mon,  7 Sep 2020 13:16:54 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7E49AC0893;
-	Mon,  7 Sep 2020 13:17:01 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D43D0C0891
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 82975C0891;
+	Mon,  7 Sep 2020 13:16:54 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B7FAEC0051
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:16:58 +0000 (UTC)
+ Mon,  7 Sep 2020 13:16:52 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id C07BA8715A
+ by fraxinus.osuosl.org (Postfix) with ESMTP id A7E3F85F5F
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:16:58 +0000 (UTC)
+ Mon,  7 Sep 2020 13:16:52 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id z0QtCHj7xyYF
+ with ESMTP id ndKGN6BeHvsE
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:16:58 +0000 (UTC)
+ Mon,  7 Sep 2020 13:16:51 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 03774870A2
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id A781F85F50
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:16:58 +0000 (UTC)
+ Mon,  7 Sep 2020 13:16:51 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549add56.dip0.t-ipconnect.de
  [84.154.221.86])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 634A2FC1;
- Mon,  7 Sep 2020 15:16:54 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id D4D1DE46;
+ Mon,  7 Sep 2020 15:16:48 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v7 24/72] x86/boot/compressed/64: Unmap GHCB page before
- booting the kernel
-Date: Mon,  7 Sep 2020 15:15:25 +0200
-Message-Id: <20200907131613.12703-25-joro@8bytes.org>
+Subject: [PATCH v7 13/72] x86/boot/compressed/64: Add IDT Infrastructure
+Date: Mon,  7 Sep 2020 15:15:14 +0200
+Message-Id: <20200907131613.12703-14-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200907131613.12703-1-joro@8bytes.org>
 References: <20200907131613.12703-1-joro@8bytes.org>
@@ -96,110 +95,259 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Force a page-fault on any further accesses to the GHCB page when they
-shouldn't happen anymore. This will catch the bugs where a #VC exception
-is raised when no one is expected anymore.
+Add code needed to setup an IDT in the early pre-decompression
+boot-code. The IDT is loaded first in startup_64, which is after
+EfiExitBootServices() has been called, and later reloaded when the
+kernel image has been relocated to the end of the decompression area.
+
+This allows to setup different IDT handlers before and after the
+relocation.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/compressed/ident_map_64.c | 17 +++++++++++++++--
- arch/x86/boot/compressed/misc.h         |  6 ++++++
- arch/x86/boot/compressed/sev-es.c       | 14 ++++++++++++++
- 3 files changed, 35 insertions(+), 2 deletions(-)
+ arch/x86/boot/compressed/Makefile          |  1 +
+ arch/x86/boot/compressed/head_64.S         | 25 +++++++-
+ arch/x86/boot/compressed/idt_64.c          | 44 ++++++++++++++
+ arch/x86/boot/compressed/idt_handlers_64.S | 70 ++++++++++++++++++++++
+ arch/x86/boot/compressed/misc.h            |  5 ++
+ arch/x86/include/asm/desc_defs.h           |  3 +
+ 6 files changed, 147 insertions(+), 1 deletion(-)
+ create mode 100644 arch/x86/boot/compressed/idt_64.c
+ create mode 100644 arch/x86/boot/compressed/idt_handlers_64.S
 
-diff --git a/arch/x86/boot/compressed/ident_map_64.c b/arch/x86/boot/compressed/ident_map_64.c
-index 05742f641a06..063a60edcf99 100644
---- a/arch/x86/boot/compressed/ident_map_64.c
-+++ b/arch/x86/boot/compressed/ident_map_64.c
-@@ -298,6 +298,11 @@ int set_page_encrypted(unsigned long address)
- 	return set_clr_page_flags(&mapping_info, address, _PAGE_ENC, 0);
- }
+diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
+index 258a2fca6659..b378fb14d87c 100644
+--- a/arch/x86/boot/compressed/Makefile
++++ b/arch/x86/boot/compressed/Makefile
+@@ -80,6 +80,7 @@ vmlinux-objs-$(CONFIG_EARLY_PRINTK) += $(obj)/early_serial_console.o
+ vmlinux-objs-$(CONFIG_RANDOMIZE_BASE) += $(obj)/kaslr.o
+ ifdef CONFIG_X86_64
+ 	vmlinux-objs-$(CONFIG_RANDOMIZE_BASE) += $(obj)/kaslr_64.o
++	vmlinux-objs-y += $(obj)/idt_64.o $(obj)/idt_handlers_64.o
+ 	vmlinux-objs-y += $(obj)/mem_encrypt.o
+ 	vmlinux-objs-y += $(obj)/pgtable_64.o
+ endif
+diff --git a/arch/x86/boot/compressed/head_64.S b/arch/x86/boot/compressed/head_64.S
+index 9e46729cf162..1fffaec1c069 100644
+--- a/arch/x86/boot/compressed/head_64.S
++++ b/arch/x86/boot/compressed/head_64.S
+@@ -33,6 +33,7 @@
+ #include <asm/processor-flags.h>
+ #include <asm/asm-offsets.h>
+ #include <asm/bootparam.h>
++#include <asm/desc_defs.h>
+ #include "pgtable.h"
  
-+int set_page_non_present(unsigned long address)
+ /*
+@@ -415,6 +416,10 @@ SYM_CODE_START(startup_64)
+ 
+ .Lon_kernel_cs:
+ 
++	pushq	%rsi
++	call	load_stage1_idt
++	popq	%rsi
++
+ 	/*
+ 	 * paging_prepare() sets up the trampoline and checks if we need to
+ 	 * enable 5-level paging.
+@@ -527,6 +532,13 @@ SYM_FUNC_START_LOCAL_NOALIGN(.Lrelocated)
+ 	shrq	$3, %rcx
+ 	rep	stosq
+ 
++/*
++ * Load stage2 IDT
++ */
++	pushq	%rsi
++	call	load_stage2_idt
++	popq	%rsi
++
+ /*
+  * Do the extraction, and jump to the new kernel..
+  */
+@@ -659,10 +671,21 @@ SYM_DATA_START_LOCAL(gdt)
+ 	.quad   0x0000000000000000	/* TS continued */
+ SYM_DATA_END_LABEL(gdt, SYM_L_LOCAL, gdt_end)
+ 
++SYM_DATA_START(boot_idt_desc)
++	.word	boot_idt_end - boot_idt - 1
++	.quad	0
++SYM_DATA_END(boot_idt_desc)
++	.balign 8
++SYM_DATA_START(boot_idt)
++	.rept	BOOT_IDT_ENTRIES
++	.quad	0
++	.quad	0
++	.endr
++SYM_DATA_END_LABEL(boot_idt, SYM_L_GLOBAL, boot_idt_end)
++
+ #ifdef CONFIG_EFI_STUB
+ SYM_DATA(image_offset, .long 0)
+ #endif
+-
+ #ifdef CONFIG_EFI_MIXED
+ SYM_DATA_LOCAL(efi32_boot_args, .long 0, 0, 0)
+ SYM_DATA(efi_is64, .byte 1)
+diff --git a/arch/x86/boot/compressed/idt_64.c b/arch/x86/boot/compressed/idt_64.c
+new file mode 100644
+index 000000000000..082cd6bca033
+--- /dev/null
++++ b/arch/x86/boot/compressed/idt_64.c
+@@ -0,0 +1,44 @@
++// SPDX-License-Identifier: GPL-2.0-only
++#include <asm/trap_pf.h>
++#include <asm/segment.h>
++#include <asm/trapnr.h>
++#include "misc.h"
++
++static void set_idt_entry(int vector, void (*handler)(void))
 +{
-+	return set_clr_page_flags(&mapping_info, address, 0, _PAGE_PRESENT);
++	unsigned long address = (unsigned long)handler;
++	gate_desc entry;
++
++	memset(&entry, 0, sizeof(entry));
++
++	entry.offset_low    = (u16)(address & 0xffff);
++	entry.segment       = __KERNEL_CS;
++	entry.bits.type     = GATE_TRAP;
++	entry.bits.p        = 1;
++	entry.offset_middle = (u16)((address >> 16) & 0xffff);
++	entry.offset_high   = (u32)(address >> 32);
++
++	memcpy(&boot_idt[vector], &entry, sizeof(entry));
 +}
 +
- static void do_pf_error(const char *msg, unsigned long error_code,
- 			unsigned long address, unsigned long ip)
- {
-@@ -316,8 +321,14 @@ static void do_pf_error(const char *msg, unsigned long error_code,
- 
- void do_boot_page_fault(struct pt_regs *regs, unsigned long error_code)
- {
--	unsigned long address = native_read_cr2() & PMD_MASK;
--	unsigned long end = address + PMD_SIZE;
-+	unsigned long address = native_read_cr2();
-+	unsigned long end;
-+	bool ghcb_fault;
++/* Have this here so we don't need to include <asm/desc.h> */
++static void load_boot_idt(const struct desc_ptr *dtr)
++{
++	asm volatile("lidt %0"::"m" (*dtr));
++}
 +
-+	ghcb_fault = sev_es_check_ghcb_fault(address);
++/* Setup IDT before kernel jumping to  .Lrelocated */
++void load_stage1_idt(void)
++{
++	boot_idt_desc.address = (unsigned long)boot_idt;
 +
-+	address   &= PMD_MASK;
-+	end        = address + PMD_SIZE;
- 
- 	/*
- 	 * Check for unexpected error codes. Unexpected are:
-@@ -327,6 +338,8 @@ void do_boot_page_fault(struct pt_regs *regs, unsigned long error_code)
- 	 */
- 	if (error_code & (X86_PF_PROT | X86_PF_USER | X86_PF_RSVD))
- 		do_pf_error("Unexpected page-fault:", error_code, address, regs->ip);
-+	else if (ghcb_fault)
-+		do_pf_error("Page-fault on GHCB page:", error_code, address, regs->ip);
- 
- 	/*
- 	 * Error code is sane - now identity map the 2M region around
++	load_boot_idt(&boot_idt_desc);
++}
++
++/* Setup IDT after kernel jumping to  .Lrelocated */
++void load_stage2_idt(void)
++{
++	boot_idt_desc.address = (unsigned long)boot_idt;
++
++	load_boot_idt(&boot_idt_desc);
++}
+diff --git a/arch/x86/boot/compressed/idt_handlers_64.S b/arch/x86/boot/compressed/idt_handlers_64.S
+new file mode 100644
+index 000000000000..36dee2f40a8b
+--- /dev/null
++++ b/arch/x86/boot/compressed/idt_handlers_64.S
+@@ -0,0 +1,70 @@
++/* SPDX-License-Identifier: GPL-2.0-only */
++/*
++ * Early IDT handler entry points
++ *
++ * Copyright (C) 2019 SUSE
++ *
++ * Author: Joerg Roedel <jroedel@suse.de>
++ */
++
++#include <asm/segment.h>
++
++/* For ORIG_RAX */
++#include "../../entry/calling.h"
++
++.macro EXCEPTION_HANDLER name function error_code=0
++SYM_FUNC_START(\name)
++
++	/* Build pt_regs */
++	.if \error_code == 0
++	pushq   $0
++	.endif
++
++	pushq   %rdi
++	pushq   %rsi
++	pushq   %rdx
++	pushq   %rcx
++	pushq   %rax
++	pushq   %r8
++	pushq   %r9
++	pushq   %r10
++	pushq   %r11
++	pushq   %rbx
++	pushq   %rbp
++	pushq   %r12
++	pushq   %r13
++	pushq   %r14
++	pushq   %r15
++
++	/* Call handler with pt_regs */
++	movq    %rsp, %rdi
++	/* Error code is second parameter */
++	movq	ORIG_RAX(%rsp), %rsi
++	call    \function
++
++	/* Restore regs */
++	popq    %r15
++	popq    %r14
++	popq    %r13
++	popq    %r12
++	popq    %rbp
++	popq    %rbx
++	popq    %r11
++	popq    %r10
++	popq    %r9
++	popq    %r8
++	popq    %rax
++	popq    %rcx
++	popq    %rdx
++	popq    %rsi
++	popq    %rdi
++
++	/* Remove error code and return */
++	addq    $8, %rsp
++
++	iretq
++SYM_FUNC_END(\name)
++	.endm
++
++	.text
++	.code64
 diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
-index 9995c70ca813..c0e0ffeee50a 100644
+index 3efce27ba35c..8feb5f6f329e 100644
 --- a/arch/x86/boot/compressed/misc.h
 +++ b/arch/x86/boot/compressed/misc.h
-@@ -100,6 +100,7 @@ static inline void choose_random_location(unsigned long input,
- #ifdef CONFIG_X86_64
- extern int set_page_decrypted(unsigned long address);
- extern int set_page_encrypted(unsigned long address);
-+extern int set_page_non_present(unsigned long address);
- extern unsigned char _pgtable[];
+@@ -23,6 +23,7 @@
+ #include <asm/page.h>
+ #include <asm/boot.h>
+ #include <asm/bootparam.h>
++#include <asm/desc_defs.h>
+ 
+ #define BOOT_CTYPE_H
+ #include <linux/acpi.h>
+@@ -133,4 +134,8 @@ int count_immovable_mem_regions(void);
+ static inline int count_immovable_mem_regions(void) { return 0; }
  #endif
  
-@@ -117,8 +118,13 @@ void set_sev_encryption_mask(void);
- 
- #ifdef CONFIG_AMD_MEM_ENCRYPT
- void sev_es_shutdown_ghcb(void);
-+extern bool sev_es_check_ghcb_fault(unsigned long address);
- #else
- static inline void sev_es_shutdown_ghcb(void) { }
-+static inline bool sev_es_check_ghcb_fault(unsigned long address)
-+{
-+	return false;
-+}
- #endif
- 
- /* acpi.c */
-diff --git a/arch/x86/boot/compressed/sev-es.c b/arch/x86/boot/compressed/sev-es.c
-index 633d47df702f..ea656b22743b 100644
---- a/arch/x86/boot/compressed/sev-es.c
-+++ b/arch/x86/boot/compressed/sev-es.c
-@@ -121,6 +121,20 @@ void sev_es_shutdown_ghcb(void)
- 	 */
- 	if (set_page_encrypted((unsigned long)&boot_ghcb_page))
- 		error("Can't map GHCB page encrypted");
++/* idt_64.c */
++extern gate_desc boot_idt[BOOT_IDT_ENTRIES];
++extern struct desc_ptr boot_idt_desc;
 +
-+	/*
-+	 * GHCB page is mapped encrypted again and flushed from the cache.
-+	 * Mark it non-present now to catch bugs when #VC exceptions trigger
-+	 * after this point.
-+	 */
-+	if (set_page_non_present((unsigned long)&boot_ghcb_page))
-+		error("Can't unmap GHCB page");
-+}
-+
-+bool sev_es_check_ghcb_fault(unsigned long address)
-+{
-+	/* Check whether the fault was on the GHCB page */
-+	return ((address & PAGE_MASK) == (unsigned long)&boot_ghcb_page);
- }
+ #endif /* BOOT_COMPRESSED_MISC_H */
+diff --git a/arch/x86/include/asm/desc_defs.h b/arch/x86/include/asm/desc_defs.h
+index a91f3b6e4f2a..5621fb3f2d1a 100644
+--- a/arch/x86/include/asm/desc_defs.h
++++ b/arch/x86/include/asm/desc_defs.h
+@@ -109,6 +109,9 @@ struct desc_ptr {
  
- void do_boot_stage2_vc(struct pt_regs *regs, unsigned long exit_code)
+ #endif /* !__ASSEMBLY__ */
+ 
++/* Boot IDT definitions */
++#define	BOOT_IDT_ENTRIES	32
++
+ /* Access rights as returned by LAR */
+ #define AR_TYPE_RODATA		(0 * (1 << 9))
+ #define AR_TYPE_RWDATA		(1 * (1 << 9))
 -- 
 2.28.0
 
