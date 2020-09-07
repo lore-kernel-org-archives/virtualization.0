@@ -7,59 +7,59 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CD45C2D0E3
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:28:07 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A2C1CC2D0E0
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:28:05 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 0F951215A4
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:28:06 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0F951215A4
+	by mail.kernel.org (Postfix) with ESMTPS id 50B97215A4
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:28:05 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 50B97215A4
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 5D448871AD;
-	Mon,  7 Sep 2020 13:28:06 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 8ADD8871A5;
+	Mon,  7 Sep 2020 13:28:04 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id EyTRR0p103cr; Mon,  7 Sep 2020 13:28:03 +0000 (UTC)
+	with ESMTP id jRMBJOAxo+9l; Mon,  7 Sep 2020 13:27:58 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 61534871CC;
-	Mon,  7 Sep 2020 13:28:00 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id CB2DA871D4;
+	Mon,  7 Sep 2020 13:27:56 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 20CDBC0894;
-	Mon,  7 Sep 2020 13:28:00 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A871FC0893;
+	Mon,  7 Sep 2020 13:27:56 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AA756C0894
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AB38CC0051
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:56 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:51 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 96281867F4
+ by whitealder.osuosl.org (Postfix) with ESMTP id 993C1867FF
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:56 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id HB+Ym6dPQYE6
+ with ESMTP id CcohR6eszdOC
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:51 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:49 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 6C01F867D7
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 45C15867BF
  for <virtualization@lists.linux-foundation.org>;
  Mon,  7 Sep 2020 13:27:49 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549add56.dip0.t-ipconnect.de
  [84.154.221.86])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 5DE823A56;
- Mon,  7 Sep 2020 15:17:14 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 135001688;
+ Mon,  7 Sep 2020 15:17:10 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v7 61/72] x86/sev-es: Handle #DB Events
-Date: Mon,  7 Sep 2020 15:16:02 +0200
-Message-Id: <20200907131613.12703-62-joro@8bytes.org>
+Subject: [PATCH v7 54/72] x86/sev-es: Handle RDTSC(P) Events
+Date: Mon,  7 Sep 2020 15:15:55 +0200
+Message-Id: <20200907131613.12703-55-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200907131613.12703-1-joro@8bytes.org>
 References: <20200907131613.12703-1-joro@8bytes.org>
@@ -93,54 +93,85 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-Handle #VC exceptions caused by #DB exceptions in the guest. Those
-must be handled outside of instrumentation_begin()/end() so that the
-handler will not be raised recursively.
+Implement a handler for #VC exceptions caused by RDTSC and RDTSCP
+instructions. Also make it available in the pre-decompression stage
+because the KASLR code used RDTSC/RDTSCP to gather entropy and some
+hypervisors intercept these instructions.
 
-Handle them by calling the kernels debug exception handler.
-
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+[ jroedel@suse.de: - Adapt to #VC handling infrastructure
+                   - Make it available early ]
+Co-developed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev-es.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ arch/x86/boot/compressed/sev-es.c |  4 ++++
+ arch/x86/kernel/sev-es-shared.c   | 23 +++++++++++++++++++++++
+ arch/x86/kernel/sev-es.c          |  4 ++++
+ 3 files changed, 31 insertions(+)
 
+diff --git a/arch/x86/boot/compressed/sev-es.c b/arch/x86/boot/compressed/sev-es.c
+index 57c41c368681..45702b866c33 100644
+--- a/arch/x86/boot/compressed/sev-es.c
++++ b/arch/x86/boot/compressed/sev-es.c
+@@ -181,6 +181,10 @@ void do_boot_stage2_vc(struct pt_regs *regs, unsigned long exit_code)
+ 		goto finish;
+ 
+ 	switch (exit_code) {
++	case SVM_EXIT_RDTSC:
++	case SVM_EXIT_RDTSCP:
++		result = vc_handle_rdtsc(boot_ghcb, &ctxt, exit_code);
++		break;
+ 	case SVM_EXIT_IOIO:
+ 		result = vc_handle_ioio(boot_ghcb, &ctxt);
+ 		break;
+diff --git a/arch/x86/kernel/sev-es-shared.c b/arch/x86/kernel/sev-es-shared.c
+index a6b41910b8ab..92d77b725ccb 100644
+--- a/arch/x86/kernel/sev-es-shared.c
++++ b/arch/x86/kernel/sev-es-shared.c
+@@ -467,3 +467,26 @@ static enum es_result vc_handle_cpuid(struct ghcb *ghcb,
+ 
+ 	return ES_OK;
+ }
++
++static enum es_result vc_handle_rdtsc(struct ghcb *ghcb,
++				      struct es_em_ctxt *ctxt,
++				      unsigned long exit_code)
++{
++	bool rdtscp = (exit_code == SVM_EXIT_RDTSCP);
++	enum es_result ret;
++
++	ret = sev_es_ghcb_hv_call(ghcb, ctxt, exit_code, 0, 0);
++	if (ret != ES_OK)
++		return ret;
++
++	if (!(ghcb_rax_is_valid(ghcb) && ghcb_rdx_is_valid(ghcb) &&
++	     (!rdtscp || ghcb_rcx_is_valid(ghcb))))
++		return ES_VMM_ERROR;
++
++	ctxt->regs->ax = ghcb->save.rax;
++	ctxt->regs->dx = ghcb->save.rdx;
++	if (rdtscp)
++		ctxt->regs->cx = ghcb->save.rcx;
++
++	return ES_OK;
++}
 diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index f78ab9369b9c..3eea4e910fc1 100644
+index c51cb2673af6..5c155f307129 100644
 --- a/arch/x86/kernel/sev-es.c
 +++ b/arch/x86/kernel/sev-es.c
-@@ -922,6 +922,14 @@ static enum es_result vc_handle_trap_ac(struct ghcb *ghcb,
- 	return ES_EXCEPTION;
- }
- 
-+static __always_inline void vc_handle_trap_db(struct pt_regs *regs)
-+{
-+	if (user_mode(regs))
-+		noist_exc_debug(regs);
-+	else
-+		exc_debug(regs);
-+}
-+
- static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
- 					 struct ghcb *ghcb,
- 					 unsigned long exit_code)
-@@ -1033,6 +1041,15 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
- 	struct ghcb *ghcb;
- 
- 	lockdep_assert_irqs_disabled();
-+
-+	/*
-+	 * Handle #DB before calling into !noinstr code to avoid recursive #DB.
-+	 */
-+	if (error_code == SVM_EXIT_EXCP_BASE + X86_TRAP_DB) {
-+		vc_handle_trap_db(regs);
-+		return;
-+	}
-+
- 	instrumentation_begin();
- 
- 	/*
+@@ -866,6 +866,10 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
+ 	case SVM_EXIT_WRITE_DR7:
+ 		result = vc_handle_dr7_write(ghcb, ctxt);
+ 		break;
++	case SVM_EXIT_RDTSC:
++	case SVM_EXIT_RDTSCP:
++		result = vc_handle_rdtsc(ghcb, ctxt, exit_code);
++		break;
+ 	case SVM_EXIT_CPUID:
+ 		result = vc_handle_cpuid(ghcb, ctxt);
+ 		break;
 -- 
 2.28.0
 
