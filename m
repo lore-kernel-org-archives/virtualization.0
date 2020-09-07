@@ -7,59 +7,59 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A4E7FC433E2
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CE42CC433E2
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:42 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 6A0AF207C3
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6A0AF207C3
+	by mail.kernel.org (Postfix) with ESMTPS id 8EB37207C3
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8EB37207C3
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 27A3A87143;
-	Mon,  7 Sep 2020 13:17:40 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 65EEE87164;
+	Mon,  7 Sep 2020 13:17:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id zgiXE5YxXEQi; Mon,  7 Sep 2020 13:17:39 +0000 (UTC)
+	with ESMTP id hI5GF41Wo23i; Mon,  7 Sep 2020 13:17:41 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 9A35C87059;
-	Mon,  7 Sep 2020 13:17:39 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id CA2568714E;
+	Mon,  7 Sep 2020 13:17:41 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8537AC0859;
-	Mon,  7 Sep 2020 13:17:39 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B3CF4C0859;
+	Mon,  7 Sep 2020 13:17:41 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 772F6C0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 87D84C0051
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:17:38 +0000 (UTC)
+ Mon,  7 Sep 2020 13:17:40 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 4D12420398
+ by silver.osuosl.org (Postfix) with ESMTP id 5997A2155D
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:17:38 +0000 (UTC)
+ Mon,  7 Sep 2020 13:17:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id J3b9rFFMGjYd
+ with ESMTP id SBd0X3cPUN2I
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:17:31 +0000 (UTC)
+ Mon,  7 Sep 2020 13:17:32 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by silver.osuosl.org (Postfix) with ESMTPS id 92648226E9
+ by silver.osuosl.org (Postfix) with ESMTPS id 6EF3D226FC
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:17:00 +0000 (UTC)
+ Mon,  7 Sep 2020 13:17:02 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549add56.dip0.t-ipconnect.de
  [84.154.221.86])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 7E97AFD7;
- Mon,  7 Sep 2020 15:16:56 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 85639FDF;
+ Mon,  7 Sep 2020 15:16:58 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v7 28/72] x86/idt: Split idt_data setup out of set_intr_gate()
-Date: Mon,  7 Sep 2020 15:15:29 +0200
-Message-Id: <20200907131613.12703-29-joro@8bytes.org>
+Subject: [PATCH v7 32/72] x86/head/64: Switch to initial stack earlier
+Date: Mon,  7 Sep 2020 15:15:33 +0200
+Message-Id: <20200907131613.12703-33-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200907131613.12703-1-joro@8bytes.org>
 References: <20200907131613.12703-1-joro@8bytes.org>
@@ -95,56 +95,47 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-The code to setup idt_data is needed for early exception handling, but
-set_intr_gate() can't be used that early because it has pv-ops in its
-code path, which don't work that early.
+Make sure there is a stack once the kernel runs from virual addresses.
+At this stage any secondary CPU which boots will have lost its stack
+because the kernel switched to a new page-table which does not map the
+real-mode stack anymore.
 
-Split out the idt_data initialization part from set_intr_gate() so
-that it can be used separately.
+This is needed for handling early #VC exceptions caused by instructions
+like CPUID.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Reviewed-by: Kees Cook <keescook@chromium.org>
 ---
- arch/x86/kernel/idt.c | 22 ++++++++++++++--------
- 1 file changed, 14 insertions(+), 8 deletions(-)
+ arch/x86/kernel/head_64.S | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/kernel/idt.c b/arch/x86/kernel/idt.c
-index 7ecf9babf0cb..53946c104fa0 100644
---- a/arch/x86/kernel/idt.c
-+++ b/arch/x86/kernel/idt.c
-@@ -205,18 +205,24 @@ idt_setup_from_table(gate_desc *idt, const struct idt_data *t, int size, bool sy
- 	}
- }
+diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
+index f402087a02ac..83050c9e54d9 100644
+--- a/arch/x86/kernel/head_64.S
++++ b/arch/x86/kernel/head_64.S
+@@ -192,6 +192,12 @@ SYM_CODE_START(secondary_startup_64)
+ 	movl	initial_gs+4(%rip),%edx
+ 	wrmsr
  
-+static void init_idt_data(struct idt_data *data, unsigned int n,
-+			  const void *addr)
-+{
-+	BUG_ON(n > 0xFF);
++	/*
++	 * Setup a boot time stack - Any secondary CPU will have lost its stack
++	 * by now because the cr3-switch above unmaps the real-mode stack
++	 */
++	movq initial_stack(%rip), %rsp
 +
-+	memset(data, 0, sizeof(*data));
-+	data->vector	= n;
-+	data->addr	= addr;
-+	data->segment	= __KERNEL_CS;
-+	data->bits.type	= GATE_INTERRUPT;
-+	data->bits.p	= 1;
-+}
-+
- static __init void set_intr_gate(unsigned int n, const void *addr)
- {
- 	struct idt_data data;
+ 	/* Check if nx is implemented */
+ 	movl	$0x80000001, %eax
+ 	cpuid
+@@ -212,9 +218,6 @@ SYM_CODE_START(secondary_startup_64)
+ 	/* Make changes effective */
+ 	movq	%rax, %cr0
  
--	BUG_ON(n > 0xFF);
+-	/* Setup a boot time stack */
+-	movq initial_stack(%rip), %rsp
 -
--	memset(&data, 0, sizeof(data));
--	data.vector	= n;
--	data.addr	= addr;
--	data.segment	= __KERNEL_CS;
--	data.bits.type	= GATE_INTERRUPT;
--	data.bits.p	= 1;
-+	init_idt_data(&data, n, addr);
- 
- 	idt_setup_from_table(idt_table, &data, 1, false);
- }
+ 	/* zero EFLAGS after setting rsp */
+ 	pushq $0
+ 	popfq
 -- 
 2.28.0
 
