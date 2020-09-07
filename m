@@ -7,59 +7,59 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5A69C2D0F6
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A57A4C2D0E1
 	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:28:09 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 968092168B
+	by mail.kernel.org (Postfix) with ESMTPS id 6378B215A4
 	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:28:09 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 968092168B
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6378B215A4
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 1FEFB214EB;
+	by hemlock.osuosl.org (Postfix) with ESMTP id 42E58871E5;
 	Mon,  7 Sep 2020 13:28:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id keOaGzW9QmmU; Mon,  7 Sep 2020 13:28:01 +0000 (UTC)
+	with ESMTP id V1NfBte1yyZ1; Mon,  7 Sep 2020 13:28:03 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id C64292155D;
+	by hemlock.osuosl.org (Postfix) with ESMTP id 17F5F8719C;
 	Mon,  7 Sep 2020 13:28:00 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BB1F6C0891;
-	Mon,  7 Sep 2020 13:28:00 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D40D6C0859
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EC5A8C0859;
+	Mon,  7 Sep 2020 13:27:59 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0AD93C0895
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:57 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id BC7ED2152E
+ by whitealder.osuosl.org (Postfix) with ESMTP id ED4738680F
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:57 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:55 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Fr6xc91f-X1Y
+ with ESMTP id ddu3rWVMRWR8
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:27:49 +0000 (UTC)
+ Mon,  7 Sep 2020 13:27:51 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by silver.osuosl.org (Postfix) with ESMTPS id 416832094C
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 6A45F867D4
  for <virtualization@lists.linux-foundation.org>;
  Mon,  7 Sep 2020 13:27:49 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549add56.dip0.t-ipconnect.de
  [84.154.221.86])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 1792E1822;
- Mon,  7 Sep 2020 15:17:11 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 488B13A53;
+ Mon,  7 Sep 2020 15:17:13 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v7 56/72] x86/sev-es: Handle INVD Events
-Date: Mon,  7 Sep 2020 15:15:57 +0200
-Message-Id: <20200907131613.12703-57-joro@8bytes.org>
+Subject: [PATCH v7 60/72] x86/sev-es: Handle #AC Events
+Date: Mon,  7 Sep 2020 15:16:01 +0200
+Message-Id: <20200907131613.12703-61-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200907131613.12703-1-joro@8bytes.org>
 References: <20200907131613.12703-1-joro@8bytes.org>
@@ -93,34 +93,62 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-Implement a handler for #VC exceptions caused by INVD instructions.
-Since Linux should never use INVD, just mark it as unsupported.
+Implement a handler for #VC exceptions caused by #AC exceptions. The #AC
+exception is just forwarded to do_alignment_check() and not pushed down
+to the hypervisor, as requested by the SEV-ES GHCB Standardization
+Specification.
 
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-[ jroedel@suse.de: Adapt to #VC handling infrastructure ]
-Co-developed-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/sev-es.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/x86/kernel/sev-es.c | 19 +++++++++++++++++++
+ 1 file changed, 19 insertions(+)
 
 diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-index 2ee600f3184b..7fb17e71ff05 100644
+index db8e33280f7a..f78ab9369b9c 100644
 --- a/arch/x86/kernel/sev-es.c
 +++ b/arch/x86/kernel/sev-es.c
-@@ -892,6 +892,10 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
- 	case SVM_EXIT_RDPMC:
- 		result = vc_handle_rdpmc(ghcb, ctxt);
+@@ -909,6 +909,19 @@ static enum es_result vc_handle_vmmcall(struct ghcb *ghcb,
+ 	return ES_OK;
+ }
+ 
++static enum es_result vc_handle_trap_ac(struct ghcb *ghcb,
++					struct es_em_ctxt *ctxt)
++{
++	/*
++	 * Calling ecx_alignment_check() directly does not work, because it
++	 * enables IRQs and the GHCB is active. Forward the exception and call
++	 * it later from vc_forward_exception().
++	 */
++	ctxt->fi.vector = X86_TRAP_AC;
++	ctxt->fi.error_code = 0;
++	return ES_EXCEPTION;
++}
++
+ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
+ 					 struct ghcb *ghcb,
+ 					 unsigned long exit_code)
+@@ -922,6 +935,9 @@ static enum es_result vc_handle_exitcode(struct es_em_ctxt *ctxt,
+ 	case SVM_EXIT_WRITE_DR7:
+ 		result = vc_handle_dr7_write(ghcb, ctxt);
  		break;
-+	case SVM_EXIT_INVD:
-+		pr_err_ratelimited("#VC exception for INVD??? Seriously???\n");
-+		result = ES_UNSUPPORTED;
++	case SVM_EXIT_EXCP_BASE + X86_TRAP_AC:
++		result = vc_handle_trap_ac(ghcb, ctxt);
 +		break;
- 	case SVM_EXIT_CPUID:
- 		result = vc_handle_cpuid(ghcb, ctxt);
+ 	case SVM_EXIT_RDTSC:
+ 	case SVM_EXIT_RDTSCP:
+ 		result = vc_handle_rdtsc(ghcb, ctxt, exit_code);
+@@ -981,6 +997,9 @@ static __always_inline void vc_forward_exception(struct es_em_ctxt *ctxt)
+ 	case X86_TRAP_UD:
+ 		exc_invalid_op(ctxt->regs);
  		break;
++	case X86_TRAP_AC:
++		exc_alignment_check(ctxt->regs, error_code);
++		break;
+ 	default:
+ 		pr_emerg("Unsupported exception in #VC instruction emulation - can't continue\n");
+ 		BUG();
 -- 
 2.28.0
 
