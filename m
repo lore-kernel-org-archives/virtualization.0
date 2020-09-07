@@ -7,60 +7,60 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BBB60C43461
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:02 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 31431C2D0E3
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:03 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7F1D5207C3
+	by mail.kernel.org (Postfix) with ESMTPS id E87AE20838
 	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:02 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7F1D5207C3
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E87AE20838
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 612FE85FE4;
+	by hemlock.osuosl.org (Postfix) with ESMTP id A5C9087168;
 	Mon,  7 Sep 2020 13:17:02 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id dJ9qTWegcFzR; Mon,  7 Sep 2020 13:17:00 +0000 (UTC)
+	with ESMTP id 3JAl14ihyCLd; Mon,  7 Sep 2020 13:17:01 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id A167085FFC;
-	Mon,  7 Sep 2020 13:16:58 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 958F987160;
+	Mon,  7 Sep 2020 13:17:01 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8AB5DC0893;
-	Mon,  7 Sep 2020 13:16:58 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7E49AC0893;
+	Mon,  7 Sep 2020 13:17:01 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8B42EC0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D43D0C0891
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:16:57 +0000 (UTC)
+ Mon,  7 Sep 2020 13:16:58 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 7AA118714E
+ by hemlock.osuosl.org (Postfix) with ESMTP id C07BA8715A
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:16:57 +0000 (UTC)
+ Mon,  7 Sep 2020 13:16:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id g2TUSGDTwV83
+ with ESMTP id z0QtCHj7xyYF
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:16:57 +0000 (UTC)
+ Mon,  7 Sep 2020 13:16:58 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by hemlock.osuosl.org (Postfix) with ESMTPS id F199287141
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 03774870A2
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:16:56 +0000 (UTC)
+ Mon,  7 Sep 2020 13:16:58 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549add56.dip0.t-ipconnect.de
  [84.154.221.86])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id D4441F70;
- Mon,  7 Sep 2020 15:16:52 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 634A2FC1;
+ Mon,  7 Sep 2020 15:16:54 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v7 21/72] x86/boot/compressed/64: Check return value of
- kernel_ident_mapping_init()
-Date: Mon,  7 Sep 2020 15:15:22 +0200
-Message-Id: <20200907131613.12703-22-joro@8bytes.org>
+Subject: [PATCH v7 24/72] x86/boot/compressed/64: Unmap GHCB page before
+ booting the kernel
+Date: Mon,  7 Sep 2020 15:15:25 +0200
+Message-Id: <20200907131613.12703-25-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200907131613.12703-1-joro@8bytes.org>
 References: <20200907131613.12703-1-joro@8bytes.org>
@@ -96,39 +96,110 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-The function can fail to create an identity mapping, check for that
-and bail out if it happens.
+Force a page-fault on any further accesses to the GHCB page when they
+shouldn't happen anymore. This will catch the bugs where a #VC exception
+is raised when no one is expected anymore.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/boot/compressed/ident_map_64.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/x86/boot/compressed/ident_map_64.c | 17 +++++++++++++++--
+ arch/x86/boot/compressed/misc.h         |  6 ++++++
+ arch/x86/boot/compressed/sev-es.c       | 14 ++++++++++++++
+ 3 files changed, 35 insertions(+), 2 deletions(-)
 
 diff --git a/arch/x86/boot/compressed/ident_map_64.c b/arch/x86/boot/compressed/ident_map_64.c
-index b4f2a5f503cd..aa91bebc0fe9 100644
+index 05742f641a06..063a60edcf99 100644
 --- a/arch/x86/boot/compressed/ident_map_64.c
 +++ b/arch/x86/boot/compressed/ident_map_64.c
-@@ -91,6 +91,8 @@ static struct x86_mapping_info mapping_info;
-  */
- static void add_identity_map(unsigned long start, unsigned long end)
- {
-+	int ret;
-+
- 	/* Align boundary to 2M. */
- 	start = round_down(start, PMD_SIZE);
- 	end = round_up(end, PMD_SIZE);
-@@ -98,8 +100,9 @@ static void add_identity_map(unsigned long start, unsigned long end)
- 		return;
- 
- 	/* Build the mapping. */
--	kernel_ident_mapping_init(&mapping_info, (pgd_t *)top_level_pgt,
--				  start, end);
-+	ret = kernel_ident_mapping_init(&mapping_info, (pgd_t *)top_level_pgt, start, end);
-+	if (ret)
-+		error("Error: kernel_ident_mapping_init() failed\n");
+@@ -298,6 +298,11 @@ int set_page_encrypted(unsigned long address)
+ 	return set_clr_page_flags(&mapping_info, address, _PAGE_ENC, 0);
  }
  
- /* Locates and clears a region for a new top level page table. */
++int set_page_non_present(unsigned long address)
++{
++	return set_clr_page_flags(&mapping_info, address, 0, _PAGE_PRESENT);
++}
++
+ static void do_pf_error(const char *msg, unsigned long error_code,
+ 			unsigned long address, unsigned long ip)
+ {
+@@ -316,8 +321,14 @@ static void do_pf_error(const char *msg, unsigned long error_code,
+ 
+ void do_boot_page_fault(struct pt_regs *regs, unsigned long error_code)
+ {
+-	unsigned long address = native_read_cr2() & PMD_MASK;
+-	unsigned long end = address + PMD_SIZE;
++	unsigned long address = native_read_cr2();
++	unsigned long end;
++	bool ghcb_fault;
++
++	ghcb_fault = sev_es_check_ghcb_fault(address);
++
++	address   &= PMD_MASK;
++	end        = address + PMD_SIZE;
+ 
+ 	/*
+ 	 * Check for unexpected error codes. Unexpected are:
+@@ -327,6 +338,8 @@ void do_boot_page_fault(struct pt_regs *regs, unsigned long error_code)
+ 	 */
+ 	if (error_code & (X86_PF_PROT | X86_PF_USER | X86_PF_RSVD))
+ 		do_pf_error("Unexpected page-fault:", error_code, address, regs->ip);
++	else if (ghcb_fault)
++		do_pf_error("Page-fault on GHCB page:", error_code, address, regs->ip);
+ 
+ 	/*
+ 	 * Error code is sane - now identity map the 2M region around
+diff --git a/arch/x86/boot/compressed/misc.h b/arch/x86/boot/compressed/misc.h
+index 9995c70ca813..c0e0ffeee50a 100644
+--- a/arch/x86/boot/compressed/misc.h
++++ b/arch/x86/boot/compressed/misc.h
+@@ -100,6 +100,7 @@ static inline void choose_random_location(unsigned long input,
+ #ifdef CONFIG_X86_64
+ extern int set_page_decrypted(unsigned long address);
+ extern int set_page_encrypted(unsigned long address);
++extern int set_page_non_present(unsigned long address);
+ extern unsigned char _pgtable[];
+ #endif
+ 
+@@ -117,8 +118,13 @@ void set_sev_encryption_mask(void);
+ 
+ #ifdef CONFIG_AMD_MEM_ENCRYPT
+ void sev_es_shutdown_ghcb(void);
++extern bool sev_es_check_ghcb_fault(unsigned long address);
+ #else
+ static inline void sev_es_shutdown_ghcb(void) { }
++static inline bool sev_es_check_ghcb_fault(unsigned long address)
++{
++	return false;
++}
+ #endif
+ 
+ /* acpi.c */
+diff --git a/arch/x86/boot/compressed/sev-es.c b/arch/x86/boot/compressed/sev-es.c
+index 633d47df702f..ea656b22743b 100644
+--- a/arch/x86/boot/compressed/sev-es.c
++++ b/arch/x86/boot/compressed/sev-es.c
+@@ -121,6 +121,20 @@ void sev_es_shutdown_ghcb(void)
+ 	 */
+ 	if (set_page_encrypted((unsigned long)&boot_ghcb_page))
+ 		error("Can't map GHCB page encrypted");
++
++	/*
++	 * GHCB page is mapped encrypted again and flushed from the cache.
++	 * Mark it non-present now to catch bugs when #VC exceptions trigger
++	 * after this point.
++	 */
++	if (set_page_non_present((unsigned long)&boot_ghcb_page))
++		error("Can't unmap GHCB page");
++}
++
++bool sev_es_check_ghcb_fault(unsigned long address)
++{
++	/* Check whether the fault was on the GHCB page */
++	return ((address & PAGE_MASK) == (unsigned long)&boot_ghcb_page);
+ }
+ 
+ void do_boot_stage2_vc(struct pt_regs *regs, unsigned long exit_code)
 -- 
 2.28.0
 
