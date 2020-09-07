@@ -7,60 +7,59 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 70523C43461
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D41C4C433E2
 	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:12 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2E2D4215A4
+	by mail.kernel.org (Postfix) with ESMTPS id 9583621D90
 	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:12 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2E2D4215A4
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9583621D90
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 153C18607D;
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 5BD9186049;
 	Mon,  7 Sep 2020 13:17:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SsUBawLnrHoc; Mon,  7 Sep 2020 13:17:07 +0000 (UTC)
+	with ESMTP id 815JATS5y6mQ; Mon,  7 Sep 2020 13:17:10 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 0249D86049;
-	Mon,  7 Sep 2020 13:17:07 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id EB97A85F8E;
+	Mon,  7 Sep 2020 13:17:10 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EDC65C08A6;
-	Mon,  7 Sep 2020 13:17:06 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D6643C0859;
+	Mon,  7 Sep 2020 13:17:10 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8D313C0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 96886C0891
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:17:05 +0000 (UTC)
+ Mon,  7 Sep 2020 13:17:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 7C173860C8
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 8627885F87
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:17:05 +0000 (UTC)
+ Mon,  7 Sep 2020 13:17:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JE2qQG88ITWa
+ with ESMTP id 2vBxvKmbBucd
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:17:04 +0000 (UTC)
+ Mon,  7 Sep 2020 13:17:03 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 4724185F8D
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 4601585F56
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:17:04 +0000 (UTC)
+ Mon,  7 Sep 2020 13:17:03 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549add56.dip0.t-ipconnect.de
  [84.154.221.86])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 9CDC81007;
- Mon,  7 Sep 2020 15:17:01 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 12C97FF7;
+ Mon,  7 Sep 2020 15:17:00 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v7 38/72] x86/sev-es: Compile early handler code into kernel
- image
-Date: Mon,  7 Sep 2020 15:15:39 +0200
-Message-Id: <20200907131613.12703-39-joro@8bytes.org>
+Subject: [PATCH v7 35/72] x86/head/64: Move early exception dispatch to C code
+Date: Mon,  7 Sep 2020 15:15:36 +0200
+Message-Id: <20200907131613.12703-36-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200907131613.12703-1-joro@8bytes.org>
 References: <20200907131613.12703-1-joro@8bytes.org>
@@ -96,274 +95,140 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Setup sev-es.c and include the code from the
-pre-decompression stage to also build it into the image of the running
-kernel. Temporarily add __maybe_unused annotations to avoid build
-warnings until the functions get used.
+Move the assembly coded dispatch between page-faults and all other
+exceptions to C code to make it easier to maintain and extend.
+
+Also change the return-type of early_make_pgtable() to bool and make it
+static.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/kernel/Makefile        |   1 +
- arch/x86/kernel/sev-es-shared.c |  21 ++--
- arch/x86/kernel/sev-es.c        | 163 ++++++++++++++++++++++++++++++++
- 3 files changed, 175 insertions(+), 10 deletions(-)
- create mode 100644 arch/x86/kernel/sev-es.c
+ arch/x86/include/asm/pgtable.h |  2 +-
+ arch/x86/include/asm/setup.h   |  4 +++-
+ arch/x86/kernel/head64.c       | 19 +++++++++++++++----
+ arch/x86/kernel/head_64.S      | 11 +----------
+ 4 files changed, 20 insertions(+), 16 deletions(-)
 
-diff --git a/arch/x86/kernel/Makefile b/arch/x86/kernel/Makefile
-index de09af019e23..3bcdd8d2bbdd 100644
---- a/arch/x86/kernel/Makefile
-+++ b/arch/x86/kernel/Makefile
-@@ -146,6 +146,7 @@ obj-$(CONFIG_UNWINDER_ORC)		+= unwind_orc.o
- obj-$(CONFIG_UNWINDER_FRAME_POINTER)	+= unwind_frame.o
- obj-$(CONFIG_UNWINDER_GUESS)		+= unwind_guess.o
+diff --git a/arch/x86/include/asm/pgtable.h b/arch/x86/include/asm/pgtable.h
+index 5e0dcc20614d..a02c67291cfc 100644
+--- a/arch/x86/include/asm/pgtable.h
++++ b/arch/x86/include/asm/pgtable.h
+@@ -28,7 +28,7 @@
+ #include <asm-generic/pgtable_uffd.h>
  
-+obj-$(CONFIG_AMD_MEM_ENCRYPT)		+= sev-es.o
- ###
- # 64 bit specific files
- ifeq ($(CONFIG_X86_64),y)
-diff --git a/arch/x86/kernel/sev-es-shared.c b/arch/x86/kernel/sev-es-shared.c
-index a6b41910b8ab..18619279a46f 100644
---- a/arch/x86/kernel/sev-es-shared.c
-+++ b/arch/x86/kernel/sev-es-shared.c
-@@ -9,7 +9,7 @@
-  * and is included directly into both code-bases.
-  */
+ extern pgd_t early_top_pgt[PTRS_PER_PGD];
+-int __init __early_make_pgtable(unsigned long address, pmdval_t pmd);
++bool __init __early_make_pgtable(unsigned long address, pmdval_t pmd);
  
--static void sev_es_terminate(unsigned int reason)
-+static void __maybe_unused sev_es_terminate(unsigned int reason)
- {
- 	u64 val = GHCB_SEV_TERMINATE;
+ void ptdump_walk_pgd_level(struct seq_file *m, struct mm_struct *mm);
+ void ptdump_walk_pgd_level_debugfs(struct seq_file *m, struct mm_struct *mm,
+diff --git a/arch/x86/include/asm/setup.h b/arch/x86/include/asm/setup.h
+index 4b3ca5ade2fd..7d7a064af6ff 100644
+--- a/arch/x86/include/asm/setup.h
++++ b/arch/x86/include/asm/setup.h
+@@ -39,6 +39,8 @@ void vsmp_init(void);
+ static inline void vsmp_init(void) { }
+ #endif
  
-@@ -27,7 +27,7 @@ static void sev_es_terminate(unsigned int reason)
- 		asm volatile("hlt\n" : : : "memory");
- }
- 
--static bool sev_es_negotiate_protocol(void)
-+static bool __maybe_unused sev_es_negotiate_protocol(void)
- {
- 	u64 val;
- 
-@@ -46,7 +46,7 @@ static bool sev_es_negotiate_protocol(void)
- 	return true;
- }
- 
--static void vc_ghcb_invalidate(struct ghcb *ghcb)
-+static void __maybe_unused vc_ghcb_invalidate(struct ghcb *ghcb)
- {
- 	memset(ghcb->save.valid_bitmap, 0, sizeof(ghcb->save.valid_bitmap));
- }
-@@ -58,9 +58,9 @@ static bool vc_decoding_needed(unsigned long exit_code)
- 		 exit_code <= SVM_EXIT_LAST_EXCP);
- }
- 
--static enum es_result vc_init_em_ctxt(struct es_em_ctxt *ctxt,
--				      struct pt_regs *regs,
--				      unsigned long exit_code)
-+static enum es_result __maybe_unused vc_init_em_ctxt(struct es_em_ctxt *ctxt,
-+						     struct pt_regs *regs,
-+						     unsigned long exit_code)
- {
- 	enum es_result ret = ES_OK;
- 
-@@ -73,7 +73,7 @@ static enum es_result vc_init_em_ctxt(struct es_em_ctxt *ctxt,
- 	return ret;
- }
- 
--static void vc_finish_insn(struct es_em_ctxt *ctxt)
-+static void __maybe_unused vc_finish_insn(struct es_em_ctxt *ctxt)
- {
- 	ctxt->regs->ip += ctxt->insn.length;
- }
-@@ -325,7 +325,8 @@ static enum es_result vc_ioio_exitinfo(struct es_em_ctxt *ctxt, u64 *exitinfo)
- 	return ES_OK;
- }
- 
--static enum es_result vc_handle_ioio(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
-+static enum es_result __maybe_unused
-+vc_handle_ioio(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
- {
- 	struct pt_regs *regs = ctxt->regs;
- 	u64 exit_info_1, exit_info_2;
-@@ -433,8 +434,8 @@ static enum es_result vc_handle_ioio(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
- 	return ret;
- }
- 
--static enum es_result vc_handle_cpuid(struct ghcb *ghcb,
--				      struct es_em_ctxt *ctxt)
-+static enum es_result __maybe_unused vc_handle_cpuid(struct ghcb *ghcb,
-+						     struct es_em_ctxt *ctxt)
- {
- 	struct pt_regs *regs = ctxt->regs;
- 	u32 cr4 = native_read_cr4();
-diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
-new file mode 100644
-index 000000000000..0b698b653c0b
---- /dev/null
-+++ b/arch/x86/kernel/sev-es.c
-@@ -0,0 +1,163 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+/*
-+ * AMD Memory Encryption Support
-+ *
-+ * Copyright (C) 2019 SUSE
-+ *
-+ * Author: Joerg Roedel <jroedel@suse.de>
-+ */
++struct pt_regs;
 +
-+#include <linux/kernel.h>
-+#include <linux/mm.h>
-+
-+#include <asm/sev-es.h>
-+#include <asm/insn-eval.h>
-+#include <asm/fpu/internal.h>
-+#include <asm/processor.h>
-+#include <asm/trap_pf.h>
+ void setup_bios_corruption_check(void);
+ void early_platform_quirks(void);
+ 
+@@ -49,8 +51,8 @@ extern void i386_reserve_resources(void);
+ extern unsigned long __startup_64(unsigned long physaddr, struct boot_params *bp);
+ extern unsigned long __startup_secondary_64(void);
+ extern void startup_64_setup_env(unsigned long physbase);
+-extern int early_make_pgtable(unsigned long address);
+ extern void early_setup_idt(void);
++extern void __init do_early_exception(struct pt_regs *regs, int trapnr);
+ 
+ #ifdef CONFIG_X86_INTEL_MID
+ extern void x86_intel_mid_early_setup(void);
+diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
+index 7bfd5c27c773..4282dac694c3 100644
+--- a/arch/x86/kernel/head64.c
++++ b/arch/x86/kernel/head64.c
+@@ -38,6 +38,8 @@
+ #include <asm/fixmap.h>
+ #include <asm/realmode.h>
+ #include <asm/desc.h>
++#include <asm/extable.h>
 +#include <asm/trapnr.h>
-+#include <asm/svm.h>
-+
-+static inline u64 sev_es_rd_ghcb_msr(void)
+ 
+ /*
+  * Manage page tables very early on.
+@@ -317,7 +319,7 @@ static void __init reset_early_page_tables(void)
+ }
+ 
+ /* Create a new PMD entry */
+-int __init __early_make_pgtable(unsigned long address, pmdval_t pmd)
++bool __init __early_make_pgtable(unsigned long address, pmdval_t pmd)
+ {
+ 	unsigned long physaddr = address - __PAGE_OFFSET;
+ 	pgdval_t pgd, *pgd_p;
+@@ -327,7 +329,7 @@ int __init __early_make_pgtable(unsigned long address, pmdval_t pmd)
+ 
+ 	/* Invalid address or early pgt is done ?  */
+ 	if (physaddr >= MAXMEM || read_cr3_pa() != __pa_nodebug(early_top_pgt))
+-		return -1;
++		return false;
+ 
+ again:
+ 	pgd_p = &early_top_pgt[pgd_index(address)].pgd;
+@@ -384,10 +386,10 @@ int __init __early_make_pgtable(unsigned long address, pmdval_t pmd)
+ 	}
+ 	pmd_p[pmd_index(address)] = pmd;
+ 
+-	return 0;
++	return true;
+ }
+ 
+-int __init early_make_pgtable(unsigned long address)
++static bool __init early_make_pgtable(unsigned long address)
+ {
+ 	unsigned long physaddr = address - __PAGE_OFFSET;
+ 	pmdval_t pmd;
+@@ -397,6 +399,15 @@ int __init early_make_pgtable(unsigned long address)
+ 	return __early_make_pgtable(address, pmd);
+ }
+ 
++void __init do_early_exception(struct pt_regs *regs, int trapnr)
 +{
-+	return native_read_msr(MSR_AMD64_SEV_ES_GHCB);
++	if (trapnr == X86_TRAP_PF &&
++	    early_make_pgtable(native_read_cr2()))
++		return;
++
++	early_fixup_exception(regs, trapnr);
 +}
 +
-+static inline void sev_es_wr_ghcb_msr(u64 val)
-+{
-+	u32 low, high;
-+
-+	low  = (u32)(val);
-+	high = (u32)(val >> 32);
-+
-+	native_write_msr(MSR_AMD64_SEV_ES_GHCB, low, high);
-+}
-+
-+static int vc_fetch_insn_kernel(struct es_em_ctxt *ctxt,
-+				unsigned char *buffer)
-+{
-+	return copy_from_kernel_nofault(buffer, (unsigned char *)ctxt->regs->ip, MAX_INSN_SIZE);
-+}
-+
-+static enum es_result vc_decode_insn(struct es_em_ctxt *ctxt)
-+{
-+	char buffer[MAX_INSN_SIZE];
-+	enum es_result ret;
-+	int res;
-+
-+	res = vc_fetch_insn_kernel(ctxt, buffer);
-+	if (unlikely(res == -EFAULT)) {
-+		ctxt->fi.vector     = X86_TRAP_PF;
-+		ctxt->fi.error_code = 0;
-+		ctxt->fi.cr2        = ctxt->regs->ip;
-+		return ES_EXCEPTION;
-+	}
-+
-+	insn_init(&ctxt->insn, buffer, MAX_INSN_SIZE - res, 1);
-+	insn_get_length(&ctxt->insn);
-+
-+	ret = ctxt->insn.immediate.got ? ES_OK : ES_DECODE_FAILED;
-+
-+	return ret;
-+}
-+
-+static enum es_result vc_write_mem(struct es_em_ctxt *ctxt,
-+				   char *dst, char *buf, size_t size)
-+{
-+	unsigned long error_code = X86_PF_PROT | X86_PF_WRITE;
-+	char __user *target = (char __user *)dst;
-+	u64 d8;
-+	u32 d4;
-+	u16 d2;
-+	u8  d1;
-+
-+	switch (size) {
-+	case 1:
-+		memcpy(&d1, buf, 1);
-+		if (put_user(d1, target))
-+			goto fault;
-+		break;
-+	case 2:
-+		memcpy(&d2, buf, 2);
-+		if (put_user(d2, target))
-+			goto fault;
-+		break;
-+	case 4:
-+		memcpy(&d4, buf, 4);
-+		if (put_user(d4, target))
-+			goto fault;
-+		break;
-+	case 8:
-+		memcpy(&d8, buf, 8);
-+		if (put_user(d8, target))
-+			goto fault;
-+		break;
-+	default:
-+		WARN_ONCE(1, "%s: Invalid size: %zu\n", __func__, size);
-+		return ES_UNSUPPORTED;
-+	}
-+
-+	return ES_OK;
-+
-+fault:
-+	if (user_mode(ctxt->regs))
-+		error_code |= X86_PF_USER;
-+
-+	ctxt->fi.vector = X86_TRAP_PF;
-+	ctxt->fi.error_code = error_code;
-+	ctxt->fi.cr2 = (unsigned long)dst;
-+
-+	return ES_EXCEPTION;
-+}
-+
-+static enum es_result vc_read_mem(struct es_em_ctxt *ctxt,
-+				  char *src, char *buf, size_t size)
-+{
-+	unsigned long error_code = X86_PF_PROT;
-+	char __user *s = (char __user *)src;
-+	u64 d8;
-+	u32 d4;
-+	u16 d2;
-+	u8  d1;
-+
-+	switch (size) {
-+	case 1:
-+		if (get_user(d1, s))
-+			goto fault;
-+		memcpy(buf, &d1, 1);
-+		break;
-+	case 2:
-+		if (get_user(d2, s))
-+			goto fault;
-+		memcpy(buf, &d2, 2);
-+		break;
-+	case 4:
-+		if (get_user(d4, s))
-+			goto fault;
-+		memcpy(buf, &d4, 4);
-+		break;
-+	case 8:
-+		if (get_user(d8, s))
-+			goto fault;
-+		memcpy(buf, &d8, 8);
-+		break;
-+	default:
-+		WARN_ONCE(1, "%s: Invalid size: %zu\n", __func__, size);
-+		return ES_UNSUPPORTED;
-+	}
-+
-+	return ES_OK;
-+
-+fault:
-+	if (user_mode(ctxt->regs))
-+		error_code |= X86_PF_USER;
-+
-+	ctxt->fi.vector = X86_TRAP_PF;
-+	ctxt->fi.error_code = error_code;
-+	ctxt->fi.cr2 = (unsigned long)src;
-+
-+	return ES_EXCEPTION;
-+}
-+
-+/* Include code shared with pre-decompression boot stage */
-+#include "sev-es-shared.c"
+ /* Don't add a printk in there. printk relies on the PDA which is not initialized 
+    yet. */
+ static void __init clear_bss(void)
+diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
+index 1de09b58e578..3b40ec44a67d 100644
+--- a/arch/x86/kernel/head_64.S
++++ b/arch/x86/kernel/head_64.S
+@@ -341,18 +341,9 @@ SYM_CODE_START_LOCAL(early_idt_handler_common)
+ 	pushq %r15				/* pt_regs->r15 */
+ 	UNWIND_HINT_REGS
+ 
+-	cmpq $14,%rsi		/* Page fault? */
+-	jnz 10f
+-	GET_CR2_INTO(%rdi)	/* can clobber %rax if pv */
+-	call early_make_pgtable
+-	andl %eax,%eax
+-	jz 20f			/* All good */
+-
+-10:
+ 	movq %rsp,%rdi		/* RDI = pt_regs; RSI is already trapnr */
+-	call early_fixup_exception
++	call do_early_exception
+ 
+-20:
+ 	decl early_recursion_flag(%rip)
+ 	jmp restore_regs_and_return_to_kernel
+ SYM_CODE_END(early_idt_handler_common)
 -- 
 2.28.0
 
