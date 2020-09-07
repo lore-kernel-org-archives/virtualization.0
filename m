@@ -7,59 +7,59 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C665AC433E2
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:18:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7A8EBC43461
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:18:24 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7A8CC207C3
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:18:14 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7A8CC207C3
+	by mail.kernel.org (Postfix) with ESMTPS id 1D6C7207C3
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:18:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1D6C7207C3
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 1484A2026D;
-	Mon,  7 Sep 2020 13:18:14 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id CE63A20530;
+	Mon,  7 Sep 2020 13:18:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0O7qWnAIPV4Y; Mon,  7 Sep 2020 13:17:58 +0000 (UTC)
+	with ESMTP id mdubXl4mDOC9; Mon,  7 Sep 2020 13:18:16 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 66FDB22E94;
-	Mon,  7 Sep 2020 13:17:06 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 341EB272E0;
+	Mon,  7 Sep 2020 13:17:07 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 40D5AC0891;
-	Mon,  7 Sep 2020 13:17:06 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id F042DC0891
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2C16DC0891;
+	Mon,  7 Sep 2020 13:17:07 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A358BC0859
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:17:02 +0000 (UTC)
+ Mon,  7 Sep 2020 13:17:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id DEC5485F56
+ by hemlock.osuosl.org (Postfix) with ESMTP id 8F45C87175
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:17:02 +0000 (UTC)
+ Mon,  7 Sep 2020 13:17:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xgmnHcOKdwlA
+ with ESMTP id RRI4GiINulSu
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:17:01 +0000 (UTC)
+ Mon,  7 Sep 2020 13:17:05 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 8DB1885FAD
+ by hemlock.osuosl.org (Postfix) with ESMTPS id ECE8087170
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:17:00 +0000 (UTC)
+ Mon,  7 Sep 2020 13:17:04 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549add56.dip0.t-ipconnect.de
  [84.154.221.86])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 00BC5FDA;
- Mon,  7 Sep 2020 15:16:56 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 2118C1004;
+ Mon,  7 Sep 2020 15:17:01 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v7 29/72] x86/head/64: Install startup GDT
-Date: Mon,  7 Sep 2020 15:15:30 +0200
-Message-Id: <20200907131613.12703-30-joro@8bytes.org>
+Subject: [PATCH v7 37/72] x86/sev-es: Print SEV-ES info into kernel log
+Date: Mon,  7 Sep 2020 15:15:38 +0200
+Message-Id: <20200907131613.12703-38-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200907131613.12703-1-joro@8bytes.org>
 References: <20200907131613.12703-1-joro@8bytes.org>
@@ -95,101 +95,62 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Handling exceptions during boot requires a working GDT. The kernel GDT
-can't be used on the direct mapping, so load a startup GDT and setup
-segments.
+Refactor the message printed to the kernel log which indicates whether
+SEV or SME is active to print a list of enabled encryption features.
+This will scale better in the future when more memory encryption
+features might be added. Also add SEV-ES to the list of features.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Reviewed-by: Kees Cook <keescook@chromium.org>
 ---
- arch/x86/include/asm/setup.h |  1 +
- arch/x86/kernel/head64.c     | 33 +++++++++++++++++++++++++++++++++
- arch/x86/kernel/head_64.S    | 14 ++++++++++++++
- 3 files changed, 48 insertions(+)
+ arch/x86/mm/mem_encrypt.c | 29 ++++++++++++++++++++++++++---
+ 1 file changed, 26 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/include/asm/setup.h b/arch/x86/include/asm/setup.h
-index 84b645cc8bc9..5c2fd05bd52c 100644
---- a/arch/x86/include/asm/setup.h
-+++ b/arch/x86/include/asm/setup.h
-@@ -48,6 +48,7 @@ extern void reserve_standard_io_resources(void);
- extern void i386_reserve_resources(void);
- extern unsigned long __startup_64(unsigned long physaddr, struct boot_params *bp);
- extern unsigned long __startup_secondary_64(void);
-+extern void startup_64_setup_env(unsigned long physbase);
- extern int early_make_pgtable(unsigned long address);
- 
- #ifdef CONFIG_X86_INTEL_MID
-diff --git a/arch/x86/kernel/head64.c b/arch/x86/kernel/head64.c
-index cbb71c1b574f..8c82be44be94 100644
---- a/arch/x86/kernel/head64.c
-+++ b/arch/x86/kernel/head64.c
-@@ -61,6 +61,24 @@ unsigned long vmemmap_base __ro_after_init = __VMEMMAP_BASE_L4;
- EXPORT_SYMBOL(vmemmap_base);
- #endif
- 
-+/*
-+ * GDT used on the boot CPU before switching to virtual addresses.
-+ */
-+static struct desc_struct startup_gdt[GDT_ENTRIES] = {
-+	[GDT_ENTRY_KERNEL32_CS]         = GDT_ENTRY_INIT(0xc09b, 0, 0xfffff),
-+	[GDT_ENTRY_KERNEL_CS]           = GDT_ENTRY_INIT(0xa09b, 0, 0xfffff),
-+	[GDT_ENTRY_KERNEL_DS]           = GDT_ENTRY_INIT(0xc093, 0, 0xfffff),
-+};
-+
-+/*
-+ * Address needs to be set at runtime because it references the startup_gdt
-+ * while the kernel still uses a direct mapping.
-+ */
-+static struct desc_ptr startup_gdt_descr = {
-+	.size = sizeof(startup_gdt),
-+	.address = 0,
-+};
-+
- #define __head	__section(.head.text)
- 
- static void __head *fixup_pointer(void *ptr, unsigned long physaddr)
-@@ -489,3 +507,18 @@ void __init x86_64_start_reservations(char *real_mode_data)
- 
- 	start_kernel();
+diff --git a/arch/x86/mm/mem_encrypt.c b/arch/x86/mm/mem_encrypt.c
+index d0d4ebcec1be..d6b8f4c1d3fa 100644
+--- a/arch/x86/mm/mem_encrypt.c
++++ b/arch/x86/mm/mem_encrypt.c
+@@ -407,6 +407,31 @@ void __init mem_encrypt_free_decrypted_mem(void)
+ 	free_init_pages("unused decrypted", vaddr, vaddr_end);
  }
-+
-+/*
-+ * Setup boot CPU state needed before kernel switches to virtual addresses.
-+ */
-+void __head startup_64_setup_env(unsigned long physbase)
-+{
-+	/* Load GDT */
-+	startup_gdt_descr.address = (unsigned long)fixup_pointer(startup_gdt, physbase);
-+	native_load_gdt(&startup_gdt_descr);
-+
-+	/* New GDT is live - reload data segment registers */
-+	asm volatile("movl %%eax, %%ds\n"
-+		     "movl %%eax, %%ss\n"
-+		     "movl %%eax, %%es\n" : : "a"(__KERNEL_DS) : "memory");
-+}
-diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
-index 16da4ac01597..2b2e91627221 100644
---- a/arch/x86/kernel/head_64.S
-+++ b/arch/x86/kernel/head_64.S
-@@ -73,6 +73,20 @@ SYM_CODE_START_NOALIGN(startup_64)
- 	/* Set up the stack for verify_cpu(), similar to initial_stack below */
- 	leaq	(__end_init_task - SIZEOF_PTREGS)(%rip), %rsp
  
-+	leaq	_text(%rip), %rdi
-+	pushq	%rsi
-+	call	startup_64_setup_env
-+	popq	%rsi
++static void print_mem_encrypt_feature_info(void)
++{
++	pr_info("AMD Memory Encryption Features active:");
 +
-+	/* Now switch to __KERNEL_CS so IRET works reliably */
-+	pushq	$__KERNEL_CS
-+	leaq	.Lon_kernel_cs(%rip), %rax
-+	pushq	%rax
-+	lretq
++	/* Secure Memory Encryption */
++	if (sme_active()) {
++		/*
++		 * SME is mutually exclusive with any of the SEV
++		 * features below.
++		 */
++		pr_cont(" SME\n");
++		return;
++	}
 +
-+.Lon_kernel_cs:
-+	UNWIND_HINT_EMPTY
++	/* Secure Encrypted Virtualization */
++	if (sev_active())
++		pr_cont(" SEV");
 +
- 	/* Sanitize CPU configuration */
- 	call verify_cpu
++	/* Encrypted Register State */
++	if (sev_es_active())
++		pr_cont(" SEV-ES");
++
++	pr_cont("\n");
++}
++
+ /* Architecture __weak replacement functions */
+ void __init mem_encrypt_init(void)
+ {
+@@ -422,8 +447,6 @@ void __init mem_encrypt_init(void)
+ 	if (sev_active())
+ 		static_branch_enable(&sev_enable_key);
+ 
+-	pr_info("AMD %s active\n",
+-		sev_active() ? "Secure Encrypted Virtualization (SEV)"
+-			     : "Secure Memory Encryption (SME)");
++	print_mem_encrypt_feature_info();
+ }
  
 -- 
 2.28.0
