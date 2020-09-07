@@ -7,59 +7,59 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AB43BC433E2
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:07 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF4F6C43461
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:08 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 6770520838
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6770520838
+	by mail.kernel.org (Postfix) with ESMTPS id 9695E215A4
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:17:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9695E215A4
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 4054E86757;
-	Mon,  7 Sep 2020 13:17:07 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 6CDDE8717F;
+	Mon,  7 Sep 2020 13:17:08 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id lP1BFfhksPwa; Mon,  7 Sep 2020 13:17:02 +0000 (UTC)
+	with ESMTP id 8VL9+cWJh9jZ; Mon,  7 Sep 2020 13:17:06 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 0808B86749;
-	Mon,  7 Sep 2020 13:16:59 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id C247687186;
+	Mon,  7 Sep 2020 13:17:06 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id F3911C0891;
-	Mon,  7 Sep 2020 13:16:58 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3EAC8C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id ABE5DC0891;
+	Mon,  7 Sep 2020 13:17:06 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 99E08C0051
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:16:58 +0000 (UTC)
+ Mon,  7 Sep 2020 13:17:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 0EBAB2151E
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 9639485F3A
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:16:58 +0000 (UTC)
+ Mon,  7 Sep 2020 13:17:03 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0C8EzwGTFxTb
+ with ESMTP id BdpwbWx7JEag
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:16:53 +0000 (UTC)
+ Mon,  7 Sep 2020 13:17:02 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by silver.osuosl.org (Postfix) with ESMTPS id 3F3C520517
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id B55A185FD0
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:16:50 +0000 (UTC)
+ Mon,  7 Sep 2020 13:17:00 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549add56.dip0.t-ipconnect.de
  [84.154.221.86])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 4EFC4D3B;
- Mon,  7 Sep 2020 15:16:47 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 077E11CA;
+ Mon,  7 Sep 2020 15:16:58 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v7 10/72] x86/insn: Add insn_get_modrm_reg_off()
-Date: Mon,  7 Sep 2020 15:15:11 +0200
-Message-Id: <20200907131613.12703-11-joro@8bytes.org>
+Subject: [PATCH v7 31/72] x86/head/64: Load segment registers earlier
+Date: Mon,  7 Sep 2020 15:15:32 +0200
+Message-Id: <20200907131613.12703-32-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200907131613.12703-1-joro@8bytes.org>
 References: <20200907131613.12703-1-joro@8bytes.org>
@@ -95,76 +95,86 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Joerg Roedel <jroedel@suse.de>
 
-Add a function to the instruction decoder which returns the pt_regs
-offset of the register specified in the reg field of the modrm byte.
+Make sure segments are properly set up before setting up an IDT and
+doing anything that might cause a #VC exception. This is later needed
+for early exception handling.
 
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
 ---
- arch/x86/include/asm/insn-eval.h |  1 +
- arch/x86/lib/insn-eval.c         | 23 +++++++++++++++++++++++
- 2 files changed, 24 insertions(+)
+ arch/x86/kernel/head_64.S | 52 +++++++++++++++++++--------------------
+ 1 file changed, 26 insertions(+), 26 deletions(-)
 
-diff --git a/arch/x86/include/asm/insn-eval.h b/arch/x86/include/asm/insn-eval.h
-index 392b4fe377f9..f748f57f1491 100644
---- a/arch/x86/include/asm/insn-eval.h
-+++ b/arch/x86/include/asm/insn-eval.h
-@@ -17,6 +17,7 @@
+diff --git a/arch/x86/kernel/head_64.S b/arch/x86/kernel/head_64.S
+index 03b03f266dc1..f402087a02ac 100644
+--- a/arch/x86/kernel/head_64.S
++++ b/arch/x86/kernel/head_64.S
+@@ -166,6 +166,32 @@ SYM_CODE_START(secondary_startup_64)
+ 	 */
+ 	lgdt	early_gdt_descr(%rip)
  
- void __user *insn_get_addr_ref(struct insn *insn, struct pt_regs *regs);
- int insn_get_modrm_rm_off(struct insn *insn, struct pt_regs *regs);
-+int insn_get_modrm_reg_off(struct insn *insn, struct pt_regs *regs);
- unsigned long insn_get_seg_base(struct pt_regs *regs, int seg_reg_idx);
- int insn_get_code_seg_params(struct pt_regs *regs);
- int insn_fetch_from_user(struct pt_regs *regs,
-diff --git a/arch/x86/lib/insn-eval.c b/arch/x86/lib/insn-eval.c
-index 2323c85132cf..f20942ce76c6 100644
---- a/arch/x86/lib/insn-eval.c
-+++ b/arch/x86/lib/insn-eval.c
-@@ -20,6 +20,7 @@
- 
- enum reg_type {
- 	REG_TYPE_RM = 0,
-+	REG_TYPE_REG,
- 	REG_TYPE_INDEX,
- 	REG_TYPE_BASE,
- };
-@@ -439,6 +440,13 @@ static int get_reg_offset(struct insn *insn, struct pt_regs *regs,
- 			regno += 8;
- 		break;
- 
-+	case REG_TYPE_REG:
-+		regno = X86_MODRM_REG(insn->modrm.value);
++	/* set up data segments */
++	xorl %eax,%eax
++	movl %eax,%ds
++	movl %eax,%ss
++	movl %eax,%es
 +
-+		if (X86_REX_R(insn->rex_prefix.value))
-+			regno += 8;
-+		break;
++	/*
++	 * We don't really need to load %fs or %gs, but load them anyway
++	 * to kill any stale realmode selectors.  This allows execution
++	 * under VT hardware.
++	 */
++	movl %eax,%fs
++	movl %eax,%gs
 +
- 	case REG_TYPE_INDEX:
- 		regno = X86_SIB_INDEX(insn->sib.value);
- 		if (X86_REX_X(insn->rex_prefix.value))
-@@ -807,6 +815,21 @@ int insn_get_modrm_rm_off(struct insn *insn, struct pt_regs *regs)
- 	return get_reg_offset(insn, regs, REG_TYPE_RM);
- }
++	/* Set up %gs.
++	 *
++	 * The base of %gs always points to fixed_percpu_data. If the
++	 * stack protector canary is enabled, it is located at %gs:40.
++	 * Note that, on SMP, the boot cpu uses init data section until
++	 * the per cpu areas are set up.
++	 */
++	movl	$MSR_GS_BASE,%ecx
++	movl	initial_gs(%rip),%eax
++	movl	initial_gs+4(%rip),%edx
++	wrmsr
++
+ 	/* Check if nx is implemented */
+ 	movl	$0x80000001, %eax
+ 	cpuid
+@@ -193,32 +219,6 @@ SYM_CODE_START(secondary_startup_64)
+ 	pushq $0
+ 	popfq
  
-+/**
-+ * insn_get_modrm_reg_off() - Obtain register in reg part of the ModRM byte
-+ * @insn:	Instruction containing the ModRM byte
-+ * @regs:	Register values as seen when entering kernel mode
-+ *
-+ * Returns:
-+ *
-+ * The register indicated by the reg part of the ModRM byte. The
-+ * register is obtained as an offset from the base of pt_regs.
-+ */
-+int insn_get_modrm_reg_off(struct insn *insn, struct pt_regs *regs)
-+{
-+	return get_reg_offset(insn, regs, REG_TYPE_REG);
-+}
-+
- /**
-  * get_seg_base_limit() - obtain base address and limit of a segment
-  * @insn:	Instruction. Must be valid.
+-	/* set up data segments */
+-	xorl %eax,%eax
+-	movl %eax,%ds
+-	movl %eax,%ss
+-	movl %eax,%es
+-
+-	/*
+-	 * We don't really need to load %fs or %gs, but load them anyway
+-	 * to kill any stale realmode selectors.  This allows execution
+-	 * under VT hardware.
+-	 */
+-	movl %eax,%fs
+-	movl %eax,%gs
+-
+-	/* Set up %gs.
+-	 *
+-	 * The base of %gs always points to fixed_percpu_data. If the
+-	 * stack protector canary is enabled, it is located at %gs:40.
+-	 * Note that, on SMP, the boot cpu uses init data section until
+-	 * the per cpu areas are set up.
+-	 */
+-	movl	$MSR_GS_BASE,%ecx
+-	movl	initial_gs(%rip),%eax
+-	movl	initial_gs+4(%rip),%edx
+-	wrmsr
+-
+ 	/* rsi is pointer to real mode structure with interesting info.
+ 	   pass it to C */
+ 	movq	%rsi, %rdi
 -- 
 2.28.0
 
