@@ -7,59 +7,59 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DFAF7C2BB84
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:16:49 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4347CC43461
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:16:52 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 6DD4B21481
-	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:16:49 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6DD4B21481
+	by mail.kernel.org (Postfix) with ESMTPS id CF19220838
+	for <virtualization@archiver.kernel.org>; Mon,  7 Sep 2020 13:16:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CF19220838
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=8bytes.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 11EE285F55;
-	Mon,  7 Sep 2020 13:16:49 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 969A785F83;
+	Mon,  7 Sep 2020 13:16:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id EA3rLqHGeOhK; Mon,  7 Sep 2020 13:16:48 +0000 (UTC)
+	with ESMTP id MAgGuqvD2_2v; Mon,  7 Sep 2020 13:16:51 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 7956585F3A;
-	Mon,  7 Sep 2020 13:16:48 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id ECBB785F50;
+	Mon,  7 Sep 2020 13:16:50 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4EA5FC0893;
-	Mon,  7 Sep 2020 13:16:48 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D65E3C0859;
+	Mon,  7 Sep 2020 13:16:50 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A0687C0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5C6E5C0051
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:16:47 +0000 (UTC)
+ Mon,  7 Sep 2020 13:16:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 8F46D8671E
+ by whitealder.osuosl.org (Postfix) with ESMTP id 43A1F86717
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:16:47 +0000 (UTC)
+ Mon,  7 Sep 2020 13:16:49 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id GdVBjQrYWCI5
+ with ESMTP id VBorZA1QCnKk
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:16:45 +0000 (UTC)
+ Mon,  7 Sep 2020 13:16:48 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from theia.8bytes.org (8bytes.org [81.169.241.247])
- by whitealder.osuosl.org (Postfix) with ESMTPS id A7C5884A75
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 143CF86749
  for <virtualization@lists.linux-foundation.org>;
- Mon,  7 Sep 2020 13:16:45 +0000 (UTC)
+ Mon,  7 Sep 2020 13:16:48 +0000 (UTC)
 Received: from cap.home.8bytes.org (p549add56.dip0.t-ipconnect.de
  [84.154.221.86])
  (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
  (No client certificate requested)
- by theia.8bytes.org (Postfix) with ESMTPSA id 3530939A;
- Mon,  7 Sep 2020 15:16:43 +0200 (CEST)
+ by theia.8bytes.org (Postfix) with ESMTPSA id 361CEBCA;
+ Mon,  7 Sep 2020 15:16:45 +0200 (CEST)
 From: Joerg Roedel <joro@8bytes.org>
 To: x86@kernel.org
-Subject: [PATCH v7 02/72] KVM: SVM: Add GHCB definitions
-Date: Mon,  7 Sep 2020 15:15:03 +0200
-Message-Id: <20200907131613.12703-3-joro@8bytes.org>
+Subject: [PATCH v7 06/72] x86/traps: Move pf error codes to <asm/trap_pf.h>
+Date: Mon,  7 Sep 2020 15:15:07 +0200
+Message-Id: <20200907131613.12703-7-joro@8bytes.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20200907131613.12703-1-joro@8bytes.org>
 References: <20200907131613.12703-1-joro@8bytes.org>
@@ -93,98 +93,84 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-Extend the vmcb_safe_area with SEV-ES fields and add a new
-'struct ghcb' which will be used for guest-hypervisor communication.
+Move the definition of the x86 page-fault error code bits to the new
+header file asm/trap_pf.h. This makes it easier to include them into
+pre-decompression boot code. No functional changes.
 
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 ---
- arch/x86/include/asm/svm.h | 51 ++++++++++++++++++++++++++++++++++++--
- arch/x86/kvm/svm/svm.c     |  2 ++
- 2 files changed, 51 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/trap_pf.h | 24 ++++++++++++++++++++++++
+ arch/x86/include/asm/traps.h   | 19 +------------------
+ 2 files changed, 25 insertions(+), 18 deletions(-)
+ create mode 100644 arch/x86/include/asm/trap_pf.h
 
-diff --git a/arch/x86/include/asm/svm.h b/arch/x86/include/asm/svm.h
-index 8a1f5382a4ea..acac55d6f941 100644
---- a/arch/x86/include/asm/svm.h
-+++ b/arch/x86/include/asm/svm.h
-@@ -200,13 +200,60 @@ struct __attribute__ ((__packed__)) vmcb_save_area {
- 	u64 br_to;
- 	u64 last_excp_from;
- 	u64 last_excp_to;
+diff --git a/arch/x86/include/asm/trap_pf.h b/arch/x86/include/asm/trap_pf.h
+new file mode 100644
+index 000000000000..305bc1214aef
+--- /dev/null
++++ b/arch/x86/include/asm/trap_pf.h
+@@ -0,0 +1,24 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _ASM_X86_TRAP_PF_H
++#define _ASM_X86_TRAP_PF_H
 +
-+	/*
-+	 * The following part of the save area is valid only for
-+	 * SEV-ES guests when referenced through the GHCB.
-+	 */
-+	u8 reserved_7[104];
-+	u64 reserved_8;		/* rax already available at 0x01f8 */
-+	u64 rcx;
-+	u64 rdx;
-+	u64 rbx;
-+	u64 reserved_9;		/* rsp already available at 0x01d8 */
-+	u64 rbp;
-+	u64 rsi;
-+	u64 rdi;
-+	u64 r8;
-+	u64 r9;
-+	u64 r10;
-+	u64 r11;
-+	u64 r12;
-+	u64 r13;
-+	u64 r14;
-+	u64 r15;
-+	u8 reserved_10[16];
-+	u64 sw_exit_code;
-+	u64 sw_exit_info_1;
-+	u64 sw_exit_info_2;
-+	u64 sw_scratch;
-+	u8 reserved_11[56];
-+	u64 xcr0;
-+	u8 valid_bitmap[16];
-+	u64 x87_state_gpa;
- };
++/*
++ * Page fault error code bits:
++ *
++ *   bit 0 ==	 0: no page found	1: protection fault
++ *   bit 1 ==	 0: read access		1: write access
++ *   bit 2 ==	 0: kernel-mode access	1: user-mode access
++ *   bit 3 ==				1: use of reserved bit detected
++ *   bit 4 ==				1: fault was an instruction fetch
++ *   bit 5 ==				1: protection keys block access
++ */
++enum x86_pf_error_code {
++	X86_PF_PROT	=		1 << 0,
++	X86_PF_WRITE	=		1 << 1,
++	X86_PF_USER	=		1 << 2,
++	X86_PF_RSVD	=		1 << 3,
++	X86_PF_INSTR	=		1 << 4,
++	X86_PF_PK	=		1 << 5,
++};
++
++#endif /* _ASM_X86_TRAP_PF_H */
+diff --git a/arch/x86/include/asm/traps.h b/arch/x86/include/asm/traps.h
+index 714b1a30e7b0..6a308355ea29 100644
+--- a/arch/x86/include/asm/traps.h
++++ b/arch/x86/include/asm/traps.h
+@@ -8,6 +8,7 @@
+ #include <asm/debugreg.h>
+ #include <asm/idtentry.h>
+ #include <asm/siginfo.h>			/* TRAP_TRACE, ... */
++#include <asm/trap_pf.h>
  
-+struct ghcb {
-+	struct vmcb_save_area save;
-+	u8 reserved_save[2048 - sizeof(struct vmcb_save_area)];
-+
-+	u8 shared_buffer[2032];
-+
-+	u8 reserved_1[10];
-+	u16 protocol_version;	/* negotiated SEV-ES/GHCB protocol version */
-+	u32 ghcb_usage;
-+} __packed;
-+
-+
-+#define EXPECTED_VMCB_SAVE_AREA_SIZE		1032
-+#define EXPECTED_VMCB_CONTROL_AREA_SIZE		256
-+#define EXPECTED_GHCB_SIZE			PAGE_SIZE
+ #ifdef CONFIG_X86_64
+ asmlinkage __visible notrace struct pt_regs *sync_regs(struct pt_regs *eregs);
+@@ -41,22 +42,4 @@ void __noreturn handle_stack_overflow(const char *message,
+ 				      unsigned long fault_address);
+ #endif
  
- static inline void __unused_size_checks(void)
- {
--	BUILD_BUG_ON(sizeof(struct vmcb_save_area) != 0x298);
--	BUILD_BUG_ON(sizeof(struct vmcb_control_area) != 256);
-+	BUILD_BUG_ON(sizeof(struct vmcb_save_area)	!= EXPECTED_VMCB_SAVE_AREA_SIZE);
-+	BUILD_BUG_ON(sizeof(struct vmcb_control_area)	!= EXPECTED_VMCB_CONTROL_AREA_SIZE);
-+	BUILD_BUG_ON(sizeof(struct ghcb)		!= EXPECTED_GHCB_SIZE);
- }
- 
- struct __attribute__ ((__packed__)) vmcb {
-diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index 0194336b64a4..1db4fdcb4906 100644
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -4164,6 +4164,8 @@ static struct kvm_x86_init_ops svm_init_ops __initdata = {
- 
- static int __init svm_init(void)
- {
-+	__unused_size_checks();
-+
- 	return kvm_init(&svm_init_ops, sizeof(struct vcpu_svm),
- 			__alignof__(struct vcpu_svm), THIS_MODULE);
- }
+-/*
+- * Page fault error code bits:
+- *
+- *   bit 0 ==	 0: no page found	1: protection fault
+- *   bit 1 ==	 0: read access		1: write access
+- *   bit 2 ==	 0: kernel-mode access	1: user-mode access
+- *   bit 3 ==				1: use of reserved bit detected
+- *   bit 4 ==				1: fault was an instruction fetch
+- *   bit 5 ==				1: protection keys block access
+- */
+-enum x86_pf_error_code {
+-	X86_PF_PROT	=		1 << 0,
+-	X86_PF_WRITE	=		1 << 1,
+-	X86_PF_USER	=		1 << 2,
+-	X86_PF_RSVD	=		1 << 3,
+-	X86_PF_INSTR	=		1 << 4,
+-	X86_PF_PK	=		1 << 5,
+-};
+ #endif /* _ASM_X86_TRAPS_H */
 -- 
 2.28.0
 
