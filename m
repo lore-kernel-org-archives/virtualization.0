@@ -2,81 +2,112 @@ Return-Path: <SRS0=DDSL=CR=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C5746C433E2
-	for <virtualization@archiver.kernel.org>; Tue,  8 Sep 2020 18:42:44 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9940C2BC11
+	for <virtualization@archiver.kernel.org>; Tue,  8 Sep 2020 20:10:44 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 553702080A
-	for <virtualization@archiver.kernel.org>; Tue,  8 Sep 2020 18:42:44 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 553702080A
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
+	by mail.kernel.org (Postfix) with ESMTPS id 5FC3B208FE
+	for <virtualization@archiver.kernel.org>; Tue,  8 Sep 2020 20:10:44 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="e7kL1KLP"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5FC3B208FE
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 37D93870B4;
-	Tue,  8 Sep 2020 18:42:44 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id BB617203CA;
+	Tue,  8 Sep 2020 20:10:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id wptnwJrkIOFV; Tue,  8 Sep 2020 18:42:42 +0000 (UTC)
+	with ESMTP id Fdu+9TinyJht; Tue,  8 Sep 2020 20:10:42 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 3B3238707C;
-	Tue,  8 Sep 2020 18:42:42 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 4559620358;
+	Tue,  8 Sep 2020 20:10:42 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2259CC0052;
-	Tue,  8 Sep 2020 18:42:42 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id F0C2AC0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 31FE6C0859;
+	Tue,  8 Sep 2020 20:10:42 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 81DADC0051
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Sep 2020 18:42:40 +0000 (UTC)
+ Tue,  8 Sep 2020 20:10:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id DEF8B86C40
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 67A4D8562A
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Sep 2020 18:42:40 +0000 (UTC)
+ Tue,  8 Sep 2020 20:10:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id A5xSxCYaE4NB
+ with ESMTP id FsqpzKQZTGji
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Sep 2020 18:42:40 +0000 (UTC)
+ Tue,  8 Sep 2020 20:10:38 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 2D0C186BB7
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 9004F85623
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Sep 2020 18:42:40 +0000 (UTC)
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id E4510AD39;
- Tue,  8 Sep 2020 18:42:38 +0000 (UTC)
-Date: Tue, 8 Sep 2020 20:42:34 +0200
-From: Joerg Roedel <jroedel@suse.de>
-To: Borislav Petkov <bp@alien8.de>
-Subject: Re: [PATCH v7 67/72] x86/smpboot: Load TSS and getcpu GDT entry
- before loading IDT
-Message-ID: <20200908184234.GE23826@suse.de>
-References: <20200907131613.12703-1-joro@8bytes.org>
- <20200907131613.12703-68-joro@8bytes.org>
- <20200908172042.GF25236@zn.tnic>
+ Tue,  8 Sep 2020 20:10:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1599595837;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=c3EXsANyRQfNPWugjklxVXDT/m3en9wKUY4fM1Sf5tA=;
+ b=e7kL1KLPTC0NcQ56BOvHfFkbQJPwH36+0DPCRvptTbit5NPXHvcA7IyAmlIo6SD1WAdjHZ
+ N3SC+qGJLWZoecYsGAWt3Q+N3tLXb26/bs8lfm6rBZmRInvH1agGGIM0fSz9DgVPSpnQwU
+ t3sHBFe+ct0OWZ8l1DzL7gWw40SOXs0=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-7-5kkWOmFZP5m0Qe57B5e2tg-1; Tue, 08 Sep 2020 16:10:34 -0400
+X-MC-Unique: 5kkWOmFZP5m0Qe57B5e2tg-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
+ [10.5.11.14])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id F25761074667;
+ Tue,  8 Sep 2020 20:10:28 +0000 (UTC)
+Received: from t480s.redhat.com (ovpn-115-46.ams2.redhat.com [10.36.115.46])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 04EEC5D9E8;
+ Tue,  8 Sep 2020 20:10:13 +0000 (UTC)
+From: David Hildenbrand <david@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH v2 0/7] mm/memory_hotplug: selective merging of system ram
+ resources
+Date: Tue,  8 Sep 2020 22:10:05 +0200
+Message-Id: <20200908201012.44168-1-david@redhat.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20200908172042.GF25236@zn.tnic>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-Cc: Juergen Gross <jgross@suse.com>, Tom Lendacky <thomas.lendacky@amd.com>,
- Dave Hansen <dave.hansen@linux.intel.com>, Mike Stunes <mstunes@vmware.com>,
- Kees Cook <keescook@chromium.org>, kvm@vger.kernel.org,
- Peter Zijlstra <peterz@infradead.org>, Cfir Cohen <cfir@google.com>,
- Joerg Roedel <joro@8bytes.org>, x86@kernel.org, linux-kernel@vger.kernel.org,
- Sean Christopherson <sean.j.christopherson@intel.com>,
- virtualization@lists.linux-foundation.org,
- Martin Radev <martin.b.radev@gmail.com>,
- Masami Hiramatsu <mhiramat@kernel.org>, Andy Lutomirski <luto@kernel.org>,
- hpa@zytor.com, Erdem Aktas <erdemaktas@google.com>,
- David Rientjes <rientjes@google.com>, Dan Williams <dan.j.williams@intel.com>,
- Jiri Slaby <jslaby@suse.cz>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Cc: linux-hyperv@vger.kernel.org, Michal Hocko <mhocko@suse.com>,
+ Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+ Pingfan Liu <kernelfans@gmail.com>, virtualization@lists.linux-foundation.org,
+ linux-mm@kvack.org, Oliver O'Halloran <oohall@gmail.com>,
+ Dan Williams <dan.j.williams@intel.com>, linux-s390@vger.kernel.org,
+ Wei Liu <wei.liu@kernel.org>, Stefano Stabellini <sstabellini@kernel.org>,
+ Dave Jiang <dave.jiang@intel.com>, Baoquan He <bhe@redhat.com>,
+ linux-nvdimm@lists.01.org, Jason Gunthorpe <jgg@ziepe.ca>,
+ Michael Ellerman <mpe@ellerman.id.au>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Ard Biesheuvel <ardb@kernel.org>, linux-acpi@vger.kernel.org,
+ Wei Yang <richardw.yang@linux.intel.com>, xen-devel@lists.xenproject.org,
+ Anton Blanchard <anton@ozlabs.org>, Heiko Carstens <hca@linux.ibm.com>,
+ Len Brown <lenb@kernel.org>, Nathan Lynch <nathanl@linux.ibm.com>,
+ Julien Grall <julien@xen.org>, Kees Cook <keescook@chromium.org>,
+ Vasily Gorbik <gor@linux.ibm.com>, Leonardo Bras <leobras.c@gmail.com>,
+ Haiyang Zhang <haiyangz@microsoft.com>,
+ Stephen Hemminger <sthemmin@microsoft.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ Christian Borntraeger <borntraeger@de.ibm.com>,
+ Juergen Gross <jgross@suse.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+ "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Libor Pechacek <lpechacek@suse.cz>, Thomas Gleixner <tglx@linutronix.de>,
+ Eric Biederman <ebiederm@xmission.com>,
+ Vishal Verma <vishal.l.verma@intel.com>, Paul Mackerras <paulus@samba.org>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -93,31 +124,76 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Sep 08, 2020 at 07:20:42PM +0200, Borislav Petkov wrote:
-> On Mon, Sep 07, 2020 at 03:16:08PM +0200, Joerg Roedel wrote:
-> > +void cpu_init_exception_handling(void)
-> > +{
-> > +	struct tss_struct *tss = this_cpu_ptr(&cpu_tss_rw);
-> > +	int cpu = raw_smp_processor_id();
-> > +
-> > +	/* paranoid_entry() gets the CPU number from the GDT */
-> > +	setup_getcpu(cpu);
-> > +
-> > +	/* IST vectors need TSS to be set up. */
-> > +	tss_setup_ist(tss);
-> > +	tss_setup_io_bitmap(tss);
-> > +	set_tss_desc(cpu, &get_cpu_entry_area(cpu)->tss.x86_tss);
-> > +
-> > +	load_TR_desc();
-> 
-> Aha, this is what you mean here in your 0th message. I'm guessing it is
-> ok to do those things twice in start_secondary...
+Some add_memory*() users add memory in small, contiguous memory blocks.
+Examples include virtio-mem, hyper-v balloon, and the XEN balloon.
 
-Yes, I think its best to do it twice, so that cpu_init() stays the CPU
-state barrier it should be, independent of what happens before.
+This can quickly result in a lot of memory resources, whereby the actual
+resource boundaries are not of interest (e.g., it might be relevant for
+DIMMs, exposed via /proc/iomem to user space). We really want to merge
+added resources in this scenario where possible.
 
+Resources are effectively stored in a list-based tree. Having a lot of
+resources not only wastes memory, it also makes traversing that tree more
+expensive, and makes /proc/iomem explode in size (e.g., requiring
+kexec-tools to manually merge resources when creating a kdump header. The
+current kexec-tools resource count limit does not allow for more than
+~100GB of memory with a memory block size of 128MB on x86-64).
 
-	Joerg
+Let's allow to selectively merge system ram resources by specifying a
+new flag for add_memory*(). Patch #5 contains a /proc/iomem example. Only
+tested with virtio-mem.
+
+v1 -> v2:
+- I had another look at v1 after vacation and didn't like it - it felt like
+  a hack. So I want forward and added a proper flag to add_memory*(), and
+  introduce a clean (non-racy) way to mark System RAM resources mergeable.
+- "kernel/resource: move and rename IORESOURCE_MEM_DRIVER_MANAGED"
+-- Clean that flag up, felt wrong in the PnP section
+- "mm/memory_hotplug: prepare passing flags to add_memory() and friends"
+-- Previously sent in other context - decided to keep Wei's ack
+- "mm/memory_hotplug: MEMHP_MERGE_RESOURCE to specify merging of System
+   RAM resources"
+-- Cleaner approach to get the job done by using proper flags and only
+   merging the single, specified resource
+- "virtio-mem: try to merge system ram resources"
+  "xen/balloon: try to merge system ram resources"
+  "hv_balloon: try to merge system ram resources"
+-- Use the new flag MEMHP_MERGE_RESOURCE, much cleaner
+
+RFC -> v1:
+- Switch from rather generic "merge_child_mem_resources()" where a resource
+  name has to be specified to "merge_system_ram_resources().
+- Smaller comment/documentation/patch description changes/fixes
+
+David Hildenbrand (7):
+  kernel/resource: make release_mem_region_adjustable() never fail
+  kernel/resource: move and rename IORESOURCE_MEM_DRIVER_MANAGED
+  mm/memory_hotplug: prepare passing flags to add_memory() and friends
+  mm/memory_hotplug: MEMHP_MERGE_RESOURCE to specify merging of System
+    RAM resources
+  virtio-mem: try to merge system ram resources
+  xen/balloon: try to merge system ram resources
+  hv_balloon: try to merge system ram resources
+
+ arch/powerpc/platforms/powernv/memtrace.c     |   2 +-
+ .../platforms/pseries/hotplug-memory.c        |   2 +-
+ drivers/acpi/acpi_memhotplug.c                |   2 +-
+ drivers/base/memory.c                         |   2 +-
+ drivers/dax/kmem.c                            |   2 +-
+ drivers/hv/hv_balloon.c                       |   2 +-
+ drivers/s390/char/sclp_cmd.c                  |   2 +-
+ drivers/virtio/virtio_mem.c                   |   3 +-
+ drivers/xen/balloon.c                         |   2 +-
+ include/linux/ioport.h                        |  12 +-
+ include/linux/memory_hotplug.h                |  19 ++-
+ kernel/kexec_file.c                           |   2 +-
+ kernel/resource.c                             | 109 ++++++++++++++----
+ mm/memory_hotplug.c                           |  48 +++-----
+ 14 files changed, 141 insertions(+), 68 deletions(-)
+
+-- 
+2.26.2
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
