@@ -2,115 +2,96 @@ Return-Path: <SRS0=DDSL=CR=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 70528C433E2
-	for <virtualization@archiver.kernel.org>; Tue,  8 Sep 2020 08:35:44 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CD484C43461
+	for <virtualization@archiver.kernel.org>; Tue,  8 Sep 2020 09:39:24 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id EC7C420732
-	for <virtualization@archiver.kernel.org>; Tue,  8 Sep 2020 08:35:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 49A482166E
+	for <virtualization@archiver.kernel.org>; Tue,  8 Sep 2020 09:39:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KYobp+iz"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EC7C420732
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QUfq8M92"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 49A482166E
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 7D43286702;
-	Tue,  8 Sep 2020 08:35:43 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id xCEQ34EBznTn; Tue,  8 Sep 2020 08:35:43 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 1D0C386500;
-	Tue,  8 Sep 2020 08:35:43 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 05E95C088B;
-	Tue,  8 Sep 2020 08:35:43 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 235F8C0052
- for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Sep 2020 08:35:41 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id EA8262051A
- for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Sep 2020 08:35:40 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id CC88C2733D;
+	Tue,  8 Sep 2020 09:39:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id wafy1tQGxF+l
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id H9c64XNyG7+W; Tue,  8 Sep 2020 09:39:22 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by silver.osuosl.org (Postfix) with ESMTP id C3EC52051A;
+	Tue,  8 Sep 2020 09:39:22 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AE1DCC0859;
+	Tue,  8 Sep 2020 09:39:22 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 39BBFC0051
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Sep 2020 08:35:40 +0000 (UTC)
+ Tue,  8 Sep 2020 09:39:22 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by hemlock.osuosl.org (Postfix) with ESMTP id 32EE98726C
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  8 Sep 2020 09:39:22 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from hemlock.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 8pRcF727zuv9
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  8 Sep 2020 09:39:21 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by silver.osuosl.org (Postfix) with ESMTPS id B3A97203E6
+ by hemlock.osuosl.org (Postfix) with ESMTPS id D676587267
  for <virtualization@lists.linux-foundation.org>;
- Tue,  8 Sep 2020 08:35:39 +0000 (UTC)
+ Tue,  8 Sep 2020 09:39:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1599554136;
+ s=mimecast20190719; t=1599557959;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=+MY+j0iaLoq2hQdX3yS+SdSeiGMuMtARblbd8qJTfIk=;
- b=KYobp+izMjIsLYbetyGO8qyRENFEdEg4kk9uSq/1MtELgCj+boPgqz/TgJzDv51kOTqt/X
- 6p20QeGLhZrKJ2AN8czM8Cprxm3dVsdpvU6aEdR4FgOT4yDCqNd0SpC4xFCcNMk8E32a0p
- UKqGxhlU3dFs60xRABAVMb80lChMzv8=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-21-6imHe5FqMQGdHnS5fMJVuA-1; Tue, 08 Sep 2020 04:35:34 -0400
-X-MC-Unique: 6imHe5FqMQGdHnS5fMJVuA-1
-Received: by mail-wr1-f70.google.com with SMTP id s8so6670934wrb.15
- for <virtualization@lists.linux-foundation.org>;
- Tue, 08 Sep 2020 01:35:34 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=+MY+j0iaLoq2hQdX3yS+SdSeiGMuMtARblbd8qJTfIk=;
- b=IZVT5P3qfav+nA600dfAEjA9ZYoICgcj/iDtG3HfjeG0h4vgSNdqbQSUvHGFx5MCU1
- oLdjXqxJwWDGS4z3yptyR6sRPF5sNHFKWtTD6QZXSQbYY2F/oCK+H8gXvfz2Od4mHLpA
- N6+BkNFRXvi/oS/L25iFJHkQBjPj4XJinSoT8JuFZqRVgaOaRT3YCsHXlsliogst12sV
- 5iySpGIWlXcKCn3nDdqJ29chnoHAg6zxyE34+GhJjLtdMCQQDf/3dTK8XbVpZWR/i7jG
- zV3lARX4YNxEjhgSLzAypFl3t3hxnizntfOECDDIRyx28j48N7RkhE6xH+RG9IMV9Rn/
- j75A==
-X-Gm-Message-State: AOAM5311PxkGwe1K95EvyoIo1XxZbvrTYhiwGe7irVRSgbCa7GJW4xvZ
- ffmC3IIqW9HQs78AuJ7iB4E9g2Us2q3TroC3vo5yBMuJC9uSFa8tG+rACvKM1pMkmTNuTka6+EY
- w8jmoKmjOpNG5FAK+zvKGNWPObqfIrKhWDch5XZXPdg==
-X-Received: by 2002:a7b:c059:: with SMTP id u25mr3173543wmc.103.1599554133720; 
- Tue, 08 Sep 2020 01:35:33 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJxI7qjqWRvqDDMKuSEyexs2ZtKt48S7kwb/PYSoSmDiwm5Mm57vBJ7GtHojpCcdWEA5RCWEdA==
-X-Received: by 2002:a7b:c059:: with SMTP id u25mr3173527wmc.103.1599554133531; 
- Tue, 08 Sep 2020 01:35:33 -0700 (PDT)
-Received: from redhat.com ([147.161.15.98])
- by smtp.gmail.com with ESMTPSA id z203sm34774917wmc.31.2020.09.08.01.35.28
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 08 Sep 2020 01:35:32 -0700 (PDT)
-Date: Tue, 8 Sep 2020 04:35:25 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Cornelia Huck <cohuck@redhat.com>
-Subject: Re: [PATCH v11 0/2] s390: virtio: let arch validate VIRTIO features
-Message-ID: <20200908043503-mutt-send-email-mst@kernel.org>
-References: <1599471547-28631-1-git-send-email-pmorel@linux.ibm.com>
- <20200908003951.233e47f3.pasic@linux.ibm.com>
- <20200908085521.4db22680.cohuck@redhat.com>
+ bh=0KEVHWP2GiLQz9DhPmZh/HeQE3DHcZKHvJrF/RegTIU=;
+ b=QUfq8M92LX7WvSdzzdvWIMmeoKsqcIvz+fQGzdV63UccYDv5SvGJzvo8OVGEldAXJCw4yv
+ bqJ3Vgf244u/ZXuXRvzBYn56BUB0awbalnHQSD3gxzhTzP+82Hp0x1WrM4Pdr7dtjQA4EO
+ H+lpTm6Sjv/V/FgMJJe/DPiFqSgSTTM=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-119-FQLYQ8IjMDq3GhQpyAEKYw-1; Tue, 08 Sep 2020 05:39:18 -0400
+X-MC-Unique: FQLYQ8IjMDq3GhQpyAEKYw-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
+ [10.5.11.12])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 856CF802B61;
+ Tue,  8 Sep 2020 09:39:16 +0000 (UTC)
+Received: from sirius.home.kraxel.org (ovpn-112-56.ams2.redhat.com
+ [10.36.112.56])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 59DF060C15;
+ Tue,  8 Sep 2020 09:39:13 +0000 (UTC)
+Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
+ id 95CBC204AE; Tue,  8 Sep 2020 11:39:12 +0200 (CEST)
+From: Gerd Hoffmann <kraxel@redhat.com>
+To: dri-devel@lists.freedesktop.org
+Subject: [PATCH 3/3] drm/qxl: handle shadow in primary destroy
+Date: Tue,  8 Sep 2020 11:39:12 +0200
+Message-Id: <20200908093912.26792-4-kraxel@redhat.com>
+In-Reply-To: <20200908093912.26792-1-kraxel@redhat.com>
+References: <20200908093912.26792-1-kraxel@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20200908085521.4db22680.cohuck@redhat.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0.002
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: gor@linux.ibm.com, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
- Pierre Morel <pmorel@linux.ibm.com>, thomas.lendacky@amd.com,
- linuxram@us.ibm.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, Halil Pasic <pasic@linux.ibm.com>,
- borntraeger@de.ibm.com, kvm@vger.kernel.org, hca@linux.ibm.com,
- david@gibson.dropbear.id.au
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Cc: David Airlie <airlied@linux.ie>, open list <linux-kernel@vger.kernel.org>,
+ "open list:DRM DRIVER FOR QXL VIRTUAL GPU"
+ <virtualization@lists.linux-foundation.org>, Daniel Vetter <daniel@ffwll.ch>,
+ "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>,
+ Dave Airlie <airlied@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -127,29 +108,29 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Sep 08, 2020 at 08:55:21AM +0200, Cornelia Huck wrote:
-> On Tue, 8 Sep 2020 00:39:51 +0200
-> Halil Pasic <pasic@linux.ibm.com> wrote:
-> 
-> > On Mon,  7 Sep 2020 11:39:05 +0200
-> > Pierre Morel <pmorel@linux.ibm.com> wrote:
-> > 
-> > > Hi all,
-> > > 
-> > > The goal of the series is to give a chance to the architecture
-> > > to validate VIRTIO device features.  
-> > 
-> > Michael, is this going in via your tree?
-> > 
-> 
-> I believe Michael's tree is the right place for this, but I can also
-> queue it if I get an ack on patch 1.
+qxl_primary_atomic_disable must check whenever the framebuffer bo has a
+shadow surface and in case it has check the shadow primary status.
 
-I think Halil pointed out some minor issues, so a new version is in
-order.
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+---
+ drivers/gpu/drm/qxl/qxl_display.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
+diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
+index 85dcb7fe56a9..3dcbb359e0f5 100644
+--- a/drivers/gpu/drm/qxl/qxl_display.c
++++ b/drivers/gpu/drm/qxl/qxl_display.c
+@@ -560,6 +560,8 @@ static void qxl_primary_atomic_disable(struct drm_plane *plane,
+ 	if (old_state->fb) {
+ 		struct qxl_bo *bo = gem_to_qxl_bo(old_state->fb->obj[0]);
+ 
++		if (bo->shadow)
++			bo = bo->shadow;
+ 		if (bo->is_primary) {
+ 			qxl_io_destroy_primary(qdev);
+ 			bo->is_primary = false;
 -- 
-MST
+2.27.0
 
 _______________________________________________
 Virtualization mailing list
