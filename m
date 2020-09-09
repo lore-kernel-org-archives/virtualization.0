@@ -7,83 +7,84 @@ X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5ABD2C433E2
-	for <virtualization@archiver.kernel.org>; Wed,  9 Sep 2020 11:38:09 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B17BC10DAA
+	for <virtualization@archiver.kernel.org>; Wed,  9 Sep 2020 11:52:12 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C449420897
-	for <virtualization@archiver.kernel.org>; Wed,  9 Sep 2020 11:38:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 884842145D
+	for <virtualization@archiver.kernel.org>; Wed,  9 Sep 2020 11:52:11 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CQ/zcpVW"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C449420897
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="In+smlhp"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 884842145D
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 7911287583;
-	Wed,  9 Sep 2020 11:38:08 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 2CFBB871F6;
+	Wed,  9 Sep 2020 11:52:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id g1tmMdTjmV0y; Wed,  9 Sep 2020 11:38:06 +0000 (UTC)
+	with ESMTP id LbajO+EEF0Jx; Wed,  9 Sep 2020 11:52:10 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id BC7468758F;
-	Wed,  9 Sep 2020 11:38:06 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 781AD871F9;
+	Wed,  9 Sep 2020 11:52:10 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AA941C0859;
-	Wed,  9 Sep 2020 11:38:06 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 92459C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 68D81C0859;
+	Wed,  9 Sep 2020 11:52:10 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 528DFC0051
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Sep 2020 11:38:05 +0000 (UTC)
+ Wed,  9 Sep 2020 11:52:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 8DD4C87083
+ by silver.osuosl.org (Postfix) with ESMTP id 3A8792E174
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Sep 2020 11:38:05 +0000 (UTC)
+ Wed,  9 Sep 2020 11:52:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id NbvP4lRW-z8l
+ with ESMTP id 51ShFxR2gQLd
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Sep 2020 11:38:04 +0000 (UTC)
+ Wed,  9 Sep 2020 11:52:04 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-1.mimecast.com (us-smtp-delivery-1.mimecast.com
- [205.139.110.120])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 20E1087073
+ [207.211.31.120])
+ by silver.osuosl.org (Postfix) with ESMTPS id F15082D268
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Sep 2020 11:38:04 +0000 (UTC)
+ Wed,  9 Sep 2020 11:52:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1599651482;
+ s=mimecast20190719; t=1599652322;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
- bh=FCFUYYeoBcjmQ0F9ueGasNRUTC8JgiuKj1I3e23EEys=;
- b=CQ/zcpVWvMbvGxQlBZ0dAyeUuAfdgoBqHhGE5wkL8OEGjY6qe1Fjqk8OuljW3mTZa2PO4k
- j76px4l+Bg3zDHPfBKl37l5L1ONM75Pf8LiMa5yvTI+SR5rFe8MhTfZC5Rj9SIS0na3RoJ
- MZrpUiBkLXbcugtGs0FheseJAJPsjFE=
+ bh=eUouh1bk+Xc6NMfj6Wwsz4gM4esEPlLXRWSoWFarQ/U=;
+ b=In+smlhpnkClbLp9uoHZCMvLHGqQQ5IdLmEPq3ZhBRRGjUtk8bB1ow849Eem6tuiea0e+p
+ 54Z7C2qAnN1FgzAkpPsC9hmJ1tfowV1ZxOSe3io+/lgp42mtQnfK/dVgRnsGjnKmGijo+n
+ CaGTxtdlHBxxMVOxGPPuotnoVTO6qAc=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-388-C1TRk_n8PX6w3j9z38H1gA-1; Wed, 09 Sep 2020 07:37:58 -0400
-X-MC-Unique: C1TRk_n8PX6w3j9z38H1gA-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
- [10.5.11.13])
+ us-mta-243-wAUM1KqrMFK4TOvqtacRug-1; Wed, 09 Sep 2020 07:51:58 -0400
+X-MC-Unique: wAUM1KqrMFK4TOvqtacRug-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
+ [10.5.11.12])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 655BB80B702;
- Wed,  9 Sep 2020 11:37:53 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7627710BBED2;
+ Wed,  9 Sep 2020 11:51:53 +0000 (UTC)
 Received: from [10.36.113.90] (ovpn-113-90.ams2.redhat.com [10.36.113.90])
- by smtp.corp.redhat.com (Postfix) with ESMTP id E5A997E46E;
- Wed,  9 Sep 2020 11:37:41 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 092FD60C0F;
+ Wed,  9 Sep 2020 11:51:41 +0000 (UTC)
 Subject: Re: [PATCH v2 3/7] mm/memory_hotplug: prepare passing flags to
  add_memory() and friends
+From: David Hildenbrand <david@redhat.com>
 To: Michael Ellerman <mpe@ellerman.id.au>,
  Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 References: <20200908201012.44168-1-david@redhat.com>
  <20200908201012.44168-4-david@redhat.com> <20200909071759.GD435421@kroah.com>
  <3bc5b464-3229-d442-714a-ec33b5728ac6@redhat.com>
  <87eenbry5p.fsf@mpe.ellerman.id.au>
-From: David Hildenbrand <david@redhat.com>
+ <5145c5c4-d9c0-85a8-7e0b-ccfa03eb0427@redhat.com>
 Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
  mQINBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
  dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
@@ -129,14 +130,14 @@ Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat GmbH
-Message-ID: <5145c5c4-d9c0-85a8-7e0b-ccfa03eb0427@redhat.com>
-Date: Wed, 9 Sep 2020 13:37:41 +0200
+Message-ID: <4e83103c-14a0-6cc4-ae1b-438282edaea3@redhat.com>
+Date: Wed, 9 Sep 2020 13:51:41 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.11.0
 MIME-Version: 1.0
-In-Reply-To: <87eenbry5p.fsf@mpe.ellerman.id.au>
+In-Reply-To: <5145c5c4-d9c0-85a8-7e0b-ccfa03eb0427@redhat.com>
 Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Cc: linux-hyperv@vger.kernel.org, Michal Hocko <mhocko@suse.com>,
  "Michael S. Tsirkin" <mst@redhat.com>,
  Benjamin Herrenschmidt <benh@kernel.crashing.org>,
@@ -175,46 +176,41 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 09.09.20 13:24, Michael Ellerman wrote:
-> David Hildenbrand <david@redhat.com> writes:
->> On 09.09.20 09:17, Greg Kroah-Hartman wrote:
->>> On Tue, Sep 08, 2020 at 10:10:08PM +0200, David Hildenbrand wrote:
->>>> We soon want to pass flags, e.g., to mark added System RAM resources.
->>>> mergeable. Prepare for that.
+On 09.09.20 13:37, David Hildenbrand wrote:
+> On 09.09.20 13:24, Michael Ellerman wrote:
+>> David Hildenbrand <david@redhat.com> writes:
+>>> On 09.09.20 09:17, Greg Kroah-Hartman wrote:
+>>>> On Tue, Sep 08, 2020 at 10:10:08PM +0200, David Hildenbrand wrote:
+>>>>> We soon want to pass flags, e.g., to mark added System RAM resources.
+>>>>> mergeable. Prepare for that.
+>>>>
+>>>> What are these random "flags", and how do we know what should be passed
+>>>> to them?
+>>>>
+>>>> Why not make this an enumerated type so that we know it all works
+>>>> properly, like the GPF_* flags are?  Passing around a random unsigned
+>>>> long feels very odd/broken...
 >>>
->>> What are these random "flags", and how do we know what should be passed
->>> to them?
->>>
->>> Why not make this an enumerated type so that we know it all works
->>> properly, like the GPF_* flags are?  Passing around a random unsigned
->>> long feels very odd/broken...
+>>> Agreed, an enum (mhp_flags) seems to give a better hint what can
+>>> actually be passed. Thanks!
 >>
->> Agreed, an enum (mhp_flags) seems to give a better hint what can
->> actually be passed. Thanks!
+>> You probably know this but ...
+>>
+>> Just using a C enum doesn't get you any type safety.
+>>
+>> You can get some checking via sparse by using __bitwise, which is what
+>> gfp_t does. You don't actually have to use an enum for that, it works
+>> with #defines also.
 > 
-> You probably know this but ...
+> Yeah, we seem to be using different approaches. And there is always a
+> way to mess things up :)
 > 
-> Just using a C enum doesn't get you any type safety.
+> gfp_t is one (extreme) example, enum memblock_flags is another example.
+> I tend to prefer an enum in this particular case, because it's simple
+> and at least tells the user which values are expected.
 > 
-> You can get some checking via sparse by using __bitwise, which is what
-> gfp_t does. You don't actually have to use an enum for that, it works
-> with #defines also.
 
-Yeah, we seem to be using different approaches. And there is always a
-way to mess things up :)
-
-gfp_t is one (extreme) example, enum memblock_flags is another example.
-I tend to prefer an enum in this particular case, because it's simple
-and at least tells the user which values are expected.
-
-Thoughts?
-
-> 
-> Or you can wrap the flag in a struct, the way atomic_t does, and then
-> the compiler will prevent passing plain integers in place of your custom
-> type.
-
-
+Gave it another try, looks like mhp_t (like gfp_t) is actually nicer.
 
 -- 
 Thanks,
