@@ -2,164 +2,106 @@ Return-Path: <SRS0=pGqY=CS=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+X-Spam-Status: No, score=-9.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0B17BC10DAA
-	for <virtualization@archiver.kernel.org>; Wed,  9 Sep 2020 11:52:12 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AFDA9C433E2
+	for <virtualization@archiver.kernel.org>; Wed,  9 Sep 2020 12:44:37 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 884842145D
-	for <virtualization@archiver.kernel.org>; Wed,  9 Sep 2020 11:52:11 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 42CC821941
+	for <virtualization@archiver.kernel.org>; Wed,  9 Sep 2020 12:44:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="In+smlhp"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 884842145D
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ALNIjZFs"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 42CC821941
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 2CFBB871F6;
-	Wed,  9 Sep 2020 11:52:11 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id DEC33870BC;
+	Wed,  9 Sep 2020 12:44:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id LbajO+EEF0Jx; Wed,  9 Sep 2020 11:52:10 +0000 (UTC)
+	with ESMTP id bESYNfZ-sOLS; Wed,  9 Sep 2020 12:44:35 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 781AD871F9;
-	Wed,  9 Sep 2020 11:52:10 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id F08AA870A4;
+	Wed,  9 Sep 2020 12:44:34 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 68D81C0859;
-	Wed,  9 Sep 2020 11:52:10 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 528DFC0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DC97DC0052;
+	Wed,  9 Sep 2020 12:44:34 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EB0EEC0051
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Sep 2020 11:52:09 +0000 (UTC)
+ Wed,  9 Sep 2020 12:44:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 3A8792E174
+ by fraxinus.osuosl.org (Postfix) with ESMTP id E2EE086FE7
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Sep 2020 11:52:09 +0000 (UTC)
+ Wed,  9 Sep 2020 12:44:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 51ShFxR2gQLd
+ with ESMTP id 3Kr5A39hdrpS
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Sep 2020 11:52:04 +0000 (UTC)
+ Wed,  9 Sep 2020 12:44:32 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-1.mimecast.com (us-smtp-delivery-1.mimecast.com
- [207.211.31.120])
- by silver.osuosl.org (Postfix) with ESMTPS id F15082D268
+Received: from us-smtp-delivery-1.mimecast.com (us-smtp-1.mimecast.com
+ [207.211.31.81])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 149D286FE2
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Sep 2020 11:52:03 +0000 (UTC)
+ Wed,  9 Sep 2020 12:44:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1599652322;
+ s=mimecast20190719; t=1599655470;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
- bh=eUouh1bk+Xc6NMfj6Wwsz4gM4esEPlLXRWSoWFarQ/U=;
- b=In+smlhpnkClbLp9uoHZCMvLHGqQQ5IdLmEPq3ZhBRRGjUtk8bB1ow849Eem6tuiea0e+p
- 54Z7C2qAnN1FgzAkpPsC9hmJ1tfowV1ZxOSe3io+/lgp42mtQnfK/dVgRnsGjnKmGijo+n
- CaGTxtdlHBxxMVOxGPPuotnoVTO6qAc=
+ in-reply-to:in-reply-to:references:references;
+ bh=2LEvLH4S2H9jUJcOeCzV2MBXCNffq0ezxxi6qZw1j9g=;
+ b=ALNIjZFsmBqHpJvkxJDj2G//xxFGEXytAow6zNWgS6LMVDoMzj20RTMOhdAE3Zp/K6XNP9
+ WZyjC1cHIUnT8l8o3RIPplEvRPtdq73cOOqMKyPZOy/9APhsdf4L8T5yPTquiA2TgTBIbR
+ aeM4j3PgPdmkeFfPN5KtwKoTZKci8I4=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-243-wAUM1KqrMFK4TOvqtacRug-1; Wed, 09 Sep 2020 07:51:58 -0400
-X-MC-Unique: wAUM1KqrMFK4TOvqtacRug-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
- [10.5.11.12])
+ us-mta-59-hbWNKOuJOvO148_JqMoGJg-1; Wed, 09 Sep 2020 08:44:26 -0400
+X-MC-Unique: hbWNKOuJOvO148_JqMoGJg-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
+ [10.5.11.23])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7627710BBED2;
- Wed,  9 Sep 2020 11:51:53 +0000 (UTC)
-Received: from [10.36.113.90] (ovpn-113-90.ams2.redhat.com [10.36.113.90])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 092FD60C0F;
- Wed,  9 Sep 2020 11:51:41 +0000 (UTC)
-Subject: Re: [PATCH v2 3/7] mm/memory_hotplug: prepare passing flags to
- add_memory() and friends
-From: David Hildenbrand <david@redhat.com>
-To: Michael Ellerman <mpe@ellerman.id.au>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-References: <20200908201012.44168-1-david@redhat.com>
- <20200908201012.44168-4-david@redhat.com> <20200909071759.GD435421@kroah.com>
- <3bc5b464-3229-d442-714a-ec33b5728ac6@redhat.com>
- <87eenbry5p.fsf@mpe.ellerman.id.au>
- <5145c5c4-d9c0-85a8-7e0b-ccfa03eb0427@redhat.com>
-Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat GmbH
-Message-ID: <4e83103c-14a0-6cc4-ae1b-438282edaea3@redhat.com>
-Date: Wed, 9 Sep 2020 13:51:41 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.11.0
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 524168015A6;
+ Wed,  9 Sep 2020 12:44:22 +0000 (UTC)
+Received: from lacos-laptop-7.usersys.redhat.com (ovpn-114-82.ams2.redhat.com
+ [10.36.114.82])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 680F61A886;
+ Wed,  9 Sep 2020 12:44:15 +0000 (UTC)
+Subject: Re: [PATCH v7 71/72] x86/efi: Add GHCB mappings when SEV-ES is active
+To: Ard Biesheuvel <ardb@kernel.org>, Borislav Petkov <bp@alien8.de>,
+ brijesh.singh@amd.com
+References: <20200907131613.12703-1-joro@8bytes.org>
+ <20200907131613.12703-72-joro@8bytes.org> <20200908174616.GJ25236@zn.tnic>
+ <CAMj1kXHbePrDYXGbVG0fHfH5=M19ZpCLm9YVTs-yKTuR_jFLDg@mail.gmail.com>
+From: Laszlo Ersek <lersek@redhat.com>
+Message-ID: <e3911fe6-84e8-cb50-d95d-e33f8ae005f8@redhat.com>
+Date: Wed, 9 Sep 2020 14:44:14 +0200
 MIME-Version: 1.0
-In-Reply-To: <5145c5c4-d9c0-85a8-7e0b-ccfa03eb0427@redhat.com>
+In-Reply-To: <CAMj1kXHbePrDYXGbVG0fHfH5=M19ZpCLm9YVTs-yKTuR_jFLDg@mail.gmail.com>
 Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-Cc: linux-hyperv@vger.kernel.org, Michal Hocko <mhocko@suse.com>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- Benjamin Herrenschmidt <benh@kernel.crashing.org>,
- Pingfan Liu <kernelfans@gmail.com>, virtualization@lists.linux-foundation.org,
- linux-mm@kvack.org, Paul Mackerras <paulus@samba.org>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>, linux-s390@vger.kernel.org,
- Wei Liu <wei.liu@kernel.org>, Stefano Stabellini <sstabellini@kernel.org>,
- Dave Jiang <dave.jiang@intel.com>, Baoquan He <bhe@redhat.com>,
- Jason Gunthorpe <jgg@ziepe.ca>, Vishal Verma <vishal.l.verma@intel.com>,
- linux-acpi@vger.kernel.org, xen-devel@lists.xenproject.org,
- Anton Blanchard <anton@ozlabs.org>, Heiko Carstens <hca@linux.ibm.com>,
- Len Brown <lenb@kernel.org>, Nathan Lynch <nathanl@linux.ibm.com>,
- Vasily Gorbik <gor@linux.ibm.com>, Leonardo Bras <leobras.c@gmail.com>,
- Haiyang Zhang <haiyangz@microsoft.com>,
- Stephen Hemminger <sthemmin@microsoft.com>,
- Dan Williams <dan.j.williams@intel.com>,
- Christian Borntraeger <borntraeger@de.ibm.com>,
- Juergen Gross <jgross@suse.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
- Libor Pechacek <lpechacek@suse.cz>, linux-nvdimm@lists.01.org,
- "Rafael J. Wysocki" <rjw@rjwysocki.net>, linux-kernel@vger.kernel.org,
- Wei Yang <richardw.yang@linux.intel.com>, Oliver O'Halloran <oohall@gmail.com>,
- Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Cc: kvm@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+ Dave Hansen <dave.hansen@linux.intel.com>,
+ virtualization@lists.linux-foundation.org, "H. Peter Anvin" <hpa@zytor.com>,
+ Jiri Slaby <jslaby@suse.cz>, Joerg Roedel <joro@8bytes.org>,
+ X86 ML <x86@kernel.org>, David Rientjes <rientjes@google.com>,
+ Martin Radev <martin.b.radev@gmail.com>,
+ Tom Lendacky <thomas.lendacky@amd.com>, Joerg Roedel <jroedel@suse.de>,
+ Kees Cook <keescook@chromium.org>, Cfir Cohen <cfir@google.com>,
+ Andy Lutomirski <luto@kernel.org>, Dan Williams <dan.j.williams@intel.com>,
+ Juergen Gross <jgross@suse.com>, Mike Stunes <mstunes@vmware.com>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ Sean Christopherson <sean.j.christopherson@intel.com>,
+ Masami Hiramatsu <mhiramat@kernel.org>, Erdem Aktas <erdemaktas@google.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -176,46 +118,405 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 09.09.20 13:37, David Hildenbrand wrote:
-> On 09.09.20 13:24, Michael Ellerman wrote:
->> David Hildenbrand <david@redhat.com> writes:
->>> On 09.09.20 09:17, Greg Kroah-Hartman wrote:
->>>> On Tue, Sep 08, 2020 at 10:10:08PM +0200, David Hildenbrand wrote:
->>>>> We soon want to pass flags, e.g., to mark added System RAM resources.
->>>>> mergeable. Prepare for that.
->>>>
->>>> What are these random "flags", and how do we know what should be passed
->>>> to them?
->>>>
->>>> Why not make this an enumerated type so that we know it all works
->>>> properly, like the GPF_* flags are?  Passing around a random unsigned
->>>> long feels very odd/broken...
+On 09/09/20 10:27, Ard Biesheuvel wrote:
+> (adding Laszlo and Brijesh)
+>
+> On Tue, 8 Sep 2020 at 20:46, Borislav Petkov <bp@alien8.de> wrote:
+>>
+>> + Ard so that he can ack the efi bits.
+>>
+>> On Mon, Sep 07, 2020 at 03:16:12PM +0200, Joerg Roedel wrote:
+>>> From: Tom Lendacky <thomas.lendacky@amd.com>
 >>>
->>> Agreed, an enum (mhp_flags) seems to give a better hint what can
->>> actually be passed. Thanks!
->>
->> You probably know this but ...
->>
->> Just using a C enum doesn't get you any type safety.
->>
->> You can get some checking via sparse by using __bitwise, which is what
->> gfp_t does. You don't actually have to use an enum for that, it works
->> with #defines also.
-> 
-> Yeah, we seem to be using different approaches. And there is always a
-> way to mess things up :)
-> 
-> gfp_t is one (extreme) example, enum memblock_flags is another example.
-> I tend to prefer an enum in this particular case, because it's simple
-> and at least tells the user which values are expected.
-> 
+>>> Calling down to EFI runtime services can result in the firmware
+>>> performing VMGEXIT calls. The firmware is likely to use the GHCB of
+>>> the OS (e.g., for setting EFI variables),
 
-Gave it another try, looks like mhp_t (like gfp_t) is actually nicer.
+I've had to stare at this for a while.
 
--- 
-Thanks,
+Because, normally a VMGEXIT is supposed to occur like this:
 
-David / dhildenb
+- guest does something privileged
+- resultant non-automatic exit (NAE) injects a #VC exception
+- exception handler figures out what that privileged thing was
+- exception handler submits request to hypervisor via GHCB contents plus
+  VMGEXIT instruction
+
+Point being, the agent that "owns" the exception handler is supposed to
+pre-allocate or otherwise provide the GHCB too, for information passing.
+
+So... what is the particular NAE that occurs during the execution of
+UEFI runtime services (at OS runtime)?
+
+And assuming it occurs, I'm unsure if the exception handler (IDT) at
+that point is owned (temporarily?) by the firmware.
+
+- If the #VC handler comes from the firmware, then I don't know why it
+would use the OS's GHCB.
+
+- If the #VC handler comes from the OS, then I don't understand why the
+commit message says "firmware performing VMGEXIT", given that in this
+case it would be the OS's #VC handler executing VMGEXIT.
+
+So, I think the above commit message implies a VMGEXIT *without* a NAE /
+#VC context. (Because, I fail to interpret the commit message in a NAE /
+#VC context in any way; see above.)
+
+OK, so let's see where the firmware performs a VMGEXIT *outside* of an
+exception handler, *while* at OS runtime. There seems to be one, in file
+"OvmfPkg/QemuFlashFvbServicesRuntimeDxe/QemuFlashDxe.c":
+
+> VOID
+> QemuFlashPtrWrite (
+>   IN        volatile UINT8    *Ptr,
+>   IN        UINT8             Value
+>   )
+> {
+>   if (MemEncryptSevEsIsEnabled ()) {
+>     MSR_SEV_ES_GHCB_REGISTER  Msr;
+>     GHCB                      *Ghcb;
+>
+>     Msr.GhcbPhysicalAddress = AsmReadMsr64 (MSR_SEV_ES_GHCB);
+>     Ghcb = Msr.Ghcb;
+>
+>     //
+>     // Writing to flash is emulated by the hypervisor through the use of write
+>     // protection. This won't work for an SEV-ES guest because the write won't
+>     // be recognized as a true MMIO write, which would result in the required
+>     // #VC exception. Instead, use the the VMGEXIT MMIO write support directly
+>     // to perform the update.
+>     //
+>     VmgInit (Ghcb);
+>     Ghcb->SharedBuffer[0] = Value;
+>     Ghcb->SaveArea.SwScratch = (UINT64) (UINTN) Ghcb->SharedBuffer;
+>     VmgExit (Ghcb, SVM_EXIT_MMIO_WRITE, (UINT64) (UINTN) Ptr, 1);
+>     VmgDone (Ghcb);
+>   } else {
+>     *Ptr = Value;
+>   }
+> }
+
+This function *does* run at OS runtime (as a part of non-volatile UEFI
+variable writes).
+
+And note that, wherever MSR_SEV_ES_GHCB points to at the moment, is used
+as GHCB.
+
+If the guest kernel allocates its own GHCB and writes the allocation
+address to MSR_SEV_ES_GHCB, then indeed the firmware will use the GHCB
+of the OS.
+
+I reviewed edk2 commit 437eb3f7a8db
+("OvmfPkg/QemuFlashFvbServicesRuntimeDxe: Bypass flash detection with
+SEV-ES", 2020-08-17), but I admit I never thought of the guest OS
+changing MSR_SEV_ES_GHCB. I'm sorry about that.
+
+As long as this driver is running before OS runtime (i.e., during the
+DXE and BDS phases), MSR_SEV_ES_GHCB is supposed to carry the value we
+set in "OvmfPkg/PlatformPei/AmdSev.c":
+
+> STATIC
+> VOID
+> AmdSevEsInitialize (
+>   VOID
+>   )
+> {
+>   VOID              *GhcbBase;
+>   PHYSICAL_ADDRESS  GhcbBasePa;
+>   UINTN             GhcbPageCount, PageCount;
+>   RETURN_STATUS     PcdStatus, DecryptStatus;
+>   IA32_DESCRIPTOR   Gdtr;
+>   VOID              *Gdt;
+>
+>   if (!MemEncryptSevEsIsEnabled ()) {
+>     return;
+>   }
+>
+>   PcdStatus = PcdSetBoolS (PcdSevEsIsEnabled, TRUE);
+>   ASSERT_RETURN_ERROR (PcdStatus);
+>
+>   //
+>   // Allocate GHCB and per-CPU variable pages.
+>   //   Since the pages must survive across the UEFI to OS transition
+>   //   make them reserved.
+>   //
+>   GhcbPageCount = mMaxCpuCount * 2;
+>   GhcbBase = AllocateReservedPages (GhcbPageCount);
+>   ASSERT (GhcbBase != NULL);
+>
+>   GhcbBasePa = (PHYSICAL_ADDRESS)(UINTN) GhcbBase;
+>
+>   //
+>   // Each vCPU gets two consecutive pages, the first is the GHCB and the
+>   // second is the per-CPU variable page. Loop through the allocation and
+>   // only clear the encryption mask for the GHCB pages.
+>   //
+>   for (PageCount = 0; PageCount < GhcbPageCount; PageCount += 2) {
+>     DecryptStatus = MemEncryptSevClearPageEncMask (
+>       0,
+>       GhcbBasePa + EFI_PAGES_TO_SIZE (PageCount),
+>       1,
+>       TRUE
+>       );
+>     ASSERT_RETURN_ERROR (DecryptStatus);
+>   }
+>
+>   ZeroMem (GhcbBase, EFI_PAGES_TO_SIZE (GhcbPageCount));
+>
+>   PcdStatus = PcdSet64S (PcdGhcbBase, GhcbBasePa);
+>   ASSERT_RETURN_ERROR (PcdStatus);
+>   PcdStatus = PcdSet64S (PcdGhcbSize, EFI_PAGES_TO_SIZE (GhcbPageCount));
+>   ASSERT_RETURN_ERROR (PcdStatus);
+>
+>   DEBUG ((DEBUG_INFO,
+>     "SEV-ES is enabled, %lu GHCB pages allocated starting at 0x%p\n",
+>     (UINT64)GhcbPageCount, GhcbBase));
+>
+>   AsmWriteMsr64 (MSR_SEV_ES_GHCB, GhcbBasePa);
+
+So what is the *actual* problem at OS runtime:
+
+- Is it that MSR_SEV_ES_GHCB still points at this PEI-phase *reserved*
+  memory allocation (and so when QemuFlashPtrWrite() tries to access it
+  during OS runtime, it doesn't have a runtime mapping for it)?
+
+- Or is it that the OS actively changes MSR_SEV_ES_GHCB, pointing to a
+  memory area that the OS owns -- and *that* area is what
+  QemuFlashPtrWrite() cannot access at OS runtime?
+
+The first problem statement does *not* seem to apply, given -- again --
+that the commit message says, "firmware is likely to use the GHCB of the
+OS".
+
+So I think the second problem statement must apply.
+
+(I think the "reserved allocation" above is "reserved" only because we
+want to keep the OS out of it around the ExitBootServices() transition.)
+
+Back to the email:
+
+On 09/09/20 10:27, Ard Biesheuvel wrote:
+> On Tue, 8 Sep 2020 at 20:46, Borislav Petkov <bp@alien8.de> wrote:
+>> On Mon, Sep 07, 2020 at 03:16:12PM +0200, Joerg Roedel wrote:
+>>> so each GHCB in the system needs to be identity
+>>> mapped in the EFI page tables, as unencrypted, to avoid page faults.
+
+Not sure I agree about this, but at least it seems to confirm my
+understanding -- apparently the idea is, for the OS, to satisfy
+QemuFlashPtrWrite() in the firmware, by putting the "expected" mapping
+-- for wherever MSR_SEV_ES_GHCB is going to point to -- in place.
+
+>>>
+>>> Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+>>> [ jroedel@suse.de: Moved GHCB mapping loop to sev-es.c ]
+>>> Signed-off-by: Joerg Roedel <jroedel@suse.de>
+>
+>
+> This looks like it is papering over a more fundamental issue: any
+> memory region that the firmware itself needs to access during the
+> execution of runtime services needs to be described in the UEFI memory
+> map, with the appropriate annotations so that the OS knows it should
+> include these in the EFI runtime page tables. So why has this been
+> omitted in this case?
+
+So yeah, the issue seems to be that the QemuFlashFvbServicesRuntimeDxe
+driver does not *own* the GHCB that it attempts to use at OS runtime. It
+doesn't know where MSR_SEV_ES_GHCB is going to point.
+
+Is QemuFlashFvbServicesRuntimeDxe permitted to change MSR_SEV_ES_GHCB
+*temporarily* at OS runtime?
+
+Because, in that case:
+
+- QemuFlashFvbServicesRuntimeDxe should allocate a Runtime Services Data
+  block for GHCB when it starts up (if SEV-ES is active),
+
+- QemuFlashFvbServicesRuntimeDxe should register a SetVirtualAddressMap
+  handler, and use EfiConvertPointer() from UefiRuntimeLib to convert
+  the "runtime GHCB" address to virtual address, in that handler,
+
+- QemuFlashPtrWrite() should call EfiAtRuntime() from UefiRuntimeLib,
+  and if the latter returns TRUE, then (a) use the runtime-converted
+  address for populating the GHCB, and (b) temporarily swap
+  MSR_SEV_ES_GHCB with the address of the self-allocated GHCB. (The MSR
+  needs a *physical* address, so QemuFlashFvbServicesRuntimeDxe would
+  have to remember / retain the original (physical) allocation address
+  too.)
+
+If QemuFlashFvbServicesRuntimeDxe is not permitted to change
+MSR_SEV_ES_GHCB even temporarily (at OS runtime), then I think the
+approach proposed in this (guest kernel) patch is valid.
+
+Let me skim the code below...
+
+>
+>
+>
+>>> ---
+>>>  arch/x86/boot/compressed/sev-es.c |  1 +
+>>>  arch/x86/include/asm/sev-es.h     |  2 ++
+>>>  arch/x86/kernel/sev-es.c          | 30 ++++++++++++++++++++++++++++++
+>>>  arch/x86/platform/efi/efi_64.c    | 10 ++++++++++
+>>>  4 files changed, 43 insertions(+)
+>>>
+>>> diff --git a/arch/x86/boot/compressed/sev-es.c b/arch/x86/boot/compressed/sev-es.c
+>>> index 45702b866c33..0a9a248ca33d 100644
+>>> --- a/arch/x86/boot/compressed/sev-es.c
+>>> +++ b/arch/x86/boot/compressed/sev-es.c
+>>> @@ -12,6 +12,7 @@
+>>>   */
+>>>  #include "misc.h"
+>>>
+>>> +#include <asm/pgtable_types.h>
+>>>  #include <asm/sev-es.h>
+>>>  #include <asm/trapnr.h>
+>>>  #include <asm/trap_pf.h>
+>>> diff --git a/arch/x86/include/asm/sev-es.h b/arch/x86/include/asm/sev-es.h
+>>> index e919f09ae33c..cf1d957c7091 100644
+>>> --- a/arch/x86/include/asm/sev-es.h
+>>> +++ b/arch/x86/include/asm/sev-es.h
+>>> @@ -102,11 +102,13 @@ static __always_inline void sev_es_nmi_complete(void)
+>>>       if (static_branch_unlikely(&sev_es_enable_key))
+>>>               __sev_es_nmi_complete();
+>>>  }
+>>> +extern int __init sev_es_efi_map_ghcbs(pgd_t *pgd);
+>>>  #else
+>>>  static inline void sev_es_ist_enter(struct pt_regs *regs) { }
+>>>  static inline void sev_es_ist_exit(void) { }
+>>>  static inline int sev_es_setup_ap_jump_table(struct real_mode_header *rmh) { return 0; }
+>>>  static inline void sev_es_nmi_complete(void) { }
+>>> +static inline int sev_es_efi_map_ghcbs(pgd_t *pgd) { return 0; }
+>>>  #endif
+>>>
+>>>  #endif
+>>> diff --git a/arch/x86/kernel/sev-es.c b/arch/x86/kernel/sev-es.c
+>>> index 9ab3a4dfecd8..4e2b7e4d9b87 100644
+>>> --- a/arch/x86/kernel/sev-es.c
+>>> +++ b/arch/x86/kernel/sev-es.c
+>>> @@ -491,6 +491,36 @@ int sev_es_setup_ap_jump_table(struct real_mode_header *rmh)
+>>>       return 0;
+>>>  }
+>>>
+>>> +/*
+>>> + * This is needed by the OVMF UEFI firmware which will use whatever it finds in
+>>> + * the GHCB MSR as its GHCB to talk to the hypervisor. So make sure the per-cpu
+>>> + * runtime GHCBs used by the kernel are also mapped in the EFI page-table.
+
+Yup, this pretty much confirms my suspicion that QemuFlashPtrWrite() is
+at the center of this.
+
+(BTW, I don't think that the runtime services data allocation, in
+QemuFlashFvbServicesRuntimeDxe, for OS runtime GHCB purposes, would have
+to be "per CPU". Refer to "Table 35. Rules for Reentry Into Runtime
+Services" in the UEFI spec -- if one processor is executing
+SetVariable(), then no other processor must enter SetVariable(). And so
+we'll have *at most* one VCPU in QemuFlashPtrWrite(), at any time.)
+
+>>> + */
+>>> +int __init sev_es_efi_map_ghcbs(pgd_t *pgd)
+>>> +{
+>>> +     struct sev_es_runtime_data *data;
+>>> +     unsigned long address, pflags;
+>>> +     int cpu;
+>>> +     u64 pfn;
+>>> +
+>>> +     if (!sev_es_active())
+>>> +             return 0;
+>>> +
+>>> +     pflags = _PAGE_NX | _PAGE_RW;
+>>> +
+>>> +     for_each_possible_cpu(cpu) {
+>>> +             data = per_cpu(runtime_data, cpu);
+>>> +
+>>> +             address = __pa(&data->ghcb_page);
+>>> +             pfn = address >> PAGE_SHIFT;
+>>> +
+>>> +             if (kernel_map_pages_in_pgd(pgd, pfn, address, 1, pflags))
+>>> +                     return 1;
+>>> +     }
+>>> +
+>>> +     return 0;
+>>> +}
+>>> +
+>>>  static enum es_result vc_handle_msr(struct ghcb *ghcb, struct es_em_ctxt *ctxt)
+>>>  {
+>>>       struct pt_regs *regs = ctxt->regs;
+>>> diff --git a/arch/x86/platform/efi/efi_64.c b/arch/x86/platform/efi/efi_64.c
+>>> index 6af4da1149ba..8f5759df7776 100644
+>>> --- a/arch/x86/platform/efi/efi_64.c
+>>> +++ b/arch/x86/platform/efi/efi_64.c
+>>> @@ -47,6 +47,7 @@
+>>>  #include <asm/realmode.h>
+>>>  #include <asm/time.h>
+>>>  #include <asm/pgalloc.h>
+>>> +#include <asm/sev-es.h>
+>>>
+>>>  /*
+>>>   * We allocate runtime services regions top-down, starting from -4G, i.e.
+>>> @@ -229,6 +230,15 @@ int __init efi_setup_page_tables(unsigned long pa_memmap, unsigned num_pages)
+>>>               return 1;
+>>>       }
+>>>
+>>> +     /*
+>>> +      * When SEV-ES is active, the GHCB as set by the kernel will be used
+>>> +      * by firmware. Create a 1:1 unencrypted mapping for each GHCB.
+>>> +      */
+>>> +     if (sev_es_efi_map_ghcbs(pgd)) {
+>>> +             pr_err("Failed to create 1:1 mapping for the GHCBs!\n");
+>>> +             return 1;
+>>> +     }
+>>> +
+>>>       /*
+>>>        * When making calls to the firmware everything needs to be 1:1
+>>>        * mapped and addressable with 32-bit pointers. Map the kernel
+
+Good point!
+
+And it even makes me wonder if the QemuFlashFvbServicesRuntimeDxe
+approach, with the runtime services data type memory allocation, is
+feasible at all. Namely, a page's encryption status, under SEV, is
+controlled through the PTE.
+
+And for this particular UEFI runtime area, it would *not* suffice for
+the OS to just virt-map it. The OS would also have to *decrypt* the area
+(mark the PTE as "plaintext").
+
+In other words, it would be an "unprecedented" PTE for the OS to set up:
+the PTE would not only map the GVA to GPA, but also mark the area as
+"plaintext".
+
+Otherwise -- if the OS covers *just* the virt-mapping --,
+QemuFlashFvbServicesRuntimeDxe would populate its own "runtime GHCB"
+area just fine, but the actual data hitting the host RAM would be
+encrypted. And so the hypervisor could not interpret the GHCB.
+
+*If* QemuFlashFvbServicesRuntimeDxe should not change the kernel-owned
+PTE at runtime, even temporarily, for marking the GHCB as "plaintext",
+then the problem is indeed only solvable in the guest kernel, in my
+opinion.
+
+There simply isn't an "architected annotation" for telling the kernel,
+"virt-map this runtime services data type memory range, *and* mark it as
+plaintext at the same time".
+
+This would be necessary, as both actions affect the exact same PTE, and
+the firmware is not really allowed to touch the PTE at runtime. But we
+don't have such a hint.
+
+
+To summarize: for QemuFlashFvbServicesRuntimeDxe to allocate UEFI
+Runtime Services Data type memory, for its own runtime GHCB, two
+permissions are necessary (together), at OS runtime:
+
+- QemuFlashFvbServicesRuntimeDxe must be allowed to swap MSR_SEV_ES_GHCB
+  temporarily (before executing VMGEXIT),
+
+- QemuFlashFvbServicesRuntimeDxe must be allowed to change the OS-owned
+  PTE temporarily (for remapping the GHCB as plaintext, before writing
+  to it).
+
+Thanks
+Laszlo
 
 _______________________________________________
 Virtualization mailing list
