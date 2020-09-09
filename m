@@ -7,93 +7,92 @@ X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 067FAC43461
-	for <virtualization@archiver.kernel.org>; Wed,  9 Sep 2020 02:07:03 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E046EC2BC11
+	for <virtualization@archiver.kernel.org>; Wed,  9 Sep 2020 02:08:46 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8986A20758
-	for <virtualization@archiver.kernel.org>; Wed,  9 Sep 2020 02:07:02 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 5428620758
+	for <virtualization@archiver.kernel.org>; Wed,  9 Sep 2020 02:08:46 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aMd6+B8T"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8986A20758
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="edeB5Osf"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5428620758
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 1B52886E62;
-	Wed,  9 Sep 2020 02:07:02 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id D6D208746A;
+	Wed,  9 Sep 2020 02:08:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8ffme1OIl8W6; Wed,  9 Sep 2020 02:07:01 +0000 (UTC)
+	with ESMTP id IhyYo9+Fwrdt; Wed,  9 Sep 2020 02:08:45 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 00BC986DF0;
-	Wed,  9 Sep 2020 02:07:00 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 61BEC8744D;
+	Wed,  9 Sep 2020 02:08:45 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CE487C0859;
-	Wed,  9 Sep 2020 02:07:00 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3D41EC0859;
+	Wed,  9 Sep 2020 02:08:45 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 313C4C0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 84004C0051
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Sep 2020 02:06:59 +0000 (UTC)
+ Wed,  9 Sep 2020 02:08:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 2703D8709D
+ by hemlock.osuosl.org (Postfix) with ESMTP id 72F058746A
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Sep 2020 02:06:59 +0000 (UTC)
+ Wed,  9 Sep 2020 02:08:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 5vUGgXNhKKek
+ with ESMTP id tUIVCfYIrsZ6
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Sep 2020 02:06:58 +0000 (UTC)
+ Wed,  9 Sep 2020 02:08:43 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 0CA0287097
+Received: from us-smtp-delivery-1.mimecast.com (us-smtp-1.mimecast.com
+ [205.139.110.61])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id A589A8744D
  for <virtualization@lists.linux-foundation.org>;
- Wed,  9 Sep 2020 02:06:57 +0000 (UTC)
+ Wed,  9 Sep 2020 02:08:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1599617216;
+ s=mimecast20190719; t=1599617322;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=hetGJHzKmQX4NCLO2RauAhNQ86rD2R/wYZkTPA6dH3k=;
- b=aMd6+B8TWld8j39JpVqCnbQdH0u/z7Wo3BLgwYP1txKVxjW/WcrK0Vuv7iOxaCWnyeelZy
- niVTghSJ9uB5/k9IZ4zRq2wQ76rvhLQi5a4jJjp4+Z9D4cjMF+f/9/U/bcPRMNDHYJaQSp
- fQDlXTScaeaE980RfQN4Q4Agcmx/QuU=
+ bh=cK43OIRzcGZJEOVLkDpteaSOuuBLunxsaFHU/AarU6A=;
+ b=edeB5OsfD1Q9s9zuU+VIc3pXPNYGsGkEKkFFvkYlzPbAQCSyYL0CR8U8fTtiBJ5o6b/J86
+ SqiKBXxtp6sU8hwdPtnBAOVLhowmhkpBmPIV/HKgqnDgMXo3RPvrlSXLBT1R78GZMw4xsG
+ 5shF18WoN4+8Ey6jgUn7m9SyLzKDF8s=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-31-SA-GsSztMSGKQP9QCaubLg-1; Tue, 08 Sep 2020 22:06:53 -0400
-X-MC-Unique: SA-GsSztMSGKQP9QCaubLg-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
- [10.5.11.11])
+ us-mta-230-62f7pSR1P-6oeJmgDXQcmQ-1; Tue, 08 Sep 2020 22:08:41 -0400
+X-MC-Unique: 62f7pSR1P-6oeJmgDXQcmQ-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
+ [10.5.11.16])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 0EBC2824FAB;
- Wed,  9 Sep 2020 02:06:52 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 01845807335;
+ Wed,  9 Sep 2020 02:08:40 +0000 (UTC)
 Received: from colo-mx.corp.redhat.com
- (colo-mx01.intmail.prod.int.phx2.redhat.com [10.5.11.20])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id 064127E8CD;
- Wed,  9 Sep 2020 02:06:51 +0000 (UTC)
+ (colo-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.21])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id ED3A65C22E;
+ Wed,  9 Sep 2020 02:08:39 +0000 (UTC)
 Received: from zmail21.collab.prod.int.phx2.redhat.com
  (zmail21.collab.prod.int.phx2.redhat.com [10.5.83.24])
- by colo-mx.corp.redhat.com (Postfix) with ESMTP id DFC2118095FF;
- Wed,  9 Sep 2020 02:06:51 +0000 (UTC)
-Date: Tue, 8 Sep 2020 22:06:50 -0400 (EDT)
+ by colo-mx.corp.redhat.com (Postfix) with ESMTP id D5F5A79DBA;
+ Wed,  9 Sep 2020 02:08:39 +0000 (UTC)
+Date: Tue, 8 Sep 2020 22:08:39 -0400 (EDT)
 From: Jason Wang <jasowang@redhat.com>
 To: Eli Cohen <elic@nvidia.com>
-Message-ID: <1815785246.16284907.1599617210463.JavaMail.zimbra@redhat.com>
-In-Reply-To: <20200907110335.GA121033@mtl-vdi-166.wap.labs.mlnx>
-References: <20200907075136.GA114876@mtl-vdi-166.wap.labs.mlnx>
- <507166908.16038290.1599476003292.JavaMail.zimbra@redhat.com>
- <20200907110335.GA121033@mtl-vdi-166.wap.labs.mlnx>
-Subject: Re: [PATCH] vdpa/mlx5: Setup driver only if VIRTIO_CONFIG_S_DRIVER_OK
+Message-ID: <1004346338.16284947.1599617319808.JavaMail.zimbra@redhat.com>
+In-Reply-To: <20200908123346.GA169007@mtl-vdi-166.wap.labs.mlnx>
+References: <20200908123346.GA169007@mtl-vdi-166.wap.labs.mlnx>
+Subject: Re: [PATCH v2] vdpa/mlx5: Setup driver only if
+ VIRTIO_CONFIG_S_DRIVER_OK
 MIME-Version: 1.0
-X-Originating-IP: [10.68.5.20, 10.4.195.30]
+X-Originating-IP: [10.68.5.20, 10.4.195.13]
 Thread-Topic: vdpa/mlx5: Setup driver only if VIRTIO_CONFIG_S_DRIVER_OK
-Thread-Index: NIGZWNwiAp0eeznMYcEYZRw78nk6JA==
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+Thread-Index: qaNSGDz/X0Zzbl+zuoh4Dhhl+VkUUQ==
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
 Cc: netdev <netdev@vger.kernel.org>, virtualization@lists.linux-foundation.org,
  Cindy Lu <lulu@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -115,66 +114,48 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 
 ----- Original Message -----
-> On Mon, Sep 07, 2020 at 06:53:23AM -0400, Jason Wang wrote:
-> > 
-> > 
-> > ----- Original Message -----
-> > > If the memory map changes before the driver status is
-> > > VIRTIO_CONFIG_S_DRIVER_OK, don't attempt to create resources because it
-> > > may fail. For example, if the VQ is not ready there is no point in
-> > > creating resources.
-> > > 
-> > > Fixes: 1a86b377aa21 ("vdpa/mlx5: Add VDPA driver for supported mlx5
-> > > devices")
-> > > Signed-off-by: Eli Cohen <elic@nvidia.com>
-> > > ---
-> > >  drivers/vdpa/mlx5/net/mlx5_vnet.c | 3 +++
-> > >  1 file changed, 3 insertions(+)
-> > > 
-> > > diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > index 9df69d5efe8c..c89cd48a0aab 100644
-> > > --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> > > @@ -1645,6 +1645,9 @@ static int mlx5_vdpa_change_map(struct
-> > > mlx5_vdpa_net
-> > > *ndev, struct vhost_iotlb *
-> > >  	if (err)
-> > >  		goto err_mr;
-> > >  
-> > > +	if (!(ndev->mvdev.status & VIRTIO_CONFIG_S_DRIVER_OK))
-> > > +		return 0;
-> > > +
-> > 
-> > I'm not sure I get this.
-> > 
-> > It looks to me if set_map() is called before DRIVER_OK, we won't build
-> > any mapping?
-> > 
-> What would prevent that? Is it some qemu logic you're relying upon?
+> set_map() is used by mlx5 vdpa to create a memory region based on the
+> address map passed by the iotlb argument. If we get successive calls, we
+> will destroy the current memory region and build another one based on
+> the new address mapping. We also need to setup the hardware resources
+> since they depend on the memory region.
+> 
+> If these calls happen before DRIVER_OK, It means that driver VQs may
+> also not been setup and we may not create them yet. In this case we want
+> to avoid setting up the other resources and defer this till we get
+> DRIVER OK.
+> 
+> Fixes: 1a86b377aa21 ("vdpa/mlx5: Add VDPA driver for supported mlx5 devices")
+> Signed-off-by: Eli Cohen <elic@nvidia.com>
+> ---
+> V1->V2: Improve changelog description
+> 
+>  drivers/vdpa/mlx5/net/mlx5_vnet.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> index 9df69d5efe8c..c89cd48a0aab 100644
+> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+> @@ -1645,6 +1645,9 @@ static int mlx5_vdpa_change_map(struct mlx5_vdpa_net
+> *ndev, struct vhost_iotlb *
+>  	if (err)
+>  		goto err_mr;
+>  
+> +	if (!(ndev->mvdev.status & VIRTIO_CONFIG_S_DRIVER_OK))
+> +		return 0;
+> +
 
-Ok, I think the map is still there, we just avoid to create some
-resources.
-
-> With current qemu 5.1 with lack of batching support, I get plenty calls
-> to set_map which result in calls to mlx5_vdpa_change_map().
-> If that happens before VIRTIO_CONFIG_S_DRIVER_OK then Imay fail (in case
-> I was not called to set VQs ready).
-
-Right, this could be solved by adding the batched IOTLB updating.
+Is there any reason that we still need to do vq suspending and saving before?
 
 Thanks
 
-> 
-> > 
-> > >  	restore_channels_info(ndev);
-> > >  	err = setup_driver(ndev);
-> > >  	if (err)
-> > > --
-> > > 2.26.0
-> > > 
-> > > 
-> > 
+>  	restore_channels_info(ndev);
+>  	err = setup_driver(ndev);
+>  	if (err)
+> --
+> 2.26.0
 > 
 > 
 
