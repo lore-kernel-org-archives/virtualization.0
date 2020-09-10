@@ -7,104 +7,104 @@ X-Spam-Status: No, score=-14.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 95C40C43461
-	for <virtualization@archiver.kernel.org>; Thu, 10 Sep 2020 09:09:10 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B05AC43461
+	for <virtualization@archiver.kernel.org>; Thu, 10 Sep 2020 09:10:09 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D46192065E
-	for <virtualization@archiver.kernel.org>; Thu, 10 Sep 2020 09:09:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id C61572065E
+	for <virtualization@archiver.kernel.org>; Thu, 10 Sep 2020 09:10:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="WDw6FTLR"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D46192065E
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XcSMUAQp"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C61572065E
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=de.ibm.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 52D9A86EC4;
-	Thu, 10 Sep 2020 09:09:09 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 347C02052B;
+	Thu, 10 Sep 2020 09:10:08 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id K1Iv-IiMPd9t; Thu, 10 Sep 2020 09:09:08 +0000 (UTC)
+	with ESMTP id lWIyV722ppsu; Thu, 10 Sep 2020 09:10:05 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 9B18486AF8;
-	Thu, 10 Sep 2020 09:09:08 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id F2B69204C3;
+	Thu, 10 Sep 2020 09:10:04 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7C929C0859;
-	Thu, 10 Sep 2020 09:09:08 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7ADDFC0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DC13AC0859;
+	Thu, 10 Sep 2020 09:10:04 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 78E92C0051
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Sep 2020 09:09:06 +0000 (UTC)
+ Thu, 10 Sep 2020 09:10:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 653D185485
+ by hemlock.osuosl.org (Postfix) with ESMTP id 59DB98763D
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Sep 2020 09:09:06 +0000 (UTC)
+ Thu, 10 Sep 2020 09:10:03 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id fxEpG9jnJbr0
+ with ESMTP id RDRhwI8CtD5m
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Sep 2020 09:09:05 +0000 (UTC)
+ Thu, 10 Sep 2020 09:10:02 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com
  [148.163.158.5])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 7F60F8547D
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 951208763B
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Sep 2020 09:09:05 +0000 (UTC)
-Received: from pps.filterd (m0098413.ppops.net [127.0.0.1])
- by mx0b-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id
- 08A92hQk016236; Thu, 10 Sep 2020 05:08:57 -0400
+ Thu, 10 Sep 2020 09:10:02 +0000 (UTC)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+ by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id
+ 08A95N9j020371; Thu, 10 Sep 2020 05:09:57 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
  h=subject : to : cc :
  references : from : message-id : date : mime-version : in-reply-to :
  content-type : content-transfer-encoding; s=pp1;
- bh=0Xf6ulvf5nlmiqQAG5vurl0uQLrsvKj/yVP3jlzR/Tk=;
- b=WDw6FTLRHRS2FWOLCzPPwdbjTPjYfe+awpJRBjZT7RHqysm8/5fxodH9DUV9ToPiRyKk
- bLG6GIUKbPh+qsJL8QgfEZpXfcZdMk6u16v2+qB/g2lbY16fLz7S33xIdM6j9gmuHkuW
- LSuMJTs+DLqJzOZNHqqJdutV1CvfkvxTKGTU5Le/CYbtaJqMnpJ8vOrG6Mr2s7LRJ6at
- KwVYcoFXn3iX8uxWewEb74WYd573d1ubKIRlaI8qYna/vS0dUefNN40va0DtL7mL8fm3
- 6CkPMHcYP+QH7nKOt8/N9BH2hHPY29l6hAp/iwIWXs9YPfetSw3hj2XPSYkH1YlW8nYJ Fw== 
+ bh=PIqq9lbHOFSteOQInz6M2g9JTLIQVYKF7y7YPtKHuS0=;
+ b=XcSMUAQp2DYNpPQhL4iFX6G0N+421erxfy70TCTT9u+Hj+vcZ5HeO8BDbaNXQ2hyFiyg
+ hDQqP3ovcIoxCtn6iJAOLH4ABJJzEuNGxjXxjN+iM7iCqSYZkAt8xCNacRMFXe6vZIvk
+ JKVWK7F+Zl9BjtJsS9TaZGK682A6LLOkCEmvMtr4ckiuVRaXk4ljYvboc05BuswhJdCx
+ JjtNvY0C1hs1h8w/kv0m+hkvKzw3Vd3XS76t5B7nY1YnBfavhcax8AzRQbtYN6kT37Lo
+ cFLWpZGJIRASvGqC8Da+YY13/MHq3r0jiPqZTtxpzEjrOtzW0CsE09ngGMtUwQEyCflq xw== 
 Received: from pps.reinject (localhost [127.0.0.1])
- by mx0b-001b2d01.pphosted.com with ESMTP id 33fg9ehxhm-1
+ by mx0a-001b2d01.pphosted.com with ESMTP id 33fgj4hcv2-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Thu, 10 Sep 2020 05:08:57 -0400
-Received: from m0098413.ppops.net (m0098413.ppops.net [127.0.0.1])
- by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 08A92mmJ016463;
- Thu, 10 Sep 2020 05:08:57 -0400
-Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com
- [169.51.49.99])
- by mx0b-001b2d01.pphosted.com with ESMTP id 33fg9ehxh3-1
+ Thu, 10 Sep 2020 05:09:57 -0400
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+ by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 08A97UeF028037;
+ Thu, 10 Sep 2020 05:09:57 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com
+ [169.51.49.102])
+ by mx0a-001b2d01.pphosted.com with ESMTP id 33fgj4hcu8-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Thu, 10 Sep 2020 05:08:57 -0400
-Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
- by ppma04ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 08A98tNP026417;
- Thu, 10 Sep 2020 09:08:55 GMT
-Received: from b06cxnps4076.portsmouth.uk.ibm.com
- (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
- by ppma04ams.nl.ibm.com with ESMTP id 33c2a8duxw-1
+ Thu, 10 Sep 2020 05:09:56 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+ by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 08A96gGs016020;
+ Thu, 10 Sep 2020 09:09:55 GMT
+Received: from b06avi18878370.portsmouth.uk.ibm.com
+ (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
+ by ppma06ams.nl.ibm.com with ESMTP id 33dxdr31pm-1
  (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Thu, 10 Sep 2020 09:08:55 +0000
+ Thu, 10 Sep 2020 09:09:55 +0000
 Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com
  [9.149.105.61])
- by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id
- 08A98qJG12976544
+ by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP
+ id 08A99qQh59506986
  (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Thu, 10 Sep 2020 09:08:52 GMT
+ Thu, 10 Sep 2020 09:09:52 GMT
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id 866F811C04A;
- Thu, 10 Sep 2020 09:08:52 +0000 (GMT)
+ by IMSVA (Postfix) with ESMTP id 33A4C11C04C;
+ Thu, 10 Sep 2020 09:09:52 +0000 (GMT)
 Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id B0D9411C04C;
- Thu, 10 Sep 2020 09:08:51 +0000 (GMT)
+ by IMSVA (Postfix) with ESMTP id 64F0111C064;
+ Thu, 10 Sep 2020 09:09:51 +0000 (GMT)
 Received: from oc7455500831.ibm.com (unknown [9.145.4.97])
  by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
- Thu, 10 Sep 2020 09:08:51 +0000 (GMT)
-Subject: Re: [PATCH v12 1/2] virtio: let arch advertise guest's memory access
- restrictions
+ Thu, 10 Sep 2020 09:09:51 +0000 (GMT)
+Subject: Re: [PATCH v12 2/2] s390: virtio: PV needs VIRTIO I/O device
+ protection
 To: Pierre Morel <pmorel@linux.ibm.com>, linux-kernel@vger.kernel.org
 References: <1599728030-17085-1-git-send-email-pmorel@linux.ibm.com>
- <1599728030-17085-2-git-send-email-pmorel@linux.ibm.com>
+ <1599728030-17085-3-git-send-email-pmorel@linux.ibm.com>
 From: Christian Borntraeger <borntraeger@de.ibm.com>
 Autocrypt: addr=borntraeger@de.ibm.com; prefer-encrypt=mutual; keydata=
  xsFNBE6cPPgBEAC2VpALY0UJjGmgAmavkL/iAdqul2/F9ONz42K6NrwmT+SI9CylKHIX+fdf
@@ -149,22 +149,22 @@ Autocrypt: addr=borntraeger@de.ibm.com; prefer-encrypt=mutual; keydata=
  jaqYefx7yQ7FJXXETd2uVURiDeNEFhVZWb5CiBJM5c6qQMhmkS4VyT7/+raaEGgkEKEgHOWf
  ZDP8BHfXtszHqI3Fo1F4IKFo/AP8GOFFxMRgbvlAs8z/+rEEaQYjxYJqj08raw6P4LFBqozr
  nS4h0HDFPrrp1C2EMVYIQrMokWvlFZbCpsdYbBI=
-Message-ID: <bf1da509-be1a-5576-3859-f7e617422ddd@de.ibm.com>
-Date: Thu, 10 Sep 2020 11:08:51 +0200
+Message-ID: <696a5887-e0d9-dc03-6204-e0f6464f3929@de.ibm.com>
+Date: Thu, 10 Sep 2020 11:09:51 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.11.0
 MIME-Version: 1.0
-In-Reply-To: <1599728030-17085-2-git-send-email-pmorel@linux.ibm.com>
+In-Reply-To: <1599728030-17085-3-git-send-email-pmorel@linux.ibm.com>
 Content-Language: en-US
 X-TM-AS-GCONF: 00
 X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235, 18.0.687
  definitions=2020-09-10_01:2020-09-10,
  2020-09-10 signatures=0
 X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501
- malwarescore=0 mlxscore=0 suspectscore=0 clxscore=1011 adultscore=0
- spamscore=0 phishscore=0 mlxlogscore=999 bulkscore=0 lowpriorityscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ mlxlogscore=999
+ lowpriorityscore=0 phishscore=0 impostorscore=0 suspectscore=0 spamscore=0
+ priorityscore=1501 adultscore=0 bulkscore=0 clxscore=1015 mlxscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
  engine=8.12.0-2006250000 definitions=main-2009100080
 Cc: gor@linux.ibm.com, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
  kvm@vger.kernel.org, mst@redhat.com, cohuck@redhat.com, linuxram@us.ibm.com,
@@ -189,17 +189,11 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 
 On 10.09.20 10:53, Pierre Morel wrote:
-> An architecture may restrict host access to guest memory,
-> e.g. IBM s390 Secure Execution or AMD SEV.
-> 
-> Provide a new Kconfig entry the architecture can select,
-> CONFIG_ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS, when it provides
-> the arch_has_restricted_virtio_memory_access callback to advertise
-> to VIRTIO common code when the architecture restricts memory access
-> from the host.
-> 
-> The common code can then fail the probe for any device where
-> VIRTIO_F_ACCESS_PLATFORM is required, but not set.
+> If protected virtualization is active on s390, VIRTIO has only retricted
+> access to the guest memory.
+> Define CONFIG_ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS and export
+> arch_has_restricted_virtio_memory_access to advertize VIRTIO if that's
+> the case.
 > 
 > Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
 > Reviewed-by: Cornelia Huck <cohuck@redhat.com>
@@ -207,75 +201,55 @@ On 10.09.20 10:53, Pierre Morel wrote:
 
 Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
 
+Michael, I am fine if this patch goes via the virtio tree.
+
 
 > ---
->  drivers/virtio/Kconfig        |  6 ++++++
->  drivers/virtio/virtio.c       | 15 +++++++++++++++
->  include/linux/virtio_config.h | 10 ++++++++++
->  3 files changed, 31 insertions(+)
+>  arch/s390/Kconfig   |  1 +
+>  arch/s390/mm/init.c | 11 +++++++++++
+>  2 files changed, 12 insertions(+)
 > 
-> diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-> index 5c92e4a50882..ef2d49430800 100644
-> --- a/drivers/virtio/Kconfig
-> +++ b/drivers/virtio/Kconfig
-> @@ -6,6 +6,12 @@ config VIRTIO
->  	  bus, such as CONFIG_VIRTIO_PCI, CONFIG_VIRTIO_MMIO, CONFIG_RPMSG
->  	  or CONFIG_S390_GUEST.
+> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
+> index b29fcc66ec39..938246200d39 100644
+> --- a/arch/s390/Kconfig
+> +++ b/arch/s390/Kconfig
+> @@ -820,6 +820,7 @@ menu "Virtualization"
+>  config PROTECTED_VIRTUALIZATION_GUEST
+>  	def_bool n
+>  	prompt "Protected virtualization guest support"
+> +	select ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS
+>  	help
+>  	  Select this option, if you want to be able to run this
+>  	  kernel as a protected virtualization KVM guest.
+> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
+> index 0d282081dc1f..e27f050cb516 100644
+> --- a/arch/s390/mm/init.c
+> +++ b/arch/s390/mm/init.c
+> @@ -45,6 +45,7 @@
+>  #include <asm/kasan.h>
+>  #include <asm/dma-mapping.h>
+>  #include <asm/uv.h>
+> +#include <linux/virtio_config.h>
 >  
-> +config ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS
-> +	bool
-> +	help
-> +	  This option is selected if the architecture may need to enforce
-> +	  VIRTIO_F_ACCESS_PLATFORM
-> +
->  menuconfig VIRTIO_MENU
->  	bool "Virtio drivers"
->  	default y
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index a977e32a88f2..a2b3f12e10a2 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -176,6 +176,21 @@ int virtio_finalize_features(struct virtio_device *dev)
->  	if (ret)
->  		return ret;
+>  pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
 >  
-> +	ret = arch_has_restricted_virtio_memory_access();
-> +	if (ret) {
-> +		if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
-> +			dev_warn(&dev->dev,
-> +				 "device must provide VIRTIO_F_VERSION_1\n");
-> +			return -ENODEV;
-> +		}
-> +
-> +		if (!virtio_has_feature(dev, VIRTIO_F_ACCESS_PLATFORM)) {
-> +			dev_warn(&dev->dev,
-> +				 "device must provide VIRTIO_F_ACCESS_PLATFORM\n");
-> +			return -ENODEV;
-> +		}
-> +	}
-> +
->  	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
->  		return 0;
+> @@ -160,6 +161,16 @@ bool force_dma_unencrypted(struct device *dev)
+>  	return is_prot_virt_guest();
+>  }
 >  
-> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> index 8fe857e27ef3..3f697c8c8205 100644
-> --- a/include/linux/virtio_config.h
-> +++ b/include/linux/virtio_config.h
-> @@ -540,4 +540,14 @@ static inline void virtio_cwrite64(struct virtio_device *vdev,
->  			virtio_cread_le((vdev), structname, member, ptr); \
->  		_r;							\
->  	})
-> +
 > +#ifdef CONFIG_ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS
-> +int arch_has_restricted_virtio_memory_access(void);
-> +#else
-> +static inline int arch_has_restricted_virtio_memory_access(void)
-> +{
-> +	return 0;
-> +}
-> +#endif /* CONFIG_ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS */
 > +
->  #endif /* _LINUX_VIRTIO_CONFIG_H */
+> +int arch_has_restricted_virtio_memory_access(void)
+> +{
+> +	return is_prot_virt_guest();
+> +}
+> +EXPORT_SYMBOL(arch_has_restricted_virtio_memory_access);
+> +
+> +#endif
+> +
+>  /* protected virtualization */
+>  static void pv_init(void)
+>  {
 > 
 _______________________________________________
 Virtualization mailing list
