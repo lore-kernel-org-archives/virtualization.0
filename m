@@ -7,75 +7,74 @@ X-Spam-Status: No, score=-11.2 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2A434C43461
-	for <virtualization@archiver.kernel.org>; Thu, 10 Sep 2020 07:15:25 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5577BC433E2
+	for <virtualization@archiver.kernel.org>; Thu, 10 Sep 2020 07:18:52 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 958B62075B
-	for <virtualization@archiver.kernel.org>; Thu, 10 Sep 2020 07:15:23 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 958B62075B
+	by mail.kernel.org (Postfix) with ESMTPS id CF3D420809
+	for <virtualization@archiver.kernel.org>; Thu, 10 Sep 2020 07:18:51 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CF3D420809
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 151E08765C;
-	Thu, 10 Sep 2020 07:15:23 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 72BA886435;
+	Thu, 10 Sep 2020 07:18:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id nazQ0b1ymlrF; Thu, 10 Sep 2020 07:15:22 +0000 (UTC)
+	with ESMTP id R06inqbYfpyT; Thu, 10 Sep 2020 07:18:50 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 5627887661;
-	Thu, 10 Sep 2020 07:15:22 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id E716D864CD;
+	Thu, 10 Sep 2020 07:18:50 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3C815C0859;
-	Thu, 10 Sep 2020 07:15:22 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4D65FC0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C9EA0C0859;
+	Thu, 10 Sep 2020 07:18:50 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4105AC0051
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Sep 2020 07:15:21 +0000 (UTC)
+ Thu, 10 Sep 2020 07:18:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 3817487661
+ by silver.osuosl.org (Postfix) with ESMTP id 35A6B204E9
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Sep 2020 07:15:21 +0000 (UTC)
+ Thu, 10 Sep 2020 07:18:49 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id wAUCcsv-RVKy
+ with ESMTP id RSdtHLfFJsD7
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Sep 2020 07:15:20 +0000 (UTC)
+ Thu, 10 Sep 2020 07:18:48 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
- by hemlock.osuosl.org (Postfix) with ESMTPS id ECEA28765C
+Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
+ by silver.osuosl.org (Postfix) with ESMTPS id 225C4204BF
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Sep 2020 07:15:19 +0000 (UTC)
-IronPort-SDR: wHBzkEHLEtesdTStYz7kZxiuksV1zXlFaFqPmQ0GQZz0mvrrb0ohW9W7WIiLnmuo5CQjRmsZAA
- qdo90IGzx1wA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9739"; a="155942994"
-X-IronPort-AV: E=Sophos;i="5.76,412,1592895600"; d="scan'208";a="155942994"
+ Thu, 10 Sep 2020 07:18:48 +0000 (UTC)
+IronPort-SDR: W/sEeK8sUlQKUdmRBMPlInFukW+Pnc0b6vcuNy7WdoBDGAquK7c/oCwxwVzv+ZkxMyMfCaROHc
+ hFHxxMAF+6xQ==
+X-IronPort-AV: E=McAfee;i="6000,8403,9739"; a="146203304"
+X-IronPort-AV: E=Sophos;i="5.76,412,1592895600"; d="scan'208";a="146203304"
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
 Received: from fmsmga008.fm.intel.com ([10.253.24.58])
- by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 10 Sep 2020 00:15:19 -0700
-IronPort-SDR: e6Qaiy2n8PctJP2/CF688WXqm7EvXe1yUUpcy7kkqSeXCMRKgSqQXPf9dioKsgfziB4kkep8yk
- fbFAIxWN4HPw==
-X-IronPort-AV: E=Sophos;i="5.76,412,1592895600"; d="scan'208";a="286478970"
+ by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 10 Sep 2020 00:18:47 -0700
+IronPort-SDR: C4xNaFHVegFkhmFhEuyJbIo4ffq0n12ZF2U8OD+oSwANc3qi4x1/CL8kxfCpeRnZZcZ9zoHTTd
+ CtOdnG5ETgMA==
+X-IronPort-AV: E=Sophos;i="5.76,412,1592895600"; d="scan'208";a="286480336"
 Received: from gliakhov-mobl2.ger.corp.intel.com (HELO ubuntu) ([10.252.39.14])
  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 10 Sep 2020 00:15:16 -0700
-Date: Thu, 10 Sep 2020 09:15:13 +0200
+ 10 Sep 2020 00:18:44 -0700
+Date: Thu, 10 Sep 2020 09:18:41 +0200
 From: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
 To: Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: Re: [PATCH v5 1/4] vhost: convert VHOST_VSOCK_SET_RUNNING to a
- generic ioctl
-Message-ID: <20200910062144.GA16802@ubuntu>
+Subject: Re: [PATCH v5 3/4] rpmsg: update documentation
+Message-ID: <20200910071841.GA17698@ubuntu>
 References: <20200826174636.23873-1-guennadi.liakhovetski@linux.intel.com>
- <20200826174636.23873-2-guennadi.liakhovetski@linux.intel.com>
- <20200909224214.GB562265@xps15>
+ <20200826174636.23873-4-guennadi.liakhovetski@linux.intel.com>
+ <20200909224521.GC562265@xps15>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20200909224214.GB562265@xps15>
+In-Reply-To: <20200909224521.GC562265@xps15>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Cc: Ohad Ben-Cohen <ohad@wizery.com>, kvm@vger.kernel.org,
  "Michael S. Tsirkin" <mst@redhat.com>,
@@ -102,54 +101,42 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Mathieu,
-
-On Wed, Sep 09, 2020 at 04:42:14PM -0600, Mathieu Poirier wrote:
-> On Wed, Aug 26, 2020 at 07:46:33PM +0200, Guennadi Liakhovetski wrote:
-> > VHOST_VSOCK_SET_RUNNING is used by the vhost vsock driver to perform
-> > crucial VirtQueue initialisation, like assigning .private fields and
-> > calling vhost_vq_init_access(), and clean up. However, this ioctl is
-> > actually extremely useful for any vhost driver, that doesn't have a
-> > side channel to inform it of a status change, e.g. upon a guest
-> > reboot. This patch makes that ioctl generic, while preserving its
-> > numeric value and also keeping the original alias.
+On Wed, Sep 09, 2020 at 04:45:21PM -0600, Mathieu Poirier wrote:
+> On Wed, Aug 26, 2020 at 07:46:35PM +0200, Guennadi Liakhovetski wrote:
+> > rpmsg_create_ept() takes struct rpmsg_channel_info chinfo as its last
+> > argument, not a u32 value. The first two arguments are also updated.
 > > 
 > > Signed-off-by: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
 > > ---
-> >  include/uapi/linux/vhost.h | 4 +++-
-> >  1 file changed, 3 insertions(+), 1 deletion(-)
+> >  Documentation/rpmsg.txt | 6 +++---
+> >  1 file changed, 3 insertions(+), 3 deletions(-)
 > > 
-> > diff --git a/include/uapi/linux/vhost.h b/include/uapi/linux/vhost.h
-> > index 75232185324a..11a4948b6216 100644
-> > --- a/include/uapi/linux/vhost.h
-> > +++ b/include/uapi/linux/vhost.h
-> > @@ -97,6 +97,8 @@
-> >  #define VHOST_SET_BACKEND_FEATURES _IOW(VHOST_VIRTIO, 0x25, __u64)
-> >  #define VHOST_GET_BACKEND_FEATURES _IOR(VHOST_VIRTIO, 0x26, __u64)
+> > diff --git a/Documentation/rpmsg.txt b/Documentation/rpmsg.txt
+> > index 24b7a9e1a5f9..1ce353cb232a 100644
+> > --- a/Documentation/rpmsg.txt
+> > +++ b/Documentation/rpmsg.txt
+> > @@ -192,9 +192,9 @@ Returns 0 on success and an appropriate error value on failure.
 > >  
-> > +#define VHOST_SET_RUNNING _IOW(VHOST_VIRTIO, 0x61, int)
-> > +
+> >  ::
+> >  
+> > -  struct rpmsg_endpoint *rpmsg_create_ept(struct rpmsg_channel *rpdev,
+> > -		void (*cb)(struct rpmsg_channel *, void *, int, void *, u32),
+> > -		void *priv, u32 addr);
+> > +  struct rpmsg_endpoint *rpmsg_create_ept(struct rpmsg_device *rpdev,
+> > +					  rpmsg_rx_cb_t cb, void *priv,
+> > +					  struct rpmsg_channel_info chinfo);
 > 
-> I don't see it used in the next patches and as such should be part of another
-> series.
+> Again I don't see this being used in this set...  It should have been sent on
+> its own to the remoteproc and documentation mailing list.  Note that
+> Documentation/rpmsg.txt is now Documentation/staging/rpmsg.rst
 
-It isn't used in the next patches, it is used in this patch - see below.
+Sure, can send it separately.
 
 Thanks
 Guennadi
 
-> >  /* VHOST_NET specific defines */
-> >  
-> >  /* Attach virtio net ring to a raw socket, or tap device.
-> > @@ -118,7 +120,7 @@
-> >  /* VHOST_VSOCK specific defines */
-> >  
-> >  #define VHOST_VSOCK_SET_GUEST_CID	_IOW(VHOST_VIRTIO, 0x60, __u64)
-> > -#define VHOST_VSOCK_SET_RUNNING		_IOW(VHOST_VIRTIO, 0x61, int)
-> > +#define VHOST_VSOCK_SET_RUNNING		VHOST_SET_RUNNING
-> >  
-> >  /* VHOST_VDPA specific defines */
-> >  
+> >  every rpmsg address in the system is bound to an rx callback (so when
+> >  inbound messages arrive, they are dispatched by the rpmsg bus using the
 > > -- 
 > > 2.28.0
 > > 
