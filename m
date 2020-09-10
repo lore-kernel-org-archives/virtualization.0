@@ -2,174 +2,113 @@ Return-Path: <SRS0=1ME9=CT=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-14.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9B05AC43461
-	for <virtualization@archiver.kernel.org>; Thu, 10 Sep 2020 09:10:09 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 73B2AC2BB84
+	for <virtualization@archiver.kernel.org>; Thu, 10 Sep 2020 09:14:15 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C61572065E
-	for <virtualization@archiver.kernel.org>; Thu, 10 Sep 2020 09:10:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id DAC9120795
+	for <virtualization@archiver.kernel.org>; Thu, 10 Sep 2020 09:14:14 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="XcSMUAQp"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C61572065E
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=de.ibm.com
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UUbpsuWs"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DAC9120795
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 347C02052B;
-	Thu, 10 Sep 2020 09:10:08 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 388AF204E4;
+	Thu, 10 Sep 2020 09:14:14 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id lWIyV722ppsu; Thu, 10 Sep 2020 09:10:05 +0000 (UTC)
+	with ESMTP id KPNc2jEvkcEP; Thu, 10 Sep 2020 09:14:11 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id F2B69204C3;
-	Thu, 10 Sep 2020 09:10:04 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id D69E6204C3;
+	Thu, 10 Sep 2020 09:14:11 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DC13AC0859;
-	Thu, 10 Sep 2020 09:10:04 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CD72EC0859;
+	Thu, 10 Sep 2020 09:14:11 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 78E92C0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4C7EFC0051
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Sep 2020 09:10:03 +0000 (UTC)
+ Thu, 10 Sep 2020 09:14:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 59DB98763D
+ by hemlock.osuosl.org (Postfix) with ESMTP id 3AE5187669
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Sep 2020 09:10:03 +0000 (UTC)
+ Thu, 10 Sep 2020 09:14:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id RDRhwI8CtD5m
+ with ESMTP id EnfR49X2wtTq
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Sep 2020 09:10:02 +0000 (UTC)
+ Thu, 10 Sep 2020 09:14:10 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com
- [148.163.158.5])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 951208763B
+Received: from us-smtp-1.mimecast.com (us-smtp-delivery-1.mimecast.com
+ [205.139.110.120])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 5831B87655
  for <virtualization@lists.linux-foundation.org>;
- Thu, 10 Sep 2020 09:10:02 +0000 (UTC)
-Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
- by mx0a-001b2d01.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id
- 08A95N9j020371; Thu, 10 Sep 2020 05:09:57 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com;
- h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=PIqq9lbHOFSteOQInz6M2g9JTLIQVYKF7y7YPtKHuS0=;
- b=XcSMUAQp2DYNpPQhL4iFX6G0N+421erxfy70TCTT9u+Hj+vcZ5HeO8BDbaNXQ2hyFiyg
- hDQqP3ovcIoxCtn6iJAOLH4ABJJzEuNGxjXxjN+iM7iCqSYZkAt8xCNacRMFXe6vZIvk
- JKVWK7F+Zl9BjtJsS9TaZGK682A6LLOkCEmvMtr4ckiuVRaXk4ljYvboc05BuswhJdCx
- JjtNvY0C1hs1h8w/kv0m+hkvKzw3Vd3XS76t5B7nY1YnBfavhcax8AzRQbtYN6kT37Lo
- cFLWpZGJIRASvGqC8Da+YY13/MHq3r0jiPqZTtxpzEjrOtzW0CsE09ngGMtUwQEyCflq xw== 
-Received: from pps.reinject (localhost [127.0.0.1])
- by mx0a-001b2d01.pphosted.com with ESMTP id 33fgj4hcv2-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Thu, 10 Sep 2020 05:09:57 -0400
-Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
- by pps.reinject (8.16.0.36/8.16.0.36) with SMTP id 08A97UeF028037;
- Thu, 10 Sep 2020 05:09:57 -0400
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com
- [169.51.49.102])
- by mx0a-001b2d01.pphosted.com with ESMTP id 33fgj4hcu8-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Thu, 10 Sep 2020 05:09:56 -0400
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
- by ppma06ams.nl.ibm.com (8.16.0.42/8.16.0.42) with SMTP id 08A96gGs016020;
- Thu, 10 Sep 2020 09:09:55 GMT
-Received: from b06avi18878370.portsmouth.uk.ibm.com
- (b06avi18878370.portsmouth.uk.ibm.com [9.149.26.194])
- by ppma06ams.nl.ibm.com with ESMTP id 33dxdr31pm-1
- (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
- Thu, 10 Sep 2020 09:09:55 +0000
-Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com
- [9.149.105.61])
- by b06avi18878370.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP
- id 08A99qQh59506986
- (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
- Thu, 10 Sep 2020 09:09:52 GMT
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id 33A4C11C04C;
- Thu, 10 Sep 2020 09:09:52 +0000 (GMT)
-Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
- by IMSVA (Postfix) with ESMTP id 64F0111C064;
- Thu, 10 Sep 2020 09:09:51 +0000 (GMT)
-Received: from oc7455500831.ibm.com (unknown [9.145.4.97])
- by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
- Thu, 10 Sep 2020 09:09:51 +0000 (GMT)
-Subject: Re: [PATCH v12 2/2] s390: virtio: PV needs VIRTIO I/O device
- protection
-To: Pierre Morel <pmorel@linux.ibm.com>, linux-kernel@vger.kernel.org
-References: <1599728030-17085-1-git-send-email-pmorel@linux.ibm.com>
- <1599728030-17085-3-git-send-email-pmorel@linux.ibm.com>
-From: Christian Borntraeger <borntraeger@de.ibm.com>
-Autocrypt: addr=borntraeger@de.ibm.com; prefer-encrypt=mutual; keydata=
- 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
- nS4h0HDFPrrp1C2EMVYIQrMokWvlFZbCpsdYbBI=
-Message-ID: <696a5887-e0d9-dc03-6204-e0f6464f3929@de.ibm.com>
-Date: Thu, 10 Sep 2020 11:09:51 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.11.0
+ Thu, 10 Sep 2020 09:14:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1599729249;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=q+xRLYk6ElaQMFati+s8ZI/gmN1ETJt7O5tUW1WhghI=;
+ b=UUbpsuWspWBy64qJNqR0KQ6hXzfJ2U4HhrstGWZgatVuF/t/43EiKXD7Xt9Mx4x7gB2v95
+ iw6/6FftSqjpVYyN7RdluG9gNiCASQp7HsW5RO1htuBE+BbLimnoRe/L3eHaY3IbVi8hBu
+ Yfgv5V3T6J+CiY0lsqmu8y+db4MqiR0=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-308-3iuqD9l8MNi4UpNNbX7W8g-1; Thu, 10 Sep 2020 05:14:07 -0400
+X-MC-Unique: 3iuqD9l8MNi4UpNNbX7W8g-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
+ [10.5.11.23])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4996418B9F00;
+ Thu, 10 Sep 2020 09:14:01 +0000 (UTC)
+Received: from t480s.redhat.com (ovpn-113-88.ams2.redhat.com [10.36.113.88])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 2A880282CA;
+ Thu, 10 Sep 2020 09:13:41 +0000 (UTC)
+From: David Hildenbrand <david@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH v3 0/7] mm/memory_hotplug: selective merging of system ram
+ resources
+Date: Thu, 10 Sep 2020 11:13:33 +0200
+Message-Id: <20200910091340.8654-1-david@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <1599728030-17085-3-git-send-email-pmorel@linux.ibm.com>
-Content-Language: en-US
-X-TM-AS-GCONF: 00
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235, 18.0.687
- definitions=2020-09-10_01:2020-09-10,
- 2020-09-10 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- mlxlogscore=999
- lowpriorityscore=0 phishscore=0 impostorscore=0 suspectscore=0 spamscore=0
- priorityscore=1501 adultscore=0 bulkscore=0 clxscore=1015 mlxscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2006250000 definitions=main-2009100080
-Cc: gor@linux.ibm.com, linux-s390@vger.kernel.org, frankja@linux.ibm.com,
- kvm@vger.kernel.org, mst@redhat.com, cohuck@redhat.com, linuxram@us.ibm.com,
- virtualization@lists.linux-foundation.org, pasic@linux.ibm.com,
- thomas.lendacky@amd.com, hca@linux.ibm.com, david@gibson.dropbear.id.au
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Cc: linux-hyperv@vger.kernel.org, Michal Hocko <mhocko@suse.com>,
+ Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+ Pingfan Liu <kernelfans@gmail.com>, virtualization@lists.linux-foundation.org,
+ linux-mm@kvack.org, Oliver O'Halloran <oohall@gmail.com>,
+ Dan Williams <dan.j.williams@intel.com>, linux-s390@vger.kernel.org,
+ Wei Liu <wei.liu@kernel.org>, Stefano Stabellini <sstabellini@kernel.org>,
+ Dave Jiang <dave.jiang@intel.com>, Baoquan He <bhe@redhat.com>,
+ linux-nvdimm@lists.01.org, Jason Gunthorpe <jgg@ziepe.ca>,
+ Michael Ellerman <mpe@ellerman.id.au>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Ard Biesheuvel <ardb@kernel.org>, linux-acpi@vger.kernel.org,
+ Wei Yang <richardw.yang@linux.intel.com>, xen-devel@lists.xenproject.org,
+ Anton Blanchard <anton@ozlabs.org>, Heiko Carstens <hca@linux.ibm.com>,
+ Len Brown <lenb@kernel.org>, Nathan Lynch <nathanl@linux.ibm.com>,
+ Julien Grall <julien@xen.org>, Kees Cook <keescook@chromium.org>,
+ Vasily Gorbik <gor@linux.ibm.com>, Leonardo Bras <leobras.c@gmail.com>,
+ Haiyang Zhang <haiyangz@microsoft.com>,
+ Vishal Verma <vishal.l.verma@intel.com>,
+ Stephen Hemminger <sthemmin@microsoft.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ Christian Borntraeger <borntraeger@de.ibm.com>,
+ Juergen Gross <jgross@suse.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+ "Rafael J. Wysocki" <rjw@rjwysocki.net>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Libor Pechacek <lpechacek@suse.cz>, Thomas Gleixner <tglx@linutronix.de>,
+ Eric Biederman <ebiederm@xmission.com>,
+ Andrew Morton <akpmt@linux-foundation.org>, Paul Mackerras <paulus@samba.org>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ =?UTF-8?q?Roger=20Pau=20Monn=C3=A9?= <roger.pau@citrix.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -186,71 +125,82 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
+Some add_memory*() users add memory in small, contiguous memory blocks.
+Examples include virtio-mem, hyper-v balloon, and the XEN balloon.
 
+This can quickly result in a lot of memory resources, whereby the actual
+resource boundaries are not of interest (e.g., it might be relevant for
+DIMMs, exposed via /proc/iomem to user space). We really want to merge
+added resources in this scenario where possible.
 
-On 10.09.20 10:53, Pierre Morel wrote:
-> If protected virtualization is active on s390, VIRTIO has only retricted
-> access to the guest memory.
-> Define CONFIG_ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS and export
-> arch_has_restricted_virtio_memory_access to advertize VIRTIO if that's
-> the case.
-> 
-> Signed-off-by: Pierre Morel <pmorel@linux.ibm.com>
-> Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-> Reviewed-by: Halil Pasic <pasic@linux.ibm.com>
+Resources are effectively stored in a list-based tree. Having a lot of
+resources not only wastes memory, it also makes traversing that tree more
+expensive, and makes /proc/iomem explode in size (e.g., requiring
+kexec-tools to manually merge resources when creating a kdump header. The
+current kexec-tools resource count limit does not allow for more than
+~100GB of memory with a memory block size of 128MB on x86-64).
 
-Acked-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Let's allow to selectively merge system ram resources by specifying a
+new flag for add_memory*(). Patch #5 contains a /proc/iomem example. Only
+tested with virtio-mem.
 
-Michael, I am fine if this patch goes via the virtio tree.
+v2 -> v3:
+- "mm/memory_hotplug: prepare passing flags to add_memory() and friends"
+-- Use proper __bitwise type for flags
+-- Use "MHP_NONE" for empty flags
+- Rebased to latest -next, added rb's
 
+v1 -> v2:
+- I had another look at v1 after vacation and didn't like it - it felt like
+  a hack. So I want forward and added a proper flag to add_memory*(), and
+  introduce a clean (non-racy) way to mark System RAM resources mergeable.
+- "kernel/resource: move and rename IORESOURCE_MEM_DRIVER_MANAGED"
+-- Clean that flag up, felt wrong in the PnP section
+- "mm/memory_hotplug: prepare passing flags to add_memory() and friends"
+-- Previously sent in other context - decided to keep Wei's ack
+- "mm/memory_hotplug: MEMHP_MERGE_RESOURCE to specify merging of System
+   RAM resources"
+-- Cleaner approach to get the job done by using proper flags and only
+   merging the single, specified resource
+- "virtio-mem: try to merge system ram resources"
+  "xen/balloon: try to merge system ram resources"
+  "hv_balloon: try to merge system ram resources"
+-- Use the new flag MEMHP_MERGE_RESOURCE, much cleaner
 
-> ---
->  arch/s390/Kconfig   |  1 +
->  arch/s390/mm/init.c | 11 +++++++++++
->  2 files changed, 12 insertions(+)
-> 
-> diff --git a/arch/s390/Kconfig b/arch/s390/Kconfig
-> index b29fcc66ec39..938246200d39 100644
-> --- a/arch/s390/Kconfig
-> +++ b/arch/s390/Kconfig
-> @@ -820,6 +820,7 @@ menu "Virtualization"
->  config PROTECTED_VIRTUALIZATION_GUEST
->  	def_bool n
->  	prompt "Protected virtualization guest support"
-> +	select ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS
->  	help
->  	  Select this option, if you want to be able to run this
->  	  kernel as a protected virtualization KVM guest.
-> diff --git a/arch/s390/mm/init.c b/arch/s390/mm/init.c
-> index 0d282081dc1f..e27f050cb516 100644
-> --- a/arch/s390/mm/init.c
-> +++ b/arch/s390/mm/init.c
-> @@ -45,6 +45,7 @@
->  #include <asm/kasan.h>
->  #include <asm/dma-mapping.h>
->  #include <asm/uv.h>
-> +#include <linux/virtio_config.h>
->  
->  pgd_t swapper_pg_dir[PTRS_PER_PGD] __section(.bss..swapper_pg_dir);
->  
-> @@ -160,6 +161,16 @@ bool force_dma_unencrypted(struct device *dev)
->  	return is_prot_virt_guest();
->  }
->  
-> +#ifdef CONFIG_ARCH_HAS_RESTRICTED_VIRTIO_MEMORY_ACCESS
-> +
-> +int arch_has_restricted_virtio_memory_access(void)
-> +{
-> +	return is_prot_virt_guest();
-> +}
-> +EXPORT_SYMBOL(arch_has_restricted_virtio_memory_access);
-> +
-> +#endif
-> +
->  /* protected virtualization */
->  static void pv_init(void)
->  {
-> 
+RFC -> v1:
+- Switch from rather generic "merge_child_mem_resources()" where a resource
+  name has to be specified to "merge_system_ram_resources().
+- Smaller comment/documentation/patch description changes/fixes
+
+David Hildenbrand (7):
+  kernel/resource: make release_mem_region_adjustable() never fail
+  kernel/resource: move and rename IORESOURCE_MEM_DRIVER_MANAGED
+  mm/memory_hotplug: prepare passing flags to add_memory() and friends
+  mm/memory_hotplug: MEMHP_MERGE_RESOURCE to specify merging of System
+    RAM resources
+  virtio-mem: try to merge system ram resources
+  xen/balloon: try to merge system ram resources
+  hv_balloon: try to merge system ram resources
+
+ arch/powerpc/platforms/powernv/memtrace.c     |   2 +-
+ .../platforms/pseries/hotplug-memory.c        |   2 +-
+ drivers/acpi/acpi_memhotplug.c                |   3 +-
+ drivers/base/memory.c                         |   3 +-
+ drivers/dax/kmem.c                            |   2 +-
+ drivers/hv/hv_balloon.c                       |   2 +-
+ drivers/s390/char/sclp_cmd.c                  |   2 +-
+ drivers/virtio/virtio_mem.c                   |   3 +-
+ drivers/xen/balloon.c                         |   2 +-
+ include/linux/ioport.h                        |  12 +-
+ include/linux/memory_hotplug.h                |  23 +++-
+ kernel/kexec_file.c                           |   2 +-
+ kernel/resource.c                             | 109 ++++++++++++++----
+ mm/memory_hotplug.c                           |  47 +++-----
+ 14 files changed, 146 insertions(+), 68 deletions(-)
+
+-- 
+2.26.2
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
