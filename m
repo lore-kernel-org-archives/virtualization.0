@@ -2,143 +2,97 @@ Return-Path: <SRS0=G0EF=CU=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5AE22C433E2
-	for <virtualization@archiver.kernel.org>; Fri, 11 Sep 2020 08:20:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1B965C433E2
+	for <virtualization@archiver.kernel.org>; Fri, 11 Sep 2020 10:35:34 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id F24C3206B7
-	for <virtualization@archiver.kernel.org>; Fri, 11 Sep 2020 08:20:39 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id B103E20578
+	for <virtualization@archiver.kernel.org>; Fri, 11 Sep 2020 10:35:33 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fVouzvSH"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org F24C3206B7
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UVkqEcPe"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B103E20578
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id ABAB9877C8;
-	Fri, 11 Sep 2020 08:20:39 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 6B2AA87667;
+	Fri, 11 Sep 2020 10:35:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id QHNCkPB1Mk+2; Fri, 11 Sep 2020 08:20:39 +0000 (UTC)
+	with ESMTP id PenbD-R2XQHv; Fri, 11 Sep 2020 10:35:32 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 02D10877B2;
-	Fri, 11 Sep 2020 08:20:39 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id A1C03876A4;
+	Fri, 11 Sep 2020 10:35:32 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D9D98C0859;
-	Fri, 11 Sep 2020 08:20:38 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 448A5C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 96088C0052;
+	Fri, 11 Sep 2020 10:35:32 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 770F9C0051
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Sep 2020 08:20:37 +0000 (UTC)
+ Fri, 11 Sep 2020 10:35:31 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 2F117877C1
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 6476D87397
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Sep 2020 08:20:37 +0000 (UTC)
+ Fri, 11 Sep 2020 10:35:31 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id c75vHWq9iPcC
+ with ESMTP id g4mL0oLj9l6s
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Sep 2020 08:20:36 +0000 (UTC)
+ Fri, 11 Sep 2020 10:35:30 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-1.mimecast.com (us-smtp-2.mimecast.com
  [205.139.110.61])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 2168A877B2
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 598A487390
  for <virtualization@lists.linux-foundation.org>;
- Fri, 11 Sep 2020 08:20:36 +0000 (UTC)
+ Fri, 11 Sep 2020 10:35:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1599812434;
+ s=mimecast20190719; t=1599820527;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
- bh=/yhJLHvu7tqzr4gbFNg2Ix6add6EFMjRFGhHNb4dF5o=;
- b=fVouzvSH4hmkKRaB0NJeoJCKQ1SMG4C31MX64F8WF3NlF5C9W+zejF/aHEVw9bR1KZ7Df3
- eWzUjGGEcTKhHrT7ilAYDBiQVNdm8/a8lL10L+s3Mfxa/UQmswtkvk7Nj1guIVjVIo2g8H
- u6NuKAnhiHjFfnCa59GwSBfx1IE8NmE=
+ in-reply-to:in-reply-to:references:references;
+ bh=0L/VNlFzuDB/95oeV+NVSs6BIkKkE+sXG0xqekszlyk=;
+ b=UVkqEcPecgMiIhOU0wcIEaYLPZexXqU+CztxwvXyDIwAGIpYb+Pa8YmGDvUHaCNkFWHR5Y
+ edMzJFe8nKdCq61jovCW5WP9Ya5qe+yuE1LfdVUuo3q6Ufs4gVrJtdvqt97WWTXoqhW9Q5
+ mp+zwcIcMsOThFXKxC4SxGpDZk0Tm/c=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-530-vClJSTYXO5Sid0o9Xdj9EA-1; Fri, 11 Sep 2020 04:20:30 -0400
-X-MC-Unique: vClJSTYXO5Sid0o9Xdj9EA-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
- [10.5.11.11])
+ us-mta-228-_3yaQ7fkNFKX3yCvQmaZsw-1; Fri, 11 Sep 2020 06:35:25 -0400
+X-MC-Unique: _3yaQ7fkNFKX3yCvQmaZsw-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
+ [10.5.11.13])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 1A17B8030BA;
- Fri, 11 Sep 2020 08:20:29 +0000 (UTC)
-Received: from [10.36.113.186] (ovpn-113-186.ams2.redhat.com [10.36.113.186])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 10BAF7E8F4;
- Fri, 11 Sep 2020 08:20:25 +0000 (UTC)
-Subject: Re: [PATCH v3 3/7] mm/memory_hotplug: prepare passing flags to
- add_memory() and friends
-To: kernel test robot <lkp@intel.com>, linux-kernel@vger.kernel.org
-References: <20200910091340.8654-4-david@redhat.com>
- <202009111020.boR8gVOT%lkp@intel.com>
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BE71310082E6;
+ Fri, 11 Sep 2020 10:35:23 +0000 (UTC)
+Received: from t480s.redhat.com (ovpn-113-186.ams2.redhat.com [10.36.113.186])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 261DD81C4B;
+ Fri, 11 Sep 2020 10:35:19 +0000 (UTC)
 From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
- mQINBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
- dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
- QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
- XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
- Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
- PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
- WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
- UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
- jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
- B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABtCREYXZpZCBIaWxk
- ZW5icmFuZCA8ZGF2aWRAcmVkaGF0LmNvbT6JAlgEEwEIAEICGwMGCwkIBwMCBhUIAgkKCwQW
- AgMBAh4BAheAAhkBFiEEG9nKrXNcTDpGDfzKTd4Q9wD/g1oFAl8Ox4kFCRKpKXgACgkQTd4Q
- 9wD/g1oHcA//a6Tj7SBNjFNM1iNhWUo1lxAja0lpSodSnB2g4FCZ4R61SBR4l/psBL73xktp
- rDHrx4aSpwkRP6Epu6mLvhlfjmkRG4OynJ5HG1gfv7RJJfnUdUM1z5kdS8JBrOhMJS2c/gPf
- wv1TGRq2XdMPnfY2o0CxRqpcLkx4vBODvJGl2mQyJF/gPepdDfcT8/PY9BJ7FL6Hrq1gnAo4
- 3Iv9qV0JiT2wmZciNyYQhmA1V6dyTRiQ4YAc31zOo2IM+xisPzeSHgw3ONY/XhYvfZ9r7W1l
- pNQdc2G+o4Di9NPFHQQhDw3YTRR1opJaTlRDzxYxzU6ZnUUBghxt9cwUWTpfCktkMZiPSDGd
- KgQBjnweV2jw9UOTxjb4LXqDjmSNkjDdQUOU69jGMUXgihvo4zhYcMX8F5gWdRtMR7DzW/YE
- BgVcyxNkMIXoY1aYj6npHYiNQesQlqjU6azjbH70/SXKM5tNRplgW8TNprMDuntdvV9wNkFs
- 9TyM02V5aWxFfI42+aivc4KEw69SE9KXwC7FSf5wXzuTot97N9Phj/Z3+jx443jo2NR34XgF
- 89cct7wJMjOF7bBefo0fPPZQuIma0Zym71cP61OP/i11ahNye6HGKfxGCOcs5wW9kRQEk8P9
- M/k2wt3mt/fCQnuP/mWutNPt95w9wSsUyATLmtNrwccz63W5Ag0EVcufkQEQAOfX3n0g0fZz
- Bgm/S2zF/kxQKCEKP8ID+Vz8sy2GpDvveBq4H2Y34XWsT1zLJdvqPI4af4ZSMxuerWjXbVWb
- T6d4odQIG0fKx4F8NccDqbgHeZRNajXeeJ3R7gAzvWvQNLz4piHrO/B4tf8svmRBL0ZB5P5A
- 2uhdwLU3NZuK22zpNn4is87BPWF8HhY0L5fafgDMOqnf4guJVJPYNPhUFzXUbPqOKOkL8ojk
- CXxkOFHAbjstSK5Ca3fKquY3rdX3DNo+EL7FvAiw1mUtS+5GeYE+RMnDCsVFm/C7kY8c2d0G
- NWkB9pJM5+mnIoFNxy7YBcldYATVeOHoY4LyaUWNnAvFYWp08dHWfZo9WCiJMuTfgtH9tc75
- 7QanMVdPt6fDK8UUXIBLQ2TWr/sQKE9xtFuEmoQGlE1l6bGaDnnMLcYu+Asp3kDT0w4zYGsx
- 5r6XQVRH4+5N6eHZiaeYtFOujp5n+pjBaQK7wUUjDilPQ5QMzIuCL4YjVoylWiBNknvQWBXS
- lQCWmavOT9sttGQXdPCC5ynI+1ymZC1ORZKANLnRAb0NH/UCzcsstw2TAkFnMEbo9Zu9w7Kv
- AxBQXWeXhJI9XQssfrf4Gusdqx8nPEpfOqCtbbwJMATbHyqLt7/oz/5deGuwxgb65pWIzufa
- N7eop7uh+6bezi+rugUI+w6DABEBAAGJAjwEGAEIACYCGwwWIQQb2cqtc1xMOkYN/MpN3hD3
- AP+DWgUCXw7HsgUJEqkpoQAKCRBN3hD3AP+DWrrpD/4qS3dyVRxDcDHIlmguXjC1Q5tZTwNB
- boaBTPHSy/Nksu0eY7x6HfQJ3xajVH32Ms6t1trDQmPx2iP5+7iDsb7OKAb5eOS8h+BEBDeq
- 3ecsQDv0fFJOA9ag5O3LLNk+3x3q7e0uo06XMaY7UHS341ozXUUI7wC7iKfoUTv03iO9El5f
- XpNMx/YrIMduZ2+nd9Di7o5+KIwlb2mAB9sTNHdMrXesX8eBL6T9b+MZJk+mZuPxKNVfEQMQ
- a5SxUEADIPQTPNvBewdeI80yeOCrN+Zzwy/Mrx9EPeu59Y5vSJOx/z6OUImD/GhX7Xvkt3kq
- Er5KTrJz3++B6SH9pum9PuoE/k+nntJkNMmQpR4MCBaV/J9gIOPGodDKnjdng+mXliF3Ptu6
- 3oxc2RCyGzTlxyMwuc2U5Q7KtUNTdDe8T0uE+9b8BLMVQDDfJjqY0VVqSUwImzTDLX9S4g/8
- kC4HRcclk8hpyhY2jKGluZO0awwTIMgVEzmTyBphDg/Gx7dZU1Xf8HFuE+UZ5UDHDTnwgv7E
- th6RC9+WrhDNspZ9fJjKWRbveQgUFCpe1sa77LAw+XFrKmBHXp9ZVIe90RMe2tRL06BGiRZr
- jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
- WNyWQQ==
-Organization: Red Hat GmbH
-Message-ID: <ae0bfdea-bef6-f6e4-6ce6-2bf68e44292c@redhat.com>
-Date: Fri, 11 Sep 2020 10:20:25 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.11.0
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH v4 1/8] kernel/resource: make release_mem_region_adjustable()
+ never fail
+Date: Fri, 11 Sep 2020 12:34:52 +0200
+Message-Id: <20200911103459.10306-2-david@redhat.com>
+In-Reply-To: <20200911103459.10306-1-david@redhat.com>
+References: <20200911103459.10306-1-david@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <202009111020.boR8gVOT%lkp@intel.com>
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Cc: linux-s390@vger.kernel.org, linux-hyperv@vger.kernel.org,
- kbuild-all@lists.01.org, linux-acpi@vger.kernel.org,
- clang-built-linux@googlegroups.com, linux-nvdimm@lists.01.org,
- virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
- xen-devel@lists.xenproject.org, Andrew Morton <akpm@linux-foundation.org>
+ Michal Hocko <mhocko@suse.com>, linux-acpi@vger.kernel.org,
+ Baoquan He <bhe@redhat.com>, linux-nvdimm@lists.01.org,
+ Jason Gunthorpe <jgg@ziepe.ca>, virtualization@lists.linux-foundation.org,
+ linux-mm@kvack.org, Wei Yang <richardw.yang@linux.intel.com>,
+ Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Ard Biesheuvel <ardb@kernel.org>,
+ xen-devel@lists.xenproject.org, Andrew Morton <akpm@linux-foundation.org>,
+ Dan Williams <dan.j.williams@intel.com>, Kees Cook <keescook@chromium.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -155,81 +109,193 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 11.09.20 04:21, kernel test robot wrote:
-> Hi David,
-> 
-> I love your patch! Yet something to improve:
-> 
-> [auto build test ERROR on next-20200909]
-> [cannot apply to mmotm/master hnaz-linux-mm/master xen-tip/linux-next powerpc/next linus/master v5.9-rc4 v5.9-rc3 v5.9-rc2 v5.9-rc4]
-> [If your patch is applied to the wrong git tree, kindly drop us a note.
-> And when submitting patch, we suggest to use '--base' as documented in
-> https://git-scm.com/docs/git-format-patch]
-> 
-> url:    https://github.com/0day-ci/linux/commits/David-Hildenbrand/mm-memory_hotplug-selective-merging-of-system-ram-resources/20200910-171630
-> base:    7204eaa2c1f509066486f488c9dcb065d7484494
-> config: x86_64-randconfig-a016-20200909 (attached as .config)
-> compiler: clang version 12.0.0 (https://github.com/llvm/llvm-project 0a5dc7effb191eff740e0e7ae7bd8e1f6bdb3ad9)
-> reproduce (this is a W=1 build):
->         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
->         chmod +x ~/bin/make.cross
->         # install x86_64 cross compiling tool for clang build
->         # apt-get install binutils-x86-64-linux-gnu
->         # save the attached .config to linux build tree
->         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross ARCH=x86_64 
-> 
-> If you fix the issue, kindly add following tag as appropriate
-> Reported-by: kernel test robot <lkp@intel.com>
-> 
-> All errors (new ones prefixed by >>):
-> 
->    WARNING: unmet direct dependencies detected for PHY_SAMSUNG_UFS
->    Depends on OF && (ARCH_EXYNOS || COMPILE_TEST
->    Selected by
->    - SCSI_UFS_EXYNOS && SCSI_LOWLEVEL && SCSI && SCSI_UFSHCD_PLATFORM && (ARCH_EXYNOS || COMPILE_TEST
->    In file included from arch/x86/kernel/asm-offsets.c:9:
->    In file included from include/linux/crypto.h:20:
->    In file included from include/linux/slab.h:15:
->    In file included from include/linux/gfp.h:6:
->    In file included from include/linux/mmzone.h:853:
->>> include/linux/memory_hotplug.h:354:55: error: unknown type name 'mhp_t'
->    extern int __add_memory(int nid, u64 start, u64 size, mhp_t mhp_flags);
->    ^
->    include/linux/memory_hotplug.h:355:53: error: unknown type name 'mhp_t'
->    extern int add_memory(int nid, u64 start, u64 size, mhp_t mhp_flags);
->    ^
->    include/linux/memory_hotplug.h:357:11: error: unknown type name 'mhp_t'
->    mhp_t mhp_flags);
->    ^
->    include/linux/memory_hotplug.h:360:10: error: unknown type name 'mhp_t'
->    mhp_t mhp_flags);
->    ^
->    4 errors generated.
->    Makefile Module.symvers System.map arch block certs crypto drivers fs include init ipc kernel lib mm modules.builtin modules.builtin.modinfo modules.order net scripts security sound source tools usr virt vmlinux vmlinux.o vmlinux.symvers [scripts/Makefile.build:117: arch/x86/kernel/asm-offsets.s] Error 1
->    Target '__build' not remade because of errors.
->    Makefile Module.symvers System.map arch block certs crypto drivers fs include init ipc kernel lib mm modules.builtin modules.builtin.modinfo modules.order net scripts security sound source tools usr virt vmlinux vmlinux.o vmlinux.symvers [Makefile:1196: prepare0] Error 2
->    Target 'prepare' not remade because of errors.
->    make: Makefile Module.symvers System.map arch block certs crypto drivers fs include init ipc kernel lib mm modules.builtin modules.builtin.modinfo modules.order net scripts security sound source tools usr virt vmlinux vmlinux.o vmlinux.symvers [Makefile:185: __sub-make] Error 2
->    make: Target 'prepare' not remade because of errors.
-> 
-> # https://github.com/0day-ci/linux/commit/d88270d1c0783a7f99f24a85692be90fd2ae0d7d
-> git remote add linux-review https://github.com/0day-ci/linux
-> git fetch --no-tags linux-review David-Hildenbrand/mm-memory_hotplug-selective-merging-of-system-ram-resources/20200910-171630
-> git checkout d88270d1c0783a7f99f24a85692be90fd2ae0d7d
-> vim +/mhp_t +354 include/linux/memory_hotplug.h
-> 
->    352	
->    353	extern void __ref free_area_init_core_hotplug(int nid);
->  > 354	extern int __add_memory(int nid, u64 start, u64 size, mhp_t mhp_flags);
-> 
+Let's make sure splitting a resource on memory hotunplug will never fail.
+This will become more relevant once we merge selected System RAM
+resources - then, we'll trigger that case more often on memory hotunplug.
 
-add_memory() and not protected by CONFIG_MEMORY_HOTPLUG, but the new
-type is. Will look into it.
+In general, this function is already unlikely to fail. When we remove
+memory, we free up quite a lot of metadata (memmap, page tables, memory
+block device, etc.). The only reason it could really fail would be when
+injecting allocation errors.
 
+All other error cases inside release_mem_region_adjustable() seem to be
+sanity checks if the function would be abused in different context -
+let's add WARN_ON_ONCE() in these cases so we can catch them.
+
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Ard Biesheuvel <ardb@kernel.org>
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Wei Yang <richardw.yang@linux.intel.com>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+ include/linux/ioport.h |  4 ++--
+ kernel/resource.c      | 49 ++++++++++++++++++++++++------------------
+ mm/memory_hotplug.c    | 22 +------------------
+ 3 files changed, 31 insertions(+), 44 deletions(-)
+
+diff --git a/include/linux/ioport.h b/include/linux/ioport.h
+index 6c2b06fe8beb7..52a91f5fa1a36 100644
+--- a/include/linux/ioport.h
++++ b/include/linux/ioport.h
+@@ -248,8 +248,8 @@ extern struct resource * __request_region(struct resource *,
+ extern void __release_region(struct resource *, resource_size_t,
+ 				resource_size_t);
+ #ifdef CONFIG_MEMORY_HOTREMOVE
+-extern int release_mem_region_adjustable(struct resource *, resource_size_t,
+-				resource_size_t);
++extern void release_mem_region_adjustable(struct resource *, resource_size_t,
++					  resource_size_t);
+ #endif
+ 
+ /* Wrappers for managed devices */
+diff --git a/kernel/resource.c b/kernel/resource.c
+index f1175ce93a1d5..36b3552210120 100644
+--- a/kernel/resource.c
++++ b/kernel/resource.c
+@@ -1258,21 +1258,28 @@ EXPORT_SYMBOL(__release_region);
+  *   assumes that all children remain in the lower address entry for
+  *   simplicity.  Enhance this logic when necessary.
+  */
+-int release_mem_region_adjustable(struct resource *parent,
+-				  resource_size_t start, resource_size_t size)
++void release_mem_region_adjustable(struct resource *parent,
++				   resource_size_t start, resource_size_t size)
+ {
++	struct resource *new_res = NULL;
++	bool alloc_nofail = false;
+ 	struct resource **p;
+ 	struct resource *res;
+-	struct resource *new_res;
+ 	resource_size_t end;
+-	int ret = -EINVAL;
+ 
+ 	end = start + size - 1;
+-	if ((start < parent->start) || (end > parent->end))
+-		return ret;
++	if (WARN_ON_ONCE((start < parent->start) || (end > parent->end)))
++		return;
+ 
+-	/* The alloc_resource() result gets checked later */
+-	new_res = alloc_resource(GFP_KERNEL);
++	/*
++	 * We free up quite a lot of memory on memory hotunplug (esp., memap),
++	 * just before releasing the region. This is highly unlikely to
++	 * fail - let's play save and make it never fail as the caller cannot
++	 * perform any error handling (e.g., trying to re-add memory will fail
++	 * similarly).
++	 */
++retry:
++	new_res = alloc_resource(GFP_KERNEL | alloc_nofail ? __GFP_NOFAIL : 0);
+ 
+ 	p = &parent->child;
+ 	write_lock(&resource_lock);
+@@ -1298,7 +1305,6 @@ int release_mem_region_adjustable(struct resource *parent,
+ 		 * so if we are dealing with them, let us just back off here.
+ 		 */
+ 		if (!(res->flags & IORESOURCE_SYSRAM)) {
+-			ret = 0;
+ 			break;
+ 		}
+ 
+@@ -1315,20 +1321,23 @@ int release_mem_region_adjustable(struct resource *parent,
+ 			/* free the whole entry */
+ 			*p = res->sibling;
+ 			free_resource(res);
+-			ret = 0;
+ 		} else if (res->start == start && res->end != end) {
+ 			/* adjust the start */
+-			ret = __adjust_resource(res, end + 1,
+-						res->end - end);
++			WARN_ON_ONCE(__adjust_resource(res, end + 1,
++						       res->end - end));
+ 		} else if (res->start != start && res->end == end) {
+ 			/* adjust the end */
+-			ret = __adjust_resource(res, res->start,
+-						start - res->start);
++			WARN_ON_ONCE(__adjust_resource(res, res->start,
++						       start - res->start));
+ 		} else {
+-			/* split into two entries */
++			/* split into two entries - we need a new resource */
+ 			if (!new_res) {
+-				ret = -ENOMEM;
+-				break;
++				new_res = alloc_resource(GFP_ATOMIC);
++				if (!new_res) {
++					alloc_nofail = true;
++					write_unlock(&resource_lock);
++					goto retry;
++				}
+ 			}
+ 			new_res->name = res->name;
+ 			new_res->start = end + 1;
+@@ -1339,9 +1348,8 @@ int release_mem_region_adjustable(struct resource *parent,
+ 			new_res->sibling = res->sibling;
+ 			new_res->child = NULL;
+ 
+-			ret = __adjust_resource(res, res->start,
+-						start - res->start);
+-			if (ret)
++			if (WARN_ON_ONCE(__adjust_resource(res, res->start,
++							   start - res->start)))
+ 				break;
+ 			res->sibling = new_res;
+ 			new_res = NULL;
+@@ -1352,7 +1360,6 @@ int release_mem_region_adjustable(struct resource *parent,
+ 
+ 	write_unlock(&resource_lock);
+ 	free_resource(new_res);
+-	return ret;
+ }
+ #endif	/* CONFIG_MEMORY_HOTREMOVE */
+ 
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index baded53b9ff92..4c47b68a9f4b5 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -1724,26 +1724,6 @@ void try_offline_node(int nid)
+ }
+ EXPORT_SYMBOL(try_offline_node);
+ 
+-static void __release_memory_resource(resource_size_t start,
+-				      resource_size_t size)
+-{
+-	int ret;
+-
+-	/*
+-	 * When removing memory in the same granularity as it was added,
+-	 * this function never fails. It might only fail if resources
+-	 * have to be adjusted or split. We'll ignore the error, as
+-	 * removing of memory cannot fail.
+-	 */
+-	ret = release_mem_region_adjustable(&iomem_resource, start, size);
+-	if (ret) {
+-		resource_size_t endres = start + size - 1;
+-
+-		pr_warn("Unable to release resource <%pa-%pa> (%d)\n",
+-			&start, &endres, ret);
+-	}
+-}
+-
+ static int __ref try_remove_memory(int nid, u64 start, u64 size)
+ {
+ 	int rc = 0;
+@@ -1777,7 +1757,7 @@ static int __ref try_remove_memory(int nid, u64 start, u64 size)
+ 		memblock_remove(start, size);
+ 	}
+ 
+-	__release_memory_resource(start, size);
++	release_mem_region_adjustable(&iomem_resource, start, size);
+ 
+ 	try_offline_node(nid);
+ 
 -- 
-Thanks,
-
-David / dhildenb
+2.26.2
 
 _______________________________________________
 Virtualization mailing list
