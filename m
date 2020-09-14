@@ -4,82 +4,82 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BD1DEC43461
-	for <virtualization@archiver.kernel.org>; Mon, 14 Sep 2020 07:46:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 182FFC43461
+	for <virtualization@archiver.kernel.org>; Mon, 14 Sep 2020 07:46:38 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 3BDEF20EDD
-	for <virtualization@archiver.kernel.org>; Mon, 14 Sep 2020 07:46:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 8B2E020EDD
+	for <virtualization@archiver.kernel.org>; Mon, 14 Sep 2020 07:46:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PnV8nKs1"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3BDEF20EDD
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QaYi+cfI"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8B2E020EDD
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id F334F857BE;
-	Mon, 14 Sep 2020 07:46:29 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 59B5A85AE9;
+	Mon, 14 Sep 2020 07:46:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 4254N5OUbZrr; Mon, 14 Sep 2020 07:46:29 +0000 (UTC)
+	with ESMTP id 7Q5Iuxbx5tYt; Mon, 14 Sep 2020 07:46:37 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 84A648567A;
-	Mon, 14 Sep 2020 07:46:29 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 01A3B85ABB;
+	Mon, 14 Sep 2020 07:46:37 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 78476C088B;
-	Mon, 14 Sep 2020 07:46:29 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2D430C0859
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BE536C088B;
+	Mon, 14 Sep 2020 07:46:36 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5B14AC0859
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Sep 2020 07:46:28 +0000 (UTC)
+ Mon, 14 Sep 2020 07:46:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 1B8D88682D
+ by hemlock.osuosl.org (Postfix) with ESMTP id 4A6AB8653F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Sep 2020 07:46:28 +0000 (UTC)
+ Mon, 14 Sep 2020 07:46:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id a1-bt7U6deij
+ with ESMTP id 89tvdxy5seeq
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Sep 2020 07:46:27 +0000 (UTC)
+ Mon, 14 Sep 2020 07:46:34 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 2690386820
+Received: from us-smtp-1.mimecast.com (us-smtp-delivery-1.mimecast.com
+ [205.139.110.120])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 975518650F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Sep 2020 07:46:27 +0000 (UTC)
+ Mon, 14 Sep 2020 07:46:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1600069585;
+ s=mimecast20190719; t=1600069593;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
- bh=e6k7XbhwdQtgb74dvxk7XbvmLz5THf14xQW0aloCpus=;
- b=PnV8nKs1vnxwC1Qq6rU/DqhlM8jb+qebrUlLLHQgSRQPQwG5eRIydmR1cicSc1H0+wr7QE
- CUxNSJFw1WbH+T/qg3c/aAuOSRFyZRAh0+2NWo/4mWnjZW/xNDr7ZywJH+e/WvSWfwXq7S
- Yu4u3mZM0WwzwJrhgOXx8ZoQmnVgk3k=
+ bh=x4q1Kg957EaUmlrHhnBnw9zN/QKDNH3OGzlPbFbEpaI=;
+ b=QaYi+cfI5Ky4kqpxIRpLXK4lFL8at8j5tyJ3SOhzTQrbPAedue6novBTRan52frvqZoArB
+ k4SS7NiTLArc10icN/chGgiC8uz0jkmacyxa+tT44WI/bOdifLEsGF4aAAiFrhpsOQC9D9
+ sj+zWUtYr8suKXHy7KlQgeIQ566QUbY=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-225-th3x1RIONkqPN2TQzPRypg-1; Mon, 14 Sep 2020 03:46:23 -0400
-X-MC-Unique: th3x1RIONkqPN2TQzPRypg-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
- [10.5.11.14])
+ us-mta-270-6aqibrxeNE2MY6AYmUywEg-1; Mon, 14 Sep 2020 03:46:31 -0400
+X-MC-Unique: 6aqibrxeNE2MY6AYmUywEg-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
+ [10.5.11.13])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 85A92100559C;
- Mon, 14 Sep 2020 07:46:22 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3832518BA287;
+ Mon, 14 Sep 2020 07:46:30 +0000 (UTC)
 Received: from [10.36.114.162] (ovpn-114-162.ams2.redhat.com [10.36.114.162])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 7390C5D98C;
- Mon, 14 Sep 2020 07:46:11 +0000 (UTC)
-Subject: Re: [PATCH 1/3] virtio-balloon: Constify id_table
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 8CDEE614F5;
+ Mon, 14 Sep 2020 07:46:16 +0000 (UTC)
+Subject: Re: [PATCH 2/3] virtio_input: Constify id_table
 To: Rikard Falkeborn <rikard.falkeborn@gmail.com>,
  virtualization@lists.linux-foundation.org
 References: <20200911203509.26505-1-rikard.falkeborn@gmail.com>
- <20200911203509.26505-2-rikard.falkeborn@gmail.com>
+ <20200911203509.26505-3-rikard.falkeborn@gmail.com>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
  mQINBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -126,14 +126,14 @@ Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat GmbH
-Message-ID: <84eec652-68f6-f0de-ce9f-1e05c55ad7ab@redhat.com>
-Date: Mon, 14 Sep 2020 09:46:10 +0200
+Message-ID: <ebb535d0-5cf2-7f5d-3781-a3f68fb77cce@redhat.com>
+Date: Mon, 14 Sep 2020 09:46:15 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.11.0
 MIME-Version: 1.0
-In-Reply-To: <20200911203509.26505-2-rikard.falkeborn@gmail.com>
+In-Reply-To: <20200911203509.26505-3-rikard.falkeborn@gmail.com>
 Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Cc: linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -157,25 +157,25 @@ On 11.09.20 22:35, Rikard Falkeborn wrote:
 > 
 > Signed-off-by: Rikard Falkeborn <rikard.falkeborn@gmail.com>
 > ---
->  drivers/virtio/virtio_balloon.c | 2 +-
+>  drivers/virtio/virtio_input.c | 2 +-
 >  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 31cc97f2f515..481611c09dae 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -128,7 +128,7 @@ struct virtio_balloon {
->  	struct page_reporting_dev_info pr_dev_info;
+> diff --git a/drivers/virtio/virtio_input.c b/drivers/virtio/virtio_input.c
+> index 877b2ea3ed05..f1f6208edcf5 100644
+> --- a/drivers/virtio/virtio_input.c
+> +++ b/drivers/virtio/virtio_input.c
+> @@ -363,7 +363,7 @@ static int virtinput_restore(struct virtio_device *vdev)
+>  static unsigned int features[] = {
+>  	/* none */
 >  };
->  
 > -static struct virtio_device_id id_table[] = {
 > +static const struct virtio_device_id id_table[] = {
->  	{ VIRTIO_ID_BALLOON, VIRTIO_DEV_ANY_ID },
+>  	{ VIRTIO_ID_INPUT, VIRTIO_DEV_ANY_ID },
 >  	{ 0 },
 >  };
 > 
 
-Acked-by: David Hildenbrand <david@redhat.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
 
 -- 
 Thanks,
