@@ -7,80 +7,80 @@ X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 611EDC433E2
-	for <virtualization@archiver.kernel.org>; Tue, 15 Sep 2020 07:35:54 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B7ECC43461
+	for <virtualization@archiver.kernel.org>; Tue, 15 Sep 2020 07:37:28 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id DFBB420731
-	for <virtualization@archiver.kernel.org>; Tue, 15 Sep 2020 07:35:53 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id DA74820732
+	for <virtualization@archiver.kernel.org>; Tue, 15 Sep 2020 07:37:27 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jHbqNQe7"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DFBB420731
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MW4bhmN1"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DA74820732
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 6AA9A20452;
-	Tue, 15 Sep 2020 07:35:53 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 66ED0204DB;
+	Tue, 15 Sep 2020 07:37:27 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id pYKKNX5xn14M; Tue, 15 Sep 2020 07:35:52 +0000 (UTC)
+	with ESMTP id gRXBaOcsKCqR; Tue, 15 Sep 2020 07:37:24 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 72FDB2043C;
-	Tue, 15 Sep 2020 07:35:52 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id D90B020466;
+	Tue, 15 Sep 2020 07:37:24 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 55459C0859;
-	Tue, 15 Sep 2020 07:35:52 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 714D5C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C26D5C0859;
+	Tue, 15 Sep 2020 07:37:24 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BAF06C0051
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Sep 2020 07:35:50 +0000 (UTC)
+ Tue, 15 Sep 2020 07:37:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 5E8C186658
+ by fraxinus.osuosl.org (Postfix) with ESMTP id B64F085F87
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Sep 2020 07:35:50 +0000 (UTC)
+ Tue, 15 Sep 2020 07:37:22 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id SzoMM+lmq2Az
+ with ESMTP id WbGkDZxJgQ7b
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Sep 2020 07:35:49 +0000 (UTC)
+ Tue, 15 Sep 2020 07:37:22 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-1.mimecast.com (us-smtp-delivery-1.mimecast.com
  [207.211.31.120])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 9C30F86657
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id D5B5E85F7B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Sep 2020 07:35:49 +0000 (UTC)
+ Tue, 15 Sep 2020 07:37:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1600155348;
+ s=mimecast20190719; t=1600155440;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
- bh=yFoamWwaWe8V8qUR+so0sTwUxa5mKHWUIK4wzmuz5cA=;
- b=jHbqNQe7/g96aIE5mHvNbEoIAot+VVuDqHicvuOoAlUsiEuRbKWqr22U1EU/bokE87rHWg
- 5JUZgD7Y13QiQNyuASpMuD2z6WF7IQ5/Iz8Cudz5vytalbyZBzr+zjUGCf9sFmM/kUlwQX
- Mr2IJOH5x74w6U4rTsqASBOLENbmI3Q=
+ bh=LUihYCOFGsNQqFfjENLSTSa0QkwMpwvtwdi/Mex61+4=;
+ b=MW4bhmN1wGYfUh0nT0MBeTx/rbG5kr8doWgWumVD6506zHURdCN5B/Kox8BzyxV/ZCL7IB
+ P59Hl430oXBJMaHzoMTBt64OwaHXY7u/Z5NMyztAu3TLMDgbONVX7WG7ZTsBouU/pdN9lL
+ iqExeqzW7vOMZB639NG30LdM8VO9Tw0=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-409-zMcs8GfzNaeiwFL8I3NGYg-1; Tue, 15 Sep 2020 03:35:37 -0400
-X-MC-Unique: zMcs8GfzNaeiwFL8I3NGYg-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com
- [10.5.11.22])
+ us-mta-375-ar7V8RlRNcqnXa2ZYlqxrg-1; Tue, 15 Sep 2020 03:37:17 -0400
+X-MC-Unique: ar7V8RlRNcqnXa2ZYlqxrg-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
+ [10.5.11.15])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 899C3801FDD;
- Tue, 15 Sep 2020 07:35:35 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E5B3A425CB;
+ Tue, 15 Sep 2020 07:37:14 +0000 (UTC)
 Received: from [10.36.114.89] (ovpn-114-89.ams2.redhat.com [10.36.114.89])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 0A4A110023A5;
- Tue, 15 Sep 2020 07:35:30 +0000 (UTC)
-Subject: Re: [PATCH v2 1/7] kernel/resource: make
- release_mem_region_adjustable() never fail
+ by smtp.corp.redhat.com (Postfix) with ESMTP id B9FF17512C;
+ Tue, 15 Sep 2020 07:37:10 +0000 (UTC)
+Subject: Re: [PATCH v2 2/7] kernel/resource: move and rename
+ IORESOURCE_MEM_DRIVER_MANAGED
 To: Wei Yang <richard.weiyang@linux.alibaba.com>
 References: <20200908201012.44168-1-david@redhat.com>
- <20200908201012.44168-2-david@redhat.com>
- <20200915021012.GC2007@L-31X9LVDL-1304.local>
+ <20200908201012.44168-3-david@redhat.com>
+ <20200915022023.GD2007@L-31X9LVDL-1304.local>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
  mQINBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -127,22 +127,24 @@ Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat GmbH
-Message-ID: <927904b1-1909-f11f-483e-8012bda8ad0c@redhat.com>
-Date: Tue, 15 Sep 2020 09:35:30 +0200
+Message-ID: <b4eced44-00af-fcd2-be0d-d7abf8a2cc99@redhat.com>
+Date: Tue, 15 Sep 2020 09:37:09 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.11.0
 MIME-Version: 1.0
-In-Reply-To: <20200915021012.GC2007@L-31X9LVDL-1304.local>
+In-Reply-To: <20200915022023.GD2007@L-31X9LVDL-1304.local>
 Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Cc: linux-s390@vger.kernel.org, linux-hyperv@vger.kernel.org,
  Michal Hocko <mhocko@suse.com>, Kees Cook <keescook@chromium.org>,
  Baoquan He <bhe@redhat.com>, linux-acpi@vger.kernel.org,
- Jason Gunthorpe <jgg@ziepe.ca>, linux-nvdimm@lists.01.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- linux-mm@kvack.org, Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
- Ard Biesheuvel <ardb@kernel.org>, xen-devel@lists.xenproject.org,
- Andrew Morton <akpm@linux-foundation.org>,
+ Jason Gunthorpe <jgg@ziepe.ca>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>, linux-nvdimm@lists.01.org,
+ kexec@lists.infradead.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
+ Thomas Gleixner <tglx@linutronix.de>, Eric Biederman <ebiederm@xmission.com>,
+ Pankaj Gupta <pankaj.gupta.linux@gmail.com>, Ard Biesheuvel <ardb@kernel.org>,
+ xen-devel@lists.xenproject.org, Andrew Morton <akpm@linux-foundation.org>,
  Dan Williams <dan.j.williams@intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
@@ -160,29 +162,22 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-
->> static int __ref try_remove_memory(int nid, u64 start, u64 size)
->> {
->> 	int rc = 0;
->> @@ -1777,7 +1757,7 @@ static int __ref try_remove_memory(int nid, u64 start, u64 size)
->> 		memblock_remove(start, size);
->> 	}
+On 15.09.20 04:20, Wei Yang wrote:
+> On Tue, Sep 08, 2020 at 10:10:07PM +0200, David Hildenbrand wrote:
+>> IORESOURCE_MEM_DRIVER_MANAGED currently uses an unused PnP bit, which is
+>> always set to 0 by hardware. This is far from beautiful (and confusing),
+>> and the bit only applies to SYSRAM. So let's move it out of the
+>> bus-specific (PnP) defined bits.
 >>
->> -	__release_memory_resource(start, size);
->> +	release_mem_region_adjustable(&iomem_resource, start, size);
->>
+>> We'll add another SYSRAM specific bit soon. If we ever need more bits for
+>> other purposes, we can steal some from "desc", or reshuffle/regroup what we
+>> have.
 > 
-> Seems the only user of release_mem_region_adjustable() is here, can we move
-> iomem_resource into the function body? Actually, we don't iterate the resource
-> tree from any level. We always start from the root.
+> I think you make this definition because we use IORESOURCE_SYSRAM_RAM for
+> hotpluged memory? So we make them all in IORESOURCE_SYSRAM_XXX family?
 
-You mean, making iomem_resource implicit? I can spot that something
-similar was done for
-
-#define devm_release_mem_region(dev, start, n) \
-	__devm_release_region(dev, &iomem_resource, (start), (n))
-
-I'll send an addon patch for that, ok? - thanks.
+Yeah, to specify based on the extended MEM type SYSRAM. Because it
+really only applies to that.
 
 -- 
 Thanks,
