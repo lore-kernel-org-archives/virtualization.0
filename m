@@ -2,125 +2,111 @@ Return-Path: <SRS0=Zxjt=CY=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2FBD0C433E2
-	for <virtualization@archiver.kernel.org>; Tue, 15 Sep 2020 11:24:02 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E6398C433E2
+	for <virtualization@archiver.kernel.org>; Tue, 15 Sep 2020 12:46:30 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A169B20872
-	for <virtualization@archiver.kernel.org>; Tue, 15 Sep 2020 11:24:01 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 2DFCB206A5
+	for <virtualization@archiver.kernel.org>; Tue, 15 Sep 2020 12:46:30 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HPxZohSe"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A169B20872
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=st.com header.i=@st.com header.b="XnqI1FkU"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2DFCB206A5
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=st.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 362878715E;
-	Tue, 15 Sep 2020 11:24:01 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9183rSA7iuoK; Tue, 15 Sep 2020 11:24:00 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 7072687159;
-	Tue, 15 Sep 2020 11:24:00 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 55331C0859;
-	Tue, 15 Sep 2020 11:24:00 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AAE92C0051
- for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Sep 2020 11:23:58 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 84F59203FD
- for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Sep 2020 11:23:58 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 961C020484;
+	Tue, 15 Sep 2020 12:46:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id tkBDPnkDB2RL; Tue, 15 Sep 2020 12:46:26 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by silver.osuosl.org (Postfix) with ESMTP id 4D5782040D;
+	Tue, 15 Sep 2020 12:46:26 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 23B3DC0859;
+	Tue, 15 Sep 2020 12:46:26 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8CFB5C0051
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 15 Sep 2020 12:46:24 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by whitealder.osuosl.org (Postfix) with ESMTP id 7B92B866BD
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 15 Sep 2020 12:46:24 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ligXqI0Q7ttn
+ with ESMTP id eL7lwfq-S5nD
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Sep 2020 11:23:57 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by silver.osuosl.org (Postfix) with ESMTPS id 07E8D203F7
+ Tue, 15 Sep 2020 12:46:23 +0000 (UTC)
+X-Greylist: delayed 00:32:29 by SQLgrey-1.7.6
+Received: from mx07-00178001.pphosted.com (mx08-00178001.pphosted.com
+ [91.207.212.93])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 1B1CF866B9
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Sep 2020 11:23:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1600169035;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=6cVCOQ7d2lGCj+sz7IDzW+p3UDF4b8CRkA73qH7l96E=;
- b=HPxZohSerHy4EWHUtAmjKqTe/RNUO0XHPqgEmDos5yabPqlVzInpSS/UEjQj7gL4Fg73rh
- Ziapko3gGneWwxi4wPjPsaqnwUpSyqafdUmeZFlh6iwsTpnldEGgW6XupjgSqPwkTMU9FQ
- t12lwf8QexloL/qlbganTDm7RD75ChU=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-423-7zYuuyK6PrOA6rL6ZIFl0g-1; Tue, 15 Sep 2020 07:23:54 -0400
-X-MC-Unique: 7zYuuyK6PrOA6rL6ZIFl0g-1
-Received: by mail-wr1-f69.google.com with SMTP id a10so1083065wrw.22
- for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Sep 2020 04:23:53 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:from:to:cc:subject:in-reply-to:references:date
- :message-id:mime-version;
- bh=6cVCOQ7d2lGCj+sz7IDzW+p3UDF4b8CRkA73qH7l96E=;
- b=KXhfJkDsFt2fVJYLYuBe4yBNgfu5NuL1iMdKjlzGw2lg4NZKMRMSg2V36QG2h+79e7
- zcHsfcZiHl+DIbN6+YJbJgLR5vwteIRZJAT45LadGEaxY0Be6mDKsPQ0XFYsXxwU2X9h
- V3T3R4YKA1sjTdD6AqrN0+kncT8ZpmhsdqH0+TKjogr+PnRtsSDnyY/yPdWc22/O8uK/
- ryYgO8hDQNL6LITJHBNz7crQVuLmpa5uRgFewXZABNAvbetQ0xp55QLPmfF8ASl790Qk
- TUvpYzmmn6mxjoCZ1kmslBSrW2TlNTXgqVuZXCWmzplrHJ4fVKmQmeq5PdQ+WBCfObQz
- QxHQ==
-X-Gm-Message-State: AOAM531Rosh7t5HPB80PFtXURnbeegJRx+906t8um+wuqvm2JlwlnDh7
- NOF1u0bgI6N3y+PIdvmj93hlixGWfwAXpb2gAchMFgCyfxiALdVqf4SV8eaI/AWYTyCx3YXDHzb
- 9gOjrw42YBWbVCvH2EUQgHko8ZTGqvdVJO43U3UnxuA==
-X-Received: by 2002:a1c:f612:: with SMTP id w18mr4093229wmc.47.1600169032846; 
- Tue, 15 Sep 2020 04:23:52 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwvGbq4kAy/QGRtY/BOpA+aWnzBDti4E9VI3Ss2yI2nlXdHQaEUP+BzI9wCqgRzAdsZ43LXEQ==
-X-Received: by 2002:a1c:f612:: with SMTP id w18mr4093200wmc.47.1600169032622; 
- Tue, 15 Sep 2020 04:23:52 -0700 (PDT)
-Received: from vitty.brq.redhat.com (g-server-2.ign.cz. [91.219.240.2])
- by smtp.gmail.com with ESMTPSA id x16sm25662251wrq.62.2020.09.15.04.23.51
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 15 Sep 2020 04:23:52 -0700 (PDT)
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
-To: Wei Liu <wei.liu@kernel.org>
-Subject: Re: [PATCH RFC v1 08/18] x86/hyperv: handling hypercall page setup
- for root
-In-Reply-To: <20200915111657.boa4cneqjqtmcaaq@liuwe-devbox-debian-v2>
-References: <20200914112802.80611-1-wei.liu@kernel.org>
- <20200914112802.80611-9-wei.liu@kernel.org>
- <87v9gfjpoi.fsf@vitty.brq.redhat.com>
- <20200915103710.cqmdvzh5lys4wsqo@liuwe-devbox-debian-v2>
- <87pn6njob3.fsf@vitty.brq.redhat.com>
- <20200915111657.boa4cneqjqtmcaaq@liuwe-devbox-debian-v2>
-Date: Tue, 15 Sep 2020 13:23:50 +0200
-Message-ID: <87h7rzjnax.fsf@vitty.brq.redhat.com>
+ Tue, 15 Sep 2020 12:46:22 +0000 (UTC)
+Received: from pps.filterd (m0046661.ppops.net [127.0.0.1])
+ by mx07-00178001.pphosted.com (8.16.0.42/8.16.0.42) with SMTP id
+ 08FC2LFb006517; Tue, 15 Sep 2020 14:13:33 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=st.com;
+ h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=STMicroelectronics;
+ bh=kKdS2tlwzV059/Lhs1Caty/4XEr8KG1zy796n1j1L0M=;
+ b=XnqI1FkUTTwhp/zh3usFXCinlAiIWxdSjX9yCybtvtwfqeyyLMVZRPFD8ymhKDUIgjSV
+ rD32tvqiHqirqlR7qO41Y0BFcm9soNh6IAPqQSmp9YOrDQ+bHijSenPyqRWmE5TOedyl
+ w88sj11s2gU7jV+JIOpNzMcDKtCvsoDtMjsenD5T/JrrooLdcRC+Qibj3WLFd7bf+6eU
+ 6UOOVoYqMBuvaZaUMTLQojJ1rn7J8Kx+pNckymfekfHu/xW57aWI9zB0VcswhcGzMZwa
+ NTp8s2wYW+9fgYJJmLM2bfN0yes3aGkydiZ1gK/LBNH405ibdc4QavstMAdYTUKt+BJK kA== 
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+ by mx07-00178001.pphosted.com with ESMTP id 33gn7gyh1w-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+ Tue, 15 Sep 2020 14:13:33 +0200
+Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
+ by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id EFA8C100039;
+ Tue, 15 Sep 2020 14:13:26 +0200 (CEST)
+Received: from Webmail-eu.st.com (sfhdag3node1.st.com [10.75.127.7])
+ by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id DF8D42B0EA9;
+ Tue, 15 Sep 2020 14:13:25 +0200 (CEST)
+Received: from lmecxl0889.tpe.st.com (10.75.127.49) by SFHDAG3NODE1.st.com
+ (10.75.127.7) with Microsoft SMTP Server (TLS) id 15.0.1473.3; Tue, 15 Sep
+ 2020 14:13:24 +0200
+Subject: Re: [PATCH v6 0/4] Add a vhost RPMsg API
+To: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>,
+ "kvm@vger.kernel.org" <kvm@vger.kernel.org>
+References: <20200901151153.28111-1-guennadi.liakhovetski@linux.intel.com>
+From: Arnaud POULIQUEN <arnaud.pouliquen@st.com>
+Message-ID: <9433695b-5757-db73-bd8a-538fd1375e2a@st.com>
+Date: Tue, 15 Sep 2020 14:13:23 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=vkuznets@redhat.com
-X-Mimecast-Spam-Score: 0.004
-X-Mimecast-Originator: redhat.com
-Cc: Wei Liu <wei.liu@kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>,
- Linux on Hyper-V List <linux-hyperv@vger.kernel.org>,
- Nuno Das Neves <nudasnev@microsoft.com>,
- Haiyang Zhang <haiyangz@microsoft.com>,
- "maintainer:X86 ARCHITECTURE \(32-BIT AND 64-BIT\)" <x86@kernel.org>,
- Linux Kernel List <linux-kernel@vger.kernel.org>,
- Michael Kelley <mikelley@microsoft.com>, Ingo Molnar <mingo@redhat.com>,
- Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>,
- Borislav Petkov <bp@alien8.de>, Sunil Muthuswamy <sunilmut@microsoft.com>,
- virtualization@lists.linux-foundation.org,
- Vineeth Pillai <viremana@linux.microsoft.com>,
- Lillian Grassin-Drake <ligrassi@microsoft.com>
+In-Reply-To: <20200901151153.28111-1-guennadi.liakhovetski@linux.intel.com>
+Content-Language: en-US
+X-Originating-IP: [10.75.127.49]
+X-ClientProxiedBy: SFHDAG8NODE3.st.com (10.75.127.24) To SFHDAG3NODE1.st.com
+ (10.75.127.7)
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.235, 18.0.687
+ definitions=2020-09-15_08:2020-09-15,
+ 2020-09-15 signatures=0
+Cc: Ohad Ben-Cohen <ohad@wizery.com>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Vincent Whitchurch <vincent.whitchurch@axis.com>,
+ "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>,
+ Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ Liam Girdwood <liam.r.girdwood@linux.intel.com>,
+ Bjorn Andersson <bjorn.andersson@linaro.org>,
+ "sound-open-firmware@alsa-project.org" <sound-open-firmware@alsa-project.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -137,128 +123,87 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Wei Liu <wei.liu@kernel.org> writes:
+Hi  Guennadi,
 
-> On Tue, Sep 15, 2020 at 01:02:08PM +0200, Vitaly Kuznetsov wrote:
->> Wei Liu <wei.liu@kernel.org> writes:
->> 
->> > On Tue, Sep 15, 2020 at 12:32:29PM +0200, Vitaly Kuznetsov wrote:
->> >> Wei Liu <wei.liu@kernel.org> writes:
->> >> 
->> >> > When Linux is running as the root partition, the hypercall page will
->> >> > have already been setup by Hyper-V. Copy the content over to the
->> >> > allocated page.
->> >> 
->> >> And we can't setup a new hypercall page by writing something different
->> >> to HV_X64_MSR_HYPERCALL, right?
->> >> 
->> >
->> > My understanding is that we can't, but Sunil can maybe correct me.
->> >
->> >> >
->> >> > The suspend, resume and cleanup paths remain untouched because they are
->> >> > not supported in this setup yet.
->> >> >
->> >> > Signed-off-by: Lillian Grassin-Drake <ligrassi@microsoft.com>
->> >> > Signed-off-by: Sunil Muthuswamy <sunilmut@microsoft.com>
->> >> > Signed-off-by: Nuno Das Neves <nudasnev@microsoft.com>
->> >> > Co-Developed-by: Lillian Grassin-Drake <ligrassi@microsoft.com>
->> >> > Co-Developed-by: Sunil Muthuswamy <sunilmut@microsoft.com>
->> >> > Co-Developed-by: Nuno Das Neves <nudasnev@microsoft.com>
->> >> > Signed-off-by: Wei Liu <wei.liu@kernel.org>
->> >> > ---
->> >> >  arch/x86/hyperv/hv_init.c | 26 ++++++++++++++++++++++++--
->> >> >  1 file changed, 24 insertions(+), 2 deletions(-)
->> >> >
->> >> > diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c
->> >> > index 0eec1ed32023..26233aebc86c 100644
->> >> > --- a/arch/x86/hyperv/hv_init.c
->> >> > +++ b/arch/x86/hyperv/hv_init.c
->> >> > @@ -25,6 +25,7 @@
->> >> >  #include <linux/cpuhotplug.h>
->> >> >  #include <linux/syscore_ops.h>
->> >> >  #include <clocksource/hyperv_timer.h>
->> >> > +#include <linux/highmem.h>
->> >> >  
->> >> >  /* Is Linux running as the root partition? */
->> >> >  bool hv_root_partition;
->> >> > @@ -448,8 +449,29 @@ void __init hyperv_init(void)
->> >> >  
->> >> >  	rdmsrl(HV_X64_MSR_HYPERCALL, hypercall_msr.as_uint64);
->> >> >  	hypercall_msr.enable = 1;
->> >> > -	hypercall_msr.guest_physical_address = vmalloc_to_pfn(hv_hypercall_pg);
->> >> > -	wrmsrl(HV_X64_MSR_HYPERCALL, hypercall_msr.as_uint64);
->> >> > +
->> >> > +	if (hv_root_partition) {
->> >> > +		struct page *pg;
->> >> > +		void *src, *dst;
->> >> > +
->> >> > +		/*
->> >> > +		 * Order is important here. We must enable the hypercall page
->> >> > +		 * so it is populated with code, then copy the code to an
->> >> > +		 * executable page.
->> >> > +		 */
->> >> > +		wrmsrl(HV_X64_MSR_HYPERCALL, hypercall_msr.as_uint64);
->> >> > +
->> >> > +		pg = vmalloc_to_page(hv_hypercall_pg);
->> >> > +		dst = kmap(pg);
->> >> > +		src = memremap(hypercall_msr.guest_physical_address << PAGE_SHIFT, PAGE_SIZE,
->> >> > +				MEMREMAP_WB);
->> >> 
->> >> memremap() can fail...
->> >
->> > And we don't care here, if it fails, we would rather it panic or oops.
->> >
->> > I was relying on the fact that copying from / to a NULL pointer will
->> > cause the kernel to crash. But of course it wouldn't hurt to explicitly
->> > panic here.
->> >
->> >> 
->> >> > +		memcpy(dst, src, PAGE_SIZE);
->> >> > +		memunmap(src);
->> >> > +		kunmap(pg);
->> >> > +	} else {
->> >> > +		hypercall_msr.guest_physical_address = vmalloc_to_pfn(hv_hypercall_pg);
->> >> > +		wrmsrl(HV_X64_MSR_HYPERCALL, hypercall_msr.as_uint64);
->> >> > +	}
->> >> 
->> >> Why can't we do wrmsrl() for both cases here?
->> >> 
->> >
->> > Because the hypercall page has already been set up when Linux is the
->> > root.
->> 
->> But you already do wrmsrl(HV_X64_MSR_HYPERCALL, hypercall_msr.as_uint64)
->> in 'if (hv_root_partition)' case above, that's why I asked.
->> 
->
-> You mean extracting wrmsrl to this point?  The ordering matters. See the
-> comment in the root branch -- we have to enable the page before copying
-> the content.
->
-> What can be done is:
->
->    if (!root) {
->        /* some stuff */
->    }
->
->    wrmsrl(...)
->
->    if (root) {
->        /* some stuff */
->    }
->
-> This is not looking any better than the existing code.
->
+On 9/1/20 5:11 PM, Guennadi Liakhovetski wrote:
+> Hi,
+> 
+> Next update:
+> 
+> v6:
+> - rename include/linux/virtio_rpmsg.h -> include/linux/rpmsg/virtio.h
+> 
+> v5:
+> - don't hard-code message layout
+> 
+> v4:
+> - add endianness conversions to comply with the VirtIO standard
+> 
+> v3:
+> - address several checkpatch warnings
+> - address comments from Mathieu Poirier
+> 
+> v2:
+> - update patch #5 with a correct vhost_dev_init() prototype
+> - drop patch #6 - it depends on a different patch, that is currently
+>   an RFC
+> - address comments from Pierre-Louis Bossart:
+>   * remove "default n" from Kconfig
+> 
+> Linux supports RPMsg over VirtIO for "remote processor" / AMP use
+> cases. It can however also be used for virtualisation scenarios,
+> e.g. when using KVM to run Linux on both the host and the guests.
+> This patch set adds a wrapper API to facilitate writing vhost
+> drivers for such RPMsg-based solutions. The first use case is an
+> audio DSP virtualisation project, currently under development, ready
+> for review and submission, available at
+> https://github.com/thesofproject/linux/pull/1501/commits
 
-Oh, I missed the comment indeed. So Hypervisor already picked a page for
-us, however, it didn't enable it and it's not populated? How can we be
-sure that we didn't use it for something else already? Maybe we can
-still give a different known-to-be-empty page?
+Mathieu pointed me your series. On my side i proposed the rpmsg_ns_msg
+service[1] that does not match with your implementation.
+As i come late, i hope that i did not miss something in the history...
+Don't hesitate to point me the discussions, if it is the case.
 
--- 
-Vitaly
+Regarding your patchset, it is quite confusing for me. It seems that you
+implement your own protocol on top of vhost forked from the RPMsg one.
+But look to me that it is not the RPMsg protocol.
 
+So i would be agree with Vincent[2] which proposed to switch on a RPMsg API
+and creating a vhost rpmsg device. This is also proposed in the 
+"Enhance VHOST to enable SoC-to-SoC communication" RFC[3].
+Do you think that this alternative could match with your need?
+
+[1]. https://patchwork.kernel.org/project/linux-remoteproc/list/?series=338335 
+[2]. https://www.spinics.net/lists/linux-virtualization/msg44195.html
+[3]. https://www.spinics.net/lists/linux-remoteproc/msg06634.html  
+
+Thanks,
+Arnaud
+
+> 
+> Thanks
+> Guennadi
+> 
+> Guennadi Liakhovetski (4):
+>   vhost: convert VHOST_VSOCK_SET_RUNNING to a generic ioctl
+>   rpmsg: move common structures and defines to headers
+>   rpmsg: update documentation
+>   vhost: add an RPMsg API
+> 
+>  Documentation/rpmsg.txt          |   6 +-
+>  drivers/rpmsg/virtio_rpmsg_bus.c |  78 +------
+>  drivers/vhost/Kconfig            |   7 +
+>  drivers/vhost/Makefile           |   3 +
+>  drivers/vhost/rpmsg.c            | 373 +++++++++++++++++++++++++++++++
+>  drivers/vhost/vhost_rpmsg.h      |  74 ++++++
+>  include/linux/rpmsg/virtio.h     |  83 +++++++
+>  include/uapi/linux/rpmsg.h       |   3 +
+>  include/uapi/linux/vhost.h       |   4 +-
+>  9 files changed, 551 insertions(+), 80 deletions(-)
+>  create mode 100644 drivers/vhost/rpmsg.c
+>  create mode 100644 drivers/vhost/vhost_rpmsg.h
+>  create mode 100644 include/linux/rpmsg/virtio.h
+> 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
