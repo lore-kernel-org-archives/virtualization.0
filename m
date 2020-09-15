@@ -1,89 +1,154 @@
-Return-Path: <SRS0=alD2=CX=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=Zxjt=CY=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 56D3EC433E2
-	for <virtualization@archiver.kernel.org>; Mon, 14 Sep 2020 16:09:08 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF4A1C2D0E1
+	for <virtualization@archiver.kernel.org>; Tue, 15 Sep 2020 07:25:45 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E5CE620715
-	for <virtualization@archiver.kernel.org>; Mon, 14 Sep 2020 16:09:07 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E5CE620715
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id 6D0022080C
+	for <virtualization@archiver.kernel.org>; Tue, 15 Sep 2020 07:25:45 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LLDIAaO5"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6D0022080C
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 7B8C385D5C;
-	Mon, 14 Sep 2020 16:09:07 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 0C3218702D;
+	Tue, 15 Sep 2020 07:25:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0PqwWZQ7Wyib; Mon, 14 Sep 2020 16:09:04 +0000 (UTC)
+	with ESMTP id 19QMv-fXmqVJ; Tue, 15 Sep 2020 07:25:44 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 5125286841;
-	Mon, 14 Sep 2020 16:08:55 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 6352C86FED;
+	Tue, 15 Sep 2020 07:25:44 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3EDD2C0859;
-	Mon, 14 Sep 2020 16:08:55 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 42E7EC0859;
+	Tue, 15 Sep 2020 07:25:44 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0ED8CC0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 37731C0051
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Sep 2020 16:08:54 +0000 (UTC)
+ Tue, 15 Sep 2020 07:25:43 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id E62C32002E
+ by silver.osuosl.org (Postfix) with ESMTP id 1C3D020491
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Sep 2020 16:08:53 +0000 (UTC)
+ Tue, 15 Sep 2020 07:25:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id aOK242-v-Mwo
+ with ESMTP id ZMlaPDg86KKt
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Sep 2020 16:08:51 +0000 (UTC)
+ Tue, 15 Sep 2020 07:25:41 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
- by silver.osuosl.org (Postfix) with ESMTPS id B20C61FDFB
+Received: from us-smtp-delivery-1.mimecast.com (us-smtp-2.mimecast.com
+ [207.211.31.81])
+ by silver.osuosl.org (Postfix) with ESMTPS id B92AA2043C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 14 Sep 2020 16:08:51 +0000 (UTC)
-IronPort-SDR: JDp4Mhs6WUCkKRKmeBlo5xtH3YMqKC2WbbdkpPiFsph1N/pdBr3UL6nxPyZ2PxsCkwIRrqBuZi
- Gmp9keMnmOzQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9744"; a="146792576"
-X-IronPort-AV: E=Sophos;i="5.76,426,1592895600"; d="scan'208";a="146792576"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
- by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 14 Sep 2020 09:08:50 -0700
-IronPort-SDR: UiGrMlA3ZvzCKetd+zbQl9xfL2hz20+ZIEgqGOqpEgt+1xUQn95d6KsEA4pHndFmAv+wFTEFaD
- yMyLQNempZNA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.76,426,1592895600"; d="scan'208";a="335328062"
-Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
- by orsmga008.jf.intel.com with ESMTP; 14 Sep 2020 09:08:46 -0700
-Received: from andy by smile with local (Exim 4.94)
- (envelope-from <andriy.shevchenko@linux.intel.com>)
- id 1kHr23-00GdbG-9I; Mon, 14 Sep 2020 19:08:43 +0300
-Date: Mon, 14 Sep 2020 19:08:43 +0300
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: Dan Carpenter <dan.carpenter@oracle.com>
-Subject: Re: [PATCH v2] i2c: virtio: add a virtio i2c frontend driver
-Message-ID: <20200914160843.GM3956970@smile.fi.intel.com>
-References: <c4bd4fd56df36864ed34d3572f00b2b838fd833a.1599795029.git.jie.deng@intel.com>
- <20200914144807.GC4282@kadam>
- <20200914152455.GI3956970@smile.fi.intel.com>
- <20200914154726.GE18329@kadam>
+ Tue, 15 Sep 2020 07:25:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1600154740;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+ bh=o/LqNu4dLYqyDNzMqmf20UBqxRsVSz1bWcbpTiCUA3I=;
+ b=LLDIAaO5s8DYx2WMY7X3Ga3dMkPW/Wjb3O1FCG9S7azGfamse/6+vLobm0iE5HKucDvlJ2
+ 9LQD2g5GTEKonp5zzM4I8dzvUVtWcw4jTPCn7/BJYsnvohA/Txo4+BgeBdXOad9QUwVLro
+ e8rpCoeRx+t2+lt6xdAdj5FiyZ2mQs0=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-29--S5t59YONZuVzNRcp-6X9A-1; Tue, 15 Sep 2020 03:25:36 -0400
+X-MC-Unique: -S5t59YONZuVzNRcp-6X9A-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
+ [10.5.11.12])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3B26064080;
+ Tue, 15 Sep 2020 07:25:32 +0000 (UTC)
+Received: from [10.36.114.89] (ovpn-114-89.ams2.redhat.com [10.36.114.89])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 3665560BE2;
+ Tue, 15 Sep 2020 07:25:25 +0000 (UTC)
+Subject: Re: [PATCH v4 5/8] mm/memory_hotplug: MEMHP_MERGE_RESOURCE to specify
+ merging of System RAM resources
+To: Wei Yang <richard.weiyang@linux.alibaba.com>
+References: <20200911103459.10306-1-david@redhat.com>
+ <20200911103459.10306-6-david@redhat.com>
+ <20200915024348.GA2685@L-31X9LVDL-1304.local>
+From: David Hildenbrand <david@redhat.com>
+Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
+ 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
+ WNyWQQ==
+Organization: Red Hat GmbH
+Message-ID: <e807e983-b10a-a731-4eaa-da208fabda84@redhat.com>
+Date: Tue, 15 Sep 2020 09:25:25 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.11.0
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20200914154726.GE18329@kadam>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-Cc: kbuild-all@lists.01.org, lkp@intel.com, mst@redhat.com, kbuild@lists.01.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- wsa@kernel.org, wsa+renesas@sang-engineering.com,
- jarkko.nikula@linux.intel.com, linux-i2c@vger.kernel.org, jdelvare@suse.de
+In-Reply-To: <20200915024348.GA2685@L-31X9LVDL-1304.local>
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Cc: linux-hyperv@vger.kernel.org, Michal Hocko <mhocko@suse.com>,
+ virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
+ Thomas Gleixner <tglx@linutronix.de>, linux-s390@vger.kernel.org,
+ Wei Liu <wei.liu@kernel.org>, Stefano Stabellini <sstabellini@kernel.org>,
+ Stephen Hemminger <sthemmin@microsoft.com>, Baoquan He <bhe@redhat.com>,
+ Jason Gunthorpe <jgg@ziepe.ca>, Ard Biesheuvel <ardb@kernel.org>,
+ linux-acpi@vger.kernel.org, xen-devel@lists.xenproject.org,
+ Julien Grall <julien@xen.org>, Kees Cook <keescook@chromium.org>,
+ Haiyang Zhang <haiyangz@microsoft.com>,
+ Dan Williams <dan.j.williams@intel.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>, Juergen Gross <jgross@suse.com>,
+ Pankaj Gupta <pankaj.gupta.linux@gmail.com>, linux-nvdimm@lists.01.org,
+ linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+ =?UTF-8?Q?Roger_Pau_Monn=c3=a9?= <roger.pau@citrix.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -100,116 +165,47 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Sep 14, 2020 at 06:47:27PM +0300, Dan Carpenter wrote:
-> On Mon, Sep 14, 2020 at 06:24:55PM +0300, Andy Shevchenko wrote:
-> > On Mon, Sep 14, 2020 at 05:48:07PM +0300, Dan Carpenter wrote:
-> > > Hi Jie,
-> > > 
-> > > url:    https://github.com/0day-ci/linux/commits/Jie-Deng/i2c-virtio-add-a-virtio-i2c-frontend-driver/20200911-115013 
-> > > base:   https://git.kernel.org/pub/scm/linux/kernel/git/wsa/linux.git  i2c/for-next
-> > > config: parisc-randconfig-m031-20200913 (attached as .config)
-> > > compiler: hppa-linux-gcc (GCC) 9.3.0
-> > > 
-> > > If you fix the issue, kindly add following tag as appropriate
-> > > Reported-by: kernel test robot <lkp@intel.com>
-> > > Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-> > > 
-> > > smatch warnings:
-> > > drivers/i2c/busses/i2c-virtio.c:160 virtio_i2c_xfer() error: we previously assumed 'vmsg' could be null (see line 137)
-> > > 
-> > 
-> > It's quite possible a false positive. Look at 122. But I agree that for-loop is
-> > not the best for such things to understand. Perhaps switching to do {} while ()
-> > will make it better.
-> > 
+On 15.09.20 04:43, Wei Yang wrote:
+> On Fri, Sep 11, 2020 at 12:34:56PM +0200, David Hildenbrand wrote:
+>> Some add_memory*() users add memory in small, contiguous memory blocks.
+>> Examples include virtio-mem, hyper-v balloon, and the XEN balloon.
+>>
+>> This can quickly result in a lot of memory resources, whereby the actual
+>> resource boundaries are not of interest (e.g., it might be relevant for
+>> DIMMs, exposed via /proc/iomem to user space). We really want to merge
+>> added resources in this scenario where possible.
+>>
+>> Let's provide a flag (MEMHP_MERGE_RESOURCE) to specify that a resource
+>> either created within add_memory*() or passed via add_memory_resource()
+>> shall be marked mergeable and merged with applicable siblings.
+>>
+>> To implement that, we need a kernel/resource interface to mark selected
+>> System RAM resources mergeable (IORESOURCE_SYSRAM_MERGEABLE) and trigger
+>> merging.
+>>
+>> Note: We really want to merge after the whole operation succeeded, not
+>> directly when adding a resource to the resource tree (it would break
+>> add_memory_resource() and require splitting resources again when the
+>> operation failed - e.g., due to -ENOMEM).
 > 
-> Smatch is assuming that virtqueue_get_buf() can return NULL on the last
-> iteration through the loop.
+> Oops, the latest version is here.
 
-I see now. Thanks.
+Yeah, sorry, I dropped the "mm" prefix on the subject of the cover
+letter by mistake.
 
-> > > # https://github.com/0day-ci/linux/commit/0a54ec771966748fcbc86256b830b5f786168b7d 
-> > > git remote add linux-review https://github.com/0day-ci/linux 
-> > > git fetch --no-tags linux-review Jie-Deng/i2c-virtio-add-a-virtio-i2c-frontend-driver/20200911-115013
-> > > git checkout 0a54ec771966748fcbc86256b830b5f786168b7d
-> > > vim +/vmsg +160 drivers/i2c/busses/i2c-virtio.c
-> > > 
-> > > 0a54ec77196674 Jie Deng 2020-09-11  109  static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
-> > > 0a54ec77196674 Jie Deng 2020-09-11  110  {
-> > > 0a54ec77196674 Jie Deng 2020-09-11  111  	struct virtio_i2c *vi = i2c_get_adapdata(adap);
-> > > 0a54ec77196674 Jie Deng 2020-09-11  112  	struct virtqueue *vq = vi->vq;
-> > > 0a54ec77196674 Jie Deng 2020-09-11  113  	struct virtio_i2c_msg *vmsg;
-> > > 0a54ec77196674 Jie Deng 2020-09-11  114  	unsigned long time_left;
-> > > 0a54ec77196674 Jie Deng 2020-09-11  115  	int len, i, ret = 0;
-> > > 0a54ec77196674 Jie Deng 2020-09-11  116  
-> > > 0a54ec77196674 Jie Deng 2020-09-11  117  	mutex_lock(&vi->i2c_lock);
-> > > 0a54ec77196674 Jie Deng 2020-09-11  118  	vmsg = &vi->vmsg;
-> > > 0a54ec77196674 Jie Deng 2020-09-11  119  	vmsg->buf = NULL;
-> > > 0a54ec77196674 Jie Deng 2020-09-11  120  
-> > > 0a54ec77196674 Jie Deng 2020-09-11  121  	for (i = 0; i < num; i++) {
-> > > 0a54ec77196674 Jie Deng 2020-09-11  122  		ret = virtio_i2c_add_msg(vq, vmsg, &msgs[i]);
-> > > 0a54ec77196674 Jie Deng 2020-09-11  123  		if (ret) {
-> > > 0a54ec77196674 Jie Deng 2020-09-11  124  			dev_err(&adap->dev, "failed to add msg[%d] to virtqueue.\n", i);
-> > > 0a54ec77196674 Jie Deng 2020-09-11  125  			break;
-> > > 0a54ec77196674 Jie Deng 2020-09-11  126  		}
-> > > 0a54ec77196674 Jie Deng 2020-09-11  127  
-> > > 0a54ec77196674 Jie Deng 2020-09-11  128  		virtqueue_kick(vq);
-> > > 0a54ec77196674 Jie Deng 2020-09-11  129  
-> > > 0a54ec77196674 Jie Deng 2020-09-11  130  		time_left = wait_for_completion_timeout(&vi->completion, adap->timeout);
-> > > 0a54ec77196674 Jie Deng 2020-09-11  131  		if (!time_left) {
-> > > 0a54ec77196674 Jie Deng 2020-09-11  132  			dev_err(&adap->dev, "msg[%d]: addr=0x%x timeout.\n", i, msgs[i].addr);
-> > > 0a54ec77196674 Jie Deng 2020-09-11  133  			break;
-> > > 0a54ec77196674 Jie Deng 2020-09-11  134  		}
-> > > 0a54ec77196674 Jie Deng 2020-09-11  135  
-> > > 0a54ec77196674 Jie Deng 2020-09-11  136  		vmsg = (struct virtio_i2c_msg *)virtqueue_get_buf(vq, &len);
-> > > 0a54ec77196674 Jie Deng 2020-09-11 @137  		if (vmsg) {
-> > >                                                             ^^^^
-> > > Check for NULL.
-> > > 
-> > > 0a54ec77196674 Jie Deng 2020-09-11  138  			/* vmsg should point to the same address with &vi->vmsg */
-> > > 0a54ec77196674 Jie Deng 2020-09-11  139  			if (vmsg != &vi->vmsg) {
-> > > 0a54ec77196674 Jie Deng 2020-09-11  140  				dev_err(&adap->dev, "msg[%d]: addr=0x%x virtqueue error.\n",
-> > > 0a54ec77196674 Jie Deng 2020-09-11  141  					i, le16_to_cpu(vmsg->hdr.addr));
-> > > 0a54ec77196674 Jie Deng 2020-09-11  142  				break;
-> > > 0a54ec77196674 Jie Deng 2020-09-11  143  			}
-> > > 0a54ec77196674 Jie Deng 2020-09-11  144  			if (vmsg->status != VIRTIO_I2C_MSG_OK) {
-> > > 0a54ec77196674 Jie Deng 2020-09-11  145  				dev_err(&adap->dev, "msg[%d]: addr=0x%x error=%d.\n",
-> > > 0a54ec77196674 Jie Deng 2020-09-11  146  					i, le16_to_cpu(vmsg->hdr.addr), vmsg->status);
-> > > 0a54ec77196674 Jie Deng 2020-09-11  147  				break;
-> > > 0a54ec77196674 Jie Deng 2020-09-11  148  			}
-> > > 0a54ec77196674 Jie Deng 2020-09-11  149  			if ((msgs[i].flags & I2C_M_RD) && msgs[i].len)
-> > > 0a54ec77196674 Jie Deng 2020-09-11  150  				memcpy(msgs[i].buf, vmsg->buf, msgs[i].len);
-> > > 0a54ec77196674 Jie Deng 2020-09-11  151  
-> > > 0a54ec77196674 Jie Deng 2020-09-11  152  			kfree(vmsg->buf);
-> > > 0a54ec77196674 Jie Deng 2020-09-11  153  			vmsg->buf = NULL;
-> > > 0a54ec77196674 Jie Deng 2020-09-11  154  		}
-> > > 0a54ec77196674 Jie Deng 2020-09-11  155  
-> > > 0a54ec77196674 Jie Deng 2020-09-11  156  		reinit_completion(&vi->completion);
-> > > 0a54ec77196674 Jie Deng 2020-09-11  157  	}
-> > > 0a54ec77196674 Jie Deng 2020-09-11  158  
-> > > 0a54ec77196674 Jie Deng 2020-09-11  159  	mutex_unlock(&vi->i2c_lock);
-> > > 0a54ec77196674 Jie Deng 2020-09-11 @160  	kfree(vmsg->buf);
-> > >                                                       ^^^^^^^^^
-> > > Unchecked dereference.
-> > > 
-> > > 0a54ec77196674 Jie Deng 2020-09-11  161  	return ((ret < 0) ? ret : i);
-> > > 0a54ec77196674 Jie Deng 2020-09-11  162  }
-> > > 
-> > > ---
-> > > 0-DAY CI Kernel Test Service, Intel Corporation
-> > > https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org 
-> > 
-> > 
-> > 
-> > -- 
-> > With Best Regards,
-> > Andy Shevchenko
-> > 
+> 
+> BTW, I don't see patch 4. Not sure it is junked by my mail system?
+
+At least you're in the CC list below with your old mail address (I
+assume you monitor that).
+
+I'll try to use your new address in the future.
+
 
 -- 
-With Best Regards,
-Andy Shevchenko
+Thanks,
 
+David / dhildenb
 
 _______________________________________________
 Virtualization mailing list
