@@ -2,150 +2,120 @@ Return-Path: <SRS0=Zxjt=CY=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
+X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1AF5BC2D0E0
-	for <virtualization@archiver.kernel.org>; Tue, 15 Sep 2020 09:16:14 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B4953C43461
+	for <virtualization@archiver.kernel.org>; Tue, 15 Sep 2020 10:10:14 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 95437221E7
-	for <virtualization@archiver.kernel.org>; Tue, 15 Sep 2020 09:16:13 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 3C69C20771
+	for <virtualization@archiver.kernel.org>; Tue, 15 Sep 2020 10:10:14 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CnMbBDRD"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 95437221E7
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EtHVFklK"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3C69C20771
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 10A2A2051A;
-	Tue, 15 Sep 2020 09:16:13 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id F3DD685FC0;
+	Tue, 15 Sep 2020 10:10:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bVdhd326VVr7; Tue, 15 Sep 2020 09:16:09 +0000 (UTC)
+	with ESMTP id 0v99KHQDRKwJ; Tue, 15 Sep 2020 10:10:13 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 88B1E204D4;
-	Tue, 15 Sep 2020 09:16:09 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 6402085C50;
+	Tue, 15 Sep 2020 10:10:13 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6CD34C0859;
-	Tue, 15 Sep 2020 09:16:09 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 45312C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 46254C0859;
+	Tue, 15 Sep 2020 10:10:13 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 16ED9C0051
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Sep 2020 09:16:08 +0000 (UTC)
+ Tue, 15 Sep 2020 10:10:12 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 28BC48579E
+ by hemlock.osuosl.org (Postfix) with ESMTP id 0021287053
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Sep 2020 09:16:08 +0000 (UTC)
+ Tue, 15 Sep 2020 10:10:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id QkbUJz0_JmbL
+ with ESMTP id OhfAobtkm0z6
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Sep 2020 09:16:07 +0000 (UTC)
+ Tue, 15 Sep 2020 10:10:11 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-1.mimecast.com (us-smtp-delivery-1.mimecast.com
- [207.211.31.120])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 79A4D8577A
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 4EBFD87042
  for <virtualization@lists.linux-foundation.org>;
- Tue, 15 Sep 2020 09:16:07 +0000 (UTC)
+ Tue, 15 Sep 2020 10:10:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1600161366;
+ s=mimecast20190719; t=1600164610;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
- bh=oo/zdx7ZdkuZ7LUS2SmjmgqtjYWA7cAKI2QINGXjVyE=;
- b=CnMbBDRDMquNiMCO8V9CJZzIOlsVVVeWpRhbwYHkQKlRLnWSlzZlsVtIb2UoI4935jMN7O
- sZdfojh4xFZKWIQToZgI07MvhnKCzyPedWuYw0eRLqljgiL5Sz24nZ81nfcmOclJpUi/Nr
- A3XOAGKfIbblaPwh2zgeURL2Fs1r4wQ=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-579-q5as0h2qNVeIJ5BiyK2sLw-1; Tue, 15 Sep 2020 05:16:03 -0400
-X-MC-Unique: q5as0h2qNVeIJ5BiyK2sLw-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
- [10.5.11.13])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 58B79801ADE;
- Tue, 15 Sep 2020 09:15:59 +0000 (UTC)
-Received: from [10.36.114.89] (ovpn-114-89.ams2.redhat.com [10.36.114.89])
- by smtp.corp.redhat.com (Postfix) with ESMTP id A891D7E72A;
- Tue, 15 Sep 2020 09:15:54 +0000 (UTC)
-Subject: Re: [PATCH v2 1/7] kernel/resource: make
- release_mem_region_adjustable() never fail
-To: Wei Yang <richard.weiyang@linux.alibaba.com>
-References: <20200908201012.44168-1-david@redhat.com>
- <20200908201012.44168-2-david@redhat.com>
- <20200915021012.GC2007@L-31X9LVDL-1304.local>
- <927904b1-1909-f11f-483e-8012bda8ad0c@redhat.com>
- <20200915090612.GA6936@L-31X9LVDL-1304.local>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat GmbH
-Message-ID: <bc324c26-3638-ffa6-ee01-68a659183adf@redhat.com>
-Date: Tue, 15 Sep 2020 11:15:53 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.11.0
+ in-reply-to:in-reply-to:references:references;
+ bh=PW2WSdBrk/XXLs9riC9q1EjPQLc8T5twwn4fVAgRI5I=;
+ b=EtHVFklKRs3FxR/kjFTMP0xx4HqwtXRftYjMQMy4EMxGh2NL/DKBM6Wo7p93CQqH4M4nUZ
+ pai5XMjqgz4512ekLeGxWcRl2DvVLf8AIqkPBPA+EhzUIw5l78PxFFPpp8s6dxvrjgt/EG
+ qJEbpWp4l9gIDWdFMNdiogBqmrWFgF4=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-36-M6Qik8YSN-GcBfXFk_h-ag-1; Tue, 15 Sep 2020 06:10:08 -0400
+X-MC-Unique: M6Qik8YSN-GcBfXFk_h-ag-1
+Received: by mail-wr1-f70.google.com with SMTP id o6so1046619wrp.1
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 15 Sep 2020 03:10:08 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:from:to:cc:subject:in-reply-to:references:date
+ :message-id:mime-version;
+ bh=PW2WSdBrk/XXLs9riC9q1EjPQLc8T5twwn4fVAgRI5I=;
+ b=CQ3xKm9FYTZX1pWLST4aOnSVzwqBUkiE7GeXLbLBX1ZpnjXLXrlc/GQzW2xmEoFZiM
+ G4li7SnXxygfZxi9wRGLgucCYsjpgkicHEfqEF0ecNKnTM9Vp0jffqqy5FMZzAeEOgYS
+ WIXU8ZnpN5xO7KZQsPnF0CMaFWjKgRzGauVZOuV/yRlxL1jEpoSUV52kHWNxbHJyd3dY
+ xazv+pAl4JSW+3ht6kHjddTX8wZ6rxSLPyhyI274Y8VRR/0LtLZ4YGV2ZeuCcl19RURW
+ YYx1xToC0AaMDs043vkf+s20K+nmskXDjJfiudfYB58+8hwGEDmDilxks6uPufHLnnKC
+ PpOg==
+X-Gm-Message-State: AOAM530tWoMeGdZ1PJKFj46ALlkLc0BTNvVrwKTqPHGarQU4YWHkESQU
+ 5duJdlVCF/NGkn5jjWmgZ5bYpGbnKu3PIKZzJ5K43u2EO0hMHSMGLl9Xjdi+/FQptKFC1Po+2OG
+ Fxf/dLuNr/fuFTFwmic1gkBLTck2/qJX8pehMsyBTfQ==
+X-Received: by 2002:a1c:7d55:: with SMTP id y82mr3913453wmc.100.1600164607059; 
+ Tue, 15 Sep 2020 03:10:07 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJw+J82Jd8EMAaV6jdVfRPYNTBzK7waYWJIWEbGPmCe6Da0iBTQvQbeRjA+xD8ipa/CdBYDyPQ==
+X-Received: by 2002:a1c:7d55:: with SMTP id y82mr3913430wmc.100.1600164606872; 
+ Tue, 15 Sep 2020 03:10:06 -0700 (PDT)
+Received: from vitty.brq.redhat.com (g-server-2.ign.cz. [91.219.240.2])
+ by smtp.gmail.com with ESMTPSA id m2sm16387178wrq.25.2020.09.15.03.10.05
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Tue, 15 Sep 2020 03:10:06 -0700 (PDT)
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
+To: Wei Liu <wei.liu@kernel.org>,
+ Linux on Hyper-V List <linux-hyperv@vger.kernel.org>
+Subject: Re: [PATCH RFC v1 05/18] clocksource/hyperv: use MSR-based access if
+ running as root
+In-Reply-To: <20200914112802.80611-6-wei.liu@kernel.org>
+References: <20200914112802.80611-1-wei.liu@kernel.org>
+ <20200914112802.80611-6-wei.liu@kernel.org>
+Date: Tue, 15 Sep 2020 12:10:04 +0200
+Message-ID: <874knzl5ab.fsf@vitty.brq.redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20200915090612.GA6936@L-31X9LVDL-1304.local>
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-Cc: linux-s390@vger.kernel.org, linux-hyperv@vger.kernel.org,
- Michal Hocko <mhocko@suse.com>, Kees Cook <keescook@chromium.org>,
- Baoquan He <bhe@redhat.com>, linux-acpi@vger.kernel.org,
- Jason Gunthorpe <jgg@ziepe.ca>, linux-nvdimm@lists.01.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- linux-mm@kvack.org, Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
- Ard Biesheuvel <ardb@kernel.org>, xen-devel@lists.xenproject.org,
- Andrew Morton <akpm@linux-foundation.org>,
- Dan Williams <dan.j.williams@intel.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=vkuznets@redhat.com
+X-Mimecast-Spam-Score: 0.002
+X-Mimecast-Originator: redhat.com
+Cc: Wei Liu <wei.liu@kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>,
+ Haiyang Zhang <haiyangz@microsoft.com>,
+ Daniel Lezcano <daniel.lezcano@linaro.org>,
+ virtualization@lists.linux-foundation.org,
+ Linux Kernel List <linux-kernel@vger.kernel.org>,
+ Nuno Das Neves <nudasnev@microsoft.com>,
+ Sunil Muthuswamy <sunilmut@microsoft.com>,
+ Michael Kelley <mikelley@microsoft.com>,
+ Vineeth Pillai <viremana@linux.microsoft.com>,
+ Thomas Gleixner <tglx@linutronix.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -162,45 +132,38 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 15.09.20 11:06, Wei Yang wrote:
-> On Tue, Sep 15, 2020 at 09:35:30AM +0200, David Hildenbrand wrote:
->>
->>>> static int __ref try_remove_memory(int nid, u64 start, u64 size)
->>>> {
->>>> 	int rc = 0;
->>>> @@ -1777,7 +1757,7 @@ static int __ref try_remove_memory(int nid, u64 start, u64 size)
->>>> 		memblock_remove(start, size);
->>>> 	}
->>>>
->>>> -	__release_memory_resource(start, size);
->>>> +	release_mem_region_adjustable(&iomem_resource, start, size);
->>>>
->>>
->>> Seems the only user of release_mem_region_adjustable() is here, can we move
->>> iomem_resource into the function body? Actually, we don't iterate the resource
->>> tree from any level. We always start from the root.
->>
->> You mean, making iomem_resource implicit? I can spot that something
->> similar was done for
->>
->> #define devm_release_mem_region(dev, start, n) \
->> 	__devm_release_region(dev, &iomem_resource, (start), (n))
->>
-> 
-> What I prefer is remove iomem_resource from the parameter list. Just use is in
-> the function body.
-> 
-> For the example you listed, __release_region() would have varies of *parent*,
-> which looks reasonable to keep it here.
+Wei Liu <wei.liu@kernel.org> writes:
 
-Yeah I got that ("making iomem_resource implicit"), as I said:
+> Signed-off-by: Wei Liu <wei.liu@kernel.org>
+> ---
+>  drivers/clocksource/hyperv_timer.c | 3 +++
+>  1 file changed, 3 insertions(+)
+>
+> diff --git a/drivers/clocksource/hyperv_timer.c b/drivers/clocksource/hyperv_timer.c
+> index 09aa44cb8a91..fe96082ce85e 100644
+> --- a/drivers/clocksource/hyperv_timer.c
+> +++ b/drivers/clocksource/hyperv_timer.c
+> @@ -426,6 +426,9 @@ static bool __init hv_init_tsc_clocksource(void)
+>  	if (!(ms_hyperv.features & HV_MSR_REFERENCE_TSC_AVAILABLE))
+>  		return false;
+>  
+> +	if (hv_root_partition)
+> +		return false;
+> +
 
->> I'll send an addon patch for that, ok? - thanks.
+Out of pure curiosity,
+
+TSC page clocksource seems to be available to the root partition (as
+HV_MSR_REFERENCE_TSC_AVAILABLE is set), why don't we use it? (I
+understand that with TSC scaling support in modern CPUs even migration
+is a no-issue and we can use raw TSC but this all seems to be
+independent from root/non-root partition question).
+
+>  	hv_read_reference_counter = read_hv_clock_tsc;
+>  	phys_addr = virt_to_phys(hv_get_tsc_page());
 
 -- 
-Thanks,
-
-David / dhildenb
+Vitaly
 
 _______________________________________________
 Virtualization mailing list
