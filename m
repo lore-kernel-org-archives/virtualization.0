@@ -2,124 +2,138 @@ Return-Path: <SRS0=0f46=CZ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1922C433E2
-	for <virtualization@archiver.kernel.org>; Wed, 16 Sep 2020 16:10:42 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 07647C433E2
+	for <virtualization@archiver.kernel.org>; Wed, 16 Sep 2020 22:54:14 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2CF112222C
-	for <virtualization@archiver.kernel.org>; Wed, 16 Sep 2020 16:10:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 75E902080C
+	for <virtualization@archiver.kernel.org>; Wed, 16 Sep 2020 22:54:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Hd2PvsDy"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2CF112222C
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=microsoft.com header.i=@microsoft.com header.b="jf/puGxz"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 75E902080C
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 4D08B29C87;
-	Wed, 16 Sep 2020 16:10:41 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 007AB877C2;
+	Wed, 16 Sep 2020 22:54:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id LuQ-8NTlkz3j; Wed, 16 Sep 2020 16:10:37 +0000 (UTC)
+	with ESMTP id x92xWSYHhdgJ; Wed, 16 Sep 2020 22:54:12 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id B192420512;
-	Wed, 16 Sep 2020 16:10:37 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 57289877C1;
+	Wed, 16 Sep 2020 22:54:12 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 96560C0859;
-	Wed, 16 Sep 2020 16:10:37 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7382EC0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 282C6C0859;
+	Wed, 16 Sep 2020 22:54:12 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 67489C0051
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Sep 2020 16:10:36 +0000 (UTC)
+ Wed, 16 Sep 2020 22:54:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 6704127A5C
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 5677786F33
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Sep 2020 16:10:36 +0000 (UTC)
+ Wed, 16 Sep 2020 22:54:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id bFRHrtrqSpDh
+ with ESMTP id jwuEmDfYt-_E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Sep 2020 16:10:35 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-1.mimecast.com (us-smtp-2.mimecast.com
- [205.139.110.61])
- by silver.osuosl.org (Postfix) with ESMTPS id 23E7720512
+ Wed, 16 Sep 2020 22:54:09 +0000 (UTC)
+X-Greylist: delayed 01:04:23 by SQLgrey-1.7.6
+Received: from NAM11-CO1-obe.outbound.protection.outlook.com
+ (mail-co1nam11on2109.outbound.protection.outlook.com [40.107.220.109])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 28DB186F23
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Sep 2020 16:10:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1600272633;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=ZI8lYi1OnkVKApFKCxg3mkSWXhff04EIiDJ1538o1/E=;
- b=Hd2PvsDyfZlaKt81V1VR0Mm3loKSnygQDWVzKj4FkPESTM4dfMLPsGMwUiAF6wnShsFbxL
- LgaoSl0HCWbsqjHaO1e8WRUa99INOrZ02RADEXRhn8PINiTj8tN2HSSY0Y2YZN5Lkc46lx
- lTidncm1EyCOIYNcEZ3b6+D+g6SfxFU=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-266-uXhucB7mPUGFFVlYFlCI6A-1; Wed, 16 Sep 2020 12:10:30 -0400
-X-MC-Unique: uXhucB7mPUGFFVlYFlCI6A-1
-Received: by mail-wr1-f71.google.com with SMTP id d9so2732603wrv.16
- for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Sep 2020 09:10:30 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:from:to:cc:subject:in-reply-to:references:date
- :message-id:mime-version;
- bh=ZI8lYi1OnkVKApFKCxg3mkSWXhff04EIiDJ1538o1/E=;
- b=lCRbj0LKjaCezsQ5U7VZ6YTG9Yw84aU4UmKs441v0T1GYoyUy1At20x5POzwSq8pJz
- vH+95u8IHmct4H+YaYQwPFyOFG5spYzFcdcwBapsO1MMfiVbscugg6BDC4FUH93vKnXK
- /dQ/vaM9b3I1CX1ZtIIk2RSS8K/VjpqtvqJVrCAfZ6/73i2ipfu9mmOYSTyI1zKoWCR/
- jVLZNorFcbz5R7UoO5eFN6g78Vm0kjhq0+h4J3wB21CHeOsOmenr4+eNjozzle0CMm0T
- JMtnnDVTIP9zomLIwIxt85L6d3+PKG6ANTJIiiw1SDL/howNayeJQ7huPKSuFfsooqg1
- aOqA==
-X-Gm-Message-State: AOAM533RwkC5r3bLLPwGUu22HlDpK9yUNUJEfjZiUuYHBwmJ62C2p6Ym
- x+XhhCPj1YGDf27g8uU9jj38y29/mBiCTPZKJtgsfaP8xmbNOigWRjtX2UPt/X1HU5YrucB+tRA
- f+L8XSaXc3fWi6Qv4qyuE6Z2cnVPTMeqS3cMjoUmMvw==
-X-Received: by 2002:adf:dfc3:: with SMTP id q3mr26503587wrn.238.1600272629015; 
- Wed, 16 Sep 2020 09:10:29 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJy4gkeEWQ6yHkbBOZuacUwDzTM6N52gpGFRvDHDpxtVhNLQe2bjA37+/5JF9PlTOObWYT9BrQ==
-X-Received: by 2002:adf:dfc3:: with SMTP id q3mr26503567wrn.238.1600272628809; 
- Wed, 16 Sep 2020 09:10:28 -0700 (PDT)
-Received: from vitty.brq.redhat.com (g-server-2.ign.cz. [91.219.240.2])
- by smtp.gmail.com with ESMTPSA id f126sm6261892wmf.13.2020.09.16.09.10.27
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 16 Sep 2020 09:10:28 -0700 (PDT)
-From: Vitaly Kuznetsov <vkuznets@redhat.com>
-To: Wei Liu <wei.liu@kernel.org>
-Subject: Re: [PATCH RFC v1 06/18] x86/hyperv: allocate output arg pages if
- required
-In-Reply-To: <20200916154200.7nf74vjmqu3f6sfq@liuwe-devbox-debian-v2>
+ Wed, 16 Sep 2020 22:54:09 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=M4BRRiinITmlfbQyIdNfvCDyEdDG/XNWYMPMqb7VbcU/AlxH2TvyypJrrVgeBrdAq4nvntxpoGm5buxLiznSb9euUPUbjg8k7ZZKfBIom+CRAnKvBKzyOCV064ZZAz08gZt4TVl+7IoBaaGaWlNH3pMn0untLZdZ+FnQrJD8yoUXfwemUtKZSnPt8BCbQnS/Ko0qz1gwPHDC0+dAmeEsUYR2lv0CdT9HVUzzJ0FlvS65swGe5vpStNSHnJtECeBdYLVswzB+5Ao504Y9KZUPke5pKr1RZScX0fJpgo4ijshpZOaqz3gTjuu2mm2AoHNPFvjbLvqMv4wHrN+YrsX0og==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=bHTW9WJ2D2UKkNPTvRPzDcy+ewHUPYevi3aGDo4ukrs=;
+ b=Zldvm1eOkCyURa1tzLgzOlVDKvjtINf2/WOyjlsIKPNVCTUGFzZDBb0nClvG83CkzkVww3sphddj5K9lnsyEI02KO3TDXQxK9vJvE9W8TEyZ5P6aSwYRdNSEtm9eFHv6PqD9w9LwnJcR/K8LwOU/+M42FnDeMJnTarGEqmTD39S7Ionoe2bvdg3xAovM/Ya1xNCvE+gvID7ea9Ft2kSbuwa0GoUc/4s3Cc2ZdsyQjnpV9VZWdlUnIxhT8FInEo8I3X4mPYPJqTlBOJ2nspecVXtKaC3LcejpEqhSg1Cmjehns7CVSqb8f1JQrjlew8//R7if0bt3QNjjo+wY9+VIzw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=microsoft.com; dmarc=pass action=none
+ header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=bHTW9WJ2D2UKkNPTvRPzDcy+ewHUPYevi3aGDo4ukrs=;
+ b=jf/puGxzDzX7MpWQZDm+wHcjivYX47Vr73cjUSPFruxX90o50LrCPQ+H4y08vFjQs0R/3ClGMk9Hn2JVcrWE7QwKda6lyHNj88oKY6jNgsxitCU/k7jBrmU5Q37JXYdsBMerOmJh3YPZtBdCC4WNpGO5TFeVSTZpUAfjXi0BpHk=
+Received: from SN4PR2101MB0880.namprd21.prod.outlook.com
+ (2603:10b6:803:51::33) by SN6PR2101MB1854.namprd21.prod.outlook.com
+ (2603:10b6:805:9::22) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3370.1; Wed, 16 Sep
+ 2020 21:34:58 +0000
+Received: from SN4PR2101MB0880.namprd21.prod.outlook.com
+ ([fe80::b12a:e7a7:640e:8953]) by SN4PR2101MB0880.namprd21.prod.outlook.com
+ ([fe80::b12a:e7a7:640e:8953%9]) with mapi id 15.20.3412.003; Wed, 16 Sep 2020
+ 21:34:58 +0000
+To: Wei Liu <wei.liu@kernel.org>, vkuznets <vkuznets@redhat.com>
+Subject: RE: [EXTERNAL] Re: [PATCH RFC v1 08/18] x86/hyperv: handling
+ hypercall page setup for root
+Thread-Topic: [EXTERNAL] Re: [PATCH RFC v1 08/18] x86/hyperv: handling
+ hypercall page setup for root
+Thread-Index: AQHWi0uJDiA8iBMLkEafMqtOkreLY6lpgb0AgAJJU9A=
+Date: Wed, 16 Sep 2020 21:34:58 +0000
+Message-ID: <SN4PR2101MB0880AAC1B92038C7FDE3496DC0210@SN4PR2101MB0880.namprd21.prod.outlook.com>
 References: <20200914112802.80611-1-wei.liu@kernel.org>
- <20200914112802.80611-7-wei.liu@kernel.org>
- <871rj3l4yt.fsf@vitty.brq.redhat.com>
- <20200915124318.z6tisek5y4d7e254@liuwe-devbox-debian-v2>
- <20200916154200.7nf74vjmqu3f6sfq@liuwe-devbox-debian-v2>
-Date: Wed, 16 Sep 2020 18:10:26 +0200
-Message-ID: <87zh5phfd9.fsf@vitty.brq.redhat.com>
+ <20200914112802.80611-9-wei.liu@kernel.org>
+ <87v9gfjpoi.fsf@vitty.brq.redhat.com>
+ <20200915103710.cqmdvzh5lys4wsqo@liuwe-devbox-debian-v2>
+In-Reply-To: <20200915103710.cqmdvzh5lys4wsqo@liuwe-devbox-debian-v2>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: kernel.org; dkim=none (message not signed)
+ header.d=none;kernel.org; dmarc=none action=none header.from=microsoft.com;
+x-originating-ip: [2601:602:9400:570:6d60:30f5:6f33:54d9]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-ht: Tenant
+x-ms-office365-filtering-correlation-id: 93eb277c-c9a3-4700-e4de-08d85a885c8e
+x-ms-traffictypediagnostic: SN6PR2101MB1854:
+x-ms-exchange-transport-forked: True
+x-ld-processed: 72f988bf-86f1-41af-91ab-2d7cd011db47,ExtAddr
+x-microsoft-antispam-prvs: <SN6PR2101MB185462FA4B00539298A1C3A5C0210@SN6PR2101MB1854.namprd21.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:9508;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: /3OeSaKuZZh/9T7vDlzFEFJ5Ba4ftJyD4rdTihrZ/YdUVKHwK332cI/K4xtss04pElJ/SaGW/OlyA3bTI+0ABGkYo2uibliGd+mXMi6ckCJobAyRj47mO7LRFgg8qGltz+LP0m25clmj68wAqIGp4Ga1ud8ZIVKlxiEDH/3StfApahySGle5P6WOPcmpokg4KpEF5HF+AnXfFvUNztSriorj2d7UXbPu9BdZAu0o0UuGtoiecq3GQctWB7pdCVfW14UhqOb0iqDGYwGk4I3aYITopKuPMlfnS97dSXApQp3KRIjN7oTfKjrMG2w1B0UTxWJM08EVYDiJTDhev7R2jkb8psZ4x2e5FcKLxMw/bDexh6+Hods5HDv8o0zwJ8dG
+x-forefront-antispam-report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:SN4PR2101MB0880.namprd21.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(4636009)(39860400002)(396003)(376002)(136003)(366004)(346002)(86362001)(7696005)(5660300002)(4326008)(8936002)(82960400001)(2906002)(82950400001)(8990500004)(55016002)(54906003)(110136005)(7416002)(6506007)(76116006)(33656002)(9686003)(316002)(64756008)(8676002)(66556008)(478600001)(66476007)(10290500003)(71200400001)(4744005)(66446008)(186003)(52536014)(66946007);
+ DIR:OUT; SFP:1102; 
+x-ms-exchange-antispam-messagedata: Nq/d/PQsCmkBbyi5Kdkcvdo4g31/5Ag+F1bW6B225MjfAqildb9/X2xKYhGY8aAbdadbRqp4RdDWvT+NuXkUGaSCur66pLkhaVDs+lqIaUTZDerpSqit4JJKx//I5al/8ft1Qlaa4cLhMhvBX4Z8A2aTINXPY5uRQZP+cbRLVzySdauN6xchukxEyakD2Y41fm/+iCAa+3NLmx77bbOhcp604IzpzBLnZZJzRm1G0GYg1ODslYKQrdGBDzaAGeprcVZbfF7ZGN/6K30GmIBYbrXw0vEJK15mE7drD+PqAKQqciVbuGQBgeOS7J3zSvr4/uTueYuFP4Q2PS7pBn2oPhBrXZ789Cn9NdcnIVM2Udu7A/Dgau+s2uVAmIoWFyXhNTiziRuGWg9d4dcVZknk7LyMvOAFrjnIZXeLUeYGLABGSpe25R4q102BLVqc03YY9xS8bvdH1AhPr1813Na9aqyQn7hmPRV74BnhkZsHUKC2/wOBfTboJhN3okLgxn0Lm7ISgf2v3K3eENv7s5v1717eF9AvVqKDcdpYt56dFMr/X8oBPFwW2bdR400WTRe8FsPOfOhEDfpmqygGdzt7XGPCfAyCBqVovnQIrZck+Mxs/Gzoy6CKkD4P9XR48hhNqQ8BDpMdxOObedXAIzBTMw4FuUwpS4UhvgK9lp1HBVFH05S3A9enBq1v8xDdC1xjMDRbTN/z9HMFbYHITWUbwQ==
 MIME-Version: 1.0
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=vkuznets@redhat.com
-X-Mimecast-Spam-Score: 0.004
-X-Mimecast-Originator: redhat.com
-Cc: Wei Liu <wei.liu@kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>,
- Linux on Hyper-V List <linux-hyperv@vger.kernel.org>,
- Nuno Das Neves <nudasnev@microsoft.com>,
- Haiyang Zhang <haiyangz@microsoft.com>,
- "maintainer:X86 ARCHITECTURE \(32-BIT AND 64-BIT\)" <x86@kernel.org>,
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SN4PR2101MB0880.namprd21.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 93eb277c-c9a3-4700-e4de-08d85a885c8e
+X-MS-Exchange-CrossTenant-originalarrivaltime: 16 Sep 2020 21:34:58.6016 (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: EHj12QD3KuuoOmb9RGjokM24dSTx+XM9MRKV7qUQYMmYixe6Nc4TNXCEVhbdXiy2Q0b1Zy05nA7UTY7FfI3qVBvsDxZt8ZsU354aKtKd0Tk=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN6PR2101MB1854
+X-OriginatorOrg: microsoft.com
+Cc: Linux on Hyper-V List <linux-hyperv@vger.kernel.org>,
+ Stephen Hemminger <sthemmin@microsoft.com>,
+ Lillian Grassin-Drake <Lillian.GrassinDrake@microsoft.com>, "maintainer:X86
+ ARCHITECTURE \(32-BIT AND 64-BIT\)" <x86@kernel.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
  Linux Kernel List <linux-kernel@vger.kernel.org>,
  Michael Kelley <mikelley@microsoft.com>, Ingo Molnar <mingo@redhat.com>,
- Thomas Gleixner <tglx@linutronix.de>, "H. Peter Anvin" <hpa@zytor.com>,
- Borislav Petkov <bp@alien8.de>, Sunil Muthuswamy <sunilmut@microsoft.com>,
- virtualization@lists.linux-foundation.org,
+ Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>,
+ Thomas Gleixner <tglx@linutronix.de>, Nuno Das Neves <Nuno.Das@microsoft.com>,
  Vineeth Pillai <viremana@linux.microsoft.com>,
- Lillian Grassin-Drake <ligrassi@microsoft.com>
+ Haiyang Zhang <haiyangz@microsoft.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -131,94 +145,35 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Sunil Muthuswamy via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Sunil Muthuswamy <sunilmut@microsoft.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Wei Liu <wei.liu@kernel.org> writes:
+> 
+> On Tue, Sep 15, 2020 at 12:32:29PM +0200, Vitaly Kuznetsov wrote:
+> > Wei Liu <wei.liu@kernel.org> writes:
+> >
+> > > When Linux is running as the root partition, the hypercall page will
+> > > have already been setup by Hyper-V. Copy the content over to the
+> > > allocated page.
+> >
+> > And we can't setup a new hypercall page by writing something different
+> > to HV_X64_MSR_HYPERCALL, right?
+> >
+> 
+> My understanding is that we can't, but Sunil can maybe correct me.
 
-> On Tue, Sep 15, 2020 at 12:43:18PM +0000, Wei Liu wrote:
->> On Tue, Sep 15, 2020 at 12:16:58PM +0200, Vitaly Kuznetsov wrote:
->> > Wei Liu <wei.liu@kernel.org> writes:
->> > 
->> > > When Linux runs as the root partition, it will need to make hypercalls
->> > > which return data from the hypervisor.
->> > >
->> > > Allocate pages for storing results when Linux runs as the root
->> > > partition.
->> > >
->> > > Signed-off-by: Lillian Grassin-Drake <ligrassi@microsoft.com>
->> > > Co-Developed-by: Lillian Grassin-Drake <ligrassi@microsoft.com>
->> > > Signed-off-by: Wei Liu <wei.liu@kernel.org>
->> > > ---
->> > >  arch/x86/hyperv/hv_init.c       | 45 +++++++++++++++++++++++++++++----
->> > >  arch/x86/include/asm/mshyperv.h |  1 +
->> > >  2 files changed, 41 insertions(+), 5 deletions(-)
->> > >
->> > > diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c
->> > > index cac8e4c56261..ebba4be4185d 100644
->> > > --- a/arch/x86/hyperv/hv_init.c
->> > > +++ b/arch/x86/hyperv/hv_init.c
->> > > @@ -45,6 +45,9 @@ EXPORT_SYMBOL_GPL(hv_vp_assist_page);
->> > >  void  __percpu **hyperv_pcpu_input_arg;
->> > >  EXPORT_SYMBOL_GPL(hyperv_pcpu_input_arg);
->> > >  
->> > > +void  __percpu **hyperv_pcpu_output_arg;
->> > > +EXPORT_SYMBOL_GPL(hyperv_pcpu_output_arg);
->> > > +
->> > >  u32 hv_max_vp_index;
->> > >  EXPORT_SYMBOL_GPL(hv_max_vp_index);
->> > >  
->> > > @@ -75,14 +78,29 @@ static int hv_cpu_init(unsigned int cpu)
->> > >  	u64 msr_vp_index;
->> > >  	struct hv_vp_assist_page **hvp = &hv_vp_assist_page[smp_processor_id()];
->> > >  	void **input_arg;
->> > > -	struct page *pg;
->> > > +	struct page *input_pg;
->> > >  
->> > >  	input_arg = (void **)this_cpu_ptr(hyperv_pcpu_input_arg);
->> > >  	/* hv_cpu_init() can be called with IRQs disabled from hv_resume() */
->> > > -	pg = alloc_page(irqs_disabled() ? GFP_ATOMIC : GFP_KERNEL);
->> > > -	if (unlikely(!pg))
->> > > +	input_pg = alloc_page(irqs_disabled() ? GFP_ATOMIC : GFP_KERNEL);
->> > > +	if (unlikely(!input_pg))
->> > >  		return -ENOMEM;
->> > > -	*input_arg = page_address(pg);
->> > > +	*input_arg = page_address(input_pg);
->> > > +
->> > > +	if (hv_root_partition) {
->> > > +		struct page *output_pg;
->> > > +		void **output_arg;
->> > > +
->> > > +		output_pg = alloc_page(irqs_disabled() ? GFP_ATOMIC :
->> > >  	GFP_KERNEL);
->> > 
->> > To simplify the code, can we just rename 'input_arg' to 'hypercall_args'
->> > and do alloc_pages(rqs_disabled() ? GFP_ATOMIC : GFP_KERNEL, 1) to
->> > allocate two pages above?
->> 
->> It should be doable, but I need to code it up and test it to be 100%
->> sure.
->> 
->
-> I switch to alloc_pages to allocate an order of 2 page if necessary, but
-> I keep input_arg and output_arg separate because I want to avoid code
-> churn in other places.
->
-
-My idea was that we're free to choose how to use these pages, e.g. with
-two pages allocated we can now do a hypercall which takes two pages of
-input and produces no output other than the return value. This doesn't
-contradict your suggestion to keep input_arg/output_arg as these are
-just pointers to the continuous space, we can still do the trick.
-
-I don't feel strong about this and you probably have more patches in
-your stash, no need for massive re-work I believe. 
-
--- 
-Vitaly
-
+That is correct. For root partition, the hypervisor has already allocated the
+hypercall page. The root is required to query the page, map it in its address
+space and wrmsr to enable it. It cannot change the location of the page. For
+guest, it can allocate and assign the hypercall page. This is covered a bit in the
+hypervisor TLFS (section 3.13 in TLFS v6), for the guest side. The root side is 
+not covered there, yet.
+ 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
