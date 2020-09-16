@@ -7,80 +7,81 @@ X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E8319C35256
-	for <virtualization@archiver.kernel.org>; Wed, 16 Sep 2020 10:03:37 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70B43C433E2
+	for <virtualization@archiver.kernel.org>; Wed, 16 Sep 2020 12:16:39 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7CC502076B
-	for <virtualization@archiver.kernel.org>; Wed, 16 Sep 2020 10:03:37 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id E701B208E4
+	for <virtualization@archiver.kernel.org>; Wed, 16 Sep 2020 12:16:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="S6GzQECD"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7CC502076B
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EZ5/6aag"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E701B208E4
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 44C8086FE5;
-	Wed, 16 Sep 2020 10:03:37 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 8511986909;
+	Wed, 16 Sep 2020 12:16:38 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from fraxinus.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id EmHm0i9kxxOE; Wed, 16 Sep 2020 12:16:37 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by fraxinus.osuosl.org (Postfix) with ESMTP id E1C788690E;
+	Wed, 16 Sep 2020 12:16:37 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CA49BC0864;
+	Wed, 16 Sep 2020 12:16:37 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C9249C0051
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 16 Sep 2020 12:16:36 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by hemlock.osuosl.org (Postfix) with ESMTP id B8125864E9
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 16 Sep 2020 12:16:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id pAXXMrnegsuJ; Wed, 16 Sep 2020 10:03:35 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 4E18786FD0;
-	Wed, 16 Sep 2020 10:03:35 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1CB1FC0864;
-	Wed, 16 Sep 2020 10:03:35 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 84232C0051
- for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Sep 2020 10:03:33 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 7E3EC869CF
- for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Sep 2020 10:03:33 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 3kSPL7czAUkW
+ with ESMTP id E0VB7e1eJHdA
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Sep 2020 10:03:32 +0000 (UTC)
+ Wed, 16 Sep 2020 12:16:36 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 6E415869A3
+Received: from us-smtp-1.mimecast.com (us-smtp-2.mimecast.com [205.139.110.61])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 04192862B7
  for <virtualization@lists.linux-foundation.org>;
- Wed, 16 Sep 2020 10:03:32 +0000 (UTC)
+ Wed, 16 Sep 2020 12:16:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1600250611;
+ s=mimecast20190719; t=1600258594;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
- bh=gwfofQixgZF5jYL1591dkmTkflD2RkM7KH/YvqDvyaE=;
- b=S6GzQECDntSvNddeogPreo/JuNdzTFyaB6PKQAAFEjWymx77p7f1FGpyj7IkaJcDBAthPg
- rknrVBaEBWpZbXh/Oj2LLzQ4JKALbS8Fq8/4gYQ8w4msa+PJxiTcrDaN0POQVaaMcuHaLs
- bwVKvgGS20e4DI5KUuTnIlrqkR35cDo=
+ bh=2/++Vs+tqDU+26+QgfH9Refcf03yjqUaNncFH8b2ph4=;
+ b=EZ5/6aagqCj+2PnkZEPxtDewqArV7HvS/vFlpcit8boz+G5oCzAq20oP6n5EsS11ERR3TC
+ t3LqexsHri5OYmIadVqruoKv/weqKcIA52AiuIlI0Q1AnNbIFIPEXoPLKhZbc8+9UNmlRi
+ OaqzSgi9xccMH0KI8BJstB8KzT74bNw=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-57-yW5bBeRENJKpK_k5_jjeTg-1; Wed, 16 Sep 2020 06:03:27 -0400
-X-MC-Unique: yW5bBeRENJKpK_k5_jjeTg-1
+ us-mta-6-7WLKPKnpN_Svn0iJ3fCVcQ-1; Wed, 16 Sep 2020 08:16:32 -0400
+X-MC-Unique: 7WLKPKnpN_Svn0iJ3fCVcQ-1
 Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
  [10.5.11.13])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B2B661007477;
- Wed, 16 Sep 2020 10:03:24 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 128DB873116;
+ Wed, 16 Sep 2020 12:16:30 +0000 (UTC)
 Received: from [10.36.113.190] (ovpn-113-190.ams2.redhat.com [10.36.113.190])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 134F760BE5;
- Wed, 16 Sep 2020 10:03:20 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 20F9D7EB7C;
+ Wed, 16 Sep 2020 12:16:25 +0000 (UTC)
 Subject: Re: [PATCH] kernel/resource: make iomem_resource implicit in
  release_mem_region_adjustable()
 To: Wei Yang <richard.weiyang@linux.alibaba.com>
 References: <20200911103459.10306-1-david@redhat.com>
  <20200916073041.10355-1-david@redhat.com>
  <20200916100223.GA46154@L-31X9LVDL-1304.local>
+ <d11eba75-71c0-4153-944b-56e22044e0eb@redhat.com>
+ <20200916121051.GA46809@L-31X9LVDL-1304.local>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
  mQINBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -127,12 +128,12 @@ Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat GmbH
-Message-ID: <d11eba75-71c0-4153-944b-56e22044e0eb@redhat.com>
-Date: Wed, 16 Sep 2020 12:03:20 +0200
+Message-ID: <0ee45d30-daa4-190a-2932-fb710d9496db@redhat.com>
+Date: Wed, 16 Sep 2020 14:16:25 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.11.0
 MIME-Version: 1.0
-In-Reply-To: <20200916100223.GA46154@L-31X9LVDL-1304.local>
+In-Reply-To: <20200916121051.GA46809@L-31X9LVDL-1304.local>
 Content-Language: en-US
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Cc: linux-s390@vger.kernel.org, linux-hyperv@vger.kernel.org,
@@ -160,20 +161,36 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 16.09.20 12:02, Wei Yang wrote:
-> On Wed, Sep 16, 2020 at 09:30:41AM +0200, David Hildenbrand wrote:
->> "mem" in the name already indicates the root, similar to
->> release_mem_region() and devm_request_mem_region(). Make it implicit.
->> The only single caller always passes iomem_resource, other parents are
->> not applicable.
+On 16.09.20 14:10, Wei Yang wrote:
+> On Wed, Sep 16, 2020 at 12:03:20PM +0200, David Hildenbrand wrote:
+>> On 16.09.20 12:02, Wei Yang wrote:
+>>> On Wed, Sep 16, 2020 at 09:30:41AM +0200, David Hildenbrand wrote:
+>>>> "mem" in the name already indicates the root, similar to
+>>>> release_mem_region() and devm_request_mem_region(). Make it implicit.
+>>>> The only single caller always passes iomem_resource, other parents are
+>>>> not applicable.
+>>>>
+>>>
+>>> Looks good to me.
+>>>
+>>> Reviewed-by: Wei Yang <richard.weiyang@linux.alibaba.com>
+>>>
+>>
+>> Thanks for the review!
 >>
 > 
-> Looks good to me.
-> 
-> Reviewed-by: Wei Yang <richard.weiyang@linux.alibaba.com>
->
+> Would you send another version? I didn't take a look into the following
+> patches, since the 4th is missed.
 
-Thanks for the review!
+Not planning to send another one as long as there are no further
+comments. Seems to be an issue on your side because all patches arrived
+on linux-mm (see
+https://lore.kernel.org/linux-mm/20200911103459.10306-1-david@redhat.com/)
+
+You can find patch #4 at
+https://lore.kernel.org/linux-mm/20200911103459.10306-5-david@redhat.com/
+
+(which has CC "Wei Yang <richardw.yang@linux.intel.com>")
 
 -- 
 Thanks,
