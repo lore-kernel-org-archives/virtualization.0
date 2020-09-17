@@ -2,93 +2,123 @@ Return-Path: <SRS0=u9Em=C2=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D548AC43461
-	for <virtualization@archiver.kernel.org>; Thu, 17 Sep 2020 10:29:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 735A7C43461
+	for <virtualization@archiver.kernel.org>; Thu, 17 Sep 2020 11:06:20 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 6A2DE2083B
-	for <virtualization@archiver.kernel.org>; Thu, 17 Sep 2020 10:29:24 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6A2DE2083B
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id EFAAA2076D
+	for <virtualization@archiver.kernel.org>; Thu, 17 Sep 2020 11:06:19 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ameBUrkM"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EFAAA2076D
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 096EF87723;
-	Thu, 17 Sep 2020 10:29:24 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 8BD0187894;
+	Thu, 17 Sep 2020 11:06:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id lBpmanwmpu6P; Thu, 17 Sep 2020 10:29:22 +0000 (UTC)
+	with ESMTP id eyvZ5pagYtP1; Thu, 17 Sep 2020 11:06:19 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id E83C987413;
-	Thu, 17 Sep 2020 10:29:22 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 122D687746;
+	Thu, 17 Sep 2020 11:06:19 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CF86EC0864;
-	Thu, 17 Sep 2020 10:29:22 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 46513C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 00187C0888;
+	Thu, 17 Sep 2020 11:06:18 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E76DDC0859
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Sep 2020 10:29:21 +0000 (UTC)
+ Thu, 17 Sep 2020 11:06:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 34C5487422
+ by silver.osuosl.org (Postfix) with ESMTP id C9C252E0DD
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Sep 2020 10:29:21 +0000 (UTC)
+ Thu, 17 Sep 2020 11:06:16 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ZbPo5QP7A4Gs
+ with ESMTP id Iv7NuWcadyqr
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Sep 2020 10:29:20 +0000 (UTC)
+ Thu, 17 Sep 2020 11:06:15 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 7352387413
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by silver.osuosl.org (Postfix) with ESMTPS id 211B02E16C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 17 Sep 2020 10:29:20 +0000 (UTC)
-IronPort-SDR: 2Pe8/KP/wX6iBvkeDVYouBMUeLRVADSk90uwVgqM1LPPCXqkQHfXwWj94zD9L/DB0BUUK53VWX
- 1OtJ3kK9mrww==
-X-IronPort-AV: E=McAfee;i="6000,8403,9746"; a="159722700"
-X-IronPort-AV: E=Sophos;i="5.76,436,1592895600"; d="scan'208";a="159722700"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
- by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 17 Sep 2020 03:29:18 -0700
-IronPort-SDR: Sae5zd9KD3dEUlzr7XHC+ou/WiCIYT/fy4ar77tPms92ndus9S0NHGRtSrZfHv78NzTX/r3Vyg
- wBd0kK2KM1Mg==
-X-IronPort-AV: E=Sophos;i="5.76,436,1592895600"; d="scan'208";a="483691895"
-Received: from gliakhov-mobl2.ger.corp.intel.com (HELO ubuntu)
- ([10.249.45.143])
- by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 17 Sep 2020 03:29:15 -0700
-Date: Thu, 17 Sep 2020 12:29:12 +0200
-From: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
-To: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Subject: Re: [PATCH v6 0/4] Add a vhost RPMsg API
-Message-ID: <20200917102911.GB11491@ubuntu>
-References: <20200901151153.28111-1-guennadi.liakhovetski@linux.intel.com>
- <9433695b-5757-db73-bd8a-538fd1375e2a@st.com>
- <20200917054705.GA11491@ubuntu>
- <20200917083644.66yjer4zvoiftrk3@axis.com>
+ Thu, 17 Sep 2020 11:06:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1600340773;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=GKnhWldhLJFQr5DuJgjC2hvPEX9vnawus1q/hrcZp+0=;
+ b=ameBUrkMJuXjX/ikvkGV/98IpSuBYbgXsoMkmgLdPfqR0a86Wo3maXBJB9ONpZQAPKVBVw
+ m3021tjrP4DmpA/MpD+8MvLNQec6UYDQ6xYzfEYmOYkz7+0t8GVqktfLpGHDsYsMObl9Bw
+ +BK7joHlHPhaL/b+eitFLv+ocFLsilw=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-248--vmdk9N_P2K4lpXPCL22XA-1; Thu, 17 Sep 2020 07:06:09 -0400
+X-MC-Unique: -vmdk9N_P2K4lpXPCL22XA-1
+Received: by mail-wm1-f71.google.com with SMTP id t8so418126wmj.6
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 17 Sep 2020 04:06:09 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:from:to:cc:subject:in-reply-to:references:date
+ :message-id:mime-version;
+ bh=GKnhWldhLJFQr5DuJgjC2hvPEX9vnawus1q/hrcZp+0=;
+ b=ky+5PWpW8Ghg32Rw453rABiphmXOXjFe4Edm7f4+567m9UxK2D9MJqqsae4xTeq8Js
+ GTETbtqUOyiHF1g9gtoQYEnNNlb4Kj3uAP5Lek3bw0/zAOwUnhW5LOZ9GY282S9ZcSy+
+ a3fvdUGmnFCQsXnCdM3sbJ/YSHZzayY3oRITbNb57JqxCa2xKE34T6epQCt4FOoynkXf
+ OAICqenoVdk7MFOAsXkpizdjVUIFyImR/Ih0lWWeKrnrIqb5vQhdYk45f7ZmwwPcIErR
+ hKS+OuAru/8g3MuJ/J27q51pRwL1d7/ZduqMIXsS9DK+tT4984WUD6xpG0G1irLcmBCl
+ Oxjg==
+X-Gm-Message-State: AOAM5305ozMDBr2UBufqRi+gLLp87hRspemoWxSrMYkDyFky6FNTyWcP
+ dqwpCpyblAED2/+D6cbsL5zZmduEzYePlhUNpJQd7DmlQ25um9dVIh30rgnAhlMM4gNyiUBNQ4R
+ CPMA488MGhavWNB2oO9zgFTsK8WrYEDt6vYJrXPOhnw==
+X-Received: by 2002:a1c:480a:: with SMTP id v10mr8966918wma.141.1600340768655; 
+ Thu, 17 Sep 2020 04:06:08 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyfvk8nBFDHZbY4h5lzElLZko5UHfTtrciX4WBrNYMfc9yO+qi5h6FrEF/dqbAWoZhK7788tg==
+X-Received: by 2002:a1c:480a:: with SMTP id v10mr8966887wma.141.1600340768444; 
+ Thu, 17 Sep 2020 04:06:08 -0700 (PDT)
+Received: from vitty.brq.redhat.com (g-server-2.ign.cz. [91.219.240.2])
+ by smtp.gmail.com with ESMTPSA id v4sm10412112wml.46.2020.09.17.04.06.06
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 17 Sep 2020 04:06:07 -0700 (PDT)
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
+To: Sunil Muthuswamy <sunilmut@microsoft.com>, Wei Liu <wei.liu@kernel.org>
+Subject: RE: [EXTERNAL] Re: [PATCH RFC v1 08/18] x86/hyperv: handling
+ hypercall page setup for root
+In-Reply-To: <SN4PR2101MB0880AAC1B92038C7FDE3496DC0210@SN4PR2101MB0880.namprd21.prod.outlook.com>
+References: <20200914112802.80611-1-wei.liu@kernel.org>
+ <20200914112802.80611-9-wei.liu@kernel.org>
+ <87v9gfjpoi.fsf@vitty.brq.redhat.com>
+ <20200915103710.cqmdvzh5lys4wsqo@liuwe-devbox-debian-v2>
+ <SN4PR2101MB0880AAC1B92038C7FDE3496DC0210@SN4PR2101MB0880.namprd21.prod.outlook.com>
+Date: Thu, 17 Sep 2020 13:06:06 +0200
+Message-ID: <87o8m4hdcx.fsf@vitty.brq.redhat.com>
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20200917083644.66yjer4zvoiftrk3@axis.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
-Cc: Ohad Ben-Cohen <ohad@wizery.com>, kishon@ti.com,
- Mathieu Poirier <mathieu.poirier@linaro.org>,
- "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- Arnaud POULIQUEN <arnaud.pouliquen@st.com>,
- "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>,
- Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=vkuznets@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Cc: Linux on Hyper-V List <linux-hyperv@vger.kernel.org>,
+ Stephen Hemminger <sthemmin@microsoft.com>,
+ Lillian Grassin-Drake <Lillian.GrassinDrake@microsoft.com>,
+ "maintainer:X86 ARCHITECTURE \(32-BIT AND 64-BIT\)" <x86@kernel.org>,
  "virtualization@lists.linux-foundation.org"
  <virtualization@lists.linux-foundation.org>,
- Liam Girdwood <liam.r.girdwood@linux.intel.com>,
- Bjorn Andersson <bjorn.andersson@linaro.org>,
- "sound-open-firmware@alsa-project.org" <sound-open-firmware@alsa-project.org>
+ Linux Kernel List <linux-kernel@vger.kernel.org>,
+ Michael Kelley <mikelley@microsoft.com>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>,
+ Thomas Gleixner <tglx@linutronix.de>, Nuno Das Neves <Nuno.Das@microsoft.com>,
+ Vineeth Pillai <viremana@linux.microsoft.com>,
+ Haiyang Zhang <haiyangz@microsoft.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -105,45 +135,40 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Vincent,
+Sunil Muthuswamy <sunilmut@microsoft.com> writes:
 
-On Thu, Sep 17, 2020 at 10:36:44AM +0200, Vincent Whitchurch wrote:
-> On Thu, Sep 17, 2020 at 07:47:06AM +0200, Guennadi Liakhovetski wrote:
-> > On Tue, Sep 15, 2020 at 02:13:23PM +0200, Arnaud POULIQUEN wrote:
-> > > So i would be agree with Vincent[2] which proposed to switch on a RPMsg API
-> > > and creating a vhost rpmsg device. This is also proposed in the 
-> > > "Enhance VHOST to enable SoC-to-SoC communication" RFC[3].
-> > > Do you think that this alternative could match with your need?
-> > 
-> > As I replied to Vincent, I understand his proposal and the approach taken 
-> > in the series [3], but I'm not sure I agree, that adding yet another 
-> > virtual device / driver layer on the vhost side is a good idea. As far as 
-> > I understand adding new completely virtual devices isn't considered to be 
-> > a good practice in the kernel. Currently vhost is just a passive "library" 
-> > and my vhost-rpmsg support keeps it that way. Not sure I'm in favour of 
-> > converting vhost to a virtual device infrastructure.
-> 
-> I know it wasn't what you meant, but I noticed that the above paragraph
-> could be read as if my suggestion was to convert vhost to a virtual
-> device infrastructure, so I just want to clarify that that those are not
-> related.  The only similarity between what I suggested in the thread in
-> [2] and Kishon's RFC in [3] is that both involve creating a generic
-> vhost-rpmsg driver which would allow the RPMsg API to be used for both
-> sides of the link, instead of introducing a new API just for the server
-> side.  That can be done without rewriting drivers/vhost/.
+>> 
+>> On Tue, Sep 15, 2020 at 12:32:29PM +0200, Vitaly Kuznetsov wrote:
+>> > Wei Liu <wei.liu@kernel.org> writes:
+>> >
+>> > > When Linux is running as the root partition, the hypercall page will
+>> > > have already been setup by Hyper-V. Copy the content over to the
+>> > > allocated page.
+>> >
+>> > And we can't setup a new hypercall page by writing something different
+>> > to HV_X64_MSR_HYPERCALL, right?
+>> >
+>> 
+>> My understanding is that we can't, but Sunil can maybe correct me.
+>
+> That is correct. For root partition, the hypervisor has already allocated the
+> hypercall page. The root is required to query the page, map it in its address
+> space and wrmsr to enable it. It cannot change the location of the page. For
+> guest, it can allocate and assign the hypercall page. This is covered a bit in the
+> hypervisor TLFS (section 3.13 in TLFS v6), for the guest side. The root side is 
+> not covered there, yet.
 
-Thanks for the clarification. Another flexibility, that I'm trying to preserve 
-with my approach is keeping direct access to iovec style data buffers for 
-cases where that's the structure, that's already used by the respective 
-driver on the host side. Since we already do packing and unpacking on the 
-guest / client side, we don't need the same on the host / server side again.
+Ok, so it is guaranteed that root partition doesn't have this page in
+its address space yet, otherwise it could've been used for something
+else (in case it's just normal memory from its PoV).
 
-Thanks
-Guennadi
+Please add a comment about this as it is not really obvious.
 
-> > > [1]. https://patchwork.kernel.org/project/linux-remoteproc/list/?series=338335 
-> > > [2]. https://www.spinics.net/lists/linux-virtualization/msg44195.html
-> > > [3]. https://www.spinics.net/lists/linux-remoteproc/msg06634.html  
+Thanks,
+
+-- 
+Vitaly
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
