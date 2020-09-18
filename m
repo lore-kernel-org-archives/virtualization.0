@@ -2,119 +2,93 @@ Return-Path: <SRS0=+sYM=C3=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
+X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 64642C43463
-	for <virtualization@archiver.kernel.org>; Fri, 18 Sep 2020 04:05:19 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C1441C43464
+	for <virtualization@archiver.kernel.org>; Fri, 18 Sep 2020 05:45:25 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id F03D523600
-	for <virtualization@archiver.kernel.org>; Fri, 18 Sep 2020 04:05:18 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="T0wgRJyn"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org F03D523600
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 02BF22083B
+	for <virtualization@archiver.kernel.org>; Fri, 18 Sep 2020 05:45:24 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 02BF22083B
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id DB04087793;
-	Fri, 18 Sep 2020 04:05:17 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 921EA8778D;
+	Fri, 18 Sep 2020 05:45:24 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ksH+wUQSt18Y; Fri, 18 Sep 2020 04:05:15 +0000 (UTC)
+	with ESMTP id QpUgCaKsAdMA; Fri, 18 Sep 2020 05:45:23 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id EC60887772;
-	Fri, 18 Sep 2020 04:05:14 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 9A36087630;
+	Fri, 18 Sep 2020 05:45:23 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D9465C0888;
-	Fri, 18 Sep 2020 04:05:14 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 13434C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7CC4BC0888;
+	Fri, 18 Sep 2020 05:45:23 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 986A5C0051
  for <virtualization@lists.linux-foundation.org>;
- Fri, 18 Sep 2020 04:05:14 +0000 (UTC)
+ Fri, 18 Sep 2020 05:45:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 07EE3875A9
+ by hemlock.osuosl.org (Postfix) with ESMTP id 8DE4987635
  for <virtualization@lists.linux-foundation.org>;
- Fri, 18 Sep 2020 04:05:14 +0000 (UTC)
+ Fri, 18 Sep 2020 05:45:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xa8SmnaFqO31
+ with ESMTP id GBCn8TFGQCYH
  for <virtualization@lists.linux-foundation.org>;
- Fri, 18 Sep 2020 04:05:12 +0000 (UTC)
+ Fri, 18 Sep 2020 05:45:20 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 7D9A78759A
+Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 7B37187630
  for <virtualization@lists.linux-foundation.org>;
- Fri, 18 Sep 2020 04:05:12 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1600401911;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=wlk9HAI4Sd4VAZGEYPJ6IaZsqvXvWVGLIyj7zWCRFbs=;
- b=T0wgRJynluaceOed3HYyjzcytboSmCgX9UvK0Y+F4O3Qr2W7oguRl6QH8zB+h129L9XBGP
- A/soWadzE5ls3ezaoIxwT/teI6PE0De7/Q1gRgMRe1X+mNxq+xNhnaMsfwNBi0Goom7UrL
- g6WXZjG3eO9HKhaltYDQq2Wba+JNMFI=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-86-HkFJZdJ0NPyOW6MrbXbx0Q-1; Fri, 18 Sep 2020 00:05:09 -0400
-X-MC-Unique: HkFJZdJ0NPyOW6MrbXbx0Q-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
- [10.5.11.13])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id DD7771891E84;
- Fri, 18 Sep 2020 04:05:06 +0000 (UTC)
-Received: from [10.72.13.167] (ovpn-13-167.pek2.redhat.com [10.72.13.167])
- by smtp.corp.redhat.com (Postfix) with ESMTP id E73E41C4;
- Fri, 18 Sep 2020 04:04:52 +0000 (UTC)
-Subject: Re: [RFC PATCH 00/22] Enhance VHOST to enable SoC-to-SoC communication
-To: Kishon Vijay Abraham I <kishon@ti.com>, Cornelia Huck <cohuck@redhat.com>
-References: <20200702082143.25259-1-kishon@ti.com>
- <20200702055026-mutt-send-email-mst@kernel.org>
- <603970f5-3289-cd53-82a9-aa62b292c552@redhat.com>
- <14c6cad7-9361-7fa4-e1c6-715ccc7e5f6b@ti.com>
- <59fd6a0b-8566-44b7-3dae-bb52b468219b@redhat.com>
- <ce9eb6a5-cd3a-a390-5684-525827b30f64@ti.com>
- <da2b671c-b05d-a57f-7bdf-8b1043a41240@redhat.com>
- <fee8a0fb-f862-03bd-5ede-8f105b6af529@ti.com>
- <b2178e1d-2f5c-e8a3-72fb-70f2f8d6aa45@redhat.com>
- <45a8a97c-2061-13ee-5da8-9877a4a3b8aa@ti.com>
- <c8739d7f-e12e-f6a2-7018-9eeaf6feb054@redhat.com>
- <20200828123409.4cd2a812.cohuck@redhat.com>
- <ac8f7e4f-9f46-919a-f5c2-89b07794f0ab@ti.com>
- <9cd58cd1-0041-3d98-baf7-6e5bc2e7e317@redhat.com>
- <edf25301-93c0-4ba6-aa85-5f04137d0906@ti.com>
- <5733dbfc-76c1-45dc-6dce-ef5449eacc73@redhat.com>
- <181ae83d-edeb-9406-27cc-1195fe29ae95@ti.com>
- <ee0aa81d-064b-d7a7-86bb-79a3f4d3dd11@redhat.com>
- <67924594-c70e-390e-ce2e-dda41a94ada1@ti.com>
-From: Jason Wang <jasowang@redhat.com>
-Message-ID: <dc006fed-c3b6-8925-51d8-5ed3ee8662cd@redhat.com>
-Date: Fri, 18 Sep 2020 12:04:51 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+ Fri, 18 Sep 2020 05:45:20 +0000 (UTC)
+IronPort-SDR: md20zmvmkATTcJ5o0qWTwpk2NAgfbKqmOkxxFVCyXlS6y3dXp0LnAPsgUKb50XjqID9sb5/93z
+ 68MbY+Ds2NAw==
+X-IronPort-AV: E=McAfee;i="6000,8403,9747"; a="224030126"
+X-IronPort-AV: E=Sophos;i="5.77,273,1596524400"; d="scan'208";a="224030126"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+ by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 17 Sep 2020 22:45:17 -0700
+IronPort-SDR: jiK68K5tmFI0Wcfr+15JEKRMQYv0tF1UIvxFlfqBowFobJlVyojLBHXCiv9nsJaqoeCV+ZbnEZ
+ GNFKsC9cwgUw==
+X-IronPort-AV: E=Sophos;i="5.77,273,1596524400"; d="scan'208";a="452620157"
+Received: from gliakhov-mobl2.ger.corp.intel.com (HELO ubuntu) ([10.252.42.33])
+ by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 17 Sep 2020 22:45:13 -0700
+Date: Fri, 18 Sep 2020 07:44:21 +0200
+From: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+To: Arnaud POULIQUEN <arnaud.pouliquen@st.com>
+Subject: Re: [PATCH v6 0/4] Add a vhost RPMsg API
+Message-ID: <20200918054420.GA19246@ubuntu>
+References: <20200901151153.28111-1-guennadi.liakhovetski@linux.intel.com>
+ <9433695b-5757-db73-bd8a-538fd1375e2a@st.com>
+ <20200917054705.GA11491@ubuntu>
+ <47a9ad01-c922-3b1c-84de-433f229ffba3@st.com>
 MIME-Version: 1.0
-In-Reply-To: <67924594-c70e-390e-ce2e-dda41a94ada1@ti.com>
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-Cc: Ohad Ben-Cohen <ohad@wizery.com>, Allen Hubbe <allenbh@gmail.com>,
- Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
- Dave Jiang <dave.jiang@intel.com>, kvm@vger.kernel.org,
- linux-ntb@googlegroups.com, "Michael S. Tsirkin" <mst@redhat.com>,
- linux-pci@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-remoteproc@vger.kernel.org, linux-kernel@vger.kernel.org,
- Bjorn Andersson <bjorn.andersson@linaro.org>, netdev@vger.kernel.org,
- Stefan Hajnoczi <stefanha@redhat.com>, Jon Mason <jdmason@kudzu.us>,
- Bjorn Helgaas <bhelgaas@google.com>, Paolo Bonzini <pbonzini@redhat.com>,
- virtualization@lists.linux-foundation.org
+Content-Disposition: inline
+In-Reply-To: <47a9ad01-c922-3b1c-84de-433f229ffba3@st.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
+Cc: Ohad Ben-Cohen <ohad@wizery.com>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>,
+ "kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Vincent Whitchurch <vincent.whitchurch@axis.com>,
+ "linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>,
+ Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>,
+ Liam Girdwood <liam.r.girdwood@linux.intel.com>,
+ Bjorn Andersson <bjorn.andersson@linaro.org>,
+ "sound-open-firmware@alsa-project.org" <sound-open-firmware@alsa-project.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -126,186 +100,162 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Ck9uIDIwMjAvOS8xNiDkuIvljYg3OjQ3LCBLaXNob24gVmlqYXkgQWJyYWhhbSBJIHdyb3RlOgo+
-IEhpIEphc29uLAo+Cj4gT24gMTYvMDkvMjAgODo0MCBhbSwgSmFzb24gV2FuZyB3cm90ZToKPj4g
-T24gMjAyMC85LzE1IOS4i+WNiDExOjQ3LCBLaXNob24gVmlqYXkgQWJyYWhhbSBJIHdyb3RlOgo+
-Pj4gSGkgSmFzb24sCj4+Pgo+Pj4gT24gMTUvMDkvMjAgMTo0OCBwbSwgSmFzb24gV2FuZyB3cm90
-ZToKPj4+PiBIaSBLaXNob246Cj4+Pj4KPj4+PiBPbiAyMDIwLzkvMTQg5LiL5Y2IMzoyMywgS2lz
-aG9uIFZpamF5IEFicmFoYW0gSSB3cm90ZToKPj4+Pj4+IFRoZW4geW91IG5lZWQgc29tZXRoaW5n
-IHRoYXQgaXMgZnVuY3Rpb25hbCBlcXVpdmFsZW50IHRvIHZpcnRpbyBQQ0kKPj4+Pj4+IHdoaWNo
-IGlzIGFjdHVhbGx5IHRoZSBjb25jZXB0IG9mIHZEUEEgKGUuZyB2RFBBIHByb3ZpZGVzCj4+Pj4+
-PiBhbHRlcm5hdGl2ZXMgaWYKPj4+Pj4+IHRoZSBxdWV1ZV9zZWwgaXMgaGFyZCBpbiB0aGUgRVAg
-aW1wbGVtZW50YXRpb24pLgo+Pj4+PiBPa2F5LCBJIGp1c3QgdHJpZWQgdG8gY29tcGFyZSB0aGUg
-J3N0cnVjdCB2ZHBhX2NvbmZpZ19vcHMnIGFuZCAnc3RydWN0Cj4+Pj4+IHZob3N0X2NvbmZpZ19v
-cHMnICggaW50cm9kdWNlZCBpbiBbUkZDIFBBVENIIDAzLzIyXSB2aG9zdDogQWRkIG9wcyBmb3IK
-Pj4+Pj4gdGhlIFZIT1NUIGRyaXZlciB0byBjb25maWd1cmUgVkhPU1QgZGV2aWNlKS4KPj4+Pj4K
-Pj4+Pj4gc3RydWN0IHZkcGFfY29uZmlnX29wcyB7Cj4+Pj4+ICDCoMKgwqDCoMKgLyogVmlydHF1
-ZXVlIG9wcyAqLwo+Pj4+PiAgwqDCoMKgwqDCoGludCAoKnNldF92cV9hZGRyZXNzKShzdHJ1Y3Qg
-dmRwYV9kZXZpY2UgKnZkZXYsCj4+Pj4+ICDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgwqAgdTE2IGlkeCwgdTY0IGRlc2NfYXJlYSwgdTY0IGRyaXZlcl9hcmVhLAo+Pj4+PiAgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIHU2NCBkZXZpY2VfYXJlYSk7Cj4+Pj4+
-ICDCoMKgwqDCoMKgdm9pZCAoKnNldF92cV9udW0pKHN0cnVjdCB2ZHBhX2RldmljZSAqdmRldiwg
-dTE2IGlkeCwgdTMyIG51bSk7Cj4+Pj4+ICDCoMKgwqDCoMKgdm9pZCAoKmtpY2tfdnEpKHN0cnVj
-dCB2ZHBhX2RldmljZSAqdmRldiwgdTE2IGlkeCk7Cj4+Pj4+ICDCoMKgwqDCoMKgdm9pZCAoKnNl
-dF92cV9jYikoc3RydWN0IHZkcGFfZGV2aWNlICp2ZGV2LCB1MTYgaWR4LAo+Pj4+PiAgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBzdHJ1Y3QgdmRwYV9jYWxsYmFjayAqY2IpOwo+Pj4+PiAg
-wqDCoMKgwqDCoHZvaWQgKCpzZXRfdnFfcmVhZHkpKHN0cnVjdCB2ZHBhX2RldmljZSAqdmRldiwg
-dTE2IGlkeCwgYm9vbAo+Pj4+PiByZWFkeSk7Cj4+Pj4+ICDCoMKgwqDCoMKgYm9vbCAoKmdldF92
-cV9yZWFkeSkoc3RydWN0IHZkcGFfZGV2aWNlICp2ZGV2LCB1MTYgaWR4KTsKPj4+Pj4gIMKgwqDC
-oMKgwqBpbnQgKCpzZXRfdnFfc3RhdGUpKHN0cnVjdCB2ZHBhX2RldmljZSAqdmRldiwgdTE2IGlk
-eCwKPj4+Pj4gIMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgIGNvbnN0IHN0cnVjdCB2
-ZHBhX3ZxX3N0YXRlICpzdGF0ZSk7Cj4+Pj4+ICDCoMKgwqDCoMKgaW50ICgqZ2V0X3ZxX3N0YXRl
-KShzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZkZXYsIHUxNiBpZHgsCj4+Pj4+ICDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqDCoMKgwqDCoCBzdHJ1Y3QgdmRwYV92cV9zdGF0ZSAqc3RhdGUpOwo+Pj4+PiAg
-wqDCoMKgwqDCoHN0cnVjdCB2ZHBhX25vdGlmaWNhdGlvbl9hcmVhCj4+Pj4+ICDCoMKgwqDCoMKg
-KCpnZXRfdnFfbm90aWZpY2F0aW9uKShzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZkZXYsIHUxNiBpZHgp
-Owo+Pj4+PiAgwqDCoMKgwqDCoC8qIHZxIGlycSBpcyBub3QgZXhwZWN0ZWQgdG8gYmUgY2hhbmdl
-ZCBvbmNlIERSSVZFUl9PSyBpcyBzZXQgKi8KPj4+Pj4gIMKgwqDCoMKgwqBpbnQgKCpnZXRfdnFf
-aXJxKShzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZkdiwgdTE2IGlkeCk7Cj4+Pj4+Cj4+Pj4+ICDCoMKg
-wqDCoMKgLyogRGV2aWNlIG9wcyAqLwo+Pj4+PiAgwqDCoMKgwqDCoHUzMiAoKmdldF92cV9hbGln
-bikoc3RydWN0IHZkcGFfZGV2aWNlICp2ZGV2KTsKPj4+Pj4gIMKgwqDCoMKgwqB1NjQgKCpnZXRf
-ZmVhdHVyZXMpKHN0cnVjdCB2ZHBhX2RldmljZSAqdmRldik7Cj4+Pj4+ICDCoMKgwqDCoMKgaW50
-ICgqc2V0X2ZlYXR1cmVzKShzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZkZXYsIHU2NCBmZWF0dXJlcyk7
-Cj4+Pj4+ICDCoMKgwqDCoMKgdm9pZCAoKnNldF9jb25maWdfY2IpKHN0cnVjdCB2ZHBhX2Rldmlj
-ZSAqdmRldiwKPj4+Pj4gIMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBzdHJ1
-Y3QgdmRwYV9jYWxsYmFjayAqY2IpOwo+Pj4+PiAgwqDCoMKgwqDCoHUxNiAoKmdldF92cV9udW1f
-bWF4KShzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZkZXYpOwo+Pj4+PiAgwqDCoMKgwqDCoHUzMiAoKmdl
-dF9kZXZpY2VfaWQpKHN0cnVjdCB2ZHBhX2RldmljZSAqdmRldik7Cj4+Pj4+ICDCoMKgwqDCoMKg
-dTMyICgqZ2V0X3ZlbmRvcl9pZCkoc3RydWN0IHZkcGFfZGV2aWNlICp2ZGV2KTsKPj4+Pj4gIMKg
-wqDCoMKgwqB1OCAoKmdldF9zdGF0dXMpKHN0cnVjdCB2ZHBhX2RldmljZSAqdmRldik7Cj4+Pj4+
-ICDCoMKgwqDCoMKgdm9pZCAoKnNldF9zdGF0dXMpKHN0cnVjdCB2ZHBhX2RldmljZSAqdmRldiwg
-dTggc3RhdHVzKTsKPj4+Pj4gIMKgwqDCoMKgwqB2b2lkICgqZ2V0X2NvbmZpZykoc3RydWN0IHZk
-cGFfZGV2aWNlICp2ZGV2LCB1bnNpZ25lZCBpbnQgb2Zmc2V0LAo+Pj4+PiAgwqDCoMKgwqDCoMKg
-wqDCoMKgwqDCoMKgwqDCoMKgIHZvaWQgKmJ1ZiwgdW5zaWduZWQgaW50IGxlbik7Cj4+Pj4+ICDC
-oMKgwqDCoMKgdm9pZCAoKnNldF9jb25maWcpKHN0cnVjdCB2ZHBhX2RldmljZSAqdmRldiwgdW5z
-aWduZWQgaW50IG9mZnNldCwKPj4+Pj4gIMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoCBj
-b25zdCB2b2lkICpidWYsIHVuc2lnbmVkIGludCBsZW4pOwo+Pj4+PiAgwqDCoMKgwqDCoHUzMiAo
-KmdldF9nZW5lcmF0aW9uKShzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZkZXYpOwo+Pj4+Pgo+Pj4+PiAg
-wqDCoMKgwqDCoC8qIERNQSBvcHMgKi8KPj4+Pj4gIMKgwqDCoMKgwqBpbnQgKCpzZXRfbWFwKShz
-dHJ1Y3QgdmRwYV9kZXZpY2UgKnZkZXYsIHN0cnVjdCB2aG9zdF9pb3RsYgo+Pj4+PiAqaW90bGIp
-Owo+Pj4+PiAgwqDCoMKgwqDCoGludCAoKmRtYV9tYXApKHN0cnVjdCB2ZHBhX2RldmljZSAqdmRl
-diwgdTY0IGlvdmEsIHU2NCBzaXplLAo+Pj4+PiAgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDC
-oMKgIHU2NCBwYSwgdTMyIHBlcm0pOwo+Pj4+PiAgwqDCoMKgwqDCoGludCAoKmRtYV91bm1hcCko
-c3RydWN0IHZkcGFfZGV2aWNlICp2ZGV2LCB1NjQgaW92YSwgdTY0IHNpemUpOwo+Pj4+Pgo+Pj4+
-PiAgwqDCoMKgwqDCoC8qIEZyZWUgZGV2aWNlIHJlc291cmNlcyAqLwo+Pj4+PiAgwqDCoMKgwqDC
-oHZvaWQgKCpmcmVlKShzdHJ1Y3QgdmRwYV9kZXZpY2UgKnZkZXYpOwo+Pj4+PiB9Owo+Pj4+Pgo+
-Pj4+PiArc3RydWN0IHZob3N0X2NvbmZpZ19vcHMgewo+Pj4+PiArwqDCoMKgIGludCAoKmNyZWF0
-ZV92cXMpKHN0cnVjdCB2aG9zdF9kZXYgKnZkZXYsIHVuc2lnbmVkIGludCBudnFzLAo+Pj4+PiAr
-wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgdW5zaWduZWQgaW50IG51bV9idWZzLCBzdHJ1Y3Qg
-dmhvc3RfdmlydHF1ZXVlICp2cXNbXSwKPj4+Pj4gK8KgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKg
-IHZob3N0X3ZxX2NhbGxiYWNrX3QgKmNhbGxiYWNrc1tdLAo+Pj4+PiArwqDCoMKgwqDCoMKgwqDC
-oMKgwqDCoMKgwqAgY29uc3QgY2hhciAqIGNvbnN0IG5hbWVzW10pOwo+Pj4+PiArwqDCoMKgIHZv
-aWQgKCpkZWxfdnFzKShzdHJ1Y3Qgdmhvc3RfZGV2ICp2ZGV2KTsKPj4+Pj4gK8KgwqDCoCBpbnQg
-KCp3cml0ZSkoc3RydWN0IHZob3N0X2RldiAqdmRldiwgdTY0IHZob3N0X2RzdCwgdm9pZCAqc3Jj
-LAo+Pj4+PiBpbnQgbGVuKTsKPj4+Pj4gK8KgwqDCoCBpbnQgKCpyZWFkKShzdHJ1Y3Qgdmhvc3Rf
-ZGV2ICp2ZGV2LCB2b2lkICpkc3QsIHU2NCB2aG9zdF9zcmMsIGludAo+Pj4+PiBsZW4pOwo+Pj4+
-PiArwqDCoMKgIGludCAoKnNldF9mZWF0dXJlcykoc3RydWN0IHZob3N0X2RldiAqdmRldiwgdTY0
-IGRldmljZV9mZWF0dXJlcyk7Cj4+Pj4+ICvCoMKgwqAgaW50ICgqc2V0X3N0YXR1cykoc3RydWN0
-IHZob3N0X2RldiAqdmRldiwgdTggc3RhdHVzKTsKPj4+Pj4gK8KgwqDCoCB1OCAoKmdldF9zdGF0
-dXMpKHN0cnVjdCB2aG9zdF9kZXYgKnZkZXYpOwo+Pj4+PiArfTsKPj4+Pj4gKwo+Pj4+PiBzdHJ1
-Y3QgdmlydGlvX2NvbmZpZ19vcHMKPj4+Pj4gSSB0aGluayB0aGVyZSdzIHNvbWUgb3ZlcmxhcCBo
-ZXJlIGFuZCBzb21lIG9mIHRoZSBvcHMgdHJpZXMgdG8gZG8gdGhlCj4+Pj4+IHNhbWUgdGhpbmcu
-Cj4+Pj4+Cj4+Pj4+IEkgdGhpbmsgaXQgZGlmZmVycyBpbiAoKnNldF92cV9hZGRyZXNzKSgpIGFu
-ZCAoKmNyZWF0ZV92cXMpKCkuCj4+Pj4+IFtjcmVhdGVfdnFzKCkgaW50cm9kdWNlZCBpbiBzdHJ1
-Y3Qgdmhvc3RfY29uZmlnX29wcyBwcm92aWRlcwo+Pj4+PiBjb21wbGltZW50YXJ5IGZ1bmN0aW9u
-YWxpdHkgdG8gKCpmaW5kX3ZxcykoKSBpbiBzdHJ1Y3QKPj4+Pj4gdmlydGlvX2NvbmZpZ19vcHMu
-IEl0IHNlZW1pbmdseSBlbmNhcHN1bGF0ZXMgdGhlIGZ1bmN0aW9uYWxpdHkgb2YKPj4+Pj4gKCpz
-ZXRfdnFfYWRkcmVzcykoKSwgKCpzZXRfdnFfbnVtKSgpLCAoKnNldF92cV9jYikoKSwuLl0uCj4+
-Pj4+Cj4+Pj4+IEJhY2sgdG8gdGhlIGRpZmZlcmVuY2UgYmV0d2VlbiAoKnNldF92cV9hZGRyZXNz
-KSgpIGFuZCAoKmNyZWF0ZV92cXMpKCksCj4+Pj4+IHNldF92cV9hZGRyZXNzKCkgZGlyZWN0bHkg
-cHJvdmlkZXMgdGhlIHZpcnRxdWV1ZSBhZGRyZXNzIHRvIHRoZSB2ZHBhCj4+Pj4+IGRldmljZSBi
-dXQgY3JlYXRlX3ZxcygpIG9ubHkgcHJvdmlkZXMgdGhlIHBhcmFtZXRlcnMgb2YgdGhlIHZpcnRx
-dWV1ZQo+Pj4+PiAobGlrZSB0aGUgbnVtYmVyIG9mIHZpcnRxdWV1ZXMsIG51bWJlciBvZiBidWZm
-ZXJzKSBidXQgZG9lcyBub3QKPj4+Pj4gZGlyZWN0bHkKPj4+Pj4gcHJvdmlkZSB0aGUgYWRkcmVz
-cy4gSU1PIHRoZSBiYWNrZW5kIGNsaWVudCBkcml2ZXJzIChsaWtlIG5ldCBvciB2aG9zdCkKPj4+
-Pj4gc2hvdWxkbid0L2Nhbm5vdCBieSBpdHNlbGYga25vdyBob3cgdG8gYWNjZXNzIHRoZSB2cmlu
-ZyBjcmVhdGVkIG9uCj4+Pj4+IHZpcnRpbyBmcm9udC1lbmQuIFRoZSB2ZHBhIGRldmljZS92aG9z
-dCBkZXZpY2Ugc2hvdWxkIGhhdmUgbG9naWMgZm9yCj4+Pj4+IHRoYXQuIFRoYXQgd2lsbCBoZWxw
-IHRoZSBjbGllbnQgZHJpdmVycyB0byB3b3JrIHdpdGggZGlmZmVyZW50IHR5cGVzIG9mCj4+Pj4+
-IHZkcGEgZGV2aWNlL3Zob3N0IGRldmljZSBhbmQgY2FuIGFjY2VzcyB0aGUgdnJpbmcgY3JlYXRl
-ZCBieSB2aXJ0aW8KPj4+Pj4gaXJyZXNwZWN0aXZlIG9mIHdoZXRoZXIgdGhlIHZyaW5nIGNhbiBi
-ZSBhY2Nlc3NlZCB2aWEgbW1pbyBvciBrZXJuZWwKPj4+Pj4gc3BhY2Ugb3IgdXNlciBzcGFjZS4K
-Pj4+Pj4KPj4+Pj4gSSB0aGluayB2ZHBhIGFsd2F5cyB3b3JrcyB3aXRoIGNsaWVudCBkcml2ZXJz
-IGluIHVzZXJzcGFjZSBhbmQKPj4+Pj4gcHJvdmlkaW5nCj4+Pj4+IHVzZXJzcGFjZSBhZGRyZXNz
-IGZvciB2cmluZy4KPj4+PiBTb3JyeSBmb3IgYmVpbmcgdW5jbGVhci4gV2hhdCBJIG1lYW50IGlz
-IG5vdCByZXBsYWNpbmcgdkRQQSB3aXRoIHRoZQo+Pj4+IHZob3N0KGJ1cykgeW91IHByb3Bvc2Vk
-IGJ1dCB0aGUgcG9zc2liaWxpdHkgb2YgcmVwbGFjaW5nIHZpcnRpby1wY2ktZXBmCj4+Pj4gd2l0
-aCB2RFBBIGluOgo+Pj4gT2theSwgc28gdGhlIHZpcnRpbyBiYWNrLWVuZCBzdGlsbCB1c2Ugdmhv
-c3QgYW5kIGZyb250IGVuZCBzaG91bGQgdXNlCj4+PiB2RFBBLiBJIHNlZS4gU28gdGhlIGhvc3Qg
-c2lkZSBQQ0kgZHJpdmVyIGZvciBFUEYgc2hvdWxkIHBvcHVsYXRlCj4+PiB2ZHBhX2NvbmZpZ19v
-cHMgYW5kIGludm9rZSB2ZHBhX3JlZ2lzdGVyX2RldmljZSgpLgo+Pgo+PiBZZXMuCj4+Cj4+Cj4+
-Pj4gTXkgcXVlc3Rpb24gaXMgYmFzaWNhbGx5IGZvciB0aGUgcGFydCBvZiB2aXJ0aW9fcGNpX2Vw
-Zl9zZW5kX2NvbW1hbmQoKSwKPj4+PiBzbyBpdCBsb29rcyB0byBtZSB5b3UgaGF2ZSBhIHZlbmRv
-ciBzcGVjaWZpYyBBUEkgdG8gcmVwbGFjZSB0aGUKPj4+PiB2aXJ0aW8tcGNpIGxheW91dCBvZiB0
-aGUgQkFSOgo+Pj4gRXZlbiB3aGVuIHdlIHVzZSB2RFBBLCB3ZSBoYXZlIHRvIHVzZSBzb21lIHNv
-cnQgb2YKPj4+IHZpcnRpb19wY2lfZXBmX3NlbmRfY29tbWFuZCgpIHRvIGNvbW11bmljYXRlIHdp
-dGggdmlydGlvIGJhY2tlbmQgcmlnaHQ/Cj4+Cj4+IFJpZ2h0Lgo+Pgo+Pgo+Pj4gUmlnaHQsIHRo
-ZSBsYXlvdXQgaXMgc2xpZ2h0bHkgZGlmZmVyZW50IGZyb20gdGhlIHN0YW5kYXJkIGxheW91dC4K
-Pj4+Cj4+PiBUaGlzIGlzIHRoZSBsYXlvdXQKPj4+IHN0cnVjdCBlcGZfdmhvc3RfcmVnX3F1ZXVl
-IHsKPj4+ICDCoMKgwqDCoMKgwqDCoMKgIHU4IGNtZDsKPj4+ICDCoMKgwqDCoMKgwqDCoMKgIHU4
-IGNtZF9zdGF0dXM7Cj4+PiAgwqDCoMKgwqDCoMKgwqDCoCB1MTYgc3RhdHVzOwo+Pj4gIMKgwqDC
-oMKgwqDCoMKgwqAgdTE2IG51bV9idWZmZXJzOwo+Pj4gIMKgwqDCoMKgwqDCoMKgwqAgdTE2IG1z
-aXhfdmVjdG9yOwo+Pj4gIMKgwqDCoMKgwqDCoMKgwqAgdTY0IHF1ZXVlX2FkZHI7Cj4+Cj4+IFdo
-YXQncyB0aGUgbWVhbmluZyBvZiBxdWV1ZV9hZGRyIGhlcmU/Cj4gVXNpbmcgcXVldWVfYWRkciwg
-dGhlIHZpcnRpbyBmcm9udC1lbmQgY29tbXVuaWNhdGVzIHRoZSBhZGRyZXNzIG9mIHRoZQo+IGFs
-bG9jYXRlZCBtZW1vcnkgZm9yIHZpcnRxdWV1ZSB0byB0aGUgdmlydGlvIGJhY2stZW5kLgo+PiBE
-b2VzIG5vdCBtZWFuIHRoZSBkZXZpY2UgZXhwZWN0cyBhIGNvbnRpZ3VvdXMgbWVtb3J5IGZvciBh
-dmFpbC9kZXNjL3VzZWQKPj4gcmluZz8KPiBJdCdzIGNvbnRpZ3VvdXMgbWVtb3J5LiBJc24ndCB0
-aGlzIHNpbWlsYXIgdG8gb3RoZXIgdmlydGlvIHRyYW5zcG9ydAo+IChib3RoIFBDSSBsZWdhY3kg
-YW5kIG1vZGVybiBpbnRlcmZhY2UpPy4KCgpUaGF0J3Mgb25seSBmb3IgbGVnYWN5IGRldmljZSwg
-Zm9yIG1vZGVybiBkZXZpY2Ugd2UgZG9uJ3QgaGF2ZSBzdWNoIApyZXN0cmljdGlvbi4KCgo+Pgo+
-Pj4gfSBfX3BhY2tlZDsKPj4+Cj4+PiBzdHJ1Y3QgZXBmX3Zob3N0X3JlZyB7Cj4+PiAgwqDCoMKg
-wqDCoMKgwqDCoCB1NjQgaG9zdF9mZWF0dXJlczsKPj4+ICDCoMKgwqDCoMKgwqDCoMKgIHU2NCBn
-dWVzdF9mZWF0dXJlczsKPj4+ICDCoMKgwqDCoMKgwqDCoMKgIHUxNiBtc2l4X2NvbmZpZzsKPj4+
-ICDCoMKgwqDCoMKgwqDCoMKgIHUxNiBudW1fcXVldWVzOwo+Pj4gIMKgwqDCoMKgwqDCoMKgwqAg
-dTggZGV2aWNlX3N0YXR1czsKPj4+ICDCoMKgwqDCoMKgwqDCoMKgIHU4IGNvbmZpZ19nZW5lcmF0
-aW9uOwo+Pj4gIMKgwqDCoMKgwqDCoMKgwqAgdTMyIGlzcjsKPj4+ICDCoMKgwqDCoMKgwqDCoMKg
-IHU4IGNtZDsKPj4+ICDCoMKgwqDCoMKgwqDCoMKgIHU4IGNtZF9zdGF0dXM7Cj4+PiAgwqDCoMKg
-wqDCoMKgwqDCoCBzdHJ1Y3QgZXBmX3Zob3N0X3JlZ19xdWV1ZSB2cVtNQVhfVlFTXTsKPj4+IH0g
-X19wYWNrZWQ7Cj4+Pj4gK3N0YXRpYyBpbnQgdmlydGlvX3BjaV9lcGZfc2VuZF9jb21tYW5kKHN0
-cnVjdCB2aXJ0aW9fcGNpX2RldmljZQo+Pj4+ICp2cF9kZXYsCj4+Pj4gK8KgwqDCoCDCoMKgwqAg
-wqDCoMKgIMKgwqDCoCDCoMKgwqDCoMKgwqAgdTMyIGNvbW1hbmQpCj4+Pj4gK3sKPj4+PiArwqDC
-oMKgIHN0cnVjdCB2aXJ0aW9fcGNpX2VwZiAqcGNpX2VwZjsKPj4+PiArwqDCoMKgIHZvaWQgX19p
-b21lbSAqaW9hZGRyOwo+Pj4+ICvCoMKgwqAga3RpbWVfdCB0aW1lb3V0Owo+Pj4+ICvCoMKgwqAg
-Ym9vbCB0aW1lZG91dDsKPj4+PiArwqDCoMKgIGludCByZXQgPSAwOwo+Pj4+ICvCoMKgwqAgdTgg
-c3RhdHVzOwo+Pj4+ICsKPj4+PiArwqDCoMKgIHBjaV9lcGYgPSB0b192aXJ0aW9fcGNpX2VwZih2
-cF9kZXYpOwo+Pj4+ICvCoMKgwqAgaW9hZGRyID0gdnBfZGV2LT5pb2FkZHI7Cj4+Pj4gKwo+Pj4+
-ICvCoMKgwqAgbXV0ZXhfbG9jaygmcGNpX2VwZi0+bG9jayk7Cj4+Pj4gK8KgwqDCoCB3cml0ZWIo
-Y29tbWFuZCwgaW9hZGRyICsgSE9TVF9DTUQpOwo+Pj4+ICvCoMKgwqAgdGltZW91dCA9IGt0aW1l
-X2FkZF9tcyhrdGltZV9nZXQoKSwgQ09NTUFORF9USU1FT1VUKTsKPj4+PiArwqDCoMKgIHdoaWxl
-ICgxKSB7Cj4+Pj4gK8KgwqDCoCDCoMKgwqAgdGltZWRvdXQgPSBrdGltZV9hZnRlcihrdGltZV9n
-ZXQoKSwgdGltZW91dCk7Cj4+Pj4gK8KgwqDCoCDCoMKgwqAgc3RhdHVzID0gcmVhZGIoaW9hZGRy
-ICsgSE9TVF9DTURfU1RBVFVTKTsKPj4+PiArCj4+Pj4KPj4+PiBTZXZlcmFsIHF1ZXN0aW9uczoK
-Pj4+Pgo+Pj4+IC0gSXQncyBub3QgY2xlYXIgdG8gbWUgaG93IHRoZSBzeW5jaHJvbml6YXRpb24g
-aXMgZG9uZSBiZXR3ZWVuIHRoZSBSQwo+Pj4+IGFuZCBFUC4gRS5nIGhvdyBhbmQgd2hlbiB0aGUg
-dmFsdWUgb2YgSE9TVF9DTURfU1RBVFVTIGNhbiBiZSBjaGFuZ2VkLgo+Pj4gVGhlIEhPU1RfQ01E
-IChjb21tYW5kcyBzZW50IHRvIHRoZSBFUCkgaXMgc2VyaWFsaXplZCBieSB1c2luZyBtdXRleC4K
-Pj4+IE9uY2UgdGhlIEVQIHJlYWRzIHRoZSBjb21tYW5kLCBpdCByZXNldHMgdGhlIHZhbHVlIGlu
-IEhPU1RfQ01ELiBTbwo+Pj4gSE9TVF9DTUQgaXMgbGVzcyBsaWtlbHkgYW4gaXNzdWUuCj4+Cj4+
-IEhlcmUncyBteSB1bmRlcnN0YW5kaW5nIG9mIHRoZSBwcm90b2NvbDoKPj4KPj4gMSkgUkMgd3Jp
-dGUgdG8gSE9TVF9DTUQKPj4gMikgUkMgd2FpdCBmb3IgSE9TVF9DTURfU1RBVFVTIHRvIGJlIEhP
-U1RfQ01EX1NUQVRVU19PS0FZCj4gVGhhdCdzIHJpZ2h0IQo+PiBJdCBsb29rcyB0byBtZSB3aGF0
-IEVQIHNob3VsZCBkbyBpcwo+Pgo+PiAxKSBFUCByZXNldCBIT1NUX0NNRCBhZnRlciByZWFkaW5n
-IG5ldyBjb21tYW5kCj4gVGhhdCdzIHJpZ2h0ISBJdCBkb2VzLgo+PiBBbmQgaXQgbG9va3MgdG8g
-bWUgRVAgc2hvdWxkIGFsc28gcmVzZXQgSE9TVF9DTURfU1RBVFVTIGhlcmU/Cj4geWVhaCwgdGhh
-dCB3b3VsZCByZXF1aXJlIFJDIHRvIHNlbmQgYW5vdGhlciBjb21tYW5kIHRvIHJlc2V0IHRoZSBz
-dGF0dXMuCj4gRGlkbid0IHNlZSBpdCByZXF1aXJlZCBpbiB0aGUgbm9ybWFsIHNjZW5hcmlvIGJ1
-dCBnb29kIHRvIGFkZCB0aGlzLgo+PiAoSSB0aG91Z2h0IHRoZXJlIHNob3VsZCBiZSBwYXRjaCB0
-byBoYW5kbGUgc3R1ZmZzIGxpa2UgdGhpcyBidXQgSSBkaWRuJ3QKPj4gZmluZCBpdCBpbiB0aGlz
-IHNlcmllcykKPiBUaGlzIGlzIGFkZGVkIGluIFtSRkMgUEFUQ0ggMTkvMjJdIFBDSTogZW5kcG9p
-bnQ6IEFkZCBFUCBmdW5jdGlvbiBkcml2ZXIKPiB0byBwcm92aWRlIFZIT1NUIGludGVyZmFjZQo+
-Cj4gcGNpX2VwZl92aG9zdF9jbWRfaGFuZGxlcigpIGdldHMgY29tbWFuZHMgZnJvbSBSQyB1c2lu
-ZyAicmVnLT5jbWQ7Ii4gT24KPiB0aGUgRVAgc2lkZSwgaXQgaXMgbG9jYWwgbWVtb3J5IGFjY2Vz
-cyAobWFwcGVkIHRvIEJBUiBtZW1vcnkgZXhwb3NlZCB0bwo+IHRoZSBob3N0KSBhbmQgaGVuY2Ug
-YWNjZXNzZWQgdXNpbmcgc3RydWN0dXJlIG1lbWJlciBhY2Nlc3MuCgoKVGhhbmtzIGZvciB0aGUg
-cG9pbnRlciwgd2lsbCBoYXZlIGEgbG9vayBhdCBhbmQgSSB0aGluayB0aGlzIHBhcnQgbmVlZCAK
-dG8gYmUgY2FyZWZ1bGx5IGRlc2lnbmVkIGFuZCB0aGUga2V5IHRvIHRoZSBzdWNjZXNzIG9mIHRo
-ZSBlcGYgdHJhbnNwb3J0LgoKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0
-cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcv
-bWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+Hi Arnaud,
+
+On Thu, Sep 17, 2020 at 05:21:02PM +0200, Arnaud POULIQUEN wrote:
+> Hi Guennadi,
+> 
+> > -----Original Message-----
+> > From: Guennadi Liakhovetski <guennadi.liakhovetski@linux.intel.com>
+> > Sent: jeudi 17 septembre 2020 07:47
+> > To: Arnaud POULIQUEN <arnaud.pouliquen@st.com>
+> > Cc: kvm@vger.kernel.org; linux-remoteproc@vger.kernel.org;
+> > virtualization@lists.linux-foundation.org; sound-open-firmware@alsa-
+> > project.org; Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>; Liam
+> > Girdwood <liam.r.girdwood@linux.intel.com>; Michael S. Tsirkin
+> > <mst@redhat.com>; Jason Wang <jasowang@redhat.com>; Ohad Ben-Cohen
+> > <ohad@wizery.com>; Bjorn Andersson <bjorn.andersson@linaro.org>; Mathieu
+> > Poirier <mathieu.poirier@linaro.org>; Vincent Whitchurch
+> > <vincent.whitchurch@axis.com>
+> > Subject: Re: [PATCH v6 0/4] Add a vhost RPMsg API
+> > 
+> > Hi Arnaud,
+> > 
+> > On Tue, Sep 15, 2020 at 02:13:23PM +0200, Arnaud POULIQUEN wrote:
+> > > Hi  Guennadi,
+> > >
+> > > On 9/1/20 5:11 PM, Guennadi Liakhovetski wrote:
+> > > > Hi,
+> > > >
+> > > > Next update:
+> > > >
+> > > > v6:
+> > > > - rename include/linux/virtio_rpmsg.h ->
+> > > > include/linux/rpmsg/virtio.h
+> > > >
+> > > > v5:
+> > > > - don't hard-code message layout
+> > > >
+> > > > v4:
+> > > > - add endianness conversions to comply with the VirtIO standard
+> > > >
+> > > > v3:
+> > > > - address several checkpatch warnings
+> > > > - address comments from Mathieu Poirier
+> > > >
+> > > > v2:
+> > > > - update patch #5 with a correct vhost_dev_init() prototype
+> > > > - drop patch #6 - it depends on a different patch, that is currently
+> > > >   an RFC
+> > > > - address comments from Pierre-Louis Bossart:
+> > > >   * remove "default n" from Kconfig
+> > > >
+> > > > Linux supports RPMsg over VirtIO for "remote processor" / AMP use
+> > > > cases. It can however also be used for virtualisation scenarios,
+> > > > e.g. when using KVM to run Linux on both the host and the guests.
+> > > > This patch set adds a wrapper API to facilitate writing vhost
+> > > > drivers for such RPMsg-based solutions. The first use case is an
+> > > > audio DSP virtualisation project, currently under development, ready
+> > > > for review and submission, available at
+> > > > https://github.com/thesofproject/linux/pull/1501/commits
+> > >
+> > > Mathieu pointed me your series. On my side i proposed the rpmsg_ns_msg
+> > > service[1] that does not match with your implementation.
+> > > As i come late, i hope that i did not miss something in the history...
+> > > Don't hesitate to point me the discussions, if it is the case.
+> > 
+> > Well, as you see, this is a v6 only of this patch set, and apart from it there have
+> > been several side discussions and patch sets.
+> > 
+> > > Regarding your patchset, it is quite confusing for me. It seems that
+> > > you implement your own protocol on top of vhost forked from the RPMsg
+> > one.
+> > > But look to me that it is not the RPMsg protocol.
+> > 
+> > I'm implementing a counterpart to the rpmsg protocol over VirtIO as initially
+> > implemented by drivers/rpmsg/virtio_rpmsg_bus.c for the "main CPU" (in case
+> > of remoteproc over VirtIO) or the guest side in case of Linux virtualisation.
+> > Since my implementation can talk to that driver, I don't think, that I'm inventing
+> > a new protocol. I'm adding support for the same protocol for the opposite side
+> > of the VirtIO divide.
+> 
+> The main point I would like to highlight here is related to the use of the name "RPMsg"
+> more than how you implement your IPC protocol.
+> If It is a counterpart, it probably does not respect interface for RPMsg clients.
+> A good way to answer this, might be to respond to this question:
+> Is the rpmsg sample client[4] can be used on top of your vhost RPMsg implementation?
+> If the response is no, describe it as a RPMsg implementation could lead to confusion...
+
+Sorry, I don't quite understand your logic. RPMsg is a communication protocol, not an 
+API. An RPMsg implementation has to be able to communicate with other compliant RPMsg 
+implementations, it doesn't have to provide any specific API. Am I missing anything?
+
+Thanks
+Guennadi
+
+> [4] https://elixir.bootlin.com/linux/v5.9-rc5/source/samples/rpmsg/rpmsg_client_sample.c
+> 
+> Regards,
+> Arnaud
+> 
+> > 
+> > > So i would be agree with Vincent[2] which proposed to switch on a
+> > > RPMsg API and creating a vhost rpmsg device. This is also proposed in
+> > > the "Enhance VHOST to enable SoC-to-SoC communication" RFC[3].
+> > > Do you think that this alternative could match with your need?
+> > 
+> > As I replied to Vincent, I understand his proposal and the approach taken in the
+> > series [3], but I'm not sure I agree, that adding yet another virtual device /
+> > driver layer on the vhost side is a good idea. As far as I understand adding new
+> > completely virtual devices isn't considered to be a good practice in the kernel.
+> > Currently vhost is just a passive "library"
+> > and my vhost-rpmsg support keeps it that way. Not sure I'm in favour of
+> > converting vhost to a virtual device infrastructure.
+> > 
+> > Thanks for pointing me out at [3], I should have a better look at it.
+> > 
+> > Thanks
+> > Guennadi
+> > 
+> > > [1].
+> > > https://patchwork.kernel.org/project/linux-remoteproc/list/?series=338
+> > > 335 [2].
+> > > https://www.spinics.net/lists/linux-virtualization/msg44195.html
+> > > [3]. https://www.spinics.net/lists/linux-remoteproc/msg06634.html
+> > >
+> > > Thanks,
+> > > Arnaud
+> > >
+> > > >
+> > > > Thanks
+> > > > Guennadi
+> > > >
+> > > > Guennadi Liakhovetski (4):
+> > > >   vhost: convert VHOST_VSOCK_SET_RUNNING to a generic ioctl
+> > > >   rpmsg: move common structures and defines to headers
+> > > >   rpmsg: update documentation
+> > > >   vhost: add an RPMsg API
+> > > >
+> > > >  Documentation/rpmsg.txt          |   6 +-
+> > > >  drivers/rpmsg/virtio_rpmsg_bus.c |  78 +------
+> > > >  drivers/vhost/Kconfig            |   7 +
+> > > >  drivers/vhost/Makefile           |   3 +
+> > > >  drivers/vhost/rpmsg.c            | 373 +++++++++++++++++++++++++++++++
+> > > >  drivers/vhost/vhost_rpmsg.h      |  74 ++++++
+> > > >  include/linux/rpmsg/virtio.h     |  83 +++++++
+> > > >  include/uapi/linux/rpmsg.h       |   3 +
+> > > >  include/uapi/linux/vhost.h       |   4 +-
+> > > >  9 files changed, 551 insertions(+), 80 deletions(-)  create mode
+> > > > 100644 drivers/vhost/rpmsg.c  create mode 100644
+> > > > drivers/vhost/vhost_rpmsg.h  create mode 100644
+> > > > include/linux/rpmsg/virtio.h
+> > > >
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
