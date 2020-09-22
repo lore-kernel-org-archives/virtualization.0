@@ -2,95 +2,118 @@ Return-Path: <SRS0=wpUj=C7=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DCCA6C4346E
-	for <virtualization@archiver.kernel.org>; Tue, 22 Sep 2020 02:02:33 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 55C56C4346E
+	for <virtualization@archiver.kernel.org>; Tue, 22 Sep 2020 02:45:20 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 6E51523A60
-	for <virtualization@archiver.kernel.org>; Tue, 22 Sep 2020 02:02:33 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NlernS3Y"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6E51523A60
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id DBF8321941
+	for <virtualization@archiver.kernel.org>; Tue, 22 Sep 2020 02:45:19 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DBF8321941
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=acm.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 05529859D2;
-	Tue, 22 Sep 2020 02:02:33 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 5FBBA2152E;
+	Tue, 22 Sep 2020 02:45:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Rjf04EihkeDl; Tue, 22 Sep 2020 02:02:32 +0000 (UTC)
+	with ESMTP id KpFJ0ox52n1r; Tue, 22 Sep 2020 02:45:18 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 8A9738476C;
-	Tue, 22 Sep 2020 02:02:32 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 0625C21FA8;
+	Tue, 22 Sep 2020 02:45:18 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 7654BC0889;
-	Tue, 22 Sep 2020 02:02:32 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BC6C6C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E2063C0859;
+	Tue, 22 Sep 2020 02:45:17 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 63CC7C0051
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Sep 2020 02:02:30 +0000 (UTC)
+ Tue, 22 Sep 2020 02:45:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id A525A85DBB
+ by silver.osuosl.org (Postfix) with ESMTP id 56C6621FA8
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Sep 2020 02:02:30 +0000 (UTC)
+ Tue, 22 Sep 2020 02:45:16 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id RCIYJn1qg2Mo
+ with ESMTP id uD+kw0KBhwBG
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Sep 2020 02:02:29 +0000 (UTC)
+ Tue, 22 Sep 2020 02:45:15 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by whitealder.osuosl.org (Postfix) with ESMTPS id BDD1B856F4
+Received: from mail-pj1-f68.google.com (mail-pj1-f68.google.com
+ [209.85.216.68])
+ by silver.osuosl.org (Postfix) with ESMTPS id D26012152E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Sep 2020 02:02:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1600740148;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=W1QhFiJpeL+8vBbjBr4sETQTmp+yKXR4gMOOBx8WCao=;
- b=NlernS3Y9dY3f7sHPn2yngIt23jCyozJ92tcbzm8pC9ErK1foCG6FN4hIALLkkGplrDLPg
- NbWqyvnFaqxL43LvyyJaVHHGL7mPB4NDMINGjUckbqfiHSLAPPSv1Vp5c0RpLU7Qe2ql2F
- +oDi+P+PqlyayoFLeGzbWZzupwPwmFI=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-222-SLjUKDTTPcO_OkI5t8g0kg-1; Mon, 21 Sep 2020 22:02:26 -0400
-X-MC-Unique: SLjUKDTTPcO_OkI5t8g0kg-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
- [10.5.11.14])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 428401005E64;
- Tue, 22 Sep 2020 02:02:25 +0000 (UTC)
-Received: from [10.72.13.139] (ovpn-13-139.pek2.redhat.com [10.72.13.139])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 209CB5DA30;
- Tue, 22 Sep 2020 02:02:16 +0000 (UTC)
+ Tue, 22 Sep 2020 02:45:15 +0000 (UTC)
+Received: by mail-pj1-f68.google.com with SMTP id q4so763240pjh.5
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 21 Sep 2020 19:45:15 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:subject:to:references:from:autocrypt:message-id
+ :date:user-agent:mime-version:in-reply-to:content-language
+ :content-transfer-encoding;
+ bh=lebGQ0WgPCez2R35wa3urhdXxY/Bn5Nlo8FdNbn1LQ8=;
+ b=F6KNHlJqK33EJ5E+/k7zeZaCJ83izRgTk/OH0rK6Wm5UxIfPMEEXrWpFIJkPlLroRg
+ CrwJWZJEWk2VSqH7CpBUtlcbHBVXqfBltHWW3c2BuWr8usCyOZxG1ZpiJYQeNDIJPjH5
+ HM/28duZgab0NOv8QNYbA2YVMDgCPYCF3aOnIn2PF70bKoUrWRpUA1XKHyajOJZGgY4+
+ Cew6hgP5iLeT09JhNDDNaql/jWDakyVk0hNk+Ue4DXRp89+WMyfGq/9dPE0uDkJufnIo
+ axsuSn8vXNywEEC7GJOEK5Wxb76UcySmia6eXTN5Q8lzjpBt8cr8pAMmeW54113dnkBk
+ +Dfw==
+X-Gm-Message-State: AOAM5315Wkjiq/c+2TvavTHmuWedbfTmNr/ntPzJokqYzWM5gE5w9Dmp
+ CYenSqt4ByTnbmEWF48DXFHcgUgGbKw=
+X-Google-Smtp-Source: ABdhPJx1GFSufCEXFHwvrnyZqsBLdfFAJf+3amrY8P7gTNNNAQW9ZHB/Zk1bFJXKuO94vvn4SLP1aw==
+X-Received: by 2002:a17:90a:ed8e:: with SMTP id
+ k14mr2003130pjy.178.1600742714879; 
+ Mon, 21 Sep 2020 19:45:14 -0700 (PDT)
+Received: from ?IPv6:2601:647:4000:d7:5e05:892c:575b:24c7?
+ ([2601:647:4000:d7:5e05:892c:575b:24c7])
+ by smtp.gmail.com with ESMTPSA id a18sm12420584pgw.50.2020.09.21.19.45.13
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Mon, 21 Sep 2020 19:45:13 -0700 (PDT)
 Subject: Re: [PATCH 2/8] vhost: add helper to check if a vq has been setup
 To: Mike Christie <michael.christie@oracle.com>, martin.petersen@oracle.com,
  linux-scsi@vger.kernel.org, target-devel@vger.kernel.org, mst@redhat.com,
- pbonzini@redhat.com, stefanha@redhat.com,
+ jasowang@redhat.com, pbonzini@redhat.com, stefanha@redhat.com,
  virtualization@lists.linux-foundation.org
 References: <1600712588-9514-1-git-send-email-michael.christie@oracle.com>
  <1600712588-9514-3-git-send-email-michael.christie@oracle.com>
-From: Jason Wang <jasowang@redhat.com>
-Message-ID: <e2d16333-d5ed-4c5c-58b3-7b5d0a9da47a@redhat.com>
-Date: Tue, 22 Sep 2020 10:02:15 +0800
+From: Bart Van Assche <bvanassche@acm.org>
+Autocrypt: addr=bvanassche@acm.org; prefer-encrypt=mutual; keydata=
+ mQENBFSOu4oBCADcRWxVUvkkvRmmwTwIjIJvZOu6wNm+dz5AF4z0FHW2KNZL3oheO3P8UZWr
+ LQOrCfRcK8e/sIs2Y2D3Lg/SL7qqbMehGEYcJptu6mKkywBfoYbtBkVoJ/jQsi2H0vBiiCOy
+ fmxMHIPcYxaJdXxrOG2UO4B60Y/BzE6OrPDT44w4cZA9DH5xialliWU447Bts8TJNa3lZKS1
+ AvW1ZklbvJfAJJAwzDih35LxU2fcWbmhPa7EO2DCv/LM1B10GBB/oQB5kvlq4aA2PSIWkqz4
+ 3SI5kCPSsygD6wKnbRsvNn2mIACva6VHdm62A7xel5dJRfpQjXj2snd1F/YNoNc66UUTABEB
+ AAG0JEJhcnQgVmFuIEFzc2NoZSA8YnZhbmFzc2NoZUBhY20ub3JnPokBOQQTAQIAIwUCVI67
+ igIbAwcLCQgHAwIBBhUIAgkKCwQWAgMBAh4BAheAAAoJEHFcPTXFzhAJ8QkH/1AdXblKL65M
+ Y1Zk1bYKnkAb4a98LxCPm/pJBilvci6boefwlBDZ2NZuuYWYgyrehMB5H+q+Kq4P0IBbTqTa
+ jTPAANn62A6jwJ0FnCn6YaM9TZQjM1F7LoDX3v+oAkaoXuq0dQ4hnxQNu792bi6QyVdZUvKc
+ macVFVgfK9n04mL7RzjO3f+X4midKt/s+G+IPr4DGlrq+WH27eDbpUR3aYRk8EgbgGKvQFdD
+ CEBFJi+5ZKOArmJVBSk21RHDpqyz6Vit3rjep7c1SN8s7NhVi9cjkKmMDM7KYhXkWc10lKx2
+ RTkFI30rkDm4U+JpdAd2+tP3tjGf9AyGGinpzE2XY1K5AQ0EVI67igEIAKiSyd0nECrgz+H5
+ PcFDGYQpGDMTl8MOPCKw/F3diXPuj2eql4xSbAdbUCJzk2ETif5s3twT2ER8cUTEVOaCEUY3
+ eOiaFgQ+nGLx4BXqqGewikPJCe+UBjFnH1m2/IFn4T9jPZkV8xlkKmDUqMK5EV9n3eQLkn5g
+ lco+FepTtmbkSCCjd91EfThVbNYpVQ5ZjdBCXN66CKyJDMJ85HVr5rmXG/nqriTh6cv1l1Js
+ T7AFvvPjUPknS6d+BETMhTkbGzoyS+sywEsQAgA+BMCxBH4LvUmHYhpS+W6CiZ3ZMxjO8Hgc
+ ++w1mLeRUvda3i4/U8wDT3SWuHcB3DWlcppECLkAEQEAAYkBHwQYAQIACQUCVI67igIbDAAK
+ CRBxXD01xc4QCZ4dB/0QrnEasxjM0PGeXK5hcZMT9Eo998alUfn5XU0RQDYdwp6/kMEXMdmT
+ oH0F0xB3SQ8WVSXA9rrc4EBvZruWQ+5/zjVrhhfUAx12CzL4oQ9Ro2k45daYaonKTANYG22y
+ //x8dLe2Fv1By4SKGhmzwH87uXxbTJAUxiWIi1np0z3/RDnoVyfmfbbL1DY7zf2hYXLLzsJR
+ mSsED/1nlJ9Oq5fALdNEPgDyPUerqHxcmIub+pF0AzJoYHK5punqpqfGmqPbjxrJLPJfHVKy
+ goMj5DlBMoYqEgpbwdUYkH6QdizJJCur4icy8GUNbisFYABeoJ91pnD4IGei3MTdvINSZI5e
+Message-ID: <ce73f019-a247-7913-47fd-b3e5e7bdf81f@acm.org>
+Date: Mon, 21 Sep 2020 19:45:12 -0700
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+ Thunderbird/68.12.0
 MIME-Version: 1.0
 In-Reply-To: <1600712588-9514-3-git-send-email-michael.christie@oracle.com>
 Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -102,45 +125,29 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Ck9uIDIwMjAvOS8yMiDkuIrljYgyOjIzLCBNaWtlIENocmlzdGllIHdyb3RlOgo+IFRoaXMgYWRk
-cyBhIGhlbHBlciBjaGVjayBpZiBhIHZxIGhhcyBiZWVuIHNldHVwLiBUaGUgbmV4dCBwYXRjaGVz
-Cj4gd2lsbCB1c2UgdGhpcyB3aGVuIHdlIG1vdmUgdGhlIHZob3N0IHNjc2kgY21kIHByZWFsbG9j
-YXRpb24gZnJvbSBwZXIKPiBzZXNzaW9uIHRvIHBlciB2cS4gSW4gdGhlIHBlciB2cSBjYXNlLCB3
-ZSBvbmx5IHdhbnQgdG8gYWxsb2NhdGUgY21kcwo+IGZvciB2cXMgdGhhdCBoYXZlIGFjdHVhbGx5
-IGJlZW4gc2V0dXAgYW5kIG5vdCBmb3IgYWxsIHRoZSBwb3NzaWJsZQo+IHZxcy4KPgo+IFNpZ25l
-ZC1vZmYtYnk6IE1pa2UgQ2hyaXN0aWUgPG1pY2hhZWwuY2hyaXN0aWVAb3JhY2xlLmNvbT4KPiAt
-LS0KPiAgIGRyaXZlcnMvdmhvc3Qvdmhvc3QuYyB8IDkgKysrKysrKysrCj4gICBkcml2ZXJzL3Zo
-b3N0L3Zob3N0LmggfCAxICsKPiAgIDIgZmlsZXMgY2hhbmdlZCwgMTAgaW5zZXJ0aW9ucygrKQo+
-Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3Qvdmhvc3QuYyBiL2RyaXZlcnMvdmhvc3Qvdmhv
-c3QuYwo+IGluZGV4IGI0NTUxOWMuLjVkZDllYjEgMTAwNjQ0Cj4gLS0tIGEvZHJpdmVycy92aG9z
-dC92aG9zdC5jCj4gKysrIGIvZHJpdmVycy92aG9zdC92aG9zdC5jCj4gQEAgLTMwNSw2ICszMDUs
-MTUgQEAgc3RhdGljIHZvaWQgdmhvc3RfdnJpbmdfY2FsbF9yZXNldChzdHJ1Y3Qgdmhvc3RfdnJp
-bmdfY2FsbCAqY2FsbF9jdHgpCj4gICAJc3Bpbl9sb2NrX2luaXQoJmNhbGxfY3R4LT5jdHhfbG9j
-ayk7Cj4gICB9Cj4gICAKPiArYm9vbCB2aG9zdF92cV9pc19zZXR1cChzdHJ1Y3Qgdmhvc3Rfdmly
-dHF1ZXVlICp2cSkKPiArewo+ICsJaWYgKHZxLT5hdmFpbCAmJiB2cS0+ZGVzYyAmJiB2cS0+dXNl
-ZCAmJiB2aG9zdF92cV9hY2Nlc3Nfb2sodnEpKQo+ICsJCXJldHVybiB0cnVlOwo+ICsJZWxzZQo+
-ICsJCXJldHVybiBmYWxzZTsKPiArfQo+ICtFWFBPUlRfU1lNQk9MX0dQTCh2aG9zdF92cV9pc19z
-ZXR1cCk7CgoKVGhpcyBpcyBwcm9iYWJseSBvayBidXQgSSB3b25kZXIgbWF5YmUgd2Ugc2hvdWxk
-IGhhdmUgc29tZXRoaW5nIGxpa2UgCndoYXQgdkRQQSBkaWQgKFZIT1NUX1NFVF9WUklOR19FTkFC
-TEUpIHRvIG1hdGNoIHZpcnRpbyAxLjAgZGV2aWNlIApkZWZpbml0aW9uLgoKVGhhbmtzCgoKPiAr
-Cj4gICBzdGF0aWMgdm9pZCB2aG9zdF92cV9yZXNldChzdHJ1Y3Qgdmhvc3RfZGV2ICpkZXYsCj4g
-ICAJCQkgICBzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2cSkKPiAgIHsKPiBkaWZmIC0tZ2l0IGEv
-ZHJpdmVycy92aG9zdC92aG9zdC5oIGIvZHJpdmVycy92aG9zdC92aG9zdC5oCj4gaW5kZXggOTAz
-MmQzYy4uM2QzMGIzZCAxMDA2NDQKPiAtLS0gYS9kcml2ZXJzL3Zob3N0L3Zob3N0LmgKPiArKysg
-Yi9kcml2ZXJzL3Zob3N0L3Zob3N0LmgKPiBAQCAtMTkwLDYgKzE5MCw3IEBAIGludCB2aG9zdF9n
-ZXRfdnFfZGVzYyhzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICosCj4gICAJCSAgICAgIHN0cnVjdCB2
-aG9zdF9sb2cgKmxvZywgdW5zaWduZWQgaW50ICpsb2dfbnVtKTsKPiAgIHZvaWQgdmhvc3RfZGlz
-Y2FyZF92cV9kZXNjKHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKiwgaW50IG4pOwo+ICAgCj4gK2Jv
-b2wgdmhvc3RfdnFfaXNfc2V0dXAoc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqdnEpOwo+ICAgaW50
-IHZob3N0X3ZxX2luaXRfYWNjZXNzKHN0cnVjdCB2aG9zdF92aXJ0cXVldWUgKik7Cj4gICBpbnQg
-dmhvc3RfYWRkX3VzZWQoc3RydWN0IHZob3N0X3ZpcnRxdWV1ZSAqLCB1bnNpZ25lZCBpbnQgaGVh
-ZCwgaW50IGxlbik7Cj4gICBpbnQgdmhvc3RfYWRkX3VzZWRfbihzdHJ1Y3Qgdmhvc3RfdmlydHF1
-ZXVlICosIHN0cnVjdCB2cmluZ191c2VkX2VsZW0gKmhlYWRzLAoKX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
-ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
-bGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+On 2020-09-21 11:23, Mike Christie wrote:
+> +bool vhost_vq_is_setup(struct vhost_virtqueue *vq)
+> +{
+> +	if (vq->avail && vq->desc && vq->used && vhost_vq_access_ok(vq))
+> +		return true;
+> +	else
+> +		return false;
+> +}
+
+Has it been considered changing the body of this function into
+"return vq->avail && vq->desc && vq->used && vhost_vq_access_ok(vq)"? I'm
+concerned otherwise one or another build bot will suggest to make that
+change.
+
+Thanks,
+
+Bart.
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
