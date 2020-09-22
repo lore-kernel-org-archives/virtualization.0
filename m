@@ -2,146 +2,88 @@ Return-Path: <SRS0=wpUj=C7=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-16.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-14.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B5AB4C2D0E2
-	for <virtualization@archiver.kernel.org>; Tue, 22 Sep 2020 06:23:15 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A917AC2D0E2
+	for <virtualization@archiver.kernel.org>; Tue, 22 Sep 2020 11:26:14 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 50AF32396D
-	for <virtualization@archiver.kernel.org>; Tue, 22 Sep 2020 06:23:15 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="E69akbOX"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 50AF32396D
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id 0CC5B23600
+	for <virtualization@archiver.kernel.org>; Tue, 22 Sep 2020 11:26:13 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0CC5B23600
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id EE29E1FC7D;
-	Tue, 22 Sep 2020 06:23:14 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 87E5386676;
+	Tue, 22 Sep 2020 11:26:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id z-mZjOCK-UY3; Tue, 22 Sep 2020 06:23:12 +0000 (UTC)
+	with ESMTP id U1PnVECp46BL; Tue, 22 Sep 2020 11:26:11 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 273EA1FFFF;
-	Tue, 22 Sep 2020 06:23:12 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id A2BF186670;
+	Tue, 22 Sep 2020 11:26:11 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 080E3C0890;
-	Tue, 22 Sep 2020 06:23:12 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 2D55BC0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8B6A3C0859;
+	Tue, 22 Sep 2020 11:26:11 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 149DEC0051
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Sep 2020 06:23:11 +0000 (UTC)
+ Tue, 22 Sep 2020 11:26:10 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 17B4D84B60
+ by whitealder.osuosl.org (Postfix) with ESMTP id 0EF0686670
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Sep 2020 06:23:11 +0000 (UTC)
+ Tue, 22 Sep 2020 11:26:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id X07GMMwU7sqx
+ with ESMTP id XS1DOlxLHav8
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Sep 2020 06:23:10 +0000 (UTC)
+ Tue, 22 Sep 2020 11:26:08 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 04F0184B55
+Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 9CF4A8666C
  for <virtualization@lists.linux-foundation.org>;
- Tue, 22 Sep 2020 06:23:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1600755788;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
- bh=Mzmhfdv4n5rZyzbrasI27bxC5DpWgPB4WGSFctyqRwY=;
- b=E69akbOXzsMIvbBLKicP5N0JJ1JR+ehqytVoWZQE8hETTHXCrfmB11WuE5yeVOD/ZYpwpF
- iDJOvEOn3Gqj8+nqfYxVYcyQJy3pZzdJ4SCBIK4tRgeRrV3HPBDPwfYzsJdeHI9XPupX1X
- J+UdSYoJTP9CNotubsy2CjbHP7zmh6k=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-537-_Mdf06wSMq2VG4_GlCXl0g-1; Tue, 22 Sep 2020 02:23:04 -0400
-X-MC-Unique: _Mdf06wSMq2VG4_GlCXl0g-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
- [10.5.11.13])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A31B41005E5E;
- Tue, 22 Sep 2020 06:22:59 +0000 (UTC)
-Received: from [10.36.113.20] (ovpn-113-20.ams2.redhat.com [10.36.113.20])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 91CE073682;
- Tue, 22 Sep 2020 06:22:55 +0000 (UTC)
-Subject: Re: [PATCH] kernel/resource: Fix use of ternary condition in
- release_mem_region_adjustable
-To: Nathan Chancellor <natechancellor@gmail.com>
-References: <20200911103459.10306-2-david@redhat.com>
- <20200922060748.2452056-1-natechancellor@gmail.com>
-From: David Hildenbrand <david@redhat.com>
-Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
- 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
- WNyWQQ==
-Organization: Red Hat GmbH
-Message-ID: <330ff427-6971-25ec-2380-d1c8ad2dc7bc@redhat.com>
-Date: Tue, 22 Sep 2020 08:22:54 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.11.0
+ Tue, 22 Sep 2020 11:26:08 +0000 (UTC)
+IronPort-SDR: er3ns903PvzYhDaCc9Ak/x78ziN9uWNRWJPppKXI81yGKTxBadyF0IQaPxLcmnoswxRSbWtwlp
+ kNyMxNsPk7vg==
+X-IronPort-AV: E=McAfee;i="6000,8403,9751"; a="157960175"
+X-IronPort-AV: E=Sophos;i="5.77,290,1596524400"; d="scan'208";a="157960175"
+X-Amp-Result: SKIPPED(no attachment in message)
+X-Amp-File-Uploaded: False
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+ by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 22 Sep 2020 04:26:08 -0700
+IronPort-SDR: Kur+dhn17MHtUpo7n7moW7dCFudSWJ1VAoW3vMO3W/uHyiiLHpzDK2zTraAFDE5/LGH6SCYJ32
+ I7Ff5NJQeQDw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.77,290,1596524400"; d="scan'208";a="338261909"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
+ by orsmga008.jf.intel.com with ESMTP; 22 Sep 2020 04:26:03 -0700
+Received: from andy by smile with local (Exim 4.94)
+ (envelope-from <andriy.shevchenko@linux.intel.com>)
+ id 1kKgOi-0014sL-V4; Tue, 22 Sep 2020 14:23:48 +0300
+Date: Tue, 22 Sep 2020 14:23:48 +0300
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To: Jie Deng <jie.deng@intel.com>
+Subject: Re: [PATCH v3] i2c: virtio: add a virtio i2c frontend driver
+Message-ID: <20200922112348.GL3956970@smile.fi.intel.com>
+References: <1350309657ab0c7b9f97e7a5c71d084f88caa549.1600743079.git.jie.deng@intel.com>
 MIME-Version: 1.0
-In-Reply-To: <20200922060748.2452056-1-natechancellor@gmail.com>
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
-Cc: linux-s390@vger.kernel.org, linux-hyperv@vger.kernel.org, mhocko@suse.com,
- keescook@chromium.org, bhe@redhat.com, linux-acpi@vger.kernel.org,
- linux-nvdimm@lists.01.org, linux-kernel@vger.kernel.org, ardb@kernel.org,
- linux-mm@kvack.org, jgg@ziepe.ca, clang-built-linux@googlegroups.com,
- richardw.yang@linux.intel.com, pankaj.gupta.linux@gmail.com,
- xen-devel@lists.xenproject.org, akpm@linux-foundation.org,
- virtualization@lists.linux-foundation.org, dan.j.williams@intel.com
+Content-Disposition: inline
+In-Reply-To: <1350309657ab0c7b9f97e7a5c71d084f88caa549.1600743079.git.jie.deng@intel.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Cc: Sergey.Semin@baikalelectronics.ru, bjorn.andersson@linaro.org,
+ loic.poulain@linaro.org, yu1.wang@intel.com, mst@redhat.com,
+ linux-kernel@vger.kernel.org, krzk@kernel.org,
+ virtualization@lists.linux-foundation.org, wsa@kernel.org,
+ wsa+renesas@sang-engineering.com, jarkko.nikula@linux.intel.com,
+ linux-i2c@vger.kernel.org, rppt@kernel.org, shuo.a.liu@intel.com,
+ tali.perry1@gmail.com, conghui.chen@intel.com, jdelvare@suse.de
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -158,70 +100,420 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 22.09.20 08:07, Nathan Chancellor wrote:
-> Clang warns:
+On Tue, Sep 22, 2020 at 10:58:43AM +0800, Jie Deng wrote:
+> Add an I2C bus driver for virtio para-virtualization.
 > 
-> kernel/resource.c:1281:53: warning: operator '?:' has lower precedence
-> than '|'; '|' will be evaluated first
-> [-Wbitwise-conditional-parentheses]
->         new_res = alloc_resource(GFP_KERNEL | alloc_nofail ? __GFP_NOFAIL : 0);
->                                  ~~~~~~~~~~~~~~~~~~~~~~~~~ ^
-> kernel/resource.c:1281:53: note: place parentheses around the '|'
-> expression to silence this warning
->         new_res = alloc_resource(GFP_KERNEL | alloc_nofail ? __GFP_NOFAIL : 0);
->                                  ~~~~~~~~~~~~~~~~~~~~~~~~~ ^
-> kernel/resource.c:1281:53: note: place parentheses around the '?:'
-> expression to evaluate it first
->         new_res = alloc_resource(GFP_KERNEL | alloc_nofail ? __GFP_NOFAIL : 0);
->                                                            ^
->                                               (                              )
-> 1 warning generated.
+> The controller can be emulated by the backend driver in
+> any device model software by following the virtio protocol.
 > 
-> Add the parentheses as it was clearly intended for the ternary condition
-> to be evaluated first.
+> This driver communicates with the backend driver through a
+> virtio I2C message structure which includes following parts:
 > 
-> Fixes: 5fd23bd0d739 ("kernel/resource: make release_mem_region_adjustable() never fail")
-> Link: https://github.com/ClangBuiltLinux/linux/issues/1159
-> Signed-off-by: Nathan Chancellor <natechancellor@gmail.com>
+> - Header: i2c_msg addr, flags, len.
+> - Data buffer: the pointer to the I2C msg data.
+> - Status: the processing result from the backend.
+> 
+> People may implement different backend drivers to emulate
+> different controllers according to their needs. A backend
+> example can be found in the device model of the open source
+> project ACRN. For more information, please refer to
+> https://projectacrn.org.
+> 
+> The virtio device ID 34 is used for this I2C adpter since IDs
+> before 34 have been reserved by other virtio devices.
+> 
+> Co-developed-by: Conghui Chen <conghui.chen@intel.com>
+> Signed-off-by: Conghui Chen <conghui.chen@intel.com>
+> Signed-off-by: Jie Deng <jie.deng@intel.com>
+> Reviewed-by: Shuo Liu <shuo.a.liu@intel.com>
+> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 > ---
+> The device ID request:
+>         https://github.com/oasis-tcs/virtio-spec/issues/85
 > 
-> Presumably, this will be squashed but I included a fixes tag
-> nonetheless. Apologies if this has already been noticed and fixed
-> already, I did not find anything on LKML.
-
-Hasn't been noticed before (I guess most people build with GCC, which
-does not warn in this instance, at least for me) thanks!
-
-Commit ids are not stable yet, so Andrew will most probably squash it.
-
-Reviewed-by: David Hildenbrand <david@redhat.com>
-
+> The specification:
+> 	https://lists.oasis-open.org/archives/virtio-comment/202009/msg00021.html
 > 
->  kernel/resource.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> Changes in v3:
+>         - Move the interface into uAPI according to Jason.
+>         - Fix issues reported by Dan Carpenter.
+> 	- Fix typo reported by Randy.
 > 
-> diff --git a/kernel/resource.c b/kernel/resource.c
-> index ca2a666e4317..3ae2f56cc79d 100644
-> --- a/kernel/resource.c
-> +++ b/kernel/resource.c
-> @@ -1278,7 +1278,7 @@ void release_mem_region_adjustable(resource_size_t start, resource_size_t size)
->  	 * similarly).
->  	 */
->  retry:
-> -	new_res = alloc_resource(GFP_KERNEL | alloc_nofail ? __GFP_NOFAIL : 0);
-> +	new_res = alloc_resource(GFP_KERNEL | (alloc_nofail ? __GFP_NOFAIL : 0));
+> Changes in v2:
+>         - Addressed comments received from Michael, Andy and Jason.
+> 
+>  drivers/i2c/busses/Kconfig      |  11 ++
+>  drivers/i2c/busses/Makefile     |   3 +
+>  drivers/i2c/busses/i2c-virtio.c | 256 ++++++++++++++++++++++++++++++++++++++++
+>  include/uapi/linux/virtio_i2c.h |  31 +++++
+>  include/uapi/linux/virtio_ids.h |   1 +
+>  5 files changed, 302 insertions(+)
+>  create mode 100644 drivers/i2c/busses/i2c-virtio.c
+>  create mode 100644 include/uapi/linux/virtio_i2c.h
+> 
+> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
+> index 293e7a0..f2f6543 100644
+> --- a/drivers/i2c/busses/Kconfig
+> +++ b/drivers/i2c/busses/Kconfig
+> @@ -21,6 +21,17 @@ config I2C_ALI1535
+>  	  This driver can also be built as a module.  If so, the module
+>  	  will be called i2c-ali1535.
 >  
->  	p = &parent->child;
->  	write_lock(&resource_lock);
-> 
-> base-commit: 40ee82f47bf297e31d0c47547cd8f24ede52415a
-> 
+> +config I2C_VIRTIO
+> +	tristate "Virtio I2C Adapter"
+> +	depends on VIRTIO
+> +	help
+> +	  If you say yes to this option, support will be included for the virtio
+> +	  I2C adapter driver. The hardware can be emulated by any device model
+> +	  software according to the virtio protocol.
+> +
+> +	  This driver can also be built as a module. If so, the module
+> +	  will be called i2c-virtio.
+> +
+>  config I2C_ALI1563
+>  	tristate "ALI 1563"
+>  	depends on PCI
+> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
+> index 19aff0e..821acfa 100644
+> --- a/drivers/i2c/busses/Makefile
+> +++ b/drivers/i2c/busses/Makefile
+> @@ -6,6 +6,9 @@
+>  # ACPI drivers
+>  obj-$(CONFIG_I2C_SCMI)		+= i2c-scmi.o
+>  
+> +# VIRTIO I2C host controller driver
+> +obj-$(CONFIG_I2C_VIRTIO)	+= i2c-virtio.o
+> +
+>  # PC SMBus host controller drivers
+>  obj-$(CONFIG_I2C_ALI1535)	+= i2c-ali1535.o
+>  obj-$(CONFIG_I2C_ALI1563)	+= i2c-ali1563.o
+> diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
+> new file mode 100644
+> index 0000000..48fd780
+> --- /dev/null
+> +++ b/drivers/i2c/busses/i2c-virtio.c
+> @@ -0,0 +1,256 @@
+> +// SPDX-License-Identifier: GPL-2.0-or-later
+> +/*
+> + * Virtio I2C Bus Driver
+> + *
+> + * Copyright (c) 2020 Intel Corporation. All rights reserved.
+> + */
+> +
+> +#include <linux/acpi.h>
+> +#include <linux/completion.h>
+> +#include <linux/err.h>
+> +#include <linux/i2c.h>
+> +#include <linux/io.h>
+> +#include <linux/jiffies.h>
+> +#include <linux/kernel.h>
+> +#include <linux/module.h>
+> +#include <linux/platform_device.h>
+> +#include <linux/wait.h>
+> +
+> +#include <linux/virtio.h>
+> +#include <linux/virtio_i2c.h>
+> +
+> +/**
+> + * struct virtio_i2c_msg - the virtio I2C message structure
+> + * @hdr: the virtio I2C message header
+> + * @buf: virtio I2C message data buffer
+> + * @status: the processing result from the backend
+> + */
+> +struct virtio_i2c_msg {
+> +	struct virtio_i2c_hdr hdr;
+> +	u8 *buf;
+> +	u8 status;
+> +};
+> +
+> +/**
+> + * struct virtio_i2c - virtio I2C data
+> + * @vdev: virtio device for this controller
+> + * @completion: completion of virtio I2C message
+> + * @vmsg: the virtio I2C message for communication
+> + * @adap: I2C adapter for this controller
+> + * @i2c_lock: lock for virtqueue processing
+> + * @vq: the virtio virtqueue for communication
+> + */
+> +struct virtio_i2c {
+> +	struct virtio_device *vdev;
+> +	struct completion completion;
+> +	struct virtio_i2c_msg vmsg;
+> +	struct i2c_adapter adap;
+> +	struct mutex i2c_lock;
+> +	struct virtqueue *vq;
+> +};
+> +
+> +static void virtio_i2c_msg_done(struct virtqueue *vq)
+> +{
+> +	struct virtio_i2c *vi = vq->vdev->priv;
+> +
+> +	complete(&vi->completion);
+> +}
+> +
+> +static int virtio_i2c_add_msg(struct virtqueue *vq,
+> +			      struct virtio_i2c_msg *vmsg,
+> +			      struct i2c_msg *msg)
+> +{
+> +	struct scatterlist *sgs[3], hdr, bout, bin, status;
+> +	int outcnt = 0, incnt = 0;
+> +
+> +	if (!msg->len)
+> +		return -EINVAL;
+> +
+> +	vmsg->hdr.addr = cpu_to_le16(msg->addr);
+> +	vmsg->hdr.flags = cpu_to_le16(msg->flags);
+> +	vmsg->hdr.len = cpu_to_le16(msg->len);
+> +
+> +	vmsg->buf = kzalloc(msg->len, GFP_KERNEL);
+> +	if (!vmsg->buf)
+> +		return -ENOMEM;
+> +
+> +	sg_init_one(&hdr, &vmsg->hdr, sizeof(struct virtio_i2c_hdr));
+> +	sgs[outcnt++] = &hdr;
+> +	if (msg->flags & I2C_M_RD) {
+> +		sg_init_one(&bin, vmsg->buf, msg->len);
+> +		sgs[outcnt + incnt++] = &bin;
+> +	} else {
+> +		memcpy(vmsg->buf, msg->buf, msg->len);
+> +		sg_init_one(&bout, vmsg->buf, msg->len);
+> +		sgs[outcnt++] = &bout;
+> +	}
+> +	sg_init_one(&status, &vmsg->status, sizeof(vmsg->status));
+> +	sgs[outcnt + incnt++] = &status;
+> +
+> +	return virtqueue_add_sgs(vq, sgs, outcnt, incnt, vmsg, GFP_KERNEL);
+> +}
+> +
+> +static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
+> +{
+> +	struct virtio_i2c *vi = i2c_get_adapdata(adap);
+> +	struct virtqueue *vq = vi->vq;
+> +	struct virtio_i2c_msg *vmsg;
+> +	unsigned long time_left;
+> +	int len, i, ret = 0;
+> +
+> +	mutex_lock(&vi->i2c_lock);
+> +	vmsg = &vi->vmsg;
+> +	vmsg->buf = NULL;
+> +
+> +	for (i = 0; i < num; i++) {
+> +		ret = virtio_i2c_add_msg(vq, vmsg, &msgs[i]);
+> +		if (ret) {
+> +			dev_err(&adap->dev, "failed to add msg[%d] to virtqueue.\n", i);
+> +			break;
+> +		}
+> +
+> +		virtqueue_kick(vq);
+> +
+> +		time_left = wait_for_completion_timeout(&vi->completion, adap->timeout);
+> +		if (!time_left) {
+> +			dev_err(&adap->dev, "msg[%d]: addr=0x%x timeout.\n", i, msgs[i].addr);
+> +			break;
+> +		}
+> +
+> +		vmsg = (struct virtio_i2c_msg *)virtqueue_get_buf(vq, &len);
+> +		/* vmsg should point to the same address with &vi->vmsg */
 
+> +		if ((!vmsg) || (vmsg != &vi->vmsg)) {
+
+This is a bit difficult to read (esp. taking into account the above comment)
+besides the fact of redundant parentheses. Why not simply:
+
+		if (!(vmsg && vmsg == &vi->vmsg)) {
+
+?
+
+> +			dev_err(&adap->dev, "msg[%d]: addr=0x%x virtqueue error.\n",
+> +				i, msgs[i].addr);
+> +			break;
+> +		}
+> +
+> +		if (vmsg->status != VIRTIO_I2C_MSG_OK) {
+> +			dev_err(&adap->dev, "msg[%d]: addr=0x%x error=%d.\n",
+> +				i, msgs[i].addr, vmsg->status);
+> +			break;
+> +		}
+> +
+> +		if ((msgs[i].flags & I2C_M_RD) && msgs[i].len)
+> +			memcpy(msgs[i].buf, vmsg->buf, msgs[i].len);
+> +
+> +		kfree(vmsg->buf);
+> +		vmsg->buf = NULL;
+> +
+> +		reinit_completion(&vi->completion);
+> +	}
+> +
+> +	mutex_unlock(&vi->i2c_lock);
+> +	kfree(vi->vmsg.buf);
+> +	vi->vmsg.buf = NULL;
+> +	return ((ret < 0) ? ret : i);
+> +}
+> +
+> +static void virtio_i2c_del_vqs(struct virtio_device *vdev)
+> +{
+> +	vdev->config->reset(vdev);
+> +	vdev->config->del_vqs(vdev);
+> +}
+> +
+> +static int virtio_i2c_setup_vqs(struct virtio_i2c *vi)
+> +{
+> +	struct virtio_device *vdev = vi->vdev;
+> +
+> +	vi->vq = virtio_find_single_vq(vdev, virtio_i2c_msg_done, "msg");
+> +	return PTR_ERR_OR_ZERO(vi->vq);
+> +}
+> +
+> +static u32 virtio_i2c_func(struct i2c_adapter *adap)
+> +{
+> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
+> +}
+> +
+> +static struct i2c_algorithm virtio_algorithm = {
+> +	.master_xfer = virtio_i2c_xfer,
+> +	.functionality = virtio_i2c_func,
+> +};
+> +
+> +static struct i2c_adapter virtio_adapter = {
+> +	.owner = THIS_MODULE,
+> +	.name = "Virtio I2C Adapter",
+> +	.class = I2C_CLASS_DEPRECATED,
+> +	.algo = &virtio_algorithm,
+> +};
+> +
+> +static int virtio_i2c_probe(struct virtio_device *vdev)
+> +{
+> +	struct device *pdev = vdev->dev.parent;
+> +	struct virtio_i2c *vi;
+> +	int ret;
+> +
+> +	vi = devm_kzalloc(&vdev->dev, sizeof(*vi), GFP_KERNEL);
+> +	if (!vi)
+> +		return -ENOMEM;
+> +
+> +	vdev->priv = vi;
+> +	vi->vdev = vdev;
+> +
+> +	mutex_init(&vi->i2c_lock);
+> +	init_completion(&vi->completion);
+> +
+> +	ret = virtio_i2c_setup_vqs(vi);
+> +	if (ret)
+> +		return ret;
+> +
+> +	vi->adap = virtio_adapter;
+> +	i2c_set_adapdata(&vi->adap, vi);
+> +	vi->adap.dev.parent = &vdev->dev;
+> +	/* Setup ACPI node for slave devices which will be probed through ACPI */
+> +	ACPI_COMPANION_SET(&vi->adap.dev, ACPI_COMPANION(pdev));
+> +	vi->adap.timeout = HZ / 10;
+> +
+> +	ret = i2c_add_adapter(&vi->adap);
+> +	if (ret) {
+> +		virtio_i2c_del_vqs(vdev);
+> +		dev_err(&vdev->dev, "failed to add virtio-i2c adapter.\n");
+> +	}
+> +
+> +	return ret;
+> +}
+> +
+> +static void virtio_i2c_remove(struct virtio_device *vdev)
+> +{
+> +	struct virtio_i2c *vi = vdev->priv;
+> +
+> +	i2c_del_adapter(&vi->adap);
+> +	virtio_i2c_del_vqs(vdev);
+> +}
+> +
+> +static struct virtio_device_id id_table[] = {
+> +	{ VIRTIO_ID_I2C_ADPTER, VIRTIO_DEV_ANY_ID },
+> +	{}
+> +};
+> +MODULE_DEVICE_TABLE(virtio, id_table);
+> +
+> +static int __maybe_unused virtio_i2c_freeze(struct virtio_device *vdev)
+> +{
+> +	virtio_i2c_del_vqs(vdev);
+> +	return 0;
+> +}
+> +
+> +static int __maybe_unused virtio_i2c_restore(struct virtio_device *vdev)
+> +{
+> +	return virtio_i2c_setup_vqs(vdev->priv);
+> +}
+> +
+> +static struct virtio_driver virtio_i2c_driver = {
+> +	.id_table	= id_table,
+> +	.probe		= virtio_i2c_probe,
+> +	.remove		= virtio_i2c_remove,
+> +	.driver	= {
+> +		.name	= "i2c_virtio",
+> +	},
+> +#ifdef CONFIG_PM_SLEEP
+> +	.freeze = virtio_i2c_freeze,
+> +	.restore = virtio_i2c_restore,
+> +#endif
+> +};
+> +module_virtio_driver(virtio_i2c_driver);
+> +
+> +MODULE_DESCRIPTION("Virtio i2c bus driver");
+> +MODULE_LICENSE("GPL");
+> diff --git a/include/uapi/linux/virtio_i2c.h b/include/uapi/linux/virtio_i2c.h
+> new file mode 100644
+> index 0000000..7413e45
+> --- /dev/null
+> +++ b/include/uapi/linux/virtio_i2c.h
+> @@ -0,0 +1,31 @@
+> +/* SPDX-License-Identifier: GPL-2.0-or-later OR BSD-3-Clause */
+> +/*
+> + * Definitions for virtio I2C Adpter
+> + *
+> + * Copyright (c) 2020 Intel Corporation. All rights reserved.
+> + */
+> +
+> +#ifndef _UAPI_LINUX_VIRTIO_I2C_H
+> +#define _UAPI_LINUX_VIRTIO_I2C_H
+> +
+> +#include <linux/types.h>
+> +#include <linux/virtio_ids.h>
+> +#include <linux/virtio_config.h>
+> +
+> +/**
+> + * struct virtio_i2c_hdr - the virtio I2C message header structure
+> + * @addr: i2c_msg addr, the slave address
+> + * @flags: i2c_msg flags
+> + * @len: i2c_msg len
+> + */
+> +struct virtio_i2c_hdr {
+> +	__le16 addr;
+> +	__le16 flags;
+> +	__le16 len;
+> +};
+> +
+> +/* The final status written by the device */
+> +#define VIRTIO_I2C_MSG_OK	0
+> +#define VIRTIO_I2C_MSG_ERR	1
+> +
+> +#endif /* _UAPI_LINUX_VIRTIO_I2C_H */
+> diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/virtio_ids.h
+> index b052355..398ef2d 100644
+> --- a/include/uapi/linux/virtio_ids.h
+> +++ b/include/uapi/linux/virtio_ids.h
+> @@ -48,5 +48,6 @@
+>  #define VIRTIO_ID_FS           26 /* virtio filesystem */
+>  #define VIRTIO_ID_PMEM         27 /* virtio pmem */
+>  #define VIRTIO_ID_MAC80211_HWSIM 29 /* virtio mac80211-hwsim */
+> +#define VIRTIO_ID_I2C_ADPTER   34 /* virtio i2c adpter */
+>  
+>  #endif /* _LINUX_VIRTIO_IDS_H */
+> -- 
+> 2.7.4
+> 
 
 -- 
-Thanks,
+With Best Regards,
+Andy Shevchenko
 
-David / dhildenb
 
 _______________________________________________
 Virtualization mailing list
