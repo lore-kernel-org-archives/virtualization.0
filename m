@@ -2,119 +2,95 @@ Return-Path: <SRS0=DI/B=DA=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.0 required=3.0 tests=BAYES_00,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 78726C52D77
-	for <virtualization@archiver.kernel.org>; Wed, 23 Sep 2020 10:23:15 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 66016C2D0E2
+	for <virtualization@archiver.kernel.org>; Wed, 23 Sep 2020 20:54:39 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2CA5823977
-	for <virtualization@archiver.kernel.org>; Wed, 23 Sep 2020 10:23:14 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Yd0IdmQT"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2CA5823977
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	by mail.kernel.org (Postfix) with ESMTPS id AB91E214F1
+	for <virtualization@archiver.kernel.org>; Wed, 23 Sep 2020 20:54:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AB91E214F1
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id DD92B866ED;
-	Wed, 23 Sep 2020 10:23:14 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 3F13086432;
+	Wed, 23 Sep 2020 20:54:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id wY8Yvk5ZivLa; Wed, 23 Sep 2020 10:23:14 +0000 (UTC)
+	with ESMTP id jRb6CrYQtbiD; Wed, 23 Sep 2020 20:54:37 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 39A15866EA;
-	Wed, 23 Sep 2020 10:23:14 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 89E1B8626E;
+	Wed, 23 Sep 2020 20:54:37 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 23BDDC0859;
-	Wed, 23 Sep 2020 10:23:14 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CF5A0C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6B0DFC0859;
+	Wed, 23 Sep 2020 20:54:37 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E250CC0051
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Sep 2020 10:23:12 +0000 (UTC)
+ Wed, 23 Sep 2020 20:54:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id C606886F8D
+ by silver.osuosl.org (Postfix) with ESMTP id CB60D228E7
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Sep 2020 10:23:12 +0000 (UTC)
+ Wed, 23 Sep 2020 20:54:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id subWOE-ALJzd
+ with ESMTP id Uq0Oi0xu3wek
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Sep 2020 10:23:12 +0000 (UTC)
+ Wed, 23 Sep 2020 20:54:35 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by hemlock.osuosl.org (Postfix) with ESMTPS id E7DFD86FAD
+Received: from mail-il1-f195.google.com (mail-il1-f195.google.com
+ [209.85.166.195])
+ by silver.osuosl.org (Postfix) with ESMTPS id 97EDA2045D
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Sep 2020 10:23:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1600856590;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=VFgJToirjL1LcUbMYxqpCEwKfTDu3I+1Nj36cIZeHgU=;
- b=Yd0IdmQTpH+5D0QQ1w/Mb0SJ3HD/w1q6wrLgrcj+8ir03so6qzuOax5OWqOWdbB8APf+sJ
- KUQBtls6bZL0rRggnw5zrvIqY3v6COVWbj5mQyHhw12ZBj2Eayd3CvCZngbSHa2VeParIx
- XK+zJcHcDbxHiZ0MO1hT1H8KdcnAuFc=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-54-bQ3tLbxjOKCChulfr7ty6Q-1; Wed, 23 Sep 2020 06:23:09 -0400
-X-MC-Unique: bQ3tLbxjOKCChulfr7ty6Q-1
-Received: by mail-wr1-f72.google.com with SMTP id a2so8622676wrp.8
+ Wed, 23 Sep 2020 20:54:35 +0000 (UTC)
+Received: by mail-il1-f195.google.com with SMTP id f82so948588ilh.8
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Sep 2020 03:23:08 -0700 (PDT)
+ Wed, 23 Sep 2020 13:54:35 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:subject:to:references:from:message-id:date
- :user-agent:mime-version:in-reply-to:content-language
- :content-transfer-encoding;
- bh=VFgJToirjL1LcUbMYxqpCEwKfTDu3I+1Nj36cIZeHgU=;
- b=Vm4C/6QGwTJ92248oY1YArAv0ChwtnUmSSGl+YNWEXzUl+aqeEViacqoA9fAzSvCqG
- 383nnpfpke9kawsCNt00Kk6bfB0Je6XDnR78IJgyKzoy2oCXb5Yuudt5ikJZUubi2TzU
- NZVvLheJQUduLVRP2OG4xq5ZnjuVa6rvzlFJ9JZihfujncZG8eiP9zfAm3fbSeZPOoAO
- VNY9m2Ke5BaU3DTj41+xl/zlnIfUr5u5aJjjXloC3sXYAPWYMFCS1bzcIc++nsTX7tyb
- 6fnu2RJ9Y0m7bfL9jin1E+BR07H4RjFvZIma4lN8qXp1S72G6QnXusOLToHf8bG6MOw2
- /H+A==
-X-Gm-Message-State: AOAM532tzyXSqDZkjIHq7c/hWT6YQsKe7REvGeTSWypSWLgqMGj1UodF
- XZfK9QHbNFzDng3rzlyckhN8jkQkO79p/3W84i+KtwEKIFCHZECrQk+MAUzeVIYIhweTNSZFnKS
- eWONSSQCiR70oIr1UOKGdaO6vn+F02m2+Rri7CzJmBg==
-X-Received: by 2002:a05:600c:20c:: with SMTP id
- 12mr4741708wmi.40.1600856587510; 
- Wed, 23 Sep 2020 03:23:07 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwvwid4yBpJLIUdhmHJZC1dioF+qkVR7rcecEnmaK5giSVtQGS8/+Yh8i8w9490r84enyaBxw==
-X-Received: by 2002:a05:600c:20c:: with SMTP id
- 12mr4741681wmi.40.1600856587231; 
- Wed, 23 Sep 2020 03:23:07 -0700 (PDT)
-Received: from ?IPv6:2001:b07:6468:f312:15f1:648d:7de6:bad9?
- ([2001:b07:6468:f312:15f1:648d:7de6:bad9])
- by smtp.gmail.com with ESMTPSA id y6sm30308257wrn.41.2020.09.23.03.23.05
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Wed, 23 Sep 2020 03:23:06 -0700 (PDT)
-Subject: Re: [PATCH 5/8] vhost scsi: add lun parser helper
-To: Mike Christie <michael.christie@oracle.com>, martin.petersen@oracle.com,
- linux-scsi@vger.kernel.org, target-devel@vger.kernel.org, mst@redhat.com,
- jasowang@redhat.com, stefanha@redhat.com,
- virtualization@lists.linux-foundation.org
-References: <1600712588-9514-1-git-send-email-michael.christie@oracle.com>
- <1600712588-9514-6-git-send-email-michael.christie@oracle.com>
-From: Paolo Bonzini <pbonzini@redhat.com>
-Message-ID: <c981b20e-895a-d5ce-9973-ffe7b21bd724@redhat.com>
-Date: Wed, 23 Sep 2020 12:23:05 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.11.0
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=d+sz3hgQEAMMDOvG0RAlSgcLLpJYw3j9zk3rcGcy++0=;
+ b=iy1uVBrr8PDtcAAtkat35WcvLtlnEgSWxxlMLBwlyY5PXPcX7CKF09ZF8n/AGuwt44
+ EPLwgpZzfT6k3lfMdA4nrgvwZLCPaheoJUGc6AC7bKeWBl3B7GVmnnePslM8oByjOX3s
+ YrecxTMJxlFx87rcF2gZksfMINyk1L+g4Iwrpzh2jfzu+6G79fx3M9aXoG8UaugDKmZP
+ 7i5ZgGIHR2+qkTL+oppmgw6Ib3RGn/YKGSVZPPCE0ijLecL78wCNxYvPRj6NteGEezSt
+ y/bll2CJjfddUOb15wnB88aG6fhEI+uBSLCACOY8WsXSi9gyOmQstwp2FzjasEdDd+Up
+ 89eg==
+X-Gm-Message-State: AOAM533OU9jTiQ7oQAW/j2Oa/UNCk7Np2RwG1ouPEPbtMGGADe9Czvea
+ Bbm3RqgN64Q4yrKdUmVYAQ==
+X-Google-Smtp-Source: ABdhPJwhB3U+7nGpX1fOCxLfZQPy0Ana+7kdT7ZxdZzgBNG61Fg1tLqg9BV4if/p+1kRC6H1Is5gRQ==
+X-Received: by 2002:a05:6e02:f48:: with SMTP id
+ y8mr1415364ilj.103.1600894474882; 
+ Wed, 23 Sep 2020 13:54:34 -0700 (PDT)
+Received: from xps15 ([64.188.179.253])
+ by smtp.gmail.com with ESMTPSA id x1sm386462ilo.50.2020.09.23.13.54.33
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 23 Sep 2020 13:54:34 -0700 (PDT)
+Received: (nullmailer pid 1290212 invoked by uid 1000);
+ Wed, 23 Sep 2020 20:54:33 -0000
+Date: Wed, 23 Sep 2020 14:54:33 -0600
+From: Rob Herring <robh@kernel.org>
+To: Peter Hilber <peter.hilber@opensynergy.com>
+Subject: Re: [RFC PATCH 6/7] dt-bindings: arm: Add virtio transport for SCMI
+Message-ID: <20200923205433.GB1285024@bogus>
+References: <20200918162311.254564-1-peter.hilber@opensynergy.com>
+ <20200918165558.257086-1-peter.hilber@opensynergy.com>
 MIME-Version: 1.0
-In-Reply-To: <1600712588-9514-6-git-send-email-michael.christie@oracle.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=pbonzini@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Language: en-US
+Content-Disposition: inline
+In-Reply-To: <20200918165558.257086-1-peter.hilber@opensynergy.com>
+Cc: devicetree@vger.kernel.org, mikhail.golubev@opensynergy.com,
+ souvik.chakravarty@arm.com, igor.skalkin@opensynergy.com,
+ virtio-dev@lists.oasis-open.org, "Michael S. Tsirkin" <mst@redhat.com>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ anton.yakovlev@opensynergy.com, sudeep.holla@arm.com, jean-philippe@linaro.org,
+ linux-arm-kernel@lists.infradead.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -131,50 +107,52 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 21/09/20 20:23, Mike Christie wrote:
-> Move code to parse lun from req's lun_buf to helper, so tmf code
-> can use it in the next patch.
+On Fri, Sep 18, 2020 at 06:55:58PM +0200, Peter Hilber wrote:
+> From: Igor Skalkin <igor.skalkin@opensynergy.com>
 > 
-> Signed-off-by: Mike Christie <michael.christie@oracle.com>
+> Document the properties for arm,scmi-virtio compatible nodes. The
+> backing virtio SCMI device is described in patch [1].
+> 
+> [1] https://lists.oasis-open.org/archives/virtio-comment/202005/msg00096.html
+> 
+> Co-developed-by: Peter Hilber <peter.hilber@opensynergy.com>
+> Signed-off-by: Peter Hilber <peter.hilber@opensynergy.com>
+> Signed-off-by: Igor Skalkin <igor.skalkin@opensynergy.com>
 > ---
->  drivers/vhost/scsi.c | 9 +++++++--
->  1 file changed, 7 insertions(+), 2 deletions(-)
+>  .../devicetree/bindings/arm/arm,scmi.txt      | 38 ++++++++++++++++++-
+>  1 file changed, 36 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-> index 26d0f75..736ce19 100644
-> --- a/drivers/vhost/scsi.c
-> +++ b/drivers/vhost/scsi.c
-> @@ -899,6 +899,11 @@ static void vhost_scsi_submission_work(struct work_struct *work)
->  	return ret;
->  }
+> diff --git a/Documentation/devicetree/bindings/arm/arm,scmi.txt b/Documentation/devicetree/bindings/arm/arm,scmi.txt
+> index 55deb68230eb..844ff3c40a49 100644
+> --- a/Documentation/devicetree/bindings/arm/arm,scmi.txt
+> +++ b/Documentation/devicetree/bindings/arm/arm,scmi.txt
+> @@ -13,6 +13,9 @@ the device tree.
+>  Required properties:
 >  
-> +static u16 vhost_buf_to_lun(u8 *lun_buf)
-> +{
-> +	return ((lun_buf[2] << 8) | lun_buf[3]) & 0x3FFF;
-> +}
+>  The scmi node with the following properties shall be under the /firmware/ node.
+> +Some properties are specific to a transport type.
 > +
->  static void
->  vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
->  {
-> @@ -1037,12 +1042,12 @@ static void vhost_scsi_submission_work(struct work_struct *work)
->  			tag = vhost64_to_cpu(vq, v_req_pi.tag);
->  			task_attr = v_req_pi.task_attr;
->  			cdb = &v_req_pi.cdb[0];
-> -			lun = ((v_req_pi.lun[2] << 8) | v_req_pi.lun[3]) & 0x3FFF;
-> +			lun = vhost_buf_to_lun(v_req_pi.lun);
->  		} else {
->  			tag = vhost64_to_cpu(vq, v_req.tag);
->  			task_attr = v_req.task_attr;
->  			cdb = &v_req.cdb[0];
-> -			lun = ((v_req.lun[2] << 8) | v_req.lun[3]) & 0x3FFF;
-> +			lun = vhost_buf_to_lun(v_req.lun);
->  		}
->  		/*
->  		 * Check that the received CDB size does not exceeded our
-> 
+> +shmem-based transports (mailbox, smc/hvc):
+>  
+>  - compatible : shall be "arm,scmi" or "arm,scmi-smc" for smc/hvc transports
+>  - mboxes: List of phandle and mailbox channel specifiers. It should contain
+> @@ -21,6 +24,17 @@ The scmi node with the following properties shall be under the /firmware/ node.
+>  	  supported.
+>  - shmem : List of phandle pointing to the shared memory(SHM) area as per
+>  	  generic mailbox client binding.
+> +
+> +Virtio transport:
+> +
+> +- compatible : shall be "arm,scmi-virtio".
+> +- virtio_transport : phandle of the virtio device. This device must support one
+> +                     virtqueue for transmitting commands ("tx", cmdq), and,
+> +		     optionally, one more virtqueue for receiving notifications
+> +		     and delayed responses ("rx", eventq).
 
-Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
+Isn't what the virtio device provides discoverable? We don't have virtio 
+protocols in DT for anything else. Why is SCMI special?
 
+Rob
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
