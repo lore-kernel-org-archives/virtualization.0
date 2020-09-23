@@ -6,83 +6,83 @@ X-Spam-Status: No, score=-0.8 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,HTML_MESSAGE,MAILING_LIST_MULTI,SPF_HELO_NONE,
 	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id C3EDDC4363D
-	for <virtualization@archiver.kernel.org>; Wed, 23 Sep 2020 07:30:52 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3A435C4363D
+	for <virtualization@archiver.kernel.org>; Wed, 23 Sep 2020 07:34:45 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4D9DE2076B
-	for <virtualization@archiver.kernel.org>; Wed, 23 Sep 2020 07:30:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4D9DE2076B
+	by mail.kernel.org (Postfix) with ESMTPS id B31662076B
+	for <virtualization@archiver.kernel.org>; Wed, 23 Sep 2020 07:34:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B31662076B
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id ACF2422EC9;
-	Wed, 23 Sep 2020 07:30:51 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id sA34BznGL0fU; Wed, 23 Sep 2020 07:30:40 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id D699822E96;
-	Wed, 23 Sep 2020 07:30:35 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AFF5AC0889;
-	Wed, 23 Sep 2020 07:30:35 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4FB42C0051
- for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Sep 2020 07:30:34 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 3E36186031
- for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Sep 2020 07:30:34 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 62C1086078;
+	Wed, 23 Sep 2020 07:34:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id EEawUj3DjsnK; Wed, 23 Sep 2020 07:34:43 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by fraxinus.osuosl.org (Postfix) with ESMTP id C6AEE84B65;
+	Wed, 23 Sep 2020 07:34:43 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7ACCBC0889;
+	Wed, 23 Sep 2020 07:34:43 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2D60CC0051
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 23 Sep 2020 07:34:42 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by silver.osuosl.org (Postfix) with ESMTP id DC56622EC1
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 23 Sep 2020 07:34:41 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id okHv9Tox2Tdl
+ with ESMTP id qqP+iXVJdd9b
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Sep 2020 07:30:33 +0000 (UTC)
+ Wed, 23 Sep 2020 07:34:41 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 69EEF85FFC
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+ by silver.osuosl.org (Postfix) with ESMTPS id 15C7C22E96
  for <virtualization@lists.linux-foundation.org>;
- Wed, 23 Sep 2020 07:30:33 +0000 (UTC)
-IronPort-SDR: m9KPBkja3Um4Ws+1iHSitdWSyejzh1rQ0l2e1YE5fMVxxHoknkurw9naZM12lBLStBt2crVzPE
- aArHSjzNYHdQ==
-X-IronPort-AV: E=McAfee;i="6000,8403,9752"; a="148554400"
+ Wed, 23 Sep 2020 07:34:41 +0000 (UTC)
+IronPort-SDR: SnPwnt2Zh9Dm65La51d4vrvxF9lPXoNqXDEumMWt4Oc0MRhvpUW7bGkdLuqjc1zFzsM2u2H1w7
+ XN4bBqzh1rPg==
+X-IronPort-AV: E=McAfee;i="6000,8403,9752"; a="158203489"
 X-IronPort-AV: E=Sophos;i="5.77,293,1596524400"; 
- d="scan'208,217";a="148554400"
+ d="scan'208,217";a="158203489"
 X-Amp-Result: SKIPPED(no attachment in message)
 X-Amp-File-Uploaded: False
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
- by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 23 Sep 2020 00:30:32 -0700
-IronPort-SDR: XKyKGPDA4pPAOu8dLRAfmUZR53QAYw+ehj5dOW1l1hBK+fcWl/yGEB4MTF6rWAXEBUFCdlaBlM
- a79qEXKggTEA==
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+ by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
+ 23 Sep 2020 00:34:40 -0700
+IronPort-SDR: wzDSoWEkVoKPEu3Rce9V83/EOWsdcc3nubpW7GxOl+mO80/8Kdv0aoZ6CNiy+dP6VwcL7H6TMW
+ mJ53VVEvcYdw==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.77,293,1596524400"; 
- d="scan'208,217";a="454798418"
-Received: from fmsmsx606.amr.corp.intel.com ([10.18.126.86])
- by orsmga004.jf.intel.com with ESMTP; 23 Sep 2020 00:30:31 -0700
-Received: from shsmsx601.ccr.corp.intel.com (10.109.6.141) by
- fmsmsx606.amr.corp.intel.com (10.18.126.86) with Microsoft SMTP Server
+ d="scan'208,217";a="511545694"
+Received: from fmsmsx601.amr.corp.intel.com ([10.18.126.81])
+ by fmsmga005.fm.intel.com with ESMTP; 23 Sep 2020 00:34:38 -0700
+Received: from shsmsx603.ccr.corp.intel.com (10.109.6.143) by
+ fmsmsx601.amr.corp.intel.com (10.18.126.81) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1713.5; Wed, 23 Sep 2020 00:30:30 -0700
+ 15.1.1713.5; Wed, 23 Sep 2020 00:34:37 -0700
 Received: from shsmsx601.ccr.corp.intel.com (10.109.6.141) by
- SHSMSX601.ccr.corp.intel.com (10.109.6.141) with Microsoft SMTP Server
+ SHSMSX603.ccr.corp.intel.com (10.109.6.143) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.1713.5; Wed, 23 Sep 2020 15:30:28 +0800
+ 15.1.1713.5; Wed, 23 Sep 2020 15:34:35 +0800
 Received: from shsmsx601.ccr.corp.intel.com ([10.109.6.141]) by
  SHSMSX601.ccr.corp.intel.com ([10.109.6.141]) with mapi id 15.01.1713.004;
- Wed, 23 Sep 2020 15:30:28 +0800
+ Wed, 23 Sep 2020 15:34:35 +0800
 From: "Deng, Jie" <jie.deng@intel.com>
 To: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Subject: Re: [PATCH v3] i2c: virtio: add a virtio i2c frontend driver
 Thread-Topic: [PATCH v3] i2c: virtio: add a virtio i2c frontend driver
 Thread-Index: AQHWkIxPyynJxpe3OEi9jK7MOSHMUalz/nkAgAHVd4A=
-Date: Wed, 23 Sep 2020 07:30:28 +0000
-Message-ID: <4b0bcab709324767b13fea577c5cebf5@intel.com>
+Date: Wed, 23 Sep 2020 07:34:35 +0000
+Message-ID: <bbd9d177f1974908aaae996ca110e17c@intel.com>
 References: <1350309657ab0c7b9f97e7a5c71d084f88caa549.1600743079.git.jie.deng@intel.com>
  <20200922112348.GL3956970@smile.fi.intel.com>
 In-Reply-To: <20200922112348.GL3956970@smile.fi.intel.com>
@@ -122,16 +122,16 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============9178172919796281040=="
+Content-Type: multipart/mixed; boundary="===============0166140367496508989=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
---===============9178172919796281040==
+--===============0166140367496508989==
 Content-Language: en-US
 Content-Type: multipart/alternative;
-	boundary="_000_4b0bcab709324767b13fea577c5cebf5intelcom_"
+	boundary="_000_bbd9d177f1974908aaae996ca110e17cintelcom_"
 
---_000_4b0bcab709324767b13fea577c5cebf5intelcom_
+--_000_bbd9d177f1974908aaae996ca110e17cintelcom_
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: base64
 
@@ -143,7 +143,7 @@ cy4gV2h5IG5vdCBzaW1wbHk6DQoNCg0KDQogICAgICAgICBpZiAoISh2bXNnICYmIHZtc2cgPT0g
 JnZpLT52bXNnKSkgew0KDQoNCg0KPw0KDQpUaGFua3MgQW5keS4gSXQgbG9va3MgYmV0dGVyLg0K
 DQoNCg0KDQoNCi0tDQoNCjIuNy40DQoNCg0KDQoNCg==
 
---_000_4b0bcab709324767b13fea577c5cebf5intelcom_
+--_000_bbd9d177f1974908aaae996ca110e17cintelcom_
 Content-Type: text/html; charset="utf-8"
 Content-ID: <41CFDC4671C9454F9198678DF70668AC@intel.com>
 Content-Transfer-Encoding: base64
@@ -203,9 +203,9 @@ cmU+DQo8cHJlPjIuNy40PG86cD48L286cD48L3ByZT4NCjxwcmU+PG86cD4mbmJzcDs8L286cD48
 L3ByZT4NCjxwcmU+PG86cD4mbmJzcDs8L286cD48L3ByZT4NCjwvYmxvY2txdW90ZT4NCjwvZGl2
 Pg0KPC9ib2R5Pg0KPC9odG1sPg0K
 
---_000_4b0bcab709324767b13fea577c5cebf5intelcom_--
+--_000_bbd9d177f1974908aaae996ca110e17cintelcom_--
 
---===============9178172919796281040==
+--===============0166140367496508989==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -215,4 +215,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============9178172919796281040==--
+--===============0166140367496508989==--
