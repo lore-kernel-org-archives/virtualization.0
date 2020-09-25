@@ -2,104 +2,98 @@ Return-Path: <SRS0=jbvZ=DC=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 057E6C4363D
-	for <virtualization@archiver.kernel.org>; Fri, 25 Sep 2020 11:26:55 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id AB303C4363D
+	for <virtualization@archiver.kernel.org>; Fri, 25 Sep 2020 11:27:42 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8F24420717
-	for <virtualization@archiver.kernel.org>; Fri, 25 Sep 2020 11:26:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 3CB3420717
+	for <virtualization@archiver.kernel.org>; Fri, 25 Sep 2020 11:27:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="ftqCBkfn"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8F24420717
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="O/WhS1SE"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3CB3420717
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 265F186C9E;
-	Fri, 25 Sep 2020 11:26:54 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id CCDFB86DDA;
+	Fri, 25 Sep 2020 11:27:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id mwCCpPBEQ-be; Fri, 25 Sep 2020 11:26:53 +0000 (UTC)
+	with ESMTP id MwWRRhWYCmrs; Fri, 25 Sep 2020 11:27:41 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 7B47686CAE;
-	Fri, 25 Sep 2020 11:26:53 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id F012C86DD7;
+	Fri, 25 Sep 2020 11:27:40 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5EDE6C1AD6;
-	Fri, 25 Sep 2020 11:26:53 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B6496C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BF8C6C0859;
+	Fri, 25 Sep 2020 11:27:40 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EE6B0C0051
  for <virtualization@lists.linux-foundation.org>;
- Fri, 25 Sep 2020 11:26:52 +0000 (UTC)
+ Fri, 25 Sep 2020 11:27:39 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id A600287595
+ by whitealder.osuosl.org (Postfix) with ESMTP id DE03986DD9
  for <virtualization@lists.linux-foundation.org>;
- Fri, 25 Sep 2020 11:26:52 +0000 (UTC)
+ Fri, 25 Sep 2020 11:27:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id x94JuczHtnL9
+ with ESMTP id WtREzvZoA6QW
  for <virtualization@lists.linux-foundation.org>;
- Fri, 25 Sep 2020 11:26:50 +0000 (UTC)
+ Fri, 25 Sep 2020 11:27:38 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-wm1-f66.google.com (mail-wm1-f66.google.com
- [209.85.128.66])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 15EF187592
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 77CAF86DD7
  for <virtualization@lists.linux-foundation.org>;
- Fri, 25 Sep 2020 11:26:50 +0000 (UTC)
-Received: by mail-wm1-f66.google.com with SMTP id v12so2887825wmh.3
- for <virtualization@lists.linux-foundation.org>;
- Fri, 25 Sep 2020 04:26:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=A60QA7/hIdfukqiV/j0jVbWiv3LMArbDpJyApzX3WvI=;
- b=ftqCBkfn/C4p7By9V/KyZFqPJeZy7/xn1PfcJxEBZdug495AZSrw033D60K7eAB6Ig
- T98+fFtAtR2fMfrf4YpUyoeQAItmIPpMlw70708iaz4Mys8RWfY2L98A6R2XRNA82dEr
- a08VdMoZwpfa9+SIFcuqZyeGWLJU3y8eSbJDwTprwOVIB1VgWpnJf2RaAPIGgXd8cIrK
- Pu0SWfemDZSdI8Ed0fXEr6cbjjHFarJER4aRSRYls0ebusVExXYK1NbWWwqy1Il2FhLO
- qOa+1Tog0CADvniUdEJMYfA7Bsk0DoYsFbpV1Pp5Khcuf7QbdoWqeYDorAGSyVqjNm+y
- zsoQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=A60QA7/hIdfukqiV/j0jVbWiv3LMArbDpJyApzX3WvI=;
- b=Mmi9alaVuR/H0Rh1uMhrJoVJP7Sqa0S1bjwjUQuu3d2nYfeoOBs4P6/vNubEWu48mv
- X0GjpkRt7JdEAhNYBDnGKJfdCjjkXcwXqrnIJPK/FPUZ0lgKrx36HUTjbayJVIte2ud/
- EdUyg3AEwBHEFNBG6mc7d3Z7YCeWVMhgI+2G7miHe7r8TPsAHen7Xx15ZR34E55gbiNe
- L/X6D2qf+NuXoR81TyCsBvgEg7gZIaRXM1i/4MqBZ+tZyjfq9LCCA52w1IYu2rzad1BP
- q38IzTLCZewr3Fb+5N/IcjQFzwRVqJGJmezRMmuxiQqYBsRQe3RFHNVg6qW+2AyCVsRU
- LVlg==
-X-Gm-Message-State: AOAM532jC83lKjZgIWrAitw6qiz0BojbUfINrLVfw/1+kmnvFDOf/4+I
- dSHEYg9yCj53O4Lfz1nAUW7cGQ==
-X-Google-Smtp-Source: ABdhPJyv13qwG5g2DgIM8ecyiaNCHrI1193NKi2NMlWF2QntaY8OnbgiSNf16JhwZ6M3gzNUrPJS7g==
-X-Received: by 2002:a7b:c151:: with SMTP id z17mr2764224wmi.53.1601033208483; 
- Fri, 25 Sep 2020 04:26:48 -0700 (PDT)
-Received: from myrica ([2001:1715:4e26:a7e0:116c:c27a:3e7f:5eaf])
- by smtp.gmail.com with ESMTPSA id w7sm2422588wmc.43.2020.09.25.04.26.47
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 25 Sep 2020 04:26:47 -0700 (PDT)
-Date: Fri, 25 Sep 2020 13:26:29 +0200
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+ Fri, 25 Sep 2020 11:27:38 +0000 (UTC)
+Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1601033256;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=OIYjG/eOf0A02Qd+6Up4W+Jt7X/3F3zVaDbUU4OQaQY=;
+ b=O/WhS1SEB7dd6XjJKRiEeNJujnCiLweBn9Hf4gPr6c/wmKeSuj3oHRXFS5X/FK7laMtRgu
+ d4QYepDj5gyLXR/PpOheMcNJdkx6Q1j7vLByKHWixOXvO0/ltMmUHhsUQoz/77PfcGCCRI
+ pJtV5Pgze3E2S70giWRApa8QNM2mEyw=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-460-z4Vu6R3RNealyVJDGYbeXg-1; Fri, 25 Sep 2020 07:27:33 -0400
+X-MC-Unique: z4Vu6R3RNealyVJDGYbeXg-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
+ [10.5.11.14])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id AD02A88EF0E;
+ Fri, 25 Sep 2020 11:27:31 +0000 (UTC)
+Received: from [10.72.12.44] (ovpn-12-44.pek2.redhat.com [10.72.12.44])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 930765D9F7;
+ Fri, 25 Sep 2020 11:27:15 +0000 (UTC)
+Subject: Re: [RFC PATCH 02/24] vhost-vdpa: fix vqs leak in vhost_vdpa_open()
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Subject: Re: [PATCH v3 0/6] Add virtio-iommu built-in topology
-Message-ID: <20200925112629.GA1337555@myrica>
-References: <20200821131540.2801801-1-jean-philippe@linaro.org>
- <20200925084806.GB490533@myrica>
- <20200925062230-mutt-send-email-mst@kernel.org>
+References: <20200924032125.18619-1-jasowang@redhat.com>
+ <20200924032125.18619-3-jasowang@redhat.com>
+ <20200924053119-mutt-send-email-mst@kernel.org>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <c2f3c4a3-604f-ad27-d34d-a829446a3c7e@redhat.com>
+Date: Fri, 25 Sep 2020 19:27:13 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20200925062230-mutt-send-email-mst@kernel.org>
-Cc: virtio-dev@lists.oasis-open.org, lorenzo.pieralisi@arm.com,
- linux-pci@vger.kernel.org, joro@8bytes.org,
- virtualization@lists.linux-foundation.org, eric.auger@redhat.com,
- iommu@lists.linux-foundation.org, sebastien.boeuf@intel.com,
- bhelgaas@google.com
+In-Reply-To: <20200924053119-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Cc: lulu@redhat.com, kvm@vger.kernel.org, netdev@vger.kernel.org,
+ mhabets@solarflare.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, eperezma@redhat.com,
+ hanand@xilinx.com, stefanha@redhat.com, eli@mellanox.com,
+ maxime.coquelin@redhat.com, lingshan.zhu@intel.com, rob.miller@broadcom.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -111,59 +105,44 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Sep 25, 2020 at 06:22:57AM -0400, Michael S. Tsirkin wrote:
-> On Fri, Sep 25, 2020 at 10:48:06AM +0200, Jean-Philippe Brucker wrote:
-> > On Fri, Aug 21, 2020 at 03:15:34PM +0200, Jean-Philippe Brucker wrote:
-> > > Add a topology description to the virtio-iommu driver and enable x86
-> > > platforms.
-> > > 
-> > > Since [v2] we have made some progress on adding ACPI support for
-> > > virtio-iommu, which is the preferred boot method on x86. It will be a
-> > > new vendor-agnostic table describing para-virtual topologies in a
-> > > minimal format. However some platforms don't use either ACPI or DT for
-> > > booting (for example microvm), and will need the alternative topology
-> > > description method proposed here. In addition, since the process to get
-> > > a new ACPI table will take a long time, this provides a boot method even
-> > > to ACPI-based platforms, if only temporarily for testing and
-> > > development.
-> > > 
-> > > v3:
-> > > * Add patch 1 that moves virtio-iommu to a subfolder.
-> > > * Split the rest:
-> > >   * Patch 2 adds topology-helper.c, which will be shared with the ACPI
-> > >     support.
-> > >   * Patch 4 adds definitions.
-> > >   * Patch 5 adds parser in topology.c.
-> > > * Address other comments.
-> > > 
-> > > Linux and QEMU patches available at:
-> > > https://jpbrucker.net/git/linux virtio-iommu/devel
-> > > https://jpbrucker.net/git/qemu virtio-iommu/devel
-> > 
-> > I'm parking this work again, until we make progress on the ACPI table, or
-> > until a platform without ACPI and DT needs it. Until then, I've pushed v4
-> > to my virtio-iommu/topo branch and will keep it rebased on master.
-> > 
-> > Thanks,
-> > Jean
-> 
-> I think you guys need to work on virtio spec too, not too much left to
-> do there ...
-
-I know it's ready and I'd really like to move on with this, but I'd rather
-not commit it to the spec until we know it's going to be used at all. As
-Gerd pointed out the one example we had, microvm, now supports ACPI. Since
-we've kicked off the ACPI work anyway it isn't clear that the built-in
-topology will be useful.
-
-Thanks,
-Jean
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+Ck9uIDIwMjAvOS8yNCDkuIvljYg1OjMxLCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6Cj4gT24g
+VGh1LCBTZXAgMjQsIDIwMjAgYXQgMTE6MjE6MDNBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToK
+Pj4gV2UgbmVlZCB0byBmcmVlIHZxcyBkdXJpbmcgdGhlIGVyciBwYXRoIGFmdGVyIGl0IGhhcyBi
+ZWVuIGFsbG9jYXRlZAo+PiBzaW5jZSB2aG9zdCB3b24ndCBkbyB0aGF0IGZvciB1cy4KPj4KPj4g
+U2lnbmVkLW9mZi1ieTogSmFzb24gV2FuZyA8amFzb3dhbmdAcmVkaGF0LmNvbT4KPiBUaGlzIGlz
+IGEgYnVnZml4IHRvbyByaWdodD8gSSBkb24ndCBzZWUgaXQgcG9zdGVkIHNlcGFyYXRlbHkgLi4u
+CgoKQSBwYXRjaCB0aGF0IGlzIGZ1bmN0aW9uYWwgZXF1aXZhbGVudCBpcyBwb3N0ZWQgaGVyZToK
+Cmh0dHBzOi8vd3d3Lm1haWwtYXJjaGl2ZS5jb20vdmlydHVhbGl6YXRpb25AbGlzdHMubGludXgt
+Zm91bmRhdGlvbi5vcmcvbXNnNDI1NTguaHRtbAoKSSdtIGEgbGl0dGxlIGJpdCBsYXp5IHRvIHVz
+ZSB0aGF0IG9uZSBzaW5jZSB0aGlzIHBhdGNoIGlzIHByb2JhYmx5IHdyb3RlIApiZWZvcmUgdGhh
+dCBvbmUuCgpUaGFua3MKCgo+Cj4+IC0tLQo+PiAgIGRyaXZlcnMvdmhvc3QvdmRwYS5jIHwgMTEg
+KysrKysrKystLS0KPj4gICAxIGZpbGUgY2hhbmdlZCwgOCBpbnNlcnRpb25zKCspLCAzIGRlbGV0
+aW9ucygtKQo+Pgo+PiBkaWZmIC0tZ2l0IGEvZHJpdmVycy92aG9zdC92ZHBhLmMgYi9kcml2ZXJz
+L3Zob3N0L3ZkcGEuYwo+PiBpbmRleCA3OTZmZTk3OWY5OTcuLjljNjQxMjc0YjlmMyAxMDA2NDQK
+Pj4gLS0tIGEvZHJpdmVycy92aG9zdC92ZHBhLmMKPj4gKysrIGIvZHJpdmVycy92aG9zdC92ZHBh
+LmMKPj4gQEAgLTc2NCw2ICs3NjQsMTIgQEAgc3RhdGljIHZvaWQgdmhvc3RfdmRwYV9mcmVlX2Rv
+bWFpbihzdHJ1Y3Qgdmhvc3RfdmRwYSAqdikKPj4gICAJdi0+ZG9tYWluID0gTlVMTDsKPj4gICB9
+Cj4+ICAgCj4+ICtzdGF0aWMgdm9pZCB2aG9zdF92ZHBhX2NsZWFudXAoc3RydWN0IHZob3N0X3Zk
+cGEgKnYpCj4+ICt7Cj4+ICsJdmhvc3RfZGV2X2NsZWFudXAoJnYtPnZkZXYpOwo+PiArCWtmcmVl
+KHYtPnZkZXYudnFzKTsKPj4gK30KPj4gKwo+PiAgIHN0YXRpYyBpbnQgdmhvc3RfdmRwYV9vcGVu
+KHN0cnVjdCBpbm9kZSAqaW5vZGUsIHN0cnVjdCBmaWxlICpmaWxlcCkKPj4gICB7Cj4+ICAgCXN0
+cnVjdCB2aG9zdF92ZHBhICp2Owo+PiBAQCAtODA5LDcgKzgxNSw3IEBAIHN0YXRpYyBpbnQgdmhv
+c3RfdmRwYV9vcGVuKHN0cnVjdCBpbm9kZSAqaW5vZGUsIHN0cnVjdCBmaWxlICpmaWxlcCkKPj4g
+ICAJcmV0dXJuIDA7Cj4+ICAgCj4+ICAgZXJyX2luaXRfaW90bGI6Cj4+IC0Jdmhvc3RfZGV2X2Ns
+ZWFudXAoJnYtPnZkZXYpOwo+PiArCXZob3N0X3ZkcGFfY2xlYW51cCh2KTsKPj4gICBlcnI6Cj4+
+ICAgCWF0b21pY19kZWMoJnYtPm9wZW5lZCk7Cj4+ICAgCXJldHVybiByOwo+PiBAQCAtODQwLDgg
+Kzg0Niw3IEBAIHN0YXRpYyBpbnQgdmhvc3RfdmRwYV9yZWxlYXNlKHN0cnVjdCBpbm9kZSAqaW5v
+ZGUsIHN0cnVjdCBmaWxlICpmaWxlcCkKPj4gICAJdmhvc3RfdmRwYV9mcmVlX2RvbWFpbih2KTsK
+Pj4gICAJdmhvc3RfdmRwYV9jb25maWdfcHV0KHYpOwo+PiAgIAl2aG9zdF92ZHBhX2NsZWFuX2ly
+cSh2KTsKPj4gLQl2aG9zdF9kZXZfY2xlYW51cCgmdi0+dmRldik7Cj4+IC0Ja2ZyZWUodi0+dmRl
+di52cXMpOwo+PiArCXZob3N0X3ZkcGFfY2xlYW51cCh2KTsKPj4gICAJbXV0ZXhfdW5sb2NrKCZk
+LT5tdXRleCk7Cj4+ICAgCj4+ICAgCWF0b21pY19kZWMoJnYtPm9wZW5lZCk7Cj4+IC0tIAo+PiAy
+LjIwLjEKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZp
+cnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3Vu
+ZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0
+aW5mby92aXJ0dWFsaXphdGlvbg==
