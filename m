@@ -6,98 +6,114 @@ X-Spam-Status: No, score=-3.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
 	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id DCD5CC4363D
-	for <virtualization@archiver.kernel.org>; Fri, 25 Sep 2020 08:48:31 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 96A0DC4363D
+	for <virtualization@archiver.kernel.org>; Fri, 25 Sep 2020 10:19:44 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 219B3208B6
-	for <virtualization@archiver.kernel.org>; Fri, 25 Sep 2020 08:48:30 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 1DBEB21D91
+	for <virtualization@archiver.kernel.org>; Fri, 25 Sep 2020 10:19:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="RWh2LCU3"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 219B3208B6
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Zpvffw5e"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1DBEB21D91
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 8AF3B84E4E;
-	Fri, 25 Sep 2020 08:48:30 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id pcf8gXAer6EZ; Fri, 25 Sep 2020 08:48:29 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id CC97C84C09;
-	Fri, 25 Sep 2020 08:48:29 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B737EC0859;
-	Fri, 25 Sep 2020 08:48:29 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6DCC9C0051
- for <virtualization@lists.linux-foundation.org>;
- Fri, 25 Sep 2020 08:48:28 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 443A12E145
- for <virtualization@lists.linux-foundation.org>;
- Fri, 25 Sep 2020 08:48:28 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 1171E2E15E;
+	Fri, 25 Sep 2020 10:19:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id mkXHxy4GYvyg; Fri, 25 Sep 2020 10:19:41 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by silver.osuosl.org (Postfix) with ESMTP id 7E6DB2E15A;
+	Fri, 25 Sep 2020 10:19:41 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 610B2C0889;
+	Fri, 25 Sep 2020 10:19:41 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AEDA4C0051
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 25 Sep 2020 10:19:40 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by whitealder.osuosl.org (Postfix) with ESMTP id 9C34D86C6E
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 25 Sep 2020 10:19:40 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xz8nC7gQKuzK
+ with ESMTP id AU-qCb9VAA8T
  for <virtualization@lists.linux-foundation.org>;
- Fri, 25 Sep 2020 08:48:27 +0000 (UTC)
+ Fri, 25 Sep 2020 10:19:40 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-ej1-f68.google.com (mail-ej1-f68.google.com
- [209.85.218.68])
- by silver.osuosl.org (Postfix) with ESMTPS id 2F734204BA
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id CFDE6860A2
  for <virtualization@lists.linux-foundation.org>;
- Fri, 25 Sep 2020 08:48:27 +0000 (UTC)
-Received: by mail-ej1-f68.google.com with SMTP id i26so2515223ejb.12
+ Fri, 25 Sep 2020 10:19:39 +0000 (UTC)
+Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1601029178;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=P26OWL3+8b1prUkCt7qDotBrREGjXGjJKCeLvVKhHiw=;
+ b=Zpvffw5eBL12N5/U4yskXrqzyniknqzcQKFBfxD1AVjfDvQl/mcRvw37V6FzkXbr0NF9u9
+ kbZbxkmBdDx0Qo57eYKLm/eDdvLjQ9qWy08MP/J1KBr6x16soBWgSR88DAd4AI9aOsMvAd
+ luigpYUPInLzaNGaihXE+ylhs2N8+f8=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-553-6mLmiYxZPsmWAMn1X2OeFg-1; Fri, 25 Sep 2020 06:19:36 -0400
+X-MC-Unique: 6mLmiYxZPsmWAMn1X2OeFg-1
+Received: by mail-wr1-f71.google.com with SMTP id o6so899334wrp.1
  for <virtualization@lists.linux-foundation.org>;
- Fri, 25 Sep 2020 01:48:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=emoRYvFV1+wXfCW/+6p/GyQoadovw+Jiwhu8aTMgKU0=;
- b=RWh2LCU3swUTd56gEVNeEdyA1NuXcjnKwsJ6epb6yxfVwwlLyFft7qyoYDwb4nSD9F
- 2ctMzK3OnYPpBhfB1hXaN3ZqkBStmtssR+A0F4tTkVNttmHkadGMPbB/84TaovHS7yYy
- U4Aqwxn8iCPadf5Ycj4Ne+YqdCs5T2uajhIfJfOejoTRQ6KgTMCRPlUPsLbq7RGFqd1V
- 781yi0atyQkM34kDqmrYHg12hbrVcr/yEJY8uPJsgmj8qRRMxkn4sKzK7JwrC1sZ46Qg
- EDnQpsCCVANaMSxML5qXH1UgJ69a32feNN9dx7qoyw3WHcd5oGHewMx8FT1MBaO7IOVU
- p8nQ==
+ Fri, 25 Sep 2020 03:19:36 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=emoRYvFV1+wXfCW/+6p/GyQoadovw+Jiwhu8aTMgKU0=;
- b=DRmS7BphWkMc121pfEPR7pVq31X1LggvhHCHX6uV6Z+0FfA9IhBXEc35iXDjrjfvbp
- 4ZMHyfrnzbY3l7zr1VHCnS1f4XsVQNS5Hy2VRy9zDgsqZih8/WkzTRWnbXNAM2Akcck5
- Nm9aQhNjf+Ud7US7xHauNwveS4MgYGkyBR/0OGB6hoOVM0cOZIo70MW+nLPUWvKVLRQm
- pekCoi69Tx/SD9pnwu+dv71YFNlGirVK+38J2DQELk+k0UugKSXI4rLgDCFsaZyL/8fo
- CA1oMcdRC3+XlXJ9gmtzPsZnskpFtr0sBTkJtl6Zem3wmPrmxbZtBQPI5ybJ765YU8lf
- 3lSw==
-X-Gm-Message-State: AOAM530FsqjEHTaQGrJIlTZJAKICQLkMHUoJ2Wq5EsAzup7E8XLtENNQ
- GZ9SdIrd5BISzUDPmslTzuWMwg==
-X-Google-Smtp-Source: ABdhPJwrEYir8FTp3IhJ0bHKhMyHKLPJqzcUuhw51auhBeqZ1mDOELPLruwZjAdXUK33OCq9RAsS4A==
-X-Received: by 2002:a17:906:5611:: with SMTP id
- f17mr1721401ejq.427.1601023705423; 
- Fri, 25 Sep 2020 01:48:25 -0700 (PDT)
-Received: from myrica ([2001:1715:4e26:a7e0:116c:c27a:3e7f:5eaf])
- by smtp.gmail.com with ESMTPSA id m6sm1425837ejb.85.2020.09.25.01.48.24
+ bh=P26OWL3+8b1prUkCt7qDotBrREGjXGjJKCeLvVKhHiw=;
+ b=B9j6zYZasuIH7HIyT34Rvf9RczOjm8vBSgIfLm0EQAovizvc3gF9qnaobhCHUTNZDl
+ 0ZJ5xIjkMlErxlfMA0V19QDe2MKiGpm4z1vBk8LeINt3OE49d9DFmiPqKYqGJrDou51P
+ gXyCjl5QNCOrejnuge1x4z3IM8jJ8cHNPnTPHBD53bevdNDe2dixCE0WgtiTLAoMaenV
+ h+caIbUkwXORsW8FEzGz7yv8Ujqd8DtU/ODRAifIBrhYPmqxCZkwBrQHojvBksCi3xj8
+ U7XfZ/90cSIn7B/AZ79GXzHcd/8YYHcVIONbCdqbOY529Nm1s/IEfWTLOt283eEJKB30
+ ZLeg==
+X-Gm-Message-State: AOAM533LBNBtUjBIK3DIMOC6s7TCxKmNWt5DBDxQiPM+oESU3nQ44WhE
+ UiW6KaLNkAwMde3s1gxXATtNKIeOqC7DZdQXiKrfQPsmCYJIUxRkb64n28mDMTnninpnkJVN2l1
+ GhpGlFa/qGp6XsXD8Au1qPNtwpBnIMpMIYQlbbSV6tA==
+X-Received: by 2002:a5d:470f:: with SMTP id y15mr3625813wrq.420.1601029175427; 
+ Fri, 25 Sep 2020 03:19:35 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwLSbI9jm2XMOk+32xte7rC7OY1SRWmEug56SJmm4FkGi+zaNWLZhe1WA4eNqffhuABgGE01g==
+X-Received: by 2002:a5d:470f:: with SMTP id y15mr3625796wrq.420.1601029175219; 
+ Fri, 25 Sep 2020 03:19:35 -0700 (PDT)
+Received: from redhat.com (bzq-79-179-71-128.red.bezeqint.net. [79.179.71.128])
+ by smtp.gmail.com with ESMTPSA id u126sm2972203wmu.9.2020.09.25.03.19.32
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 25 Sep 2020 01:48:24 -0700 (PDT)
-Date: Fri, 25 Sep 2020 10:48:06 +0200
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
-To: iommu@lists.linux-foundation.org,
- virtualization@lists.linux-foundation.org,
- virtio-dev@lists.oasis-open.org, linux-pci@vger.kernel.org
-Subject: Re: [PATCH v3 0/6] Add virtio-iommu built-in topology
-Message-ID: <20200925084806.GB490533@myrica>
-References: <20200821131540.2801801-1-jean-philippe@linaro.org>
+ Fri, 25 Sep 2020 03:19:34 -0700 (PDT)
+Date: Fri, 25 Sep 2020 06:19:30 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Leon Romanovsky <leonro@nvidia.com>
+Subject: Re: [PATCH v3 -next] vdpa: mlx5: change Kconfig depends to fix build
+ errors
+Message-ID: <20200925061847-mutt-send-email-mst@kernel.org>
+References: <73f7e48b-8d16-6b20-07d3-41dee0e3d3bd@infradead.org>
+ <20200918082245.GP869610@unreal>
+ <20200924052932-mutt-send-email-mst@kernel.org>
+ <20200924102413.GD170403@mtl-vdi-166.wap.labs.mlnx>
+ <079c831e-214d-22c1-028e-05d84e3b7f04@infradead.org>
+ <20200924120217-mutt-send-email-mst@kernel.org>
+ <20200925072005.GB2280698@unreal>
 MIME-Version: 1.0
+In-Reply-To: <20200925072005.GB2280698@unreal>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-In-Reply-To: <20200821131540.2801801-1-jean-philippe@linaro.org>
-Cc: lorenzo.pieralisi@arm.com, mst@redhat.com, joro@8bytes.org,
- eric.auger@redhat.com, sebastien.boeuf@intel.com, bhelgaas@google.com
+Cc: "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+ Randy Dunlap <rdunlap@infradead.org>, LKML <linux-kernel@vger.kernel.org>,
+ virtualization@lists.linux-foundation.org, Eli Cohen <elic@nvidia.com>,
+ Saeed Mahameed <saeedm@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -114,39 +130,68 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Aug 21, 2020 at 03:15:34PM +0200, Jean-Philippe Brucker wrote:
-> Add a topology description to the virtio-iommu driver and enable x86
-> platforms.
+On Fri, Sep 25, 2020 at 10:20:05AM +0300, Leon Romanovsky wrote:
+> On Thu, Sep 24, 2020 at 12:02:43PM -0400, Michael S. Tsirkin wrote:
+> > On Thu, Sep 24, 2020 at 08:47:05AM -0700, Randy Dunlap wrote:
+> > > On 9/24/20 3:24 AM, Eli Cohen wrote:
+> > > > On Thu, Sep 24, 2020 at 05:30:55AM -0400, Michael S. Tsirkin wrote:
+> > > >>>> --- linux-next-20200917.orig/drivers/vdpa/Kconfig
+> > > >>>> +++ linux-next-20200917/drivers/vdpa/Kconfig
+> > > >>>> @@ -31,7 +31,7 @@ config IFCVF
+> > > >>>>
+> > > >>>>  config MLX5_VDPA
+> > > >>>>  	bool "MLX5 VDPA support library for ConnectX devices"
+> > > >>>> -	depends on MLX5_CORE
+> > > >>>> +	depends on VHOST_IOTLB && MLX5_CORE
+> > > >>>>  	default n
+> > > >>>
+> > > >>> While we are here, can anyone who apply this patch delete the "default n" line?
+> > > >>> It is by default "n".
+> > > >
+> > > > I can do that
+> > > >
+> > > >>>
+> > > >>> Thanks
+> > > >>
+> > > >> Hmm other drivers select VHOST_IOTLB, why not do the same?
+> > >
+> > > v1 used select, but Saeed requested use of depends instead because
+> > > select can cause problems.
+> > >
+> > > > I can't see another driver doing that. Perhaps I can set dependency on
+> > > > VHOST which by itself depends on VHOST_IOTLB?
+> > > >>
+> > > >>
+> > > >>>>  	help
+> > > >>>>  	  Support library for Mellanox VDPA drivers. Provides code that is
+> > > >>>>
+> > > >>
+> > >
+> >
+> > Saeed what kind of problems? It's used with select in other places,
+> > isn't it?
 > 
-> Since [v2] we have made some progress on adding ACPI support for
-> virtio-iommu, which is the preferred boot method on x86. It will be a
-> new vendor-agnostic table describing para-virtual topologies in a
-> minimal format. However some platforms don't use either ACPI or DT for
-> booting (for example microvm), and will need the alternative topology
-> description method proposed here. In addition, since the process to get
-> a new ACPI table will take a long time, this provides a boot method even
-> to ACPI-based platforms, if only temporarily for testing and
-> development.
+> IMHO, "depends" is much more explicit than "select".
 > 
-> v3:
-> * Add patch 1 that moves virtio-iommu to a subfolder.
-> * Split the rest:
->   * Patch 2 adds topology-helper.c, which will be shared with the ACPI
->     support.
->   * Patch 4 adds definitions.
->   * Patch 5 adds parser in topology.c.
-> * Address other comments.
-> 
-> Linux and QEMU patches available at:
-> https://jpbrucker.net/git/linux virtio-iommu/devel
-> https://jpbrucker.net/git/qemu virtio-iommu/devel
+> Thanks
 
-I'm parking this work again, until we make progress on the ACPI table, or
-until a platform without ACPI and DT needs it. Until then, I've pushed v4
-to my virtio-iommu/topo branch and will keep it rebased on master.
+This is now how VHOST_IOTLB has been designed though.
+If you want to change VHOST_IOTLB to depends I think
+we should do it consistently all over.
 
-Thanks,
-Jean
+
+config VHOST_IOTLB
+        tristate
+        help
+          Generic IOTLB implementation for vhost and vringh.
+          This option is selected by any driver which needs to support
+          an IOMMU in software.
+
+
+> >
+> > > --
+> > > ~Randy
+> >
 
 _______________________________________________
 Virtualization mailing list
