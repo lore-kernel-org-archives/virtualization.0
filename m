@@ -4,109 +4,109 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EC1FC2D0A8
-	for <virtualization@archiver.kernel.org>; Mon, 28 Sep 2020 19:29:39 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A951CC4741F
+	for <virtualization@archiver.kernel.org>; Mon, 28 Sep 2020 19:55:22 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D60C52071E
-	for <virtualization@archiver.kernel.org>; Mon, 28 Sep 2020 19:29:38 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 0B1782065D
+	for <virtualization@archiver.kernel.org>; Mon, 28 Sep 2020 19:55:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NtCh74j0"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D60C52071E
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PNS96dIL"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0B1782065D
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 762D285540;
-	Mon, 28 Sep 2020 19:29:38 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id AB53586FA2;
+	Mon, 28 Sep 2020 19:55:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Ks1YMgEI0EpY; Mon, 28 Sep 2020 19:29:37 +0000 (UTC)
+	with ESMTP id PciRGVbHXVSv; Mon, 28 Sep 2020 19:55:20 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id C021E8559F;
-	Mon, 28 Sep 2020 19:29:37 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id CCDA286F9E;
+	Mon, 28 Sep 2020 19:55:20 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A8095C016F;
-	Mon, 28 Sep 2020 19:29:37 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id BE6CFC016F;
+	Mon, 28 Sep 2020 19:55:20 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 43A60C0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 69418C0051
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Sep 2020 19:29:36 +0000 (UTC)
+ Mon, 28 Sep 2020 19:55:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 2BDF186F6D
+ by hemlock.osuosl.org (Postfix) with ESMTP id 5101B86FA2
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Sep 2020 19:29:36 +0000 (UTC)
+ Mon, 28 Sep 2020 19:55:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id k6kYOWXFnimn
+ with ESMTP id WxE8g2ad+xdT
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Sep 2020 19:29:36 +0000 (UTC)
+ Mon, 28 Sep 2020 19:55:18 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by hemlock.osuosl.org (Postfix) with ESMTPS id DEB6186F95
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 6E9E686F9E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Sep 2020 19:29:35 +0000 (UTC)
+ Mon, 28 Sep 2020 19:55:18 +0000 (UTC)
 Dkim-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1601321374;
+ s=mimecast20190719; t=1601322917;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=g7R0uSUBVOBC3ELw6r6XW5F6NVJS5n7iWxx/t8OjrN0=;
- b=NtCh74j01vL4lh6YzeGWLIZV10AV+V6BGaKCulrCuDDmAf+4xeSk3xHk0fOU1vjjiX+LIC
- hPwJmrrjvDzO6VMaxGy5+zWCLwieICp9vi37VXhAFJwlQNuf5uYDNsc+OR/bye5I96+Xz7
- IXh1BMOb8BM0/8MJ+22ilqrniMUK0wo=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-440-S_qb1WsJNhefJG7oy5-A0w-1; Mon, 28 Sep 2020 15:29:30 -0400
-X-MC-Unique: S_qb1WsJNhefJG7oy5-A0w-1
-Received: by mail-wr1-f70.google.com with SMTP id d9so780189wrv.16
+ bh=1qD/bYiwXaDqvMUHTGUqMaHkNigUfku0s1G1pgifknA=;
+ b=PNS96dILccnm1r9MTUtp7gB7t0xo02nWRnHUwZlTmgEdl78OiJVjxn3EuzTCPpOyb/AXiM
+ edvSRiwdJbiGPakBj0KBRQbBw1gv8ZD5NaWb2FZoJ1AY8VDuG8iIv/4XxVLII8fINkSVII
+ mEo9Qp3hvYZ2NcmK6GY7bgzWAH036ZU=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-558-QjF0tfo0MgCWX2OV-0RAwQ-1; Mon, 28 Sep 2020 15:55:15 -0400
+X-MC-Unique: QjF0tfo0MgCWX2OV-0RAwQ-1
+Received: by mail-wm1-f69.google.com with SMTP id a11so48204wmh.7
  for <virtualization@lists.linux-foundation.org>;
- Mon, 28 Sep 2020 12:29:30 -0700 (PDT)
+ Mon, 28 Sep 2020 12:55:15 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=g7R0uSUBVOBC3ELw6r6XW5F6NVJS5n7iWxx/t8OjrN0=;
- b=s9xbP6Uok0G+n7b+uXXflkR8mHaVkiWI2T+KEV7oFMJrFi9qCDXPblTV8h02Kr+XAx
- O2mCHHMn2S0YgmtPinLxkwVu4RU5z5lQ1w8HY2ZDd++2JrjRTJXVFMVDQl1tNKRmoJmz
- 8eR5zkmPmq29Zng+dtF5qD5u8gENFa2ARbBLSb6p5/3w6R1RYNBgau0mAKqz37tX6LKh
- nLY6hY2EOEg5npk1gEd0uWxy1IR4sdps+ivWi3srleaT6LFTqKb0XNTJQmscTjpqxpbL
- LceZS6gkqfI9XkoXxtR+47S6nMpp2z40aQKeu6VYmWSP7vK8GveOMKzWN4TAVdtCqNSM
- haRw==
-X-Gm-Message-State: AOAM530rnOKzPMXf09RhlCMElmi85yFi0VJfTUU5hUvvkA6f7jDN+ZAQ
- ndMaBlT0/355RzQoZBZLHFRWQlUbDyu+cNq8y2IZ+cb0mVp3qzxGH6Ka4SKi8zGo43iE81hGVaT
- mTGCa9KgkmvCziKNaITHGqdtIi8guOyt+rJSB3M0GKA==
-X-Received: by 2002:adf:e304:: with SMTP id b4mr27440wrj.141.1601321369186;
- Mon, 28 Sep 2020 12:29:29 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzE21P0wkiAkvryE+2wIqsoKtS+RuwPRqx3bJhGPxwgCgHmMCakq2DNpqAYhl0gF/KFYyDoXA==
-X-Received: by 2002:adf:e304:: with SMTP id b4mr27421wrj.141.1601321368968;
- Mon, 28 Sep 2020 12:29:28 -0700 (PDT)
+ bh=1qD/bYiwXaDqvMUHTGUqMaHkNigUfku0s1G1pgifknA=;
+ b=Xsn6CV1j0vHvrbHIQACxkergmj2FdZSQMKzy2UdRAo4VZXJfzYUeGhesCNWcgGzpYr
+ GQ/NhQqXWdXZWjatHAtBhDE/8z/Kx5bdsAOiZunqc5VXLFKO1fnirKSowJp4FAgrhj3j
+ 450o/p39hi/LE9RXr64xMc4ZZOvi6/7JpJGVbwuYaRn0X6cZXEd/Z3lb0AogBRoh5Lgj
+ A4jnR1cuuQegSWMJm8WA00aUAlWHPekdTkpWqAVyThgku+uSGKRWnPmrJHScWbpnu50I
+ 2HQlNoB+NTgMDaTevitRAElqtnqzUJo+zGDyMWP2CID8a4XEG5kRHXYP7Gq69ZWJRavA
+ Wq2A==
+X-Gm-Message-State: AOAM532tSkF+G+6YYun9FLyFUgy6he60QlhX9xQ/Vkd5U4hGSJseNh8b
+ /mhsXmOc+RQx9PXZmTcz3XObvhIQNApQwKaFS8kRgfDJntLqTU0J94NX3XOCHFo5p4zJVKOQD9E
+ YosRHhuJMBVh8UG41Cz2tmsHUgBCAY6t1IBKzbn8WUQ==
+X-Received: by 2002:a7b:c151:: with SMTP id z17mr806549wmi.53.1601322913403;
+ Mon, 28 Sep 2020 12:55:13 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJxHJc0NzkL6UIF4Usztiftaij8e1WIEJYDq5hNYrhp+v+0ltPTCNUWn4xJ0d+jBa6m27TyepA==
+X-Received: by 2002:a7b:c151:: with SMTP id z17mr806531wmi.53.1601322913098;
+ Mon, 28 Sep 2020 12:55:13 -0700 (PDT)
 Received: from redhat.com (bzq-79-179-71-128.red.bezeqint.net. [79.179.71.128])
- by smtp.gmail.com with ESMTPSA id n10sm2662427wmk.7.2020.09.28.12.29.27
+ by smtp.gmail.com with ESMTPSA id v9sm3010804wrv.35.2020.09.28.12.55.11
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 28 Sep 2020 12:29:28 -0700 (PDT)
-Date: Mon, 28 Sep 2020 15:29:25 -0400
+ Mon, 28 Sep 2020 12:55:12 -0700 (PDT)
+Date: Mon, 28 Sep 2020 15:55:09 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Greg Kurz <groug@kaod.org>
-Subject: Re: [PATCH] vhost: Don't call vq_access_ok() when using IOTLB
-Message-ID: <20200928152859-mutt-send-email-mst@kernel.org>
-References: <160129650442.480158.12085353517983890660.stgit@bahia.lan>
+To: Eli Cohen <elic@nvidia.com>
+Subject: Re: [PATCH V1 vhost-next] vdpa/mlx5: Make vdpa core driver a
+ distinct module
+Message-ID: <20200928155448-mutt-send-email-mst@kernel.org>
+References: <20200924143231.GA186492@mtl-vdi-166.wap.labs.mlnx>
 MIME-Version: 1.0
-In-Reply-To: <160129650442.480158.12085353517983890660.stgit@bahia.lan>
+In-Reply-To: <20200924143231.GA186492@mtl-vdi-166.wap.labs.mlnx>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org,
- Laurent Vivier <laurent@vivier.eu>, virtualization@lists.linux-foundation.org,
- David Gibson <david@gibson.dropbear.id.au>
+Cc: netdev@vger.kernel.org, eli@nvidia.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,43 +123,212 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Sep 28, 2020 at 02:35:04PM +0200, Greg Kurz wrote:
-> When the IOTLB device is enabled, the vring addresses we get from
-> userspace are GIOVAs. It is thus wrong to pass them to vq_access_ok()
-> which only takes HVAs. The IOTLB map is likely empty at this stage,
-> so there isn't much that can be done with these GIOVAs. Access validation
-> will be performed at IOTLB prefetch time anyway.
+On Thu, Sep 24, 2020 at 05:32:31PM +0300, Eli Cohen wrote:
+> Change core vdpa functionality into a loadbale module such that upcoming
+> block implementation will be able to use it.
 > 
-> BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1883084
-> Fixes: 6b1e6cc7855b ("vhost: new device IOTLB API")
-> Cc: jasowang@redhat.com
-> CC: stable@vger.kernel.org # 4.14+
-> Signed-off-by: Greg Kurz <groug@kaod.org>
+> Signed-off-by: Eli Cohen <elic@nvidia.com>
 
-Hmm I was sure the addresses are HVAs in any case ...
-Jason?
+Why don't we merge this patch together with the block module?
 
 > ---
->  drivers/vhost/vhost.c |    5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
+> V0 --> V1:
+> Removed "default n" for configu options as 'n' is the default
 > 
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index b45519ca66a7..6296e33df31d 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -1509,7 +1509,10 @@ static long vhost_vring_set_addr(struct vhost_dev *d,
->  	 * If it is not, we don't as size might not have been setup.
->  	 * We will verify when backend is configured. */
->  	if (vq->private_data) {
-> -		if (!vq_access_ok(vq, vq->num,
-> +		/* If an IOTLB device is present, the vring addresses are
-> +		 * GIOVAs. Access will be validated during IOTLB prefetch. */
-> +		if (!vq->iotlb &&
-> +		    !vq_access_ok(vq, vq->num,
->  			(void __user *)(unsigned long)a.desc_user_addr,
->  			(void __user *)(unsigned long)a.avail_user_addr,
->  			(void __user *)(unsigned long)a.used_user_addr))
+>  drivers/vdpa/Kconfig               |  8 +++-----
+>  drivers/vdpa/Makefile              |  2 +-
+>  drivers/vdpa/mlx5/Makefile         |  7 +++++--
+>  drivers/vdpa/mlx5/core/core_main.c | 20 ++++++++++++++++++++
+>  drivers/vdpa/mlx5/core/mr.c        |  3 +++
+>  drivers/vdpa/mlx5/core/resources.c | 10 ++++++++++
+>  6 files changed, 42 insertions(+), 8 deletions(-)
+>  create mode 100644 drivers/vdpa/mlx5/core/core_main.c
 > 
+> diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
+> index 4271c408103e..57ff6a7f7401 100644
+> --- a/drivers/vdpa/Kconfig
+> +++ b/drivers/vdpa/Kconfig
+> @@ -29,10 +29,9 @@ config IFCVF
+>  	  To compile this driver as a module, choose M here: the module will
+>  	  be called ifcvf.
+>  
+> -config MLX5_VDPA
+> -	bool "MLX5 VDPA support library for ConnectX devices"
+> +config MLX5_VDPA_CORE
+> +	tristate "MLX5 VDPA support library for ConnectX devices"
+>  	depends on MLX5_CORE
+> -	default n
+>  	help
+>  	  Support library for Mellanox VDPA drivers. Provides code that is
+>  	  common for all types of VDPA drivers. The following drivers are planned:
+> @@ -40,8 +39,7 @@ config MLX5_VDPA
+>  
+>  config MLX5_VDPA_NET
+>  	tristate "vDPA driver for ConnectX devices"
+> -	depends on MLX5_VDPA
+> -	default n
+> +	depends on MLX5_VDPA_CORE
+>  	help
+>  	  VDPA network driver for ConnectX6 and newer. Provides offloading
+>  	  of virtio net datapath such that descriptors put on the ring will
+> diff --git a/drivers/vdpa/Makefile b/drivers/vdpa/Makefile
+> index d160e9b63a66..07353bbb9f8b 100644
+> --- a/drivers/vdpa/Makefile
+> +++ b/drivers/vdpa/Makefile
+> @@ -2,4 +2,4 @@
+>  obj-$(CONFIG_VDPA) += vdpa.o
+>  obj-$(CONFIG_VDPA_SIM) += vdpa_sim/
+>  obj-$(CONFIG_IFCVF)    += ifcvf/
+> -obj-$(CONFIG_MLX5_VDPA) += mlx5/
+> +obj-$(CONFIG_MLX5_VDPA_CORE) += mlx5/
+> diff --git a/drivers/vdpa/mlx5/Makefile b/drivers/vdpa/mlx5/Makefile
+> index 89a5bededc9f..9f50f7e8d889 100644
+> --- a/drivers/vdpa/mlx5/Makefile
+> +++ b/drivers/vdpa/mlx5/Makefile
+> @@ -1,4 +1,7 @@
+>  subdir-ccflags-y += -I$(srctree)/drivers/vdpa/mlx5/core
+>  
+> -obj-$(CONFIG_MLX5_VDPA_NET) += mlx5_vdpa.o
+> -mlx5_vdpa-$(CONFIG_MLX5_VDPA_NET) += net/main.o net/mlx5_vnet.o core/resources.o core/mr.o
+> +obj-$(CONFIG_MLX5_VDPA_CORE) += mlx5_vdpa_core.o
+> +mlx5_vdpa_core-$(CONFIG_MLX5_VDPA_CORE) += core/resources.o core/mr.o core/core_main.o
+> +
+> +obj-$(CONFIG_MLX5_VDPA_NET) += mlx5_vdpa_net.o
+> +mlx5_vdpa_net-$(CONFIG_MLX5_VDPA_NET) += net/main.o net/mlx5_vnet.o
+> diff --git a/drivers/vdpa/mlx5/core/core_main.c b/drivers/vdpa/mlx5/core/core_main.c
+> new file mode 100644
+> index 000000000000..4b39b55f57ab
+> --- /dev/null
+> +++ b/drivers/vdpa/mlx5/core/core_main.c
+> @@ -0,0 +1,20 @@
+> +// SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB
+> +/* Copyright (c) 2020 Mellanox Technologies Ltd. */
+> +
+> +#include <linux/module.h>
+> +
+> +MODULE_AUTHOR("Eli Cohen <elic@nvidia.com>");
+> +MODULE_DESCRIPTION("Mellanox VDPA core driver");
+> +MODULE_LICENSE("Dual BSD/GPL");
+> +
+> +static int __init mlx5_vdpa_core_init(void)
+> +{
+> +	return 0;
+> +}
+> +
+> +static void __exit mlx5_vdpa_core_exit(void)
+> +{
+> +}
+> +
+> +module_init(mlx5_vdpa_core_init);
+> +module_exit(mlx5_vdpa_core_exit);
+> diff --git a/drivers/vdpa/mlx5/core/mr.c b/drivers/vdpa/mlx5/core/mr.c
+> index ef1c550f8266..c093eab6c714 100644
+> --- a/drivers/vdpa/mlx5/core/mr.c
+> +++ b/drivers/vdpa/mlx5/core/mr.c
+> @@ -434,6 +434,7 @@ int mlx5_vdpa_create_mr(struct mlx5_vdpa_dev *mvdev, struct vhost_iotlb *iotlb)
+>  	mutex_unlock(&mr->mkey_mtx);
+>  	return err;
+>  }
+> +EXPORT_SYMBOL(mlx5_vdpa_create_mr);
+>  
+>  void mlx5_vdpa_destroy_mr(struct mlx5_vdpa_dev *mvdev)
+>  {
+> @@ -456,6 +457,7 @@ void mlx5_vdpa_destroy_mr(struct mlx5_vdpa_dev *mvdev)
+>  out:
+>  	mutex_unlock(&mr->mkey_mtx);
+>  }
+> +EXPORT_SYMBOL(mlx5_vdpa_destroy_mr);
+>  
+>  static bool map_empty(struct vhost_iotlb *iotlb)
+>  {
+> @@ -484,3 +486,4 @@ int mlx5_vdpa_handle_set_map(struct mlx5_vdpa_dev *mvdev, struct vhost_iotlb *io
+>  
+>  	return err;
+>  }
+> +EXPORT_SYMBOL(mlx5_vdpa_handle_set_map);
+> diff --git a/drivers/vdpa/mlx5/core/resources.c b/drivers/vdpa/mlx5/core/resources.c
+> index 96e6421c5d1c..89606a18e286 100644
+> --- a/drivers/vdpa/mlx5/core/resources.c
+> +++ b/drivers/vdpa/mlx5/core/resources.c
+> @@ -98,6 +98,7 @@ int mlx5_vdpa_create_tis(struct mlx5_vdpa_dev *mvdev, void *in, u32 *tisn)
+>  
+>  	return err;
+>  }
+> +EXPORT_SYMBOL(mlx5_vdpa_create_tis);
+>  
+>  void mlx5_vdpa_destroy_tis(struct mlx5_vdpa_dev *mvdev, u32 tisn)
+>  {
+> @@ -108,6 +109,7 @@ void mlx5_vdpa_destroy_tis(struct mlx5_vdpa_dev *mvdev, u32 tisn)
+>  	MLX5_SET(destroy_tis_in, in, tisn, tisn);
+>  	mlx5_cmd_exec_in(mvdev->mdev, destroy_tis, in);
+>  }
+> +EXPORT_SYMBOL(mlx5_vdpa_destroy_tis);
+>  
+>  int mlx5_vdpa_create_rqt(struct mlx5_vdpa_dev *mvdev, void *in, int inlen, u32 *rqtn)
+>  {
+> @@ -121,6 +123,7 @@ int mlx5_vdpa_create_rqt(struct mlx5_vdpa_dev *mvdev, void *in, int inlen, u32 *
+>  
+>  	return err;
+>  }
+> +EXPORT_SYMBOL(mlx5_vdpa_create_rqt);
+>  
+>  void mlx5_vdpa_destroy_rqt(struct mlx5_vdpa_dev *mvdev, u32 rqtn)
+>  {
+> @@ -131,6 +134,7 @@ void mlx5_vdpa_destroy_rqt(struct mlx5_vdpa_dev *mvdev, u32 rqtn)
+>  	MLX5_SET(destroy_rqt_in, in, rqtn, rqtn);
+>  	mlx5_cmd_exec_in(mvdev->mdev, destroy_rqt, in);
+>  }
+> +EXPORT_SYMBOL(mlx5_vdpa_destroy_rqt);
+>  
+>  int mlx5_vdpa_create_tir(struct mlx5_vdpa_dev *mvdev, void *in, u32 *tirn)
+>  {
+> @@ -144,6 +148,7 @@ int mlx5_vdpa_create_tir(struct mlx5_vdpa_dev *mvdev, void *in, u32 *tirn)
+>  
+>  	return err;
+>  }
+> +EXPORT_SYMBOL(mlx5_vdpa_create_tir);
+>  
+>  void mlx5_vdpa_destroy_tir(struct mlx5_vdpa_dev *mvdev, u32 tirn)
+>  {
+> @@ -154,6 +159,7 @@ void mlx5_vdpa_destroy_tir(struct mlx5_vdpa_dev *mvdev, u32 tirn)
+>  	MLX5_SET(destroy_tir_in, in, tirn, tirn);
+>  	mlx5_cmd_exec_in(mvdev->mdev, destroy_tir, in);
+>  }
+> +EXPORT_SYMBOL(mlx5_vdpa_destroy_tir);
+>  
+>  int mlx5_vdpa_alloc_transport_domain(struct mlx5_vdpa_dev *mvdev, u32 *tdn)
+>  {
+> @@ -170,6 +176,7 @@ int mlx5_vdpa_alloc_transport_domain(struct mlx5_vdpa_dev *mvdev, u32 *tdn)
+>  
+>  	return err;
+>  }
+> +EXPORT_SYMBOL(mlx5_vdpa_alloc_transport_domain);
+>  
+>  void mlx5_vdpa_dealloc_transport_domain(struct mlx5_vdpa_dev *mvdev, u32 tdn)
+>  {
+> @@ -180,6 +187,7 @@ void mlx5_vdpa_dealloc_transport_domain(struct mlx5_vdpa_dev *mvdev, u32 tdn)
+>  	MLX5_SET(dealloc_transport_domain_in, in, transport_domain, tdn);
+>  	mlx5_cmd_exec_in(mvdev->mdev, dealloc_transport_domain, in);
+>  }
+> +EXPORT_SYMBOL(mlx5_vdpa_dealloc_transport_domain);
+>  
+>  int mlx5_vdpa_create_mkey(struct mlx5_vdpa_dev *mvdev, struct mlx5_core_mkey *mkey, u32 *in,
+>  			  int inlen)
+> @@ -266,6 +274,7 @@ int mlx5_vdpa_alloc_resources(struct mlx5_vdpa_dev *mvdev)
+>  	mutex_destroy(&mvdev->mr.mkey_mtx);
+>  	return err;
+>  }
+> +EXPORT_SYMBOL(mlx5_vdpa_alloc_resources);
+>  
+>  void mlx5_vdpa_free_resources(struct mlx5_vdpa_dev *mvdev)
+>  {
+> @@ -282,3 +291,4 @@ void mlx5_vdpa_free_resources(struct mlx5_vdpa_dev *mvdev)
+>  	mutex_destroy(&mvdev->mr.mkey_mtx);
+>  	res->valid = false;
+>  }
+> +EXPORT_SYMBOL(mlx5_vdpa_free_resources);
+> -- 
+> 2.27.0
 
 _______________________________________________
 Virtualization mailing list
