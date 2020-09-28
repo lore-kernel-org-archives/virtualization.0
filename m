@@ -1,69 +1,98 @@
-Return-Path: <SRS0=bmxk=DE=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=0GV8=DF=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.6 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
-	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-	HTML_MESSAGE,MAILING_LIST_MULTI,MIME_HTML_MOSTLY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.5 required=3.0 tests=BAYES_00,
+	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
+	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E61BC4346E
-	for <virtualization@archiver.kernel.org>; Sun, 27 Sep 2020 14:28:05 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5A2D1C2D0A8
+	for <virtualization@archiver.kernel.org>; Mon, 28 Sep 2020 03:42:03 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A779223899
-	for <virtualization@archiver.kernel.org>; Sun, 27 Sep 2020 14:28:04 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A779223899
+	by mail.kernel.org (Postfix) with ESMTPS id BDCA020B80
+	for <virtualization@archiver.kernel.org>; Mon, 28 Sep 2020 03:42:02 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DnEINd7v"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BDCA020B80
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 1B7B286411;
-	Sun, 27 Sep 2020 14:28:04 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 65367854DB;
+	Mon, 28 Sep 2020 03:42:02 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id HKWC5KDUhnAs; Sun, 27 Sep 2020 14:27:57 +0000 (UTC)
+	with ESMTP id WbcxrMgQDz5d; Mon, 28 Sep 2020 03:42:01 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 28AF786416;
-	Sun, 27 Sep 2020 14:27:57 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id E1795854AF;
+	Mon, 28 Sep 2020 03:42:01 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 10C16C0889;
-	Sun, 27 Sep 2020 14:27:57 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D6030C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CF73CC0890;
+	Mon, 28 Sep 2020 03:42:01 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 904EAC016F
  for <virtualization@lists.linux-foundation.org>;
- Sun, 27 Sep 2020 14:27:55 +0000 (UTC)
+ Mon, 28 Sep 2020 03:42:00 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id BEE9E86416
+ by hemlock.osuosl.org (Postfix) with ESMTP id 8651B86FA1
  for <virtualization@lists.linux-foundation.org>;
- Sun, 27 Sep 2020 14:27:55 +0000 (UTC)
+ Mon, 28 Sep 2020 03:42:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id zPU7u-4vI4A6
+ with ESMTP id OZDUAmW2eeFZ
  for <virtualization@lists.linux-foundation.org>;
- Sun, 27 Sep 2020 14:27:50 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
-Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
- [5.45.125.222])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 69C6F8633E
+ Mon, 28 Sep 2020 03:41:58 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+Received: from mail-vs1-f65.google.com (mail-vs1-f65.google.com
+ [209.85.217.65])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 765A887015
  for <virtualization@lists.linux-foundation.org>;
- Sun, 27 Sep 2020 14:27:50 +0000 (UTC)
-Received: from [37.189.17.205] (helo=LAPTOP-EPOV2LRR)
- by s052d7dde.fastvps-server.com with esmtpsa
- (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256) (Exim 4.89)
- (envelope-from <marle@saisti.eu>) id 1kMWaU-0006Qo-8U
- for virtualization@lists.linux-foundation.org; Sun, 27 Sep 2020 16:19:34 +0300
-From: "ML" <marialemos72@gmail.com>
-Subject: WorldCIST'21 - 9th World Conference on Information Systems and
- Technologies | Terceira Island, Azores, Portugal
-To: virtualization@lists.linux-foundation.org
-MIME-Version: 1.0
-Date: Sun, 27 Sep 2020 14:19:33 +0100
-Message-ID: <25716875616406@gmail-com>
-X-Antivirus: AVG (VPS 200927-0, 27/09/2020), Outbound message
-X-Antivirus-Status: Clean
+ Mon, 28 Sep 2020 03:41:58 +0000 (UTC)
+Received: by mail-vs1-f65.google.com with SMTP id a16so4985349vsp.12
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 27 Sep 2020 20:41:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=from:to:cc:subject:date:message-id;
+ bh=m9EtepEtVt3TGlrTSs3377Oy1G+hujBB1naLBHmKEMY=;
+ b=DnEINd7vTZp2MLZJHSmRkhflGn+dhLAi3Stpt5pp2JgymWDTlLtnGvsGM7uelINWA3
+ Fj9EydJQSa7/r+BF03qQSU2i5Et/CiWDuLPSQNFk+tHaFXx0078GoJ6BZFIV884YDdqi
+ Nmtj6gHk9GibPyJeTJ4veZZXTZ4xYO6oKce1ROLNRIuyijJeLBMZ748rzp6jX8pOuJWQ
+ 2VkKx+Ug0cMPmOR3p96hWUZpdPL1H2coYSf0mNVP4+/izyBNzt13TFyfZLIZN5Psqmws
+ ALncHlvaXJp7k7hDWeArk46isDQ6LJ3TOGxSVgzl1Mq/i0FinK+98pEltVYRHB9dev/D
+ RxlQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:from:to:cc:subject:date:message-id;
+ bh=m9EtepEtVt3TGlrTSs3377Oy1G+hujBB1naLBHmKEMY=;
+ b=IRW/xquvf0xgN5o4kimOik3daixctp65/r+wTQIR8vM6Y0kopURCCWVRIXzT9R2Cs2
+ 8bNNFmefzA0g8kjku6IpggMqK9ZzxzMbWqj3FKxr5Xw7bmqdJ6rjGChTFHfOp0bxc1+n
+ BAYFTAW+KL7ibAoHJ7eADxFE2lucFW4zPsi9qXpMAF8jlObYBKun8qufJCs4xv7a+KHp
+ 65hrChSMMyEM9WO6H0/9v4rOplTA1KUud+MPLqE/GnBqxI5rfDBRfu/QtCozZ4AWAUfG
+ IxPQ7b0eM0iErMuA2k7FLQLaLodvZLjRcXFMSKm4d9m4jNYZ8GAwKB47o5IdV5hEJ8bU
+ hpfA==
+X-Gm-Message-State: AOAM530rVTZkwUlVfDGhP1IKyr77IYVN+lIY66kuRDyUKW9ji5jczQgF
+ 5UNO8F7ekED5KnzmmEXweeo=
+X-Google-Smtp-Source: ABdhPJyH04luJ1UTcCe5FefXF8GSyZT+ghdCCiFnxbXOZwhxxncbiFm+7K9a9+Db4daXaBfejL7Esw==
+X-Received: by 2002:a67:ea4e:: with SMTP id r14mr3944866vso.37.1601264517494; 
+ Sun, 27 Sep 2020 20:41:57 -0700 (PDT)
+Received: from localhost.localdomain ([50.236.19.102])
+ by smtp.gmail.com with ESMTPSA id e3sm1363499vsa.8.2020.09.27.20.41.51
+ (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+ Sun, 27 Sep 2020 20:41:56 -0700 (PDT)
+From: xiangxia.m.yue@gmail.com
+To: jasowang@redhat.com,
+	mst@redhat.com
+Subject: [PATCH 1/2] virtio-net: don't disable guest csum when disable LRO
+Date: Mon, 28 Sep 2020 11:39:14 +0800
+Message-Id: <20200928033915.82810-1-xiangxia.m.yue@gmail.com>
+X-Mailer: git-send-email 2.15.0
+Cc: netdev@vger.kernel.org, Willem de Bruijn <willemb@google.com>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -75,609 +104,57 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Reply-To: worldcist@gmail.com
-Content-Type: multipart/mixed; boundary="===============2104074057518756693=="
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is a multi-part message in MIME format
+From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
 
---===============2104074057518756693==
-Content-Type: multipart/alternative; charset=utf-8; boundary="2XaVGiAVzucJRsVhElJ59hFHz3=_8iGRDQ"
+Open vSwitch and Linux bridge will disable LRO of the interface
+when this interface added to them. Now when disable the LRO, the
+virtio-net csum is disable too. That drops the forwarding performance.
 
-This is a multi-part message in MIME format
+Fixes: e59ff2c49ae1 ("virtio-net: disable guest csum during XDP set")
+Cc: Michael S. Tsirkin <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+---
+ drivers/net/virtio_net.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---2XaVGiAVzucJRsVhElJ59hFHz3=_8iGRDQ
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-* CORE Ranking conference  
-* Conference with a Google Scholar H5-Index =3D 19  
-* Proceedings published by Springer, in several books of the AISC series  
-* Indexed in Scopus, WoS, DBLP, Ei-Compendex, etc.
-
-* Extended versions of best articles published in JCR/WoS/SCI journals.  
-
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 7145c83c6c8c..21b71148c532 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -63,6 +63,11 @@ static const unsigned long guest_offloads[] = {
+ 	VIRTIO_NET_F_GUEST_CSUM
+ };
  
-
-------------------------------   ------------------------------   ---------=
------------------- 
-WorldCIST'21 - 9th World Conference on Information Systems and Technologies=
++#define GUEST_OFFLOAD_LRO_MASK ((1ULL << VIRTIO_NET_F_GUEST_TSO4) | \
++				(1ULL << VIRTIO_NET_F_GUEST_TSO6) | \
++				(1ULL << VIRTIO_NET_F_GUEST_ECN)  | \
++				(1ULL << VIRTIO_NET_F_GUEST_UFO))
++
+ struct virtnet_stat_desc {
+ 	char desc[ETH_GSTRING_LEN];
+ 	size_t offset;
+@@ -2531,7 +2536,8 @@ static int virtnet_set_features(struct net_device *dev,
+ 		if (features & NETIF_F_LRO)
+ 			offloads = vi->guest_offloads_capable;
+ 		else
+-			offloads = 0;
++			offloads = vi->guest_offloads_capable &
++				   ~GUEST_OFFLOAD_LRO_MASK;
  
-30-31 March to 1-2 April 2021 | Terceira Island, Azores, Portugal 
-http://www.worldcist.org/ <http://www.worldcist.org/> 
-------------------------------   ------------------------------   ---------=
------------------ 
-
-Scope 
-
-The WorldCist'21 - 9th World Conference on Information Systems and Technolo=
-gies, to be held in Terceira Island, Azores, Portugal, 30-31 March to 1-2 A=
-pril 2021, is a global forum for researchers and practitioners to present a=
-nd discuss the most recent innovations, trends, results, experiences and co=
-ncerns in the several perspectives of Information Systems and Technologies.=
-
-
-We are pleased to invite you to submit your papers to WorldCist'21. All sub=
-missions will be reviewed on the basis of relevance, originality, importanc=
-e and clarity.
-
-
-
-
-Themes 
-
-Submitted papers should be related with one or more of the main themes prop=
-osed for the Conference:
-
-A) Information and Knowledge Management (IKM);
-
-B) Organizational Models and Information Systems (OMIS);
-
-C) Software and Systems Modeling (SSM);
-
-D) Software Systems, Architectures, Applications and Tools (SSAAT);
-
-E) Multimedia Systems and Applications (MSA);
-
-F) Computer Networks, Mobility and Pervasive Systems (CNMPS);
-
-G) Intelligent and Decision Support Systems (IDSS);
-
-H) Big Data Analytics and Applications (BDAA);
-
-I) Human-Computer Interaction (HCI);
-
-J) Ethics, Computers and Security (ECS)
-
-K) Health Informatics (HIS);
-
-L) Information Technologies in Education (ITE);
-
-M) Technologies for Biomedical Applications (TBA)
-
-N) Information Technologies in Radiocommunications (ITR);
-
-
-
-
-Types of Submissions and Decisions 
-
-Four types of papers can be submitted:
-
-Full paper: Finished or consolidated R&D works, to be included in one of th=
-e Conference themes. These papers are assigned a 10-page limit.
-
-Short paper: Ongoing works with relevant preliminary results, open to discu=
-ssion. These papers are assigned a 7-page limit.
-
-Poster paper: Initial work with relevant ideas, open to discussion. These p=
-apers are assigned to a 4-page limit.
-
-Company paper: Companies' papers that show practical experience, R & D, too=
-ls, etc., focused on some topics of the conference. These papers are assign=
-ed to a 4-page limit.
-
-Submitted papers must comply with the format of Advances in Intelligent Sys=
-tems and Computing Series (see Instructions for Authors at Springer Website=
-), be written in English, must not have been published before, not be under=
- review for any other conference or publication and not include any informa=
-tion leading to the authors=E2=80=99 identification. Therefore, the authors=
-=E2=80=99 names, affiliations and bibliographic references should not be in=
-cluded in the version for evaluation by the Program Committee. This informa=
-tion should only be included in the camera-ready version, saved in Word or =
-Latex format and also in PDF format. These files must be accompanied by the=
- Consent to Publish form filled out, in a ZIP file, and uploaded at the con=
-ference management system.
-
-All papers will be subjected to a =E2=80=9Cdouble-blind review=E2=80=9D by =
-at least two members of the Program Committee.
-
-Based on Program Committee evaluation, a paper can be rejected or accepted =
-by the Conference Chairs. In the later case, it can be accepted as the type=
- originally submitted or as another type. Thus, full papers can be accepted=
- as short papers or poster papers only. Similarly, short papers can be acce=
-pted as poster papers only.
-
-Poster papers and Company papers are not published in the Conference Procee=
-dings, being only presented and discussed. The authors of accepted poster p=
-apers should build and print a poster to be exhibited during the Conference=
-=2E This poster must follow an A1 or A2 vertical format. The Conference inc=
-ludes Work Sessions where these posters are presented and orally discussed,=
- with a 7 minute limit per poster.
-
-The authors of accepted Full papers will have 15 minutes to present their w=
-ork in a Conference Work Session; approximately 5 minutes of discussion wil=
-l follow each presentation. The authors of accepted Short papers and Compan=
-y papers will have 11 minutes to present their work in a Conference Work Se=
-ssion; approximately 4 minutes of discussion will follow each presentation.=
-
-
-
-
-
-Publication and Indexing 
-
-To ensure that a full paper or short paper is published, poster paper or co=
-mpany paper is published, at least one of the authors must be fully registe=
-red by the 2nd of January 2021, and the paper must comply with the suggeste=
-d layout and page-limit. Additionally, all recommended changes must be addr=
-essed by the authors before they submit the camera-ready version.
-
-No more than one paper per registration will be published. An extra fee mus=
-t be paid for publication of additional papers, with a maximum of one addit=
-ional paper per registration. One registration permits only the participati=
-on of one author in the conference.
-
-Full and Short papers will be published in Proceedings by Springer, in Adva=
-nces in Intelligent Systems and Computing series. Poster and company papers=
- will not be published, just presented in the conference.
-
-Published Full and Short papers will be submitted for indexation by ISI, EI=
--Compendex, SCOPUS, DBLP and Google Scholar, among others, and will be avai=
-lable in the SpringerLink Digital Library.
-
-The authors of the best selected papers will be invited to extend them for =
-publication in international journals indexed by ISI/SCI, SCOPUS and DBLP, =
-among others, such as:
-
-- International Journal of Neural Systems (IF: 5.605 / Q1)
-
-- Integrated Computer-Aided Engineering (IF: 4.706 / Q1)
-
-- Computers in Industry (IF: 3.954 / Q1)
-
-- Advanced Engineering Informatics (IF: 3.879 / Q1)
-
-- Informatica - An International Journal (IF: 3.312 / Q1)
-
-- Journal of Medical Systems (IF: 3.058 / Q1)
-
-- Telecommunications Policy (IF: 2.224 / Q2)
-
-- Computational and Mathematical Organization Theory (IF: 1.558 / Q2)
-
-- Expert Systems - Journal of Knowledge Engineering (IF: 1.546 / Q2)
-
-- Journal of Intelligent & Fuzzy Systems (IF: 1.851 / Q3)
-
-- Journal of Computer Information Systems (IF: 1.582 / Q3)
-
-- Computer Science and Information Systems (IF: 0.927 / Q4)
-
-- Data Technologies and Applications (IF: 0.704 / Q4)
-
-- Computer Methods in Biomechanics and Biomedical Engineering - Imaging & V=
-isualization (ESCI & SJR: 0.52 / Q2)
-
-- Journal of Information Systems Engineering & Management (DOAJ & ProQuest)=
-
-
-
-
-
-Important Dates 
-
-Paper Submission: November 8, 2020
-
-Notification of Acceptance: December 23, 2020
-
-Payment of Registration, to ensure the inclusion of an accepted paper in th=
-e conference proceedings: January 2, 2021.
-
-Camera-ready Submission: January 2, 2021
-
-
-
-
-Website of WorldCIST'21: http://www.worldcist.org/ <http://www.worldcist.or=
-g/>  
-
-
-WorldCIST'21 Team  
-http://www.worldcist.org/ <http://www.worldcist.org/>  
-
-
+ 		err = virtnet_set_guest_offloads(vi, offloads);
+ 		if (err)
 -- 
-This email has been checked for viruses by AVG.
-https://www.avg.com
-
---2XaVGiAVzucJRsVhElJ59hFHz3=_8iGRDQ
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<html>
-  <head>
-    <title></title>
-    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
-" />
-  </head>
-  <body>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%"><span class=3D"im">* CORE Ranking confer=
-ence&nbsp; <br />* Conference with a Google Scholar H5-Index =3D 19&nbsp; <=
-br />* Proceedings published by Springer, in several books of the AISC seri=
-es&nbsp; <br />* Indexed in Scopus, WoS, DBLP, Ei-Compendex, etc.</span></p=
->
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%"><span class=3D"im">* Extended versions o=
-f best articles published in JCR/WoS/SCI journals.&nbsp;&nbsp;</span></p>
-    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
-r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
-x; margin: 0px; line-height: 200%"><span class=3D"im">&nbsp;</span></p>
-    <div>
-      <div class=3D"im">
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">------------------------------ 
-          <wbr>&nbsp;</wbr>&nbsp;------------------------------ 
-          <wbr>&nbsp;</wbr>&nbsp;--------------------------- 
-        </p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">WorldCIST'21 - 9th World Conference =
-on Information Systems and Technologies <br />30-31 March to 1-2 April 2021=
- | Terceira Island, Azores, Portugal <br /><a href=3D"http://www.worldcist.=
-org/" target=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?=
-q=3Dhttp://www.worldcist.org/&source=3Dgmail&ust=3D1601289993600000&usg=3DA=
-FQjCNHIYsHL6PvS5oAWc4fCoSSS7a1LBA">http://www.worldcist.org/</a> <br />----=
--------------------------- 
-          <wbr>&nbsp;</wbr>&nbsp;------------------------------ 
-          <wbr>&nbsp;</wbr>&nbsp;-------------------------- 
-        </p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%"><br /><strong>Scope</strong> </p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">The WorldCist'21 - 9th World Confere=
-nce on Information Systems and Technologies, to be held in Terceira Island,=
- Azores, Portugal, 30-31 March to 1-2 April 2021, is a global forum for res=
-earchers and practitioners to present and discuss the most recent innovatio=
-ns, trends, results, experiences and concerns in the several perspectives o=
-f Information Systems and Technologies.</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">We are pleased to invite you to subm=
-it your papers to WorldCist'21. All submissions will be reviewed on the bas=
-is of relevance, originality, importance and clarity.</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%"><br /></p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%"><strong>Themes</strong> </p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">Submitted papers should be related w=
-ith one or more of the main themes proposed for the Conference:</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">A) Information and Knowledge Managem=
-ent (IKM);</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">B) Organizational Models and Informa=
-tion Systems (OMIS);</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">C) Software and Systems Modeling (SS=
-M);</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">D) Software Systems, Architectures, =
-Applications and Tools (SSAAT);</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">E) Multimedia Systems and Applicatio=
-ns (MSA);</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">F) Computer Networks, Mobility and P=
-ervasive Systems (CNMPS);</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">G) Intelligent and Decision Support =
-Systems (IDSS);</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">H) Big Data Analytics and Applicatio=
-ns (BDAA);</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">I) Human-Computer Interaction (HCI);=
-</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">J) Ethics, Computers and Security (E=
-CS)</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">K) Health Informatics (HIS);</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">L) Information Technologies in Educa=
-tion (ITE);</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">M) Technologies for Biomedical Appli=
-cations (TBA)</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">N) Information Technologies in Radio=
-communications (ITR);</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%"><br /></p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%"><strong>Types of Submissions and Dec=
-isions</strong> </p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">Four types of papers can be submitte=
-d:</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">Full paper: Finished or consolidated=
- R&amp;D works, to be included in one of the Conference themes. These paper=
-s are assigned a 10-page limit.</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">Short paper: Ongoing works with rele=
-vant preliminary results, open to discussion. These papers are assigned a 7=
--page limit.</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">Poster paper: Initial work with rele=
-vant ideas, open to discussion. These papers are assigned to a 4-page limit=
-=2E</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">Company paper: Companies' papers tha=
-t show practical experience, R &amp; D, tools, etc., focused on some topics=
- of the conference. These papers are assigned to a 4-page limit.</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">Submitted papers must comply with th=
-e format of Advances in Intelligent Systems and Computing Series (see Instr=
-uctions for Authors at Springer Website), be written in English, must not h=
-ave been published before, not be under review for any other conference or =
-publication and not include any information leading to the authors&rsquo; i=
-dentification. Therefore, the authors&rsquo; names, affiliations and biblio=
-graphic references should not be included in the version for evaluation by =
-the Program Committee. This information should only be included in the came=
-ra-ready version, saved in Word or Latex format and also in PDF format. The=
-se files must be accompanied by the Consent to Publish form filled out, in =
-a ZIP file, and uploaded at the conference management system.</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">All papers will be subjected to a &l=
-dquo;double-blind review&rdquo; by at least two members of the Program Comm=
-ittee.</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">Based on Program Committee evaluatio=
-n, a paper can be rejected or accepted by the Conference Chairs. In the lat=
-er case, it can be accepted as the type originally submitted or as another =
-type. Thus, full papers can be accepted as short papers or poster papers on=
-ly. Similarly, short papers can be accepted as poster papers only.</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">Poster papers and Company papers are=
- not published in the Conference Proceedings, being only presented and disc=
-ussed. The authors of accepted poster papers should build and print a poste=
-r to be exhibited during the Conference. This poster must follow an A1 or A=
-2 vertical format. The Conference includes Work Sessions where these poster=
-s are presented and orally discussed, with a 7 minute limit per poster.</p>=
-
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">The authors of accepted Full papers =
-will have 15 minutes to present their work in a Conference Work Session; ap=
-proximately 5 minutes of discussion will follow each presentation. The auth=
-ors of accepted Short papers and Company papers will have 11 minutes to pre=
-sent their work in a Conference Work Session; approximately 4 minutes of di=
-scussion will follow each presentation.</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%"><br /></p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%"><strong>Publication and Indexing</st=
-rong> </p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">To ensure that a full paper or short=
- paper is published, poster paper or company paper is published, at least o=
-ne of the authors must be fully registered by the 2nd of January 2021, and =
-the paper must comply with the suggested layout and page-limit. Additionall=
-y, all recommended changes must be addressed by the authors before they sub=
-mit the camera-ready version.</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">No more than one paper per registrat=
-ion will be published. An extra fee must be paid for publication of additio=
-nal papers, with a maximum of one additional paper per registration. One re=
-gistration permits only the participation of one author in the conference.<=
-/p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">Full and Short papers will be publis=
-hed in Proceedings by Springer, in Advances in Intelligent Systems and Comp=
-uting series. Poster and company papers will not be published, just present=
-ed in the conference.</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">Published Full and Short papers will=
- be submitted for indexation by ISI, EI-Compendex, SCOPUS, DBLP and Google =
-Scholar, among others, and will be available in the SpringerLink Digital Li=
-brary.</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">The authors of the best selected pap=
-ers will be invited to extend them for publication in international journal=
-s indexed by ISI/SCI, SCOPUS and DBLP, among others, such as:</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">- International Journal of Neural Sy=
-stems (IF: 5.605 / Q1)</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">- Integrated Computer-Aided Engineer=
-ing (IF: 4.706 / Q1)</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">- Computers in Industry (IF: 3.954 /=
- Q1)</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">- Advanced Engineering Informatics (=
-IF: 3.879 / Q1)</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">- Informatica - An International Jou=
-rnal (IF: 3.312 / Q1)</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">- Journal of Medical Systems (IF: 3.=
-058 / Q1)</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">- Telecommunications Policy (IF: 2.2=
-24 / Q2)</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">- Computational and Mathematical Org=
-anization Theory (IF: 1.558 / Q2)</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">- Expert Systems - Journal of Knowle=
-dge Engineering (IF: 1.546 / Q2)</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">- Journal of Intelligent &amp; Fuzzy=
- Systems (IF: 1.851 / Q3)</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">- Journal of Computer Information Sy=
-stems (IF: 1.582 / Q3)</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">- Computer Science and Information S=
-ystems (IF: 0.927 / Q4)</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">- Data Technologies and Applications=
- (IF: 0.704 / Q4)</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">- Computer Methods in Biomechanics a=
-nd Biomedical Engineering - Imaging &amp; Visualization (ESCI &amp; SJR: 0.=
-52 / Q2)</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">- Journal of Information Systems Eng=
-ineering &amp; Management (DOAJ &amp; ProQuest)</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%"><br /></p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%"><strong>Important Dates</strong> </p=
->
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">Paper Submission: November 8, 2020</=
-p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">Notification of Acceptance: December=
- 23, 2020</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">Payment of Registration, to ensure t=
-he inclusion of an accepted paper in the conference proceedings: January 2,=
- 2021.</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">Camera-ready Submission: January 2, =
-2021</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%"><br /></p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%">Website of WorldCIST'21: <a href=3D"=
-http://www.worldcist.org/" target=3D"_blank" data-saferedirecturl=3D"https:=
-//www.google.com/url?q=3Dhttp://www.worldcist.org/&source=3Dgmail&ust=3D160=
-1289993600000&usg=3DAFQjCNHIYsHL6PvS5oAWc4fCoSSS7a1LBA">http://www.worldcis=
-t.org/</a> &nbsp;</p>
-        <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; =
-color: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top=
-: 0px; margin: 0px; line-height: 200%"><br />WorldCIST'21 Team&nbsp; <br />=
-<a href=3D"http://www.worldcist.org/" target=3D"_blank" data-saferedirectur=
-l=3D"https://www.google.com/url?q=3Dhttp://www.worldcist.org/&source=3Dgmai=
-l&ust=3D1601289993600000&usg=3DAFQjCNHIYsHL6PvS5oAWc4fCoSSS7a1LBA">http://w=
-ww.worldcist.org/</a>&nbsp; </p>
-      </div>
-    </div>
-  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br />
-<table style=3D"border-top: 1px solid #D3D4DE;">
-	<tr>
-        <td style=3D"width: 55px; padding-top: 13px;"><a href=3D"http://www=
-=2Eavg.com/email-signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaig=
-n=3Dsig-email&utm_content=3Demailclient" target=3D"_blank"><img src=3D"http=
-s://ipmcdn.avast.com/images/icons/icon-envelope-tick-green-avg-v1.png" alt=
-=3D""  width=3D"46" height=3D"29" style=3D"width: 46px; height: 29px;" /></=
-a></td>
-		<td style=3D"width: 470px; padding-top: 12px; color: #41424e; font-size: =
-13px; font-family: Arial, Helvetica, sans-serif; line-height: 18px;">Virus-=
-free. <a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_=
-source=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D=
-"_blank" style=3D"color: #4453ea;">www.avg.com</a>
-		</td>
-	</tr>
-</table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2" width=3D"1" heigh=
-t=3D"1"> </a></div></body>
-</html>
-
---2XaVGiAVzucJRsVhElJ59hFHz3=_8iGRDQ--
-
-
---===============2104074057518756693==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+2.23.0
 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2104074057518756693==--
-
