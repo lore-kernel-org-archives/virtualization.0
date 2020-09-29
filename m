@@ -2,131 +2,151 @@ Return-Path: <SRS0=hez8=DG=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-11.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	MSGID_FROM_MTA_HEADER,NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D81C6C47420
-	for <virtualization@archiver.kernel.org>; Tue, 29 Sep 2020 15:45:00 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BA0E2C4727C
+	for <virtualization@archiver.kernel.org>; Tue, 29 Sep 2020 16:09:24 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 3737F206CD
-	for <virtualization@archiver.kernel.org>; Tue, 29 Sep 2020 15:44:59 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id F15192075E
+	for <virtualization@archiver.kernel.org>; Tue, 29 Sep 2020 16:09:23 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b="AvEKgyz1"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3737F206CD
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=amdcloud.onmicrosoft.com header.i=@amdcloud.onmicrosoft.com header.b="x3ECmjA4"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org F15192075E
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=amd.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 84B752078B;
-	Tue, 29 Sep 2020 15:44:59 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 5D21420764;
+	Tue, 29 Sep 2020 16:09:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id eFHtRZuhx4IH; Tue, 29 Sep 2020 15:44:56 +0000 (UTC)
+	with ESMTP id KIeWEzTZlssi; Tue, 29 Sep 2020 16:09:21 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id CB640203D0;
-	Tue, 29 Sep 2020 15:44:55 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 6472C203D0;
+	Tue, 29 Sep 2020 16:09:21 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B0648C0889;
-	Tue, 29 Sep 2020 15:44:55 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3B6FBC0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 52CAFC016F;
+	Tue, 29 Sep 2020 16:09:21 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0559EC0051
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Sep 2020 15:44:54 +0000 (UTC)
+ Tue, 29 Sep 2020 16:09:20 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 227C086F5E
+ by silver.osuosl.org (Postfix) with ESMTP id E8518203E4
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Sep 2020 15:44:54 +0000 (UTC)
+ Tue, 29 Sep 2020 16:09:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id eKkZRj7pmsWL
+ with ESMTP id U7RULMSvAUPM
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Sep 2020 15:44:52 +0000 (UTC)
+ Tue, 29 Sep 2020 16:09:18 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-oi1-f194.google.com (mail-oi1-f194.google.com
- [209.85.167.194])
- by hemlock.osuosl.org (Postfix) with ESMTPS id C1F9586F21
+Received: from NAM10-DM6-obe.outbound.protection.outlook.com
+ (mail-dm6nam10on2079.outbound.protection.outlook.com [40.107.93.79])
+ by silver.osuosl.org (Postfix) with ESMTPS id 6816E203D0
  for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Sep 2020 15:44:52 +0000 (UTC)
-Received: by mail-oi1-f194.google.com with SMTP id u126so5915719oif.13
- for <virtualization@lists.linux-foundation.org>;
- Tue, 29 Sep 2020 08:44:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ffwll.ch; s=google;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc:content-transfer-encoding;
- bh=GmccwYPvbTQr0lao9qdmlRwawj+lCQ+1QXiD0l/qUKM=;
- b=AvEKgyz1Mpr2Csbf03wB2afEPAxC22ZTlvhljJHzAj0BPTuqlRxgWwE7USW2AGrgho
- ezvaYXvQ9JzEwZhGwBXpfXwg4JSFE6mfLDimgQVZ8LU8sqJCEZTJqkkhRJp36tavL2Vl
- rlVv65YZ1m1v7DUXijKWB3ytuAGyfIIO5Qvwc=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc:content-transfer-encoding;
- bh=GmccwYPvbTQr0lao9qdmlRwawj+lCQ+1QXiD0l/qUKM=;
- b=QgUCh/UI0wec9mhT6MPCkXWMppeByq2+lWa7zQiGIltT3/NUSdsWEVufwnYG4eeHR6
- nIOiBxEAJv83OLexEG5GLb5KcFrfQMgWaGeVTQLXB8pRtdFfmymQmg3cb0NxbEQVXXQX
- fi6Qk+xhp3fD1+pvTMTyEQMAQGxNF5oaww666tT89X25tYbBKZKSsfagUfpKR8bKm+c5
- gLcNQlLNL80hfdxaDLyrPrwozIpIYzZoA5IdVasYceIVUSyGgT4UyqObGVUuqMp23j2t
- UuYUKi17FI2/uMktcx2paK38bEG5ogHF/gzPA57QAI5c8+bHHXhG0/APJrywGSql/gXu
- y9LQ==
-X-Gm-Message-State: AOAM533jul1OHdk6FKWyvX391Te60sOKUryAi/dAwV52ztjiZ/PJaUd0
- ItV1lYkTMyBbvaxoxdBJ4vHxdJTuvEO07ePts9GGNw==
-X-Google-Smtp-Source: ABdhPJwP35vw5lT9neuydp7mvKwzDwhzvDxYO3obIhsVbbLOYCkSBjKqS3WXQ9gvZ6vnjTejVq7QMotIsIsxGWeL23s=
-X-Received: by 2002:aca:6083:: with SMTP id u125mr3023784oib.14.1601394291599; 
- Tue, 29 Sep 2020 08:44:51 -0700 (PDT)
-MIME-Version: 1.0
-References: <20200929151437.19717-1-tzimmermann@suse.de>
- <20200929151437.19717-3-tzimmermann@suse.de>
- <8fad0114-064a-4ed5-c21d-d1b4294de0a1@amd.com>
-In-Reply-To: <8fad0114-064a-4ed5-c21d-d1b4294de0a1@amd.com>
-From: Daniel Vetter <daniel@ffwll.ch>
-Date: Tue, 29 Sep 2020 17:44:40 +0200
-Message-ID: <CAKMK7uF8fYXzW3NUqR8Qkp8Z1Dk7xfwgXfUi7UdA5Cf++1HnOQ@mail.gmail.com>
+ Tue, 29 Sep 2020 16:09:18 +0000 (UTC)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=dCeEQgCpwFbMt9Ut7StnkqEJI88NmsYt6RWuL4M+qVaI4pf7RxVUEg4KFC+i5xFW1/qf3Qu7Tv6W96kbJMsRPE0+soaDdBLWMsRaFOPEmV7su1oZzmJoHJbq0U2yWEF/DS5fVsacZcI6dsUzqLOPtFPjt2TVpe+7jQJkq7Yws3Zp1Z5gytHKrYeOVo2Um1RkK1tI4Vrn/gm4PjBRY6tQwf5gFnqjZbua6B0N10eCiQFgkQRD2rdVU4tVGZOqn1hX4ZVIwChZS1i+VTz8smlqZi93YL2K4SZNbuZlLSn+hyAnR+/8oF63vvx4+aqrSi0dm25vmvR6PwNL8MvNo4mfwA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com; 
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Ju9ytlC3PEvMSd+W5egJQ5uOSMVZssTWQs1Oko2De6k=;
+ b=R+1ZyOp7wyj/h4ESpcP/kQtqLipiUru1S7EQKOK47H9S5Ua6UrX9sUSSkNObVUHHlKmCfpcbMLGrnTwPPSv2CBCmEgE0A49r4h15ktetjNY8ETWTuRp92DkGXdkTP86ogDvHKhpdWrL8qsOh6EDVizxEQmgSq7HeXtQvr74rfqDXEOJmDg9GemjaEI/spkYYZF1zQT9SkUPZYScph6vqvMrCE4OEmLGKx+MPXfqrqozzWB/G49KsPRb6bqECJkd1D1UNuXouAVUyg8+KNo7ySaNf1j/eKn7cBJK/7er3PA2lyyv3KwO+RSILBkIGnND0s7N7K7enq34cCTIO4vMyyg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=amdcloud.onmicrosoft.com; s=selector2-amdcloud-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Ju9ytlC3PEvMSd+W5egJQ5uOSMVZssTWQs1Oko2De6k=;
+ b=x3ECmjA4MYmkpV7I+irD7C1GTLBGr4kBmeXoLiSae3yLyVVXBNqAiC+k568wj0Q/qbvc46KxCO5opfaB1GL8G/39fNOa7ykKmPePadgoC3UkrBqRcX/5KwaJNR1sS2S+xk/N5o7WjkI5RJg0+np+2uKnPOZJpEsm5z7tCrCDCFI=
+Authentication-Results: lists.linaro.org; dkim=none (message not signed)
+ header.d=none;lists.linaro.org; dmarc=none action=none header.from=amd.com;
+Received: from MN2PR12MB3775.namprd12.prod.outlook.com (2603:10b6:208:159::19)
+ by MN2PR12MB3838.namprd12.prod.outlook.com (2603:10b6:208:16c::11)
+ with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.3412.24; Tue, 29 Sep
+ 2020 15:35:45 +0000
+Received: from MN2PR12MB3775.namprd12.prod.outlook.com
+ ([fe80::f8f7:7403:1c92:3a60]) by MN2PR12MB3775.namprd12.prod.outlook.com
+ ([fe80::f8f7:7403:1c92:3a60%6]) with mapi id 15.20.3433.032; Tue, 29 Sep 2020
+ 15:35:45 +0000
 Subject: Re: [PATCH v3 2/7] drm/ttm: Add ttm_kmap_obj_to_dma_buf_map() for
  type conversion
-To: =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
-Cc: Luben Tuikov <luben.tuikov@amd.com>,
- =?UTF-8?Q?Heiko_St=C3=BCbner?= <heiko@sntech.de>,
- Dave Airlie <airlied@linux.ie>, Nouveau Dev <nouveau@lists.freedesktop.org>,
- Linus Walleij <linus.walleij@linaro.org>,
- dri-devel <dri-devel@lists.freedesktop.org>, "Wilson,
- Chris" <chris@chris-wilson.co.uk>, Melissa Wen <melissa.srw@gmail.com>,
- "Anholt, Eric" <eric@anholt.net>, Huang Rui <ray.huang@amd.com>,
- Sam Ravnborg <sam@ravnborg.org>, Sumit Semwal <sumit.semwal@linaro.org>,
- Emil Velikov <emil.velikov@collabora.com>, Rob Herring <robh@kernel.org>,
- linux-samsung-soc <linux-samsung-soc@vger.kernel.org>,
- Joonyoung Shim <jy0922.shim@samsung.com>, lima@lists.freedesktop.org,
- Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
- Krzysztof Kozlowski <krzk@kernel.org>, Steven Price <steven.price@arm.com>,
- "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>,
- Kukjin Kim <kgene@kernel.org>,
- Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
- Russell King <linux+etnaviv@armlinux.org.uk>,
- "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>,
- Ben Skeggs <bskeggs@redhat.com>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- The etnaviv authors <etnaviv@lists.freedesktop.org>,
- Maxime Ripard <mripard@kernel.org>, Inki Dae <inki.dae@samsung.com>,
- Hans de Goede <hdegoede@redhat.com>,
- Christian Gmeiner <christian.gmeiner@gmail.com>,
- "moderated list:DRM DRIVERS FOR XEN" <xen-devel@lists.xenproject.org>,
- "open list:VIRTIO CORE, NET..." <virtualization@lists.linux-foundation.org>,
- Sean Paul <sean@poorly.run>, apaneers@amd.com,
- Linux ARM <linux-arm-kernel@lists.infradead.org>,
- "moderated list:DMA BUFFER SHARING FRAMEWORK" <linaro-mm-sig@lists.linaro.org>,
- amd-gfx list <amd-gfx@lists.freedesktop.org>,
- Tomeu Vizoso <tomeu.vizoso@collabora.com>,
- Seung-Woo Kim <sw0312.kim@samsung.com>, Sandy Huang <hjc@rock-chips.com>,
- Kyungmin Park <kyungmin.park@samsung.com>,
- Qinglang Miao <miaoqinglang@huawei.com>, Qiang Yu <yuq825@gmail.com>,
- Thomas Zimmermann <tzimmermann@suse.de>,
- Alex Deucher <alexander.deucher@amd.com>,
- "open list:DMA BUFFER SHARING FRAMEWORK" <linux-media@vger.kernel.org>,
- Lucas Stach <l.stach@pengutronix.de>
+To: Thomas Zimmermann <tzimmermann@suse.de>,
+ maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@linux.ie,
+ daniel@ffwll.ch, sam@ravnborg.org, alexander.deucher@amd.com,
+ kraxel@redhat.com, l.stach@pengutronix.de, linux+etnaviv@armlinux.org.uk,
+ christian.gmeiner@gmail.com, inki.dae@samsung.com, jy0922.shim@samsung.com,
+ sw0312.kim@samsung.com, kyungmin.park@samsung.com, kgene@kernel.org,
+ krzk@kernel.org, yuq825@gmail.com, bskeggs@redhat.com, robh@kernel.org,
+ tomeu.vizoso@collabora.com, steven.price@arm.com,
+ alyssa.rosenzweig@collabora.com, hjc@rock-chips.com, heiko@sntech.de,
+ hdegoede@redhat.com, sean@poorly.run, eric@anholt.net,
+ oleksandr_andrushchenko@epam.com, ray.huang@amd.com,
+ sumit.semwal@linaro.org, emil.velikov@collabora.com, luben.tuikov@amd.com,
+ apaneers@amd.com, linus.walleij@linaro.org, melissa.srw@gmail.com,
+ chris@chris-wilson.co.uk, miaoqinglang@huawei.com
+References: <20200929151437.19717-1-tzimmermann@suse.de>
+ <20200929151437.19717-3-tzimmermann@suse.de>
+From: =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
+Message-ID: <8fad0114-064a-4ed5-c21d-d1b4294de0a1@amd.com>
+Date: Tue, 29 Sep 2020 17:35:33 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
+In-Reply-To: <20200929151437.19717-3-tzimmermann@suse.de>
+Content-Language: en-US
+X-Originating-IP: [2a02:908:1252:fb60:be8a:bd56:1f94:86e7]
+X-ClientProxiedBy: AM0PR07CA0021.eurprd07.prod.outlook.com
+ (2603:10a6:208:ac::34) To MN2PR12MB3775.namprd12.prod.outlook.com
+ (2603:10b6:208:159::19)
+MIME-Version: 1.0
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from [IPv6:2a02:908:1252:fb60:be8a:bd56:1f94:86e7]
+ (2a02:908:1252:fb60:be8a:bd56:1f94:86e7) by
+ AM0PR07CA0021.eurprd07.prod.outlook.com (2603:10a6:208:ac::34) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.3433.14 via Frontend Transport; Tue, 29 Sep 2020 15:35:38 +0000
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-HT: Tenant
+X-MS-Office365-Filtering-Correlation-Id: c529fcd8-bed7-4c69-b34a-08d8648d54bf
+X-MS-TrafficTypeDiagnostic: MN2PR12MB3838:
+X-MS-Exchange-Transport-Forked: True
+X-Microsoft-Antispam-PRVS: <MN2PR12MB38388DEAAA691518AF637C2883320@MN2PR12MB3838.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:8882;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 3krDVIfFcjVTMVXvyeIOLttWbphZc92nAU+lVeWLNQuH655CyezATODFQee4nEtXFn+dSn5RYtOORxUKYpT+2lRX15kgiiCdizu68bOizZRxEsU/eLWS7x17rQKrIm3Lx+qILUgIDUowRxe/GWswYSzRG9sbYarbIqhidqcDBdXxbNJcftZGi9aCM8ZxmuuV1a7Bi/7s1W9x8m7XZjDiwvJR1s8vQmsVdDd55MNv5W7n9Hm5Xf0+5XfwzZq6vvxZyab+mkCeM+LevyfFqP1yFrOTCLVGIwg87aVc032azFmwS4+8gUay0i4j61/ILJeCW2JeOlSmxmo3/YrySRIjg8Iuzqq40jDT1miWc9m9a8uMsn+rZw1nzHBw4TkZeROEXueyyeThPd2vAhxE4wp+tT5GCC4REqfDp1FunBA0woKftm9455MIctl6SKaz+9Cm
+X-Forefront-Antispam-Report: CIP:255.255.255.255; CTRY:; LANG:en; SCL:1; SRV:;
+ IPV:NLI; SFV:NSPM; H:MN2PR12MB3775.namprd12.prod.outlook.com; PTR:; CAT:NONE;
+ SFS:(4636009)(39860400002)(366004)(346002)(396003)(376002)(136003)(6666004)(7416002)(7406005)(36756003)(31696002)(478600001)(6486002)(5660300002)(66476007)(86362001)(4326008)(66556008)(66946007)(8676002)(2906002)(316002)(16526019)(186003)(83380400001)(52116002)(31686004)(8936002)(2616005)(921003)(43740500002);
+ DIR:OUT; SFP:1101; 
+X-MS-Exchange-AntiSpam-MessageData: qs2y5/iFY6MylDTntvJqcHSPxxQNn9Pi6s89WySDm5nZZq9Zfi+hq3CzAuVv2QPTvNoXN/nfnYNjy2nCYdNRoC8PY+stTVMurzJFOuXE71e11pUhPfxvB89bvALgjodcuGoPpxAaTSP2RarCvvhJpQNMW9uuBbQ5afEtqCYJslQ/mr/1KMG5ZF8vwDu40BVvTzmX8o0wGAFQo6DmpGzS0zyV0EB3rEf4+JtUXZIiwWR8uTAi3DPDLKY+g/qQP+rDdM422SCOj+xbrAIYI/crymN7ZdGS5ueF929Lad4GjiV7JgHlM5yfY+FCOxRqQeSS84vHxPOM64FGpU3Qtu5fRyBDWY4wnoHUsN7occY4J/W+4JxfihZErcFZ3TheFhWlnLxWUnsvbmraoiN7WHKh4yuyFMtmuvmQ2AHs1QD9vmLTVZrKX6S0agt1oSsQPWj6brCe3WrqXF/6wDfn79Klvgaa7pVsh96B2Q9DmNPik0UG+BOA+OKoFYyfSk+Z5ts4FCcpKx9VIzqNwvNVF2RcAIB5TpnNbrqpvyjdCp10N/5dPvQpGNiHSejHfSUgHoeFsRd/2A8GJv8IikHqMtmqJ1t7c9jEE13GFFEDp85QktFpq1B8BrxZ7WxvUf0lou5r1cEAQzkSIGtC6HZI9dE92aeRJ311MeH8lmU5HCWtoJveJx54ic/+yiLJ9bIzi7QiQqWExwExPwW15LsUxhNZpg==
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: c529fcd8-bed7-4c69-b34a-08d8648d54bf
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR12MB3775.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Sep 2020 15:35:45.0829 (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: pVoMbhegp5DAxOASZ/64obyU3fjd+Qay3enQe2qZ7Ua1aIyoMW2Lj/SnVxZO58zs
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB3838
+Cc: linux-samsung-soc@vger.kernel.org, lima@lists.freedesktop.org,
+ nouveau@lists.freedesktop.org, etnaviv@lists.freedesktop.org,
+ amd-gfx@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
+ linaro-mm-sig@lists.linaro.org, linux-rockchip@lists.infradead.org,
+ dri-devel@lists.freedesktop.org, xen-devel@lists.xenproject.org,
+ spice-devel@lists.freedesktop.org, linux-arm-kernel@lists.infradead.org,
+ linux-media@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -138,82 +158,113 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gVHVlLCBTZXAgMjksIDIwMjAgYXQgNTozNSBQTSBDaHJpc3RpYW4gS8O2bmlnCjxjaHJpc3Rp
-YW4ua29lbmlnQGFtZC5jb20+IHdyb3RlOgo+Cj4gQW0gMjkuMDkuMjAgdW0gMTc6MTQgc2Nocmll
-YiBUaG9tYXMgWmltbWVybWFubjoKPiA+IFRoZSBuZXcgaGVscGVyIHR0bV9rbWFwX29ial90b19k
-bWFfYnVmKCkgZXh0cmFjdHMgYWRkcmVzcyBhbmQgbG9jYXRpb24KPiA+IGZyb20gYW5kIGluc3Rh
-bmNlIG9mIFRUTSdzIGttYXBfb2JqIGFuZCBpbml0aWFsaXplcyBzdHJ1Y3QgZG1hX2J1Zl9tYXAK
-PiA+IHdpdGggdGhlc2UgdmFsdWVzLiBIZWxwZnVsIGZvciBUVE0tYmFzZWQgZHJpdmVycy4KPgo+
-IFdlIGNvdWxkIGNvbXBsZXRlbHkgZHJvcCB0aGF0IGlmIHdlIHVzZSB0aGUgc2FtZSBzdHJ1Y3R1
-cmUgaW5zaWRlIFRUTSBhcwo+IHdlbGwuCgo+IEFkZGl0aW9uYWwgdG8gdGhhdCB3aGljaCBkcml2
-ZXIgaXMgZ29pbmcgdG8gdXNlIHRoaXM/CgpQYXRjaCAzIGluIHRoaXMgc2VyaWVzLgoKSSBhbHNv
-IHRoaW5rIHRoaXMgbWFrZXMgc2Vuc2UgZm9yIGdyYWR1YWwgY29udmVyc2lvbjoKMS4gYWRkIHRo
-aXMgaGVscGVyCjIuIGNvbnZlcnQgb3ZlciBhbGwgdXNlcnMgb2Ygdm1hcCwgdGhpcyBzaG91bGQg
-Z2V0IHJpZCBvZiBpc19pb21lbQpmbGFncyAoYW5kIHdpbGwgcHJvYmFibHkgcmVzdWx0IGluIGEg
-cGlsZSBvZiBzbWFsbCBhZGRpdGlvbnMgdG8KZG1hLWJ1Zi1tYXAuaCkKMy4gcHVzaCB0aGUgc3Ry
-dWN0IGRtYV9idWZfbWFwIGRvd24gaW50byB0dG0gZHJpdmVycwoKQ2hlZXJzLCBEYW5pZWwKCj4g
-UmVnYXJkcywKPiBDaHJpc3RpYW4uCj4KPiA+Cj4gPiBTaWduZWQtb2ZmLWJ5OiBUaG9tYXMgWmlt
-bWVybWFubiA8dHppbW1lcm1hbm5Ac3VzZS5kZT4KPiA+IC0tLQo+ID4gICBpbmNsdWRlL2RybS90
-dG0vdHRtX2JvX2FwaS5oIHwgMjQgKysrKysrKysrKysrKysrKysrKysrKysrCj4gPiAgIGluY2x1
-ZGUvbGludXgvZG1hLWJ1Zi1tYXAuaCAgfCAyMCArKysrKysrKysrKysrKysrKysrKwo+ID4gICAy
-IGZpbGVzIGNoYW5nZWQsIDQ0IGluc2VydGlvbnMoKykKPiA+Cj4gPiBkaWZmIC0tZ2l0IGEvaW5j
-bHVkZS9kcm0vdHRtL3R0bV9ib19hcGkuaCBiL2luY2x1ZGUvZHJtL3R0bS90dG1fYm9fYXBpLmgK
-PiA+IGluZGV4IGM5NmEyNWQ1NzFjOC4uNjJkODlmMDVhODAxIDEwMDY0NAo+ID4gLS0tIGEvaW5j
-bHVkZS9kcm0vdHRtL3R0bV9ib19hcGkuaAo+ID4gKysrIGIvaW5jbHVkZS9kcm0vdHRtL3R0bV9i
-b19hcGkuaAo+ID4gQEAgLTM0LDYgKzM0LDcgQEAKPiA+ICAgI2luY2x1ZGUgPGRybS9kcm1fZ2Vt
-Lmg+Cj4gPiAgICNpbmNsdWRlIDxkcm0vZHJtX2hhc2h0YWIuaD4KPiA+ICAgI2luY2x1ZGUgPGRy
-bS9kcm1fdm1hX21hbmFnZXIuaD4KPiA+ICsjaW5jbHVkZSA8bGludXgvZG1hLWJ1Zi1tYXAuaD4K
-PiA+ICAgI2luY2x1ZGUgPGxpbnV4L2tyZWYuaD4KPiA+ICAgI2luY2x1ZGUgPGxpbnV4L2xpc3Qu
-aD4KPiA+ICAgI2luY2x1ZGUgPGxpbnV4L3dhaXQuaD4KPiA+IEBAIC00ODYsNiArNDg3LDI5IEBA
-IHN0YXRpYyBpbmxpbmUgdm9pZCAqdHRtX2ttYXBfb2JqX3ZpcnR1YWwoc3RydWN0IHR0bV9ib19r
-bWFwX29iaiAqbWFwLAo+ID4gICAgICAgcmV0dXJuIG1hcC0+dmlydHVhbDsKPiA+ICAgfQo+ID4K
-PiA+ICsvKioKPiA+ICsgKiB0dG1fa21hcF9vYmpfdG9fZG1hX2J1Zl9tYXAKPiA+ICsgKgo+ID4g
-KyAqIEBrbWFwOiBBIHN0cnVjdCB0dG1fYm9fa21hcF9vYmogcmV0dXJuZWQgZnJvbSB0dG1fYm9f
-a21hcC4KPiA+ICsgKiBAbWFwOiBSZXR1cm5zIHRoZSBtYXBwaW5nIGFzIHN0cnVjdCBkbWFfYnVm
-X21hcAo+ID4gKyAqCj4gPiArICogQ29udmVydHMgc3RydWN0IHR0bV9ib19rbWFwX29iaiB0byBz
-dHJ1Y3QgZG1hX2J1Zl9tYXAuIElmIHRoZSBtZW1vcnkKPiA+ICsgKiBpcyBub3QgbWFwcGVkLCB0
-aGUgcmV0dXJuZWQgbWFwcGluZyBpcyBpbml0aWFsaXplZCB0byBOVUxMLgo+ID4gKyAqLwo+ID4g
-K3N0YXRpYyBpbmxpbmUgdm9pZCB0dG1fa21hcF9vYmpfdG9fZG1hX2J1Zl9tYXAoc3RydWN0IHR0
-bV9ib19rbWFwX29iaiAqa21hcCwKPiA+ICsgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgIHN0cnVjdCBkbWFfYnVmX21hcCAqbWFwKQo+ID4gK3sKPiA+ICsgICAgIGJv
-b2wgaXNfaW9tZW07Cj4gPiArICAgICB2b2lkICp2YWRkciA9IHR0bV9rbWFwX29ial92aXJ0dWFs
-KGttYXAsICZpc19pb21lbSk7Cj4gPiArCj4gPiArICAgICBpZiAoIXZhZGRyKQo+ID4gKyAgICAg
-ICAgICAgICBkbWFfYnVmX21hcF9jbGVhcihtYXApOwo+ID4gKyAgICAgZWxzZSBpZiAoaXNfaW9t
-ZW0pCj4gPiArICAgICAgICAgICAgIGRtYV9idWZfbWFwX3NldF92YWRkcl9pb21lbShtYXAsICh2
-b2lkIF9fZm9yY2UgX19pb21lbSAqKXZhZGRyKTsKPiA+ICsgICAgIGVsc2UKPiA+ICsgICAgICAg
-ICAgICAgZG1hX2J1Zl9tYXBfc2V0X3ZhZGRyKG1hcCwgdmFkZHIpOwo+ID4gK30KPiA+ICsKPiA+
-ICAgLyoqCj4gPiAgICAqIHR0bV9ib19rbWFwCj4gPiAgICAqCj4gPiBkaWZmIC0tZ2l0IGEvaW5j
-bHVkZS9saW51eC9kbWEtYnVmLW1hcC5oIGIvaW5jbHVkZS9saW51eC9kbWEtYnVmLW1hcC5oCj4g
-PiBpbmRleCBmZDFhYmE1NDVmZGYuLjJlOGJiZWNiNTA5MSAxMDA2NDQKPiA+IC0tLSBhL2luY2x1
-ZGUvbGludXgvZG1hLWJ1Zi1tYXAuaAo+ID4gKysrIGIvaW5jbHVkZS9saW51eC9kbWEtYnVmLW1h
-cC5oCj4gPiBAQCAtNDUsNiArNDUsMTIgQEAKPiA+ICAgICoKPiA+ICAgICogIGRtYV9idWZfbWFw
-X3NldF92YWRkcigmbWFwLiAweGRlYWRiZWFmKTsKPiA+ICAgICoKPiA+ICsgKiBUbyBzZXQgYW4g
-YWRkcmVzcyBpbiBJL08gbWVtb3J5LCB1c2UgZG1hX2J1Zl9tYXBfc2V0X3ZhZGRyX2lvbWVtKCku
-Cj4gPiArICoKPiA+ICsgKiAuLiBjb2RlLWJsb2NrOjogYwo+ID4gKyAqCj4gPiArICogICBkbWFf
-YnVmX21hcF9zZXRfdmFkZHJfaW9tZW0oJm1hcC4gMHhkZWFkYmVhZik7Cj4gPiArICoKPiA+ICAg
-ICogVGVzdCBpZiBhIG1hcHBpbmcgaXMgdmFsaWQgd2l0aCBlaXRoZXIgZG1hX2J1Zl9tYXBfaXNf
-c2V0KCkgb3IKPiA+ICAgICogZG1hX2J1Zl9tYXBfaXNfbnVsbCgpLgo+ID4gICAgKgo+ID4gQEAg
-LTExOCw2ICsxMjQsMjAgQEAgc3RhdGljIGlubGluZSB2b2lkIGRtYV9idWZfbWFwX3NldF92YWRk
-cihzdHJ1Y3QgZG1hX2J1Zl9tYXAgKm1hcCwgdm9pZCAqdmFkZHIpCj4gPiAgICAgICBtYXAtPmlz
-X2lvbWVtID0gZmFsc2U7Cj4gPiAgIH0KPiA+Cj4gPiArLyoqCj4gPiArICogZG1hX2J1Zl9tYXBf
-c2V0X3ZhZGRyX2lvbWVtIC0gU2V0cyBhIGRtYS1idWYgbWFwcGluZyBzdHJ1Y3R1cmUgdG8gYW4g
-YWRkcmVzcyBpbiBJL08gbWVtb3J5Cj4gPiArICogQG1hcDogICAgICAgICAgICAgVGhlIGRtYS1i
-dWYgbWFwcGluZyBzdHJ1Y3R1cmUKPiA+ICsgKiBAdmFkZHJfaW9tZW06ICAgICBBbiBJL08tbWVt
-b3J5IGFkZHJlc3MKPiA+ICsgKgo+ID4gKyAqIFNldHMgdGhlIGFkZHJlc3MgYW5kIHRoZSBJL08t
-bWVtb3J5IGZsYWcuCj4gPiArICovCj4gPiArc3RhdGljIGlubGluZSB2b2lkIGRtYV9idWZfbWFw
-X3NldF92YWRkcl9pb21lbShzdHJ1Y3QgZG1hX2J1Zl9tYXAgKm1hcCwKPiA+ICsgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIHZvaWQgX19pb21lbSAqdmFkZHJfaW9t
-ZW0pCj4gPiArewo+ID4gKyAgICAgbWFwLT52YWRkcl9pb21lbSA9IHZhZGRyX2lvbWVtOwo+ID4g
-KyAgICAgbWFwLT5pc19pb21lbSA9IHRydWU7Cj4gPiArfQo+ID4gKwo+ID4gICAvKioKPiA+ICAg
-ICogZG1hX2J1Zl9tYXBfaXNfZXF1YWwgLSBDb21wYXJlcyB0d28gZG1hLWJ1ZiBtYXBwaW5nIHN0
-cnVjdHVyZXMgZm9yIGVxdWFsaXR5Cj4gPiAgICAqIEBsaHM6ICAgIFRoZSBkbWEtYnVmIG1hcHBp
-bmcgc3RydWN0dXJlCj4KCgotLSAKRGFuaWVsIFZldHRlcgpTb2Z0d2FyZSBFbmdpbmVlciwgSW50
-ZWwgQ29ycG9yYXRpb24KaHR0cDovL2Jsb2cuZmZ3bGwuY2gKX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZp
-cnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGlu
-dXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+Am 29.09.20 um 17:14 schrieb Thomas Zimmermann:
+> The new helper ttm_kmap_obj_to_dma_buf() extracts address and location
+> from and instance of TTM's kmap_obj and initializes struct dma_buf_map
+> with these values. Helpful for TTM-based drivers.
+
+We could completely drop that if we use the same structure inside TTM as 
+well.
+
+Additional to that which driver is going to use this?
+
+Regards,
+Christian.
+
+>
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> ---
+>   include/drm/ttm/ttm_bo_api.h | 24 ++++++++++++++++++++++++
+>   include/linux/dma-buf-map.h  | 20 ++++++++++++++++++++
+>   2 files changed, 44 insertions(+)
+>
+> diff --git a/include/drm/ttm/ttm_bo_api.h b/include/drm/ttm/ttm_bo_api.h
+> index c96a25d571c8..62d89f05a801 100644
+> --- a/include/drm/ttm/ttm_bo_api.h
+> +++ b/include/drm/ttm/ttm_bo_api.h
+> @@ -34,6 +34,7 @@
+>   #include <drm/drm_gem.h>
+>   #include <drm/drm_hashtab.h>
+>   #include <drm/drm_vma_manager.h>
+> +#include <linux/dma-buf-map.h>
+>   #include <linux/kref.h>
+>   #include <linux/list.h>
+>   #include <linux/wait.h>
+> @@ -486,6 +487,29 @@ static inline void *ttm_kmap_obj_virtual(struct ttm_bo_kmap_obj *map,
+>   	return map->virtual;
+>   }
+>   
+> +/**
+> + * ttm_kmap_obj_to_dma_buf_map
+> + *
+> + * @kmap: A struct ttm_bo_kmap_obj returned from ttm_bo_kmap.
+> + * @map: Returns the mapping as struct dma_buf_map
+> + *
+> + * Converts struct ttm_bo_kmap_obj to struct dma_buf_map. If the memory
+> + * is not mapped, the returned mapping is initialized to NULL.
+> + */
+> +static inline void ttm_kmap_obj_to_dma_buf_map(struct ttm_bo_kmap_obj *kmap,
+> +					       struct dma_buf_map *map)
+> +{
+> +	bool is_iomem;
+> +	void *vaddr = ttm_kmap_obj_virtual(kmap, &is_iomem);
+> +
+> +	if (!vaddr)
+> +		dma_buf_map_clear(map);
+> +	else if (is_iomem)
+> +		dma_buf_map_set_vaddr_iomem(map, (void __force __iomem *)vaddr);
+> +	else
+> +		dma_buf_map_set_vaddr(map, vaddr);
+> +}
+> +
+>   /**
+>    * ttm_bo_kmap
+>    *
+> diff --git a/include/linux/dma-buf-map.h b/include/linux/dma-buf-map.h
+> index fd1aba545fdf..2e8bbecb5091 100644
+> --- a/include/linux/dma-buf-map.h
+> +++ b/include/linux/dma-buf-map.h
+> @@ -45,6 +45,12 @@
+>    *
+>    *	dma_buf_map_set_vaddr(&map. 0xdeadbeaf);
+>    *
+> + * To set an address in I/O memory, use dma_buf_map_set_vaddr_iomem().
+> + *
+> + * .. code-block:: c
+> + *
+> + *	dma_buf_map_set_vaddr_iomem(&map. 0xdeadbeaf);
+> + *
+>    * Test if a mapping is valid with either dma_buf_map_is_set() or
+>    * dma_buf_map_is_null().
+>    *
+> @@ -118,6 +124,20 @@ static inline void dma_buf_map_set_vaddr(struct dma_buf_map *map, void *vaddr)
+>   	map->is_iomem = false;
+>   }
+>   
+> +/**
+> + * dma_buf_map_set_vaddr_iomem - Sets a dma-buf mapping structure to an address in I/O memory
+> + * @map:		The dma-buf mapping structure
+> + * @vaddr_iomem:	An I/O-memory address
+> + *
+> + * Sets the address and the I/O-memory flag.
+> + */
+> +static inline void dma_buf_map_set_vaddr_iomem(struct dma_buf_map *map,
+> +					       void __iomem *vaddr_iomem)
+> +{
+> +	map->vaddr_iomem = vaddr_iomem;
+> +	map->is_iomem = true;
+> +}
+> +
+>   /**
+>    * dma_buf_map_is_equal - Compares two dma-buf mapping structures for equality
+>    * @lhs:	The dma-buf mapping structure
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
