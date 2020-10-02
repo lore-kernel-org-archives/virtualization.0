@@ -2,93 +2,97 @@ Return-Path: <SRS0=l9dZ=DJ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.3 required=3.0 tests=BAYES_00,
+	DKIM_ADSP_CUSTOM_MED,DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,
+	FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 05D59C47426
-	for <virtualization@archiver.kernel.org>; Fri,  2 Oct 2020 09:58:44 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 05EF0C4363D
+	for <virtualization@archiver.kernel.org>; Fri,  2 Oct 2020 11:30:33 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 65776206DD
-	for <virtualization@archiver.kernel.org>; Fri,  2 Oct 2020 09:58:43 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 6DE9A206DC
+	for <virtualization@archiver.kernel.org>; Fri,  2 Oct 2020 11:30:32 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b="Kv9fFmws"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 65776206DD
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="cebDEAs7"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6DE9A206DC
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id B0BCA204D6;
-	Fri,  2 Oct 2020 09:58:42 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id F347C872E3;
+	Fri,  2 Oct 2020 11:30:31 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 8ANnvlR3BGWW; Fri,  2 Oct 2020 09:58:40 +0000 (UTC)
+	with ESMTP id CAv0Fgwp6gmj; Fri,  2 Oct 2020 11:30:30 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 3D8BC20346;
-	Fri,  2 Oct 2020 09:58:40 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 32481872D5;
+	Fri,  2 Oct 2020 11:30:30 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1EC86C0889;
-	Fri,  2 Oct 2020 09:58:40 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4E736C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 18DC7C0889;
+	Fri,  2 Oct 2020 11:30:30 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DCE90C0051
  for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Oct 2020 09:58:39 +0000 (UTC)
+ Fri,  2 Oct 2020 11:30:28 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 142B620346
+ by whitealder.osuosl.org (Postfix) with ESMTP id C3DD686AE6
  for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Oct 2020 09:58:39 +0000 (UTC)
+ Fri,  2 Oct 2020 11:30:28 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id yxYgBNm09nVr
+ with ESMTP id F0J1zMUQyIXG
  for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Oct 2020 09:58:37 +0000 (UTC)
-X-Greylist: delayed 00:10:30 by SQLgrey-1.7.6
-Received: from mail-wr1-f65.google.com (mail-wr1-f65.google.com
- [209.85.221.65])
- by silver.osuosl.org (Postfix) with ESMTPS id 87B29203A7
+ Fri,  2 Oct 2020 11:30:27 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+Received: from mail-ej1-f67.google.com (mail-ej1-f67.google.com
+ [209.85.218.67])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 2211786AE1
  for <virtualization@lists.linux-foundation.org>;
- Fri,  2 Oct 2020 09:58:36 +0000 (UTC)
-Received: by mail-wr1-f65.google.com with SMTP id c18so1104597wrm.9
+ Fri,  2 Oct 2020 11:30:27 +0000 (UTC)
+Received: by mail-ej1-f67.google.com with SMTP id ly6so190319ejb.8
  for <virtualization@lists.linux-foundation.org>;
- Fri, 02 Oct 2020 02:58:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ffwll.ch; s=google;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:content-transfer-encoding:in-reply-to;
- bh=mEkpAjpBBFBC2OSbPf1rcPxheU+j8eHJKLr+XyTj9VA=;
- b=Kv9fFmwsLnH3rxc4YORHIlCmE7gMf2ANx+U1VpZfjN8Kq3n/95x+iLFFYY69i5o/VM
- aXKz1OGxaPgu4YEY2NOXjk9cQA0FvF45c+2KvuEJGmF6wRE5OG+7rgoxKuBnH3Yb2xng
- VP9WbgOJz1wPpF8BMrgVCxTdasm5/jVPq77KY=
+ Fri, 02 Oct 2020 04:30:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=reply-to:subject:to:cc:references:from:message-id:date:user-agent
+ :mime-version:in-reply-to:content-transfer-encoding:content-language;
+ bh=3Yv1p91kdY6MztMHEbXAX2LIhnqCDycHHWK1s9rlIpk=;
+ b=cebDEAs7j0BDWj7XygZm8zBV9UtA+AAQH7jIMa3COVQavNGQ+xmaBn9oMoiStb2f2h
+ KWrSq2RIjXarUg9cmmsx6e/IvJprHToa4zB4n03/MjsEDUWHyGrhyxSqnN4QN74MCEWv
+ F+qLVD6ryJnlLP8vbzJLsvM8pEx84IxEmpnoZ+bibT8IC2fY5x+WMqpAPumoMtkcL/45
+ G/iif/RHXgdKh9DArmcH/vzWsL81H6c2t9CDpNdYmjQRRguBB4YtWane1V8BhhhBxe0I
+ Nh4niqMUMOyIDFLfEGby2I/PFheLBfKCxpKk74E4KKaHjYLHDqqOJLGfJFBDuUwVEuK6
+ mzHQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to;
- bh=mEkpAjpBBFBC2OSbPf1rcPxheU+j8eHJKLr+XyTj9VA=;
- b=KqHjuLc9TkVKYwtj370DV/ZbJlQYwr1UykQe1cVemzZZoUBeY96sCzY6exD9d9gVBH
- 6wDcMsvzHw4blm1XzQ/6lmUcbY8CH215HNp9L1bRZzseoS7UlcKs37foI9M27NWu6UWF
- fqqBbtprTAdGj+4TEkL85zYblBFo7WRiJp01WMvfs2c71xr8gARfUbxsLiB4ZAcCn0gu
- 3ydflUELbNPB+z1ssfdykPFWFyYa7IihhvVxYIUxAO4EXuqMl43BY1bQjmQaGvzcxZto
- 0TpFcsNn9Z9IHumiw7RTIts2c9a5UsSi7pxZU2ZaDn6YHe5UCndAfGLE+XhsXDyr6Nu1
- 7aGg==
-X-Gm-Message-State: AOAM531zXmYIhRHroFtC3cLmU8eBnjs9dC0bFRdhcaTLrPgfSa5oS+dw
- aSNSVndvB/uBGluH/0V0WWQVrA==
-X-Google-Smtp-Source: ABdhPJyaxWM6azv8IiEEW0NJpIjAdBSSpixIyMrO0zJEmyGJ5I3RnUPpVbxcJ/Exwy9Zm9yRUkU4Bg==
-X-Received: by 2002:a5d:5751:: with SMTP id q17mr2092527wrw.409.1601632714647; 
- Fri, 02 Oct 2020 02:58:34 -0700 (PDT)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
- by smtp.gmail.com with ESMTPSA id q18sm1109551wre.78.2020.10.02.02.58.31
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Fri, 02 Oct 2020 02:58:33 -0700 (PDT)
-Date: Fri, 2 Oct 2020 11:58:30 +0200
-From: Daniel Vetter <daniel@ffwll.ch>
-To: Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
+ h=x-gm-message-state:reply-to:subject:to:cc:references:from
+ :message-id:date:user-agent:mime-version:in-reply-to
+ :content-transfer-encoding:content-language;
+ bh=3Yv1p91kdY6MztMHEbXAX2LIhnqCDycHHWK1s9rlIpk=;
+ b=D8zK8KlnGVMjQyqlLBrMzaEoM3ShMhV/vo8VLK5WuXyjdsliSnNQIOHVv5CYAHwPEr
+ 7U08TmCfrIlj1DPocpmdB8Rn/ZjTNaAaDA4lEwZQ9F29LGMHDcDJ+JKZ6ZV8Jjr7lpdg
+ m9ljDS+1MpkMWy6y1Y9frCKjC3fiSSJn/qI/IY27QA+AioaLSxe6kKOjW/PfO6xBtxhS
+ gpFgOAMr8K4XBr9Aq5UFMCGgb8oQL8wdTLwxlJ+BIQzu8aQMj9ETWlG0+2AbjxqbA3Hg
+ ZQMmrkLH8w05r06YClUyUM+VgzeE4advxWNcu2+VOYcgHk3Rt+stJRYm/eymteB+K202
+ ykZQ==
+X-Gm-Message-State: AOAM531KjWJ/e/s/CvDevtGaTDtIkIG8WaDjY7JuDnCFvr6nHj3oSkqW
+ aFvlMPzzSLLSuw1vGfFvWnsL6hr8WJeWDg==
+X-Google-Smtp-Source: ABdhPJxApAPeHRcp+JFrWFCuy4bAcO8RMtt2ySgmt8bQlcWwipN6gyDihDz/j48Bs0NqfRAKqlXWUA==
+X-Received: by 2002:a17:906:c7d5:: with SMTP id
+ dc21mr1070990ejb.308.1601638225441; 
+ Fri, 02 Oct 2020 04:30:25 -0700 (PDT)
+Received: from ?IPv6:2a02:908:1252:fb60:be8a:bd56:1f94:86e7?
+ ([2a02:908:1252:fb60:be8a:bd56:1f94:86e7])
+ by smtp.gmail.com with ESMTPSA id jp3sm968602ejb.125.2020.10.02.04.30.20
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Fri, 02 Oct 2020 04:30:24 -0700 (PDT)
 Subject: Re: [PATCH v3 2/7] drm/ttm: Add ttm_kmap_obj_to_dma_buf_map() for
  type conversion
-Message-ID: <20201002095830.GH438822@phenom.ffwll.local>
+To: Daniel Vetter <daniel@ffwll.ch>,
+ =?UTF-8?Q?Christian_K=c3=b6nig?= <christian.koenig@amd.com>
 References: <20200929151437.19717-1-tzimmermann@suse.de>
  <20200929151437.19717-3-tzimmermann@suse.de>
  <8fad0114-064a-4ed5-c21d-d1b4294de0a1@amd.com>
@@ -99,25 +103,30 @@ References: <20200929151437.19717-1-tzimmermann@suse.de>
  <20200930094712.GW438822@phenom.ffwll.local>
  <8479d0aa-3826-4f37-0109-55daca515793@amd.com>
  <CAKMK7uH0U36NG8w98i0x6HVGeogiwnYDRiKquLW-8znLa7-0yg@mail.gmail.com>
+ <20201002095830.GH438822@phenom.ffwll.local>
+From: =?UTF-8?Q?Christian_K=c3=b6nig?= <ckoenig.leichtzumerken@gmail.com>
+Message-ID: <f6dcba12-8be8-b867-ac9b-a1ba50567fca@gmail.com>
+Date: Fri, 2 Oct 2020 13:30:20 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <CAKMK7uH0U36NG8w98i0x6HVGeogiwnYDRiKquLW-8znLa7-0yg@mail.gmail.com>
-X-Operating-System: Linux phenom 5.7.0-1-amd64 
-Cc: Luben Tuikov <luben.tuikov@amd.com>,
- Heiko =?iso-8859-1?Q?St=FCbner?= <heiko@sntech.de>,
+In-Reply-To: <20201002095830.GH438822@phenom.ffwll.local>
+Content-Language: en-US
+Cc: =?UTF-8?Q?Heiko_St=c3=bcbner?= <heiko@sntech.de>,
  Dave Airlie <airlied@linux.ie>, Nouveau Dev <nouveau@lists.freedesktop.org>,
  Linus Walleij <linus.walleij@linaro.org>,
  dri-devel <dri-devel@lists.freedesktop.org>, "Wilson,
  Chris" <chris@chris-wilson.co.uk>, Melissa Wen <melissa.srw@gmail.com>,
  "Anholt, Eric" <eric@anholt.net>, Huang Rui <ray.huang@amd.com>,
- Sam Ravnborg <sam@ravnborg.org>, Sumit Semwal <sumit.semwal@linaro.org>,
+ Qiang Yu <yuq825@gmail.com>, Sam Ravnborg <sam@ravnborg.org>,
+ Sumit Semwal <sumit.semwal@linaro.org>,
  Emil Velikov <emil.velikov@collabora.com>, Rob Herring <robh@kernel.org>,
  linux-samsung-soc <linux-samsung-soc@vger.kernel.org>,
  Joonyoung Shim <jy0922.shim@samsung.com>, lima@lists.freedesktop.org,
  Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
  Krzysztof Kozlowski <krzk@kernel.org>, Steven Price <steven.price@arm.com>,
  "open list:ARM/Rockchip SoC..." <linux-rockchip@lists.infradead.org>,
- Kukjin Kim <kgene@kernel.org>,
+ Luben Tuikov <luben.tuikov@amd.com>,
  Alyssa Rosenzweig <alyssa.rosenzweig@collabora.com>,
  Russell King <linux+etnaviv@armlinux.org.uk>,
  "open list:DRM DRIVER FOR QXL VIRTUAL GPU" <spice-devel@lists.freedesktop.org>,
@@ -136,7 +145,7 @@ Cc: Luben Tuikov <luben.tuikov@amd.com>,
  Tomeu Vizoso <tomeu.vizoso@collabora.com>,
  Seung-Woo Kim <sw0312.kim@samsung.com>, Sandy Huang <hjc@rock-chips.com>,
  Kyungmin Park <kyungmin.park@samsung.com>,
- Qinglang Miao <miaoqinglang@huawei.com>, Qiang Yu <yuq825@gmail.com>,
+ Qinglang Miao <miaoqinglang@huawei.com>, Kukjin Kim <kgene@kernel.org>,
  Thomas Zimmermann <tzimmermann@suse.de>,
  Alex Deucher <alexander.deucher@amd.com>,
  "open list:DMA BUFFER SHARING FRAMEWORK" <linux-media@vger.kernel.org>,
@@ -152,304 +161,211 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Reply-To: christian.koenig@amd.com
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Sep 30, 2020 at 02:51:46PM +0200, Daniel Vetter wrote:
-> On Wed, Sep 30, 2020 at 2:34 PM Christian K=F6nig
-> <christian.koenig@amd.com> wrote:
-> >
-> > Am 30.09.20 um 11:47 schrieb Daniel Vetter:
-> > > On Wed, Sep 30, 2020 at 10:34:31AM +0200, Christian K=F6nig wrote:
-> > >> Am 30.09.20 um 10:19 schrieb Thomas Zimmermann:
-> > >>> Hi
-> > >>>
-> > >>> Am 30.09.20 um 10:05 schrieb Christian K=F6nig:
-> > >>>> Am 29.09.20 um 19:49 schrieb Thomas Zimmermann:
-> > >>>>> Hi Christian
-> > >>>>>
-> > >>>>> Am 29.09.20 um 17:35 schrieb Christian K=F6nig:
-> > >>>>>> Am 29.09.20 um 17:14 schrieb Thomas Zimmermann:
-> > >>>>>>> The new helper ttm_kmap_obj_to_dma_buf() extracts address and l=
-ocation
-> > >>>>>>> from and instance of TTM's kmap_obj and initializes struct dma_=
-buf_map
-> > >>>>>>> with these values. Helpful for TTM-based drivers.
-> > >>>>>> We could completely drop that if we use the same structure insid=
-e TTM as
-> > >>>>>> well.
-> > >>>>>>
-> > >>>>>> Additional to that which driver is going to use this?
-> > >>>>> As Daniel mentioned, it's in patch 3. The TTM-based drivers will
-> > >>>>> retrieve the pointer via this function.
-> > >>>>>
-> > >>>>> I do want to see all that being more tightly integrated into TTM,=
- but
-> > >>>>> not in this series. This one is about fixing the bochs-on-sparc64
-> > >>>>> problem for good. Patch 7 adds an update to TTM to the DRM TODO l=
-ist.
-> > >>>> I should have asked which driver you try to fix here :)
-> > >>>>
-> > >>>> In this case just keep the function inside bochs and only fix it t=
-here.
-> > >>>>
-> > >>>> All other drivers can be fixed when we generally pump this through=
- TTM.
-> > >>> Did you take a look at patch 3? This function will be used by VRAM
-> > >>> helpers, nouveau, radeon, amdgpu and qxl. If we don't put it here, =
-we
-> > >>> have to duplicate the functionality in each if these drivers. Bochs
-> > >>> itself uses VRAM helpers and doesn't touch the function directly.
-> > >> Ah, ok can we have that then only in the VRAM helpers?
-> > >>
-> > >> Alternative you could go ahead and use dma_buf_map in ttm_bo_kmap_obj
-> > >> directly and drop the hack with the TTM_BO_MAP_IOMEM_MASK.
-> > >>
-> > >> What I want to avoid is to have another conversion function in TTM b=
-ecause
-> > >> what happens here is that we already convert from ttm_bus_placement =
-to
-> > >> ttm_bo_kmap_obj and then to dma_buf_map.
-> > > Hm I'm not really seeing how that helps with a gradual conversion of
-> > > everything over to dma_buf_map and assorted helpers for access? There=
-'s
-> > > too many places in ttm drivers where is_iomem and related stuff is us=
-ed to
-> > > be able to convert it all in one go. An intermediate state with a bun=
-ch of
-> > > conversions seems fairly unavoidable to me.
-> >
-> > Fair enough. I would just have started bottom up and not top down.
-> >
-> > Anyway feel free to go ahead with this approach as long as we can remove
-> > the new function again when we clean that stuff up for good.
-> =
-
-> Yeah I guess bottom up would make more sense as a refactoring. But the
-> main motivation to land this here is to fix the __mmio vs normal
-> memory confusion in the fbdev emulation helpers for sparc (and
-> anything else that needs this). Hence the top down approach for
-> rolling this out.
-
-Ok I started reviewing this a bit more in-depth, and I think this is a bit
-too much of a de-tour.
-
-Looking through all the callers of ttm_bo_kmap almost everyone maps the
-entire object. Only vmwgfx uses to map less than that. Also, everyone just
-immediately follows up with converting that full object map into a
-pointer.
-
-So I think what we really want here is:
-- new function
-
-int ttm_bo_vmap(struct ttm_buffer_object *bo, struct dma_buf_map *map);
-
-  _vmap name since that's consistent with both dma_buf functions and
-  what's usually used to implement this. Outside of the ttm world kmap
-  usually just means single-page mappings using kmap() or it's iomem
-  sibling io_mapping_map* so rather confusing name for a function which
-  usually is just used to set up a vmap of the entire buffer.
-
-- a helper which can be used for the drm_gem_object_funcs vmap/vunmap
-  functions for all ttm drivers. We should be able to make this fully
-  generic because a) we now have dma_buf_map and b) drm_gem_object is
-  embedded in the ttm_bo, so we can upcast for everyone who's both a ttm
-  and gem driver.
-
-  This is maybe a good follow-up, since it should allow us to ditch quite
-  a bit of the vram helper code for this more generic stuff. I also might
-  have missed some special-cases here, but from a quick look everything
-  just pins the buffer to the current location and that's it.
-
-  Also this obviously requires Christian's generic ttm_bo_pin rework
-  first.
-
-- roll the above out to drivers.
-
-Christian/Thomas, thoughts on this?
-
-I think for the immediate need of rolling this out for vram helpers and
-fbdev code we should be able to do this, but just postpone the driver wide
-roll-out for now.
-
-Cheers, Daniel
-
-> -Daniel
-> =
-
-> >
-> > Christian.
-> >
-> > > -Daniel
-> > >
-> > >> Thanks,
-> > >> Christian.
-> > >>
-> > >>> Best regards
-> > >>> Thomas
-> > >>>
-> > >>>> Regards,
-> > >>>> Christian.
-> > >>>>
-> > >>>>> Best regards
-> > >>>>> Thomas
-> > >>>>>
-> > >>>>>> Regards,
-> > >>>>>> Christian.
-> > >>>>>>
-> > >>>>>>> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> > >>>>>>> ---
-> > >>>>>>>     include/drm/ttm/ttm_bo_api.h | 24 ++++++++++++++++++++++++
-> > >>>>>>>     include/linux/dma-buf-map.h  | 20 ++++++++++++++++++++
-> > >>>>>>>     2 files changed, 44 insertions(+)
-> > >>>>>>>
-> > >>>>>>> diff --git a/include/drm/ttm/ttm_bo_api.h b/include/drm/ttm/ttm=
-_bo_api.h
-> > >>>>>>> index c96a25d571c8..62d89f05a801 100644
-> > >>>>>>> --- a/include/drm/ttm/ttm_bo_api.h
-> > >>>>>>> +++ b/include/drm/ttm/ttm_bo_api.h
-> > >>>>>>> @@ -34,6 +34,7 @@
-> > >>>>>>>     #include <drm/drm_gem.h>
-> > >>>>>>>     #include <drm/drm_hashtab.h>
-> > >>>>>>>     #include <drm/drm_vma_manager.h>
-> > >>>>>>> +#include <linux/dma-buf-map.h>
-> > >>>>>>>     #include <linux/kref.h>
-> > >>>>>>>     #include <linux/list.h>
-> > >>>>>>>     #include <linux/wait.h>
-> > >>>>>>> @@ -486,6 +487,29 @@ static inline void *ttm_kmap_obj_virtual(s=
-truct
-> > >>>>>>> ttm_bo_kmap_obj *map,
-> > >>>>>>>         return map->virtual;
-> > >>>>>>>     }
-> > >>>>>>>     +/**
-> > >>>>>>> + * ttm_kmap_obj_to_dma_buf_map
-> > >>>>>>> + *
-> > >>>>>>> + * @kmap: A struct ttm_bo_kmap_obj returned from ttm_bo_kmap.
-> > >>>>>>> + * @map: Returns the mapping as struct dma_buf_map
-> > >>>>>>> + *
-> > >>>>>>> + * Converts struct ttm_bo_kmap_obj to struct dma_buf_map. If t=
-he memory
-> > >>>>>>> + * is not mapped, the returned mapping is initialized to NULL.
-> > >>>>>>> + */
-> > >>>>>>> +static inline void ttm_kmap_obj_to_dma_buf_map(struct ttm_bo_k=
-map_obj
-> > >>>>>>> *kmap,
-> > >>>>>>> +                           struct dma_buf_map *map)
-> > >>>>>>> +{
-> > >>>>>>> +    bool is_iomem;
-> > >>>>>>> +    void *vaddr =3D ttm_kmap_obj_virtual(kmap, &is_iomem);
-> > >>>>>>> +
-> > >>>>>>> +    if (!vaddr)
-> > >>>>>>> +        dma_buf_map_clear(map);
-> > >>>>>>> +    else if (is_iomem)
-> > >>>>>>> +        dma_buf_map_set_vaddr_iomem(map, (void __force __iomem=
- *)vaddr);
-> > >>>>>>> +    else
-> > >>>>>>> +        dma_buf_map_set_vaddr(map, vaddr);
-> > >>>>>>> +}
-> > >>>>>>> +
-> > >>>>>>>     /**
-> > >>>>>>>      * ttm_bo_kmap
-> > >>>>>>>      *
-> > >>>>>>> diff --git a/include/linux/dma-buf-map.h b/include/linux/dma-bu=
-f-map.h
-> > >>>>>>> index fd1aba545fdf..2e8bbecb5091 100644
-> > >>>>>>> --- a/include/linux/dma-buf-map.h
-> > >>>>>>> +++ b/include/linux/dma-buf-map.h
-> > >>>>>>> @@ -45,6 +45,12 @@
-> > >>>>>>>      *
-> > >>>>>>>      *    dma_buf_map_set_vaddr(&map. 0xdeadbeaf);
-> > >>>>>>>      *
-> > >>>>>>> + * To set an address in I/O memory, use dma_buf_map_set_vaddr_=
-iomem().
-> > >>>>>>> + *
-> > >>>>>>> + * .. code-block:: c
-> > >>>>>>> + *
-> > >>>>>>> + *    dma_buf_map_set_vaddr_iomem(&map. 0xdeadbeaf);
-> > >>>>>>> + *
-> > >>>>>>>      * Test if a mapping is valid with either dma_buf_map_is_se=
-t() or
-> > >>>>>>>      * dma_buf_map_is_null().
-> > >>>>>>>      *
-> > >>>>>>> @@ -118,6 +124,20 @@ static inline void dma_buf_map_set_vaddr(s=
-truct
-> > >>>>>>> dma_buf_map *map, void *vaddr)
-> > >>>>>>>         map->is_iomem =3D false;
-> > >>>>>>>     }
-> > >>>>>>>     +/**
-> > >>>>>>> + * dma_buf_map_set_vaddr_iomem - Sets a dma-buf mapping struct=
-ure to
-> > >>>>>>> an address in I/O memory
-> > >>>>>>> + * @map:        The dma-buf mapping structure
-> > >>>>>>> + * @vaddr_iomem:    An I/O-memory address
-> > >>>>>>> + *
-> > >>>>>>> + * Sets the address and the I/O-memory flag.
-> > >>>>>>> + */
-> > >>>>>>> +static inline void dma_buf_map_set_vaddr_iomem(struct dma_buf_=
-map *map,
-> > >>>>>>> +                           void __iomem *vaddr_iomem)
-> > >>>>>>> +{
-> > >>>>>>> +    map->vaddr_iomem =3D vaddr_iomem;
-> > >>>>>>> +    map->is_iomem =3D true;
-> > >>>>>>> +}
-> > >>>>>>> +
-> > >>>>>>>     /**
-> > >>>>>>>      * dma_buf_map_is_equal - Compares two dma-buf mapping stru=
-ctures
-> > >>>>>>> for equality
-> > >>>>>>>      * @lhs:    The dma-buf mapping structure
-> > >>>>>> _______________________________________________
-> > >>>>>> dri-devel mailing list
-> > >>>>>> dri-devel@lists.freedesktop.org
-> > >>>>>> https://nam11.safelinks.protection.outlook.com/?url=3Dhttps%3A%2=
-F%2Flists.freedesktop.org%2Fmailman%2Flistinfo%2Fdri-devel&amp;data=3D02%7C=
-01%7Cchristian.koenig%40amd.com%7C472c3d655a61411deb6708d86525d1b8%7C3dd896=
-1fe4884e608e11a82d994e183d%7C0%7C0%7C637370560438965013&amp;sdata=3DHdHOA%2=
-F1VcIX%2F7YtfYTiAqYEvw7Ag%2FS%2BxS5VwJKOv5y0%3D&amp;reserved=3D0
-> > >>>>> _______________________________________________
-> > >>>>> amd-gfx mailing list
-> > >>>>> amd-gfx@lists.freedesktop.org
-> > >>>>> https://nam11.safelinks.protection.outlook.com/?url=3Dhttps%3A%2F=
-%2Flists.freedesktop.org%2Fmailman%2Flistinfo%2Famd-gfx&amp;data=3D02%7C01%=
-7Cchristian.koenig%40amd.com%7C472c3d655a61411deb6708d86525d1b8%7C3dd8961fe=
-4884e608e11a82d994e183d%7C0%7C0%7C637370560438965013&amp;sdata=3DH%2B5HKCsT=
-rksRV2EyEiFGSTyS79jsWCmJimSMoJYusx8%3D&amp;reserved=3D0
-> > >>>> _______________________________________________
-> > >>>> dri-devel mailing list
-> > >>>> dri-devel@lists.freedesktop.org
-> > >>>> https://nam11.safelinks.protection.outlook.com/?url=3Dhttps%3A%2F%=
-2Flists.freedesktop.org%2Fmailman%2Flistinfo%2Fdri-devel&amp;data=3D02%7C01=
-%7Cchristian.koenig%40amd.com%7C472c3d655a61411deb6708d86525d1b8%7C3dd8961f=
-e4884e608e11a82d994e183d%7C0%7C0%7C637370560438965013&amp;sdata=3DHdHOA%2F1=
-VcIX%2F7YtfYTiAqYEvw7Ag%2FS%2BxS5VwJKOv5y0%3D&amp;reserved=3D0
-> > >>>>
-> > >>> _______________________________________________
-> > >>> amd-gfx mailing list
-> > >>> amd-gfx@lists.freedesktop.org
-> > >>> https://nam11.safelinks.protection.outlook.com/?url=3Dhttps%3A%2F%2=
-Flists.freedesktop.org%2Fmailman%2Flistinfo%2Famd-gfx&amp;data=3D02%7C01%7C=
-christian.koenig%40amd.com%7C472c3d655a61411deb6708d86525d1b8%7C3dd8961fe48=
-84e608e11a82d994e183d%7C0%7C0%7C637370560438965013&amp;sdata=3DH%2B5HKCsTrk=
-sRV2EyEiFGSTyS79jsWCmJimSMoJYusx8%3D&amp;reserved=3D0
-> >
-> =
-
-> =
-
-> -- =
-
-> Daniel Vetter
-> Software Engineer, Intel Corporation
-> http://blog.ffwll.ch
-
--- =
-
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+QW0gMDIuMTAuMjAgdW0gMTE6NTggc2NocmllYiBEYW5pZWwgVmV0dGVyOgo+IE9uIFdlZCwgU2Vw
+IDMwLCAyMDIwIGF0IDAyOjUxOjQ2UE0gKzAyMDAsIERhbmllbCBWZXR0ZXIgd3JvdGU6Cj4+IE9u
+IFdlZCwgU2VwIDMwLCAyMDIwIGF0IDI6MzQgUE0gQ2hyaXN0aWFuIEvDtm5pZwo+PiA8Y2hyaXN0
+aWFuLmtvZW5pZ0BhbWQuY29tPiB3cm90ZToKPj4+IEFtIDMwLjA5LjIwIHVtIDExOjQ3IHNjaHJp
+ZWIgRGFuaWVsIFZldHRlcjoKPj4+PiBPbiBXZWQsIFNlcCAzMCwgMjAyMCBhdCAxMDozNDozMUFN
+ICswMjAwLCBDaHJpc3RpYW4gS8O2bmlnIHdyb3RlOgo+Pj4+PiBBbSAzMC4wOS4yMCB1bSAxMDox
+OSBzY2hyaWViIFRob21hcyBaaW1tZXJtYW5uOgo+Pj4+Pj4gSGkKPj4+Pj4+Cj4+Pj4+PiBBbSAz
+MC4wOS4yMCB1bSAxMDowNSBzY2hyaWViIENocmlzdGlhbiBLw7ZuaWc6Cj4+Pj4+Pj4gQW0gMjku
+MDkuMjAgdW0gMTk6NDkgc2NocmllYiBUaG9tYXMgWmltbWVybWFubjoKPj4+Pj4+Pj4gSGkgQ2hy
+aXN0aWFuCj4+Pj4+Pj4+Cj4+Pj4+Pj4+IEFtIDI5LjA5LjIwIHVtIDE3OjM1IHNjaHJpZWIgQ2hy
+aXN0aWFuIEvDtm5pZzoKPj4+Pj4+Pj4+IEFtIDI5LjA5LjIwIHVtIDE3OjE0IHNjaHJpZWIgVGhv
+bWFzIFppbW1lcm1hbm46Cj4+Pj4+Pj4+Pj4gVGhlIG5ldyBoZWxwZXIgdHRtX2ttYXBfb2JqX3Rv
+X2RtYV9idWYoKSBleHRyYWN0cyBhZGRyZXNzIGFuZCBsb2NhdGlvbgo+Pj4+Pj4+Pj4+IGZyb20g
+YW5kIGluc3RhbmNlIG9mIFRUTSdzIGttYXBfb2JqIGFuZCBpbml0aWFsaXplcyBzdHJ1Y3QgZG1h
+X2J1Zl9tYXAKPj4+Pj4+Pj4+PiB3aXRoIHRoZXNlIHZhbHVlcy4gSGVscGZ1bCBmb3IgVFRNLWJh
+c2VkIGRyaXZlcnMuCj4+Pj4+Pj4+PiBXZSBjb3VsZCBjb21wbGV0ZWx5IGRyb3AgdGhhdCBpZiB3
+ZSB1c2UgdGhlIHNhbWUgc3RydWN0dXJlIGluc2lkZSBUVE0gYXMKPj4+Pj4+Pj4+IHdlbGwuCj4+
+Pj4+Pj4+Pgo+Pj4+Pj4+Pj4gQWRkaXRpb25hbCB0byB0aGF0IHdoaWNoIGRyaXZlciBpcyBnb2lu
+ZyB0byB1c2UgdGhpcz8KPj4+Pj4+Pj4gQXMgRGFuaWVsIG1lbnRpb25lZCwgaXQncyBpbiBwYXRj
+aCAzLiBUaGUgVFRNLWJhc2VkIGRyaXZlcnMgd2lsbAo+Pj4+Pj4+PiByZXRyaWV2ZSB0aGUgcG9p
+bnRlciB2aWEgdGhpcyBmdW5jdGlvbi4KPj4+Pj4+Pj4KPj4+Pj4+Pj4gSSBkbyB3YW50IHRvIHNl
+ZSBhbGwgdGhhdCBiZWluZyBtb3JlIHRpZ2h0bHkgaW50ZWdyYXRlZCBpbnRvIFRUTSwgYnV0Cj4+
+Pj4+Pj4+IG5vdCBpbiB0aGlzIHNlcmllcy4gVGhpcyBvbmUgaXMgYWJvdXQgZml4aW5nIHRoZSBi
+b2Nocy1vbi1zcGFyYzY0Cj4+Pj4+Pj4+IHByb2JsZW0gZm9yIGdvb2QuIFBhdGNoIDcgYWRkcyBh
+biB1cGRhdGUgdG8gVFRNIHRvIHRoZSBEUk0gVE9ETyBsaXN0Lgo+Pj4+Pj4+IEkgc2hvdWxkIGhh
+dmUgYXNrZWQgd2hpY2ggZHJpdmVyIHlvdSB0cnkgdG8gZml4IGhlcmUgOikKPj4+Pj4+Pgo+Pj4+
+Pj4+IEluIHRoaXMgY2FzZSBqdXN0IGtlZXAgdGhlIGZ1bmN0aW9uIGluc2lkZSBib2NocyBhbmQg
+b25seSBmaXggaXQgdGhlcmUuCj4+Pj4+Pj4KPj4+Pj4+PiBBbGwgb3RoZXIgZHJpdmVycyBjYW4g
+YmUgZml4ZWQgd2hlbiB3ZSBnZW5lcmFsbHkgcHVtcCB0aGlzIHRocm91Z2ggVFRNLgo+Pj4+Pj4g
+RGlkIHlvdSB0YWtlIGEgbG9vayBhdCBwYXRjaCAzPyBUaGlzIGZ1bmN0aW9uIHdpbGwgYmUgdXNl
+ZCBieSBWUkFNCj4+Pj4+PiBoZWxwZXJzLCBub3V2ZWF1LCByYWRlb24sIGFtZGdwdSBhbmQgcXhs
+LiBJZiB3ZSBkb24ndCBwdXQgaXQgaGVyZSwgd2UKPj4+Pj4+IGhhdmUgdG8gZHVwbGljYXRlIHRo
+ZSBmdW5jdGlvbmFsaXR5IGluIGVhY2ggaWYgdGhlc2UgZHJpdmVycy4gQm9jaHMKPj4+Pj4+IGl0
+c2VsZiB1c2VzIFZSQU0gaGVscGVycyBhbmQgZG9lc24ndCB0b3VjaCB0aGUgZnVuY3Rpb24gZGly
+ZWN0bHkuCj4+Pj4+IEFoLCBvayBjYW4gd2UgaGF2ZSB0aGF0IHRoZW4gb25seSBpbiB0aGUgVlJB
+TSBoZWxwZXJzPwo+Pj4+Pgo+Pj4+PiBBbHRlcm5hdGl2ZSB5b3UgY291bGQgZ28gYWhlYWQgYW5k
+IHVzZSBkbWFfYnVmX21hcCBpbiB0dG1fYm9fa21hcF9vYmoKPj4+Pj4gZGlyZWN0bHkgYW5kIGRy
+b3AgdGhlIGhhY2sgd2l0aCB0aGUgVFRNX0JPX01BUF9JT01FTV9NQVNLLgo+Pj4+Pgo+Pj4+PiBX
+aGF0IEkgd2FudCB0byBhdm9pZCBpcyB0byBoYXZlIGFub3RoZXIgY29udmVyc2lvbiBmdW5jdGlv
+biBpbiBUVE0gYmVjYXVzZQo+Pj4+PiB3aGF0IGhhcHBlbnMgaGVyZSBpcyB0aGF0IHdlIGFscmVh
+ZHkgY29udmVydCBmcm9tIHR0bV9idXNfcGxhY2VtZW50IHRvCj4+Pj4+IHR0bV9ib19rbWFwX29i
+aiBhbmQgdGhlbiB0byBkbWFfYnVmX21hcC4KPj4+PiBIbSBJJ20gbm90IHJlYWxseSBzZWVpbmcg
+aG93IHRoYXQgaGVscHMgd2l0aCBhIGdyYWR1YWwgY29udmVyc2lvbiBvZgo+Pj4+IGV2ZXJ5dGhp
+bmcgb3ZlciB0byBkbWFfYnVmX21hcCBhbmQgYXNzb3J0ZWQgaGVscGVycyBmb3IgYWNjZXNzPyBU
+aGVyZSdzCj4+Pj4gdG9vIG1hbnkgcGxhY2VzIGluIHR0bSBkcml2ZXJzIHdoZXJlIGlzX2lvbWVt
+IGFuZCByZWxhdGVkIHN0dWZmIGlzIHVzZWQgdG8KPj4+PiBiZSBhYmxlIHRvIGNvbnZlcnQgaXQg
+YWxsIGluIG9uZSBnby4gQW4gaW50ZXJtZWRpYXRlIHN0YXRlIHdpdGggYSBidW5jaCBvZgo+Pj4+
+IGNvbnZlcnNpb25zIHNlZW1zIGZhaXJseSB1bmF2b2lkYWJsZSB0byBtZS4KPj4+IEZhaXIgZW5v
+dWdoLiBJIHdvdWxkIGp1c3QgaGF2ZSBzdGFydGVkIGJvdHRvbSB1cCBhbmQgbm90IHRvcCBkb3du
+Lgo+Pj4KPj4+IEFueXdheSBmZWVsIGZyZWUgdG8gZ28gYWhlYWQgd2l0aCB0aGlzIGFwcHJvYWNo
+IGFzIGxvbmcgYXMgd2UgY2FuIHJlbW92ZQo+Pj4gdGhlIG5ldyBmdW5jdGlvbiBhZ2FpbiB3aGVu
+IHdlIGNsZWFuIHRoYXQgc3R1ZmYgdXAgZm9yIGdvb2QuCj4+IFllYWggSSBndWVzcyBib3R0b20g
+dXAgd291bGQgbWFrZSBtb3JlIHNlbnNlIGFzIGEgcmVmYWN0b3JpbmcuIEJ1dCB0aGUKPj4gbWFp
+biBtb3RpdmF0aW9uIHRvIGxhbmQgdGhpcyBoZXJlIGlzIHRvIGZpeCB0aGUgX19tbWlvIHZzIG5v
+cm1hbAo+PiBtZW1vcnkgY29uZnVzaW9uIGluIHRoZSBmYmRldiBlbXVsYXRpb24gaGVscGVycyBm
+b3Igc3BhcmMgKGFuZAo+PiBhbnl0aGluZyBlbHNlIHRoYXQgbmVlZHMgdGhpcykuIEhlbmNlIHRo
+ZSB0b3AgZG93biBhcHByb2FjaCBmb3IKPj4gcm9sbGluZyB0aGlzIG91dC4KPiBPayBJIHN0YXJ0
+ZWQgcmV2aWV3aW5nIHRoaXMgYSBiaXQgbW9yZSBpbi1kZXB0aCwgYW5kIEkgdGhpbmsgdGhpcyBp
+cyBhIGJpdAo+IHRvbyBtdWNoIG9mIGEgZGUtdG91ci4KPgo+IExvb2tpbmcgdGhyb3VnaCBhbGwg
+dGhlIGNhbGxlcnMgb2YgdHRtX2JvX2ttYXAgYWxtb3N0IGV2ZXJ5b25lIG1hcHMgdGhlCj4gZW50
+aXJlIG9iamVjdC4gT25seSB2bXdnZnggdXNlcyB0byBtYXAgbGVzcyB0aGFuIHRoYXQuIEFsc28s
+IGV2ZXJ5b25lIGp1c3QKPiBpbW1lZGlhdGVseSBmb2xsb3dzIHVwIHdpdGggY29udmVydGluZyB0
+aGF0IGZ1bGwgb2JqZWN0IG1hcCBpbnRvIGEKPiBwb2ludGVyLgo+Cj4gU28gSSB0aGluayB3aGF0
+IHdlIHJlYWxseSB3YW50IGhlcmUgaXM6Cj4gLSBuZXcgZnVuY3Rpb24KPgo+IGludCB0dG1fYm9f
+dm1hcChzdHJ1Y3QgdHRtX2J1ZmZlcl9vYmplY3QgKmJvLCBzdHJ1Y3QgZG1hX2J1Zl9tYXAgKm1h
+cCk7Cj4KPiAgICBfdm1hcCBuYW1lIHNpbmNlIHRoYXQncyBjb25zaXN0ZW50IHdpdGggYm90aCBk
+bWFfYnVmIGZ1bmN0aW9ucyBhbmQKPiAgICB3aGF0J3MgdXN1YWxseSB1c2VkIHRvIGltcGxlbWVu
+dCB0aGlzLiBPdXRzaWRlIG9mIHRoZSB0dG0gd29ybGQga21hcAo+ICAgIHVzdWFsbHkganVzdCBt
+ZWFucyBzaW5nbGUtcGFnZSBtYXBwaW5ncyB1c2luZyBrbWFwKCkgb3IgaXQncyBpb21lbQo+ICAg
+IHNpYmxpbmcgaW9fbWFwcGluZ19tYXAqIHNvIHJhdGhlciBjb25mdXNpbmcgbmFtZSBmb3IgYSBm
+dW5jdGlvbiB3aGljaAo+ICAgIHVzdWFsbHkgaXMganVzdCB1c2VkIHRvIHNldCB1cCBhIHZtYXAg
+b2YgdGhlIGVudGlyZSBidWZmZXIuCj4KPiAtIGEgaGVscGVyIHdoaWNoIGNhbiBiZSB1c2VkIGZv
+ciB0aGUgZHJtX2dlbV9vYmplY3RfZnVuY3Mgdm1hcC92dW5tYXAKPiAgICBmdW5jdGlvbnMgZm9y
+IGFsbCB0dG0gZHJpdmVycy4gV2Ugc2hvdWxkIGJlIGFibGUgdG8gbWFrZSB0aGlzIGZ1bGx5Cj4g
+ICAgZ2VuZXJpYyBiZWNhdXNlIGEpIHdlIG5vdyBoYXZlIGRtYV9idWZfbWFwIGFuZCBiKSBkcm1f
+Z2VtX29iamVjdCBpcwo+ICAgIGVtYmVkZGVkIGluIHRoZSB0dG1fYm8sIHNvIHdlIGNhbiB1cGNh
+c3QgZm9yIGV2ZXJ5b25lIHdobydzIGJvdGggYSB0dG0KPiAgICBhbmQgZ2VtIGRyaXZlci4KPgo+
+ICAgIFRoaXMgaXMgbWF5YmUgYSBnb29kIGZvbGxvdy11cCwgc2luY2UgaXQgc2hvdWxkIGFsbG93
+IHVzIHRvIGRpdGNoIHF1aXRlCj4gICAgYSBiaXQgb2YgdGhlIHZyYW0gaGVscGVyIGNvZGUgZm9y
+IHRoaXMgbW9yZSBnZW5lcmljIHN0dWZmLiBJIGFsc28gbWlnaHQKPiAgICBoYXZlIG1pc3NlZCBz
+b21lIHNwZWNpYWwtY2FzZXMgaGVyZSwgYnV0IGZyb20gYSBxdWljayBsb29rIGV2ZXJ5dGhpbmcK
+PiAgICBqdXN0IHBpbnMgdGhlIGJ1ZmZlciB0byB0aGUgY3VycmVudCBsb2NhdGlvbiBhbmQgdGhh
+dCdzIGl0Lgo+Cj4gICAgQWxzbyB0aGlzIG9idmlvdXNseSByZXF1aXJlcyBDaHJpc3RpYW4ncyBn
+ZW5lcmljIHR0bV9ib19waW4gcmV3b3JrCj4gICAgZmlyc3QuCj4KPiAtIHJvbGwgdGhlIGFib3Zl
+IG91dCB0byBkcml2ZXJzLgo+Cj4gQ2hyaXN0aWFuL1Rob21hcywgdGhvdWdodHMgb24gdGhpcz8K
+CkNhbGxpbmcgdGhpcyB2bWFwIGluc3RlYWQgb2Yga21hcCBjZXJ0YWlubHkgbWFrZXMgc2Vuc2Uu
+CgpOb3QgMTAwJSBzdXJlIGFib3V0IHRoZSBnZW5lcmljIGhlbHBlcnMsIGJ1dCBpdCBzb3VuZHMg
+bGlrZSB0aGlzIHNob3VsZCAKaW5kZWVkIGxvb2sgcmF0aGVyIGNsZWFuIGluIHRoZSBlbmQuCgpD
+aHJpc3RpYW4uCgo+Cj4gSSB0aGluayBmb3IgdGhlIGltbWVkaWF0ZSBuZWVkIG9mIHJvbGxpbmcg
+dGhpcyBvdXQgZm9yIHZyYW0gaGVscGVycyBhbmQKPiBmYmRldiBjb2RlIHdlIHNob3VsZCBiZSBh
+YmxlIHRvIGRvIHRoaXMsIGJ1dCBqdXN0IHBvc3Rwb25lIHRoZSBkcml2ZXIgd2lkZQo+IHJvbGwt
+b3V0IGZvciBub3cuCj4KPiBDaGVlcnMsIERhbmllbAo+Cj4+IC1EYW5pZWwKPj4KPj4+IENocmlz
+dGlhbi4KPj4+Cj4+Pj4gLURhbmllbAo+Pj4+Cj4+Pj4+IFRoYW5rcywKPj4+Pj4gQ2hyaXN0aWFu
+Lgo+Pj4+Pgo+Pj4+Pj4gQmVzdCByZWdhcmRzCj4+Pj4+PiBUaG9tYXMKPj4+Pj4+Cj4+Pj4+Pj4g
+UmVnYXJkcywKPj4+Pj4+PiBDaHJpc3RpYW4uCj4+Pj4+Pj4KPj4+Pj4+Pj4gQmVzdCByZWdhcmRz
+Cj4+Pj4+Pj4+IFRob21hcwo+Pj4+Pj4+Pgo+Pj4+Pj4+Pj4gUmVnYXJkcywKPj4+Pj4+Pj4+IENo
+cmlzdGlhbi4KPj4+Pj4+Pj4+Cj4+Pj4+Pj4+Pj4gU2lnbmVkLW9mZi1ieTogVGhvbWFzIFppbW1l
+cm1hbm4gPHR6aW1tZXJtYW5uQHN1c2UuZGU+Cj4+Pj4+Pj4+Pj4gLS0tCj4+Pj4+Pj4+Pj4gICAg
+ICBpbmNsdWRlL2RybS90dG0vdHRtX2JvX2FwaS5oIHwgMjQgKysrKysrKysrKysrKysrKysrKysr
+KysrCj4+Pj4+Pj4+Pj4gICAgICBpbmNsdWRlL2xpbnV4L2RtYS1idWYtbWFwLmggIHwgMjAgKysr
+KysrKysrKysrKysrKysrKysKPj4+Pj4+Pj4+PiAgICAgIDIgZmlsZXMgY2hhbmdlZCwgNDQgaW5z
+ZXJ0aW9ucygrKQo+Pj4+Pj4+Pj4+Cj4+Pj4+Pj4+Pj4gZGlmZiAtLWdpdCBhL2luY2x1ZGUvZHJt
+L3R0bS90dG1fYm9fYXBpLmggYi9pbmNsdWRlL2RybS90dG0vdHRtX2JvX2FwaS5oCj4+Pj4+Pj4+
+Pj4gaW5kZXggYzk2YTI1ZDU3MWM4Li42MmQ4OWYwNWE4MDEgMTAwNjQ0Cj4+Pj4+Pj4+Pj4gLS0t
+IGEvaW5jbHVkZS9kcm0vdHRtL3R0bV9ib19hcGkuaAo+Pj4+Pj4+Pj4+ICsrKyBiL2luY2x1ZGUv
+ZHJtL3R0bS90dG1fYm9fYXBpLmgKPj4+Pj4+Pj4+PiBAQCAtMzQsNiArMzQsNyBAQAo+Pj4+Pj4+
+Pj4+ICAgICAgI2luY2x1ZGUgPGRybS9kcm1fZ2VtLmg+Cj4+Pj4+Pj4+Pj4gICAgICAjaW5jbHVk
+ZSA8ZHJtL2RybV9oYXNodGFiLmg+Cj4+Pj4+Pj4+Pj4gICAgICAjaW5jbHVkZSA8ZHJtL2RybV92
+bWFfbWFuYWdlci5oPgo+Pj4+Pj4+Pj4+ICsjaW5jbHVkZSA8bGludXgvZG1hLWJ1Zi1tYXAuaD4K
+Pj4+Pj4+Pj4+PiAgICAgICNpbmNsdWRlIDxsaW51eC9rcmVmLmg+Cj4+Pj4+Pj4+Pj4gICAgICAj
+aW5jbHVkZSA8bGludXgvbGlzdC5oPgo+Pj4+Pj4+Pj4+ICAgICAgI2luY2x1ZGUgPGxpbnV4L3dh
+aXQuaD4KPj4+Pj4+Pj4+PiBAQCAtNDg2LDYgKzQ4NywyOSBAQCBzdGF0aWMgaW5saW5lIHZvaWQg
+KnR0bV9rbWFwX29ial92aXJ0dWFsKHN0cnVjdAo+Pj4+Pj4+Pj4+IHR0bV9ib19rbWFwX29iaiAq
+bWFwLAo+Pj4+Pj4+Pj4+ICAgICAgICAgIHJldHVybiBtYXAtPnZpcnR1YWw7Cj4+Pj4+Pj4+Pj4g
+ICAgICB9Cj4+Pj4+Pj4+Pj4gICAgICArLyoqCj4+Pj4+Pj4+Pj4gKyAqIHR0bV9rbWFwX29ial90
+b19kbWFfYnVmX21hcAo+Pj4+Pj4+Pj4+ICsgKgo+Pj4+Pj4+Pj4+ICsgKiBAa21hcDogQSBzdHJ1
+Y3QgdHRtX2JvX2ttYXBfb2JqIHJldHVybmVkIGZyb20gdHRtX2JvX2ttYXAuCj4+Pj4+Pj4+Pj4g
+KyAqIEBtYXA6IFJldHVybnMgdGhlIG1hcHBpbmcgYXMgc3RydWN0IGRtYV9idWZfbWFwCj4+Pj4+
+Pj4+Pj4gKyAqCj4+Pj4+Pj4+Pj4gKyAqIENvbnZlcnRzIHN0cnVjdCB0dG1fYm9fa21hcF9vYmog
+dG8gc3RydWN0IGRtYV9idWZfbWFwLiBJZiB0aGUgbWVtb3J5Cj4+Pj4+Pj4+Pj4gKyAqIGlzIG5v
+dCBtYXBwZWQsIHRoZSByZXR1cm5lZCBtYXBwaW5nIGlzIGluaXRpYWxpemVkIHRvIE5VTEwuCj4+
+Pj4+Pj4+Pj4gKyAqLwo+Pj4+Pj4+Pj4+ICtzdGF0aWMgaW5saW5lIHZvaWQgdHRtX2ttYXBfb2Jq
+X3RvX2RtYV9idWZfbWFwKHN0cnVjdCB0dG1fYm9fa21hcF9vYmoKPj4+Pj4+Pj4+PiAqa21hcCwK
+Pj4+Pj4+Pj4+PiArICAgICAgICAgICAgICAgICAgICAgICAgICAgc3RydWN0IGRtYV9idWZfbWFw
+ICptYXApCj4+Pj4+Pj4+Pj4gK3sKPj4+Pj4+Pj4+PiArICAgIGJvb2wgaXNfaW9tZW07Cj4+Pj4+
+Pj4+Pj4gKyAgICB2b2lkICp2YWRkciA9IHR0bV9rbWFwX29ial92aXJ0dWFsKGttYXAsICZpc19p
+b21lbSk7Cj4+Pj4+Pj4+Pj4gKwo+Pj4+Pj4+Pj4+ICsgICAgaWYgKCF2YWRkcikKPj4+Pj4+Pj4+
+PiArICAgICAgICBkbWFfYnVmX21hcF9jbGVhcihtYXApOwo+Pj4+Pj4+Pj4+ICsgICAgZWxzZSBp
+ZiAoaXNfaW9tZW0pCj4+Pj4+Pj4+Pj4gKyAgICAgICAgZG1hX2J1Zl9tYXBfc2V0X3ZhZGRyX2lv
+bWVtKG1hcCwgKHZvaWQgX19mb3JjZSBfX2lvbWVtICopdmFkZHIpOwo+Pj4+Pj4+Pj4+ICsgICAg
+ZWxzZQo+Pj4+Pj4+Pj4+ICsgICAgICAgIGRtYV9idWZfbWFwX3NldF92YWRkcihtYXAsIHZhZGRy
+KTsKPj4+Pj4+Pj4+PiArfQo+Pj4+Pj4+Pj4+ICsKPj4+Pj4+Pj4+PiAgICAgIC8qKgo+Pj4+Pj4+
+Pj4+ICAgICAgICogdHRtX2JvX2ttYXAKPj4+Pj4+Pj4+PiAgICAgICAqCj4+Pj4+Pj4+Pj4gZGlm
+ZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvZG1hLWJ1Zi1tYXAuaCBiL2luY2x1ZGUvbGludXgvZG1h
+LWJ1Zi1tYXAuaAo+Pj4+Pj4+Pj4+IGluZGV4IGZkMWFiYTU0NWZkZi4uMmU4YmJlY2I1MDkxIDEw
+MDY0NAo+Pj4+Pj4+Pj4+IC0tLSBhL2luY2x1ZGUvbGludXgvZG1hLWJ1Zi1tYXAuaAo+Pj4+Pj4+
+Pj4+ICsrKyBiL2luY2x1ZGUvbGludXgvZG1hLWJ1Zi1tYXAuaAo+Pj4+Pj4+Pj4+IEBAIC00NSw2
+ICs0NSwxMiBAQAo+Pj4+Pj4+Pj4+ICAgICAgICoKPj4+Pj4+Pj4+PiAgICAgICAqICAgIGRtYV9i
+dWZfbWFwX3NldF92YWRkcigmbWFwLiAweGRlYWRiZWFmKTsKPj4+Pj4+Pj4+PiAgICAgICAqCj4+
+Pj4+Pj4+Pj4gKyAqIFRvIHNldCBhbiBhZGRyZXNzIGluIEkvTyBtZW1vcnksIHVzZSBkbWFfYnVm
+X21hcF9zZXRfdmFkZHJfaW9tZW0oKS4KPj4+Pj4+Pj4+PiArICoKPj4+Pj4+Pj4+PiArICogLi4g
+Y29kZS1ibG9jazo6IGMKPj4+Pj4+Pj4+PiArICoKPj4+Pj4+Pj4+PiArICogICAgZG1hX2J1Zl9t
+YXBfc2V0X3ZhZGRyX2lvbWVtKCZtYXAuIDB4ZGVhZGJlYWYpOwo+Pj4+Pj4+Pj4+ICsgKgo+Pj4+
+Pj4+Pj4+ICAgICAgICogVGVzdCBpZiBhIG1hcHBpbmcgaXMgdmFsaWQgd2l0aCBlaXRoZXIgZG1h
+X2J1Zl9tYXBfaXNfc2V0KCkgb3IKPj4+Pj4+Pj4+PiAgICAgICAqIGRtYV9idWZfbWFwX2lzX251
+bGwoKS4KPj4+Pj4+Pj4+PiAgICAgICAqCj4+Pj4+Pj4+Pj4gQEAgLTExOCw2ICsxMjQsMjAgQEAg
+c3RhdGljIGlubGluZSB2b2lkIGRtYV9idWZfbWFwX3NldF92YWRkcihzdHJ1Y3QKPj4+Pj4+Pj4+
+PiBkbWFfYnVmX21hcCAqbWFwLCB2b2lkICp2YWRkcikKPj4+Pj4+Pj4+PiAgICAgICAgICBtYXAt
+PmlzX2lvbWVtID0gZmFsc2U7Cj4+Pj4+Pj4+Pj4gICAgICB9Cj4+Pj4+Pj4+Pj4gICAgICArLyoq
+Cj4+Pj4+Pj4+Pj4gKyAqIGRtYV9idWZfbWFwX3NldF92YWRkcl9pb21lbSAtIFNldHMgYSBkbWEt
+YnVmIG1hcHBpbmcgc3RydWN0dXJlIHRvCj4+Pj4+Pj4+Pj4gYW4gYWRkcmVzcyBpbiBJL08gbWVt
+b3J5Cj4+Pj4+Pj4+Pj4gKyAqIEBtYXA6ICAgICAgICBUaGUgZG1hLWJ1ZiBtYXBwaW5nIHN0cnVj
+dHVyZQo+Pj4+Pj4+Pj4+ICsgKiBAdmFkZHJfaW9tZW06ICAgIEFuIEkvTy1tZW1vcnkgYWRkcmVz
+cwo+Pj4+Pj4+Pj4+ICsgKgo+Pj4+Pj4+Pj4+ICsgKiBTZXRzIHRoZSBhZGRyZXNzIGFuZCB0aGUg
+SS9PLW1lbW9yeSBmbGFnLgo+Pj4+Pj4+Pj4+ICsgKi8KPj4+Pj4+Pj4+PiArc3RhdGljIGlubGlu
+ZSB2b2lkIGRtYV9idWZfbWFwX3NldF92YWRkcl9pb21lbShzdHJ1Y3QgZG1hX2J1Zl9tYXAgKm1h
+cCwKPj4+Pj4+Pj4+PiArICAgICAgICAgICAgICAgICAgICAgICAgICAgdm9pZCBfX2lvbWVtICp2
+YWRkcl9pb21lbSkKPj4+Pj4+Pj4+PiArewo+Pj4+Pj4+Pj4+ICsgICAgbWFwLT52YWRkcl9pb21l
+bSA9IHZhZGRyX2lvbWVtOwo+Pj4+Pj4+Pj4+ICsgICAgbWFwLT5pc19pb21lbSA9IHRydWU7Cj4+
+Pj4+Pj4+Pj4gK30KPj4+Pj4+Pj4+PiArCj4+Pj4+Pj4+Pj4gICAgICAvKioKPj4+Pj4+Pj4+PiAg
+ICAgICAqIGRtYV9idWZfbWFwX2lzX2VxdWFsIC0gQ29tcGFyZXMgdHdvIGRtYS1idWYgbWFwcGlu
+ZyBzdHJ1Y3R1cmVzCj4+Pj4+Pj4+Pj4gZm9yIGVxdWFsaXR5Cj4+Pj4+Pj4+Pj4gICAgICAgKiBA
+bGhzOiAgICBUaGUgZG1hLWJ1ZiBtYXBwaW5nIHN0cnVjdHVyZQo+Pj4+Pj4+Pj4gX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KPj4+Pj4+Pj4+IGRyaS1kZXZl
+bCBtYWlsaW5nIGxpc3QKPj4+Pj4+Pj4+IGRyaS1kZXZlbEBsaXN0cy5mcmVlZGVza3RvcC5vcmcK
+Pj4+Pj4+Pj4+IGh0dHBzOi8vbmFtMTEuc2FmZWxpbmtzLnByb3RlY3Rpb24ub3V0bG9vay5jb20v
+P3VybD1odHRwcyUzQSUyRiUyRmxpc3RzLmZyZWVkZXNrdG9wLm9yZyUyRm1haWxtYW4lMkZsaXN0
+aW5mbyUyRmRyaS1kZXZlbCZhbXA7ZGF0YT0wMiU3QzAxJTdDY2hyaXN0aWFuLmtvZW5pZyU0MGFt
+ZC5jb20lN0M0NzJjM2Q2NTVhNjE0MTFkZWI2NzA4ZDg2NTI1ZDFiOCU3QzNkZDg5NjFmZTQ4ODRl
+NjA4ZTExYTgyZDk5NGUxODNkJTdDMCU3QzAlN0M2MzczNzA1NjA0Mzg5NjUwMTMmYW1wO3NkYXRh
+PUhkSE9BJTJGMVZjSVglMkY3WXRmWVRpQXFZRXZ3N0FnJTJGUyUyQnhTNVZ3SktPdjV5MCUzRCZh
+bXA7cmVzZXJ2ZWQ9MAo+Pj4+Pj4+PiBfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fXwo+Pj4+Pj4+PiBhbWQtZ2Z4IG1haWxpbmcgbGlzdAo+Pj4+Pj4+PiBhbWQt
+Z2Z4QGxpc3RzLmZyZWVkZXNrdG9wLm9yZwo+Pj4+Pj4+PiBodHRwczovL25hbTExLnNhZmVsaW5r
+cy5wcm90ZWN0aW9uLm91dGxvb2suY29tLz91cmw9aHR0cHMlM0ElMkYlMkZsaXN0cy5mcmVlZGVz
+a3RvcC5vcmclMkZtYWlsbWFuJTJGbGlzdGluZm8lMkZhbWQtZ2Z4JmFtcDtkYXRhPTAyJTdDMDEl
+N0NjaHJpc3RpYW4ua29lbmlnJTQwYW1kLmNvbSU3QzQ3MmMzZDY1NWE2MTQxMWRlYjY3MDhkODY1
+MjVkMWI4JTdDM2RkODk2MWZlNDg4NGU2MDhlMTFhODJkOTk0ZTE4M2QlN0MwJTdDMCU3QzYzNzM3
+MDU2MDQzODk2NTAxMyZhbXA7c2RhdGE9SCUyQjVIS0NzVHJrc1JWMkV5RWlGR1NUeVM3OWpzV0Nt
+SmltU01vSll1c3g4JTNEJmFtcDtyZXNlcnZlZD0wCj4+Pj4+Pj4gX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KPj4+Pj4+PiBkcmktZGV2ZWwgbWFpbGluZyBs
+aXN0Cj4+Pj4+Pj4gZHJpLWRldmVsQGxpc3RzLmZyZWVkZXNrdG9wLm9yZwo+Pj4+Pj4+IGh0dHBz
+Oi8vbmFtMTEuc2FmZWxpbmtzLnByb3RlY3Rpb24ub3V0bG9vay5jb20vP3VybD1odHRwcyUzQSUy
+RiUyRmxpc3RzLmZyZWVkZXNrdG9wLm9yZyUyRm1haWxtYW4lMkZsaXN0aW5mbyUyRmRyaS1kZXZl
+bCZhbXA7ZGF0YT0wMiU3QzAxJTdDY2hyaXN0aWFuLmtvZW5pZyU0MGFtZC5jb20lN0M0NzJjM2Q2
+NTVhNjE0MTFkZWI2NzA4ZDg2NTI1ZDFiOCU3QzNkZDg5NjFmZTQ4ODRlNjA4ZTExYTgyZDk5NGUx
+ODNkJTdDMCU3QzAlN0M2MzczNzA1NjA0Mzg5NjUwMTMmYW1wO3NkYXRhPUhkSE9BJTJGMVZjSVgl
+MkY3WXRmWVRpQXFZRXZ3N0FnJTJGUyUyQnhTNVZ3SktPdjV5MCUzRCZhbXA7cmVzZXJ2ZWQ9MAo+
+Pj4+Pj4+Cj4+Pj4+PiBfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fXwo+Pj4+Pj4gYW1kLWdmeCBtYWlsaW5nIGxpc3QKPj4+Pj4+IGFtZC1nZnhAbGlzdHMuZnJl
+ZWRlc2t0b3Aub3JnCj4+Pj4+PiBodHRwczovL25hbTExLnNhZmVsaW5rcy5wcm90ZWN0aW9uLm91
+dGxvb2suY29tLz91cmw9aHR0cHMlM0ElMkYlMkZsaXN0cy5mcmVlZGVza3RvcC5vcmclMkZtYWls
+bWFuJTJGbGlzdGluZm8lMkZhbWQtZ2Z4JmFtcDtkYXRhPTAyJTdDMDElN0NjaHJpc3RpYW4ua29l
+bmlnJTQwYW1kLmNvbSU3QzQ3MmMzZDY1NWE2MTQxMWRlYjY3MDhkODY1MjVkMWI4JTdDM2RkODk2
+MWZlNDg4NGU2MDhlMTFhODJkOTk0ZTE4M2QlN0MwJTdDMCU3QzYzNzM3MDU2MDQzODk2NTAxMyZh
+bXA7c2RhdGE9SCUyQjVIS0NzVHJrc1JWMkV5RWlGR1NUeVM3OWpzV0NtSmltU01vSll1c3g4JTNE
+JmFtcDtyZXNlcnZlZD0wCj4+Cj4+IC0tIAo+PiBEYW5pZWwgVmV0dGVyCj4+IFNvZnR3YXJlIEVu
+Z2luZWVyLCBJbnRlbCBDb3Jwb3JhdGlvbgo+PiBodHRwOi8vYmxvZy5mZndsbC5jaAoKX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
+bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
+dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
+emF0aW9u
