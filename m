@@ -2,67 +2,118 @@ Return-Path: <SRS0=TNKP=DS=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.5 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
-	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-	HTML_MESSAGE,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.3 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
+	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id B7704C433DF
-	for <virtualization@archiver.kernel.org>; Sun, 11 Oct 2020 12:40:27 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DEF6BC43467
+	for <virtualization@archiver.kernel.org>; Sun, 11 Oct 2020 18:39:18 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 489BD207E8
-	for <virtualization@archiver.kernel.org>; Sun, 11 Oct 2020 12:40:27 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 489BD207E8
+	by mail.kernel.org (Postfix) with ESMTPS id 7987A207FB
+	for <virtualization@archiver.kernel.org>; Sun, 11 Oct 2020 18:39:18 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="omOg9nng"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7987A207FB
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id E63ED877E7;
-	Sun, 11 Oct 2020 12:40:26 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 09ACC87280;
+	Sun, 11 Oct 2020 18:39:18 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id T5U5kuZaX5oM; Sun, 11 Oct 2020 12:40:23 +0000 (UTC)
+	with ESMTP id SckHv0rkpaXB; Sun, 11 Oct 2020 18:39:17 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 7E053877D1;
-	Sun, 11 Oct 2020 12:40:23 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 7866E87150;
+	Sun, 11 Oct 2020 18:39:17 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4787BC0052;
-	Sun, 11 Oct 2020 12:40:23 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 695A8C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 56C3BC0052;
+	Sun, 11 Oct 2020 18:39:17 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 50ED8C0051
  for <virtualization@lists.linux-foundation.org>;
- Sun, 11 Oct 2020 12:40:22 +0000 (UTC)
+ Sun, 11 Oct 2020 18:39:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 5646920130
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 3785B84CEB
  for <virtualization@lists.linux-foundation.org>;
- Sun, 11 Oct 2020 12:40:22 +0000 (UTC)
+ Sun, 11 Oct 2020 18:39:16 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id jZE0AhPvGSRp
+ with ESMTP id VgrK_780l7Fc
  for <virtualization@lists.linux-foundation.org>;
- Sun, 11 Oct 2020 12:40:17 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
-Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
- [5.45.125.222])
- by silver.osuosl.org (Postfix) with ESMTPS id 5717C1FD42
+ Sun, 11 Oct 2020 18:39:14 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+Received: from mail-io1-f67.google.com (mail-io1-f67.google.com
+ [209.85.166.67])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id AD0BD84C4E
  for <virtualization@lists.linux-foundation.org>;
- Sun, 11 Oct 2020 12:40:17 +0000 (UTC)
-Received: from [37.189.17.205] (helo=LAPTOP-EPOV2LRR)
- by s052d7dde.fastvps-server.com with esmtpsa
- (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256) (Exim 4.89)
- (envelope-from <marle@saisti.eu>) id 1kRZpc-0000eT-59
- for virtualization@lists.linux-foundation.org; Sun, 11 Oct 2020 14:48:04 +0300
-From: "ML" <marialemos72@gmail.com>
-Subject: Call for Workshops Proposals - CISTI'2021, Chaves, Portugal
-To: virtualization@lists.linux-foundation.org
+ Sun, 11 Oct 2020 18:39:14 +0000 (UTC)
+Received: by mail-io1-f67.google.com with SMTP id q9so15408979iow.6
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 11 Oct 2020 11:39:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=ihDBvmS0ut4DSKeE1V92ZLXhV60yzQeKm7MqEH3UbkE=;
+ b=omOg9nngjeH2F9Dbb/TM0VIWCX3UYpHtX8QXXKU6Wi49Z7HBxoh8JJj0LrEs6V21k+
+ IDFr+Xql22OeBgc7PX013oOTHyG9DTA2sG9CSgHvHnB9jsA58+YS0h7p91sSzydfrlN9
+ 1RZg0onwhTMveQ1nYGOEpbpcfcowZoubULaRr9Q2fJ4t7bFGKDA9nAFjNnsyvFl151K9
+ q9wsmMGQoFNeUcKJ37tVf5HEUTY1JmYRc29u+gu6eT7BvYCiSBC12GxBgiIvtnSF8sOr
+ JxSb58k1ZrKUUBSJmZDLdEWidS8VzAeUftUUbacInWRnlXcz3yxhcwzbam9z9Ks1E/rG
+ M+rQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=ihDBvmS0ut4DSKeE1V92ZLXhV60yzQeKm7MqEH3UbkE=;
+ b=JDH6X+edd8r2ogQLiicHiLTdn3jOZ2DZjk6Xsdqak5LNTpU4iFqA9BtwHH688lh/Fy
+ MwAAjY7o/zMmyXiZ+YVulQdbsYsKE598cGerSCIFB8yAVzFs3Z5T1cJzk/3gS29vXAdj
+ j+NRf14l5kC31t8nBHB+HoUeXIalxXWJIAzpqhOY5g+7427H6PhIkWDuV9vqSNetOX12
+ MwNkdT5Z05pmfidDZbZcMO3G74nWNucCyAfaULwKUwm5Y33uKPct9ohbEDYrfoL82yxH
+ cvQc+uOwZCS/VASbiuw73jARBLhttcLX3Na8ROCCdIIcTGiuzSskc7XR92BV2kAZD9Ze
+ NPXQ==
+X-Gm-Message-State: AOAM530150Y9WhzxtcnAqNXLf/RIQtmWTSLFHsxakgAKpAig13DUdB12
+ Ry/neKPEpoUj0IvBJYqURM2JEu6tXxk1lUIbY5I=
+X-Google-Smtp-Source: ABdhPJxTF0j2v/9fJi8BunRtQlxMSiClZGK5c3sE9XRmWV7VBvPIX40VOP59eN5kOLWvuAg4icWlgLsDpVCM1/QHaos=
+X-Received: by 2002:a02:94cd:: with SMTP id x71mr16450243jah.124.1602441553813; 
+ Sun, 11 Oct 2020 11:39:13 -0700 (PDT)
 MIME-Version: 1.0
-Date: Sun, 11 Oct 2020 12:48:03 +0100
-Message-ID: <18368230764984@gmail-com>
-X-Antivirus: AVG (VPS 201011-0, 11/10/2020), Outbound message
-X-Antivirus-Status: Clean
+References: <20201010103854.66746-1-songmuchun@bytedance.com>
+In-Reply-To: <20201010103854.66746-1-songmuchun@bytedance.com>
+From: Cong Wang <xiyou.wangcong@gmail.com>
+Date: Sun, 11 Oct 2020 11:39:02 -0700
+Message-ID: <CAM_iQpUQXctR8UBNRP6td9dWTA705tP5fWKj4yZe9gOPTn_8oQ@mail.gmail.com>
+Subject: Re: [PATCH] mm: proc: add Sock to /proc/meminfo
+To: Muchun Song <songmuchun@bytedance.com>
+Cc: Miaohe Lin <linmiaohe@huawei.com>, Feng Tang <feng.tang@intel.com>,
+ Michal Hocko <mhocko@suse.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Neil Brown <neilb@suse.de>, Alexei Starovoitov <ast@kernel.org>,
+ LKML <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>,
+ Eric Dumazet <edumazet@google.com>,
+ Christian Brauner <christian.brauner@ubuntu.com>, walken@google.com,
+ will@kernel.org, Steffen Klassert <steffen.klassert@secunet.com>,
+ dave@stgolabs.net, Herbert Xu <herbert@gondor.apana.org.au>,
+ Daniel Borkmann <daniel@iogearbox.net>, rafael@kernel.org, decui@microsoft.com,
+ Peter Zijlstra <peterz@infradead.org>, samitolvanen@google.com,
+ Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Paolo Abeni <pabeni@redhat.com>,
+ Alexey Dobriyan <adobriyan@gmail.com>, Pablo Neira Ayuso <pablo@netfilter.org>,
+ "Eric W. Biederman" <ebiederm@xmission.com>, Kees Cook <keescook@chromium.org>,
+ Jann Horn <jannh@google.com>, shakeelb@google.com,
+ Jakub Kicinski <kuba@kernel.org>, Thomas Gleixner <tglx@linutronix.de>,
+ virtualization@lists.linux-foundation.org, chenqiwu@xiaomi.com,
+ Martin KaFai Lau <kafai@fb.com>, Jakub Sitnicki <jakub@cloudflare.com>,
+ christophe.leroy@c-s.fr, Willem de Bruijn <willemb@google.com>,
+ Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
+ Greg KH <gregkh@linuxfoundation.org>, Randy Dunlap <rdunlap@infradead.org>,
+ Florian Westphal <fw@strlen.de>, gustavoars@kernel.org,
+ Roman Gushchin <guro@fb.com>, Minchan Kim <minchan@kernel.org>,
+ rppt@kernel.org, Linux Kernel Network Developers <netdev@vger.kernel.org>,
+ linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>,
+ "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -74,321 +125,40 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Reply-To: cistiforeverer@gmail.com
-Content-Type: multipart/mixed; boundary="===============8108181238994324558=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is a multi-part message in MIME format
+On Sat, Oct 10, 2020 at 3:39 AM Muchun Song <songmuchun@bytedance.com> wrote:
+>
+> The amount of memory allocated to sockets buffer can become significant.
+> However, we do not display the amount of memory consumed by sockets
+> buffer. In this case, knowing where the memory is consumed by the kernel
 
---===============8108181238994324558==
-Content-Type: multipart/alternative; charset=utf-8; boundary="0NdzGga=_rYBgSs9opBhFu7kRxI6y7MIxo"
+We do it via `ss -m`. Is it not sufficient? And if not, why not adding it there
+rather than /proc/meminfo?
 
-This is a multi-part message in MIME format
+>  static inline void __skb_frag_unref(skb_frag_t *frag)
+>  {
+> -       put_page(skb_frag_page(frag));
+> +       struct page *page = skb_frag_page(frag);
+> +
+> +       if (put_page_testzero(page)) {
+> +               dec_sock_node_page_state(page);
+> +               __put_page(page);
+> +       }
+>  }
 
---0NdzGga=_rYBgSs9opBhFu7kRxI6y7MIxo
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+You mix socket page frag with skb frag at least, not sure this is exactly
+what you want, because clearly skb page frags are frequently used
+by network drivers rather than sockets.
 
-* Articles indexed by Scopus, WoS, Inspec, Google Scholar, etc.
+Also, which one matches this dec_sock_node_page_state()? Clearly
+not skb_fill_page_desc() or __skb_frag_ref().
 
-* Google Scholar H5-Index =3D 17
-
-* SCImago H-Index =3D 13
-
- 
-
----------------------------------------------------------------------------=
------------------------
-
-Call for Workshops Proposals
-
-CISTI'2021 - 16th Iberian Conference on Information Systems and Technologie=
-s
-
-23 - 26 June 2021, Chaves, Portugal
-
-http://cisti.eu/ <http://cisti.eu/>
-
----------------------------------------------------------------------------=
--------------------------
-
- 
-
-Workshop Format
-
-The Information Systems and Technologies research and industrial community =
-is invited to submit proposals of Workshops for CISTI 2021 =E2=80=93 16th I=
-berian Conference on Information Systems and Technologies to be held at Cha=
-ves, Portugal, June 23=E2=80=9326, 2021. Two types of Workshops may be prop=
-osed: Regular Workshops and Project Workshops.
-
-Regular Workshops should focus on a specific scientific subject on the scop=
-e of CISTI 2021 but not directly included on the main conference areas. Eac=
-h regular workshop will be coordinated by an Organizing Committee composed =
-of, at least, two researchers in the field, preferably from different insti=
-tutions and different countries. The organizers should create an internatio=
-nal Program Committee for the Workshop, with recognized researchers within =
-the specific Workshop scientific area. Each workshop should have at least 1=
-0 submissions and 5 accepted papers in order to be conducted at CISTI.
-
-Project Workshops are intended to promote the dissemination and facilitate =
-the future exploitation of EU Latin-American and national project results s=
-uch as EU/FP7, EU/Horizon2020, CSIC, FCT, QREN, Portugal 2020, Fund. Gulben=
-kian, CYTED, CAPES, CNPq, FINEP and other Projects/funding sources. The res=
-ults to be disseminated may be preliminary project results (for unfinished =
-projects) or the project final results (for already finished projects). Eac=
-h project workshop should be directly related to a Project funded in a comp=
-etitive manner by a National/International Science Organization. The Worksh=
-op should be coordinated by an Organizing Committee composed by at least tw=
-o researchers including the Principal Investigator of the project. Each Wor=
-kshop will have 1 article offered for 10 articles with paid registration, 2=
- articles offered for 20 articles with paid registration, and 3 articles of=
-fered for 40 articles with paid registration. The selection of Workshops wi=
-ll be performed by CISTI 2021 Conference Chairs. Workshops full papers will=
- be published in the conference main proceedings in specific Workshop chapt=
-ers. Proceedings will be submitted for indexation by ISI, SCOPUS, EI-Conpen=
-dex, INSPEC and Google Scholar. Detailed and up-to-date information may be =
-found at CISTI 2021 website: http://www.cisti.eu/ <http://www.cisti.eu/>.
-
- 
-
-Workshop Organization 
-
-The Organizing Committee of each Workshop will be responsible for:
-
-* Producing and distributing the Workshop Call for Papers (CFP); 
-* Coordinating the review and selection process for the papers submitted to=
- the Workshop, as Workshop chairs (on the paper submission system installed=
- for all the Workshops); 
-* Delivering the final versions of the papers accepted for the Workshop in =
-accordance with the guidelines and deadlines defined by CISTI 2021 organize=
-rs; 
-* Coordinating and chairing the Workshop sessions at the conference. 
-
-
-CISTI 2021 organizers reserve the right to cancel any Workshop if deadlines=
- are missed or if the number of registered attendees is too low to support =
-the costs associated with the Workshop.
-
- 
-
-Proposal Contents
-
-Regular Workshop proposals should contain the following information:
-
-* Workshop title; 
-* Brief description of the specific scientific scope of the Workshop; 
-* List of topics of interest (max 15 topics); 
-* Reasons the Workshop should be held within CISTI=E2=80=992021; 
-* Name, postal address, phone and email of all the members of the Workshop =
-Organizing Committee; 
-* Proposal for the Workshop Program Committee (Names and affiliations). 
-
-
-Project Workshop proposals should contain the following information:
-
-* Workshop title; 
-* Project Title, Reference, Principal Investigator, Funding Organization, T=
-otal Funding, Consortium, Abstract and Objectives; 
-* Reasons the Workshop should be held within CISTI=E2=80=992021; 
-* Name, postal address, phone and email of all the members of the Workshop =
-Organizing Committee. 
-
-
-Proposals should be submitted electronically (in Word or compatible format)=
- at https://easychair.org/conferences/?conf=3Dcisti2021workshops <https://e=
-asychair.org/conferences/?conf=3Dcisti2021workshops>, in English, Portugues=
-e and/or Spanish, by November 1, 2020.
-
- 
-
-Important Dates
-
-* Deadline for Workshop proposals: November 1, 2020 
-* Notification of Workshop acceptance: November 8, 2020 
-* Deadline for paper submission: February 28, 2021 
-* Notification of paper acceptance: March 28, 2021 
-* Deadline for final versions and conference registration: April 11, 2021 
-* Deadline for Workshop final papers delivery to CISTI organizers: April 11=
-, 2021 
-* Conference dates: June 23-26, 2021 
-
-
- 
-
-Website of CISTI'2021: http://cisti.eu/ <http://cisti.eu/>
-
- 
-
-
--- 
-This email has been checked for viruses by AVG.
-https://www.avg.com
-
---0NdzGga=_rYBgSs9opBhFu7kRxI6y7MIxo
-Content-Type: text/html; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-<html>
-  <head>
-    <title></title>
-    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
-" />
-  </head>
-  <body>
-    <p>* Articles indexed by Scopus, WoS, Inspec, Google Scholar, etc.</p>
-    <p>* Google Scholar H5-Index =3D 17</p>
-    <p>* SCImago H-Index =3D 13</p>
-    <p>&nbsp;</p>
-    <p>--------------------------------------------------------------------=
-------------------------------</p>
-    <p>Call for Workshops Proposals</p>
-    <p><strong>CISTI'2021 - 16th Iberian Conference on Information Systems =
-and Technologies</strong></p>
-    <p>23 - 26 June 2021, Chaves, Portugal</p>
-    <p><a href=3D"http://cisti.eu/">http://cisti.eu/</a></p>
-    <p>--------------------------------------------------------------------=
---------------------------------</p>
-    <p>&nbsp;</p>
-    <div itemprop=3D"articleBody">
-      <p><strong>Workshop Format</strong></p>
-      <p>The Information Systems and Technologies research and industrial c=
-ommunity is invited to submit proposals of Workshops for CISTI 2021 &ndash;=
- 16th Iberian Conference on Information Systems and Technologies to be held=
- at Chaves, Portugal, June 23&ndash;26, 2021. Two types of Workshops may be=
- proposed: Regular Workshops and Project Workshops.</p>
-      <p>Regular Workshops should focus on a specific scientific subject on=
- the scope of CISTI 2021 but not directly included on the main conference a=
-reas. Each regular workshop will be coordinated by an Organizing Committee =
-composed of, at least, two researchers in the field, preferably from differ=
-ent institutions and different countries. The organizers should create an i=
-nternational Program Committee for the Workshop, with recognized researcher=
-s within the specific Workshop scientific area. Each workshop should have a=
-t least 10 submissions and 5 accepted papers in order to be conducted at CI=
-STI.</p>
-      <p>Project Workshops are intended to promote the dissemination and fa=
-cilitate the future exploitation of EU Latin-American and national project =
-results such as EU/FP7, EU/Horizon2020, CSIC, FCT, QREN, Portugal 2020, Fun=
-d. Gulbenkian, CYTED, CAPES, CNPq, FINEP and other Projects/funding sources=
-=2E The results to be disseminated may be preliminary project results (for =
-unfinished projects) or the project final results (for already finished pro=
-jects). Each project workshop should be directly related to a Project funde=
-d in a competitive manner by a National/International Science Organization.=
- The Workshop should be coordinated by an Organizing Committee composed by =
-at least two researchers including the Principal Investigator of the projec=
-t. Each Workshop will have 1 article offered for 10 articles with paid regi=
-stration, 2 articles offered for 20 articles with paid registration, and 3 =
-articles offered for 40 articles with paid registration. The selection of W=
-orkshops will be performed by CISTI 2021 Conference Chairs. Workshops full =
-papers will be published in the conference main proceedings in specific Wor=
-kshop chapters. Proceedings will be submitted for indexation by ISI, SCOPUS=
-, EI-Conpendex, INSPEC and Google Scholar. Detailed and up-to-date informat=
-ion may be found at CISTI 2021 website: <a href=3D"http://www.cisti.eu/">ht=
-tp://www.cisti.eu/</a>.</p>
-      <p>&nbsp;</p>
-      <p><strong>Workshop Organization </strong></p>
-      <p>The Organizing Committee of each Workshop will be responsible for:=
-</p>
-      <ul>
-        <li>Producing and distributing the Workshop Call for Papers (CFP);<=
-/li>
-        <li>Coordinating the review and selection process for the papers su=
-bmitted to the Workshop, as Workshop chairs (on the paper submission system=
- installed for all the Workshops);</li>
-        <li>Delivering the final versions of the papers accepted for the Wo=
-rkshop in accordance with the guidelines and deadlines defined by CISTI 202=
-1 organizers;</li>
-        <li>Coordinating and chairing the Workshop sessions at the conferen=
-ce.</li>
-      </ul>
-      <p>CISTI 2021 organizers reserve the right to cancel any Workshop if =
-deadlines are missed or if the number of registered attendees is too low to=
- support the costs associated with the Workshop.</p>
-      <p>&nbsp;</p>
-      <p><strong>Proposal Contents</strong></p>
-      <p>Regular Workshop proposals should contain the following informatio=
-n:</p>
-      <ul>
-        <li>Workshop title;</li>
-        <li>Brief description of the specific scientific scope of the Works=
-hop;</li>
-        <li>List of topics of interest (max 15 topics);</li>
-        <li>Reasons the Workshop should be held within CISTI&rsquo;2021;</l=
-i>
-        <li>Name, postal address, phone and email of all the members of the=
- Workshop Organizing Committee;</li>
-        <li>Proposal for the Workshop Program Committee (Names and affiliat=
-ions).</li>
-      </ul>
-      <p>Project Workshop proposals should contain the following informatio=
-n:</p>
-      <ul>
-        <li>Workshop title;</li>
-        <li>Project Title, Reference, Principal Investigator, Funding Organ=
-ization, Total Funding, Consortium, Abstract and Objectives;</li>
-        <li>Reasons the Workshop should be held within CISTI&rsquo;2021;</l=
-i>
-        <li>Name, postal address, phone and email of all the members of the=
- Workshop Organizing Committee.</li>
-      </ul>
-      <p>Proposals should be submitted electronically (in Word or compatibl=
-e format) at <a href=3D"https://easychair.org/conferences/?conf=3Dcisti2021=
-workshops" rel=3D"noopener noreferrer" target=3D"_blank"><strong>https://ea=
-sychair.org/conferences/?conf=3Dcisti2021workshops</strong></a>, in English=
-, Portuguese and/or Spanish, by November 1, 2020.</p>
-      <p>&nbsp;</p>
-      <p><strong>Important Dates</strong></p>
-      <ul>
-        <li>Deadline for Workshop proposals: November 1, 2020</li>
-        <li>Notification of Workshop acceptance: November 8, 2020</li>
-        <li>Deadline for paper submission: February 28, 2021</li>
-        <li>Notification of paper acceptance: March 28, 2021</li>
-        <li>Deadline for final versions and conference registration: April =
-11, 2021</li>
-        <li>Deadline for Workshop final papers delivery to CISTI organizers=
-: April 11, 2021</li>
-        <li>Conference dates: June 23-26, 2021</li>
-      </ul>
-    </div>
-    <p>&nbsp;</p>
-    <p><strong>Website of CISTI'2021</strong>: <a href=3D"http://cisti.eu/"=
->http://cisti.eu/</a></p>
-    <p>&nbsp;</p>
-  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br />
-<table style=3D"border-top: 1px solid #D3D4DE;">
-	<tr>
-        <td style=3D"width: 55px; padding-top: 13px;"><a href=3D"http://www=
-=2Eavg.com/email-signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaig=
-n=3Dsig-email&utm_content=3Demailclient" target=3D"_blank"><img src=3D"http=
-s://ipmcdn.avast.com/images/icons/icon-envelope-tick-green-avg-v1.png" alt=
-=3D""  width=3D"46" height=3D"29" style=3D"width: 46px; height: 29px;" /></=
-a></td>
-		<td style=3D"width: 470px; padding-top: 12px; color: #41424e; font-size: =
-13px; font-family: Arial, Helvetica, sans-serif; line-height: 18px;">Virus-=
-free. <a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_=
-source=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D=
-"_blank" style=3D"color: #4453ea;">www.avg.com</a>
-		</td>
-	</tr>
-</table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2" width=3D"1" heigh=
-t=3D"1"> </a></div></body>
-</html>
-
---0NdzGga=_rYBgSs9opBhFu7kRxI6y7MIxo--
-
-
---===============8108181238994324558==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
+Thanks.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============8108181238994324558==--
-
