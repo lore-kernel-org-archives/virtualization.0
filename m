@@ -2,84 +2,85 @@ Return-Path: <SRS0=R3N6=DT=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D9559C433E7
-	for <virtualization@archiver.kernel.org>; Mon, 12 Oct 2020 12:54:45 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C0FA7C43467
+	for <virtualization@archiver.kernel.org>; Mon, 12 Oct 2020 12:54:56 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 559D421BE5
-	for <virtualization@archiver.kernel.org>; Mon, 12 Oct 2020 12:54:45 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 534A521D7F
+	for <virtualization@archiver.kernel.org>; Mon, 12 Oct 2020 12:54:56 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DwEboZ1C"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 559D421BE5
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NpfEra2n"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 534A521D7F
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 14AD885F69;
-	Mon, 12 Oct 2020 12:54:45 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 1F13687480;
+	Mon, 12 Oct 2020 12:54:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ru7seP66wRhT; Mon, 12 Oct 2020 12:54:44 +0000 (UTC)
+	with ESMTP id T7Ef6Yrgw+SR; Mon, 12 Oct 2020 12:54:54 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id AA0BF85F6F;
-	Mon, 12 Oct 2020 12:54:44 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id DBE9D873D5;
+	Mon, 12 Oct 2020 12:54:54 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9565EC07FF;
-	Mon, 12 Oct 2020 12:54:44 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7CDE9C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C6862C07FF;
+	Mon, 12 Oct 2020 12:54:54 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 74BB7C0051
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Oct 2020 12:54:42 +0000 (UTC)
+ Mon, 12 Oct 2020 12:54:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 6C8F285F69
+ by silver.osuosl.org (Postfix) with ESMTP id 61146207A6
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Oct 2020 12:54:42 +0000 (UTC)
+ Mon, 12 Oct 2020 12:54:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id XGfwkUh01Trm
+ with ESMTP id D6rjwOA3ldmX
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Oct 2020 12:54:41 +0000 (UTC)
+ Mon, 12 Oct 2020 12:54:53 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 88FBA85F3A
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by silver.osuosl.org (Postfix) with ESMTPS id 0E6542079A
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Oct 2020 12:54:41 +0000 (UTC)
+ Mon, 12 Oct 2020 12:54:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1602507280;
+ s=mimecast20190719; t=1602507291;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=PBVd+cfb+oMQo0gKEyeJIaaM87zvbM5gVEM/HK/ldHU=;
- b=DwEboZ1CQ2if8V+kYK33dSlinezllLT3y/9TBdNysyMHeRjDJrB2Oztx1/rifkm3HXhPx6
- 0T+CbbnM6IHinyGGNEo/o3N6H/hGOOhIWy+HrRSfazls8PinZcGycw71CUeiCzChB9gek8
- jak17MQR6AZHUyOScL6mVVCAZFLYAtU=
+ bh=GqBRdrN+rzKtjpl2XrHaqNhvixrxohgsDeDRZkVA61Y=;
+ b=NpfEra2nd72i88fNdS8+JGEuXfY5HxLzm77jvs3b283PWi9ouZm8lhqIeDdSKiiMcj6R/k
+ sxqx1lAMVBQWSqTrS13l1rTVVXJCmjYKB897jtk1u+UHt4M3t+vSaLKbdcq7u72j97elB9
+ 7s2clVdEVSu5GoKQIv7OxhHoT69RqG0=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-70-LBUteH8eOUyHpYpDE3qTdg-1; Mon, 12 Oct 2020 08:54:36 -0400
-X-MC-Unique: LBUteH8eOUyHpYpDE3qTdg-1
+ us-mta-447-T30Fq8AONu2AuXWUt9jDqA-1; Mon, 12 Oct 2020 08:54:47 -0400
+X-MC-Unique: T30Fq8AONu2AuXWUt9jDqA-1
 Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
  [10.5.11.12])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A497018A8224;
- Mon, 12 Oct 2020 12:54:35 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 40C4E1800D4A;
+ Mon, 12 Oct 2020 12:54:46 +0000 (UTC)
 Received: from t480s.redhat.com (ovpn-113-251.ams2.redhat.com [10.36.113.251])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 1AB4860C07;
- Mon, 12 Oct 2020 12:54:32 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 009C060C13;
+ Mon, 12 Oct 2020 12:54:35 +0000 (UTC)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH v1 08/29] virtio-mem: drop last_mb_id
-Date: Mon, 12 Oct 2020 14:53:02 +0200
-Message-Id: <20201012125323.17509-9-david@redhat.com>
+Subject: [PATCH v1 09/29] virtio-mem: don't always trigger the workqueue when
+ offlining memory
+Date: Mon, 12 Oct 2020 14:53:03 +0200
+Message-Id: <20201012125323.17509-10-david@redhat.com>
 In-Reply-To: <20201012125323.17509-1-david@redhat.com>
 References: <20201012125323.17509-1-david@redhat.com>
 MIME-Version: 1.0
@@ -104,38 +105,109 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-No longer used, let's drop it.
+Let's trigger from offlining code when we're not allowed to touch online
+memory.
+
+Handle the other case (memmap possibly freeing up another memory block)
+when actually removing memory. When removing via virtio_mem_remove(),
+virtio_mem_retry() is a NOP and safe to use.
+
+While at it, move retry handling when offlining out of
+virtio_mem_notify_offline(), to share it with Device Block Mode (DBM)
+soon.
 
 Cc: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Jason Wang <jasowang@redhat.com>
 Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/virtio/virtio_mem.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/virtio/virtio_mem.c | 40 ++++++++++++++++++++++++++-----------
+ 1 file changed, 28 insertions(+), 12 deletions(-)
 
 diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index 37a0e338ae4a..5c93f8a65eba 100644
+index 5c93f8a65eba..8ea00f0b2ecd 100644
 --- a/drivers/virtio/virtio_mem.c
 +++ b/drivers/virtio/virtio_mem.c
-@@ -84,8 +84,6 @@ struct virtio_mem {
+@@ -158,6 +158,7 @@ static DEFINE_MUTEX(virtio_mem_mutex);
+ static LIST_HEAD(virtio_mem_devices);
  
- 	/* Id of the first memory block of this device. */
- 	unsigned long first_mb_id;
--	/* Id of the last memory block of this device. */
--	unsigned long last_mb_id;
- 	/* Id of the last usable memory block of this device. */
- 	unsigned long last_usable_mb_id;
- 	/* Id of the next memory bock to prepare when needed. */
-@@ -1689,8 +1687,6 @@ static int virtio_mem_init(struct virtio_mem *vm)
- 	vm->first_mb_id = virtio_mem_phys_to_mb_id(vm->addr - 1 +
- 						   memory_block_size_bytes());
- 	vm->next_mb_id = vm->first_mb_id;
--	vm->last_mb_id = virtio_mem_phys_to_mb_id(vm->addr +
--			 vm->region_size) - 1;
+ static void virtio_mem_online_page_cb(struct page *page, unsigned int order);
++static void virtio_mem_retry(struct virtio_mem *vm);
  
- 	dev_info(&vm->vdev->dev, "start address: 0x%llx", vm->addr);
- 	dev_info(&vm->vdev->dev, "region size: 0x%llx", vm->region_size);
+ /*
+  * Register a virtio-mem device so it will be considered for the online_page
+@@ -435,9 +436,17 @@ static int virtio_mem_mb_add(struct virtio_mem *vm, unsigned long mb_id)
+ static int virtio_mem_mb_remove(struct virtio_mem *vm, unsigned long mb_id)
+ {
+ 	const uint64_t addr = virtio_mem_mb_id_to_phys(mb_id);
++	int rc;
+ 
+ 	dev_dbg(&vm->vdev->dev, "removing memory block: %lu\n", mb_id);
+-	return remove_memory(vm->nid, addr, memory_block_size_bytes());
++	rc = remove_memory(vm->nid, addr, memory_block_size_bytes());
++	if (!rc)
++		/*
++		 * We might have freed up memory we can now unplug, retry
++		 * immediately instead of waiting.
++		 */
++		virtio_mem_retry(vm);
++	return rc;
+ }
+ 
+ /*
+@@ -452,11 +461,19 @@ static int virtio_mem_mb_offline_and_remove(struct virtio_mem *vm,
+ 					    unsigned long mb_id)
+ {
+ 	const uint64_t addr = virtio_mem_mb_id_to_phys(mb_id);
++	int rc;
+ 
+ 	dev_dbg(&vm->vdev->dev, "offlining and removing memory block: %lu\n",
+ 		mb_id);
+-	return offline_and_remove_memory(vm->nid, addr,
+-					 memory_block_size_bytes());
++	rc = offline_and_remove_memory(vm->nid, addr,
++				       memory_block_size_bytes());
++	if (!rc)
++		/*
++		 * We might have freed up memory we can now unplug, retry
++		 * immediately instead of waiting.
++		 */
++		virtio_mem_retry(vm);
++	return rc;
+ }
+ 
+ /*
+@@ -534,15 +551,6 @@ static void virtio_mem_notify_offline(struct virtio_mem *vm,
+ 		BUG();
+ 		break;
+ 	}
+-
+-	/*
+-	 * Trigger the workqueue, maybe we can now unplug memory. Also,
+-	 * when we offline and remove a memory block, this will re-trigger
+-	 * us immediately - which is often nice because the removal of
+-	 * the memory block (e.g., memmap) might have freed up memory
+-	 * on other memory blocks we manage.
+-	 */
+-	virtio_mem_retry(vm);
+ }
+ 
+ static void virtio_mem_notify_online(struct virtio_mem *vm, unsigned long mb_id)
+@@ -679,6 +687,14 @@ static int virtio_mem_memory_notifier_cb(struct notifier_block *nb,
+ 		break;
+ 	case MEM_OFFLINE:
+ 		virtio_mem_notify_offline(vm, mb_id);
++
++		/*
++		 * Trigger the workqueue. Now that we have some offline memory,
++		 * maybe we can handle pending unplug requests.
++		 */
++		if (!unplug_online)
++			virtio_mem_retry(vm);
++
+ 		vm->hotplug_active = false;
+ 		mutex_unlock(&vm->hotplug_mutex);
+ 		break;
 -- 
 2.26.2
 
