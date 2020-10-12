@@ -7,80 +7,80 @@ X-Spam-Status: No, score=-9.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id EBADDC433E7
-	for <virtualization@archiver.kernel.org>; Mon, 12 Oct 2020 12:54:18 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D8FFBC433DF
+	for <virtualization@archiver.kernel.org>; Mon, 12 Oct 2020 12:54:20 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 80F8D21D7F
-	for <virtualization@archiver.kernel.org>; Mon, 12 Oct 2020 12:54:18 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 823F321BE5
+	for <virtualization@archiver.kernel.org>; Mon, 12 Oct 2020 12:54:20 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Qe77R6En"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 80F8D21D7F
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EpnJ4cpO"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 823F321BE5
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 2CCAB2079D;
-	Mon, 12 Oct 2020 12:54:18 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id OJ9yyrKfDElk; Mon, 12 Oct 2020 12:54:16 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 5B0FF203B1;
-	Mon, 12 Oct 2020 12:54:16 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 52A3CC07FF;
-	Mon, 12 Oct 2020 12:54:16 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B0E80C0051
- for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Oct 2020 12:54:14 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 9F38F85DDB
- for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Oct 2020 12:54:14 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 2A3AE85EBB;
+	Mon, 12 Oct 2020 12:54:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id h5LYtNq1n0rt
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id s3c5yZE-3n_H; Mon, 12 Oct 2020 12:54:19 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 9CAA985932;
+	Mon, 12 Oct 2020 12:54:19 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 835A5C07FF;
+	Mon, 12 Oct 2020 12:54:19 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 823F5C0051
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Oct 2020 12:54:14 +0000 (UTC)
+ Mon, 12 Oct 2020 12:54:18 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by hemlock.osuosl.org (Postfix) with ESMTP id 7EDB387466
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 12 Oct 2020 12:54:18 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from hemlock.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id rUX9xuQYdqea
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 12 Oct 2020 12:54:18 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 10CF185932
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id DD0DF873AF
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Oct 2020 12:54:13 +0000 (UTC)
+ Mon, 12 Oct 2020 12:54:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1602507252;
+ s=mimecast20190719; t=1602507256;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=GQSN1K5g95DC9GPkuy2aYWb/TZKagXTQDHHDwbyQIac=;
- b=Qe77R6EnIy9z/FLmaY6/Da86Xjk6oTRs782VQ99dIMZl/wAwbCnjDHciTM1Dv0U+K+Mjsj
- yq8dyRun6jgOkEzC2GoF6dg3yCC/WaeJhzh2tsDR7ouoxvtUmmlO9M/8tTWc9V/bUSBvQI
- 2GhKEa/vXZyqby2fXaNeRMqO8CgGSpo=
+ bh=NYFGEoB0D5neS6f6rfa0Z3nmpIkQE88nmqoYUfXbZU4=;
+ b=EpnJ4cpOnnIVo/wFK8tHyDya9+75UbPRr1ClnnlhD9wb4AyL67jD7XWsPvImaVrE1XJXuy
+ XrrO4o5EuSydb3HU6H3oqJDOx+Wknr+XO3w/bdI983Fx+3HgUk8dr1yO+WPz17HsM/Yc1K
+ Ks3vs14Fch1d1reqOzxudIxsJcvMuWQ=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-102-XCpsU2AHO8uyoDpfRyDN_g-1; Mon, 12 Oct 2020 08:54:07 -0400
-X-MC-Unique: XCpsU2AHO8uyoDpfRyDN_g-1
+ us-mta-573-28KgtI8SMCK0B0qQ8-jwiA-1; Mon, 12 Oct 2020 08:54:12 -0400
+X-MC-Unique: 28KgtI8SMCK0B0qQ8-jwiA-1
 Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
  [10.5.11.12])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C6EB81018F7F;
- Mon, 12 Oct 2020 12:54:05 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6DEB664175;
+ Mon, 12 Oct 2020 12:54:11 +0000 (UTC)
 Received: from t480s.redhat.com (ovpn-113-251.ams2.redhat.com [10.36.113.251])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 040AF672C0;
- Mon, 12 Oct 2020 12:53:53 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id C74E260C07;
+ Mon, 12 Oct 2020 12:54:06 +0000 (UTC)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH v1 02/29] virtio-mem: simplify calculation in
- virtio_mem_mb_state_prepare_next_mb()
-Date: Mon, 12 Oct 2020 14:52:56 +0200
-Message-Id: <20201012125323.17509-3-david@redhat.com>
+Subject: [PATCH v1 03/29] virtio-mem: simplify MAX_ORDER - 1 / pageblock_order
+ handling
+Date: Mon, 12 Oct 2020 14:52:57 +0200
+Message-Id: <20201012125323.17509-4-david@redhat.com>
 In-Reply-To: <20201012125323.17509-1-david@redhat.com>
 References: <20201012125323.17509-1-david@redhat.com>
 MIME-Version: 1.0
@@ -105,32 +105,94 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-We actually need one byte less (next_mb_id is exclusive, first_mb_id is
-inclusive). Simplify.
+Let's use pageblock_nr_pages and MAX_ORDER_NR_PAGES instead where
+possible, so we don't have do deal with allocation orders.
+
+Add a comment why we have that restriction for now.
 
 Cc: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Jason Wang <jasowang@redhat.com>
 Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/virtio/virtio_mem.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/virtio/virtio_mem.c | 35 +++++++++++++++++++----------------
+ 1 file changed, 19 insertions(+), 16 deletions(-)
 
 diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index a1f5bf7a571a..670b3faf412d 100644
+index 670b3faf412d..78c2fbcddcf8 100644
 --- a/drivers/virtio/virtio_mem.c
 +++ b/drivers/virtio/virtio_mem.c
-@@ -257,8 +257,8 @@ static enum virtio_mem_mb_state virtio_mem_mb_get_state(struct virtio_mem *vm,
+@@ -755,14 +755,15 @@ static void virtio_mem_clear_fake_offline(unsigned long pfn,
   */
- static int virtio_mem_mb_state_prepare_next_mb(struct virtio_mem *vm)
+ static void virtio_mem_fake_online(unsigned long pfn, unsigned int nr_pages)
  {
--	unsigned long old_bytes = vm->next_mb_id - vm->first_mb_id + 1;
--	unsigned long new_bytes = vm->next_mb_id - vm->first_mb_id + 2;
-+	unsigned long old_bytes = vm->next_mb_id - vm->first_mb_id;
-+	unsigned long new_bytes = old_bytes + 1;
- 	int old_pages = PFN_UP(old_bytes);
- 	int new_pages = PFN_UP(new_bytes);
- 	uint8_t *new_mb_state;
+-	const int order = MAX_ORDER - 1;
++	const unsigned long max_nr_pages = MAX_ORDER_NR_PAGES;
+ 	int i;
+ 
+ 	/*
+-	 * We are always called with subblock granularity, which is at least
+-	 * aligned to MAX_ORDER - 1.
++	 * We are always called at least with MAX_ORDER_NR_PAGES
++	 * granularity/alignment (e.g., the way subblocks work). All pages
++	 * inside such a block are alike.
+ 	 */
+-	for (i = 0; i < nr_pages; i += 1 << order) {
++	for (i = 0; i < nr_pages; i += max_nr_pages) {
+ 		struct page *page = pfn_to_page(pfn + i);
+ 
+ 		/*
+@@ -772,14 +773,14 @@ static void virtio_mem_fake_online(unsigned long pfn, unsigned int nr_pages)
+ 		 * alike.
+ 		 */
+ 		if (PageDirty(page)) {
+-			virtio_mem_clear_fake_offline(pfn + i, 1 << order,
++			virtio_mem_clear_fake_offline(pfn + i, max_nr_pages,
+ 						      false);
+-			generic_online_page(page, order);
++			generic_online_page(page, MAX_ORDER - 1);
+ 		} else {
+-			virtio_mem_clear_fake_offline(pfn + i, 1 << order,
++			virtio_mem_clear_fake_offline(pfn + i, max_nr_pages,
+ 						      true);
+-			free_contig_range(pfn + i, 1 << order);
+-			adjust_managed_page_count(page, 1 << order);
++			free_contig_range(pfn + i, max_nr_pages);
++			adjust_managed_page_count(page, max_nr_pages);
+ 		}
+ 	}
+ }
+@@ -792,7 +793,7 @@ static void virtio_mem_online_page_cb(struct page *page, unsigned int order)
+ 	int sb_id;
+ 
+ 	/*
+-	 * We exploit here that subblocks have at least MAX_ORDER - 1
++	 * We exploit here that subblocks have at least MAX_ORDER_NR_PAGES.
+ 	 * size/alignment and that this callback is is called with such a
+ 	 * size/alignment. So we cannot cross subblocks and therefore
+ 	 * also not memory blocks.
+@@ -1675,13 +1676,15 @@ static int virtio_mem_init(struct virtio_mem *vm)
+ 			 "Some memory is not addressable. This can make some memory unusable.\n");
+ 
+ 	/*
+-	 * Calculate the subblock size:
+-	 * - At least MAX_ORDER - 1 / pageblock_order.
+-	 * - At least the device block size.
+-	 * In the worst case, a single subblock per memory block.
++	 * We want subblocks to span at least MAX_ORDER_NR_PAGES and
++	 * pageblock_nr_pages pages. This:
++	 * - Simplifies our page onlining code (virtio_mem_online_page_cb)
++	 *   and fake page onlining code (virtio_mem_fake_online).
++	 * - Is required for now for alloc_contig_range() to work reliably -
++	 *   it doesn't properly handle smaller granularity on ZONE_NORMAL.
+ 	 */
+-	vm->subblock_size = PAGE_SIZE * 1ul << max_t(uint32_t, MAX_ORDER - 1,
+-						     pageblock_order);
++	vm->subblock_size = max_t(uint64_t, MAX_ORDER_NR_PAGES,
++				  pageblock_nr_pages) * PAGE_SIZE;
+ 	vm->subblock_size = max_t(uint64_t, vm->device_block_size,
+ 				  vm->subblock_size);
+ 	vm->nb_sb_per_mb = memory_block_size_bytes() / vm->subblock_size;
 -- 
 2.26.2
 
