@@ -2,81 +2,85 @@ Return-Path: <SRS0=R3N6=DT=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1DAF8C433E7
-	for <virtualization@archiver.kernel.org>; Mon, 12 Oct 2020 17:18:38 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F3EDBC43457
+	for <virtualization@archiver.kernel.org>; Mon, 12 Oct 2020 19:03:08 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8D05E2076C
-	for <virtualization@archiver.kernel.org>; Mon, 12 Oct 2020 17:18:37 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8D05E2076C
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linux.intel.com
+	by mail.kernel.org (Postfix) with ESMTPS id 65B6221D81
+	for <virtualization@archiver.kernel.org>; Mon, 12 Oct 2020 19:03:08 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="WJXwbpDh"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 65B6221D81
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id EA2D584491;
-	Mon, 12 Oct 2020 17:18:36 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id zsnyZsnJ1xbr; Mon, 12 Oct 2020 17:18:35 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id D060A863DB;
-	Mon, 12 Oct 2020 17:18:35 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id B6BA9C07FF;
-	Mon, 12 Oct 2020 17:18:35 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D908BC0051
- for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Oct 2020 17:18:34 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id CFA0122011
- for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Oct 2020 17:18:34 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 3FB0D22817;
+	Mon, 12 Oct 2020 19:03:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id JLRABZqHyrXi; Mon, 12 Oct 2020 19:03:03 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by silver.osuosl.org (Postfix) with ESMTP id 259EB2155B;
+	Mon, 12 Oct 2020 19:03:03 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EC051C0052;
+	Mon, 12 Oct 2020 19:03:02 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6F533C0051
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 12 Oct 2020 19:03:01 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by whitealder.osuosl.org (Postfix) with ESMTP id 6043786A91
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 12 Oct 2020 19:03:01 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xs1ccksJUis4
+ with ESMTP id 1QasPCW4nXbx
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Oct 2020 17:18:32 +0000 (UTC)
+ Mon, 12 Oct 2020 19:03:00 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
- by silver.osuosl.org (Postfix) with ESMTPS id 6F95321FA9
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id D7B4C867DF
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Oct 2020 17:18:32 +0000 (UTC)
-IronPort-SDR: nDTDojIEbCh9nEhpuP602tutXZVRcAs9a2hQ/OX2rdGnIhBM2L2A71JQ3JCb3QlHa98hEHBowx
- b/W2QlN8UOsA==
-X-IronPort-AV: E=McAfee;i="6000,8403,9772"; a="229955070"
-X-IronPort-AV: E=Sophos;i="5.77,367,1596524400"; d="scan'208";a="229955070"
-X-Amp-Result: SKIPPED(no attachment in message)
-X-Amp-File-Uploaded: False
-Received: from fmsmga003.fm.intel.com ([10.253.24.29])
- by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 12 Oct 2020 10:18:30 -0700
-IronPort-SDR: lsFj37p4SAL7n7qYiHHHh0pA/ZSrgBZK1bE7Yc6P7IrI/T6H3qG/TMDBZ9kaIEzfZ+GDUR+QAH
- pzsXbRRHTj/A==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.77,367,1596524400"; d="scan'208";a="355862760"
-Received: from black.fi.intel.com ([10.237.72.28])
- by FMSMGA003.fm.intel.com with ESMTP; 12 Oct 2020 10:18:28 -0700
-Received: by black.fi.intel.com (Postfix, from userid 1003)
- id 3E494163; Mon, 12 Oct 2020 20:18:26 +0300 (EEST)
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-To: David Stevens <stevensd@chromium.org>, dri-devel@lists.freedesktop.org,
- David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>,
- Daniel Vetter <daniel@ffwll.ch>, "Michael S . Tsirkin" <mst@redhat.com>,
- virtualization@lists.linux-foundation.org
-Subject: [PATCH v1] drm/virtio: Use UUID API for importing the UUID
-Date: Mon, 12 Oct 2020 20:18:26 +0300
-Message-Id: <20201012171826.76509-1-andriy.shevchenko@linux.intel.com>
-X-Mailer: git-send-email 2.28.0
+ Mon, 12 Oct 2020 19:03:00 +0000 (UTC)
+Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net
+ [73.47.72.35])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by mail.kernel.org (Postfix) with ESMTPSA id 68C8921582;
+ Mon, 12 Oct 2020 19:02:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=default; t=1602529380;
+ bh=BYbbrFgph4SjLhGZw4fINy6lmVuypEQSdT6k9nzquQc=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+ b=WJXwbpDh/qNsdNwUz5wCM7EnSLBrpIEXEki7sMBgNrJrL36+0sYlnYl9RT8Jv6KkF
+ iCm535JwpGIO3GNbGqN2mOGk7rnCXf+4VcapVjoRk1cvd9IkpaQiXB1urugrVRyy96
+ aUxD2NQIwyzJDe/yVpMSQulhzQ7nwaEEaRCjqVKM=
+From: Sasha Levin <sashal@kernel.org>
+To: linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.8 16/24] vhost vdpa: fix vhost_vdpa_open error
+ handling
+Date: Mon, 12 Oct 2020 15:02:31 -0400
+Message-Id: <20201012190239.3279198-16-sashal@kernel.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20201012190239.3279198-1-sashal@kernel.org>
+References: <20201012190239.3279198-1-sashal@kernel.org>
 MIME-Version: 1.0
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+X-stable: review
+X-Patchwork-Hint: Ignore
+Cc: Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
+ "Michael S . Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ Mike Christie <michael.christie@oracle.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -93,31 +97,36 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-There is import_uuid() function which imports u8 array to the uuid_t.
-Use it instead of open coding variant.
+From: Mike Christie <michael.christie@oracle.com>
 
-This allows to hide the uuid_t internals.
+[ Upstream commit 37787e9f81e2e586b526ff5c29c94e4f41513e80 ]
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+We must free the vqs array in the open failure path, because
+vhost_vdpa_release will not be called.
+
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Link: https://lore.kernel.org/r/1600712588-9514-2-git-send-email-michael.christie@oracle.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_vq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/vhost/vdpa.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 07945ca238e2..8944cc0bf8eb 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -1129,7 +1129,7 @@ static void virtio_gpu_cmd_resource_uuid_cb(struct virtio_gpu_device *vgdev,
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index a54b60d6623f0..13cdf38f8578a 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -760,6 +760,7 @@ static int vhost_vdpa_open(struct inode *inode, struct file *filep)
  
- 	if (resp_type == VIRTIO_GPU_RESP_OK_RESOURCE_UUID &&
- 	    obj->uuid_state == UUID_INITIALIZING) {
--		memcpy(&obj->uuid.b, resp->uuid, sizeof(obj->uuid.b));
-+		import_uuid(&obj->uuid, resp->uuid);
- 		obj->uuid_state = UUID_INITIALIZED;
- 	} else {
- 		obj->uuid_state = UUID_INITIALIZATION_FAILED;
+ err_init_iotlb:
+ 	vhost_dev_cleanup(&v->vdev);
++	kfree(vqs);
+ err:
+ 	atomic_dec(&v->opened);
+ 	return r;
 -- 
-2.28.0
+2.25.1
 
 _______________________________________________
 Virtualization mailing list
