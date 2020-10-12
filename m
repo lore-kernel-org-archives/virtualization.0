@@ -2,95 +2,107 @@ Return-Path: <SRS0=R3N6=DT=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.3 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
+	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 126EBC433DF
-	for <virtualization@archiver.kernel.org>; Mon, 12 Oct 2020 12:57:51 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 813C2C43457
+	for <virtualization@archiver.kernel.org>; Mon, 12 Oct 2020 13:34:43 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 942FC206D4
-	for <virtualization@archiver.kernel.org>; Mon, 12 Oct 2020 12:57:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 027F321D81
+	for <virtualization@archiver.kernel.org>; Mon, 12 Oct 2020 13:34:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="P0Q5Jj6L"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 942FC206D4
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="O1SiDHg0"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 027F321D81
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 6742886B1C;
-	Mon, 12 Oct 2020 12:57:50 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 905DA86A92;
+	Mon, 12 Oct 2020 13:34:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Kp4hXbjxs8PA; Mon, 12 Oct 2020 12:57:49 +0000 (UTC)
+	with ESMTP id 4muZBhpB0HRg; Mon, 12 Oct 2020 13:34:39 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id B29CD86B06;
-	Mon, 12 Oct 2020 12:57:49 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id BA4A586999;
+	Mon, 12 Oct 2020 13:34:39 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9BD63C07FF;
-	Mon, 12 Oct 2020 12:57:49 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0B9CEC0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A0263C0052;
+	Mon, 12 Oct 2020 13:34:39 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C9C2CC0051
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Oct 2020 12:57:48 +0000 (UTC)
+ Mon, 12 Oct 2020 13:34:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id E293A207B0
+ by whitealder.osuosl.org (Postfix) with ESMTP id C20D286999
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Oct 2020 12:57:47 +0000 (UTC)
+ Mon, 12 Oct 2020 13:34:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id T0WXu4neLNR5
+ with ESMTP id h93NO39Ht4-L
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Oct 2020 12:57:47 +0000 (UTC)
+ Mon, 12 Oct 2020 13:34:38 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by silver.osuosl.org (Postfix) with ESMTPS id DB674207A6
+Received: from mail-vs1-f68.google.com (mail-vs1-f68.google.com
+ [209.85.217.68])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 0B736867D2
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Oct 2020 12:57:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1602507465;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=xlLSSBoCkFFWagMZyRYO1orM7xpzBH86dCBKmm6DQts=;
- b=P0Q5Jj6LOsAn3kOCPdEsyEh8vLEDZuq5lbLgaV+kL9CW/UllhYUarZnRoYJJLFqKvPvJJB
- YTbZuLv0phu5QILOu/IvsdFlLZOxCkqJ4f+9uVW0Xy+fhfTNK501sjsG+WybQhRNipTrKG
- Bh//ABY/d3iS2EewNGR9YMYoBPcPe+g=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-247-Q6MFmn7kMzeoacM48P8spA-1; Mon, 12 Oct 2020 08:57:42 -0400
-X-MC-Unique: Q6MFmn7kMzeoacM48P8spA-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
- [10.5.11.12])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 71AA464085;
- Mon, 12 Oct 2020 12:57:39 +0000 (UTC)
-Received: from t480s.redhat.com (ovpn-113-251.ams2.redhat.com [10.36.113.251])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 140B760C07;
- Mon, 12 Oct 2020 12:57:29 +0000 (UTC)
-From: David Hildenbrand <david@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH v1 29/29] virtio-mem: Big Block Mode (BBM) - safe memory
- hotunplug
-Date: Mon, 12 Oct 2020 14:53:23 +0200
-Message-Id: <20201012125323.17509-30-david@redhat.com>
-In-Reply-To: <20201012125323.17509-1-david@redhat.com>
-References: <20201012125323.17509-1-david@redhat.com>
+ Mon, 12 Oct 2020 13:34:38 +0000 (UTC)
+Received: by mail-vs1-f68.google.com with SMTP id u7so9092706vsq.11
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 12 Oct 2020 06:34:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=rKlAI4VcpxoazHMfmiz07xfIfCv2gl8wbl6h7oKeIcw=;
+ b=O1SiDHg0N75UnJq9CLsvCVIYbB3HIpnq+lXG+u77urEnT4Y6aihwAgvRkc+5Hzd2cq
+ SznlkCfBSTLBj3Xy+eH3B+uhxQNkVyRzM7/YIkMkdtpZhnJEQEMNgc8JgXVyGo82iXTl
+ tpHaRoQQg2jxQ4KfwRMdSDoZFxyFL8L3QkCOM0rRvlU6D4ejP8eYXa3ZbzZFoLz6HQX/
+ SMMR9divIfFz9N/6m6hIm7Mowwz4sghjoUJKWaU4zw6JPsEmgkOsGiUi00j9KkGqxKCY
+ XlMnSrbmO4WNe2knKg0M1dCn9C26LK3jOYuQGXXBmvizlrKbVfeYrUrx98CVwtLFNSw5
+ lLng==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=rKlAI4VcpxoazHMfmiz07xfIfCv2gl8wbl6h7oKeIcw=;
+ b=CeshBYkzbJ5kboLQTG//KqdvYwcc9x3RoUk7hlQcdNYtKqpxw38NafLkzTM2rEwWub
+ 7UEtrN7GvFfvlynRW4heq7oo+N6dJfVGijZlePduI8OOjiOZdBzpgGZoEbUYFFKXtNfi
+ YlICRNYRTN8bLefNBIzHABMiWSjZoItUaMCBKqZm2rYA+RKFf02JEEzMlSWO0sZqsK9l
+ 2+yFC/Vsn28FSTF27iTb/+NGxcpzVXIMiXc8DMVCP+hf5eN6gGo6mFDT6vMr3jzZb/er
+ vwe6Yu+6L8SGrl5scLjzFmX55ntU941PcWX1qI/BDJkQIxxNBPErLoA246WxegDOiqfI
+ sIgQ==
+X-Gm-Message-State: AOAM530oYtvmxVUME54bZTWtY7lODiECWkCOgdxexztGv+pYYLj7gTB8
+ FKkWRGXDSuDD4IXmIBBp20vSaJBnJPM=
+X-Google-Smtp-Source: ABdhPJxubzNdwRdWrTs6+c6Y9zBojyFZa3ghiHzlotuSn+UY1q1E/pnGdTDzchkBfrvvuH/5D5bZqQ==
+X-Received: by 2002:a67:6484:: with SMTP id y126mr911555vsb.58.1602509676215; 
+ Mon, 12 Oct 2020 06:34:36 -0700 (PDT)
+Received: from mail-vk1-f171.google.com (mail-vk1-f171.google.com.
+ [209.85.221.171])
+ by smtp.gmail.com with ESMTPSA id m1sm1391362vsd.14.2020.10.12.06.34.35
+ for <virtualization@lists.linux-foundation.org>
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Mon, 12 Oct 2020 06:34:35 -0700 (PDT)
+Received: by mail-vk1-f171.google.com with SMTP id z10so3834261vkn.0
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 12 Oct 2020 06:34:35 -0700 (PDT)
+X-Received: by 2002:a1f:1f0d:: with SMTP id f13mr13410484vkf.1.1602509674648; 
+ Mon, 12 Oct 2020 06:34:34 -0700 (PDT)
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
- Wei Yang <richard.weiyang@linux.alibaba.com>,
- "Michael S . Tsirkin" <mst@redhat.com>,
- virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
- Andrew Morton <akpm@linux-foundation.org>, Michal Hocko <mhocko@kernel.org>,
- Oscar Salvador <osalvador@suse.de>
+References: <20201012015820.62042-1-xiangxia.m.yue@gmail.com>
+In-Reply-To: <20201012015820.62042-1-xiangxia.m.yue@gmail.com>
+From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
+Date: Mon, 12 Oct 2020 09:33:57 -0400
+X-Gmail-Original-Message-ID: <CA+FuTSdHG4n4xRgg0-3-wOEp_kKHrEV-eSH8YeQhMOsUbamCiw@mail.gmail.com>
+Message-ID: <CA+FuTSdHG4n4xRgg0-3-wOEp_kKHrEV-eSH8YeQhMOsUbamCiw@mail.gmail.com>
+Subject: Re: [PATCH net-next v3] virtio-net: ethtool configurable RXCSUM
+To: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+Cc: Network Development <netdev@vger.kernel.org>,
+ virtualization@lists.linux-foundation.org,
+ "Michael S. Tsirkin" <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,197 +119,32 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Let's add a safe mechanism to unplug memory, avoiding long/endless loops
-when trying to offline memory - similar to in SBM.
+On Sun, Oct 11, 2020 at 10:03 PM <xiangxia.m.yue@gmail.com> wrote:
+>
+> From: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+>
+> Allow user configuring RXCSUM separately with ethtool -K,
+> reusing the existing virtnet_set_guest_offloads helper
+> that configures RXCSUM for XDP. This is conditional on
+> VIRTIO_NET_F_CTRL_GUEST_OFFLOADS.
+>
+> If Rx checksum is disabled, LRO should also be disabled.
+>
+> Cc: Michael S. Tsirkin <mst@redhat.com>
+> Cc: Jason Wang <jasowang@redhat.com>
+> Cc: Willem de Bruijn <willemb@google.com>
+> Signed-off-by: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-Fake-offline all memory (via alloc_contig_range()) before trying to
-offline+remove it. Use this mode as default, but allow to enable the other
-mode explicitly (which could give better memory hotunplug guarantees in
-some environments).
+Acked-by: Willem de Bruijn <willemb@google.com>
 
-The "unsafe" mode can be enabled e.g., via virtio_mem.bbm_safe_unplug=0
-on the cmdline.
+I had to recall why we cannot just rely on dev->features and
+dev->hw_features to encode the set of feature capabilities, but need
+guest_offloads_capable.
 
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: Oscar Salvador <osalvador@suse.de>
-Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: David Hildenbrand <david@redhat.com>
----
- drivers/virtio/virtio_mem.c | 97 ++++++++++++++++++++++++++++++++++++-
- 1 file changed, 95 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index 6bcd0acbff32..09f11489be6f 100644
---- a/drivers/virtio/virtio_mem.c
-+++ b/drivers/virtio/virtio_mem.c
-@@ -37,6 +37,11 @@ module_param(bbm_block_size, ulong, 0444);
- MODULE_PARM_DESC(bbm_block_size,
- 		 "Big Block size in bytes. Default is 0 (auto-detection).");
- 
-+static bool bbm_safe_unplug = true;
-+module_param(bbm_safe_unplug, bool, 0444);
-+MODULE_PARM_DESC(bbm_safe_unplug,
-+	     "Use a safe unplug mechanism in BBM, avoiding long/endless loops");
-+
- /*
-  * virtio-mem currently supports the following modes of operation:
-  *
-@@ -87,6 +92,8 @@ enum virtio_mem_bbm_bb_state {
- 	VIRTIO_MEM_BBM_BB_PLUGGED,
- 	/* Plugged and added to Linux. */
- 	VIRTIO_MEM_BBM_BB_ADDED,
-+	/* All online parts are fake-offline, ready to remove. */
-+	VIRTIO_MEM_BBM_BB_FAKE_OFFLINE,
- 	VIRTIO_MEM_BBM_BB_COUNT
- };
- 
-@@ -889,6 +896,32 @@ static void virtio_mem_sbm_notify_cancel_offline(struct virtio_mem *vm,
- 	}
- }
- 
-+static void virtio_mem_bbm_notify_going_offline(struct virtio_mem *vm,
-+						unsigned long bb_id,
-+						unsigned long pfn,
-+						unsigned long nr_pages)
-+{
-+	/*
-+	 * When marked as "fake-offline", all online memory of this device block
-+	 * is allocated by us. Otherwise, we don't have any memory allocated.
-+	 */
-+	if (virtio_mem_bbm_get_bb_state(vm, bb_id) !=
-+	    VIRTIO_MEM_BBM_BB_FAKE_OFFLINE)
-+		return;
-+	virtio_mem_fake_offline_going_offline(pfn, nr_pages);
-+}
-+
-+static void virtio_mem_bbm_notify_cancel_offline(struct virtio_mem *vm,
-+						 unsigned long bb_id,
-+						 unsigned long pfn,
-+						 unsigned long nr_pages)
-+{
-+	if (virtio_mem_bbm_get_bb_state(vm, bb_id) !=
-+	    VIRTIO_MEM_BBM_BB_FAKE_OFFLINE)
-+		return;
-+	virtio_mem_fake_offline_cancel_offline(pfn, nr_pages);
-+}
-+
- /*
-  * This callback will either be called synchronously from add_memory() or
-  * asynchronously (e.g., triggered via user space). We have to be careful
-@@ -949,6 +982,10 @@ static int virtio_mem_memory_notifier_cb(struct notifier_block *nb,
- 		vm->hotplug_active = true;
- 		if (vm->in_sbm)
- 			virtio_mem_sbm_notify_going_offline(vm, id);
-+		else
-+			virtio_mem_bbm_notify_going_offline(vm, id,
-+							    mhp->start_pfn,
-+							    mhp->nr_pages);
- 		break;
- 	case MEM_GOING_ONLINE:
- 		mutex_lock(&vm->hotplug_mutex);
-@@ -999,6 +1036,10 @@ static int virtio_mem_memory_notifier_cb(struct notifier_block *nb,
- 			break;
- 		if (vm->in_sbm)
- 			virtio_mem_sbm_notify_cancel_offline(vm, id);
-+		else
-+			virtio_mem_bbm_notify_cancel_offline(vm, id,
-+							     mhp->start_pfn,
-+							     mhp->nr_pages);
- 		vm->hotplug_active = false;
- 		mutex_unlock(&vm->hotplug_mutex);
- 		break;
-@@ -1189,7 +1230,13 @@ static void virtio_mem_online_page_cb(struct page *page, unsigned int order)
- 			do_online = virtio_mem_sbm_test_sb_plugged(vm, id,
- 								   sb_id, 1);
- 		} else {
--			do_online = true;
-+			/*
-+			 * If the whole block is marked fake offline, keep
-+			 * everything that way.
-+			 */
-+			id = virtio_mem_phys_to_bb_id(vm, addr);
-+			do_online = virtio_mem_bbm_get_bb_state(vm, id) !=
-+				    VIRTIO_MEM_BBM_BB_FAKE_OFFLINE;
- 		}
- 		if (do_online)
- 			generic_online_page(page, order);
-@@ -1969,15 +2016,50 @@ static int virtio_mem_sbm_unplug_request(struct virtio_mem *vm, uint64_t diff)
- static int virtio_mem_bbm_offline_remove_and_unplug_bb(struct virtio_mem *vm,
- 						       unsigned long bb_id)
- {
-+	const unsigned long start_pfn = PFN_DOWN(virtio_mem_bb_id_to_phys(vm, bb_id));
-+	const unsigned long nr_pages = PFN_DOWN(vm->bbm.bb_size);
-+	unsigned long end_pfn = start_pfn + nr_pages;
-+	unsigned long pfn;
-+	struct page *page;
- 	int rc;
- 
- 	if (WARN_ON_ONCE(virtio_mem_bbm_get_bb_state(vm, bb_id) !=
- 			 VIRTIO_MEM_BBM_BB_ADDED))
- 		return -EINVAL;
- 
-+	if (bbm_safe_unplug) {
-+		/*
-+		 * Start by fake-offlining all memory. Once we marked the device
-+		 * block as fake-offline, all newly onlined memory will
-+		 * automatically be kept fake-offline. Protect from concurrent
-+		 * onlining/offlining until we have a consistent state.
-+		 */
-+		mutex_lock(&vm->hotplug_mutex);
-+		virtio_mem_bbm_set_bb_state(vm, bb_id,
-+					    VIRTIO_MEM_BBM_BB_FAKE_OFFLINE);
-+
-+		for (pfn = start_pfn; pfn < end_pfn; pfn += PAGES_PER_SECTION) {
-+			page = pfn_to_online_page(pfn);
-+			if (!page)
-+				continue;
-+
-+			rc = virtio_mem_fake_offline(pfn, PAGES_PER_SECTION);
-+			if (rc) {
-+				end_pfn = pfn;
-+				goto rollback_safe_unplug;
-+			}
-+		}
-+		mutex_unlock(&vm->hotplug_mutex);
-+	}
-+
- 	rc = virtio_mem_bbm_offline_and_remove_bb(vm, bb_id);
--	if (rc)
-+	if (rc) {
-+		if (bbm_safe_unplug) {
-+			mutex_lock(&vm->hotplug_mutex);
-+			goto rollback_safe_unplug;
-+		}
- 		return rc;
-+	}
- 
- 	rc = virtio_mem_bbm_unplug_bb(vm, bb_id);
- 	if (rc)
-@@ -1987,6 +2069,17 @@ static int virtio_mem_bbm_offline_remove_and_unplug_bb(struct virtio_mem *vm,
- 		virtio_mem_bbm_set_bb_state(vm, bb_id,
- 					    VIRTIO_MEM_BBM_BB_UNUSED);
- 	return rc;
-+
-+rollback_safe_unplug:
-+	for (pfn = start_pfn; pfn < end_pfn; pfn += PAGES_PER_SECTION) {
-+		page = pfn_to_online_page(pfn);
-+		if (!page)
-+			continue;
-+		virtio_mem_fake_online(pfn, PAGES_PER_SECTION);
-+	}
-+	virtio_mem_bbm_set_bb_state(vm, bb_id, VIRTIO_MEM_BBM_BB_ADDED);
-+	mutex_unlock(&vm->hotplug_mutex);
-+	return rc;
- }
- 
- /*
--- 
-2.26.2
-
+Flag NETIF_F_LRO encapsulates multiple VIRTIO_NET_F_GUEST_.. flags,
+and a device may advertise a subset. We thus have to bound to the set
+learned at probing time.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
