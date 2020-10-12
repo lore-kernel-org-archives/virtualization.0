@@ -4,83 +4,82 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6AB7BC433E7
-	for <virtualization@archiver.kernel.org>; Mon, 12 Oct 2020 12:55:30 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C3120C433E7
+	for <virtualization@archiver.kernel.org>; Mon, 12 Oct 2020 12:55:40 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id EAE5E21BE5
-	for <virtualization@archiver.kernel.org>; Mon, 12 Oct 2020 12:55:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 60D6821BE5
+	for <virtualization@archiver.kernel.org>; Mon, 12 Oct 2020 12:55:40 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PUdDC81b"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EAE5E21BE5
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="d1joqA71"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 60D6821BE5
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 7FA4E86A60;
-	Mon, 12 Oct 2020 12:55:28 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id E59E086A4C;
+	Mon, 12 Oct 2020 12:55:39 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9GU0C2CvtjEy; Mon, 12 Oct 2020 12:55:28 +0000 (UTC)
+	with ESMTP id 0l+BtwgcszwS; Mon, 12 Oct 2020 12:55:39 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 060CA86A51;
-	Mon, 12 Oct 2020 12:55:28 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 2FD7E86A62;
+	Mon, 12 Oct 2020 12:55:39 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E483EC07FF;
-	Mon, 12 Oct 2020 12:55:27 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8424FC0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 27D77C07FF;
+	Mon, 12 Oct 2020 12:55:39 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AD86DC0051
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Oct 2020 12:55:26 +0000 (UTC)
+ Mon, 12 Oct 2020 12:55:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 72447874BF
+ by whitealder.osuosl.org (Postfix) with ESMTP id 9A5AD86A6F
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Oct 2020 12:55:26 +0000 (UTC)
+ Mon, 12 Oct 2020 12:55:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id gZYPlQcasYyp
+ with ESMTP id rD4xICJR6cCx
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Oct 2020 12:55:25 +0000 (UTC)
+ Mon, 12 Oct 2020 12:55:37 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 86A2A87472
+ by whitealder.osuosl.org (Postfix) with ESMTPS id BCF6686A62
  for <virtualization@lists.linux-foundation.org>;
- Mon, 12 Oct 2020 12:55:25 +0000 (UTC)
+ Mon, 12 Oct 2020 12:55:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1602507324;
+ s=mimecast20190719; t=1602507336;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=Nfx3E1E8CtjMuP9lMG33p0/a9KgSIqjdfK7bGnmRDXs=;
- b=PUdDC81bhydJiU6k2YE9dpKMtSKokfocQJRgqXY3ZXVyhptBJaeZeyBAEG1ByE8pSXKEJM
- eS6sbOcuI3rknCNXUMwSjZWqate18EG4OyPgZ2nAfPtU1F8uj1HtHLrCLQ84LseeQoppZZ
- DE/fBmjKcFskCInb3STrcGllg31laXU=
+ bh=6CxxBkFaIBujR5H4ePNpLjJNj4n9V2qfQRlFDh40t9U=;
+ b=d1joqA71sF/gJtkQkBxwUVXhmrj9scyJJFMeEHB5AGJ/jXSJKRkuz3I+dcUdtVtonQ5g31
+ yyOikBNJrhmJuH3ywNhe4Ry2msECnUcbh7FizyBc9XdQ61wsHeu2Ap+juop4fETPFpeNBm
+ nrIhnq7IJFBb3AxjaUK6BOUSOmwcCw8=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-518-OQI5yNW_MnGAQ8K74Zdxcg-1; Mon, 12 Oct 2020 08:55:20 -0400
-X-MC-Unique: OQI5yNW_MnGAQ8K74Zdxcg-1
+ us-mta-12-GRLVSriTMdWbbPBGQs18-g-1; Mon, 12 Oct 2020 08:55:35 -0400
+X-MC-Unique: GRLVSriTMdWbbPBGQs18-g-1
 Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
  [10.5.11.12])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 866281005E5D;
- Mon, 12 Oct 2020 12:55:19 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D85041084D63;
+ Mon, 12 Oct 2020 12:55:33 +0000 (UTC)
 Received: from t480s.redhat.com (ovpn-113-251.ams2.redhat.com [10.36.113.251])
- by smtp.corp.redhat.com (Postfix) with ESMTP id DF04E60C07;
- Mon, 12 Oct 2020 12:55:14 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 8580D60C07;
+ Mon, 12 Oct 2020 12:55:20 +0000 (UTC)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH v1 14/29] virtio-mem: retry fake-offlining via
- alloc_contig_range() on ZONE_MOVABLE
-Date: Mon, 12 Oct 2020 14:53:08 +0200
-Message-Id: <20201012125323.17509-15-david@redhat.com>
+Subject: [PATCH v1 15/29] virito-mem: document Sub Block Mode (SBM)
+Date: Mon, 12 Oct 2020 14:53:09 +0200
+Message-Id: <20201012125323.17509-16-david@redhat.com>
 In-Reply-To: <20201012125323.17509-1-david@redhat.com>
 References: <20201012125323.17509-1-david@redhat.com>
 MIME-Version: 1.0
@@ -105,71 +104,46 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-ZONE_MOVABLE is supposed to give some guarantees, yet,
-alloc_contig_range() isn't prepared to properly deal with some racy
-cases properly (e.g., temporary page pinning when exiting processed, PCP).
+Let's add some documentation for the current mode - Sub Block Mode (SBM) -
+to prepare for a new mode - Big Block Mode (BBM).
 
-Retry 5 times for now. There is certainly room for improvement in the
-future.
+Follow-up patches will properly factor out the existing Sub Block Mode
+(SBM) and implement Device Block Mode (DBM).
 
 Cc: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Jason Wang <jasowang@redhat.com>
 Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/virtio/virtio_mem.c | 37 ++++++++++++++++++++++++++-----------
- 1 file changed, 26 insertions(+), 11 deletions(-)
+ drivers/virtio/virtio_mem.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
 diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index a2124892e510..faeb759687fe 100644
+index faeb759687fe..fd8685673fe4 100644
 --- a/drivers/virtio/virtio_mem.c
 +++ b/drivers/virtio/virtio_mem.c
-@@ -823,19 +823,34 @@ static void virtio_mem_fake_online(unsigned long pfn, unsigned long nr_pages)
-  */
- static int virtio_mem_fake_offline(unsigned long pfn, unsigned long nr_pages)
- {
--	int rc;
-+	const bool is_movable = zone_idx(page_zone(pfn_to_page(pfn))) ==
-+				ZONE_MOVABLE;
-+	int rc, retry_count;
+@@ -27,6 +27,21 @@ static bool unplug_online = true;
+ module_param(unplug_online, bool, 0644);
+ MODULE_PARM_DESC(unplug_online, "Try to unplug online memory");
  
--	rc = alloc_contig_range(pfn, pfn + nr_pages, MIGRATE_MOVABLE,
--				GFP_KERNEL);
--	if (rc == -ENOMEM)
--		/* whoops, out of memory */
--		return rc;
--	if (rc)
--		return -EBUSY;
-+	/*
-+	 * TODO: We want an alloc_contig_range() mode that tries to allocate
-+	 * harder (e.g., dealing with temporarily pinned pages, PCP), especially
-+	 * with ZONE_MOVABLE. So for now, retry a couple of times with
-+	 * ZONE_MOVABLE before giving up - because that zone is supposed to give
-+	 * some guarantees.
-+	 */
-+	for (retry_count = 0; retry_count < 5; retry_count++) {
-+		rc = alloc_contig_range(pfn, pfn + nr_pages, MIGRATE_MOVABLE,
-+					GFP_KERNEL);
-+		if (rc == -ENOMEM)
-+			/* whoops, out of memory */
-+			return rc;
-+		else if (rc && !is_movable)
-+			break;
-+		else if (rc)
-+			continue;
- 
--	virtio_mem_set_fake_offline(pfn, nr_pages, true);
--	adjust_managed_page_count(pfn_to_page(pfn), -nr_pages);
--	return 0;
-+		virtio_mem_set_fake_offline(pfn, nr_pages, true);
-+		adjust_managed_page_count(pfn_to_page(pfn), -nr_pages);
-+		return 0;
-+	}
++/*
++ * virtio-mem currently supports the following modes of operation:
++ *
++ * * Sub Block Mode (SBM): A Linux memory block spans 1..X subblocks (SB). The
++ *   size of a Sub Block (SB) is determined based on the device block size, the
++ *   pageblock size, and the maximum allocation granularity of the buddy.
++ *   Subblocks within a Linux memory block might either be plugged or unplugged.
++ *   Memory is added/removed to Linux MM in Linux memory block granularity.
++ *
++ * User space / core MM (auto onlining) is responsible for onlining added
++ * Linux memory blocks - and for selecting a zone. Linux Memory Blocks are
++ * always onlined separately, and all memory within a Linux memory block is
++ * onlined to the same zone - virtio-mem relies on this behavior.
++ */
 +
-+	return -EBUSY;
- }
- 
- /*
+ enum virtio_mem_mb_state {
+ 	/* Unplugged, not added to Linux. Can be reused later. */
+ 	VIRTIO_MEM_MB_STATE_UNUSED = 0,
 -- 
 2.26.2
 
