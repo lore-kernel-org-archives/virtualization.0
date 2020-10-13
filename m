@@ -2,103 +2,137 @@ Return-Path: <SRS0=ZRN8=DU=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.0 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.8 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
+	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1F547C43457
-	for <virtualization@archiver.kernel.org>; Tue, 13 Oct 2020 05:41:09 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B9E92C43467
+	for <virtualization@archiver.kernel.org>; Tue, 13 Oct 2020 06:55:38 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9DB6F208D5
-	for <virtualization@archiver.kernel.org>; Tue, 13 Oct 2020 05:41:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 2B76120797
+	for <virtualization@archiver.kernel.org>; Tue, 13 Oct 2020 06:55:37 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="X3ve+OGg"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9DB6F208D5
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DVCqZc0K"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2B76120797
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 397918733B;
-	Tue, 13 Oct 2020 05:41:08 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 708DB878A1;
+	Tue, 13 Oct 2020 06:55:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Li95vK4o83bD; Tue, 13 Oct 2020 05:41:07 +0000 (UTC)
+	with ESMTP id WXUSkmSQontc; Tue, 13 Oct 2020 06:55:36 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id B0CA586FAE;
-	Tue, 13 Oct 2020 05:41:07 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 7A0AF87883;
+	Tue, 13 Oct 2020 06:55:36 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8FD21C07FF;
-	Tue, 13 Oct 2020 05:41:07 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 65843C0052;
+	Tue, 13 Oct 2020 06:55:36 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 83A5CC0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 78639C0051
  for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Oct 2020 05:41:05 +0000 (UTC)
+ Tue, 13 Oct 2020 06:55:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 6A8C287A60
+ by hemlock.osuosl.org (Postfix) with ESMTP id 5505387A5A
  for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Oct 2020 05:41:05 +0000 (UTC)
+ Tue, 13 Oct 2020 06:55:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id OOcpmFZjrmfv
+ with ESMTP id AaH5NIBnG8KR
  for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Oct 2020 05:41:04 +0000 (UTC)
+ Tue, 13 Oct 2020 06:55:34 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 8FED687A5D
+Received: from mail-wr1-f66.google.com (mail-wr1-f66.google.com
+ [209.85.221.66])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 68AE487A49
  for <virtualization@lists.linux-foundation.org>;
- Tue, 13 Oct 2020 05:41:04 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1602567663;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=an1gCRpqueGjFmWqkLo6oeT53oDVqi18CPdvDvMunMk=;
- b=X3ve+OGg2MPMo+vkoCD/dib5jC633PZUlK3NfQEkMV1ZQhCZsGjDy9gTxzTd42CK4MUt7f
- +6EbGbEofCfwBS3LBGmiQ7cYqrEeGGAa29tv5vWcA7rduYDh56cAV6S3fQvMXgIBqS/46g
- ZwBK3p89bj4z9RsAg1rwtO41Erb+Kxc=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-559-wFv5dTD3NV6L4xTTMKvdjg-1; Tue, 13 Oct 2020 01:41:01 -0400
-X-MC-Unique: wFv5dTD3NV6L4xTTMKvdjg-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
- [10.5.11.23])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E71C21018F63;
- Tue, 13 Oct 2020 05:40:59 +0000 (UTC)
-Received: from [10.72.13.59] (ovpn-13-59.pek2.redhat.com [10.72.13.59])
- by smtp.corp.redhat.com (Postfix) with ESMTP id B11261A92A;
- Tue, 13 Oct 2020 05:40:45 +0000 (UTC)
-Subject: Re: [RFC PATCH 10/24] vdpa: introduce config operations for
- associating ASID to a virtqueue group
-To: Eli Cohen <elic@nvidia.com>
-References: <20200924032125.18619-1-jasowang@redhat.com>
- <20200924032125.18619-11-jasowang@redhat.com>
- <20201001132927.GC32363@mtl-vdi-166.wap.labs.mlnx>
- <70af3ff0-74ed-e519-56f5-d61e6a48767f@redhat.com>
- <20201012065931.GA42327@mtl-vdi-166.wap.labs.mlnx>
- <b1ac150b-0845-874f-75d0-7440133a1d41@redhat.com>
- <20201012081725.GB42327@mtl-vdi-166.wap.labs.mlnx>
-From: Jason Wang <jasowang@redhat.com>
-Message-ID: <3e4a8bea-f187-3843-c1d1-75d0b86a137b@redhat.com>
-Date: Tue, 13 Oct 2020 13:40:44 +0800
+ Tue, 13 Oct 2020 06:55:34 +0000 (UTC)
+Received: by mail-wr1-f66.google.com with SMTP id g12so22576572wrp.10
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 12 Oct 2020 23:55:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=subject:to:cc:references:from:message-id:date:user-agent
+ :mime-version:in-reply-to:content-language:content-transfer-encoding;
+ bh=tsRtK+RphjJoix8LNFIUyEqIBIL/eXaIC2bZ4t/CBOQ=;
+ b=DVCqZc0KrivZAyxTL0AvxUJIK8ar/eLOwEdWUo/cKCbAoTHgn33/8+mW9OHucS84v6
+ 0imUvQqQAst6kKaHRL53ucde/VGeMSByqHyllJ/uDQpUysG6+31rPcgj26UxVsnLdPw8
+ bfyqYHaZd6F7DTxDh4M9MqsWd1Fqr7QO6Eib0jiaFCXEG3HkYbI14lKYhDar8x0Cdl8s
+ pB7FD0Rhk2JUG7jdZ45/x7EknGoQjDpzV2vQ7D5UdDPRn5/rJbsCpCJQU5neobKMaKUQ
+ U6QTs0HJiG92p59SleNX/m+xsMzOj0Pb+03mhokRCjuiTEZ/11U7eLxoWvknFy0pXz3f
+ EJ2Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+ :user-agent:mime-version:in-reply-to:content-language
+ :content-transfer-encoding;
+ bh=tsRtK+RphjJoix8LNFIUyEqIBIL/eXaIC2bZ4t/CBOQ=;
+ b=VZpDAYrFVWeosycgLu06IFMEXqmR55a8/jDCfHeal8/WzDnyk4VjpEOY+YWHf8kvEK
+ 8iOylq02Zw/pBbcmxuEevJ8N4Ph9ojvs+7DWrdXG71g5jHGpcbWPb765oHg1KuXxSCJc
+ iYQMn5tqsrS3jzbi3NFc25pXEEe59aH5ZZYa3av4QUsHxx+IBBikTaYjoTcgr3an4xWC
+ XBkEQgrMWIF5wMkQQskzhnt11X1/ron4f/6X7IkAywu17EekLPIkrQBXNLkDY9yud87B
+ igBRRmzBdogkpC9XekxlC+u6TI20NHTmVUKwo9jOGQRo4AqmvC4C1pKN6f7wQfbfkhrF
+ xkAQ==
+X-Gm-Message-State: AOAM531quyxr9mw2JH/0uziRhxPdwEWfNt4WMlbH6kyGvJkvhu8tfYrg
+ o+DU4rI/hktLwZIWrUwNg24=
+X-Google-Smtp-Source: ABdhPJyQXupiGXk53k8bnCs10W8RAjL7Zi7PA+tSuK0vnrjR6U4YpJdR1j2LtYICyCerFkByTf/QBw==
+X-Received: by 2002:adf:e412:: with SMTP id g18mr11015720wrm.211.1602572132746; 
+ Mon, 12 Oct 2020 23:55:32 -0700 (PDT)
+Received: from [192.168.8.147] ([37.171.149.236])
+ by smtp.gmail.com with ESMTPSA id f14sm26683540wme.22.2020.10.12.23.55.29
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Mon, 12 Oct 2020 23:55:32 -0700 (PDT)
+Subject: Re: [External] Re: [PATCH] mm: proc: add Sock to /proc/meminfo
+To: Muchun Song <songmuchun@bytedance.com>,
+ Eric Dumazet <eric.dumazet@gmail.com>
+References: <20201010103854.66746-1-songmuchun@bytedance.com>
+ <CAM_iQpUQXctR8UBNRP6td9dWTA705tP5fWKj4yZe9gOPTn_8oQ@mail.gmail.com>
+ <CAMZfGtUhVx_iYY3bJZRY5s1PG0N1mCsYGS9Oku8cTqPiMDze-g@mail.gmail.com>
+ <CANn89iKprp7WYeZy4RRO5jHykprnSCcVBc7Tk14Ui_MA9OK7Fg@mail.gmail.com>
+ <CAMZfGtXVKER_GM-wwqxrUshDzcEg9FkS3x_BaMTVyeqdYPGSkw@mail.gmail.com>
+ <9262ea44-fc3a-0b30-54dd-526e16df85d1@gmail.com>
+ <CAMZfGtVF6OjNuJFUExRMY1k-EaDS744=nKy6_a2cYdrJRncTgQ@mail.gmail.com>
+From: Eric Dumazet <eric.dumazet@gmail.com>
+Message-ID: <93d5ad90-2bd5-07ad-618e-456ed2e6da87@gmail.com>
+Date: Tue, 13 Oct 2020 08:55:29 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+ Thunderbird/68.12.0
 MIME-Version: 1.0
-In-Reply-To: <20201012081725.GB42327@mtl-vdi-166.wap.labs.mlnx>
+In-Reply-To: <CAMZfGtVF6OjNuJFUExRMY1k-EaDS744=nKy6_a2cYdrJRncTgQ@mail.gmail.com>
 Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-Cc: lulu@redhat.com, kvm@vger.kernel.org, mst@redhat.com,
- netdev@vger.kernel.org, mhabets@solarflare.com, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, eperezma@redhat.com,
- hanand@xilinx.com, stefanha@redhat.com, maxime.coquelin@redhat.com,
- lingshan.zhu@intel.com, rob.miller@broadcom.com
+Cc: Miaohe Lin <linmiaohe@huawei.com>, Feng Tang <feng.tang@intel.com>,
+ Michal Hocko <mhocko@suse.com>, rafael@kernel.org, Neil Brown <neilb@suse.de>,
+ Alexei Starovoitov <ast@kernel.org>, LKML <linux-kernel@vger.kernel.org>,
+ linux-mm <linux-mm@kvack.org>, Eric Dumazet <edumazet@google.com>,
+ Christian Brauner <christian.brauner@ubuntu.com>,
+ Michel Lespinasse <walken@google.com>, Will Deacon <will@kernel.org>,
+ Steffen Klassert <steffen.klassert@secunet.com>, dave@stgolabs.net,
+ Herbert Xu <herbert@gondor.apana.org.au>,
+ Daniel Borkmann <daniel@iogearbox.net>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Dexuan Cui <decui@microsoft.com>, Peter Zijlstra <peterz@infradead.org>,
+ Sami Tolvanen <samitolvanen@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Alexey Dobriyan <adobriyan@gmail.com>,
+ Pablo Neira Ayuso <pablo@netfilter.org>,
+ "Eric W. Biederman" <ebiederm@xmission.com>, Kees Cook <keescook@chromium.org>,
+ Jann Horn <jannh@google.com>, Shakeel Butt <shakeelb@google.com>,
+ Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Cong Wang <xiyou.wangcong@gmail.com>,
+ Thomas Gleixner <tglx@linutronix.de>,
+ virtualization@lists.linux-foundation.org, chenqiwu@xiaomi.com,
+ Martin KaFai Lau <kafai@fb.com>, Jakub Sitnicki <jakub@cloudflare.com>,
+ christophe.leroy@c-s.fr, Willem de Bruijn <willemb@google.com>,
+ Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
+ Greg KH <gregkh@linuxfoundation.org>, Randy Dunlap <rdunlap@infradead.org>,
+ Florian Westphal <fw@strlen.de>, gustavoars@kernel.org,
+ Roman Gushchin <guro@fb.com>, Minchan Kim <minchan@kernel.org>,
+ rppt@kernel.org, Linux Kernel Network Developers <netdev@vger.kernel.org>,
+ linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>,
+ "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -110,34 +144,48 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Ck9uIDIwMjAvMTAvMTIg5LiL5Y2INDoxNywgRWxpIENvaGVuIHdyb3RlOgo+IE9uIE1vbiwgT2N0
-IDEyLCAyMDIwIGF0IDAzOjQ1OjEwUE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+PiBTbyBp
-biB0aGVvcnkgd2UgY2FuIGhhdmUgc2V2ZXJhbCBhc2lkJ3MgKGZvciBkaWZmZXJlbnQgdmlydHF1
-ZXVlcyksIGVhY2gKPj4+IG9uZSBzaG91bGQgYmUgZm9sbG93ZWQgYnkgYSBzcGVjaWZpYyBzZXRf
-bWFwIGNhbGwuIElmIHRoaXMgaXMgc28sIGhvdyBkbwo+Pj4gSSBrbm93IGlmIEkgbWV0IGFsbCB0
-aGUgY29uZGl0aW9ucyBydW4gbXkgZHJpdmVyPyBNYXliZSB3ZSBuZWVkIGFub3RoZXIKPj4+IGNh
-bGxiYWNrIHRvIGxldCB0aGUgZHJpdmVyIGtub3cgaXQgc2hvdWxkIG5vdCBleHBlY3QgbW9yZSBz
-ZXRfbWFwcygpLgo+Pgo+PiBUaGlzIHNob3VsZCB3b3JrIHNpbWlsYXJseSBhcyBpbiB0aGUgcGFz
-dC4gVHdvIHBhcnRzIG9mIHRoZSB3b3JrIGlzIGV4cGVjdGVkCj4+IHRvIGJlIGRvbmUgYnkgdGhl
-IGRyaXZlcjoKPj4KPj4gMSkgc3RvcmUgdGhlIG1hcHBpbmcgc29tZXdoZXJlIChlLmcgaGFyZHdh
-cmUpIGR1cmluZyBzZXRfbWFwKCkKPj4gMikgYXNzb2NpYXRpbmcgbWFwcGluZyB3aXRoIGEgc3Bl
-Y2lmaWMgdmlydHF1ZXVlCj4+Cj4+IFRoZSBvbmx5IGRpZmZlcmVuY2UgaXMgdGhhdCBtb3JlIHRo
-YW4gb25lIG1hcHBpbmcgaXMgdXNlZCBub3cuCj4gb2ssIHNvIGxpa2UgdG9kYXksIEkgd2lsbCBh
-bHdheXMgZ2V0IERSSVZFUl9PSyBhZnRlciBJIGdvdCBhbGwgdGhlCj4gc2V0X21hcHMoKSwgcmln
-aHQ/CgoKWWVzLgoKVGhhbmtzCgoKPgo+PiBGb3IgdGhlIGlzc3VlIG9mIG1vcmUgc2V0X21hcHMo
-KSwgZHJpdmVyIHNob3VsZCBiZSBhbHdheXMgcmVhZHkgZm9yIHRoZSBuZXcKPj4gc2V0X21hcHMo
-KSBjYWxsIGluc3RlYWQgb2Ygbm90IGV4cGVjdGluZyBuZXcgc2V0X21hcHMoKSBzaW5jZSBndWVz
-dCBtZW1vcnkKPj4gdG9wb2xvZ3kgY291bGQgYmUgY2hhbmdlZCBkdWUgdG8gc2V2ZXJhbCByZWFz
-b25zLgo+Pgo+PiBRZW11IG9yIHZob3N0LXZEUEEgd2lsbCB0cnkgdGhlaXIgYmVzdCB0byBhdm9p
-ZCB0aGUgZnJlcXVlbmN5IG9mIHNldF9tYXBzKCkKPj4gZm9yIGJldHRlciBwZXJmb3JtYW5jZSAo
-ZS5nIHRocm91Z2ggYmF0Y2hlZCBJT1RMQiB1cGRhdGluZykuIEUuZyB0aGVyZQo+PiBzaG91bGQg
-YmUgYXQgbW9zdCBvbmUgc2V0X21hcCgpIGR1cmluZyBvbmUgdGltZSBvZiBndWVzdCBib290aW5n
-Lgo+Pgo+PgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18K
-VmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZv
-dW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xp
-c3RpbmZvL3ZpcnR1YWxpemF0aW9u
+
+
+On 10/12/20 11:53 AM, Muchun Song wrote:
+
+> We are not complaining about TCP using too much memory, but how do
+> we know that TCP uses a lot of memory. When I firstly face this problem,
+> I do not know who uses the 25GB memory and it is not shown in the /proc/meminfo.
+> If we can know the amount memory of the socket buffer via /proc/meminfo, we
+> may not need to spend a lot of time troubleshooting this problem. Not everyone
+> knows that a lot of memory may be used here. But I believe many people
+> should know /proc/meminfo to confirm memory users.
+
+Adding yet another operations in networking fast path is a high cost to pay
+just to add one extra line in /proc/meminfo, while /proc/net/sockstat
+is already a good proxy, with per protocol details, instead of a single bucket.
+
+I reiterate that zero copy would make this counter out of sync,
+unless special support is added (adding yet another operations ?)
+
+Also your patch does not address gazillions of page allocations from drivers
+in RX path.
+
+Here at Google the majority of networking mm usage when hosts are under stress
+is in RX path, when out of order queues start to grow in TCP sockets.
+
+Allocations in TX path were greatly reduced and optimally sized with the introduction
+of /proc/sys/net/ipv4/tcp_notsent_lowat.
+
+We have gazillions of put_page()/__free_page()/__free_pages()/alloc_page()/... all
+over the places, adding yet another tracking of "this page is used by networking stacks"
+is going to be quite a big project.
+
+I thought memcg was a better goal in the long run, lets focus on it.
+
+
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
