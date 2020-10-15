@@ -7,80 +7,79 @@ X-Spam-Status: No, score=-12.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
 	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E558FC433E7
-	for <virtualization@archiver.kernel.org>; Thu, 15 Oct 2020 08:00:50 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 93F55C43457
+	for <virtualization@archiver.kernel.org>; Thu, 15 Oct 2020 08:37:20 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 11C4E22243
-	for <virtualization@archiver.kernel.org>; Thu, 15 Oct 2020 08:00:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id D5F0E2224A
+	for <virtualization@archiver.kernel.org>; Thu, 15 Oct 2020 08:37:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XcxVlgLw"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 11C4E22243
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="G5RFNrKI"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D5F0E2224A
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 27A4187E82;
-	Thu, 15 Oct 2020 08:00:49 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 3CFC1880C6;
+	Thu, 15 Oct 2020 08:37:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id RaK0nATP9JgT; Thu, 15 Oct 2020 08:00:47 +0000 (UTC)
+	with ESMTP id 61qP6At-olpL; Thu, 15 Oct 2020 08:37:18 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 2CD3B8840B;
-	Thu, 15 Oct 2020 08:00:41 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 95F6E87EA3;
+	Thu, 15 Oct 2020 08:37:18 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DD9D0C0895;
-	Thu, 15 Oct 2020 08:00:40 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E601BC0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7766DC07FF;
+	Thu, 15 Oct 2020 08:37:18 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2EDD5C0051
  for <virtualization@lists.linux-foundation.org>;
- Thu, 15 Oct 2020 08:00:39 +0000 (UTC)
+ Thu, 15 Oct 2020 08:37:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id CE64F8840D
+ by silver.osuosl.org (Postfix) with ESMTP id 10A242044F
  for <virtualization@lists.linux-foundation.org>;
- Thu, 15 Oct 2020 08:00:39 +0000 (UTC)
+ Thu, 15 Oct 2020 08:37:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id gVQbYtFR72a4
+ with ESMTP id ACbBzCH3suQN
  for <virtualization@lists.linux-foundation.org>;
- Thu, 15 Oct 2020 08:00:37 +0000 (UTC)
+ Thu, 15 Oct 2020 08:37:16 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 68117881F3
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by silver.osuosl.org (Postfix) with ESMTPS id 3150820445
  for <virtualization@lists.linux-foundation.org>;
- Thu, 15 Oct 2020 08:00:28 +0000 (UTC)
+ Thu, 15 Oct 2020 08:37:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1602748827;
+ s=mimecast20190719; t=1602751034;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
- bh=wM5+EvJasZIkMn4Jgdk0iTuEAojX0HmssSaoWvJAS7c=;
- b=XcxVlgLwjoKtJfAwku+nFuNMY7a9rwyoeqOnwfDA9p+6jGOPTeHebr0cwznwPB70h3VodA
- 3cZ2nYi94F6rrqtBZRmu4/BYee7P/uyQGC3cP4AUNnny3B5l/ofGnLSsgx7OelE4LPh8ii
- QXrPqXqVWl3Vwr8MMU5pqciwrHxKi3Q=
+ bh=pO0ibnNrDLjDn1P7EsCwSJbYkhZUZwInicnNbMXQlaA=;
+ b=G5RFNrKIIg4YMKqJSR5q+GoolcDVniQJkcfQfO5lY+zXDTuX3TMzzszbviIxECTeJrsnxI
+ kyv1MEY32BkpmXOy1feZFiNtVHBv/rB20sPw/4ng/16nkLL09zvjJug0dVzdVSFkmCzfmw
+ LBSkpaqQ4SkIRVIjFiPaEBfaQLei+d0=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-50-KKGT32_zMRe47tOedwCEpA-1; Thu, 15 Oct 2020 04:00:24 -0400
-X-MC-Unique: KKGT32_zMRe47tOedwCEpA-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
- [10.5.11.23])
+ us-mta-545-WXa44SQ5OOuHOxandjBvYw-1; Thu, 15 Oct 2020 04:37:12 -0400
+X-MC-Unique: WXa44SQ5OOuHOxandjBvYw-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com
+ [10.5.11.13])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id AF73D8030D7;
- Thu, 15 Oct 2020 08:00:22 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 54230425D5;
+ Thu, 15 Oct 2020 08:37:11 +0000 (UTC)
 Received: from [10.36.114.207] (ovpn-114-207.ams2.redhat.com [10.36.114.207])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 9C47519C4F;
- Thu, 15 Oct 2020 08:00:17 +0000 (UTC)
-Subject: Re: [PATCH v1 02/29] virtio-mem: simplify calculation in
- virtio_mem_mb_state_prepare_next_mb()
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 57F2F6EF71;
+ Thu, 15 Oct 2020 08:37:06 +0000 (UTC)
+Subject: Re: [PATCH v1 06/29] virtio-mem: generalize virtio_mem_owned_mb()
 To: Wei Yang <richard.weiyang@linux.alibaba.com>
 References: <20201012125323.17509-1-david@redhat.com>
- <20201012125323.17509-3-david@redhat.com>
- <20201015040204.GB86495@L-31X9LVDL-1304.local>
+ <20201012125323.17509-7-david@redhat.com>
+ <20201015083234.GF86495@L-31X9LVDL-1304.local>
 From: David Hildenbrand <david@redhat.com>
 Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
  mQINBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -127,14 +126,14 @@ Autocrypt: addr=david@redhat.com; prefer-encrypt=mutual; keydata=
  jPrnvUsUUsjRoRNJjKKA/REq+sAnhkNPPZ/NNMjaZ5b8Tovi8C0tmxiCHaQYqj7G2rgnT0kt
  WNyWQQ==
 Organization: Red Hat GmbH
-Message-ID: <730d6536-f6a6-72e5-327f-00ce1224b730@redhat.com>
-Date: Thu, 15 Oct 2020 10:00:15 +0200
+Message-ID: <a36e7757-13c2-f84e-09a6-6db6516b9ba1@redhat.com>
+Date: Thu, 15 Oct 2020 10:37:04 +0200
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
  Thunderbird/68.11.0
 MIME-Version: 1.0
-In-Reply-To: <20201015040204.GB86495@L-31X9LVDL-1304.local>
+In-Reply-To: <20201015083234.GF86495@L-31X9LVDL-1304.local>
 Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
  "Michael S . Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
  virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
@@ -155,47 +154,40 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 15.10.20 06:02, Wei Yang wrote:
-> On Mon, Oct 12, 2020 at 02:52:56PM +0200, David Hildenbrand wrote:
->> We actually need one byte less (next_mb_id is exclusive, first_mb_id is
->> inclusive). Simplify.
+On 15.10.20 10:32, Wei Yang wrote:
+> On Mon, Oct 12, 2020 at 02:53:00PM +0200, David Hildenbrand wrote:
+>> Avoid using memory block ids. Rename it to virtio_mem_contains_range().
 >>
 >> Cc: "Michael S. Tsirkin" <mst@redhat.com>
 >> Cc: Jason Wang <jasowang@redhat.com>
 >> Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
 >> Signed-off-by: David Hildenbrand <david@redhat.com>
 >> ---
->> drivers/virtio/virtio_mem.c | 4 ++--
->> 1 file changed, 2 insertions(+), 2 deletions(-)
+>> drivers/virtio/virtio_mem.c | 9 +++++----
+>> 1 file changed, 5 insertions(+), 4 deletions(-)
 >>
 >> diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
->> index a1f5bf7a571a..670b3faf412d 100644
+>> index 6bbd1cfd10d3..821143db14fe 100644
 >> --- a/drivers/virtio/virtio_mem.c
 >> +++ b/drivers/virtio/virtio_mem.c
->> @@ -257,8 +257,8 @@ static enum virtio_mem_mb_state virtio_mem_mb_get_state(struct virtio_mem *vm,
+>> @@ -500,12 +500,13 @@ static bool virtio_mem_overlaps_range(struct virtio_mem *vm,
+>> }
+>>
+>> /*
+>> - * Test if a virtio-mem device owns a memory block. Can be called from
+>> + * Test if a virtio-mem device contains a given range. Can be called from
+>>  * (notifier) callbacks lockless.
 >>  */
->> static int virtio_mem_mb_state_prepare_next_mb(struct virtio_mem *vm)
+>> -static bool virtio_mem_owned_mb(struct virtio_mem *vm, unsigned long mb_id)
+>> +static bool virtio_mem_contains_range(struct virtio_mem *vm, uint64_t start,
+>> +				      uint64_t size)
 >> {
->> -	unsigned long old_bytes = vm->next_mb_id - vm->first_mb_id + 1;
->> -	unsigned long new_bytes = vm->next_mb_id - vm->first_mb_id + 2;
->> +	unsigned long old_bytes = vm->next_mb_id - vm->first_mb_id;
->> +	unsigned long new_bytes = old_bytes + 1;
+>> -	return mb_id >= vm->first_mb_id && mb_id <= vm->last_mb_id;
+>> +	return start >= vm->addr && start + size <= vm->addr + vm->region_size;
 > 
-> This is correct.
-> 
-> So this looks more like a fix?
+> Do we have some reason to do this change?
 
-We allocate an additional new page "one memory block too early".
-
-So we would allocate the first page for blocks 0..510, and already
-allocate the second page with block 511, although we could have fit it
-into the first page. Block 512 will then find that the second page is
-already there and simply use the second page.
-
-So as we do it consistently, nothing will go wrong - that's why I
-avoided using the "fix" terminology.
-
-Thanks!
+Big Block Mode :)
 
 -- 
 Thanks,
