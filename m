@@ -2,87 +2,105 @@ Return-Path: <SRS0=Urmt=DX=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.7 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,UNWANTED_LANGUAGE_BODY,URIBL_BLOCKED autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.5 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 48236C43467
-	for <virtualization@archiver.kernel.org>; Fri, 16 Oct 2020 15:14:06 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 72C9AC4363A
+	for <virtualization@archiver.kernel.org>; Fri, 16 Oct 2020 15:38:36 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B780920866
-	for <virtualization@archiver.kernel.org>; Fri, 16 Oct 2020 15:14:05 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="D8PZ2aOe"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B780920866
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linuxfoundation.org
+	by mail.kernel.org (Postfix) with ESMTPS id B70B3207DE
+	for <virtualization@archiver.kernel.org>; Fri, 16 Oct 2020 15:38:35 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B70B3207DE
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 41BD1887BC;
-	Fri, 16 Oct 2020 15:14:05 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 19B1D88BC5;
+	Fri, 16 Oct 2020 15:38:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 9e2T7TB6t2kA; Fri, 16 Oct 2020 15:14:02 +0000 (UTC)
+	with ESMTP id rnk0EtmX5W9T; Fri, 16 Oct 2020 15:38:34 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id A9DCC87009;
-	Fri, 16 Oct 2020 15:14:02 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 8C88288BB9;
+	Fri, 16 Oct 2020 15:38:34 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 93F29C0052;
-	Fri, 16 Oct 2020 15:14:02 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 40C60C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7ABBAC0052;
+	Fri, 16 Oct 2020 15:38:34 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8AFD3C0051
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Oct 2020 15:14:01 +0000 (UTC)
+ Fri, 16 Oct 2020 15:38:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 2119A20495
+ by whitealder.osuosl.org (Postfix) with ESMTP id 7750288BB9
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Oct 2020 15:14:01 +0000 (UTC)
+ Fri, 16 Oct 2020 15:38:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 6QjpLHMgvuub
+ with ESMTP id Bzp7W7NFJIkn
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Oct 2020 15:13:59 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
-Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by silver.osuosl.org (Postfix) with ESMTPS id A76832047F
+ Fri, 16 Oct 2020 15:38:31 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 8786888BB4
  for <virtualization@lists.linux-foundation.org>;
- Fri, 16 Oct 2020 15:13:59 +0000 (UTC)
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256
- bits)) (No client certificate requested)
- by mail.kernel.org (Postfix) with ESMTPSA id 9300E206A1;
- Fri, 16 Oct 2020 15:13:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1602861239;
- bh=SU2uvwZI0LUxCNBQQdmpoJqsnGrJCAao6J5ggGoHKGM=;
- h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
- b=D8PZ2aOehRX66/L20VGYutaDVmvjtf1wcPtaFf+aXdEWrAMBOsY9TLf8VeOgqTCIy
- OQ4bPsD+XbEZfa0QfZE2/1vkjf+yqfzwKbX/wrUEYdAFwde7j+lotBv37E80hgtrLP
- QuZAwwxOdNK0SrrfGsqs1ImPevCBnL0uJ1fGRsEg=
-Date: Fri, 16 Oct 2020 17:14:29 +0200
-From: "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
-To: "Catangiu, Adrian Costin" <acatan@amazon.com>
-Subject: Re: [PATCH] drivers/virt: vmgenid: add vm generation id driver
-Message-ID: <20201016151429.GD1807983@kroah.com>
-References: <788878CE-2578-4991-A5A6-669DCABAC2F2@amazon.com>
+ Fri, 16 Oct 2020 15:38:31 +0000 (UTC)
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+ by mx2.suse.de (Postfix) with ESMTP id 26A7DADAB;
+ Fri, 16 Oct 2020 15:38:29 +0000 (UTC)
+To: Mike Rapoport <rppt@kernel.org>, Muchun Song <songmuchun@bytedance.com>
+References: <20201010103854.66746-1-songmuchun@bytedance.com>
+ <CAM_iQpUQXctR8UBNRP6td9dWTA705tP5fWKj4yZe9gOPTn_8oQ@mail.gmail.com>
+ <CAMZfGtUhVx_iYY3bJZRY5s1PG0N1mCsYGS9Oku8cTqPiMDze-g@mail.gmail.com>
+ <CANn89iKprp7WYeZy4RRO5jHykprnSCcVBc7Tk14Ui_MA9OK7Fg@mail.gmail.com>
+ <CAMZfGtXVKER_GM-wwqxrUshDzcEg9FkS3x_BaMTVyeqdYPGSkw@mail.gmail.com>
+ <9262ea44-fc3a-0b30-54dd-526e16df85d1@gmail.com>
+ <CAMZfGtVF6OjNuJFUExRMY1k-EaDS744=nKy6_a2cYdrJRncTgQ@mail.gmail.com>
+ <20201013080906.GD4251@kernel.org>
+From: Vlastimil Babka <vbabka@suse.cz>
+Subject: Re: [External] Re: [PATCH] mm: proc: add Sock to /proc/meminfo
+Message-ID: <8d1558e7-cd09-1f9e-edab-5f22c5bfc342@suse.cz>
+Date: Fri, 16 Oct 2020 17:38:26 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.3.2
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <788878CE-2578-4991-A5A6-669DCABAC2F2@amazon.com>
-Cc: "bonzini@gnu.org" <bonzini@gnu.org>, "Graf \(AWS\),
- Alexander" <graf@amazon.de>, "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>,
- "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
- "ghammer@redhat.com" <ghammer@redhat.com>,
- "oridgar@gmail.com" <oridgar@gmail.com>, "corbet@lwn.net" <corbet@lwn.net>,
- "Weiss, Radu" <raduweis@amazon.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>, "mst@redhat.com" <mst@redhat.com>,
- "MacCarthaigh, Colm" <colmmacc@amazon.com>, "Singh,
- Balbir" <sblbir@amazon.com>, "Woodhouse, David" <dwmw@amazon.co.uk>
+In-Reply-To: <20201013080906.GD4251@kernel.org>
+Content-Language: en-US
+Cc: Miaohe Lin <linmiaohe@huawei.com>, Feng Tang <feng.tang@intel.com>,
+ Michal Hocko <mhocko@suse.com>, rafael@kernel.org, Neil Brown <neilb@suse.de>,
+ Alexei Starovoitov <ast@kernel.org>, LKML <linux-kernel@vger.kernel.org>,
+ linux-mm <linux-mm@kvack.org>, Eric Dumazet <edumazet@google.com>,
+ Christian Brauner <christian.brauner@ubuntu.com>,
+ Michel Lespinasse <walken@google.com>, Will Deacon <will@kernel.org>,
+ Steffen Klassert <steffen.klassert@secunet.com>, dave@stgolabs.net,
+ Herbert Xu <herbert@gondor.apana.org.au>,
+ Eric Dumazet <eric.dumazet@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Dexuan Cui <decui@microsoft.com>, Peter Zijlstra <peterz@infradead.org>,
+ Michael Kerrisk <mtk.manpages@gmail.com>,
+ Sami Tolvanen <samitolvanen@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Alexey Dobriyan <adobriyan@gmail.com>,
+ Pablo Neira Ayuso <pablo@netfilter.org>, Kees Cook <keescook@chromium.org>,
+ Jann Horn <jannh@google.com>, Shakeel Butt <shakeelb@google.com>,
+ Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>, Cong Wang <xiyou.wangcong@gmail.com>,
+ Thomas Gleixner <tglx@linutronix.de>,
+ virtualization@lists.linux-foundation.org, chenqiwu@xiaomi.com,
+ Martin KaFai Lau <kafai@fb.com>, Jakub Sitnicki <jakub@cloudflare.com>,
+ christophe.leroy@c-s.fr, Willem de Bruijn <willemb@google.com>,
+ Daniel Borkmann <daniel@iogearbox.net>,
+ Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
+ Greg KH <gregkh@linuxfoundation.org>, Randy Dunlap <rdunlap@infradead.org>,
+ Florian Westphal <fw@strlen.de>, gustavoars@kernel.org,
+ Roman Gushchin <guro@fb.com>, Minchan Kim <minchan@kernel.org>,
+ "Eric W. Biederman" <ebiederm@xmission.com>,
+ Linux Kernel Network Developers <netdev@vger.kernel.org>,
+ linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>, David Miller <davem@davemloft.net>,
+ "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -94,425 +112,68 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Oct 16, 2020 at 02:33:15PM +0000, Catangiu, Adrian Costin wrote:
-> +config VMGENID
-> +	tristate "Virtual Machine Generation ID driver"
-> +	depends on ACPI
-> +	default M
+On 10/13/20 10:09 AM, Mike Rapoport wrote:
+>> We are not complaining about TCP using too much memory, but how do
+>> we know that TCP uses a lot of memory. When I firstly face this problem,
+>> I do not know who uses the 25GB memory and it is not shown in the /proc/meminfo.
+>> If we can know the amount memory of the socket buffer via /proc/meminfo, we
+>> may not need to spend a lot of time troubleshooting this problem. Not everyone
+>> knows that a lot of memory may be used here. But I believe many people
+>> should know /proc/meminfo to confirm memory users.
+> If I undestand correctly, the problem you are trying to solve is to
+> simplify troubleshooting of memory usage for people who may not be aware
+> that networking stack can be a large memory consumer.
+> 
+> For that a paragraph in 'man 5 proc' maybe a good start:
 
-Unless this is required to boot a machine, this should be removed.
+Yeah. Another major consumer that I've seen at some point was xfs buffers. And 
+there might be others, and adding everything to /proc/meminfo is not feasible. I 
+have once proposed adding a counter called "Unaccounted:" which would at least 
+tell the user easily if a significant portion is occupied by memory not 
+explained by the other meminfo counters, and look for trends (increase = 
+potential memory leak?). For specific prominent consumers not covered by meminfo 
+but that have some kind of internal counters, we could document where to look, 
+such as /proc/net/sockstat or maybe create some /proc/ or /sys directory with 
+file per consumer so that it's still easy to check, but without the overhead of 
+global counters and bloated /proc/meminfo?
 
-> +	help
-> +	  This is a Virtual Machine Generation ID driver which provides
-> +	  a virtual machine unique identifier. The provided UUID can be
-> +	  watched through the FS interface exposed by this driver, and
-> +	  thus can provide notifications for VM snapshot or cloning events.
+>  From ddbcf38576d1a2b0e36fe25a27350d566759b664 Mon Sep 17 00:00:00 2001
+> From: Mike Rapoport<rppt@linux.ibm.com>
+> Date: Tue, 13 Oct 2020 11:07:35 +0300
+> Subject: [PATCH] proc.5: meminfo: add not anout network stack memory
+>   consumption
+> 
+> Signed-off-by: Mike Rapoport<rppt@linux.ibm.com>
+> ---
+>   man5/proc.5 | 8 ++++++++
+>   1 file changed, 8 insertions(+)
+> 
+> diff --git a/man5/proc.5 b/man5/proc.5
+> index ed309380b..8414676f1 100644
+> --- a/man5/proc.5
+> +++ b/man5/proc.5
+> @@ -3478,6 +3478,14 @@ Except as noted below,
+>   all of the fields have been present since at least Linux 2.6.0.
+>   Some fields are displayed only if the kernel was configured
+>   with various options; those dependencies are noted in the list.
+> +.IP
+> +Note that significant part of memory allocated by the network stack
+> +is not accounted in the file.
+> +The memory consumption of the network stack can be queried
+> +using
+> +.IR /proc/net/sockstat
+> +or
+> +.BR ss (8)
+>   .RS
+>   .TP
+>   .IR MemTotal " %lu"
+> -- 2.25.4
 
-Where is the uuid exposed in the filesystem?
-
-> +	  This enables applications and libraries that store or cache
-> +	  sensitive information, to know that they need to regenerate it
-> +	  after process memory has been exposed to potential copying.
-
-Module name?
-
-> +
->  config FSL_HV_MANAGER
->  	tristate "Freescale hypervisor management driver"
->  	depends on FSL_SOC
-> diff --git a/drivers/virt/Makefile b/drivers/virt/Makefile
-> index fd33124..a1f8dcc 100644
-> --- a/drivers/virt/Makefile
-> +++ b/drivers/virt/Makefile
-> @@ -4,4 +4,5 @@
->  #
->  
->  obj-$(CONFIG_FSL_HV_MANAGER)	+= fsl_hypervisor.o
-> +obj-$(CONFIG_VMGENID)		+= vmgenid.o
->  obj-y				+= vboxguest/
-> diff --git a/drivers/virt/vmgenid.c b/drivers/virt/vmgenid.c
-> new file mode 100644
-> index 0000000..d314c72
-> --- /dev/null
-> +++ b/drivers/virt/vmgenid.c
-> @@ -0,0 +1,419 @@
-> +// SPDX-License-Identifier: GPL-2.0
-> +/*
-> + * Virtual Machine Generation ID driver
-> + *
-> + * Copyright (C) 2018 Red Hat Inc, Copyright (C) 2020 Amazon.com Inc
-
-That's not how you write copyright lines, please fix up.
-
-> + * All rights reserved.
-> + *	Authors:
-> + *	  Adrian Catangiu <acatan@amazon.com>
-> + *	  Or Idgar <oridgar@gmail.com>
-> + *	  Gal Hammer <ghammer@redhat.com>
-> + *
-> + */
-> +#include <linux/acpi.h>
-> +#include <linux/cdev.h>
-> +#include <linux/kernel.h>
-> +#include <linux/mm.h>
-> +#include <linux/module.h>
-> +#include <linux/poll.h>
-> +#include <linux/uuid.h>
-> +#include <linux/vmgenid.h>
-> +
-> +#define DEV_NAME "vmgenid"
-> +ACPI_MODULE_NAME(DEV_NAME);
-> +
-> +struct dev_data {
-> +	struct cdev       cdev;
-> +	dev_t             dev_id;
-> +	unsigned long     map_buf;
-> +
-> +	void              *uuid_iomap;
-> +	uuid_t            uuid;
-> +	wait_queue_head_t read_wait;
-> +
-> +	atomic_t          watchers;
-> +	atomic_t          outdated_watchers;
-> +	wait_queue_head_t outdated_wait;
-> +};
-> +
-> +struct file_data {
-> +	struct dev_data  *dev_data;
-> +	uuid_t           acked_uuid;
-> +};
-> +
-> +static bool vmgenid_uuid_matches(struct dev_data *priv, uuid_t *uuid)
-> +{
-> +	return !memcmp(uuid, &priv->uuid, sizeof(uuid_t));
-> +}
-> +
-> +static void vmgenid_put_outdated_watchers(struct dev_data *priv)
-> +{
-> +	if (atomic_dec_and_test(&priv->outdated_watchers))
-> +		wake_up_interruptible(&priv->outdated_wait);
-> +}
-> +
-> +static int vmgenid_open(struct inode *inode, struct file *file)
-> +{
-> +	struct dev_data *priv =
-> +		container_of(inode->i_cdev, struct dev_data, cdev);
-> +	struct file_data *file_data =
-> +		kzalloc(sizeof(struct file_data), GFP_KERNEL);
-> +
-> +	if (!file_data)
-> +		return -ENOMEM;
-> +
-> +	file_data->acked_uuid = priv->uuid;
-> +	file_data->dev_data = priv;
-> +
-> +	file->private_data = file_data;
-> +	atomic_inc(&priv->watchers);
-> +
-> +	return 0;
-> +}
-> +
-> +static int vmgenid_close(struct inode *inode, struct file *file)
-> +{
-> +	struct file_data *file_data = (struct file_data *) file->private_data;
-> +	struct dev_data *priv = file_data->dev_data;
-> +
-> +	if (!vmgenid_uuid_matches(priv, &file_data->acked_uuid))
-> +		vmgenid_put_outdated_watchers(priv);
-> +	atomic_dec(&priv->watchers);
-> +	kfree(file->private_data);
-> +
-> +	return 0;
-> +}
-> +
-> +static ssize_t
-> +vmgenid_read(struct file *file, char __user *ubuf, size_t nbytes, loff_t *ppos)
-> +{
-> +	struct file_data *file_data =
-> +		(struct file_data *) file->private_data;
-> +	struct dev_data *priv = file_data->dev_data;
-> +	ssize_t ret;
-> +
-> +	if (nbytes == 0)
-> +		return 0;
-> +	/* disallow partial UUID reads */
-> +	if (nbytes < sizeof(uuid_t))
-> +		return -EINVAL;
-> +	nbytes = sizeof(uuid_t);
-> +
-> +	if (vmgenid_uuid_matches(priv, &file_data->acked_uuid)) {
-> +		if (file->f_flags & O_NONBLOCK)
-> +			return -EAGAIN;
-> +		ret = wait_event_interruptible(
-> +			priv->read_wait,
-> +			!vmgenid_uuid_matches(priv, &file_data->acked_uuid)
-> +		);
-> +		if (ret)
-> +			return ret;
-> +	}
-> +
-> +	ret = copy_to_user(ubuf, &priv->uuid, nbytes);
-> +	if (ret)
-> +		return -EFAULT;
-> +
-> +	return nbytes;
-> +}
-> +
-> +static ssize_t vmgenid_write(struct file *file, const char __user *ubuf,
-> +				size_t count, loff_t *ppos)
-> +{
-> +	struct file_data *file_data = (struct file_data *) file->private_data;
-> +	struct dev_data *priv = file_data->dev_data;
-> +	uuid_t ack_uuid;
-> +
-> +	/* disallow partial UUID writes */
-> +	if (count != sizeof(uuid_t))
-> +		return -EINVAL;
-> +	if (copy_from_user(&ack_uuid, ubuf, count))
-> +		return -EFAULT;
-> +	/* wrong UUID acknowledged */
-> +	if (!vmgenid_uuid_matches(priv, &ack_uuid))
-> +		return -EINVAL;
-> +
-> +	if (!vmgenid_uuid_matches(priv, &file_data->acked_uuid)) {
-> +		/* update local view of UUID */
-> +		file_data->acked_uuid = ack_uuid;
-> +		vmgenid_put_outdated_watchers(priv);
-> +	}
-> +
-> +	return (ssize_t)count;
-> +}
-> +
-> +static __poll_t
-> +vmgenid_poll(struct file *file, poll_table *wait)
-> +{
-> +	__poll_t mask = 0;
-> +	struct file_data *file_data =
-> +		(struct file_data *) file->private_data;
-> +	struct dev_data *priv = file_data->dev_data;
-> +
-> +	if (!vmgenid_uuid_matches(priv, &file_data->acked_uuid))
-> +		return EPOLLIN | EPOLLRDNORM;
-> +
-> +	poll_wait(file, &priv->read_wait, wait);
-> +
-> +	if (!vmgenid_uuid_matches(priv, &file_data->acked_uuid))
-> +		mask = EPOLLIN | EPOLLRDNORM;
-> +
-> +	return mask;
-> +}
-> +
-> +static long vmgenid_ioctl(struct file *file,
-> +		unsigned int cmd, unsigned long arg)
-> +{
-> +	struct file_data *file_data =
-> +		(struct file_data *) file->private_data;
-> +	struct dev_data *priv = file_data->dev_data;
-> +	struct timespec __user *timeout = (void *) arg;
-> +	struct timespec kts;
-> +	ktime_t until;
-> +	int ret;
-> +
-> +	switch (cmd) {
-> +	case VMGENID_GET_OUTDATED_WATCHERS:
-> +		ret = atomic_read(&priv->outdated_watchers);
-> +		break;
-> +	case VMGENID_WAIT_WATCHERS:
-> +		if (timeout) {
-> +			ret = copy_from_user(&kts, timeout, sizeof(kts));
-> +			if (ret)
-> +				return -EFAULT;
-> +			until = timespec_to_ktime(kts);
-
-No validation of structure fields?
-
-And you are exposing a kernel structure to userspace?
-
-I don't see this function in Linus's tree right now, are you sure this
-builds?
-
-
-> +		} else {
-> +			until = KTIME_MAX;
-> +		}
-> +
-> +		ret = wait_event_interruptible_hrtimeout(
-> +			priv->outdated_wait,
-> +			!atomic_read(&priv->outdated_watchers),
-> +			until
-> +		);
-> +		break;
-> +	default:
-> +		ret = -EINVAL;
-> +		break;
-> +	}
-> +	return ret;
-> +}
-> +
-> +static vm_fault_t vmgenid_vm_fault(struct vm_fault *vmf)
-> +{
-> +	struct page *page;
-> +	struct file_data *file_data =
-> +			(struct file_data *) vmf->vma->vm_private_data;
-
-You do know you don't need to cast stuff like this, right?
-
-Also run checkpatch.pl so maintainers are not grumpy and tell you to run
-checkpatch.pl.
-
-> +	struct dev_data *priv = file_data->dev_data;
-> +
-> +	if (priv->map_buf) {
-> +		page = virt_to_page(priv->map_buf);
-> +		get_page(page);
-> +		vmf->page = page;
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct vm_operations_struct vmgenid_vm_ops = {
-> +	.fault = vmgenid_vm_fault,
-> +};
-> +
-> +static int vmgenid_mmap(struct file *file, struct vm_area_struct *vma)
-> +{
-> +	if (vma->vm_pgoff != 0 || vma_pages(vma) > 1)
-> +		return -EINVAL;
-> +
-> +	if ((vma->vm_flags & VM_WRITE) != 0)
-> +		return -EPERM;
-> +
-> +	vma->vm_ops = &vmgenid_vm_ops;
-> +	vma->vm_flags |= VM_DONTEXPAND | VM_DONTDUMP;
-> +	vma->vm_private_data = file->private_data;
-> +
-> +	return 0;
-> +}
-> +
-> +static const struct file_operations fops = {
-> +	.owner          = THIS_MODULE,
-> +	.mmap           = vmgenid_mmap,
-> +	.open           = vmgenid_open,
-> +	.release        = vmgenid_close,
-> +	.read           = vmgenid_read,
-> +	.write          = vmgenid_write,
-> +	.poll           = vmgenid_poll,
-> +	.compat_ioctl   = vmgenid_ioctl,
-> +	.unlocked_ioctl = vmgenid_ioctl,
-> +};
-> +
-> +static int vmgenid_acpi_map(struct dev_data *priv, acpi_handle handle)
-> +{
-> +	int i;
-> +	phys_addr_t phys_addr;
-> +	struct acpi_buffer buffer = { ACPI_ALLOCATE_BUFFER, NULL };
-> +	acpi_status status;
-> +	union acpi_object *pss;
-> +	union acpi_object *element;
-> +
-> +	status = acpi_evaluate_object(handle, "ADDR", NULL, &buffer);
-> +	if (ACPI_FAILURE(status)) {
-> +		ACPI_EXCEPTION((AE_INFO, status, "Evaluating ADDR"));
-> +		return -ENODEV;
-> +	}
-> +	pss = buffer.pointer;
-> +	if (!pss || pss->type != ACPI_TYPE_PACKAGE || pss->package.count != 2)
-> +		return -EINVAL;
-> +
-> +	phys_addr = 0;
-> +	for (i = 0; i < pss->package.count; i++) {
-> +		element = &(pss->package.elements[i]);
-> +		if (element->type != ACPI_TYPE_INTEGER)
-> +			return -EINVAL;
-> +		phys_addr |= element->integer.value << i * 32;
-> +	}
-> +
-> +	priv->uuid_iomap = acpi_os_map_memory(phys_addr, sizeof(uuid_t));
-> +	if (!priv->uuid_iomap) {
-> +		pr_err("Could not map memory at 0x%llx, size %u",
-> +			   phys_addr,
-> +			   (u32)sizeof(uuid_t));
-> +		return -ENOMEM;
-> +	}
-> +
-> +	memcpy_fromio(&priv->uuid, priv->uuid_iomap, sizeof(uuid_t));
-> +	memcpy((void *) priv->map_buf, &priv->uuid, sizeof(uuid_t));
-> +
-> +	return 0;
-> +}
-> +
-> +static int vmgenid_acpi_add(struct acpi_device *device)
-> +{
-> +	int ret;
-> +	struct dev_data *priv;
-> +
-> +	if (!device)
-> +		return -EINVAL;
-> +
-> +	priv = kzalloc(sizeof(struct dev_data), GFP_KERNEL);
-> +	if (!priv)
-> +		return -ENOMEM;
-> +
-> +	priv->map_buf = get_zeroed_page(GFP_KERNEL);
-> +	if (!priv->map_buf) {
-> +		ret = -ENOMEM;
-> +		goto free;
-> +	}
-> +
-> +	device->driver_data = priv;
-> +
-> +	init_waitqueue_head(&priv->read_wait);
-> +	atomic_set(&priv->watchers, 0);
-> +	atomic_set(&priv->outdated_watchers, 0);
-> +	init_waitqueue_head(&priv->outdated_wait);
-> +
-> +	ret = vmgenid_acpi_map(priv, device->handle);
-> +	if (ret < 0)
-> +		goto err;
-> +
-> +	ret = alloc_chrdev_region(&priv->dev_id, 0, 1, DEV_NAME);
-
-Why is this not a misc device driver instead of messing around with all
-of this "by hand"?
-
-By doing things this way, you are not creating a device node in /dev/
-automatically, right?  How did you test this?
-
-> @@ -0,0 +1,22 @@
-> +/* SPDX-License-Identifier: GPL-2.0+ WITH Linux-syscall-note */
-> +/*
-> + * Copyright (c) 2020, Amazon.com Inc.
-> + *
-> + * This program is free software; you can redistribute it and/or
-> + * modify it under the terms of the GNU General Public License
-> + * as published by the Free Software Foundation; either version
-> + * 2 of the License, or (at your option) any later version.
-
-License boilerplate is not needed.
-
-> + */
-> +
-> +#ifndef _UAPI_LINUX_VMGENID_H
-> +#define _UAPI_LINUX_VMGENID_H
-> +
-> +#include <linux/ioctl.h>
-> +#include <linux/time.h>
-> +
-> +#define VMGENID_IOCTL 0x2d
-> +#define VMGENID_GET_OUTDATED_WATCHERS _IO(VMGENID_IOCTL, 1)
-> +#define VMGENID_WAIT_WATCHERS         _IOW(VMGENID_IOCTL, 2, struct timespec)
-
-Why do you need ioctls for this?  Why not just use read/write?
-
-thanks,
-
-greg k-h
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
