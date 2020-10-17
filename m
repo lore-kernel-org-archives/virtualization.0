@@ -2,104 +2,104 @@ Return-Path: <SRS0=x5ns=DY=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54131C43467
-	for <virtualization@archiver.kernel.org>; Sat, 17 Oct 2020 18:10:44 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6080CC6369E
+	for <virtualization@archiver.kernel.org>; Sat, 17 Oct 2020 19:08:46 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id DB8A72074A
-	for <virtualization@archiver.kernel.org>; Sat, 17 Oct 2020 18:10:43 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="THGcrhra"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DB8A72074A
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
+	by mail.kernel.org (Postfix) with ESMTPS id E8E052073A
+	for <virtualization@archiver.kernel.org>; Sat, 17 Oct 2020 19:08:45 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E8E052073A
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=perches.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 7F41E884A1;
-	Sat, 17 Oct 2020 18:10:43 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id CE12C868DA;
+	Sat, 17 Oct 2020 19:08:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 4VtwzA9Iiwng; Sat, 17 Oct 2020 18:10:42 +0000 (UTC)
+	with ESMTP id C6JblS-HEItv; Sat, 17 Oct 2020 19:08:44 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 800BC88485;
-	Sat, 17 Oct 2020 18:10:42 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 41732868B6;
+	Sat, 17 Oct 2020 19:08:44 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5FB4BC0052;
-	Sat, 17 Oct 2020 18:10:42 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 22316C0052;
+	Sat, 17 Oct 2020 19:08:44 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 032C0C0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EE6F6C0051
  for <virtualization@lists.linux-foundation.org>;
- Sat, 17 Oct 2020 18:10:41 +0000 (UTC)
+ Sat, 17 Oct 2020 19:08:41 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id E128887848
+ by whitealder.osuosl.org (Postfix) with ESMTP id D5764867D2
  for <virtualization@lists.linux-foundation.org>;
- Sat, 17 Oct 2020 18:10:40 +0000 (UTC)
+ Sat, 17 Oct 2020 19:08:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id vAtzA3N3mucK
+ with ESMTP id WnNC2Hgl5VRO
  for <virtualization@lists.linux-foundation.org>;
- Sat, 17 Oct 2020 18:10:40 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 37C3A8783B
+ Sat, 17 Oct 2020 19:08:41 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
+Received: from smtprelay.hostedemail.com (smtprelay0158.hostedemail.com
+ [216.40.44.158])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 06B97867B2
  for <virtualization@lists.linux-foundation.org>;
- Sat, 17 Oct 2020 18:10:40 +0000 (UTC)
-Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com
- [209.85.128.43])
- (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
- (No client certificate requested)
- by mail.kernel.org (Postfix) with ESMTPSA id 7EF3320897
+ Sat, 17 Oct 2020 19:08:41 +0000 (UTC)
+Received: from smtprelay.hostedemail.com (10.5.19.251.rfc1918.com
+ [10.5.19.251])
+ by smtpgrave05.hostedemail.com (Postfix) with ESMTP id 96A621828A802
  for <virtualization@lists.linux-foundation.org>;
- Sat, 17 Oct 2020 18:10:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1602958239;
- bh=bNUjXzAtYTeF0xeyT4fVDlewqtbmx5JXgMhZlub6oWs=;
- h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
- b=THGcrhra0XvZn4Ey1MGpMDVxtKDNQHgmX2j9JxAUeoHswlBA6Cnm/zT4hTZODIzHR
- GIAP9ZD/E/9dmpMs96WF1G45M6M/NevjFPyBmIiwND5y72ADgjpFd1WGLuu3J/se7p
- O3hmHiqDp9e1W5jgnKbn1xURn1TnVQtFlfaePNuA=
-Received: by mail-wm1-f43.google.com with SMTP id d3so8740994wma.4
- for <virtualization@lists.linux-foundation.org>;
- Sat, 17 Oct 2020 11:10:39 -0700 (PDT)
-X-Gm-Message-State: AOAM531gD4Z+fmLheoB+fN/gXG139mxTTbqCIEQp6HRkXPEQbz3eCvU/
- 8RNxIErtZ6D9+2QsiU8Mxc6DDz0tNh0/m2v6zcIMCA==
-X-Google-Smtp-Source: ABdhPJytCiWOtxm84RCgZCVoArKJ0KdKOuxfgPiMKVnnwQm0gaac8Rg/0NC502KkEJ0/X88L4LXO8HEf81QzCgT9VjQ=
-X-Received: by 2002:a1c:6457:: with SMTP id y84mr9330642wmb.36.1602958237946; 
- Sat, 17 Oct 2020 11:10:37 -0700 (PDT)
+ Sat, 17 Oct 2020 19:00:12 +0000 (UTC)
+Received: from filter.hostedemail.com (clb03-v110.bra.tucows.net
+ [216.40.38.60])
+ by smtprelay08.hostedemail.com (Postfix) with ESMTP id 15895182CED2A;
+ Sat, 17 Oct 2020 19:00:10 +0000 (UTC)
+X-Session-Marker: 6A6F6540706572636865732E636F6D
+X-HE-Tag: jewel08_4005cbe27228
+X-Filterd-Recvd-Size: 5179
+Received: from XPS-9350.home (unknown [47.151.133.149])
+ (Authenticated sender: joe@perches.com)
+ by omf01.hostedemail.com (Postfix) with ESMTPA;
+ Sat, 17 Oct 2020 19:00:02 +0000 (UTC)
+Message-ID: <503af4a57ca6daeb3e42a9be136dcd21e6d6e23d.camel@perches.com>
+Subject: Re: [Cocci] [RFC] treewide: cleanup unreachable breaks
+From: Joe Perches <joe@perches.com>
+To: Julia Lawall <julia.lawall@inria.fr>
+Date: Sat, 17 Oct 2020 12:00:01 -0700
+In-Reply-To: <alpine.DEB.2.22.394.2010172016370.9440@hadrien>
+References: <20201017160928.12698-1-trix@redhat.com>
+ <f530b7aeecbbf9654b4540cfa20023a4c2a11889.camel@perches.com>
+ <alpine.DEB.2.22.394.2010172016370.9440@hadrien>
+User-Agent: Evolution 3.36.4-0ubuntu1 
 MIME-Version: 1.0
-References: <788878CE-2578-4991-A5A6-669DCABAC2F2@amazon.com>
- <CAG48ez0EanBvDyfthe+hAP0OC8iGLNSq2e5wJVz-=ENNGF97_w@mail.gmail.com>
-In-Reply-To: <CAG48ez0EanBvDyfthe+hAP0OC8iGLNSq2e5wJVz-=ENNGF97_w@mail.gmail.com>
-From: Andy Lutomirski <luto@kernel.org>
-Date: Sat, 17 Oct 2020 11:10:26 -0700
-X-Gmail-Original-Message-ID: <CALCETrViTg_BWvRa+nfDWq=_B_ithzL-anVJNpsgHaXe9VgCNQ@mail.gmail.com>
-Message-ID: <CALCETrViTg_BWvRa+nfDWq=_B_ithzL-anVJNpsgHaXe9VgCNQ@mail.gmail.com>
-Subject: Re: [PATCH] drivers/virt: vmgenid: add vm generation id driver
-To: Jann Horn <jannh@google.com>,
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Jason Donenfeld <Jason@zx2c4.com>, KVM list <kvm@vger.kernel.org>,
- "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
- "ghammer@redhat.com" <ghammer@redhat.com>, "Weiss, Radu" <raduweis@amazon.com>,
- "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>,
- "virtualization@lists.linux-foundation.org"
- <virtualization@lists.linux-foundation.org>, Pavel Machek <pavel@ucw.cz>,
- "corbet@lwn.net" <corbet@lwn.net>, "mst@redhat.com" <mst@redhat.com>,
- Eric Biggers <ebiggers@kernel.org>, "Singh, Balbir" <sblbir@amazon.com>,
- "bonzini@gnu.org" <bonzini@gnu.org>, "Graf \(AWS\),
- Alexander" <graf@amazon.de>, Michal Hocko <mhocko@kernel.org>,
- "oridgar@gmail.com" <oridgar@gmail.com>, "Catangiu,
- Adrian Costin" <acatan@amazon.com>, Andy Lutomirski <luto@kernel.org>,
- "MacCarthaigh, Colm" <colmmacc@amazon.com>, "Theodore Y. Ts'o" <tytso@mit.edu>,
- "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- Linux API <linux-api@vger.kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>,
- Willy Tarreau <w@1wt.eu>, "Woodhouse, David" <dwmw@amazon.co.uk>
+Cc: alsa-devel@alsa-project.org, linux-iio@vger.kernel.org, trix@redhat.com,
+ linux-pci@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org, keyrings@vger.kernel.org,
+ linux-mtd@lists.infradead.org, amd-gfx@lists.freedesktop.org,
+ linux-amlogic@lists.infradead.org, linux-stm32@st-md-mailman.stormreply.com,
+ usb-storage@lists.one-eyed-alien.net, devel@driverdev.osuosl.org,
+ linux-samsung-soc@vger.kernel.org, linux-acpi@vger.kernel.org,
+ linux-scsi@vger.kernel.org, linux-nvdimm@lists.01.org,
+ linux-pm@vger.kernel.org, ath10k@lists.infradead.org,
+ cocci <cocci@systeme.lip6.fr>, clang-built-linux@googlegroups.com,
+ intel-wired-lan@lists.osuosl.org, industrypack-devel@lists.sourceforge.net,
+ nouveau@lists.freedesktop.org, spice-devel@lists.freedesktop.org,
+ MPT-FusionLinux.pdl@broadcom.com, linux-media@vger.kernel.org,
+ linux-watchdog@vger.kernel.org, linux-nfc@lists.01.org,
+ linux-serial@vger.kernel.org, linux-can@vger.kernel.org,
+ linux-block@vger.kernel.org, linux-gpio@vger.kernel.org,
+ storagedev@microchip.com, xen-devel@lists.xenproject.org,
+ openipmi-developer@lists.sourceforge.net, platform-driver-x86@vger.kernel.org,
+ bpf@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-edac@vger.kernel.org, netdev@vger.kernel.org, linux-usb@vger.kernel.org,
+ linux-wireless@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-security-module@vger.kernel.org, linux-crypto@vger.kernel.org,
+ patches@opensource.cirrus.com, linux-integrity@vger.kernel.org,
+ ocfs2-devel@oss.oracle.com, linux-power@fi.rohmeurope.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -116,90 +116,77 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Oct 16, 2020 at 6:40 PM Jann Horn <jannh@google.com> wrote:
->
-> [adding some more people who are interested in RNG stuff: Andy, Jason,
-> Theodore, Willy Tarreau, Eric Biggers. also linux-api@, because this
-> concerns some pretty fundamental API stuff related to RNG usage]
->
-> On Fri, Oct 16, 2020 at 4:33 PM Catangiu, Adrian Costin
-> <acatan@amazon.com> wrote:
-> > - Background
-> >
-> > The VM Generation ID is a feature defined by Microsoft (paper:
-> > http://go.microsoft.com/fwlink/?LinkId=260709) and supported by
-> > multiple hypervisor vendors.
-> >
-> > The feature is required in virtualized environments by apps that work
-> > with local copies/caches of world-unique data such as random values,
-> > uuids, monotonically increasing counters, etc.
-> > Such apps can be negatively affected by VM snapshotting when the VM
-> > is either cloned or returned to an earlier point in time.
-> >
-> > The VM Generation ID is a simple concept meant to alleviate the issue
-> > by providing a unique ID that changes each time the VM is restored
-> > from a snapshot. The hw provided UUID value can be used to
-> > differentiate between VMs or different generations of the same VM.
-> >
-> > - Problem
-> >
-> > The VM Generation ID is exposed through an ACPI device by multiple
-> > hypervisor vendors but neither the vendors or upstream Linux have no
-> > default driver for it leaving users to fend for themselves.
-> >
-> > Furthermore, simply finding out about a VM generation change is only
-> > the starting point of a process to renew internal states of possibly
-> > multiple applications across the system. This process could benefit
-> > from a driver that provides an interface through which orchestration
-> > can be easily done.
-> >
-> > - Solution
-> >
-> > This patch is a driver which exposes the Virtual Machine Generation ID
-> > via a char-dev FS interface that provides ID update sync and async
-> > notification, retrieval and confirmation mechanisms:
-> >
-> > When the device is 'open()'ed a copy of the current vm UUID is
-> > associated with the file handle. 'read()' operations block until the
-> > associated UUID is no longer up to date - until HW vm gen id changes -
-> > at which point the new UUID is provided/returned. Nonblocking 'read()'
-> > uses EWOULDBLOCK to signal that there is no _new_ UUID available.
-> >
-> > 'poll()' is implemented to allow polling for UUID updates. Such
-> > updates result in 'EPOLLIN' events.
-> >
-> > Subsequent read()s following a UUID update no longer block, but return
-> > the updated UUID. The application needs to acknowledge the UUID update
-> > by confirming it through a 'write()'.
-> > Only on writing back to the driver the right/latest UUID, will the
-> > driver mark this "watcher" as up to date and remove EPOLLIN status.
-> >
-> > 'mmap()' support allows mapping a single read-only shared page which
-> > will always contain the latest UUID value at offset 0.
->
-> It would be nicer if that page just contained an incrementing counter,
-> instead of a UUID. It's not like the application cares *what* the UUID
-> changed to, just that it *did* change and all RNGs state now needs to
-> be reseeded from the kernel, right? And an application can't reliably
-> read the entire UUID from the memory mapping anyway, because the VM
-> might be forked in the middle.
->
-> So I think your kernel driver should detect UUID changes and then turn
-> those into a monotonically incrementing counter. (Probably 64 bits
-> wide?) (That's probably also a little bit faster than comparing an
-> entire UUID.)
->
-> An option might be to put that counter into the vDSO, instead of a
-> separate VMA; but I don't know how the other folks feel about that.
-> Andy, do you have opinions on this? That way, normal userspace code
-> that uses this infrastructure wouldn't have to mess around with a
-> special device at all. And it'd be usable in seccomp sandboxes and so
-> on without needing special plumbing. And libraries wouldn't have to
-> call open() and mess with file descriptor numbers.
+On Sat, 2020-10-17 at 20:21 +0200, Julia Lawall wrote:
+> On Sat, 17 Oct 2020, Joe Perches wrote:
+> > On Sat, 2020-10-17 at 09:09 -0700, trix@redhat.com wrote:
+> > > From: Tom Rix <trix@redhat.com>
+> > > 
+> > > This is a upcoming change to clean up a new warning treewide.
+> > > I am wondering if the change could be one mega patch (see below) or
+> > > normal patch per file about 100 patches or somewhere half way by collecting
+> > > early acks.
+> > > 
+> > > clang has a number of useful, new warnings see
+> > > https://clang.llvm.org/docs/DiagnosticsReference.html
+> > > 
+> > > This change cleans up -Wunreachable-code-break
+> > > https://clang.llvm.org/docs/DiagnosticsReference.html#wunreachable-code-break
+> > > for 266 of 485 warnings in this week's linux-next, allyesconfig on x86_64.
+> > 
+> > Early acks/individual patches by subsystem would be good.
+> > Better still would be an automated cocci script.
+> 
+> Coccinelle is not especially good at this, because it is based on control
+> flow, and a return or goto diverts the control flow away from the break.
+> A hack to solve the problem is to put an if around the return or goto, but
+> that gives the break a meaningless file name and line number.  I collected
+> the following list, but it only has 439 results, so fewer than clang.  But
+> maybe there are some files that are not considered by clang in the x86
+> allyesconfig configuration.
+> 
+> Probably checkpatch is the best solution here, since it is not
+> configuration sensitive and doesn't care about control flow.
 
-The vDSO might be annoyingly slow for this.  Something like the rseq
-page might make sense.  It could be a generic indication of "system
-went through some form of suspend".
+Likely the clang compiler is the best option here.
+
+It might be useful to add -Wunreachable-code-break to W=1
+or just always enable it if it isn't already enabled.
+
+diff --git a/scripts/Makefile.extrawarn b/scripts/Makefile.extrawarn
+index 95e4cdb94fe9..3819787579d5 100644
+--- a/scripts/Makefile.extrawarn
++++ b/scripts/Makefile.extrawarn
+@@ -32,6 +32,7 @@ KBUILD_CFLAGS += $(call cc-option, -Wunused-but-set-variable)
+ KBUILD_CFLAGS += $(call cc-option, -Wunused-const-variable)
+ KBUILD_CFLAGS += $(call cc-option, -Wpacked-not-aligned)
+ KBUILD_CFLAGS += $(call cc-option, -Wstringop-truncation)
++KBUILD_CFLAGS += $(call cc-option, -Wunreachable-code-break)
+ # The following turn off the warnings enabled by -Wextra
+ KBUILD_CFLAGS += -Wno-missing-field-initializers
+ KBUILD_CFLAGS += -Wno-sign-compare
+
+(and thank you Tom for pushing this forward)
+
+checkpatch can't find instances like:
+
+	case FOO:
+		if (foo)
+			return 1;
+		else
+			return 2;
+		break;
+
+As it doesn't track flow and relies on the number
+of tabs to be the same for any goto/return and break;
+
+checkpatch will warn on:
+
+	case FOO:
+		...
+		goto bar;
+		break;
+
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
