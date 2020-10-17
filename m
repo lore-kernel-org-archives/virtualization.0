@@ -2,112 +2,104 @@ Return-Path: <SRS0=x5ns=DY=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3782FC43457
-	for <virtualization@archiver.kernel.org>; Sat, 17 Oct 2020 07:39:49 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 54131C43467
+	for <virtualization@archiver.kernel.org>; Sat, 17 Oct 2020 18:10:44 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B61332072D
-	for <virtualization@archiver.kernel.org>; Sat, 17 Oct 2020 07:39:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id DB8A72074A
+	for <virtualization@archiver.kernel.org>; Sat, 17 Oct 2020 18:10:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NVqK2DYZ"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B61332072D
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="THGcrhra"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DB8A72074A
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 3FAD0884D4;
-	Sat, 17 Oct 2020 07:39:48 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id AvC-G5gspdS6; Sat, 17 Oct 2020 07:39:47 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 67214884BD;
-	Sat, 17 Oct 2020 07:39:47 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5155FC07FF;
-	Sat, 17 Oct 2020 07:39:47 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id BEE88C0051
- for <virtualization@lists.linux-foundation.org>;
- Sat, 17 Oct 2020 07:39:45 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id AD2B488787
- for <virtualization@lists.linux-foundation.org>;
- Sat, 17 Oct 2020 07:39:45 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 7F41E884A1;
+	Sat, 17 Oct 2020 18:10:43 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 4VtwzA9Iiwng; Sat, 17 Oct 2020 18:10:42 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 800BC88485;
+	Sat, 17 Oct 2020 18:10:42 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5FB4BC0052;
+	Sat, 17 Oct 2020 18:10:42 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 032C0C0051
+ for <virtualization@lists.linux-foundation.org>;
+ Sat, 17 Oct 2020 18:10:41 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by whitealder.osuosl.org (Postfix) with ESMTP id E128887848
+ for <virtualization@lists.linux-foundation.org>;
+ Sat, 17 Oct 2020 18:10:40 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id foYhRPFISy-w
+ with ESMTP id vAtzA3N3mucK
  for <virtualization@lists.linux-foundation.org>;
- Sat, 17 Oct 2020 07:39:44 +0000 (UTC)
+ Sat, 17 Oct 2020 18:10:40 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id BB7BA88764
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 37C3A8783B
  for <virtualization@lists.linux-foundation.org>;
- Sat, 17 Oct 2020 07:39:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1602920383;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=5MeCjrpvVPuoqozCgtaDTsobybvBVrl2Tx3ew0mfpH8=;
- b=NVqK2DYZSp7tGMsDS/c4XDybwtjCoMcIgH9/3bUakmzXJTsvozTBH/oNoS1mBCzzB08Vzs
- d9V4QGx26U4VvD55WqKC1JCVV96RePDHKtihv34DkC8G/vWgXDZNy5grtomZS8jVN3Gwg0
- hGdFVEQy0L+PEI0nJWptKEsXFwlTKvY=
-Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
- [209.85.208.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-61-8uJStDguOf-v-ycGHvLY1g-1; Sat, 17 Oct 2020 03:39:41 -0400
-X-MC-Unique: 8uJStDguOf-v-ycGHvLY1g-1
-Received: by mail-ed1-f71.google.com with SMTP id a73so2924211edf.16
+ Sat, 17 Oct 2020 18:10:40 +0000 (UTC)
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com
+ [209.85.128.43])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by mail.kernel.org (Postfix) with ESMTPSA id 7EF3320897
  for <virtualization@lists.linux-foundation.org>;
- Sat, 17 Oct 2020 00:39:40 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:content-transfer-encoding:from:mime-version
- :subject:date:message-id:references:cc:in-reply-to:to;
- bh=nlE7mWs+OHbEhLBW5Ti9CXDUCrj0uRPZ3Ruggfy/J74=;
- b=E9GoOYs3rvZU7WxQT7aQJZAPyeMAFc5/NjO9oaEBEjLu+DoiwWnio+Z5enFsemI5LP
- nf/VGLwwGOdB4Ccn05lcb6VJeEqgzDh6zRTZza3juZjle+XKod9P1hyoNCkPvBXkzGAB
- WeDWjFvzyCSCjrc+Bm0wHpg3NiR55zwzGL3OeXgEGmkp1/i/ahFiaGU8NsqbJwvCIEvX
- Ybel9qo3HBfHnt6vroi72DHjTDbkkS7/OGr6QUPd/PGLqW+yaW93p235M6JHUXHWEo3s
- f3V3+KNPBQkVdMTSOS+2f8mytDeX8APc9PgrEuIQr3CJrxpg2+xl9UdTJR6ZnvvnCExv
- r6wg==
-X-Gm-Message-State: AOAM530+gPlZKw4D9MG5yS7XeCSE0uwIzHYLBBgB82SjlriKr1yZTPrY
- h2G+9vQYl/9kLqkPwBneP35F87rnugw4eZIIe2raXcfmRCo60JHLGF0Ylc7qQbh7xuQkQfIZw0X
- Cwsepz04BTLKskIaiYnLjcs/Uxz3AbHmVHC/wvUyzjg==
-X-Received: by 2002:aa7:dc16:: with SMTP id b22mr8068521edu.252.1602920379910; 
- Sat, 17 Oct 2020 00:39:39 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzuZ1/FCI19jeTpRP2oGQpZx/HslqeOvnC2jgnpgIVRX1a6ZmQPIKyyDNb7ut4Lh1R/3tQAQA==
-X-Received: by 2002:aa7:dc16:: with SMTP id b22mr8068509edu.252.1602920379651; 
- Sat, 17 Oct 2020 00:39:39 -0700 (PDT)
-Received: from [192.168.3.114] (p4ff239ab.dip0.t-ipconnect.de. [79.242.57.171])
- by smtp.gmail.com with ESMTPSA id vr3sm4406332ejb.124.2020.10.17.00.39.39
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Sat, 17 Oct 2020 00:39:39 -0700 (PDT)
-From: David Hildenbrand <david@redhat.com>
-Mime-Version: 1.0 (1.0)
-Subject: Re: [PATCH v1 05/29] virtio-mem: generalize check for added memory
-Date: Sat, 17 Oct 2020 09:39:38 +0200
-Message-Id: <2E12AC3C-872A-4B30-8FD7-12420FA1D14E@redhat.com>
-References: <20201016223811.GJ44269@L-31X9LVDL-1304.local>
-In-Reply-To: <20201016223811.GJ44269@L-31X9LVDL-1304.local>
-To: Wei Yang <richard.weiyang@linux.alibaba.com>
-X-Mailer: iPhone Mail (18A393)
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=david@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
- "Michael S . Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, linux-mm@kvack.org,
- Andrew Morton <akpm@linux-foundation.org>
+ Sat, 17 Oct 2020 18:10:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=default; t=1602958239;
+ bh=bNUjXzAtYTeF0xeyT4fVDlewqtbmx5JXgMhZlub6oWs=;
+ h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+ b=THGcrhra0XvZn4Ey1MGpMDVxtKDNQHgmX2j9JxAUeoHswlBA6Cnm/zT4hTZODIzHR
+ GIAP9ZD/E/9dmpMs96WF1G45M6M/NevjFPyBmIiwND5y72ADgjpFd1WGLuu3J/se7p
+ O3hmHiqDp9e1W5jgnKbn1xURn1TnVQtFlfaePNuA=
+Received: by mail-wm1-f43.google.com with SMTP id d3so8740994wma.4
+ for <virtualization@lists.linux-foundation.org>;
+ Sat, 17 Oct 2020 11:10:39 -0700 (PDT)
+X-Gm-Message-State: AOAM531gD4Z+fmLheoB+fN/gXG139mxTTbqCIEQp6HRkXPEQbz3eCvU/
+ 8RNxIErtZ6D9+2QsiU8Mxc6DDz0tNh0/m2v6zcIMCA==
+X-Google-Smtp-Source: ABdhPJytCiWOtxm84RCgZCVoArKJ0KdKOuxfgPiMKVnnwQm0gaac8Rg/0NC502KkEJ0/X88L4LXO8HEf81QzCgT9VjQ=
+X-Received: by 2002:a1c:6457:: with SMTP id y84mr9330642wmb.36.1602958237946; 
+ Sat, 17 Oct 2020 11:10:37 -0700 (PDT)
+MIME-Version: 1.0
+References: <788878CE-2578-4991-A5A6-669DCABAC2F2@amazon.com>
+ <CAG48ez0EanBvDyfthe+hAP0OC8iGLNSq2e5wJVz-=ENNGF97_w@mail.gmail.com>
+In-Reply-To: <CAG48ez0EanBvDyfthe+hAP0OC8iGLNSq2e5wJVz-=ENNGF97_w@mail.gmail.com>
+From: Andy Lutomirski <luto@kernel.org>
+Date: Sat, 17 Oct 2020 11:10:26 -0700
+X-Gmail-Original-Message-ID: <CALCETrViTg_BWvRa+nfDWq=_B_ithzL-anVJNpsgHaXe9VgCNQ@mail.gmail.com>
+Message-ID: <CALCETrViTg_BWvRa+nfDWq=_B_ithzL-anVJNpsgHaXe9VgCNQ@mail.gmail.com>
+Subject: Re: [PATCH] drivers/virt: vmgenid: add vm generation id driver
+To: Jann Horn <jannh@google.com>,
+ Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: Jason Donenfeld <Jason@zx2c4.com>, KVM list <kvm@vger.kernel.org>,
+ "linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
+ "ghammer@redhat.com" <ghammer@redhat.com>, "Weiss, Radu" <raduweis@amazon.com>,
+ "qemu-devel@nongnu.org" <qemu-devel@nongnu.org>,
+ "virtualization@lists.linux-foundation.org"
+ <virtualization@lists.linux-foundation.org>, Pavel Machek <pavel@ucw.cz>,
+ "corbet@lwn.net" <corbet@lwn.net>, "mst@redhat.com" <mst@redhat.com>,
+ Eric Biggers <ebiggers@kernel.org>, "Singh, Balbir" <sblbir@amazon.com>,
+ "bonzini@gnu.org" <bonzini@gnu.org>, "Graf \(AWS\),
+ Alexander" <graf@amazon.de>, Michal Hocko <mhocko@kernel.org>,
+ "oridgar@gmail.com" <oridgar@gmail.com>, "Catangiu,
+ Adrian Costin" <acatan@amazon.com>, Andy Lutomirski <luto@kernel.org>,
+ "MacCarthaigh, Colm" <colmmacc@amazon.com>, "Theodore Y. Ts'o" <tytso@mit.edu>,
+ "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ Linux API <linux-api@vger.kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>,
+ Willy Tarreau <w@1wt.eu>, "Woodhouse, David" <dwmw@amazon.co.uk>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,50 +111,96 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Cj4gQW0gMTcuMTAuMjAyMCB1bSAwMDozOCBzY2hyaWViIFdlaSBZYW5nIDxyaWNoYXJkLndlaXlh
-bmdAbGludXguYWxpYmFiYS5jb20+Ogo+IAo+IO+7v09uIEZyaSwgT2N0IDE2LCAyMDIwIGF0IDEy
-OjMyOjUwUE0gKzAyMDAsIERhdmlkIEhpbGRlbmJyYW5kIHdyb3RlOgo+Pj4+PiBPaywgSSBzZWVt
-cyB0byB1bmRlcnN0YW5kIHRoZSBsb2dpYyBub3cuCj4+Pj4+IAo+Pj4+PiBCdXQgaG93IHdlIHBy
-ZXZlbnQgT05MSU5FX1BBUlRJQUwgbWVtb3J5IGJsb2NrIGdldCBvZmZsaW5lZD8gVGhlcmUgYXJl
-IHRocmVlCj4+Pj4+IGNhbGxzIGluIHZpcnRpb19tZW1fc2V0X2Zha2Vfb2ZmbGluZSgpLCB3aGls
-ZSBhbGwgb2YgdGhlbSBhZGp1c3QgcGFnZSdzIGZsYWcuCj4+Pj4+IEhvdyB0aGV5IGhvbGQgcmVm
-ZXJlbmNlIHRvIHN0cnVjdCBwYWdlPwo+Pj4+IAo+Pj4+IFNvcnJ5LCBJIHNob3VsZCBoYXZlIGdp
-dmVuIHlvdSB0aGUgcmlnaHQgcG9pbnRlci4gKHNpbWlsYXIgdG8gbXkgb3RoZXIKPj4+PiByZXBs
-eSkKPj4+PiAKPj4+PiBXZSBob2xkIGEgcmVmZXJlbmNlIGVpdGhlciB2aWEKPj4+PiAKPj4+PiAx
-LiBhbGxvY19jb250aWdfcmFuZ2UoKQo+Pj4gCj4+PiBJIGFtIG5vdCBmYW1pbGlhciB3aXRoIHRo
-aXMgb25lLCBuZWVkIHRvIHNwZW5kIHNvbWUgdGltZSB0byBsb29rIGludG8uCj4+IAo+PiBFYWNo
-IGluZGl2aWR1YWwgcGFnZSB3aWxsIGhhdmUgYSBwYWdlY291bnQgb2YgMS4KPj4gCj4+PiAKPj4+
-PiAyLiBtZW1tYXAgaW5pdCBjb2RlLCB3aGVuIG5vdCBjYWxsaW5nIGdlbmVyaWNfb25saW5lX3Bh
-Z2UoKS4KPj4+IAo+Pj4gSSBtYXkgbWlzcyBzb21lIGNvZGUgaGVyZS4gQmVmb3JlIG9ubGluZSBw
-YWdlcywgbWVtbWFwcyBhcmUgYWxsb2NhdGVkIGluCj4+PiBzZWN0aW9uX2FjdGl2YXRlKCkuIFRo
-ZXkgYXJlIHN1cHBvc2VkIHRvIGJlIHplcm8tZWQuIChJIGRvbid0IGdldCB0aGUgZXhhY3QKPj4+
-IGNvZGUgbGluZS4pIEkgYW0gbm90IHN1cmUgd2hlbiB3ZSBncmFiIGEgcmVmY291bnQgaGVyZS4K
-Pj4gCj4+IEJlc3QgdG8gcmVmZXIgdG8gX19pbml0X3NpbmdsZV9wYWdlKCkgLT4gaW5pdF9wYWdl
-X2NvdW50KCkuCj4+IAo+PiBFYWNoIHBhZ2UgdGhhdCB3YXNuJ3Qgb25saW5lZCB2aWEgZ2VuZXJp
-Y19vbmxpbmVfcGFnZSgpIGhhcyBhIHJlZmNvdW50Cj4+IG9mIDEgYW5kIGxvb2tzIGxpa2UgYWxs
-b2NhdGVkLgo+PiAKPiAKPiBUaGFua3MsIEkgc2VlIHRoZSBsb2dpYy4KPiAKPiAgICBvbmxpbmVf
-cGFnZXMoKQo+ICAgICAgICBtb3ZlX3Bmbl9yYW5nZV90b196b25lKCkgIC0tLSAxKQo+ICAgIG9u
-bGluZV9wYWdlc19yYW5nZSgpICAgICAgLS0tIDIpCj4gCj4gQXQgMSksIF9faW5pdF9zaW5nbGVf
-cGFnZSgpIHdvdWxkIHNldCBwYWdlIGNvdW50IHRvIDEuIEF0IDIpLAo+IGdlbmVyaWNfb25saW5l
-X3BhZ2UoKSB3b3VsZCBjbGVhciBwYWdlIGNvdW50LCB3aGlsZSB0aGUgY2FsbCBiYWNrIHdvdWxk
-IG5vdC4KPiAKPiBUaGVuIEkgYW0gdHJ5aW5nIHRvIHNlYXJjaCB0aGUgcGxhY2Ugd2hlcmUgdW4t
-emVybyBwYWdlIGNvdW50IHByZXZlbnQgb2ZmbGluZS4KPiBzY2FuX21vdmFibGVfcGFnZXMoKSB3
-b3VsZCBmYWlsLCBzaW5jZSB0aGlzIGlzIGEgUGFnZU9mZmxpbmUoKSBhbmQgaGFzIDEgcGFnZQo+
-IGNvdW50Lgo+IAo+IFNvIHRoZSBHVUFSRCB3ZSBwcmV2ZW50IG9mZmxpbmUgcGFydGlhbC1vbmxp
-bmVkIHBhZ2VzIGlzCj4gCj4gICAgKFBhZ2VPZmZsaW5lICYmIHBhZ2VfY291bnQpCj4gCj4gQW5k
-IHlvdXIgY29tbWl0IGFhMjE4Nzk1Y2I1ZmQ1ODNjOTRmCj4gCj4gbW06IEFsbG93IHRvIG9mZmxp
-bmUgdW5tb3ZhYmxlIFBhZ2VPZmZsaW5lKCkgcGFnZXMgdmlhIE1FTV9HT0lOR19PRkZMSU5FCj4g
-Cj4gaXMgaW50cm9kdWNlZCB0byBoYW5kbGUgdGhpcyBjYXNlLgo+IAo+IFRoYXQncyBwcmV0dHkg
-Y2xlYXIgbm93Lgo+IAoKSeKAmG0gaGFwcHkgdG8gc2VlIHRoYXQgSSBhbSBubyBsb25nZXIgdGhl
-IG9ubHkgcGVyc29uIHRoYXQgdW5kZXJzdGFuZHMgYWxsIHRoaXMgbWFnaWMgOikKClRoYW5rcyBm
-b3IgaGF2aW5nIGEgbG9vayAvIHJldmlld2luZyEKCj4+IC0tIAo+PiBUaGFua3MsCj4+IAo+PiBE
-YXZpZCAvIGRoaWxkZW5iCj4gCj4gLS0gCj4gV2VpIFlhbmcKPiBIZWxwIHlvdSwgSGVscCBtZQo+
-IAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVh
-bGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRp
-b24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZv
-L3ZpcnR1YWxpemF0aW9u
+On Fri, Oct 16, 2020 at 6:40 PM Jann Horn <jannh@google.com> wrote:
+>
+> [adding some more people who are interested in RNG stuff: Andy, Jason,
+> Theodore, Willy Tarreau, Eric Biggers. also linux-api@, because this
+> concerns some pretty fundamental API stuff related to RNG usage]
+>
+> On Fri, Oct 16, 2020 at 4:33 PM Catangiu, Adrian Costin
+> <acatan@amazon.com> wrote:
+> > - Background
+> >
+> > The VM Generation ID is a feature defined by Microsoft (paper:
+> > http://go.microsoft.com/fwlink/?LinkId=260709) and supported by
+> > multiple hypervisor vendors.
+> >
+> > The feature is required in virtualized environments by apps that work
+> > with local copies/caches of world-unique data such as random values,
+> > uuids, monotonically increasing counters, etc.
+> > Such apps can be negatively affected by VM snapshotting when the VM
+> > is either cloned or returned to an earlier point in time.
+> >
+> > The VM Generation ID is a simple concept meant to alleviate the issue
+> > by providing a unique ID that changes each time the VM is restored
+> > from a snapshot. The hw provided UUID value can be used to
+> > differentiate between VMs or different generations of the same VM.
+> >
+> > - Problem
+> >
+> > The VM Generation ID is exposed through an ACPI device by multiple
+> > hypervisor vendors but neither the vendors or upstream Linux have no
+> > default driver for it leaving users to fend for themselves.
+> >
+> > Furthermore, simply finding out about a VM generation change is only
+> > the starting point of a process to renew internal states of possibly
+> > multiple applications across the system. This process could benefit
+> > from a driver that provides an interface through which orchestration
+> > can be easily done.
+> >
+> > - Solution
+> >
+> > This patch is a driver which exposes the Virtual Machine Generation ID
+> > via a char-dev FS interface that provides ID update sync and async
+> > notification, retrieval and confirmation mechanisms:
+> >
+> > When the device is 'open()'ed a copy of the current vm UUID is
+> > associated with the file handle. 'read()' operations block until the
+> > associated UUID is no longer up to date - until HW vm gen id changes -
+> > at which point the new UUID is provided/returned. Nonblocking 'read()'
+> > uses EWOULDBLOCK to signal that there is no _new_ UUID available.
+> >
+> > 'poll()' is implemented to allow polling for UUID updates. Such
+> > updates result in 'EPOLLIN' events.
+> >
+> > Subsequent read()s following a UUID update no longer block, but return
+> > the updated UUID. The application needs to acknowledge the UUID update
+> > by confirming it through a 'write()'.
+> > Only on writing back to the driver the right/latest UUID, will the
+> > driver mark this "watcher" as up to date and remove EPOLLIN status.
+> >
+> > 'mmap()' support allows mapping a single read-only shared page which
+> > will always contain the latest UUID value at offset 0.
+>
+> It would be nicer if that page just contained an incrementing counter,
+> instead of a UUID. It's not like the application cares *what* the UUID
+> changed to, just that it *did* change and all RNGs state now needs to
+> be reseeded from the kernel, right? And an application can't reliably
+> read the entire UUID from the memory mapping anyway, because the VM
+> might be forked in the middle.
+>
+> So I think your kernel driver should detect UUID changes and then turn
+> those into a monotonically incrementing counter. (Probably 64 bits
+> wide?) (That's probably also a little bit faster than comparing an
+> entire UUID.)
+>
+> An option might be to put that counter into the vDSO, instead of a
+> separate VMA; but I don't know how the other folks feel about that.
+> Andy, do you have opinions on this? That way, normal userspace code
+> that uses this infrastructure wouldn't have to mess around with a
+> special device at all. And it'd be usable in seccomp sandboxes and so
+> on without needing special plumbing. And libraries wouldn't have to
+> call open() and mess with file descriptor numbers.
+
+The vDSO might be annoyingly slow for this.  Something like the rseq
+page might make sense.  It could be a generic indication of "system
+went through some form of suspend".
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
