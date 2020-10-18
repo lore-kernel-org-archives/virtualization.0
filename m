@@ -4,76 +4,75 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
-	autolearn_force=no version=3.4.0
+	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 39C76C433E7
-	for <virtualization@archiver.kernel.org>; Sun, 18 Oct 2020 19:23:51 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 19697C433E7
+	for <virtualization@archiver.kernel.org>; Sun, 18 Oct 2020 19:25:16 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D6C45222EC
-	for <virtualization@archiver.kernel.org>; Sun, 18 Oct 2020 19:23:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id B4B8A2137B
+	for <virtualization@archiver.kernel.org>; Sun, 18 Oct 2020 19:25:15 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="jaTC+cfr"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D6C45222EC
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="X5qGJtIs"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B4B8A2137B
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 763FF873CB;
-	Sun, 18 Oct 2020 19:23:50 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 5D11C229D4;
+	Sun, 18 Oct 2020 19:25:15 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id T3TytFvA1vC9; Sun, 18 Oct 2020 19:23:50 +0000 (UTC)
+	with ESMTP id kk9ikXIfWfyr; Sun, 18 Oct 2020 19:25:14 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 0C736873A1;
-	Sun, 18 Oct 2020 19:23:50 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 651F71FD16;
+	Sun, 18 Oct 2020 19:25:14 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E5E3DC0052;
-	Sun, 18 Oct 2020 19:23:49 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 684ADC0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4E58FC0052;
+	Sun, 18 Oct 2020 19:25:14 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9EF19C0051
  for <virtualization@lists.linux-foundation.org>;
- Sun, 18 Oct 2020 19:23:48 +0000 (UTC)
+ Sun, 18 Oct 2020 19:25:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 5227E8642E
+ by hemlock.osuosl.org (Postfix) with ESMTP id 8828687707
  for <virtualization@lists.linux-foundation.org>;
- Sun, 18 Oct 2020 19:23:48 +0000 (UTC)
+ Sun, 18 Oct 2020 19:25:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id RrdbBBm7kXhZ
+ with ESMTP id q47XRrdtlNZl
  for <virtualization@lists.linux-foundation.org>;
- Sun, 18 Oct 2020 19:23:47 +0000 (UTC)
+ Sun, 18 Oct 2020 19:25:12 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by whitealder.osuosl.org (Postfix) with ESMTPS id C9DC686429
+ by hemlock.osuosl.org (Postfix) with ESMTPS id CC26E87454
  for <virtualization@lists.linux-foundation.org>;
- Sun, 18 Oct 2020 19:23:47 +0000 (UTC)
+ Sun, 18 Oct 2020 19:25:12 +0000 (UTC)
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net
  [73.47.72.35])
  (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
  (No client certificate requested)
- by mail.kernel.org (Postfix) with ESMTPSA id C6B6A2137B;
- Sun, 18 Oct 2020 19:23:46 +0000 (UTC)
+ by mail.kernel.org (Postfix) with ESMTPSA id C3063207DE;
+ Sun, 18 Oct 2020 19:25:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1603049027;
- bh=wQr68+vYs99n5H4ysvc98rbX0sn/3HNW51O3srouVyc=;
+ s=default; t=1603049112;
+ bh=jkJLQI7d2108cS11HL9Xo2Bn62RBEW9CUm/9Tt2JW4M=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=jaTC+cfrSOGz/AAr1SZTYNNhetLBHRBt0OWSdimXB/7/+SD0XvP8J0dm+y5vCtMgo
- a6XsyUNNR/6oNUcMyknLBFi7ibvmgG3kpElwhh2XS+0AgpbdFk0NDurktWJJ0Txj39
- uSU6hLe8lH3EMmCFxRiZ3SfZPU6dORV32eDjAR30=
+ b=X5qGJtIs3+kIqT4A6KAfZSJH/VEK7TI1hN/hcCW4Y9QSzmbN7XT1qJ8NwMRUz4emU
+ WbZcyvlbdU4pyhKwOwzlxoEq6y09b19o7M1emZ55riuTj4XsPB1K9ycRgUhoKWvUoA
+ zSI3SW1LPg+QhedCGLi+PvdMg2ixobmKkKAIV4Vo=
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 60/80] Fix use after free in get_capset_info
+Subject: [PATCH AUTOSEL 4.19 45/56] Fix use after free in get_capset_info
  callback.
-Date: Sun, 18 Oct 2020 15:22:11 -0400
-Message-Id: <20201018192231.4054535-60-sashal@kernel.org>
+Date: Sun, 18 Oct 2020 15:24:06 -0400
+Message-Id: <20201018192417.4055228-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20201018192231.4054535-1-sashal@kernel.org>
-References: <20201018192231.4054535-1-sashal@kernel.org>
+In-Reply-To: <20201018192417.4055228-1-sashal@kernel.org>
+References: <20201018192417.4055228-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -113,10 +112,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  2 files changed, 9 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index c190702fab726..6dcc05ab31eba 100644
+index 65060c08522d7..22397a23780c0 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -96,8 +96,10 @@ static void virtio_gpu_get_capsets(struct virtio_gpu_device *vgdev,
+@@ -113,8 +113,10 @@ static void virtio_gpu_get_capsets(struct virtio_gpu_device *vgdev,
  					 vgdev->capsets[i].id > 0, 5 * HZ);
  		if (ret == 0) {
  			DRM_ERROR("timed out waiting for cap set %d\n", i);
@@ -128,10 +127,10 @@ index c190702fab726..6dcc05ab31eba 100644
  		}
  		DRM_INFO("cap set %d: id %d, max-version %d, max-size %d\n",
 diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 7ac20490e1b4c..92022a83bbd5e 100644
+index 608906f06cedd..3e72c6dac0ffe 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -572,9 +572,13 @@ static void virtio_gpu_cmd_get_capset_info_cb(struct virtio_gpu_device *vgdev,
+@@ -566,9 +566,13 @@ static void virtio_gpu_cmd_get_capset_info_cb(struct virtio_gpu_device *vgdev,
  	int i = le32_to_cpu(cmd->capset_index);
  
  	spin_lock(&vgdev->display_info_lock);
