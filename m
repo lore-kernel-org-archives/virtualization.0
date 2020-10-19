@@ -2,109 +2,110 @@ Return-Path: <SRS0=EPK4=D2=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3D07CC433DF
-	for <virtualization@archiver.kernel.org>; Mon, 19 Oct 2020 17:15:16 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1D33FC43457
+	for <virtualization@archiver.kernel.org>; Mon, 19 Oct 2020 17:16:28 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8F5D9208B3
-	for <virtualization@archiver.kernel.org>; Mon, 19 Oct 2020 17:15:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 709C7208B3
+	for <virtualization@archiver.kernel.org>; Mon, 19 Oct 2020 17:16:27 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=efficios.com header.i=@efficios.com header.b="Rleo5KpY"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8F5D9208B3
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=efficios.com
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CMefzZ/7"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 709C7208B3
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 1786B86D95;
-	Mon, 19 Oct 2020 17:15:15 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id DB838872B9;
+	Mon, 19 Oct 2020 17:16:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id pMr4gGkdzLTA; Mon, 19 Oct 2020 17:15:11 +0000 (UTC)
+	with ESMTP id jDLup8r93ZDx; Mon, 19 Oct 2020 17:16:25 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 5696D86B22;
-	Mon, 19 Oct 2020 17:15:11 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id A704D86C1B;
+	Mon, 19 Oct 2020 17:16:25 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 35D0EC0052;
-	Mon, 19 Oct 2020 17:15:11 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8D1F4C0052;
+	Mon, 19 Oct 2020 17:16:25 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 939DAC0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 99E79C0051
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Oct 2020 17:15:09 +0000 (UTC)
+ Mon, 19 Oct 2020 17:16:23 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 7A3AB87270
+ by whitealder.osuosl.org (Postfix) with ESMTP id 866F187271
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Oct 2020 17:15:09 +0000 (UTC)
+ Mon, 19 Oct 2020 17:16:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id MNHXG4XBKXna
+ with ESMTP id hqnl0-keSpW0
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Oct 2020 17:15:04 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
-Received: from mail.efficios.com (mail.efficios.com [167.114.26.124])
- by whitealder.osuosl.org (Postfix) with ESMTPS id AE8EA87267
+ Mon, 19 Oct 2020 17:16:22 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 5DA9E86C1B
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Oct 2020 17:15:04 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by mail.efficios.com (Postfix) with ESMTP id AADCB2707BD;
- Mon, 19 Oct 2020 13:15:03 -0400 (EDT)
-Received: from mail.efficios.com ([127.0.0.1])
- by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10032)
- with ESMTP id QTruwX3BYTn2; Mon, 19 Oct 2020 13:15:03 -0400 (EDT)
-Received: from localhost (localhost [127.0.0.1])
- by mail.efficios.com (Postfix) with ESMTP id 284FE270752;
- Mon, 19 Oct 2020 13:15:03 -0400 (EDT)
-DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com 284FE270752
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
- s=default; t=1603127703;
- bh=a4Kyq9ggmnqJgL1OMZgiL3YI8Vq7lTIeBQc5QZoN7D4=;
- h=Date:From:To:Message-ID:MIME-Version;
- b=Rleo5KpYLxJL9bE+eS/IDKaOFoEmvkq70bRu+JU0FvBo/l/SmYGCBDQs+xaFOFVHh
- BJLQKLA6tCK8ZaIUWSrsP9eNGLLZGdYFBrCmdjHdnSkKFJRiWBCddq7bINqO1JrS6z
- LiDZeRjCGch2dLFOuXwqHnn+Ivxs2sOrIF5lAwNdQIXqAC1yn7Wcp2M95eK+hTAjh2
- 2bA+wXNULdWuS9DpiktZT7bNyAwruDfMklfP+qTv7VM9LXYilPo5xXvaq8H58JbRBX
- xy5xAXA9Jfvdh96AGWs2I075RgU0Y4TmN5l6CqHVGnXdNU7ZWMEVZ3OrX5Vg/g/cFz
- WJ9MFFce5aMuQ==
-X-Virus-Scanned: amavisd-new at efficios.com
-Received: from mail.efficios.com ([127.0.0.1])
- by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10026)
- with ESMTP id yP-ztTyztNwI; Mon, 19 Oct 2020 13:15:03 -0400 (EDT)
-Received: from mail03.efficios.com (mail03.efficios.com [167.114.26.124])
- by mail.efficios.com (Postfix) with ESMTP id 0FA782707BC;
- Mon, 19 Oct 2020 13:15:03 -0400 (EDT)
-Date: Mon, 19 Oct 2020 13:15:02 -0400 (EDT)
-From: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-To: Andy Lutomirski <luto@kernel.org>
-Message-ID: <476895871.28084.1603127702969.JavaMail.zimbra@efficios.com>
-In-Reply-To: <CALCETrViTg_BWvRa+nfDWq=_B_ithzL-anVJNpsgHaXe9VgCNQ@mail.gmail.com>
-References: <788878CE-2578-4991-A5A6-669DCABAC2F2@amazon.com>
- <CAG48ez0EanBvDyfthe+hAP0OC8iGLNSq2e5wJVz-=ENNGF97_w@mail.gmail.com>
- <CALCETrViTg_BWvRa+nfDWq=_B_ithzL-anVJNpsgHaXe9VgCNQ@mail.gmail.com>
-Subject: Re: [PATCH] drivers/virt: vmgenid: add vm generation id driver
+ Mon, 19 Oct 2020 17:16:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1603127781;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=M5niLxnNtbS1aOnJmQgMaE+zu+ug62i26X4CG928pr8=;
+ b=CMefzZ/7kDlINoy38ncko77mqF9574xgi/Bc75Bt//CKwk327t2hvx+UnxMjNksh5OfP1d
+ VCespPc6Ubdx4JRGhGixSvdkGuTol/+zOFH8BAQVDliOLB5Aa3BgohwFUECwt3+D0+RPl5
+ WXEOCtPUp5otmAQnV1F+9KT1W7XdDDk=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-214-ryMPntFxNeOXIWH86wYAyg-1; Mon, 19 Oct 2020 13:16:15 -0400
+X-MC-Unique: ryMPntFxNeOXIWH86wYAyg-1
+Received: by mail-wm1-f72.google.com with SMTP id z7so69940wmi.3
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 19 Oct 2020 10:16:15 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=M5niLxnNtbS1aOnJmQgMaE+zu+ug62i26X4CG928pr8=;
+ b=DuuUNJHbXmvDNjSOOhoTeG0j3iV18b/fsEovg6/4UsH7qDvsUCsnqRW/MyYwq0scLf
+ nvGytDePBsj6m8yahmS9HJnFYFq6Cl9m6KUYQbX4uLTus3SeI1fHijfMgpsl0F+KXwHI
+ ZODWaAR1sit9ZNtVdY41l8xrfZPDAifo+ufKWf9zD51m3rqPQwXrklIZgQ6FmIsFNwDa
+ irVcV4nmxjc9EiZYetjmkVLiJ622hpxLpbanGxegN4BGiOQgz863GsRDodDnz5ZtLnrg
+ 2iD2QDv1+C/TQVUMkYdDXhlZ06J6EzJk4Ez/Y1Gh+Uf+tpkvYLleK3tHipWXTnwmBpP7
+ 4Mcw==
+X-Gm-Message-State: AOAM530S/h8p/btdBs0bfe8yvngX6JWhkt7jMisJoXIKPZLWLQkQR34B
+ mdIRRylpG8VfNaYNfGHIIBrO3UqxN2yexvSR6SX0vmrobgHd+Kv6yBoilXDADT6fM04KMUhtFG4
+ KIfkY23Cei9qbdIsY3bQjh553alfU15G4Ia9S1gVSFQ==
+X-Received: by 2002:adf:9027:: with SMTP id h36mr241378wrh.163.1603127774044; 
+ Mon, 19 Oct 2020 10:16:14 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJy50ZQWEz1nLN1KYZDUvO4T6N8ODx9NyHZdqht8KFxyP4+BwusFK11On3I7wbFaj0DqL0FZxg==
+X-Received: by 2002:adf:9027:: with SMTP id h36mr241344wrh.163.1603127773767; 
+ Mon, 19 Oct 2020 10:16:13 -0700 (PDT)
+Received: from redhat.com (bzq-79-176-118-93.red.bezeqint.net. [79.176.118.93])
+ by smtp.gmail.com with ESMTPSA id j7sm268311wmc.7.2020.10.19.10.16.11
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 19 Oct 2020 10:16:12 -0700 (PDT)
+Date: Mon, 19 Oct 2020 13:16:10 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Xie Yongji <xieyongji@bytedance.com>
+Subject: Re: [RFC 0/4] Introduce VDUSE - vDPA Device in Userspace
+Message-ID: <20201019130815-mutt-send-email-mst@kernel.org>
+References: <20201019145623.671-1-xieyongji@bytedance.com>
 MIME-Version: 1.0
-X-Originating-IP: [167.114.26.124]
-X-Mailer: Zimbra 8.8.15_GA_3968 (ZimbraWebClient - FF81 (Linux)/8.8.15_GA_3968)
-Thread-Topic: drivers/virt: vmgenid: add vm generation id driver
-Thread-Index: LGqdszkWAp7MsnjacXz6ZDq20p5wzw==
-Cc: Jason Donenfeld <Jason@zx2c4.com>, KVM list <kvm@vger.kernel.org>,
- "open list, DOCUMENTATION" <linux-doc@vger.kernel.org>, ghammer@redhat.com,
- "Weiss, Radu" <raduweis@amazon.com>, qemu-devel@nongnu.org,
- virtualization@lists.linux-foundation.org, Pavel Machek <pavel@ucw.cz>,
- Jonathan Corbet <corbet@lwn.net>, mst@redhat.com,
- Eric Biggers <ebiggers@kernel.org>, "Singh, Balbir" <sblbir@amazon.com>,
- bonzini@gnu.org, "Graf \(AWS\), Alexander" <graf@amazon.de>,
- Michal Hocko <mhocko@kernel.org>, Jann Horn <jannh@google.com>,
- oridgar@gmail.com, "Catangiu, Adrian Costin" <acatan@amazon.com>,
- "MacCarthaigh, Colm" <colmmacc@amazon.com>, Theodore Tso <tytso@mit.edu>,
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- linux-kernel <linux-kernel@vger.kernel.org>,
- linux-api <linux-api@vger.kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>,
- Willy Tarreau <w@1wt.eu>, "Woodhouse, David" <dwmw@amazon.co.uk>
+In-Reply-To: <20201019145623.671-1-xieyongji@bytedance.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: linux-mm@kvack.org, akpm@linux-foundation.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -121,119 +122,112 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
------ On Oct 17, 2020, at 2:10 PM, Andy Lutomirski luto@kernel.org wrote:
-
-> On Fri, Oct 16, 2020 at 6:40 PM Jann Horn <jannh@google.com> wrote:
->>
->> [adding some more people who are interested in RNG stuff: Andy, Jason,
->> Theodore, Willy Tarreau, Eric Biggers. also linux-api@, because this
->> concerns some pretty fundamental API stuff related to RNG usage]
->>
->> On Fri, Oct 16, 2020 at 4:33 PM Catangiu, Adrian Costin
->> <acatan@amazon.com> wrote:
->> > - Background
->> >
->> > The VM Generation ID is a feature defined by Microsoft (paper:
->> > http://go.microsoft.com/fwlink/?LinkId=260709) and supported by
->> > multiple hypervisor vendors.
->> >
->> > The feature is required in virtualized environments by apps that work
->> > with local copies/caches of world-unique data such as random values,
->> > uuids, monotonically increasing counters, etc.
->> > Such apps can be negatively affected by VM snapshotting when the VM
->> > is either cloned or returned to an earlier point in time.
->> >
->> > The VM Generation ID is a simple concept meant to alleviate the issue
->> > by providing a unique ID that changes each time the VM is restored
->> > from a snapshot. The hw provided UUID value can be used to
->> > differentiate between VMs or different generations of the same VM.
->> >
->> > - Problem
->> >
->> > The VM Generation ID is exposed through an ACPI device by multiple
->> > hypervisor vendors but neither the vendors or upstream Linux have no
->> > default driver for it leaving users to fend for themselves.
->> >
->> > Furthermore, simply finding out about a VM generation change is only
->> > the starting point of a process to renew internal states of possibly
->> > multiple applications across the system. This process could benefit
->> > from a driver that provides an interface through which orchestration
->> > can be easily done.
->> >
->> > - Solution
->> >
->> > This patch is a driver which exposes the Virtual Machine Generation ID
->> > via a char-dev FS interface that provides ID update sync and async
->> > notification, retrieval and confirmation mechanisms:
->> >
->> > When the device is 'open()'ed a copy of the current vm UUID is
->> > associated with the file handle. 'read()' operations block until the
->> > associated UUID is no longer up to date - until HW vm gen id changes -
->> > at which point the new UUID is provided/returned. Nonblocking 'read()'
->> > uses EWOULDBLOCK to signal that there is no _new_ UUID available.
->> >
->> > 'poll()' is implemented to allow polling for UUID updates. Such
->> > updates result in 'EPOLLIN' events.
->> >
->> > Subsequent read()s following a UUID update no longer block, but return
->> > the updated UUID. The application needs to acknowledge the UUID update
->> > by confirming it through a 'write()'.
->> > Only on writing back to the driver the right/latest UUID, will the
->> > driver mark this "watcher" as up to date and remove EPOLLIN status.
->> >
->> > 'mmap()' support allows mapping a single read-only shared page which
->> > will always contain the latest UUID value at offset 0.
->>
->> It would be nicer if that page just contained an incrementing counter,
->> instead of a UUID. It's not like the application cares *what* the UUID
->> changed to, just that it *did* change and all RNGs state now needs to
->> be reseeded from the kernel, right? And an application can't reliably
->> read the entire UUID from the memory mapping anyway, because the VM
->> might be forked in the middle.
->>
->> So I think your kernel driver should detect UUID changes and then turn
->> those into a monotonically incrementing counter. (Probably 64 bits
->> wide?) (That's probably also a little bit faster than comparing an
->> entire UUID.)
->>
->> An option might be to put that counter into the vDSO, instead of a
->> separate VMA; but I don't know how the other folks feel about that.
->> Andy, do you have opinions on this? That way, normal userspace code
->> that uses this infrastructure wouldn't have to mess around with a
->> special device at all. And it'd be usable in seccomp sandboxes and so
->> on without needing special plumbing. And libraries wouldn't have to
->> call open() and mess with file descriptor numbers.
+On Mon, Oct 19, 2020 at 10:56:19PM +0800, Xie Yongji wrote:
+> This series introduces a framework, which can be used to implement
+> vDPA Devices in a userspace program. To implement it, the work
+> consist of two parts: control path emulating and data path offloading.
 > 
-> The vDSO might be annoyingly slow for this.  Something like the rseq
-> page might make sense.  It could be a generic indication of "system
-> went through some form of suspend".
+> In the control path, the VDUSE driver will make use of message
+> mechnism to forward the actions (get/set features, get/st status,
+> get/set config space and set virtqueue states) from virtio-vdpa
+> driver to userspace. Userspace can use read()/write() to
+> receive/reply to those control messages.
+> 
+> In the data path, the VDUSE driver implements a MMU-based
+> on-chip IOMMU driver which supports both direct mapping and
+> indirect mapping with bounce buffer. Then userspace can access
+> those iova space via mmap(). Besides, eventfd mechnism is used to
+> trigger interrupts and forward virtqueue kicks.
+> 
+> The details and our user case is shown below:
+> 
+> ------------------------     -----------------------------------------------------------
+> |                  APP |     |                          QEMU                           |
+> |       ---------      |     | --------------------    -------------------+<-->+------ |
+> |       |dev/vdx|      |     | | device emulation |    | virtio dataplane |    | BDS | |
+> ------------+-----------     -----------+-----------------------+-----------------+-----
+>             |                           |                       |                 |
+>             |                           | emulating             | offloading      |
+> ------------+---------------------------+-----------------------+-----------------+------
+> |    | block device |           |  vduse driver |        |  vdpa device |    | TCP/IP | |
+> |    -------+--------           --------+--------        +------+-------     -----+---- |
+> |           |                           |                |      |                 |     |
+> |           |                           |                |      |                 |     |
+> | ----------+----------       ----------+-----------     |      |                 |     |
+> | | virtio-blk driver |       | virtio-vdpa driver |     |      |                 |     |
+> | ----------+----------       ----------+-----------     |      |                 |     |
+> |           |                           |                |      |                 |     |
+> |           |                           ------------------      |                 |     |
+> |           -----------------------------------------------------              ---+---  |
+> ------------------------------------------------------------------------------ | NIC |---
+>                                                                                ---+---
+>                                                                                   |
+>                                                                          ---------+---------
+>                                                                          | Remote Storages |
+>                                                                          -------------------
+> We make use of it to implement a block device connecting to
+> our distributed storage, which can be used in containers and
+> bare metal.
 
-This might indeed fit nicely as an extension of my KTLS prototype (extensible rseq):
+What is not exactly clear is what is the APP above doing.
 
-https://lore.kernel.org/lkml/20200925181518.4141-1-mathieu.desnoyers@efficios.com/
+Taking virtio blk requests and sending them over the network
+in some proprietary way?
 
-There are a few ways we could wire things up. One might be to add the
-UUID field into the extended KTLS structure (so it's always updated after it
-changes on next return to user-space). For this I assume that the Linux scheduler
-within the guest VM always preempts all threads before a VM is suspended (is that
-indeed true ?).
+> Compared with qemu-nbd solution, this solution has
+> higher performance, and we can have an unified technology stack
+> in VM and containers for remote storages.
+> 
+> To test it with a host disk (e.g. /dev/sdx):
+> 
+>   $ qemu-storage-daemon \
+>       --chardev socket,id=charmonitor,path=/tmp/qmp.sock,server,nowait \
+>       --monitor chardev=charmonitor \
+>       --blockdev driver=host_device,cache.direct=on,aio=native,filename=/dev/sdx,node-name=disk0 \
+>       --export vduse-blk,id=test,node-name=disk0,writable=on,vduse-id=1,num-queues=16,queue-size=128
+> 
+> The qemu-storage-daemon can be found at https://github.com/bytedance/qemu/tree/vduse
+> 
+> Future work:
+>   - Improve performance (e.g. zero copy implementation in datapath)
+>   - Config interrupt support
+>   - Userspace library (find a way to reuse device emulation code in qemu/rust-vmm)
 
-This leads to one important question though: how is the UUID check vs commit operation
-made atomic with respect to suspend ? Unless we use rseq critical sections in assembly,
-where the kernel will abort the rseq critical section on preemption, I don't see how we
-can ensure that the UUID value does not change right after it has been checked, before
-the "commit" side-effect. And what is the expected "commit" side-effect ? Is it a store
-to a variable in user-space memory, or is it issuing a system call which sends a packet over
-the network ?
 
-Thanks,
+How does this driver compare with vhost-user-blk (which doesn't need kernel support)?
 
-Mathieu
 
--- 
-Mathieu Desnoyers
-EfficiOS Inc.
-http://www.efficios.com
+
+> Xie Yongji (4):
+>   mm: export zap_page_range() for driver use
+>   vduse: Introduce VDUSE - vDPA Device in Userspace
+>   vduse: grab the module's references until there is no vduse device
+>   vduse: Add memory shrinker to reclaim bounce pages
+> 
+>  drivers/vdpa/Kconfig                 |    8 +
+>  drivers/vdpa/Makefile                |    1 +
+>  drivers/vdpa/vdpa_user/Makefile      |    5 +
+>  drivers/vdpa/vdpa_user/eventfd.c     |  221 ++++++
+>  drivers/vdpa/vdpa_user/eventfd.h     |   48 ++
+>  drivers/vdpa/vdpa_user/iova_domain.c |  488 ++++++++++++
+>  drivers/vdpa/vdpa_user/iova_domain.h |  104 +++
+>  drivers/vdpa/vdpa_user/vduse.h       |   66 ++
+>  drivers/vdpa/vdpa_user/vduse_dev.c   | 1081 ++++++++++++++++++++++++++
+>  include/uapi/linux/vduse.h           |   85 ++
+>  mm/memory.c                          |    1 +
+>  11 files changed, 2108 insertions(+)
+>  create mode 100644 drivers/vdpa/vdpa_user/Makefile
+>  create mode 100644 drivers/vdpa/vdpa_user/eventfd.c
+>  create mode 100644 drivers/vdpa/vdpa_user/eventfd.h
+>  create mode 100644 drivers/vdpa/vdpa_user/iova_domain.c
+>  create mode 100644 drivers/vdpa/vdpa_user/iova_domain.h
+>  create mode 100644 drivers/vdpa/vdpa_user/vduse.h
+>  create mode 100644 drivers/vdpa/vdpa_user/vduse_dev.c
+>  create mode 100644 include/uapi/linux/vduse.h
+> 
+> -- 
+> 2.25.1
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
