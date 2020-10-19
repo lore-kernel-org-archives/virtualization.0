@@ -2,112 +2,120 @@ Return-Path: <SRS0=EPK4=D2=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 7E223C433DF
-	for <virtualization@archiver.kernel.org>; Mon, 19 Oct 2020 17:32:42 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4B7DCC433E7
+	for <virtualization@archiver.kernel.org>; Mon, 19 Oct 2020 19:42:34 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B66EA222B8
-	for <virtualization@archiver.kernel.org>; Mon, 19 Oct 2020 17:32:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 8D70C222EA
+	for <virtualization@archiver.kernel.org>; Mon, 19 Oct 2020 19:42:33 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EjcKEX4s"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B66EA222B8
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=google.com header.i=@google.com header.b="vqIoQqfP"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8D70C222EA
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 0A5042DD40;
-	Mon, 19 Oct 2020 17:32:41 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id EFC4D2E106;
+	Mon, 19 Oct 2020 19:42:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id oxtjRJFyaRiA; Mon, 19 Oct 2020 17:32:36 +0000 (UTC)
+	with ESMTP id RBroNz-kQgzr; Mon, 19 Oct 2020 19:42:30 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id B7E1D2E100;
-	Mon, 19 Oct 2020 17:32:25 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 823EA2E0F6;
+	Mon, 19 Oct 2020 19:42:30 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A600FC0052;
-	Mon, 19 Oct 2020 17:32:25 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 551E9C0052;
+	Mon, 19 Oct 2020 19:42:30 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 46586C0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 073F0C0051
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Oct 2020 17:32:24 +0000 (UTC)
+ Mon, 19 Oct 2020 19:42:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 35B8F86C1D
+ by fraxinus.osuosl.org (Postfix) with ESMTP id F2AF886A9D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Oct 2020 17:32:24 +0000 (UTC)
+ Mon, 19 Oct 2020 19:42:28 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id tIcVJJquH4lY
+ with ESMTP id kSG0QbdNv5xW
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Oct 2020 17:32:23 +0000 (UTC)
+ Mon, 19 Oct 2020 19:42:27 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 29C6B86C15
+Received: from mail-pl1-f196.google.com (mail-pl1-f196.google.com
+ [209.85.214.196])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 9981D86A95
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Oct 2020 17:32:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1603128741;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type;
- bh=IwxK6Q4h+WdvKv/XP6x1buGTHeGA/6smjojpEbN3Qsc=;
- b=EjcKEX4sRwMdQBzh6bjLhpyXikRZnqEFLSnnltGWnR5o/yuUwlgLR2UYF7aGUtxdoknW4i
- btczlltMiP4C/KvukN/RNCYfwaxGN2TrxH5o3G5stuwXNUzsZQLTVe5mOCSes1KHWwTtXK
- nu7Ryr9/63xfH6o3KLDKAvS0nU3yxHA=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-342-5XyT83shPP-dRabLQ59ppw-1; Mon, 19 Oct 2020 13:32:20 -0400
-X-MC-Unique: 5XyT83shPP-dRabLQ59ppw-1
-Received: by mail-wm1-f70.google.com with SMTP id d197so78452wmd.4
+ Mon, 19 Oct 2020 19:42:27 +0000 (UTC)
+Received: by mail-pl1-f196.google.com with SMTP id bf6so330450plb.4
  for <virtualization@lists.linux-foundation.org>;
- Mon, 19 Oct 2020 10:32:20 -0700 (PDT)
+ Mon, 19 Oct 2020 12:42:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=20161025;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=no6WOfZDuAXhTDfVia9Vunkz4L7BthY0F8m0jo4//vs=;
+ b=vqIoQqfPtCUD7ceHGEmbvFqqUZd/9dE0IpLQQ4p4nyONBXQMSFxBG5OzgCaJfT8eu8
+ Ez0DMwUntzcU9c2WJzs/WqMvxG3bzlj0mstlcz+E4fW0gt02sZNjrL1HdU6SHVwmCE5R
+ WFeHYzJRJuPZspqj8YJ2wlUmUN4Mc8MNrI6kLekCJ8yejCepkvkgEUeb7TbpDze1NnEh
+ TP2SjhqdakZDUedR00qYjd62k5W2m7FgfHIpcuS/rhjqMGxVL3Apppn+UDRO/ftdIfoh
+ duvoKavmXDacw9mysFV+xdp1Tg4QxCPiDxNSeCeZyO+34Y2S1kYSdX61NJzSKhmGsX5T
+ HLpA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
- :content-disposition;
- bh=IwxK6Q4h+WdvKv/XP6x1buGTHeGA/6smjojpEbN3Qsc=;
- b=MEi6sSTGqV/7smiyUTyS0Rl3M0YyPcf7LJ31+KYdJU3tgw5kRQx5O5InFEDh0dPfMe
- IHG2X7N2Fq11h3F2ALSxDzHJhuOCipspJSeJ0j5AdrrJnaJ70AB1+dufoKWOdP5KcDd0
- r0rtBKWp+29IK1oyt/bZedPMqlwf9bemjjjHQAdfOEJYuXRT6TcyBT073B4mv1sHtSE4
- Njkcp+drK1Fm51Ar73AbqQVRYE/h0Jq8lQv+uLvYADfHGFvDtvT4qXfjwpR3cm67rY01
- fxcOy237a20C9hvnDgcT2AvINaHcekxsCYqOsfCOrLfNcKzIT2xP6AayfEKbUJQj2oeY
- 7t8w==
-X-Gm-Message-State: AOAM531wc7+nloVwgmRvhaRzm7z1nXLCs69J07gdXpKUYSPZAR8Lqkqj
- 7HaOTWDSyMd66xHOyGucHDdS3J71xsPT5QibjvnPyoedeKDhTRcSvLmEwMYLT7D7FStZNQK8na7
- Q8Z//PP0iWmwn8sKiqJmvBIHIu5TLPqaG0WEDsAsXmA==
-X-Received: by 2002:a7b:ce97:: with SMTP id q23mr300393wmj.19.1603128736827;
- Mon, 19 Oct 2020 10:32:16 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJy7z8oVSaWaVNfcjAEoHyyZqhoqznYik9UTpBXMJWvO/x87KAJCbKUUGAAv3K0C8vP5KF0Yww==
-X-Received: by 2002:a7b:ce97:: with SMTP id q23mr300362wmj.19.1603128736514;
- Mon, 19 Oct 2020 10:32:16 -0700 (PDT)
-Received: from redhat.com (bzq-79-176-118-93.red.bezeqint.net. [79.176.118.93])
- by smtp.gmail.com with ESMTPSA id y10sm464362wrq.73.2020.10.19.10.32.14
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 19 Oct 2020 10:32:15 -0700 (PDT)
-Date: Mon, 19 Oct 2020 13:32:12 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH net v2] Revert "virtio-net: ethtool configurable RXCSUM"
-Message-ID: <20201018103122.454967-1-mst@redhat.com>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=no6WOfZDuAXhTDfVia9Vunkz4L7BthY0F8m0jo4//vs=;
+ b=AypW1E6/0YKonUxuyLjfXnECx76XaunJ5bcRNY6IBaqway3JaopOC96TjwB58MoE/F
+ YFTKpe42SXJwyynymGOC+zC5Ivq3aJigZNdBSQu33SNNkHCPGnetmOCPbphX85b1rfH3
+ BwhTI+CG8Txmo4XkjTpFoRs5j2RA1FvxZZCNOXFJp4jbQeId+JRzS+/gkJBuIxin+dRo
+ +fuSBXUGXp6Wy2SFNJPEL1b143/3NIi0QAJmtUdXcOV12DhtoVPJGjmrgwHjAidPi8o/
+ tAIX10RB/EpezSkpJknHWVLrkISWUXIPaEvdS0ZK0IYnbe9AIku61slBax4ST8Z2pvXP
+ lr2Q==
+X-Gm-Message-State: AOAM5309KSDt2TmGG3AE5GRzpUV+mMS6XHB59WtIRAlA9/HhFdul/Daj
+ GWfF6QmOAB40yYIEDN3rlMWUPSoqDvAI55MWa3Yemw==
+X-Google-Smtp-Source: ABdhPJxy4K+2uRaBuhFTeTSlHPetqrP1uAAP7dKvm6UBZz10SCa23PJUxb54E5JJmlle9J/y892Qp+TTrKvO4GeNXIk=
+X-Received: by 2002:a17:90a:ee87:: with SMTP id i7mr921476pjz.25.1603136546933; 
+ Mon, 19 Oct 2020 12:42:26 -0700 (PDT)
 MIME-Version: 1.0
-X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
-Content-Disposition: inline
-Cc: Willem de Bruijn <willemb@google.com>, kernel test robot <lkp@intel.com>,
- Daniel Borkmann <daniel@iogearbox.net>, netdev@vger.kernel.org,
- bpf@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
- Alexei Starovoitov <ast@kernel.org>, virtualization@lists.linux-foundation.org,
- Jakub Kicinski <kuba@kernel.org>, "David S. Miller" <davem@davemloft.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>
+References: <20201017160928.12698-1-trix@redhat.com>
+ <20201018054332.GB593954@kroah.com>
+In-Reply-To: <20201018054332.GB593954@kroah.com>
+Date: Mon, 19 Oct 2020 12:42:15 -0700
+Message-ID: <CAKwvOdkR_Ttfo7_JKUiZFVqr=Uh=4b05KCPCSuzwk=zaWtA2_Q@mail.gmail.com>
+Subject: Re: [RFC] treewide: cleanup unreachable breaks
+To: Tom Rix <trix@redhat.com>
+Cc: alsa-devel@alsa-project.org,
+ clang-built-linux <clang-built-linux@googlegroups.com>,
+ Greg KH <gregkh@linuxfoundation.org>, linux-iio@vger.kernel.org,
+ nouveau@lists.freedesktop.org, storagedev@microchip.com,
+ dri-devel <dri-devel@lists.freedesktop.org>,
+ virtualization@lists.linux-foundation.org, keyrings@vger.kernel.org,
+ linux-mtd@lists.infradead.org, ath10k@lists.infradead.org,
+ linux-stm32@st-md-mailman.stormreply.com, usb-storage@lists.one-eyed-alien.net,
+ linux-watchdog@vger.kernel.org, devel@driverdev.osuosl.org,
+ linux-samsung-soc@vger.kernel.org, linux-scsi@vger.kernel.org,
+ linux-nvdimm <linux-nvdimm@lists.01.org>,
+ amd-gfx list <amd-gfx@lists.freedesktop.org>, linux-acpi@vger.kernel.org,
+ intel-wired-lan@lists.osuosl.org, industrypack-devel@lists.sourceforge.net,
+ linux-pci@vger.kernel.org, spice-devel@lists.freedesktop.org,
+ MPT-FusionLinux.pdl@broadcom.com, linux-media@vger.kernel.org,
+ linux-serial@vger.kernel.org, linux-nfc@lists.01.org, linux-pm@vger.kernel.org,
+ linux-can@vger.kernel.org, linux-block@vger.kernel.org,
+ linux-gpio@vger.kernel.org, xen-devel@lists.xenproject.org,
+ linux-amlogic@lists.infradead.org, openipmi-developer@lists.sourceforge.net,
+ platform-driver-x86@vger.kernel.org, linux-integrity@vger.kernel.org,
+ Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-edac@vger.kernel.org,
+ George Burgess <gbiv@google.com>, Network Development <netdev@vger.kernel.org>,
+ linux-usb@vger.kernel.org, linux-wireless <linux-wireless@vger.kernel.org>,
+ LKML <linux-kernel@vger.kernel.org>, linux-security-module@vger.kernel.org,
+ "open list:HARDWARE RANDOM NUMBER GENERATOR CORE"
+ <linux-crypto@vger.kernel.org>, patches@opensource.cirrus.com,
+ bpf <bpf@vger.kernel.org>, ocfs2-devel@oss.oracle.com,
+ linux-power@fi.rohmeurope.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -119,217 +127,61 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Nick Desaulniers via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Nick Desaulniers <ndesaulniers@google.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
-Message-ID: <20201019173212.4R6UIC4dlrf5J7XGxRRflXMzGuDNbZWQzES19425nxQ@z>
 
-This reverts commit 3618ad2a7c0e78e4258386394d5d5f92a3dbccf8.
+On Sat, Oct 17, 2020 at 10:43 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Sat, Oct 17, 2020 at 09:09:28AM -0700, trix@redhat.com wrote:
+> > From: Tom Rix <trix@redhat.com>
+> >
+> > This is a upcoming change to clean up a new warning treewide.
+> > I am wondering if the change could be one mega patch (see below) or
+> > normal patch per file about 100 patches or somewhere half way by collecting
+> > early acks.
+>
+> Please break it up into one-patch-per-subsystem, like normal, and get it
+> merged that way.
+>
+> Sending us a patch, without even a diffstat to review, isn't going to
+> get you very far...
 
-When the device does not have a control vq (e.g. when using a
-version of QEMU based on upstream v0.10 or older, or when specifying
-ctrl_vq=off,ctrl_rx=off,ctrl_vlan=off,ctrl_rx_extra=off,ctrl_mac_addr=off
-for the device on the QEMU command line), that commit causes a crash:
+Tom,
+If you're able to automate this cleanup, I suggest checking in a
+script that can be run on a directory.  Then for each subsystem you
+can say in your commit "I ran scripts/fix_whatever.py on this subdir."
+ Then others can help you drive the tree wide cleanup.  Then we can
+enable -Wunreachable-code-break either by default, or W=2 right now
+might be a good idea.
 
-[   72.229171] kernel BUG at drivers/net/virtio_net.c:1667!
-[   72.230266] invalid opcode: 0000 [#1] PREEMPT SMP
-[   72.231172] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.9.0-rc8-02934-g3618ad2a7c0e7 #1
-[   72.231172] EIP: virtnet_send_command+0x120/0x140
-[   72.231172] Code: 00 0f 94 c0 8b 7d f0 65 33 3d 14 00 00 00 75 1c 8d 65 f4 5b 5e 5f 5d c3 66 90 be 01 00 00 00 e9 6e ff ff ff 8d b6 00
-+00 00 00 <0f> 0b e8 d9 bb 82 00 eb 17 8d b4 26 00 00 00 00 8d b4 26 00 00 00
-[   72.231172] EAX: 0000000d EBX: f72895c0 ECX: 00000017 EDX: 00000011
-[   72.231172] ESI: f7197800 EDI: ed69bd00 EBP: ed69bcf4 ESP: ed69bc98
-[   72.231172] DS: 007b ES: 007b FS: 00d8 GS: 00e0 SS: 0068 EFLAGS: 00010246
-[   72.231172] CR0: 80050033 CR2: 00000000 CR3: 02c84000 CR4: 000406f0
-[   72.231172] Call Trace:
-[   72.231172]  ? __virt_addr_valid+0x45/0x60
-[   72.231172]  ? ___cache_free+0x51f/0x760
-[   72.231172]  ? kobject_uevent_env+0xf4/0x560
-[   72.231172]  virtnet_set_guest_offloads+0x4d/0x80
-[   72.231172]  virtnet_set_features+0x85/0x120
-[   72.231172]  ? virtnet_set_guest_offloads+0x80/0x80
-[   72.231172]  __netdev_update_features+0x27a/0x8e0
-[   72.231172]  ? kobject_uevent+0xa/0x20
-[   72.231172]  ? netdev_register_kobject+0x12c/0x160
-[   72.231172]  register_netdevice+0x4fe/0x740
-[   72.231172]  register_netdev+0x1c/0x40
-[   72.231172]  virtnet_probe+0x728/0xb60
-[   72.231172]  ? _raw_spin_unlock+0x1d/0x40
-[   72.231172]  ? virtio_vdpa_get_status+0x1c/0x20
-[   72.231172]  virtio_dev_probe+0x1c6/0x271
-[   72.231172]  really_probe+0x195/0x2e0
-[   72.231172]  driver_probe_device+0x26/0x60
-[   72.231172]  device_driver_attach+0x49/0x60
-[   72.231172]  __driver_attach+0x46/0xc0
-[   72.231172]  ? device_driver_attach+0x60/0x60
-[   72.231172]  bus_add_driver+0x197/0x1c0
-[   72.231172]  driver_register+0x66/0xc0
-[   72.231172]  register_virtio_driver+0x1b/0x40
-[   72.231172]  virtio_net_driver_init+0x61/0x86
-[   72.231172]  ? veth_init+0x14/0x14
-[   72.231172]  do_one_initcall+0x76/0x2e4
-[   72.231172]  ? rdinit_setup+0x2a/0x2a
-[   72.231172]  do_initcalls+0xb2/0xd5
-[   72.231172]  kernel_init_freeable+0x14f/0x179
-[   72.231172]  ? rest_init+0x100/0x100
-[   72.231172]  kernel_init+0xd/0xe0
-[   72.231172]  ret_from_fork+0x1c/0x30
-[   72.231172] Modules linked in:
-[   72.269563] ---[ end trace a6ebc4afea0e6cb1 ]---
+Ah, George (gbiv@, cc'ed), did an analysis recently of
+`-Wunreachable-code-loop-increment`, `-Wunreachable-code-break`, and
+`-Wunreachable-code-return` for Android userspace.  From the review:
+```
+Spoilers: of these, it seems useful to turn on
+-Wunreachable-code-loop-increment and -Wunreachable-code-return by
+default for Android
+...
+While these conventions about always having break arguably became
+obsolete when we enabled -Wfallthrough, my sample turned up zero
+potential bugs caught by this warning, and we'd need to put a lot of
+effort into getting a clean tree. So this warning doesn't seem to be
+worth it.
+```
+Looks like there's an order of magnitude of `-Wunreachable-code-break`
+than the other two.
 
-The reason is that virtnet_set_features now calls virtnet_set_guest_offloads
-unconditionally, it used to only call it when there is something
-to configure.
-
-If device does not have a control vq, everything breaks.
-
-Looking at this some more, I noticed that it's not really checking the
-hardware too much. E.g.
-
-        if ((dev->features ^ features) & NETIF_F_LRO) {
-                if (features & NETIF_F_LRO)
-                        offloads |= GUEST_OFFLOAD_LRO_MASK &
-                                    vi->guest_offloads_capable;
-                else
-                        offloads &= ~GUEST_OFFLOAD_LRO_MASK;
-        }
-
-and
-
-                                (1ULL << VIRTIO_NET_F_GUEST_TSO6) | \
-                                (1ULL << VIRTIO_NET_F_GUEST_ECN)  | \
-                                (1ULL << VIRTIO_NET_F_GUEST_UFO))
-
-But there's no guarantee that e.g. VIRTIO_NET_F_GUEST_TSO6 is set.
-
-If it isn't command should not send it.
-
-Further
-
-static int virtnet_set_features(struct net_device *dev,
-                                netdev_features_t features)
-{
-        struct virtnet_info *vi = netdev_priv(dev);
-        u64 offloads = vi->guest_offloads;
-
-seems wrong since guest_offloads is zero initialized,
-it does not reflect the state after reset which comes from
-the features.
-
-Revert the original commit for now.
-
-Cc: Tonghao Zhang <xiangxia.m.yue@gmail.com>
-Cc: Willem de Bruijn <willemb@google.com>
-Fixes: 3618ad2a7c0e7 ("virtio-net: ethtool configurable RXCSUM")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
-
-changes from v1:
-	- clarify how to reproduce the bug in the log
-
-
- drivers/net/virtio_net.c | 50 +++++++++++-----------------------------
- 1 file changed, 13 insertions(+), 37 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index d2d2c4a53cf2..21b71148c532 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -68,8 +68,6 @@ static const unsigned long guest_offloads[] = {
- 				(1ULL << VIRTIO_NET_F_GUEST_ECN)  | \
- 				(1ULL << VIRTIO_NET_F_GUEST_UFO))
- 
--#define GUEST_OFFLOAD_CSUM_MASK (1ULL << VIRTIO_NET_F_GUEST_CSUM)
--
- struct virtnet_stat_desc {
- 	char desc[ETH_GSTRING_LEN];
- 	size_t offset;
-@@ -2524,48 +2522,29 @@ static int virtnet_get_phys_port_name(struct net_device *dev, char *buf,
- 	return 0;
- }
- 
--static netdev_features_t virtnet_fix_features(struct net_device *netdev,
--					      netdev_features_t features)
--{
--	/* If Rx checksum is disabled, LRO should also be disabled. */
--	if (!(features & NETIF_F_RXCSUM))
--		features &= ~NETIF_F_LRO;
--
--	return features;
--}
--
- static int virtnet_set_features(struct net_device *dev,
- 				netdev_features_t features)
- {
- 	struct virtnet_info *vi = netdev_priv(dev);
--	u64 offloads = vi->guest_offloads;
-+	u64 offloads;
- 	int err;
- 
--	/* Don't allow configuration while XDP is active. */
--	if (vi->xdp_queue_pairs)
--		return -EBUSY;
--
- 	if ((dev->features ^ features) & NETIF_F_LRO) {
-+		if (vi->xdp_queue_pairs)
-+			return -EBUSY;
-+
- 		if (features & NETIF_F_LRO)
--			offloads |= GUEST_OFFLOAD_LRO_MASK &
--				    vi->guest_offloads_capable;
-+			offloads = vi->guest_offloads_capable;
- 		else
--			offloads &= ~GUEST_OFFLOAD_LRO_MASK;
-+			offloads = vi->guest_offloads_capable &
-+				   ~GUEST_OFFLOAD_LRO_MASK;
-+
-+		err = virtnet_set_guest_offloads(vi, offloads);
-+		if (err)
-+			return err;
-+		vi->guest_offloads = offloads;
- 	}
- 
--	if ((dev->features ^ features) & NETIF_F_RXCSUM) {
--		if (features & NETIF_F_RXCSUM)
--			offloads |= GUEST_OFFLOAD_CSUM_MASK &
--				    vi->guest_offloads_capable;
--		else
--			offloads &= ~GUEST_OFFLOAD_CSUM_MASK;
--	}
--
--	err = virtnet_set_guest_offloads(vi, offloads);
--	if (err)
--		return err;
--
--	vi->guest_offloads = offloads;
- 	return 0;
- }
- 
-@@ -2584,7 +2563,6 @@ static const struct net_device_ops virtnet_netdev = {
- 	.ndo_features_check	= passthru_features_check,
- 	.ndo_get_phys_port_name	= virtnet_get_phys_port_name,
- 	.ndo_set_features	= virtnet_set_features,
--	.ndo_fix_features	= virtnet_fix_features,
- };
- 
- static void virtnet_config_changed_work(struct work_struct *work)
-@@ -3035,10 +3013,8 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
- 	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO6))
- 		dev->features |= NETIF_F_LRO;
--	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS)) {
--		dev->hw_features |= NETIF_F_RXCSUM;
-+	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS))
- 		dev->hw_features |= NETIF_F_LRO;
--	}
- 
- 	dev->vlan_features = dev->features;
- 
+We probably should add all 3 to W=2 builds (wrapped in cc-option).
+I've filed https://github.com/ClangBuiltLinux/linux/issues/1180 to
+follow up on.
 -- 
-MST
-
+Thanks,
+~Nick Desaulniers
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
