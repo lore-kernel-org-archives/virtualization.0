@@ -2,112 +2,101 @@ Return-Path: <SRS0=2FsC=D4=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.3 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
-	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BBC2C388F9
-	for <virtualization@archiver.kernel.org>; Wed, 21 Oct 2020 14:34:22 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 623A3C55178
+	for <virtualization@archiver.kernel.org>; Wed, 21 Oct 2020 14:43:20 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 84C4F22249
-	for <virtualization@archiver.kernel.org>; Wed, 21 Oct 2020 14:34:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 8A02122283
+	for <virtualization@archiver.kernel.org>; Wed, 21 Oct 2020 14:43:19 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IhHKSipK"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 84C4F22249
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="O1ip/UAL"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8A02122283
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id E7A0387403;
-	Wed, 21 Oct 2020 14:34:20 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id zP73LGPFN7Z3; Wed, 21 Oct 2020 14:34:20 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 3CEB887219;
-	Wed, 21 Oct 2020 14:34:20 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2E52AC0052;
-	Wed, 21 Oct 2020 14:34:20 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 18793C0051
- for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Oct 2020 14:34:19 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 13C90855FE
- for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Oct 2020 14:34:19 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 1671F8626E;
+	Wed, 21 Oct 2020 14:43:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id YQllcR5l8ZtR; Wed, 21 Oct 2020 14:43:18 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 2759486234;
+	Wed, 21 Oct 2020 14:43:18 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 0D546C0052;
+	Wed, 21 Oct 2020 14:43:18 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 72948C0051
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 21 Oct 2020 14:43:17 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by hemlock.osuosl.org (Postfix) with ESMTP id 60AD7873F0
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 21 Oct 2020 14:43:17 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id BnJrUFfMLwEL
+ with ESMTP id WTg4hpNQDgr6
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Oct 2020 14:34:18 +0000 (UTC)
+ Wed, 21 Oct 2020 14:43:16 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-ua1-f67.google.com (mail-ua1-f67.google.com
- [209.85.222.67])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 5BC9E855D1
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 4BCDB871C7
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Oct 2020 14:34:18 +0000 (UTC)
-Received: by mail-ua1-f67.google.com with SMTP id x26so720544uau.0
- for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Oct 2020 07:34:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=VmRKVQeRsF5XXdxrVGzoz/VPiQ1G/DrEd5eWr/793iM=;
- b=IhHKSipK6sX/mITywnB42dvTSeILc1wMT0ISsC1r4OnOF6ON6M5yEkOw+PaQOM9i2I
- WUdUr89l2WpLNCmW8VRTMoCNBFqXMihiNngIpZ+HiVJdr1jFuGVjjCMEOUifu3pRAAbh
- DFfed1lcby+zWbYVttxksMQHFcR6OQcHEFfWxnTHj5CN5tY0a3w1tTWEhofIwP8N5NNT
- 7RIMn4q+dDYJ6Y11WLpE/nUXKyHMeAdB/FvPlfGXD8YDmzS0J5PqWmI1B1VvUPiVwS3S
- 1+mQPdhK93QDmCExjEHzN4QTkzwgE/mxWhmWXdkrmMQDSFYh3wrBvfsOlQlbZ4Z31hpD
- M3Bw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=VmRKVQeRsF5XXdxrVGzoz/VPiQ1G/DrEd5eWr/793iM=;
- b=bz7ctjLPvEBeIPMgbXyKCWNlwv6JYun6hGWxCR/B3ZPdbcCz52jadimtExABn9S75e
- 3IEW2hSKYaGtjI/3P5C9IHaD7dDaGKuddPjbX3kwaNw2LivMVhxnaWvIUQ6T8FIdyNoZ
- uSz82JqBshKkUGtQNGBXDAdM9UujofPfl7yiiEyJnXokDqm1SUXSx7n/sl0Q0ZA52wg6
- 1Hrz9BFIpsVk7XhuYCd6o+l+bDDNG89J+eSjwnAQLeHITMA7awxmkYIvfo3kDjG5JlCv
- G8UNAh54sTUDBZNib/CIUcdz6SVdUadqWlorjAKF4EolYV0+4HeKVPiyZt5HPjdMx+0l
- DykA==
-X-Gm-Message-State: AOAM533fhv+i2j6PyUGppKckDGjkcikuVRtynisusGw0AUZCQhMk/TRa
- Ok69NBaqFzVVmAKvjHpm9zllP9uOU4E=
-X-Google-Smtp-Source: ABdhPJzFlzVNcU/1BRFvhofNdXSCJUAEOJTbr7p+ToH1YcZfOT6DGnPWoyY5PeaGe3ibvel/foaoFA==
-X-Received: by 2002:ab0:314b:: with SMTP id e11mr1918282uam.117.1603290856784; 
- Wed, 21 Oct 2020 07:34:16 -0700 (PDT)
-Received: from mail-vs1-f52.google.com (mail-vs1-f52.google.com.
- [209.85.217.52])
- by smtp.gmail.com with ESMTPSA id h7sm304565vsc.31.2020.10.21.07.34.13
- for <virtualization@lists.linux-foundation.org>
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Wed, 21 Oct 2020 07:34:14 -0700 (PDT)
-Received: by mail-vs1-f52.google.com with SMTP id p9so1372566vsl.1
- for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Oct 2020 07:34:13 -0700 (PDT)
-X-Received: by 2002:a67:7704:: with SMTP id s4mr2165928vsc.51.1603290853086;
- Wed, 21 Oct 2020 07:34:13 -0700 (PDT)
+ Wed, 21 Oct 2020 14:43:16 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1603291395;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=I+LXC1KoV/7wz8+ccySiFrURJV52SFpHKWLbovJ/+rk=;
+ b=O1ip/UALqeoUlrWcBaKsicqqdm9ADikHwg6hnzXRwGX6bR2Q0OLh0u/ooMbsQxzOJXBWGM
+ QfO+5bVWoPP/wI8JDSpk8SAVO7SCShtrhi6yJKkiksZxBCBh/ghBQE5FVAGGeY2loB8VBW
+ LVZgHZrI8GSVqcQxng2u1CbeB1kzN6Q=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-490-gVt3ilKKMfKdSCpIviWiCQ-1; Wed, 21 Oct 2020 10:43:11 -0400
+X-MC-Unique: gVt3ilKKMfKdSCpIviWiCQ-1
+Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
+ [10.5.11.16])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D70F818B9FF1;
+ Wed, 21 Oct 2020 14:43:09 +0000 (UTC)
+Received: from redhat.com (ovpn-115-38.ams2.redhat.com [10.36.115.38])
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id 2735E5F9C1;
+ Wed, 21 Oct 2020 14:43:06 +0000 (UTC)
+Date: Wed, 21 Oct 2020 10:43:03 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Martin Wilck <mwilck@suse.com>
+Subject: Re: [PATCH v3] virtio-rng: return available data with O_NONBLOCK
+Message-ID: <20201021104239-mutt-send-email-mst@kernel.org>
+References: <20200811142821.12323-1-mwilck@suse.com>
+ <4ae4f348-c186-f7e4-f7e3-b1f1e4a4b408@redhat.com>
+ <20200826082613-mutt-send-email-mst@kernel.org>
+ <519e0296a7d61d5e9e8d258a855eb42a57c641c5.camel@suse.com>
+ <a5d4bcd3-e468-e818-3bd2-3a1b0fa172d8@redhat.com>
+ <20200908101413-mutt-send-email-mst@kernel.org>
+ <0a5fcbc9bb6eef521c627035687de4654a1dd740.camel@suse.com>
 MIME-Version: 1.0
-References: <20201021142944.13615-1-mst@redhat.com>
-In-Reply-To: <20201021142944.13615-1-mst@redhat.com>
-From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Date: Wed, 21 Oct 2020 10:33:37 -0400
-X-Gmail-Original-Message-ID: <CA+FuTSdG=mPvSWpGLqoQ1YB0duQQvOkkV+KPW3BBTHGStS5_Qg@mail.gmail.com>
-Message-ID: <CA+FuTSdG=mPvSWpGLqoQ1YB0duQQvOkkV+KPW3BBTHGStS5_Qg@mail.gmail.com>
-Subject: Re: [PATCH v4] Revert "virtio-net: ethtool configurable RXCSUM"
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: kernel test robot <lkp@intel.com>, Daniel Borkmann <daniel@iogearbox.net>,
- Network Development <netdev@vger.kernel.org>, bpf <bpf@vger.kernel.org>,
- John Fastabend <john.fastabend@gmail.com>,
- linux-kernel <linux-kernel@vger.kernel.org>,
- Alexei Starovoitov <ast@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
- virtualization@lists.linux-foundation.org,
- "David S. Miller" <davem@davemloft.net>,
- Jesper Dangaard Brouer <hawk@kernel.org>
+In-Reply-To: <0a5fcbc9bb6eef521c627035687de4654a1dd740.camel@suse.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Laurent Vivier <lvivier@redhat.com>, Amit Shah <amit@kernel.org>,
+ qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org,
+ Philippe =?iso-8859-1?Q?Mathieu-Daud=E9?= <philmd@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -124,75 +113,299 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Oct 21, 2020 at 10:30 AM Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> This reverts commit 3618ad2a7c0e78e4258386394d5d5f92a3dbccf8.
->
-> When control vq is not negotiated, that commit causes a crash:
->
-> [   72.229171] kernel BUG at drivers/net/virtio_net.c:1667!
-> [   72.230266] invalid opcode: 0000 [#1] PREEMPT SMP
-> [   72.231172] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.9.0-rc8-02934-g3618ad2a7c0e7 #1
-> [   72.231172] EIP: virtnet_send_command+0x120/0x140
-> [   72.231172] Code: 00 0f 94 c0 8b 7d f0 65 33 3d 14 00 00 00 75 1c 8d 65 f4 5b 5e 5f 5d c3 66 90 be 01 00 00 00 e9 6e ff ff ff 8d b6 00
-> +00 00 00 <0f> 0b e8 d9 bb 82 00 eb 17 8d b4 26 00 00 00 00 8d b4 26 00 00 00
-> [   72.231172] EAX: 0000000d EBX: f72895c0 ECX: 00000017 EDX: 00000011
-> [   72.231172] ESI: f7197800 EDI: ed69bd00 EBP: ed69bcf4 ESP: ed69bc98
-> [   72.231172] DS: 007b ES: 007b FS: 00d8 GS: 00e0 SS: 0068 EFLAGS: 00010246
-> [   72.231172] CR0: 80050033 CR2: 00000000 CR3: 02c84000 CR4: 000406f0
-> [   72.231172] Call Trace:
-> [   72.231172]  ? __virt_addr_valid+0x45/0x60
-> [   72.231172]  ? ___cache_free+0x51f/0x760
-> [   72.231172]  ? kobject_uevent_env+0xf4/0x560
-> [   72.231172]  virtnet_set_guest_offloads+0x4d/0x80
-> [   72.231172]  virtnet_set_features+0x85/0x120
-> [   72.231172]  ? virtnet_set_guest_offloads+0x80/0x80
-> [   72.231172]  __netdev_update_features+0x27a/0x8e0
-> [   72.231172]  ? kobject_uevent+0xa/0x20
-> [   72.231172]  ? netdev_register_kobject+0x12c/0x160
-> [   72.231172]  register_netdevice+0x4fe/0x740
-> [   72.231172]  register_netdev+0x1c/0x40
-> [   72.231172]  virtnet_probe+0x728/0xb60
-> [   72.231172]  ? _raw_spin_unlock+0x1d/0x40
-> [   72.231172]  ? virtio_vdpa_get_status+0x1c/0x20
-> [   72.231172]  virtio_dev_probe+0x1c6/0x271
-> [   72.231172]  really_probe+0x195/0x2e0
-> [   72.231172]  driver_probe_device+0x26/0x60
-> [   72.231172]  device_driver_attach+0x49/0x60
-> [   72.231172]  __driver_attach+0x46/0xc0
-> [   72.231172]  ? device_driver_attach+0x60/0x60
-> [   72.231172]  bus_add_driver+0x197/0x1c0
-> [   72.231172]  driver_register+0x66/0xc0
-> [   72.231172]  register_virtio_driver+0x1b/0x40
-> [   72.231172]  virtio_net_driver_init+0x61/0x86
-> [   72.231172]  ? veth_init+0x14/0x14
-> [   72.231172]  do_one_initcall+0x76/0x2e4
-> [   72.231172]  ? rdinit_setup+0x2a/0x2a
-> [   72.231172]  do_initcalls+0xb2/0xd5
-> [   72.231172]  kernel_init_freeable+0x14f/0x179
-> [   72.231172]  ? rest_init+0x100/0x100
-> [   72.231172]  kernel_init+0xd/0xe0
-> [   72.231172]  ret_from_fork+0x1c/0x30
-> [   72.231172] Modules linked in:
-> [   72.269563] ---[ end trace a6ebc4afea0e6cb1 ]---
->
-> The reason is that virtnet_set_features now calls virtnet_set_guest_offloads
-> unconditionally, it used to only call it when there is something
-> to configure.
->
-> If device does not have a control vq, everything breaks.
->
-> Revert the original commit for now.
->
-> Cc: Tonghao Zhang <xiangxia.m.yue@gmail.com>
-> Cc: Willem de Bruijn <willemb@google.com>
-> Fixes: 3618ad2a7c0e7 ("virtio-net: ethtool configurable RXCSUM")
-> Reported-by: kernel test robot <lkp@intel.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+On Tue, Sep 08, 2020 at 05:33:40PM +0200, Martin Wilck wrote:
+> On Tue, 2020-09-08 at 10:14 -0400, Michael S. Tsirkin wrote:
+> > On Mon, Aug 31, 2020 at 02:37:26PM +0200, Laurent Vivier wrote:
+> > > On 28/08/2020 23:34, Martin Wilck wrote:
+> > > > On Wed, 2020-08-26 at 08:26 -0400, Michael S. Tsirkin wrote:
+> > > > > On Tue, Aug 11, 2020 at 04:42:32PM +0200, Laurent Vivier wrote:
+> > > > > > On 11/08/2020 16:28, mwilck@suse.com wrote:
+> > > > > > > From: Martin Wilck <mwilck@suse.com>
+> > > > > > > 
+> > > > > > > If a program opens /dev/hwrng with O_NONBLOCK and uses
+> > > > > > > poll() and
+> > > > > > > non-blocking read() to retrieve random data, it ends up in
+> > > > > > > a
+> > > > > > > tight
+> > > > > > > loop with poll() always returning POLLIN and read()
+> > > > > > > returning
+> > > > > > > EAGAIN.
+> > > > > > > This repeats forever until some process makes a blocking
+> > > > > > > read()
+> > > > > > > call.
+> > > > > > > The reason is that virtio_read() always returns 0 in non-
+> > > > > > > blocking 
+> > > > > > > mode,
+> > > > > > > even if data is available. Worse, it fetches random data
+> > > > > > > from the
+> > > > > > > hypervisor after every non-blocking call, without ever
+> > > > > > > using this
+> > > > > > > data.
+> > > > > > > 
+> > > > > > > The following test program illustrates the behavior and can
+> > > > > > > be
+> > > > > > > used
+> > > > > > > for testing and experiments. The problem will only be seen
+> > > > > > > if all
+> > > > > > > tasks use non-blocking access; otherwise the blocking reads
+> > > > > > > will
+> > > > > > > "recharge" the random pool and cause other, non-blocking
+> > > > > > > reads to
+> > > > > > > succeed at least sometimes.
+> > > > > > > 
+> > > > > > > /* Whether to use non-blocking mode in a task, problem
+> > > > > > > occurs if
+> > > > > > > CONDITION is 1 */
+> > > > > > > //#define CONDITION (getpid() % 2 != 0)
+> > > > > > > 
+> > > > > > > static volatile sig_atomic_t stop;
+> > > > > > > static void handler(int sig __attribute__((unused))) { stop
+> > > > > > > = 1;
+> > > > > > > }
+> > > > > > > 
+> > > > > > > static void loop(int fd, int sec)
+> > > > > > > {
+> > > > > > > 	struct pollfd pfd = { .fd = fd, .events  = POLLIN, };
+> > > > > > > 	unsigned long errors = 0, eagains = 0, bytes = 0, succ
+> > > > > > > = 0;
+> > > > > > > 	int size, rc, rd;
+> > > > > > > 
+> > > > > > > 	srandom(getpid());
+> > > > > > > 	if (CONDITION && fcntl(fd, F_SETFL, fcntl(fd, F_GETFL)
+> > > > > > > |
+> > > > > > > O_NONBLOCK) == -1)
+> > > > > > > 		perror("fcntl");
+> > > > > > > 	size = MINBUFSIZ + random() % (MAXBUFSIZ - MINBUFSIZ +
+> > > > > > > 1);
+> > > > > > > 
+> > > > > > > 	for(;;) {
+> > > > > > > 		char buf[size];
+> > > > > > > 
+> > > > > > > 		if (stop)
+> > > > > > > 			break;
+> > > > > > > 		rc = poll(&pfd, 1, sec);
+> > > > > > > 		if (rc > 0) {
+> > > > > > > 			rd = read(fd, buf, sizeof(buf));
+> > > > > > > 			if (rd == -1 && errno == EAGAIN)
+> > > > > > > 				eagains++;
+> > > > > > > 			else if (rd == -1)
+> > > > > > > 				errors++;
+> > > > > > > 			else {
+> > > > > > > 				succ++;
+> > > > > > > 				bytes += rd;
+> > > > > > > 				write(1, buf, sizeof(buf));
+> > > > > > > 			}
+> > > > > > > 		} else if (rc == -1) {
+> > > > > > > 			if (errno != EINTR)
+> > > > > > > 				perror("poll");
+> > > > > > > 			break;
+> > > > > > > 		} else
+> > > > > > > 			fprintf(stderr, "poll: timeout\n");
+> > > > > > > 	}
+> > > > > > > 	fprintf(stderr,
+> > > > > > > 		"pid %d %sblocking, bufsize %d, %d seconds, %lu
+> > > > > > > bytes
+> > > > > > > read, %lu success, %lu eagain, %lu errors\n",
+> > > > > > > 		getpid(), CONDITION ? "non-" : "", size, sec,
+> > > > > > > bytes,
+> > > > > > > succ, eagains, errors);
+> > > > > > > }
+> > > > > > > 
+> > > > > > > int main(void)
+> > > > > > > {
+> > > > > > > 	int fd;
+> > > > > > > 
+> > > > > > > 	fork(); fork();
+> > > > > > > 	fd = open("/dev/hwrng", O_RDONLY);
+> > > > > > > 	if (fd == -1) {
+> > > > > > > 		perror("open");
+> > > > > > > 		return 1;
+> > > > > > > 	};
+> > > > > > > 	signal(SIGALRM, handler);
+> > > > > > > 	alarm(SECONDS);
+> > > > > > > 	loop(fd, SECONDS);
+> > > > > > > 	close(fd);
+> > > > > > > 	wait(NULL);
+> > > > > > > 	return 0;
+> > > > > > > }
+> > > > > > > 
+> > > > > > > void loop(int fd)
+> > > > > > > {
+> > > > > > >         struct pollfd pfd0 = { .fd = fd, .events  = POLLIN,
+> > > > > > > };
+> > > > > > >         int rc;
+> > > > > > >         unsigned int n;
+> > > > > > > 
+> > > > > > >         for (n = LOOPS; n > 0; n--) {
+> > > > > > >                 struct pollfd pfd = pfd0;
+> > > > > > >                 char buf[SIZE];
+> > > > > > > 
+> > > > > > >                 rc = poll(&pfd, 1, 1);
+> > > > > > >                 if (rc > 0) {
+> > > > > > >                         int rd = read(fd, buf,
+> > > > > > > sizeof(buf));
+> > > > > > > 
+> > > > > > >                         if (rd == -1)
+> > > > > > >                                 perror("read");
+> > > > > > >                         else
+> > > > > > >                                 printf("read %d bytes\n",
+> > > > > > > rd);
+> > > > > > >                 } else if (rc == -1)
+> > > > > > >                         perror("poll");
+> > > > > > >                 else
+> > > > > > >                         fprintf(stderr, "timeout\n");
+> > > > > > > 
+> > > > > > >         }
+> > > > > > > }
+> > > > > > > 
+> > > > > > > int main(void)
+> > > > > > > {
+> > > > > > >         int fd;
+> > > > > > > 
+> > > > > > >         fd = open("/dev/hwrng", O_RDONLY|O_NONBLOCK);
+> > > > > > >         if (fd == -1) {
+> > > > > > >                 perror("open");
+> > > > > > >                 return 1;
+> > > > > > >         };
+> > > > > > >         loop(fd);
+> > > > > > >         close(fd);
+> > > > > > >         return 0;
+> > > > > > > }
+> > > > > > > 
+> > > > > > > This can be observed in the real word e.g. with nested
+> > > > > > > qemu/KVM
+> > > > > > > virtual
+> > > > > > > machines, if both the "outer" and "inner" VMs have a
+> > > > > > > virtio-rng
+> > > > > > > device.
+> > > > > > > If the "inner" VM requests random data, qemu running in the
+> > > > > > > "outer" VM
+> > > > > > > uses this device in a non-blocking manner like the test
+> > > > > > > program
+> > > > > > > above.
+> > > > > > > 
+> > > > > > > Fix it by returning available data if a previous hypervisor
+> > > > > > > call
+> > > > > > > has
+> > > > > > > completed. I tested this patch with the program above, and
+> > > > > > > with
+> > > > > > > rng-tools.
+> > > > > > > 
+> > > > > > > v2 -> v3: Simplified the implementation as suggested by
+> > > > > > > Laurent
+> > > > > > > Vivier
+> > > > > > > 
+> > > > > > > Signed-off-by: Martin Wilck <mwilck@suse.com>
+> > > > > > > ---
+> > > > > > >  drivers/char/hw_random/virtio-rng.c | 4 ++--
+> > > > > > >  1 file changed, 2 insertions(+), 2 deletions(-)
+> > > > > > > 
+> > > > > > > diff --git a/drivers/char/hw_random/virtio-rng.c
+> > > > > > > b/drivers/char/hw_random/virtio-rng.c
+> > > > > > > index a90001e02bf7..8eaeceecb41e 100644
+> > > > > > > --- a/drivers/char/hw_random/virtio-rng.c
+> > > > > > > +++ b/drivers/char/hw_random/virtio-rng.c
+> > > > > > > @@ -65,7 +65,7 @@ static int virtio_read(struct hwrng *rng,
+> > > > > > > void
+> > > > > > > *buf, size_t size, bool wait)
+> > > > > > >  		register_buffer(vi, buf, size);
+> > > > > > >  	}
+> > > > > > >  
+> > > > > > > -	if (!wait)
+> > > > > > > +	if (!wait && !completion_done(&vi->have_data))
+> > > > > > >  		return 0;
+> > > > > > >  
+> > > > > > >  	ret = wait_for_completion_killable(&vi->have_data);
+> > > > > > > @@ -74,7 +74,7 @@ static int virtio_read(struct hwrng *rng,
+> > > > > > > void
+> > > > > > > *buf, size_t size, bool wait)
+> > > > > > >  
+> > > > > > >  	vi->busy = false;
+> > > > > > >  
+> > > > > > > -	return vi->data_avail;
+> > > > > > > +	return min_t(size_t, size, vi->data_avail);
+> > > > > > >  }
+> > > > > > >  
+> > > > > > >  static void virtio_cleanup(struct hwrng *rng)
+> > > > > > > 
+> > > > > > 
+> > > > > > Reviewed-by: Laurent Vivier <lvivier@redhat.com>
+> > > > > 
+> > > > > Laurent didn't we agree the real fix is private buffers in the
+> > > > > driver,
+> > > > > and copying out from there?
+> > > > > 
+> > > > 
+> > > > Can we perhaps proceed with this for now? AFAICS the private
+> > > > buffer
+> > > > implementation would be a larger effort, while we have the issues
+> > > > with
+> > > > nested VMs getting no entropy today.
+> > > > 
+> > > 
+> > > I agree. I think it's important to have a simple and quick fix for
+> > > the
+> > > problem reported by Martin.
+> > > 
+> > > We need the private buffers but not sure how long it will take to
+> > > have
+> > > them included in the kernel and how many new bugs will be
+> > > introduced
+> > > doing that as the code is hard to understand and the core is shared
+> > > with
+> > > several other hardware backends that can be impacted by the changes
+> > > needed.
+> > > 
+> > > Thanks,
+> > > Laurent
+> > 
+> > However I am not sure with the patch applies we never return
+> > the same buffer to userspace twice, e.g. if one is
+> > non blocking another blocking. Doing that would be a bug.
+> > 
+> 
+> As Laurent mentioned in 
+> https://lists.gnu.org/archive/html/qemu-devel/2020-08/msg02039.html,
+> there are only 2 different buffers that may be passed to virtio_read(),
+> rng_buffer and rng_fillbuf.
+> The latter is only used in blocking mode.
+> 
+> AFAICS there's just one problematic situation: 
+> 
+>  1 a user space process reads random data without blocking and runs
+> register_buffer(), gets no data, releases reading_mutex
+>  2 the hwrng kthread grabs the mutex and makes a sync call, vi->busy is
+> still set, so no new completion is initialized.
+>  3 hwrng calls wait_for_completion_killable() and sees the completion
+>    that had been initialized by the user space process previously,
+>  4 hwrng "thinks" it got some positive randomness, but random data have
+>    actually been written into rng_buffer, not rng_fillbuff.
+> 
+> This is indeed bad, but it can happen with the current code as well.
+> Actually, it's more likely to happen with the current code, because
+> asynchronous callers might hang forever trying to get entropy,
+> making this scenario more likely (if there's a process, like nested
+> qemu, that would keep calling . So this wouldn't be a regression caused
+> by my patch, AFAICT.
+> 
+> How can we avoid this problem entirely? A) With private buffers, of
+> course. B) Another, a bit hackish, approach would be to remember the
+> active "buffer" pointer in virtio_rng, and restart the IO when a
+> another buffer is passed down. C) Finally, we could modify
+> virtio_read() such that blocking calls always re-initialize the buffer;
+> they'd then have to wait for a potential already running IO from a
+> previous, non-blocking access to finish first.
+> 
+> But I believe this is something which could (and should) be done
+> independently. Alternatively, I could add B) or C). A) I'd rather leave
+> to Laurent.
+> 
+> Regards,
+> Martin
+> 
 
-Acked-by: Willem de Bruijn <willemb@google.com>
+C sounds good to me. Laurent?
 
-Thanks Michael.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
