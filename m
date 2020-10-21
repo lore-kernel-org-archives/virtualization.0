@@ -2,104 +2,103 @@ Return-Path: <SRS0=2FsC=D4=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.3 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
+X-Spam-Status: No, score=-6.3 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
 	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F335AC55178
-	for <virtualization@archiver.kernel.org>; Wed, 21 Oct 2020 14:19:05 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BBC2C388F9
+	for <virtualization@archiver.kernel.org>; Wed, 21 Oct 2020 14:34:22 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 5A75D2224E
-	for <virtualization@archiver.kernel.org>; Wed, 21 Oct 2020 14:19:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 84C4F22249
+	for <virtualization@archiver.kernel.org>; Wed, 21 Oct 2020 14:34:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pxtUeUD4"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5A75D2224E
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IhHKSipK"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 84C4F22249
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id BB00886964;
-	Wed, 21 Oct 2020 14:19:04 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id E7A0387403;
+	Wed, 21 Oct 2020 14:34:20 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id caXvDSn2yzyw; Wed, 21 Oct 2020 14:19:03 +0000 (UTC)
+	with ESMTP id zP73LGPFN7Z3; Wed, 21 Oct 2020 14:34:20 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id B6420869B9;
-	Wed, 21 Oct 2020 14:19:03 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 3CEB887219;
+	Wed, 21 Oct 2020 14:34:20 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 96B93C0052;
-	Wed, 21 Oct 2020 14:19:03 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2E52AC0052;
+	Wed, 21 Oct 2020 14:34:20 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id EA523C0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 18793C0051
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Oct 2020 14:19:01 +0000 (UTC)
+ Wed, 21 Oct 2020 14:34:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id D1EA786102
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 13C90855FE
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Oct 2020 14:19:01 +0000 (UTC)
+ Wed, 21 Oct 2020 14:34:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ZBhcdaVGz30A
+ with ESMTP id BnJrUFfMLwEL
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Oct 2020 14:19:01 +0000 (UTC)
+ Wed, 21 Oct 2020 14:34:18 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-ua1-f65.google.com (mail-ua1-f65.google.com
- [209.85.222.65])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 105E486101
+Received: from mail-ua1-f67.google.com (mail-ua1-f67.google.com
+ [209.85.222.67])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 5BC9E855D1
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Oct 2020 14:19:01 +0000 (UTC)
-Received: by mail-ua1-f65.google.com with SMTP id c1so698862uap.3
+ Wed, 21 Oct 2020 14:34:18 +0000 (UTC)
+Received: by mail-ua1-f67.google.com with SMTP id x26so720544uau.0
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Oct 2020 07:19:01 -0700 (PDT)
+ Wed, 21 Oct 2020 07:34:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=OjMv92+4oU1Jh0KOe7rYhLDxGnwEq0TYxE8gqZwye8I=;
- b=pxtUeUD4lPmCkWzUTrMWaieU/qLdb3ndVcshp+AGw5M9jgNmSgKxhTFShTFQ1NBM1E
- mW2V9Oog1rFYQY0RRuhaC8xfiT7rs8M3ACbx8yAp48YvwF8ODRMa2+mSJNSVH3qVCd1n
- +cVB8OedpHsz7td37fQtX2cWO4EDasdM0rZ5bwWe3MRzPXMFyMwSwZ0FBZE0I5qlPVpN
- /tVvPOMxO8V9+rzZvpa3Ual6RWdmY3WtWJrj7iBQtho2+5Lg1PKjKq4d+ECi28g8patC
- jZzy/Xi1BL49TqewVix6QCHI///WBFCPUZh7s2ZRE/O3dNizAx77SYzjK9N7gOq5WQKl
- SLbQ==
+ :cc; bh=VmRKVQeRsF5XXdxrVGzoz/VPiQ1G/DrEd5eWr/793iM=;
+ b=IhHKSipK6sX/mITywnB42dvTSeILc1wMT0ISsC1r4OnOF6ON6M5yEkOw+PaQOM9i2I
+ WUdUr89l2WpLNCmW8VRTMoCNBFqXMihiNngIpZ+HiVJdr1jFuGVjjCMEOUifu3pRAAbh
+ DFfed1lcby+zWbYVttxksMQHFcR6OQcHEFfWxnTHj5CN5tY0a3w1tTWEhofIwP8N5NNT
+ 7RIMn4q+dDYJ6Y11WLpE/nUXKyHMeAdB/FvPlfGXD8YDmzS0J5PqWmI1B1VvUPiVwS3S
+ 1+mQPdhK93QDmCExjEHzN4QTkzwgE/mxWhmWXdkrmMQDSFYh3wrBvfsOlQlbZ4Z31hpD
+ M3Bw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=OjMv92+4oU1Jh0KOe7rYhLDxGnwEq0TYxE8gqZwye8I=;
- b=ToYzLSu4wScBmoweCvOHez53+qfo2yYMi+P6eyFt2pUf0aCOaznCiOUvo6M5KGntge
- ztadSlmbqEIghZXX02utTi1GKjRWaWUFcVEs3RXyyM2/TciUv075x/5y6Gdarbd2/q9D
- rxzfK+H93tt6a6ZufTN/1TgDAeH/nsIV/hcrDg65e9a52zWPcQJuS2auGh6uJRLM8Plp
- LJed4Okq/kDsGJOC+aSTrqY80QdzI7MzVO3kf7CC0q34QJoaGlTXLFdcHYaQQ6M04M8i
- CRpNwEgu4t6EilJZ2KSEHvTMws6X69UJv8+WW1Qfd88wKtAT/IEs8Mq3aKk0zU7GAtsz
- omEA==
-X-Gm-Message-State: AOAM531KNdYGwejWewztXBIs0DO+CCDbQWA4obawu36lLeD8NpwWPq/I
- UHja0ED3WjyIaoQVZu2i5NiG+AclSfM=
-X-Google-Smtp-Source: ABdhPJyOVX4hG82vnR5G8TecpAuFcwnLnbTkDYTp8IUkOtVuNx2c1a0DglOmJU+GlHF0+dUv/DxzhQ==
-X-Received: by 2002:ab0:48ae:: with SMTP id x43mr1881033uac.114.1603289938578; 
- Wed, 21 Oct 2020 07:18:58 -0700 (PDT)
+ bh=VmRKVQeRsF5XXdxrVGzoz/VPiQ1G/DrEd5eWr/793iM=;
+ b=bz7ctjLPvEBeIPMgbXyKCWNlwv6JYun6hGWxCR/B3ZPdbcCz52jadimtExABn9S75e
+ 3IEW2hSKYaGtjI/3P5C9IHaD7dDaGKuddPjbX3kwaNw2LivMVhxnaWvIUQ6T8FIdyNoZ
+ uSz82JqBshKkUGtQNGBXDAdM9UujofPfl7yiiEyJnXokDqm1SUXSx7n/sl0Q0ZA52wg6
+ 1Hrz9BFIpsVk7XhuYCd6o+l+bDDNG89J+eSjwnAQLeHITMA7awxmkYIvfo3kDjG5JlCv
+ G8UNAh54sTUDBZNib/CIUcdz6SVdUadqWlorjAKF4EolYV0+4HeKVPiyZt5HPjdMx+0l
+ DykA==
+X-Gm-Message-State: AOAM533fhv+i2j6PyUGppKckDGjkcikuVRtynisusGw0AUZCQhMk/TRa
+ Ok69NBaqFzVVmAKvjHpm9zllP9uOU4E=
+X-Google-Smtp-Source: ABdhPJzFlzVNcU/1BRFvhofNdXSCJUAEOJTbr7p+ToH1YcZfOT6DGnPWoyY5PeaGe3ibvel/foaoFA==
+X-Received: by 2002:ab0:314b:: with SMTP id e11mr1918282uam.117.1603290856784; 
+ Wed, 21 Oct 2020 07:34:16 -0700 (PDT)
 Received: from mail-vs1-f52.google.com (mail-vs1-f52.google.com.
  [209.85.217.52])
- by smtp.gmail.com with ESMTPSA id t5sm273658vsb.33.2020.10.21.07.18.57
+ by smtp.gmail.com with ESMTPSA id h7sm304565vsc.31.2020.10.21.07.34.13
  for <virtualization@lists.linux-foundation.org>
  (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Wed, 21 Oct 2020 07:18:57 -0700 (PDT)
-Received: by mail-vs1-f52.google.com with SMTP id w25so1309619vsk.9
+ Wed, 21 Oct 2020 07:34:14 -0700 (PDT)
+Received: by mail-vs1-f52.google.com with SMTP id p9so1372566vsl.1
  for <virtualization@lists.linux-foundation.org>;
- Wed, 21 Oct 2020 07:18:57 -0700 (PDT)
-X-Received: by 2002:a05:6102:398:: with SMTP id
- m24mr2117226vsq.14.1603289936531; 
- Wed, 21 Oct 2020 07:18:56 -0700 (PDT)
+ Wed, 21 Oct 2020 07:34:13 -0700 (PDT)
+X-Received: by 2002:a67:7704:: with SMTP id s4mr2165928vsc.51.1603290853086;
+ Wed, 21 Oct 2020 07:34:13 -0700 (PDT)
 MIME-Version: 1.0
-References: <20201021115915.8286-1-mst@redhat.com>
-In-Reply-To: <20201021115915.8286-1-mst@redhat.com>
+References: <20201021142944.13615-1-mst@redhat.com>
+In-Reply-To: <20201021142944.13615-1-mst@redhat.com>
 From: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Date: Wed, 21 Oct 2020 10:18:20 -0400
-X-Gmail-Original-Message-ID: <CA+FuTSdorOgOUAAepP+q7MzU0GPi0OQ0sMVpaYu18GsE9TqxiA@mail.gmail.com>
-Message-ID: <CA+FuTSdorOgOUAAepP+q7MzU0GPi0OQ0sMVpaYu18GsE9TqxiA@mail.gmail.com>
-Subject: Re: [PATCH v3] Revert "virtio-net: ethtool configurable RXCSUM"
+Date: Wed, 21 Oct 2020 10:33:37 -0400
+X-Gmail-Original-Message-ID: <CA+FuTSdG=mPvSWpGLqoQ1YB0duQQvOkkV+KPW3BBTHGStS5_Qg@mail.gmail.com>
+Message-ID: <CA+FuTSdG=mPvSWpGLqoQ1YB0duQQvOkkV+KPW3BBTHGStS5_Qg@mail.gmail.com>
+Subject: Re: [PATCH v4] Revert "virtio-net: ethtool configurable RXCSUM"
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: kernel test robot <lkp@intel.com>, Daniel Borkmann <daniel@iogearbox.net>,
  Network Development <netdev@vger.kernel.org>, bpf <bpf@vger.kernel.org>,
@@ -125,7 +124,7 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Oct 21, 2020 at 8:00 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+On Wed, Oct 21, 2020 at 10:30 AM Michael S. Tsirkin <mst@redhat.com> wrote:
 >
 > This reverts commit 3618ad2a7c0e78e4258386394d5d5f92a3dbccf8.
 >
@@ -180,67 +179,20 @@ On Wed, Oct 21, 2020 at 8:00 AM Michael S. Tsirkin <mst@redhat.com> wrote:
 > The reason is that virtnet_set_features now calls virtnet_set_guest_offloads
 > unconditionally, it used to only call it when there is something
 > to configure.
-
-Right. The fix might be to make the call to virtnet_set_guest_offloads
-conditional again
-
--       err = virtnet_set_guest_offloads(vi, offloads);
--       if (err)
--               return err;
-+       if (offloads ^ vi->guest_offloads) {
-+               err = virtnet_set_guest_offloads(vi, offloads);
-+               if (err)
-+                       return err;
-+       }
-
-Whether the two features in virtnet_set_features are configurable at
-all depends on whether they are part of dev->hw_features, which is
-conditional on guest offload support:
-
-        if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS)) {
-                dev->hw_features |= NETIF_F_RXCSUM;
-                dev->hw_features |= NETIF_F_LRO;
-        }
-
-so I had not expected virtnet_set_features to get called at all unless
-this was enabled. Clearly an incorrect assumption.
-
-The conservative solution is a  full revert and resubmitting a correct
-new patch for net-next. Thanks for preparing the revert, sorry for the
-breakage. Are you sending it for a third time because of the patchwork
-quirk?
-
+>
 > If device does not have a control vq, everything breaks.
 >
-> Looking at this some more, I noticed that it's not really checking the
-> hardware too much. E.g.
+> Revert the original commit for now.
 >
->         if ((dev->features ^ features) & NETIF_F_LRO) {
->                 if (features & NETIF_F_LRO)
->                         offloads |= GUEST_OFFLOAD_LRO_MASK &
->                                     vi->guest_offloads_capable;
->                 else
->                         offloads &= ~GUEST_OFFLOAD_LRO_MASK;
->         }
->
-> and
->
->                                 (1ULL << VIRTIO_NET_F_GUEST_TSO6) | \
->                                 (1ULL << VIRTIO_NET_F_GUEST_ECN)  | \
->                                 (1ULL << VIRTIO_NET_F_GUEST_UFO))
->
-> But there's no guarantee that e.g. VIRTIO_NET_F_GUEST_TSO6 is set.
->
-> If it isn't command should not send it.
+> Cc: Tonghao Zhang <xiangxia.m.yue@gmail.com>
+> Cc: Willem de Bruijn <willemb@google.com>
+> Fixes: 3618ad2a7c0e7 ("virtio-net: ethtool configurable RXCSUM")
+> Reported-by: kernel test robot <lkp@intel.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-It only toggles the subset of this mask that is agreed on at probe and
-at that time stored in guest_offloads_capable. As Jason also
-mentioned. I think this comment is obsolete.
+Acked-by: Willem de Bruijn <willemb@google.com>
 
-        for (i = 0; i < ARRAY_SIZE(guest_offloads); i++)
-                if (virtio_has_feature(vi->vdev, guest_offloads[i]))
-                        set_bit(guest_offloads[i], &vi->guest_offloads);
-        vi->guest_offloads_capable = vi->guest_offloads;
+Thanks Michael.
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
