@@ -7,88 +7,86 @@ X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
 	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AC8E6C4363A
-	for <virtualization@archiver.kernel.org>; Fri, 23 Oct 2020 15:43:42 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 016F5C4363A
+	for <virtualization@archiver.kernel.org>; Fri, 23 Oct 2020 15:46:30 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 085A820797
-	for <virtualization@archiver.kernel.org>; Fri, 23 Oct 2020 15:43:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 39D4D221F9
+	for <virtualization@archiver.kernel.org>; Fri, 23 Oct 2020 15:46:28 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZLN8Cptl"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 085A820797
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="U6Q2K2y3"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 39D4D221F9
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 5EBA821080;
-	Fri, 23 Oct 2020 15:43:41 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 9A9CF873F2;
+	Fri, 23 Oct 2020 15:46:28 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from fraxinus.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id fx4ekFdZ47Jb; Fri, 23 Oct 2020 15:46:28 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 236AC873E4;
+	Fri, 23 Oct 2020 15:46:28 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E4122C088B;
+	Fri, 23 Oct 2020 15:46:27 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A0268C0051
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 23 Oct 2020 15:46:26 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by silver.osuosl.org (Postfix) with ESMTP id 8DE262107D
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 23 Oct 2020 15:46:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SH8YXAx13iRq; Fri, 23 Oct 2020 15:43:37 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 78E952036E;
-	Fri, 23 Oct 2020 15:43:37 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 49038C088B;
-	Fri, 23 Oct 2020 15:43:37 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1B7F1C0051
- for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Oct 2020 15:43:36 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id F2C04878FD
- for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Oct 2020 15:43:35 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id lhHOnuBs4ald
+ with ESMTP id hanWlgfTX9S5
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Oct 2020 15:43:34 +0000 (UTC)
+ Fri, 23 Oct 2020 15:46:25 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 6AC65878FC
+ by silver.osuosl.org (Postfix) with ESMTPS id F30722036E
  for <virtualization@lists.linux-foundation.org>;
- Fri, 23 Oct 2020 15:43:34 +0000 (UTC)
+ Fri, 23 Oct 2020 15:46:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1603467813;
+ s=mimecast20190719; t=1603467983;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=CNSGPrDZt0KFZ/gEfGLt+00ZQJB1j+rqXJsHwi7p7Tw=;
- b=ZLN8Cptl5zbQTag+xTd+V/7IdQr8gH84bl85oADoVThHwlzRrLIvvC94kgJ47wgtnQEUk6
- 1teBjWfegqy3yMbsegaXD1roC3/V+s8oSq4dnXHbsxOumsBuIZQbVlyQc8FmE6YZ71FIQM
- T9aanqzcOlt0ZsZhUBLhd2b36NXXEM4=
+ bh=pg4PolbChlXgMcboLrdK2mDe5zthtIw6r01+hUXbyGQ=;
+ b=U6Q2K2y30BItcJ6xIKDa/vjJXtMeQvmm2eBznMxZAtS0L9blVPAefHpaxjHvjw0ftTVykX
+ 6IZWb17EtUTXqT31uC0srTrjZhyzd0RhCaSmlUyQkK8Jom7cMV8aA1ef3UMOJVktH/wtaE
+ jdtadiz5TaMi/yBZsY6uULEVjmNc3Ss=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-459-P7gkMaW6MZ6sGX5cfiMobA-1; Fri, 23 Oct 2020 11:43:27 -0400
-X-MC-Unique: P7gkMaW6MZ6sGX5cfiMobA-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
- [10.5.11.23])
+ us-mta-529-yIHxag6FPu-p4AJKr68Zsg-1; Fri, 23 Oct 2020 11:46:18 -0400
+X-MC-Unique: yIHxag6FPu-p4AJKr68Zsg-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
+ [10.5.11.14])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6999B86ABD9;
- Fri, 23 Oct 2020 15:43:25 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 3F40C1891E82;
+ Fri, 23 Oct 2020 15:46:17 +0000 (UTC)
 Received: from redhat.com (ovpn-113-117.ams2.redhat.com [10.36.113.117])
- by smtp.corp.redhat.com (Postfix) with ESMTPS id A19FA27CC2;
- Fri, 23 Oct 2020 15:43:18 +0000 (UTC)
-Date: Fri, 23 Oct 2020 11:43:14 -0400
+ by smtp.corp.redhat.com (Postfix) with ESMTPS id C51C45D9CC;
+ Fri, 23 Oct 2020 15:46:11 +0000 (UTC)
+Date: Fri, 23 Oct 2020 11:46:08 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: kernel test robot <lkp@intel.com>
-Subject: Re: [PATCH 14/16] vhost: poll support support multiple workers
-Message-ID: <20201023114247-mutt-send-email-mst@kernel.org>
-References: <1602104101-5592-15-git-send-email-michael.christie@oracle.com>
- <202010080822.dOGbzKC9-lkp@intel.com>
+To: Mike Christie <michael.christie@oracle.com>
+Subject: Re: [PATCH 00/16 V2] vhost: fix scsi cmd handling and IOPs
+Message-ID: <20201023114539-mutt-send-email-mst@kernel.org>
+References: <1602104101-5592-1-git-send-email-michael.christie@oracle.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <202010080822.dOGbzKC9-lkp@intel.com>
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-Cc: kbuild-all@lists.01.org, linux-scsi@vger.kernel.org,
- martin.petersen@oracle.com, virtualization@lists.linux-foundation.org,
- target-devel@vger.kernel.org, stefanha@redhat.com, pbonzini@redhat.com,
- Mike Christie <michael.christie@oracle.com>
+In-Reply-To: <1602104101-5592-1-git-send-email-michael.christie@oracle.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Cc: martin.petersen@oracle.com, linux-scsi@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org,
+ stefanha@redhat.com, pbonzini@redhat.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -105,49 +103,59 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Thu, Oct 08, 2020 at 08:46:42AM +0800, kernel test robot wrote:
-> Hi Mike,
+On Wed, Oct 07, 2020 at 03:54:45PM -0500, Mike Christie wrote:
+> The following patches were made over Michael's vhost branch here:
+> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git/log/?h=vhost
+>  
+> The patches also apply to Linus's or Martin's trees if you apply
+> https://patchwork.kernel.org/patch/11790681/
+> which was merged into mst's tree already.
 > 
-> Thank you for the patch! Yet something to improve:
+> The following patches are a follow up to this post:
+> https://patchwork.kernel.org/cover/11790763/
+> which originally was fixing how vhost-scsi handled cmds so we would
+> not get IO errors when sending more than 256 cmds.
 > 
-> [auto build test ERROR on vhost/linux-next]
-> [also build test ERROR on next-20201007]
-> [cannot apply to v5.9-rc8]
-> [If your patch is applied to the wrong git tree, kindly drop us a note.
-> And when submitting patch, we suggest to use '--base' as documented in
-> https://git-scm.com/docs/git-format-patch]
+> In that patchset I needed to detect if a vq was in use and for this
+> patch:
+> https://patchwork.kernel.org/patch/11790685/
+> it was suggested to add support for VHOST_RING_ENABLE. While doing
+> that though I hit a couple problems:
 > 
-> url:    https://github.com/0day-ci/linux/commits/Mike-Christie/vhost-fix-scsi-cmd-handling-and-IOPs/20201008-045802
-> base:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
-> config: m68k-allyesconfig (attached as .config)
-> compiler: m68k-linux-gcc (GCC) 9.3.0
-> reproduce (this is a W=1 build):
->         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
->         chmod +x ~/bin/make.cross
->         # https://github.com/0day-ci/linux/commit/c9bcafefcac3c32ade0ba533609d7b1ddc343c54
->         git remote add linux-review https://github.com/0day-ci/linux
->         git fetch --no-tags linux-review Mike-Christie/vhost-fix-scsi-cmd-handling-and-IOPs/20201008-045802
->         git checkout c9bcafefcac3c32ade0ba533609d7b1ddc343c54
->         # save the attached .config to linux build tree
->         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-9.3.0 make.cross ARCH=m68k 
+> 1. The patches moved how vhost-scsi allocated cmds from per lio
+> session to per vhost vq. To support both VHOST_RING_ENABLE and
+> where userspace didn't support it, I would have to keep around the
+> old per session/device cmd allocator/completion and then also maintain
+> the new code. Or, I would still have to use this patch
+> patchwork.kernel.org/cover/11790763/ for the compat case so there
+> adding the new ioctl would not help much.
 > 
-> If you fix the issue, kindly add following tag as appropriate
-> Reported-by: kernel test robot <lkp@intel.com>
+> 2. For vhost-scsi I also wanted to prevent where we allocate iovecs
+> for 128 vqs even though we normally use a couple. To do this, I needed
+> something similar to #1, but the problem is that the VHOST_RING_ENABLE
+> call would come too late.
 > 
-> All errors (new ones prefixed by >>):
+> To try and balance #1 and #2, these patches just allow vhost-scsi
+> to setup a vq when userspace starts to config it. This allows the
+> driver to only fully setup (we still waste some memory to support older
+> setups but do not have to preallocate everything like before) what
+> is used plus I do not need to maintain 2 code paths.
 > 
-> >> m68k-linux-ld: drivers/vhost/scsi.o:(.bss+0x0): multiple definition of `vq'; drivers/vhost/net.o:(.bss+0x0): first defined here
->    m68k-linux-ld: drivers/vhost/vsock.o:(.bss+0x0): multiple definition of `vq'; drivers/vhost/net.o:(.bss+0x0): first defined here
->    m68k-linux-ld: drivers/vhost/vdpa.o:(.bss+0x0): multiple definition of `vq'; drivers/vhost/net.o:(.bss+0x0): first defined here
->    m68k-linux-ld: drivers/vhost/vhost.o:(.bss+0x0): multiple definition of `vq'; drivers/vhost/net.o:(.bss+0x0): first defined here
+> Note that in this posting I am also including additional patches
+> that create multiple vhost worker threads, because I wanted to see
+> if people felt that maybe to support that and for this enablement
+> issue we want a completely a new ioctl.
+> 
+> 
+> V2:
+> - fix use before set cpu var errors
+> - drop vhost_vq_is_setup
+> - include patches to do a worker thread per scsi IO vq
 
-Mike, what's going on with these failures?
-Can you figure it out pls?
+Stefan, Paolo, Jason any input?
 
-> ---
-> 0-DAY CI Kernel Test Service, Intel Corporation
-> https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
-
+-- 
+MST
 
 _______________________________________________
 Virtualization mailing list
