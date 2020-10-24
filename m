@@ -2,94 +2,67 @@ Return-Path: <SRS0=XXFA=D7=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-0.5 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
+	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+	HTML_MESSAGE,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 038BCC56201
-	for <virtualization@archiver.kernel.org>; Sat, 24 Oct 2020 20:38:58 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4CD5EC2D0A3
+	for <virtualization@archiver.kernel.org>; Sat, 24 Oct 2020 20:59:26 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7AA1522269
-	for <virtualization@archiver.kernel.org>; Sat, 24 Oct 2020 20:38:57 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7AA1522269
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=ravnborg.org
+	by mail.kernel.org (Postfix) with ESMTPS id CEBF721D41
+	for <virtualization@archiver.kernel.org>; Sat, 24 Oct 2020 20:59:25 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CEBF721D41
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 2405487411;
-	Sat, 24 Oct 2020 20:38:57 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id A71C386960;
+	Sat, 24 Oct 2020 20:59:25 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id TnmswQ7zOL-e; Sat, 24 Oct 2020 20:38:55 +0000 (UTC)
+	with ESMTP id G8pzrMbV5sm4; Sat, 24 Oct 2020 20:59:18 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id D87F287251;
-	Sat, 24 Oct 2020 20:38:55 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 4962084F6F;
+	Sat, 24 Oct 2020 20:59:18 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id C5770C088B;
-	Sat, 24 Oct 2020 20:38:55 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2BE05C088B;
+	Sat, 24 Oct 2020 20:59:18 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 418DCC0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 53904C0051
  for <virtualization@lists.linux-foundation.org>;
- Sat, 24 Oct 2020 20:38:54 +0000 (UTC)
+ Sat, 24 Oct 2020 20:59:17 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 2725387271
+ by hemlock.osuosl.org (Postfix) with ESMTP id 4669487455
  for <virtualization@lists.linux-foundation.org>;
- Sat, 24 Oct 2020 20:38:54 +0000 (UTC)
+ Sat, 24 Oct 2020 20:59:17 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id z+xSl0PjMXNe
+ with ESMTP id lRdNRgqGH3cQ
  for <virtualization@lists.linux-foundation.org>;
- Sat, 24 Oct 2020 20:38:51 +0000 (UTC)
+ Sat, 24 Oct 2020 20:59:13 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
-Received: from asavdk4.altibox.net (asavdk4.altibox.net [109.247.116.15])
- by hemlock.osuosl.org (Postfix) with ESMTPS id E2A5587251
+Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
+ [5.45.125.222])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 7222C87484
  for <virtualization@lists.linux-foundation.org>;
- Sat, 24 Oct 2020 20:38:50 +0000 (UTC)
-Received: from ravnborg.org (unknown [188.228.123.71])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by asavdk4.altibox.net (Postfix) with ESMTPS id A32E380548;
- Sat, 24 Oct 2020 22:38:39 +0200 (CEST)
-Date: Sat, 24 Oct 2020 22:38:38 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: Re: [PATCH v5 10/10] drm/fb_helper: Support framebuffers in I/O memory
-Message-ID: <20201024203838.GB93644@ravnborg.org>
-References: <20201020122046.31167-1-tzimmermann@suse.de>
- <20201020122046.31167-11-tzimmermann@suse.de>
+ Sat, 24 Oct 2020 20:59:13 +0000 (UTC)
+Received: from [37.189.17.205] (helo=LAPTOP-EPOV2LRR)
+ by s052d7dde.fastvps-server.com with esmtpsa
+ (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256) (Exim 4.89)
+ (envelope-from <marle@saisti.eu>) id 1kWPZW-0004VO-AX
+ for virtualization@lists.linux-foundation.org; Sat, 24 Oct 2020 22:51:26 +0300
+From: "Maria Lemos" <marialemos72@gmail.com>
+Subject: Call for Workshops Proposals - CISTI'2021, Chaves, Portugal
+To: virtualization@lists.linux-foundation.org
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20201020122046.31167-11-tzimmermann@suse.de>
-X-CMAE-Score: 0
-X-CMAE-Analysis: v=2.3 cv=fu7ymmwf c=1 sm=1 tr=0
- a=S6zTFyMACwkrwXSdXUNehg==:117 a=S6zTFyMACwkrwXSdXUNehg==:17
- a=kj9zAlcOel0A:10 a=7gkXJVJtAAAA:8 a=Ogo0Iva9nwArjqrsVXIA:9
- a=x50s5EHYZIou7SfH:21 a=IqrjcI2zc_8-tyTa:21 a=CjuIK1q_8ugA:10
- a=qfUslh1TxfEA:10 a=E9Po1WZjFZOl8hwRPBS3:22
-Cc: luben.tuikov@amd.com, heiko@sntech.de, airlied@linux.ie,
- nouveau@lists.freedesktop.org, linus.walleij@linaro.org,
- dri-devel@lists.freedesktop.org, chris@chris-wilson.co.uk,
- melissa.srw@gmail.com, eric@anholt.net, ray.huang@amd.com,
- sumit.semwal@linaro.org, emil.velikov@collabora.com, robh@kernel.org,
- linux-samsung-soc@vger.kernel.org, jy0922.shim@samsung.com,
- lima@lists.freedesktop.org, oleksandr_andrushchenko@epam.com, krzk@kernel.org,
- steven.price@arm.com, linux-rockchip@lists.infradead.org, kgene@kernel.org,
- alyssa.rosenzweig@collabora.com, linux+etnaviv@armlinux.org.uk,
- spice-devel@lists.freedesktop.org, bskeggs@redhat.com,
- maarten.lankhorst@linux.intel.com, etnaviv@lists.freedesktop.org,
- mripard@kernel.org, inki.dae@samsung.com, hdegoede@redhat.com,
- christian.gmeiner@gmail.com, xen-devel@lists.xenproject.org,
- virtualization@lists.linux-foundation.org, sean@poorly.run, apaneers@amd.com,
- linux-arm-kernel@lists.infradead.org, linaro-mm-sig@lists.linaro.org,
- amd-gfx@lists.freedesktop.org, tomeu.vizoso@collabora.com,
- sw0312.kim@samsung.com, hjc@rock-chips.com, kyungmin.park@samsung.com,
- miaoqinglang@huawei.com, yuq825@gmail.com, daniel@ffwll.ch,
- alexander.deucher@amd.com, linux-media@vger.kernel.org,
- christian.koenig@amd.com, l.stach@pengutronix.de
+Date: Sat, 24 Oct 2020 20:51:25 +0100
+Message-ID: <17356466079953@gmail-com>
+X-Antivirus: AVG (VPS 201023-4, 23/10/2020), Outbound message
+X-Antivirus-Status: Clean
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -101,411 +74,330 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Reply-To: cistiforever@gmail.com
+Content-Type: multipart/mixed; boundary="===============4242595742256594882=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Thomas.
+This is a multi-part message in MIME format
 
-On Tue, Oct 20, 2020 at 02:20:46PM +0200, Thomas Zimmermann wrote:
-> At least sparc64 requires I/O-specific access to framebuffers. This
-> patch updates the fbdev console accordingly.
-> 
-> For drivers with direct access to the framebuffer memory, the callback
-> functions in struct fb_ops test for the type of memory and call the rsp
-> fb_sys_ of fb_cfb_ functions. Read and write operations are implemented
-> internally by DRM's fbdev helper.
-> 
-> For drivers that employ a shadow buffer, fbdev's blit function retrieves
-> the framebuffer address as struct dma_buf_map, and uses dma_buf_map
-> interfaces to access the buffer.
-> 
-> The bochs driver on sparc64 uses a workaround to flag the framebuffer as
-> I/O memory and avoid a HW exception. With the introduction of struct
-> dma_buf_map, this is not required any longer. The patch removes the rsp
-> code from both, bochs and fbdev.
-> 
-> v5:
-> 	* implement fb_read/fb_write internally (Daniel, Sam)
-> v4:
-> 	* move dma_buf_map changes into separate patch (Daniel)
-> 	* TODO list: comment on fbdev updates (Daniel)
-> 
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> Tested-by: Sam Ravnborg <sam@ravnborg.org>
-Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
+--===============4242595742256594882==
+Content-Type: multipart/alternative; charset=utf-8; boundary="eqn9r7a2yc5yZLZftZzqgCStr=_ov2EZlR"
 
-But see a few comments below on naming for you to consider.
+This is a multi-part message in MIME format
 
-	Sam
+--eqn9r7a2yc5yZLZftZzqgCStr=_ov2EZlR
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> ---
->  Documentation/gpu/todo.rst        |  19 ++-
->  drivers/gpu/drm/bochs/bochs_kms.c |   1 -
->  drivers/gpu/drm/drm_fb_helper.c   | 227 ++++++++++++++++++++++++++++--
->  include/drm/drm_mode_config.h     |  12 --
->  4 files changed, 230 insertions(+), 29 deletions(-)
-> 
-> diff --git a/Documentation/gpu/todo.rst b/Documentation/gpu/todo.rst
-> index 7e6fc3c04add..638b7f704339 100644
-> --- a/Documentation/gpu/todo.rst
-> +++ b/Documentation/gpu/todo.rst
-> @@ -197,13 +197,28 @@ Convert drivers to use drm_fbdev_generic_setup()
->  ------------------------------------------------
->  
->  Most drivers can use drm_fbdev_generic_setup(). Driver have to implement
-> -atomic modesetting and GEM vmap support. Current generic fbdev emulation
-> -expects the framebuffer in system memory (or system-like memory).
-> +atomic modesetting and GEM vmap support. Historically, generic fbdev emulation
-> +expected the framebuffer in system memory or system-like memory. By employing
-> +struct dma_buf_map, drivers with frambuffers in I/O memory can be supported
-> +as well.
->  
->  Contact: Maintainer of the driver you plan to convert
->  
->  Level: Intermediate
->  
-> +Reimplement functions in drm_fbdev_fb_ops without fbdev
-> +-------------------------------------------------------
-> +
-> +A number of callback functions in drm_fbdev_fb_ops could benefit from
-> +being rewritten without dependencies on the fbdev module. Some of the
-> +helpers could further benefit from using struct dma_buf_map instead of
-> +raw pointers.
-> +
-> +Contact: Thomas Zimmermann <tzimmermann@suse.de>, Daniel Vetter
-> +
-> +Level: Advanced
-> +
-> +
->  drm_framebuffer_funcs and drm_mode_config_funcs.fb_create cleanup
->  -----------------------------------------------------------------
->  
-> diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-> index 13d0d04c4457..853081d186d5 100644
-> --- a/drivers/gpu/drm/bochs/bochs_kms.c
-> +++ b/drivers/gpu/drm/bochs/bochs_kms.c
-> @@ -151,7 +151,6 @@ int bochs_kms_init(struct bochs_device *bochs)
->  	bochs->dev->mode_config.preferred_depth = 24;
->  	bochs->dev->mode_config.prefer_shadow = 0;
->  	bochs->dev->mode_config.prefer_shadow_fbdev = 1;
-> -	bochs->dev->mode_config.fbdev_use_iomem = true;
->  	bochs->dev->mode_config.quirk_addfb_prefer_host_byte_order = true;
->  
->  	bochs->dev->mode_config.funcs = &bochs_mode_funcs;
-> diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_helper.c
-> index 6212cd7cde1d..1d3180841778 100644
-> --- a/drivers/gpu/drm/drm_fb_helper.c
-> +++ b/drivers/gpu/drm/drm_fb_helper.c
-> @@ -372,24 +372,22 @@ static void drm_fb_helper_resume_worker(struct work_struct *work)
->  }
->  
->  static void drm_fb_helper_dirty_blit_real(struct drm_fb_helper *fb_helper,
-> -					  struct drm_clip_rect *clip)
-> +					  struct drm_clip_rect *clip,
-> +					  struct dma_buf_map *dst)
->  {
->  	struct drm_framebuffer *fb = fb_helper->fb;
->  	unsigned int cpp = fb->format->cpp[0];
->  	size_t offset = clip->y1 * fb->pitches[0] + clip->x1 * cpp;
->  	void *src = fb_helper->fbdev->screen_buffer + offset;
-> -	void *dst = fb_helper->buffer->map.vaddr + offset;
->  	size_t len = (clip->x2 - clip->x1) * cpp;
->  	unsigned int y;
->  
-> -	for (y = clip->y1; y < clip->y2; y++) {
-> -		if (!fb_helper->dev->mode_config.fbdev_use_iomem)
-> -			memcpy(dst, src, len);
-> -		else
-> -			memcpy_toio((void __iomem *)dst, src, len);
-> +	dma_buf_map_incr(dst, offset); /* go to first pixel within clip rect */
->  
-> +	for (y = clip->y1; y < clip->y2; y++) {
-> +		dma_buf_map_memcpy_to(dst, src, len);
-> +		dma_buf_map_incr(dst, fb->pitches[0]);
->  		src += fb->pitches[0];
-> -		dst += fb->pitches[0];
->  	}
->  }
->  
-> @@ -417,8 +415,9 @@ static void drm_fb_helper_dirty_work(struct work_struct *work)
->  			ret = drm_client_buffer_vmap(helper->buffer, &map);
->  			if (ret)
->  				return;
-> -			drm_fb_helper_dirty_blit_real(helper, &clip_copy);
-> +			drm_fb_helper_dirty_blit_real(helper, &clip_copy, &map);
->  		}
-> +
->  		if (helper->fb->funcs->dirty)
->  			helper->fb->funcs->dirty(helper->fb, NULL, 0, 0,
->  						 &clip_copy, 1);
-> @@ -2027,6 +2026,206 @@ static int drm_fbdev_fb_mmap(struct fb_info *info, struct vm_area_struct *vma)
->  		return -ENODEV;
->  }
->  
-> +static bool drm_fbdev_use_iomem(struct fb_info *info)
-> +{
-> +	struct drm_fb_helper *fb_helper = info->par;
-> +	struct drm_client_buffer *buffer = fb_helper->buffer;
-> +
-> +	return !drm_fbdev_use_shadow_fb(fb_helper) && buffer->map.is_iomem;
-> +}
-> +
-> +static ssize_t fb_read_screen_base(struct fb_info *info, char __user *buf, size_t count, 
-> +				   loff_t pos)
-The naming here confused me - a name like:
-fb_read_iomem() would have helped me more.
-With the current naming I shall remember that the screen_base member is
-the iomem pointer.
+* Articles indexed by Scopus, WoS, Inspec, Google Scholar, etc.
 
-> +{
-> +	const char __iomem *src = info->screen_base + pos;
-> +	size_t alloc_size = min(count, PAGE_SIZE);
-> +	ssize_t ret = 0;
-> +	char *tmp;
-> +
-> +	tmp = kmalloc(alloc_size, GFP_KERNEL);
-> +	if (!tmp)
-> +		return -ENOMEM;
-> +
+* Conference with a Google Scholar H5-Index =3D 17
 
-I looked around and could not find other places where
-we copy from iomem to mem to usermem in chunks of PAGE_SIZE.
+* Conference with a SCImago H-Index =3D 13
 
-> +	while (count) {
-> +		size_t c = min(count, alloc_size);
-> +
-> +		memcpy_fromio(tmp, src, c);
-> +		if (copy_to_user(buf, tmp, c)) {
-> +			ret = -EFAULT;
-> +			break;
-> +		}
-> +
-> +		src += c;
-> +		buf += c;
-> +		ret += c;
-> +		count -= c;
-> +	}
-> +
-> +	kfree(tmp);
-> +
-> +	return ret;
-> +}
-> +
-> +static ssize_t fb_read_screen_buffer(struct fb_info *info, char __user *buf, size_t count,
-> +				     loff_t pos)
-And fb_read_sysmem() here.
+ 
 
-> +{
-> +	const char *src = info->screen_buffer + pos;
-> +
-> +	if (copy_to_user(buf, src, count))
-> +		return -EFAULT;
-> +
-> +	return count;
-> +}
-> +
-> +static ssize_t drm_fbdev_fb_read(struct fb_info *info, char __user *buf,
-> +				 size_t count, loff_t *ppos)
-> +{
-> +	loff_t pos = *ppos;
-> +	size_t total_size;
-> +	ssize_t ret;
-> +
-> +	if (info->state != FBINFO_STATE_RUNNING)
-> +		return -EPERM;
-> +
-> +	if (info->screen_size)
-> +		total_size = info->screen_size;
-> +	else
-> +		total_size = info->fix.smem_len;
-> +
-> +	if (pos >= total_size)
-> +		return 0;
-> +	if (count >= total_size)
-> +		count = total_size;
-> +	if (total_size - count < pos)
-> +		count = total_size - pos;
-> +
-> +	if (drm_fbdev_use_iomem(info))
-> +		ret = fb_read_screen_base(info, buf, count, pos);
-> +	else
-> +		ret = fb_read_screen_buffer(info, buf, count, pos);
-> +
-> +	if (ret > 0)
-> +		*ppos = ret;
-> +
-> +	return ret;
-> +}
-> +
-> +static ssize_t fb_write_screen_base(struct fb_info *info, const char __user *buf, size_t count,
-> +				    loff_t pos)
+---------------------------------------------------------------------------=
+-----------------------
 
-fb_write_iomem()
+Call for Workshops Proposals
 
-> +{
-> +	char __iomem *dst = info->screen_base + pos;
-> +	size_t alloc_size = min(count, PAGE_SIZE);
-> +	ssize_t ret = 0;
-> +	u8 *tmp;
-> +
-> +	tmp = kmalloc(alloc_size, GFP_KERNEL);
-> +	if (!tmp)
-> +		return -ENOMEM;
-> +
-> +	while (count) {
-> +		size_t c = min(count, alloc_size);
-> +
-> +		if (copy_from_user(tmp, buf, c)) {
-> +			ret = -EFAULT;
-> +			break;
-> +		}
-> +		memcpy_toio(dst, tmp, c);
-> +
-> +		dst += c;
-> +		buf += c;
-> +		ret += c;
-> +		count -= c;
-> +	}
-> +
-> +	kfree(tmp);
-> +
-> +	return ret;
-> +}
-> +
-> +static ssize_t fb_write_screen_buffer(struct fb_info *info, const char __user *buf, size_t count,
-> +				      loff_t pos)
-fb_write_sysmem()
+CISTI'2021 - 16th Iberian Conference on Information Systems and Technologie=
+s
 
-> +{
-> +	char *dst = info->screen_buffer + pos;
-> +
-> +	if (copy_from_user(dst, buf, count))
-> +		return -EFAULT;
-> +
-> +	return count;
-> +}
-> +
-> +static ssize_t drm_fbdev_fb_write(struct fb_info *info, const char __user *buf,
-> +				  size_t count, loff_t *ppos)
-> +{
-> +	loff_t pos = *ppos;
-> +	size_t total_size;
-> +	ssize_t ret;
-> +	int err;
-> +
-> +	if (info->state != FBINFO_STATE_RUNNING)
-> +		return -EPERM;
-> +
-> +	if (info->screen_size)
-> +		total_size = info->screen_size;
-> +	else
-> +		total_size = info->fix.smem_len;
-> +
-> +	if (pos > total_size)
-> +		return -EFBIG;
-> +	if (count > total_size) {
-> +		err = -EFBIG;
-> +		count = total_size;
-> +	}
-> +	if (total_size - count < pos) {
-> +		if (!err)
-> +			err = -ENOSPC;
-> +		count = total_size - pos;
-> +	}
-> +
-> +	/*
-> +	 * Copy to framebuffer even if we already logged an error. Emulates
-> +	 * the behavior of the original fbdev implementation.
-> +	 */
-> +	if (drm_fbdev_use_iomem(info))
-> +		ret = fb_write_screen_base(info, buf, count, pos);
-> +	else
-> +		ret = fb_write_screen_buffer(info, buf, count, pos);
-> +
-> +	if (ret > 0)
-> +		*ppos = ret;
-> +
-> +	if (err)
-> +		return err;
-> +
-> +	return ret;
-> +}
-> +
-> +static void drm_fbdev_fb_fillrect(struct fb_info *info,
-> +				  const struct fb_fillrect *rect)
-> +{
-> +	if (drm_fbdev_use_iomem(info))
-> +		drm_fb_helper_cfb_fillrect(info, rect);
-> +	else
-> +		drm_fb_helper_sys_fillrect(info, rect);
-> +}
-> +
-> +static void drm_fbdev_fb_copyarea(struct fb_info *info,
-> +				  const struct fb_copyarea *area)
-> +{
-> +	if (drm_fbdev_use_iomem(info))
-> +		drm_fb_helper_cfb_copyarea(info, area);
-> +	else
-> +		drm_fb_helper_sys_copyarea(info, area);
-> +}
-> +
-> +static void drm_fbdev_fb_imageblit(struct fb_info *info,
-> +				   const struct fb_image *image)
-> +{
-> +	if (drm_fbdev_use_iomem(info))
-> +		drm_fb_helper_cfb_imageblit(info, image);
-> +	else
-> +		drm_fb_helper_sys_imageblit(info, image);
-> +}
-> +
->  static const struct fb_ops drm_fbdev_fb_ops = {
->  	.owner		= THIS_MODULE,
->  	DRM_FB_HELPER_DEFAULT_OPS,
-> @@ -2034,11 +2233,11 @@ static const struct fb_ops drm_fbdev_fb_ops = {
->  	.fb_release	= drm_fbdev_fb_release,
->  	.fb_destroy	= drm_fbdev_fb_destroy,
->  	.fb_mmap	= drm_fbdev_fb_mmap,
-> -	.fb_read	= drm_fb_helper_sys_read,
-> -	.fb_write	= drm_fb_helper_sys_write,
-> -	.fb_fillrect	= drm_fb_helper_sys_fillrect,
-> -	.fb_copyarea	= drm_fb_helper_sys_copyarea,
-> -	.fb_imageblit	= drm_fb_helper_sys_imageblit,
-> +	.fb_read	= drm_fbdev_fb_read,
-> +	.fb_write	= drm_fbdev_fb_write,
-> +	.fb_fillrect	= drm_fbdev_fb_fillrect,
-> +	.fb_copyarea	= drm_fbdev_fb_copyarea,
-> +	.fb_imageblit	= drm_fbdev_fb_imageblit,
->  };
->  
->  static struct fb_deferred_io drm_fbdev_defio = {
-> diff --git a/include/drm/drm_mode_config.h b/include/drm/drm_mode_config.h
-> index 5ffbb4ed5b35..ab424ddd7665 100644
-> --- a/include/drm/drm_mode_config.h
-> +++ b/include/drm/drm_mode_config.h
-> @@ -877,18 +877,6 @@ struct drm_mode_config {
->  	 */
->  	bool prefer_shadow_fbdev;
->  
-> -	/**
-> -	 * @fbdev_use_iomem:
-> -	 *
-> -	 * Set to true if framebuffer reside in iomem.
-> -	 * When set to true memcpy_toio() is used when copying the framebuffer in
-> -	 * drm_fb_helper.drm_fb_helper_dirty_blit_real().
-> -	 *
-> -	 * FIXME: This should be replaced with a per-mapping is_iomem
-> -	 * flag (like ttm does), and then used everywhere in fbdev code.
-> -	 */
-> -	bool fbdev_use_iomem;
-> -
->  	/**
->  	 * @quirk_addfb_prefer_xbgr_30bpp:
->  	 *
-> -- 
-> 2.28.0
+23 - 26 June 2021, Chaves, Portugal
+
+http://cisti.eu/ <http://cisti.eu/>
+
+---------------------------------------------------------------------------=
+-------------------------
+
+ 
+
+Workshop Format
+
+The Information Systems and Technologies research and industrial community =
+is invited to submit proposals of Workshops for CISTI 2021 =E2=80=93 16th I=
+berian Conference on Information Systems and Technologies to be held at Cha=
+ves, Portugal, June 23=E2=80=9326, 2021. Two types of Workshops may be prop=
+osed: Regular Workshops and Project Workshops.
+
+Regular Workshops should focus on a specific scientific subject on the scop=
+e of CISTI 2021 but not directly included on the main conference areas. Eac=
+h regular workshop will be coordinated by an Organizing Committee composed =
+of, at least, two researchers in the field, preferably from different insti=
+tutions and different countries. The organizers should create an internatio=
+nal Program Committee for the Workshop, with recognized researchers within =
+the specific Workshop scientific area. Each workshop should have at least 1=
+0 submissions and 5 accepted papers in order to be conducted at CISTI.
+
+Project Workshops are intended to promote the dissemination and facilitate =
+the future exploitation of EU Latin-American and national project results s=
+uch as EU/FP7, EU/Horizon2020, CSIC, FCT, QREN, Portugal 2020, Fund. Gulben=
+kian, CYTED, CAPES, CNPq, FINEP and other Projects/funding sources. The res=
+ults to be disseminated may be preliminary project results (for unfinished =
+projects) or the project final results (for already finished projects). Eac=
+h project workshop should be directly related to a Project funded in a comp=
+etitive manner by a National/International Science Organization. The Worksh=
+op should be coordinated by an Organizing Committee composed by at least tw=
+o researchers including the Principal Investigator of the project. Each Wor=
+kshop will have 1 article offered for 10 articles with paid registration, 2=
+ articles offered for 20 articles with paid registration, and 3 articles of=
+fered for 40 articles with paid registration. The selection of Workshops wi=
+ll be performed by CISTI 2021 Conference Chairs. Workshops full papers will=
+ be published in the conference main proceedings in specific Workshop chapt=
+ers. Proceedings will be submitted for indexation by ISI, SCOPUS, EI-Conpen=
+dex, INSPEC and Google Scholar. Detailed and up-to-date information may be =
+found at CISTI 2021 website: http://www.cisti.eu/ <http://www.cisti.eu/>.
+
+ 
+
+Workshop Organization 
+
+The Organizing Committee of each Workshop will be responsible for:
+
+* Producing and distributing the Workshop Call for Papers (CFP); 
+* Coordinating the review and selection process for the papers submitted to=
+ the Workshop, as Workshop chairs (on the paper submission system installed=
+ for all the Workshops); 
+* Delivering the final versions of the papers accepted for the Workshop in =
+accordance with the guidelines and deadlines defined by CISTI 2021 organize=
+rs; 
+* Coordinating and chairing the Workshop sessions at the conference. 
+
+
+CISTI 2021 organizers reserve the right to cancel any Workshop if deadlines=
+ are missed or if the number of registered attendees is too low to support =
+the costs associated with the Workshop.
+
+ 
+
+Proposal Contents
+
+Regular Workshop proposals should contain the following information:
+
+* Workshop title; 
+* Brief description of the specific scientific scope of the Workshop; 
+* List of topics of interest (max 15 topics); 
+* Reasons the Workshop should be held within CISTI=E2=80=992021; 
+* Name, postal address, phone and email of all the members of the Workshop =
+Organizing Committee; 
+* Proposal for the Workshop Program Committee (Names and affiliations). 
+
+
+Project Workshop proposals should contain the following information:
+
+* Workshop title; 
+* Project Title, Reference, Principal Investigator, Funding Organization, T=
+otal Funding, Consortium, Abstract and Objectives; 
+* Reasons the Workshop should be held within CISTI=E2=80=992021; 
+* Name, postal address, phone and email of all the members of the Workshop =
+Organizing Committee. 
+
+
+Proposals should be submitted electronically (in Word or compatible format)=
+ at https://easychair.org/conferences/?conf=3Dcisti2021workshops <https://e=
+asychair.org/conferences/?conf=3Dcisti2021workshops>, in English, Portugues=
+e and/or Spanish, by November 1, 2020.
+
+ 
+
+Important Dates
+
+* Deadline for Workshop proposals: November 1, 2020 
+* Notification of Workshop acceptance: November 8, 2020 
+* Deadline for paper submission: February 28, 2021 
+* Notification of paper acceptance: March 28, 2021 
+* Deadline for final versions and conference registration: April 11, 2021 
+* Deadline for Workshop final papers delivery to CISTI organizers: April 11=
+, 2021 
+* Conference dates: June 23-26, 2021 
+
+
+ 
+
+Website of CISTI'2021: http://cisti.eu/ <http://cisti.eu/>
+
+ 
+
+--
+
+CISTI'2021 Tema
+
+http://cisti.eu/ <http://cisti.eu/>
+
+
+-- 
+This email has been checked for viruses by AVG.
+https://www.avg.com
+
+--eqn9r7a2yc5yZLZftZzqgCStr=_ov2EZlR
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<html>
+  <head>
+    <title></title>
+    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
+" />
+  </head>
+  <body>
+    <p>* Articles indexed by Scopus, WoS, Inspec, Google Scholar, etc.</p>
+    <p>* Conference with a Google Scholar H5-Index =3D 17</p>
+    <p>* Conference with a SCImago H-Index =3D 13</p>
+    <p>&nbsp;</p>
+    <p>--------------------------------------------------------------------=
+------------------------------</p>
+    <p>Call for Workshops Proposals</p>
+    <p><strong>CISTI'2021 - 16th Iberian Conference on Information Systems =
+and Technologies</strong></p>
+    <p>23 - 26 June 2021, Chaves, Portugal</p>
+    <p><a href=3D"http://cisti.eu/">http://cisti.eu/</a></p>
+    <p>--------------------------------------------------------------------=
+--------------------------------</p>
+    <p>&nbsp;</p>
+    <div itemprop=3D"articleBody">
+      <p><strong>Workshop Format</strong></p>
+      <p>The Information Systems and Technologies research and industrial c=
+ommunity is invited to submit proposals of Workshops for CISTI 2021 &ndash;=
+ 16th Iberian Conference on Information Systems and Technologies to be held=
+ at Chaves, Portugal, June 23&ndash;26, 2021. Two types of Workshops may be=
+ proposed: Regular Workshops and Project Workshops.</p>
+      <p>Regular Workshops should focus on a specific scientific subject on=
+ the scope of CISTI 2021 but not directly included on the main conference a=
+reas. Each regular workshop will be coordinated by an Organizing Committee =
+composed of, at least, two researchers in the field, preferably from differ=
+ent institutions and different countries. The organizers should create an i=
+nternational Program Committee for the Workshop, with recognized researcher=
+s within the specific Workshop scientific area. Each workshop should have a=
+t least 10 submissions and 5 accepted papers in order to be conducted at CI=
+STI.</p>
+      <p>Project Workshops are intended to promote the dissemination and fa=
+cilitate the future exploitation of EU Latin-American and national project =
+results such as EU/FP7, EU/Horizon2020, CSIC, FCT, QREN, Portugal 2020, Fun=
+d. Gulbenkian, CYTED, CAPES, CNPq, FINEP and other Projects/funding sources=
+=2E The results to be disseminated may be preliminary project results (for =
+unfinished projects) or the project final results (for already finished pro=
+jects). Each project workshop should be directly related to a Project funde=
+d in a competitive manner by a National/International Science Organization.=
+ The Workshop should be coordinated by an Organizing Committee composed by =
+at least two researchers including the Principal Investigator of the projec=
+t. Each Workshop will have 1 article offered for 10 articles with paid regi=
+stration, 2 articles offered for 20 articles with paid registration, and 3 =
+articles offered for 40 articles with paid registration. The selection of W=
+orkshops will be performed by CISTI 2021 Conference Chairs. Workshops full =
+papers will be published in the conference main proceedings in specific Wor=
+kshop chapters. Proceedings will be submitted for indexation by ISI, SCOPUS=
+, EI-Conpendex, INSPEC and Google Scholar. Detailed and up-to-date informat=
+ion may be found at CISTI 2021 website: <a href=3D"http://www.cisti.eu/">ht=
+tp://www.cisti.eu/</a>.</p>
+      <p>&nbsp;</p>
+      <p><strong>Workshop Organization </strong></p>
+      <p>The Organizing Committee of each Workshop will be responsible for:=
+</p>
+      <ul>
+        <li>Producing and distributing the Workshop Call for Papers (CFP); =
+</li>
+        <li>Coordinating the review and selection process for the papers su=
+bmitted to the Workshop, as Workshop chairs (on the paper submission system=
+ installed for all the Workshops); </li>
+        <li>Delivering the final versions of the papers accepted for the Wo=
+rkshop in accordance with the guidelines and deadlines defined by CISTI 202=
+1 organizers; </li>
+        <li>Coordinating and chairing the Workshop sessions at the conferen=
+ce. </li>
+      </ul>
+      <p>CISTI 2021 organizers reserve the right to cancel any Workshop if =
+deadlines are missed or if the number of registered attendees is too low to=
+ support the costs associated with the Workshop.</p>
+      <p>&nbsp;</p>
+      <p><strong>Proposal Contents</strong></p>
+      <p>Regular Workshop proposals should contain the following informatio=
+n:</p>
+      <ul>
+        <li>Workshop title; </li>
+        <li>Brief description of the specific scientific scope of the Works=
+hop; </li>
+        <li>List of topics of interest (max 15 topics); </li>
+        <li>Reasons the Workshop should be held within CISTI&rsquo;2021; </=
+li>
+        <li>Name, postal address, phone and email of all the members of the=
+ Workshop Organizing Committee; </li>
+        <li>Proposal for the Workshop Program Committee (Names and affiliat=
+ions). </li>
+      </ul>
+      <p>Project Workshop proposals should contain the following informatio=
+n:</p>
+      <ul>
+        <li>Workshop title; </li>
+        <li>Project Title, Reference, Principal Investigator, Funding Organ=
+ization, Total Funding, Consortium, Abstract and Objectives; </li>
+        <li>Reasons the Workshop should be held within CISTI&rsquo;2021; </=
+li>
+        <li>Name, postal address, phone and email of all the members of the=
+ Workshop Organizing Committee. </li>
+      </ul>
+      <p>Proposals should be submitted electronically (in Word or compatibl=
+e format) at <a href=3D"https://easychair.org/conferences/?conf=3Dcisti2021=
+workshops" rel=3D"noopener noreferrer" target=3D"_blank"><strong>https://ea=
+sychair.org/conferences/?conf=3Dcisti2021workshops</strong></a>, in English=
+, Portuguese and/or Spanish, by November 1, 2020.</p>
+      <p>&nbsp;</p>
+      <p><strong>Important Dates</strong></p>
+      <ul>
+        <li>Deadline for Workshop proposals: November 1, 2020 </li>
+        <li>Notification of Workshop acceptance: November 8, 2020 </li>
+        <li>Deadline for paper submission: February 28, 2021 </li>
+        <li>Notification of paper acceptance: March 28, 2021 </li>
+        <li>Deadline for final versions and conference registration: April =
+11, 2021 </li>
+        <li>Deadline for Workshop final papers delivery to CISTI organizers=
+: April 11, 2021 </li>
+        <li>Conference dates: June 23-26, 2021 </li>
+      </ul>
+    </div>
+    <p>&nbsp;</p>
+    <p><strong>Website of CISTI'2021</strong>: <a href=3D"http://cisti.eu/"=
+>http://cisti.eu/</a></p>
+    <p>&nbsp;</p>
+    <p>--</p>
+    <p>CISTI'2021 Tema</p>
+    <p><a href=3D"http://cisti.eu/">http://cisti.eu/</a></p>
+  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br />
+<table style=3D"border-top: 1px solid #D3D4DE;">
+	<tr>
+        <td style=3D"width: 55px; padding-top: 13px;"><a href=3D"http://www=
+=2Eavg.com/email-signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaig=
+n=3Dsig-email&utm_content=3Demailclient" target=3D"_blank"><img src=3D"http=
+s://ipmcdn.avast.com/images/icons/icon-envelope-tick-green-avg-v1.png" alt=
+=3D""  width=3D"46" height=3D"29" style=3D"width: 46px; height: 29px;" /></=
+a></td>
+		<td style=3D"width: 470px; padding-top: 12px; color: #41424e; font-size: =
+13px; font-family: Arial, Helvetica, sans-serif; line-height: 18px;">Virus-=
+free. <a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_=
+source=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D=
+"_blank" style=3D"color: #4453ea;">www.avg.com</a>
+		</td>
+	</tr>
+</table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2" width=3D"1" heigh=
+t=3D"1"> </a></div></body>
+</html>
+
+--eqn9r7a2yc5yZLZftZzqgCStr=_ov2EZlR--
+
+
+--===============4242595742256594882==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============4242595742256594882==--
+
