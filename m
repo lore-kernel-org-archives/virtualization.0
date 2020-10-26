@@ -7,69 +7,69 @@ X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 673C0C56201
-	for <virtualization@archiver.kernel.org>; Mon, 26 Oct 2020 11:19:11 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 6C750C56201
+	for <virtualization@archiver.kernel.org>; Mon, 26 Oct 2020 11:19:19 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1908B22404
-	for <virtualization@archiver.kernel.org>; Mon, 26 Oct 2020 11:19:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 0BF692242C
+	for <virtualization@archiver.kernel.org>; Mon, 26 Oct 2020 11:19:18 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="jJyr2o9M"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1908B22404
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="XLs6d8Mf"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0BF692242C
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id B3BED867A4;
-	Mon, 26 Oct 2020 11:19:10 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 615B12E0E9;
+	Mon, 26 Oct 2020 11:19:18 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id G9GuUR0-HdZR; Mon, 26 Oct 2020 11:19:10 +0000 (UTC)
+	with ESMTP id yD50hUzJro4B; Mon, 26 Oct 2020 11:19:15 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 2CA18867A1;
-	Mon, 26 Oct 2020 11:19:10 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 6CEB62E0EE;
+	Mon, 26 Oct 2020 11:19:15 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 153D2C088B;
-	Mon, 26 Oct 2020 11:19:10 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D3CEAC0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 50EFCC088B;
+	Mon, 26 Oct 2020 11:19:15 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4D1D7C0051
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Oct 2020 11:19:08 +0000 (UTC)
+ Mon, 26 Oct 2020 11:19:14 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id BC1D1867A1
+ by hemlock.osuosl.org (Postfix) with ESMTP id 3C2008721E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Oct 2020 11:19:08 +0000 (UTC)
+ Mon, 26 Oct 2020 11:19:14 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id pFh2NKun2hlz
+ with ESMTP id 6D69BvQzmDAt
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Oct 2020 11:19:08 +0000 (UTC)
+ Mon, 26 Oct 2020 11:19:11 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 244B3866E5
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 730C0871A6
  for <virtualization@lists.linux-foundation.org>;
- Mon, 26 Oct 2020 11:19:08 +0000 (UTC)
+ Mon, 26 Oct 2020 11:19:11 +0000 (UTC)
 Received: from localhost (unknown [213.57.247.131])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by mail.kernel.org (Postfix) with ESMTPSA id 0C3A122281;
- Mon, 26 Oct 2020 11:19:07 +0000 (UTC)
+ by mail.kernel.org (Postfix) with ESMTPSA id 56E1822403;
+ Mon, 26 Oct 2020 11:19:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1603711147;
- bh=UBkXRzDgi1l73AkPFzD2IDEqELXSl/ae0MIMXmf/MP8=;
+ s=default; t=1603711151;
+ bh=qk8PmsDBuQCH8e0JRhhBr0jHNe14EM3J0vorow/ddL8=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=jJyr2o9MFGZkBQ1CNXQXoebQer9oipZK0+mnMy7h0Mmji1O9SIoJwPRlED7rCc1cm
- wOSkd8goawyqIShw6i54dqfrqMJmmbVYrxW0rzgBX2ZgRThLlfbvVxYJgVc68cFPbX
- dw8KEDM3PKall6e+lgfmlfFMfepOPHemhkLoO3TI=
+ b=XLs6d8Mf5LX6XFU31dV/4/bDbXn33Z42d2Ah4RJkXbB6UcGjLa05Lmfc4RxJoSmSI
+ /EHigOIQLe1vrOEB2DqTOxLB7MWB4bzAmVlIginBv8eyv2L1UKur3TdyoWkr+OUchn
+ 2wJRMI7RdeUXqv+mKJCTN59l23Em6gSy/QhgCHaE=
 From: Leon Romanovsky <leon@kernel.org>
 To: Doug Ledford <dledford@redhat.com>,
 	Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH mlx5-next 02/11] net/mlx5: Properly convey driver version to
- firmware
-Date: Mon, 26 Oct 2020 13:18:40 +0200
-Message-Id: <20201026111849.1035786-3-leon@kernel.org>
+Subject: [PATCH mlx5-next 04/11] vdpa/mlx5: Make hardware definitions visible
+ to all mlx5 devices
+Date: Mon, 26 Oct 2020 13:18:42 +0200
+Message-Id: <20201026111849.1035786-5-leon@kernel.org>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20201026111849.1035786-1-leon@kernel.org>
 References: <20201026111849.1035786-1-leon@kernel.org>
@@ -102,40 +102,73 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Leon Romanovsky <leonro@nvidia.com>
 
-mlx5 firmware expects driver version in specific format X.X.X, so
-make it always correct and based on real kernel version aligned with
-the driver.
+Move mlx5_vdpa IFC header file to the general include folder, so
+mlx5_core will be able to reuse it to check if VDPA is supported
+prior to creating an auxiliary device.
 
-Fixes: 012e50e109fd ("net/mlx5: Set driver version into firmware")
+As part of this move, update the header file name to mlx5 general
+naming scheme.
+
+Reviewed-by: Parav Pandit <parav@nvidia.com>
 Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/main.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/vdpa/mlx5/net/main.c                                | 2 +-
+ drivers/vdpa/mlx5/net/mlx5_vnet.c                           | 2 +-
+ .../mlx5_vdpa_ifc.h => include/linux/mlx5/mlx5_ifc_vdpa.h   | 6 +++---
+ 3 files changed, 5 insertions(+), 5 deletions(-)
+ rename drivers/vdpa/mlx5/core/mlx5_vdpa_ifc.h => include/linux/mlx5/mlx5_ifc_vdpa.h (97%)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-index 8ff207aa1479..71e210f22f69 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -50,6 +50,7 @@
- #ifdef CONFIG_RFS_ACCEL
- #include <linux/cpu_rmap.h>
- #endif
-+#include <linux/version.h>
- #include <net/devlink.h>
- #include "mlx5_core.h"
- #include "lib/eq.h"
-@@ -233,7 +234,10 @@ static void mlx5_set_driver_version(struct mlx5_core_dev *dev)
- 	strncat(string, ",", remaining_size);
+diff --git a/drivers/vdpa/mlx5/net/main.c b/drivers/vdpa/mlx5/net/main.c
+index 838cd98386ff..4dd3f00f2306 100644
+--- a/drivers/vdpa/mlx5/net/main.c
++++ b/drivers/vdpa/mlx5/net/main.c
+@@ -4,7 +4,7 @@
+ #include <linux/module.h>
+ #include <linux/mlx5/driver.h>
+ #include <linux/mlx5/device.h>
+-#include "mlx5_vdpa_ifc.h"
++#include <linux/mlx5/mlx5_ifc_vdpa.h>
+ #include "mlx5_vnet.h"
 
- 	remaining_size = max_t(int, 0, driver_ver_sz - strlen(string));
--	strncat(string, DRIVER_VERSION, remaining_size);
-+
-+	snprintf(string + strlen(string), remaining_size, "%u.%u.%u",
-+		 (u8)(LINUX_VERSION_CODE >> 16), (u8)(LINUX_VERSION_CODE >> 8),
-+		 (u16)(LINUX_VERSION_CODE & 0xff));
+ MODULE_AUTHOR("Eli Cohen <eli@mellanox.com>");
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index 1fa6fcac8299..6c218b47b9f1 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -9,8 +9,8 @@
+ #include <linux/mlx5/vport.h>
+ #include <linux/mlx5/fs.h>
+ #include <linux/mlx5/device.h>
++#include <linux/mlx5/mlx5_ifc_vdpa.h>
+ #include "mlx5_vnet.h"
+-#include "mlx5_vdpa_ifc.h"
+ #include "mlx5_vdpa.h"
 
- 	/*Send the command*/
- 	MLX5_SET(set_driver_version_in, in, opcode,
+ #define to_mvdev(__vdev) container_of((__vdev), struct mlx5_vdpa_dev, vdev)
+diff --git a/drivers/vdpa/mlx5/core/mlx5_vdpa_ifc.h b/include/linux/mlx5/mlx5_ifc_vdpa.h
+similarity index 97%
+rename from drivers/vdpa/mlx5/core/mlx5_vdpa_ifc.h
+rename to include/linux/mlx5/mlx5_ifc_vdpa.h
+index f6f57a29b38e..97784098a992 100644
+--- a/drivers/vdpa/mlx5/core/mlx5_vdpa_ifc.h
++++ b/include/linux/mlx5/mlx5_ifc_vdpa.h
+@@ -1,8 +1,8 @@
+ /* SPDX-License-Identifier: GPL-2.0 OR Linux-OpenIB */
+ /* Copyright (c) 2020 Mellanox Technologies Ltd. */
+
+-#ifndef __MLX5_VDPA_IFC_H_
+-#define __MLX5_VDPA_IFC_H_
++#ifndef __MLX5_IFC_VDPA_H_
++#define __MLX5_IFC_VDPA_H_
+
+ #include <linux/mlx5/mlx5_ifc.h>
+
+@@ -165,4 +165,4 @@ struct mlx5_ifc_modify_virtio_net_q_out_bits {
+ 	struct mlx5_ifc_general_obj_out_cmd_hdr_bits general_obj_out_cmd_hdr;
+ };
+
+-#endif /* __MLX5_VDPA_IFC_H_ */
++#endif /* __MLX5_IFC_VDPA_H_ */
 --
 2.26.2
 
