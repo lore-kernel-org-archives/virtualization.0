@@ -2,107 +2,89 @@ Return-Path: <SRS0=a9Wa=EC=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 74E63C55178
-	for <virtualization@archiver.kernel.org>; Tue, 27 Oct 2020 17:43:28 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 796C9C388F9
+	for <virtualization@archiver.kernel.org>; Tue, 27 Oct 2020 17:59:31 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id DECB3206DD
-	for <virtualization@archiver.kernel.org>; Tue, 27 Oct 2020 17:43:27 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DECB3206DD
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=perches.com
+	by mail.kernel.org (Postfix) with ESMTPS id EECF12076D
+	for <virtualization@archiver.kernel.org>; Tue, 27 Oct 2020 17:59:30 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fDvRhdsr"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EECF12076D
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 36EA887287;
-	Tue, 27 Oct 2020 17:43:27 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 8AB6086712;
+	Tue, 27 Oct 2020 17:59:30 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 93I+vNrYUMam; Tue, 27 Oct 2020 17:43:24 +0000 (UTC)
+	with ESMTP id 0lLuPo-QfBKJ; Tue, 27 Oct 2020 17:59:28 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id B907A87284;
-	Tue, 27 Oct 2020 17:43:24 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id C2CEF85F6D;
+	Tue, 27 Oct 2020 17:59:28 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A9450C0859;
-	Tue, 27 Oct 2020 17:43:24 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 18D14C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AC2AFC0859;
+	Tue, 27 Oct 2020 17:59:28 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C838EC0051
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Oct 2020 17:43:23 +0000 (UTC)
+ Tue, 27 Oct 2020 17:59:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 0603387287
+ by fraxinus.osuosl.org (Postfix) with ESMTP id BA1AB8512E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Oct 2020 17:43:23 +0000 (UTC)
+ Tue, 27 Oct 2020 17:59:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 7DQdFXajuqyh
+ with ESMTP id SKiya63FBOWZ
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Oct 2020 17:43:22 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
-Received: from smtprelay.hostedemail.com (smtprelay0042.hostedemail.com
- [216.40.44.42])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 0CA7F87284
+ Tue, 27 Oct 2020 17:59:25 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 762EE85124
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Oct 2020 17:43:21 +0000 (UTC)
-Received: from smtprelay.hostedemail.com (10.5.19.251.rfc1918.com
- [10.5.19.251])
- by smtpgrave03.hostedemail.com (Postfix) with ESMTP id A20FC1801C5D4
- for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Oct 2020 17:08:12 +0000 (UTC)
-Received: from filter.hostedemail.com (clb03-v110.bra.tucows.net
- [216.40.38.60])
- by smtprelay08.hostedemail.com (Postfix) with ESMTP id 45489182CED2A;
- Tue, 27 Oct 2020 17:08:10 +0000 (UTC)
-X-Session-Marker: 6A6F6540706572636865732E636F6D
-X-HE-Tag: rake71_590ddfb2727d
-X-Filterd-Recvd-Size: 4916
-Received: from XPS-9350.home (unknown [47.151.133.149])
- (Authenticated sender: joe@perches.com)
- by omf05.hostedemail.com (Postfix) with ESMTPA;
- Tue, 27 Oct 2020 17:08:04 +0000 (UTC)
-Message-ID: <2767969b94fd66db1fb0fc13b5783ae65b7deb2f.camel@perches.com>
-Subject: Re: [PATCH 3/8] vhost: vringh: use krealloc_array()
-From: Joe Perches <joe@perches.com>
-To: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Date: Tue, 27 Oct 2020 10:08:02 -0700
-In-Reply-To: <CAMpxmJU0C84DjPmqmWvPgv0zwgGLhkpKLRDuKkZHAa=wi+LvBA@mail.gmail.com>
-References: <20201027121725.24660-1-brgl@bgdev.pl>
- <20201027121725.24660-4-brgl@bgdev.pl>
- <20201027112607-mutt-send-email-mst@kernel.org>
- <685d850347a1191bba8ba7766fc409b140d18f03.camel@perches.com>
- <CAMpxmJU0C84DjPmqmWvPgv0zwgGLhkpKLRDuKkZHAa=wi+LvBA@mail.gmail.com>
-User-Agent: Evolution 3.38.1-1 
+ Tue, 27 Oct 2020 17:59:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1603821564;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:
+ content-transfer-encoding:content-transfer-encoding;
+ bh=sj1vy1Nwe9VMYwPFlwJxcLJ9VzJA9N36Hbvxa6HJZGk=;
+ b=fDvRhdsrCVe2KjjTJ3u/cxl9l4qnnrLMhKq3GdlCDAr0WowBTwY24GzhmBSgzcBD9lPPvX
+ kDa++s/u60tbsZoaYJG8Dj9JlcGlhvpIaeZnr2joov6FFkpdmXiZhWruqAMT97H91yK9LD
+ d0RKZImF+Vjdd8nLEG2IP77Zh3F3j3Y=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-156-YHjS95RvOJCrXuopGfnvpw-1; Tue, 27 Oct 2020 13:59:21 -0400
+X-MC-Unique: YHjS95RvOJCrXuopGfnvpw-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
+ [10.5.11.23])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 983C3802B51;
+ Tue, 27 Oct 2020 17:59:20 +0000 (UTC)
+Received: from thinkpad.redhat.com (ovpn-112-166.ams2.redhat.com
+ [10.36.112.166])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 8185E19C4F;
+ Tue, 27 Oct 2020 17:59:15 +0000 (UTC)
+From: Laurent Vivier <lvivier@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] vdpa_sim: Fix DMA mask
+Date: Tue, 27 Oct 2020 18:59:14 +0100
+Message-Id: <20201027175914.689278-1-lvivier@redhat.com>
 MIME-Version: 1.0
-Cc: Linux-ALSA <alsa-devel@alsa-project.org>, kvm@vger.kernel.org,
- "Michael S. Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>,
- Gustavo Padovan <gustavo@padovan.org>,
- Linus Walleij <linus.walleij@linaro.org>,
- linux-drm <dri-devel@lists.freedesktop.org>, Jaroslav Kysela <perex@perex.cz>,
- linux-mm@kvack.org, Christoph Lameter <cl@linux.com>,
- Sumit Semwal <sumit.semwal@linaro.org>,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
- Bartosz Golaszewski <brgl@bgdev.pl>,
- Alexander Shishkin <alexander.shishkin@linux.intel.com>,
- David Rientjes <rientjes@google.com>,
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
+Cc: Laurent Vivier <lvivier@redhat.com>,
  virtualization@lists.linux-foundation.org,
- linux-media <linux-media@vger.kernel.org>, Robert Richter <rric@kernel.org>,
- Thomas Zimmermann <tzimmermann@suse.de>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, linaro-mm-sig@lists.linaro.org,
- linux-gpio <linux-gpio@vger.kernel.org>, Borislav Petkov <bp@alien8.de>,
- Mauro Carvalho Chehab <mchehab@kernel.org>,
- Andrew Morton <akpm@linux-foundation.org>, linux-edac@vger.kernel.org,
- Tony Luck <tony.luck@intel.com>, netdev <netdev@vger.kernel.org>,
- Takashi Iwai <tiwai@suse.com>, LKML <linux-kernel@vger.kernel.org>,
- Pekka Enberg <penberg@kernel.org>, James Morse <james.morse@arm.com>,
- Daniel Vetter <daniel@ffwll.ch>, Joonsoo Kim <iamjoonsoo.kim@lge.com>,
- Christian =?ISO-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
+ "Michael S. Tsirkin" <mst@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -114,89 +96,188 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, 2020-10-27 at 17:58 +0100, Bartosz Golaszewski wrote:
-> On Tue, Oct 27, 2020 at 5:50 PM Joe Perches <joe@perches.com> wrote:
-> > =
+Since commit f959dcd6ddfd
+("dma-direct: Fix potential NULL pointer dereference")
+an error is reported when we load vdpa_sim and virtio-vdpa:
 
-> > On Tue, 2020-10-27 at 11:28 -0400, Michael S. Tsirkin wrote:
-> > > On Tue, Oct 27, 2020 at 01:17:20PM +0100, Bartosz Golaszewski wrote:
-> > > > From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> > > > =
+[  129.351207] net eth0: Unexpected TXQ (0) queue failure: -12
 
-> > > > Use the helper that checks for overflows internally instead of manu=
-ally
-> > > > calculating the size of the new array.
-> > > > =
+It seems that dma_mask is not initialized.
 
-> > > > Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> > > =
+This patch initializes dma_mask() and calls dma_set_mask_and_coherent()
+to fix the problem.
 
-> > > No problem with the patch, it does introduce some symmetry in the cod=
-e.
-> > =
+Full log:
 
-> > Perhaps more symmetry by using kmemdup
-> > ---
-> > =A0drivers/vhost/vringh.c | 23 ++++++++++-------------
-> > =A01 file changed, 10 insertions(+), 13 deletions(-)
-> > =
+[  128.548628] ------------[ cut here ]------------
+[  128.553268] WARNING: CPU: 23 PID: 1105 at kernel/dma/mapping.c:149 dma_map_page_attrs+0x14c/0x1d0
+[  128.562139] Modules linked in: virtio_net net_failover failover virtio_vdpa vdpa_sim vringh vhost_iotlb vdpa xt_CHECKSUM xt_MASQUERADE xt_conntrack ipt_REJECT nf_reject_ipv4 nft_compat nft_counter nft_chain_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 nf_tables nfnetlink tun bridge stp llc iscsi_tcp libiscsi_tcp libiscsi scsi_transport_iscsi rfkill intel_rapl_msr intel_rapl_common isst_if_common sunrpc skx_edac nfit libnvdimm x86_pkg_temp_thermal intel_powerclamp coretemp kvm_intel ipmi_ssif kvm mgag200 i2c_algo_bit irqbypass drm_kms_helper crct10dif_pclmul crc32_pclmul syscopyarea ghash_clmulni_intel iTCO_wdt sysfillrect iTCO_vendor_support sysimgblt rapl fb_sys_fops dcdbas intel_cstate drm acpi_ipmi ipmi_si mei_me dell_smbios intel_uncore ipmi_devintf mei i2c_i801 dell_wmi_descriptor wmi_bmof pcspkr lpc_ich i2c_smbus ipmi_msghandler acpi_power_meter ip_tables xfs libcrc32c sd_mod t10_pi sg ahci libahci libata megaraid_sas tg3 crc32c_intel wmi dm_mirror dm_region_hash dm
+ _log
+[  128.562188]  dm_mod
+[  128.651334] CPU: 23 PID: 1105 Comm: NetworkManager Tainted: G S        I       5.10.0-rc1+ #59
+[  128.659939] Hardware name: Dell Inc. PowerEdge R440/04JN2K, BIOS 2.8.1 06/30/2020
+[  128.667419] RIP: 0010:dma_map_page_attrs+0x14c/0x1d0
+[  128.672384] Code: 1c 25 28 00 00 00 0f 85 97 00 00 00 48 83 c4 10 5b 5d 41 5c 41 5d c3 4c 89 da eb d7 48 89 f2 48 2b 50 18 48 89 d0 eb 8d 0f 0b <0f> 0b 48 c7 c0 ff ff ff ff eb c3 48 89 d9 48 8b 40 40 e8 2d a0 aa
+[  128.691131] RSP: 0018:ffffae0f0151f3c8 EFLAGS: 00010246
+[  128.696357] RAX: ffffffffc06b7400 RBX: 00000000000005fa RCX: 0000000000000000
+[  128.703488] RDX: 0000000000000040 RSI: ffffcee3c7861200 RDI: ffff9e2bc16cd000
+[  128.710620] RBP: 0000000000000000 R08: 0000000000000002 R09: 0000000000000000
+[  128.717754] R10: 0000000000000002 R11: 0000000000000000 R12: ffff9e472cb291f8
+[  128.724886] R13: ffff9e2bc14da780 R14: ffff9e472bc20000 R15: ffff9e2bc1b14940
+[  128.732020] FS:  00007f887bae23c0(0000) GS:ffff9e4ac01c0000(0000) knlGS:0000000000000000
+[  128.740105] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  128.745852] CR2: 0000562bc09de998 CR3: 00000003c156c006 CR4: 00000000007706e0
+[  128.752982] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  128.760114] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  128.767247] PKRU: 55555554
+[  128.769961] Call Trace:
+[  128.772418]  virtqueue_add+0x81e/0xb00
+[  128.776176]  virtqueue_add_inbuf_ctx+0x26/0x30
+[  128.780625]  try_fill_recv+0x3a2/0x6e0 [virtio_net]
+[  128.785509]  virtnet_open+0xf9/0x180 [virtio_net]
+[  128.790217]  __dev_open+0xe8/0x180
+[  128.793620]  __dev_change_flags+0x1a7/0x210
+[  128.797808]  dev_change_flags+0x21/0x60
+[  128.801646]  do_setlink+0x328/0x10e0
+[  128.805227]  ? __nla_validate_parse+0x121/0x180
+[  128.809757]  ? __nla_parse+0x21/0x30
+[  128.813338]  ? inet6_validate_link_af+0x5c/0xf0
+[  128.817871]  ? cpumask_next+0x17/0x20
+[  128.821535]  ? __snmp6_fill_stats64.isra.54+0x6b/0x110
+[  128.826676]  ? __nla_validate_parse+0x47/0x180
+[  128.831120]  __rtnl_newlink+0x541/0x8e0
+[  128.834962]  ? __nla_reserve+0x38/0x50
+[  128.838713]  ? security_sock_rcv_skb+0x2a/0x40
+[  128.843158]  ? netlink_deliver_tap+0x2c/0x1e0
+[  128.847518]  ? netlink_attachskb+0x1d8/0x220
+[  128.851793]  ? skb_queue_tail+0x1b/0x50
+[  128.855641]  ? fib6_clean_node+0x43/0x170
+[  128.859652]  ? _cond_resched+0x15/0x30
+[  128.863406]  ? kmem_cache_alloc_trace+0x3a3/0x420
+[  128.868110]  rtnl_newlink+0x43/0x60
+[  128.871602]  rtnetlink_rcv_msg+0x12c/0x380
+[  128.875701]  ? rtnl_calcit.isra.39+0x110/0x110
+[  128.880147]  netlink_rcv_skb+0x50/0x100
+[  128.883987]  netlink_unicast+0x1a5/0x280
+[  128.887913]  netlink_sendmsg+0x23d/0x470
+[  128.891839]  sock_sendmsg+0x5b/0x60
+[  128.895331]  ____sys_sendmsg+0x1ef/0x260
+[  128.899255]  ? copy_msghdr_from_user+0x5c/0x90
+[  128.903702]  ___sys_sendmsg+0x7c/0xc0
+[  128.907369]  ? dev_forward_change+0x130/0x130
+[  128.911731]  ? sysctl_head_finish.part.29+0x24/0x40
+[  128.916616]  ? new_sync_write+0x11f/0x1b0
+[  128.920628]  ? mntput_no_expire+0x47/0x240
+[  128.924727]  __sys_sendmsg+0x57/0xa0
+[  128.928309]  do_syscall_64+0x33/0x40
+[  128.931887]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[  128.936937] RIP: 0033:0x7f88792e3857
+[  128.940518] Code: c3 66 90 41 54 41 89 d4 55 48 89 f5 53 89 fb 48 83 ec 10 e8 0b ed ff ff 44 89 e2 48 89 ee 89 df 41 89 c0 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 35 44 89 c7 48 89 44 24 08 e8 44 ed ff ff 48
+[  128.959263] RSP: 002b:00007ffdca60dea0 EFLAGS: 00000293 ORIG_RAX: 000000000000002e
+[  128.966827] RAX: ffffffffffffffda RBX: 000000000000000c RCX: 00007f88792e3857
+[  128.973960] RDX: 0000000000000000 RSI: 00007ffdca60def0 RDI: 000000000000000c
+[  128.981095] RBP: 00007ffdca60def0 R08: 0000000000000000 R09: 0000000000000000
+[  128.988224] R10: 0000000000000001 R11: 0000000000000293 R12: 0000000000000000
+[  128.995357] R13: 0000000000000000 R14: 00007ffdca60e0a8 R15: 00007ffdca60e09c
+[  129.002492] CPU: 23 PID: 1105 Comm: NetworkManager Tainted: G S        I       5.10.0-rc1+ #59
+[  129.011093] Hardware name: Dell Inc. PowerEdge R440/04JN2K, BIOS 2.8.1 06/30/2020
+[  129.018571] Call Trace:
+[  129.021027]  dump_stack+0x57/0x6a
+[  129.024346]  __warn.cold.14+0xe/0x3d
+[  129.027925]  ? dma_map_page_attrs+0x14c/0x1d0
+[  129.032283]  report_bug+0xbd/0xf0
+[  129.035602]  handle_bug+0x44/0x80
+[  129.038922]  exc_invalid_op+0x13/0x60
+[  129.042589]  asm_exc_invalid_op+0x12/0x20
+[  129.046602] RIP: 0010:dma_map_page_attrs+0x14c/0x1d0
+[  129.051566] Code: 1c 25 28 00 00 00 0f 85 97 00 00 00 48 83 c4 10 5b 5d 41 5c 41 5d c3 4c 89 da eb d7 48 89 f2 48 2b 50 18 48 89 d0 eb 8d 0f 0b <0f> 0b 48 c7 c0 ff ff ff ff eb c3 48 89 d9 48 8b 40 40 e8 2d a0 aa
+[  129.070311] RSP: 0018:ffffae0f0151f3c8 EFLAGS: 00010246
+[  129.075536] RAX: ffffffffc06b7400 RBX: 00000000000005fa RCX: 0000000000000000
+[  129.082669] RDX: 0000000000000040 RSI: ffffcee3c7861200 RDI: ffff9e2bc16cd000
+[  129.089803] RBP: 0000000000000000 R08: 0000000000000002 R09: 0000000000000000
+[  129.096936] R10: 0000000000000002 R11: 0000000000000000 R12: ffff9e472cb291f8
+[  129.104068] R13: ffff9e2bc14da780 R14: ffff9e472bc20000 R15: ffff9e2bc1b14940
+[  129.111200]  virtqueue_add+0x81e/0xb00
+[  129.114952]  virtqueue_add_inbuf_ctx+0x26/0x30
+[  129.119399]  try_fill_recv+0x3a2/0x6e0 [virtio_net]
+[  129.124280]  virtnet_open+0xf9/0x180 [virtio_net]
+[  129.128984]  __dev_open+0xe8/0x180
+[  129.132390]  __dev_change_flags+0x1a7/0x210
+[  129.136575]  dev_change_flags+0x21/0x60
+[  129.140415]  do_setlink+0x328/0x10e0
+[  129.143994]  ? __nla_validate_parse+0x121/0x180
+[  129.148528]  ? __nla_parse+0x21/0x30
+[  129.152107]  ? inet6_validate_link_af+0x5c/0xf0
+[  129.156639]  ? cpumask_next+0x17/0x20
+[  129.160306]  ? __snmp6_fill_stats64.isra.54+0x6b/0x110
+[  129.165443]  ? __nla_validate_parse+0x47/0x180
+[  129.169890]  __rtnl_newlink+0x541/0x8e0
+[  129.173731]  ? __nla_reserve+0x38/0x50
+[  129.177483]  ? security_sock_rcv_skb+0x2a/0x40
+[  129.181928]  ? netlink_deliver_tap+0x2c/0x1e0
+[  129.186286]  ? netlink_attachskb+0x1d8/0x220
+[  129.190560]  ? skb_queue_tail+0x1b/0x50
+[  129.194401]  ? fib6_clean_node+0x43/0x170
+[  129.198411]  ? _cond_resched+0x15/0x30
+[  129.202163]  ? kmem_cache_alloc_trace+0x3a3/0x420
+[  129.206869]  rtnl_newlink+0x43/0x60
+[  129.210361]  rtnetlink_rcv_msg+0x12c/0x380
+[  129.214462]  ? rtnl_calcit.isra.39+0x110/0x110
+[  129.218908]  netlink_rcv_skb+0x50/0x100
+[  129.222747]  netlink_unicast+0x1a5/0x280
+[  129.226672]  netlink_sendmsg+0x23d/0x470
+[  129.230599]  sock_sendmsg+0x5b/0x60
+[  129.234090]  ____sys_sendmsg+0x1ef/0x260
+[  129.238015]  ? copy_msghdr_from_user+0x5c/0x90
+[  129.242461]  ___sys_sendmsg+0x7c/0xc0
+[  129.246128]  ? dev_forward_change+0x130/0x130
+[  129.250487]  ? sysctl_head_finish.part.29+0x24/0x40
+[  129.255368]  ? new_sync_write+0x11f/0x1b0
+[  129.259381]  ? mntput_no_expire+0x47/0x240
+[  129.263478]  __sys_sendmsg+0x57/0xa0
+[  129.267058]  do_syscall_64+0x33/0x40
+[  129.270639]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+[  129.275689] RIP: 0033:0x7f88792e3857
+[  129.279268] Code: c3 66 90 41 54 41 89 d4 55 48 89 f5 53 89 fb 48 83 ec 10 e8 0b ed ff ff 44 89 e2 48 89 ee 89 df 41 89 c0 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 35 44 89 c7 48 89 44 24 08 e8 44 ed ff ff 48
+[  129.298015] RSP: 002b:00007ffdca60dea0 EFLAGS: 00000293 ORIG_RAX: 000000000000002e
+[  129.305581] RAX: ffffffffffffffda RBX: 000000000000000c RCX: 00007f88792e3857
+[  129.312712] RDX: 0000000000000000 RSI: 00007ffdca60def0 RDI: 000000000000000c
+[  129.319846] RBP: 00007ffdca60def0 R08: 0000000000000000 R09: 0000000000000000
+[  129.326978] R10: 0000000000000001 R11: 0000000000000293 R12: 0000000000000000
+[  129.334109] R13: 0000000000000000 R14: 00007ffdca60e0a8 R15: 00007ffdca60e09c
+[  129.341249] ---[ end trace c551e8028fbaf59d ]---
+[  129.351207] net eth0: Unexpected TXQ (0) queue failure: -12
+[  129.360445] net eth0: Unexpected TXQ (0) queue failure: -12
+[  129.824428] net eth0: Unexpected TXQ (0) queue failure: -12
 
-> > diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-> > index 8bd8b403f087..99222a3651cd 100644
-> > --- a/drivers/vhost/vringh.c
-> > +++ b/drivers/vhost/vringh.c
-> > @@ -191,26 +191,23 @@ static int move_to_indirect(const struct vringh *=
-vrh,
-> > =A0static int resize_iovec(struct vringh_kiov *iov, gfp_t gfp)
-> > =A0{
-> > =A0=A0=A0=A0=A0=A0=A0=A0struct kvec *new;
-> > -       unsigned int flag, new_num =3D (iov->max_num & ~VRINGH_IOV_ALLO=
-CATED) * 2;
-> > +       size_t new_num =3D (iov->max_num & ~VRINGH_IOV_ALLOCATED) * 2;
-> > +       size_t size;
-> > =
+Fixes: 2c53d0f64c06 ("vdpasim: vDPA device simulator")
+Signed-off-by: Laurent Vivier <lvivier@redhat.com>
+---
+ drivers/vdpa/vdpa_sim/vdpa_sim.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-> > =A0=A0=A0=A0=A0=A0=A0=A0if (new_num < 8)
-> > =A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0=A0new_num =3D 8;
-> > =
-
-> > -       flag =3D (iov->max_num & VRINGH_IOV_ALLOCATED);
-> > -       if (flag)
-> > -               new =3D krealloc(iov->iov, new_num * sizeof(struct iove=
-c), gfp);
-> > -       else {
-> > -               new =3D kmalloc_array(new_num, sizeof(struct iovec), gf=
-p);
-> > -               if (new) {
-> > -                       memcpy(new, iov->iov,
-> > -                              iov->max_num * sizeof(struct iovec));
-> > -                       flag =3D VRINGH_IOV_ALLOCATED;
-> > -               }
-> > -       }
-> > +       if (unlikely(check_mul_overflow(new_num, sizeof(struct iovec), =
-&size)))
-> > +               return -ENOMEM;
-> > +
-> =
-
-> The whole point of using helpers such as kmalloc_array() is not doing
-> these checks manually.
-
-Tradeoffs for in readability for overflow and not mistyping or doing
-the multiplication of iov->max_num * sizeof(struct iovec) twice.
-
-Just fyi:
-
-the realloc doesn't do a multiplication overflow test as written so the
-suggestion is slightly more resistant to defect.
-
-   =
-
+diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+index 2629911c29bb..dc69e8085643 100644
+--- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
++++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
+@@ -361,7 +361,9 @@ static struct vdpasim *vdpasim_create(void)
+ 	spin_lock_init(&vdpasim->iommu_lock);
+ 
+ 	dev = &vdpasim->vdpa.dev;
+-	dev->coherent_dma_mask = DMA_BIT_MASK(64);
++	dev->dma_mask = &dev->coherent_dma_mask;
++	if (dma_set_mask_and_coherent(dev, DMA_BIT_MASK(64)))
++		goto err_iommu;
+ 	set_dma_ops(dev, &vdpasim_dma_ops);
+ 
+ 	vdpasim->iommu = vhost_iotlb_alloc(2048, 0);
+-- 
+2.26.2
 
 _______________________________________________
 Virtualization mailing list
