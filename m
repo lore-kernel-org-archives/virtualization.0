@@ -7,52 +7,52 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 90F6BC55179
-	for <virtualization@archiver.kernel.org>; Wed, 28 Oct 2020 19:35:43 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3857C388F7
+	for <virtualization@archiver.kernel.org>; Wed, 28 Oct 2020 19:35:44 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2C4E8247A3
-	for <virtualization@archiver.kernel.org>; Wed, 28 Oct 2020 19:35:43 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2C4E8247A3
+	by mail.kernel.org (Postfix) with ESMTPS id 59907247A4
+	for <virtualization@archiver.kernel.org>; Wed, 28 Oct 2020 19:35:44 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 59907247A4
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id C46DD86AD7;
-	Wed, 28 Oct 2020 19:35:42 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id gHN1+kgrk04X; Wed, 28 Oct 2020 19:35:37 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id F3180869D0;
-	Wed, 28 Oct 2020 19:35:36 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DD55DC1AD7;
-	Wed, 28 Oct 2020 19:35:36 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 83858C0051
- for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Oct 2020 19:35:35 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id E0D4A874E0
- for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Oct 2020 19:35:34 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 02857874BA;
+	Wed, 28 Oct 2020 19:35:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id pockOGJW4Kn6
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id v307m8gpnR7r; Wed, 28 Oct 2020 19:35:41 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by hemlock.osuosl.org (Postfix) with ESMTP id 89A54874E9;
+	Wed, 28 Oct 2020 19:35:41 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 73DE4C0859;
+	Wed, 28 Oct 2020 19:35:41 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 7EFA4C0859
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Oct 2020 19:35:33 +0000 (UTC)
+ Wed, 28 Oct 2020 19:35:40 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by silver.osuosl.org (Postfix) with ESMTP id 5D30F214D2
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 28 Oct 2020 19:35:40 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from silver.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id tuZ64mR1QYUU
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 28 Oct 2020 19:35:31 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by hemlock.osuosl.org (Postfix) with ESMTPS id E46B4874BB
+ by silver.osuosl.org (Postfix) with ESMTPS id F387C20555
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Oct 2020 19:35:32 +0000 (UTC)
+ Wed, 28 Oct 2020 19:35:30 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 5A806B920;
- Wed, 28 Oct 2020 19:35:31 +0000 (UTC)
+ by mx2.suse.de (Postfix) with ESMTP id 3DA22B919;
+ Wed, 28 Oct 2020 19:35:29 +0000 (UTC)
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@linux.ie,
  daniel@ffwll.ch, sam@ravnborg.org, alexander.deucher@amd.com,
@@ -68,9 +68,10 @@ To: maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@linux.ie,
  sumit.semwal@linaro.org, emil.velikov@collabora.com, luben.tuikov@amd.com,
  apaneers@amd.com, linus.walleij@linaro.org, melissa.srw@gmail.com,
  chris@chris-wilson.co.uk, miaoqinglang@huawei.com
-Subject: [PATCH v6 10/10] drm/fb_helper: Support framebuffers in I/O memory
-Date: Wed, 28 Oct 2020 20:35:21 +0100
-Message-Id: <20201028193521.2489-11-tzimmermann@suse.de>
+Subject: [PATCH v6 07/10] drm/gem: Update internal GEM vmap/vunmap interfaces
+ to use struct dma_buf_map
+Date: Wed, 28 Oct 2020 20:35:18 +0100
+Message-Id: <20201028193521.2489-8-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.29.0
 In-Reply-To: <20201028193521.2489-1-tzimmermann@suse.de>
 References: <20201028193521.2489-1-tzimmermann@suse.de>
@@ -94,389 +95,104 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-At least sparc64 requires I/O-specific access to framebuffers. This
-patch updates the fbdev console accordingly.
-
-For drivers with direct access to the framebuffer memory, the callback
-functions in struct fb_ops test for the type of memory and call the rsp
-fb_sys_ of fb_cfb_ functions. Read and write operations are implemented
-internally by DRM's fbdev helper.
-
-For drivers that employ a shadow buffer, fbdev's blit function retrieves
-the framebuffer address as struct dma_buf_map, and uses dma_buf_map
-interfaces to access the buffer.
-
-The bochs driver on sparc64 uses a workaround to flag the framebuffer as
-I/O memory and avoid a HW exception. With the introduction of struct
-dma_buf_map, this is not required any longer. The patch removes the rsp
-code from both, bochs and fbdev.
-
-v5:
-	* implement fb_read/fb_write internally (Daniel, Sam)
-v4:
-	* move dma_buf_map changes into separate patch (Daniel)
-	* TODO list: comment on fbdev updates (Daniel)
-
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
-Tested-by: Sam Ravnborg <sam@ravnborg.org>
----
- Documentation/gpu/todo.rst        |  19 ++-
- drivers/gpu/drm/bochs/bochs_kms.c |   1 -
- drivers/gpu/drm/drm_fb_helper.c   | 227 ++++++++++++++++++++++++++++--
- include/drm/drm_mode_config.h     |  12 --
- 4 files changed, 230 insertions(+), 29 deletions(-)
-
-diff --git a/Documentation/gpu/todo.rst b/Documentation/gpu/todo.rst
-index 7e6fc3c04add..638b7f704339 100644
---- a/Documentation/gpu/todo.rst
-+++ b/Documentation/gpu/todo.rst
-@@ -197,13 +197,28 @@ Convert drivers to use drm_fbdev_generic_setup()
- ------------------------------------------------
- 
- Most drivers can use drm_fbdev_generic_setup(). Driver have to implement
--atomic modesetting and GEM vmap support. Current generic fbdev emulation
--expects the framebuffer in system memory (or system-like memory).
-+atomic modesetting and GEM vmap support. Historically, generic fbdev emulation
-+expected the framebuffer in system memory or system-like memory. By employing
-+struct dma_buf_map, drivers with frambuffers in I/O memory can be supported
-+as well.
- 
- Contact: Maintainer of the driver you plan to convert
- 
- Level: Intermediate
- 
-+Reimplement functions in drm_fbdev_fb_ops without fbdev
-+-------------------------------------------------------
-+
-+A number of callback functions in drm_fbdev_fb_ops could benefit from
-+being rewritten without dependencies on the fbdev module. Some of the
-+helpers could further benefit from using struct dma_buf_map instead of
-+raw pointers.
-+
-+Contact: Thomas Zimmermann <tzimmermann@suse.de>, Daniel Vetter
-+
-+Level: Advanced
-+
-+
- drm_framebuffer_funcs and drm_mode_config_funcs.fb_create cleanup
- -----------------------------------------------------------------
- 
-diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
-index 13d0d04c4457..853081d186d5 100644
---- a/drivers/gpu/drm/bochs/bochs_kms.c
-+++ b/drivers/gpu/drm/bochs/bochs_kms.c
-@@ -151,7 +151,6 @@ int bochs_kms_init(struct bochs_device *bochs)
- 	bochs->dev->mode_config.preferred_depth = 24;
- 	bochs->dev->mode_config.prefer_shadow = 0;
- 	bochs->dev->mode_config.prefer_shadow_fbdev = 1;
--	bochs->dev->mode_config.fbdev_use_iomem = true;
- 	bochs->dev->mode_config.quirk_addfb_prefer_host_byte_order = true;
- 
- 	bochs->dev->mode_config.funcs = &bochs_mode_funcs;
-diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_helper.c
-index 6ce0b9119ef2..714ce3bd6221 100644
---- a/drivers/gpu/drm/drm_fb_helper.c
-+++ b/drivers/gpu/drm/drm_fb_helper.c
-@@ -372,24 +372,22 @@ static void drm_fb_helper_resume_worker(struct work_struct *work)
- }
- 
- static void drm_fb_helper_dirty_blit_real(struct drm_fb_helper *fb_helper,
--					  struct drm_clip_rect *clip)
-+					  struct drm_clip_rect *clip,
-+					  struct dma_buf_map *dst)
- {
- 	struct drm_framebuffer *fb = fb_helper->fb;
- 	unsigned int cpp = fb->format->cpp[0];
- 	size_t offset = clip->y1 * fb->pitches[0] + clip->x1 * cpp;
- 	void *src = fb_helper->fbdev->screen_buffer + offset;
--	void *dst = fb_helper->buffer->map.vaddr + offset;
- 	size_t len = (clip->x2 - clip->x1) * cpp;
- 	unsigned int y;
- 
--	for (y = clip->y1; y < clip->y2; y++) {
--		if (!fb_helper->dev->mode_config.fbdev_use_iomem)
--			memcpy(dst, src, len);
--		else
--			memcpy_toio((void __iomem *)dst, src, len);
-+	dma_buf_map_incr(dst, offset); /* go to first pixel within clip rect */
- 
-+	for (y = clip->y1; y < clip->y2; y++) {
-+		dma_buf_map_memcpy_to(dst, src, len);
-+		dma_buf_map_incr(dst, fb->pitches[0]);
- 		src += fb->pitches[0];
--		dst += fb->pitches[0];
- 	}
- }
- 
-@@ -417,8 +415,9 @@ static void drm_fb_helper_dirty_work(struct work_struct *work)
- 			ret = drm_client_buffer_vmap(helper->buffer, &map);
- 			if (ret)
- 				return;
--			drm_fb_helper_dirty_blit_real(helper, &clip_copy);
-+			drm_fb_helper_dirty_blit_real(helper, &clip_copy, &map);
- 		}
-+
- 		if (helper->fb->funcs->dirty)
- 			helper->fb->funcs->dirty(helper->fb, NULL, 0, 0,
- 						 &clip_copy, 1);
-@@ -2027,6 +2026,206 @@ static int drm_fbdev_fb_mmap(struct fb_info *info, struct vm_area_struct *vma)
- 		return -ENODEV;
- }
- 
-+static bool drm_fbdev_use_iomem(struct fb_info *info)
-+{
-+	struct drm_fb_helper *fb_helper = info->par;
-+	struct drm_client_buffer *buffer = fb_helper->buffer;
-+
-+	return !drm_fbdev_use_shadow_fb(fb_helper) && buffer->map.is_iomem;
-+}
-+
-+static ssize_t fb_read_screen_base(struct fb_info *info, char __user *buf, size_t count, 
-+				   loff_t pos)
-+{
-+	const char __iomem *src = info->screen_base + pos;
-+	size_t alloc_size = min(count, PAGE_SIZE);
-+	ssize_t ret = 0;
-+	char *tmp;
-+
-+	tmp = kmalloc(alloc_size, GFP_KERNEL);
-+	if (!tmp)
-+		return -ENOMEM;
-+
-+	while (count) {
-+		size_t c = min(count, alloc_size);
-+
-+		memcpy_fromio(tmp, src, c);
-+		if (copy_to_user(buf, tmp, c)) {
-+			ret = -EFAULT;
-+			break;
-+		}
-+
-+		src += c;
-+		buf += c;
-+		ret += c;
-+		count -= c;
-+	}
-+
-+	kfree(tmp);
-+
-+	return ret;
-+}
-+
-+static ssize_t fb_read_screen_buffer(struct fb_info *info, char __user *buf, size_t count,
-+				     loff_t pos)
-+{
-+	const char *src = info->screen_buffer + pos;
-+
-+	if (copy_to_user(buf, src, count))
-+		return -EFAULT;
-+
-+	return count;
-+}
-+
-+static ssize_t drm_fbdev_fb_read(struct fb_info *info, char __user *buf,
-+				 size_t count, loff_t *ppos)
-+{
-+	loff_t pos = *ppos;
-+	size_t total_size;
-+	ssize_t ret;
-+
-+	if (info->state != FBINFO_STATE_RUNNING)
-+		return -EPERM;
-+
-+	if (info->screen_size)
-+		total_size = info->screen_size;
-+	else
-+		total_size = info->fix.smem_len;
-+
-+	if (pos >= total_size)
-+		return 0;
-+	if (count >= total_size)
-+		count = total_size;
-+	if (total_size - count < pos)
-+		count = total_size - pos;
-+
-+	if (drm_fbdev_use_iomem(info))
-+		ret = fb_read_screen_base(info, buf, count, pos);
-+	else
-+		ret = fb_read_screen_buffer(info, buf, count, pos);
-+
-+	if (ret > 0)
-+		*ppos = ret;
-+
-+	return ret;
-+}
-+
-+static ssize_t fb_write_screen_base(struct fb_info *info, const char __user *buf, size_t count,
-+				    loff_t pos)
-+{
-+	char __iomem *dst = info->screen_base + pos;
-+	size_t alloc_size = min(count, PAGE_SIZE);
-+	ssize_t ret = 0;
-+	u8 *tmp;
-+
-+	tmp = kmalloc(alloc_size, GFP_KERNEL);
-+	if (!tmp)
-+		return -ENOMEM;
-+
-+	while (count) {
-+		size_t c = min(count, alloc_size);
-+
-+		if (copy_from_user(tmp, buf, c)) {
-+			ret = -EFAULT;
-+			break;
-+		}
-+		memcpy_toio(dst, tmp, c);
-+
-+		dst += c;
-+		buf += c;
-+		ret += c;
-+		count -= c;
-+	}
-+
-+	kfree(tmp);
-+
-+	return ret;
-+}
-+
-+static ssize_t fb_write_screen_buffer(struct fb_info *info, const char __user *buf, size_t count,
-+				      loff_t pos)
-+{
-+	char *dst = info->screen_buffer + pos;
-+
-+	if (copy_from_user(dst, buf, count))
-+		return -EFAULT;
-+
-+	return count;
-+}
-+
-+static ssize_t drm_fbdev_fb_write(struct fb_info *info, const char __user *buf,
-+				  size_t count, loff_t *ppos)
-+{
-+	loff_t pos = *ppos;
-+	size_t total_size;
-+	ssize_t ret;
-+	int err;
-+
-+	if (info->state != FBINFO_STATE_RUNNING)
-+		return -EPERM;
-+
-+	if (info->screen_size)
-+		total_size = info->screen_size;
-+	else
-+		total_size = info->fix.smem_len;
-+
-+	if (pos > total_size)
-+		return -EFBIG;
-+	if (count > total_size) {
-+		err = -EFBIG;
-+		count = total_size;
-+	}
-+	if (total_size - count < pos) {
-+		if (!err)
-+			err = -ENOSPC;
-+		count = total_size - pos;
-+	}
-+
-+	/*
-+	 * Copy to framebuffer even if we already logged an error. Emulates
-+	 * the behavior of the original fbdev implementation.
-+	 */
-+	if (drm_fbdev_use_iomem(info))
-+		ret = fb_write_screen_base(info, buf, count, pos);
-+	else
-+		ret = fb_write_screen_buffer(info, buf, count, pos);
-+
-+	if (ret > 0)
-+		*ppos = ret;
-+
-+	if (err)
-+		return err;
-+
-+	return ret;
-+}
-+
-+static void drm_fbdev_fb_fillrect(struct fb_info *info,
-+				  const struct fb_fillrect *rect)
-+{
-+	if (drm_fbdev_use_iomem(info))
-+		drm_fb_helper_cfb_fillrect(info, rect);
-+	else
-+		drm_fb_helper_sys_fillrect(info, rect);
-+}
-+
-+static void drm_fbdev_fb_copyarea(struct fb_info *info,
-+				  const struct fb_copyarea *area)
-+{
-+	if (drm_fbdev_use_iomem(info))
-+		drm_fb_helper_cfb_copyarea(info, area);
-+	else
-+		drm_fb_helper_sys_copyarea(info, area);
-+}
-+
-+static void drm_fbdev_fb_imageblit(struct fb_info *info,
-+				   const struct fb_image *image)
-+{
-+	if (drm_fbdev_use_iomem(info))
-+		drm_fb_helper_cfb_imageblit(info, image);
-+	else
-+		drm_fb_helper_sys_imageblit(info, image);
-+}
-+
- static const struct fb_ops drm_fbdev_fb_ops = {
- 	.owner		= THIS_MODULE,
- 	DRM_FB_HELPER_DEFAULT_OPS,
-@@ -2034,11 +2233,11 @@ static const struct fb_ops drm_fbdev_fb_ops = {
- 	.fb_release	= drm_fbdev_fb_release,
- 	.fb_destroy	= drm_fbdev_fb_destroy,
- 	.fb_mmap	= drm_fbdev_fb_mmap,
--	.fb_read	= drm_fb_helper_sys_read,
--	.fb_write	= drm_fb_helper_sys_write,
--	.fb_fillrect	= drm_fb_helper_sys_fillrect,
--	.fb_copyarea	= drm_fb_helper_sys_copyarea,
--	.fb_imageblit	= drm_fb_helper_sys_imageblit,
-+	.fb_read	= drm_fbdev_fb_read,
-+	.fb_write	= drm_fbdev_fb_write,
-+	.fb_fillrect	= drm_fbdev_fb_fillrect,
-+	.fb_copyarea	= drm_fbdev_fb_copyarea,
-+	.fb_imageblit	= drm_fbdev_fb_imageblit,
- };
- 
- static struct fb_deferred_io drm_fbdev_defio = {
-diff --git a/include/drm/drm_mode_config.h b/include/drm/drm_mode_config.h
-index 5ffbb4ed5b35..ab424ddd7665 100644
---- a/include/drm/drm_mode_config.h
-+++ b/include/drm/drm_mode_config.h
-@@ -877,18 +877,6 @@ struct drm_mode_config {
- 	 */
- 	bool prefer_shadow_fbdev;
- 
--	/**
--	 * @fbdev_use_iomem:
--	 *
--	 * Set to true if framebuffer reside in iomem.
--	 * When set to true memcpy_toio() is used when copying the framebuffer in
--	 * drm_fb_helper.drm_fb_helper_dirty_blit_real().
--	 *
--	 * FIXME: This should be replaced with a per-mapping is_iomem
--	 * flag (like ttm does), and then used everywhere in fbdev code.
--	 */
--	bool fbdev_use_iomem;
--
- 	/**
- 	 * @quirk_addfb_prefer_xbgr_30bpp:
- 	 *
--- 
-2.29.0
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+R0VNJ3Mgdm1hcCBhbmQgdnVubWFwIGludGVyZmFjZXMgbm93IHdyYXAgbWVtb3J5IHBvaW50ZXJz
+IGluIHN0cnVjdApkbWFfYnVmX21hcC4KClNpZ25lZC1vZmYtYnk6IFRob21hcyBaaW1tZXJtYW5u
+IDx0emltbWVybWFubkBzdXNlLmRlPgpSZXZpZXdlZC1ieTogRGFuaWVsIFZldHRlciA8ZGFuaWVs
+LnZldHRlckBmZndsbC5jaD4KVGVzdGVkLWJ5OiBTYW0gUmF2bmJvcmcgPHNhbUByYXZuYm9yZy5v
+cmc+Ci0tLQogZHJpdmVycy9ncHUvZHJtL2RybV9jbGllbnQuYyAgIHwgMTggKysrKysrKysrKyst
+LS0tLS0tCiBkcml2ZXJzL2dwdS9kcm0vZHJtX2dlbS5jICAgICAgfCAyNiArKysrKysrKysrKysr
+LS0tLS0tLS0tLS0tLQogZHJpdmVycy9ncHUvZHJtL2RybV9pbnRlcm5hbC5oIHwgIDUgKysrLS0K
+IGRyaXZlcnMvZ3B1L2RybS9kcm1fcHJpbWUuYyAgICB8IDE0ICsrKystLS0tLS0tLS0tCiA0IGZp
+bGVzIGNoYW5nZWQsIDMxIGluc2VydGlvbnMoKyksIDMyIGRlbGV0aW9ucygtKQoKZGlmZiAtLWdp
+dCBhL2RyaXZlcnMvZ3B1L2RybS9kcm1fY2xpZW50LmMgYi9kcml2ZXJzL2dwdS9kcm0vZHJtX2Ns
+aWVudC5jCmluZGV4IDQ5NWY0N2QyM2Q4Ny4uYWMwMDgyYmVkOTY2IDEwMDY0NAotLS0gYS9kcml2
+ZXJzL2dwdS9kcm0vZHJtX2NsaWVudC5jCisrKyBiL2RyaXZlcnMvZ3B1L2RybS9kcm1fY2xpZW50
+LmMKQEAgLTMsNiArMyw3IEBACiAgKiBDb3B5cmlnaHQgMjAxOCBOb3JhbGYgVHLDuG5uZXMKICAq
+LwogCisjaW5jbHVkZSA8bGludXgvZG1hLWJ1Zi1tYXAuaD4KICNpbmNsdWRlIDxsaW51eC9saXN0
+Lmg+CiAjaW5jbHVkZSA8bGludXgvbW9kdWxlLmg+CiAjaW5jbHVkZSA8bGludXgvbXV0ZXguaD4K
+QEAgLTMwNCw3ICszMDUsOCBAQCBkcm1fY2xpZW50X2J1ZmZlcl9jcmVhdGUoc3RydWN0IGRybV9j
+bGllbnRfZGV2ICpjbGllbnQsIHUzMiB3aWR0aCwgdTMyIGhlaWdodCwgdQogICovCiB2b2lkICpk
+cm1fY2xpZW50X2J1ZmZlcl92bWFwKHN0cnVjdCBkcm1fY2xpZW50X2J1ZmZlciAqYnVmZmVyKQog
+ewotCXZvaWQgKnZhZGRyOworCXN0cnVjdCBkbWFfYnVmX21hcCBtYXA7CisJaW50IHJldDsKIAog
+CWlmIChidWZmZXItPnZhZGRyKQogCQlyZXR1cm4gYnVmZmVyLT52YWRkcjsKQEAgLTMxNywxMyAr
+MzE5LDEzIEBAIHZvaWQgKmRybV9jbGllbnRfYnVmZmVyX3ZtYXAoc3RydWN0IGRybV9jbGllbnRf
+YnVmZmVyICpidWZmZXIpCiAJICogZmRfaW5zdGFsbCBzdGVwIG91dCBvZiB0aGUgZHJpdmVyIGJh
+Y2tlbmQgaG9va3MsIHRvIG1ha2UgdGhhdAogCSAqIGZpbmFsIHN0ZXAgb3B0aW9uYWwgZm9yIGlu
+dGVybmFsIHVzZXJzLgogCSAqLwotCXZhZGRyID0gZHJtX2dlbV92bWFwKGJ1ZmZlci0+Z2VtKTsK
+LQlpZiAoSVNfRVJSKHZhZGRyKSkKLQkJcmV0dXJuIHZhZGRyOworCXJldCA9IGRybV9nZW1fdm1h
+cChidWZmZXItPmdlbSwgJm1hcCk7CisJaWYgKHJldCkKKwkJcmV0dXJuIEVSUl9QVFIocmV0KTsK
+IAotCWJ1ZmZlci0+dmFkZHIgPSB2YWRkcjsKKwlidWZmZXItPnZhZGRyID0gbWFwLnZhZGRyOwog
+Ci0JcmV0dXJuIHZhZGRyOworCXJldHVybiBtYXAudmFkZHI7CiB9CiBFWFBPUlRfU1lNQk9MKGRy
+bV9jbGllbnRfYnVmZmVyX3ZtYXApOwogCkBAIC0zMzcsNyArMzM5LDkgQEAgRVhQT1JUX1NZTUJP
+TChkcm1fY2xpZW50X2J1ZmZlcl92bWFwKTsKICAqLwogdm9pZCBkcm1fY2xpZW50X2J1ZmZlcl92
+dW5tYXAoc3RydWN0IGRybV9jbGllbnRfYnVmZmVyICpidWZmZXIpCiB7Ci0JZHJtX2dlbV92dW5t
+YXAoYnVmZmVyLT5nZW0sIGJ1ZmZlci0+dmFkZHIpOworCXN0cnVjdCBkbWFfYnVmX21hcCBtYXAg
+PSBETUFfQlVGX01BUF9JTklUX1ZBRERSKGJ1ZmZlci0+dmFkZHIpOworCisJZHJtX2dlbV92dW5t
+YXAoYnVmZmVyLT5nZW0sICZtYXApOwogCWJ1ZmZlci0+dmFkZHIgPSBOVUxMOwogfQogRVhQT1JU
+X1NZTUJPTChkcm1fY2xpZW50X2J1ZmZlcl92dW5tYXApOwpkaWZmIC0tZ2l0IGEvZHJpdmVycy9n
+cHUvZHJtL2RybV9nZW0uYyBiL2RyaXZlcnMvZ3B1L2RybS9kcm1fZ2VtLmMKaW5kZXggYTg5YWQ0
+NTcwZTNjLi40ZDVmZmY0YmQ4MjEgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvZ3B1L2RybS9kcm1fZ2Vt
+LmMKKysrIGIvZHJpdmVycy9ncHUvZHJtL2RybV9nZW0uYwpAQCAtMTIwNiwzMiArMTIwNiwzMiBA
+QCB2b2lkIGRybV9nZW1fdW5waW4oc3RydWN0IGRybV9nZW1fb2JqZWN0ICpvYmopCiAJCW9iai0+
+ZnVuY3MtPnVucGluKG9iaik7CiB9CiAKLXZvaWQgKmRybV9nZW1fdm1hcChzdHJ1Y3QgZHJtX2dl
+bV9vYmplY3QgKm9iaikKK2ludCBkcm1fZ2VtX3ZtYXAoc3RydWN0IGRybV9nZW1fb2JqZWN0ICpv
+YmosIHN0cnVjdCBkbWFfYnVmX21hcCAqbWFwKQogewotCXN0cnVjdCBkbWFfYnVmX21hcCBtYXA7
+CiAJaW50IHJldDsKIAogCWlmICghb2JqLT5mdW5jcy0+dm1hcCkKLQkJcmV0dXJuIEVSUl9QVFIo
+LUVPUE5PVFNVUFApOworCQlyZXR1cm4gLUVPUE5PVFNVUFA7CiAKLQlyZXQgPSBvYmotPmZ1bmNz
+LT52bWFwKG9iaiwgJm1hcCk7CisJcmV0ID0gb2JqLT5mdW5jcy0+dm1hcChvYmosIG1hcCk7CiAJ
+aWYgKHJldCkKLQkJcmV0dXJuIEVSUl9QVFIocmV0KTsKLQllbHNlIGlmIChkbWFfYnVmX21hcF9p
+c19udWxsKCZtYXApKQotCQlyZXR1cm4gRVJSX1BUUigtRU5PTUVNKTsKKwkJcmV0dXJuIHJldDsK
+KwllbHNlIGlmIChkbWFfYnVmX21hcF9pc19udWxsKG1hcCkpCisJCXJldHVybiAtRU5PTUVNOwog
+Ci0JcmV0dXJuIG1hcC52YWRkcjsKKwlyZXR1cm4gMDsKIH0KIAotdm9pZCBkcm1fZ2VtX3Z1bm1h
+cChzdHJ1Y3QgZHJtX2dlbV9vYmplY3QgKm9iaiwgdm9pZCAqdmFkZHIpCit2b2lkIGRybV9nZW1f
+dnVubWFwKHN0cnVjdCBkcm1fZ2VtX29iamVjdCAqb2JqLCBzdHJ1Y3QgZG1hX2J1Zl9tYXAgKm1h
+cCkKIHsKLQlzdHJ1Y3QgZG1hX2J1Zl9tYXAgbWFwID0gRE1BX0JVRl9NQVBfSU5JVF9WQUREUih2
+YWRkcik7Ci0KLQlpZiAoIXZhZGRyKQorCWlmIChkbWFfYnVmX21hcF9pc19udWxsKG1hcCkpCiAJ
+CXJldHVybjsKIAogCWlmIChvYmotPmZ1bmNzLT52dW5tYXApCi0JCW9iai0+ZnVuY3MtPnZ1bm1h
+cChvYmosICZtYXApOworCQlvYmotPmZ1bmNzLT52dW5tYXAob2JqLCBtYXApOworCisJLyogQWx3
+YXlzIHNldCB0aGUgbWFwcGluZyB0byBOVUxMLiBDYWxsZXJzIG1heSByZWx5IG9uIHRoaXMuICov
+CisJZG1hX2J1Zl9tYXBfY2xlYXIobWFwKTsKIH0KIAogLyoqCmRpZmYgLS1naXQgYS9kcml2ZXJz
+L2dwdS9kcm0vZHJtX2ludGVybmFsLmggYi9kcml2ZXJzL2dwdS9kcm0vZHJtX2ludGVybmFsLmgK
+aW5kZXggMmJkYWMzNTU3NzY1Li44MWQzODZiNWI5MmEgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvZ3B1
+L2RybS9kcm1faW50ZXJuYWwuaAorKysgYi9kcml2ZXJzL2dwdS9kcm0vZHJtX2ludGVybmFsLmgK
+QEAgLTMzLDYgKzMzLDcgQEAKIAogc3RydWN0IGRlbnRyeTsKIHN0cnVjdCBkbWFfYnVmOworc3Ry
+dWN0IGRtYV9idWZfbWFwOwogc3RydWN0IGRybV9jb25uZWN0b3I7CiBzdHJ1Y3QgZHJtX2NydGM7
+CiBzdHJ1Y3QgZHJtX2ZyYW1lYnVmZmVyOwpAQCAtMTg3LDggKzE4OCw4IEBAIHZvaWQgZHJtX2dl
+bV9wcmludF9pbmZvKHN0cnVjdCBkcm1fcHJpbnRlciAqcCwgdW5zaWduZWQgaW50IGluZGVudCwK
+IAogaW50IGRybV9nZW1fcGluKHN0cnVjdCBkcm1fZ2VtX29iamVjdCAqb2JqKTsKIHZvaWQgZHJt
+X2dlbV91bnBpbihzdHJ1Y3QgZHJtX2dlbV9vYmplY3QgKm9iaik7Ci12b2lkICpkcm1fZ2VtX3Zt
+YXAoc3RydWN0IGRybV9nZW1fb2JqZWN0ICpvYmopOwotdm9pZCBkcm1fZ2VtX3Z1bm1hcChzdHJ1
+Y3QgZHJtX2dlbV9vYmplY3QgKm9iaiwgdm9pZCAqdmFkZHIpOworaW50IGRybV9nZW1fdm1hcChz
+dHJ1Y3QgZHJtX2dlbV9vYmplY3QgKm9iaiwgc3RydWN0IGRtYV9idWZfbWFwICptYXApOwordm9p
+ZCBkcm1fZ2VtX3Z1bm1hcChzdHJ1Y3QgZHJtX2dlbV9vYmplY3QgKm9iaiwgc3RydWN0IGRtYV9i
+dWZfbWFwICptYXApOwogCiAvKiBkcm1fZGVidWdmcy5jIGRybV9kZWJ1Z2ZzX2NyYy5jICovCiAj
+aWYgZGVmaW5lZChDT05GSUdfREVCVUdfRlMpCmRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0v
+ZHJtX3ByaW1lLmMgYi9kcml2ZXJzL2dwdS9kcm0vZHJtX3ByaW1lLmMKaW5kZXggODllMmEyNDk2
+NzM0Li5jYjhmYmVlYjczMWIgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvZ3B1L2RybS9kcm1fcHJpbWUu
+YworKysgYi9kcml2ZXJzL2dwdS9kcm0vZHJtX3ByaW1lLmMKQEAgLTY2NywyMSArNjY3LDE1IEBA
+IEVYUE9SVF9TWU1CT0woZHJtX2dlbV91bm1hcF9kbWFfYnVmKTsKICAqCiAgKiBTZXRzIHVwIGEg
+a2VybmVsIHZpcnR1YWwgbWFwcGluZy4gVGhpcyBjYW4gYmUgdXNlZCBhcyB0aGUgJmRtYV9idWZf
+b3BzLnZtYXAKICAqIGNhbGxiYWNrLiBDYWxscyBpbnRvICZkcm1fZ2VtX29iamVjdF9mdW5jcy52
+bWFwIGZvciBkZXZpY2Ugc3BlY2lmaWMgaGFuZGxpbmcuCisgKiBUaGUga2VybmVsIHZpcnR1YWwg
+YWRkcmVzcyBpcyByZXR1cm5lZCBpbiBtYXAuCiAgKgotICogUmV0dXJucyB0aGUga2VybmVsIHZp
+cnR1YWwgYWRkcmVzcyBvciBOVUxMIG9uIGZhaWx1cmUuCisgKiBSZXR1cm5zIDAgb24gc3VjY2Vz
+cyBvciBhIG5lZ2F0aXZlIGVycm5vIGNvZGUgb3RoZXJ3aXNlLgogICovCiBpbnQgZHJtX2dlbV9k
+bWFidWZfdm1hcChzdHJ1Y3QgZG1hX2J1ZiAqZG1hX2J1Ziwgc3RydWN0IGRtYV9idWZfbWFwICpt
+YXApCiB7CiAJc3RydWN0IGRybV9nZW1fb2JqZWN0ICpvYmogPSBkbWFfYnVmLT5wcml2OwotCXZv
+aWQgKnZhZGRyOwogCi0JdmFkZHIgPSBkcm1fZ2VtX3ZtYXAob2JqKTsKLQlpZiAoSVNfRVJSKHZh
+ZGRyKSkKLQkJcmV0dXJuIFBUUl9FUlIodmFkZHIpOwotCi0JZG1hX2J1Zl9tYXBfc2V0X3ZhZGRy
+KG1hcCwgdmFkZHIpOwotCi0JcmV0dXJuIDA7CisJcmV0dXJuIGRybV9nZW1fdm1hcChvYmosIG1h
+cCk7CiB9CiBFWFBPUlRfU1lNQk9MKGRybV9nZW1fZG1hYnVmX3ZtYXApOwogCkBAIC02OTcsNyAr
+NjkxLDcgQEAgdm9pZCBkcm1fZ2VtX2RtYWJ1Zl92dW5tYXAoc3RydWN0IGRtYV9idWYgKmRtYV9i
+dWYsIHN0cnVjdCBkbWFfYnVmX21hcCAqbWFwKQogewogCXN0cnVjdCBkcm1fZ2VtX29iamVjdCAq
+b2JqID0gZG1hX2J1Zi0+cHJpdjsKIAotCWRybV9nZW1fdnVubWFwKG9iaiwgbWFwLT52YWRkcik7
+CisJZHJtX2dlbV92dW5tYXAob2JqLCBtYXApOwogfQogRVhQT1JUX1NZTUJPTChkcm1fZ2VtX2Rt
+YWJ1Zl92dW5tYXApOwogCi0tIAoyLjI5LjAKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
+dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
+dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
