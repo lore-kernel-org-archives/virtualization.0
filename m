@@ -2,57 +2,56 @@ Return-Path: <SRS0=GUxp=ED=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D5CE5C55179
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E7B23C56201
 	for <virtualization@archiver.kernel.org>; Wed, 28 Oct 2020 19:35:40 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 594BC2477C
+	by mail.kernel.org (Postfix) with ESMTPS id 800BC2475A
 	for <virtualization@archiver.kernel.org>; Wed, 28 Oct 2020 19:35:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 594BC2477C
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 800BC2475A
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id F153F86BB6;
-	Wed, 28 Oct 2020 19:35:39 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 2982586A0F;
+	Wed, 28 Oct 2020 19:35:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Q8VCvvJBMU7F; Wed, 28 Oct 2020 19:35:35 +0000 (UTC)
+	with ESMTP id VwhJ8X5Ams5h; Wed, 28 Oct 2020 19:35:35 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 3317B86A0F;
+	by whitealder.osuosl.org (Postfix) with ESMTP id 82CF886B15;
 	Wed, 28 Oct 2020 19:35:35 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1AE6AC0859;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 60698C1AD7;
 	Wed, 28 Oct 2020 19:35:35 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 71932C0051
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D1C32C0051
  for <virtualization@lists.linux-foundation.org>;
  Wed, 28 Oct 2020 19:35:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 45A32874DA
+ by silver.osuosl.org (Postfix) with ESMTP id B536B2094E
  for <virtualization@lists.linux-foundation.org>;
  Wed, 28 Oct 2020 19:35:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id LuSmW8HWcjd8
+ with ESMTP id 0D56gIlTALvg
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Oct 2020 19:35:31 +0000 (UTC)
+ Wed, 28 Oct 2020 19:35:29 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by hemlock.osuosl.org (Postfix) with ESMTPS id CA2A6874BA
+ by silver.osuosl.org (Postfix) with ESMTPS id 312FC2039C
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Oct 2020 19:35:30 +0000 (UTC)
+ Wed, 28 Oct 2020 19:35:29 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id BDAC6B916;
- Wed, 28 Oct 2020 19:35:27 +0000 (UTC)
+ by mx2.suse.de (Postfix) with ESMTP id E95D4B90E;
+ Wed, 28 Oct 2020 19:35:26 +0000 (UTC)
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@linux.ie,
  daniel@ffwll.ch, sam@ravnborg.org, alexander.deucher@amd.com,
@@ -68,21 +67,18 @@ To: maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@linux.ie,
  sumit.semwal@linaro.org, emil.velikov@collabora.com, luben.tuikov@amd.com,
  apaneers@amd.com, linus.walleij@linaro.org, melissa.srw@gmail.com,
  chris@chris-wilson.co.uk, miaoqinglang@huawei.com
-Subject: [PATCH v6 05/10] drm/ttm: Add vmap/vunmap to TTM and TTM GEM helpers
-Date: Wed, 28 Oct 2020 20:35:16 +0100
-Message-Id: <20201028193521.2489-6-tzimmermann@suse.de>
+Subject: [PATCH v6 00/10] Support GEM object mappings from I/O memory
+Date: Wed, 28 Oct 2020 20:35:11 +0100
+Message-Id: <20201028193521.2489-1-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.29.0
-In-Reply-To: <20201028193521.2489-1-tzimmermann@suse.de>
-References: <20201028193521.2489-1-tzimmermann@suse.de>
 MIME-Version: 1.0
 Cc: linux-samsung-soc@vger.kernel.org, lima@lists.freedesktop.org,
- nouveau@lists.freedesktop.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
- etnaviv@lists.freedesktop.org, amd-gfx@lists.freedesktop.org,
- virtualization@lists.linux-foundation.org, linaro-mm-sig@lists.linaro.org,
- linux-rockchip@lists.infradead.org, dri-devel@lists.freedesktop.org,
- Thomas Zimmermann <tzimmermann@suse.de>, xen-devel@lists.xenproject.org,
- spice-devel@lists.freedesktop.org, linux-arm-kernel@lists.infradead.org,
- linux-media@vger.kernel.org
+ nouveau@lists.freedesktop.org, etnaviv@lists.freedesktop.org,
+ amd-gfx@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
+ linaro-mm-sig@lists.linaro.org, linux-rockchip@lists.infradead.org,
+ dri-devel@lists.freedesktop.org, Thomas Zimmermann <tzimmermann@suse.de>,
+ xen-devel@lists.xenproject.org, spice-devel@lists.freedesktop.org,
+ linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -94,156 +90,139 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-VGhlIG5ldyBmdW5jdGlvbnMgdHRtX2JvX3t2bWFwLHZ1bm1hcH0oKSBtYXAgYW5kIHVubWFwIGEg
-VFRNIEJPIGluIGtlcm5lbAphZGRyZXNzIHNwYWNlLiBUaGUgbWFwcGluZydzIGFkZHJlc3MgaXMg
-cmV0dXJuZWQgYXMgc3RydWN0IGRtYV9idWZfbWFwLgpFYWNoIGZ1bmN0aW9uIGlzIGEgc2ltcGxp
-ZmllZCB2ZXJzaW9uIG9mIFRUTSdzIGV4aXN0aW5nIGttYXAgY29kZS4gQm90aApmdW5jdGlvbnMg
-cmVzcGVjdCB0aGUgbWVtb3J5J3MgbG9jYXRpb24gYW5pL29yIHdyaXRlY29tYmluZSBmbGFncy4K
-Ck9uIHRvcCBUVE0ncyBmdW5jdGlvbnMsIEdFTSBUVE0gaGVscGVycyBnb3QgZHJtX2dlbV90dG1f
-e3ZtYXAsdnVubWFwfSgpLAp0d28gaGVscGVycyB0aGF0IGNvbnZlcnQgYSBHRU0gb2JqZWN0IGlu
-dG8gdGhlIFRUTSBCTyBhbmQgZm9yd2FyZCB0aGUgY2FsbAp0byBUVE0ncyB2bWFwL3Z1bm1hcC4g
-VGhlc2UgaGVscGVycyBjYW4gYmUgZHJvcHBlZCBpbnRvIHRoZSByc3AgR0VNIG9iamVjdApjYWxs
-YmFja3MuCgp2NToKCSogdXNlIHNpemVfdCBmb3Igc3RvcmluZyBtYXBwaW5nIHNpemUgKENocmlz
-dGlhbikKCSogaWdub3JlIHByZW1hcHBlZCBtZW1vcnkgYXJlYXMgY29ycmVjdGx5IGluIHR0bV9i
-b192dW5tYXAoKQoJKiByZWJhc2Ugb250byBsYXRlc3QgVFRNIGludGVyZmFjZXMgKENocmlzdGlh
-bikKCSogcmVtb3ZlIEJVRygpIGZyb20gdHRtX2JvX3ZtYXAoKSAoQ2hyaXN0aWFuKQp2NDoKCSog
-ZHJvcCB0dG1fa21hcF9vYmpfdG9fZG1hX2J1ZigpIGluIGZhdm9yIG9mIHZtYXAgaGVscGVycyAo
-RGFuaWVsLAoJICBDaHJpc3RpYW4pCgpTaWduZWQtb2ZmLWJ5OiBUaG9tYXMgWmltbWVybWFubiA8
-dHppbW1lcm1hbm5Ac3VzZS5kZT4KUmV2aWV3ZWQtYnk6IENocmlzdGlhbiBLw7ZuaWcgPGNocmlz
-dGlhbi5rb2VuaWdAYW1kLmNvbT4KQWNrZWQtYnk6IERhbmllbCBWZXR0ZXIgPGRhbmllbC52ZXR0
-ZXJAZmZ3bGwuY2g+ClRlc3RlZC1ieTogU2FtIFJhdm5ib3JnIDxzYW1AcmF2bmJvcmcub3JnPgot
-LS0KIGRyaXZlcnMvZ3B1L2RybS9kcm1fZ2VtX3R0bV9oZWxwZXIuYyB8IDM4ICsrKysrKysrKysr
-KysrKwogZHJpdmVycy9ncHUvZHJtL3R0bS90dG1fYm9fdXRpbC5jICAgIHwgNzIgKysrKysrKysr
-KysrKysrKysrKysrKysrKysrKwogaW5jbHVkZS9kcm0vZHJtX2dlbV90dG1faGVscGVyLmggICAg
-IHwgIDYgKysrCiBpbmNsdWRlL2RybS90dG0vdHRtX2JvX2FwaS5oICAgICAgICAgfCAyOCArKysr
-KysrKysrKwogaW5jbHVkZS9saW51eC9kbWEtYnVmLW1hcC5oICAgICAgICAgIHwgMjAgKysrKysr
-KysKIDUgZmlsZXMgY2hhbmdlZCwgMTY0IGluc2VydGlvbnMoKykKCmRpZmYgLS1naXQgYS9kcml2
-ZXJzL2dwdS9kcm0vZHJtX2dlbV90dG1faGVscGVyLmMgYi9kcml2ZXJzL2dwdS9kcm0vZHJtX2dl
-bV90dG1faGVscGVyLmMKaW5kZXggMGU0ZmI5YmE0M2FkLi5kYjRjMTRkNzhhMzAgMTAwNjQ0Ci0t
-LSBhL2RyaXZlcnMvZ3B1L2RybS9kcm1fZ2VtX3R0bV9oZWxwZXIuYworKysgYi9kcml2ZXJzL2dw
-dS9kcm0vZHJtX2dlbV90dG1faGVscGVyLmMKQEAgLTQ5LDYgKzQ5LDQ0IEBAIHZvaWQgZHJtX2dl
-bV90dG1fcHJpbnRfaW5mbyhzdHJ1Y3QgZHJtX3ByaW50ZXIgKnAsIHVuc2lnbmVkIGludCBpbmRl
-bnQsCiB9CiBFWFBPUlRfU1lNQk9MKGRybV9nZW1fdHRtX3ByaW50X2luZm8pOwogCisvKioKKyAq
-IGRybV9nZW1fdHRtX3ZtYXAoKSAtIHZtYXAgJnR0bV9idWZmZXJfb2JqZWN0CisgKiBAZ2VtOiBH
-RU0gb2JqZWN0LgorICogQG1hcDogW291dF0gcmV0dXJucyB0aGUgZG1hLWJ1ZiBtYXBwaW5nLgor
-ICoKKyAqIE1hcHMgYSBHRU0gb2JqZWN0IHdpdGggdHRtX2JvX3ZtYXAoKS4gVGhpcyBmdW5jdGlv
-biBjYW4gYmUgdXNlZCBhcworICogJmRybV9nZW1fb2JqZWN0X2Z1bmNzLnZtYXAgY2FsbGJhY2su
-CisgKgorICogUmV0dXJuczoKKyAqIDAgb24gc3VjY2Vzcywgb3IgYSBuZWdhdGl2ZSBlcnJubyBj
-b2RlIG90aGVyd2lzZS4KKyAqLworaW50IGRybV9nZW1fdHRtX3ZtYXAoc3RydWN0IGRybV9nZW1f
-b2JqZWN0ICpnZW0sCisJCSAgICAgc3RydWN0IGRtYV9idWZfbWFwICptYXApCit7CisJc3RydWN0
-IHR0bV9idWZmZXJfb2JqZWN0ICpibyA9IGRybV9nZW1fdHRtX29mX2dlbShnZW0pOworCisJcmV0
-dXJuIHR0bV9ib192bWFwKGJvLCBtYXApOworCit9CitFWFBPUlRfU1lNQk9MKGRybV9nZW1fdHRt
-X3ZtYXApOworCisvKioKKyAqIGRybV9nZW1fdHRtX3Z1bm1hcCgpIC0gdnVubWFwICZ0dG1fYnVm
-ZmVyX29iamVjdAorICogQGdlbTogR0VNIG9iamVjdC4KKyAqIEBtYXA6IGRtYS1idWYgbWFwcGlu
-Zy4KKyAqCisgKiBVbm1hcHMgYSBHRU0gb2JqZWN0IHdpdGggdHRtX2JvX3Z1bm1hcCgpLiBUaGlz
-IGZ1bmN0aW9uIGNhbiBiZSB1c2VkIGFzCisgKiAmZHJtX2dlbV9vYmplY3RfZnVuY3Mudm1hcCBj
-YWxsYmFjay4KKyAqLwordm9pZCBkcm1fZ2VtX3R0bV92dW5tYXAoc3RydWN0IGRybV9nZW1fb2Jq
-ZWN0ICpnZW0sCisJCQlzdHJ1Y3QgZG1hX2J1Zl9tYXAgKm1hcCkKK3sKKwlzdHJ1Y3QgdHRtX2J1
-ZmZlcl9vYmplY3QgKmJvID0gZHJtX2dlbV90dG1fb2ZfZ2VtKGdlbSk7CisKKwl0dG1fYm9fdnVu
-bWFwKGJvLCBtYXApOworfQorRVhQT1JUX1NZTUJPTChkcm1fZ2VtX3R0bV92dW5tYXApOworCiAv
-KioKICAqIGRybV9nZW1fdHRtX21tYXAoKSAtIG1tYXAgJnR0bV9idWZmZXJfb2JqZWN0CiAgKiBA
-Z2VtOiBHRU0gb2JqZWN0LgpkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJtL3R0bS90dG1fYm9f
-dXRpbC5jIGIvZHJpdmVycy9ncHUvZHJtL3R0bS90dG1fYm9fdXRpbC5jCmluZGV4IGVjYjU0NDE1
-ZDFjYS4uN2NjYjIyOTVjYWMxIDEwMDY0NAotLS0gYS9kcml2ZXJzL2dwdS9kcm0vdHRtL3R0bV9i
-b191dGlsLmMKKysrIGIvZHJpdmVycy9ncHUvZHJtL3R0bS90dG1fYm9fdXRpbC5jCkBAIC0zMiw2
-ICszMiw3IEBACiAjaW5jbHVkZSA8ZHJtL3R0bS90dG1fYm9fZHJpdmVyLmg+CiAjaW5jbHVkZSA8
-ZHJtL3R0bS90dG1fcGxhY2VtZW50Lmg+CiAjaW5jbHVkZSA8ZHJtL2RybV92bWFfbWFuYWdlci5o
-PgorI2luY2x1ZGUgPGxpbnV4L2RtYS1idWYtbWFwLmg+CiAjaW5jbHVkZSA8bGludXgvaW8uaD4K
-ICNpbmNsdWRlIDxsaW51eC9oaWdobWVtLmg+CiAjaW5jbHVkZSA8bGludXgvd2FpdC5oPgpAQCAt
-NDcxLDYgKzQ3Miw3NyBAQCB2b2lkIHR0bV9ib19rdW5tYXAoc3RydWN0IHR0bV9ib19rbWFwX29i
-aiAqbWFwKQogfQogRVhQT1JUX1NZTUJPTCh0dG1fYm9fa3VubWFwKTsKIAoraW50IHR0bV9ib192
-bWFwKHN0cnVjdCB0dG1fYnVmZmVyX29iamVjdCAqYm8sIHN0cnVjdCBkbWFfYnVmX21hcCAqbWFw
-KQoreworCXN0cnVjdCB0dG1fcmVzb3VyY2UgKm1lbSA9ICZiby0+bWVtOworCWludCByZXQ7CisK
-KwlyZXQgPSB0dG1fbWVtX2lvX3Jlc2VydmUoYm8tPmJkZXYsIG1lbSk7CisJaWYgKHJldCkKKwkJ
-cmV0dXJuIHJldDsKKworCWlmIChtZW0tPmJ1cy5pc19pb21lbSkgeworCQl2b2lkIF9faW9tZW0g
-KnZhZGRyX2lvbWVtOworCQlzaXplX3Qgc2l6ZSA9IGJvLT5udW1fcGFnZXMgPDwgUEFHRV9TSElG
-VDsKKworCQlpZiAobWVtLT5idXMuYWRkcikKKwkJCXZhZGRyX2lvbWVtID0gKHZvaWQgX19pb21l
-bSAqKW1lbS0+YnVzLmFkZHI7CisJCWVsc2UgaWYgKG1lbS0+YnVzLmNhY2hpbmcgPT0gdHRtX3dy
-aXRlX2NvbWJpbmVkKQorCQkJdmFkZHJfaW9tZW0gPSBpb3JlbWFwX3djKG1lbS0+YnVzLm9mZnNl
-dCwgc2l6ZSk7CisJCWVsc2UKKwkJCXZhZGRyX2lvbWVtID0gaW9yZW1hcChtZW0tPmJ1cy5vZmZz
-ZXQsIHNpemUpOworCisJCWlmICghdmFkZHJfaW9tZW0pCisJCQlyZXR1cm4gLUVOT01FTTsKKwor
-CQlkbWFfYnVmX21hcF9zZXRfdmFkZHJfaW9tZW0obWFwLCB2YWRkcl9pb21lbSk7CisKKwl9IGVs
-c2UgeworCQlzdHJ1Y3QgdHRtX29wZXJhdGlvbl9jdHggY3R4ID0geworCQkJLmludGVycnVwdGli
-bGUgPSBmYWxzZSwKKwkJCS5ub193YWl0X2dwdSA9IGZhbHNlCisJCX07CisJCXN0cnVjdCB0dG1f
-dHQgKnR0bSA9IGJvLT50dG07CisJCXBncHJvdF90IHByb3Q7CisJCXZvaWQgKnZhZGRyOworCisJ
-CXJldCA9IHR0bV90dF9wb3B1bGF0ZShiby0+YmRldiwgdHRtLCAmY3R4KTsKKwkJaWYgKHJldCkK
-KwkJCXJldHVybiByZXQ7CisKKwkJLyoKKwkJICogV2UgbmVlZCB0byB1c2Ugdm1hcCB0byBnZXQg
-dGhlIGRlc2lyZWQgcGFnZSBwcm90ZWN0aW9uCisJCSAqIG9yIHRvIG1ha2UgdGhlIGJ1ZmZlciBv
-YmplY3QgbG9vayBjb250aWd1b3VzLgorCQkgKi8KKwkJcHJvdCA9IHR0bV9pb19wcm90KGJvLCBt
-ZW0sIFBBR0VfS0VSTkVMKTsKKwkJdmFkZHIgPSB2bWFwKHR0bS0+cGFnZXMsIGJvLT5udW1fcGFn
-ZXMsIDAsIHByb3QpOworCQlpZiAoIXZhZGRyKQorCQkJcmV0dXJuIC1FTk9NRU07CisKKwkJZG1h
-X2J1Zl9tYXBfc2V0X3ZhZGRyKG1hcCwgdmFkZHIpOworCX0KKworCXJldHVybiAwOworfQorRVhQ
-T1JUX1NZTUJPTCh0dG1fYm9fdm1hcCk7CisKK3ZvaWQgdHRtX2JvX3Z1bm1hcChzdHJ1Y3QgdHRt
-X2J1ZmZlcl9vYmplY3QgKmJvLCBzdHJ1Y3QgZG1hX2J1Zl9tYXAgKm1hcCkKK3sKKwlzdHJ1Y3Qg
-dHRtX3Jlc291cmNlICptZW0gPSAmYm8tPm1lbTsKKworCWlmIChkbWFfYnVmX21hcF9pc19udWxs
-KG1hcCkpCisJCXJldHVybjsKKworCWlmICghbWFwLT5pc19pb21lbSkKKwkJdnVubWFwKG1hcC0+
-dmFkZHIpOworCWVsc2UgaWYgKCFtZW0tPmJ1cy5hZGRyKQorCQlpb3VubWFwKG1hcC0+dmFkZHJf
-aW9tZW0pOworCWRtYV9idWZfbWFwX2NsZWFyKG1hcCk7CisKKwl0dG1fbWVtX2lvX2ZyZWUoYm8t
-PmJkZXYsICZiby0+bWVtKTsKK30KK0VYUE9SVF9TWU1CT0wodHRtX2JvX3Z1bm1hcCk7CisKIHN0
-YXRpYyBpbnQgdHRtX2JvX3dhaXRfZnJlZV9ub2RlKHN0cnVjdCB0dG1fYnVmZmVyX29iamVjdCAq
-Ym8sCiAJCQkJIGJvb2wgZHN0X3VzZV90dCkKIHsKZGlmZiAtLWdpdCBhL2luY2x1ZGUvZHJtL2Ry
-bV9nZW1fdHRtX2hlbHBlci5oIGIvaW5jbHVkZS9kcm0vZHJtX2dlbV90dG1faGVscGVyLmgKaW5k
-ZXggMTE4Y2VmNzZmODRmLi43YzZkODc0OTEwYjggMTAwNjQ0Ci0tLSBhL2luY2x1ZGUvZHJtL2Ry
-bV9nZW1fdHRtX2hlbHBlci5oCisrKyBiL2luY2x1ZGUvZHJtL2RybV9nZW1fdHRtX2hlbHBlci5o
-CkBAIC0xMCwxMSArMTAsMTcgQEAKICNpbmNsdWRlIDxkcm0vdHRtL3R0bV9ib19hcGkuaD4KICNp
-bmNsdWRlIDxkcm0vdHRtL3R0bV9ib19kcml2ZXIuaD4KIAorc3RydWN0IGRtYV9idWZfbWFwOwor
-CiAjZGVmaW5lIGRybV9nZW1fdHRtX29mX2dlbShnZW1fb2JqKSBcCiAJY29udGFpbmVyX29mKGdl
-bV9vYmosIHN0cnVjdCB0dG1fYnVmZmVyX29iamVjdCwgYmFzZSkKIAogdm9pZCBkcm1fZ2VtX3R0
-bV9wcmludF9pbmZvKHN0cnVjdCBkcm1fcHJpbnRlciAqcCwgdW5zaWduZWQgaW50IGluZGVudCwK
-IAkJCSAgICBjb25zdCBzdHJ1Y3QgZHJtX2dlbV9vYmplY3QgKmdlbSk7CitpbnQgZHJtX2dlbV90
-dG1fdm1hcChzdHJ1Y3QgZHJtX2dlbV9vYmplY3QgKmdlbSwKKwkJICAgICBzdHJ1Y3QgZG1hX2J1
-Zl9tYXAgKm1hcCk7Cit2b2lkIGRybV9nZW1fdHRtX3Z1bm1hcChzdHJ1Y3QgZHJtX2dlbV9vYmpl
-Y3QgKmdlbSwKKwkJCXN0cnVjdCBkbWFfYnVmX21hcCAqbWFwKTsKIGludCBkcm1fZ2VtX3R0bV9t
-bWFwKHN0cnVjdCBkcm1fZ2VtX29iamVjdCAqZ2VtLAogCQkgICAgIHN0cnVjdCB2bV9hcmVhX3N0
-cnVjdCAqdm1hKTsKIApkaWZmIC0tZ2l0IGEvaW5jbHVkZS9kcm0vdHRtL3R0bV9ib19hcGkuaCBi
-L2luY2x1ZGUvZHJtL3R0bS90dG1fYm9fYXBpLmgKaW5kZXggMzcxMDJlNDVlNDk2Li4yYzU5YTc4
-NTM3NGMgMTAwNjQ0Ci0tLSBhL2luY2x1ZGUvZHJtL3R0bS90dG1fYm9fYXBpLmgKKysrIGIvaW5j
-bHVkZS9kcm0vdHRtL3R0bV9ib19hcGkuaApAQCAtNDgsNiArNDgsOCBAQCBzdHJ1Y3QgdHRtX2Jv
-X2dsb2JhbDsKIAogc3RydWN0IHR0bV9ib19kZXZpY2U7CiAKK3N0cnVjdCBkbWFfYnVmX21hcDsK
-Kwogc3RydWN0IGRybV9tbV9ub2RlOwogCiBzdHJ1Y3QgdHRtX3BsYWNlbWVudDsKQEAgLTQ5NCw2
-ICs0OTYsMzIgQEAgaW50IHR0bV9ib19rbWFwKHN0cnVjdCB0dG1fYnVmZmVyX29iamVjdCAqYm8s
-IHVuc2lnbmVkIGxvbmcgc3RhcnRfcGFnZSwKICAqLwogdm9pZCB0dG1fYm9fa3VubWFwKHN0cnVj
-dCB0dG1fYm9fa21hcF9vYmogKm1hcCk7CiAKKy8qKgorICogdHRtX2JvX3ZtYXAKKyAqCisgKiBA
-Ym86IFRoZSBidWZmZXIgb2JqZWN0LgorICogQG1hcDogcG9pbnRlciB0byBhIHN0cnVjdCBkbWFf
-YnVmX21hcCByZXByZXNlbnRpbmcgdGhlIG1hcC4KKyAqCisgKiBTZXRzIHVwIGEga2VybmVsIHZp
-cnR1YWwgbWFwcGluZywgdXNpbmcgaW9yZW1hcCBvciB2bWFwIHRvIHRoZQorICogZGF0YSBpbiB0
-aGUgYnVmZmVyIG9iamVjdC4gVGhlIHBhcmFtZXRlciBAbWFwIHJldHVybnMgdGhlIHZpcnR1YWwK
-KyAqIGFkZHJlc3MgYXMgc3RydWN0IGRtYV9idWZfbWFwLiBVbm1hcCB0aGUgYnVmZmVyIHdpdGgg
-dHRtX2JvX3Z1bm1hcCgpLgorICoKKyAqIFJldHVybnMKKyAqIC1FTk9NRU06IE91dCBvZiBtZW1v
-cnkuCisgKiAtRUlOVkFMOiBJbnZhbGlkIHJhbmdlLgorICovCitpbnQgdHRtX2JvX3ZtYXAoc3Ry
-dWN0IHR0bV9idWZmZXJfb2JqZWN0ICpibywgc3RydWN0IGRtYV9idWZfbWFwICptYXApOworCisv
-KioKKyAqIHR0bV9ib192dW5tYXAKKyAqCisgKiBAYm86IFRoZSBidWZmZXIgb2JqZWN0LgorICog
-QG1hcDogT2JqZWN0IGRlc2NyaWJpbmcgdGhlIG1hcCB0byB1bm1hcC4KKyAqCisgKiBVbm1hcHMg
-YSBrZXJuZWwgbWFwIHNldCB1cCBieSB0dG1fYm9fdm1hcCgpLgorICovCit2b2lkIHR0bV9ib192
-dW5tYXAoc3RydWN0IHR0bV9idWZmZXJfb2JqZWN0ICpibywgc3RydWN0IGRtYV9idWZfbWFwICpt
-YXApOworCiAvKioKICAqIHR0bV9ib19tbWFwX29iaiAtIG1tYXAgbWVtb3J5IGJhY2tlZCBieSBh
-IHR0bSBidWZmZXIgb2JqZWN0LgogICoKZGlmZiAtLWdpdCBhL2luY2x1ZGUvbGludXgvZG1hLWJ1
-Zi1tYXAuaCBiL2luY2x1ZGUvbGludXgvZG1hLWJ1Zi1tYXAuaAppbmRleCBmZDFhYmE1NDVmZGYu
-LjJlOGJiZWNiNTA5MSAxMDA2NDQKLS0tIGEvaW5jbHVkZS9saW51eC9kbWEtYnVmLW1hcC5oCisr
-KyBiL2luY2x1ZGUvbGludXgvZG1hLWJ1Zi1tYXAuaApAQCAtNDUsNiArNDUsMTIgQEAKICAqCiAg
-KglkbWFfYnVmX21hcF9zZXRfdmFkZHIoJm1hcC4gMHhkZWFkYmVhZik7CiAgKgorICogVG8gc2V0
-IGFuIGFkZHJlc3MgaW4gSS9PIG1lbW9yeSwgdXNlIGRtYV9idWZfbWFwX3NldF92YWRkcl9pb21l
-bSgpLgorICoKKyAqIC4uIGNvZGUtYmxvY2s6OiBjCisgKgorICoJZG1hX2J1Zl9tYXBfc2V0X3Zh
-ZGRyX2lvbWVtKCZtYXAuIDB4ZGVhZGJlYWYpOworICoKICAqIFRlc3QgaWYgYSBtYXBwaW5nIGlz
-IHZhbGlkIHdpdGggZWl0aGVyIGRtYV9idWZfbWFwX2lzX3NldCgpIG9yCiAgKiBkbWFfYnVmX21h
-cF9pc19udWxsKCkuCiAgKgpAQCAtMTE4LDYgKzEyNCwyMCBAQCBzdGF0aWMgaW5saW5lIHZvaWQg
-ZG1hX2J1Zl9tYXBfc2V0X3ZhZGRyKHN0cnVjdCBkbWFfYnVmX21hcCAqbWFwLCB2b2lkICp2YWRk
-cikKIAltYXAtPmlzX2lvbWVtID0gZmFsc2U7CiB9CiAKKy8qKgorICogZG1hX2J1Zl9tYXBfc2V0
-X3ZhZGRyX2lvbWVtIC0gU2V0cyBhIGRtYS1idWYgbWFwcGluZyBzdHJ1Y3R1cmUgdG8gYW4gYWRk
-cmVzcyBpbiBJL08gbWVtb3J5CisgKiBAbWFwOgkJVGhlIGRtYS1idWYgbWFwcGluZyBzdHJ1Y3R1
-cmUKKyAqIEB2YWRkcl9pb21lbToJQW4gSS9PLW1lbW9yeSBhZGRyZXNzCisgKgorICogU2V0cyB0
-aGUgYWRkcmVzcyBhbmQgdGhlIEkvTy1tZW1vcnkgZmxhZy4KKyAqLworc3RhdGljIGlubGluZSB2
-b2lkIGRtYV9idWZfbWFwX3NldF92YWRkcl9pb21lbShzdHJ1Y3QgZG1hX2J1Zl9tYXAgKm1hcCwK
-KwkJCQkJICAgICAgIHZvaWQgX19pb21lbSAqdmFkZHJfaW9tZW0pCit7CisJbWFwLT52YWRkcl9p
-b21lbSA9IHZhZGRyX2lvbWVtOworCW1hcC0+aXNfaW9tZW0gPSB0cnVlOworfQorCiAvKioKICAq
-IGRtYV9idWZfbWFwX2lzX2VxdWFsIC0gQ29tcGFyZXMgdHdvIGRtYS1idWYgbWFwcGluZyBzdHJ1
-Y3R1cmVzIGZvciBlcXVhbGl0eQogICogQGxoczoJVGhlIGRtYS1idWYgbWFwcGluZyBzdHJ1Y3R1
-cmUKLS0gCjIuMjkuMAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxp
-bnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWls
-bWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+DRM's fbdev console uses regular load and store operations to update
+framebuffer memory. The bochs driver on sparc64 requires the use of
+I/O-specific load and store operations. We have a workaround, but need
+a long-term solution to the problem.
+
+This patchset changes GEM's vmap/vunmap interfaces to forward pointers
+of type struct dma_buf_map and updates the generic fbdev emulation to
+use them correctly. This enables I/O-memory operations on all framebuffers
+that require and support them.
+
+Patches #1 to #4 prepare VRAM helpers and drivers.
+
+Next is the update of the GEM vmap functions. Patch #5 adds vmap and vunmap
+that is usable with TTM-based GEM drivers, and patch #6 updates GEM's
+vmap/vunmap callback to forward instances of type struct dma_buf_map. While
+the patch touches many files throughout the DRM modules, the applied changes
+are mostly trivial interface fixes. Several TTM-based GEM drivers now use
+the new vmap code. Patch #7 updates GEM's internal vmap/vunmap functions to
+forward struct dma_buf_map.
+
+With struct dma_buf_map propagated through the layers, patches #8 to #10
+convert DRM clients and generic fbdev emulation to use it. Updating the
+fbdev framebuffer will select the correct functions, either for system or
+I/O memory.
+
+v6:
+	* don't call page_to_phys() on fbdev framebuffers in I/O memory;
+	  warn instead (Daniel)
+v5:
+	* rebase onto latest TTM changes (Christian)
+	* support TTM premapped memory correctly (Christian)
+	* implement fb_read/fb_write internally (Sam, Daniel)
+	* cleanups
+v4:
+	* provide TTM vmap/vunmap plus GEM helpers and convert drivers
+	  over (Christian, Daniel)
+	* remove several empty functions
+	* more TODOs and documentation (Daniel)
+v3:
+	* recreate the whole patchset on top of struct dma_buf_map
+v2:
+	* RFC patchset
+
+Thomas Zimmermann (10):
+  drm/vram-helper: Remove invariant parameters from internal kmap
+    function
+  drm/cma-helper: Remove empty drm_gem_cma_prime_vunmap()
+  drm/etnaviv: Remove empty etnaviv_gem_prime_vunmap()
+  drm/exynos: Remove empty exynos_drm_gem_prime_{vmap,vunmap}()
+  drm/ttm: Add vmap/vunmap to TTM and TTM GEM helpers
+  drm/gem: Use struct dma_buf_map in GEM vmap ops and convert GEM
+    backends
+  drm/gem: Update internal GEM vmap/vunmap interfaces to use struct
+    dma_buf_map
+  drm/gem: Store client buffer mappings as struct dma_buf_map
+  dma-buf-map: Add memcpy and pointer-increment interfaces
+  drm/fb_helper: Support framebuffers in I/O memory
+
+ Documentation/gpu/todo.rst                  |  37 ++-
+ drivers/gpu/drm/Kconfig                     |   2 +
+ drivers/gpu/drm/amd/amdgpu/amdgpu_dma_buf.c |  36 ---
+ drivers/gpu/drm/amd/amdgpu/amdgpu_dma_buf.h |   2 -
+ drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c     |   5 +-
+ drivers/gpu/drm/amd/amdgpu/amdgpu_object.h  |   1 -
+ drivers/gpu/drm/ast/ast_cursor.c            |  27 +-
+ drivers/gpu/drm/ast/ast_drv.h               |   7 +-
+ drivers/gpu/drm/bochs/bochs_kms.c           |   1 -
+ drivers/gpu/drm/drm_client.c                |  38 +--
+ drivers/gpu/drm/drm_fb_helper.c             | 257 ++++++++++++++++++--
+ drivers/gpu/drm/drm_gem.c                   |  29 ++-
+ drivers/gpu/drm/drm_gem_cma_helper.c        |  27 +-
+ drivers/gpu/drm/drm_gem_shmem_helper.c      |  48 ++--
+ drivers/gpu/drm/drm_gem_ttm_helper.c        |  38 +++
+ drivers/gpu/drm/drm_gem_vram_helper.c       | 117 ++++-----
+ drivers/gpu/drm/drm_internal.h              |   5 +-
+ drivers/gpu/drm/drm_prime.c                 |  14 +-
+ drivers/gpu/drm/etnaviv/etnaviv_drv.h       |   3 +-
+ drivers/gpu/drm/etnaviv/etnaviv_gem.c       |   1 -
+ drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c |  12 +-
+ drivers/gpu/drm/exynos/exynos_drm_gem.c     |  12 -
+ drivers/gpu/drm/exynos/exynos_drm_gem.h     |   2 -
+ drivers/gpu/drm/lima/lima_gem.c             |   6 +-
+ drivers/gpu/drm/lima/lima_sched.c           |  11 +-
+ drivers/gpu/drm/mgag200/mgag200_mode.c      |  10 +-
+ drivers/gpu/drm/nouveau/Kconfig             |   1 +
+ drivers/gpu/drm/nouveau/nouveau_bo.h        |   2 -
+ drivers/gpu/drm/nouveau/nouveau_gem.c       |   6 +-
+ drivers/gpu/drm/nouveau/nouveau_gem.h       |   2 -
+ drivers/gpu/drm/nouveau/nouveau_prime.c     |  20 --
+ drivers/gpu/drm/panfrost/panfrost_perfcnt.c |  14 +-
+ drivers/gpu/drm/qxl/qxl_display.c           |  11 +-
+ drivers/gpu/drm/qxl/qxl_draw.c              |  14 +-
+ drivers/gpu/drm/qxl/qxl_drv.h               |  11 +-
+ drivers/gpu/drm/qxl/qxl_object.c            |  31 ++-
+ drivers/gpu/drm/qxl/qxl_object.h            |   2 +-
+ drivers/gpu/drm/qxl/qxl_prime.c             |  12 +-
+ drivers/gpu/drm/radeon/radeon.h             |   1 -
+ drivers/gpu/drm/radeon/radeon_gem.c         |   7 +-
+ drivers/gpu/drm/radeon/radeon_prime.c       |  20 --
+ drivers/gpu/drm/rockchip/rockchip_drm_gem.c |  22 +-
+ drivers/gpu/drm/rockchip/rockchip_drm_gem.h |   4 +-
+ drivers/gpu/drm/tiny/cirrus.c               |  10 +-
+ drivers/gpu/drm/tiny/gm12u320.c             |  10 +-
+ drivers/gpu/drm/ttm/ttm_bo_util.c           |  72 ++++++
+ drivers/gpu/drm/udl/udl_modeset.c           |   8 +-
+ drivers/gpu/drm/vboxvideo/vbox_mode.c       |  11 +-
+ drivers/gpu/drm/vc4/vc4_bo.c                |   7 +-
+ drivers/gpu/drm/vc4/vc4_drv.h               |   2 +-
+ drivers/gpu/drm/vgem/vgem_drv.c             |  16 +-
+ drivers/gpu/drm/vkms/vkms_plane.c           |  15 +-
+ drivers/gpu/drm/vkms/vkms_writeback.c       |  22 +-
+ drivers/gpu/drm/xen/xen_drm_front_gem.c     |  18 +-
+ drivers/gpu/drm/xen/xen_drm_front_gem.h     |   6 +-
+ include/drm/drm_client.h                    |   7 +-
+ include/drm/drm_gem.h                       |   5 +-
+ include/drm/drm_gem_cma_helper.h            |   3 +-
+ include/drm/drm_gem_shmem_helper.h          |   4 +-
+ include/drm/drm_gem_ttm_helper.h            |   6 +
+ include/drm/drm_gem_vram_helper.h           |  14 +-
+ include/drm/drm_mode_config.h               |  12 -
+ include/drm/ttm/ttm_bo_api.h                |  28 +++
+ include/linux/dma-buf-map.h                 |  93 ++++++-
+ 64 files changed, 859 insertions(+), 438 deletions(-)
+
+--
+2.29.0
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
