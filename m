@@ -1,149 +1,98 @@
-Return-Path: <SRS0=a9Wa=EC=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=GUxp=ED=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 42BE9C388F9
-	for <virtualization@archiver.kernel.org>; Tue, 27 Oct 2020 19:19:41 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 785E4C388F9
+	for <virtualization@archiver.kernel.org>; Wed, 28 Oct 2020 01:55:39 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id AC3F820756
-	for <virtualization@archiver.kernel.org>; Tue, 27 Oct 2020 19:19:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id BE67122258
+	for <virtualization@archiver.kernel.org>; Wed, 28 Oct 2020 01:55:38 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b="Sld6hciH"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AC3F820756
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PUk1PAhQ"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org BE67122258
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 27F5420535;
-	Tue, 27 Oct 2020 19:19:40 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 44BE986B72;
+	Wed, 28 Oct 2020 01:55:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id td57jrgQajZv; Tue, 27 Oct 2020 19:19:39 +0000 (UTC)
+	with ESMTP id xB7erQQ0wopG; Wed, 28 Oct 2020 01:55:37 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 29CB020435;
-	Tue, 27 Oct 2020 19:19:39 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 5C6B586B6E;
+	Wed, 28 Oct 2020 01:55:37 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EFC18C088B;
-	Tue, 27 Oct 2020 19:19:38 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id DD850C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 500A7C088B;
+	Wed, 28 Oct 2020 01:55:37 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C0961C0051
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Oct 2020 19:19:36 +0000 (UTC)
+ Wed, 28 Oct 2020 01:55:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id C38E92043E
+ by hemlock.osuosl.org (Postfix) with ESMTP id 2C2AE873DE
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Oct 2020 19:19:36 +0000 (UTC)
+ Wed, 28 Oct 2020 01:55:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JaNwhpMW9JDd
+ with ESMTP id oEojMqIQ6q7E
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Oct 2020 19:19:35 +0000 (UTC)
+ Wed, 28 Oct 2020 01:55:33 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-wr1-f68.google.com (mail-wr1-f68.google.com
- [209.85.221.68])
- by silver.osuosl.org (Postfix) with ESMTPS id 496FB20435
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id C1E96873DA
  for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Oct 2020 19:19:34 +0000 (UTC)
-Received: by mail-wr1-f68.google.com with SMTP id t9so3144169wrq.11
- for <virtualization@lists.linux-foundation.org>;
- Tue, 27 Oct 2020 12:19:34 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ffwll.ch; s=google;
- h=date:from:to:cc:subject:message-id:mail-followup-to:references
- :mime-version:content-disposition:in-reply-to;
- bh=94FVc/lhmQBJbpQ0I0StwCkg4DMhTbsduFiN4bjClk4=;
- b=Sld6hciHThDqeso8S8+jXbwutFt+C8GMsFv9uR38kkL9A2ymfTua46NMT/Q9ZBn3uh
- noluYBIeHRwknPmU94BZzwh6l7DE4uJbJLLOru2dF0iDS5wDVUIl89TAYeWKJJDtgD9J
- qGm+daZidj774s7wADWav2trLrU+zVLJfeX5A=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id
- :mail-followup-to:references:mime-version:content-disposition
- :in-reply-to;
- bh=94FVc/lhmQBJbpQ0I0StwCkg4DMhTbsduFiN4bjClk4=;
- b=B9xHb2pO5N40obJy1OLhJ+HVgrmNeLaYe6jhk18N7Hiy+O1+AFyz5Re6fF2skOuVlp
- eDW/7ruNIMJz9jqeue9YgYe0ahJLjmZ2C+Aa/hLcmUivct2pG8UJ7oOCLEPODnqPtvwm
- SxmtVA5zh66MwRIA4UrAPnRkclblysh13nZ8B7SNcEIf+VzJ3rcZVfGMhicjbe3hbI1J
- uADBCDxFU5BqrbfJULKwd+2dcVLoKzNBVQ5YLQ/VLHlskOJbEjMhb/R9WRypekRM2vvq
- YVhP/DnNkcle0AUA4DY8qhlM53NI1f2erwu0lyJeiFW4p3iJjZcG8IeH3clGTWYtYe8W
- QPiQ==
-X-Gm-Message-State: AOAM531WiPoG3C+fRJdLcqcGrW51fBkZU494syCPtJmcDdqF3fF8JGvf
- Vz2GreARD0pwQwLI/rfLw9M84g==
-X-Google-Smtp-Source: ABdhPJxSeCImtuoOwiJ2SgVqpZLT/QAEeRHxQ9b1eMNAwd7xtGe8jna3O2uLNWNIxJE6aH3a1ktGnQ==
-X-Received: by 2002:a5d:4dc7:: with SMTP id f7mr4027819wru.375.1603826373382; 
- Tue, 27 Oct 2020 12:19:33 -0700 (PDT)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
- by smtp.gmail.com with ESMTPSA id h206sm3012251wmf.47.2020.10.27.12.19.31
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Tue, 27 Oct 2020 12:19:32 -0700 (PDT)
-Date: Tue, 27 Oct 2020 20:19:30 +0100
-From: Daniel Vetter <daniel@ffwll.ch>
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Subject: Re: [PATCH 6/8] drm: atomic: use krealloc_array()
-Message-ID: <20201027191930.GQ401619@phenom.ffwll.local>
-Mail-Followup-To: Bartosz Golaszewski <brgl@bgdev.pl>,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
- Sumit Semwal <sumit.semwal@linaro.org>,
- Gustavo Padovan <gustavo@padovan.org>,
- Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
- Mauro Carvalho Chehab <mchehab@kernel.org>,
- Borislav Petkov <bp@alien8.de>, Tony Luck <tony.luck@intel.com>,
- James Morse <james.morse@arm.com>, Robert Richter <rric@kernel.org>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>,
- Thomas Zimmermann <tzimmermann@suse.de>,
- David Airlie <airlied@linux.ie>,
- Alexander Shishkin <alexander.shishkin@linux.intel.com>,
- Linus Walleij <linus.walleij@linaro.org>,
- "Michael S . Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>, Christoph Lameter <cl@linux.com>,
- Pekka Enberg <penberg@kernel.org>,
- David Rientjes <rientjes@google.com>,
- Joonsoo Kim <iamjoonsoo.kim@lge.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
- linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
- linaro-mm-sig@lists.linaro.org, linux-kernel@vger.kernel.org,
- linux-edac@vger.kernel.org, linux-gpio@vger.kernel.org,
- kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
- netdev@vger.kernel.org, linux-mm@kvack.org,
- alsa-devel@alsa-project.org,
- Bartosz Golaszewski <bgolaszewski@baylibre.com>
-References: <20201027121725.24660-1-brgl@bgdev.pl>
- <20201027121725.24660-7-brgl@bgdev.pl>
+ Wed, 28 Oct 2020 01:55:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1603850131;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=Fsp+qw7VQilYqGlRCGG49/rRdIH2EMX83NOPrIacuxk=;
+ b=PUk1PAhQPklbKMINtrlCi/8dfgoJD4SuqHwHTB8tPl435INOFqVU/dYpyVpbjNVgM95KiU
+ JbI2YiZ+0cUtXUFZ2fAo5MZOF+LZbuLOa5JvugZlJrnyVyU3S4icsmgzOnCaP8JxMgPQzh
+ VCpkp+BPGGcCtH4vc+/f6y24F6j0dOU=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-401-UfFOzHHINp27BE-bRy8Obw-1; Tue, 27 Oct 2020 21:55:27 -0400
+X-MC-Unique: UfFOzHHINp27BE-bRy8Obw-1
+Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
+ [10.5.11.14])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D994F1868401;
+ Wed, 28 Oct 2020 01:55:25 +0000 (UTC)
+Received: from [10.72.13.38] (ovpn-13-38.pek2.redhat.com [10.72.13.38])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 759D35D9E8;
+ Wed, 28 Oct 2020 01:55:17 +0000 (UTC)
+Subject: Re: [PATCH 07/17] vhost scsi: support delayed IO vq creation
+To: Mike Christie <michael.christie@oracle.com>, martin.petersen@oracle.com,
+ linux-scsi@vger.kernel.org, target-devel@vger.kernel.org, mst@redhat.com,
+ pbonzini@redhat.com, stefanha@redhat.com,
+ virtualization@lists.linux-foundation.org
+References: <1603326903-27052-1-git-send-email-michael.christie@oracle.com>
+ <1603326903-27052-8-git-send-email-michael.christie@oracle.com>
+ <9e97ea2a-bc57-d4aa-4711-35dba20b3b9e@redhat.com>
+ <49c2fc29-348c-06db-4823-392f7476d318@oracle.com>
+From: Jason Wang <jasowang@redhat.com>
+Message-ID: <adcaeb64-b1da-2195-6656-ecc19f12e5ed@redhat.com>
+Date: Wed, 28 Oct 2020 09:55:15 +0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
+ Thunderbird/68.10.0
 MIME-Version: 1.0
-Content-Disposition: inline
-In-Reply-To: <20201027121725.24660-7-brgl@bgdev.pl>
-X-Operating-System: Linux phenom 5.7.0-1-amd64 
-Cc: alsa-devel@alsa-project.org, kvm@vger.kernel.org,
- "Michael S . Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>,
- Gustavo Padovan <gustavo@padovan.org>,
- Linus Walleij <linus.walleij@linaro.org>, dri-devel@lists.freedesktop.org,
- Jaroslav Kysela <perex@perex.cz>, linux-mm@kvack.org,
- Christoph Lameter <cl@linux.com>, Sumit Semwal <sumit.semwal@linaro.org>,
- Mauro Carvalho Chehab <mchehab@kernel.org>,
- Bartosz Golaszewski <bgolaszewski@baylibre.com>,
- Alexander Shishkin <alexander.shishkin@linux.intel.com>,
- David Rientjes <rientjes@google.com>,
- virtualization@lists.linux-foundation.org, linux-media@vger.kernel.org,
- Robert Richter <rric@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, linaro-mm-sig@lists.linaro.org,
- linux-gpio@vger.kernel.org, Borislav Petkov <bp@alien8.de>,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
- Andrew Morton <akpm@linux-foundation.org>, linux-edac@vger.kernel.org,
- Tony Luck <tony.luck@intel.com>, netdev@vger.kernel.org,
- Takashi Iwai <tiwai@suse.com>, linux-kernel@vger.kernel.org,
- Pekka Enberg <penberg@kernel.org>, James Morse <james.morse@arm.com>,
- Daniel Vetter <daniel@ffwll.ch>, Joonsoo Kim <iamjoonsoo.kim@lge.com>,
- Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
+In-Reply-To: <49c2fc29-348c-06db-4823-392f7476d318@oracle.com>
+Content-Language: en-US
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -155,53 +104,88 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Oct 27, 2020 at 01:17:23PM +0100, Bartosz Golaszewski wrote:
-> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-> 
-> Use the helper that checks for overflows internally instead of manually
-> calculating the size of the new array.
-> 
-> Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-
-Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-
-I don't expect conflicts with this going through some other tree, so
-please make that happen. Or resend once I can apply this to drm trees.
-
-Thanks, Daniel
-
-> ---
->  drivers/gpu/drm/drm_atomic.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/gpu/drm/drm_atomic.c b/drivers/gpu/drm/drm_atomic.c
-> index 58527f151984..09ad6a2ec17b 100644
-> --- a/drivers/gpu/drm/drm_atomic.c
-> +++ b/drivers/gpu/drm/drm_atomic.c
-> @@ -960,7 +960,8 @@ drm_atomic_get_connector_state(struct drm_atomic_state *state,
->  		struct __drm_connnectors_state *c;
->  		int alloc = max(index + 1, config->num_connector);
->  
-> -		c = krealloc(state->connectors, alloc * sizeof(*state->connectors), GFP_KERNEL);
-> +		c = krealloc_array(state->connectors, alloc,
-> +				   sizeof(*state->connectors), GFP_KERNEL);
->  		if (!c)
->  			return ERR_PTR(-ENOMEM);
->  
-> -- 
-> 2.29.1
-> 
-
--- 
-Daniel Vetter
-Software Engineer, Intel Corporation
-http://blog.ffwll.ch
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+Ck9uIDIwMjAvMTAvMjcg5LiL5Y2IMTo0NywgTWlrZSBDaHJpc3RpZSB3cm90ZToKPiBPbiAxMC8y
+NS8yMCAxMDo1MSBQTSwgSmFzb24gV2FuZyB3cm90ZToKPj4KPj4gT24gMjAyMC8xMC8yMiDkuIrl
+jYg4OjM0LCBNaWtlIENocmlzdGllIHdyb3RlOgo+Pj4gRWFjaCB2aG9zdC1zY3NpIGRldmljZSB3
+aWxsIG5lZWQgYSBldnQgYW5kIGN0bCBxdWV1ZSwgYnV0IHRoZSBudW1iZXIKPj4+IG9mIElPIHF1
+ZXVlcyBkZXBlbmRzIG9uIHdoYXRldmVyIHRoZSB1c2VyIGhhcyBjb25maWd1cmVkIGluIHVzZXJz
+cGFjZS4KPj4+IFRoaXMgcGF0Y2ggaGFzIHZob3N0LXNjc2kgY3JlYXRlIHRoZSBldnQsIGN0bCBh
+bmQgb25lIElPIHZxIGF0IGRldmljZQo+Pj4gb3BlbiB0aW1lLiBXZSB0aGVuIGNyZWF0ZSB0aGUg
+b3RoZXIgSU8gdnFzIHdoZW4gdXNlcnNwYWNlIHN0YXJ0cyB0bwo+Pj4gc2V0IHRoZW0gdXAuIFdl
+IHN0aWxsIHdhc3RlIHNvbWUgbWVtIG9uIHRoZSB2cSBhbmQgc2NzaSB2cSBzdHJ1Y3RzLAo+Pj4g
+YnV0IHdlIGRvbid0IHdhc3RlIG1lbSBvbiBpb3ZlYyByZWxhdGVkIGFycmF5cyBhbmQgZm9yIGxh
+dGVyIHBhdGNoZXMKPj4+IHdlIGtub3cgd2hpY2ggcXVldWVzIGFyZSB1c2VkIGJ5IHRoZSBkZXYt
+Pm52cXMgdmFsdWUuCj4+Pgo+Pj4gU2lnbmVkLW9mZi1ieTogTWlrZSBDaHJpc3RpZSA8bWljaGFl
+bC5jaHJpc3RpZUBvcmFjbGUuY29tPgo+Pj4gLS0tCj4+PiDCoCBkcml2ZXJzL3Zob3N0L3Njc2ku
+YyB8IDE5ICsrKysrKysrKysrKysrKy0tLS0KPj4+IMKgIDEgZmlsZSBjaGFuZ2VkLCAxNSBpbnNl
+cnRpb25zKCspLCA0IGRlbGV0aW9ucygtKQo+Pgo+Pgo+PiBOb3QgZmFtaWxpYXIgd2l0aCBTQ1NJ
+LiBCdXQgSSB3b25kZXIgaWYgaXQgY291bGQgYmVoYXZlIGxpa2Ugdmhvc3QtbmV0Lgo+Pgo+PiBF
+LmcgdXNlcnNwYWNlIHNob3VsZCBrbm93biB0aGUgbnVtYmVyIG9mIHZpcnRxdWV1ZXMgc28gaXQg
+Y2FuIGp1c3QgCj4+IG9wZW4gYW5kIGNsb3NlIG11bHRpcGxlIHZob3N0LXNjc2kgZmlsZSBkZXNj
+cmlwdG9ycy4KPj4KPgo+IE9uZSBoaWNjdXAgSSdtIGhpdHRpbmcgaXMgdGhhdCB3ZSBtaWdodCBl
+bmQgdXAgY3JlYXRpbmcgYWJvdXQgM3ggbW9yZSAKPiB2cXMgdGhhbiB3ZSBuZWVkLiBUaGUgcHJv
+YmxlbSBpcyB0aGF0IGZvciBzY3NpIGVhY2ggdmhvc3QgZGV2aWNlIGhhczoKPgo+IHZxPTA6IHNw
+ZWNpYWwgY29udHJvbCB2cQo+IHZxPTE6IGV2ZW50IHZxCj4gdnE9MiBhbmQgYWJvdmU6IFNDU0kg
+Q01EL0lPIHZxcy4gV2Ugd2FudCB0byBjcmVhdGUgTiBvZiB0aGVzZS4KPgo+IFRvZGF5IHdlIGRv
+Ogo+Cj4gVWVyc3BhY2UgZG9lcyBvcGVuKC9kZXYvdmhvc3Qtc2NzaSkKPiDCoMKgwqDCoMKgwqDC
+oCB2aG9zdF9kZXZfaW5pdChjcmVhdGUgMTI4IHZxcyBhbmQgdGhlbiBsYXRlciB3ZSBzZXR1cCBh
+bmQgdXNlIAo+IE4gb2YgdGhlbSk7Cj4KPiBRZW11IGRvZXMgaW9jdGwoVkhPU1RfU0VUX09XTkVS
+KQo+IMKgwqDCoMKgwqDCoMKgIHZob3N0X2Rldl9zZXRfb3duZXIoKQo+Cj4gRm9yIE4gdnFzIHVz
+ZXJzcGFjZSBkb2VzOgo+IMKgwqDCoMKgwqDCoMKgIC8vIHZpcnRxdWV1ZSBzZXR1cCByZWxhdGVk
+IGlvY3Rscwo+Cj4gUWVtdSBkb2VzIGlvY3RsKFZIT1NUX1NDU0lfU0VUX0VORFBPSU5UKQo+IMKg
+wqDCoMKgwqDCoMKgIC0gbWF0Y2ggTElPL3RhcmdldCBwb3J0IHRvIHZob3N0X2Rldgo+Cj4KPiBT
+byB3ZSBjb3VsZCBjaGFuZ2UgdGhhdCB0bzoKPgo+IEZvciBOIElPIHZxcyB1c2Vyc3BhY2UgZG9l
+cwo+IMKgwqDCoMKgwqDCoMKgIG9wZW4oL2Rldi92aG9zdC1zY3NpKQo+IMKgwqDCoMKgwqDCoMKg
+wqDCoMKgwqDCoMKgwqDCoCB2aG9zdF9kZXZfaW5pdChjcmVhdGUgSU8sIGV2dCwgYW5kIGN0bCk7
+Cj4KPiBmb3IgTiBJTyB2cXMgUWVtdSBkb2VzOgo+IMKgwqDCoMKgwqDCoMKgIGlvY3RsKFZIT1NU
+X1NFVF9PV05FUikKPiDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgdmhvc3RfZGV2X3Nl
+dF9vd25lcigpCj4KPiBmb3IgTiBJTyB2cXMgUWVtdSBkb2VzOgo+IMKgwqDCoMKgwqDCoMKgIC8v
+IHZpcnRxdWV1ZSBzZXR1cCByZWxhdGVkIGlvY3Rscwo+Cj4gZm9yIE4gSU8gdnFzIFFlbXUgZG9l
+czoKPiDCoMKgwqDCoMKgwqDCoCBpb2N0bChWSE9TVF9TQ1NJX1NFVF9FTkRQT0lOVCkKPiDCoMKg
+wqDCoMKgwqDCoMKgwqDCoMKgwqDCoMKgwqAgLSBtYXRjaCBMSU8vdGFyZ2V0IHBvcnQgdG8gdmhv
+c3RfZGV2IGFuZCBhc3NlbWJsZSB0aGUgCj4gbXVsdGlwbGUgdmhvc3RfZGV2IGRldmljZS4KPgo+
+IFRoZSBwcm9ibGVtIGlzIHRoYXQgd2UgaGF2ZSB0byBzZXR1cCBzb21lIG9mIHRoZSBldnQvY3Rs
+IHNwZWNpZmljIAo+IHBhcnRzIGF0IG9wZW4oKSB0aW1lIHdoZW4gdmhvc3RfZGV2X2luaXQgZG9l
+cyB2aG9zdF9wb2xsX2luaXQgZm9yIAo+IGV4YW1wbGUuCj4KPiAtIEF0IG9wZW4gdGltZSwgd2Ug
+ZG9uJ3Qga25vdyBpZiB0aGlzIHZob3N0X2RldiBpcyBnb2luZyB0byBiZSBwYXJ0IG9mIAo+IGEg
+bXVsdGlwbGUgdmhvc3RfZGV2aWNlIGRldmljZSBvciBhIHNpbmdsZSBvbmUgc28gd2UgbmVlZCB0
+byBjcmVhdGUgYXQgCj4gbGVhc3QgMyBvZiB0aGVtCj4gLSBJZiBpdCBpcyBhIG11bHRpcGxlIGRl
+dmljZSB3ZSBkb24ndCBrbm93IGlmIGl0cyB0aGUgZmlyc3QgZGV2aWNlIAo+IGJlaW5nIGNyZWF0
+ZWQgZm9yIHRoZSBkZXZpY2Ugb3IgdGhlIE4ndGgsIHNvIHdlIGRvbid0IGtub3cgaWYgdGhlIAo+
+IGRldidzIHZxcyB3aWxsIGJlIHVzZWQgZm9yIElPIG9yIGN0bHMvZXZ0cywgc28gd2UgaGF2ZSB0
+byBjcmVhdGUgYWxsIDMuCj4KPiBXaGVuIHdlIGdldCB0aGUgZmlyc3QgVkhPU1RfU0NTSV9TRVRf
+RU5EUE9JTlQgY2FsbCBmb3IgYSBuZXcgc3R5bGUgCj4gbXVsdGlwbGUgdmhvc3RfZGV2IGRldmlj
+ZSwgd2UgY2FuIHVzZSB0aGF0IGRldidzIGV2dC9jdGwgdnFzIGZvciAKPiBldmVudHMvY29udHJv
+bHMgcmVxdWVzdHMuIFdoZW4gd2UgZ2V0IHRoZSBvdGhlciAKPiBWSE9TVF9TQ1NJX1NFVF9FTkRQ
+T0lOVCBjYWxscyBmb3IgdGhlIG11bHRpcGxlIHZob3N0X2RldiBkZXZpY2UgdGhlbiAKPiB0aG9z
+ZSBkZXYncyBldnQvY3RsIHZxcyB3aWxsIGJlIGlnbm9yZWQgYW5kIHdlIHdpbGwgb25seSB1c2Ug
+dGhlaXIgSU8gCj4gdnFzLiBTbyB3ZSBlbmQgdXAgd2l0aCBhIGxvdCBvZiBleHRyYSB2cXMuCgoK
+UmlnaHQsIHNvIGluIHRoaXMgY2FzZSB3ZSBjYW4gdXNlIHRoaXMgcGF0Y2ggdG8gYWRkcmVzcyB0
+aGlzIGlzc3VlIApwcm9iYWJseS4gSWYgZXZ0L2N0bCB2cSBpcyBub3QgdXNlZCwgd2Ugd29uJ3Qg
+ZXZlbiBjcmVhdGUgdGhlbS4KCgo+Cj4KPiBPbmUgb3RoZXIgcXVlc3Rpb24vaXNzdWUgSSBoYXZl
+IGlzIHRoYXQgcWVtdSBjYW4gb3BlbiB0aGUgCj4gL2Rldi92aG9zdC1zY3NpIGRldmljZSBvciBp
+dCBhbGxvd3MgdG9vbHMgbGlrZSBsaWJ2aXJ0ZCB0byBvcGVuIHRoZSAKPiBkZXZpY2UgYW5kIHBh
+c3MgaW4gdGhlIGZkIHRvIHVzZS4KCgpJdCBhbGxvd3MgbGlidmlydCB0byBvcGVuIGFuZCBwYXNz
+IGZkcyB0byBxZW11LiBUaGlzIGlzIGhvdyBtdWx0aWUtcXVldWUgCnZpcnRpby1uZXQgaXMgZG9u
+ZSwgbGlidmlydCBpcyBpbiBjaGFyZ2Ugb2Ygb3BlbmluZyBtdWx0aXBsZSBmaWxlIApkZXNjcmlw
+dG9ycyBhbmQgcGFzcyB0aGVtIHRvIHFlbXUuCgoKPiBGb3IgdGhlIGxhdHRlciBjYXNlLCB3b3Vs
+ZCB3ZSBjb250aW51ZSB0byBoYXZlIHRob3NlIHRvb2xzIHBhc3MgaW4gdGhlIAo+IGxlYWRpbmcg
+ZmQsIHRoZW4gaGF2ZSBxZW11IGRvIHRoZSBvdGhlciBudW1fcXVldWVzIC0gMSAKPiBvcGVuKC9k
+ZXYvdmhvc3Qtc2NzaSkgY2FsbHM/IE9yIGRvIHRoZXNlIGFwcHMgdGhhdCBwYXNzIGluIHRoZSBm
+ZCBuZWVkIAo+IHRvIGtub3cgYWJvdXQgYWxsIG9mIHRoZSBmZHMgZm9yIHNvbWUgbWFuYWdlbWVu
+dCByZWFzb24/CgoKVXN1YWxseSBxZW11IGlzIHJ1bm5pbmcgd2l0aG91dCBwcml2aWxlZ2UuIFNv
+IGl0IGRlcGVuZHMgb24gdGhlIAptYW5hZ2VtZW50IHRvIG9wZW4gdGhlIGRldmljZS4KCk5vdGUg
+dGhhdCBJJ20gbm90IG9iamVjdCB5b3VyIHByb3Bvc2FsLCBqdXN0IHdhbnQgdG8gc2VlIGlmIGl0
+IGNvdWxkIGJlIApkb25lIHZpYSBhIG1vcmUgZWFzeSB3YXkuIER1cmluZyB0aGUgZGV2ZWxvcG1l
+bnQgaWYgbXVsdGlxdWV1ZSAKdmlyaXRvLW5ldCwgc29tZXRoaW5nIHNpbWlsYXIgYXMgeW91J3Zl
+IGRvbmUgd2FzIHByb3Bvc2VkIGJ1dCB3ZSBlbmQgdXAgCndpdGggdGhlIG11bHRpcGxlIHZob3N0
+LW5ldCBmZCBtb2RlbCB3aGljaCBrZWVwcyBrZXJuZWwgY29kZSB1bmNoYW5nZWQuCgpUaGFua3MK
+CgoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVh
+bGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRp
+b24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZv
+L3ZpcnR1YWxpemF0aW9u
