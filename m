@@ -2,56 +2,57 @@ Return-Path: <SRS0=GUxp=ED=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E7B23C56201
-	for <virtualization@archiver.kernel.org>; Wed, 28 Oct 2020 19:35:40 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D08C3C56202
+	for <virtualization@archiver.kernel.org>; Wed, 28 Oct 2020 19:35:42 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 800BC2475A
-	for <virtualization@archiver.kernel.org>; Wed, 28 Oct 2020 19:35:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 800BC2475A
+	by mail.kernel.org (Postfix) with ESMTPS id 5456F2477C
+	for <virtualization@archiver.kernel.org>; Wed, 28 Oct 2020 19:35:41 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5456F2477C
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 2982586A0F;
-	Wed, 28 Oct 2020 19:35:40 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id A3558874F2;
+	Wed, 28 Oct 2020 19:35:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id VwhJ8X5Ams5h; Wed, 28 Oct 2020 19:35:35 +0000 (UTC)
+	with ESMTP id B312V3oTKgJM; Wed, 28 Oct 2020 19:35:40 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 82CF886B15;
-	Wed, 28 Oct 2020 19:35:35 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 57A59874EA;
+	Wed, 28 Oct 2020 19:35:40 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 60698C1AD7;
-	Wed, 28 Oct 2020 19:35:35 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 42A84C0859;
+	Wed, 28 Oct 2020 19:35:40 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D1C32C0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2D71DC0051
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Oct 2020 19:35:32 +0000 (UTC)
+ Wed, 28 Oct 2020 19:35:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id B536B2094E
+ by silver.osuosl.org (Postfix) with ESMTP id E0C40214D2
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Oct 2020 19:35:32 +0000 (UTC)
+ Wed, 28 Oct 2020 19:35:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0D56gIlTALvg
+ with ESMTP id K7Geq8eV4i3q
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Oct 2020 19:35:29 +0000 (UTC)
+ Wed, 28 Oct 2020 19:35:31 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by silver.osuosl.org (Postfix) with ESMTPS id 312FC2039C
+ by silver.osuosl.org (Postfix) with ESMTPS id 7884D2039E
  for <virtualization@lists.linux-foundation.org>;
- Wed, 28 Oct 2020 19:35:29 +0000 (UTC)
+ Wed, 28 Oct 2020 19:35:31 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id E95D4B90E;
- Wed, 28 Oct 2020 19:35:26 +0000 (UTC)
+ by mx2.suse.de (Postfix) with ESMTP id F08CAB91B;
+ Wed, 28 Oct 2020 19:35:29 +0000 (UTC)
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@linux.ie,
  daniel@ffwll.ch, sam@ravnborg.org, alexander.deucher@amd.com,
@@ -67,18 +68,22 @@ To: maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@linux.ie,
  sumit.semwal@linaro.org, emil.velikov@collabora.com, luben.tuikov@amd.com,
  apaneers@amd.com, linus.walleij@linaro.org, melissa.srw@gmail.com,
  chris@chris-wilson.co.uk, miaoqinglang@huawei.com
-Subject: [PATCH v6 00/10] Support GEM object mappings from I/O memory
-Date: Wed, 28 Oct 2020 20:35:11 +0100
-Message-Id: <20201028193521.2489-1-tzimmermann@suse.de>
+Subject: [PATCH v6 08/10] drm/gem: Store client buffer mappings as struct
+ dma_buf_map
+Date: Wed, 28 Oct 2020 20:35:19 +0100
+Message-Id: <20201028193521.2489-9-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.29.0
+In-Reply-To: <20201028193521.2489-1-tzimmermann@suse.de>
+References: <20201028193521.2489-1-tzimmermann@suse.de>
 MIME-Version: 1.0
 Cc: linux-samsung-soc@vger.kernel.org, lima@lists.freedesktop.org,
- nouveau@lists.freedesktop.org, etnaviv@lists.freedesktop.org,
- amd-gfx@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- linaro-mm-sig@lists.linaro.org, linux-rockchip@lists.infradead.org,
- dri-devel@lists.freedesktop.org, Thomas Zimmermann <tzimmermann@suse.de>,
- xen-devel@lists.xenproject.org, spice-devel@lists.freedesktop.org,
- linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org
+ nouveau@lists.freedesktop.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
+ etnaviv@lists.freedesktop.org, amd-gfx@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org, linaro-mm-sig@lists.linaro.org,
+ linux-rockchip@lists.infradead.org, dri-devel@lists.freedesktop.org,
+ Thomas Zimmermann <tzimmermann@suse.de>, xen-devel@lists.xenproject.org,
+ spice-devel@lists.freedesktop.org, linux-arm-kernel@lists.infradead.org,
+ linux-media@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -95,131 +100,217 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-DRM's fbdev console uses regular load and store operations to update
-framebuffer memory. The bochs driver on sparc64 requires the use of
-I/O-specific load and store operations. We have a workaround, but need
-a long-term solution to the problem.
+Kernel DRM clients now store their framebuffer address in an instance
+of struct dma_buf_map. Depending on the buffer's location, the address
+refers to system or I/O memory.
 
-This patchset changes GEM's vmap/vunmap interfaces to forward pointers
-of type struct dma_buf_map and updates the generic fbdev emulation to
-use them correctly. This enables I/O-memory operations on all framebuffers
-that require and support them.
-
-Patches #1 to #4 prepare VRAM helpers and drivers.
-
-Next is the update of the GEM vmap functions. Patch #5 adds vmap and vunmap
-that is usable with TTM-based GEM drivers, and patch #6 updates GEM's
-vmap/vunmap callback to forward instances of type struct dma_buf_map. While
-the patch touches many files throughout the DRM modules, the applied changes
-are mostly trivial interface fixes. Several TTM-based GEM drivers now use
-the new vmap code. Patch #7 updates GEM's internal vmap/vunmap functions to
-forward struct dma_buf_map.
-
-With struct dma_buf_map propagated through the layers, patches #8 to #10
-convert DRM clients and generic fbdev emulation to use it. Updating the
-fbdev framebuffer will select the correct functions, either for system or
-I/O memory.
+Callers of drm_client_buffer_vmap() receive a copy of the value in
+the call's supplied arguments. It can be accessed and modified with
+dma_buf_map interfaces.
 
 v6:
-	* don't call page_to_phys() on fbdev framebuffers in I/O memory;
+	* don't call page_to_phys() on framebuffers in I/O memory;
 	  warn instead (Daniel)
-v5:
-	* rebase onto latest TTM changes (Christian)
-	* support TTM premapped memory correctly (Christian)
-	* implement fb_read/fb_write internally (Sam, Daniel)
-	* cleanups
-v4:
-	* provide TTM vmap/vunmap plus GEM helpers and convert drivers
-	  over (Christian, Daniel)
-	* remove several empty functions
-	* more TODOs and documentation (Daniel)
-v3:
-	* recreate the whole patchset on top of struct dma_buf_map
-v2:
-	* RFC patchset
 
-Thomas Zimmermann (10):
-  drm/vram-helper: Remove invariant parameters from internal kmap
-    function
-  drm/cma-helper: Remove empty drm_gem_cma_prime_vunmap()
-  drm/etnaviv: Remove empty etnaviv_gem_prime_vunmap()
-  drm/exynos: Remove empty exynos_drm_gem_prime_{vmap,vunmap}()
-  drm/ttm: Add vmap/vunmap to TTM and TTM GEM helpers
-  drm/gem: Use struct dma_buf_map in GEM vmap ops and convert GEM
-    backends
-  drm/gem: Update internal GEM vmap/vunmap interfaces to use struct
-    dma_buf_map
-  drm/gem: Store client buffer mappings as struct dma_buf_map
-  dma-buf-map: Add memcpy and pointer-increment interfaces
-  drm/fb_helper: Support framebuffers in I/O memory
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Tested-by: Sam Ravnborg <sam@ravnborg.org>
+---
+ drivers/gpu/drm/drm_client.c    | 34 +++++++++++++++++++--------------
+ drivers/gpu/drm/drm_fb_helper.c | 32 ++++++++++++++++++++-----------
+ include/drm/drm_client.h        |  7 ++++---
+ 3 files changed, 45 insertions(+), 28 deletions(-)
 
- Documentation/gpu/todo.rst                  |  37 ++-
- drivers/gpu/drm/Kconfig                     |   2 +
- drivers/gpu/drm/amd/amdgpu/amdgpu_dma_buf.c |  36 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_dma_buf.h |   2 -
- drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c     |   5 +-
- drivers/gpu/drm/amd/amdgpu/amdgpu_object.h  |   1 -
- drivers/gpu/drm/ast/ast_cursor.c            |  27 +-
- drivers/gpu/drm/ast/ast_drv.h               |   7 +-
- drivers/gpu/drm/bochs/bochs_kms.c           |   1 -
- drivers/gpu/drm/drm_client.c                |  38 +--
- drivers/gpu/drm/drm_fb_helper.c             | 257 ++++++++++++++++++--
- drivers/gpu/drm/drm_gem.c                   |  29 ++-
- drivers/gpu/drm/drm_gem_cma_helper.c        |  27 +-
- drivers/gpu/drm/drm_gem_shmem_helper.c      |  48 ++--
- drivers/gpu/drm/drm_gem_ttm_helper.c        |  38 +++
- drivers/gpu/drm/drm_gem_vram_helper.c       | 117 ++++-----
- drivers/gpu/drm/drm_internal.h              |   5 +-
- drivers/gpu/drm/drm_prime.c                 |  14 +-
- drivers/gpu/drm/etnaviv/etnaviv_drv.h       |   3 +-
- drivers/gpu/drm/etnaviv/etnaviv_gem.c       |   1 -
- drivers/gpu/drm/etnaviv/etnaviv_gem_prime.c |  12 +-
- drivers/gpu/drm/exynos/exynos_drm_gem.c     |  12 -
- drivers/gpu/drm/exynos/exynos_drm_gem.h     |   2 -
- drivers/gpu/drm/lima/lima_gem.c             |   6 +-
- drivers/gpu/drm/lima/lima_sched.c           |  11 +-
- drivers/gpu/drm/mgag200/mgag200_mode.c      |  10 +-
- drivers/gpu/drm/nouveau/Kconfig             |   1 +
- drivers/gpu/drm/nouveau/nouveau_bo.h        |   2 -
- drivers/gpu/drm/nouveau/nouveau_gem.c       |   6 +-
- drivers/gpu/drm/nouveau/nouveau_gem.h       |   2 -
- drivers/gpu/drm/nouveau/nouveau_prime.c     |  20 --
- drivers/gpu/drm/panfrost/panfrost_perfcnt.c |  14 +-
- drivers/gpu/drm/qxl/qxl_display.c           |  11 +-
- drivers/gpu/drm/qxl/qxl_draw.c              |  14 +-
- drivers/gpu/drm/qxl/qxl_drv.h               |  11 +-
- drivers/gpu/drm/qxl/qxl_object.c            |  31 ++-
- drivers/gpu/drm/qxl/qxl_object.h            |   2 +-
- drivers/gpu/drm/qxl/qxl_prime.c             |  12 +-
- drivers/gpu/drm/radeon/radeon.h             |   1 -
- drivers/gpu/drm/radeon/radeon_gem.c         |   7 +-
- drivers/gpu/drm/radeon/radeon_prime.c       |  20 --
- drivers/gpu/drm/rockchip/rockchip_drm_gem.c |  22 +-
- drivers/gpu/drm/rockchip/rockchip_drm_gem.h |   4 +-
- drivers/gpu/drm/tiny/cirrus.c               |  10 +-
- drivers/gpu/drm/tiny/gm12u320.c             |  10 +-
- drivers/gpu/drm/ttm/ttm_bo_util.c           |  72 ++++++
- drivers/gpu/drm/udl/udl_modeset.c           |   8 +-
- drivers/gpu/drm/vboxvideo/vbox_mode.c       |  11 +-
- drivers/gpu/drm/vc4/vc4_bo.c                |   7 +-
- drivers/gpu/drm/vc4/vc4_drv.h               |   2 +-
- drivers/gpu/drm/vgem/vgem_drv.c             |  16 +-
- drivers/gpu/drm/vkms/vkms_plane.c           |  15 +-
- drivers/gpu/drm/vkms/vkms_writeback.c       |  22 +-
- drivers/gpu/drm/xen/xen_drm_front_gem.c     |  18 +-
- drivers/gpu/drm/xen/xen_drm_front_gem.h     |   6 +-
- include/drm/drm_client.h                    |   7 +-
- include/drm/drm_gem.h                       |   5 +-
- include/drm/drm_gem_cma_helper.h            |   3 +-
- include/drm/drm_gem_shmem_helper.h          |   4 +-
- include/drm/drm_gem_ttm_helper.h            |   6 +
- include/drm/drm_gem_vram_helper.h           |  14 +-
- include/drm/drm_mode_config.h               |  12 -
- include/drm/ttm/ttm_bo_api.h                |  28 +++
- include/linux/dma-buf-map.h                 |  93 ++++++-
- 64 files changed, 859 insertions(+), 438 deletions(-)
-
---
+diff --git a/drivers/gpu/drm/drm_client.c b/drivers/gpu/drm/drm_client.c
+index ac0082bed966..fe573acf1067 100644
+--- a/drivers/gpu/drm/drm_client.c
++++ b/drivers/gpu/drm/drm_client.c
+@@ -235,7 +235,7 @@ static void drm_client_buffer_delete(struct drm_client_buffer *buffer)
+ {
+ 	struct drm_device *dev = buffer->client->dev;
+ 
+-	drm_gem_vunmap(buffer->gem, buffer->vaddr);
++	drm_gem_vunmap(buffer->gem, &buffer->map);
+ 
+ 	if (buffer->gem)
+ 		drm_gem_object_put(buffer->gem);
+@@ -291,25 +291,31 @@ drm_client_buffer_create(struct drm_client_dev *client, u32 width, u32 height, u
+ /**
+  * drm_client_buffer_vmap - Map DRM client buffer into address space
+  * @buffer: DRM client buffer
++ * @map_copy: Returns the mapped memory's address
+  *
+  * This function maps a client buffer into kernel address space. If the
+- * buffer is already mapped, it returns the mapping's address.
++ * buffer is already mapped, it returns the existing mapping's address.
+  *
+  * Client buffer mappings are not ref'counted. Each call to
+  * drm_client_buffer_vmap() should be followed by a call to
+  * drm_client_buffer_vunmap(); or the client buffer should be mapped
+  * throughout its lifetime.
+  *
++ * The returned address is a copy of the internal value. In contrast to
++ * other vmap interfaces, you don't need it for the client's vunmap
++ * function. So you can modify it at will during blit and draw operations.
++ *
+  * Returns:
+- *	The mapped memory's address
++ *	0 on success, or a negative errno code otherwise.
+  */
+-void *drm_client_buffer_vmap(struct drm_client_buffer *buffer)
++int
++drm_client_buffer_vmap(struct drm_client_buffer *buffer, struct dma_buf_map *map_copy)
+ {
+-	struct dma_buf_map map;
++	struct dma_buf_map *map = &buffer->map;
+ 	int ret;
+ 
+-	if (buffer->vaddr)
+-		return buffer->vaddr;
++	if (dma_buf_map_is_set(map))
++		goto out;
+ 
+ 	/*
+ 	 * FIXME: The dependency on GEM here isn't required, we could
+@@ -319,13 +325,14 @@ void *drm_client_buffer_vmap(struct drm_client_buffer *buffer)
+ 	 * fd_install step out of the driver backend hooks, to make that
+ 	 * final step optional for internal users.
+ 	 */
+-	ret = drm_gem_vmap(buffer->gem, &map);
++	ret = drm_gem_vmap(buffer->gem, map);
+ 	if (ret)
+-		return ERR_PTR(ret);
++		return ret;
+ 
+-	buffer->vaddr = map.vaddr;
++out:
++	*map_copy = *map;
+ 
+-	return map.vaddr;
++	return 0;
+ }
+ EXPORT_SYMBOL(drm_client_buffer_vmap);
+ 
+@@ -339,10 +346,9 @@ EXPORT_SYMBOL(drm_client_buffer_vmap);
+  */
+ void drm_client_buffer_vunmap(struct drm_client_buffer *buffer)
+ {
+-	struct dma_buf_map map = DMA_BUF_MAP_INIT_VADDR(buffer->vaddr);
++	struct dma_buf_map *map = &buffer->map;
+ 
+-	drm_gem_vunmap(buffer->gem, &map);
+-	buffer->vaddr = NULL;
++	drm_gem_vunmap(buffer->gem, map);
+ }
+ EXPORT_SYMBOL(drm_client_buffer_vunmap);
+ 
+diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_helper.c
+index c2f72bb6afb1..6ce0b9119ef2 100644
+--- a/drivers/gpu/drm/drm_fb_helper.c
++++ b/drivers/gpu/drm/drm_fb_helper.c
+@@ -378,7 +378,7 @@ static void drm_fb_helper_dirty_blit_real(struct drm_fb_helper *fb_helper,
+ 	unsigned int cpp = fb->format->cpp[0];
+ 	size_t offset = clip->y1 * fb->pitches[0] + clip->x1 * cpp;
+ 	void *src = fb_helper->fbdev->screen_buffer + offset;
+-	void *dst = fb_helper->buffer->vaddr + offset;
++	void *dst = fb_helper->buffer->map.vaddr + offset;
+ 	size_t len = (clip->x2 - clip->x1) * cpp;
+ 	unsigned int y;
+ 
+@@ -400,7 +400,8 @@ static void drm_fb_helper_dirty_work(struct work_struct *work)
+ 	struct drm_clip_rect *clip = &helper->dirty_clip;
+ 	struct drm_clip_rect clip_copy;
+ 	unsigned long flags;
+-	void *vaddr;
++	struct dma_buf_map map;
++	int ret;
+ 
+ 	spin_lock_irqsave(&helper->dirty_lock, flags);
+ 	clip_copy = *clip;
+@@ -413,8 +414,8 @@ static void drm_fb_helper_dirty_work(struct work_struct *work)
+ 
+ 		/* Generic fbdev uses a shadow buffer */
+ 		if (helper->buffer) {
+-			vaddr = drm_client_buffer_vmap(helper->buffer);
+-			if (IS_ERR(vaddr))
++			ret = drm_client_buffer_vmap(helper->buffer, &map);
++			if (ret)
+ 				return;
+ 			drm_fb_helper_dirty_blit_real(helper, &clip_copy);
+ 		}
+@@ -2060,7 +2061,8 @@ static int drm_fb_helper_generic_probe(struct drm_fb_helper *fb_helper,
+ 	struct drm_framebuffer *fb;
+ 	struct fb_info *fbi;
+ 	u32 format;
+-	void *vaddr;
++	struct dma_buf_map map;
++	int ret;
+ 
+ 	drm_dbg_kms(dev, "surface width(%d), height(%d) and bpp(%d)\n",
+ 		    sizes->surface_width, sizes->surface_height,
+@@ -2096,14 +2098,22 @@ static int drm_fb_helper_generic_probe(struct drm_fb_helper *fb_helper,
+ 		fb_deferred_io_init(fbi);
+ 	} else {
+ 		/* buffer is mapped for HW framebuffer */
+-		vaddr = drm_client_buffer_vmap(fb_helper->buffer);
+-		if (IS_ERR(vaddr))
+-			return PTR_ERR(vaddr);
++		ret = drm_client_buffer_vmap(fb_helper->buffer, &map);
++		if (ret)
++			return ret;
++		if (map.is_iomem)
++			fbi->screen_base = map.vaddr_iomem;
++		else
++			fbi->screen_buffer = map.vaddr;
+ 
+-		fbi->screen_buffer = vaddr;
+-		/* Shamelessly leak the physical address to user-space */
++		/*
++		 * Shamelessly leak the physical address to user-space. As
++		 * page_to_phys() is undefined for I/O memory, warn in this
++		 * case.
++		 */
+ #if IS_ENABLED(CONFIG_DRM_FBDEV_LEAK_PHYS_SMEM)
+-		if (drm_leak_fbdev_smem && fbi->fix.smem_start == 0)
++		if (drm_leak_fbdev_smem && fbi->fix.smem_start == 0 &&
++		    !drm_WARN_ON_ONCE(dev, map.is_iomem))
+ 			fbi->fix.smem_start =
+ 				page_to_phys(virt_to_page(fbi->screen_buffer));
+ #endif
+diff --git a/include/drm/drm_client.h b/include/drm/drm_client.h
+index 7aaea665bfc2..f07f2fb02e75 100644
+--- a/include/drm/drm_client.h
++++ b/include/drm/drm_client.h
+@@ -3,6 +3,7 @@
+ #ifndef _DRM_CLIENT_H_
+ #define _DRM_CLIENT_H_
+ 
++#include <linux/dma-buf-map.h>
+ #include <linux/lockdep.h>
+ #include <linux/mutex.h>
+ #include <linux/types.h>
+@@ -141,9 +142,9 @@ struct drm_client_buffer {
+ 	struct drm_gem_object *gem;
+ 
+ 	/**
+-	 * @vaddr: Virtual address for the buffer
++	 * @map: Virtual address for the buffer
+ 	 */
+-	void *vaddr;
++	struct dma_buf_map map;
+ 
+ 	/**
+ 	 * @fb: DRM framebuffer
+@@ -155,7 +156,7 @@ struct drm_client_buffer *
+ drm_client_framebuffer_create(struct drm_client_dev *client, u32 width, u32 height, u32 format);
+ void drm_client_framebuffer_delete(struct drm_client_buffer *buffer);
+ int drm_client_framebuffer_flush(struct drm_client_buffer *buffer, struct drm_rect *rect);
+-void *drm_client_buffer_vmap(struct drm_client_buffer *buffer);
++int drm_client_buffer_vmap(struct drm_client_buffer *buffer, struct dma_buf_map *map);
+ void drm_client_buffer_vunmap(struct drm_client_buffer *buffer);
+ 
+ int drm_client_modeset_create(struct drm_client_dev *client);
+-- 
 2.29.0
 
 _______________________________________________
