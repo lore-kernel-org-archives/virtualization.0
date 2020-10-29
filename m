@@ -2,98 +2,99 @@ Return-Path: <SRS0=2X6m=EE=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1C1BCC2D0A3
-	for <virtualization@archiver.kernel.org>; Thu, 29 Oct 2020 08:08:47 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D2A7FC55179
+	for <virtualization@archiver.kernel.org>; Thu, 29 Oct 2020 10:14:43 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 6AD832071A
-	for <virtualization@archiver.kernel.org>; Thu, 29 Oct 2020 08:08:46 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 12FA22076E
+	for <virtualization@archiver.kernel.org>; Thu, 29 Oct 2020 10:14:42 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XTslYuku"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6AD832071A
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b="Hkxe6zs+"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 12FA22076E
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id CD42B2152E;
-	Thu, 29 Oct 2020 08:08:45 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id dOJnw-zW+Iq3; Thu, 29 Oct 2020 08:08:43 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 0CBFF1FD42;
-	Thu, 29 Oct 2020 08:08:43 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DF7DAC088B;
-	Thu, 29 Oct 2020 08:08:42 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D9B19C0051
- for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Oct 2020 08:08:41 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id BFE0886227
- for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Oct 2020 08:08:41 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 84C7286B33;
+	Thu, 29 Oct 2020 10:14:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id lxbi2reFlHQL; Thu, 29 Oct 2020 10:14:40 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 6C55A86964;
+	Thu, 29 Oct 2020 10:14:40 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4ED5EC0859;
+	Thu, 29 Oct 2020 10:14:40 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 62C0FC0051
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 29 Oct 2020 10:14:39 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by hemlock.osuosl.org (Postfix) with ESMTP id 565B887593
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 29 Oct 2020 10:14:39 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id U8xADX_8HMEk
+ with ESMTP id eQMS7GpxzB94
  for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Oct 2020 08:08:39 +0000 (UTC)
+ Thu, 29 Oct 2020 10:14:38 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id E7E1C85E7D
+Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com
+ [209.85.221.53])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 15C8487590
  for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Oct 2020 08:08:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1603958917;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=7wgqGqZ0wLRZyTiOM1OAwQ0bdpUaIgkZ0lF5Q0v5yLw=;
- b=XTslYukul/IqAkXElJ5tgnMm3NIW6YvAXbRQkJieiddUtzike+zd1mllsBPZmgyXFlpAUW
- 6kCwck629YeVafAaQy24CfhteONXCydp3rE6Emd4b2UcqQAT8ZOwsKlObVbDc5lDuCpd1a
- Bz1KctjLajEoBzh5Dd0U+SgIJqlkNXs=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-370-Ofar--SsMjSfuShHFSIQOA-1; Thu, 29 Oct 2020 04:08:33 -0400
-X-MC-Unique: Ofar--SsMjSfuShHFSIQOA-1
-Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com
- [10.5.11.22])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7EAF8879528;
- Thu, 29 Oct 2020 08:08:32 +0000 (UTC)
-Received: from [10.72.12.209] (ovpn-12-209.pek2.redhat.com [10.72.12.209])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 53F7710013DB;
- Thu, 29 Oct 2020 08:08:27 +0000 (UTC)
-Subject: Re: [PATCH] vhost: Use mutex to protect vq_irq setup
-To: Eli Cohen <elic@nvidia.com>
-References: <20201028142004.GA100353@mtl-vdi-166.wap.labs.mlnx>
- <60e24a0e-0d72-51b3-216a-b3cf62fb1a58@redhat.com>
- <20201029073717.GA132479@mtl-vdi-166.wap.labs.mlnx>
- <7b92d057-75cc-8bee-6354-2fbefcd1850a@redhat.com>
- <20201029075035.GC132479@mtl-vdi-166.wap.labs.mlnx>
-From: Jason Wang <jasowang@redhat.com>
-Message-ID: <34c4c6c0-ca95-6940-1b3f-c8c6a9cee833@redhat.com>
-Date: Thu, 29 Oct 2020 16:08:24 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+ Thu, 29 Oct 2020 10:14:37 +0000 (UTC)
+Received: by mail-wr1-f53.google.com with SMTP id a9so2066479wrg.12
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 29 Oct 2020 03:14:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ffwll.ch; s=google;
+ h=from:to:cc:subject:date:message-id:in-reply-to:references
+ :mime-version:content-transfer-encoding;
+ bh=NH1wgxZzmNr+f4f/izYOW3Kn2sqLIMMHcPJO+vFYPj8=;
+ b=Hkxe6zs+S5dTbcwUFC1+X5+n49A/SNSvIY83JbI54r1aawzTNDh5eYWpvB4WVQ91tB
+ krPLqS63geCdVbXeMPHR+G6sOa+/n9rlBSdBs0haU3LWOIezU0gcsY0Jqby2ilee5eJt
+ lLT7Oth/y1jCjqPGrmzJ0jBhsSuR5H3bwiXjU=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+ :references:mime-version:content-transfer-encoding;
+ bh=NH1wgxZzmNr+f4f/izYOW3Kn2sqLIMMHcPJO+vFYPj8=;
+ b=CnMTEEirFuEACCgCPVCUvplr0ZOIOwUbD7MLN9gbt1pRYOxa8arE7+4rKocx3bbD7V
+ erGSTkuSu7+/j/hO0XcsLqtTvNUBOstFzQbnNOqRlkCex3rvL/+VkVZNFvVl92rBwHSj
+ VdIB/7h3zlyWXPUZxeKy2UoALvnGisQVHVUxnhvt0s+vXFOZFCyx+CbffvfkfeGYdFqY
+ H7SVH124IiErs2uwR5fBcSnRjOIwEeuwl+C+NhkJK1I+2V/HOwCxiJZujbGkaO8Biq4x
+ LTE2Q6Pn3sQdZlt50TVuj2+eNYFtFoW4NQlCps/Dkm8sNC8TCT1rcZO9+1hfI3P95Da6
+ 1NJw==
+X-Gm-Message-State: AOAM530U52YlQZodI7FLjKAnP2SWfD94B58GyEkA+Zj9T8KsTWfFWEUy
+ yAiu8txMJi+a2iPhop0/PMc4aA==
+X-Google-Smtp-Source: ABdhPJwKhZUv0/sxV9eMLtbW41ionD/GZOnsN7WT3fFy3s7vVW47Q/DgBSrBxSdS4kDGU3LeYplh0A==
+X-Received: by 2002:adf:ecc8:: with SMTP id s8mr4370597wro.328.1603966476296; 
+ Thu, 29 Oct 2020 03:14:36 -0700 (PDT)
+Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
+ by smtp.gmail.com with ESMTPSA id e5sm3897753wrw.93.2020.10.29.03.14.35
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Thu, 29 Oct 2020 03:14:35 -0700 (PDT)
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
+To: DRI Development <dri-devel@lists.freedesktop.org>
+Subject: [PATCH 3/3] drm/qxl: Remove fbcon acceleration leftovers
+Date: Thu, 29 Oct 2020 11:14:28 +0100
+Message-Id: <20201029101428.4058311-3-daniel.vetter@ffwll.ch>
+X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20201029101428.4058311-1-daniel.vetter@ffwll.ch>
+References: <20201029101428.4058311-1-daniel.vetter@ffwll.ch>
 MIME-Version: 1.0
-In-Reply-To: <20201029075035.GC132479@mtl-vdi-166.wap.labs.mlnx>
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
-Cc: netdev <netdev@vger.kernel.org>, lingshan.zhu@intel.com,
+Cc: spice-devel@lists.freedesktop.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
+ Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
  virtualization@lists.linux-foundation.org,
- "Michael S. Tsirkin" <mst@redhat.com>
+ Daniel Vetter <daniel.vetter@intel.com>, Dave Airlie <airlied@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -105,39 +106,52 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Ck9uIDIwMjAvMTAvMjkg5LiL5Y2IMzo1MCwgRWxpIENvaGVuIHdyb3RlOgo+IE9uIFRodSwgT2N0
-IDI5LCAyMDIwIGF0IDAzOjM5OjI0UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6Cj4+IE9uIDIw
-MjAvMTAvMjkg5LiL5Y2IMzozNywgRWxpIENvaGVuIHdyb3RlOgo+Pj4gT24gVGh1LCBPY3QgMjks
-IDIwMjAgYXQgMDM6MDM6MjRQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90ZToKPj4+PiBPbiAyMDIw
-LzEwLzI4IOS4i+WNiDEwOjIwLCBFbGkgQ29oZW4gd3JvdGU6Cj4+Pj4+IEJvdGggaXJxX2J5cGFz
-c19yZWdpc3Rlcl9wcm9kdWNlcigpIGFuZCBpcnFfYnlwYXNzX3VucmVnaXN0ZXJfcHJvZHVjZXIo
-KQo+Pj4+PiByZXF1aXJlIHByb2Nlc3MgY29udGV4dCB0byBydW4uIENoYW5nZSB0aGUgY2FsbCBj
-b250ZXh0IGxvY2sgZnJvbQo+Pj4+PiBzcGlubG9jayB0byBtdXRleCB0byBwcm90ZWN0IHRoZSBz
-ZXR1cCBwcm9jZXNzIHRvIGF2b2lkIGRlYWRsb2Nrcy4KPj4+Pj4KPj4+Pj4gRml4ZXM6IDI2NWEw
-YWQ4NzMxZCAoInZob3N0OiBpbnRyb2R1Y2Ugdmhvc3RfdnJpbmdfY2FsbCIpCj4+Pj4+IFNpZ25l
-ZC1vZmYtYnk6IEVsaSBDb2hlbjxlbGljQG52aWRpYS5jb20+Cj4+Pj4gSGkgRWxpOgo+Pj4+Cj4+
-Pj4gRHVyaW5nIHJldmlldyB3ZSBzcG90IHRoYXQgdGhlIHNwaW5sb2NrIGlzIG5vdCBuZWNlc3Nh
-cnkuIEFuZCBpdCB3YXMgYWxyZWFkeQo+Pj4+IHByb3RlY3RlZCBieSB2cSBtdXRleC4gU28gaXQg
-d2FzIHJlbW92ZWQgaW4gdGhpcyBjb21taXQ6Cj4+Pj4KPj4+PiBodHRwczovL2dpdC5rZXJuZWwu
-b3JnL3B1Yi9zY20vbGludXgva2VybmVsL2dpdC90b3J2YWxkcy9saW51eC5naXQvY29tbWl0Lz9p
-ZD04NmUxODJmZTEyZWU1ODY5MDIyNjE0NDU3MDM3MDk3YzcwZmUyZWQxCj4+Pj4KPj4+PiBUaGFu
-a3MKPj4+Pgo+Pj4gSSBzZWUsIHRoYW5rcy4KPj4+Cj4+PiBCVFcsIHdoaWxlIHRlc3RpbmcgaXJx
-IGJ5cGFzc2luZywgSSBub3RpY2VkIHRoYXQgcWVtdSBzdGFydGVkIGNyYXNoaW5nCj4+PiBhbmQg
-SSBmYWlsIHRvIGJvb3QgdGhlIFZNPyBJcyB0aGF0IGEga25vd24gaXNzdWUuIEkgY2hlY2tlZCB1
-c2luZwo+Pj4gdXBkYXRlZCBtYXN0ZXIgYnJhbmNoIG9mIHFlbXUgdXBkYXRlZCB5ZXN0ZXJkYXku
-Cj4+IE5vdCBrbm93biB5ZXQuCj4+Cj4+Cj4+PiBBbnkgaWRlYXMgaG93IHRvIGNoZWNrIHRoaXMg
-ZnVydGhlcj8KPj4gSSB3b3VsZCBiZSBoZWxwZnVsIGlmIHlvdSBjYW4gcGFzdGUgdGhlIGNhbGx0
-cmFjZSBoZXJlLgo+Pgo+IEkgYW0gbm90IHRvbyBmYW1pbGlhciB3aXRoIHFlbXUuIEFzc3VtaW5n
-IEkgYW0gdXNpbmcgdmlyc2ggc3RhcnQgdG8gYm9vdAo+IHRoZSBWTSwgaG93IGNhbiBJIGdldCB0
-aGUgY2FsbCB0cmFjZT8KCgpZb3UgcHJvYmFibHkgbmVlZCB0byBjb25maWd1cmUgcWVtdSB3aXRo
-IC0tZW5hYmxlLWRlYnVnLiBUaGVuIGFmdGVyIFZNIAppcyBsYXVuY2hpbmcsIHlvdSBjYW4gdXNl
-IGdkYiB0byBhdHRhY2ggdG8gdGhlIHFlbXUgcHJvY2VzcywgdGhlbiBnZGIgCm1heSByZXBvcnQg
-YSBjYWxsdHJhY2UgaWYgcWVtdSBjcmFzaGVzLgoKVGhhbmtzCgoKX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0
-ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMu
-bGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+These are leftovers from 13aff184ed9f ("drm/qxl: remove dead qxl fbdev
+emulation code").
+
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Cc: Dave Airlie <airlied@redhat.com>
+Cc: Gerd Hoffmann <kraxel@redhat.com>
+Cc: virtualization@lists.linux-foundation.org
+Cc: spice-devel@lists.freedesktop.org
+---
+ drivers/gpu/drm/qxl/qxl_drv.h | 14 --------------
+ 1 file changed, 14 deletions(-)
+
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
+index 3602e8b34189..86eee66ecbad 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.h
++++ b/drivers/gpu/drm/qxl/qxl_drv.h
+@@ -166,20 +166,6 @@ struct qxl_drm_image {
+ 	struct list_head chunk_list;
+ };
+ 
+-struct qxl_fb_image {
+-	struct qxl_device *qdev;
+-	uint32_t pseudo_palette[16];
+-	struct fb_image fb_image;
+-	uint32_t visual;
+-};
+-
+-struct qxl_draw_fill {
+-	struct qxl_device *qdev;
+-	struct qxl_rect rect;
+-	uint32_t color;
+-	uint16_t rop;
+-};
+-
+ /*
+  * Debugfs
+  */
+-- 
+2.28.0
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
