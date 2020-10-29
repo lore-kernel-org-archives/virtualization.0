@@ -2,99 +2,100 @@ Return-Path: <SRS0=2X6m=EE=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D2A7FC55179
-	for <virtualization@archiver.kernel.org>; Thu, 29 Oct 2020 10:14:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 71914C2D0A3
+	for <virtualization@archiver.kernel.org>; Thu, 29 Oct 2020 11:13:28 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 12FA22076E
-	for <virtualization@archiver.kernel.org>; Thu, 29 Oct 2020 10:14:42 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id B08A720756
+	for <virtualization@archiver.kernel.org>; Thu, 29 Oct 2020 11:13:27 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=ffwll.ch header.i=@ffwll.ch header.b="Hkxe6zs+"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 12FA22076E
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=ffwll.ch
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Np0zC7Or"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B08A720756
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 84C7286B33;
-	Thu, 29 Oct 2020 10:14:42 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 2273186B31;
+	Thu, 29 Oct 2020 11:13:27 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id lxbi2reFlHQL; Thu, 29 Oct 2020 10:14:40 +0000 (UTC)
+	with ESMTP id HnCau7Wo52WM; Thu, 29 Oct 2020 11:13:26 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 6C55A86964;
-	Thu, 29 Oct 2020 10:14:40 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id AB34B86521;
+	Thu, 29 Oct 2020 11:13:26 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4ED5EC0859;
-	Thu, 29 Oct 2020 10:14:40 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 62C0FC0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 989F9C0859;
+	Thu, 29 Oct 2020 11:13:26 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9BE6AC0051
  for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Oct 2020 10:14:39 +0000 (UTC)
+ Thu, 29 Oct 2020 11:13:25 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 565B887593
+ by whitealder.osuosl.org (Postfix) with ESMTP id 7D309869A0
  for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Oct 2020 10:14:39 +0000 (UTC)
+ Thu, 29 Oct 2020 11:13:25 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id eQMS7GpxzB94
+ with ESMTP id pxKCvcXGewzJ
  for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Oct 2020 10:14:38 +0000 (UTC)
+ Thu, 29 Oct 2020 11:13:25 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-wr1-f53.google.com (mail-wr1-f53.google.com
- [209.85.221.53])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 15C8487590
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id ECC2E8587C
  for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Oct 2020 10:14:37 +0000 (UTC)
-Received: by mail-wr1-f53.google.com with SMTP id a9so2066479wrg.12
- for <virtualization@lists.linux-foundation.org>;
- Thu, 29 Oct 2020 03:14:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ffwll.ch; s=google;
- h=from:to:cc:subject:date:message-id:in-reply-to:references
- :mime-version:content-transfer-encoding;
- bh=NH1wgxZzmNr+f4f/izYOW3Kn2sqLIMMHcPJO+vFYPj8=;
- b=Hkxe6zs+S5dTbcwUFC1+X5+n49A/SNSvIY83JbI54r1aawzTNDh5eYWpvB4WVQ91tB
- krPLqS63geCdVbXeMPHR+G6sOa+/n9rlBSdBs0haU3LWOIezU0gcsY0Jqby2ilee5eJt
- lLT7Oth/y1jCjqPGrmzJ0jBhsSuR5H3bwiXjU=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
- :references:mime-version:content-transfer-encoding;
- bh=NH1wgxZzmNr+f4f/izYOW3Kn2sqLIMMHcPJO+vFYPj8=;
- b=CnMTEEirFuEACCgCPVCUvplr0ZOIOwUbD7MLN9gbt1pRYOxa8arE7+4rKocx3bbD7V
- erGSTkuSu7+/j/hO0XcsLqtTvNUBOstFzQbnNOqRlkCex3rvL/+VkVZNFvVl92rBwHSj
- VdIB/7h3zlyWXPUZxeKy2UoALvnGisQVHVUxnhvt0s+vXFOZFCyx+CbffvfkfeGYdFqY
- H7SVH124IiErs2uwR5fBcSnRjOIwEeuwl+C+NhkJK1I+2V/HOwCxiJZujbGkaO8Biq4x
- LTE2Q6Pn3sQdZlt50TVuj2+eNYFtFoW4NQlCps/Dkm8sNC8TCT1rcZO9+1hfI3P95Da6
- 1NJw==
-X-Gm-Message-State: AOAM530U52YlQZodI7FLjKAnP2SWfD94B58GyEkA+Zj9T8KsTWfFWEUy
- yAiu8txMJi+a2iPhop0/PMc4aA==
-X-Google-Smtp-Source: ABdhPJwKhZUv0/sxV9eMLtbW41ionD/GZOnsN7WT3fFy3s7vVW47Q/DgBSrBxSdS4kDGU3LeYplh0A==
-X-Received: by 2002:adf:ecc8:: with SMTP id s8mr4370597wro.328.1603966476296; 
- Thu, 29 Oct 2020 03:14:36 -0700 (PDT)
-Received: from phenom.ffwll.local ([2a02:168:57f4:0:efd0:b9e5:5ae6:c2fa])
- by smtp.gmail.com with ESMTPSA id e5sm3897753wrw.93.2020.10.29.03.14.35
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 29 Oct 2020 03:14:35 -0700 (PDT)
-From: Daniel Vetter <daniel.vetter@ffwll.ch>
-To: DRI Development <dri-devel@lists.freedesktop.org>
-Subject: [PATCH 3/3] drm/qxl: Remove fbcon acceleration leftovers
-Date: Thu, 29 Oct 2020 11:14:28 +0100
-Message-Id: <20201029101428.4058311-3-daniel.vetter@ffwll.ch>
-X-Mailer: git-send-email 2.28.0
-In-Reply-To: <20201029101428.4058311-1-daniel.vetter@ffwll.ch>
+ Thu, 29 Oct 2020 11:13:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1603970003;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=zIaJu7FAw8dfZKVBgnoDacf5K6Q+ovY8+WxFh0DYprM=;
+ b=Np0zC7OrFCW1L+4shDaRRAGm/JKr1Wbwh7ov7xcdEHaFmJA6CXpS+9+ahAsLZ60V7U6GdX
+ pNG8rG2jeJ1dK5vDGnMt3wkoaEwZcHtpOt08pK3TQGoX61zV5D+Hsj9Pyo7lZXNQrvdFmO
+ 6yUIni8zL9aF3z4FAXMGdp6PJTKFYVA=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-192-koXZ2FOkOZe8sI_qzCfRWQ-1; Thu, 29 Oct 2020 07:13:21 -0400
+X-MC-Unique: koXZ2FOkOZe8sI_qzCfRWQ-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
+ [10.5.11.15])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 640BA108597B;
+ Thu, 29 Oct 2020 11:13:20 +0000 (UTC)
+Received: from sirius.home.kraxel.org (ovpn-114-66.ams2.redhat.com
+ [10.36.114.66])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 3740C7515B;
+ Thu, 29 Oct 2020 11:13:01 +0000 (UTC)
+Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
+ id 020BB9D0D; Thu, 29 Oct 2020 12:13:00 +0100 (CET)
+Date: Thu, 29 Oct 2020 12:13:00 +0100
+From: Gerd Hoffmann <kraxel@redhat.com>
+To: Daniel Vetter <daniel.vetter@ffwll.ch>
+Subject: Re: [PATCH 3/3] drm/qxl: Remove fbcon acceleration leftovers
+Message-ID: <20201029111300.p2vld6qc4e2q53xy@sirius.home.kraxel.org>
 References: <20201029101428.4058311-1-daniel.vetter@ffwll.ch>
+ <20201029101428.4058311-3-daniel.vetter@ffwll.ch>
 MIME-Version: 1.0
-Cc: spice-devel@lists.freedesktop.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
+In-Reply-To: <20201029101428.4058311-3-daniel.vetter@ffwll.ch>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=kraxel@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Dave Airlie <airlied@redhat.com>,
  Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
- virtualization@lists.linux-foundation.org,
- Daniel Vetter <daniel.vetter@intel.com>, Dave Airlie <airlied@redhat.com>
+ DRI Development <dri-devel@lists.freedesktop.org>,
+ virtualization@lists.linux-foundation.org, spice-devel@lists.freedesktop.org,
+ Daniel Vetter <daniel.vetter@intel.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -111,45 +112,11 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-These are leftovers from 13aff184ed9f ("drm/qxl: remove dead qxl fbdev
-emulation code").
+On Thu, Oct 29, 2020 at 11:14:28AM +0100, Daniel Vetter wrote:
+> These are leftovers from 13aff184ed9f ("drm/qxl: remove dead qxl fbdev
+> emulation code").
 
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Cc: Dave Airlie <airlied@redhat.com>
-Cc: Gerd Hoffmann <kraxel@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
-Cc: spice-devel@lists.freedesktop.org
----
- drivers/gpu/drm/qxl/qxl_drv.h | 14 --------------
- 1 file changed, 14 deletions(-)
-
-diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
-index 3602e8b34189..86eee66ecbad 100644
---- a/drivers/gpu/drm/qxl/qxl_drv.h
-+++ b/drivers/gpu/drm/qxl/qxl_drv.h
-@@ -166,20 +166,6 @@ struct qxl_drm_image {
- 	struct list_head chunk_list;
- };
- 
--struct qxl_fb_image {
--	struct qxl_device *qdev;
--	uint32_t pseudo_palette[16];
--	struct fb_image fb_image;
--	uint32_t visual;
--};
--
--struct qxl_draw_fill {
--	struct qxl_device *qdev;
--	struct qxl_rect rect;
--	uint32_t color;
--	uint16_t rop;
--};
--
- /*
-  * Debugfs
-  */
--- 
-2.28.0
+Acked-by: Gerd Hoffmann <kraxel@redhat.com>
 
 _______________________________________________
 Virtualization mailing list
