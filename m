@@ -2,96 +2,109 @@ Return-Path: <SRS0=7x/u=EF=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,UNPARSEABLE_RELAY,URIBL_BLOCKED
+	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 03F05C4363A
-	for <virtualization@archiver.kernel.org>; Fri, 30 Oct 2020 11:45:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A9522C4363A
+	for <virtualization@archiver.kernel.org>; Fri, 30 Oct 2020 11:48:36 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 489852076E
-	for <virtualization@archiver.kernel.org>; Fri, 30 Oct 2020 11:45:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id E73E920825
+	for <virtualization@archiver.kernel.org>; Fri, 30 Oct 2020 11:48:31 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NEecZhC7"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 489852076E
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="hmUIwi+/"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E73E920825
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=oracle.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id AAB6286250;
-	Fri, 30 Oct 2020 11:45:03 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 2F7E886303;
+	Fri, 30 Oct 2020 11:48:31 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ukCh5uPpBC0b; Fri, 30 Oct 2020 11:45:03 +0000 (UTC)
+	with ESMTP id Zm_52iglE_yc; Fri, 30 Oct 2020 11:48:30 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 0337785EBE;
-	Fri, 30 Oct 2020 11:45:02 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id C32DC863FF;
+	Fri, 30 Oct 2020 11:48:30 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D7E3EC0859;
-	Fri, 30 Oct 2020 11:45:02 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id ADE25C0859;
+	Fri, 30 Oct 2020 11:48:30 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E7E53C0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E3C07C0051
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Oct 2020 11:45:00 +0000 (UTC)
+ Fri, 30 Oct 2020 11:48:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id D05FB860AD
+ by fraxinus.osuosl.org (Postfix) with ESMTP id D359F863FF
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Oct 2020 11:45:00 +0000 (UTC)
+ Fri, 30 Oct 2020 11:48:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Sqb9odQ6PQaP
+ with ESMTP id j-OlGO6QzH4Y
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Oct 2020 11:45:00 +0000 (UTC)
+ Fri, 30 Oct 2020 11:48:29 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 24E0D85EBE
+Received: from aserp2120.oracle.com (aserp2120.oracle.com [141.146.126.78])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 4D1DF86303
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Oct 2020 11:45:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1604058298;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=rMzfcfElqXmYjTtD+miGi6l1YpfMLIM07gwUkJW1Ka4=;
- b=NEecZhC7KZ2JR9DGrtaHbi8GthTPa6bKjljhcAjBJrXk+zDPYS4rU5XHPt+B0h5r35II/6
- LFGIjj+AZz5rY2+RIn/0QBANSwTre7PbGZP+186BxdxgPuFi3UjDPgH2eAI0RXNwfN3cR+
- /hADoIr6WLVLzPpssK7cn0eHr+IK8aw=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-584-3sQS_sVaMLePpUqD5ntZlw-1; Fri, 30 Oct 2020 07:44:55 -0400
-X-MC-Unique: 3sQS_sVaMLePpUqD5ntZlw-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com
- [10.5.11.12])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6B6F01017DD0;
- Fri, 30 Oct 2020 11:44:54 +0000 (UTC)
-Received: from [10.72.12.248] (ovpn-12-248.pek2.redhat.com [10.72.12.248])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 820275CC26;
- Fri, 30 Oct 2020 11:44:45 +0000 (UTC)
-Subject: Re: [PATCH] vhost/vsock: add IOTLB API support
-To: Stefano Garzarella <sgarzare@redhat.com>
-References: <20201029174351.134173-1-sgarzare@redhat.com>
- <751cc074-ae68-72c8-71de-a42458058761@redhat.com>
- <20201030105422.ju2aj2bmwsckdufh@steredhat>
-From: Jason Wang <jasowang@redhat.com>
-Message-ID: <278f4732-e561-2b4f-03ee-b26455760b01@redhat.com>
-Date: Fri, 30 Oct 2020 19:44:43 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+ Fri, 30 Oct 2020 11:48:29 +0000 (UTC)
+Received: from pps.filterd (aserp2120.oracle.com [127.0.0.1])
+ by aserp2120.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 09UBjBtS068968;
+ Fri, 30 Oct 2020 11:48:19 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com;
+ h=date : from : to : cc
+ : subject : message-id : mime-version : content-type; s=corp-2020-01-29;
+ bh=u8OK6JTwAscu54Un4Xn+CHsR2kUdCYEM2EQPwUmKxRk=;
+ b=hmUIwi+/SgAeglz3QH998o7cRxvHLF+OAEXoRHRIt+EKjWGGAX7lzXQ3htM4sf6qP+7y
+ OgfPYnWxONAeh5QZ8kRx/GOVl22NTpBTpwzYBvN3co6AC5gbpZzCMraHA9YktLlPD8IU
+ CoKBTzuildrRREwy+h0pa3IFBJZIm+99TKLjBEnTgcsrp0jw/7jSQ7H7Urcbh8l94T8k
+ sJXXLqcEmXpiFCO97Ztv6ccuw4i6svpq3D3z1sd/bBzK+4EkFHk11NC5bhMIqnvviN3m
+ wa+h66jS4RLOOeYh6vINZAnkAAIy13IFlkztZvjtF3g7Mg1ZTzkPISU683+JuTT2el3w Bw== 
+Received: from userp3030.oracle.com (userp3030.oracle.com [156.151.31.80])
+ by aserp2120.oracle.com with ESMTP id 34cc7m9a7q-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=FAIL);
+ Fri, 30 Oct 2020 11:48:19 +0000
+Received: from pps.filterd (userp3030.oracle.com [127.0.0.1])
+ by userp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 09UBjWSS008946;
+ Fri, 30 Oct 2020 11:48:18 GMT
+Received: from userv0121.oracle.com (userv0121.oracle.com [156.151.31.72])
+ by userp3030.oracle.com with ESMTP id 34cx70m29d-1
+ (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+ Fri, 30 Oct 2020 11:48:18 +0000
+Received: from abhmp0013.oracle.com (abhmp0013.oracle.com [141.146.116.19])
+ by userv0121.oracle.com (8.14.4/8.13.8) with ESMTP id 09UBmF2r023127;
+ Fri, 30 Oct 2020 11:48:15 GMT
+Received: from mwanda (/41.57.98.10) by default (Oracle Beehive Gateway v4.0)
+ with ESMTP ; Fri, 30 Oct 2020 04:48:15 -0700
+Date: Fri, 30 Oct 2020 14:48:08 +0300
+From: Dan Carpenter <dan.carpenter@oracle.com>
+To: David Airlie <airlied@linux.ie>, Gerd Hoffmann <kraxel@redhat.com>
+Subject: [PATCH] drm/virtio: Fix a double free in virtio_gpu_cmd_map()
+Message-ID: <20201030114808.GD3251003@mwanda>
 MIME-Version: 1.0
-In-Reply-To: <20201030105422.ju2aj2bmwsckdufh@steredhat>
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
-Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Stefan Hajnoczi <stefanha@redhat.com>
+Content-Disposition: inline
+X-Mailer: git-send-email haha only kidding
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9789
+ signatures=668682
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0
+ phishscore=0 spamscore=0
+ bulkscore=0 malwarescore=0 mlxlogscore=999 mlxscore=0 suspectscore=2
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2009150000
+ definitions=main-2010300091
+X-Proofpoint-Virus-Version: vendor=nai engine=6000 definitions=9789
+ signatures=668682
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0
+ lowpriorityscore=0 adultscore=0
+ malwarescore=0 spamscore=0 clxscore=1011 mlxscore=0 suspectscore=2
+ priorityscore=1501 impostorscore=0 bulkscore=0 phishscore=0
+ mlxlogscore=999 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2009150000 definitions=main-2010300091
+Cc: Tomeu Vizoso <tomeu.vizoso@collabora.com>, kernel-janitors@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
+ Daniel Vetter <daniel@ffwll.ch>, Gurchetan Singh <gurchetansingh@chromium.org>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -103,46 +116,40 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Ck9uIDIwMjAvMTAvMzAg5LiL5Y2INjo1NCwgU3RlZmFubyBHYXJ6YXJlbGxhIHdyb3RlOgo+IE9u
-IEZyaSwgT2N0IDMwLCAyMDIwIGF0IDA2OjAyOjE4UE0gKzA4MDAsIEphc29uIFdhbmcgd3JvdGU6
-Cj4+Cj4+IE9uIDIwMjAvMTAvMzAg5LiK5Y2IMTo0MywgU3RlZmFubyBHYXJ6YXJlbGxhIHdyb3Rl
-Ogo+Pj4gVGhpcyBwYXRjaCBlbmFibGVzIHRoZSBJT1RMQiBBUEkgc3VwcG9ydCBmb3Igdmhvc3Qt
-dnNvY2sgZGV2aWNlcywKPj4+IGFsbG93aW5nIHRoZSB1c2Vyc3BhY2UgdG8gZW11bGF0ZSBhbiBJ
-T01NVSBmb3IgdGhlIGd1ZXN0Lgo+Pj4KPj4+IFRoZXNlIGNoYW5nZXMgd2VyZSBtYWRlIGZvbGxv
-d2luZyB2aG9zdC1uZXQsIGluIGRldGFpbHMgdGhpcyBwYXRjaDoKPj4+IC0gZXhwb3NlcyBWSVJU
-SU9fRl9BQ0NFU1NfUExBVEZPUk0gZmVhdHVyZSBhbmQgaW5pdHMgdGhlIGlvdGxiCj4+PiDCoCBk
-ZXZpY2UgaWYgdGhlIGZlYXR1cmUgaXMgYWNrZWQKPj4+IC0gaW1wbGVtZW50cyBWSE9TVF9HRVRf
-QkFDS0VORF9GRUFUVVJFUyBhbmQKPj4+IMKgIFZIT1NUX1NFVF9CQUNLRU5EX0ZFQVRVUkVTIGlv
-Y3Rscwo+Pj4gLSBjYWxscyB2cV9tZXRhX3ByZWZldGNoKCkgYmVmb3JlIHZxIHByb2Nlc3Npbmcg
-dG8gcHJlZmV0Y2ggdnEKPj4+IMKgIG1ldGFkYXRhIGFkZHJlc3MgaW4gSU9UTEIKPj4+IC0gcHJv
-dmlkZXMgLnJlYWRfaXRlciwgLndyaXRlX2l0ZXIsIGFuZCAucG9sbCBjYWxsYmFja3MgZm9yIHRo
-ZQo+Pj4gwqAgY2hhcmRldjsgdGhleSBhcmUgdXNlZCBieSB0aGUgdXNlcnNwYWNlIHRvIGV4Y2hh
-bmdlIElPVExCIG1lc3NhZ2VzCj4+Pgo+Pj4gVGhpcyBwYXRjaCB3YXMgdGVzdGVkIHdpdGggUUVN
-VSBhbmQgYSBwYXRjaCBhcHBsaWVkIFsxXSB0byBmaXggYQo+Pj4gc2ltcGxlIGlzc3VlOgo+Pj4g
-wqDCoMKgICQgcWVtdSAtTSBxMzUsYWNjZWw9a3ZtLGtlcm5lbC1pcnFjaGlwPXNwbGl0IFwKPj4+
-IMKgwqDCoMKgwqDCoMKgwqDCoMKgIC1kcml2ZSBmaWxlPWZlZG9yYS5xY293Mixmb3JtYXQ9cWNv
-dzIsaWY9dmlydGlvIFwKPj4+IMKgwqDCoMKgwqDCoMKgwqDCoMKgIC1kZXZpY2UgaW50ZWwtaW9t
-bXUsaW50cmVtYXA9b24gXAo+Pj4gwqDCoMKgwqDCoMKgwqDCoMKgwqAgLWRldmljZSB2aG9zdC12
-c29jay1wY2ksZ3Vlc3QtY2lkPTMsaW9tbXVfcGxhdGZvcm09b24KPj4KPj4KPj4gUGF0Y2ggbG9v
-a3MgZ29vZCwgYnV0IGEgcXVlc3Rpb246Cj4+Cj4+IEl0IGxvb2tzIHRvIG1lIHlvdSBkb24ndCBl
-bmFibGUgQVRTIHdoaWNoIG1lYW5zIHZob3N0IHdvbid0IGdldCBhbnkgCj4+IGludmFsaWRhdGlv
-biByZXF1ZXN0IG9yIGRpZCBJIG1pc3MgYW55dGhpbmc/Cj4+Cj4KPiBZb3UncmUgcmlnaHQsIEkg
-ZGlkbid0IHNlZSBpbnZhbGlkYXRpb24gcmVxdWVzdHMsIG9ubHkgbWlzcyBhbmQgdXBkYXRlcy4K
-PiBOb3cgSSBoYXZlIHRyaWVkIHRvIGVuYWJsZSAnYXRzJyBhbmQgJ2RldmljZS1pb3RsYicgYnV0
-IEkgc3RpbGwgZG9uJ3QgCj4gc2VlIGFueSBpbnZhbGlkYXRpb24uCj4KPiBIb3cgY2FuIEkgdGVz
-dCBpdD8gKFNvcnJ5IGJ1dCBJIGRvbid0IGhhdmUgbXVjaCBleHBlcmllbmNlIHlldCB3aXRoIAo+
-IHZJT01NVSkKCgpJIGd1ZXNzIGl0J3MgYmVjYXVzZSB0aGUgYmF0Y2hlZCB1bm1hcC4gTWF5YmUg
-eW91IGNhbiB0cnkgdG8gdXNlIAoiaW50ZWxfaW9tbXU9c3RyaWN0IiBpbiBndWVzdCBrZXJuZWwg
-Y29tbWFuZCBsaW5lIHRvIHNlZSBpZiBpdCB3b3Jrcy4KCkJ0dywgbWFrZSBzdXJlIHRoZSBxZW11
-IGNvbnRhaW5zIHRoZSBwYXRjaCBbMV0uIE90aGVyd2lzZSBBVFMgd29uJ3QgYmUgCmVuYWJsZWQg
-Zm9yIHJlY2VudCBMaW51eCBLZXJuZWwgaW4gdGhlIGd1ZXN0LgoKVGhhbmtzCgpbMV0gaHR0cHM6
-Ly9wYXRjaGV3Lm9yZy9RRU1VLzIwMjAwOTA5MDgxNzMxLjI0Njg4LTEtamFzb3dhbmdAcmVkaGF0
-LmNvbS8KCj4KPiBUaGFua3MsCj4gU3RlZmFubwo+CgpfX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVh
-bGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZv
-dW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+This is freed both here and in the caller (virtio_gpu_vram_map()) so
+it's a double free.  The correct place is only in the caller.
+
+Fixes: 16845c5d5409 ("drm/virtio: implement blob resources: implement vram object")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_vq.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 72586cd8cc4c..3f200306c9d7 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -1212,10 +1212,8 @@ int virtio_gpu_cmd_map(struct virtio_gpu_device *vgdev,
+ 	struct virtio_gpu_resp_map_info *resp_buf;
+ 
+ 	resp_buf = kzalloc(sizeof(*resp_buf), GFP_KERNEL);
+-	if (!resp_buf) {
+-		virtio_gpu_array_put_free(objs);
++	if (!resp_buf)
+ 		return -ENOMEM;
+-	}
+ 
+ 	cmd_p = virtio_gpu_alloc_cmd_resp
+ 		(vgdev, virtio_gpu_cmd_resource_map_cb, &vbuf, sizeof(*cmd_p),
+-- 
+2.28.0
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
