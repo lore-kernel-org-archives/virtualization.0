@@ -2,121 +2,116 @@ Return-Path: <SRS0=7x/u=EF=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.3 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 8C9D9C00A89
-	for <virtualization@archiver.kernel.org>; Fri, 30 Oct 2020 16:04:24 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 328BEC00A89
+	for <virtualization@archiver.kernel.org>; Fri, 30 Oct 2020 16:19:51 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D127620724
-	for <virtualization@archiver.kernel.org>; Fri, 30 Oct 2020 16:04:23 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 54AB320719
+	for <virtualization@archiver.kernel.org>; Fri, 30 Oct 2020 16:19:50 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Pnfb5at3"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D127620724
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WFoIKu8b"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 54AB320719
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 419BF85319;
-	Fri, 30 Oct 2020 16:04:23 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id DB9AE868DC;
+	Fri, 30 Oct 2020 16:19:49 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id rI-sGnsxEbLp; Fri, 30 Oct 2020 16:04:22 +0000 (UTC)
+	with ESMTP id YGWo7aczuLcE; Fri, 30 Oct 2020 16:19:49 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id A5391869D7;
-	Fri, 30 Oct 2020 16:04:22 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 4626285C1D;
+	Fri, 30 Oct 2020 16:19:49 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8F041C0859;
-	Fri, 30 Oct 2020 16:04:22 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 15B04C088B;
+	Fri, 30 Oct 2020 16:19:49 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 8CF39C0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DEF17C0051
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Oct 2020 16:04:20 +0000 (UTC)
+ Fri, 30 Oct 2020 16:19:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 7B40A8739C
+ by hemlock.osuosl.org (Postfix) with ESMTP id DA61F87400
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Oct 2020 16:04:20 +0000 (UTC)
+ Fri, 30 Oct 2020 16:19:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id GLhKoXtql+HS
+ with ESMTP id 2jDUhp2AvVbT
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Oct 2020 16:04:19 +0000 (UTC)
+ Fri, 30 Oct 2020 16:19:47 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 3FF1C872E1
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 47886873D4
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Oct 2020 16:04:19 +0000 (UTC)
+ Fri, 30 Oct 2020 16:19:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1604073858;
+ s=mimecast20190719; t=1604074785;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=ZOY0se4WQ8x55VAXnO7UrS7S0TCfPfbJZdpu+fnITnI=;
- b=Pnfb5at3wzP25d3N2wX/6LuxyqwXP81gQfnZi31h6U0+LcSaaezetG8UVRGNHEAnw0/Zt0
- IuT5yGOuPGMZGFGV7aiE348Xh3bjmllIuShcydsQfwWZg/+EvydX/tcN4qz8p9f74DM6oE
- OS+TLedXnfBVXQk0czuRM7EEwoSbkiE=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-504-BuQ4c6zCOPefMsLIBlBpBw-1; Fri, 30 Oct 2020 12:04:16 -0400
-X-MC-Unique: BuQ4c6zCOPefMsLIBlBpBw-1
-Received: by mail-ej1-f72.google.com with SMTP id c10so2616098ejm.15
+ bh=OcrYeen7idQg6fj59+qOuiD8Ij+RF++6T9svNJR2I70=;
+ b=WFoIKu8bEgawaKpofPfpt75m424pwi8tumYuYah7rS1nkdbDkWlkA8KddGEXr/QQ5Xedum
+ n+Ex1/aV7OWMViQvkjss2ByTB13kk49aMObzWY40/3jrF+ZMaBYqbOyrdoyOHbeihTvync
+ cYJpC8APtle7r2TmC3DvVR2BlBlUOa8=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-349-DjrHUb2nPTOo_3BY5OtUEw-1; Fri, 30 Oct 2020 12:19:43 -0400
+X-MC-Unique: DjrHUb2nPTOo_3BY5OtUEw-1
+Received: by mail-wr1-f72.google.com with SMTP id x16so2825581wrg.7
  for <virtualization@lists.linux-foundation.org>;
- Fri, 30 Oct 2020 09:04:16 -0700 (PDT)
+ Fri, 30 Oct 2020 09:19:42 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:to:cc:references:from:subject:message-id:date
- :user-agent:mime-version:in-reply-to:content-language
- :content-transfer-encoding;
- bh=ZOY0se4WQ8x55VAXnO7UrS7S0TCfPfbJZdpu+fnITnI=;
- b=MIphk/b1hvbMAMKa7Iyg6/Sw7l/gtcgft8fS12YlPCNPGnzGZyEVDjeiiRgsauAWuT
- 4/c+/PstqWUFCz2yZosOQVFLsN6KBnspszlIvxxMtk5fwkq+JRjmL4aIayXKEKtmuZow
- Iuq1wkqqeEyGauS+4PADzN76Yopgt2SEjkWhBQYVnciVkzp24b12M/fqmccNhVnhmITd
- cRHBvz60Xd379r23cX4ylAaRpy0PlO8YvPTPQHkAiKEvH7x/FYu/9aYJyu1nkv+28g69
- bH82sSPX8BfZ5/PvTvW0ErETSFi7476h34X/02daEs96lKxSH1jBY/cJP7W4ScP/ixbE
- pkRA==
-X-Gm-Message-State: AOAM532r8Hq6ozwe7mg8jhLb0mWqZsr5mQhdzsG+WJSxoqw3Gxx1hO8l
- Hv+qMz2LmDOpCnGrylbRgwtyMxW9T6XDhy6buq6QfDfv51pX2dEoOjEt/xKWoGgmqN9qr3/AjHo
- 2bgpsW9S4eVb8TFnSI1eivsJlEtk486ybSld4rUTbNQ==
-X-Received: by 2002:a17:906:7844:: with SMTP id
- p4mr3180822ejm.26.1604073854717; 
- Fri, 30 Oct 2020 09:04:14 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJz1LhBtUe4RfD7vdz6T+WU0b0bdIKVll+yCKX7zLk8O+pUhvNlQ2Df5Opp8ngLp1ngs7C94iQ==
-X-Received: by 2002:a17:906:7844:: with SMTP id
- p4mr3180802ejm.26.1604073854514; 
- Fri, 30 Oct 2020 09:04:14 -0700 (PDT)
-Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a?
- ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
- by smtp.gmail.com with ESMTPSA id h26sm3266273edr.71.2020.10.30.09.04.13
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Fri, 30 Oct 2020 09:04:13 -0700 (PDT)
-To: "Michael S. Tsirkin" <mst@redhat.com>,
- Mike Christie <michael.christie@oracle.com>
-References: <1603326903-27052-1-git-send-email-michael.christie@oracle.com>
- <1603326903-27052-10-git-send-email-michael.christie@oracle.com>
- <20201030045053-mutt-send-email-mst@kernel.org>
-From: Paolo Bonzini <pbonzini@redhat.com>
-Subject: Re: [PATCH 09/17] vhost scsi: fix cmd completion race
-Message-ID: <5c319f1a-cf4c-f522-ecde-5b6b5a2e1ddd@redhat.com>
-Date: Fri, 30 Oct 2020 17:04:12 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.3.1
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:content-transfer-encoding
+ :in-reply-to;
+ bh=OcrYeen7idQg6fj59+qOuiD8Ij+RF++6T9svNJR2I70=;
+ b=TEUOxGesqXfw6uCi0gkWXzt2mcgmDYX2PazRJRJSGu/7yHunR0+jDcnzCca32FxDFp
+ sbLyf0iMkGZy/PCm/ED8HLndBwMFcxpkSSI6abED9dT2WrMENvS3twzk271uX+lD6XXI
+ ikiwADc0wBwjq+NFQJ9tElhB5nicfFrsh+S5Pt3QVhs3iGUP+aWPQ65IayZl3IkJzMhe
+ iMC+H/9IAwM4pgqixJB1s5abCK4snQgjYbrZJQG77gOymBxbozHs9ojIBKWnNqiFe4Ge
+ lQu8/PG4CerehtuDvD4v3A3QLsajAXyOWUju386llJ3CkNJkSOQ3GlBcbBd5LjxXoLAs
+ s3ZA==
+X-Gm-Message-State: AOAM5338WtLUPo56+pPO/mxGBYY0iQuiRnmXISlNCjWi1U9Z0Dqr8yUu
+ FkSs4+QUhPXq0XSA6xEOxeTahKT67IQDpR6pXWCriF2CQ0TXxu2Gq7weJVfLh5DIRYC82wm6QYQ
+ cnumXL6BtHQnqVhE/UQVbYOhYLfDzneT9Fv6ytDegRg==
+X-Received: by 2002:a5d:420d:: with SMTP id n13mr4159701wrq.196.1604074781982; 
+ Fri, 30 Oct 2020 09:19:41 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJz+DKWtX/KpuvIKWLXpz4cbRsYAjyJQ2MhSo5RnPibttiUk+A4yTfvDUDF0AaH/EFGWlo/yNg==
+X-Received: by 2002:a5d:420d:: with SMTP id n13mr4159679wrq.196.1604074781780; 
+ Fri, 30 Oct 2020 09:19:41 -0700 (PDT)
+Received: from steredhat (host-79-22-200-33.retail.telecomitalia.it.
+ [79.22.200.33])
+ by smtp.gmail.com with ESMTPSA id o4sm11021368wrv.8.2020.10.30.09.19.40
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Fri, 30 Oct 2020 09:19:41 -0700 (PDT)
+Date: Fri, 30 Oct 2020 17:19:38 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH] vhost/vsock: add IOTLB API support
+Message-ID: <20201030161938.n7xqeu557dmsqpzv@steredhat>
+References: <20201029174351.134173-1-sgarzare@redhat.com>
+ <751cc074-ae68-72c8-71de-a42458058761@redhat.com>
+ <20201030105422.ju2aj2bmwsckdufh@steredhat>
+ <278f4732-e561-2b4f-03ee-b26455760b01@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20201030045053-mutt-send-email-mst@kernel.org>
+In-Reply-To: <278f4732-e561-2b4f-03ee-b26455760b01@redhat.com>
 Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=pbonzini@redhat.com
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Content-Language: en-US
-Cc: martin.petersen@oracle.com, linux-scsi@vger.kernel.org,
- virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org,
- stefanha@redhat.com
+Content-Disposition: inline
+Cc: kvm@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Stefan Hajnoczi <stefanha@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -128,36 +123,51 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="utf-8"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On 30/10/20 09:51, Michael S. Tsirkin wrote:
-> On Wed, Oct 21, 2020 at 07:34:55PM -0500, Mike Christie wrote:
->> We might not do the final se_cmd put from vhost_scsi_complete_cmd_work.
->> When the last put happens a little later then we could race where
->> vhost_scsi_complete_cmd_work does vhost_signal, the guest runs and sends
->> more IO, and vhost_scsi_handle_vq runs but does not find any free cmds.
->>
->> This patch has us delay completing the cmd until the last lio core ref
->> is dropped. We then know that once we signal to the guest that the cmd
->> is completed that if it queues a new command it will find a free cmd.
->>
->> Signed-off-by: Mike Christie <michael.christie@oracle.com>
-> 
-> Paolo, could you review this one?
-
-I don't know how LIO does all the callbacks, honestly (I have only ever
-worked on the virtio-scsi driver, not vhost-scsi, and I have only ever
-reviewed some virtio-scsi spec bits of vhost-scsi).
-
-The vhost_scsi_complete_cmd_work parts look fine, but I have no idea why
-vhost_scsi_queue_data_in and vhost_scsi_queue_status call.
-
-Paolo
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gRnJpLCBPY3QgMzAsIDIwMjAgYXQgMDc6NDQ6NDNQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
+ZToKPgo+T24gMjAyMC8xMC8zMCDkuIvljYg2OjU0LCBTdGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6
+Cj4+T24gRnJpLCBPY3QgMzAsIDIwMjAgYXQgMDY6MDI6MThQTSArMDgwMCwgSmFzb24gV2FuZyB3
+cm90ZToKPj4+Cj4+Pk9uIDIwMjAvMTAvMzAg5LiK5Y2IMTo0MywgU3RlZmFubyBHYXJ6YXJlbGxh
+IHdyb3RlOgo+Pj4+VGhpcyBwYXRjaCBlbmFibGVzIHRoZSBJT1RMQiBBUEkgc3VwcG9ydCBmb3Ig
+dmhvc3QtdnNvY2sgZGV2aWNlcywKPj4+PmFsbG93aW5nIHRoZSB1c2Vyc3BhY2UgdG8gZW11bGF0
+ZSBhbiBJT01NVSBmb3IgdGhlIGd1ZXN0Lgo+Pj4+Cj4+Pj5UaGVzZSBjaGFuZ2VzIHdlcmUgbWFk
+ZSBmb2xsb3dpbmcgdmhvc3QtbmV0LCBpbiBkZXRhaWxzIHRoaXMgcGF0Y2g6Cj4+Pj4tIGV4cG9z
+ZXMgVklSVElPX0ZfQUNDRVNTX1BMQVRGT1JNIGZlYXR1cmUgYW5kIGluaXRzIHRoZSBpb3RsYgo+
+Pj4+wqAgZGV2aWNlIGlmIHRoZSBmZWF0dXJlIGlzIGFja2VkCj4+Pj4tIGltcGxlbWVudHMgVkhP
+U1RfR0VUX0JBQ0tFTkRfRkVBVFVSRVMgYW5kCj4+Pj7CoCBWSE9TVF9TRVRfQkFDS0VORF9GRUFU
+VVJFUyBpb2N0bHMKPj4+Pi0gY2FsbHMgdnFfbWV0YV9wcmVmZXRjaCgpIGJlZm9yZSB2cSBwcm9j
+ZXNzaW5nIHRvIHByZWZldGNoIHZxCj4+Pj7CoCBtZXRhZGF0YSBhZGRyZXNzIGluIElPVExCCj4+
+Pj4tIHByb3ZpZGVzIC5yZWFkX2l0ZXIsIC53cml0ZV9pdGVyLCBhbmQgLnBvbGwgY2FsbGJhY2tz
+IGZvciB0aGUKPj4+PsKgIGNoYXJkZXY7IHRoZXkgYXJlIHVzZWQgYnkgdGhlIHVzZXJzcGFjZSB0
+byBleGNoYW5nZSBJT1RMQiBtZXNzYWdlcwo+Pj4+Cj4+Pj5UaGlzIHBhdGNoIHdhcyB0ZXN0ZWQg
+d2l0aCBRRU1VIGFuZCBhIHBhdGNoIGFwcGxpZWQgWzFdIHRvIGZpeCBhCj4+Pj5zaW1wbGUgaXNz
+dWU6Cj4+Pj7CoMKgwqAgJCBxZW11IC1NIHEzNSxhY2NlbD1rdm0sa2VybmVsLWlycWNoaXA9c3Bs
+aXQgXAo+Pj4+wqDCoMKgwqDCoMKgwqDCoMKgwqAgLWRyaXZlIGZpbGU9ZmVkb3JhLnFjb3cyLGZv
+cm1hdD1xY293MixpZj12aXJ0aW8gXAo+Pj4+wqDCoMKgwqDCoMKgwqDCoMKgwqAgLWRldmljZSBp
+bnRlbC1pb21tdSxpbnRyZW1hcD1vbiBcCj4+Pj7CoMKgwqDCoMKgwqDCoMKgwqDCoCAtZGV2aWNl
+IHZob3N0LXZzb2NrLXBjaSxndWVzdC1jaWQ9Myxpb21tdV9wbGF0Zm9ybT1vbgo+Pj4KPj4+Cj4+
+PlBhdGNoIGxvb2tzIGdvb2QsIGJ1dCBhIHF1ZXN0aW9uOgo+Pj4KPj4+SXQgbG9va3MgdG8gbWUg
+eW91IGRvbid0IGVuYWJsZSBBVFMgd2hpY2ggbWVhbnMgdmhvc3Qgd29uJ3QgZ2V0IAo+Pj5hbnkg
+aW52YWxpZGF0aW9uIHJlcXVlc3Qgb3IgZGlkIEkgbWlzcyBhbnl0aGluZz8KPj4+Cj4+Cj4+WW91
+J3JlIHJpZ2h0LCBJIGRpZG4ndCBzZWUgaW52YWxpZGF0aW9uIHJlcXVlc3RzLCBvbmx5IG1pc3Mg
+YW5kIHVwZGF0ZXMuCj4+Tm93IEkgaGF2ZSB0cmllZCB0byBlbmFibGUgJ2F0cycgYW5kICdkZXZp
+Y2UtaW90bGInIGJ1dCBJIHN0aWxsIAo+PmRvbid0IHNlZSBhbnkgaW52YWxpZGF0aW9uLgo+Pgo+
+PkhvdyBjYW4gSSB0ZXN0IGl0PyAoU29ycnkgYnV0IEkgZG9uJ3QgaGF2ZSBtdWNoIGV4cGVyaWVu
+Y2UgeWV0IHdpdGggCj4+dklPTU1VKQo+Cj4KPkkgZ3Vlc3MgaXQncyBiZWNhdXNlIHRoZSBiYXRj
+aGVkIHVubWFwLiBNYXliZSB5b3UgY2FuIHRyeSB0byB1c2UgCj4iaW50ZWxfaW9tbXU9c3RyaWN0
+IiBpbiBndWVzdCBrZXJuZWwgY29tbWFuZCBsaW5lIHRvIHNlZSBpZiBpdCB3b3Jrcy4KPgo+QnR3
+LCBtYWtlIHN1cmUgdGhlIHFlbXUgY29udGFpbnMgdGhlIHBhdGNoIFsxXS4gT3RoZXJ3aXNlIEFU
+UyB3b24ndCBiZSAKPmVuYWJsZWQgZm9yIHJlY2VudCBMaW51eCBLZXJuZWwgaW4gdGhlIGd1ZXN0
+Lgo+CgpJIHRyaWVkIHdpdGggImludGVsX2lvbW11PXN0cmljdCIgaW4gdGhlIGd1ZXN0IGtlcm5l
+bCBhbmQgUUVNVSBwYXRjaCAKYXBwbGllZCwgYnV0IEkgZGlkbid0IHNlZSBhbnkgaW52YWxpZGF0
+aW9uLgoKTWF5YmUgSSBkaWQgc29tZXRoaW5nIHdyb25nLCB5b3Uga25vdyBpdCBpcyBmcmlkYXks
+IEtWTSBGb3J1bSBpcyBlbmRpbmcsIApldGMuLi4gOy0pCgpJJ2xsIGludmVzdGlnYXRlIGJldHRl
+ciBuZXh0IHdlZWsuCgpUaGFua3MgZm9yIHRoZSB1c2VmdWwgaW5mbywKU3RlZmFubwoKX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX18KVmlydHVhbGl6YXRpb24g
+bWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4LWZvdW5kYXRpb24ub3JnCmh0
+dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFuL2xpc3RpbmZvL3ZpcnR1YWxp
+emF0aW9u
