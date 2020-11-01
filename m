@@ -2,85 +2,87 @@ Return-Path: <SRS0=FNow=EH=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_GIT autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=unavailable
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76924C4742C
-	for <virtualization@archiver.kernel.org>; Sun,  1 Nov 2020 20:15:55 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ECF80C2D0A3
+	for <virtualization@archiver.kernel.org>; Sun,  1 Nov 2020 20:15:58 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1425122253
-	for <virtualization@archiver.kernel.org>; Sun,  1 Nov 2020 20:15:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 9453321527
+	for <virtualization@archiver.kernel.org>; Sun,  1 Nov 2020 20:15:58 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="huv9rtKk"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1425122253
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="kcmM8YLc"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9453321527
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id BB55B86BF3;
-	Sun,  1 Nov 2020 20:15:54 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 50BC0872FA;
+	Sun,  1 Nov 2020 20:15:58 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id lkXDJ9r-Hi9v; Sun,  1 Nov 2020 20:15:54 +0000 (UTC)
+	with ESMTP id xozcuX2C2Axf; Sun,  1 Nov 2020 20:15:57 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 082D386B22;
-	Sun,  1 Nov 2020 20:15:54 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 38538872BE;
+	Sun,  1 Nov 2020 20:15:57 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D6B94C088B;
-	Sun,  1 Nov 2020 20:15:53 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3A296C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1F62AC088B;
+	Sun,  1 Nov 2020 20:15:57 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9E665C0051
  for <virtualization@lists.linux-foundation.org>;
- Sun,  1 Nov 2020 20:15:52 +0000 (UTC)
+ Sun,  1 Nov 2020 20:15:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 1DC7F86B2A
+ by hemlock.osuosl.org (Postfix) with ESMTP id 98B3D872BE
  for <virtualization@lists.linux-foundation.org>;
- Sun,  1 Nov 2020 20:15:52 +0000 (UTC)
+ Sun,  1 Nov 2020 20:15:55 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Up7-nGFot9s9
+ with ESMTP id Bodj2pteOD6y
  for <virtualization@lists.linux-foundation.org>;
- Sun,  1 Nov 2020 20:15:51 +0000 (UTC)
+ Sun,  1 Nov 2020 20:15:54 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 7E22C86B22
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 7F939872C0
  for <virtualization@lists.linux-foundation.org>;
- Sun,  1 Nov 2020 20:15:51 +0000 (UTC)
+ Sun,  1 Nov 2020 20:15:54 +0000 (UTC)
 Received: from localhost (host-213-179-129-39.customer.m-online.net
  [213.179.129.39])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by mail.kernel.org (Postfix) with ESMTPSA id 75F4B208B6;
- Sun,  1 Nov 2020 20:15:50 +0000 (UTC)
+ by mail.kernel.org (Postfix) with ESMTPSA id 955C221527;
+ Sun,  1 Nov 2020 20:15:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1604261751;
- bh=bLA0ev2Kwh6uGquFheDvSSBq9w7KOIljOSNWPIWB5Ck=;
- h=From:To:Cc:Subject:Date:From;
- b=huv9rtKkUhey6AamSaXCXbtImWrQjVRiNn7errL5az2kng2obK+UpzHMgRoTggLer
- 1dBBKOeF5LUNXfpJc8oH/xshEX5x5c1wRB20IYPUR9hZXO1LgTIPCJD8CZWVC6KF0K
- mklVx1CS0NWIH+Tn9mTb693ZRQ9UFxuyrKijadxs=
+ s=default; t=1604261754;
+ bh=r8vLl6ZsscvRfoz94nO95aIzCwzo8xXWar83yZ8c/Nw=;
+ h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+ b=kcmM8YLclC92/kqrYCEF1U76q6zo14WTZ+qOg6pJsatEYviyPi0kkF9T9w6eWf2pd
+ BfOQQ12GgchIBHWJvYGgKUqaVSfnhwjYNZYigN950lAu98yRJ5NdjG7ct17srtAh+U
+ D4Epm3wo8qc3KccKKVtWBP4piv31SqSZX6lOk52E=
 From: Leon Romanovsky <leon@kernel.org>
 To: Doug Ledford <dledford@redhat.com>, Jason Gunthorpe <jgg@nvidia.com>,
  gregkh <gregkh@linuxfoundation.org>
-Subject: [PATCH mlx5-next v1 00/11] Convert mlx5 to use auxiliary bus
-Date: Sun,  1 Nov 2020 22:15:31 +0200
-Message-Id: <20201101201542.2027568-1-leon@kernel.org>
+Subject: [PATCH mlx5-next v1 01/11] net/mlx5: Don't skip vport check
+Date: Sun,  1 Nov 2020 22:15:32 +0200
+Message-Id: <20201101201542.2027568-2-leon@kernel.org>
 X-Mailer: git-send-email 2.28.0
+In-Reply-To: <20201101201542.2027568-1-leon@kernel.org>
+References: <20201101201542.2027568-1-leon@kernel.org>
 MIME-Version: 1.0
-Cc: pierre-louis.bossart@linux.intel.com, alsa-devel@alsa-project.org,
- kiran.patil@intel.com, "Michael S. Tsirkin" <mst@redhat.com>,
- linux-rdma@vger.kernel.org, netdev@vger.kernel.org,
- ranjani.sridharan@linux.intel.com, virtualization@lists.linux-foundation.org,
- fred.oh@linux.intel.com, tiwai@suse.de, broonie@kernel.org,
+Cc: alsa-devel@alsa-project.org, "Michael S. Tsirkin" <mst@redhat.com>,
+ tiwai@suse.de, ranjani.sridharan@linux.intel.com, Eli Cohen <elic@nvidia.com>,
+ Leon Romanovsky <leonro@nvidia.com>, linux-rdma@vger.kernel.org,
+ pierre-louis.bossart@linux.intel.com, fred.oh@linux.intel.com,
+ Jakub Kicinski <kuba@kernel.org>, kiran.patil@intel.com, broonie@kernel.org,
  Parav Pandit <parav@nvidia.com>, Roi Dayan <roid@nvidia.com>,
- shiraz.saleem@intel.com, Jakub Kicinski <kuba@kernel.org>,
- dan.j.williams@intel.com, Leon Romanovsky <leonro@nvidia.com>,
- Saeed Mahameed <saeedm@nvidia.com>, linux-kernel@vger.kernel.org,
- "David S . Miller" <davem@davemloft.net>
+ dan.j.williams@intel.com, virtualization@lists.linux-foundation.org,
+ shiraz.saleem@intel.com, netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+ Saeed Mahameed <saeedm@nvidia.com>, "David S . Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -99,80 +101,86 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Leon Romanovsky <leonro@nvidia.com>
 
-Changelog:
-v1:
- * Renamed _mlx5_rescan_driver to be mlx5_rescan_driver_locked like in
-   other parts of the mlx5 driver.
- * Renamed MLX5_INTERFACE_PROTOCOL_VDPA to tbe MLX5_INTERFACE_PROTOCOL_VNET as
-   a preparation to coming series from Eli C.
- * Some small naming renames in mlx5_vdpa.
- * Refactored adev index code to make Parav's SF series to apply more easily.
- * Fixed devlink reload bug that caused to lost TCP connection.
-v0:
-https://lore.kernel.org/lkml/20201026111849.1035786-1-leon@kernel.org/
+Users of mlx5_eswitch_get_vport() are required to check return value
+prior to passing mlx5_vport further. Fix all the places to do not skip
+that check.
 
---------------------------------------------------------------
+Fixes: c7eddc6092b4 ("net/mlx5: E-switch, Move devlink eswitch ports closer to eswitch")
+Fixes: 5d9986a3947a ("net/mlx5: E-Switch, Fix the check of legal vport")
+Reviewed-by: Eli Cohen <elic@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+---
+ drivers/net/ethernet/mellanox/mlx5/core/esw/devlink_port.c | 2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/eswitch.c          | 7 +++++++
+ drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c | 6 ++++++
+ 3 files changed, 14 insertions(+), 1 deletion(-)
 
-Hi,
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/esw/devlink_port.c b/drivers/net/ethernet/mellanox/mlx5/core/esw/devlink_port.c
+index ffff11baa3d0..88688b84513b 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/esw/devlink_port.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/esw/devlink_port.c
+@@ -120,5 +120,5 @@ struct devlink_port *mlx5_esw_offloads_devlink_port(struct mlx5_eswitch *esw, u1
+ 	struct mlx5_vport *vport;
 
-This patch set converts mlx5 driver to use auxiliary bus [1].
+ 	vport = mlx5_eswitch_get_vport(esw, vport_num);
+-	return vport->dl_port;
++	return IS_ERR(vport) ? ERR_CAST(vport) : vport->dl_port;
+ }
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
+index 6e6a9a563992..2e14bf238588 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
+@@ -1142,6 +1142,9 @@ int mlx5_esw_modify_vport_rate(struct mlx5_eswitch *esw, u16 vport_num,
+ 	struct mlx5_vport *vport;
 
-In this series, we are connecting three subsystems (VDPA, netdev and
-RDMA) through mlx5_core PCI driver. That driver is responsible to create
-proper devices based on supported firmware.
+ 	vport = mlx5_eswitch_get_vport(esw, vport_num);
++	if (IS_ERR(vport))
++		return PTR_ERR(vport);
++
+ 	MLX5_SET(scheduling_context, ctx, max_average_bw, rate_mbps);
 
-First four patches are preparitions and fixes that were spotted during
-code development, rest is the conversion itself.
+ 	return mlx5_modify_scheduling_element_cmd(esw->dev,
+@@ -1276,6 +1279,8 @@ static int esw_enable_vport(struct mlx5_eswitch *esw, u16 vport_num,
+ 	int ret;
 
-Thanks
+ 	vport = mlx5_eswitch_get_vport(esw, vport_num);
++	if (IS_ERR(vport))
++		return PTR_ERR(vport);
 
-[1]
-https://lore.kernel.org/lkml/20201023003338.1285642-1-david.m.ertman@intel.com
+ 	mutex_lock(&esw->state_lock);
+ 	WARN_ON(vport->enabled);
+@@ -1311,6 +1316,8 @@ static void esw_disable_vport(struct mlx5_eswitch *esw, u16 vport_num)
+ 	struct mlx5_vport *vport;
 
-Leon Romanovsky (11):
-  net/mlx5: Don't skip vport check
-  net/mlx5: Properly convey driver version to firmware
-  net/mlx5_core: Clean driver version and name
-  vdpa/mlx5: Make hardware definitions visible to all mlx5 devices
-  net/mlx5: Register mlx5 devices to auxiliary virtual bus
-  vdpa/mlx5: Connect mlx5_vdpa to auxiliary bus
-  net/mlx5e: Connect ethernet part to auxiliary bus
-  RDMA/mlx5: Convert mlx5_ib to use auxiliary bus
-  net/mlx5: Delete custom device management logic
-  net/mlx5: Simplify eswitch mode check
-  RDMA/mlx5: Remove IB representors dead code
+ 	vport = mlx5_eswitch_get_vport(esw, vport_num);
++	if (IS_ERR(vport))
++		return;
 
- drivers/infiniband/hw/mlx5/counters.c         |   7 -
- drivers/infiniband/hw/mlx5/ib_rep.c           | 113 ++--
- drivers/infiniband/hw/mlx5/ib_rep.h           |  45 +-
- drivers/infiniband/hw/mlx5/main.c             | 148 +++--
- drivers/infiniband/hw/mlx5/mlx5_ib.h          |   4 +-
- .../net/ethernet/mellanox/mlx5/core/Kconfig   |   1 +
- drivers/net/ethernet/mellanox/mlx5/core/dev.c | 567 ++++++++++++------
- .../net/ethernet/mellanox/mlx5/core/devlink.c |   4 +-
- .../ethernet/mellanox/mlx5/core/en_ethtool.c  |   4 +-
- .../net/ethernet/mellanox/mlx5/core/en_main.c | 135 ++---
- .../net/ethernet/mellanox/mlx5/core/en_rep.c  |  42 +-
- .../net/ethernet/mellanox/mlx5/core/en_rep.h  |   6 +-
- .../net/ethernet/mellanox/mlx5/core/en_tc.c   |   8 +-
- .../mellanox/mlx5/core/esw/devlink_port.c     |   2 +-
- .../net/ethernet/mellanox/mlx5/core/eswitch.c |  28 +-
- .../mellanox/mlx5/core/eswitch_offloads.c     |   6 +
- .../mellanox/mlx5/core/ipoib/ethtool.c        |   2 +-
- drivers/net/ethernet/mellanox/mlx5/core/lag.c |  58 +-
- .../net/ethernet/mellanox/mlx5/core/main.c    |  50 +-
- .../ethernet/mellanox/mlx5/core/mlx5_core.h   |  33 +-
- drivers/vdpa/mlx5/Makefile                    |   2 +-
- drivers/vdpa/mlx5/net/main.c                  |  76 ---
- drivers/vdpa/mlx5/net/mlx5_vnet.c             |  53 +-
- drivers/vdpa/mlx5/net/mlx5_vnet.h             |  24 -
- include/linux/mlx5/driver.h                   |  34 +-
- include/linux/mlx5/eswitch.h                  |   8 +-
- .../linux/mlx5/mlx5_ifc_vdpa.h                |   6 +-
- 27 files changed, 818 insertions(+), 648 deletions(-)
- delete mode 100644 drivers/vdpa/mlx5/net/main.c
- delete mode 100644 drivers/vdpa/mlx5/net/mlx5_vnet.h
- rename drivers/vdpa/mlx5/core/mlx5_vdpa_ifc.h => include/linux/mlx5/mlx5_ifc_vdpa.h (97%)
+ 	mutex_lock(&esw->state_lock);
+ 	if (!vport->enabled)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+index c9c2962ad49f..429dc613530b 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads.c
+@@ -2159,6 +2159,9 @@ static int esw_create_uplink_offloads_acl_tables(struct mlx5_eswitch *esw)
+ 	struct mlx5_vport *vport;
+
+ 	vport = mlx5_eswitch_get_vport(esw, MLX5_VPORT_UPLINK);
++	if (IS_ERR(vport))
++		return PTR_ERR(vport);
++
+ 	return esw_vport_create_offloads_acl_tables(esw, vport);
+ }
+
+@@ -2167,6 +2170,9 @@ static void esw_destroy_uplink_offloads_acl_tables(struct mlx5_eswitch *esw)
+ 	struct mlx5_vport *vport;
+
+ 	vport = mlx5_eswitch_get_vport(esw, MLX5_VPORT_UPLINK);
++	if (IS_ERR(vport))
++		return;
++
+ 	esw_vport_destroy_offloads_acl_tables(esw, vport);
+ }
 
 --
 2.28.0
