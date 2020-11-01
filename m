@@ -4,72 +4,73 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-12.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,SPF_HELO_NONE,
-	SPF_PASS,USER_AGENT_GIT autolearn=unavailable autolearn_force=no version=3.4.0
+	SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81007C4741F
-	for <virtualization@archiver.kernel.org>; Sun,  1 Nov 2020 20:16:21 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C5D0C55178
+	for <virtualization@archiver.kernel.org>; Sun,  1 Nov 2020 20:16:23 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 3A81622253
-	for <virtualization@archiver.kernel.org>; Sun,  1 Nov 2020 20:16:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id E6FF021556
+	for <virtualization@archiver.kernel.org>; Sun,  1 Nov 2020 20:16:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="qfVJKilP"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3A81622253
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="DVgRRFf+"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E6FF021556
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 01C988783C;
-	Sun,  1 Nov 2020 20:16:21 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id B21E987329;
+	Sun,  1 Nov 2020 20:16:22 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id DBpKlZDefNsm; Sun,  1 Nov 2020 20:16:19 +0000 (UTC)
+	with ESMTP id XF0JOMcApjxq; Sun,  1 Nov 2020 20:16:22 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 8BFDC87806;
-	Sun,  1 Nov 2020 20:16:19 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 2AF2187328;
+	Sun,  1 Nov 2020 20:16:22 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 83288C088B;
-	Sun,  1 Nov 2020 20:16:19 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 33C82C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 10700C088B;
+	Sun,  1 Nov 2020 20:16:22 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 6CAC7C0051
  for <virtualization@lists.linux-foundation.org>;
- Sun,  1 Nov 2020 20:16:18 +0000 (UTC)
+ Sun,  1 Nov 2020 20:16:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 05B6C2045E
+ by hemlock.osuosl.org (Postfix) with ESMTP id 55D5C87314
  for <virtualization@lists.linux-foundation.org>;
- Sun,  1 Nov 2020 20:16:18 +0000 (UTC)
+ Sun,  1 Nov 2020 20:16:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id NjvP4hzRZq2e
+ with ESMTP id dTBPV06lT0I8
  for <virtualization@lists.linux-foundation.org>;
- Sun,  1 Nov 2020 20:16:14 +0000 (UTC)
+ Sun,  1 Nov 2020 20:16:20 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by silver.osuosl.org (Postfix) with ESMTPS id 423852010C
+ by hemlock.osuosl.org (Postfix) with ESMTPS id AE68687328
  for <virtualization@lists.linux-foundation.org>;
- Sun,  1 Nov 2020 20:16:14 +0000 (UTC)
+ Sun,  1 Nov 2020 20:16:20 +0000 (UTC)
 Received: from localhost (host-213-179-129-39.customer.m-online.net
  [213.179.129.39])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by mail.kernel.org (Postfix) with ESMTPSA id 317BD21556;
- Sun,  1 Nov 2020 20:16:13 +0000 (UTC)
+ by mail.kernel.org (Postfix) with ESMTPSA id A134B2224F;
+ Sun,  1 Nov 2020 20:16:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1604261774;
- bh=LNhkjsqIr/W/0pK+SoI13Vs7iM7LGYG5lJj8bKKz/bo=;
+ s=default; t=1604261780;
+ bh=GknPAsGox6eqIGBWl7y4981lZX9Czt/oaEu2JVpxmpQ=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=qfVJKilPft1MWR9mCtdAZtXRDzlmyBNzqEkWZ4EcbkV5dfjvBTYZwKht4xDU550l/
- ab8Q1UOYihs/lIwgIlA5hlgVmUGUzWFoFtQJ8KYtPJAlalDjUnI9TkD6hH5U6WE/dA
- bDBUs4pCuwizO6R2SWlJRa0NZuDvccrtbXOYNCmQ=
+ b=DVgRRFf+rDadTypKXvXbiQRFt49saePqDEzOMbaEdx7V75t4tKXpYiBb9yt3bT24N
+ J5vtQ1VB75NiDsuG3P9Bkw5ut6X12hTaaheWu7DNsMIJkkp8Tra1FRReGs42C4zeyn
+ 7A0gE9q++k4v0iX6jh1Bv2lmFqPZELPhLi4ixatk=
 From: Leon Romanovsky <leon@kernel.org>
 To: Doug Ledford <dledford@redhat.com>, Jason Gunthorpe <jgg@nvidia.com>,
  gregkh <gregkh@linuxfoundation.org>
-Subject: [PATCH mlx5-next v1 08/11] RDMA/mlx5: Convert mlx5_ib to use
- auxiliary bus
-Date: Sun,  1 Nov 2020 22:15:39 +0200
-Message-Id: <20201101201542.2027568-9-leon@kernel.org>
+Subject: [PATCH mlx5-next v1 02/11] net/mlx5: Properly convey driver version
+ to firmware
+Date: Sun,  1 Nov 2020 22:15:33 +0200
+Message-Id: <20201101201542.2027568-3-leon@kernel.org>
 X-Mailer: git-send-email 2.28.0
 In-Reply-To: <20201101201542.2027568-1-leon@kernel.org>
 References: <20201101201542.2027568-1-leon@kernel.org>
@@ -102,661 +103,40 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Leon Romanovsky <leonro@nvidia.com>
 
-The conversion to auxiliary bus solves long standing issue with
-existing mlx5_ib<->mlx5_core coupling. It required to have both
-modules in initramfs if one of them needed for the boot.
+mlx5 firmware expects driver version in specific format X.X.X, so
+make it always correct and based on real kernel version aligned with
+the driver.
 
+Fixes: 012e50e109fd ("net/mlx5: Set driver version into firmware")
 Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
 ---
- drivers/infiniband/hw/mlx5/ib_rep.c           |  77 ++++++---
- drivers/infiniband/hw/mlx5/ib_rep.h           |   8 +-
- drivers/infiniband/hw/mlx5/main.c             | 148 +++++++++++-------
- drivers/infiniband/hw/mlx5/mlx5_ib.h          |   4 +-
- drivers/net/ethernet/mellanox/mlx5/core/dev.c |  66 ++++++++
- .../net/ethernet/mellanox/mlx5/core/eswitch.c |  11 +-
- drivers/net/ethernet/mellanox/mlx5/core/lag.c |  38 +++--
- .../net/ethernet/mellanox/mlx5/core/main.c    |   3 -
- 8 files changed, 251 insertions(+), 104 deletions(-)
-
-diff --git a/drivers/infiniband/hw/mlx5/ib_rep.c b/drivers/infiniband/hw/mlx5/ib_rep.c
-index 5c3d052ac30b..0dc15757cc66 100644
---- a/drivers/infiniband/hw/mlx5/ib_rep.c
-+++ b/drivers/infiniband/hw/mlx5/ib_rep.c
-@@ -33,6 +33,7 @@ mlx5_ib_vport_rep_load(struct mlx5_core_dev *dev, struct mlx5_eswitch_rep *rep)
- 	const struct mlx5_ib_profile *profile;
- 	struct mlx5_ib_dev *ibdev;
- 	int vport_index;
-+	int ret;
-
- 	if (rep->vport == MLX5_VPORT_UPLINK)
- 		profile = &raw_eth_profile;
-@@ -46,8 +47,8 @@ mlx5_ib_vport_rep_load(struct mlx5_core_dev *dev, struct mlx5_eswitch_rep *rep)
- 	ibdev->port = kcalloc(num_ports, sizeof(*ibdev->port),
- 			      GFP_KERNEL);
- 	if (!ibdev->port) {
--		ib_dealloc_device(&ibdev->ib_dev);
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto fail_port;
- 	}
-
- 	ibdev->is_rep = true;
-@@ -58,12 +59,19 @@ mlx5_ib_vport_rep_load(struct mlx5_core_dev *dev, struct mlx5_eswitch_rep *rep)
- 	ibdev->mdev = dev;
- 	ibdev->num_ports = num_ports;
-
--	if (!__mlx5_ib_add(ibdev, profile))
--		return -EINVAL;
-+	ret = __mlx5_ib_add(ibdev, profile);
-+	if (ret)
-+		goto fail_add;
-
- 	rep->rep_data[REP_IB].priv = ibdev;
-
- 	return 0;
-+
-+fail_add:
-+	kfree(ibdev->port);
-+fail_port:
-+	ib_dealloc_device(&ibdev->ib_dev);
-+	return ret;
- }
-
- static void
-@@ -94,20 +102,6 @@ static const struct mlx5_eswitch_rep_ops rep_ops = {
- 	.get_proto_dev = mlx5_ib_vport_get_proto_dev,
- };
-
--void mlx5_ib_register_vport_reps(struct mlx5_core_dev *mdev)
--{
--	struct mlx5_eswitch *esw = mdev->priv.eswitch;
--
--	mlx5_eswitch_register_vport_reps(esw, &rep_ops, REP_IB);
--}
--
--void mlx5_ib_unregister_vport_reps(struct mlx5_core_dev *mdev)
--{
--	struct mlx5_eswitch *esw = mdev->priv.eswitch;
--
--	mlx5_eswitch_unregister_vport_reps(esw, REP_IB);
--}
--
- u8 mlx5_ib_eswitch_mode(struct mlx5_eswitch *esw)
- {
- 	return mlx5_eswitch_mode(esw);
-@@ -154,3 +148,50 @@ struct mlx5_flow_handle *create_flow_rule_vport_sq(struct mlx5_ib_dev *dev,
- 	return mlx5_eswitch_add_send_to_vport_rule(esw, rep->vport,
- 						   sq->base.mqp.qpn);
- }
-+
-+static int mlx5r_rep_probe(struct auxiliary_device *adev,
-+			   const struct auxiliary_device_id *id)
-+{
-+	struct mlx5_adev *idev = container_of(adev, struct mlx5_adev, adev);
-+	struct mlx5_core_dev *mdev = idev->mdev;
-+	struct mlx5_eswitch *esw;
-+
-+	esw = mdev->priv.eswitch;
-+	mlx5_eswitch_register_vport_reps(esw, &rep_ops, REP_IB);
-+	return 0;
-+}
-+
-+static int mlx5r_rep_remove(struct auxiliary_device *adev)
-+{
-+	struct mlx5_adev *idev = container_of(adev, struct mlx5_adev, adev);
-+	struct mlx5_core_dev *mdev = idev->mdev;
-+	struct mlx5_eswitch *esw;
-+
-+	esw = mdev->priv.eswitch;
-+	mlx5_eswitch_unregister_vport_reps(esw, REP_IB);
-+	return 0;
-+}
-+
-+static const struct auxiliary_device_id mlx5r_rep_id_table[] = {
-+	{ .name = MLX5_ADEV_NAME ".rdma-rep", },
-+	{},
-+};
-+
-+MODULE_DEVICE_TABLE(auxiliary, mlx5r_rep_id_table);
-+
-+static struct auxiliary_driver mlx5r_rep_driver = {
-+	.name = "rep",
-+	.probe = mlx5r_rep_probe,
-+	.remove = mlx5r_rep_remove,
-+	.id_table = mlx5r_rep_id_table,
-+};
-+
-+int mlx5r_rep_init(void)
-+{
-+	return auxiliary_driver_register(&mlx5r_rep_driver);
-+}
-+
-+void mlx5r_rep_cleanup(void)
-+{
-+	auxiliary_driver_unregister(&mlx5r_rep_driver);
-+}
-diff --git a/drivers/infiniband/hw/mlx5/ib_rep.h b/drivers/infiniband/hw/mlx5/ib_rep.h
-index 5b30d3fa8f8d..94bf51ddd422 100644
---- a/drivers/infiniband/hw/mlx5/ib_rep.h
-+++ b/drivers/infiniband/hw/mlx5/ib_rep.h
-@@ -18,8 +18,8 @@ struct mlx5_ib_dev *mlx5_ib_get_rep_ibdev(struct mlx5_eswitch *esw,
- struct mlx5_ib_dev *mlx5_ib_get_uplink_ibdev(struct mlx5_eswitch *esw);
- struct mlx5_eswitch_rep *mlx5_ib_vport_rep(struct mlx5_eswitch *esw,
- 					   u16 vport_num);
--void mlx5_ib_register_vport_reps(struct mlx5_core_dev *mdev);
--void mlx5_ib_unregister_vport_reps(struct mlx5_core_dev *mdev);
-+int mlx5r_rep_init(void);
-+void mlx5r_rep_cleanup(void);
- struct mlx5_flow_handle *create_flow_rule_vport_sq(struct mlx5_ib_dev *dev,
- 						   struct mlx5_ib_sq *sq,
- 						   u16 port);
-@@ -51,8 +51,8 @@ struct mlx5_eswitch_rep *mlx5_ib_vport_rep(struct mlx5_eswitch *esw,
- 	return NULL;
- }
-
--static inline void mlx5_ib_register_vport_reps(struct mlx5_core_dev *mdev) {}
--static inline void mlx5_ib_unregister_vport_reps(struct mlx5_core_dev *mdev) {}
-+static inline int mlx5r_rep_init(void) { return 0; }
-+static inline void mlx5r_rep_cleanup(void) {}
- static inline
- struct mlx5_flow_handle *create_flow_rule_vport_sq(struct mlx5_ib_dev *dev,
- 						   struct mlx5_ib_sq *sq,
-diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
-index a6d4692cf352..7e259823c714 100644
---- a/drivers/infiniband/hw/mlx5/main.c
-+++ b/drivers/infiniband/hw/mlx5/main.c
-@@ -4562,8 +4562,8 @@ void __mlx5_ib_remove(struct mlx5_ib_dev *dev,
- 	ib_dealloc_device(&dev->ib_dev);
- }
-
--void *__mlx5_ib_add(struct mlx5_ib_dev *dev,
--		    const struct mlx5_ib_profile *profile)
-+int __mlx5_ib_add(struct mlx5_ib_dev *dev,
-+		  const struct mlx5_ib_profile *profile)
- {
- 	int err;
- 	int i;
-@@ -4579,13 +4579,11 @@ void *__mlx5_ib_add(struct mlx5_ib_dev *dev,
- 	}
-
- 	dev->ib_active = true;
--
--	return dev;
-+	return 0;
-
- err_out:
- 	__mlx5_ib_remove(dev, profile, i);
--
--	return NULL;
-+	return -ENOMEM;
- }
-
- static const struct mlx5_ib_profile pf_profile = {
-@@ -4708,8 +4706,11 @@ const struct mlx5_ib_profile raw_eth_profile = {
- 		     NULL),
- };
-
--static void *mlx5_ib_add_slave_port(struct mlx5_core_dev *mdev)
-+static int mlx5r_mp_probe(struct auxiliary_device *adev,
-+			  const struct auxiliary_device_id *id)
- {
-+	struct mlx5_adev *idev = container_of(adev, struct mlx5_adev, adev);
-+	struct mlx5_core_dev *mdev = idev->mdev;
- 	struct mlx5_ib_multiport_info *mpi;
- 	struct mlx5_ib_dev *dev;
- 	bool bound = false;
-@@ -4717,15 +4718,14 @@ static void *mlx5_ib_add_slave_port(struct mlx5_core_dev *mdev)
-
- 	mpi = kzalloc(sizeof(*mpi), GFP_KERNEL);
- 	if (!mpi)
--		return NULL;
-+		return -ENOMEM;
-
- 	mpi->mdev = mdev;
--
- 	err = mlx5_query_nic_vport_system_image_guid(mdev,
- 						     &mpi->sys_image_guid);
- 	if (err) {
- 		kfree(mpi);
--		return NULL;
-+		return err;
- 	}
-
- 	mutex_lock(&mlx5_ib_multiport_mutex);
-@@ -4746,40 +4746,47 @@ static void *mlx5_ib_add_slave_port(struct mlx5_core_dev *mdev)
- 	}
- 	mutex_unlock(&mlx5_ib_multiport_mutex);
-
--	return mpi;
-+	dev_set_drvdata(&adev->dev, mpi);
-+	return 0;
- }
-
--static void *mlx5_ib_add(struct mlx5_core_dev *mdev)
-+static int mlx5r_mp_remove(struct auxiliary_device *adev)
- {
-+	struct mlx5_ib_multiport_info *mpi;
-+
-+	mpi = dev_get_drvdata(&adev->dev);
-+	mutex_lock(&mlx5_ib_multiport_mutex);
-+	if (mpi->ibdev)
-+		mlx5_ib_unbind_slave_port(mpi->ibdev, mpi);
-+	list_del(&mpi->list);
-+	mutex_unlock(&mlx5_ib_multiport_mutex);
-+	kfree(mpi);
-+	return 0;
-+}
-+
-+static int mlx5r_probe(struct auxiliary_device *adev,
-+		       const struct auxiliary_device_id *id)
-+{
-+	struct mlx5_adev *idev = container_of(adev, struct mlx5_adev, adev);
-+	struct mlx5_core_dev *mdev = idev->mdev;
- 	const struct mlx5_ib_profile *profile;
-+	int port_type_cap, num_ports, ret;
- 	enum rdma_link_layer ll;
- 	struct mlx5_ib_dev *dev;
--	int port_type_cap;
--	int num_ports;
--
--	if (MLX5_ESWITCH_MANAGER(mdev) &&
--	    mlx5_ib_eswitch_mode(mdev->priv.eswitch) == MLX5_ESWITCH_OFFLOADS) {
--		if (!mlx5_core_mp_enabled(mdev))
--			mlx5_ib_register_vport_reps(mdev);
--		return mdev;
--	}
-
- 	port_type_cap = MLX5_CAP_GEN(mdev, port_type);
- 	ll = mlx5_port_type_cap_to_rdma_ll(port_type_cap);
-
--	if (mlx5_core_is_mp_slave(mdev) && ll == IB_LINK_LAYER_ETHERNET)
--		return mlx5_ib_add_slave_port(mdev);
--
- 	num_ports = max(MLX5_CAP_GEN(mdev, num_ports),
- 			MLX5_CAP_GEN(mdev, num_vhca_ports));
- 	dev = ib_alloc_device(mlx5_ib_dev, ib_dev);
- 	if (!dev)
--		return NULL;
-+		return -ENOMEM;
- 	dev->port = kcalloc(num_ports, sizeof(*dev->port),
- 			     GFP_KERNEL);
- 	if (!dev->port) {
- 		ib_dealloc_device(&dev->ib_dev);
--		return NULL;
-+		return -ENOMEM;
- 	}
-
- 	dev->mdev = mdev;
-@@ -4790,43 +4797,56 @@ static void *mlx5_ib_add(struct mlx5_core_dev *mdev)
- 	else
- 		profile = &pf_profile;
-
--	return __mlx5_ib_add(dev, profile);
-+	ret = __mlx5_ib_add(dev, profile);
-+	if (ret) {
-+		kfree(dev->port);
-+		ib_dealloc_device(&dev->ib_dev);
-+		return ret;
-+	}
-+
-+	dev_set_drvdata(&adev->dev, dev);
-+	return 0;
- }
-
--static void mlx5_ib_remove(struct mlx5_core_dev *mdev, void *context)
-+static int mlx5r_remove(struct auxiliary_device *adev)
- {
--	struct mlx5_ib_multiport_info *mpi;
- 	struct mlx5_ib_dev *dev;
-
--	if (MLX5_ESWITCH_MANAGER(mdev) && context == mdev) {
--		mlx5_ib_unregister_vport_reps(mdev);
--		return;
--	}
--
--	if (mlx5_core_is_mp_slave(mdev)) {
--		mpi = context;
--		mutex_lock(&mlx5_ib_multiport_mutex);
--		if (mpi->ibdev)
--			mlx5_ib_unbind_slave_port(mpi->ibdev, mpi);
--		list_del(&mpi->list);
--		mutex_unlock(&mlx5_ib_multiport_mutex);
--		kfree(mpi);
--		return;
--	}
--
--	dev = context;
-+	dev = dev_get_drvdata(&adev->dev);
- 	__mlx5_ib_remove(dev, dev->profile, MLX5_IB_STAGE_MAX);
-+	return 0;
- }
-
--static struct mlx5_interface mlx5_ib_interface = {
--	.add            = mlx5_ib_add,
--	.remove         = mlx5_ib_remove,
--	.protocol	= MLX5_INTERFACE_PROTOCOL_IB,
-+static const struct auxiliary_device_id mlx5r_mp_id_table[] = {
-+	{ .name = MLX5_ADEV_NAME ".multiport", },
-+	{},
-+};
-+
-+static const struct auxiliary_device_id mlx5r_id_table[] = {
-+	{ .name = MLX5_ADEV_NAME ".rdma", },
-+	{},
-+};
-+
-+MODULE_DEVICE_TABLE(auxiliary, mlx5r_mp_id_table);
-+MODULE_DEVICE_TABLE(auxiliary, mlx5r_id_table);
-+
-+static struct auxiliary_driver mlx5r_mp_driver = {
-+	.name = "multiport",
-+	.probe = mlx5r_mp_probe,
-+	.remove = mlx5r_mp_remove,
-+	.id_table = mlx5r_mp_id_table,
-+};
-+
-+static struct auxiliary_driver mlx5r_driver = {
-+	.name = "rdma",
-+	.probe = mlx5r_probe,
-+	.remove = mlx5r_remove,
-+	.id_table = mlx5r_id_table,
- };
-
- static int __init mlx5_ib_init(void)
- {
--	int err;
-+	int ret;
-
- 	xlt_emergency_page = (void *)__get_free_page(GFP_KERNEL);
- 	if (!xlt_emergency_page)
-@@ -4839,15 +4859,33 @@ static int __init mlx5_ib_init(void)
- 	}
-
- 	mlx5_ib_odp_init();
-+	ret = mlx5r_rep_init();
-+	if (ret)
-+		goto rep_err;
-+	ret = auxiliary_driver_register(&mlx5r_mp_driver);
-+	if (ret)
-+		goto mp_err;
-+	ret = auxiliary_driver_register(&mlx5r_driver);
-+	if (ret)
-+		goto drv_err;
-+	return 0;
-
--	err = mlx5_register_interface(&mlx5_ib_interface);
--
--	return err;
-+drv_err:
-+	auxiliary_driver_unregister(&mlx5r_mp_driver);
-+mp_err:
-+	mlx5r_rep_cleanup();
-+rep_err:
-+	destroy_workqueue(mlx5_ib_event_wq);
-+	free_page((unsigned long)xlt_emergency_page);
-+	return ret;
- }
-
- static void __exit mlx5_ib_cleanup(void)
- {
--	mlx5_unregister_interface(&mlx5_ib_interface);
-+	auxiliary_driver_unregister(&mlx5r_driver);
-+	auxiliary_driver_unregister(&mlx5r_mp_driver);
-+	mlx5r_rep_cleanup();
-+
- 	destroy_workqueue(mlx5_ib_event_wq);
- 	free_page((unsigned long)xlt_emergency_page);
- }
-diff --git a/drivers/infiniband/hw/mlx5/mlx5_ib.h b/drivers/infiniband/hw/mlx5/mlx5_ib.h
-index 254668d31988..200df80393de 100644
---- a/drivers/infiniband/hw/mlx5/mlx5_ib.h
-+++ b/drivers/infiniband/hw/mlx5/mlx5_ib.h
-@@ -1383,8 +1383,8 @@ extern const struct mmu_interval_notifier_ops mlx5_mn_ops;
- void __mlx5_ib_remove(struct mlx5_ib_dev *dev,
- 		      const struct mlx5_ib_profile *profile,
- 		      int stage);
--void *__mlx5_ib_add(struct mlx5_ib_dev *dev,
--		    const struct mlx5_ib_profile *profile);
-+int __mlx5_ib_add(struct mlx5_ib_dev *dev,
-+		  const struct mlx5_ib_profile *profile);
-
- int mlx5_ib_get_vf_config(struct ib_device *device, int vf,
- 			  u8 port, struct ifla_vf_info *info);
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/dev.c b/drivers/net/ethernet/mellanox/mlx5/core/dev.c
-index 6d413c622785..843a8579d8c8 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/dev.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/dev.c
-@@ -144,16 +144,82 @@ static bool is_vnet_supported(struct mlx5_core_dev *dev)
- 	return true;
- }
-
-+static bool is_ib_rep_supported(struct mlx5_core_dev *dev)
-+{
-+	if (!IS_ENABLED(CONFIG_MLX5_INFINIBAND))
-+		return false;
-+
-+	if (dev->priv.flags & MLX5_PRIV_FLAGS_DISABLE_IB_ADEV)
-+		return false;
-+
-+	if (!is_eth_rep_supported(dev))
-+		return false;
-+
-+	if (!MLX5_ESWITCH_MANAGER(dev))
-+		return false;
-+
-+	if (mlx5_eswitch_mode(dev->priv.eswitch) != MLX5_ESWITCH_OFFLOADS)
-+		return false;
-+
-+	if (mlx5_core_mp_enabled(dev))
-+		return false;
-+
-+	return true;
-+}
-+
-+static bool is_mp_supported(struct mlx5_core_dev *dev)
-+{
-+	if (!IS_ENABLED(CONFIG_MLX5_INFINIBAND))
-+		return false;
-+
-+	if (dev->priv.flags & MLX5_PRIV_FLAGS_DISABLE_IB_ADEV)
-+		return false;
-+
-+	if (is_ib_rep_supported(dev))
-+		return false;
-+
-+	if (MLX5_CAP_GEN(dev, port_type) != MLX5_CAP_PORT_TYPE_ETH)
-+		return false;
-+
-+	if (!mlx5_core_is_mp_slave(dev))
-+		return false;
-+
-+	return true;
-+}
-+
-+static bool is_ib_supported(struct mlx5_core_dev *dev)
-+{
-+	if (!IS_ENABLED(CONFIG_MLX5_INFINIBAND))
-+		return false;
-+
-+	if (dev->priv.flags & MLX5_PRIV_FLAGS_DISABLE_IB_ADEV)
-+		return false;
-+
-+	if (is_ib_rep_supported(dev))
-+		return false;
-+
-+	if (is_mp_supported(dev))
-+		return false;
-+
-+	return true;
-+}
-+
- static const struct mlx5_adev_device {
- 	const char *suffix;
- 	bool (*is_supported)(struct mlx5_core_dev *dev);
- } mlx5_adev_devices[] = {
- 	[MLX5_INTERFACE_PROTOCOL_VDPA] = { .suffix = "vnet",
- 					   .is_supported = &is_vnet_supported },
-+	[MLX5_INTERFACE_PROTOCOL_IB] = { .suffix = "rdma",
-+					 .is_supported = &is_ib_supported },
- 	[MLX5_INTERFACE_PROTOCOL_ETH] = { .suffix = "eth",
- 					  .is_supported = &is_eth_supported },
- 	[MLX5_INTERFACE_PROTOCOL_ETH_REP] = { .suffix = "eth-rep",
- 					   .is_supported = &is_eth_rep_supported },
-+	[MLX5_INTERFACE_PROTOCOL_IB_REP] = { .suffix = "rdma-rep",
-+					   .is_supported = &is_ib_rep_supported },
-+	[MLX5_INTERFACE_PROTOCOL_MPIB] = { .suffix = "multiport",
-+					   .is_supported = &is_mp_supported },
- };
-
- int mlx5_adev_idx_alloc(void)
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-index 78a854926b00..b652b4bde733 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch.c
-@@ -1617,7 +1617,6 @@ int mlx5_eswitch_enable_locked(struct mlx5_eswitch *esw, int mode, int num_vfs)
- 		err = esw_legacy_enable(esw);
- 	} else {
- 		mlx5_rescan_drivers(esw->dev);
--		mlx5_reload_interface(esw->dev, MLX5_INTERFACE_PROTOCOL_IB);
- 		err = esw_offloads_enable(esw);
- 	}
-
-@@ -1635,10 +1634,9 @@ int mlx5_eswitch_enable_locked(struct mlx5_eswitch *esw, int mode, int num_vfs)
- abort:
- 	esw->mode = MLX5_ESWITCH_NONE;
-
--	if (mode == MLX5_ESWITCH_OFFLOADS) {
--		mlx5_reload_interface(esw->dev, MLX5_INTERFACE_PROTOCOL_IB);
-+	if (mode == MLX5_ESWITCH_OFFLOADS)
- 		mlx5_rescan_drivers(esw->dev);
--	}
-+
- 	esw_destroy_tsar(esw);
- 	return err;
- }
-@@ -1699,10 +1697,9 @@ void mlx5_eswitch_disable_locked(struct mlx5_eswitch *esw, bool clear_vf)
-
- 	mlx5_lag_update(esw->dev);
-
--	if (old_mode == MLX5_ESWITCH_OFFLOADS) {
--		mlx5_reload_interface(esw->dev, MLX5_INTERFACE_PROTOCOL_IB);
-+	if (old_mode == MLX5_ESWITCH_OFFLOADS)
- 		mlx5_rescan_drivers(esw->dev);
--	}
-+
- 	esw_destroy_tsar(esw);
-
- 	if (clear_vf)
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lag.c b/drivers/net/ethernet/mellanox/mlx5/core/lag.c
-index e4d4de1719bd..325f32b9525c 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/lag.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lag.c
-@@ -243,24 +243,30 @@ static bool mlx5_lag_check_prereq(struct mlx5_lag *ldev)
- #endif
- }
-
--static void mlx5_lag_add_ib_devices(struct mlx5_lag *ldev)
-+static void mlx5_lag_add_devices(struct mlx5_lag *ldev)
- {
- 	int i;
-
--	for (i = 0; i < MLX5_MAX_PORTS; i++)
--		if (ldev->pf[i].dev)
--			mlx5_add_dev_by_protocol(ldev->pf[i].dev,
--						 MLX5_INTERFACE_PROTOCOL_IB);
-+	for (i = 0; i < MLX5_MAX_PORTS; i++) {
-+		if (!ldev->pf[i].dev)
-+			continue;
-+
-+		ldev->pf[i].dev->priv.flags &= ~MLX5_PRIV_FLAGS_DISABLE_IB_ADEV;
-+		mlx5_rescan_drivers_locked(ldev->pf[i].dev);
-+	}
- }
-
--static void mlx5_lag_remove_ib_devices(struct mlx5_lag *ldev)
-+static void mlx5_lag_remove_devices(struct mlx5_lag *ldev)
- {
- 	int i;
-
--	for (i = 0; i < MLX5_MAX_PORTS; i++)
--		if (ldev->pf[i].dev)
--			mlx5_remove_dev_by_protocol(ldev->pf[i].dev,
--						    MLX5_INTERFACE_PROTOCOL_IB);
-+	for (i = 0; i < MLX5_MAX_PORTS; i++) {
-+		if (!ldev->pf[i].dev)
-+			continue;
-+
-+		ldev->pf[i].dev->priv.flags |= MLX5_PRIV_FLAGS_DISABLE_IB_ADEV;
-+		mlx5_rescan_drivers_locked(ldev->pf[i].dev);
-+	}
- }
-
- static void mlx5_do_bond(struct mlx5_lag *ldev)
-@@ -290,20 +296,21 @@ static void mlx5_do_bond(struct mlx5_lag *ldev)
- #endif
-
- 		if (roce_lag)
--			mlx5_lag_remove_ib_devices(ldev);
-+			mlx5_lag_remove_devices(ldev);
-
- 		err = mlx5_activate_lag(ldev, &tracker,
- 					roce_lag ? MLX5_LAG_FLAG_ROCE :
- 					MLX5_LAG_FLAG_SRIOV);
- 		if (err) {
- 			if (roce_lag)
--				mlx5_lag_add_ib_devices(ldev);
-+				mlx5_lag_add_devices(ldev);
-
- 			return;
- 		}
-
- 		if (roce_lag) {
--			mlx5_add_dev_by_protocol(dev0, MLX5_INTERFACE_PROTOCOL_IB);
-+			dev0->priv.flags &= ~MLX5_PRIV_FLAGS_DISABLE_IB_ADEV;
-+			mlx5_rescan_drivers_locked(dev0);
- 			mlx5_nic_vport_enable_roce(dev1);
- 		}
- 	} else if (do_bond && __mlx5_lag_is_active(ldev)) {
-@@ -312,7 +319,8 @@ static void mlx5_do_bond(struct mlx5_lag *ldev)
- 		roce_lag = __mlx5_lag_is_roce(ldev);
-
- 		if (roce_lag) {
--			mlx5_remove_dev_by_protocol(dev0, MLX5_INTERFACE_PROTOCOL_IB);
-+			dev0->priv.flags |= MLX5_PRIV_FLAGS_DISABLE_IB_ADEV;
-+			mlx5_rescan_drivers_locked(dev0);
- 			mlx5_nic_vport_disable_roce(dev1);
- 		}
-
-@@ -321,7 +329,7 @@ static void mlx5_do_bond(struct mlx5_lag *ldev)
- 			return;
-
- 		if (roce_lag)
--			mlx5_lag_add_ib_devices(ldev);
-+			mlx5_lag_add_devices(ldev);
- 	}
- }
+ drivers/net/ethernet/mellanox/mlx5/core/main.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-index 0b4793aff274..8f5556e49b00 100644
+index 8ff207aa1479..71e210f22f69 100644
 --- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
 +++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -1348,7 +1348,6 @@ static void mlx5_mdev_uninit(struct mlx5_core_dev *dev)
- 	mutex_destroy(&dev->intf_state_mutex);
- }
+@@ -50,6 +50,7 @@
+ #ifdef CONFIG_RFS_ACCEL
+ #include <linux/cpu_rmap.h>
+ #endif
++#include <linux/version.h>
+ #include <net/devlink.h>
+ #include "mlx5_core.h"
+ #include "lib/eq.h"
+@@ -233,7 +234,10 @@ static void mlx5_set_driver_version(struct mlx5_core_dev *dev)
+ 	strncat(string, ",", remaining_size);
 
--#define MLX5_IB_MOD "mlx5_ib"
- static int init_one(struct pci_dev *pdev, const struct pci_device_id *id)
- {
- 	struct mlx5_core_dev *dev;
-@@ -1390,8 +1389,6 @@ static int init_one(struct pci_dev *pdev, const struct pci_device_id *id)
- 		goto err_load_one;
- 	}
+ 	remaining_size = max_t(int, 0, driver_ver_sz - strlen(string));
+-	strncat(string, DRIVER_VERSION, remaining_size);
++
++	snprintf(string + strlen(string), remaining_size, "%u.%u.%u",
++		 (u8)(LINUX_VERSION_CODE >> 16), (u8)(LINUX_VERSION_CODE >> 8),
++		 (u16)(LINUX_VERSION_CODE & 0xff));
 
--	request_module_nowait(MLX5_IB_MOD);
--
- 	err = mlx5_crdump_enable(dev);
- 	if (err)
- 		dev_err(&pdev->dev, "mlx5_crdump_enable failed with error code %d\n", err);
+ 	/*Send the command*/
+ 	MLX5_SET(set_driver_version_in, in, opcode,
 --
 2.28.0
 
