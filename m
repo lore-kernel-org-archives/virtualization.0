@@ -2,100 +2,99 @@ Return-Path: <SRS0=4MNw=EI=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 5680DC388F9
-	for <virtualization@archiver.kernel.org>; Mon,  2 Nov 2020 06:50:04 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A4C0EC388F2
+	for <virtualization@archiver.kernel.org>; Mon,  2 Nov 2020 15:41:48 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D8A1A223B0
-	for <virtualization@archiver.kernel.org>; Mon,  2 Nov 2020 06:50:03 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 2692A22275
+	for <virtualization@archiver.kernel.org>; Mon,  2 Nov 2020 15:41:47 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HOI99UmV"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D8A1A223B0
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="cf1MSWB7"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2692A22275
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 76CE786A81;
-	Mon,  2 Nov 2020 06:50:03 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 93DB886B2A;
+	Mon,  2 Nov 2020 15:41:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 2qA1JiiI6P5s; Mon,  2 Nov 2020 06:50:02 +0000 (UTC)
+	with ESMTP id 0WItQX01fxEY; Mon,  2 Nov 2020 15:41:46 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 1B77486A27;
-	Mon,  2 Nov 2020 06:50:02 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 68381866C1;
+	Mon,  2 Nov 2020 15:41:46 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id F2074C088B;
-	Mon,  2 Nov 2020 06:50:01 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D0CD2C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4AB00C088B;
+	Mon,  2 Nov 2020 15:41:46 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A3D09C0051
  for <virtualization@lists.linux-foundation.org>;
- Mon,  2 Nov 2020 06:50:00 +0000 (UTC)
+ Mon,  2 Nov 2020 15:41:44 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id BF477869C7
+ by hemlock.osuosl.org (Postfix) with ESMTP id 95488872DC
  for <virtualization@lists.linux-foundation.org>;
- Mon,  2 Nov 2020 06:50:00 +0000 (UTC)
+ Mon,  2 Nov 2020 15:41:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id z7nhVoX9tsrM
+ with ESMTP id vdpSyOr-ropq
  for <virtualization@lists.linux-foundation.org>;
- Mon,  2 Nov 2020 06:49:58 +0000 (UTC)
+ Mon,  2 Nov 2020 15:41:43 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 770CC8699B
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 9BAA3872A3
  for <virtualization@lists.linux-foundation.org>;
- Mon,  2 Nov 2020 06:49:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1604299796;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=C7K4jgC+Vx55SiPAes+d1icJNBJZqTlzcr28+KO7H0E=;
- b=HOI99UmVGDJMA/n8e/OayKgPbTG3tsS0K4yPM5FHNMGdddkMGN0b8elGdPFZEH1/EweF8c
- ZtBNRUmbIwMpOPbiZAEwjQA0DHR3+aQRX2VxW93ehEst+wsnfAUCejK1wSa+3IJwpvQ2v5
- dlMIPjkRyuYhbhDm+g4p7FZUFdHy2rA=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-33-IFKll4nFNgq9855A5-ewGg-1; Mon, 02 Nov 2020 01:49:53 -0500
-X-MC-Unique: IFKll4nFNgq9855A5-ewGg-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
- [10.5.11.15])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 2B0D21006C88;
- Mon,  2 Nov 2020 06:49:52 +0000 (UTC)
-Received: from [10.72.13.42] (ovpn-13-42.pek2.redhat.com [10.72.13.42])
- by smtp.corp.redhat.com (Postfix) with ESMTP id AF6A355761;
- Mon,  2 Nov 2020 06:49:43 +0000 (UTC)
-Subject: Re: [PATCH 07/17] vhost scsi: support delayed IO vq creation
-From: Jason Wang <jasowang@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>,
- Mike Christie <michael.christie@oracle.com>
-References: <1603326903-27052-1-git-send-email-michael.christie@oracle.com>
- <1603326903-27052-8-git-send-email-michael.christie@oracle.com>
- <9e97ea2a-bc57-d4aa-4711-35dba20b3b9e@redhat.com>
- <49c2fc29-348c-06db-4823-392f7476d318@oracle.com>
- <20201030044402-mutt-send-email-mst@kernel.org>
- <688e46b6-77f1-1629-0c93-e3a27d582da5@redhat.com>
-Message-ID: <cf74844c-bfa6-e66c-fc3a-07dfd7af3092@redhat.com>
-Date: Mon, 2 Nov 2020 14:49:42 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+ Mon,  2 Nov 2020 15:41:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+ References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=UmWNoo+0jio1rsbpATbpnTKOP6YpDT2+8aHnhsn1BNQ=; b=cf1MSWB7BC+d/XGfBcQ2kzWTKP
+ Peh8sMqwcaL1avawa0skij5vzCJuMhLjyf5+3duC9LV64xK5h7mYlExaCNl16g5xIgy0XYatg9Kkf
+ 8MzQdAQ7nqnViyK6PC8RcELKGC+j9GZJ7ckJm169iVg6QlV5ggKqdv+lcQqqbrPMl+FlSrL0fJtVH
+ h3aIS4VO2YSOq9iZcZt7+s5WtKwHYRjz80MESyljeOHnTABAzm0KwnO67EhkQGqAYQ3ow0H2PyBl3
+ OZ6Wcz1eC4cFYhDOYdlGwsV1WdJGKy68/ZW9RvzSJwxRicr1Ax69ZJI0224mH0dP7B11Lada3H09n
+ ylAgZRSA==;
+Received: from willy by casper.infradead.org with local (Exim 4.92.3 #3 (Red
+ Hat Linux)) id 1kZbx7-0002Pe-5d; Mon, 02 Nov 2020 15:41:01 +0000
+Date: Mon, 2 Nov 2020 15:41:01 +0000
+From: Matthew Wilcox <willy@infradead.org>
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: Re: [PATCH v2 1/8] mm: slab: provide krealloc_array()
+Message-ID: <20201102154101.GO27442@casper.infradead.org>
+References: <20201102152037.963-1-brgl@bgdev.pl>
+ <20201102152037.963-2-brgl@bgdev.pl>
 MIME-Version: 1.0
-In-Reply-To: <688e46b6-77f1-1629-0c93-e3a27d582da5@redhat.com>
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-Cc: martin.petersen@oracle.com, linux-scsi@vger.kernel.org,
- virtualization@lists.linux-foundation.org, target-devel@vger.kernel.org,
- stefanha@redhat.com, pbonzini@redhat.com
+Content-Disposition: inline
+In-Reply-To: <20201102152037.963-2-brgl@bgdev.pl>
+Cc: alsa-devel@alsa-project.org, kvm@vger.kernel.org,
+ "Michael S . Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>,
+ Gustavo Padovan <gustavo@padovan.org>,
+ Linus Walleij <linus.walleij@linaro.org>, dri-devel@lists.freedesktop.org,
+ Jaroslav Kysela <perex@perex.cz>, linux-mm@kvack.org,
+ Christoph Lameter <cl@linux.com>, Sumit Semwal <sumit.semwal@linaro.org>,
+ Mauro Carvalho Chehab <mchehab@kernel.org>,
+ Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+ David Rientjes <rientjes@google.com>,
+ virtualization@lists.linux-foundation.org, linux-media@vger.kernel.org,
+ Robert Richter <rric@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, linaro-mm-sig@lists.linaro.org,
+ linux-gpio@vger.kernel.org, Borislav Petkov <bp@alien8.de>,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+ Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@suse.cz>,
+ linux-edac@vger.kernel.org, Tony Luck <tony.luck@intel.com>,
+ netdev@vger.kernel.org, Takashi Iwai <tiwai@suse.com>,
+ linux-kernel@vger.kernel.org, Pekka Enberg <penberg@kernel.org>,
+ James Morse <james.morse@arm.com>, Daniel Vetter <daniel@ffwll.ch>,
+ Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+ Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -107,22 +106,22 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Ck9uIDIwMjAvMTEvMiDkuIvljYgyOjM2LCBKYXNvbiBXYW5nIHdyb3RlOgo+Pgo+PiBUaGUgbmVl
-ZCB0byBzaGFyZSBldmVudC9jb250cm9sIHZxcyBiZXR3ZWVuIGRldmljZXMgaXMgYSBwcm9ibGVt
-IHRob3VnaCwKPj4gYW5kIHNlbmRpbmcgbG90cyBvZiBpb2N0bHMgb24gdGhpbmdzIGxpa2UgcmVz
-ZXQgaXMgYWxzbyBub3QgdGhhdCAKPj4gZWxlZ2FudC4KPj4gSmFzb24sIGRpZCB5b3UgaGF2ZSBh
-IGdvb2Qgc29sdXRpb24gaW4gbWluZD8KPgo+Cj4gTm9wZSwgSSdtIG5vdCBmYW1pbGlhciB3aXRo
-IFNDU0kgc28gSSBkb24ndCBldmVuIGtub3cgc2hhcmluZyBldnQvY3ZxIAo+IGlzIHBvc3NpYmxl
-LiBDb25zaWRlciBWSE9TVF9TQ1NJX01BWF9WUSBpcyBhbHJlYWR5IDEyOCBwZXIgZGV2aWNlLiAK
-PiBNaWtlJ3MgcHJvcG9zYWwgc2VlbXMgdG8gYmUgYmV0dGVyLgo+Cj4gVGhhbmtzIAoKCkJ0dywg
-aXQgbG9va3MgdG8gbWUgdmhvc3Rfc2NzaV9kb19ldnRfd29yaygpIGhhcyB0aGUgYXNzdW1wdGlv
-biBvZiBpb3ZlYyAKbGF5b3V0IHdoaWNoIG5lZWRzIHRvIGJlIGZpeGVkLgoKVGhhbmtzCgpfX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlv
-biBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcK
-aHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVh
-bGl6YXRpb24=
+On Mon, Nov 02, 2020 at 04:20:30PM +0100, Bartosz Golaszewski wrote:
+> +Chunks allocated with `kmalloc` can be resized with `krealloc`. Similarly
+> +to `kmalloc_array`: a helper for resising arrays is provided in the form of
+> +`krealloc_array`.
+
+Is there any reason you chose to `do_this` instead of do_this()?  The
+automarkup script turns do_this() into a nice link to the documentation
+which you're adding below.
+
+Typo 'resising' resizing.
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
