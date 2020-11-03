@@ -7,75 +7,75 @@ X-Spam-Status: No, score=-6.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A61C1C8300E
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F26F0C63798
 	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:34:10 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 43D9E2242B
+	by mail.kernel.org (Postfix) with ESMTPS id 8CAFE2245A
 	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:34:10 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="UCiLeToK";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="iNcZKx8F"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 43D9E2242B
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="uf64q9LX";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="9UUmg4St"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8CAFE2245A
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linutronix.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id F0279873BF;
-	Tue,  3 Nov 2020 10:34:09 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 3366D873B9;
+	Tue,  3 Nov 2020 10:34:10 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0dUz3PvjSY8G; Tue,  3 Nov 2020 10:34:09 +0000 (UTC)
+	with ESMTP id k+wkQbgpGHAY; Tue,  3 Nov 2020 10:34:08 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id EF2CC873BA;
-	Tue,  3 Nov 2020 10:34:08 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id A714D873C4;
+	Tue,  3 Nov 2020 10:34:07 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D9626C0889;
-	Tue,  3 Nov 2020 10:34:08 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9E1A0C0051;
+	Tue,  3 Nov 2020 10:34:07 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B57C8C0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0B93AC0889
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:34:07 +0000 (UTC)
+ Tue,  3 Nov 2020 10:34:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 82B772076F
+ by silver.osuosl.org (Postfix) with ESMTP id E5F5D20533
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:34:07 +0000 (UTC)
+ Tue,  3 Nov 2020 10:34:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 9FhK+91a04q0
+ with ESMTP id pd07OhQjffkM
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:34:06 +0000 (UTC)
+ Tue,  3 Nov 2020 10:34:04 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
- by silver.osuosl.org (Postfix) with ESMTPS id 2594520768
+ by silver.osuosl.org (Postfix) with ESMTPS id 442772076E
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:34:06 +0000 (UTC)
-Message-Id: <20201103095859.538827102@linutronix.de>
+ Tue,  3 Nov 2020 10:34:04 +0000 (UTC)
+Message-Id: <20201103095859.429620021@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020; t=1604399639;
+ s=2020; t=1604399638;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=37l2/9hMoX995irJwwZT0VNkjmk/OwZo72GhT72QTX4=;
- b=UCiLeToK4AIC+9Dmx7LG5rV2mjuvYVd6Coif2Sdjhi7Si2K86UL165usKvCu+1M57a5ZTs
- 3lGdAzYJonKcTuvyMgrOXNx+UrIY8LVcTVNso2JLtpbkE1oygEe/wl748JnAW6AS6EsTrD
- c2VWZi0Trd4Jp1S58g19SzXtzA+u8eA2qRCth6y4qBL25KfIk14Y8/pIC7Pk9xx9opLe+Y
- fYTupCtZR4FQC2/b1qBabqi8Jfeh2ZKqUrq+V0zmNc17uiUhxxjlvxwBR152OCIcLA02mF
- vb+4tkvTlRO1TXdeUxGxjDkLW4Yer0R+EYHQyA+pAWiyVIPp/wbrw75o+T0ZJw==
+ bh=K8tv6h9J8+1UjPWtbytb7n5SLceTF9zssV9oZox9W+U=;
+ b=uf64q9LXpQapNhFORU08nfOObcnFcEm4O++QW3WS6I7k3PJKYg+0B5NUxZRCRpxpJWSJho
+ 6xCfQbqF5SWvLd2UYygGAALn2A2cjEifSfE4kf1+lKthwGt5ShPb/JyjRiq2V4kL9NKneV
+ tvQ85atLaLObNYw1Jsdictp7672OClv95UAV+BsfoahjIYRt6P7B73zNvPr/RXHjqQjiYX
+ vqMn0VJZZuCLL83EiOOEEIiubdkjOyq0xQINIUxnhAvI+2Q8C2Ufm8JbRZw6Epe6CCDO+G
+ IFnnudgMnXS/B/7Pn2ZHYkeEolyKh/60lfi2O9rR4T7flfqnXTUrlacqqg4vtA==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020e; t=1604399639;
+ s=2020e; t=1604399638;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=37l2/9hMoX995irJwwZT0VNkjmk/OwZo72GhT72QTX4=;
- b=iNcZKx8Fg9QYlTcIp7Z3u6IBgHA5T+EwXNMLuSSTvrJb/3r4DH72OAUwbFyp58bawCPYfQ
- dJ5wikkjaG3JOhAw==
-Date: Tue, 03 Nov 2020 10:27:41 +0100
+ bh=K8tv6h9J8+1UjPWtbytb7n5SLceTF9zssV9oZox9W+U=;
+ b=9UUmg4StD1+gf6xD44eY0tbCb4Wv9S+7TAD5110OmAjL1mF4moT3f8RAipzm2mr9CGQRvT
+ 96qYqMQSY/G9MBCw==
+Date: Tue, 03 Nov 2020 10:27:40 +0100
 From: Thomas Gleixner <tglx@linutronix.de>
 To: LKML <linux-kernel@vger.kernel.org>
-Subject: [patch V3 29/37] ARM: mm: Replace kmap_atomic_pfn()
+Subject: [patch V3 28/37] mips/crashdump: Simplify copy_oldmem_page()
 References: <20201103092712.714480842@linutronix.de>
 MIME-Version: 1.0
 Cc: Juri Lelli <juri.lelli@redhat.com>, linux-aio@kvack.org,
@@ -131,65 +131,91 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-There is no requirement to disable pagefaults and preemption for these
-cache management mappings.
+Replace kmap_atomic_pfn() with kmap_local_pfn() which is preemptible and
+can take page faults.
 
-Replace kmap_atomic_pfn() with kmap_local_pfn(). This allows to remove
-kmap_atomic_pfn() in the next step.
+Remove the indirection of the dump page and the related cruft which is not
+longer required.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Russell King <linux@armlinux.org.uk>
-Cc: linux-arm-kernel@lists.infradead.org
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: linux-mips@vger.kernel.org
 ---
 V3: New patch
 ---
- arch/arm/mm/cache-feroceon-l2.c |    6 +++---
- arch/arm/mm/cache-xsc3l2.c      |    4 ++--
- 2 files changed, 5 insertions(+), 5 deletions(-)
+ arch/mips/kernel/crash_dump.c |   42 +++++++-----------------------------------
+ 1 file changed, 7 insertions(+), 35 deletions(-)
 
---- a/arch/arm/mm/cache-feroceon-l2.c
-+++ b/arch/arm/mm/cache-feroceon-l2.c
-@@ -49,9 +49,9 @@ static inline unsigned long l2_get_va(un
- 	 * we simply install a virtual mapping for it only for the
- 	 * TLB lookup to occur, hence no need to flush the untouched
- 	 * memory mapping afterwards (note: a cache flush may happen
--	 * in some circumstances depending on the path taken in kunmap_atomic).
-+	 * in some circumstances depending on the path taken in kunmap_local).
- 	 */
--	void *vaddr = kmap_atomic_pfn(paddr >> PAGE_SHIFT);
-+	void *vaddr = kmap_local_pfn(paddr >> PAGE_SHIFT);
- 	return (unsigned long)vaddr + (paddr & ~PAGE_MASK);
- #else
- 	return __phys_to_virt(paddr);
-@@ -61,7 +61,7 @@ static inline unsigned long l2_get_va(un
- static inline void l2_put_va(unsigned long vaddr)
- {
- #ifdef CONFIG_HIGHMEM
--	kunmap_atomic((void *)vaddr);
-+	kunmap_local((void *)vaddr);
- #endif
- }
+--- a/arch/mips/kernel/crash_dump.c
++++ b/arch/mips/kernel/crash_dump.c
+@@ -5,8 +5,6 @@
+ #include <linux/uaccess.h>
+ #include <linux/slab.h>
  
---- a/arch/arm/mm/cache-xsc3l2.c
-+++ b/arch/arm/mm/cache-xsc3l2.c
-@@ -59,7 +59,7 @@ static inline void l2_unmap_va(unsigned
+-static void *kdump_buf_page;
+-
+ /**
+  * copy_oldmem_page - copy one page from "oldmem"
+  * @pfn: page frame number to be copied
+@@ -17,51 +15,25 @@ static void *kdump_buf_page;
+  * @userbuf: if set, @buf is in user address space, use copy_to_user(),
+  *	otherwise @buf is in kernel address space, use memcpy().
+  *
+- * Copy a page from "oldmem". For this page, there is no pte mapped
++ * Copy a page from "oldmem". For this page, there might be no pte mapped
+  * in the current kernel.
+- *
+- * Calling copy_to_user() in atomic context is not desirable. Hence first
+- * copying the data to a pre-allocated kernel page and then copying to user
+- * space in non-atomic context.
+  */
+-ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
+-			 size_t csize, unsigned long offset, int userbuf)
++ssize_t copy_oldmem_page(unsigned long pfn, char *buf, size_t csize,
++			 unsigned long offset, int userbuf)
  {
- #ifdef CONFIG_HIGHMEM
- 	if (va != -1)
--		kunmap_atomic((void *)va);
-+		kunmap_local((void *)va);
- #endif
- }
+ 	void  *vaddr;
  
-@@ -75,7 +75,7 @@ static inline unsigned long l2_map_va(un
- 		 * in place for it.
- 		 */
- 		l2_unmap_va(prev_va);
--		va = (unsigned long)kmap_atomic_pfn(pa >> PAGE_SHIFT);
-+		va = (unsigned long)kmap_local_pfn(pa >> PAGE_SHIFT);
+ 	if (!csize)
+ 		return 0;
+ 
+-	vaddr = kmap_atomic_pfn(pfn);
++	vaddr = kmap_local_pfn(pfn);
+ 
+ 	if (!userbuf) {
+-		memcpy(buf, (vaddr + offset), csize);
+-		kunmap_atomic(vaddr);
++		memcpy(buf, vaddr + offset, csize);
+ 	} else {
+-		if (!kdump_buf_page) {
+-			pr_warn("Kdump: Kdump buffer page not allocated\n");
+-
+-			return -EFAULT;
+-		}
+-		copy_page(kdump_buf_page, vaddr);
+-		kunmap_atomic(vaddr);
+-		if (copy_to_user(buf, (kdump_buf_page + offset), csize))
+-			return -EFAULT;
++		if (copy_to_user(buf, vaddr + offset, csize))
++			csize = -EFAULT;
  	}
- 	return va + (pa_offset >> (32 - PAGE_SHIFT));
- #else
+ 
+ 	return csize;
+ }
+-
+-static int __init kdump_buf_page_init(void)
+-{
+-	int ret = 0;
+-
+-	kdump_buf_page = kmalloc(PAGE_SIZE, GFP_KERNEL);
+-	if (!kdump_buf_page) {
+-		pr_warn("Kdump: Failed to allocate kdump buffer page\n");
+-		ret = -ENOMEM;
+-	}
+-
+-	return ret;
+-}
+-arch_initcall(kdump_buf_page_init);
 
 _______________________________________________
 Virtualization mailing list
