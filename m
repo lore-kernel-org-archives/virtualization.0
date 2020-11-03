@@ -7,75 +7,75 @@ X-Spam-Status: No, score=-6.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 00570C63798
-	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:33:51 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 8E24DC61DD8
+	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:33:53 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 891E521D40
-	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:33:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 1469621D40
+	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:33:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="ZQhpZJ3+";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="+Tr1EUdB"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 891E521D40
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="YrCDKz93";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="euAZ2tpp"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1469621D40
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linutronix.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 1C13786141;
-	Tue,  3 Nov 2020 10:33:50 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 980FE87399;
+	Tue,  3 Nov 2020 10:33:52 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Hgz41lUSCvKS; Tue,  3 Nov 2020 10:33:49 +0000 (UTC)
+	with ESMTP id S1YvP2mh6AcV; Tue,  3 Nov 2020 10:33:51 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 3D78386108;
-	Tue,  3 Nov 2020 10:33:49 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 8F64F87382;
+	Tue,  3 Nov 2020 10:33:51 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 289E0C1AD5;
-	Tue,  3 Nov 2020 10:33:49 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7C7D0C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 70DEFC0889;
+	Tue,  3 Nov 2020 10:33:51 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 13264C0051
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:33:48 +0000 (UTC)
+ Tue,  3 Nov 2020 10:33:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 6791B86FB1
+ by silver.osuosl.org (Postfix) with ESMTP id 8FEAD203F9
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:33:48 +0000 (UTC)
+ Tue,  3 Nov 2020 10:33:49 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id yik3hmKWa-qW
+ with ESMTP id ijs6bDzHMBn6
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:33:47 +0000 (UTC)
+ Tue,  3 Nov 2020 10:33:42 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
- by whitealder.osuosl.org (Postfix) with ESMTPS id E212086F9B
+ by silver.osuosl.org (Postfix) with ESMTPS id 2204220534
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:33:46 +0000 (UTC)
-Message-Id: <20201103095858.311016780@linutronix.de>
+ Tue,  3 Nov 2020 10:33:42 +0000 (UTC)
+Message-Id: <20201103095857.980576055@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020; t=1604399624;
+ s=2020; t=1604399620;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=Cjsm5AI/c+3evBtpF2KjlIuXYCPOCd9e8tBiUfMlUaw=;
- b=ZQhpZJ3+kLwAZrJXydOt+PuVIPxDpjWDA6FzsVyeE1usg/G1RiAciJ+g/1ozN8xiuc0c17
- RaNnUX66QFZ6g+/Md+sO3vjst9IGcsoVU4cMn4smorjv2YRBImN1+rgl0ttOs2hSC2+XZZ
- G9avgq7GfrZw2d+qivd3YkgN3zLDG+gLAdqZlsS3S5CYxubpcYtuSYKuMNeCyyLY6xUfaB
- 8CXdUxNwL64hRfu9SIduSwb1Bz7FjieyT0n/nq9XHMdRdrdAtLLKERmntXNNZ9KSP0MqyP
- J/oz0kwJPhhq7GeT3Gvrytt4up4s+0ead/gIb6+lkesJN+z2l3Xs3f2lPm0k+w==
+ bh=KpyA3a1Xo75yVhQvaPuA7Fk/5PcMn7a0eJxDd+9rZFg=;
+ b=YrCDKz932HbpJdB1Ovswk3kIEHrrFpFM7BD36DvvxyEth/CYPlGfItygnSIqoI6PoZ9Z/n
+ 6hC0ZuoT80elU8CHbCQr0fHHRJ3A1QHV8hYDeuzKW3F3G1jODuF0hGXa3p5eo1f5CL3h0m
+ mvPJbu1gd6RilHZPBUG/H/5nLiHDqY2isN5mxaPhrn9WM/RJp+LRNmHyUB7oxkQWjQT4wM
+ ZLRmPc4c/6Oow9gWdXR7+WWQzVxtwM4nEpxuemQYN3qRdUOOq1L0jXu3C1ldf+8ujM+mdQ
+ ohWVt2Hp5iLc65BFOuRA06UNiV3yg6B6ouLgzducm6Kwvt5QKb2kbWNBQTmjxQ==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020e; t=1604399624;
+ s=2020e; t=1604399620;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=Cjsm5AI/c+3evBtpF2KjlIuXYCPOCd9e8tBiUfMlUaw=;
- b=+Tr1EUdBI2nqN/XcIr0/XkDukOyzZt/P5QZvNyJzjJ2uWVy7DSbkYWtDbt8rT4wXfOusfx
- pgPkyLWSr37o52Bw==
-Date: Tue, 03 Nov 2020 10:27:29 +0100
+ bh=KpyA3a1Xo75yVhQvaPuA7Fk/5PcMn7a0eJxDd+9rZFg=;
+ b=euAZ2tpprrIyTefRLNP/P6Rxtm3nJite0axS+LZAHFnDm1mQ3sSmpWDqcjwQLk35BkXmiw
+ ylLG+RpY4pjgDfCw==
+Date: Tue, 03 Nov 2020 10:27:26 +0100
 From: Thomas Gleixner <tglx@linutronix.de>
 To: LKML <linux-kernel@vger.kernel.org>
-Subject: [patch V3 17/37] xtensa/mm/highmem: Switch to generic kmap atomic
+Subject: [patch V3 14/37] nds32/mm/highmem: Switch to generic kmap atomic
 References: <20201103092712.714480842@linutronix.de>
 MIME-Version: 1.0
 Cc: Juri Lelli <juri.lelli@redhat.com>, linux-aio@kvack.org,
@@ -101,7 +101,7 @@ Cc: Juri Lelli <juri.lelli@redhat.com>, linux-aio@kvack.org,
  Roland Scheidegger <sroland@vmware.com>, Josef Bacik <josef@toxicpanda.com>,
  Steven Rostedt <rostedt@goodmis.org>,
  Linus Torvalds <torvalds@linuxfoundation.org>,
- Alexander Viro <viro@zeniv.linux.org.uk>, spice-devel@lists.freedesktop.org,
+ Greentime Hu <green.hu@gmail.com>, spice-devel@lists.freedesktop.org,
  David Sterba <dsterba@suse.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>,
  Dietmar Eggemann <dietmar.eggemann@arm.com>,
  linux-arm-kernel@lists.infradead.org,
@@ -114,7 +114,7 @@ Cc: Juri Lelli <juri.lelli@redhat.com>, linux-aio@kvack.org,
  Daniel Vetter <daniel@ffwll.ch>, linux-fsdevel@vger.kernel.org,
  Andrew Morton <akpm@linux-foundation.org>, linuxppc-dev@lists.ozlabs.org,
  "David S. Miller" <davem@davemloft.net>, linux-btrfs@vger.kernel.org,
- Greentime Hu <green.hu@gmail.com>
+ Alexander Viro <viro@zeniv.linux.org.uk>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -131,156 +131,153 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-No reason having the same code in every architecture
+The mapping code is odd and looks broken. See FIXME in the comment.
+
+Also fix the harmless off by one in the FIX_KMAP_END define.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Chris Zankel <chris@zankel.net>
-Cc: Max Filippov <jcmvbkbc@gmail.com>
-Cc: linux-xtensa@linux-xtensa.org
+Cc: Nick Hu <nickhu@andestech.com>
+Cc: Greentime Hu <green.hu@gmail.com>
+Cc: Vincent Chen <deanbo422@gmail.com>
 ---
 V3: Remove the kmap types cruft
 ---
- arch/xtensa/Kconfig               |    1 
- arch/xtensa/include/asm/fixmap.h  |    4 +--
- arch/xtensa/include/asm/highmem.h |   12 ++++++++-
- arch/xtensa/mm/highmem.c          |   46 ++++----------------------------------
- 4 files changed, 18 insertions(+), 45 deletions(-)
+ arch/nds32/Kconfig.cpu           |    1 
+ arch/nds32/include/asm/fixmap.h  |    4 +--
+ arch/nds32/include/asm/highmem.h |   22 +++++++++++++----
+ arch/nds32/mm/Makefile           |    1 
+ arch/nds32/mm/highmem.c          |   48 ---------------------------------------
+ 5 files changed, 19 insertions(+), 57 deletions(-)
 
---- a/arch/xtensa/Kconfig
-+++ b/arch/xtensa/Kconfig
-@@ -666,6 +666,7 @@ endchoice
+--- a/arch/nds32/Kconfig.cpu
++++ b/arch/nds32/Kconfig.cpu
+@@ -157,6 +157,7 @@ config HW_SUPPORT_UNALIGNMENT_ACCESS
  config HIGHMEM
  	bool "High Memory Support"
- 	depends on MMU
+ 	depends on MMU && !CPU_CACHE_ALIASING
 +	select KMAP_LOCAL
  	help
- 	  Linux can use the full amount of RAM in the system by
- 	  default. However, the default MMUv2 setup only maps the
---- a/arch/xtensa/include/asm/fixmap.h
-+++ b/arch/xtensa/include/asm/fixmap.h
-@@ -16,7 +16,7 @@
+ 	  The address space of Andes processors is only 4 Gigabytes large
+ 	  and it has to accommodate user address space, kernel address
+--- a/arch/nds32/include/asm/fixmap.h
++++ b/arch/nds32/include/asm/fixmap.h
+@@ -6,7 +6,7 @@
+ 
  #ifdef CONFIG_HIGHMEM
  #include <linux/threads.h>
- #include <linux/pgtable.h>
 -#include <asm/kmap_types.h>
 +#include <asm/kmap_size.h>
  #endif
  
- /*
-@@ -39,7 +39,7 @@ enum fixed_addresses {
- 	/* reserved pte's for temporary kernel mappings */
+ enum fixed_addresses {
+@@ -14,7 +14,7 @@ enum fixed_addresses {
+ 	FIX_KMAP_RESERVED,
  	FIX_KMAP_BEGIN,
- 	FIX_KMAP_END = FIX_KMAP_BEGIN +
--		(KM_TYPE_NR * NR_CPUS * DCACHE_N_COLORS) - 1,
-+		(KM_MAX_IDX * NR_CPUS * DCACHE_N_COLORS) - 1,
+ #ifdef CONFIG_HIGHMEM
+-	FIX_KMAP_END = FIX_KMAP_BEGIN + (KM_TYPE_NR * NR_CPUS),
++	FIX_KMAP_END = FIX_KMAP_BEGIN + (KM_MAX_IDX * NR_CPUS) - 1,
  #endif
+ 	FIX_EARLYCON_MEM_BASE,
  	__end_of_fixed_addresses
- };
---- a/arch/xtensa/include/asm/highmem.h
-+++ b/arch/xtensa/include/asm/highmem.h
-@@ -16,9 +16,8 @@
- #include <linux/pgtable.h>
- #include <asm/cacheflush.h>
- #include <asm/fixmap.h>
+--- a/arch/nds32/include/asm/highmem.h
++++ b/arch/nds32/include/asm/highmem.h
+@@ -5,7 +5,6 @@
+ #define _ASM_HIGHMEM_H
+ 
+ #include <asm/proc-fns.h>
 -#include <asm/kmap_types.h>
+ #include <asm/fixmap.h>
  
--#define PKMAP_BASE		((FIXADDR_START - \
-+#define PKMAP_BASE		((FIXADDR_START -			\
- 				  (LAST_PKMAP + 1) * PAGE_SIZE) & PMD_MASK)
- #define LAST_PKMAP		(PTRS_PER_PTE * DCACHE_N_COLORS)
- #define LAST_PKMAP_MASK		(LAST_PKMAP - 1)
-@@ -68,6 +67,15 @@ static inline void flush_cache_kmaps(voi
- 	flush_cache_all();
- }
+ /*
+@@ -45,11 +44,22 @@ extern pte_t *pkmap_page_table;
+ extern void kmap_init(void);
  
-+enum fixed_addresses kmap_local_map_idx(int type, unsigned long pfn);
-+#define arch_kmap_local_map_idx		kmap_local_map_idx
+ /*
+- * The following functions are already defined by <linux/highmem.h>
+- * when CONFIG_HIGHMEM is not set.
++ * FIXME: The below looks broken vs. a kmap_atomic() in task context which
++ * is interupted and another kmap_atomic() happens in interrupt context.
++ * But what do I know about nds32. -- tglx
+  */
+-#ifdef CONFIG_HIGHMEM
+-extern void *kmap_atomic_pfn(unsigned long pfn);
+-#endif
++#define arch_kmap_local_post_map(vaddr, pteval)			\
++	do {							\
++		__nds32__tlbop_inv(vaddr);			\
++		__nds32__mtsr_dsb(vaddr, NDS32_SR_TLB_VPN);	\
++		__nds32__tlbop_rwr(pteval);			\
++		__nds32__isb();					\
++	} while (0)
 +
-+enum fixed_addresses kmap_local_unmap_idx(int type, unsigned long addr);
-+#define arch_kmap_local_unmap_idx	kmap_local_unmap_idx
-+
-+#define arch_kmap_local_post_unmap(vaddr)	\
-+	local_flush_tlb_kernel_range(vaddr, vaddr + PAGE_SIZE)
-+
- void kmap_init(void);
++#define arch_kmap_local_pre_unmap(vaddr)			\
++	do {							\
++		__nds32__tlbop_inv(vaddr);			\
++		__nds32__isb();					\
++	} while (0)
  
  #endif
---- a/arch/xtensa/mm/highmem.c
-+++ b/arch/xtensa/mm/highmem.c
-@@ -12,8 +12,6 @@
- #include <linux/highmem.h>
- #include <asm/tlbflush.h>
+--- a/arch/nds32/mm/Makefile
++++ b/arch/nds32/mm/Makefile
+@@ -3,7 +3,6 @@ obj-y				:= extable.o tlb.o fault.o init
+                                    mm-nds32.o cacheflush.o proc.o
  
--static pte_t *kmap_pte;
+ obj-$(CONFIG_ALIGNMENT_TRAP)	+= alignment.o
+-obj-$(CONFIG_HIGHMEM)           += highmem.o
+ 
+ ifdef CONFIG_FUNCTION_TRACER
+ CFLAGS_REMOVE_proc.o     = $(CC_FLAGS_FTRACE)
+--- a/arch/nds32/mm/highmem.c
++++ /dev/null
+@@ -1,48 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0
+-// Copyright (C) 2005-2017 Andes Technology Corporation
 -
- #if DCACHE_WAY_SIZE > PAGE_SIZE
- unsigned int last_pkmap_nr_arr[DCACHE_N_COLORS];
- wait_queue_head_t pkmap_map_wait_arr[DCACHE_N_COLORS];
-@@ -33,59 +31,25 @@ static inline void kmap_waitqueues_init(
- 
- static inline enum fixed_addresses kmap_idx(int type, unsigned long color)
- {
--	return (type + KM_TYPE_NR * smp_processor_id()) * DCACHE_N_COLORS +
-+	return (type + KM_MAX_IDX * smp_processor_id()) * DCACHE_N_COLORS +
- 		color;
- }
- 
+-#include <linux/export.h>
+-#include <linux/highmem.h>
+-#include <linux/sched.h>
+-#include <linux/smp.h>
+-#include <linux/interrupt.h>
+-#include <linux/memblock.h>
+-#include <asm/fixmap.h>
+-#include <asm/tlbflush.h>
+-
 -void *kmap_atomic_high_prot(struct page *page, pgprot_t prot)
-+enum fixed_addresses kmap_local_map_idx(int type, unsigned long pfn)
- {
--	enum fixed_addresses idx;
--	unsigned long vaddr;
+-{
+-	unsigned int idx;
+-	unsigned long vaddr, pte;
+-	int type;
+-	pte_t *ptep;
 -
--	idx = kmap_idx(kmap_atomic_idx_push(),
--		       DCACHE_ALIAS(page_to_phys(page)));
+-	type = kmap_atomic_idx_push();
+-
+-	idx = type + KM_TYPE_NR * smp_processor_id();
 -	vaddr = __fix_to_virt(FIX_KMAP_BEGIN + idx);
--#ifdef CONFIG_DEBUG_HIGHMEM
--	BUG_ON(!pte_none(*(kmap_pte + idx)));
--#endif
--	set_pte(kmap_pte + idx, mk_pte(page, prot));
+-	pte = (page_to_pfn(page) << PAGE_SHIFT) | prot;
+-	ptep = pte_offset_kernel(pmd_off_k(vaddr), vaddr);
+-	set_pte(ptep, pte);
 -
+-	__nds32__tlbop_inv(vaddr);
+-	__nds32__mtsr_dsb(vaddr, NDS32_SR_TLB_VPN);
+-	__nds32__tlbop_rwr(pte);
+-	__nds32__isb();
 -	return (void *)vaddr;
-+	return kmap_idx(type, DCACHE_ALIAS(pfn << PAGE_SHIFT));
- }
+-}
 -EXPORT_SYMBOL(kmap_atomic_high_prot);
- 
+-
 -void kunmap_atomic_high(void *kvaddr)
-+enum fixed_addresses kmap_local_unmap_idx(int type, unsigned long addr)
- {
--	if (kvaddr >= (void *)FIXADDR_START &&
--	    kvaddr < (void *)FIXADDR_TOP) {
--		int idx = kmap_idx(kmap_atomic_idx(),
--				   DCACHE_ALIAS((unsigned long)kvaddr));
--
--		/*
--		 * Force other mappings to Oops if they'll try to access this
--		 * pte without first remap it.  Keeping stale mappings around
--		 * is a bad idea also, in case the page changes cacheability
--		 * attributes or becomes a protected page in a hypervisor.
--		 */
--		pte_clear(&init_mm, kvaddr, kmap_pte + idx);
--		local_flush_tlb_kernel_range((unsigned long)kvaddr,
--					     (unsigned long)kvaddr + PAGE_SIZE);
--
+-{
+-	if (kvaddr >= (void *)FIXADDR_START) {
+-		unsigned long vaddr = (unsigned long)kvaddr;
+-		pte_t *ptep;
 -		kmap_atomic_idx_pop();
+-		__nds32__tlbop_inv(vaddr);
+-		__nds32__isb();
+-		ptep = pte_offset_kernel(pmd_off_k(vaddr), vaddr);
+-		set_pte(ptep, 0);
 -	}
-+	return kmap_idx(type, DCACHE_ALIAS(addr));
- }
+-}
 -EXPORT_SYMBOL(kunmap_atomic_high);
- 
- void __init kmap_init(void)
- {
--	unsigned long kmap_vstart;
--
- 	/* Check if this memory layout is broken because PKMAP overlaps
- 	 * page table.
- 	 */
- 	BUILD_BUG_ON(PKMAP_BASE < TLBTEMP_BASE_1 + TLBTEMP_SIZE);
--	/* cache the first kmap pte */
--	kmap_vstart = __fix_to_virt(FIX_KMAP_BEGIN);
--	kmap_pte = virt_to_kpte(kmap_vstart);
- 	kmap_waitqueues_init();
- }
 
 _______________________________________________
 Virtualization mailing list
