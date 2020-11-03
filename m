@@ -7,75 +7,75 @@ X-Spam-Status: No, score=-6.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id D6399C63777
-	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:33:35 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 87C68C64E7C
+	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:33:40 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 5740020756
-	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:33:35 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 160CD2415A
+	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:33:39 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="b6UWG1RX";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="7x5E7bhv"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5740020756
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="iJ/nMPZ/";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="YkjV/BXf"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 160CD2415A
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linutronix.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id C422986E81;
-	Tue,  3 Nov 2020 10:33:34 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 8F2D8860E6;
+	Tue,  3 Nov 2020 10:33:39 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from fraxinus.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id kSL6AnKpiZY0; Tue,  3 Nov 2020 10:33:39 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 0E5A786088;
+	Tue,  3 Nov 2020 10:33:39 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EC0CDC0889;
+	Tue,  3 Nov 2020 10:33:38 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 958E9C0051
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  3 Nov 2020 10:33:35 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by whitealder.osuosl.org (Postfix) with ESMTP id 80E0586DE7
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  3 Nov 2020 10:33:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6kDr-2eOUi0k; Tue,  3 Nov 2020 10:33:33 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 32E5786E11;
-	Tue,  3 Nov 2020 10:33:33 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 07571C1AD5;
-	Tue,  3 Nov 2020 10:33:33 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 04CB3C0051
- for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:33:31 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id D3B6A872D7
- for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:33:30 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 9Ar3gMki1E5l
+ with ESMTP id kerYiXqShHEt
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:33:29 +0000 (UTC)
+ Tue,  3 Nov 2020 10:33:34 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 4D1F6872A7
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 9306286E2F
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:33:29 +0000 (UTC)
-Message-Id: <20201103095856.979798613@linutronix.de>
+ Tue,  3 Nov 2020 10:33:33 +0000 (UTC)
+Message-Id: <20201103095857.268258322@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020; t=1604399607;
+ s=2020; t=1604399611;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=oF4DYonwtBNvmWHcqJ3amZKMdxENJ+WTSLMv3+rtHDM=;
- b=b6UWG1RXLdBy2bRiDY0A2P6zUTcJ5Ww3Hloamuegv/bL3cd0Jtr2ttgYbbJrW5BYak/rkk
- PIZxdNYfysNFn3hkTOqqRZTgj7HKUJeNhycoOe7m3Id4B0EFsqDbR5SzgKvmyNco7YPeDJ
- 7zGBcL24S5tqjz5nUv65X7+akcl8LQTNORQzEg/iFXRbEmU8I/BDt33Ieg2A5XD5DrODpw
- Mks84NTPIQAyqEH3f2oDzt/ae9t4w9OMJO+I7JYrxIGeYRIj6k6PPK6tR2mIaKluksa7bD
- OXSaYC6IDAc3KYdm99Ww55f3jctY1IJoZnRNbxPldLZF+7xYm+DqO5Hw2kBfKA==
+ bh=mZznvRq2pjMB0UxfV7Tofiw+ZX8bqdvzvy1elzwqCM0=;
+ b=iJ/nMPZ/ADH458Z97fsOSw5wf904BzHADYKEdaFCBP8jKIH9j+SxmjzGepeQQmEuDdNCyA
+ XxWrtJu+F6lu3Lp7uDpoRKHumZPJMpKU0JAHitmBCq936hqJimtruAT0Rlh/aJD2nJW2U2
+ sNv+WzdDOcpqWuWjf03Z6cFdbYts7znLi/vRFm9Inq1DOBuw4Cv5ZvCTAkemTzZPRqX9Us
+ A/gXqaxzBtunufmgE+J6ou52fpkTr0wPHTsN2lG/n5pspmhs9CquSUQH5jaynAXffSMhb0
+ Y/avkAR9q97xAA+G8lllFeR3zkhF27Vtrd+kwqZDO8mrS5ZturOc+6Mxv/CPoQ==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020e; t=1604399607;
+ s=2020e; t=1604399611;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=oF4DYonwtBNvmWHcqJ3amZKMdxENJ+WTSLMv3+rtHDM=;
- b=7x5E7bhvi7aofzhhPh9QlETURgTfsCteOpP5xZ/APbluJpgTom1zgixNGKJtT0nUZF2P72
- bnhVHwiHvnfzpbCg==
-Date: Tue, 03 Nov 2020 10:27:16 +0100
+ bh=mZznvRq2pjMB0UxfV7Tofiw+ZX8bqdvzvy1elzwqCM0=;
+ b=YkjV/BXfl1xf/PJwkxxRp2il3aCsOfTo0zpayVu8o2qPQTr7lA/QrCtxb7deyA8IfhHH+y
+ cIngF4mt/rXTgQCg==
+Date: Tue, 03 Nov 2020 10:27:19 +0100
 From: Thomas Gleixner <tglx@linutronix.de>
 To: LKML <linux-kernel@vger.kernel.org>
-Subject: [patch V3 04/37] sh/highmem: Remove all traces of unused cruft
+Subject: [patch V3 07/37] highmem: Make DEBUG_HIGHMEM functional
 References: <20201103092712.714480842@linutronix.de>
 MIME-Version: 1.0
 Cc: Juri Lelli <juri.lelli@redhat.com>, linux-aio@kvack.org,
@@ -131,82 +131,57 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-For whatever reasons SH has highmem bits all over the place but does
-not enable it via Kconfig. Remove the bitrot.
+For some obscure reason when CONFIG_DEBUG_HIGHMEM is enabled the stack
+depth is increased from 20 to 41. But the only thing DEBUG_HIGHMEM does is
+to enable a few BUG_ON()'s in the mapping code.
+
+That's a leftover from the historical mapping code which had fixed entries
+for various purposes. DEBUG_HIGHMEM inserted guard mappings between the map
+types. But that got all ditched when kmap_atomic() switched to a stack
+based map management. Though the WITH_KM_FENCE magic survived without being
+functional. All the thing does today is to increase the stack depth.
+
+Add a working implementation to the generic kmap_local* implementation.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
- arch/sh/include/asm/fixmap.h     |    8 --------
- arch/sh/include/asm/kmap_types.h |   15 ---------------
- arch/sh/mm/init.c                |    8 --------
- 3 files changed, 31 deletions(-)
+V3: New patch
+---
+ mm/highmem.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
---- a/arch/sh/include/asm/fixmap.h
-+++ b/arch/sh/include/asm/fixmap.h
-@@ -13,9 +13,6 @@
- #include <linux/kernel.h>
- #include <linux/threads.h>
- #include <asm/page.h>
--#ifdef CONFIG_HIGHMEM
--#include <asm/kmap_types.h>
--#endif
+--- a/mm/highmem.c
++++ b/mm/highmem.c
+@@ -374,9 +374,19 @@ EXPORT_SYMBOL(kunmap_high);
  
- /*
-  * Here we define all the compile-time 'special' virtual
-@@ -53,11 +50,6 @@ enum fixed_addresses {
- 	FIX_CMAP_BEGIN,
- 	FIX_CMAP_END = FIX_CMAP_BEGIN + (FIX_N_COLOURS * NR_CPUS) - 1,
+ static DEFINE_PER_CPU(int, __kmap_local_idx);
  
--#ifdef CONFIG_HIGHMEM
--	FIX_KMAP_BEGIN,	/* reserved pte's for temporary kernel mappings */
--	FIX_KMAP_END = FIX_KMAP_BEGIN + (KM_TYPE_NR * NR_CPUS) - 1,
--#endif
--
- #ifdef CONFIG_IOREMAP_FIXED
- 	/*
- 	 * FIX_IOREMAP entries are useful for mapping physical address
---- a/arch/sh/include/asm/kmap_types.h
-+++ /dev/null
-@@ -1,15 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 */
--#ifndef __SH_KMAP_TYPES_H
--#define __SH_KMAP_TYPES_H
--
--/* Dummy header just to define km_type. */
--
--#ifdef CONFIG_DEBUG_HIGHMEM
--#define  __WITH_KM_FENCE
--#endif
--
--#include <asm-generic/kmap_types.h>
--
--#undef __WITH_KM_FENCE
--
--#endif
---- a/arch/sh/mm/init.c
-+++ b/arch/sh/mm/init.c
-@@ -362,9 +362,6 @@ void __init mem_init(void)
- 	mem_init_print_info(NULL);
- 	pr_info("virtual kernel memory layout:\n"
- 		"    fixmap  : 0x%08lx - 0x%08lx   (%4ld kB)\n"
--#ifdef CONFIG_HIGHMEM
--		"    pkmap   : 0x%08lx - 0x%08lx   (%4ld kB)\n"
--#endif
- 		"    vmalloc : 0x%08lx - 0x%08lx   (%4ld MB)\n"
- 		"    lowmem  : 0x%08lx - 0x%08lx   (%4ld MB) (cached)\n"
- #ifdef CONFIG_UNCACHED_MAPPING
-@@ -376,11 +373,6 @@ void __init mem_init(void)
- 		FIXADDR_START, FIXADDR_TOP,
- 		(FIXADDR_TOP - FIXADDR_START) >> 10,
++/*
++ * With DEBUG_HIGHMEM the stack depth is doubled and every second
++ * slot is unused which acts as a guard page
++ */
++#ifdef CONFIG_DEBUG_HIGHMEM
++# define KM_INCR	2
++#else
++# define KM_INCR	1
++#endif
++
+ static inline int kmap_local_idx_push(void)
+ {
+-	int idx = __this_cpu_inc_return(__kmap_local_idx) - 1;
++	int idx = __this_cpu_add_return(__kmap_local_idx, KM_INCR) - 1;
  
--#ifdef CONFIG_HIGHMEM
--		PKMAP_BASE, PKMAP_BASE+LAST_PKMAP*PAGE_SIZE,
--		(LAST_PKMAP*PAGE_SIZE) >> 10,
--#endif
--
- 		(unsigned long)VMALLOC_START, VMALLOC_END,
- 		(VMALLOC_END - VMALLOC_START) >> 20,
+ 	WARN_ON_ONCE(in_irq() && !irqs_disabled());
+ 	BUG_ON(idx >= KM_MAX_IDX);
+@@ -390,7 +400,7 @@ static inline int kmap_local_idx(void)
  
+ static inline void kmap_local_idx_pop(void)
+ {
+-	int idx = __this_cpu_dec_return(__kmap_local_idx);
++	int idx = __this_cpu_sub_return(__kmap_local_idx, KM_INCR);
+ 
+ 	BUG_ON(idx < 0);
+ }
 
 _______________________________________________
 Virtualization mailing list
