@@ -7,75 +7,75 @@ X-Spam-Status: No, score=-6.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 26A86C83034
-	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:34:11 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B4B07C83036
+	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:34:13 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A837223A32
-	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:34:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 48EF8206F1
+	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:34:13 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="EFq00YaC";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="MNJFQ16T"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A837223A32
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="KJf8zms3";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="VFptQlcV"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 48EF8206F1
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linutronix.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 6717385F96;
-	Tue,  3 Nov 2020 10:34:10 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 0011A86044;
+	Tue,  3 Nov 2020 10:34:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bf7pu1BPGJuA; Tue,  3 Nov 2020 10:34:07 +0000 (UTC)
+	with ESMTP id WJNajEhfymvr; Tue,  3 Nov 2020 10:34:12 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 600B68707F;
-	Tue,  3 Nov 2020 10:34:07 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 59B3186168;
+	Tue,  3 Nov 2020 10:34:12 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5125DC1AD6;
-	Tue,  3 Nov 2020 10:34:07 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4BFA1C1AD5;
+	Tue,  3 Nov 2020 10:34:12 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4D53DC0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0BFC5C0051
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:34:05 +0000 (UTC)
+ Tue,  3 Nov 2020 10:34:11 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 3C44285608
+ by whitealder.osuosl.org (Postfix) with ESMTP id 0082686DE4
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:34:05 +0000 (UTC)
+ Tue,  3 Nov 2020 10:34:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id fRQoJWQvEOjJ
+ with ESMTP id K9FtSb-wKSVi
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:34:03 +0000 (UTC)
+ Tue,  3 Nov 2020 10:34:08 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 3B2C386877
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 099A986AB6
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:34:03 +0000 (UTC)
-Message-Id: <20201103095859.335366302@linutronix.de>
+ Tue,  3 Nov 2020 10:34:08 +0000 (UTC)
+Message-Id: <20201103095859.632601906@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020; t=1604399636;
+ s=2020; t=1604399640;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=A9fIQi2MIxDLlGKHATeOlK6WSHzl9bMxA6Vy6WK4kFg=;
- b=EFq00YaC2cfZ3tRBXG1AYeQj6Sgd3q/sRky5nMpbjN5ek1aWLKVPUv+JvoHWa6vjJFl3Ww
- awzO+FzbND5FKjPGN7gNTnp5Mb1tq9qO15q652V8S0pc9Ce+oaGECW/jZPsmCvsiKGY+B3
- KwlcTL/aSMXp1KJx2nFOb6gxG+DhM4n5p7kt5iTVZXpFOkBEw1cbStLJ+/3gWYcjPH26QY
- Sbv7PLzlBaetuHp8ai5dMyYUIWrRveb5P6ybl5UfTZhOpH3MacNEiFaKtx28E2gAmPiYft
- OZoB88IwwamuMjukOjyOm6rKIPayv2itPmrCw7QTvAcv81mGKSLdYHUqSDcl3Q==
+ bh=BkU+tnLkRKR9tWKe3hevtehunqdIqgczXq1AHqpv3q4=;
+ b=KJf8zms3zcTUg/g/XiQKKwBV2+EGVfb2u6h4vllDaW1ez/6EBzhuUPcV5jYjkgK7/2tTNT
+ qa9meb2s93/KBKnvJtf7CaHAT8ZFpd7v/uDOmyc6h4+65DvAL8nMOPTgxeMwXec71wKviC
+ gz+l4oJdNdRF681hb02MgaZ8n1LTFM12pOX0R3Y6kTHEtlSnwJNnKuWAQNeTkLaIi8i7t3
+ B7yCZDHpTZLzl/MKlFABrQ2M+t1vry/EDo/Dfbd7n6CnEj3z8AhqyHdXDUxHJtlLsKb9Iy
+ +K2WT76685XP/mxAZ6mzKSlMAP/ZbKhBPVY2/azsvsrUQ/qHyD8kIOTXSXqhkQ==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020e; t=1604399636;
+ s=2020e; t=1604399640;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=A9fIQi2MIxDLlGKHATeOlK6WSHzl9bMxA6Vy6WK4kFg=;
- b=MNJFQ16TWMWokWTa10gHMVVbsQOpiB2QfbpOViNefBGxmMK6yL/K8NxBWEF2+7F4dQI9lX
- SBoVS11NJaJ9FoCQ==
-Date: Tue, 03 Nov 2020 10:27:39 +0100
+ bh=BkU+tnLkRKR9tWKe3hevtehunqdIqgczXq1AHqpv3q4=;
+ b=VFptQlcVWRmmzZcgWUr7xM35WWw+Igz4v/KmNvEZ7Y4AvSm9gz9Y19AW04WlVkG++aOR3h
+ ADLKc+FsTUi0cTDA==
+Date: Tue, 03 Nov 2020 10:27:42 +0100
 From: Thomas Gleixner <tglx@linutronix.de>
 To: LKML <linux-kernel@vger.kernel.org>
-Subject: [patch V3 27/37] x86/crashdump/32: Simplify copy_oldmem_page()
+Subject: [patch V3 30/37] highmem: Remove kmap_atomic_pfn()
 References: <20201103092712.714480842@linutronix.de>
 MIME-Version: 1.0
 Cc: Juri Lelli <juri.lelli@redhat.com>, linux-aio@kvack.org,
@@ -131,95 +131,43 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Replace kmap_atomic_pfn() with kmap_local_pfn() which is preemptible and
-can take page faults.
-
-Remove the indirection of the dump page and the related cruft which is not
-longer required.
+No more users.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
 V3: New patch
 ---
- arch/x86/kernel/crash_dump_32.c |   48 ++++++++--------------------------------
- 1 file changed, 10 insertions(+), 38 deletions(-)
+ include/linux/highmem-internal.h |   12 ------------
+ 1 file changed, 12 deletions(-)
 
---- a/arch/x86/kernel/crash_dump_32.c
-+++ b/arch/x86/kernel/crash_dump_32.c
-@@ -13,8 +13,6 @@
- 
- #include <linux/uaccess.h>
- 
--static void *kdump_buf_page;
--
- static inline bool is_crashed_pfn_valid(unsigned long pfn)
- {
- #ifndef CONFIG_X86_PAE
-@@ -41,15 +39,11 @@ static inline bool is_crashed_pfn_valid(
-  * @userbuf: if set, @buf is in user address space, use copy_to_user(),
-  *	otherwise @buf is in kernel address space, use memcpy().
-  *
-- * Copy a page from "oldmem". For this page, there is no pte mapped
-- * in the current kernel. We stitch up a pte, similar to kmap_atomic.
-- *
-- * Calling copy_to_user() in atomic context is not desirable. Hence first
-- * copying the data to a pre-allocated kernel page and then copying to user
-- * space in non-atomic context.
-+ * Copy a page from "oldmem". For this page, there might be no pte mapped
-+ * in the current kernel.
-  */
--ssize_t copy_oldmem_page(unsigned long pfn, char *buf,
--                               size_t csize, unsigned long offset, int userbuf)
-+ssize_t copy_oldmem_page(unsigned long pfn, char *buf, size_t csize,
-+			 unsigned long offset, int userbuf)
- {
- 	void  *vaddr;
- 
-@@ -59,38 +53,16 @@ ssize_t copy_oldmem_page(unsigned long p
- 	if (!is_crashed_pfn_valid(pfn))
- 		return -EFAULT;
- 
--	vaddr = kmap_atomic_pfn(pfn);
-+	vaddr = kmap_local_pfn(pfn);
- 
- 	if (!userbuf) {
--		memcpy(buf, (vaddr + offset), csize);
--		kunmap_atomic(vaddr);
-+		memcpy(buf, vaddr + offset, csize);
- 	} else {
--		if (!kdump_buf_page) {
--			printk(KERN_WARNING "Kdump: Kdump buffer page not"
--				" allocated\n");
--			kunmap_atomic(vaddr);
--			return -EFAULT;
--		}
--		copy_page(kdump_buf_page, vaddr);
--		kunmap_atomic(vaddr);
--		if (copy_to_user(buf, (kdump_buf_page + offset), csize))
--			return -EFAULT;
-+		if (copy_to_user(buf, vaddr + offset, csize))
-+			csize = -EFAULT;
- 	}
- 
--	return csize;
--}
-+	kunmap_local(vaddr);
- 
--static int __init kdump_buf_page_init(void)
--{
--	int ret = 0;
--
--	kdump_buf_page = kmalloc(PAGE_SIZE, GFP_KERNEL);
--	if (!kdump_buf_page) {
--		printk(KERN_WARNING "Kdump: Failed to allocate kdump buffer"
--			 " page\n");
--		ret = -ENOMEM;
--	}
--
--	return ret;
-+	return csize;
+--- a/include/linux/highmem-internal.h
++++ b/include/linux/highmem-internal.h
+@@ -99,13 +99,6 @@ static inline void *kmap_atomic(struct p
+ 	return kmap_atomic_prot(page, kmap_prot);
  }
--arch_initcall(kdump_buf_page_init);
+ 
+-static inline void *kmap_atomic_pfn(unsigned long pfn)
+-{
+-	preempt_disable();
+-	pagefault_disable();
+-	return __kmap_local_pfn_prot(pfn, kmap_prot);
+-}
+-
+ static inline void __kunmap_atomic(void *addr)
+ {
+ 	kunmap_local_indexed(addr);
+@@ -193,11 +186,6 @@ static inline void *kmap_atomic_prot(str
+ 	return kmap_atomic(page);
+ }
+ 
+-static inline void *kmap_atomic_pfn(unsigned long pfn)
+-{
+-	return kmap_atomic(pfn_to_page(pfn));
+-}
+-
+ static inline void __kunmap_atomic(void *addr)
+ {
+ #ifdef ARCH_HAS_FLUSH_ON_KUNMAP
 
 _______________________________________________
 Virtualization mailing list
