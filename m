@@ -7,75 +7,75 @@ X-Spam-Status: No, score=-6.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 473F1C55178
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ECB33C388F7
 	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:33:33 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B53EF21D40
-	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:33:32 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 65AC720756
+	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:33:33 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="pFNBIUaU";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="vJq9Z56+"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B53EF21D40
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="rvT54BmE";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="lkKBWdK1"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 65AC720756
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linutronix.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 4B7D086D48;
+	by silver.osuosl.org (Postfix) with ESMTP id A357220520;
 	Tue,  3 Nov 2020 10:33:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id uIGmtm5ocfbu; Tue,  3 Nov 2020 10:33:30 +0000 (UTC)
+	with ESMTP id rWzxg0ksbUvK; Tue,  3 Nov 2020 10:33:30 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 4236986DB2;
+	by silver.osuosl.org (Postfix) with ESMTP id 81E5520511;
 	Tue,  3 Nov 2020 10:33:30 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2C088C0889;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 680C3C1AD5;
 	Tue,  3 Nov 2020 10:33:30 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C7F8AC0051
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 61D06C0051
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:33:28 +0000 (UTC)
+ Tue,  3 Nov 2020 10:33:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 7BDF68727E
+ by whitealder.osuosl.org (Postfix) with ESMTP id 4897C86DB2
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:33:28 +0000 (UTC)
+ Tue,  3 Nov 2020 10:33:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xWd9hrv--1WF
+ with ESMTP id 56XuhNxPvDgI
  for <virtualization@lists.linux-foundation.org>;
  Tue,  3 Nov 2020 10:33:27 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
- by hemlock.osuosl.org (Postfix) with ESMTPS id E6009872A7
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 4074586D48
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:33:26 +0000 (UTC)
-Message-Id: <20201103095856.595767588@linutronix.de>
+ Tue,  3 Nov 2020 10:33:27 +0000 (UTC)
+Message-Id: <20201103095856.732891880@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020; t=1604399603;
+ s=2020; t=1604399605;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=i3kbbtl9EePeHW2/ft3bZDh5NUwHcPcZYxbBfPjNZc8=;
- b=pFNBIUaUf/b+er6ZJJKFPRaV2u4PtSdJsN8nQKFW+3bXEIGGzauhyZgtOmkXMrq1suOcr7
- NcENhiNwm9wv4CatQ10cEcB/Hga7PsNIkM2NHzGMcjMO0pPAyOZDvNyIJoXLKsL1vmgsip
- aGloHmLDgrw+W4wL2vfGcSgi1keU2rGsBVoiLE6uxlSAbx8JfmJeKHVkcIWqPXtrdAIc+T
- /vDeotqyoJPGfzQAcXVKUcZWQA64kJReuOK5qjoOZ2yJB18jBRKtjvtQBw3wHTXNfLKG8L
- eC+4mOqr3aswQyLp4fDizQxCFpjS2lhKgFUx0jY2VcwOKrUeYn31Z+o4PrrUkg==
+ bh=3HwBsgFv26sFcL/ZrR5QT7IdhKdyl722jNSTyAsMfhU=;
+ b=rvT54BmES001fwkPfhre2195ODFh8EFwDZYAlKQRhVHUBxAXrQ4jz+GuDaq+7kANpwhtIs
+ Odqznja1AON6wOyHEpYXOzN884r1utS39bCLsxNEulHhg56wkK85myPaXmlcyC0Iwy9aJH
+ 7H/5d1lmCAyZsRrJM2yBsjEdO5LEmhyrq2wZg4iXyHs50gJQuJK3//uDTtWi4cGXwQajhE
+ 6zcImoXr01WpyQwaIvad1lc/klKtM4lT0KI/sOHFnGRyhXmWoqmmzQFg3YIBBqGRZ2BmRY
+ OjwLotmGcs5kT4ELYX86H43ZMMJAy6wm+tJXkQgUfKkVJUPub5l/USgVgx610A==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020e; t=1604399603;
+ s=2020e; t=1604399605;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=i3kbbtl9EePeHW2/ft3bZDh5NUwHcPcZYxbBfPjNZc8=;
- b=vJq9Z56+nB4hb6l6NzZWsUYvY6gKGZm9NfNVMELVLZameB9s0fxKXRavsDsjIUrnG3aw2e
- hJoPkAXyDaK+qQBw==
-Date: Tue, 03 Nov 2020 10:27:13 +0100
+ bh=3HwBsgFv26sFcL/ZrR5QT7IdhKdyl722jNSTyAsMfhU=;
+ b=lkKBWdK1CIWHPlUI77sykNxUAemFnakZTPVr751NgUw5N/WO+Qg52P9pTni6F4JYuE0eLl
+ 4W0KlbICECLDLgCA==
+Date: Tue, 03 Nov 2020 10:27:14 +0100
 From: Thomas Gleixner <tglx@linutronix.de>
 To: LKML <linux-kernel@vger.kernel.org>
-Subject: [patch V3 01/37] mm/highmem: Un-EXPORT __kmap_atomic_idx()
+Subject: [patch V3 02/37] highmem: Remove unused functions
 References: <20201103092712.714480842@linutronix.de>
 MIME-Version: 1.0
 Cc: Juri Lelli <juri.lelli@redhat.com>, linux-aio@kvack.org,
@@ -131,27 +131,39 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Nothing in modules can use that.
+Nothing uses totalhigh_pages_dec() and totalhigh_pages_set().
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: linux-mm@kvack.org
 ---
- mm/highmem.c |    2 --
- 1 file changed, 2 deletions(-)
+V3: New patch
+---
+ include/linux/highmem.h |   10 ----------
+ 1 file changed, 10 deletions(-)
 
---- a/mm/highmem.c
-+++ b/mm/highmem.c
-@@ -108,8 +108,6 @@ static inline wait_queue_head_t *get_pkm
- atomic_long_t _totalhigh_pages __read_mostly;
- EXPORT_SYMBOL(_totalhigh_pages);
+--- a/include/linux/highmem.h
++++ b/include/linux/highmem.h
+@@ -104,21 +104,11 @@ static inline void totalhigh_pages_inc(v
+ 	atomic_long_inc(&_totalhigh_pages);
+ }
  
--EXPORT_PER_CPU_SYMBOL(__kmap_atomic_idx);
+-static inline void totalhigh_pages_dec(void)
+-{
+-	atomic_long_dec(&_totalhigh_pages);
+-}
 -
- unsigned int nr_free_highpages (void)
+ static inline void totalhigh_pages_add(long count)
  {
- 	struct zone *zone;
+ 	atomic_long_add(count, &_totalhigh_pages);
+ }
+ 
+-static inline void totalhigh_pages_set(long val)
+-{
+-	atomic_long_set(&_totalhigh_pages, val);
+-}
+-
+ void kmap_flush_unused(void);
+ 
+ struct page *kmap_to_page(void *addr);
 
 _______________________________________________
 Virtualization mailing list
