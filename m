@@ -2,118 +2,123 @@ Return-Path: <SRS0=JeE0=EJ=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.3 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
+	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2BB88C8260C
-	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:34:26 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DE232C4742C
+	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:54:30 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id CD69721D40
-	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:34:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 35A9022403
+	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:54:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="4s8omJJm";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="U4tn/+pk"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CD69721D40
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linutronix.de
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Z1nxH0jD"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 35A9022403
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 9126686E65;
-	Tue,  3 Nov 2020 10:34:24 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 2B9672076F;
+	Tue,  3 Nov 2020 10:54:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id eJhhZVuHxFME; Tue,  3 Nov 2020 10:34:21 +0000 (UTC)
+	with ESMTP id EVSfkdE6o+qd; Tue,  3 Nov 2020 10:54:27 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id D31B38707F;
-	Tue,  3 Nov 2020 10:34:21 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id CA44D2075B;
+	Tue,  3 Nov 2020 10:54:27 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id CA895C0889;
-	Tue,  3 Nov 2020 10:34:21 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 18E00C0051
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B7BE5C0889;
+	Tue,  3 Nov 2020 10:54:27 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5416FC0051
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:34:21 +0000 (UTC)
+ Tue,  3 Nov 2020 10:54:26 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id C572C87314
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 3E081860D2
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:34:19 +0000 (UTC)
+ Tue,  3 Nov 2020 10:54:26 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id o8q9gP6PjcPf
+ with ESMTP id CmBEuLMVeIep
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:34:18 +0000 (UTC)
+ Tue,  3 Nov 2020 10:54:25 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 6829B872D7
+Received: from mail-pf1-f193.google.com (mail-pf1-f193.google.com
+ [209.85.210.193])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 98CF3860D1
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:34:18 +0000 (UTC)
-Message-Id: <20201103095900.254775994@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020; t=1604399648;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=fathe5XQH1prv3cOh0IbfIOri3L6Dlenv7hGYFbTtOw=;
- b=4s8omJJmBJxpmEg2QlzSO+2D4D00kouw94LPizFXKTom4HVYkN1o6VhUYVjXFczGJZXWt6
- jcuI7M/Stlt9YLFWcRG639AknE1v3UGJre9Df69eIwRjf9YTAiuZlQltsoKHicCYv0XkOB
- tMyxElLRYReGvN4Pcl2amdoIzJ+WqApLJqAyPzA/Jqs47Dn+PWf6iFzctqWQ01kgsVlEs+
- 1Ko7pw79T/pa0E4i3nSMi+6A0K8qzsp3/0oy+zVV4I8gfR55e/p9Uu4ya2uNvVxk7sYui2
- P+3BfUUa3cw0srOaWKmfe2rDqSUUj9AU19r7OCFMjiYKDFXVXEhQ3iKBruwOYA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020e; t=1604399648;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=fathe5XQH1prv3cOh0IbfIOri3L6Dlenv7hGYFbTtOw=;
- b=U4tn/+pk9QVOKUfGcyx1nvemACltstypD2THWsG3wL3LXLx1tDAUzM/HpmYQmwhLMtJxEk
- hA08G13TeSVN0TDg==
-Date: Tue, 03 Nov 2020 10:27:48 +0100
-From: Thomas Gleixner <tglx@linutronix.de>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: [patch V3 36/37] drm/i915: Replace io_mapping_map_atomic_wc()
-References: <20201103092712.714480842@linutronix.de>
+ Tue,  3 Nov 2020 10:54:25 +0000 (UTC)
+Received: by mail-pf1-f193.google.com with SMTP id a200so13842869pfa.10
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 03 Nov 2020 02:54:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
+ h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+ :cc; bh=Pr70uaXWQ5V9OEnpZUw1+PkE5bFME26YS/kMKBh3/j4=;
+ b=Z1nxH0jDHYEqq8hm0bVNqvQCGIZiEpIpb3zSwcYXQieBLtra1nCwDJgpu5pP89uJzE
+ AkhrBgNlD6HCyN456iYZGK8zXMn2VqjNio/0ngfT65e6vFKeH9P/k+YNx0fz0NX90SQM
+ JId+N9RTHwMw0LwsVjrJ0K/iWTlm+/5RRX+O/Qjs6Unhw7bP80fuwGuRg+eAD4HDASkn
+ xBbZ2MPC8C7aomhpP8xQDtCO64OoJw54a0Ax1nTLubP8Yh2DLws0e+6UO7/9eRpRrt3U
+ p4wJZFBQok7bOE/bbaJc+Lng79kYbok1iizF3WW9gFugdQUddODfxMzleDA0d88pCHQj
+ 0aaw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=Pr70uaXWQ5V9OEnpZUw1+PkE5bFME26YS/kMKBh3/j4=;
+ b=GkZurH/vQfuJ+C6xrVPS9KQkPxU8cPm3WTg2ZE3/tTOM+kvGUOIBW4JBkm1utnVS1q
+ aoFr/BRwlSaWZGm+60beFBXrhvjOc0PbN6wuVjyqbfpmVhVbZw0ImOb0Jq6WzC6dyqSQ
+ 3fzuOS7qfSavLxFf1tlPw+Yh3U24ZJvitBk0MMQKljUqKfh6ZnCtGkJ44KqELzKgGSjx
+ XLih9SV2XdXYFX9zVzT7XRIowBPery98XTyNUZVzr1aAOygDITO3NHoRD5/K833UYCt9
+ lh+F+/JUgpibbs+0t+Ab2+GbNVcYsVSL+IVm11fRTrm8/d+c81zOnrBt65XI+vJOzLSa
+ tjcA==
+X-Gm-Message-State: AOAM533Z1BpY/v3iqKERByxdyFP8sH7OjrGZKBcEEEwfxXYNpHMEZoCC
+ nuHSV+hwGFT/X5VViM41mGopM3Lny9Tzt8AdETE=
+X-Google-Smtp-Source: ABdhPJzFEjyEEdc+kSmf/T1nHeNhjOJHPnuC+7t9Znx2RJFmaAHHYOf4fCTxwiGuX4v/1cJJtqmJw1ySNSiuUS5bxLE=
+X-Received: by 2002:a17:90a:430b:: with SMTP id
+ q11mr3222009pjg.129.1604400865170; 
+ Tue, 03 Nov 2020 02:54:25 -0800 (PST)
 MIME-Version: 1.0
-Cc: Juri Lelli <juri.lelli@redhat.com>, linux-aio@kvack.org,
- Peter Zijlstra <peterz@infradead.org>,
- Benjamin Herrenschmidt <benh@kernel.crashing.org>,
- Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
- Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- Ben Segall <bsegall@google.com>, linux-mm@kvack.org,
- Huang Rui <ray.huang@amd.com>, Paul Mackerras <paulus@samba.org>,
- Daniel Bristot de Oliveira <bristot@redhat.com>, sparclinux@vger.kernel.org,
- Dave Airlie <airlied@redhat.com>, Vincent Chen <deanbo422@gmail.com>,
- Christoph Hellwig <hch@lst.de>, Vincent Guittot <vincent.guittot@linaro.org>,
- Arnd Bergmann <arnd@arndb.de>, Max Filippov <jcmvbkbc@gmail.com>,
- Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org,
- Russell King <linux@armlinux.org.uk>, linux-csky@vger.kernel.org,
- Ingo Molnar <mingo@kernel.org>, David Airlie <airlied@linux.ie>,
- Steven Rostedt <rostedt@goodmis.org>, Mel Gorman <mgorman@suse.de>,
- nouveau@lists.freedesktop.org,
- VMware Graphics <linux-graphics-maintainer@vmware.com>,
- linux-snps-arc@lists.infradead.org, Ben Skeggs <bskeggs@redhat.com>,
- linux-xtensa@linux-xtensa.org, Paul McKenney <paulmck@kernel.org>,
- intel-gfx@lists.freedesktop.org, Roland Scheidegger <sroland@vmware.com>,
- Josef Bacik <josef@toxicpanda.com>, Jani Nikula <jani.nikula@linux.intel.com>,
- Linus Torvalds <torvalds@linuxfoundation.org>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Rodrigo Vivi <rodrigo.vivi@intel.com>, David Sterba <dsterba@suse.com>,
- Dietmar Eggemann <dietmar.eggemann@arm.com>,
- linux-arm-kernel@lists.infradead.org, Chris Zankel <chris@zankel.net>,
- Michal Simek <monstr@monstr.eu>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Nick Hu <nickhu@andestech.com>, Chris Mason <clm@fb.com>,
- Vineet Gupta <vgupta@synopsys.com>, linux-mips@vger.kernel.org,
- Christian Koenig <christian.koenig@amd.com>, Benjamin LaHaise <bcrl@kvack.org>,
- spice-devel@lists.freedesktop.org, Daniel Vetter <daniel@ffwll.ch>,
- linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
- linuxppc-dev@lists.ozlabs.org, "David S. Miller" <davem@davemloft.net>,
- linux-btrfs@vger.kernel.org, Greentime Hu <green.hu@gmail.com>
+References: <20201102152037.963-1-brgl@bgdev.pl>
+ <21d80265fccfcb5d76851c84d1c2d88e0421ab85.camel@perches.com>
+ <CAMRc=Me4-4Cmoq3UdpYEEhERP6fvt97bEJsZYhrcFSQf+a_voA@mail.gmail.com>
+In-Reply-To: <CAMRc=Me4-4Cmoq3UdpYEEhERP6fvt97bEJsZYhrcFSQf+a_voA@mail.gmail.com>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Tue, 3 Nov 2020 12:55:14 +0200
+Message-ID: <CAHp75VdpriwuktGrMpcXXQuHgfDL6SzqmQTsGFNKLBb=QiKuGg@mail.gmail.com>
+Subject: Re: [PATCH v2 0/8] slab: provide and use krealloc_array()
+To: Bartosz Golaszewski <brgl@bgdev.pl>
+Cc: Linux-ALSA <alsa-devel@alsa-project.org>,
+ "open list:VFIO DRIVER" <kvm@vger.kernel.org>,
+ "Michael S . Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>,
+ Gustavo Padovan <gustavo@padovan.org>,
+ Linus Walleij <linus.walleij@linaro.org>,
+ "open list:DRM PANEL DRIVERS" <dri-devel@lists.freedesktop.org>,
+ Jaroslav Kysela <perex@perex.cz>, linux-mm <linux-mm@kvack.org>,
+ Christoph Lameter <cl@linux.com>, Sumit Semwal <sumit.semwal@linaro.org>,
+ Mauro Carvalho Chehab <mchehab@kernel.org>,
+ Bartosz Golaszewski <bgolaszewski@baylibre.com>,
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+ David Rientjes <rientjes@google.com>,
+ virtualization@lists.linux-foundation.org,
+ Linux Media Mailing List <linux-media@vger.kernel.org>,
+ Robert Richter <rric@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, linaro-mm-sig@lists.linaro.org,
+ "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+ Borislav Petkov <bp@alien8.de>,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+ Andrew Morton <akpm@linux-foundation.org>, linux-edac@vger.kernel.org,
+ Tony Luck <tony.luck@intel.com>, netdev <netdev@vger.kernel.org>,
+ Takashi Iwai <tiwai@suse.com>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ Pekka Enberg <penberg@kernel.org>, James Morse <james.morse@arm.com>,
+ Daniel Vetter <daniel@ffwll.ch>, Joe Perches <joe@perches.com>,
+ Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+ =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -130,164 +135,24 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-None of these mapping requires the side effect of disabling pagefaults and
-preemption.
+On Tue, Nov 3, 2020 at 12:13 PM Bartosz Golaszewski <brgl@bgdev.pl> wrote:
+> On Tue, Nov 3, 2020 at 5:14 AM Joe Perches <joe@perches.com> wrote:
+> > On Mon, 2020-11-02 at 16:20 +0100, Bartosz Golaszewski wrote:
+> > > From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 
-Use io_mapping_map_local_wc() instead, and clean up gtt_user_read() and
-gtt_user_write() to use a plain copy_from_user() as the local maps are not
-disabling pagefaults.
+> Yeah so I had this concern for devm_krealloc() and even sent a patch
+> that extended it to honor __GFP_ZERO before I noticed that regular
+> krealloc() silently ignores __GFP_ZERO. I'm not sure if this is on
+> purpose. Maybe we should either make krealloc() honor __GFP_ZERO or
+> explicitly state in its documentation that it ignores it?
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: intel-gfx@lists.freedesktop.org
-Cc: dri-devel@lists.freedesktop.org
----
-V3: New patch
----
- drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c |    7 +---
- drivers/gpu/drm/i915/i915_gem.c                |   40 ++++++++-----------------
- drivers/gpu/drm/i915/selftests/i915_gem.c      |    4 +-
- drivers/gpu/drm/i915/selftests/i915_gem_gtt.c  |    8 ++---
- 4 files changed, 22 insertions(+), 37 deletions(-)
+And my voice here is to ignore for the same reasons: respect
+realloc(3) and making common sense with the idea of REallocating
+(capital letters on purpose).
 
---- a/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_execbuffer.c
-@@ -1081,7 +1081,7 @@ static void reloc_cache_reset(struct rel
- 		struct i915_ggtt *ggtt = cache_to_ggtt(cache);
- 
- 		intel_gt_flush_ggtt_writes(ggtt->vm.gt);
--		io_mapping_unmap_atomic((void __iomem *)vaddr);
-+		io_mapping_unmap_local((void __iomem *)vaddr);
- 
- 		if (drm_mm_node_allocated(&cache->node)) {
- 			ggtt->vm.clear_range(&ggtt->vm,
-@@ -1147,7 +1147,7 @@ static void *reloc_iomap(struct drm_i915
- 
- 	if (cache->vaddr) {
- 		intel_gt_flush_ggtt_writes(ggtt->vm.gt);
--		io_mapping_unmap_atomic((void __force __iomem *) unmask_page(cache->vaddr));
-+		io_mapping_unmap_local((void __force __iomem *) unmask_page(cache->vaddr));
- 	} else {
- 		struct i915_vma *vma;
- 		int err;
-@@ -1195,8 +1195,7 @@ static void *reloc_iomap(struct drm_i915
- 		offset += page << PAGE_SHIFT;
- 	}
- 
--	vaddr = (void __force *)io_mapping_map_atomic_wc(&ggtt->iomap,
--							 offset);
-+	vaddr = (void __force *)io_mapping_map_local_wc(&ggtt->iomap, offset);
- 	cache->page = page;
- 	cache->vaddr = (unsigned long)vaddr;
- 
---- a/drivers/gpu/drm/i915/i915_gem.c
-+++ b/drivers/gpu/drm/i915/i915_gem.c
-@@ -379,22 +379,15 @@ gtt_user_read(struct io_mapping *mapping
- 	      char __user *user_data, int length)
- {
- 	void __iomem *vaddr;
--	unsigned long unwritten;
-+	bool fail = false;
- 
- 	/* We can use the cpu mem copy function because this is X86. */
--	vaddr = io_mapping_map_atomic_wc(mapping, base);
--	unwritten = __copy_to_user_inatomic(user_data,
--					    (void __force *)vaddr + offset,
--					    length);
--	io_mapping_unmap_atomic(vaddr);
--	if (unwritten) {
--		vaddr = io_mapping_map_wc(mapping, base, PAGE_SIZE);
--		unwritten = copy_to_user(user_data,
--					 (void __force *)vaddr + offset,
--					 length);
--		io_mapping_unmap(vaddr);
--	}
--	return unwritten;
-+	vaddr = io_mapping_map_local_wc(mapping, base);
-+	if (copy_to_user(user_data, (void __force *)vaddr + offset, length))
-+		fail = true;
-+	io_mapping_unmap_local(vaddr);
-+
-+	return fail;
- }
- 
- static int
-@@ -557,21 +550,14 @@ ggtt_write(struct io_mapping *mapping,
- 	   char __user *user_data, int length)
- {
- 	void __iomem *vaddr;
--	unsigned long unwritten;
-+	bool fail = false;
- 
- 	/* We can use the cpu mem copy function because this is X86. */
--	vaddr = io_mapping_map_atomic_wc(mapping, base);
--	unwritten = __copy_from_user_inatomic_nocache((void __force *)vaddr + offset,
--						      user_data, length);
--	io_mapping_unmap_atomic(vaddr);
--	if (unwritten) {
--		vaddr = io_mapping_map_wc(mapping, base, PAGE_SIZE);
--		unwritten = copy_from_user((void __force *)vaddr + offset,
--					   user_data, length);
--		io_mapping_unmap(vaddr);
--	}
--
--	return unwritten;
-+	vaddr = io_mapping_map_local_wc(mapping, base);
-+	if (copy_from_user((void __force *)vaddr + offset, user_data, length))
-+		fail = true;
-+	io_mapping_unmap_local(vaddr);
-+	return fail;
- }
- 
- /**
---- a/drivers/gpu/drm/i915/selftests/i915_gem.c
-+++ b/drivers/gpu/drm/i915/selftests/i915_gem.c
-@@ -57,12 +57,12 @@ static void trash_stolen(struct drm_i915
- 
- 		ggtt->vm.insert_page(&ggtt->vm, dma, slot, I915_CACHE_NONE, 0);
- 
--		s = io_mapping_map_atomic_wc(&ggtt->iomap, slot);
-+		s = io_mapping_map_local_wc(&ggtt->iomap, slot);
- 		for (x = 0; x < PAGE_SIZE / sizeof(u32); x++) {
- 			prng = next_pseudo_random32(prng);
- 			iowrite32(prng, &s[x]);
- 		}
--		io_mapping_unmap_atomic(s);
-+		io_mapping_unmap_local(s);
- 	}
- 
- 	ggtt->vm.clear_range(&ggtt->vm, slot, PAGE_SIZE);
---- a/drivers/gpu/drm/i915/selftests/i915_gem_gtt.c
-+++ b/drivers/gpu/drm/i915/selftests/i915_gem_gtt.c
-@@ -1200,9 +1200,9 @@ static int igt_ggtt_page(void *arg)
- 		u64 offset = tmp.start + order[n] * PAGE_SIZE;
- 		u32 __iomem *vaddr;
- 
--		vaddr = io_mapping_map_atomic_wc(&ggtt->iomap, offset);
-+		vaddr = io_mapping_map_local_wc(&ggtt->iomap, offset);
- 		iowrite32(n, vaddr + n);
--		io_mapping_unmap_atomic(vaddr);
-+		io_mapping_unmap_local(vaddr);
- 	}
- 	intel_gt_flush_ggtt_writes(ggtt->vm.gt);
- 
-@@ -1212,9 +1212,9 @@ static int igt_ggtt_page(void *arg)
- 		u32 __iomem *vaddr;
- 		u32 val;
- 
--		vaddr = io_mapping_map_atomic_wc(&ggtt->iomap, offset);
-+		vaddr = io_mapping_map_local_wc(&ggtt->iomap, offset);
- 		val = ioread32(vaddr + n);
--		io_mapping_unmap_atomic(vaddr);
-+		io_mapping_unmap_local(vaddr);
- 
- 		if (val != n) {
- 			pr_err("insert page failed: found %d, expected %d\n",
-
+-- 
+With Best Regards,
+Andy Shevchenko
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
