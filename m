@@ -7,75 +7,75 @@ X-Spam-Status: No, score=-6.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 70BAAC83017
-	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:33:56 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id A6EC2C8301A
+	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:33:57 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id EF47620756
-	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:33:55 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 3319320756
+	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:33:57 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="1s+HyF/F";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="pmC0VAx7"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EF47620756
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="jhQNw+8f";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="Rk3mmhOJ"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3319320756
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linutronix.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 639BD2076B;
-	Tue,  3 Nov 2020 10:33:55 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id D423D86148;
+	Tue,  3 Nov 2020 10:33:56 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from fraxinus.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id hR8DxWdHh31J; Tue,  3 Nov 2020 10:33:54 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 3192E86142;
+	Tue,  3 Nov 2020 10:33:54 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1AECDC1AD6;
+	Tue,  3 Nov 2020 10:33:54 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 240A4C0889
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  3 Nov 2020 10:33:52 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by silver.osuosl.org (Postfix) with ESMTP id F008E20551
+ for <virtualization@lists.linux-foundation.org>;
+ Tue,  3 Nov 2020 10:33:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id bQ0nBQ73YHXS; Tue,  3 Nov 2020 10:33:52 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id D30D620534;
-	Tue,  3 Nov 2020 10:33:51 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 9FEF9C1AD6;
-	Tue,  3 Nov 2020 10:33:51 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 815B0C0051
- for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:33:50 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 5B1F78739D
- for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:33:50 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id n3quJnS4lLRK
+ with ESMTP id 2z1NdqSnwE5K
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:33:48 +0000 (UTC)
+ Tue,  3 Nov 2020 10:33:46 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 8FDD5872F1
+ by silver.osuosl.org (Postfix) with ESMTPS id 51D0720479
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:33:48 +0000 (UTC)
-Message-Id: <20201103095858.422094352@linutronix.de>
+ Tue,  3 Nov 2020 10:33:45 +0000 (UTC)
+Message-Id: <20201103095858.197568209@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020; t=1604399625;
+ s=2020; t=1604399623;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=smrPH5soON645xyx9VRl+21drBOTiCV7paBhp6VDF7c=;
- b=1s+HyF/FYJ/rgPZaWI+m83inHucd+bq/quSZGod6llIFmqowzQ5Uj534Dp2bA5XqxHpczy
- 5PbeanQRfDz1AuX8kinkfWMXcS8BmJk+fThow4mOsKbqg60U1tglzYZirczwEafzmV304k
- vWL7Lw90rdS3zi+ezQm23RGH6jkCbJwsDDz9S70OXSyQOVtLVy3YhkIhceubZ5L2mtPL5D
- XeFeNSZCmuHE7+4H3i4/EJ1oonlJIFtOzN4einmFJgZE+tRVlreGH2pa/fMfqFTEA+imSe
- wIFE4YW6BPWkrcSVgyukWdBcDSRT5ns4ro16iCnklveIoZw2mTe9Ka8l6/ODCA==
+ bh=Tgz+f/RcorCuT8bNMsZauaIBOIRSsQ7kii5gllfIPL4=;
+ b=jhQNw+8fHVyluJRJFhVSJCvjJII3kUo/luxv8yauLhUVzRwXLYk2NysYfWipwbtyeJD6cC
+ BQcLEgh0qsTcs7uAWW6OE97xEs2dFg1JRVrT8mu5HbpL8XTVwD4sBamM7cS4FXA7Y8Md1H
+ erGeRi3jYHVHfm6PMVowO16BziwTwFPbfQDApYhEOC745fUAns+2PI9xCCKFNS5aKh0yTo
+ nuY4w43jb9xmgkcKrWD+mIBOYHK8PGwMDKpFQrkAgRLVkZjg492AJ9bEiacdf67DY+E7cP
+ L58hkWujw/X+Ap7S+oNpLy4N8ph7qxqXy3rR/w9UrVR22BXBJ+IpiY4q9A6HHw==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020e; t=1604399625;
+ s=2020e; t=1604399623;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=smrPH5soON645xyx9VRl+21drBOTiCV7paBhp6VDF7c=;
- b=pmC0VAx7QxdaAMBVLJ1q/DEtO4tuXlK2LCYdUzolfC2B3Ot24ygRPNuRwFLcA00qeEWN6y
- xpi9fS63JrzH88CQ==
-Date: Tue, 03 Nov 2020 10:27:30 +0100
+ bh=Tgz+f/RcorCuT8bNMsZauaIBOIRSsQ7kii5gllfIPL4=;
+ b=Rk3mmhOJuG0Rq/0wckekvm/k4pUZhPyqSR54DJIQdgC94PuCPoFDbQ3szESSL0xM5qcaFi
+ QAJJpoEPeYfd2xBw==
+Date: Tue, 03 Nov 2020 10:27:28 +0100
 From: Thomas Gleixner <tglx@linutronix.de>
 To: LKML <linux-kernel@vger.kernel.org>
-Subject: [patch V3 18/37] highmem: Get rid of kmap_types.h
+Subject: [patch V3 16/37] sparc/mm/highmem: Switch to generic kmap atomic
 References: <20201103092712.714480842@linutronix.de>
 MIME-Version: 1.0
 Cc: Juri Lelli <juri.lelli@redhat.com>, linux-aio@kvack.org,
@@ -131,157 +131,234 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The header is not longer used and on alpha, ia64, openrisc, parisc and um
-it was completely unused anyway as these architectures have no highmem
-support.
+No reason having the same code in every architecture
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: sparclinux@vger.kernel.org
 ---
-V3: New patch
+V3: Remove the kmap types cruft
 ---
- arch/alpha/include/asm/kmap_types.h  |   15 ---------------
- arch/ia64/include/asm/kmap_types.h   |   13 -------------
- arch/openrisc/mm/init.c              |    1 -
- arch/openrisc/mm/ioremap.c           |    1 -
- arch/parisc/include/asm/kmap_types.h |   13 -------------
- arch/um/include/asm/fixmap.h         |    1 -
- arch/um/include/asm/kmap_types.h     |   13 -------------
- include/asm-generic/Kbuild           |    1 -
- include/asm-generic/kmap_types.h     |   11 -----------
- include/linux/highmem.h              |    2 --
- 10 files changed, 71 deletions(-)
+ arch/sparc/Kconfig                  |    1 
+ arch/sparc/include/asm/highmem.h    |    8 +-
+ arch/sparc/include/asm/kmap_types.h |   11 ---
+ arch/sparc/include/asm/vaddrs.h     |    4 -
+ arch/sparc/mm/Makefile              |    3 
+ arch/sparc/mm/highmem.c             |  115 ------------------------------------
+ arch/sparc/mm/srmmu.c               |    2 
+ 7 files changed, 8 insertions(+), 136 deletions(-)
 
---- a/arch/alpha/include/asm/kmap_types.h
-+++ /dev/null
-@@ -1,15 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 */
--#ifndef _ASM_KMAP_TYPES_H
--#define _ASM_KMAP_TYPES_H
--
--/* Dummy header just to define km_type. */
--
--#ifdef CONFIG_DEBUG_HIGHMEM
--#define  __WITH_KM_FENCE
--#endif
--
--#include <asm-generic/kmap_types.h>
--
--#undef __WITH_KM_FENCE
--
--#endif
---- a/arch/ia64/include/asm/kmap_types.h
-+++ /dev/null
-@@ -1,13 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 */
--#ifndef _ASM_IA64_KMAP_TYPES_H
--#define _ASM_IA64_KMAP_TYPES_H
--
--#ifdef CONFIG_DEBUG_HIGHMEM
--#define  __WITH_KM_FENCE
--#endif
--
--#include <asm-generic/kmap_types.h>
--
--#undef __WITH_KM_FENCE
--
--#endif /* _ASM_IA64_KMAP_TYPES_H */
---- a/arch/openrisc/mm/init.c
-+++ b/arch/openrisc/mm/init.c
-@@ -33,7 +33,6 @@
- #include <asm/io.h>
- #include <asm/tlb.h>
- #include <asm/mmu_context.h>
--#include <asm/kmap_types.h>
- #include <asm/fixmap.h>
- #include <asm/tlbflush.h>
- #include <asm/sections.h>
---- a/arch/openrisc/mm/ioremap.c
-+++ b/arch/openrisc/mm/ioremap.c
-@@ -15,7 +15,6 @@
- #include <linux/io.h>
- #include <linux/pgtable.h>
- #include <asm/pgalloc.h>
--#include <asm/kmap_types.h>
- #include <asm/fixmap.h>
- #include <asm/bug.h>
- #include <linux/sched.h>
---- a/arch/parisc/include/asm/kmap_types.h
-+++ /dev/null
-@@ -1,13 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 */
--#ifndef _ASM_KMAP_TYPES_H
--#define _ASM_KMAP_TYPES_H
--
--#ifdef CONFIG_DEBUG_HIGHMEM
--#define  __WITH_KM_FENCE
--#endif
--
--#include <asm-generic/kmap_types.h>
--
--#undef __WITH_KM_FENCE
--
--#endif
---- a/arch/um/include/asm/fixmap.h
-+++ b/arch/um/include/asm/fixmap.h
-@@ -3,7 +3,6 @@
- #define __UM_FIXMAP_H
+--- a/arch/sparc/Kconfig
++++ b/arch/sparc/Kconfig
+@@ -139,6 +139,7 @@ config MMU
+ config HIGHMEM
+ 	bool
+ 	default y if SPARC32
++	select KMAP_LOCAL
  
- #include <asm/processor.h>
+ config ZONE_DMA
+ 	bool
+--- a/arch/sparc/include/asm/highmem.h
++++ b/arch/sparc/include/asm/highmem.h
+@@ -24,7 +24,6 @@
+ #include <linux/interrupt.h>
+ #include <linux/pgtable.h>
+ #include <asm/vaddrs.h>
 -#include <asm/kmap_types.h>
- #include <asm/archparam.h>
- #include <asm/page.h>
- #include <linux/threads.h>
---- a/arch/um/include/asm/kmap_types.h
-+++ /dev/null
-@@ -1,13 +0,0 @@
--/* SPDX-License-Identifier: GPL-2.0 */
--/* 
-- * Copyright (C) 2002 Jeff Dike (jdike@karaya.com)
-- */
+ #include <asm/pgtsrmmu.h>
+ 
+ /* declarations for highmem.c */
+@@ -33,8 +32,6 @@ extern unsigned long highstart_pfn, high
+ #define kmap_prot __pgprot(SRMMU_ET_PTE | SRMMU_PRIV | SRMMU_CACHE)
+ extern pte_t *pkmap_page_table;
+ 
+-void kmap_init(void) __init;
 -
--#ifndef __UM_KMAP_TYPES_H
--#define __UM_KMAP_TYPES_H
--
--/* No more #include "asm/arch/kmap_types.h" ! */
--
--#define KM_TYPE_NR 14
--
--#endif
---- a/include/asm-generic/Kbuild
-+++ b/include/asm-generic/Kbuild
-@@ -30,7 +30,6 @@ mandatory-y += irq.h
- mandatory-y += irq_regs.h
- mandatory-y += irq_work.h
- mandatory-y += kdebug.h
--mandatory-y += kmap_types.h
- mandatory-y += kmap_size.h
- mandatory-y += kprobes.h
- mandatory-y += linkage.h
---- a/include/asm-generic/kmap_types.h
+ /*
+  * Right now we initialize only a single pte table. It can be extended
+  * easily, subsequent pte tables have to be allocated in one physical
+@@ -53,6 +50,11 @@ void kmap_init(void) __init;
+ 
+ #define flush_cache_kmaps()	flush_cache_all()
+ 
++/* FIXME: Use __flush_tlb_one(vaddr) instead of flush_cache_all() -- Anton */
++#define arch_kmap_local_post_map(vaddr, pteval)	flush_cache_all()
++#define arch_kmap_local_post_unmap(vaddr)	flush_cache_all()
++
++
+ #endif /* __KERNEL__ */
+ 
+ #endif /* _ASM_HIGHMEM_H */
+--- a/arch/sparc/include/asm/kmap_types.h
 +++ /dev/null
 @@ -1,11 +0,0 @@
 -/* SPDX-License-Identifier: GPL-2.0 */
--#ifndef _ASM_GENERIC_KMAP_TYPES_H
--#define _ASM_GENERIC_KMAP_TYPES_H
+-#ifndef _ASM_KMAP_TYPES_H
+-#define _ASM_KMAP_TYPES_H
 -
--#ifdef __WITH_KM_FENCE
--# define KM_TYPE_NR 41
--#else
--# define KM_TYPE_NR 20
--#endif
+-/* Dummy header just to define km_type.  None of this
+- * is actually used on sparc.  -DaveM
+- */
+-
+-#include <asm-generic/kmap_types.h>
 -
 -#endif
---- a/include/linux/highmem.h
-+++ b/include/linux/highmem.h
-@@ -29,8 +29,6 @@ static inline void invalidate_kernel_vma
- }
- #endif
+--- a/arch/sparc/include/asm/vaddrs.h
++++ b/arch/sparc/include/asm/vaddrs.h
+@@ -32,13 +32,13 @@
+ #define SRMMU_NOCACHE_ALCRATIO	64	/* 256 pages per 64MB of system RAM */
  
+ #ifndef __ASSEMBLY__
 -#include <asm/kmap_types.h>
++#include <asm/kmap_size.h>
+ 
+ enum fixed_addresses {
+ 	FIX_HOLE,
+ #ifdef CONFIG_HIGHMEM
+ 	FIX_KMAP_BEGIN,
+-	FIX_KMAP_END = (KM_TYPE_NR * NR_CPUS),
++	FIX_KMAP_END = (KM_MAX_IDX * NR_CPUS),
+ #endif
+ 	__end_of_fixed_addresses
+ };
+--- a/arch/sparc/mm/Makefile
++++ b/arch/sparc/mm/Makefile
+@@ -15,6 +15,3 @@ obj-$(CONFIG_SPARC32)   += leon_mm.o
+ 
+ # Only used by sparc64
+ obj-$(CONFIG_HUGETLB_PAGE) += hugetlbpage.o
 -
- /*
-  * Outside of CONFIG_HIGHMEM to support X86 32bit iomap_atomic() cruft.
-  */
+-# Only used by sparc32
+-obj-$(CONFIG_HIGHMEM)   += highmem.o
+--- a/arch/sparc/mm/highmem.c
++++ /dev/null
+@@ -1,115 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0
+-/*
+- *  highmem.c: virtual kernel memory mappings for high memory
+- *
+- *  Provides kernel-static versions of atomic kmap functions originally
+- *  found as inlines in include/asm-sparc/highmem.h.  These became
+- *  needed as kmap_atomic() and kunmap_atomic() started getting
+- *  called from within modules.
+- *  -- Tomas Szepe <szepe@pinerecords.com>, September 2002
+- *
+- *  But kmap_atomic() and kunmap_atomic() cannot be inlined in
+- *  modules because they are loaded with btfixup-ped functions.
+- */
+-
+-/*
+- * The use of kmap_atomic/kunmap_atomic is discouraged - kmap/kunmap
+- * gives a more generic (and caching) interface. But kmap_atomic can
+- * be used in IRQ contexts, so in some (very limited) cases we need it.
+- *
+- * XXX This is an old text. Actually, it's good to use atomic kmaps,
+- * provided you remember that they are atomic and not try to sleep
+- * with a kmap taken, much like a spinlock. Non-atomic kmaps are
+- * shared by CPUs, and so precious, and establishing them requires IPI.
+- * Atomic kmaps are lightweight and we may have NCPUS more of them.
+- */
+-#include <linux/highmem.h>
+-#include <linux/export.h>
+-#include <linux/mm.h>
+-
+-#include <asm/cacheflush.h>
+-#include <asm/tlbflush.h>
+-#include <asm/vaddrs.h>
+-
+-static pte_t *kmap_pte;
+-
+-void __init kmap_init(void)
+-{
+-	unsigned long address = __fix_to_virt(FIX_KMAP_BEGIN);
+-
+-        /* cache the first kmap pte */
+-        kmap_pte = virt_to_kpte(address);
+-}
+-
+-void *kmap_atomic_high_prot(struct page *page, pgprot_t prot)
+-{
+-	unsigned long vaddr;
+-	long idx, type;
+-
+-	type = kmap_atomic_idx_push();
+-	idx = type + KM_TYPE_NR*smp_processor_id();
+-	vaddr = __fix_to_virt(FIX_KMAP_BEGIN + idx);
+-
+-/* XXX Fix - Anton */
+-#if 0
+-	__flush_cache_one(vaddr);
+-#else
+-	flush_cache_all();
+-#endif
+-
+-#ifdef CONFIG_DEBUG_HIGHMEM
+-	BUG_ON(!pte_none(*(kmap_pte-idx)));
+-#endif
+-	set_pte(kmap_pte-idx, mk_pte(page, prot));
+-/* XXX Fix - Anton */
+-#if 0
+-	__flush_tlb_one(vaddr);
+-#else
+-	flush_tlb_all();
+-#endif
+-
+-	return (void*) vaddr;
+-}
+-EXPORT_SYMBOL(kmap_atomic_high_prot);
+-
+-void kunmap_atomic_high(void *kvaddr)
+-{
+-	unsigned long vaddr = (unsigned long) kvaddr & PAGE_MASK;
+-	int type;
+-
+-	if (vaddr < FIXADDR_START)
+-		return;
+-
+-	type = kmap_atomic_idx();
+-
+-#ifdef CONFIG_DEBUG_HIGHMEM
+-	{
+-		unsigned long idx;
+-
+-		idx = type + KM_TYPE_NR * smp_processor_id();
+-		BUG_ON(vaddr != __fix_to_virt(FIX_KMAP_BEGIN+idx));
+-
+-		/* XXX Fix - Anton */
+-#if 0
+-		__flush_cache_one(vaddr);
+-#else
+-		flush_cache_all();
+-#endif
+-
+-		/*
+-		 * force other mappings to Oops if they'll try to access
+-		 * this pte without first remap it
+-		 */
+-		pte_clear(&init_mm, vaddr, kmap_pte-idx);
+-		/* XXX Fix - Anton */
+-#if 0
+-		__flush_tlb_one(vaddr);
+-#else
+-		flush_tlb_all();
+-#endif
+-	}
+-#endif
+-
+-	kmap_atomic_idx_pop();
+-}
+-EXPORT_SYMBOL(kunmap_atomic_high);
+--- a/arch/sparc/mm/srmmu.c
++++ b/arch/sparc/mm/srmmu.c
+@@ -971,8 +971,6 @@ void __init srmmu_paging_init(void)
+ 
+ 	sparc_context_init(num_contexts);
+ 
+-	kmap_init();
+-
+ 	{
+ 		unsigned long max_zone_pfn[MAX_NR_ZONES] = { 0 };
+ 
 
 _______________________________________________
 Virtualization mailing list
