@@ -7,98 +7,97 @@ X-Spam-Status: No, score=-6.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E92D7C82606
-	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:34:21 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9201BC8260A
+	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:34:24 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 7319F21D40
-	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:34:21 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 132B921D40
+	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:34:24 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="Vi9y+RHz";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="YA2lOHqn"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 7319F21D40
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="CdqukbVB";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="pfa+TpRf"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 132B921D40
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linutronix.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 3F8DE872D7;
-	Tue,  3 Nov 2020 10:34:21 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id C1C4820535;
+	Tue,  3 Nov 2020 10:34:23 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id TRxKR7OiyeYU; Tue,  3 Nov 2020 10:34:20 +0000 (UTC)
+	with ESMTP id vuChHwzGLFyt; Tue,  3 Nov 2020 10:34:22 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id AF1EE87342;
-	Tue,  3 Nov 2020 10:34:20 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 3B8932077C;
+	Tue,  3 Nov 2020 10:34:22 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8A99CC0889;
-	Tue,  3 Nov 2020 10:34:20 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 163C4C1AD5;
+	Tue,  3 Nov 2020 10:34:22 +0000 (UTC)
 Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 85CB3C0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 564F4C0051
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:34:18 +0000 (UTC)
+ Tue,  3 Nov 2020 10:34:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 13083873C4
+ by hemlock.osuosl.org (Postfix) with ESMTP id 124BE8738B
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:34:18 +0000 (UTC)
+ Tue,  3 Nov 2020 10:34:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ix6gGoC9ViSW
+ with ESMTP id vjFiwjsjOMNx
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:34:17 +0000 (UTC)
+ Tue,  3 Nov 2020 10:34:20 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 7520E872D7
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 0CBFA872D7
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:34:17 +0000 (UTC)
-Message-Id: <20201103095900.158813457@linutronix.de>
+ Tue,  3 Nov 2020 10:34:20 +0000 (UTC)
+Message-Id: <20201103095900.367260321@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020; t=1604399647;
+ s=2020; t=1604399649;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=A3FdHqqNuzF3z/0IJSCiyvv2QQDa0OsdbIUscR1rN/Q=;
- b=Vi9y+RHz/u7318B+cqXyO0QOPlEr/gjlfn+MHQR6udcBs30/GV3fkr/dvBs0SdXzTqt8Vv
- IAeL/EsvoNuM0npj4K3u9xxlCyOA6DjplD94CEbFwEHSbeGyUzObif2rOtWpx16GZ2FaSV
- BFQeKovxHYQgdtDAgyF3ecey0ETZ5FDktyA4sKPZGPAmhVLw+ZE0IvGfmagwRzrtUJrhUk
- 4BWflcJOEUxnvEGr/U26JqZvGFMUquFdL90X9KjoNtecwkKjLqCwqpsSI1UKdOGeF1Mo4K
- JWrbecA4+rPlCbBF6yRLES8dEl5nqwwXKsLrQ6HzdsmD3u+xUHjLwf9HAaMsaA==
+ bh=XzZnXq40Xta6eAd8+Z4XomSn8j1A2hSECk29QnRRbws=;
+ b=CdqukbVBWMYI/RONrhSGzX6/xMHlDVBTWtfJrQb8BGeECEJqjOAzrpgd/S5gcYhw2K5fbn
+ Eaab3vE9c+BoonfV0tN18iO2mipbe36uJxmY7lt1Q+Y/DUZ/Lt4ranrEwz1e8nCX8rE7ib
+ zUEarU65A2JKzY8kRhVSr0Mov+N333GuC6WgQoQRke1a5GsVBT4qs+q/yyCNm0M0BVOUKi
+ wwWaobx9qhLoUV9tFHktWx+AG8+ArEEhZ4OLWEEinwZC+qMmqYYw2bnvpObjtaVxDm8Ir6
+ h+E3LFBQps2vHJjH1B0mTeQMdmzvDlwqg7xu3fUjiEVpzfRq4Nob09i6lYhuzA==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020e; t=1604399647;
+ s=2020e; t=1604399649;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=A3FdHqqNuzF3z/0IJSCiyvv2QQDa0OsdbIUscR1rN/Q=;
- b=YA2lOHqnjQm84xDc82K5Rmbii3lOSjdMhWJxq7WAnHE1z7PUvI9sl68g7t7UUaYnQOsgX5
- vH/eTyN9dMzQJnAA==
-Date: Tue, 03 Nov 2020 10:27:47 +0100
+ bh=XzZnXq40Xta6eAd8+Z4XomSn8j1A2hSECk29QnRRbws=;
+ b=pfa+TpRfmsyoL3kfRqJUVU2S9UUvIXMBP/3UXjO0TEtWrbhDCiNU865DGow3SSMVJwemxu
+ 95CKXmp2zPH8LuBg==
+Date: Tue, 03 Nov 2020 10:27:49 +0100
 From: Thomas Gleixner <tglx@linutronix.de>
 To: LKML <linux-kernel@vger.kernel.org>
-Subject: [patch V3 35/37] drm/nouveau/device: Replace
- io_mapping_map_atomic_wc()
+Subject: [patch V3 37/37] io-mapping: Remove io_mapping_map_atomic_wc()
 References: <20201103092712.714480842@linutronix.de>
 MIME-Version: 1.0
 Cc: Juri Lelli <juri.lelli@redhat.com>, linux-aio@kvack.org,
- Peter Zijlstra <peterz@infradead.org>, nouveau@lists.freedesktop.org,
+ Peter Zijlstra <peterz@infradead.org>,
+ Benjamin Herrenschmidt <benh@kernel.crashing.org>,
  Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
  Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
  dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- Ben Segall <bsegall@google.com>, linux-mm@kvack.org,
+ Ben Segall <bsegall@google.com>, Chris Mason <clm@fb.com>,
  Huang Rui <ray.huang@amd.com>, Paul Mackerras <paulus@samba.org>,
  Daniel Bristot de Oliveira <bristot@redhat.com>, sparclinux@vger.kernel.org,
  Vincent Chen <deanbo422@gmail.com>, Christoph Hellwig <hch@lst.de>,
- Vincent Guittot <vincent.guittot@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
- Max Filippov <jcmvbkbc@gmail.com>, Michael Ellerman <mpe@ellerman.id.au>,
- x86@kernel.org, Russell King <linux@armlinux.org.uk>,
- linux-csky@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
- David Airlie <airlied@linux.ie>,
+ Vincent Guittot <vincent.guittot@linaro.org>,
+ Paul McKenney <paulmck@kernel.org>, Max Filippov <jcmvbkbc@gmail.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, x86@kernel.org,
+ Russell King <linux@armlinux.org.uk>, linux-csky@vger.kernel.org,
+ Ingo Molnar <mingo@kernel.org>, David Airlie <airlied@linux.ie>,
  VMware Graphics <linux-graphics-maintainer@vmware.com>,
- Ben Skeggs <bskeggs@redhat.com>,
- Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+ Mel Gorman <mgorman@suse.de>, nouveau@lists.freedesktop.org,
  Dave Airlie <airlied@redhat.com>, linux-snps-arc@lists.infradead.org,
- Mel Gorman <mgorman@suse.de>, linux-xtensa@linux-xtensa.org,
- Paul McKenney <paulmck@kernel.org>, intel-gfx@lists.freedesktop.org,
+ Ben Skeggs <bskeggs@redhat.com>, linux-xtensa@linux-xtensa.org,
+ Arnd Bergmann <arnd@arndb.de>, intel-gfx@lists.freedesktop.org,
  Roland Scheidegger <sroland@vmware.com>, Josef Bacik <josef@toxicpanda.com>,
  Steven Rostedt <rostedt@goodmis.org>,
  Linus Torvalds <torvalds@linuxfoundation.org>,
@@ -109,7 +108,7 @@ Cc: Juri Lelli <juri.lelli@redhat.com>, linux-aio@kvack.org,
  Jani Nikula <jani.nikula@linux.intel.com>, Chris Zankel <chris@zankel.net>,
  Michal Simek <monstr@monstr.eu>,
  Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Nick Hu <nickhu@andestech.com>, Chris Mason <clm@fb.com>,
+ Nick Hu <nickhu@andestech.com>, linux-mm@kvack.org,
  Vineet Gupta <vgupta@synopsys.com>, linux-mips@vger.kernel.org,
  Christian Koenig <christian.koenig@amd.com>, Benjamin LaHaise <bcrl@kvack.org>,
  Daniel Vetter <daniel@ffwll.ch>, linux-fsdevel@vger.kernel.org,
@@ -132,49 +131,134 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Neither fbmem_peek() nor fbmem_poke() require to disable pagefaults and
-preemption as a side effect of io_mapping_map_atomic_wc().
-
-Use io_mapping_map_local_wc() instead.
+No more users. Get rid of it and remove the traces in documentation.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ben Skeggs <bskeggs@redhat.com>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Cc: dri-devel@lists.freedesktop.org
-Cc: nouveau@lists.freedesktop.org
 ---
 V3: New patch
 ---
- drivers/gpu/drm/nouveau/nvkm/subdev/devinit/fbmem.h |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ Documentation/driver-api/io-mapping.rst |   22 +++++-----------
+ include/linux/io-mapping.h              |   42 +-------------------------------
+ 2 files changed, 9 insertions(+), 55 deletions(-)
 
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/devinit/fbmem.h
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/devinit/fbmem.h
-@@ -60,19 +60,19 @@ fbmem_fini(struct io_mapping *fb)
- static inline u32
- fbmem_peek(struct io_mapping *fb, u32 off)
- {
--	u8 __iomem *p = io_mapping_map_atomic_wc(fb, off & PAGE_MASK);
-+	u8 __iomem *p = io_mapping_map_local_wc(fb, off & PAGE_MASK);
- 	u32 val = ioread32(p + (off & ~PAGE_MASK));
--	io_mapping_unmap_atomic(p);
-+	io_mapping_unmap_local(p);
- 	return val;
+--- a/Documentation/driver-api/io-mapping.rst
++++ b/Documentation/driver-api/io-mapping.rst
+@@ -21,19 +21,15 @@ mappable, while 'size' indicates how lar
+ enable. Both are in bytes.
+ 
+ This _wc variant provides a mapping which may only be used with
+-io_mapping_map_atomic_wc(), io_mapping_map_local_wc() or
+-io_mapping_map_wc().
++io_mapping_map_local_wc() or io_mapping_map_wc().
+ 
+ With this mapping object, individual pages can be mapped either temporarily
+ or long term, depending on the requirements. Of course, temporary maps are
+-more efficient. They come in two flavours::
++more efficient.
+ 
+ 	void *io_mapping_map_local_wc(struct io_mapping *mapping,
+ 				      unsigned long offset)
+ 
+-	void *io_mapping_map_atomic_wc(struct io_mapping *mapping,
+-				       unsigned long offset)
+-
+ 'offset' is the offset within the defined mapping region.  Accessing
+ addresses beyond the region specified in the creation function yields
+ undefined results. Using an offset which is not page aligned yields an
+@@ -50,9 +46,6 @@ io_mapping_map_local_wc() has a side eff
+ migration to make the mapping code work. No caller can rely on this side
+ effect.
+ 
+-io_mapping_map_atomic_wc() has the side effect of disabling preemption and
+-pagefaults. Don't use in new code. Use io_mapping_map_local_wc() instead.
+-
+ Nested mappings need to be undone in reverse order because the mapping
+ code uses a stack for keeping track of them::
+ 
+@@ -65,11 +58,10 @@ Nested mappings need to be undone in rev
+ The mappings are released with::
+ 
+ 	void io_mapping_unmap_local(void *vaddr)
+-	void io_mapping_unmap_atomic(void *vaddr)
+ 
+-'vaddr' must be the value returned by the last io_mapping_map_local_wc() or
+-io_mapping_map_atomic_wc() call. This unmaps the specified mapping and
+-undoes the side effects of the mapping functions.
++'vaddr' must be the value returned by the last io_mapping_map_local_wc()
++call. This unmaps the specified mapping and undoes eventual side effects of
++the mapping function.
+ 
+ If you need to sleep while holding a mapping, you can use the regular
+ variant, although this may be significantly slower::
+@@ -77,8 +69,8 @@ If you need to sleep while holding a map
+ 	void *io_mapping_map_wc(struct io_mapping *mapping,
+ 				unsigned long offset)
+ 
+-This works like io_mapping_map_atomic/local_wc() except it has no side
+-effects and the pointer is globaly visible.
++This works like io_mapping_map_local_wc() except it has no side effects and
++the pointer is globaly visible.
+ 
+ The mappings are released with::
+ 
+--- a/include/linux/io-mapping.h
++++ b/include/linux/io-mapping.h
+@@ -60,28 +60,7 @@ io_mapping_fini(struct io_mapping *mappi
+ 	iomap_free(mapping->base, mapping->size);
  }
  
- static inline void
- fbmem_poke(struct io_mapping *fb, u32 off, u32 val)
+-/* Atomic map/unmap */
+-static inline void __iomem *
+-io_mapping_map_atomic_wc(struct io_mapping *mapping,
+-			 unsigned long offset)
+-{
+-	resource_size_t phys_addr;
+-
+-	BUG_ON(offset >= mapping->size);
+-	phys_addr = mapping->base + offset;
+-	preempt_disable();
+-	pagefault_disable();
+-	return __iomap_local_pfn_prot(PHYS_PFN(phys_addr), mapping->prot);
+-}
+-
+-static inline void
+-io_mapping_unmap_atomic(void __iomem *vaddr)
+-{
+-	kunmap_local_indexed((void __force *)vaddr);
+-	pagefault_enable();
+-	preempt_enable();
+-}
+-
++/* Temporary mappings which are only valid in the current context */
+ static inline void __iomem *
+ io_mapping_map_local_wc(struct io_mapping *mapping, unsigned long offset)
  {
--	u8 __iomem *p = io_mapping_map_atomic_wc(fb, off & PAGE_MASK);
-+	u8 __iomem *p = io_mapping_map_local_wc(fb, off & PAGE_MASK);
- 	iowrite32(val, p + (off & ~PAGE_MASK));
- 	wmb();
--	io_mapping_unmap_atomic(p);
-+	io_mapping_unmap_local(p);
+@@ -163,24 +142,7 @@ io_mapping_unmap(void __iomem *vaddr)
+ {
  }
  
- static inline bool
+-/* Atomic map/unmap */
+-static inline void __iomem *
+-io_mapping_map_atomic_wc(struct io_mapping *mapping,
+-			 unsigned long offset)
+-{
+-	preempt_disable();
+-	pagefault_disable();
+-	return io_mapping_map_wc(mapping, offset, PAGE_SIZE);
+-}
+-
+-static inline void
+-io_mapping_unmap_atomic(void __iomem *vaddr)
+-{
+-	io_mapping_unmap(vaddr);
+-	pagefault_enable();
+-	preempt_enable();
+-}
+-
++/* Temporary mappings which are only valid in the current context */
+ static inline void __iomem *
+ io_mapping_map_local_wc(struct io_mapping *mapping, unsigned long offset)
+ {
 
 _______________________________________________
 Virtualization mailing list
