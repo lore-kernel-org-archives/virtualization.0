@@ -7,75 +7,75 @@ X-Spam-Status: No, score=-6.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 93F06C8302A
-	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:34:07 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5CE1EC8302F
+	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:34:09 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 3D7B221D40
-	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:34:06 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id EA3E02242B
+	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:34:08 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="qh+T7IZJ";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="r11Fcy33"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3D7B221D40
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="iS2Z8GDP";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="ZjYRVQ4h"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EA3E02242B
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linutronix.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id A036286109;
-	Tue,  3 Nov 2020 10:34:06 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id A5D888739A;
+	Tue,  3 Nov 2020 10:34:08 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Zkd-Nc0VxjYT; Tue,  3 Nov 2020 10:34:05 +0000 (UTC)
+	with ESMTP id i-W0jXPjwipg; Tue,  3 Nov 2020 10:34:07 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id E9D7286044;
-	Tue,  3 Nov 2020 10:34:05 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 3D4A28739E;
+	Tue,  3 Nov 2020 10:34:07 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id D2627C0889;
-	Tue,  3 Nov 2020 10:34:05 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 13E66C0889;
+	Tue,  3 Nov 2020 10:34:07 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 4A9FBC0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id DDB89C0051
  for <virtualization@lists.linux-foundation.org>;
  Tue,  3 Nov 2020 10:34:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 314AD20762
+ by silver.osuosl.org (Postfix) with ESMTP id D189020762
  for <virtualization@lists.linux-foundation.org>;
  Tue,  3 Nov 2020 10:34:04 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id FxeUjzJjbUri
+ with ESMTP id haPoPAjebBUw
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:34:01 +0000 (UTC)
+ Tue,  3 Nov 2020 10:33:55 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
- by silver.osuosl.org (Postfix) with ESMTPS id 7E3ED2076F
+ by silver.osuosl.org (Postfix) with ESMTPS id 4AB6720768
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:34:01 +0000 (UTC)
-Message-Id: <20201103095859.228149242@linutronix.de>
+ Tue,  3 Nov 2020 10:33:55 +0000 (UTC)
+Message-Id: <20201103095858.827582066@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020; t=1604399635;
+ s=2020; t=1604399630;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=tAqolpusecj6Rd5JZ2LrxoX+tAqXPkBXuxrNCgE7FCw=;
- b=qh+T7IZJ6XcRj8DNIDr8HGAfo5YvTmXHwq7DmzffZLhC0V3WhpCRSbpdXm7hhOxtFFuwbX
- wcbVZVYetZLaKe7fxMMqkbtdTm/GbTXib0BTsgIk5kSnOSw9pXw7dXdWDZHGLuLfD8o7J5
- iC45ybMzMZHPHXGAY6pKU82Xsx4uzeXlXRI1QCfZtr2oUImFGtEYcJEW2pZcbSXkaBhDfz
- vpMVSLl8t8kbeOeTl0nQMa9QXaNtYJbeM0FUqyI7W0BkGez+lZ161K3tVZxVFnDyF0wgMR
- 3UtPYUbq3j37JroTzUdlG8e/Z5n94SJYzJZktKJf9b+cElB2OmZliJy+9HhbJw==
+ bh=qu2FJTZMTpHUjCQFQy2+FTKDqdLbW4HE91kk/7iTh0M=;
+ b=iS2Z8GDPyJ5ppHC/Yf9cW5uFCDh+JFJW8GE2rxGliavv10yWptogtGJMc8wLgolBUL2goj
+ nAFFMLBa1WJ07pMOhpD3fZgV7MrKwca6kHkRSwNanDpmqIou4474i+k9Ibt1K85/UZXdH9
+ uNXnD/ZyOU/vd3oPn9vVu09LTzfnftVDtd0ExKiZeGwgz3af8CmAPx0JD/eDdrxWsHaB3H
+ s/8GN0SrM6LbkHOl7xTxt91HC0bh5KMFVDwu1kRQwgR7q8LLeKp2+1t/yJGEbX8VCLpZx+
+ y+gcgiPkSPQyT5M369QIRWKxESoTbZGJ78dco2C5aXZ7spNEvCYBItOQTyfLNA==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020e; t=1604399635;
+ s=2020e; t=1604399630;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=tAqolpusecj6Rd5JZ2LrxoX+tAqXPkBXuxrNCgE7FCw=;
- b=r11Fcy33cu1nvwv6ClgNjFFAD2Uh7JIIgyfidherdoguvpBCo73VaZrmwbm0NX6rZ9Kudo
- xO58/+jD1GK3/sBA==
-Date: Tue, 03 Nov 2020 10:27:38 +0100
+ bh=qu2FJTZMTpHUjCQFQy2+FTKDqdLbW4HE91kk/7iTh0M=;
+ b=ZjYRVQ4hxcPV5RJ3LepIMFZJxD4sXFxStQqUrgdZ2XJb4yKVlZ1Xg0PKWqcfTuRDO41c8K
+ lNvierDRkolMZ4BQ==
+Date: Tue, 03 Nov 2020 10:27:34 +0100
 From: Thomas Gleixner <tglx@linutronix.de>
 To: LKML <linux-kernel@vger.kernel.org>
-Subject: [patch V3 26/37] io-mapping: Provide iomap_local variant
+Subject: [patch V3 22/37] highmem: High implementation details and document API
 References: <20201103092712.714480842@linutronix.de>
 MIME-Version: 1.0
 Cc: Juri Lelli <juri.lelli@redhat.com>, linux-aio@kvack.org,
@@ -131,176 +131,536 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Similar to kmap local provide a iomap local variant which only disables
-migration, but neither disables pagefaults nor preemption.
+Move the gory details of kmap & al into a private header and only document
+the interfaces which are usable by drivers.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 ---
-V3: Restrict migrate disable to the 32bit mapping case and update documentation.
-
-V2: Split out from the large combo patch and add the !IOMAP_ATOMIC variants
+V3: New patch
 ---
- Documentation/driver-api/io-mapping.rst |   76 +++++++++++++++++++-------------
- include/linux/io-mapping.h              |   30 +++++++++++-
- 2 files changed, 74 insertions(+), 32 deletions(-)
+ include/linux/highmem-internal.h |  174 +++++++++++++++++++++++++
+ include/linux/highmem.h          |  270 ++++++++++++++-------------------------
+ mm/highmem.c                     |   11 -
+ 3 files changed, 276 insertions(+), 179 deletions(-)
 
---- a/Documentation/driver-api/io-mapping.rst
-+++ b/Documentation/driver-api/io-mapping.rst
-@@ -20,55 +20,71 @@ as it would consume too much of the kern
- mappable, while 'size' indicates how large a mapping region to
- enable. Both are in bytes.
- 
--This _wc variant provides a mapping which may only be used
--with the io_mapping_map_atomic_wc or io_mapping_map_wc.
-+This _wc variant provides a mapping which may only be used with
-+io_mapping_map_atomic_wc(), io_mapping_map_local_wc() or
-+io_mapping_map_wc().
+--- /dev/null
++++ b/include/linux/highmem-internal.h
+@@ -0,0 +1,174 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _LINUX_HIGHMEM_INTERNAL_H
++#define _LINUX_HIGHMEM_INTERNAL_H
 +
-+With this mapping object, individual pages can be mapped either temporarily
-+or long term, depending on the requirements. Of course, temporary maps are
-+more efficient. They come in two flavours::
++/*
++ * Outside of CONFIG_HIGHMEM to support X86 32bit iomap_atomic() cruft.
++ */
++#ifdef CONFIG_KMAP_LOCAL
++void *__kmap_local_pfn_prot(unsigned long pfn, pgprot_t prot);
++void *__kmap_local_page_prot(struct page *page, pgprot_t prot);
++void kunmap_local_indexed(void *vaddr);
++#endif
++
++#ifdef CONFIG_HIGHMEM
++#include <asm/highmem.h>
++
++#ifndef ARCH_HAS_KMAP_FLUSH_TLB
++static inline void kmap_flush_tlb(unsigned long addr) { }
++#endif
++
++#ifndef kmap_prot
++#define kmap_prot PAGE_KERNEL
++#endif
++
++void *kmap_high(struct page *page);
++void kunmap_high(struct page *page);
++void __kmap_flush_unused(void);
++struct page *__kmap_to_page(void *addr);
++
++static inline void *kmap(struct page *page)
++{
++	void *addr;
++
++	might_sleep();
++	if (!PageHighMem(page))
++		addr = page_address(page);
++	else
++		addr = kmap_high(page);
++	kmap_flush_tlb((unsigned long)addr);
++	return addr;
++}
++
++static inline void kunmap(struct page *page)
++{
++	might_sleep();
++	if (!PageHighMem(page))
++		return;
++	kunmap_high(page);
++}
++
++static inline struct page *kmap_to_page(void *addr)
++{
++	return __kmap_to_page(addr);
++}
++
++static inline void kmap_flush_unused(void)
++{
++	__kmap_flush_unused();
++}
++
++static inline void *kmap_atomic_prot(struct page *page, pgprot_t prot)
++{
++	preempt_disable();
++	pagefault_disable();
++	return __kmap_local_page_prot(page, prot);
++}
++
++static inline void *kmap_atomic(struct page *page)
++{
++	return kmap_atomic_prot(page, kmap_prot);
++}
++
++static inline void *kmap_atomic_pfn(unsigned long pfn)
++{
++	preempt_disable();
++	pagefault_disable();
++	return __kmap_local_pfn_prot(pfn, kmap_prot);
++}
++
++static inline void __kunmap_atomic(void *addr)
++{
++	kunmap_local_indexed(addr);
++	pagefault_enable();
++	preempt_enable();
++}
++
++unsigned int __nr_free_highpages(void);
++extern atomic_long_t _totalhigh_pages;
++
++static inline unsigned int nr_free_highpages(void)
++{
++	return __nr_free_highpages();
++}
++
++static inline unsigned long totalhigh_pages(void)
++{
++	return (unsigned long)atomic_long_read(&_totalhigh_pages);
++}
++
++static inline void totalhigh_pages_inc(void)
++{
++	atomic_long_inc(&_totalhigh_pages);
++}
++
++static inline void totalhigh_pages_add(long count)
++{
++	atomic_long_add(count, &_totalhigh_pages);
++}
++
++#else /* CONFIG_HIGHMEM */
++
++static inline struct page *kmap_to_page(void *addr)
++{
++	return virt_to_page(addr);
++}
++
++static inline void *kmap(struct page *page)
++{
++	might_sleep();
++	return page_address(page);
++}
++
++static inline void kunmap_high(struct page *page) { }
++static inline void kmap_flush_unused(void) { }
++
++static inline void kunmap(struct page *page)
++{
++#ifdef ARCH_HAS_FLUSH_ON_KUNMAP
++	kunmap_flush_on_unmap(page_address(page));
++#endif
++}
++
++static inline void *kmap_atomic(struct page *page)
++{
++	preempt_disable();
++	pagefault_disable();
++	return page_address(page);
++}
++
++static inline void *kmap_atomic_prot(struct page *page, pgprot_t prot)
++{
++	return kmap_atomic(page);
++}
++
++static inline void *kmap_atomic_pfn(unsigned long pfn)
++{
++	return kmap_atomic(pfn_to_page(pfn));
++}
++
++static inline void __kunmap_atomic(void *addr)
++{
++#ifdef ARCH_HAS_FLUSH_ON_KUNMAP
++	kunmap_flush_on_unmap(addr);
++#endif
++	pagefault_enable();
++	preempt_enable();
++}
++
++static inline unsigned int nr_free_highpages(void) { return 0; }
++static inline unsigned long totalhigh_pages(void) { return 0UL; }
++
++#endif /* CONFIG_HIGHMEM */
++
++/*
++ * Prevent people trying to call kunmap_atomic() as if it were kunmap()
++ * kunmap_atomic() should get the return value of kmap_atomic, not the page.
++ */
++#define kunmap_atomic(__addr)					\
++do {								\
++	BUILD_BUG_ON(__same_type((__addr), struct page *));	\
++	__kunmap_atomic(__addr);				\
++} while (0)
++
++#endif
+--- a/include/linux/highmem.h
++++ b/include/linux/highmem.h
+@@ -11,199 +11,125 @@
  
--With this mapping object, individual pages can be mapped either atomically
--or not, depending on the necessary scheduling environment. Of course, atomic
--maps are more efficient::
-+	void *io_mapping_map_local_wc(struct io_mapping *mapping,
-+				      unsigned long offset)
+ #include <asm/cacheflush.h>
  
- 	void *io_mapping_map_atomic_wc(struct io_mapping *mapping,
- 				       unsigned long offset)
+-#ifndef ARCH_HAS_FLUSH_ANON_PAGE
+-static inline void flush_anon_page(struct vm_area_struct *vma, struct page *page, unsigned long vmaddr)
+-{
+-}
+-#endif
++#include "highmem-internal.h"
  
--'offset' is the offset within the defined mapping region.
--Accessing addresses beyond the region specified in the
--creation function yields undefined results. Using an offset
--which is not page aligned yields an undefined result. The
--return value points to a single page in CPU address space.
+-#ifndef ARCH_HAS_FLUSH_KERNEL_DCACHE_PAGE
+-static inline void flush_kernel_dcache_page(struct page *page)
+-{
+-}
+-static inline void flush_kernel_vmap_range(void *vaddr, int size)
+-{
+-}
+-static inline void invalidate_kernel_vmap_range(void *vaddr, int size)
+-{
+-}
+-#endif
 -
--This _wc variant returns a write-combining map to the
--page and may only be used with mappings created by
--io_mapping_create_wc
-+'offset' is the offset within the defined mapping region.  Accessing
-+addresses beyond the region specified in the creation function yields
-+undefined results. Using an offset which is not page aligned yields an
-+undefined result. The return value points to a single page in CPU address
-+space.
- 
--Note that the task may not sleep while holding this page
--mapped.
-+This _wc variant returns a write-combining map to the page and may only be
-+used with mappings created by io_mapping_create_wc()
- 
--::
-+Temporary mappings are only valid in the context of the caller. The mapping
-+is not guaranteed to be globaly visible.
- 
--	void io_mapping_unmap_atomic(void *vaddr)
-+io_mapping_map_local_wc() has a side effect on X86 32bit as it disables
-+migration to make the mapping code work. No caller can rely on this side
-+effect.
-+
-+io_mapping_map_atomic_wc() has the side effect of disabling preemption and
-+pagefaults. Don't use in new code. Use io_mapping_map_local_wc() instead.
- 
--'vaddr' must be the value returned by the last
--io_mapping_map_atomic_wc call. This unmaps the specified
--page and allows the task to sleep once again.
-+Nested mappings need to be undone in reverse order because the mapping
-+code uses a stack for keeping track of them::
- 
--If you need to sleep while holding the lock, you can use the non-atomic
--variant, although they may be significantly slower.
-+ addr1 = io_mapping_map_local_wc(map1, offset1);
-+ addr2 = io_mapping_map_local_wc(map2, offset2);
-+ ...
-+ io_mapping_unmap_local(addr2);
-+ io_mapping_unmap_local(addr1);
- 
--::
-+The mappings are released with::
-+
-+	void io_mapping_unmap_local(void *vaddr)
-+	void io_mapping_unmap_atomic(void *vaddr)
-+
-+'vaddr' must be the value returned by the last io_mapping_map_local_wc() or
-+io_mapping_map_atomic_wc() call. This unmaps the specified mapping and
-+undoes the side effects of the mapping functions.
-+
-+If you need to sleep while holding a mapping, you can use the regular
-+variant, although this may be significantly slower::
- 
- 	void *io_mapping_map_wc(struct io_mapping *mapping,
- 				unsigned long offset)
- 
--This works like io_mapping_map_atomic_wc except it allows
--the task to sleep while holding the page mapped.
+-/*
+- * Outside of CONFIG_HIGHMEM to support X86 32bit iomap_atomic() cruft.
++/**
++ * kmap - Map a page for long term usage
++ * @page:	Pointer to the page to be mapped
++ *
++ * Returns: The virtual address of the mapping
++ *
++ * Can only be invoked from preemptible task context because on 32bit
++ * systems with CONFIG_HIGHMEM enabled this function might sleep.
++ *
++ * For systems with CONFIG_HIGHMEM=n and for pages in the low memory area
++ * this returns the virtual address of the direct kernel mapping.
++ *
++ * The returned virtual address is globally visible and valid up to the
++ * point where it is unmapped via kunmap(). The pointer can be handed to
++ * other contexts.
++ *
++ * For highmem pages on 32bit systems this can be slow as the mapping space
++ * is limited and protected by a global lock. In case that there is no
++ * mapping slot available the function blocks until a slot is released via
++ * kunmap().
+  */
+-#ifdef CONFIG_KMAP_LOCAL
+-void *__kmap_local_pfn_prot(unsigned long pfn, pgprot_t prot);
+-void *__kmap_local_page_prot(struct page *page, pgprot_t prot);
+-void kunmap_local_indexed(void *vaddr);
+-#endif
 -
-+This works like io_mapping_map_atomic/local_wc() except it has no side
-+effects and the pointer is globaly visible.
+-#ifdef CONFIG_HIGHMEM
+-#include <asm/highmem.h>
++static inline void *kmap(struct page *page);
  
--::
-+The mappings are released with::
+-#ifndef ARCH_HAS_KMAP_FLUSH_TLB
+-static inline void kmap_flush_tlb(unsigned long addr) { }
+-#endif
+-
+-#ifndef kmap_prot
+-#define kmap_prot PAGE_KERNEL
+-#endif
+-
+-void *kmap_high(struct page *page);
+-static inline void *kmap(struct page *page)
+-{
+-	void *addr;
+-
+-	might_sleep();
+-	if (!PageHighMem(page))
+-		addr = page_address(page);
+-	else
+-		addr = kmap_high(page);
+-	kmap_flush_tlb((unsigned long)addr);
+-	return addr;
+-}
+-
+-void kunmap_high(struct page *page);
+-
+-static inline void kunmap(struct page *page)
+-{
+-	might_sleep();
+-	if (!PageHighMem(page))
+-		return;
+-	kunmap_high(page);
+-}
+-
+-/*
+- * kmap_atomic/kunmap_atomic is significantly faster than kmap/kunmap because
+- * no global lock is needed and because the kmap code must perform a global TLB
+- * invalidation when the kmap pool wraps.
+- *
+- * However when holding an atomic kmap it is not legal to sleep, so atomic
+- * kmaps are appropriate for short, tight code paths only.
+- *
+- * The use of kmap_atomic/kunmap_atomic is discouraged - kmap/kunmap
+- * gives a more generic (and caching) interface. But kmap_atomic can
+- * be used in IRQ contexts, so in some (very limited) cases we need
+- * it.
++/**
++ * kunmap - Unmap the virtual address mapped by kmap()
++ * @addr:	Virtual address to be unmapped
++ *
++ * Counterpart to kmap(). A NOOP for CONFIG_HIGHMEM=n and for mappings of
++ * pages in the low memory area.
+  */
+-static inline void *kmap_atomic_prot(struct page *page, pgprot_t prot)
+-{
+-	preempt_disable();
+-	pagefault_disable();
+-	return __kmap_local_page_prot(page, prot);
+-}
+-
+-static inline void *kmap_atomic(struct page *page)
+-{
+-	return kmap_atomic_prot(page, kmap_prot);
+-}
+-
+-static inline void *kmap_atomic_pfn(unsigned long pfn)
+-{
+-	preempt_disable();
+-	pagefault_disable();
+-	return __kmap_local_pfn_prot(pfn, kmap_prot);
+-}
+-
+-static inline void __kunmap_atomic(void *addr)
+-{
+-	kunmap_local_indexed(addr);
+-}
+-
+-/* declarations for linux/mm/highmem.c */
+-unsigned int nr_free_highpages(void);
+-extern atomic_long_t _totalhigh_pages;
+-static inline unsigned long totalhigh_pages(void)
+-{
+-	return (unsigned long)atomic_long_read(&_totalhigh_pages);
+-}
++static inline void kunmap(struct page *page);
  
- 	void io_mapping_unmap(void *vaddr)
+-static inline void totalhigh_pages_inc(void)
+-{
+-	atomic_long_inc(&_totalhigh_pages);
+-}
+-
+-static inline void totalhigh_pages_add(long count)
+-{
+-	atomic_long_add(count, &_totalhigh_pages);
+-}
+-
+-void kmap_flush_unused(void);
+-
+-struct page *kmap_to_page(void *addr);
+-
+-#else /* CONFIG_HIGHMEM */
++/**
++ * kmap_to_page - Get the page for a kmap'ed address
++ * @addr:	The address to look up
++ *
++ * Returns: The page which is mapped to @addr.
++ */
++static inline struct page *kmap_to_page(void *addr);
  
--This works like io_mapping_unmap_atomic, except it is used
--for pages mapped with io_mapping_map_wc.
-+Use for pages mapped with io_mapping_map_wc().
+-static inline unsigned int nr_free_highpages(void) { return 0; }
++/**
++ * kmap_flush_unused - Flush all unused kmap mappings in order to
++ *		       remove stray mappings
++ */
++static inline void kmap_flush_unused(void);
  
- At driver close time, the io_mapping object must be freed::
+-static inline struct page *kmap_to_page(void *addr)
+-{
+-	return virt_to_page(addr);
+-}
++/**
++ * kmap_atomic - Atomically map a page for temporary usage
++ * @page:	Pointer to the page to be mapped
++ *
++ * Returns: The virtual address of the mapping
++ *
++ * Side effect: On return pagefaults and preemption are disabled.
++ *
++ * Can be invoked from any context.
++ *
++ * Requires careful handling when nesting multiple mappings because the map
++ * management is stack based. The unmap has to be in the reverse order of
++ * the map operation:
++ *
++ * addr1 = kmap_atomic(page1);
++ * addr2 = kmap_atomic(page2);
++ * ...
++ * kunmap_atomic(addr2);
++ * kunmap_atomic(addr1);
++ *
++ * Unmapping addr1 before addr2 is invalid and causes malfunction.
++ *
++ * Contrary to kmap() mappings the mapping is only valid in the context of
++ * the caller and cannot be handed to other contexts.
++ *
++ * On CONFIG_HIGHMEM=n kernels and for low memory pages this returns the
++ * virtual address of the direct mapping. Only real highmem pages are
++ * temporarily mapped.
++ *
++ * While it is significantly faster than kmap() it comes with restrictions
++ * about the pointer validity and the side effects of disabling page faults
++ * and preemption. Use it only when absolutely necessary, e.g. from non
++ * preemptible contexts.
++ */
++static inline void *kmap_atomic(struct page *page);
  
---- a/include/linux/io-mapping.h
-+++ b/include/linux/io-mapping.h
-@@ -83,6 +83,21 @@ io_mapping_unmap_atomic(void __iomem *va
+-static inline unsigned long totalhigh_pages(void) { return 0UL; }
++/**
++ * kunmap_atomic - Unmap the virtual address mapped by kmap_atomic()
++ * @addr:	Virtual address to be unmapped
++ *
++ * Counterpart to kmap_atomic().
++ *
++ * Undoes the side effects of kmap_atomic(), i.e. reenabling pagefaults and
++ * preemption.
++ *
++ * Other than that a NOOP for CONFIG_HIGHMEM=n and for mappings of pages
++ * in the low memory area. For real highmen pages the mapping which was
++ * established with kmap_atomic() is destroyed.
++ */
+ 
+-static inline void *kmap(struct page *page)
+-{
+-	might_sleep();
+-	return page_address(page);
+-}
++/* Highmem related interfaces for management code */
++static inline unsigned int nr_free_highpages(void);
++static inline unsigned long totalhigh_pages(void);
+ 
+-static inline void kunmap_high(struct page *page)
++#ifndef ARCH_HAS_FLUSH_ANON_PAGE
++static inline void flush_anon_page(struct vm_area_struct *vma, struct page *page, unsigned long vmaddr)
+ {
+ }
+-
+-static inline void kunmap(struct page *page)
+-{
+-#ifdef ARCH_HAS_FLUSH_ON_KUNMAP
+-	kunmap_flush_on_unmap(page_address(page));
+ #endif
+-}
+ 
+-static inline void *kmap_atomic(struct page *page)
++#ifndef ARCH_HAS_FLUSH_KERNEL_DCACHE_PAGE
++static inline void flush_kernel_dcache_page(struct page *page)
+ {
+-	preempt_disable();
+-	pagefault_disable();
+-	return page_address(page);
+ }
+-
+-static inline void *kmap_atomic_prot(struct page *page, pgprot_t prot)
++static inline void flush_kernel_vmap_range(void *vaddr, int size)
+ {
+-	return kmap_atomic(page);
+ }
+-
+-static inline void *kmap_atomic_pfn(unsigned long pfn)
++static inline void invalidate_kernel_vmap_range(void *vaddr, int size)
+ {
+-	return kmap_atomic(pfn_to_page(pfn));
+ }
+-
+-static inline void __kunmap_atomic(void *addr)
+-{
+-	/*
+-	 * Mostly nothing to do in the CONFIG_HIGHMEM=n case as kunmap_atomic()
+-	 * handles re-enabling faults and preemption
+-	 */
+-#ifdef ARCH_HAS_FLUSH_ON_KUNMAP
+-	kunmap_flush_on_unmap(addr);
+ #endif
+-}
+-
+-#define kmap_flush_unused()	do {} while(0)
+-
+-
+-#endif /* CONFIG_HIGHMEM */
+-
+-/*
+- * Prevent people trying to call kunmap_atomic() as if it were kunmap()
+- * kunmap_atomic() should get the return value of kmap_atomic, not the page.
+- */
+-#define kunmap_atomic(__addr)					\
+-do {								\
+-	BUILD_BUG_ON(__same_type((__addr), struct page *));	\
+-	__kunmap_atomic(__addr);				\
+-	pagefault_enable();					\
+-	preempt_enable();					\
+-} while (0)
+ 
+ /* when CONFIG_HIGHMEM is not set these will be plain clear/copy_page */
+ #ifndef clear_user_highpage
+--- a/mm/highmem.c
++++ b/mm/highmem.c
+@@ -104,7 +104,7 @@ static inline wait_queue_head_t *get_pkm
+ atomic_long_t _totalhigh_pages __read_mostly;
+ EXPORT_SYMBOL(_totalhigh_pages);
+ 
+-unsigned int nr_free_highpages (void)
++unsigned int __nr_free_highpages (void)
+ {
+ 	struct zone *zone;
+ 	unsigned int pages = 0;
+@@ -141,7 +141,7 @@ pte_t * pkmap_page_table;
+ 		do { spin_unlock(&kmap_lock); (void)(flags); } while (0)
+ #endif
+ 
+-struct page *kmap_to_page(void *vaddr)
++struct page *__kmap_to_page(void *vaddr)
+ {
+ 	unsigned long addr = (unsigned long)vaddr;
+ 
+@@ -152,7 +152,7 @@ struct page *kmap_to_page(void *vaddr)
+ 
+ 	return virt_to_page(addr);
+ }
+-EXPORT_SYMBOL(kmap_to_page);
++EXPORT_SYMBOL(__kmap_to_page);
+ 
+ static void flush_all_zero_pkmaps(void)
+ {
+@@ -194,10 +194,7 @@ static void flush_all_zero_pkmaps(void)
+ 		flush_tlb_kernel_range(PKMAP_ADDR(0), PKMAP_ADDR(LAST_PKMAP));
  }
  
- static inline void __iomem *
-+io_mapping_map_local_wc(struct io_mapping *mapping, unsigned long offset)
-+{
-+	resource_size_t phys_addr;
-+
-+	BUG_ON(offset >= mapping->size);
-+	phys_addr = mapping->base + offset;
-+	return __iomap_local_pfn_prot(PHYS_PFN(phys_addr), mapping->prot);
-+}
-+
-+static inline void io_mapping_unmap_local(void __iomem *vaddr)
-+{
-+	kunmap_local_indexed((void __force *)vaddr);
-+}
-+
-+static inline void __iomem *
- io_mapping_map_wc(struct io_mapping *mapping,
- 		  unsigned long offset,
- 		  unsigned long size)
-@@ -101,7 +116,7 @@ io_mapping_unmap(void __iomem *vaddr)
- 	iounmap(vaddr);
- }
- 
--#else
-+#else  /* HAVE_ATOMIC_IOMAP */
- 
- #include <linux/uaccess.h>
- 
-@@ -166,7 +181,18 @@ io_mapping_unmap_atomic(void __iomem *va
- 	preempt_enable();
- }
- 
--#endif /* HAVE_ATOMIC_IOMAP */
-+static inline void __iomem *
-+io_mapping_map_local_wc(struct io_mapping *mapping, unsigned long offset)
-+{
-+	return io_mapping_map_wc(mapping, offset, PAGE_SIZE);
-+}
-+
-+static inline void io_mapping_unmap_local(void __iomem *vaddr)
-+{
-+	io_mapping_unmap(vaddr);
-+}
-+
-+#endif /* !HAVE_ATOMIC_IOMAP */
- 
- static inline struct io_mapping *
- io_mapping_create_wc(resource_size_t base,
+-/**
+- * kmap_flush_unused - flush all unused kmap mappings in order to remove stray mappings
+- */
+-void kmap_flush_unused(void)
++void __kmap_flush_unused(void)
+ {
+ 	lock_kmap();
+ 	flush_all_zero_pkmaps();
 
 _______________________________________________
 Virtualization mailing list
