@@ -7,52 +7,52 @@ X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A25FEC63697
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0CB40C64E7C
 	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 09:30:32 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 2584F223BD
+	by mail.kernel.org (Postfix) with ESMTPS id 8DD70223BD
 	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 09:30:31 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2584F223BD
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8DD70223BD
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id BB64386C32;
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 3281385FD5;
 	Tue,  3 Nov 2020 09:30:31 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 02L2a5Vh6diX; Tue,  3 Nov 2020 09:30:27 +0000 (UTC)
+	with ESMTP id 4ubj0h40IjkG; Tue,  3 Nov 2020 09:30:29 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 3A1ED86C5B;
-	Tue,  3 Nov 2020 09:30:26 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id A4A4585FE6;
+	Tue,  3 Nov 2020 09:30:29 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 2DACEC1AD4;
-	Tue,  3 Nov 2020 09:30:26 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E057AC08A1
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 8E409C1AD5;
+	Tue,  3 Nov 2020 09:30:29 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EE6C3C0889
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 09:30:23 +0000 (UTC)
+ Tue,  3 Nov 2020 09:30:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id B11A720519
+ by hemlock.osuosl.org (Postfix) with ESMTP id B52F587274
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 09:30:23 +0000 (UTC)
+ Tue,  3 Nov 2020 09:30:27 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id AzN+UNXZJtGm
+ with ESMTP id Zb4FF-GUH-BE
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 09:30:21 +0000 (UTC)
+ Tue,  3 Nov 2020 09:30:26 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by silver.osuosl.org (Postfix) with ESMTP id F11E020517
+ by hemlock.osuosl.org (Postfix) with ESMTP id 0062E87254
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 09:30:20 +0000 (UTC)
+ Tue,  3 Nov 2020 09:30:25 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 08299B119;
- Tue,  3 Nov 2020 09:30:20 +0000 (UTC)
+ by mx2.suse.de (Postfix) with ESMTP id 6DE2AACF5;
+ Tue,  3 Nov 2020 09:30:25 +0000 (UTC)
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@linux.ie,
  daniel@ffwll.ch, sam@ravnborg.org, alexander.deucher@amd.com,
@@ -68,20 +68,21 @@ To: maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@linux.ie,
  sumit.semwal@linaro.org, emil.velikov@collabora.com, luben.tuikov@amd.com,
  apaneers@amd.com, linus.walleij@linaro.org, melissa.srw@gmail.com,
  chris@chris-wilson.co.uk, miaoqinglang@huawei.com
-Subject: [PATCH v7 03/10] drm/etnaviv: Remove empty etnaviv_gem_prime_vunmap()
-Date: Tue,  3 Nov 2020 10:30:08 +0100
-Message-Id: <20201103093015.1063-4-tzimmermann@suse.de>
+Subject: [PATCH v7 10/10] drm/fb_helper: Support framebuffers in I/O memory
+Date: Tue,  3 Nov 2020 10:30:15 +0100
+Message-Id: <20201103093015.1063-11-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.29.0
 In-Reply-To: <20201103093015.1063-1-tzimmermann@suse.de>
 References: <20201103093015.1063-1-tzimmermann@suse.de>
 MIME-Version: 1.0
 Cc: linux-samsung-soc@vger.kernel.org, lima@lists.freedesktop.org,
- nouveau@lists.freedesktop.org, etnaviv@lists.freedesktop.org,
- amd-gfx@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- linaro-mm-sig@lists.linaro.org, linux-rockchip@lists.infradead.org,
- dri-devel@lists.freedesktop.org, Thomas Zimmermann <tzimmermann@suse.de>,
- xen-devel@lists.xenproject.org, spice-devel@lists.freedesktop.org,
- linux-arm-kernel@lists.infradead.org, linux-media@vger.kernel.org
+ nouveau@lists.freedesktop.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
+ etnaviv@lists.freedesktop.org, amd-gfx@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org, linaro-mm-sig@lists.linaro.org,
+ linux-rockchip@lists.infradead.org, dri-devel@lists.freedesktop.org,
+ Thomas Zimmermann <tzimmermann@suse.de>, xen-devel@lists.xenproject.org,
+ spice-devel@lists.freedesktop.org, linux-arm-kernel@lists.infradead.org,
+ linux-media@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -93,52 +94,385 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-VGhlIGZ1bmN0aW9uIGV0bmF2aXZfZ2VtX3ByaW1lX3Z1bm1hcCgpIGlzIGVtcHR5LiBSZW1vdmUg
-aXQgYmVmb3JlCmNoYW5naW5nIHRoZSBpbnRlcmZhY2UgdG8gdXNlIHN0cnVjdCBkcm1fYnVmX21h
-cC4KClNpZ25lZC1vZmYtYnk6IFRob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRl
-PgpBY2tlZC1ieTogQ2hyaXN0aWFuIEvDtm5pZyA8Y2hyaXN0aWFuLmtvZW5pZ0BhbWQuY29tPgpU
-ZXN0ZWQtYnk6IFNhbSBSYXZuYm9yZyA8c2FtQHJhdm5ib3JnLm9yZz4KLS0tCiBkcml2ZXJzL2dw
-dS9kcm0vZXRuYXZpdi9ldG5hdml2X2Rydi5oICAgICAgIHwgMSAtCiBkcml2ZXJzL2dwdS9kcm0v
-ZXRuYXZpdi9ldG5hdml2X2dlbS5jICAgICAgIHwgMSAtCiBkcml2ZXJzL2dwdS9kcm0vZXRuYXZp
-di9ldG5hdml2X2dlbV9wcmltZS5jIHwgNSAtLS0tLQogMyBmaWxlcyBjaGFuZ2VkLCA3IGRlbGV0
-aW9ucygtKQoKZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS9ldG5hdml2L2V0bmF2aXZfZHJ2
-LmggYi9kcml2ZXJzL2dwdS9kcm0vZXRuYXZpdi9ldG5hdml2X2Rydi5oCmluZGV4IDkxNGYwODY3
-ZmY3MS4uOTY4MmMyNmQ4OWJiIDEwMDY0NAotLS0gYS9kcml2ZXJzL2dwdS9kcm0vZXRuYXZpdi9l
-dG5hdml2X2Rydi5oCisrKyBiL2RyaXZlcnMvZ3B1L2RybS9ldG5hdml2L2V0bmF2aXZfZHJ2LmgK
-QEAgLTUyLDcgKzUyLDYgQEAgaW50IGV0bmF2aXZfZ2VtX21tYXAoc3RydWN0IGZpbGUgKmZpbHAs
-IHN0cnVjdCB2bV9hcmVhX3N0cnVjdCAqdm1hKTsKIGludCBldG5hdml2X2dlbV9tbWFwX29mZnNl
-dChzdHJ1Y3QgZHJtX2dlbV9vYmplY3QgKm9iaiwgdTY0ICpvZmZzZXQpOwogc3RydWN0IHNnX3Rh
-YmxlICpldG5hdml2X2dlbV9wcmltZV9nZXRfc2dfdGFibGUoc3RydWN0IGRybV9nZW1fb2JqZWN0
-ICpvYmopOwogdm9pZCAqZXRuYXZpdl9nZW1fcHJpbWVfdm1hcChzdHJ1Y3QgZHJtX2dlbV9vYmpl
-Y3QgKm9iaik7Ci12b2lkIGV0bmF2aXZfZ2VtX3ByaW1lX3Z1bm1hcChzdHJ1Y3QgZHJtX2dlbV9v
-YmplY3QgKm9iaiwgdm9pZCAqdmFkZHIpOwogaW50IGV0bmF2aXZfZ2VtX3ByaW1lX21tYXAoc3Ry
-dWN0IGRybV9nZW1fb2JqZWN0ICpvYmosCiAJCQkgICBzdHJ1Y3Qgdm1fYXJlYV9zdHJ1Y3QgKnZt
-YSk7CiBzdHJ1Y3QgZHJtX2dlbV9vYmplY3QgKmV0bmF2aXZfZ2VtX3ByaW1lX2ltcG9ydF9zZ190
-YWJsZShzdHJ1Y3QgZHJtX2RldmljZSAqZGV2LApkaWZmIC0tZ2l0IGEvZHJpdmVycy9ncHUvZHJt
-L2V0bmF2aXYvZXRuYXZpdl9nZW0uYyBiL2RyaXZlcnMvZ3B1L2RybS9ldG5hdml2L2V0bmF2aXZf
-Z2VtLmMKaW5kZXggNjdkOWEyYjllYTZhLi5iYmQyMzU0NzM2NDUgMTAwNjQ0Ci0tLSBhL2RyaXZl
-cnMvZ3B1L2RybS9ldG5hdml2L2V0bmF2aXZfZ2VtLmMKKysrIGIvZHJpdmVycy9ncHUvZHJtL2V0
-bmF2aXYvZXRuYXZpdl9nZW0uYwpAQCAtNTcxLDcgKzU3MSw2IEBAIHN0YXRpYyBjb25zdCBzdHJ1
-Y3QgZHJtX2dlbV9vYmplY3RfZnVuY3MgZXRuYXZpdl9nZW1fb2JqZWN0X2Z1bmNzID0gewogCS51
-bnBpbiA9IGV0bmF2aXZfZ2VtX3ByaW1lX3VucGluLAogCS5nZXRfc2dfdGFibGUgPSBldG5hdml2
-X2dlbV9wcmltZV9nZXRfc2dfdGFibGUsCiAJLnZtYXAgPSBldG5hdml2X2dlbV9wcmltZV92bWFw
-LAotCS52dW5tYXAgPSBldG5hdml2X2dlbV9wcmltZV92dW5tYXAsCiAJLnZtX29wcyA9ICZ2bV9v
-cHMsCiB9OwogCmRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vZXRuYXZpdi9ldG5hdml2X2dl
-bV9wcmltZS5jIGIvZHJpdmVycy9ncHUvZHJtL2V0bmF2aXYvZXRuYXZpdl9nZW1fcHJpbWUuYwpp
-bmRleCAxMzVmYmZmNmZlY2YuLmE2ZDk5MzJhMzJhZSAxMDA2NDQKLS0tIGEvZHJpdmVycy9ncHUv
-ZHJtL2V0bmF2aXYvZXRuYXZpdl9nZW1fcHJpbWUuYworKysgYi9kcml2ZXJzL2dwdS9kcm0vZXRu
-YXZpdi9ldG5hdml2X2dlbV9wcmltZS5jCkBAIC0yNywxMSArMjcsNiBAQCB2b2lkICpldG5hdml2
-X2dlbV9wcmltZV92bWFwKHN0cnVjdCBkcm1fZ2VtX29iamVjdCAqb2JqKQogCXJldHVybiBldG5h
-dml2X2dlbV92bWFwKG9iaik7CiB9CiAKLXZvaWQgZXRuYXZpdl9nZW1fcHJpbWVfdnVubWFwKHN0
-cnVjdCBkcm1fZ2VtX29iamVjdCAqb2JqLCB2b2lkICp2YWRkcikKLXsKLQkvKiBUT0RPIG1zbV9n
-ZW1fdnVubWFwKCkgKi8KLX0KLQogaW50IGV0bmF2aXZfZ2VtX3ByaW1lX21tYXAoc3RydWN0IGRy
-bV9nZW1fb2JqZWN0ICpvYmosCiAJCQkgICBzdHJ1Y3Qgdm1fYXJlYV9zdHJ1Y3QgKnZtYSkKIHsK
-LS0gCjIuMjkuMAoKX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X18KVmlydHVhbGl6YXRpb24gbWFpbGluZyBsaXN0ClZpcnR1YWxpemF0aW9uQGxpc3RzLmxpbnV4
-LWZvdW5kYXRpb24ub3JnCmh0dHBzOi8vbGlzdHMubGludXhmb3VuZGF0aW9uLm9yZy9tYWlsbWFu
-L2xpc3RpbmZvL3ZpcnR1YWxpemF0aW9u
+At least sparc64 requires I/O-specific access to framebuffers. This
+patch updates the fbdev console accordingly.
+
+For drivers with direct access to the framebuffer memory, the callback
+functions in struct fb_ops test for the type of memory and call the rsp
+fb_sys_ of fb_cfb_ functions. Read and write operations are implemented
+internally by DRM's fbdev helper.
+
+For drivers that employ a shadow buffer, fbdev's blit function retrieves
+the framebuffer address as struct dma_buf_map, and uses dma_buf_map
+interfaces to access the buffer.
+
+The bochs driver on sparc64 uses a workaround to flag the framebuffer as
+I/O memory and avoid a HW exception. With the introduction of struct
+dma_buf_map, this is not required any longer. The patch removes the rsp
+code from both, bochs and fbdev.
+
+v7:
+	* use min_t(size_t,) (kernel test robot)
+	* return the number of bytes read/written, if any (fbdev testcase)
+v5:
+	* implement fb_read/fb_write internally (Daniel, Sam)
+v4:
+	* move dma_buf_map changes into separate patch (Daniel)
+	* TODO list: comment on fbdev updates (Daniel)
+
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Reviewed-by: Sam Ravnborg <sam@ravnborg.org>
+Tested-by: Sam Ravnborg <sam@ravnborg.org>
+---
+ Documentation/gpu/todo.rst        |  19 ++-
+ drivers/gpu/drm/bochs/bochs_kms.c |   1 -
+ drivers/gpu/drm/drm_fb_helper.c   | 220 ++++++++++++++++++++++++++++--
+ include/drm/drm_mode_config.h     |  12 --
+ 4 files changed, 223 insertions(+), 29 deletions(-)
+
+diff --git a/Documentation/gpu/todo.rst b/Documentation/gpu/todo.rst
+index 59f63f1d7680..acca232b025b 100644
+--- a/Documentation/gpu/todo.rst
++++ b/Documentation/gpu/todo.rst
+@@ -201,13 +201,28 @@ Convert drivers to use drm_fbdev_generic_setup()
+ ------------------------------------------------
+ 
+ Most drivers can use drm_fbdev_generic_setup(). Driver have to implement
+-atomic modesetting and GEM vmap support. Current generic fbdev emulation
+-expects the framebuffer in system memory (or system-like memory).
++atomic modesetting and GEM vmap support. Historically, generic fbdev emulation
++expected the framebuffer in system memory or system-like memory. By employing
++struct dma_buf_map, drivers with frambuffers in I/O memory can be supported
++as well.
+ 
+ Contact: Maintainer of the driver you plan to convert
+ 
+ Level: Intermediate
+ 
++Reimplement functions in drm_fbdev_fb_ops without fbdev
++-------------------------------------------------------
++
++A number of callback functions in drm_fbdev_fb_ops could benefit from
++being rewritten without dependencies on the fbdev module. Some of the
++helpers could further benefit from using struct dma_buf_map instead of
++raw pointers.
++
++Contact: Thomas Zimmermann <tzimmermann@suse.de>, Daniel Vetter
++
++Level: Advanced
++
++
+ drm_framebuffer_funcs and drm_mode_config_funcs.fb_create cleanup
+ -----------------------------------------------------------------
+ 
+diff --git a/drivers/gpu/drm/bochs/bochs_kms.c b/drivers/gpu/drm/bochs/bochs_kms.c
+index 13d0d04c4457..853081d186d5 100644
+--- a/drivers/gpu/drm/bochs/bochs_kms.c
++++ b/drivers/gpu/drm/bochs/bochs_kms.c
+@@ -151,7 +151,6 @@ int bochs_kms_init(struct bochs_device *bochs)
+ 	bochs->dev->mode_config.preferred_depth = 24;
+ 	bochs->dev->mode_config.prefer_shadow = 0;
+ 	bochs->dev->mode_config.prefer_shadow_fbdev = 1;
+-	bochs->dev->mode_config.fbdev_use_iomem = true;
+ 	bochs->dev->mode_config.quirk_addfb_prefer_host_byte_order = true;
+ 
+ 	bochs->dev->mode_config.funcs = &bochs_mode_funcs;
+diff --git a/drivers/gpu/drm/drm_fb_helper.c b/drivers/gpu/drm/drm_fb_helper.c
+index a0d88130fedb..01ba1da28511 100644
+--- a/drivers/gpu/drm/drm_fb_helper.c
++++ b/drivers/gpu/drm/drm_fb_helper.c
+@@ -372,24 +372,22 @@ static void drm_fb_helper_resume_worker(struct work_struct *work)
+ }
+ 
+ static void drm_fb_helper_dirty_blit_real(struct drm_fb_helper *fb_helper,
+-					  struct drm_clip_rect *clip)
++					  struct drm_clip_rect *clip,
++					  struct dma_buf_map *dst)
+ {
+ 	struct drm_framebuffer *fb = fb_helper->fb;
+ 	unsigned int cpp = fb->format->cpp[0];
+ 	size_t offset = clip->y1 * fb->pitches[0] + clip->x1 * cpp;
+ 	void *src = fb_helper->fbdev->screen_buffer + offset;
+-	void *dst = fb_helper->buffer->map.vaddr + offset;
+ 	size_t len = (clip->x2 - clip->x1) * cpp;
+ 	unsigned int y;
+ 
+-	for (y = clip->y1; y < clip->y2; y++) {
+-		if (!fb_helper->dev->mode_config.fbdev_use_iomem)
+-			memcpy(dst, src, len);
+-		else
+-			memcpy_toio((void __iomem *)dst, src, len);
++	dma_buf_map_incr(dst, offset); /* go to first pixel within clip rect */
+ 
++	for (y = clip->y1; y < clip->y2; y++) {
++		dma_buf_map_memcpy_to(dst, src, len);
++		dma_buf_map_incr(dst, fb->pitches[0]);
+ 		src += fb->pitches[0];
+-		dst += fb->pitches[0];
+ 	}
+ }
+ 
+@@ -417,8 +415,9 @@ static void drm_fb_helper_dirty_work(struct work_struct *work)
+ 			ret = drm_client_buffer_vmap(helper->buffer, &map);
+ 			if (ret)
+ 				return;
+-			drm_fb_helper_dirty_blit_real(helper, &clip_copy);
++			drm_fb_helper_dirty_blit_real(helper, &clip_copy, &map);
+ 		}
++
+ 		if (helper->fb->funcs->dirty)
+ 			helper->fb->funcs->dirty(helper->fb, NULL, 0, 0,
+ 						 &clip_copy, 1);
+@@ -2027,6 +2026,199 @@ static int drm_fbdev_fb_mmap(struct fb_info *info, struct vm_area_struct *vma)
+ 		return -ENODEV;
+ }
+ 
++static bool drm_fbdev_use_iomem(struct fb_info *info)
++{
++	struct drm_fb_helper *fb_helper = info->par;
++	struct drm_client_buffer *buffer = fb_helper->buffer;
++
++	return !drm_fbdev_use_shadow_fb(fb_helper) && buffer->map.is_iomem;
++}
++
++static ssize_t fb_read_screen_base(struct fb_info *info, char __user *buf, size_t count,
++				   loff_t pos)
++{
++	const char __iomem *src = info->screen_base + pos;
++	size_t alloc_size = min(count, PAGE_SIZE);
++	ssize_t ret = 0;
++	int err = 0;
++	char *tmp;
++
++	tmp = kmalloc(alloc_size, GFP_KERNEL);
++	if (!tmp)
++		return -ENOMEM;
++
++	while (count) {
++		size_t c = min_t(size_t, count, alloc_size);
++
++		memcpy_fromio(tmp, src, c);
++		if (copy_to_user(buf, tmp, c)) {
++			err = -EFAULT;
++			break;
++		}
++
++		src += c;
++		buf += c;
++		ret += c;
++		count -= c;
++	}
++
++	kfree(tmp);
++
++	return ret ? ret : err;
++}
++
++static ssize_t fb_read_screen_buffer(struct fb_info *info, char __user *buf, size_t count,
++				     loff_t pos)
++{
++	const char *src = info->screen_buffer + pos;
++
++	if (copy_to_user(buf, src, count))
++		return -EFAULT;
++
++	return count;
++}
++
++static ssize_t drm_fbdev_fb_read(struct fb_info *info, char __user *buf,
++				 size_t count, loff_t *ppos)
++{
++	loff_t pos = *ppos;
++	size_t total_size;
++	ssize_t ret;
++
++	if (info->screen_size)
++		total_size = info->screen_size;
++	else
++		total_size = info->fix.smem_len;
++
++	if (pos >= total_size)
++		return 0;
++	if (count >= total_size)
++		count = total_size;
++	if (total_size - count < pos)
++		count = total_size - pos;
++
++	if (drm_fbdev_use_iomem(info))
++		ret = fb_read_screen_base(info, buf, count, pos);
++	else
++		ret = fb_read_screen_buffer(info, buf, count, pos);
++
++	if (ret > 0)
++		*ppos += ret;
++
++	return ret;
++}
++
++static ssize_t fb_write_screen_base(struct fb_info *info, const char __user *buf, size_t count,
++				    loff_t pos)
++{
++	char __iomem *dst = info->screen_base + pos;
++	size_t alloc_size = min(count, PAGE_SIZE);
++	ssize_t ret = 0;
++	int err = 0;
++	u8 *tmp;
++
++	tmp = kmalloc(alloc_size, GFP_KERNEL);
++	if (!tmp)
++		return -ENOMEM;
++
++	while (count) {
++		size_t c = min_t(size_t, count, alloc_size);
++
++		if (copy_from_user(tmp, buf, c)) {
++			err = -EFAULT;
++			break;
++		}
++		memcpy_toio(dst, tmp, c);
++
++		dst += c;
++		buf += c;
++		ret += c;
++		count -= c;
++	}
++
++	kfree(tmp);
++
++	return ret ? ret : err;
++}
++
++static ssize_t fb_write_screen_buffer(struct fb_info *info, const char __user *buf, size_t count,
++				      loff_t pos)
++{
++	char *dst = info->screen_buffer + pos;
++
++	if (copy_from_user(dst, buf, count))
++		return -EFAULT;
++
++	return count;
++}
++
++static ssize_t drm_fbdev_fb_write(struct fb_info *info, const char __user *buf,
++				  size_t count, loff_t *ppos)
++{
++	loff_t pos = *ppos;
++	size_t total_size;
++	ssize_t ret;
++	int err = 0;
++
++	if (info->screen_size)
++		total_size = info->screen_size;
++	else
++		total_size = info->fix.smem_len;
++
++	if (pos > total_size)
++		return -EFBIG;
++	if (count > total_size) {
++		err = -EFBIG;
++		count = total_size;
++	}
++	if (total_size - count < pos) {
++		if (!err)
++			err = -ENOSPC;
++		count = total_size - pos;
++	}
++
++	/*
++	 * Copy to framebuffer even if we already logged an error. Emulates
++	 * the behavior of the original fbdev implementation.
++	 */
++	if (drm_fbdev_use_iomem(info))
++		ret = fb_write_screen_base(info, buf, count, pos);
++	else
++		ret = fb_write_screen_buffer(info, buf, count, pos);
++
++	if (ret > 0)
++		*ppos += ret;
++
++	return ret ? ret : err;
++}
++
++static void drm_fbdev_fb_fillrect(struct fb_info *info,
++				  const struct fb_fillrect *rect)
++{
++	if (drm_fbdev_use_iomem(info))
++		drm_fb_helper_cfb_fillrect(info, rect);
++	else
++		drm_fb_helper_sys_fillrect(info, rect);
++}
++
++static void drm_fbdev_fb_copyarea(struct fb_info *info,
++				  const struct fb_copyarea *area)
++{
++	if (drm_fbdev_use_iomem(info))
++		drm_fb_helper_cfb_copyarea(info, area);
++	else
++		drm_fb_helper_sys_copyarea(info, area);
++}
++
++static void drm_fbdev_fb_imageblit(struct fb_info *info,
++				   const struct fb_image *image)
++{
++	if (drm_fbdev_use_iomem(info))
++		drm_fb_helper_cfb_imageblit(info, image);
++	else
++		drm_fb_helper_sys_imageblit(info, image);
++}
++
+ static const struct fb_ops drm_fbdev_fb_ops = {
+ 	.owner		= THIS_MODULE,
+ 	DRM_FB_HELPER_DEFAULT_OPS,
+@@ -2034,11 +2226,11 @@ static const struct fb_ops drm_fbdev_fb_ops = {
+ 	.fb_release	= drm_fbdev_fb_release,
+ 	.fb_destroy	= drm_fbdev_fb_destroy,
+ 	.fb_mmap	= drm_fbdev_fb_mmap,
+-	.fb_read	= drm_fb_helper_sys_read,
+-	.fb_write	= drm_fb_helper_sys_write,
+-	.fb_fillrect	= drm_fb_helper_sys_fillrect,
+-	.fb_copyarea	= drm_fb_helper_sys_copyarea,
+-	.fb_imageblit	= drm_fb_helper_sys_imageblit,
++	.fb_read	= drm_fbdev_fb_read,
++	.fb_write	= drm_fbdev_fb_write,
++	.fb_fillrect	= drm_fbdev_fb_fillrect,
++	.fb_copyarea	= drm_fbdev_fb_copyarea,
++	.fb_imageblit	= drm_fbdev_fb_imageblit,
+ };
+ 
+ static struct fb_deferred_io drm_fbdev_defio = {
+diff --git a/include/drm/drm_mode_config.h b/include/drm/drm_mode_config.h
+index 5ffbb4ed5b35..ab424ddd7665 100644
+--- a/include/drm/drm_mode_config.h
++++ b/include/drm/drm_mode_config.h
+@@ -877,18 +877,6 @@ struct drm_mode_config {
+ 	 */
+ 	bool prefer_shadow_fbdev;
+ 
+-	/**
+-	 * @fbdev_use_iomem:
+-	 *
+-	 * Set to true if framebuffer reside in iomem.
+-	 * When set to true memcpy_toio() is used when copying the framebuffer in
+-	 * drm_fb_helper.drm_fb_helper_dirty_blit_real().
+-	 *
+-	 * FIXME: This should be replaced with a per-mapping is_iomem
+-	 * flag (like ttm does), and then used everywhere in fbdev code.
+-	 */
+-	bool fbdev_use_iomem;
+-
+ 	/**
+ 	 * @quirk_addfb_prefer_xbgr_30bpp:
+ 	 *
+-- 
+2.29.0
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
