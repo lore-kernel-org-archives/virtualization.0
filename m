@@ -7,75 +7,76 @@ X-Spam-Status: No, score=-6.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
 	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A7CEC5DF9D
-	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:33:43 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2191CC64EBC
+	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:33:44 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 3C3AE223BD
+	by mail.kernel.org (Postfix) with ESMTPS id AFE2F20756
 	for <virtualization@archiver.kernel.org>; Tue,  3 Nov 2020 10:33:43 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="FM+6iGu/";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="QWVzJVj2"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3C3AE223BD
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="Da+xDlV6";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="f+EMpg4d"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AFE2F20756
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linutronix.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id DC3CC860F8;
+	by hemlock.osuosl.org (Postfix) with ESMTP id DBA2287375;
 	Tue,  3 Nov 2020 10:33:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id O92hvJ7gba4x; Tue,  3 Nov 2020 10:33:42 +0000 (UTC)
+	with ESMTP id LvMOCRvJaIKl; Tue,  3 Nov 2020 10:33:41 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 2C725860C2;
-	Tue,  3 Nov 2020 10:33:42 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id D1D778731A;
+	Tue,  3 Nov 2020 10:33:40 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 10DDAC0889;
-	Tue,  3 Nov 2020 10:33:42 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AC014C1AD5;
+	Tue,  3 Nov 2020 10:33:40 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AAD9AC0051
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A92E2C0051
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:33:39 +0000 (UTC)
+ Tue,  3 Nov 2020 10:33:38 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 952002052A
+ by silver.osuosl.org (Postfix) with ESMTP id A0F0E20529
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:33:39 +0000 (UTC)
+ Tue,  3 Nov 2020 10:33:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ZWuoIpR6CPAS
+ with ESMTP id l+EuxRaVO42h
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:33:38 +0000 (UTC)
+ Tue,  3 Nov 2020 10:33:36 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
- by silver.osuosl.org (Postfix) with ESMTPS id 0A6792050F
+ by silver.osuosl.org (Postfix) with ESMTPS id 1414720521
  for <virtualization@lists.linux-foundation.org>;
- Tue,  3 Nov 2020 10:33:38 +0000 (UTC)
-Message-Id: <20201103095857.681196473@linutronix.de>
+ Tue,  3 Nov 2020 10:33:36 +0000 (UTC)
+Message-Id: <20201103095857.472289952@linutronix.de>
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020; t=1604399616;
+ s=2020; t=1604399614;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=9zfWJBESkC89ZM3wXi9RpcYi0kqs7Y++H87KJDM1PsA=;
- b=FM+6iGu/X6o10mq/FtDQCiRN7zTRF3r0s7Ss+igapV9ttM5H7pYB9Wje8MGF3i4YSPxAhK
- 25KKcscHcfgXak4e88H/ht4KlbCfLV+0zHOakSsxZy5/qBn7n2qUPGEJXY392Q1xlELmJo
- NblwLDaZEYb14PR5t1vVPqhWlETKeRLogBWSuEdl+nicahgGjme8XOjFq5RonDKoVE8y3N
- wzDbheHIZNB47+lThJbtB6qAeeRtyiUKkaoGgv+wOchAPMwUg1W4ue/fJgRLfbfX4eu5kI
- HEdlHJNf7HxB2vsO8pVfZinxI+Fmi8cfatioLdXGdXxAnzKppg7jyhwAaFAASA==
+ bh=B0hFoCMbd1BTTJA4iomuHwwbKwpHOM25a6SSJ6sGjas=;
+ b=Da+xDlV6KKffjn87YKI1w17KiAxAeIwWeQXSeWKC0+BzZgA/gqhzIh0qkDbs5ynMS6tGaO
+ I8gHmEb35BY82N8vhI97HVBvnAj55thowV9wgbIh3Jq3p63khMhgHQ4eq2qttbXse7CCph
+ uIdVwPXAtNbLoPzXMD0fYpkKihvozEBm9/mhdN9HeJsuptVOho9HcZgMt5aBipbQzD32j0
+ n8uwlpoGAeQE1AfGOa25U2RbcXloELidSAwyNrGWvl5+J16S5YpCbXHODVye950pME+SVH
+ /3ATFCqI1kOabZgkLc1vcBDW9PIVmKxSuqkyhuUa0/xRqCZQCIo4wyfRwpb6Tg==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
- s=2020e; t=1604399616;
+ s=2020e; t=1604399614;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  content-transfer-encoding:content-transfer-encoding:  references:references;
- bh=9zfWJBESkC89ZM3wXi9RpcYi0kqs7Y++H87KJDM1PsA=;
- b=QWVzJVj2VvqtXcIZwtvJwhwpHQqxRIV9wytN6gScTp4DI1FqFOrSCxUaik507DE6SqoDSo
- C5jxssGHP4ej70Cg==
-Date: Tue, 03 Nov 2020 10:27:23 +0100
+ bh=B0hFoCMbd1BTTJA4iomuHwwbKwpHOM25a6SSJ6sGjas=;
+ b=f+EMpg4dOklmbcFvEtDPybxH7tM1dD0ExZ/edleu8OU1SH6t6ksrWSj8ZZKeC1sXeVE20y
+ HTqugv1TVnCd4ECw==
+Date: Tue, 03 Nov 2020 10:27:21 +0100
 From: Thomas Gleixner <tglx@linutronix.de>
 To: LKML <linux-kernel@vger.kernel.org>
-Subject: [patch V3 11/37] csky/mm/highmem: Switch to generic kmap atomic
+Subject: [patch V3 09/37] arc/mm/highmem: Use generic kmap atomic
+ implementation
 References: <20201103092712.714480842@linutronix.de>
 MIME-Version: 1.0
 Cc: Juri Lelli <juri.lelli@redhat.com>, linux-aio@kvack.org,
@@ -131,169 +132,199 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-No reason having the same code in every architecture.
+Adopt the map ordering to match the other architectures and the generic
+code. Also make the maximum entries limited and not dependend on the number
+of CPUs. With the original implementation did the following calculation:
+
+   nr_slots = mapsize >> PAGE_SHIFT;
+
+The results in either 512 or 1024 total slots depending on
+configuration. The total slots have to be divided by the number of CPUs to
+get the number of slots per CPU (former KM_TYPE_NR). ARC supports up to 4k
+CPUs, so this just falls apart in random ways depending on the number of
+CPUs and the actual kmap (atomic) nesting. The comment in highmem.c:
+
+ * - fixmap anyhow needs a limited number of mappings. So 2M kvaddr == 256 PTE
+ *   slots across NR_CPUS would be more than sufficient (generic code defines
+ *   KM_TYPE_NR as 20).
+
+is just wrong. KM_TYPE_NR (now KM_MAX_IDX) is the number of slots per CPU
+because kmap_local/atomic() needs to support nested mappings (thread,
+softirq, interrupt). While KM_MAX_IDX might be overestimated, the above
+reasoning is just wrong and clearly the highmem code was never tested with
+any system with more than a few CPUs.
+
+Use the default number of slots and fail the build when it does not
+fit. Randomly failing at runtime is not a really good option.
 
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-csky@vger.kernel.org
+Cc: Vineet Gupta <vgupta@synopsys.com>
+Cc: linux-snps-arc@lists.infradead.org
 ---
-V3: Does not compile with gcc 10
+V3: Make it actually more correct.
 ---
- arch/csky/Kconfig               |    1 
- arch/csky/include/asm/fixmap.h  |    4 +-
- arch/csky/include/asm/highmem.h |    6 ++-
- arch/csky/mm/highmem.c          |   75 ----------------------------------------
- 4 files changed, 8 insertions(+), 78 deletions(-)
+ arch/arc/Kconfig                  |    1 
+ arch/arc/include/asm/highmem.h    |   26 ++++++++++++++----
+ arch/arc/include/asm/kmap_types.h |   14 ---------
+ arch/arc/mm/highmem.c             |   54 +++-----------------------------------
+ 4 files changed, 26 insertions(+), 69 deletions(-)
 
---- a/arch/csky/Kconfig
-+++ b/arch/csky/Kconfig
-@@ -286,6 +286,7 @@ config NR_CPUS
+--- a/arch/arc/Kconfig
++++ b/arch/arc/Kconfig
+@@ -507,6 +507,7 @@ config LINUX_RAM_BASE
  config HIGHMEM
  	bool "High Memory Support"
- 	depends on !CPU_CK610
+ 	select ARCH_DISCONTIGMEM_ENABLE
 +	select KMAP_LOCAL
- 	default y
- 
- config FORCE_MAX_ZONEORDER
---- a/arch/csky/include/asm/fixmap.h
-+++ b/arch/csky/include/asm/fixmap.h
-@@ -8,7 +8,7 @@
- #include <asm/memory.h>
+ 	help
+ 	  With ARC 2G:2G address split, only upper 2G is directly addressable by
+ 	  kernel. Enable this to potentially allow access to rest of 2G and PAE
+--- a/arch/arc/include/asm/highmem.h
++++ b/arch/arc/include/asm/highmem.h
+@@ -9,17 +9,29 @@
  #ifdef CONFIG_HIGHMEM
- #include <linux/threads.h>
+ 
+ #include <uapi/asm/page.h>
 -#include <asm/kmap_types.h>
 +#include <asm/kmap_size.h>
- #endif
- 
- enum fixed_addresses {
-@@ -17,7 +17,7 @@ enum fixed_addresses {
- #endif
- #ifdef CONFIG_HIGHMEM
- 	FIX_KMAP_BEGIN,
--	FIX_KMAP_END = FIX_KMAP_BEGIN + (KM_TYPE_NR * NR_CPUS) - 1,
-+	FIX_KMAP_END = FIX_KMAP_BEGIN + (KM_MAX_IDX * NR_CPUS) - 1,
- #endif
- 	__end_of_fixed_addresses
- };
---- a/arch/csky/include/asm/highmem.h
-+++ b/arch/csky/include/asm/highmem.h
-@@ -9,7 +9,7 @@
- #include <linux/init.h>
- #include <linux/interrupt.h>
- #include <linux/uaccess.h>
--#include <asm/kmap_types.h>
-+#include <asm/kmap_size.h>
- #include <asm/cache.h>
- 
- /* undef for production */
-@@ -32,10 +32,12 @@ extern pte_t *pkmap_page_table;
- 
- #define ARCH_HAS_KMAP_FLUSH_TLB
- extern void kmap_flush_tlb(unsigned long addr);
--extern void *kmap_atomic_pfn(unsigned long pfn);
- 
- #define flush_cache_kmaps() do {} while (0)
- 
-+#define arch_kmap_local_post_map(vaddr, pteval)	kmap_flush_tlb(vaddr)
-+#define arch_kmap_local_post_unmap(vaddr)	kmap_flush_tlb(vaddr)
 +
++#define FIXMAP_SIZE		PGDIR_SIZE
++#define PKMAP_SIZE		PGDIR_SIZE
+ 
+ /* start after vmalloc area */
+ #define FIXMAP_BASE		(PAGE_OFFSET - FIXMAP_SIZE - PKMAP_SIZE)
+-#define FIXMAP_SIZE		PGDIR_SIZE	/* only 1 PGD worth */
+-#define KM_TYPE_NR		((FIXMAP_SIZE >> PAGE_SHIFT)/NR_CPUS)
+-#define FIXMAP_ADDR(nr)		(FIXMAP_BASE + ((nr) << PAGE_SHIFT))
++
++#define FIX_KMAP_SLOTS		(KM_MAX_IDX * NR_CPUS)
++#define FIX_KMAP_BEGIN		(0UL)
++#define FIX_KMAP_END		((FIX_KMAP_BEGIN + FIX_KMAP_SLOTS) - 1)
++
++#define FIXADDR_TOP		(FIXMAP_BASE + (FIX_KMAP_END << PAGE_SHIFT))
++
++/*
++ * This should be converted to the asm-generic version, but of course this
++ * is needlessly different from all other architectures. Sigh - tglx
++ */
++#define __fix_to_virt(x)	(FIXADDR_TOP - ((x) << PAGE_SHIFT))
++#define __virt_to_fix(x)	(((FIXADDR_TOP - ((x) & PAGE_MASK))) >> PAGE_SHIFT)
+ 
+ /* start after fixmap area */
+ #define PKMAP_BASE		(FIXMAP_BASE + FIXMAP_SIZE)
+-#define PKMAP_SIZE		PGDIR_SIZE
+ #define LAST_PKMAP		(PKMAP_SIZE >> PAGE_SHIFT)
+ #define LAST_PKMAP_MASK		(LAST_PKMAP - 1)
+ #define PKMAP_ADDR(nr)		(PKMAP_BASE + ((nr) << PAGE_SHIFT))
+@@ -29,11 +41,13 @@
+ 
  extern void kmap_init(void);
  
- #endif /* __KERNEL__ */
---- a/arch/csky/mm/highmem.c
-+++ b/arch/csky/mm/highmem.c
-@@ -9,8 +9,6 @@
- #include <asm/tlbflush.h>
- #include <asm/cacheflush.h>
- 
--static pte_t *kmap_pte;
--
- unsigned long highstart_pfn, highend_pfn;
- 
- void kmap_flush_tlb(unsigned long addr)
-@@ -19,67 +17,7 @@ void kmap_flush_tlb(unsigned long addr)
++#define arch_kmap_local_post_unmap(vaddr)			\
++	local_flush_tlb_kernel_range(vaddr, vaddr + PAGE_SIZE)
++
+ static inline void flush_cache_kmaps(void)
+ {
+ 	flush_cache_all();
  }
- EXPORT_SYMBOL(kmap_flush_tlb);
+-
+ #endif
  
+ #endif
+--- a/arch/arc/include/asm/kmap_types.h
++++ /dev/null
+@@ -1,14 +0,0 @@
+-/* SPDX-License-Identifier: GPL-2.0-only */
+-/*
+- * Copyright (C) 2015 Synopsys, Inc. (www.synopsys.com)
+- */
+-
+-#ifndef _ASM_KMAP_TYPES_H
+-#define _ASM_KMAP_TYPES_H
+-
+-/*
+- * We primarily need to define KM_TYPE_NR here but that in turn
+- * is a function of PGDIR_SIZE etc.
+- * To avoid circular deps issue, put everything in asm/highmem.h
+- */
+-#endif
+--- a/arch/arc/mm/highmem.c
++++ b/arch/arc/mm/highmem.c
+@@ -36,9 +36,8 @@
+  *   This means each only has 1 PGDIR_SIZE worth of kvaddr mappings, which means
+  *   2M of kvaddr space for typical config (8K page and 11:8:13 traversal split)
+  *
+- * - fixmap anyhow needs a limited number of mappings. So 2M kvaddr == 256 PTE
+- *   slots across NR_CPUS would be more than sufficient (generic code defines
+- *   KM_TYPE_NR as 20).
++ * - The fixed KMAP slots for kmap_local/atomic() require KM_MAX_IDX slots per
++ *   CPU. So the number of CPUs sharing a single PTE page is limited.
+  *
+  * - pkmap being preemptible, in theory could do with more than 256 concurrent
+  *   mappings. However, generic pkmap code: map_new_virtual(), doesn't traverse
+@@ -47,48 +46,6 @@
+  */
+ 
+ extern pte_t * pkmap_page_table;
+-static pte_t * fixmap_page_table;
+-
 -void *kmap_atomic_high_prot(struct page *page, pgprot_t prot)
 -{
+-	int idx, cpu_idx;
 -	unsigned long vaddr;
--	int idx, type;
 -
--	type = kmap_atomic_idx_push();
--	idx = type + KM_TYPE_NR*smp_processor_id();
--	vaddr = __fix_to_virt(FIX_KMAP_BEGIN + idx);
--#ifdef CONFIG_DEBUG_HIGHMEM
--	BUG_ON(!pte_none(*(kmap_pte - idx)));
--#endif
--	set_pte(kmap_pte-idx, mk_pte(page, prot));
--	flush_tlb_one((unsigned long)vaddr);
+-	cpu_idx = kmap_atomic_idx_push();
+-	idx = cpu_idx + KM_TYPE_NR * smp_processor_id();
+-	vaddr = FIXMAP_ADDR(idx);
+-
+-	set_pte_at(&init_mm, vaddr, fixmap_page_table + idx,
+-		   mk_pte(page, prot));
 -
 -	return (void *)vaddr;
 -}
 -EXPORT_SYMBOL(kmap_atomic_high_prot);
 -
--void kunmap_atomic_high(void *kvaddr)
+-void kunmap_atomic_high(void *kv)
 -{
--	unsigned long vaddr = (unsigned long) kvaddr & PAGE_MASK;
--	int idx;
+-	unsigned long kvaddr = (unsigned long)kv;
 -
--	if (vaddr < FIXADDR_START)
--		return;
+-	if (kvaddr >= FIXMAP_BASE && kvaddr < (FIXMAP_BASE + FIXMAP_SIZE)) {
 -
--#ifdef CONFIG_DEBUG_HIGHMEM
--	idx = KM_TYPE_NR*smp_processor_id() + kmap_atomic_idx();
+-		/*
+-		 * Because preemption is disabled, this vaddr can be associated
+-		 * with the current allocated index.
+-		 * But in case of multiple live kmap_atomic(), it still relies on
+-		 * callers to unmap in right order.
+-		 */
+-		int cpu_idx = kmap_atomic_idx();
+-		int idx = cpu_idx + KM_TYPE_NR * smp_processor_id();
 -
--	BUG_ON(vaddr != __fix_to_virt(FIX_KMAP_BEGIN + idx));
+-		WARN_ON(kvaddr != FIXMAP_ADDR(idx));
 -
--	pte_clear(&init_mm, vaddr, kmap_pte - idx);
--	flush_tlb_one(vaddr);
--#else
--	(void) idx; /* to kill a warning */
--#endif
--	kmap_atomic_idx_pop();
+-		pte_clear(&init_mm, kvaddr, fixmap_page_table + idx);
+-		local_flush_tlb_kernel_range(kvaddr, kvaddr + PAGE_SIZE);
+-
+-		kmap_atomic_idx_pop();
+-	}
 -}
 -EXPORT_SYMBOL(kunmap_atomic_high);
--
--/*
-- * This is the same as kmap_atomic() but can map memory that doesn't
-- * have a struct page associated with it.
-- */
--void *kmap_atomic_pfn(unsigned long pfn)
--{
--	unsigned long vaddr;
--	int idx, type;
--
--	pagefault_disable();
--
--	type = kmap_atomic_idx_push();
--	idx = type + KM_TYPE_NR*smp_processor_id();
--	vaddr = __fix_to_virt(FIX_KMAP_BEGIN + idx);
--	set_pte(kmap_pte-idx, pfn_pte(pfn, PAGE_KERNEL));
--	flush_tlb_one(vaddr);
--
--	return (void *) vaddr;
--}
--
--static void __init kmap_pages_init(void)
-+void __init kmap_init(void)
+ 
+ static noinline pte_t * __init alloc_kmap_pgtable(unsigned long kvaddr)
  {
- 	unsigned long vaddr;
- 	pgd_t *pgd;
-@@ -96,14 +34,3 @@ static void __init kmap_pages_init(void)
- 	pte = pte_offset_kernel(pmd, vaddr);
- 	pkmap_page_table = pte;
+@@ -108,10 +65,9 @@ void __init kmap_init(void)
+ {
+ 	/* Due to recursive include hell, we can't do this in processor.h */
+ 	BUILD_BUG_ON(PAGE_OFFSET < (VMALLOC_END + FIXMAP_SIZE + PKMAP_SIZE));
++	BUILD_BUG_ON(LAST_PKMAP > PTRS_PER_PTE);
++	BUILD_BUG_ON(FIX_KMAP_SLOTS > PTRS_PER_PTE);
+ 
+-	BUILD_BUG_ON(KM_TYPE_NR > PTRS_PER_PTE);
+ 	pkmap_page_table = alloc_kmap_pgtable(PKMAP_BASE);
+-
+-	BUILD_BUG_ON(LAST_PKMAP > PTRS_PER_PTE);
+-	fixmap_page_table = alloc_kmap_pgtable(FIXMAP_BASE);
++	alloc_kmap_pgtable(FIXMAP_BASE);
  }
--
--void __init kmap_init(void)
--{
--	unsigned long vaddr;
--
--	kmap_pages_init();
--
--	vaddr = __fix_to_virt(FIX_KMAP_BEGIN);
--
--	kmap_pte = pte_offset_kernel((pmd_t *)pgd_offset_k(vaddr), vaddr);
--}
 
 _______________________________________________
 Virtualization mailing list
