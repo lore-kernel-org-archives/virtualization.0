@@ -2,103 +2,93 @@ Return-Path: <SRS0=fSpH=EL=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.3 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
-	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 93FE6C4742C
-	for <virtualization@archiver.kernel.org>; Thu,  5 Nov 2020 07:01:02 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BEF42C55178
+	for <virtualization@archiver.kernel.org>; Thu,  5 Nov 2020 07:32:23 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E65D120786
-	for <virtualization@archiver.kernel.org>; Thu,  5 Nov 2020 07:01:00 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 157B02222A
+	for <virtualization@archiver.kernel.org>; Thu,  5 Nov 2020 07:32:22 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MXqPgs8+"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E65D120786
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="v7jixjnR"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 157B02222A
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linuxfoundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 103D520C92;
-	Thu,  5 Nov 2020 07:01:00 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 258D021519;
+	Thu,  5 Nov 2020 07:32:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0a2Ag0v0qU0N; Thu,  5 Nov 2020 07:00:59 +0000 (UTC)
+	with ESMTP id 6HULFkL2RYcY; Thu,  5 Nov 2020 07:32:19 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 1E6AB20361;
-	Thu,  5 Nov 2020 07:00:59 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 0E2A420373;
+	Thu,  5 Nov 2020 07:32:19 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EED06C088B;
-	Thu,  5 Nov 2020 07:00:58 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 68C81C0889
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E4806C0893;
+	Thu,  5 Nov 2020 07:32:18 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C0E9DC0889
  for <virtualization@lists.linux-foundation.org>;
- Thu,  5 Nov 2020 07:00:58 +0000 (UTC)
+ Thu,  5 Nov 2020 07:32:16 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 4CC2785579
+ by silver.osuosl.org (Postfix) with ESMTP id 9570020767
  for <virtualization@lists.linux-foundation.org>;
- Thu,  5 Nov 2020 07:00:58 +0000 (UTC)
+ Thu,  5 Nov 2020 07:32:16 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id UxQc_jw123dW
+ with ESMTP id SZAWwazT+zCc
  for <virtualization@lists.linux-foundation.org>;
- Thu,  5 Nov 2020 07:00:57 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-pf1-f193.google.com (mail-pf1-f193.google.com
- [209.85.210.193])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id D210C85572
+ Thu,  5 Nov 2020 07:32:15 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+ by silver.osuosl.org (Postfix) with ESMTPS id E3D0020373
  for <virtualization@lists.linux-foundation.org>;
- Thu,  5 Nov 2020 07:00:57 +0000 (UTC)
-Received: by mail-pf1-f193.google.com with SMTP id x13so667699pfa.9
- for <virtualization@lists.linux-foundation.org>;
- Wed, 04 Nov 2020 23:00:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=date:from:to:cc:subject:message-id:references:mime-version
- :content-disposition:in-reply-to;
- bh=In22z4zSRFjmN0f9ZWT4tSWe/e4QLia1xEowLwJnVsw=;
- b=MXqPgs8+6JTdO/hUoDQw5oReQIcGnaaVfUbxHiTj/WNMBS0cf3z4ohV+gF45hY58w/
- aoFliyd9R/tnYceFsDd1i5ZqyVInBUwnOTkO0iGVPUyoNe059GQEoAK6RMQUzn3dMo1l
- n9M7VKH4+IyCkaIL+7QBE2LQmvswOpQQnMjujNrQlvxsPx87Z28CxZPz+egzh8LAELS1
- S+F/AqaP302QLGtQjTyL4M7IxF1We073NibdHPAzDHgpmmJILhf1mJaq6BnvAlrSjSh2
- LzOl1rH84hlkjcyzBvUXH9e57VW746Fzr1Vd5+qP9c9nk8Gtt7KQOSjZhfNjGgPBap4m
- fuoQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:in-reply-to;
- bh=In22z4zSRFjmN0f9ZWT4tSWe/e4QLia1xEowLwJnVsw=;
- b=az0ErELFf3pWyJe7A4MoKUFyYKItU5SNBiPN9leu9VSyM+g5HJlB4y4xWDUbhXoVNB
- ooNcUNOivM1k4KQ4wPLaA/Jpo8MJDizl0PAFovHDGauHKH+yaShKLvUkkStmTeEw+AUO
- VnOiJTIPozm+JBzainUYwR7FXBI7AKkjqXrykMBq9Pnbv4xTbztLlsXfQKhtzkd98V/N
- 82V4Uuef+VGFQyi6ythetmw0eIknwFWuwOSGb+//pFKX0dsHOiOm4wouun+kAjHyYpHf
- h6cMBU/JPbP0sdPbgFBaV4OrkPrjZ3aHHC2MWYVX5WWGcdI5w2+X8vlU80Tdsf9/1YSG
- dODw==
-X-Gm-Message-State: AOAM533txL1pMkScCsw21nK51xBSbsIpqA+LlSXmxyVT5xH7ux98w1Uu
- c8qZgLHKWutCUgG5gO9Rcxc=
-X-Google-Smtp-Source: ABdhPJxccwbMNiHKtX8PlDU2gsnrWVHgRU2ASpOcGh5rnfj0CZusDbR0R9TyZJHcK06SvgZWWBZTOw==
-X-Received: by 2002:a65:4b84:: with SMTP id t4mr1159089pgq.138.1604559657437; 
- Wed, 04 Nov 2020 23:00:57 -0800 (PST)
-Received: from localhost ([2401:fa00:8f:203:a6ae:11ff:fe11:4b46])
- by smtp.gmail.com with ESMTPSA id c11sm814474pjn.26.2020.11.04.23.00.55
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 04 Nov 2020 23:00:56 -0800 (PST)
-Date: Thu, 5 Nov 2020 16:00:54 +0900
-From: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
-To: Gerd Hoffmann <kraxel@redhat.com>
-Subject: Re: [PATCH] drm/virtio: use kvmalloc for large allocations
-Message-ID: <20201105070054.GD128655@google.com>
-References: <20201105014744.1662226-1-senozhatsky@chromium.org>
- <20201105065233.3td3zuyfmbypjtvq@sirius.home.kraxel.org>
+ Thu,  5 Nov 2020 07:32:14 +0000 (UTC)
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256
+ bits)) (No client certificate requested)
+ by mail.kernel.org (Postfix) with ESMTPSA id 930A420936;
+ Thu,  5 Nov 2020 07:32:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=default; t=1604561534;
+ bh=95POjnfgmnBfa+PcIUbO71yIixyEwcBCZu8ONi41qSI=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=v7jixjnRS8IofHWpcD2+DxxCXJ90U/evKE0DUQul2JT/Y8H+g7nVaRbkifKy48xox
+ VDGBlpUHfWervGmkwxAM0ACUtpdpFRRs9k0EqAwpLdfoM3L9+GBIUBILJMUGPAe8zd
+ NU6sc18Y6rTq9FYLuezM9oiY3jBE5sPskCQybDUw=
+Date: Thu, 5 Nov 2020 08:33:02 +0100
+From: gregkh <gregkh@linuxfoundation.org>
+To: Dan Williams <dan.j.williams@intel.com>
+Subject: Re: [PATCH mlx5-next v1 06/11] vdpa/mlx5: Connect mlx5_vdpa to
+ auxiliary bus
+Message-ID: <20201105073302.GA3415673@kroah.com>
+References: <20201101201542.2027568-1-leon@kernel.org>
+ <20201101201542.2027568-7-leon@kernel.org>
+ <20201103154525.GO36674@ziepe.ca>
+ <CAPcyv4jP9nFAGdvB7agg3x7Y7moHGcxLd5=f5=5CXnJRUf3n9w@mail.gmail.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20201105065233.3td3zuyfmbypjtvq@sirius.home.kraxel.org>
-Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- Sergey Senozhatsky <senozhatsky@chromium.org>, Daniel Vetter <daniel@ffwll.ch>,
- Suleiman Souhlal <suleiman@google.com>
+In-Reply-To: <CAPcyv4jP9nFAGdvB7agg3x7Y7moHGcxLd5=f5=5CXnJRUf3n9w@mail.gmail.com>
+Cc: alsa-devel@alsa-project.org, "Michael S. Tsirkin" <mst@redhat.com>,
+ Takashi Iwai <tiwai@suse.de>,
+ Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+ Leon Romanovsky <leonro@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
+ linux-rdma <linux-rdma@vger.kernel.org>,
+ Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+ Fred Oh <fred.oh@linux.intel.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+ Doug Ledford <dledford@redhat.com>, Jakub Kicinski <kuba@kernel.org>, "Patil,
+ Kiran" <kiran.patil@intel.com>, Mark Brown <broonie@kernel.org>,
+ Parav Pandit <parav@nvidia.com>, David M Ertman <david.m.ertman@intel.com>,
+ Roi Dayan <roid@nvidia.com>, virtualization@lists.linux-foundation.org,
+ "Saleem, Shiraz" <shiraz.saleem@intel.com>, Netdev <netdev@vger.kernel.org>,
+ Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+ Saeed Mahameed <saeedm@nvidia.com>, "David S . Miller" <davem@davemloft.net>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -115,21 +105,56 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi,
-
-On (20/11/05 07:52), Gerd Hoffmann wrote:
-> > -	*ents = kmalloc_array(*nents, sizeof(struct virtio_gpu_mem_entry),
-> > -			      GFP_KERNEL);
-> > +	*ents = kvmalloc_array(*nents,
-> > +			       sizeof(struct virtio_gpu_mem_entry),
-> > +			       GFP_KERNEL);
+On Wed, Nov 04, 2020 at 03:21:23PM -0800, Dan Williams wrote:
+> On Tue, Nov 3, 2020 at 7:45 AM Jason Gunthorpe <jgg@ziepe.ca> wrote:
+> [..]
+> > > +MODULE_DEVICE_TABLE(auxiliary, mlx5v_id_table);
+> > > +
+> > > +static struct auxiliary_driver mlx5v_driver = {
+> > > +     .name = "vnet",
+> > > +     .probe = mlx5v_probe,
+> > > +     .remove = mlx5v_remove,
+> > > +     .id_table = mlx5v_id_table,
+> > > +};
+> >
+> > It is hard to see from the diff, but when this patch is applied the
+> > vdpa module looks like I imagined things would look with the auxiliary
+> > bus. It is very similar in structure to a PCI driver with the probe()
+> > function cleanly registering with its subsystem. This is what I'd like
+> > to see from the new Intel RDMA driver.
+> >
+> > Greg, I think this patch is the best clean usage example.
+> >
+> > I've looked over this series and it has the right idea and
+> > parts. There is definitely more that can be done to improve mlx5 in
+> > this area, but this series is well scoped and cleans a good part of
+> > it.
 > 
-> Shouldn't that be balanced with a kvfree() elsewhere?
+> Greg?
+> 
+> I know you alluded to going your own way if the auxiliary bus patches
+> did not shape up soon, but it seems they have and the stakeholders
+> have reached this consensus point.
+> 
+> Were there any additional changes you wanted to see happen? I'll go
+> give the final set another once over, but David has been diligently
+> fixing up all the declared major issues so I expect to find at most
+> minor incremental fixups.
 
-I think it already is. ents pointer is assigned to vbuf->data_buf,
-and free_vbuf() already uses kvfree(vbuf->data_buf) to free it.
+This is in my to-review pile, along with a load of other stuff at the
+moment:
+	$ ~/bin/mdfrm -c ~/mail/todo/
+	1709 messages in /home/gregkh/mail/todo/
 
-	-ss
+So give me a chance.  There is no rush on my side for this given the
+huge delays that have happened here on the authorship side many times in
+the past :)
+
+If you can review it, or anyone else, that is always most appreciated.
+
+thanks,
+
+greg k-h
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
