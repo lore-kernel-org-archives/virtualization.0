@@ -6,115 +6,92 @@ X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
 	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 785B1C4742C
-	for <virtualization@archiver.kernel.org>; Thu,  5 Nov 2020 10:52:50 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9A91AC00A89
+	for <virtualization@archiver.kernel.org>; Thu,  5 Nov 2020 11:34:37 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E97AF22203
-	for <virtualization@archiver.kernel.org>; Thu,  5 Nov 2020 10:52:49 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 01A702078E
+	for <virtualization@archiver.kernel.org>; Thu,  5 Nov 2020 11:34:36 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="d/RC4QlH"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E97AF22203
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=linaro.org
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="am9ld7oa"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 01A702078E
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 60AD186110;
-	Thu,  5 Nov 2020 10:52:49 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 5C44E858B5;
+	Thu,  5 Nov 2020 11:34:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id N+BTGyMJOUwa; Thu,  5 Nov 2020 10:52:48 +0000 (UTC)
+	with ESMTP id KmQwkGF2wYhf; Thu,  5 Nov 2020 11:34:36 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 516088618E;
-	Thu,  5 Nov 2020 10:52:48 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 03E9F8587E;
+	Thu,  5 Nov 2020 11:34:35 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 39133C0893;
-	Thu,  5 Nov 2020 10:52:48 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1744BC0889
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D8342C088B;
+	Thu,  5 Nov 2020 11:34:35 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0DC29C0889
  for <virtualization@lists.linux-foundation.org>;
- Thu,  5 Nov 2020 10:52:46 +0000 (UTC)
+ Thu,  5 Nov 2020 11:34:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id F13BC870BA
+ by silver.osuosl.org (Postfix) with ESMTP id 0447A204AF
  for <virtualization@lists.linux-foundation.org>;
- Thu,  5 Nov 2020 10:52:45 +0000 (UTC)
+ Thu,  5 Nov 2020 11:34:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 1MODsXsmTCUy
+ with ESMTP id oAmp0AvrykhA
  for <virtualization@lists.linux-foundation.org>;
- Thu,  5 Nov 2020 10:52:43 +0000 (UTC)
+ Thu,  5 Nov 2020 11:34:32 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-lj1-f194.google.com (mail-lj1-f194.google.com
- [209.85.208.194])
- by hemlock.osuosl.org (Postfix) with ESMTPS id C6FFB8702C
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by silver.osuosl.org (Postfix) with ESMTPS id 5F94B20361
  for <virtualization@lists.linux-foundation.org>;
- Thu,  5 Nov 2020 10:52:42 +0000 (UTC)
-Received: by mail-lj1-f194.google.com with SMTP id x6so1094664ljd.3
- for <virtualization@lists.linux-foundation.org>;
- Thu, 05 Nov 2020 02:52:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linaro.org; s=google;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=IbC7h6sutytvBKVgRkW8YBm4v4oQThhwvuIz3XlFJpw=;
- b=d/RC4QlHsEU0Pk+87b5hebgQR1nvUbGfz+KWgyYPw8avJty+oHtYWwRBfI9ZwNnjQk
- 6x1f9VNEkjxS+WacQizm9QFnRFRoNTRgXz7J8hUL7gDHTr1r0B4CDTIH++hxOUWPbRHA
- faB9Z1G3wfURCCb570cPMFzwdpYsz5NNLR9grwb6NletLAXur80zPGuj6TnPTgqIsI6W
- 73tvdQLbSeHs/ZIHScGvMbbglljfvtEcmDpRr1SmCjt0Cs2115AxcxEJIltrAcsJpAIs
- i7f4CKXDgFTYIlx2Oia+shgKsQ9vbBqcm5RZnKYsE+6tO+5eUkPHBV9yZoGBsu8zWwxP
- sFlA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=IbC7h6sutytvBKVgRkW8YBm4v4oQThhwvuIz3XlFJpw=;
- b=NsuNuMDgZk9TIp+xWojetfo08PjdmOwrGVLnA/2J7Kq1N407Q0aIMXTs55xxZAAE0m
- 4C6llSG5ov915gAh3Qm0UjO+U4z4kQWIcssFOYCDVac3vX5RoNrgSSYCqn6aIo0Fi3hy
- Ag4+Oe8dEw2g4HhH/vykD1Iq2FwrjurOcaQbh60XxW1T4+PworadMrQhygg5nO5lMq8s
- s6rPbwmgytjG7ccQQvLZ/FIaKN3G0+JZ7ug54IGk4DhCHSixDzhV+q072IhZo6EpnVVr
- SN8lxJrDOJI200iR4cRbwm0FEshsAYL/mkC7N6RuBuUwfq/PPfugtjnKUkYqKFVVOhLv
- uuRA==
-X-Gm-Message-State: AOAM530b2tJMkrN1t+Gfkw+CNJb6fDrYxZoOhR9NGf1wOI45dfcwR9Hn
- xW9YdVgJi0TLugXIp+2BjrJSTFLFD24hhz7FEzYUTg==
-X-Google-Smtp-Source: ABdhPJwMZsQSFYx3yHXvvtRlVkabm7C64j8LuP2+XUU2+XVFwAx/DWoa4YDvNPprZ43yAgspd5XcguY3mqI1O9Ir5Vs=
-X-Received: by 2002:a05:651c:1205:: with SMTP id
- i5mr726163lja.283.1604573560846; 
- Thu, 05 Nov 2020 02:52:40 -0800 (PST)
+ Thu,  5 Nov 2020 11:34:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1604576071;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=BqAyd5oPIZ6twy3M+P8m2ePirTM3ef9UMxPbSLSvBUQ=;
+ b=am9ld7oaxhV9Dn5gAFmVCkzVDnKHE8pXmk+R2N8fhFgou3Q2lIt2eQn1S6sAZaHTgg3qog
+ 7QqGQo8rPetZonKpSIXASvByZB0UqJjj3/nwITnYbc2IWt0GnNwtZaD9hHQSJnPMpoKgFU
+ Zm2PGNECm+o8BVxGL4Cj5mfYRDufwhQ=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-2-CKDof9iRPs6yY3cC_MY5pQ-1; Thu, 05 Nov 2020 06:34:29 -0500
+X-MC-Unique: CKDof9iRPs6yY3cC_MY5pQ-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
+ [10.5.11.15])
+ (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ (No client certificate requested)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 84B22186841A;
+ Thu,  5 Nov 2020 11:34:27 +0000 (UTC)
+Received: from sirius.home.kraxel.org (ovpn-114-66.ams2.redhat.com
+ [10.36.114.66])
+ by smtp.corp.redhat.com (Postfix) with ESMTP id C210C6266E;
+ Thu,  5 Nov 2020 11:34:26 +0000 (UTC)
+Received: by sirius.home.kraxel.org (Postfix, from userid 1000)
+ id D61CE9D0F; Thu,  5 Nov 2020 12:34:25 +0100 (CET)
+Date: Thu, 5 Nov 2020 12:34:25 +0100
+From: Gerd Hoffmann <kraxel@redhat.com>
+To: Sergey Senozhatsky <sergey.senozhatsky.work@gmail.com>
+Subject: Re: [PATCH] drm/virtio: use kvmalloc for large allocations
+Message-ID: <20201105113425.q45omct7eb44eraq@sirius.home.kraxel.org>
+References: <20201105014744.1662226-1-senozhatsky@chromium.org>
+ <20201105065233.3td3zuyfmbypjtvq@sirius.home.kraxel.org>
+ <20201105070054.GD128655@google.com>
 MIME-Version: 1.0
-References: <20201027121725.24660-1-brgl@bgdev.pl>
-In-Reply-To: <20201027121725.24660-1-brgl@bgdev.pl>
-From: Linus Walleij <linus.walleij@linaro.org>
-Date: Thu, 5 Nov 2020 11:52:30 +0100
-Message-ID: <CACRpkdYbpOZGmWONeOQFY7DE+t2ev30DQQ-8cxrJNoK9fVVunA@mail.gmail.com>
-Subject: Re: [PATCH 0/8] slab: provide and use krealloc_array()
-To: Bartosz Golaszewski <brgl@bgdev.pl>
-Cc: "moderated list:SOUND - SOC LAYER / DYNAMIC AUDIO POWER MANAGEM..."
- <alsa-devel@alsa-project.org>, kvm@vger.kernel.org,
- "Michael S . Tsirkin" <mst@redhat.com>, David Airlie <airlied@linux.ie>,
- Gustavo Padovan <gustavo@padovan.org>,
- "open list:DRM PANEL DRIVERS" <dri-devel@lists.freedesktop.org>,
- Jaroslav Kysela <perex@perex.cz>,
- Linux Memory Management List <linux-mm@kvack.org>,
- Christoph Lameter <cl@linux.com>, Sumit Semwal <sumit.semwal@linaro.org>,
- Mauro Carvalho Chehab <mchehab@kernel.org>,
- Bartosz Golaszewski <bgolaszewski@baylibre.com>,
- Alexander Shishkin <alexander.shishkin@linux.intel.com>,
- David Rientjes <rientjes@google.com>,
- virtualization@lists.linux-foundation.org,
- Linux Media Mailing List <linux-media@vger.kernel.org>,
- Robert Richter <rric@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, linaro-mm-sig@lists.linaro.org,
- "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
- Borislav Petkov <bp@alien8.de>,
- Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
- Joonsoo Kim <iamjoonsoo.kim@lge.com>, linux-edac@vger.kernel.org,
- Tony Luck <tony.luck@intel.com>, netdev <netdev@vger.kernel.org>,
- Takashi Iwai <tiwai@suse.com>,
- "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
- Pekka Enberg <penberg@kernel.org>, James Morse <james.morse@arm.com>,
- Daniel Vetter <daniel@ffwll.ch>, Andrew Morton <akpm@linux-foundation.org>,
- =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
+Content-Disposition: inline
+In-Reply-To: <20201105070054.GD128655@google.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+Cc: David Airlie <airlied@linux.ie>, linux-kernel@vger.kernel.org,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
+ Sergey Senozhatsky <senozhatsky@chromium.org>, Daniel Vetter <daniel@ffwll.ch>,
+ Suleiman Souhlal <suleiman@google.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -131,29 +108,27 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Oct 27, 2020 at 1:17 PM Bartosz Golaszewski <brgl@bgdev.pl> wrote:
+On Thu, Nov 05, 2020 at 04:00:54PM +0900, Sergey Senozhatsky wrote:
+> Hi,
+> 
+> On (20/11/05 07:52), Gerd Hoffmann wrote:
+> > > -	*ents = kmalloc_array(*nents, sizeof(struct virtio_gpu_mem_entry),
+> > > -			      GFP_KERNEL);
+> > > +	*ents = kvmalloc_array(*nents,
+> > > +			       sizeof(struct virtio_gpu_mem_entry),
+> > > +			       GFP_KERNEL);
+> > 
+> > Shouldn't that be balanced with a kvfree() elsewhere?
+> 
+> I think it already is. ents pointer is assigned to vbuf->data_buf,
+> and free_vbuf() already uses kvfree(vbuf->data_buf) to free it.
 
-> From: Bartosz Golaszewski <bgolaszewski@baylibre.com>
->
-> Andy brought to my attention the fact that users allocating an array of
-> equally sized elements should check if the size multiplication doesn't
-> overflow. This is why we have helpers like kmalloc_array().
->
-> However we don't have krealloc_array() equivalent and there are many
-> users who do their own multiplication when calling krealloc() for arrays.
->
-> This series provides krealloc_array() and uses it in a couple places.
->
-> A separate series will follow adding devm_krealloc_array() which is
-> needed in the xilinx adc driver.
+Ah, right, we needed that before elsewhere.
+Ok then, pushed to drm-misc-next.
 
-The series:
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
+thanks,
+  Gerd
 
-I really like this.
-
-Yours,
-Linus Walleij
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
