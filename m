@@ -1,74 +1,77 @@
-Return-Path: <SRS0=3a2n=EM=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=Fz9A=EN=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-12.7 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SIGNED_OFF_BY,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.2 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 33ED1C2D0A3
-	for <virtualization@archiver.kernel.org>; Fri,  6 Nov 2020 15:26:43 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 76208C388F7
+	for <virtualization@archiver.kernel.org>; Sat,  7 Nov 2020 18:56:49 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id A41F520704
-	for <virtualization@archiver.kernel.org>; Fri,  6 Nov 2020 15:26:41 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A41F520704
+	by mail.kernel.org (Postfix) with ESMTPS id CD7FE207C3
+	for <virtualization@archiver.kernel.org>; Sat,  7 Nov 2020 18:56:48 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CD7FE207C3
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 07ECB86448;
-	Fri,  6 Nov 2020 15:26:41 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 6100D845D7;
+	Sat,  7 Nov 2020 18:56:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id hqHg9CDxfmGV; Fri,  6 Nov 2020 15:26:40 +0000 (UTC)
+	with ESMTP id s8s7l5bZTXaU; Sat,  7 Nov 2020 18:56:47 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 041E086456;
-	Fri,  6 Nov 2020 15:26:40 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 5CAD584587;
+	Sat,  7 Nov 2020 18:56:47 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DBFB2C1AD4;
-	Fri,  6 Nov 2020 15:26:39 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 4F6FAC088B;
+	Sat,  7 Nov 2020 18:56:47 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 262D2C0889
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AA687C0889
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 Nov 2020 15:26:39 +0000 (UTC)
+ Sat,  7 Nov 2020 18:56:45 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id DB3892E12D
+ by silver.osuosl.org (Postfix) with ESMTP id 83506203AB
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 Nov 2020 15:26:38 +0000 (UTC)
+ Sat,  7 Nov 2020 18:56:45 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id QqWczNQmDIDK
+ with ESMTP id 71XfmcIm7BfB
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 Nov 2020 15:26:37 +0000 (UTC)
+ Sat,  7 Nov 2020 18:56:43 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by silver.osuosl.org (Postfix) with ESMTPS id 1A8232E12A
+ by silver.osuosl.org (Postfix) with ESMTPS id 7A3D22035E
  for <virtualization@lists.linux-foundation.org>;
- Fri,  6 Nov 2020 15:26:37 +0000 (UTC)
+ Sat,  7 Nov 2020 18:56:43 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 409C6ABAE;
- Fri,  6 Nov 2020 15:26:35 +0000 (UTC)
-From: Thomas Zimmermann <tzimmermann@suse.de>
+ by mx2.suse.de (Postfix) with ESMTP id BF7C4ABA2;
+ Sat,  7 Nov 2020 18:56:40 +0000 (UTC)
+Subject: Re: [PATCH v2 1/2] drm/shmem-helper: Use cached mappings by default
 To: maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@linux.ie,
  daniel@ffwll.ch, yuq825@gmail.com, robh@kernel.org,
  tomeu.vizoso@collabora.com, steven.price@arm.com,
  alyssa.rosenzweig@collabora.com, sean@poorly.run, eric@anholt.net,
  kraxel@redhat.com, rodrigosiqueiramelo@gmail.com, melissa.srw@gmail.com,
- hamohammed.sa@gmail.com
-Subject: [PATCH v2 1/2] drm/shmem-helper: Use cached mappings by default
-Date: Fri,  6 Nov 2020 16:26:31 +0100
-Message-Id: <20201106152632.26530-2-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.29.0
-In-Reply-To: <20201106152632.26530-1-tzimmermann@suse.de>
+ hamohammed.sa@gmail.com, Hans de Goede <hdegoede@redhat.com>
 References: <20201106152632.26530-1-tzimmermann@suse.de>
+ <20201106152632.26530-2-tzimmermann@suse.de>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Message-ID: <8b2762ff-88e8-873f-7df7-cdfc0618717e@suse.de>
+Date: Sat, 7 Nov 2020 19:56:39 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.3.3
 MIME-Version: 1.0
-Cc: Thomas Zimmermann <tzimmermann@suse.de>, lima@lists.freedesktop.org,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org
+In-Reply-To: <20201106152632.26530-2-tzimmermann@suse.de>
+Content-Language: en-US
+Cc: lima@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -80,160 +83,113 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-SHMEM-buffer backing storage is allocated from system memory; which is
-typically cachable. The default mode for SHMEM objects is writecombine
-though.
-
-Unify SHMEM semantics by defaulting to cached mappings. The exception
-is pages imported via dma-buf. DMA memory is usually not cached.
-
-DRM drivers that require write-combined mappings set the map_wc flag
-in struct drm_gem_shmem_object to true. This currently affects lima,
-panfrost and v3d.
-
-The drivers mgag200, udl, virtio and vkms continue to use default
-shmem mappings.
-
-The drivers cirrus and gm12u320 change caching flags. Both used
-writecombine and now switch over to shmem defaults. Both drivers use
-SHMEM objects as shadow buffers for internal video memory, so cached
-mappings will not affect them negatively.
-
-v2:
-	* recreate patch on top of latest SHMEM helpers
-	* update lima, panfrost, v3d to select writecombine (Daniel, Rob)
-
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
----
- drivers/gpu/drm/drm_gem_shmem_helper.c  | 11 ++++++-----
- drivers/gpu/drm/lima/lima_gem.c         |  2 +-
- drivers/gpu/drm/panfrost/panfrost_gem.c |  2 +-
- drivers/gpu/drm/v3d/v3d_bo.c            |  2 +-
- drivers/gpu/drm/virtio/virtgpu_object.c |  1 -
- include/drm/drm_gem_shmem_helper.h      |  4 ++--
- 6 files changed, 11 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
-index 8233bda4692f..ddec0e190f29 100644
---- a/drivers/gpu/drm/drm_gem_shmem_helper.c
-+++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
-@@ -54,10 +54,12 @@ __drm_gem_shmem_create(struct drm_device *dev, size_t size, bool private)
- 	if (!obj->funcs)
- 		obj->funcs = &drm_gem_shmem_funcs;
- 
--	if (private)
-+	if (private) {
- 		drm_gem_private_object_init(dev, obj, size);
--	else
-+		shmem->map_wc = false; /* dma-buf mappings use always writecombine */
-+	} else {
- 		ret = drm_gem_object_init(dev, obj, size);
-+	}
- 	if (ret)
- 		goto err_free;
- 
-@@ -278,7 +280,7 @@ static void *drm_gem_shmem_vmap_locked(struct drm_gem_shmem_object *shmem)
- 		if (ret)
- 			goto err_zero_use;
- 
--		if (!shmem->map_cached)
-+		if (shmem->map_wc)
- 			prot = pgprot_writecombine(prot);
- 		shmem->vaddr = vmap(shmem->pages, obj->size >> PAGE_SHIFT,
- 				    VM_MAP, prot);
-@@ -487,7 +489,6 @@ drm_gem_shmem_create_object_cached(struct drm_device *dev, size_t size)
- 	shmem = kzalloc(sizeof(*shmem), GFP_KERNEL);
- 	if (!shmem)
- 		return NULL;
--	shmem->map_cached = true;
- 
- 	return &shmem->base;
- }
-@@ -616,7 +617,7 @@ int drm_gem_shmem_mmap(struct drm_gem_object *obj, struct vm_area_struct *vma)
- 
- 	vma->vm_flags |= VM_MIXEDMAP | VM_DONTEXPAND;
- 	vma->vm_page_prot = vm_get_page_prot(vma->vm_flags);
--	if (!shmem->map_cached)
-+	if (shmem->map_wc)
- 		vma->vm_page_prot = pgprot_writecombine(vma->vm_page_prot);
- 	vma->vm_ops = &drm_gem_shmem_vm_ops;
- 
-diff --git a/drivers/gpu/drm/lima/lima_gem.c b/drivers/gpu/drm/lima/lima_gem.c
-index 11223fe348df..bbab1413eb0c 100644
---- a/drivers/gpu/drm/lima/lima_gem.c
-+++ b/drivers/gpu/drm/lima/lima_gem.c
-@@ -225,7 +225,7 @@ struct drm_gem_object *lima_gem_create_object(struct drm_device *dev, size_t siz
- 
- 	mutex_init(&bo->lock);
- 	INIT_LIST_HEAD(&bo->va);
--
-+	bo->base.map_wc = true;
- 	bo->base.base.funcs = &lima_gem_funcs;
- 
- 	return &bo->base.base;
-diff --git a/drivers/gpu/drm/panfrost/panfrost_gem.c b/drivers/gpu/drm/panfrost/panfrost_gem.c
-index fb9f7334ce18..f77b72d995f9 100644
---- a/drivers/gpu/drm/panfrost/panfrost_gem.c
-+++ b/drivers/gpu/drm/panfrost/panfrost_gem.c
-@@ -230,7 +230,7 @@ struct drm_gem_object *panfrost_gem_create_object(struct drm_device *dev, size_t
- 	INIT_LIST_HEAD(&obj->mappings.list);
- 	mutex_init(&obj->mappings.lock);
- 	obj->base.base.funcs = &panfrost_gem_funcs;
--	obj->base.map_cached = pfdev->coherent;
-+	obj->base.map_wc = !pfdev->coherent;
- 
- 	return &obj->base.base;
- }
-diff --git a/drivers/gpu/drm/v3d/v3d_bo.c b/drivers/gpu/drm/v3d/v3d_bo.c
-index 8b52cb25877c..6a8731ab9d7d 100644
---- a/drivers/gpu/drm/v3d/v3d_bo.c
-+++ b/drivers/gpu/drm/v3d/v3d_bo.c
-@@ -78,7 +78,7 @@ struct drm_gem_object *v3d_create_object(struct drm_device *dev, size_t size)
- 	obj = &bo->base.base;
- 
- 	obj->funcs = &v3d_gem_funcs;
--
-+	bo->base.map_wc = true;
- 	INIT_LIST_HEAD(&bo->unref_head);
- 
- 	return &bo->base.base;
-diff --git a/drivers/gpu/drm/virtio/virtgpu_object.c b/drivers/gpu/drm/virtio/virtgpu_object.c
-index 2d3aa7baffe4..47e3b69c3927 100644
---- a/drivers/gpu/drm/virtio/virtgpu_object.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_object.c
-@@ -144,7 +144,6 @@ struct drm_gem_object *virtio_gpu_create_object(struct drm_device *dev,
- 
- 	dshmem = &shmem->base.base;
- 	dshmem->base.funcs = &virtio_gpu_shmem_funcs;
--	dshmem->map_cached = true;
- 	return &dshmem->base;
- }
- 
-diff --git a/include/drm/drm_gem_shmem_helper.h b/include/drm/drm_gem_shmem_helper.h
-index 5381f0c8cf6f..268d0284ae02 100644
---- a/include/drm/drm_gem_shmem_helper.h
-+++ b/include/drm/drm_gem_shmem_helper.h
-@@ -98,9 +98,9 @@ struct drm_gem_shmem_object {
- 	unsigned int vmap_use_count;
- 
- 	/**
--	 * @map_cached: map object cached (instead of using writecombine).
-+	 * @map_wc: map object write-combined (instead of using shmem defaults).
- 	 */
--	bool map_cached;
-+	bool map_wc;
- };
- 
- #define to_drm_gem_shmem_obj(obj) \
--- 
-2.29.0
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+YWZmZWN0cyBnbTEydTMyMDsgY2MnaW5nIEhhbnMKCkFtIDA2LjExLjIwIHVtIDE2OjI2IHNjaHJp
+ZWIgVGhvbWFzIFppbW1lcm1hbm46Cj4gU0hNRU0tYnVmZmVyIGJhY2tpbmcgc3RvcmFnZSBpcyBh
+bGxvY2F0ZWQgZnJvbSBzeXN0ZW0gbWVtb3J5OyB3aGljaCBpcwo+IHR5cGljYWxseSBjYWNoYWJs
+ZS4gVGhlIGRlZmF1bHQgbW9kZSBmb3IgU0hNRU0gb2JqZWN0cyBpcyB3cml0ZWNvbWJpbmUKPiB0
+aG91Z2guCj4gCj4gVW5pZnkgU0hNRU0gc2VtYW50aWNzIGJ5IGRlZmF1bHRpbmcgdG8gY2FjaGVk
+IG1hcHBpbmdzLiBUaGUgZXhjZXB0aW9uCj4gaXMgcGFnZXMgaW1wb3J0ZWQgdmlhIGRtYS1idWYu
+IERNQSBtZW1vcnkgaXMgdXN1YWxseSBub3QgY2FjaGVkLgo+IAo+IERSTSBkcml2ZXJzIHRoYXQg
+cmVxdWlyZSB3cml0ZS1jb21iaW5lZCBtYXBwaW5ncyBzZXQgdGhlIG1hcF93YyBmbGFnCj4gaW4g
+c3RydWN0IGRybV9nZW1fc2htZW1fb2JqZWN0IHRvIHRydWUuIFRoaXMgY3VycmVudGx5IGFmZmVj
+dHMgbGltYSwKPiBwYW5mcm9zdCBhbmQgdjNkLgo+IAo+IFRoZSBkcml2ZXJzIG1nYWcyMDAsIHVk
+bCwgdmlydGlvIGFuZCB2a21zIGNvbnRpbnVlIHRvIHVzZSBkZWZhdWx0Cj4gc2htZW0gbWFwcGlu
+Z3MuCj4gCj4gVGhlIGRyaXZlcnMgY2lycnVzIGFuZCBnbTEydTMyMCBjaGFuZ2UgY2FjaGluZyBm
+bGFncy4gQm90aCB1c2VkCj4gd3JpdGVjb21iaW5lIGFuZCBub3cgc3dpdGNoIG92ZXIgdG8gc2ht
+ZW0gZGVmYXVsdHMuIEJvdGggZHJpdmVycyB1c2UKPiBTSE1FTSBvYmplY3RzIGFzIHNoYWRvdyBi
+dWZmZXJzIGZvciBpbnRlcm5hbCB2aWRlbyBtZW1vcnksIHNvIGNhY2hlZAo+IG1hcHBpbmdzIHdp
+bGwgbm90IGFmZmVjdCB0aGVtIG5lZ2F0aXZlbHkuCj4gCj4gdjI6Cj4gCSogcmVjcmVhdGUgcGF0
+Y2ggb24gdG9wIG9mIGxhdGVzdCBTSE1FTSBoZWxwZXJzCj4gCSogdXBkYXRlIGxpbWEsIHBhbmZy
+b3N0LCB2M2QgdG8gc2VsZWN0IHdyaXRlY29tYmluZSAoRGFuaWVsLCBSb2IpCj4gCj4gU2lnbmVk
+LW9mZi1ieTogVGhvbWFzIFppbW1lcm1hbm4gPHR6aW1tZXJtYW5uQHN1c2UuZGU+Cj4gLS0tCj4g
+IGRyaXZlcnMvZ3B1L2RybS9kcm1fZ2VtX3NobWVtX2hlbHBlci5jICB8IDExICsrKysrKy0tLS0t
+Cj4gIGRyaXZlcnMvZ3B1L2RybS9saW1hL2xpbWFfZ2VtLmMgICAgICAgICB8ICAyICstCj4gIGRy
+aXZlcnMvZ3B1L2RybS9wYW5mcm9zdC9wYW5mcm9zdF9nZW0uYyB8ICAyICstCj4gIGRyaXZlcnMv
+Z3B1L2RybS92M2QvdjNkX2JvLmMgICAgICAgICAgICB8ICAyICstCj4gIGRyaXZlcnMvZ3B1L2Ry
+bS92aXJ0aW8vdmlydGdwdV9vYmplY3QuYyB8ICAxIC0KPiAgaW5jbHVkZS9kcm0vZHJtX2dlbV9z
+aG1lbV9oZWxwZXIuaCAgICAgIHwgIDQgKystLQo+ICA2IGZpbGVzIGNoYW5nZWQsIDExIGluc2Vy
+dGlvbnMoKyksIDExIGRlbGV0aW9ucygtKQo+IAo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9k
+cm0vZHJtX2dlbV9zaG1lbV9oZWxwZXIuYyBiL2RyaXZlcnMvZ3B1L2RybS9kcm1fZ2VtX3NobWVt
+X2hlbHBlci5jCj4gaW5kZXggODIzM2JkYTQ2OTJmLi5kZGVjMGUxOTBmMjkgMTAwNjQ0Cj4gLS0t
+IGEvZHJpdmVycy9ncHUvZHJtL2RybV9nZW1fc2htZW1faGVscGVyLmMKPiArKysgYi9kcml2ZXJz
+L2dwdS9kcm0vZHJtX2dlbV9zaG1lbV9oZWxwZXIuYwo+IEBAIC01NCwxMCArNTQsMTIgQEAgX19k
+cm1fZ2VtX3NobWVtX2NyZWF0ZShzdHJ1Y3QgZHJtX2RldmljZSAqZGV2LCBzaXplX3Qgc2l6ZSwg
+Ym9vbCBwcml2YXRlKQo+ICAJaWYgKCFvYmotPmZ1bmNzKQo+ICAJCW9iai0+ZnVuY3MgPSAmZHJt
+X2dlbV9zaG1lbV9mdW5jczsKPiAgCj4gLQlpZiAocHJpdmF0ZSkKPiArCWlmIChwcml2YXRlKSB7
+Cj4gIAkJZHJtX2dlbV9wcml2YXRlX29iamVjdF9pbml0KGRldiwgb2JqLCBzaXplKTsKPiAtCWVs
+c2UKPiArCQlzaG1lbS0+bWFwX3djID0gZmFsc2U7IC8qIGRtYS1idWYgbWFwcGluZ3MgdXNlIGFs
+d2F5cyB3cml0ZWNvbWJpbmUgKi8KPiArCX0gZWxzZSB7Cj4gIAkJcmV0ID0gZHJtX2dlbV9vYmpl
+Y3RfaW5pdChkZXYsIG9iaiwgc2l6ZSk7Cj4gKwl9Cj4gIAlpZiAocmV0KQo+ICAJCWdvdG8gZXJy
+X2ZyZWU7Cj4gIAo+IEBAIC0yNzgsNyArMjgwLDcgQEAgc3RhdGljIHZvaWQgKmRybV9nZW1fc2ht
+ZW1fdm1hcF9sb2NrZWQoc3RydWN0IGRybV9nZW1fc2htZW1fb2JqZWN0ICpzaG1lbSkKPiAgCQlp
+ZiAocmV0KQo+ICAJCQlnb3RvIGVycl96ZXJvX3VzZTsKPiAgCj4gLQkJaWYgKCFzaG1lbS0+bWFw
+X2NhY2hlZCkKPiArCQlpZiAoc2htZW0tPm1hcF93YykKPiAgCQkJcHJvdCA9IHBncHJvdF93cml0
+ZWNvbWJpbmUocHJvdCk7Cj4gIAkJc2htZW0tPnZhZGRyID0gdm1hcChzaG1lbS0+cGFnZXMsIG9i
+ai0+c2l6ZSA+PiBQQUdFX1NISUZULAo+ICAJCQkJICAgIFZNX01BUCwgcHJvdCk7Cj4gQEAgLTQ4
+Nyw3ICs0ODksNiBAQCBkcm1fZ2VtX3NobWVtX2NyZWF0ZV9vYmplY3RfY2FjaGVkKHN0cnVjdCBk
+cm1fZGV2aWNlICpkZXYsIHNpemVfdCBzaXplKQo+ICAJc2htZW0gPSBremFsbG9jKHNpemVvZigq
+c2htZW0pLCBHRlBfS0VSTkVMKTsKPiAgCWlmICghc2htZW0pCj4gIAkJcmV0dXJuIE5VTEw7Cj4g
+LQlzaG1lbS0+bWFwX2NhY2hlZCA9IHRydWU7Cj4gIAo+ICAJcmV0dXJuICZzaG1lbS0+YmFzZTsK
+PiAgfQo+IEBAIC02MTYsNyArNjE3LDcgQEAgaW50IGRybV9nZW1fc2htZW1fbW1hcChzdHJ1Y3Qg
+ZHJtX2dlbV9vYmplY3QgKm9iaiwgc3RydWN0IHZtX2FyZWFfc3RydWN0ICp2bWEpCj4gIAo+ICAJ
+dm1hLT52bV9mbGFncyB8PSBWTV9NSVhFRE1BUCB8IFZNX0RPTlRFWFBBTkQ7Cj4gIAl2bWEtPnZt
+X3BhZ2VfcHJvdCA9IHZtX2dldF9wYWdlX3Byb3Qodm1hLT52bV9mbGFncyk7Cj4gLQlpZiAoIXNo
+bWVtLT5tYXBfY2FjaGVkKQo+ICsJaWYgKHNobWVtLT5tYXBfd2MpCj4gIAkJdm1hLT52bV9wYWdl
+X3Byb3QgPSBwZ3Byb3Rfd3JpdGVjb21iaW5lKHZtYS0+dm1fcGFnZV9wcm90KTsKPiAgCXZtYS0+
+dm1fb3BzID0gJmRybV9nZW1fc2htZW1fdm1fb3BzOwo+ICAKPiBkaWZmIC0tZ2l0IGEvZHJpdmVy
+cy9ncHUvZHJtL2xpbWEvbGltYV9nZW0uYyBiL2RyaXZlcnMvZ3B1L2RybS9saW1hL2xpbWFfZ2Vt
+LmMKPiBpbmRleCAxMTIyM2ZlMzQ4ZGYuLmJiYWIxNDEzZWIwYyAxMDA2NDQKPiAtLS0gYS9kcml2
+ZXJzL2dwdS9kcm0vbGltYS9saW1hX2dlbS5jCj4gKysrIGIvZHJpdmVycy9ncHUvZHJtL2xpbWEv
+bGltYV9nZW0uYwo+IEBAIC0yMjUsNyArMjI1LDcgQEAgc3RydWN0IGRybV9nZW1fb2JqZWN0ICps
+aW1hX2dlbV9jcmVhdGVfb2JqZWN0KHN0cnVjdCBkcm1fZGV2aWNlICpkZXYsIHNpemVfdCBzaXoK
+PiAgCj4gIAltdXRleF9pbml0KCZiby0+bG9jayk7Cj4gIAlJTklUX0xJU1RfSEVBRCgmYm8tPnZh
+KTsKPiAtCj4gKwliby0+YmFzZS5tYXBfd2MgPSB0cnVlOwo+ICAJYm8tPmJhc2UuYmFzZS5mdW5j
+cyA9ICZsaW1hX2dlbV9mdW5jczsKPiAgCj4gIAlyZXR1cm4gJmJvLT5iYXNlLmJhc2U7Cj4gZGlm
+ZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS9wYW5mcm9zdC9wYW5mcm9zdF9nZW0uYyBiL2RyaXZl
+cnMvZ3B1L2RybS9wYW5mcm9zdC9wYW5mcm9zdF9nZW0uYwo+IGluZGV4IGZiOWY3MzM0Y2UxOC4u
+Zjc3YjcyZDk5NWY5IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9wYW5mcm9zdC9wYW5m
+cm9zdF9nZW0uYwo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9wYW5mcm9zdC9wYW5mcm9zdF9nZW0u
+Ywo+IEBAIC0yMzAsNyArMjMwLDcgQEAgc3RydWN0IGRybV9nZW1fb2JqZWN0ICpwYW5mcm9zdF9n
+ZW1fY3JlYXRlX29iamVjdChzdHJ1Y3QgZHJtX2RldmljZSAqZGV2LCBzaXplX3QKPiAgCUlOSVRf
+TElTVF9IRUFEKCZvYmotPm1hcHBpbmdzLmxpc3QpOwo+ICAJbXV0ZXhfaW5pdCgmb2JqLT5tYXBw
+aW5ncy5sb2NrKTsKPiAgCW9iai0+YmFzZS5iYXNlLmZ1bmNzID0gJnBhbmZyb3N0X2dlbV9mdW5j
+czsKPiAtCW9iai0+YmFzZS5tYXBfY2FjaGVkID0gcGZkZXYtPmNvaGVyZW50Owo+ICsJb2JqLT5i
+YXNlLm1hcF93YyA9ICFwZmRldi0+Y29oZXJlbnQ7Cj4gIAo+ICAJcmV0dXJuICZvYmotPmJhc2Uu
+YmFzZTsKPiAgfQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vdjNkL3YzZF9iby5jIGIv
+ZHJpdmVycy9ncHUvZHJtL3YzZC92M2RfYm8uYwo+IGluZGV4IDhiNTJjYjI1ODc3Yy4uNmE4NzMx
+YWI5ZDdkIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS92M2QvdjNkX2JvLmMKPiArKysg
+Yi9kcml2ZXJzL2dwdS9kcm0vdjNkL3YzZF9iby5jCj4gQEAgLTc4LDcgKzc4LDcgQEAgc3RydWN0
+IGRybV9nZW1fb2JqZWN0ICp2M2RfY3JlYXRlX29iamVjdChzdHJ1Y3QgZHJtX2RldmljZSAqZGV2
+LCBzaXplX3Qgc2l6ZSkKPiAgCW9iaiA9ICZiby0+YmFzZS5iYXNlOwo+ICAKPiAgCW9iai0+ZnVu
+Y3MgPSAmdjNkX2dlbV9mdW5jczsKPiAtCj4gKwliby0+YmFzZS5tYXBfd2MgPSB0cnVlOwo+ICAJ
+SU5JVF9MSVNUX0hFQUQoJmJvLT51bnJlZl9oZWFkKTsKPiAgCj4gIAlyZXR1cm4gJmJvLT5iYXNl
+LmJhc2U7Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9vYmpl
+Y3QuYyBiL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9vYmplY3QuYwo+IGluZGV4IDJk
+M2FhN2JhZmZlNC4uNDdlM2I2OWMzOTI3IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS92
+aXJ0aW8vdmlydGdwdV9vYmplY3QuYwo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmly
+dGdwdV9vYmplY3QuYwo+IEBAIC0xNDQsNyArMTQ0LDYgQEAgc3RydWN0IGRybV9nZW1fb2JqZWN0
+ICp2aXJ0aW9fZ3B1X2NyZWF0ZV9vYmplY3Qoc3RydWN0IGRybV9kZXZpY2UgKmRldiwKPiAgCj4g
+IAlkc2htZW0gPSAmc2htZW0tPmJhc2UuYmFzZTsKPiAgCWRzaG1lbS0+YmFzZS5mdW5jcyA9ICZ2
+aXJ0aW9fZ3B1X3NobWVtX2Z1bmNzOwo+IC0JZHNobWVtLT5tYXBfY2FjaGVkID0gdHJ1ZTsKPiAg
+CXJldHVybiAmZHNobWVtLT5iYXNlOwo+ICB9Cj4gIAo+IGRpZmYgLS1naXQgYS9pbmNsdWRlL2Ry
+bS9kcm1fZ2VtX3NobWVtX2hlbHBlci5oIGIvaW5jbHVkZS9kcm0vZHJtX2dlbV9zaG1lbV9oZWxw
+ZXIuaAo+IGluZGV4IDUzODFmMGM4Y2Y2Zi4uMjY4ZDAyODRhZTAyIDEwMDY0NAo+IC0tLSBhL2lu
+Y2x1ZGUvZHJtL2RybV9nZW1fc2htZW1faGVscGVyLmgKPiArKysgYi9pbmNsdWRlL2RybS9kcm1f
+Z2VtX3NobWVtX2hlbHBlci5oCj4gQEAgLTk4LDkgKzk4LDkgQEAgc3RydWN0IGRybV9nZW1fc2ht
+ZW1fb2JqZWN0IHsKPiAgCXVuc2lnbmVkIGludCB2bWFwX3VzZV9jb3VudDsKPiAgCj4gIAkvKioK
+PiAtCSAqIEBtYXBfY2FjaGVkOiBtYXAgb2JqZWN0IGNhY2hlZCAoaW5zdGVhZCBvZiB1c2luZyB3
+cml0ZWNvbWJpbmUpLgo+ICsJICogQG1hcF93YzogbWFwIG9iamVjdCB3cml0ZS1jb21iaW5lZCAo
+aW5zdGVhZCBvZiB1c2luZyBzaG1lbSBkZWZhdWx0cykuCj4gIAkgKi8KPiAtCWJvb2wgbWFwX2Nh
+Y2hlZDsKPiArCWJvb2wgbWFwX3djOwo+ICB9Owo+ICAKPiAgI2RlZmluZSB0b19kcm1fZ2VtX3No
+bWVtX29iaihvYmopIFwKPiAKCi0tIApUaG9tYXMgWmltbWVybWFubgpHcmFwaGljcyBEcml2ZXIg
+RGV2ZWxvcGVyClNVU0UgU29mdHdhcmUgU29sdXRpb25zIEdlcm1hbnkgR21iSApNYXhmZWxkc3Ry
+LiA1LCA5MDQwOSBOw7xybmJlcmcsIEdlcm1hbnkKKEhSQiAzNjgwOSwgQUcgTsO8cm5iZXJnKQpH
+ZXNjaMOkZnRzZsO8aHJlcjogRmVsaXggSW1lbmTDtnJmZmVyCl9fX19fX19fX19fX19fX19fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
+aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
+bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
