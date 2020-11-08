@@ -1,77 +1,68 @@
-Return-Path: <SRS0=Fz9A=EN=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=HjFt=EO=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-11.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=unavailable autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-0.4 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
+	FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+	HTML_MESSAGE,MAILING_LIST_MULTI,MIME_HTML_MOSTLY,SPF_HELO_NONE,SPF_PASS
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 76208C388F7
-	for <virtualization@archiver.kernel.org>; Sat,  7 Nov 2020 18:56:49 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id F0D00C388F9
+	for <virtualization@archiver.kernel.org>; Sun,  8 Nov 2020 12:47:42 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id CD7FE207C3
-	for <virtualization@archiver.kernel.org>; Sat,  7 Nov 2020 18:56:48 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CD7FE207C3
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
+	by mail.kernel.org (Postfix) with ESMTPS id 949FC206ED
+	for <virtualization@archiver.kernel.org>; Sun,  8 Nov 2020 12:47:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 949FC206ED
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 6100D845D7;
-	Sat,  7 Nov 2020 18:56:48 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 285FF87251;
+	Sun,  8 Nov 2020 12:47:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id s8s7l5bZTXaU; Sat,  7 Nov 2020 18:56:47 +0000 (UTC)
+	with ESMTP id 3SLUCgegSPiQ; Sun,  8 Nov 2020 12:47:37 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 5CAD584587;
-	Sat,  7 Nov 2020 18:56:47 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 1809387236;
+	Sun,  8 Nov 2020 12:47:37 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4F6FAC088B;
-	Sat,  7 Nov 2020 18:56:47 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id CAF23C0889;
+	Sun,  8 Nov 2020 12:47:36 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AA687C0889
+ by lists.linuxfoundation.org (Postfix) with ESMTP id C68B7C016F
  for <virtualization@lists.linux-foundation.org>;
- Sat,  7 Nov 2020 18:56:45 +0000 (UTC)
+ Sun,  8 Nov 2020 12:47:35 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 83506203AB
+ by silver.osuosl.org (Postfix) with ESMTP id AC35720119
  for <virtualization@lists.linux-foundation.org>;
- Sat,  7 Nov 2020 18:56:45 +0000 (UTC)
+ Sun,  8 Nov 2020 12:47:35 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 71XfmcIm7BfB
+ with ESMTP id na7yZofX4gTn
  for <virtualization@lists.linux-foundation.org>;
- Sat,  7 Nov 2020 18:56:43 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by silver.osuosl.org (Postfix) with ESMTPS id 7A3D22035E
+ Sun,  8 Nov 2020 12:47:27 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
+Received: from s052d7dde.fastvps-server.com (s052d7dde.fastvps-server.com
+ [5.45.125.222])
+ by silver.osuosl.org (Postfix) with ESMTPS id 6ED042001A
  for <virtualization@lists.linux-foundation.org>;
- Sat,  7 Nov 2020 18:56:43 +0000 (UTC)
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id BF7C4ABA2;
- Sat,  7 Nov 2020 18:56:40 +0000 (UTC)
-Subject: Re: [PATCH v2 1/2] drm/shmem-helper: Use cached mappings by default
-To: maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@linux.ie,
- daniel@ffwll.ch, yuq825@gmail.com, robh@kernel.org,
- tomeu.vizoso@collabora.com, steven.price@arm.com,
- alyssa.rosenzweig@collabora.com, sean@poorly.run, eric@anholt.net,
- kraxel@redhat.com, rodrigosiqueiramelo@gmail.com, melissa.srw@gmail.com,
- hamohammed.sa@gmail.com, Hans de Goede <hdegoede@redhat.com>
-References: <20201106152632.26530-1-tzimmermann@suse.de>
- <20201106152632.26530-2-tzimmermann@suse.de>
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Message-ID: <8b2762ff-88e8-873f-7df7-cdfc0618717e@suse.de>
-Date: Sat, 7 Nov 2020 19:56:39 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.3.3
+ Sun,  8 Nov 2020 12:47:27 +0000 (UTC)
+Received: from [37.189.17.205] (helo=LAPTOP-EPOV2LRR)
+ by s052d7dde.fastvps-server.com with esmtpsa
+ (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256) (Exim 4.89)
+ (envelope-from <marle@saisti.eu>) id 1kbjPd-0007QG-UM
+ for virtualization@lists.linux-foundation.org; Sun, 08 Nov 2020 15:03:14 +0300
+From: "ML" <marialemos72@gmail.com>
+Subject: WorldCIST'21, Terceira Island, Azores | Deadline:  November 15
+To: virtualization@lists.linux-foundation.org
 MIME-Version: 1.0
-In-Reply-To: <20201106152632.26530-2-tzimmermann@suse.de>
-Content-Language: en-US
-Cc: lima@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux-foundation.org
+Date: Sun, 8 Nov 2020 12:03:12 +0000
+Message-ID: <203401000435515@gmail-com>
+X-Antivirus: AVG (VPS 201108-0, 08/11/2020), Outbound message
+X-Antivirus-Status: Clean
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -83,113 +74,588 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Reply-To: worldcist@gmail.com
+Content-Type: multipart/mixed; boundary="===============5019356659892303324=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-YWZmZWN0cyBnbTEydTMyMDsgY2MnaW5nIEhhbnMKCkFtIDA2LjExLjIwIHVtIDE2OjI2IHNjaHJp
-ZWIgVGhvbWFzIFppbW1lcm1hbm46Cj4gU0hNRU0tYnVmZmVyIGJhY2tpbmcgc3RvcmFnZSBpcyBh
-bGxvY2F0ZWQgZnJvbSBzeXN0ZW0gbWVtb3J5OyB3aGljaCBpcwo+IHR5cGljYWxseSBjYWNoYWJs
-ZS4gVGhlIGRlZmF1bHQgbW9kZSBmb3IgU0hNRU0gb2JqZWN0cyBpcyB3cml0ZWNvbWJpbmUKPiB0
-aG91Z2guCj4gCj4gVW5pZnkgU0hNRU0gc2VtYW50aWNzIGJ5IGRlZmF1bHRpbmcgdG8gY2FjaGVk
-IG1hcHBpbmdzLiBUaGUgZXhjZXB0aW9uCj4gaXMgcGFnZXMgaW1wb3J0ZWQgdmlhIGRtYS1idWYu
-IERNQSBtZW1vcnkgaXMgdXN1YWxseSBub3QgY2FjaGVkLgo+IAo+IERSTSBkcml2ZXJzIHRoYXQg
-cmVxdWlyZSB3cml0ZS1jb21iaW5lZCBtYXBwaW5ncyBzZXQgdGhlIG1hcF93YyBmbGFnCj4gaW4g
-c3RydWN0IGRybV9nZW1fc2htZW1fb2JqZWN0IHRvIHRydWUuIFRoaXMgY3VycmVudGx5IGFmZmVj
-dHMgbGltYSwKPiBwYW5mcm9zdCBhbmQgdjNkLgo+IAo+IFRoZSBkcml2ZXJzIG1nYWcyMDAsIHVk
-bCwgdmlydGlvIGFuZCB2a21zIGNvbnRpbnVlIHRvIHVzZSBkZWZhdWx0Cj4gc2htZW0gbWFwcGlu
-Z3MuCj4gCj4gVGhlIGRyaXZlcnMgY2lycnVzIGFuZCBnbTEydTMyMCBjaGFuZ2UgY2FjaGluZyBm
-bGFncy4gQm90aCB1c2VkCj4gd3JpdGVjb21iaW5lIGFuZCBub3cgc3dpdGNoIG92ZXIgdG8gc2ht
-ZW0gZGVmYXVsdHMuIEJvdGggZHJpdmVycyB1c2UKPiBTSE1FTSBvYmplY3RzIGFzIHNoYWRvdyBi
-dWZmZXJzIGZvciBpbnRlcm5hbCB2aWRlbyBtZW1vcnksIHNvIGNhY2hlZAo+IG1hcHBpbmdzIHdp
-bGwgbm90IGFmZmVjdCB0aGVtIG5lZ2F0aXZlbHkuCj4gCj4gdjI6Cj4gCSogcmVjcmVhdGUgcGF0
-Y2ggb24gdG9wIG9mIGxhdGVzdCBTSE1FTSBoZWxwZXJzCj4gCSogdXBkYXRlIGxpbWEsIHBhbmZy
-b3N0LCB2M2QgdG8gc2VsZWN0IHdyaXRlY29tYmluZSAoRGFuaWVsLCBSb2IpCj4gCj4gU2lnbmVk
-LW9mZi1ieTogVGhvbWFzIFppbW1lcm1hbm4gPHR6aW1tZXJtYW5uQHN1c2UuZGU+Cj4gLS0tCj4g
-IGRyaXZlcnMvZ3B1L2RybS9kcm1fZ2VtX3NobWVtX2hlbHBlci5jICB8IDExICsrKysrKy0tLS0t
-Cj4gIGRyaXZlcnMvZ3B1L2RybS9saW1hL2xpbWFfZ2VtLmMgICAgICAgICB8ICAyICstCj4gIGRy
-aXZlcnMvZ3B1L2RybS9wYW5mcm9zdC9wYW5mcm9zdF9nZW0uYyB8ICAyICstCj4gIGRyaXZlcnMv
-Z3B1L2RybS92M2QvdjNkX2JvLmMgICAgICAgICAgICB8ICAyICstCj4gIGRyaXZlcnMvZ3B1L2Ry
-bS92aXJ0aW8vdmlydGdwdV9vYmplY3QuYyB8ICAxIC0KPiAgaW5jbHVkZS9kcm0vZHJtX2dlbV9z
-aG1lbV9oZWxwZXIuaCAgICAgIHwgIDQgKystLQo+ICA2IGZpbGVzIGNoYW5nZWQsIDExIGluc2Vy
-dGlvbnMoKyksIDExIGRlbGV0aW9ucygtKQo+IAo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9k
-cm0vZHJtX2dlbV9zaG1lbV9oZWxwZXIuYyBiL2RyaXZlcnMvZ3B1L2RybS9kcm1fZ2VtX3NobWVt
-X2hlbHBlci5jCj4gaW5kZXggODIzM2JkYTQ2OTJmLi5kZGVjMGUxOTBmMjkgMTAwNjQ0Cj4gLS0t
-IGEvZHJpdmVycy9ncHUvZHJtL2RybV9nZW1fc2htZW1faGVscGVyLmMKPiArKysgYi9kcml2ZXJz
-L2dwdS9kcm0vZHJtX2dlbV9zaG1lbV9oZWxwZXIuYwo+IEBAIC01NCwxMCArNTQsMTIgQEAgX19k
-cm1fZ2VtX3NobWVtX2NyZWF0ZShzdHJ1Y3QgZHJtX2RldmljZSAqZGV2LCBzaXplX3Qgc2l6ZSwg
-Ym9vbCBwcml2YXRlKQo+ICAJaWYgKCFvYmotPmZ1bmNzKQo+ICAJCW9iai0+ZnVuY3MgPSAmZHJt
-X2dlbV9zaG1lbV9mdW5jczsKPiAgCj4gLQlpZiAocHJpdmF0ZSkKPiArCWlmIChwcml2YXRlKSB7
-Cj4gIAkJZHJtX2dlbV9wcml2YXRlX29iamVjdF9pbml0KGRldiwgb2JqLCBzaXplKTsKPiAtCWVs
-c2UKPiArCQlzaG1lbS0+bWFwX3djID0gZmFsc2U7IC8qIGRtYS1idWYgbWFwcGluZ3MgdXNlIGFs
-d2F5cyB3cml0ZWNvbWJpbmUgKi8KPiArCX0gZWxzZSB7Cj4gIAkJcmV0ID0gZHJtX2dlbV9vYmpl
-Y3RfaW5pdChkZXYsIG9iaiwgc2l6ZSk7Cj4gKwl9Cj4gIAlpZiAocmV0KQo+ICAJCWdvdG8gZXJy
-X2ZyZWU7Cj4gIAo+IEBAIC0yNzgsNyArMjgwLDcgQEAgc3RhdGljIHZvaWQgKmRybV9nZW1fc2ht
-ZW1fdm1hcF9sb2NrZWQoc3RydWN0IGRybV9nZW1fc2htZW1fb2JqZWN0ICpzaG1lbSkKPiAgCQlp
-ZiAocmV0KQo+ICAJCQlnb3RvIGVycl96ZXJvX3VzZTsKPiAgCj4gLQkJaWYgKCFzaG1lbS0+bWFw
-X2NhY2hlZCkKPiArCQlpZiAoc2htZW0tPm1hcF93YykKPiAgCQkJcHJvdCA9IHBncHJvdF93cml0
-ZWNvbWJpbmUocHJvdCk7Cj4gIAkJc2htZW0tPnZhZGRyID0gdm1hcChzaG1lbS0+cGFnZXMsIG9i
-ai0+c2l6ZSA+PiBQQUdFX1NISUZULAo+ICAJCQkJICAgIFZNX01BUCwgcHJvdCk7Cj4gQEAgLTQ4
-Nyw3ICs0ODksNiBAQCBkcm1fZ2VtX3NobWVtX2NyZWF0ZV9vYmplY3RfY2FjaGVkKHN0cnVjdCBk
-cm1fZGV2aWNlICpkZXYsIHNpemVfdCBzaXplKQo+ICAJc2htZW0gPSBremFsbG9jKHNpemVvZigq
-c2htZW0pLCBHRlBfS0VSTkVMKTsKPiAgCWlmICghc2htZW0pCj4gIAkJcmV0dXJuIE5VTEw7Cj4g
-LQlzaG1lbS0+bWFwX2NhY2hlZCA9IHRydWU7Cj4gIAo+ICAJcmV0dXJuICZzaG1lbS0+YmFzZTsK
-PiAgfQo+IEBAIC02MTYsNyArNjE3LDcgQEAgaW50IGRybV9nZW1fc2htZW1fbW1hcChzdHJ1Y3Qg
-ZHJtX2dlbV9vYmplY3QgKm9iaiwgc3RydWN0IHZtX2FyZWFfc3RydWN0ICp2bWEpCj4gIAo+ICAJ
-dm1hLT52bV9mbGFncyB8PSBWTV9NSVhFRE1BUCB8IFZNX0RPTlRFWFBBTkQ7Cj4gIAl2bWEtPnZt
-X3BhZ2VfcHJvdCA9IHZtX2dldF9wYWdlX3Byb3Qodm1hLT52bV9mbGFncyk7Cj4gLQlpZiAoIXNo
-bWVtLT5tYXBfY2FjaGVkKQo+ICsJaWYgKHNobWVtLT5tYXBfd2MpCj4gIAkJdm1hLT52bV9wYWdl
-X3Byb3QgPSBwZ3Byb3Rfd3JpdGVjb21iaW5lKHZtYS0+dm1fcGFnZV9wcm90KTsKPiAgCXZtYS0+
-dm1fb3BzID0gJmRybV9nZW1fc2htZW1fdm1fb3BzOwo+ICAKPiBkaWZmIC0tZ2l0IGEvZHJpdmVy
-cy9ncHUvZHJtL2xpbWEvbGltYV9nZW0uYyBiL2RyaXZlcnMvZ3B1L2RybS9saW1hL2xpbWFfZ2Vt
-LmMKPiBpbmRleCAxMTIyM2ZlMzQ4ZGYuLmJiYWIxNDEzZWIwYyAxMDA2NDQKPiAtLS0gYS9kcml2
-ZXJzL2dwdS9kcm0vbGltYS9saW1hX2dlbS5jCj4gKysrIGIvZHJpdmVycy9ncHUvZHJtL2xpbWEv
-bGltYV9nZW0uYwo+IEBAIC0yMjUsNyArMjI1LDcgQEAgc3RydWN0IGRybV9nZW1fb2JqZWN0ICps
-aW1hX2dlbV9jcmVhdGVfb2JqZWN0KHN0cnVjdCBkcm1fZGV2aWNlICpkZXYsIHNpemVfdCBzaXoK
-PiAgCj4gIAltdXRleF9pbml0KCZiby0+bG9jayk7Cj4gIAlJTklUX0xJU1RfSEVBRCgmYm8tPnZh
-KTsKPiAtCj4gKwliby0+YmFzZS5tYXBfd2MgPSB0cnVlOwo+ICAJYm8tPmJhc2UuYmFzZS5mdW5j
-cyA9ICZsaW1hX2dlbV9mdW5jczsKPiAgCj4gIAlyZXR1cm4gJmJvLT5iYXNlLmJhc2U7Cj4gZGlm
-ZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS9wYW5mcm9zdC9wYW5mcm9zdF9nZW0uYyBiL2RyaXZl
-cnMvZ3B1L2RybS9wYW5mcm9zdC9wYW5mcm9zdF9nZW0uYwo+IGluZGV4IGZiOWY3MzM0Y2UxOC4u
-Zjc3YjcyZDk5NWY5IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS9wYW5mcm9zdC9wYW5m
-cm9zdF9nZW0uYwo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9wYW5mcm9zdC9wYW5mcm9zdF9nZW0u
-Ywo+IEBAIC0yMzAsNyArMjMwLDcgQEAgc3RydWN0IGRybV9nZW1fb2JqZWN0ICpwYW5mcm9zdF9n
-ZW1fY3JlYXRlX29iamVjdChzdHJ1Y3QgZHJtX2RldmljZSAqZGV2LCBzaXplX3QKPiAgCUlOSVRf
-TElTVF9IRUFEKCZvYmotPm1hcHBpbmdzLmxpc3QpOwo+ICAJbXV0ZXhfaW5pdCgmb2JqLT5tYXBw
-aW5ncy5sb2NrKTsKPiAgCW9iai0+YmFzZS5iYXNlLmZ1bmNzID0gJnBhbmZyb3N0X2dlbV9mdW5j
-czsKPiAtCW9iai0+YmFzZS5tYXBfY2FjaGVkID0gcGZkZXYtPmNvaGVyZW50Owo+ICsJb2JqLT5i
-YXNlLm1hcF93YyA9ICFwZmRldi0+Y29oZXJlbnQ7Cj4gIAo+ICAJcmV0dXJuICZvYmotPmJhc2Uu
-YmFzZTsKPiAgfQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL2dwdS9kcm0vdjNkL3YzZF9iby5jIGIv
-ZHJpdmVycy9ncHUvZHJtL3YzZC92M2RfYm8uYwo+IGluZGV4IDhiNTJjYjI1ODc3Yy4uNmE4NzMx
-YWI5ZDdkIDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS92M2QvdjNkX2JvLmMKPiArKysg
-Yi9kcml2ZXJzL2dwdS9kcm0vdjNkL3YzZF9iby5jCj4gQEAgLTc4LDcgKzc4LDcgQEAgc3RydWN0
-IGRybV9nZW1fb2JqZWN0ICp2M2RfY3JlYXRlX29iamVjdChzdHJ1Y3QgZHJtX2RldmljZSAqZGV2
-LCBzaXplX3Qgc2l6ZSkKPiAgCW9iaiA9ICZiby0+YmFzZS5iYXNlOwo+ICAKPiAgCW9iai0+ZnVu
-Y3MgPSAmdjNkX2dlbV9mdW5jczsKPiAtCj4gKwliby0+YmFzZS5tYXBfd2MgPSB0cnVlOwo+ICAJ
-SU5JVF9MSVNUX0hFQUQoJmJvLT51bnJlZl9oZWFkKTsKPiAgCj4gIAlyZXR1cm4gJmJvLT5iYXNl
-LmJhc2U7Cj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9vYmpl
-Y3QuYyBiL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmlydGdwdV9vYmplY3QuYwo+IGluZGV4IDJk
-M2FhN2JhZmZlNC4uNDdlM2I2OWMzOTI3IDEwMDY0NAo+IC0tLSBhL2RyaXZlcnMvZ3B1L2RybS92
-aXJ0aW8vdmlydGdwdV9vYmplY3QuYwo+ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS92aXJ0aW8vdmly
-dGdwdV9vYmplY3QuYwo+IEBAIC0xNDQsNyArMTQ0LDYgQEAgc3RydWN0IGRybV9nZW1fb2JqZWN0
-ICp2aXJ0aW9fZ3B1X2NyZWF0ZV9vYmplY3Qoc3RydWN0IGRybV9kZXZpY2UgKmRldiwKPiAgCj4g
-IAlkc2htZW0gPSAmc2htZW0tPmJhc2UuYmFzZTsKPiAgCWRzaG1lbS0+YmFzZS5mdW5jcyA9ICZ2
-aXJ0aW9fZ3B1X3NobWVtX2Z1bmNzOwo+IC0JZHNobWVtLT5tYXBfY2FjaGVkID0gdHJ1ZTsKPiAg
-CXJldHVybiAmZHNobWVtLT5iYXNlOwo+ICB9Cj4gIAo+IGRpZmYgLS1naXQgYS9pbmNsdWRlL2Ry
-bS9kcm1fZ2VtX3NobWVtX2hlbHBlci5oIGIvaW5jbHVkZS9kcm0vZHJtX2dlbV9zaG1lbV9oZWxw
-ZXIuaAo+IGluZGV4IDUzODFmMGM4Y2Y2Zi4uMjY4ZDAyODRhZTAyIDEwMDY0NAo+IC0tLSBhL2lu
-Y2x1ZGUvZHJtL2RybV9nZW1fc2htZW1faGVscGVyLmgKPiArKysgYi9pbmNsdWRlL2RybS9kcm1f
-Z2VtX3NobWVtX2hlbHBlci5oCj4gQEAgLTk4LDkgKzk4LDkgQEAgc3RydWN0IGRybV9nZW1fc2ht
-ZW1fb2JqZWN0IHsKPiAgCXVuc2lnbmVkIGludCB2bWFwX3VzZV9jb3VudDsKPiAgCj4gIAkvKioK
-PiAtCSAqIEBtYXBfY2FjaGVkOiBtYXAgb2JqZWN0IGNhY2hlZCAoaW5zdGVhZCBvZiB1c2luZyB3
-cml0ZWNvbWJpbmUpLgo+ICsJICogQG1hcF93YzogbWFwIG9iamVjdCB3cml0ZS1jb21iaW5lZCAo
-aW5zdGVhZCBvZiB1c2luZyBzaG1lbSBkZWZhdWx0cykuCj4gIAkgKi8KPiAtCWJvb2wgbWFwX2Nh
-Y2hlZDsKPiArCWJvb2wgbWFwX3djOwo+ICB9Owo+ICAKPiAgI2RlZmluZSB0b19kcm1fZ2VtX3No
-bWVtX29iaihvYmopIFwKPiAKCi0tIApUaG9tYXMgWmltbWVybWFubgpHcmFwaGljcyBEcml2ZXIg
-RGV2ZWxvcGVyClNVU0UgU29mdHdhcmUgU29sdXRpb25zIEdlcm1hbnkgR21iSApNYXhmZWxkc3Ry
-LiA1LCA5MDQwOSBOw7xybmJlcmcsIEdlcm1hbnkKKEhSQiAzNjgwOSwgQUcgTsO8cm5iZXJnKQpH
-ZXNjaMOkZnRzZsO8aHJlcjogRmVsaXggSW1lbmTDtnJmZmVyCl9fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApW
-aXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxp
-bnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+This is a multi-part message in MIME format
+
+--===============5019356659892303324==
+Content-Type: multipart/alternative; charset=utf-8; boundary="BbByoOJYRdg7Hl=_aXbOpNTBzSdFdcDWwX"
+
+This is a multi-part message in MIME format
+
+--BbByoOJYRdg7Hl=_aXbOpNTBzSdFdcDWwX
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+* CORE Ranking conference  
+* Conference with a Google Scholar H5-Index =3D 19  
+* Proceedings published by Springer, in several books of the AISC series  
+* Indexed in Scopus, WoS, DBLP, Ei-Compendex, etc.  
+* Extended versions of best articles published in JCR/WoS/SCI journals  
+  
+
+------------------------------    ------------------------------    -------=
+-------------------- 
+WorldCIST'21 - 9th World Conference on Information Systems and Technologies=
+ 
+30-31 March to 1-2 April 2021 | Terceira Island, Azores, Portugal 
+http://www.worldcist.org/ <http://www.worldcist.org/> 
+------------------------------    ------------------------------    -------=
+------------------- 
+
+Scope 
+
+The WorldCist'21 - 9th World Conference on Information Systems and Technolo=
+gies, to be held in Terceira Island, Azores, Portugal, 30-31 March to 1-2 A=
+pril 2021, is a global forum for researchers and practitioners to present a=
+nd discuss the most recent innovations, trends, results, experiences and co=
+ncerns in the several perspectives of Information Systems and Technologies.=
+
+
+We are pleased to invite you to submit your papers to WorldCist'21. All sub=
+missions will be reviewed on the basis of relevance, originality, importanc=
+e and clarity.
+
+ 
+
+Themes 
+
+Submitted papers should be related with one or more of the main themes prop=
+osed for the Conference:
+
+A) Information and Knowledge Management (IKM);
+
+B) Organizational Models and Information Systems (OMIS);
+
+C) Software and Systems Modeling (SSM);
+
+D) Software Systems, Architectures, Applications and Tools (SSAAT);
+
+E) Multimedia Systems and Applications (MSA);
+
+F) Computer Networks, Mobility and Pervasive Systems (CNMPS);
+
+G) Intelligent and Decision Support Systems (IDSS);
+
+H) Big Data Analytics and Applications (BDAA);
+
+I) Human-Computer Interaction (HCI);
+
+J) Ethics, Computers and Security (ECS)
+
+K) Health Informatics (HIS);
+
+L) Information Technologies in Education (ITE);
+
+M) Technologies for Biomedical Applications (TBA)
+
+N) Information Technologies in Radiocommunications (ITR);
+
+ 
+
+Types of Submissions and Decisions 
+
+Four types of papers can be submitted:
+
+Full paper: Finished or consolidated R&D works, to be included in one of th=
+e Conference themes. These papers are assigned a 10-page limit.
+
+Short paper: Ongoing works with relevant preliminary results, open to discu=
+ssion. These papers are assigned a 7-page limit.
+
+Poster paper: Initial work with relevant ideas, open to discussion. These p=
+apers are assigned to a 4-page limit.
+
+Company paper: Companies' papers that show practical experience, R & D, too=
+ls, etc., focused on some topics of the conference. These papers are assign=
+ed to a 4-page limit.
+
+Submitted papers must comply with the format of Advances in Intelligent Sys=
+tems and Computing Series (see Instructions for Authors at Springer Website=
+), be written in English, must not have been published before, not be under=
+ review for any other conference or publication and not include any informa=
+tion leading to the authors=E2=80=99 identification. Therefore, the authors=
+=E2=80=99 names, affiliations and bibliographic references should not be in=
+cluded in the version for evaluation by the Program Committee. This informa=
+tion should only be included in the camera-ready version, saved in Word or =
+Latex format and also in PDF format. These files must be accompanied by the=
+ Consent to Publish form filled out, in a ZIP file, and uploaded at the con=
+ference management system.
+
+All papers will be subjected to a =E2=80=9Cdouble-blind review=E2=80=9D by =
+at least two members of the Program Committee.
+
+Based on Program Committee evaluation, a paper can be rejected or accepted =
+by the Conference Chairs. In the later case, it can be accepted as the type=
+ originally submitted or as another type. Thus, full papers can be accepted=
+ as short papers or poster papers only. Similarly, short papers can be acce=
+pted as poster papers only.
+
+Poster papers and Company papers are not published in the Conference Procee=
+dings, being only presented and discussed. The authors of accepted poster p=
+apers should build and print a poster to be exhibited during the Conference=
+=2E This poster must follow an A1 or A2 vertical format. The Conference inc=
+ludes Work Sessions where these posters are presented and orally discussed,=
+ with a 7 minute limit per poster.
+
+The authors of accepted Full papers will have 15 minutes to present their w=
+ork in a Conference Work Session; approximately 5 minutes of discussion wil=
+l follow each presentation. The authors of accepted Short papers and Compan=
+y papers will have 11 minutes to present their work in a Conference Work Se=
+ssion; approximately 4 minutes of discussion will follow each presentation.=
+
+
+ 
+
+Publication and Indexing 
+
+To ensure that a full paper or short paper is published, poster paper or co=
+mpany paper is published, at least one of the authors must be fully registe=
+red by the 2nd of January 2021, and the paper must comply with the suggeste=
+d layout and page-limit. Additionally, all recommended changes must be addr=
+essed by the authors before they submit the camera-ready version.
+
+No more than one paper per registration will be published. An extra fee mus=
+t be paid for publication of additional papers, with a maximum of one addit=
+ional paper per registration. One registration permits only the participati=
+on of one author in the conference.
+
+Full and Short papers will be published in Proceedings by Springer, in Adva=
+nces in Intelligent Systems and Computing series. Poster and company papers=
+ will not be published, just presented in the conference.
+
+Published Full and Short papers will be submitted for indexation by ISI, EI=
+-Compendex, SCOPUS, DBLP and Google Scholar, among others, and will be avai=
+lable in the SpringerLink Digital Library.
+
+The authors of the best selected papers will be invited to extend them for =
+publication in international journals indexed by ISI/SCI, SCOPUS and DBLP, =
+among others, such as:
+
+- International Journal of Neural Systems (IF: 5.605 / Q1)
+
+- Integrated Computer-Aided Engineering (IF: 4.706 / Q1)
+
+- Computers in Industry (IF: 3.954 / Q1)
+
+- Advanced Engineering Informatics (IF: 3.879 / Q1)
+
+- Informatica - An International Journal (IF: 3.312 / Q1)
+
+- Journal of Medical Systems (IF: 3.058 / Q1)
+
+- Telecommunications Policy (IF: 2.224 / Q2)
+
+- Computational and Mathematical Organization Theory (IF: 1.558 / Q2)
+
+- Expert Systems - Journal of Knowledge Engineering (IF: 1.546 / Q2)
+
+- Journal of Intelligent & Fuzzy Systems (IF: 1.851 / Q3)
+
+- Journal of Computer Information Systems (IF: 1.582 / Q3)
+
+- Computer Science and Information Systems (IF: 0.927 / Q4)
+
+- Data Technologies and Applications (IF: 0.704 / Q4)
+
+- Computer Methods in Biomechanics and Biomedical Engineering - Imaging & V=
+isualization (ESCI & SJR: 0.52 / Q2)
+
+- Journal of Information Systems Engineering & Management (DOAJ & ProQuest)=
+
+
+ 
+
+Important Dates 
+
+Paper Submission: November 15, 2020
+
+Notification of Acceptance: December 23, 2020
+
+Payment of Registration, to ensure the inclusion of an accepted paper in th=
+e conference proceedings: January 2, 2021.
+
+Camera-ready Submission: January 2, 2021
+
+ 
+
+Website of WorldCIST'21: http://www.worldcist.org/ <http://www.worldcist.or=
+g/>  
+
+
+WorldCIST'21 Team  
+http://www.worldcist.org/ <http://www.worldcist.org/>  
+
+
+-- 
+This email has been checked for viruses by AVG.
+https://www.avg.com
+
+--BbByoOJYRdg7Hl=_aXbOpNTBzSdFdcDWwX
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+<html>
+  <head>
+    <title></title>
+    <meta content=3D"text/html; charset=3Dutf-8" http-equiv=3D"Content-Type=
+" />
+  </head>
+  <body>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">* CORE Ranking conference&nbsp; <br />* =
+Conference with a Google Scholar H5-Index =3D 19&nbsp; <br />* Proceedings =
+published by Springer, in several books of the AISC series&nbsp; <br />* In=
+dexed in Scopus, WoS, DBLP, Ei-Compendex, etc.&nbsp; <br />* Extended versi=
+ons of best articles published in JCR/WoS/SCI journals&nbsp; <br />&nbsp; <=
+/p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">------------------------------ 
+      <wbr>&nbsp;</wbr>&nbsp;&nbsp;------------------------------ 
+      <wbr>&nbsp;</wbr>&nbsp;&nbsp;--------------------------- 
+    </p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">WorldCIST'21 - 9th World Conference on I=
+nformation Systems and Technologies <br />30-31 March to 1-2 April 2021 | T=
+erceira Island, Azores, Portugal <br /><a href=3D"http://www.worldcist.org/=
+" target=3D"_blank" data-saferedirecturl=3D"https://www.google.com/url?q=3D=
+http://www.worldcist.org/&source=3Dgmail&ust=3D1603101984513000&usg=3DAFQjC=
+NGAWV9djnDd92hk4D12eSCiDKm37A">http://www.worldcist.org/</a> <br />--------=
+---------------------- 
+      <wbr>&nbsp;</wbr>&nbsp;&nbsp;------------------------------ 
+      <wbr>&nbsp;</wbr>&nbsp;&nbsp;-------------------------- 
+    </p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%"><br /><strong>Scope</strong> </p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">The WorldCist'21 - 9th World Conference =
+on Information Systems and Technologies, to be held in Terceira Island, Azo=
+res, Portugal, 30-31 March to 1-2 April 2021, is a global forum for researc=
+hers and practitioners to present and discuss the most recent innovations, =
+trends, results, experiences and concerns in the several perspectives of In=
+formation Systems and Technologies.</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">We are pleased to invite you to submit y=
+our papers to WorldCist'21. All submissions will be reviewed on the basis o=
+f relevance, originality, importance and clarity.</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">&nbsp;</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%"><strong>Themes</strong> </p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Submitted papers should be related with =
+one or more of the main themes proposed for the Conference:</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">A) Information and Knowledge Management =
+(IKM);</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">B) Organizational Models and Information=
+ Systems (OMIS);</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">C) Software and Systems Modeling (SSM);<=
+/p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">D) Software Systems, Architectures, Appl=
+ications and Tools (SSAAT);</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">E) Multimedia Systems and Applications (=
+MSA);</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">F) Computer Networks, Mobility and Perva=
+sive Systems (CNMPS);</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">G) Intelligent and Decision Support Syst=
+ems (IDSS);</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">H) Big Data Analytics and Applications (=
+BDAA);</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">I) Human-Computer Interaction (HCI);</p>=
+
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">J) Ethics, Computers and Security (ECS)<=
+/p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">K) Health Informatics (HIS);</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">L) Information Technologies in Education=
+ (ITE);</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">M) Technologies for Biomedical Applicati=
+ons (TBA)</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">N) Information Technologies in Radiocomm=
+unications (ITR);</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">&nbsp;</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%"><strong>Types of Submissions and Decisio=
+ns</strong> </p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Four types of papers can be submitted:</=
+p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Full paper: Finished or consolidated R&a=
+mp;D works, to be included in one of the Conference themes. These papers ar=
+e assigned a 10-page limit.</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Short paper: Ongoing works with relevant=
+ preliminary results, open to discussion. These papers are assigned a 7-pag=
+e limit.</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Poster paper: Initial work with relevant=
+ ideas, open to discussion. These papers are assigned to a 4-page limit.</p=
+>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Company paper: Companies' papers that sh=
+ow practical experience, R &amp; D, tools, etc., focused on some topics of =
+the conference. These papers are assigned to a 4-page limit.</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Submitted papers must comply with the fo=
+rmat of Advances in Intelligent Systems and Computing Series (see Instructi=
+ons for Authors at Springer Website), be written in English, must not have =
+been published before, not be under review for any other conference or publ=
+ication and not include any information leading to the authors&rsquo; ident=
+ification. Therefore, the authors&rsquo; names, affiliations and bibliograp=
+hic references should not be included in the version for evaluation by the =
+Program Committee. This information should only be included in the camera-r=
+eady version, saved in Word or Latex format and also in PDF format. These f=
+iles must be accompanied by the Consent to Publish form filled out, in a ZI=
+P file, and uploaded at the conference management system.</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">All papers will be subjected to a &ldquo=
+;double-blind review&rdquo; by at least two members of the Program Committe=
+e.</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Based on Program Committee evaluation, a=
+ paper can be rejected or accepted by the Conference Chairs. In the later c=
+ase, it can be accepted as the type originally submitted or as another type=
+=2E Thus, full papers can be accepted as short papers or poster papers only=
+=2E Similarly, short papers can be accepted as poster papers only.</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Poster papers and Company papers are not=
+ published in the Conference Proceedings, being only presented and discusse=
+d. The authors of accepted poster papers should build and print a poster to=
+ be exhibited during the Conference. This poster must follow an A1 or A2 ve=
+rtical format. The Conference includes Work Sessions where these posters ar=
+e presented and orally discussed, with a 7 minute limit per poster.</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">The authors of accepted Full papers will=
+ have 15 minutes to present their work in a Conference Work Session; approx=
+imately 5 minutes of discussion will follow each presentation. The authors =
+of accepted Short papers and Company papers will have 11 minutes to present=
+ their work in a Conference Work Session; approximately 4 minutes of discus=
+sion will follow each presentation.</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">&nbsp;</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%"><strong>Publication and Indexing</strong=
+> </p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">To ensure that a full paper or short pap=
+er is published, poster paper or company paper is published, at least one o=
+f the authors must be fully registered by the 2nd of January 2021, and the =
+paper must comply with the suggested layout and page-limit. Additionally, a=
+ll recommended changes must be addressed by the authors before they submit =
+the camera-ready version.</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">No more than one paper per registration =
+will be published. An extra fee must be paid for publication of additional =
+papers, with a maximum of one additional paper per registration. One regist=
+ration permits only the participation of one author in the conference.</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Full and Short papers will be published =
+in Proceedings by Springer, in Advances in Intelligent Systems and Computin=
+g series. Poster and company papers will not be published, just presented i=
+n the conference.</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Published Full and Short papers will be =
+submitted for indexation by ISI, EI-Compendex, SCOPUS, DBLP and Google Scho=
+lar, among others, and will be available in the SpringerLink Digital Librar=
+y.</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">The authors of the best selected papers =
+will be invited to extend them for publication in international journals in=
+dexed by ISI/SCI, SCOPUS and DBLP, among others, such as:</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">- International Journal of Neural System=
+s (IF: 5.605 / Q1)</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">- Integrated Computer-Aided Engineering =
+(IF: 4.706 / Q1)</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">- Computers in Industry (IF: 3.954 / Q1)=
+</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">- Advanced Engineering Informatics (IF: =
+3.879 / Q1)</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">- Informatica - An International Journal=
+ (IF: 3.312 / Q1)</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">- Journal of Medical Systems (IF: 3.058 =
+/ Q1)</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">- Telecommunications Policy (IF: 2.224 /=
+ Q2)</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">- Computational and Mathematical Organiz=
+ation Theory (IF: 1.558 / Q2)</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">- Expert Systems - Journal of Knowledge =
+Engineering (IF: 1.546 / Q2)</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">- Journal of Intelligent &amp; Fuzzy Sys=
+tems (IF: 1.851 / Q3)</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">- Journal of Computer Information System=
+s (IF: 1.582 / Q3)</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">- Computer Science and Information Syste=
+ms (IF: 0.927 / Q4)</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">- Data Technologies and Applications (IF=
+: 0.704 / Q4)</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">- Computer Methods in Biomechanics and B=
+iomedical Engineering - Imaging &amp; Visualization (ESCI &amp; SJR: 0.52 /=
+ Q2)</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">- Journal of Information Systems Enginee=
+ring &amp; Management (DOAJ &amp; ProQuest)</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">&nbsp;</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%"><strong>Important Dates</strong> </p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Paper Submission: November 15, 2020</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Notification of Acceptance: December 23,=
+ 2020</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Payment of Registration, to ensure the i=
+nclusion of an accepted paper in the conference proceedings: January 2, 202=
+1.</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Camera-ready Submission: January 2, 2021=
+</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">&nbsp;</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%">Website of WorldCIST'21: <a href=3D"http=
+://www.worldcist.org/" target=3D"_blank" data-saferedirecturl=3D"https://ww=
+w.google.com/url?q=3Dhttp://www.worldcist.org/&source=3Dgmail&ust=3D1603101=
+984513000&usg=3DAFQjCNGAWV9djnDd92hk4D12eSCiDKm37A">http://www.worldcist.or=
+g/</a> &nbsp;</p>
+    <p style=3D"font-size: 16px; overflow: hidden; font-family: Arial; colo=
+r: rgb(109,109,109); padding-bottom: 0px; text-align: left; padding-top: 0p=
+x; margin: 0px; line-height: 200%"><br />WorldCIST'21 Team&nbsp; <br /><a h=
+ref=3D"http://www.worldcist.org/" target=3D"_blank" data-saferedirecturl=3D=
+"https://www.google.com/url?q=3Dhttp://www.worldcist.org/&source=3Dgmail&us=
+t=3D1603101984513000&usg=3DAFQjCNGAWV9djnDd92hk4D12eSCiDKm37A">http://www.w=
+orldcist.org/</a>&nbsp; </p>
+  <div id=3D"DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2"><br />
+<table style=3D"border-top: 1px solid #D3D4DE;">
+	<tr>
+        <td style=3D"width: 55px; padding-top: 13px;"><a href=3D"http://www=
+=2Eavg.com/email-signature?utm_medium=3Demail&utm_source=3Dlink&utm_campaig=
+n=3Dsig-email&utm_content=3Demailclient" target=3D"_blank"><img src=3D"http=
+s://ipmcdn.avast.com/images/icons/icon-envelope-tick-green-avg-v1.png" alt=
+=3D""  width=3D"46" height=3D"29" style=3D"width: 46px; height: 29px;" /></=
+a></td>
+		<td style=3D"width: 470px; padding-top: 12px; color: #41424e; font-size: =
+13px; font-family: Arial, Helvetica, sans-serif; line-height: 18px;">Virus-=
+free. <a href=3D"http://www.avg.com/email-signature?utm_medium=3Demail&utm_=
+source=3Dlink&utm_campaign=3Dsig-email&utm_content=3Demailclient" target=3D=
+"_blank" style=3D"color: #4453ea;">www.avg.com</a>
+		</td>
+	</tr>
+</table><a href=3D"#DAB4FAD8-2DD7-40BB-A1B8-4E2AA1F9FDF2" width=3D"1" heigh=
+t=3D"1"> </a></div></body>
+</html>
+
+--BbByoOJYRdg7Hl=_aXbOpNTBzSdFdcDWwX--
+
+
+--===============5019356659892303324==
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+--===============5019356659892303324==--
+
