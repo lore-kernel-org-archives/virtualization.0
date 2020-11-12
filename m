@@ -7,80 +7,80 @@ X-Spam-Status: No, score=-9.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0D4EDC63697
-	for <virtualization@archiver.kernel.org>; Thu, 12 Nov 2020 13:40:15 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4180CC2D0A3
+	for <virtualization@archiver.kernel.org>; Thu, 12 Nov 2020 13:40:22 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 89D6622249
-	for <virtualization@archiver.kernel.org>; Thu, 12 Nov 2020 13:40:14 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id C464622240
+	for <virtualization@archiver.kernel.org>; Thu, 12 Nov 2020 13:40:21 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Km+9Elz3"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 89D6622249
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TDBxROpO"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C464622240
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 14F6A877AC;
-	Thu, 12 Nov 2020 13:40:14 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 4AC30870D0;
+	Thu, 12 Nov 2020 13:40:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id utzBjtcfI4nq; Thu, 12 Nov 2020 13:40:13 +0000 (UTC)
+	with ESMTP id lcEAM3mcdXJF; Thu, 12 Nov 2020 13:40:20 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 4819B877AF;
-	Thu, 12 Nov 2020 13:40:13 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 9302E86DE4;
+	Thu, 12 Nov 2020 13:40:20 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 289E7C088B;
-	Thu, 12 Nov 2020 13:40:13 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id E9F1AC016F
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 770E7C088B;
+	Thu, 12 Nov 2020 13:40:20 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A40ADC016F
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Nov 2020 13:40:11 +0000 (UTC)
+ Thu, 12 Nov 2020 13:40:19 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id E5FD2877AF
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 9307E86DE4
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Nov 2020 13:40:11 +0000 (UTC)
+ Thu, 12 Nov 2020 13:40:19 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id xYlIm8h326gW
+ with ESMTP id LjjCJQAySz82
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Nov 2020 13:40:11 +0000 (UTC)
+ Thu, 12 Nov 2020 13:40:18 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 1E47B877AC
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 3B15586D95
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Nov 2020 13:40:11 +0000 (UTC)
+ Thu, 12 Nov 2020 13:40:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1605188410;
+ s=mimecast20190719; t=1605188417;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=36IiVgyuJHz3OHwKQ5JmOQlOnJM9D0Xc6EdXVsjAEj8=;
- b=Km+9Elz34YFJy+WVsiCQjjrX5oFM/1SMEZUqH9StDxyzDAoV7+u705YdD0Xjia9gHMy+iA
- 5s/Z5H7IhtBTmdKcNDq7iI5qR4xt4RV69ELei8vUnvhwiw81T3oZKMp9j44V84ntOh/bvR
- A/0OC2xQguFWaeylpemqIxk8KmLO5fI=
+ bh=XacYd9UL0OtW/kko+sJ3a4ocQxL50aNJ/0kOpL97lgM=;
+ b=TDBxROpO7GduD7gJQlJdqeqXHLoCCXKVMmV/zqL5lPm5mIN0a5m12mBUYl4FW0hNbs/J/M
+ 4gWPVQdVjMLTn3lGymwk/Lg/3F/C7Xhh2GPbGYw6LjlD2hZwUIeptiFC28GZk3OV02zYHH
+ WiPxFJQYn+1HTAtfmy6vl7NLsXkbm9Y=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-22-LaP5dPENMxKAFPX-lYsjcQ-1; Thu, 12 Nov 2020 08:40:07 -0500
-X-MC-Unique: LaP5dPENMxKAFPX-lYsjcQ-1
+ us-mta-212-idE4nNjiNHaaMksdLvcO4w-1; Thu, 12 Nov 2020 08:40:15 -0500
+X-MC-Unique: idE4nNjiNHaaMksdLvcO4w-1
 Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
  [10.5.11.15])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 4506D5F9EE;
- Thu, 12 Nov 2020 13:40:06 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id E44AB1052508;
+ Thu, 12 Nov 2020 13:40:13 +0000 (UTC)
 Received: from t480s.redhat.com (ovpn-115-61.ams2.redhat.com [10.36.115.61])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 1D9A455765;
- Thu, 12 Nov 2020 13:39:55 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 7201355765;
+ Thu, 12 Nov 2020 13:40:06 +0000 (UTC)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH v2 26/29] virtio-mem: allow to force Big Block Mode (BBM) and
- set the big block size
-Date: Thu, 12 Nov 2020 14:38:12 +0100
-Message-Id: <20201112133815.13332-27-david@redhat.com>
+Subject: [PATCH v2 27/29] mm/memory_hotplug: extend
+ offline_and_remove_memory() to handle more than one memory block
+Date: Thu, 12 Nov 2020 14:38:13 +0100
+Message-Id: <20201112133815.13332-28-david@redhat.com>
 In-Reply-To: <20201112133815.13332-1-david@redhat.com>
 References: <20201112133815.13332-1-david@redhat.com>
 MIME-Version: 1.0
@@ -107,11 +107,32 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Let's allow to force BBM, even if subblocks would be possible. Take care
-of properly calculating the first big block id, because the start
-address might no longer be aligned to the big block size.
+virtio-mem soon wants to use offline_and_remove_memory() memory that
+exceeds a single Linux memory block (memory_block_size_bytes()). Let's
+remove that restriction.
 
-Also, allow to manually configure the size of Big Blocks.
+Let's remember the old state and try to restore that if anything goes
+wrong. While re-onlining can, in general, fail, it's highly unlikely to
+happen (usually only when a notifier fails to allocate memory, and these
+are rather rare).
+
+This will be used by virtio-mem to offline+remove memory ranges that are
+bigger than a single memory block - for example, with a device block
+size of 1 GiB (e.g., gigantic pages in the hypervisor) and a Linux memory
+block size of 128MB.
+
+While we could compress the state into 2 bit, using 8 bit is much
+easier.
+
+This handling is similar, but different to acpi_scan_try_to_offline():
+
+a) We don't try to offline twice. I am not sure if this CONFIG_MEMCG
+optimization is still relevant - it should only apply to ZONE_NORMAL
+(where we have no guarantees). If relevant, we can always add it.
+
+b) acpi_scan_try_to_offline() simply onlines all memory in case
+something goes wrong. It doesn't restore previous online type. Let's do
+that, so we won't overwrite what e.g., user space configured.
 
 Reviewed-by: Wei Yang <richard.weiyang@linux.alibaba.com>
 Cc: "Michael S. Tsirkin" <mst@redhat.com>
@@ -123,66 +144,142 @@ Cc: Wei Yang <richard.weiyang@linux.alibaba.com>
 Cc: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/virtio/virtio_mem.c | 31 ++++++++++++++++++++++++++++---
- 1 file changed, 28 insertions(+), 3 deletions(-)
+ mm/memory_hotplug.c | 105 +++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 89 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index 8a4f735360ac..861149acafe5 100644
---- a/drivers/virtio/virtio_mem.c
-+++ b/drivers/virtio/virtio_mem.c
-@@ -27,6 +27,16 @@ static bool unplug_online = true;
- module_param(unplug_online, bool, 0644);
- MODULE_PARM_DESC(unplug_online, "Try to unplug online memory");
+diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
+index b44d4c7ba73b..217080ca93e5 100644
+--- a/mm/memory_hotplug.c
++++ b/mm/memory_hotplug.c
+@@ -1806,39 +1806,112 @@ int remove_memory(int nid, u64 start, u64 size)
+ }
+ EXPORT_SYMBOL_GPL(remove_memory);
  
-+static bool force_bbm;
-+module_param(force_bbm, bool, 0444);
-+MODULE_PARM_DESC(force_bbm,
-+		"Force Big Block Mode. Default is 0 (auto-selection)");
++static int try_offline_memory_block(struct memory_block *mem, void *arg)
++{
++	uint8_t online_type = MMOP_ONLINE_KERNEL;
++	uint8_t **online_types = arg;
++	struct page *page;
++	int rc;
 +
-+static unsigned long bbm_block_size;
-+module_param(bbm_block_size, ulong, 0444);
-+MODULE_PARM_DESC(bbm_block_size,
-+		 "Big Block size in bytes. Default is 0 (auto-detection).");
++	/*
++	 * Sense the online_type via the zone of the memory block. Offlining
++	 * with multiple zones within one memory block will be rejected
++	 * by offlining code ... so we don't care about that.
++	 */
++	page = pfn_to_online_page(section_nr_to_pfn(mem->start_section_nr));
++	if (page && zone_idx(page_zone(page)) == ZONE_MOVABLE)
++		online_type = MMOP_ONLINE_MOVABLE;
++
++	rc = device_offline(&mem->dev);
++	/*
++	 * Default is MMOP_OFFLINE - change it only if offlining succeeded,
++	 * so try_reonline_memory_block() can do the right thing.
++	 */
++	if (!rc)
++		**online_types = online_type;
++
++	(*online_types)++;
++	/* Ignore if already offline. */
++	return rc < 0 ? rc : 0;
++}
++
++static int try_reonline_memory_block(struct memory_block *mem, void *arg)
++{
++	uint8_t **online_types = arg;
++	int rc;
++
++	if (**online_types != MMOP_OFFLINE) {
++		mem->online_type = **online_types;
++		rc = device_online(&mem->dev);
++		if (rc < 0)
++			pr_warn("%s: Failed to re-online memory: %d",
++				__func__, rc);
++	}
++
++	/* Continue processing all remaining memory blocks. */
++	(*online_types)++;
++	return 0;
++}
 +
  /*
-  * virtio-mem currently supports the following modes of operation:
-  *
-@@ -2164,7 +2174,7 @@ static int virtio_mem_init(struct virtio_mem *vm)
- 			pageblock_nr_pages) * PAGE_SIZE;
- 	sb_size = max_t(uint64_t, vm->device_block_size, sb_size);
+- * Try to offline and remove a memory block. Might take a long time to
+- * finish in case memory is still in use. Primarily useful for memory devices
+- * that logically unplugged all memory (so it's no longer in use) and want to
+- * offline + remove the memory block.
++ * Try to offline and remove memory. Might take a long time to finish in case
++ * memory is still in use. Primarily useful for memory devices that logically
++ * unplugged all memory (so it's no longer in use) and want to offline + remove
++ * that memory.
+  */
+ int offline_and_remove_memory(int nid, u64 start, u64 size)
+ {
+-	struct memory_block *mem;
+-	int rc = -EINVAL;
++	const unsigned long mb_count = size / memory_block_size_bytes();
++	uint8_t *online_types, *tmp;
++	int rc;
  
--	if (sb_size < memory_block_size_bytes()) {
-+	if (sb_size < memory_block_size_bytes() && !force_bbm) {
- 		/* SBM: At least two subblocks per Linux memory block. */
- 		vm->in_sbm = true;
- 		vm->sbm.sb_size = sb_size;
-@@ -2177,9 +2187,24 @@ static int virtio_mem_init(struct virtio_mem *vm)
- 		vm->sbm.next_mb_id = vm->sbm.first_mb_id;
- 	} else {
- 		/* BBM: At least one Linux memory block. */
--		vm->bbm.bb_size = vm->device_block_size;
-+		vm->bbm.bb_size = max_t(uint64_t, vm->device_block_size,
-+					memory_block_size_bytes());
+ 	if (!IS_ALIGNED(start, memory_block_size_bytes()) ||
+-	    size != memory_block_size_bytes())
+-		return rc;
++	    !IS_ALIGNED(size, memory_block_size_bytes()) || !size)
++		return -EINVAL;
 +
-+		if (bbm_block_size) {
-+			if (!is_power_of_2(bbm_block_size)) {
-+				dev_warn(&vm->vdev->dev,
-+					 "bbm_block_size is not a power of 2");
-+			} else if (bbm_block_size < vm->bbm.bb_size) {
-+				dev_warn(&vm->vdev->dev,
-+					 "bbm_block_size is too small");
-+			} else {
-+				vm->bbm.bb_size = bbm_block_size;
-+			}
-+		}
++	/*
++	 * We'll remember the old online type of each memory block, so we can
++	 * try to revert whatever we did when offlining one memory block fails
++	 * after offlining some others succeeded.
++	 */
++	online_types = kmalloc_array(mb_count, sizeof(*online_types),
++				     GFP_KERNEL);
++	if (!online_types)
++		return -ENOMEM;
++	/*
++	 * Initialize all states to MMOP_OFFLINE, so when we abort processing in
++	 * try_offline_memory_block(), we'll skip all unprocessed blocks in
++	 * try_reonline_memory_block().
++	 */
++	memset(online_types, MMOP_OFFLINE, mb_count);
  
--		vm->bbm.first_bb_id = virtio_mem_phys_to_bb_id(vm, vm->addr);
-+		/* Round up to the next aligned big block */
-+		addr = vm->addr + vm->bbm.bb_size - 1;
-+		vm->bbm.first_bb_id = virtio_mem_phys_to_bb_id(vm, addr);
- 		vm->bbm.next_bb_id = vm->bbm.first_bb_id;
+ 	lock_device_hotplug();
+-	mem = find_memory_block(__pfn_to_section(PFN_DOWN(start)));
+-	if (mem)
+-		rc = device_offline(&mem->dev);
+-	/* Ignore if the device is already offline. */
+-	if (rc > 0)
+-		rc = 0;
++
++	tmp = online_types;
++	rc = walk_memory_blocks(start, size, &tmp, try_offline_memory_block);
+ 
+ 	/*
+-	 * In case we succeeded to offline the memory block, remove it.
++	 * In case we succeeded to offline all memory, remove it.
+ 	 * This cannot fail as it cannot get onlined in the meantime.
+ 	 */
+ 	if (!rc) {
+ 		rc = try_remove_memory(nid, start, size);
+-		WARN_ON_ONCE(rc);
++		if (rc)
++			pr_err("%s: Failed to remove memory: %d", __func__, rc);
++	}
++
++	/*
++	 * Rollback what we did. While memory onlining might theoretically fail
++	 * (nacked by a notifier), it barely ever happens.
++	 */
++	if (rc) {
++		tmp = online_types;
++		walk_memory_blocks(start, size, &tmp,
++				   try_reonline_memory_block);
  	}
+ 	unlock_device_hotplug();
  
++	kfree(online_types);
+ 	return rc;
+ }
+ EXPORT_SYMBOL_GPL(offline_and_remove_memory);
 -- 
 2.26.2
 
