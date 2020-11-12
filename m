@@ -7,106 +7,108 @@ X-Spam-Status: No, score=-9.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 347ECC2D0A3
-	for <virtualization@archiver.kernel.org>; Thu, 12 Nov 2020 15:35:58 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 48D0DC56202
+	for <virtualization@archiver.kernel.org>; Thu, 12 Nov 2020 15:44:53 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 99E572224B
-	for <virtualization@archiver.kernel.org>; Thu, 12 Nov 2020 15:35:57 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 91C8120A8B
+	for <virtualization@archiver.kernel.org>; Thu, 12 Nov 2020 15:44:52 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iiQIDqhP"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 99E572224B
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DUm2WOpO"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 91C8120A8B
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 21119877FF;
-	Thu, 12 Nov 2020 15:35:57 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 9E34B8333E;
+	Thu, 12 Nov 2020 15:44:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ASYimzyi-4xu; Thu, 12 Nov 2020 15:35:56 +0000 (UTC)
+	with ESMTP id kON4MU4L9EOZ; Thu, 12 Nov 2020 15:44:50 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 90D5787800;
-	Thu, 12 Nov 2020 15:35:56 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id E961E8716E;
+	Thu, 12 Nov 2020 15:44:50 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 6A796C088B;
-	Thu, 12 Nov 2020 15:35:56 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 68FC6C016F
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C4E86C088B;
+	Thu, 12 Nov 2020 15:44:50 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 1116BC016F
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Nov 2020 15:35:55 +0000 (UTC)
+ Thu, 12 Nov 2020 15:44:49 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 5CA2D87800
+ by silver.osuosl.org (Postfix) with ESMTP id D8CE32040F
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Nov 2020 15:35:55 +0000 (UTC)
+ Thu, 12 Nov 2020 15:44:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id jrej3Q-xASZT
+ with ESMTP id D9y3MTAg4K9o
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Nov 2020 15:35:54 +0000 (UTC)
+ Thu, 12 Nov 2020 15:44:48 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by hemlock.osuosl.org (Postfix) with ESMTPS id A8452877FF
+ by silver.osuosl.org (Postfix) with ESMTPS id EF97720354
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Nov 2020 15:35:54 +0000 (UTC)
+ Thu, 12 Nov 2020 15:44:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1605195353;
+ s=mimecast20190719; t=1605195886;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=kY0AiU5FU6oVbA1XAM3cZ9/C4ZQ8vxNIxYPcv88wzRE=;
- b=iiQIDqhPJjxo+gbWGltOR3qhNy2trAZqsHDL7nln0VJ33o6VhJQBBwC2zg+DpTXIvASdye
- ofLV/7IdB46xDbFi1lNh0Pc/SH6gph5S0aMmb7BwGcnDbsUnW696+841KTDOuTG2l4Nah9
- aC9JcXg5P1x9eKokbLfuqXTW41oAdow=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-322-I9fgOvdEM42EjhO_acLvLQ-1; Thu, 12 Nov 2020 10:35:52 -0500
-X-MC-Unique: I9fgOvdEM42EjhO_acLvLQ-1
-Received: by mail-wr1-f70.google.com with SMTP id k1so2086598wrg.12
+ bh=qxjTdSqsz6xIg1WvznsPF+RZUGZ5GXFMr8Y82HN6228=;
+ b=DUm2WOpOp7X6RywUyfLkvDRrvI7XVHiJV+ae8Ug8sxo89OHHshI3ZT6Zk09h0/NsbJqP5A
+ XF6j4HYuOFl6eM1HgN2H+kEL19cpT4Jh9l0TaT5KKvw/pk7qHZCUy4Ut5F+KzKwq/vhYbu
+ OydJ2AnXyVqZJjjVUbdgSOFA4yF9oJs=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-596-MZQIYk5nPPmfkKJbiKz2CQ-1; Thu, 12 Nov 2020 10:44:43 -0500
+X-MC-Unique: MZQIYk5nPPmfkKJbiKz2CQ-1
+Received: by mail-wr1-f71.google.com with SMTP id w17so2087901wrp.11
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Nov 2020 07:35:51 -0800 (PST)
+ Thu, 12 Nov 2020 07:44:42 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:from:to:cc:subject:in-reply-to:references:date
  :message-id:mime-version;
- bh=kY0AiU5FU6oVbA1XAM3cZ9/C4ZQ8vxNIxYPcv88wzRE=;
- b=dEkAeFcTT2wecrrSmzHaEWhN+h6y9tfZEmCqBg54jh7VD1dk2O2l/IXTYIyF2WvC5R
- I2EBgjWgtZSaDibf42Sn9PChlM6+fnVY6s8/+1/E/BCwO3M/7gSKJiw2XrDMG7m1Dckg
- 1+mn65U00ASf5b9ZwTzwTpkSmOULF7PXR8RjoMmYbvH5+mki88vY7j4VL5PK/YxReRjI
- vyAD3fUgJJC6mZ3Z8PhGjnerAoQVQPCc0fmyJ9EMPMq+uXLewf5O+9Np+RhDoWu8ihMq
- v3xRlJhnCbBkOlf4ru2KrYFSlqhxuRORVn3lEf2t7uBY4GX9to+b5PUUdKR62DElC3IK
- zDPw==
-X-Gm-Message-State: AOAM533dGIHjapW4r+q/HhYKILeR0vNnX1RS2G0CUYrSOupaQz3h/8c1
- ARJuYB1m5VK0y+DG9fOpqLxXqHO2XBVJSlvwEgXo9WzkBooKF7/yjGlGOscnxs5ee716WwGZaAr
- OVZGr4pu19VtTqTwNvI+1cMeisxjFqB3EKHtWye/a1w==
-X-Received: by 2002:a5d:5308:: with SMTP id e8mr60527wrv.299.1605195350614;
- Thu, 12 Nov 2020 07:35:50 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJyX+g1Xxy4OaSz6R8CmLM779s2IPaL2uIDtQKDL0WAaJDiYdwAr+Qec54DwIygNSmyCPc/rjA==
-X-Received: by 2002:a5d:5308:: with SMTP id e8mr60496wrv.299.1605195350447;
- Thu, 12 Nov 2020 07:35:50 -0800 (PST)
+ bh=qxjTdSqsz6xIg1WvznsPF+RZUGZ5GXFMr8Y82HN6228=;
+ b=IpSvdBQHY+OMpr4EBoQWSg8llEB21r6K80lYkYI6SCn4czQjBnVJHimjmOwq0d0F+U
+ YZK363p9CvT4yueTuRHy27eumN9iYR7NcGQ9H9LvHYWOsiPvICUtzNiMUDZ6O+afd0Ag
+ MQk9YpG3DiynZaTzwsKJ9xei1+7LQDuk9SJTsKoNVbQNvyexEWQoqT/BOpciRTbZPaOj
+ MvJQpfpYH0bbecs6IROFJ5ydDjsfh2YudghjlDoH/X1+/dVENDBxGoYtuE+ESbj3o1JF
+ iu7ieDP/M/aOdr878yxWcVtwB/YIS1aO8JuTfg1BL8LAIhhsCAyclIMkCp0bOe275El9
+ UZDg==
+X-Gm-Message-State: AOAM530EJuaLrRdl9/xBLe58sIhhHA8EHuHnop43MPF9ckaYaTlob8mP
+ 1MeNx+dFomj4BYCdmtScr/zWtEHYShvJK7pB1HDVIZ8/fIxR4VZNkMs5+HAtujtd6bAM7G5AX9A
+ ulSjoyMXCFZR36vXj6PBHIbuhTlOfQb2O3tlSiJdi3w==
+X-Received: by 2002:a7b:c309:: with SMTP id k9mr292672wmj.14.1605195881877;
+ Thu, 12 Nov 2020 07:44:41 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxcJOmNhQc4LX1KGkibEmhcyJC2zSWy0ZlOScjlyw1KRKeL72zv1sDLur1nMapHOCf6wYE/HQ==
+X-Received: by 2002:a7b:c309:: with SMTP id k9mr292640wmj.14.1605195881639;
+ Thu, 12 Nov 2020 07:44:41 -0800 (PST)
 Received: from vitty.brq.redhat.com (g-server-2.ign.cz. [91.219.240.2])
- by smtp.gmail.com with ESMTPSA id 60sm4066744wrs.69.2020.11.12.07.35.48
+ by smtp.gmail.com with ESMTPSA id 34sm7209189wrq.27.2020.11.12.07.44.40
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Thu, 12 Nov 2020 07:35:49 -0800 (PST)
+ Thu, 12 Nov 2020 07:44:41 -0800 (PST)
 From: Vitaly Kuznetsov <vkuznets@redhat.com>
 To: Wei Liu <wei.liu@kernel.org>, Linux on Hyper-V List
  <linux-hyperv@vger.kernel.org>
-Subject: Re: [PATCH v2 06/17] x86/hyperv: allocate output arg pages if required
-In-Reply-To: <20201105165814.29233-7-wei.liu@kernel.org>
+Subject: Re: [PATCH v2 07/17] x86/hyperv: extract partition ID from
+ Microsoft Hypervisor if necessary
+In-Reply-To: <20201105165814.29233-8-wei.liu@kernel.org>
 References: <20201105165814.29233-1-wei.liu@kernel.org>
- <20201105165814.29233-7-wei.liu@kernel.org>
-Date: Thu, 12 Nov 2020 16:35:48 +0100
-Message-ID: <87a6vmy4dn.fsf@vitty.brq.redhat.com>
+ <20201105165814.29233-8-wei.liu@kernel.org>
+Date: Thu, 12 Nov 2020 16:44:39 +0100
+Message-ID: <877dqqy3yw.fsf@vitty.brq.redhat.com>
 MIME-Version: 1.0
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=vkuznets@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
-Cc: Wei Liu <wei.liu@kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>,
- Haiyang Zhang <haiyangz@microsoft.com>,
+Cc: "open list:GENERIC INCLUDE/ASM HEADER FILES" <linux-arch@vger.kernel.org>,
+ Wei Liu <wei.liu@kernel.org>, Stephen Hemminger <sthemmin@microsoft.com>,
+ Arnd Bergmann <arnd@arndb.de>, Haiyang Zhang <haiyangz@microsoft.com>,
  "maintainer:X86 ARCHITECTURE \(32-BIT AND 64-BIT\)" <x86@kernel.org>,
  Linux Kernel List <linux-kernel@vger.kernel.org>,
  Michael Kelley <mikelley@microsoft.com>, Ingo Molnar <mingo@redhat.com>,
@@ -134,116 +136,130 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 Wei Liu <wei.liu@kernel.org> writes:
 
-> When Linux runs as the root partition, it will need to make hypercalls
-> which return data from the hypervisor.
->
-> Allocate pages for storing results when Linux runs as the root
-> partition.
+> We will need the partition ID for executing some hypercalls later.
 >
 > Signed-off-by: Lillian Grassin-Drake <ligrassi@microsoft.com>
-> Co-Developed-by: Lillian Grassin-Drake <ligrassi@microsoft.com>
+> Co-Developed-by: Sunil Muthuswamy <sunilmut@microsoft.com>
 > Signed-off-by: Wei Liu <wei.liu@kernel.org>
 > ---
-> v2: Address Vitaly's comments
-> ---
->  arch/x86/hyperv/hv_init.c       | 35 ++++++++++++++++++++++++++++-----
->  arch/x86/include/asm/mshyperv.h |  1 +
->  2 files changed, 31 insertions(+), 5 deletions(-)
+>  arch/x86/hyperv/hv_init.c         | 26 ++++++++++++++++++++++++++
+>  arch/x86/include/asm/mshyperv.h   |  2 ++
+>  include/asm-generic/hyperv-tlfs.h |  6 ++++++
+>  3 files changed, 34 insertions(+)
 >
 > diff --git a/arch/x86/hyperv/hv_init.c b/arch/x86/hyperv/hv_init.c
-> index 533fe9e887f2..7a2e37f025b0 100644
+> index 7a2e37f025b0..73b0fb851f76 100644
 > --- a/arch/x86/hyperv/hv_init.c
 > +++ b/arch/x86/hyperv/hv_init.c
-> @@ -45,6 +45,9 @@ EXPORT_SYMBOL_GPL(hv_vp_assist_page);
->  void  __percpu **hyperv_pcpu_input_arg;
->  EXPORT_SYMBOL_GPL(hyperv_pcpu_input_arg);
+> @@ -30,6 +30,9 @@
+>  bool hv_root_partition;
+>  EXPORT_SYMBOL_GPL(hv_root_partition);
 >  
-> +void  __percpu **hyperv_pcpu_output_arg;
-> +EXPORT_SYMBOL_GPL(hyperv_pcpu_output_arg);
+> +u64 hv_current_partition_id;
+> +EXPORT_SYMBOL_GPL(hv_current_partition_id);
 > +
->  u32 hv_max_vp_index;
->  EXPORT_SYMBOL_GPL(hv_max_vp_index);
+>  void *hv_hypercall_pg;
+>  EXPORT_SYMBOL_GPL(hv_hypercall_pg);
 >  
-> @@ -77,12 +80,19 @@ static int hv_cpu_init(unsigned int cpu)
->  	void **input_arg;
->  	struct page *pg;
+> @@ -335,6 +338,26 @@ static struct syscore_ops hv_syscore_ops = {
+>  	.resume		= hv_resume,
+>  };
 >  
-> -	input_arg = (void **)this_cpu_ptr(hyperv_pcpu_input_arg);
->  	/* hv_cpu_init() can be called with IRQs disabled from hv_resume() */
-> -	pg = alloc_page(irqs_disabled() ? GFP_ATOMIC : GFP_KERNEL);
-> +	pg = alloc_pages(irqs_disabled() ? GFP_ATOMIC : GFP_KERNEL, hv_root_partition ? 1 : 0);
->  	if (unlikely(!pg))
->  		return -ENOMEM;
+> +void __init hv_get_partition_id(void)
+> +{
+> +	struct hv_get_partition_id *output_page;
+> +	u16 status;
+> +	unsigned long flags;
 > +
-> +	input_arg = (void **)this_cpu_ptr(hyperv_pcpu_input_arg);
->  	*input_arg = page_address(pg);
-> +	if (hv_root_partition) {
-> +		void **output_arg;
-> +
-> +		output_arg = (void **)this_cpu_ptr(hyperv_pcpu_output_arg);
-> +		*output_arg = page_address(pg + 1);
-> +	}
->  
->  	hv_get_vp_index(msr_vp_index);
->  
-> @@ -209,14 +219,23 @@ static int hv_cpu_die(unsigned int cpu)
->  	unsigned int new_cpu;
->  	unsigned long flags;
->  	void **input_arg;
-> -	void *input_pg = NULL;
-> +	void *pg;
->  
->  	local_irq_save(flags);
->  	input_arg = (void **)this_cpu_ptr(hyperv_pcpu_input_arg);
-> -	input_pg = *input_arg;
-> +	pg = *input_arg;
->  	*input_arg = NULL;
-> +
-> +	if (hv_root_partition) {
-> +		void **output_arg;
-> +
-> +		output_arg = (void **)this_cpu_ptr(hyperv_pcpu_output_arg);
-> +		*output_arg = NULL;
-> +	}
-> +
->  	local_irq_restore(flags);
-> -	free_page((unsigned long)input_pg);
-> +
-> +	free_page((unsigned long)pg);
->  
+> +	local_irq_save(flags);
+> +	output_page = *this_cpu_ptr(hyperv_pcpu_output_arg);
+> +	status = hv_do_hypercall(HVCALL_GET_PARTITION_ID, NULL, output_page) &
+> +		HV_HYPERCALL_RESULT_MASK;
+> +	if (status != HV_STATUS_SUCCESS)
+> +		pr_err("Failed to get partition ID: %d\n", status);
+> +	else
+> +		hv_current_partition_id = output_page->partition_id;
 
-Hm, but in case we've allocated output_arg, don't we need to do
-	free_pages((unsigned long)pg, 1);
+Nit: I'd suggest we simplify this to:
 
-instead?
+	if (status != HV_STATUS_SUCCESS) {
+		pr_err("Failed to get partition ID: %d\n", status);
+		BUG();
+	}
+	hv_current_partition_id = output_page->partition_id;
 
->  	if (hv_vp_assist_page && hv_vp_assist_page[cpu])
->  		wrmsrl(HV_X64_MSR_VP_ASSIST_PAGE, 0);
-> @@ -350,6 +369,12 @@ void __init hyperv_init(void)
->  
->  	BUG_ON(hyperv_pcpu_input_arg == NULL);
->  
-> +	/* Allocate the per-CPU state for output arg for root */
-> +	if (hv_root_partition) {
-> +		hyperv_pcpu_output_arg = alloc_percpu(void *);
-> +		BUG_ON(hyperv_pcpu_output_arg == NULL);
-> +	}
+and drop BUG_ON() below;
+
+> +	local_irq_restore(flags);
 > +
->  	/* Allocate percpu VP index */
->  	hv_vp_index = kmalloc_array(num_possible_cpus(), sizeof(*hv_vp_index),
->  				    GFP_KERNEL);
+> +	/* No point in proceeding if this failed */
+> +	BUG_ON(status != HV_STATUS_SUCCESS);
+> +}
+> +
+>  /*
+>   * This function is to be invoked early in the boot sequence after the
+>   * hypervisor has been detected.
+> @@ -430,6 +453,9 @@ void __init hyperv_init(void)
+>  
+>  	register_syscore_ops(&hv_syscore_ops);
+>  
+> +	if (hv_root_partition)
+> +		hv_get_partition_id();
+> +
+
+
+We don't seem to check that the partition has AccessPartitionId
+privilege. While I guess that root partitions always have it, I'd
+suggest we write this as:
+
+	if (cpuid_ebx(HYPERV_CPUID_FEATURES) & HV_ACCESS_PARTITION_ID)
+		hv_get_partition_id();
+
+	BUG_ON(hv_root_partition && !hv_current_partition_id);
+
+for correctness. Also, we need to make sure '0' is not a valid partition
+id and use e.g. -1 otherwise.
+
+>  	return;
+>  
+>  remove_cpuhp_state:
 > diff --git a/arch/x86/include/asm/mshyperv.h b/arch/x86/include/asm/mshyperv.h
-> index ac2b0d110f03..62d9390f1ddf 100644
+> index 62d9390f1ddf..67f5d35a73d3 100644
 > --- a/arch/x86/include/asm/mshyperv.h
 > +++ b/arch/x86/include/asm/mshyperv.h
-> @@ -76,6 +76,7 @@ static inline void hv_disable_stimer0_percpu_irq(int irq) {}
->  #if IS_ENABLED(CONFIG_HYPERV)
->  extern void *hv_hypercall_pg;
+> @@ -78,6 +78,8 @@ extern void *hv_hypercall_pg;
 >  extern void  __percpu  **hyperv_pcpu_input_arg;
-> +extern void  __percpu  **hyperv_pcpu_output_arg;
+>  extern void  __percpu  **hyperv_pcpu_output_arg;
 >  
+> +extern u64 hv_current_partition_id;
+> +
 >  static inline u64 hv_do_hypercall(u64 control, void *input, void *output)
 >  {
+>  	u64 input_address = input ? virt_to_phys(input) : 0;
+> diff --git a/include/asm-generic/hyperv-tlfs.h b/include/asm-generic/hyperv-tlfs.h
+> index e6903589a82a..87b1a79b19eb 100644
+> --- a/include/asm-generic/hyperv-tlfs.h
+> +++ b/include/asm-generic/hyperv-tlfs.h
+> @@ -141,6 +141,7 @@ struct ms_hyperv_tsc_page {
+>  #define HVCALL_FLUSH_VIRTUAL_ADDRESS_SPACE_EX	0x0013
+>  #define HVCALL_FLUSH_VIRTUAL_ADDRESS_LIST_EX	0x0014
+>  #define HVCALL_SEND_IPI_EX			0x0015
+> +#define HVCALL_GET_PARTITION_ID			0x0046
+>  #define HVCALL_GET_VP_REGISTERS			0x0050
+>  #define HVCALL_SET_VP_REGISTERS			0x0051
+>  #define HVCALL_POST_MESSAGE			0x005c
+> @@ -407,6 +408,11 @@ struct hv_tlb_flush_ex {
+>  	u64 gva_list[];
+>  } __packed;
+>  
+> +/* HvGetPartitionId hypercall (output only) */
+> +struct hv_get_partition_id {
+> +	u64 partition_id;
+> +} __packed;
+> +
+>  /* HvRetargetDeviceInterrupt hypercall */
+>  union hv_msi_entry {
+>  	u64 as_uint64;
 
 -- 
 Vitaly
