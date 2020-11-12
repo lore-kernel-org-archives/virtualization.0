@@ -7,85 +7,84 @@ X-Spam-Status: No, score=-9.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 0DFC0C61DD8
-	for <virtualization@archiver.kernel.org>; Thu, 12 Nov 2020 13:39:05 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 98E0AC388F7
+	for <virtualization@archiver.kernel.org>; Thu, 12 Nov 2020 13:39:07 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 8CFFB22240
-	for <virtualization@archiver.kernel.org>; Thu, 12 Nov 2020 13:39:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 2823122240
+	for <virtualization@archiver.kernel.org>; Thu, 12 Nov 2020 13:39:06 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aoPDq1x2"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8CFFB22240
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dS9s3rYZ"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 2823122240
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 3A06C2E1B9;
-	Thu, 12 Nov 2020 13:39:04 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id BACD6877AA;
+	Thu, 12 Nov 2020 13:39:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id LgjnupxwyfzL; Thu, 12 Nov 2020 13:39:03 +0000 (UTC)
+	with ESMTP id eCSmKrjyu6em; Thu, 12 Nov 2020 13:39:06 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 17B9B2E1D9;
-	Thu, 12 Nov 2020 13:39:03 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 46FF0877A2;
+	Thu, 12 Nov 2020 13:39:06 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id ED538C088B;
-	Thu, 12 Nov 2020 13:39:02 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B0B0EC016F
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 31748C088B;
+	Thu, 12 Nov 2020 13:39:06 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id EE99BC016F
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Nov 2020 13:39:01 +0000 (UTC)
+ Thu, 12 Nov 2020 13:39:04 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 978982E1D9
+ by hemlock.osuosl.org (Postfix) with ESMTP id DE578877B6
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Nov 2020 13:39:01 +0000 (UTC)
+ Thu, 12 Nov 2020 13:39:04 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id rjRxCu5FAjBh
+ with ESMTP id JdHokoIuUT-3
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Nov 2020 13:39:00 +0000 (UTC)
+ Thu, 12 Nov 2020 13:39:04 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by silver.osuosl.org (Postfix) with ESMTPS id CC17F2E1B9
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 46230877B2
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Nov 2020 13:38:59 +0000 (UTC)
+ Thu, 12 Nov 2020 13:39:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1605188338;
+ s=mimecast20190719; t=1605188343;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=1/nNt7biy+blXgzIzbt4CpC5LP6Jojqi23BTUap8oBc=;
- b=aoPDq1x2TXVD94Tzrw/tAXTgjbtJl/BUkKY5DmSXyvz6b1RWfVFy+RKsEOoxVo8dk9E0Jh
- 5+C9H7PGmi8rfm3mTBtjA6eew20t7XZHy50WiqX7kjkDYiq6wijPfGVft6cGbLJFY3jWcp
- eIKUHpWS177idTBxI1Nm8qsTFefFqUU=
+ bh=Vdbw4BBnAlXbecdd3kz0Gf6U85wgo73x2VHWlqh8gqU=;
+ b=dS9s3rYZOxh+L5NRp8y9k6L5oOZ/Qyqym9W3YYJM8qZNLAokKsCis8WPCEsMQ1/rVYJECP
+ 1yt41Bfze4XOLel4UH0il4hZaXYqoK88l0Mb7krqpytE89yPf4Z9crhSfawQMWDUuewDLa
+ Nbk2ZWMDa5asAHz8uJZQ4B7eTfiL+8g=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-155-5Fh2xBDQNl2QNPWUNGhIQg-1; Thu, 12 Nov 2020 08:38:57 -0500
-X-MC-Unique: 5Fh2xBDQNl2QNPWUNGhIQg-1
+ us-mta-116-BYRt4WzrNyuEdueCGAxQeA-1; Thu, 12 Nov 2020 08:39:01 -0500
+X-MC-Unique: BYRt4WzrNyuEdueCGAxQeA-1
 Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
  [10.5.11.15])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6083A802B47;
- Thu, 12 Nov 2020 13:38:55 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 7F976801FD4;
+ Thu, 12 Nov 2020 13:39:00 +0000 (UTC)
 Received: from t480s.redhat.com (ovpn-115-61.ams2.redhat.com [10.36.115.61])
- by smtp.corp.redhat.com (Postfix) with ESMTP id A272055765;
- Thu, 12 Nov 2020 13:38:53 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id AF55075132;
+ Thu, 12 Nov 2020 13:38:55 +0000 (UTC)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH v2 11/29] virtio-mem: generalize check for added memory
-Date: Thu, 12 Nov 2020 14:37:57 +0100
-Message-Id: <20201112133815.13332-12-david@redhat.com>
+Subject: [PATCH v2 12/29] virtio-mem: generalize virtio_mem_owned_mb()
+Date: Thu, 12 Nov 2020 14:37:58 +0100
+Message-Id: <20201112133815.13332-13-david@redhat.com>
 In-Reply-To: <20201112133815.13332-1-david@redhat.com>
 References: <20201112133815.13332-1-david@redhat.com>
 MIME-Version: 1.0
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
- Wei Yang <richard.weiyang@linux.alibaba.com>,
  "Michael S . Tsirkin" <mst@redhat.com>,
  virtualization@lists.linux-foundation.org, linux-mm@kvack.org
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -104,61 +103,49 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Let's check by traversing busy system RAM resources instead, to avoid
-relying on memory block states.
+Avoid using memory block ids. Rename it to virtio_mem_contains_range().
 
-Don't use walk_system_ram_range(), as that works on pages and we want to
-use the bare addresses we have easily at hand.
+This is a preparation for Big Block Mode (BBM).
 
-This is a preparation for Big Block Mode (BBM), which won't have memory
-block states.
-
-Reviewed-by: Wei Yang <richard.weiyang@linux.alibaba.com>
+Reviewed-by: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
 Cc: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Jason Wang <jasowang@redhat.com>
 Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/virtio/virtio_mem.c | 19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ drivers/virtio/virtio_mem.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index 2f1ce4d4781b..3731097cd9e8 100644
+index 3731097cd9e8..2193c5172195 100644
 --- a/drivers/virtio/virtio_mem.c
 +++ b/drivers/virtio/virtio_mem.c
-@@ -1833,6 +1833,20 @@ static void virtio_mem_delete_resource(struct virtio_mem *vm)
- 	vm->parent_resource = NULL;
+@@ -512,12 +512,13 @@ static bool virtio_mem_overlaps_range(struct virtio_mem *vm,
  }
  
-+static int virtio_mem_range_has_system_ram(struct resource *res, void *arg)
-+{
-+	return 1;
-+}
-+
-+static bool virtio_mem_has_memory_added(struct virtio_mem *vm)
-+{
-+	const unsigned long flags = IORESOURCE_SYSTEM_RAM | IORESOURCE_BUSY;
-+
-+	return walk_iomem_res_desc(IORES_DESC_NONE, flags, vm->addr,
-+				   vm->addr + vm->region_size, NULL,
-+				   virtio_mem_range_has_system_ram) == 1;
-+}
-+
- static int virtio_mem_probe(struct virtio_device *vdev)
+ /*
+- * Test if a virtio-mem device owns a memory block. Can be called from
++ * Test if a virtio-mem device contains a given range. Can be called from
+  * (notifier) callbacks lockless.
+  */
+-static bool virtio_mem_owned_mb(struct virtio_mem *vm, unsigned long mb_id)
++static bool virtio_mem_contains_range(struct virtio_mem *vm, uint64_t start,
++				      uint64_t size)
  {
- 	struct virtio_mem *vm;
-@@ -1954,10 +1968,7 @@ static void virtio_mem_remove(struct virtio_device *vdev)
- 	 * the system. And there is no way to stop the driver/device from going
- 	 * away. Warn at least.
+-	return mb_id >= vm->first_mb_id && mb_id <= vm->last_mb_id;
++	return start >= vm->addr && start + size <= vm->addr + vm->region_size;
+ }
+ 
+ static int virtio_mem_notify_going_online(struct virtio_mem *vm,
+@@ -871,7 +872,7 @@ static void virtio_mem_online_page_cb(struct page *page, unsigned int order)
  	 */
--	if (vm->nb_mb_state[VIRTIO_MEM_MB_STATE_OFFLINE] ||
--	    vm->nb_mb_state[VIRTIO_MEM_MB_STATE_OFFLINE_PARTIAL] ||
--	    vm->nb_mb_state[VIRTIO_MEM_MB_STATE_ONLINE] ||
--	    vm->nb_mb_state[VIRTIO_MEM_MB_STATE_ONLINE_PARTIAL]) {
-+	if (virtio_mem_has_memory_added(vm)) {
- 		dev_warn(&vdev->dev, "device still has system memory added\n");
- 	} else {
- 		virtio_mem_delete_resource(vm);
+ 	rcu_read_lock();
+ 	list_for_each_entry_rcu(vm, &virtio_mem_devices, next) {
+-		if (!virtio_mem_owned_mb(vm, mb_id))
++		if (!virtio_mem_contains_range(vm, addr, PFN_PHYS(1 << order)))
+ 			continue;
+ 
+ 		sb_id = virtio_mem_phys_to_sb_id(vm, addr);
 -- 
 2.26.2
 
