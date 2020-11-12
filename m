@@ -4,89 +4,88 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 442C5C56202
-	for <virtualization@archiver.kernel.org>; Thu, 12 Nov 2020 13:38:59 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CBEFC56201
+	for <virtualization@archiver.kernel.org>; Thu, 12 Nov 2020 13:39:01 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B9BC822248
-	for <virtualization@archiver.kernel.org>; Thu, 12 Nov 2020 13:38:58 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id AE6FC22240
+	for <virtualization@archiver.kernel.org>; Thu, 12 Nov 2020 13:39:00 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gCJY3omL"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B9BC822248
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QpLxOCK4"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org AE6FC22240
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 26B7F2E1DC;
-	Thu, 12 Nov 2020 13:38:58 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id egRWjksIKw5z; Thu, 12 Nov 2020 13:38:57 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 0F70D2E1B9;
-	Thu, 12 Nov 2020 13:38:57 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E4F39C088B;
-	Thu, 12 Nov 2020 13:38:56 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 1D56AC016F
- for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Nov 2020 13:38:55 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 19E13877A7
- for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Nov 2020 13:38:55 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 70071877B9;
+	Thu, 12 Nov 2020 13:39:00 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id WHPL2jxvNJ+Y
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 5t0NI0wUJCHO; Thu, 12 Nov 2020 13:38:59 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by hemlock.osuosl.org (Postfix) with ESMTP id C5EDB877B4;
+	Thu, 12 Nov 2020 13:38:59 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 9FD6AC1AD8;
+	Thu, 12 Nov 2020 13:38:59 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 0B5BFC016F
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Nov 2020 13:38:53 +0000 (UTC)
+ Thu, 12 Nov 2020 13:38:59 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by whitealder.osuosl.org (Postfix) with ESMTP id 06A20870FC
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 12 Nov 2020 13:38:59 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from whitealder.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id nh+AYZZrc82l
+ for <virtualization@lists.linux-foundation.org>;
+ Thu, 12 Nov 2020 13:38:58 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by hemlock.osuosl.org (Postfix) with ESMTPS id BBCEB87796
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 3DD66870E5
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Nov 2020 13:38:53 +0000 (UTC)
+ Thu, 12 Nov 2020 13:38:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1605188332;
+ s=mimecast20190719; t=1605188337;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=hEe6VBE/5yZyIS6nKePb3w8IGCBXjgtR7vD5nfLEPS4=;
- b=gCJY3omLWQikuEE/2V6J4V4y9gJp6HvC/XqSafN0hhmEmg09/sGjXAO1SGPGnV3q8mLgS7
- WuPPUJ+1s9s0sZbNhDi0wb/QuljM5nt3ZoNz5xA7ur5wchBpwkDywX6aj6tLo2pgEw2Hik
- IMsSodmdC9IPpK6CqS0bW8u3uA+XiSQ=
+ bh=s7b/l63zYUaR+OsccnXVvZ/uAYcvm6kvDksVTa1Mbhc=;
+ b=QpLxOCK42KkRMngF7D57VFnVqFHpfbg7CbWaPBy4PjJ2HnjGhzlnVYMNz9ucZAie08Y1eV
+ PUyy1J8pDgV6iP340m4CcCCn4z/ml1cLGsnk6Wt9y8u7FPcnkGHhFAUIXxpQqS/qvQVIjt
+ X9pEN2L8ydSASkXc7u4UKqeeGaiQbJ4=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-383-_OjfKXOoNG6x4NfMOn8JpQ-1; Thu, 12 Nov 2020 08:38:48 -0500
-X-MC-Unique: _OjfKXOoNG6x4NfMOn8JpQ-1
+ us-mta-19-IhACjZgxNUGOglFtNSkyqg-1; Thu, 12 Nov 2020 08:38:54 -0500
+X-MC-Unique: IhACjZgxNUGOglFtNSkyqg-1
 Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
  [10.5.11.15])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5CE8518BA28D;
- Thu, 12 Nov 2020 13:38:47 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 5257018BA282;
+ Thu, 12 Nov 2020 13:38:53 +0000 (UTC)
 Received: from t480s.redhat.com (ovpn-115-61.ams2.redhat.com [10.36.115.61])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 7509155765;
- Thu, 12 Nov 2020 13:38:45 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id C589655765;
+ Thu, 12 Nov 2020 13:38:51 +0000 (UTC)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH v2 07/29] virtio-mem: print debug messages from
- virtio_mem_send_*_request()
-Date: Thu, 12 Nov 2020 14:37:53 +0100
-Message-Id: <20201112133815.13332-8-david@redhat.com>
+Subject: [PATCH v2 10/29] virtio-mem: retry fake-offlining via
+ alloc_contig_range() on ZONE_MOVABLE
+Date: Thu, 12 Nov 2020 14:37:56 +0100
+Message-Id: <20201112133815.13332-11-david@redhat.com>
 In-Reply-To: <20201112133815.13332-1-david@redhat.com>
 References: <20201112133815.13332-1-david@redhat.com>
 MIME-Version: 1.0
 X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
- Wei Yang <richard.weiyang@linux.alibaba.com>,
  "Michael S . Tsirkin" <mst@redhat.com>,
  virtualization@lists.linux-foundation.org, linux-mm@kvack.org
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -105,141 +104,71 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Let's move the existing dev_dbg() into the functions, print if something
-went wrong, and also print for virtio_mem_send_unplug_all_request().
+ZONE_MOVABLE is supposed to give some guarantees, yet,
+alloc_contig_range() isn't prepared to properly deal with some racy
+cases properly (e.g., temporary page pinning when exiting processed, PCP).
 
-Reviewed-by: Wei Yang <richard.weiyang@linux.alibaba.com>
+Retry 5 times for now. There is certainly room for improvement in the
+future.
+
 Cc: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Jason Wang <jasowang@redhat.com>
 Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/virtio/virtio_mem.c | 50 ++++++++++++++++++++++++++-----------
- 1 file changed, 35 insertions(+), 15 deletions(-)
+ drivers/virtio/virtio_mem.c | 37 ++++++++++++++++++++++++++-----------
+ 1 file changed, 26 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index 30b4d07f5263..4742497feff0 100644
+index c24055248f9d..2f1ce4d4781b 100644
 --- a/drivers/virtio/virtio_mem.c
 +++ b/drivers/virtio/virtio_mem.c
-@@ -869,23 +869,33 @@ static int virtio_mem_send_plug_request(struct virtio_mem *vm, uint64_t addr,
- 		.u.plug.addr = cpu_to_virtio64(vm->vdev, addr),
- 		.u.plug.nb_blocks = cpu_to_virtio16(vm->vdev, nb_vm_blocks),
- 	};
-+	int rc = -ENOMEM;
+@@ -784,19 +784,34 @@ static void virtio_mem_fake_online(unsigned long pfn, unsigned long nr_pages)
+  */
+ static int virtio_mem_fake_offline(unsigned long pfn, unsigned long nr_pages)
+ {
+-	int rc;
++	const bool is_movable = zone_idx(page_zone(pfn_to_page(pfn))) ==
++				ZONE_MOVABLE;
++	int rc, retry_count;
  
- 	if (atomic_read(&vm->config_changed))
- 		return -EAGAIN;
+-	rc = alloc_contig_range(pfn, pfn + nr_pages, MIGRATE_MOVABLE,
+-				GFP_KERNEL);
+-	if (rc == -ENOMEM)
+-		/* whoops, out of memory */
+-		return rc;
+-	if (rc)
+-		return -EBUSY;
++	/*
++	 * TODO: We want an alloc_contig_range() mode that tries to allocate
++	 * harder (e.g., dealing with temporarily pinned pages, PCP), especially
++	 * with ZONE_MOVABLE. So for now, retry a couple of times with
++	 * ZONE_MOVABLE before giving up - because that zone is supposed to give
++	 * some guarantees.
++	 */
++	for (retry_count = 0; retry_count < 5; retry_count++) {
++		rc = alloc_contig_range(pfn, pfn + nr_pages, MIGRATE_MOVABLE,
++					GFP_KERNEL);
++		if (rc == -ENOMEM)
++			/* whoops, out of memory */
++			return rc;
++		else if (rc && !is_movable)
++			break;
++		else if (rc)
++			continue;
  
-+	dev_dbg(&vm->vdev->dev, "plugging memory: 0x%llx - 0x%llx\n", addr,
-+		addr + size - 1);
+-	virtio_mem_set_fake_offline(pfn, nr_pages, true);
+-	adjust_managed_page_count(pfn_to_page(pfn), -nr_pages);
+-	return 0;
++		virtio_mem_set_fake_offline(pfn, nr_pages, true);
++		adjust_managed_page_count(pfn_to_page(pfn), -nr_pages);
++		return 0;
++	}
 +
- 	switch (virtio_mem_send_request(vm, &req)) {
- 	case VIRTIO_MEM_RESP_ACK:
- 		vm->plugged_size += size;
- 		return 0;
- 	case VIRTIO_MEM_RESP_NACK:
--		return -EAGAIN;
-+		rc = -EAGAIN;
-+		break;
- 	case VIRTIO_MEM_RESP_BUSY:
--		return -ETXTBSY;
-+		rc = -ETXTBSY;
-+		break;
- 	case VIRTIO_MEM_RESP_ERROR:
--		return -EINVAL;
-+		rc = -EINVAL;
-+		break;
- 	default:
--		return -ENOMEM;
-+		break;
- 	}
-+
-+	dev_dbg(&vm->vdev->dev, "plugging memory failed: %d\n", rc);
-+	return rc;
- }
- 
- static int virtio_mem_send_unplug_request(struct virtio_mem *vm, uint64_t addr,
-@@ -897,21 +907,30 @@ static int virtio_mem_send_unplug_request(struct virtio_mem *vm, uint64_t addr,
- 		.u.unplug.addr = cpu_to_virtio64(vm->vdev, addr),
- 		.u.unplug.nb_blocks = cpu_to_virtio16(vm->vdev, nb_vm_blocks),
- 	};
-+	int rc = -ENOMEM;
- 
- 	if (atomic_read(&vm->config_changed))
- 		return -EAGAIN;
- 
-+	dev_dbg(&vm->vdev->dev, "unplugging memory: 0x%llx - 0x%llx\n", addr,
-+		addr + size - 1);
-+
- 	switch (virtio_mem_send_request(vm, &req)) {
- 	case VIRTIO_MEM_RESP_ACK:
- 		vm->plugged_size -= size;
- 		return 0;
- 	case VIRTIO_MEM_RESP_BUSY:
--		return -ETXTBSY;
-+		rc = -ETXTBSY;
-+		break;
- 	case VIRTIO_MEM_RESP_ERROR:
--		return -EINVAL;
-+		rc = -EINVAL;
-+		break;
- 	default:
--		return -ENOMEM;
-+		break;
- 	}
-+
-+	dev_dbg(&vm->vdev->dev, "unplugging memory failed: %d\n", rc);
-+	return rc;
- }
- 
- static int virtio_mem_send_unplug_all_request(struct virtio_mem *vm)
-@@ -919,6 +938,9 @@ static int virtio_mem_send_unplug_all_request(struct virtio_mem *vm)
- 	const struct virtio_mem_req req = {
- 		.type = cpu_to_virtio16(vm->vdev, VIRTIO_MEM_REQ_UNPLUG_ALL),
- 	};
-+	int rc = -ENOMEM;
-+
-+	dev_dbg(&vm->vdev->dev, "unplugging all memory");
- 
- 	switch (virtio_mem_send_request(vm, &req)) {
- 	case VIRTIO_MEM_RESP_ACK:
-@@ -928,10 +950,14 @@ static int virtio_mem_send_unplug_all_request(struct virtio_mem *vm)
- 		atomic_set(&vm->config_changed, 1);
- 		return 0;
- 	case VIRTIO_MEM_RESP_BUSY:
--		return -ETXTBSY;
-+		rc = -ETXTBSY;
-+		break;
- 	default:
--		return -ENOMEM;
-+		break;
- 	}
-+
-+	dev_dbg(&vm->vdev->dev, "unplugging all memory failed: %d\n", rc);
-+	return rc;
++	return -EBUSY;
  }
  
  /*
-@@ -946,9 +972,6 @@ static int virtio_mem_mb_plug_sb(struct virtio_mem *vm, unsigned long mb_id,
- 	const uint64_t size = count * vm->subblock_size;
- 	int rc;
- 
--	dev_dbg(&vm->vdev->dev, "plugging memory block: %lu : %i - %i\n", mb_id,
--		sb_id, sb_id + count - 1);
--
- 	rc = virtio_mem_send_plug_request(vm, addr, size);
- 	if (!rc)
- 		virtio_mem_mb_set_sb_plugged(vm, mb_id, sb_id, count);
-@@ -967,9 +990,6 @@ static int virtio_mem_mb_unplug_sb(struct virtio_mem *vm, unsigned long mb_id,
- 	const uint64_t size = count * vm->subblock_size;
- 	int rc;
- 
--	dev_dbg(&vm->vdev->dev, "unplugging memory block: %lu : %i - %i\n",
--		mb_id, sb_id, sb_id + count - 1);
--
- 	rc = virtio_mem_send_unplug_request(vm, addr, size);
- 	if (!rc)
- 		virtio_mem_mb_set_sb_unplugged(vm, mb_id, sb_id, count);
 -- 
 2.26.2
 
