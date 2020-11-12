@@ -7,80 +7,80 @@ X-Spam-Status: No, score=-9.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 21283C56202
-	for <virtualization@archiver.kernel.org>; Thu, 12 Nov 2020 13:38:55 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D850DC61DD8
+	for <virtualization@archiver.kernel.org>; Thu, 12 Nov 2020 13:38:58 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 96BD622249
-	for <virtualization@archiver.kernel.org>; Thu, 12 Nov 2020 13:38:54 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 5DD6F22249
+	for <virtualization@archiver.kernel.org>; Thu, 12 Nov 2020 13:38:58 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AAS2w4uT"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 96BD622249
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JSEA0Ost"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5DD6F22249
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 58C9C870E6;
-	Thu, 12 Nov 2020 13:38:54 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id CE3ED87796;
+	Thu, 12 Nov 2020 13:38:57 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id mTR7t2X2vX5C; Thu, 12 Nov 2020 13:38:53 +0000 (UTC)
+	with ESMTP id y0L2Zge61lmW; Thu, 12 Nov 2020 13:38:57 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id B41A4870D9;
-	Thu, 12 Nov 2020 13:38:53 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 41B68877AA;
+	Thu, 12 Nov 2020 13:38:57 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id AD8F0C088B;
-	Thu, 12 Nov 2020 13:38:53 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3D2B6C016F
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 2BD91C088B;
+	Thu, 12 Nov 2020 13:38:57 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 691E1C016F
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Nov 2020 13:38:52 +0000 (UTC)
+ Thu, 12 Nov 2020 13:38:55 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 2C72D870E5
+ by silver.osuosl.org (Postfix) with ESMTP id 1E3A22010F
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Nov 2020 13:38:52 +0000 (UTC)
+ Thu, 12 Nov 2020 13:38:55 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id loXu3rDqaPcV
+ with ESMTP id eOUkURucTD1m
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Nov 2020 13:38:51 +0000 (UTC)
+ Thu, 12 Nov 2020 13:38:54 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 7E0C5870D9
+ by silver.osuosl.org (Postfix) with ESMTPS id D7AFC2E1B9
  for <virtualization@lists.linux-foundation.org>;
- Thu, 12 Nov 2020 13:38:51 +0000 (UTC)
+ Thu, 12 Nov 2020 13:38:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1605188330;
+ s=mimecast20190719; t=1605188332;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=X0WfQnw15Vm9t+Uqndhh69vgkO1/7kUW5WBgUBhjrGY=;
- b=AAS2w4uT/MWOtwolF8jzHBjkIWkyX4oNPGD2L79h1LMWbzyjN1Sm/GdBO9VeitHJvzKKQx
- V0RLRKaZmC5hjNXDvtHmxFJQzFSavl4sJWbxlZxwOqCb42Mh0o5ePkhzwDxoBkGLkSZ7oo
- t89tvy9PmFhqG9xHU7yeoRFe1AwzmZY=
+ bh=whRB7fqvEtHYEsoDQkuEHgauodp8esw7rtmEk6rZXVc=;
+ b=JSEA0OstQUt+UHV/s5TSlGU6Xh0310ZBx9EW4eTtQg82OjT0JkSB8mXQQs5wVl4GM+7jHP
+ 4XvFAJO4eztQUro8IiSxudMLAxA+V6Ra0Atxjc9LEN0PN0ttice05dxjg4gZasTMW5qOEt
+ fBibG2vb/UL1xKTIOo+QNrD3oBA5pno=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-25-k-FLLVhEMsmObHVn5xkdtw-1; Thu, 12 Nov 2020 08:38:46 -0500
-X-MC-Unique: k-FLLVhEMsmObHVn5xkdtw-1
+ us-mta-161-0Z8WCwcuNXyAJtPJYsPZ1A-1; Thu, 12 Nov 2020 08:38:50 -0500
+X-MC-Unique: 0Z8WCwcuNXyAJtPJYsPZ1A-1
 Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
  [10.5.11.15])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 215E01030986;
- Thu, 12 Nov 2020 13:38:45 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 742FA107ACF8;
+ Thu, 12 Nov 2020 13:38:49 +0000 (UTC)
 Received: from t480s.redhat.com (ovpn-115-61.ams2.redhat.com [10.36.115.61])
- by smtp.corp.redhat.com (Postfix) with ESMTP id F2EB955765;
- Thu, 12 Nov 2020 13:38:36 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id AAB4955765;
+ Thu, 12 Nov 2020 13:38:47 +0000 (UTC)
 From: David Hildenbrand <david@redhat.com>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH v2 06/29] virtio-mem: factor out calculation of the bit number
- within the subblock bitmap
-Date: Thu, 12 Nov 2020 14:37:52 +0100
-Message-Id: <20201112133815.13332-7-david@redhat.com>
+Subject: [PATCH v2 08/29] virtio-mem: factor out fake-offlining into
+ virtio_mem_fake_offline()
+Date: Thu, 12 Nov 2020 14:37:54 +0100
+Message-Id: <20201112133815.13332-9-david@redhat.com>
 In-Reply-To: <20201112133815.13332-1-david@redhat.com>
 References: <20201112133815.13332-1-david@redhat.com>
 MIME-Version: 1.0
@@ -105,8 +105,8 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-The calculation is already complicated enough, let's limit it to one
-location.
+... which now matches virtio_mem_fake_online(). We'll reuse this
+functionality soon.
 
 Reviewed-by: Wei Yang <richard.weiyang@linux.alibaba.com>
 Reviewed-by: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
@@ -115,75 +115,62 @@ Cc: Jason Wang <jasowang@redhat.com>
 Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
 Signed-off-by: David Hildenbrand <david@redhat.com>
 ---
- drivers/virtio/virtio_mem.c | 20 +++++++++++++++-----
- 1 file changed, 15 insertions(+), 5 deletions(-)
+ drivers/virtio/virtio_mem.c | 34 ++++++++++++++++++++++++----------
+ 1 file changed, 24 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index 94451b401fba..30b4d07f5263 100644
+index 4742497feff0..fedfea27967e 100644
 --- a/drivers/virtio/virtio_mem.c
 +++ b/drivers/virtio/virtio_mem.c
-@@ -290,6 +290,16 @@ static int virtio_mem_mb_state_prepare_next_mb(struct virtio_mem *vm)
- 	     _mb_id--) \
- 		if (virtio_mem_mb_get_state(_vm, _mb_id) == _state)
+@@ -793,6 +793,27 @@ static void virtio_mem_fake_online(unsigned long pfn, unsigned long nr_pages)
+ 	}
+ }
  
 +/*
-+ * Calculate the bit number in the subblock bitmap for the given subblock
-+ * inside the given memory block.
++ * Try to allocate a range, marking pages fake-offline, effectively
++ * fake-offlining them.
 + */
-+static int virtio_mem_sb_bitmap_bit_nr(struct virtio_mem *vm,
-+				       unsigned long mb_id, int sb_id)
++static int virtio_mem_fake_offline(unsigned long pfn, unsigned long nr_pages)
 +{
-+	return (mb_id - vm->first_mb_id) * vm->nb_sb_per_mb + sb_id;
++	int rc;
++
++	rc = alloc_contig_range(pfn, pfn + nr_pages, MIGRATE_MOVABLE,
++				GFP_KERNEL);
++	if (rc == -ENOMEM)
++		/* whoops, out of memory */
++		return rc;
++	if (rc)
++		return -EBUSY;
++
++	virtio_mem_set_fake_offline(pfn, nr_pages, true);
++	adjust_managed_page_count(pfn_to_page(pfn), -nr_pages);
++	return 0;
 +}
 +
- /*
-  * Mark all selected subblocks plugged.
-  *
-@@ -299,7 +309,7 @@ static void virtio_mem_mb_set_sb_plugged(struct virtio_mem *vm,
- 					 unsigned long mb_id, int sb_id,
- 					 int count)
+ static void virtio_mem_online_page_cb(struct page *page, unsigned int order)
  {
--	const int bit = (mb_id - vm->first_mb_id) * vm->nb_sb_per_mb + sb_id;
-+	const int bit = virtio_mem_sb_bitmap_bit_nr(vm, mb_id, sb_id);
+ 	const unsigned long addr = page_to_phys(page);
+@@ -1328,17 +1349,10 @@ static int virtio_mem_mb_unplug_sb_online(struct virtio_mem *vm,
  
- 	__bitmap_set(vm->sb_bitmap, bit, count);
- }
-@@ -313,7 +323,7 @@ static void virtio_mem_mb_set_sb_unplugged(struct virtio_mem *vm,
- 					   unsigned long mb_id, int sb_id,
- 					   int count)
- {
--	const int bit = (mb_id - vm->first_mb_id) * vm->nb_sb_per_mb + sb_id;
-+	const int bit = virtio_mem_sb_bitmap_bit_nr(vm, mb_id, sb_id);
+ 	start_pfn = PFN_DOWN(virtio_mem_mb_id_to_phys(mb_id) +
+ 			     sb_id * vm->subblock_size);
+-	rc = alloc_contig_range(start_pfn, start_pfn + nr_pages,
+-				MIGRATE_MOVABLE, GFP_KERNEL);
+-	if (rc == -ENOMEM)
+-		/* whoops, out of memory */
+-		return rc;
+-	if (rc)
+-		return -EBUSY;
  
- 	__bitmap_clear(vm->sb_bitmap, bit, count);
- }
-@@ -325,7 +335,7 @@ static bool virtio_mem_mb_test_sb_plugged(struct virtio_mem *vm,
- 					  unsigned long mb_id, int sb_id,
- 					  int count)
- {
--	const int bit = (mb_id - vm->first_mb_id) * vm->nb_sb_per_mb + sb_id;
-+	const int bit = virtio_mem_sb_bitmap_bit_nr(vm, mb_id, sb_id);
+-	/* Mark it as fake-offline before unplugging it */
+-	virtio_mem_set_fake_offline(start_pfn, nr_pages, true);
+-	adjust_managed_page_count(pfn_to_page(start_pfn), -nr_pages);
++	rc = virtio_mem_fake_offline(start_pfn, nr_pages);
++	if (rc)
++		return rc;
  
- 	if (count == 1)
- 		return test_bit(bit, vm->sb_bitmap);
-@@ -342,7 +352,7 @@ static bool virtio_mem_mb_test_sb_unplugged(struct virtio_mem *vm,
- 					    unsigned long mb_id, int sb_id,
- 					    int count)
- {
--	const int bit = (mb_id - vm->first_mb_id) * vm->nb_sb_per_mb + sb_id;
-+	const int bit = virtio_mem_sb_bitmap_bit_nr(vm, mb_id, sb_id);
- 
- 	/* TODO: Helper similar to bitmap_set() */
- 	return find_next_bit(vm->sb_bitmap, bit + count, bit) >= bit + count;
-@@ -355,7 +365,7 @@ static bool virtio_mem_mb_test_sb_unplugged(struct virtio_mem *vm,
- static int virtio_mem_mb_first_unplugged_sb(struct virtio_mem *vm,
- 					    unsigned long mb_id)
- {
--	const int bit = (mb_id - vm->first_mb_id) * vm->nb_sb_per_mb;
-+	const int bit = virtio_mem_sb_bitmap_bit_nr(vm, mb_id, 0);
- 
- 	return find_next_zero_bit(vm->sb_bitmap, bit + vm->nb_sb_per_mb, bit) -
- 	       bit;
+ 	/* Try to unplug the allocated memory */
+ 	rc = virtio_mem_mb_unplug_sb(vm, mb_id, sb_id, count);
 -- 
 2.26.2
 
