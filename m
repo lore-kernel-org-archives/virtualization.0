@@ -4,84 +4,83 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-9.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id AE1C4C61DD8
-	for <virtualization@archiver.kernel.org>; Fri, 13 Nov 2020 13:48:15 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 64F47C388F7
+	for <virtualization@archiver.kernel.org>; Fri, 13 Nov 2020 13:48:16 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4EADB2222F
-	for <virtualization@archiver.kernel.org>; Fri, 13 Nov 2020 13:48:15 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 126322223F
+	for <virtualization@archiver.kernel.org>; Fri, 13 Nov 2020 13:48:16 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fBvWNklA"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4EADB2222F
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ing+lxro"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 126322223F
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id DFF03877F1;
-	Fri, 13 Nov 2020 13:48:14 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id E820B87484;
+	Fri, 13 Nov 2020 13:48:15 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id h+vit0vsBBQE; Fri, 13 Nov 2020 13:48:14 +0000 (UTC)
+	with ESMTP id Epovt0vA7P6x; Fri, 13 Nov 2020 13:48:15 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 2095187764;
-	Fri, 13 Nov 2020 13:48:14 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 557AD87464;
+	Fri, 13 Nov 2020 13:48:15 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0AB3AC0891;
-	Fri, 13 Nov 2020 13:48:14 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 40C74C0891;
+	Fri, 13 Nov 2020 13:48:15 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6483DC0800
+ by lists.linuxfoundation.org (Postfix) with ESMTP id A8CD3C0800
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Nov 2020 13:48:12 +0000 (UTC)
+ Fri, 13 Nov 2020 13:48:13 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 539F687479
+ by fraxinus.osuosl.org (Postfix) with ESMTP id A02C887474
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Nov 2020 13:48:12 +0000 (UTC)
+ Fri, 13 Nov 2020 13:48:13 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 0I5GdGyr0zVP
+ with ESMTP id omWEKHPGs2nF
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Nov 2020 13:48:11 +0000 (UTC)
+ Fri, 13 Nov 2020 13:48:13 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 628B787474
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 9502687464
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Nov 2020 13:48:11 +0000 (UTC)
+ Fri, 13 Nov 2020 13:48:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1605275290;
+ s=mimecast20190719; t=1605275289;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=9UzDD4XLBsIex8H3gAmLcepWoyVKDMnza///IOvxEZI=;
- b=fBvWNklA4Qed3xaol4xPB+Wrqpfpb7mBvx69hh21RwzVy5jyVft6m39eAd3Hi4moWiu+Ev
- 4fctIi2exyU/HYVlj9LO9gXuqWX7yEsjW23kjsuZHEjUSJkN4Y9oSRvPgnB4FbnmVvj1kr
- 0Ux10Q4AlyA0wBJqkDAcnyG1/gnsPNc=
+ bh=Y87cPiKi+KTWXY2cSxCtGVqk2vtdxTcbFuGGyIn+EBk=;
+ b=Ing+lxroS8dW2NmMOUlWe757p1ZTYModoOFTUb6rwJ3oliZqIPzmdwdTpvcKMS500M2BlH
+ P6GtqiV/cd9V8u8uYNIqhqWGvLRhqDY4oUrTEnr/bL43eG/0R1iT2h1b4KLfcX15Jv+PwR
+ nOmIeC2u3Ik0FKISc1lz9QWxwJStcPs=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-240-HiiljqWwMnSO1WrRG7vhpA-1; Fri, 13 Nov 2020 08:48:07 -0500
-X-MC-Unique: HiiljqWwMnSO1WrRG7vhpA-1
+ us-mta-23-CI_yqR2uOYqqBfFVO0Cb3Q-1; Fri, 13 Nov 2020 08:48:03 -0500
+X-MC-Unique: CI_yqR2uOYqqBfFVO0Cb3Q-1
 Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
  [10.5.11.23])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 81C53809DC5;
- Fri, 13 Nov 2020 13:48:06 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C83E51084CA2;
+ Fri, 13 Nov 2020 13:48:01 +0000 (UTC)
 Received: from steredhat.redhat.com (ovpn-114-21.ams2.redhat.com
  [10.36.114.21])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 947A219C66;
- Fri, 13 Nov 2020 13:48:04 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id CB8BB19C66;
+ Fri, 13 Nov 2020 13:47:52 +0000 (UTC)
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [PATCH RFC 06/12] vdpa_sim: add struct vdpasim_device to store device
- properties
-Date: Fri, 13 Nov 2020 14:47:06 +0100
-Message-Id: <20201113134712.69744-7-sgarzare@redhat.com>
+Subject: [PATCH RFC 04/12] vdpa: add vdpa simulator for block device
+Date: Fri, 13 Nov 2020 14:47:04 +0100
+Message-Id: <20201113134712.69744-5-sgarzare@redhat.com>
 In-Reply-To: <20201113134712.69744-1-sgarzare@redhat.com>
 References: <20201113134712.69744-1-sgarzare@redhat.com>
 MIME-Version: 1.0
@@ -105,234 +104,187 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Move device properties used during the entire life cycle in a new
-structure to simplify the copy of these fields during the vdpasim
-initialization.
+From: Max Gurtovoy <mgurtovoy@nvidia.com>
 
+This will allow running vDPA for virtio block protocol.
+
+Signed-off-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+[sgarzare: various cleanups/fixes]
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- drivers/vdpa/vdpa_sim/vdpa_sim.h     | 17 ++++++++------
- drivers/vdpa/vdpa_sim/vdpa_sim.c     | 33 ++++++++++++++--------------
- drivers/vdpa/vdpa_sim/vdpa_sim_blk.c |  8 +++++--
- drivers/vdpa/vdpa_sim/vdpa_sim_net.c |  9 +++++---
- 4 files changed, 38 insertions(+), 29 deletions(-)
+v1:
+- Removed unused headers
+- Used cpu_to_vdpasim*() to store config fields
+- Replaced 'select VDPA_SIM' with 'depends on VDPA_SIM' since selected
+  option can not depend on other [Jason]
+- Start with a single queue for now [Jason]
+- Add comments to memory barriers
+---
+ drivers/vdpa/vdpa_sim/vdpa_sim_blk.c | 124 +++++++++++++++++++++++++++
+ drivers/vdpa/Kconfig                 |   9 ++
+ drivers/vdpa/vdpa_sim/Makefile       |   1 +
+ 3 files changed, 134 insertions(+)
+ create mode 100644 drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
 
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.h b/drivers/vdpa/vdpa_sim/vdpa_sim.h
-index 6a1267c40d5e..76e642042eb0 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim.h
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.h
-@@ -40,12 +40,17 @@ struct vdpasim_virtqueue {
- 	irqreturn_t (*cb)(void *data);
- };
- 
-+struct vdpasim_device {
-+	u64 supported_features;
-+	u32 id;
-+	int nvqs;
-+};
-+
- struct vdpasim_init_attr {
--	u32		device_id;
--	u64		features;
-+	struct vdpasim_device device;
-+	int batch_mapping;
-+
- 	work_func_t	work_fn;
--	int		batch_mapping;
--	int		nvqs;
- };
- 
- /* State of each vdpasim device */
-@@ -53,18 +58,16 @@ struct vdpasim {
- 	struct vdpa_device vdpa;
- 	struct vdpasim_virtqueue *vqs;
- 	struct work_struct work;
-+	struct vdpasim_device device;
- 	/* spinlock to synchronize virtqueue state */
- 	spinlock_t lock;
- 	/* virtio config according to device type */
- 	void *config;
- 	struct vhost_iotlb *iommu;
- 	void *buffer;
--	u32 device_id;
- 	u32 status;
- 	u32 generation;
- 	u64 features;
--	u64 supported_features;
--	int nvqs;
- 	/* spinlock to synchronize iommu table */
- 	spinlock_t iommu_lock;
- };
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-index 9c9717441bbe..d053bd14b3f8 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-@@ -28,7 +28,7 @@ static void vdpasim_queue_ready(struct vdpasim *vdpasim, unsigned int idx)
- {
- 	struct vdpasim_virtqueue *vq = &vdpasim->vqs[idx];
- 
--	vringh_init_iotlb(&vq->vring, vdpasim->supported_features,
-+	vringh_init_iotlb(&vq->vring, vdpasim->device.supported_features,
- 			  VDPASIM_QUEUE_MAX, false,
- 			  (struct vring_desc *)(uintptr_t)vq->desc_addr,
- 			  (struct vring_avail *)
-@@ -46,7 +46,7 @@ static void vdpasim_vq_reset(struct vdpasim *vdpasim,
- 	vq->device_addr = 0;
- 	vq->cb = NULL;
- 	vq->private = NULL;
--	vringh_init_iotlb(&vq->vring, vdpasim->supported_features,
-+	vringh_init_iotlb(&vq->vring, vdpasim->device.supported_features,
- 			  VDPASIM_QUEUE_MAX, false, NULL, NULL, NULL);
- }
- 
-@@ -54,7 +54,7 @@ static void vdpasim_reset(struct vdpasim *vdpasim)
- {
- 	int i;
- 
--	for (i = 0; i < vdpasim->nvqs; i++)
-+	for (i = 0; i < vdpasim->device.nvqs; i++)
- 		vdpasim_vq_reset(vdpasim, &vdpasim->vqs[i]);
- 
- 	spin_lock(&vdpasim->iommu_lock);
-@@ -189,7 +189,7 @@ struct vdpasim *vdpasim_create(struct vdpasim_init_attr *attr)
- 	struct device *dev;
- 	int i, size, ret = -ENOMEM;
- 
--	device_id = attr->device_id;
-+	device_id = attr->device.id;
- 	/* Currently, we only accept the network and block devices. */
- 	if (device_id != VIRTIO_ID_NET && device_id != VIRTIO_ID_BLOCK)
- 		return ERR_PTR(-EOPNOTSUPP);
-@@ -200,10 +200,12 @@ struct vdpasim *vdpasim_create(struct vdpasim_init_attr *attr)
- 		ops = &vdpasim_config_ops;
- 
- 	vdpasim = vdpa_alloc_device(struct vdpasim, vdpa, NULL, ops,
--				    attr->nvqs);
-+				    attr->device.nvqs);
- 	if (!vdpasim)
- 		goto err_alloc;
- 
-+	vdpasim->device = attr->device;
-+
- 	if (device_id == VIRTIO_ID_NET)
- 		size = sizeof(struct virtio_net_config);
- 	else
-@@ -212,14 +214,11 @@ struct vdpasim *vdpasim_create(struct vdpasim_init_attr *attr)
- 	if (!vdpasim->config)
- 		goto err_iommu;
- 
--	vdpasim->vqs = kcalloc(attr->nvqs, sizeof(struct vdpasim_virtqueue),
--			       GFP_KERNEL);
-+	vdpasim->vqs = kcalloc(vdpasim->device.nvqs,
-+			       sizeof(struct vdpasim_virtqueue), GFP_KERNEL);
- 	if (!vdpasim->vqs)
- 		goto err_iommu;
- 
--	vdpasim->device_id = device_id;
--	vdpasim->supported_features = attr->features;
--	vdpasim->nvqs = attr->nvqs;
- 	INIT_WORK(&vdpasim->work, attr->work_fn);
- 	spin_lock_init(&vdpasim->lock);
- 	spin_lock_init(&vdpasim->iommu_lock);
-@@ -238,7 +237,7 @@ struct vdpasim *vdpasim_create(struct vdpasim_init_attr *attr)
- 	if (!vdpasim->buffer)
- 		goto err_iommu;
- 
--	for (i = 0; i < vdpasim->nvqs; i++)
-+	for (i = 0; i < vdpasim->device.nvqs; i++)
- 		vringh_set_iotlb(&vdpasim->vqs[i].vring, vdpasim->iommu);
- 
- 	vdpasim->vdpa.dma_dev = dev;
-@@ -347,7 +346,7 @@ static u64 vdpasim_get_features(struct vdpa_device *vdpa)
- {
- 	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
- 
--	return vdpasim->supported_features;
-+	return vdpasim->device.supported_features;
- }
- 
- static int vdpasim_set_features(struct vdpa_device *vdpa, u64 features)
-@@ -358,14 +357,14 @@ static int vdpasim_set_features(struct vdpa_device *vdpa, u64 features)
- 	if (!(features & (1ULL << VIRTIO_F_ACCESS_PLATFORM)))
- 		return -EINVAL;
- 
--	vdpasim->features = features & vdpasim->supported_features;
-+	vdpasim->features = features & vdpasim->device.supported_features;
- 
- 	/* We generally only know whether guest is using the legacy interface
- 	 * here, so generally that's the earliest we can set config fields.
- 	 * Note: We actually require VIRTIO_F_ACCESS_PLATFORM above which
- 	 * implies VIRTIO_F_VERSION_1, but let's not try to be clever here.
- 	 */
--	if (vdpasim->device_id == VIRTIO_ID_NET) {
-+	if (vdpasim->device.id == VIRTIO_ID_NET) {
- 		struct virtio_net_config *config =
- 			(struct virtio_net_config *)vdpasim->config;
- 
-@@ -391,7 +390,7 @@ static u32 vdpasim_get_device_id(struct vdpa_device *vdpa)
- {
- 	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
- 
--	return vdpasim->device_id;
-+	return vdpasim->device.id;
- }
- 
- static u32 vdpasim_get_vendor_id(struct vdpa_device *vdpa)
-@@ -427,10 +426,10 @@ static void vdpasim_get_config(struct vdpa_device *vdpa, unsigned int offset,
- {
- 	struct vdpasim *vdpasim = vdpa_to_sim(vdpa);
- 
--	if (vdpasim->device_id == VIRTIO_ID_BLOCK &&
-+	if (vdpasim->device.id == VIRTIO_ID_BLOCK &&
- 	    (offset + len < sizeof(struct virtio_blk_config)))
- 		memcpy(buf, vdpasim->config + offset, len);
--	else if (vdpasim->device_id == VIRTIO_ID_NET &&
-+	else if (vdpasim->device.id == VIRTIO_ID_NET &&
- 		 (offset + len < sizeof(struct virtio_net_config)))
- 		memcpy(buf, vdpasim->config + offset, len);
- }
 diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
-index 386dbb2f7138..363273d72e26 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
+new file mode 100644
+index 000000000000..386dbb2f7138
+--- /dev/null
 +++ b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
-@@ -78,9 +78,13 @@ static int __init vdpasim_blk_init(void)
- 	struct virtio_blk_config *config;
- 	int ret;
+@@ -0,0 +1,124 @@
++// SPDX-License-Identifier: GPL-2.0-only
++/*
++ * VDPA simulator for block device.
++ *
++ * Copyright (c) 2020, Mellanox Technologies. All rights reserved.
++ *
++ */
++
++#include <linux/module.h>
++
++#include "vdpa_sim.h"
++
++#define VDPASIM_BLK_FEATURES	((1ULL << VIRTIO_BLK_F_SIZE_MAX) | \
++				 (1ULL << VIRTIO_BLK_F_SEG_MAX)  | \
++				 (1ULL << VIRTIO_BLK_F_BLK_SIZE) | \
++				 (1ULL << VIRTIO_BLK_F_TOPOLOGY) | \
++				 (1ULL << VIRTIO_BLK_F_MQ))
++
++#define VDPASIM_BLK_CAPACITY 0x40000
++#define VDPASIM_BLK_SIZE_MAX 0x1000
++#define VDPASIM_BLK_SEG_MAX 32
++#define VDPASIM_BLK_VQ_NUM 1
++
++static struct vdpasim *vdpasim_blk_dev;
++
++static void vdpasim_blk_work(struct work_struct *work)
++{
++	struct vdpasim *vdpasim = container_of(work, struct vdpasim, work);
++	u8 status = VIRTIO_BLK_S_OK;
++	int i;
++
++	spin_lock(&vdpasim->lock);
++
++	if (!(vdpasim->status & VIRTIO_CONFIG_S_DRIVER_OK))
++		goto out;
++
++	for (i = 0; i < VDPASIM_BLK_VQ_NUM; i++) {
++		struct vdpasim_virtqueue *vq = &vdpasim->vqs[i];
++
++		if (!vq->ready)
++			continue;
++
++		while (vringh_getdesc_iotlb(&vq->vring, &vq->iov, &vq->iov,
++					    &vq->head, GFP_ATOMIC) > 0) {
++
++			int write;
++
++			vq->iov.i = vq->iov.used - 1;
++			write = vringh_iov_push_iotlb(&vq->vring, &vq->iov, &status, 1);
++			if (write <= 0)
++				break;
++
++			/* Make sure data is wrote before advancing index */
++			smp_wmb();
++
++			vringh_complete_iotlb(&vq->vring, vq->head, write);
++
++			/* Make sure used is visible before rasing the interrupt. */
++			smp_wmb();
++
++			if (vringh_need_notify_iotlb(&vq->vring) > 0)
++				vringh_notify(&vq->vring);
++
++			local_bh_disable();
++			if (vq->cb)
++				vq->cb(vq->private);
++			local_bh_enable();
++		}
++	}
++out:
++	spin_unlock(&vdpasim->lock);
++
++}
++
++static int __init vdpasim_blk_init(void)
++{
++	struct vdpasim_init_attr attr = {};
++	struct virtio_blk_config *config;
++	int ret;
++
++	attr.device_id = VIRTIO_ID_BLOCK;
++	attr.features = VDPASIM_FEATURES | VDPASIM_BLK_FEATURES;
++	attr.work_fn = vdpasim_blk_work;
++	vdpasim_blk_dev = vdpasim_create(&attr);
++	if (IS_ERR(vdpasim_blk_dev)) {
++		ret = PTR_ERR(vdpasim_blk_dev);
++		goto out;
++	}
++
++	config = (struct virtio_blk_config *)vdpasim_blk_dev->config;
++	config->capacity = cpu_to_vdpasim64(vdpasim_blk_dev, VDPASIM_BLK_CAPACITY);
++	config->size_max = cpu_to_vdpasim32(vdpasim_blk_dev, VDPASIM_BLK_SIZE_MAX);
++	config->seg_max = cpu_to_vdpasim32(vdpasim_blk_dev, VDPASIM_BLK_SEG_MAX);
++	config->num_queues = cpu_to_vdpasim16(vdpasim_blk_dev, VDPASIM_BLK_VQ_NUM);
++	config->min_io_size = cpu_to_vdpasim16(vdpasim_blk_dev, 1);
++	config->opt_io_size = cpu_to_vdpasim32(vdpasim_blk_dev, 1);
++	config->blk_size = cpu_to_vdpasim32(vdpasim_blk_dev, 512);
++
++	ret = vdpa_register_device(&vdpasim_blk_dev->vdpa);
++	if (ret)
++		goto put_dev;
++
++	return 0;
++
++put_dev:
++	put_device(&vdpasim_blk_dev->vdpa.dev);
++out:
++	return ret;
++}
++
++static void __exit vdpasim_blk_exit(void)
++{
++	struct vdpa_device *vdpa = &vdpasim_blk_dev->vdpa;
++
++	vdpa_unregister_device(vdpa);
++}
++
++module_init(vdpasim_blk_init)
++module_exit(vdpasim_blk_exit)
++
++MODULE_VERSION(DRV_VERSION);
++MODULE_LICENSE(DRV_LICENSE);
++MODULE_AUTHOR("Max Gurtovoy <mgurtovoy@nvidia.com>");
++MODULE_DESCRIPTION("vDPA Device Simulator for block device");
+diff --git a/drivers/vdpa/Kconfig b/drivers/vdpa/Kconfig
+index fdb1a9267347..0fb63362cd5d 100644
+--- a/drivers/vdpa/Kconfig
++++ b/drivers/vdpa/Kconfig
+@@ -24,6 +24,15 @@ config VDPA_SIM_NET
+ 	  to RX. This device is used for testing, prototyping and
+ 	  development of vDPA.
  
--	attr.device_id = VIRTIO_ID_BLOCK;
--	attr.features = VDPASIM_FEATURES | VDPASIM_BLK_FEATURES;
-+	attr.device.id = VIRTIO_ID_BLOCK;
-+	attr.device.supported_features = VDPASIM_FEATURES |
-+					 VDPASIM_BLK_FEATURES;
-+	attr.device.nvqs = VDPASIM_BLK_VQ_NUM;
++config VDPA_SIM_BLOCK
++	tristate "vDPA simulator for block device"
++	depends on VDPA_SIM
++	default n
++	help
++	  vDPA block device simulator which terminates IO request in a
++	  memory buffer. This device is used for testing, prototyping and
++	  development of vDPA.
 +
- 	attr.work_fn = vdpasim_blk_work;
-+
- 	vdpasim_blk_dev = vdpasim_create(&attr);
- 	if (IS_ERR(vdpasim_blk_dev)) {
- 		ret = PTR_ERR(vdpasim_blk_dev);
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
-index e1e57c52b108..88c9569f6bd3 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
-@@ -105,11 +105,14 @@ static int __init vdpasim_net_init(void)
- 	struct virtio_net_config *config;
- 	int ret;
- 
--	attr.device_id = VIRTIO_ID_NET;
--	attr.features = VDPASIM_FEATURES | VDPASIM_NET_FEATURES;
--	attr.nvqs = VDPASIM_NET_VQ_NUM;
-+	attr.device.id = VIRTIO_ID_NET;
-+	attr.device.supported_features = VDPASIM_FEATURES |
-+					 VDPASIM_NET_FEATURES;
-+	attr.device.nvqs = VDPASIM_NET_VQ_NUM;
-+
- 	attr.work_fn = vdpasim_net_work;
- 	attr.batch_mapping = batch_mapping;
-+
- 	vdpasim_net_dev = vdpasim_create(&attr);
- 	if (IS_ERR(vdpasim_net_dev)) {
- 		ret = PTR_ERR(vdpasim_net_dev);
+ config IFCVF
+ 	tristate "Intel IFC VF vDPA driver"
+ 	depends on PCI_MSI
+diff --git a/drivers/vdpa/vdpa_sim/Makefile b/drivers/vdpa/vdpa_sim/Makefile
+index 79d4536d347e..d458103302f2 100644
+--- a/drivers/vdpa/vdpa_sim/Makefile
++++ b/drivers/vdpa/vdpa_sim/Makefile
+@@ -1,3 +1,4 @@
+ # SPDX-License-Identifier: GPL-2.0
+ obj-$(CONFIG_VDPA_SIM) += vdpa_sim.o
+ obj-$(CONFIG_VDPA_SIM_NET) += vdpa_sim_net.o
++obj-$(CONFIG_VDPA_SIM_BLOCK) += vdpa_sim_blk.o
 -- 
 2.26.2
 
