@@ -7,80 +7,81 @@ X-Spam-Status: No, score=-9.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 425CDC61DD8
-	for <virtualization@archiver.kernel.org>; Fri, 13 Nov 2020 13:48:51 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 62DB4C63697
+	for <virtualization@archiver.kernel.org>; Fri, 13 Nov 2020 13:48:52 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id E704F22201
-	for <virtualization@archiver.kernel.org>; Fri, 13 Nov 2020 13:48:50 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 0D8FD2223F
+	for <virtualization@archiver.kernel.org>; Fri, 13 Nov 2020 13:48:51 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BWRcB+LE"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E704F22201
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iNYqzrfW"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0D8FD2223F
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 9EA3687807;
-	Fri, 13 Nov 2020 13:48:50 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id D7BF187483;
+	Fri, 13 Nov 2020 13:48:51 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Sce57P4VDk8I; Fri, 13 Nov 2020 13:48:50 +0000 (UTC)
+	with ESMTP id n8Dq-NSVHk8Q; Fri, 13 Nov 2020 13:48:51 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 162DE877EC;
-	Fri, 13 Nov 2020 13:48:50 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 5B6228745B;
+	Fri, 13 Nov 2020 13:48:51 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id F2B5EC0891;
-	Fri, 13 Nov 2020 13:48:49 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id B9B9FC0800
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 409C1C0891;
+	Fri, 13 Nov 2020 13:48:51 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2340DC0800
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Nov 2020 13:48:47 +0000 (UTC)
+ Fri, 13 Nov 2020 13:48:50 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id A6A968746A
+ by silver.osuosl.org (Postfix) with ESMTP id F209E20439
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Nov 2020 13:48:47 +0000 (UTC)
+ Fri, 13 Nov 2020 13:48:49 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id zyWruqc5Gwmr
+ with ESMTP id N7f5QysLEv+r
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Nov 2020 13:48:46 +0000 (UTC)
+ Fri, 13 Nov 2020 13:48:49 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by whitealder.osuosl.org (Postfix) with ESMTPS id ADBB187527
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by silver.osuosl.org (Postfix) with ESMTPS id 20FBF204A1
  for <virtualization@lists.linux-foundation.org>;
- Fri, 13 Nov 2020 13:48:46 +0000 (UTC)
+ Fri, 13 Nov 2020 13:48:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1605275325;
+ s=mimecast20190719; t=1605275328;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=Xii9EkSNI++swzQsAddzZFhZQHEvE4PS5MaY9kGEHbw=;
- b=BWRcB+LEGOc0ue8jUP7QwWPs67BR7PF4VqVu4KJeOuudDGMhlH/mXDFJVOHOdM88QcZNAZ
- GHA6dE/Dtn9Nkqk4WU4aArWBD4WQqTkdp5KQXr53Iodbsf8UVM94VXB4Jjk2WLyCbriWo7
- uQf/D1R2J9q6bAGiKMYPgaRylg36APg=
+ bh=QUWlJHRXTci3OE9aKsACoxuZyffR9CQAnZGBUFnY9/4=;
+ b=iNYqzrfWSyJsvejltqTNdRkTViybijLRqPF4h0YqUzoUpsIQMyhNrudPP3o24TOvpaDDQQ
+ 17e78ER5dCjCJF+ncVFE+xMZva0xLQX2JZuT9xRf45vnF6q9rCzq2wm+/BcSyBQni5wPyo
+ gcaS/EfD1+qQMBBJ569IO49Xn6ov8eY=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-29-c_y0XwUIOzK2hbMJV5l9Pw-1; Fri, 13 Nov 2020 08:48:43 -0500
-X-MC-Unique: c_y0XwUIOzK2hbMJV5l9Pw-1
+ us-mta-64-Q5dfMm2JN-uBAE7tf67S5Q-1; Fri, 13 Nov 2020 08:48:45 -0500
+X-MC-Unique: Q5dfMm2JN-uBAE7tf67S5Q-1
 Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
  [10.5.11.14])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9EDED8030A0;
- Fri, 13 Nov 2020 13:48:42 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CD6F31084C96;
+ Fri, 13 Nov 2020 13:48:44 +0000 (UTC)
 Received: from steredhat.redhat.com (ovpn-114-21.ams2.redhat.com
  [10.36.114.21])
- by smtp.corp.redhat.com (Postfix) with ESMTP id C57C55D9F3;
- Fri, 13 Nov 2020 13:48:40 +0000 (UTC)
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 064605D9F3;
+ Fri, 13 Nov 2020 13:48:42 +0000 (UTC)
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: virtualization@lists.linux-foundation.org
-Subject: [PATCH RFC 09/12] vdpa_sim: make vdpasim->buffer size configurable
-Date: Fri, 13 Nov 2020 14:47:09 +0100
-Message-Id: <20201113134712.69744-10-sgarzare@redhat.com>
+Subject: [PATCH RFC 10/12] vdpa_sim: split vdpasim_virtqueue's iov field in
+ riov and wiov
+Date: Fri, 13 Nov 2020 14:47:10 +0100
+Message-Id: <20201113134712.69744-11-sgarzare@redhat.com>
 In-Reply-To: <20201113134712.69744-1-sgarzare@redhat.com>
 References: <20201113134712.69744-1-sgarzare@redhat.com>
 MIME-Version: 1.0
@@ -104,66 +105,90 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Allow each device to specify the size of the buffer allocated
-in vdpa_sim.
+vringh_getdesc_iotlb() manages 2 iovs for writable and readable
+descriptors. This is very useful for the block device, where for
+each request we have both types of descriptor.
+
+Let's split the vdpasim_virtqueue's iov field in riov and wiov
+to use them with vringh_getdesc_iotlb().
 
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- drivers/vdpa/vdpa_sim/vdpa_sim.h     | 1 +
- drivers/vdpa/vdpa_sim/vdpa_sim.c     | 2 +-
- drivers/vdpa/vdpa_sim/vdpa_sim_blk.c | 1 +
- drivers/vdpa/vdpa_sim/vdpa_sim_net.c | 1 +
- 4 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/vdpa/vdpa_sim/vdpa_sim.h     | 3 ++-
+ drivers/vdpa/vdpa_sim/vdpa_sim_blk.c | 6 +++---
+ drivers/vdpa/vdpa_sim/vdpa_sim_net.c | 8 ++++----
+ 3 files changed, 9 insertions(+), 8 deletions(-)
 
 diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.h b/drivers/vdpa/vdpa_sim/vdpa_sim.h
-index f7e1fe0a88d3..cc21e07aa2f7 100644
+index cc21e07aa2f7..0d4629675e4b 100644
 --- a/drivers/vdpa/vdpa_sim/vdpa_sim.h
 +++ b/drivers/vdpa/vdpa_sim/vdpa_sim.h
-@@ -49,6 +49,7 @@ struct vdpasim_device {
+@@ -27,7 +27,8 @@ struct vdpasim;
  
- struct vdpasim_init_attr {
- 	struct vdpasim_device device;
-+	size_t buffer_size;
- 	int batch_mapping;
- 
- 	work_func_t	work_fn;
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-index bd034fbf4683..3863d49e0d6d 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-@@ -223,7 +223,7 @@ struct vdpasim *vdpasim_create(struct vdpasim_init_attr *attr)
- 	if (!vdpasim->iommu)
- 		goto err_iommu;
- 
--	vdpasim->buffer = kvmalloc(PAGE_SIZE, GFP_KERNEL);
-+	vdpasim->buffer = kvmalloc(attr->buffer_size, GFP_KERNEL);
- 	if (!vdpasim->buffer)
- 		goto err_iommu;
- 
+ struct vdpasim_virtqueue {
+ 	struct vringh vring;
+-	struct vringh_kiov iov;
++	struct vringh_kiov riov;
++	struct vringh_kiov wiov;
+ 	unsigned short head;
+ 	bool ready;
+ 	u64 desc_addr;
 diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
-index f456a0e4e097..122a3c039507 100644
+index 122a3c039507..8e41b3ab98d5 100644
 --- a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
 +++ b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
-@@ -100,6 +100,7 @@ static int __init vdpasim_blk_init(void)
- 	attr.device.update_config = vdpasim_blk_update_config;
+@@ -41,13 +41,13 @@ static void vdpasim_blk_work(struct work_struct *work)
+ 		if (!vq->ready)
+ 			continue;
  
- 	attr.work_fn = vdpasim_blk_work;
-+	attr.buffer_size = PAGE_SIZE;
+-		while (vringh_getdesc_iotlb(&vq->vring, &vq->iov, &vq->iov,
++		while (vringh_getdesc_iotlb(&vq->vring, &vq->riov, &vq->wiov,
+ 					    &vq->head, GFP_ATOMIC) > 0) {
  
- 	vdpasim_blk_dev = vdpasim_create(&attr);
- 	if (IS_ERR(vdpasim_blk_dev)) {
+ 			int write;
+ 
+-			vq->iov.i = vq->iov.used - 1;
+-			write = vringh_iov_push_iotlb(&vq->vring, &vq->iov, &status, 1);
++			vq->wiov.i = vq->wiov.used - 1;
++			write = vringh_iov_push_iotlb(&vq->vring, &vq->wiov, &status, 1);
+ 			if (write <= 0)
+ 				break;
+ 
 diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
-index b9372fdf2415..d0a1403f64b2 100644
+index d0a1403f64b2..783b1e85b09c 100644
 --- a/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
 +++ b/drivers/vdpa/vdpa_sim/vdpa_sim_net.c
-@@ -124,6 +124,7 @@ static int __init vdpasim_net_init(void)
+@@ -47,12 +47,12 @@ static void vdpasim_net_work(struct work_struct *work)
  
- 	attr.work_fn = vdpasim_net_work;
- 	attr.batch_mapping = batch_mapping;
-+	attr.buffer_size = PAGE_SIZE;
+ 	while (true) {
+ 		total_write = 0;
+-		err = vringh_getdesc_iotlb(&txq->vring, &txq->iov, NULL,
++		err = vringh_getdesc_iotlb(&txq->vring, &txq->riov, NULL,
+ 					   &txq->head, GFP_ATOMIC);
+ 		if (err <= 0)
+ 			break;
  
- 	vdpasim_net_dev = vdpasim_create(&attr);
- 	if (IS_ERR(vdpasim_net_dev)) {
+-		err = vringh_getdesc_iotlb(&rxq->vring, NULL, &rxq->iov,
++		err = vringh_getdesc_iotlb(&rxq->vring, NULL, &rxq->wiov,
+ 					   &rxq->head, GFP_ATOMIC);
+ 		if (err <= 0) {
+ 			vringh_complete_iotlb(&txq->vring, txq->head, 0);
+@@ -60,13 +60,13 @@ static void vdpasim_net_work(struct work_struct *work)
+ 		}
+ 
+ 		while (true) {
+-			read = vringh_iov_pull_iotlb(&txq->vring, &txq->iov,
++			read = vringh_iov_pull_iotlb(&txq->vring, &txq->riov,
+ 						     vdpasim->buffer,
+ 						     PAGE_SIZE);
+ 			if (read <= 0)
+ 				break;
+ 
+-			write = vringh_iov_push_iotlb(&rxq->vring, &rxq->iov,
++			write = vringh_iov_push_iotlb(&rxq->vring, &rxq->wiov,
+ 						      vdpasim->buffer, read);
+ 			if (write <= 0)
+ 				break;
 -- 
 2.26.2
 
