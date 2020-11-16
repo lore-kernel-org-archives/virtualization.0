@@ -2,88 +2,95 @@ Return-Path: <SRS0=Nqfw=EW=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-9.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 2CC41C4742C
-	for <virtualization@archiver.kernel.org>; Mon, 16 Nov 2020 16:17:09 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id BD9A6C4742C
+	for <virtualization@archiver.kernel.org>; Mon, 16 Nov 2020 16:17:51 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 910B7222B9
-	for <virtualization@archiver.kernel.org>; Mon, 16 Nov 2020 16:17:08 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 1AEEA22265
+	for <virtualization@archiver.kernel.org>; Mon, 16 Nov 2020 16:17:50 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WZFubFPe"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 910B7222B9
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="cO0fEGIS"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1AEEA22265
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 393B28714E;
-	Mon, 16 Nov 2020 16:17:08 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id YS362qgL0hMI; Mon, 16 Nov 2020 16:17:07 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 987DA87052;
-	Mon, 16 Nov 2020 16:17:07 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 84BCEC0800;
-	Mon, 16 Nov 2020 16:17:07 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 60BFCC07FF
- for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Nov 2020 16:17:06 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 4B9B32050C
- for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Nov 2020 16:17:06 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 16E0420521;
+	Mon, 16 Nov 2020 16:17:50 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id x1wKnb0g69fo; Mon, 16 Nov 2020 16:17:47 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by silver.osuosl.org (Postfix) with ESMTP id DFE452050C;
+	Mon, 16 Nov 2020 16:17:47 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C9BCBC0800;
+	Mon, 16 Nov 2020 16:17:47 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D19BEC07FF
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 16 Nov 2020 16:17:45 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by hemlock.osuosl.org (Postfix) with ESMTP id CD16987168
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 16 Nov 2020 16:17:45 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id dnkfDPQX5CjQ
+ with ESMTP id XvRS0vohKrnl
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Nov 2020 16:17:05 +0000 (UTC)
+ Mon, 16 Nov 2020 16:17:45 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by silver.osuosl.org (Postfix) with ESMTPS id 80EFD20447
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 6C09887182
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Nov 2020 16:17:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1605543424;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding;
- bh=qiy7dPJkCedncPHfKBWxJXduYz70r7PiHicBol/8nJM=;
- b=WZFubFPekZzUGU9ohbLAC0OBXfYL1CAv8IIY2KAj8cksLL6ra4l5FSD2UXUWfim4ViFDIV
- NylBtwMosh3Uojle/AF8SXXZehciGs44510quboY3QaEUQwGivEJwXQ9VBVUxJjfSrCNPC
- enqLO49AQ48mBkOUaovkgNXUHS5vHxw=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-466-8l_JSKdHMz-YnAKe83Dk9A-1; Mon, 16 Nov 2020 11:17:00 -0500
-X-MC-Unique: 8l_JSKdHMz-YnAKe83Dk9A-1
-Received: from smtp.corp.redhat.com (int-mx06.intmail.prod.int.phx2.redhat.com
- [10.5.11.16])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+ Mon, 16 Nov 2020 16:17:45 +0000 (UTC)
+Received: from mail-wm1-f51.google.com (mail-wm1-f51.google.com
+ [209.85.128.51])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 76C151868425;
- Mon, 16 Nov 2020 16:16:59 +0000 (UTC)
-Received: from steredhat.redhat.com (ovpn-113-123.ams2.redhat.com
- [10.36.113.123])
- by smtp.corp.redhat.com (Postfix) with ESMTP id E97255C5B0;
- Mon, 16 Nov 2020 16:16:54 +0000 (UTC)
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: mst@redhat.com
-Subject: [PATCH] vringh: fix vringh_iov_push_*() documentation
-Date: Mon, 16 Nov 2020 17:16:53 +0100
-Message-Id: <20201116161653.102904-1-sgarzare@redhat.com>
+ by mail.kernel.org (Postfix) with ESMTPSA id CAB9022314
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 16 Nov 2020 16:17:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=default; t=1605543465;
+ bh=Mv6f7f8506FraoMumz35j4BQyYx1tMmBjlS7DZTMh6s=;
+ h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+ b=cO0fEGISnNA7PcgOiATiolTw7tAkS5Zg7T/iuml160lD72+D/c5QQCC6g99NPdiv0
+ E+tm/P0YcyWfeksg5V68oPeJbMzzoFz8MOlckQYOvSLN5cL4nnxznKQsmlZxwvR3+9
+ 21xAGXQROAjxwTtWdTl8e7cPOi/ciZNc1Yiis33Q=
+Received: by mail-wm1-f51.google.com with SMTP id s13so24108906wmh.4
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 16 Nov 2020 08:17:44 -0800 (PST)
+X-Gm-Message-State: AOAM532oJnrwJpMBzmEWA26E1LCProUsIcLRSz7Mj2oC7fnTXy4tQXXU
+ 1eckRKduatpvw3VyxvOVGSeHk3z6tBs5ci2bv3JNLw==
+X-Google-Smtp-Source: ABdhPJzo4DLkbb/iKsJTRaDIKTsVLyxyBBgQcLU+k85si7bdNAKlaxr9HCjPF0P3RxTG5pvYnF7uVMxefE2gleeWFnw=
+X-Received: by 2002:a1c:7213:: with SMTP id n19mr15820304wmc.36.1605543463407; 
+ Mon, 16 Nov 2020 08:17:43 -0800 (PST)
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.16
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
- virtualization@lists.linux-foundation.org
+References: <20201116152301.24558-1-jgross@suse.com>
+ <20201116152301.24558-4-jgross@suse.com>
+In-Reply-To: <20201116152301.24558-4-jgross@suse.com>
+From: Andy Lutomirski <luto@kernel.org>
+Date: Mon, 16 Nov 2020 08:17:29 -0800
+X-Gmail-Original-Message-ID: <CALCETrWwnK1AwrGRn8Kuin-23NOG31LrWBO7w=T2QE+EJW=f-w@mail.gmail.com>
+Message-ID: <CALCETrWwnK1AwrGRn8Kuin-23NOG31LrWBO7w=T2QE+EJW=f-w@mail.gmail.com>
+Subject: Re: [PATCH 3/4] x86/pv: switch SWAPGS to ALTERNATIVE
+To: Juergen Gross <jgross@suse.com>
+Cc: Stefano Stabellini <sstabellini@kernel.org>, "VMware,
+ Inc." <pv-drivers@vmware.com>, X86 ML <x86@kernel.org>,
+ LKML <linux-kernel@vger.kernel.org>,
+ Linux Virtualization <virtualization@lists.linux-foundation.org>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Andy Lutomirski <luto@kernel.org>, "H. Peter Anvin" <hpa@zytor.com>,
+ xen-devel <xen-devel@lists.xenproject.org>,
+ Thomas Gleixner <tglx@linutronix.de>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -100,50 +107,18 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-vringh_iov_push_*() functions don't have 'dst' parameter, but have
-the 'src' parameter.
+On Mon, Nov 16, 2020 at 7:23 AM Juergen Gross <jgross@suse.com> wrote:
+>
+> SWAPGS is used only for interrupts coming from user mode or for
+> returning to user mode. So there is no reason to use the PARAVIRT
+> framework, as it can easily be replaced by an ALTERNATIVE depending
+> on X86_FEATURE_XENPV.
+>
+> There are several instances using the PV-aware SWAPGS macro in paths
+> which are never executed in a Xen PV guest. Replace those with the
+> plain swapgs instruction. For SWAPGS_UNSAFE_STACK the same applies.
 
-Replace 'dst' description with 'src' description.
-
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
- drivers/vhost/vringh.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/vhost/vringh.c b/drivers/vhost/vringh.c
-index 8bd8b403f087..b7403ba8e7f7 100644
---- a/drivers/vhost/vringh.c
-+++ b/drivers/vhost/vringh.c
-@@ -730,7 +730,7 @@ EXPORT_SYMBOL(vringh_iov_pull_user);
- /**
-  * vringh_iov_push_user - copy bytes into vring_iov.
-  * @wiov: the wiov as passed to vringh_getdesc_user() (updated as we consume)
-- * @dst: the place to copy.
-+ * @src: the place to copy from.
-  * @len: the maximum length to copy.
-  *
-  * Returns the bytes copied <= len or a negative errno.
-@@ -976,7 +976,7 @@ EXPORT_SYMBOL(vringh_iov_pull_kern);
- /**
-  * vringh_iov_push_kern - copy bytes into vring_iov.
-  * @wiov: the wiov as passed to vringh_getdesc_kern() (updated as we consume)
-- * @dst: the place to copy.
-+ * @src: the place to copy from.
-  * @len: the maximum length to copy.
-  *
-  * Returns the bytes copied <= len or a negative errno.
-@@ -1333,7 +1333,7 @@ EXPORT_SYMBOL(vringh_iov_pull_iotlb);
-  * vringh_iov_push_iotlb - copy bytes into vring_iov.
-  * @vrh: the vring.
-  * @wiov: the wiov as passed to vringh_getdesc_iotlb() (updated as we consume)
-- * @dst: the place to copy.
-+ * @src: the place to copy from.
-  * @len: the maximum length to copy.
-  *
-  * Returns the bytes copied <= len or a negative errno.
--- 
-2.26.2
-
+Acked-by: Andy Lutomirski <luto@kernel.org>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
