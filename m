@@ -2,96 +2,112 @@ Return-Path: <SRS0=Nqfw=EW=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.3 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
-	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 72A5DC4742C
-	for <virtualization@archiver.kernel.org>; Mon, 16 Nov 2020 09:41:27 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E7832C55ABD
+	for <virtualization@archiver.kernel.org>; Mon, 16 Nov 2020 09:51:00 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B90A2206A5
-	for <virtualization@archiver.kernel.org>; Mon, 16 Nov 2020 09:41:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 296F622314
+	for <virtualization@archiver.kernel.org>; Mon, 16 Nov 2020 09:51:00 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="O0zaiLKi"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B90A2206A5
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iFBBmKte"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 296F622314
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 05EB285F2F;
-	Mon, 16 Nov 2020 09:41:26 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id C34448562D;
+	Mon, 16 Nov 2020 09:50:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0jIDL8WeIxoy; Mon, 16 Nov 2020 09:41:25 +0000 (UTC)
+	with ESMTP id b6QagQrh8wV0; Mon, 16 Nov 2020 09:50:57 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 88C6585EC1;
-	Mon, 16 Nov 2020 09:41:25 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 24A978560C;
+	Mon, 16 Nov 2020 09:50:57 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 68ACAC0891;
-	Mon, 16 Nov 2020 09:41:25 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3D0B7C07FF
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EA75DC0891;
+	Mon, 16 Nov 2020 09:50:56 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id F2251C07FF
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Nov 2020 09:41:24 +0000 (UTC)
+ Mon, 16 Nov 2020 09:50:54 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 2239A2010C
+ by fraxinus.osuosl.org (Postfix) with ESMTP id D83028562D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Nov 2020 09:41:24 +0000 (UTC)
+ Mon, 16 Nov 2020 09:50:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id Cv9ftMJowv6e
+ with ESMTP id kV4jLbpy37Ut
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Nov 2020 09:41:23 +0000 (UTC)
+ Mon, 16 Nov 2020 09:50:54 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-pf1-f195.google.com (mail-pf1-f195.google.com
- [209.85.210.195])
- by silver.osuosl.org (Postfix) with ESMTPS id 0135E1FC7D
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 0CD688560C
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Nov 2020 09:41:22 +0000 (UTC)
-Received: by mail-pf1-f195.google.com with SMTP id y7so13566095pfq.11
+ Mon, 16 Nov 2020 09:50:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1605520252;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=1tFy2QDhVKk++GXQ1cATriAqBAtzlx74HcCkbk1BOfw=;
+ b=iFBBmKte/L6/xUlGy8hSTKElKdJKfSNZ7JXgLQEGOlREXjbUtqLa7HxwRUc2p7OKIoQ80y
+ VuQUHLt011tVK41/hhYvHLYd8gTPPG+03f3eDu9dfKzyKabWN2dM7GyQGqDfGgFGjzxlzB
+ RoPXOQ2877yAleLik839SoXZhFkr8hI=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-3-bODsbyh9Pwe1rD3vq2vakg-1; Mon, 16 Nov 2020 04:50:48 -0500
+X-MC-Unique: bODsbyh9Pwe1rD3vq2vakg-1
+Received: by mail-wr1-f70.google.com with SMTP id r15so10924608wrn.15
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Nov 2020 01:41:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=6fzRGcF2f5tFoFwvys8VZBGWlajGvKg0DJjdpbzuzA0=;
- b=O0zaiLKi1+9kzKuXt6zMbdQp7SWpKVbP5X+apVBf1Ka0Sv193qIywfMTjjObYceO/x
- 4TMxVq3CmbgKaS+TzuJ8VPZY/4QSz703OazPWQ0Utr9gXbGLgwrO2FKbHfhwmxO1yiEX
- +zZ1kIo8FczNcuSVIkPyfHJZLG7tGGNSenBpFgEYCCsEQ75gtMsVV3odtNArzljpXDAM
- NoNE2KEMAc4mZxyNqLKkP9r/AmH8ofDHWve8hw/S8GEgXcqIw1U5llg/5QdOSOn9Ivf9
- 5u0ZPw7riMlWYPo50/1g3Ufft+U6OKw/b48035moyungQ2zDVcCdDzTehjdf9k05Ne17
- j+ww==
+ Mon, 16 Nov 2020 01:50:48 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=6fzRGcF2f5tFoFwvys8VZBGWlajGvKg0DJjdpbzuzA0=;
- b=rUuYT8K36cUXh+wDExkce/SN/rRU6cFiYabcv3FoWfu9SvoZvdPaaq4twoD5tvBmI6
- uXhsksqGL44A1hChA/+1MznbKB7x8MLs2/ymkv7CBp3enp28aqMqA7GfaJZVcXI/LeD9
- 4hvmTb50jux5XOxvGtu7LKLzMQY2IoOQ405ZSCpVsvkbW67joxwJ+zG6JtInZYbRU2pd
- y4nXCsQszO22Xd7hSoku610OP3jRFZWBwwtNtNx8kZro2VsMvOAaLpivJoVFKwUOQzK6
- og7EFtkDEB+LhyBEkm+rXgNO5zSPUOmp6FxAWgU4mkxcON5RvMe71Je8qHrABNWWuWqg
- hkDg==
-X-Gm-Message-State: AOAM5314IImbQVzkR7/xvkt5yEL/ROhtzJEnwKyney1cbrVNF8Hfmfij
- i2kDyw35ElGSobfuWa2v7pE5xWFpyN/6oWf44to=
-X-Google-Smtp-Source: ABdhPJwLKgoLxaacjkG7SIPtuYJkviJKA9xPpSof+g1KvR10O+DaOAcWHUOjKYEXWTbI1BD4y+7CmXKaI5ipjoUk2n0=
-X-Received: by 2002:a62:7bcc:0:b029:18b:5859:d5e1 with SMTP id
- w195-20020a627bcc0000b029018b5859d5e1mr12906812pfc.40.1605519682660; Mon, 16
- Nov 2020 01:41:22 -0800 (PST)
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=1tFy2QDhVKk++GXQ1cATriAqBAtzlx74HcCkbk1BOfw=;
+ b=HUwQYOCmZlgNkBH7kphLFIRo0p0U5gE4194dtMckZsDeoK0wtLQZyTQWW+pN65RpXb
+ SVV1BJ6Z4lzcEL36hsrpyoDrJNMYzRi5cMGswn67pf+0SN1UNzoMKmYvO2jslgRd8g/o
+ EuuddFb0Prktdhj0x1dbb24CJ18oQlq81CIlo/vDG5+2qcbz101BUDKq4dcnfgFRyHwu
+ zj4iUfWNs7Qd8kPFpMUnLpZ7vnyk+9zhZqzh8nnlEkCBTo2/0t6YUdIdTvtG/Oz6ivyW
+ H3fvr9gYPs1Ih1pwS8CALbdndN2T6ndSpJnWOtpIdV5nJA3otE+3Rj79PVnqx/zj3F+C
+ C08Q==
+X-Gm-Message-State: AOAM530APJ5B/YviYr1ONAO/2NyKxPeGeLDOejN6vJ7Gzm3qAXYefnMM
+ jwbT67L4uTnUDuhEX4VaXtRzMHV1RVUisr0WFdtet8ZAq1h/egqwlmvlNXWY0o8kayuAZZ4tYdF
+ q14/ar/hSBY/+unMDDK2mM7N+L/reFA9Wl6FlckmUxw==
+X-Received: by 2002:a1c:2b05:: with SMTP id r5mr14438505wmr.179.1605520247241; 
+ Mon, 16 Nov 2020 01:50:47 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJysy4H0AGXU4sqyTmIIkBPHVyFghUL0GznzWcsb550MbEY/P8U+UOZWEvnSZRrYpKJEFvf6wg==
+X-Received: by 2002:a1c:2b05:: with SMTP id r5mr14438489wmr.179.1605520247024; 
+ Mon, 16 Nov 2020 01:50:47 -0800 (PST)
+Received: from redhat.com (bzq-79-176-118-93.red.bezeqint.net. [79.176.118.93])
+ by smtp.gmail.com with ESMTPSA id a144sm5284763wmd.47.2020.11.16.01.50.45
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 16 Nov 2020 01:50:46 -0800 (PST)
+Date: Mon, 16 Nov 2020 04:50:43 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Subject: Re: [PATCH RFC 12/12] vdpa_sim_blk: implement ramdisk behaviour
+Message-ID: <20201116045029-mutt-send-email-mst@kernel.org>
+References: <20201113134712.69744-1-sgarzare@redhat.com>
+ <20201113134712.69744-13-sgarzare@redhat.com>
 MIME-Version: 1.0
-References: <20201112064005.349268-1-parav@nvidia.com>
-In-Reply-To: <20201112064005.349268-1-parav@nvidia.com>
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Date: Mon, 16 Nov 2020 09:41:11 +0000
-Message-ID: <CAJSP0QXN2VGgKwQ_qL3Fr0dAYDviZcFDgUrE8FhHZwBm9wpBoQ@mail.gmail.com>
-Subject: Re: [PATCH 0/7] Introduce vdpa management tool
-To: Parav Pandit <parav@nvidia.com>
-Cc: netdev@vger.kernel.org, elic@nvidia.com,
- "Michael S. Tsirkin" <mst@redhat.com>,
- Linux Virtualization <virtualization@lists.linux-foundation.org>
+In-Reply-To: <20201113134712.69744-13-sgarzare@redhat.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: Laurent Vivier <lvivier@redhat.com>, Max Gurtovoy <mgurtovoy@nvidia.com>,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Stefan Hajnoczi <stefanha@redhat.com>, Eli Cohen <elic@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -108,28 +124,224 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Great! A few questions and comments:
+On Fri, Nov 13, 2020 at 02:47:12PM +0100, Stefano Garzarella wrote:
+> The previous implementation wrote only the status of each request.
+> This patch implements a more accurate block device simulator,
+> providing a ramdisk-like behavior.
+> 
+> Also handle VIRTIO_BLK_T_GET_ID request, always answering the
+> "vdpa_blk_sim" string.
 
-How are configuration parameters passed in during device creation
-(e.g. MAC address, number of queues)?
+Maybe an ioctl to specify the id makes more sense.
 
-Can configuration parameters be changed at runtime (e.g. link up/down)?
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> ---
+>  drivers/vdpa/vdpa_sim/vdpa_sim_blk.c | 151 +++++++++++++++++++++++----
+>  1 file changed, 133 insertions(+), 18 deletions(-)
+> 
+> diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
+> index 8e41b3ab98d5..68e74383322f 100644
+> --- a/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
+> +++ b/drivers/vdpa/vdpa_sim/vdpa_sim_blk.c
+> @@ -7,6 +7,7 @@
+>   */
+>  
+>  #include <linux/module.h>
+> +#include <linux/blkdev.h>
+>  #include <uapi/linux/virtio_blk.h>
+>  
+>  #include "vdpa_sim.h"
+> @@ -24,10 +25,137 @@
+>  
+>  static struct vdpasim *vdpasim_blk_dev;
+>  
+> +static int vdpasim_blk_handle_req(struct vdpasim *vdpasim,
+> +				  struct vdpasim_virtqueue *vq)
+> +{
+> +	size_t wrote = 0, to_read = 0, to_write = 0;
+> +	struct virtio_blk_outhdr hdr;
+> +	uint8_t status;
+> +	uint32_t type;
+> +	ssize_t bytes;
+> +	loff_t offset;
+> +	int i, ret;
+> +
+> +	vringh_kiov_cleanup(&vq->riov);
+> +	vringh_kiov_cleanup(&vq->wiov);
+> +
+> +	ret = vringh_getdesc_iotlb(&vq->vring, &vq->riov, &vq->wiov,
+> +				   &vq->head, GFP_ATOMIC);
+> +	if (ret != 1)
+> +		return ret;
+> +
+> +	for (i = 0; i < vq->wiov.used; i++)
+> +		to_write += vq->wiov.iov[i].iov_len;
+> +	to_write -= 1; /* last byte is the status */
+> +
+> +	for (i = 0; i < vq->riov.used; i++)
+> +		to_read += vq->riov.iov[i].iov_len;
+> +
+> +	bytes = vringh_iov_pull_iotlb(&vq->vring, &vq->riov, &hdr, sizeof(hdr));
+> +	if (bytes != sizeof(hdr))
+> +		return 0;
+> +
+> +	to_read -= bytes;
+> +
+> +	type = le32_to_cpu(hdr.type);
+> +	offset = le64_to_cpu(hdr.sector) << SECTOR_SHIFT;
+> +	status = VIRTIO_BLK_S_OK;
+> +
+> +	switch (type) {
+> +	case VIRTIO_BLK_T_IN:
+> +		if (offset + to_write > VDPASIM_BLK_CAPACITY << SECTOR_SHIFT) {
+> +			dev_err(&vdpasim->vdpa.dev,
+> +				"reading over the capacity - offset: 0x%llx len: 0x%lx\n",
+> +				offset, to_write);
+> +			status = VIRTIO_BLK_S_IOERR;
+> +			break;
+> +		}
+> +
+> +		bytes = vringh_iov_push_iotlb(&vq->vring, &vq->wiov,
+> +					      vdpasim->buffer + offset,
+> +					      to_write);
+> +		if (bytes < 0) {
+> +			dev_err(&vdpasim->vdpa.dev,
+> +				"vringh_iov_push_iotlb() error: %ld offset: 0x%llx len: 0x%lx\n",
+> +				bytes, offset, to_write);
+> +			status = VIRTIO_BLK_S_IOERR;
+> +			break;
+> +		}
+> +
+> +		wrote += bytes;
+> +		break;
+> +
+> +	case VIRTIO_BLK_T_OUT:
+> +		if (offset + to_read > VDPASIM_BLK_CAPACITY << SECTOR_SHIFT) {
+> +			dev_err(&vdpasim->vdpa.dev,
+> +				"writing over the capacity - offset: 0x%llx len: 0x%lx\n",
+> +				offset, to_read);
+> +			status = VIRTIO_BLK_S_IOERR;
+> +			break;
+> +		}
+> +
+> +		bytes = vringh_iov_pull_iotlb(&vq->vring, &vq->riov,
+> +					      vdpasim->buffer + offset,
+> +					      to_read);
+> +		if (bytes < 0) {
+> +			dev_err(&vdpasim->vdpa.dev,
+> +				"vringh_iov_pull_iotlb() error: %ld offset: 0x%llx len: 0x%lx\n",
+> +				bytes, offset, to_read);
+> +			status = VIRTIO_BLK_S_IOERR;
+> +			break;
+> +		}
+> +		break;
+> +
+> +	case VIRTIO_BLK_T_GET_ID: {
+> +		char id[VIRTIO_BLK_ID_BYTES] = "vdpa_blk_sim";
+> +
+> +		bytes = vringh_iov_push_iotlb(&vq->vring,
+> +					      &vq->wiov, id,
+> +					      VIRTIO_BLK_ID_BYTES);
+> +		if (bytes < 0) {
+> +			dev_err(&vdpasim->vdpa.dev,
+> +				"vringh_iov_push_iotlb() error: %ld\n", bytes);
+> +			status = VIRTIO_BLK_S_IOERR;
+> +			break;
+> +		}
+> +
+> +		wrote += bytes;
+> +		break;
+> +	}
+> +
+> +	default:
+> +		dev_warn(&vdpasim->vdpa.dev,
+> +			 "Unsupported request type %d\n", type);
+> +		status = VIRTIO_BLK_S_IOERR;
+> +		break;
+> +	}
+> +
+> +	/* if VIRTIO_BLK_T_IN or VIRTIO_BLK_T_GET_ID fail, we need to skip
+> +	 * the remaining bytes to put the status in the last byte
+> +	 */
+> +	if (to_write - wrote > 0) {
+> +		vringh_iov_push_iotlb(&vq->vring, &vq->wiov, NULL,
+> +				      to_write - wrote);
+> +	}
+> +
+> +	/* last byte is the status */
+> +	bytes = vringh_iov_push_iotlb(&vq->vring, &vq->wiov, &status, 1);
+> +	if (bytes != 1)
+> +		return 0;
+> +
+> +	wrote += bytes;
+> +
+> +	/* Make sure data is wrote before advancing index */
+> +	smp_wmb();
+> +
+> +	vringh_complete_iotlb(&vq->vring, vq->head, wrote);
+> +
+> +	return ret;
+> +}
+> +
+>  static void vdpasim_blk_work(struct work_struct *work)
+>  {
+>  	struct vdpasim *vdpasim = container_of(work, struct vdpasim, work);
+> -	u8 status = VIRTIO_BLK_S_OK;
+>  	int i;
+>  
+>  	spin_lock(&vdpasim->lock);
+> @@ -41,21 +169,7 @@ static void vdpasim_blk_work(struct work_struct *work)
+>  		if (!vq->ready)
+>  			continue;
+>  
+> -		while (vringh_getdesc_iotlb(&vq->vring, &vq->riov, &vq->wiov,
+> -					    &vq->head, GFP_ATOMIC) > 0) {
+> -
+> -			int write;
+> -
+> -			vq->wiov.i = vq->wiov.used - 1;
+> -			write = vringh_iov_push_iotlb(&vq->vring, &vq->wiov, &status, 1);
+> -			if (write <= 0)
+> -				break;
+> -
+> -			/* Make sure data is wrote before advancing index */
+> -			smp_wmb();
+> -
+> -			vringh_complete_iotlb(&vq->vring, vq->head, write);
+> -
+> +		while (vdpasim_blk_handle_req(vdpasim, vq) > 0) {
+>  			/* Make sure used is visible before rasing the interrupt. */
+>  			smp_wmb();
+>  
+> @@ -67,6 +181,7 @@ static void vdpasim_blk_work(struct work_struct *work)
+>  				vq->cb(vq->private);
+>  			local_bh_enable();
+>  		}
+> +
+>  	}
+>  out:
+>  	spin_unlock(&vdpasim->lock);
+> @@ -84,7 +199,7 @@ static void vdpasim_blk_update_config(struct vdpasim *vdpasim)
+>  	config->num_queues = cpu_to_vdpasim16(vdpasim, VDPASIM_BLK_VQ_NUM);
+>  	config->min_io_size = cpu_to_vdpasim16(vdpasim, 1);
+>  	config->opt_io_size = cpu_to_vdpasim32(vdpasim, 1);
+> -	config->blk_size = cpu_to_vdpasim32(vdpasim, 512);
+> +	config->blk_size = cpu_to_vdpasim32(vdpasim, SECTOR_SIZE);
+>  }
+>  
+>  static int __init vdpasim_blk_init(void)
+> @@ -100,7 +215,7 @@ static int __init vdpasim_blk_init(void)
+>  	attr.device.update_config = vdpasim_blk_update_config;
+>  
+>  	attr.work_fn = vdpasim_blk_work;
+> -	attr.buffer_size = PAGE_SIZE;
+> +	attr.buffer_size = VDPASIM_BLK_CAPACITY << SECTOR_SHIFT;
+>  
+>  	vdpasim_blk_dev = vdpasim_create(&attr);
+>  	if (IS_ERR(vdpasim_blk_dev)) {
+> -- 
+> 2.26.2
 
-Does the configuration parameter interface distinguish between
-standard and vendor-specific parameters? Are they namespaced to
-prevent naming collisions?
-
-How are software-only parent drivers supported? It's kind of a shame
-to modprobe unconditionally if they won't be used. Does vdpatool have
-some way of requesting loading a parent driver? That way software
-drivers can be loaded on demand.
-
-What is the benefit of making it part of iproute2? If there is not a
-significant advantage like sharing code, then I suggest using a
-separate repository and package so vdpatool can be installed
-separately (e.g. even on AF_VSOCK-only guests without Ethernet).
-
-Stefan
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
