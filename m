@@ -2,116 +2,87 @@ Return-Path: <SRS0=Nqfw=EW=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-9.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6EAA3C4742C
-	for <virtualization@archiver.kernel.org>; Mon, 16 Nov 2020 08:53:23 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 0EFE5C55ABD
+	for <virtualization@archiver.kernel.org>; Mon, 16 Nov 2020 09:21:01 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id D833F22240
-	for <virtualization@archiver.kernel.org>; Mon, 16 Nov 2020 08:53:22 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 6E09D2224F
+	for <virtualization@archiver.kernel.org>; Mon, 16 Nov 2020 09:21:00 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MfkK3ERd"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D833F22240
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="WkZ4jWMS"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6E09D2224F
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 4E558867EC;
-	Mon, 16 Nov 2020 08:53:22 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id C638F861A7;
+	Mon, 16 Nov 2020 09:20:59 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 6MCGJErFLFpk; Mon, 16 Nov 2020 08:53:21 +0000 (UTC)
+	with ESMTP id 4Coc9ATc5vDW; Mon, 16 Nov 2020 09:20:59 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 7D23D86256;
-	Mon, 16 Nov 2020 08:53:21 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 14FD485BDF;
+	Mon, 16 Nov 2020 09:20:59 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5DFADC0800;
-	Mon, 16 Nov 2020 08:53:21 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 14D61C07FF
+	by lists.linuxfoundation.org (Postfix) with ESMTP id F2946C0891;
+	Mon, 16 Nov 2020 09:20:58 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D1864C07FF
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Nov 2020 08:53:20 +0000 (UTC)
+ Mon, 16 Nov 2020 09:20:56 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 0FDCB8672F
+ by silver.osuosl.org (Postfix) with ESMTP id BBD3A2001E
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Nov 2020 08:53:20 +0000 (UTC)
+ Mon, 16 Nov 2020 09:20:56 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 1vXMeW4+O+YA
+ with ESMTP id 9UtN6YdVeebq
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Nov 2020 08:53:19 +0000 (UTC)
-X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 1E32F86256
+ Mon, 16 Nov 2020 09:20:21 +0000 (UTC)
+X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+ by silver.osuosl.org (Postfix) with ESMTPS id 52AB02044D
  for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Nov 2020 08:53:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1605516797;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
- in-reply-to:in-reply-to:references:references;
- bh=azmEdku+v957nDfLerEj6eIbgCibvT//LlaEDmIrd4c=;
- b=MfkK3ERdOdFJ2vaWS8btYevViEUV2+TgJYZ0nX35Dnd+pTs2oN5rl94tJWO3GJA3nUnkBT
- y/xgo9BOLkMP5n33YhayX4IqHfCa3kioAVF0IErMhrbHYw6Coov9KIWDgslCLdP9aHGo4F
- ZS62ejaYqk9zPpd9OjFyWnsjPqNrhvA=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-417-ANWpSwpVPAqN15YvpkziLw-1; Mon, 16 Nov 2020 03:53:16 -0500
-X-MC-Unique: ANWpSwpVPAqN15YvpkziLw-1
-Received: by mail-wr1-f72.google.com with SMTP id l5so10762373wrn.18
- for <virtualization@lists.linux-foundation.org>;
- Mon, 16 Nov 2020 00:53:16 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to;
- bh=azmEdku+v957nDfLerEj6eIbgCibvT//LlaEDmIrd4c=;
- b=tmp9HivIpYfWLsAzAMWK4n5+rciufIwkgW24o5ZJa/8ILJEOddxpr51o3laHjb98DO
- ODFdVRCW2JbMtb+8HYnIzjg8LSRWdVFhqAL0VFoGP/7Vxp9e0H5ZNby48U5t7YTBELTi
- y4i+St/b550dczmJfeFJfCt/ojTg7KpM0DiuVlZ4nHc3jhpr+DFU6g2Yix3HgAEaIjWi
- novXvoA9n+fAilRG/7Nm6q7ZdzQtYapIpyxx0p6A33j+VYTtI4UP402FGqh0MaVox1W9
- 6llhbWj0wSuXx/W0Xv6IEsjkWGca2jOrID1j04an1q5LNR7NeCrF36jgOBfd109vAy/Q
- kqDQ==
-X-Gm-Message-State: AOAM5315gGgoYCzrh2v2/AKRP1gyMOQsocvKZ3FPHJkIBaYNRqHY3GJb
- 7vovI3bM+DHFRdir6vG3Tjp/OP4r1jzA0BfmqFUuTapP7UR3HrcO9hLcg4jl/lRj7pAxOXN/jNn
- nnVpP+InZryivbHg2ojeYMkvIHJ6flJO0DqnX3mjxJg==
-X-Received: by 2002:adf:8030:: with SMTP id 45mr18011631wrk.407.1605516795092; 
- Mon, 16 Nov 2020 00:53:15 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJz5n/AE2nQyDKnmQoyCVlmIjPAbEsArXe/3Q5hcir6iosfRJevDexRLbmoqU1yU9ow+HAnSAQ==
-X-Received: by 2002:adf:8030:: with SMTP id 45mr18011610wrk.407.1605516794887; 
- Mon, 16 Nov 2020 00:53:14 -0800 (PST)
-Received: from steredhat (host-79-17-248-175.retail.telecomitalia.it.
- [79.17.248.175])
- by smtp.gmail.com with ESMTPSA id u5sm17132310wro.56.2020.11.16.00.53.13
- (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Mon, 16 Nov 2020 00:53:13 -0800 (PST)
-Date: Mon, 16 Nov 2020 09:53:11 +0100
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH RFC 00/12] vdpa: generalize vdpa simulator and add block
- device
-Message-ID: <20201116085311.erzo2z322qesw5in@steredhat>
-References: <20201113134712.69744-1-sgarzare@redhat.com>
- <93f207c0-61e6-3696-f218-e7d7ea9a7c93@redhat.com>
+ Mon, 16 Nov 2020 09:20:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+ References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=l8lfZbtE/pQjKf8onWmpmDV2l9aNdEWCmZpm7QvhYhY=; b=WkZ4jWMSdM5oVJJ1+WT3a3ZKKw
+ ZZd1qF3sOIRHnvODVySNJ0v9EmHjoNO5yHaKM+wxcmtRkp5tJ6xiiB8Ctp1jjq8rslJxEymNdglBP
+ WaFi7AkglyXM9KtL/4HrR9B5G+5BQ75Ca2H2+eAB0Ix10CEsGgslpuPr0Rg7qjGinrOj5y54IbHAN
+ 9FmoqLypVkD5Dhx8lUSPxSBmHILF+SaNpwq/Q65nYk/fgyW3FvfidjnMzoaUIizFMe91Bmcx7vR4Z
+ ike0qgFGPKS9fCN4ccNutbHYobwd2qe4CNXw7EBccw7LtABW6AD+J/p72yv57FL350vVm0OyurNam
+ snYUw6lg==;
+Received: from hch by casper.infradead.org with local (Exim 4.92.3 #3 (Red Hat
+ Linux)) id 1keafu-00087a-31; Mon, 16 Nov 2020 09:19:50 +0000
+Date: Mon, 16 Nov 2020 09:19:50 +0000
+From: Christoph Hellwig <hch@infradead.org>
+To: Alexander Lobakin <alobakin@pm.me>
+Subject: Re: [PATCH virtio] virtio: virtio_console: fix DMA memory allocation
+ for rproc serial
+Message-ID: <20201116091950.GA30524@infradead.org>
+References: <AOKowLclCbOCKxyiJ71WeNyuAAj2q8EUtxrXbyky5E@cp7-web-042.plabs.ch>
 MIME-Version: 1.0
-In-Reply-To: <93f207c0-61e6-3696-f218-e7d7ea9a7c93@redhat.com>
-Authentication-Results: relay.mimecast.com;
- auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Laurent Vivier <lvivier@redhat.com>, Max Gurtovoy <mgurtovoy@nvidia.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- Stefan Hajnoczi <stefanha@redhat.com>, Eli Cohen <elic@nvidia.com>
+In-Reply-To: <AOKowLclCbOCKxyiJ71WeNyuAAj2q8EUtxrXbyky5E@cp7-web-042.plabs.ch>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by
+ casper.infradead.org. See http://www.infradead.org/rpr.html
+Cc: Ohad Ben-Cohen <ohad@wizery.com>, Arnd Bergmann <arnd@arndb.de>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>, Amit Shah <amit@kernel.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Arnaud Pouliquen <arnaud.pouliquen@st.com>, linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org, Bjorn Andersson <bjorn.andersson@linaro.org>,
+ linux-remoteproc@vger.kernel.org, Suman Anna <s-anna@ti.com>,
+ virtualization@lists.linux-foundation.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -123,43 +94,100 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gTW9uLCBOb3YgMTYsIDIwMjAgYXQgMTE6Mzc6NDhBTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPgo+T24gMjAyMC8xMS8xMyDkuIvljYg5OjQ3LCBTdGVmYW5vIEdhcnphcmVsbGEgd3JvdGU6
-Cj4+VGhhbmtzIHRvIE1heCB0aGF0IHN0YXJ0ZWQgdGhpcyB3b3JrIQo+PkkgdG9vayBoaXMgcGF0
-Y2hlcywgYW5kIGV4dGVuZGVkIHRoZSBibG9jayBzaW11bGF0b3IgYSBiaXQuCj4+Cj4+VGhpcyBz
-ZXJpZXMgbW92ZXMgdGhlIG5ldHdvcmsgZGV2aWNlIHNpbXVsYXRvciBpbiBhIG5ldyBtb2R1bGUK
-Pj4odmRwYV9zaW1fbmV0KSBhbmQgbGVhdmVzIHRoZSBnZW5lcmljIGZ1bmN0aW9ucyBpbiB0aGUg
-dmRwYV9zaW0gY29yZQo+Pm1vZHVsZSwgYWxsb3dpbmcgdGhlIHBvc3NpYmlsaXR5IHRvIGFkZCBu
-ZXcgdkRQQSBkZXZpY2Ugc2ltdWxhdG9ycy4KPj5UaGVuIHdlIGFkZGVkIGEgbmV3IHZkcGFfc2lt
-X2JsayBtb2R1bGUgdG8gc2ltdWxhdGUgYSBibG9jayBkZXZpY2UuCj4+Cj4+SSdtIG5vdCBzdXJl
-IGFib3V0IHBhdGNoIDExICgidnJpbmdoOiBhbGxvdyB2cmluZ2hfaW92X3hmZXIoKSB0byBza2lw
-Cj4+Ynl0ZXMgd2hlbiBwdHIgaXMgTlVMTCIpLCBtYXliZSB3ZSBjYW4gYWRkIGEgbmV3IGZ1bmN0
-aW9ucyBpbnN0ZWFkIG9mCj4+bW9kaWZ5IHZyaW5naF9pb3ZfeGZlcigpLgo+Pgo+PkFzIE1heCBy
-ZXBvcnRlZCwgSSdtIGFsc28gc2VlaW5nIGVycm9ycyB3aXRoIHZkcGFfc2ltX2JsayByZWxhdGVk
-IHRvCj4+aW90bGIgYW5kIHZyaW5naCB3aGVuIHRoZXJlIGlzIGhpZ2ggbG9hZCwgdGhlc2UgYXJl
-IHNvbWUgb2YgdGhlIGVycm9yCj4+bWVzc2FnZXMgSSBjYW4gc2VlIHJhbmRvbWx5Ogo+Pgo+PiAg
-IHZyaW5naDogRmFpbGVkIHRvIGFjY2VzcyBhdmFpbCBpZHggYXQgMDAwMDAwMDBlOGRlYjJjYwo+
-PiAgIHZyaW5naDogRmFpbGVkIHRvIHJlYWQgaGVhZDogaWR4IDYyODkgYWRkcmVzcyAwMDAwMDAw
-MGUxYWQxZDUwCj4+ICAgdnJpbmdoOiBGYWlsZWQgdG8gZ2V0IGZsYWdzIGF0IDAwMDAwMDAwNjYz
-NWQ3YTMKPj4KPj4gICB2aXJ0aW9fdmRwYSB2ZHBhMDogdnJpbmdoX2lvdl9wdXNoX2lvdGxiKCkg
-ZXJyb3I6IC0xNCBvZmZzZXQ6IDB4Mjg0MDAwMCBsZW46IDB4MjAwMDAKPj4gICB2aXJ0aW9fdmRw
-YSB2ZHBhMDogdnJpbmdoX2lvdl9wdWxsX2lvdGxiKCkgZXJyb3I6IC0xNCBvZmZzZXQ6IDB4NThl
-ZTAwMCBsZW46IDB4MzAwMAo+Pgo+PlRoZXNlIGVycm9ycyBzaG91bGQgYWxsIGJlIHJlbGF0ZWQg
-dG8gdGhlIGZhY3QgdGhhdCBpb3RsYl90cmFuc2xhdGUoKQo+PmZhaWxzIHdpdGggLUVJTlZBTCwg
-c28gaXQgc2VlbXMgdGhhdCB3ZSBtaXNzIHNvbWUgbWFwcGluZy4KPgo+Cj5JcyB0aGlzIG9ubHkg
-cmVwcm9kdWNpYmxlIHdoZW4gdGhlcmUncyBtdWx0aXBsZSBjby1jdXJyZW50IGFjY2Vzc2luZyAK
-Pm9mIElPVExCPyBJZiB5ZXMsIGl0J3MgcHJvYmFibHkgYSBoaW50IHRoYXQgc29tZSBraW5kIG9m
-IAo+c3luY2hyb25pemF0aW9uIGlzIHN0aWxsIG1pc3NlZCBzb21ld2hlcmUuCgpZZWFoLCBtYXli
-ZSB0aGlzIGlzIHRoZSBjYXNlIHdoZXJlIHZpcnRpb19yaW5nIGFuZCB2cmluZ2ggdXNlIElPVExC
-IApjb25jb3JyZW50ZXRpdmVseS4KCj4KPkl0IG1pZ2h0IGJlIHVzZWZ1bCB0byBsb2cgdGhlIGRt
-YV9tYXAvdW5tcCBpbiBib3RoIHZpcnRpb19yaW5nIGFuZCAKPnZyaW5naCB0byBzZWUgd2hvIGlz
-IG1pc3NpbmcgdGhlIG1hcC4KCkknbGwgdHJ5LgoKVGhhbmtzIGZvciB0aGUgaGludHMsClN0ZWZh
-bm8KCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1
-YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0
-aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5m
-by92aXJ0dWFsaXphdGlvbg==
+I just noticed this showing up in Linus' tree and I'm not happy.
+
+This whole model of the DMA subdevices in remoteproc is simply broken.
+
+We really need to change the virtio code pass an expicit DMA device (
+similar to what e.g. the USB and RDMA code does), instead of faking up
+devices with broken adhoc inheritance of DMA properties and magic poking
+into device parent relationships.
+
+Bjorn, I thought you were going to look into this a while ago?
+
+
+On Wed, Nov 04, 2020 at 03:31:36PM +0000, Alexander Lobakin wrote:
+> Since commit 086d08725d34 ("remoteproc: create vdev subdevice with
+> specific dma memory pool"), every remoteproc has a DMA subdevice
+> ("remoteprocX#vdevYbuffer") for each virtio device, which inherits
+> DMA capabilities from the corresponding platform device. This allowed
+> to associate different DMA pools with each vdev, and required from
+> virtio drivers to perform DMA operations with the parent device
+> (vdev->dev.parent) instead of grandparent (vdev->dev.parent->parent).
+> 
+> virtio_rpmsg_bus was already changed in the same merge cycle with
+> commit d999b622fcfb ("rpmsg: virtio: allocate buffer from parent"),
+> but virtio_console did not. In fact, operations using the grandparent
+> worked fine while the grandparent was the platform device, but since
+> commit c774ad010873 ("remoteproc: Fix and restore the parenting
+> hierarchy for vdev") this was changed, and now the grandparent device
+> is the remoteproc device without any DMA capabilities.
+> So, starting v5.8-rc1 the following warning is observed:
+> 
+> [    2.483925] ------------[ cut here ]------------
+> [    2.489148] WARNING: CPU: 3 PID: 101 at kernel/dma/mapping.c:427 0x80e7eee8
+> [    2.489152] Modules linked in: virtio_console(+)
+> [    2.503737]  virtio_rpmsg_bus rpmsg_core
+> [    2.508903]
+> [    2.528898] <Other modules, stack and call trace here>
+> [    2.913043]
+> [    2.914907] ---[ end trace 93ac8746beab612c ]---
+> [    2.920102] virtio-ports vport1p0: Error allocating inbufs
+> 
+> kernel/dma/mapping.c:427 is:
+> 
+> WARN_ON_ONCE(!dev->coherent_dma_mask);
+> 
+> obviously because the grandparent now is remoteproc dev without any
+> DMA caps:
+> 
+> [    3.104943] Parent: remoteproc0#vdev1buffer, grandparent: remoteproc0
+> 
+> Fix this the same way as it was for virtio_rpmsg_bus, using just the
+> parent device (vdev->dev.parent, "remoteprocX#vdevYbuffer") for DMA
+> operations.
+> This also allows now to reserve DMA pools/buffers for rproc serial
+> via Device Tree.
+> 
+> Fixes: c774ad010873 ("remoteproc: Fix and restore the parenting hierarchy for vdev")
+> Cc: stable@vger.kernel.org # 5.1+
+> Signed-off-by: Alexander Lobakin <alobakin@pm.me>
+> ---
+>  drivers/char/virtio_console.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> index a2da8f768b94..1836cc56e357 100644
+> --- a/drivers/char/virtio_console.c
+> +++ b/drivers/char/virtio_console.c
+> @@ -435,12 +435,12 @@ static struct port_buffer *alloc_buf(struct virtio_device *vdev, size_t buf_size
+>  		/*
+>  		 * Allocate DMA memory from ancestor. When a virtio
+>  		 * device is created by remoteproc, the DMA memory is
+> -		 * associated with the grandparent device:
+> -		 * vdev => rproc => platform-dev.
+> +		 * associated with the parent device:
+> +		 * virtioY => remoteprocX#vdevYbuffer.
+>  		 */
+> -		if (!vdev->dev.parent || !vdev->dev.parent->parent)
+> +		buf->dev = vdev->dev.parent;
+> +		if (!buf->dev)
+>  			goto free_buf;
+> -		buf->dev = vdev->dev.parent->parent;
+>  
+>  		/* Increase device refcnt to avoid freeing it */
+>  		get_device(buf->dev);
+> -- 
+> 2.29.2
+> 
+> 
+---end quoted text---
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
