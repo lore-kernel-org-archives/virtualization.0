@@ -2,88 +2,88 @@ Return-Path: <SRS0=We/I=EX=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-6.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3AF73C2D0E4
-	for <virtualization@archiver.kernel.org>; Tue, 17 Nov 2020 16:09:11 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 748D9C5519F
+	for <virtualization@archiver.kernel.org>; Tue, 17 Nov 2020 16:15:30 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9F3ED2463D
-	for <virtualization@archiver.kernel.org>; Tue, 17 Nov 2020 16:09:10 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id D89D9221F8
+	for <virtualization@archiver.kernel.org>; Tue, 17 Nov 2020 16:15:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DO36lTev"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9F3ED2463D
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="grVTF+i3"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org D89D9221F8
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 163AA20529;
-	Tue, 17 Nov 2020 16:09:10 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 517FC8426E;
+	Tue, 17 Nov 2020 16:15:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id EwMfQQSyp8q7; Tue, 17 Nov 2020 16:09:09 +0000 (UTC)
+	with ESMTP id Ab2h2AEgVlxb; Tue, 17 Nov 2020 16:15:28 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 6259D20021;
-	Tue, 17 Nov 2020 16:09:09 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id C0D0D81AE0;
+	Tue, 17 Nov 2020 16:15:28 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 5254FC0891;
-	Tue, 17 Nov 2020 16:09:09 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 00BBCC07FF
+	by lists.linuxfoundation.org (Postfix) with ESMTP id A3B42C0891;
+	Tue, 17 Nov 2020 16:15:28 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 860FBC07FF
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Nov 2020 16:09:08 +0000 (UTC)
+ Tue, 17 Nov 2020 16:15:27 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id DAEBD2047D
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 74AA885751
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Nov 2020 16:09:07 +0000 (UTC)
+ Tue, 17 Nov 2020 16:15:27 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id aaY7LovMc1qg
+ with ESMTP id sbUX8hD2MIBU
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Nov 2020 16:09:07 +0000 (UTC)
+ Tue, 17 Nov 2020 16:15:27 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by silver.osuosl.org (Postfix) with ESMTPS id 218C320021
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id E6A0484C33
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Nov 2020 16:09:07 +0000 (UTC)
+ Tue, 17 Nov 2020 16:15:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1605629346;
+ s=mimecast20190719; t=1605629725;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=3i2vVvvOi2W9Eple+UW0eM1PUkTGmgXQgzpxOR9aJuE=;
- b=DO36lTevOwxMNrWdXK21WPU9tPC2XE3iv+GB71BWv5zkJT2DzApVj6Y8zgBrMDQUJy6+H0
- G5GVrNDi5DwNepxtAOnca0pzdycb6zhqcnTuAVA/3AvTJRiqqNowqxdX5ALtJsP0A3OT3b
- 10i2UpxvxpxYbAdJy5TYa/B+9W1jMEM=
+ bh=wsI8dT8PpexMe9TuKFjAgUNaAmV6auVjRCkQ8lpeHW4=;
+ b=grVTF+i3Hl7saynH5bBino2EKWUXLDhFHkJLzqAdICbUjFzHdJyVXPWkmGdc5hQIe9FWz/
+ msmQj2VVNGkDc8It/kIa8tnZ5dWHngDKnF8Bc6UL0Nk4hA0xOV/RSeo9tYmM4SjdrRMUVj
+ VH2RcSmfgGnnFfOJpKCnhNxFTWc+Xks=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-119-VpFiKt-KOiC96pjbfOimbw-1; Tue, 17 Nov 2020 11:09:01 -0500
-X-MC-Unique: VpFiKt-KOiC96pjbfOimbw-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com
- [10.5.11.14])
+ us-mta-308-mCQTzDWuOOqXoqcnilpHFw-1; Tue, 17 Nov 2020 11:14:44 -0500
+X-MC-Unique: mCQTzDWuOOqXoqcnilpHFw-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
+ [10.5.11.15])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 31C6B803639;
- Tue, 17 Nov 2020 16:08:59 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 576FA8042A0;
+ Tue, 17 Nov 2020 16:14:43 +0000 (UTC)
 Received: from localhost (ovpn-115-113.ams2.redhat.com [10.36.115.113])
- by smtp.corp.redhat.com (Postfix) with ESMTP id A08695D9CC;
- Tue, 17 Nov 2020 16:08:55 +0000 (UTC)
-Date: Tue, 17 Nov 2020 16:08:54 +0000
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 82F3B62A4F;
+ Tue, 17 Nov 2020 16:14:39 +0000 (UTC)
+Date: Tue, 17 Nov 2020 16:14:38 +0000
 From: Stefan Hajnoczi <stefanha@redhat.com>
 To: Mike Christie <michael.christie@oracle.com>
-Subject: Re: [PATCH 08/10] vhost: move msg_handler to new ops struct
-Message-ID: <20201117160854.GQ131917@stefanha-x1.localdomain>
+Subject: Re: [PATCH 09/10] vhost: add VHOST_SET_VRING_ENABLE support
+Message-ID: <20201117161438.GR131917@stefanha-x1.localdomain>
 References: <1605223150-10888-1-git-send-email-michael.christie@oracle.com>
- <1605223150-10888-10-git-send-email-michael.christie@oracle.com>
+ <1605223150-10888-11-git-send-email-michael.christie@oracle.com>
 MIME-Version: 1.0
-In-Reply-To: <1605223150-10888-10-git-send-email-michael.christie@oracle.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+In-Reply-To: <1605223150-10888-11-git-send-email-michael.christie@oracle.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=stefanha@redhat.com
 X-Mimecast-Spam-Score: 0
@@ -102,54 +102,90 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============2075948831701102336=="
+Content-Type: multipart/mixed; boundary="===============0444861142883685192=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
---===============2075948831701102336==
+--===============0444861142883685192==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="ZqRzwd/9tauJXEMK"
+	protocol="application/pgp-signature"; boundary="X35wERi4JU/f1kly"
 Content-Disposition: inline
 
---ZqRzwd/9tauJXEMK
+--X35wERi4JU/f1kly
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 12, 2020 at 05:19:08PM -0600, Mike Christie wrote:
-> The next patch adds a callout so drivers can perform some action when we
-> get a VHOST_SET_VRING_ENABLE, so this patch moves the msg_handler callout
-> to a new vhost_dev_ops struct just to keep all the callouts better
-> organized.
->=20
-> Signed-off-by: Mike Christie <michael.christie@oracle.com>
-> ---
->  drivers/vhost/vdpa.c  |  7 +++++--
->  drivers/vhost/vhost.c | 10 ++++------
->  drivers/vhost/vhost.h | 11 ++++++-----
->  3 files changed, 15 insertions(+), 13 deletions(-)
+On Thu, Nov 12, 2020 at 05:19:09PM -0600, Mike Christie wrote:
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 2f98b81..e953031 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -1736,6 +1736,28 @@ static long vhost_vring_set_num_addr(struct vhost_=
+dev *d,
+> =20
+>  =09return r;
+>  }
+> +
+> +static long vhost_vring_set_enable(struct vhost_dev *d,
+> +=09=09=09=09   struct vhost_virtqueue *vq,
+> +=09=09=09=09   void __user *argp)
+> +{
+> +=09struct vhost_vring_state s;
+> +=09int ret =3D 0;
+> +
+> +=09if (vq->private_data)
+> +=09=09return -EBUSY;
+> +
+> +=09if (copy_from_user(&s, argp, sizeof s))
+> +=09=09return -EFAULT;
+> +
+> +=09if (s.num !=3D 1 && s.num !=3D 0)
+> +=09=09return -EINVAL;
+> +
+> +=09if (d->ops && d->ops->enable_vring)
+> +=09=09ret =3D d->ops->enable_vring(vq, s.num);
+> +=09return ret;
+> +}
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Silently ignoring this ioctl on drivers that don't implement
+d->ops->enable_vring() could be a problem. Userspace expects to be able
+to enable/disable vqs, we can't just return 0 because the vq won't be
+enabled/disabled as requested.
 
---ZqRzwd/9tauJXEMK
+> diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+> index a293f48..1279c09 100644
+> --- a/drivers/vhost/vhost.h
+> +++ b/drivers/vhost/vhost.h
+> @@ -158,6 +158,7 @@ struct vhost_msg_node {
+> =20
+>  struct vhost_dev_ops {
+>  =09int (*msg_handler)(struct vhost_dev *dev, struct vhost_iotlb_msg *msg=
+);
+> +=09int (*enable_vring)(struct vhost_virtqueue *vq, bool enable);
+
+Please add doc comments explaining what this callback needs to do and
+the environment in which it is executed (locks that are held, etc).
+
+--X35wERi4JU/f1kly
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl+z9ZYACgkQnKSrs4Gr
-c8iTLAf/SIfQoFH/hado2LWXqJUBjlFoJBf3G+Xc4B9v2c6vKOYX4BYDwU3J+Pq3
-qlKZK8jppabIJ78gjFaGio8UcAnhgv2ee104+8VTYttjWYArerGwkS3MaOkX+W9s
-yP1Z3P0cFHVDacOvjLsnO4V5pNjLRhWLtQ3iMO0Uz5Q9ezQ/sGfZ2oifLd67WWyK
-HwTJCrYeul1A7BkJOek6rSstc3B/W5Ab1mb/Ne2ecSiS/R7jfxbns7HiKYzyz6dS
-KgheSYDIEDobKmsfjtN4lSktSbB0N9/mLb8gKqFslgyxgk2KHMljlu/YyXmezWOC
-e79+SiNJGPuLU9uHvUonogGzkY+4uA==
-=g9Qu
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl+z9u4ACgkQnKSrs4Gr
+c8ic5gf+O5o6weTp4soPZPFPYRPFV5BCzOnFZJnbdZ9ZiVoApnqC2iOnZTeJjwov
+Tut0vqNrK6AaS/CHM6zo5pPSiwcITUlDy94VuB4fwtxprI3+b5FSbVBT5jZsdqpX
+Axm3VoQu7RaqcWhPS0Sj6QRGy3bL6aruaoDM5zIlBO2p78bQsxqhgZxPKnoaG63s
+deG/jgvNvGZgJ+EYd+CxvdaNvQP9ktK8MTWryuMdzYo/lOo1sGLyfdsimQPQNYs1
+PrG1/vyYUDRBYwoUFuKRuopp/2GLMHDXeZXf4ZvqyPT4CYFH6CFJ7TK5ae4a15R7
+HqqpOBChKzwUplk9si9SdpffMI+CJQ==
+=Jr92
 -----END PGP SIGNATURE-----
 
---ZqRzwd/9tauJXEMK--
+--X35wERi4JU/f1kly--
 
 
---===============2075948831701102336==
+--===============0444861142883685192==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -159,5 +195,5 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2075948831701102336==--
+--===============0444861142883685192==--
 
