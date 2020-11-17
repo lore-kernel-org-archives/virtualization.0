@@ -7,83 +7,83 @@ X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 1409FC5519F
-	for <virtualization@archiver.kernel.org>; Tue, 17 Nov 2020 16:04:41 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id CF2B2C2D0E4
+	for <virtualization@archiver.kernel.org>; Tue, 17 Nov 2020 16:05:50 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 66F4E241A7
-	for <virtualization@archiver.kernel.org>; Tue, 17 Nov 2020 16:04:40 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id CEFC0241A7
+	for <virtualization@archiver.kernel.org>; Tue, 17 Nov 2020 16:05:48 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FQJHw8vH"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 66F4E241A7
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dByNIVjE"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CEFC0241A7
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id D760A8620F;
-	Tue, 17 Nov 2020 16:04:39 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 3CE12858BA;
+	Tue, 17 Nov 2020 16:05:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id RW-t5a2N8ptY; Tue, 17 Nov 2020 16:04:39 +0000 (UTC)
+	with ESMTP id ZAYbKZilpstt; Tue, 17 Nov 2020 16:05:47 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 2A90D86124;
-	Tue, 17 Nov 2020 16:04:39 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id BD3BB84EA7;
+	Tue, 17 Nov 2020 16:05:47 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 0DC6FC0891;
-	Tue, 17 Nov 2020 16:04:39 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 67A1FC07FF
+	by lists.linuxfoundation.org (Postfix) with ESMTP id ACE35C0891;
+	Tue, 17 Nov 2020 16:05:47 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5233BC07FF
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Nov 2020 16:04:37 +0000 (UTC)
+ Tue, 17 Nov 2020 16:05:46 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 55CF5861A0
+ by silver.osuosl.org (Postfix) with ESMTP id 306072047D
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Nov 2020 16:04:37 +0000 (UTC)
+ Tue, 17 Nov 2020 16:05:46 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id gyJ44DYr8kjk
+ with ESMTP id aadCRJ4MZOx9
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Nov 2020 16:04:36 +0000 (UTC)
+ Tue, 17 Nov 2020 16:05:44 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by whitealder.osuosl.org (Postfix) with ESMTPS id BA5AF86124
+ by silver.osuosl.org (Postfix) with ESMTPS id 750D220021
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Nov 2020 16:04:36 +0000 (UTC)
+ Tue, 17 Nov 2020 16:05:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1605629075;
+ s=mimecast20190719; t=1605629143;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=QAvCna+clDX4lZQI5nvorTls2cvWVMz8okgtfWJTHKI=;
- b=FQJHw8vHypA2+H+Pz655M2SuEVMgsgpERoyoXGS3FLijxdIcIhoq9aWUsOrxfw69cXnN2J
- rlQpUtlXc8EBD3MxqB8B5iVIEkyFi/FJKwu5D0IulTkQBRLoXI/XtNnCJFfU8+4a9Ots1Q
- LRAWnFBushIVEmPx19DGyGFRIWmHmy4=
+ bh=ed1LhVKjQj2PeSGWg14twvLm6/KTivQ3jK64P+HzZhQ=;
+ b=dByNIVjEv778UVCtiv1W9ysjazwRKEHAHy+yS7YZVjW6N3QEVkEeRdUK7EKk5LLQ/Jsn1h
+ D103RtdeCDJQI6nHTk2xhAyX2HgSZPvh3a3ETqr5NgFrq7MSrcl1volz1Uue/2y+02GQGn
+ m01R3xRw8OjOaHNVFoP7BT4gQnxorTM=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-164-Rvj2yrciNbW8ZnE6T7_S1Q-1; Tue, 17 Nov 2020 11:04:32 -0500
-X-MC-Unique: Rvj2yrciNbW8ZnE6T7_S1Q-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
- [10.5.11.15])
+ us-mta-254-BpNF29LAMia3uJ9rQX57TA-1; Tue, 17 Nov 2020 11:05:39 -0500
+X-MC-Unique: BpNF29LAMia3uJ9rQX57TA-1
+Received: from smtp.corp.redhat.com (int-mx07.intmail.prod.int.phx2.redhat.com
+ [10.5.11.22])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id EA53A8042A7;
- Tue, 17 Nov 2020 16:04:30 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 31A8D11BD341;
+ Tue, 17 Nov 2020 16:05:37 +0000 (UTC)
 Received: from localhost (ovpn-115-113.ams2.redhat.com [10.36.115.113])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 452BD1841D;
- Tue, 17 Nov 2020 16:04:27 +0000 (UTC)
-Date: Tue, 17 Nov 2020 16:04:26 +0000
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 75CDD1001E73;
+ Tue, 17 Nov 2020 16:05:33 +0000 (UTC)
+Date: Tue, 17 Nov 2020 16:05:32 +0000
 From: Stefan Hajnoczi <stefanha@redhat.com>
 To: Mike Christie <michael.christie@oracle.com>
-Subject: Re: [PATCH 06/10] vhost scsi: make SCSI cmd completion per vq
-Message-ID: <20201117160426.GO131917@stefanha-x1.localdomain>
+Subject: Re: [PATCH 07/10] vhost, vhost-scsi: flush IO vqs then send TMF rsp
+Message-ID: <20201117160532.GP131917@stefanha-x1.localdomain>
 References: <1605223150-10888-1-git-send-email-michael.christie@oracle.com>
- <1605223150-10888-8-git-send-email-michael.christie@oracle.com>
+ <1605223150-10888-9-git-send-email-michael.christie@oracle.com>
 MIME-Version: 1.0
-In-Reply-To: <1605223150-10888-8-git-send-email-michael.christie@oracle.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
+In-Reply-To: <1605223150-10888-9-git-send-email-michael.christie@oracle.com>
+X-Scanned-By: MIMEDefang 2.84 on 10.5.11.22
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=stefanha@redhat.com
 X-Mimecast-Spam-Score: 0
@@ -102,53 +102,58 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============3195685329833493489=="
+Content-Type: multipart/mixed; boundary="===============3297437789976178949=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
---===============3195685329833493489==
+--===============3297437789976178949==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="/UvyDgxjlFfP/4zZ"
+	protocol="application/pgp-signature"; boundary="+gHRqQ1BTyNna/y8"
 Content-Disposition: inline
 
---/UvyDgxjlFfP/4zZ
+--+gHRqQ1BTyNna/y8
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Nov 12, 2020 at 05:19:06PM -0600, Mike Christie wrote:
-> In the last patches we are going to have a worker thread per IO vq.
-> This patch separates the scsi cmd completion code paths so we can
-> complete cmds based on their vq instead of having all cmds complete
-> on the same worker thread.
+On Thu, Nov 12, 2020 at 05:19:07PM -0600, Mike Christie wrote:
+> With one worker we will always send the scsi cmd responses then send the
+> TMF rsp, because LIO will always complete the scsi cmds first which
+> calls vhost_scsi_release_cmd to add them to the work queue.
+>=20
+> When the next patch adds multiple worker support, the worker threads
+> could still be sending their responses when the tmf's work is run.
+> So this patch has vhost-scsi flush the IO vqs on other worker threads
+> before we send the tmf response.
 >=20
 > Signed-off-by: Mike Christie <michael.christie@oracle.com>
 > ---
->  drivers/vhost/scsi.c | 48 +++++++++++++++++++++++++---------------------=
---
->  1 file changed, 25 insertions(+), 23 deletions(-)
+>  drivers/vhost/scsi.c  | 16 ++++++++++++++--
+>  drivers/vhost/vhost.c |  6 ++++++
+>  drivers/vhost/vhost.h |  1 +
+>  3 files changed, 21 insertions(+), 2 deletions(-)
 
 Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
---/UvyDgxjlFfP/4zZ
+--+gHRqQ1BTyNna/y8
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl+z9IoACgkQnKSrs4Gr
-c8j3GQf/Qf0GdIULIC6ID0rnGPCWs44LKDFOtvHlByy3GfUC9uN86EvbUUVr//2v
-sWCmnejk/fX8lr9iwwbw3v2LBio+avFi47iOd5HxLRW23EAHdkzbgP4DPQDQGVGg
-RW5h5+SJFSvsZavgx58zu2zKIIEL7zmJ/ik57DqjmDyDEBeBZmibE/PNdeHLzlt4
-/nWAIdG2eFuNP8vXPy49799ilcJd5A6ONmNwie9Xve7ptRWM4SLU32Jb6yPDsL6W
-AHwTMdvcWbTxjGJuUdIhtnwivYUP203mX2EMxW2x/29t02eULUDIww/4Bj4RoC7F
-FmaH54Wk0eoNDs+DYLL9Y3+VQkeL5Q==
-=5DGA
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl+z9MwACgkQnKSrs4Gr
+c8gaqgf/ezD3eMZkmyNkKq/TS6tnuCAH04YabhXKm+dLdSH9xZvaLGPKG/CnwF6o
+/gS0CjOu5YrvXmP+VlZ+uwaOIqOHgxP79NAm57j5mPXi6VLcz3tK7ctF8jrGDqYH
+wzSkCP2Wjr0Dvc3t2d5gAyggrabBtyPzuT9oUjolzEo6DXKQQXN3Ok3sVDDinQ2d
+/jF39oufcFmWT3+EeUEBXr2MHtC7ccx3ZFCCASkNznT5s+CuwLrLeqVIS+2wC9FK
+x4XdBOvZ0qy/rggn3UAmDQe2cfuaU28vwZhddyVjeBjSyimYbnoSQT1XheHB/45v
+MyMI5NxDJBU3WStraKoA/MQRSYcB8A==
+=IxzD
 -----END PGP SIGNATURE-----
 
---/UvyDgxjlFfP/4zZ--
+--+gHRqQ1BTyNna/y8--
 
 
---===============3195685329833493489==
+--===============3297437789976178949==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -158,5 +163,5 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============3195685329833493489==--
+--===============3297437789976178949==--
 
