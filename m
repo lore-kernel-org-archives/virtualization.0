@@ -2,88 +2,87 @@ Return-Path: <SRS0=We/I=EX=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-6.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 81B96C5519F
-	for <virtualization@archiver.kernel.org>; Tue, 17 Nov 2020 10:57:28 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B5D65C2D0E4
+	for <virtualization@archiver.kernel.org>; Tue, 17 Nov 2020 11:11:36 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id CC18120781
-	for <virtualization@archiver.kernel.org>; Tue, 17 Nov 2020 10:57:27 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id F3245207D3
+	for <virtualization@archiver.kernel.org>; Tue, 17 Nov 2020 11:11:35 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="F0hCVH2M"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org CC18120781
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="M7xmkxtL"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org F3245207D3
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 313F12049A;
-	Tue, 17 Nov 2020 10:57:27 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 60C2C85B3B;
+	Tue, 17 Nov 2020 11:11:35 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from fraxinus.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 7arYp5nBC748; Tue, 17 Nov 2020 11:11:34 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by fraxinus.osuosl.org (Postfix) with ESMTP id D55C184D7A;
+	Tue, 17 Nov 2020 11:11:34 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id AD33BC0800;
+	Tue, 17 Nov 2020 11:11:34 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 4FC5BC07FF
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 17 Nov 2020 11:11:33 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by silver.osuosl.org (Postfix) with ESMTP id 436F2203A9
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 17 Nov 2020 11:11:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id LfUJXkaMDS5H; Tue, 17 Nov 2020 10:57:26 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 22D502046F;
-	Tue, 17 Nov 2020 10:57:26 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id F21DFC0891;
-	Tue, 17 Nov 2020 10:57:25 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 7654AC07FF
- for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Nov 2020 10:57:24 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 6834D86681
- for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Nov 2020 10:57:24 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id yfx8HkGRhlLx
+ with ESMTP id gx1IV1Sg+V8N
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Nov 2020 10:57:22 +0000 (UTC)
+ Tue, 17 Nov 2020 11:11:32 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 00C3181F4D
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by silver.osuosl.org (Postfix) with ESMTPS id 5CFB82011B
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Nov 2020 10:57:21 +0000 (UTC)
+ Tue, 17 Nov 2020 11:11:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1605610640;
+ s=mimecast20190719; t=1605611491;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=Sef5YC7ElT0CPIu8Xi0KQIpgG9At4z3nHnONcWlaT6I=;
- b=F0hCVH2MLUUb7jvVac0pjhCs6OWNDitFu0C+L4yHNtpBHUH17kyJj17fuTFB3Hf7lj9WwS
- yRfEAZwASEYuXVIh4cMzUPXoNqBwy5GoMFsBbzlyvjCZ1DC4FePfVO2HlnRJ46rq2qWUwF
- nuDyaquPXHECVZ5oBq34crcEpUhDNDU=
+ bh=4ITDbJ5FeObPmxp9jb5MtpoVUKiHieLkWbG48UC2H4M=;
+ b=M7xmkxtL3fdBZbZYKxFIi/1zRuQc/tTJBWw34OGwixeaNMsgBqGQhvnbKFUlgkkHw1LgJw
+ /3mxE7aRSb0o9CD6lYw5AAmIvL2NUgJ0/q3W8MS8RHFqTH8JF6J+3QAkZsqK/16f5Q7x5l
+ 2RwsnBHWZUMWDDBYNv2jFElll38W3Nk=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-65-CLA16zfPMwG3lzZ5nu0hvg-1; Tue, 17 Nov 2020 05:57:15 -0500
-X-MC-Unique: CLA16zfPMwG3lzZ5nu0hvg-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
- [10.5.11.11])
+ us-mta-184-7tS0sVaAN0awBuS74jjcyg-1; Tue, 17 Nov 2020 06:11:26 -0500
+X-MC-Unique: 7tS0sVaAN0awBuS74jjcyg-1
+Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com
+ [10.5.11.15])
  (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
  (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id A255B8030BD;
- Tue, 17 Nov 2020 10:57:14 +0000 (UTC)
+ by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C8561802B61;
+ Tue, 17 Nov 2020 11:11:25 +0000 (UTC)
 Received: from localhost (ovpn-113-172.ams2.redhat.com [10.36.113.172])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 16B645B4AA;
- Tue, 17 Nov 2020 10:57:10 +0000 (UTC)
-Date: Tue, 17 Nov 2020 10:57:09 +0000
+ by smtp.corp.redhat.com (Postfix) with ESMTP id 468555D707;
+ Tue, 17 Nov 2020 11:11:22 +0000 (UTC)
+Date: Tue, 17 Nov 2020 11:11:21 +0000
 From: Stefan Hajnoczi <stefanha@redhat.com>
 To: Stefano Garzarella <sgarzare@redhat.com>
-Subject: Re: [PATCH RFC 01/12] vhost-vdpa: add support for vDPA blk devices
-Message-ID: <20201117105709.GC131917@stefanha-x1.localdomain>
+Subject: Re: [PATCH RFC 04/12] vdpa: add vdpa simulator for block device
+Message-ID: <20201117111121.GD131917@stefanha-x1.localdomain>
 References: <20201113134712.69744-1-sgarzare@redhat.com>
- <20201113134712.69744-2-sgarzare@redhat.com>
+ <20201113134712.69744-5-sgarzare@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20201113134712.69744-2-sgarzare@redhat.com>
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
+In-Reply-To: <20201113134712.69744-5-sgarzare@redhat.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=stefanha@redhat.com
 X-Mimecast-Spam-Score: 0
@@ -102,67 +101,68 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: multipart/mixed; boundary="===============0464619832265854397=="
+Content-Type: multipart/mixed; boundary="===============3659141440077138874=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
---===============0464619832265854397==
+--===============3659141440077138874==
 Content-Type: multipart/signed; micalg=pgp-sha256;
-	protocol="application/pgp-signature"; boundary="7gGkHNMELEOhSGF6"
+	protocol="application/pgp-signature"; boundary="bjuZg6miEcdLYP6q"
 Content-Disposition: inline
 
---7gGkHNMELEOhSGF6
+--bjuZg6miEcdLYP6q
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Nov 13, 2020 at 02:47:01PM +0100, Stefano Garzarella wrote:
-> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index 2754f3069738..fb0411594963 100644
-> --- a/drivers/vhost/vdpa.c
-> +++ b/drivers/vhost/vdpa.c
-> @@ -22,6 +22,7 @@
->  #include <linux/nospec.h>
->  #include <linux/vhost.h>
->  #include <linux/virtio_net.h>
-> +#include <linux/virtio_blk.h>
-> =20
->  #include "vhost.h"
-> =20
-> @@ -194,6 +195,9 @@ static int vhost_vdpa_config_validate(struct vhost_vd=
-pa *v,
->  =09case VIRTIO_ID_NET:
->  =09=09size =3D sizeof(struct virtio_net_config);
->  =09=09break;
-> +=09case VIRTIO_ID_BLOCK:
-> +=09=09size =3D sizeof(struct virtio_blk_config);
-> +=09=09break;
->  =09}
-> =20
->  =09if (c->len =3D=3D 0)
+On Fri, Nov 13, 2020 at 02:47:04PM +0100, Stefano Garzarella wrote:
+> +static void vdpasim_blk_work(struct work_struct *work)
+> +{
+> +	struct vdpasim *vdpasim = container_of(work, struct vdpasim, work);
+> +	u8 status = VIRTIO_BLK_S_OK;
+> +	int i;
+> +
+> +	spin_lock(&vdpasim->lock);
+> +
+> +	if (!(vdpasim->status & VIRTIO_CONFIG_S_DRIVER_OK))
+> +		goto out;
+> +
+> +	for (i = 0; i < VDPASIM_BLK_VQ_NUM; i++) {
+> +		struct vdpasim_virtqueue *vq = &vdpasim->vqs[i];
+> +
+> +		if (!vq->ready)
+> +			continue;
+> +
+> +		while (vringh_getdesc_iotlb(&vq->vring, &vq->iov, &vq->iov,
+> +					    &vq->head, GFP_ATOMIC) > 0) {
+> +
+> +			int write;
+> +
+> +			vq->iov.i = vq->iov.used - 1;
+> +			write = vringh_iov_push_iotlb(&vq->vring, &vq->iov, &status, 1);
+> +			if (write <= 0)
+> +				break;
 
-Can vdpa_config_ops->get/set_config() handle the size check instead of
-hardcoding device-specific knowledge into drivers/vhost/vdpa.c?
+We're lucky the guest driver doesn't crash after VIRTIO_BLK_T_GET_ID? :)
 
---7gGkHNMELEOhSGF6
+--bjuZg6miEcdLYP6q
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl+zrIUACgkQnKSrs4Gr
-c8gvowf/Wpwi/uMVifoS0NwyRCe5/CVH7tVJdmGYKpQ0EOCpn9vsgvZ+nD+xnnf5
-6X8eiwurchLDat2lMMlWEupsa4ThfFqlLeRIvoGzlIhyc0bJfS3BfhAF+K/dFYhb
-UtOzecblfCtEbcTb2wNicHsz3M1wdxW8T04y0vD8vxQRJN3SFvUqa6fxToU9Z4ji
-np403zzsVijvNfZf1c204D5oUBr9OR8TXJldXrGPXdp0yTglBi6ZLeicuCiN6Mr5
-RHES2SztSo5XrXAoIgI/JZsKgFWCCnYdpJxOt+WUuJVH5PyxhX+57fDLQxZiOXF0
-7TVh+myYaXRw0joEJZuSu/zKU0uGzQ==
-=Mbol
+iQEzBAEBCAAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAl+zr9kACgkQnKSrs4Gr
+c8iPWQgAum2Wx+ML7CwyIMXTLzRGqriW1/Z2uu/EQd5+DN1mh1OwzeQx+lyRC/I/
+ateKy1MSPp6uXbOBPcjwNjoO/i9rpgMAv5k+T7zsCYjGYyUksR3+uyipbDo11qsW
+FRkBsxyffjMmQupvEVoDj125ACqgtc8uajpbU9qdwGeDSEDiGWf4yuma1Jo9speI
+VNH6UL4lmffCVhz1c385SW9L6oi0wVYBQlECdkKadgZsTWW3vN5sufKW53/8MHod
+MTnf85IqyDbRMMVcXR5nD/B577+04gmSjauzHpIg9iDXDG35zgB6Uk4tV+wv9XA7
+RuZaCUywt6pKH9zkeO4+Kcpxd6h4jw==
+=58Zf
 -----END PGP SIGNATURE-----
 
---7gGkHNMELEOhSGF6--
+--bjuZg6miEcdLYP6q--
 
 
---===============0464619832265854397==
+--===============3659141440077138874==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -172,5 +172,5 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============0464619832265854397==--
+--===============3659141440077138874==--
 
