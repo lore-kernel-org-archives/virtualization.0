@@ -2,84 +2,90 @@ Return-Path: <SRS0=We/I=EX=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SIGNED_OFF_BY,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 92DEAC2D0E4
-	for <virtualization@archiver.kernel.org>; Tue, 17 Nov 2020 08:19:27 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 271C6C2D0E4
+	for <virtualization@archiver.kernel.org>; Tue, 17 Nov 2020 10:00:31 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B936324655
-	for <virtualization@archiver.kernel.org>; Tue, 17 Nov 2020 08:19:26 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 29B66222EC
+	for <virtualization@archiver.kernel.org>; Tue, 17 Nov 2020 10:00:29 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.com header.i=@suse.com header.b="aBvtB6OW"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B936324655
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="LF6k8N4m"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 29B66222EC
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id CE24A203DF;
-	Tue, 17 Nov 2020 08:19:25 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id BpKaCfIBny0r; Tue, 17 Nov 2020 08:19:24 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id DDD9220361;
-	Tue, 17 Nov 2020 08:19:23 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id BC991C0891;
-	Tue, 17 Nov 2020 08:19:23 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 34095C07FF
- for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Nov 2020 08:19:22 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 2258E84BC9
- for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Nov 2020 08:19:22 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id A327185D9B;
+	Tue, 17 Nov 2020 10:00:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 1CMqlrJ0RMhc; Tue, 17 Nov 2020 10:00:29 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by fraxinus.osuosl.org (Postfix) with ESMTP id F389185C9D;
+	Tue, 17 Nov 2020 10:00:28 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id E014DC0800;
+	Tue, 17 Nov 2020 10:00:28 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id E7390C07FF
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 17 Nov 2020 10:00:26 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by whitealder.osuosl.org (Postfix) with ESMTP id E315D85C88
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 17 Nov 2020 10:00:26 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id kOk7BeVHhSG5
+ with ESMTP id 2-aY-eZqw9Y9
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Nov 2020 08:19:21 +0000 (UTC)
+ Tue, 17 Nov 2020 10:00:25 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 4026B84AAB
+Received: from merlin.infradead.org (merlin.infradead.org [205.233.59.134])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id AD61285218
  for <virtualization@lists.linux-foundation.org>;
- Tue, 17 Nov 2020 08:19:21 +0000 (UTC)
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1605601159; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=jBSwZgAuEvWHMjM4d4hzcqClmDivjG0qI8H2PdJ0jpE=;
- b=aBvtB6OW+wniVNWwSdyEAPT9jdP+RRtrWwmViYqKzHPhVgQvkYOF9uj+DJrD4A1SyHY+8P
- Vc0r0YVu/Uii3y/e7zY3IEi1dJMNKmtDwBgHe8wwNl23FuvkJG3OwPa1bZzU9LIJOLrqzy
- I6WE9Bcz+Z1k2p8rTPSkfIRoOb8/smc=
-Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id D0DC8AB3D;
- Tue, 17 Nov 2020 08:19:18 +0000 (UTC)
-To: Andy Lutomirski <luto@kernel.org>
+ Tue, 17 Nov 2020 10:00:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+ References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+ Content-Transfer-Encoding:Content-ID:Content-Description;
+ bh=sJWlIJf2Pt4tnjPJDlQRhe8ivTuZU0+s+pSU+BozkHA=; b=LF6k8N4mzA0pTMgRv3lmY/Ey4q
+ AGIrti2W6EZ9Uy/Qt5md9YKM/pY5rkk5ivFVLGW3dqReurUueIwJeA9izUsXi1IwnoEn/5y0GppPG
+ dzynQ78PZNzlaQngN3CCD9ZEqH36H8rzlB3fG4cSR5sooxnvpgmMM2IHiye6QUEfpaGcOW9LKrwLr
+ PK7fJHkoOHmdFOfgQOr8zPy+AWok1Gew/v/l3iZZ9Gp8hRJFAj8tgf5viV2D+HMFN4NaC3dQfea7h
+ SHrMi4DsoYgQcvM7zhfetHXMfHZGeyMQQdzV0h6OLNb6RswkPQOpsA4GGQK7r2ucGXhQ1CuPh260X
+ 49H5mmIA==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100]
+ helo=noisy.programming.kicks-ass.net)
+ by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+ id 1kexmd-0003xs-EN; Tue, 17 Nov 2020 10:00:19 +0000
+Received: from hirez.programming.kicks-ass.net
+ (hirez.programming.kicks-ass.net [192.168.1.225])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (Client did not present a certificate)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id B795C3012DC;
+ Tue, 17 Nov 2020 11:00:17 +0100 (CET)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+ id 9ECDB20116732; Tue, 17 Nov 2020 11:00:17 +0100 (CET)
+Date: Tue, 17 Nov 2020 11:00:17 +0100
+From: Peter Zijlstra <peterz@infradead.org>
+To: Juergen Gross <jgross@suse.com>
+Subject: Re: [PATCH 0/4] x86/xen: do some paravirt cleanup
+Message-ID: <20201117100017.GB3121406@hirez.programming.kicks-ass.net>
 References: <20201116152301.24558-1-jgross@suse.com>
- <20201116152301.24558-5-jgross@suse.com>
- <CALCETrW_UO9sksa1agOfs5E7yV+RqOyugEEOBjZY8Z47R-04Pg@mail.gmail.com>
-Subject: Re: [PATCH 4/4] x86/xen: drop USERGS_SYSRET64 paravirt call
-Message-ID: <194ffa2c-cfc6-29b2-5ee4-3d02581b8e28@suse.com>
-Date: Tue, 17 Nov 2020 09:19:17 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.0
 MIME-Version: 1.0
-In-Reply-To: <CALCETrW_UO9sksa1agOfs5E7yV+RqOyugEEOBjZY8Z47R-04Pg@mail.gmail.com>
+Content-Disposition: inline
+In-Reply-To: <20201116152301.24558-1-jgross@suse.com>
 Cc: Stefano Stabellini <sstabellini@kernel.org>, "VMware,
- Inc." <pv-drivers@vmware.com>, X86 ML <x86@kernel.org>,
- LKML <linux-kernel@vger.kernel.org>,
- Linux Virtualization <virtualization@lists.linux-foundation.org>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- "H. Peter Anvin" <hpa@zytor.com>, xen-devel <xen-devel@lists.xenproject.org>,
+ Inc." <pv-drivers@vmware.com>, x86@kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>,
+ "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org,
  Thomas Gleixner <tglx@linutronix.de>,
  Boris Ostrovsky <boris.ostrovsky@oracle.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -93,202 +99,27 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-Content-Type: multipart/mixed; boundary="===============6683534017688879807=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============6683534017688879807==
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="TZeSXnOA78aXm6rOFpyaEcYCc2ZyiwE9B"
+On Mon, Nov 16, 2020 at 04:22:57PM +0100, Juergen Gross wrote:
+> Eliminate the usergs_sysret64 paravirt call completely and switch
+> the swapgs one to use ALTERNATIVE instead. This requires to fix the
+> IST based exception entries for Xen PV to use the same mechanism as
+> NMI and debug exception already do.
+> 
+> Juergen Gross (4):
+>   x86/xen: use specific Xen pv interrupt entry for MCE
+>   x86/xen: use specific Xen pv interrupt entry for DF
+>   x86/pv: switch SWAPGS to ALTERNATIVE
+>   x86/xen: drop USERGS_SYSRET64 paravirt call
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---TZeSXnOA78aXm6rOFpyaEcYCc2ZyiwE9B
-Content-Type: multipart/mixed; boundary="x8PsBNwBukhgo2A84pdicBLVDWhNt46lb";
- protected-headers="v1"
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-To: Andy Lutomirski <luto@kernel.org>
-Cc: xen-devel <xen-devel@lists.xenproject.org>, X86 ML <x86@kernel.org>,
- LKML <linux-kernel@vger.kernel.org>,
- Linux Virtualization <virtualization@lists.linux-foundation.org>,
- Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>,
- Deep Shah <sdeep@vmware.com>, "VMware, Inc." <pv-drivers@vmware.com>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- Stefano Stabellini <sstabellini@kernel.org>
-Message-ID: <194ffa2c-cfc6-29b2-5ee4-3d02581b8e28@suse.com>
-Subject: Re: [PATCH 4/4] x86/xen: drop USERGS_SYSRET64 paravirt call
-References: <20201116152301.24558-1-jgross@suse.com>
- <20201116152301.24558-5-jgross@suse.com>
- <CALCETrW_UO9sksa1agOfs5E7yV+RqOyugEEOBjZY8Z47R-04Pg@mail.gmail.com>
-In-Reply-To: <CALCETrW_UO9sksa1agOfs5E7yV+RqOyugEEOBjZY8Z47R-04Pg@mail.gmail.com>
+Looks 'sane' :-))
 
---x8PsBNwBukhgo2A84pdicBLVDWhNt46lb
-Content-Type: multipart/mixed;
- boundary="------------9EE45120FE990CE4FF143A7A"
-Content-Language: en-US
-
-This is a multi-part message in MIME format.
---------------9EE45120FE990CE4FF143A7A
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-
-On 16.11.20 17:28, Andy Lutomirski wrote:
-> On Mon, Nov 16, 2020 at 7:23 AM Juergen Gross <jgross@suse.com> wrote:
->>
->> USERGS_SYSRET64 is used to return from a syscall via sysret, but
->> a Xen PV guest will nevertheless use the iret hypercall, as there
->> is no sysret PV hypercall defined.
->>
->> So instead of testing all the prerequisites for doing a sysret and
->> then mangling the stack for Xen PV again for doing an iret just use
->> the iret exit from the beginning.
->>
->> This can easily be done via an ALTERNATIVE like it is done for the
->> sysenter compat case already.
->>
->> While at it remove to stale sysret32 remnants.
->>
->> Signed-off-by: Juergen Gross <jgross@suse.com>
->=20
-> Acked-by: Andy Lutomirski <luto@kernel.org>
->=20
-> FWIW, you've lost the VGCF_in_syscall optimization.  Let me see if I
-> can give it back to you better.
-
-Ah, right.
-
-Nevertheless a simple kernel build is about 0.5% faster with this
-patch.
-
-
-Juergen
-
---------------9EE45120FE990CE4FF143A7A
-Content-Type: application/pgp-keys;
- name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
- filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-
------BEGIN PGP PUBLIC KEY BLOCK-----
-
-xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOBy=
-cWx
-w3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJvedYm8O=
-f8Z
-d621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y=
-9bf
-IhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xq=
-G7/
-377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR=
-3Jv
-c3MgPGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsEFgIDA=
-QIe
-AQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4FUGNQH2lvWAUy+dnyT=
-hpw
-dtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3TyevpB0CA3dbBQp0OW0fgCetToGIQrg0=
-MbD
-1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u+6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbv=
-oPH
-Z8SlM4KWm8rG+lIkGurqqu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v=
-5QL
-+qHI3EIPtyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVyZ=
-2Vu
-IEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJCAcDAgEGFQgCC=
-QoL
-BBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4RF7HoZhPVPogNVbC4YA6lW7Dr=
-Wf0
-teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz78X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC=
-/nu
-AFVGy+67q2DH8As3KPu0344TBDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0Lh=
-ITT
-d9jLzdDad1pQSToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLm=
-XBK
-7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkMnQfvUewRz=
-80h
-SnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMBAgAjBQJTjHDXAhsDBwsJC=
-AcD
-AgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJn=
-FOX
-gMLdBQgBlVPO3/D9R8LtF9DBAFPNhlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1=
-jnD
-kfJZr6jrbjgyoZHiw/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0=
-N51
-N5JfVRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwPOoE+l=
-otu
-fe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK/1xMI3/+8jbO0tsn1=
-tqS
-EUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuZGU+wsB5BBMBAgAjBQJTjHDrA=
-hsD
-BwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3=
-g3O
-ZUEBmDHVVbqMtzwlmNC4k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5=
-dM7
-wRqzgJpJwK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu5=
-D+j
-LRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzBTNh30FVKK1Evm=
-V2x
-AKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37IoN1EblHI//x/e2AaIHpzK5h88N=
-Eaw
-QsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpW=
-nHI
-s98ndPUDpnoxWQugJ6MpMncr0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZR=
-wgn
-BC5mVM6JjQ5xDk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNV=
-bVF
-LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mmwe0icXKLk=
-pEd
-IXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0Iv3OOImwTEe4co3c1mwARA=
-QAB
-wsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMvQ/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEw=
-Tbe
-8YFsw2V/Buv6Z4Mysln3nQK5ZadD534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1=
-vJz
-Q1fOU8lYFpZXTXIHb+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8=
-VGi
-wXvTyJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqcsuylW=
-svi
-uGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5BjR/i1DG86lem3iBDX=
-zXs
-ZDn8R38=3D
-=3D2wuH
------END PGP PUBLIC KEY BLOCK-----
-
---------------9EE45120FE990CE4FF143A7A--
-
---x8PsBNwBukhgo2A84pdicBLVDWhNt46lb--
-
---TZeSXnOA78aXm6rOFpyaEcYCc2ZyiwE9B
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAl+zh4UFAwAAAAAACgkQsN6d1ii/Ey9U
-fQf7BHJ5Bw5iPQtVJ/DpCX/TPqNeQ3JbRh2IfYAve06UfVeTmwGYkv8kMpPcyvdbh87G1IyYJai6
-XwGksJU2kH+Lzj+jt1ISI+/TYIzmgATD1RCs5iyHAkV8Eh6oYvWpCpQaoUGhRSzZ5XfwjyAWtT0m
-V8ZY1BH9SOvyL/XvxaEIHOnFsYTcnhno3fhJwZW5jCc148Y2E1Tby91TG1XE2YFfbbgAWc8963Kk
-5v4mmQZuPi8MKDTB5tytwc2g8y47YBAtyBKqPO5BuBZoJpNqAgOXgswKmWV4jyB6Ppter0tgZmYL
-gQTEpG3aja8xEHLKFPZpZBYBWPRNGubSu7+QTZM6Hg==
-=7+u4
------END PGP SIGNATURE-----
-
---TZeSXnOA78aXm6rOFpyaEcYCc2ZyiwE9B--
-
---===============6683534017688879807==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============6683534017688879807==--
