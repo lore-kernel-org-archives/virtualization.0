@@ -2,117 +2,113 @@ Return-Path: <SRS0=HWuT=EY=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-8.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=unavailable autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E0596C56202
-	for <virtualization@archiver.kernel.org>; Wed, 18 Nov 2020 09:00:10 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 9F3B2C63697
+	for <virtualization@archiver.kernel.org>; Wed, 18 Nov 2020 09:01:05 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 6314C221E9
-	for <virtualization@archiver.kernel.org>; Wed, 18 Nov 2020 09:00:09 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 0A3332468D
+	for <virtualization@archiver.kernel.org>; Wed, 18 Nov 2020 09:01:04 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="epeFmXuG"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6314C221E9
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gX8uJ6i5"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0A3332468D
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id DE505858B6;
-	Wed, 18 Nov 2020 09:00:08 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 58Rh17c5FKkX; Wed, 18 Nov 2020 09:00:08 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 73D098561D;
-	Wed, 18 Nov 2020 09:00:08 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 69D5DC0800;
-	Wed, 18 Nov 2020 09:00:08 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CD3BFC07FF
- for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Nov 2020 09:00:07 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id C989287036
- for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Nov 2020 09:00:07 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 67BDA871A8;
+	Wed, 18 Nov 2020 09:01:04 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id iuE9F3sEtSIq
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id RwJnfiI98oJD; Wed, 18 Nov 2020 09:01:03 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by hemlock.osuosl.org (Postfix) with ESMTP id C0A1B87183;
+	Wed, 18 Nov 2020 09:01:03 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id B66AAC0800;
+	Wed, 18 Nov 2020 09:01:03 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id BFD0DC07FF
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Nov 2020 09:00:05 +0000 (UTC)
+ Wed, 18 Nov 2020 09:01:02 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by whitealder.osuosl.org (Postfix) with ESMTP id A09D0867A1
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 18 Nov 2020 09:01:02 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from whitealder.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id WMGenL+VJxtH
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 18 Nov 2020 09:01:01 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
  (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by hemlock.osuosl.org (Postfix) with ESMTPS id E3CB687183
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 78D6786672
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Nov 2020 09:00:04 +0000 (UTC)
+ Wed, 18 Nov 2020 09:01:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1605690003;
+ s=mimecast20190719; t=1605690060;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=vDHRiKISJxGrQNI5r+p1qOzE9Z04EU79HQXJnXOQAyM=;
- b=epeFmXuG0tCYLP/m5ZSJlTUwZY/OUmPuk0HnZf3cC/iniYClXPfzqfzmRGrunc4VbqpBTi
- je6a7BZohCqrnSOK07kOHcaAdcq1OW3dFbOf43NZH6e7wNLbpqQwgamG/6Iubuuu3Xvl2/
- TNhd6CKN89NKkMCTXxgtWnlnb1TD0xo=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-287-o6WLmsRwOteRK36m5sOFEQ-1; Wed, 18 Nov 2020 04:00:01 -0500
-X-MC-Unique: o6WLmsRwOteRK36m5sOFEQ-1
-Received: by mail-wr1-f69.google.com with SMTP id w17so640442wrp.11
+ bh=7wqEQsvX22nx16Jojzb8KFZiOjvsM4OAXsB57jTMi5g=;
+ b=gX8uJ6i5nfjv6AjTK92knEoCDkERJargMYXs2csnKHXLyPvjY0WgRKPqA51JNPmO9ssR2H
+ DCvsgveWCVT6Abt2PF1/cQkmWbjEs6kEcPAYIic/plH2ouIa0MGPu+n77TTur5VImA/AFh
+ m02o8IGN7ZgwS/fj4kitlr0wxPdl9pw=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-333-2N1wxjY5PRCnTvtQQPEbLA-1; Wed, 18 Nov 2020 04:00:59 -0500
+X-MC-Unique: 2N1wxjY5PRCnTvtQQPEbLA-1
+Received: by mail-wr1-f71.google.com with SMTP id w6so657148wrk.1
  for <virtualization@lists.linux-foundation.org>;
- Wed, 18 Nov 2020 01:00:01 -0800 (PST)
+ Wed, 18 Nov 2020 01:00:58 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
- :mime-version:content-disposition:content-transfer-encoding
- :in-reply-to;
- bh=vDHRiKISJxGrQNI5r+p1qOzE9Z04EU79HQXJnXOQAyM=;
- b=VOjYBZE217EXsIJispHYEACES6Yenzc6/Aimq39cYmUmMOcBFvWW9BcpVXDQxxUGxQ
- pcapkAjQ6Q25uYrf0kydYtu95HHSMgKkjfVFH7MEOQRAGD9wRWL8xLCwOGzCT2ngLLIQ
- Bk6VJQNdeNI4wt/AZwQzOpNK47nnMidk4P+9jeKsCu+e8Me7HDVxTPyznAfjZVIk9gwp
- gG13rEkn4mVb8dFtoY4WWdA6ffdtds8iuC4C1mqrgqeykAxYId9Er6FNLGkh8bxgedsB
- dD75xVnypKY+BY51sN/+2inVyi1bJRMKsh8xfPGZ2RwQhcWOjgY9Yy0Dqyah5W62HAvU
- Vrtw==
-X-Gm-Message-State: AOAM533WDoCg3efKMECaksb96uNnXkfSarVI32WX5cPJ7wYdjJ1VdfmJ
- YwYuy9qGBoAOZADKVBAyBC8s4N8ahtj2nhU44VS7AWBtfjVrbkNgRi9a1WrLl89VQZgtFzOQt3U
- Y3pot7uVnt8d7zqZO29P5/+gKYXtNrdRlLrh/vy7DZw==
-X-Received: by 2002:adf:e484:: with SMTP id i4mr3807467wrm.398.1605690000209; 
- Wed, 18 Nov 2020 01:00:00 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwvrhlBebUzDcS1q8vIsRe9j3CAHx2KE5uTkubSY1aExSKkOG/BenM/FdfTnVGvEnynvcKDSg==
-X-Received: by 2002:adf:e484:: with SMTP id i4mr3807461wrm.398.1605690000074; 
- Wed, 18 Nov 2020 01:00:00 -0800 (PST)
-Received: from redhat.com (bzq-109-67-54-78.red.bezeqint.net. [109.67.54.78])
- by smtp.gmail.com with ESMTPSA id
- i11sm33187631wro.85.2020.11.18.00.59.57
+ :mime-version:content-disposition:in-reply-to;
+ bh=7wqEQsvX22nx16Jojzb8KFZiOjvsM4OAXsB57jTMi5g=;
+ b=FsqJvapuBam1GZYzpxJzPqiw3WjPFAEs7IacvgVT4/1jExIqVYeo5VvPQqu79o/mnK
+ SmBHikEZIyFsT3EeinHcE+rKVlEdx6PhS9WuyijtwMqsf+8Q2bpjqegsFgSecelI528/
+ Lq7cCWaBqtSsmF1c8bhcsZK8QteZ4NnzbDblqUHTitDlgAmi2GvPj23DjlXIejOwtCTJ
+ WbuHEVlQdkjSnE7RZS5BYOAeoVjag59RkmXlR3cVmcAfIgpO4WNxpjIzOh9s5bDufWTI
+ CVHiBzWly4cH7ZGr8tWZ8WugJMiK34NNoPLgigP44+wFAZ99iSt5TSDb29DKvPYUhece
+ A99Q==
+X-Gm-Message-State: AOAM530O2BDVzKwih8ue/5GnJyEVb/uu/WtUjY6Xum+pwHVtlPnGn+e/
+ MhUw+ZVL3+JsmGE70a3YCce8LZ6j6AwAdwl6/B1tV5o27dU0e8gZH0KeXpzdJbeeW2zmAfPO+2c
+ 35ZMIC7kOxCvf1qZQmeZgjgFPnom+dRbaBzq9/siK6Q==
+X-Received: by 2002:a5d:44cf:: with SMTP id z15mr3616030wrr.353.1605690057431; 
+ Wed, 18 Nov 2020 01:00:57 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyIcY5c9fabl6ughyv2LZhAK3/bgxlHsBiPuOq6RbM1KZQEh4wZshXsh3Bu1z6logi57UI1Rw==
+X-Received: by 2002:a5d:44cf:: with SMTP id z15mr3616013wrr.353.1605690057263; 
+ Wed, 18 Nov 2020 01:00:57 -0800 (PST)
+Received: from redhat.com (bzq-79-181-34-244.red.bezeqint.net. [79.181.34.244])
+ by smtp.gmail.com with ESMTPSA id n10sm31309533wrv.77.2020.11.18.01.00.55
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 18 Nov 2020 00:59:59 -0800 (PST)
-Date: Wed, 18 Nov 2020 03:59:55 -0500
+ Wed, 18 Nov 2020 01:00:56 -0800 (PST)
+Date: Wed, 18 Nov 2020 04:00:53 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net] vhost_vdpa: Return -EFUALT if copy_from_user() fails
-Message-ID: <20201118035912-mutt-send-email-mst@kernel.org>
-References: <20201023120853.GI282278@mwanda>
- <20201023113326-mutt-send-email-mst@kernel.org>
- <4485cc8d-ac69-c725-8493-eda120e29c41@redhat.com>
- <e7242333-b364-c2d8-53f5-1f688fc4d0b5@redhat.com>
+To: David Hildenbrand <david@redhat.com>
+Subject: Re: [PATCH v2 00/29] virtio-mem: Big Block Mode (BBM)
+Message-ID: <20201118040030-mutt-send-email-mst@kernel.org>
+References: <20201112133815.13332-1-david@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <e7242333-b364-c2d8-53f5-1f688fc4d0b5@redhat.com>
+In-Reply-To: <20201112133815.13332-1-david@redhat.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: kvm@vger.kernel.org, netdev@vger.kernel.org,
- kernel-janitors@vger.kernel.org, virtualization@lists.linux-foundation.org,
- kuba@kernel.org, Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+ Wei Yang <richard.weiyang@linux.alibaba.com>, linux-kernel@vger.kernel.org,
+ Michal Hocko <mhocko@kernel.org>, linux-mm@kvack.org,
+ Andrew Morton <akpm@linux-foundation.org>,
+ virtualization@lists.linux-foundation.org, Oscar Salvador <osalvador@suse.de>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -124,31 +120,99 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-T24gV2VkLCBOb3YgMTgsIDIwMjAgYXQgMDI6MDg6MTdQTSArMDgwMCwgSmFzb24gV2FuZyB3cm90
-ZToKPiAKPiBPbiAyMDIwLzEwLzI2IOS4iuWNiDEwOjU5LCBKYXNvbiBXYW5nIHdyb3RlOgo+ID4g
-Cj4gPiBPbiAyMDIwLzEwLzIzIOS4i+WNiDExOjM0LCBNaWNoYWVsIFMuIFRzaXJraW4gd3JvdGU6
-Cj4gPiA+IE9uIEZyaSwgT2N0IDIzLCAyMDIwIGF0IDAzOjA4OjUzUE0gKzAzMDAsIERhbiBDYXJw
-ZW50ZXIgd3JvdGU6Cj4gPiA+ID4gVGhlIGNvcHlfdG8vZnJvbV91c2VyKCkgZnVuY3Rpb25zIHJl
-dHVybiB0aGUgbnVtYmVyIG9mIGJ5dGVzIHdoaWNoIHdlCj4gPiA+ID4gd2VyZW4ndCBhYmxlIHRv
-IGNvcHkgYnV0IHRoZSBpb2N0bCBzaG91bGQgcmV0dXJuIC1FRkFVTFQgaWYgdGhleSBmYWlsLgo+
-ID4gPiA+IAo+ID4gPiA+IEZpeGVzOiBhMTI3YzViYmI2YTggKCJ2aG9zdC12ZHBhOiBmaXggYmFj
-a2VuZCBmZWF0dXJlIGlvY3RscyIpCj4gPiA+ID4gU2lnbmVkLW9mZi1ieTogRGFuIENhcnBlbnRl
-ciA8ZGFuLmNhcnBlbnRlckBvcmFjbGUuY29tPgo+ID4gPiBBY2tlZC1ieTogTWljaGFlbCBTLiBU
-c2lya2luIDxtc3RAcmVkaGF0LmNvbT4KPiA+ID4gTmVlZGVkIGZvciBzdGFibGUgSSBndWVzcy4K
-PiA+IAo+ID4gCj4gPiBBZ3JlZS4KPiA+IAo+ID4gQWNrZWQtYnk6IEphc29uIFdhbmcgPGphc293
-YW5nQHJlZGhhdC5jb20+Cj4gCj4gCj4gSGkgTWljaGFlbC4KPiAKPiBJIGRvbid0IHNlZSB0aGlz
-IGluIHlvdXIgdHJlZSwgcGxlYXNlIGNvbnNpZGVyIHRvIG1lcmdlLgo+IAo+IFRoYW5rcwo+IAoK
-SSBkbyBzZWUgaXQgdGhlcmU6Cgpjb21taXQgNzkyMjQ2MGUzM2M4MWY0MWUwZDI0MjE0MTcyMjhi
-MzJlNmZkYmU5NApBdXRob3I6IERhbiBDYXJwZW50ZXIgPGRhbi5jYXJwZW50ZXJAb3JhY2xlLmNv
-bT4KRGF0ZTogICBGcmkgT2N0IDIzIDE1OjA4OjUzIDIwMjAgKzAzMDAKCiAgICB2aG9zdF92ZHBh
-OiBSZXR1cm4gLUVGQVVMVCBpZiBjb3B5X2Zyb21fdXNlcigpIGZhaWxzCiAgICAKdGhlIHJlYXNv
-biB5b3UgY2FuJ3QgZmluZCBpdCBpcyBwcm9iYWJseSBiZWNhdXNlIEkgZml4ZWQgdXAKYSB0eXBv
-IGluIHRoZSBzdWJqZWN0LgoKCi0tIApNU1QKCl9fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9uIG1haWxpbmcgbGlzdApWaXJ0dWFsaXph
-dGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpodHRwczovL2xpc3RzLmxpbnV4Zm91bmRh
-dGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFsaXphdGlvbg==
+On Thu, Nov 12, 2020 at 02:37:46PM +0100, David Hildenbrand wrote:
+> @Andrew, can we have an ack for patch #27, so that one can go via
+> the vhost tree for 5.11?
+
+OK, we got an ack, I'll put it in next now.
+Thanks!
+
+> ---
+> 
+> virtio-mem currently only supports device block sizes that span at most
+> a single Linux memory block. For example, gigantic pages in the hypervisor
+> result on x86-64 in a device block size of 1 GiB - when the Linux memory
+> block size is 128 MiB, we cannot support such devices (we fail loading the
+> driver). Of course, we want to support any device block size in any Linux
+> VM.
+> 
+> Bigger device block sizes will become especially important once supporting
+> VFIO in QEMU - each device block has to be mapped separately, and the
+> maximum number of mappings for VFIO is 64k. So we usually want blocks in
+> the gigabyte range when wanting to grow the VM big.
+> 
+> Patch #1 - #10 are cleanups and optimizations
+> Patch #11 - #24 are refactorings to prepare for BBM
+> Patch #25 - #29 implement BBM, including one mm/memory_hotplug extension
+> 
+> This series is based on latest linus/master and can be found at:
+>  git@github.com:davidhildenbrand/linux.git virtio-mem-bbm-v2
+> 
+> v1 -> v2:
+> - Code wise, the only bigger change is using an union for sbm/bbm state
+> - Reworked some subjects/patch descriptions
+> - Reshuffled patches to make reviweing easier, and to have
+>   cleanups+optimizations before all refactorings
+> - "virtio-mem: more precise calculation in
+>    virtio_mem_mb_state_prepare_next_mb()"
+> -- Changed subject
+> -- Avoid two local variables
+> 
+> David Hildenbrand (29):
+>   virtio-mem: determine nid only once using memory_add_physaddr_to_nid()
+>   virtio-mem: more precise calculation in
+>     virtio_mem_mb_state_prepare_next_mb()
+>   virtio-mem: simplify MAX_ORDER - 1 / pageblock_order handling
+>   virtio-mem: drop rc2 in virtio_mem_mb_plug_and_add()
+>   virtio-mem: use "unsigned long" for nr_pages when fake
+>     onlining/offlining
+>   virtio-mem: factor out calculation of the bit number within the
+>     subblock bitmap
+>   virtio-mem: print debug messages from virtio_mem_send_*_request()
+>   virtio-mem: factor out fake-offlining into virtio_mem_fake_offline()
+>   virtio-mem: factor out handling of fake-offline pages in memory
+>     notifier
+>   virtio-mem: retry fake-offlining via alloc_contig_range() on
+>     ZONE_MOVABLE
+>   virtio-mem: generalize check for added memory
+>   virtio-mem: generalize virtio_mem_owned_mb()
+>   virtio-mem: generalize virtio_mem_overlaps_range()
+>   virtio-mem: drop last_mb_id
+>   virtio-mem: don't always trigger the workqueue when offlining memory
+>   virtio-mem: generalize handling when memory is getting onlined
+>     deferred
+>   virito-mem: document Sub Block Mode (SBM)
+>   virtio-mem: memory block states are specific to Sub Block Mode (SBM)
+>   virito-mem: subblock states are specific to Sub Block Mode (SBM)
+>   virtio-mem: nb_sb_per_mb and subblock_size are specific to Sub Block
+>     Mode (SBM)
+>   virtio-mem: memory block ids are specific to Sub Block Mode (SBM)
+>   virito-mem: existing (un)plug functions are specific to Sub Block Mode
+>     (SBM)
+>   virtio-mem: memory notifier callbacks are specific to Sub Block Mode
+>     (SBM)
+>   virtio-mem: factor out adding/removing memory from Linux
+>   virtio-mem: Big Block Mode (BBM) memory hotplug
+>   virtio-mem: allow to force Big Block Mode (BBM) and set the big block
+>     size
+>   mm/memory_hotplug: extend offline_and_remove_memory() to handle more
+>     than one memory block
+>   virtio-mem: Big Block Mode (BBM) - basic memory hotunplug
+>   virtio-mem: Big Block Mode (BBM) - safe memory hotunplug
+> 
+>  drivers/virtio/virtio_mem.c | 1789 +++++++++++++++++++++++++----------
+>  mm/memory_hotplug.c         |  105 +-
+>  2 files changed, 1376 insertions(+), 518 deletions(-)
+> 
+> -- 
+> 2.26.2
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
