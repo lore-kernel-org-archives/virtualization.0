@@ -6,90 +6,100 @@ X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
 	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E085DC5519F
-	for <virtualization@archiver.kernel.org>; Fri, 20 Nov 2020 11:59:57 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id B7722C56202
+	for <virtualization@archiver.kernel.org>; Fri, 20 Nov 2020 12:02:54 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 49EDC22253
-	for <virtualization@archiver.kernel.org>; Fri, 20 Nov 2020 11:59:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 09E4222253
+	for <virtualization@archiver.kernel.org>; Fri, 20 Nov 2020 12:02:53 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="lWgrloRS"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 49EDC22253
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="eEI2XdW3"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 09E4222253
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=infradead.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id B3C1087138;
-	Fri, 20 Nov 2020 11:59:56 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 2E1722E0DA;
+	Fri, 20 Nov 2020 12:02:53 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from silver.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id pyI9KvTBEQui; Fri, 20 Nov 2020 12:02:51 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by silver.osuosl.org (Postfix) with ESMTP id 2EC1C2038A;
+	Fri, 20 Nov 2020 12:02:51 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 1B2BFC163C;
+	Fri, 20 Nov 2020 12:02:51 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 2A1F7C0891
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 20 Nov 2020 12:02:49 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by whitealder.osuosl.org (Postfix) with ESMTP id 092C887143
+ for <virtualization@lists.linux-foundation.org>;
+ Fri, 20 Nov 2020 12:02:49 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id cZK3vCVrOImU; Fri, 20 Nov 2020 11:59:56 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 1E6BC87136;
-	Fri, 20 Nov 2020 11:59:56 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 04A34C1825;
-	Fri, 20 Nov 2020 11:59:56 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 5CCA5C0891
- for <virtualization@lists.linux-foundation.org>;
- Fri, 20 Nov 2020 11:59:54 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 4A15D8759E
- for <virtualization@lists.linux-foundation.org>;
- Fri, 20 Nov 2020 11:59:54 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id vrWAVZP0ecoH
+ with ESMTP id ct+8xBL-eHkP
  for <virtualization@lists.linux-foundation.org>;
- Fri, 20 Nov 2020 11:59:53 +0000 (UTC)
+ Fri, 20 Nov 2020 12:02:48 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from merlin.infradead.org (merlin.infradead.org [205.233.59.134])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 9CBC487599
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 04C508713A
  for <virtualization@lists.linux-foundation.org>;
- Fri, 20 Nov 2020 11:59:53 +0000 (UTC)
+ Fri, 20 Nov 2020 12:02:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
- d=infradead.org; s=merlin.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+ d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
  References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
  Content-Transfer-Encoding:Content-ID:Content-Description;
- bh=1IRDo4hBUd8j6ToyEOlhDczl8zQL0MZ1VcE/2Tj86V8=; b=lWgrloRSTuiGC5nk/4mHtAapdq
- VwjRJ9pV/B0T1qMIc8kscWWKsHYukR+oAG35rA52pWTnBDx5lko8Mg2mrSuBc9HXXKzFegH7oJGtp
- cwml6uFpFrBaQnbMehbVUamRufyImy2h3sQ01dQNaCyElJ40tKE7oY7DlyW91yiQQ3HL8MtyQUvbq
- My0bogQ20GyepoV5LrRr5SCuJg65biu6wXWYQzw+W+2vh2FY8g8nwuPKoIFrqvMl6beiZDTPBQfCH
- /pI3NOmklXlVteKMmE3U6Bp4Myx1Ojzlpwrt8x2Its6o0bCkEETXsUOqeydQ25qMtkGezRaNWRG5r
- 37I6qZZA==;
+ bh=xeukajkb0Dh8Aj05tLhXcYnJX0ZZcEiN+jLi0pnGRWQ=; b=eEI2XdW3SS3SvnEYkgrxIgrkkZ
+ QESj0xks6qaTJAnkv/SrECagNU+vSqctcrq0xLMAWIfHAZKLk9ye2uO7gskiUylP8RbcybpWeUXL2
+ uK6+gWyoCZxLIYAsj/8Cr6bDQjqDWnVAJEvPDRs9mQv3WAo/KAacUwgv54o4zvTL/2MI1ffWEmq47
+ iGzPS/OuVWATcJv3FdWhjqRfpijJMY2zQfXpueb6tRHat5LxD9HkJ5lF4m33YjKhMqWD/w/svRfZq
+ kIH2ZsgedGxLYnMj1h8GrezPVSEXeHN6F04tocRnYrqwZsV1M6RSBowt+3mIDzez5FevIapCnyvmm
+ E0VqGnQQ==;
 Received: from j217100.upc-j.chello.nl ([24.132.217.100]
  helo=noisy.programming.kicks-ass.net)
- by merlin.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
- id 1kg54r-0004IG-6x; Fri, 20 Nov 2020 11:59:45 +0000
+ by casper.infradead.org with esmtpsa (Exim 4.92.3 #3 (Red Hat Linux))
+ id 1kg572-0006MQ-D6; Fri, 20 Nov 2020 12:02:00 +0000
 Received: from hirez.programming.kicks-ass.net
  (hirez.programming.kicks-ass.net [192.168.1.225])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (Client did not present a certificate)
- by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 61B3B307062;
- Fri, 20 Nov 2020 12:59:43 +0100 (CET)
+ by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id EAD53305C16;
+ Fri, 20 Nov 2020 13:01:54 +0100 (CET)
 Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
- id 41741200DF1A6; Fri, 20 Nov 2020 12:59:43 +0100 (CET)
-Date: Fri, 20 Nov 2020 12:59:43 +0100
+ id CD10B200DF1A6; Fri, 20 Nov 2020 13:01:54 +0100 (CET)
+Date: Fri, 20 Nov 2020 13:01:54 +0100
 From: Peter Zijlstra <peterz@infradead.org>
 To: Juergen Gross <jgross@suse.com>
-Subject: Re: [PATCH v2 05/12] x86: rework arch_local_irq_restore() to not use
- popf
-Message-ID: <20201120115943.GD3021@hirez.programming.kicks-ass.net>
+Subject: Re: [PATCH v2 06/12] x86/paravirt: switch time pvops functions to
+ use static_call()
+Message-ID: <20201120120154.GE3021@hirez.programming.kicks-ass.net>
 References: <20201120114630.13552-1-jgross@suse.com>
- <20201120114630.13552-6-jgross@suse.com>
+ <20201120114630.13552-7-jgross@suse.com>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20201120114630.13552-6-jgross@suse.com>
-Cc: Stefano Stabellini <sstabellini@kernel.org>, "VMware,
- Inc." <pv-drivers@vmware.com>, x86@kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, luto@kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org,
+In-Reply-To: <20201120114630.13552-7-jgross@suse.com>
+Cc: Juri Lelli <juri.lelli@redhat.com>, linux-hyperv@vger.kernel.org,
+ Daniel Lezcano <daniel.lezcano@linaro.org>, Wanpeng Li <wanpengli@tencent.com>,
+ kvm@vger.kernel.org, "VMware, Inc." <pv-drivers@vmware.com>,
+ virtualization@lists.linux-foundation.org, Ben Segall <bsegall@google.com>,
+ "H. Peter Anvin" <hpa@zytor.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ Wei Liu <wei.liu@kernel.org>, Stefano Stabellini <sstabellini@kernel.org>,
+ Stephen Hemminger <sthemmin@microsoft.com>, Joerg Roedel <joro@8bytes.org>,
+ x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Mel Gorman <mgorman@suse.de>,
+ xen-devel@lists.xenproject.org, Haiyang Zhang <haiyangz@microsoft.com>,
+ Steven Rostedt <rostedt@goodmis.org>, Borislav Petkov <bp@alien8.de>,
+ luto@kernel.org, Vincent Guittot <vincent.guittot@linaro.org>,
  Thomas Gleixner <tglx@linutronix.de>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>
+ Dietmar Eggemann <dietmar.eggemann@arm.com>, Jim Mattson <jmattson@google.com>,
+ linux-kernel@vger.kernel.org,
+ Sean Christopherson <sean.j.christopherson@intel.com>,
+ Paolo Bonzini <pbonzini@redhat.com>,
+ Daniel Bristot de Oliveira <bristot@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -106,31 +116,20 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Fri, Nov 20, 2020 at 12:46:23PM +0100, Juergen Gross wrote:
-> +static __always_inline void arch_local_irq_restore(unsigned long flags)
-> +{
-> +	if (!arch_irqs_disabled_flags(flags))
-> +		arch_local_irq_enable();
-> +}
+On Fri, Nov 20, 2020 at 12:46:24PM +0100, Juergen Gross wrote:
+> The time pvops functions are the only ones left which might be
+> used in 32-bit mode and which return a 64-bit value.
+> 
+> Switch them to use the static_call() mechanism instead of pvops, as
+> this allows quite some simplification of the pvops implementation.
+> 
+> Due to include hell this requires to split out the time interfaces
+> into a new header file.
 
-If someone were to write horrible code like:
+There's also this patch floating around; just in case that would come in
+handy:
 
-	local_irq_disable();
-	local_irq_save(flags);
-	local_irq_enable();
-	local_irq_restore(flags);
-
-we'd be up some creek without a paddle... now I don't _think_ we have
-genius code like that, but I'd feel saver if we can haz an assertion in
-there somewhere...
-
-Maybe something like:
-
-#ifdef CONFIG_DEBUG_ENTRY // for lack of something saner
-	WARN_ON_ONCE((arch_local_save_flags() ^ flags) & X86_EFLAGS_IF);
-#endif
-
-At the end?
+  https://lkml.kernel.org/r/20201110005609.40989-3-frederic@kernel.org
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
