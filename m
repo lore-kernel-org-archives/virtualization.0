@@ -7,81 +7,91 @@ X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=no
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 833F4C63777
-	for <virtualization@archiver.kernel.org>; Fri, 20 Nov 2020 12:05:25 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C9281C56202
+	for <virtualization@archiver.kernel.org>; Fri, 20 Nov 2020 12:08:07 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C03CB22226
-	for <virtualization@archiver.kernel.org>; Fri, 20 Nov 2020 12:05:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 08AB2221FC
+	for <virtualization@archiver.kernel.org>; Fri, 20 Nov 2020 12:08:06 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.com header.i=@suse.com header.b="bmYyX8nI"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C03CB22226
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.com header.i=@suse.com header.b="a37bqq6F"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 08AB2221FC
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 47EBE86E29;
-	Fri, 20 Nov 2020 12:05:24 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 6D2322E0DE;
+	Fri, 20 Nov 2020 12:08:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0cebifXsgTDt; Fri, 20 Nov 2020 12:05:23 +0000 (UTC)
+	with ESMTP id cyuG0Enn0KNQ; Fri, 20 Nov 2020 12:08:04 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id BE30086D6C;
-	Fri, 20 Nov 2020 12:05:23 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 5B2B62037C;
+	Fri, 20 Nov 2020 12:08:04 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 95027C163C;
-	Fri, 20 Nov 2020 12:05:23 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 71F21C0891
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3DA14C163C;
+	Fri, 20 Nov 2020 12:08:04 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9007BC0891
  for <virtualization@lists.linux-foundation.org>;
- Fri, 20 Nov 2020 12:05:21 +0000 (UTC)
+ Fri, 20 Nov 2020 12:08:03 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 6BE8286DB4
+ by silver.osuosl.org (Postfix) with ESMTP id 74F74203A7
  for <virtualization@lists.linux-foundation.org>;
- Fri, 20 Nov 2020 12:05:21 +0000 (UTC)
+ Fri, 20 Nov 2020 12:08:03 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id KZ4z2E0ZRHTW
+ with ESMTP id o385IEh8LQvn
  for <virtualization@lists.linux-foundation.org>;
- Fri, 20 Nov 2020 12:05:20 +0000 (UTC)
+ Fri, 20 Nov 2020 12:08:02 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 99EF686D6C
+ by silver.osuosl.org (Postfix) with ESMTPS id 393702037C
  for <virtualization@lists.linux-foundation.org>;
- Fri, 20 Nov 2020 12:05:20 +0000 (UTC)
+ Fri, 20 Nov 2020 12:08:02 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1605873919; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ t=1605874080; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
  mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=NzTiA4NG82ayN413wirwqqYr4HehcKAsF24Gn5hP2dU=;
- b=bmYyX8nILg+ZlY8sbtWE5w2bO2VV8WEs5T/iV+E9cNskIM3/nmOQdHogS6LmAUqDiCIN7o
- uep+xZsGp+4iiWlkS7R5O+A3tUuUCh3Zjoj5861nPuFhVVaUm7oGIsCOvz4fsp1+Fs7rrG
- 1a0+AfThrxlQZZZfV/WGh6OWJYlmzC4=
+ bh=fi5hxOosLe4ci8CACHcYoETyc/XuBOtY9iexkoP8wiU=;
+ b=a37bqq6FVQfk9qmoQUIC8F5b1rg8hAsd/nFAvEv+0uWryKISA3u857vpvnoUEs8U2FyIRJ
+ QxGZDTbHFZpBg4pohlE7UZQvxR9+3R+lntDjNSctEpkEUrDuwjlxVL7L1r27Uelrhbxkdq
+ Lx8gvFdR71AmMsL9SFcxyQO7sWimq5I=
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 2EDC4AC23;
- Fri, 20 Nov 2020 12:05:19 +0000 (UTC)
-Subject: Re: [PATCH v2 05/12] x86: rework arch_local_irq_restore() to not use
- popf
+ by mx2.suse.de (Postfix) with ESMTP id A5B91AFDB;
+ Fri, 20 Nov 2020 12:08:00 +0000 (UTC)
+Subject: Re: [PATCH v2 06/12] x86/paravirt: switch time pvops functions to use
+ static_call()
 To: Peter Zijlstra <peterz@infradead.org>
 References: <20201120114630.13552-1-jgross@suse.com>
- <20201120114630.13552-6-jgross@suse.com>
- <20201120115943.GD3021@hirez.programming.kicks-ass.net>
-Message-ID: <d2148d19-b8b3-1492-701b-3a85b761fd76@suse.com>
-Date: Fri, 20 Nov 2020 13:05:17 +0100
+ <20201120114630.13552-7-jgross@suse.com>
+ <20201120120154.GE3021@hirez.programming.kicks-ass.net>
+Message-ID: <eab0567e-26b6-7482-b575-3430a34f61f4@suse.com>
+Date: Fri, 20 Nov 2020 13:07:58 +0100
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
  Thunderbird/78.4.0
 MIME-Version: 1.0
-In-Reply-To: <20201120115943.GD3021@hirez.programming.kicks-ass.net>
-Cc: Stefano Stabellini <sstabellini@kernel.org>, "VMware,
- Inc." <pv-drivers@vmware.com>, x86@kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux-foundation.org, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, luto@kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>, xen-devel@lists.xenproject.org,
+In-Reply-To: <20201120120154.GE3021@hirez.programming.kicks-ass.net>
+Cc: Juri Lelli <juri.lelli@redhat.com>, linux-hyperv@vger.kernel.org,
+ Daniel Lezcano <daniel.lezcano@linaro.org>, Wanpeng Li <wanpengli@tencent.com>,
+ kvm@vger.kernel.org, "VMware, Inc." <pv-drivers@vmware.com>,
+ virtualization@lists.linux-foundation.org, Ben Segall <bsegall@google.com>,
+ "H. Peter Anvin" <hpa@zytor.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ Wei Liu <wei.liu@kernel.org>, Stefano Stabellini <sstabellini@kernel.org>,
+ Stephen Hemminger <sthemmin@microsoft.com>, Joerg Roedel <joro@8bytes.org>,
+ x86@kernel.org, Ingo Molnar <mingo@redhat.com>, Mel Gorman <mgorman@suse.de>,
+ xen-devel@lists.xenproject.org, Haiyang Zhang <haiyangz@microsoft.com>,
+ Steven Rostedt <rostedt@goodmis.org>, Borislav Petkov <bp@alien8.de>,
+ luto@kernel.org, Vincent Guittot <vincent.guittot@linaro.org>,
  Thomas Gleixner <tglx@linutronix.de>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>
+ Dietmar Eggemann <dietmar.eggemann@arm.com>, Jim Mattson <jmattson@google.com>,
+ linux-kernel@vger.kernel.org,
+ Sean Christopherson <sean.j.christopherson@intel.com>,
+ Paolo Bonzini <pbonzini@redhat.com>,
+ Daniel Bristot de Oliveira <bristot@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -96,85 +106,86 @@ List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualizati
 From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= via Virtualization
  <virtualization@lists.linux-foundation.org>
 Reply-To: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-Content-Type: multipart/mixed; boundary="===============2180866468177079052=="
+Content-Type: multipart/mixed; boundary="===============4195529625273620629=="
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============2180866468177079052==
+--===============4195529625273620629==
 Content-Type: multipart/signed; micalg=pgp-sha256;
  protocol="application/pgp-signature";
- boundary="ylZJJWu3CTRSDQL4pjinjf9KQnc2Mi8Rq"
+ boundary="Js2C2dWgfc4nTTtJ5MoQYP8PDLusaIBXv"
 
 This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---ylZJJWu3CTRSDQL4pjinjf9KQnc2Mi8Rq
-Content-Type: multipart/mixed; boundary="OJdSKNZQ7zTeFDk7fKB1vgvgQ8RAMAcBi";
+--Js2C2dWgfc4nTTtJ5MoQYP8PDLusaIBXv
+Content-Type: multipart/mixed; boundary="gBfRrUi6EIKy8OO8lvbihDGpshaEHf5sL";
  protected-headers="v1"
 From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
 To: Peter Zijlstra <peterz@infradead.org>
 Cc: xen-devel@lists.xenproject.org, x86@kernel.org,
- linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ linux-kernel@vger.kernel.org, linux-hyperv@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, kvm@vger.kernel.org,
  luto@kernel.org, Thomas Gleixner <tglx@linutronix.de>,
  Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- "H. Peter Anvin" <hpa@zytor.com>, Deep Shah <sdeep@vmware.com>,
- "VMware, Inc." <pv-drivers@vmware.com>,
+ "H. Peter Anvin" <hpa@zytor.com>, "K. Y. Srinivasan" <kys@microsoft.com>,
+ Haiyang Zhang <haiyangz@microsoft.com>,
+ Stephen Hemminger <sthemmin@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
+ Deep Shah <sdeep@vmware.com>, "VMware, Inc." <pv-drivers@vmware.com>,
+ Paolo Bonzini <pbonzini@redhat.com>,
+ Sean Christopherson <sean.j.christopherson@intel.com>,
+ Vitaly Kuznetsov <vkuznets@redhat.com>, Wanpeng Li <wanpengli@tencent.com>,
+ Jim Mattson <jmattson@google.com>, Joerg Roedel <joro@8bytes.org>,
  Boris Ostrovsky <boris.ostrovsky@oracle.com>,
- Stefano Stabellini <sstabellini@kernel.org>
-Message-ID: <d2148d19-b8b3-1492-701b-3a85b761fd76@suse.com>
-Subject: Re: [PATCH v2 05/12] x86: rework arch_local_irq_restore() to not use
- popf
+ Stefano Stabellini <sstabellini@kernel.org>,
+ Daniel Lezcano <daniel.lezcano@linaro.org>,
+ Juri Lelli <juri.lelli@redhat.com>,
+ Vincent Guittot <vincent.guittot@linaro.org>,
+ Dietmar Eggemann <dietmar.eggemann@arm.com>,
+ Steven Rostedt <rostedt@goodmis.org>, Ben Segall <bsegall@google.com>,
+ Mel Gorman <mgorman@suse.de>, Daniel Bristot de Oliveira <bristot@redhat.com>
+Message-ID: <eab0567e-26b6-7482-b575-3430a34f61f4@suse.com>
+Subject: Re: [PATCH v2 06/12] x86/paravirt: switch time pvops functions to use
+ static_call()
 References: <20201120114630.13552-1-jgross@suse.com>
- <20201120114630.13552-6-jgross@suse.com>
- <20201120115943.GD3021@hirez.programming.kicks-ass.net>
-In-Reply-To: <20201120115943.GD3021@hirez.programming.kicks-ass.net>
+ <20201120114630.13552-7-jgross@suse.com>
+ <20201120120154.GE3021@hirez.programming.kicks-ass.net>
+In-Reply-To: <20201120120154.GE3021@hirez.programming.kicks-ass.net>
 
---OJdSKNZQ7zTeFDk7fKB1vgvgQ8RAMAcBi
+--gBfRrUi6EIKy8OO8lvbihDGpshaEHf5sL
 Content-Type: multipart/mixed;
- boundary="------------67F8C41D891759989B303093"
+ boundary="------------2D61E8643D7878B5993793A0"
 Content-Language: en-US
 
 This is a multi-part message in MIME format.
---------------67F8C41D891759989B303093
+--------------2D61E8643D7878B5993793A0
 Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: quoted-printable
 
-On 20.11.20 12:59, Peter Zijlstra wrote:
-> On Fri, Nov 20, 2020 at 12:46:23PM +0100, Juergen Gross wrote:
->> +static __always_inline void arch_local_irq_restore(unsigned long flag=
-s)
->> +{
->> +	if (!arch_irqs_disabled_flags(flags))
->> +		arch_local_irq_enable();
->> +}
+On 20.11.20 13:01, Peter Zijlstra wrote:
+> On Fri, Nov 20, 2020 at 12:46:24PM +0100, Juergen Gross wrote:
+>> The time pvops functions are the only ones left which might be
+>> used in 32-bit mode and which return a 64-bit value.
+>>
+>> Switch them to use the static_call() mechanism instead of pvops, as
+>> this allows quite some simplification of the pvops implementation.
+>>
+>> Due to include hell this requires to split out the time interfaces
+>> into a new header file.
 >=20
-> If someone were to write horrible code like:
+> There's also this patch floating around; just in case that would come i=
+n
+> handy:
 >=20
-> 	local_irq_disable();
-> 	local_irq_save(flags);
-> 	local_irq_enable();
-> 	local_irq_restore(flags);
->=20
-> we'd be up some creek without a paddle... now I don't _think_ we have
-> genius code like that, but I'd feel saver if we can haz an assertion in=
+>    https://lkml.kernel.org/r/20201110005609.40989-3-frederic@kernel.org=
 
-> there somewhere...
->=20
-> Maybe something like:
->=20
-> #ifdef CONFIG_DEBUG_ENTRY // for lack of something saner
-> 	WARN_ON_ONCE((arch_local_save_flags() ^ flags) & X86_EFLAGS_IF);
-> #endif
->=20
-> At the end?
 >=20
 
-I'd be fine with that. I didn't add something like that because I
-couldn't find a suitable CONFIG_ :-)
+Ah, yes. This would make life much easier.
 
 
 Juergen
 
---------------67F8C41D891759989B303093
+--------------2D61E8643D7878B5993793A0
 Content-Type: application/pgp-keys;
  name="OpenPGP_0xB0DE9DD628BF132F.asc"
 Content-Transfer-Encoding: quoted-printable
@@ -265,29 +276,29 @@ ZDn8R38=3D
 =3D2wuH
 -----END PGP PUBLIC KEY BLOCK-----
 
---------------67F8C41D891759989B303093--
+--------------2D61E8643D7878B5993793A0--
 
---OJdSKNZQ7zTeFDk7fKB1vgvgQ8RAMAcBi--
+--gBfRrUi6EIKy8OO8lvbihDGpshaEHf5sL--
 
---ylZJJWu3CTRSDQL4pjinjf9KQnc2Mi8Rq
+--Js2C2dWgfc4nTTtJ5MoQYP8PDLusaIBXv
 Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
 Content-Description: OpenPGP digital signature
 Content-Disposition: attachment; filename="OpenPGP_signature"
 
 -----BEGIN PGP SIGNATURE-----
 
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAl+3sP0FAwAAAAAACgkQsN6d1ii/Ey9w
-0Af/dT6XeG9kNTyqYmy9/CPAH4Oth+lNpcfbnKD+N1KHS2cUBc7/EQ1Aqjbe2nDZKRK6vw/E21u8
-U8mU0GsAvfwZltDYvmAtBfgOErYFp2LEjWHrNw+jAAFcCQB9VQewNhQ87VwBv3dHNCz5SkabXif9
-2ql8lQg3+TvIHyMzqRvXeAHCiIWmvjWceaniEwjo8aVB21XrySpCpSBh7wI9bvD+66Y3rrl9wNTD
-K+gLs8izRO4wUOrq8+OJDN+CE2NZIgcnUICM62DRs9EPa6RaDpfXa072Tggc1z0Y0JUElLSS/NDa
-QULDL6tNrQjVAVhoV8PiR7Zvit8cbRocdGdIpSlcrA==
-=bqp5
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAl+3sZ4FAwAAAAAACgkQsN6d1ii/Ey/3
+jQgAi585ZnxsqQnHs2MM186NZwzBRkQkzP3jMvU0GbwSpGKausY1llB2/PNBmF1VqwRXspKl+AUA
+3jFFImHpbvbwP1nMxRcNdBMN7lPp7ryuT3m0e07QfJ3iM5KieHKeQzWqTWOyTKagFuqZa6FHLYZi
+8z8EE3js4klXNxhV7xSk9Gq2uG+6NK3GXrbz+cm+SsY4LV5KVXlq73RS/txcioX0XbMqy6R5GfTO
+eTDPz0pch8fftn3VtYoNyp1VnnDd+63JkL1z2yjJZ0NbbjaE3rEMU4902KY0v2WDUMk+FC5/pltI
+WRYnBzTbzsXf3edO/7A8t2TV1sUTI6PILETFoLuMyw==
+=nK8b
 -----END PGP SIGNATURE-----
 
---ylZJJWu3CTRSDQL4pjinjf9KQnc2Mi8Rq--
+--Js2C2dWgfc4nTTtJ5MoQYP8PDLusaIBXv--
 
---===============2180866468177079052==
+--===============4195529625273620629==
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -297,4 +308,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============2180866468177079052==--
+--===============4195529625273620629==--
