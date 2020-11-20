@@ -2,91 +2,90 @@ Return-Path: <SRS0=8XPq=E2=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-11.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 52FE9C56202
-	for <virtualization@archiver.kernel.org>; Fri, 20 Nov 2020 10:47:57 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id ED483C56202
+	for <virtualization@archiver.kernel.org>; Fri, 20 Nov 2020 11:46:41 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 79332206FB
-	for <virtualization@archiver.kernel.org>; Fri, 20 Nov 2020 10:47:56 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 3536422253
+	for <virtualization@archiver.kernel.org>; Fri, 20 Nov 2020 11:46:40 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cXkKSbgm"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 79332206FB
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.com header.i=@suse.com header.b="rHmTXjwV"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3536422253
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id B6E6386D7D;
-	Fri, 20 Nov 2020 10:47:55 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 79672870C8;
+	Fri, 20 Nov 2020 11:46:40 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id eQE7FdeqCJIH; Fri, 20 Nov 2020 10:47:55 +0000 (UTC)
+	with ESMTP id SnZ+alfa7BXN; Fri, 20 Nov 2020 11:46:39 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 1FE7586D65;
-	Fri, 20 Nov 2020 10:47:55 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id 5D373870AC;
+	Fri, 20 Nov 2020 11:46:39 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 00275C163C;
-	Fri, 20 Nov 2020 10:47:54 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 3DA8DC1825;
+	Fri, 20 Nov 2020 11:46:39 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 79017C0891
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 650E3C0891
  for <virtualization@lists.linux-foundation.org>;
- Fri, 20 Nov 2020 10:47:53 +0000 (UTC)
+ Fri, 20 Nov 2020 11:46:37 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 5ADFA86FA5
+ by whitealder.osuosl.org (Postfix) with ESMTP id 4943A870AF
  for <virtualization@lists.linux-foundation.org>;
- Fri, 20 Nov 2020 10:47:53 +0000 (UTC)
+ Fri, 20 Nov 2020 11:46:37 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id nHxszFk64pGc
+ with ESMTP id 7vcCCLwNxJzc
  for <virtualization@lists.linux-foundation.org>;
- Fri, 20 Nov 2020 10:47:52 +0000 (UTC)
+ Fri, 20 Nov 2020 11:46:36 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 2B91E86FA2
+Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 372E2870AC
  for <virtualization@lists.linux-foundation.org>;
- Fri, 20 Nov 2020 10:47:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1605869270;
- h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
- to:to:cc:cc:mime-version:mime-version:
- content-transfer-encoding:content-transfer-encoding;
- bh=FWeqzBmZlLWAnJm9w9KD07ccv+2odS4qEQoYooXswuk=;
- b=cXkKSbgmjG6ii2sVCxbDNQVsJWAsKtm6eOOIpyMOq67WZVdsP4BhDJnPw+blN0ZLQZ+ld0
- bMawmSVwXYWNiomh7rt25XLZ5MIM9ej86nOpPhppKvJP1AW8OYFz+WTSb00O+XtJfynKtd
- 94JUYi9jX50rJVOFim6PHR2jBMvR7dM=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-141-z5gMOlHWMvOuFb6u_w9ZmA-1; Fri, 20 Nov 2020 05:47:47 -0500
-X-MC-Unique: z5gMOlHWMvOuFb6u_w9ZmA-1
-Received: from smtp.corp.redhat.com (int-mx01.intmail.prod.int.phx2.redhat.com
- [10.5.11.11])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id CA5A9801B1C;
- Fri, 20 Nov 2020 10:47:45 +0000 (UTC)
-Received: from steredhat.redhat.com (ovpn-114-22.ams2.redhat.com
- [10.36.114.22])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 0495F1F0;
- Fri, 20 Nov 2020 10:47:36 +0000 (UTC)
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: netdev@vger.kernel.org
-Subject: [PATCH net] vsock/virtio: discard packets only when socket is really
- closed
-Date: Fri, 20 Nov 2020 11:47:36 +0100
-Message-Id: <20201120104736.73749-1-sgarzare@redhat.com>
-MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.11
-Cc: Jia He <justin.he@arm.com>, kvm@vger.kernel.org,
+ Fri, 20 Nov 2020 11:46:36 +0000 (UTC)
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+ t=1605872794; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ mime-version:mime-version: content-transfer-encoding:content-transfer-encoding;
+ bh=fjHe3+rmjY5cASW1XAPrcDHWzGbizvpE61ZYWB4j3cw=;
+ b=rHmTXjwVBmFJKyhCEqOmhgg9FGZswY8WJdm/UueRf8DddoT49obCKWkkpulXZkEmbMyr53
+ +tF6wEHiJQUjLKUN11yRtxzw2OPKHPWiM+6wvnAdRmBLFldnpbyUuBKOY+QFrHkVnZVwFO
+ BIZuxt25L9jBmyI/EuK0mKwTZgHx17c=
+Received: from relay2.suse.de (unknown [195.135.221.27])
+ by mx2.suse.de (Postfix) with ESMTP id C23BCAD57;
+ Fri, 20 Nov 2020 11:46:33 +0000 (UTC)
+To: xen-devel@lists.xenproject.org, x86@kernel.org,
  linux-kernel@vger.kernel.org, virtualization@lists.linux-foundation.org,
- Stefan Hajnoczi <stefanha@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
- "David S. Miller" <davem@davemloft.net>
+ linux-hyperv@vger.kernel.org, kvm@vger.kernel.org
+Subject: [PATCH v2 00/12] x86: major paravirt cleanup
+Date: Fri, 20 Nov 2020 12:46:18 +0100
+Message-Id: <20201120114630.13552-1-jgross@suse.com>
+X-Mailer: git-send-email 2.26.2
+MIME-Version: 1.0
+Cc: Juri Lelli <juri.lelli@redhat.com>, Wanpeng Li <wanpengli@tencent.com>,
+ peterz@infradead.org, Ben Segall <bsegall@google.com>,
+ "H. Peter Anvin" <hpa@zytor.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ Wei Liu <wei.liu@kernel.org>, Stefano Stabellini <sstabellini@kernel.org>,
+ Stephen Hemminger <sthemmin@microsoft.com>, Joerg Roedel <joro@8bytes.org>,
+ Daniel Lezcano <daniel.lezcano@linaro.org>, "VMware,
+ Inc." <pv-drivers@vmware.com>, Ingo Molnar <mingo@redhat.com>,
+ Mel Gorman <mgorman@suse.de>, Haiyang Zhang <haiyangz@microsoft.com>,
+ Steven Rostedt <rostedt@goodmis.org>, Borislav Petkov <bp@alien8.de>,
+ luto@kernel.org, Vincent Guittot <vincent.guittot@linaro.org>,
+ Thomas Gleixner <tglx@linutronix.de>,
+ Dietmar Eggemann <dietmar.eggemann@arm.com>, Jim Mattson <jmattson@google.com>,
+ Juergen Gross <jgross@suse.com>,
+ Sean Christopherson <sean.j.christopherson@intel.com>,
+ Paolo Bonzini <pbonzini@redhat.com>,
+ Daniel Bristot de Oliveira <bristot@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -98,73 +97,84 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
+From: Juergen Gross via Virtualization
+ <virtualization@lists.linux-foundation.org>
+Reply-To: Juergen Gross <jgross@suse.com>
 Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Starting from commit 8692cefc433f ("virtio_vsock: Fix race condition
-in virtio_transport_recv_pkt"), we discard packets in
-virtio_transport_recv_pkt() if the socket has been released.
+This is a major cleanup of the paravirt infrastructure aiming at
+eliminating all custom code patching via paravirt patching.
 
-When the socket is connected, we schedule a delayed work to wait the
-RST packet from the other peer, also if SHUTDOWN_MASK is set in
-sk->sk_shutdown.
-This is done to complete the virtio-vsock shutdown algorithm, releasing
-the port assigned to the socket definitively only when the other peer
-has consumed all the packets.
+This is achieved by using ALTERNATIVE instead, leading to the ability
+to give objtool access to the patched in instructions.
 
-If we discard the RST packet received, the socket will be closed only
-when the VSOCK_CLOSE_TIMEOUT is reached.
+In order to remove most of the 32-bit special handling from pvops the
+time related operations are switched to use static_call() instead.
 
-Sergio discovered the issue while running ab(1) HTTP benchmark using
-libkrun [1] and observing a latency increase with that commit.
+At the end of this series all paravirt patching has to do is to
+replace indirect calls with direct ones. In a further step this could
+be switched to static_call(), too, but that would require a major
+header file disentangling.
 
-To avoid this issue, we discard packet only if the socket is really
-closed (SOCK_DONE flag is set).
-We also set SOCK_DONE in virtio_transport_release() when we don't need
-to wait any packets from the other peer (we didn't schedule the delayed
-work). In this case we remove the socket from the vsock lists, releasing
-the port assigned.
+Note that an updated objtool is needed for this series, as otherwise
+lots of warnings due to alternative instructions modifying the stack
+will be issued during the build.
 
-[1] https://github.com/containers/libkrun
+Changes in V2:
+- added patches 5-12
 
-Fixes: 8692cefc433f ("virtio_vsock: Fix race condition in virtio_transport_recv_pkt")
-Cc: justin.he@arm.com
-Reported-by: Sergio Lopez <slp@redhat.com>
-Tested-by: Sergio Lopez <slp@redhat.com>
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
- net/vmw_vsock/virtio_transport_common.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+Juergen Gross (12):
+  x86/xen: use specific Xen pv interrupt entry for MCE
+  x86/xen: use specific Xen pv interrupt entry for DF
+  x86/pv: switch SWAPGS to ALTERNATIVE
+  x86/xen: drop USERGS_SYSRET64 paravirt call
+  x86: rework arch_local_irq_restore() to not use popf
+  x86/paravirt: switch time pvops functions to use static_call()
+  x86: add new features for paravirt patching
+  x86/paravirt: remove no longer needed 32-bit pvops cruft
+  x86/paravirt: switch iret pvops to ALTERNATIVE
+  x86/paravirt: add new macros PVOP_ALT* supporting pvops in
+    ALTERNATIVEs
+  x86/paravirt: switch functions with custom code to ALTERNATIVE
+  x86/paravirt: have only one paravirt patch function
 
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 0edda1edf988..5956939eebb7 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -841,8 +841,10 @@ void virtio_transport_release(struct vsock_sock *vsk)
- 		virtio_transport_free_pkt(pkt);
- 	}
- 
--	if (remove_sock)
-+	if (remove_sock) {
-+		sock_set_flag(sk, SOCK_DONE);
- 		vsock_remove_sock(vsk);
-+	}
- }
- EXPORT_SYMBOL_GPL(virtio_transport_release);
- 
-@@ -1132,8 +1134,8 @@ void virtio_transport_recv_pkt(struct virtio_transport *t,
- 
- 	lock_sock(sk);
- 
--	/* Check if sk has been released before lock_sock */
--	if (sk->sk_shutdown == SHUTDOWN_MASK) {
-+	/* Check if sk has been closed before lock_sock */
-+	if (sock_flag(sk, SOCK_DONE)) {
- 		(void)virtio_transport_reset_no_sock(t, pkt);
- 		release_sock(sk);
- 		sock_put(sk);
+ arch/x86/Kconfig                      |   1 +
+ arch/x86/entry/entry_32.S             |   4 +-
+ arch/x86/entry/entry_64.S             |  32 ++--
+ arch/x86/include/asm/cpufeatures.h    |   3 +
+ arch/x86/include/asm/idtentry.h       |   6 +
+ arch/x86/include/asm/irqflags.h       |  51 ++----
+ arch/x86/include/asm/mshyperv.h       |  11 --
+ arch/x86/include/asm/paravirt.h       | 170 ++++++--------------
+ arch/x86/include/asm/paravirt_time.h  |  38 +++++
+ arch/x86/include/asm/paravirt_types.h | 222 ++++++++++++--------------
+ arch/x86/kernel/Makefile              |   3 +-
+ arch/x86/kernel/alternative.c         |  30 +++-
+ arch/x86/kernel/asm-offsets.c         |   8 -
+ arch/x86/kernel/asm-offsets_64.c      |   3 -
+ arch/x86/kernel/cpu/vmware.c          |   5 +-
+ arch/x86/kernel/head_64.S             |   2 -
+ arch/x86/kernel/irqflags.S            |  11 --
+ arch/x86/kernel/kvm.c                 |   3 +-
+ arch/x86/kernel/kvmclock.c            |   3 +-
+ arch/x86/kernel/paravirt.c            |  70 +++-----
+ arch/x86/kernel/paravirt_patch.c      | 109 -------------
+ arch/x86/kernel/tsc.c                 |   3 +-
+ arch/x86/xen/enlighten_pv.c           |  36 +++--
+ arch/x86/xen/irq.c                    |  23 ---
+ arch/x86/xen/time.c                   |  12 +-
+ arch/x86/xen/xen-asm.S                |  52 +-----
+ arch/x86/xen/xen-ops.h                |   3 -
+ drivers/clocksource/hyperv_timer.c    |   5 +-
+ drivers/xen/time.c                    |   3 +-
+ kernel/sched/sched.h                  |   1 +
+ 30 files changed, 325 insertions(+), 598 deletions(-)
+ create mode 100644 arch/x86/include/asm/paravirt_time.h
+ delete mode 100644 arch/x86/kernel/paravirt_patch.c
+
 -- 
 2.26.2
 
