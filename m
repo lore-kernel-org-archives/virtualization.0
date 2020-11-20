@@ -7,68 +7,68 @@ X-Spam-Status: No, score=-16.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 873F3C63777
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D5956C56202
 	for <virtualization@archiver.kernel.org>; Fri, 20 Nov 2020 11:46:49 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id EE5252222A
-	for <virtualization@archiver.kernel.org>; Fri, 20 Nov 2020 11:46:48 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 4526022253
+	for <virtualization@archiver.kernel.org>; Fri, 20 Nov 2020 11:46:49 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.com header.i=@suse.com header.b="NFyZJJGo"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EE5252222A
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.com header.i=@suse.com header.b="bN5ciPN9"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4526022253
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id B772486E04;
+	by fraxinus.osuosl.org (Postfix) with ESMTP id BEEF886E57;
 	Fri, 20 Nov 2020 11:46:48 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id aE5Hb8eIl477; Fri, 20 Nov 2020 11:46:46 +0000 (UTC)
+	with ESMTP id 3DA0VDTRlOIq; Fri, 20 Nov 2020 11:46:47 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id C3E0586E1F;
+	by fraxinus.osuosl.org (Postfix) with ESMTP id EFA5186E3B;
 	Fri, 20 Nov 2020 11:46:46 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 98DA4C1D9F;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D65C7C1D9F;
 	Fri, 20 Nov 2020 11:46:46 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id AAABAC1DA0
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id CCB2DC1825
  for <virtualization@lists.linux-foundation.org>;
  Fri, 20 Nov 2020 11:46:42 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 96A4E87132
+ by fraxinus.osuosl.org (Postfix) with ESMTP id AE44686E04
  for <virtualization@lists.linux-foundation.org>;
  Fri, 20 Nov 2020 11:46:42 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id jw1r600Enz2K
+ with ESMTP id WRNvvhNhXmqO
  for <virtualization@lists.linux-foundation.org>;
- Fri, 20 Nov 2020 11:46:40 +0000 (UTC)
+ Fri, 20 Nov 2020 11:46:38 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by whitealder.osuosl.org (Postfix) with ESMTPS id AD3BA870C6
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 806D286D02
  for <virtualization@lists.linux-foundation.org>;
- Fri, 20 Nov 2020 11:46:39 +0000 (UTC)
+ Fri, 20 Nov 2020 11:46:38 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1605872798; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+ t=1605872797; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
  mime-version:mime-version:
  content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=RvGJzF3kLsbrT/VFYKE6yOfFu7G7ZuC1Hu1vcGbSYR0=;
- b=NFyZJJGo7Rm2MSDuNGewrxDAq0Ask4NpUk48WrgYcF0spwnkO34hJz75+m3ma+FokdkL1B
- FjiHGB8NlDkZCUw1tIyBMEPrKwaVIdnUxNewB8hbvR4fR/YO+4L1JfzR1I+w/zExML29M1
- AZGUh6y9Gai0RPBULFe19SmUiV2I40E=
+ bh=F0FxjLQb6W8kGCEjKtE8wMSw1R1pxGMsEFzboyPVoeE=;
+ b=bN5ciPN9/DNdp7hpMnvdVggS8h8vSPrE1dpBLTKIao4WCmPdxE/YcHFGwJD6CPBJG5IRvZ
+ W1Jvtp8CM17/auMrVrr1BNDfXKPXB2nvcpHoPKafpkAJ3PLKyVDh3moVELGw+VGDI4iD1x
+ TfiHTB9PfaDUKUzjFg2n8SehAt/bAl0=
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 460FBADDB;
- Fri, 20 Nov 2020 11:46:38 +0000 (UTC)
+ by mx2.suse.de (Postfix) with ESMTP id 18599ADCA;
+ Fri, 20 Nov 2020 11:46:37 +0000 (UTC)
 To: xen-devel@lists.xenproject.org, x86@kernel.org,
  virtualization@lists.linux-foundation.org, linux-kernel@vger.kernel.org
-Subject: [PATCH v2 12/12] x86/paravirt: have only one paravirt patch function
-Date: Fri, 20 Nov 2020 12:46:30 +0100
-Message-Id: <20201120114630.13552-13-jgross@suse.com>
+Subject: [PATCH v2 09/12] x86/paravirt: switch iret pvops to ALTERNATIVE
+Date: Fri, 20 Nov 2020 12:46:27 +0100
+Message-Id: <20201120114630.13552-10-jgross@suse.com>
 X-Mailer: git-send-email 2.26.2
 In-Reply-To: <20201120114630.13552-1-jgross@suse.com>
 References: <20201120114630.13552-1-jgross@suse.com>
@@ -98,153 +98,154 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-There is no need any longer to have different paravirt patch functions
-for native and Xen. Eliminate native_patch() and rename
-paravirt_patch_default() to paravirt_patch().
+The iret paravirt op is rather special as it is using a jmp instead
+of a call instruction. Switch it to ALTERNATIVE.
 
 Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
- arch/x86/include/asm/paravirt_types.h | 19 +------------------
- arch/x86/kernel/Makefile              |  3 +--
- arch/x86/kernel/alternative.c         |  2 +-
- arch/x86/kernel/paravirt.c            |  7 ++-----
- arch/x86/kernel/paravirt_patch.c      | 11 -----------
- arch/x86/xen/enlighten_pv.c           |  1 -
- 6 files changed, 5 insertions(+), 38 deletions(-)
- delete mode 100644 arch/x86/kernel/paravirt_patch.c
+ arch/x86/include/asm/paravirt.h       |  7 ++++---
+ arch/x86/include/asm/paravirt_types.h |  5 +----
+ arch/x86/kernel/asm-offsets.c         |  5 -----
+ arch/x86/kernel/paravirt.c            | 26 ++------------------------
+ arch/x86/xen/enlighten_pv.c           |  3 +--
+ 5 files changed, 8 insertions(+), 38 deletions(-)
 
+diff --git a/arch/x86/include/asm/paravirt.h b/arch/x86/include/asm/paravirt.h
+index 1dd30c95505d..62fbcd899539 100644
+--- a/arch/x86/include/asm/paravirt.h
++++ b/arch/x86/include/asm/paravirt.h
+@@ -720,9 +720,10 @@ extern void default_banner(void);
+ #define PARA_INDIRECT(addr)	*addr(%rip)
+ 
+ #define INTERRUPT_RETURN						\
+-	PARA_SITE(PARA_PATCH(PV_CPU_iret),				\
+-		  ANNOTATE_RETPOLINE_SAFE;				\
+-		  jmp PARA_INDIRECT(pv_ops+PV_CPU_iret);)
++	ANNOTATE_RETPOLINE_SAFE;					\
++	ALTERNATIVE_2 "jmp *paravirt_iret(%rip);",			\
++		      "jmp native_iret;", X86_FEATURE_NOT_XENPV,	\
++		      "jmp xen_iret;", X86_FEATURE_XENPV
+ 
+ #ifdef CONFIG_DEBUG_ENTRY
+ #define SAVE_FLAGS(clobbers)                                        \
 diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 481d3b667005..bb79e21e1ead 100644
+index b86acbb6449f..b66650dc869e 100644
 --- a/arch/x86/include/asm/paravirt_types.h
 +++ b/arch/x86/include/asm/paravirt_types.h
-@@ -74,19 +74,6 @@ struct pv_info {
- 	const char *name;
- };
+@@ -152,10 +152,6 @@ struct pv_cpu_ops {
  
--struct pv_init_ops {
--	/*
--	 * Patch may replace one of the defined code sequences with
--	 * arbitrary code, subject to the same register constraints.
--	 * This generally means the code is not free to clobber any
--	 * registers other than EAX.  The patch function should return
--	 * the number of bytes of code generated, as we nop pad the
--	 * rest in generic code.
--	 */
--	unsigned (*patch)(u8 type, void *insn_buff,
--			  unsigned long addr, unsigned len);
--} __no_randomize_layout;
+ 	u64 (*read_pmc)(int counter);
+ 
+-	/* Normal iret.  Jump to this with the standard iret stack
+-	   frame set up. */
+-	void (*iret)(void);
 -
- #ifdef CONFIG_PARAVIRT_XXL
- struct pv_lazy_ops {
- 	/* Set deferred update mode, used for batching operations. */
-@@ -282,7 +269,6 @@ struct pv_lock_ops {
-  * number for each function using the offset which we use to indicate
-  * what to patch. */
- struct paravirt_patch_template {
--	struct pv_init_ops	init;
- 	struct pv_cpu_ops	cpu;
- 	struct pv_irq_ops	irq;
- 	struct pv_mmu_ops	mmu;
-@@ -323,10 +309,7 @@ extern void (*paravirt_iret)(void);
- /* Simple instruction patching code. */
- #define NATIVE_LABEL(a,x,b) "\n\t.globl " a #x "_" #b "\n" a #x "_" #b ":\n\t"
+ 	void (*start_context_switch)(struct task_struct *prev);
+ 	void (*end_context_switch)(struct task_struct *next);
+ #endif
+@@ -295,6 +291,7 @@ struct paravirt_patch_template {
  
--unsigned paravirt_patch_default(u8 type, void *insn_buff, unsigned long addr, unsigned len);
--unsigned paravirt_patch_insns(void *insn_buff, unsigned len, const char *start, const char *end);
+ extern struct pv_info pv_info;
+ extern struct paravirt_patch_template pv_ops;
++extern void (*paravirt_iret)(void);
+ 
+ #define PARAVIRT_PATCH(x)					\
+ 	(offsetof(struct paravirt_patch_template, x) / sizeof(void *))
+diff --git a/arch/x86/kernel/asm-offsets.c b/arch/x86/kernel/asm-offsets.c
+index 736508004b30..ecd3fd6993d1 100644
+--- a/arch/x86/kernel/asm-offsets.c
++++ b/arch/x86/kernel/asm-offsets.c
+@@ -61,11 +61,6 @@ static void __used common(void)
+ 	OFFSET(IA32_RT_SIGFRAME_sigcontext, rt_sigframe_ia32, uc.uc_mcontext);
+ #endif
+ 
+-#ifdef CONFIG_PARAVIRT_XXL
+-	BLANK();
+-	OFFSET(PV_CPU_iret, paravirt_patch_template, cpu.iret);
+-#endif
 -
--unsigned native_patch(u8 type, void *insn_buff, unsigned long addr, unsigned len);
-+unsigned paravirt_patch(u8 type, void *insn_buff, unsigned long addr, unsigned len);
- 
- int paravirt_disable_iospace(void);
- 
-diff --git a/arch/x86/kernel/Makefile b/arch/x86/kernel/Makefile
-index 68608bd892c0..61f52f95670b 100644
---- a/arch/x86/kernel/Makefile
-+++ b/arch/x86/kernel/Makefile
-@@ -35,7 +35,6 @@ KASAN_SANITIZE_sev-es.o					:= n
- KCSAN_SANITIZE := n
- 
- OBJECT_FILES_NON_STANDARD_test_nx.o			:= y
--OBJECT_FILES_NON_STANDARD_paravirt_patch.o		:= y
- 
- ifdef CONFIG_FRAME_POINTER
- OBJECT_FILES_NON_STANDARD_ftrace_$(BITS).o		:= y
-@@ -122,7 +121,7 @@ obj-$(CONFIG_AMD_NB)		+= amd_nb.o
- obj-$(CONFIG_DEBUG_NMI_SELFTEST) += nmi_selftest.o
- 
- obj-$(CONFIG_KVM_GUEST)		+= kvm.o kvmclock.o
--obj-$(CONFIG_PARAVIRT)		+= paravirt.o paravirt_patch.o
-+obj-$(CONFIG_PARAVIRT)		+= paravirt.o
- obj-$(CONFIG_PARAVIRT_SPINLOCKS)+= paravirt-spinlocks.o
- obj-$(CONFIG_PARAVIRT_CLOCK)	+= pvclock.o
- obj-$(CONFIG_X86_PMEM_LEGACY_DEVICE) += pmem.o
-diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
-index f8f9700719cf..7ed2c3992eb3 100644
---- a/arch/x86/kernel/alternative.c
-+++ b/arch/x86/kernel/alternative.c
-@@ -617,7 +617,7 @@ void __init_or_module apply_paravirt(struct paravirt_patch_site *start,
- 		BUG_ON(p->len > MAX_PATCH_LEN);
- 		/* prep the buffer with the original instructions */
- 		memcpy(insn_buff, p->instr, p->len);
--		used = pv_ops.init.patch(p->type, insn_buff, (unsigned long)p->instr, p->len);
-+		used = paravirt_patch(p->type, insn_buff, (unsigned long)p->instr, p->len);
- 
- 		BUG_ON(used > p->len);
- 
+ #ifdef CONFIG_XEN
+ 	BLANK();
+ 	OFFSET(XEN_vcpu_info_mask, vcpu_info, evtchn_upcall_mask);
 diff --git a/arch/x86/kernel/paravirt.c b/arch/x86/kernel/paravirt.c
-index db6ae7f7c14e..f05404844245 100644
+index 9f8aa18aa378..2ab547dd66c3 100644
 --- a/arch/x86/kernel/paravirt.c
 +++ b/arch/x86/kernel/paravirt.c
-@@ -99,8 +99,8 @@ void __init native_pv_lock_init(void)
- 		static_branch_disable(&virt_spin_lock_key);
- }
- 
--unsigned paravirt_patch_default(u8 type, void *insn_buff,
--				unsigned long addr, unsigned len)
-+unsigned paravirt_patch(u8 type, void *insn_buff, unsigned long addr,
-+			unsigned len)
+@@ -86,25 +86,6 @@ u64 notrace _paravirt_ident_64(u64 x)
  {
- 	/*
- 	 * Neat trick to map patch type back to the call within the
-@@ -255,9 +255,6 @@ struct pv_info pv_info = {
- #define PTE_IDENT	__PV_IS_CALLEE_SAVE(_paravirt_ident_64)
- 
- struct paravirt_patch_template pv_ops = {
--	/* Init ops. */
--	.init.patch		= native_patch,
+ 	return x;
+ }
 -
- 	/* Cpu ops. */
- 	.cpu.io_delay		= native_io_delay,
- 
-diff --git a/arch/x86/kernel/paravirt_patch.c b/arch/x86/kernel/paravirt_patch.c
-deleted file mode 100644
-index 10543dcc8211..000000000000
---- a/arch/x86/kernel/paravirt_patch.c
-+++ /dev/null
-@@ -1,11 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--#include <linux/stringify.h>
--
--#include <asm/paravirt.h>
--#include <asm/asm-offsets.h>
--
--unsigned int native_patch(u8 type, void *insn_buff, unsigned long addr,
--			  unsigned int len)
+-static unsigned paravirt_patch_jmp(void *insn_buff, const void *target,
+-				   unsigned long addr, unsigned len)
 -{
--	return paravirt_patch_default(type, insn_buff, addr, len);
+-	struct branch *b = insn_buff;
+-	unsigned long delta = (unsigned long)target - (addr+5);
+-
+-	if (len < 5) {
+-#ifdef CONFIG_RETPOLINE
+-		WARN_ONCE(1, "Failing to patch indirect JMP in %ps\n", (void *)addr);
+-#endif
+-		return len;	/* call too long for patch site */
+-	}
+-
+-	b->opcode = 0xe9;	/* jmp */
+-	b->delta = delta;
+-
+-	return 5;
 -}
+ #endif
+ 
+ DEFINE_STATIC_KEY_TRUE(virt_spin_lock_key);
+@@ -136,9 +117,6 @@ unsigned paravirt_patch_default(u8 type, void *insn_buff,
+ 	else if (opfunc == _paravirt_ident_64)
+ 		ret = paravirt_patch_ident_64(insn_buff, len);
+ 
+-	else if (type == PARAVIRT_PATCH(cpu.iret))
+-		/* If operation requires a jmp, then jmp */
+-		ret = paravirt_patch_jmp(insn_buff, opfunc, addr, len);
+ #endif
+ 	else
+ 		/* Otherwise call the function. */
+@@ -316,8 +294,6 @@ struct paravirt_patch_template pv_ops = {
+ 
+ 	.cpu.load_sp0		= native_load_sp0,
+ 
+-	.cpu.iret		= native_iret,
+-
+ #ifdef CONFIG_X86_IOPL_IOPERM
+ 	.cpu.invalidate_io_bitmap	= native_tss_invalidate_io_bitmap,
+ 	.cpu.update_io_bitmap		= native_tss_update_io_bitmap,
+@@ -422,6 +398,8 @@ struct paravirt_patch_template pv_ops = {
+ NOKPROBE_SYMBOL(native_get_debugreg);
+ NOKPROBE_SYMBOL(native_set_debugreg);
+ NOKPROBE_SYMBOL(native_load_idt);
++
++void (*paravirt_iret)(void) = native_iret;
+ #endif
+ 
+ EXPORT_SYMBOL(pv_ops);
 diff --git a/arch/x86/xen/enlighten_pv.c b/arch/x86/xen/enlighten_pv.c
-index 4716383c64a9..66f83de4d9e0 100644
+index 32b295cc2716..4716383c64a9 100644
 --- a/arch/x86/xen/enlighten_pv.c
 +++ b/arch/x86/xen/enlighten_pv.c
-@@ -1218,7 +1218,6 @@ asmlinkage __visible void __init xen_start_kernel(void)
+@@ -1057,8 +1057,6 @@ static const struct pv_cpu_ops xen_cpu_ops __initconst = {
  
- 	/* Install Xen paravirt ops */
+ 	.read_pmc = xen_read_pmc,
+ 
+-	.iret = xen_iret,
+-
+ 	.load_tr_desc = paravirt_nop,
+ 	.set_ldt = xen_set_ldt,
+ 	.load_gdt = xen_load_gdt,
+@@ -1222,6 +1220,7 @@ asmlinkage __visible void __init xen_start_kernel(void)
  	pv_info = xen_info;
--	pv_ops.init.patch = paravirt_patch_default;
+ 	pv_ops.init.patch = paravirt_patch_default;
  	pv_ops.cpu = xen_cpu_ops;
- 	paravirt_iret = xen_iret;
++	paravirt_iret = xen_iret;
  	xen_init_irq_ops();
+ 
+ 	/*
 -- 
 2.26.2
 
