@@ -2,117 +2,98 @@ Return-Path: <SRS0=d/Rn=E4=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS
-	autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS autolearn=no
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id F3125C63697
-	for <virtualization@archiver.kernel.org>; Sun, 22 Nov 2020 20:53:48 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 80FADC63697
+	for <virtualization@archiver.kernel.org>; Sun, 22 Nov 2020 21:45:12 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 444C020782
-	for <virtualization@archiver.kernel.org>; Sun, 22 Nov 2020 20:53:47 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 444C020782
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=perches.com
+	by mail.kernel.org (Postfix) with ESMTPS id 1FE7720782
+	for <virtualization@archiver.kernel.org>; Sun, 22 Nov 2020 21:45:11 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="2o1jrHuQ"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1FE7720782
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 05D7D85B3B;
-	Sun, 22 Nov 2020 20:53:47 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id C094C85C54;
+	Sun, 22 Nov 2020 21:45:11 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id kas_tamHr73C; Sun, 22 Nov 2020 20:53:45 +0000 (UTC)
+	with ESMTP id JdKCt3X1e4CC; Sun, 22 Nov 2020 21:45:10 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by fraxinus.osuosl.org (Postfix) with ESMTP id 662CD85F32;
-	Sun, 22 Nov 2020 20:53:45 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id A13FA85B0D;
+	Sun, 22 Nov 2020 21:45:10 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 56569C0052;
-	Sun, 22 Nov 2020 20:53:45 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7DACDC0891;
+	Sun, 22 Nov 2020 21:45:10 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 617E5C0052;
- Sun, 22 Nov 2020 20:53:44 +0000 (UTC)
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 3D62DC0052
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 22 Nov 2020 21:45:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 52DFC843BB;
- Sun, 22 Nov 2020 20:53:44 +0000 (UTC)
+ by whitealder.osuosl.org (Postfix) with ESMTP id 2250A867BD
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 22 Nov 2020 21:45:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id GskoWi9KbF7U; Sun, 22 Nov 2020 20:53:41 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
-X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
-Received: from smtprelay.hostedemail.com (smtprelay0242.hostedemail.com
- [216.40.44.242])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 589DD84363;
- Sun, 22 Nov 2020 20:53:41 +0000 (UTC)
-Received: from smtprelay.hostedemail.com (10.5.19.251.rfc1918.com
- [10.5.19.251])
- by smtpgrave05.hostedemail.com (Postfix) with ESMTP id D2E4B1801AB6F;
- Sun, 22 Nov 2020 18:25:51 +0000 (UTC)
-Received: from filter.hostedemail.com (clb03-v110.bra.tucows.net
- [216.40.38.60])
- by smtprelay06.hostedemail.com (Postfix) with ESMTP id 883C21800AEAD;
- Sun, 22 Nov 2020 18:25:49 +0000 (UTC)
-X-Session-Marker: 6A6F6540706572636865732E636F6D
-X-HE-Tag: stamp54_4305a342735e
-X-Filterd-Recvd-Size: 3841
-Received: from XPS-9350.home (unknown [47.151.128.180])
- (Authenticated sender: joe@perches.com)
- by omf09.hostedemail.com (Postfix) with ESMTPA;
- Sun, 22 Nov 2020 18:25:38 +0000 (UTC)
-Message-ID: <ca071decb87cc7e905411423c05a48f9fd2f58d7.camel@perches.com>
-Subject: Re: [PATCH 000/141] Fix fall-through warnings for Clang
-From: Joe Perches <joe@perches.com>
-To: James Bottomley <James.Bottomley@HansenPartnership.com>, Kees Cook
- <keescook@chromium.org>, Jakub Kicinski <kuba@kernel.org>
-Date: Sun, 22 Nov 2020 10:25:37 -0800
-In-Reply-To: <9b57fd4914b46f38d54087d75e072d6e947cb56d.camel@HansenPartnership.com>
-References: <cover.1605896059.git.gustavoars@kernel.org>
- <20201120105344.4345c14e@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <202011201129.B13FDB3C@keescook>
- <20201120115142.292999b2@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <202011220816.8B6591A@keescook>
- <9b57fd4914b46f38d54087d75e072d6e947cb56d.camel@HansenPartnership.com>
-User-Agent: Evolution 3.38.1-1 
+ with ESMTP id 34RZ1NWX47pE
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 22 Nov 2020 21:45:08 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 8FF4A867BC
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 22 Nov 2020 21:45:08 +0000 (UTC)
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com
+ [209.85.128.44])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+ (No client certificate requested)
+ by mail.kernel.org (Postfix) with ESMTPSA id B80AF20789
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 22 Nov 2020 21:45:07 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=default; t=1606081508;
+ bh=j8kQr1sqydOsvjEY9shLB0wmUrzUic9iCe1dNmPahV0=;
+ h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+ b=2o1jrHuQqj+owOO+c9Zeqxrd9M6szemlUmJSqcWPhibowyO6pXzhHfe+VU2CVHSEx
+ 6i9l1pH/OrjB/ycgmevivnDyFQfhPd0sDLvyPdoRmGLzLfeZdce65//c9hJPyiAb0C
+ IF/2dwA3JwvzN2WhaDRzodNq4IxJJOJIIJXD3gjA=
+Received: by mail-wm1-f44.google.com with SMTP id w24so15582190wmi.0
+ for <virtualization@lists.linux-foundation.org>;
+ Sun, 22 Nov 2020 13:45:07 -0800 (PST)
+X-Gm-Message-State: AOAM5333ucQynVVQXyS4GjNJLneFRJTjNRILhawN4l7TybceS0K/nWy9
+ N0qWLzfbf+sSNiftZHp+ZoVsunMAHIJ5R8jB+D3jXw==
+X-Google-Smtp-Source: ABdhPJwifakpgwUVTLbeDBYdoVmnAfRpiEVwGa2XrrCKUuyY/SYxT6I31Kv43oa6WFJkbjZ+4GFZn5n4pemXbXWt+C8=
+X-Received: by 2002:a1c:2781:: with SMTP id n123mr3937832wmn.49.1606081506352; 
+ Sun, 22 Nov 2020 13:45:06 -0800 (PST)
 MIME-Version: 1.0
-Cc: alsa-devel@alsa-project.org, linux-atm-general@lists.sourceforge.net,
- reiserfs-devel@vger.kernel.org, linux-iio@vger.kernel.org,
- linux-wireless@vger.kernel.org, linux-fbdev@vger.kernel.org,
- dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
- Nathan Chancellor <natechancellor@gmail.com>, linux-ide@vger.kernel.org,
- dm-devel@redhat.com, keyrings@vger.kernel.org, linux-mtd@lists.infradead.org,
- GR-everest-linux-l2@marvell.com, wcn36xx@lists.infradead.org,
- samba-technical@lists.samba.org, linux-i3c@lists.infradead.org,
- linux1394-devel@lists.sourceforge.net, linux-afs@lists.infradead.org,
- usb-storage@lists.one-eyed-alien.net, drbd-dev@lists.linbit.com,
- devel@driverdev.osuosl.org, linux-cifs@vger.kernel.org,
- rds-devel@oss.oracle.com, Nick Desaulniers <ndesaulniers@google.com>,
- linux-scsi@vger.kernel.org, linux-rdma@vger.kernel.org,
- oss-drivers@netronome.com, bridge@lists.linux-foundation.org,
- linux-security-module@vger.kernel.org, amd-gfx@lists.freedesktop.org,
- linux-stm32@st-md-mailman.stormreply.com, cluster-devel@redhat.com,
- linux-acpi@vger.kernel.org, coreteam@netfilter.org,
- intel-wired-lan@lists.osuosl.org, linux-input@vger.kernel.org,
- Miguel Ojeda <ojeda@kernel.org>, tipc-discussion@lists.sourceforge.net,
- linux-ext4@vger.kernel.org, linux-media@vger.kernel.org,
- linux-watchdog@vger.kernel.org, selinux@vger.kernel.org,
- linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org,
- linux-geode@lists.infradead.org, linux-can@vger.kernel.org,
- linux-block@vger.kernel.org, linux-gpio@vger.kernel.org,
- op-tee@lists.trustedfirmware.org, linux-mediatek@lists.infradead.org,
- xen-devel@lists.xenproject.org, nouveau@lists.freedesktop.org,
- linux-hams@vger.kernel.org, ceph-devel@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- linux-arm-kernel@lists.infradead.org, linux-hwmon@vger.kernel.org,
- x86@kernel.org, linux-nfs@vger.kernel.org, GR-Linux-NIC-Dev@marvell.com,
- linux-mm@kvack.org, netdev@vger.kernel.org,
- linux-decnet-user@lists.sourceforge.net, linux-mmc@vger.kernel.org,
- "Gustavo A. R. Silva" <gustavoars@kernel.org>,
- linux-renesas-soc@vger.kernel.org, linux-sctp@vger.kernel.org,
- linux-usb@vger.kernel.org, netfilter-devel@vger.kernel.org,
- linux-crypto@vger.kernel.org, patches@opensource.cirrus.com,
- linux-integrity@vger.kernel.org, target-devel@vger.kernel.org,
- linux-hardening@vger.kernel.org
+References: <20201120114630.13552-1-jgross@suse.com>
+ <20201120114630.13552-6-jgross@suse.com>
+ <20201120115943.GD3021@hirez.programming.kicks-ass.net>
+ <eb05e878-6334-8d19-496b-6572df67fc56@suse.com>
+In-Reply-To: <eb05e878-6334-8d19-496b-6572df67fc56@suse.com>
+From: Andy Lutomirski <luto@kernel.org>
+Date: Sun, 22 Nov 2020 13:44:53 -0800
+X-Gmail-Original-Message-ID: <CALCETrXOGhXoOJpzhAMqD7iibi09WzbGk9SWVH7JzA=d5uarWA@mail.gmail.com>
+Message-ID: <CALCETrXOGhXoOJpzhAMqD7iibi09WzbGk9SWVH7JzA=d5uarWA@mail.gmail.com>
+Subject: Re: [PATCH v2 05/12] x86: rework arch_local_irq_restore() to not use
+ popf
+To: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+Cc: Stefano Stabellini <sstabellini@kernel.org>,
+ Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>,
+ LKML <linux-kernel@vger.kernel.org>,
+ Linux Virtualization <virtualization@lists.linux-foundation.org>, "VMware,
+ Inc." <pv-drivers@vmware.com>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Andrew Lutomirski <luto@kernel.org>,
+ "H. Peter Anvin" <hpa@zytor.com>, xen-devel <xen-devel@lists.xenproject.org>,
+ Thomas Gleixner <tglx@linutronix.de>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -124,21 +105,39 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, 2020-11-22 at 10:21 -0800, James Bottomley wrote:
-> Please tell me
-> our reward for all this effort isn't a single missing error print.
-
-There were quite literally dozens of logical defects found
-by the fallthrough additions.  Very few were logging only.
-
-
-
-_______________________________________________
-Virtualization mailing list
-Virtualization@lists.linux-foundation.org
-https://lists.linuxfoundation.org/mailman/listinfo/virtualization
+T24gU2F0LCBOb3YgMjEsIDIwMjAgYXQgMTA6NTUgUE0gSsO8cmdlbiBHcm/DnyA8amdyb3NzQHN1
+c2UuY29tPiB3cm90ZToKPgo+IE9uIDIwLjExLjIwIDEyOjU5LCBQZXRlciBaaWpsc3RyYSB3cm90
+ZToKPiA+IE9uIEZyaSwgTm92IDIwLCAyMDIwIGF0IDEyOjQ2OjIzUE0gKzAxMDAsIEp1ZXJnZW4g
+R3Jvc3Mgd3JvdGU6Cj4gPj4gK3N0YXRpYyBfX2Fsd2F5c19pbmxpbmUgdm9pZCBhcmNoX2xvY2Fs
+X2lycV9yZXN0b3JlKHVuc2lnbmVkIGxvbmcgZmxhZ3MpCj4gPj4gK3sKPiA+PiArICAgIGlmICgh
+YXJjaF9pcnFzX2Rpc2FibGVkX2ZsYWdzKGZsYWdzKSkKPiA+PiArICAgICAgICAgICAgYXJjaF9s
+b2NhbF9pcnFfZW5hYmxlKCk7Cj4gPj4gK30KPiA+Cj4gPiBJZiBzb21lb25lIHdlcmUgdG8gd3Jp
+dGUgaG9ycmlibGUgY29kZSBsaWtlOgo+ID4KPiA+ICAgICAgIGxvY2FsX2lycV9kaXNhYmxlKCk7
+Cj4gPiAgICAgICBsb2NhbF9pcnFfc2F2ZShmbGFncyk7Cj4gPiAgICAgICBsb2NhbF9pcnFfZW5h
+YmxlKCk7Cj4gPiAgICAgICBsb2NhbF9pcnFfcmVzdG9yZShmbGFncyk7Cj4gPgo+ID4gd2UnZCBi
+ZSB1cCBzb21lIGNyZWVrIHdpdGhvdXQgYSBwYWRkbGUuLi4gbm93IEkgZG9uJ3QgX3RoaW5rXyB3
+ZSBoYXZlCj4gPiBnZW5pdXMgY29kZSBsaWtlIHRoYXQsIGJ1dCBJJ2QgZmVlbCBzYXZlciBpZiB3
+ZSBjYW4gaGF6IGFuIGFzc2VydGlvbiBpbgo+ID4gdGhlcmUgc29tZXdoZXJlLi4uCj4gPgo+ID4g
+TWF5YmUgc29tZXRoaW5nIGxpa2U6Cj4gPgo+ID4gI2lmZGVmIENPTkZJR19ERUJVR19FTlRSWSAv
+LyBmb3IgbGFjayBvZiBzb21ldGhpbmcgc2FuZXIKPiA+ICAgICAgIFdBUk5fT05fT05DRSgoYXJj
+aF9sb2NhbF9zYXZlX2ZsYWdzKCkgXiBmbGFncykgJiBYODZfRUZMQUdTX0lGKTsKPiA+ICNlbmRp
+Zgo+ID4KPiA+IEF0IHRoZSBlbmQ/Cj4KPiBJJ2QgbGlrZSB0bywgYnV0IHVzaW5nIFdBUk5fT05f
+T05DRSgpIGluIGluY2x1ZGUvYXNtL2lycWZsYWdzLmggc291bmRzCj4gbGlrZSBhIHBlcmZlY3Qg
+cmVjZWlwdCBmb3IgaW5jbHVkZSBkZXBlbmRlbmN5IGhlbGwuCj4KPiBXZSBjb3VsZCB1c2UgYSBw
+bGFpbiBhc20oInVkMiIpIGluc3RlYWQuCgpIb3cgYWJvdXQgb3V0LW9mLWxpbmluZyBpdDoKCiNp
+ZmRlZiBDT05GSUdfREVCVUdfRU5UUlkKZXh0ZXJuIHZvaWQgd2Fybl9ib2d1c19pcnFyZXN0b3Jl
+KCk7CiNlbmRpZgoKc3RhdGljIF9fYWx3YXlzX2lubGluZSB2b2lkIGFyY2hfbG9jYWxfaXJxX3Jl
+c3RvcmUodW5zaWduZWQgbG9uZyBmbGFncykKewogICAgICAgaWYgKCFhcmNoX2lycXNfZGlzYWJs
+ZWRfZmxhZ3MoZmxhZ3MpKSB7CiAgICAgICAgICAgICAgIGFyY2hfbG9jYWxfaXJxX2VuYWJsZSgp
+OwogICAgICAgfSBlbHNlIHsKI2lmZGVmIENPTkZJR19ERUJVR19FTlRSWQogICAgICAgICAgICAg
+ICBpZiAodW5saWtlbHkoYXJjaF9sb2NhbF9pcnFfc2F2ZSgpICYgWDg2X0VGTEFHU19JRikpCiAg
+ICAgICAgICAgICAgICAgICAgd2Fybl9ib2d1c19pcnFyZXN0b3JlKCk7CiNlbmRpZgp9Cl9fX19f
+X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fClZpcnR1YWxpemF0aW9u
+IG1haWxpbmcgbGlzdApWaXJ0dWFsaXphdGlvbkBsaXN0cy5saW51eC1mb3VuZGF0aW9uLm9yZwpo
+dHRwczovL2xpc3RzLmxpbnV4Zm91bmRhdGlvbi5vcmcvbWFpbG1hbi9saXN0aW5mby92aXJ0dWFs
+aXphdGlvbg==
