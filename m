@@ -2,110 +2,135 @@ Return-Path: <SRS0=KpU2=E5=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
-	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-4.0 required=3.0 tests=BAYES_00,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 43E20C56202
-	for <virtualization@archiver.kernel.org>; Mon, 23 Nov 2020 15:41:23 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 5520FC2D0E4
+	for <virtualization@archiver.kernel.org>; Mon, 23 Nov 2020 16:25:09 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id B51602080A
-	for <virtualization@archiver.kernel.org>; Mon, 23 Nov 2020 15:41:22 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=amacapital-net.20150623.gappssmtp.com header.i=@amacapital-net.20150623.gappssmtp.com header.b="yVT8mRm3"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org B51602080A
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=amacapital.net
+	by mail.kernel.org (Postfix) with ESMTPS id C7F2C2083E
+	for <virtualization@archiver.kernel.org>; Mon, 23 Nov 2020 16:25:08 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C7F2C2083E
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 579FB866FB;
-	Mon, 23 Nov 2020 15:41:22 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 7D18286031;
+	Mon, 23 Nov 2020 16:25:08 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id kDjwMHTB6P+g; Mon, 23 Nov 2020 15:41:21 +0000 (UTC)
+	with ESMTP id pY0WJhybdkRu; Mon, 23 Nov 2020 16:25:07 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 5C5F7866AB;
-	Mon, 23 Nov 2020 15:41:21 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 46273860C8;
+	Mon, 23 Nov 2020 16:25:07 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 3CF66C0891;
-	Mon, 23 Nov 2020 15:41:21 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 0A03CC0052
- for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Nov 2020 15:41:20 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 33FDCC163C;
+	Mon, 23 Nov 2020 16:25:07 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 07FD0C0052;
+ Mon, 23 Nov 2020 16:25:06 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id E7511866EF
- for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Nov 2020 15:41:19 +0000 (UTC)
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 01C4D860C1;
+ Mon, 23 Nov 2020 16:25:06 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id HzibbgFk-Zkq
- for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Nov 2020 15:41:17 +0000 (UTC)
-X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-pf1-f195.google.com (mail-pf1-f195.google.com
- [209.85.210.195])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 15FBD866AB
- for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Nov 2020 15:41:17 +0000 (UTC)
-Received: by mail-pf1-f195.google.com with SMTP id e8so3338764pfh.2
- for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Nov 2020 07:41:17 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=amacapital-net.20150623.gappssmtp.com; s=20150623;
- h=content-transfer-encoding:from:mime-version:subject:date:message-id
- :references:cc:in-reply-to:to;
- bh=9/7B9fYOBF3iBNDP75oo3XjDT3J214mKbuz8gALB4vU=;
- b=yVT8mRm3Z3LX4kK+1gmW0OdDkKPQsxQqCiNqqyao3OeXSp3AeU/oUDBO2LFha72Ykg
- hfakFOwwGzMWTxhbJ9u4ZRrLs9E+AUi3bUdWX7FF9C1AL9DI7uzuPx703IMYlUpEfQ0R
- cKbQk2gp7fkskTTopdejNkIPV40k3NdJdEWpv8NlYlb+lwXNFQ7m4QTsPwnXAY41XDjo
- ie2xHVuANYQFTwR5JV4GsFGoOojFILHnydRahEGFMrSdyzuTcX1MyaggfyX5GhzN48f7
- dxYqGPnL5YK+lGPBgsFICbFcJ3HdWvHqDNfvP4QmHS7Z6Td+jfStdZ8S8kzdPOmMP3XW
- IYQA==
+ with ESMTP id QmVny66VcjdX; Mon, 23 Nov 2020 16:25:03 +0000 (UTC)
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
+Received: from mail-ot1-f65.google.com (mail-ot1-f65.google.com
+ [209.85.210.65])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id C0B3586031;
+ Mon, 23 Nov 2020 16:25:03 +0000 (UTC)
+Received: by mail-ot1-f65.google.com with SMTP id k3so16418610otp.12;
+ Mon, 23 Nov 2020 08:25:03 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:content-transfer-encoding:from:mime-version
- :subject:date:message-id:references:cc:in-reply-to:to;
- bh=9/7B9fYOBF3iBNDP75oo3XjDT3J214mKbuz8gALB4vU=;
- b=cHBGcTC/kSGO4qqk4cxQygRiaLwxQq7Dw5FTWn3Bscva6QIIMlip7ekEw1ZnoRAZvb
- RQ6UP9DMm6rCU2hO/oCUFFXZPx9LLRvAxsuI+fkPrpcHKQd+ifkQtI1g/EUHddJhCJQ4
- 9mKs4Ftu9ci5EaZdCEj5U4pqb9hY4+xMLIT376HnCqEaQ205JevoBIeFOZDdEl7CxYVt
- 6KjO5rsjb0Q1MzYTHf0H1telfZued4QYF1WmgljB6So4ldKNbpecxXWPxZtDgfCtsOJG
- jgMIL3oS1bYnSEsXjVqaKseNgvlEvnyB9ffgQMsNl1w+mE7uDT0kdXt++dkg6gmbihoj
- PkQA==
-X-Gm-Message-State: AOAM5322ribrhRJPTQRSZUgx3t0y7iOCxM+bH1fNcU9uz5NOCL5VGbSr
- LZljoeEctDz26HT9kLlsQkBfoKodQozj4yNI
-X-Google-Smtp-Source: ABdhPJzPXkVRGeAzX8ONsYwMK6/RMdfFNxyslupj1imDDyoMb4VPUrwfTY+HgnKVxxx/unH4Oe4Vhw==
-X-Received: by 2002:a17:902:d207:b029:da:13cb:e182 with SMTP id
- t7-20020a170902d207b02900da13cbe182mr1831784ply.69.1606144520547; 
- Mon, 23 Nov 2020 07:15:20 -0800 (PST)
-Received: from ?IPv6:2601:646:c200:1ef2:344b:912a:a361:223f?
- ([2601:646:c200:1ef2:344b:912a:a361:223f])
- by smtp.gmail.com with ESMTPSA id g3sm3460848pfr.145.2020.11.23.07.15.19
- (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
- Mon, 23 Nov 2020 07:15:19 -0800 (PST)
-From: Andy Lutomirski <luto@amacapital.net>
-Mime-Version: 1.0 (1.0)
-Subject: Re: [PATCH v2 05/12] x86: rework arch_local_irq_restore() to not use
- popf
-Date: Mon, 23 Nov 2020 07:15:18 -0800
-Message-Id: <DD12CB44-457E-4FE1-8240-B334B785A93C@amacapital.net>
-References: <894a4cec-8426-4152-d391-474711040c5b@suse.com>
-In-Reply-To: <894a4cec-8426-4152-d391-474711040c5b@suse.com>
-To: =?utf-8?Q?J=C3=BCrgen_Gro=C3=9F?= <jgross@suse.com>
-X-Mailer: iPhone Mail (18B92)
-Cc: Stefano Stabellini <sstabellini@kernel.org>,
- Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>,
- LKML <linux-kernel@vger.kernel.org>,
- Linux Virtualization <virtualization@lists.linux-foundation.org>, "VMware,
- Inc." <pv-drivers@vmware.com>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Andy Lutomirski <luto@kernel.org>,
- "H. Peter Anvin" <hpa@zytor.com>, xen-devel <xen-devel@lists.xenproject.org>,
- Thomas Gleixner <tglx@linutronix.de>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>
+ h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+ :message-id:subject:to:cc;
+ bh=SWzdE85KMSmQ5K6aYMgWVQjn8/tst2VI3dLUnv/55SM=;
+ b=ZgWvCEBXOjeW19Zrl7R9/lYyyG8pwYB9xC05pBT+GhcG4LD/pef8qJJtfrKLcErttw
+ lgqvu1EIfNtFHl/M9x9itYTXezM7UYOJ4oBE74fFWhy2jVUP8gHMvC58R1yGjba9tPPk
+ OtlStBgmK6kREdc3u+zZ3gSRjgYgzVU8ycK+0OChW2W4aEGZxGnXJTlOq32nXFODIoJF
+ 00ERBaacxqhQin4GBi4GKHkPtDHNcYaUqV0XxYJzyzHkDJap0u3kxAdCgOWKLInX0LXU
+ qWpNVt/LCJEQBuRV9UDp0Ra8qlCCcEruec5vrg+/RdE3SvlbGJgB5h+IotfEUsF443hY
+ RsQQ==
+X-Gm-Message-State: AOAM530j35MV//ueYH8/LHNg3/nZ5D+3F8e5UHemjSO+I4TRSXqNPROt
+ XIcRY88Ib01J+V+5Zxfq0abnt0+8UXe8HQZSP6U=
+X-Google-Smtp-Source: ABdhPJxW9u67TbnPp8ObIChv5a6F+ncd8SoV+BFvs894Bl4MJzyAX0TVAjkpawJr+z1OvIzzPyEcIsCefAg0WelXSFg=
+X-Received: by 2002:a9d:16f:: with SMTP id 102mr68959otu.206.1606148702991;
+ Mon, 23 Nov 2020 08:25:02 -0800 (PST)
+MIME-Version: 1.0
+References: <cover.1605896059.git.gustavoars@kernel.org>
+ <20201120105344.4345c14e@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <202011201129.B13FDB3C@keescook>
+ <20201120115142.292999b2@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
+ <202011220816.8B6591A@keescook>
+ <9b57fd4914b46f38d54087d75e072d6e947cb56d.camel@HansenPartnership.com>
+ <CANiq72nZrHWTA4_Msg6MP9snTyenC6-eGfD27CyfNSu7QoVZbw@mail.gmail.com>
+ <1c7d7fde126bc0acf825766de64bf2f9b888f216.camel@HansenPartnership.com>
+ <CANiq72m22Jb5_+62NnwX8xds2iUdWDMAqD8PZw9cuxdHd95W0A@mail.gmail.com>
+ <fc45750b6d0277c401015b7aa11e16cd15f32ab2.camel@HansenPartnership.com>
+In-Reply-To: <fc45750b6d0277c401015b7aa11e16cd15f32ab2.camel@HansenPartnership.com>
+From: "Rafael J. Wysocki" <rafael@kernel.org>
+Date: Mon, 23 Nov 2020 17:24:51 +0100
+Message-ID: <CAJZ5v0jJ6GFm4LFCR2V3qvD9rZrVw=pXyXSjSWPYtQudg-F3xg@mail.gmail.com>
+Subject: Re: [PATCH 000/141] Fix fall-through warnings for Clang
+To: James Bottomley <James.Bottomley@hansenpartnership.com>
+Cc: "moderated list:SOUND - SOC LAYER / DYNAMIC AUDIO POWER MANAGEM..."
+ <alsa-devel@alsa-project.org>, linux-atm-general@lists.sourceforge.net,
+ reiserfs-devel@vger.kernel.org, linux-iio@vger.kernel.org,
+ linux-wireless <linux-wireless@vger.kernel.org>,
+ "open list:FRAMEBUFFER LAYER" <linux-fbdev@vger.kernel.org>,
+ dri-devel <dri-devel@lists.freedesktop.org>,
+ linux-kernel <linux-kernel@vger.kernel.org>,
+ Nathan Chancellor <natechancellor@gmail.com>,
+ "open list:LIBATA SUBSYSTEM \(Serial and Parallel ATA drivers\)"
+ <linux-ide@vger.kernel.org>, dm-devel@redhat.com, keyrings@vger.kernel.org,
+ linux-mtd@lists.infradead.org, GR-everest-linux-l2@marvell.com,
+ wcn36xx@lists.infradead.org, samba-technical@lists.samba.org,
+ linux-i3c@lists.infradead.org, linux1394-devel@lists.sourceforge.net,
+ linux-afs@lists.infradead.org, usb-storage@lists.one-eyed-alien.net,
+ drbd-dev@lists.linbit.com, devel@driverdev.osuosl.org,
+ linux-cifs@vger.kernel.org, rds-devel@oss.oracle.com,
+ Nick Desaulniers <ndesaulniers@google.com>,
+ "open list:TARGET SUBSYSTEM" <linux-scsi@vger.kernel.org>,
+ linux-rdma@vger.kernel.org, oss-drivers@netronome.com,
+ bridge@lists.linux-foundation.org, linux-security-module@vger.kernel.org,
+ amd-gfx list <amd-gfx@lists.freedesktop.org>,
+ linux-stm32@st-md-mailman.stormreply.com, cluster-devel@redhat.com,
+ ACPI Devel Maling List <linux-acpi@vger.kernel.org>, coreteam@netfilter.org,
+ intel-wired-lan@lists.osuosl.org, linux-input <linux-input@vger.kernel.org>,
+ Miguel Ojeda <ojeda@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
+ Ext4 Developers List <linux-ext4@vger.kernel.org>,
+ Linux Media Mailing List <linux-media@vger.kernel.org>,
+ Kees Cook <keescook@chromium.org>, selinux@vger.kernel.org,
+ linux-arm-msm <linux-arm-msm@vger.kernel.org>,
+ intel-gfx <intel-gfx@lists.freedesktop.org>, linux-geode@lists.infradead.org,
+ linux-can@vger.kernel.org, linux-block@vger.kernel.org,
+ linux-gpio@vger.kernel.org, op-tee@lists.trustedfirmware.org,
+ "moderated list:ARM/Mediatek SoC..." <linux-mediatek@lists.infradead.org>,
+ xen-devel@lists.xenproject.org, nouveau <nouveau@lists.freedesktop.org>,
+ linux-hams@vger.kernel.org, ceph-devel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
+ Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-hwmon@vger.kernel.org,
+ linux-watchdog@vger.kernel.org, linux-nfs@vger.kernel.org,
+ GR-Linux-NIC-Dev@marvell.com, tipc-discussion@lists.sourceforge.net,
+ Linux-MM <linux-mm@kvack.org>, Network Development <netdev@vger.kernel.org>,
+ linux-decnet-user@lists.sourceforge.net, linux-mmc <linux-mmc@vger.kernel.org>,
+ "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+ "maintainer:X86 ARCHITECTURE \(32-BIT AND 64-BIT\)" <x86@kernel.org>,
+ Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
+ Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>, linux-sctp@vger.kernel.org,
+ "open list:ULTRA-WIDEBAND \(UWB\) SUBSYSTEM:" <linux-usb@vger.kernel.org>,
+ netfilter-devel@vger.kernel.org,
+ Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
+ patches@opensource.cirrus.com, Joe Perches <joe@perches.com>,
+ linux-integrity@vger.kernel.org, target-devel@vger.kernel.org,
+ linux-hardening@vger.kernel.org
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -117,58 +142,54 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-CgoKCj4gT24gTm92IDIyLCAyMDIwLCBhdCA5OjIyIFBNLCBKw7xyZ2VuIEdyb8OfIDxqZ3Jvc3NA
-c3VzZS5jb20+IHdyb3RlOgo+IAo+IO+7v09uIDIyLjExLjIwIDIyOjQ0LCBBbmR5IEx1dG9taXJz
-a2kgd3JvdGU6Cj4+PiBPbiBTYXQsIE5vdiAyMSwgMjAyMCBhdCAxMDo1NSBQTSBKw7xyZ2VuIEdy
-b8OfIDxqZ3Jvc3NAc3VzZS5jb20+IHdyb3RlOgo+Pj4gCj4+PiBPbiAyMC4xMS4yMCAxMjo1OSwg
-UGV0ZXIgWmlqbHN0cmEgd3JvdGU6Cj4+Pj4gT24gRnJpLCBOb3YgMjAsIDIwMjAgYXQgMTI6NDY6
-MjNQTSArMDEwMCwgSnVlcmdlbiBHcm9zcyB3cm90ZToKPj4+Pj4gK3N0YXRpYyBfX2Fsd2F5c19p
-bmxpbmUgdm9pZCBhcmNoX2xvY2FsX2lycV9yZXN0b3JlKHVuc2lnbmVkIGxvbmcgZmxhZ3MpCj4+
-Pj4+ICt7Cj4+Pj4+ICsgICAgaWYgKCFhcmNoX2lycXNfZGlzYWJsZWRfZmxhZ3MoZmxhZ3MpKQo+
-Pj4+PiArICAgICAgICAgICAgYXJjaF9sb2NhbF9pcnFfZW5hYmxlKCk7Cj4+Pj4+ICt9Cj4+Pj4g
-Cj4+Pj4gSWYgc29tZW9uZSB3ZXJlIHRvIHdyaXRlIGhvcnJpYmxlIGNvZGUgbGlrZToKPj4+PiAK
-Pj4+PiAgICAgICBsb2NhbF9pcnFfZGlzYWJsZSgpOwo+Pj4+ICAgICAgIGxvY2FsX2lycV9zYXZl
-KGZsYWdzKTsKPj4+PiAgICAgICBsb2NhbF9pcnFfZW5hYmxlKCk7Cj4+Pj4gICAgICAgbG9jYWxf
-aXJxX3Jlc3RvcmUoZmxhZ3MpOwo+Pj4+IAo+Pj4+IHdlJ2QgYmUgdXAgc29tZSBjcmVlayB3aXRo
-b3V0IGEgcGFkZGxlLi4uIG5vdyBJIGRvbid0IF90aGlua18gd2UgaGF2ZQo+Pj4+IGdlbml1cyBj
-b2RlIGxpa2UgdGhhdCwgYnV0IEknZCBmZWVsIHNhdmVyIGlmIHdlIGNhbiBoYXogYW4gYXNzZXJ0
-aW9uIGluCj4+Pj4gdGhlcmUgc29tZXdoZXJlLi4uCj4+Pj4gCj4+Pj4gTWF5YmUgc29tZXRoaW5n
-IGxpa2U6Cj4+Pj4gCj4+Pj4gI2lmZGVmIENPTkZJR19ERUJVR19FTlRSWSAvLyBmb3IgbGFjayBv
-ZiBzb21ldGhpbmcgc2FuZXIKPj4+PiAgICAgICBXQVJOX09OX09OQ0UoKGFyY2hfbG9jYWxfc2F2
-ZV9mbGFncygpIF4gZmxhZ3MpICYgWDg2X0VGTEFHU19JRik7Cj4+Pj4gI2VuZGlmCj4+Pj4gCj4+
-Pj4gQXQgdGhlIGVuZD8KPj4+IAo+Pj4gSSdkIGxpa2UgdG8sIGJ1dCB1c2luZyBXQVJOX09OX09O
-Q0UoKSBpbiBpbmNsdWRlL2FzbS9pcnFmbGFncy5oIHNvdW5kcwo+Pj4gbGlrZSBhIHBlcmZlY3Qg
-cmVjZWlwdCBmb3IgaW5jbHVkZSBkZXBlbmRlbmN5IGhlbGwuCj4+PiAKPj4+IFdlIGNvdWxkIHVz
-ZSBhIHBsYWluIGFzbSgidWQyIikgaW5zdGVhZC4KPj4gSG93IGFib3V0IG91dC1vZi1saW5pbmcg
-aXQ6Cj4+ICNpZmRlZiBDT05GSUdfREVCVUdfRU5UUlkKPj4gZXh0ZXJuIHZvaWQgd2Fybl9ib2d1
-c19pcnFyZXN0b3JlKCk7Cj4+ICNlbmRpZgo+PiBzdGF0aWMgX19hbHdheXNfaW5saW5lIHZvaWQg
-YXJjaF9sb2NhbF9pcnFfcmVzdG9yZSh1bnNpZ25lZCBsb25nIGZsYWdzKQo+PiB7Cj4+ICAgICAg
-ICBpZiAoIWFyY2hfaXJxc19kaXNhYmxlZF9mbGFncyhmbGFncykpIHsKPj4gICAgICAgICAgICAg
-ICAgYXJjaF9sb2NhbF9pcnFfZW5hYmxlKCk7Cj4+ICAgICAgICB9IGVsc2Ugewo+PiAjaWZkZWYg
-Q09ORklHX0RFQlVHX0VOVFJZCj4+ICAgICAgICAgICAgICAgIGlmICh1bmxpa2VseShhcmNoX2xv
-Y2FsX2lycV9zYXZlKCkgJiBYODZfRUZMQUdTX0lGKSkKPj4gICAgICAgICAgICAgICAgICAgICB3
-YXJuX2JvZ3VzX2lycXJlc3RvcmUoKTsKPj4gI2VuZGlmCj4+IH0KPiAKPiBUaGlzIGNvdWxkbid0
-IGJlIGEgV0FSTl9PTl9PTkNFKCkgdGhlbiAob3IgaXQgd291bGQgYmUgYSBjYXRjaCBhbGwpLgoK
-SWYgeW91IHB1dCB0aGUgV0FSTl9PTl9PTkNFIGluIHRoZSBvdXQtb2YtbGluZSBoZWxwZXIsIGl0
-IHNob3VsZCB3b3JrIHJlYXNvbmFibHkgd2VsbC4KCj4gQW5vdGhlciBhcHByb2FjaCBtaWdodCBi
-ZSB0byBvcGVuLWNvZGUgdGhlIFdBUk5fT05fT05DRSgpLCBsaWtlOgo+IAo+ICNpZmRlZiBDT05G
-SUdfREVCVUdfRU5UUlkKPiBleHRlcm4gdm9pZCB3YXJuX2JvZ3VzX2lycXJlc3RvcmUoYm9vbCAq
-b25jZSk7Cj4gI2VuZGlmCj4gCj4gc3RhdGljIF9fYWx3YXlzX2lubGluZSB2b2lkIGFyY2hfbG9j
-YWxfaXJxX3Jlc3RvcmUodW5zaWduZWQgbG9uZyBmbGFncykKPiB7Cj4gICAgaWYgKCFhcmNoX2ly
-cXNfZGlzYWJsZWRfZmxhZ3MoZmxhZ3MpKQo+ICAgICAgICBhcmNoX2xvY2FsX2lycV9lbmFibGUo
-KTsKPiAjaWZkZWYgQ09ORklHX0RFQlVHX0VOVFJZCj4gICAgewo+ICAgICAgICBzdGF0aWMgYm9v
-bCBvbmNlOwo+IAo+ICAgICAgICBpZiAodW5saWtlbHkoYXJjaF9sb2NhbF9pcnFfc2F2ZSgpICYg
-WDg2X0VGTEFHU19JRikpCj4gICAgICAgICAgICB3YXJuX2JvZ3VzX2lycXJlc3RvcmUoJm9uY2Up
-Owo+ICAgIH0KPiAjZW5kaWYKPiB9Cj4gCgpJIGRvbuKAmXQga25vdyBwcmVjaXNlbHkgd2hhdCBh
-IHN0YXRpYyB2YXJpYWJsZSBpbiBhbiBfX2Fsd2F5c19pbmxpbmUgZnVuY3Rpb24gd2lsbCBkbywg
-YnV0IEkgaW1hZ2luZSBpdCB3aWxsIGJlLCBhdCBiZXN0LCBlcnJhdGljLCBlc3BlY2lhbGx5IHdo
-ZW4gbW9kdWxlcyBhcmUgaW52b2x2ZWQuCgo+IAo+IEp1ZXJnZW4KPiA8T3BlblBHUF8weEIwREU5
-REQ2MjhCRjEzMkYuYXNjPgpfX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19f
-X19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5nIGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMu
-bGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9saXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21h
-aWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Mon, Nov 23, 2020 at 4:58 PM James Bottomley
+<James.Bottomley@hansenpartnership.com> wrote:
+>
+> On Mon, 2020-11-23 at 15:19 +0100, Miguel Ojeda wrote:
+> > On Sun, Nov 22, 2020 at 11:36 PM James Bottomley
+> > <James.Bottomley@hansenpartnership.com> wrote:
+
+[cut]
+
+> >
+> > Maintainers routinely review 1-line trivial patches, not to mention
+> > internal API changes, etc.
+>
+> We're also complaining about the inability to recruit maintainers:
+>
+> https://www.theregister.com/2020/06/30/hard_to_find_linux_maintainers_says_torvalds/
+>
+> And burn out:
+>
+> http://antirez.com/news/129
+
+Right.
+
+> The whole crux of your argument seems to be maintainers' time isn't
+> important so we should accept all trivial patches ... I'm pushing back
+> on that assumption in two places, firstly the valulessness of the time
+> and secondly that all trivial patches are valuable.
+>
+> > If some company does not want to pay for that, that's fine, but they
+> > don't get to be maintainers and claim `Supported`.
+>
+> What I'm actually trying to articulate is a way of measuring value of
+> the patch vs cost ... it has nothing really to do with who foots the
+> actual bill.
+>
+> One thesis I'm actually starting to formulate is that this continual
+> devaluing of maintainers is why we have so much difficulty keeping and
+> recruiting them.
+
+Absolutely.
+
+This is just one of the factors involved, but a significant one IMV.
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
