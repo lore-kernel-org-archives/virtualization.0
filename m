@@ -2,90 +2,85 @@ Return-Path: <SRS0=KpU2=E5=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,NICE_REPLY_A,
-	SPF_HELO_NONE,SPF_PASS,USER_AGENT_SANE_1 autolearn=no autolearn_force=no
-	version=3.4.0
+X-Spam-Status: No, score=-3.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
+	autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 18109C2D0E4
-	for <virtualization@archiver.kernel.org>; Mon, 23 Nov 2020 05:22:07 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 1CA87C388F9
+	for <virtualization@archiver.kernel.org>; Mon, 23 Nov 2020 11:09:08 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 31FF4207FF
-	for <virtualization@archiver.kernel.org>; Mon, 23 Nov 2020 05:22:05 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 85FC820773
+	for <virtualization@archiver.kernel.org>; Mon, 23 Nov 2020 11:09:07 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=suse.com header.i=@suse.com header.b="hp03zaAa"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 31FF4207FF
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=lists.linux-foundation.org
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="Gzy8N3Kk"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 85FC820773
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 2A2A720451;
-	Mon, 23 Nov 2020 05:22:05 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Vsu2ucAgs3Of; Mon, 23 Nov 2020 05:22:03 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 3A11520401;
-	Mon, 23 Nov 2020 05:22:03 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1EB1EC1834;
-	Mon, 23 Nov 2020 05:22:03 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id D9D95C0891
- for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Nov 2020 05:22:01 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id C152387075
- for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Nov 2020 05:22:01 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 1232F870A3;
+	Mon, 23 Nov 2020 11:09:07 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id wghl+OrktREl; Mon, 23 Nov 2020 11:09:05 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by hemlock.osuosl.org (Postfix) with ESMTP id 8E3E78708C;
+	Mon, 23 Nov 2020 11:09:05 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6AE02C163C;
+	Mon, 23 Nov 2020 11:09:05 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B53A6C0052
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 23 Nov 2020 11:09:04 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by silver.osuosl.org (Postfix) with ESMTP id 752312002D
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 23 Nov 2020 11:09:04 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id BDX0sNePntWX
+ with ESMTP id JRoEtYApS-lE
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Nov 2020 05:22:00 +0000 (UTC)
+ Mon, 23 Nov 2020 11:09:01 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 6BF2F87070
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+ by silver.osuosl.org (Postfix) with ESMTPS id 8299620009
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Nov 2020 05:22:00 +0000 (UTC)
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
- t=1606108917; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
- mime-version:mime-version:content-type:content-type:
- in-reply-to:in-reply-to:references:references;
- bh=bnlvBaRBDOwhFV9Frw/ljad6M3emL9wmQHU9HFSgjyg=;
- b=hp03zaAa6g9jzr7ZFVJcK9sSTowRPcxkxQEe9lmU/Iow1G3DAlxUFBpvBVKmZJWewAUzYp
- vGYrU8C7R3DG7nHlXCVKch/x7KxTgOIiJvaA3kRKTaVRHf6CnXlZA3TTNnQV9qi0tFvy5H
- GAR5vu9087dpuD1Mp71uPoXjdE0aTbI=
-Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id C30A0AC0C;
- Mon, 23 Nov 2020 05:21:57 +0000 (UTC)
-To: Andy Lutomirski <luto@kernel.org>
-References: <20201120114630.13552-1-jgross@suse.com>
- <20201120114630.13552-6-jgross@suse.com>
- <20201120115943.GD3021@hirez.programming.kicks-ass.net>
- <eb05e878-6334-8d19-496b-6572df67fc56@suse.com>
- <CALCETrXOGhXoOJpzhAMqD7iibi09WzbGk9SWVH7JzA=d5uarWA@mail.gmail.com>
-Subject: Re: [PATCH v2 05/12] x86: rework arch_local_irq_restore() to not use
- popf
-Message-ID: <894a4cec-8426-4152-d391-474711040c5b@suse.com>
-Date: Mon, 23 Nov 2020 06:21:56 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.4.0
+ Mon, 23 Nov 2020 11:09:00 +0000 (UTC)
+Received: from localhost (searspoint.nvidia.com [216.228.112.21])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mail.kernel.org (Postfix) with ESMTPSA id 28FB220729;
+ Mon, 23 Nov 2020 11:08:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+ s=default; t=1606129740;
+ bh=C45Y0mXjGSueWNqF/l54xtKGfyZKwY4yWk6oK3ScWCc=;
+ h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+ b=Gzy8N3KkE83YLQb7Gw5nZYkvg+AMMxgQb1ZXQHwp5lozL8Za/DpF6Z8Pe/vjn3Nly
+ +YmJ5aNxY44o0mPDmLFZzxtha6OC5WWadcGQIUHfVak71kq1KW7uJ1Nif16z/dlaZW
+ 27aZpjO4oJYGFR9EdD8IPvgKHA6meSeZTiY4UXQw=
+Date: Mon, 23 Nov 2020 13:08:55 +0200
+From: Leon Romanovsky <leon@kernel.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: netconsole deadlock with virtnet
+Message-ID: <20201123110855.GD3159@unreal>
+References: <20201117102341.GR47002@unreal>
+ <20201117093325.78f1486d@gandalf.local.home>
+ <X7SK9l0oZ+RTivwF@jagdpanzerIV.localdomain>
+ <X7SRxB6C+9Bm+r4q@jagdpanzerIV.localdomain>
+ <93b42091-66f2-bb92-6822-473167b2698d@redhat.com>
+ <20201118091257.2ee6757a@gandalf.local.home>
 MIME-Version: 1.0
-In-Reply-To: <CALCETrXOGhXoOJpzhAMqD7iibi09WzbGk9SWVH7JzA=d5uarWA@mail.gmail.com>
-Cc: Stefano Stabellini <sstabellini@kernel.org>,
- Peter Zijlstra <peterz@infradead.org>, X86 ML <x86@kernel.org>,
- LKML <linux-kernel@vger.kernel.org>,
- Linux Virtualization <virtualization@lists.linux-foundation.org>, "VMware,
- Inc." <pv-drivers@vmware.com>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, "H. Peter Anvin" <hpa@zytor.com>,
- xen-devel <xen-devel@lists.xenproject.org>,
- Thomas Gleixner <tglx@linutronix.de>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Content-Disposition: inline
+In-Reply-To: <20201118091257.2ee6757a@gandalf.local.home>
+Cc: Petr Mladek <pmladek@suse.com>, John Ogness <john.ogness@linutronix.de>,
+ "Michael S. Tsirkin" <mst@redhat.com>, netdev <netdev@vger.kernel.org>,
+ Amit Shah <amit@kernel.org>, virtualization@lists.linux-foundation.org,
+ Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+ Ran Rozenstein <ranro@nvidia.com>, Itay Aveksis <itayav@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -97,259 +92,419 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= via Virtualization
- <virtualization@lists.linux-foundation.org>
-Reply-To: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-Content-Type: multipart/mixed; boundary="===============3408721615843283690=="
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---===============3408721615843283690==
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="KjjwiwVOCYamlMPkg53LvZQjNAFZkdRhT"
+On Wed, Nov 18, 2020 at 09:12:57AM -0500, Steven Rostedt wrote:
+>
+> [ Adding netdev as perhaps someone there knows ]
+>
+> On Wed, 18 Nov 2020 12:09:59 +0800
+> Jason Wang <jasowang@redhat.com> wrote:
+>
+> > > This CPU0 lock(_xmit_ETHER#2) -> hard IRQ -> lock(console_owner) is
+> > > basically
+> > > 	soft IRQ -> lock(_xmit_ETHER#2) -> hard IRQ -> printk()
+> > >
+> > > Then CPU1 spins on xmit, which is owned by CPU0, CPU0 spins on
+> > > console_owner, which is owned by CPU1?
+>
+> It still looks to me that the target_list_lock is taken in IRQ, (which can
+> be the case because printk calls write_msg() which takes that lock). And
+> someplace there's a:
+>
+> 	lock(target_list_lock)
+> 	lock(xmit_lock)
+>
+> which means you can remove the console lock from this scenario completely,
+> and you still have a possible deadlock between target_list_lock and
+> xmit_lock.
+>
+> >
+> >
+> > If this is true, it looks not a virtio-net specific issue but somewhere
+> > else.
+> >
+> > I think all network driver will synchronize through bh instead of hardirq.
+>
+> I think the issue is where target_list_lock is held when we take xmit_lock.
+> Is there anywhere in netconsole.c that can end up taking xmit_lock while
+> holding the target_list_lock? If so, that's the problem. As
+> target_list_lock is something that can be taken in IRQ context, which means
+> *any* other lock that is taking while holding the target_list_lock must
+> also protect against interrupts from happening while it they are held.
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---KjjwiwVOCYamlMPkg53LvZQjNAFZkdRhT
-Content-Type: multipart/mixed; boundary="PYEGjNEoNCwI2vygBQpmaIoVRT2ThJktq";
- protected-headers="v1"
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-To: Andy Lutomirski <luto@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>,
- Stefano Stabellini <sstabellini@kernel.org>,
- "VMware, Inc." <pv-drivers@vmware.com>, X86 ML <x86@kernel.org>,
- LKML <linux-kernel@vger.kernel.org>,
- Linux Virtualization <virtualization@lists.linux-foundation.org>,
- Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
- "H. Peter Anvin" <hpa@zytor.com>, xen-devel
- <xen-devel@lists.xenproject.org>, Thomas Gleixner <tglx@linutronix.de>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Message-ID: <894a4cec-8426-4152-d391-474711040c5b@suse.com>
-Subject: Re: [PATCH v2 05/12] x86: rework arch_local_irq_restore() to not use
- popf
-References: <20201120114630.13552-1-jgross@suse.com>
- <20201120114630.13552-6-jgross@suse.com>
- <20201120115943.GD3021@hirez.programming.kicks-ass.net>
- <eb05e878-6334-8d19-496b-6572df67fc56@suse.com>
- <CALCETrXOGhXoOJpzhAMqD7iibi09WzbGk9SWVH7JzA=d5uarWA@mail.gmail.com>
-In-Reply-To: <CALCETrXOGhXoOJpzhAMqD7iibi09WzbGk9SWVH7JzA=d5uarWA@mail.gmail.com>
+I increased printk buffer like Petr suggested and the splat is below.
+It doesn't happening on x86, but on ARM65 and ppc64.
 
---PYEGjNEoNCwI2vygBQpmaIoVRT2ThJktq
-Content-Type: multipart/mixed;
- boundary="------------61EFA80FF3AEF2DEA88EC6CD"
-Content-Language: en-US
+ [   10.027975] =====================================================
+ [   10.027976] WARNING: HARDIRQ-safe -> HARDIRQ-unsafe lock order detected
+ [   10.027976] 5.10.0-rc4_for_upstream_min_debug_2020_11_22_19_37 #1 Not tainted
+ [   10.027977] -----------------------------------------------------
+ [   10.027978] modprobe/638 [HC0[0]:SC0[0]:HE0:SE1] is trying to acquire:
+ [   10.027979] ffff0000c9f63c98 (_xmit_ETHER#2){+.-.}-{2:2}, at: virtnet_poll_tx+0x84/0x120
+ [   10.027982]
+ [   10.027982] and this task is already holding:
+ [   10.027983] ffff800009007018 (target_list_lock){....}-{2:2}, at: write_msg+0x6c/0x120 [netconsole]
+ [   10.027985] which would create a new lock dependency:
+ [   10.027985]  (target_list_lock){....}-{2:2} -> (_xmit_ETHER#2){+.-.}-{2:2}
+ [   10.027989]
+ [   10.027989] but this new dependency connects a HARDIRQ-irq-safe lock:
+ [   10.027990]  (console_owner){-...}-{0:0}
+ [   10.027991]
+ [   10.027992] ... which became HARDIRQ-irq-safe at:
+ [   10.027992]   __lock_acquire+0xa78/0x1a94
+ [   10.027993]   lock_acquire.part.0+0x170/0x360
+ [   10.027993]   lock_acquire+0x68/0x8c
+ [   10.027994]   console_unlock+0x1e8/0x6a4
+ [   10.027994]   vprintk_emit+0x1c4/0x3c4
+ [   10.027995]   vprintk_default+0x40/0x4c
+ [   10.027995]   vprintk_func+0x10c/0x220
+ [   10.027995]   printk+0x68/0x90
+ [   10.027996]   crng_fast_load+0x1bc/0x1c0
+ [   10.027997]   add_interrupt_randomness+0x280/0x290
+ [   10.027997]   handle_irq_event+0x80/0x120
+ [   10.027997]   handle_fasteoi_irq+0xac/0x200
+ [   10.027998]   __handle_domain_irq+0x84/0xf0
+ [   10.027999]   gic_handle_irq+0xd4/0x320
+ [   10.027999]   el1_irq+0xd0/0x180
+ [   10.028000]   arch_cpu_idle+0x24/0x44
+ [   10.028000]   default_idle_call+0x48/0xa0
+ [   10.028001]   do_idle+0x260/0x300
+ [   10.028001]   cpu_startup_entry+0x30/0x6c
+ [   10.028001]   rest_init+0x1b4/0x288
+ [   10.028002]   arch_call_rest_init+0x18/0x24
+ [   10.028002]   start_kernel+0x5cc/0x608
+ [   10.028003]
+ [   10.028003] to a HARDIRQ-irq-unsafe lock:
+ [   10.028004]  (_xmit_ETHER#2){+.-.}-{2:2}
+ [   10.028005]
+ [   10.028006] ... which became HARDIRQ-irq-unsafe at:
+ [   10.028006] ...  __lock_acquire+0x8bc/0x1a94
+ [   10.028007]   lock_acquire.part.0+0x170/0x360
+ [   10.028007]   lock_acquire+0x68/0x8c
+ [   10.028008]   _raw_spin_trylock+0x80/0xd0
+ [   10.028008]   virtnet_poll+0xac/0x360
+ [   10.028009]   net_rx_action+0x1b0/0x4e0
+ [   10.028010]   __do_softirq+0x1f4/0x638
+ [   10.028010]   do_softirq+0xb8/0xcc
+ [   10.028010]   __local_bh_enable_ip+0x18c/0x200
+ [   10.028011]   virtnet_napi_enable+0xc0/0xd4
+ [   10.028011]   virtnet_open+0x98/0x1c0
+ [   10.028012]   __dev_open+0x12c/0x200
+ [   10.028013]   __dev_change_flags+0x1a0/0x220
+ [   10.028013]   dev_change_flags+0x2c/0x70
+ [   10.028014]   do_setlink+0x214/0xe20
+ [   10.028014]   __rtnl_newlink+0x514/0x820
+ [   10.028015]   rtnl_newlink+0x58/0x84
+ [   10.028015]   rtnetlink_rcv_msg+0x184/0x4b4
+ [   10.028016]   netlink_rcv_skb+0x60/0x124
+ [   10.028016]   rtnetlink_rcv+0x20/0x30
+ [   10.028017]   netlink_unicast+0x1b4/0x270
+ [   10.028017]   netlink_sendmsg+0x1f0/0x400
+ [   10.028018]   sock_sendmsg+0x5c/0x70
+ [   10.028018]   ____sys_sendmsg+0x24c/0x280
+ [   10.028019]   ___sys_sendmsg+0x88/0xd0
+ [   10.028019]   __sys_sendmsg+0x70/0xd0
+ [   10.028020]   __arm64_sys_sendmsg+0x2c/0x40
+ [   10.028021]   el0_svc_common.constprop.0+0x84/0x200
+ [   10.028021]   do_el0_svc+0x2c/0x90
+ [   10.028021]   el0_svc+0x18/0x50
+ [   10.028022]   el0_sync_handler+0xe0/0x350
+ [   10.028023]   el0_sync+0x158/0x180
+ [   10.028023]
+ [   10.028023] other info that might help us debug this:
+ [   10.028024]
+ [   10.028024] Chain exists of:
+ [   10.028025]   console_owner --> target_list_lock --> _xmit_ETHER#2
+ [   10.028028]
+ [   10.028028]  Possible interrupt unsafe locking scenario:
+ [   10.028029]
+ [   10.028029]        CPU0                    CPU1
+ [   10.028030]        ----                    ----
+ [   10.028030]   lock(_xmit_ETHER#2);
+ [   10.028032]                                local_irq_disable();
+ [   10.028032]                                lock(console_owner);
+ [   10.028034]                                lock(target_list_lock);
+ [   10.028035]   <Interrupt>
+ [   10.028035]     lock(console_owner);
+ [   10.028036]
+ [   10.028037]  *** DEADLOCK ***
+ [   10.028037]
+ [   10.028038] 3 locks held by modprobe/638:
+ [   10.028038]  #0: ffff800011e1efe0 (console_lock){+.+.}-{0:0}, at: register_console+0x144/0x2f4
+ [   10.028040]  #1: ffff800011e1f108 (console_owner){-...}-{0:0}, at: console_unlock+0x17c/0x6a4
+ [   10.028043]  #2: ffff800009007018 (target_list_lock){....}-{2:2}, at: write_msg+0x6c/0x120 [netconsole]
+ [   10.028045]
+ [   10.028046] the dependencies between HARDIRQ-irq-safe lock and the holding lock:
+ [   10.028046]  -> (console_owner){-...}-{0:0} ops: 1574 {
+ [   10.028049]     IN-HARDIRQ-W at:
+ [   10.028050]                          __lock_acquire+0xa78/0x1a94
+ [   10.028050]                          lock_acquire.part.0+0x170/0x360
+ [   10.028051]                          lock_acquire+0x68/0x8c
+ [   10.028051]                          console_unlock+0x1e8/0x6a4
+ [   10.028052]                          vprintk_emit+0x1c4/0x3c4
+ [   10.028052]                          vprintk_default+0x40/0x4c
+ [   10.028053]                          vprintk_func+0x10c/0x220
+ [   10.028054]                          printk+0x68/0x90
+ [   10.028054]                          crng_fast_load+0x1bc/0x1c0
+ [   10.028055]                          add_interrupt_randomness+0x280/0x290
+ [   10.028056]                          handle_irq_event+0x80/0x120
+ [   10.028056]                          handle_fasteoi_irq+0xac/0x200
+ [   10.028057]                          __handle_domain_irq+0x84/0xf0
+ [   10.028057]                          gic_handle_irq+0xd4/0x320
+ [   10.028058]                          el1_irq+0xd0/0x180
+ [   10.028058]                          arch_cpu_idle+0x24/0x44
+ [   10.028059]                          default_idle_call+0x48/0xa0
+ [   10.028060]                          do_idle+0x260/0x300
+ [   10.028061]                          cpu_startup_entry+0x30/0x6c
+ [   10.028061]                          rest_init+0x1b4/0x288
+ [   10.028062]                          arch_call_rest_init+0x18/0x24
+ [   10.028062]                          start_kernel+0x5cc/0x608
+ [   10.028063]     INITIAL USE at:
+ [   10.028064]                         __lock_acquire+0x2e0/0x1a94
+ [   10.028064]                         lock_acquire.part.0+0x170/0x360
+ [   10.028065]                         lock_acquire+0x68/0x8c
+ [   10.028066]                         console_unlock+0x1e8/0x6a4
+ [   10.028067]                         vprintk_emit+0x1c4/0x3c4
+ [   10.028067]                         vprintk_default+0x40/0x4c
+ [   10.028068]                         vprintk_func+0x10c/0x220
+ [   10.028068]                         printk+0x68/0x90
+ [   10.028069]                         start_kernel+0x8c/0x608
+ [   10.028069]   }
+ [   10.028070]   ... key      at: [<ffff800011e1f108>] console_owner_dep_map+0x0/0x28
+ [   10.028071]   ... acquired at:
+ [   10.028071]    lock_acquire.part.0+0x170/0x360
+ [   10.028072]    lock_acquire+0x68/0x8c
+ [   10.028072]    _raw_spin_lock_irqsave+0x88/0x15c
+ [   10.028073]    write_msg+0x6c/0x120 [netconsole]
+ [   10.028073]    console_unlock+0x3ec/0x6a4
+ [   10.028074]    register_console+0x17c/0x2f4
+ [   10.028075]    init_netconsole+0x20c/0x1000 [netconsole]
+ [   10.028075]    do_one_initcall+0x8c/0x480
+ [   10.028076]    do_init_module+0x60/0x270
+ [   10.028076]    load_module+0x21f8/0x2734
+ [   10.028077]    __do_sys_finit_module+0xbc/0x12c
+ [   10.028077]    __arm64_sys_finit_module+0x28/0x34
+ [   10.028078]    el0_svc_common.constprop.0+0x84/0x200
+ [   10.028078]    do_el0_svc+0x2c/0x90
+ [   10.028079]    el0_svc+0x18/0x50
+ [   10.028079]    el0_sync_handler+0xe0/0x350
+ [   10.028080]    el0_sync+0x158/0x180
+ [   10.028080]
+ [   10.028081] -> (target_list_lock){....}-{2:2} ops: 34 {
+ [   10.028083]    INITIAL USE at:
+ [   10.028084]                       __lock_acquire+0x2e0/0x1a94
+ [   10.028084]                       lock_acquire.part.0+0x170/0x360
+ [   10.028085]                       lock_acquire+0x68/0x8c
+ [   10.028085]                       _raw_spin_lock_irqsave+0x88/0x15c
+ [   10.028086]                       init_netconsole+0x148/0x1000 [netconsole]
+ [   10.028087]                       do_one_initcall+0x8c/0x480
+ [   10.028087]                       do_init_module+0x60/0x270
+ [   10.028088]                       load_module+0x21f8/0x2734
+ [   10.028088]                       __do_sys_finit_module+0xbc/0x12c
+ [   10.028089]                       __arm64_sys_finit_module+0x28/0x34
+ [   10.028090]                       el0_svc_common.constprop.0+0x84/0x200
+ [   10.028090]                       do_el0_svc+0x2c/0x90
+ [   10.028091]                       el0_svc+0x18/0x50
+ [   10.028092]                       el0_sync_handler+0xe0/0x350
+ [   10.028092]                       el0_sync+0x158/0x180
+ [   10.028093]  }
+ [   10.028093]  ... key      at: [<ffff800009007018>] target_list_lock+0x18/0xfffffffffffff000 [netconsole]
+ [   10.028094]  ... acquired at:
+ [   10.028094]    __lock_acquire+0x134c/0x1a94
+ [   10.028095]    lock_acquire.part.0+0x170/0x360
+ [   10.028095]    lock_acquire+0x68/0x8c
+ [   10.028096]    _raw_spin_lock+0x64/0x90
+ [   10.028096]    virtnet_poll_tx+0x84/0x120
+ [   10.028097]    netpoll_poll_dev+0x12c/0x350
+ [   10.028097]    netpoll_send_skb+0x39c/0x400
+ [   10.028098]    netpoll_send_udp+0x2b8/0x440
+ [   10.028098]    write_msg+0xfc/0x120 [netconsole]
+ [   10.028099]    console_unlock+0x3ec/0x6a4
+ [   10.028100]    register_console+0x17c/0x2f4
+ [   10.028100]    init_netconsole+0x20c/0x1000 [netconsole]
+ [   10.028101]    do_one_initcall+0x8c/0x480
+ [   10.028101]    do_init_module+0x60/0x270
+ [   10.028102]    load_module+0x21f8/0x2734
+ [   10.028102]    __do_sys_finit_module+0xbc/0x12c
+ [   10.028103]    __arm64_sys_finit_module+0x28/0x34
+ [   10.028103]    el0_svc_common.constprop.0+0x84/0x200
+ [   10.028104]    do_el0_svc+0x2c/0x90
+ [   10.028104]    el0_svc+0x18/0x50
+ [   10.028105]    el0_sync_handler+0xe0/0x350
+ [   10.028105]    el0_sync+0x158/0x180
+ [   10.028106]
+ [   10.028106]
+ [   10.028107] the dependencies between the lock to be acquired
+ [   10.028107]  and HARDIRQ-irq-unsafe lock:
+ [   10.028108] -> (_xmit_ETHER#2){+.-.}-{2:2} ops: 217 {
+ [   10.028110]    HARDIRQ-ON-W at:
+ [   10.028111]                        __lock_acquire+0x8bc/0x1a94
+ [   10.028111]                        lock_acquire.part.0+0x170/0x360
+ [   10.028112]                        lock_acquire+0x68/0x8c
+ [   10.028113]                        _raw_spin_trylock+0x80/0xd0
+ [   10.028113]                        virtnet_poll+0xac/0x360
+ [   10.028114]                        net_rx_action+0x1b0/0x4e0
+ [   10.028115]                        __do_softirq+0x1f4/0x638
+ [   10.028115]                        do_softirq+0xb8/0xcc
+ [   10.028116]                        __local_bh_enable_ip+0x18c/0x200
+ [   10.028116]                        virtnet_napi_enable+0xc0/0xd4
+ [   10.028117]                        virtnet_open+0x98/0x1c0
+ [   10.028118]                        __dev_open+0x12c/0x200
+ [   10.028118]                        __dev_change_flags+0x1a0/0x220
+ [   10.028119]                        dev_change_flags+0x2c/0x70
+ [   10.028119]                        do_setlink+0x214/0xe20
+ [   10.028120]                        __rtnl_newlink+0x514/0x820
+ [   10.028120]                        rtnl_newlink+0x58/0x84
+ [   10.028121]                        rtnetlink_rcv_msg+0x184/0x4b4
+ [   10.028122]                        netlink_rcv_skb+0x60/0x124
+ [   10.028122]                        rtnetlink_rcv+0x20/0x30
+ [   10.028123]                        netlink_unicast+0x1b4/0x270
+ [   10.028124]                        netlink_sendmsg+0x1f0/0x400
+ [   10.028124]                        sock_sendmsg+0x5c/0x70
+ [   10.028125]                        ____sys_sendmsg+0x24c/0x280
+ [   10.028125]                        ___sys_sendmsg+0x88/0xd0
+ [   10.028126]                        __sys_sendmsg+0x70/0xd0
+ [   10.028127]                        __arm64_sys_sendmsg+0x2c/0x40
+ [   10.028128]                        el0_svc_common.constprop.0+0x84/0x200
+ [   10.028128]                        do_el0_svc+0x2c/0x90
+ [   10.028129]                        el0_svc+0x18/0x50
+ [   10.028129]                        el0_sync_handler+0xe0/0x350
+ [   10.028130]                        el0_sync+0x158/0x180
+ [   10.028130]    IN-SOFTIRQ-W at:
+ [   10.028131]                        __lock_acquire+0x894/0x1a94
+ [   10.028132]                        lock_acquire.part.0+0x170/0x360
+ [   10.028132]                        lock_acquire+0x68/0x8c
+ [   10.028133]                        _raw_spin_lock+0x64/0x90
+ [   10.028134]                        virtnet_poll_tx+0x84/0x120
+ [   10.028134]                        net_rx_action+0x1b0/0x4e0
+ [   10.028135]                        __do_softirq+0x1f4/0x638
+ [   10.028135]                        do_softirq+0xb8/0xcc
+ [   10.028136]                        __local_bh_enable_ip+0x18c/0x200
+ [   10.028137]                        virtnet_napi_enable+0xc0/0xd4
+ [   10.028137]                        virtnet_open+0x14c/0x1c0
+ [   10.028138]                        __dev_open+0x12c/0x200
+ [   10.028138]                        __dev_change_flags+0x1a0/0x220
+ [   10.028139]                        dev_change_flags+0x2c/0x70
+ [   10.028140]                        do_setlink+0x214/0xe20
+ [   10.028140]                        __rtnl_newlink+0x514/0x820
+ [   10.028141]                        rtnl_newlink+0x58/0x84
+ [   10.028141]                        rtnetlink_rcv_msg+0x184/0x4b4
+ [   10.028142]                        netlink_rcv_skb+0x60/0x124
+ [   10.028142]                        rtnetlink_rcv+0x20/0x30
+ [   10.028143]                        netlink_unicast+0x1b4/0x270
+ [   10.028144]                        netlink_sendmsg+0x1f0/0x400
+ [   10.028144]                        sock_sendmsg+0x5c/0x70
+ [   10.028145]                        ____sys_sendmsg+0x24c/0x280
+ [   10.028146]                        ___sys_sendmsg+0x88/0xd0
+ [   10.028146]                        __sys_sendmsg+0x70/0xd0
+ [   10.028147]                        __arm64_sys_sendmsg+0x2c/0x40
+ [   10.028148]                        el0_svc_common.constprop.0+0x84/0x200
+ [   10.028148]                        do_el0_svc+0x2c/0x90
+ [   10.028149]                        el0_svc+0x18/0x50
+ [   10.028149]                        el0_sync_handler+0xe0/0x350
+ [   10.028150]                        el0_sync+0x158/0x180
+ [   10.028150]    INITIAL USE at:
+ [   10.028151]                       __lock_acquire+0x2e0/0x1a94
+ [   10.028152]                       lock_acquire.part.0+0x170/0x360
+ [   10.028153]                       lock_acquire+0x68/0x8c
+ [   10.028153]                       _raw_spin_trylock+0x80/0xd0
+ [   10.028154]                       virtnet_poll+0xac/0x360
+ [   10.028154]                       net_rx_action+0x1b0/0x4e0
+ [   10.028155]                       __do_softirq+0x1f4/0x638
+ [   10.028155]                       do_softirq+0xb8/0xcc
+ [   10.028156]                       __local_bh_enable_ip+0x18c/0x200
+ [   10.028157]                       virtnet_napi_enable+0xc0/0xd4
+ [   10.028157]                       virtnet_open+0x98/0x1c0
+ [   10.028158]                       __dev_open+0x12c/0x200
+ [   10.028158]                       __dev_change_flags+0x1a0/0x220
+ [   10.028159]                       dev_change_flags+0x2c/0x70
+ [   10.028159]                       do_setlink+0x214/0xe20
+ [   10.028160]                       __rtnl_newlink+0x514/0x820
+ [   10.028161]                       rtnl_newlink+0x58/0x84
+ [   10.028161]                       rtnetlink_rcv_msg+0x184/0x4b4
+ [   10.028162]                       netlink_rcv_skb+0x60/0x124
+ [   10.028162]                       rtnetlink_rcv+0x20/0x30
+ [   10.028163]                       netlink_unicast+0x1b4/0x270
+ [   10.028163]                       netlink_sendmsg+0x1f0/0x400
+ [   10.028164]                       sock_sendmsg+0x5c/0x70
+ [   10.028165]                       ____sys_sendmsg+0x24c/0x280
+ [   10.028165]                       ___sys_sendmsg+0x88/0xd0
+ [   10.028166]                       __sys_sendmsg+0x70/0xd0
+ [   10.028166]                       __arm64_sys_sendmsg+0x2c/0x40
+ [   10.028167]                       el0_svc_common.constprop.0+0x84/0x200
+ [   10.028168]                       do_el0_svc+0x2c/0x90
+ [   10.028168]                       el0_svc+0x18/0x50
+ [   10.028169]                       el0_sync_handler+0xe0/0x350
+ [   10.028169]                       el0_sync+0x158/0x180
+ [   10.028170]  }
+ [   10.028171]  ... key      at: [<ffff80001312aef8>] netdev_xmit_lock_key+0x10/0x390
+ [   10.028171]  ... acquired at:
+ [   10.028172]    __lock_acquire+0x134c/0x1a94
+ [   10.028172]    lock_acquire.part.0+0x170/0x360
+ [   10.028173]    lock_acquire+0x68/0x8c
+ [   10.028173]    _raw_spin_lock+0x64/0x90
+ [   10.028174]    virtnet_poll_tx+0x84/0x120
+ [   10.028174]    netpoll_poll_dev+0x12c/0x350
+ [   10.028175]    netpoll_send_skb+0x39c/0x400
+ [   10.028175]    netpoll_send_udp+0x2b8/0x440
+ [   10.028176]    write_msg+0xfc/0x120 [netconsole]
+ [   10.028176]    console_unlock+0x3ec/0x6a4
+ [   10.028177]    register_console+0x17c/0x2f4
+ [   10.028178]    init_netconsole+0x20c/0x1000 [netconsole]
+ [   10.028178]    do_one_initcall+0x8c/0x480
+ [   10.028179]    do_init_module+0x60/0x270
+ [   10.028179]    load_module+0x21f8/0x2734
+ [   10.028180]    __do_sys_finit_module+0xbc/0x12c
+ [   10.028180]    __arm64_sys_finit_module+0x28/0x34
+ [   10.028181]    el0_svc_common.constprop.0+0x84/0x200
+ [   10.028181]    do_el0_svc+0x2c/0x90
+ [   10.028182]    el0_svc+0x18/0x50
+ [   10.028182]    el0_sync_handler+0xe0/0x350
+ [   10.028183]    el0_sync+0x158/0x180
+ [   10.028183]
+ [   10.028183]
+ [   10.028184] stack backtrace:
+ [   10.028185] CPU: 14 PID: 638 Comm: modprobe Not tainted 5.10.0-rc4_for_upstream_min_debug_2020_11_22_19_37 #1
+ [   10.028186] Hardware name: QEMU KVM Virtual Machine, BIOS 0.0.0 02/06/2015
+ [   10.028186] Call trace:
+ [   10.028186]  dump_backtrace+0x0/0x1d0
+ [   10.028187]  show_stack+0x20/0x3c
+ [   10.028187]  dump_stack+0xec/0x138
+ [   10.028188]  check_irq_usage+0x6b8/0x6cc
+ [   10.028188]  __lock_acquire+0x134c/0x1a94
+ [   10.028189]  lock_acquire.part.0+0x170/0x360
+ [   10.028189]  lock_acquire+0x68/0x8c
+ [   10.028190]  _raw_spin_lock+0x64/0x90
+ [   10.028191]  virtnet_poll_tx+0x84/0x120
+ [   10.028191]  netpoll_poll_dev+0x12c/0x350
+ [   10.028192]  netpoll_send_skb+0x39c/0x400
+ [   10.028192]  netpoll_send_udp+0x2b8/0x440
+ [   10.028193]  write_msg+0xfc/0x120 [netconsole]
+ [   10.028193]  console_unlock+0x3ec/0x6a4
+ [   10.028194]  register_console+0x17c/0x2f4
+ [   10.028194]  init_netconsole+0x20c/0x1000 [netconsole]
+ [   10.028195]  do_one_initcall+0x8c/0x480
+ [   10.028195]  do_init_module+0x60/0x270
+ [   10.028196]  load_module+0x21f8/0x2734
+ [   10.028197]  __do_sys_finit_module+0xbc/0x12c
+ [   10.028197]  __arm64_sys_finit_module+0x28/0x34
+ [   10.028198]  el0_svc_common.constprop.0+0x84/0x200
+ [   10.028198]  do_el0_svc+0x2c/0x90
+ [   10.028199]  el0_svc+0x18/0x50
+ [   10.028199]  el0_sync_handler+0xe0/0x350
+ [   10.028200]  el0_sync+0x158/0x180
+ [   10.073569] random: crng init done
+ [   10.073964] printk: console [netcon0] enabled
+ [   10.074704] random: 7 urandom warning(s) missed due to ratelimiting
+ [   10.075340] netconsole: network logging started
 
-This is a multi-part message in MIME format.
---------------61EFA80FF3AEF2DEA88EC6CD
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
-
-On 22.11.20 22:44, Andy Lutomirski wrote:
-> On Sat, Nov 21, 2020 at 10:55 PM J=C3=BCrgen Gro=C3=9F <jgross@suse.com=
-> wrote:
->>
->> On 20.11.20 12:59, Peter Zijlstra wrote:
->>> On Fri, Nov 20, 2020 at 12:46:23PM +0100, Juergen Gross wrote:
->>>> +static __always_inline void arch_local_irq_restore(unsigned long fl=
-ags)
->>>> +{
->>>> +    if (!arch_irqs_disabled_flags(flags))
->>>> +            arch_local_irq_enable();
->>>> +}
->>>
->>> If someone were to write horrible code like:
->>>
->>>        local_irq_disable();
->>>        local_irq_save(flags);
->>>        local_irq_enable();
->>>        local_irq_restore(flags);
->>>
->>> we'd be up some creek without a paddle... now I don't _think_ we have=
-
->>> genius code like that, but I'd feel saver if we can haz an assertion =
-in
->>> there somewhere...
->>>
->>> Maybe something like:
->>>
->>> #ifdef CONFIG_DEBUG_ENTRY // for lack of something saner
->>>        WARN_ON_ONCE((arch_local_save_flags() ^ flags) & X86_EFLAGS_IF=
-);
->>> #endif
->>>
->>> At the end?
->>
->> I'd like to, but using WARN_ON_ONCE() in include/asm/irqflags.h sounds=
-
->> like a perfect receipt for include dependency hell.
->>
->> We could use a plain asm("ud2") instead.
->=20
-> How about out-of-lining it:
->=20
-> #ifdef CONFIG_DEBUG_ENTRY
-> extern void warn_bogus_irqrestore();
-> #endif
->=20
-> static __always_inline void arch_local_irq_restore(unsigned long flags)=
-
-> {
->         if (!arch_irqs_disabled_flags(flags)) {
->                 arch_local_irq_enable();
->         } else {
-> #ifdef CONFIG_DEBUG_ENTRY
->                 if (unlikely(arch_local_irq_save() & X86_EFLAGS_IF))
->                      warn_bogus_irqrestore();
-> #endif
-> }
->=20
-
-This couldn't be a WARN_ON_ONCE() then (or it would be a catch all).
-Another approach might be to open-code the WARN_ON_ONCE(), like:
-
-#ifdef CONFIG_DEBUG_ENTRY
-extern void warn_bogus_irqrestore(bool *once);
-#endif
-
-static __always_inline void arch_local_irq_restore(unsigned long flags)
-{
-	if (!arch_irqs_disabled_flags(flags))
-		arch_local_irq_enable();
-#ifdef CONFIG_DEBUG_ENTRY
-	{
-		static bool once;
-
-		if (unlikely(arch_local_irq_save() & X86_EFLAGS_IF))
-			warn_bogus_irqrestore(&once);
-	}
-#endif
-}
-
-
-Juergen
-
---------------61EFA80FF3AEF2DEA88EC6CD
-Content-Type: application/pgp-keys;
- name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
- filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-
------BEGIN PGP PUBLIC KEY BLOCK-----
-
-xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOBy=
-cWx
-w3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJvedYm8O=
-f8Z
-d621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y=
-9bf
-IhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xq=
-G7/
-377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR=
-3Jv
-c3MgPGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsEFgIDA=
-QIe
-AQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4FUGNQH2lvWAUy+dnyT=
-hpw
-dtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3TyevpB0CA3dbBQp0OW0fgCetToGIQrg0=
-MbD
-1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u+6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbv=
-oPH
-Z8SlM4KWm8rG+lIkGurqqu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v=
-5QL
-+qHI3EIPtyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVyZ=
-2Vu
-IEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJCAcDAgEGFQgCC=
-QoL
-BBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4RF7HoZhPVPogNVbC4YA6lW7Dr=
-Wf0
-teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz78X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC=
-/nu
-AFVGy+67q2DH8As3KPu0344TBDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0Lh=
-ITT
-d9jLzdDad1pQSToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLm=
-XBK
-7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkMnQfvUewRz=
-80h
-SnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMBAgAjBQJTjHDXAhsDBwsJC=
-AcD
-AgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJn=
-FOX
-gMLdBQgBlVPO3/D9R8LtF9DBAFPNhlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1=
-jnD
-kfJZr6jrbjgyoZHiw/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0=
-N51
-N5JfVRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwPOoE+l=
-otu
-fe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK/1xMI3/+8jbO0tsn1=
-tqS
-EUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuZGU+wsB5BBMBAgAjBQJTjHDrA=
-hsD
-BwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3=
-g3O
-ZUEBmDHVVbqMtzwlmNC4k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5=
-dM7
-wRqzgJpJwK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu5=
-D+j
-LRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzBTNh30FVKK1Evm=
-V2x
-AKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37IoN1EblHI//x/e2AaIHpzK5h88N=
-Eaw
-QsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpW=
-nHI
-s98ndPUDpnoxWQugJ6MpMncr0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZR=
-wgn
-BC5mVM6JjQ5xDk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNV=
-bVF
-LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mmwe0icXKLk=
-pEd
-IXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0Iv3OOImwTEe4co3c1mwARA=
-QAB
-wsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMvQ/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEw=
-Tbe
-8YFsw2V/Buv6Z4Mysln3nQK5ZadD534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1=
-vJz
-Q1fOU8lYFpZXTXIHb+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8=
-VGi
-wXvTyJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqcsuylW=
-svi
-uGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5BjR/i1DG86lem3iBDX=
-zXs
-ZDn8R38=3D
-=3D2wuH
------END PGP PUBLIC KEY BLOCK-----
-
---------------61EFA80FF3AEF2DEA88EC6CD--
-
---PYEGjNEoNCwI2vygBQpmaIoVRT2ThJktq--
-
---KjjwiwVOCYamlMPkg53LvZQjNAFZkdRhT
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature"
-
------BEGIN PGP SIGNATURE-----
-
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAl+7RvQFAwAAAAAACgkQsN6d1ii/Ey8g
-cQf/Uld5d2rCAffpLFBdphaCOgFSPC2kdsNOxLyfO0gdHESNxsBoZ/BREBUVCnDawcH4cZlOl/6E
-ZHl1LQFfe963dpoB0V3n3hscAEalez4yzbsgsoysAqDqyA7Dl/kFW4ycGCnqtQCwK1utjoejDrWo
-JnODzWqm4fLZGbe1Y7VUw6G25XSL1mTfoXst86jeU0Ycvr6/NFBA4zFy10wAylyosZe/6xss9lKl
-f/GAwNiafJ6o8ZQwxAAh5vRf0oU0ro47p9Pu1wmzXNMfIO8TgazfvOp68Ml/0n4DR+TuCB1tarqx
-QqyidG1WLriURSEHtWCAmqiIgeagXTWcLkWsbGIImQ==
-=0xzm
------END PGP SIGNATURE-----
-
---KjjwiwVOCYamlMPkg53LvZQjNAFZkdRhT--
-
---===============3408721615843283690==
-Content-Type: text/plain; charset="us-ascii"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
+>
+> -- Steve
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---===============3408721615843283690==--
