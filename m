@@ -2,136 +2,78 @@ Return-Path: <SRS0=KpU2=E5=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.5 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
-	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id ECB29C2D0E4
-	for <virtualization@archiver.kernel.org>; Mon, 23 Nov 2020 14:20:14 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 59760C56202
+	for <virtualization@archiver.kernel.org>; Mon, 23 Nov 2020 14:31:39 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 571DF20781
-	for <virtualization@archiver.kernel.org>; Mon, 23 Nov 2020 14:20:14 +0000 (UTC)
-Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="b0LkeT2q"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 571DF20781
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	by mail.kernel.org (Postfix) with ESMTPS id C49C220781
+	for <virtualization@archiver.kernel.org>; Mon, 23 Nov 2020 14:31:38 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C49C220781
+Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=goodmis.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id B8ECD204A4;
-	Mon, 23 Nov 2020 14:20:13 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 3C90420005;
+	Mon, 23 Nov 2020 14:31:38 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id t1GSykFxA9vp; Mon, 23 Nov 2020 14:20:09 +0000 (UTC)
+	with ESMTP id 0R56ZjXBmWEi; Mon, 23 Nov 2020 14:31:34 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 3ACB020467;
-	Mon, 23 Nov 2020 14:20:09 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 1A3AA1FCB5;
+	Mon, 23 Nov 2020 14:31:34 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 11CD1C163C;
-	Mon, 23 Nov 2020 14:20:09 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id EF0E0C163C;
+	Mon, 23 Nov 2020 14:31:33 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 65666C0052;
- Mon, 23 Nov 2020 14:20:07 +0000 (UTC)
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 18319C0052
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 23 Nov 2020 14:31:33 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 5689A85F31;
- Mon, 23 Nov 2020 14:20:07 +0000 (UTC)
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 03FF785FAE
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 23 Nov 2020 14:31:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id sjVM1yfxCTck; Mon, 23 Nov 2020 14:20:06 +0000 (UTC)
+ with ESMTP id JIn8VbGE48gi
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 23 Nov 2020 14:31:32 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-yb1-f194.google.com (mail-yb1-f194.google.com
- [209.85.219.194])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id A0D9485EFB;
- Mon, 23 Nov 2020 14:20:06 +0000 (UTC)
-Received: by mail-yb1-f194.google.com with SMTP id 2so16036807ybc.12;
- Mon, 23 Nov 2020 06:20:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=WUYMqcUnfpAQa1YuH9tQ3ze5bp2bxaoGLXc9Sg/470Y=;
- b=b0LkeT2q71Z3peIccxL7MkU5QadaCN3igdEC89IE4ykmdOxIlhuoo/0+H7pQCoNmlh
- 0UX19Z7soasUpz2fDZHX56luUWrH4GLKAJ9K28HwPu9km7qlcvasqfBffaQW+LtXvh6a
- fVP4J8wQFxbi1QWFB10Wsq9dLONxRShLcqQtcaktrZCy3tSRV5R4FOw2MSdgwNuCxNwd
- cKQMyE/jYgmlc9Qm972BZKz9xJaasT5iW6gpZgai8YpCh1sxJNgZFzlfCpv21Fvd7rwb
- akOsznbnFT4mJT95mXFDUPnplTdAJirWAcm8YfzHFRAfOGn9Vk91PuRcq7JipLelDPMB
- VWgQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
- d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=WUYMqcUnfpAQa1YuH9tQ3ze5bp2bxaoGLXc9Sg/470Y=;
- b=EIb51uFkJ6rIU2GtwCgPw0LlReSPIuAMShYwBjEehKhayqr8Sqy1w585iqIKDaOg3F
- g1f7ssLx685JJy44OVeq4LWjRpD6TDEFbd+vF/NKgPKejFK3JZinx9as88X9Ad3k6ruR
- 7tfg6WWwu1xF/l0G9vlV0OV3qpgIfPJUYXwHMOryGlQrpM47lhKTs+8MYEFVelk6G0xA
- Q2oXOMB2s7BWSG0x53gilkYGUaTxXzfH92C+DXEdGTVT5SDQZDMjQb7K35auWgLW88Db
- jwOxw3jszWbP15MaH/W3vrEddDxo2V7G+lBllSN2XBnNyhNzu0tY+KKudCus4tAKyL++
- gD+Q==
-X-Gm-Message-State: AOAM5313Jg6AoU/NUbDMIGAjbFY4/RQFTdz+36HWcwVq32R4BeYmfxsN
- b8Lc+B6IZP3lB7Fwvuul78RUFrAKkogGb1U8zds=
-X-Google-Smtp-Source: ABdhPJyiJqjBIpEzWlk5pyqpoGG3+KpoWdKnlyza2YA6ODhXnRhATytwh5Bq+iGOzNqc5gs+zuqHC8iB1cjfDTXU/ik=
-X-Received: by 2002:a25:bcc7:: with SMTP id l7mr32380985ybm.115.1606141205830; 
- Mon, 23 Nov 2020 06:20:05 -0800 (PST)
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 236FC85FA6
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 23 Nov 2020 14:31:32 +0000 (UTC)
+Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com
+ [66.24.58.225])
+ (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+ (No client certificate requested)
+ by mail.kernel.org (Postfix) with ESMTPSA id 81FC820758;
+ Mon, 23 Nov 2020 14:31:30 +0000 (UTC)
+Date: Mon, 23 Nov 2020 09:31:28 -0500
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Leon Romanovsky <leon@kernel.org>
+Subject: Re: netconsole deadlock with virtnet
+Message-ID: <20201123093128.701cf81b@gandalf.local.home>
+In-Reply-To: <20201123110855.GD3159@unreal>
+References: <20201117102341.GR47002@unreal>
+ <20201117093325.78f1486d@gandalf.local.home>
+ <X7SK9l0oZ+RTivwF@jagdpanzerIV.localdomain>
+ <X7SRxB6C+9Bm+r4q@jagdpanzerIV.localdomain>
+ <93b42091-66f2-bb92-6822-473167b2698d@redhat.com>
+ <20201118091257.2ee6757a@gandalf.local.home>
+ <20201123110855.GD3159@unreal>
+X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-References: <cover.1605896059.git.gustavoars@kernel.org>
- <20201120105344.4345c14e@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <202011201129.B13FDB3C@keescook>
- <20201120115142.292999b2@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <202011220816.8B6591A@keescook>
- <9b57fd4914b46f38d54087d75e072d6e947cb56d.camel@HansenPartnership.com>
- <CANiq72nZrHWTA4_Msg6MP9snTyenC6-eGfD27CyfNSu7QoVZbw@mail.gmail.com>
- <1c7d7fde126bc0acf825766de64bf2f9b888f216.camel@HansenPartnership.com>
-In-Reply-To: <1c7d7fde126bc0acf825766de64bf2f9b888f216.camel@HansenPartnership.com>
-From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Date: Mon, 23 Nov 2020 15:19:55 +0100
-Message-ID: <CANiq72m22Jb5_+62NnwX8xds2iUdWDMAqD8PZw9cuxdHd95W0A@mail.gmail.com>
-Subject: Re: [PATCH 000/141] Fix fall-through warnings for Clang
-To: James Bottomley <James.Bottomley@hansenpartnership.com>
-Cc: alsa-devel@alsa-project.org, linux-atm-general@lists.sourceforge.net,
- reiserfs-devel@vger.kernel.org, linux-iio@vger.kernel.org,
- linux-wireless <linux-wireless@vger.kernel.org>, linux-fbdev@vger.kernel.org,
- dri-devel@lists.freedesktop.org, "Gustavo A. R. Silva" <gustavoars@kernel.org>,
- Nathan Chancellor <natechancellor@gmail.com>, linux-ide@vger.kernel.org,
- dm-devel@redhat.com, keyrings@vger.kernel.org, linux-mtd@lists.infradead.org,
- GR-everest-linux-l2@marvell.com, wcn36xx@lists.infradead.org,
- samba-technical@lists.samba.org, linux-i3c@lists.infradead.org,
- linux1394-devel@lists.sourceforge.net, linux-afs@lists.infradead.org,
- usb-storage@lists.one-eyed-alien.net, drbd-dev@lists.linbit.com,
- devel@driverdev.osuosl.org, linux-cifs@vger.kernel.org,
- rds-devel@oss.oracle.com, Nick Desaulniers <ndesaulniers@google.com>,
- linux-scsi@vger.kernel.org, linux-rdma@vger.kernel.org,
- oss-drivers@netronome.com, bridge@lists.linux-foundation.org,
- linux-security-module@vger.kernel.org, amd-gfx@lists.freedesktop.org,
- linux-stm32@st-md-mailman.stormreply.com, cluster-devel@redhat.com,
- linux-acpi@vger.kernel.org, coreteam@netfilter.org,
- intel-wired-lan@lists.osuosl.org, linux-input <linux-input@vger.kernel.org>,
- Miguel Ojeda <ojeda@kernel.org>, Jakub Kicinski <kuba@kernel.org>,
- Ext4 Developers List <linux-ext4@vger.kernel.org>,
- Linux Media Mailing List <linux-media@vger.kernel.org>,
- Kees Cook <keescook@chromium.org>, selinux@vger.kernel.org,
- linux-arm-msm@vger.kernel.org, intel-gfx@lists.freedesktop.org,
- linux-geode@lists.infradead.org, linux-can@vger.kernel.org,
- linux-block@vger.kernel.org, linux-gpio@vger.kernel.org,
- op-tee@lists.trustedfirmware.org, linux-mediatek@lists.infradead.org,
- xen-devel@lists.xenproject.org, nouveau@lists.freedesktop.org,
- linux-hams@vger.kernel.org, ceph-devel@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
- Linux ARM <linux-arm-kernel@lists.infradead.org>, linux-hwmon@vger.kernel.org,
- linux-watchdog@vger.kernel.org, linux-nfs@vger.kernel.org,
- GR-Linux-NIC-Dev@marvell.com, tipc-discussion@lists.sourceforge.net,
- Linux-MM <linux-mm@kvack.org>, Network Development <netdev@vger.kernel.org>,
- linux-decnet-user@lists.sourceforge.net, linux-mmc@vger.kernel.org,
- linux-kernel <linux-kernel@vger.kernel.org>,
- "maintainer:X86 ARCHITECTURE \(32-BIT AND 64-BIT\)" <x86@kernel.org>,
- linux-renesas-soc@vger.kernel.org, linux-sctp@vger.kernel.org,
- linux-usb@vger.kernel.org, netfilter-devel@vger.kernel.org,
- Linux Crypto Mailing List <linux-crypto@vger.kernel.org>,
- patches@opensource.cirrus.com, Joe Perches <joe@perches.com>,
- linux-integrity@vger.kernel.org, target-devel@vger.kernel.org,
- linux-hardening@vger.kernel.org
+Cc: Petr Mladek <pmladek@suse.com>, John Ogness <john.ogness@linutronix.de>,
+ "Michael S. Tsirkin" <mst@redhat.com>, netdev <netdev@vger.kernel.org>,
+ Amit Shah <amit@kernel.org>, virtualization@lists.linux-foundation.org,
+ Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
+ Ran Rozenstein <ranro@nvidia.com>, Itay Aveksis <itayav@nvidia.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -148,41 +90,172 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Sun, Nov 22, 2020 at 11:36 PM James Bottomley
-<James.Bottomley@hansenpartnership.com> wrote:
->
-> Well, it seems to be three years of someone's time plus the maintainer
-> review time and series disruption of nearly a thousand patches.  Let's
-> be conservative and assume the producer worked about 30% on the series
-> and it takes about 5-10 minutes per patch to review, merge and for
-> others to rework existing series.  So let's say it's cost a person year
-> of a relatively junior engineer producing the patches and say 100h of
-> review and application time.  The latter is likely the big ticket item
-> because it's what we have in least supply in the kernel (even though
-> it's 20x vs the producer time).
+On Mon, 23 Nov 2020 13:08:55 +0200
+Leon Romanovsky <leon@kernel.org> wrote:
 
-How are you arriving at such numbers? It is a total of ~200 trivial lines.
 
-> It's not about the risk of the changes it's about the cost of
-> implementing them.  Even if you discount the producer time (which
-> someone gets to pay for, and if I were the engineering manager, I'd be
-> unhappy about), the review/merge/rework time is pretty significant in
-> exchange for six minor bug fixes.  Fine, when a new compiler warning
-> comes along it's certainly reasonable to see if we can benefit from it
-> and the fact that the compiler people think it's worthwhile is enough
-> evidence to assume this initially.  But at some point you have to ask
-> whether that assumption is supported by the evidence we've accumulated
-> over the time we've been using it.  And if the evidence doesn't support
-> it perhaps it is time to stop the experiment.
+>  [   10.028024] Chain exists of:
+>  [   10.028025]   console_owner --> target_list_lock --> _xmit_ETHER#2
 
-Maintainers routinely review 1-line trivial patches, not to mention
-internal API changes, etc.
+Note, the problem is that we have a location that grabs the xmit_lock while
+holding target_list_lock (and possibly console_owner).
 
-If some company does not want to pay for that, that's fine, but they
-don't get to be maintainers and claim `Supported`.
 
-Cheers,
-Miguel
+>  [   10.028028]
+>  [   10.028028]  Possible interrupt unsafe locking scenario:
+>  [   10.028029]
+>  [   10.028029]        CPU0                    CPU1
+>  [   10.028030]        ----                    ----
+>  [   10.028030]   lock(_xmit_ETHER#2);
+>  [   10.028032]                                local_irq_disable();
+>  [   10.028032]                                lock(console_owner);
+>  [   10.028034]                                lock(target_list_lock);
+>  [   10.028035]   <Interrupt>
+>  [   10.028035]     lock(console_owner);
+>  [   10.028036]
+>  [   10.028037]  *** DEADLOCK ***
+>  [   10.028037]
+
+
+
+>  [   10.028107] the dependencies between the lock to be acquired
+>  [   10.028107]  and HARDIRQ-irq-unsafe lock:
+>  [   10.028108] -> (_xmit_ETHER#2){+.-.}-{2:2} ops: 217 {
+>  [   10.028110]    HARDIRQ-ON-W at:
+>  [   10.028111]                        __lock_acquire+0x8bc/0x1a94
+>  [   10.028111]                        lock_acquire.part.0+0x170/0x360
+>  [   10.028112]                        lock_acquire+0x68/0x8c
+>  [   10.028113]                        _raw_spin_trylock+0x80/0xd0
+>  [   10.028113]                        virtnet_poll+0xac/0x360
+
+xmit_lock is taken in virtnet_poll() (via virtnet_poll_cleantx()).
+
+This is called from the softirq, and interrupts are not disabled.
+
+>  [   10.028114]                        net_rx_action+0x1b0/0x4e0
+>  [   10.028115]                        __do_softirq+0x1f4/0x638
+>  [   10.028115]                        do_softirq+0xb8/0xcc
+>  [   10.028116]                        __local_bh_enable_ip+0x18c/0x200
+>  [   10.028116]                        virtnet_napi_enable+0xc0/0xd4
+>  [   10.028117]                        virtnet_open+0x98/0x1c0
+>  [   10.028118]                        __dev_open+0x12c/0x200
+>  [   10.028118]                        __dev_change_flags+0x1a0/0x220
+>  [   10.028119]                        dev_change_flags+0x2c/0x70
+>  [   10.028119]                        do_setlink+0x214/0xe20
+>  [   10.028120]                        __rtnl_newlink+0x514/0x820
+>  [   10.028120]                        rtnl_newlink+0x58/0x84
+>  [   10.028121]                        rtnetlink_rcv_msg+0x184/0x4b4
+>  [   10.028122]                        netlink_rcv_skb+0x60/0x124
+>  [   10.028122]                        rtnetlink_rcv+0x20/0x30
+>  [   10.028123]                        netlink_unicast+0x1b4/0x270
+>  [   10.028124]                        netlink_sendmsg+0x1f0/0x400
+>  [   10.028124]                        sock_sendmsg+0x5c/0x70
+>  [   10.028125]                        ____sys_sendmsg+0x24c/0x280
+>  [   10.028125]                        ___sys_sendmsg+0x88/0xd0
+>  [   10.028126]                        __sys_sendmsg+0x70/0xd0
+>  [   10.028127]                        __arm64_sys_sendmsg+0x2c/0x40
+>  [   10.028128]                        el0_svc_common.constprop.0+0x84/0x200
+>  [   10.028128]                        do_el0_svc+0x2c/0x90
+>  [   10.028129]                        el0_svc+0x18/0x50
+>  [   10.028129]                        el0_sync_handler+0xe0/0x350
+>  [   10.028130]                        el0_sync+0x158/0x180
+
+[..]
+
+>  [   10.028171]  ... key      at: [<ffff80001312aef8>] netdev_xmit_lock_key+0x10/0x390
+>  [   10.028171]  ... acquired at:
+>  [   10.028172]    __lock_acquire+0x134c/0x1a94
+>  [   10.028172]    lock_acquire.part.0+0x170/0x360
+>  [   10.028173]    lock_acquire+0x68/0x8c
+>  [   10.028173]    _raw_spin_lock+0x64/0x90
+>  [   10.028174]    virtnet_poll_tx+0x84/0x120
+>  [   10.028174]    netpoll_poll_dev+0x12c/0x350
+>  [   10.028175]    netpoll_send_skb+0x39c/0x400
+>  [   10.028175]    netpoll_send_udp+0x2b8/0x440
+>  [   10.028176]    write_msg+0xfc/0x120 [netconsole]
+>  [   10.028176]    console_unlock+0x3ec/0x6a4
+
+The above shows the problem. We have:
+
+	console_unlock() (which holds the console_owner lock)
+	write_msg() (which holds the target_list_lock)
+
+Then we write_msg() calls:
+
+	netpoll_send_udp() {
+	  netpoll_send_skb() {
+	    netpoll_poll_dev() {
+	      virtnet_poll_tx() (which takes the xmit_lock!)
+
+  DEADLOCK!
+
+
+In netpoll_send_skb() I see this:
+
+			/* tickle device maybe there is some cleanup */
+			netpoll_poll_dev(np->dev);
+
+Which looks to me that it will call some code that should only be used in
+softirq context. It's called with locks held that are taken in interrupt
+context, and any locks that are taken in netpoll_poll_dev() must always be
+taken with interrupts disabled. That is, if xmit_lock is taken within
+netpoll_poll_dev(), then it must always be taken with interrupts disabled.
+Otherwise you can have the deadlock that lockdep reported.
+
+-- Steve
+
+
+
+
+>  [   10.028177]    register_console+0x17c/0x2f4
+>  [   10.028178]    init_netconsole+0x20c/0x1000 [netconsole]
+>  [   10.028178]    do_one_initcall+0x8c/0x480
+>  [   10.028179]    do_init_module+0x60/0x270
+>  [   10.028179]    load_module+0x21f8/0x2734
+>  [   10.028180]    __do_sys_finit_module+0xbc/0x12c
+>  [   10.028180]    __arm64_sys_finit_module+0x28/0x34
+>  [   10.028181]    el0_svc_common.constprop.0+0x84/0x200
+>  [   10.028181]    do_el0_svc+0x2c/0x90
+>  [   10.028182]    el0_svc+0x18/0x50
+>  [   10.028182]    el0_sync_handler+0xe0/0x350
+>  [   10.028183]    el0_sync+0x158/0x180
+>  [   10.028183]
+>  [   10.028183]
+>  [   10.028184] stack backtrace:
+>  [   10.028185] CPU: 14 PID: 638 Comm: modprobe Not tainted 5.10.0-rc4_for_upstream_min_debug_2020_11_22_19_37 #1
+>  [   10.028186] Hardware name: QEMU KVM Virtual Machine, BIOS 0.0.0 02/06/2015
+>  [   10.028186] Call trace:
+>  [   10.028186]  dump_backtrace+0x0/0x1d0
+>  [   10.028187]  show_stack+0x20/0x3c
+>  [   10.028187]  dump_stack+0xec/0x138
+>  [   10.028188]  check_irq_usage+0x6b8/0x6cc
+>  [   10.028188]  __lock_acquire+0x134c/0x1a94
+>  [   10.028189]  lock_acquire.part.0+0x170/0x360
+>  [   10.028189]  lock_acquire+0x68/0x8c
+>  [   10.028190]  _raw_spin_lock+0x64/0x90
+>  [   10.028191]  virtnet_poll_tx+0x84/0x120
+>  [   10.028191]  netpoll_poll_dev+0x12c/0x350
+>  [   10.028192]  netpoll_send_skb+0x39c/0x400
+>  [   10.028192]  netpoll_send_udp+0x2b8/0x440
+>  [   10.028193]  write_msg+0xfc/0x120 [netconsole]
+>  [   10.028193]  console_unlock+0x3ec/0x6a4
+>  [   10.028194]  register_console+0x17c/0x2f4
+>  [   10.028194]  init_netconsole+0x20c/0x1000 [netconsole]
+>  [   10.028195]  do_one_initcall+0x8c/0x480
+>  [   10.028195]  do_init_module+0x60/0x270
+>  [   10.028196]  load_module+0x21f8/0x2734
+>  [   10.028197]  __do_sys_finit_module+0xbc/0x12c
+>  [   10.028197]  __arm64_sys_finit_module+0x28/0x34
+>  [   10.028198]  el0_svc_common.constprop.0+0x84/0x200
+>  [   10.028198]  do_el0_svc+0x2c/0x90
+>  [   10.028199]  el0_svc+0x18/0x50
+>  [   10.028199]  el0_sync_handler+0xe0/0x350
+>  [   10.028200]  el0_sync+0x158/0x180
+>  [   10.073569] random: crng init done
+>  [   10.073964] printk: console [netcon0] enabled
+>  [   10.074704] random: 7 urandom warning(s) missed due to ratelimiting
+>  [   10.075340] netconsole: network logging started
+> 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
