@@ -2,78 +2,123 @@ Return-Path: <SRS0=KpU2=E5=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-5.2 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED,USER_AGENT_SANE_2 autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-3.5 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 59760C56202
-	for <virtualization@archiver.kernel.org>; Mon, 23 Nov 2020 14:31:39 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D3850C2D0E4
+	for <virtualization@archiver.kernel.org>; Mon, 23 Nov 2020 15:18:15 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id C49C220781
-	for <virtualization@archiver.kernel.org>; Mon, 23 Nov 2020 14:31:38 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C49C220781
-Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=goodmis.org
+	by mail.kernel.org (Postfix) with ESMTPS id 4DE3A20729
+	for <virtualization@archiver.kernel.org>; Mon, 23 Nov 2020 15:18:13 +0000 (UTC)
+Authentication-Results: mail.kernel.org;
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Xah1o01d"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4DE3A20729
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 3C90420005;
-	Mon, 23 Nov 2020 14:31:38 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id CF535870EF;
+	Mon, 23 Nov 2020 15:18:12 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 0R56ZjXBmWEi; Mon, 23 Nov 2020 14:31:34 +0000 (UTC)
+	with ESMTP id RyZmx29eBX73; Mon, 23 Nov 2020 15:18:12 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 1A3AA1FCB5;
-	Mon, 23 Nov 2020 14:31:34 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id B3F94870EA;
+	Mon, 23 Nov 2020 15:18:11 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id EF0E0C163C;
-	Mon, 23 Nov 2020 14:31:33 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 18319C0052
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 89624C0891;
+	Mon, 23 Nov 2020 15:18:11 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id D2433C0052
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Nov 2020 14:31:33 +0000 (UTC)
+ Mon, 23 Nov 2020 15:18:09 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 03FF785FAE
+ by hemlock.osuosl.org (Postfix) with ESMTP id CBD67870EE
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Nov 2020 14:31:33 +0000 (UTC)
+ Mon, 23 Nov 2020 15:18:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JIn8VbGE48gi
+ with ESMTP id BrPBvt0mo978
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Nov 2020 14:31:32 +0000 (UTC)
+ Mon, 23 Nov 2020 15:18:08 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 236FC85FA6
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id 920CA870EA
  for <virtualization@lists.linux-foundation.org>;
- Mon, 23 Nov 2020 14:31:32 +0000 (UTC)
-Received: from gandalf.local.home (cpe-66-24-58-225.stny.res.rr.com
- [66.24.58.225])
- (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
- (No client certificate requested)
- by mail.kernel.org (Postfix) with ESMTPSA id 81FC820758;
- Mon, 23 Nov 2020 14:31:30 +0000 (UTC)
-Date: Mon, 23 Nov 2020 09:31:28 -0500
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Leon Romanovsky <leon@kernel.org>
-Subject: Re: netconsole deadlock with virtnet
-Message-ID: <20201123093128.701cf81b@gandalf.local.home>
-In-Reply-To: <20201123110855.GD3159@unreal>
-References: <20201117102341.GR47002@unreal>
- <20201117093325.78f1486d@gandalf.local.home>
- <X7SK9l0oZ+RTivwF@jagdpanzerIV.localdomain>
- <X7SRxB6C+9Bm+r4q@jagdpanzerIV.localdomain>
- <93b42091-66f2-bb92-6822-473167b2698d@redhat.com>
- <20201118091257.2ee6757a@gandalf.local.home>
- <20201123110855.GD3159@unreal>
-X-Mailer: Claws Mail 3.17.3 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
+ Mon, 23 Nov 2020 15:18:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1606144687;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ in-reply-to:in-reply-to:references:references;
+ bh=Gjysr2TGm2BHd6PEXB4bmvN9WC4d9mZ2jNM8y3Hhwb0=;
+ b=Xah1o01dFT+wqRq3ggLLKE+OwXADT0/eqBLfkcnn6ExinElPaKu2efEQTYtZiNb06tFAsk
+ aB0onpYk7nNCtK14qYitHEauzlIcq4eAheWQNRiBdPcFXRIrgRsPZzwaIGNMfIHxGosNQm
+ EjIwmdjALgdlrnLoa7Y+jYMD1+vb90g=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-495-_xVwFG3ROuy4QUNac_1Pgw-1; Mon, 23 Nov 2020 10:18:04 -0500
+X-MC-Unique: _xVwFG3ROuy4QUNac_1Pgw-1
+Received: by mail-wm1-f70.google.com with SMTP id g125so1664350wme.9
+ for <virtualization@lists.linux-foundation.org>;
+ Mon, 23 Nov 2020 07:18:04 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=Gjysr2TGm2BHd6PEXB4bmvN9WC4d9mZ2jNM8y3Hhwb0=;
+ b=PLA4cH6agFeh7UD1MpumASlQAEjbyxrWBCCeC1JIGsSGcPc//AoWuwlMhzuVRbOIkr
+ eZWouGoc/v7ZvESe/2H7iwBEEa/cn5fNrLa+O8aM+Bg0IHlqGb8ym5qWgoXT93YjDlcw
+ Lew5SjV8UhDR/+tNTkMK451d8b2YoVOBp6hR+MPW/iANQy6UTn4kjDEbZ9MaoUVZ3hFd
+ 16odsuSWmQ0GHeBLmKksZIZKvCv88hFkdIBw0fKs7+oYNxzOyQvZrfwsb2sK1Jgf4HUH
+ n8rAZbDJUJf0A2wt9SCUJUGCXcm5YKyVp1wGRI8QsTUlelDBpFl184sUvQWUbh2H4PdW
+ DSFw==
+X-Gm-Message-State: AOAM533TWhaNrLdoD9QXwiimJiuaC1lPJ88QD8VQe1CTxGXX/CJjGb73
+ fjRSxbu4UP9yNnlmw3IZr1v17TWYanNbGOrM/P+zV1vzZqmAdA6XHjZgDZ0u05cbC2HZlEmPfb3
+ YUBuLwRkxxOT22dVbnqtBYusCIUOLpqybENniwQS2zA==
+X-Received: by 2002:adf:e84e:: with SMTP id d14mr145423wrn.190.1606144683206; 
+ Mon, 23 Nov 2020 07:18:03 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJy2R4lL1Mq2Y1aVC5dDdaeyjFkJP6dOyeHTSlEN3C3ieAvijxPn9ns3PNbleWjgoJ6rtHRlSg==
+X-Received: by 2002:adf:e84e:: with SMTP id d14mr145403wrn.190.1606144682981; 
+ Mon, 23 Nov 2020 07:18:02 -0800 (PST)
+Received: from steredhat (host-79-17-248-175.retail.telecomitalia.it.
+ [79.17.248.175])
+ by smtp.gmail.com with ESMTPSA id n4sm15266610wmc.30.2020.11.23.07.18.01
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Mon, 23 Nov 2020 07:18:02 -0800 (PST)
+Date: Mon, 23 Nov 2020 16:17:58 +0100
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Stefan Hajnoczi <stefanha@gmail.com>
+Subject: Re: [PATCH 00/10] vhost/qemu: thread per IO SCSI vq
+Message-ID: <20201123151758.5bik46pu4aqrtmd5@steredhat>
+References: <1605223150-10888-1-git-send-email-michael.christie@oracle.com>
+ <20201117164043.GS131917@stefanha-x1.localdomain>
+ <b3343762-bb11-b750-46ec-43b5556f2b8e@oracle.com>
+ <20201118113117.GF182763@stefanha-x1.localdomain>
+ <20201119094315-mutt-send-email-mst@kernel.org>
+ <ceebdc90-3ffc-1563-ff85-12a848bcba18@oracle.com>
+ <CAJSP0QUvSwX5NCPmfSODV_C+D41E21LZT=oXQ2PLc6baAsGGDQ@mail.gmail.com>
+ <ffd88f0c-981e-a102-4b08-f29d6b9a0f71@oracle.com>
+ <CAJSP0QUfqd=QNFa-RikH4dVcLmfcP-pYCwznP3W0zobYkM+KDw@mail.gmail.com>
+ <CAJSP0QVu4P6c+kdFkhw1S_OEaj7B-eiDqFOVDxWAaSOcsAADrA@mail.gmail.com>
 MIME-Version: 1.0
-Cc: Petr Mladek <pmladek@suse.com>, John Ogness <john.ogness@linutronix.de>,
- "Michael S. Tsirkin" <mst@redhat.com>, netdev <netdev@vger.kernel.org>,
- Amit Shah <amit@kernel.org>, virtualization@lists.linux-foundation.org,
- Sergey Senozhatsky <sergey.senozhatsky@gmail.com>,
- Ran Rozenstein <ranro@nvidia.com>, Itay Aveksis <itayav@nvidia.com>
+In-Reply-To: <CAJSP0QVu4P6c+kdFkhw1S_OEaj7B-eiDqFOVDxWAaSOcsAADrA@mail.gmail.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=sgarzare@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: fam <fam@euphon.net>, linux-scsi <linux-scsi@vger.kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>, qemu-devel <qemu-devel@nongnu.org>,
+ Linux Virtualization <virtualization@lists.linux-foundation.org>,
+ target-devel <target-devel@vger.kernel.org>,
+ Stefan Hajnoczi <stefanha@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>,
+ Mike Christie <michael.christie@oracle.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -85,177 +130,88 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, 23 Nov 2020 13:08:55 +0200
-Leon Romanovsky <leon@kernel.org> wrote:
+On Fri, Nov 20, 2020 at 08:45:49AM +0000, Stefan Hajnoczi wrote:
+>On Thu, Nov 19, 2020 at 5:08 PM Stefan Hajnoczi <stefanha@gmail.com> wrote:
+>>
+>> On Thu, Nov 19, 2020 at 4:43 PM Mike Christie
+>> <michael.christie@oracle.com> wrote:
+>> >
+>> > On 11/19/20 10:24 AM, Stefan Hajnoczi wrote:
+>> > > On Thu, Nov 19, 2020 at 4:13 PM Mike Christie
+>> > > <michael.christie@oracle.com> wrote:
+>> > >>
+>> > >> On 11/19/20 8:46 AM, Michael S. Tsirkin wrote:
+>> > >>> On Wed, Nov 18, 2020 at 11:31:17AM +0000, Stefan Hajnoczi wrote:
+>> > > struct vhost_run_worker_info {
+>> > >      struct timespec *timeout;
+>> > >      sigset_t *sigmask;
+>> > >
+>> > >      /* List of virtqueues to process */
+>> > >      unsigned nvqs;
+>> > >      unsigned vqs[];
+>> > > };
+>> > >
+>> > > /* This blocks until the timeout is reached, a signal is received, or
+>> > > the vhost device is destroyed */
+>> > > int ret = ioctl(vhost_fd, VHOST_RUN_WORKER, &info);
+>> > >
+>> > > As you can see, userspace isn't involved with dealing with the
+>> > > requests. It just acts as a thread donor to the vhost driver.
+>> > >
+>> > > We would want the VHOST_RUN_WORKER calls to be infrequent to avoid the
+>> > > penalty of switching into the kernel, copying in the arguments, etc.
+>> >
+>> > I didn't get this part. Why have the timeout? When the timeout expires,
+>> > does userspace just call right back down to the kernel or does it do
+>> > some sort of processing/operation?
+>> >
+>> > You could have your worker function run from that ioctl wait for a
+>> > signal or a wake up call from the vhost_work/poll functions.
+>>
+>> An optional timeout argument is common in blocking interfaces like
+>> poll(2), recvmmsg(2), etc.
+>>
+>> Although something can send a signal to the thread instead,
+>> implementing that in an application is more awkward than passing a
+>> struct timespec.
+>>
+>> Compared to other blocking calls we don't expect
+>> ioctl(VHOST_RUN_WORKER) to return soon, so maybe the timeout will
+>> rarely be used and can be dropped from the interface.
+>>
+>> BTW the code I posted wasn't a carefully thought out proposal :). The
+>> details still need to be considered and I'm going to be offline for
+>> the next week so maybe someone else can think it through in the
+>> meantime.
+>
+>One final thought before I'm offline for a week. If
+>ioctl(VHOST_RUN_WORKER) is specific to a single vhost device instance
+>then it's hard to support poll-mode (busy waiting) workers because
+>each device instance consumes a whole CPU. If we stick to an interface
+>where the kernel manages the worker threads then it's easier to share
+>workers between devices for polling.
 
+Agree, ioctl(VHOST_RUN_WORKER) is interesting and perhaps simplifies 
+thread management (pinning, etc.), but with kthread would be easier to 
+implement polling sharing worker with multiple devices.
 
->  [   10.028024] Chain exists of:
->  [   10.028025]   console_owner --> target_list_lock --> _xmit_ETHER#2
+>
+>I have CCed Stefano Garzarella, who is looking at similar designs for
+>vDPA software device implementations.
 
-Note, the problem is that we have a location that grabs the xmit_lock while
-holding target_list_lock (and possibly console_owner).
+Thanks, Mike please can you keep me in CC for this work?
 
+It's really interesting since I'll have similar issues to solve with 
+vDPA software device.
 
->  [   10.028028]
->  [   10.028028]  Possible interrupt unsafe locking scenario:
->  [   10.028029]
->  [   10.028029]        CPU0                    CPU1
->  [   10.028030]        ----                    ----
->  [   10.028030]   lock(_xmit_ETHER#2);
->  [   10.028032]                                local_irq_disable();
->  [   10.028032]                                lock(console_owner);
->  [   10.028034]                                lock(target_list_lock);
->  [   10.028035]   <Interrupt>
->  [   10.028035]     lock(console_owner);
->  [   10.028036]
->  [   10.028037]  *** DEADLOCK ***
->  [   10.028037]
+Thanks,
+Stefano
 
-
-
->  [   10.028107] the dependencies between the lock to be acquired
->  [   10.028107]  and HARDIRQ-irq-unsafe lock:
->  [   10.028108] -> (_xmit_ETHER#2){+.-.}-{2:2} ops: 217 {
->  [   10.028110]    HARDIRQ-ON-W at:
->  [   10.028111]                        __lock_acquire+0x8bc/0x1a94
->  [   10.028111]                        lock_acquire.part.0+0x170/0x360
->  [   10.028112]                        lock_acquire+0x68/0x8c
->  [   10.028113]                        _raw_spin_trylock+0x80/0xd0
->  [   10.028113]                        virtnet_poll+0xac/0x360
-
-xmit_lock is taken in virtnet_poll() (via virtnet_poll_cleantx()).
-
-This is called from the softirq, and interrupts are not disabled.
-
->  [   10.028114]                        net_rx_action+0x1b0/0x4e0
->  [   10.028115]                        __do_softirq+0x1f4/0x638
->  [   10.028115]                        do_softirq+0xb8/0xcc
->  [   10.028116]                        __local_bh_enable_ip+0x18c/0x200
->  [   10.028116]                        virtnet_napi_enable+0xc0/0xd4
->  [   10.028117]                        virtnet_open+0x98/0x1c0
->  [   10.028118]                        __dev_open+0x12c/0x200
->  [   10.028118]                        __dev_change_flags+0x1a0/0x220
->  [   10.028119]                        dev_change_flags+0x2c/0x70
->  [   10.028119]                        do_setlink+0x214/0xe20
->  [   10.028120]                        __rtnl_newlink+0x514/0x820
->  [   10.028120]                        rtnl_newlink+0x58/0x84
->  [   10.028121]                        rtnetlink_rcv_msg+0x184/0x4b4
->  [   10.028122]                        netlink_rcv_skb+0x60/0x124
->  [   10.028122]                        rtnetlink_rcv+0x20/0x30
->  [   10.028123]                        netlink_unicast+0x1b4/0x270
->  [   10.028124]                        netlink_sendmsg+0x1f0/0x400
->  [   10.028124]                        sock_sendmsg+0x5c/0x70
->  [   10.028125]                        ____sys_sendmsg+0x24c/0x280
->  [   10.028125]                        ___sys_sendmsg+0x88/0xd0
->  [   10.028126]                        __sys_sendmsg+0x70/0xd0
->  [   10.028127]                        __arm64_sys_sendmsg+0x2c/0x40
->  [   10.028128]                        el0_svc_common.constprop.0+0x84/0x200
->  [   10.028128]                        do_el0_svc+0x2c/0x90
->  [   10.028129]                        el0_svc+0x18/0x50
->  [   10.028129]                        el0_sync_handler+0xe0/0x350
->  [   10.028130]                        el0_sync+0x158/0x180
-
-[..]
-
->  [   10.028171]  ... key      at: [<ffff80001312aef8>] netdev_xmit_lock_key+0x10/0x390
->  [   10.028171]  ... acquired at:
->  [   10.028172]    __lock_acquire+0x134c/0x1a94
->  [   10.028172]    lock_acquire.part.0+0x170/0x360
->  [   10.028173]    lock_acquire+0x68/0x8c
->  [   10.028173]    _raw_spin_lock+0x64/0x90
->  [   10.028174]    virtnet_poll_tx+0x84/0x120
->  [   10.028174]    netpoll_poll_dev+0x12c/0x350
->  [   10.028175]    netpoll_send_skb+0x39c/0x400
->  [   10.028175]    netpoll_send_udp+0x2b8/0x440
->  [   10.028176]    write_msg+0xfc/0x120 [netconsole]
->  [   10.028176]    console_unlock+0x3ec/0x6a4
-
-The above shows the problem. We have:
-
-	console_unlock() (which holds the console_owner lock)
-	write_msg() (which holds the target_list_lock)
-
-Then we write_msg() calls:
-
-	netpoll_send_udp() {
-	  netpoll_send_skb() {
-	    netpoll_poll_dev() {
-	      virtnet_poll_tx() (which takes the xmit_lock!)
-
-  DEADLOCK!
-
-
-In netpoll_send_skb() I see this:
-
-			/* tickle device maybe there is some cleanup */
-			netpoll_poll_dev(np->dev);
-
-Which looks to me that it will call some code that should only be used in
-softirq context. It's called with locks held that are taken in interrupt
-context, and any locks that are taken in netpoll_poll_dev() must always be
-taken with interrupts disabled. That is, if xmit_lock is taken within
-netpoll_poll_dev(), then it must always be taken with interrupts disabled.
-Otherwise you can have the deadlock that lockdep reported.
-
--- Steve
-
-
-
-
->  [   10.028177]    register_console+0x17c/0x2f4
->  [   10.028178]    init_netconsole+0x20c/0x1000 [netconsole]
->  [   10.028178]    do_one_initcall+0x8c/0x480
->  [   10.028179]    do_init_module+0x60/0x270
->  [   10.028179]    load_module+0x21f8/0x2734
->  [   10.028180]    __do_sys_finit_module+0xbc/0x12c
->  [   10.028180]    __arm64_sys_finit_module+0x28/0x34
->  [   10.028181]    el0_svc_common.constprop.0+0x84/0x200
->  [   10.028181]    do_el0_svc+0x2c/0x90
->  [   10.028182]    el0_svc+0x18/0x50
->  [   10.028182]    el0_sync_handler+0xe0/0x350
->  [   10.028183]    el0_sync+0x158/0x180
->  [   10.028183]
->  [   10.028183]
->  [   10.028184] stack backtrace:
->  [   10.028185] CPU: 14 PID: 638 Comm: modprobe Not tainted 5.10.0-rc4_for_upstream_min_debug_2020_11_22_19_37 #1
->  [   10.028186] Hardware name: QEMU KVM Virtual Machine, BIOS 0.0.0 02/06/2015
->  [   10.028186] Call trace:
->  [   10.028186]  dump_backtrace+0x0/0x1d0
->  [   10.028187]  show_stack+0x20/0x3c
->  [   10.028187]  dump_stack+0xec/0x138
->  [   10.028188]  check_irq_usage+0x6b8/0x6cc
->  [   10.028188]  __lock_acquire+0x134c/0x1a94
->  [   10.028189]  lock_acquire.part.0+0x170/0x360
->  [   10.028189]  lock_acquire+0x68/0x8c
->  [   10.028190]  _raw_spin_lock+0x64/0x90
->  [   10.028191]  virtnet_poll_tx+0x84/0x120
->  [   10.028191]  netpoll_poll_dev+0x12c/0x350
->  [   10.028192]  netpoll_send_skb+0x39c/0x400
->  [   10.028192]  netpoll_send_udp+0x2b8/0x440
->  [   10.028193]  write_msg+0xfc/0x120 [netconsole]
->  [   10.028193]  console_unlock+0x3ec/0x6a4
->  [   10.028194]  register_console+0x17c/0x2f4
->  [   10.028194]  init_netconsole+0x20c/0x1000 [netconsole]
->  [   10.028195]  do_one_initcall+0x8c/0x480
->  [   10.028195]  do_init_module+0x60/0x270
->  [   10.028196]  load_module+0x21f8/0x2734
->  [   10.028197]  __do_sys_finit_module+0xbc/0x12c
->  [   10.028197]  __arm64_sys_finit_module+0x28/0x34
->  [   10.028198]  el0_svc_common.constprop.0+0x84/0x200
->  [   10.028198]  do_el0_svc+0x2c/0x90
->  [   10.028199]  el0_svc+0x18/0x50
->  [   10.028199]  el0_sync_handler+0xe0/0x350
->  [   10.028200]  el0_sync+0x158/0x180
->  [   10.073569] random: crng init done
->  [   10.073964] printk: console [netcon0] enabled
->  [   10.074704] random: 7 urandom warning(s) missed due to ratelimiting
->  [   10.075340] netconsole: network logging started
-> 
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
