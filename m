@@ -7,66 +7,70 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 3C7EFC63798
-	for <virtualization@archiver.kernel.org>; Tue, 24 Nov 2020 11:38:41 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DACCFC6379D
+	for <virtualization@archiver.kernel.org>; Tue, 24 Nov 2020 11:38:42 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 9022B2076B
-	for <virtualization@archiver.kernel.org>; Tue, 24 Nov 2020 11:38:40 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 9022B2076B
+	by mail.kernel.org (Postfix) with ESMTPS id 58D17206D8
+	for <virtualization@archiver.kernel.org>; Tue, 24 Nov 2020 11:38:42 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 58D17206D8
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id F01B2857D0;
-	Tue, 24 Nov 2020 11:38:39 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id CE17721511;
+	Tue, 24 Nov 2020 11:38:41 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id DOvkb2cvTEY3; Tue, 24 Nov 2020 11:38:35 +0000 (UTC)
+	with ESMTP id F-Kot4aQ4vZW; Tue, 24 Nov 2020 11:38:35 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 0F11D866E4;
+	by silver.osuosl.org (Postfix) with ESMTP id A29BD21507;
 	Tue, 24 Nov 2020 11:38:35 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id E6B1EC163C;
-	Tue, 24 Nov 2020 11:38:34 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id C12B9C0052
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 99C4AC1DA1;
+	Tue, 24 Nov 2020 11:38:35 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 375C0C163C
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Nov 2020 11:38:31 +0000 (UTC)
+ Tue, 24 Nov 2020 11:38:32 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id ABB788664C
+ by hemlock.osuosl.org (Postfix) with ESMTP id 263EC87293
+ for <virtualization@lists.linux-foundation.org>;
+ Tue, 24 Nov 2020 11:38:32 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from hemlock.osuosl.org ([127.0.0.1])
+ by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+ with ESMTP id 2GScYLxLn3-P
  for <virtualization@lists.linux-foundation.org>;
  Tue, 24 Nov 2020 11:38:31 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
- by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id qpWpKfgXdciM
- for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Nov 2020 11:38:30 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by whitealder.osuosl.org (Postfix) with ESMTPS id B963C86072
+ by hemlock.osuosl.org (Postfix) with ESMTPS id A289A87291
  for <virtualization@lists.linux-foundation.org>;
  Tue, 24 Nov 2020 11:38:30 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id E97AEADD6;
+ by mx2.suse.de (Postfix) with ESMTP id 28410AD8C;
  Tue, 24 Nov 2020 11:38:28 +0000 (UTC)
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: airlied@linux.ie,
 	daniel@ffwll.ch
-Subject: [PATCH 10/15] drm/qxl: Remove references to struct drm_device.pdev
-Date: Tue, 24 Nov 2020 12:38:19 +0100
-Message-Id: <20201124113824.19994-11-tzimmermann@suse.de>
+Subject: [PATCH 06/15] drm/hibmc: Remove references to struct drm_device.pdev
+Date: Tue, 24 Nov 2020 12:38:15 +0100
+Message-Id: <20201124113824.19994-7-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201124113824.19994-1-tzimmermann@suse.de>
 References: <20201124113824.19994-1-tzimmermann@suse.de>
 MIME-Version: 1.0
-Cc: nouveau@lists.freedesktop.org, intel-gfx@lists.freedesktop.org,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux-foundation.org,
- amd-gfx@lists.freedesktop.org, Thomas Zimmermann <tzimmermann@suse.de>,
- spice-devel@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org
+Cc: Xinliang Liu <xinliang.liu@linaro.org>, nouveau@lists.freedesktop.org,
+ intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux-foundation.org,
+ Xinwei Kong <kong.kongxinwei@hisilicon.com>,
+ John Stultz <john.stultz@linaro.org>, amd-gfx@lists.freedesktop.org,
+ Thomas Zimmermann <tzimmermann@suse.de>, Tian Tao <tiantao6@hisilicon.com>,
+ spice-devel@lists.freedesktop.org, intel-gvt-dev@lists.freedesktop.org,
+ Chen Feng <puck.chen@hisilicon.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -83,84 +87,102 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Using struct drm_device.pdev is deprecated. Convert qxl to struct
+Using struct drm_device.pdev is deprecated. Convert hibmc to struct
 drm_device.dev. No functional changes.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: Gerd Hoffmann <kraxel@redhat.com>
+Cc: Xinliang Liu <xinliang.liu@linaro.org>
+Cc: Tian Tao  <tiantao6@hisilicon.com>
+Cc: John Stultz <john.stultz@linaro.org>
+Cc: Xinwei Kong <kong.kongxinwei@hisilicon.com>
+Cc: Chen Feng <puck.chen@hisilicon.com>
 ---
- drivers/gpu/drm/qxl/qxl_drv.c   | 2 +-
- drivers/gpu/drm/qxl/qxl_ioctl.c | 3 ++-
- drivers/gpu/drm/qxl/qxl_irq.c   | 3 ++-
- drivers/gpu/drm/qxl/qxl_kms.c   | 1 -
- 4 files changed, 5 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c | 10 +++++-----
+ drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_i2c.c |  2 +-
+ drivers/gpu/drm/hisilicon/hibmc/hibmc_ttm.c     |  4 ++--
+ 3 files changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
-index 6e7f16f4cec7..fb5f6a5e81d7 100644
---- a/drivers/gpu/drm/qxl/qxl_drv.c
-+++ b/drivers/gpu/drm/qxl/qxl_drv.c
-@@ -163,7 +163,7 @@ DEFINE_DRM_GEM_FOPS(qxl_fops);
- 
- static int qxl_drm_freeze(struct drm_device *dev)
+diff --git a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
+index d845657fd99c..ac5868343d0c 100644
+--- a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
++++ b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c
+@@ -203,7 +203,7 @@ static void hibmc_hw_config(struct hibmc_drm_private *priv)
+ static int hibmc_hw_map(struct hibmc_drm_private *priv)
  {
+ 	struct drm_device *dev = priv->dev;
 -	struct pci_dev *pdev = dev->pdev;
 +	struct pci_dev *pdev = to_pci_dev(dev->dev);
- 	struct qxl_device *qdev = to_qxl(dev);
- 	int ret;
+ 	resource_size_t addr, size, ioaddr, iosize;
  
-diff --git a/drivers/gpu/drm/qxl/qxl_ioctl.c b/drivers/gpu/drm/qxl/qxl_ioctl.c
-index 16e1e589508e..b6075f452b9e 100644
---- a/drivers/gpu/drm/qxl/qxl_ioctl.c
-+++ b/drivers/gpu/drm/qxl/qxl_ioctl.c
-@@ -370,13 +370,14 @@ static int qxl_clientcap_ioctl(struct drm_device *dev, void *data,
- 				  struct drm_file *file_priv)
+ 	ioaddr = pci_resource_start(pdev, 1);
+@@ -249,7 +249,7 @@ static int hibmc_unload(struct drm_device *dev)
+ 	if (dev->irq_enabled)
+ 		drm_irq_uninstall(dev);
+ 
+-	pci_disable_msi(dev->pdev);
++	pci_disable_msi(to_pci_dev(dev->dev));
+ 	hibmc_kms_fini(priv);
+ 	hibmc_mm_fini(priv);
+ 	dev->dev_private = NULL;
+@@ -258,6 +258,7 @@ static int hibmc_unload(struct drm_device *dev)
+ 
+ static int hibmc_load(struct drm_device *dev)
  {
- 	struct qxl_device *qdev = to_qxl(dev);
 +	struct pci_dev *pdev = to_pci_dev(dev->dev);
- 	struct drm_qxl_clientcap *param = data;
- 	int byte, idx;
- 
- 	byte = param->index / 8;
- 	idx = param->index % 8;
- 
--	if (dev->pdev->revision < 4)
-+	if (pdev->revision < 4)
- 		return -ENOSYS;
- 
- 	if (byte >= 58)
-diff --git a/drivers/gpu/drm/qxl/qxl_irq.c b/drivers/gpu/drm/qxl/qxl_irq.c
-index 1ba5a702d763..ddf6588a2a38 100644
---- a/drivers/gpu/drm/qxl/qxl_irq.c
-+++ b/drivers/gpu/drm/qxl/qxl_irq.c
-@@ -81,6 +81,7 @@ static void qxl_client_monitors_config_work_func(struct work_struct *work)
- 
- int qxl_irq_init(struct qxl_device *qdev)
- {
-+	struct pci_dev *pdev = to_pci_dev(qdev->ddev.dev);
+ 	struct hibmc_drm_private *priv;
  	int ret;
  
- 	init_waitqueue_head(&qdev->display_event);
-@@ -93,7 +94,7 @@ int qxl_irq_init(struct qxl_device *qdev)
- 	atomic_set(&qdev->irq_received_cursor, 0);
- 	atomic_set(&qdev->irq_received_io_cmd, 0);
- 	qdev->irq_received_error = 0;
--	ret = drm_irq_install(&qdev->ddev, qdev->ddev.pdev->irq);
-+	ret = drm_irq_install(&qdev->ddev, pdev->irq);
- 	qdev->ram_header->int_mask = QXL_INTERRUPT_MASK;
- 	if (unlikely(ret != 0)) {
- 		DRM_ERROR("Failed installing irq: %d\n", ret);
-diff --git a/drivers/gpu/drm/qxl/qxl_kms.c b/drivers/gpu/drm/qxl/qxl_kms.c
-index 228e2b9198f1..4a60a52ab62e 100644
---- a/drivers/gpu/drm/qxl/qxl_kms.c
-+++ b/drivers/gpu/drm/qxl/qxl_kms.c
-@@ -111,7 +111,6 @@ int qxl_device_init(struct qxl_device *qdev,
- {
- 	int r, sb;
+@@ -287,11 +288,11 @@ static int hibmc_load(struct drm_device *dev)
+ 		goto err;
+ 	}
  
--	qdev->ddev.pdev = pdev;
- 	pci_set_drvdata(pdev, &qdev->ddev);
+-	ret = pci_enable_msi(dev->pdev);
++	ret = pci_enable_msi(pdev);
+ 	if (ret) {
+ 		drm_warn(dev, "enabling MSI failed: %d\n", ret);
+ 	} else {
+-		ret = drm_irq_install(dev, dev->pdev->irq);
++		ret = drm_irq_install(dev, pdev->irq);
+ 		if (ret)
+ 			drm_warn(dev, "install irq failed: %d\n", ret);
+ 	}
+@@ -324,7 +325,6 @@ static int hibmc_pci_probe(struct pci_dev *pdev,
+ 		return PTR_ERR(dev);
+ 	}
  
- 	mutex_init(&qdev->gem.mutex);
+-	dev->pdev = pdev;
+ 	pci_set_drvdata(pdev, dev);
+ 
+ 	ret = pci_enable_device(pdev);
+diff --git a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_i2c.c b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_i2c.c
+index 86d712090d87..410bd019bb35 100644
+--- a/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_i2c.c
++++ b/drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_i2c.c
+@@ -83,7 +83,7 @@ int hibmc_ddc_create(struct drm_device *drm_dev,
+ 	connector->adapter.owner = THIS_MODULE;
+ 	connector->adapter.class = I2C_CLASS_DDC;
+ 	snprintf(connector->adapter.name, I2C_NAME_SIZE, "HIS i2c bit bus");
+-	connector->adapter.dev.parent = &drm_dev->pdev->dev;
++	connector->adapter.dev.parent = drm_dev->dev;
+ 	i2c_set_adapdata(&connector->adapter, connector);
+ 	connector->adapter.algo_data = &connector->bit_data;
+ 
+diff --git a/drivers/gpu/drm/hisilicon/hibmc/hibmc_ttm.c b/drivers/gpu/drm/hisilicon/hibmc/hibmc_ttm.c
+index 602ece11bb4a..77f075075db2 100644
+--- a/drivers/gpu/drm/hisilicon/hibmc/hibmc_ttm.c
++++ b/drivers/gpu/drm/hisilicon/hibmc/hibmc_ttm.c
+@@ -26,9 +26,9 @@ int hibmc_mm_init(struct hibmc_drm_private *hibmc)
+ 	struct drm_vram_mm *vmm;
+ 	int ret;
+ 	struct drm_device *dev = hibmc->dev;
++	struct pci_dev *pdev = to_pci_dev(dev->dev);
+ 
+-	vmm = drm_vram_helper_alloc_mm(dev,
+-				       pci_resource_start(dev->pdev, 0),
++	vmm = drm_vram_helper_alloc_mm(dev, pci_resource_start(pdev, 0),
+ 				       hibmc->fb_size);
+ 	if (IS_ERR(vmm)) {
+ 		ret = PTR_ERR(vmm);
 -- 
 2.29.2
 
