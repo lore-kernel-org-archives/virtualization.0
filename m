@@ -7,58 +7,59 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,
 	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT
 	autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 86A0DC56202
-	for <virtualization@archiver.kernel.org>; Tue, 24 Nov 2020 11:38:53 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 7D1D1C56201
+	for <virtualization@archiver.kernel.org>; Tue, 24 Nov 2020 11:38:55 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 129A62076B
-	for <virtualization@archiver.kernel.org>; Tue, 24 Nov 2020 11:38:52 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 129A62076B
+	by mail.kernel.org (Postfix) with ESMTPS id 1C6AE2076B
+	for <virtualization@archiver.kernel.org>; Tue, 24 Nov 2020 11:38:54 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1C6AE2076B
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=suse.de
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 5F95B21509;
-	Tue, 24 Nov 2020 11:38:52 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 9F0A021505;
+	Tue, 24 Nov 2020 11:38:54 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 2uP5qDb9OgYB; Tue, 24 Nov 2020 11:38:42 +0000 (UTC)
+	with ESMTP id 5fclIoS0KJtj; Tue, 24 Nov 2020 11:38:42 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id BBBA421505;
+	by silver.osuosl.org (Postfix) with ESMTP id F3EDB2151F;
 	Tue, 24 Nov 2020 11:38:41 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A4760C163C;
+	by lists.linuxfoundation.org (Postfix) with ESMTP id D7935C1DA0;
 	Tue, 24 Nov 2020 11:38:41 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id CFA09C1836
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 72CE1C1DA1
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Nov 2020 11:38:35 +0000 (UTC)
+ Tue, 24 Nov 2020 11:38:36 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id BC65121509
+ by whitealder.osuosl.org (Postfix) with ESMTP id 5EAE1866C1
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Nov 2020 11:38:35 +0000 (UTC)
+ Tue, 24 Nov 2020 11:38:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id QXRZTpnzB3sV
+ with ESMTP id LSFlEVEHUsgs
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Nov 2020 11:38:30 +0000 (UTC)
+ Tue, 24 Nov 2020 11:38:32 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mx2.suse.de (mx2.suse.de [195.135.220.15])
- by silver.osuosl.org (Postfix) with ESMTPS id 1EF2E214E6
+ by whitealder.osuosl.org (Postfix) with ESMTPS id 474B585E12
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Nov 2020 11:38:29 +0000 (UTC)
+ Tue, 24 Nov 2020 11:38:32 +0000 (UTC)
 X-Virus-Scanned: by amavisd-new at test-mx.suse.de
 Received: from relay2.suse.de (unknown [195.135.221.27])
- by mx2.suse.de (Postfix) with ESMTP id 4988EAD21;
- Tue, 24 Nov 2020 11:38:27 +0000 (UTC)
+ by mx2.suse.de (Postfix) with ESMTP id E7F8DAC2E;
+ Tue, 24 Nov 2020 11:38:29 +0000 (UTC)
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: airlied@linux.ie,
 	daniel@ffwll.ch
-Subject: [PATCH 02/15] drm/ast: Remove references to struct drm_device.pdev
-Date: Tue, 24 Nov 2020 12:38:11 +0100
-Message-Id: <20201124113824.19994-3-tzimmermann@suse.de>
+Subject: [PATCH 15/15] drm: Upcast struct drm_device.dev to struct pci_device;
+ replace pdev
+Date: Tue, 24 Nov 2020 12:38:24 +0100
+Message-Id: <20201124113824.19994-16-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.29.2
 In-Reply-To: <20201124113824.19994-1-tzimmermann@suse.de>
 References: <20201124113824.19994-1-tzimmermann@suse.de>
@@ -83,246 +84,292 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Using struct drm_device.pdev is deprecated. Convert ast to struct
-drm_device.dev. No functional changes.
+We have DRM drivers based on USB, SPI and platform devices. All of them
+are fine with storing their device reference in struct drm_device.dev.
+PCI devices should be no exception. Therefore struct drm_device.pdev is
+deprecated.
+
+Instead upcast from struct drm_device.dev with to_pci_dev(). PCI-specific
+code can use dev_is_pci() to test for a PCI device. This patch changes
+the DRM core code and documentation accordingly. Struct drm_device.pdev
+is being moved to legacy status.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/ast/ast_drv.c  |  4 ++--
- drivers/gpu/drm/ast/ast_main.c | 25 +++++++++++++------------
- drivers/gpu/drm/ast/ast_mm.c   | 17 +++++++++--------
- drivers/gpu/drm/ast/ast_mode.c |  5 +++--
- drivers/gpu/drm/ast/ast_post.c |  8 +++++---
- 5 files changed, 32 insertions(+), 27 deletions(-)
+ drivers/gpu/drm/drm_agpsupport.c |  9 ++++++---
+ drivers/gpu/drm/drm_bufs.c       |  4 ++--
+ drivers/gpu/drm/drm_edid.c       |  7 ++++++-
+ drivers/gpu/drm/drm_irq.c        | 12 +++++++-----
+ drivers/gpu/drm/drm_pci.c        | 26 +++++++++++++++-----------
+ drivers/gpu/drm/drm_vm.c         |  2 +-
+ include/drm/drm_device.h         | 12 +++++++++---
+ 7 files changed, 46 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/gpu/drm/ast/ast_drv.c b/drivers/gpu/drm/ast/ast_drv.c
-index 667b450606ef..ea8164e7a6dc 100644
---- a/drivers/gpu/drm/ast/ast_drv.c
-+++ b/drivers/gpu/drm/ast/ast_drv.c
-@@ -147,7 +147,7 @@ static int ast_drm_freeze(struct drm_device *dev)
- 	error = drm_mode_config_helper_suspend(dev);
- 	if (error)
- 		return error;
--	pci_save_state(dev->pdev);
-+	pci_save_state(to_pci_dev(dev->dev));
- 	return 0;
+diff --git a/drivers/gpu/drm/drm_agpsupport.c b/drivers/gpu/drm/drm_agpsupport.c
+index 4c7ad46fdd21..a4040fe4f4ba 100644
+--- a/drivers/gpu/drm/drm_agpsupport.c
++++ b/drivers/gpu/drm/drm_agpsupport.c
+@@ -103,11 +103,13 @@ int drm_agp_info_ioctl(struct drm_device *dev, void *data,
+  */
+ int drm_agp_acquire(struct drm_device *dev)
+ {
++	struct pci_dev *pdev = to_pci_dev(dev->dev);
++
+ 	if (!dev->agp)
+ 		return -ENODEV;
+ 	if (dev->agp->acquired)
+ 		return -EBUSY;
+-	dev->agp->bridge = agp_backend_acquire(dev->pdev);
++	dev->agp->bridge = agp_backend_acquire(pdev);
+ 	if (!dev->agp->bridge)
+ 		return -ENODEV;
+ 	dev->agp->acquired = 1;
+@@ -402,14 +404,15 @@ int drm_agp_free_ioctl(struct drm_device *dev, void *data,
+  */
+ struct drm_agp_head *drm_agp_init(struct drm_device *dev)
+ {
++	struct pci_dev *pdev = to_pci_dev(dev->dev);
+ 	struct drm_agp_head *head = NULL;
+ 
+ 	head = kzalloc(sizeof(*head), GFP_KERNEL);
+ 	if (!head)
+ 		return NULL;
+-	head->bridge = agp_find_bridge(dev->pdev);
++	head->bridge = agp_find_bridge(pdev);
+ 	if (!head->bridge) {
+-		head->bridge = agp_backend_acquire(dev->pdev);
++		head->bridge = agp_backend_acquire(pdev);
+ 		if (!head->bridge) {
+ 			kfree(head);
+ 			return NULL;
+diff --git a/drivers/gpu/drm/drm_bufs.c b/drivers/gpu/drm/drm_bufs.c
+index 7a01d0918861..1da8b360b60a 100644
+--- a/drivers/gpu/drm/drm_bufs.c
++++ b/drivers/gpu/drm/drm_bufs.c
+@@ -325,7 +325,7 @@ static int drm_addmap_core(struct drm_device *dev, resource_size_t offset,
+ 		 * As we're limiting the address to 2^32-1 (or less),
+ 		 * casting it down to 32 bits is no problem, but we
+ 		 * need to point to a 64bit variable first. */
+-		map->handle = dma_alloc_coherent(&dev->pdev->dev,
++		map->handle = dma_alloc_coherent(dev->dev,
+ 						 map->size,
+ 						 &map->offset,
+ 						 GFP_KERNEL);
+@@ -555,7 +555,7 @@ int drm_legacy_rmmap_locked(struct drm_device *dev, struct drm_local_map *map)
+ 	case _DRM_SCATTER_GATHER:
+ 		break;
+ 	case _DRM_CONSISTENT:
+-		dma_free_coherent(&dev->pdev->dev,
++		dma_free_coherent(dev->dev,
+ 				  map->size,
+ 				  map->handle,
+ 				  map->offset);
+diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
+index 74f5a3197214..555a04ce2179 100644
+--- a/drivers/gpu/drm/drm_edid.c
++++ b/drivers/gpu/drm/drm_edid.c
+@@ -32,6 +32,7 @@
+ #include <linux/i2c.h>
+ #include <linux/kernel.h>
+ #include <linux/module.h>
++#include <linux/pci.h>
+ #include <linux/slab.h>
+ #include <linux/vga_switcheroo.h>
+ 
+@@ -2075,9 +2076,13 @@ EXPORT_SYMBOL(drm_get_edid);
+ struct edid *drm_get_edid_switcheroo(struct drm_connector *connector,
+ 				     struct i2c_adapter *adapter)
+ {
+-	struct pci_dev *pdev = connector->dev->pdev;
++	struct drm_device *dev = connector->dev;
++	struct pci_dev *pdev = to_pci_dev(dev->dev);
+ 	struct edid *edid;
+ 
++	if (drm_WARN_ON_ONCE(dev, !dev_is_pci(dev->dev)))
++		return NULL;
++
+ 	vga_switcheroo_lock_ddc(pdev);
+ 	edid = drm_get_edid(connector, adapter);
+ 	vga_switcheroo_unlock_ddc(pdev);
+diff --git a/drivers/gpu/drm/drm_irq.c b/drivers/gpu/drm/drm_irq.c
+index 09d6e9e2e075..22986a9a593b 100644
+--- a/drivers/gpu/drm/drm_irq.c
++++ b/drivers/gpu/drm/drm_irq.c
+@@ -122,7 +122,7 @@ int drm_irq_install(struct drm_device *dev, int irq)
+ 		dev->driver->irq_preinstall(dev);
+ 
+ 	/* PCI devices require shared interrupts. */
+-	if (dev->pdev)
++	if (dev_is_pci(dev->dev))
+ 		sh_flags = IRQF_SHARED;
+ 
+ 	ret = request_irq(irq, dev->driver->irq_handler,
+@@ -140,7 +140,7 @@ int drm_irq_install(struct drm_device *dev, int irq)
+ 	if (ret < 0) {
+ 		dev->irq_enabled = false;
+ 		if (drm_core_check_feature(dev, DRIVER_LEGACY))
+-			vga_client_register(dev->pdev, NULL, NULL, NULL);
++			vga_client_register(to_pci_dev(dev->dev), NULL, NULL, NULL);
+ 		free_irq(irq, dev);
+ 	} else {
+ 		dev->irq = irq;
+@@ -203,7 +203,7 @@ int drm_irq_uninstall(struct drm_device *dev)
+ 	DRM_DEBUG("irq=%d\n", dev->irq);
+ 
+ 	if (drm_core_check_feature(dev, DRIVER_LEGACY))
+-		vga_client_register(dev->pdev, NULL, NULL, NULL);
++		vga_client_register(to_pci_dev(dev->dev), NULL, NULL, NULL);
+ 
+ 	if (dev->driver->irq_uninstall)
+ 		dev->driver->irq_uninstall(dev);
+@@ -220,6 +220,7 @@ int drm_legacy_irq_control(struct drm_device *dev, void *data,
+ {
+ 	struct drm_control *ctl = data;
+ 	int ret = 0, irq;
++	struct pci_dev *pdev;
+ 
+ 	/* if we haven't irq we fallback for compatibility reasons -
+ 	 * this used to be a separate function in drm_dma.h
+@@ -230,12 +231,13 @@ int drm_legacy_irq_control(struct drm_device *dev, void *data,
+ 	if (!drm_core_check_feature(dev, DRIVER_LEGACY))
+ 		return 0;
+ 	/* UMS was only ever supported on pci devices. */
+-	if (WARN_ON(!dev->pdev))
++	if (WARN_ON(!dev_is_pci(dev->dev)))
+ 		return -EINVAL;
+ 
+ 	switch (ctl->func) {
+ 	case DRM_INST_HANDLER:
+-		irq = dev->pdev->irq;
++		pdev = to_pci_dev(dev->dev);
++		irq = pdev->irq;
+ 
+ 		if (dev->if_version < DRM_IF_VERSION(1, 2) &&
+ 		    ctl->irq != irq)
+diff --git a/drivers/gpu/drm/drm_pci.c b/drivers/gpu/drm/drm_pci.c
+index 6dba4b8ce4fe..c7868418e36d 100644
+--- a/drivers/gpu/drm/drm_pci.c
++++ b/drivers/gpu/drm/drm_pci.c
+@@ -65,7 +65,7 @@ drm_dma_handle_t *drm_pci_alloc(struct drm_device * dev, size_t size, size_t ali
+ 		return NULL;
+ 
+ 	dmah->size = size;
+-	dmah->vaddr = dma_alloc_coherent(&dev->pdev->dev, size,
++	dmah->vaddr = dma_alloc_coherent(dev->dev, size,
+ 					 &dmah->busaddr,
+ 					 GFP_KERNEL);
+ 
+@@ -88,7 +88,7 @@ EXPORT_SYMBOL(drm_pci_alloc);
+  */
+ void drm_pci_free(struct drm_device * dev, drm_dma_handle_t * dmah)
+ {
+-	dma_free_coherent(&dev->pdev->dev, dmah->size, dmah->vaddr,
++	dma_free_coherent(dev->dev, dmah->size, dmah->vaddr,
+ 			  dmah->busaddr);
+ 	kfree(dmah);
+ }
+@@ -107,16 +107,18 @@ static int drm_get_pci_domain(struct drm_device *dev)
+ 		return 0;
+ #endif /* __alpha__ */
+ 
+-	return pci_domain_nr(dev->pdev->bus);
++	return pci_domain_nr(to_pci_dev(dev->dev)->bus);
  }
  
-@@ -162,7 +162,7 @@ static int ast_drm_resume(struct drm_device *dev)
+ int drm_pci_set_busid(struct drm_device *dev, struct drm_master *master)
  {
- 	int ret;
- 
--	if (pci_enable_device(dev->pdev))
-+	if (pci_enable_device(to_pci_dev(dev->dev)))
- 		return -EIO;
- 
- 	ret = ast_drm_thaw(dev);
-diff --git a/drivers/gpu/drm/ast/ast_main.c b/drivers/gpu/drm/ast/ast_main.c
-index 1b13199858cb..0ac3c2039c4b 100644
---- a/drivers/gpu/drm/ast/ast_main.c
-+++ b/drivers/gpu/drm/ast/ast_main.c
-@@ -67,8 +67,9 @@ uint8_t ast_get_index_reg_mask(struct ast_private *ast,
- 
- static void ast_detect_config_mode(struct drm_device *dev, u32 *scu_rev)
- {
--	struct device_node *np = dev->pdev->dev.of_node;
-+	struct device_node *np = dev->dev->of_node;
- 	struct ast_private *ast = to_ast_private(dev);
 +	struct pci_dev *pdev = to_pci_dev(dev->dev);
- 	uint32_t data, jregd0, jregd1;
++
+ 	master->unique = kasprintf(GFP_KERNEL, "pci:%04x:%02x:%02x.%d",
+ 					drm_get_pci_domain(dev),
+-					dev->pdev->bus->number,
+-					PCI_SLOT(dev->pdev->devfn),
+-					PCI_FUNC(dev->pdev->devfn));
++					pdev->bus->number,
++					PCI_SLOT(pdev->devfn),
++					PCI_FUNC(pdev->devfn));
+ 	if (!master->unique)
+ 		return -ENOMEM;
  
- 	/* Defaults */
-@@ -85,7 +86,7 @@ static void ast_detect_config_mode(struct drm_device *dev, u32 *scu_rev)
- 	}
+@@ -126,12 +128,14 @@ int drm_pci_set_busid(struct drm_device *dev, struct drm_master *master)
  
- 	/* Not all families have a P2A bridge */
--	if (dev->pdev->device != PCI_CHIP_AST2000)
-+	if (pdev->device != PCI_CHIP_AST2000)
- 		return;
- 
- 	/*
-@@ -119,6 +120,7 @@ static void ast_detect_config_mode(struct drm_device *dev, u32 *scu_rev)
- static int ast_detect_chip(struct drm_device *dev, bool *need_post)
+ static int drm_pci_irq_by_busid(struct drm_device *dev, struct drm_irq_busid *p)
  {
- 	struct ast_private *ast = to_ast_private(dev);
 +	struct pci_dev *pdev = to_pci_dev(dev->dev);
- 	uint32_t jreg, scu_rev;
++
+ 	if ((p->busnum >> 8) != drm_get_pci_domain(dev) ||
+-	    (p->busnum & 0xff) != dev->pdev->bus->number ||
+-	    p->devnum != PCI_SLOT(dev->pdev->devfn) || p->funcnum != PCI_FUNC(dev->pdev->devfn))
++	    (p->busnum & 0xff) != pdev->bus->number ||
++	    p->devnum != PCI_SLOT(pdev->devfn) || p->funcnum != PCI_FUNC(pdev->devfn))
+ 		return -EINVAL;
  
- 	/*
-@@ -143,19 +145,19 @@ static int ast_detect_chip(struct drm_device *dev, bool *need_post)
- 	ast_detect_config_mode(dev, &scu_rev);
+-	p->irq = dev->pdev->irq;
++	p->irq = pdev->irq;
  
- 	/* Identify chipset */
--	if (dev->pdev->revision >= 0x50) {
-+	if (pdev->revision >= 0x50) {
- 		ast->chip = AST2600;
- 		drm_info(dev, "AST 2600 detected\n");
--	} else if (dev->pdev->revision >= 0x40) {
-+	} else if (pdev->revision >= 0x40) {
- 		ast->chip = AST2500;
- 		drm_info(dev, "AST 2500 detected\n");
--	} else if (dev->pdev->revision >= 0x30) {
-+	} else if (pdev->revision >= 0x30) {
- 		ast->chip = AST2400;
- 		drm_info(dev, "AST 2400 detected\n");
--	} else if (dev->pdev->revision >= 0x20) {
-+	} else if (pdev->revision >= 0x20) {
- 		ast->chip = AST2300;
- 		drm_info(dev, "AST 2300 detected\n");
--	} else if (dev->pdev->revision >= 0x10) {
-+	} else if (pdev->revision >= 0x10) {
- 		switch (scu_rev & 0x0300) {
- 		case 0x0200:
- 			ast->chip = AST1100;
-@@ -265,7 +267,7 @@ static int ast_detect_chip(struct drm_device *dev, bool *need_post)
+ 	DRM_DEBUG("%d:%d:%d => IRQ %d\n", p->busnum, p->devnum, p->funcnum,
+ 		  p->irq);
+@@ -159,7 +163,7 @@ int drm_legacy_irq_by_busid(struct drm_device *dev, void *data,
+ 		return -EOPNOTSUPP;
  
- static int ast_get_dram_info(struct drm_device *dev)
+ 	/* UMS was only ever support on PCI devices. */
+-	if (WARN_ON(!dev->pdev))
++	if (WARN_ON(!dev_is_pci(dev->dev)))
+ 		return -EINVAL;
+ 
+ 	if (!drm_core_check_feature(dev, DRIVER_HAVE_IRQ))
+@@ -183,7 +187,7 @@ void drm_pci_agp_destroy(struct drm_device *dev)
+ static void drm_pci_agp_init(struct drm_device *dev)
  {
--	struct device_node *np = dev->pdev->dev.of_node;
-+	struct device_node *np = dev->dev->of_node;
- 	struct ast_private *ast = to_ast_private(dev);
- 	uint32_t mcr_cfg, mcr_scu_mpll, mcr_scu_strap;
- 	uint32_t denum, num, div, ref_pll, dsel;
-@@ -409,10 +411,9 @@ struct ast_private *ast_device_create(const struct drm_driver *drv,
- 		return ast;
- 	dev = &ast->base;
+ 	if (drm_core_check_feature(dev, DRIVER_USE_AGP)) {
+-		if (pci_find_capability(dev->pdev, PCI_CAP_ID_AGP))
++		if (pci_find_capability(to_pci_dev(dev->dev), PCI_CAP_ID_AGP))
+ 			dev->agp = drm_agp_init(dev);
+ 		if (dev->agp) {
+ 			dev->agp->agp_mtrr = arch_phys_wc_add(
+diff --git a/drivers/gpu/drm/drm_vm.c b/drivers/gpu/drm/drm_vm.c
+index 6d5a03b32238..9b3b989d7cad 100644
+--- a/drivers/gpu/drm/drm_vm.c
++++ b/drivers/gpu/drm/drm_vm.c
+@@ -278,7 +278,7 @@ static void drm_vm_shm_close(struct vm_area_struct *vma)
+ 			case _DRM_SCATTER_GATHER:
+ 				break;
+ 			case _DRM_CONSISTENT:
+-				dma_free_coherent(&dev->pdev->dev,
++				dma_free_coherent(dev->dev,
+ 						  map->size,
+ 						  map->handle,
+ 						  map->offset);
+diff --git a/include/drm/drm_device.h b/include/drm/drm_device.h
+index 283a93ce4617..9d9db178119a 100644
+--- a/include/drm/drm_device.h
++++ b/include/drm/drm_device.h
+@@ -290,9 +290,6 @@ struct drm_device {
+ 	/** @agp: AGP data */
+ 	struct drm_agp_head *agp;
  
--	dev->pdev = pdev;
- 	pci_set_drvdata(pdev, dev);
+-	/** @pdev: PCI device structure */
+-	struct pci_dev *pdev;
+-
+ #ifdef __alpha__
+ 	/** @hose: PCI hose, only used on ALPHA platforms. */
+ 	struct pci_controller *hose;
+@@ -336,6 +333,15 @@ struct drm_device {
+ 	/* Everything below here is for legacy driver, never use! */
+ 	/* private: */
+ #if IS_ENABLED(CONFIG_DRM_LEGACY)
++	/**
++	 * @pdev: PCI device structure
++	 *
++	 * This is deprecated. to get the PCI device, upcast from @dev
++	 * with to_pci_dev(). To test if the hardware is a PCI device,
++	 * use dev_is_pci() with @dev.
++	 */
++	struct pci_dev *pdev;
++
+ 	/* Context handle management - linked list of context handles */
+ 	struct list_head ctxlist;
  
--	ast->regs = pci_iomap(dev->pdev, 1, 0);
-+	ast->regs = pci_iomap(pdev, 1, 0);
- 	if (!ast->regs)
- 		return ERR_PTR(-EIO);
- 
-@@ -421,14 +422,14 @@ struct ast_private *ast_device_create(const struct drm_driver *drv,
- 	 * assume the chip has MMIO enabled by default (rev 0x20
- 	 * and higher).
- 	 */
--	if (!(pci_resource_flags(dev->pdev, 2) & IORESOURCE_IO)) {
-+	if (!(pci_resource_flags(pdev, 2) & IORESOURCE_IO)) {
- 		drm_info(dev, "platform has no IO space, trying MMIO\n");
- 		ast->ioregs = ast->regs + AST_IO_MM_OFFSET;
- 	}
- 
- 	/* "map" IO regs if the above hasn't done so already */
- 	if (!ast->ioregs) {
--		ast->ioregs = pci_iomap(dev->pdev, 2, 0);
-+		ast->ioregs = pci_iomap(pdev, 2, 0);
- 		if (!ast->ioregs)
- 			return ERR_PTR(-EIO);
- 	}
-diff --git a/drivers/gpu/drm/ast/ast_mm.c b/drivers/gpu/drm/ast/ast_mm.c
-index 8392ebde504b..7592f1b9e1f1 100644
---- a/drivers/gpu/drm/ast/ast_mm.c
-+++ b/drivers/gpu/drm/ast/ast_mm.c
-@@ -77,31 +77,32 @@ static u32 ast_get_vram_size(struct ast_private *ast)
- static void ast_mm_release(struct drm_device *dev, void *ptr)
- {
- 	struct ast_private *ast = to_ast_private(dev);
-+	struct pci_dev *pdev = to_pci_dev(dev->dev);
- 
- 	arch_phys_wc_del(ast->fb_mtrr);
--	arch_io_free_memtype_wc(pci_resource_start(dev->pdev, 0),
--				pci_resource_len(dev->pdev, 0));
-+	arch_io_free_memtype_wc(pci_resource_start(pdev, 0),
-+				pci_resource_len(pdev, 0));
- }
- 
- int ast_mm_init(struct ast_private *ast)
- {
- 	struct drm_device *dev = &ast->base;
-+	struct pci_dev *pdev = to_pci_dev(dev->dev);
- 	u32 vram_size;
- 	int ret;
- 
- 	vram_size = ast_get_vram_size(ast);
- 
--	ret = drmm_vram_helper_init(dev, pci_resource_start(dev->pdev, 0),
--				    vram_size);
-+	ret = drmm_vram_helper_init(dev, pci_resource_start(pdev, 0), vram_size);
- 	if (ret) {
- 		drm_err(dev, "Error initializing VRAM MM; %d\n", ret);
- 		return ret;
- 	}
- 
--	arch_io_reserve_memtype_wc(pci_resource_start(dev->pdev, 0),
--				   pci_resource_len(dev->pdev, 0));
--	ast->fb_mtrr = arch_phys_wc_add(pci_resource_start(dev->pdev, 0),
--					pci_resource_len(dev->pdev, 0));
-+	arch_io_reserve_memtype_wc(pci_resource_start(pdev, 0),
-+				   pci_resource_len(pdev, 0));
-+	ast->fb_mtrr = arch_phys_wc_add(pci_resource_start(pdev, 0),
-+					pci_resource_len(pdev, 0));
- 
- 	return drmm_add_action_or_reset(dev, ast_mm_release, NULL);
- }
-diff --git a/drivers/gpu/drm/ast/ast_mode.c b/drivers/gpu/drm/ast/ast_mode.c
-index 9db371f4054f..fd61055001bd 100644
---- a/drivers/gpu/drm/ast/ast_mode.c
-+++ b/drivers/gpu/drm/ast/ast_mode.c
-@@ -1107,6 +1107,7 @@ static const struct drm_mode_config_funcs ast_mode_config_funcs = {
- int ast_mode_config_init(struct ast_private *ast)
- {
- 	struct drm_device *dev = &ast->base;
-+	struct pci_dev *pdev = to_pci_dev(dev->dev);
- 	int ret;
- 
- 	ret = ast_cursor_init(ast);
-@@ -1122,7 +1123,7 @@ int ast_mode_config_init(struct ast_private *ast)
- 	dev->mode_config.min_height = 0;
- 	dev->mode_config.preferred_depth = 24;
- 	dev->mode_config.prefer_shadow = 1;
--	dev->mode_config.fb_base = pci_resource_start(dev->pdev, 0);
-+	dev->mode_config.fb_base = pci_resource_start(pdev, 0);
- 
- 	if (ast->chip == AST2100 ||
- 	    ast->chip == AST2200 ||
-@@ -1259,7 +1260,7 @@ static struct ast_i2c_chan *ast_i2c_create(struct drm_device *dev)
- 
- 	i2c->adapter.owner = THIS_MODULE;
- 	i2c->adapter.class = I2C_CLASS_DDC;
--	i2c->adapter.dev.parent = &dev->pdev->dev;
-+	i2c->adapter.dev.parent = dev->dev;
- 	i2c->dev = dev;
- 	i2c_set_adapdata(&i2c->adapter, i2c);
- 	snprintf(i2c->adapter.name, sizeof(i2c->adapter.name),
-diff --git a/drivers/gpu/drm/ast/ast_post.c b/drivers/gpu/drm/ast/ast_post.c
-index 8902c2f84bf9..0607658dde51 100644
---- a/drivers/gpu/drm/ast/ast_post.c
-+++ b/drivers/gpu/drm/ast/ast_post.c
-@@ -71,6 +71,7 @@ static void
- ast_set_def_ext_reg(struct drm_device *dev)
- {
- 	struct ast_private *ast = to_ast_private(dev);
-+	struct pci_dev *pdev = to_pci_dev(dev->dev);
- 	u8 i, index, reg;
- 	const u8 *ext_reg_info;
- 
-@@ -80,7 +81,7 @@ ast_set_def_ext_reg(struct drm_device *dev)
- 
- 	if (ast->chip == AST2300 || ast->chip == AST2400 ||
- 	    ast->chip == AST2500) {
--		if (dev->pdev->revision >= 0x20)
-+		if (pdev->revision >= 0x20)
- 			ext_reg_info = extreginfo_ast2300;
- 		else
- 			ext_reg_info = extreginfo_ast2300a0;
-@@ -366,11 +367,12 @@ static void ast_init_dram_reg(struct drm_device *dev)
- void ast_post_gpu(struct drm_device *dev)
- {
- 	struct ast_private *ast = to_ast_private(dev);
-+	struct pci_dev *pdev = to_pci_dev(dev->dev);
- 	u32 reg;
- 
--	pci_read_config_dword(dev->pdev, 0x04, &reg);
-+	pci_read_config_dword(pdev, 0x04, &reg);
- 	reg |= 0x3;
--	pci_write_config_dword(dev->pdev, 0x04, reg);
-+	pci_write_config_dword(pdev, 0x04, reg);
- 
- 	ast_enable_vga(dev);
- 	ast_open_key(ast);
 -- 
 2.29.2
 
