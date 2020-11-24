@@ -2,74 +2,72 @@ Return-Path: <SRS0=jeLh=E6=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-13.8 required=3.0 tests=BAYES_00,
-	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-	autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-8.8 required=3.0 tests=BAYES_00,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,MAILING_LIST_MULTI,
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable autolearn_force=no
+	version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 54B5DC2D0E4
-	for <virtualization@archiver.kernel.org>; Tue, 24 Nov 2020 21:46:47 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 4C8C5C56202
+	for <virtualization@archiver.kernel.org>; Tue, 24 Nov 2020 21:49:50 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id DD8EF206E5
-	for <virtualization@archiver.kernel.org>; Tue, 24 Nov 2020 21:46:46 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org DD8EF206E5
+	by mail.kernel.org (Postfix) with ESMTPS id EC5C120715
+	for <virtualization@archiver.kernel.org>; Tue, 24 Nov 2020 21:49:49 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org EC5C120715
 Authentication-Results: mail.kernel.org; dmarc=none (p=none dis=none) header.from=ravnborg.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 6D49C872D0;
-	Tue, 24 Nov 2020 21:46:46 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id ADC2C869D8;
+	Tue, 24 Nov 2020 21:49:49 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SmMOKGsb1LD6; Tue, 24 Nov 2020 21:46:45 +0000 (UTC)
+	with ESMTP id JnK2nuGgTcyq; Tue, 24 Nov 2020 21:49:49 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by hemlock.osuosl.org (Postfix) with ESMTP id 4965687062;
-	Tue, 24 Nov 2020 21:46:45 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id EED3E84415;
+	Tue, 24 Nov 2020 21:49:48 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 33A8AC163C;
-	Tue, 24 Nov 2020 21:46:45 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 41E09C0052
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C73CAC163C;
+	Tue, 24 Nov 2020 21:49:48 +0000 (UTC)
+Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 8F32FC0052
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Nov 2020 21:46:44 +0000 (UTC)
+ Tue, 24 Nov 2020 21:49:47 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 3B6F722844
+ by whitealder.osuosl.org (Postfix) with ESMTP id 7A32084525
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Nov 2020 21:46:44 +0000 (UTC)
+ Tue, 24 Nov 2020 21:49:47 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id 6F6B-PHp820R
+ with ESMTP id V6aQhwKIgiJL
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Nov 2020 21:46:42 +0000 (UTC)
+ Tue, 24 Nov 2020 21:49:46 +0000 (UTC)
 X-Greylist: from auto-whitelisted by SQLgrey-1.7.6
 Received: from asavdk3.altibox.net (asavdk3.altibox.net [109.247.116.14])
- by silver.osuosl.org (Postfix) with ESMTPS id C7FAA227AA
+ by whitealder.osuosl.org (Postfix) with ESMTPS id E57C584415
  for <virtualization@lists.linux-foundation.org>;
- Tue, 24 Nov 2020 21:46:41 +0000 (UTC)
+ Tue, 24 Nov 2020 21:49:45 +0000 (UTC)
 Received: from ravnborg.org (unknown [188.228.123.71])
  (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
  (No client certificate requested)
- by asavdk3.altibox.net (Postfix) with ESMTPS id 756EB2001F;
- Tue, 24 Nov 2020 22:46:39 +0100 (CET)
-Date: Tue, 24 Nov 2020 22:46:38 +0100
+ by asavdk3.altibox.net (Postfix) with ESMTPS id C44342001F;
+ Tue, 24 Nov 2020 22:49:42 +0100 (CET)
+Date: Tue, 24 Nov 2020 22:49:41 +0100
 From: Sam Ravnborg <sam@ravnborg.org>
 To: Thomas Zimmermann <tzimmermann@suse.de>
-Subject: Re: [PATCH 15/15] drm: Upcast struct drm_device.dev to struct
- pci_device; replace pdev
-Message-ID: <20201124214638.GC93095@ravnborg.org>
+Subject: Re: [PATCH 00/15] drm: Move struct drm_device.pdev to legacy
+Message-ID: <20201124214941.GD93095@ravnborg.org>
 References: <20201124113824.19994-1-tzimmermann@suse.de>
- <20201124113824.19994-16-tzimmermann@suse.de>
 MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20201124113824.19994-16-tzimmermann@suse.de>
+In-Reply-To: <20201124113824.19994-1-tzimmermann@suse.de>
 X-CMAE-Score: 0
 X-CMAE-Analysis: v=2.3 cv=VbvZwmh9 c=1 sm=1 tr=0
  a=S6zTFyMACwkrwXSdXUNehg==:117 a=S6zTFyMACwkrwXSdXUNehg==:17
- a=kj9zAlcOel0A:10 a=e5mUnYsNAAAA:8 a=636dPFuNPNHtvE4-BiEA:9
- a=CjuIK1q_8ugA:10 a=Vxmtnl_E_bksehYqCbjh:22
+ a=kj9zAlcOel0A:10 a=7gkXJVJtAAAA:8 a=4J4RqmOIUAWq8pQtltYA:9
+ a=CjuIK1q_8ugA:10 a=E9Po1WZjFZOl8hwRPBS3:22
 Cc: airlied@linux.ie, nouveau@lists.freedesktop.org,
  intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
  virtualization@lists.linux-foundation.org, amd-gfx@lists.freedesktop.org,
@@ -91,308 +89,60 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Hi Thomas,
+Hi Thomas.
 
-On Tue, Nov 24, 2020 at 12:38:24PM +0100, Thomas Zimmermann wrote:
-> We have DRM drivers based on USB, SPI and platform devices. All of them
-> are fine with storing their device reference in struct drm_device.dev.
-> PCI devices should be no exception. Therefore struct drm_device.pdev is
-> deprecated.
-> 
-> Instead upcast from struct drm_device.dev with to_pci_dev(). PCI-specific
-> code can use dev_is_pci() to test for a PCI device. This patch changes
-> the DRM core code and documentation accordingly. Struct drm_device.pdev
-> is being moved to legacy status.
-> 
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-> ---
->  drivers/gpu/drm/drm_agpsupport.c |  9 ++++++---
->  drivers/gpu/drm/drm_bufs.c       |  4 ++--
->  drivers/gpu/drm/drm_edid.c       |  7 ++++++-
->  drivers/gpu/drm/drm_irq.c        | 12 +++++++-----
->  drivers/gpu/drm/drm_pci.c        | 26 +++++++++++++++-----------
->  drivers/gpu/drm/drm_vm.c         |  2 +-
->  include/drm/drm_device.h         | 12 +++++++++---
->  7 files changed, 46 insertions(+), 26 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/drm_agpsupport.c b/drivers/gpu/drm/drm_agpsupport.c
-> index 4c7ad46fdd21..a4040fe4f4ba 100644
-> --- a/drivers/gpu/drm/drm_agpsupport.c
-> +++ b/drivers/gpu/drm/drm_agpsupport.c
-> @@ -103,11 +103,13 @@ int drm_agp_info_ioctl(struct drm_device *dev, void *data,
->   */
->  int drm_agp_acquire(struct drm_device *dev)
->  {
-> +	struct pci_dev *pdev = to_pci_dev(dev->dev);
-> +
->  	if (!dev->agp)
->  		return -ENODEV;
->  	if (dev->agp->acquired)
->  		return -EBUSY;
-> -	dev->agp->bridge = agp_backend_acquire(dev->pdev);
-> +	dev->agp->bridge = agp_backend_acquire(pdev);
->  	if (!dev->agp->bridge)
->  		return -ENODEV;
->  	dev->agp->acquired = 1;
-> @@ -402,14 +404,15 @@ int drm_agp_free_ioctl(struct drm_device *dev, void *data,
->   */
->  struct drm_agp_head *drm_agp_init(struct drm_device *dev)
->  {
-> +	struct pci_dev *pdev = to_pci_dev(dev->dev);
->  	struct drm_agp_head *head = NULL;
->  
->  	head = kzalloc(sizeof(*head), GFP_KERNEL);
->  	if (!head)
->  		return NULL;
-> -	head->bridge = agp_find_bridge(dev->pdev);
-> +	head->bridge = agp_find_bridge(pdev);
->  	if (!head->bridge) {
-> -		head->bridge = agp_backend_acquire(dev->pdev);
-> +		head->bridge = agp_backend_acquire(pdev);
->  		if (!head->bridge) {
->  			kfree(head);
->  			return NULL;
-> diff --git a/drivers/gpu/drm/drm_bufs.c b/drivers/gpu/drm/drm_bufs.c
-> index 7a01d0918861..1da8b360b60a 100644
-> --- a/drivers/gpu/drm/drm_bufs.c
-> +++ b/drivers/gpu/drm/drm_bufs.c
-> @@ -325,7 +325,7 @@ static int drm_addmap_core(struct drm_device *dev, resource_size_t offset,
->  		 * As we're limiting the address to 2^32-1 (or less),
->  		 * casting it down to 32 bits is no problem, but we
->  		 * need to point to a 64bit variable first. */
-> -		map->handle = dma_alloc_coherent(&dev->pdev->dev,
-> +		map->handle = dma_alloc_coherent(dev->dev,
->  						 map->size,
->  						 &map->offset,
->  						 GFP_KERNEL);
-> @@ -555,7 +555,7 @@ int drm_legacy_rmmap_locked(struct drm_device *dev, struct drm_local_map *map)
->  	case _DRM_SCATTER_GATHER:
->  		break;
->  	case _DRM_CONSISTENT:
-> -		dma_free_coherent(&dev->pdev->dev,
-> +		dma_free_coherent(dev->dev,
->  				  map->size,
->  				  map->handle,
->  				  map->offset);
-> diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
-> index 74f5a3197214..555a04ce2179 100644
-> --- a/drivers/gpu/drm/drm_edid.c
-> +++ b/drivers/gpu/drm/drm_edid.c
-> @@ -32,6 +32,7 @@
->  #include <linux/i2c.h>
->  #include <linux/kernel.h>
->  #include <linux/module.h>
-> +#include <linux/pci.h>
->  #include <linux/slab.h>
->  #include <linux/vga_switcheroo.h>
->  
-> @@ -2075,9 +2076,13 @@ EXPORT_SYMBOL(drm_get_edid);
->  struct edid *drm_get_edid_switcheroo(struct drm_connector *connector,
->  				     struct i2c_adapter *adapter)
->  {
-> -	struct pci_dev *pdev = connector->dev->pdev;
-> +	struct drm_device *dev = connector->dev;
-> +	struct pci_dev *pdev = to_pci_dev(dev->dev);
->  	struct edid *edid;
+Nice clean-up series - quite an effort to move one member to deprecated!
 
-Maybe add a comment that explain why this can trigger - so people are
-helped it they are catched by this.
-As it is now it is not even mentioned in the changelog.
+I have read through most of the patches. I left a few notes in my
+replies but nothing buggy. Just nitpicks.
 
-> +	if (drm_WARN_ON_ONCE(dev, !dev_is_pci(dev->dev)))
-> +		return NULL;
-> +
->  	vga_switcheroo_lock_ddc(pdev);
->  	edid = drm_get_edid(connector, adapter);
->  	vga_switcheroo_unlock_ddc(pdev);
-> diff --git a/drivers/gpu/drm/drm_irq.c b/drivers/gpu/drm/drm_irq.c
-> index 09d6e9e2e075..22986a9a593b 100644
-> --- a/drivers/gpu/drm/drm_irq.c
-> +++ b/drivers/gpu/drm/drm_irq.c
-> @@ -122,7 +122,7 @@ int drm_irq_install(struct drm_device *dev, int irq)
->  		dev->driver->irq_preinstall(dev);
->  
->  	/* PCI devices require shared interrupts. */
-> -	if (dev->pdev)
-> +	if (dev_is_pci(dev->dev))
->  		sh_flags = IRQF_SHARED;
->  
->  	ret = request_irq(irq, dev->driver->irq_handler,
-> @@ -140,7 +140,7 @@ int drm_irq_install(struct drm_device *dev, int irq)
->  	if (ret < 0) {
->  		dev->irq_enabled = false;
->  		if (drm_core_check_feature(dev, DRIVER_LEGACY))
-> -			vga_client_register(dev->pdev, NULL, NULL, NULL);
-> +			vga_client_register(to_pci_dev(dev->dev), NULL, NULL, NULL);
->  		free_irq(irq, dev);
->  	} else {
->  		dev->irq = irq;
-> @@ -203,7 +203,7 @@ int drm_irq_uninstall(struct drm_device *dev)
->  	DRM_DEBUG("irq=%d\n", dev->irq);
->  
->  	if (drm_core_check_feature(dev, DRIVER_LEGACY))
-> -		vga_client_register(dev->pdev, NULL, NULL, NULL);
-> +		vga_client_register(to_pci_dev(dev->dev), NULL, NULL, NULL);
->  
->  	if (dev->driver->irq_uninstall)
->  		dev->driver->irq_uninstall(dev);
-> @@ -220,6 +220,7 @@ int drm_legacy_irq_control(struct drm_device *dev, void *data,
->  {
->  	struct drm_control *ctl = data;
->  	int ret = 0, irq;
-> +	struct pci_dev *pdev;
->  
->  	/* if we haven't irq we fallback for compatibility reasons -
->  	 * this used to be a separate function in drm_dma.h
-> @@ -230,12 +231,13 @@ int drm_legacy_irq_control(struct drm_device *dev, void *data,
->  	if (!drm_core_check_feature(dev, DRIVER_LEGACY))
->  		return 0;
->  	/* UMS was only ever supported on pci devices. */
-> -	if (WARN_ON(!dev->pdev))
-> +	if (WARN_ON(!dev_is_pci(dev->dev)))
->  		return -EINVAL;
->  
->  	switch (ctl->func) {
->  	case DRM_INST_HANDLER:
-> -		irq = dev->pdev->irq;
-> +		pdev = to_pci_dev(dev->dev);
-> +		irq = pdev->irq;
->  
->  		if (dev->if_version < DRM_IF_VERSION(1, 2) &&
->  		    ctl->irq != irq)
-> diff --git a/drivers/gpu/drm/drm_pci.c b/drivers/gpu/drm/drm_pci.c
-> index 6dba4b8ce4fe..c7868418e36d 100644
-> --- a/drivers/gpu/drm/drm_pci.c
-> +++ b/drivers/gpu/drm/drm_pci.c
-> @@ -65,7 +65,7 @@ drm_dma_handle_t *drm_pci_alloc(struct drm_device * dev, size_t size, size_t ali
->  		return NULL;
->  
->  	dmah->size = size;
-> -	dmah->vaddr = dma_alloc_coherent(&dev->pdev->dev, size,
-> +	dmah->vaddr = dma_alloc_coherent(dev->dev, size,
->  					 &dmah->busaddr,
->  					 GFP_KERNEL);
->  
-> @@ -88,7 +88,7 @@ EXPORT_SYMBOL(drm_pci_alloc);
->   */
->  void drm_pci_free(struct drm_device * dev, drm_dma_handle_t * dmah)
->  {
-> -	dma_free_coherent(&dev->pdev->dev, dmah->size, dmah->vaddr,
-> +	dma_free_coherent(dev->dev, dmah->size, dmah->vaddr,
->  			  dmah->busaddr);
->  	kfree(dmah);
->  }
-> @@ -107,16 +107,18 @@ static int drm_get_pci_domain(struct drm_device *dev)
->  		return 0;
->  #endif /* __alpha__ */
->  
-> -	return pci_domain_nr(dev->pdev->bus);
-> +	return pci_domain_nr(to_pci_dev(dev->dev)->bus);
->  }
->  
->  int drm_pci_set_busid(struct drm_device *dev, struct drm_master *master)
->  {
-> +	struct pci_dev *pdev = to_pci_dev(dev->dev);
-> +
->  	master->unique = kasprintf(GFP_KERNEL, "pci:%04x:%02x:%02x.%d",
->  					drm_get_pci_domain(dev),
-> -					dev->pdev->bus->number,
-> -					PCI_SLOT(dev->pdev->devfn),
-> -					PCI_FUNC(dev->pdev->devfn));
-> +					pdev->bus->number,
-> +					PCI_SLOT(pdev->devfn),
-> +					PCI_FUNC(pdev->devfn));
->  	if (!master->unique)
->  		return -ENOMEM;
->  
-> @@ -126,12 +128,14 @@ int drm_pci_set_busid(struct drm_device *dev, struct drm_master *master)
->  
->  static int drm_pci_irq_by_busid(struct drm_device *dev, struct drm_irq_busid *p)
->  {
-> +	struct pci_dev *pdev = to_pci_dev(dev->dev);
-> +
->  	if ((p->busnum >> 8) != drm_get_pci_domain(dev) ||
-> -	    (p->busnum & 0xff) != dev->pdev->bus->number ||
-> -	    p->devnum != PCI_SLOT(dev->pdev->devfn) || p->funcnum != PCI_FUNC(dev->pdev->devfn))
-> +	    (p->busnum & 0xff) != pdev->bus->number ||
-> +	    p->devnum != PCI_SLOT(pdev->devfn) || p->funcnum != PCI_FUNC(pdev->devfn))
->  		return -EINVAL;
->  
-> -	p->irq = dev->pdev->irq;
-> +	p->irq = pdev->irq;
->  
->  	DRM_DEBUG("%d:%d:%d => IRQ %d\n", p->busnum, p->devnum, p->funcnum,
->  		  p->irq);
-> @@ -159,7 +163,7 @@ int drm_legacy_irq_by_busid(struct drm_device *dev, void *data,
->  		return -EOPNOTSUPP;
->  
->  	/* UMS was only ever support on PCI devices. */
-> -	if (WARN_ON(!dev->pdev))
-> +	if (WARN_ON(!dev_is_pci(dev->dev)))
->  		return -EINVAL;
->  
->  	if (!drm_core_check_feature(dev, DRIVER_HAVE_IRQ))
-> @@ -183,7 +187,7 @@ void drm_pci_agp_destroy(struct drm_device *dev)
->  static void drm_pci_agp_init(struct drm_device *dev)
->  {
->  	if (drm_core_check_feature(dev, DRIVER_USE_AGP)) {
-> -		if (pci_find_capability(dev->pdev, PCI_CAP_ID_AGP))
-> +		if (pci_find_capability(to_pci_dev(dev->dev), PCI_CAP_ID_AGP))
->  			dev->agp = drm_agp_init(dev);
->  		if (dev->agp) {
->  			dev->agp->agp_mtrr = arch_phys_wc_add(
-> diff --git a/drivers/gpu/drm/drm_vm.c b/drivers/gpu/drm/drm_vm.c
-> index 6d5a03b32238..9b3b989d7cad 100644
-> --- a/drivers/gpu/drm/drm_vm.c
-> +++ b/drivers/gpu/drm/drm_vm.c
-> @@ -278,7 +278,7 @@ static void drm_vm_shm_close(struct vm_area_struct *vma)
->  			case _DRM_SCATTER_GATHER:
->  				break;
->  			case _DRM_CONSISTENT:
-> -				dma_free_coherent(&dev->pdev->dev,
-> +				dma_free_coherent(dev->dev,
->  						  map->size,
->  						  map->handle,
->  						  map->offset);
-> diff --git a/include/drm/drm_device.h b/include/drm/drm_device.h
-> index 283a93ce4617..9d9db178119a 100644
-> --- a/include/drm/drm_device.h
-> +++ b/include/drm/drm_device.h
-> @@ -290,9 +290,6 @@ struct drm_device {
->  	/** @agp: AGP data */
->  	struct drm_agp_head *agp;
->  
-> -	/** @pdev: PCI device structure */
-> -	struct pci_dev *pdev;
-> -
->  #ifdef __alpha__
->  	/** @hose: PCI hose, only used on ALPHA platforms. */
->  	struct pci_controller *hose;
-> @@ -336,6 +333,15 @@ struct drm_device {
->  	/* Everything below here is for legacy driver, never use! */
->  	/* private: */
->  #if IS_ENABLED(CONFIG_DRM_LEGACY)
-> +	/**
-> +	 * @pdev: PCI device structure
-> +	 *
-> +	 * This is deprecated. to get the PCI device, upcast from @dev
-Capital T after '.'
 
-> +	 * with to_pci_dev(). To test if the hardware is a PCI device,
-> +	 * use dev_is_pci() with @dev.
-> +	 */
-> +	struct pci_dev *pdev;
-> +
->  	/* Context handle management - linked list of context handles */
->  	struct list_head ctxlist;
->  
-> -- 
-> 2.29.2
+On Tue, Nov 24, 2020 at 12:38:09PM +0100, Thomas Zimmermann wrote:
+> The pdev field in struct drm_device points to a PCI device structure and
+> goes back to UMS-only days when all DRM drivers where for PCI devices.
+> Meanwhile we also support USB, SPI and platform devices. Each of those
+> uses the generic device stored in struct drm_device.dev.
 > 
-> _______________________________________________
-> dri-devel mailing list
-> dri-devel@lists.freedesktop.org
-> https://lists.freedesktop.org/mailman/listinfo/dri-devel
+> To reduce duplications and remove the special case of PCI, this patchset
+> converts all modesetting drivers from pdev to dev and makes pdev a field
+> for legacy UMS drivers.
+> 
+> For PCI devices, the pointer in struct drm_device.dev can be upcasted to
+> struct pci_device; or tested for PCI with dev_is_pci(). In several places
+> the code can use the dev field directly.
+> 
+> After converting all drivers and the DRM core, the pdev fields becomes
+> only relevant for legacy drivers. In a later patchset, we may want to
+> convert these as well and remove pdev entirely.
+> 
+> The patchset touches many files, but the individual changes are mostly
+> trivial. I suggest to merge each driver's patch through the respective
+> tree and later the rest through drm-misc-next.
+> 
+> Thomas Zimmermann (15):
+>   drm/amdgpu: Remove references to struct drm_device.pdev
+>   drm/ast: Remove references to struct drm_device.pdev
+>   drm/bochs: Remove references to struct drm_device.pdev
+>   drm/cirrus: Remove references to struct drm_device.pdev
+>   drm/gma500: Remove references to struct drm_device.pdev
+>   drm/hibmc: Remove references to struct drm_device.pdev
+>   drm/mgag200: Remove references to struct drm_device.pdev
+>   drm/qxl: Remove references to struct drm_device.pdev
+>   drm/vboxvideo: Remove references to struct drm_device.pdev
+>   drm/virtgpu: Remove references to struct drm_device.pdev
+>   drm/vmwgfx: Remove references to struct drm_device.pdev
+>   drm: Upcast struct drm_device.dev to struct pci_device; replace pdev
+All above are:
+Acked-by: Sam Ravnborg <sam@ravnborg.org>
+
+>   drm/nouveau: Remove references to struct drm_device.pdev
+I lost my confidence in my reading of this code.
+
+>   drm/i915: Remove references to struct drm_device.pdev
+>   drm/radeon: Remove references to struct drm_device.pdev
+I did not look at these at all. I hope someone else find time to do so.
+
+	Sam
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
