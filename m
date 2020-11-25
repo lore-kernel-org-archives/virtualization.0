@@ -2,148 +2,121 @@ Return-Path: <SRS0=EQvy=E7=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.5 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
-	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
+	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E1CE7C56201
-	for <virtualization@archiver.kernel.org>; Wed, 25 Nov 2020 17:04:31 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 51B9DC6379D
+	for <virtualization@archiver.kernel.org>; Wed, 25 Nov 2020 17:48:33 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 4DC922083E
-	for <virtualization@archiver.kernel.org>; Wed, 25 Nov 2020 17:04:31 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id C279E206F9
+	for <virtualization@archiver.kernel.org>; Wed, 25 Nov 2020 17:48:32 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bn+pL/Hm"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 4DC922083E
-Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TZdTS1K2"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org C279E206F9
+Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id C49F08720C;
-	Wed, 25 Nov 2020 17:04:30 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 652A987674;
+	Wed, 25 Nov 2020 17:48:32 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id a91DJrquWvJd; Wed, 25 Nov 2020 17:04:29 +0000 (UTC)
+	with ESMTP id UvekTAlRXZqP; Wed, 25 Nov 2020 17:48:30 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id A7F4887277;
-	Wed, 25 Nov 2020 17:04:29 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id D6F2787629;
+	Wed, 25 Nov 2020 17:48:30 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 8F09BC1D9F;
-	Wed, 25 Nov 2020 17:04:29 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id C25C4C163C;
+	Wed, 25 Nov 2020 17:48:30 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id A5A5CC0052;
- Wed, 25 Nov 2020 17:04:28 +0000 (UTC)
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 9D19AC0052
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 25 Nov 2020 17:48:29 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 9AC398720C;
- Wed, 25 Nov 2020 17:04:28 +0000 (UTC)
+ by whitealder.osuosl.org (Postfix) with ESMTP id 904E1872DB
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 25 Nov 2020 17:48:29 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id atY79HPvEz8c; Wed, 25 Nov 2020 17:04:27 +0000 (UTC)
+ with ESMTP id i9heWnMoWOwA
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 25 Nov 2020 17:48:29 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-yb1-f194.google.com (mail-yb1-f194.google.com
- [209.85.219.194])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 5DC7D86D30;
- Wed, 25 Nov 2020 17:04:27 +0000 (UTC)
-Received: by mail-yb1-f194.google.com with SMTP id l14so374257ybq.3;
- Wed, 25 Nov 2020 09:04:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
- h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=U7yONu+GErpj3wVA3mUEvd1gZrZu1iMtuB4J5cc4iYs=;
- b=bn+pL/HmrYW2tlvsO08UsmlB+e0sDsIo/gBe6lZBPy5Ml0r7IepVRmwL3Z1msCDTmB
- 4Fj8yYJnSSwKpycrMD6jc9mJYcLEOxyjBt+mj/swgeJwfcTqBWFSYbINT99XJh8MBLLG
- BhdJX4URpdAlU1PS41QCV8cX0uycEbKi5uankHMmLYXfRheyb1dBSnJ2lYbkM9jPzYRg
- +YL1Fiv4xli6A/G5oR00+c/fqffNKJdLOgNLmafCTxGe8sUqpvTjraMjrzXLQkd2Vyg7
- 6NJIAQ3gm8Ro9XvzXTxxo6aHXEqSB5bdv5UB5bHkEX37ZUG4NR8CwSl4aaovOFcf7q/J
- MTKg==
+Received: from us-smtp-delivery-124.mimecast.com
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by whitealder.osuosl.org (Postfix) with ESMTPS id C4C768715C
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 25 Nov 2020 17:48:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+ s=mimecast20190719; t=1606326507;
+ h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+ to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+ content-transfer-encoding:content-transfer-encoding:
+ in-reply-to:in-reply-to:references:references;
+ bh=PPAlub6Lu18QJG/UwISztnXC7vpMcA+ULhrhJ2wogtA=;
+ b=TZdTS1K23f56OotvAZ0r4rUQO8NVbsU4Lj89Ykmk8RlbAZZ5FwcMiYDLzZBkDRXJQe+jGx
+ nv+P06I6tZeU7bo7HK0WOI9WNdUEU82CjucIgZ5ZFz7T8xmbdiSAW6Ungc0Pqmf51UfNkT
+ udovizEs2AR6N9jkU5TKmB4W1gJE0+8=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-318-GGBs2_xmMKS-BAI6bheBlA-1; Wed, 25 Nov 2020 12:48:25 -0500
+X-MC-Unique: GGBs2_xmMKS-BAI6bheBlA-1
+Received: by mail-ej1-f69.google.com with SMTP id gx12so1019217ejb.18
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 25 Nov 2020 09:48:25 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
- h=x-gm-message-state:mime-version:references:in-reply-to:from:date
- :message-id:subject:to:cc;
- bh=U7yONu+GErpj3wVA3mUEvd1gZrZu1iMtuB4J5cc4iYs=;
- b=Rh7NpgocOyTgeMhPZottPBtlmr3WSEz8fSSuMEq8J6TD3jX4zhiI8vF48vXHM3eKl9
- J6vksaOpRMwIau46FSexMUHOAekgPRWgFTkBtGQv5yQ15wvLHqBgtMTiiwpN+1aSlagD
- EmBrytCWCyQZAu6oISMA4a/QEkUj5R7aKZtcOVSFoI6RgHyAkP9XkS3PxQgrXc51OwQv
- y5On0g/NNEhK5UYaKtlPZZyTccsK+Y65NNZ4xX0rxRAfBbLAqAokNPKj+sNLz/aMS+jO
- PIkJK99gnRkPz3NbAbaC1heHaLacW1MGB2+STxosR5XDVLS09pQ0VRerG0F9uCj1QQQH
- YAAA==
-X-Gm-Message-State: AOAM531e6f+zaJallN8KH8kHGZ8cyJcg7xsE8Ym+pJcWwqLvZnxV7+qd
- hqwCXVnjN42yC2rd0hz+fSdwEyzQmmzXA3vYVk8=
-X-Google-Smtp-Source: ABdhPJwRDTWwRnnt/vVfXeVU3lUNCXdaAf9CCrzUJdkBRbFdtXrCpJBbeymEiGhAam+E5oqqQjDTbAdkVQMGwErIDPw=
-X-Received: by 2002:a25:aac5:: with SMTP id t63mr6307293ybi.22.1606323866493; 
- Wed, 25 Nov 2020 09:04:26 -0800 (PST)
+ h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+ :user-agent:mime-version:in-reply-to:content-language
+ :content-transfer-encoding;
+ bh=PPAlub6Lu18QJG/UwISztnXC7vpMcA+ULhrhJ2wogtA=;
+ b=Xw1m5oicAZVcXKcv36ehxVAMC8DUP/8Fc3nFm35AiI0MxzNdngpWcXObJqRD+swQl1
+ e7fJma+tsiRhgJTJrg4IXc6GAsyi8Yjgtwy+R2BXTMTYA++miPrjlAMqCzcFSJsGcW/S
+ OdFjtcphgB4wlWBqiLDrhPzay73pAvI/ixkN0j0hmDLawzZFzEX9aCj/bQHCs/46e9JP
+ gvhkekS6CfXmIU+3c9uRV7DPs/ODxQnwnRZSDKz6fVSYuObgSte/e6r14h/W7RIp8yME
+ 4kPpADIjY4X+ATEQFatUIrn6mOoJi8DbFdKKA0f5Kj2yXTb63MCofn9NYX5IsQ5mQQJZ
+ ISrg==
+X-Gm-Message-State: AOAM533yLG718OehkXCMrhSrdDSR9sDVs6CB+iJzi/BysZhZ/IMQsZq/
+ MRMmDrUvMI6a5F8MYUk3CyyvJ3vFZn0TEZs4PS3tlqsEpeNxwqCGGji67WOitEdFh2B+5X5JcIO
+ cVE0p8zWIhBOVxL2UE3juJs6jzQV+kGHy8bNblPGLuQ==
+X-Received: by 2002:a17:906:38db:: with SMTP id
+ r27mr4168636ejd.328.1606326503977; 
+ Wed, 25 Nov 2020 09:48:23 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJxr2gVh9P7XRmeTfb7uFaE+EScbcdMKxEjEz+ho32BWcP+21n+ieNOFuJ/XNTV98wqLH5Q7Cg==
+X-Received: by 2002:a17:906:38db:: with SMTP id
+ r27mr4168614ejd.328.1606326503716; 
+ Wed, 25 Nov 2020 09:48:23 -0800 (PST)
+Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a?
+ ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
+ by smtp.gmail.com with ESMTPSA id mj17sm1659943ejb.59.2020.11.25.09.48.22
+ (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+ Wed, 25 Nov 2020 09:48:22 -0800 (PST)
+Subject: Re: [PATCH AUTOSEL 5.9 22/33] vhost scsi: add lun parser helper
+To: Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org
+References: <20201125153550.810101-1-sashal@kernel.org>
+ <20201125153550.810101-22-sashal@kernel.org>
+From: Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <25cd0d64-bffc-9506-c148-11583fed897c@redhat.com>
+Date: Wed, 25 Nov 2020 18:48:21 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.4.0
 MIME-Version: 1.0
-References: <202011201129.B13FDB3C@keescook>
- <20201120115142.292999b2@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
- <202011220816.8B6591A@keescook>
- <9b57fd4914b46f38d54087d75e072d6e947cb56d.camel@HansenPartnership.com>
- <ca071decb87cc7e905411423c05a48f9fd2f58d7.camel@perches.com>
- <0147972a72bc13f3629de8a32dee6f1f308994b5.camel@HansenPartnership.com>
- <d8d1e9add08cdd4158405e77762d4946037208f8.camel@perches.com>
- <dbd2cb703ed9eefa7dde9281ea26ab0f7acc8afe.camel@HansenPartnership.com>
- <20201123130348.GA3119@embeddedor>
- <8f5611bb015e044fa1c0a48147293923c2d904e4.camel@HansenPartnership.com>
- <202011241327.BB28F12F6@keescook>
- <a841536fe65bb33f1c72ce2455a6eb47a0107565.camel@HansenPartnership.com>
- <CAKwvOdkGBn7nuWTAqrORMeN1G+w3YwBfCqqaRD2nwvoAXKi=Aw@mail.gmail.com>
- <20201125082405.1d8c23dc@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-In-Reply-To: <20201125082405.1d8c23dc@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
-From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Date: Wed, 25 Nov 2020 18:04:15 +0100
-Message-ID: <CANiq72=RuekXf1O6Fxrz2Eend0GtS6=E72P4T2=48SDqVcTChA@mail.gmail.com>
-Subject: Re: [Intel-wired-lan] [PATCH 000/141] Fix fall-through warnings for
- Clang
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: alsa-devel@alsa-project.org, bridge@lists.linux-foundation.org,
- linux-iio@vger.kernel.org, linux-wireless <linux-wireless@vger.kernel.org>,
- linux-fbdev@vger.kernel.org, dri-devel <dri-devel@lists.freedesktop.org>,
- LKML <linux-kernel@vger.kernel.org>,
- James Bottomley <James.Bottomley@hansenpartnership.com>,
- linux-ide@vger.kernel.org, dm-devel@redhat.com, keyrings@vger.kernel.org,
- linux-mtd@lists.infradead.org, GR-everest-linux-l2@marvell.com,
- wcn36xx@lists.infradead.org, linux-i3c@lists.infradead.org,
- linux1394-devel@lists.sourceforge.net, linux-afs@lists.infradead.org,
- drbd-dev@lists.linbit.com, devel@driverdev.osuosl.org,
- linux-cifs@vger.kernel.org, rds-devel@oss.oracle.com,
- linux-scsi@vger.kernel.org, linux-acpi@vger.kernel.org,
- linux-rdma@vger.kernel.org, oss-drivers@netronome.com,
- linux-atm-general@lists.sourceforge.net, ceph-devel@vger.kernel.org,
- amd-gfx list <amd-gfx@lists.freedesktop.org>,
- linux-stm32@st-md-mailman.stormreply.com, cluster-devel@redhat.com,
- usb-storage@lists.one-eyed-alien.net, linux-mmc@vger.kernel.org,
- coreteam@netfilter.org, intel-wired-lan@lists.osuosl.org,
- linux-input <linux-input@vger.kernel.org>, Miguel Ojeda <ojeda@kernel.org>,
- xen-devel@lists.xenproject.org,
- Ext4 Developers List <linux-ext4@vger.kernel.org>,
- virtualization@lists.linux-foundation.org, netfilter-devel@vger.kernel.org,
- Linux Media Mailing List <linux-media@vger.kernel.org>,
- Kees Cook <keescook@chromium.org>, selinux@vger.kernel.org,
- linux-arm-msm <linux-arm-msm@vger.kernel.org>, intel-gfx@lists.freedesktop.org,
- linux-sctp@vger.kernel.org, reiserfs-devel@vger.kernel.org,
- linux-geode@lists.infradead.org, linux-block@vger.kernel.org,
- linux-gpio@vger.kernel.org, op-tee@lists.trustedfirmware.org,
- linux-mediatek@lists.infradead.org, nouveau@lists.freedesktop.org,
- linux-hams@vger.kernel.org, Nathan Chancellor <natechancellor@gmail.com>,
- linux-can@vger.kernel.org, Linux ARM <linux-arm-kernel@lists.infradead.org>,
- linux-hwmon@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
- linux-watchdog@vger.kernel.org, GR-Linux-NIC-Dev@marvell.com,
- Linux Memory Management List <linux-mm@kvack.org>,
- Network Development <netdev@vger.kernel.org>,
- linux-decnet-user@lists.sourceforge.net, samba-technical@lists.samba.org,
- "Gustavo A. R. Silva" <gustavoars@kernel.org>,
- Linux-Renesas <linux-renesas-soc@vger.kernel.org>,
- linux-security-module@vger.kernel.org, linux-usb@vger.kernel.org,
- tipc-discussion@lists.sourceforge.net,
- =?UTF-8?Q?open_list=3AHARDWARE_RANDOM_NUMBER_GENERATOR_CORE_=3Clinux=2Dcrypt?=
- =?UTF-8?Q?o=40vger=2Ekernel=2Eorg=3E=2C_patches=40opensource=2Ecirrus=2Ecom=2C_linux=2Dint?=
- =?UTF-8?Q?egrity=40vger=2Ekernel=2Eorg=2C_target=2Ddevel=40vger=2Ekernel=2Eorg=2C_linux=2D?=
- =?UTF-8?Q?hardening=40vger=2Ekernel=2Eorg=2C_Jonathan_Cameron_=3CJonathan=2ECamero?=
- =?UTF-8?Q?n=40huawei=2Ecom=3E=2C_Greg_KH?= <gregkh@linuxfoundation.org>,
- Joe Perches <joe@perches.com>, linux-nfs@vger.kernel.org,
- "maintainer:X86 ARCHITECTURE \(32-BIT AND 64-BIT\)" <x86@kernel.org>
+In-Reply-To: <20201125153550.810101-22-sashal@kernel.org>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=pbonzini@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Cc: kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>,
+ netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ Stefan Hajnoczi <stefanha@redhat.com>,
+ Mike Christie <michael.christie@oracle.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -155,53 +128,68 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; Format="flowed"
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Wed, Nov 25, 2020 at 5:24 PM Jakub Kicinski <kuba@kernel.org> wrote:
->
-> And just to spell it out,
->
-> case ENUM_VALUE1:
->         bla();
->         break;
-> case ENUM_VALUE2:
->         bla();
-> default:
->         break;
->
-> is a fairly idiomatic way of indicating that not all values of the enum
-> are expected to be handled by the switch statement.
+On 25/11/20 16:35, Sasha Levin wrote:
+> From: Mike Christie <michael.christie@oracle.com>
+> 
+> [ Upstream commit 18f1becb6948cd411fd01968a0a54af63732e73c ]
+> 
+> Move code to parse lun from req's lun_buf to helper, so tmf code
+> can use it in the next patch.
+> 
+> Signed-off-by: Mike Christie <michael.christie@oracle.com>
+> Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
+> Acked-by: Jason Wang <jasowang@redhat.com>
+> Link: https://lore.kernel.org/r/1604986403-4931-5-git-send-email-michael.christie@oracle.com
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Acked-by: Stefan Hajnoczi <stefanha@redhat.com>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-It looks like a benign typo to me -- `ENUM_VALUE2` does not follow the
-same pattern like `ENUM_VALUE1`. To me, the presence of the `default`
-is what indicates (explicitly) that not everything is handled.
+This doesn't seem like stable material, does it?
 
-> Applying a real patch set and then getting a few follow ups the next day
-> for trivial coding things like fallthrough missing or static missing,
-> just because I didn't have the full range of compilers to check with
-> before applying makes me feel pretty shitty, like I'm not doing a good
-> job. YMMV.
+Paolo
 
-The number of compilers, checkers, static analyzers, tests, etc. we
-use keeps going up. That, indeed, means maintainers will miss more
-things (unless maintainers do more work than before). But catching
-bugs before they happen is *not* a bad thing.
+> ---
+>   drivers/vhost/scsi.c | 9 +++++++--
+>   1 file changed, 7 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+> index 5d8850f5aef16..ed7dc6b998f65 100644
+> --- a/drivers/vhost/scsi.c
+> +++ b/drivers/vhost/scsi.c
+> @@ -898,6 +898,11 @@ vhost_scsi_get_req(struct vhost_virtqueue *vq, struct vhost_scsi_ctx *vc,
+>   	return ret;
+>   }
+>   
+> +static u16 vhost_buf_to_lun(u8 *lun_buf)
+> +{
+> +	return ((lun_buf[2] << 8) | lun_buf[3]) & 0x3FFF;
+> +}
+> +
+>   static void
+>   vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
+>   {
+> @@ -1036,12 +1041,12 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
+>   			tag = vhost64_to_cpu(vq, v_req_pi.tag);
+>   			task_attr = v_req_pi.task_attr;
+>   			cdb = &v_req_pi.cdb[0];
+> -			lun = ((v_req_pi.lun[2] << 8) | v_req_pi.lun[3]) & 0x3FFF;
+> +			lun = vhost_buf_to_lun(v_req_pi.lun);
+>   		} else {
+>   			tag = vhost64_to_cpu(vq, v_req.tag);
+>   			task_attr = v_req.task_attr;
+>   			cdb = &v_req.cdb[0];
+> -			lun = ((v_req.lun[2] << 8) | v_req.lun[3]) & 0x3FFF;
+> +			lun = vhost_buf_to_lun(v_req.lun);
+>   		}
+>   		/*
+>   		 * Check that the received CDB size does not exceeded our
+> 
 
-Perhaps we could encourage more rebasing in -next (while still giving
-credit to bots and testers) to avoid having many fixing commits
-afterwards, but that is orthogonal.
-
-I really don't think we should encourage the feeling that a maintainer
-is doing a bad job if they don't catch everything on their reviews.
-Any review is worth it. Maintainers, in the end, are just the
-"guaranteed" reviewers that decide when the code looks reasonable
-enough. They should definitely not feel pressured to be perfect.
-
-Cheers,
-Miguel
 _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
