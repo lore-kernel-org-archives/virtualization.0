@@ -1,80 +1,80 @@
-Return-Path: <SRS0=jeLh=E6=lists.linux-foundation.org=virtualization-bounces@kernel.org>
+Return-Path: <SRS0=EQvy=E7=lists.linux-foundation.org=virtualization-bounces@kernel.org>
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-0.5 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
+X-Spam-Status: No, score=-5.5 required=3.0 tests=BAYES_00,DKIM_ADSP_CUSTOM_MED,
 	DKIM_INVALID,DKIM_SIGNED,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
-	URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	SPF_PASS,URIBL_BLOCKED autolearn=no autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 15D26C56201
-	for <virtualization@archiver.kernel.org>; Tue, 24 Nov 2020 23:46:42 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 24AEEC2D0E4
+	for <virtualization@archiver.kernel.org>; Wed, 25 Nov 2020 00:32:37 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 6DB3720BED
-	for <virtualization@archiver.kernel.org>; Tue, 24 Nov 2020 23:46:41 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 79AA72151B
+	for <virtualization@archiver.kernel.org>; Wed, 25 Nov 2020 00:32:36 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rGjC6KnG"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 6DB3720BED
+	dkim=fail reason="signature verification failed" (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="DYdo15DH"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 79AA72151B
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=gmail.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 1187D232FA;
-	Tue, 24 Nov 2020 23:46:41 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id n6qz5nNjbnDE; Tue, 24 Nov 2020 23:46:40 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id F3FBE22844;
-	Tue, 24 Nov 2020 23:46:39 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id DE246C1833;
-	Tue, 24 Nov 2020 23:46:39 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 56D98C0052;
- Tue, 24 Nov 2020 23:46:38 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 434A3872EC;
- Tue, 24 Nov 2020 23:46:38 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id 166BC873E5;
+	Wed, 25 Nov 2020 00:32:36 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from hemlock.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id 4hkiKxPeudMI; Wed, 25 Nov 2020 00:32:32 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by hemlock.osuosl.org (Postfix) with ESMTP id 76C2081E6B;
+	Wed, 25 Nov 2020 00:32:32 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 5724BC0891;
+	Wed, 25 Nov 2020 00:32:32 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id B47FFC0052;
+ Wed, 25 Nov 2020 00:32:30 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by fraxinus.osuosl.org (Postfix) with ESMTP id A240E86985;
+ Wed, 25 Nov 2020 00:32:30 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id VNHhlEV8wVD7; Tue, 24 Nov 2020 23:46:35 +0000 (UTC)
+ with ESMTP id spxAYxq40fhI; Wed, 25 Nov 2020 00:32:30 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
-Received: from mail-qk1-f193.google.com (mail-qk1-f193.google.com
- [209.85.222.193])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 590F486F7C;
- Tue, 24 Nov 2020 23:46:35 +0000 (UTC)
-Received: by mail-qk1-f193.google.com with SMTP id d9so1167106qke.8;
- Tue, 24 Nov 2020 15:46:35 -0800 (PST)
+Received: from mail-qk1-f194.google.com (mail-qk1-f194.google.com
+ [209.85.222.194])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id CCC0E86739;
+ Wed, 25 Nov 2020 00:32:29 +0000 (UTC)
+Received: by mail-qk1-f194.google.com with SMTP id y197so1358422qkb.7;
+ Tue, 24 Nov 2020 16:32:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=gmail.com; s=20161025;
  h=mime-version:references:in-reply-to:from:date:message-id:subject:to
- :cc; bh=H+rGPaoJ9R3rr7zK4cuxMwlBlLpdlGUAwlQnvIZjZd8=;
- b=rGjC6KnGzC9NIfLo6IfoTM7C5TiZmv4q08vYNRt8cewMWpFhbX886WW47/gIiopas/
- e2jKhT73QJs/dRAIbILcJdQSFnVW9dal1rOBoIKd0ECBe+nqcukIgJrBRfX2wbZlPbrR
- 27L+0GE9CXpbAta7TZEIdoDweQHp+sEvmypYMH9hyutdrnRkkklGbspFfFiZY+HYfDHj
- jsH/8tjPy+0JiTdJWitSDoQxXZntWXoEWL0cWLR+fmdpM332GBoSCjfuWUHY88IWDiPh
- 04ztpEPYlCjpB7IXy1yQhW/otwe7DgKcwtOpyIrk5XdAw3ZKiOAkll08YWpT8S+NhzMx
- e/Gw==
+ :cc; bh=QqqubA90NyDjnD5SH+OxnZbso0TzlLiuZ5gzRUm0zsY=;
+ b=DYdo15DH5n4eMCA51W2vXZfybVLPbTpwO6CR+j1CET94cx9FmUQEkAzz4OadVdmrht
+ /5QscdfYh1sAKLvu6dkrheNjvEoR4Mdvvl3diWkBzFiGJNP9BCqxLhr4zTkKEaaVMxi5
+ qUA6kNkUTJzI9KEPxIujLpbBVVOhJKSQSAf+FeTM6jY84RGcXl9jGks4AfD2ojo1GxQQ
+ uEwHm9wuAxdOf70IRL+AXs8sujZOQd+kSEI1eU2QAsFia5W6QaIddZOITngYX9DSKM5R
+ mNvBJUTqyzODtQONxErP8O8dRkCcVm25oDOfEuyrse782pSy0gFJjFFgzHOgMIi8mZem
+ jSGA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:mime-version:references:in-reply-to:from:date
  :message-id:subject:to:cc;
- bh=H+rGPaoJ9R3rr7zK4cuxMwlBlLpdlGUAwlQnvIZjZd8=;
- b=oH+LmnHGsJhXPuCVyy+Ctxx9OF8FoMlJ9IdOM/NK2fU8eSHrXBF/q62xfrZ+W9c3DR
- Gb6qg20YPDnvSo9b59Q3zDlsy+J2+Lm31i4LptzngTQjrM9rlFrbrUPAzv1UQELm+I7+
- sQQ3oFmj1n8QrAoP4YAMfDVJWFac5IjaH0e9aWfd1zAMiDst3lYRB5B0yJqcKU1124VE
- WHK3c8taXVoSc4OQgZ+B+FxsWP30ozpHUtYIXQgja2c9rq+BDUEWpSxRqP0XelhUCA93
- 9LRL4z784b8viJCD04kLX6tYnVSvwRDPJauHGLcuBGF2ZeRqFCNGW7cytKsiDvYrkt/S
- 97BA==
-X-Gm-Message-State: AOAM5316Ib6tLe6c5E0WLZeEK82kjvIhN6EGxSVT0opxpGAgE+jFTJu0
- 9fj52fisY3DxOrc94TGJQzPivBZn6vPsust0Tzw=
-X-Google-Smtp-Source: ABdhPJzOwu2wFsHHn8A1YNPfZeoFLdmnMgNDFogUYxSXdSyfkKR4RJ+IXZpEdbdh4p7RHhstmUROclNZOq0Hltp8jFg=
-X-Received: by 2002:a5b:40e:: with SMTP id m14mr627984ybp.33.1606261594309;
- Tue, 24 Nov 2020 15:46:34 -0800 (PST)
+ bh=QqqubA90NyDjnD5SH+OxnZbso0TzlLiuZ5gzRUm0zsY=;
+ b=pt4NR/AkSGs/QBmJE92BMnrrtVdPgvPSb1rt0sF83LAPkXMyfeKcOu2Lw7Z6PCD+hU
+ xLKdYDaFeSaO9sFcwa6t/9cwh6KN4x6u8Kc+hBxJ5n5Slm2r2WETBFsTa1qnAtAMR6Yy
+ nFFbFEDqwBnkJffZaLUOrf8e0y8xOBskf/OLtO8QfMRfm8DAGs1MI6N2++WM6c/Ratys
+ vZgNymJlGNGN3wpLe8unDLEBDr06qpxbut6lVBk3wIpV97rSIaUD3ko7BzyFvc0c7hAB
+ z2m3vbhVM7V3nsZ5brlfQAa2Z2Phk+gUPXNfaNYcjVMM9/1yv0GEZb/Bw4Jr+OYmfgMh
+ n83g==
+X-Gm-Message-State: AOAM531QZ4jsN57IJDWp5JdyhTQIcXvPEWHbmc0SwCXyxs9vgmMX1C3I
+ 8eEtbRo45lPS5m3eVWqYufhy7tMRSCkMSGWtDAk=
+X-Google-Smtp-Source: ABdhPJwwVKQFQuxzNO/2Mi/lJ3RUII3vPq9FIwhq+sZ6y3vyBbFPDKm/uCaEGwo9LU3j1fjBVCpYTO563lD14rGXSok=
+X-Received: by 2002:a25:5f0f:: with SMTP id t15mr779915ybb.26.1606264348932;
+ Tue, 24 Nov 2020 16:32:28 -0800 (PST)
 MIME-Version: 1.0
 References: <cover.1605896059.git.gustavoars@kernel.org>
  <20201120105344.4345c14e@kicinski-fedora-pc1c0hjn.dhcp.thefacebook.com>
@@ -83,29 +83,30 @@ References: <cover.1605896059.git.gustavoars@kernel.org>
  <202011220816.8B6591A@keescook>
  <9b57fd4914b46f38d54087d75e072d6e947cb56d.camel@HansenPartnership.com>
  <CANiq72nZrHWTA4_Msg6MP9snTyenC6-eGfD27CyfNSu7QoVZbw@mail.gmail.com>
- <alpine.LNX.2.23.453.2011230938390.7@nippy.intranet>
- <CANiq72=z+tmuey9wj3Kk7wX5s0hTHpsQdLhAqcOVNrHon6xn5Q@mail.gmail.com>
- <alpine.LNX.2.23.453.2011241036520.7@nippy.intranet>
-In-Reply-To: <alpine.LNX.2.23.453.2011241036520.7@nippy.intranet>
+ <1c7d7fde126bc0acf825766de64bf2f9b888f216.camel@HansenPartnership.com>
+ <CANiq72m22Jb5_+62NnwX8xds2iUdWDMAqD8PZw9cuxdHd95W0A@mail.gmail.com>
+ <fc45750b6d0277c401015b7aa11e16cd15f32ab2.camel@HansenPartnership.com>
+ <CANiq72k5tpDoDPmJ0ZWc1DGqm+81Gi-uEENAtvEs9v3SZcx6_Q@mail.gmail.com>
+ <4993259d01a0064f8bb22770503490f9252f3659.camel@HansenPartnership.com>
+In-Reply-To: <4993259d01a0064f8bb22770503490f9252f3659.camel@HansenPartnership.com>
 From: Miguel Ojeda <miguel.ojeda.sandonis@gmail.com>
-Date: Wed, 25 Nov 2020 00:46:23 +0100
-Message-ID: <CANiq72=Ybm2MHmOizo1xQ_QYGuvbthtnLbwCkr8AFb8PcfmuQw@mail.gmail.com>
+Date: Wed, 25 Nov 2020 01:32:17 +0100
+Message-ID: <CANiq72kqO=bYMJnFS2uYRpgWATJ=uXxZuNUsTXT+3aLtrpnzvQ@mail.gmail.com>
 Subject: Re: [PATCH 000/141] Fix fall-through warnings for Clang
-To: Finn Thain <fthain@telegraphics.com.au>
+To: James Bottomley <James.Bottomley@hansenpartnership.com>
 Cc: alsa-devel@alsa-project.org, linux-atm-general@lists.sourceforge.net,
  reiserfs-devel@vger.kernel.org, linux-iio@vger.kernel.org,
  linux-wireless <linux-wireless@vger.kernel.org>, linux-fbdev@vger.kernel.org,
  dri-devel@lists.freedesktop.org, "Gustavo A. R. Silva" <gustavoars@kernel.org>,
- James Bottomley <James.Bottomley@hansenpartnership.com>,
- linux-ide@vger.kernel.org, dm-devel@redhat.com, keyrings@vger.kernel.org,
- linux-mtd@lists.infradead.org, GR-everest-linux-l2@marvell.com,
- wcn36xx@lists.infradead.org, samba-technical@lists.samba.org,
- linux-i3c@lists.infradead.org, linux1394-devel@lists.sourceforge.net,
- linux-afs@lists.infradead.org, usb-storage@lists.one-eyed-alien.net,
- drbd-dev@lists.linbit.com, devel@driverdev.osuosl.org,
- linux-cifs@vger.kernel.org, rds-devel@oss.oracle.com,
- Nick Desaulniers <ndesaulniers@google.com>, linux-scsi@vger.kernel.org,
- Nathan Chancellor <natechancellor@gmail.com>, linux-rdma@vger.kernel.org,
+ Nathan Chancellor <natechancellor@gmail.com>, linux-ide@vger.kernel.org,
+ dm-devel@redhat.com, keyrings@vger.kernel.org, linux-mtd@lists.infradead.org,
+ GR-everest-linux-l2@marvell.com, wcn36xx@lists.infradead.org,
+ samba-technical@lists.samba.org, linux-i3c@lists.infradead.org,
+ linux1394-devel@lists.sourceforge.net, linux-afs@lists.infradead.org,
+ usb-storage@lists.one-eyed-alien.net, drbd-dev@lists.linbit.com,
+ devel@driverdev.osuosl.org, linux-cifs@vger.kernel.org,
+ rds-devel@oss.oracle.com, Nick Desaulniers <ndesaulniers@google.com>,
+ linux-scsi@vger.kernel.org, linux-rdma@vger.kernel.org,
  oss-drivers@netronome.com, bridge@lists.linux-foundation.org,
  linux-security-module@vger.kernel.org, amd-gfx@lists.freedesktop.org,
  linux-stm32@st-md-mailman.stormreply.com, cluster-devel@redhat.com,
@@ -151,65 +152,66 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Tue, Nov 24, 2020 at 1:58 AM Finn Thain <fthain@telegraphics.com.au> wrote:
+On Mon, Nov 23, 2020 at 9:38 PM James Bottomley
+<James.Bottomley@hansenpartnership.com> wrote:
 >
-> What I meant was that you've used pessimism as if it was fact.
+> So you think a one line patch should take one minute to produce ... I
+> really don't think that's grounded in reality.
 
-"future mistakes that it might prevent" is neither pessimism nor states a fact.
+No, I have not said that. Please don't put words in my mouth (again).
 
-> For example, "There is no way to guess what the effect would be if the
-> compiler trained programmers to add a knee-jerk 'break' statement to avoid
-> a warning".
+I have said *authoring* lines of *this* kind takes a minute per line.
+Specifically: lines fixing the fallthrough warning mechanically and
+repeatedly where the compiler tells you to, and doing so full-time for
+a month.
 
-It is only knee-jerk if you think you are infallible.
+For instance, take the following one from Gustavo. Are you really
+saying it takes 12 minutes (your number) to write that `break;`?
 
-> Moreover, what I meant was that preventing programmer mistakes is a
-> problem to be solved by development tools
+diff --git a/drivers/gpu/drm/via/via_irq.c b/drivers/gpu/drm/via/via_irq.c
+index 24cc445169e2..a3e0fb5b8671 100644
+--- a/drivers/gpu/drm/via/via_irq.c
++++ b/drivers/gpu/drm/via/via_irq.c
+@@ -364,6 +364,7 @@ int via_wait_irq(struct drm_device *dev, void
+*data, struct drm_file *file_priv)
+                irqwait->request.sequence +=
+                        atomic_read(&cur_irq->irq_received);
+                irqwait->request.type &= ~_DRM_VBLANK_RELATIVE;
++               break;
+        case VIA_IRQ_ABSOLUTE:
+                break;
+        default:
 
-This warning comes from a development tool -- the compiler.
+>  I suppose a one line
+> patch only takes a minute to merge with b4 if no-one reviews or tests
+> it, but that's not really desirable.
 
-> The idea that retro-fitting new
-> language constructs onto mature code is somehow necessary to "prevent
-> future mistakes" is entirely questionable.
+I have not said that either. I said reviewing and merging those are
+noise compared to any complex patch. Testing should be done by the
+author comparing codegen.
 
-The kernel is not a frozen codebase.
+> Part of what I'm trying to measure is the "and useful" bit because
+> that's not a given.
 
-Further, "mature code vs. risk of change" arguments don't apply here
-because the semantics of the program and binary output isn't changing.
+It is useful since it makes intent clear. It also catches actual bugs,
+which is even more valuable.
 
-> Sure. And if you put -Wimplicit-fallthrough into the Makefile and if that
-> leads to well-intentioned patches that cause regressions, it is partly on
-> you.
+> Well, you know, subsystems are very different in terms of the amount of
+> patches a maintainer has to process per release cycle of the kernel.
+> If a maintainer is close to capacity, additional patches, however
+> trivial, become a problem.  If a maintainer has spare cycles, trivial
+> patches may look easy.
 
-Again: adding a `fallthrough` does not change the program semantics.
-If you are a maintainer and want to cross-check, compare the codegen.
+First of all, voluntary maintainers choose their own workload.
+Furthermore, we already measure capacity in the `MAINTAINERS` file:
+maintainers can state they can only handle a few patches. Finally, if
+someone does not have time for a trivial patch, they are very unlikely
+to have any time to review big ones.
 
-> Have you ever considered the overall cost of the countless
-> -Wpresume-incompetence flags?
+> You seem to be saying that because you find it easy to merge trivial
+> patches, everyone should.
 
-Yeah: negative. On the other hand, the overall cost of the countless
--fI-am-infallible flags is very noticeable.
-
-> Perhaps you pay the power bill for a build farm that produces logs that
-> no-one reads? Perhaps you've run git bisect, knowing that the compiler
-> messages are not interesting? Or compiled software in using a language
-> that generates impenetrable messages? If so, here's a tip:
->
-> # grep CFLAGS /etc/portage/make.conf
-> CFLAGS="... -Wno-all -Wno-extra ..."
-> CXXFLAGS="${CFLAGS}"
->
-> Now allow me some pessimism: the hardware upgrades, gigawatt hours and
-> wait time attributable to obligatory static analyses are a net loss.
-
-If you really believe compiler warnings and static analysis are
-useless and costly, I think there is not much point in continuing the
-discussion.
-
-> No, it's not for me to prove that such patches don't affect code
-> generation. That's for the patch author and (unfortunately) for reviewers.
-
-I was not asking you to prove it. I am stating that proving it is very easy.
+Again, I have not said anything of the sort.
 
 Cheers,
 Miguel
