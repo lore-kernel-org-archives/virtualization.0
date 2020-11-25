@@ -2,106 +2,111 @@ Return-Path: <SRS0=EQvy=E7=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-15.1 required=3.0 tests=BAYES_00,DKIM_INVALID,
-	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
-	MENTIONS_GIT_HOSTING,NICE_REPLY_A,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,
-	USER_AGENT_SANE_1 autolearn=ham autolearn_force=no version=3.4.0
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A6D72C5519F
-	for <virtualization@archiver.kernel.org>; Wed, 25 Nov 2020 07:09:26 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 2E88AC5519F
+	for <virtualization@archiver.kernel.org>; Wed, 25 Nov 2020 09:30:28 +0000 (UTC)
 Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 0BC86206E5
-	for <virtualization@archiver.kernel.org>; Wed, 25 Nov 2020 07:09:25 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 8841B206F9
+	for <virtualization@archiver.kernel.org>; Wed, 25 Nov 2020 09:30:26 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZqHcBIyS"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 0BC86206E5
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SZ7uxCLX"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 8841B206F9
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id 742E7228CA;
-	Wed, 25 Nov 2020 07:09:24 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id D4ADD27404;
+	Wed, 25 Nov 2020 09:30:25 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id 5oYXDQBnwnOY; Wed, 25 Nov 2020 07:09:21 +0000 (UTC)
+	with ESMTP id ak5IOoURJjTi; Wed, 25 Nov 2020 09:30:23 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 6BB4927230;
-	Wed, 25 Nov 2020 07:09:20 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 788A4203F2;
+	Wed, 25 Nov 2020 09:30:22 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id A7040C163C;
-	Wed, 25 Nov 2020 07:09:20 +0000 (UTC)
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 578D2C163C;
+	Wed, 25 Nov 2020 09:30:22 +0000 (UTC)
 Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3D326C0052
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 30776C0052
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Nov 2020 07:09:19 +0000 (UTC)
+ Wed, 25 Nov 2020 09:30:21 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 311FC84C26
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 2C82486946
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Nov 2020 07:09:19 +0000 (UTC)
+ Wed, 25 Nov 2020 09:30:21 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id pyMsFw5Y5P-e
+ with ESMTP id QrVvDLzcVxpU
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Nov 2020 07:09:18 +0000 (UTC)
+ Wed, 25 Nov 2020 09:30:20 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [216.205.24.124])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id 105FD84B08
+ (us-smtp-delivery-124.mimecast.com [63.128.21.124])
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 62D70849D8
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Nov 2020 07:09:17 +0000 (UTC)
+ Wed, 25 Nov 2020 09:30:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1606288156;
+ s=mimecast20190719; t=1606296619;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
- content-transfer-encoding:content-transfer-encoding:
  in-reply-to:in-reply-to:references:references;
- bh=VUSbcPm6ZnSi1CPK9hIkQAxwx3nEzibHi6QrBh+W7dE=;
- b=ZqHcBIySTUrn8hKxRxxApA/3H2Cx/C/pDCgReK3hOnRog4wGYv9/zYC5za/ZJ6iLWsddBP
- eZL0hKjlsvtBFsZ4igfKMIJOLbtY/aYxGdxPDa5yW+7yFoWtGh9/5Xo93nxjz3S16L2+NC
- AMXu6T9HUllgGK+b2X/h7smygRTNWXw=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-17-bycO1I44PYCAiQ5nbkcSJA-1; Wed, 25 Nov 2020 02:09:11 -0500
-X-MC-Unique: bycO1I44PYCAiQ5nbkcSJA-1
-Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.phx2.redhat.com
- [10.5.11.23])
- (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
- (No client certificate requested)
- by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BEF5A809DD9;
- Wed, 25 Nov 2020 07:09:08 +0000 (UTC)
-Received: from [10.72.13.165] (ovpn-13-165.pek2.redhat.com [10.72.13.165])
- by smtp.corp.redhat.com (Postfix) with ESMTP id 09EF519C46;
- Wed, 25 Nov 2020 07:08:33 +0000 (UTC)
-Subject: Re: [RFC PATCH 00/27] vDPA software assisted live migration
-To: =?UTF-8?Q?Eugenio_P=c3=a9rez?= <eperezma@redhat.com>, qemu-devel@nongnu.org
-References: <20201120185105.279030-1-eperezma@redhat.com>
-From: Jason Wang <jasowang@redhat.com>
-Message-ID: <5a4d0b7a-fb62-9e78-9e85-9262dca57f1c@redhat.com>
-Date: Wed, 25 Nov 2020 15:08:32 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
+ bh=P5ijUdlPbjuoWrXXDFOXREtxJfQXFxDa6K+nnhuKKjM=;
+ b=SZ7uxCLXQI2bSTupHneLP9QJvA36MynSdx2FfmvtfRKUno6y2Wg0xY6fw7KjipNF9goHhE
+ fCSkgjoZNly+SQub/SV1H92v6bLYxplCX/86EdgnUajFjzYbWZ51Y+oKgzw9FoIy/GEg4/
+ YALggH6tUju4F0sCmwSSC1I2lk94c3g=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-14-GAx6dYxFNreaSMCDj2Crpg-1; Wed, 25 Nov 2020 04:30:17 -0500
+X-MC-Unique: GAx6dYxFNreaSMCDj2Crpg-1
+Received: by mail-wr1-f70.google.com with SMTP id l5so552683wrn.18
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 25 Nov 2020 01:30:16 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=1e100.net; s=20161025;
+ h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+ :mime-version:content-disposition:in-reply-to;
+ bh=P5ijUdlPbjuoWrXXDFOXREtxJfQXFxDa6K+nnhuKKjM=;
+ b=F0i2SbSohLY0ZYnmuqi0qKgL6wA4yaNH/WSTuWzqOg2nQzCMOsmDck583CjeOaZ/tG
+ vxq39KDrIq54hnmRxV/bCqh4wcIh+ScwWo5fhxhLGYKZqGRsq1bL5DWdbT02V9LuXh+Q
+ ZB60aOASfhTBaKiHPzeWB9xZRWngpa7xQnG+8DxFZvgitdd8hjqeDrXhDeiJltJfzVrV
+ aQSv6UNx393OtDYNOINY6m5UiU78p77GOgImDiqEFG95ld+H3cz4rWzNLlK+0Yaov+jr
+ GNzn6mp82ElTIkFdDSCDbdKz9iMJHezVUpWmcORLKsPyyCXI9/p7BBJXlYiFZNCzvQ7h
+ Jbcg==
+X-Gm-Message-State: AOAM531hsrqgbdS+yp4OrNBOgn7Cb9Q04dOd2I4/a1NK2Cjtr30UXind
+ ajx2ALWNOHgGF0oqJ1Td1D3faun9SAYwz11CHa9bLnb7FDHPzKelTjq+COziyVP/L1UOx1MzH4r
+ taLI+sJH9AgLj4QDLYEAq7PJIM4Qe5Vu2OP/rMEVH7w==
+X-Received: by 2002:adf:9461:: with SMTP id 88mr3010749wrq.171.1606296615853; 
+ Wed, 25 Nov 2020 01:30:15 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzGsDNQ+/xp7pKOrcW8bWMYdD6vIYpIHxZVMhpT9C2+RaEkv/dTrGDdRIUMU3zog4xL+VQWPw==
+X-Received: by 2002:adf:9461:: with SMTP id 88mr3010720wrq.171.1606296615673; 
+ Wed, 25 Nov 2020 01:30:15 -0800 (PST)
+Received: from redhat.com (bzq-79-176-44-197.red.bezeqint.net. [79.176.44.197])
+ by smtp.gmail.com with ESMTPSA id i11sm3746755wro.85.2020.11.25.01.30.13
+ (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+ Wed, 25 Nov 2020 01:30:14 -0800 (PST)
+Date: Wed, 25 Nov 2020 04:30:11 -0500
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Si-Wei Liu <si-wei.liu@oracle.com>
+Subject: Re: [PATCH v3] vhost-vdpa: fix page pinning leakage in error path
+ (rework)
+Message-ID: <20201125042834-mutt-send-email-mst@kernel.org>
+References: <1604618793-4681-1-git-send-email-si-wei.liu@oracle.com>
 MIME-Version: 1.0
-In-Reply-To: <20201120185105.279030-1-eperezma@redhat.com>
-Content-Language: en-US
-X-Scanned-By: MIMEDefang 2.84 on 10.5.11.23
-Cc: kvm@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
- Daniel Daly <dandaly0@gmail.com>, virtualization@lists.linux-foundation.org,
- Liran Alon <liralon@gmail.com>, Eli Cohen <eli@mellanox.com>,
- Nitin Shrivastav <nitin.shrivastav@broadcom.com>,
- Alex Barba <alex.barba@broadcom.com>,
- Christophe Fontaine <cfontain@redhat.com>, Lee Ballard <ballle98@gmail.com>,
- Lars Ganrot <lars.ganrot@gmail.com>, Rob Miller <rob.miller@broadcom.com>,
- Howard Cai <howard.cai@gmail.com>, Parav Pandit <parav@mellanox.com>,
- vm <vmireyno@marvell.com>, Salil Mehta <mehta.salil.lnk@gmail.com>,
- Stephen Finucane <stephenfin@redhat.com>, Xiao W Wang <xiao.w.wang@intel.com>,
- Sean Mooney <smooney@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
- Jim Harford <jim.harford@broadcom.com>,
- Dmytro Kazantsev <dmytro.kazantsev@gmail.com>, Siwei Liu <loseweigh@gmail.com>,
- Harpreet Singh Anand <hanand@xilinx.com>, Michael Lilja <ml@napatech.com>,
- Max Gurtovoy <maxgu14@gmail.com>
+In-Reply-To: <1604618793-4681-1-git-send-email-si-wei.liu@oracle.com>
+Authentication-Results: relay.mimecast.com;
+ auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: redhat.com
+Content-Disposition: inline
+Cc: lingshan.zhu@intel.com, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, boris.ostrovsky@oracle.com
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -113,114 +118,197 @@ List-Post: <mailto:virtualization@lists.linux-foundation.org>
 List-Help: <mailto:virtualization-request@lists.linux-foundation.org?subject=help>
 List-Subscribe: <https://lists.linuxfoundation.org/mailman/listinfo/virtualization>, 
  <mailto:virtualization-request@lists.linux-foundation.org?subject=subscribe>
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset="utf-8"; Format="flowed"
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-Ck9uIDIwMjAvMTEvMjEg5LiK5Y2IMjo1MCwgRXVnZW5pbyBQw6lyZXogd3JvdGU6Cj4gVGhpcyBz
-ZXJpZXMgZW5hYmxlIHZEUEEgc29mdHdhcmUgYXNzaXN0ZWQgbGl2ZSBtaWdyYXRpb24gZm9yIHZo
-b3N0LW5ldAo+IGRldmljZXMuIFRoaXMgaXMgYSBuZXcgbWV0aG9kIG9mIHZob3N0IGRldmljZXMg
-bWlncmF0aW9uOiBJbnN0ZWFkIG9mCj4gcmVsYXkgb24gdkRQQSBkZXZpY2UncyBkaXJ0eSBsb2dn
-aW5nIGNhcGFiaWxpdHksIFNXIGFzc2lzdGVkIExNCj4gaW50ZXJjZXB0cyBkYXRhcGxhbmUsIGZv
-cndhcmRpbmcgdGhlIGRlc2NyaXB0b3JzIGJldHdlZW4gVk0gYW5kIGRldmljZS4KPgo+IEluIHRo
-aXMgbWlncmF0aW9uIG1vZGUsIHFlbXUgb2ZmZXJzIGEgbmV3IHZyaW5nIHRvIHRoZSBkZXZpY2Ug
-dG8KPiByZWFkIGFuZCB3cml0ZSBpbnRvLCBhbmQgZGlzYWJsZSB2aG9zdCBub3RpZmllcnMsIHBy
-b2Nlc3NpbmcgZ3Vlc3QgYW5kCj4gdmhvc3Qgbm90aWZpY2F0aW9ucyBpbiBxZW11LiBPbiB1c2Vk
-IGJ1ZmZlciByZWxheSwgcWVtdSB3aWxsIG1hcmsgdGhlCj4gZGlydHkgbWVtb3J5IGFzIHdpdGgg
-cGxhaW4gdmlydGlvLW5ldCBkZXZpY2VzLiBUaGlzIHdheSwgZGV2aWNlcyBkb2VzCj4gbm90IG5l
-ZWQgdG8gaGF2ZSBkaXJ0eSBwYWdlIGxvZ2dpbmcgY2FwYWJpbGl0eS4KPgo+IFRoaXMgc2VyaWVz
-IGlzIGEgUE9DIGRvaW5nIFNXIExNIGZvciB2aG9zdC1uZXQgZGV2aWNlcywgd2hpY2ggYWxyZWFk
-eQo+IGhhdmUgZGlydHkgcGFnZSBsb2dnaW5nIGNhcGFiaWxpdGllcy4gTm9uZSBvZiB0aGUgY2hh
-bmdlcyBoYXZlIGFjdHVhbAo+IGVmZmVjdCB3aXRoIGN1cnJlbnQgZGV2aWNlcyB1bnRpbCBsYXN0
-IHR3byBwYXRjaGVzICgyNiBhbmQgMjcpIGFyZQo+IGFwcGxpZWQsIGJ1dCB0aGV5IGNhbiBiZSBy
-ZWJhc2VkIG9uIHRvcCBvZiBhbnkgb3RoZXIuIFRoZXNlIGNoZWNrcyB0aGUKPiBkZXZpY2UgdG8g
-bWVldCBhbGwgcmVxdWlyZW1lbnRzLCBhbmQgZGlzYWJsZSB2aG9zdC1uZXQgZGV2aWNlcyBsb2dn
-aW5nCj4gc28gbWlncmF0aW9uIGdvZXMgdGhyb3VnaCBTVyBMTS4gVGhpcyBsYXN0IHBhdGNoIGlz
-IG5vdCBtZWFudCB0byBiZQo+IGFwcGxpZWQgaW4gdGhlIGZpbmFsIHJldmlzaW9uLCBpdCBpcyBp
-biB0aGUgc2VyaWVzIGp1c3QgZm9yIHRlc3RpbmcKPiBwdXJwb3Nlcy4KPgo+IEZvciB1c2UgU1cg
-YXNzaXN0ZWQgTE0gdGhlc2Ugdmhvc3QtbmV0IGRldmljZXMgbmVlZCB0byBiZSBpbnN0YW50aWF0
-ZWQ6Cj4gKiBXaXRoIElPTU1VIChpb21tdV9wbGF0Zm9ybT1vbixhdHM9b24pCj4gKiBXaXRob3V0
-IGV2ZW50X2lkeCAoZXZlbnRfaWR4PW9mZikKCgpTbyBhIHF1ZXN0aW9uIGlzIGF0IHdoYXQgbGV2
-ZWwgZG8gd2Ugd2FudCB0byBpbXBsZW1lbnQgcWVtdSBhc3Npc3RlZCAKbGl2ZSBtaWdyYXRpb24u
-IFRvIG1lIGl0IGNvdWxkIGJlIGRvbmUgYXQgdHdvIGxldmVsczoKCjEpIGdlbmVyaWMgdmhvc3Qg
-bGV2ZWwgd2hpY2ggbWFrZXMgaXQgd29yayBmb3IgYm90aCB2aG9zdC1uZXQvdmhvc3QtdXNlciAK
-YW5kIHZob3N0LXZEUEEKMikgYSBzcGVjaWZpYyB0eXBlIG9mIHZob3N0CgpUbyBtZSwgaGF2aW5n
-IGEgZ2VuZXJpYyBvbmUgbG9va3MgYmV0dGVyIGJ1dCBpdCB3b3VsZCBiZSBtdWNoIG1vcmUgCmNv
-bXBsaWNhdGVkLiBTbyB3aGF0IEkgcmVhZCBmcm9tIHRoaXMgc2VyaWVzIGlzIGl0IHdhcyBhIHZo
-b3N0IGtlcm5lbCAKc3BlY2lmaWMgc29mdHdhcmUgYXNzaXN0ZWQgbGl2ZSBtaWdyYXRpb24gd2hp
-Y2ggaXMgYSBnb29kIHN0YXJ0LiAKQWN0dWFsbHkgaXQgbWF5IGV2ZW4gaGF2ZSByZWFsIHVzZSBj
-YXNlLCBlLmcgaXQgY2FuIHNhdmUgZGlydHkgYml0bWFwcyAKZm9yIGd1ZXN0IHdpdGggbGFyZ2Ug
-bWVtb3J5LiBCdXQgd2UgbmVlZCB0byBhZGRyZXNzIHRoZSBhYm92ZSAKbGltaXRhdGlvbnMgZmly
-c3QuCgpTbyBJIHdvdWxkIGxpa2UgdG8ga25vdyB3aGF0J3MgdGhlIHJlYXNvbiBmb3IgbWFuZGF0
-aW5nIGlvbW11IHBsYXRmb3JtIAphbmQgYXRzPyBBbmQgSSB0aGluayB3ZSBuZWVkIHRvIGZpeCBj
-YXNlIG9mIGV2ZW50IGlkeCBzdXBwb3J0LgoKCj4KPiBKdXN0IHRoZSBub3RpZmljYXRpb24gZm9y
-d2FyZGluZyAod2l0aCBubyBkZXNjcmlwdG9yIHJlbGF5KSBjYW4gYmUKPiBhY2hpZXZlZCB3aXRo
-IHBhdGNoZXMgNyBhbmQgOSwgYW5kIHN0YXJ0aW5nIG1pZ3JhdGlvbi4gUGFydGlhbCBhcHBsaWVz
-Cj4gYmV0d2VlbiAxMyBhbmQgMjQgd2lsbCBub3Qgd29yayB3aGlsZSBtaWdyYXRpbmcgb24gc291
-cmNlLCBhbmQgcGF0Y2gKPiAyNSBpcyBuZWVkZWQgZm9yIHRoZSBkZXN0aW5hdGlvbiB0byByZXN1
-bWUgbmV0d29yayBhY3Rpdml0eS4KPgo+IEl0IGlzIGJhc2VkIG9uIHRoZSBpZGVhcyBvZiBEUERL
-IFNXIGFzc2lzdGVkIExNLCBpbiB0aGUgc2VyaWVzIG9mCgoKQWN0dWFsbHkgd2UncmUgYmV0dGVy
-IHRoYW4gdGhhdCBzaW5jZSB0aGVyZSdzIG5vIG5lZWQgdGhlIHRyaWNrIGxpa2UgCmhhcmRjb2Rl
-ZCBJT1ZBIGZvciBtZWRpYXRlZChzaGFkb3cpIHZpcnRxdWV1ZS4KCgo+IERQREsncyBodHRwczov
-L3BhdGNod29yay5kcGRrLm9yZy9jb3Zlci80ODM3MC8gLgoKCkkgbm90aWNlIHRoYXQgeW91IGRv
-IEdQQS0+VkEgdHJhbnNsYXRpb25zIGFuZCB0cnkgdG8gZXN0YWJsaXNoIGEgVkEtPlZBIAoodXNl
-IFZBIGFzIElPVkEpIG1hcHBpbmcgdmlhIGRldmljZSBJT1RMQi4gVGhpcyBzaG9ydGN1dCBzaG91
-bGQgd29yayBmb3IgCnZob3N0LWtlcm5lbC91c2VyIGJ1dCBub3Qgdmhvc3QtdkRQQS4gVGhlIHJl
-YXNvbiBpcyB0aGF0IHRoZXJlJ3Mgbm8gCmd1YXJhbnRlZSB0aGF0IHRoZSB3aG9sZSA2NGJpdCBh
-ZGRyZXNzIHJhbmdlIGNvdWxkIGJlIHVzZWQgYXMgSU9WQS4gT25lIApleGFtcGxlIGlzIHRoYXQg
-Zm9yIGhhcmR3YXJlIElPTU1VIGxpa2UgaW50ZWwsIGl0IHVzdWFsbHkgaGFzIDQ3IG9yIDUyIApi
-aXRzIG9mIGFkZHJlc3Mgd2lkdGguCgpTbyB3ZSBwcm9iYWJseSBuZWVkIGFuIElPVkEgYWxsb2Nh
-dG9yIHRoYXQgY2FuIG1ha2Ugc3VyZSB0aGUgSU9WQSBpcyBub3QgCm92ZXJsYXBwZWQgYW5kIGZp
-dCBmb3IgWzFdLiBXZSBjYW4gcHJvYmFibHkgYnVpbGQgdGhlIElPVkEgZm9yIGd1ZXN0IFZBIAp2
-aWEgbWVtb3J5IGxpc3RlbmVycy4gVGhlbiB3ZSBoYXZlCgoxKSBJT1ZBIGZvciBHUEEKMikgSU9W
-QSBmb3Igc2hhZG93IFZRCgpBbmQgYWR2ZXJ0aXNlIElPVkEgdG8gVkEgbWFwcGluZyB0byB2aG9z
-dC4KClsxXSAKaHR0cHM6Ly9naXQua2VybmVsLm9yZy9wdWIvc2NtL2xpbnV4L2tlcm5lbC9naXQv
-dG9ydmFsZHMvbGludXguZ2l0L2NvbW1pdC8/aWQ9MWI0OGRjMDNlNTc1YTg3MjQwNGYzM2IwNGNk
-MjM3OTUzYzVkNzQ5OAoKCj4KPiBDb21tZW50cyBhcmUgd2VsY29tZS4KPgo+IFRoYW5rcyEKPgo+
-IEV1Z2VuaW8gUMOpcmV6ICgyNyk6Cj4gICAgdmhvc3Q6IEFkZCB2aG9zdF9kZXZfY2FuX2xvZwo+
-ICAgIHZob3N0OiBBZGQgZGV2aWNlIGNhbGxiYWNrIGluIHZob3N0X21pZ3JhdGlvbl9sb2cKPiAg
-ICB2aG9zdDogTW92ZSBsb2cgcmVzaXplL3B1dCB0byB2aG9zdF9kZXZfc2V0X2xvZwo+ICAgIHZo
-b3N0OiBhZGQgdmhvc3Rfa2VybmVsX3NldF92cmluZ19lbmFibGUKPiAgICB2aG9zdDogQWRkIGhk
-ZXYtPmRldi5zd19sbV92cV9oYW5kbGVyCj4gICAgdmlydGlvOiBBZGQgdmlydGlvX3F1ZXVlX2dl
-dF91c2VkX25vdGlmeV9zcGxpdAo+ICAgIHZob3N0OiBSb3V0ZSBndWVzdC0+aG9zdCBub3RpZmlj
-YXRpb24gdGhyb3VnaCBxZW11Cj4gICAgdmhvc3Q6IEFkZCBhIGZsYWcgZm9yIHNvZnR3YXJlIGFz
-c2lzdGVkIExpdmUgTWlncmF0aW9uCj4gICAgdmhvc3Q6IFJvdXRlIGhvc3QtPmd1ZXN0IG5vdGlm
-aWNhdGlvbiB0aHJvdWdoIHFlbXUKPiAgICB2aG9zdDogQWxsb2NhdGUgc2hhZG93IHZyaW5nCj4g
-ICAgdmlydGlvOiBjb25zdC1pZnkgYWxsIHZpcnRpb190c3dhcCogZnVuY3Rpb25zCj4gICAgdmly
-dGlvOiBBZGQgdmlydGlvX3F1ZXVlX2Z1bGwKPiAgICB2aG9zdDogU2VuZCBidWZmZXJzIHRvIGRl
-dmljZQo+ICAgIHZpcnRpbzogUmVtb3ZlIHZpcnRpb19xdWV1ZV9nZXRfdXNlZF9ub3RpZnlfc3Bs
-aXQKPiAgICB2aG9zdDogRG8gbm90IGludmFsaWRhdGUgc2lnbmFsbGVkIHVzZWQKPiAgICB2aXJ0
-aW86IEV4cG9zZSB2aXJ0cXVldWVfYWxsb2NfZWxlbWVudAo+ICAgIHZob3N0OiBhZGQgdmhvc3Rf
-dnJpbmdfc2V0X25vdGlmaWNhdGlvbl9yY3UKPiAgICB2aG9zdDogYWRkIHZob3N0X3ZyaW5nX3Bv
-bGxfcmN1Cj4gICAgdmhvc3Q6IGFkZCB2aG9zdF92cmluZ19nZXRfYnVmX3JjdQo+ICAgIHZob3N0
-OiBSZXR1cm4gdXNlZCBidWZmZXJzCj4gICAgdmhvc3Q6IEFkZCB2aG9zdF92aXJ0cXVldWVfbWVt
-b3J5X3VubWFwCj4gICAgdmhvc3Q6IEFkZCB2aG9zdF92aXJ0cXVldWVfbWVtb3J5X21hcAo+ICAg
-IHZob3N0OiB1bm1hcCBxZW11J3Mgc2hhZG93IHZpcnRxdWV1ZXMgb24gc3cgbGl2ZSBtaWdyYXRp
-b24KPiAgICB2aG9zdDogaW9tbXUgY2hhbmdlcwo+ICAgIHZob3N0OiBEbyBub3QgY29tbWl0IHZo
-b3N0IHVzZWQgaWR4IG9uIHZob3N0X3ZpcnRxdWV1ZV9zdG9wCj4gICAgdmhvc3Q6IEFkZCB2aG9z
-dF9oZGV2X2Nhbl9zd19sbQo+ICAgIHZob3N0OiBmb3JiaWQgdmhvc3QgZGV2aWNlcyBsb2dnaW5n
-Cj4KPiAgIGh3L3ZpcnRpby92aG9zdC1zdy1sbS1yaW5nLmggICAgICB8ICAzOSArKysKPiAgIGlu
-Y2x1ZGUvaHcvdmlydGlvL3Zob3N0LmggICAgICAgICB8ICAgNSArCj4gICBpbmNsdWRlL2h3L3Zp
-cnRpby92aXJ0aW8tYWNjZXNzLmggfCAgIDggKy0KPiAgIGluY2x1ZGUvaHcvdmlydGlvL3ZpcnRp
-by5oICAgICAgICB8ICAgNCArCj4gICBody9uZXQvdmlydGlvLW5ldC5jICAgICAgICAgICAgICAg
-fCAgMzkgKystCj4gICBody92aXJ0aW8vdmhvc3QtYmFja2VuZC5jICAgICAgICAgfCAgMjkgKysK
-PiAgIGh3L3ZpcnRpby92aG9zdC1zdy1sbS1yaW5nLmMgICAgICB8IDI2OCArKysrKysrKysrKysr
-KysrKysrCj4gICBody92aXJ0aW8vdmhvc3QuYyAgICAgICAgICAgICAgICAgfCA0MzEgKysrKysr
-KysrKysrKysrKysrKysrKysrKy0tLS0tCj4gICBody92aXJ0aW8vdmlydGlvLmMgICAgICAgICAg
-ICAgICAgfCAgMTggKy0KPiAgIGh3L3ZpcnRpby9tZXNvbi5idWlsZCAgICAgICAgICAgICB8ICAg
-MiArLQo+ICAgMTAgZmlsZXMgY2hhbmdlZCwgNzU4IGluc2VydGlvbnMoKyksIDg1IGRlbGV0aW9u
-cygtKQo+ICAgY3JlYXRlIG1vZGUgMTAwNjQ0IGh3L3ZpcnRpby92aG9zdC1zdy1sbS1yaW5nLmgK
-PiAgIGNyZWF0ZSBtb2RlIDEwMDY0NCBody92aXJ0aW8vdmhvc3Qtc3ctbG0tcmluZy5jCgoKU28g
-dGhpcyBsb29rcyBsaWtlIGEgcHJldHR5IGh1Z2UgcGF0Y2hzZXQgd2hpY2ggSSdtIHRyeWluZyB0
-byB0aGluayBvZiAKd2F5cyB0byBzcGxpdC4gQW4gaWRlYSBpcyB0byBkbyB0aGlzIGlzIHR3byBz
-dGVwcwoKMSkgaW1wbGVtZW50IGEgc2hhZG93IHZpcnRxdWV1ZSBtb2RlIGZvciB2aG9zdCBmaXJz
-dCAody9vIGxpdmUgCm1pZ3JhdGlvbikuIFRoZW4gd2UgY2FuIHRlc3QgZGVzY3JpcHRvcnMgcmVs
-YXksIElPVkEgYWxsb2NhdGluZywgZXRjLgoyKSBhZGQgbGl2ZSBtaWdyYXRpb24gc3VwcG9ydCBv
-biB0b3AKCkFuZCBpdCBsb29rcyB0byBtZSBpdCdzIGJldHRlciB0byBzcGxpdCB0aGUgc2hhZG93
-IHZpcnRxdWV1ZSAodmlydGlvIApkcml2ZXIgcGFydCkgaW50byBhbiBpbmRlcGVuZGVudCBmaWxl
-LiBBbmQgdXNlIGdlbmVyaWMgbmFtZSAody9vIAoic2hhZG93IikgaW4gb3JkZXIgdG8gYmUgcmV1
-c2VkIGJ5IG90aGVyIHVzZSBjYXNlcyBhcyB3ZWxsLgoKVGhvdWdodHM/CgpfX19fX19fX19fX19f
-X19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXwpWaXJ0dWFsaXphdGlvbiBtYWlsaW5n
-IGxpc3QKVmlydHVhbGl6YXRpb25AbGlzdHMubGludXgtZm91bmRhdGlvbi5vcmcKaHR0cHM6Ly9s
-aXN0cy5saW51eGZvdW5kYXRpb24ub3JnL21haWxtYW4vbGlzdGluZm8vdmlydHVhbGl6YXRpb24=
+On Thu, Nov 05, 2020 at 06:26:33PM -0500, Si-Wei Liu wrote:
+> Pinned pages are not properly accounted particularly when
+> mapping error occurs on IOTLB update. Clean up dangling
+> pinned pages for the error path.
+> 
+> The memory usage for bookkeeping pinned pages is reverted
+> to what it was before: only one single free page is needed.
+> This helps reduce the host memory demand for VM with a large
+> amount of memory, or in the situation where host is running
+> short of free memory.
+> 
+> Fixes: 4c8cf31885f6 ("vhost: introduce vDPA-based backend")
+> Signed-off-by: Si-Wei Liu <si-wei.liu@oracle.com>
+
+
+Not sure which tree this is against, I had to apply this with
+minor tweaks. Pls take a look at the vhost tree and
+let me know whether it looks ok to you.
+
+> ---
+> Changes in v3:
+> - Turn explicit last_pfn check to a WARN_ON() (Jason)
+> 
+> Changes in v2:
+> - Drop the reversion patch
+> - Fix unhandled page leak towards the end of page_list
+> 
+>  drivers/vhost/vdpa.c | 80 ++++++++++++++++++++++++++++++++++++++++------------
+>  1 file changed, 62 insertions(+), 18 deletions(-)
+> 
+> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+> index b6d9016..5b13dfd 100644
+> --- a/drivers/vhost/vdpa.c
+> +++ b/drivers/vhost/vdpa.c
+> @@ -560,6 +560,8 @@ static int vhost_vdpa_map(struct vhost_vdpa *v,
+>  
+>  	if (r)
+>  		vhost_iotlb_del_range(dev->iotlb, iova, iova + size - 1);
+> +	else
+> +		atomic64_add(size >> PAGE_SHIFT, &dev->mm->pinned_vm);
+>  
+>  	return r;
+>  }
+> @@ -591,14 +593,16 @@ static int vhost_vdpa_process_iotlb_update(struct vhost_vdpa *v,
+>  	unsigned long list_size = PAGE_SIZE / sizeof(struct page *);
+>  	unsigned int gup_flags = FOLL_LONGTERM;
+>  	unsigned long npages, cur_base, map_pfn, last_pfn = 0;
+> -	unsigned long locked, lock_limit, pinned, i;
+> +	unsigned long lock_limit, sz2pin, nchunks, i;
+>  	u64 iova = msg->iova;
+> +	long pinned;
+>  	int ret = 0;
+>  
+>  	if (vhost_iotlb_itree_first(iotlb, msg->iova,
+>  				    msg->iova + msg->size - 1))
+>  		return -EEXIST;
+>  
+> +	/* Limit the use of memory for bookkeeping */
+>  	page_list = (struct page **) __get_free_page(GFP_KERNEL);
+>  	if (!page_list)
+>  		return -ENOMEM;
+> @@ -607,52 +611,75 @@ static int vhost_vdpa_process_iotlb_update(struct vhost_vdpa *v,
+>  		gup_flags |= FOLL_WRITE;
+>  
+>  	npages = PAGE_ALIGN(msg->size + (iova & ~PAGE_MASK)) >> PAGE_SHIFT;
+> -	if (!npages)
+> -		return -EINVAL;
+> +	if (!npages) {
+> +		ret = -EINVAL;
+> +		goto free;
+> +	}
+>  
+>  	mmap_read_lock(dev->mm);
+>  
+> -	locked = atomic64_add_return(npages, &dev->mm->pinned_vm);
+>  	lock_limit = rlimit(RLIMIT_MEMLOCK) >> PAGE_SHIFT;
+> -
+> -	if (locked > lock_limit) {
+> +	if (npages + atomic64_read(&dev->mm->pinned_vm) > lock_limit) {
+>  		ret = -ENOMEM;
+> -		goto out;
+> +		goto unlock;
+>  	}
+>  
+>  	cur_base = msg->uaddr & PAGE_MASK;
+>  	iova &= PAGE_MASK;
+> +	nchunks = 0;
+>  
+>  	while (npages) {
+> -		pinned = min_t(unsigned long, npages, list_size);
+> -		ret = pin_user_pages(cur_base, pinned,
+> -				     gup_flags, page_list, NULL);
+> -		if (ret != pinned)
+> +		sz2pin = min_t(unsigned long, npages, list_size);
+> +		pinned = pin_user_pages(cur_base, sz2pin,
+> +					gup_flags, page_list, NULL);
+> +		if (sz2pin != pinned) {
+> +			if (pinned < 0) {
+> +				ret = pinned;
+> +			} else {
+> +				unpin_user_pages(page_list, pinned);
+> +				ret = -ENOMEM;
+> +			}
+>  			goto out;
+> +		}
+> +		nchunks++;
+>  
+>  		if (!last_pfn)
+>  			map_pfn = page_to_pfn(page_list[0]);
+>  
+> -		for (i = 0; i < ret; i++) {
+> +		for (i = 0; i < pinned; i++) {
+>  			unsigned long this_pfn = page_to_pfn(page_list[i]);
+>  			u64 csize;
+>  
+>  			if (last_pfn && (this_pfn != last_pfn + 1)) {
+>  				/* Pin a contiguous chunk of memory */
+>  				csize = (last_pfn - map_pfn + 1) << PAGE_SHIFT;
+> -				if (vhost_vdpa_map(v, iova, csize,
+> -						   map_pfn << PAGE_SHIFT,
+> -						   msg->perm))
+> +				ret = vhost_vdpa_map(v, iova, csize,
+> +						     map_pfn << PAGE_SHIFT,
+> +						     msg->perm);
+> +				if (ret) {
+> +					/*
+> +					 * Unpin the pages that are left unmapped
+> +					 * from this point on in the current
+> +					 * page_list. The remaining outstanding
+> +					 * ones which may stride across several
+> +					 * chunks will be covered in the common
+> +					 * error path subsequently.
+> +					 */
+> +					unpin_user_pages(&page_list[i],
+> +							 pinned - i);
+>  					goto out;
+> +				}
+> +
+>  				map_pfn = this_pfn;
+>  				iova += csize;
+> +				nchunks = 0;
+>  			}
+>  
+>  			last_pfn = this_pfn;
+>  		}
+>  
+> -		cur_base += ret << PAGE_SHIFT;
+> -		npages -= ret;
+> +		cur_base += pinned << PAGE_SHIFT;
+> +		npages -= pinned;
+>  	}
+>  
+>  	/* Pin the rest chunk */
+> @@ -660,10 +687,27 @@ static int vhost_vdpa_process_iotlb_update(struct vhost_vdpa *v,
+>  			     map_pfn << PAGE_SHIFT, msg->perm);
+>  out:
+>  	if (ret) {
+> +		if (nchunks) {
+> +			unsigned long pfn;
+> +
+> +			/*
+> +			 * Unpin the outstanding pages which are yet to be
+> +			 * mapped but haven't due to vdpa_map() or
+> +			 * pin_user_pages() failure.
+> +			 *
+> +			 * Mapped pages are accounted in vdpa_map(), hence
+> +			 * the corresponding unpinning will be handled by
+> +			 * vdpa_unmap().
+> +			 */
+> +			WARN_ON(!last_pfn);
+> +			for (pfn = map_pfn; pfn <= last_pfn; pfn++)
+> +				unpin_user_page(pfn_to_page(pfn));
+> +		}
+>  		vhost_vdpa_unmap(v, msg->iova, msg->size);
+> -		atomic64_sub(npages, &dev->mm->pinned_vm);
+>  	}
+> +unlock:
+>  	mmap_read_unlock(dev->mm);
+> +free:
+>  	free_page((unsigned long)page_list);
+>  	return ret;
+>  }
+> -- 
+> 1.8.3.1
+
+_______________________________________________
+Virtualization mailing list
+Virtualization@lists.linux-foundation.org
+https://lists.linuxfoundation.org/mailman/listinfo/virtualization
