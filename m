@@ -2,115 +2,119 @@ Return-Path: <SRS0=EQvy=E7=lists.linux-foundation.org=virtualization-bounces@ker
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 	aws-us-west-2-korg-lkml-1.web.codeaurora.org
 X-Spam-Level: 
-X-Spam-Status: No, score=-18.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
+X-Spam-Status: No, score=-13.6 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	DKIM_SIGNED,HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_CR_TRAILER,INCLUDES_PATCH,
-	MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED
-	autolearn=ham autolearn_force=no version=3.4.0
+	MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham
+	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 9550DC63777
-	for <virtualization@archiver.kernel.org>; Wed, 25 Nov 2020 09:35:25 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 85C67C5519F
+	for <virtualization@archiver.kernel.org>; Wed, 25 Nov 2020 09:39:45 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 1295420B1F
-	for <virtualization@archiver.kernel.org>; Wed, 25 Nov 2020 09:35:24 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id A3E9D206B5
+	for <virtualization@archiver.kernel.org>; Wed, 25 Nov 2020 09:39:44 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LxMEIrKq"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 1295420B1F
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="N8LfA6fJ"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org A3E9D206B5
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=redhat.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 3B91C86D5E;
-	Wed, 25 Nov 2020 09:35:24 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 2A6EA203F3;
+	Wed, 25 Nov 2020 09:39:44 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id ugJVPPRTqaPg; Wed, 25 Nov 2020 09:35:22 +0000 (UTC)
+	with ESMTP id KKP0dNNbTBHo; Wed, 25 Nov 2020 09:39:36 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 8B09086C6A;
-	Wed, 25 Nov 2020 09:35:22 +0000 (UTC)
+	by silver.osuosl.org (Postfix) with ESMTP id 1B28827400;
+	Wed, 25 Nov 2020 09:39:36 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 414BEC163C;
-	Wed, 25 Nov 2020 09:35:22 +0000 (UTC)
-Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 3F67FC0052
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 01E3DC163C;
+	Wed, 25 Nov 2020 09:39:36 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id AEC8EC0052
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Nov 2020 09:35:21 +0000 (UTC)
+ Wed, 25 Nov 2020 09:39:34 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by fraxinus.osuosl.org (Postfix) with ESMTP id 256FC86972
+ by hemlock.osuosl.org (Postfix) with ESMTP id 95B9987434
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Nov 2020 09:35:21 +0000 (UTC)
+ Wed, 25 Nov 2020 09:39:34 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from fraxinus.osuosl.org ([127.0.0.1])
+Received: from hemlock.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id JzFykqfZmoBj
+ with ESMTP id sD1aF2q2fgE1
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Nov 2020 09:35:19 +0000 (UTC)
+ Wed, 25 Nov 2020 09:39:33 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from us-smtp-delivery-124.mimecast.com
- (us-smtp-delivery-124.mimecast.com [63.128.21.124])
- by fraxinus.osuosl.org (Postfix) with ESMTPS id B0A2986969
+ (us-smtp-delivery-124.mimecast.com [216.205.24.124])
+ by hemlock.osuosl.org (Postfix) with ESMTPS id EE8C587433
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Nov 2020 09:35:18 +0000 (UTC)
+ Wed, 25 Nov 2020 09:39:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
- s=mimecast20190719; t=1606296917;
+ s=mimecast20190719; t=1606297171;
  h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
  to:to:cc:cc:mime-version:mime-version:content-type:content-type:
  in-reply-to:in-reply-to:references:references;
- bh=pwNmN2CPDqtDA/hh/EG7Lb7u72HnkbvU+HhgkZVizPM=;
- b=LxMEIrKq0c0klfsl42CTYRuX5ETSMQm71Ya7U1X3QDS77xsxzYXNV2udoiFb3bYPaGUz3S
- TdU60ET8syq5Kf//ffmXIVhnqYed99kd4B139bDOaDgQtVlyS3d67n5wSpdy+YQwOiJMrf
- aRwnX1xTHTwmCUcFNSLHtTmWkG3rYnw=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-236-Kx0zzqwjN7yyoRTHds82Xw-1; Wed, 25 Nov 2020 04:35:16 -0500
-X-MC-Unique: Kx0zzqwjN7yyoRTHds82Xw-1
-Received: by mail-wr1-f71.google.com with SMTP id p16so566182wrx.4
+ bh=vLAe9WsMJa4w6mGB+nZbn05U5f9ZhXoUHhlb18I67WM=;
+ b=N8LfA6fJUsnckPhWmlbKQQx1u9wjEdivRybRwkNQJtLInXUpN8olFOMDaND8bBVoh8TzCW
+ Zis1CNex0n5wtqnUqniopC1Epo5zY1u9xwuR9zucRYLwhmQZ3Zpv0UcXO0EfI5ChHgWWOV
+ TacjUh43LtK4X8T+ucmfPOLpzwivsWk=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-13-HhYJSPLOPsSTXhfzDEf0Rw-1; Wed, 25 Nov 2020 04:39:28 -0500
+X-MC-Unique: HhYJSPLOPsSTXhfzDEf0Rw-1
+Received: by mail-wr1-f69.google.com with SMTP id l5so561426wrn.18
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Nov 2020 01:35:15 -0800 (PST)
+ Wed, 25 Nov 2020 01:39:28 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=1e100.net; s=20161025;
  h=x-gm-message-state:date:from:to:cc:subject:message-id:references
  :mime-version:content-disposition:in-reply-to;
- bh=pwNmN2CPDqtDA/hh/EG7Lb7u72HnkbvU+HhgkZVizPM=;
- b=ZZLAqqvEj+6zgN2vbaa2peiaJYHqc8AL892OY3jAMzBBNlJRR3Es9hq5+wg3op3qL4
- /YwtgaTNd/l5Xl9EgBmF6hHC7nU6osMBo9fVGabGQRvfNm+7p2lgCDB68YFiUlQ5An2o
- vZMmQ91vLwswp+zIF7dz7TPPWPatnFahQyGvF5wW4iDlZ2G/oGvhNSI9FGa3Y9iWrwh6
- g7fPPd7DwlsUsJd7Xol0UlgukmnBQ0geksEFs1nlz9ufH7vAwyMAsapJbE8vW+RIYW2y
- vTHLspCXSw8XXZwzB6JFKz/FstnHD6YTgXLm/fRBfkBot77zp2k2e0QFVm/lGNN0TjhA
- HcWQ==
-X-Gm-Message-State: AOAM533zHrkcv/ayKWji9+xrTme5Xm7cHR2esPfS1l53HpAziWhhqVUZ
- PfJkV5oFQtKYewG0UHXk8X7Egq9azWw4mJzEhhHyvhTkWdG+JptZxdKbhGP+d3ES6aUh3lmUuPq
- LY9gNsPr+E3ha5j5gkkHwKitWioMgGdGHeYPuyyhaGw==
-X-Received: by 2002:a1c:7719:: with SMTP id t25mr2834289wmi.59.1606296911604; 
- Wed, 25 Nov 2020 01:35:11 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJyVYPtrIA7igYROsuEPeVUWGafRAf5uVYdn9uHl0nWRkgmXgdA+scQNnRfd57Pu9bTZtsnduA==
-X-Received: by 2002:a1c:7719:: with SMTP id t25mr2834257wmi.59.1606296911240; 
- Wed, 25 Nov 2020 01:35:11 -0800 (PST)
+ bh=vLAe9WsMJa4w6mGB+nZbn05U5f9ZhXoUHhlb18I67WM=;
+ b=Ndky3uA59EgnHPYjz4KTeDBKrJnfJeBYbH5LPwcR6EYgRgirWGI51mp/2DlYIdGYdc
+ xQrZw1CwgeixkAoS4qQUupFfeRkfqM1frJAzktwEYX1mJn1wUxuFzG6QyjJ57AZvFqCR
+ vLvuKiNCicME4XFPAcI+WRUVgqXMn92k1IT46lyFL3tnOT05P0UiO3Mwu9TQX8q0zj77
+ 0hG7ZB2oKq+YHQMN2ju9WYk+ieKbPkXg0eVGmTyhNZemFuXrTddk/YjpoPQfv8sY6EU2
+ xjBx/HA3jmSUp280IydjdVTvtk+LWwgjxl9iKiONdL6LT4LEOCMGcAlNUBLpI0gMJ4sc
+ SjXQ==
+X-Gm-Message-State: AOAM533LX29IGghoug6LfajuRS0cyukkUMIUjEJ3JkMrJIrXx5cAUypf
+ rEVPzjbl5JXCPJIJRFPlxxS4gGdqH8l5+qJfCVy0nDOws2HKboVXkvVnqzKemLzQDu6a04xCaM+
+ vM8PAswCy6om6AASzGfIGf0ckreBreN/FJgowWH60Pg==
+X-Received: by 2002:a05:6000:10d2:: with SMTP id
+ b18mr3091884wrx.344.1606297167323; 
+ Wed, 25 Nov 2020 01:39:27 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzvXC32/ddlvJ4NJFERmkr2++TuEfCzuPoAuQSQtQVzeuZ3OA+94pX0QNprI5nIOlJQnFOknw==
+X-Received: by 2002:a05:6000:10d2:: with SMTP id
+ b18mr3091860wrx.344.1606297167062; 
+ Wed, 25 Nov 2020 01:39:27 -0800 (PST)
 Received: from redhat.com (bzq-79-176-44-197.red.bezeqint.net. [79.176.44.197])
- by smtp.gmail.com with ESMTPSA id l24sm3690799wrb.28.2020.11.25.01.35.08
+ by smtp.gmail.com with ESMTPSA id c17sm4088789wro.19.2020.11.25.01.39.25
  (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
- Wed, 25 Nov 2020 01:35:10 -0800 (PST)
-Date: Wed, 25 Nov 2020 04:35:07 -0500
+ Wed, 25 Nov 2020 01:39:26 -0800 (PST)
+Date: Wed, 25 Nov 2020 04:39:23 -0500
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jie Deng <jie.deng@intel.com>
-Subject: Re: [PATCH v4] i2c: virtio: add a virtio i2c frontend driver
-Message-ID: <20201125043422-mutt-send-email-mst@kernel.org>
-References: <7c5e44c534b3fd07b855af22d8d4b78bc44cd7a4.1602465440.git.jie.deng@intel.com>
+To: Martin Wilck <mwilck@suse.com>
+Subject: Re: [PATCH v3] virtio-rng: return available data with O_NONBLOCK
+Message-ID: <20201125043726-mutt-send-email-mst@kernel.org>
+References: <20200811142821.12323-1-mwilck@suse.com>
+ <4ae4f348-c186-f7e4-f7e3-b1f1e4a4b408@redhat.com>
+ <20200826082613-mutt-send-email-mst@kernel.org>
+ <519e0296a7d61d5e9e8d258a855eb42a57c641c5.camel@suse.com>
+ <a5d4bcd3-e468-e818-3bd2-3a1b0fa172d8@redhat.com>
+ <20200908101413-mutt-send-email-mst@kernel.org>
+ <0a5fcbc9bb6eef521c627035687de4654a1dd740.camel@suse.com>
 MIME-Version: 1.0
-In-Reply-To: <7c5e44c534b3fd07b855af22d8d4b78bc44cd7a4.1602465440.git.jie.deng@intel.com>
+In-Reply-To: <0a5fcbc9bb6eef521c627035687de4654a1dd740.camel@suse.com>
 Authentication-Results: relay.mimecast.com;
  auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=mst@redhat.com
 X-Mimecast-Spam-Score: 0
 X-Mimecast-Originator: redhat.com
 Content-Disposition: inline
-Cc: Sergey.Semin@baikalelectronics.ru, bjorn.andersson@linaro.org,
- loic.poulain@linaro.org, tali.perry1@gmail.com, yu1.wang@intel.com,
- linux-kernel@vger.kernel.org, krzk@kernel.org,
- virtualization@lists.linux-foundation.org, wsa@kernel.org,
- wsa+renesas@sang-engineering.com, jarkko.nikula@linux.intel.com,
- linux-i2c@vger.kernel.org, rppt@kernel.org, shuo.a.liu@intel.com,
- andriy.shevchenko@linux.intel.com, conghui.chen@intel.com, jdelvare@suse.de
+Cc: Laurent Vivier <lvivier@redhat.com>, Amit Shah <amit@kernel.org>,
+ qemu-devel@nongnu.org, virtualization@lists.linux-foundation.org,
+ Philippe =?iso-8859-1?Q?Mathieu-Daud=E9?= <philmd@redhat.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
 X-Mailman-Version: 2.1.15
 Precedence: list
@@ -127,413 +131,301 @@ Content-Transfer-Encoding: 7bit
 Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
-On Mon, Oct 12, 2020 at 09:55:55AM +0800, Jie Deng wrote:
-> Add an I2C bus driver for virtio para-virtualization.
+On Tue, Sep 08, 2020 at 05:33:40PM +0200, Martin Wilck wrote:
+> On Tue, 2020-09-08 at 10:14 -0400, Michael S. Tsirkin wrote:
+> > On Mon, Aug 31, 2020 at 02:37:26PM +0200, Laurent Vivier wrote:
+> > > On 28/08/2020 23:34, Martin Wilck wrote:
+> > > > On Wed, 2020-08-26 at 08:26 -0400, Michael S. Tsirkin wrote:
+> > > > > On Tue, Aug 11, 2020 at 04:42:32PM +0200, Laurent Vivier wrote:
+> > > > > > On 11/08/2020 16:28, mwilck@suse.com wrote:
+> > > > > > > From: Martin Wilck <mwilck@suse.com>
+> > > > > > > 
+> > > > > > > If a program opens /dev/hwrng with O_NONBLOCK and uses
+> > > > > > > poll() and
+> > > > > > > non-blocking read() to retrieve random data, it ends up in
+> > > > > > > a
+> > > > > > > tight
+> > > > > > > loop with poll() always returning POLLIN and read()
+> > > > > > > returning
+> > > > > > > EAGAIN.
+> > > > > > > This repeats forever until some process makes a blocking
+> > > > > > > read()
+> > > > > > > call.
+> > > > > > > The reason is that virtio_read() always returns 0 in non-
+> > > > > > > blocking 
+> > > > > > > mode,
+> > > > > > > even if data is available. Worse, it fetches random data
+> > > > > > > from the
+> > > > > > > hypervisor after every non-blocking call, without ever
+> > > > > > > using this
+> > > > > > > data.
+> > > > > > > 
+> > > > > > > The following test program illustrates the behavior and can
+> > > > > > > be
+> > > > > > > used
+> > > > > > > for testing and experiments. The problem will only be seen
+> > > > > > > if all
+> > > > > > > tasks use non-blocking access; otherwise the blocking reads
+> > > > > > > will
+> > > > > > > "recharge" the random pool and cause other, non-blocking
+> > > > > > > reads to
+> > > > > > > succeed at least sometimes.
+> > > > > > > 
+> > > > > > > /* Whether to use non-blocking mode in a task, problem
+> > > > > > > occurs if
+> > > > > > > CONDITION is 1 */
+> > > > > > > //#define CONDITION (getpid() % 2 != 0)
+> > > > > > > 
+> > > > > > > static volatile sig_atomic_t stop;
+> > > > > > > static void handler(int sig __attribute__((unused))) { stop
+> > > > > > > = 1;
+> > > > > > > }
+> > > > > > > 
+> > > > > > > static void loop(int fd, int sec)
+> > > > > > > {
+> > > > > > > 	struct pollfd pfd = { .fd = fd, .events  = POLLIN, };
+> > > > > > > 	unsigned long errors = 0, eagains = 0, bytes = 0, succ
+> > > > > > > = 0;
+> > > > > > > 	int size, rc, rd;
+> > > > > > > 
+> > > > > > > 	srandom(getpid());
+> > > > > > > 	if (CONDITION && fcntl(fd, F_SETFL, fcntl(fd, F_GETFL)
+> > > > > > > |
+> > > > > > > O_NONBLOCK) == -1)
+> > > > > > > 		perror("fcntl");
+> > > > > > > 	size = MINBUFSIZ + random() % (MAXBUFSIZ - MINBUFSIZ +
+> > > > > > > 1);
+> > > > > > > 
+> > > > > > > 	for(;;) {
+> > > > > > > 		char buf[size];
+> > > > > > > 
+> > > > > > > 		if (stop)
+> > > > > > > 			break;
+> > > > > > > 		rc = poll(&pfd, 1, sec);
+> > > > > > > 		if (rc > 0) {
+> > > > > > > 			rd = read(fd, buf, sizeof(buf));
+> > > > > > > 			if (rd == -1 && errno == EAGAIN)
+> > > > > > > 				eagains++;
+> > > > > > > 			else if (rd == -1)
+> > > > > > > 				errors++;
+> > > > > > > 			else {
+> > > > > > > 				succ++;
+> > > > > > > 				bytes += rd;
+> > > > > > > 				write(1, buf, sizeof(buf));
+> > > > > > > 			}
+> > > > > > > 		} else if (rc == -1) {
+> > > > > > > 			if (errno != EINTR)
+> > > > > > > 				perror("poll");
+> > > > > > > 			break;
+> > > > > > > 		} else
+> > > > > > > 			fprintf(stderr, "poll: timeout\n");
+> > > > > > > 	}
+> > > > > > > 	fprintf(stderr,
+> > > > > > > 		"pid %d %sblocking, bufsize %d, %d seconds, %lu
+> > > > > > > bytes
+> > > > > > > read, %lu success, %lu eagain, %lu errors\n",
+> > > > > > > 		getpid(), CONDITION ? "non-" : "", size, sec,
+> > > > > > > bytes,
+> > > > > > > succ, eagains, errors);
+> > > > > > > }
+> > > > > > > 
+> > > > > > > int main(void)
+> > > > > > > {
+> > > > > > > 	int fd;
+> > > > > > > 
+> > > > > > > 	fork(); fork();
+> > > > > > > 	fd = open("/dev/hwrng", O_RDONLY);
+> > > > > > > 	if (fd == -1) {
+> > > > > > > 		perror("open");
+> > > > > > > 		return 1;
+> > > > > > > 	};
+> > > > > > > 	signal(SIGALRM, handler);
+> > > > > > > 	alarm(SECONDS);
+> > > > > > > 	loop(fd, SECONDS);
+> > > > > > > 	close(fd);
+> > > > > > > 	wait(NULL);
+> > > > > > > 	return 0;
+> > > > > > > }
+> > > > > > > 
+> > > > > > > void loop(int fd)
+> > > > > > > {
+> > > > > > >         struct pollfd pfd0 = { .fd = fd, .events  = POLLIN,
+> > > > > > > };
+> > > > > > >         int rc;
+> > > > > > >         unsigned int n;
+> > > > > > > 
+> > > > > > >         for (n = LOOPS; n > 0; n--) {
+> > > > > > >                 struct pollfd pfd = pfd0;
+> > > > > > >                 char buf[SIZE];
+> > > > > > > 
+> > > > > > >                 rc = poll(&pfd, 1, 1);
+> > > > > > >                 if (rc > 0) {
+> > > > > > >                         int rd = read(fd, buf,
+> > > > > > > sizeof(buf));
+> > > > > > > 
+> > > > > > >                         if (rd == -1)
+> > > > > > >                                 perror("read");
+> > > > > > >                         else
+> > > > > > >                                 printf("read %d bytes\n",
+> > > > > > > rd);
+> > > > > > >                 } else if (rc == -1)
+> > > > > > >                         perror("poll");
+> > > > > > >                 else
+> > > > > > >                         fprintf(stderr, "timeout\n");
+> > > > > > > 
+> > > > > > >         }
+> > > > > > > }
+> > > > > > > 
+> > > > > > > int main(void)
+> > > > > > > {
+> > > > > > >         int fd;
+> > > > > > > 
+> > > > > > >         fd = open("/dev/hwrng", O_RDONLY|O_NONBLOCK);
+> > > > > > >         if (fd == -1) {
+> > > > > > >                 perror("open");
+> > > > > > >                 return 1;
+> > > > > > >         };
+> > > > > > >         loop(fd);
+> > > > > > >         close(fd);
+> > > > > > >         return 0;
+> > > > > > > }
+> > > > > > > 
+> > > > > > > This can be observed in the real word e.g. with nested
+> > > > > > > qemu/KVM
+> > > > > > > virtual
+> > > > > > > machines, if both the "outer" and "inner" VMs have a
+> > > > > > > virtio-rng
+> > > > > > > device.
+> > > > > > > If the "inner" VM requests random data, qemu running in the
+> > > > > > > "outer" VM
+> > > > > > > uses this device in a non-blocking manner like the test
+> > > > > > > program
+> > > > > > > above.
+> > > > > > > 
+> > > > > > > Fix it by returning available data if a previous hypervisor
+> > > > > > > call
+> > > > > > > has
+> > > > > > > completed. I tested this patch with the program above, and
+> > > > > > > with
+> > > > > > > rng-tools.
+> > > > > > > 
+> > > > > > > v2 -> v3: Simplified the implementation as suggested by
+> > > > > > > Laurent
+> > > > > > > Vivier
+> > > > > > > 
+> > > > > > > Signed-off-by: Martin Wilck <mwilck@suse.com>
+> > > > > > > ---
+> > > > > > >  drivers/char/hw_random/virtio-rng.c | 4 ++--
+> > > > > > >  1 file changed, 2 insertions(+), 2 deletions(-)
+> > > > > > > 
+> > > > > > > diff --git a/drivers/char/hw_random/virtio-rng.c
+> > > > > > > b/drivers/char/hw_random/virtio-rng.c
+> > > > > > > index a90001e02bf7..8eaeceecb41e 100644
+> > > > > > > --- a/drivers/char/hw_random/virtio-rng.c
+> > > > > > > +++ b/drivers/char/hw_random/virtio-rng.c
+> > > > > > > @@ -65,7 +65,7 @@ static int virtio_read(struct hwrng *rng,
+> > > > > > > void
+> > > > > > > *buf, size_t size, bool wait)
+> > > > > > >  		register_buffer(vi, buf, size);
+> > > > > > >  	}
+> > > > > > >  
+> > > > > > > -	if (!wait)
+> > > > > > > +	if (!wait && !completion_done(&vi->have_data))
+> > > > > > >  		return 0;
+> > > > > > >  
+> > > > > > >  	ret = wait_for_completion_killable(&vi->have_data);
+> > > > > > > @@ -74,7 +74,7 @@ static int virtio_read(struct hwrng *rng,
+> > > > > > > void
+> > > > > > > *buf, size_t size, bool wait)
+> > > > > > >  
+> > > > > > >  	vi->busy = false;
+> > > > > > >  
+> > > > > > > -	return vi->data_avail;
+> > > > > > > +	return min_t(size_t, size, vi->data_avail);
+> > > > > > >  }
+> > > > > > >  
+> > > > > > >  static void virtio_cleanup(struct hwrng *rng)
+> > > > > > > 
+> > > > > > 
+> > > > > > Reviewed-by: Laurent Vivier <lvivier@redhat.com>
+> > > > > 
+> > > > > Laurent didn't we agree the real fix is private buffers in the
+> > > > > driver,
+> > > > > and copying out from there?
+> > > > > 
+> > > > 
+> > > > Can we perhaps proceed with this for now? AFAICS the private
+> > > > buffer
+> > > > implementation would be a larger effort, while we have the issues
+> > > > with
+> > > > nested VMs getting no entropy today.
+> > > > 
+> > > 
+> > > I agree. I think it's important to have a simple and quick fix for
+> > > the
+> > > problem reported by Martin.
+> > > 
+> > > We need the private buffers but not sure how long it will take to
+> > > have
+> > > them included in the kernel and how many new bugs will be
+> > > introduced
+> > > doing that as the code is hard to understand and the core is shared
+> > > with
+> > > several other hardware backends that can be impacted by the changes
+> > > needed.
+> > > 
+> > > Thanks,
+> > > Laurent
+> > 
+> > However I am not sure with the patch applies we never return
+> > the same buffer to userspace twice, e.g. if one is
+> > non blocking another blocking. Doing that would be a bug.
+> > 
 > 
-> The controller can be emulated by the backend driver in
-> any device model software by following the virtio protocol.
+> As Laurent mentioned in 
+> https://lists.gnu.org/archive/html/qemu-devel/2020-08/msg02039.html,
+> there are only 2 different buffers that may be passed to virtio_read(),
+> rng_buffer and rng_fillbuf.
+> The latter is only used in blocking mode.
 > 
-> This driver communicates with the backend driver through a
-> virtio I2C message structure which includes following parts:
+> AFAICS there's just one problematic situation: 
 > 
-> - Header: i2c_msg addr, flags, len.
-> - Data buffer: the pointer to the I2C msg data.
-> - Status: the processing result from the backend.
+>  1 a user space process reads random data without blocking and runs
+> register_buffer(), gets no data, releases reading_mutex
+>  2 the hwrng kthread grabs the mutex and makes a sync call, vi->busy is
+> still set, so no new completion is initialized.
+>  3 hwrng calls wait_for_completion_killable() and sees the completion
+>    that had been initialized by the user space process previously,
+>  4 hwrng "thinks" it got some positive randomness, but random data have
+>    actually been written into rng_buffer, not rng_fillbuff.
 > 
-> People may implement different backend drivers to emulate
-> different controllers according to their needs. A backend
-> example can be found in the device model of the open source
-> project ACRN. For more information, please refer to
-> https://projectacrn.org.
+> This is indeed bad, but it can happen with the current code as well.
+> Actually, it's more likely to happen with the current code, because
+> asynchronous callers might hang forever trying to get entropy,
+> making this scenario more likely (if there's a process, like nested
+> qemu, that would keep calling . So this wouldn't be a regression caused
+> by my patch, AFAICT.
 > 
-> The virtio device ID 34 is used for this I2C adpter since IDs
-> before 34 have been reserved by other virtio devices.
+> How can we avoid this problem entirely? A) With private buffers, of
+> course. B) Another, a bit hackish, approach would be to remember the
+> active "buffer" pointer in virtio_rng, and restart the IO when a
+> another buffer is passed down. C) Finally, we could modify
+> virtio_read() such that blocking calls always re-initialize the buffer;
+> they'd then have to wait for a potential already running IO from a
+> previous, non-blocking access to finish first.
 > 
-> Co-developed-by: Conghui Chen <conghui.chen@intel.com>
-> Signed-off-by: Conghui Chen <conghui.chen@intel.com>
-> Signed-off-by: Jie Deng <jie.deng@intel.com>
-> Reviewed-by: Shuo Liu <shuo.a.liu@intel.com>
-> Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> But I believe this is something which could (and should) be done
+> independently. Alternatively, I could add B) or C). A) I'd rather leave
+> to Laurent.
+> 
+> Regards,
+> Martin
 
-I assume this will be updated once the specification is acked
-by the virtio tc. Holding off on this one for now since
-we know there will be host/guest ABI changes.
+Of the simple solutions, C seems cleanest.
+Laurent, any interest in working on A meanwhile?
 
-> ---
-> The device ID request:
->         https://github.com/oasis-tcs/virtio-spec/issues/85
-> 
-> The specification:
-> 	https://lists.oasis-open.org/archives/virtio-comment/202009/msg00021.html
-> 
-> Changes in v4:
-> 	- Use (!(vmsg && vmsg == &vi->vmsg)) instead of ((!vmsg) || (vmsg != &vi->vmsg))
-> 
-> Changes in v3:
->         - Move the interface into uAPI according to Jason.
->         - Fix issues reported by Dan Carpenter.
-> 	- Fix typo reported by Randy.
-> 
-> Changes in v2:
->         - Addressed comments received from Michael, Andy and Jason.
-> 
->  drivers/i2c/busses/Kconfig      |  11 ++
->  drivers/i2c/busses/Makefile     |   3 +
->  drivers/i2c/busses/i2c-virtio.c | 256 ++++++++++++++++++++++++++++++++++++++++
->  include/uapi/linux/virtio_i2c.h |  31 +++++
->  include/uapi/linux/virtio_ids.h |   1 +
->  5 files changed, 302 insertions(+)
->  create mode 100644 drivers/i2c/busses/i2c-virtio.c
->  create mode 100644 include/uapi/linux/virtio_i2c.h
-> 
-> diff --git a/drivers/i2c/busses/Kconfig b/drivers/i2c/busses/Kconfig
-> index 293e7a0..f2f6543 100644
-> --- a/drivers/i2c/busses/Kconfig
-> +++ b/drivers/i2c/busses/Kconfig
-> @@ -21,6 +21,17 @@ config I2C_ALI1535
->  	  This driver can also be built as a module.  If so, the module
->  	  will be called i2c-ali1535.
->  
-> +config I2C_VIRTIO
-> +	tristate "Virtio I2C Adapter"
-> +	depends on VIRTIO
-> +	help
-> +	  If you say yes to this option, support will be included for the virtio
-> +	  I2C adapter driver. The hardware can be emulated by any device model
-> +	  software according to the virtio protocol.
-> +
-> +	  This driver can also be built as a module. If so, the module
-> +	  will be called i2c-virtio.
-> +
->  config I2C_ALI1563
->  	tristate "ALI 1563"
->  	depends on PCI
-> diff --git a/drivers/i2c/busses/Makefile b/drivers/i2c/busses/Makefile
-> index 19aff0e..821acfa 100644
-> --- a/drivers/i2c/busses/Makefile
-> +++ b/drivers/i2c/busses/Makefile
-> @@ -6,6 +6,9 @@
->  # ACPI drivers
->  obj-$(CONFIG_I2C_SCMI)		+= i2c-scmi.o
->  
-> +# VIRTIO I2C host controller driver
-> +obj-$(CONFIG_I2C_VIRTIO)	+= i2c-virtio.o
-> +
->  # PC SMBus host controller drivers
->  obj-$(CONFIG_I2C_ALI1535)	+= i2c-ali1535.o
->  obj-$(CONFIG_I2C_ALI1563)	+= i2c-ali1563.o
-> diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
-> new file mode 100644
-> index 0000000..36d8c68
-> --- /dev/null
-> +++ b/drivers/i2c/busses/i2c-virtio.c
-> @@ -0,0 +1,256 @@
-> +// SPDX-License-Identifier: GPL-2.0-or-later
-> +/*
-> + * Virtio I2C Bus Driver
-> + *
-> + * Copyright (c) 2020 Intel Corporation. All rights reserved.
-> + */
-> +
-> +#include <linux/acpi.h>
-> +#include <linux/completion.h>
-> +#include <linux/err.h>
-> +#include <linux/i2c.h>
-> +#include <linux/io.h>
-> +#include <linux/jiffies.h>
-> +#include <linux/kernel.h>
-> +#include <linux/module.h>
-> +#include <linux/platform_device.h>
-> +#include <linux/wait.h>
-> +
-> +#include <linux/virtio.h>
-> +#include <linux/virtio_i2c.h>
-> +
-> +/**
-> + * struct virtio_i2c_msg - the virtio I2C message structure
-> + * @hdr: the virtio I2C message header
-> + * @buf: virtio I2C message data buffer
-> + * @status: the processing result from the backend
-> + */
-> +struct virtio_i2c_msg {
-> +	struct virtio_i2c_hdr hdr;
-> +	u8 *buf;
-> +	u8 status;
-> +};
-> +
-> +/**
-> + * struct virtio_i2c - virtio I2C data
-> + * @vdev: virtio device for this controller
-> + * @completion: completion of virtio I2C message
-> + * @vmsg: the virtio I2C message for communication
-> + * @adap: I2C adapter for this controller
-> + * @i2c_lock: lock for virtqueue processing
-> + * @vq: the virtio virtqueue for communication
-> + */
-> +struct virtio_i2c {
-> +	struct virtio_device *vdev;
-> +	struct completion completion;
-> +	struct virtio_i2c_msg vmsg;
-> +	struct i2c_adapter adap;
-> +	struct mutex i2c_lock;
-> +	struct virtqueue *vq;
-> +};
-> +
-> +static void virtio_i2c_msg_done(struct virtqueue *vq)
-> +{
-> +	struct virtio_i2c *vi = vq->vdev->priv;
-> +
-> +	complete(&vi->completion);
-> +}
-> +
-> +static int virtio_i2c_add_msg(struct virtqueue *vq,
-> +			      struct virtio_i2c_msg *vmsg,
-> +			      struct i2c_msg *msg)
-> +{
-> +	struct scatterlist *sgs[3], hdr, bout, bin, status;
-> +	int outcnt = 0, incnt = 0;
-> +
-> +	if (!msg->len)
-> +		return -EINVAL;
-> +
-> +	vmsg->hdr.addr = cpu_to_le16(msg->addr);
-> +	vmsg->hdr.flags = cpu_to_le16(msg->flags);
-> +	vmsg->hdr.len = cpu_to_le16(msg->len);
-> +
-> +	vmsg->buf = kzalloc(msg->len, GFP_KERNEL);
-> +	if (!vmsg->buf)
-> +		return -ENOMEM;
-> +
-> +	sg_init_one(&hdr, &vmsg->hdr, sizeof(struct virtio_i2c_hdr));
-> +	sgs[outcnt++] = &hdr;
-> +	if (msg->flags & I2C_M_RD) {
-> +		sg_init_one(&bin, vmsg->buf, msg->len);
-> +		sgs[outcnt + incnt++] = &bin;
-> +	} else {
-> +		memcpy(vmsg->buf, msg->buf, msg->len);
-> +		sg_init_one(&bout, vmsg->buf, msg->len);
-> +		sgs[outcnt++] = &bout;
-> +	}
-> +	sg_init_one(&status, &vmsg->status, sizeof(vmsg->status));
-> +	sgs[outcnt + incnt++] = &status;
-> +
-> +	return virtqueue_add_sgs(vq, sgs, outcnt, incnt, vmsg, GFP_KERNEL);
-> +}
-> +
-> +static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs, int num)
-> +{
-> +	struct virtio_i2c *vi = i2c_get_adapdata(adap);
-> +	struct virtqueue *vq = vi->vq;
-> +	struct virtio_i2c_msg *vmsg;
-> +	unsigned long time_left;
-> +	int len, i, ret = 0;
-> +
-> +	mutex_lock(&vi->i2c_lock);
-> +	vmsg = &vi->vmsg;
-> +	vmsg->buf = NULL;
-> +
-> +	for (i = 0; i < num; i++) {
-> +		ret = virtio_i2c_add_msg(vq, vmsg, &msgs[i]);
-> +		if (ret) {
-> +			dev_err(&adap->dev, "failed to add msg[%d] to virtqueue.\n", i);
-> +			break;
-> +		}
-> +
-> +		virtqueue_kick(vq);
-> +
-> +		time_left = wait_for_completion_timeout(&vi->completion, adap->timeout);
-> +		if (!time_left) {
-> +			dev_err(&adap->dev, "msg[%d]: addr=0x%x timeout.\n", i, msgs[i].addr);
-> +			break;
-> +		}
-> +
-> +		vmsg = (struct virtio_i2c_msg *)virtqueue_get_buf(vq, &len);
-> +		/* vmsg should point to the same address with &vi->vmsg */
-> +		if (!(vmsg && vmsg == &vi->vmsg)) {
-> +			dev_err(&adap->dev, "msg[%d]: addr=0x%x virtqueue error.\n",
-> +				i, msgs[i].addr);
-> +			break;
-> +		}
-> +
-> +		if (vmsg->status != VIRTIO_I2C_MSG_OK) {
-> +			dev_err(&adap->dev, "msg[%d]: addr=0x%x error=%d.\n",
-> +				i, msgs[i].addr, vmsg->status);
-> +			break;
-> +		}
-> +
-> +		if ((msgs[i].flags & I2C_M_RD) && msgs[i].len)
-> +			memcpy(msgs[i].buf, vmsg->buf, msgs[i].len);
-> +
-> +		kfree(vmsg->buf);
-> +		vmsg->buf = NULL;
-> +
-> +		reinit_completion(&vi->completion);
-> +	}
-> +
-> +	mutex_unlock(&vi->i2c_lock);
-> +	kfree(vi->vmsg.buf);
-> +	vi->vmsg.buf = NULL;
-> +	return ((ret < 0) ? ret : i);
-> +}
-> +
-> +static void virtio_i2c_del_vqs(struct virtio_device *vdev)
-> +{
-> +	vdev->config->reset(vdev);
-> +	vdev->config->del_vqs(vdev);
-> +}
-> +
-> +static int virtio_i2c_setup_vqs(struct virtio_i2c *vi)
-> +{
-> +	struct virtio_device *vdev = vi->vdev;
-> +
-> +	vi->vq = virtio_find_single_vq(vdev, virtio_i2c_msg_done, "msg");
-> +	return PTR_ERR_OR_ZERO(vi->vq);
-> +}
-> +
-> +static u32 virtio_i2c_func(struct i2c_adapter *adap)
-> +{
-> +	return I2C_FUNC_I2C | I2C_FUNC_SMBUS_EMUL;
-> +}
-> +
-> +static struct i2c_algorithm virtio_algorithm = {
-> +	.master_xfer = virtio_i2c_xfer,
-> +	.functionality = virtio_i2c_func,
-> +};
-> +
-> +static struct i2c_adapter virtio_adapter = {
-> +	.owner = THIS_MODULE,
-> +	.name = "Virtio I2C Adapter",
-> +	.class = I2C_CLASS_DEPRECATED,
-> +	.algo = &virtio_algorithm,
-> +};
-> +
-> +static int virtio_i2c_probe(struct virtio_device *vdev)
-> +{
-> +	struct device *pdev = vdev->dev.parent;
-> +	struct virtio_i2c *vi;
-> +	int ret;
-> +
-> +	vi = devm_kzalloc(&vdev->dev, sizeof(*vi), GFP_KERNEL);
-> +	if (!vi)
-> +		return -ENOMEM;
-> +
-> +	vdev->priv = vi;
-> +	vi->vdev = vdev;
-> +
-> +	mutex_init(&vi->i2c_lock);
-> +	init_completion(&vi->completion);
-> +
-> +	ret = virtio_i2c_setup_vqs(vi);
-> +	if (ret)
-> +		return ret;
-> +
-> +	vi->adap = virtio_adapter;
-> +	i2c_set_adapdata(&vi->adap, vi);
-> +	vi->adap.dev.parent = &vdev->dev;
-> +	/* Setup ACPI node for slave devices which will be probed through ACPI */
-> +	ACPI_COMPANION_SET(&vi->adap.dev, ACPI_COMPANION(pdev));
-> +	vi->adap.timeout = HZ / 10;
-> +
-> +	ret = i2c_add_adapter(&vi->adap);
-> +	if (ret) {
-> +		virtio_i2c_del_vqs(vdev);
-> +		dev_err(&vdev->dev, "failed to add virtio-i2c adapter.\n");
-> +	}
-> +
-> +	return ret;
-> +}
-> +
-> +static void virtio_i2c_remove(struct virtio_device *vdev)
-> +{
-> +	struct virtio_i2c *vi = vdev->priv;
-> +
-> +	i2c_del_adapter(&vi->adap);
-> +	virtio_i2c_del_vqs(vdev);
-> +}
-> +
-> +static struct virtio_device_id id_table[] = {
-> +	{ VIRTIO_ID_I2C_ADPTER, VIRTIO_DEV_ANY_ID },
-> +	{}
-> +};
-> +MODULE_DEVICE_TABLE(virtio, id_table);
-> +
-> +static int __maybe_unused virtio_i2c_freeze(struct virtio_device *vdev)
-> +{
-> +	virtio_i2c_del_vqs(vdev);
-> +	return 0;
-> +}
-> +
-> +static int __maybe_unused virtio_i2c_restore(struct virtio_device *vdev)
-> +{
-> +	return virtio_i2c_setup_vqs(vdev->priv);
-> +}
-> +
-> +static struct virtio_driver virtio_i2c_driver = {
-> +	.id_table	= id_table,
-> +	.probe		= virtio_i2c_probe,
-> +	.remove		= virtio_i2c_remove,
-> +	.driver	= {
-> +		.name	= "i2c_virtio",
-> +	},
-> +#ifdef CONFIG_PM_SLEEP
-> +	.freeze = virtio_i2c_freeze,
-> +	.restore = virtio_i2c_restore,
-> +#endif
-> +};
-> +module_virtio_driver(virtio_i2c_driver);
-> +
-> +MODULE_DESCRIPTION("Virtio i2c bus driver");
-> +MODULE_LICENSE("GPL");
-> diff --git a/include/uapi/linux/virtio_i2c.h b/include/uapi/linux/virtio_i2c.h
-> new file mode 100644
-> index 0000000..7413e45
-> --- /dev/null
-> +++ b/include/uapi/linux/virtio_i2c.h
-> @@ -0,0 +1,31 @@
-> +/* SPDX-License-Identifier: GPL-2.0-or-later OR BSD-3-Clause */
-> +/*
-> + * Definitions for virtio I2C Adpter
-> + *
-> + * Copyright (c) 2020 Intel Corporation. All rights reserved.
-> + */
-> +
-> +#ifndef _UAPI_LINUX_VIRTIO_I2C_H
-> +#define _UAPI_LINUX_VIRTIO_I2C_H
-> +
-> +#include <linux/types.h>
-> +#include <linux/virtio_ids.h>
-> +#include <linux/virtio_config.h>
-> +
-> +/**
-> + * struct virtio_i2c_hdr - the virtio I2C message header structure
-> + * @addr: i2c_msg addr, the slave address
-> + * @flags: i2c_msg flags
-> + * @len: i2c_msg len
-> + */
-> +struct virtio_i2c_hdr {
-> +	__le16 addr;
-> +	__le16 flags;
-> +	__le16 len;
-> +};
-> +
-> +/* The final status written by the device */
-> +#define VIRTIO_I2C_MSG_OK	0
-> +#define VIRTIO_I2C_MSG_ERR	1
-> +
-> +#endif /* _UAPI_LINUX_VIRTIO_I2C_H */
-> diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/virtio_ids.h
-> index b052355..398ef2d 100644
-> --- a/include/uapi/linux/virtio_ids.h
-> +++ b/include/uapi/linux/virtio_ids.h
-> @@ -48,5 +48,6 @@
->  #define VIRTIO_ID_FS           26 /* virtio filesystem */
->  #define VIRTIO_ID_PMEM         27 /* virtio pmem */
->  #define VIRTIO_ID_MAC80211_HWSIM 29 /* virtio mac80211-hwsim */
-> +#define VIRTIO_ID_I2C_ADPTER   34 /* virtio i2c adpter */
->  
->  #endif /* _LINUX_VIRTIO_IDS_H */
-> -- 
-> 2.7.4
+-- 
+MST
 
 _______________________________________________
 Virtualization mailing list
