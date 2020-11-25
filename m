@@ -7,78 +7,79 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 04272C6379D
-	for <virtualization@archiver.kernel.org>; Wed, 25 Nov 2020 15:36:29 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id C68C9C63798
+	for <virtualization@archiver.kernel.org>; Wed, 25 Nov 2020 15:36:28 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 5DB7021D1A
-	for <virtualization@archiver.kernel.org>; Wed, 25 Nov 2020 15:36:28 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id 3714B21D7F
+	for <virtualization@archiver.kernel.org>; Wed, 25 Nov 2020 15:36:25 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="k6ujMjND"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 5DB7021D1A
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="tTUFDUU8"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3714B21D7F
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 06F5F871E6;
-	Wed, 25 Nov 2020 15:36:28 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id 27BFE86E71;
+	Wed, 25 Nov 2020 15:36:25 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id SRoyqwWVb+bY; Wed, 25 Nov 2020 15:36:26 +0000 (UTC)
+	with ESMTP id zkdYkSD9DdBQ; Wed, 25 Nov 2020 15:36:23 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 2500B871F2;
-	Wed, 25 Nov 2020 15:36:26 +0000 (UTC)
+	by fraxinus.osuosl.org (Postfix) with ESMTP id B16DE86E5C;
+	Wed, 25 Nov 2020 15:36:23 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 10396C163C;
-	Wed, 25 Nov 2020 15:36:26 +0000 (UTC)
-Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6D156C0052
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 7D045C163C;
+	Wed, 25 Nov 2020 15:36:23 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 23F6AC0052
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Nov 2020 15:36:24 +0000 (UTC)
+ Wed, 25 Nov 2020 15:36:22 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by hemlock.osuosl.org (Postfix) with ESMTP id 57AD1873BF
+ by silver.osuosl.org (Postfix) with ESMTP id 071892E181
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Nov 2020 15:36:24 +0000 (UTC)
+ Wed, 25 Nov 2020 15:36:22 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from hemlock.osuosl.org ([127.0.0.1])
+Received: from silver.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id pUJklSjv54+u
+ with ESMTP id B-P6CFTRyG7X
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Nov 2020 15:36:23 +0000 (UTC)
+ Wed, 25 Nov 2020 15:36:18 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by hemlock.osuosl.org (Postfix) with ESMTPS id 63EDE87274
+ by silver.osuosl.org (Postfix) with ESMTPS id 992F62E183
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Nov 2020 15:36:23 +0000 (UTC)
+ Wed, 25 Nov 2020 15:36:18 +0000 (UTC)
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net
  [73.47.72.35])
  (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
  (No client certificate requested)
- by mail.kernel.org (Postfix) with ESMTPSA id 0F67A217A0;
- Wed, 25 Nov 2020 15:36:21 +0000 (UTC)
+ by mail.kernel.org (Postfix) with ESMTPSA id 0D75020B1F;
+ Wed, 25 Nov 2020 15:36:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1606318583;
- bh=R9/Sh1HslE6Ch8RobdDorFWBY8+fMn8lCZfQcaT9YfY=;
+ s=default; t=1606318578;
+ bh=j6EV2BbaUdxT/kWb+jnwFOpcQ4nYLTa874SOh+VMlIo=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=k6ujMjNDZ3NOFlr7TK5K5NE7VlKEkoM/XohKhwCWzm+6OkAMSLAGI3m9CRYDhqeQb
- FAg4fsY1JvCSN924gTHeAZp7Ukkbb5OFDc0WANmxT742hZ9XRwzsORh655A+6upWx1
- qkZ6MWczxPwZ3qEdsTV3mPPxLRKz0YZ/KVDYIi3M=
+ b=tTUFDUU8aHsPOOgieLaiOAUTjAbWhT7bhyET72amddL0hQqJVPEs/LQiRa9uFGyv2
+ YgsQox67imrZIjJH4aWNPknVJdWK/rrigyBCxoIyoVvcv52oBEQkIafRsZnOjI7MMA
+ iwQIgR4d3bvUZDxYAVATNxhAyzxpMLRkz/0h9e1A=
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.9 23/33] vhost scsi: Add support for LUN resets.
-Date: Wed, 25 Nov 2020 10:35:40 -0500
-Message-Id: <20201125153550.810101-23-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.9 20/33] vhost scsi: alloc cmds per vq instead of
+ session
+Date: Wed, 25 Nov 2020 10:35:37 -0500
+Message-Id: <20201125153550.810101-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201125153550.810101-1-sashal@kernel.org>
 References: <20201125153550.810101-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-Cc: Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
- "Michael S . Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
- virtualization@lists.linux-foundation.org,
+Cc: Maurizio Lombardi <mlombard@redhat.com>, Sasha Levin <sashal@kernel.org>,
+ kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>,
+ netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
  Stefan Hajnoczi <stefanha@redhat.com>,
  Mike Christie <michael.christie@oracle.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -99,290 +100,389 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit efd838fec17bd8756da852a435800a7e6281bfbc ]
+[ Upstream commit 25b98b64e28423b0769313dcaf96423836b1f93d ]
 
-In newer versions of virtio-scsi we just reset the timer when an a
-command times out, so TMFs are never sent for the cmd time out case.
-However, in older kernels and for the TMF inject cases, we can still get
-resets and we end up just failing immediately so the guest might see the
-device get offlined and IO errors.
+We currently are limited to 256 cmds per session. This leads to problems
+where if the user has increased virtqueue_size to more than 2 or
+cmd_per_lun to more than 256 vhost_scsi_get_tag can fail and the guest
+will get IO errors.
 
-For the older kernel cases, we want the same end result as the
-modern virtio-scsi driver where we let the lower levels fire their error
-handling and handle the problem. And at the upper levels we want to
-wait. This patch ties the LUN reset handling into the LIO TMF code which
-will just wait for outstanding commands to complete like we are doing in
-the modern virtio-scsi case.
-
-Note: I did not handle the ABORT case to keep this simple. For ABORTs
-LIO just waits on the cmd like how it does for the RESET case. If
-an ABORT fails, the guest OS ends up escalating to LUN RESET, so in
-the end we get the same behavior where we wait on the outstanding
-cmds.
+This patch moves the cmd allocation to per vq so we can easily match
+whatever the user has specified for num_queues and
+virtqueue_size/cmd_per_lun. It also makes it easier to control how much
+memory we preallocate. For cases, where perf is not as important and
+we can use the current defaults (1 vq and 128 cmds per vq) memory use
+from preallocate cmds is cut in half. For cases, where we are willing
+to use more memory for higher perf, cmd mem use will now increase as
+the num queues and queue depth increases.
 
 Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Link: https://lore.kernel.org/r/1604986403-4931-6-git-send-email-michael.christie@oracle.com
+Link: https://lore.kernel.org/r/1604986403-4931-3-git-send-email-michael.christie@oracle.com
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Maurizio Lombardi <mlombard@redhat.com>
 Acked-by: Stefan Hajnoczi <stefanha@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/scsi.c | 147 +++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 134 insertions(+), 13 deletions(-)
+ drivers/vhost/scsi.c | 207 ++++++++++++++++++++++++++-----------------
+ 1 file changed, 128 insertions(+), 79 deletions(-)
 
 diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index ed7dc6b998f65..f22fce5498626 100644
+index b22adf03f5842..e31339be7dd78 100644
 --- a/drivers/vhost/scsi.c
 +++ b/drivers/vhost/scsi.c
-@@ -139,6 +139,7 @@ struct vhost_scsi_tpg {
- 	struct se_portal_group se_tpg;
- 	/* Pointer back to vhost_scsi, protected by tv_tpg_mutex */
- 	struct vhost_scsi *vhost_scsi;
-+	struct list_head tmf_queue;
+@@ -52,7 +52,6 @@
+ #define VHOST_SCSI_VERSION  "v0.1"
+ #define VHOST_SCSI_NAMELEN 256
+ #define VHOST_SCSI_MAX_CDB_SIZE 32
+-#define VHOST_SCSI_DEFAULT_TAGS 256
+ #define VHOST_SCSI_PREALLOC_SGLS 2048
+ #define VHOST_SCSI_PREALLOC_UPAGES 2048
+ #define VHOST_SCSI_PREALLOC_PROT_SGLS 2048
+@@ -189,6 +188,9 @@ struct vhost_scsi_virtqueue {
+ 	 * Writers must also take dev mutex and flush under it.
+ 	 */
+ 	int inflight_idx;
++	struct vhost_scsi_cmd *scsi_cmds;
++	struct sbitmap scsi_tags;
++	int max_cmds;
  };
  
- struct vhost_scsi_tport {
-@@ -211,6 +212,20 @@ struct vhost_scsi {
- 	int vs_events_nr; /* num of pending events, protected by vq->mutex */
- };
- 
-+struct vhost_scsi_tmf {
-+	struct vhost_work vwork;
-+	struct vhost_scsi_tpg *tpg;
-+	struct vhost_scsi *vhost;
-+	struct vhost_scsi_virtqueue *svq;
-+	struct list_head queue_entry;
-+
-+	struct se_cmd se_cmd;
-+	struct vhost_scsi_inflight *inflight;
-+	struct iovec resp_iov;
-+	int in_iovs;
-+	int vq_desc;
-+};
-+
- /*
-  * Context for processing request and control queue operations.
-  */
-@@ -344,14 +359,32 @@ static void vhost_scsi_release_cmd_res(struct se_cmd *se_cmd)
- 	vhost_scsi_put_inflight(inflight);
- }
- 
-+static void vhost_scsi_release_tmf_res(struct vhost_scsi_tmf *tmf)
-+{
-+	struct vhost_scsi_tpg *tpg = tmf->tpg;
-+	struct vhost_scsi_inflight *inflight = tmf->inflight;
-+
-+	mutex_lock(&tpg->tv_tpg_mutex);
-+	list_add_tail(&tpg->tmf_queue, &tmf->queue_entry);
-+	mutex_unlock(&tpg->tv_tpg_mutex);
-+	vhost_scsi_put_inflight(inflight);
-+}
-+
- static void vhost_scsi_release_cmd(struct se_cmd *se_cmd)
+ struct vhost_scsi {
+@@ -324,7 +326,9 @@ static void vhost_scsi_release_cmd(struct se_cmd *se_cmd)
  {
--	struct vhost_scsi_cmd *cmd = container_of(se_cmd,
-+	if (se_cmd->se_cmd_flags & SCF_SCSI_TMR_CDB) {
-+		struct vhost_scsi_tmf *tmf = container_of(se_cmd,
-+					struct vhost_scsi_tmf, se_cmd);
-+
-+		vhost_work_queue(&tmf->vhost->dev, &tmf->vwork);
-+	} else {
-+		struct vhost_scsi_cmd *cmd = container_of(se_cmd,
- 					struct vhost_scsi_cmd, tvc_se_cmd);
--	struct vhost_scsi *vs = cmd->tvc_vhost;
-+		struct vhost_scsi *vs = cmd->tvc_vhost;
+ 	struct vhost_scsi_cmd *tv_cmd = container_of(se_cmd,
+ 				struct vhost_scsi_cmd, tvc_se_cmd);
+-	struct se_session *se_sess = tv_cmd->tvc_nexus->tvn_se_sess;
++	struct vhost_scsi_virtqueue *svq = container_of(tv_cmd->tvc_vq,
++				struct vhost_scsi_virtqueue, vq);
++	struct vhost_scsi_inflight *inflight = tv_cmd->inflight;
+ 	int i;
  
--	llist_add(&cmd->tvc_completion_list, &vs->vs_completion_list);
--	vhost_work_queue(&vs->dev, &vs->vs_completion_work);
-+		llist_add(&cmd->tvc_completion_list, &vs->vs_completion_list);
-+		vhost_work_queue(&vs->dev, &vs->vs_completion_work);
-+	}
+ 	if (tv_cmd->tvc_sgl_count) {
+@@ -336,8 +340,8 @@ static void vhost_scsi_release_cmd(struct se_cmd *se_cmd)
+ 			put_page(sg_page(&tv_cmd->tvc_prot_sgl[i]));
+ 	}
+ 
+-	vhost_scsi_put_inflight(tv_cmd->inflight);
+-	target_free_tag(se_sess, se_cmd);
++	sbitmap_clear_bit(&svq->scsi_tags, se_cmd->map_tag);
++	vhost_scsi_put_inflight(inflight);
  }
  
  static u32 vhost_scsi_sess_get_index(struct se_session *se_sess)
-@@ -390,7 +423,10 @@ static int vhost_scsi_queue_status(struct se_cmd *se_cmd)
+@@ -566,31 +570,31 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
+ }
  
- static void vhost_scsi_queue_tm_rsp(struct se_cmd *se_cmd)
+ static struct vhost_scsi_cmd *
+-vhost_scsi_get_tag(struct vhost_virtqueue *vq, struct vhost_scsi_tpg *tpg,
++vhost_scsi_get_cmd(struct vhost_virtqueue *vq, struct vhost_scsi_tpg *tpg,
+ 		   unsigned char *cdb, u64 scsi_tag, u16 lun, u8 task_attr,
+ 		   u32 exp_data_len, int data_direction)
  {
--	return;
-+	struct vhost_scsi_tmf *tmf = container_of(se_cmd, struct vhost_scsi_tmf,
-+						  se_cmd);
-+
-+	transport_generic_free_cmd(&tmf->se_cmd, 0);
++	struct vhost_scsi_virtqueue *svq = container_of(vq,
++					struct vhost_scsi_virtqueue, vq);
+ 	struct vhost_scsi_cmd *cmd;
+ 	struct vhost_scsi_nexus *tv_nexus;
+-	struct se_session *se_sess;
+ 	struct scatterlist *sg, *prot_sg;
+ 	struct page **pages;
+-	int tag, cpu;
++	int tag;
+ 
+ 	tv_nexus = tpg->tpg_nexus;
+ 	if (!tv_nexus) {
+ 		pr_err("Unable to locate active struct vhost_scsi_nexus\n");
+ 		return ERR_PTR(-EIO);
+ 	}
+-	se_sess = tv_nexus->tvn_se_sess;
+ 
+-	tag = sbitmap_queue_get(&se_sess->sess_tag_pool, &cpu);
++	tag = sbitmap_get(&svq->scsi_tags, 0, false);
+ 	if (tag < 0) {
+ 		pr_err("Unable to obtain tag for vhost_scsi_cmd\n");
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+ 
+-	cmd = &((struct vhost_scsi_cmd *)se_sess->sess_cmd_map)[tag];
++	cmd = &svq->scsi_cmds[tag];
+ 	sg = cmd->tvc_sgl;
+ 	prot_sg = cmd->tvc_prot_sgl;
+ 	pages = cmd->tvc_upages;
+@@ -599,7 +603,6 @@ vhost_scsi_get_tag(struct vhost_virtqueue *vq, struct vhost_scsi_tpg *tpg,
+ 	cmd->tvc_prot_sgl = prot_sg;
+ 	cmd->tvc_upages = pages;
+ 	cmd->tvc_se_cmd.map_tag = tag;
+-	cmd->tvc_se_cmd.map_cpu = cpu;
+ 	cmd->tvc_tag = scsi_tag;
+ 	cmd->tvc_lun = lun;
+ 	cmd->tvc_task_attr = task_attr;
+@@ -1065,11 +1068,11 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
+ 				scsi_command_size(cdb), VHOST_SCSI_MAX_CDB_SIZE);
+ 				goto err;
+ 		}
+-		cmd = vhost_scsi_get_tag(vq, tpg, cdb, tag, lun, task_attr,
++		cmd = vhost_scsi_get_cmd(vq, tpg, cdb, tag, lun, task_attr,
+ 					 exp_data_len + prot_bytes,
+ 					 data_direction);
+ 		if (IS_ERR(cmd)) {
+-			vq_err(vq, "vhost_scsi_get_tag failed %ld\n",
++			vq_err(vq, "vhost_scsi_get_cmd failed %ld\n",
+ 			       PTR_ERR(cmd));
+ 			goto err;
+ 		}
+@@ -1373,6 +1376,83 @@ static void vhost_scsi_flush(struct vhost_scsi *vs)
+ 		wait_for_completion(&old_inflight[i]->comp);
  }
  
- static void vhost_scsi_aborted_task(struct se_cmd *se_cmd)
-@@ -1120,9 +1156,9 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
- }
- 
- static void
--vhost_scsi_send_tmf_reject(struct vhost_scsi *vs,
--			   struct vhost_virtqueue *vq,
--			   struct vhost_scsi_ctx *vc)
-+vhost_scsi_send_tmf_resp(struct vhost_scsi *vs, struct vhost_virtqueue *vq,
-+			 int in_iovs, int vq_desc, struct iovec *resp_iov,
-+			 int tmf_resp_code)
- {
- 	struct virtio_scsi_ctrl_tmf_resp rsp;
- 	struct iov_iter iov_iter;
-@@ -1130,17 +1166,87 @@ vhost_scsi_send_tmf_reject(struct vhost_scsi *vs,
- 
- 	pr_debug("%s\n", __func__);
- 	memset(&rsp, 0, sizeof(rsp));
--	rsp.response = VIRTIO_SCSI_S_FUNCTION_REJECTED;
-+	rsp.response = tmf_resp_code;
- 
--	iov_iter_init(&iov_iter, READ, &vq->iov[vc->out], vc->in, sizeof(rsp));
-+	iov_iter_init(&iov_iter, READ, resp_iov, in_iovs, sizeof(rsp));
- 
- 	ret = copy_to_iter(&rsp, sizeof(rsp), &iov_iter);
- 	if (likely(ret == sizeof(rsp)))
--		vhost_add_used_and_signal(&vs->dev, vq, vc->head, 0);
-+		vhost_add_used_and_signal(&vs->dev, vq, vq_desc, 0);
- 	else
- 		pr_err("Faulted on virtio_scsi_ctrl_tmf_resp\n");
- }
- 
-+static void vhost_scsi_tmf_resp_work(struct vhost_work *work)
-+{
-+	struct vhost_scsi_tmf *tmf = container_of(work, struct vhost_scsi_tmf,
-+						  vwork);
-+	int resp_code;
-+
-+	if (tmf->se_cmd.se_tmr_req->response == TMR_FUNCTION_COMPLETE)
-+		resp_code = VIRTIO_SCSI_S_FUNCTION_SUCCEEDED;
-+	else
-+		resp_code = VIRTIO_SCSI_S_FUNCTION_REJECTED;
-+
-+	vhost_scsi_send_tmf_resp(tmf->vhost, &tmf->svq->vq, tmf->in_iovs,
-+				 tmf->vq_desc, &tmf->resp_iov, resp_code);
-+	vhost_scsi_release_tmf_res(tmf);
-+}
-+
-+static void
-+vhost_scsi_handle_tmf(struct vhost_scsi *vs, struct vhost_scsi_tpg *tpg,
-+		      struct vhost_virtqueue *vq,
-+		      struct virtio_scsi_ctrl_tmf_req *vtmf,
-+		      struct vhost_scsi_ctx *vc)
++static void vhost_scsi_destroy_vq_cmds(struct vhost_virtqueue *vq)
 +{
 +	struct vhost_scsi_virtqueue *svq = container_of(vq,
 +					struct vhost_scsi_virtqueue, vq);
-+	struct vhost_scsi_tmf *tmf;
++	struct vhost_scsi_cmd *tv_cmd;
++	unsigned int i;
 +
-+	if (vhost32_to_cpu(vq, vtmf->subtype) !=
-+	    VIRTIO_SCSI_T_TMF_LOGICAL_UNIT_RESET)
-+		goto send_reject;
++	if (!svq->scsi_cmds)
++		return;
 +
-+	if (!tpg->tpg_nexus || !tpg->tpg_nexus->tvn_se_sess) {
-+		pr_err("Unable to locate active struct vhost_scsi_nexus for LUN RESET.\n");
-+		goto send_reject;
++	for (i = 0; i < svq->max_cmds; i++) {
++		tv_cmd = &svq->scsi_cmds[i];
++
++		kfree(tv_cmd->tvc_sgl);
++		kfree(tv_cmd->tvc_prot_sgl);
++		kfree(tv_cmd->tvc_upages);
 +	}
 +
-+	mutex_lock(&tpg->tv_tpg_mutex);
-+	if (list_empty(&tpg->tmf_queue)) {
-+		pr_err("Missing reserve TMF. Could not handle LUN RESET.\n");
-+		mutex_unlock(&tpg->tv_tpg_mutex);
-+		goto send_reject;
-+	}
-+
-+	tmf = list_first_entry(&tpg->tmf_queue, struct vhost_scsi_tmf,
-+			       queue_entry);
-+	list_del_init(&tmf->queue_entry);
-+	mutex_unlock(&tpg->tv_tpg_mutex);
-+
-+	tmf->tpg = tpg;
-+	tmf->vhost = vs;
-+	tmf->svq = svq;
-+	tmf->resp_iov = vq->iov[vc->out];
-+	tmf->vq_desc = vc->head;
-+	tmf->in_iovs = vc->in;
-+	tmf->inflight = vhost_scsi_get_inflight(vq);
-+
-+	if (target_submit_tmr(&tmf->se_cmd, tpg->tpg_nexus->tvn_se_sess, NULL,
-+			      vhost_buf_to_lun(vtmf->lun), NULL,
-+			      TMR_LUN_RESET, GFP_KERNEL, 0,
-+			      TARGET_SCF_ACK_KREF) < 0) {
-+		vhost_scsi_release_tmf_res(tmf);
-+		goto send_reject;
-+	}
-+
-+	return;
-+
-+send_reject:
-+	vhost_scsi_send_tmf_resp(vs, vq, vc->in, vc->head, &vq->iov[vc->out],
-+				 VIRTIO_SCSI_S_FUNCTION_REJECTED);
++	sbitmap_free(&svq->scsi_tags);
++	kfree(svq->scsi_cmds);
++	svq->scsi_cmds = NULL;
 +}
 +
- static void
- vhost_scsi_send_an_resp(struct vhost_scsi *vs,
- 			struct vhost_virtqueue *vq,
-@@ -1166,6 +1272,7 @@ vhost_scsi_send_an_resp(struct vhost_scsi *vs,
- static void
- vhost_scsi_ctl_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
- {
-+	struct vhost_scsi_tpg *tpg;
- 	union {
- 		__virtio32 type;
- 		struct virtio_scsi_ctrl_an_req an;
-@@ -1247,12 +1354,12 @@ vhost_scsi_ctl_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
- 		vc.req += typ_size;
- 		vc.req_size -= typ_size;
- 
--		ret = vhost_scsi_get_req(vq, &vc, NULL);
-+		ret = vhost_scsi_get_req(vq, &vc, &tpg);
- 		if (ret)
- 			goto err;
- 
- 		if (v_req.type == VIRTIO_SCSI_T_TMF)
--			vhost_scsi_send_tmf_reject(vs, vq, &vc);
-+			vhost_scsi_handle_tmf(vs, tpg, vq, &v_req.tmf, &vc);
- 		else
- 			vhost_scsi_send_an_resp(vs, vq, &vc);
- err:
-@@ -1913,11 +2020,19 @@ static int vhost_scsi_port_link(struct se_portal_group *se_tpg,
- {
- 	struct vhost_scsi_tpg *tpg = container_of(se_tpg,
- 				struct vhost_scsi_tpg, se_tpg);
-+	struct vhost_scsi_tmf *tmf;
++static int vhost_scsi_setup_vq_cmds(struct vhost_virtqueue *vq, int max_cmds)
++{
++	struct vhost_scsi_virtqueue *svq = container_of(vq,
++					struct vhost_scsi_virtqueue, vq);
++	struct vhost_scsi_cmd *tv_cmd;
++	unsigned int i;
 +
-+	tmf = kzalloc(sizeof(*tmf), GFP_KERNEL);
-+	if (!tmf)
++	if (svq->scsi_cmds)
++		return 0;
++
++	if (sbitmap_init_node(&svq->scsi_tags, max_cmds, -1, GFP_KERNEL,
++			      NUMA_NO_NODE))
 +		return -ENOMEM;
-+	INIT_LIST_HEAD(&tmf->queue_entry);
-+	vhost_work_init(&tmf->vwork, vhost_scsi_tmf_resp_work);
++	svq->max_cmds = max_cmds;
++
++	svq->scsi_cmds = kcalloc(max_cmds, sizeof(*tv_cmd), GFP_KERNEL);
++	if (!svq->scsi_cmds) {
++		sbitmap_free(&svq->scsi_tags);
++		return -ENOMEM;
++	}
++
++	for (i = 0; i < max_cmds; i++) {
++		tv_cmd = &svq->scsi_cmds[i];
++
++		tv_cmd->tvc_sgl = kcalloc(VHOST_SCSI_PREALLOC_SGLS,
++					  sizeof(struct scatterlist),
++					  GFP_KERNEL);
++		if (!tv_cmd->tvc_sgl) {
++			pr_err("Unable to allocate tv_cmd->tvc_sgl\n");
++			goto out;
++		}
++
++		tv_cmd->tvc_upages = kcalloc(VHOST_SCSI_PREALLOC_UPAGES,
++					     sizeof(struct page *),
++					     GFP_KERNEL);
++		if (!tv_cmd->tvc_upages) {
++			pr_err("Unable to allocate tv_cmd->tvc_upages\n");
++			goto out;
++		}
++
++		tv_cmd->tvc_prot_sgl = kcalloc(VHOST_SCSI_PREALLOC_PROT_SGLS,
++					       sizeof(struct scatterlist),
++					       GFP_KERNEL);
++		if (!tv_cmd->tvc_prot_sgl) {
++			pr_err("Unable to allocate tv_cmd->tvc_prot_sgl\n");
++			goto out;
++		}
++	}
++	return 0;
++out:
++	vhost_scsi_destroy_vq_cmds(vq);
++	return -ENOMEM;
++}
++
+ /*
+  * Called from vhost_scsi_ioctl() context to walk the list of available
+  * vhost_scsi_tpg with an active struct vhost_scsi_nexus
+@@ -1427,10 +1507,9 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
  
- 	mutex_lock(&vhost_scsi_mutex);
+ 		if (!strcmp(tv_tport->tport_name, t->vhost_wwpn)) {
+ 			if (vs->vs_tpg && vs->vs_tpg[tpg->tport_tpgt]) {
+-				kfree(vs_tpg);
+ 				mutex_unlock(&tpg->tv_tpg_mutex);
+ 				ret = -EEXIST;
+-				goto out;
++				goto undepend;
+ 			}
+ 			/*
+ 			 * In order to ensure individual vhost-scsi configfs
+@@ -1442,9 +1521,8 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
+ 			ret = target_depend_item(&se_tpg->tpg_group.cg_item);
+ 			if (ret) {
+ 				pr_warn("target_depend_item() failed: %d\n", ret);
+-				kfree(vs_tpg);
+ 				mutex_unlock(&tpg->tv_tpg_mutex);
+-				goto out;
++				goto undepend;
+ 			}
+ 			tpg->tv_tpg_vhost_count++;
+ 			tpg->vhost_scsi = vs;
+@@ -1457,6 +1535,16 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
+ 	if (match) {
+ 		memcpy(vs->vs_vhost_wwpn, t->vhost_wwpn,
+ 		       sizeof(vs->vs_vhost_wwpn));
++
++		for (i = VHOST_SCSI_VQ_IO; i < VHOST_SCSI_MAX_VQ; i++) {
++			vq = &vs->vqs[i].vq;
++			if (!vhost_vq_is_setup(vq))
++				continue;
++
++			if (vhost_scsi_setup_vq_cmds(vq, vq->num))
++				goto destroy_vq_cmds;
++		}
++
+ 		for (i = 0; i < VHOST_SCSI_MAX_VQ; i++) {
+ 			vq = &vs->vqs[i].vq;
+ 			mutex_lock(&vq->mutex);
+@@ -1476,7 +1564,22 @@ vhost_scsi_set_endpoint(struct vhost_scsi *vs,
+ 	vhost_scsi_flush(vs);
+ 	kfree(vs->vs_tpg);
+ 	vs->vs_tpg = vs_tpg;
++	goto out;
  
- 	mutex_lock(&tpg->tv_tpg_mutex);
- 	tpg->tv_tpg_port_count++;
-+	list_add_tail(&tmf->queue_entry, &tpg->tmf_queue);
- 	mutex_unlock(&tpg->tv_tpg_mutex);
- 
- 	vhost_scsi_hotplug(tpg, lun);
-@@ -1932,11 +2047,16 @@ static void vhost_scsi_port_unlink(struct se_portal_group *se_tpg,
- {
- 	struct vhost_scsi_tpg *tpg = container_of(se_tpg,
- 				struct vhost_scsi_tpg, se_tpg);
-+	struct vhost_scsi_tmf *tmf;
- 
- 	mutex_lock(&vhost_scsi_mutex);
- 
- 	mutex_lock(&tpg->tv_tpg_mutex);
- 	tpg->tv_tpg_port_count--;
-+	tmf = list_first_entry(&tpg->tmf_queue, struct vhost_scsi_tmf,
-+			       queue_entry);
-+	list_del(&tmf->queue_entry);
-+	kfree(tmf);
- 	mutex_unlock(&tpg->tv_tpg_mutex);
- 
- 	vhost_scsi_hotunplug(tpg, lun);
-@@ -2197,6 +2317,7 @@ vhost_scsi_make_tpg(struct se_wwn *wwn, const char *name)
++destroy_vq_cmds:
++	for (i--; i >= VHOST_SCSI_VQ_IO; i--) {
++		if (!vhost_vq_get_backend(&vs->vqs[i].vq))
++			vhost_scsi_destroy_vq_cmds(&vs->vqs[i].vq);
++	}
++undepend:
++	for (i = 0; i < VHOST_SCSI_MAX_TARGET; i++) {
++		tpg = vs_tpg[i];
++		if (tpg) {
++			tpg->tv_tpg_vhost_count--;
++			target_undepend_item(&tpg->se_tpg.tpg_group.cg_item);
++		}
++	}
++	kfree(vs_tpg);
+ out:
+ 	mutex_unlock(&vs->dev.mutex);
+ 	mutex_unlock(&vhost_scsi_mutex);
+@@ -1549,6 +1652,12 @@ vhost_scsi_clear_endpoint(struct vhost_scsi *vs,
+ 			mutex_lock(&vq->mutex);
+ 			vhost_vq_set_backend(vq, NULL);
+ 			mutex_unlock(&vq->mutex);
++			/*
++			 * Make sure cmds are not running before tearing them
++			 * down.
++			 */
++			vhost_scsi_flush(vs);
++			vhost_scsi_destroy_vq_cmds(vq);
+ 		}
  	}
- 	mutex_init(&tpg->tv_tpg_mutex);
- 	INIT_LIST_HEAD(&tpg->tv_tpg_list);
-+	INIT_LIST_HEAD(&tpg->tmf_queue);
- 	tpg->tport = tport;
- 	tpg->tport_tpgt = tpgt;
+ 	/*
+@@ -1842,23 +1951,6 @@ static void vhost_scsi_port_unlink(struct se_portal_group *se_tpg,
+ 	mutex_unlock(&vhost_scsi_mutex);
+ }
  
+-static void vhost_scsi_free_cmd_map_res(struct se_session *se_sess)
+-{
+-	struct vhost_scsi_cmd *tv_cmd;
+-	unsigned int i;
+-
+-	if (!se_sess->sess_cmd_map)
+-		return;
+-
+-	for (i = 0; i < VHOST_SCSI_DEFAULT_TAGS; i++) {
+-		tv_cmd = &((struct vhost_scsi_cmd *)se_sess->sess_cmd_map)[i];
+-
+-		kfree(tv_cmd->tvc_sgl);
+-		kfree(tv_cmd->tvc_prot_sgl);
+-		kfree(tv_cmd->tvc_upages);
+-	}
+-}
+-
+ static ssize_t vhost_scsi_tpg_attrib_fabric_prot_type_store(
+ 		struct config_item *item, const char *page, size_t count)
+ {
+@@ -1898,45 +1990,6 @@ static struct configfs_attribute *vhost_scsi_tpg_attrib_attrs[] = {
+ 	NULL,
+ };
+ 
+-static int vhost_scsi_nexus_cb(struct se_portal_group *se_tpg,
+-			       struct se_session *se_sess, void *p)
+-{
+-	struct vhost_scsi_cmd *tv_cmd;
+-	unsigned int i;
+-
+-	for (i = 0; i < VHOST_SCSI_DEFAULT_TAGS; i++) {
+-		tv_cmd = &((struct vhost_scsi_cmd *)se_sess->sess_cmd_map)[i];
+-
+-		tv_cmd->tvc_sgl = kcalloc(VHOST_SCSI_PREALLOC_SGLS,
+-					  sizeof(struct scatterlist),
+-					  GFP_KERNEL);
+-		if (!tv_cmd->tvc_sgl) {
+-			pr_err("Unable to allocate tv_cmd->tvc_sgl\n");
+-			goto out;
+-		}
+-
+-		tv_cmd->tvc_upages = kcalloc(VHOST_SCSI_PREALLOC_UPAGES,
+-					     sizeof(struct page *),
+-					     GFP_KERNEL);
+-		if (!tv_cmd->tvc_upages) {
+-			pr_err("Unable to allocate tv_cmd->tvc_upages\n");
+-			goto out;
+-		}
+-
+-		tv_cmd->tvc_prot_sgl = kcalloc(VHOST_SCSI_PREALLOC_PROT_SGLS,
+-					       sizeof(struct scatterlist),
+-					       GFP_KERNEL);
+-		if (!tv_cmd->tvc_prot_sgl) {
+-			pr_err("Unable to allocate tv_cmd->tvc_prot_sgl\n");
+-			goto out;
+-		}
+-	}
+-	return 0;
+-out:
+-	vhost_scsi_free_cmd_map_res(se_sess);
+-	return -ENOMEM;
+-}
+-
+ static int vhost_scsi_make_nexus(struct vhost_scsi_tpg *tpg,
+ 				const char *name)
+ {
+@@ -1960,12 +2013,9 @@ static int vhost_scsi_make_nexus(struct vhost_scsi_tpg *tpg,
+ 	 * struct se_node_acl for the vhost_scsi struct se_portal_group with
+ 	 * the SCSI Initiator port name of the passed configfs group 'name'.
+ 	 */
+-	tv_nexus->tvn_se_sess = target_setup_session(&tpg->se_tpg,
+-					VHOST_SCSI_DEFAULT_TAGS,
+-					sizeof(struct vhost_scsi_cmd),
++	tv_nexus->tvn_se_sess = target_setup_session(&tpg->se_tpg, 0, 0,
+ 					TARGET_PROT_DIN_PASS | TARGET_PROT_DOUT_PASS,
+-					(unsigned char *)name, tv_nexus,
+-					vhost_scsi_nexus_cb);
++					(unsigned char *)name, tv_nexus, NULL);
+ 	if (IS_ERR(tv_nexus->tvn_se_sess)) {
+ 		mutex_unlock(&tpg->tv_tpg_mutex);
+ 		kfree(tv_nexus);
+@@ -2015,7 +2065,6 @@ static int vhost_scsi_drop_nexus(struct vhost_scsi_tpg *tpg)
+ 		" %s Initiator Port: %s\n", vhost_scsi_dump_proto_id(tpg->tport),
+ 		tv_nexus->tvn_se_sess->se_node_acl->initiatorname);
+ 
+-	vhost_scsi_free_cmd_map_res(se_sess);
+ 	/*
+ 	 * Release the SCSI I_T Nexus to the emulated vhost Target Port
+ 	 */
 -- 
 2.27.0
 
