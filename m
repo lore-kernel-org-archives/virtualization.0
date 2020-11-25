@@ -4,84 +4,83 @@ X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
 X-Spam-Level: 
 X-Spam-Status: No, score=-10.2 required=3.0 tests=BAYES_00,
 	HEADER_FROM_DIFFERENT_DOMAINS,MAILING_LIST_MULTI,MENTIONS_GIT_HOSTING,
-	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=ham
+	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_SANE_1 autolearn=unavailable
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 4E038C5519F
-	for <virtualization@archiver.kernel.org>; Wed, 25 Nov 2020 04:01:33 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id DB421C63777
+	for <virtualization@archiver.kernel.org>; Wed, 25 Nov 2020 05:21:36 +0000 (UTC)
+Received: from hemlock.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 86E9F20857
-	for <virtualization@archiver.kernel.org>; Wed, 25 Nov 2020 04:01:32 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 86E9F20857
+	by mail.kernel.org (Postfix) with ESMTPS id 556FF2075A
+	for <virtualization@archiver.kernel.org>; Wed, 25 Nov 2020 05:21:35 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 556FF2075A
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=intel.com
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by silver.osuosl.org (Postfix) with ESMTP id CBA3C272E3;
-	Wed, 25 Nov 2020 04:01:31 +0000 (UTC)
+	by hemlock.osuosl.org (Postfix) with ESMTP id A6F9D871A4;
+	Wed, 25 Nov 2020 05:21:35 +0000 (UTC)
+X-Virus-Scanned: amavisd-new at osuosl.org
+Received: from hemlock.osuosl.org ([127.0.0.1])
+	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
+	with ESMTP id Plq5xvkG9t2T; Wed, 25 Nov 2020 05:21:34 +0000 (UTC)
+Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
+	by hemlock.osuosl.org (Postfix) with ESMTP id 8C5918650F;
+	Wed, 25 Nov 2020 05:21:34 +0000 (UTC)
+Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
+	by lists.linuxfoundation.org (Postfix) with ESMTP id 6CEBFC163C;
+	Wed, 25 Nov 2020 05:21:34 +0000 (UTC)
+Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 5594BC0052
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 25 Nov 2020 05:21:33 +0000 (UTC)
+Received: from localhost (localhost [127.0.0.1])
+ by silver.osuosl.org (Postfix) with ESMTP id 3302B236B5
+ for <virtualization@lists.linux-foundation.org>;
+ Wed, 25 Nov 2020 05:21:33 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from silver.osuosl.org ([127.0.0.1])
-	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id Hxub5x+MwE4i; Wed, 25 Nov 2020 04:01:28 +0000 (UTC)
-Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by silver.osuosl.org (Postfix) with ESMTP id 441CC272F5;
-	Wed, 25 Nov 2020 04:01:28 +0000 (UTC)
-Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 1C3A1C163C;
-	Wed, 25 Nov 2020 04:01:28 +0000 (UTC)
-Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 6A32BC0052
- for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Nov 2020 04:01:26 +0000 (UTC)
-Received: from localhost (localhost [127.0.0.1])
- by whitealder.osuosl.org (Postfix) with ESMTP id 44E9A86BE0
- for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Nov 2020 04:01:26 +0000 (UTC)
-X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from whitealder.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id YkZCWRD2Y5Q6
+ with ESMTP id 518cxLOPNhMb
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Nov 2020 04:01:25 +0000 (UTC)
+ Wed, 25 Nov 2020 05:21:30 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
- by whitealder.osuosl.org (Postfix) with ESMTPS id 54A8486B10
+ by silver.osuosl.org (Postfix) with ESMTPS id B6ACF2037A
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Nov 2020 04:01:25 +0000 (UTC)
-IronPort-SDR: 1JuIe1lMVQzN0ol+BG+FCfARRhj6b9nIX7HJRsrPEL/46nJb6yA+LRfc09eDFygVLPdKK6SNxz
- sJN8c5UTb3Xg==
-X-IronPort-AV: E=McAfee;i="6000,8403,9815"; a="190196445"
+ Wed, 25 Nov 2020 05:21:30 +0000 (UTC)
+IronPort-SDR: norKFmXrfZnIUWR3JsyKdrE/4BV2jp4h8SdTueoZTgU/OcuiaZ7QZFUX8EIhWGjx58Nj9js7JE
+ aWL4ufTUmLGA==
+X-IronPort-AV: E=McAfee;i="6000,8403,9815"; a="190204008"
 X-IronPort-AV: E=Sophos;i="5.78,368,1599548400"; 
- d="gz'50?scan'50,208,50";a="190196445"
+ d="gz'50?scan'50,208,50";a="190204008"
 X-Amp-Result: UNKNOWN
 X-Amp-Original-Verdict: FILE UNKNOWN
 X-Amp-File-Uploaded: False
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384;
- 24 Nov 2020 20:01:24 -0800
-IronPort-SDR: KE5xoTULwX7IBCoJNu/OdkVVTNrRZouk4ozg1PsW0S+VEeosANDdYK0bc4mr63PVk9KXJ0eH9o
- tZUTLMsrS1Tw==
+ 24 Nov 2020 21:21:30 -0800
+IronPort-SDR: VEr816Q6wbSgqHxtWEawzvM0mEYHhYt91kV3l3B1RJFBynv1cChOWHiLXFFjvePAwKeFOgMBEp
+ J7KSvH68hX3w==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="5.78,368,1599548400"; 
- d="gz'50?scan'50,208,50";a="403140158"
+ d="gz'50?scan'50,208,50";a="536749099"
 Received: from lkp-server01.sh.intel.com (HELO d5aceba519b7) ([10.239.97.150])
- by orsmga001.jf.intel.com with ESMTP; 24 Nov 2020 20:01:20 -0800
+ by fmsmga005.fm.intel.com with ESMTP; 24 Nov 2020 21:21:26 -0800
 Received: from kbuild by d5aceba519b7 with local (Exim 4.92)
  (envelope-from <lkp@intel.com>)
- id 1khlzc-000012-Bm; Wed, 25 Nov 2020 04:01:20 +0000
-Date: Wed, 25 Nov 2020 12:01:06 +0800
+ id 1khnAH-00002p-Jx; Wed, 25 Nov 2020 05:16:25 +0000
+Date: Wed, 25 Nov 2020 13:16:24 +0800
 From: kernel test robot <lkp@intel.com>
 To: Wei Liu <wei.liu@kernel.org>,
  Linux on Hyper-V List <linux-hyperv@vger.kernel.org>
-Subject: Re: [PATCH v3 15/17] x86/hyperv: implement an MSI domain for root
- partition
-Message-ID: <202011251128.eOO4DsPg-lkp@intel.com>
-References: <20201124170744.112180-16-wei.liu@kernel.org>
+Subject: Re: [PATCH v3 17/17] x86/hyperv: handle IO-APIC when running as root
+Message-ID: <202011251316.PUcZIh8B-lkp@intel.com>
+References: <20201124170744.112180-18-wei.liu@kernel.org>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="bp/iNruPH9dso1Pn"
+Content-Type: multipart/mixed; boundary="y0ulUmNC+osPPQO6"
 Content-Disposition: inline
-In-Reply-To: <20201124170744.112180-16-wei.liu@kernel.org>
+In-Reply-To: <20201124170744.112180-18-wei.liu@kernel.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Cc: Wei Liu <wei.liu@kernel.org>, kbuild-all@lists.01.org,
  Haiyang Zhang <haiyangz@microsoft.com>,
@@ -106,7 +105,7 @@ Errors-To: virtualization-bounces@lists.linux-foundation.org
 Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 
---bp/iNruPH9dso1Pn
+--y0ulUmNC+osPPQO6
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
@@ -130,10 +129,10 @@ reproduce (this is a W=1 build):
         chmod +x ~/bin/make.cross
         # install x86_64 cross compiling tool for clang build
         # apt-get install binutils-x86-64-linux-gnu
-        # https://github.com/0day-ci/linux/commit/ae7533bcd9667c0f23b545d941d3c68460f91ea2
+        # https://github.com/0day-ci/linux/commit/591ad2444b6b7d63ab24ce8f16a4e367085bbb5d
         git remote add linux-review https://github.com/0day-ci/linux
         git fetch --no-tags linux-review Wei-Liu/Introducing-Linux-root-partition-support-for-Microsoft-Hypervisor/20201125-011026
-        git checkout ae7533bcd9667c0f23b545d941d3c68460f91ea2
+        git checkout 591ad2444b6b7d63ab24ce8f16a4e367085bbb5d
         # save the attached .config to linux build tree
         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=clang make.cross ARCH=x86_64 
 
@@ -142,61 +141,105 @@ Reported-by: kernel test robot <lkp@intel.com>
 
 All warnings (new ones prefixed by >>):
 
-   arch/x86/hyperv/irqdomain.c:303:3: error: field designator 'domain_free_irqs' does not refer to any field in type 'struct msi_domain_ops'
+   arch/x86/hyperv/irqdomain.c:305:3: error: field designator 'domain_free_irqs' does not refer to any field in type 'struct msi_domain_ops'
            .domain_free_irqs       = hv_msi_domain_free_irqs,
             ^
->> arch/x86/hyperv/irqdomain.c:316:28: warning: no previous prototype for function 'hv_create_pci_msi_domain' [-Wmissing-prototypes]
+   arch/x86/hyperv/irqdomain.c:318:28: warning: no previous prototype for function 'hv_create_pci_msi_domain' [-Wmissing-prototypes]
    struct irq_domain * __init hv_create_pci_msi_domain(void)
                               ^
-   arch/x86/hyperv/irqdomain.c:316:1: note: declare 'static' if the function is not intended to be used outside of this translation unit
+   arch/x86/hyperv/irqdomain.c:318:1: note: declare 'static' if the function is not intended to be used outside of this translation unit
    struct irq_domain * __init hv_create_pci_msi_domain(void)
    ^
    static 
-   1 warning and 1 error generated.
+>> arch/x86/hyperv/irqdomain.c:499:6: warning: no previous prototype for function 'hv_ioapic_ack_level' [-Wmissing-prototypes]
+   void hv_ioapic_ack_level(struct irq_data *irq_data)
+        ^
+   arch/x86/hyperv/irqdomain.c:499:1: note: declare 'static' if the function is not intended to be used outside of this translation unit
+   void hv_ioapic_ack_level(struct irq_data *irq_data)
+   ^
+   static 
+>> arch/x86/hyperv/irqdomain.c:526:5: warning: no previous prototype for function 'hv_acpi_register_gsi' [-Wmissing-prototypes]
+   int hv_acpi_register_gsi(struct device *dev, u32 gsi, int trigger, int polarity)
+       ^
+   arch/x86/hyperv/irqdomain.c:526:1: note: declare 'static' if the function is not intended to be used outside of this translation unit
+   int hv_acpi_register_gsi(struct device *dev, u32 gsi, int trigger, int polarity)
+   ^
+   static 
+>> arch/x86/hyperv/irqdomain.c:550:6: warning: no previous prototype for function 'hv_acpi_unregister_gsi' [-Wmissing-prototypes]
+   void hv_acpi_unregister_gsi(u32 gsi)
+        ^
+   arch/x86/hyperv/irqdomain.c:550:1: note: declare 'static' if the function is not intended to be used outside of this translation unit
+   void hv_acpi_unregister_gsi(u32 gsi)
+   ^
+   static 
+   4 warnings and 1 error generated.
 
-vim +/hv_create_pci_msi_domain +316 arch/x86/hyperv/irqdomain.c
+vim +/hv_ioapic_ack_level +499 arch/x86/hyperv/irqdomain.c
 
-   301	
-   302	static struct msi_domain_ops pci_msi_domain_ops = {
- > 303		.domain_free_irqs	= hv_msi_domain_free_irqs,
-   304		.msi_prepare		= pci_msi_prepare,
-   305	};
-   306	
-   307	static struct msi_domain_info hv_pci_msi_domain_info = {
-   308		.flags		= MSI_FLAG_USE_DEF_DOM_OPS | MSI_FLAG_USE_DEF_CHIP_OPS |
-   309				  MSI_FLAG_PCI_MSIX,
-   310		.ops		= &pci_msi_domain_ops,
-   311		.chip		= &hv_pci_msi_controller,
-   312		.handler	= handle_edge_irq,
-   313		.handler_name	= "edge",
-   314	};
-   315	
- > 316	struct irq_domain * __init hv_create_pci_msi_domain(void)
-   317	{
-   318		struct irq_domain *d = NULL;
-   319		struct fwnode_handle *fn;
-   320	
-   321		fn = irq_domain_alloc_named_fwnode("HV-PCI-MSI");
-   322		if (fn)
-   323			d = pci_msi_create_irq_domain(fn, &hv_pci_msi_domain_info, x86_vector_domain);
-   324	
-   325		/* No point in going further if we can't get an irq domain */
-   326		BUG_ON(!d);
-   327	
-   328		return d;
-   329	}
-   330	
+   498	
+ > 499	void hv_ioapic_ack_level(struct irq_data *irq_data)
+   500	{
+   501		/*
+   502		 * Per email exchange with Hyper-V team, all is needed is write to
+   503		 * LAPIC's EOI register. They don't support directed EOI to IO-APIC.
+   504		 * Hyper-V handles it for us.
+   505		 */
+   506		apic_ack_irq(irq_data);
+   507	}
+   508	
+   509	struct irq_chip hv_ioapic_chip __read_mostly = {
+   510		.name			= "HV-IO-APIC",
+   511		.irq_startup		= hv_ioapic_startup_irq,
+   512		.irq_mask		= hv_ioapic_mask_irq,
+   513		.irq_unmask		= hv_ioapic_unmask_irq,
+   514		.irq_ack		= irq_chip_ack_parent,
+   515		.irq_eoi		= hv_ioapic_ack_level,
+   516		.irq_set_affinity	= hv_ioapic_set_affinity,
+   517		.irq_retrigger		= irq_chip_retrigger_hierarchy,
+   518		.irq_get_irqchip_state	= ioapic_irq_get_chip_state,
+   519		.flags			= IRQCHIP_SKIP_SET_WAKE,
+   520	};
+   521	
+   522	
+   523	int (*native_acpi_register_gsi)(struct device *dev, u32 gsi, int trigger, int polarity);
+   524	void (*native_acpi_unregister_gsi)(u32 gsi);
+   525	
+ > 526	int hv_acpi_register_gsi(struct device *dev, u32 gsi, int trigger, int polarity)
+   527	{
+   528		int irq = gsi;
+   529	
+   530	#ifdef CONFIG_X86_IO_APIC
+   531		irq = native_acpi_register_gsi(dev, gsi, trigger, polarity);
+   532		if (irq < 0) {
+   533			pr_err("native_acpi_register_gsi failed %d\n", irq);
+   534			return irq;
+   535		}
+   536	
+   537		if (trigger) {
+   538			irq_set_status_flags(irq, IRQ_LEVEL);
+   539			irq_set_chip_and_handler_name(irq, &hv_ioapic_chip,
+   540				handle_fasteoi_irq, "ioapic-fasteoi");
+   541		} else {
+   542			irq_clear_status_flags(irq, IRQ_LEVEL);
+   543			irq_set_chip_and_handler_name(irq, &hv_ioapic_chip,
+   544				handle_edge_irq, "ioapic-edge");
+   545		}
+   546	#endif
+   547		return irq;
+   548	}
+   549	
+ > 550	void hv_acpi_unregister_gsi(u32 gsi)
 
 ---
 0-DAY CI Kernel Test Service, Intel Corporation
 https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
 
---bp/iNruPH9dso1Pn
+--y0ulUmNC+osPPQO6
 Content-Type: application/gzip
 Content-Disposition: attachment; filename=".config.gz"
 Content-Transfer-Encoding: base64
 
-H4sICKjHvV8AAy5jb25maWcAjFxNd9s2s973V+ikm76LprbrqOm9xwuIBCVUJMEAoD684XEc
+H4sICDzcvV8AAy5jb25maWcAjFxNd9s2s973V+ikm76LprbrqOm9xwuIBCVUJMEAoD684XEc
 JfWtY+eV7Tb593cG4AcADtV0kZqYwfdg5pnBQD/+8OOMvTw/fr55vru9ub//Nvt0eDgcb54P
 H2Yf7+4P/ztL5ayUZsZTYV4Dc3738PL1l69v5838cvbm9e+vz34+3v42Wx+OD4f7WfL48PHu
 0wvUv3t8+OHHHxJZZmLZJEmz4UoLWTaG78zVq9v7m4dPs78Pxyfgm51fvD57fTb76dPd8//8
@@ -672,7 +715,7 @@ WLnzoW02xYjVr8LSRxIL0xZJY67dpZ8q5d6aYw0cVwDcrDI184tOjb/k6ZdXVcvRnKEffZAE
 zZl5FXPnYdKqKajye2gWE3dCdxc/sQCKcujIQXDipQeOsyia4SiwB2LGVqPkUmrK2Qke5EbZ
 O1JWCK24bfh/fuNsqYCRAQA=
 
---bp/iNruPH9dso1Pn
+--y0ulUmNC+osPPQO6
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
@@ -682,4 +725,4 @@ _______________________________________________
 Virtualization mailing list
 Virtualization@lists.linux-foundation.org
 https://lists.linuxfoundation.org/mailman/listinfo/virtualization
---bp/iNruPH9dso1Pn--
+--y0ulUmNC+osPPQO6--
