@@ -7,78 +7,78 @@ X-Spam-Status: No, score=-16.8 required=3.0 tests=BAYES_00,DKIM_INVALID,
 	SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED,USER_AGENT_GIT autolearn=ham
 	autolearn_force=no version=3.4.0
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id CA492C64E7C
-	for <virtualization@archiver.kernel.org>; Wed, 25 Nov 2020 15:37:05 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 70F8CC56202
+	for <virtualization@archiver.kernel.org>; Wed, 25 Nov 2020 15:37:10 +0000 (UTC)
 Received: from whitealder.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by mail.kernel.org (Postfix) with ESMTPS id 3ADE1221F8
-	for <virtualization@archiver.kernel.org>; Wed, 25 Nov 2020 15:37:04 +0000 (UTC)
+	by mail.kernel.org (Postfix) with ESMTPS id E95BD221FE
+	for <virtualization@archiver.kernel.org>; Wed, 25 Nov 2020 15:37:09 +0000 (UTC)
 Authentication-Results: mail.kernel.org;
-	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="FIJ8RCVq"
-DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org 3ADE1221F8
+	dkim=fail reason="signature verification failed" (1024-bit key) header.d=kernel.org header.i=@kernel.org header.b="bZvb+Cv8"
+DMARC-Filter: OpenDMARC Filter v1.3.2 mail.kernel.org E95BD221FE
 Authentication-Results: mail.kernel.org; dmarc=fail (p=none dis=none) header.from=kernel.org
 Authentication-Results: mail.kernel.org; spf=pass smtp.mailfrom=virtualization-bounces@lists.linux-foundation.org
 Received: from localhost (localhost [127.0.0.1])
-	by whitealder.osuosl.org (Postfix) with ESMTP id B942E87222;
-	Wed, 25 Nov 2020 15:37:04 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id B088F871F6;
+	Wed, 25 Nov 2020 15:37:09 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
 Received: from whitealder.osuosl.org ([127.0.0.1])
 	by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
-	with ESMTP id dYSbCPpewyDk; Wed, 25 Nov 2020 15:37:03 +0000 (UTC)
+	with ESMTP id lAlL3j-6QpG5; Wed, 25 Nov 2020 15:37:07 +0000 (UTC)
 Received: from lists.linuxfoundation.org (lf-lists.osuosl.org [140.211.9.56])
-	by whitealder.osuosl.org (Postfix) with ESMTP id 6279F871C8;
-	Wed, 25 Nov 2020 15:37:03 +0000 (UTC)
+	by whitealder.osuosl.org (Postfix) with ESMTP id EDCC48716B;
+	Wed, 25 Nov 2020 15:37:05 +0000 (UTC)
 Received: from lf-lists.osuosl.org (localhost [127.0.0.1])
-	by lists.linuxfoundation.org (Postfix) with ESMTP id 4CE5FC163C;
-	Wed, 25 Nov 2020 15:37:03 +0000 (UTC)
-Received: from silver.osuosl.org (smtp3.osuosl.org [140.211.166.136])
- by lists.linuxfoundation.org (Postfix) with ESMTP id 73B44C0052
+	by lists.linuxfoundation.org (Postfix) with ESMTP id DA38BC163C;
+	Wed, 25 Nov 2020 15:37:05 +0000 (UTC)
+Received: from fraxinus.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+ by lists.linuxfoundation.org (Postfix) with ESMTP id 46BDAC0052
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Nov 2020 15:37:01 +0000 (UTC)
+ Wed, 25 Nov 2020 15:37:05 +0000 (UTC)
 Received: from localhost (localhost [127.0.0.1])
- by silver.osuosl.org (Postfix) with ESMTP id 64D7C2E181
+ by fraxinus.osuosl.org (Postfix) with ESMTP id 3654786D6F
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Nov 2020 15:37:01 +0000 (UTC)
+ Wed, 25 Nov 2020 15:37:05 +0000 (UTC)
 X-Virus-Scanned: amavisd-new at osuosl.org
-Received: from silver.osuosl.org ([127.0.0.1])
+Received: from fraxinus.osuosl.org ([127.0.0.1])
  by localhost (.osuosl.org [127.0.0.1]) (amavisd-new, port 10024)
- with ESMTP id ZGA+WTvBMGGi
+ with ESMTP id iRB06uH0Jrk4
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Nov 2020 15:37:00 +0000 (UTC)
+ Wed, 25 Nov 2020 15:37:03 +0000 (UTC)
 X-Greylist: domain auto-whitelisted by SQLgrey-1.7.6
 Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
- by silver.osuosl.org (Postfix) with ESMTPS id C86ED2E0DA
+ by fraxinus.osuosl.org (Postfix) with ESMTPS id 140D986D6B
  for <virtualization@lists.linux-foundation.org>;
- Wed, 25 Nov 2020 15:36:59 +0000 (UTC)
+ Wed, 25 Nov 2020 15:37:03 +0000 (UTC)
 Received: from sasha-vm.mshome.net (c-73-47-72-35.hsd1.nh.comcast.net
  [73.47.72.35])
  (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
  (No client certificate requested)
- by mail.kernel.org (Postfix) with ESMTPSA id 5499121D7F;
- Wed, 25 Nov 2020 15:36:58 +0000 (UTC)
+ by mail.kernel.org (Postfix) with ESMTPSA id B173220857;
+ Wed, 25 Nov 2020 15:37:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
- s=default; t=1606318619;
- bh=/8c1Man/mllWLcUVYHSfgb+rDJvQlTZhZsG1a0laReg=;
+ s=default; t=1606318622;
+ bh=E6qH2JXzOYNxD99dsSw1clH9FVlJIt/hpX0l/qGO5hE=;
  h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
- b=FIJ8RCVqJIybrC1p9dh1xddFqrt6noy/q+RQ2eoBhrs6Hm+kMqdIsA/UFQFG7drfo
- HHkBDlJLunJYDvZ5W0AZEToCxZtNZVII65Fh+EK6CKX3xFOZd6u3349y67HLTlOP/N
- BPhmWTiIRcQIz9MmR8FYV+KArVDGTFsJmDrr29Rs=
+ b=bZvb+Cv8AOUNdUdGANO36hDZMGanyzX1Tn/25T2ie6tyS5a+V7IutrxZF9RtoiIje
+ IdmSoPrTvWZje7jMnZQFOtaJKWUmhWHq3UvVZyOV5Z/ItgohQZfwm2CLWfmur9ZeHc
+ uHAAer/CVezXFkYUKvA8RvTxeY6LR0DSQuVyPJmA=
 From: Sasha Levin <sashal@kernel.org>
 To: linux-kernel@vger.kernel.org,
 	stable@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 15/23] vhost scsi: fix cmd completion race
-Date: Wed, 25 Nov 2020 10:36:30 -0500
-Message-Id: <20201125153638.810419-15-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 17/23] vhost scsi: Add support for LUN resets.
+Date: Wed, 25 Nov 2020 10:36:32 -0500
+Message-Id: <20201125153638.810419-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.27.0
 In-Reply-To: <20201125153638.810419-1-sashal@kernel.org>
 References: <20201125153638.810419-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
-Cc: Maurizio Lombardi <mlombard@redhat.com>, Sasha Levin <sashal@kernel.org>,
- kvm@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>,
- netdev@vger.kernel.org, virtualization@lists.linux-foundation.org,
+Cc: Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
+ "Michael S . Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org,
+ virtualization@lists.linux-foundation.org,
  Stefan Hajnoczi <stefanha@redhat.com>,
  Mike Christie <michael.christie@oracle.com>
 X-BeenThere: virtualization@lists.linux-foundation.org
@@ -99,122 +99,290 @@ Sender: "Virtualization" <virtualization-bounces@lists.linux-foundation.org>
 
 From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 47a3565e8bb14ec48a75b48daf57aa830e2691f8 ]
+[ Upstream commit efd838fec17bd8756da852a435800a7e6281bfbc ]
 
-We might not do the final se_cmd put from vhost_scsi_complete_cmd_work.
-When the last put happens a little later then we could race where
-vhost_scsi_complete_cmd_work does vhost_signal, the guest runs and sends
-more IO, and vhost_scsi_handle_vq runs but does not find any free cmds.
+In newer versions of virtio-scsi we just reset the timer when an a
+command times out, so TMFs are never sent for the cmd time out case.
+However, in older kernels and for the TMF inject cases, we can still get
+resets and we end up just failing immediately so the guest might see the
+device get offlined and IO errors.
 
-This patch has us delay completing the cmd until the last lio core ref
-is dropped. We then know that once we signal to the guest that the cmd
-is completed that if it queues a new command it will find a free cmd.
+For the older kernel cases, we want the same end result as the
+modern virtio-scsi driver where we let the lower levels fire their error
+handling and handle the problem. And at the upper levels we want to
+wait. This patch ties the LUN reset handling into the LIO TMF code which
+will just wait for outstanding commands to complete like we are doing in
+the modern virtio-scsi case.
+
+Note: I did not handle the ABORT case to keep this simple. For ABORTs
+LIO just waits on the cmd like how it does for the RESET case. If
+an ABORT fails, the guest OS ends up escalating to LUN RESET, so in
+the end we get the same behavior where we wait on the outstanding
+cmds.
 
 Signed-off-by: Mike Christie <michael.christie@oracle.com>
-Reviewed-by: Maurizio Lombardi <mlombard@redhat.com>
-Link: https://lore.kernel.org/r/1604986403-4931-4-git-send-email-michael.christie@oracle.com
+Link: https://lore.kernel.org/r/1604986403-4931-6-git-send-email-michael.christie@oracle.com
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Acked-by: Stefan Hajnoczi <stefanha@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/scsi.c | 42 +++++++++++++++---------------------------
- 1 file changed, 15 insertions(+), 27 deletions(-)
+ drivers/vhost/scsi.c | 147 +++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 134 insertions(+), 13 deletions(-)
 
 diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index f63f84a257256..98c484149ac7f 100644
+index 6b816b3a65ea7..e37362fd2e935 100644
 --- a/drivers/vhost/scsi.c
 +++ b/drivers/vhost/scsi.c
-@@ -320,7 +320,7 @@ static u32 vhost_scsi_tpg_get_inst_index(struct se_portal_group *se_tpg)
- 	return 1;
- }
+@@ -140,6 +140,7 @@ struct vhost_scsi_tpg {
+ 	struct se_portal_group se_tpg;
+ 	/* Pointer back to vhost_scsi, protected by tv_tpg_mutex */
+ 	struct vhost_scsi *vhost_scsi;
++	struct list_head tmf_queue;
+ };
  
--static void vhost_scsi_release_cmd(struct se_cmd *se_cmd)
-+static void vhost_scsi_release_cmd_res(struct se_cmd *se_cmd)
- {
- 	struct vhost_scsi_cmd *tv_cmd = container_of(se_cmd,
- 				struct vhost_scsi_cmd, tvc_se_cmd);
-@@ -340,6 +340,16 @@ static void vhost_scsi_release_cmd(struct se_cmd *se_cmd)
+ struct vhost_scsi_tport {
+@@ -209,6 +210,20 @@ struct vhost_scsi {
+ 	int vs_events_nr; /* num of pending events, protected by vq->mutex */
+ };
+ 
++struct vhost_scsi_tmf {
++	struct vhost_work vwork;
++	struct vhost_scsi_tpg *tpg;
++	struct vhost_scsi *vhost;
++	struct vhost_scsi_virtqueue *svq;
++	struct list_head queue_entry;
++
++	struct se_cmd se_cmd;
++	struct vhost_scsi_inflight *inflight;
++	struct iovec resp_iov;
++	int in_iovs;
++	int vq_desc;
++};
++
+ /*
+  * Context for processing request and control queue operations.
+  */
+@@ -340,14 +355,32 @@ static void vhost_scsi_release_cmd_res(struct se_cmd *se_cmd)
  	target_free_tag(se_sess, se_cmd);
  }
  
-+static void vhost_scsi_release_cmd(struct se_cmd *se_cmd)
++static void vhost_scsi_release_tmf_res(struct vhost_scsi_tmf *tmf)
 +{
-+	struct vhost_scsi_cmd *cmd = container_of(se_cmd,
-+					struct vhost_scsi_cmd, tvc_se_cmd);
-+	struct vhost_scsi *vs = cmd->tvc_vhost;
++	struct vhost_scsi_tpg *tpg = tmf->tpg;
++	struct vhost_scsi_inflight *inflight = tmf->inflight;
 +
-+	llist_add(&cmd->tvc_completion_list, &vs->vs_completion_list);
-+	vhost_work_queue(&vs->dev, &vs->vs_completion_work);
++	mutex_lock(&tpg->tv_tpg_mutex);
++	list_add_tail(&tpg->tmf_queue, &tmf->queue_entry);
++	mutex_unlock(&tpg->tv_tpg_mutex);
++	vhost_scsi_put_inflight(inflight);
 +}
 +
- static u32 vhost_scsi_sess_get_index(struct se_session *se_sess)
+ static void vhost_scsi_release_cmd(struct se_cmd *se_cmd)
  {
- 	return 0;
-@@ -362,28 +372,15 @@ static int vhost_scsi_get_cmd_state(struct se_cmd *se_cmd)
- 	return 0;
- }
- 
--static void vhost_scsi_complete_cmd(struct vhost_scsi_cmd *cmd)
--{
+-	struct vhost_scsi_cmd *cmd = container_of(se_cmd,
++	if (se_cmd->se_cmd_flags & SCF_SCSI_TMR_CDB) {
++		struct vhost_scsi_tmf *tmf = container_of(se_cmd,
++					struct vhost_scsi_tmf, se_cmd);
++
++		vhost_work_queue(&tmf->vhost->dev, &tmf->vwork);
++	} else {
++		struct vhost_scsi_cmd *cmd = container_of(se_cmd,
+ 					struct vhost_scsi_cmd, tvc_se_cmd);
 -	struct vhost_scsi *vs = cmd->tvc_vhost;
--
++		struct vhost_scsi *vs = cmd->tvc_vhost;
+ 
 -	llist_add(&cmd->tvc_completion_list, &vs->vs_completion_list);
--
 -	vhost_work_queue(&vs->dev, &vs->vs_completion_work);
--}
--
- static int vhost_scsi_queue_data_in(struct se_cmd *se_cmd)
- {
--	struct vhost_scsi_cmd *cmd = container_of(se_cmd,
--				struct vhost_scsi_cmd, tvc_se_cmd);
--	vhost_scsi_complete_cmd(cmd);
-+	transport_generic_free_cmd(se_cmd, 0);
- 	return 0;
++		llist_add(&cmd->tvc_completion_list, &vs->vs_completion_list);
++		vhost_work_queue(&vs->dev, &vs->vs_completion_work);
++	}
  }
  
- static int vhost_scsi_queue_status(struct se_cmd *se_cmd)
+ static u32 vhost_scsi_sess_get_index(struct se_session *se_sess)
+@@ -386,7 +419,10 @@ static int vhost_scsi_queue_status(struct se_cmd *se_cmd)
+ 
+ static void vhost_scsi_queue_tm_rsp(struct se_cmd *se_cmd)
  {
--	struct vhost_scsi_cmd *cmd = container_of(se_cmd,
--				struct vhost_scsi_cmd, tvc_se_cmd);
--	vhost_scsi_complete_cmd(cmd);
-+	transport_generic_free_cmd(se_cmd, 0);
- 	return 0;
+-	return;
++	struct vhost_scsi_tmf *tmf = container_of(se_cmd, struct vhost_scsi_tmf,
++						  se_cmd);
++
++	transport_generic_free_cmd(&tmf->se_cmd, 0);
  }
  
-@@ -429,15 +426,6 @@ vhost_scsi_allocate_evt(struct vhost_scsi *vs,
- 	return evt;
+ static void vhost_scsi_aborted_task(struct se_cmd *se_cmd)
+@@ -1117,9 +1153,9 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
  }
  
--static void vhost_scsi_free_cmd(struct vhost_scsi_cmd *cmd)
--{
--	struct se_cmd *se_cmd = &cmd->tvc_se_cmd;
--
--	/* TODO locking against target/backend threads? */
--	transport_generic_free_cmd(se_cmd, 0);
--
--}
--
- static int vhost_scsi_check_stop_free(struct se_cmd *se_cmd)
+ static void
+-vhost_scsi_send_tmf_reject(struct vhost_scsi *vs,
+-			   struct vhost_virtqueue *vq,
+-			   struct vhost_scsi_ctx *vc)
++vhost_scsi_send_tmf_resp(struct vhost_scsi *vs, struct vhost_virtqueue *vq,
++			 int in_iovs, int vq_desc, struct iovec *resp_iov,
++			 int tmf_resp_code)
  {
- 	return target_put_sess_cmd(se_cmd);
-@@ -556,7 +544,7 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
- 		} else
- 			pr_err("Faulted on virtio_scsi_cmd_resp\n");
+ 	struct virtio_scsi_ctrl_tmf_resp rsp;
+ 	struct iov_iter iov_iter;
+@@ -1127,17 +1163,87 @@ vhost_scsi_send_tmf_reject(struct vhost_scsi *vs,
  
--		vhost_scsi_free_cmd(cmd);
-+		vhost_scsi_release_cmd_res(se_cmd);
+ 	pr_debug("%s\n", __func__);
+ 	memset(&rsp, 0, sizeof(rsp));
+-	rsp.response = VIRTIO_SCSI_S_FUNCTION_REJECTED;
++	rsp.response = tmf_resp_code;
+ 
+-	iov_iter_init(&iov_iter, READ, &vq->iov[vc->out], vc->in, sizeof(rsp));
++	iov_iter_init(&iov_iter, READ, resp_iov, in_iovs, sizeof(rsp));
+ 
+ 	ret = copy_to_iter(&rsp, sizeof(rsp), &iov_iter);
+ 	if (likely(ret == sizeof(rsp)))
+-		vhost_add_used_and_signal(&vs->dev, vq, vc->head, 0);
++		vhost_add_used_and_signal(&vs->dev, vq, vq_desc, 0);
+ 	else
+ 		pr_err("Faulted on virtio_scsi_ctrl_tmf_resp\n");
+ }
+ 
++static void vhost_scsi_tmf_resp_work(struct vhost_work *work)
++{
++	struct vhost_scsi_tmf *tmf = container_of(work, struct vhost_scsi_tmf,
++						  vwork);
++	int resp_code;
++
++	if (tmf->se_cmd.se_tmr_req->response == TMR_FUNCTION_COMPLETE)
++		resp_code = VIRTIO_SCSI_S_FUNCTION_SUCCEEDED;
++	else
++		resp_code = VIRTIO_SCSI_S_FUNCTION_REJECTED;
++
++	vhost_scsi_send_tmf_resp(tmf->vhost, &tmf->svq->vq, tmf->in_iovs,
++				 tmf->vq_desc, &tmf->resp_iov, resp_code);
++	vhost_scsi_release_tmf_res(tmf);
++}
++
++static void
++vhost_scsi_handle_tmf(struct vhost_scsi *vs, struct vhost_scsi_tpg *tpg,
++		      struct vhost_virtqueue *vq,
++		      struct virtio_scsi_ctrl_tmf_req *vtmf,
++		      struct vhost_scsi_ctx *vc)
++{
++	struct vhost_scsi_virtqueue *svq = container_of(vq,
++					struct vhost_scsi_virtqueue, vq);
++	struct vhost_scsi_tmf *tmf;
++
++	if (vhost32_to_cpu(vq, vtmf->subtype) !=
++	    VIRTIO_SCSI_T_TMF_LOGICAL_UNIT_RESET)
++		goto send_reject;
++
++	if (!tpg->tpg_nexus || !tpg->tpg_nexus->tvn_se_sess) {
++		pr_err("Unable to locate active struct vhost_scsi_nexus for LUN RESET.\n");
++		goto send_reject;
++	}
++
++	mutex_lock(&tpg->tv_tpg_mutex);
++	if (list_empty(&tpg->tmf_queue)) {
++		pr_err("Missing reserve TMF. Could not handle LUN RESET.\n");
++		mutex_unlock(&tpg->tv_tpg_mutex);
++		goto send_reject;
++	}
++
++	tmf = list_first_entry(&tpg->tmf_queue, struct vhost_scsi_tmf,
++			       queue_entry);
++	list_del_init(&tmf->queue_entry);
++	mutex_unlock(&tpg->tv_tpg_mutex);
++
++	tmf->tpg = tpg;
++	tmf->vhost = vs;
++	tmf->svq = svq;
++	tmf->resp_iov = vq->iov[vc->out];
++	tmf->vq_desc = vc->head;
++	tmf->in_iovs = vc->in;
++	tmf->inflight = vhost_scsi_get_inflight(vq);
++
++	if (target_submit_tmr(&tmf->se_cmd, tpg->tpg_nexus->tvn_se_sess, NULL,
++			      vhost_buf_to_lun(vtmf->lun), NULL,
++			      TMR_LUN_RESET, GFP_KERNEL, 0,
++			      TARGET_SCF_ACK_KREF) < 0) {
++		vhost_scsi_release_tmf_res(tmf);
++		goto send_reject;
++	}
++
++	return;
++
++send_reject:
++	vhost_scsi_send_tmf_resp(vs, vq, vc->in, vc->head, &vq->iov[vc->out],
++				 VIRTIO_SCSI_S_FUNCTION_REJECTED);
++}
++
+ static void
+ vhost_scsi_send_an_resp(struct vhost_scsi *vs,
+ 			struct vhost_virtqueue *vq,
+@@ -1163,6 +1269,7 @@ vhost_scsi_send_an_resp(struct vhost_scsi *vs,
+ static void
+ vhost_scsi_ctl_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
+ {
++	struct vhost_scsi_tpg *tpg;
+ 	union {
+ 		__virtio32 type;
+ 		struct virtio_scsi_ctrl_an_req an;
+@@ -1244,12 +1351,12 @@ vhost_scsi_ctl_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
+ 		vc.req += typ_size;
+ 		vc.req_size -= typ_size;
+ 
+-		ret = vhost_scsi_get_req(vq, &vc, NULL);
++		ret = vhost_scsi_get_req(vq, &vc, &tpg);
+ 		if (ret)
+ 			goto err;
+ 
+ 		if (v_req.type == VIRTIO_SCSI_T_TMF)
+-			vhost_scsi_send_tmf_reject(vs, vq, &vc);
++			vhost_scsi_handle_tmf(vs, tpg, vq, &v_req.tmf, &vc);
+ 		else
+ 			vhost_scsi_send_an_resp(vs, vq, &vc);
+ err:
+@@ -1814,11 +1921,19 @@ static int vhost_scsi_port_link(struct se_portal_group *se_tpg,
+ {
+ 	struct vhost_scsi_tpg *tpg = container_of(se_tpg,
+ 				struct vhost_scsi_tpg, se_tpg);
++	struct vhost_scsi_tmf *tmf;
++
++	tmf = kzalloc(sizeof(*tmf), GFP_KERNEL);
++	if (!tmf)
++		return -ENOMEM;
++	INIT_LIST_HEAD(&tmf->queue_entry);
++	vhost_work_init(&tmf->vwork, vhost_scsi_tmf_resp_work);
+ 
+ 	mutex_lock(&vhost_scsi_mutex);
+ 
+ 	mutex_lock(&tpg->tv_tpg_mutex);
+ 	tpg->tv_tpg_port_count++;
++	list_add_tail(&tmf->queue_entry, &tpg->tmf_queue);
+ 	mutex_unlock(&tpg->tv_tpg_mutex);
+ 
+ 	vhost_scsi_hotplug(tpg, lun);
+@@ -1833,11 +1948,16 @@ static void vhost_scsi_port_unlink(struct se_portal_group *se_tpg,
+ {
+ 	struct vhost_scsi_tpg *tpg = container_of(se_tpg,
+ 				struct vhost_scsi_tpg, se_tpg);
++	struct vhost_scsi_tmf *tmf;
+ 
+ 	mutex_lock(&vhost_scsi_mutex);
+ 
+ 	mutex_lock(&tpg->tv_tpg_mutex);
+ 	tpg->tv_tpg_port_count--;
++	tmf = list_first_entry(&tpg->tmf_queue, struct vhost_scsi_tmf,
++			       queue_entry);
++	list_del(&tmf->queue_entry);
++	kfree(tmf);
+ 	mutex_unlock(&tpg->tv_tpg_mutex);
+ 
+ 	vhost_scsi_hotunplug(tpg, lun);
+@@ -2158,6 +2278,7 @@ vhost_scsi_make_tpg(struct se_wwn *wwn, const char *name)
  	}
+ 	mutex_init(&tpg->tv_tpg_mutex);
+ 	INIT_LIST_HEAD(&tpg->tv_tpg_list);
++	INIT_LIST_HEAD(&tpg->tmf_queue);
+ 	tpg->tport = tport;
+ 	tpg->tport_tpgt = tpgt;
  
- 	vq = -1;
-@@ -1088,7 +1076,7 @@ vhost_scsi_handle_vq(struct vhost_scsi *vs, struct vhost_virtqueue *vq)
- 						      &prot_iter, exp_data_len,
- 						      &data_iter))) {
- 				vq_err(vq, "Failed to map iov to sgl\n");
--				vhost_scsi_release_cmd(&cmd->tvc_se_cmd);
-+				vhost_scsi_release_cmd_res(&cmd->tvc_se_cmd);
- 				goto err;
- 			}
- 		}
 -- 
 2.27.0
 
